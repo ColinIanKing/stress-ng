@@ -28,6 +28,15 @@
 #define BITS_PER_BYTE		(8)
 #define NUMA_LONG_BITS		(sizeof(unsigned long int) * BITS_PER_BYTE)
 
+/* numa mode mask */
+typedef struct stress_numa_mask {
+	unsigned long int nodes;		/* NUMA nodes in system */
+	unsigned long int max_nodes;		/* Max NUMA nodes (kernel config) */
+	unsigned long int *mask;		/* NUMA node mask */
+	size_t mask_size;			/* Allocated mask size in bytes */
+	size_t numa_elements;			/* NUMA node mask size on 64 bit ints */
+} stress_numa_mask_t;
+
 #if !defined(MPOL_DEFAULT)
 #define MPOL_DEFAULT		(0)
 #endif
@@ -80,8 +89,10 @@
 #define MPOL_F_STATIC_NODES	(1 << 15)
 #endif
 
-extern int stress_numa_count_mem_nodes(unsigned long int *max_node) NONNULL(1);
-extern int stress_numa_nodes(void);
+extern unsigned long int stress_numa_count_mem_nodes(unsigned long int *max_node) NONNULL(1);
+extern unsigned long int stress_numa_nodes(void);
 extern int stress_set_mbind(const char *arg) NONNULL(1);
+extern stress_numa_mask_t *stress_numa_mask_alloc(void);
+extern void stress_numa_mask_free(stress_numa_mask_t *mask);
 
 #endif

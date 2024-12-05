@@ -58,7 +58,7 @@ static void stress_check_numa_range(
  *  stress_numa_count_mem_nodes()
  *	determine the number of NUMA memory nodes
  */
-int stress_numa_count_mem_nodes(unsigned long int *max_node)
+unsigned long int stress_numa_count_mem_nodes(unsigned long int *max_node)
 {
 	FILE *fp;
 	unsigned long int node_id = 0;
@@ -119,12 +119,57 @@ int stress_numa_count_mem_nodes(unsigned long int *max_node)
 }
 
 /*
+ *  stress_numa_mask_alloc()
+ *	allocate numa mask
+ */
+stress_numa_mask_t *stress_numa_mask_alloc(void)
+{
+	stress_numa_mask_t *numa_mask;
+
+	numa_mask = malloc(sizeof(*numa_mask));
+	if (!numa_mask)
+		return NULL;
+
+	numa_mask->nodes = stress_numa_count_mem_nodes(&numa_mask->max_nodes);
+	if ((numa_mask->nodes < 1) || (numa_mask->max_nodes < 1)) {
+		free(numa_mask);
+		return NULL;
+	}
+
+	/* number of longs based on maximum number of nodes */
+	numa_mask->numa_elements = (numa_mask->max_nodes + NUMA_LONG_BITS - 1) / NUMA_LONG_BITS;
+	numa_mask->numa_elements = numa_mask->numa_elements ? numa_mask->numa_elements : 1;
+	/* size of mask in bytes */
+	numa_mask->mask_size = (size_t)(NUMA_LONG_BITS * numa_mask->numa_elements) / BITS_PER_BYTE;
+	/* allocated mask */
+	numa_mask->mask = (unsigned long int *)calloc(numa_mask->mask_size, 1);
+
+	if (!numa_mask->mask) {
+		free(numa_mask);
+		return NULL;
+	}
+	return numa_mask;
+}
+
+/*
+ *  stress_numa_mask_free()
+ *	free numa_mask and mask
+ */
+void stress_numa_mask_free(stress_numa_mask_t *numa_mask)
+{
+	if (!numa_mask)
+		return;
+	free(numa_mask->mask);
+	free(numa_mask);
+}
+
+/*
  *  stress_numa_nodes()
  *	determine the number of NUMA memory nodes,
  *	always returns at least 1 if no nodes found,
  *	useful for cache size scaling by node count
  */
-int stress_numa_nodes(void)
+unsigned long int stress_numa_nodes(void)
 {
 	unsigned long int max_node = 0;
 	static int nodes = -1;	/* used as a cached copy */
@@ -168,7 +213,7 @@ int stress_set_mbind(const char *arg)
 	const size_t nodemask_bits = sizeof(*nodemask) * 8;
 	size_t nodemask_sz;
 
-	if (stress_numa_count_mem_nodes(&max_node) < 0) {
+	if (stress_numa_count_mem_nodes(&max_node) < 1) {
 		(void)fprintf(stderr, "no NUMA nodes found, ignoring --mbind setting '%s'\n", arg);
 		return 0;
 	}

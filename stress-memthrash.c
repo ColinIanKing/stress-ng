@@ -62,10 +62,7 @@ typedef struct {
 	uint32_t total_cpus;
 	uint32_t max_threads;
 #if defined(HAVE_MEMTHRASH_NUMA)
-	int numa_nodes;
-	unsigned long int max_numa_nodes;
-	unsigned long int *numa_node_mask;
-	size_t numa_node_mask_size;
+	stress_numa_mask_t *numa_mask;
 #endif
 } stress_memthrash_context_t;
 
@@ -624,21 +621,22 @@ static void OPTIMIZE3 TARGET_CLONES stress_memthrash_numa(
 	uint8_t *ptr;
 	const uint8_t *end = (uint8_t *)((uintptr_t)mem + mem_size);
 	const size_t page_size = context->args->page_size;
-	int node;
+	stress_numa_mask_t *numa_mask = context->numa_mask;
+	unsigned long int node;
 
-	if ((context->numa_nodes < 1) || (context->max_numa_nodes < 1))
+	if (!numa_mask)
 		return;
 
-	node = (unsigned long int)stress_mwc32modn((uint32_t)context->numa_nodes);
-	(void)shim_memset(context->numa_node_mask, 0, context->numa_node_mask_size);
+	node = (unsigned long int)stress_mwc32modn((uint32_t)numa_mask->nodes);
+	(void)shim_memset(numa_mask->mask, 0, numa_mask->mask_size);
 
 	for (ptr = (uint8_t *)mem; ptr < end; ptr += page_size) {
-		STRESS_SETBIT(context->numa_node_mask, (unsigned long int)node);
+		STRESS_SETBIT(numa_mask->mask, (unsigned long int)node);
 
-		(void)shim_mbind((void *)ptr, page_size, MPOL_PREFERRED, context->numa_node_mask, context->max_numa_nodes, 0);
-		STRESS_CLRBIT(context->numa_node_mask, (unsigned long int)node);
+		(void)shim_mbind((void *)ptr, page_size, MPOL_PREFERRED, numa_mask->mask, numa_mask->max_nodes, 0);
+		STRESS_CLRBIT(numa_mask->mask, (unsigned long int)node);
 		node++;
-		if (node >= context->numa_nodes)
+		if (node >= numa_mask->nodes)
 			node = 0;
 	}
 }
@@ -901,33 +899,10 @@ static int stress_memthrash(stress_args_t *args)
 	context.max_threads = stress_memthrash_max(args->num_instances, context.total_cpus);
 #if defined(HAVE_MEMTHRASH_NUMA)
 	{
-		size_t numa_elements;
-
-		context.numa_nodes = stress_numa_count_mem_nodes(&context.max_numa_nodes);
-		numa_elements = (context.max_numa_nodes + NUMA_LONG_BITS - 1) / NUMA_LONG_BITS;
-		numa_elements = numa_elements ? numa_elements : 1;
-
-		/* Some sanity checks are required */
-		if ((context.numa_nodes < 1) || (context.max_numa_nodes < 1)) {
-			if (args->instance == 0) {
+		context.numa_mask = stress_numa_mask_alloc();
+		if (!context.numa_mask) {
+			if (args->instance == 0)
 				pr_inf("%s: no NUMA nodes or maximum NUMA nodes, ignoring numa memthrash method\n", args->name);
-			}
-			context.numa_node_mask = NULL;
-			context.numa_node_mask_size = 0;
-			context.numa_nodes = 0;
-		} else {
-			context.numa_node_mask = (unsigned long int *)calloc((size_t)context.max_numa_nodes, numa_elements);
-			context.numa_node_mask_size = (size_t)context.max_numa_nodes * numa_elements;
-
-			if (!context.numa_node_mask) {
-				if (args->instance == 0) {
-					pr_inf_skip("%s: could not allocate %zd numa elements in numa mask, ignoring numa memthrash stressor\n",
-						args->name, numa_elements);
-				}
-				context.numa_node_mask = NULL;
-				context.numa_node_mask_size = 0;
-				context.numa_nodes = 0;
-			}
 		}
 	}
 #endif
@@ -959,7 +934,7 @@ static int stress_memthrash(stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 #if defined(HAVE_MEMTHRASH_NUMA)
-	free(context.numa_node_mask);
+	stress_numa_mask_free(context.numa_mask);
 #endif
 
 	return rc;

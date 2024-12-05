@@ -55,11 +55,6 @@ static const stress_opt_t opts[] = {
     defined(__NR_move_pages) &&		\
     defined(__NR_set_mempolicy)
 
-typedef struct stress_node {
-	struct stress_node	*next;
-	unsigned long int	node_id;
-} stress_node_t;
-
 #define STRESS_NUMA_STAT_NUMA_HIT	(0)
 #define STRESS_NUMA_STAT_NUMA_MISS	(1)
 #define STRESS_NUMA_STAT_MAX		(2)
@@ -124,25 +119,6 @@ static void stress_numa_stats_read(stress_numa_stats_t *stats)
 }
 
 /*
- *  stress_numa_free_nodes()
- *	free circular list of node info
- */
-static void stress_numa_free_nodes(stress_node_t *nodes)
-{
-	stress_node_t *n = nodes;
-
-	while (n) {
-		stress_node_t *next = n->next;
-
-		free(n);
-		n = next;
-
-		if (n == nodes)
-			break;
-	}
-}
-
-/*
  *  stress_numa_check_maps()
  *	scan process' numa_maps file to see if ptr is
  *	on the expected node and keep tally of total nodes
@@ -196,128 +172,27 @@ static void stress_numa_check_maps(
 }
 
 /*
- *  hex_to_int()
- *	convert ASCII hex digit to integer
- */
-static inline int PURE hex_to_int(const char ch)
-{
-	if ((ch >= '0') && (ch <= '9'))
-		return ch - '0';
-	if ((ch >= 'a') && (ch <= 'f'))
-		return ch - 'a' + 10;
-	if ((ch >= 'A') && (ch <= 'F'))
-		return ch - 'F' + 10;
-	return -1;
-}
-
-/*
- *  stress_numa_get_mem_nodes(void)
- *	collect number of NUMA memory nodes, add them to a
- *	circular linked list - also, return maximum number
- *	of nodes
- */
-static long int stress_numa_get_mem_nodes(
-	stress_node_t **node_ptr,
-	unsigned long int *max_nodes)
-{
-	FILE *fp;
-	long int n = 0;
-	unsigned long int node_id = 0;
-	stress_node_t *tail = NULL;
-	char buffer[8192], *str = NULL, *ptr;
-
-	*node_ptr = NULL;
-	fp = fopen("/proc/self/status", "r");
-	if (!fp)
-		return -1;
-
-	while (fgets(buffer, sizeof(buffer), fp)) {
-		if (!strncmp(buffer, "Mems_allowed:", 13)) {
-			str = buffer + 13;
-			break;
-		}
-	}
-	(void)fclose(fp);
-
-	if (!str)
-		return -1;
-
-	ptr = buffer + strlen(buffer) - 2;
-
-	/*
-	 *  Parse hex digits into NUMA node ids, these
-	 *  are listed with least significant node last
-	 *  so we need to scan backwards from the end of
-	 *  the string back to the start.
-	 */
-	while ((*ptr != ' ') && (ptr > str)) {
-		int val, i;
-
-		/* Skip commas */
-		if (*ptr == ',') {
-			ptr--;
-			continue;
-		}
-
-		val = hex_to_int(*ptr);
-		if (val < 0)
-			return -1;
-
-		/* Each hex digit represent 4 memory nodes */
-		for (i = 0; i < 4; i++) {
-			if (val & (1 << i)) {
-				stress_node_t *node = (stress_node_t *)calloc(1, sizeof(*node));
-				if (!node)
-					return -1;
-				node->node_id = node_id;
-				node->next = *node_ptr;
-				*node_ptr = node;
-				if (!tail)
-					tail = node;
-				tail->next = node;
-				n++;
-			}
-			node_id++;
-		}
-		ptr--;
-	}
-
-	*max_nodes = node_id;
-	return n;
-}
-
-static inline void stress_set_numa_array(void *array, uint8_t val, size_t nmemb, size_t size)
-{
-	const size_t n = nmemb * size;
-
-	(void)shim_memset(array, val, n);
-}
-
-/*
  *  stress_numa()
  *	stress the Linux NUMA interfaces
  */
 static int stress_numa(stress_args_t *args)
 {
-	long int numa_nodes;
-	unsigned long int max_nodes;
 	const size_t page_size = args->page_size;
 	size_t num_pages, numa_bytes = 0;
 	uint8_t *buf;
-	stress_node_t *n;
 	int rc = EXIT_FAILURE;
 	const bool cap_sys_nice = stress_check_capability(SHIM_CAP_SYS_NICE);
 	int *status, *dest_nodes;
 	int failed = 0;
 	void **pages;
-	size_t mask_elements, k;
-	unsigned long int *node_mask, *old_node_mask;
+	size_t k;
 	bool numa_shuffle_addr, numa_shuffle_node;
 	stress_numa_stats_t stats_begin, stats_end;
-	size_t node_mask_size, old_node_mask_size;
 	size_t status_size, dest_nodes_size, pages_size;
 	double t, duration, metric;
 	uint64_t correct_nodes = 0, total_nodes = 0;
+	stress_numa_mask_t *numa_mask, *old_numa_mask;
+	unsigned long node = 0;
 
 	(void)stress_get_setting("numa-bytes", &numa_bytes);
 	(void)stress_get_setting("numa-shuffle-addr", &numa_shuffle_addr);
@@ -335,12 +210,19 @@ static int stress_numa(stress_args_t *args)
 	}
 
 	num_pages = numa_bytes / page_size;
-	numa_nodes = stress_numa_get_mem_nodes(&n, &max_nodes);
-	if (numa_nodes < 1) {
-		pr_inf_skip("%s: no NUMA nodes found, "
-			"skipping test\n", args->name);
+
+	numa_mask = stress_numa_mask_alloc();
+	if (!numa_mask) {
+		pr_inf_skip("%s: no NUMA nodes found, skipping test\n", args->name);
 		rc = EXIT_NO_RESOURCE;
-		goto numa_free;
+		goto deinit;
+	}
+
+	old_numa_mask = stress_numa_mask_alloc();
+	if (!old_numa_mask) {
+		pr_inf_skip("%s: no NUMA nodes found, skipping test\n", args->name);
+		rc = EXIT_NO_RESOURCE;
+		goto numa_mask_free;
 	}
 
 	if (!args->instance) {
@@ -348,33 +230,8 @@ static int stress_numa(stress_args_t *args)
 
 		stress_uint64_to_str(str, sizeof(str), (uint64_t)numa_bytes);
 		pr_inf("%s: system has %lu of a maximum %lu memory NUMA nodes. Using %sB mappings for each instance.\n",
-			args->name, numa_nodes, max_nodes, str);
+			args->name, numa_mask->nodes, numa_mask->max_nodes, str);
 	}
-
-	mask_elements = (max_nodes + NUMA_LONG_BITS - 1) / NUMA_LONG_BITS;
-	node_mask_size = mask_elements * sizeof(*node_mask);
-	node_mask = (unsigned long int *)stress_mmap_populate(NULL, node_mask_size,
-					PROT_READ | PROT_WRITE,
-					MAP_ANONYMOUS | MAP_SHARED, 0, 0);
-	if (node_mask == MAP_FAILED) {
-		pr_inf_skip("%s: cannot mmap node mask array of %zu elements, skipping stressor\n",
-			args->name, mask_elements);
-		rc = EXIT_NO_RESOURCE;
-		goto numa_free;
-	}
-	stress_set_vma_anon_name(node_mask, node_mask_size, "node_mask");
-
-	old_node_mask_size = mask_elements * sizeof(*old_node_mask);
-	old_node_mask = (unsigned long int *)stress_mmap_populate(NULL, old_node_mask_size,
-					PROT_READ | PROT_WRITE,
-					MAP_ANONYMOUS | MAP_SHARED, 0, 0);
-	if (old_node_mask == MAP_FAILED) {
-		pr_inf_skip("%s: cannot mmap old mask array of %zu elements, skipping stressor\n",
-			args->name, mask_elements);
-		rc = EXIT_NO_RESOURCE;
-		goto node_mask_free;
-	}
-	stress_set_vma_anon_name(old_node_mask, old_node_mask_size, "old_node_mask");
 
 	status_size = num_pages * sizeof(*status);
 	status = (int *)stress_mmap_populate(NULL, status_size,
@@ -384,7 +241,7 @@ static int stress_numa(stress_args_t *args)
 		pr_inf_skip("%s: cannot mmap status array of %zu elements, skipping stressor\n",
 			args->name, num_pages);
 		rc = EXIT_NO_RESOURCE;
-		goto old_node_mask_free;
+		goto old_numa_mask_free;
 	}
 	stress_set_vma_anon_name(status, status_size, "status");
 
@@ -443,12 +300,12 @@ static int stress_numa(stress_args_t *args)
 		unsigned cpu, curr_node;
 		struct shim_getcpu_cache cache;
 
-		stress_set_numa_array(node_mask, 0x00, mask_elements, sizeof(*node_mask));
+		(void)shim_memset(numa_mask->mask, 0x00, numa_mask->mask_size);
 
 		/*
 		 *  Fetch memory policy
 		 */
-		ret = shim_get_mempolicy(&mode, node_mask, max_nodes,
+		ret = shim_get_mempolicy(&mode, numa_mask->mask, numa_mask->max_nodes,
 					 buf, MPOL_F_ADDR);
 		if (UNLIKELY(ret < 0)) {
 			if (errno == EPERM) {
@@ -463,26 +320,26 @@ static int stress_numa(stress_args_t *args)
 			}
 		}
 
-		/* Exercise invalid max_nodes */
-		VOID_RET(int, shim_get_mempolicy(&mode, node_mask, 0, buf, MPOL_F_NODE));
+		/* Exercise invalid numa mask */
+		VOID_RET(int, shim_get_mempolicy(&mode, numa_mask->mask, 0, buf, MPOL_F_NODE));
 
 		/* Exercise invalid flag */
-		VOID_RET(int, shim_get_mempolicy(&mode, node_mask, max_nodes, buf, ~0UL));
+		VOID_RET(int, shim_get_mempolicy(&mode, numa_mask->mask, numa_mask->max_nodes, buf, ~0UL));
 
 		/* Exercise invalid NULL addr condition */
-		VOID_RET(int, shim_get_mempolicy(&mode, node_mask, max_nodes, NULL, MPOL_F_ADDR));
+		VOID_RET(int, shim_get_mempolicy(&mode, numa_mask->mask, numa_mask->max_nodes, NULL, MPOL_F_ADDR));
 
-		VOID_RET(int, shim_get_mempolicy(&mode, node_mask, max_nodes, buf, MPOL_F_NODE));
+		VOID_RET(int, shim_get_mempolicy(&mode, numa_mask->mask, numa_mask->max_nodes, buf, MPOL_F_NODE));
 
 		/* Exercise MPOL_F_MEMS_ALLOWED flag syscalls */
-		VOID_RET(int, shim_get_mempolicy(&mode, node_mask, max_nodes, buf, MPOL_F_MEMS_ALLOWED));
+		VOID_RET(int, shim_get_mempolicy(&mode, numa_mask->mask, numa_mask->max_nodes, buf, MPOL_F_MEMS_ALLOWED));
 
-		VOID_RET(int, shim_get_mempolicy(&mode, node_mask, max_nodes, buf, MPOL_F_MEMS_ALLOWED | MPOL_F_NODE));
+		VOID_RET(int, shim_get_mempolicy(&mode, numa_mask->mask, numa_mask->max_nodes, buf, MPOL_F_MEMS_ALLOWED | MPOL_F_NODE));
 
 		if (!stress_continue_flag())
 			break;
 
-		ret = shim_set_mempolicy(MPOL_PREFERRED, NULL, max_nodes);
+		ret = shim_set_mempolicy(MPOL_PREFERRED, NULL, numa_mask->max_nodes);
 		if (UNLIKELY(ret < 0)) {
 			if (errno != ENOSYS) {
 				pr_fail("%s: set_mempolicy failed, errno=%d (%s)\n",
@@ -509,59 +366,59 @@ static int stress_numa(stress_args_t *args)
 		switch (stress_mwc8modn(12)) {
 		case 0:
 #if defined(MPOL_DEFAULT)
-			VOID_RET(long int, shim_set_mempolicy(MPOL_DEFAULT | mode, NULL, max_nodes));
+			VOID_RET(long int, shim_set_mempolicy(MPOL_DEFAULT | mode, NULL, numa_mask->max_nodes));
 			break;
 #endif
 		case 1:
 #if defined(MPOL_BIND)
-			VOID_RET(long int, shim_set_mempolicy(MPOL_BIND | mode, node_mask, max_nodes));
+			VOID_RET(long int, shim_set_mempolicy(MPOL_BIND | mode, numa_mask->mask, numa_mask->max_nodes));
 			break;
 #endif
 		case 2:
 #if defined(MPOL_INTERLEAVE)
-			VOID_RET(long int, shim_set_mempolicy(MPOL_INTERLEAVE | mode, node_mask, max_nodes));
+			VOID_RET(long int, shim_set_mempolicy(MPOL_INTERLEAVE | mode, numa_mask->mask, numa_mask->max_nodes));
 			break;
 #endif
 		case 3:
 #if defined(MPOL_PREFERRED)
-			VOID_RET(long int, shim_set_mempolicy(MPOL_PREFERRED | mode, node_mask, max_nodes));
+			VOID_RET(long int, shim_set_mempolicy(MPOL_PREFERRED | mode, numa_mask->mask, numa_mask->max_nodes));
 			break;
 #endif
 		case 4:
 #if defined(MPOL_LOCAL)
-			VOID_RET(long int, shim_set_mempolicy(MPOL_LOCAL | mode, node_mask, max_nodes));
+			VOID_RET(long int, shim_set_mempolicy(MPOL_LOCAL | mode, numa_mask->mask, numa_mask->max_nodes));
 			break;
 #endif
 		case 5:
 #if defined(MPOL_PREFERRED_MANY)
-			VOID_RET(long int, shim_set_mempolicy(MPOL_PREFERRED_MANY | mode, node_mask, max_nodes));
+			VOID_RET(long int, shim_set_mempolicy(MPOL_PREFERRED_MANY | mode, numa_mask->mask, numa_mask->max_nodes));
 			break;
 #endif
 		case 6:
 #if defined(MPOL_WEIGHTED_INTERLEAVE)
-			VOID_RET(long int, shim_set_mempolicy(MPOL_WEIGHTED_INTERLEAVE | mode, node_mask, max_nodes));
+			VOID_RET(long int, shim_set_mempolicy(MPOL_WEIGHTED_INTERLEAVE | mode, numa_mask->mask, numa_mask->max_nodes));
 			break;
 #endif
 		case 7:
-			VOID_RET(long int, shim_set_mempolicy(0, node_mask, max_nodes));
+			VOID_RET(long int, shim_set_mempolicy(0, numa_mask->mask, numa_mask->max_nodes));
 			break;
 		case 8:
-			VOID_RET(long int, shim_set_mempolicy(mode, node_mask, max_nodes));
+			VOID_RET(long int, shim_set_mempolicy(mode, numa_mask->mask, numa_mask->max_nodes));
 			break;
 		case 9:
 			/* Invalid mode */
-			VOID_RET(long int, shim_set_mempolicy(mode | MPOL_F_STATIC_NODES | MPOL_F_RELATIVE_NODES, node_mask, max_nodes));
+			VOID_RET(long int, shim_set_mempolicy(mode | MPOL_F_STATIC_NODES | MPOL_F_RELATIVE_NODES, numa_mask->mask, numa_mask->max_nodes));
 			break;
 #if defined(MPOL_F_NUMA_BALANCING) &&	\
     defined(MPOL_LOCAL)
 		case 10:
 			/* Invalid  MPOL_F_NUMA_BALANCING | MPOL_LOCAL */
-			VOID_RET(long int, shim_set_mempolicy(MPOL_F_NUMA_BALANCING | MPOL_LOCAL, node_mask, max_nodes));
+			VOID_RET(long int, shim_set_mempolicy(MPOL_F_NUMA_BALANCING | MPOL_LOCAL, numa_mask->mask, numa_mask->max_nodes));
 			break;
 #endif
 		default:
 			/* Intentionally invalid mode */
-			VOID_RET(long int, shim_set_mempolicy(~0, node_mask, max_nodes));
+			VOID_RET(long int, shim_set_mempolicy(~0, numa_mask->mask, numa_mask->max_nodes));
 		}
 
 		/*
@@ -571,7 +428,7 @@ static int stress_numa(stress_args_t *args)
 		(void)shim_getcpu(&cpu, &curr_node, NULL);
 
 		/* Initialised cache to be safe */
-		stress_set_numa_array(&cache, 0x00, 1, sizeof(cache));
+		shim_memset(&cache, 0x00, sizeof(cache));
 
 		/*
 		 * tcache argument is unused in getcpu currently.
@@ -585,10 +442,10 @@ static int stress_numa(stress_args_t *args)
 		 *  mbind the buffer, first try MPOL_STRICT which
 		 *  may fail with EIO
 		 */
-		stress_set_numa_array(node_mask, 0x00, mask_elements, sizeof(*node_mask));
-		STRESS_SETBIT(node_mask, n->node_id);
-		lret = shim_mbind((void *)buf, numa_bytes, MPOL_BIND, node_mask,
-			max_nodes, MPOL_MF_STRICT);
+		shim_memset(numa_mask->mask, 0x00, numa_mask->mask_size);
+		STRESS_SETBIT(numa_mask->mask, node);
+		lret = shim_mbind((void *)buf, numa_bytes, MPOL_BIND, numa_mask->mask,
+			numa_mask->max_nodes, MPOL_MF_STRICT);
 		if (UNLIKELY(lret < 0)) {
 			if ((errno != EIO) && (errno != ENOSYS)) {
 				pr_fail("%s: mbind failed, errno=%d (%s)\n",
@@ -597,7 +454,7 @@ static int stress_numa(stress_args_t *args)
 			}
 		} else {
 			(void)shim_set_mempolicy_home_node((unsigned long int)buf,
-				(unsigned long int)numa_bytes, n->node_id, 0);
+				(unsigned long int)numa_bytes, node, 0);
 			(void)stress_mmap_set_light(buf, numa_bytes, page_size);
 		}
 		if (!stress_continue_flag())
@@ -607,21 +464,21 @@ static int stress_numa(stress_args_t *args)
 		 *  Exercise set_mempolicy_home_node
 		 */
 		(void)shim_set_mempolicy_home_node((unsigned long int)buf,
-				(unsigned long int)numa_bytes, max_nodes - 1, 0);
+				(unsigned long int)numa_bytes, numa_mask->nodes - 1, 0);
 		(void)shim_set_mempolicy_home_node((unsigned long int)buf,
 				(unsigned long int)numa_bytes, 1, 0);
 		(void)shim_set_mempolicy_home_node((unsigned long int)buf,
-				(unsigned long int)0, n->node_id, 0);
+				(unsigned long int)0, node, 0);
 		(void)shim_set_mempolicy_home_node((unsigned long int)buf,
-				(unsigned long int)numa_bytes, n->node_id, 0);
+				(unsigned long int)numa_bytes, node, 0);
 
 		/*
 		 *  mbind the buffer, now try MPOL_DEFAULT
 		 */
-		stress_set_numa_array(node_mask, 0x00, mask_elements, sizeof(*node_mask));
-		STRESS_SETBIT(node_mask, n->node_id);
-		lret = shim_mbind((void *)buf, numa_bytes, MPOL_BIND, node_mask,
-			max_nodes, MPOL_DEFAULT);
+		(void)shim_memset(numa_mask->mask, 0x00, numa_mask->mask_size);
+		STRESS_SETBIT(numa_mask->mask, node);
+		lret = shim_mbind((void *)buf, numa_bytes, MPOL_BIND, numa_mask->mask,
+			numa_mask->max_nodes, MPOL_DEFAULT);
 		if (UNLIKELY(lret < 0)) {
 			if ((errno != EIO) && (errno != ENOSYS)) {
 				pr_fail("%s: mbind failed, errno=%d (%s)\n",
@@ -630,42 +487,42 @@ static int stress_numa(stress_args_t *args)
 			}
 		} else {
 			(void)shim_set_mempolicy_home_node((unsigned long int)buf,
-				(unsigned long int)numa_bytes, n->node_id, 0);
+				(unsigned long int)numa_bytes, node, 0);
 			(void)stress_mmap_set_light(buf, numa_bytes, page_size);
 		}
 		if (!stress_continue_flag())
 			break;
 
 		/* Exercise invalid start address */
-		VOID_RET(long int, shim_mbind((void *)(buf + 7), numa_bytes, MPOL_BIND, node_mask,
-			max_nodes, MPOL_MF_STRICT));
+		VOID_RET(long int, shim_mbind((void *)(buf + 7), numa_bytes, MPOL_BIND, numa_mask->mask,
+			numa_mask->max_nodes, MPOL_MF_STRICT));
 
 		/* Exercise wrap around */
 		VOID_RET(long int, shim_mbind((void *)(~(uintptr_t)0 & ~(page_size - 1)), page_size * 2,
-			MPOL_BIND, node_mask, max_nodes, MPOL_MF_STRICT));
+			MPOL_BIND, numa_mask->mask, numa_mask->max_nodes, MPOL_MF_STRICT));
 
 		/* Exercise invalid length */
-		VOID_RET(long int, shim_mbind((void *)buf, ~0UL, MPOL_BIND, node_mask,
-			max_nodes, MPOL_MF_STRICT));
+		VOID_RET(long int, shim_mbind((void *)buf, ~0UL, MPOL_BIND, numa_mask->mask,
+			numa_mask->max_nodes, MPOL_MF_STRICT));
 
 		/* Exercise zero length, allowed, but is a no-op */
-		VOID_RET(long int, shim_mbind((void *)buf, 0, MPOL_BIND, node_mask,
-			max_nodes, MPOL_MF_STRICT));
+		VOID_RET(long int, shim_mbind((void *)buf, 0, MPOL_BIND, numa_mask->mask,
+			numa_mask->max_nodes, MPOL_MF_STRICT));
 
-		/* Exercise invalid max_nodes */
-		VOID_RET(long int, shim_mbind((void *)buf, numa_bytes, MPOL_BIND, node_mask,
+		/* Exercise invalid nodes */
+		VOID_RET(long int, shim_mbind((void *)buf, numa_bytes, MPOL_BIND, numa_mask->mask,
 			0, MPOL_MF_STRICT));
-		VOID_RET(long int, shim_mbind((void *)buf, numa_bytes, MPOL_BIND, node_mask,
+		VOID_RET(long int, shim_mbind((void *)buf, numa_bytes, MPOL_BIND, numa_mask->mask,
 			0xffffffff, MPOL_MF_STRICT));
 
 		/* Exercise invalid flags */
-		VOID_RET(long int, shim_mbind((void *)buf, numa_bytes, MPOL_BIND, node_mask,
-			max_nodes, ~0U));
+		VOID_RET(long int, shim_mbind((void *)buf, numa_bytes, MPOL_BIND, numa_mask->mask,
+			numa_mask->max_nodes, ~0U));
 
 		/* Check mbind syscall cannot succeed without capability */
 		if (!cap_sys_nice) {
-			lret = shim_mbind((void *)buf, numa_bytes, MPOL_BIND, node_mask,
-				max_nodes, MPOL_MF_MOVE_ALL);
+			lret = shim_mbind((void *)buf, numa_bytes, MPOL_BIND, numa_mask->mask,
+				numa_mask->max_nodes, MPOL_MF_MOVE_ALL);
 			if (lret >= 0) {
 				pr_fail("%s: mbind without capability CAP_SYS_NICE unexpectedly succeeded, "
 						"errno=%d (%s)\n", args->name, errno, strerror(errno));
@@ -673,31 +530,33 @@ static int stress_numa(stress_args_t *args)
 		}
 
 		/* Move to next node */
-		n = n->next;
+		node++;
+		if (node >= numa_mask->nodes)
+			node = 0;
 
 		/*
 		 *  Migrate all this processes pages to the current new node
 		 */
-		stress_set_numa_array(old_node_mask, 0xff, mask_elements, sizeof(*node_mask));
-		stress_set_numa_array(node_mask, 0x00, mask_elements, sizeof(*node_mask));
-		STRESS_SETBIT(node_mask, n->node_id);
+		(void)shim_memset(old_numa_mask->mask, 0xff, old_numa_mask->mask_size);
+		(void)shim_memset(numa_mask->mask, 0x00, numa_mask->mask_size);
+		STRESS_SETBIT(numa_mask->mask, node);
 
 		/*
 	 	 *  Ignore any failures, this is not strictly important
 		 */
-		VOID_RET(long int, shim_migrate_pages(args->pid, max_nodes,
-			old_node_mask, node_mask));
+		VOID_RET(long int, shim_migrate_pages(args->pid, numa_mask->max_nodes,
+			old_numa_mask->mask, numa_mask->mask));
 
 		/*
 		 *  Exercise illegal pid
 		 */
-		VOID_RET(long int, shim_migrate_pages(~0, max_nodes, old_node_mask, node_mask));
+		VOID_RET(long int, shim_migrate_pages(~0, numa_mask->max_nodes, old_numa_mask->mask, numa_mask->mask));
 
 		/*
-		 *  Exercise illegal max_nodes
+		 *  Exercise illegal nodes
 		 */
-		VOID_RET(long int, shim_migrate_pages(args->pid, ~0UL, old_node_mask, node_mask));
-		VOID_RET(long int, shim_migrate_pages(args->pid, 0, old_node_mask, node_mask));
+		VOID_RET(long int, shim_migrate_pages(args->pid, ~0UL, old_numa_mask->mask, numa_mask->mask));
+		VOID_RET(long int, shim_migrate_pages(args->pid, 0, old_numa_mask->mask, numa_mask->mask));
 
 		if (!stress_continue_flag())
 			break;
@@ -710,7 +569,7 @@ static int stress_numa(stress_args_t *args)
 			 */
 			for (ptr = buf, i = 0; i < num_pages; i++, ptr += page_size) {
 				pages[k] = ptr;
-				dest_nodes[k] = (int)n->node_id;
+				dest_nodes[k] = (int)node;
 				k++;
 				if (k >= num_pages)
 					k = 0;
@@ -751,7 +610,7 @@ static int stress_numa(stress_args_t *args)
 			if (k >= num_pages)
 				k = 0;
 
-			stress_set_numa_array(status, 0x00, num_pages, sizeof(*status));
+			(void)shim_memset(status, 0x00, num_pages * sizeof(*status));
 			lret = shim_move_pages(args->pid, num_pages, pages,
 				dest_nodes, status, MPOL_MF_MOVE);
 			if (UNLIKELY(lret < 0)) {
@@ -784,44 +643,44 @@ static int stress_numa(stress_args_t *args)
 
 #if defined(MPOL_MF_MOVE_ALL)
 		/* Exercise MPOL_MF_MOVE_ALL, this needs privilege, ignore failure */
-		stress_set_numa_array(status, 0x00, num_pages, sizeof(*status));
+		(void)shim_memset(status, 0x00, num_pages * sizeof(*status));
 		pages[0] = buf;
 		VOID_RET(long int, shim_move_pages(args->pid, num_pages, pages, dest_nodes, status, MPOL_MF_MOVE_ALL));
 #endif
 
 		/* Exercise invalid pid on move pages */
-		stress_set_numa_array(status, 0x00, num_pages, sizeof(*status));
+		(void)shim_memset(status, 0x00, num_pages * sizeof(*status));
 		pages[0] = buf;
 		VOID_RET(long int, shim_move_pages(~0, 1, pages, dest_nodes, status, MPOL_MF_MOVE));
 
 		/* Exercise 0 nr_pages */
-		stress_set_numa_array(status, 0x00, num_pages, sizeof(*status));
+		(void)shim_memset(status, 0x00, num_pages * sizeof(*status));
 		pages[0] = buf;
 		VOID_RET(long int, shim_move_pages(args->pid, 0, pages, dest_nodes, status, MPOL_MF_MOVE));
 
 		/* Exercise invalid move flags */
-		stress_set_numa_array(status, 0x00, num_pages, sizeof(*status));
+		(void)shim_memset(status, 0x00, num_pages * sizeof(*status));
 		pages[0] = buf;
 		VOID_RET(long int, shim_move_pages(args->pid, 1, pages, dest_nodes, status, ~0));
 
 		/* Exercise zero flag, should succeed */
-		stress_set_numa_array(status, 0x00, num_pages, sizeof(*status));
+		(void)shim_memset(status, 0x00, num_pages * sizeof(*status));
 		pages[0] = buf;
 		VOID_RET(long int, shim_move_pages(args->pid, 1, pages, dest_nodes, status, 0));
 
 		/* Exercise invalid address */
-		stress_set_numa_array(status, 0x00, num_pages, sizeof(*status));
+		(void)shim_memset(status, 0x00, num_pages * sizeof(*status));
 		pages[0] = (void *)(~(uintptr_t)0 & ~(args->page_size - 1));
 		VOID_RET(long int, shim_move_pages(args->pid, 1, pages, dest_nodes, status, MPOL_MF_MOVE));
 
 		/* Exercise invalid dest_node */
-		stress_set_numa_array(status, 0x00, num_pages, sizeof(*status));
+		(void)shim_memset(status, 0x00, num_pages * sizeof(*status));
 		pages[0] = buf;
 		dest_nodes[0] = ~0;
 		VOID_RET(long int, shim_move_pages(args->pid, 1, pages, dest_nodes, status, MPOL_MF_MOVE));
 
 		/* Exercise NULL nodes */
-		stress_set_numa_array(status, 0x00, num_pages, sizeof(*status));
+		(void)shim_memset(status, 0x00, num_pages * sizeof(*status));
 		pages[0] = buf;
 		VOID_RET(long int, shim_move_pages(args->pid, 1, pages, NULL, status, MPOL_MF_MOVE));
 
@@ -856,13 +715,12 @@ dest_nodes_free:
 	(void)munmap((void *)dest_nodes, dest_nodes_size);
 status_free:
 	(void)munmap((void *)status, status_size);
-old_node_mask_free:
-	(void)munmap((void *)old_node_mask, old_node_mask_size);
-node_mask_free:
-	(void)munmap((void *)node_mask, node_mask_size);
-numa_free:
+old_numa_mask_free:
+	stress_numa_mask_free(old_numa_mask);
+numa_mask_free:
+	stress_numa_mask_free(numa_mask);
+deinit:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
-	stress_numa_free_nodes(n);
 
 	return rc;
 }
