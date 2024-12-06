@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "4 December 2024"
+.TH STRESS-NG 1 "6 December 2024"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -2832,6 +2832,9 @@ l.
 a \(eq a \(mu b \(pl c
 a \(eq b \(mu a \(pl c
 a \(eq b \(mu c \(pl a
+a \(eq a \(mu b \(mi c
+a \(eq b \(mu a \(mi c
+a \(eq b \(mu c \(mi a
 .TE
 .TP
 .B \-\-fma\-libc
