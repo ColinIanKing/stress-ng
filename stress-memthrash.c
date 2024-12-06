@@ -23,6 +23,7 @@
 #include "core-builtin.h"
 #include "core-cpu-cache.h"
 #include "core-madvise.h"
+#include "core-nt-load.h"
 #include "core-nt-store.h"
 #include "core-numa.h"
 #include "core-out-of-memory.h"
@@ -496,6 +497,33 @@ static void OPTIMIZE3 stress_memthrash_spinread(
 	const size_t offset = stress_mwc32modn(size) & ~(size_t)3;
 
 	(void)context;
+
+#if defined(HAVE_NT_LOAD32)
+	if (stress_cpu_x86_has_sse2()) {
+		uint32_t *nt_ptr = (uint32_t *)(((uintptr_t)mem) + offset);
+
+		for (i = 0; !thread_terminate && (i < 65536); i++) {
+			(void)stress_nt_load32(nt_ptr);
+			stress_asm_mb();
+			(void)stress_nt_load32(nt_ptr);
+			stress_asm_mb();
+			(void)stress_nt_load32(nt_ptr);
+			stress_asm_mb();
+			(void)stress_nt_load32(nt_ptr);
+			stress_asm_mb();
+
+			(void)stress_nt_load32(nt_ptr);
+			stress_asm_mb();
+			(void)stress_nt_load32(nt_ptr);
+			stress_asm_mb();
+			(void)stress_nt_load32(nt_ptr);
+			stress_asm_mb();
+			(void)stress_nt_load32(nt_ptr);
+			stress_asm_mb();
+		}
+		return;
+	}
+#endif
 	ptr = (uint32_t *)(((uintptr_t)mem) + offset);
 
 	for (i = 0; !thread_terminate && (i < 65536); i++) {
@@ -521,6 +549,33 @@ static void OPTIMIZE3 stress_memthrash_spinwrite(
 	const size_t offset = stress_mwc32modn(size) & ~(size_t)3;
 
 	(void)context;
+
+#if defined(HAVE_NT_STORE32)
+	if (stress_cpu_x86_has_sse2()) {
+		uint32_t *nt_ptr = (uint32_t *)(((uintptr_t)mem) + offset);
+
+		for (i = 0; !thread_terminate && (i < 65536); i++) {
+			stress_nt_store32(nt_ptr, i);
+			stress_asm_mb();
+			stress_nt_store32(nt_ptr, i);
+			stress_asm_mb();
+			stress_nt_store32(nt_ptr, i);
+			stress_asm_mb();
+			stress_nt_store32(nt_ptr, i);
+			stress_asm_mb();
+
+			stress_nt_store32(nt_ptr, i);
+			stress_asm_mb();
+			stress_nt_store32(nt_ptr, i);
+			stress_asm_mb();
+			stress_nt_store32(nt_ptr, i);
+			stress_asm_mb();
+			stress_nt_store32(nt_ptr, i);
+			stress_asm_mb();
+		}
+		return;
+	}
+#endif
 	ptr = (uint32_t *)(((uintptr_t)mem) + offset);
 
 	for (i = 0; !thread_terminate && (i < 65536); i++) {
