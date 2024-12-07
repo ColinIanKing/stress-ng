@@ -355,6 +355,7 @@
 	MACRO(usersyscall)	\
 	MACRO(utime)		\
 	MACRO(vdso)		\
+	MACRO(veccmp)		\
 	MACRO(vecfp)		\
 	MACRO(vecmath)		\
 	MACRO(vecshuf)		\

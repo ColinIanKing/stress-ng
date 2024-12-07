@@ -1151,6 +1151,8 @@ const struct option stress_long_options[] = {
 	{ "vdso",		1,	0,	OPT_vdso },
 	{ "vdso-func",		1,	0,	OPT_vdso_func },
 	{ "vdso-ops",		1,	0,	OPT_vdso_ops },
+	{ "veccmp",		1,	0,	OPT_veccmp},
+	{ "veccmp-ops",		1,	0,	OPT_veccmp_ops },
 	{ "vecfp",		1,	0,	OPT_vecfp },
 	{ "vecfp-method",	1,	0,	OPT_vecfp_method },
 	{ "vecfp-ops",		1,	0,	OPT_vecfp_ops },

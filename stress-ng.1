@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "6 December 2024"
+.TH STRESS-NG 1 "7 December 2024"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -8529,6 +8529,20 @@ getcpu, gettimeofday and time.
 stop after N vDSO functions calls.
 .RE
 .TP
+.B Vector integer comparison operations stressor
+.RS 5
+.TQ
+.B \-\-veccmp N
+start N workers that perform various unsigned integer math comparison operations on
+various 128 bit vectors. A mix of integer vector comparison operations are performed
+on the following vectors: 16 \(mu 8 bits, 8 \(mu 16 bits, 4 \(mu 32 bits, 2 \(mu 64
+bits and if supported 1 \(mu 128 bits. The metrics produced by this mix depend on the
+processor architecture and the vector math optimisations produced by the compiler.
+.TP
+.B \-\-veccmp\-ops N
+stop after N bogo vector integer comparison operations.
+.RE
+.TP
 .B Vector floating point operations stressor
 .RS 5
 .TQ
@@ -8671,8 +8685,9 @@ is equivalent to 65536 \(mu 2 \(mu 16 floating point operations.
 start N workers that perform various unsigned integer math operations on
 various 128 bit vectors. A mix of vector math operations are performed on the
 following vectors: 16 \(mu 8 bits, 8 \(mu 16 bits, 4 \(mu 32 bits, 2 \(mu 64
-bits. The metrics produced by this mix depend on the processor architecture
-and the vector math optimisations produced by the compiler.
+bits and where supported 1 \(mu 128 bits. The metrics produced by this mix depend
+on the processor architecture and the vector math optimisations produced by the
+compiler.
 .TP
 .B \-\-vecmath\-ops N
 stop after N bogo vector integer math operations.
