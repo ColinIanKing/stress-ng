@@ -168,7 +168,7 @@ static int TARGET_CLONES stress_vecmath(stress_args_t *args)
 	const uint32_t csum32_val = (uint32_t)0xd18aef8UL;
 	const uint64_t csum64_val = (uint64_t)0x14eb06da7b6dd9c3ULL;
 #if defined(HAVE_INT128_T)
-	const uint64_t csum128lo_val = (uint64_t)0x00000000a61974ccULL;
+	const uint64_t csum128lo_val = (uint64_t)0x10afc58fa61974ccULL;
 	const uint64_t csum128hi_val = (uint64_t)0x0625922a4b5da4bbULL;
 #endif
 
@@ -308,10 +308,10 @@ static int TARGET_CLONES stress_vecmath(stress_args_t *args)
 		}
 
 #if defined(HAVE_INT128_T)
-		csum128lo = (uint64_t)(a128[0] & 0xffffffffULL);
+		csum128lo = (uint64_t)(a128[0] & 0xffffffffffffffffULL);
 		csum128hi = (uint64_t)(a128[0] >> 64);
 		stress_uint128_put(a128[0]);
-		if ((csum128lo != csum128lo_val) && (csum128hi != csum128hi_val)) {
+		if ((csum128lo != csum128lo_val) || (csum128hi != csum128hi_val)) {
 			pr_fail("%s: 1 x 128 bit vector checksum mismatch, got 0x%16.16" PRIx64 ":%16.16" PRIx64
 				", expected 0x%16.16" PRIx64 "%16.16" PRIx64 "\n", args->name,
 				csum128hi, csum128lo, csum128hi_val, csum128lo_val);
