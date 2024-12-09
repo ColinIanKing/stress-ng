@@ -187,11 +187,12 @@ static const char * PURE type_to_type_string(const stress_crypto_type_t type)
  */
 static void stress_af_alg_ignore(
 	stress_args_t *args,
-	stress_crypto_info_t *info)
+	stress_crypto_info_t *info,
+	const char *systemcall)
 {
 	if ((args->instance == 0) && (!info->ignore)) {
-		pr_dbg_skip("%s: sendmsg using %s failed with EINVAL, skipping crypto engine\n",
-			args->name, info->name);
+		pr_dbg_skip("%s: %s using %s failed with EINVAL, skipping crypto engine\n",
+			args->name, systemcall, info->name);
 	}
 	info->ignore = true;
 }
@@ -289,7 +290,7 @@ retry_bind:
 				if ((errno == ENOKEY) || (errno == ENOENT))
 					continue;
 				if (errno == EINVAL) {
-					stress_af_alg_ignore(args, info);
+					stress_af_alg_ignore(args, info, "send()");
 					break;
 				}
 				pr_fail("%s: %s: send failed: errno=%d (%s)\n",
@@ -385,7 +386,13 @@ retry_bind:
 
 		/* Internal unavailable crypto engines need to be ignored */
 		if ((errno == ENOENT) && (info->internal)) {
-			stress_af_alg_ignore(args, info);
+			stress_af_alg_ignore(args, info, "bind()");
+			rc = EXIT_SUCCESS;
+			goto err;
+		}
+		/* Ignore bind EINVAL failures, these should not abort the stressor */
+		if (errno == EINVAL) {
+			stress_af_alg_ignore(args, info, "bind()");
 			rc = EXIT_SUCCESS;
 			goto err;
 		}
@@ -531,7 +538,7 @@ retry_bind:
 			if (errno == ENOMEM)
 				break;
 			if (errno == EINVAL) {
-				stress_af_alg_ignore(args, info);
+				stress_af_alg_ignore(args, info, "sendmsg()");
 				break;
 			}
 			pr_fail("%s: %s: sendmsg failed: errno=%d (%s)\n",
@@ -593,7 +600,7 @@ retry_bind:
 			if (errno == EINTR)
 				break;
 			if (errno == EINVAL) {
-				stress_af_alg_ignore(args, info);
+				stress_af_alg_ignore(args, info, "sendmsg()");
 				break;
 			}
 			pr_fail("%s: %s: sendmsg failed: errno=%d (%s)\n",
@@ -656,7 +663,13 @@ retry_bind:
 	if (bind(sockfd, (struct sockaddr *)&sa, sizeof(sa)) < 0) {
 		/* Internal unavailable crypto engines need to be ignored */
 		if ((errno == ENOENT) && (info->internal)) {
-			stress_af_alg_ignore(args, info);
+			stress_af_alg_ignore(args, info, "bind()");
+			rc = EXIT_SUCCESS;
+			goto err;
+		}
+		/* Ignore bind EINVAL failures, these should not abort the stressor */
+		if (errno == EINVAL) {
+			stress_af_alg_ignore(args, info, "bind()");
 			rc = EXIT_SUCCESS;
 			goto err;
 		}
