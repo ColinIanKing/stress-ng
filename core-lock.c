@@ -161,7 +161,7 @@ static int stress_lock_put(stress_lock_t *lock);
  */
 static inline ALWAYS_INLINE bool stress_lock_valid(const stress_lock_t *lock)
 {
-	return (lock && (lock->magic == STRESS_LOCK_MAGIC));
+	return LIKELY(lock && (lock->magic == STRESS_LOCK_MAGIC));
 }
 
 /*
@@ -189,7 +189,7 @@ static int PURE stress_atomic_lock_deinit(stress_lock_t *lock)
 
 static int stress_atomic_lock_acquire(stress_lock_t *lock)
 {
-	if (lock) {
+	if (LIKELY(lock != NULL)) {
 		double t = stress_time_now();
 
 		while (test_and_set(&lock->u.flag) == true) {
@@ -213,7 +213,7 @@ static int stress_atomic_lock_acquire(stress_lock_t *lock)
 
 static int stress_atomic_lock_acquire_relax(stress_lock_t *lock)
 {
-	if (lock) {
+	if (LIKELY(lock != NULL)) {
 		double t = stress_time_now();
 #if defined(STRESS_LOCK_BACKOFF)
 		uint32_t backoff = 1;
@@ -393,7 +393,7 @@ static const stress_lock_funcs_t stress_lock_funcs = {
 #elif LOCK_METHOD_OSI_C_MTX != 0
 static int stress_mtx_init(stress_lock_t *lock)
 {
-	if (mtx_init(&lock->u.mtx, mtx_plain) == thrd_success)
+	if (LIKELY(mtx_init(&lock->u.mtx, mtx_plain) == thrd_success))
 		return 0;
 
 	errno = -ENOSYS;
@@ -409,7 +409,7 @@ static int stress_mtx_deinit(stress_lock_t *lock)
 
 static int stress_mtx_acquire(stress_lock_t *lock)
 {
-	if (mtx_lock(&lock->u.mtx) == thrd_success)
+	if (LIKELY(mtx_lock(&lock->u.mtx) == thrd_success))
 		return 0;
 
 	errno = -ENOSYS;
@@ -418,7 +418,7 @@ static int stress_mtx_acquire(stress_lock_t *lock)
 
 static int stress_mtx_release(stress_lock_t *lock)
 {
-	if (mtx_unlock(&lock->u.mtx) == thrd_success)
+	if (LIKELY(mtx_unlock(&lock->u.mtx) == thrd_success))
 		return 0;
 
 	errno = -ENOSYS;
@@ -601,17 +601,17 @@ void *stress_lock_create(const char *name)
 
 	(void)name;
 
-	if (LOCK_METHOD_ALL == (0)) {
+	if (UNLIKELY(LOCK_METHOD_ALL == (0))) {
 		/* Critical, we need to be able to lock somehow! */
 		pr_err("core-lock: no locking primitives available\n");
 		return NULL;
 	}
 
 	lock = stress_lock_get();
-	if (!lock)
+	if (UNLIKELY(!lock))
 		return NULL;
 
-	if (stress_lock_funcs.init(lock) == 0)
+	if (LIKELY(stress_lock_funcs.init(lock) == 0))
 		return lock;
 
 	VOID_RET(int, stress_lock_destroy(lock));
@@ -626,7 +626,7 @@ int stress_lock_destroy(void *lock_handle)
 {
 	stress_lock_t *lock = (stress_lock_t *)lock_handle;
 
-	if (stress_lock_valid(lock)) {
+	if (LIKELY(stress_lock_valid(lock))) {
 		(void)stress_lock_funcs.deinit(lock);
 		return stress_lock_put(lock);
 	}
@@ -642,7 +642,7 @@ int stress_lock_acquire(void *lock_handle)
 {
 	stress_lock_t *lock = (stress_lock_t *)lock_handle;
 
-	if (stress_lock_valid(lock))
+	if (LIKELY(stress_lock_valid(lock)))
 		return stress_lock_funcs.acquire(lock);
 
 	errno = EINVAL;
@@ -657,7 +657,7 @@ int stress_lock_acquire_relax(void *lock_handle)
 {
 	stress_lock_t *lock = (stress_lock_t *)lock_handle;
 
-	if (stress_lock_valid(lock))
+	if (LIKELY(stress_lock_valid(lock)))
 		return stress_lock_funcs.acquire_relax(lock);
 
 	errno = EINVAL;
@@ -672,7 +672,7 @@ int stress_lock_release(void *lock_handle)
 {
 	stress_lock_t *lock = (stress_lock_t *)lock_handle;
 
-	if (stress_lock_valid(lock))
+	if (LIKELY(stress_lock_valid(lock)))
 		return stress_lock_funcs.release(lock);
 
 	errno = EINVAL;
@@ -688,11 +688,11 @@ static stress_lock_t *stress_lock_get(void)
 	register size_t i;
 	stress_lock_t *lock = NULL;
 
-	if (!stress_lock_big_lock)
+	if (UNLIKELY(!stress_lock_big_lock))
 		return NULL;
-	if (!stress_lock_valid(stress_lock_big_lock))
+	if (UNLIKELY(!stress_lock_valid(stress_lock_big_lock)))
 		return NULL;
-	if (stress_lock_funcs.acquire(stress_lock_big_lock) < 0)
+	if (UNLIKELY(stress_lock_funcs.acquire(stress_lock_big_lock) < 0))
 		return NULL;
 	for (i = 0; i < STRESS_LOCK_MAX; i++) {
 		if (stress_locks[i].magic == STRESS_LOCK_MAGIC_FREE) {
@@ -713,15 +713,15 @@ static stress_lock_t *stress_lock_get(void)
  */
 static int stress_lock_put(stress_lock_t *lock)
 {
-	if (!lock)
+	if (UNLIKELY(!lock))
 		return -1;
-	if (!stress_lock_valid(lock))
+	if (UNLIKELY(!stress_lock_valid(lock)))
 		return -1;
-	if (!stress_lock_big_lock)
+	if (UNLIKELY(!stress_lock_big_lock))
 		return -1;
-	if (!stress_lock_valid(stress_lock_big_lock))
+	if (UNLIKELY(!stress_lock_valid(stress_lock_big_lock)))
 		return -1;
-	if (stress_lock_funcs.acquire(stress_lock_big_lock) < 0)
+	if (UNLIKELY(stress_lock_funcs.acquire(stress_lock_big_lock) < 0))
 		return -1;
 
 	(void)shim_memset(lock, 0, sizeof(*lock));
@@ -745,7 +745,7 @@ int stress_lock_mem_map(void)
 						PROT_READ | PROT_WRITE,
 						MAP_ANONYMOUS | MAP_SHARED,
 						-1, 0);
-	if (stress_locks == MAP_FAILED)
+	if (UNLIKELY(stress_locks == MAP_FAILED))
 		return -1;
 
 	(void)snprintf(name, sizeof(name), "lock-%s", stress_lock_funcs.type);
