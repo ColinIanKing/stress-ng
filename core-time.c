@@ -45,7 +45,7 @@ static OPTIMIZE3 int stress_time_now_timeval(double *dnow)
 {
 	struct timeval now;
 
-	if (gettimeofday(&now, NULL) < 0)
+	if (UNLIKELY(gettimeofday(&now, NULL) < 0))
 		return -1;
 
 	*dnow = stress_timeval_to_double(&now);
@@ -62,7 +62,7 @@ static OPTIMIZE3 int stress_time_now_timespec(double *dnow)
     defined(CLOCK_REALTIME)
 	struct timespec ts;
 
-	if (clock_gettime(CLOCK_REALTIME, &ts) < 0)
+	if (UNLIKELY(clock_gettime(CLOCK_REALTIME, &ts) < 0))
 		return -1;
 
 	*dnow = (double)ts.tv_sec + ((double)ts.tv_nsec * ONE_BILLIONTH);
