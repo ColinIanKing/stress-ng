@@ -20,6 +20,8 @@
 #include "stress-ng.h"
 #include "core-attribute.h"
 #include "core-builtin.h"
+#include "core-pragma.h"
+#include "core-target-clones.h"
 
 #include <time.h>
 
@@ -151,7 +153,7 @@ static int shim_io_getevents_random(
  *  aio_linux_fill_buffer()
  *	fill buffer with some known pattern
  */
-static inline OPTIMIZE3 void aio_linux_fill_buffer(
+static inline OPTIMIZE3 TARGET_CLONES void aio_linux_fill_buffer(
 	const uint8_t pattern,
 	uint8_t *const buffer,
 	const size_t size)
@@ -159,6 +161,7 @@ static inline OPTIMIZE3 void aio_linux_fill_buffer(
 	register size_t i;
 	register uint8_t pat = pattern;
 
+PRAGMA_UNROLL_N(2)
 	for (i = 0; i < size; i++, pat++)
 		buffer[i] = (uint8_t)pat;
 }
@@ -173,9 +176,11 @@ static inline PURE OPTIMIZE3 bool aio_linux_check_buffer(
 	const size_t size)
 {
 	register size_t i;
+	register uint8_t pat = (uint8_t)request;
 
-	for (i = 0; i < size; i++) {
-		if (buffer[i] != (uint8_t)(request + (int)i))
+PRAGMA_UNROLL_N(2)
+	for (i = 0; i < size; i++, pat++) {
+		if (buffer[i] != pat)
 			return false;
 	}
 
