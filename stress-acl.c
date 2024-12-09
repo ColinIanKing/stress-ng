@@ -93,6 +93,9 @@ static inline void stress_acl_delete_all(const char *filename, const acl_type_t 
 	acl_free(acl);
 }
 
+#if defined(HAVE_ACL_CMP)
+#define stress_acl_cmp(acl1, acl2)	acl_cmp(acl1, acl2)
+#else
 /*
  *  stress_acl_cmp()
  *	naive acl comparison, assumes that acl_to_text generates
@@ -120,6 +123,7 @@ static inline int stress_acl_cmp(const acl_t acl1, const acl_t acl2)
 
 	return ret;
 }
+#endif
 
 /*
  *  stress_acl_perms()
