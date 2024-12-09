@@ -770,6 +770,8 @@ static void stress_af_alg_sort_crypto(void)
 	size_t i, n, internal;
 
 	stress_af_alg_count_crypto(&n, &internal);
+	if (n == 0)
+		return;
 
 	/* Attempt to sort, if we can't silently don't sort */
 	array = (stress_crypto_info_t **)calloc(n, sizeof(*array));
