@@ -131,7 +131,7 @@ static void *stress_far_try_mmap(void *addr, size_t length)
 		void *ptr;
 
 		ptr = (uint8_t *)stress_far_mmap_try32(addr, length, PROT_READ | PROT_WRITE,
-			MAP_ANONYMOUS | MAP_PRIVATE | MAP_FIXED_NOREPLACE, -1, 0);
+			MAP_ANONYMOUS | MAP_SHARED | MAP_FIXED_NOREPLACE, -1, 0);
 		if (ptr != MAP_FAILED) {
 			(void)stress_madvise_mergeable(ptr, length);
 			return ptr;
@@ -145,7 +145,7 @@ static void *stress_far_try_mmap(void *addr, size_t length)
 		void *ptr;
 
 		ptr = (uint8_t *)stress_far_mmap_try32(addr, length, PROT_READ | PROT_WRITE,
-			MAP_ANONYMOUS | MAP_PRIVATE | MAP_FIXED, -1, 0);
+			MAP_ANONYMOUS | MAP_SHARED | MAP_FIXED, -1, 0);
 		if (ptr != MAP_FAILED) {
 			(void)stress_madvise_mergeable(ptr, length);
 			return ptr;
@@ -216,7 +216,7 @@ static void *stress_far_mmap(
 	 */
 	if (ptr == MAP_FAILED) {
 		ptr = (uint8_t *)mmap(NULL, page_size, PROT_READ | PROT_WRITE,
-					MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+					MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 		if (ptr == MAP_FAILED)
 			return NULL;	/* Give up */
 		(void)stress_madvise_mergeable(ptr, page_size);
