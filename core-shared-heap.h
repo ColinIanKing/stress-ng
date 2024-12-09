@@ -25,6 +25,6 @@
 extern WARN_UNUSED void *stress_shared_heap_init(void);
 extern void stress_shared_heap_free(void);
 extern WARN_UNUSED void *stress_shared_heap_malloc(const size_t size);
-extern WARN_UNUSED char *stress_shared_heap_dup_const(const char *str) NONNULL(1);
+extern WARN_UNUSED char *stress_shared_heap_dup_const(const char *str);
 
 #endif

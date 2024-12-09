@@ -39,17 +39,17 @@
 
 /* Network helpers */
 extern void stress_set_net_port(const char *optname, const char *opt,
-	const int min_port, const int max_port, int *port) NONNULL(1, 2, 5);
+	const int min_port, const int max_port, int *port);
 extern WARN_UNUSED int stress_set_net_domain(const int domain_mask,
-	const char *name, const char *domain_name, int *domain) NONNULL(2, 3, 4);
+	const char *name, const char *domain_name, int *domain);
 extern WARN_UNUSED int stress_set_sockaddr_if(const char *name, const uint32_t instance,
         const pid_t pid, const int domain, const int port, const char *ifname,
 	struct sockaddr **sockaddr, socklen_t *len, const int net_addr);
 extern WARN_UNUSED int stress_set_sockaddr(const char *name, const uint32_t instance,
 	const pid_t pid, const int domain, const int port,
-	struct sockaddr **sockaddr, socklen_t *len, const int net_addr) NONNULL(1, 6, 7);
+	struct sockaddr **sockaddr, socklen_t *len, const int net_addr);
 extern void stress_set_sockaddr_port(const int domain, const int port,
-	struct sockaddr *sockaddr) NONNULL(3);
+	struct sockaddr *sockaddr);
 extern int stress_net_interface_exists(const char *interface, const int domain, struct sockaddr *addr);
 extern WARN_UNUSED const char *stress_net_domain(const int domain);
 

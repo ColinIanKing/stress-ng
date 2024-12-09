@@ -22,8 +22,8 @@
 #include "core-attribute.h"
 
 extern int stress_module_load(const char *name, const char *alias,
-	const char *options, bool *already_loaded) NONNULL(1, 2, 4);
+	const char *options, bool *already_loaded);
 extern int stress_module_unload(const char *name, const char *alias,
-	const bool already_loaded) NONNULL(1, 2);
+	const bool already_loaded);
 
 #endif

@@ -21,9 +21,9 @@
 
 #include "core-attribute.h"
 
-extern void stress_mmap_set(uint8_t *buf, const size_t sz, const size_t page_size) NONNULL(1);
-extern int stress_mmap_check(uint8_t *buf, const size_t sz, const size_t page_size) NONNULL(1);
-extern void stress_mmap_set_light(uint8_t *buf, const size_t sz, const size_t page_size) NONNULL(1);
-extern int stress_mmap_check_light(uint8_t *buf, const size_t sz, const size_t page_size) NONNULL(1);
+extern void stress_mmap_set(uint8_t *buf, const size_t sz, const size_t page_size);
+extern int stress_mmap_check(uint8_t *buf, const size_t sz, const size_t page_size);
+extern void stress_mmap_set_light(uint8_t *buf, const size_t sz, const size_t page_size);
+extern int stress_mmap_check_light(uint8_t *buf, const size_t sz, const size_t page_size);
 
 #endif

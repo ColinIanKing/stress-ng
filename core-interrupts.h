@@ -21,10 +21,10 @@
 
 #include "core-attribute.h"
 
-extern void stress_interrupts_start(stress_interrupts_t *counters) NONNULL(1);
-extern void stress_interrupts_stop(stress_interrupts_t *counters) NONNULL(1);
+extern void stress_interrupts_start(stress_interrupts_t *counters);
+extern void stress_interrupts_stop(stress_interrupts_t *counters);
 extern void stress_interrupts_check_failure(const char *name,
-	stress_interrupts_t *counters, uint32_t instance, int *rc) NONNULL(1, 2, 4);
-extern void stress_interrupts_dump(FILE *yaml, stress_stressor_t *stressors_list) NONNULL(2);
+	stress_interrupts_t *counters, uint32_t instance, int *rc);
+extern void stress_interrupts_dump(FILE *yaml, stress_stressor_t *stressors_list);
 
 #endif

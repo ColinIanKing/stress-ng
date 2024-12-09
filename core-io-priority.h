@@ -50,7 +50,7 @@
 #define IOPRIO_PRIO_VALUE(class, data)  (((class) << 13) | (data))
 #endif
 
-int32_t stress_get_opt_ionice_class(const char *const str) NONNULL(1);
+int32_t stress_get_opt_ionice_class(const char *const str);
 void stress_set_iopriority(const int32_t class, const int32_t level);
 
 #endif

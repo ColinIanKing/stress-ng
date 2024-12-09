@@ -22,6 +22,6 @@
 #include "core-attribute.h"
 
 extern void stress_klog_start(void);
-extern void stress_klog_stop(bool *success) NONNULL(1);
+extern void stress_klog_stop(bool *success);
 
 #endif

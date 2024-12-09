@@ -89,9 +89,9 @@ typedef struct stress_numa_mask {
 #define MPOL_F_STATIC_NODES	(1 << 15)
 #endif
 
-extern unsigned long int stress_numa_count_mem_nodes(unsigned long int *max_node) NONNULL(1);
+extern unsigned long int stress_numa_count_mem_nodes(unsigned long int *max_node);
 extern unsigned long int stress_numa_nodes(void);
-extern int stress_set_mbind(const char *arg) NONNULL(1);
+extern int stress_set_mbind(const char *arg);
 extern stress_numa_mask_t *stress_numa_mask_alloc(void);
 extern void stress_numa_mask_free(stress_numa_mask_t *mask);
 

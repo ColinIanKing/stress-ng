@@ -24,6 +24,6 @@
 /* CPU thrashing start/stop helpers */
 extern int  stress_thrash_start(void);
 extern void stress_thrash_stop(void);
-extern int stress_pagein_self(const char *name) NONNULL(1);
+extern int stress_pagein_self(const char *name);
 
 #endif

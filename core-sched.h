@@ -53,7 +53,7 @@ extern const size_t stress_sched_types_length;
 extern const char *stress_get_sched_name(const int sched) RETURNS_NONNULL;
 extern WARN_UNUSED int stress_set_sched(const pid_t pid, const int sched,
 	const int sched_priority, const bool quiet);
-extern WARN_UNUSED int32_t stress_get_opt_sched(const char *const str) NONNULL(1);
+extern WARN_UNUSED int32_t stress_get_opt_sched(const char *const str);
 extern int sched_settings_apply(const bool quiet);
 
 #endif
