@@ -202,9 +202,6 @@ static void *stress_malloc_loop(void *ptr)
 		if (!keep_thread_running_flag)
 			break;
 #endif
-		if (!stress_bogo_inc_lock(args, counter_lock, false))
-			break;
-
 		if (info[i].addr) {
 			/* 50% free, 50% realloc */
 			if (action || low_mem) {
@@ -218,8 +215,7 @@ static void *stress_malloc_loop(void *ptr)
 				free_func(info[i].addr, info[i].len);
 				info[i].addr = NULL;
 				info[i].len = 0;
-
-				if (!stress_bogo_inc_lock(args, counter_lock, true))
+				if (UNLIKELY(!stress_bogo_inc_lock(args, counter_lock, true)))
 					break;
 			} else {
 				void *tmp;
@@ -244,7 +240,6 @@ static void *stress_malloc_loop(void *ptr)
 				}
 			}
 		} else {
-			/* 50% free, 50% alloc */
 			if (action && !low_mem) {
 				size_t n, len = stress_alloc_size(malloc_bytes);
 

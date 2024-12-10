@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "7 December 2024"
+.TH STRESS-NG 1 "10 December 2024"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -4343,7 +4343,8 @@ swapped out.
 .TP
 .B \-\-malloc\-ops N
 stop after N malloc bogo operations. One bogo operations relates to a
-successful malloc(3), calloc(3) or realloc(3).
+successful malloc(3), calloc(3), realloc(3), posix_memalign(3),
+aligned_alloc(3) or memalign(3) call.
 .TP
 .B \-\-malloc\-pthreads N
 specify number of malloc stressing concurrent pthreads to run. The default is
