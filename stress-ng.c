@@ -1667,6 +1667,8 @@ static int MLOCKED_TEXT stress_run_child(
 	if (g_opt_timeout)
 		(void)alarm((unsigned int)g_opt_timeout);
 	if (stress_continue_flag() && !(g_opt_flags & OPT_FLAGS_DRY_RUN)) {
+		const struct stressor_info *info = g_stressor_current->stressor->info;
+
 		stats->args.stats = stats;
 		stats->args.name = name;
 		stats->args.max_ops = g_stressor_current->bogo_ops;
@@ -1677,7 +1679,7 @@ static int MLOCKED_TEXT stress_run_child(
 		stats->args.time_end = stress_time_now() + (double)g_opt_timeout;
 		stats->args.mapped = &g_shared->mapped;
 		stats->args.metrics = &stats->metrics;
-		stats->args.info = g_stressor_current->stressor->info;
+		stats->args.info = info;
 		stats->args.ci.counter = 0;
 
 		if (instance == 0)
@@ -1692,7 +1694,7 @@ static int MLOCKED_TEXT stress_run_child(
 #endif
 		if (g_opt_flags & OPT_FLAGS_STRESSOR_TIME)
 			stress_log_time(name, stats->start, "start");
-		rc = g_stressor_current->stressor->info->stressor(&stats->args);
+		rc = info->stressor(&stats->args);
 		stress_sync_state_store(&stats->s_pid, STRESS_SYNC_START_FLAG_FINISHED);
 		stress_block_signals();
 		(void)alarm(0);
