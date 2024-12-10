@@ -178,12 +178,6 @@ static int stress_memfd_child(stress_args_t *args, void *context)
 	bool memfd_madvise = false;
 	bool memfd_mlock = false;
 	bool memfd_zap_pte = false;
-#if defined(HAVE_NT_STORE64)
-	void (*stress_memfd_fill_pages)(uint64_t val, void *ptr, const size_t size) =
-		stress_cpu_x86_has_sse2() ? stress_memfd_fill_pages_nt_store : stress_memfd_fill_pages_generic;
-#else
-	void (*stress_memfd_fill_pages)(uint64_t val, void *ptr, const size_t size) = stress_memfd_fill_pages_generic;
-#endif
 	char filename_rndstr[64], filename_unusual[64], filename_pid[64];
 
 	stress_catch_sigill();
@@ -342,7 +336,7 @@ static int stress_memfd_child(stress_args_t *args, void *context)
 				continue;
 			if (memfd_mlock)
 				(void)shim_mlock(maps[i], size);
-			stress_memfd_fill_pages(stress_mwc64(), maps[i], size);
+			stress_memfd_fill_pages_generic(stress_mwc64(), maps[i], size);
 			if (memfd_madvise) {
 				(void)stress_madvise_random(maps[i], size);
 				(void)stress_madvise_mergeable(maps[i], size);
@@ -448,7 +442,7 @@ memfd_unmap:
 				if (memfd_mlock)
 					(void)shim_mlock(buf, test_size);
 				val = stress_mwc64();
-				stress_memfd_fill_pages(val, buf, test_size);
+				stress_memfd_fill_pages_generic(val, buf, test_size);
 
 				if (madvise(buf, test_size, MADV_PAGEOUT) < 0)
 					goto buf_unmap;
