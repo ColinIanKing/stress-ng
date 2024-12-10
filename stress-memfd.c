@@ -121,39 +121,6 @@ static void stress_memfd_fill_pages_generic(const uint64_t val, void *ptr, const
 	}
 }
 
-#if defined(HAVE_NT_STORE64)
-/*
- *  stress_memfd_fill_pages_nt_store()
- *	fill pages with random uin64_t values using nt_store
- */
-static void stress_memfd_fill_pages_nt_store(const uint64_t val, void *ptr, const size_t size)
-{
-	register uint64_t *u64ptr = (uint64_t *)ptr;
-	register const uint64_t *u64end = uint64_ptr_offset(ptr, size);
-	register uint64_t v = val;
-
-	while (u64ptr < u64end) {
-		stress_nt_store64(u64ptr, v);
-		u64ptr += MEMFD_STRIDE;
-		stress_nt_store64(u64ptr, v);
-		u64ptr += MEMFD_STRIDE;
-		stress_nt_store64(u64ptr, v);
-		u64ptr += MEMFD_STRIDE;
-		stress_nt_store64(u64ptr, v);
-		u64ptr += MEMFD_STRIDE;
-		stress_nt_store64(u64ptr, v);
-		u64ptr += MEMFD_STRIDE;
-		stress_nt_store64(u64ptr, v);
-		u64ptr += MEMFD_STRIDE;
-		stress_nt_store64(u64ptr, v);
-		u64ptr += MEMFD_STRIDE;
-		stress_nt_store64(u64ptr, v);
-		u64ptr += MEMFD_STRIDE;
-		v++;
-	}
-}
-#endif
-
 #if defined(HAVE_MADVISE) &&	\
     defined(MADV_PAGEOUT)
 /*
