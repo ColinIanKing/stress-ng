@@ -309,7 +309,9 @@ static int stress_rgb_compress_to_jpeg(
 
 PRAGMA_UNROLL_N(8)
 	for (y = 0; y < y_max; y++, rgb += row_stride) {
-		*yy %= y_max;
+
+		if (UNLIKELY(*yy >= y_max))
+			*yy = 0;
 		row_pointer[*yy] = rgb;
 		(*yy)++;
 	}
