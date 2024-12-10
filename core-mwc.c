@@ -31,16 +31,6 @@
 #include <utime.h>
 #endif
 
-/*
- *  Use modulo reduction, this uses multiplication and shift
- *  which is normally faster than mask and compare looping.
- *  32 bit systems generally don't have 128 unsigned integer
- *  multiplication support required for 64 bit modulo reduction
- *  so fast modulo reduction only works for 8, 16, 32 bits for
- *  these smaller systems.
- */
-#define HAVE_FAST_MODULO_REDUCTION
-
 /* MWC random number initial seed */
 #define STRESS_MWC_SEED_W	(521288629UL)
 #define STRESS_MWC_SEED_Z	(362436069UL)
@@ -275,18 +265,7 @@ uint8_t OPTIMIZE3 stress_mwc1(void)
 	return mwc.saved1 & 0x1;
 }
 
-#if defined(HAVE_FAST_MODULO_REDUCTION)
-/*
- *  stress_mwc8modn()
- *	see https://lemire.me/blog/2016/06/27/a-fast-alternative-to-the-modulo-reduction
- *	return 8 bit non-modulo biased value 1..max (inclusive)
- *	where max is most probably not a power of 2
- */
-uint8_t OPTIMIZE3 stress_mwc8modn(const uint8_t max)
-{
-	return (uint8_t)(((uint16_t)stress_mwc8() * (uint16_t)max) >> 8);
-}
-#else
+#if !defined(HAVE_FAST_MODULO_REDUCTION)
 /*
  *  stress_mwc8mask()
  *	generate a mask large enough for 8 bit val
@@ -320,19 +299,7 @@ uint8_t OPTIMIZE3 stress_mwc8modn(const uint8_t max)
 
 	return val;
 }
-#endif
 
-#if defined(HAVE_FAST_MODULO_REDUCTION)
-/*
- *  stress_mwc16modn()
- *	see https://lemire.me/blog/2016/06/27/a-fast-alternative-to-the-modulo-reduction
- *	return 16 bit non-modulo biased value 1..max (inclusive)
- */
-uint16_t OPTIMIZE3 stress_mwc16modn(const uint16_t max)
-{
-	return (uint16_t)(((uint32_t)stress_mwc16() * (uint32_t)max) >> 16);
-}
-#else
 /*
  *  stress_mwc16mask()
  *	generate a mask large enough for 16 bit val
@@ -367,19 +334,7 @@ uint16_t OPTIMIZE3 stress_mwc16modn(const uint16_t max)
 
 	return val;
 }
-#endif
 
-#if defined(HAVE_FAST_MODULO_REDUCTION)
-/*
- *  stress_mwc32modn()
- *	see https://lemire.me/blog/2016/06/27/a-fast-alternative-to-the-modulo-reduction
- *	return 32 bit non-modulo biased value 1..max (inclusive)
- */
-uint32_t OPTIMIZE3 stress_mwc32modn(const uint32_t max)
-{
-	return (uint32_t)(((uint64_t)stress_mwc32() * (uint64_t)max) >> 32);
-}
-#else
 /*
  *  stress_mwc32mask()
  *	generate a mask large enough for 32 bit val
@@ -417,18 +372,8 @@ uint32_t OPTIMIZE3 stress_mwc32modn(const uint32_t max)
 }
 #endif
 
-#if defined(HAVE_FAST_MODULO_REDUCTION) &&	\
-    defined(HAVE_INT128_T)
-/*
- *  stress_mwc64modn()
- *	see https://lemire.me/blog/2016/06/27/a-fast-alternative-to-the-modulo-reduction
- *	return 64 bit non-modulo biased value 1..max (inclusive)
- */
-uint64_t OPTIMIZE3 stress_mwc64modn(const uint64_t max)
-{
-	return (uint64_t)(((__uint128_t)stress_mwc64() * (__uint128_t)max) >> 64);
-}
-#else
+#if !defined(HAVE_FAST_MODULO_REDUCTION) ||	\
+    !defined(HAVE_INT128_T)
 /*
  *  stress_mwc64mask()
  *	generate a mask large enough for 64 bit val
