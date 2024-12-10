@@ -27,25 +27,25 @@
 #include <xxhash.h>
 #endif
 
+#define STRESS_HASH_N_BUCKETS	(256)
+#define STRESS_HASH_N_KEYS	(128)
+
 typedef struct {
-	double_t	duration;
+	double		duration;
 	double		chi_squared;
 	uint64_t	total;
 } stress_hash_stats_t;
 
 typedef struct {
-	uint64_t	*buckets;
-	uint32_t 	n_keys;
-	uint32_t	n_buckets;
-	size_t		size;
-	char 		*buffer;
+	uint64_t	buckets[STRESS_HASH_N_BUCKETS] ALIGNED(32);
+	char 		buffer[STRESS_HASH_N_KEYS + 64] ALIGNED(32);
 } stress_bucket_t;
 
 struct stress_hash_method_info;
 typedef struct stress_hash_method_info stress_hash_method_info_t;
 
 typedef uint32_t (*stress_hash_func)(const char *str, const size_t len);
-typedef int (*stress_method_func)(const char *name, const stress_hash_method_info_t *hmi, const stress_bucket_t *bucket);
+typedef int (*stress_method_func)(const char *name, const stress_hash_method_info_t *hmi, stress_bucket_t *bucket);
 
 struct stress_hash_method_info {
 	const char		*name;	/* human readable form of stressor */
@@ -67,7 +67,7 @@ static const stress_help_t help[] = {
 static int stress_hash_generic(
 	const char *name,
 	const stress_hash_method_info_t *hmi,
-	const stress_bucket_t *bucket,
+	stress_bucket_t *bucket,
 	const stress_hash_func hash_func,
 	const uint32_t le_result,
 	const uint32_t be_result)
@@ -83,35 +83,35 @@ static int stress_hash_generic(
 	if (verify)
 		stress_mwc_seed();
 
-	(void)shim_memset(bucket->buckets, 0, bucket->size);
+	(void)shim_memset(bucket->buckets, 0, sizeof(bucket->buckets));
 
-	stress_uint8rnd4((uint8_t *)bucket->buffer, bucket->n_keys);
+	stress_uint8rnd4((uint8_t *)bucket->buffer, STRESS_HASH_N_KEYS);
 	/* Make it ASCII range ' '..'_' */
-	for (i = 0; i < bucket->n_keys; i++)
+	for (i = 0; i < STRESS_HASH_N_KEYS; i++)
 		bucket->buffer[i] = (bucket->buffer[i] & 0x3f) + ' ';
 
 	t1 = stress_time_now();
-	for (i = bucket->n_keys - 1; i; i--) {
+	for (i = STRESS_HASH_N_KEYS - 1; i; i--) {
 		uint32_t hash;
 
 		bucket->buffer[i] = '\0';
 		hash = hash_func(bucket->buffer, i);
 		i_sum += hash;
 
-		hash %= bucket->n_buckets;
+		hash %= STRESS_HASH_N_BUCKETS;
 		bucket->buckets[hash]++;
 		stats->total++;
 	}
 	t2 = stress_time_now();
 	stats->duration += (t2 - t1);
 
-	for (i = 0; i < bucket->n_buckets; i++) {
+	for (i = 0; i < STRESS_HASH_N_BUCKETS; i++) {
 		const double bi = (double)bucket->buckets[i];
 
 		sum += (bi * (bi + 1.0)) / 2.0;
 	}
-	n = (double)bucket->n_keys;
-	m = (double)bucket->n_buckets;
+	n = (double)STRESS_HASH_N_KEYS;
+	m = (double)STRESS_HASH_N_BUCKETS;
 	divisor = (n / (2.0 * m)) * (n + (2.0 * m) - 1.0);
 
 	stats->chi_squared = sum / divisor;
@@ -132,7 +132,7 @@ static int stress_hash_generic(
 static int stress_hash_method_adler32(
 	const char *name,
 	const stress_hash_method_info_t *hmi,
-	const stress_bucket_t *bucket)
+	stress_bucket_t *bucket)
 {
 	return stress_hash_generic(name, hmi, bucket, stress_hash_adler32, 0xe0d8c860, 0xe0d8c860);
 }
@@ -149,7 +149,7 @@ static uint32_t stress_hash_jenkin_wrapper(const char *str, const size_t len)
 static int stress_hash_method_jenkin(
 	const char *name,
 	const stress_hash_method_info_t *hmi,
-	const stress_bucket_t *bucket)
+	stress_bucket_t *bucket)
 {
 	return stress_hash_generic(name, hmi, bucket, stress_hash_jenkin_wrapper, 0xa6705071, 0xa6705071);
 }
@@ -170,7 +170,7 @@ static uint32_t stress_hash_murmur3_32_wrapper(const char *str, const size_t len
 static int stress_hash_method_murmur3_32(
 	const char *name,
 	const stress_hash_method_info_t *hmi,
-	const stress_bucket_t *bucket)
+	stress_bucket_t *bucket)
 {
 	/*
 	 *  Murmur produces different results depending on the Endianness
@@ -192,7 +192,7 @@ static uint32_t PURE stress_hash_pjw_wrapper(const char *str, const size_t len)
 static int stress_hash_method_pjw(
 	const char *name,
 	const stress_hash_method_info_t *hmi,
-	const stress_bucket_t *bucket)
+	stress_bucket_t *bucket)
 {
 	return stress_hash_generic(name, hmi, bucket, stress_hash_pjw_wrapper, 0xa89a91c0, 0xa89a91c0);
 }
@@ -211,7 +211,7 @@ static uint32_t PURE stress_hash_djb2a_wrapper(const char *str, const size_t len
 static int stress_hash_method_djb2a(
 	const char *name,
 	const stress_hash_method_info_t *hmi,
-	const stress_bucket_t *bucket)
+	stress_bucket_t *bucket)
 {
 	return stress_hash_generic(name, hmi, bucket, stress_hash_djb2a_wrapper, 0x6a60cb5a, 0x6a60cb5a);
 }
@@ -230,7 +230,7 @@ static uint32_t PURE stress_hash_fnv1a_wrapper(const char *str, const size_t len
 static int stress_hash_method_fnv1a(
 	const char *name,
 	const stress_hash_method_info_t *hmi,
-	const stress_bucket_t *bucket)
+	stress_bucket_t *bucket)
 {
 	return stress_hash_generic(name, hmi, bucket, stress_hash_fnv1a_wrapper, 0x8ef17e80, 0x8ef17e80);
 }
@@ -249,7 +249,7 @@ static uint32_t PURE stress_hash_sdbm_wrapper(const char *str, const size_t len)
 static int stress_hash_method_sdbm(
 	const char *name,
 	const stress_hash_method_info_t *hmi,
-	const stress_bucket_t *bucket)
+	stress_bucket_t *bucket)
 {
 	return stress_hash_generic(name, hmi, bucket, stress_hash_sdbm_wrapper, 0x46357819, 0x46357819);
 }
@@ -268,7 +268,7 @@ static uint32_t PURE stress_hash_nhash_wrapper(const char *str, const size_t len
 static int stress_hash_method_nhash(
 	const char *name,
 	const stress_hash_method_info_t *hmi,
-	const stress_bucket_t *bucket)
+	stress_bucket_t *bucket)
 {
 	return stress_hash_generic(name, hmi, bucket, stress_hash_nhash_wrapper, 0x1cc86e3, 0x1cc86e3);
 }
@@ -287,7 +287,7 @@ static uint32_t PURE stress_hash_crc32c_wrapper(const char *str, const size_t le
 static int stress_hash_method_crc32c(
 	const char *name,
 	const stress_hash_method_info_t *hmi,
-	const stress_bucket_t *bucket)
+	stress_bucket_t *bucket)
 {
 	return stress_hash_generic(name, hmi, bucket, stress_hash_crc32c_wrapper, 0x923ab2b3, 0x923ab2b3);
 }
@@ -315,7 +315,7 @@ static uint32_t PURE OPTIMIZE3 stress_hash_xor(const char *str, const size_t len
 static int stress_hash_method_xor(
 	const char *name,
 	const stress_hash_method_info_t *hmi,
-	const stress_bucket_t *bucket)
+	stress_bucket_t *bucket)
 {
 	return stress_hash_generic(name, hmi, bucket, stress_hash_xor, 0xe6d601eb, 0xe6d601eb);
 }
@@ -327,7 +327,7 @@ static int stress_hash_method_xor(
 static int stress_hash_method_muladd32(
 	const char *name,
 	const stress_hash_method_info_t *hmi,
-	const stress_bucket_t *bucket)
+	stress_bucket_t *bucket)
 {
 	return stress_hash_generic(name, hmi, bucket, stress_hash_muladd32, 0x7f0a8d4d, 0x7f0a8d4d);
 }
@@ -339,7 +339,7 @@ static int stress_hash_method_muladd32(
 static int stress_hash_method_muladd64(
 	const char *name,
 	const stress_hash_method_info_t *hmi,
-	const stress_bucket_t *bucket)
+	stress_bucket_t *bucket)
 {
 	return stress_hash_generic(name, hmi, bucket, stress_hash_muladd64, 0x99109f5c, 0x99109f5c);
 }
@@ -358,7 +358,7 @@ static uint32_t PURE stress_hash_kandr_wrapper(const char *str, const size_t len
 static int stress_hash_method_kandr(
 	const char *name,
 	const stress_hash_method_info_t *hmi,
-	const stress_bucket_t *bucket)
+	stress_bucket_t *bucket)
 {
 	return stress_hash_generic(name, hmi, bucket, stress_hash_kandr_wrapper, 0x1e197d9, 0x1e197d9);
 }
@@ -377,7 +377,7 @@ static uint32_t PURE stress_hash_coffin_wrapper(const char *str, const size_t le
 static int stress_hash_method_coffin(
 	const char *name,
 	const stress_hash_method_info_t *hmi,
-	const stress_bucket_t *bucket)
+	stress_bucket_t *bucket)
 {
 	return stress_hash_generic(name, hmi, bucket, stress_hash_coffin_wrapper, 0xdc02e07b, 0xdc02e07b);
 }
@@ -403,7 +403,7 @@ static uint32_t PURE stress_hash_coffin32_wrapper_be(const char *str, const size
 static int stress_hash_method_coffin32(
 	const char *name,
 	const stress_hash_method_info_t *hmi,
-	const stress_bucket_t *bucket)
+	stress_bucket_t *bucket)
 {
 	const stress_hash_func wrapper = stress_little_endian() ?
 		stress_hash_coffin32_wrapper_le :
@@ -426,7 +426,7 @@ static uint32_t PURE stress_hash_x17_wrapper(const char *str, const size_t len)
 static int stress_hash_method_x17(
 	const char *name,
 	const stress_hash_method_info_t *hmi,
-	const stress_bucket_t *bucket)
+	stress_bucket_t *bucket)
 {
 	return stress_hash_generic(name, hmi, bucket, stress_hash_x17_wrapper, 0xd5c97ec8, 0xd5c97ec8);
 }
@@ -445,7 +445,7 @@ static uint32_t PURE stress_hash_xxh64_wrapper(const char *str, const size_t len
 static int stress_hash_method_xxh64(
 	const char *name,
 	const stress_hash_method_info_t *hmi,
-	const stress_bucket_t *bucket)
+	stress_bucket_t *bucket)
 {
 	return stress_hash_generic(name, hmi, bucket, stress_hash_xxh64_wrapper, 0x5a23bbc6, 0x5a23bbc6);
 }
@@ -465,7 +465,7 @@ static uint32_t PURE stress_hash_loselose_wrapper(const char *str, const size_t 
 static int stress_hash_method_loselose(
 	const char *name,
 	const stress_hash_method_info_t *hmi,
-	const stress_bucket_t *bucket)
+	stress_bucket_t *bucket)
 {
 	return stress_hash_generic(name, hmi, bucket, stress_hash_loselose_wrapper, 0x0007c7e1, 0x0007c7e1);
 }
@@ -477,7 +477,7 @@ static int stress_hash_method_loselose(
 static int stress_hash_method_knuth(
 	const char *name,
 	const stress_hash_method_info_t *hmi,
-	const stress_bucket_t *bucket)
+	stress_bucket_t *bucket)
 {
 	return stress_hash_generic(name, hmi, bucket, stress_hash_knuth, 0xe944fc94, 0xe944fc94);
 }
@@ -489,7 +489,7 @@ static int stress_hash_method_knuth(
 static int stress_hash_method_mid5(
 	const char *name,
 	const stress_hash_method_info_t *hmi,
-	const stress_bucket_t *bucket)
+	stress_bucket_t *bucket)
 {
 	return stress_hash_generic(name, hmi, bucket, stress_hash_mid5, 0xe4b74962, 0xe4b74962);
 }
@@ -501,7 +501,7 @@ static int stress_hash_method_mid5(
 static int stress_hash_method_mulxror32(
 	const char *name,
 	const stress_hash_method_info_t *hmi,
-	const stress_bucket_t *bucket)
+	stress_bucket_t *bucket)
 {
 	return stress_hash_generic(name, hmi, bucket, stress_hash_mulxror32, 0x4d98dd32, 0xf0dce8de);
 }
@@ -513,7 +513,7 @@ static int stress_hash_method_mulxror32(
 static int stress_hash_method_mulxror64(
 	const char *name,
 	const stress_hash_method_info_t *hmi,
-	const stress_bucket_t *bucket)
+	stress_bucket_t *bucket)
 {
 	return stress_hash_generic(name, hmi, bucket, stress_hash_mulxror64, 0x8d38b213, 0x458932cd);
 }
@@ -525,7 +525,7 @@ static int stress_hash_method_mulxror64(
 static int stress_hash_method_xorror64(
 	const char *name,
 	const stress_hash_method_info_t *hmi,
-	const stress_bucket_t *bucket)
+	stress_bucket_t *bucket)
 {
 	return stress_hash_generic(name, hmi, bucket, stress_hash_xorror64, 0xe49ed85f, 0x3d414fee);
 }
@@ -537,7 +537,7 @@ static int stress_hash_method_xorror64(
 static int stress_hash_method_xorror32(
 	const char *name,
 	const stress_hash_method_info_t *hmi,
-	const stress_bucket_t *bucket)
+	stress_bucket_t *bucket)
 {
 	return stress_hash_generic(name, hmi, bucket, stress_hash_xorror32, 0x4fddf545, 0x5be5cd40);
 }
@@ -552,7 +552,7 @@ static uint32_t PURE stress_hash_sedgwick_wrapper(const char *str, const size_t 
 static int stress_hash_method_sedgwick(
 	const char *name,
 	const stress_hash_method_info_t *hmi,
-	const stress_bucket_t *bucket)
+	stress_bucket_t *bucket)
 {
 	return stress_hash_generic(name, hmi, bucket, stress_hash_sedgwick_wrapper, 0x266c1ca9, 0x266c1ca9);
 }
@@ -567,7 +567,7 @@ static uint32_t PURE stress_hash_sobel_wrapper(const char *str, const size_t len
 static int stress_hash_method_sobel(
 	const char *name,
 	const stress_hash_method_info_t *hmi,
-	const stress_bucket_t *bucket)
+	stress_bucket_t *bucket)
 {
 	return stress_hash_generic(name, hmi, bucket, stress_hash_sobel_wrapper, 0x2a7cdb61, 0x2a7cdb61);
 }
@@ -575,7 +575,7 @@ static int stress_hash_method_sobel(
 static OPTIMIZE3 int stress_hash_all(
 	const char *name,
 	const stress_hash_method_info_t *hmi,
-	const stress_bucket_t *bucket);
+	stress_bucket_t *bucket);
 
 /*
  * Table of has stress methods
@@ -622,7 +622,7 @@ static stress_hash_method_info_t hash_methods[] = {
 static OPTIMIZE3 int stress_hash_all(
 	const char *name,
 	const stress_hash_method_info_t *hmi,
-	const stress_bucket_t *bucket)
+	stress_bucket_t *bucket)
 {
 	static size_t i = 1;	/* Skip over stress_hash_all */
 	const stress_hash_method_info_t *h = &hash_methods[i];
@@ -649,26 +649,7 @@ static int OPTIMIZE3 stress_hash(stress_args_t *args)
 	const stress_hash_method_info_t *hm;
 	size_t hash_method = 0;
 	stress_bucket_t bucket;
-	void *buffer;
 	int rc = EXIT_SUCCESS;
-
-	bucket.n_keys = 128;
-	bucket.n_buckets = 256;
-	bucket.size = (size_t)bucket.n_buckets * sizeof(*bucket.buckets);
-	bucket.buckets = (uint64_t *)calloc((size_t)bucket.n_buckets, sizeof(*bucket.buckets));
-	if (!bucket.buckets) {
-		pr_inf_skip("%s: failed to allocate %" PRIu32 " buckets, skipping stressor\n",
-			args->name, bucket.n_buckets);
-		return EXIT_NO_RESOURCE;
-	}
-	buffer = (void *)calloc(bucket.n_keys + 64, sizeof(*buffer));
-	if (!buffer) {
-		pr_inf_skip("%s: failed to allocate %" PRIu32 " byte buffer, skipping stressor\n",
-			args->name, bucket.n_keys);
-		free(bucket.buckets);
-		return EXIT_NO_RESOURCE;
-	}
-	bucket.buffer = (char *)stress_align_address(buffer, 64);
 
 	(void)stress_get_setting("hash-method", &hash_method);
 	hm = &hash_methods[hash_method];
@@ -713,9 +694,6 @@ static int OPTIMIZE3 stress_hash(stress_args_t *args)
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
-
-	free(buffer);
-	free(bucket.buckets);
 
 	return rc;
 }
