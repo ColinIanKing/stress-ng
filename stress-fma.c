@@ -26,6 +26,9 @@
 
 #include <math.h>
 
+#define D_ALIGNED	ALIGNED(64)	/* alignment for doubles */
+#define F_ALIGNED       ALIGNED(64)	/* alignment for floats */
+
 #define FMA_ELEMENTS	(512)
 #define FMA_UNROLL	(8)
 #define FMA_FUNC_TYPES	(2)
@@ -35,14 +38,14 @@
 
 typedef struct {
 	double  *double_a;
-	double	double_init[FMA_ELEMENTS];
-	double	double_a1[FMA_ELEMENTS];
-	double	double_a2[FMA_ELEMENTS];
+	double	double_init[FMA_ELEMENTS] D_ALIGNED;
+	double	double_a1[FMA_ELEMENTS] D_ALIGNED;
+	double	double_a2[FMA_ELEMENTS] D_ALIGNED;
 
 	float	*float_a;
-	float	float_init[FMA_ELEMENTS];
-	float	float_a1[FMA_ELEMENTS];
-	float	float_a2[FMA_ELEMENTS];
+	float	float_init[FMA_ELEMENTS] F_ALIGNED;
+	float	float_a1[FMA_ELEMENTS] F_ALIGNED;
+	float	float_a2[FMA_ELEMENTS] F_ALIGNED;
 
 	double	double_b;
 	double	double_c;
