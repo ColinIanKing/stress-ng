@@ -80,10 +80,10 @@ typedef struct {
 } pthread_info_t;
 
 /*
- *  mutex_exercise()
+ *  stress_mutex_exercise()
  *	exercise the mutex
  */
-static void OPTIMIZE3 *mutex_exercise(void *arg)
+static void OPTIMIZE3 *stress_mutex_exercise(void *arg)
 {
 	pthread_info_t *pthread_info = (pthread_info_t *)arg;
 	stress_args_t *args = pthread_info->args;
@@ -225,7 +225,7 @@ static int stress_mutex(stress_args_t *args)
 		pthread_info[i].lock_duration = 0.0;
 		pthread_info[i].lock_count = 0.0;
 		pthread_info[i].ret = pthread_create(&pthread_info[i].pthread, NULL,
-                                mutex_exercise, (void *)&pthread_info[i]);
+                                stress_mutex_exercise, (void *)&pthread_info[i]);
 		if ((pthread_info[i].ret) && (pthread_info[i].ret != EAGAIN)) {
 			pr_fail("%s: pthread create failed, errno=%d (%s)\n",
 				args->name, pthread_info[i].ret, strerror(pthread_info[i].ret));
