@@ -361,7 +361,7 @@ static void OPTIMIZE3 stress_mmap_index_shuffle(size_t *idx, const size_t n)
 		/* small index < 4GB of items we can use 32bit mod */
 		for (i = 0; i < n; i++) {
 			register const size_t tmp = idx[i];
-			register const size_t j = (size_t)stress_mwc32() % n;
+			register const size_t j = (size_t)stress_mwc32modn((uint32_t)n);
 
 			idx[i] = idx[j];
 			idx[j] = tmp;
@@ -369,7 +369,7 @@ static void OPTIMIZE3 stress_mmap_index_shuffle(size_t *idx, const size_t n)
 	} else {
 		for (i = 0; i < n; i++) {
 			register const size_t tmp = idx[i];
-			register const size_t j = (size_t)stress_mwc64 % n;
+			register const size_t j = (size_t)stress_mwc64modn((uint64_t)n);
 
 			idx[i] = idx[j];
 			idx[j] = tmp;
