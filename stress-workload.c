@@ -86,6 +86,7 @@ typedef struct {
 #define STRESS_WORKLOAD_METHOD_PAUSE	(10)
 #define STRESS_WORKLOAD_METHOD_FMA	(11)
 #define STRESS_WORKLOAD_METHOD_RANDOM	(12)
+#define STRESS_WORKLOAD_METHOD_VECFP	(13)
 #define STRESS_WORKLOAD_METHOD_MAX	STRESS_WORKLOAD_METHOD_RANDOM
 
 #define SCHED_UNDEFINED	(-1)
@@ -147,6 +148,7 @@ static const stress_workload_method_t workload_methods[] = {
 	{ "pause",	STRESS_WORKLOAD_METHOD_PAUSE },
 	{ "random",	STRESS_WORKLOAD_METHOD_RANDOM },
 	{ "sqrt",	STRESS_WORKLOAD_METHOD_SQRT },
+	{ "vecfp",	STRESS_WORKLOAD_METHOD_VECFP },
 };
 
 static const char *stress_workload_dist(const size_t i)
@@ -450,6 +452,57 @@ static void OPTIMIZE3 TARGET_CLONES stress_workload_read(void *buffer, const siz
 #endif
 }
 
+static void TARGET_CLONES stress_workload_vecfp(void)
+{
+#if defined(HAVE_VECMATH)
+	/* Explicit vectorized version */
+	typedef union {
+		double v   ALIGNED(2048) __attribute__ ((vector_size(sizeof(double) * 64)));
+		double f[64] ALIGNED(2048);
+	} stress_vecfp_double_64_t;
+
+	stress_vecfp_double_64_t a, b;
+	double sum = 0.0;
+	static int v = 0;
+	register size_t i;
+
+	for (i = 0; i < 64; i++) {
+		a.f[i] = v;
+		b.f[i] = v * v;
+		v++;
+	}
+	a.v *= b.v;
+	a.v += -b.v;
+
+	for (i = 0; i < 64; i++) {
+		sum += a.f[i];
+	}
+	stress_long_double_put(sum);
+#else
+	/* See how well compiler can vectorize version */
+        double a[64], b[64];
+	double sum = 0.0;
+	static int v = 0;
+	register size_t i;
+
+	for (i = 0; i < 64; i++) {
+		a[i] = v;
+		b[i] = v * v;
+		v++;
+	}
+	for (i = 0; i < 64; i++) {
+		a[i] *= b[i];
+	}
+	for (i = 0; i < 64; i++) {
+		a[i] += b[i];
+	}
+	for (i = 0; i < 64; i++) {
+		sum += a[i];
+	}
+	stress_long_double_put(sum);
+#endif
+}
+
 static inline void stress_workload_waste_time(
 	const int workload_method,
 	const double run_duration_sec,
@@ -507,6 +560,10 @@ static inline void stress_workload_waste_time(
 		while (stress_time_now() < t_end)
 			stress_workload_fma();
 		break;
+	case STRESS_WORKLOAD_METHOD_VECFP:
+		while (stress_time_now() < t_end)
+			stress_workload_vecfp();
+		break;
 	case STRESS_WORKLOAD_METHOD_RANDOM:
 	default:
 		while ((t = stress_time_now()) < t_end) {
@@ -543,8 +600,11 @@ static inline void stress_workload_waste_time(
 				stress_workload_pause();
 				break;
 			case STRESS_WORKLOAD_METHOD_FMA:
-			default:
 				stress_workload_fma();
+				break;
+			default:
+			case STRESS_WORKLOAD_METHOD_VECFP:
+				stress_workload_vecfp();
 				break;
 			}
 		}
