@@ -48,7 +48,7 @@ static bool OPTIMIZE3 stress_mmapfixed_is_mapped_slow(
 	size_t len,
 	const size_t page_size)
 {
-	uint32_t vec[PAGE_CHUNKS / sizeof(uint32_t)] ALIGN64;
+	uint64_t vec[PAGE_CHUNKS / sizeof(uint64_t)] ALIGN64;
 	ssize_t n = (ssize_t)len;
 	size_t n_pages = len / page_size;
 
