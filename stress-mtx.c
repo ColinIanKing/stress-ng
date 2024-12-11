@@ -88,9 +88,7 @@ static void OPTIMIZE3 *mtx_exercise(void *arg)
 			pthread_info->lock_duration += stress_time_now() - t;
 			pthread_info->lock_count += 1.0;
 		}
-		metrics_count++;
-		if (metrics_count > 1000)
-			metrics_count = 0;
+		metrics_count = (UNLIKELY(metrics_count >= 1000)) ? 0 : metrics_count + 1;
 
 		stress_bogo_inc(args);
 
