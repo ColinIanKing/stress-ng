@@ -340,7 +340,7 @@ abort:
 			for (i = 0; i < max_fds; i++) {
 				if (pipe_fds[i].fd[0] < FD_SETSIZE) {
 					FD_SET(pipe_fds[i].fd[0], &rfds);
-					if (pipe_fds[i].fd[0] > maxfd)
+					if (LIKELY(pipe_fds[i].fd[0] > maxfd))
 						maxfd = pipe_fds[i].fd[0];
 				}
 			}
@@ -378,7 +378,7 @@ abort:
 			for (i = 0; i < max_fds; i++) {
 				if (pipe_fds[i].fd[0] < FD_SETSIZE) {
 					FD_SET(pipe_fds[i].fd[0], &rfds);
-					if (pipe_fds[i].fd[0] > maxfd)
+					if (LIKELY(pipe_fds[i].fd[0] > maxfd))
 						maxfd = pipe_fds[i].fd[0];
 				}
 			}
