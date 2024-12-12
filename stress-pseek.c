@@ -19,6 +19,7 @@
 #include "stress-ng.h"
 #include "core-builtin.h"
 #include "core-killpid.h"
+#include "core-pragma.h"
 #include "core-pthread.h"
 #include "core-target-clones.h"
 
@@ -215,16 +216,16 @@ retry:
 
 	/* successful read */
 	if (ret == (ssize_t)info->pseek_io_size) {
-		register size_t j, baddata = 0;
+		register size_t j, baddata = 0, sz = (size_t)ret;
 
 		proc->reads_duration += stress_time_now() - t;
 		proc->reads += (double)ret;
 
-		for (j = 0; j < (size_t)ret; j++) {
+PRAGMA_UNROLL_N(4)
+		for (j = 0; j < sz; j++) {
 			register const uint8_t v = data_value((size_t)offset, j, proc->proc_num);
 
-			if (proc->buf[j] != v)
-				baddata++;
+			baddata += (proc->buf[j] != v);
 		}
 		if (baddata) {
 			pr_fail("%s: read failed, %zu of %zd bytes incorrect\n",
