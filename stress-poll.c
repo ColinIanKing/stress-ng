@@ -33,14 +33,16 @@
 #endif
 
 static const stress_help_t help[] = {
-	{ "P N", "poll N",	"start N workers exercising zero timeout polling" },
-	{ NULL, "poll-fds N",	"use N file descriptors" },
-	{ NULL,	"poll-ops N",	"stop after N poll bogo operations" },
+	{ "P N", "poll N",	    "start N workers exercising zero timeout polling" },
+	{ NULL, "poll-fds N",	    "use N file descriptors" },
+	{ NULL,	"poll-ops N",	    "stop after N poll bogo operations" },
+	{ NULL, "poll-random-us N", "use random poll delays of 0..N-1 microseconds" },
 	{ NULL,	NULL,		NULL }
 };
 
 static const stress_opt_t opts[] = {
-	{ OPT_poll_fds, "poll-fds", TYPE_ID_SIZE_T, MIN_POLL_FDS, MAX_POLL_FDS, NULL },
+	{ OPT_poll_fds,       "poll-fds",       TYPE_ID_SIZE_T, MIN_POLL_FDS, MAX_POLL_FDS, NULL },
+	{ OPT_poll_random_us, "poll-random-us", TYPE_ID_UINT32, 0, 1000000, NULL },
 	END_OPT,
 };
 
@@ -100,8 +102,10 @@ static int OPTIMIZE3 stress_poll(stress_args_t *args)
 	pipe_fds_t *pipe_fds;
 	struct pollfd *poll_fds;
 	int *rnd_fds_index;
+	uint32_t poll_random_us = 0;
 
 	(void)stress_get_setting("poll-fds", &max_fds);
+	(void)stress_get_setting("poll-random-us", &poll_random_us);
 
 	pipe_fds = (pipe_fds_t *)calloc(max_fds, sizeof(*pipe_fds));
 	if (!pipe_fds) {
@@ -272,7 +276,7 @@ abort:
 			/* stress out ppoll */
 
 			ts.tv_sec = 0;
-			ts.tv_nsec = 20000000;
+			ts.tv_nsec = poll_random_us ? (long)stress_mwc32modn(poll_random_us * 1000) : 20000000L;
 
 			(void)sigemptyset(&sigmask);
 			(void)sigaddset(&sigmask, SIGPIPE);
@@ -341,7 +345,7 @@ abort:
 				}
 			}
 			tv.tv_sec = 0;
-			tv.tv_usec = 20000;
+			tv.tv_usec = poll_random_us ? (long)stress_mwc32modn(poll_random_us) : 20000L;
 			ret = select(maxfd + 1, &rfds, NULL, NULL, &tv);
 			if ((g_opt_flags & OPT_FLAGS_VERIFY) &&
 			    (ret < 0) && (errno != EINTR)) {
@@ -365,7 +369,7 @@ abort:
 #if defined(HAVE_PSELECT)
 			/* stress out pselect */
 			ts.tv_sec = 0;
-			ts.tv_nsec = 20000000;
+			ts.tv_nsec = poll_random_us ? (long)stress_mwc32modn(poll_random_us * 1000) : 20000000L;
 
 			(void)sigemptyset(&sigmask);
 			(void)sigaddset(&sigmask, SIGPIPE);

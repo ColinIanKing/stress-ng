@@ -1064,8 +1064,9 @@ typedef enum {
 	OPT_plugin_method,
 	OPT_plugin_so,
 
-	OPT_poll_ops,
 	OPT_poll_fds,
+	OPT_poll_ops,
+	OPT_poll_random_us,
 
 	OPT_powmath,
 	OPT_powmath_method,

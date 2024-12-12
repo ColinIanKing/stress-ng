@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "11 December 2024"
+.TH STRESS-NG 1 "12 December 2024"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -5994,6 +5994,10 @@ allowed.
 .TP
 .B \-\-poll\-ops N
 stop poll stress workers after N bogo poll operations.
+.TP
+.B \-\-poll\-random\-us N
+use a random timeout of N microseconds for ppoll(2) and pselect(2) calls instead
+of the default of 20000 microseconds.
 .RE
 .TP
 .B Power maths functions
