@@ -78,11 +78,13 @@ static inline uint32_t OPTIMIZE3 stress_mwc32modn(const uint32_t max)
 {
 	return (uint32_t)(((uint64_t)stress_mwc32() * (uint64_t)max) >> 32);
 }
-#endif
+#else
 
 extern uint8_t stress_mwc8modn(const uint8_t max);
 extern uint16_t stress_mwc16modn(const uint16_t max);
 extern uint32_t stress_mwc32modn(const uint32_t max);
+
+#endif
 
 #if defined(HAVE_FAST_MODULO_REDUCTION) &&	\
     defined(HAVE_INT128_T)
