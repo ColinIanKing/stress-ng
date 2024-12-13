@@ -1,4 +1,4 @@
-/*.
+/*
  * Copyright (C)      2024 Colin Ian King.
  *
  * This program is free software; you can redistribute it and/or
@@ -98,6 +98,7 @@ static int OPTIMIZE3 stress_sigurg_client(
 
 	stress_parent_died_alarm();
 	(void)sched_settings_apply(true);
+	(void)signal(SIGPIPE, SIG_IGN);
 
 	do {
 		int retries = 0;
@@ -206,6 +207,8 @@ static int OPTIMIZE3 stress_sigurg_server(
 	socklen_t addr_len = 0;
 	struct sockaddr *addr = NULL;
 	int rc = EXIT_SUCCESS;
+
+	(void)signal(SIGPIPE, SIG_IGN);
 
 	if (stress_sig_stop_stressing(args->name, SIGALRM) < 0) {
 		rc = EXIT_FAILURE;
