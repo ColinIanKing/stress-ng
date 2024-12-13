@@ -85,7 +85,7 @@ static const stress_help_t help[] = {
 	{ NULL,	"prio-inv",		"start N workers exercising priority inversion lock operations" },
 	{ NULL,	"prio-inv-ops N",	"stop after N priority inversion lock bogo operations" },
 	{ NULL, "prio-inv-policy P",	"select scheduler policy [ batch, idle, fifo, other, rr ]" },
-	{ NULL,	"prio-inv-type T",	"lock protocol type, [ inherit | none | protect ]" },
+	{ NULL,	"prio-inv-type T",	"pthread priority type [ inherit | none | protect ]" },
 	{ NULL,	NULL,			NULL }
 };
 
@@ -216,11 +216,12 @@ static int stress_prio_inv_set_prio_policy(
 	stress_args_t *args,
 	const int prio,
 	const int niceness,
-	const int policy)
+	int policy)
 {
 	struct sched_param param;
 	int ret;
 
+redo_policy:
 	switch (policy) {
 #if defined(SCHED_FIFO)
 	case SCHED_FIFO:
@@ -233,8 +234,22 @@ static int stress_prio_inv_set_prio_policy(
 		param.sched_priority = prio;
 		ret = sched_setscheduler(0, policy, &param);
 		if (ret < 0) {
-			pr_fail("%s: cannot set scheduling priority to %d and policy, errno=%d (%s)\n",
-				args->name, prio, errno, strerror(errno));
+			if (errno == EPERM) {
+				static bool warned = false;
+
+				if (!warned) {
+					warned = true;
+					pr_inf("%s: cannot set scheduling priority to %d and policy %s, "
+						"no permission, retrying with 'other'\n",
+						args->name, prio, stress_get_sched_name(policy));
+				}
+				param.sched_priority = 0;
+				policy = SCHED_OTHER;
+				goto redo_policy;
+			}
+			pr_fail("%s: cannot set scheduling priority to %d and policy %s, errno=%d (%s)\n",
+				args->name, prio, stress_get_sched_name(policy),
+				errno, strerror(errno));
 		}
 		break;
 #endif
@@ -243,8 +258,9 @@ static int stress_prio_inv_set_prio_policy(
 		param.sched_priority = 0;
 		ret = sched_setscheduler(0, policy, &param);
 		if (ret < 0) {
-			pr_fail("%s: cannot set scheduling priority to %d and policy, errno=%d (%s)\n",
-				args->name, prio, errno, strerror(errno));
+			pr_fail("%s: cannot set scheduling priority to %d and policy %s, errno=%d (%s)\n",
+				args->name, prio, stress_get_sched_name(policy),
+				errno, strerror(errno));
 		}
 		ret = setpriority(PRIO_PROCESS, 0, niceness);
 		if (ret < 0) {
@@ -270,10 +286,12 @@ static void stress_prio_inv_check_policy(
 	int *sched_policy,
 	const char *policy_name)
 {
+	return;
+
 	if (!stress_check_capability(SHIM_CAP_IS_ROOT)) {
 		if (*sched_policy == policy) {
 			if (args->instance == 0) {
-				pr_inf("%s: cannot set prio-inv-policy '%s' as non-root user, "
+				pr_inf("%s: cannot set prio-inv policy '%s' as non-root user, "
 					"defaulting to 'other'\n",
 					args->name, policy_name);
 			}
