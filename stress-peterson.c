@@ -17,8 +17,10 @@
  *
  */
 #include "stress-ng.h"
+#include "core-asm-arm.h"
 #include "core-affinity.h"
 #include "core-arch.h"
+#include "core-builtin.h"
 #include "core-cpu-cache.h"
 #include "core-killpid.h"
 
@@ -49,6 +51,60 @@ typedef struct peterson {
 } peterson_t;
 
 static peterson_t *peterson;
+static sigjmp_buf jmp_env;
+
+static inline void ALWAYS_INLINE peterson_mfence(void)
+{
+	shim_mfence();
+}
+
+static inline void ALWAYS_INLINE peterson_mbarrier(void)
+{
+#if defined(HAVE_ASM_ARM_DMB_SY)
+	stress_asm_arm_dmb_sy();
+#endif
+}
+
+static void stress_peterson_sigill_handler(int signum)
+{
+	(void)signum;
+
+	siglongjmp(jmp_env, 1);
+}
+
+static int stress_peterson_supported(const char *name)
+{
+	static struct sigaction act, oldact;
+	int ret;
+
+	(void)shim_memset(&act, 0, sizeof(act));
+	(void)shim_memset(&oldact, 0, sizeof(oldact));
+
+	ret = sigsetjmp(jmp_env, 1);
+	if (ret == 1) {
+		pr_inf_skip("%s: memory barrier not functional, skipping stressor\n", name);
+		(void)sigaction(SIGILL, &oldact, &act);
+		return -1;
+	}
+
+	act.sa_handler = stress_peterson_sigill_handler;
+        (void)sigemptyset(&act.sa_mask);
+        act.sa_flags = SA_NOCLDSTOP;
+	if (sigaction(SIGILL, &act, &oldact) < 0) {
+		pr_inf_skip("%s: sigaction for SIGILL failed, skipping stressor\n",
+			name);
+		return -1;
+	}
+
+	peterson_mbarrier();
+
+	if (sigaction(SIGILL, &oldact, NULL) < 0) {
+		pr_inf_skip("%s: sigaction for SIGILL failed, skipping stressor\n",
+			name);
+		return -1;
+	}
+	return 0;
+}
 
 static int stress_peterson_p0(stress_args_t *args)
 {
@@ -58,7 +114,8 @@ static int stress_peterson_p0(stress_args_t *args)
 	t = stress_time_now();
 	peterson->m.flag[0] = true;
 	peterson->m.turn = 1;
-	shim_mfence();
+	peterson_mfence();
+	peterson_mbarrier();
 	while (peterson->m.flag[1] && (peterson->m.turn == 1)) {
 #if defined(STRESS_ARCH_RISCV)
 		(void)shim_sched_yield();
@@ -70,11 +127,13 @@ static int stress_peterson_p0(stress_args_t *args)
 	peterson->m.check++;
 	check1 = peterson->m.check;
 #if defined(STRESS_ARCH_ARM)
-	shim_mfence();
+	peterson_mfence();
+	peterson_mbarrier();
 #endif
 
 	peterson->m.flag[0] = false;
-	shim_mfence();
+	peterson_mfence();
+	peterson_mbarrier();
 	peterson->p0.duration += stress_time_now() - t;
 	peterson->p0.count += 1.0;
 
@@ -94,7 +153,8 @@ static int stress_peterson_p1(stress_args_t *args)
 	t = stress_time_now();
 	peterson->m.flag[1] = true;
 	peterson->m.turn = 0;
-	shim_mfence();
+	peterson_mfence();
+	peterson_mbarrier();
 	while (peterson->m.flag[0] && (peterson->m.turn == 0)) {
 #if defined(STRESS_ARCH_RISCV)
 		(void)shim_sched_yield();
@@ -106,12 +166,14 @@ static int stress_peterson_p1(stress_args_t *args)
 	peterson->m.check--;
 	check1 = peterson->m.check;
 #if defined(STRESS_ARCH_ARM)
-	shim_mfence();
+	peterson_mfence();
+	peterson_mbarrier();
 #endif
 	stress_bogo_inc(args);
 
 	peterson->m.flag[1] = false;
-	shim_mfence();
+	peterson_mfence();
+	peterson_mbarrier();
 	peterson->p1.duration += stress_time_now() - t;
 	peterson->p1.count += 1.0;
 
@@ -200,6 +262,7 @@ const stressor_info_t stress_peterson_info = {
 	.stressor = stress_peterson,
 	.class = CLASS_CPU_CACHE | CLASS_IPC,
 	.verify = VERIFY_ALWAYS,
+	.supported = stress_peterson_supported,
 	.help = help
 };
 

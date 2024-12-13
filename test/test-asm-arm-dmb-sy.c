@@ -16,30 +16,21 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
-#ifndef CORE_ASM_ARM_H
-#define CORE_ASM_ARM_H
 
-#include "stress-ng.h"
-#include "core-arch.h"
-
-#if defined(STRESS_ARCH_ARM)
-
-#if defined(HAVE_ASM_ARM_YIELD)
-static inline void ALWAYS_INLINE stress_asm_arm_yield(void)
-{
-	__asm__ __volatile__("yield;\n");
-}
-#endif
-
-#if defined(HAVE_ASM_ARM_DMB_SY)
-static inline void ALWAYS_INLINE stress_asm_arm_dmb_sy(void)
+#if defined(__ARM_ARCH_6__)   || defined(__ARM_ARCH_6J__)  || \
+    defined(__ARM_ARCH_6K__)  || defined(__ARM_ARCH_6Z__)  || \
+    defined(__ARM_ARCH_6ZK__) || defined(__ARM_ARCH_6T2__) || \
+    defined(__ARM_ARCH_6M__)  || defined(__ARM_ARCH_7__)   || \
+    defined(__ARM_ARCH_7A__)  || defined(__ARM_ARCH_7R__)  || \
+    defined(__ARM_ARCH_7M__)  || defined(__ARM_ARCH_7EM__) || \
+    defined(__ARM_ARCH_8A__)  || defined(__aarch64__)
+int main(void)
 {
 	__asm__ __volatile__("dmb sy;\n");
+
+	return 0;
 }
+#else
+#error not an ARM so no yield instruction
 #endif
 
-/* #if defined(STRESS_ARCH_ARM) */
-#endif
-
-/* #ifndef CORE_ASM_ARM_H */
-#endif
