@@ -18,6 +18,7 @@
  */
 #include "stress-ng.h"
 #include "core-builtin.h"
+#include "core-pragma.h"
 #include "core-put.h"
 
 #define ROTATE_LOOPS	(10000)
@@ -66,6 +67,7 @@ stress_ ## fname ## size ## helper(stress_args_t *args, type *checksum)\
 	stress_uint ## size ## _put(*checksum);			\
 								\
 	t1 = stress_time_now();					\
+PRAGMA_UNROLL_N(8)						\
 	for (i = 0; i < ROTATE_LOOPS; i++) {			\
 		v0 = rotate_macro ## size(v0);			\
 		v1 = rotate_macro ## size(v1);			\
