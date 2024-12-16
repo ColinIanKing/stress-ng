@@ -267,10 +267,7 @@ static int stress_sigill(stress_args_t *args)
 			pr_fail("%s: sigaction SIGILL: errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			break;
-
-
 		}
-
 		stress_illegal_op();
 	}
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
