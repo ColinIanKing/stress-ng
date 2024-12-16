@@ -29,7 +29,7 @@ static const stress_help_t help[] = {
 #if defined(SIGTRAP)
 
 static uint64_t counter;
-double t, duration;
+static double t, duration;
 
 static void MLOCKED_TEXT stress_sigtrap_handler(int num)
 {
@@ -47,7 +47,7 @@ static void MLOCKED_TEXT stress_sigtrap_handler(int num)
  */
 static int stress_sigtrap(stress_args_t *args)
 {
-	uint64_t raised = 0;
+	uint64_t raised ALIGN64 = 0;
 	double rate = 0.0;
 
 	counter = 0;
