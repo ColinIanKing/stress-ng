@@ -458,8 +458,8 @@ again:
 					pr_fail("%s: zero bytes read\n", args->name);
 					break;
 				}
-				if ((msg.index < 0) ||
-				    (msg.index >= (ssize_t)shm_posix_objects)) {
+				if (UNLIKELY((msg.index < 0) ||
+					     (msg.index >= (ssize_t)shm_posix_objects))) {
 					retry = false;
 					break;
 				}
