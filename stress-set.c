@@ -121,6 +121,7 @@ static int stress_set(stress_args_t *args)
 	const bool cap_sys_resource = stress_check_capability(SHIM_CAP_SYS_RESOURCE);
 #if defined(HAVE_SETREUID)
 	const bool cap_setuid = stress_check_capability(SHIM_CAP_SETUID);
+	int bad_uid_count = 0;
 #endif
 #if defined(HAVE_GETPGID) &&    \
     defined(HAVE_SETPGID)
@@ -284,15 +285,20 @@ static int stress_set(stress_args_t *args)
 #if defined(HAVE_SETREUID)
 		VOID_RET(int, setreuid((uid_t)-1, (uid_t)-1));
 
-		/*
-		 *  Validate setreuid syscalls exercised to increase the current
-		 *  ruid and euid without CAP_SETUID capability cannot succeed
-		 */
-		if ((!cap_setuid) && (stress_get_unused_uid(&bad_uid) >= 0)) {
-			if (setreuid(bad_uid, bad_uid) == 0) {
-				pr_fail("%s: setreuid failed, did not have privilege to set "
-					"ruid and euid, expected -EPERM, instead got errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
+		bad_uid_count++;
+		if (bad_uid_count > 1024) {
+			bad_uid_count = 0;
+
+			/*
+			 *  Validate setreuid syscalls exercised to increase the current
+			 *  ruid and euid without CAP_SETUID capability cannot succeed
+			 */
+			if ((!cap_setuid) && (stress_get_unused_uid(&bad_uid) >= 0)) {
+				if (setreuid(bad_uid, bad_uid) == 0) {
+					pr_fail("%s: setreuid failed, did not have privilege to set "
+						"ruid and euid, expected -EPERM, instead got errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
+				}
 			}
 		}
 #else
