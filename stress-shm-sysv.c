@@ -24,6 +24,7 @@
 #include "core-madvise.h"
 #include "core-mincore.h"
 #include "core-out-of-memory.h"
+#include "core-pragma.h"
 
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 #include <linux/mempolicy.h>
@@ -157,7 +158,7 @@ static void stress_shm_metrics(
  *  stress_shm_sysv_check()
  *	simple check if shared memory is sane
  */
-static int stress_shm_sysv_check(
+static int OPTIMIZE3 stress_shm_sysv_check(
 	uint8_t *buf,
 	const size_t sz,
 	const size_t page_size)
@@ -165,10 +166,12 @@ static int stress_shm_sysv_check(
 	uint8_t *ptr, val;
 	const uint8_t *end = buf + sz;
 
+PRAGMA_UNROLL_N(4)
 	for (val = 0, ptr = buf; ptr < end; ptr += page_size, val++) {
 		*ptr = val;
 	}
 
+PRAGMA_UNROLL_N(4)
 	for (val = 0, ptr = buf; ptr < end; ptr += page_size, val++) {
 		if (*ptr != val)
 			return -1;
