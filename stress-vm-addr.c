@@ -21,6 +21,7 @@
 #include "core-bitops.h"
 #include "core-madvise.h"
 #include "core-out-of-memory.h"
+#include "core-pragma.h"
 #include "core-target-clones.h"
 
 #define MIN_VM_ADDR_BYTES	(8 * MB)
@@ -74,10 +75,12 @@ static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_pwr2(
 	size_t n, errs = 0, step;
 	const uint8_t rnd = stress_mwc8();
 
+PRAGMA_UNROLL_N(4)
 	for (step = 1, n = 0; n < sz; n += step) {
 		*(buf + n) = rnd;
 		step = (step >= 4096) ? 1 : step << 1;
 	}
+PRAGMA_UNROLL_N(4)
 	for (step = 1, n = 0; n < sz; n += step) {
 		if (UNLIKELY(*(buf + n) != rnd))
 			errs++;
@@ -97,10 +100,12 @@ static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_pwr2inv(
 	size_t n, errs = 0, step;
 	const uint8_t rnd = stress_mwc8();
 
+PRAGMA_UNROLL_N(4)
 	for (step = 1, n = 0; n < sz; n += step) {
 		*(buf + (n ^ mask)) = rnd;
 		step = (step >= 4096) ? 1 : step << 1;
 	}
+PRAGMA_UNROLL_N(4)
 	for (step = 1, n = 0; n < sz; n += step) {
 		if (UNLIKELY(*(buf + (n ^ mask)) != rnd))
 			errs++;
@@ -121,11 +126,13 @@ static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_gray(
 	const size_t mask = sz - 1;
 	const uint8_t rnd = stress_mwc8();
 
+PRAGMA_UNROLL_N(4)
 	for (n = 0; n < sz; n++) {
 		size_t gray = ((n >> 1) ^ n) & mask;
 
 		*(buf + gray) = rnd;
 	}
+PRAGMA_UNROLL_N(4)
 	for (n = 0; n < sz; n++) {
 		size_t gray = ((n >> 1) ^ n) & mask;
 
@@ -147,11 +154,13 @@ static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_grayinv(
 	const size_t mask = sz - 1;
 	const uint8_t rnd = stress_mwc8();
 
+PRAGMA_UNROLL_N(4)
 	for (n = 0; n < sz; n++) {
 		size_t gray = (((n >> 1) ^ n) ^ mask) & mask;
 
 		*(buf + gray) = rnd;
 	}
+PRAGMA_UNROLL_N(4)
 	for (n = 0; n < sz; n++) {
 		size_t gray = (((n >> 1) ^ n) ^ mask) & mask;
 
@@ -178,11 +187,13 @@ static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_rev(
 	for (shift = 0, n = sz; n; shift++, n <<= 1)
 		;
 
+PRAGMA_UNROLL_N(4)
 	for (n = 0; n < sz; n++) {
 		size_t i = stress_reverse64(n << shift) & mask;
 
 		*(buf + i) = rnd;
 	}
+PRAGMA_UNROLL_N(4)
 	for (n = 0; n < sz; n++) {
 		size_t i = stress_reverse64(n << shift) & mask;
 
@@ -209,11 +220,13 @@ static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_revinv(
 	for (shift = 0, n = sz; n; shift++, n <<= 1)
 		;
 
+PRAGMA_UNROLL_N(4)
 	for (n = 0; n < sz; n++) {
 		size_t i = (stress_reverse64(n << shift) ^ mask) & mask;
 
 		*(buf + i) = rnd;
 	}
+PRAGMA_UNROLL_N(4)
 	for (n = 0; n < sz; n++) {
 		size_t i = (stress_reverse64(n << shift) ^ mask) & mask;
 
@@ -256,11 +269,13 @@ static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_incinv(
 	const size_t mask = sz - 1;
 	const uint8_t rnd = stress_mwc8();
 
+PRAGMA_UNROLL_N(4)
 	for (n = 0; n < sz; n++) {
 		size_t i = (n ^ mask) & mask;
 
 		*(buf + i) = rnd;
 	}
+PRAGMA_UNROLL_N(4)
 	for (n = 0; n < sz; n++) {
 		size_t i = (n ^ mask) & mask;
 
@@ -281,9 +296,11 @@ static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_dec(
 	const uint8_t rnd = stress_mwc8();
 	uint8_t *ptr;
 
+PRAGMA_UNROLL_N(4)
 	for (ptr = (uint8_t *)buf + sz - 1; ptr != buf; ptr--) {
 		*ptr = rnd;
 	}
+PRAGMA_UNROLL_N(4)
 	for (ptr = (uint8_t *)buf + sz - 1; ptr != buf; ptr--) {
 		if (UNLIKELY(*ptr != rnd))
 			errs++;
@@ -303,11 +320,13 @@ static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_decinv(
 	const size_t mask = sz - 1;
 	const uint8_t rnd = stress_mwc8();
 
+PRAGMA_UNROLL_N(4)
 	for (n = sz; n; n--) {
 		const size_t i = ((n - 1) ^ mask) & mask;
 
 		*(buf + i) = rnd;
 	}
+PRAGMA_UNROLL_N(4)
 	for (n = sz; n; n--) {
 		const size_t i = ((n - 1) ^ mask) & mask;
 
@@ -336,6 +355,7 @@ static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_bitposn(
 	for (mask = sz - 1, nbits = 0; mask; mask >>= 1)
 		nbits++;
 
+PRAGMA_UNROLL_N(4)
 	for (bits = nbits; --bits >= 0; ) {
 		register size_t stride = 1U << bits;
 		register uint8_t *ptr;
@@ -343,7 +363,7 @@ static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_bitposn(
 		for (ptr = buf; ptr < ptr_end; ptr += stride)
 			*ptr = rnd;
 	}
-
+PRAGMA_UNROLL_N(4)
 	for (bits = 0; bits < nbits; bits++) {
 		register size_t stride = 1U << bits;
 		register uint8_t *ptr;
@@ -369,6 +389,7 @@ static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_flip(
 	size_t errs = 0;
 	register const size_t mask = sz - 1;
 
+PRAGMA_UNROLL_N(4)
 	for (n = 0; n < sz; n++) {
 		register size_t gray = ((n >> 1) ^ n);
 
@@ -376,6 +397,7 @@ static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_flip(
 		buf[(gray ^ mask) & mask] = rnd;
 	}
 
+PRAGMA_UNROLL_N(4)
 	for (n = 0; n < sz; n++) {
 		register size_t gray = ((n >> 1) ^ n);
 
