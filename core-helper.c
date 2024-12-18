@@ -269,6 +269,11 @@ static const stress_fs_name_t stress_fs_names[] = {
 #if defined(FUSE_SUPER_MAGIC)
 	{ FUSE_SUPER_MAGIC,	"fuse" },
 #endif
+#if defined(BCACHEFS_STATFS_MAGIC)
+	{ BCACHEFS_STATFS_MAGIC, "bcachefs" },
+#else
+	{ 0xca451a4e,		"bacachefs" },
+#endif
 #if defined(MINIX_SUPER_MAGIC)
 	{ MINIX_SUPER_MAGIC,	"minix" },
 #endif
@@ -326,11 +331,17 @@ static const stress_fs_name_t stress_fs_names[] = {
 #if defined(CGROUP2_SUPER_MAGIC)
 	{ CGROUP2_SUPER_MAGIC,	"cgroup2" },
 #endif
+#if defined(RDTGROUP_SUPER_MAGIC)
+	{ RDTGROUP_SUPER_MAGIC,	"rdtgroup" },
+#endif
+#if defined(TRACEFS_MAGIC)
+	{ TRACEFS_MAGIC,	"tracefs" },
+#endif
 #if defined(V9FS_MAGIC)
 	{ V9FS_MAGIC,		"v9fs" },
 #endif
-#if defined(RDTGROUP_SUPER_MAGIC)
-	{ RDTGROUP_SUPER_MAGIC,	"rdtgroup" },
+#if defined(BDEVFS_MAGIC)
+	{ BDEVFS_MAGIC,		"bdevfs" },
 #endif
 #if defined(DAXFS_MAGIC)
 	{ DAXFS_MAGIC,		"daxfs" },
@@ -359,6 +370,18 @@ static const stress_fs_name_t stress_fs_names[] = {
 #if defined(SYSFS_MAGIC)
 	{ SYSFS_MAGIC,		"sysfs" },
 #endif
+#if defined(USBDEVICE_SUPER_MAGIC)
+	{ USBDEVICE_SUPER_MAGIC, "usbdev" },
+#endif
+#if defined(MTD_INODE_FS_MAGIC)
+	{ MTD_INODE_FS_MAGIC,	"mtd" },
+#endif
+#if defined(ANON_INODE_FS_MAGIC)
+	{ ANON_INODE_FS_MAGIC,	"anon" },
+#endif
+#if defined(BTRFS_TEST_MAGIC)
+	{ BTRFS_TEST_MAGIC,	"btrfs" },
+#endif
 #if defined(NSFS_MAGIC)
 	{ NSFS_MAGIC,		"nsfs" },
 #endif
@@ -373,6 +396,18 @@ static const stress_fs_name_t stress_fs_names[] = {
 #endif
 #if defined(UDF_SUPER_MAGIC)
 	{ UDF_SUPER_MAGIC,	"udf" },
+#endif
+#if defined(DMA_BUF_MAGIC)
+	{ DMA_BUF_MAGIC,	"dmabuf" },
+#endif
+#if defined(DEVMEM_MAGIC)
+	{ DEVMEM_MAGIC,		"devmem" },
+#endif
+#if defined(SECRETMEM_MAGIC)
+	{ SECRETMEM_MAGIC,	"secretmem" },
+#endif
+#if defined(PID_FS_MAGIC)
+	{ PID_FS_MAGIC,		"pidfs" },
 #endif
 #if defined(UBIFS_SUPER_MAGIC)
 	{ UBIFS_SUPER_MAGIC,	"ubifs" },
@@ -394,20 +429,6 @@ static const stress_fs_name_t stress_fs_names[] = {
 	{ JFS_SUPER_MAGIC,	"jfs" },
 #else
 	{ 0x3153464a,		"jfs" },
-#endif
-#if defined(USBDEVICE_SUPER_MAGIC)
-	{ USBDEVICE_SUPER_MAGIC, "usbdev" },
-#endif
-#if defined(MTD_INODE_FS_MAGIC)
-	{ MTD_INODE_FS_MAGIC,	"mtd" },
-#endif
-#if defined(ANON_INODE_FS_MAGIC)
-	{ ANON_INODE_FS_MAGIC,	"anon" },
-#endif
-#if defined(BCACHEFS_STATFS_MAGIC)
-	{ BCACHEFS_STATFS_MAGIC, "bcachefs" },
-#else
-	{ 0xca451a4e,		"bacachefs" },
 #endif
 	{ 0x2fc12fc1,		"zfs" },
 };
