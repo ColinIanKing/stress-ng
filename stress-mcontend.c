@@ -77,20 +77,28 @@ static inline OPTIMIZE3 void read64(uint64_t *data)
 	shim_builtin_prefetch(data);
 	v = vdata[0];
 	(void)v;
+	stress_asm_mb();
 	v = vdata[1];
 	(void)v;
+	stress_asm_mb();
 	v = vdata[3];
 	(void)v;
+	stress_asm_mb();
 	v = vdata[4];
 	(void)v;
+	stress_asm_mb();
 	v = vdata[5];
 	(void)v;
+	stress_asm_mb();
 	v = vdata[6];
 	(void)v;
+	stress_asm_mb();
 	v = vdata[7];
 	(void)v;
+	stress_asm_mb();
 	v = vdata[8];
 	(void)v;
+	stress_asm_mb();
 }
 
 #if defined(HAVE_ASM_X86_LFENCE)
@@ -102,27 +110,35 @@ static inline OPTIMIZE3 void read64_lfence(uint64_t *data)
 	v = vdata[0];
 	(void)v;
 	stress_asm_x86_lfence();
+	stress_asm_mb();
 	v = vdata[1];
 	(void)v;
 	stress_asm_x86_lfence();
+	stress_asm_mb();
 	v = vdata[3];
 	(void)v;
 	stress_asm_x86_lfence();
+	stress_asm_mb();
 	v = vdata[4];
 	(void)v;
 	stress_asm_x86_lfence();
+	stress_asm_mb();
 	v = vdata[5];
 	(void)v;
 	stress_asm_x86_lfence();
+	stress_asm_mb();
 	v = vdata[6];
 	(void)v;
 	stress_asm_x86_lfence();
+	stress_asm_mb();
 	v = vdata[7];
 	(void)v;
 	stress_asm_x86_lfence();
+	stress_asm_mb();
 	v = vdata[8];
 	(void)v;
 	stress_asm_x86_lfence();
+	stress_asm_mb();
 }
 #else
 static inline void read64_lfence(uint64_t *data)
@@ -146,85 +162,143 @@ static inline OPTIMIZE3 void stress_memory_contend(const stress_pthread_args_t *
 
 	for (i = 0; i < 1024; i++) {
 		vdata0[0] = (uint64_t)i;
+		stress_asm_mb();
 		vdata1[0] = (uint64_t)i;
+		stress_asm_mb();
 		vdata0[1] = (uint64_t)i;
+		stress_asm_mb();
 		vdata1[1] = (uint64_t)i;
+		stress_asm_mb();
 		vdata0[2] = (uint64_t)i;
+		stress_asm_mb();
 		vdata1[2] = (uint64_t)i;
+		stress_asm_mb();
 		vdata0[3] = (uint64_t)i;
+		stress_asm_mb();
 		vdata1[3] = (uint64_t)i;
+		stress_asm_mb();
 		vdata0[4] = (uint64_t)i;
+		stress_asm_mb();
 		vdata1[4] = (uint64_t)i;
+		stress_asm_mb();
 		vdata0[5] = (uint64_t)i;
+		stress_asm_mb();
 		vdata1[5] = (uint64_t)i;
+		stress_asm_mb();
 		vdata0[6] = (uint64_t)i;
+		stress_asm_mb();
 		vdata1[6] = (uint64_t)i;
+		stress_asm_mb();
 		vdata0[7] = (uint64_t)i;
+		stress_asm_mb();
 		vdata1[7] = (uint64_t)i;
+		stress_asm_mb();
 		read64(data0);
+		stress_asm_mb();
 		read64(data1);
+		stress_asm_mb();
 		read64_lfence(data0);
+		stress_asm_mb();
 		read64_lfence(data1);
+		stress_asm_mb();
 	}
 
 	for (i = 0; i < 1024; i++) {
 		vdata0[0] = (uint64_t)i;
 		shim_mfence();
+		stress_asm_mb();
 		vdata1[0] = (uint64_t)i;
 		shim_mfence();
+		stress_asm_mb();
 		vdata0[1] = (uint64_t)i;
 		shim_mfence();
+		stress_asm_mb();
 		vdata1[1] = (uint64_t)i;
 		shim_mfence();
+		stress_asm_mb();
 		vdata0[2] = (uint64_t)i;
 		shim_mfence();
+		stress_asm_mb();
 		vdata1[2] = (uint64_t)i;
 		shim_mfence();
+		stress_asm_mb();
 		vdata0[3] = (uint64_t)i;
 		shim_mfence();
+		stress_asm_mb();
 		vdata1[3] = (uint64_t)i;
 		shim_mfence();
+		stress_asm_mb();
 		vdata0[4] = (uint64_t)i;
 		shim_mfence();
+		stress_asm_mb();
 		vdata1[4] = (uint64_t)i;
 		shim_mfence();
+		stress_asm_mb();
 		vdata0[5] = (uint64_t)i;
 		shim_mfence();
+		stress_asm_mb();
 		vdata1[5] = (uint64_t)i;
 		shim_mfence();
+		stress_asm_mb();
 		vdata0[6] = (uint64_t)i;
 		shim_mfence();
+		stress_asm_mb();
 		vdata1[6] = (uint64_t)i;
 		shim_mfence();
+		stress_asm_mb();
 		vdata0[7] = (uint64_t)i;
 		shim_mfence();
+		stress_asm_mb();
 		vdata1[7] = (uint64_t)i;
 		shim_mfence();
+		stress_asm_mb();
 		read64(data0);
+		stress_asm_mb();
 		read64(data1);
+		stress_asm_mb();
 	}
 
 	for (i = 0; i < 1024; i++) {
 		vdata0[0] = (uint64_t)i;
+		stress_asm_mb();
 		vdata1[0] = (uint64_t)i;
+		stress_asm_mb();
 		vdata0[1] = (uint64_t)i;
+		stress_asm_mb();
 		vdata1[1] = (uint64_t)i;
+		stress_asm_mb();
 		vdata0[2] = (uint64_t)i;
+		stress_asm_mb();
 		vdata1[2] = (uint64_t)i;
+		stress_asm_mb();
 		vdata0[3] = (uint64_t)i;
+		stress_asm_mb();
 		vdata1[3] = (uint64_t)i;
+		stress_asm_mb();
 		vdata0[4] = (uint64_t)i;
+		stress_asm_mb();
 		vdata1[4] = (uint64_t)i;
+		stress_asm_mb();
 		vdata0[5] = (uint64_t)i;
+		stress_asm_mb();
 		vdata1[5] = (uint64_t)i;
+		stress_asm_mb();
 		vdata0[6] = (uint64_t)i;
+		stress_asm_mb();
 		vdata1[6] = (uint64_t)i;
+		stress_asm_mb();
 		vdata0[7] = (uint64_t)i;
+		stress_asm_mb();
 		vdata1[7] = (uint64_t)i;
+		stress_asm_mb();
 		shim_clflush(data0);
+		stress_asm_mb();
 		shim_clflush(data1);
+		stress_asm_mb();
 		read64(data0);
+		stress_asm_mb();
 		read64(data1);
+		stress_asm_mb();
 	}
 
 #if defined(STRESS_ARCH_X86) &&	\
@@ -232,38 +306,56 @@ static inline OPTIMIZE3 void stress_memory_contend(const stress_pthread_args_t *
 	for (i = 0; i < 1024; i++) {
 		vdata0[0] = (uint64_t)i;
 		stress_asm_x86_pause();
+		stress_asm_mb();
 		vdata1[0] = (uint64_t)i;
 		stress_asm_x86_pause();
+		stress_asm_mb();
 		vdata0[1] = (uint64_t)i;
 		stress_asm_x86_pause();
+		stress_asm_mb();
 		vdata1[1] = (uint64_t)i;
 		stress_asm_x86_pause();
+		stress_asm_mb();
 		vdata0[2] = (uint64_t)i;
 		stress_asm_x86_pause();
+		stress_asm_mb();
 		vdata1[2] = (uint64_t)i;
 		stress_asm_x86_pause();
+		stress_asm_mb();
 		vdata0[3] = (uint64_t)i;
 		stress_asm_x86_pause();
+		stress_asm_mb();
 		vdata1[3] = (uint64_t)i;
 		stress_asm_x86_pause();
+		stress_asm_mb();
 		vdata0[4] = (uint64_t)i;
 		stress_asm_x86_pause();
+		stress_asm_mb();
 		vdata1[4] = (uint64_t)i;
 		stress_asm_x86_pause();
+		stress_asm_mb();
 		vdata0[5] = (uint64_t)i;
 		stress_asm_x86_pause();
+		stress_asm_mb();
 		vdata1[5] = (uint64_t)i;
 		stress_asm_x86_pause();
+		stress_asm_mb();
 		vdata0[6] = (uint64_t)i;
 		stress_asm_x86_pause();
+		stress_asm_mb();
 		vdata1[6] = (uint64_t)i;
 		stress_asm_x86_pause();
+		stress_asm_mb();
 		vdata0[7] = (uint64_t)i;
 		stress_asm_x86_pause();
+		stress_asm_mb();
 		vdata1[7] = (uint64_t)i;
 		stress_asm_x86_pause();
+		stress_asm_mb();
 		read64(data0);
+		stress_asm_mb();
 		read64(data1);
+		stress_asm_mb();
 	}
 #endif
 	for (i = 0; i < 1024; i++) {
@@ -300,7 +392,9 @@ static inline OPTIMIZE3 void stress_memory_contend(const stress_pthread_args_t *
 		vdata1[7] = (uint64_t)i;
 		stress_asm_mb();
 		read64(data0);
+		stress_asm_mb();
 		read64(data1);
+		stress_asm_mb();
 	}
 	(void)shim_cacheflush((void *)data0, 64, SHIM_DCACHE);
 	(void)shim_cacheflush((void *)data1, 64, SHIM_DCACHE);
