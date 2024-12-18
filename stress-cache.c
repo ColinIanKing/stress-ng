@@ -34,6 +34,7 @@
 #define CACHE_FLAGS_CLFLUSHOPT	(0x0010U)
 #define CACHE_FLAGS_CLDEMOTE	(0x0020U)
 #define CACHE_FLAGS_CLWB	(0x0040U)
+#define CACHE_FLAGS_PREFETCHW	(0x0080U)
 #define CACHE_FLAGS_NOAFF	(0x8000U)
 
 #define STRESS_CACHE_MIXED_OPS	(0)
@@ -53,7 +54,8 @@ typedef void (*cache_write_page_func_t)(uint8_t *const addr, const uint64_t size
 				 CACHE_FLAGS_SFENCE |		\
 				 CACHE_FLAGS_CLFLUSHOPT |	\
 				 CACHE_FLAGS_CLDEMOTE |		\
-				 CACHE_FLAGS_CLWB)
+				 CACHE_FLAGS_CLWB | 		\
+				 CACHE_FLAGS_PREFETCHW)
 
 typedef struct {
 	const uint32_t flag;	/* cache mask flag */
@@ -67,7 +69,8 @@ static const mask_flag_info_t mask_flag_info[] = {
 	{ CACHE_FLAGS_SFENCE,		"sfence" },
 	{ CACHE_FLAGS_CLFLUSHOPT,	"clflushopt" },
 	{ CACHE_FLAGS_CLDEMOTE,		"cldemote" },
-	{ CACHE_FLAGS_CLWB,		"clwb" }
+	{ CACHE_FLAGS_CLWB,		"clwb" },
+	{ CACHE_FLAGS_PREFETCHW,	"prefetchw" },
 };
 
 static sigjmp_buf jmp_env;
@@ -91,7 +94,8 @@ static const stress_help_t help[] = {
 	{ NULL,	"cache-level N",	"only exercise specified cache" },
 	{ NULL, "cache-no-affinity",	"do not change CPU affinity" },
 	{ NULL,	"cache-ops N",	 	"stop after N cache bogo operations" },
-	{ NULL,	"cache-prefetch",	"prefetch on memory reads/writes" },
+	{ NULL,	"cache-prefetch",	"prefetch for memory reads/writes" },
+	{ NULL,	"cache-prefetchw",	"prefetch for memory write" },
 #if defined(HAVE_BUILTIN_SFENCE)
 	{ NULL,	"cache-sfence",		"serialize stores with sfence" },
 #endif
@@ -108,6 +112,7 @@ static const stress_opt_t opts[] = {
 	{ OPT_cache_flush,	 "cache-flush",       TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_cache_no_affinity, "cache-no-affinity", TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_cache_prefetch,    "cache-prefetch",    TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_cache_prefetchw,   "cache-prefetchw",   TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_cache_sfence,      "cache-sfence",      TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_cache_clwb,        "cache-clb",         TYPE_ID_BOOL, 0, 1, NULL },
 	END_OPT,
@@ -143,6 +148,12 @@ static const stress_opt_t opts[] = {
 #define SHIM_CLWB(p)
 #endif
 
+#if defined(HAVE_ASM_X86_PREFETCHW)
+#define SHIM_PREFETCHW(p)	stress_asm_x86_prefetchw(p)
+#else
+#define SHIM_PREFETCHW(p)
+#endif
+
 /*
  * The compiler optimises out the unused cache flush and mfence calls
  */
@@ -174,6 +185,9 @@ static const stress_opt_t opts[] = {
 		}							\
 		if ((flags) & CACHE_FLAGS_SFENCE) {			\
 			SHIM_SFENCE();					\
+		}							\
+		if ((flags) & CACHE_FLAGS_PREFETCHW) {			\
+			SHIM_PREFETCHW(&buffer[i]);			\
 		}							\
 		if (!stress_continue_flag())				\
 			break;						\
@@ -339,6 +353,142 @@ CACHE_WRITE_USE_MOD(0x7d)
 CACHE_WRITE_USE_MOD(0x7e)
 CACHE_WRITE_USE_MOD(0x7f)
 
+CACHE_WRITE_USE_MOD(0x80)
+CACHE_WRITE_USE_MOD(0x81)
+CACHE_WRITE_USE_MOD(0x82)
+CACHE_WRITE_USE_MOD(0x83)
+CACHE_WRITE_USE_MOD(0x84)
+CACHE_WRITE_USE_MOD(0x85)
+CACHE_WRITE_USE_MOD(0x86)
+CACHE_WRITE_USE_MOD(0x87)
+CACHE_WRITE_USE_MOD(0x88)
+CACHE_WRITE_USE_MOD(0x89)
+CACHE_WRITE_USE_MOD(0x8a)
+CACHE_WRITE_USE_MOD(0x8b)
+CACHE_WRITE_USE_MOD(0x8c)
+CACHE_WRITE_USE_MOD(0x8d)
+CACHE_WRITE_USE_MOD(0x8e)
+CACHE_WRITE_USE_MOD(0x8f)
+
+CACHE_WRITE_USE_MOD(0x90)
+CACHE_WRITE_USE_MOD(0x91)
+CACHE_WRITE_USE_MOD(0x92)
+CACHE_WRITE_USE_MOD(0x93)
+CACHE_WRITE_USE_MOD(0x94)
+CACHE_WRITE_USE_MOD(0x95)
+CACHE_WRITE_USE_MOD(0x96)
+CACHE_WRITE_USE_MOD(0x97)
+CACHE_WRITE_USE_MOD(0x98)
+CACHE_WRITE_USE_MOD(0x99)
+CACHE_WRITE_USE_MOD(0x9a)
+CACHE_WRITE_USE_MOD(0x9b)
+CACHE_WRITE_USE_MOD(0x9c)
+CACHE_WRITE_USE_MOD(0x9d)
+CACHE_WRITE_USE_MOD(0x9e)
+CACHE_WRITE_USE_MOD(0x9f)
+
+CACHE_WRITE_USE_MOD(0xa0)
+CACHE_WRITE_USE_MOD(0xa1)
+CACHE_WRITE_USE_MOD(0xa2)
+CACHE_WRITE_USE_MOD(0xa3)
+CACHE_WRITE_USE_MOD(0xa4)
+CACHE_WRITE_USE_MOD(0xa5)
+CACHE_WRITE_USE_MOD(0xa6)
+CACHE_WRITE_USE_MOD(0xa7)
+CACHE_WRITE_USE_MOD(0xa8)
+CACHE_WRITE_USE_MOD(0xa9)
+CACHE_WRITE_USE_MOD(0xaa)
+CACHE_WRITE_USE_MOD(0xab)
+CACHE_WRITE_USE_MOD(0xac)
+CACHE_WRITE_USE_MOD(0xad)
+CACHE_WRITE_USE_MOD(0xae)
+CACHE_WRITE_USE_MOD(0xaf)
+
+CACHE_WRITE_USE_MOD(0xb0)
+CACHE_WRITE_USE_MOD(0xb1)
+CACHE_WRITE_USE_MOD(0xb2)
+CACHE_WRITE_USE_MOD(0xb3)
+CACHE_WRITE_USE_MOD(0xb4)
+CACHE_WRITE_USE_MOD(0xb5)
+CACHE_WRITE_USE_MOD(0xb6)
+CACHE_WRITE_USE_MOD(0xb7)
+CACHE_WRITE_USE_MOD(0xb8)
+CACHE_WRITE_USE_MOD(0xb9)
+CACHE_WRITE_USE_MOD(0xba)
+CACHE_WRITE_USE_MOD(0xbb)
+CACHE_WRITE_USE_MOD(0xbc)
+CACHE_WRITE_USE_MOD(0xbd)
+CACHE_WRITE_USE_MOD(0xbe)
+CACHE_WRITE_USE_MOD(0xbf)
+
+CACHE_WRITE_USE_MOD(0xc0)
+CACHE_WRITE_USE_MOD(0xc1)
+CACHE_WRITE_USE_MOD(0xc2)
+CACHE_WRITE_USE_MOD(0xc3)
+CACHE_WRITE_USE_MOD(0xc4)
+CACHE_WRITE_USE_MOD(0xc5)
+CACHE_WRITE_USE_MOD(0xc6)
+CACHE_WRITE_USE_MOD(0xc7)
+CACHE_WRITE_USE_MOD(0xc8)
+CACHE_WRITE_USE_MOD(0xc9)
+CACHE_WRITE_USE_MOD(0xca)
+CACHE_WRITE_USE_MOD(0xcb)
+CACHE_WRITE_USE_MOD(0xcc)
+CACHE_WRITE_USE_MOD(0xcd)
+CACHE_WRITE_USE_MOD(0xce)
+CACHE_WRITE_USE_MOD(0xcf)
+
+CACHE_WRITE_USE_MOD(0xd0)
+CACHE_WRITE_USE_MOD(0xd1)
+CACHE_WRITE_USE_MOD(0xd2)
+CACHE_WRITE_USE_MOD(0xd3)
+CACHE_WRITE_USE_MOD(0xd4)
+CACHE_WRITE_USE_MOD(0xd5)
+CACHE_WRITE_USE_MOD(0xd6)
+CACHE_WRITE_USE_MOD(0xd7)
+CACHE_WRITE_USE_MOD(0xd8)
+CACHE_WRITE_USE_MOD(0xd9)
+CACHE_WRITE_USE_MOD(0xda)
+CACHE_WRITE_USE_MOD(0xdb)
+CACHE_WRITE_USE_MOD(0xdc)
+CACHE_WRITE_USE_MOD(0xdd)
+CACHE_WRITE_USE_MOD(0xde)
+CACHE_WRITE_USE_MOD(0xdf)
+
+CACHE_WRITE_USE_MOD(0xe0)
+CACHE_WRITE_USE_MOD(0xe1)
+CACHE_WRITE_USE_MOD(0xe2)
+CACHE_WRITE_USE_MOD(0xe3)
+CACHE_WRITE_USE_MOD(0xe4)
+CACHE_WRITE_USE_MOD(0xe5)
+CACHE_WRITE_USE_MOD(0xe6)
+CACHE_WRITE_USE_MOD(0xe7)
+CACHE_WRITE_USE_MOD(0xe8)
+CACHE_WRITE_USE_MOD(0xe9)
+CACHE_WRITE_USE_MOD(0xea)
+CACHE_WRITE_USE_MOD(0xeb)
+CACHE_WRITE_USE_MOD(0xec)
+CACHE_WRITE_USE_MOD(0xed)
+CACHE_WRITE_USE_MOD(0xee)
+CACHE_WRITE_USE_MOD(0xef)
+
+CACHE_WRITE_USE_MOD(0xf0)
+CACHE_WRITE_USE_MOD(0xf1)
+CACHE_WRITE_USE_MOD(0xf2)
+CACHE_WRITE_USE_MOD(0xf3)
+CACHE_WRITE_USE_MOD(0xf4)
+CACHE_WRITE_USE_MOD(0xf5)
+CACHE_WRITE_USE_MOD(0xf6)
+CACHE_WRITE_USE_MOD(0xf7)
+CACHE_WRITE_USE_MOD(0xf8)
+CACHE_WRITE_USE_MOD(0xf9)
+CACHE_WRITE_USE_MOD(0xfa)
+CACHE_WRITE_USE_MOD(0xfb)
+CACHE_WRITE_USE_MOD(0xfc)
+CACHE_WRITE_USE_MOD(0xfd)
+CACHE_WRITE_USE_MOD(0xfe)
+CACHE_WRITE_USE_MOD(0xff)
+
 static const cache_mixed_ops_func_t cache_mixed_ops_funcs[] = {
 	stress_cache_write_mod_0x00,
 	stress_cache_write_mod_0x01,
@@ -475,6 +625,142 @@ static const cache_mixed_ops_func_t cache_mixed_ops_funcs[] = {
 	stress_cache_write_mod_0x7d,
 	stress_cache_write_mod_0x7e,
 	stress_cache_write_mod_0x7f,
+
+	stress_cache_write_mod_0x80,
+	stress_cache_write_mod_0x81,
+	stress_cache_write_mod_0x82,
+	stress_cache_write_mod_0x83,
+	stress_cache_write_mod_0x84,
+	stress_cache_write_mod_0x85,
+	stress_cache_write_mod_0x86,
+	stress_cache_write_mod_0x87,
+	stress_cache_write_mod_0x88,
+	stress_cache_write_mod_0x89,
+	stress_cache_write_mod_0x8a,
+	stress_cache_write_mod_0x8b,
+	stress_cache_write_mod_0x8c,
+	stress_cache_write_mod_0x8d,
+	stress_cache_write_mod_0x8e,
+	stress_cache_write_mod_0x8f,
+
+	stress_cache_write_mod_0x90,
+	stress_cache_write_mod_0x91,
+	stress_cache_write_mod_0x92,
+	stress_cache_write_mod_0x93,
+	stress_cache_write_mod_0x94,
+	stress_cache_write_mod_0x95,
+	stress_cache_write_mod_0x96,
+	stress_cache_write_mod_0x97,
+	stress_cache_write_mod_0x98,
+	stress_cache_write_mod_0x99,
+	stress_cache_write_mod_0x9a,
+	stress_cache_write_mod_0x9b,
+	stress_cache_write_mod_0x9c,
+	stress_cache_write_mod_0x9d,
+	stress_cache_write_mod_0x9e,
+	stress_cache_write_mod_0x9f,
+
+	stress_cache_write_mod_0xa0,
+	stress_cache_write_mod_0xa1,
+	stress_cache_write_mod_0xa2,
+	stress_cache_write_mod_0xa3,
+	stress_cache_write_mod_0xa4,
+	stress_cache_write_mod_0xa5,
+	stress_cache_write_mod_0xa6,
+	stress_cache_write_mod_0xa7,
+	stress_cache_write_mod_0xa8,
+	stress_cache_write_mod_0xa9,
+	stress_cache_write_mod_0xaa,
+	stress_cache_write_mod_0xab,
+	stress_cache_write_mod_0xac,
+	stress_cache_write_mod_0xad,
+	stress_cache_write_mod_0xae,
+	stress_cache_write_mod_0xaf,
+
+	stress_cache_write_mod_0xb0,
+	stress_cache_write_mod_0xb1,
+	stress_cache_write_mod_0xb2,
+	stress_cache_write_mod_0xb3,
+	stress_cache_write_mod_0xb4,
+	stress_cache_write_mod_0xb5,
+	stress_cache_write_mod_0xb6,
+	stress_cache_write_mod_0xb7,
+	stress_cache_write_mod_0xb8,
+	stress_cache_write_mod_0xb9,
+	stress_cache_write_mod_0xba,
+	stress_cache_write_mod_0xbb,
+	stress_cache_write_mod_0xbc,
+	stress_cache_write_mod_0xbd,
+	stress_cache_write_mod_0xbe,
+	stress_cache_write_mod_0xbf,
+
+	stress_cache_write_mod_0xc0,
+	stress_cache_write_mod_0xc1,
+	stress_cache_write_mod_0xc2,
+	stress_cache_write_mod_0xc3,
+	stress_cache_write_mod_0xc4,
+	stress_cache_write_mod_0xc5,
+	stress_cache_write_mod_0xc6,
+	stress_cache_write_mod_0xc7,
+	stress_cache_write_mod_0xc8,
+	stress_cache_write_mod_0xc9,
+	stress_cache_write_mod_0xca,
+	stress_cache_write_mod_0xcb,
+	stress_cache_write_mod_0xcc,
+	stress_cache_write_mod_0xcd,
+	stress_cache_write_mod_0xce,
+	stress_cache_write_mod_0xcf,
+
+	stress_cache_write_mod_0xd0,
+	stress_cache_write_mod_0xd1,
+	stress_cache_write_mod_0xd2,
+	stress_cache_write_mod_0xd3,
+	stress_cache_write_mod_0xd4,
+	stress_cache_write_mod_0xd5,
+	stress_cache_write_mod_0xd6,
+	stress_cache_write_mod_0xd7,
+	stress_cache_write_mod_0xd8,
+	stress_cache_write_mod_0xd9,
+	stress_cache_write_mod_0xda,
+	stress_cache_write_mod_0xdb,
+	stress_cache_write_mod_0xdc,
+	stress_cache_write_mod_0xdd,
+	stress_cache_write_mod_0xde,
+	stress_cache_write_mod_0xdf,
+
+	stress_cache_write_mod_0xe0,
+	stress_cache_write_mod_0xe1,
+	stress_cache_write_mod_0xe2,
+	stress_cache_write_mod_0xe3,
+	stress_cache_write_mod_0xe4,
+	stress_cache_write_mod_0xe5,
+	stress_cache_write_mod_0xe6,
+	stress_cache_write_mod_0xe7,
+	stress_cache_write_mod_0xe8,
+	stress_cache_write_mod_0xe9,
+	stress_cache_write_mod_0xea,
+	stress_cache_write_mod_0xeb,
+	stress_cache_write_mod_0xec,
+	stress_cache_write_mod_0xed,
+	stress_cache_write_mod_0xee,
+	stress_cache_write_mod_0xef,
+
+	stress_cache_write_mod_0xf0,
+	stress_cache_write_mod_0xf1,
+	stress_cache_write_mod_0xf2,
+	stress_cache_write_mod_0xf3,
+	stress_cache_write_mod_0xf4,
+	stress_cache_write_mod_0xf5,
+	stress_cache_write_mod_0xf6,
+	stress_cache_write_mod_0xf7,
+	stress_cache_write_mod_0xf8,
+	stress_cache_write_mod_0xf9,
+	stress_cache_write_mod_0xfa,
+	stress_cache_write_mod_0xfb,
+	stress_cache_write_mod_0xfc,
+	stress_cache_write_mod_0xfd,
+	stress_cache_write_mod_0xfe,
+	stress_cache_write_mod_0xff,
 };
 
 typedef void (*cache_read_func_t)(uint64_t *pi, uint64_t *pk, uint32_t *ptotal);
@@ -760,6 +1046,7 @@ static int stress_cache(stress_args_t *args)
 	(void)stress_get_cache_flags("cache-prefetch", &cache_flags, CACHE_FLAGS_PREFETCH);
 	(void)stress_get_cache_flags("cache-sfence", &cache_flags, CACHE_FLAGS_SFENCE);
 	(void)stress_get_cache_flags("cache-clb", &cache_flags, CACHE_FLAGS_CLWB);
+	(void)stress_get_cache_flags("cache-prefetchw", &cache_flags, CACHE_FLAGS_PREFETCHW);
 
 	if (args->instance == 0)
 		pr_dbg("%s: using cache buffer size of %" PRIu64 "K\n",

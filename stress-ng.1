@@ -1235,8 +1235,12 @@ is in effect.
 stop cache thrash workers after N bogo cache thrash operations.
 .TP
 .B \-\-cache\-prefetch
-force read prefetch on next read address on architectures that support
+force read prefetch on read address on architectures that support
 prefetching.
+.TP
+.B \-\-cache\-prefetchw
+force a redundant write prefetch on architectures that support
+write prefetching.
 .TP
 .B \-\-cache\-sfence
 force write serialization on each store operation using the sfence instruction
