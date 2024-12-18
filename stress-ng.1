@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "12 December 2024"
+.TH STRESS-NG 1 "18 December 2024"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -4094,7 +4094,8 @@ have been reached.
 .B \-\-lockbus N
 start N workers that rapidly lock and increment 64 bytes of randomly chosen
 memory from a 16 MB mmap'd region (Intel x86 and ARM CPUs only).  This will
-cause cacheline misses and stalling of CPUs.
+cause cacheline misses and stalling of CPUs. Pages are spread randomly across
+NUMA nodes to exercise NUMA bus locking for NUMA systems.
 .TP
 .B \-\-lockbus\-nosplit
 disable split locks that lock across cache line boundaries.
