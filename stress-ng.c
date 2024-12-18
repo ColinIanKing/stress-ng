@@ -332,7 +332,7 @@ static const stress_help_t help_generic[] = {
 	{ "j",		"job jobfile",		"run the named jobfile" },
 	{ NULL,		"keep-files",		"do not remove files or directories" },
 	{ "k",		"keep-name",		"keep stress worker names to be 'stress-ng'" },
-	{ NULL,		"klog-check",		"check kernel message log for errors" },
+	{ "K",		"klog-check",		"check kernel message log for errors" },
 	{ NULL,		"ksm",			"enable kernel samepage merging" },
 	{ NULL,		"log-brief",		"less verbose log messages" },
 	{ NULL,		"log-file filename",	"log messages to a log file" },
