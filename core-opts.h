@@ -115,10 +115,11 @@ typedef enum {
 	OPT_dentry = 'D',
 	OPT_fork = 'f',
 	OPT_fallocate = 'F',
+	OPT_help = 'h',
 	OPT_io = 'i',
 	OPT_job = 'j',
-	OPT_help = 'h',
 	OPT_keep_name = 'k',
+	OPT_klog_check = 'K',
 	OPT_cpu_load = 'l',
 	OPT_vm = 'm',
 	OPT_metrics = 'M',
@@ -676,8 +677,6 @@ typedef enum {
 
 	OPT_klog,
 	OPT_klog_ops,
-
-	OPT_klog_check,
 
 	OPT_ksm,
 
