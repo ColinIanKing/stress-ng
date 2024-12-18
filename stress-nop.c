@@ -89,7 +89,7 @@ STRESS_NOP_SPIN_OP(x86_pause, stress_asm_x86_pause)
 
 #if defined(HAVE_ASM_X86_TPAUSE) &&	\
     !defined(HAVE_COMPILER_PCC)
-static inline void stress_op_x86_tpause(void)
+static inline ALWAYS_INLINE void stress_op_x86_tpause(void)
 {
 	uint64_t tsc;
 
@@ -111,74 +111,74 @@ STRESS_NOP_SPIN_OP(arm_yield, stress_asm_arm_yield);
 #endif
 
 #if defined(STRESS_ARCH_X86)
-static inline void stress_op_x86_nop2(void)
+static inline ALWAYS_INLINE void stress_op_x86_nop2(void)
 {
 	__asm__ __volatile__(".byte 0x66, 0x90;\n");
 }
 
-static inline void stress_op_x86_nop3(void)
+static inline ALWAYS_INLINE void stress_op_x86_nop3(void)
 {
 	__asm__ __volatile__(".byte 0x0f, 0x1f, 0x00;\n");
 }
 
-static inline void stress_op_x86_nop4(void)
+static inline ALWAYS_INLINE void stress_op_x86_nop4(void)
 {
 	__asm__ __volatile__(".byte 0x0f, 0x1f, 0x40, 0x00;\n");
 }
 
-static inline void stress_op_x86_nop5(void)
+static inline ALWAYS_INLINE void stress_op_x86_nop5(void)
 {
 	__asm__ __volatile__(".byte 0x0f, 0x1f, 0x44, 0x00, 0x00;\n");
 }
 
-static inline void stress_op_x86_nop6(void)
+static inline ALWAYS_INLINE void stress_op_x86_nop6(void)
 {
 	__asm__ __volatile__(".byte 0x66, 0x0f, 0x1f, 0x44, 0x00, 0x00;\n");
 }
 
-static inline void stress_op_x86_nop7(void)
+static inline ALWAYS_INLINE void stress_op_x86_nop7(void)
 {
 	__asm__ __volatile__(".byte 0x0f, 0x1f, 0x80, 0x00, 0x00, 0x00, 0x00;\n");
 }
 
-static inline void stress_op_x86_nop8(void)
+static inline ALWAYS_INLINE void stress_op_x86_nop8(void)
 {
 	__asm__ __volatile__(".byte 0x0f, 0x1f, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00;\n");
 }
 
-static inline void stress_op_x86_nop9(void)
+static inline ALWAYS_INLINE void stress_op_x86_nop9(void)
 {
 	__asm__ __volatile__(".byte 0x66, 0x0f, 0x1f, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00;\n");
 }
 
-static inline void stress_op_x86_nop10(void)
+static inline ALWAYS_INLINE void stress_op_x86_nop10(void)
 {
 	__asm__ __volatile__(".byte 0x66, 0x66, 0x0f, 0x1f, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00;\n");
 }
 
-static inline void stress_op_x86_nop11(void)
+static inline ALWAYS_INLINE void stress_op_x86_nop11(void)
 {
 	__asm__ __volatile__(".byte 0x66, 0x66, 0x66, 0x0f, 0x1f, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00;\n");
 }
 
-static inline void stress_op_x86_nop12(void)
+static inline ALWAYS_INLINE void stress_op_x86_nop12(void)
 {
 	__asm__ __volatile__(".byte 0x66, 0x66, 0x66, 0x66, 0x0f, 0x1f, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00;\n");
 }
 
-static inline void stress_op_x86_nop13(void)
+static inline ALWAYS_INLINE void stress_op_x86_nop13(void)
 {
 	__asm__ __volatile__(".byte 0x66, 0x66, 0x66, 0x66, 0x66, 0x0f, 0x1f, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00;\n");
 }
 
-static inline void stress_op_x86_nop14(void)
+static inline ALWAYS_INLINE void stress_op_x86_nop14(void)
 {
-	__asm__ __volatile__(".byte 0x66, 0x66, 0x66, 0x66, 0x66, 0x0f, 0x1f, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00;\n");
+	__asm__ __volatile__(".byte 0x66, 0x66, 0x66, 0x66, 0x66, 0x66, 0x0f, 0x1f, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00;\n");
 }
 
-static inline void stress_op_x86_nop15(void)
+static inline ALWAYS_INLINE void stress_op_x86_nop15(void)
 {
-	__asm__ __volatile__(".byte 0x66, 0x66, 0x66, 0x66, 0x66, 0x0f, 0x1f, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00;\n");
+	__asm__ __volatile__(".byte 0x66, 0x66, 0x66, 0x66, 0x66, 0x66, 0x66, 0x0f, 0x1f, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00;\n");
 }
 
 STRESS_NOP_SPIN_OP(x86_nop2, stress_op_x86_nop2)
