@@ -687,7 +687,7 @@ static uint64_t TARGET_CLONES OPTIMIZE3 stress_memrate_write_rate##size(	\
  *  non-temporal writes using movntdq. Data is not going to be
  *  read, so no need to cache. Write directly to memory.
  */
-#define STRESS_MEMRATE_WRITE_NT(size, type, op, init)		\
+#define STRESS_MEMRATE_WRITE_NT(size, type, op)			\
 static uint64_t OPTIMIZE3 stress_memrate_write_nt##size(	\
 	const stress_memrate_context_t *context,		\
 	bool *valid)						\
@@ -733,7 +733,7 @@ static uint64_t OPTIMIZE3 stress_memrate_write_nt##size(	\
 	return ((uintptr_t)ptr - (uintptr_t)start) / KB;	\
 }
 
-#define STRESS_MEMRATE_WRITE_NT_RATE(size, type, op, init)	\
+#define STRESS_MEMRATE_WRITE_NT_RATE(size, type, op)		\
 static uint64_t OPTIMIZE3 stress_memrate_write_nt_rate##size(	\
 	const stress_memrate_context_t *context,		\
 	bool *valid)						\
@@ -809,18 +809,18 @@ static uint64_t OPTIMIZE3 stress_memrate_write_nt_rate##size(	\
 }
 
 #if defined(HAVE_NT_STORE128)
-STRESS_MEMRATE_WRITE_NT(128, __uint128_t, stress_nt_store128, i)
-STRESS_MEMRATE_WRITE_NT_RATE(128, __uint128_t, stress_nt_store128, i)
+STRESS_MEMRATE_WRITE_NT(128, __uint128_t, stress_nt_store128)
+STRESS_MEMRATE_WRITE_NT_RATE(128, __uint128_t, stress_nt_store128)
 #endif
 
 #if defined(HAVE_NT_STORE64)
-STRESS_MEMRATE_WRITE_NT(64, uint64_t, stress_nt_store64, i)
-STRESS_MEMRATE_WRITE_NT_RATE(64, uint64_t, stress_nt_store64, i)
+STRESS_MEMRATE_WRITE_NT(64, uint64_t, stress_nt_store64)
+STRESS_MEMRATE_WRITE_NT_RATE(64, uint64_t, stress_nt_store64)
 #endif
 
 #if defined(HAVE_NT_STORE32)
-STRESS_MEMRATE_WRITE_NT(32, uint32_t, stress_nt_store32, i)
-STRESS_MEMRATE_WRITE_NT_RATE(32, uint32_t, stress_nt_store32, i)
+STRESS_MEMRATE_WRITE_NT(32, uint32_t, stress_nt_store32)
+STRESS_MEMRATE_WRITE_NT_RATE(32, uint32_t, stress_nt_store32)
 #endif
 
 #if defined(HAVE_VECMATH)
