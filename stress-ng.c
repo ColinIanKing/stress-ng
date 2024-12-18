@@ -397,7 +397,7 @@ static const stress_help_t help_generic[] = {
 	{ "V",		"version",		"show version" },
 	{ NULL,		"vmstat S",		"show memory and process statistics every S seconds" },
 	{ "x",		"exclude list",		"list of stressors to exclude (not run)" },
-	{ NULL,		"with list",		"list of stressors to invoke (use with --seq or --all)" },
+	{ "w",		"with list",		"list of stressors to invoke (use with --seq or --all)" },
 	{ "Y",		"yaml file",		"output results to YAML formatted file" },
 	{ NULL,		NULL,			NULL }
 };
@@ -3227,7 +3227,7 @@ int stress_parse_opts(int argc, char **argv, const bool jobmode)
 
 		opterr = (!jobmode) ? opterr : 0;
 next_opt:
-		if ((c = getopt_long(argc, argv, "?kKhMVvqnt:b:c:i:j:m:d:f:s:l:p:P:C:S:a:y:F:D:T:u:o:r:B:R:Y:x:",
+		if ((c = getopt_long(argc, argv, "?kKhMVvqnt:b:c:i:j:m:d:f:s:l:p:P:C:S:a:y:F:D:T:u:o:r:B:R:w:x:Y:",
 			stress_long_options, &option_index)) == -1) {
 			break;
 		}

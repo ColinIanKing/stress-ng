@@ -137,9 +137,10 @@ typedef enum {
 	OPT_urandom = 'u',
 	OPT_verbose = 'v',
 	OPT_version = 'V',
+	OPT_with = 'w',
+	OPT_exclude = 'x',
 	OPT_yield = 'y',
 	OPT_yaml = 'Y',
-	OPT_exclude = 'x',
 
 	/* Long options only */
 
@@ -1694,8 +1695,6 @@ typedef enum {
 
 	OPT_watchdog,
 	OPT_watchdog_ops,
-
-	OPT_with,
 
 	OPT_wcs,
 	OPT_wcs_ops,
