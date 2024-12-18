@@ -28,6 +28,7 @@
 #include "core-numa.h"
 #include "core-out-of-memory.h"
 #include "core-pthread.h"
+#include "core-pragma.h"
 #include "core-target-clones.h"
 
 #if defined(HAVE_LINUX_MEMPOLICY_H) &&	\
@@ -240,6 +241,7 @@ static void OPTIMIZE3 stress_memthrash_memset64(
 #endif
 	/* normal temporal stores, non-SSE fallback */
 
+PRAGMA_UNROLL_N(4)
 	while (LIKELY(ptr < end)) {
 		*ptr++ = val;
 		*ptr++ = val;
@@ -662,6 +664,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_memthrash_reverse(
 	(void)context;
 	while (fwd < end) {
 		register uint8_t tmp;
+
 		tmp = *fwd;
 		*(fwd++) = *(--rev);
 		*rev = tmp;
