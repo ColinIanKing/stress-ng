@@ -95,7 +95,9 @@ static const stress_help_t help[] = {
 	{ NULL, "cache-no-affinity",	"do not change CPU affinity" },
 	{ NULL,	"cache-ops N",	 	"stop after N cache bogo operations" },
 	{ NULL,	"cache-prefetch",	"prefetch for memory reads/writes" },
+#if defined(HAVE_ASM_X86_PREFETCHW)
 	{ NULL,	"cache-prefetchw",	"prefetch for memory write" },
+#endif
 #if defined(HAVE_BUILTIN_SFENCE)
 	{ NULL,	"cache-sfence",		"serialize stores with sfence" },
 #endif
