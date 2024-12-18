@@ -3873,6 +3873,9 @@ size_t stress_flag_permutation(const int flags, int **permutations)
 	for (n_bits = 0, flag_bits = (unsigned int)flags; flag_bits; flag_bits >>= 1U)
 		n_bits += (flag_bits & 1U);
 
+	if (n_bits > STRESS_MAX_PERMUTATIONS)
+		n_bits = STRESS_MAX_PERMUTATIONS;
+
 	n_flags = 1U << n_bits;
 	perms = (int *)calloc((size_t)n_flags, sizeof(*perms));
 	if (!perms)

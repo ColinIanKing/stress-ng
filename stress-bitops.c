@@ -32,9 +32,9 @@ typedef struct {
 } stress_bitops_method_info_t;
 
 static const stress_help_t help[] = {
-	{ "c N", "bitops N",		"start N workers that perform CPU only loading" },
-	{ NULL,  "bitops-method M",	"specify stress bitops method M, default is all" },
-	{ NULL,  "bitops-ops N",	"stop after N bitops bogo operations" },
+	{ NULL, "bitops N",		"start N workers that perform CPU only loading" },
+	{ NULL, "bitops-method M",	"specify stress bitops method M, default is all" },
+	{ NULL, "bitops-ops N",		"stop after N bitops bogo operations" },
 	{ NULL,	 NULL,			NULL }
 };
 

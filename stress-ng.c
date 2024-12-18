@@ -3691,7 +3691,7 @@ static inline void stress_run_permute(
 {
 	stress_stressor_t *ss;
 	size_t i, perms, num_perms, run = 0;
-	const size_t max_perms = 16;
+	const size_t max_perms = STRESS_MAX_PERMUTATIONS;
 	char str[4096];
 
 	for (perms = 0, ss = stressors_head; ss; ss = ss->next) {
