@@ -869,10 +869,11 @@ stop the bad alternative stack stressors after N SIGSEGV bogo operations.
 .RS 5
 .TQ
 .B \-\-bad\-ioctl N
-start N workers that perform a range of illegal bad read ioctls (using _IOR) across the
-device drivers. This exercises page size, 64 bit, 32 bit, 16 bit and 8 bit reads as
-well as NULL addresses, non-readable pages and PROT_NONE mapped pages. Currently only
-for Linux and requires the --pathological option.
+start N workers that perform a range of illegal bad read ioctls (using _IOR) and
+write ioctls (using _IOR with PROT_NONE mapped pages) across the device drivers. This
+exercises page size, 64 bit, 32 bit, 16 bit and 8 bit reads as well as NULL addresses,
+non-readable pages and PROT_NONE mapped pages. Currently only for Linux and requires
+the --pathological option.
 .TP
 .B \-\-bad\-ioctl\-method [ inc | random | random\-inc | stride ]
 select the method of changing the ioctl command (number, type) tuple per iteration, the

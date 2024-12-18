@@ -30,7 +30,7 @@
 #include <sys/ioctl.h>
 
 static const stress_help_t help[] = {
-	{ NULL,	"bad-ioctl N",		"start N stressors that perform illegal read ioctls on devices" },
+	{ NULL,	"bad-ioctl N",		"start N stressors that perform illegal ioctls on devices" },
 	{ NULL,	"bad-ioctl-ops  N",	"stop after N bad ioctl bogo operations" },
 	{ NULL,	"bad-ioctl-method M",	"method of selecting ioctl command [ random | inc | random-inc | stride ]" },
 	{ NULL,	NULL,			NULL }
@@ -225,18 +225,6 @@ done:
 	stress_dirent_list_free(dlist, n);
 }
 
-static int stress_bad_ioctl_supported(const char *name)
-{
-        if (stress_check_capability(SHIM_CAP_IS_ROOT) ||
-	    (geteuid() == 0)) {
-                pr_inf_skip("%s stressor will be skipped, "
-                        "need to be running without root privilege "
-                        "for this stressor\n", name);
-                return -1;
-        }
-	return 0;
-}
-
 static void NORETURN MLOCKED_TEXT stress_segv_handler(int signum)
 {
 	(void)signum;
@@ -360,7 +348,43 @@ static inline void stress_bad_ioctl_rw(
 			break;
 		}
 
+		VOID_RET(int, ioctl(fd, _IOR(type, nr, uint64_t), NULL));
+		if (stress_time_now() - t_start > threshold) {
+			(void)close(fd);
+			break;
+		}
+
+		VOID_RET(int, ioctl(fd, _IOR(type, nr, uint32_t), NULL));
+		if (stress_time_now() - t_start > threshold) {
+			(void)close(fd);
+			break;
+		}
+
+		VOID_RET(int, ioctl(fd, _IOR(type, nr, uint16_t), NULL));
+		if (stress_time_now() - t_start > threshold) {
+			(void)close(fd);
+			break;
+		}
+
 		VOID_RET(int, ioctl(fd, _IOR(type, nr, uint8_t), NULL));
+		if (stress_time_now() - t_start > threshold) {
+			(void)close(fd);
+			break;
+		}
+
+		VOID_RET(int, ioctl(fd, _IOR(type, nr, uint64_t), args->mapped->page_none));
+		if (stress_time_now() - t_start > threshold) {
+			(void)close(fd);
+			break;
+		}
+
+		VOID_RET(int, ioctl(fd, _IOR(type, nr, uint32_t), args->mapped->page_none));
+		if (stress_time_now() - t_start > threshold) {
+			(void)close(fd);
+			break;
+		}
+
+		VOID_RET(int, ioctl(fd, _IOR(type, nr, uint16_t), args->mapped->page_none));
 		if (stress_time_now() - t_start > threshold) {
 			(void)close(fd);
 			break;
@@ -372,11 +396,50 @@ static inline void stress_bad_ioctl_rw(
 			break;
 		}
 
+		VOID_RET(int, ioctl(fd, _IOR(type, nr, uint32_t), args->mapped->page_ro));
+		if (stress_time_now() - t_start > threshold) {
+			(void)close(fd);
+			break;
+		}
+
+		VOID_RET(int, ioctl(fd, _IOR(type, nr, uint16_t), args->mapped->page_ro));
+		if (stress_time_now() - t_start > threshold) {
+			(void)close(fd);
+			break;
+		}
+
 		VOID_RET(int, ioctl(fd, _IOR(type, nr, uint8_t), args->mapped->page_ro));
 		if (stress_time_now() - t_start > threshold) {
 			(void)close(fd);
 			break;
 		}
+
+#if defined(_IOW)
+		VOID_RET(int, ioctl(fd, _IOW(type, nr, uint64_t), args->mapped->page_none));
+		if (stress_time_now() - t_start > threshold) {
+			(void)close(fd);
+			break;
+		}
+
+		VOID_RET(int, ioctl(fd, _IOW(type, nr, uint32_t), args->mapped->page_none));
+		if (stress_time_now() - t_start > threshold) {
+			(void)close(fd);
+			break;
+		}
+
+		VOID_RET(int, ioctl(fd, _IOW(type, nr, uint16_t), args->mapped->page_none));
+		if (stress_time_now() - t_start > threshold) {
+			(void)close(fd);
+			break;
+		}
+
+		VOID_RET(int, ioctl(fd, _IOW(type, nr, uint8_t), args->mapped->page_none));
+		if (stress_time_now() - t_start > threshold) {
+			(void)close(fd);
+			break;
+		}
+#endif
+
 		(void)close(fd);
 		if ((thread_index >= 0) && (thread_index < MAX_DEV_THREADS)) {
 			ret = stress_lock_acquire(lock);
@@ -596,7 +659,6 @@ again:
 }
 const stressor_info_t stress_bad_ioctl_info = {
 	.stressor = stress_bad_ioctl,
-	.supported = stress_bad_ioctl_supported,
 	.class = CLASS_DEV | CLASS_OS | CLASS_PATHOLOGICAL,
 	.opts = opts,
 	.help = help
