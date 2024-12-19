@@ -1112,7 +1112,7 @@ static void stress_wait_aggressive(
 					int status, ret;
 
 					ret = waitpid(pid, &status, WNOHANG);
-					if ((ret < 0) && (errno == ESRCH))
+					if ((ret < 0) && ((errno == ESRCH) || (errno == ECHILD)))
 						continue;
 					procs_alive = true;
 
@@ -1122,8 +1122,10 @@ static void stress_wait_aggressive(
 
 					CPU_ZERO(&mask);
 					CPU_SET(cpu_num, &mask);
-					if (sched_setaffinity(pid, sizeof(mask), &mask) < 0)
-						return;
+
+					/* may fail if child has just died, just continue */
+					(void)sched_setaffinity(pid, sizeof(mask), &mask);
+					(void)shim_sched_yield();
 				}
 			}
 		}
