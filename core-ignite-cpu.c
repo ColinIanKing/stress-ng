@@ -84,9 +84,12 @@ static void stress_ignite_cpu_set(
 {
 	char path[PATH_MAX];
 	char buffer[128];
+	int retry = 0;
+	const int max_retries = 16;
 
-	if (((*setting_flag & SETTING_FREQ) == SETTING_FREQ) && (max_freq > 0) && (min_freq <= max_freq)) {
-		const uint64_t freq_delta = (max_freq - min_freq) / 10;
+	if (((*setting_flag & SETTING_FREQ) == SETTING_FREQ) &&
+		(min_freq > 0) && (max_freq > 0) && (min_freq < max_freq)) {
+		const int64_t freq_delta = (max_freq - min_freq) / 10;
 		uint64_t freq;
 
 		(void)snprintf(path, sizeof(path),
@@ -96,12 +99,12 @@ static void stress_ignite_cpu_set(
 		if (stress_system_write(path, buffer, strlen(buffer)) < 0)
 			*setting_flag &= ~SETTING_SCALING_FREQ;
 
-		/* Try to set min to be 100% of max down to lowest, which ever works first*/
+		/* Try to set min to be 100% of max down to lowest, which ever works first */
 		(void)snprintf(path, sizeof(path),
 			"/sys/devices/system/cpu/cpu%" PRId32
 			"/cpufreq/scaling_min_freq", cpu);
 		freq = (maximize_freq) ? max_freq : min_freq;
-		while ((freq_delta > 0) && (freq >= min_freq)) {
+		while ((retry++ < max_retries) && (freq_delta > 0) && (freq >= min_freq)) {
 			(void)snprintf(buffer, sizeof(buffer), "%" PRIu64 "\n", freq);
 			if (stress_system_write(path, buffer, strlen(buffer)) >= 0)
 				break;
@@ -315,7 +318,6 @@ void stress_ignite_cpu_start(void)
 				 *  Attempt to crank CPUs up to max freq
 				 */
 				for (cpu = 0; cpu < max_cpus; cpu++) {
-
 					if (cpu_settings[cpu].setting_flag == 0)
 						continue;
 
