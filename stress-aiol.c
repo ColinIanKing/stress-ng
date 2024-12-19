@@ -62,7 +62,11 @@ static const stress_opt_t opts[] = {
     defined(__NR_io_getevents)
 
 #if defined(__NR_io_cancel)
-static int shim_io_cancel(
+/*
+ *  shim_io_cancel
+ * 	wrapper for io_cancel system call
+ */
+static inline int shim_io_cancel(
 	io_context_t ctx_id,
 	struct iocb *iocb,
 	struct io_event *result)
@@ -77,7 +81,11 @@ struct shim_aio_sigset {
 	size_t		sigsetsize;
 };
 
-static int shim_io_pgetevents(
+/*
+ *  shim_io_pgetevents
+ * 	wrapper for io_pgetevents system call
+ */
+static inline int shim_io_pgetevents(
 	io_context_t ctx_id,
 	long int min_nr,
 	long int nr,
@@ -89,22 +97,38 @@ static int shim_io_pgetevents(
 }
 #endif
 
-static int shim_io_setup(unsigned nr_events, io_context_t *ctx_idp)
+/*
+ *  shim_io_setup
+ * 	wrapper for io_setup system call
+ */
+static inline int shim_io_setup(unsigned nr_events, io_context_t *ctx_idp)
 {
 	return (int)syscall(__NR_io_setup, nr_events, ctx_idp);
 }
 
-static int shim_io_destroy(io_context_t ctx_id)
+/*
+ *  shim_io_destroy
+ * 	wrapper for io_destroy system call
+ */
+static inline int shim_io_destroy(io_context_t ctx_id)
 {
 	return (int)syscall(__NR_io_destroy, ctx_id);
 }
 
-static int shim_io_submit(io_context_t ctx_id, long int nr, struct iocb **iocbpp)
+/*
+ *  shim_io_submit
+ * 	wrapper for io_submit system call
+ */
+static inline int shim_io_submit(io_context_t ctx_id, long int nr, struct iocb **iocbpp)
 {
 	return (int)syscall(__NR_io_submit, ctx_id, nr, iocbpp);
 }
 
-static int shim_io_getevents(
+/*
+ *  shim_io_getevents
+ * 	wrapper for io_getevents system call
+ */
+static inline int shim_io_getevents(
 	io_context_t ctx_id,
 	long int min_nr,
 	long int nr,
@@ -120,7 +144,7 @@ static int shim_io_getevents(
  *	random choice. If shim_io_pgetevents does not exist, don't
  *	try it again.
  */
-static int shim_io_getevents_random(
+static inline int shim_io_getevents_random(
 	const io_context_t ctx_id,
 	const long int min_nr,
 	const long int nr,
