@@ -385,7 +385,7 @@ static int stress_aiol(stress_args_t *args)
 	int j = 0;
 	size_t i;
 	int warnings = 0;
-	stress_aiol_info_t info;
+	stress_aiol_info_t info ALIGN64;
 #if defined(__NR_io_cancel)
 	int bad_fd;
 #endif
