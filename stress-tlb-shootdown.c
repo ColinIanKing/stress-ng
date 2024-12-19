@@ -342,7 +342,7 @@ PRAGMA_UNROLL_N(8)
 #endif
 
 		stress_bogo_inc(args);
-	} while(stress_continue(args));
+	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
