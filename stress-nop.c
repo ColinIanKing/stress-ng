@@ -67,11 +67,11 @@ static void stress_nop_spin_ ## name(				\
 	do {							\
 		register int j = 64;				\
 								\
-		while (j--) {					\
+		while (LIKELY(j--)) {				\
 			register int i = NOP_LOOPS;		\
 			const double t = stress_time_now();	\
 								\
-			while (i--)				\
+			while (LIKELY(i--))			\
 				OPx64(op); 			\
 			(*duration) += stress_time_now() - t;	\
 			(*count) += (double)(64 * NOP_LOOPS);	\
