@@ -389,6 +389,7 @@ static int stress_aiol(stress_args_t *args)
 #if defined(__NR_io_cancel)
 	int bad_fd;
 #endif
+	double t, duration = 0.0, rate;
 
 	(void)shim_memset(&info, 0, sizeof(info));
 
@@ -518,6 +519,7 @@ retry_open:
 	stress_sync_start_wait(args);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
+	t = stress_time_now();
 	do {
 		register uint8_t *bufptr;
 		ssize_t n;
@@ -784,6 +786,7 @@ retry_open:
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
 
+	duration = stress_time_now() - t;
 	rc = EXIT_SUCCESS;
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
@@ -800,8 +803,11 @@ finish:
 free_memory:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	stress_metrics_set(args, 1, "async I/O events completed",
+	stress_metrics_set(args, 0, "async I/O events completed",
 		(double)info.aiol_completions, STRESS_METRIC_TOTAL);
+	rate = (duration > 0) ? (double)info.aiol_completions / duration : 0.0;
+	stress_metrics_set(args, 1, "async I/O events completed per sec",
+		rate, STRESS_METRIC_HARMONIC_MEAN);
 
 	stress_aiol_free(&info);
 
