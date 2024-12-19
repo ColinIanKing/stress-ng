@@ -1066,6 +1066,140 @@ void stress_sync_start_cont_s_pid(stress_pid_t *s_pid)
 	(void)kill(pid, SIGCONT);
 }
 
+/*
+ *   stress_wait_pid()
+ *	wait for a stressor by their given pid
+ */
+static void stress_wait_pid(
+	stress_stressor_t *ss,
+	const pid_t pid,
+	stress_stats_t *stats,
+	bool *success,
+	bool *resource_success,
+	bool *metrics_success,
+	const int flag)
+{
+	int status, ret;
+	bool do_abort = false;
+	const char *name = ss->stressor->name;
+
+redo:
+	if (stats->s_pid.reaped)
+		return;
+
+	ret = shim_waitpid(pid, &status, flag);
+	if (ret > 0) {
+		int wexit_status = WEXITSTATUS(status);
+
+		stats->s_pid.reaped = true;
+
+		if (WIFSIGNALED(status)) {
+#if defined(WTERMSIG)
+			const int wterm_signal = WTERMSIG(status);
+
+			if (wterm_signal != SIGALRM) {
+#if NEED_GLIBC(2,1,0)
+				const char *signame = strsignal(wterm_signal);
+
+				pr_dbg("%s: [%d] terminated on signal: %d (%s)\n",
+					name, ret, wterm_signal, signame);
+#else
+				pr_dbg("%s: [%d] terminated on signal: %d\n",
+					name, ret, wterm_signal);
+#endif
+			}
+#else
+			pr_dbg("%s [%d] terminated on signal\n",
+				name, ret);
+#endif
+			/*
+			 *  If the stressor got killed by OOM or SIGKILL
+			 *  then somebody outside of our control nuked it
+			 *  so don't necessarily flag that up as a direct
+			 *  failure.
+			 */
+			if (stress_process_oomed(ret)) {
+				pr_dbg("%s: [%d] killed by the OOM killer\n",
+					name, ret);
+			} else if (wterm_signal == SIGKILL) {
+				pr_dbg("%s: [%d] possibly killed by the OOM killer\n",
+					name, ret);
+			} else if (wterm_signal != SIGALRM) {
+				*success = false;
+			}
+		}
+		switch (wexit_status) {
+		case EXIT_SUCCESS:
+			ss->status[STRESS_STRESSOR_STATUS_PASSED]++;
+			break;
+		case EXIT_NO_RESOURCE:
+			ss->status[STRESS_STRESSOR_STATUS_SKIPPED]++;
+			pr_warn_skip("%s: [%d] aborted early, out of system resources\n",
+				name, ret);
+			*resource_success = false;
+			do_abort = true;
+			break;
+		case EXIT_NOT_IMPLEMENTED:
+			ss->status[STRESS_STRESSOR_STATUS_SKIPPED]++;
+			do_abort = true;
+			break;
+		case EXIT_SIGNALED:
+			ss->status[STRESS_STRESSOR_STATUS_FAILED]++;
+			do_abort = true;
+			*success = false;
+#if defined(STRESS_REPORT_EXIT_SIGNALED)
+			pr_dbg("%s: [%d] aborted via a termination signal\n",
+				name, ret);
+#endif
+			break;
+		case EXIT_BY_SYS_EXIT:
+			ss->status[STRESS_STRESSOR_STATUS_FAILED]++;
+			pr_dbg("%s: [%d] aborted via exit() which was not expected\n",
+				name, ret);
+			do_abort = true;
+			break;
+		case EXIT_METRICS_UNTRUSTWORTHY:
+			ss->status[STRESS_STRESSOR_STATUS_BAD_METRICS]++;
+			*metrics_success = false;
+			break;
+		case EXIT_FAILURE:
+			ss->status[STRESS_STRESSOR_STATUS_FAILED]++;
+			/*
+			 *  Stressors should really return EXIT_NOT_SUCCESS
+			 *  as EXIT_FAILURE should indicate a core stress-ng
+			 *  problem.
+			 */
+			wexit_status = EXIT_NOT_SUCCESS;
+			goto wexit_status_default;
+		default:
+wexit_status_default:
+			pr_err("%s: [%d] terminated with an error, exit status=%d (%s)\n",
+				name, ret, wexit_status,
+				stress_exit_status_to_string(wexit_status));
+			*success = false;
+			do_abort = true;
+			break;
+		}
+		if ((g_opt_flags & OPT_FLAGS_ABORT) && do_abort) {
+			stress_continue_set_flag(false);
+			wait_flag = false;
+			stress_kill_stressors(SIGALRM, true);
+		}
+
+		stress_stressor_finished(&stats->s_pid.pid);
+		pr_dbg("%s: [%d] terminated (%s)\n",
+			name, ret,
+			stress_exit_status_to_string(wexit_status));
+	} else if (ret == -1) {
+		/* Somebody interrupted the wait */
+		if (errno == EINTR)
+			goto redo;
+		/* This child did not exist, mark it done anyhow */
+		if ((errno == ECHILD) || (errno == ESRCH))
+			stress_stressor_finished(&stats->s_pid.pid);
+	}
+}
+
 #if defined(HAVE_SCHED_GETAFFINITY) &&	\
     NEED_GLIBC(2,3,0)
 /*
@@ -1075,7 +1209,10 @@ void stress_sync_start_cont_s_pid(stress_pid_t *s_pid)
  */
 static void stress_wait_aggressive(
 	const int32_t ticks_per_sec,
-	stress_stressor_t *stressors_list)
+	stress_stressor_t *stressors_list,
+	bool *success,
+	bool *resource_success,
+	bool *metrics_success)
 {
 	stress_stressor_t *ss;
 	cpu_set_t proc_mask;
@@ -1103,19 +1240,20 @@ static void stress_wait_aggressive(
 			int32_t j;
 
 			for (j = 0; j < ss->num_instances; j++) {
-				const stress_stats_t *const stats = ss->stats[j];
+				stress_stats_t *const stats = ss->stats[j];
 				const pid_t pid = stats->s_pid.pid;
 
-				if (pid) {
+				if (pid && !stats->s_pid.reaped) {
 					cpu_set_t mask;
 					int32_t cpu_num;
-					int status, ret;
 
-					ret = waitpid(pid, &status, WNOHANG);
-					if ((ret < 0) && ((errno == ESRCH) || (errno == ECHILD)))
-						continue;
-					procs_alive = true;
+					stress_wait_pid(ss, pid, stats,
+						success, resource_success,
+						metrics_success, WNOHANG);
 
+					/* PID not reaped by the WNOHANG waitpid? */
+					if (!stats->s_pid.reaped)
+						procs_alive = true;
 					do {
 						cpu_num = (int32_t)stress_mwc32modn(cpus);
 					} while (!(CPU_ISSET(cpu_num, &proc_mask)));
@@ -1134,134 +1272,6 @@ static void stress_wait_aggressive(
 	}
 }
 #endif
-
-/*
- *   stress_wait_pid()
- *	wait for a stressor by their given pid
- */
-static void stress_wait_pid(
-	stress_stressor_t *ss,
-	const pid_t pid,
-	const char *stressor_name,
-	stress_stats_t *stats,
-	bool *success,
-	bool *resource_success,
-	bool *metrics_success)
-{
-	int status, ret;
-	bool do_abort = false;
-
-redo:
-	ret = shim_waitpid(pid, &status, 0);
-	if (ret > 0) {
-		int wexit_status = WEXITSTATUS(status);
-
-		if (WIFSIGNALED(status)) {
-#if defined(WTERMSIG)
-			const int wterm_signal = WTERMSIG(status);
-
-			if (wterm_signal != SIGALRM) {
-#if NEED_GLIBC(2,1,0)
-				const char *signame = strsignal(wterm_signal);
-
-				pr_dbg("%s: [%d] terminated on signal: %d (%s)\n",
-					stressor_name, ret, wterm_signal, signame);
-#else
-				pr_dbg("%s: [%d] terminated on signal: %d\n",
-					stressor_name, ret, wterm_signal);
-#endif
-			}
-#else
-			pr_dbg("%s [%d] terminated on signal\n",
-				stressor_name, ret);
-#endif
-			/*
-			 *  If the stressor got killed by OOM or SIGKILL
-			 *  then somebody outside of our control nuked it
-			 *  so don't necessarily flag that up as a direct
-			 *  failure.
-			 */
-			if (stress_process_oomed(ret)) {
-				pr_dbg("%s: [%d] killed by the OOM killer\n",
-					stressor_name, ret);
-			} else if (wterm_signal == SIGKILL) {
-				pr_dbg("%s: [%d] possibly killed by the OOM killer\n",
-					stressor_name, ret);
-			} else if (wterm_signal != SIGALRM) {
-				*success = false;
-			}
-		}
-		switch (wexit_status) {
-		case EXIT_SUCCESS:
-			ss->status[STRESS_STRESSOR_STATUS_PASSED]++;
-			break;
-		case EXIT_NO_RESOURCE:
-			ss->status[STRESS_STRESSOR_STATUS_SKIPPED]++;
-			pr_warn_skip("%s: [%d] aborted early, out of system resources\n",
-				stressor_name, ret);
-			*resource_success = false;
-			do_abort = true;
-			break;
-		case EXIT_NOT_IMPLEMENTED:
-			ss->status[STRESS_STRESSOR_STATUS_SKIPPED]++;
-			do_abort = true;
-			break;
-		case EXIT_SIGNALED:
-			ss->status[STRESS_STRESSOR_STATUS_FAILED]++;
-			do_abort = true;
-			*success = false;
-#if defined(STRESS_REPORT_EXIT_SIGNALED)
-			pr_dbg("%s: [%d] aborted via a termination signal\n",
-				stressor_name, ret);
-#endif
-			break;
-		case EXIT_BY_SYS_EXIT:
-			ss->status[STRESS_STRESSOR_STATUS_FAILED]++;
-			pr_dbg("%s: [%d] aborted via exit() which was not expected\n",
-				stressor_name, ret);
-			do_abort = true;
-			break;
-		case EXIT_METRICS_UNTRUSTWORTHY:
-			ss->status[STRESS_STRESSOR_STATUS_BAD_METRICS]++;
-			*metrics_success = false;
-			break;
-		case EXIT_FAILURE:
-			ss->status[STRESS_STRESSOR_STATUS_FAILED]++;
-			/*
-			 *  Stressors should really return EXIT_NOT_SUCCESS
-			 *  as EXIT_FAILURE should indicate a core stress-ng
-			 *  problem.
-			 */
-			wexit_status = EXIT_NOT_SUCCESS;
-			goto wexit_status_default;
-		default:
-wexit_status_default:
-			pr_err("%s: [%d] terminated with an error, exit status=%d (%s)\n",
-				stressor_name, ret, wexit_status,
-				stress_exit_status_to_string(wexit_status));
-			*success = false;
-			do_abort = true;
-			break;
-		}
-		if ((g_opt_flags & OPT_FLAGS_ABORT) && do_abort) {
-			stress_continue_set_flag(false);
-			wait_flag = false;
-			stress_kill_stressors(SIGALRM, true);
-		}
-
-		stress_stressor_finished(&stats->s_pid.pid);
-		pr_dbg("%s: [%d] terminated (%s)\n",
-			stressor_name, ret,
-			stress_exit_status_to_string(wexit_status));
-	} else if (ret == -1) {
-		/* Somebody interrupted the wait */
-		if (errno == EINTR)
-			goto redo;
-		/* This child did not exist, mark it done anyhow */
-		if (errno == ECHILD)
-			stress_stressor_finished(&stats->s_pid.pid);
-	}
-}
 
 void stress_sync_start_cont_list(stress_pid_t *s_pids_head)
 {
@@ -1337,7 +1347,7 @@ static void stress_wait_stressors(
 	 *  try to thrash the system when in aggressive mode
 	 */
 	if (g_opt_flags & (OPT_FLAGS_AGGRESSIVE | OPT_FLAGS_TASKSET_RANDOM))
-		stress_wait_aggressive(ticks_per_sec, stressors_list);
+		stress_wait_aggressive(ticks_per_sec, stressors_list, success, resource_success, metrics_success);
 #else
 	(void)ticks_per_sec;
 #endif
@@ -1354,7 +1364,8 @@ static void stress_wait_stressors(
 			if (pid) {
 				const char *name = ss->stressor->name;
 
-				stress_wait_pid(ss, pid, name, stats, success, resource_success, metrics_success);
+				stress_wait_pid(ss, pid, stats,
+					success, resource_success, metrics_success, 0);
 				stress_clean_dir(name, pid, (uint32_t)j);
 			}
 		}

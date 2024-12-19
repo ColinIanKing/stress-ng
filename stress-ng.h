@@ -173,6 +173,7 @@ typedef struct stress_pid {
 	pid_t pid;			/* PID of process */
 	pid_t oomable_child;		/* oomable child pid, zero = none */
 	volatile uint8_t state;		/* sync start state */
+	bool reaped;			/* successfully waited for */
 } stress_pid_t;
 
 typedef struct {
