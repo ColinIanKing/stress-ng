@@ -76,7 +76,7 @@ int stress_net_interface_exists(const char *interface, const int domain, struct 
 		if (ifa->ifa_addr->sa_family != domain)
 			continue;
 		if (strcmp(ifa->ifa_name, interface) == 0) {
-			(void)memcpy(addr, ifa->ifa_addr, sizeof(*addr));
+			(void)shim_memcpy(addr, ifa->ifa_addr, sizeof(*addr));
 			ret = 0;
 			break;
 		}

@@ -159,7 +159,7 @@ static void stress_get_topology_set(
 		}
 		/* not found, it's a new package cpu list */
 		if (i == n_sets) {
-			(void)memcpy(&sets[i], &newset, sizeof(newset));
+			(void)shim_memcpy(&sets[i], &newset, sizeof(newset));
 			n_sets++;
 		}
 	}
