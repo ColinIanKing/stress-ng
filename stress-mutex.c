@@ -115,7 +115,7 @@ static void OPTIMIZE3 *stress_mutex_exercise(void *arg)
 
 		if (LIKELY(metrics_count > 0)) {
 			/* fast non-metrics lock path */
-			if (UNLIKELY(pthread_mutex_lock(&mutex) < 0)) {
+			if (UNLIKELY(pthread_mutex_lock(&mutex) != 0)) {
 				pr_fail("%s: pthread_mutex_lock failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				break;
@@ -125,13 +125,13 @@ static void OPTIMIZE3 *stress_mutex_exercise(void *arg)
 			double t;
 
 			t = stress_time_now();
-			if (UNLIKELY(pthread_mutex_lock(&mutex) < 0)) {
+			if (LIKELY(pthread_mutex_lock(&mutex) == 0)) {
+				pthread_info->lock_duration += stress_time_now() - t;
+				pthread_info->lock_count += 1.0;
+			} else {
 				pr_fail("%s: pthread_mutex_lock failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				break;
-			} else {
-				pthread_info->lock_duration += stress_time_now() - t;
-				pthread_info->lock_count += 1.0;
 			}
 		}
 		metrics_count++;
@@ -154,7 +154,7 @@ static void OPTIMIZE3 *stress_mutex_exercise(void *arg)
 		stress_bogo_inc(args);
 		(void)shim_sched_yield();
 
-		if (UNLIKELY(pthread_mutex_unlock(&mutex) < 0)) {
+		if (UNLIKELY(pthread_mutex_unlock(&mutex) != 0)) {
 			pr_fail("%s: pthread_mutex_unlock failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			break;
