@@ -163,7 +163,7 @@ static int stress_lockbus(stress_args_t *args)
 		return EXIT_FAILURE;
 #endif
 #if defined(HAVE_MISALIGNED_LOCKBUS)
-	stress_numa_mask_t *numa_mask;
+	NOCLOBBER stress_numa_mask_t *numa_mask;
 #endif
 
 	buffer = (uint32_t*)stress_mmap_populate(NULL, BUFFER_SIZE,
@@ -262,7 +262,7 @@ done:
 	stress_metrics_set(args, 0, "nanosecs per memory lock operation",
 		rate * STRESS_DBL_NANOSECOND, STRESS_METRIC_HARMONIC_MEAN);
 
-#if defined(HAVE_MISALIGNED_NUMA)
+#if defined(HAVE_MISALIGNED_LOCKBUS)
 	stress_numa_mask_free(numa_mask);
 #endif
 	(void)munmap((void *)buffer, BUFFER_SIZE);
