@@ -34,7 +34,7 @@ static const stress_help_t help[] = {
 	{ NULL, "mutex-affinity",	"change CPU affinity randomly across locks" },
 	{ NULL,	"mutex-ops N",		"stop after N mutex bogo operations" },
 	{ NULL, "mutex-procs N",	"select the number of concurrent processes" },
-	{ NULL,	NULL,		NULL }
+	{ NULL,	NULL,			NULL }
 };
 
 static const stress_opt_t opts[] = {
