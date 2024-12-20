@@ -286,8 +286,6 @@ static void stress_prio_inv_check_policy(
 	int *sched_policy,
 	const char *policy_name)
 {
-	return;
-
 	if (!stress_check_capability(SHIM_CAP_IS_ROOT)) {
 		if (*sched_policy == policy) {
 			if (args->instance == 0) {
