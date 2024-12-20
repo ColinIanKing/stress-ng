@@ -19,6 +19,7 @@
 #include "stress-ng.h"
 #include "core-arch.h"
 #include "core-attribute.h"
+#include "core-builtin.h"
 #include "core-madvise.h"
 #include "core-put.h"
 #include "core-target-clones.h"
@@ -505,37 +506,37 @@ static int stress_fp_call_method(
 
 			switch (fp_type) {
 			case STRESS_FP_TYPE_LONG_DOUBLE:
-				ret = memcmp(&fp_data[i].ld.r[0], &fp_data[i].ld.r[1], sizeof(fp_data[i].ld.r[0]));
+				ret = shim_memcmp(&fp_data[i].ld.r[0], &fp_data[i].ld.r[1], sizeof(fp_data[i].ld.r[0]));
 				r0 = (long double)fp_data[i].ld.r[0];
 				r1 = (long double)fp_data[i].ld.r[1];
 				break;
 			case STRESS_FP_TYPE_DOUBLE:
-				ret = memcmp(&fp_data[i].d.r[0], &fp_data[i].d.r[1], sizeof(fp_data[i].d.r[0]));
+				ret = shim_memcmp(&fp_data[i].d.r[0], &fp_data[i].d.r[1], sizeof(fp_data[i].d.r[0]));
 				r0 = (long double)fp_data[i].d.r[0];
 				r1 = (long double)fp_data[i].d.r[1];
 				break;
 			case STRESS_FP_TYPE_FLOAT:
-				ret = memcmp(&fp_data[i].f.r[0], &fp_data[i].f.r[1], sizeof(fp_data[i].f.r[0]));
+				ret = shim_memcmp(&fp_data[i].f.r[0], &fp_data[i].f.r[1], sizeof(fp_data[i].f.r[0]));
 				r0 = (long double)fp_data[i].f.r[0];
 				r1 = (long double)fp_data[i].f.r[1];
 				break;
 #if defined(HAVE_Float32)
 			case STRESS_FP_TYPE_FLOAT32:
-				ret = memcmp(&fp_data[i].f32.r[0], &fp_data[i].f32.r[1], sizeof(fp_data[i].f32.r[0]));
+				ret = shim_memcmp(&fp_data[i].f32.r[0], &fp_data[i].f32.r[1], sizeof(fp_data[i].f32.r[0]));
 				r0 = (long double)fp_data[i].f32.r[0];
 				r1 = (long double)fp_data[i].f32.r[1];
 				break;
 #endif
 #if defined(HAVE_Float64)
 			case STRESS_FP_TYPE_FLOAT64:
-				ret = memcmp(&fp_data[i].f64.r[0], &fp_data[i].f64.r[1], sizeof(fp_data[i].f64.r[0]));
+				ret = shim_memcmp(&fp_data[i].f64.r[0], &fp_data[i].f64.r[1], sizeof(fp_data[i].f64.r[0]));
 				r0 = (long double)fp_data[i].f64.r[0];
 				r1 = (long double)fp_data[i].f64.r[1];
 				break;
 #endif
 #if defined(HAVE__float80)
 			case STRESS_FP_TYPE_FLOAT80:
-				ret = memcmp(&fp_data[i].f80.r[0], &fp_data[i].f80.r[1], sizeof(fp_data[i].f80.r[0]));
+				ret = shim_memcmp(&fp_data[i].f80.r[0], &fp_data[i].f80.r[1], sizeof(fp_data[i].f80.r[0]));
 				r0 = (long double)fp_data[i].f80.r[0];
 				r1 = (long double)fp_data[i].f80.r[1];
 				break;
@@ -543,7 +544,7 @@ static int stress_fp_call_method(
 #if defined(HAVE__float128) ||	\
     defined(HAVE_Float128)
 			case STRESS_FP_TYPE_FLOAT128:
-				ret = memcmp(&fp_data[i].f128.r[0], &fp_data[i].f128.r[1], sizeof(fp_data[i].f128.r[0]));
+				ret = shim_memcmp(&fp_data[i].f128.r[0], &fp_data[i].f128.r[1], sizeof(fp_data[i].f128.r[0]));
 				r0 = (long double)fp_data[i].f128.r[0];
 				r1 = (long double)fp_data[i].f128.r[1];
 				break;

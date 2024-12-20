@@ -19,6 +19,7 @@
 #include "stress-ng.h"
 #include "core-arch.h"
 #include "core-attribute.h"
+#include "core-builtin.h"
 #include "core-madvise.h"
 #include "core-put.h"
 #include "core-target-clones.h"
@@ -336,7 +337,7 @@ static int stress_dfp_call_method(
 			switch (dfp_type) {
 #if defined(HAVE_Decimal32)
 			case STRESS_DFP_TYPE_DECIMAL32:
-				ret = memcmp(&dfp_data[i].d32.r[0], &dfp_data[i].d32.r[1], sizeof(dfp_data[i].d32.r[0]));
+				ret = shim_memcmp(&dfp_data[i].d32.r[0], &dfp_data[i].d32.r[1], sizeof(dfp_data[i].d32.r[0]));
 				r0 = (long double)dfp_data[i].d32.r[0];
 				r1 = (long double)dfp_data[i].d32.r[1];
 				break;
