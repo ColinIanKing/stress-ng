@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-cpu-cache.h"
 #include "core-killpid.h"
 #include "core-madvise.h"
@@ -740,7 +741,7 @@ static void bad_getpeername2(stress_bad_addr_t *ba, volatile uint64_t *counter)
 	if (ba->unwriteable) {
 		struct sockaddr saddr;
 
-		(void)memset(&saddr, 0, sizeof(saddr));
+		(void)shim_memset(&saddr, 0, sizeof(saddr));
 		(*counter)++;
 		VOID_RET(int, getpeername(0, &saddr, (socklen_t *)ba->addr));
 	}
@@ -903,7 +904,7 @@ static void bad_getsockname2(stress_bad_addr_t *ba, volatile uint64_t *counter)
 	if (ba->unwriteable) {
 		struct sockaddr saddr;
 
-		(void)memset(&ba->addr, 0, sizeof(saddr));
+		(void)shim_memset(&ba->addr, 0, sizeof(saddr));
 		(*counter)++;
 		VOID_RET(int, getsockname(0, &saddr, (socklen_t *)ba->addr));
 	}
@@ -1847,7 +1848,7 @@ static void bad_setitimer3(stress_bad_addr_t *ba, volatile uint64_t *counter)
 	if (ba->unwriteable) {
 		struct itimerval newval;
 
-		(void)memset(&newval, 0, sizeof(newval));
+		(void)shim_memset(&newval, 0, sizeof(newval));
 		(*counter)++;
 		VOID_RET(int, setitimer(ITIMER_PROF, &newval, (struct itimerval *)ba->addr));
 	}

@@ -483,7 +483,7 @@ static int stress_madvise(stress_args_t *args)
 	NOCLOBBER uint8_t madv_tries;
 #endif
 
-	(void)memset(&ctxt, 0, sizeof(ctxt));
+	(void)shim_memset(&ctxt, 0, sizeof(ctxt));
 	(void)stress_get_setting("madvise-hwpoison", &ctxt.hwpoison);
 
 	num_mem_retries = 0;

@@ -417,7 +417,7 @@ static void stress_mmap_fast_munmap(
 	}
 	if (munmap_start && (munmap_size > 0))
 		(void)stress_munmap_retry_enomem((void *)munmap_start, munmap_size);
-	(void)memset(mapped, 0, pages);
+	(void)shim_memset(mapped, 0, pages);
 }
 
 /*
@@ -436,7 +436,7 @@ static void stress_mmap_slow_munmap(
 		if (mapped[i] == PAGE_MAPPED)
 			(void)stress_munmap_retry_enomem((void *)mappings[i], page_size);
 	}
-	(void)memset(mapped, 0, pages);
+	(void)shim_memset(mapped, 0, pages);
 }
 
 static int stress_mmap_child(stress_args_t *args, void *ctxt)

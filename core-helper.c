@@ -2018,7 +2018,7 @@ int stress_cache_alloc(const char *name)
 		g_shared->mem_cache.size = MEM_CACHE_SIZE;
 	}
 
-	(void)memset(cache_info, 0, sizeof(cache_info));
+	(void)shim_memset(cache_info, 0, sizeof(cache_info));
 	for (level = 1; level <= max_cache_level; level++) {
 		size_t cache_size = 0, cache_line_size = 0;
 

@@ -77,7 +77,7 @@ static void stress_numa_stats_read(stress_numa_stats_t *stats)
 		{ "numa_miss",	9,	STRESS_NUMA_STAT_NUMA_MISS },
 	};
 
-	(void)memset(stats, 0, sizeof(*stats));
+	(void)shim_memset(stats, 0, sizeof(*stats));
 
 	dir = opendir(path);
 	if (!dir)

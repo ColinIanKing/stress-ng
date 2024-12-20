@@ -145,7 +145,7 @@ static int stress_crypt(stress_args_t *args)
 	}
 	stress_zero_metrics(crypt_metrics, SIZEOF_ARRAY(crypt_methods));
 #if defined(HAVE_CRYPT_R)
-	(void)memset(&data, 0, sizeof(data));
+	(void)shim_memset(&data, 0, sizeof(data));
 #endif
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);

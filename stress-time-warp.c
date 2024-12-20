@@ -198,7 +198,7 @@ static int stress_time_warp(stress_args_t *args)
 	size_t i;
 	int ret, rc = EXIT_SUCCESS;
 
-	(void)memset(&stress_times, 0, sizeof(stress_times));
+	(void)shim_memset(&stress_times, 0, sizeof(stress_times));
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);

@@ -92,7 +92,7 @@ static int stress_statmount_statroot(
 	struct statmount sm;
 	double t;
 
-	(void)memset(&sm, 0, sizeof(sm));
+	(void)shim_memset(&sm, 0, sizeof(sm));
 	t = stress_time_now();
 	if (shim_statmount(id, STATMOUNT_MNT_BASIC, &sm, sizeof(sm), 0) < 0) {
 		pr_fail("%s: statmount failed, errno=%d (%s)\n",
@@ -142,13 +142,13 @@ static int stress_statmount_listroot(
 		struct statmount sm;
 		double t;
 
-		(void)memset(&sm, 0, sizeof(sm));
+		(void)shim_memset(&sm, 0, sizeof(sm));
 		t = stress_time_now();
 		if (shim_statmount(list[i], STATMOUNT_MNT_BASIC, &sm, sizeof(sm), 0) >= 0) {
 			(*duration) += stress_time_now() - t;
 			(*count) += 1.0;
 		}
-		(void)memset(&sm, 0, sizeof(sm));
+		(void)shim_memset(&sm, 0, sizeof(sm));
 		t = stress_time_now();
 		if (shim_statmount(list[i], STATMOUNT_SB_BASIC, &sm, sizeof(sm), 0) >= 0) {
 			(*duration) += stress_time_now() - t;

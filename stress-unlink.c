@@ -217,7 +217,7 @@ static int stress_unlink(stress_args_t *args)
 		goto metrics_free;
 	}
 
-	(void)memset(filenames, 0, sizeof(filenames));
+	(void)shim_memset(filenames, 0, sizeof(filenames));
 	for (i = 0; i < UNLINK_FILES; i++) {
 		char filename[PATH_MAX + 20];
 

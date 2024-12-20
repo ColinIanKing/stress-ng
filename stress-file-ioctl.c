@@ -703,7 +703,7 @@ static int stress_file_ioctl(stress_args_t *args)
 		{
 			struct fsuuid2 uuid2;
 
-			(void)memset(&uuid2, 0, sizeof(uuid2));
+			(void)shim_memset(&uuid2, 0, sizeof(uuid2));
 			VOID_RET(int, ioctl(fd, FS_IOC_GETFSUUID, &uuid2));
 			exercised++;
 
@@ -715,7 +715,7 @@ static int stress_file_ioctl(stress_args_t *args)
 		{
 			struct fs_sysfs_path	sysfs_path;
 
-			(void)memset(&sysfs_path, 0, sizeof(sysfs_path));
+			(void)shim_memset(&sysfs_path, 0, sizeof(sysfs_path));
 			VOID_RET(int, ioctl(fd, FS_IOC_GETFSSYSFSPATH, &sysfs_path));
 			exercised++;
 		}

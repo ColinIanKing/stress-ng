@@ -293,7 +293,7 @@ static inline void stress_schedmix_itimer_clear(void)
 {
 	struct itimerval timer;
 
-	(void)memset(&timer, 0, sizeof(timer));
+	(void)shim_memset(&timer, 0, sizeof(timer));
 	VOID_RET(int, setitimer(ITIMER_PROF, &timer, NULL));
 }
 

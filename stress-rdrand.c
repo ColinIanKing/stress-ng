@@ -21,6 +21,7 @@
 #include "core-arch.h"
 #include "core-asm-x86.h"
 #include "core-asm-ppc64.h"
+#include "core-builtin.h"
 #include "core-cpu.h"
 
 #if defined(HAVE_SYS_CAPABILITY_H)
@@ -267,7 +268,7 @@ static int stress_rdrand(stress_args_t *args)
 #endif
 	static uint64_t ALIGN64 counters[16];
 
-	(void)memset(counters, 0, sizeof(counters));
+	(void)shim_memset(counters, 0, sizeof(counters));
 #if defined(HAVE_SEED_CAPABILITY)
 	(void)stress_get_setting("rdrand-seed", &rdrand_seed);
 #endif

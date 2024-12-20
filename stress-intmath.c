@@ -18,6 +18,7 @@
  */
 #include "stress-ng.h"
 #include "core-attribute.h"
+#include "core-builtin.h"
 #include "core-pragma.h"
 #include "core-target-clones.h"
 
@@ -448,7 +449,7 @@ static int stress_intmath(stress_args_t *args)
 		vals.init[i] = (int64_t)stress_mwc64();
 #endif
 
-	(void)memset(stress_intmath_initialized, 0, sizeof(stress_intmath_initialized));
+	(void)shim_memset(stress_intmath_initialized, 0, sizeof(stress_intmath_initialized));
 
 	stress_zero_metrics(stress_intmath_metrics, STRESS_INTMATH_MAX_METHODS);
 

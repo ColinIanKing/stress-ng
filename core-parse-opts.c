@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-attribute.h"
+#include "core-builtin.h"
 #include "core-parse-opts.h"
 #include "core-cpu-cache.h"
 #include "core-net.h"
@@ -553,7 +554,7 @@ int stress_parse_opt(const char *stressor_name, const char *opt_arg, const stres
 	const char *str;
 	size_t i;
 
-	(void)memset(&setting, 0, sizeof(setting));
+	(void)shim_memset(&setting, 0, sizeof(setting));
 
 	switch (opt->type_id) {
 	case TYPE_ID_UINT8:
