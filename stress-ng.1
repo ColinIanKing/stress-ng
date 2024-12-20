@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "18 December 2024"
+.TH STRESS-NG 1 "20 December 2024"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -1253,6 +1253,21 @@ in units of Bytes, KBytes, MBytes and GBytes using the suffix b, k, m or g.
 .B \-\-cache\-ways N
 specify the number of cache ways to exercise. This allows a subset of
 the overall cache size to be exercised.
+.RE
+.TP
+.B Cache hammering stessor
+.RS 5
+.TQ
+.B \-\-cachehammer N
+start N workers that exercise the cache with a randomized mix of memory
+read/writes and where possible cache prefetches and cache flushes to
+random addresses in three memory mapped regions, one of which is shared
+among all the cache stressors and is the size of the L3 cache, one is
+local to each instance and is 4 times the L3 cache size and one is a single
+page mapping that cannot be read or written.
+.TP
+.B \-\-cachehammer\-ops N
+stop after N cache hammer operations.
 .RE
 .TP
 .B Cache line stressor

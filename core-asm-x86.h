@@ -322,6 +322,13 @@ static inline void ALWAYS_INLINE stress_asm_x86_prefetchw(void *p)
 }
 #endif
 
+#if defined(HAVE_ASM_X86_PREFETCHWT1)
+static inline void ALWAYS_INLINE stress_asm_x86_prefetchwt1(void *p)
+{
+	__asm__ __volatile__("prefetchwt1 (%0)\n" : : "r"(p) : "memory");
+}
+#endif
+
 #if !defined(HAVE_COMPILER_PCC) && 	\
     defined(STRESS_ARCH_X86_64) && 	\
     defined(STRESS_ARCH_X86_LP64)

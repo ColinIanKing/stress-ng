@@ -375,6 +375,27 @@ bool stress_cpu_x86_has_cldemote(void)
 }
 
 /*
+ *  stress_cpu_x86_has_prefetchwt1()
+ *	does x86 cpu support prefetchwt1?
+ */
+bool stress_cpu_x86_has_prefetchwt1(void)
+{
+#if defined(STRESS_ARCH_X86)
+	uint32_t ebx = 0, ecx = 0, edx = 0;
+
+	if (!stress_cpu_is_x86())
+		return false;
+
+	stress_cpu_x86_extended_features(ebx, ecx, edx);
+
+	return !!(ecx & CPUID_prefetchwt1_ECX);
+#else
+	return false;
+#endif
+}
+
+
+/*
  *  stress_cpu_x86_has_waitpkg()
  *	does x86 cpu support waitpkg?
  */

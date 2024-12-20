@@ -253,6 +253,9 @@ typedef enum {
 	OPT_cache_prefetchw,
 	OPT_cache_ways,
 
+	OPT_cachehammer,
+	OPT_cachehammer_ops,
+
 	OPT_cacheline,
 	OPT_cacheline_ops,
 	OPT_cacheline_affinity,

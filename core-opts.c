@@ -106,6 +106,8 @@ const struct option stress_long_options[] = {
 	{ "cache-prefetchw",	0,	0,	OPT_cache_prefetchw },
 	{ "cache-sfence",	0,	0,	OPT_cache_sfence },
 	{ "cache-ways",		1,	0,	OPT_cache_ways },
+	{ "cachehammer",	1,	0,	OPT_cachehammer },
+	{ "cachehammer-ops",	1,	0,	OPT_cachehammer_ops },
 	{ "cacheline",		1,	0, 	OPT_cacheline },
 	{ "cacheline-affinity",	0,	0,	OPT_cacheline_affinity },
 	{ "cacheline-method",	1,	0,	OPT_cacheline_method },

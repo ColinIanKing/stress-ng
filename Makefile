@@ -349,6 +349,7 @@ STRESS_SRC = \
 	stress-bsearch.c \
 	stress-bubblesort.c \
 	stress-cache.c \
+	stress-cachehammer.c \
 	stress-cacheline.c \
 	stress-cap.c \
 	stress-cgroup.c \

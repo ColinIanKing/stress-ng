@@ -47,6 +47,7 @@
 	MACRO(bsearch)		\
 	MACRO(bubblesort)	\
 	MACRO(cache)		\
+	MACRO(cachehammer)	\
 	MACRO(cacheline)	\
 	MACRO(cap)		\
 	MACRO(cgroup)		\
