@@ -298,12 +298,12 @@ int stress_set_mbind(const char *arg)
 }
 
 #else
-int PURE stress_numa_nodes(void)
+unsigned long int PURE stress_numa_nodes(void)
 {
 	return 1;
 }
 
-int stress_numa_count_mem_nodes(unsigned long int *max_node)
+unsigned long int stress_numa_count_mem_nodes(unsigned long int *max_node)
 {
 	*max_node = 0;
 
