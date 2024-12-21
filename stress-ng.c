@@ -1083,10 +1083,9 @@ static void stress_wait_pid(
 	bool do_abort = false;
 	const char *name = ss->stressor->name;
 
-redo:
 	if (stats->s_pid.reaped)
 		return;
-
+redo:
 	ret = shim_waitpid(pid, &status, flag);
 	if (ret > 0) {
 		int wexit_status = WEXITSTATUS(status);
@@ -1898,6 +1897,7 @@ again:
 			pid = fork();
 			switch (pid) {
 			case -1:
+				stats->s_pid.reaped = true;
 				if (errno == EAGAIN) {
 					(void)shim_usleep(100000);
 					goto again;
@@ -1909,6 +1909,7 @@ again:
 			case 0:
 				/* Child */
 				child_pid = getpid();
+				stats->s_pid.reaped = false;
 				stats->s_pid.pid = child_pid;
 				if (g_opt_flags & OPT_FLAGS_C_STATES)
 					stress_cpuidle_read_cstates_begin(&stats->cstates);
@@ -1924,6 +1925,7 @@ again:
 			default:
 				if (pid > -1) {
 					stats->s_pid.pid = pid;
+					stats->s_pid.reaped = false;
 					stats->signalled = false;
 					started_instances++;
 					stress_ftrace_add_pid(pid);
