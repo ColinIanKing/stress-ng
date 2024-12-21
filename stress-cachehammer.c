@@ -106,7 +106,7 @@ static bool hammer_cbo_zero_valid(void)
 			pair.key = RISCV_HWPROBE_KEY_ZICBOZ_BLOCK_SIZE;
 
 			if (syscall(__NR_riscv_hwprobe, &pair, 1,
-				    sizeof(cpu_set_t), &cpus, 0) == 0)
+				    sizeof(cpu_set_t), &cpus, 0) == 0) {
 				return true;
 			}
 		}
