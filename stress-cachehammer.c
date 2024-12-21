@@ -19,6 +19,7 @@
 #include "stress-ng.h"
 #include "core-asm-x86.h"
 #include "core-asm-riscv.h"
+#include "core-asm-ppc64.h"
 #include "core-affinity.h"
 #include "core-builtin.h"
 #include "core-cpu-cache.h"
@@ -126,6 +127,40 @@ static void hammer_clearcache(void *addr, const bool is_bad_addr)
 {
 	(void)is_bad_addr;
 	__builtin___clear_cache((void *)addr, (void *)((char *)addr + 64));
+}
+#endif
+
+#if defined(HAVE_ASM_PPC64_DCBST)
+static void hammer_ppc64_dcbst(void *addr, const bool is_bad_addr)
+{
+	(void)is_bad_addr;
+	stress_asm_ppc64_dcbst(addr);
+}
+#endif
+
+#if defined(HAVE_ASM_PPC64_DCBT)
+static void hammer_ppc64_dcbt(void *addr, const bool is_bad_addr)
+{
+	(void)is_bad_addr;
+	stress_asm_ppc64_dcbt(addr);
+}
+#endif
+
+#if defined(HAVE_ASM_PPC64_DCBTST)
+static void hammer_ppc64_dcbtst(void *addr, const bool is_bad_addr)
+{
+	(void)is_bad_addr;
+	stress_asm_ppc64_dcbtst(addr);
+}
+#endif
+
+#if defined(HAVE_ASM_PPC64_MSYNC)
+static void hammer_ppc64_msync(void *addr, const bool is_bad_addr)
+{
+	(void)addr;
+	(void)is_bad_addr;
+
+	stress_asm_ppc64_msync();
 }
 #endif
 
@@ -245,6 +280,18 @@ static const stress_cachehammer_func_t stress_cachehammer_funcs[] = {
 #endif
 #if defined(HAVE_ASM_X86_CLWB)
 	{ "clwb",	stress_cpu_x86_has_clwb,	hammer_clwb },
+#endif
+#if defined(HAVE_ASM_PPC64_DCBST)
+	{ "dcbst",	hammer_valid,			hammer_ppc64_dcbst },
+#endif
+#if defined(HAVE_ASM_PPC64_DCBT)
+	{ "dcbt",	hammer_valid,			hammer_ppc64_dcbt },
+#endif
+#if defined(HAVE_ASM_PPC64_DCBTST)
+	{ "dcbtst",	hammer_valid,			hammer_ppc64_dcbtst },
+#endif
+#if defined(HAVE_ASM_PPC64_MSYNC)
+	{ "msync",	hammer_valid,			hammer_ppc64_msync },
 #endif
 	{ "prefetch", 	hammer_valid,			hammer_prefetch },
 #if defined(HAVE_ASM_X86_PREFETCHNTA)
