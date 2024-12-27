@@ -61,14 +61,50 @@ static void hammer_read(void *addr, const bool is_bad_addr)
 	(void)*vptr;
 }
 
+static void hammer_read64(void *addr, const bool is_bad_addr)
+{
+	volatile uint64_t *vptr;
+
+	if (UNLIKELY(is_bad_addr))
+		return;
+
+	vptr = (volatile uint64_t *)addr;
+	*(vptr + 0);
+	*(vptr + 1);
+	*(vptr + 2);
+	*(vptr + 3);
+	*(vptr + 4);
+	*(vptr + 5);
+	*(vptr + 6);
+	*(vptr + 7);
+}
+
 static void hammer_write(void *addr, const bool is_bad_addr)
 {
-	volatile uint8_t *vptr = (volatile uint8_t *)addr;
+	volatile uint8_t *vptr;
 
 	if (UNLIKELY(is_bad_addr))
 		return;
 	vptr = (volatile uint8_t *)addr;
 	*vptr = 0;
+}
+
+static void hammer_write64(void *addr, const bool is_bad_addr)
+{
+	volatile uint64_t *vptr;
+
+	if (UNLIKELY(is_bad_addr))
+		return;
+
+	vptr = (volatile uint64_t *)addr;
+	*(vptr + 0) = 0;
+	*(vptr + 1) = 0;
+	*(vptr + 2) = 0;
+	*(vptr + 3) = 0;
+	*(vptr + 4) = 0;
+	*(vptr + 5) = 0;
+	*(vptr + 6) = 0;
+	*(vptr + 7) = 0;
 }
 
 static void hammer_readwrite(void *addr, const bool is_bad_addr)
@@ -81,15 +117,49 @@ static void hammer_readwrite(void *addr, const bool is_bad_addr)
 	*vptr = *vptr;
 }
 
+static void hammer_readwrite64(void *addr, const bool is_bad_addr)
+{
+	volatile uint8_t *vptr;
+
+	if (UNLIKELY(is_bad_addr))
+		return;
+	vptr = (volatile uint8_t *)addr;
+	*(vptr + 0);
+	*(vptr + 1) = 0;
+	*(vptr + 2);
+	*(vptr + 3) = 0;
+	*(vptr + 4);
+	*(vptr + 5) = 0;
+	*(vptr + 6);
+	*(vptr + 7) = 0;
+}
+
 static void hammer_writeread(void *addr, const bool is_bad_addr)
 {
-	volatile uint8_t *vptr = (volatile uint8_t *)addr;
+	volatile uint8_t *vptr;
 
 	if (UNLIKELY(is_bad_addr))
 		return;
 	vptr = (volatile uint8_t *)addr;
 	*vptr = 0;
 	(void)*vptr;
+}
+
+static void hammer_writeread64(void *addr, const bool is_bad_addr)
+{
+	volatile uint8_t *vptr;
+
+	if (UNLIKELY(is_bad_addr))
+		return;
+	vptr = (volatile uint8_t *)addr;
+	*(vptr + 0) = 0;
+	*(vptr + 1);
+	*(vptr + 2) = 0;
+	*(vptr + 3);
+	*(vptr + 4) = 0;
+	*(vptr + 5);
+	*(vptr + 6) = 0;
+	*(vptr + 7);
 }
 
 #if defined(HAVE_RISCV_CBO_ZERO)
@@ -317,9 +387,13 @@ static const stress_cachehammer_func_t stress_cachehammer_funcs[] = {
 	{ "prefetchwt1", stress_cpu_x86_has_prefetchwt1, hammer_prefetchwt1 },
 #endif
 	{ "read",	hammer_valid,			hammer_read },
+	{ "read64",	hammer_valid,			hammer_read64 },
 	{ "read-write",	hammer_valid,			hammer_readwrite },
+	{ "read-write64", hammer_valid,			hammer_readwrite64 },
 	{ "write",	hammer_valid,			hammer_write },
+	{ "write64",	hammer_valid,			hammer_write64 },
 	{ "write-read",	hammer_valid,			hammer_writeread },
+	{ "write-read64", hammer_valid,			hammer_writeread64 },
 };
 
 static bool valid[N_FUNCS];
@@ -372,7 +446,7 @@ static void stress_cache_hammer_flags_to_str(
 static int OPTIMIZE3 stress_cachehammer(stress_args_t *args)
 {
 	int ret = EXIT_SUCCESS;
-	uint8_t *local_buffer;
+	uint8_t *local_buffer, *local_page;
 	uint8_t *const buffer = g_shared->mem_cache.buffer;
 	const size_t buffer_size = (size_t)g_shared->mem_cache.size;
 	const size_t local_buffer_size = buffer_size * 4;
@@ -423,11 +497,21 @@ static int OPTIMIZE3 stress_cachehammer(stress_args_t *args)
 	else
 		(void)munmap(bad_addr, args->page_size);
 
-	local_buffer = mmap(NULL, local_buffer_size, PROT_READ | PROT_WRITE,
+	local_buffer = (uint8_t *)mmap(NULL, local_buffer_size, PROT_READ | PROT_WRITE,
 				MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (local_buffer == MAP_FAILED) {
 		pr_inf_skip("%s: cannot mmap %zu bytes, skipping stressor\n",
 			args->name, local_buffer_size);
+		return EXIT_NO_RESOURCE;
+	}
+
+	local_page = mmap(NULL, args->page_size, PROT_READ | PROT_WRITE,
+		MAP_ANONYMOUS | MAP_SHARED, -1, 0);
+	if (local_page == MAP_FAILED) {
+		pr_inf_skip("%s: cannot mmap %zu bytes, skipping stressor\n",
+			args->name, args->page_size);
+		ret = EXIT_NO_RESOURCE;
+		goto unmap_local_buffer;
 	}
 
 	(void)shim_memset(buffer, 0, buffer_size);
@@ -468,6 +552,13 @@ static int OPTIMIZE3 stress_cachehammer(stress_args_t *args)
 
 				stress_cachehammer_funcs[func_index].hammer(addr, true);
 				break;
+			case 3:
+				offset = stress_mwc32modn((uint32_t)args->page_size);
+				addr = local_page + (offset & page_mask);
+
+				for (i = 0; i < loops; i++)
+					stress_cachehammer_funcs[func_index].hammer(addr, true);
+				break;
 			}
 			tries = 0;
 			stress_bogo_inc(args);
@@ -496,6 +587,8 @@ static int OPTIMIZE3 stress_cachehammer(stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
+	(void)munmap((void *)local_page, args->page_size);
+unmap_local_buffer:
 	(void)munmap((void *)local_buffer, local_buffer_size);
 	return ret;
 }
