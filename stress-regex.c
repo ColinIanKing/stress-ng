@@ -71,7 +71,7 @@ static const char *stress_regex_text[] = {
 	"1.437676376e-12",
 	"fred@somewhere.com",
 	"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-	"Proin dignissim, erat nec interdum commodo, nulla mi tempor dui, quis scelerisque odio nisi in tortor."
+	"Proin dignissim, erat nec interdum commodo, nulla mi tempor dui, quis scelerisque odio nisi in tortor.",
 	"1.1.1.1",
 	"192.168.122.1",
 	"255.255.255.0",
