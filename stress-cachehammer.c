@@ -135,6 +135,7 @@ static void hammer_ppc64_dcbst(void *addr, const bool is_bad_addr)
 {
 	(void)is_bad_addr;
 	stress_asm_ppc64_dcbst(addr);
+	stress_asm_ppc64_dcbst(addr);
 }
 #endif
 
@@ -143,6 +144,7 @@ static void hammer_ppc64_dcbt(void *addr, const bool is_bad_addr)
 {
 	(void)is_bad_addr;
 	stress_asm_ppc64_dcbt(addr);
+	stress_asm_ppc64_dcbt(addr);
 }
 #endif
 
@@ -150,6 +152,7 @@ static void hammer_ppc64_dcbt(void *addr, const bool is_bad_addr)
 static void hammer_ppc64_dcbtst(void *addr, const bool is_bad_addr)
 {
 	(void)is_bad_addr;
+	stress_asm_ppc64_dcbtst(addr);
 	stress_asm_ppc64_dcbtst(addr);
 }
 #endif
@@ -160,6 +163,7 @@ static void hammer_ppc64_msync(void *addr, const bool is_bad_addr)
 	(void)addr;
 	(void)is_bad_addr;
 
+	stress_asm_ppc64_msync();
 	stress_asm_ppc64_msync();
 }
 #endif
