@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "20 December 2024"
+.TH STRESS-NG 1 "27 December 2024"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -6669,6 +6669,18 @@ that will not actually reboot the system.
 .TP
 .B \-\-reboot\-ops N
 stop the reboot stress workers after N bogo reboot cycles.
+.RE
+.TP
+.B POSIX regular expressions stressor
+.RS 5
+.TQ
+.B \-\-regex N
+start N workers that compile various POSIX regular expressions and execute
+them against a set of text strings. This exercises the regex C library
+with a range of various simple and complex regex expressions.
+.TP
+.B \-\-regex\-ops N
+stop after N regex compilations.
 .RE
 .TP
 .B CPU registers stressor

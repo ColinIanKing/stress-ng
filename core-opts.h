@@ -1183,6 +1183,9 @@ typedef enum {
 	OPT_reboot,
 	OPT_reboot_ops,
 
+	OPT_regex,
+	OPT_regex_ops,
+
 	OPT_regs,
 	OPT_regs_ops,
 

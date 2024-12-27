@@ -829,6 +829,8 @@ const struct option stress_long_options[] = {
 	{ "readahead-ops",	1,	0,	OPT_readahead_ops },
 	{ "reboot",		1,	0,	OPT_reboot },
 	{ "reboot-ops",		1,	0,	OPT_reboot_ops },
+	{ "regex",		1,	0,	OPT_regex },
+	{ "regex-ops",		1,	0,	OPT_regex_ops },
 	{ "regs",		1,	0,	OPT_regs },
 	{ "regs-ops",		1,	0,	OPT_regs_ops },
 	{ "remap",		1,	0,	OPT_remap },

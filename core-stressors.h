@@ -256,6 +256,7 @@
 	MACRO(rdrand)		\
 	MACRO(readahead)	\
 	MACRO(reboot)		\
+	MACRO(regex)		\
 	MACRO(regs)		\
 	MACRO(remap)		\
 	MACRO(rename)		\
