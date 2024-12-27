@@ -24,7 +24,7 @@
 #if defined(HAVE_LINUX_MEMPOLICY_H) &&  \
     defined(__NR_mbind)
 #include <linux/mempolicy.h>
-#define HAVE_MISALIGNED_LOCKBUS	(1)
+#define HAVE_NUMA_LOCKBUS	(1)
 #endif
 
 static const stress_help_t help[] = {
@@ -162,7 +162,7 @@ static int stress_lockbus(stress_args_t *args)
 	if (stress_sighandler(args->name, SIGBUS, stress_sigbus_handler, NULL) < 0)
 		return EXIT_FAILURE;
 #endif
-#if defined(HAVE_MISALIGNED_LOCKBUS)
+#if defined(HAVE_NUMA_LOCKBUS)
 	NOCLOBBER stress_numa_mask_t *numa_mask;
 #endif
 
@@ -189,7 +189,7 @@ static int stress_lockbus(stress_args_t *args)
 		goto done;
 #endif
 
-#if defined(HAVE_MISALIGNED_LOCKBUS)
+#if defined(HAVE_NUMA_LOCKBUS)
 	numa_mask = stress_numa_mask_alloc();
 	if (numa_mask)
 		stress_numa_randomize_pages(numa_mask, (void *)buffer, args->page_size, BUFFER_SIZE);
@@ -262,7 +262,7 @@ done:
 	stress_metrics_set(args, 0, "nanosecs per memory lock operation",
 		rate * STRESS_DBL_NANOSECOND, STRESS_METRIC_HARMONIC_MEAN);
 
-#if defined(HAVE_MISALIGNED_LOCKBUS)
+#if defined(HAVE_NUMA_LOCKBUS)
 	stress_numa_mask_free(numa_mask);
 #endif
 	(void)munmap((void *)buffer, BUFFER_SIZE);
