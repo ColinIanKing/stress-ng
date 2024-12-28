@@ -23,6 +23,7 @@
 #include "core-affinity.h"
 #include "core-builtin.h"
 #include "core-cpu-cache.h"
+#include "core-numa.h"
 #include "core-put.h"
 
 #include <sched.h>
@@ -518,6 +519,18 @@ static int OPTIMIZE3 stress_cachehammer(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+	{
+		stress_numa_mask_t *numa_mask = stress_numa_mask_alloc();
+
+		if (numa_mask) {
+			stress_numa_randomize_pages(numa_mask, local_buffer, args->page_size, local_buffer_size);
+			stress_numa_randomize_pages(numa_mask, local_page, args->page_size, args->page_size);
+		}
+		stress_numa_mask_free(numa_mask);
+	}
+#endif
 
 	(void)sigsetjmp(jmp_env, 1);
 	func_index = stress_mwc32modn((uint32_t)N_FUNCS);
