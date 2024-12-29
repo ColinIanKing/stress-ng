@@ -39,11 +39,10 @@ typedef struct stress_posix_regex {
 } stress_posix_regex_t;
 
 static const stress_posix_regex_t stress_posix_regex[] = {
-	{ "^(((((((((((((((((((((((((([a-z])*)*)*)*)*)*)*)*)*)*)*)*)*)*)*)*)*)*)*)*)*)*)*)*)*)*", "devious alphas" },
-	{ "^(((((((((((((((((((((((((([0-9])*)*)*)*)*)*)*)*)*)*)*)*)*)*)*)*)*)*)*)*)*)*)*)*)*)*", "devious digits" },
+	{ "^(((((((((((((([a-z])*)*)*)*)*)*)*)*)*)*)*)*)*)*", "devious alphas" },
+	{ "^(((((((((((((([0-9])*)*)*)*)*)*)*)*)*)*)*)*)*)*", "devious alphas" },
 	{ "^[0-9]*$", "positive integers" },
 	{ "^[+-]?[0-9]*$", "integers" },
-	{ "<\\s*a[^>]*>(.*?)<\\s*/\\s*a>", "<a> html tag" },
 	{ "^[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?.$", "floating point" },
 	{ "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$", "IP-address" },
 	{ "^0x[0-9A-Fa-f]*", "hexadecimal" },
@@ -85,9 +84,6 @@ static const char *stress_regex_text[] = {
 	"monday",
 	"Friday",
 	"FridaY",
-	"<a href=\"example\">example</a>",
-	"<a href=\"\">nowt</a>",
-	"<a>Title</a>",
 	"example.sqltest.com",
 	"bbc.co.uk",
 	"google.com",
