@@ -45,7 +45,7 @@ static const stress_posix_regex_t stress_posix_regex[] = {
 	{ "(([a-z])+.)+", "pathological" },
 	{ "^.*$", "match all" },
 	{ "^[0-9]*$", "positive integers" },
-	{ "([0-9][0-9]+?,[0-9]*?)", "lazy numbers" },
+	/* { "([0-9][0-9]+?,[0-9]*?)", "lazy numbers" }, */
 	{ "([0-9]+,[0-9]*)", "greedy numbers" },
 	{ "^[+-]?[0-9]*$", "integers" },
 	{ "^[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?.$", "floating point" },
