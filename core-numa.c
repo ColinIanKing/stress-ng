@@ -27,34 +27,6 @@
 
 static const char option[] = "option --mbind";
 
-#if defined(__NR_get_mempolicy) &&      \
-    defined(__NR_mbind) &&              \
-    defined(__NR_migrate_pages) &&      \
-    defined(__NR_move_pages) &&         \
-    defined(__NR_set_mempolicy) &&	\
-    defined(HAVE_LINUX_MEMPOLICY_H)
-/*
- * stress_check_numa_range()
- * @max_node: maximum NUMA node allowed, 0..N
- * @node: node number to check
- */
-static void stress_check_numa_range(
-	const unsigned long int max_node,
-	const unsigned long int node)
-{
-	if (node >= max_node) {
-		if (max_node > 1) {
-			(void)fprintf(stderr, "%s: invalid range, %lu is not allowed, "
-				"allowed range: 0 to %lu\n", option,
-				node, max_node - 1);
-		} else {
-			(void)fprintf(stderr, "%s: invalid range, %lu is not allowed, "
-				"allowed range: 0\n", option, node);
-		}
-		_exit(EXIT_FAILURE);
-	}
-}
-
 /*
  *  stress_numa_count_mem_nodes()
  *	determine the number of NUMA memory nodes
@@ -162,6 +134,35 @@ void stress_numa_mask_free(stress_numa_mask_t *numa_mask)
 		return;
 	free(numa_mask->mask);
 	free(numa_mask);
+}
+
+#if defined(__NR_get_mempolicy) &&      \
+    defined(__NR_mbind) &&              \
+    defined(__NR_migrate_pages) &&      \
+    defined(__NR_move_pages) &&         \
+    defined(__NR_set_mempolicy) &&	\
+    defined(HAVE_LINUX_MEMPOLICY_H)
+
+/*
+ * stress_check_numa_range()
+ * @max_node: maximum NUMA node allowed, 0..N
+ * @node: node number to check
+ */
+static void stress_check_numa_range(
+	const unsigned long int max_node,
+	const unsigned long int node)
+{
+	if (node >= max_node) {
+		if (max_node > 1) {
+			(void)fprintf(stderr, "%s: invalid range, %lu is not allowed, "
+				"allowed range: 0 to %lu\n", option,
+				node, max_node - 1);
+		} else {
+			(void)fprintf(stderr, "%s: invalid range, %lu is not allowed, "
+				"allowed range: 0\n", option, node);
+		}
+		_exit(EXIT_FAILURE);
+	}
 }
 
 /*
@@ -298,16 +299,23 @@ int stress_set_mbind(const char *arg)
 }
 
 #else
+void stress_numa_randomize_pages(
+	stress_numa_mask_t *numa_mask,
+	uint8_t *buffer,
+	const size_t page_size,
+	const size_t buffer_size)
+{
+	(void)numa_mask;
+	(void)buffer;
+	(void)page_size;
+	(void)buffer_size;
+
+	(void)shim_memset(numa_mask->mask, 0, numa_mask->mask_size);
+}
+
 unsigned long int PURE stress_numa_nodes(void)
 {
 	return 1;
-}
-
-unsigned long int stress_numa_count_mem_nodes(unsigned long int *max_node)
-{
-	*max_node = 0;
-
-	return -1;
 }
 
 int stress_set_mbind(const char *arg)
