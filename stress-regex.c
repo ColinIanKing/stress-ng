@@ -26,6 +26,7 @@ static const stress_help_t help[] = {
 
 #if defined(HAVE_REGEX_H) &&	\
     defined(HAVE_REGCOMP) &&	\
+    defined(HAVE_REGERROR) &&	\
     defined(HAVE_REGEXEC) &&	\
     defined(HAVE_REGFREE)
 
@@ -123,12 +124,14 @@ static int stress_regex(stress_args_t *args)
 	double exec_times[N_REGEXES];
 	uint64_t comp_count[N_REGEXES];
 	uint64_t exec_count[N_REGEXES];
+	bool failed[N_REGEXES];
 
 	for (i = 0; i < N_REGEXES; i++) {
 		comp_times[i] = 0.0;
 		exec_times[i] = 0.0;
 		comp_count[i] = 0;
 		exec_count[i] = 0;
+		failed[i] = false;
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
@@ -136,18 +139,35 @@ static int stress_regex(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
+		int succeeded = 0;
+
 		for (i = 0; i < SIZEOF_ARRAY(stress_posix_regex) && stress_continue(args); i++) {
 			double t;
 			regex_t regex;
 			int ret;
 
+			if (failed[i])
+				continue;
+
 			t = stress_time_now();
 			ret = regcomp(&regex, stress_posix_regex[i].regex, REG_EXTENDED);
-			if (ret == 0) {
+			if (UNLIKELY(ret != 0)) {
+				if ((args->instance == 0) && (!failed[i])) {
+					char errbuf[256];
+
+					failed[i] = true;
+					(void)regerror(ret, &regex, errbuf, sizeof(errbuf));
+					pr_inf("%s: failed to compile %s regex '%s', error: %s\n",
+						args->name, stress_posix_regex[i].description,
+						stress_posix_regex[i].regex, errbuf);
+
+				}
+			} else {
 				size_t j;
 
 				comp_times[i] += stress_time_now() - t;
 				comp_count[i]++;
+				succeeded++;
 
 				for (j = 0; j < SIZEOF_ARRAY(stress_regex_text); j++) {
 					regmatch_t regmatch[1];
@@ -164,6 +184,8 @@ static int stress_regex(stress_args_t *args)
 			}
 			stress_bogo_inc(args);
 		}
+		if (UNLIKELY(succeeded == 0))
+			break;
 	} while (stress_continue(args));
 
 	stress_metrics_set(args, 0, "regcomp per sec",
