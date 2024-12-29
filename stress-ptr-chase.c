@@ -24,7 +24,7 @@
 #define DEFAULT_NEXT_PTRS_SIZE		(4096)
 #define PAGE_SIZE_4K			(4096)
 
-#define PTRS_PER_4K_PAGE			(PAGE_SIZE_4K / sizeof(void *))	/* Must be power of 2 */
+#define PTRS_PER_4K_PAGE		(PAGE_SIZE_4K / sizeof(void *))	/* Must be power of 2 */
 
 static const stress_help_t help[] = {
 	{ NULL,	"ptr-chase N",	 	"start N workers that chase pointers around many nodes" },
