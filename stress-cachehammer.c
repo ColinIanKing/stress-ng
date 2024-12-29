@@ -44,7 +44,6 @@ typedef struct {
 } stress_cachehammer_func_t;
 
 static sigjmp_buf jmp_env;
-static volatile uint32_t masked_flags;
 
 static const stress_help_t help[] = {
 	{ "C N","cache N",	 	"start N CPU cache thrashing workers" },
