@@ -41,11 +41,16 @@ typedef struct stress_posix_regex {
 static const stress_posix_regex_t stress_posix_regex[] = {
 	{ "^(((((((((((((([a-z])*)*)*)*)*)*)*)*)*)*)*)*)*)*", "devious alphas" },
 	{ "^(((((((((((((([0-9])*)*)*)*)*)*)*)*)*)*)*)*)*)*", "devious alphas" },
+	{ "(([a-z])+.)+", "pathological" },
+	{ "^.*$", "match all" },
 	{ "^[0-9]*$", "positive integers" },
+	{ "([0-9][0-9]+?,[0-9]*?)", "lazy numbers" },
+	{ "([0-9]+,[0-9]*)", "greedy numbers" },
 	{ "^[+-]?[0-9]*$", "integers" },
 	{ "^[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?.$", "floating point" },
 	{ "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$", "IP-address" },
-	{ "^0x[0-9A-Fa-f]*", "hexadecimal" },
+	{ "^0x[0-9A-Fa-f]+", "hexadecimal" },
+	{ "^[a-zA-Z0-9+/]+", "base64" },
 	{ "^([Mm]on|[Tt]ues|[Ww]ednes|[Tt]hurs|[Ff]ri|[Ss]at|[Ss]un)day", "Days" },
 	{ "^([01]?[0-9]|2[0-3]):[0-5]?[0-9]:([0-5]?[0-9])$", "HH:MM:SS" },
 	{ "^([0-9][0-9][0-9][0-9])/(0[1-9]|1[0-2])/(0[1-9]|[12][0-9]|3[0-1])", "YYYY/MM/DD" },
@@ -59,6 +64,9 @@ static const char *stress_regex_text[] = {
 	"0x00000000000000000000000000000000000000000000000000000000000000001",
 	"0x0123456789abcdef",
 	"0x0123456789ABCDEF",
+	"12,345",
+	"12,345,678",
+	"12,345,678,901",
 	"12:45:57",
 	"23:59:59",
 	"24:00:00",
@@ -70,6 +78,7 @@ static const char *stress_regex_text[] = {
 	"1.437676376e-12",
 	"fred@somewhere.com",
 	"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+	"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa!",
 	"Proin dignissim, erat nec interdum commodo, nulla mi tempor dui, quis scelerisque odio nisi in tortor.",
 	"1.1.1.1",
 	"192.168.122.1",
@@ -147,7 +156,7 @@ static int stress_regex(stress_args_t *args)
 					ret = regexec(&regex, stress_regex_text[j], SIZEOF_ARRAY(regmatch), regmatch, 0);
 					if (ret)
 						continue;
-
+					/* pr_inf("%s %s\n", stress_posix_regex[i].regex, stress_regex_text[j]); */
 					exec_times[i] += stress_time_now() - t;
 					exec_count[i]++;
 				}
