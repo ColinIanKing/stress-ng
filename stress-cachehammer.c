@@ -446,7 +446,7 @@ static void stress_cache_hammer_flags_to_str(
  */
 static int OPTIMIZE3 stress_cachehammer(stress_args_t *args)
 {
-	int ret = EXIT_SUCCESS;
+	NOCLOBBER int ret = EXIT_SUCCESS;
 	uint8_t *local_buffer, *local_page;
 	uint8_t *const buffer = g_shared->mem_cache.buffer;
 	const size_t buffer_size = (size_t)g_shared->mem_cache.size;
