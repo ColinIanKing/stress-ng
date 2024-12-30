@@ -277,7 +277,7 @@ static inline void stress_proc_memory(void)
 			"smaps_rollup",
 		};
 
-		if (!isdigit((int)d->d_name[0]))
+		if (!isdigit((unsigned char)d->d_name[0]))
 			continue;
 
 		for (i = 0; i < SIZEOF_ARRAY(proc_pid_files); i++) {
@@ -367,7 +367,7 @@ static inline void stress_slab_shrink(void)
 	 *  shrink all slabs
 	 */
 	while ((d = readdir(dir)) != NULL) {
-		if (isalpha((int)d->d_name[0]))  {
+		if (isalpha((unsigned char)d->d_name[0]))  {
 			char path[PATH_MAX];
 
 			(void)snprintf(path, sizeof(path), "%s/%s", slabpath, d->d_name);
@@ -428,7 +428,7 @@ static int stress_pagein_all_procs(void)
 	while (thrash_run && ((d = readdir(dp)) != NULL)) {
 		intmax_t pid;
 
-		if (isdigit(d->d_name[0]) &&
+		if (isdigit((unsigned char)d->d_name[0]) &&
 		    sscanf(d->d_name, "%" SCNdMAX, &pid) == 1) {
 			char procpath[128];
 			struct stat statbuf;

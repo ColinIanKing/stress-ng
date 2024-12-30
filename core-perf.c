@@ -447,12 +447,14 @@ static char *stress_perf_yaml_label(char *dst, const char *src, const size_t n)
 		size_t i = n;
 
 		do {
-			if (*s == ' ')
+			unsigned char ch = (unsigned char)*s;
+
+			if (ch == ' ')
 				*d = '_';
-			else if (isupper(*s))
-				*d = (char)tolower(*s);
-			else if (*s)
-				*d = *s;
+			else if (isupper(ch))
+				*d = (char)tolower(ch);
+			else if (ch)
+				*d = (char)ch;
 			else {
 				while (--i != 0)
 					*d++ = 0;

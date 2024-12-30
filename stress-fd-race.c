@@ -701,7 +701,7 @@ static void stress_fd_race_filename_dir(const char *dirname, stress_fd_race_file
 			continue;
 
 		for (len = (ssize_t)strlen(de->d_name) - 1; len > 1; len--) {
-			if (!isdigit((int)de->d_name[len]))
+			if (!isdigit((unsigned char)de->d_name[len]))
 				break;
 		}
 		/* ignore numbered files such as /dev/tty1 upwards */

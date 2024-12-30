@@ -34,7 +34,7 @@ static int stress_config_check_cpu_filter(const struct dirent *d)
 		return 0;
         if (strncmp(d->d_name, "cpu", 3))
 		return 0;
-	if (isdigit((int)d->d_name[3]))
+	if (isdigit((unsigned char)d->d_name[3]))
 		return 1;
 	return 0;
 }

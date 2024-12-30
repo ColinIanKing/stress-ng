@@ -372,7 +372,7 @@ static int PURE stress_smart_dev_filter(const struct dirent *d)
 	len = strlen(d->d_name);
 	if (len < 1)		/* Also unlikely */
 		return 0;
-	if (isdigit((int)d->d_name[len - 1]))
+	if (isdigit((unsigned char)d->d_name[len - 1]))
 		return 0;
 
 	return 1;

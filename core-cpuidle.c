@@ -46,7 +46,7 @@ cpu_cstate_t *stress_cpuidle_cstate_list_head(void)
 
 static PURE int stress_cpuidle_value(const char *cstate)
 {
-	while (isalpha((int)*cstate))
+	while (isalpha((unsigned char)*cstate))
 		cstate++;
 	return atoi(cstate);
 }

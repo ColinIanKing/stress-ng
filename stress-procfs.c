@@ -96,7 +96,7 @@ static int stress_dirent_proc_prune(struct dirent **dlist, const int n)
 
 			if (stress_is_dot_filename(dlist[i]->d_name))
 				ignore = true;
-			else if (isdigit((int)dlist[i]->d_name[0])) {
+			else if (isdigit((unsigned char)dlist[i]->d_name[0])) {
 				/* only allow a small numeric files.. */
 				ignore = (digit_count > 1);
 				digit_count++;
@@ -290,7 +290,7 @@ static inline void stress_proc_rw(
 
 		if (!strncmp(path, "/proc/self", 10))
 			writeable = false;
-		if (!strncmp(path, "/proc", 5) && isdigit(path[5]))
+		if (!strncmp(path, "/proc", 5) && isdigit((unsigned char)path[5]))
 			writeable = false;
 
 		t_start = stress_time_now();
@@ -733,7 +733,7 @@ static char *stress_random_pid(void)
 
 		name = dlist[j]->d_name;
 
-		if (isdigit(name[0])) {
+		if (isdigit((unsigned char)name[0])) {
 			(void)stress_mk_filename(path, sizeof(path), "/proc", name);
 			break;
 		}

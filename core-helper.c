@@ -2300,7 +2300,7 @@ static inline size_t stress_get_open_count(void)
 		return (size_t)-1;
 
 	while ((d = readdir(dir)) != NULL) {
-		if (isdigit((int)d->d_name[0]))
+		if (isdigit((unsigned char)d->d_name[0]))
 			n++;
 	}
 	(void)closedir(dir);

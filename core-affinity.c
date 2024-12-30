@@ -128,7 +128,7 @@ static void stress_get_topology_set(
 
 		if (strncmp(d->d_name, "cpu", 3))
 			continue;
-		if (!isdigit(d->d_name[3]))
+		if (!isdigit((unsigned char)d->d_name[3]))
 			continue;
 
 		(void)snprintf(filename, sizeof(filename), "%s/%s/topology/%s", path, d->d_name, topology_list);

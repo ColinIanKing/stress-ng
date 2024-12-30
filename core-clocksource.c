@@ -24,9 +24,11 @@
 #if defined(__linux__)
 static inline void stress_clocksource_tolower(char *str)
 {
-	while (*str) {
-		if (isupper((int)*str))
-			*str = (char)tolower((int)*str);
+	unsigned char ch;
+
+	while ((ch = (unsigned char)*str)) {
+		if (isupper(ch))
+			*str = (char)tolower(ch);
 		str++;
 	}
 }

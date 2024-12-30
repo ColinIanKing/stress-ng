@@ -2174,9 +2174,9 @@ static char *stress_description_yamlify(const char *description)
 	for (dst = yamlified, src = description; *src; src++) {
 		register int ch = (int)*src;
 
-		if (isalpha(ch)) {
-			*(dst++) = (char)tolower(ch);
-		} else if (isdigit(ch)) {
+		if (isalpha((unsigned char)ch)) {
+			*(dst++) = (char)tolower((unsigned char)ch);
+		} else if (isdigit((unsigned char)ch)) {
 			*(dst++) = (char)ch;
 		} else if (ch == ' ') {
 			*(dst++) = '-';

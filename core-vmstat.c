@@ -389,7 +389,7 @@ static char *stress_iostat_iostat_name(
 		(void)snprintf(iostat_name, iostat_name_len, "/sys/block/%s/stat", dev);
 		if (shim_stat(iostat_name, &statbuf) == 0)
 			return iostat_name;
-		if (!isdigit(*ptr))
+		if (!isdigit((unsigned char)*ptr))
 			break;
 		*ptr = '\0';
 		ptr--;
@@ -1015,7 +1015,7 @@ static void stress_get_cpu_ghz(
 	for (i = 0; i < n_cpus; i++) {
 		const char *name = cpu_list[i]->d_name;
 
-		if (!strncmp(name, "cpu", 3) && isdigit(name[3])) {
+		if (!strncmp(name, "cpu", 3) && isdigit((unsigned char)name[3])) {
 			char path[PATH_MAX];
 			double freq;
 			FILE *fp;

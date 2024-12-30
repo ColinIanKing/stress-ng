@@ -4420,7 +4420,7 @@ static void stress_dev_infos_get(
 			int dev_n;
 			char *ptr = d->d_name + len - 1;
 
-			while ((ptr > d->d_name) && isdigit((int)*ptr))
+			while ((ptr > d->d_name) && isdigit((unsigned char)*ptr))
 				ptr--;
 			ptr++;
 			dev_n = atoi(ptr);

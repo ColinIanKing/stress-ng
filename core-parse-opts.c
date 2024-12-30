@@ -114,7 +114,7 @@ static void stress_ensure_numeric(const char *const str)
 	if (*ptr == '-')
 		ptr++;
 	while (*ptr) {
-		if (!isdigit((int)*ptr))
+		if (!isdigit((unsigned char)*ptr))
 			break;
 		ptr++;
 	}
@@ -140,7 +140,7 @@ static void stress_ensure_positive(const char *const str)
 			continue;
 		}
 
-		if (isdigit((int)*ptr)) {
+		if (isdigit((unsigned char)*ptr)) {
 			if (!negative)
 				return;
 
@@ -391,7 +391,7 @@ uint64_t stress_get_uint64_scale(
 	len--;
 	ch = str[len];
 
-	if (isdigit(ch))
+	if (isdigit((unsigned char)ch))
 		return val;
 
 	ch = tolower(ch);

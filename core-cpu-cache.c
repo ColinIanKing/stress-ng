@@ -831,7 +831,7 @@ out:
  */
 static int index_filter(const struct dirent *d)
 {
-	return ((strncmp(d->d_name, "index", 5) == 0) && isdigit(d->d_name[5]));
+	return ((strncmp(d->d_name, "index", 5) == 0) && isdigit((unsigned char)d->d_name[5]));
 }
 #endif
 
@@ -1071,7 +1071,7 @@ static void stress_cpu_cache_get_details(stress_cpu_cache_cpu_t *cpu, const char
  */
 static int stress_cpu_cache_filter(const struct dirent *d)
 {
-	return ((strncmp(d->d_name, "cpu", 3) == 0) && isdigit(d->d_name[3]));
+	return ((strncmp(d->d_name, "cpu", 3) == 0) && isdigit((unsigned char)d->d_name[3]));
 }
 
 /*

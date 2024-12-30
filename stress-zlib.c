@@ -1150,7 +1150,7 @@ static void stress_rand_data_morse(
 	if (!morse_table_init) {
 		(void)shim_memset(morse_table, 0, sizeof(morse_table));
 		for (i = 0; i < (int)SIZEOF_ARRAY(morse); i++)
-			morse_table[tolower((int)morse[i].ch)] = morse[i].str;
+			morse_table[tolower((unsigned char)morse[i].ch)] = morse[i].str;
 		morse_table_init = true;
 	}
 
@@ -1162,7 +1162,7 @@ static void stress_rand_data_morse(
 		if (!*ptr)
 			ptr = lorem_ipsum[stress_mwc32modn(SIZEOF_ARRAY(lorem_ipsum))];
 
-		ch = tolower((int)*ptr);
+		ch = tolower((unsigned char)*ptr);
 		mptr = morse_table[ch];
 		if (mptr) {
 			for (; *mptr && (i < size); mptr++) {

@@ -121,7 +121,7 @@ static void stress_interrupts_count(stress_interrupts_t *counters, const int whi
 						break;
 
 					/* expecting number, bail otherwise */
-					if (!isdigit((int)*ptr))
+					if (!isdigit((unsigned char)*ptr))
 						break;
 
 					/* get count, sum it */
@@ -129,7 +129,7 @@ static void stress_interrupts_count(stress_interrupts_t *counters, const int whi
 						count += val;
 
 					/* scan over digits */
-					while (isdigit((int)*ptr))
+					while (isdigit((unsigned char)*ptr))
 						ptr++;
 
 					/* bail if end of string */

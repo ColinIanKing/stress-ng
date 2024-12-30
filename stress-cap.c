@@ -173,7 +173,7 @@ static int stress_cap(stress_args_t *args)
 			while ((d = readdir(dir)) != NULL) {
 				intmax_t p;
 
-				if (!isdigit(d->d_name[0]))
+				if (!isdigit((unsigned char)d->d_name[0]))
 					continue;
 				if (sscanf(d->d_name, "%" SCNdMAX, &p) != 1)
 					continue;

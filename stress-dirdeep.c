@@ -295,7 +295,7 @@ static int stress_dir_exercise(
 		path[len + 1] = (char)ch;
 		path[len + 2] = '\0';
 
-		if (isdigit(ch) || isupper(ch)) {
+		if (isdigit((unsigned char)ch) || isupper((unsigned char)ch)) {
 			stress_dir_exercise(args, path, len + 2, path_len);
 		} else {
 			int fd;
@@ -371,7 +371,7 @@ static void stress_dir_tidy(
 		}
 
 		(void)snprintf(path + len, path_len - len, "/%s", name);
-		if (name[1] == '\0' && (isdigit(ch) || isupper(ch))) {
+		if (name[1] == '\0' && (isdigit((unsigned char)ch) || isupper((unsigned char)ch))) {
 			free(namelist[n]);
 			stress_dir_tidy(args, path, len + 2, path_len, start_time);
 		} else {
