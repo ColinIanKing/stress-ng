@@ -24,6 +24,7 @@
 #include <sys/types.h>
 #include <mqueue.h>
 #include <signal.h>
+#include <fcntl.h>
 
 #if defined(__gnu_hurd__)
 #error posix message queues not implemented on GNU/HURD
