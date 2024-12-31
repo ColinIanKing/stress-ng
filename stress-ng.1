@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "27 December 2024"
+.TH STRESS-NG 1 "31 December 2024"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -144,6 +144,7 @@ every S seconds show I/O statistics on the device that stores the stress\-ng
 temporary files. This is either the device of the current working directory
 or the \-\-temp\-path specified path. Currently a Linux only option.
 The fields output are:
+.sp
 .TS
 lB lB
 l lx.
@@ -295,6 +296,7 @@ various kinds of load.
 .RS
 .PP
 The following columns of information are output:
+.sp
 .TS
 lB lB
 l lx.
@@ -552,6 +554,7 @@ just use these CPUs (for systems that provide sched_setaffinity()). The CPUs
 to be used are specified by a comma separated list of CPU (0 to N-1). One
 can specify a range of CPUs using '-', for example: \-\-taskset 0,2-3,6,7-11
 or the following keywords:
+.sp
 .TS
 lB2 lB
 l lx.
@@ -878,6 +881,7 @@ the --pathological option.
 .B \-\-bad\-ioctl\-method [ inc | random | random\-inc | stride ]
 select the method of changing the ioctl command (number, type) tuple per iteration, the
 default is random-inc.  Available bad-ioctl methods are described as follows:
+.sp
 .TS
 lB2 lB
 l lx.
@@ -913,6 +917,7 @@ stop after N bessel bogo-operation loops.
 .B \-\-besselmath\-method method
 specify a Bessel function to exercise. Available bessel stress methods are described
 as follows:
+.sp
 .TS
 lB2 lB
 l lx.
@@ -1054,6 +1059,7 @@ stop after N bitop operations.
 specify bitops stress method. By default, all the bitops stress methods are exercised
 sequentially, however one can specify just one method to be used if required.
 Available bitops stress methods are described as follows:
+.sp
 .TS
 lB2 lB
 l lx.
@@ -1290,6 +1296,7 @@ adjacent cachelines being exercised by adjacent CPUs.
 specify a cacheline stress method. By default, all the stress methods are exercised
 sequentially, however one can specify just one method to be used if required.
 Available cacheline stress methods are described as follows:
+.sp
 .TS
 lB2 lB
 l lx.
@@ -1549,6 +1556,7 @@ all of the cpu class of stressors.
 specify a cpu stress method. By default, all the stress methods are exercised
 sequentially, however one can specify just one method to be used if required.
 Available cpu stress methods are described as follows:
+.sp
 .TS
 lB2 lB
 l lx.
@@ -1960,6 +1968,7 @@ This is helpful to see where the latencies are clustering.
 .B \-\-cyclic\-method [ clock_ns | itimer | poll | posix_ns | pselect | usleep ]
 specify the cyclic method to be used, the default is clock_ns. The available
 cyclic methods are as follows:
+.sp
 .TS
 lB2 lB
 l lx.
@@ -2137,6 +2146,7 @@ operations on a range of decimal floating point types. For each type,
 .TP
 .B \-\-dfp\-method method
 select the decimal floating point method to use, available methods are:
+.sp
 .TS
 lB2 lB
 l lx.
@@ -2277,6 +2287,7 @@ for gcc/g++ builds.
 .TP
 .B \-\-eigen\-method method
 select the floating point method to use, available methods are:
+.sp
 .TS
 lB lB
 l lx.
@@ -2487,6 +2498,7 @@ stop after N exponential bogo-operation loops.
 .B \-\-expmath\-method method
 specify a exponential function to exercise. Available exponential stress methods are described
 as follows:
+.sp
 .TS
 lB2 lB
 l lx.
@@ -2768,6 +2780,7 @@ stop filename workers after N bogo filename tests.
 .TP
 .B \-\-filename\-opts opt
 use characters in the filename based on option 'opt'. Valid options are:
+.sp
 .TS
 lB lB
 l lx.
@@ -2846,6 +2859,7 @@ multiplication and add operations on arrays of 512 floating point values.
 More modern processors (Intel Haswell, AMD Bulldozer and Piledriver) and
 modern C compilers these will be performed by fused-multiply-add (fma3)
 opcodes. Operations used are:
+.sp
 .TS
 expand;
 l.
@@ -2936,6 +2950,7 @@ point values are operated upon 65536 times in a loop per bogo op.
 .TP
 .B \-\-fp\-method method
 select the floating point method to use, available methods are:
+.sp
 .TS
 lB2 lB
 l lx.
@@ -3253,6 +3268,7 @@ squared value of 0.95..1.05 indicates a good hash distribution.
 .B \-\-hash\-method method
 specify the hashing method to use, by default all the hashing methods are
 cycled through. Methods available are:
+.sp
 .TS
 lB2 lB
 l lx.
@@ -3364,6 +3380,7 @@ and GBytes using the suffix b, k, m or g.
 .B \-\-hdd\-opts list
 specify various stress test options as a comma separated list. Options are as
 follows:
+.sp
 .TS
 lB lB
 l lx.
@@ -3520,6 +3537,7 @@ variants. Each function is exercised 10,000 times per bogo-operation.
 specify a hyperbolic stress function. By default, all the functions are exercised
 sequentially, however one can specify just one function to be used if required.
 Available options are as follows:
+.sp
 .TS
 lB2 lB
 l lx.
@@ -3655,6 +3673,7 @@ math operations on 128, 64, 32, 16 and 8 bit signed integers.
 .TP
 .B \-\-intmath\-method method
 select the integer math method to use, available methods are:
+.sp
 .TS
 lB2 lB
 l lx.
@@ -3832,6 +3851,7 @@ use a RGB sample image height of H pixels. The default is 512 pixels.
 .TP
 .B \-\-jpeg\-image [ brown | flat | gradient | noise | plasma | xstripes ]
 select the source image type to be compressed. Available image types are:
+.sp
 .TS
 lB2 lB
 l lx.
@@ -4200,6 +4220,7 @@ stop after N logarithmic bogo-operation loops.
 .B \-\-logmath\-method method
 specify a logarithmic function to exercise. Available logarithmic stress methods are described
 as follows:
+.sp
 .TS
 lB2 lB
 l lx.
@@ -4412,6 +4433,7 @@ stress method with the \-\-matrix\-method option.
 .B \-\-matrix\-method method
 specify a matrix stress method. Available matrix stress methods are described
 as follows:
+.sp
 .TS
 lB2 lB
 l lx.
@@ -4493,6 +4515,7 @@ one on a 128 \(mu 128 \(mu 128 element matrix. One can specify a specific
 .B \-\-matrix\-3d\-method method
 specify a 3D matrix stress method. Available 3D matrix stress methods are described
 as follows:
+.sp
 .TS
 lB2 lB
 l lx.
@@ -4587,6 +4610,7 @@ different alignments. This will exercise the data cache and memory copying.
 .B \-\-memcpy\-method [ all | libc | builtin | naive | naive_o0 .. naive_o3 ]
 specify a memcpy copying method. Available memcpy methods are described
 as follows:
+.sp
 .TS
 lB2 lB
 l lx.
@@ -4726,6 +4750,7 @@ the number of CPUs.
 .B \-\-memthrash\-method method
 specify a memthrash stress method. Available memthrash stress methods are described
 as follows:
+.sp
 .TS
 lB2 lB
 l lx.
@@ -4908,6 +4933,7 @@ handled and the misaligned stressor method causing the error is disabled.
 .TP
 .B \-\-misaligned\-method method
 Available misaligned stress methods are described as follows:
+.sp
 .TS
 lB2 lB
 l lx.
@@ -5238,6 +5264,7 @@ experiments with various random number generators.
 .TP
 .B \-\-monte\-carlo\-method [ all | e | exp | pi | sin | sqrt | squircle ]
 specify the computation to perform, options are as follows:
+.sp
 .TS
 lB2 lB
 l lx.
@@ -5270,6 +5297,7 @@ stop after Monte Carlo computation experiments
 .TP
 .B \-\-monte\-carlo\-rand [ all | drand48 | getrandom | lcg | pcg32 | mwc64 | random | xorshift ]
 specify the random number generator to use, options are as follows:
+.sp
 .TS
 lB2 lB
 l lx.
@@ -5314,6 +5342,7 @@ specify the number of random number samples to use to compute \(*p or e, default
 start N workers that exercise multi-precision floating point operations using
 the GNU Multi-Precision Floating Point Reliable library (mpfr). Operations computed
 are as follows:
+.sp
 .TS
 lB2 lB
 l lx.
@@ -5538,6 +5567,7 @@ timers and scheduler.
 select the nanosleep sleep duration method.  By default, cstate residency durations
 (if they exist) and random durations are used.  This option allows one to select one of the
 three methods:
+.sp
 .TS
 lB2 lB
 l lx.
@@ -5713,6 +5743,7 @@ handled gracefully by the stressor.
 select the opcode generation method.  By default, random bytes are used to
 generate the executable code. This option allows one to select one of the
 three methods:
+.sp
 .TS
 lB2 lB
 l lx.
@@ -6034,6 +6065,7 @@ stop after N power function bogo-operation loops.
 .B \-\-powmath\-method method
 specify a power function to exercise. Available power function stress methods are described
 as follows:
+.sp
 .TS
 lB2 lB
 l lx.
@@ -6131,6 +6163,7 @@ specify the size of the l3 cache
 .TP
 .B \-\-prefetch\-method N
 select the prefetching method. Available methods are:
+.sp
 .TS
 lB2 lB
 l lx.
@@ -6189,6 +6222,7 @@ time.
 selects the method of calculating the next value from where to start searching
 primes and hence how large the primes get. The default is inc, the methods to
 start searching for primes are described as follows.
+.sp
 .TS
 lB2 lB
 l lx.
@@ -6238,6 +6272,7 @@ stop after N bogo lock/unlock operations.
 .TP
 .B \-\-prio\-inv\-type [ inherit | none | protect ]
 select the mutex lock priority inversion type, described as follows:
+.sp
 .TS
 lB2 lB
 l lx.
@@ -6422,6 +6457,7 @@ race conditions where affinity changing occurs during process run states.
 .B \-\-race\-sched\-method [ all | next | prev | rand | randinc | syncnext | syncprev ]
 Select the method moving a process to a specific CPU.  Available methods are
 described as follows:
+.sp
 .TS
 lB2 lB
 l lx.
@@ -6512,6 +6548,7 @@ root privilege to be able to read the raw device.
 .TP
 .B \-\-rawdev\-method method
 Available rawdev stress methods are described as follows:
+.sp
 .TS
 lB2 lB
 l lx.
@@ -6849,6 +6886,7 @@ values 10000 times in a loop per bogo-op.
 .B \-\-rotate\-method method
 specify the method of rotation to use. The 'all' method uses all the methods
 and is the default.
+.sp
 .TS
 lB2 lB
 l lx.
@@ -7650,6 +7688,7 @@ full sparse matrix.
 .B \-\-sparsematrix\-method [ all | hash | hashjudy | judy | list | mmap | qhash | rb ]
 specify the type of sparse matrix implementation to use. The 'all' method
 uses all the methods and is the default.
+.sp
 .TS
 lB2 lB
 l lx.
@@ -7833,6 +7872,7 @@ STREAM "Sustainable Memory Bandwidth in High Performance Computers" benchmarking
 tool by John D. McCalpin, Ph.D. This stressor allocates buffers that are at
 least 4 times the size of the CPU L2 cache and continually performs rounds of
 following computations on large arrays of double precision floating point numbers:
+.sp
 .TS
 lB2 lB
 l lx.
@@ -7924,6 +7964,7 @@ because of CPU speed and memory bandwidth limitations.
 .B \-\-switch\-method [ mq | pipe | sem\-sysv ]
 select the preferred context switch block/run synchronization method, these
 are as follows:
+.sp
 .TS
 lB2 lB
 l lx.
@@ -8023,6 +8064,7 @@ taken to setup, run and cleanup after each system call.
 select the choice of system calls to executed based on the fastest test duration times.
 Note that this includes the time to setup, execute the system call and cleanup afterwards.
 The available methods are as follows:
+.sp
 .TS
 lB lB
 l lx.
@@ -8226,6 +8268,7 @@ stop the touch workers after N file touches.
 .B \-\-touch\-opts all, direct, dsync, excl, noatime, sync
 specify various file open options as a comma separated list. Options are as
 follows:
+.sp
 .TS
 lB lB
 l lx.
@@ -8287,6 +8330,7 @@ variants. Each function is exercised 10,000 times per bogo-operation.
 specify a trigonometric stress function. By default, all the functions are exercised
 sequentially, however one can specify just one function to be used if required.
 Available options are as follows:
+.sp
 .TS
 lB2 lB
 l lx.
@@ -8596,6 +8640,7 @@ features.
 .B \-\-vecfp\-method method
 specify a vecfp stress method. By default, all the stress methods are exercised
 sequentially, however one can specify just one method to be used if required.
+.sp
 .TS
 lB2 lB
 l lx.
@@ -8746,6 +8791,7 @@ load, shuffle/permute, packing/unpacking and store operations.
 specify a vector shuffling stress method. By default, all the stress
 methods are exercised sequentially, however one can specify just one
 method to be used if required.
+.sp
 .TS
 lB2 lb
 l lx.
@@ -8913,6 +8959,7 @@ The vm stress methods are intended to exercise memory in ways to possibly find
 memory issues and to try to force thermal errors.
 .PP
 Available vm stress methods are described as follows:
+.sp
 .TS
 lB2 lB
 l lx.
@@ -9128,6 +9175,7 @@ sequentially, however one can specify just one method to be used if required.
 .RS
 .PP
 Available vm address stress methods are described as follows:
+.sp
 .TS
 lB2 lB
 l lx.
@@ -9270,6 +9318,7 @@ the generic non-vectorized methods.
 .TP
 .B \-\-vnni\-method N
 select the VNNI method to be exercised, may be one of:
+.sp
 .TS
 lB2 lB
 l lx.
@@ -9421,6 +9470,7 @@ quanta duration Q \(mu L / 100.
 select the workload method. Each quanta of execution time is consumed using
 a tight spin-loop executing a workload method. The available methods are
 described as follows:
+.sp
 .TS
 lB2 lB
 l lx.
@@ -9492,6 +9542,7 @@ are available.
 .B \-\-workload\-dist [ cluster | even | poisson | random1 | random2 | random3 ]
 specify the scheduling distribution of work items, the default is cluster.
 The distribution methods are described as follows:
+.sp
 .TS
 lB2 lB
 l lx.
@@ -9613,6 +9664,7 @@ compression and 9 = best compression.
 .TP
 .B \-\-zlib\-mem\-level L
 specify the reserved compression state memory for zlib.  Default is 8.
+.sp
 .TS
 cB2 lB lB lB
 c l s s.
@@ -9626,6 +9678,7 @@ specify the type of random data to send to the zlib library.  By default,
 the data stream is created from a random selection of the different data
 generation processes.  However one can specify just one method to be used if required.
 Available zlib data generation methods are described as follows:
+.sp
 .TS
 lB2 lB
 l lx.
@@ -9740,6 +9793,7 @@ is a compression of 64 K of random data at the highest compression level.
 .B \-\-zlib\-strategy S
 specifies the strategy to use when deflating data. This is used to tune the
 compression algorithm. Default is 0.
+.sp
 .TS
 cB2 lB lB lB
 c l s s.
@@ -9756,6 +9810,7 @@ specify the amount of bytes to deflate until deflate should finish the block
 and return with Z_STREAM_END. One can specify the size in units of Bytes,
 KBytes, MBytes and GBytes using the suffix b, k, m or g.
 Default is 0 which creates and endless stream until stressor ends.
+.sp
 .TS
 cB2 lB lB lB
 c l s s.
@@ -9769,6 +9824,7 @@ n	creates an stream of n bytes over and over again.
 specify the window bits used to specify the history buffer size. The value is
 specified as the base two logarithm of the buffer size (e.g. value 9 is 2\[ua]9 =
 512 bytes). Default is 15.
+.sp
 .TS
 cB2 lB lB lB
 c l s s.
