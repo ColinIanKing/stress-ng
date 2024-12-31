@@ -546,6 +546,7 @@ do_stress --link -1 --link-sync
 do_stress --lease -1 --lease-breakers 8
 
 do_stress --llc-affinity -1 --llc-affinity-mlock
+do_stress --llc-affinity -1 --llc-affinity-clflush
 
 do_stress --lockf -1 --lockf-nonblock
 
@@ -581,6 +582,7 @@ do_stress --mmap -1 --mmap-mmap2
 do_stress --mmap -1 --mmap-write-check
 do_stress --mmap -1 --mmap-stressful
 do_stress --mmap -1 --mmap-slow-munmap
+do_stress --mmap -1 --mmap-numa
 do_stress --mmap -1 --thrash
 
 do_stress --mmapaddr -1 --mmapaddr-mlock
@@ -627,6 +629,7 @@ do_stress --pipe -1 --pipe-vmsplice
 do_stress --pipeherd 1 --pipeherd-yield
 
 do_stress --poll -1 --poll-fds 8192
+do_stress --poll -1 --poll-random-us 1000000
 
 do_stress --prefetch -1 --prefetch-l3-size 16M
 
@@ -770,6 +773,7 @@ do_stress --vm -1 --vm-madvise random
 do_stress --vm -1 --vm-madvise sequential
 do_stress --vm -1 --vm-madvise unmergeable
 do_stress --vm -1 --vm-madvise willneed --page-in
+do_stress --vm -1 --vm-numa
 do_stress --vm -1 --vm-populate --ksm
 
 do_stress --vm-addr -1 --vm-addr-mlock
