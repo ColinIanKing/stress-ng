@@ -1094,6 +1094,9 @@ T}
 parity	T{
 compute the parity of a 32 bit unsigned integer. Computed five ways, two using bit counting, one using multiplication, shifting and xor'ing, one using shifting and xor'ing, one using a builtin parity function.
 T}
+pwr2	T{
+determine if a 32 bit unsigned integer is a power of 2. Computed using bit counting and with mask of value \(mi 1.
+T}
 rnddnpwr2	T{
 find the nearest power of 2 of a 32 bit unsigned integer, rounded down. Computed three ways, one using bit counting and shifting, one using shifting and or'ing, one using a shift and the builtin ctz function.
 T}
@@ -1109,6 +1112,9 @@ calculate the sign of a 32 bit signed integer. Computed two ways, one using a br
 T}
 swap	T{
 swap two 32 bit signed integers without a temporary variable. Computed two ways, one using subtraction and addition, one using xor'ing.
+T}
+zerobyte	T{
+determine of a 32 bit unsigned integer contains one or more zero bytes. Computed two ways, one with per byte zero checking, one using bit masking.
 T}
 .TE
 .RE

@@ -797,6 +797,41 @@ static int OPTIMIZE3 stress_bitops_reverse(const char *name, uint32_t *count)
 }
 
 /*
+ *  stress_bitops_pwr2()
+ *	detect if integer is a power of 2
+ */
+static int OPTIMIZE3 stress_bitops_pwr2(const char *name, uint32_t *count)
+{
+	register uint32_t i, j = stress_mwc32();
+
+	for (i = 0; i < 1000; i++, j += i) {
+		register bool is_pwr2, result;
+
+#if defined(HAVE_BUILTIN_POPCOUNT)
+		is_pwr2 = (__builtin_popcount((unsigned int)j) == 1);
+#else
+		{
+			uint32_t tmp, c;
+
+			for (tmp = j, c = 0; tmp; c++)
+				tmp &= (tmp - 1);
+
+			is_pwr2 == (c == 1);
+		}
+#endif
+		result = (j > 0) & ((j & (j - 1)) == 0);
+		if (result != is_pwr2) {
+			pr_fail("%s: pwr2 failure, value 0x%" PRIx32 ", r1 = 0x%" PRIx32 ", r2 = 0x%" PRIx32 "\n",
+				name, i, is_pwr2, result);
+			return EXIT_FAILURE;
+		}
+	}
+	*count += i;
+
+	return EXIT_SUCCESS;
+}
+
+/*
  *  stress_bitops_rnddnpwr2()
  *	round down to nearest power of 2
  */
@@ -978,6 +1013,32 @@ static int OPTIMIZE3 stress_bitops_swap(const char *name, uint32_t *count)
 }
 
 /*
+ *  stress_bitops_zerobyte()
+ *	check if an integer contains a zero byte
+ */
+static int OPTIMIZE3 stress_bitops_zerobyte(const char *name, uint32_t *count)
+{
+	register uint32_t i, j = stress_mwc32();
+
+	for (i = 0; i < 1000; i++, j += i) {
+		register bool has_zero_byte, result;
+
+		has_zero_byte = ((((j & 0x000000ffU) == 0) |
+				  ((j & 0x0000ff00U) == 0) |
+				  ((j & 0x00ff0000U) == 0) |
+				  ((j & 0xff000000U) == 0)) > 0);
+		result = (((j - 0x01010101U) & (~j) & 0x80808080U) > 0);
+		if (result != has_zero_byte) {
+			pr_fail("%s: zerobyte failure, value 0x%" PRIx32 ", r1 = 0x%" PRIx32 ", r2 = 0x%" PRIx32 "\n",
+				name, i, has_zero_byte, result);
+			return EXIT_FAILURE;
+		}
+	}
+	*count += i;
+	return EXIT_SUCCESS;
+}
+
+/*
  * Table of bitops stress methods
  */
 static const stress_bitops_method_info_t bitops_methods[] = {
@@ -991,11 +1052,13 @@ static const stress_bitops_method_info_t bitops_methods[] = {
 	{ "max",		stress_bitops_max },
 	{ "min",		stress_bitops_min },
 	{ "parity",		stress_bitops_parity },
+	{ "pwr2",		stress_bitops_pwr2 },
 	{ "reverse",		stress_bitops_reverse },
 	{ "rnddnpwr2",		stress_bitops_rnddnpwr2 },
 	{ "rnduppwr2",		stress_bitops_rnduppwr2 },
 	{ "sign",		stress_bitops_sign },
 	{ "swap",		stress_bitops_swap },
+	{ "zerobyte",		stress_bitops_zerobyte },
 };
 
 stress_metrics_t metrics[SIZEOF_ARRAY(bitops_methods)];
