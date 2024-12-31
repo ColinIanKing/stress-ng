@@ -9159,6 +9159,10 @@ T}
 .TE
 .RE
 .TP
+.B \-\-vm\-numa
+assign memory mapped pages to randomly selected NUMA nodes. This is disabled
+for systems that do not support NUMA or have less than 2 NUMA nodes.
+.TP
 .B \-\-vm\-ops N
 stop vm workers after N bogo operations.
 .TP

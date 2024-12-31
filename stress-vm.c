@@ -27,6 +27,7 @@
 #include "core-mincore.h"
 #include "core-nt-load.h"
 #include "core-nt-store.h"
+#include "core-numa.h"
 #include "core-out-of-memory.h"
 #include "core-pragma.h"
 #include "core-vecmath.h"
@@ -68,6 +69,10 @@ typedef struct {
 typedef struct {
 	uint64_t *bit_error_count;
 	const stress_vm_method_info_t *vm_method;
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+	stress_numa_mask_t *numa_mask;
+#endif
+	bool vm_numa;
 } stress_vm_context_t;
 
 static const stress_help_t help[] = {
@@ -80,6 +85,7 @@ static const stress_help_t help[] = {
 #endif
 	{ NULL,	 "vm-madvise M", "specify mmap'd vm buffer madvise advice" },
 	{ NULL,	 "vm-method M",	 "specify stress vm method M, default is all" },
+	{ NULL,	 "vm-numa",	 "bind memory mappings to randonly selected NUMA nodes" },
 	{ NULL,	 "vm-ops N",	 "stop after N vm bogo operations" },
 #if defined(MAP_POPULATE)
 	{ NULL,	 "vm-populate",	 "populate (prefault) page tables for a mapping" },
@@ -3323,6 +3329,10 @@ static int stress_vm_child(stress_args_t *args, void *ctxt)
 				(void)stress_madvise_random(buf, buf_sz);
 			else
 				(void)shim_madvise(buf, buf_sz, advice);
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+			if (context->vm_numa)
+				stress_numa_randomize_pages(context->numa_mask, buf, page_size, buf_sz);
+#endif
 		}
 
 		no_mem_retries = 0;
@@ -3399,8 +3409,28 @@ static int stress_vm(stress_args_t *args)
 	size_t vm_method = 0;
 	stress_vm_context_t context;
 
+	(void)shim_memset(&context, 0, sizeof(context));
 	stress_vm_get_cache_line_size();
 
+	(void)stress_get_setting("vm-numa", &context.vm_numa);
+	if (context.vm_numa) {
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+		if (stress_numa_nodes() > 1) {
+			context.numa_mask = stress_numa_mask_alloc();
+		} else {
+			if (args->instance == 0) {
+				pr_inf("%s: only 1 NUMA node available, disabling --vm-numa\n",
+					args->name);
+				context.vm_numa = false;
+			}
+		}
+#else
+		if (args->instance == 0)
+			pr_inf("%s: --vm-numa selected but not supported by this system, disabling option\n",
+				args->name);
+		context.vm_numa = false;
+#endif
+	}
 	context.bit_error_count = MAP_FAILED;
 
 	(void)stress_get_setting("vm-method", &vm_method);
@@ -3450,6 +3480,10 @@ static int stress_vm(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)munmap((void *)context.bit_error_count, page_size);
 
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+	if (context.vm_numa)
+		stress_numa_mask_free(context.numa_mask);
+#endif
 	tmp_counter = stress_bogo_get(args) >> VM_BOGO_SHIFT;
 	stress_bogo_set(args, tmp_counter);
 
@@ -3470,9 +3504,10 @@ static const stress_opt_t opts[] = {
 	{ OPT_vm_bytes,    "vm-bytes",    TYPE_ID_SIZE_T_BYTES_VM, MIN_VM_BYTES, MAX_VM_BYTES, NULL },
 	{ OPT_vm_hang,     "vm-hang",     TYPE_ID_UINT64, MIN_VM_HANG, MAX_VM_HANG, NULL },
 	{ OPT_vm_keep,     "vm-keep",     TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_vm_locked,   "vm-locked",   TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_vm_madvise,  "vm-madvise",  TYPE_ID_SIZE_T_METHOD, 0, 0, stress_vm_madvise },
 	{ OPT_vm_method,   "vm-method",   TYPE_ID_SIZE_T_METHOD, 0, 0, stress_vm_method },
-	{ OPT_vm_locked,   "vm-locked",   TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_vm_numa,	   "vm-numa",	  TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_vm_populate, "vm-populate", TYPE_ID_BOOL, 0, 1, NULL },
 	END_OPT,
 };
