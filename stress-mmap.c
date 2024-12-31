@@ -18,11 +18,13 @@
  *
  */
 #include "stress-ng.h"
+
 #include "core-arch.h"
 #include "core-builtin.h"
 #include "core-madvise.h"
 #include "core-mincore.h"
 #include "core-mmap.h"
+#include "core-numa.h"
 #include "core-out-of-memory.h"
 
 #if defined(HAVE_SYS_PRCTL_H)
@@ -48,6 +50,7 @@ static const stress_help_t help[] = {
 	{ NULL,	"mmap-mlock",	     "attempt to mlock mmap'd pages" },
 	{ NULL,	"mmap-mmap2",	     "use mmap2 instead of mmap (when available)" },
 	{ NULL,	"mmap-mprotect",     "enable mmap mprotect stressing" },
+	{ NULL,	"mmap-numa",	     "bind mappings to randonly selected NUMA nodes" },
 	{ NULL, "mmap-odirect",	     "enable O_DIRECT on file" },
 	{ NULL,	"mmap-ops N",	     "stop after N mmap bogo operations" },
 	{ NULL, "mmap-osync",	     "enable O_SYNC on file" },
@@ -69,6 +72,7 @@ typedef struct {
 	bool mmap_mergeable;
 	bool mmap_mlock;
 	bool mmap_mprotect;
+	bool mmap_numa;
 	bool mmap_slow_munmap;
 	bool mmap_write_check;
 	mmap_func_t mmap;
@@ -76,6 +80,9 @@ typedef struct {
 	int *mmap_prot_perms;
 	size_t mmap_flag_count;
 	int *mmap_flag_perms;
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+	stress_numa_mask_t *numa_mask;
+#endif
 } stress_mmap_context_t;
 
 #define NO_MEM_RETRIES_MAX	(65536)
@@ -590,6 +597,10 @@ retry:
 		}
 		if (context->mmap_madvise)
 			(void)stress_madvise_random(buf, sz);
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+		if (context->mmap_numa)
+			stress_numa_randomize_pages(context->numa_mask, buf, page_size, sz);
+#endif
 		if (context->mmap_mergeable)
 			(void)stress_madvise_mergeable(buf, sz);
 		(void)stress_mincore_touch_pages(buf, sz);
@@ -916,9 +927,13 @@ static int stress_mmap(stress_args_t *args)
 	context.mmap_mergeable = false;
 	context.mmap_mlock = false;
 	context.mmap_mprotect = false;
+	context.mmap_numa = false;
 	context.flags = MAP_PRIVATE | MAP_ANONYMOUS;
 #if defined(MAP_POPULATE)
 	context.flags |= MAP_POPULATE;
+#endif
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+	context.numa_mask = NULL;
 #endif
 
 	(void)stress_get_setting("mmap-async", &context.mmap_async);
@@ -930,6 +945,7 @@ static int stress_mmap(stress_args_t *args)
 	(void)stress_get_setting("mmap-mlock", &context.mmap_mlock);
 	(void)stress_get_setting("mmap-mmap2", &mmap_mmap2);
 	(void)stress_get_setting("mmap-mprotect", &context.mmap_mprotect);
+	(void)stress_get_setting("mmap-numa", &context.mmap_numa);
 	(void)stress_get_setting("mmap-slow-munmap", &context.mmap_slow_munmap);
 	(void)stress_get_setting("mmap-write-check", &context.mmap_write_check);
 
@@ -1042,6 +1058,24 @@ redo:
 		context.flags |= MAP_SHARED;
 	}
 
+	if (context.mmap_numa) {
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+		if (stress_numa_nodes() > 1) {
+			context.numa_mask = stress_numa_mask_alloc();
+		} else {
+			if (args->instance == 0)
+				pr_inf("%s: only 1 NUMA node available, disabling --mmap-numa\n",
+					args->name);
+			context.mmap_numa = false;
+		}
+#else
+		if (args->instance == 0)
+			pr_inf("%s: --mmap-numa selected by not supported by this system\n",
+				args->name);
+		context.mmap_numa = false;
+#endif
+	}
+
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
@@ -1058,6 +1092,10 @@ redo:
 		free(context.mmap_prot_perms);
 	if (context.mmap_flag_perms)
 		free(context.mmap_flag_perms);
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+	if (context.mmap_numa)
+		stress_numa_mask_free(context.numa_mask);
+#endif
 
 	return ret;
 }
@@ -1074,6 +1112,7 @@ static void stress_mmap_stressful(const char *opt_name, const char *opt_arg, str
 	(void)stress_set_setting_true("mmap", "mmap-odirect", opt_arg);
 	(void)stress_set_setting_true("mmap", "mmap-madvise", opt_arg);
 	(void)stress_set_setting_true("mmap", "mmap-mlock", opt_arg);
+	(void)stress_set_setting_true("mmap", "mmap-numa", opt_arg);
 	(void)stress_set_setting_true("mmap", "mmap-slow-munmap", opt_arg);
 }
 
@@ -1086,6 +1125,7 @@ static const stress_opt_t opts[] = {
 	{ OPT_mmap_mlock,       "mmap-mlock",       TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_mmap_mmap2,       "mmap-mmap2",       TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_mmap_mprotect,    "mmap-mprotect",    TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_mmap_numa,	"mmap-numa",	    TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_mmap_odirect,     "mmap-odirect",     TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_mmap_osync,       "mmap-osync",       TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_mmap_slow_munmap,	"mmap-slow-munmap", TYPE_ID_BOOL, 0, 1, NULL },

@@ -5069,6 +5069,10 @@ change protection settings on each page of memory.  Each time a page or a
 group of pages are mapped or remapped then this option will make the pages
 read-only, write-only, exec-only, and read-write.
 .TP
+.B \-\-mmap\-numa
+assign memory mapped pages to randomly selected NUMA nodes. This is disabled
+for systems that do not support NUMA or have less than 2 NUMA nodes.
+.TP
 .B \-\-mmap\-odirect
 enable file based memory mapping and use O_DIRECT direct I/O.
 .TP

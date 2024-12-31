@@ -586,6 +586,7 @@ const struct option stress_long_options[] = {
 	{ "mmap-mprotect",	0,	0,	OPT_mmap_mprotect },
 	{ "mmap-mlock",		0,	0,	OPT_mmap_mlock },
 	{ "mmap-mmap2",		0,	0,	OPT_mmap_mmap2 },
+	{ "mmap-numa",		0,	0,	OPT_mmap_numa },
 	{ "mmap-odirect",	0,	0,	OPT_mmap_odirect },
 	{ "mmap-ops",		1,	0,	OPT_mmap_ops },
 	{ "mmap-osync",		0,	0,	OPT_mmap_osync },

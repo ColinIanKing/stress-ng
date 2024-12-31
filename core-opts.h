@@ -873,6 +873,7 @@ typedef enum {
 	OPT_mmap_mlock,
 	OPT_mmap_mmap2,
 	OPT_mmap_mprotect,
+	OPT_mmap_numa,
 	OPT_mmap_odirect,
 	OPT_mmap_ops,
 	OPT_mmap_osync,
