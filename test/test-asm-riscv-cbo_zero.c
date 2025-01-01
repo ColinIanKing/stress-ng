@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024      Woodrow Shen
+ * Copyright (C) 2024-2025 Woodrow Shen
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
