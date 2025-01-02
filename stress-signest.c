@@ -40,6 +40,9 @@ static const int defined_signals[] = {
 #if defined(SIGCHLD)
 	SIGCHLD,
 #endif
+#if defined(SIGCONT)
+	SIGCONT,
+#endif
 #if defined(SIGEMT)
 	SIGEMT,
 #endif
@@ -52,11 +55,11 @@ static const int defined_signals[] = {
 #if defined(SIGILL)
 	SIGILL,
 #endif
-#if defined(SIGINT)
-	SIGINT,
-#endif
 #if defined(SIGINFO)
 	SIGINFO,
+#endif
+#if defined(SIGINT)
+	SIGINT,
 #endif
 #if defined(SIGIO)
 	SIGIO,
@@ -97,20 +100,26 @@ static const int defined_signals[] = {
 #if defined(SIGTRAP)
 	SIGTRAP,
 #endif
+#if defined(SIGTSTP)
+	SIGTSTP,
+#endif
 #if defined(SIGTTIN)
 	SIGTTIN,
 #endif
 #if defined(SIGTTOU)
 	SIGTTOU,
 #endif
+#if defined(SIGUNUSED)
+	SIGUNUSED,
+#endif
+#if defined(SIGURG)
+	SIGURG,
+#endif
 #if defined(SIGUSR1)
 	SIGUSR1,
 #endif
 #if defined(SIGUSR2)
 	SIGUSR2,
-#endif
-#if defined(SIGURG)
-	SIGURG,
 #endif
 #if defined(SIGVTALRM)
 	SIGVTALRM,
