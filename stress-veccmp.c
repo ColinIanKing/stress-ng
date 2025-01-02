@@ -29,7 +29,11 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		 NULL }
 };
 
-#if defined(HAVE_VECMATH)
+#if defined(HAVE_VECMATH) && \
+    ((defined(HAVE_COMPILER_GCC_OR_MUSL) && NEED_GNUC(4,8,4)) ||	\
+     (defined(HAVE_COMPILER_CLANG) && NEED_CLANG(14,0,0)) ||		\
+     (defined(HAVE_COMPILER_ICX) && NEED_ICX(2025,0,0)) || 		\
+     (defined(HAVE_COMPILER_ICC) && NEED_ICC(2021,5,0)))
 
 typedef int8_t  stress_vint8_t  __attribute__ ((vector_size (16)));
 typedef int16_t stress_vint16_t __attribute__ ((vector_size (16)));
