@@ -31,7 +31,6 @@
 
 #define FMA_ELEMENTS	(512)
 #define FMA_UNROLL	(8)
-#define FMA_FUNC_TYPES	(2)
 #define FMA_FUNCS	(6)
 
 /* #define USE_FMA_FAST	 */
@@ -222,23 +221,20 @@ PRAGMA_UNROLL_N(FMA_UNROLL)
 	}
 }
 
-stress_fma_func_t stress_fma_funcs[FMA_FUNC_TYPES][FMA_FUNCS] = {
-	{
-		stress_fma_add132_double,
-		stress_fma_add132_float,
-		stress_fma_add213_double,
-		stress_fma_add213_float,
-		stress_fma_add231_double,
-		stress_fma_add231_float,
-	},
-	{
-		stress_fma_sub132_double,
-		stress_fma_sub132_float,
-		stress_fma_sub213_double,
-		stress_fma_sub213_float,
-		stress_fma_sub231_double,
-		stress_fma_sub231_float,
-	}
+stress_fma_func_t stress_fma_funcs[] = {
+	stress_fma_add132_double,
+	stress_fma_add132_float,
+	stress_fma_add213_double,
+	stress_fma_add213_float,
+	stress_fma_add231_double,
+	stress_fma_add231_float,
+
+	stress_fma_sub132_double,
+	stress_fma_sub132_float,
+	stress_fma_sub213_double,
+	stress_fma_sub213_float,
+	stress_fma_sub231_double,
+	stress_fma_sub231_float,
 };
 
 /* libc variants */
@@ -464,23 +460,20 @@ PRAGMA_UNROLL_N(FMA_UNROLL)
 	}
 }
 
-stress_fma_func_t stress_fma_libc_funcs[FMA_FUNC_TYPES][FMA_FUNCS] = {
-	{
-		stress_fma_add132_libc_double,
-		stress_fma_add132_libc_float,
-		stress_fma_add213_libc_double,
-		stress_fma_add213_libc_float,
-		stress_fma_add231_libc_double,
-		stress_fma_add231_libc_float,
-	},
-	{
-		stress_fma_sub132_libc_double,
-		stress_fma_sub132_libc_float,
-		stress_fma_sub213_libc_double,
-		stress_fma_sub213_libc_float,
-		stress_fma_sub231_libc_double,
-		stress_fma_sub231_libc_float,
-	}
+stress_fma_func_t stress_fma_libc_funcs[] = {
+	stress_fma_add132_libc_double,
+	stress_fma_add132_libc_float,
+	stress_fma_add213_libc_double,
+	stress_fma_add213_libc_float,
+	stress_fma_add231_libc_double,
+	stress_fma_add231_libc_float,
+
+	stress_fma_sub132_libc_double,
+	stress_fma_sub132_libc_float,
+	stress_fma_sub213_libc_double,
+	stress_fma_sub213_libc_float,
+	stress_fma_sub231_libc_double,
+	stress_fma_sub231_libc_float,
 };
 #endif
 
@@ -511,15 +504,15 @@ static int stress_fma(stress_args_t *args)
 	stress_fma_t *pfma;
 	register size_t idx_b = 0, idx_c = 0;
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
-	const stress_fma_func_t (*fma_func_array)[FMA_FUNC_TYPES][FMA_FUNCS];
+	const stress_fma_func_t *fma_func_array;
 	bool fma_libc = false;
 	int rc = EXIT_SUCCESS;
-	size_t addsub = 0;
+	size_t offset = 0;
 
 	(void)stress_get_setting("fma-libc", &fma_libc);
 #if (defined(HAVE_FMA)  || defined(FP_FAST_FMA)) && 	\
     (defined(HAVE_FMAF) || defined(FP_FAST_FMAF))
-	fma_func_array = fma_libc ? &stress_fma_libc_funcs : &stress_fma_funcs;
+	fma_func_array = fma_libc ? stress_fma_libc_funcs : stress_fma_funcs;
 #else
 	if (fma_libc) {
 		pr_inf("%s: libc fma functions not available, defaulting "
@@ -549,9 +542,7 @@ static int stress_fma(stress_args_t *args)
 
 	do {
 		register size_t i;
-		register const stress_fma_func_t (*fma_funcs)[FMA_FUNCS] = &(*fma_func_array)[addsub];
 
-		addsub ^= 1;
 		stress_fma_reset_a(pfma);
 
 		idx_b++;
@@ -569,7 +560,7 @@ static int stress_fma(stress_args_t *args)
 		pfma->float_c = pfma->float_a[idx_c];
 
 		for (i = 0; i < FMA_FUNCS; i++) {
-			(*fma_funcs)[i](pfma);
+			fma_func_array[i + offset](pfma);
 		}
 		stress_bogo_inc(args);
 
@@ -582,7 +573,7 @@ static int stress_fma(stress_args_t *args)
 			pfma->float_c = pfma->float_a[idx_c];
 
 			for (i = 0; i < FMA_FUNCS; i++) {
-				(*fma_funcs)[i](pfma);
+				fma_func_array[i + offset](pfma);
 			}
 			stress_bogo_inc(args);
 
@@ -595,6 +586,7 @@ static int stress_fma(stress_args_t *args)
 				rc = EXIT_FAILURE;
 			}
 		}
+		offset = 6 - offset;
 	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
