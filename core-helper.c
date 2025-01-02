@@ -515,9 +515,6 @@ static const stress_sig_name_t sig_names[] = {
 #if defined(SIGSTOP)
 	SIG_NAME(SIGSTOP),
 #endif
-#if defined(SIGTSTP)
-	SIG_NAME(SIGTSTP),
-#endif
 #if defined(SIGSYS)
 	SIG_NAME(SIGSYS),
 #endif
@@ -526,6 +523,9 @@ static const stress_sig_name_t sig_names[] = {
 #endif
 #if defined(SIGTRAP)
 	SIG_NAME(SIGTRAP),
+#endif
+#if defined(SIGTSTP)
+	SIG_NAME(SIGTSTP),
 #endif
 #if defined(SIGTTIN)
 	SIG_NAME(SIGTTIN),
@@ -548,14 +548,14 @@ static const stress_sig_name_t sig_names[] = {
 #if defined(SIGVTALRM)
 	SIG_NAME(SIGVTALRM),
 #endif
+#if defined(SIGWINCH)
+	SIG_NAME(SIGWINCH),
+#endif
 #if defined(SIGXCPU)
 	SIG_NAME(SIGXCPU),
 #endif
 #if defined(SIGXFSZ)
 	SIG_NAME(SIGXFSZ),
-#endif
-#if defined(SIGWINCH)
-	SIG_NAME(SIGWINCH),
 #endif
 };
 
