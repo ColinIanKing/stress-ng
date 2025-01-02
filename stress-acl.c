@@ -202,7 +202,8 @@ static int stress_acl_setup(
 	const gid_t gid,
 	const size_t max_acls,
 	acl_t *acls,
-	size_t *acl_count)
+	size_t *acl_count,
+	bool *acls_tested)
 {
 	size_t usr, grp, oth;
 
@@ -282,6 +283,7 @@ static int stress_acl_setup(
 
 				if (acl_valid(acl) == 0) {
 					acls[*acl_count] = acl;
+					acls_tested[*acl_count] = true;
 					(*acl_count)++;
 					if (*acl_count >= max_acls)
 						return EXIT_SUCCESS;
@@ -319,6 +321,7 @@ static int stress_acl_exercise(
 	const acl_type_t type,
 	acl_t *acls,
 	const size_t acl_count,
+	bool *acls_tested,
 	stress_metrics_t metrics[2])
 {
 	size_t i;
@@ -340,6 +343,7 @@ static int stress_acl_exercise(
 				if (stress_acl_cmp(acls[i], acl)) {
 					char setacl[32], getacl[32];
 
+					acls_tested[i] = true;
 					stress_acl_perms(acls[i], setacl, sizeof(setacl));
 					stress_acl_perms(acl, getacl, sizeof(getacl));
 
@@ -388,13 +392,15 @@ static int stress_acl(stress_args_t *args)
 	const uid_t uid = getuid();
 	const gid_t gid = getgid();
 	acl_t *acls;
-	size_t i, acl_count = 0;
+	bool *acls_tested;
+	size_t i, acl_count = 0, acl_tested_count = 0;
 	bool acl_rand = false;
 	const size_t max_acls = SIZEOF_ARRAY(stress_acl_entries) *
 				SIZEOF_ARRAY(stress_acl_entries) *
 				SIZEOF_ARRAY(stress_acl_entries) *
 				SIZEOF_ARRAY(stress_acl_tags);
 	const size_t acls_size = max_acls * sizeof(*acls);
+	const size_t acls_tested_size = max_acls * sizeof(*acls_tested);
 	stress_metrics_t metrics[2];
 	char filename[PATH_MAX], pathname[PATH_MAX];
 	static char * const description[] = {
@@ -414,9 +420,22 @@ static int stress_acl(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 	stress_set_vma_anon_name(acls, acls_size, "acls");
-	rc = stress_acl_setup(args, acl_rand, uid, gid, max_acls, acls, &acl_count);
+
+	acls_tested = (bool *)stress_mmap_populate(NULL, acls_tested_size,
+					PROT_READ | PROT_WRITE,
+					MAP_ANONYMOUS | MAP_PRIVATE,
+					-1, 0);
+	if (acls_tested == MAP_FAILED) {
+		pr_inf("%s: cannot mmap %zd bytes for acls tested array, errno=%d (%s), skipping stressor\n",
+			args->name, acls_tested_size, errno, strerror(errno));
+		rc = EXIT_NO_RESOURCE;
+		goto tidy_unmap_acls;
+	}
+	stress_set_vma_anon_name(acls, acls_size, "acls-tested");
+
+	rc = stress_acl_setup(args, acl_rand, uid, gid, max_acls, acls, &acl_count, acls_tested);
 	if (rc != EXIT_SUCCESS)
-		goto tidy_unmap;
+		goto tidy_unmap_acls_tested;
 
 	stress_temp_dir_args(args, pathname, sizeof(pathname));
 	if (mkdir(pathname, S_IRUSR | S_IRWXU) < 0) {
@@ -449,7 +468,7 @@ static int stress_acl(stress_args_t *args)
 			const acl_type_t type = stress_acl_types[i];
 
 			stress_acl_delete_all(filename, type);
-			rc = stress_acl_exercise(args, filename, type, acls, acl_count, metrics);
+			rc = stress_acl_exercise(args, filename, type, acls, acl_count, acls_tested, metrics);
 			if (rc != EXIT_SUCCESS)
 				break;
 		}
@@ -459,8 +478,16 @@ static int stress_acl(stress_args_t *args)
 		stress_acl_delete_all(filename, stress_acl_types[i]);
 	}
 
+	for (i = 0; i < acl_count; i++) {
+		if (acls_tested[i])
+			acl_tested_count++;
+	}
+
 	if (args->instance == 0)
-		pr_inf("%s: %zd unique ACLs used\n", args->name, acl_count);
+		pr_inf("%s: %zu of %zu (%.2f%%) unique ACLs tested\n", args->name,
+			acl_tested_count, acl_count,
+			(acl_tested_count > 0) ?
+			(double)acl_count * 100.0 / (double)acl_tested_count : 0.0);
 
 	for (i = 0; i < SIZEOF_ARRAY(metrics); i++) {
 		const double rate = (metrics[i].count > 0.0) ?
@@ -479,7 +506,11 @@ tidy_acl_free:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	stress_acl_free(acls, acl_count);
 
-tidy_unmap:
+tidy_unmap_acls_tested:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+	(void)munmap((void *)acls_tested, acls_tested_size);
+
+tidy_unmap_acls:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)munmap((void *)acls, acls_size);
 
