@@ -2811,7 +2811,7 @@ T}
 .TQ
 .B \-\-flipflop N
 start N workers where each worker creates two groups of threads of the same size
-where each group is affined to a set of CPUs. A continous bitmap that has enough
+where each group is affined to a set of CPUs. A continuous bitmap that has enough
 bits for each thread pair is exercised, each thread pair tries to flip/flop their
 specific bit using cmpxchg (compare/exchange); one thread tries
 to flip the bit from 0 to 1 and the other tries to flop the bit from 1 to 0.
