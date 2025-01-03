@@ -20,7 +20,7 @@
 
 static const stress_help_t help[] = {
 	{ NULL,	"regex N",	"start N workers exercise POSIX regular expressions" },
-	{ NULL,	"regex-ops N",	"stop after N regular expresssion operations" },
+	{ NULL,	"regex-ops N",	"stop after N regular expression operations" },
 	{ NULL,	NULL,		NULL }
 };
 
