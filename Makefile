@@ -18,9 +18,9 @@
 #
 
 #
-# Codename "portable process pressurizer"
+# Codename "systematic system smasher"
 #
-VERSION=0.18.07
+VERSION=0.18.08
 
 #
 # Determine supported toolchains
