@@ -1,3 +1,159 @@
+stress-ng (0.18.08-1) unstable; urgency=medium
+
+  [Dominik Steinberger]
+  * Fix return type of numa core dummy functions
+
+  [Colin Ian King]
+  * Makefile: bump version
+  * Manual: workaround warning by defining TW
+  * Manual: Fix incorrect .TE macro, use .TP instead
+  * Manual: fix spelling mistake "continous" -> "continuous"
+  * stress-regex: fix spelling mistake "expresssion" -> "expression"
+  * stress-fma: just offset array to get add/sub flavours of fma funcs
+  * stress-veccmp: add compiler version checks for older compilers
+  * core-helper: re-order signals
+  * stress-signest: add in missing signals SIGCONT, SIGTSTP and SIGUNUSED
+  * core-helper: add WSL file system magic to file magic ids
+  * stress-acl: inform number of ACLs tested vs number of valid ACLs
+  * stress-cachehammer: make local_buffer and local_page non-clobberable
+  * Update copyright year
+  * kernel-coverage: add a handful of missing options for more coverage
+  * stress-mmap: make help and mmap-numa messages easier to comprehend
+  * stress-vm : add --vm-numa option to bind pages to randomly selected
+    NUMA nodes
+  * stress-mmap: add --mmap-numa option to bind pages to randomly
+    selected NUMA nodes
+  * stress-bitops: add two more bitop methods, power of 2 check and zero
+    byte check
+  * Manual: add line space before tables
+  * stress-lsm: use uint8_t * pointer math
+  * test/test-mq-posix.c: include <fcntl.h>
+  * core-*, stress-*: cast char to unsigned char for ctype.h functions
+  * stress-ptr-chase: remove extraneous tab
+  * README.md: add another research paper link
+  * core-numa: fix for builds with partial NUMA support
+  * stress-cachehammer: remove unused variable masked_flags
+  * stress-regex: make function stress_regex_rate static
+  * stress-regex: disable lazy numbers, some regcomps fail on this */
+  * stress-cachehammer: make variable ret non-clobberable
+  * stress-regex: add some simple regex compilation error checking
+  * stress-regex: add some more regex patterns and strings to match
+  * stress-regex: remove html tag regex and reduce devious regexes
+  * stress-cachehammer: randomize local cache mappings across NUMA nodes
+  * stress-cachehammer: add 1 page shared page and 64 byte read/write
+    hammering
+  * stress-cachehammer: dup cache ops for ppc
+  * stress-lockbus: rename HAVE_MISALIGNED_LOCKBUS to HAVE_NUMA_LOCKBUS
+  * stress-regex: fix missing , after literal string
+  * stress-regex: add a POSIX regular expressions stressor
+  * README.md: update contributors list
+  * stress-cachehammer: fix RISC-V built, fix missing {
+  * stress-cachehammer: add ppc64 specifif cache operations
+  * stress-ng: ensure stress_pid_t reaped flag is initialized on fork
+  * stress-mutex: add tab to align fields
+  * core-*, stress-*: replace memcmp to shim_memcmp
+  * core-*, stress-*: replace memcpy to shim_memcpy
+  * core-*, stress-*: replace memset to shim_memset
+  * stress-mutex: re-order mutex checks on success/failures
+  * stress-gendent: simplify j wrap to zero logic
+  * stress-lockbus: make numa_mask nonclobberable and fix free
+  * stress-lsm: add parentheses around expression
+  * stress-prio-inv: remove early return statement
+  * stress-cachehammer: add new stressor to exercise prefetch/flush
+    cache ops
+  * stress-aio: cache align info struct for minor performance improvement
+  * stress-aiol: report async I/O event rate as an extra metric
+  * stress-aiol: move random aiol allocations and ctx_id into a struct
+  * core-ignite-cpu: make freq_delta and limit number of retries
+  * stress-aiol: inline shim wrappers for io_* system calls
+  * stress-tlb-shootdown: add space in while(..)
+  * stress-access: add space in while(..)
+  * stress-nop: add LIKELY hints on while loops
+  * stress-ng: re-work aggressive pid waiting to use stress_wait_pid
+  * stress-ng: also check for ECHILD on waitpid failure
+  * stress-nop: fix 14 and 15 byte no-ops for x86
+  * core-opts.h: sort short options
+  * Manual: add missing -M short option for --metrics
+  * stress-ng: make -w a short option for --with
+  * stress-ng: add -K to option parsing
+  * stress-ng: make -K short hand for --klog-check
+  * stress-bitops: fix short help, remove -c option
+  * stress-mcontent: enforce read/write order
+  * stress-memthrash: add loop unrolling to stress_memthrash_memset64
+  * stress-memrate: remove init arg from macros
+  * stress-cache: only add prefetchw to help if it exists
+  * stress-cache: add write prefetchw option
+  * Manual: fix missing - on memhotplug-mmap option
+  * stress-bad-ioct: allow one to run as root and write ioctls using
+    PROT_NONE pages
+  * Manual: update lockbus description for NUMA page randomization
+  * stress-lockbus: split buffer across NUMA pages
+  * stress-misaligned: use stress_numa_randomize_pages
+  * core-numa: add stress_numa_randomize_pages to randomize pages
+  * core-helper: keep file system magic in sync with linux
+  * stress-vm-addr: unroll loops, minor performance improvement
+  * stress-sigtrap: make t, duration static, aligned variable raised
+  * stress-sigill: remove a few empty lines
+  * stress-shm-sysv: unroll loops to improve throughput
+  * stress-shm: add UNLIKELY hint on loop break
+  * stress-set: reduce frequency of calls to stress_get_unused_uid
+  * stress-rotate: unroll loop 8 times, improves performance
+  * stress-dekker, stress-peterson: use memory barrier for ARM
+  * stress-prio-inv: when fifo/rr fails, retry with SCHED_OTHER policy
+  * core-mwc.h: fix missing #else .. #endif for mwc*modn decls
+  * stress-sigurg: ignore SIGPIPE failures
+  * stress-pseek: optimize bad data checking loop
+  * stress-poll: add LIKELY hint to check on max_fds as it's very likely
+  * stress-poll: add --poll-random-us option to specify ppoll/pselect
+    timeout
+  * stress-mutex: rename mutex_exercise to stress_mutex_exercise
+  * stress-mtx: improve performance if unlikely metrics_count reset
+  * stress-msyncmany: add UNLIKELY to if statement that almost never try
+  * stress-workload: add vecfp double precision vector math workload
+  * stress-mmapfixed: use 64 bit vec array to improve non-zero check
+    speed
+  * stress-mmap: use mwc*modn instead of using %, fix 64 bit version
+  * stress-memfd: remove more of the NT store function selection
+  * stress-memfd: remove NT stores, they weren't beneficial
+  * stress-malloc: correct bogo-ops accounting and fix up man page
+  * stress-ng: use pointer info to avoid multiple triple derefs
+  * stress-jpeg: replace modulo with compare and set
+  * stress-hash: don't allocate fixed sized hash bucket and buffer on
+    heap
+  * stress-fma: align double/float arrays, improve performance on SNB
+  * core-mwc: inline modulo mwc functions with
+    HAVE_FAST_MODULO_REDUCTION support
+  * core-time: add unlikely hints on if statements that are not likely
+    to be true
+  * stress-aiol: improve fill and check buffer helpers
+  * core-lock: add LIKELY/UNLIKELY hints on various if statements
+  * stress-acl: use acl_cmp() where available, fallback to naive
+    version if not
+  * stress-af-alg: don't fail with EINVAL on bind calls
+  * stress-af-alg: check for zero crypto items before allocate and sort
+  * stress-far-branch: map pages in as shared and not private
+  * core-*: Remove NONNULL attribute macro
+  * core-mwc: improve modulo mwc variants using modulo reduction trick
+  * core-rapl: remove NONNULL attributes
+  * stress-vecmath: fix checksum checking for 128 unsigned int bit vector
+  * stress-veccmp: add a vector comparison op stressor
+  * stress-memthrash: use non-temporal load/stores in spinread/write
+    loops
+  * stress-fma: alternatively perform subtraction in fma ops
+  * stress-memthrash: add randomized mbind move to the mbind mix
+  * stress-numa: use MPOL_MF_MOVE in mbind call
+  * stress-misaligned: use MPOL_MF_MOVE in mbind call
+  * stress-misaligned: randomized misaligned buffer across NUMA nodes
+  * core-numa: add new stress_numa_mask_t type for NUMA mask handling
+  * stress-unlink: ensure all fds[] are initialized before main loop
+  * stress-sctp: pass int64_t types for SCTP_MAXSEG and SCTP_MAX_BURST
+    sock opts
+  * core-klog: replace \0xa escape string with space
+  * stress-*: Fix typos: stess* -> stress*
+  * stress-ng: continue loops if run should be ignored
+
+ -- Colin Ian King <colin.i.king@gmail.com>  Fri, 3 Jan 2025 11:29:12 +0000
+
 stress-ng (0.18.07-1) unstable; urgency=medium
 
   [Eder Zulian]
