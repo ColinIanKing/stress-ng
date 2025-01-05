@@ -46,7 +46,7 @@ int main(void)
 	(void)close(fd3);
 
 	ret = 0;
-	goto err1:
+	goto err1;
 err2:
 	(void)close(fd2);
 err1:
