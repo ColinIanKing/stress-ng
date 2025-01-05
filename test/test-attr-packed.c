@@ -22,7 +22,7 @@ struct packed_test {
 	int i;
 	long int l;
 	char c;
-	shortint  s;
+	short int s;
 } PACKED;
 
 struct unpacked_test {
