@@ -20,7 +20,7 @@
 #
 # Codename "systematic system smasher"
 #
-VERSION=0.18.08
+VERSION=0.18.09
 
 #
 # Determine supported toolchains
