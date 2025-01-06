@@ -695,6 +695,9 @@ stress-ng has found various Kernel, QEMU bugs/regressions, and libc bugs; approp
 * [Nona: Accurate Power Prediction Model Using Neural Networks](https://dl.acm.org/doi/pdf/10.1145/3649329.3655668)
 * [Interference-free Operating System: A 6 Years’ Experience in Mitigating Cross-Core Interference in Linux](https://arxiv.org/pdf/2412.18104)
 
+2025:
+ * [SPY-PMU: Side-Channel Profiling of Your Performance Monitoring Unit to Leak Remote User Activity](https://eprint.iacr.org/2025/014)
+
 I am keen to add to the stress-ng project page any citations to research or
 projects that use stress-ng.  I also appreciate information concerning kernel
 bugs or performance regressions found with stress-ng.
