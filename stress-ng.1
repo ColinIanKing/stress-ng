@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "3 January 2025"
+.TH STRESS-NG 1 "11 January 2025"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -5043,9 +5043,9 @@ enable file based memory mapping and use asynchronous msync'ing on each page,
 see \-\-mmap\-file.
 .TP
 .B \-\-mmap\-bytes N
-allocate N bytes per mmap stress worker, the default is 256 MB. One can specify
-the size as % of total available memory or in units of Bytes, KBytes, MBytes
-and GBytes using the suffix b, k, m or g.
+allocate N bytes in total for all the mmap stressor instances, the default is
+256 MB. One can specify the size as % of total available memory or in units of
+Bytes, KBytes, MBytes and GBytes using the suffix b, k, m or g.
 .TP
 .B \-\-mmap\-file
 enable file based memory mapping and by default use synchronous msync'ing on
