@@ -767,14 +767,14 @@ PRAGMA_UNROLL_N(8)
 	return EXIT_SUCCESS;
 }
 
-#define int_ops(_type, a, b, c1, c2, c3)\
+#define int_ops(type, a, b, c1, c2, c3)	\
 	do {				\
 		a += b;			\
 		b ^= a;			\
 		a >>= 1;		\
 		b <<= 2;		\
 		b -= a;			\
-		a ^= (_type)~0;		\
+		a ^= (type)~0;		\
 		b ^= ~(c1);		\
 		a *= 3;			\
 		b *= 7;			\
@@ -803,30 +803,30 @@ PRAGMA_UNROLL_N(8)
 /*
  *  Generic int stressor macro
  */
-#define stress_cpu_int(_type, _sz, _a, _b, _c1, _c2, _c3)	\
-static int OPTIMIZE3 TARGET_CLONES stress_cpu_int ## _sz(const char *name)\
+#define stress_cpu_int(type, sz, int_a, int_b, int_c1, int_c2, int_c3)	\
+static int OPTIMIZE3 TARGET_CLONES stress_cpu_int ## sz(const char *name)\
 {								\
-	const _type mask = (_type)~(_type)0;			\
-	const _type a_final = _a;				\
-	const _type b_final = _b;				\
-	const _type c1 = _c1 & mask;				\
-	const _type c2 = _c2 & mask;				\
-	const _type c3 = _c3 & mask;				\
-	register _type a, b;					\
+	const type mask = (type)~(type)0;			\
+	const type a_final = int_a;				\
+	const type b_final = int_b;				\
+	const type c1 = int_c1 & mask;				\
+	const type c2 = int_c2 & mask;				\
+	const type c3 = int_c3 & mask;				\
+	register type a, b;					\
 	int i;							\
 								\
 	stress_mwc_seed();					\
-	a = (_type)stress_mwc32();				\
-	b = (_type)stress_mwc32();				\
+	a = (type)stress_mwc32();				\
+	b = (type)stress_mwc32();				\
 								\
 	for (i = 0; i < 1000; i++) {				\
-		int_ops(_type, a, b, c1, c2, c3)		\
+		int_ops(type, a, b, c1, c2, c3)			\
 	}							\
 								\
 	if ((g_opt_flags & OPT_FLAGS_VERIFY) &&			\
 	    ((a != a_final) || (b != b_final)))	{		\
-		pr_fail("%s: int" # _sz " error detected, " 	\
-			"failed int" # _sz 			\
+		pr_fail("%s: int" # sz " error detected, " 	\
+			"failed int" # sz 			\
 			" math operations\n", name);		\
 		return EXIT_FAILURE;				\
 	}							\
@@ -858,54 +858,54 @@ stress_cpu_int(uint8_t, 8, \
 	0x12, 0x1a,
 	C1, C2, C3)
 
-#define float_thresh(x, _type)	x = (_type)		\
+#define float_thresh(x, type)	x = (type)		\
 	((shim_fabs((double)x) > 1.0) ?	\
-	((_type)(0.1 + (double)x - (double)(long)x)) :	\
-	((_type)(x)))
+	((type)(0.1 + (double)x - (double)(long)x)) :	\
+	((type)(x)))
 
-#define float_ops(_type, a, b, c, d, _sin, _cos)	\
+#define float_ops(type, a, b, c, d, f_sin, f_cos)	\
 	do {						\
 		a = a + b;				\
 		b = a * c;				\
 		c = a - b;				\
-		d = a / (_type)8.1;			\
-		float_thresh(d, _type);			\
-		a = c / (_type)5.1923;			\
-		float_thresh(a, _type);			\
-		float_thresh(c, _type);			\
+		d = a / (type)8.1;			\
+		float_thresh(d, type);			\
+		a = c / (type)5.1923;			\
+		float_thresh(a, type);			\
+		float_thresh(c, type);			\
 		b = c + a;				\
-		c = b * (_type)_sin(b);			\
-		d = d + b + (_type)_sin(a);		\
-		a = (_type)_cos(b + c);			\
+		c = b * (type)f_sin(b);			\
+		d = d + b + (type)f_sin(a);		\
+		a = (type)f_cos(b + c);			\
 		b = b * c;				\
-		c = c + (_type)1.5;			\
-		d = d - (_type)_sin(c);			\
-		a = a * (_type)_cos(b);			\
-		b = b + (_type)_cos(c);			\
-		c = (_type)_sin(a + b) / (_type)2.344;	\
-		b = d - (_type)0.5;			\
+		c = c + (type)1.5;			\
+		d = d - (type)f_sin(c);			\
+		a = a * (type)f_cos(b);			\
+		b = b + (type)f_cos(c);			\
+		c = (type)f_sin(a + b) / (type)2.344;	\
+		b = d - (type)0.5;			\
 	} while (0)
 
 /*
  *  Generic floating point stressor macro
  */
-#define stress_cpu_fp(_type, _name, _sin, _cos)		\
-static int OPTIMIZE3 TARGET_CLONES stress_cpu_ ## _name(const char *name)\
+#define stress_cpu_fp(type, fp_name, f_sin, f_cos)	\
+static int OPTIMIZE3 TARGET_CLONES stress_cpu_ ## fp_name(const char *name)\
 {							\
 	int i;						\
 	const uint32_t r1 = stress_mwc32(),		\
 		       r2 = stress_mwc32();		\
-	_type a = (_type)0.18728L, 			\
-	      b = (_type)((double)r1 / 65536.0),	\
-	      c = (_type)((double)r2 / 65536.0),	\
-	      d = (_type)0.0,				\
-	      r;					\
+	type a = (type)0.18728L, 			\
+	     b = (type)((double)r1 / 65536.0),		\
+	     c = (type)((double)r2 / 65536.0),		\
+	     d = (type)0.0,				\
+	     r;						\
 							\
 	(void)name;					\
 							\
 	for (i = 0; i < 1000; i++) {			\
-		float_ops(_type, a, b, c, d,		\
-			_sin, _cos);			\
+		float_ops(type, a, b, c, d,		\
+			f_sin, f_cos);			\
 	}						\
 	r = a + b + c + d;				\
 	stress_double_put((double)r);			\
@@ -977,27 +977,27 @@ static inline void stress_cpu_complex_long_double_put(complex long double v)
 /*
  *  Generic complex stressor macro
  */
-#define stress_cpu_complex(_type, _ltype, _name, _csin, _ccos, _put)	\
-static int OPTIMIZE3 TARGET_CLONES stress_cpu_ ## _name(const char *name) \
+#define stress_cpu_complex(type, ltype, c_name, f_csin, f_ccos, f_put)	\
+static int OPTIMIZE3 TARGET_CLONES stress_cpu_ ## c_name(const char *name) \
 {								\
 	int i;							\
 	const uint32_t r1 = stress_mwc32(),			\
 		       r2 = stress_mwc32();			\
-	_type cI = (_type)I;					\
-	_type a = FP(0.18728, _ltype) + 			\
-		cI * FP(0.2762, _ltype),			\
-		b = (_type)((double)r1/(double)(1UL<<31)) - cI * FP(0.11121, _ltype),	\
-		c = (_type)((double)r2/(double)(1UL<<31)) + cI * stress_mwc32(),	\
-		d = (_type)0.5,					\
+	type cI = (type)I;					\
+	type a = FP(0.18728, ltype) + 				\
+		cI * FP(0.2762, ltype),				\
+		b = (type)((double)r1/(double)(1UL<<31)) - cI * FP(0.11121, ltype),	\
+		c = (type)((double)r2/(double)(1UL<<31)) + cI * stress_mwc32(),	\
+		d = (type)0.5,					\
 		r;						\
 								\
 	(void)name;						\
 								\
 	for (i = 0; i < 1000; i++) {				\
-		float_ops(_type, a, b, c, d, _csin, _ccos);	\
+		float_ops(type, a, b, c, d, f_csin, f_ccos);	\
 	}							\
 	r = a + b + c + d;					\
-	_put(r);						\
+	f_put(r);						\
 	return EXIT_SUCCESS;					\
 }
 
@@ -1006,8 +1006,10 @@ stress_cpu_complex(complex double, , complex_double, shim_csin, shim_ccos, stres
 stress_cpu_complex(complex long double, l, complex_long_double, shim_csinl, shim_ccosl, stress_cpu_complex_long_double_put)
 #endif
 
-#define int_float_ops(_ftype, flt_a, flt_b, flt_c, flt_d,	\
-	_sin, _cos, _inttype, int_a, int_b, _c1, _c2, _c3)	\
+#define int_float_ops(ftype, flt_a, flt_b, flt_c, flt_d,	\
+	f_sin, f_cos, inttype, int_a, int_b, 			\
+	int_c1, int_c2, int_c3)					\
+								\
 	do {							\
 		int_a += int_b;					\
 		int_b ^= int_a;					\
@@ -1016,23 +1018,23 @@ stress_cpu_complex(complex long double, l, complex_long_double, shim_csinl, shim
 		int_b <<= 2;					\
 		flt_b = flt_a * flt_c;				\
 		int_b -= int_a;					\
-		int_a ^= ~(_inttype)0;				\
+		int_a ^= ~(inttype)0;				\
 		flt_c = flt_a - flt_b;				\
-		int_b ^= ~(_c1);				\
+		int_b ^= ~(int_c1);				\
 		int_a *= 3;					\
 		flt_d = flt_a / flt_b;				\
 		int_b *= 7;					\
 		int_a += 2;					\
-		flt_a = flt_c / (_ftype)0.1923L;		\
+		flt_a = flt_c / (ftype)0.1923L;			\
 		int_b -= 3;					\
 		int_a /= 77;					\
 		flt_b = flt_c + flt_a;				\
 		int_b /= 3;					\
 		int_a <<= 1;					\
-		flt_c = flt_b * (_ftype)3.12L;			\
+		flt_c = flt_b * (ftype)3.12L;			\
 		int_b <<= 2;					\
 		int_a |= 1;					\
-		flt_d = flt_d + flt_b + (_ftype)_sin(flt_a);	\
+		flt_d = flt_d + flt_b + (ftype)f_sin(flt_a);	\
 		int_b |= 3;					\
 		int_a *= stress_mwc32();			\
 		flt_a = (flt_b + flt_c) / flt_c;		\
@@ -1041,54 +1043,53 @@ stress_cpu_complex(complex long double, l, complex_long_double, shim_csinl, shim
 		flt_b = flt_b * flt_c;				\
 		int_b -= stress_mwc32();			\
 		int_a /= 7;					\
-		flt_c = flt_c + (_ftype)1.0L;			\
+		flt_c = flt_c + (ftype)1.0L;			\
 		int_b /= 9;					\
-		flt_d = flt_d - (_ftype)_sin(flt_c);		\
-		int_a |= (_c2);					\
-		flt_a = flt_a * (_ftype)_cos(flt_b);		\
-		flt_b = flt_b + (_ftype)_cos(flt_c);		\
-		int_b &= (_c3);					\
-		flt_c = (_ftype)_sin(flt_a + flt_b) / (_ftype)2.344L;	\
-		flt_b = flt_d - (_ftype)1.0L;			\
+		flt_d = flt_d - (ftype)f_sin(flt_c);		\
+		int_a |= (int_c2);				\
+		flt_a = flt_a * (ftype)f_cos(flt_b);		\
+		flt_b = flt_b + (ftype)f_cos(flt_c);		\
+		int_b &= (int_c3);				\
+		flt_c = (ftype)f_sin(flt_a + flt_b) / (ftype)2.344L;	\
+		flt_b = flt_d - (ftype)1.0L;			\
 	} while (0)
-
 
 /*
  *  Generic integer and floating point stressor macro
  */
-#define stress_cpu_int_fp(_inttype, _sz, _ftype, _name, _a, _b, \
-	_c1, _c2, _c3, _sinf, _cosf)				\
-static int OPTIMIZE3 TARGET_CLONES stress_cpu_int ## _sz ## _ ## _name(const char *name)\
+#define stress_cpu_int_fp(inttype, sz, ftype, fp_name, 		\
+	int_a, int_b, int_c1, int_c2, int_c3, f_sinf, f_cosf)	\
+static int OPTIMIZE3 TARGET_CLONES stress_cpu_int ## sz ## _ ## fp_name(const char *name)\
 {								\
 	int i;							\
-	_inttype int_a, int_b;					\
-	const _inttype mask = (_inttype)~0;			\
-	const _inttype a_final = _a;				\
-	const _inttype b_final = _b;				\
-	const _inttype c1 = _c1 & mask;				\
-	const _inttype c2 = _c2 & mask;				\
-	const _inttype c3 = _c3 & mask;				\
+	inttype a, b;						\
+	const inttype mask = (inttype)~0;			\
+	const inttype a_final = int_a;				\
+	const inttype b_final = int_b;				\
+	const inttype c1 = int_c1 & mask;			\
+	const inttype c2 = int_c2 & mask;			\
+	const inttype c3 = int_c3 & mask;			\
 	const uint32_t r1 = stress_mwc32(),			\
 		       r2 = stress_mwc32();			\
-	_ftype flt_a = (_ftype)0.18728L,			\
-	       flt_b = (_ftype)r1,				\
-	       flt_c = (_ftype)r2,				\
-	       flt_d = (_ftype)0.0,				\
-	       flt_r;						\
+	ftype flt_a = (ftype)0.18728L,				\
+	      flt_b = (ftype)r1,				\
+	      flt_c = (ftype)r2,				\
+	      flt_d = (ftype)0.0,				\
+	      flt_r;						\
 								\
 	stress_mwc_seed();					\
-	int_a = stress_mwc32();					\
-	int_b = stress_mwc32();					\
+	a = stress_mwc32();					\
+	b = stress_mwc32();					\
 								\
 	for (i = 0; i < 1000; i++) {				\
-		int_float_ops(_ftype, flt_a, flt_b, flt_c, 	\
-			flt_d,_sinf, _cosf, _inttype,		\
-			int_a, int_b, c1, c2, c3);		\
+		int_float_ops(ftype, flt_a, flt_b, flt_c, 	\
+			flt_d,f_sinf, f_cosf, inttype,		\
+			a, b, c1, c2, c3);			\
 	}							\
 	if ((g_opt_flags & OPT_FLAGS_VERIFY) &&			\
-	    ((int_a != a_final) || (int_b != b_final)))	{	\
-		pr_fail("%s: int" # _sz " error detected, "	\
-			"failed int" # _sz "" # _ftype		\
+	    ((a != a_final) || (b != b_final)))	{		\
+		pr_fail("%s: int" # sz " error detected, "	\
+			"failed int" # sz "" # ftype		\
 			" math operations\n", name);		\
 		return EXIT_FAILURE;				\
 	}							\
@@ -1596,19 +1597,19 @@ static int stress_cpu_zeta(const char *name)
 static int OPTIMIZE3 OPTIMIZE_FAST_MATH stress_cpu_gamma(const char *name)
 {
 	const long double precision = 1.0e-10L;
-	long double sum = 0.0L, k = 1.0L, _gamma = 0.0L, gammaold;
+	long double sum = 0.0L, k = 1.0L, gammanew = 0.0L, gammaold;
 
 	do {
-		gammaold = _gamma;
+		gammaold = gammanew;
 		sum += 1.0L / k;
-		_gamma = sum - shim_logl(k);
+		gammanew = sum - shim_logl(k);
 		k += 1.0L;
-	} while ((k < 1e6L) && shim_fabsl(_gamma - gammaold) > precision);
+	} while ((k < 1e6L) && shim_fabsl(gammanew - gammaold) > precision);
 
-	stress_long_double_put(_gamma);
+	stress_long_double_put(gammanew);
 
 	if (g_opt_flags & OPT_FLAGS_VERIFY) {
-		if (shim_fabsl(_gamma - GAMMA) > 1.0e-5L) {
+		if (shim_fabsl(gammanew - GAMMA) > 1.0e-5L) {
 			pr_fail("%s: calculation of Euler-Mascheroni "
 				"constant not as accurate as expected\n", name);
 			return EXIT_FAILURE;
