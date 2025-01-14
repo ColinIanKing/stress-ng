@@ -536,7 +536,7 @@ static int OPTIMIZE3 stress_cachehammer(stress_args_t *args)
 	while (stress_continue(args)) {
 		if (valid[func_index] && !trapped[func_index]) {
 			const uint16_t rnd16 = stress_mwc16();
-			const size_t loops = (rnd16 >> 1) & 0x3f;
+			const size_t loops = 1 + ((rnd16 >> 1) & 0x3f);
 			const uint8_t which = (rnd16 & 1) | ((rnd16 == 0x0008) << 1);
 
 			uint32_t offset;
