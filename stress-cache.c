@@ -74,6 +74,7 @@ static const mask_flag_info_t mask_flag_info[] = {
 };
 
 static sigjmp_buf jmp_env;
+static volatile int caught_signum;
 static volatile uint32_t masked_flags;
 static uint64_t disabled_flags;
 
@@ -771,6 +772,8 @@ static void NORETURN MLOCKED_TEXT stress_cache_sighandler(int signum)
 {
 	(void)signum;
 
+	caught_signum = signum;
+
 	siglongjmp(jmp_env, 1);         /* Ugly, bounce back */
 }
 
@@ -778,7 +781,7 @@ static void NORETURN MLOCKED_TEXT stress_cache_sigillhandler(int signum)
 {
 	uint32_t mask = masked_flags;
 
-	(void)signum;
+	caught_signum = signum;
 
 	/* bit set? then disable it */
 	if (mask) {
@@ -1012,14 +1015,17 @@ static int stress_cache(stress_args_t *args)
 
 	stress_zero_metrics(metrics, SIZEOF_ARRAY(metrics));
 
+	caught_signum = -1;
 	disabled_flags = 0;
 
 	(void)cache_flags;
 	(void)cache_flags_mask;
 
 	if (sigsetjmp(jmp_env, 1)) {
-		pr_inf_skip("%s: premature SIGSEGV caught, skipping stressor\n",
-			args->name);
+		const char *signame = stress_get_signal_name(caught_signum);
+
+		pr_inf_skip("%s: signal %s (#%d) caught, skipping stressor\n",
+			args->name, signame ? signame : "unknown", caught_signum);
 		ret = EXIT_NO_RESOURCE;
 		goto tidy_cpus;
 	}
