@@ -191,8 +191,8 @@ static void stress_af_alg_ignore(
 	const char *systemcall)
 {
 	if ((args->instance == 0) && (!info->ignore)) {
-		pr_dbg_skip("%s: %s using %s failed with EINVAL, skipping crypto engine\n",
-			args->name, systemcall, info->name);
+		pr_dbg_skip("%s: %s using %s (%s), failed with EINVAL, skipping crypto engine\n",
+			args->name, systemcall, info->name, info->type);
 	}
 	info->ignore = true;
 }
@@ -232,8 +232,8 @@ retry_bind:
 			goto err;
 		case ELIBBAD:
 			if (info->selftest) {
-				pr_fail("%s: bind failed but %s self test passed, errno=%d (%s)\n",
-					args->name, info->name, errno, strerror(errno));
+				pr_fail("%s: bind failed but %s (%s) self test passed, errno=%d (%s)\n",
+					args->name, info->name, info->type, errno, strerror(errno));
 				rc = EXIT_FAILURE;
 			} else {
 				/*
@@ -254,8 +254,8 @@ retry_bind:
 			rc = EXIT_NO_RESOURCE;
 			goto err;
 		}
-		pr_fail("%s: %s: bind failed, errno=%d (%s)\n",
-			args->name, info->name, errno, strerror(errno));
+		pr_fail("%s: %s (%s): bind failed, errno=%d (%s)\n",
+			args->name, info->name, info->type, errno, strerror(errno));
 		rc = EXIT_FAILURE;
 		goto err;
 	}
@@ -266,8 +266,8 @@ retry_bind:
 			rc = EXIT_SUCCESS;
 			goto err;
 		}
-		pr_fail("%s: %s: accept failed, errno=%d (%s)\n",
-			args->name, info->name, errno, strerror(errno));
+		pr_fail("%s: %s (%s): accept failed, errno=%d (%s)\n",
+			args->name, info->name, info->type, errno, strerror(errno));
 		rc = EXIT_FAILURE;
 		goto err;
 	}
@@ -293,8 +293,8 @@ retry_bind:
 					stress_af_alg_ignore(args, info, "send()");
 					break;
 				}
-				pr_fail("%s: %s: send failed: errno=%d (%s)\n",
-						args->name, info->name,
+				pr_fail("%s: %s (%s): send failed: errno=%d (%s)\n",
+						args->name, info->name, info->type,
 						errno, strerror(errno));
 				rc = EXIT_FAILURE;
 				goto err_close;
@@ -309,8 +309,8 @@ retry_bind:
 					break;
 				if (errno == EOPNOTSUPP)
 					goto err_abort;
-				pr_fail("%s: %s: recv failed: errno=%d (%s)\n",
-					args->name, info->name,
+				pr_fail("%s: %s (%s): recv failed: errno=%d (%s)\n",
+					args->name, info->name, info->type,
 					errno, strerror(errno));
 				rc = EXIT_FAILURE;
 				goto err_close;
@@ -369,8 +369,8 @@ retry_bind:
 		/* Perhaps the cipher does not exist with this kernel */
 		if (errno == ELIBBAD) {
 			if (info->selftest) {
-				pr_fail("%s: %s: bind failed but self test passed, errno=%d (%s)\n",
-					args->name, info->name, errno, strerror(errno));
+				pr_fail("%s: %s (%s): bind failed but self test passed, errno=%d (%s)\n",
+					args->name, info->name, info->type, errno, strerror(errno));
 				rc = EXIT_FAILURE;
 				goto err;
 			} else {
@@ -408,8 +408,8 @@ retry_bind:
 			rc = EXIT_NO_RESOURCE;
 			goto err;
 		}
-		pr_fail("%s: %s: bind failed, errno=%d (%s)\n",
-			args->name, info->name, errno, strerror(errno));
+		pr_fail("%s: %s (%s): bind failed, errno=%d (%s)\n",
+			args->name, info->name, info->type, errno, strerror(errno));
 		rc = EXIT_FAILURE;
 		goto err;
 	}
@@ -431,8 +431,8 @@ retry_bind:
 				rc = EXIT_SUCCESS;
 				goto err;
 			}
-			pr_fail("%s: %s: setsockopt ALG_SET_KEY failed, errno=%d (%s)\n",
-				args->name, info->name, errno, strerror(errno));
+			pr_fail("%s: %s (%s): setsockopt ALG_SET_KEY failed, errno=%d (%s)\n",
+				args->name, info->name, info->type, errno, strerror(errno));
 			rc = EXIT_FAILURE;
 			goto err;
 		}
@@ -459,8 +459,8 @@ retry_bind:
 				rc = EXIT_SUCCESS;
 				goto err;
 			}
-			pr_fail("%s: %s: setsockopt ALG_SET_AEAD_ASSOCLEN failed, errno=%d (%s)\n",
-				args->name, info->name, errno, strerror(errno));
+			pr_fail("%s: %s (%s): setsockopt ALG_SET_AEAD_ASSOCLEN failed, errno=%d (%s)\n",
+				args->name, info->name, info->type, errno, strerror(errno));
 			rc = EXIT_FAILURE;
 			goto err;
 		}
@@ -474,8 +474,8 @@ retry_bind:
 
 	fd = accept(sockfd, NULL, 0);
 	if (fd < 0) {
-		pr_fail("%s: %s: accept failed, errno=%d (%s)\n",
-			args->name, info->name, errno, strerror(errno));
+		pr_fail("%s: %s (%s): accept failed, errno=%d (%s)\n",
+			args->name, info->name, info->type, errno, strerror(errno));
 		rc = EXIT_FAILURE;
 		goto err;
 	}
@@ -501,8 +501,8 @@ retry_bind:
 		cmsg = CMSG_FIRSTHDR(&msg);
 		/* Keep static analysis happy */
 		if (!cmsg) {
-			pr_fail("%s: %s: unexpected null cmsg found\n",
-				args->name, info->name);
+			pr_fail("%s: %s (%s): unexpected null cmsg found\n",
+				args->name, info->name, info->type);
 			rc = EXIT_FAILURE;
 			goto err_close;
 		}
@@ -541,8 +541,8 @@ retry_bind:
 				stress_af_alg_ignore(args, info, "sendmsg()");
 				break;
 			}
-			pr_fail("%s: %s: sendmsg failed: errno=%d (%s)\n",
-				args->name, info->name,
+			pr_fail("%s: %s (%s): sendmsg failed: errno=%d (%s)\n",
+				args->name, info->name, info->type,
 				errno, strerror(errno));
 			rc = EXIT_FAILURE;
 			goto err_close;
@@ -554,14 +554,14 @@ retry_bind:
 					break;
 				if (errno == EOPNOTSUPP)
 					goto err_abort;
-				pr_fail("%s: %s: read failed: errno=%d (%s)\n",
-					args->name, info->name,
+				pr_fail("%s: %s (%s): read failed: errno=%d (%s)\n",
+					args->name, info->name, info->type,
 					errno, strerror(errno));
 				rc = EXIT_FAILURE;
 				goto err_close;
 			}
-			pr_fail("%s: %s: read failed, unexpected return length\n",
-				args->name, info->name);
+			pr_fail("%s: %s (%s): read failed, unexpected return length\n",
+				args->name, info->name, info->type);
 			rc = EXIT_FAILURE;
 			goto err_close;
 		}
@@ -603,24 +603,24 @@ retry_bind:
 				stress_af_alg_ignore(args, info, "sendmsg()");
 				break;
 			}
-			pr_fail("%s: %s: sendmsg failed: errno=%d (%s)\n",
-				args->name, info->name,
+			pr_fail("%s: %s (%s): sendmsg failed: errno=%d (%s)\n",
+				args->name, info->name, info->type,
 				errno, strerror(errno));
 			rc = EXIT_FAILURE;
 			goto err_close;
 		}
 		if (read(fd, output, DATA_LEN) != DATA_LEN) {
-			pr_fail("%s: %s: read failed: errno=%d (%s)\n",
-				args->name, info->name,
+			pr_fail("%s: %s (%s): read failed: errno=%d (%s)\n",
+				args->name, info->name, info->type,
 				errno, strerror(errno));
 			rc = EXIT_FAILURE;
 			goto err_close;
 		} else {
 			if (shim_memcmp(input, output, DATA_LEN)) {
-				pr_fail("%s: %s: decrypted data "
+				pr_fail("%s: %s (%s): decrypted data "
 					"different from original data "
 					"(possible kernel bug)\n",
-					args->name, info->name);
+					args->name, info->name, info->type);
 			} else {
 				const double delta = stress_time_now() - t;
 
@@ -685,16 +685,18 @@ retry_bind:
 			rc = EXIT_NO_RESOURCE;
 			goto err;
 		}
-		pr_fail("%s: bind failed, errno=%d (%s)\n",
-			args->name, errno, strerror(errno));
+		pr_fail("%s: %s (%s): bind failed, errno=%d (%s)\n",
+			args->name, info->name, info->type,
+			errno, strerror(errno));
 		rc = EXIT_FAILURE;
 		goto err;
 	}
 
 	fd = accept(sockfd, NULL, 0);
 	if (fd < 0) {
-		pr_fail("%s: accept failed, errno=%d (%s)\n",
-			args->name, errno, strerror(errno));
+		pr_fail("%s: %s (%s): accept failed, errno=%d (%s)\n",
+			args->name, info->name, info->type,
+			errno, strerror(errno));
 		rc = EXIT_FAILURE;
 		goto err;
 	}
@@ -708,8 +710,9 @@ retry_bind:
 		t = stress_time_now();
 		if (read(fd, output, output_size) != output_size) {
 			if (errno != EINVAL) {
-				pr_fail("%s: read failed, errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
+				pr_fail("%s: %s (%s): read failed, errno=%d (%s)\n",
+					args->name, info->name, info->type,
+					errno, strerror(errno));
 				rc = EXIT_FAILURE;
 				goto err_close;
 			}
