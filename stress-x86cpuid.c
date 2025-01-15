@@ -79,9 +79,14 @@ static const stress_cpuid_regs_t ALIGN64 stress_cpuid_regs[] = {
 	{ 0x0000001a, 0x00000000, false },	/* Hybrid Information Enumeration Leaf */
 	{ 0x0000001b, 0x00000000, false },	/* PCONFIG Information Sub-leaf 0 */
 	{ 0x0000001c, 0x00000000, false },	/* Last Branch Records Information Leaf */
+	{ 0x0000001d, 0x00000000, false },	/* Tile Information */
+	{ 0x0000001e, 0x00000000, false },	/* TMUL Information */
+	{ 0x0000001e, 0x00000001, false },	/* TMUL Information, feature flags */
 	{ 0x0000001f, 0x00000000, false },	/* V2 Extended Topology Enumeration Leaf */
 	{ 0x00000024, 0x00000000, false },	/* AVX10 Converged Vector ISA Leaf */
 	{ 0x00000024, 0x00000001, false },	/* Discrete AVX10 Features */
+	{ 0x20000000, 0x00000000, false },	/* Highest Xeon Phi Function Implemented */
+	{ 0x20000001, 0x00000000, false },	/* Xeon Phi Feature Bits */
 	{ 0x40000000, 0x00000000, false },	/* Hypervisor ID string */
 	{ 0x80000000, 0x00000000, false },	/* Extended Function CPUID Information */
 	{ 0x80000001, 0x00000000, false },	/* Extended Processor Signature and Feature Bits */
@@ -102,6 +107,8 @@ static const stress_cpuid_regs_t ALIGN64 stress_cpuid_regs[] = {
 	{ 0x8000001f, 0x00000000, false },	/* get SME/SEV information */
 	{ 0x80000021, 0x00000000, false },	/* Extended Feature Indentification 2 */
 	{ 0x8fffffff, 0x00000000, false },	/* AMD Easter Egg */
+	{ 0xc0000000, 0x00000000, false },	/* Highest Centaur Extended Function */
+	{ 0xc0000001, 0x00000000, false },	/* Centaur Feature Information */
 };
 
 static void OPTIMIZE3 stress_x86cpuid_reorder_regs(const size_t n, stress_cpuid_regs_t *reordered_cpu_regs)
