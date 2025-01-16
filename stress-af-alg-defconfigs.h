@@ -26,8 +26,6 @@
 { .crypto_type = CRYPTO_AEAD, .type = "aead", .name = "rfc4543(gcm(aes))",	.block_size = 1,	.max_auth_size = 16,	.iv_size = 8 },
 { .crypto_type = CRYPTO_AHASH, .type = "ahash", .name = "ghash",	.block_size = 16,	.digest_size = 16 },
 { .crypto_type = CRYPTO_AKCIPHER, .type = "akcipher", .name = "ecrdsa" },
-{ .crypto_type = CRYPTO_AKCIPHER, .type = "akcipher", .name = "pkcs1pad(rsa,sha256)" },
-{ .crypto_type = CRYPTO_AKCIPHER, .type = "akcipher", .name = "pkcs1pad(rsa,sha512)" },
 { .crypto_type = CRYPTO_AKCIPHER, .type = "akcipher", .name = "rsa" },
 { .crypto_type = CRYPTO_CIPHER, .type = "cipher", .name = "aes",	.block_size = 16,	.max_key_size = 32 },
 { .crypto_type = CRYPTO_CIPHER, .type = "cipher", .name = "anubis",	.block_size = 16,	.max_key_size = 40 },
