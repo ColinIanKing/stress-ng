@@ -191,7 +191,7 @@ static void stress_af_alg_ignore(
 	const char *systemcall)
 {
 	if ((args->instance == 0) && (!info->ignore)) {
-		pr_dbg_skip("%s: %s using %s (%s), failed with EINVAL, skipping crypto engine\n",
+		pr_dbg_skip("%s: %s using %s (%s), failed with EINVAL, skipping this crypto engine\n",
 			args->name, systemcall, info->name, info->type);
 	}
 	info->ignore = true;
@@ -224,9 +224,9 @@ static int stress_af_alg_hash(
 
 retry_bind:
 	if (bind(sockfd, (struct sockaddr *)&sa, sizeof(sa)) < 0) {
-		/* Perhaps the hash does not exist with this kernel */
 		switch (errno) {
 		case ENOENT:
+			/* Perhaps the hash does not exist with this kernel */
 			info->ignore = true;
 			rc = EXIT_SUCCESS;
 			goto err;
@@ -366,13 +366,20 @@ static int stress_af_alg_cipher(
 
 retry_bind:
 	if (bind(sockfd, (struct sockaddr *)&sa, sizeof(sa)) < 0) {
-		/* Perhaps the cipher does not exist with this kernel */
-		if (errno == ELIBBAD) {
+		switch (errno) {
+		case 0:
+		case ENOKEY:
+		case ENOENT:
+			/* Perhaps the hash does not exist with this kernel */
+			info->ignore = true;
+			rc = EXIT_SUCCESS;
+			goto err;
+		case ELIBBAD:
+			/* Perhaps the cipher does not exist with this kernel */
 			if (info->selftest) {
 				pr_fail("%s: %s (%s): bind failed but self test passed, errno=%d (%s)\n",
 					args->name, info->name, info->type, errno, strerror(errno));
 				rc = EXIT_FAILURE;
-				goto err;
 			} else {
 				/*
 				 *  self test was not marked as passed, this
@@ -380,33 +387,24 @@ retry_bind:
 				 *  FIPS enabled, so silently ignore bind failure
 				 */
 				rc = EXIT_SUCCESS;
-				goto err;
 			}
-		}
-
-		/* Internal unavailable crypto engines need to be ignored */
-		if ((errno == ENOENT) && (info->internal)) {
-			stress_af_alg_ignore(args, info, "bind()");
+			goto err;
+		case EBUSY:
+		case EINTR:
 			rc = EXIT_SUCCESS;
 			goto err;
-		}
-		/* Ignore bind EINVAL failures, these should not abort the stressor */
-		if (errno == EINVAL) {
-			stress_af_alg_ignore(args, info, "bind()");
-			rc = EXIT_SUCCESS;
-			goto err;
-		}
-		if ((errno == 0) || (errno == ENOKEY) ||
-		    (errno == ENOENT) || (errno == EBUSY)) {
-			info->ignore = true;
-			rc = EXIT_SUCCESS;
-			goto err;
-		}
-		if (errno == ETIMEDOUT) {
+		case ETIMEDOUT:
 			if (retries-- > 0)
 				goto retry_bind;
 			rc = EXIT_NO_RESOURCE;
 			goto err;
+		case EINVAL:
+			/* Ignore bind EINVAL failures, these should not abort the stressor */
+			stress_af_alg_ignore(args, info, "bind()");
+			rc = EXIT_SUCCESS;
+			goto err;
+		default:
+			break;
 		}
 		pr_fail("%s: %s (%s): bind failed, errno=%d (%s)\n",
 			args->name, info->name, info->type, errno, strerror(errno));
@@ -661,33 +659,48 @@ static int stress_af_alg_rng(
 
 retry_bind:
 	if (bind(sockfd, (struct sockaddr *)&sa, sizeof(sa)) < 0) {
-		/* Internal unavailable crypto engines need to be ignored */
-		if ((errno == ENOENT) && (info->internal)) {
-			stress_af_alg_ignore(args, info, "bind()");
-			rc = EXIT_SUCCESS;
-			goto err;
-		}
-		/* Ignore bind EINVAL failures, these should not abort the stressor */
-		if (errno == EINVAL) {
-			stress_af_alg_ignore(args, info, "bind()");
-			rc = EXIT_SUCCESS;
-			goto err;
-		}
-		/* Perhaps the rng does not exist with this kernel */
-		if ((errno == ENOENT) || (errno == EBUSY)) {
+		switch (errno) {
+		case 0:
+		case ENOKEY:
+		case ENOENT:
+			/* Perhaps the hash does not exist with this kernel */
 			info->ignore = true;
 			rc = EXIT_SUCCESS;
 			goto err;
-		}
-		if (errno == ETIMEDOUT) {
+		case ELIBBAD:
+			/* Perhaps the cipher does not exist with this kernel */
+			if (info->selftest) {
+				pr_fail("%s: %s (%s): bind failed but self test passed, errno=%d (%s)\n",
+					args->name, info->name, info->type, errno, strerror(errno));
+				rc = EXIT_FAILURE;
+			} else {
+				/*
+				 *  self test was not marked as passed, this
+				 *  could be because algo was not allowed, e.g.
+				 *  FIPS enabled, so silently ignore bind failure
+				 */
+				rc = EXIT_SUCCESS;
+			}
+			goto err;
+		case EBUSY:
+		case EINTR:
+			rc = EXIT_SUCCESS;
+			goto err;
+		case ETIMEDOUT:
 			if (retries-- > 0)
 				goto retry_bind;
 			rc = EXIT_NO_RESOURCE;
 			goto err;
+		case EINVAL:
+			/* Ignore bind EINVAL failures, these should not abort the stressor */
+			stress_af_alg_ignore(args, info, "bind()");
+			rc = EXIT_SUCCESS;
+			goto err;
+		default:
+			break;
 		}
 		pr_fail("%s: %s (%s): bind failed, errno=%d (%s)\n",
-			args->name, info->name, info->type,
-			errno, strerror(errno));
+			args->name, info->name, info->type, errno, strerror(errno));
 		rc = EXIT_FAILURE;
 		goto err;
 	}
