@@ -75,6 +75,7 @@ static void stress_cachehammer_init(const uint32_t num_instances)
 {
 	int fd;
 	const size_t page_size = stress_get_page_size();
+	ssize_t ret;
 	uint8_t *page;
 
 	(void)num_instances;
@@ -100,9 +101,11 @@ static void stress_cachehammer_init(const uint32_t num_instances)
 	fd = open(cachehammer_filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
 	if (fd < 0)
 		goto err;
-	if (write(fd, page, page_size) != (ssize_t)page_size)
-		goto err;
+	ret = write(fd, page, page_size);
 	(void)close(fd);
+
+	if (ret != (ssize_t)page_size)
+		goto err;
 
 	return;
 
