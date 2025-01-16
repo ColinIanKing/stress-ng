@@ -648,9 +648,11 @@ static int OPTIMIZE3 stress_cachehammer(stress_args_t *args)
 			const uint16_t rnd16 = stress_mwc16();
 			const size_t loops = 1 + ((rnd16 >> 1) & 0x3f);
 			const uint8_t which = (rnd16 == 0x0008) ? 4 : rnd16 & 3;
+			register void (*hammer)(void *addr, const bool is_bad_addr) =
+				stress_cachehammer_funcs[func_index].hammer;
 
 			uint32_t offset;
-			uint8_t *addr;
+			register uint8_t *addr;
 
 			switch (which) {
 			case 0:
@@ -666,7 +668,7 @@ static int OPTIMIZE3 stress_cachehammer(stress_args_t *args)
 					(void)msync(file_page, page_size, flag);
 				}
 #endif
-				stress_cachehammer_funcs[func_index].hammer(file_page, false);
+				hammer(file_page, false);
 				break;
 			case 1:
 			default:
@@ -674,27 +676,27 @@ static int OPTIMIZE3 stress_cachehammer(stress_args_t *args)
 				addr = buffer + (offset & mask);
 
 				for (i = 0; i < loops; i++)
-					stress_cachehammer_funcs[func_index].hammer(addr, false);
+					hammer(addr, false);
 				break;
 			case 2:
 				offset = stress_mwc32modn((uint32_t)local_buffer_size);
 				addr = local_buffer + (offset & mask);
 
 				for (i = 0; i < loops; i++)
-					stress_cachehammer_funcs[func_index].hammer(addr, false);
+					hammer(addr, false);
 				break;
 			case 3:
 				offset = stress_mwc32modn((uint32_t)page_size);
 				addr = local_page + (offset & page_mask);
 
 				for (i = 0; i < loops; i++)
-					stress_cachehammer_funcs[func_index].hammer(addr, false);
+					hammer(addr, false);
 				break;
 			case 4:
 				offset = stress_mwc32();
 				addr = bad_page + (offset & page_mask);
 
-				stress_cachehammer_funcs[func_index].hammer(addr, true);
+				hammer(addr, true);
 				break;
 			}
 			tries = 0;
