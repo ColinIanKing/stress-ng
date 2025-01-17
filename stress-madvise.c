@@ -470,6 +470,7 @@ static int stress_madvise(stress_args_t *args)
 	const size_t sz = (4 *  MB) & ~(page_size - 1);
 	const pid_t pid = getpid();
 	int fd = -1;
+	NOCLOBBER size_t advice = 0;
 	NOCLOBBER int ret;
 	NOCLOBBER int num_mem_retries;
 	char filename[PATH_MAX];
@@ -679,6 +680,15 @@ madv_free_out:
 			(void)madvise(bad_addr, page_size * 2, MADV_NORMAL);
 		}
 #endif
+
+		/*
+		 * Some systems allow zero sized page zero madvise
+		 * to see if that madvice is implemented, so try this
+		 */
+		(void)madvise(0, 0, madvise_options[advice]);
+		advice++;
+		advice = (advice >= SIZEOF_ARRAY(madvise_options)) ? 0: advice;
+
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
 
