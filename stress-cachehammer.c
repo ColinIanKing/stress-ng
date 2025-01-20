@@ -830,7 +830,7 @@ static int OPTIMIZE3 stress_cachehammer(stress_args_t *args)
 				 *  intentionally hit same page and
 				 *  cache line each time
 				 */
-				if ((rnd16 == 0x0020) && SIZEOF_ARRAY(msync_flags) > 0) {
+				if (UNLIKELY((rnd16 == 0x0020) && SIZEOF_ARRAY(msync_flags) > 0)) {
 					const int flag = msync_flags[stress_mwc8modn(SIZEOF_ARRAY(msync_flags))];
 
 					(void)msync(file_page, page_size, flag);
@@ -846,7 +846,7 @@ static int OPTIMIZE3 stress_cachehammer(stress_args_t *args)
 
 				for (i = 0; i < loops; i++) {
 					addr2 += 64;
-					if (addr2 >= buffer + buffer_size)
+					if (UNLIKELY(addr2 >= buffer + buffer_size))
 						addr2 = buffer;
 					hammer(addr1, addr2, false);
 					hammer(addr2, addr1, false);
@@ -859,7 +859,7 @@ static int OPTIMIZE3 stress_cachehammer(stress_args_t *args)
 
 				for (i = 0; i < loops; i++) {
 					addr2 += 64;
-					if (addr2 >= local_buffer + local_buffer_size)
+					if (UNLIKELY(addr2 >= local_buffer + local_buffer_size))
 						addr2 = local_buffer;
 					hammer(addr1, addr2, false);
 					hammer(addr2, addr1, false);
@@ -872,7 +872,7 @@ static int OPTIMIZE3 stress_cachehammer(stress_args_t *args)
 
 				for (i = 0; i < loops; i++) {
 					addr2 += 64;
-					if (addr2 >= local_page + page_size)
+					if (UNLIKELY(addr2 >= local_page + page_size))
 						addr2 = local_page;
 					hammer(addr1, addr2, false);
 					hammer(addr2, addr1, false);
@@ -892,13 +892,13 @@ static int OPTIMIZE3 stress_cachehammer(stress_args_t *args)
 			func_index = stress_mwc32modn((uint32_t)N_FUNCS);
 		} else {
 			tries++;
-			if (tries > N_FUNCS) {
+			if (UNLIKELY(tries > N_FUNCS)) {
 				pr_inf("%s: terminating early, cannot invoke any valid cache operations\n",
 					args->name);
 				break;
 			}
 			func_index++;
-			if (func_index >= N_FUNCS)
+			if (UNLIKELY(func_index >= N_FUNCS))
 				func_index = 0;
 		}
 	}
