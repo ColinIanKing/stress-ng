@@ -113,6 +113,7 @@ static void stress_cachehammer_init(const uint32_t num_instances)
 	if (ret != (ssize_t)page_size)
 		goto err;
 
+	free(page);
 	return;
 
 err:
