@@ -475,6 +475,25 @@ static void OPTIMIZE3 hammer_prefetcht2(void *addr1, void *addr2, const bool is_
 }
 #endif
 
+static void OPTIMIZE3 hammer_prefetch_read(void *addr1, void *addr2, const bool is_bad_addr)
+{
+	volatile uint64_t *vptr;
+
+	if (UNLIKELY(is_bad_addr))
+		return;
+
+	shim_builtin_prefetch(addr1, 0, 0);
+	stress_asm_mb();
+	shim_builtin_prefetch(addr2, 0, 0);
+	stress_asm_mb();
+	vptr = (volatile uint64_t *)addr1;
+	(void)*vptr;
+	stress_asm_mb();
+	vptr = (volatile uint64_t *)addr2;
+	(void)*vptr;
+	stress_asm_mb();
+}
+
 #if defined(HAVE_ASM_X86_CLDEMOTE)
 static void OPTIMIZE3 hammer_cldemote(void *addr1, void *addr2, const bool is_bad_addr)
 {
@@ -514,6 +533,7 @@ static void OPTIMIZE3 hammer_write_clflush(void *addr1, void *addr2, const bool 
 	stress_asm_mb();
 	vptr = (volatile uint64_t *)addr2;
 	*vptr = 0;
+	stress_asm_mb();
 	stress_asm_x86_clflush(addr2);
 	stress_asm_mb();
 }
@@ -534,6 +554,7 @@ static void OPTIMIZE3 hammer_write_clflushopt(void *addr1, void *addr2, const bo
 	stress_asm_mb();
 	vptr = (volatile uint64_t *)addr2;
 	*vptr = 0;
+	stress_asm_mb();
 	stress_asm_x86_clflushopt(addr2);
 	stress_asm_mb();
 }
@@ -638,6 +659,7 @@ static const stress_cachehammer_func_t stress_cachehammer_funcs[] = {
 #if defined(HAVE_ASM_X86_PREFETCHWT1)
 	{ "prefetchwt1", stress_cpu_x86_has_prefetchwt1, hammer_prefetchwt1 },
 #endif
+	{ "prefetch-read", hammer_valid,		hammer_prefetch_read },
 	{ "read",	hammer_valid,			hammer_read },
 	{ "read64",	hammer_valid,			hammer_read64 },
 	{ "read-write",	hammer_valid,			hammer_readwrite },
