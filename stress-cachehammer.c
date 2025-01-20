@@ -47,7 +47,7 @@ typedef struct {
 static sigjmp_buf jmp_env;
 
 static const stress_help_t help[] = {
-	{ "C N","cachehammer N",	"start N CPU cache thrashing workers" },
+	{ NULL,	"cachehammer N",	"start N CPU cache thrashing workers" },
 	{ NULL,	"cachehammer-ops N",	"stop after N cache bogo operations" },
 	{ NULL,	NULL,			NULL }
 };
