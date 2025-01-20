@@ -794,10 +794,12 @@ static int OPTIMIZE3 stress_cachehammer(stress_args_t *args)
 			default:
 				offset = stress_mwc32modn((uint32_t)buffer_size);
 				addr1 = buffer + (offset & mask);
-				offset = stress_mwc32modn((uint32_t)buffer_size);
-				addr2 = buffer + (offset & mask);
+				addr2 = addr1;
 
 				for (i = 0; i < loops; i++) {
+					addr2 += 64;
+					if (addr2 >= buffer + buffer_size)
+						addr2 = buffer;
 					hammer(addr1, addr2, false);
 					hammer(addr2, addr1, false);
 				}
@@ -805,10 +807,12 @@ static int OPTIMIZE3 stress_cachehammer(stress_args_t *args)
 			case 2:
 				offset = stress_mwc32modn((uint32_t)local_buffer_size);
 				addr1 = local_buffer + (offset & mask);
-				offset = stress_mwc32modn((uint32_t)local_buffer_size);
-				addr2 = local_buffer + (offset & mask);
+				addr2 = addr1;
 
 				for (i = 0; i < loops; i++) {
+					addr2 += 64;
+					if (addr2 >= local_buffer + local_buffer_size)
+						addr2 = local_buffer;
 					hammer(addr1, addr2, false);
 					hammer(addr2, addr1, false);
 				}
@@ -816,10 +820,12 @@ static int OPTIMIZE3 stress_cachehammer(stress_args_t *args)
 			case 3:
 				offset = stress_mwc32modn((uint32_t)page_size);
 				addr1 = local_page + (offset & page_mask);
-				offset = stress_mwc32modn((uint32_t)page_size);
-				addr2 = local_page + (offset & page_mask);
+				addr2 = addr1;
 
 				for (i = 0; i < loops; i++) {
+					addr2 += 64;
+					if (addr2 >= local_page + page_size)
+						addr2 = local_page;
 					hammer(addr1, addr2, false);
 					hammer(addr2, addr1, false);
 				}
@@ -827,7 +833,7 @@ static int OPTIMIZE3 stress_cachehammer(stress_args_t *args)
 			case 4:
 				offset = stress_mwc16();
 				addr1 = bad_page + (offset & page_mask);
-				offset = stress_mwc16();
+				offset += 64;
 				addr2 = bad_page + (offset & page_mask);
 
 				hammer(addr1, addr2, true);
