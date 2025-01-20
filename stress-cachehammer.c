@@ -499,6 +499,47 @@ static void OPTIMIZE3 hammer_clflush(void *addr1, void *addr2, const bool is_bad
 }
 #endif
 
+#if defined(HAVE_ASM_X86_CLFLUSH)
+static void OPTIMIZE3 hammer_write_clflush(void *addr1, void *addr2, const bool is_bad_addr)
+{
+	volatile uint64_t *vptr;
+
+	if (UNLIKELY(is_bad_addr))
+		return;
+
+	vptr = (volatile uint64_t *)addr1;
+	*vptr = 0;
+	stress_asm_mb();
+	stress_asm_x86_clflush(addr1);
+	stress_asm_mb();
+	vptr = (volatile uint64_t *)addr2;
+	*vptr = 0;
+	stress_asm_x86_clflush(addr2);
+	stress_asm_mb();
+}
+#endif
+
+#if defined(HAVE_ASM_X86_CLFLUSHOPT)
+static void OPTIMIZE3 hammer_write_clflushopt(void *addr1, void *addr2, const bool is_bad_addr)
+{
+	volatile uint64_t *vptr;
+
+	if (UNLIKELY(is_bad_addr))
+		return;
+
+	vptr = (volatile uint64_t *)addr1;
+	*vptr = 0;
+	stress_asm_mb();
+	stress_asm_x86_clflushopt(addr1);
+	stress_asm_mb();
+	vptr = (volatile uint64_t *)addr2;
+	*vptr = 0;
+	stress_asm_x86_clflushopt(addr2);
+	stress_asm_mb();
+}
+#endif
+
+
 #if defined(HAVE_ASM_X86_CLFLUSHOPT)
 static void OPTIMIZE3 hammer_clflushopt(void *addr1, void *addr2, const bool is_bad_addr)
 {
@@ -602,6 +643,12 @@ static const stress_cachehammer_func_t stress_cachehammer_funcs[] = {
 	{ "read-write",	hammer_valid,			hammer_readwrite },
 	{ "read-write64", hammer_valid,			hammer_readwrite64 },
 	{ "write",	hammer_valid,			hammer_write },
+#if defined(HAVE_ASM_X86_CLFLUSH)
+	{ "write-clflush", stress_cpu_x86_has_clfsh,	hammer_write_clflush },
+#endif
+#if defined(HAVE_ASM_X86_CLFLUSHOPT)
+	{ "write-clflushopt", stress_cpu_x86_has_clflushopt, hammer_write_clflushopt },
+#endif
 	{ "write64",	hammer_valid,			hammer_write64 },
 	{ "write-read",	hammer_valid,			hammer_writeread },
 	{ "write-read64", hammer_valid,			hammer_writeread64 },
