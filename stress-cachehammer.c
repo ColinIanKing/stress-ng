@@ -134,6 +134,10 @@ static void stress_cachehammer_deinit(void)
 		(void)shim_rmdir(cachehammer_path);
 }
 
+/*
+ *  hammer_read()
+ *	read 64 bit value from cache/memory
+ */
 static void OPTIMIZE3 hammer_read(void *addr1, void *addr2, const bool is_bad_addr)
 {
 	volatile uint64_t *vptr;
@@ -149,6 +153,10 @@ static void OPTIMIZE3 hammer_read(void *addr1, void *addr2, const bool is_bad_ad
 	stress_asm_mb();
 }
 
+/*
+ *  hammer_read()
+ *	read 64 bytes values from cache/memory
+ */
 static void OPTIMIZE3 hammer_read64(void *addr1, void *addr2, const bool is_bad_addr)
 {
 	volatile uint64_t *vptr1, *vptr2;
@@ -177,6 +185,10 @@ static void OPTIMIZE3 hammer_read64(void *addr1, void *addr2, const bool is_bad_
 	stress_asm_mb();
 }
 
+/*
+ *  hammer_write()
+ *	write 64 bit value to cache/memory
+ */
 static void OPTIMIZE3 hammer_write(void *addr1, void *addr2, const bool is_bad_addr)
 {
 	volatile uint64_t *vptr;
@@ -191,6 +203,10 @@ static void OPTIMIZE3 hammer_write(void *addr1, void *addr2, const bool is_bad_a
 	*vptr = 0;
 }
 
+/*
+ *  hammer_write()
+ *	write 64 bytes value to cache/memory
+ */
 static void OPTIMIZE3 hammer_write64(void *addr1, void *addr2, const bool is_bad_addr)
 {
 	volatile uint64_t *vptr1, *vptr2;
@@ -219,6 +235,10 @@ static void OPTIMIZE3 hammer_write64(void *addr1, void *addr2, const bool is_bad
 	stress_asm_mb();
 }
 
+/*
+ *  hammer_read()
+ *	read 64 bit value from cache/memory, write it back to cache/memory
+ */
 static void OPTIMIZE3 hammer_readwrite(void *addr1, void *addr2, const bool is_bad_addr)
 {
 	volatile uint64_t *vptr;
@@ -238,6 +258,10 @@ static void OPTIMIZE3 hammer_readwrite(void *addr1, void *addr2, const bool is_b
 
 }
 
+/*
+ *  hammer_read()
+ *	read 64 byte value from cache/memory, write it back to cache/memory
+ */
 static void OPTIMIZE3 hammer_readwrite64(void *addr1, void *addr2, const bool is_bad_addr)
 {
 	volatile uint64_t *vptr1, *vptr2;
@@ -266,6 +290,10 @@ static void OPTIMIZE3 hammer_readwrite64(void *addr1, void *addr2, const bool is
 	stress_asm_mb();
 }
 
+/*
+ *  hammer_writeread()
+ *	write 64 bit value to cache/memory, read it back from cache/memory
+ */
 static void OPTIMIZE3 hammer_writeread(void *addr1, void *addr2, const bool is_bad_addr)
 {
 	volatile uint64_t *vptr;
@@ -284,6 +312,10 @@ static void OPTIMIZE3 hammer_writeread(void *addr1, void *addr2, const bool is_b
 	stress_asm_mb();
 }
 
+/*
+ *  hammer_writeread()
+ *	write 64 byte value to cache/memory, read it back from cache/memory
+ */
 static void OPTIMIZE3 hammer_writeread64(void *addr1, void *addr2, const bool is_bad_addr)
 {
 	volatile uint64_t *vptr1, *vptr2;
@@ -334,6 +366,10 @@ static bool OPTIMIZE3 hammer_cbo_zero_valid(void)
 	return false;
 }
 
+/*
+ *  hammer_cbo_zero
+ *	RISC-V cache-based bzero
+ */
 static void OPTIMIZE3 hammer_cbo_zero(void *addr1, void *addr2, const bool is_bad_addr)
 {
 	(void)is_bad_addr;
@@ -346,6 +382,10 @@ static void OPTIMIZE3 hammer_cbo_zero(void *addr1, void *addr2, const bool is_ba
 #endif
 
 #if defined(HAVE_BUILTIN___CLEAR_CACHE)
+/*
+ *  cache-based bzero
+ *	generic gcc clear cache, clear a 64 byte cache line
+ */
 static void OPTIMIZE3 hammer_clearcache(void *addr1, void *addr2, const bool is_bad_addr)
 {
 	(void)is_bad_addr;
@@ -358,11 +398,24 @@ static void OPTIMIZE3 hammer_clearcache(void *addr1, void *addr2, const bool is_
 #endif
 
 #if defined(HAVE_ASM_PPC64_DCBST)
+/*
+ *  hammer_ppc64_dcbst()
+ *	powerpc64 Data Cache Block Store
+ */
 static void OPTIMIZE3 hammer_ppc64_dcbst(void *addr1, void *addr2, const bool is_bad_addr)
 {
+	volatile uint64_t *vptr;
+
 	(void)is_bad_addr;
 
+	vptr = (volatile uint64_t *)addr1;
+	*vptr = ~0ULL;
+	stress_asm_mb();
 	stress_asm_ppc64_dcbst(addr1);
+	stress_asm_mb();
+
+	vptr = (volatile uint64_t *)addr2;
+	*vptr = ~0ULL;
 	stress_asm_mb();
 	stress_asm_ppc64_dcbst(addr2);
 	stress_asm_mb();
@@ -370,41 +423,84 @@ static void OPTIMIZE3 hammer_ppc64_dcbst(void *addr1, void *addr2, const bool is
 #endif
 
 #if defined(HAVE_ASM_PPC64_DCBT)
+/*
+ *  hammer_ppc64_dcbt()
+ *	powerpc64 Data Cache Block Touch
+ */
 static void OPTIMIZE3 hammer_ppc64_dcbt(void *addr1, void *addr2, const bool is_bad_addr)
 {
+	volatile uint64_t *vptr;
+
 	(void)is_bad_addr;
 
+	vptr = (volatile uint64_t *)addr1;
 	stress_asm_ppc64_dcbt(addr1);
 	stress_asm_mb();
+	(void)*vptr;
+	stress_asm_mb();
+
+	vptr = (volatile uint64_t *)addr2;
 	stress_asm_ppc64_dcbt(addr2);
+	stress_asm_mb();
+	(void)*vptr;
 	stress_asm_mb();
 }
 #endif
 
 #if defined(HAVE_ASM_PPC64_DCBTST)
+/*
+ *  hammer_ppc64_dcbtst()
+ *	powerpc64 Data Cache Block Touch for Store
+ */
 static void OPTIMIZE3 hammer_ppc64_dcbtst(void *addr1, void *addr2, const bool is_bad_addr)
 {
+	volatile uint64_t *vptr;
+
 	(void)is_bad_addr;
 
+	vptr = (volatile uint64_t *)addr1;
 	stress_asm_ppc64_dcbtst(addr1);
 	stress_asm_mb();
+	*vptr = ~0ULL;
+	stress_asm_mb();
+
+	vptr = (volatile uint64_t *)addr2;
 	stress_asm_ppc64_dcbtst(addr2);
+	stress_asm_mb();
+	*vptr = ~0ULL;
 	stress_asm_mb();
 }
 #endif
 
 #if defined(HAVE_ASM_PPC64_MSYNC)
+/*
+ *  hammer_ppc64_msync()
+ *	msync to memory
+ */
 static void OPTIMIZE3 hammer_ppc64_msync(void *addr1, void *addr2, const bool is_bad_addr)
 {
-	(void)addr1;
-	(void)addr2;
+	volatile uint64_t *vptr;
+
 	(void)is_bad_addr;
 
+	vptr = (volatile uint64_t *)addr1;
+	*vptr = 0x0123456789abcdefULL;
+	stress_asm_mb();
 	stress_asm_ppc64_msync();
+	stress_asm_mb();
+
+	vptr = (volatile uint64_t *)addr2;
+	*vptr = 0xfedcba9876543210ULL;
+	stress_asm_mb();
 	stress_asm_ppc64_msync();
+	stress_asm_mb();
 }
 #endif
 
+/*
+ *  hammer_prefetch()
+ *	exercise gcc builtin prefetch, read/write and 4 levels of cache locality
+ */
 static void OPTIMIZE3 hammer_prefetch(void *addr1, void *addr2, const bool is_bad_addr)
 {
 	(void)is_bad_addr;
@@ -428,6 +524,11 @@ static void OPTIMIZE3 hammer_prefetch(void *addr1, void *addr2, const bool is_ba
 }
 
 #if defined(HAVE_ASM_X86_PREFETCHNTA)
+/*
+ *  hammer_prefetchnta()
+ *	prefetch data into non-temporal cache structure and into a location
+ *	close to the processor, minimizing cache pollution
+ */
 static void OPTIMIZE3 hammer_prefetchnta(void *addr1, void *addr2, const bool is_bad_addr)
 {
 	(void)is_bad_addr;
@@ -440,6 +541,10 @@ static void OPTIMIZE3 hammer_prefetchnta(void *addr1, void *addr2, const bool is
 #endif
 
 #if defined(HAVE_ASM_X86_PREFETCHT0)
+/*
+ *  hammer_prefetcht0()
+ *	prefetch data into all levels of the cache hierarchy
+ */
 static void OPTIMIZE3 hammer_prefetcht0(void *addr1, void *addr2, const bool is_bad_addr)
 {
 	(void)is_bad_addr;
@@ -452,6 +557,10 @@ static void OPTIMIZE3 hammer_prefetcht0(void *addr1, void *addr2, const bool is_
 #endif
 
 #if defined(HAVE_ASM_X86_PREFETCHT1)
+/*
+ *  hammer_prefetcht1()
+ *	prefetch data into level 2 cache and higher
+ */
 static void OPTIMIZE3 hammer_prefetcht1(void *addr1, void *addr2, const bool is_bad_addr)
 {
 	(void)is_bad_addr;
@@ -464,6 +573,10 @@ static void OPTIMIZE3 hammer_prefetcht1(void *addr1, void *addr2, const bool is_
 #endif
 
 #if defined(HAVE_ASM_X86_PREFETCHT2)
+/*
+ *  hammer_prefetcht2()
+ *	refetch data into level 3 cache and higher, or an implementation-specific choice
+ */
 static void OPTIMIZE3 hammer_prefetcht2(void *addr1, void *addr2, const bool is_bad_addr)
 {
 	(void)is_bad_addr;
@@ -475,6 +588,10 @@ static void OPTIMIZE3 hammer_prefetcht2(void *addr1, void *addr2, const bool is_
 }
 #endif
 
+/*
+ *  hammer_prefetch_read()
+ *	prefetch for reading, then do stores
+ */
 static void OPTIMIZE3 hammer_prefetch_read(void *addr1, void *addr2, const bool is_bad_addr)
 {
 	volatile uint64_t *vptr;
@@ -495,6 +612,10 @@ static void OPTIMIZE3 hammer_prefetch_read(void *addr1, void *addr2, const bool 
 }
 
 #if defined(HAVE_ASM_X86_CLDEMOTE)
+/*
+ *  hammer_cldemote()
+ *	x86 cache line demote
+ */
 static void OPTIMIZE3 hammer_cldemote(void *addr1, void *addr2, const bool is_bad_addr)
 {
 	(void)is_bad_addr;
@@ -507,6 +628,10 @@ static void OPTIMIZE3 hammer_cldemote(void *addr1, void *addr2, const bool is_ba
 #endif
 
 #if defined(HAVE_ASM_X86_CLFLUSH)
+/*
+ *  hammer_clflush()
+ *	x86 cache line flush
+ */
 static void OPTIMIZE3 hammer_clflush(void *addr1, void *addr2, const bool is_bad_addr)
 {
 	(void)is_bad_addr;
@@ -519,6 +644,10 @@ static void OPTIMIZE3 hammer_clflush(void *addr1, void *addr2, const bool is_bad
 #endif
 
 #if defined(HAVE_ASM_X86_CLFLUSH)
+/*
+ *  hammer_write_clflush
+ *	x86 write followed by cache line flush
+ */
 static void OPTIMIZE3 hammer_write_clflush(void *addr1, void *addr2, const bool is_bad_addr)
 {
 	volatile uint64_t *vptr;
@@ -540,6 +669,10 @@ static void OPTIMIZE3 hammer_write_clflush(void *addr1, void *addr2, const bool 
 #endif
 
 #if defined(HAVE_ASM_X86_CLFLUSHOPT)
+/*
+ *  hammer_write_clflush
+ *	x86 write followed by optimized cache line flush
+ */
 static void OPTIMIZE3 hammer_write_clflushopt(void *addr1, void *addr2, const bool is_bad_addr)
 {
 	volatile uint64_t *vptr;
@@ -562,6 +695,10 @@ static void OPTIMIZE3 hammer_write_clflushopt(void *addr1, void *addr2, const bo
 
 
 #if defined(HAVE_ASM_X86_CLFLUSHOPT)
+/*
+ *  hammer_clflush()
+ *	x86 cache line flush
+ */
 static void OPTIMIZE3 hammer_clflushopt(void *addr1, void *addr2, const bool is_bad_addr)
 {
 	(void)is_bad_addr;
@@ -574,18 +711,42 @@ static void OPTIMIZE3 hammer_clflushopt(void *addr1, void *addr2, const bool is_
 #endif
 
 #if defined(HAVE_ASM_X86_CLWB)
+/*
+ *  hammer_clwb()
+ *	x86 cache line write-back, dirty cache line and write back
+ */
 static void OPTIMIZE3 hammer_clwb(void *addr1, void *addr2, const bool is_bad_addr)
 {
 	(void)is_bad_addr;
 
-	stress_asm_x86_clwb(addr1);
-	stress_asm_mb();
-	stress_asm_x86_clwb(addr2);
-	stress_asm_mb();
+	if (UNLIKELY(is_bad_addr)) {
+		stress_asm_x86_clwb(addr1);
+		stress_asm_mb();
+		stress_asm_x86_clwb(addr2);
+		stress_asm_mb();
+	} else {
+		volatile uint64_t *vptr;
+
+		vptr = (volatile uint64_t *)addr1;
+		*vptr = ~0ULL;
+		stress_asm_mb();
+		vptr = (volatile uint64_t *)addr2;
+		*vptr = ~0ULL;
+		stress_asm_mb();
+
+		stress_asm_x86_clwb(addr1);
+		stress_asm_mb();
+		stress_asm_x86_clwb(addr2);
+		stress_asm_mb();
+	}
 }
 #endif
 
 #if defined(HAVE_ASM_X86_PREFETCHW)
+/*
+ *  hammer_prefetchw()
+ *	x86 prefetch with anticipation of following write
+ */
 static void OPTIMIZE3 hammer_prefetchw(void *addr1, void *addr2, const bool is_bad_addr)
 {
 	(void)is_bad_addr;
@@ -598,6 +759,10 @@ static void OPTIMIZE3 hammer_prefetchw(void *addr1, void *addr2, const bool is_b
 #endif
 
 #if defined(HAVE_ASM_X86_PREFETCHWT1)
+/*
+ *  hammer_prefetchw()
+ *	x86 prefetch vector data into cache with intent to write and T1 Hint
+ */
 static void OPTIMIZE3 hammer_prefetchwt1(void *addr1, void *addr2, const bool is_bad_addr)
 {
 	(void)is_bad_addr;
