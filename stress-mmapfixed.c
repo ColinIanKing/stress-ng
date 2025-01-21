@@ -281,14 +281,14 @@ static int stress_mmapfixed(stress_args_t *args)
 			info.numa_mask = stress_numa_mask_alloc();
 		} else {
 			if (args->instance == 0) {
-				pr_inf("%s: only 1 NUMA node available, disabling --vm-numa\n",
+				pr_inf("%s: only 1 NUMA node available, disabling --mmapfixed-numa\n",
 					args->name);
 				info.mmapfixed_numa = false;
 			}
 		}
 #else
 		if (args->instance == 0)
-			pr_inf("%s: --vm-numa selected but not supported by this system, disabling option\n",
+			pr_inf("%s: --mmapfixed-numa selected but not supported by this system, disabling option\n",
 				args->name);
 		info.mmapfixed_numa = false;
 #endif
