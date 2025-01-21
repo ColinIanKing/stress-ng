@@ -191,8 +191,10 @@ static int stress_lockbus(stress_args_t *args)
 
 #if defined(HAVE_NUMA_LOCKBUS)
 	numa_mask = stress_numa_mask_alloc();
-	if (numa_mask)
+	if (numa_mask) {
 		stress_numa_randomize_pages(numa_mask, buffer, args->page_size, BUFFER_SIZE);
+		stress_numa_mask_free(numa_mask);
+	}
 #endif
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
@@ -262,9 +264,6 @@ done:
 	stress_metrics_set(args, 0, "nanosecs per memory lock operation",
 		rate * STRESS_DBL_NANOSECOND, STRESS_METRIC_HARMONIC_MEAN);
 
-#if defined(HAVE_NUMA_LOCKBUS)
-	stress_numa_mask_free(numa_mask);
-#endif
 	(void)munmap((void *)buffer, BUFFER_SIZE);
 
 	return EXIT_SUCCESS;
