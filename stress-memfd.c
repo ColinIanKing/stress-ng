@@ -558,6 +558,10 @@ buf_unmap:
 	stress_metrics_set(args, 0, "nanosecs per memfd_create call",
 		rate * STRESS_DBL_NANOSECOND, STRESS_METRIC_HARMONIC_MEAN);
 
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+	if (memfd_numa)
+		stress_numa_mask_free(numa_mask);
+#endif
 	free(maps);
 	free(fds);
 
