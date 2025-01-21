@@ -175,29 +175,6 @@ static int stress_mmapfiles_child(stress_args_t *args, void *context)
 		"/proc",
 	};
 
-	(void)stress_get_setting("mmapfiles-numa", &mmapfile_info->mmapfiles_numa);
-	(void)stress_get_setting("mmapfiles-populate", &mmapfile_info->mmapfiles_populate);
-	(void)stress_get_setting("mmapfiles-shared", &mmapfile_info->mmapfiles_shared);
-
-	if (mmapfile_info->mmapfiles_numa) {
-#if defined(HAVE_LINUX_MEMPOLICY_H)
-		if (stress_numa_nodes() > 1) {
-			mmapfile_info->numa_mask = stress_numa_mask_alloc();
-		} else {
-			if (args->instance == 0) {
-				pr_inf("%s: only 1 NUMA node available, disabling --mmapfiles-numa\n",
-					args->name);
-				mmapfile_info->mmapfiles_numa = false;
-			}
-		}
-#else
-		if (args->instance == 0)
-			pr_inf("%s: --mmapfiles-numa selected but not supported by this system, disabling option\n",
-				args->name);
-		mmapfile_info->mmapfiles_numa = false;
-#endif
-	}
-
 	mmapfile_info->mappings = (stress_mapping_t *)calloc((size_t)MMAP_MAX, sizeof(*mmapfile_info->mappings));
 	if (!mmapfile_info->mappings) {
 		pr_fail("%s: malloc failed, out of memory\n", args->name);
@@ -282,6 +259,29 @@ static int stress_mmapfiles(stress_args_t *args)
 	mmapfile_info->numa_mask = NULL;
 #endif
 
+	(void)stress_get_setting("mmapfiles-numa", &mmapfile_info->mmapfiles_numa);
+	(void)stress_get_setting("mmapfiles-populate", &mmapfile_info->mmapfiles_populate);
+	(void)stress_get_setting("mmapfiles-shared", &mmapfile_info->mmapfiles_shared);
+
+	if (mmapfile_info->mmapfiles_numa) {
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+		if (stress_numa_nodes() > 1) {
+			mmapfile_info->numa_mask = stress_numa_mask_alloc();
+		} else {
+			if (args->instance == 0) {
+				pr_inf("%s: only 1 NUMA node available, disabling --mmapfiles-numa\n",
+					args->name);
+				mmapfile_info->mmapfiles_numa = false;
+			}
+		}
+#else
+		if (args->instance == 0)
+			pr_inf("%s: --mmapfiles-numa selected but not supported by this system, disabling option\n",
+				args->name);
+		mmapfile_info->mmapfiles_numa = false;
+#endif
+	}
+
 	ret = stress_oomable_child(args, (void *)mmapfile_info, stress_mmapfiles_child, STRESS_OOMABLE_NORMAL);
 
 	metric = (mmapfile_info->mmap_duration > 0.0) ? mmapfile_info->mmap_count / mmapfile_info->mmap_duration : 0.0;
@@ -296,6 +296,10 @@ static int stress_mmapfiles(stress_args_t *args)
 	metric = (mmapfile_info->mmap_count > 0.0) ? mmapfile_info->mmap_page_count / mmapfile_info->mmap_count : 0.0;
 	stress_metrics_set(args, 4, "pages per mapping", metric, STRESS_METRIC_HARMONIC_MEAN);
 
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+	if (mmapfile_info->mmapfiles_numa)
+		stress_numa_mask_free(mmapfile_info->numa_mask);
+#endif
 	(void)munmap((void *)mmapfile_info, sizeof(*mmapfile_info));
 
 	return ret;
