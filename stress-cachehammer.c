@@ -404,21 +404,25 @@ static void OPTIMIZE3 hammer_clearcache(void *addr1, void *addr2, const bool is_
  */
 static void OPTIMIZE3 hammer_ppc64_dcbst(void *addr1, void *addr2, const bool is_bad_addr)
 {
-	volatile uint64_t *vptr;
+	if (UNLIKELY(is_bad_addr)) {
+		stress_asm_ppc64_dcbst(addr1);
+		stress_asm_mb();
+		stress_asm_ppc64_dcbst(addr2);
+		stress_asm_mb();
+	} else {
+		volatile uint64_t *vptr = (volatile uint64_t *)addr1;
 
-	(void)is_bad_addr;
+		*vptr = ~0ULL;
+		stress_asm_mb();
+		stress_asm_ppc64_dcbst(addr1);
+		stress_asm_mb();
 
-	vptr = (volatile uint64_t *)addr1;
-	*vptr = ~0ULL;
-	stress_asm_mb();
-	stress_asm_ppc64_dcbst(addr1);
-	stress_asm_mb();
-
-	vptr = (volatile uint64_t *)addr2;
-	*vptr = ~0ULL;
-	stress_asm_mb();
-	stress_asm_ppc64_dcbst(addr2);
-	stress_asm_mb();
+		vptr = (volatile uint64_t *)addr2;
+		*vptr = ~0ULL;
+		stress_asm_mb();
+		stress_asm_ppc64_dcbst(addr2);
+		stress_asm_mb();
+	}
 }
 #endif
 
@@ -429,21 +433,26 @@ static void OPTIMIZE3 hammer_ppc64_dcbst(void *addr1, void *addr2, const bool is
  */
 static void OPTIMIZE3 hammer_ppc64_dcbt(void *addr1, void *addr2, const bool is_bad_addr)
 {
-	volatile uint64_t *vptr;
+	if (UNLIKELY(is_bad_addr)) {
+		stress_asm_ppc64_dcbt(addr1);
+		stress_asm_mb();
+		stress_asm_ppc64_dcbt(addr2);
+		stress_asm_mb();
+	} else {
+		volatile uint64_t *vptr;
 
-	(void)is_bad_addr;
+		vptr = (volatile uint64_t *)addr1;
+		stress_asm_ppc64_dcbt(addr1);
+		stress_asm_mb();
+		(void)*vptr;
+		stress_asm_mb();
 
-	vptr = (volatile uint64_t *)addr1;
-	stress_asm_ppc64_dcbt(addr1);
-	stress_asm_mb();
-	(void)*vptr;
-	stress_asm_mb();
-
-	vptr = (volatile uint64_t *)addr2;
-	stress_asm_ppc64_dcbt(addr2);
-	stress_asm_mb();
-	(void)*vptr;
-	stress_asm_mb();
+		vptr = (volatile uint64_t *)addr2;
+		stress_asm_ppc64_dcbt(addr2);
+		stress_asm_mb();
+		(void)*vptr;
+		stress_asm_mb();
+	}
 }
 #endif
 
@@ -454,21 +463,26 @@ static void OPTIMIZE3 hammer_ppc64_dcbt(void *addr1, void *addr2, const bool is_
  */
 static void OPTIMIZE3 hammer_ppc64_dcbtst(void *addr1, void *addr2, const bool is_bad_addr)
 {
-	volatile uint64_t *vptr;
+	if (UNLIKELY(is_bad_addr)) {
+		stress_asm_ppc64_dcbtst(addr1);
+		stress_asm_mb();
+		stress_asm_ppc64_dcbtst(addr2);
+		stress_asm_mb();
+	} else {
+		volatile uint64_t *vptr;
 
-	(void)is_bad_addr;
+		vptr = (volatile uint64_t *)addr1;
+		stress_asm_ppc64_dcbtst(addr1);
+		stress_asm_mb();
+		*vptr = ~0ULL;
+		stress_asm_mb();
 
-	vptr = (volatile uint64_t *)addr1;
-	stress_asm_ppc64_dcbtst(addr1);
-	stress_asm_mb();
-	*vptr = ~0ULL;
-	stress_asm_mb();
-
-	vptr = (volatile uint64_t *)addr2;
-	stress_asm_ppc64_dcbtst(addr2);
-	stress_asm_mb();
-	*vptr = ~0ULL;
-	stress_asm_mb();
+		vptr = (volatile uint64_t *)addr2;
+		stress_asm_ppc64_dcbtst(addr2);
+		stress_asm_mb();
+		*vptr = ~0ULL;
+		stress_asm_mb();
+	}
 }
 #endif
 
@@ -479,21 +493,26 @@ static void OPTIMIZE3 hammer_ppc64_dcbtst(void *addr1, void *addr2, const bool i
  */
 static void OPTIMIZE3 hammer_ppc64_msync(void *addr1, void *addr2, const bool is_bad_addr)
 {
-	volatile uint64_t *vptr;
+	if (UNLIKELY(is_bad_addr)) {
+		stress_asm_ppc64_msync();
+		stress_asm_mb();
+		stress_asm_ppc64_msync();
+		stress_asm_mb();
+	} else {
+		volatile uint64_t *vptr;
 
-	(void)is_bad_addr;
+		vptr = (volatile uint64_t *)addr1;
+		*vptr = 0x0123456789abcdefULL;
+		stress_asm_mb();
+		stress_asm_ppc64_msync();
+		stress_asm_mb();
 
-	vptr = (volatile uint64_t *)addr1;
-	*vptr = 0x0123456789abcdefULL;
-	stress_asm_mb();
-	stress_asm_ppc64_msync();
-	stress_asm_mb();
-
-	vptr = (volatile uint64_t *)addr2;
-	*vptr = 0xfedcba9876543210ULL;
-	stress_asm_mb();
-	stress_asm_ppc64_msync();
-	stress_asm_mb();
+		vptr = (volatile uint64_t *)addr2;
+		*vptr = 0xfedcba9876543210ULL;
+		stress_asm_mb();
+		stress_asm_ppc64_msync();
+		stress_asm_mb();
+	}
 }
 #endif
 
@@ -594,21 +613,26 @@ static void OPTIMIZE3 hammer_prefetcht2(void *addr1, void *addr2, const bool is_
  */
 static void OPTIMIZE3 hammer_prefetch_read(void *addr1, void *addr2, const bool is_bad_addr)
 {
-	volatile uint64_t *vptr;
+	if (UNLIKELY(is_bad_addr)) {
+		shim_builtin_prefetch(addr1, 0, 0);
+		stress_asm_mb();
+		shim_builtin_prefetch(addr2, 0, 0);
+		stress_asm_mb();
+	} else {
+		volatile uint64_t *vptr;
 
-	if (UNLIKELY(is_bad_addr))
-		return;
+		shim_builtin_prefetch(addr1, 0, 0);
+		stress_asm_mb();
+		shim_builtin_prefetch(addr2, 0, 0);
+		stress_asm_mb();
 
-	shim_builtin_prefetch(addr1, 0, 0);
-	stress_asm_mb();
-	shim_builtin_prefetch(addr2, 0, 0);
-	stress_asm_mb();
-	vptr = (volatile uint64_t *)addr1;
-	(void)*vptr;
-	stress_asm_mb();
-	vptr = (volatile uint64_t *)addr2;
-	(void)*vptr;
-	stress_asm_mb();
+		vptr = (volatile uint64_t *)addr1;
+		(void)*vptr;
+		stress_asm_mb();
+		vptr = (volatile uint64_t *)addr2;
+		(void)*vptr;
+		stress_asm_mb();
+	}
 }
 
 #if defined(HAVE_ASM_X86_CLDEMOTE)
@@ -650,21 +674,26 @@ static void OPTIMIZE3 hammer_clflush(void *addr1, void *addr2, const bool is_bad
  */
 static void OPTIMIZE3 hammer_write_clflush(void *addr1, void *addr2, const bool is_bad_addr)
 {
-	volatile uint64_t *vptr;
 
-	if (UNLIKELY(is_bad_addr))
-		return;
+	if (UNLIKELY(is_bad_addr)) {
+		stress_asm_x86_clflush(addr1);
+		stress_asm_mb();
+		stress_asm_x86_clflush(addr2);
+		stress_asm_mb();
+	} else {
+		volatile uint64_t *vptr;
 
-	vptr = (volatile uint64_t *)addr1;
-	*vptr = 0;
-	stress_asm_mb();
-	stress_asm_x86_clflush(addr1);
-	stress_asm_mb();
-	vptr = (volatile uint64_t *)addr2;
-	*vptr = 0;
-	stress_asm_mb();
-	stress_asm_x86_clflush(addr2);
-	stress_asm_mb();
+		vptr = (volatile uint64_t *)addr1;
+		*vptr = 0;
+		stress_asm_mb();
+		stress_asm_x86_clflush(addr1);
+		stress_asm_mb();
+		vptr = (volatile uint64_t *)addr2;
+		*vptr = 0;
+		stress_asm_mb();
+		stress_asm_x86_clflush(addr2);
+		stress_asm_mb();
+	}
 }
 #endif
 
@@ -675,21 +704,25 @@ static void OPTIMIZE3 hammer_write_clflush(void *addr1, void *addr2, const bool 
  */
 static void OPTIMIZE3 hammer_write_clflushopt(void *addr1, void *addr2, const bool is_bad_addr)
 {
-	volatile uint64_t *vptr;
+	if (UNLIKELY(is_bad_addr)) {
+		stress_asm_x86_clflushopt(addr1);
+		stress_asm_mb();
+		stress_asm_x86_clflushopt(addr2);
+		stress_asm_mb();
+	} else {
+		volatile uint64_t *vptr;
 
-	if (UNLIKELY(is_bad_addr))
-		return;
-
-	vptr = (volatile uint64_t *)addr1;
-	*vptr = 0;
-	stress_asm_mb();
-	stress_asm_x86_clflushopt(addr1);
-	stress_asm_mb();
-	vptr = (volatile uint64_t *)addr2;
-	*vptr = 0;
-	stress_asm_mb();
-	stress_asm_x86_clflushopt(addr2);
-	stress_asm_mb();
+		vptr = (volatile uint64_t *)addr1;
+		*vptr = 0;
+		stress_asm_mb();
+		stress_asm_x86_clflushopt(addr1);
+		stress_asm_mb();
+		vptr = (volatile uint64_t *)addr2;
+		*vptr = 0;
+		stress_asm_mb();
+		stress_asm_x86_clflushopt(addr2);
+		stress_asm_mb();
+	}
 }
 #endif
 
