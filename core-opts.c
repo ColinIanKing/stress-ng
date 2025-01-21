@@ -538,6 +538,7 @@ const struct option stress_long_options[] = {
 	{ "memfd-fds",		1,	0,	OPT_memfd_fds },
 	{ "memfd-madvise",	0,	0,	OPT_memfd_madvise },
 	{ "memfd-mlock",	0,	0,	OPT_memfd_mlock },
+	{ "memfd-numa",		0,	0,	OPT_memfd_numa },
 	{ "memfd-ops",		1,	0,	OPT_memfd_ops },
 	{ "memfd-zap-pte",	0,	0,	OPT_memfd_zap_pte },
 	{ "memhotplug",		1,	0,	OPT_memhotplug },

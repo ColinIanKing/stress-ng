@@ -4689,6 +4689,10 @@ a little more VM exercising.
 attempt to mlock mmap'd pages into memory causing more memory pressure by
 preventing pages from swapped out.
 .TP
+.B \-\-memfd\-numa
+assign memory mapped pages to randomly selected NUMA nodes. This is disabled
+for systems that do not support NUMA or have less than 2 NUMA nodes.
+.TP
 .B \-\-memfd\-ops N
 stop after N memfd-create(2) bogo operations.
 .TP

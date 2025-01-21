@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-cpu.h"
 #include "core-madvise.h"
+#include "core-numa.h"
 #include "core-out-of-memory.h"
 #include "core-target-clones.h"
 
@@ -42,6 +43,7 @@ static const stress_help_t help[] = {
 	{ NULL,	"memfd-fds N",	 "number of memory fds to open per stressors" },
 	{ NULL,	"memfd-madvise", "add random madvise hints to memfd mapped pages" },
 	{ NULL,	"memfd-mlock",	 "attempt to mlock pages into memory" },
+	{ NULL,	"memfd-numa",	 "bind memory mappings to randonly selected NUMA nodes" },
 	{ NULL,	"memfd-ops N",	 "stop after N memfd bogo operations" },
 	{ NULL,	"memfd-zap-pte", "enable zap pte bug check (slow)" },
 	{ NULL,	NULL,		 NULL }
@@ -52,6 +54,7 @@ static const stress_opt_t opts[] = {
 	{ OPT_memfd_fds,     "memfd-fds",     TYPE_ID_INT32, MIN_MEMFD_FDS, MAX_MEMFD_FDS, NULL },
 	{ OPT_memfd_madvise, "memfd-madvise", TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_memfd_mlock,   "memfd-mlock",   TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_memfd_numa,    "memfd-numa",    TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_memfd_zap_pte, "memfd-zap-pte", TYPE_ID_BOOL, 0, 1, NULL },
 };
 
@@ -177,15 +180,20 @@ static int stress_memfd_child(stress_args_t *args, void *context)
 	double duration = 0.0, count = 0.0, rate;
 	bool memfd_madvise = false;
 	bool memfd_mlock = false;
+	bool memfd_numa = false;
 	bool memfd_zap_pte = false;
 	char filename_rndstr[64], filename_unusual[64], filename_pid[64];
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+	stress_numa_mask_t *numa_mask = NULL;
+#endif
 
 	stress_catch_sigill();
 
 	(void)context;
 
-	(void)stress_get_setting("memfd-mlock", &memfd_madvise);
+	(void)stress_get_setting("memfd-madvise", &memfd_madvise);
 	(void)stress_get_setting("memfd-mlock", &memfd_mlock);
+	(void)stress_get_setting("memfd-numa", &memfd_numa);
 	(void)stress_get_setting("memfd-zap-pte", &memfd_zap_pte);
 
 #if !defined(HAVE_MADVISE)
@@ -197,6 +205,25 @@ static int stress_memfd_child(stress_args_t *args, void *context)
 		memfd_madvise = false;
 	}
 #endif
+
+	if (memfd_numa) {
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+		if (stress_numa_nodes() > 1) {
+			numa_mask = stress_numa_mask_alloc();
+		} else {
+			if (args->instance == 0) {
+				pr_inf("%s: only 1 NUMA node available, disabling --memfd-numa\n",
+					args->name);
+				memfd_numa = false;
+			}
+		}
+#else
+		if (args->instance == 0)
+			pr_inf("%s: --memfd-numa selected but not supported by this system, disabling option\n",
+				args->name);
+		memfd_numa = false;
+#endif
+	}
 
 #if !defined(HAVE_MADVISE) ||	\
     !defined(MADV_PAGEOUT)
@@ -336,6 +363,10 @@ static int stress_memfd_child(stress_args_t *args, void *context)
 				continue;
 			if (memfd_mlock)
 				(void)shim_mlock(maps[i], size);
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+			if (memfd_numa)
+				stress_numa_randomize_pages(numa_mask, maps[i], size, page_size);
+#endif
 			stress_memfd_fill_pages_generic(stress_mwc64(), maps[i], size);
 			if (memfd_madvise) {
 				(void)stress_madvise_random(maps[i], size);

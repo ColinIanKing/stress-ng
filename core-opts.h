@@ -812,6 +812,7 @@ typedef enum {
 	OPT_memfd_fds,
 	OPT_memfd_madvise,
 	OPT_memfd_mlock,
+	OPT_memfd_numa,
 	OPT_memfd_ops,
 	OPT_memfd_zap_pte,
 
