@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "11 January 2025"
+.TH STRESS-NG 1 "21 January 2025"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -4111,6 +4111,10 @@ where possible, flush cachelines after each cachline write, x86 and ppc64 only.
 .B \-\-llc\-affinity\-mlock
 attempt to mlock the LLC sized buffer into memory to prevent it from being
 swapped out.
+.TP
+.B \-\-llc\-affinity\-numa
+assign memory mapped pages to randomly selected NUMA nodes. This is disabled
+for systems that do not support NUMA or have less than 2 NUMA nodes.
 .TP
 .B \-\-llc\-affinity\-ops N
 stop after N rounds of LLC read/writes.

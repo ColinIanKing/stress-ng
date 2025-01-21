@@ -30,6 +30,7 @@
 static const stress_help_t help[] = {
 	{ NULL,	"llc-affinity N",	"start N workers exercising low level cache over all CPUs" },
 	{ NULL,	"llc-affinity-mlock",	"attempt to mlock pages into memory" },
+	{ NULL,	"llc-affinity-numa",	"bind memory mappings to randonly selected NUMA nodes" },
 	{ NULL,	"llc-affinity-ops N",	"stop after N low-level-cache bogo operations" },
 	{ NULL,	NULL,			NULL }
 };
@@ -37,6 +38,7 @@ static const stress_help_t help[] = {
 static const stress_opt_t opts[] = {
 	{ OPT_llc_affinity_clflush, "llc-affinity-clflush", TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_llc_affinity_mlock,   "llc-affinity-mlock",   TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_llc_affinity_numa,    "llc-affinity-numa",    TYPE_ID_BOOL, 0, 1, NULL },
 	END_OPT,
 };
 
@@ -337,13 +339,18 @@ static int stress_llc_affinity(stress_args_t *args)
 	cache_line_func_t write_func, read_func;
 	bool llc_affinity_mlock = false;
 	bool llc_affinity_clflush = false;
+	bool llc_affinity_numa = false;
 	char *clflush_op = NULL;
 	const int numa_nodes = stress_numa_nodes();
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+        stress_numa_mask_t *numa_mask = NULL;
+#endif
 
 	stress_catch_sigill();
 
 	(void)stress_get_setting("llc-affinity-clflush", &llc_affinity_clflush);
 	(void)stress_get_setting("llc-affinity-mlock", &llc_affinity_mlock);
+	(void)stress_get_setting("llc-affinity-numa", &llc_affinity_numa);
 
 	stress_cpu_cache_get_llc_size(&llc_size, &cache_line_size);
 	if (llc_size == 0) {
@@ -363,6 +370,25 @@ static int stress_llc_affinity(stress_args_t *args)
 		}
 	}
 
+	if (llc_affinity_numa) {
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+		if (stress_numa_nodes() > 1) {
+			numa_mask = stress_numa_mask_alloc();
+		} else {
+			if (args->instance == 0) {
+				pr_inf("%s: only 1 NUMA node available, disabling --llc-affinity-numa\n",
+					args->name);
+				llc_affinity_numa = false;
+			}
+		}
+#else
+		if (args->instance == 0)
+			pr_inf("%s: --llc-affinity-numa selected but not supported by this system, disabling option\n",
+				args->name);
+		llc_affinity_numa = false;
+#endif
+	}
+
 	mmap_sz = STRESS_MAXIMUM(n_cpus * page_size, llc_size);
 
 	/*
@@ -376,6 +402,10 @@ static int stress_llc_affinity(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 	stress_set_vma_anon_name(buf, mmap_sz, "llc-buffer");
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+	if (llc_affinity_numa)
+		stress_numa_randomize_pages(numa_mask, (uint8_t *)buf, page_size, mmap_sz);
+#endif
 	if (llc_affinity_mlock)
 		(void)shim_mlock(buf, mmap_sz);
 	buf_end = (uint64_t *)((uintptr_t)buf + mmap_sz);
