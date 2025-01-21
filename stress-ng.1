@@ -5196,6 +5196,10 @@ the mappings.
 attempt to mlock mmap'd pages into memory causing more memory pressure by
 preventing pages from swapped out.
 .TP
+.B \-\-mmapfixed\-numa
+assign memory mapped pages to randomly selected NUMA nodes. This is disabled
+for systems that do not support NUMA or have less than 2 NUMA nodes.
+.TP
 .B \-\-mmapfixed\-ops N
 stop after N mmapfixed memory mapping bogo operations.
 .RE

@@ -20,12 +20,22 @@
 #include "stress-ng.h"
 #include "core-builtin.h"
 #include "core-madvise.h"
+#include "core-numa.h"
 #include "core-out-of-memory.h"
 #include "core-pragma.h"
+
+typedef struct {
+	bool mmapfixed_mlock;
+	bool mmapfixed_numa;
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+	stress_numa_mask_t *numa_mask;
+#endif
+} mmapfixed_info_t;
 
 static const stress_help_t help[] = {
 	{ NULL,	"mmapfixed N",		"start N workers stressing mmap with fixed mappings" },
 	{ NULL,	"mmapfixed-mlock",	"attempt to mlock pages into memory" },
+	{ NULL,	"mmapfixed-numa",	"bind memory mappings to randonly selected NUMA nodes" },
 	{ NULL,	"mmapfixed-ops N",	"stop after N mmapfixed bogo operations" },
 	{ NULL,	NULL,			NULL }
 };
@@ -108,12 +118,8 @@ static int stress_mmapfixed_child(stress_args_t *args, void *context)
 	const uintptr_t page_mask = ~((uintptr_t)(page_size - 1));
 #endif
 	uintptr_t addr = MMAP_TOP;
-	bool mmapfixed_mlock = false;
 	int rc = EXIT_SUCCESS;
-
-	(void)context;
-
-	(void)stress_get_setting("mmapfixed-mlock", &mmapfixed_mlock);
+	mmapfixed_info_t *info = (mmapfixed_info_t *)context;
 
 	VOID_RET(int, stress_sighandler(args->name, SIGSEGV,
 				stress_sig_handler_exit, NULL));
@@ -158,8 +164,11 @@ static int stress_mmapfixed_child(stress_args_t *args, void *context)
 		buf = (uint8_t *)mmap((void *)addr, sz, PROT_READ | PROT_WRITE, flags, -1, 0);
 		if (buf == MAP_FAILED)
 			goto next;
-
-		if (mmapfixed_mlock)
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+		if (info->mmapfixed_numa)
+			stress_numa_randomize_pages(info->numa_mask, buf, sz, page_size);
+#endif
+		if (info->mmapfixed_mlock)
 			(void)shim_mlock(buf, sz);
 		(void)stress_madvise_random(buf, sz);
 #if defined(HAVE_MREMAP) &&	\
@@ -186,7 +195,11 @@ static int stress_mmapfixed_child(stress_args_t *args, void *context)
 			if (newbuf && (newbuf != MAP_FAILED))
 				buf = newbuf;
 
-			if (mmapfixed_mlock)
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+			if (info->mmapfixed_numa)
+				stress_numa_randomize_pages(info->numa_mask, buf, sz, page_size);
+#endif
+			if (info->mmapfixed_mlock)
 				(void)shim_mlock(buf, sz);
 			(void)stress_madvise_random(buf, sz);
 
@@ -219,7 +232,11 @@ static int stress_mmapfixed_child(stress_args_t *args, void *context)
 					}
 
 					buf = newbuf;
-					if (mmapfixed_mlock)
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+					if (info->mmapfixed_numa)
+						stress_numa_randomize_pages(info->numa_mask, buf, sz, page_size);
+#endif
+					if (info->mmapfixed_mlock)
 						(void)shim_mlock(buf, sz);
 					(void)stress_madvise_random(buf, sz);
 				}
@@ -246,11 +263,49 @@ next:
  */
 static int stress_mmapfixed(stress_args_t *args)
 {
-	return stress_oomable_child(args, NULL, stress_mmapfixed_child, STRESS_OOMABLE_QUIET);
+	mmapfixed_info_t info;
+	int ret;
+
+	info.mmapfixed_mlock = false;
+	info.mmapfixed_numa = false;
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+	info.numa_mask = NULL;
+#endif
+
+	(void)stress_get_setting("mmapfixed-mlock", &info.mmapfixed_mlock);
+	(void)stress_get_setting("mmapfixed-numa", &info.mmapfixed_numa);
+
+	if (info.mmapfixed_numa) {
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+		if (stress_numa_nodes() >= 1) {
+			info.numa_mask = stress_numa_mask_alloc();
+		} else {
+			if (args->instance == 0) {
+				pr_inf("%s: only 1 NUMA node available, disabling --vm-numa\n",
+					args->name);
+				info.mmapfixed_numa = false;
+			}
+		}
+#else
+		if (args->instance == 0)
+			pr_inf("%s: --vm-numa selected but not supported by this system, disabling option\n",
+				args->name);
+		info.mmapfixed_numa = false;
+#endif
+	}
+	ret = stress_oomable_child(args, &info, stress_mmapfixed_child, STRESS_OOMABLE_QUIET);
+
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+	if (info.mmapfixed_numa)
+		stress_numa_mask_free(info.numa_mask);
+#endif
+
+	return ret;
 }
 
 static const stress_opt_t opts[] = {
 	{ OPT_mmapfixed_mlock, "mmapfixed-mlock", TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_mmapfixed_numa,  "mmapfixed-numa", TYPE_ID_BOOL, 0, 1, NULL },
 	END_OPT,
 };
 

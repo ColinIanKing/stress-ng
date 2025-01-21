@@ -606,6 +606,7 @@ const struct option stress_long_options[] = {
 	{ "mmapfiles-shared",	0,	0,	OPT_mmapfiles_shared },
 	{ "mmapfixed",		1,	0,	OPT_mmapfixed},
 	{ "mmapfixed-mlock",	0,	0,	OPT_mmapfixed_mlock },
+	{ "mmapfixed-numa",	0,	0,	OPT_mmapfixed_numa },
 	{ "mmapfixed-ops",	1,	0,	OPT_mmapfixed_ops },
 	{ "mmapfork",		1,	0,	OPT_mmapfork },
 	{ "mmapfork-ops",	1,	0,	OPT_mmapfork_ops },

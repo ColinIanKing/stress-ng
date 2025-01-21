@@ -896,6 +896,7 @@ typedef enum {
 
 	OPT_mmapfixed,
 	OPT_mmapfixed_mlock,
+	OPT_mmapfixed_numa,
 	OPT_mmapfixed_ops,
 
 	OPT_mmapfork,
