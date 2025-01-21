@@ -889,6 +889,7 @@ typedef enum {
 	OPT_mmapaddr_ops,
 
 	OPT_mmapfiles,
+	OPT_mmapfiles_numa,
 	OPT_mmapfiles_ops,
 	OPT_mmapfiles_populate,
 	OPT_mmapfiles_shared,

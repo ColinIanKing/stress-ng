@@ -5161,6 +5161,10 @@ files into memory. The stressor will traverse /lib, /lib32, /lib64, /boot,
 in these directories. Note that mapping bogo-ops rate will depend on the speed of
 access to files on these file systems.
 .TP
+.B \-\-mmapfiles\-numa
+assign memory mapped pages to randomly selected NUMA nodes. This is disabled
+for systems that do not support NUMA or have less than 2 NUMA nodes.
+.TP
 .B \-\-mmapfiles\-ops N
 stop after N memory map/unmap operations.
 .TP

@@ -600,6 +600,7 @@ const struct option stress_long_options[] = {
 	{ "mmapaddr-mlock",	0,	0,	OPT_mmapaddr_mlock },
 	{ "mmapaddr-ops",	1,	0,	OPT_mmapaddr_ops },
 	{ "mmapfiles",		1,	0,	OPT_mmapfiles },
+	{ "mmapfiles-numa",	0,	0,	OPT_mmapfiles_numa },
 	{ "mmapfiles-ops",	1,	0,	OPT_mmapfiles_ops },
 	{ "mmapfiles-populate",	0,	0,	OPT_mmapfiles_populate },
 	{ "mmapfiles-shared",	0,	0,	OPT_mmapfiles_shared },

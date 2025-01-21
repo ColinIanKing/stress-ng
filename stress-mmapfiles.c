@@ -17,11 +17,13 @@
  *
  */
 #include "stress-ng.h"
+#include "core-numa.h"
 #include "core-out-of-memory.h"
 #include "core-put.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"mmapfiles N",		"start N workers stressing many mmaps and munmaps" },
+	{ NULL, "mmapfiles-numa",	"bind memory mappings to randonly selected NUMA nodes" },
 	{ NULL,	"mmapfiles-ops N",	"stop after N mmapfiles bogo operations" },
 	{ NULL, "mmapfiles-populate",	"populate memory mappings" },
 	{ NULL, "mmapfiles-shared",	"enable shared mappings instead of private mappings" },
@@ -42,11 +44,20 @@ typedef struct {
 	double munmap_page_count;
 	double munmap_count;
 	double munmap_duration;
+	bool mmapfiles_numa;
+	bool mmapfiles_populate;
+	bool mmapfiles_shared;
+	bool enomem;
+	stress_mapping_t *mappings;
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+	stress_numa_mask_t *numa_mask;
+#endif
 } stress_mmapfile_info_t;
 
 static const stress_opt_t opts[] = {
+	{ OPT_mmapfiles_numa,     "mmapfiles-numa",     TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_mmapfiles_populate, "mmapfiles-populate", TYPE_ID_BOOL, 0, 1, NULL },
-	{ OPT_mmapfiles_shared,	  "mmapfiles-shared",   TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_mmapfiles_shared,   "mmapfiles-shared",   TYPE_ID_BOOL, 0, 1, NULL },
 	END_OPT,
 };
 
@@ -54,25 +65,21 @@ static size_t stress_mmapfiles_dir(
 	stress_args_t *args,
 	stress_mmapfile_info_t *mmapfile_info,
 	const char *path,
-	stress_mapping_t *mappings,
-	size_t n_mappings,
-	const bool mmap_populate,
-	const bool mmap_shared,
-	bool *enomem)
+	size_t n_mappings)
 {
 	DIR *dir;
 	struct dirent *d;
 	int flags = 0;
 
-	flags |= mmap_shared ? MAP_SHARED : MAP_PRIVATE;
+	flags |= mmapfile_info->mmapfiles_shared ? MAP_SHARED : MAP_PRIVATE;
 #if defined(MAP_POPULATE)
-	flags |= mmap_populate ? MAP_POPULATE : 0;
+	flags |= mmapfile_info->mmapfiles_populate ? MAP_POPULATE : 0;
 #endif
 	dir = opendir(path);
 	if (!dir)
 		return n_mappings;
 
-	while (!(*enomem) && ((d = readdir(dir)) != NULL)) {
+	while (!(mmapfile_info->enomem) && ((d = readdir(dir)) != NULL)) {
 		unsigned char type;
 
 		if (n_mappings >= MMAP_MAX)
@@ -86,8 +93,7 @@ static size_t stress_mmapfiles_dir(
 			char newpath[PATH_MAX];
 
 			(void)snprintf(newpath, sizeof(newpath), "%s/%s", path, d->d_name);
-			n_mappings = stress_mmapfiles_dir(args, mmapfile_info, newpath, mappings, n_mappings,
-							mmap_populate, mmap_shared, enomem);
+			n_mappings = stress_mmapfiles_dir(args, mmapfile_info, newpath, n_mappings);
 		} else if (type == SHIM_DT_REG) {
 			char filename[PATH_MAX];
 			uint8_t *ptr;
@@ -116,15 +122,22 @@ static size_t stress_mmapfiles_dir(
 			ptr = (uint8_t *)mmap(NULL, len, PROT_READ, flags, fd, 0);
 			delta = stress_time_now() - t;
 			if (ptr != MAP_FAILED) {
-				if (mmap_populate) {
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+				if (mmapfile_info->mmapfiles_numa) {
+					const size_t page_len = (len + (page_size - 1)) & ~(page_size - 1);
+					if (page_len > 0)
+						stress_numa_randomize_pages(mmapfile_info->numa_mask, ptr, page_len, page_size);
+				}
+#endif
+				if (mmapfile_info->mmapfiles_populate) {
 					register size_t i;
 
 					for (i = 0; i < len; i += page_size) {
 						stress_uint8_put(*(ptr + i));
 					}
 				}
-				mappings[n_mappings].addr = (void *)ptr;
-				mappings[n_mappings].len = len;
+				mmapfile_info->mappings[n_mappings].addr = (void *)ptr;
+				mmapfile_info->mappings[n_mappings].len = len;
 				n_mappings++;
 				mmapfile_info->mmap_count += 1.0;
 				mmapfile_info->mmap_duration += delta;
@@ -132,7 +145,7 @@ static size_t stress_mmapfiles_dir(
 				stress_bogo_inc(args);
 			} else {
 				if (errno == ENOMEM) {
-					*enomem = true;
+					mmapfile_info->enomem = true;
 					(void)close(fd);
 					break;
 				}
@@ -148,7 +161,6 @@ static int stress_mmapfiles_child(stress_args_t *args, void *context)
 {
 	size_t idx = 0;
 	stress_mmapfile_info_t *mmapfile_info = (stress_mmapfile_info_t *)context;
-	stress_mapping_t *mappings;
 	static const char * const dirs[] = {
 		"/lib",
 		"/lib32",
@@ -162,14 +174,32 @@ static int stress_mmapfiles_child(stress_args_t *args, void *context)
 		"/sys",
 		"/proc",
 	};
-	bool mmap_populate = false;
-	bool mmap_shared = false;
 
-	(void)stress_get_setting("mmapfiles-populate", &mmap_populate);
-	(void)stress_get_setting("mmapfiles-shared", &mmap_shared);
+	(void)stress_get_setting("mmapfiles-numa", &mmapfile_info->mmapfiles_numa);
+	(void)stress_get_setting("mmapfiles-populate", &mmapfile_info->mmapfiles_populate);
+	(void)stress_get_setting("mmapfiles-shared", &mmapfile_info->mmapfiles_shared);
 
-	mappings = (stress_mapping_t *)calloc((size_t)MMAP_MAX, sizeof(*mappings));
-	if (!mappings) {
+	if (mmapfile_info->mmapfiles_numa) {
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+		if (stress_numa_nodes() > 1) {
+			mmapfile_info->numa_mask = stress_numa_mask_alloc();
+		} else {
+			if (args->instance == 0) {
+				pr_inf("%s: only 1 NUMA node available, disabling --mmapfiles-numa\n",
+					args->name);
+				mmapfile_info->mmapfiles_numa = false;
+			}
+		}
+#else
+		if (args->instance == 0)
+			pr_inf("%s: --mmapfiles-numa selected but not supported by this system, disabling option\n",
+				args->name);
+		mmapfile_info->mmapfiles_numa = false;
+#endif
+	}
+
+	mmapfile_info->mappings = (stress_mapping_t *)calloc((size_t)MMAP_MAX, sizeof(*mmapfile_info->mappings));
+	if (!mmapfile_info->mappings) {
 		pr_fail("%s: malloc failed, out of memory\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
@@ -182,39 +212,38 @@ static int stress_mmapfiles_child(stress_args_t *args, void *context)
 		size_t i, n;
 
 		for (n = 0, i = 0; i < SIZEOF_ARRAY(dirs); i++) {
-			bool enomem = false;
+			mmapfile_info->enomem = false;
 
-			n = stress_mmapfiles_dir(args, mmapfile_info, dirs[idx], mappings, n,
-						mmap_populate, mmap_shared, &enomem);
+			n = stress_mmapfiles_dir(args, mmapfile_info, dirs[idx], n);
 			idx++;
 			if (idx >= SIZEOF_ARRAY(dirs))
 				idx = 0;
-			if (enomem)
+			if (mmapfile_info->enomem)
 				break;
 		}
 
 		for (i = 0; i < n; i++) {
 			double t;
-			const size_t len = mappings[i].len;
+			const size_t len = mmapfile_info->mappings[i].len;
 
 			t = stress_time_now();
-			if (munmap((void *)mappings[i].addr, len) == 0) {
+			if (munmap((void *)mmapfile_info->mappings[i].addr, len) == 0) {
 				const double delta = stress_time_now() - t;
 
 				mmapfile_info->munmap_duration += delta;
 				mmapfile_info->munmap_count += 1.0;
 				mmapfile_info->munmap_page_count += (double)(len + args->page_size - 1) / args->page_size;
 			} else {
-				(void)stress_munmap_retry_enomem((void *)mappings[i].addr, mappings[i].len);
+				(void)stress_munmap_retry_enomem((void *)mmapfile_info->mappings[i].addr, mmapfile_info->mappings[i].len);
 			}
-			mappings[i].addr = NULL;
-			mappings[i].len = 0;
+			mmapfile_info->mappings[i].addr = NULL;
+			mmapfile_info->mappings[i].len = 0;
 		}
 	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	free(mappings);
+	free(mmapfile_info->mappings);
 	return EXIT_SUCCESS;
 }
 
@@ -245,6 +274,13 @@ static int stress_mmapfiles(stress_args_t *args)
 	mmapfile_info->munmap_page_count = 0.0;
 	mmapfile_info->munmap_count = 0.0;
 	mmapfile_info->munmap_duration = 0.0;
+	mmapfile_info->mmapfiles_numa = false;
+	mmapfile_info->mmapfiles_populate = false;
+	mmapfile_info->mmapfiles_shared = false;
+	mmapfile_info->mappings = NULL;
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+	mmapfile_info->numa_mask = NULL;
+#endif
 
 	ret = stress_oomable_child(args, (void *)mmapfile_info, stress_mmapfiles_child, STRESS_OOMABLE_NORMAL);
 
