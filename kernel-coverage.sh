@@ -545,8 +545,9 @@ do_stress --link -1 --link-sync
 
 do_stress --lease -1 --lease-breakers 8
 
-do_stress --llc-affinity -1 --llc-affinity-mlock
 do_stress --llc-affinity -1 --llc-affinity-clflush
+do_stress --llc-affinity -1 --llc-affinity-mlock
+do_stress --llc-affinity -1 --llc-affinity-numa
 
 do_stress --lockf -1 --lockf-nonblock
 
@@ -560,8 +561,11 @@ do_stress --malloc -1 --malloc-touch
 do_stress --malloc -1 --malloc-zerofree
 do_stress --malloc -1 --malloc-trim
 
+do_stress --memcontend -1 --memcontend-numa
+
 do_stress --memfd -1 --memfd-fds 4096
 do_stress --memfd -1 --memfd-mlock
+do_stress --memfd -1 --memfd-numa
 do_stress --memfd -1 --memfd-zap-pte
 
 do_stress --memhotplug -1 --memhotplug-mmap
@@ -586,6 +590,8 @@ do_stress --mmap -1 --mmap-numa
 do_stress --mmap -1 --thrash
 
 do_stress --mmapaddr -1 --mmapaddr-mlock
+
+do_stress --mmapfiles -1 --mmapfiles-numa
 
 do_stress --mmapfixed -1 --mmapfixed-mlock
 
