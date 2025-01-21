@@ -192,7 +192,7 @@ static int stress_lockbus(stress_args_t *args)
 #if defined(HAVE_NUMA_LOCKBUS)
 	numa_mask = stress_numa_mask_alloc();
 	if (numa_mask)
-		stress_numa_randomize_pages(numa_mask, (void *)buffer, args->page_size, BUFFER_SIZE);
+		stress_numa_randomize_pages(numa_mask, buffer, args->page_size, BUFFER_SIZE);
 #endif
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);

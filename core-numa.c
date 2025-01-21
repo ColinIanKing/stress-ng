@@ -171,14 +171,14 @@ static void stress_check_numa_range(
  */
 void stress_numa_randomize_pages(
 	stress_numa_mask_t *numa_mask,
-	uint8_t *buffer,
+	void *buffer,
 	const size_t page_size,
 	const size_t buffer_size)
 {
-	uint8_t *ptr, *ptr_end = buffer + buffer_size;
+	uint8_t *ptr, *ptr_end = (uint8_t *)buffer + buffer_size;
 
 	(void)shim_memset(numa_mask->mask, 0, numa_mask->mask_size);
-	for (ptr = buffer; ptr < ptr_end; ptr += page_size) {
+	for (ptr = (uint8_t *)buffer; ptr < ptr_end; ptr += page_size) {
 		const unsigned long int node = (unsigned long int)stress_mwc32modn((uint32_t)numa_mask->nodes);
 
 		STRESS_SETBIT(numa_mask->mask, (unsigned long int)node);
@@ -301,7 +301,7 @@ int stress_set_mbind(const char *arg)
 #else
 void stress_numa_randomize_pages(
 	stress_numa_mask_t *numa_mask,
-	uint8_t *buffer,
+	void *buffer,
 	const size_t page_size,
 	const size_t buffer_size)
 {

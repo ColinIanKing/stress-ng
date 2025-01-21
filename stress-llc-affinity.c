@@ -404,7 +404,7 @@ static int stress_llc_affinity(stress_args_t *args)
 	stress_set_vma_anon_name(buf, mmap_sz, "llc-buffer");
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 	if (llc_affinity_numa)
-		stress_numa_randomize_pages(numa_mask, (uint8_t *)buf, page_size, mmap_sz);
+		stress_numa_randomize_pages(numa_mask, buf, page_size, mmap_sz);
 #endif
 	if (llc_affinity_mlock)
 		(void)shim_mlock(buf, mmap_sz);

@@ -552,8 +552,8 @@ static int stress_mcontend(stress_args_t *args)
 	(void)close(fd);
 #if defined(HAVE_LINUX_MEMPOLICY_H)
         if (mcontend_numa) {
-                stress_numa_randomize_pages(numa_mask, (uint8_t *)data[0], page_size, page_size);
-                stress_numa_randomize_pages(numa_mask, (uint8_t *)data[1], page_size, page_size);
+                stress_numa_randomize_pages(numa_mask, data[0], page_size, page_size);
+                stress_numa_randomize_pages(numa_mask, data[1], page_size, page_size);
 	}
 #endif
 	(void)shim_mlock(data[0], page_size);
