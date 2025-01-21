@@ -403,8 +403,10 @@ static int stress_llc_affinity(stress_args_t *args)
 	}
 	stress_set_vma_anon_name(buf, mmap_sz, "llc-buffer");
 #if defined(HAVE_LINUX_MEMPOLICY_H)
-	if (llc_affinity_numa)
+	if (llc_affinity_numa) {
 		stress_numa_randomize_pages(numa_mask, buf, page_size, mmap_sz);
+        	stress_numa_mask_free(numa_mask);
+	}
 #endif
 	if (llc_affinity_mlock)
 		(void)shim_mlock(buf, mmap_sz);
@@ -504,6 +506,7 @@ static int stress_llc_affinity(stress_args_t *args)
 		rate, STRESS_METRIC_HARMONIC_MEAN);
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
 	(void)munmap((void *)buf, mmap_sz);
 
 	stress_free_usable_cpus(&cpus);
