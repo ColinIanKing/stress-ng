@@ -18,11 +18,13 @@
  *
  */
 #include "stress-ng.h"
+#include "core-numa.h"
 #include "core-out-of-memory.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"mmapmany N",		"start N workers stressing many mmaps and munmaps" },
 	{ NULL, "mmapmany-mlock",	"attempt to mlock pages into memory" },
+	{ NULL, "mmapmany-numa",	"bind memory mappings to randomly selected NUMA nodes" },
 	{ NULL,	"mmapmany-ops N",	"stop after N mmapmany bogo operations" },
 	{ NULL,	NULL,		  	NULL }
 };
@@ -55,16 +57,40 @@ static int stress_mmapmany_child(stress_args_t *args, void *context)
 	const uint64_t pattern1 = stress_mwc64();
 	const size_t offset2pages = (page_size * 2) / sizeof(uint64_t);
 	bool mmapmany_mlock = false;
+	bool mmapmany_numa = false;
 	int rc = EXIT_SUCCESS;
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+	stress_numa_mask_t *numa_mask = NULL;
+#endif
 
 	(void)context;
 
 	(void)stress_get_setting("mmapmany-mlock", &mmapmany_mlock);
+	(void)stress_get_setting("mmapmany-numa", &mmapmany_numa);
 
 	mappings = (uint64_t **)calloc((size_t)max, sizeof(*mappings));
 	if (!mappings) {
 		pr_fail("%s: malloc failed, out of memory\n", args->name);
 		return EXIT_NO_RESOURCE;
+	}
+
+	if (mmapmany_numa) {
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+		if (stress_numa_nodes() > 1) {
+			numa_mask = stress_numa_mask_alloc();
+		} else {
+			if (args->instance == 0) {
+				pr_inf("%s: only 1 NUMA node available, disabling --mmapmany-numa\n",
+					args->name);
+				mmapmany_numa = false;
+			}
+		}
+#else
+		if (args->instance == 0)
+			pr_inf("%s: --mmapmany-numa selected but not supported by this system, disabling option\n",
+				args->name);
+		mmapmany_numa = false;
+#endif
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
@@ -84,6 +110,11 @@ static int stress_mmapmany_child(stress_args_t *args, void *context)
 				MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 			if (ptr == MAP_FAILED)
 				break;
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+			if (mmapmany_numa)
+				stress_numa_randomize_pages(numa_mask, ptr, page_size, page_size * 3);
+#endif
+
 			if (mmapmany_mlock)
 				(void)shim_mlock(ptr, page_size * 3);
 			mappings[n] = ptr;
@@ -128,6 +159,10 @@ static int stress_mmapmany_child(stress_args_t *args, void *context)
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+	if (mmapmany_numa)
+		stress_numa_mask_free(numa_mask);
+#endif
 	free(mappings);
 	return rc;
 }
@@ -143,6 +178,7 @@ static int stress_mmapmany(stress_args_t *args)
 
 static const stress_opt_t opts[] = {
 	{ OPT_mmapmany_mlock, "mmapmany-mlock", TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_mmapmany_numa,  "mmapmany-numa",  TYPE_ID_BOOL, 0, 1, NULL },
 	END_OPT,
 };
 

@@ -5249,6 +5249,10 @@ the maximum allowed mappings or a maximum of 262144 mappings are made.
 attempt to mlock mmap'd huge pages into memory causing more memory pressure by
 preventing pages from swapped out.
 .TP
+.B \-\-mmaphuge\-numa
+assign memory mapped pages to randomly selected NUMA nodes. This is disabled
+for systems that do not support NUMA or have less than 2 NUMA nodes.
+.TP
 .B \-\-mmapmany\-ops N
 stop after N mmapmany bogo operations
 .RE
