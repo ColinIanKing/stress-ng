@@ -85,7 +85,7 @@ static const stress_help_t help[] = {
 #endif
 	{ NULL,	 "vm-madvise M", "specify mmap'd vm buffer madvise advice" },
 	{ NULL,	 "vm-method M",	 "specify stress vm method M, default is all" },
-	{ NULL,	 "vm-numa",	 "bind memory mappings to randonly selected NUMA nodes" },
+	{ NULL,	 "vm-numa",	 "bind memory mappings to randomly selected NUMA nodes" },
 	{ NULL,	 "vm-ops N",	 "stop after N vm bogo operations" },
 #if defined(MAP_POPULATE)
 	{ NULL,	 "vm-populate",	 "populate (prefault) page tables for a mapping" },

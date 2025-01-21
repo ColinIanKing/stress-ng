@@ -23,7 +23,7 @@
 
 static const stress_help_t help[] = {
 	{ NULL,	"mmapfiles N",		"start N workers stressing many mmaps and munmaps" },
-	{ NULL, "mmapfiles-numa",	"bind memory mappings to randonly selected NUMA nodes" },
+	{ NULL, "mmapfiles-numa",	"bind memory mappings to randomly selected NUMA nodes" },
 	{ NULL,	"mmapfiles-ops N",	"stop after N mmapfiles bogo operations" },
 	{ NULL, "mmapfiles-populate",	"populate memory mappings" },
 	{ NULL, "mmapfiles-shared",	"enable shared mappings instead of private mappings" },

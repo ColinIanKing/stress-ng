@@ -29,7 +29,7 @@
 static const stress_help_t help[] = {
 	{ NULL,	"mcontend N",	  "start N workers that produce memory contention" },
 	{ NULL,	"mcontend-ops N", "stop memory contention workers after N bogo-ops" },
-	{ NULL, "mcontend-numa",  "bind memory mappings to randonly selected NUMA nodes" },
+	{ NULL, "mcontend-numa",  "bind memory mappings to randomly selected NUMA nodes" },
 	{ NULL,	NULL,		  NULL }
 };
 

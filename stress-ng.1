@@ -838,7 +838,7 @@ stop the atomic workers after N bogo atomic operations.
 .B \-\-bad\-altstack N
 start N workers that create broken alternative signal stacks for SIGSEGV
 and SIGBUS handling that in turn create secondary SIGSEGV/SIGBUS errors.
-A variety of randonly selected nefarious methods are used to create the stacks:
+A variety of randomly selected nefarious methods are used to create the stacks:
 .PP
 .RS
 .PD 0
@@ -3600,7 +3600,7 @@ stop the icache workers after N bogo icache operations are completed.
 .RS 5
 .TQ
 .B \-\-icmp\-flood N
-start N workers that flood localhost with randonly sized ICMP ping packets.
+start N workers that flood localhost with randomly sized ICMP ping packets.
 This stressor requires the CAP_NET_RAW capbility.
 .TP
 .B \-\-icmp\-flood\-max\-size
@@ -5701,7 +5701,7 @@ of nop, pause, nop2 (2 byte nop) through to nop15 (15 byte nop). For
 ARM CPUs, INSTR can be one of nop or yield. For PPC64 CPUs, INSTR
 can be one of nop, mdoio, mdoom or yield. For S390 CPUs, INSTR
 can be one of nop or nopr. For other processors, INSTR
-is only nop. The random INSTR option selects a randon mix of the
+is only nop. The random INSTR option selects a random mix of the
 available nop instructions. If the chosen INSTR generates an SIGILL
 signal, then the stressor falls back to the vanilla nop instruction.
 .TP
@@ -9337,7 +9337,7 @@ stop after N bogo vm\-splice operations.
 start M workers that create pthreads to mmap, munmap, mlock, munlock, madvise,
 msync, mprotect, mincore and access 32 pages in a randomly selected virtual
 memory address space. This is designed to trip races on VMA page modifications.
-Every 15 seconds a different virtual address space is randonly chosen.
+Every 15 seconds a different virtual address space is randomly chosen.
 .TP
 .B \-\-vma\-ops N
 stop the vma stressors after N successful memory mappings.

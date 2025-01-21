@@ -43,7 +43,7 @@ static const stress_help_t help[] = {
 	{ NULL,	"memfd-fds N",	 "number of memory fds to open per stressors" },
 	{ NULL,	"memfd-madvise", "add random madvise hints to memfd mapped pages" },
 	{ NULL,	"memfd-mlock",	 "attempt to mlock pages into memory" },
-	{ NULL,	"memfd-numa",	 "bind memory mappings to randonly selected NUMA nodes" },
+	{ NULL,	"memfd-numa",	 "bind memory mappings to randomly selected NUMA nodes" },
 	{ NULL,	"memfd-ops N",	 "stop after N memfd bogo operations" },
 	{ NULL,	"memfd-zap-pte", "enable zap pte bug check (slow)" },
 	{ NULL,	NULL,		 NULL }

@@ -35,7 +35,7 @@ typedef struct {
 static const stress_help_t help[] = {
 	{ NULL,	"mmapfixed N",		"start N workers stressing mmap with fixed mappings" },
 	{ NULL,	"mmapfixed-mlock",	"attempt to mlock pages into memory" },
-	{ NULL,	"mmapfixed-numa",	"bind memory mappings to randonly selected NUMA nodes" },
+	{ NULL,	"mmapfixed-numa",	"bind memory mappings to randomly selected NUMA nodes" },
 	{ NULL,	"mmapfixed-ops N",	"stop after N mmapfixed bogo operations" },
 	{ NULL,	NULL,			NULL }
 };

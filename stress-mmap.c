@@ -50,7 +50,7 @@ static const stress_help_t help[] = {
 	{ NULL,	"mmap-mlock",	     "attempt to mlock mmap'd pages" },
 	{ NULL,	"mmap-mmap2",	     "use mmap2 instead of mmap (when available)" },
 	{ NULL,	"mmap-mprotect",     "enable mmap mprotect stressing" },
-	{ NULL,	"mmap-numa",	     "bind memory mappings to randonly selected NUMA nodes" },
+	{ NULL,	"mmap-numa",	     "bind memory mappings to randomly selected NUMA nodes" },
 	{ NULL, "mmap-odirect",	     "enable O_DIRECT on file" },
 	{ NULL,	"mmap-ops N",	     "stop after N mmap bogo operations" },
 	{ NULL, "mmap-osync",	     "enable O_SYNC on file" },

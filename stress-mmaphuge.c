@@ -27,7 +27,7 @@ static const stress_help_t help[] = {
 	{ NULL, "mmaphuge-file",	"perform mappings on a temporary file" },
 	{ NULL,	"mmaphuge-mlock",	"attempt to mlock pages into memory" },
 	{ NULL, "mmaphuge-mmaps N",	"select number of memory mappings per iteration" },
-	{ NULL, "mmaphuge-numa",	"bind memory mappings to randonly selected NUMA nodes" },
+	{ NULL, "mmaphuge-numa",	"bind memory mappings to randomly selected NUMA nodes" },
 	{ NULL,	"mmaphuge-ops N",	"stop after N mmaphuge bogo operations" },
 	{ NULL,	NULL,			NULL }
 };
