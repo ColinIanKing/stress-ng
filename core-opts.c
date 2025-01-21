@@ -526,6 +526,7 @@ const struct option stress_long_options[] = {
 	{ "max-fd",		1,	0,	OPT_max_fd },
 	{ "mbind",		1,	0,	OPT_mbind },
 	{ "mcontend",		1,	0,	OPT_mcontend },
+	{ "mcontend-numa",	0,	0,	OPT_mcontend_numa },
 	{ "mcontend-ops",	1,	0,	OPT_mcontend_ops },
 	{ "membarrier",		1,	0,	OPT_membarrier },
 	{ "membarrier-ops",	1,	0,	OPT_membarrier_ops },

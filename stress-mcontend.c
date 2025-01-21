@@ -23,13 +23,21 @@
 #include "core-asm-x86.h"
 #include "core-builtin.h"
 #include "core-cpu-cache.h"
+#include "core-numa.h"
 #include "core-pthread.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"mcontend N",	  "start N workers that produce memory contention" },
 	{ NULL,	"mcontend-ops N", "stop memory contention workers after N bogo-ops" },
+	{ NULL, "mcontend-numa",  "bind memory mappings to randonly selected NUMA nodes" },
 	{ NULL,	NULL,		  NULL }
 };
+
+static const stress_opt_t opts[] = {
+	{ OPT_mcontend_numa, "mcontend-numa", TYPE_ID_BOOL, 0, 1, NULL },
+	END_OPT,
+};
+
 
 #if defined(HAVE_LIB_PTHREAD)
 
@@ -438,16 +446,42 @@ static void *stress_memory_contend_thread(void *arg)
 static int stress_mcontend(stress_args_t *args)
 {
 	size_t i;
+	const size_t page_size = args->page_size;
 	pthread_t pthreads[MAX_READ_THREADS];
 	int ret[MAX_READ_THREADS];
 	void *data[MAX_MAPPINGS];
 	char filename[PATH_MAX];
 	stress_pthread_args_t pa;
+	bool mcontend_numa;
 	int fd, rc;
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+	stress_numa_mask_t *numa_mask = NULL;
+#endif
+
+	(void)stress_get_setting("mcontend-numa", &mcontend_numa);
 
 #if defined(HAVE_SCHED_SETAFFINITY)
 	n_cpus = stress_get_usable_cpus(&cpus, true);
 #endif
+
+	if (mcontend_numa) {
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+		if (stress_numa_nodes() > 1) {
+			numa_mask = stress_numa_mask_alloc();
+		} else {
+			if (args->instance == 0) {
+				pr_inf("%s: only 1 NUMA node available, disabling --mcontend-numa\n",
+					args->name);
+				mcontend_numa = false;
+			}
+		}
+#else
+		if (args->instance == 0)
+			pr_inf("%s: --mcontend-numa selected but not supported by this system, disabling option\n",
+				args->name);
+		mcontend_numa = false;
+#endif
+	}
 
 	rc = stress_temp_dir_mk_args(args);
 	if (rc < 0) {
@@ -472,7 +506,7 @@ static int stress_mcontend(stress_args_t *args)
 	}
 	(void)shim_unlink(filename);
 
-	rc = page_write_sync(fd, args->page_size);
+	rc = page_write_sync(fd, page_size);
 	if (rc < 0) {
 		pr_inf("%s: mmap backing file write failed: errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
@@ -490,7 +524,7 @@ static int stress_mcontend(stress_args_t *args)
 	 *  Get two different mappings of the same physical page
 	 *  just to make things more interesting
 	 */
-	data[0] = stress_mmap_populate(NULL, args->page_size, PROT_READ | PROT_WRITE,
+	data[0] = stress_mmap_populate(NULL, page_size, PROT_READ | PROT_WRITE,
 			MAP_PRIVATE, fd, 0);
 	if (data[0] == MAP_FAILED) {
 		pr_inf("%s: mmap failed: errno=%d (%s)\n",
@@ -502,12 +536,12 @@ static int stress_mcontend(stress_args_t *args)
 #endif
 		return EXIT_NO_RESOURCE;
 	}
-	data[1] = stress_mmap_populate(NULL, args->page_size , PROT_READ | PROT_WRITE,
+	data[1] = stress_mmap_populate(NULL, page_size , PROT_READ | PROT_WRITE,
 			MAP_PRIVATE, fd, 0);
 	if (data[1] == MAP_FAILED) {
 		pr_inf("%s: mmap failed: errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
-		(void)munmap(data[0], args->page_size);
+		(void)munmap(data[0], page_size);
 		(void)close(fd);
 		(void)stress_temp_dir_rm_args(args);
 #if defined(HAVE_SCHED_SETAFFINITY)
@@ -516,8 +550,14 @@ static int stress_mcontend(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 	(void)close(fd);
-	(void)shim_mlock(data[0], args->page_size);
-	(void)shim_mlock(data[1], args->page_size);
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+        if (mcontend_numa) {
+                stress_numa_randomize_pages(numa_mask, (uint8_t *)data[0], page_size, page_size);
+                stress_numa_randomize_pages(numa_mask, (uint8_t *)data[1], page_size, page_size);
+	}
+#endif
+	(void)shim_mlock(data[0], page_size);
+	(void)shim_mlock(data[1], page_size);
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
@@ -532,8 +572,8 @@ static int stress_mcontend(stress_args_t *args)
 	do {
 		stress_memory_contend(&pa);
 #if defined(HAVE_MSYNC)
-		(void)msync(data[0], args->page_size, MS_ASYNC);
-		(void)msync(data[1], args->page_size, MS_ASYNC);
+		(void)msync(data[0], page_size, MS_ASYNC);
+		(void)msync(data[1], page_size, MS_ASYNC);
 #endif
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
@@ -546,8 +586,8 @@ static int stress_mcontend(stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	(void)munmap(data[0], args->page_size);
-	(void)munmap(data[1], args->page_size);
+	(void)munmap(data[0], page_size);
+	(void)munmap(data[1], page_size);
 
 	(void)stress_temp_dir_rm_args(args);
 #if defined(HAVE_SCHED_SETAFFINITY)
@@ -560,12 +600,14 @@ static int stress_mcontend(stress_args_t *args)
 const stressor_info_t stress_mcontend_info = {
 	.stressor = stress_mcontend,
 	.class = CLASS_MEMORY,
+	.opts = opts,
 	.help = help
 };
 #else
 const stressor_info_t stress_mcontend_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_MEMORY,
+	.opts = opts,
 	.help = help,
 	.unimplemented_reason = "built without pthread support"
 };

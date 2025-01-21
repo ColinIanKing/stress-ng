@@ -797,6 +797,7 @@ typedef enum {
 	OPT_max_fd,
 
 	OPT_mcontend,
+	OPT_mcontend_numa,
 	OPT_mcontend_ops,
 
 	OPT_membarrier,

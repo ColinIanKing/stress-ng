@@ -4596,6 +4596,10 @@ of the same underlying physical page. Various caching operations are also
 exercised to cause sub-optimal memory access patterns.  The threads also
 randomly change CPU affinity to exercise CPU and memory migration stress.
 .TP
+.B \-\-mcontend\-numa
+assign memory mapped pages to randomly selected NUMA nodes. This is disabled
+for systems that do not support NUMA or have less than 2 NUMA nodes.
+.TP
 .B \-\-mcontend\-ops N
 stop mcontend stressors after N bogo read/write operations.
 .RE
