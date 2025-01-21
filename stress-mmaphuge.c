@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-mmap.h"
+#include "core-numa.h"
 #include "core-out-of-memory.h"
 
 static const stress_help_t help[] = {
@@ -26,6 +27,7 @@ static const stress_help_t help[] = {
 	{ NULL, "mmaphuge-file",	"perform mappings on a temporary file" },
 	{ NULL,	"mmaphuge-mlock",	"attempt to mlock pages into memory" },
 	{ NULL, "mmaphuge-mmaps N",	"select number of memory mappings per iteration" },
+	{ NULL, "mmaphuge-numa",	"bind memory mappings to randonly selected NUMA nodes" },
 	{ NULL,	"mmaphuge-ops N",	"stop after N mmaphuge bogo operations" },
 	{ NULL,	NULL,			NULL }
 };
@@ -34,6 +36,7 @@ static const stress_opt_t opts[] = {
 	{ OPT_mmaphuge_file,  "mmaphuge-file",  TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_mmaphuge_mlock, "mmaphuge-mlock", TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_mmaphuge_mmaps, "mmaphuge-mmaps", TYPE_ID_SIZE_T, 1, 65536, NULL },
+	{ OPT_mmaphuge_numa,  "mmaphuge-numa",  TYPE_ID_BOOL, 0, 1, NULL },
 };
 
 #if defined(MAP_HUGETLB)
@@ -63,7 +66,13 @@ typedef struct {
 	size_t mmaphuge_mmaps;	/* number of mmap'd buffers */
 	size_t sz;		/* size of mmap'd file */
 	bool mmaphuge_file;	/* true if using mmap'd file */
+	bool mmaphuge_mlock;	/* true if using mlocked mmaps */
+	bool mmaphuge_numa;	/* true if using numa binding */
 	int fd;
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+        stress_numa_mask_t *numa_mask;
+#endif
+
 } stress_mmaphuge_context_t;
 
 static const stress_mmaphuge_setting_t stress_mmap_settings[] =
@@ -89,9 +98,6 @@ static int stress_mmaphuge_child(stress_args_t *args, void *v_ctxt)
 	stress_mmaphuge_buf_t *bufs = (stress_mmaphuge_buf_t *)ctxt->bufs;
 	size_t idx = 0;
 	int rc = EXIT_SUCCESS;
-	bool mmaphuge_mlock = false;
-
-	(void)stress_get_setting("mmaphuge-mlock", &mmaphuge_mlock);
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
@@ -152,7 +158,12 @@ static int stress_mmaphuge_child(stress_args_t *args, void *v_ctxt)
 					register uint64_t *ptr, val;
 					const uint64_t *buf_end = (uint64_t *)(buf + sz);
 
-					if (mmaphuge_mlock)
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+					if (ctxt->mmaphuge_numa)
+						stress_numa_randomize_pages(ctxt->numa_mask, buf, page_size, sz);
+#endif
+
+					if (ctxt->mmaphuge_mlock)
 						(void)shim_mlock(buf, sz);
 
 					/* Touch every other 64 pages.. */
@@ -240,6 +251,10 @@ static int stress_mmaphuge(stress_args_t *args)
 	(void)stress_get_setting("mmaphuge-mmaps", &ctxt.mmaphuge_mmaps);
 	ctxt.mmaphuge_file = false;
 	(void)stress_get_setting("mmaphuge-file", &ctxt.mmaphuge_file);
+	ctxt.mmaphuge_numa = false;
+	(void)stress_get_setting("mmaphuge-numa", &ctxt.mmaphuge_numa);
+	ctxt.mmaphuge_mlock = false;
+	(void)stress_get_setting("mmaphuge-mlock", &ctxt.mmaphuge_mlock);
 
 	ctxt.bufs = (stress_mmaphuge_buf_t *)calloc(ctxt.mmaphuge_mmaps, sizeof(*ctxt.bufs));
 	if (!ctxt.bufs) {
@@ -295,7 +310,32 @@ static int stress_mmaphuge(stress_args_t *args)
 		}
 	}
 
+	if (ctxt.mmaphuge_numa) {
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+		if (stress_numa_nodes() > 1) {
+			ctxt.numa_mask = stress_numa_mask_alloc();
+		} else {
+			if (args->instance == 0) {
+				pr_inf("%s: only 1 NUMA node available, disabling --mmaphuge-numa\n",
+					args->name);
+				ctxt.mmaphuge_numa = false;
+			}
+		}
+#else
+		if (args->instance == 0)
+			pr_inf("%s: --mmaphuge-numa selected but not supported by this system, disabling option\n",
+				args->name);
+		ctxt.mmaphuge_numa = false;
+#endif
+	}
+
 	ret = stress_oomable_child(args, (void *)&ctxt, stress_mmaphuge_child, STRESS_OOMABLE_QUIET);
+
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+	if (ctxt.mmaphuge_numa) {
+		stress_numa_mask_free(ctxt.numa_mask);
+	}
+#endif
 	free(ctxt.bufs);
 
 	if (ctxt.mmaphuge_file) {

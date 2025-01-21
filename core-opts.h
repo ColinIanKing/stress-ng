@@ -907,6 +907,7 @@ typedef enum {
 	OPT_mmaphuge_file,
 	OPT_mmaphuge_mlock,
 	OPT_mmaphuge_mmaps,
+	OPT_mmaphuge_numa,
 	OPT_mmaphuge_ops,
 
 	OPT_mmapmany,

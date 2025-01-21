@@ -5228,6 +5228,10 @@ preventing pages from swapped out.
 set the number of huge page mappings to attempt in each round of mappings. The
 default is 8192 mappings.
 .TP
+.B \-\-mmaphuge\-numa
+assign memory mapped pages to randomly selected NUMA nodes. This is disabled
+for systems that do not support NUMA or have less than 2 NUMA nodes.
+.TP
 .B \-\-mmaphuge\-ops N
 stop after N mmaphuge bogo operations
 .RE

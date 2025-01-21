@@ -615,6 +615,7 @@ const struct option stress_long_options[] = {
 	{ "mmaphuge-file",	0,	0,	OPT_mmaphuge_file },
 	{ "mmaphuge-mlock",	0,	0,	OPT_mmaphuge_mlock },
 	{ "mmaphuge-mmaps",	1,	0,	OPT_mmaphuge_mmaps },
+	{ "mmaphuge-numa",	0,	0,	OPT_mmaphuge_numa },
 	{ "mmaphuge-ops",	1,	0,	OPT_mmaphuge_ops },
 	{ "mmapmany",		1,	0,	OPT_mmapmany },
 	{ "mmapmany-mlock",	0,	0,	OPT_mmapmany_mlock },
