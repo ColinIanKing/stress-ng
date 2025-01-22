@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-bitops.h"
 #include "core-madvise.h"
+#include "core-numa.h"
 #include "core-out-of-memory.h"
 #include "core-pragma.h"
 #include "core-target-clones.h"
@@ -42,7 +43,11 @@ typedef struct {
 typedef struct {
 	uint64_t *bit_error_count;
 	const stress_vm_addr_method_info_t *vm_addr_method;
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+	stress_numa_mask_t *numa_mask;
+#endif
 	bool vm_addr_mlock;
+	bool vm_addr_numa;
 } stress_vm_addr_context_t;
 
 static const stress_vm_addr_method_info_t vm_addr_methods[];
@@ -51,6 +56,7 @@ static const stress_help_t help[] = {
 	{ NULL,	"vm-addr N",	    "start N vm address exercising workers" },
 	{ NULL, "vm-addr-method M", "select method to exercise vm addresses" },
 	{ NULL,	"vm-addr-mlock",    "attempt to mlock pages into memory" },
+	{ NULL,	"vm-addr-numa",     "bind memory mappings to randomly selected NUMA nodes" },
 	{ NULL,	"vm-addr-ops N",    "stop after N vm address bogo operations" },
 	{ NULL,	NULL,		 NULL }
 };
@@ -452,11 +458,12 @@ static int stress_vm_addr_child(stress_args_t *args, void *ctxt)
 	uint8_t *buf = NULL;
 	stress_vm_addr_context_t *context = (stress_vm_addr_context_t *)ctxt;
 	const stress_vm_addr_func func = context->vm_addr_method->func;
+	const size_t page_size = args->page_size;
 
 	stress_catch_sigill();
 
 	do {
-		for (buf_addr = args->page_size; buf_addr && (buf_addr < max_addr); buf_addr <<= 1) {
+		for (buf_addr = page_size; buf_addr && (buf_addr < max_addr); buf_addr <<= 1) {
 			if (no_mem_retries >= NO_MEM_RETRIES_MAX) {
 				pr_err("%s: gave up trying to mmap, no available memory\n",
 					args->name);
@@ -474,6 +481,10 @@ static int stress_vm_addr_child(stress_args_t *args, void *ctxt)
 				continue;
 			}
 			(void)stress_madvise_mergeable(buf, buf_sz);
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+			if (context->vm_addr_numa)
+				stress_numa_randomize_pages(context->numa_mask, buf, page_size, buf_sz);
+#endif
 			if (context->vm_addr_mlock)
 				(void)shim_mlock(buf, buf_sz);
 
@@ -503,12 +514,19 @@ static int stress_vm_addr(stress_args_t *args)
 	int err = 0, ret = EXIT_SUCCESS;
 	stress_vm_addr_context_t context;
 
+	context.vm_addr_mlock = false;
+	context.vm_addr_numa = false;
+
 	(void)stress_get_setting("vm-addr-mlock", &context.vm_addr_mlock);
 	(void)stress_get_setting("vm-addr-method", &vm_addr_method);
+	(void)stress_get_setting("vm-addr-numa", &context.vm_addr_numa);
 
 	context.vm_addr_method = &vm_addr_methods[vm_addr_method];
 	context.vm_addr_mlock = false;
 	context.bit_error_count = MAP_FAILED;
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+	context.numa_mask = NULL;
+#endif
 
 	if (args->instance == 0)
 		pr_dbg("%s: using method '%s'\n", args->name, context.vm_addr_method->name);
@@ -535,6 +553,25 @@ static int stress_vm_addr(stress_args_t *args)
 	}
 	stress_set_vma_anon_name(context.bit_error_count, page_size, "bit-error-count");
 
+	if (context.vm_addr_numa) {
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+		if (stress_numa_nodes() > 1) {
+			context.numa_mask = stress_numa_mask_alloc();
+		} else {
+			if (args->instance == 0) {
+				pr_inf("%s: only 1 NUMA node available, disabling --vm-addr-numa\n",
+					args->name);
+				context.vm_addr_numa = false;
+			}
+		}
+#else
+		if (args->instance == 0)
+			pr_inf("%s: --vm-addr-uma selected but not supported by this system, disabling option\n",
+				args->name);
+		context.vm_addr_numa = false;
+#endif
+	}
+
 	*context.bit_error_count = 0ULL;
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
@@ -551,6 +588,10 @@ static int stress_vm_addr(stress_args_t *args)
 	}
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+	if (context.vm_addr_numa)
+		stress_numa_mask_free(context.numa_mask);
+#endif
 	(void)munmap((void *)context.bit_error_count, page_size);
 
 	return ret;
@@ -564,6 +605,7 @@ static const char *stress_vm_addr_method(const size_t i)
 static const stress_opt_t opts[] = {
 	{ OPT_vm_addr_method, "vm-addr-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_vm_addr_method },
 	{ OPT_vm_addr_mlock,  "vm-addr-mlock",  TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_vm_addr_numa,   "vm-addr-numa",   TYPE_ID_BOOL, 0, 1, NULL },
 	END_OPT,
 };
 

@@ -9288,6 +9288,10 @@ T}
 attempt to mlock pages into memory causing more memory pressure by
 preventing pages from swapped out.
 .TP
+.B \-\-vm\-addr\-numa
+assign memory mapped pages to randomly selected NUMA nodes. This is disabled
+for systems that do not support NUMA or have less than 2 NUMA nodes.
+.TP
 .B \-\-vm\-addr\-ops N
 stop N workers after N bogo addressing passes.
 .RE

@@ -1681,6 +1681,7 @@ typedef enum {
 	OPT_vm_addr,
 	OPT_vm_addr_method,
 	OPT_vm_addr_mlock,
+	OPT_vm_addr_numa,
 	OPT_vm_addr_ops,
 
 	OPT_vm_rw,
