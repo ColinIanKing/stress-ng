@@ -206,7 +206,7 @@ static stress_pid_hash_t *stress_exec_alloc_pid(const bool alloc_stack)
 {
 	NOCLOBBER stress_pid_hash_t *sph;
 
-	/* Any on the free list, re-use these */
+	/* Any on the free list, reuse these */
 	if (free_list) {
 		sph = free_list;
 		free_list = free_list->next;

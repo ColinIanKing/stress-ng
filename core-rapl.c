@@ -231,7 +231,7 @@ static int stress_rapl_get_power(stress_rapl_domain_t *rapl_domains, const int w
 
 			got_data = 0;
 
-			/* Invalid, re-use prev value as a workaround */
+			/* Invalid, reuse prev value as a workaround */
 			if (ujoules <= 0.0)
 				ujoules = prev_energy_uj;
 

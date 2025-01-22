@@ -887,7 +887,7 @@ static void NORETURN MLOCKED_TEXT stress_cache_sighandler(int signum)
 
 /*
  *  stress_cache_hammer_flags_to_str()
- *	turn set flags into correspoding name of flags
+ *	turn set flags into corresponding name of flags
  */
 static void stress_cache_hammer_flags_to_str(
 	char *buf,

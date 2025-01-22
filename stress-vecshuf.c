@@ -58,7 +58,7 @@ VEC_TYPE_T(__uint128_t, u128, 4)
  *  various 64 byte vectors and shuffle masks
  *	s = vector being shuffled
  *	o = vector of original data to sanity check shuffle
- *	mask1 = vector of shuffling posistions
+ *	mask1 = vector of shuffling positions
  *	mask2 = vector to shuffle positions to shuffle back to
  *		original position
  */

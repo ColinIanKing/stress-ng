@@ -150,7 +150,7 @@ static void stress_numa_check_maps(
 			if (str) {
 				int node;
 
-				/* skip to Nx field, read node numer */
+				/* skip to Nx field, read node number */
 				while (*str && *str != ' ')
 					str++;
 				while (*str == ' ')
@@ -440,7 +440,7 @@ static int stress_numa(stress_args_t *args)
 
 		/*
 		 *  mbind the buffer, first try MPOL_MF_STRICT which
-		 *  may fail with EIO, so retry wuth MPOL_MF_MOVE
+		 *  may fail with EIO, so retry with MPOL_MF_MOVE
 		 */
 		shim_memset(numa_mask->mask, 0x00, numa_mask->mask_size);
 		STRESS_SETBIT(numa_mask->mask, node);

@@ -217,7 +217,7 @@ PRAGMA_UNROLL_N(4)
 	}
 	metrics->insert += stress_time_now() - t;
 
-	/* Manditory forward tree check */
+	/* Mandatory forward tree check */
 	t = stress_time_now();
 PRAGMA_UNROLL_N(4)
 	for (node = nodes, i = 0; i < n; i++, node++) {
@@ -294,7 +294,7 @@ PRAGMA_UNROLL_N(4)
 	}
 	metrics->insert += stress_time_now() - t;
 
-	/* Manditory forward tree check */
+	/* Mandatory forward tree check */
 	t = stress_time_now();
 PRAGMA_UNROLL_N(4)
 	for (node = nodes, i = 0; i < n; i++, node++) {
@@ -398,7 +398,7 @@ PRAGMA_UNROLL_N(4)
 	}
 	metrics->insert += stress_time_now() - t;
 
-	/* Manditory forward tree check */
+	/* Mandatory forward tree check */
 	t = stress_time_now();
 PRAGMA_UNROLL_N(4)
 	for (node = nodes, i = 0; i < n; i++, node++) {
@@ -612,7 +612,7 @@ PRAGMA_UNROLL_N(4)
 	}
 	metrics->insert += stress_time_now() - t;
 
-	/* Manditory forward tree check */
+	/* Mandatory forward tree check */
 	t = stress_time_now();
 PRAGMA_UNROLL_N(4)
 	for (node = nodes, i = 0; i < n; i++, node++) {
@@ -838,7 +838,7 @@ PRAGMA_UNROLL_N(4)
 		btree_insert(&root, node->value);
 	metrics->insert += stress_time_now() - t;
 
-	/* Manditory forward tree check */
+	/* Mandatory forward tree check */
 	t = stress_time_now();
 PRAGMA_UNROLL_N(4)
 	for (node = nodes, i = 0; i < n; i++, node++) {

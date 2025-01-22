@@ -180,7 +180,7 @@ static void netbsd_get_cpu_time(
 
 /*
  *  stress_set_generic_stat()
- *	parse and check op for valud time range
+ *	parse and check op for valid time range
  */
 static int stress_set_generic_stat(
 	const char *const opt,

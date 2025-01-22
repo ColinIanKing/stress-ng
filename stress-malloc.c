@@ -359,7 +359,7 @@ static int stress_malloc_child(stress_args_t *args, void *context)
 	NOCLOBBER int rc = EXIT_SUCCESS;
 	/*
 	 *  pthread instance 0 is actually the main child process,
-	 *  insances 1..N are pthreads 0..N-1
+	 *  instances 1..N are pthreads 0..N-1
 	 */
 	stress_malloc_args_t malloc_args[MAX_MALLOC_PTHREADS + 1];
 	size_t malloc_pthreads = 0;

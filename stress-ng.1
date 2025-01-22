@@ -1084,7 +1084,7 @@ cmp	T{
 compare two 32 bit unsigned integers with comparison results of -1, 0, 1 for less than, equal or greater than. Computed 3 ways, one using simple comparisons, two using comparisons and subtraction.
 T}
 log2	T{
-calculate log base 2 of a 32 bit unsigned integer. Computed four ways, one using bit counting, one using masking and shifting and braching, one using masking and shifting with no branching, one using shifting and bitwise or'ing.
+calculate log base 2 of a 32 bit unsigned integer. Computed four ways, one using bit counting, one using masking and shifting and branching, one using masking and shifting with no branching, one using shifting and bitwise or'ing.
 T}
 max	T{
 find the maximum of two 32 bit unsigned integers without a temporary variable. Computed two ways, one using xor'ing and masking, one using the ternary operator.
@@ -2330,13 +2330,13 @@ inverse-float	T{
 inverse of matrix of floating point values
 T}
 multiply-longdouble	T{
-mutiplication of two matrices of long double floating point values
+multiplication of two matrices of long double floating point values
 T}
 multiply-doublee	T{
-mutiplication of two matrices of double floating point values
+multiplication of two matrices of double floating point values
 T}
 multiply-float	T{
-mutiplication of two matrices of floating point values
+multiplication of two matrices of floating point values
 T}
 transpose-longdouble	T{
 transpose of matrix of long double floating point values
@@ -4106,7 +4106,7 @@ each round of read/writes. This can cause non-local memory stalls and
 LLC read/write misses.
 .TP
 .B \-\-llc\-affinity\-clflush
-where possible, flush cachelines after each cachline write, x86 and ppc64 only.
+where possible, flush cachelines after each cacheline write, x86 and ppc64 only.
 .TP
 .B \-\-llc\-affinity\-mlock
 attempt to mlock the LLC sized buffer into memory to prevent it from being
@@ -4305,7 +4305,7 @@ longjmp calls).
 .B \-\-loop N
 start N workers that exercise the loopback control device. This creates 2 MB
 loopback devices, expands them to 4 MB, performs some loopback status information
-get and set operations and then destoys them. Linux only and requires
+get and set operations and then destroys them. Linux only and requires
 CAP_SYS_ADMIN capability.
 .TP
 .B \-\-loop\-ops N
@@ -5431,7 +5431,7 @@ default is 1000 bits, the allowed range is 32 to 1000000 (very slow).
 .B \-\-mprotect N
 start N workers that exercise changing page protection settings and access
 memory after each change. 8 processes per worker contend with each other
-changing page proection settings on a shared memory region of just a few pages
+changing page protection settings on a shared memory region of just a few pages
 to cause TLB flushes. A read and write to the pages can cause segmentation
 faults and these are handled by the stressor. All combinations of page
 protection settings are exercised including invalid combinations.
@@ -6281,7 +6281,7 @@ inc	T{
 start of search based on increments by 2. This grows very slowly.
 T}
 pwr2	T{
-start of search based on powers of 2. Grows relatively quicky.
+start of search based on powers of 2. Grows relatively quickly.
 T}
 pwr10	T{
 start of search based on powers of 10. Grows by 1 digit per iteration and
@@ -7665,7 +7665,7 @@ start at socket port P. For N socket worker processes, ports P to P - 1 are
 used.
 .TP
 .B \-\-sockfd\-reuse
-re-use the file descriptor by passing it back from the receiver to the
+reuse the file descriptor by passing it back from the receiver to the
 sender and re-sending it again rather than opening /dev/null each time.
 .RE
 .TP
@@ -7815,7 +7815,7 @@ move spinmem stressor processes to randomly selected CPUs every million spinmem 
 .TP
 .B \-\-spinmem\-ops N
 stop after N spinmem bogo operations. A bogo operation is 1000 transactions betewen
-the two spinmem proceesses.
+the two spinmem processes.
 .TP
 .B \-\-spinmem\-method [ 8bit | 16bit | 32bit | 64bit ]
 select the size of the memory write/reads, the default is 32 bit.
@@ -8536,7 +8536,7 @@ stop udp-flood stress workers after N bogo operations.
 .B \-\-umount N
 start N workers that exercise mounting and racying unmounting of small tmpfs and ramfs
 file systems. Three child processes are invoked, one to mount, another to force umount
-and a third to exercice /proc/mounts. Small random delays are used between mount and
+and a third to exercise /proc/mounts. Small random delays are used between mount and
 umount calls to try to trigger race conditions on the umount calls.
 .TP
 .B \-\-umount\-ops N

@@ -228,7 +228,7 @@ static int stress_link_generic(
 			} else {
 				/* Hard link, exercise illegal cross device link, EXDEV error */
 				if (mounts_max > 0) {
-					/* Try hard link on differet random mount point */
+					/* Try hard link on different random mount point */
 					const size_t idx = random_mount(mounts_max);
 
 					ret = linkfunc(mnts[idx], tmp_newpath);

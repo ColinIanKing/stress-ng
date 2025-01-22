@@ -31,7 +31,7 @@
 #define NO_MEM_RETRIES_MAX	(100)
 
 /*
- *  the VM stress test has diffent methods of vm stressor
+ *  the VM stress test has different methods of vm stressor
  */
 typedef size_t (*stress_vm_addr_func)(uint8_t *buf, const size_t sz);
 

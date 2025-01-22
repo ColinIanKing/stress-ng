@@ -2262,7 +2262,7 @@ size_t stress_get_max_file_limit(void)
 	size_t max_sysconf;
 
 #if defined(HAVE_GETDTABLESIZE)
-	/* try the simple way fisrt */
+	/* try the simple way first */
 	tablesize = getdtablesize();
 	if (tablesize > 0)
 		return (size_t)tablesize;

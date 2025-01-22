@@ -105,7 +105,7 @@ static const stress_cpuid_regs_t ALIGN64 stress_cpuid_regs[] = {
 	{ 0x8000001d, 0x00000000, false },	/* get cache configuration descriptors */
 	{ 0x8000001e, 0x00000000, false },	/* get APIC/unit/node information */
 	{ 0x8000001f, 0x00000000, false },	/* get SME/SEV information */
-	{ 0x80000021, 0x00000000, false },	/* Extended Feature Indentification 2 */
+	{ 0x80000021, 0x00000000, false },	/* Extended Feature Identification 2 */
 	{ 0x8fffffff, 0x00000000, false },	/* AMD Easter Egg */
 	{ 0xc0000000, 0x00000000, false },	/* Highest Centaur Extended Function */
 	{ 0xc0000001, 0x00000000, false },	/* Centaur Feature Information */

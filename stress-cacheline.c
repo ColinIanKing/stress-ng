@@ -699,7 +699,7 @@ static int stress_cacheline_next_idx(void)
 
 /*
  *  stress_cacheline()
- *	execise a cacheline by multiple processes
+ *	exercise a cacheline by multiple processes
  */
 static int stress_cacheline(stress_args_t *args)
 {

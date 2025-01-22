@@ -541,7 +541,7 @@ uint32_t PURE OPTIMIZE3 stress_hash_mid5(const char *str, const size_t len)
  *  stress_hash_mulxror64()
  *	mangles 64 bits per iteration on fast path, scaling by the 64 bits
  *	from the string and partially rolling right to remix bits back into
- *	the hash. Designed and Implemented Colin Ian King, free to re-use.
+ *	the hash. Designed and Implemented Colin Ian King, free to reuse.
  */
 uint32_t PURE OPTIMIZE3 stress_hash_mulxror64(const char *str, const size_t len)
 {
@@ -569,7 +569,7 @@ PRAGMA_UNROLL_N(4)
  *  stress_hash_mulxror32()
  *	mangles 32 bits per iteration on fast path, scaling by the 32 bits
  *	from the string and partially rolling right to remix bits back into
- *	the hash. Designed and Implemented Colin Ian King, free to re-use.
+ *	the hash. Designed and Implemented Colin Ian King, free to reuse.
  */
 uint32_t PURE OPTIMIZE3 stress_hash_mulxror32(const char *str, const size_t len)
 {

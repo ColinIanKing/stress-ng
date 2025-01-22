@@ -164,7 +164,7 @@ static int stress_cpu_sched_rand_cpu_idx(void)
 /*
  *  stress_cpu_sched_nice()
  *	attempt to try to use autogroup for linux, this
- *	may fail with EAGAIN if not priviledged or has been
+ *	may fail with EAGAIN if not privileged or has been
  *	adjusted too many times.
  */
 static int stress_cpu_sched_nice(const int inc)
@@ -591,7 +591,7 @@ static int stress_cpu_sched_next_cpu_idx(const int instance, const int last_cpu_
 
 /*
  *  stress_cpu_sched_exec()
- *	cange affinity and scheduler then exec stress-ng that
+ *	change affinity and scheduler then exec stress-ng that
  *	immediately exits with the --exec-exit option
  */
 static void stress_cpu_sched_exec(stress_args_t *args, char *exec_prog)

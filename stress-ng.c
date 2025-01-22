@@ -1463,7 +1463,7 @@ static void stress_stressors_free(void)
 
 /*
  *  stress_get_total_num_instances()
- *	deterimine number of runnable stressors from list
+ *	deterimin number of runnable stressors from list
  */
 static int32_t stress_get_total_num_instances(stress_stressor_t *stressors_list)
 {

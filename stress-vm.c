@@ -51,7 +51,7 @@
 static size_t stress_vm_cache_line_size;
 
 /*
- *  the VM stress test has diffent methods of vm stressor
+ *  the VM stress test has different methods of vm stressor
  */
 typedef size_t (*stress_vm_func)(void *buf, void *buf_end, const size_t sz,
 		stress_args_t *args, const uint64_t max_ops);
@@ -3048,7 +3048,7 @@ do {						\
 
 /*
  *  stress_vm_checkerboard()
- *	fill adjecent bytes with alternative bit patterns
+ *	fill adjacent bytes with alternative bit patterns
  */
 static size_t TARGET_CLONES stress_vm_checkerboard(
 	void *buf,

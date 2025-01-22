@@ -40,7 +40,7 @@ static const stress_help_t help[] = {
 	{ NULL,	"sockfd N",	 "start N workers sending file descriptors over sockets" },
 	{ NULL,	"sockfd-ops N",	 "stop after N sockfd bogo operations" },
 	{ NULL,	"sockfd-port P", "use socket fd ports P to P + number of workers - 1" },
-	{ NULL,	"sockfd-reuse",	 "re-use file descriptors between sender and receiver" },
+	{ NULL,	"sockfd-reuse",	 "reuse file descriptors between sender and receiver" },
 	{ NULL,	NULL,		 NULL }
 };
 
