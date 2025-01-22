@@ -1555,7 +1555,7 @@ pid_t shim_waitpid(pid_t pid, int *wstatus, int options)
 		 *  Process seems unkillable, report and bail out after 10 mins
 		 */
 		if (count > 600) {
-			pr_dbg("waitpid: SIGALRM on PID %jd has not resulted in "
+			pr_dbg("waitpid: SIGALRM on PID %" PRIdMAX" has not resulted in "
 				"process termination after 10 minutes, giving up\n",
 				(intmax_t)pid);
 			break;

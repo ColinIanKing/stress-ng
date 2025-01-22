@@ -99,7 +99,7 @@ static int stress_rawdev_sweep(
 		ret = pread(fd, buffer, blksz, offset);
 		if (UNLIKELY(ret < 0)) {
 			if (errno != EINTR) {
-				pr_fail("%s: pread at %jd failed, errno=%d (%s)\n",
+				pr_fail("%s: pread at %" PRIdMAX " failed, errno=%d (%s)\n",
 					args->name, (intmax_t)offset, errno, strerror(errno));
 				return -1;
 			}
@@ -116,7 +116,7 @@ static int stress_rawdev_sweep(
 		ret = pread(fd, buffer, blksz, offset);
 		if (UNLIKELY(ret < 0)) {
 			if (errno != EINTR) {
-				pr_fail("%s: pread at %jd failed, errno=%d (%s)\n",
+				pr_fail("%s: pread at %" PRIdMAX " failed, errno=%d (%s)\n",
 					args->name, (intmax_t)offset, errno, strerror(errno));
 				return -1;
 			}
@@ -155,7 +155,7 @@ static int stress_rawdev_wiggle(
 			ret = pread(fd, buffer, blksz, offset);
 			if (UNLIKELY(ret < 0)) {
 				if (errno != EINTR) {
-					pr_fail("%s: pread at %jd failed, errno=%d (%s)\n",
+					pr_fail("%s: pread at %" PRIdMAX "failed, errno=%d (%s)\n",
 						args->name, (intmax_t)offset, errno, strerror(errno));
 					return -1;
 				}
@@ -194,7 +194,7 @@ static int stress_rawdev_ends(
 		ret = pread(fd, buffer, blksz, offset);
 		if (UNLIKELY(ret < 0)) {
 			if (errno != EINTR) {
-				pr_fail("%s: pread at %jd failed, errno=%d (%s)\n",
+				pr_fail("%s: pread at %" PRIdMAX " failed, errno=%d (%s)\n",
 					args->name, (intmax_t)offset, errno, strerror(errno));
 				return -1;
 			}
@@ -209,7 +209,7 @@ static int stress_rawdev_ends(
 		ret = pread(fd, buffer, blksz, offset);
 		if (UNLIKELY(ret < 0)) {
 			if (errno != EINTR) {
-				pr_fail("%s: pread at %jd failed, errno=%d (%s)\n",
+				pr_fail("%s: pread at %" PRIdMAX " failed, errno=%d (%s)\n",
 					args->name, (intmax_t)offset, errno, strerror(errno));
 				return -1;
 			}
@@ -246,7 +246,7 @@ static int stress_rawdev_random(
 		ret = pread(fd, buffer, blksz, offset);
 		if (UNLIKELY(ret < 0)) {
 			if (errno != EINTR) {
-				pr_fail("%s: pread at %jd failed, errno=%d (%s)\n",
+				pr_fail("%s: pread at %" PRIdMAX " failed, errno=%d (%s)\n",
 					args->name, (intmax_t)offset, errno, strerror(errno));
 				return -1;
 			}
@@ -283,7 +283,7 @@ static int stress_rawdev_burst(
 		ret = pread(fd, buffer, blksz, offset);
 		if (UNLIKELY(ret < 0)) {
 			if (errno != EINTR) {
-				pr_fail("%s: pread at %jd failed, errno=%d (%s)\n",
+				pr_fail("%s: pread at %" PRIdMAX " failed, errno=%d (%s)\n",
 					args->name, (intmax_t)offset, errno, strerror(errno));
 				return -1;
 			}

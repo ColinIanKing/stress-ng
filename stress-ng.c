@@ -1392,7 +1392,7 @@ static void MLOCKED_TEXT stress_handle_terminate(int signum)
 		/*
 		 *  Critical failure, report and die ASAP
 		 */
-		(void)snprintf(buf, sizeof(buf), "%s: info:  [%jd] stressor terminated with unexpected %s\n",
+		(void)snprintf(buf, sizeof(buf), "%s: info:  [%" PRIdMAX "] stressor terminated with unexpected %s\n",
 			g_app_name, (intmax_t)getpid(), stress_strsignal(signum));
 		VOID_RET(ssize_t, write(fd, buf, strlen(buf)));
 		if (signum == SIGABRT)

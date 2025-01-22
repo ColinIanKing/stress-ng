@@ -178,7 +178,8 @@ static int stress_fallocate(stress_args_t *args)
 				rc = EXIT_FAILURE;
 			}
 			else if (buf.st_size != fallocate_bytes) {
-				pr_fail("%s: file size %jd does not match size the expected file size of %jd\n",
+				pr_fail("%s: file size %" PRIdMAX " does not match "
+					"the expected file size of %" PRIdMAX "\n",
 					args->name, (intmax_t)buf.st_size,
 					(intmax_t)fallocate_bytes);
 				rc = EXIT_FAILURE;
@@ -202,9 +203,8 @@ static int stress_fallocate(stress_args_t *args)
 				rc = EXIT_FAILURE;
 			}
 			else if (buf.st_size != (off_t)0) {
-				pr_fail("%s: file size %jd does not "
-					"match size the expected file size "
-					"of 0\n",
+				pr_fail("%s: file size %" PRIdMAX " does not match "
+					"the expected file size " "of 0\n",
 					args->name, (intmax_t)buf.st_size);
 				rc = EXIT_FAILURE;
 			}

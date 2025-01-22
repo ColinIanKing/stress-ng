@@ -1161,7 +1161,7 @@ static int stress_iomix(stress_args_t *args)
 	} while ((ret < 0) && stress_continue(args));
 
 	if (iomix_bytes_shrunk)
-		pr_inf("%s: file size too large for file system, reducing file size to %jd MB\n",
+		pr_inf("%s: file size too large for file system, reducing file size to %" PRIdMAX " MB\n",
 			args->name, (intmax_t)iomix_bytes >> 20);
 
 	stress_file_rw_hint_short(fd);

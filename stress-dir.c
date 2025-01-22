@@ -177,7 +177,7 @@ static int stress_dir_rename(
 	char new_filename[PATH_MAX];
 	char tmp[32];
 
-	(void)snprintf(tmp, sizeof(tmp), "rename-%" PRIu32 "-%jd", stress_mwc32(), (intmax_t)getpid());
+	(void)snprintf(tmp, sizeof(tmp), "rename-%" PRIu32 "-%" PRIdMAX, stress_mwc32(), (intmax_t)getpid());
 	stress_mk_filename(new_filename, sizeof(new_filename), path, tmp);
 
 	dp = opendir(path);
@@ -379,7 +379,7 @@ static int stress_dir_readdir(
 	int rc = 0, i, got_mask, all_mask;
 	struct dirent *entry;
 
-	(void)snprintf(dirpath, sizeof(dirpath), "%s/test-%jd-%" PRIu32, pathname,
+	(void)snprintf(dirpath, sizeof(dirpath), "%s/test-%" PRIdMAX "-%" PRIu32, pathname,
 		(intmax_t)getpid(), stress_mwc32());
 	if (mkdir(dirpath, S_IRUSR | S_IWUSR | S_IXUSR) < 0) {
 		pr_fail("%s: cannot mkdir %s, errno=%d (%s)\n",

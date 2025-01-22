@@ -178,7 +178,7 @@ static int stress_metamix_file(
 	}
 
 	if ((intmax_t)statbuf.st_size != (intmax_t)end) {
-		pr_fail("%s: stat on %s, expecting file size %jd, got %jd\n",
+		pr_fail("%s: stat on %s, expecting file size %" PRIdMAX ", got %" PRIdMAX "\n",
 			args->name, filename, (intmax_t)end, (intmax_t)statbuf.st_size);
 		rc = EXIT_FAILURE;
 		goto err_unlink;
@@ -294,7 +294,7 @@ static int stress_metamix_file(
 		goto err_close;
 	}
 	if ((intmax_t)statbuf.st_size != (intmax_t)end) {
-		pr_fail("%s: stat on %s, expecting file size %jd, got %jd\n",
+		pr_fail("%s: stat on %s, expecting file size %" PRIdMAX ", got %" PRIdMAX "\n",
 			args->name, filename, (intmax_t)end, (intmax_t)statbuf.st_size);
 		rc = EXIT_FAILURE;
 		goto err_close;

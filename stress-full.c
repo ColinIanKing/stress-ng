@@ -143,7 +143,7 @@ try_read:
 				(off_t)(stress_mwc32() & 0x7fffffffUL);
 			ret = pread(fd, buffer, buffer_size, offset);
 			if (UNLIKELY(ret < 0)) {
-				pr_fail("%s: read failed at offset %jd, errno=%d (%s)\n",
+				pr_fail("%s: read failed at offset %" PRIdMAX ", errno=%d (%s)\n",
 					args->name, (intmax_t)offset, errno, strerror(errno));
 				goto fail;
 			}
@@ -186,7 +186,7 @@ try_read:
 		offset = (off_t)stress_mwc64();
 		ret = lseek(fd, offset, whences[w].whence);
 		if (ret < 0) {
-			pr_fail("%s: lseek(fd, %jd, %s) failed, errno=%d (%s)\n",
+			pr_fail("%s: lseek(fd, %" PRIdMAX ", %s) failed, errno=%d (%s)\n",
 				args->name, (intmax_t)offset, whences[w].name,
 				errno, strerror(errno));
 			goto fail;

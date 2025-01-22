@@ -907,7 +907,7 @@ static int stress_workload(stress_args_t *args)
 		static stress_workload_ctxt_t c;
 		uint32_t threads_started = 0;
 
-		(void)snprintf(mq_name, sizeof(mq_name), "/%s-%jd-%" PRIu32,
+		(void)snprintf(mq_name, sizeof(mq_name), "/%s-%" PRIdMAX "-%" PRIu32,
 			args->name, (intmax_t)args->pid, args->instance);
 		attr.mq_flags = 0;
 		attr.mq_maxmsg = 10;

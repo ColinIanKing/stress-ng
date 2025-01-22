@@ -172,7 +172,7 @@ static void OPTIMIZE3 stress_parse_payload(
 		case TASKSTATS_TYPE_PID:
 			task_pid = *(pid_t *)NLA_DATA(na);
 			if (UNLIKELY(task_pid != pid)) {
-				pr_fail("%s: TASKSTATS_TYPE_PID got PID %jd, "
+				pr_fail("%s: TASKSTATS_TYPE_PID got PID %" PRIdMAX ", "
 					"expected %" PRIdMAX "\n",
 					args->name,
 					(intmax_t)task_pid, (intmax_t)pid);

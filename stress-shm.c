@@ -261,7 +261,7 @@ static int stress_shm_posix_child(
 			} else {
 				if (statbuf.st_size != (off_t)sz) {
 					pr_fail("%s: fstat reports different size of shared memory, "
-						"got %jd bytes, expected %zd bytes\n", args->name,
+						"got %" PRIdMAX " bytes, expected %zd bytes\n", args->name,
 						(intmax_t)statbuf.st_size, sz);
 				}
 			}

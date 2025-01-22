@@ -273,7 +273,7 @@ static int stress_copy_file(stress_args_t *args)
 			verify_ret = stress_copy_file_range_verify(fd_in, &off64_in,
 					fd_out, &off64_out, copy_ret);
 			if (verify_ret < 0) {
-				pr_fail("%s: copy_file_range verify failed, input offset=%jd, output offset=%jd\n",
+				pr_fail("%s: copy_file_range verify failed, input offset=%" PRIdMAX " output offset=%" PRIdMAX "\n",
 					args->name, (intmax_t)off64_in_orig, (intmax_t)off64_out_orig);
 			}
 		}

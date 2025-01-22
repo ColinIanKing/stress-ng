@@ -273,8 +273,8 @@ static void stress_cgroup_add_pid(const char *realpathname, const pid_t pid)
 	char filename[PATH_MAX + 64], cmd[64];
 	ssize_t len;
 
-	len = (ssize_t)snprintf(cmd, sizeof(cmd), "%jd\n", (intmax_t)pid);
-	(void)snprintf(filename, sizeof(filename), "%s/stress-ng-%jd/cgroup.procs", realpathname, (intmax_t)pid);
+	len = (ssize_t)snprintf(cmd, sizeof(cmd), "%" PRIdMAX "\n", (intmax_t)pid);
+	(void)snprintf(filename, sizeof(filename), "%s/stress-ng-%" PRIdMAX "/cgroup.procs", realpathname, (intmax_t)pid);
 	stress_system_write(filename, cmd, len);
 }
 
@@ -283,7 +283,7 @@ static void stress_cgroup_del_pid(const char *realpathname, const pid_t pid)
 	char filename[PATH_MAX + 64], cmd[64];
 	ssize_t len;
 
-	len = (ssize_t)snprintf(cmd, sizeof(cmd), "%jd\n", (intmax_t)pid);
+	len = (ssize_t)snprintf(cmd, sizeof(cmd), "%" PRIdMAX "\n", (intmax_t)pid);
 	(void)snprintf(filename, sizeof(filename), "%s/cgroup.procs", realpathname);
 	stress_system_write(filename, cmd, len);
 }
@@ -403,7 +403,7 @@ static void stress_cgroup_new_group(const char *realpathname)
 		};
 
 		/* Parent, exercise child in the cgroup */
-		(void)snprintf(path, sizeof(path), "%s/stress-ng-%jd", realpathname, (intmax_t)pid);
+		(void)snprintf(path, sizeof(path), "%s/stress-ng-%" PRIdMAX, realpathname, (intmax_t)pid);
 		if (mkdir(path, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP) < 0) {
 			stress_kill_pid_wait(pid, &status);
 			(void)rmdir(path);	/* just in case */
@@ -417,7 +417,7 @@ static void stress_cgroup_new_group(const char *realpathname)
 			char filename[PATH_MAX + 64];
 
 			stress_cgroup_add_pid(realpathname, pid);
-			(void)snprintf(filename, sizeof(filename), "%s/stress-ng-%jd/%s", realpathname, (intmax_t)pid, values[i].name);
+			(void)snprintf(filename, sizeof(filename), "%s/stress-ng-%" PRIdMAX "/%s", realpathname, (intmax_t)pid, values[i].name);
 			stress_cgroup_read(filename);
 
 			if (values[i].value) {

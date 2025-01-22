@@ -355,7 +355,7 @@ int stress_change_cpu(stress_args_t *args, const int old_cpu)
 	if (sched_setaffinity(0, sizeof(mask), &mask) >= 0) {
 		const int moved_cpu = (int)stress_get_cpu();
 		/*
-		pr_dbg("%s: process [%jd] (child of instance %d on CPU %u moved to CPU %u)\n",
+		pr_dbg("%s: process [%" PRIdMAX "] (child of instance %d on CPU %u moved to CPU %u)\n",
 			args->name, (intmax_t)getpid(), args->instance, from_cpu, moved_cpu);
 		*/
 		return moved_cpu;

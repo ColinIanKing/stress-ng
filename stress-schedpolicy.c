@@ -237,7 +237,7 @@ case_sched_fifo:
 					args->name, errno, strerror(errno));
 			} else if (ret != stress_sched_types[policy].sched) {
 				pr_fail("%s: sched_getscheduler "
-					"failed: PID %jd has policy %d (%s) "
+					"failed: PID %" PRIdMAX " has policy %d (%s) "
 					"but function returned %d (%s) instead\n",
 					args->name, (intmax_t)pid, new_policy,
 					new_policy_name, ret,

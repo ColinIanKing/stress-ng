@@ -2991,7 +2991,7 @@ int stress_drop_capabilities(const char *name)
 
 	ret = capget(&uch, ucd);
 	if (ret < 0) {
-		pr_fail("%s: capget on PID %jd failed: errno=%d (%s)\n",
+		pr_fail("%s: capget on PID %" PRIdMAX " failed: errno=%d (%s)\n",
 			name, (intmax_t)uch.pid, errno, strerror(errno));
 		return -1;
 	}
@@ -3012,7 +3012,7 @@ int stress_drop_capabilities(const char *name)
 
 	ret = capset(&uch, ucd);
 	if (ret < 0) {
-		pr_fail("%s: capset on PID %jd failed: errno=%d (%s)\n",
+		pr_fail("%s: capset on PID %" PRIdMAX " failed: errno=%d (%s)\n",
 			name, (intmax_t)uch.pid, errno, strerror(errno));
 		return -1;
 	}
@@ -3023,7 +3023,7 @@ int stress_drop_capabilities(const char *name)
 	if (ret < 0) {
 		/* Older kernels that don't support this prctl throw EINVAL */
 		if (errno != EINVAL) {
-			pr_inf("%s: prctl PR_SET_NO_NEW_PRIVS on PID %jd failed: "
+			pr_inf("%s: prctl PR_SET_NO_NEW_PRIVS on PID %" PRIdMAX " failed: "
 				"errno=%d (%s)\n",
 				name, (intmax_t)uch.pid, errno, strerror(errno));
 		}
@@ -3975,7 +3975,7 @@ const char *stress_get_fs_type(const char *filename)
 	if (fs_name) {
 		static char tmp[256];
 
-		(void)snprintf(tmp, sizeof(tmp), ", filesystem type: %s (%ju blocks available)",
+		(void)snprintf(tmp, sizeof(tmp), ", filesystem type: %s (%" PRIuMAX" blocks available)",
 			fs_name, blocks);
 		return tmp;
 	}
@@ -4610,7 +4610,7 @@ static void stress_dbg(const char *fmt, ...)
 	va_list ap;
 	int n, sz;
 	static char buf[256];
-	n = snprintf(buf, sizeof(buf), "stress-ng: debug: [%jd] ", (intmax_t)getpid());
+	n = snprintf(buf, sizeof(buf), "stress-ng: debug: [%" PRIdMAX"] ", (intmax_t)getpid());
 	if (n < 0)
 		return;
 	sz = n;
@@ -4946,7 +4946,7 @@ static void stress_process_info_dump(
 	if (!filename)
 		return;
 
-	(void)snprintf(path, sizeof(path), "/proc/%jd/%s", (intmax_t)pid, filename);
+	(void)snprintf(path, sizeof(path), "/proc/%" PRIdMAX "/%s", (intmax_t)pid, filename);
 	ret = stress_system_read(path, buf, sizeof(buf));
 	if (ret < 0)
 		return;
@@ -4974,7 +4974,7 @@ static void stress_process_info_dump(
 			if (ptr == end)
 				emit = begin;
 			if (emit) {
-				pr_dbg("%s: [%jd] %s: %s\n", args ? args->name : "main", (intmax_t)pid, filename, emit);
+				pr_dbg("%s: [%" PRIdMAX "] %s: %s\n", args ? args->name : "main", (intmax_t)pid, filename, emit);
 				emit = NULL;
 			}
 		}

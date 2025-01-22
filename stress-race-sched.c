@@ -185,7 +185,7 @@ static int stress_race_sched_setaffinity(
 			CPU_ZERO(&cpu_set);
 			ret = sched_getaffinity(pid, sizeof(cpu_set), &cpu_set);
 			if ((ret < 0) && (errno != ESRCH)) {
-				pr_fail("%s: sched_getaffinity failed on PID %jd, errno=%d (%s)\n",
+				pr_fail("%s: sched_getaffinity failed on PID %" PRIdMAX ", errno=%d (%s)\n",
 					args->name, (intmax_t)pid, errno, strerror(errno));
 				return ret;
 			}
@@ -208,7 +208,7 @@ static int stress_race_sched_setscheduler(
 	if (ret == 0) {
 		ret = sched_getscheduler(pid);
 		if ((ret < 0) && (errno != ESRCH)) {
-			pr_fail("%s: sched_getscheduler failed on PID %jd, errno=%d (%s)\n",
+			pr_fail("%s: sched_getscheduler failed on PID %" PRIdMAX ", errno=%d (%s)\n",
 				args->name, (intmax_t)pid, errno, strerror(errno));
 			return ret;
 		}

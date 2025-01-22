@@ -130,14 +130,15 @@ retry:
 		off_t new_offset;
 
 		if (lseek(info->fd, offset, SEEK_SET) < 0) {
-			pr_fail("%s: lseek failed, set offset at %jd, errno=%d (%s)\n",
+			pr_fail("%s: lseek failed, set offset at %" PRIdMAX ", errno=%d (%s)\n",
 				args->name, (intmax_t)offset, errno, strerror(errno));
 			return -1;
 		}
 
 		new_offset = lseek(info->fd, 0, SEEK_CUR);
 		if (new_offset != offset) {
-			pr_fail("%s: lseek failed, set offset at %jd, current offset at %jd\n",
+			pr_fail("%s: lseek failed, set offset at %" PRIdMAX
+				", current offset at %" PRIdMAX "\n",
 				args->name, (intmax_t)offset, (intmax_t)new_offset);
 			return -1;
 		}
@@ -193,14 +194,15 @@ retry:
 		off_t new_offset;
 
 		if (lseek(info->fd, offset, SEEK_SET) < 0) {
-			pr_fail("%s: lseek failed, set offset at %jd, errno=%d (%s)\n",
+			pr_fail("%s: lseek failed, set offset at %" PRIdMAX ", errno=%d (%s)\n",
 				args->name, (intmax_t)offset, errno, strerror(errno));
 			return -1;
 		}
 
 		new_offset = lseek(info->fd, 0, SEEK_CUR);
 		if (new_offset != offset) {
-			pr_fail("%s: lseek failed, set offset at %jd, current offset at %jd\n",
+			pr_fail("%s: lseek failed, set offset at %" PRIdMAX
+				", current offset at %" PRIdMAX "\n",
 				args->name, (intmax_t)offset, (intmax_t)new_offset);
 			return -1;
 		}

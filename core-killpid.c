@@ -117,7 +117,7 @@ static int stress_wait_until_reaped(
 			 *  Process seems unkillable, report and bail out
 			 */
 			if (count > 600) {
-				pr_dbg("%s: cannot kill PID %jd after 10 minutes, giving up\n",
+				pr_dbg("%s: cannot kill PID %" PRIdMAX " after 10 minutes, giving up\n",
 					args->name, (intmax_t)pid);
 				stress_process_info(args, pid);
 				break;
@@ -142,7 +142,7 @@ int stress_kill_and_wait(
 	const pid_t mypid = getpid();
 
 	if ((pid == 0) || (pid == 1) || (pid == mypid)) {
-		pr_inf("%s: warning, attempt to kill PID %jd ignored\n",
+		pr_inf("%s: warning, attempt to kill PID %" PRIdMAX " ignored\n",
 			args->name, (intmax_t)pid);
 	}
 	/*

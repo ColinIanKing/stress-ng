@@ -240,7 +240,7 @@ int stress_set_sockaddr_if(
 		(void)shim_memset(&addr, 0, sizeof(addr));
 		addr.sun_family = AF_UNIX;
 		(void)snprintf(addr.sun_path, sizeof(addr.sun_path),
-			"/tmp/stress-ng-%jd-%" PRIu32,
+			"/tmp/stress-ng-%" PRIdMAX "-%" PRIu32,
 			(intmax_t)pid, instance);
 		*sockaddr = (struct sockaddr *)&addr;
 		*len = sizeof(addr);

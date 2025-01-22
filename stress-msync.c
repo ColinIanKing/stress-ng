@@ -202,14 +202,14 @@ static int stress_msync(stress_args_t *args)
 		ret = shim_msync(buf + offset, page_size, MS_SYNC);
 		if (ret < 0) {
 			pr_fail("%s: msync MS_SYNC on "
-				"offset %jd failed, errno=%d (%s)\n",
+				"offset %" PRIdMAX " failed, errno=%d (%s)\n",
 				args->name, (intmax_t)offset, errno,
 				strerror(errno));
 			goto do_invalidate;
 		}
 		ret = lseek(fd, offset, SEEK_SET);
 		if (ret == (off_t)-1) {
-			pr_err("%s: cannot seet to offset %jd, "
+			pr_err("%s: cannot seet to offset %" PRIdMAX ", "
 				"errno=%d (%s)\n",
 				args->name, (intmax_t)offset, errno,
 				strerror(errno));
@@ -238,7 +238,7 @@ do_invalidate:
 
 		ret = lseek(fd, offset, SEEK_SET);
 		if (ret == (off_t)-1) {
-			pr_err("%s: cannot seet to offset %jd, errno=%d (%s)\n",
+			pr_err("%s: cannot seet to offset %" PRIdMAX ", errno=%d (%s)\n",
 				args->name, (intmax_t)offset, errno,
 				strerror(errno));
 			rc = EXIT_NO_RESOURCE;
@@ -253,7 +253,7 @@ do_invalidate:
 		ret = shim_msync(buf + offset, page_size, MS_INVALIDATE);
 		if (ret < 0) {
 			pr_fail("%s: msync MS_INVALIDATE on "
-				"offset %jd failed, errno=%d (%s)\n",
+				"offset %" PRIdMAX " failed, errno=%d (%s)\n",
 				args->name, (intmax_t)offset, errno,
 				strerror(errno));
 			goto do_next;

@@ -437,8 +437,8 @@ static int stress_x86syscall(stress_args_t *args)
 		const pid_t pid2 = (pid_t)x86_64_syscall0(__NR_getpid);
 
 		if (pid1 != pid2) {
-			pr_fail("%s: getpid syscall returned PID %jd, "
-				"expected PID %jd\n",
+			pr_fail("%s: getpid syscall returned PID %" PRIdMAX ", "
+				"expected PID %" PRIdMAX "\n",
 				args->name, (intmax_t)pid2, (intmax_t)pid1);
 			rc = EXIT_FAILURE;
 		}
@@ -450,8 +450,8 @@ static int stress_x86syscall(stress_args_t *args)
 		const pid_t gid2 = (gid_t)x86_64_syscall0(__NR_getgid);
 
 		if (gid1 != gid2) {
-			pr_fail("%s: getgid syscall returned GID %jd, "
-				"expected GID %jd\n",
+			pr_fail("%s: getgid syscall returned GID %" PRIdMAX ", "
+				"expected GID %" PRIdMAX "\n",
 				args->name, (intmax_t)gid2, (intmax_t)gid1);
 			rc = EXIT_FAILURE;
 		}
@@ -463,8 +463,8 @@ static int stress_x86syscall(stress_args_t *args)
 		const uid_t uid2 = (uid_t)x86_64_syscall0(__NR_getuid);
 
 		if (uid1 != uid2) {
-			pr_fail("%s: getuid syscall returned UID %jd, "
-				"expected UID %jd\n",
+			pr_fail("%s: getuid syscall returned UID %" PRIdMAX ", "
+				"expected UID %" PRIdMAX "\n",
 				args->name, (intmax_t)uid2, (intmax_t)uid1);
 			rc = EXIT_FAILURE;
 		}
@@ -476,8 +476,8 @@ static int stress_x86syscall(stress_args_t *args)
 		const uid_t uid2 = (uid_t)x86_64_syscall0(__NR_geteuid);
 
 		if (uid1 != uid2) {
-			pr_fail("%s: geteuid syscall returned UID %jd, "
-				"expected UID %jd\n",
+			pr_fail("%s: geteuid syscall returned UID %" PRIdMAX ", "
+				"expected UID %" PRIdMAX "\n",
 				args->name, (intmax_t)uid2, (intmax_t)uid1);
 			rc = EXIT_FAILURE;
 		}
