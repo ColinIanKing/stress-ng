@@ -402,7 +402,9 @@ static int stress_cacheline_rdfwd64(
 		val8 = *data8;
 
 		/* read cache line forwards */
+#if !defined(HAVE_COMPILER_CLANG)
 PRAGMA_UNROLL
+#endif
 		for (j = 0; j < cacheline_size; j += 8) {
 			volatile uint64_t *data64 = (volatile uint64_t *)(aligned_cacheline + j);
 
