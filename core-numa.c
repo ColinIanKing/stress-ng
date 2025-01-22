@@ -182,6 +182,8 @@ void stress_numa_randomize_pages(
 	unsigned long int prev_node = node;
 	size_t size;
 
+	if (UNLIKELY(!numa_mask))
+		return;
 	if (UNLIKELY(!buffer))
 		return;
 
