@@ -5851,6 +5851,10 @@ MBytes and GBytes using the suffix b, k, m or g.
 attempt to mlock mmap'd and mremap'd pages into memory causing more memory pressure by
 preventing pages from swapped out.
 .TP
+.B \-\-pagemove\-numa
+assign memory mapped pages to randomly selected NUMA nodes. This is disabled
+for systems that do not support NUMA or have less than 2 NUMA nodes.
+.TP
 .B \-\-pagemove\-ops N
 stop after N pagemove shuffling operations, where suffling all the pages in
 the mmap'd region is equivalent to 1 bogo-operation.

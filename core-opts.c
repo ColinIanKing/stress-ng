@@ -707,6 +707,7 @@ const struct option stress_long_options[] = {
 	{ "pagemove",		1,	0,	OPT_pagemove },
 	{ "pagemove-bytes",	1,	0,	OPT_pagemove_bytes },
 	{ "pagemove-mlock",	0,	0,	OPT_pagemove_mlock },
+	{ "pagemove-numa",	0,	0,	OPT_pagemove_numa },
 	{ "pagemove-ops",	1,	0,	OPT_pagemove_ops },
 	{ "pageswap",		1,	0,	OPT_pageswap },
 	{ "pageswap-ops",	1,	0,	OPT_pageswap_ops },

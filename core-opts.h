@@ -1031,6 +1031,7 @@ typedef enum {
 	OPT_pagemove,
 	OPT_pagemove_bytes,
 	OPT_pagemove_mlock,
+	OPT_pagemove_numa,
 	OPT_pagemove_ops,
 
 	OPT_pageswap,
