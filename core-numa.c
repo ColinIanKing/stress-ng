@@ -194,7 +194,7 @@ void stress_numa_randomize_pages(
 
 		size = ptr - prev_ptr;
 		STRESS_SETBIT(numa_mask->mask, (unsigned long int)node);
-		(void)shim_mbind((void *)ptr, size, MPOL_BIND, numa_mask->mask,
+		(void)shim_mbind((void *)prev_ptr, size, MPOL_BIND, numa_mask->mask,
                         numa_mask->max_nodes, MPOL_MF_MOVE);
 		STRESS_CLRBIT(numa_mask->mask, (unsigned long int)node);
 
@@ -207,7 +207,7 @@ void stress_numa_randomize_pages(
 	size = ptr_end - prev_ptr;
 	if (size > 0) {
 		STRESS_SETBIT(numa_mask->mask, (unsigned long int)node);
-		(void)shim_mbind((void *)ptr, size, MPOL_BIND, numa_mask->mask,
+		(void)shim_mbind((void *)prev_ptr, size, MPOL_BIND, numa_mask->mask,
                         numa_mask->max_nodes, MPOL_MF_MOVE);
 		STRESS_CLRBIT(numa_mask->mask, (unsigned long int)node);
 	}
