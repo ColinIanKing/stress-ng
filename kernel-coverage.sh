@@ -841,4 +841,4 @@ if [ -e $PERF_PARANOID ]; then
 fi
 
 sudo lcov -c -o kernel.info --keep-going >& /dev/null
-sudo genhtml -o html kernel.info
+sudo genhtml --ignore-errors inconsistent -o html kernel.info
