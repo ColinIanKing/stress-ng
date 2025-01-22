@@ -897,7 +897,8 @@ static int stress_cpu_sched(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 #if defined(HAVE_SET_MEMPOLICY)
-	stress_numa_mask_free(numa_mask);
+	if (numa_mask)
+		stress_numa_mask_free(numa_mask);
 #endif
 
 	stress_free_usable_cpus(&cpus);
