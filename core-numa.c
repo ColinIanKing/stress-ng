@@ -175,17 +175,43 @@ void stress_numa_randomize_pages(
 	const size_t page_size,
 	const size_t buffer_size)
 {
-	uint8_t *ptr, *ptr_end = (uint8_t *)buffer + buffer_size;
+	uint8_t *prev_ptr = (uint8_t *)buffer;
+	uint8_t *ptr = (uint8_t *)buffer + page_size;
+	uint8_t *ptr_end = (uint8_t *)buffer + buffer_size;
+	unsigned long int node = (unsigned long int)stress_mwc32modn((uint32_t)numa_mask->nodes);
+	unsigned long int prev_node = node;
+	size_t size;
 
 	(void)shim_memset(numa_mask->mask, 0, numa_mask->mask_size);
-	for (ptr = (uint8_t *)buffer; ptr < ptr_end; ptr += page_size) {
-		const unsigned long int node = (unsigned long int)stress_mwc32modn((uint32_t)numa_mask->nodes);
 
+	/*
+	 *  Try to bind bunches of pages that have the same node
+	 */
+	for (ptr = (uint8_t *)buffer; ptr < ptr_end; ptr += page_size) {
+		node = (unsigned long int)stress_mwc32modn((uint32_t)numa_mask->nodes);
+		if (node == prev_node)
+			continue;
+
+		size = ptr - prev_ptr;
 		STRESS_SETBIT(numa_mask->mask, (unsigned long int)node);
-		(void)shim_mbind((void *)ptr, page_size, MPOL_BIND, numa_mask->mask,
+		(void)shim_mbind((void *)ptr, size, MPOL_BIND, numa_mask->mask,
+                        numa_mask->max_nodes, MPOL_MF_MOVE);
+		STRESS_CLRBIT(numa_mask->mask, (unsigned long int)node);
+
+		prev_ptr = ptr;
+		prev_node = node;
+	}
+	/*
+	 *  ..and handle last page if it's different from previous
+	 */
+	size = ptr_end - prev_ptr;
+	if (size > 0) {
+		STRESS_SETBIT(numa_mask->mask, (unsigned long int)node);
+		(void)shim_mbind((void *)ptr, size, MPOL_BIND, numa_mask->mask,
                         numa_mask->max_nodes, MPOL_MF_MOVE);
 		STRESS_CLRBIT(numa_mask->mask, (unsigned long int)node);
 	}
+	errno = 0;
 }
 
 /*
