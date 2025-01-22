@@ -82,25 +82,6 @@ static int stress_pagemove_child(stress_args_t *args, void *context)
 	(void)stress_get_setting("pagemove-mlock", &pagemove_mlock);
 	(void)stress_get_setting("pagemove-numa", &pagemove_numa);
 
-	if (pagemove_numa) {
-#if defined(HAVE_LINUX_MEMPOLICY_H)
-		if (stress_numa_nodes() > 1) {
-			numa_mask = stress_numa_mask_alloc();
-		} else {
-			if (args->instance == 0) {
-				pr_inf("%s: only 1 NUMA node available, disabling --pagemove-numa\n",
-					args->name);
-				pagemove_numa = false;
-			}
-		}
-#else
-		if (args->instance == 0)
-			pr_inf("%s: --pagemove-numa selected but not supported by this system, disabling option\n",
-				args->name);
-		pagemove_numa = false;
-#endif
-	}
-
 	if (!stress_get_setting("pagemove-bytes", &pagemove_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			pagemove_bytes = MAX_32;
@@ -130,6 +111,30 @@ static int stress_pagemove_child(stress_args_t *args, void *context)
 	buf_end = buf + sz;
 	unmapped_page = buf_end;
 	(void)munmap((void *)unmapped_page, page_size);
+
+	if (pagemove_numa) {
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+		if (stress_numa_nodes() > 1) {
+			numa_mask = stress_numa_mask_alloc();
+			if (!numa_mask) {
+				pr_inf("%s: cannot allocate NUMA mask, disabling --pagemove-numa\n",
+					args->name);
+				pagemove_numa = false;
+			}
+		} else {
+			if (args->instance == 0) {
+				pr_inf("%s: only 1 NUMA node available, disabling --pagemove-numa\n",
+					args->name);
+				pagemove_numa = false;
+			}
+		}
+#else
+		if (args->instance == 0)
+			pr_inf("%s: --pagemove-numa selected but not supported by this system, disabling option\n",
+				args->name);
+		pagemove_numa = false;
+#endif
+	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
@@ -285,7 +290,7 @@ fail:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)munmap((void *)buf, sz);
 #if defined(HAVE_LINUX_MEMPOLICY_H)
-	if (pagemove_numa)
+	if (numa_mask)
 		stress_numa_mask_free(numa_mask);
 #endif
 

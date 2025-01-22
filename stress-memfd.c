@@ -206,25 +206,6 @@ static int stress_memfd_child(stress_args_t *args, void *context)
 	}
 #endif
 
-	if (memfd_numa) {
-#if defined(HAVE_LINUX_MEMPOLICY_H)
-		if (stress_numa_nodes() > 1) {
-			numa_mask = stress_numa_mask_alloc();
-		} else {
-			if (args->instance == 0) {
-				pr_inf("%s: only 1 NUMA node available, disabling --memfd-numa\n",
-					args->name);
-				memfd_numa = false;
-			}
-		}
-#else
-		if (args->instance == 0)
-			pr_inf("%s: --memfd-numa selected but not supported by this system, disabling option\n",
-				args->name);
-		memfd_numa = false;
-#endif
-	}
-
 #if !defined(HAVE_MADVISE) ||	\
     !defined(MADV_PAGEOUT)
 	if (memfd_zap_pte) {
@@ -264,6 +245,30 @@ static int stress_memfd_child(stress_args_t *args, void *context)
 			args->name, errno, strerror(errno));
 		free(fds);
 		return EXIT_NO_RESOURCE;
+	}
+
+	if (memfd_numa) {
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+		if (stress_numa_nodes() > 1) {
+			numa_mask = stress_numa_mask_alloc();
+			if (!numa_mask) {
+				pr_inf("%s: cannot allocate NUMA mask, disabling --memfd-numa\n",
+					args->name);
+				memfd_numa = false;
+			}
+		} else {
+			if (args->instance == 0) {
+				pr_inf("%s: only 1 NUMA node available, disabling --memfd-numa\n",
+					args->name);
+				memfd_numa = false;
+			}
+		}
+#else
+		if (args->instance == 0)
+			pr_inf("%s: --memfd-numa selected but not supported by this system, disabling option\n",
+				args->name);
+		memfd_numa = false;
+#endif
 	}
 
 	stress_rndstr(filename_rndstr, sizeof(filename_rndstr));
@@ -364,7 +369,7 @@ static int stress_memfd_child(stress_args_t *args, void *context)
 			if (memfd_mlock)
 				(void)shim_mlock(maps[i], size);
 #if defined(HAVE_LINUX_MEMPOLICY_H)
-			if (memfd_numa)
+			if (memfd_numa && numa_mask)
 				stress_numa_randomize_pages(numa_mask, maps[i], size, page_size);
 #endif
 			stress_memfd_fill_pages_generic(stress_mwc64(), maps[i], size);
@@ -559,7 +564,7 @@ buf_unmap:
 		rate * STRESS_DBL_NANOSECOND, STRESS_METRIC_HARMONIC_MEAN);
 
 #if defined(HAVE_LINUX_MEMPOLICY_H)
-	if (memfd_numa)
+	if (numa_mask)
 		stress_numa_mask_free(numa_mask);
 #endif
 	free(maps);

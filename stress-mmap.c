@@ -1062,6 +1062,11 @@ redo:
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 		if (stress_numa_nodes() > 1) {
 			context.numa_mask = stress_numa_mask_alloc();
+			if (!context.numa_mask) {
+				pr_inf("%s: cannot allocate NUMA mask, disabling --mmap-numa\n",
+					args->name);
+				context.mmap_numa = false;
+			}
 		} else {
 			if (args->instance == 0)
 				pr_inf("%s: only 1 NUMA node available, disabling --mmap-numa\n",

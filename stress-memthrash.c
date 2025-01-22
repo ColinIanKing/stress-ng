@@ -995,7 +995,8 @@ static int stress_memthrash(stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 #if defined(HAVE_MEMTHRASH_NUMA)
-	stress_numa_mask_free(context.numa_mask);
+	if (context.numa_mask)
+		stress_numa_mask_free(context.numa_mask);
 #endif
 
 	return rc;

@@ -78,6 +78,11 @@ static int stress_mmapmany_child(stress_args_t *args, void *context)
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 		if (stress_numa_nodes() > 1) {
 			numa_mask = stress_numa_mask_alloc();
+			if (!numa_mask) {
+				pr_inf("%s: cannot allocate NUMA mask, disabling --mmapmany-numa\n",
+					args->name);
+				mmapmany_numa = false;
+			}
 		} else {
 			if (args->instance == 0) {
 				pr_inf("%s: only 1 NUMA node available, disabling --mmapmany-numa\n",
@@ -160,7 +165,7 @@ static int stress_mmapmany_child(stress_args_t *args, void *context)
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 #if defined(HAVE_LINUX_MEMPOLICY_H)
-	if (mmapmany_numa)
+	if (numa_mask)
 		stress_numa_mask_free(numa_mask);
 #endif
 	free(mappings);

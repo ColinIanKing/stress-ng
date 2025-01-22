@@ -370,10 +370,29 @@ static int stress_llc_affinity(stress_args_t *args)
 		}
 	}
 
+	mmap_sz = STRESS_MAXIMUM(n_cpus * page_size, llc_size);
+
+	/*
+	 *  Allocate a LLC sized buffer to exercise
+	 */
+	buf = (uint64_t *)stress_mmap_populate(NULL, mmap_sz, PROT_READ | PROT_WRITE,
+		MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+	if (buf == MAP_FAILED) {
+		pr_fail("%s: mmap'd region of %zu bytes failed\n", args->name, mmap_sz);
+		stress_free_usable_cpus(&cpus);
+		return EXIT_NO_RESOURCE;
+	}
+	stress_set_vma_anon_name(buf, mmap_sz, "llc-buffer");
+
 	if (llc_affinity_numa) {
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 		if (stress_numa_nodes() > 1) {
 			numa_mask = stress_numa_mask_alloc();
+			if (!numa_mask) {
+				pr_inf("%s: cannot allocate NUMA mask, disabling --llc-affinity-numa\n",
+					args->name);
+				llc_affinity_numa = false;
+			}
 		} else {
 			if (args->instance == 0) {
 				pr_inf("%s: only 1 NUMA node available, disabling --llc-affinity-numa\n",
@@ -388,22 +407,8 @@ static int stress_llc_affinity(stress_args_t *args)
 		llc_affinity_numa = false;
 #endif
 	}
-
-	mmap_sz = STRESS_MAXIMUM(n_cpus * page_size, llc_size);
-
-	/*
-	 *  Allocate a LLC sized buffer to exercise
-	 */
-	buf = (uint64_t *)stress_mmap_populate(NULL, mmap_sz, PROT_READ | PROT_WRITE,
-		MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
-	if (buf == MAP_FAILED) {
-		pr_fail("%s: mmap'd region of %zu bytes failed\n", args->name, mmap_sz);
-		stress_free_usable_cpus(&cpus);
-		return EXIT_NO_RESOURCE;
-	}
-	stress_set_vma_anon_name(buf, mmap_sz, "llc-buffer");
 #if defined(HAVE_LINUX_MEMPOLICY_H)
-	if (llc_affinity_numa) {
+	if (llc_affinity_numa && numa_mask) {
 		stress_numa_randomize_pages(numa_mask, buf, page_size, mmap_sz);
 		stress_numa_mask_free(numa_mask);
 	}

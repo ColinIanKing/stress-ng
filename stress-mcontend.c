@@ -464,25 +464,6 @@ static int stress_mcontend(stress_args_t *args)
 	n_cpus = stress_get_usable_cpus(&cpus, true);
 #endif
 
-	if (mcontend_numa) {
-#if defined(HAVE_LINUX_MEMPOLICY_H)
-		if (stress_numa_nodes() > 1) {
-			numa_mask = stress_numa_mask_alloc();
-		} else {
-			if (args->instance == 0) {
-				pr_inf("%s: only 1 NUMA node available, disabling --mcontend-numa\n",
-					args->name);
-				mcontend_numa = false;
-			}
-		}
-#else
-		if (args->instance == 0)
-			pr_inf("%s: --mcontend-numa selected but not supported by this system, disabling option\n",
-				args->name);
-		mcontend_numa = false;
-#endif
-	}
-
 	rc = stress_temp_dir_mk_args(args);
 	if (rc < 0) {
 #if defined(HAVE_SCHED_SETAFFINITY)
@@ -550,8 +531,33 @@ static int stress_mcontend(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 	(void)close(fd);
+
+	if (mcontend_numa) {
 #if defined(HAVE_LINUX_MEMPOLICY_H)
-        if (mcontend_numa) {
+		if (stress_numa_nodes() > 1) {
+			numa_mask = stress_numa_mask_alloc();
+			if (!numa_mask) {
+				pr_inf("%s: cannot allocate NUMA mask, disabling --mcontend-numa\n",
+					args->name);
+				mcontend_numa = false;
+			}
+		} else {
+			if (args->instance == 0) {
+				pr_inf("%s: only 1 NUMA node available, disabling --mcontend-numa\n",
+					args->name);
+				mcontend_numa = false;
+			}
+		}
+#else
+		if (args->instance == 0)
+			pr_inf("%s: --mcontend-numa selected but not supported by this system, disabling option\n",
+				args->name);
+		mcontend_numa = false;
+#endif
+	}
+
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+        if (mcontend_numa && numa_mask) {
                 stress_numa_randomize_pages(numa_mask, data[0], page_size, page_size);
                 stress_numa_randomize_pages(numa_mask, data[1], page_size, page_size);
 		stress_numa_mask_free(numa_mask);

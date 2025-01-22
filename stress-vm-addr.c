@@ -557,6 +557,11 @@ static int stress_vm_addr(stress_args_t *args)
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 		if (stress_numa_nodes() > 1) {
 			context.numa_mask = stress_numa_mask_alloc();
+			if (!context.numa_mask) {
+				pr_inf("%s: cannot allocate NUMA mask, disabling --vm-addr-numa\n",
+					args->name);
+				context.vm_addr_numa = false;
+			}
 		} else {
 			if (args->instance == 0) {
 				pr_inf("%s: only 1 NUMA node available, disabling --vm-addr-numa\n",
@@ -589,7 +594,7 @@ static int stress_vm_addr(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 #if defined(HAVE_LINUX_MEMPOLICY_H)
-	if (context.vm_addr_numa)
+	if (context.numa_mask)
 		stress_numa_mask_free(context.numa_mask);
 #endif
 	(void)munmap((void *)context.bit_error_count, page_size);

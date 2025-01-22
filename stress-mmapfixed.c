@@ -279,6 +279,11 @@ static int stress_mmapfixed(stress_args_t *args)
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 		if (stress_numa_nodes() >= 1) {
 			info.numa_mask = stress_numa_mask_alloc();
+			if (!info.numa_mask) {
+				pr_inf("%s: cannot allocate NUMA mask, disabling --mmapfixed-numa\n",
+					args->name);
+				info.mmapfixed_numa = false;
+			}
 		} else {
 			if (args->instance == 0) {
 				pr_inf("%s: only 1 NUMA node available, disabling --mmapfixed-numa\n",
@@ -296,7 +301,7 @@ static int stress_mmapfixed(stress_args_t *args)
 	ret = stress_oomable_child(args, &info, stress_mmapfixed_child, STRESS_OOMABLE_QUIET);
 
 #if defined(HAVE_LINUX_MEMPOLICY_H)
-	if (info.mmapfixed_numa)
+	if (info.numa_mask)
 		stress_numa_mask_free(info.numa_mask);
 #endif
 

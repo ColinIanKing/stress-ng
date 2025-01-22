@@ -1317,7 +1317,8 @@ static int stress_misaligned(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 #if defined(HAVE_MISALIGNED_NUMA)
-	stress_numa_mask_free(numa_mask);
+	if (numa_mask)
+		stress_numa_mask_free(numa_mask);
 #endif
 	(void)munmap((void *)buffer, buffer_size);
 

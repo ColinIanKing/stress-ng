@@ -233,6 +233,11 @@ static int stress_mremap_child(stress_args_t *args, void *context)
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 		if (stress_numa_nodes() > 1) {
 			numa_mask = stress_numa_mask_alloc();
+			if (!numa_mask) {
+				pr_inf("%s: cannot allocate NUMA mask, disabling --mremap-numa\n",
+					args->name);
+				mremap_numa = false;
+			}
 		} else {
 			if (args->instance == 0) {
 				pr_inf("%s: only 1 NUMA node available, disabling --mremap-numa\n",
@@ -362,7 +367,7 @@ deinit:
 		rate * STRESS_DBL_NANOSECOND, STRESS_METRIC_HARMONIC_MEAN);
 
 #if defined(HAVE_LINUX_MEMPOLICY_H)
-	if (mremap_numa)
+	if (numa_mask)
 		stress_numa_mask_free(numa_mask);
 #endif
 

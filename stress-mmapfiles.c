@@ -267,6 +267,11 @@ static int stress_mmapfiles(stress_args_t *args)
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 		if (stress_numa_nodes() > 1) {
 			mmapfile_info->numa_mask = stress_numa_mask_alloc();
+			if (!mmapfile_info->numa_mask) {
+				pr_inf("%s: cannot allocate NUMA mask, disabling --mapfiles-numa\n",
+					args->name);
+				mmapfile_info->mmapfiles_numa = false;
+			}
 		} else {
 			if (args->instance == 0) {
 				pr_inf("%s: only 1 NUMA node available, disabling --mmapfiles-numa\n",
@@ -297,7 +302,7 @@ static int stress_mmapfiles(stress_args_t *args)
 	stress_metrics_set(args, 4, "pages per mapping", metric, STRESS_METRIC_HARMONIC_MEAN);
 
 #if defined(HAVE_LINUX_MEMPOLICY_H)
-	if (mmapfile_info->mmapfiles_numa)
+	if (mmapfile_info->numa_mask)
 		stress_numa_mask_free(mmapfile_info->numa_mask);
 #endif
 	(void)munmap((void *)mmapfile_info, sizeof(*mmapfile_info));

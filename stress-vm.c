@@ -3417,6 +3417,11 @@ static int stress_vm(stress_args_t *args)
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 		if (stress_numa_nodes() > 1) {
 			context.numa_mask = stress_numa_mask_alloc();
+			if (!context.numa_mask) {
+				pr_inf("%s: cannot allocate NUMA mask, disabling --vm-numa\n",
+					args->name);
+				context.vm_numa = false;
+			}
 		} else {
 			if (args->instance == 0) {
 				pr_inf("%s: only 1 NUMA node available, disabling --vm-numa\n",
@@ -3481,7 +3486,7 @@ static int stress_vm(stress_args_t *args)
 	(void)munmap((void *)context.bit_error_count, page_size);
 
 #if defined(HAVE_LINUX_MEMPOLICY_H)
-	if (context.vm_numa)
+	if (context.numa_mask)
 		stress_numa_mask_free(context.numa_mask);
 #endif
 	tmp_counter = stress_bogo_get(args) >> VM_BOGO_SHIFT;
