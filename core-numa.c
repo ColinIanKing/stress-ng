@@ -182,6 +182,9 @@ void stress_numa_randomize_pages(
 	unsigned long int prev_node = node;
 	size_t size;
 
+	if (UNLIKELY(!buffer))
+		return;
+
 	(void)shim_memset(numa_mask->mask, 0, numa_mask->mask_size);
 
 	/*
