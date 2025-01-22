@@ -594,18 +594,22 @@ do_stress --mmapaddr -1 --mmapaddr-mlock
 do_stress --mmapfiles -1 --mmapfiles-numa
 
 do_stress --mmapfixed -1 --mmapfixed-mlock
+do_stress --mmapfixed -1 --mmapfixed-numa
 
 do_stress --mmaphuge -1 --mmaphuge-file
 do_stress --mmaphuge -1 --mmaphuge-mlock
+do_stress --mmaphuge -1 --mmaphuge-numa
 do_stress --mmaphuge -1 --mmaphuge-mmaps 32768
 
 do_stress --mmapmany -1 --mmapmany-mlock
+do_stress --mmapmany -1 --mmapmany-numa
 
 do_stress --module -1 --module-name bfq
 
 do_stress --mpfr -1 --mpfr-precision 8192
 
 do_stress --mremap -1 --mremap-mlock
+do_stress --mremap -1 --mremap-numa
 
 do_stress --msg -1 --msg-types 100
 do_stress --msg -1 --msg-bytes 8192
@@ -626,6 +630,7 @@ do_stress --open -1 --open-fd
 do_stress --open -1 --open-max 100000
 
 do_stress --pagemove -1 --pagemove-mlock
+do_stress --pagemove -1 --pagemove-numa
 
 do_stress --pipe -1 --pipe-size 64K
 do_stress --pipe -1 --pipe-size 1M
@@ -783,6 +788,7 @@ do_stress --vm -1 --vm-numa
 do_stress --vm -1 --vm-populate --ksm
 
 do_stress --vm-addr -1 --vm-addr-mlock
+do_stress --vm-addr -1 --vm-addr-numa
 
 do_stress --workload -1 --workload-sched idle --workload-load 90
 do_stress --workload -1 --workload-sched other --workload-load 90
