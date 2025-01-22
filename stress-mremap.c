@@ -21,6 +21,7 @@
 #include "core-madvise.h"
 #include "core-mincore.h"
 #include "core-mmap.h"
+#include "core-numa.h"
 #include "core-out-of-memory.h"
 
 #define DEFAULT_MREMAP_BYTES	(256 * MB)
@@ -31,6 +32,7 @@ static const stress_help_t help[] = {
 	{ NULL,	"mremap N",	  "start N workers stressing mremap" },
 	{ NULL,	"mremap-bytes N", "mremap N bytes maximum for each stress iteration" },
 	{ NULL, "mremap-mlock",	  "mlock remap pages, force pages to be unswappable" },
+	{ NULL, "mremap-numa",	  "bind memory mappings to randomly selected NUMA nodes" },
 	{ NULL,	"mremap-ops N",	  "stop after N mremap bogo operations" },
 	{ NULL,	NULL,		  NULL }
 };
@@ -38,6 +40,7 @@ static const stress_help_t help[] = {
 static const stress_opt_t opts[] = {
 	{ OPT_mremap_bytes, "mremap-bytes", TYPE_ID_SIZE_T_BYTES_VM, MIN_MREMAP_BYTES, MAX_MREMAP_BYTES, NULL },
 	{ OPT_mremap_mlock, "mremap-mlock", TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_mremap_numa,  "mremap-numa",  TYPE_ID_BOOL, 0, 1, NULL },
 	END_OPT,
 };
 
@@ -106,7 +109,6 @@ static int try_remap(
 
 	for (retry = 0; retry < 100; retry++) {
 		double t = 0.0;
-
 
 #if defined(MREMAP_FIXED)
 		void *addr = rand_mremap_addr(new_sz + args->page_size, flags);
@@ -199,8 +201,12 @@ static int stress_mremap_child(stress_args_t *args, void *context)
 	int flags = MAP_PRIVATE | MAP_ANONYMOUS;
 	const size_t page_size = args->page_size;
 	bool mremap_mlock = false;
+	bool mremap_numa = false;
 	double duration = 0.0, count = 0.0, rate;
 	int ret = EXIT_SUCCESS;
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+	stress_numa_mask_t *numa_mask = NULL;
+#endif
 
 #if defined(MAP_POPULATE)
 	flags |= MAP_POPULATE;
@@ -221,6 +227,26 @@ static int stress_mremap_child(stress_args_t *args, void *context)
 	new_sz = sz = mremap_bytes & ~(page_size - 1);
 
 	(void)stress_get_setting("mremap-mlock", &mremap_mlock);
+	(void)stress_get_setting("mremap-numa", &mremap_numa);
+
+	if (mremap_numa) {
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+		if (stress_numa_nodes() > 1) {
+			numa_mask = stress_numa_mask_alloc();
+		} else {
+			if (args->instance == 0) {
+				pr_inf("%s: only 1 NUMA node available, disabling --mremap-numa\n",
+					args->name);
+				mremap_numa = false;
+			}
+		}
+#else
+		if (args->instance == 0)
+			pr_inf("%s: --mremap-numa selected but not supported by this system, disabling option\n",
+				args->name);
+		mremap_numa = false;
+#endif
+	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
@@ -241,6 +267,10 @@ static int stress_mremap_child(stress_args_t *args, void *context)
 #endif
 			continue;	/* Try again */
 		}
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+		if (mremap_numa)
+			stress_numa_randomize_pages(numa_mask, buf, page_size, sz);
+#endif
 		(void)stress_madvise_random(buf, new_sz);
 		(void)stress_madvise_mergeable(buf, new_sz);
 		(void)stress_mincore_touch_pages(buf, mremap_bytes);
@@ -268,6 +298,10 @@ static int stress_mremap_child(stress_args_t *args, void *context)
 			}
 			if (!stress_continue(args))
 				goto deinit;
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+			if (mremap_numa)
+				stress_numa_randomize_pages(numa_mask, buf, page_size, new_sz);
+#endif
 			(void)stress_madvise_random(buf, new_sz);
 			if (g_opt_flags & OPT_FLAGS_VERIFY) {
 				if (stress_mmap_check(buf, new_sz, page_size) < 0) {
@@ -293,6 +327,10 @@ static int stress_mremap_child(stress_args_t *args, void *context)
 			}
 			if (!stress_continue(args))
 				goto deinit;
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+			if (mremap_numa)
+				stress_numa_randomize_pages(numa_mask, buf, page_size, new_sz);
+#endif
 			(void)stress_madvise_random(buf, new_sz);
 			old_sz = new_sz;
 			new_sz <<= 1;
@@ -322,6 +360,11 @@ deinit:
 	rate = (count > 0.0) ? duration / count : 0.0;
 	stress_metrics_set(args, 0, "nanosecs per mremap call",
 		rate * STRESS_DBL_NANOSECOND, STRESS_METRIC_HARMONIC_MEAN);
+
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+	if (mremap_numa)
+		stress_numa_mask_free(numa_mask);
+#endif
 
 	return ret;
 }

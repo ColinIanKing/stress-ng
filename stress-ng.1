@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "21 January 2025"
+.TH STRESS-NG 1 "22 January 2025"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -5475,6 +5475,10 @@ suffix b, k, m or g.
 .B \-\-mremap\-mlock
 attempt to mlock remap'd pages into memory causing more memory pressure by
 preventing pages from swapped out.
+.TP
+.B \-\-mreamp\-numa
+assign memory mapped pages to randomly selected NUMA nodes. This is disabled
+for systems that do not support NUMA or have less than 2 NUMA nodes.
 .TP
 .B \-\-mremap\-ops N
 stop mremap stress workers after N bogo operations.

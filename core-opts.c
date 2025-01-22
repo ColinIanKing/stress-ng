@@ -643,6 +643,7 @@ const struct option stress_long_options[] = {
 	{ "mremap",		1,	0,	OPT_mremap },
 	{ "mremap-bytes",	1,	0,	OPT_mremap_bytes },
 	{ "mremap-mlock",	0,	0,	OPT_mremap_mlock },
+	{ "mremap-numa",	0,	0,	OPT_mremap_numa },
 	{ "mremap-ops",		1,	0,	OPT_mremap_ops },
 	{ "mseal",		1,	0,	OPT_mseal },
 	{ "mseal-ops",		1,	0,	OPT_mseal_ops,},

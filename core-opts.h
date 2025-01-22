@@ -943,6 +943,7 @@ typedef enum {
 	OPT_mremap_ops,
 	OPT_mremap_bytes,
 	OPT_mremap_mlock,
+	OPT_mremap_numa,
 
 	OPT_mseal,
 	OPT_mseal_ops,
