@@ -72,7 +72,6 @@ typedef struct {
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 	stress_numa_mask_t *numa_mask;
 #endif
-
 } stress_mmaphuge_context_t;
 
 static const stress_mmaphuge_setting_t stress_mmap_settings[] =
@@ -91,11 +90,11 @@ static const stress_mmaphuge_setting_t stress_mmap_settings[] =
 	{ 0, 2 * MB },			/* for THP */
 };
 
-static int stress_mmaphuge_child(stress_args_t *args, void *v_ctxt)
+static int stress_mmaphuge_child(stress_args_t *args, void *v_context)
 {
-	stress_mmaphuge_context_t *ctxt = (stress_mmaphuge_context_t *)v_ctxt;
+	stress_mmaphuge_context_t *context = (stress_mmaphuge_context_t *)v_context;
 	const size_t page_size = args->page_size;
-	stress_mmaphuge_buf_t *bufs = (stress_mmaphuge_buf_t *)ctxt->bufs;
+	stress_mmaphuge_buf_t *bufs = (stress_mmaphuge_buf_t *)context->bufs;
 	size_t idx = 0;
 	int rc = EXIT_SUCCESS;
 
@@ -106,10 +105,10 @@ static int stress_mmaphuge_child(stress_args_t *args, void *v_ctxt)
 	do {
 		size_t i;
 
-		for (i = 0; i < ctxt->mmaphuge_mmaps; i++)
+		for (i = 0; i < context->mmaphuge_mmaps; i++)
 			bufs[i].buf = MAP_FAILED;
 
-		for (i = 0; stress_continue(args) && (i < ctxt->mmaphuge_mmaps); i++) {
+		for (i = 0; stress_continue(args) && (i < context->mmaphuge_mmaps); i++) {
 			size_t shmall, freemem, totalmem, freeswap, totalswap, last_freeswap, last_totalswap;
 			size_t j;
 
@@ -128,17 +127,17 @@ static int stress_mmaphuge_child(stress_args_t *args, void *v_ctxt)
 
 				bufs[i].sz = sz;
 				/* If we're mapping onto a file, try it first */
-				if (ctxt->mmaphuge_file) {
+				if (context->mmaphuge_file) {
 					const off_t offset = 4096 * stress_mwc8modn(16);
 
-					if (sz + offset < ctxt->sz) {
+					if (sz + offset < context->sz) {
 						buf = (uint8_t *)mmap(NULL, sz,
 								PROT_READ | PROT_WRITE,
-								flags & ~MAP_ANONYMOUS, ctxt->fd, offset);
+								flags & ~MAP_ANONYMOUS, context->fd, offset);
 						if (buf == MAP_FAILED)
 							buf = (uint8_t *)mmap(NULL, sz,
 								PROT_READ | PROT_WRITE,
-								flags & ~MAP_ANONYMOUS, ctxt->fd, 0);
+								flags & ~MAP_ANONYMOUS, context->fd, 0);
 					}
 				}
 				/* file mapping failed or not mapped yet, try anonymous map */
@@ -159,11 +158,11 @@ static int stress_mmaphuge_child(stress_args_t *args, void *v_ctxt)
 					const uint64_t *buf_end = (uint64_t *)(buf + sz);
 
 #if defined(HAVE_LINUX_MEMPOLICY_H)
-					if (ctxt->mmaphuge_numa)
-						stress_numa_randomize_pages(ctxt->numa_mask, buf, page_size, sz);
+					if (context->mmaphuge_numa)
+						stress_numa_randomize_pages(context->numa_mask, buf, page_size, sz);
 #endif
 
-					if (ctxt->mmaphuge_mlock)
+					if (context->mmaphuge_mlock)
 						(void)shim_mlock(buf, sz);
 
 					/* Touch every other 64 pages.. */
@@ -191,7 +190,7 @@ static int stress_mmaphuge_child(stress_args_t *args, void *v_ctxt)
 				break;
 		}
 
-		for (i = 0; stress_continue(args) && (i < ctxt->mmaphuge_mmaps); i++) {
+		for (i = 0; stress_continue(args) && (i < context->mmaphuge_mmaps); i++) {
 			if (bufs[i].buf != MAP_FAILED)
 				continue;
 			/* Try Transparent Huge Pages THP */
@@ -203,7 +202,7 @@ static int stress_mmaphuge_child(stress_args_t *args, void *v_ctxt)
 #endif
 		}
 
-		for (i = 0; i < ctxt->mmaphuge_mmaps; i++) {
+		for (i = 0; i < context->mmaphuge_mmaps; i++) {
 			uint8_t *buf = bufs[i].buf;
 			size_t sz;
 
@@ -242,112 +241,112 @@ static int stress_mmaphuge_child(stress_args_t *args, void *v_ctxt)
  */
 static int stress_mmaphuge(stress_args_t *args)
 {
-	stress_mmaphuge_context_t ctxt;
+	stress_mmaphuge_context_t context;
 
 	int ret;
 
 #if defined(HAVE_LINUX_MEMPOLICY_H)
-	ctxt.numa_mask = NULL;
+	context.numa_mask = NULL;
 #endif
-	ctxt.sz = 16 * MB;
-	ctxt.fd = -1;
-	ctxt.mmaphuge_mmaps = MAX_MMAP_BUFS;
-	(void)stress_get_setting("mmaphuge-mmaps", &ctxt.mmaphuge_mmaps);
-	ctxt.mmaphuge_file = false;
-	(void)stress_get_setting("mmaphuge-file", &ctxt.mmaphuge_file);
-	ctxt.mmaphuge_numa = false;
-	(void)stress_get_setting("mmaphuge-numa", &ctxt.mmaphuge_numa);
-	ctxt.mmaphuge_mlock = false;
-	(void)stress_get_setting("mmaphuge-mlock", &ctxt.mmaphuge_mlock);
+	context.sz = 16 * MB;
+	context.fd = -1;
+	context.mmaphuge_mmaps = MAX_MMAP_BUFS;
+	(void)stress_get_setting("mmaphuge-mmaps", &context.mmaphuge_mmaps);
+	context.mmaphuge_file = false;
+	(void)stress_get_setting("mmaphuge-file", &context.mmaphuge_file);
+	context.mmaphuge_numa = false;
+	(void)stress_get_setting("mmaphuge-numa", &context.mmaphuge_numa);
+	context.mmaphuge_mlock = false;
+	(void)stress_get_setting("mmaphuge-mlock", &context.mmaphuge_mlock);
 
-	ctxt.bufs = (stress_mmaphuge_buf_t *)calloc(ctxt.mmaphuge_mmaps, sizeof(*ctxt.bufs));
-	if (!ctxt.bufs) {
+	context.bufs = (stress_mmaphuge_buf_t *)calloc(context.mmaphuge_mmaps, sizeof(*context.bufs));
+	if (!context.bufs) {
 		pr_inf_skip("%s: cannot allocate buffer array, skipping stressor\n",
 			args->name);
 		return EXIT_NO_RESOURCE;
 	}
 
-	if (ctxt.mmaphuge_file) {
+	if (context.mmaphuge_file) {
 		char filename[PATH_MAX];
 		ssize_t rc;
 
 		rc = stress_temp_dir_mk_args(args);
 		if (rc < 0) {
-			free(ctxt.bufs);
+			free(context.bufs);
 			return stress_exit_status((int)-rc);
 		}
 
 		(void)stress_temp_filename_args(args,
 			filename, sizeof(filename), stress_mwc32());
-		ctxt.fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
-		if (ctxt.fd < 0) {
+		context.fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
+		if (context.fd < 0) {
 			rc = stress_exit_status(errno);
 			pr_fail("%s: open %s failed, errno=%d (%s)\n",
 				args->name, filename, errno, strerror(errno));
 			(void)shim_unlink(filename);
 			(void)stress_temp_dir_rm_args(args);
-			free(ctxt.bufs);
+			free(context.bufs);
 
 			return (int)rc;
 		}
 		(void)shim_unlink(filename);
-		if (lseek(ctxt.fd, (off_t)(ctxt.sz - args->page_size), SEEK_SET) < 0) {
+		if (lseek(context.fd, (off_t)(context.sz - args->page_size), SEEK_SET) < 0) {
 			pr_fail("%s: lseek failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
-			(void)close(ctxt.fd);
+			(void)close(context.fd);
 			(void)stress_temp_dir_rm_args(args);
-			free(ctxt.bufs);
+			free(context.bufs);
 
 			return EXIT_FAILURE;
 		}
 		/*
 		 *  Allocate a 16 MB aligned chunk of data.
 		 */
-		if (shim_fallocate(ctxt.fd, 0, 0, (off_t)ctxt.sz) < 0) {
+		if (shim_fallocate(context.fd, 0, 0, (off_t)context.sz) < 0) {
 			rc = stress_exit_status(errno);
 			pr_fail("%s: fallocate of %zu MB failed, errno=%d (%s)\n",
-				args->name, (size_t)(ctxt.fd / MB), errno, strerror(errno));
-			(void)close(ctxt.fd);
+				args->name, (size_t)(context.fd / MB), errno, strerror(errno));
+			(void)close(context.fd);
 			(void)stress_temp_dir_rm_args(args);
-			free(ctxt.bufs);
+			free(context.bufs);
 			return (int)rc;
 		}
 	}
 
-	if (ctxt.mmaphuge_numa) {
+	if (context.mmaphuge_numa) {
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 		if (stress_numa_nodes() > 1) {
-			ctxt.numa_mask = stress_numa_mask_alloc();
-			if (!ctxt.numa_mask) {
+			context.numa_mask = stress_numa_mask_alloc();
+			if (!context.numa_mask) {
 				pr_inf("%s: cannot allocate NUMA mask, disabling --mmaphuge-numa\n",
 					args->name);
-				ctxt.mmaphuge_numa = false;
+				context.mmaphuge_numa = false;
 			}
 		} else {
 			if (args->instance == 0) {
 				pr_inf("%s: only 1 NUMA node available, disabling --mmaphuge-numa\n",
 					args->name);
-				ctxt.mmaphuge_numa = false;
+				context.mmaphuge_numa = false;
 			}
 		}
 #else
 		if (args->instance == 0)
 			pr_inf("%s: --mmaphuge-numa selected but not supported by this system, disabling option\n",
 				args->name);
-		ctxt.mmaphuge_numa = false;
+		context.mmaphuge_numa = false;
 #endif
 	}
 
-	ret = stress_oomable_child(args, (void *)&ctxt, stress_mmaphuge_child, STRESS_OOMABLE_QUIET);
+	ret = stress_oomable_child(args, (void *)&context, stress_mmaphuge_child, STRESS_OOMABLE_QUIET);
 
 #if defined(HAVE_LINUX_MEMPOLICY_H)
-	if (ctxt.numa_mask)
-		stress_numa_mask_free(ctxt.numa_mask);
+	if (context.numa_mask)
+		stress_numa_mask_free(context.numa_mask);
 #endif
-	free(ctxt.bufs);
+	free(context.bufs);
 
-	if (ctxt.mmaphuge_file) {
-		(void)close(ctxt.fd);
+	if (context.mmaphuge_file) {
+		(void)close(context.fd);
 		(void)stress_temp_dir_rm_args(args);
 	}
 
