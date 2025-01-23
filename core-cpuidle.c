@@ -208,7 +208,7 @@ static void stress_cpuidle_read_cstates(
 	 *  total up cpu C state timings
 	 */
 	while ((cpu_d = readdir(cpu_dir)) != NULL) {
-		char cpuidle_path[512];
+		char cpuidle_path[768];
 		DIR *cpuidle_dir;
 		const struct dirent *cpuidle_d;
 
@@ -223,7 +223,7 @@ static void stress_cpuidle_read_cstates(
 			continue;
 
 		while ((cpuidle_d = readdir(cpuidle_dir)) != NULL) {
-			char path[PATH_MAX + 512], cstate[64], data[64], *ptr;
+			char path[PATH_MAX + 768], cstate[64], data[64], *ptr;
 			uint64_t cstate_time;
 			double now;
 
