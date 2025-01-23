@@ -250,6 +250,7 @@ static int stress_mmaphuge(stress_args_t *args)
 	ctxt.numa_mask = NULL;
 #endif
 	ctxt.sz = 16 * MB;
+	ctxt.fd = -1;
 	ctxt.mmaphuge_mmaps = MAX_MMAP_BUFS;
 	(void)stress_get_setting("mmaphuge-mmaps", &ctxt.mmaphuge_mmaps);
 	ctxt.mmaphuge_file = false;
