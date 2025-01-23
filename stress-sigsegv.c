@@ -257,6 +257,10 @@ static void stress_sigsegv_vdso(void)
 static int stress_sigsegv(stress_args_t *args)
 {
 	uint8_t *ro_ptr, *none_ptr;
+#if defined(HAVE_MADVISE) &&	\
+    defined(MADV_GUARD_INSTALL)
+	uint8_t *guard_ptr;
+#endif
 	static uint32_t mask_shift;
 	static uintptr_t mask, last_mask;
 	NOCLOBBER int rc = EXIT_FAILURE;
@@ -282,6 +286,7 @@ static int stress_sigsegv(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 	stress_set_vma_anon_name(ro_ptr, args->page_size, "ro-page");
+
 	/* Allocate write only page */
 	none_ptr = (uint8_t *)mmap(NULL, args->page_size, PROT_NONE,
 		MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
@@ -293,6 +298,31 @@ static int stress_sigsegv(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 	stress_set_vma_anon_name(ro_ptr, args->page_size, "no-page");
+
+#if defined(HAVE_MADVISE) &&	\
+    defined(MADV_GUARD_INSTALL)
+	/* Allocate guard page */
+	guard_ptr = (uint8_t *)mmap(NULL, args->page_size, PROT_READ | PROT_WRITE,
+		MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+	if (guard_ptr == MAP_FAILED) {
+		pr_inf_skip("%s: mmap of guard page failed: "
+			"errno=%d (%s), skipping stressor\n",
+			args->name, errno, strerror(errno));
+		(void)munmap((void *)none_ptr, args->page_size);
+		(void)munmap((void *)ro_ptr, args->page_size);
+		return EXIT_NO_RESOURCE;
+	}
+	stress_set_vma_anon_name(guard_ptr, args->page_size, "guard-page");
+	if (madvise(guard_ptr, args->page_size, MADV_GUARD_INSTALL) < 0) {
+		/*
+		 * older kernels may not have MADV_GUARD_INSTALL, so
+		 * unmap and indicate it's not usable by setting guard_ptr
+		 * to NULL
+		 */
+		(void)munmap((void *)guard_ptr, args->page_size);
+		guard_ptr = NULL;
+	}
+#endif
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
@@ -383,7 +413,7 @@ static int stress_sigsegv(stress_args_t *args)
 retry:
 			if (!stress_continue(args))
 				break;
-			switch (stress_mwc8modn(10)) {
+			switch (stress_mwc8modn(11)) {
 #if defined(HAVE_SIGSEGV_X86_TRAP)
 			case 0:
 				/* Trip a SIGSEGV/SIGILL/SIGBUS */
@@ -448,6 +478,14 @@ retry:
 				stress_uint8_put(*none_ptr);
 				goto retry;
 			case 9:
+#if defined(HAVE_MADVISE) &&	\
+    defined(MADV_GUARD_INSTALL)
+				/* Access to guard pages is not allowed */
+				if (guard_ptr)
+					*guard_ptr = 0;
+#endif
+				goto retry;
+			case 10:
 				/* Read from random address, work through all address widths */
 #if defined(UINTPTR_MAX)
 #if UINTMAX_WIDTH > 32
@@ -486,6 +524,11 @@ tidy:
 	stress_enable_readtsc();
 #endif
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+#if defined(HAVE_MADVISE) &&	\
+    defined(MADV_GUARD_INSTALL)
+	if (guard_ptr)
+		(void)munmap((void *)guard_ptr, args->page_size);
+#endif
 	(void)munmap((void *)none_ptr, args->page_size);
 	(void)munmap((void *)ro_ptr, args->page_size);
 
