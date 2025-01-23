@@ -176,12 +176,28 @@ static int stress_pagein_proc(const pid_t pid)
 	 * Look for field 0060b000-0060c000 r--p 0000b000 08:01 1901726
 	 */
 	while (thrash_run && fgets(buffer, sizeof(buffer), fpmap)) {
-		off_t begin, end, len, off;
+		off_t off, begin, end, len;
 		char tmppath[1024];
 		char prot[6];
 
-		if (sscanf(buffer, "%jx-%jx %5s %*x %*x:%*x %*d %1023s", &begin, &end, prot, tmppath) != 4)
+		/* portable off_t and scanf is a pain */
+		if ((sizeof(off_t) < 32) || (sizeof(off_t) > 64))
 			continue;
+		else if (sizeof(off_t) == 32) {
+			int32_t begin32, end32;
+
+			if (sscanf(buffer, "%" SCNx32 "-%" SCNx32 " %5s %*x %*x:%*x %*d %1023s", &begin32, &end32, prot, tmppath) != 4)
+				continue;
+			begin = (off_t)begin32;
+			end = (off_t)end32;
+		} else if (sizeof(off_t) <= 64) {
+			int64_t begin64, end64;
+
+			if (sscanf(buffer, "%" SCNx64 "-%" SCNx64 " %5s %*x %*x:%*x %*d %1023s", &begin64, &end64, prot, tmppath) != 4)
+				continue;
+			begin = (off_t)begin64;
+			end = (off_t)end64;
+		}
 
 		/* ignore non-readable or non-private mappings */
 		if ((prot[0] != 'r') && (prot[3] != 'p'))
