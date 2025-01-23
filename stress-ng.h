@@ -26,10 +26,6 @@
 #define _GNU_SOURCE
 #endif
 
-#if !defined(_FILE_OFFSET_BITS)
-#define _FILE_OFFSET_BITS 	(64)
-#endif
-
 #if defined(__TINYC__) ||	\
     defined(__PCC__)
 #undef _FORTIFY_SOURCE

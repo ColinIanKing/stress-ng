@@ -120,7 +120,13 @@ static int stress_fsize_boundary(
 	if (sigxfsz) {
 		pr_fail("%s: got an unexpected SIGXFSZ signal at offset %" PRIdMAX " (0x%" PRIxMAX ")\n",
 			args->name, (intmax_t)off, (intmax_t)off);
-		rc = EXIT_FAILURE;
+		return EXIT_FAILURE;
+	}
+	/* We should be able to fruncate a file to zero bytes */
+	if (ftruncate(fd, 0) < 0) {
+		pr_inf("%s: truncating file to zero bytes failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
+		return EXIT_FAILURE;
 	}
 
 	sigxfsz = false;
@@ -130,6 +136,7 @@ static int stress_fsize_boundary(
 		if (!stress_fsize_reported(off, FSIZE_TYPE_FALLOC)) {
 			pr_inf("%s: fallocate unexpectedly succeeded at offset %" PRIdMAX " (0x%" PRIxMAX "), expecting EFBIG error\n",
 				args->name, (intmax_t)off, (intmax_t)off);
+			return EXIT_FAILURE;
 		}
 		return rc;
 	} else if ((errno != EFBIG) && (errno != ENOSPC) && (errno != EINTR)) {
@@ -274,8 +281,10 @@ static int stress_fsize(stress_args_t *args)
 			rc = EXIT_FAILURE;
 			break;
 		}
-		if (stress_fsize_boundary(args, fd, &old_rlim, offset, max - offset) == EXIT_FAILURE)
+		if (stress_fsize_boundary(args, fd, &old_rlim, offset, max - offset) == EXIT_FAILURE) {
 			rc = EXIT_FAILURE;
+			break;
+		}
 
 		/* Should be able to set back to original size */
 		new_rlim = old_rlim;
@@ -289,19 +298,22 @@ static int stress_fsize(stress_args_t *args)
 		/*
 		 *  Test #3, work through all off_t sizes in powers of 2 - 1
 		 */
-		if (ftruncate(fd, 0) < 0) {
-			pr_inf("%s: truncating file to zero bytes failed, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
-			rc = EXIT_FAILURE;
-			break;
-		}
 		for (offset = 1; offset < max_offset; offset = (offset << 1 | 1)) {
-			if (stress_fsize_boundary(args, fd, &old_rlim, offset, 1) == EXIT_FAILURE)
+			if (ftruncate(fd, 0) < 0) {
+				pr_inf("%s: truncating file to zero bytes failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 				rc = EXIT_FAILURE;
+				goto err;
+			}
+			if (stress_fsize_boundary(args, fd, &old_rlim, offset, 1) == EXIT_FAILURE) {
+				rc = EXIT_FAILURE;
+				goto err;
+			}
 		}
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
 
+err:
 	duration = stress_time_now() - t;
 	rate = (duration > 0.0) ? (double)sigxfsz_count / duration : 0.0;
 	stress_metrics_set(args, 0, "SIGXFSZ signals per sec",
