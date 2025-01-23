@@ -70,7 +70,7 @@ typedef struct {
 	bool mmaphuge_numa;	/* true if using numa binding */
 	int fd;
 #if defined(HAVE_LINUX_MEMPOLICY_H)
-        stress_numa_mask_t *numa_mask;
+	stress_numa_mask_t *numa_mask;
 #endif
 
 } stress_mmaphuge_context_t;
@@ -246,6 +246,9 @@ static int stress_mmaphuge(stress_args_t *args)
 
 	int ret;
 
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+	ctxt.numa_mask = NULL;
+#endif
 	ctxt.sz = 16 * MB;
 	ctxt.mmaphuge_mmaps = MAX_MMAP_BUFS;
 	(void)stress_get_setting("mmaphuge-mmaps", &ctxt.mmaphuge_mmaps);
