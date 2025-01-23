@@ -157,6 +157,14 @@ static const int madvise_options[] = {
 #if defined(MADV_POPULATE_WRITE)
 	MADV_POPULATE_WRITE,
 #endif
+/* Linux 6.12 */
+#if defined(MADV_GUARD_INSTALL) &&	\
+    defined(MADV_NORMAL)
+	MADV_GUARD_INSTALL,
+#endif
+#if defined(MADV_GUARD_REMOVE)
+	MADV_GUARD_REMOVE,
+#endif
 /* OpenBSD */
 #if defined(MADV_SPACEAVAIL)
 	MADV_SPACEAVAIL,
@@ -360,6 +368,11 @@ static void *stress_madvise_pages(void *arg)
 		if (advise == MADV_FREE)
 			stress_read_proc_smaps(ctxt->smaps);
 #endif
+#if defined(MADV_GUARD_INSTALL) && defined(MADV_NORMAL)
+		/* avoid segfaults by setting back to normal */
+		if (advise == MADV_GUARD_INSTALL)
+			(void)shim_madvise(ptr, page_size, MADV_NORMAL);
+#endif
 		(void)shim_msync(ptr, page_size, MS_ASYNC);
 	}
 	for (n = 0; n < sz; n += page_size) {
@@ -368,6 +381,11 @@ static void *stress_madvise_pages(void *arg)
 		const int advise = stress_random_advise(args, ptr, page_size, ctxt->hwpoison);
 
 		(void)shim_madvise(ptr, page_size, advise);
+#if defined(MADV_GUARD_INSTALL) && defined(MADV_NORMAL)
+		/* avoid segfaults by setting back to normal */
+		if (advise == MADV_GUARD_INSTALL)
+			(void)shim_madvise(ptr, page_size, MADV_NORMAL);
+#endif
 		(void)shim_msync(ptr, page_size, MS_ASYNC);
 	}
 
@@ -572,7 +590,7 @@ static int stress_madvise(stress_args_t *args)
 								MAP_PRIVATE, fd, 0);
 		} else {
 			buf = (uint8_t *)stress_mmap_populate(NULL, sz, PROT_READ | PROT_WRITE,
-								MAP_ANONYMOUS, -1, 0);
+								MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 		}
 		if (buf == MAP_FAILED) {
 			/* Force MAP_POPULATE off, just in case */
