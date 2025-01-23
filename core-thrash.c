@@ -219,7 +219,7 @@ exit_fdmem:
  *  stress_proc_file_read()
  *	read a proc file
  */
-static void stress_proc_file_read(const char *filename)
+static void stress_file_read(const char *filename)
 {
 	char buf[4096];
 	int fd;
@@ -233,6 +233,26 @@ static void stress_proc_file_read(const char *filename)
 	(void)close(fd);
 }
 #endif
+
+/*
+ *  stress_sys_memory()
+ *	stress sys files that are memory related
+ */
+static inline void stress_sys_memory(void)
+{
+#if defined(__linux__)
+	static const char * const sys_files[] = {
+		"/sys/kernel/vmcoreinfo",
+		"/sys/kernel/debug/percpu_stats",
+	};
+
+	size_t i;
+
+	for (i = 0; i < SIZEOF_ARRAY(sys_files); i++) {
+		stress_file_read(sys_files[i]);
+	}
+#endif
+}
 
 /*
  *  stress_proc_memory()
@@ -257,7 +277,7 @@ static inline void stress_proc_memory(void)
 	struct dirent *d;
 
 	for (i = 0; i < SIZEOF_ARRAY(proc_files); i++) {
-		stress_proc_file_read(proc_files[i]);
+		stress_file_read(proc_files[i]);
 	}
 
 	/*
@@ -286,7 +306,7 @@ static inline void stress_proc_memory(void)
 			(void)snprintf(filename, sizeof(filename),
 				"/proc/%s/%s", d->d_name,
 				proc_pid_files[i]);
-			stress_proc_file_read(filename);
+			stress_file_read(filename);
 		}
 	}
 	(void)closedir(dir);
@@ -495,6 +515,8 @@ int stress_thrash_start(void)
 			stress_kmemleak_scan();
 
 			stress_proc_memory();
+
+			stress_sys_memory();
 
 			stress_thrash_state("sleep");
 			(void)sleep(1);
