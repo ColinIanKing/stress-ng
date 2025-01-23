@@ -245,7 +245,7 @@ PRAGMA_UNROLL_N(8)
 						baddata++;
 				}
 				if (UNLIKELY(baddata)) {
-					pr_fail("%s: error in data between 0x%jx and 0x%jx\n",
+					pr_fail("%s: error in data between 0x%" PRIxMAX " and 0x%" PRIxMAX "\n",
 						args->name,
 						(intmax_t)offsets[i],
 						(intmax_t)offsets[i] + BUF_SIZE - 1);
