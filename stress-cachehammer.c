@@ -968,7 +968,7 @@ static int OPTIMIZE3 stress_cachehammer(stress_args_t *args)
 	 *  fails we have MAP_FAILED which too is an invalid
 	 *  bad address.
 	 */
-	bad_page = mmap(NULL, page_size, PROT_READ,
+	bad_page = (uint8_t *)mmap(NULL, page_size, PROT_READ,
 		MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (bad_page == MAP_FAILED)
 		bad_page = buffer;	/* use something */
@@ -983,7 +983,7 @@ static int OPTIMIZE3 stress_cachehammer(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
-	local_page = mmap(NULL, page_size, PROT_READ | PROT_WRITE,
+	local_page = (uint8_t *)mmap(NULL, page_size, PROT_READ | PROT_WRITE,
 		MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (local_page == MAP_FAILED) {
 		pr_inf_skip("%s: cannot mmap %zu bytes, skipping stressor\n",
@@ -1003,7 +1003,7 @@ static int OPTIMIZE3 stress_cachehammer(stress_args_t *args)
 		ret = EXIT_NO_RESOURCE;
 		goto unmap_local_page;
 	}
-	file_page = mmap(NULL, page_size, PROT_READ | PROT_WRITE,
+	file_page = (uint8_t *)mmap(NULL, page_size, PROT_READ | PROT_WRITE,
 		MAP_SHARED, fd, 0);
 	if (file_page == MAP_FAILED) {
 		pr_inf_skip("%s: cannot mmap %zu bytes, skipping stressor\n",
@@ -1053,7 +1053,7 @@ static int OPTIMIZE3 stress_cachehammer(stress_args_t *args)
 				if (UNLIKELY((rnd16 == 0x0020) && SIZEOF_ARRAY(msync_flags) > 0)) {
 					const int flag = msync_flags[stress_mwc8modn(SIZEOF_ARRAY(msync_flags))];
 
-					(void)msync(file_page, page_size, flag);
+					(void)msync((void *)file_page, page_size, flag);
 				}
 #endif
 				hammer(file_page, file_page + 64, false);
