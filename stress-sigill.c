@@ -29,6 +29,7 @@ static const stress_help_t help[] = {
 #define HAVE_ILLEGAL_OP
 static void stress_illegal_op(void)
 {
+	__asm__ __volatile(".inst 0x0000bfff\n");
 	__asm__ __volatile(".inst 0x0000dead\n");
 }
 #endif
