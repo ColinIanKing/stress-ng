@@ -632,7 +632,7 @@ static OPTIMIZE3 int stress_hash_all(
 
 	rc = h->func(name, h, bucket);
 	i++;
-	if (i >= NUM_HASH_METHODS)
+	if (UNLIKELY(i >= NUM_HASH_METHODS))
 		i = 1;
 	return rc;
 }
