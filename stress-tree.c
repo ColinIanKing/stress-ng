@@ -222,7 +222,7 @@ PRAGMA_UNROLL_N(4)
 PRAGMA_UNROLL_N(4)
 	for (node = nodes, i = 0; i < n; i++, node++) {
 		find = RB_FIND(stress_rb_tree, &rb_root, node);
-		if (!find) {
+		if (UNLIKELY(!find)) {
 			pr_fail("%s: rb tree node #%zd not found\n",
 				args->name, i);
 			*rc = EXIT_FAILURE;
@@ -234,7 +234,7 @@ PRAGMA_UNROLL_N(4)
 		/* optional reverse find */
 		for (node = &nodes[n - 1], i = n - 1; node >= nodes; node--, i--) {
 			find = RB_FIND(stress_rb_tree, &rb_root, node);
-			if (!find) {
+			if (UNLIKELY(!find)) {
 				pr_fail("%s: rb tree node #%zd not found\n",
 					args->name, i);
 				*rc = EXIT_FAILURE;
@@ -246,7 +246,7 @@ PRAGMA_UNROLL_N(4)
 			const size_t j = stress_mwc32modn(n);
 
 			find = RB_FIND(stress_rb_tree, &rb_root, &nodes[j]);
-			if (!find) {
+			if (UNLIKELY(!find)) {
 				pr_fail("%s: rb tree node #%zd not found\n",
 					args->name, j);
 				*rc = EXIT_FAILURE;
@@ -299,7 +299,7 @@ PRAGMA_UNROLL_N(4)
 PRAGMA_UNROLL_N(4)
 	for (node = nodes, i = 0; i < n; i++, node++) {
 		find = SPLAY_FIND(stress_splay_tree, &splay_root, node);
-		if (!find) {
+		if (UNLIKELY(!find)) {
 			pr_fail("%s: splay tree node #%zd not found\n",
 				args->name, i);
 			*rc = EXIT_FAILURE;
@@ -311,7 +311,7 @@ PRAGMA_UNROLL_N(4)
 		/* optional reverse find */
 		for (node = &nodes[n - 1], i = n - 1; node >= nodes; node--, i--) {
 			find = SPLAY_FIND(stress_splay_tree, &splay_root, node);
-			if (!find) {
+			if (UNLIKELY(!find)) {
 				pr_fail("%s: splay tree node #%zd not found\n",
 					args->name, i);
 				*rc = EXIT_FAILURE;
@@ -322,7 +322,7 @@ PRAGMA_UNROLL_N(4)
 			const size_t j = stress_mwc32modn(n);
 
 			find = SPLAY_FIND(stress_splay_tree, &splay_root, &nodes[j]);
-			if (!find) {
+			if (UNLIKELY(!find)) {
 				pr_fail("%s: splay tree node #%zd not found\n",
 					args->name, j);
 				*rc = EXIT_FAILURE;
@@ -403,7 +403,7 @@ PRAGMA_UNROLL_N(4)
 PRAGMA_UNROLL_N(4)
 	for (node = nodes, i = 0; i < n; i++, node++) {
 		find = binary_find(head, node);
-		if (!find) {
+		if (UNLIKELY(!find)) {
 			pr_fail("%s: binary tree node #%zd not found\n",
 				args->name, i);
 			*rc = EXIT_FAILURE;
@@ -415,7 +415,7 @@ PRAGMA_UNROLL_N(4)
 		/* optional reverse find */
 		for (node = &nodes[n - 1], i = n - 1; node >= nodes; node--, i--) {
 			find = binary_find(head, node);
-			if (!find) {
+			if (UNLIKELY(!find)) {
 				pr_fail("%s: binary tree node #%zd not found\n",
 					args->name, i);
 				*rc = EXIT_FAILURE;
@@ -426,7 +426,7 @@ PRAGMA_UNROLL_N(4)
 			const size_t j = stress_mwc32modn(n);
 
 			find = binary_find(head, &nodes[j]);
-			if (!find) {
+			if (UNLIKELY(!find)) {
 				pr_fail("%s: binary tree node #%zd not found\n",
 					args->name, j);
 				*rc = EXIT_FAILURE;
@@ -617,7 +617,7 @@ PRAGMA_UNROLL_N(4)
 PRAGMA_UNROLL_N(4)
 	for (node = nodes, i = 0; i < n; i++, node++) {
 		find = avl_find(head, node);
-		if (!find) {
+		if (UNLIKELY(!find)) {
 			pr_fail("%s: avl tree node #%zd not found\n",
 				args->name, i);
 			*rc = EXIT_FAILURE;
@@ -629,7 +629,7 @@ PRAGMA_UNROLL_N(4)
 		/* optional reverse find */
 		for (node = &nodes[n - 1], i = n - 1; node >= nodes; node--, i--) {
 			find = avl_find(head, node);
-			if (!find) {
+			if (UNLIKELY(!find)) {
 				pr_fail("%s: avl tree node #%zd not found\n",
 					args->name, i);
 				*rc = EXIT_FAILURE;
@@ -640,7 +640,7 @@ PRAGMA_UNROLL_N(4)
 			const size_t j = stress_mwc32modn(n);
 
 			find = avl_find(head, &nodes[j]);
-			if (!find) {
+			if (UNLIKELY(!find)) {
 				pr_fail("%s: avl tree node #%zd not found\n",
 					args->name, j);
 				*rc = EXIT_FAILURE;
@@ -843,7 +843,7 @@ PRAGMA_UNROLL_N(4)
 PRAGMA_UNROLL_N(4)
 	for (node = nodes, i = 0; i < n; i++, node++) {
 		find = btree_find(root, node->value);
-		if (!find) {
+		if (UNLIKELY(!find)) {
 			pr_fail("%s: btree node #%zd not found\n",
 				args->name, i);
 			*rc = EXIT_FAILURE;
@@ -855,7 +855,7 @@ PRAGMA_UNROLL_N(4)
 		/* optional reverse find */
 		for (node = &nodes[n - 1], i = n - 1; node >= nodes; node--, i--) {
 			find = btree_find(root, node->value);
-			if (!find) {
+			if (UNLIKELY(!find)) {
 				pr_fail("%s: btree node #%zd not found\n",
 					args->name, i);
 				*rc = EXIT_FAILURE;
@@ -866,7 +866,7 @@ PRAGMA_UNROLL_N(4)
 			const size_t j = stress_mwc32modn(n);
 
 			find = btree_find(root, nodes[j].value);
-			if (!find) {
+			if (UNLIKELY(!find)) {
 				pr_fail("%s: btree node #%zd not found\n",
 					args->name, j);
 				*rc = EXIT_FAILURE;
