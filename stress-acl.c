@@ -45,7 +45,9 @@ static const acl_tag_t stress_acl_tags[] = {
 	ACL_USER_OBJ,
 	ACL_GROUP_OBJ,
 	ACL_USER,
+#ifndef __CYGWIN__ /* Cygwin ignores redundant GROUP entries */
 	ACL_GROUP,
+#endif
 	ACL_OTHER,
 };
 
@@ -62,7 +64,9 @@ static const int stress_acl_entries[] = {
 
 static const acl_type_t stress_acl_types[] = {
 	ACL_TYPE_ACCESS,
+#ifndef __CYGWIN__ /* Cygwin supports default ACLs only for directories */
 	ACL_TYPE_DEFAULT,
+#endif
 };
 
 /*
