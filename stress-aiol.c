@@ -214,7 +214,7 @@ static inline PURE OPTIMIZE3 bool stress_aiol_check_buffer(
 
 PRAGMA_UNROLL_N(2)
 	for (i = 0; i < size; i++, pat++) {
-		if (buffer[i] != pat)
+		if (UNLIKELY(buffer[i] != pat))
 			return false;
 	}
 
@@ -236,7 +236,7 @@ static int stress_aiol_submit(
 
 		errno = 0;
 		ret = shim_io_submit(info->ctx_id, (long int)n, info->cbs);
-		if (ret >= 0) {
+		if (LIKELY(ret >= 0)) {
 			break;
 		} else {
 			if ((errno == EINVAL) && ignore_einval)
@@ -267,7 +267,7 @@ static ssize_t stress_aiol_wait(
 		struct timespec timeout, *timeout_ptr;
 		int ret;
 
-		if (clock_gettime(CLOCK_REALTIME, &timeout) < 0) {
+		if (UNLIKELY(clock_gettime(CLOCK_REALTIME, &timeout) < 0)) {
 			timeout_ptr = NULL;
 		} else {
 			timeout.tv_nsec += 1000000;
@@ -279,7 +279,7 @@ static ssize_t stress_aiol_wait(
 		}
 
 		ret = shim_io_getevents_random(info, 1, (long int)(n - i), timeout_ptr);
-		if (ret < 0) {
+		if (UNLIKELY(ret < 0)) {
 			if (errno == EINTR) {
 				if (stress_continue_flag()) {
 					continue;
@@ -542,12 +542,12 @@ retry_open:
 			info.cb[i].u.c.nbytes = BUFFER_SZ;
 			info.cbs[i] = &info.cb[i];
 		}
-		if (stress_aiol_submit(args, &info, aiol_requiests, false) < 0)
+		if (UNLIKELY(stress_aiol_submit(args, &info, aiol_requiests, false) < 0))
 			break;
-		if (stress_aiol_wait(args, &info, aiol_requiests) < 0)
+		if (UNLIKELY(stress_aiol_wait(args, &info, aiol_requiests) < 0))
 			break;
 		stress_bogo_inc(args);
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			break;
 
 		/*
@@ -565,11 +565,11 @@ retry_open:
 			info.cbs[i] = &info.cb[i];
 		}
 
-		if (stress_aiol_submit(args, &info, aiol_requiests, false) < 0)
+		if (UNLIKELY(stress_aiol_submit(args, &info, aiol_requiests, false) < 0))
 			break;
 
 		n = stress_aiol_wait(args, &info, aiol_requiests);
-		if (n < 0)
+		if (UNLIKELY(n < 0))
 			break;
 
 		for (i = 0; i < (size_t)n; i++) {
@@ -610,12 +610,12 @@ retry_open:
 			info.cb[i].u.c.nbytes = 1;
 			info.cbs[i] = &info.cb[i];
 		}
-		if (stress_aiol_submit(args, &info, aiol_requiests, false) < 0)
+		if (UNLIKELY(stress_aiol_submit(args, &info, aiol_requiests, false) < 0))
 			break;
-		if (stress_aiol_wait(args, &info, aiol_requiests) < 0)
+		if (UNLIKELY(stress_aiol_wait(args, &info, aiol_requiests) < 0))
 			break;
 		stress_bogo_inc(args);
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			break;
 
 		/*
@@ -637,12 +637,12 @@ retry_open:
 			info.cb[i].u.c.nbytes = 1;
 			info.cbs[i] = &info.cb[i];
 		}
-		if (stress_aiol_submit(args, &info, aiol_requiests, false) < 0)
+		if (UNLIKELY(stress_aiol_submit(args, &info, aiol_requiests, false) < 0))
 			break;
-		if (stress_aiol_wait(args, &info, aiol_requiests) < 0)
+		if (UNLIKELY(stress_aiol_wait(args, &info, aiol_requiests) < 0))
 			break;
 		stress_bogo_inc(args);
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			break;
 
 #if defined(__NR_io_cancel)
@@ -729,7 +729,7 @@ retry_open:
 		UNEXPECTED
 #endif
 		stress_bogo_inc(args);
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			break;
 
 #if defined(HAVE_POLL_H) &&	\
@@ -747,12 +747,12 @@ retry_open:
 			(void)shim_memset(&info.cb[i].u.c.nbytes, 0xff, sizeof(info.cb[i].u.c.nbytes));
 			info.cbs[i] = &info.cb[i];
 		}
-		if (stress_aiol_submit(args, &info, aiol_requiests, true) < 0)
+		if (UNLIKELY(stress_aiol_submit(args, &info, aiol_requiests, true) < 0))
 			break;
 		if (errno == 0)
 			(void)stress_aiol_wait(args, &info, aiol_requiests);
 		stress_bogo_inc(args);
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			break;
 #else
 		UNEXPECTED
