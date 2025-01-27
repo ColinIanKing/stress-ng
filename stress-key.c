@@ -191,7 +191,7 @@ static int stress_key(stress_args_t *args)
 			keys[n] = shim_add_key("user", description,
 				payload, payload_len,
 				KEY_SPEC_PROCESS_KEYRING);
-			if (keys[n] < 0) {
+			if (UNLIKELY(keys[n] < 0)) {
 				if (errno == EPERM) {
 					if (args->instance == 0) {
 						pr_inf_skip("%s: skipping stressor, no permission for add_key\n",
@@ -233,7 +233,7 @@ static int stress_key(stress_args_t *args)
 #if defined(KEYCTL_SEARCH)
 			(void)shim_keyctl(KEYCTL_SEARCH, (long int)KEY_SPEC_PROCESS_KEYRING, (long int)"user", (long int)description, 0);
 #endif
-			if (!stress_continue_flag())
+			if (UNLIKELY(!stress_continue_flag()))
 				goto tidy;
 		}
 
@@ -255,15 +255,15 @@ static int stress_key(stress_args_t *args)
 					pr_fail("%s: keyctl KEYCTL_DESCRIBE failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 			}
-			if (!stress_continue_flag())
+			if (UNLIKELY(!stress_continue_flag()))
 				goto tidy;
 #endif
 
 			(void)snprintf(payload, sizeof(payload),
 				"somedata-%zu", n);
 #if defined(KEYCTL_UPDATE)
-			if (shim_keyctl(KEYCTL_UPDATE, (long int)keys[i],
-			    (long int)payload, (long int)strlen(payload), 0) < 0) {
+			if (UNLIKELY(shim_keyctl(KEYCTL_UPDATE, (long int)keys[i],
+					         (long int)payload, (long int)strlen(payload), 0) < 0)) {
 				if ((errno != ENOMEM) &&
 #if defined(EKEYEXPIRED)
 				    (errno != EKEYEXPIRED) &&
@@ -276,14 +276,14 @@ static int stress_key(stress_args_t *args)
 						args->name, errno, strerror(errno));
 				}
 			}
-			if (!stress_continue_flag())
+			if (UNLIKELY(!stress_continue_flag()))
 				goto tidy;
 #endif
 
 #if defined(KEYCTL_READ)
 			(void)shim_memset(payload, 0, sizeof(payload));
-			if (shim_keyctl(KEYCTL_READ, (long int)keys[i],
-			    (long int)payload, (long int)sizeof(payload), 0) < 0) {
+			if (UNLIKELY(shim_keyctl(KEYCTL_READ, (long int)keys[i],
+				     (long int)payload, (long int)sizeof(payload), 0) < 0)) {
 				if ((errno != ENOMEM) &&
 #if defined(EKEYEXPIRED)
 				    (errno != EKEYEXPIRED) &&
@@ -296,7 +296,7 @@ static int stress_key(stress_args_t *args)
 						args->name, errno, strerror(errno));
 				}
 			}
-			if (!stress_continue_flag())
+			if (UNLIKELY(!stress_continue_flag()))
 				goto tidy;
 #endif
 
@@ -304,8 +304,8 @@ static int stress_key(stress_args_t *args)
 			(void)snprintf(description, sizeof(description),
 				"stress-ng-key-%" PRIdMAX "-%" PRIu32
 				"-%zu", (intmax_t)ppid, args->instance, i);
-			if (shim_request_key("user", description, NULL,
-				KEY_SPEC_PROCESS_KEYRING) < 0) {
+			if (UNLIKELY(shim_request_key("user", description, NULL,
+						      KEY_SPEC_PROCESS_KEYRING) < 0)) {
 				if ((errno != ENOMEM) &&
 #if defined(EKEYEXPIRED)
 				    (errno != EKEYEXPIRED) &&
@@ -334,7 +334,7 @@ static int stress_key(stress_args_t *args)
 			/* exercise invalid dest keyring id */
 			(void)shim_request_key("user", description, NULL, INT_MIN);
 
-			if (!stress_continue_flag())
+			if (UNLIKELY(!stress_continue_flag()))
 				goto tidy;
 #endif
 
