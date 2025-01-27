@@ -92,16 +92,16 @@ static inline int32_t stress_fractal_get_row(stress_args_t *args, int32_t max_ro
 {
 	int32_t row, row_next;
 
-	if (stress_lock_acquire_relax(g_shared->fractal.lock) < 0)
+	if (UNLIKELY(stress_lock_acquire_relax(g_shared->fractal.lock) < 0))
 		return -1;
 	row = g_shared->fractal.row;
 	row_next = row + 1;
-	if (row_next >= max_rows) {
+	if (UNLIKELY(row_next >= max_rows)) {
 		row_next = 0;
 		stress_bogo_inc(args);
 	}
 	g_shared->fractal.row = row_next;
-	if (stress_lock_release(g_shared->fractal.lock) < 0)
+	if (UNLIKELY(stress_lock_release(g_shared->fractal.lock) < 0))
 		return -1;
 	return row;
 }
