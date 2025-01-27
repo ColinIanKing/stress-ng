@@ -192,7 +192,7 @@ static const stress_opt_t opts[] = {
 		if ((flags) & CACHE_FLAGS_PREFETCHW) {			\
 			SHIM_PREFETCHW(&buffer[i]);			\
 		}							\
-		if (!stress_continue_flag())				\
+		if (UNLIKELY(!stress_continue_flag()))			\
 			break;						\
 	}
 
@@ -850,7 +850,7 @@ static void stress_cache_read(
 		k += 33;
 		k = (k >= buffer_size) ? k - buffer_size : k;
 		total += buffer[i] + buffer[k];
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 	}
 	metrics_read->duration += stress_time_now() - t;
@@ -888,7 +888,7 @@ static void stress_cache_write(
 		k = (k >= buffer_size) ? k - buffer_size : k;
 		buffer[i] = v;
 		buffer[k] = v;
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 	}
 	metrics_write->duration += stress_time_now() - t;
