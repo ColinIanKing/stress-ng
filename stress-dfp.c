@@ -317,7 +317,7 @@ static int stress_dfp_call_method(
 		const char *dfp_description = stress_dfp_type(dfp_type);
 
 		dt = func->dfp_func(args, dfp_data, 1);
-		if (dt < 0.0)
+		if (UNLIKELY(dt < 0.0))
 			return EXIT_FAILURE;
 		func->duration += dt;
 		func->ops += (DFP_ELEMENTS * LOOPS_PER_CALL);
@@ -327,7 +327,7 @@ static int stress_dfp_call_method(
 		 *  cause long doubles on some arches to abort early, so
 		 *  don't verify these results
 		 */
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			return EXIT_SUCCESS;
 
 		for (i = 0; i < DFP_ELEMENTS; i++) {
@@ -346,7 +346,7 @@ static int stress_dfp_call_method(
 				/* Should never happen! */
 				return EXIT_SUCCESS;
 			}
-			if (ret) {
+			if (UNLIKELY(ret)) {
 				pr_fail("%s %s %s verification failure on element %zd, got %Lf, expected %Lf\n",
 					args->name, dfp_description, method_name, i, r0, r1);
 				return EXIT_FAILURE;
@@ -366,7 +366,7 @@ static double stress_dfp_all(
 	(void)idx;
 
 	for (i = 1; i < STRESS_NUM_DFP_FUNCS; i++) {
-		if (stress_dfp_call_method(args, dfp_data, i, verify) == EXIT_FAILURE)
+		if (UNLIKELY(stress_dfp_call_method(args, dfp_data, i, verify) == EXIT_FAILURE))
 			return -1.0;
 	}
 	return 0.0;
@@ -488,7 +488,7 @@ static int stress_dfp(stress_args_t *args)
 	}
 
 	do {
-		if (stress_dfp_call_method(args, dfp_data, fp_method, verify) == EXIT_FAILURE) {
+		if (UNLIKELY(stress_dfp_call_method(args, dfp_data, fp_method, verify) == EXIT_FAILURE)) {
 			rc = EXIT_FAILURE;
 			break;
 		}
