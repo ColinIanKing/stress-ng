@@ -263,7 +263,7 @@ static int stress_dup(stress_args_t *args)
 			if (UNLIKELY(tmp >= 0))
 				(void)close(tmp);
 
-			if (!stress_continue(args))
+			if (UNLIKELY(!stress_continue(args)))
 				break;
 
 			/* do an invalid dup3 on an invalid fd */
@@ -273,7 +273,7 @@ static int stress_dup(stress_args_t *args)
 			else if (errno == ENOSYS)
 				do_dup3 = false;
 
-			if (!stress_continue(args))
+			if (UNLIKELY(!stress_continue(args)))
 				break;
 
 			/* do an invalid dup3 with an invalid flag */
@@ -283,7 +283,7 @@ static int stress_dup(stress_args_t *args)
 			else if (errno == ENOSYS)
 				do_dup3 = false;
 
-			if (!stress_continue(args))
+			if (UNLIKELY(!stress_continue(args)))
 				break;
 
 			/* do an invalid dup3 with an invalid fd */
@@ -293,7 +293,7 @@ static int stress_dup(stress_args_t *args)
 			else if (errno == ENOSYS)
 				do_dup3 = false;
 
-			if (!stress_continue(args))
+			if (UNLIKELY(!stress_continue(args)))
 				break;
 
 			/* do an invalid dup3 with same oldfd and newfd */
@@ -303,7 +303,7 @@ static int stress_dup(stress_args_t *args)
 			else if (errno == ENOSYS)
 				do_dup3 = false;
 
-			if (!stress_continue(args))
+			if (UNLIKELY(!stress_continue(args)))
 				break;
 
 			if (do_dup3 && stress_mwc1()) {
@@ -331,7 +331,7 @@ static int stress_dup(stress_args_t *args)
 				}
 			}
 
-			if (!stress_continue(args))
+			if (UNLIKELY(!stress_continue(args)))
 				break;
 
 			if (fds[n] > -1) {
@@ -345,7 +345,7 @@ static int stress_dup(stress_args_t *args)
 				}
 			}
 
-			if (!stress_continue(args))
+			if (UNLIKELY(!stress_continue(args)))
 				break;
 
 			/* dup2 on the same fd should be a no-op */
@@ -363,7 +363,7 @@ static int stress_dup(stress_args_t *args)
 			if (UNLIKELY(tmp >= 0))
 				(void)close(tmp);
 
-			if (!stress_continue(args))
+			if (UNLIKELY(!stress_continue(args)))
 				break;
 
 #if defined(F_DUPFD)
@@ -379,7 +379,7 @@ static int stress_dup(stress_args_t *args)
 				break;
 			}
 
-			if (!stress_continue(args))
+			if (UNLIKELY(!stress_continue(args)))
 				break;
 #endif
 
