@@ -116,7 +116,7 @@ static void stress_malloc_free(void *ptr, size_t len)
  */
 static void stress_malloc_zerofree(void *ptr, size_t len)
 {
-	if (len)
+	if (LIKELY(len))
 		(void)shim_memset(ptr, 0, len);
 	free(ptr);
 }
@@ -306,7 +306,7 @@ static void *stress_malloc_loop(void *ptr)
 					if (UNLIKELY(verify)) {
 						const size_t usable_size = malloc_usable_size(info[i].addr);
 
-						if (usable_size < len) {
+						if (UNLIKELY(usable_size < len)) {
 							pr_fail("%s: malloc_usable_size on %p returned a "
 								"value %zu, expected %zu or larger\n",
 								args->name, info[i].addr, usable_size, len);
