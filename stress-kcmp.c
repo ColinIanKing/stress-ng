@@ -112,7 +112,7 @@ do {									\
 			args->name, rc, ret);				\
 		}							\
 	}								\
-	if (!stress_continue_flag())					\
+	if (UNLIKELY(!stress_continue_flag()))				\
 		goto reap;						\
 } while (0)
 
@@ -285,7 +285,7 @@ again:
 
 #if defined(HAVE_SYS_EPOLL_H) &&	\
     NEED_GLIBC(2,3,2)
-			if ((sfd != -1) && (efd != -1)) {
+			if (LIKELY((sfd != -1) && (efd != -1))) {
 				struct shim_kcmp_epoll_slot slot;
 
 				slot.efd = (uint32_t)efd;
