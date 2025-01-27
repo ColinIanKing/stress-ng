@@ -204,7 +204,7 @@ static int stress_bigheap_child(stress_args_t *args, void *context)
 		 * some time and we should bail out before
 		 * exerting any more memory pressure
 		 */
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			goto finish;
 
 		phase = STRESS_BIGHEAP_LOWMEM_CHECK;
@@ -229,7 +229,7 @@ static int stress_bigheap_child(stress_args_t *args, void *context)
 			phase = STRESS_BIGHEAP_MALLOC;
 			ptr = malloc(size);
 		}
-		if (ptr == NULL) {
+		if (UNLIKELY(ptr == NULL)) {
 			phase = STRESS_BIGHEAP_OUT_OF_MEMORY;
 			pr_dbg("%s: out of memory at %" PRIu64
 				" MB (instance %d)\n",
@@ -244,7 +244,7 @@ static int stress_bigheap_child(stress_args_t *args, void *context)
 			duration += stress_time_now() - t;
 			count += 1.0;
 
-			if (!stress_continue(args))
+			if (UNLIKELY(!stress_continue(args)))
 				goto finish;
 
 			if (last_ptr == ptr) {
@@ -271,9 +271,9 @@ static int stress_bigheap_child(stress_args_t *args, void *context)
 					uintptr = (uintptr_t *)ptr;
 				}
 				while (uintptr < uintptr_end) {
-					if (!stress_continue(args))
+					if (UNLIKELY(!stress_continue(args)))
 						goto finish;
-					if (*uintptr != (uintptr_t)uintptr) {
+					if (UNLIKELY(*uintptr != (uintptr_t)uintptr)) {
 						pr_fail("%s: data at location %p was 0x%" PRIxPTR
 							" instead of 0x%" PRIxPTR "\n",
 							args->name, (void *)uintptr, *uintptr,
