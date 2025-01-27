@@ -497,7 +497,7 @@ PRAGMA_UNROLL
 		val8 = (uint8_t)(1U << (i & 7));
 		*data8 = val8;
 		stress_asm_mb();
-		if (*data8 != val8) {
+		if (UNLIKELY(*data8 != val8)) {
 			pr_fail("%s: bits method: cache line error in offset 0x%x, expected %2" PRIx8 ", got %2" PRIx8 "\n",
 				args->name, idx, val8, *data8);
 			return EXIT_FAILURE;
@@ -505,7 +505,7 @@ PRAGMA_UNROLL
 		val8 ^= 0xff;
 		*data8 = val8;
 		stress_asm_mb();
-		if (*data8 != val8) {
+		if (UNLIKELY(*data8 != val8)) {
 			pr_fail("%s: bits method: cache line error in offset 0x%x, expected %2" PRIx8 ", got %2" PRIx8 "\n",
 				args->name, idx, val8, *data8);
 			return EXIT_FAILURE;
