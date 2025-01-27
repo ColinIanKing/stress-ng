@@ -154,7 +154,7 @@ static void stress_affinity_child(
 		}
 		CPU_ZERO(&mask);
 		CPU_SET(cpu, &mask);
-		if (sched_setaffinity(0, sizeof(mask), &mask) < 0) {
+		if (UNLIKELY(sched_setaffinity(0, sizeof(mask), &mask) < 0)) {
 			if (errno == EINVAL) {
 				/*
 				 * We get this if CPU is offline'd,
