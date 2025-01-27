@@ -72,14 +72,14 @@ static int stress_flock_child(
 			lock_count += 1.0;
 
 			cont = stress_continue(args);
-			if (cont)
+			if (LIKELY(cont))
 				stress_bogo_inc(args);
 
 			/*
 			 *  we have an exclusive lock on the fd, so re-doing
 			 *  the exclusive lock with LOCK_NB should not succeed
 			 */
-			if (flock(fd2, LOCK_EX | LOCK_NB) == 0) {
+			if (UNLIKELY(flock(fd2, LOCK_EX | LOCK_NB) == 0)) {
 				pr_fail("%s: unexpectedly able to double lock file using LOCK_EX, expecting error EAGAIN\n",
 					args->name);
 				rc = EXIT_FAILURE;
@@ -88,11 +88,11 @@ static int stress_flock_child(
 			}
 
 			t = stress_time_now();
-			if (flock(fd1, LOCK_UN) == 0) {
+			if (LIKELY(flock(fd1, LOCK_UN) == 0)) {
 				unlock_duration += stress_time_now() - t;
 				unlock_count += 1.0;
 			}
-			if (!cont)
+			if (UNLIKELY(!cont))
 				break;
 		}
 #else
@@ -112,15 +112,15 @@ static int stress_flock_child(
 			lock_count += 1.0;
 
 			cont = stress_continue(args);
-			if (cont)
+			if (LIKELY(cont))
 				stress_bogo_inc(args);
 
 			t = stress_time_now();
-			if (flock(fd1, LOCK_UN) == 0) {
+			if (LIKELY(flock(fd1, LOCK_UN) == 0)) {
 				unlock_duration += stress_time_now() - t;
 				unlock_count += 1.0;
 			}
-			if (!cont)
+			if (UNLIKELY(!cont))
 				break;
 		}
 
@@ -131,7 +131,7 @@ static int stress_flock_child(
 			int ret;
 
 			ret = flock(fd1, LOCK_NB);
-			if (ret == 0) {
+			if (UNLIKELY(ret == 0)) {
 				pr_fail("%s: flock failed expected EINVAL, instead got "
 					"errno=%d (%s)\n", args->name, errno, strerror(errno));
 				(void)flock(fd1, LOCK_UN);
@@ -142,7 +142,7 @@ static int stress_flock_child(
 #endif
 
 #if defined(LOCK_SH)
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			break;
 
 		t = stress_time_now();
@@ -151,15 +151,15 @@ static int stress_flock_child(
 			lock_count += 1.0;
 
 			cont = stress_continue(args);
-			if (cont)
+			if (LIKELY(cont))
 				stress_bogo_inc(args);
 
 			t = stress_time_now();
-			if (flock(fd1, LOCK_UN) == 0) {
+			if (LIKELY(flock(fd1, LOCK_UN) == 0)) {
 				unlock_duration += stress_time_now() - t;
 				unlock_count += 1.0;
 			}
-			if (!cont)
+			if (UNLIKELY(!cont))
 				break;
 		}
 #else
@@ -168,7 +168,7 @@ static int stress_flock_child(
 
 #if defined(LOCK_SH) &&		\
     defined(LOCK_NB)
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			break;
 
 		t = stress_time_now();
@@ -177,15 +177,15 @@ static int stress_flock_child(
 			lock_count += 1.0;
 
 			cont = stress_continue(args);
-			if (cont)
+			if (LIKELY(cont))
 				stress_bogo_inc(args);
 
 			t = stress_time_now();
-			if (flock(fd1, LOCK_UN) == 0) {
+			if (LIKELY(flock(fd1, LOCK_UN) == 0)) {
 				unlock_duration += stress_time_now() - t;
 				unlock_count += 1.0;
 			}
-			if (!cont)
+			if (UNLIKELY(!cont))
 				break;
 		}
 #else
@@ -194,7 +194,7 @@ static int stress_flock_child(
 
 #if defined(LOCK_MAND) &&	\
     defined(LOCK_READ)
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			break;
 
 		t = stress_time_now();
@@ -203,15 +203,15 @@ static int stress_flock_child(
 			lock_count += 1.0;
 
 			cont = stress_continue(args);
-			if (cont)
+			if (LIKELY(cont))
 				stress_bogo_inc(args);
 
 			t = stress_time_now();
-			if (flock(fd1, LOCK_UN) == 0) {
+			if (LIKELY(flock(fd1, LOCK_UN) == 0)) {
 				unlock_duration += stress_time_now() - t;
 				unlock_count += 1.0;
 			}
-			if (!cont)
+			if (UNLIKELY(!cont))
 				break;
 		}
 #else
@@ -220,7 +220,7 @@ static int stress_flock_child(
 
 #if defined(LOCK_MAND) &&	\
     defined(LOCK_WRITE)
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			break;
 
 		t = stress_time_now();
@@ -229,15 +229,15 @@ static int stress_flock_child(
 			lock_count += 1.0;
 
 			cont = stress_continue(args);
-			if (cont)
+			if (LIKELY(cont))
 				stress_bogo_inc(args);
 
 			t = stress_time_now();
-			if (flock(fd1, LOCK_UN) == 0) {
+			if (LIKELY(flock(fd1, LOCK_UN) == 0)) {
 				unlock_duration += stress_time_now() - t;
 				unlock_count += 1.0;
 			}
-			if (!cont)
+			if (UNLIKELY(!cont))
 				break;
 		}
 #else
@@ -246,7 +246,7 @@ static int stress_flock_child(
 
 #if defined(LOCK_EX) &&		\
     defined(LOCK_SH)
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			break;
 
 		/* Exercise invalid lock combination */
@@ -256,22 +256,22 @@ static int stress_flock_child(
 			lock_count += 1.0;
 
 			cont = stress_continue(args);
-			if (cont)
+			if (LIKELY(cont))
 				stress_bogo_inc(args);
 
 			t = stress_time_now();
-			if (flock(fd1, LOCK_UN) == 0) {
+			if (LIKELY(flock(fd1, LOCK_UN) == 0)) {
 				unlock_duration += stress_time_now() - t;
 				unlock_count += 1.0;
 			}
-			if (!cont)
+			if (UNLIKELY(!cont))
 				break;
 		}
 #else
 		UNEXPECTED
 #endif
 #if defined(__linux__)
-		if ((i & 0xff) == 0)
+		if (UNLIKELY((i & 0xff) == 0))
 			(void)stress_system_discard("/proc/locks");
 #else
 		(void)i;
