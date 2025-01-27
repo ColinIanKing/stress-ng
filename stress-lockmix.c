@@ -194,7 +194,7 @@ static int stress_lockmix_unlock(stress_args_t *args, const int fd)
 #endif
 
 	/* Pop one off list */
-	if (!lockmix_infos.head)
+	if (UNLIKELY(!lockmix_infos.head))
 		return 0;
 
 	switch (lockmix_infos.head->type) {
@@ -202,7 +202,7 @@ static int stress_lockmix_unlock(stress_args_t *args, const int fd)
 	case LOCKMIX_TYPE_FLOCK:
 		stress_lockmix_info_head_remove();
 
-		if (flock(fd, LOCK_UN) < 0) {
+		if (UNLIKELY(flock(fd, LOCK_UN) < 0)) {
 			pr_fail("%s: flock LOCK_UN failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			return -1;
@@ -220,7 +220,7 @@ static int stress_lockmix_unlock(stress_args_t *args, const int fd)
 
 		stress_lockmix_info_head_remove();
 
-		if (fcntl(fd, F_SETLK, &f) < 0) {
+		if (UNLIKELY(fcntl(fd, F_SETLK, &f) < 0)) {
 			pr_fail("%s: fcntl F_SETLK failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			return -1;
@@ -233,13 +233,13 @@ static int stress_lockmix_unlock(stress_args_t *args, const int fd)
 
 		stress_lockmix_info_head_remove();
 
-		if (lseek(fd, offset, SEEK_SET) < 0) {
+		if (UNLIKELY(lseek(fd, offset, SEEK_SET) < 0)) {
 			pr_err("%s: lseek failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			return -1;
 		}
 
-		if (lockf(fd, F_ULOCK, LOCK_SIZE) < 0) {
+		if (UNLIKELY(lockf(fd, F_ULOCK, LOCK_SIZE) < 0)) {
 			pr_fail("%s: lockf F_ULOCK failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			return -1;
@@ -256,7 +256,7 @@ static int stress_lockmix_unlock(stress_args_t *args, const int fd)
 
 		stress_lockmix_info_head_remove();
 
-		if (fcntl(fd, F_OFD_SETLK, &f) < 0) {
+		if (UNLIKELY(fcntl(fd, F_OFD_SETLK, &f) < 0)) {
 			pr_fail("%s: fcntl F_OFD_SETLK failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			return -1;
@@ -297,7 +297,7 @@ static int stress_lockmix_contention(
 #endif
 
 		if (lockmix_infos.length >= LOCK_MAX)
-			if (stress_lockmix_unlock(args, fd) < 0)
+			if (UNLIKELY(stress_lockmix_unlock(args, fd) < 0))
 				return -1;
 
 		len = (stress_mwc16() + 1) & 0xfff;
@@ -321,7 +321,7 @@ static int stress_lockmix_contention(
 			f.l_len = len;
 			f.l_pid = args->pid;
 
-			if (!stress_continue_flag())
+			if (UNLIKELY(!stress_continue_flag()))
 				break;
 			rc = fcntl(fd, F_GETLK, &f);
 			if (rc < 0)
@@ -332,7 +332,7 @@ static int stress_lockmix_contention(
 		case LOCKMIX_TYPE_LOCKF:
 			rc = lockf(fd, F_LOCK, LOCK_SIZE);
 			if (rc < 0) {
-				if (stress_lockmix_unlock(args, fd) < 0)
+				if (UNLIKELY(stress_lockmix_unlock(args, fd) < 0))
 					return -1;
 				continue;
 			}
@@ -346,7 +346,7 @@ static int stress_lockmix_contention(
 			f.l_len = len;
 			f.l_pid = 0;
 
-			if (!stress_continue_flag())
+			if (UNLIKELY(!stress_continue_flag()))
 				break;
 			rc = fcntl(fd, F_OFD_GETLK, &f);
 			if (rc < 0)
@@ -360,7 +360,7 @@ static int stress_lockmix_contention(
 		/* Locked OK, add to lock list */
 
 		lockmix_info = stress_lockmix_info_new();
-		if (!lockmix_info) {
+		if (UNLIKELY(!lockmix_info)) {
 			pr_err("%s: calloc failed, out of memory\n", args->name);
 			return -1;
 		}
