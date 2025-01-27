@@ -136,7 +136,7 @@ static void MLOCKED_TEXT stress_af_alg_alarm_handler(int signum)
 	 * If we've not stopped after 5 seconds then an af-alg
 	 * got stuck, so force  jmp to terminate path
 	 */
-	if (count++ > 5)
+	if (UNLIKELY(count++ > 5))
 		siglongjmp(jmpbuf, 1);
 }
 
@@ -214,7 +214,7 @@ static int stress_af_alg_hash(
 		return EXIT_NO_RESOURCE;
 
 	digest = (char *)malloc(digest_size + ALLOC_SLOP);
-	if (!digest)
+	if (UNLIKELY(!digest))
 		return EXIT_NO_RESOURCE;
 
 	(void)shim_memset(&sa, 0, sizeof(sa));
@@ -261,7 +261,7 @@ retry_bind:
 	}
 
 	fd = accept(sockfd, NULL, 0);
-	if (fd < 0) {
+	if (UNLIKELY(fd < 0)) {
 		if (errno == EINTR) {
 			rc = EXIT_SUCCESS;
 			goto err;
@@ -283,7 +283,7 @@ retry_bind:
 
 		t = stress_time_now();
 		ret = send(fd, input, j, 0);
-		if (ret != (ssize_t)j) {
+		if (UNLIKELY(ret != (ssize_t)j)) {
 			if (ret < 0) {
 				if (errno == EINTR)
 					break;
@@ -303,7 +303,7 @@ retry_bind:
 			continue;
 		}
 		ret = recv(fd, digest, digest_size, MSG_WAITALL);
-		if (ret != (ssize_t)digest_size) {
+		if (UNLIKELY(ret != (ssize_t)digest_size)) {
 			if (ret < 0) {
 				if (errno == EINTR)
 					break;
@@ -356,7 +356,7 @@ static int stress_af_alg_cipher(
 	char *cbuf;
 
 	cbuf = (char *)malloc(cbuf_size);
-	if (!cbuf)
+	if (UNLIKELY(!cbuf))
 		return EXIT_NO_RESOURCE;
 
 	(void)shim_memset(&sa, 0, sizeof(sa));
@@ -412,18 +412,18 @@ retry_bind:
 		goto err;
 	}
 
-	if (info->crypto_type != CRYPTO_AEAD) {
+	if (LIKELY(info->crypto_type != CRYPTO_AEAD)) {
 #if defined(ALG_SET_KEY)
 		char *key;
 
 		key = (char *)malloc((size_t)(info->max_key_size + ALLOC_SLOP));
-		if (!key) {
+		if (UNLIKELY(!key)) {
 			rc = EXIT_NO_RESOURCE;
 			goto err;
 		}
 
 		stress_rndbuf(key, (size_t)info->max_key_size);
-		if (setsockopt(sockfd, SOL_ALG, ALG_SET_KEY, key, (socklen_t)info->max_key_size) < 0) {
+		if (UNLIKELY(setsockopt(sockfd, SOL_ALG, ALG_SET_KEY, key, (socklen_t)info->max_key_size) < 0)) {
 			free(key);
 			if (errno == ENOPROTOOPT) {
 				rc = EXIT_SUCCESS;
@@ -445,13 +445,13 @@ retry_bind:
 		char *assocdata;
 
 		assocdata = (char *)malloc((size_t)(info->max_auth_size + ALLOC_SLOP));
-		if (!assocdata) {
+		if (UNLIKELY(!assocdata)) {
 			rc = EXIT_NO_RESOURCE;
 			goto err;
 		}
 
 		stress_rndbuf(assocdata, (size_t)info->max_auth_size);
-		if (setsockopt(sockfd, SOL_ALG, ALG_SET_AEAD_ASSOCLEN, assocdata, (socklen_t)info->max_auth_size) < 0) {
+		if (UNLIKELY(setsockopt(sockfd, SOL_ALG, ALG_SET_AEAD_ASSOCLEN, assocdata, (socklen_t)info->max_auth_size) < 0)) {
 			free(assocdata);
 			if (errno == ENOPROTOOPT) {
 				rc = EXIT_SUCCESS;
@@ -487,7 +487,7 @@ retry_bind:
 		double t;
 		ssize_t ret;
 
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			break;
 		(void)shim_memset(&msg, 0, sizeof(msg));
 		(void)shim_memset(cbuf, 0, cbuf_size);
@@ -498,7 +498,7 @@ retry_bind:
 		/* Chosen operation - ENCRYPT */
 		cmsg = CMSG_FIRSTHDR(&msg);
 		/* Keep static analysis happy */
-		if (!cmsg) {
+		if (UNLIKELY(!cmsg)) {
 			pr_fail("%s: %s (%s): unexpected null cmsg found\n",
 				args->name, info->name, info->type);
 			rc = EXIT_FAILURE;
@@ -530,7 +530,7 @@ retry_bind:
 		msg.msg_iov = &iov;
 		msg.msg_iovlen = 1;
 
-		if (sendmsg(fd, &msg, 0) < 0) {
+		if (UNLIKELY(sendmsg(fd, &msg, 0) < 0)) {
 			if (errno == EINTR)
 				break;
 			if (errno == ENOMEM)
@@ -546,7 +546,7 @@ retry_bind:
 			goto err_close;
 		}
 		ret = recv(fd, output, DATA_LEN, 0);
-		if (ret != DATA_LEN) {
+		if (UNLIKELY(ret != DATA_LEN)) {
 			if (ret < 0) {
 				if (errno == EINTR)
 					break;
@@ -592,7 +592,7 @@ retry_bind:
 		msg.msg_iovlen = 1;
 
 		t = stress_time_now();
-		if (sendmsg(fd, &msg, 0) < 0) {
+		if (UNLIKELY(sendmsg(fd, &msg, 0) < 0)) {
 			if (errno == ENOMEM)
 				break;
 			if (errno == EINTR)
@@ -607,7 +607,7 @@ retry_bind:
 			rc = EXIT_FAILURE;
 			goto err_close;
 		}
-		if (read(fd, output, DATA_LEN) != DATA_LEN) {
+		if (UNLIKELY(read(fd, output, DATA_LEN) != DATA_LEN)) {
 			pr_fail("%s: %s (%s): read failed: errno=%d (%s)\n",
 				args->name, info->name, info->type,
 				errno, strerror(errno));
@@ -706,7 +706,7 @@ retry_bind:
 	}
 
 	fd = accept(sockfd, NULL, 0);
-	if (fd < 0) {
+	if (UNLIKELY(fd < 0)) {
 		pr_fail("%s: %s (%s): accept failed, errno=%d (%s)\n",
 			args->name, info->name, info->type,
 			errno, strerror(errno));
@@ -717,11 +717,11 @@ retry_bind:
 	for (j = 0; j < 16; j++) {
 		double delta, t;
 
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			break;
 
 		t = stress_time_now();
-		if (read(fd, output, output_size) != output_size) {
+		if (UNLIKELY(read(fd, output, output_size) != output_size)) {
 			if (errno != EINVAL) {
 				pr_fail("%s: %s (%s): read failed, errno=%d (%s)\n",
 					args->name, info->name, info->type,
@@ -731,7 +731,7 @@ retry_bind:
 			}
 		}
 		delta = stress_time_now() - t;
-		if (delta > 0.0) {
+		if (LIKELY(delta > 0.0)) {
 			info->metrics.duration += delta;
 			info->metrics.count += 1.0;
 		}
@@ -946,7 +946,7 @@ static int stress_af_alg(stress_args_t *args)
 			case CRYPTO_AHASH:
 			case CRYPTO_SHASH:
 				rc = stress_af_alg_hash(args, sockfd, info);
-				if (verify && (rc == EXIT_FAILURE))
+				if (UNLIKELY(verify && (rc == EXIT_FAILURE)))
 					goto deinit;
 				break;
 #if defined(ALG_SET_AEAD_ASSOCLEN)
@@ -956,12 +956,12 @@ static int stress_af_alg(stress_args_t *args)
 			case CRYPTO_AKCIPHER:
 			case CRYPTO_SKCIPHER:
 				rc = stress_af_alg_cipher(args, sockfd, info);
-				if (verify && (rc == EXIT_FAILURE))
+				if (UNLIKELY(verify && (rc == EXIT_FAILURE)))
 					goto deinit;
 				break;
 			case CRYPTO_RNG:
 				rc = stress_af_alg_rng(args, sockfd, info);
-				if (verify && (rc == EXIT_FAILURE))
+				if (UNLIKELY(verify && (rc == EXIT_FAILURE)))
 					goto deinit;
 				break;
 			case CRYPTO_UNKNOWN:
