@@ -432,7 +432,7 @@ static int OPTIMIZE3 stress_list_tailq(
 			}
 		}
 
-		if (!found) {
+		if (UNLIKELY(!found)) {
 			pr_fail("%s: tailq entry #%zd not found\n",
 				args->name, entry - entries);
 			rc = EXIT_FAILURE;
@@ -492,7 +492,7 @@ static int stress_list_all(
 
 	rc = list_methods[idx].func(args, entries, entries_end, &metrics[idx]);
 	idx++;
-	if (idx >= SIZEOF_ARRAY(list_methods))
+	if (UNLIKELY(idx >= SIZEOF_ARRAY(list_methods)))
 		idx = 1;
 
 	return rc;
