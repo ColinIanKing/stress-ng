@@ -66,7 +66,7 @@ static int OPTIMIZE3 stress_factor(stress_args_t *args)
 			unsigned long int n;
 			size_t digitsleft = factor_digits - mpz_sizeinbase(value, 10);
 
-			if (!stress_continue_flag())
+			if (UNLIKELY(!stress_continue_flag()))
 				goto abort;
 
 			if (digitsleft > 6)
@@ -94,7 +94,7 @@ static int OPTIMIZE3 stress_factor(stress_args_t *args)
 		factors = 0;
 
 		while (mpz_cmp_ui(value, 1) != 0) {
-			if (!stress_continue_flag())
+			if (UNLIKELY(!stress_continue_flag()))
 				goto abort;
 			mpz_cdiv_qr(q, r, value, divisor);
 
