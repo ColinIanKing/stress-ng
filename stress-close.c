@@ -436,7 +436,7 @@ static int stress_close(stress_args_t *args)
 			VOID_RET(int, shim_fstat(fd, &statbuf));
 
 			ret = dup(STDOUT_FILENO);
-			if (ret != -1)
+			if (LIKELY(ret != -1))
 				(void)close(ret);
 
 			t = stress_time_now();
@@ -447,13 +447,13 @@ static int stress_close(stress_args_t *args)
 				/*
 				 *  A close on a successfully closed fd should fail
 				 */
-				if (close(fd) == 0) {
+				if (UNLIKELY(close(fd) == 0)) {
 					pr_fail("%s: unexpectedly able to close the same file %d twice\n",
 						args->name, fd);
 					close_failure = true;
 				} else {
-					if ((errno != EBADF) &&
-					    (errno != EINTR)) {
+					if (UNLIKELY((errno != EBADF) &&
+						     (errno != EINTR))) {
 						pr_fail("%s: expected error on close failure, error=%d (%s)\n",
 							args->name,  errno, strerror(errno));
 						close_failure = true;
