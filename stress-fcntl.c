@@ -90,7 +90,7 @@ static void check_return(
 	const char *cmd,
 	int *rc)
 {
-	if (ret < 0) {
+	if (UNLIKELY(ret < 0)) {
 		if ((errno != EINVAL) &&
 		    (errno != EINTR) &&
 		    (errno != EPERM)) {
@@ -191,7 +191,7 @@ static void do_fcntl(
 				VOID_RET(int, fcntl(fd, F_SETFL, setfl_flag_perms[idx]));
 
 				idx++;
-				if (idx >= setfl_flag_count)
+				if (UNLIKELY(idx >= setfl_flag_count))
 					idx = 0;
 			}
 
@@ -409,7 +409,7 @@ static void do_fcntl(
 		const off_t len = (stress_mwc16() + 1) & 0x7fff;
 		const off_t start = stress_mwc16() & 0x7fff;
 
-		if (ftruncate(fd, 65536) < 0) {
+		if (UNLIKELY(ftruncate(fd, 65536) < 0)) {
 			pr_fail("%s: ftruncate failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			goto lock_abort;
@@ -425,7 +425,7 @@ static void do_fcntl(
 		check_return(args, ret, "F_GETLK", rc);
 
 #if 0
-		if (f.l_type != F_UNLCK) {
+		if (UNLIKELY(f.l_type != F_UNLCK)) {
 			pr_fail("%s: fcntl F_GETLCK failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			goto lock_abort;
@@ -447,7 +447,7 @@ static void do_fcntl(
 		 * this context EACCES and EAGAIN mean the same, although
 		 * Haiku seems to be the only supported OS to return EACCES.
 		 */
-		if ((ret < 0) && (errno == EACCES || errno == EAGAIN))
+		if (UNLIKELY((ret < 0) && (errno == EACCES || errno == EAGAIN)))
 			goto lock_abort;
 		check_return(args, ret, "F_SETLK (F_WRLCK)", rc);
 
@@ -458,7 +458,7 @@ static void do_fcntl(
 		f.l_pid = args->pid;
 
 		ret = fcntl(fd, F_SETLK, &f);
-		if ((ret < 0) && (errno == EAGAIN))
+		if (UNLIKELY((ret < 0) && (errno == EAGAIN)))
 			goto lock_abort;
 
 		check_return(args, ret, "F_SETLK (F_UNLCK)", rc);
@@ -473,7 +473,7 @@ static void do_fcntl(
 		f.l_pid = args->pid;
 
 		ret = fcntl(fd, F_SETLKW, &f);
-		if ((ret < 0) && (errno == EAGAIN))
+		if (UNLIKELY((ret < 0) && (errno == EAGAIN)))
 			goto lock_abort;
 		check_return(args, ret, "F_SETLKW (F_WRLCK)", rc);
 
@@ -493,7 +493,7 @@ static void do_fcntl(
 		f.l_pid = args->pid;
 
 		ret = fcntl(fd, F_SETLKW, &f);
-		if ((ret < 0) && (errno == EAGAIN))
+		if (UNLIKELY((ret < 0) && (errno == EAGAIN)))
 			goto lock_abort;
 		check_return(args, ret, "F_SETLKW (F_WRLCK)", rc);
 
@@ -510,7 +510,7 @@ static void do_fcntl(
 		check_return(args, ret, "F_SETLK (F_UNLCK)", rc);
 
 		lret = lseek(fd, start, SEEK_SET);
-		if (lret == (off_t)-1)
+		if (UNLIKELY(lret == (off_t)-1))
 			goto lock_abort;
 
 		/*
@@ -523,7 +523,7 @@ static void do_fcntl(
 		f.l_pid = args->pid;
 
 		ret = fcntl(fd, F_SETLKW, &f);
-		if ((ret < 0) && (errno == EAGAIN))
+		if (UNLIKELY((ret < 0) && (errno == EAGAIN)))
 			goto lock_abort;
 		check_return(args, ret, "F_SETLKW (F_WRLCK)", rc);
 
@@ -577,7 +577,7 @@ lock_abort:	{ /* Nowt */ }
 		const off_t len = (stress_mwc16() + 1) & 0x7fff;
 		const off_t start = stress_mwc16() & 0x7fff;
 
-		if (ftruncate(fd, 65536) < 0) {
+		if (UNLIKELY(ftruncate(fd, 65536) < 0)) {
 			pr_fail("%s: ftuncate failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			goto ofd_lock_abort;
@@ -600,7 +600,7 @@ lock_abort:	{ /* Nowt */ }
 		f.l_pid = 0;
 
 		ret = fcntl(fd, F_OFD_SETLK, &f);
-		if ((ret < 0) && (errno == EAGAIN))
+		if (UNLIKELY((ret < 0) && (errno == EAGAIN)))
 			goto ofd_lock_abort;
 		check_return(args, ret, "F_OFD_SETLK (F_WRLCK)", rc);
 
@@ -611,7 +611,7 @@ lock_abort:	{ /* Nowt */ }
 		f.l_pid = 0;
 
 		ret = fcntl(fd, F_OFD_SETLK, &f);
-		if ((ret < 0) && (errno == EAGAIN))
+		if (UNLIKELY((ret < 0) && (errno == EAGAIN)))
 			goto ofd_lock_abort;
 		check_return(args, ret, "F_OFD_SETLK (F_UNLCK)", rc);
 
@@ -622,7 +622,7 @@ lock_abort:	{ /* Nowt */ }
 		f.l_pid = 0;
 
 		ret = fcntl(fd, F_OFD_SETLKW, &f);
-		if ((ret < 0) && (errno == EAGAIN))
+		if (UNLIKELY((ret < 0) && (errno == EAGAIN)))
 			goto ofd_lock_abort;
 		check_return(args, ret, "F_OFD_SETLKW (F_WRLCK)", rc);
 
@@ -633,7 +633,7 @@ lock_abort:	{ /* Nowt */ }
 		f.l_pid = 0;
 
 		ret = fcntl(fd, F_OFD_SETLK, &f);
-		if ((ret < 0) && (errno == EAGAIN))
+		if (UNLIKELY((ret < 0) && (errno == EAGAIN)))
 			goto ofd_lock_abort;
 		check_return(args, ret, "F_OFD_SETLK (F_UNLCK)", rc);
 ofd_lock_abort:	{ /* Nowt */ }
@@ -742,13 +742,13 @@ ofd_lock_abort:	{ /* Nowt */ }
 		int ret, dupfd;
 
 		ret = fcntl(path_fd, F_DUPFD_QUERY, path_fd);
-		if ((ret >= 0) && (ret != 1)) {
+		if (UNLIKELY((ret >= 0) && (ret != 1))) {
 			pr_fail("%s: fcntl F_DUPFD_QUERY on same fd failed, returned %d\n",
 				args->name, ret);
 			*rc = EXIT_FAILURE;
 		}
 		ret = fcntl(path_fd, F_DUPFD_QUERY, fd);
-		if ((ret >= 0) && (ret != 0)) {
+		if (UNLIKELY((ret >= 0) && (ret != 0))) {
 			pr_fail("%s: fcntl F_DUPFD_QUERY on different fd failed, returned %d\n",
 				args->name, ret);
 			*rc = EXIT_FAILURE;
@@ -756,7 +756,7 @@ ofd_lock_abort:	{ /* Nowt */ }
 		dupfd = dup(fd);
 		if (dupfd >= 0) {
 			ret = fcntl(fd, F_DUPFD_QUERY, dupfd);
-			if ((ret >= 0) && (ret != 1)) {
+			if (UNLIKELY((ret >= 0) && (ret != 1))) {
 				pr_fail("%s: fcntl F_DUPFD_QUERY on dup'd fd failed, returned %d\n",
 					args->name, ret);
 				*rc = EXIT_FAILURE;
