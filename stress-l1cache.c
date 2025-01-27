@@ -220,7 +220,7 @@ PRAGMA_UNROLL_N(2)
 			*(ptr) = (uint8_t)set;
 
 		set++;
-		if (set >= l1cache_sets)
+		if (UNLIKELY(set >= l1cache_sets))
 			set = 0;
 	}
 	return EXIT_SUCCESS;
@@ -257,7 +257,7 @@ PRAGMA_UNROLL_N(2)
 			*(ptr) = (uint8_t)set;
 
 		for (ptr = cache_start; ptr < cache_end; ptr += l1cache_set_size) {
-			if (*ptr != (uint8_t)set) {
+			if (UNLIKELY(*ptr != (uint8_t)set)) {
 				pr_fail("%s: cache value mismatch at offset %zd, 0x%2.2x vs 0x%2.2x\n",
 					args->name, (size_t)(ptr - cache_start),
 					*ptr, (uint8_t)set);
@@ -265,7 +265,7 @@ PRAGMA_UNROLL_N(2)
 			}
 		}
 		set++;
-		if (set >= l1cache_sets)
+		if (UNLIKELY(set >= l1cache_sets))
 			set = 0;
 	}
 	return EXIT_SUCCESS;
@@ -304,7 +304,7 @@ PRAGMA_UNROLL_N(2)
 			*(ptr) = (uint8_t)set;
 
 		set++;
-		if (set >= l1cache_sets)
+		if (UNLIKELY(set >= l1cache_sets))
 			set = 0;
 	}
 	return EXIT_SUCCESS;
@@ -343,7 +343,7 @@ PRAGMA_UNROLL_N(2)
 			*(ptr) = (uint8_t)set;
 
 		for (ptr = cache_end - l1cache_set_size + 1; ptr >= cache_start; ptr -= l1cache_set_size) {
-			if (*ptr != (uint8_t)set) {
+			if (UNLIKELY(*ptr != (uint8_t)set)) {
 				pr_fail("%s: cache value mismatch at offset %zd, 0x%2.2x vs 0x%2.2x\n",
 					args->name, (size_t)(ptr - cache_start),
 					*ptr, (uint8_t)set);
@@ -351,7 +351,7 @@ PRAGMA_UNROLL_N(2)
 			}
 		}
 		set++;
-		if (set >= l1cache_sets)
+		if (UNLIKELY(set >= l1cache_sets))
 			set = 0;
 	}
 	return EXIT_SUCCESS;
@@ -398,7 +398,7 @@ PRAGMA_UNROLL_N(2)
 
 	}
 	set++;
-	if (set >= l1cache_sets)
+	if (UNLIKELY(set >= l1cache_sets))
 		set = 0;
 	return EXIT_SUCCESS;
 }
@@ -446,7 +446,7 @@ PRAGMA_UNROLL_N(2)
 		for (j = 0; j < loops; j++) {
 			register const size_t idx = stress_mwc32modn((uint32_t)cache_size);
 
-			if (*(ptr + idx) != (uint8_t)set) {
+			if (UNLIKELY(*(ptr + idx) != (uint8_t)set)) {
 				pr_fail("%s: cache value mismatch at offset %zd, 0x%2.2x vs 0x%2.2x\n",
 					args->name, (size_t)(ptr - cache_start),
 					*(ptr + idx), (uint8_t)set);
@@ -456,7 +456,7 @@ PRAGMA_UNROLL_N(2)
 
 	}
 	set++;
-	if (set >= l1cache_sets)
+	if (UNLIKELY(set >= l1cache_sets))
 		set = 0;
 	return EXIT_SUCCESS;
 }
@@ -559,7 +559,7 @@ static int stress_l1cache(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		if (stress_l1cache_func(args, cache_aligned, l1cache_size, l1cache_sets, l1cache_set_size) == EXIT_FAILURE) {
+		if (UNLIKELY(stress_l1cache_func(args, cache_aligned, l1cache_size, l1cache_sets, l1cache_set_size) == EXIT_FAILURE)) {
 			rc = EXIT_FAILURE;
 			break;
 		}
