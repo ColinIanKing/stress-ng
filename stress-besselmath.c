@@ -71,7 +71,7 @@ PRAGMA_UNROLL_N(8)
 	}
 	stress_bogo_inc(args);
 
-	if (first_run) {
+	if (UNLIKELY(first_run)) {
 		result = sum;
 		first_run = false;
 	}
@@ -94,7 +94,7 @@ PRAGMA_UNROLL_N(8)
 	}
 	stress_bogo_inc(args);
 
-	if (first_run) {
+	if (UNLIKELY(first_run)) {
 		result = sum;
 		first_run = false;
 	}
@@ -117,7 +117,7 @@ PRAGMA_UNROLL_N(8)
 	}
 	stress_bogo_inc(args);
 
-	if (first_run) {
+	if (UNLIKELY(first_run)) {
 		result = sum;
 		first_run = false;
 	}
@@ -140,7 +140,7 @@ PRAGMA_UNROLL_N(8)
 	}
 	stress_bogo_inc(args);
 
-	if (first_run) {
+	if (UNLIKELY(first_run)) {
 		result = sum;
 		first_run = false;
 	}
@@ -163,7 +163,7 @@ PRAGMA_UNROLL_N(8)
 	}
 	stress_bogo_inc(args);
 
-	if (first_run) {
+	if (UNLIKELY(first_run)) {
 		result = sum;
 		first_run = false;
 	}
@@ -186,7 +186,7 @@ PRAGMA_UNROLL_N(8)
 	}
 	stress_bogo_inc(args);
 
-	if (first_run) {
+	if (UNLIKELY(first_run)) {
 		result = sum;
 		first_run = false;
 	}
@@ -209,7 +209,7 @@ PRAGMA_UNROLL_N(8)
 	}
 	stress_bogo_inc(args);
 
-	if (first_run) {
+	if (UNLIKELY(first_run)) {
 		result = sum;
 		first_run = false;
 	}
@@ -232,7 +232,7 @@ PRAGMA_UNROLL_N(8)
 	}
 	stress_bogo_inc(args);
 
-	if (first_run) {
+	if (UNLIKELY(first_run)) {
 		result = sum;
 		first_run = false;
 	}
@@ -255,7 +255,7 @@ PRAGMA_UNROLL_N(8)
 	}
 	stress_bogo_inc(args);
 
-	if (first_run) {
+	if (UNLIKELY(first_run)) {
 		result = sum;
 		first_run = false;
 	}
@@ -278,7 +278,7 @@ PRAGMA_UNROLL_N(8)
 	}
 	stress_bogo_inc(args);
 
-	if (first_run) {
+	if (UNLIKELY(first_run)) {
 		result = sum;
 		first_run = false;
 	}
@@ -301,7 +301,7 @@ PRAGMA_UNROLL_N(8)
 	}
 	stress_bogo_inc(args);
 
-	if (first_run) {
+	if (UNLIKELY(first_run)) {
 		result = sum;
 		first_run = false;
 	}
@@ -324,7 +324,7 @@ PRAGMA_UNROLL_N(8)
 	}
 	stress_bogo_inc(args);
 
-	if (first_run) {
+	if (UNLIKELY(first_run)) {
 		result = sum;
 		first_run = false;
 	}
@@ -347,7 +347,7 @@ PRAGMA_UNROLL_N(8)
 	}
 	stress_bogo_inc(args);
 
-	if (first_run) {
+	if (UNLIKELY(first_run)) {
 		result = sum;
 		first_run = false;
 	}
@@ -370,7 +370,7 @@ PRAGMA_UNROLL_N(8)
 	}
 	stress_bogo_inc(args);
 
-	if (first_run) {
+	if (UNLIKELY(first_run)) {
 		result = sum;
 		first_run = false;
 	}
@@ -393,7 +393,7 @@ PRAGMA_UNROLL_N(8)
 	}
 	stress_bogo_inc(args);
 
-	if (first_run) {
+	if (UNLIKELY(first_run)) {
 		result = sum;
 		first_run = false;
 	}
@@ -416,7 +416,7 @@ PRAGMA_UNROLL_N(8)
 	}
 	stress_bogo_inc(args);
 
-	if (first_run) {
+	if (UNLIKELY(first_run)) {
 		result = sum;
 		first_run = false;
 	}
@@ -439,7 +439,7 @@ PRAGMA_UNROLL_N(8)
 	}
 	stress_bogo_inc(args);
 
-	if (first_run) {
+	if (UNLIKELY(first_run)) {
 		result = sum;
 		first_run = false;
 	}
@@ -462,7 +462,7 @@ PRAGMA_UNROLL_N(8)
 	}
 	stress_bogo_inc(args);
 
-	if (first_run) {
+	if (UNLIKELY(first_run)) {
 		result = sum;
 		first_run = false;
 	}
