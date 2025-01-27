@@ -139,17 +139,17 @@ static void stress_lockf_info_free(void)
 static int stress_lockf_unlock(stress_args_t *args, const int fd)
 {
 	/* Pop one off list */
-	if (!lockf_infos.head)
+	if (UNLIKELY(!lockf_infos.head))
 		return 0;
 
-	if (lseek(fd, lockf_infos.head->offset, SEEK_SET) < 0) {
+	if (UNLIKELY(lseek(fd, lockf_infos.head->offset, SEEK_SET) < 0)) {
 		pr_err("%s: lseek failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return -1;
 	}
 	stress_lockf_info_head_remove();
 
-	if (lockf(fd, F_ULOCK, LOCK_SIZE) < 0) {
+	if (UNLIKELY(lockf(fd, F_ULOCK, LOCK_SIZE) < 0)) {
 		pr_fail("%s: lockf F_ULOCK failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return -1;
@@ -184,17 +184,17 @@ static int stress_lockf_contention(
 				return -1;
 
 		offset = (off_t)stress_mwc64modn(LOCK_FILE_SIZE - LOCK_SIZE);
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
-		if (lseek(fd, offset, SEEK_SET) < 0) {
+		if (UNLIKELY(lseek(fd, offset, SEEK_SET) < 0)) {
 			pr_err("%s: lseek failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			return -1;
 		}
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 		rc = lockf(fd, lockf_cmd, LOCK_SIZE);
-		if (rc < 0) {
+		if (UNLIKELY(rc < 0)) {
 			if (stress_lockf_unlock(args, fd) < 0)
 				return -1;
 			continue;
@@ -202,7 +202,7 @@ static int stress_lockf_contention(
 
 		/* Locked OK, add to lock list */
 		lockf_info = stress_lockf_info_new();
-		if (!lockf_info) {
+		if (UNLIKELY(!lockf_info)) {
 			pr_err("%s: calloc failed, out of memory\n", args->name);
 			return -1;
 		}
@@ -210,13 +210,13 @@ static int stress_lockf_contention(
 		/*
 		 *  Occasionally exercise lock on a bad fd, ignore error
 		 */
-		if (counter++ >= 65536) {
-			if (!stress_continue_flag())
+		if (UNLIKELY(counter++ >= 65536)) {
+			if (UNLIKELY(!stress_continue_flag()))
 				break;
 			VOID_RET(int, lockf(bad_fd, lockf_cmd, LOCK_SIZE));
 			counter = 0;
 
-			if (!stress_continue_flag())
+			if (UNLIKELY(!stress_continue_flag()))
 				break;
 			/* Exercise F_TEST, ignore result */
 			VOID_RET(int, lockf(fd, F_TEST, LOCK_SIZE));
