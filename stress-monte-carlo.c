@@ -183,7 +183,7 @@ static double OPTIMIZE3 stress_mc_getrandom_rand(void)
 	register const double scale_u64 = 1.0 / (double)0xffffffffffffffffULL;
 	double r;
 
-	if (idx == 0) {
+	if (UNLIKELY(idx == 0)) {
 		if (shim_getrandom((void *)buf, sizeof(buf), 0) < 0)
 			shim_memset(buf, 0, sizeof(buf));
 	}
@@ -319,7 +319,7 @@ static double OPTIMIZE3 stress_monte_carlo_pi(
 				pi_count++;
 		}
 		i -= j;
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 	}
 	return ((double)pi_count) * 4.0 / (double)(samples - i);
@@ -349,7 +349,7 @@ static double OPTIMIZE3 stress_monte_carlo_e(
 			}
 		}
 		i -= j;
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 	}
 	return (double)count / (double)(samples - i);
@@ -376,7 +376,7 @@ static double OPTIMIZE3 stress_monte_carlo_sin(
 			sum += shim_sin(theta);
 		}
 		i -= j;
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 	}
 	return M_PI * (double)sum / (double)(samples - i);
@@ -403,7 +403,7 @@ static double OPTIMIZE3 stress_monte_carlo_exp(
 			sum += shim_exp(x * x);
 		}
 		i -= j;
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 	}
 	return (double)sum / (double)(samples - i);
@@ -430,7 +430,7 @@ static double OPTIMIZE3 stress_monte_carlo_sqrt(
 			sum += shim_sqrt(1.0 + (x * x * x * x));
 		}
 		i -= j;
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 	}
 	return (double)sum / (double)(samples - i);
@@ -461,7 +461,7 @@ static double OPTIMIZE3 stress_monte_carlo_squircle(
 			area_count += (h <= 1.0);
 		}
 		i -= j;
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 	}
 	return (double)(4.0) * (double)area_count / (double)(samples - i);
