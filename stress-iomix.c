@@ -97,7 +97,7 @@ static void stress_iomix_fsync_min_1Hz(const int fd)
 	if (time_last <= 0.0)
 		time_last = stress_time_now() + 1.0;
 
-	if (counter++ >= counter_max) {
+	if (UNLIKELY(counter++ >= counter_max)) {
 		const double now = stress_time_now();
 		const double delta = now - time_last;
 
@@ -141,7 +141,7 @@ static void stress_iomix_wr_seq_bursts(
 
 		posn = stress_iomix_rnd_offset(iomix_bytes);
 		ret = lseek(fd, posn, SEEK_SET);
-		if (ret == (off_t)-1) {
+		if (UNLIKELY(ret == (off_t)-1)) {
 			if (errno == EINTR)
 				return;
 			pr_fail("%s: lseek failed, errno=%d (%s)%s\n",
@@ -163,7 +163,7 @@ static void stress_iomix_wr_seq_bursts(
 			stress_rndbuf(buffer, len);
 
 			rc = write(fd, buffer, len);
-			if (rc < 0) {
+			if (UNLIKELY(rc < 0)) {
 				if (errno == EINTR)
 					break;
 				if ((errno != EPERM) && (errno != ENOSPC)) {
@@ -210,7 +210,7 @@ static void stress_iomix_wr_rnd_bursts(
 
 			posn = stress_iomix_rnd_offset(iomix_bytes);
 			ret = lseek(fd, posn, SEEK_SET);
-			if (ret == (off_t)-1) {
+			if (UNLIKELY(ret == (off_t)-1)) {
 				if (errno == EINTR)
 					return;
 				pr_fail("%s: lseek failed, errno=%d (%s)%s\n",
@@ -220,7 +220,7 @@ static void stress_iomix_wr_rnd_bursts(
 
 			stress_rndbuf(buffer, len);
 			rc = write(fd, buffer, len);
-			if (rc < 0) {
+			if (UNLIKELY(rc < 0)) {
 				if (errno == EINTR)
 					break;
 				if ((errno != EPERM) && (errno != ENOSPC)) {
@@ -229,7 +229,7 @@ static void stress_iomix_wr_rnd_bursts(
 					return;
 				}
 			}
-			if (!stress_bogo_inc_lock(args, counter_lock, true))
+			if (UNLIKELY(!stress_bogo_inc_lock(args, counter_lock, true)))
 				return;
 			stress_iomix_fsync_min_1Hz(fd);
 		}
@@ -251,7 +251,7 @@ static void stress_iomix_wr_seq_slow(
 		off_t ret, posn = 0;
 
 		ret = lseek(fd, 0, SEEK_SET);
-		if (ret == (off_t)-1) {
+		if (UNLIKELY(ret == (off_t)-1)) {
 			if (errno == EINTR)
 				return;
 			pr_fail("%s: lseek failed, errno=%d (%s)%s\n",
@@ -273,7 +273,7 @@ static void stress_iomix_wr_seq_slow(
 			stress_rndbuf(buffer, len);
 
 			rc = write(fd, buffer, len);
-			if (rc < 0) {
+			if (UNLIKELY(rc < 0)) {
 				if (errno == EINTR)
 					break;
 				if ((errno != EPERM) && (errno != ENOSPC)) {
@@ -284,7 +284,7 @@ static void stress_iomix_wr_seq_slow(
 			}
 			(void)shim_usleep(250000);
 			posn += rc;
-			if (!stress_bogo_inc_lock(args, counter_lock, true))
+			if (UNLIKELY(!stress_bogo_inc_lock(args, counter_lock, true)))
 				return;
 			stress_iomix_fsync_min_1Hz(fd);
 		}
@@ -308,7 +308,7 @@ static void stress_iomix_rd_seq_bursts(
 
 		posn = stress_iomix_rnd_offset(iomix_bytes);
 		ret = lseek(fd, posn, SEEK_SET);
-		if (ret == (off_t)-1) {
+		if (UNLIKELY(ret == (off_t)-1)) {
 			if (errno == EINTR)
 				return;
 			pr_fail("%s: lseek failed, errno=%d (%s)%s\n",
@@ -329,7 +329,7 @@ static void stress_iomix_rd_seq_bursts(
 			const size_t len = 1 + (stress_mwc32() & (sizeof(buffer) - 1));
 
 			rc = read(fd, buffer, len);
-			if (rc < 0) {
+			if (UNLIKELY(rc < 0)) {
 				if (errno == EINTR)
 					break;
 				pr_fail("%s: read failed, errno=%d (%s)%s\n",
@@ -337,7 +337,7 @@ static void stress_iomix_rd_seq_bursts(
 				return;
 			}
 			posn += rc;
-			if (!stress_bogo_inc_lock(args, counter_lock, true))
+			if (UNLIKELY(!stress_bogo_inc_lock(args, counter_lock, true)))
 				return;
 
 			/* Add some unhelpful advice */
@@ -373,7 +373,7 @@ static void stress_iomix_rd_rnd_bursts(
 			stress_iomix_fadvise_random_dontneed(fd, posn, (ssize_t)len);
 
 			ret = lseek(fd, posn, SEEK_SET);
-			if (ret == (off_t)-1) {
+			if (UNLIKELY(ret == (off_t)-1)) {
 				if (errno == EINTR)
 					return;
 				pr_fail("%s: lseek failed, errno=%d (%s)%s\n",
@@ -382,14 +382,14 @@ static void stress_iomix_rd_rnd_bursts(
 			}
 
 			rc = read(fd, buffer, len);
-			if (rc < 0) {
+			if (UNLIKELY(rc < 0)) {
 				if (errno == EINTR)
 					break;
 				pr_fail("%s: read failed, errno=%d (%s)%s\n",
 					args->name, errno, strerror(errno), fs_type);
 				return;
 			}
-			if (!stress_bogo_inc_lock(args, counter_lock, true))
+			if (UNLIKELY(!stress_bogo_inc_lock(args, counter_lock, true)))
 				return;
 		}
 		(void)shim_usleep(3000000);
@@ -410,7 +410,7 @@ static void stress_iomix_rd_seq_slow(
 		off_t ret, posn = 0;
 
 		ret = lseek(fd, 0, SEEK_SET);
-		if (ret == (off_t)-1) {
+		if (UNLIKELY(ret == (off_t)-1)) {
 			if (errno == EINTR)
 				return;
 			pr_fail("%s: lseek failed, errno=%d (%s)%s\n",
@@ -433,7 +433,7 @@ static void stress_iomix_rd_seq_slow(
 			stress_iomix_fadvise_random_dontneed(fd, posn, (ssize_t)len);
 
 			rc = read(fd, buffer, len);
-			if (rc < 0) {
+			if (UNLIKELY(rc < 0)) {
 				if (errno == EINTR)
 					break;
 				pr_fail("%s: read failed, errno=%d (%s)%s\n",
@@ -442,7 +442,7 @@ static void stress_iomix_rd_seq_slow(
 			}
 			(void)shim_usleep(333333);
 			posn += rc;
-			if (!stress_bogo_inc_lock(args, counter_lock, true))
+			if (UNLIKELY(!stress_bogo_inc_lock(args, counter_lock, true)))
 				return;
 			stress_iomix_fsync_min_1Hz(fd);
 		}
@@ -463,20 +463,20 @@ static void stress_iomix_sync(
 
 	do {
 		(void)shim_fsync(fd);
-		if (!stress_bogo_inc_lock(args, counter_lock, true))
+		if (UNLIKELY(!stress_bogo_inc_lock(args, counter_lock, true)))
 			break;
 		(void)shim_usleep(stress_mwc32modn(4000000));
-		if (!stress_bogo_inc_lock(args, counter_lock, false))
+		if (UNLIKELY(!stress_bogo_inc_lock(args, counter_lock, false)))
 			break;
 
 #if defined(HAVE_FDATASYNC)
 		(void)shim_fdatasync(fd);
 		/* Exercise illegal fdatasync */
 		(void)shim_fdatasync(-1);
-		if (!stress_bogo_inc_lock(args, counter_lock, false))
+		if (UNLIKELY(!stress_bogo_inc_lock(args, counter_lock, false)))
 			break;
 		(void)shim_usleep(stress_mwc32modn(4000000));
-		if (!stress_bogo_inc_lock(args, counter_lock, false))
+		if (UNLIKELY(!stress_bogo_inc_lock(args, counter_lock, false)))
 			break;
 #else
 		UNEXPECTED
@@ -490,7 +490,7 @@ static void stress_iomix_sync(
 				SYNC_FILE_RANGE_WRITE);
 			stress_iomix_fadvise_random_dontneed(fd, posn, 65536);
 
-			if (!stress_bogo_inc_lock(args, counter_lock, false))
+			if (UNLIKELY(!stress_bogo_inc_lock(args, counter_lock, false)))
 				break;
 			(void)shim_usleep(stress_mwc32modn(4000000));
 		}
@@ -554,7 +554,7 @@ static void stress_iomix_rd_wr_mmap(
 					PROT_READ | PROT_WRITE, flags, fd, posn);
 		}
 		for (i = 0; i < SIZEOF_ARRAY(mmaps); i++) {
-			if (mmaps[i] != MAP_FAILED) {
+			if (LIKELY(mmaps[i] != MAP_FAILED)) {
 				const uint8_t *buffer = (uint8_t *)mmaps[i];
 
 				/* Force page data to be read */
@@ -567,7 +567,7 @@ static void stress_iomix_rd_wr_mmap(
 		}
 		(void)shim_usleep(100000);
 		for (i = 0; i < SIZEOF_ARRAY(mmaps); i++) {
-			if (mmaps[i] != MAP_FAILED)
+			if (LIKELY(mmaps[i] != MAP_FAILED))
 				(void)munmap(mmaps[i], page_size);
 		}
 	} while (stress_bogo_inc_lock(args, counter_lock, true));
@@ -587,7 +587,7 @@ static void stress_iomix_wr_bytes(
 		off_t ret, posn = 0;
 
 		ret = lseek(fd, 0, SEEK_SET);
-		if (ret == (off_t)-1) {
+		if (UNLIKELY(ret == (off_t)-1)) {
 			if (errno == EINTR)
 				return;
 			pr_fail("%s: lseek failed, errno=%d (%s)%s\n",
@@ -599,7 +599,7 @@ static void stress_iomix_wr_bytes(
 			ssize_t rc;
 
 			rc = write(fd, buffer, sizeof(buffer));
-			if (rc < 0) {
+			if (UNLIKELY(rc < 0)) {
 				if (errno == EINTR)
 					break;
 				if ((errno != EPERM) && (errno != ENOSPC)) {
@@ -609,7 +609,7 @@ static void stress_iomix_wr_bytes(
 			}	}
 			(void)shim_usleep(1000);
 			posn += rc;
-			if (!stress_bogo_inc_lock(args, counter_lock, true))
+			if (UNLIKELY(!stress_bogo_inc_lock(args, counter_lock, true)))
 				return;
 			stress_iomix_fsync_min_1Hz(fd);
 		}
@@ -630,7 +630,7 @@ static void stress_iomix_wr_rev_bytes(
 		off_t ret, posn = iomix_bytes;
 
 		ret = lseek(fd, 0, SEEK_SET);
-		if (ret == (off_t)-1) {
+		if (UNLIKELY(ret == (off_t)-1)) {
 			if (errno == EINTR)
 				return;
 			pr_fail("%s: lseek failed, errno=%d (%s)%s\n",
@@ -642,7 +642,7 @@ static void stress_iomix_wr_rev_bytes(
 			ssize_t rc;
 
 			rc = write(fd, buffer, sizeof(buffer));
-			if (rc < 0) {
+			if (UNLIKELY(rc < 0)) {
 				if (errno == EINTR)
 					break;
 				if ((errno != EPERM) && (errno != ENOSPC)) {
@@ -652,7 +652,7 @@ static void stress_iomix_wr_rev_bytes(
 			}	}
 			(void)shim_usleep(1000);
 			posn--;
-			if (!stress_bogo_inc_lock(args, counter_lock, true))
+			if (UNLIKELY(!stress_bogo_inc_lock(args, counter_lock, true)))
 				return;
 			stress_iomix_fsync_min_1Hz(fd);
 		}
@@ -681,7 +681,7 @@ static void stress_iomix_rd_bytes(
 			stress_iomix_fadvise_random_dontneed(fd, posn, sizeof(buffer));
 
 			ret = lseek(fd, posn, SEEK_SET);
-			if (ret == (off_t)-1) {
+			if (UNLIKELY(ret == (off_t)-1)) {
 				if (errno == EINTR)
 					return;
 				pr_fail("%s: lseek failed, errno=%d (%s)%s\n",
@@ -690,7 +690,7 @@ static void stress_iomix_rd_bytes(
 			}
 
 			rc = read(fd, buffer, sizeof(buffer));
-			if (rc < 0) {
+			if (UNLIKELY(rc < 0)) {
 				if (errno == EINTR)
 					break;
 				if ((errno != EPERM) && (errno != ENOSPC)) {
@@ -701,7 +701,7 @@ static void stress_iomix_rd_bytes(
 			}
 			(void)shim_usleep(1000);
 			posn--;
-			if (!stress_bogo_inc_lock(args, counter_lock, true))
+			if (UNLIKELY(!stress_bogo_inc_lock(args, counter_lock, true)))
 				return;
 		}
 	} while (stress_bogo_inc_lock(args, counter_lock, false));
@@ -733,21 +733,21 @@ static void stress_iomix_inode_ioctl(
 #if defined(FS_IOC_GETFLAGS)
 	int ret, attr;
 
-	if (!stress_continue(args))
+	if (UNLIKELY(!stress_continue(args)))
 		return;
 
 	ret = ioctl(fd, FS_IOC_GETFLAGS, &attr);
-	if (ret < 0)
+	if (UNLIKELY(ret < 0))
 		return;
 #if defined(FS_IOC_SETFLAGS)
 	attr |= flag;
 	ret = ioctl(fd, FS_IOC_SETFLAGS, &attr);
-	if (ret < 0)
+	if (UNLIKELY(ret < 0))
 		return;
 
 	attr &= ~flag;
 	ret = ioctl(fd, FS_IOC_SETFLAGS, &attr);
-	if (ret < 0)
+	if (UNLIKELY(ret < 0))
 		return;
 #else
 	UNEXPECTED
@@ -864,7 +864,7 @@ static void stress_iomix_drop_caches(
 		if (stress_system_write("/proc/sys/vm/drop_caches", "2", 1) < 0)
 			(void)pause();
 		(void)sleep(5);
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			return;
 		(void)sync();
 		if (stress_system_write("/proc/sys/vm/drop_caches", "3", 1) < 0)
@@ -895,7 +895,7 @@ static void stress_iomix_copy_file_range(
 		VOID_RET(ssize_t, shim_copy_file_range(fd, &from, fd, &to, size, 0));
 		VOID_RET(ssize_t, shim_copy_file_range(fd, &to, fd, &from, size, 0));
 
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			return;
 		stress_iomix_fsync_min_1Hz(fd);
 
@@ -925,14 +925,14 @@ static void stress_iomix_sendfile(
 		const size_t size = stress_mwc16();
 
 		ret = lseek(fd, to, SEEK_SET);
-		if (ret != (off_t)-1) {
+		if (UNLIKELY(ret != (off_t)-1)) {
 			ssize_t sret;
 
 			sret = sendfile(fd, fd, &from, size);
 			(void)sret;
 		}
 
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			return;
 		stress_iomix_fsync_min_1Hz(fd);
 
@@ -1137,7 +1137,7 @@ static int stress_iomix(stress_args_t *args)
 #else
 		ret = shim_fallocate(fd, 0, 0, iomix_bytes);
 #endif
-		if (ret < 0) {
+		if (UNLIKELY(ret < 0)) {
 			switch (errno) {
 			case EFBIG:
 			case ENOSPC:
