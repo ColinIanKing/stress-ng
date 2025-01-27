@@ -260,7 +260,7 @@ do {									\
 									\
 	(void)tmp;							\
 	check2--;							\
-	if (check2 != check1) {						\
+	if (UNLIKELY(check2 != check1)) {				\
 		pr_fail("%s atomic store/inc/dec/load on " 		\
 			STRESS_ATOMIC_STRINGIZE(type)			\
 			" failed, got 0x%" PRIx64 			\
@@ -411,8 +411,8 @@ static int stress_atomic_exercise(
 				const atomic_func_t func = atomic_func_info[i].func;
 
 				for (j = 0; j < rounds; j++) {
-					if (func(args, &atomic_info->metrics[i].duration,
-				     		 &atomic_info->metrics[i].count) < 0)
+					if (UNLIKELY(func(args, &atomic_info->metrics[i].duration,
+							  &atomic_info->metrics[i].count) < 0))
 						return -1;
 				}
 			}
