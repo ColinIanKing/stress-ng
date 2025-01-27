@@ -265,7 +265,7 @@ static void stress_landlock_many(
 	(void)shim_memset(&ruleset_attr, 0, sizeof(ruleset_attr));
 	ruleset_attr.handled_access_fs = ctxt->mask;
 	ruleset_fd = shim_landlock_create_ruleset(&ruleset_attr, sizeof(ruleset_attr), 0);
-	if (ruleset_fd < 0) {
+	if (UNLIKELY(ruleset_fd < 0)) {
 		if (errno != ENOSYS)
 			pr_inf("%s: landlock_create_ruleset failed, errno=%d (%s), handled_access_fs = 0x%" PRIx64 "\n",
 				args->name, errno, strerror(errno), (uint64_t)ruleset_attr.handled_access_fs);
@@ -281,7 +281,7 @@ static void stress_landlock_many(
 		else
 			(void)snprintf(newpath, sizeof(newpath), "/%s", namelist[i]->d_name);
 
-		if (realpath(newpath, resolved) == NULL)
+		if (UNLIKELY(realpath(newpath, resolved) == NULL))
 			goto next;
 
 		if (strcmp(newpath, resolved) == 0) {
@@ -293,16 +293,15 @@ static void stress_landlock_many(
 				(void)shim_memset(&path_beneath, 0, sizeof(path_beneath));
 				path_beneath.allowed_access = SHIM_LANDLOCK_ACCESS_FS_READ_FILE;
 				path_beneath.parent_fd = open(resolved, O_PATH | O_NONBLOCK);
-				if (path_beneath.parent_fd < 0)
+				if (UNLIKELY(path_beneath.parent_fd < 0))
 					goto close_ruleset;
 				ret = shim_landlock_add_rule(ruleset_fd, LANDLOCK_RULE_PATH_BENEATH, &path_beneath, 0);
 				(void)close(path_beneath.parent_fd);
-				if (ret < 0) {
+				if (UNLIKELY(ret < 0))
 					goto close_ruleset;
-				}
 				break;
 			case SHIM_DT_DIR:
-				if (depth < 30)
+				if (LIKELY(depth < 30))
 					stress_landlock_many(args, ctxt, resolved, depth + 1);
 				break;
 			default:
@@ -333,7 +332,7 @@ static uint64_t stress_landlock_get_access_mask(void)
 			int ruleset_fd;
 
 			ruleset_fd = shim_landlock_create_ruleset(&ruleset_attr, sizeof(ruleset_attr), 0);
-			if (ruleset_fd >= 0) {
+			if (LIKELY(ruleset_fd >= 0)) {
 				mask = (mask | (1UL << i)) & SHIM_LANDLOCK_ACCESS_ALL;
 				(void)close(ruleset_fd);
 
@@ -360,7 +359,7 @@ static int stress_landlock_flag(stress_args_t *args, stress_landlock_ctxt_t *ctx
 
 	/* Create empty test file */
 	fd = open(ctxt->filename, O_CREAT | O_RDWR | O_CLOEXEC, S_IRUSR | S_IWUSR);
-	if (fd > -1)
+	if (LIKELY(fd > -1))
 		(void)close(fd);
 
 	/* Exercise fetch of ruleset API version, ignore return */
@@ -369,7 +368,7 @@ static int stress_landlock_flag(stress_args_t *args, stress_landlock_ctxt_t *ctx
 	(void)shim_memset(&ruleset_attr, 0, sizeof(ruleset_attr));
 	ruleset_attr.handled_access_fs = ctxt->mask;
 	ruleset_fd = shim_landlock_create_ruleset(&ruleset_attr, sizeof(ruleset_attr), 0);
-	if (ruleset_fd < 0) {
+	if (UNLIKELY(ruleset_fd < 0)) {
 		pr_inf("%s: landlock_create_ruleset failed, errno=%d (%s), handled_access_fs = 0x%" PRIx64 "\n",
 			args->name, errno, strerror(errno), (uint64_t)ruleset_attr.handled_access_fs);
 		return 0;
@@ -378,18 +377,18 @@ static int stress_landlock_flag(stress_args_t *args, stress_landlock_ctxt_t *ctx
 	(void)shim_memset(&path_beneath, 0, sizeof(path_beneath));
 	path_beneath.allowed_access = ctxt->flag;
 	path_beneath.parent_fd = open(ctxt->path, O_PATH);
-	if (path_beneath.parent_fd < 0)
+	if (UNLIKELY(path_beneath.parent_fd < 0))
 		goto close_ruleset;
 	ret = shim_landlock_add_rule(ruleset_fd, LANDLOCK_RULE_PATH_BENEATH, &path_beneath, 0);
-	if (ret < 0)
+	if (UNLIKELY(ret < 0))
 		goto close_parent;
 
 	ret = prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0);
-	if (ret < 0)
+	if (UNLIKELY(ret < 0))
 		goto close_parent;
 
 	ret = shim_landlock_restrict_self(ruleset_fd, 0);
-	if (ret < 0) {
+	if (UNLIKELY(ret < 0)) {
 		pr_inf("%s: landlock_restrict_self failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		goto close_parent;
