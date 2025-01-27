@@ -124,12 +124,12 @@ static int stress_handle_child(stress_args_t *args, void *context)
 		char *ptr;
 
 		fhp = (struct file_handle *)malloc(sizeof(*fhp));
-		if (!fhp)
+		if (UNLIKELY(!fhp))
 			continue;
 
 		fhp->handle_bytes = 0;
-		if ((name_to_handle_at(AT_FDCWD, FILENAME, fhp, &mount_id, 0) != -1) &&
-		    (errno != EOVERFLOW)) {
+		if (UNLIKELY((name_to_handle_at(AT_FDCWD, FILENAME, fhp, &mount_id, 0) != -1) &&
+		             (errno != EOVERFLOW))) {
 			pr_fail("%s: name_to_handle_at failed to get file handle size, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			rc = EXIT_FAILURE;
@@ -137,12 +137,12 @@ static int stress_handle_child(stress_args_t *args, void *context)
 			break;
 		}
 		tmp = realloc(fhp, sizeof(*tmp) + fhp->handle_bytes);
-		if (tmp == NULL) {
+		if (UNLIKELY(!tmp)) {
 			free(fhp);
 			continue;
 		}
 		fhp = tmp;
-		if (name_to_handle_at(AT_FDCWD, FILENAME, fhp, &mount_id, 0) < 0) {
+		if (UNLIKELY(name_to_handle_at(AT_FDCWD, FILENAME, fhp, &mount_id, 0) < 0)) {
 			pr_fail("%s: name_to_handle_at failed to get file handle, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			rc = EXIT_FAILURE;
@@ -157,13 +157,13 @@ static int stress_handle_child(stress_args_t *args, void *context)
 				break;
 			}
 		}
-		if (mount_fd == -2) {
+		if (UNLIKELY(mount_fd == -2)) {
 			pr_fail("%s: cannot find mount id %d\n", args->name, mount_id);
 			rc = EXIT_FAILURE;
 			free(fhp);
 			break;
 		}
-		if (mount_fd < 0) {
+		if (UNLIKELY(mount_fd < 0)) {
 			pr_fail("%s: failed to open mount path '%s': errno=%d (%s)\n",
 				args->name, mount_info[i].mount_path, errno, strerror(errno));
 			rc = EXIT_FAILURE;
@@ -171,7 +171,7 @@ static int stress_handle_child(stress_args_t *args, void *context)
 			break;
 		}
 		fd = open_by_handle_at(mount_fd, fhp, O_RDONLY);
-		if (fd < 0) {
+		if (UNLIKELY(fd < 0)) {
 			/* We don't abort if EPERM occurs, that's not a test failure */
 			if (errno != EPERM) {
 				pr_fail("%s: open_by_handle_at: failed to open: errno=%d (%s)\n",
@@ -188,7 +188,7 @@ static int stress_handle_child(stress_args_t *args, void *context)
 		/* Exercise with large invalid size, EINVAL */
 		fhp->handle_bytes = 4096;
 		tmp = realloc(fhp, sizeof(*tmp) + fhp->handle_bytes);
-		if (!tmp) {
+		if (UNLIKELY(!tmp)) {
 			(void)close(mount_fd);
 			free(fhp);
 			continue;
@@ -212,14 +212,14 @@ static int stress_handle_child(stress_args_t *args, void *context)
 		fhp->handle_bytes = 32;
 		(void)name_to_handle_at(AT_FDCWD, FILENAME, fhp, &mount_id, 0);
 		fd = open_by_handle_at(-1, fhp, O_RDONLY);
-		if (fd >= 0)
+		if (UNLIKELY(fd >= 0))
 			(void)close(fd);
 
 		/* Exercise with invalid mount_fd, part 2 */
 		fhp->handle_bytes = 32;
 		(void)name_to_handle_at(AT_FDCWD, FILENAME, fhp, &mount_id, 0);
 		fd = open_by_handle_at(bad_fd, fhp, O_RDONLY);
-		if (fd >= 0)
+		if (UNLIKELY(fd >= 0))
 			(void)close(fd);
 
 		/*
@@ -230,7 +230,7 @@ static int stress_handle_child(stress_args_t *args, void *context)
 		ptr = (char *)shim_unconstify_ptr(&fhp->f_handle);
 		stress_rndbuf(ptr, 32);
 		fd = open_by_handle_at(mount_fd, fhp, O_RDONLY);
-		if (fd >= 0)
+		if (UNLIKELY(fd >= 0))
 			(void)close(fd);
 
 		(void)close(mount_fd);
