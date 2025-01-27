@@ -84,30 +84,30 @@ static int stress_kill(stress_args_t *args)
 
 		t = stress_time_now();
 		ret = kill(args->pid, SIGUSR1);
-		if (ret == 0) {
+		if (LIKELY(ret == 0)) {
 			const int saved_errno = errno;
 
 			duration += stress_time_now() - t;
 			count += 1.0;
 			errno = saved_errno;
-		}
-		if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY))
+		} else if (UNLIKELY((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY))) {
 			pr_fail("%s: kill PID %" PRIdMAX " with SIGUSR1 failed, errno=%d (%s)\n",
 				args->name, (intmax_t)args->pid, errno, strerror(errno));
+		}
 
 		/* Zero signal can be used to see if process exists */
 		t = stress_time_now();
 		ret = kill(args->pid, 0);
-		if (ret == 0) {
+		if (LIKELY(ret == 0)) {
 			const int saved_errno = errno;
 
 			duration += stress_time_now() - t;
 			count += 1.0;
 			errno = saved_errno;
-		}
-		if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY))
+		} else if (UNLIKELY((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY))) {
 			pr_fail("%s: kill PID %" PRIdMAX " with signal 0 failed, errno=%d (%s)\n",
 				args->name, (intmax_t)args->pid, errno, strerror(errno));
+		}
 
 		/*
 		 * Zero signal can be used to see if process exists,
@@ -116,16 +116,16 @@ static int stress_kill(stress_args_t *args)
 		 */
 		t = stress_time_now();
 		ret = kill(-1, 0);
-		if (ret == 0) {
+		if (LIKELY(ret == 0)) {
 			const int saved_errno = errno;
 
 			duration += stress_time_now() - t;
 			count += 1.0;
 			errno = saved_errno;
-		}
-		if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY))
+		} else if (UNLIKELY((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY))) {
 			pr_fail("%s: kill PID -1 with signal 0 failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
+		}
 
 		/*
 		 * Exercise the kernel by sending illegal signal numbers,
@@ -144,7 +144,7 @@ static int stress_kill(stress_args_t *args)
 		/*
 		 * Send child process some signals to keep it busy
 		 */
-		if (pid > 1) {
+		if (LIKELY(pid > 1)) {
 			VOID_RET(int, kill(pid, 0));
 #if defined(SIGSTOP) && 	\
     defined(SIGCONT)
