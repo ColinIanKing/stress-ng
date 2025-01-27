@@ -418,12 +418,12 @@ static bool stress_intmath_exercise(
 	}
 
 	correct = stress_intmath_methods[method].func(vals, 1, verify, &duration);
-	if (correct) {
+	if (LIKELY(correct)) {
 		stress_intmath_metrics[method].duration += duration;
 		stress_intmath_metrics[method].count += 1.0;
-	}
-	if (!correct)
+	} else {
 		pr_fail("%s: %s failed verification\n", args->name, stress_intmath_methods[method].name);
+	}
 
 	return correct;
 }
