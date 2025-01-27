@@ -138,7 +138,7 @@ static int stress_locka_unlock(stress_args_t *args, const int fd)
 	struct flock f;
 
 	/* Pop one off list */
-	if (!locka_infos.head)
+	if (UNLIKELY(!locka_infos.head))
 		return 0;
 
 	f.l_type = F_UNLCK;
@@ -149,7 +149,7 @@ static int stress_locka_unlock(stress_args_t *args, const int fd)
 
 	stress_locka_info_head_remove();
 
-	if (fcntl(fd, F_SETLK, &f) < 0) {
+	if (UNLIKELY(fcntl(fd, F_SETLK, &f) < 0)) {
 		pr_fail("%s: fcntl F_SETLK failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return -1;
@@ -175,7 +175,7 @@ static int stress_locka_contention(
 		struct flock f;
 
 		if (locka_infos.length >= LOCK_MAX)
-			if (stress_locka_unlock(args, fd) < 0)
+			if (UNLIKELY(stress_locka_unlock(args, fd) < 0))
 				return -1;
 
 		len = (stress_mwc16() + 1) & 0xfff;
@@ -187,16 +187,16 @@ static int stress_locka_contention(
 		f.l_len = len;
 		f.l_pid = args->pid;
 
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 		rc = fcntl(fd, F_GETLK, &f);
-		if (rc < 0)
+		if (UNLIKELY(rc < 0))
 			continue;
 
 		/* Locked OK, add to lock list */
 
 		locka_info = stress_locka_info_new();
-		if (!locka_info) {
+		if (UNLIKELY(!locka_info)) {
 			pr_err("%s: calloc failed, out of memory\n", args->name);
 			return -1;
 		}
