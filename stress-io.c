@@ -57,7 +57,7 @@ static int stress_io(stress_args_t *args)
 	do {
 		sync();
 #if defined(HAVE_SYNCFS)
-		if ((fd != -1) && (syncfs(fd) < 0)) {
+		if (UNLIKELY((fd != -1) && (syncfs(fd) < 0))) {
 			pr_fail("%s: syncfs failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			rc = EXIT_FAILURE;
@@ -68,7 +68,7 @@ static int stress_io(stress_args_t *args)
 		for (i = 0; i < n_mnts; i++) {
 			if (fds[i] < 0)
 				continue;
-			if (syncfs(fds[i]) < 0) {
+			if (UNLIKELY(syncfs(fds[i]) < 0)) {
 				if ((errno != ENOSPC) &&
 				    (errno != EDQUOT) &&
 				    (errno != EINTR)) {
@@ -83,7 +83,7 @@ static int stress_io(stress_args_t *args)
 		/*
 		 *  exercise with an invalid fd
 		 */
-		if (syncfs(bad_fd) == 0) {
+		if (UNLIKELY(syncfs(bad_fd) == 0)) {
 			pr_fail("%s: syncfs on invalid fd %d succeed\n",
 				args->name, bad_fd);
 			rc = EXIT_FAILURE;
