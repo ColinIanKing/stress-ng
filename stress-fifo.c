@@ -121,7 +121,7 @@ static void stress_fifo_reader(
 		fds.events = POLLIN;
 redo_poll:
 		ret = poll(&fds, 1, 1000);
-		if (ret < 0) {
+		if (UNLIKELY(ret < 0)) {
 			if ((errno == EAGAIN) || (errno == EINTR))
 				continue;
 			pr_err("%s: poll failed: errno=%d (%s)\n",
@@ -133,7 +133,7 @@ redo_poll:
 			 * as this can happen on a highly
 			 * overloaded stressed system
 			 */
-			if (stress_continue(args))
+			if (LIKELY(stress_continue(args)))
 				goto redo_poll;
 			break;
 		}
@@ -149,7 +149,7 @@ redo_select:
 		timeout.tv_usec = 0;
 
 		ret = select(fd + 1, &rdfds, NULL, NULL, &timeout);
-		if (ret < 0) {
+		if (UNLIKELY(ret < 0)) {
 			if ((errno == EAGAIN) || (errno == EINTR))
 				continue;
 			pr_err("%s: select failed: errno=%d (%s)\n",
@@ -161,7 +161,7 @@ redo_select:
 			 * as this can happen on a highly
 			 * overloaded stressed system
 			 */
-			if (stress_continue(args))
+			if (LIKELY(stress_continue(args)))
 				goto redo_select;
 			break;
 		}
@@ -176,29 +176,29 @@ redo_select:
 		UNEXPECTED
 #endif
 		sz = read(fd, buf, fifo_data_size);
-		if (sz < 0) {
+		if (UNLIKELY(sz < 0)) {
 			if ((errno == EAGAIN) || (errno == EINTR))
 				continue;
 			pr_fail("%s: fifo read failed: errno=%d (%s)\n",
 				name, errno, strerror(errno));
 			break;
 		}
-		if (sz == 0)
+		if (UNLIKELY(sz == 0))
 			break;
-		if (sz != (ssize_t)fifo_data_size) {
+		if (UNLIKELY(sz != (ssize_t)fifo_data_size)) {
 			pr_fail("%s: fifo read did not get buffer of size %zu\n",
 				name, fifo_data_size);
 			break;
 		}
-		if ((buf[0] < lastval) &&
-		    ((~buf[0] & wrap_mask) && (lastval & wrap_mask))) {
+		if (UNLIKELY(((buf[0] < lastval) &&
+			     ((~buf[0] & wrap_mask) && (lastval & wrap_mask))))) {
 			pr_fail("%s: fifo read did not get "
 				"expected value\n", name);
 			break;
 		}
 		lastval = buf[0];
 
-		if ((count & 0x1ff) == 0) {
+		if (UNLIKELY((count & 0x1ff) == 0)) {
 			void *ptr;
 
 			/* Exercise lseek -> ESPIPE */
@@ -271,11 +271,11 @@ static int stress_fifo(stress_args_t *args)
 	for (i = 0; i < fifo_readers; i++) {
 		stress_sync_start_init(&s_pids[i]);
 
-		if (fifo_spawn(args, stress_fifo_reader, args->name, fifoname, fifo_data_size, &s_pids_head, &s_pids[i]) < 0) {
+		if (UNLIKELY(fifo_spawn(args, stress_fifo_reader, args->name, fifoname, fifo_data_size, &s_pids_head, &s_pids[i]) < 0)) {
 			rc = EXIT_NO_RESOURCE;
 			goto reap;
 		}
-		if (!stress_continue_flag()) {
+		if (UNLIKELY(!stress_continue_flag())) {
 			rc = EXIT_SUCCESS;
 			goto reap;
 		}
