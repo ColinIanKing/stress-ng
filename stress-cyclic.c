@@ -165,7 +165,7 @@ static int stress_cyclic_clock_nanosleep(
 	(void)clock_gettime(CLOCK_REALTIME, &t1);
 	ret = clock_nanosleep(CLOCK_REALTIME, 0, &t, &trem);
 	(void)clock_gettime(CLOCK_REALTIME, &t2);
-	if (ret == 0)
+	if (LIKELY(ret == 0))
 		stress_cyclic_stats(rt_stats, cyclic_sleep, &t1, &t2);
 	return 0;
 }
@@ -194,7 +194,7 @@ static int stress_cyclic_posix_nanosleep(
 	(void)clock_gettime(CLOCK_REALTIME, &t1);
 	ret = nanosleep(&t, &trem);
 	(void)clock_gettime(CLOCK_REALTIME, &t2);
-	if (ret == 0)
+	if (LIKELY(ret == 0))
 		stress_cyclic_stats(rt_stats, cyclic_sleep, &t1, &t2);
 	return 0;
 }
@@ -270,7 +270,7 @@ static int stress_cyclic_pselect(
 	(void)clock_gettime(CLOCK_REALTIME, &t1);
 	ret = pselect(0, NULL, NULL,NULL, &t, NULL);
 	(void)clock_gettime(CLOCK_REALTIME, &t2);
-	if (ret == 0)
+	if (LIKELY(ret == 0))
 		stress_cyclic_stats(rt_stats, cyclic_sleep, &t1, &t2);
 	return 0;
 }
@@ -375,7 +375,7 @@ static int stress_cyclic_usleep(
 	(void)clock_gettime(CLOCK_REALTIME, &t1);
 	ret = usleep(usecs);
 	(void)clock_gettime(CLOCK_REALTIME, &t2);
-	if (ret == 0)
+	if (LIKELY(ret == 0))
 		stress_cyclic_stats(rt_stats, cyclic_sleep, &t1, &t2);
 	return 0;
 }
@@ -812,7 +812,7 @@ redo_policy:
 			stress_bogo_inc(args);
 
 			/* Ensure we NEVER spin forever */
-			if ((stress_time_now() - start) > (double)timeout)
+			if (UNLIKELY((stress_time_now() - start) > (double)timeout))
 				break;
 		} while (stress_continue(args));
 
