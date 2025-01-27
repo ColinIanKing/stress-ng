@@ -116,7 +116,7 @@ static int stress_lsm(stress_args_t *args)
 		size = buf_size;
 		t = stress_time_now();
 		ret = shim_lsm_list_modules(ids, &size, 0);
-		if (ret >= 0) {
+		if (LIKELY(ret >= 0)) {
 			list_duration += stress_time_now() - t;
 			list_count += 1.0;
 		} else {
@@ -135,7 +135,7 @@ static int stress_lsm(stress_args_t *args)
 		/* exercise invalid flags */
 		size = 1;
 		ret = shim_lsm_list_modules(ids, &size, ~0);
-		if ((ret >= 0) || ((ret < 0) && (errno != EINVAL))) {
+		if (UNLIKELY((ret >= 0) || ((ret < 0) && (errno != EINVAL)))) {
 			pr_fail("%s: lsm_list_modules call with invalid flags should return -1, got %d, errno=%d (%s) instead\n",
 				args->name, ret, errno, strerror(errno));
 			goto err;
@@ -144,7 +144,7 @@ static int stress_lsm(stress_args_t *args)
 		/* exercise NULL ids */
 		size = 1;
 		ret = shim_lsm_list_modules(NULL, &size, 0);
-		if ((ret >= 0) || ((ret < 0) && (errno != EFAULT))) {
+		if (UNLIKELY((ret >= 0) || ((ret < 0) && (errno != EFAULT)))) {
 			pr_fail("%s: lsm_list_modules call with NULL ids should return -1, got %d, errno=%d (%s) instead\n",
 				args->name, ret, errno, strerror(errno));
 			goto err;
@@ -178,7 +178,7 @@ static int stress_lsm(stress_args_t *args)
 			/* exercise invalid attr */
 			size = buf_size;
 			ret = shim_lsm_get_self_attr(~0, ctx, &size, 0);
-			if ((ret >= 0) || ((ret < 0) && (errno != EOPNOTSUPP))) {
+			if (UNLIKELY((ret >= 0) || ((ret < 0) && (errno != EOPNOTSUPP)))) {
 				pr_fail("%s: lsm_get_self_attr call with invalid attr should return -1, got %d, errno=%d (%s) instead\n",
 					args->name, ret, errno, strerror(errno));
 				goto err;
@@ -187,7 +187,7 @@ static int stress_lsm(stress_args_t *args)
 			/* exercise invalid ctx */
 			size = buf_size;
 			ret = shim_lsm_get_self_attr(attr[j], (struct lsm_ctx *)~(uintptr_t)0, &size, 0);
-			if ((ret >= 0) || ((ret < 0) && (errno != EFAULT))) {
+			if (UNLIKELY((ret >= 0) || ((ret < 0) && (errno != EFAULT)))) {
 				pr_fail("%s: lsm_get_self_attr call with NULL ctx should return -1, got %d, errno=%d (%s) instead\n",
 					args->name, ret, errno, strerror(errno));
 				goto err;
@@ -196,7 +196,7 @@ static int stress_lsm(stress_args_t *args)
 			/* exercise invalid flags */
 			size = buf_size;
 			ret = shim_lsm_get_self_attr(attr[j], ctx, &size, ~0);
-			if ((ret >= 0) || ((ret < 0) && (errno != EINVAL))) {
+			if (UNLIKELY((ret >= 0) || ((ret < 0) && (errno != EINVAL)))) {
 				pr_fail("%s: lsm_get_self_attr call with invalid flags should return -1, got %d, errno=%d (%s) instead\n",
 					args->name, ret, errno, strerror(errno));
 				goto err;
