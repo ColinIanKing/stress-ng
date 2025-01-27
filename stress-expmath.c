@@ -75,7 +75,7 @@ PRAGMA_UNROLL_N(8)
 	}
 	stress_bogo_inc(args);
 
-	if (first_run) {
+	if (UNLIKELY(first_run)) {
 		result = sum;
 		first_run = false;
 	}
@@ -100,7 +100,7 @@ PRAGMA_UNROLL_N(8)
 	}
 	stress_bogo_inc(args);
 
-	if (first_run) {
+	if (UNLIKELY(first_run)) {
 		result = sum;
 		first_run = false;
 	}
@@ -125,7 +125,7 @@ PRAGMA_UNROLL_N(8)
 	}
 	stress_bogo_inc(args);
 
-	if (first_run) {
+	if (UNLIKELY(first_run)) {
 		result = sum;
 		first_run = false;
 	}
@@ -151,7 +151,7 @@ PRAGMA_UNROLL_N(8)
 	}
 	stress_bogo_inc(args);
 
-	if (first_run) {
+	if (UNLIKELY(first_run)) {
 		result = sum;
 		first_run = false;
 	}
@@ -175,7 +175,7 @@ PRAGMA_UNROLL_N(8)
 	}
 	stress_bogo_inc(args);
 
-	if (first_run) {
+	if (UNLIKELY(first_run)) {
 		result = sum;
 		first_run = false;
 	}
@@ -199,7 +199,7 @@ PRAGMA_UNROLL_N(8)
 	}
 	stress_bogo_inc(args);
 
-	if (first_run) {
+	if (UNLIKELY(first_run)) {
 		result = sum;
 		first_run = false;
 	}
@@ -223,7 +223,7 @@ PRAGMA_UNROLL_N(8)
 	}
 	stress_bogo_inc(args);
 
-	if (first_run) {
+	if (UNLIKELY(first_run)) {
 		result = sum;
 		first_run = false;
 	}
@@ -247,7 +247,7 @@ PRAGMA_UNROLL_N(8)
 	}
 	stress_bogo_inc(args);
 
-	if (first_run) {
+	if (UNLIKELY(first_run)) {
 		result = sum;
 		first_run = false;
 	}
@@ -271,7 +271,7 @@ PRAGMA_UNROLL_N(8)
 	}
 	stress_bogo_inc(args);
 
-	if (first_run) {
+	if (UNLIKELY(first_run)) {
 		result = sum;
 		first_run = false;
 	}
@@ -295,7 +295,7 @@ PRAGMA_UNROLL_N(8)
 	}
 	stress_bogo_inc(args);
 
-	if (first_run) {
+	if (UNLIKELY(first_run)) {
 		result = sum;
 		first_run = false;
 	}
@@ -319,7 +319,7 @@ PRAGMA_UNROLL_N(8)
 	}
 	stress_bogo_inc(args);
 
-	if (first_run) {
+	if (UNLIKELY(first_run)) {
 		result = sum;
 		first_run = false;
 	}
@@ -342,7 +342,7 @@ PRAGMA_UNROLL_N(8)
 	}
 	stress_bogo_inc(args);
 
-	if (first_run) {
+	if (UNLIKELY(first_run)) {
 		result = sum;
 		first_run = false;
 	}
@@ -406,7 +406,7 @@ static bool stress_expmath_exercise(stress_args_t *args, const size_t idx)
 	ret = stress_expmath_methods[idx].expmath_func(args);
 	stress_expmath_metrics[idx].duration += (stress_time_now() - t);
 	stress_expmath_metrics[idx].count += 1.0;
-	if (ret) {
+	if (UNLIKELY(ret)) {
 		if (idx != 0)
 			pr_fail("expmath: %s does not match expected result\n",
 				stress_expmath_methods[idx].name);
@@ -444,7 +444,7 @@ static int stress_expmath(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		if (stress_expmath_exercise(args, expmath_method)) {
+		if (UNLIKELY(stress_expmath_exercise(args, expmath_method))) {
 			rc = EXIT_FAILURE;
 			break;
 		}
