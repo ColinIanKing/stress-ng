@@ -207,7 +207,7 @@ static pid_t stress_access_spawn(
 			metrics[1].count += 1.0;
 
 			j++;
-			if (j >= SIZEOF_ARRAY(modes))
+			if (UNLIKELY(j >= SIZEOF_ARRAY(modes)))
 				j = 0;
 			(void)shim_sched_yield();
 		} while (stress_continue(args));
@@ -336,7 +336,7 @@ static int stress_access(stress_args_t *args)
 #endif
 
 			ret = fchmod(fd1, modes[i].chmod_mode);
-			if (CHMOD_ERR(ret)) {
+			if (UNLIKELY(CHMOD_ERR(ret))) {
 				pr_fail("%s: fchmod %3.3o failed: %d (%s)%s\n",
 					args->name, (unsigned int)modes[i].chmod_mode,
 					errno, strerror(errno), fs_type);
