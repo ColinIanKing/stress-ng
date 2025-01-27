@@ -81,11 +81,11 @@ static int stress_fiemap_writer(
 		uint64_t offset;
 
 		offset = stress_mwc64modn(len) & ~0x1fffUL;
-		if (lseek(fd, (off_t)offset, SEEK_SET) < 0)
+		if (UNLIKELY(lseek(fd, (off_t)offset, SEEK_SET) < 0))
 			break;
-		if (!stress_bogo_inc_lock(args, counter_lock, false))
+		if (UNLIKELY(!stress_bogo_inc_lock(args, counter_lock, false)))
 			break;
-		if (write(fd, buf, sizeof(buf)) < 0) {
+		if (UNLIKELY(write(fd, buf, sizeof(buf)) < 0)) {
 			if (errno == ENOSPC)
 				continue;
 			if ((errno != EAGAIN) && (errno != EINTR)) {
@@ -94,7 +94,7 @@ static int stress_fiemap_writer(
 				goto tidy;
 			}
 		}
-		if (!stress_bogo_inc_lock(args, counter_lock, false))
+		if (UNLIKELY(!stress_bogo_inc_lock(args, counter_lock, false)))
 			break;
 #if defined(FALLOC_FL_PUNCH_HOLE) && \
     defined(FALLOC_FL_KEEP_SIZE)
@@ -103,15 +103,15 @@ static int stress_fiemap_writer(
 		(void)shim_usleep(1000);
 
 		offset = stress_mwc64modn(len);
-		if (shim_fallocate(fd, FALLOC_FL_PUNCH_HOLE |
-				  FALLOC_FL_KEEP_SIZE, (off_t)offset, 8192) < 0) {
+		if (UNLIKELY(shim_fallocate(fd, FALLOC_FL_PUNCH_HOLE |
+					    FALLOC_FL_KEEP_SIZE, (off_t)offset, 8192) < 0)) {
 			if (errno == ENOSPC)
 				continue;
 			if (errno == EOPNOTSUPP)
 				punch_hole = false;
 		}
 		(void)shim_usleep(1000);
-		if (!stress_bogo_inc_lock(args, counter_lock, false))
+		if (UNLIKELY(!stress_bogo_inc_lock(args, counter_lock, false)))
 			break;
 #else
 		UNEXPECTED
@@ -141,14 +141,14 @@ static void stress_fiemap_ioctl(
 		size_t extents_size;
 
 		fiemap = (struct fiemap *)calloc(1, sizeof(*fiemap));
-		if (!fiemap) {
+		if (UNLIKELY(!fiemap)) {
 			pr_err("Out of memory allocating fiemap\n");
 			break;
 		}
 		fiemap->fm_length = ~0UL;
 
 		/* Find out how many extents there are */
-		if (ioctl(fd, FS_IOC_FIEMAP, fiemap) < 0) {
+		if (UNLIKELY(ioctl(fd, FS_IOC_FIEMAP, fiemap) < 0)) {
 			if (errno == EOPNOTSUPP) {
 				if (args->instance == 0)
 					pr_inf_skip("%s: ioctl FS_IOC_FIEMAP not supported on the file system, skipping stressor\n",
@@ -174,7 +174,7 @@ static void stress_fiemap_ioctl(
 		/* Resize fiemap to allow us to read in the extents */
 		tmp = (struct fiemap *)realloc(fiemap,
 			sizeof(*fiemap) + extents_size);
-		if (!tmp) {
+		if (UNLIKELY(!tmp)) {
 			pr_fail("%s: ioctl FS_IOC_FIEMAP failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			free(fiemap);
@@ -186,7 +186,7 @@ static void stress_fiemap_ioctl(
 		fiemap->fm_extent_count = fiemap->fm_mapped_extents;
 		fiemap->fm_mapped_extents = 0;
 
-		if (ioctl(fd, FS_IOC_FIEMAP, fiemap) < 0) {
+		if (UNLIKELY(ioctl(fd, FS_IOC_FIEMAP, fiemap) < 0)) {
 			pr_fail("%s: ioctl FS_IOC_FIEMAP failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			free(fiemap);
@@ -194,10 +194,10 @@ static void stress_fiemap_ioctl(
 		}
 		free(fiemap);
 		(void)shim_sched_yield();
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			break;
 #if !defined(O_SYNC)
-		if (c++ > COUNT_MAX) {
+		if (UNLIKELY(c++ > COUNT_MAX)) {
 			c = 0;
 			fdatasync(fd);
 		}
