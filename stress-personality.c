@@ -55,7 +55,7 @@ static int stress_personality(stress_args_t *args)
 	bool *failed;
 	int rc = EXIT_SUCCESS;
 
-	if (n == 0) {
+	if (UNLIKELY(n == 0)) {
 		/* should never reach here, but just in case we do.. */
 		pr_inf_skip("%s: no personalities to stress test, skipping stressor\n", args->name);
 		return EXIT_NOT_IMPLEMENTED;
@@ -82,7 +82,7 @@ static int stress_personality(stress_args_t *args)
 			const unsigned long int p = personalities[i];
 			int ret;
 
-			if (!stress_continue_flag())
+			if (UNLIKELY(!stress_continue_flag()))
 				break;
 			if (UNLIKELY(failed[i])) {
 				fails++;
@@ -106,7 +106,7 @@ static int stress_personality(stress_args_t *args)
 			VOID_RET(int, personality(0xbad00000 | stress_mwc32()));
 			VOID_RET(int, personality(p));
 		}
-		if (fails == n) {
+		if (UNLIKELY(fails == n)) {
 			pr_fail("%s: all %zu personalities failed "
 				"to be set\n", args->name, fails);
 			rc = EXIT_FAILURE;
