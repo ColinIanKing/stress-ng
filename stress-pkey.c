@@ -62,12 +62,12 @@ static int stress_pkey(stress_args_t *args)
 
 		/* Exercise invalid pkey flags */
 		pkey = shim_pkey_alloc(~0U, 0);
-		if (pkey >= 0)
+		if (UNLIKELY(pkey >= 0))
 			(void)shim_pkey_free(pkey);
 
 		/* Exercise invalid pkey access_rights */
 		pkey = shim_pkey_alloc(0, (unsigned int)~0);
-		if (pkey >= 0)
+		if (UNLIKELY(pkey >= 0))
 			(void)shim_pkey_free(pkey);
 
 		/* Exercise invalid pkey free */
@@ -95,7 +95,7 @@ static int stress_pkey(stress_args_t *args)
 		}
 
 		ret = shim_pkey_mprotect(page, page_size, PROT_NONE, pkey);
-		if (ret < 0) {
+		if (UNLIKELY(ret < 0)) {
 			if (errno == ENOSYS) {
 				if (args->instance == 0) {
 					pr_inf_skip("%s: pkey system calls not implemented, skipping\n",
@@ -130,7 +130,7 @@ static int stress_pkey(stress_args_t *args)
 		/* Exercise zero size, should be OK */
 		(void)shim_pkey_mprotect(page, 0, PROT_READ, pkey);
 
-		if (pkey >= 0) {
+		if (LIKELY(pkey >= 0)) {
 			int rights;
 
 			rights = shim_pkey_get(pkey);
