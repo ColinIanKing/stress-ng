@@ -80,7 +80,7 @@ PRAGMA_UNROLL_N(8)
 	for (ptr = begin; ptr < end; ptr += inc) {
 		register const uintptr_t chk = (uintptr_t)ptr ^ mix;
 
-		if (*ptr != chk) {
+		if (UNLIKELY(*ptr != chk)) {
 			pr_fail("%s: address 0x%p check failure, "
 				"got 0x%" PRIxPTR ", "
 				"expected 0x%" PRIxPTR "\n",
@@ -111,9 +111,9 @@ static void NORETURN stress_rmap_child(
 		case 0:
 			for (i = 0; i < MAPPINGS_MAX; i++) {
 				if (mappings[i] != MAP_FAILED) {
-					if (!stress_bogo_inc_lock(args, counter_lock, false))
+					if (UNLIKELY(!stress_bogo_inc_lock(args, counter_lock, false)))
 						break;
-					if (stress_rmap_touch(args, child_index, mappings[i], sz) < 0) {
+					if (UNLIKELY(stress_rmap_touch(args, child_index, mappings[i], sz) < 0)) {
 						rc = EXIT_FAILURE;
 						goto fail;
 					}
@@ -124,9 +124,9 @@ static void NORETURN stress_rmap_child(
 		case 1:
 			for (i = MAPPINGS_MAX - 1; i >= 0; i--) {
 				if (mappings[i] != MAP_FAILED) {
-					if (!stress_bogo_inc_lock(args, counter_lock, false))
+					if (UNLIKELY(!stress_bogo_inc_lock(args, counter_lock, false)))
 						break;
-					if (stress_rmap_touch(args, child_index, mappings[i], sz) < 0) {
+					if (UNLIKELY(stress_rmap_touch(args, child_index, mappings[i], sz) < 0)) {
 						rc = EXIT_FAILURE;
 						goto fail;
 					}
@@ -139,9 +139,9 @@ static void NORETURN stress_rmap_child(
 				const size_t j = stress_mwc32modn(MAPPINGS_MAX);
 
 				if (mappings[j] != MAP_FAILED) {
-					if (!stress_bogo_inc_lock(args, counter_lock, false))
+					if (UNLIKELY(!stress_bogo_inc_lock(args, counter_lock, false)))
 						break;
-					if (stress_rmap_touch(args, child_index, mappings[j], sz) < 0) {
+					if (UNLIKELY(stress_rmap_touch(args, child_index, mappings[j], sz) < 0)) {
 						rc = EXIT_FAILURE;
 						goto fail;
 					}
@@ -152,9 +152,9 @@ static void NORETURN stress_rmap_child(
 		case 3:
 			for (i = 0; i < MAPPINGS_MAX - 1; i++) {
 				if (mappings[i] != MAP_FAILED) {
-					if (!stress_bogo_inc_lock(args, counter_lock, false))
+					if (UNLIKELY(!stress_bogo_inc_lock(args, counter_lock, false)))
 						break;
-					if (stress_rmap_touch(args, child_index, mappings[i], sz) > 0) {
+					if (UNLIKELY(stress_rmap_touch(args, child_index, mappings[i], sz) > 0)) {
 						rc = EXIT_FAILURE;
 						goto fail;
 					}
