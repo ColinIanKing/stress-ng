@@ -200,7 +200,7 @@ static int stress_msync(stress_args_t *args)
 
 		(void)shim_memset(buf + offset, val, page_size);
 		ret = shim_msync(buf + offset, page_size, MS_SYNC);
-		if (ret < 0) {
+		if (UNLIKELY(ret < 0)) {
 			pr_fail("%s: msync MS_SYNC on "
 				"offset %" PRIdMAX " failed, errno=%d (%s)\n",
 				args->name, (intmax_t)offset, errno,
@@ -208,7 +208,7 @@ static int stress_msync(stress_args_t *args)
 			goto do_invalidate;
 		}
 		ret = lseek(fd, offset, SEEK_SET);
-		if (ret == (off_t)-1) {
+		if (UNLIKELY(ret == (off_t)-1)) {
 			pr_err("%s: cannot seet to offset %" PRIdMAX ", "
 				"errno=%d (%s)\n",
 				args->name, (intmax_t)offset, errno,
@@ -217,12 +217,12 @@ static int stress_msync(stress_args_t *args)
 			break;
 		}
 		ret = read(fd, data, page_size);
-		if (ret < (ssize_t)page_size) {
+		if (UNLIKELY(ret < (ssize_t)page_size)) {
 			pr_fail("%s: read failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			goto do_invalidate;
 		}
-		if (stress_page_check(data, val, page_size) < 0) {
+		if (UNLIKELY(stress_page_check(data, val, page_size) < 0)) {
 			pr_fail("%s: msync'd data in file different "
 				"to data in memory\n", args->name);
 		}
@@ -237,7 +237,7 @@ do_invalidate:
 		(void)shim_memset(buf + offset, val, page_size);
 
 		ret = lseek(fd, offset, SEEK_SET);
-		if (ret == (off_t)-1) {
+		if (UNLIKELY(ret == (off_t)-1)) {
 			pr_err("%s: cannot seet to offset %" PRIdMAX ", errno=%d (%s)\n",
 				args->name, (intmax_t)offset, errno,
 				strerror(errno));
@@ -245,20 +245,20 @@ do_invalidate:
 			break;
 		}
 		ret = read(fd, data, page_size);
-		if (ret < (ssize_t)page_size) {
+		if (UNLIKELY(ret < (ssize_t)page_size)) {
 			pr_fail("%s: read failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			goto do_next;
 		}
 		ret = shim_msync(buf + offset, page_size, MS_INVALIDATE);
-		if (ret < 0) {
+		if (UNLIKELY(ret < 0)) {
 			pr_fail("%s: msync MS_INVALIDATE on "
 				"offset %" PRIdMAX " failed, errno=%d (%s)\n",
 				args->name, (intmax_t)offset, errno,
 				strerror(errno));
 			goto do_next;
 		}
-		if (stress_page_check(buf + offset, val, page_size) < 0) {
+		if (UNLIKELY(stress_page_check(buf + offset, val, page_size) < 0)) {
 			pr_fail("%s: msync'd data in memory "
 				"different to data in file\n", args->name);
 		}
@@ -278,7 +278,7 @@ do_invalidate:
     defined(MS_INVALIDATE)
 		/* Force EBUSY when invalidating on a locked page */
 		ret = shim_mlock(buf + offset, page_size);
-		if (ret == 0) {
+		if (LIKELY(ret == 0)) {
 			VOID_RET(int, shim_msync(buf + offset, page_size, MS_INVALIDATE));
 			VOID_RET(int, shim_munlock(buf + offset, page_size));
 		}
