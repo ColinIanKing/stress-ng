@@ -52,7 +52,7 @@ static int stress_mmapaddr_check(stress_args_t *args, uint8_t *map_addr)
 	val = *map_addr;
 	(void)val;
 
-	if (page_fault) {
+	if (UNLIKELY(page_fault)) {
 		pr_fail("%s: read of mmap'd address %p SEGFAULTed\n",
 			args->name, (void *)map_addr);
 		return -1;
@@ -60,12 +60,12 @@ static int stress_mmapaddr_check(stress_args_t *args, uint8_t *map_addr)
 
 	vec[0] = 0;
 	ret = shim_mincore(map_addr, args->page_size, vec);
-	if (ret != 0) {
+	if (UNLIKELY(ret != 0)) {
 		pr_fail("%s: mincore on address %p failed, errno=%d (%s)\n",
 			args->name, (void *)map_addr, errno, strerror(errno));
 		return -1;
 	}
-	if ((vec[0] & 1) == 0) {
+	if (UNLIKELY((vec[0] & 1) == 0)) {
 		pr_inf("%s: mincore on address %p suggests page is not resident\n",
 			args->name, (void *)map_addr);
 		return -1;
@@ -137,7 +137,7 @@ static int stress_mmapaddr_child(stress_args_t *args, void *context)
 
 		addr = stress_mmapaddr_get_addr(args, mask, page_size);
 		if (!addr) {
-			if (errno == ENOSYS)
+			if (UNLIKELY(errno == ENOSYS))
 				break;
 			continue;
 		}
@@ -149,7 +149,7 @@ static int stress_mmapaddr_child(stress_args_t *args, void *context)
 #if defined(MAP_LOCKED)
 		flags |= ((rnd & 0x20) ? MAP_LOCKED : 0);
 #endif
-		if ((g_opt_flags & OPT_FLAGS_OOM_AVOID) && stress_low_memory(page_size))
+		if (UNLIKELY((g_opt_flags & OPT_FLAGS_OOM_AVOID) && stress_low_memory(page_size)))
 			continue;
 		map_addr = (uint8_t *)mmap((void *)addr, page_size, PROT_READ, flags, -1, 0);
 		if (!map_addr || (map_addr == MAP_FAILED))
@@ -158,7 +158,7 @@ static int stress_mmapaddr_child(stress_args_t *args, void *context)
 		(void)stress_madvise_mergeable(map_addr, page_size);
 		if (mmapaddr_mlock)
 			(void)shim_mlock(map_addr, page_size);
-		if (stress_mmapaddr_check(args, map_addr) < 0)
+		if (UNLIKELY(stress_mmapaddr_check(args, map_addr) < 0))
 			goto unmap;
 
 		/* Now attempt to mmap the newly map'd page */
@@ -171,7 +171,7 @@ static int stress_mmapaddr_child(stress_args_t *args, void *context)
 		}
 #endif
 		remap_addr = (uint8_t *)mmap((void *)addr, page_size, PROT_READ, flags, -1, 0);
-		if (!remap_addr || (remap_addr == MAP_FAILED))
+		if (UNLIKELY(!remap_addr || (remap_addr == MAP_FAILED)))
 			goto unmap;
 
 		(void)stress_madvise_mergeable(remap_addr, page_size);
@@ -185,7 +185,7 @@ static int stress_mmapaddr_child(stress_args_t *args, void *context)
     defined(MREMAP_FIXED) &&	\
     defined(MREMAP_MAYMOVE)
 		addr = stress_mmapaddr_get_addr(args, mask, page_size);
-		if (!addr)
+		if (UNLIKELY(!addr))
 			goto unmap;
 
 		/* Now try to remap with a new fixed address */
