@@ -61,7 +61,7 @@ static void stress_netdev_check(
 	const char *cmd_name,
 	int *rc)
 {
-	if (ioctl(fd, cmd, ifr) < 0) {
+	if (UNLIKELY(ioctl(fd, cmd, ifr) < 0)) {
 		if ((errno != ENOTTY) &&
 		    (errno != EINVAL) &&
 		    (errno != EADDRNOTAVAIL) &&
@@ -105,7 +105,7 @@ static int stress_netdev(stress_args_t *args)
 		/* Get list of transport layer addresses */
 		(void)shim_memset(&ifc, 0, sizeof(ifc));
 		rc = ioctl(fd, SIOCGIFCONF, &ifc);
-		if (rc < 0) {
+		if (UNLIKELY(rc < 0)) {
 			pr_fail("%s: ioctl SIOCGIFCONF failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			rc = EXIT_FAILURE;
@@ -114,7 +114,7 @@ static int stress_netdev(stress_args_t *args)
 
 		/* Do we have any? We should normally have at least lo */
 		n = ifc.ifc_len / (int)sizeof(struct ifreq);
-		if (!n) {
+		if (UNLIKELY(!n)) {
 			if (args->instance == 0)
 				pr_dbg_skip("%s: no network interfaces found, skipping.\n",
 					args->name);
@@ -123,14 +123,14 @@ static int stress_netdev(stress_args_t *args)
 
 		/* Allocate buffer for the addresses */
 		ifc.ifc_buf = (char *)malloc((size_t)ifc.ifc_len);
-		if (!ifc.ifc_buf) {
+		if (UNLIKELY(!ifc.ifc_buf)) {
 			pr_fail("%s: out of memory allocating interface buffer\n",
 				args->name);
 			rc = EXIT_NO_RESOURCE;
 		}
 
 		/* Fetch the addresses */
-		if (ioctl(fd, SIOCGIFCONF, &ifc) < 0) {
+		if (UNLIKELY(ioctl(fd, SIOCGIFCONF, &ifc) < 0)) {
 			pr_fail("%s: ioctl SIOCGIFCONF failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			rc = EXIT_FAILURE;
@@ -143,18 +143,18 @@ static int stress_netdev(stress_args_t *args)
 
 #if defined(SIOCGIFINDEX)
 			/* We got the name, check it's index */
-			if (ioctl(fd, SIOCGIFINDEX, ifr) < 0)
+			if (UNLIKELY(ioctl(fd, SIOCGIFINDEX, ifr) < 0))
 				continue;
 #endif
 
 #if defined(SIOCGIFNAME)
 			ifr->ifr_ifindex = i;
 			/* Get name */
-			if (ioctl(fd, SIOCGIFNAME, ifr) < 0)
+			if (UNLIKELY(ioctl(fd, SIOCGIFNAME, ifr) < 0))
 				continue;
 
 			/* Check index is sane */
-			if (ifr->ifr_ifindex != i) {
+			if (UNLIKELY(ifr->ifr_ifindex != i)) {
 				pr_fail("%s: interface '%s' returned index %d, expected %d\n",
 					args->name, ifr->ifr_name,
 					ifr->ifr_ifindex, i);
