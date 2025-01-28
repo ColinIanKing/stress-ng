@@ -41,7 +41,7 @@ static void stress_mmapmany_read_proc_file(const char *path)
 	if (fd < 0)
 		return;
 	while (read(fd, buf, sizeof(buf)) > 0) {
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 	}
 	(void)close(fd);
@@ -69,7 +69,7 @@ static int stress_mmapmany_child(stress_args_t *args, void *context)
 	(void)stress_get_setting("mmapmany-numa", &mmapmany_numa);
 
 	mappings = (uint64_t **)calloc((size_t)max, sizeof(*mappings));
-	if (!mappings) {
+	if (UNLIKELY(!mappings)) {
 		pr_fail("%s: malloc failed, out of memory\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
@@ -108,12 +108,12 @@ static int stress_mmapmany_child(stress_args_t *args, void *context)
 		for (n = 0; stress_continue_flag() && (n < (size_t)max); n++) {
 			uint64_t *ptr;
 
-			if (!stress_continue(args))
+			if (UNLIKELY(!stress_continue(args)))
 				break;
 
 			ptr = (uint64_t *)mmap(NULL, page_size * 3, PROT_READ | PROT_WRITE,
 				MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
-			if (ptr == MAP_FAILED)
+			if (UNLIKELY(ptr == MAP_FAILED))
 				break;
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 			if (mmapmany_numa)
@@ -127,7 +127,7 @@ static int stress_mmapmany_child(stress_args_t *args, void *context)
 			ptr += offset2pages;
 			*ptr = pattern1 ^ (uint64_t)n;
 
-			if (stress_munmap_retry_enomem((void *)(((uintptr_t)mappings[n]) + page_size), page_size) < 0)
+			if (UNLIKELY(stress_munmap_retry_enomem((void *)(((uintptr_t)mappings[n]) + page_size), page_size) < 0))
 				break;
 			stress_bogo_inc(args);
 		}
@@ -143,14 +143,14 @@ static int stress_mmapmany_child(stress_args_t *args, void *context)
 
 			ptr = (uint64_t *)mappings[i];
 			val = (uint64_t)i ^ pattern0;
-			if (*ptr != val) {
+			if (UNLIKELY(*ptr != val)) {
 				pr_fail("%s: failed: mapping %zd at %p was %" PRIx64 " and not %" PRIx64 "\n",
 					args->name, i, (void *)ptr, *ptr, val);
 				rc = EXIT_FAILURE;
 			}
 			ptr += offset2pages;
 			val = (uint64_t)i ^ pattern1;
-			if (*ptr != val) {
+			if (UNLIKELY(*ptr != val)) {
 				pr_fail("%s: failed: mapping %zd at %p was %" PRIx64 " and not %" PRIx64 "\n",
 					args->name, i, (void *)ptr, *ptr, val);
 				rc = EXIT_FAILURE;
