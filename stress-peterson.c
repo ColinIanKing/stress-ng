@@ -137,7 +137,7 @@ static int stress_peterson_p0(stress_args_t *args)
 	peterson->p0.duration += stress_time_now() - t;
 	peterson->p0.count += 1.0;
 
-	if (check0 + 1 != check1) {
+	if (UNLIKELY(check0 + 1 != check1)) {
 		pr_fail("%s p0: peterson mutex check failed %d vs %d\n",
 			args->name, check0 + 1, check1);
 		return EXIT_FAILURE;
@@ -177,7 +177,7 @@ static int stress_peterson_p1(stress_args_t *args)
 	peterson->p1.duration += stress_time_now() - t;
 	peterson->p1.count += 1.0;
 
-	if (check0 - 1 != check1) {
+	if (UNLIKELY(check0 - 1 != check1)) {
 		pr_fail("%s p1: peterson mutex check failed %d vs %d\n",
 			args->name, check0 - 1, check1);
 		return EXIT_FAILURE;
@@ -226,7 +226,7 @@ static int stress_peterson(stress_args_t *args)
 		(void)stress_change_cpu(args, parent_cpu);
 		while (stress_continue(args)) {
 			rc = stress_peterson_p0(args);
-			if (rc != EXIT_SUCCESS)
+			if (UNLIKELY(rc != EXIT_SUCCESS))
 				break;
 		}
 		_exit(rc);
@@ -236,7 +236,7 @@ static int stress_peterson(stress_args_t *args)
 		/* Parent */
 		while (stress_continue(args)) {
 			rc = stress_peterson_p1(args);
-			if (rc != EXIT_SUCCESS)
+			if (UNLIKELY(rc != EXIT_SUCCESS))
 				break;
 		}
 		if (stress_kill_pid_wait(pid, &status) >= 0) {
