@@ -58,7 +58,7 @@ static int stress_pipe_non_block(stress_args_t *args, const int fd)
 	flags = fcntl(fd, F_GETFL);
 	flags |= O_NONBLOCK;
 	ret = fcntl(fd, F_SETFL, flags);
-	if (ret < 0) {
+	if (UNLIKELY(ret < 0)) {
 		pr_inf("%s: cannot set O_NONBLOCK on pipe fd %d\n",
 			args->name, fd);
 		return -1;
@@ -79,7 +79,7 @@ static ssize_t stress_pipe_read(
 	ssize_t sret;
 
 	sret = read(fd, buf, buf_len);
-	if (sret < 0) {
+	if (UNLIKELY(sret < 0)) {
 		pr_inf("%s: failed to read from pipe fd %d, errno=%d (%s)\n",
 			args->name, fd, errno, strerror(errno));
 		return -1;
@@ -100,7 +100,7 @@ static ssize_t stress_pipe_write(
 	ssize_t sret;
 
 	sret = write(fd, buf, buf_len);
-	if (sret < 0) {
+	if (UNLIKELY(sret < 0)) {
 		pr_inf("%s: failed to write to pipe fd %d, errno=%d (%s)\n",
 			args->name, fd, errno, strerror(errno));
 		return -1;
