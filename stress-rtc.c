@@ -61,7 +61,7 @@ static inline int stress_rtc_dev(stress_args_t *args)
 	if (!do_dev)
 		return -EACCES;
 
-	if ((fd = open("/dev/rtc", O_RDONLY)) < 0) {
+	if (UNLIKELY((fd = open("/dev/rtc", O_RDONLY)) < 0)) {
 		do_dev = false;
 		return -errno;
 	}
@@ -70,7 +70,7 @@ static inline int stress_rtc_dev(stress_args_t *args)
 	{
 		struct rtc_time rtc_tm;
 
-		if (ioctl(fd, RTC_RD_TIME, &rtc_tm) < 0) {
+		if (UNLIKELY(ioctl(fd, RTC_RD_TIME, &rtc_tm) < 0)) {
 			if ((errno != EINTR) && (errno != ENOTTY)) {
 				ret = -errno;
 				pr_fail("%s: ioctl RTC_RD_TIME failed, errno=%d (%s)\n",
@@ -87,7 +87,7 @@ static inline int stress_rtc_dev(stress_args_t *args)
 	{
 		struct rtc_time rtc_tm;
 
-		if (ioctl(fd, RTC_ALM_READ, &rtc_tm) < 0) {
+		if (UNLIKELY(ioctl(fd, RTC_ALM_READ, &rtc_tm) < 0)) {
 			if ((errno != EINVAL) && (errno != EINTR) && (errno != ENOTTY)) {
 				ret = -errno;
 				pr_fail("%s: ioctl RTC_ALRM_READ failed, errno=%d (%s)\n",
@@ -106,7 +106,7 @@ static inline int stress_rtc_dev(stress_args_t *args)
 	{
 		struct rtc_wkalrm wake_alarm;
 
-		if (ioctl(fd, RTC_WKALM_RD, &wake_alarm) < 0) {
+		if (UNLIKELY(ioctl(fd, RTC_WKALM_RD, &wake_alarm) < 0)) {
 			if ((errno != EINVAL) && (errno != EINTR) && (errno != ENOTTY)) {
 				ret = -errno;
 				pr_fail("%s: ioctl RTC_WKALRM_RD failed, errno=%d (%s)\n",
@@ -146,7 +146,7 @@ static inline int stress_rtc_dev(stress_args_t *args)
 	{
 		unsigned long int tmp;
 
-		if (ioctl(fd, RTC_EPOCH_READ, &tmp) < 0) {
+		if (UNLIKELY(ioctl(fd, RTC_EPOCH_READ, &tmp) < 0)) {
 			if ((errno != EINVAL) && (errno != EINTR) && (errno != ENOTTY)) {
 				ret = -errno;
 				pr_fail("%s: ioctl RTC_EPOCH_READ failed, errno=%d (%s)\n",
@@ -165,7 +165,7 @@ static inline int stress_rtc_dev(stress_args_t *args)
 	{
 		unsigned long int tmp;
 
-		if (ioctl(fd, RTC_IRQP_READ, &tmp) < 0) {
+		if (UNLIKELY(ioctl(fd, RTC_IRQP_READ, &tmp) < 0)) {
 			if ((errno != EINVAL) && (errno != EINTR) && (errno != ENOTTY)) {
 				ret = -errno;
 				pr_fail("%s: ioctl RTC_IRQP_READ failed, errno=%d (%s)\n",
@@ -201,7 +201,7 @@ static inline int stress_rtc_dev(stress_args_t *args)
 	{
 		unsigned long int tmp;
 
-		if (ioctl(fd, RTC_VL_READ, &tmp) < 0) {
+		if (UNLIKELY(ioctl(fd, RTC_VL_READ, &tmp) < 0)) {
 			if ((errno != EINVAL) && (errno != EINTR) && (errno != ENOTTY)) {
 				ret = -errno;
 				pr_fail("%s: ioctl RTC_VL_READ failed, errno=%d (%s)\n",
@@ -272,7 +272,7 @@ static inline int stress_rtc_sys(stress_args_t *args)
 
 		(void)snprintf(path, sizeof(path), "/sys/class/rtc/rtc0/%s", interfaces[i]);
 		ret = stress_system_read(path, buf, sizeof(buf));
-		if (ret < 0) {
+		if (UNLIKELY(ret < 0)) {
 			if (ret == -EINTR) {
 				rc = (int)ret;
 				break;
