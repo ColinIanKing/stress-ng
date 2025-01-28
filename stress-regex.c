@@ -146,7 +146,7 @@ static int stress_regex(stress_args_t *args)
 			regex_t regex;
 			int ret;
 
-			if (failed[i])
+			if (UNLIKELY(failed[i]))
 				continue;
 
 			t = stress_time_now();
@@ -174,7 +174,7 @@ static int stress_regex(stress_args_t *args)
 
 					t = stress_time_now();
 					ret = regexec(&regex, stress_regex_text[j], SIZEOF_ARRAY(regmatch), regmatch, 0);
-					if (ret)
+					if (UNLIKELY(ret))
 						continue;
 					/* pr_inf("%s %s\n", stress_posix_regex[i].regex, stress_regex_text[j]); */
 					exec_times[i] += stress_time_now() - t;
