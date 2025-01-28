@@ -187,7 +187,7 @@ static void OPTIMIZE3 stress_pthread_tid_address(stress_args_t *args)
 
 			errno = 0;
 			tid2 = shim_gettid();
-			if ((errno == 0) && (tid1 != tid2)) {
+			if (UNLIKELY((errno == 0) && (tid1 != tid2))) {
 				pr_fail("%s: set_tid_address failed, returned tid %d, expecting tid %d\n",
 					args->name, (int)tid1, (int)tid2);
 			}
@@ -230,7 +230,7 @@ static void *stress_pthread_func(void *parg)
 	/*
 	 *  Check that get_robust_list() works OK
 	 */
-	if (sys_get_robust_list(0, &head, &len) < 0) {
+	if (UNLIKELY(sys_get_robust_list(0, &head, &len) < 0)) {
 		if (errno != ENOSYS) {
 			pr_fail("%s: get_robust_list failed, tid=%d, errno=%d (%s)\n",
 				args->name, (int)tid, errno, strerror(errno));
@@ -244,7 +244,7 @@ static void *stress_pthread_func(void *parg)
 
 			/* Currently disabled, valgrind complains that head is out of range */
 			if (sys_set_robust_list(&new_head, len) < 0) {
-				if (errno != ENOSYS) {
+				if (UNLIKELY(errno != ENOSYS)) {
 					pr_fail("%s: set_robust_list failed, tid=%d, errno=%d (%s)\n",
 						args->name, (int)tid, errno, strerror(errno));
 						goto die;
@@ -320,14 +320,14 @@ static void *stress_pthread_func(void *parg)
 	 *  Bump count of running threads
 	 */
 	ret = shim_pthread_spin_lock(&spinlock);
-	if (ret) {
+	if (UNLIKELY(ret)) {
 		pr_fail("%s: pthread_spin_lock failed, tid=%d, errno=%d (%s)\n",
 			args->name, (int)tid, ret, strerror(ret));
 		goto die;
 	}
 	pthread_count++;
 	ret = shim_pthread_spin_unlock(&spinlock);
-	if (ret) {
+	if (UNLIKELY(ret)) {
 		pr_fail("%s: pthread_spin_unlock failed, tid=%d, errno=%d (%s)\n",
 			args->name, (int)tid, ret, strerror(ret));
 		goto die;
@@ -336,7 +336,7 @@ static void *stress_pthread_func(void *parg)
 	/*
 	 *  Did parent inform pthreads to terminate?
 	 */
-	if (!keep_thread_running())
+	if (UNLIKELY(!keep_thread_running()))
 		goto die;
 
 	/*
@@ -344,7 +344,7 @@ static void *stress_pthread_func(void *parg)
 	 *  indicate it is time to die
 	 */
 	ret = pthread_mutex_lock(&mutex);
-	if (ret) {
+	if (UNLIKELY(ret)) {
 		pr_fail("%s: pthread_mutex_lock failed, tid=%d, errno=%d (%s)\n",
 			args->name, (int)tid, ret, strerror(ret));
 		goto die;
@@ -363,7 +363,7 @@ static void *stress_pthread_func(void *parg)
 
 		ret = pthread_cond_timedwait(&cond, &mutex, &abstime);
 		if (ret) {
-			if (ret != ETIMEDOUT) {
+			if (UNLIKELY(ret != ETIMEDOUT)) {
 				pr_fail("%s: pthread_cond_wait failed, tid=%d, errno=%d (%s)\n",
 					args->name, (int)tid, ret, strerror(ret));
 				break;
@@ -374,7 +374,7 @@ yield:
 		(void)shim_sched_yield();
 	}
 	ret = pthread_mutex_unlock(&mutex);
-	if (ret)
+	if (UNLIKELY(ret))
 		pr_fail("%s: pthread_mutex_unlock failed, tid=%d, errno=%d (%s)\n",
 			args->name, (int)tid, ret, strerror(ret));
 
@@ -515,7 +515,7 @@ static int stress_pthread(stress_args_t *args)
 
 		(void)shim_memset(&pthreads, 0, sizeof(pthreads));
 		ret = pthread_mutex_lock(&mutex);
-		if (ret) {
+		if (UNLIKELY(ret)) {
 			stop_running();
 			continue;
 		}
@@ -538,11 +538,11 @@ static int stress_pthread(stress_args_t *args)
 			 *  setting.
 			 */
 			pthreads[i].stack = (void *)calloc(1, stack_size);
-			if (!pthreads[i].stack)
+			if (UNLIKELY(!pthreads[i].stack))
 				break;
 
 			ret = pthread_attr_init(&attr);
-			if (ret) {
+			if (UNLIKELY(ret)) {
 				(void)pthread_mutex_unlock(&mutex);
 				pr_fail("%s: pthread_attr_init failed, errno=%d (%s)\n",
 					args->name, ret, strerror(ret));
@@ -550,7 +550,7 @@ static int stress_pthread(stress_args_t *args)
 				goto reap;
 			}
 			ret = pthread_attr_setstack(&attr, pthreads[i].stack, stack_size);
-			if (ret) {
+			if (UNLIKELY(ret)) {
 				(void)pthread_mutex_unlock(&mutex);
 				pr_fail("%s: pthread_attr_setstack failed, errno=%d (%s)\n",
 					args->name, ret, strerror(ret));
@@ -563,7 +563,7 @@ static int stress_pthread(stress_args_t *args)
 			pthreads[i].t_run = pthreads[i].t_create;
 			pthreads[i].ret = pthread_create(&pthreads[i].pthread, NULL,
 				stress_pthread_func, (void *)&pargs);
-			if (pthreads[i].ret) {
+			if (UNLIKELY(pthreads[i].ret)) {
 				/* Out of resources, don't try any more */
 				if (pthreads[i].ret == EAGAIN) {
 					limited++;
@@ -584,7 +584,7 @@ static int stress_pthread(stress_args_t *args)
 		}
 		attempted++;
 		ret = pthread_mutex_unlock(&mutex);
-		if (ret) {
+		if (UNLIKELY(ret)) {
 			stop_running();
 			goto reap;
 
@@ -596,14 +596,14 @@ static int stress_pthread(stress_args_t *args)
 		for (j = 0; j < 1000; j++) {
 			bool all_running = false;
 
-			if (!stress_continue(args)) {
+			if (UNLIKELY(!stress_continue(args))) {
 				stop_running();
 				goto reap;
 			}
 
 			if (!locked) {
 				ret = shim_pthread_spin_lock(&spinlock);
-				if (ret) {
+				if (UNLIKELY(ret)) {
 					pr_fail("%s: pthread_spin_lock failed (parent), errno=%d (%s)\n",
 						args->name, ret, strerror(ret));
 					stop_running();
@@ -615,7 +615,7 @@ static int stress_pthread(stress_args_t *args)
 
 			if (locked) {
 				ret = shim_pthread_spin_unlock(&spinlock);
-				if (ret) {
+				if (UNLIKELY(ret)) {
 					pr_fail("%s: pthread_spin_unlock failed (parent), errno=%d (%s)\n",
 						args->name, ret, strerror(ret));
 					stop_running();
@@ -645,7 +645,7 @@ static int stress_pthread(stress_args_t *args)
 reap:
 		keep_thread_running_flag = false;
 		ret = pthread_cond_broadcast(&cond);
-		if (ret) {
+		if (UNLIKELY(ret)) {
 			pr_fail("%s: pthread_cond_broadcast failed (parent), errno=%d (%s)\n",
 				args->name, ret, strerror(ret));
 			stop_running();
@@ -656,7 +656,7 @@ reap:
 				double t;
 
 				ret = pthread_join(pthreads[j].pthread, NULL);
-				if ((ret) && (ret != ESRCH)) {
+				if (UNLIKELY((ret) && (ret != ESRCH))) {
 					pr_fail("%s: pthread_join failed (parent), errno=%d (%s)\n",
 						args->name, ret, strerror(ret));
 					stop_running();
