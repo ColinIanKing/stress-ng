@@ -235,39 +235,39 @@ static void stress_misaligned_int16wr(
 		*ptr17 = ui16;
 		stress_asm_mb();
 
-		if (*ptr1 != ui16)
+		if (UNLIKELY(*ptr1 != ui16))
 			goto fail;
-		if (*ptr2 != ui16)
+		if (UNLIKELY(*ptr2 != ui16))
 			goto fail;
-		if (*ptr3 != ui16)
+		if (UNLIKELY(*ptr3 != ui16))
 			goto fail;
-		if (*ptr4 != ui16)
+		if (UNLIKELY(*ptr4 != ui16))
 			goto fail;
-		if (*ptr5 != ui16)
+		if (UNLIKELY(*ptr5 != ui16))
 			goto fail;
-		if (*ptr6 != ui16)
+		if (UNLIKELY(*ptr6 != ui16))
 			goto fail;
-		if (*ptr7 != ui16)
+		if (UNLIKELY(*ptr7 != ui16))
 			goto fail;
-		if (*ptr8 != ui16)
+		if (UNLIKELY(*ptr8 != ui16))
 			goto fail;
-		if (*ptr9 != ui16)
+		if (UNLIKELY(*ptr9 != ui16))
 			goto fail;
-		if (*ptr10 != ui16)
+		if (UNLIKELY(*ptr10 != ui16))
 			goto fail;
-		if (*ptr11 != ui16)
+		if (UNLIKELY(*ptr11 != ui16))
 			goto fail;
-		if (*ptr12 != ui16)
+		if (UNLIKELY(*ptr12 != ui16))
 			goto fail;
-		if (*ptr13 != ui16)
+		if (UNLIKELY(*ptr13 != ui16))
 			goto fail;
-		if (*ptr14 != ui16)
+		if (UNLIKELY(*ptr14 != ui16))
 			goto fail;
-		if (*ptr15 != ui16)
+		if (UNLIKELY(*ptr15 != ui16))
 			goto fail;
-		if (*ptr16 != ui16)
+		if (UNLIKELY(*ptr16 != ui16))
 			goto fail;
-		if (*ptr17 != ui16)
+		if (UNLIKELY(*ptr17 != ui16))
 			goto fail;
 	}
 	return;
@@ -502,23 +502,23 @@ static void stress_misaligned_int32wr(
 		*ptr9 = ui32;
 		stress_asm_mb();
 
-		if (*ptr1 != ui32)
+		if (UNLIKELY(*ptr1 != ui32))
 			goto fail;
-		if (*ptr2 != ui32)
+		if (UNLIKELY(*ptr2 != ui32))
 			goto fail;
-		if (*ptr3 != ui32)
+		if (UNLIKELY(*ptr3 != ui32))
 			goto fail;
-		if (*ptr4 != ui32)
+		if (UNLIKELY(*ptr4 != ui32))
 			goto fail;
-		if (*ptr5 != ui32)
+		if (UNLIKELY(*ptr5 != ui32))
 			goto fail;
-		if (*ptr6 != ui32)
+		if (UNLIKELY(*ptr6 != ui32))
 			goto fail;
-		if (*ptr7 != ui32)
+		if (UNLIKELY(*ptr7 != ui32))
 			goto fail;
-		if (*ptr8 != ui32)
+		if (UNLIKELY(*ptr8 != ui32))
 			goto fail;
-		if (*ptr9 != ui32)
+		if (UNLIKELY(*ptr9 != ui32))
 			goto fail;
 	}
 	return;
@@ -559,23 +559,23 @@ static void stress_misaligned_int32wrnt(
 		stress_nt_store32(ptr8, ui32);
 		stress_nt_store32(ptr9, ui32);
 
-		if (*ptr1 != ui32)
+		if (UNLIKELY(*ptr1 != ui32))
 			goto fail;
-		if (*ptr2 != ui32)
+		if (UNLIKELY(*ptr2 != ui32))
 			goto fail;
-		if (*ptr3 != ui32)
+		if (UNLIKELY(*ptr3 != ui32))
 			goto fail;
-		if (*ptr4 != ui32)
+		if (UNLIKELY(*ptr4 != ui32))
 			goto fail;
-		if (*ptr5 != ui32)
+		if (UNLIKELY(*ptr5 != ui32))
 			goto fail;
-		if (*ptr6 != ui32)
+		if (UNLIKELY(*ptr6 != ui32))
 			goto fail;
-		if (*ptr7 != ui32)
+		if (UNLIKELY(*ptr7 != ui32))
 			goto fail;
-		if (*ptr8 != ui32)
+		if (UNLIKELY(*ptr8 != ui32))
 			goto fail;
-		if (*ptr9 != ui32)
+		if (UNLIKELY(*ptr9 != ui32))
 			goto fail;
 	}
 	return;
@@ -740,15 +740,15 @@ static void stress_misaligned_int64wr(
 		*ptr5 = ui64;
 		stress_asm_mb();
 
-		if (*ptr1 != ui64)
+		if (UNLIKELY(*ptr1 != ui64))
 			goto fail;
-		if (*ptr2 != ui64)
+		if (UNLIKELY(*ptr2 != ui64))
 			goto fail;
-		if (*ptr3 != ui64)
+		if (UNLIKELY(*ptr3 != ui64))
 			goto fail;
-		if (*ptr4 != ui64)
+		if (UNLIKELY(*ptr4 != ui64))
 			goto fail;
-		if (*ptr5 != ui64)
+		if (UNLIKELY(*ptr5 != ui64))
 			goto fail;
 	}
 	return;
@@ -781,15 +781,15 @@ static void stress_misaligned_int64wrnt(
 		stress_nt_store64(ptr4, ui64);
 		stress_nt_store64(ptr5, ui64);
 
-		if (*ptr1 != ui64)
+		if (UNLIKELY(*ptr1 != ui64))
 			goto fail;
-		if (*ptr2 != ui64)
+		if (UNLIKELY(*ptr2 != ui64))
 			goto fail;
-		if (*ptr3 != ui64)
+		if (UNLIKELY(*ptr3 != ui64))
 			goto fail;
-		if (*ptr4 != ui64)
+		if (UNLIKELY(*ptr4 != ui64))
 			goto fail;
-		if (*ptr5 != ui64)
+		if (UNLIKELY(*ptr5 != ui64))
 			goto fail;
 	}
 	return;
@@ -927,11 +927,11 @@ static void stress_misaligned_int128wr(
 		*ptr3 = ui128;
 		stress_asm_mb();
 
-		if (*ptr1 != ui128)
+		if (UNLIKELY(*ptr1 != ui128))
 			goto fail;
-		if (*ptr2 != ui128)
+		if (UNLIKELY(*ptr2 != ui128))
 			goto fail;
-		if (*ptr3 != ui128)
+		if (UNLIKELY(*ptr3 != ui128))
 			goto fail;
 	}
 	return;
@@ -1076,7 +1076,7 @@ static void stress_misaligned_all(
 	for (i = 1; i < SIZEOF_ARRAY(stress_misaligned_methods) && stress_continue_flag(); i++) {
 		stress_misaligned_method_info_t *info = &stress_misaligned_methods[i];
 
-		if (info->disabled)
+		if (UNLIKELY(info->disabled))
 			continue;
 		current_method = info;
 		info->func(args, buffer, page_size, succeeded);
@@ -1084,7 +1084,7 @@ static void stress_misaligned_all(
 		exercised = true;
 	}
 
-	if (!exercised)
+	if (UNLIKELY(!exercised))
 		stress_misaligned_methods[0].disabled = true;
 }
 
