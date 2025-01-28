@@ -81,7 +81,7 @@ PRAGMA_UNROLL_N(8)
 	}
 	stress_bogo_inc(args);
 
-	if (first_run) {
+	if (UNLIKELY(first_run)) {
 		result = sum;
 		first_run = false;
 	}
@@ -106,7 +106,7 @@ PRAGMA_UNROLL_N(8)
 	}
 	stress_bogo_inc(args);
 
-	if (first_run) {
+	if (UNLIKELY(first_run)) {
 		result = sum;
 		first_run = false;
 	}
@@ -131,7 +131,7 @@ PRAGMA_UNROLL_N(8)
 	}
 	stress_bogo_inc(args);
 
-	if (first_run) {
+	if (UNLIKELY(first_run)) {
 		result = sum;
 		first_run = false;
 	}
@@ -156,7 +156,7 @@ PRAGMA_UNROLL_N(8)
 	}
 	stress_bogo_inc(args);
 
-	if (first_run) {
+	if (UNLIKELY(first_run)) {
 		result = sum;
 		first_run = false;
 	}
@@ -181,7 +181,7 @@ PRAGMA_UNROLL_N(8)
 	}
 	stress_bogo_inc(args);
 
-	if (first_run) {
+	if (UNLIKELY(first_run)) {
 		result = sum;
 		first_run = false;
 	}
@@ -206,7 +206,7 @@ PRAGMA_UNROLL_N(8)
 	}
 	stress_bogo_inc(args);
 
-	if (first_run) {
+	if (UNLIKELY(first_run)) {
 		result = sum;
 		first_run = false;
 	}
@@ -232,7 +232,7 @@ PRAGMA_UNROLL_N(8)
 	}
 	stress_bogo_inc(args);
 
-	if (first_run) {
+	if (UNLIKELY(first_run)) {
 		result = sum;
 		first_run = false;
 	}
@@ -256,7 +256,7 @@ PRAGMA_UNROLL_N(8)
 	}
 	stress_bogo_inc(args);
 
-	if (first_run) {
+	if (UNLIKELY(first_run)) {
 		result = sum;
 		first_run = false;
 	}
@@ -280,7 +280,7 @@ PRAGMA_UNROLL_N(8)
 	}
 	stress_bogo_inc(args);
 
-	if (first_run) {
+	if (UNLIKELY(first_run)) {
 		result = sum;
 		first_run = false;
 	}
@@ -304,7 +304,7 @@ PRAGMA_UNROLL_N(8)
 	}
 	stress_bogo_inc(args);
 
-	if (first_run) {
+	if (UNLIKELY(first_run)) {
 		result = sum;
 		first_run = false;
 	}
@@ -328,7 +328,7 @@ PRAGMA_UNROLL_N(8)
 	}
 	stress_bogo_inc(args);
 
-	if (first_run) {
+	if (UNLIKELY(first_run)) {
 		result = sum;
 		first_run = false;
 	}
@@ -352,7 +352,7 @@ PRAGMA_UNROLL_N(8)
 	}
 	stress_bogo_inc(args);
 
-	if (first_run) {
+	if (UNLIKELY(first_run)) {
 		result = sum;
 		first_run = false;
 	}
@@ -376,7 +376,7 @@ PRAGMA_UNROLL_N(8)
 	}
 	stress_bogo_inc(args);
 
-	if (first_run) {
+	if (UNLIKELY(first_run)) {
 		result = sum;
 		first_run = false;
 	}
@@ -400,7 +400,7 @@ PRAGMA_UNROLL_N(8)
 	}
 	stress_bogo_inc(args);
 
-	if (first_run) {
+	if (UNLIKELY(first_run)) {
 		result = sum;
 		first_run = false;
 	}
@@ -424,7 +424,7 @@ PRAGMA_UNROLL_N(8)
 	}
 	stress_bogo_inc(args);
 
-	if (first_run) {
+	if (UNLIKELY(first_run)) {
 		result = sum;
 		first_run = false;
 	}
@@ -448,7 +448,7 @@ PRAGMA_UNROLL_N(8)
 	}
 	stress_bogo_inc(args);
 
-	if (first_run) {
+	if (UNLIKELY(first_run)) {
 		result = sum;
 		first_run = false;
 	}
@@ -472,7 +472,7 @@ PRAGMA_UNROLL_N(8)
 	}
 	stress_bogo_inc(args);
 
-	if (first_run) {
+	if (UNLIKELY(first_run)) {
 		result = sum;
 		first_run = false;
 	}
@@ -496,7 +496,7 @@ PRAGMA_UNROLL_N(8)
 	}
 	stress_bogo_inc(args);
 
-	if (first_run) {
+	if (UNLIKELY(first_run)) {
 		result = sum;
 		first_run = false;
 	}
@@ -577,7 +577,7 @@ static bool stress_powmath_exercise(stress_args_t *args, const size_t idx)
 	stress_powmath_metrics[idx].duration += (stress_time_now() - t);
 	stress_powmath_metrics[idx].count += 1.0;
 	if (ret) {
-		if (idx != 0)
+		if (UNLIKELY(idx != 0))
 			pr_fail("powmath: %s does not match expected result\n",
 				stress_powmath_methods[idx].name);
 	}
@@ -614,7 +614,7 @@ static int stress_powmath(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		if (stress_powmath_exercise(args, powmath_method)) {
+		if (UNLIKELY(stress_powmath_exercise(args, powmath_method))) {
 			rc = EXIT_FAILURE;
 			break;
 		}
