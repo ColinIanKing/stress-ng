@@ -82,11 +82,11 @@ static size_t stress_mmapfiles_dir(
 	while (!(mmapfile_info->enomem) && ((d = readdir(dir)) != NULL)) {
 		unsigned char type;
 
-		if (n_mappings >= MMAP_MAX)
+		if (UNLIKELY(n_mappings >= MMAP_MAX))
 			break;
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
-		if (stress_is_dot_filename(d->d_name))
+		if (UNLIKELY(stress_is_dot_filename(d->d_name)))
 			continue;
 		type = shim_dirent_type(path, d);
 		if (type == SHIM_DT_DIR) {
@@ -105,15 +105,15 @@ static size_t stress_mmapfiles_dir(
 
 			(void)snprintf(filename, sizeof(filename), "%s/%s", path, d->d_name);
 			fd = open(filename, O_RDONLY);
-			if (fd < 0)
+			if (UNLIKELY(fd < 0))
 				continue;
 
-			if (fstat(fd, &statbuf) < 0) {
+			if (UNLIKELY(fstat(fd, &statbuf) < 0)) {
 				(void)close(fd);
 				continue;
 			}
 			len = statbuf.st_size;
-			if ((g_opt_flags & OPT_FLAGS_OOM_AVOID) && stress_low_memory(len)) {
+			if (UNLIKELY((g_opt_flags & OPT_FLAGS_OOM_AVOID) && stress_low_memory(len))) {
 				(void)close(fd);
 				break;
 			}
@@ -121,7 +121,7 @@ static size_t stress_mmapfiles_dir(
 			t = stress_time_now();
 			ptr = (uint8_t *)mmap(NULL, len, PROT_READ, flags, fd, 0);
 			delta = stress_time_now() - t;
-			if (ptr != MAP_FAILED) {
+			if (LIKELY(ptr != MAP_FAILED)) {
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 				if (mmapfile_info->mmapfiles_numa) {
 					const size_t page_len = (len + (page_size - 1)) & ~(page_size - 1);
@@ -176,7 +176,7 @@ static int stress_mmapfiles_child(stress_args_t *args, void *context)
 	};
 
 	mmapfile_info->mappings = (stress_mapping_t *)calloc((size_t)MMAP_MAX, sizeof(*mmapfile_info->mappings));
-	if (!mmapfile_info->mappings) {
+	if (UNLIKELY(!mmapfile_info->mappings)) {
 		pr_fail("%s: malloc failed, out of memory\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
@@ -193,7 +193,7 @@ static int stress_mmapfiles_child(stress_args_t *args, void *context)
 
 			n = stress_mmapfiles_dir(args, mmapfile_info, dirs[idx], n);
 			idx++;
-			if (idx >= SIZEOF_ARRAY(dirs))
+			if (UNLIKELY(idx >= SIZEOF_ARRAY(dirs)))
 				idx = 0;
 			if (mmapfile_info->enomem)
 				break;
@@ -204,7 +204,7 @@ static int stress_mmapfiles_child(stress_args_t *args, void *context)
 			const size_t len = mmapfile_info->mappings[i].len;
 
 			t = stress_time_now();
-			if (munmap((void *)mmapfile_info->mappings[i].addr, len) == 0) {
+			if (LIKELY(munmap((void *)mmapfile_info->mappings[i].addr, len) == 0)) {
 				const double delta = stress_time_now() - t;
 
 				mmapfile_info->munmap_duration += delta;
