@@ -141,7 +141,7 @@ static int OPTIMIZE3 stress_rawsock_client(stress_args_t *args, const int rawsoc
 	while (!stop_rawsock && stress_continue(args)) {
 		uint32_t ready;
 
-		if (stress_lock_acquire(rawsock_lock) < 0)
+		if (UNLIKELY(stress_lock_acquire(rawsock_lock) < 0))
 			_exit(EXIT_FAILURE);
 		ready = g_shared->rawsock.ready;
 		(void)stress_lock_release(rawsock_lock);
@@ -173,7 +173,7 @@ static int OPTIMIZE3 stress_rawsock_client(stress_args_t *args, const int rawsoc
 		if (UNLIKELY((pkt.data & 0xff) == 0)) {
 			int queued;
 
-			if (!stress_continue(args))
+			if (UNLIKELY(!stress_continue(args)))
 				break;
 
 			VOID_RET(int, ioctl(fd, SIOCOUTQ, &queued));
@@ -231,7 +231,7 @@ static int OPTIMIZE3 stress_rawsock_server(stress_args_t *args, const pid_t pid)
 
 			bytes += n;
 			hash = stress_hash_mulxror32((const char * )&pkt.data, sizeof(pkt.data));
-			if (hash != pkt.hash) {
+			if (UNLIKELY(hash != pkt.hash)) {
 				pr_fail("%s: recv data hash check fail on "
 					"data 0x%4.4" PRIx32 ", got "
 					"0x%4.4" PRIx32 ", expected "
@@ -246,7 +246,7 @@ static int OPTIMIZE3 stress_rawsock_server(stress_args_t *args, const pid_t pid)
 		if (UNLIKELY((pkt.data & 0xfff) == 0)) {
 			int queued;
 
-			if (!stress_continue(args))
+			if (UNLIKELY(!stress_continue(args)))
 				break;
 
 			VOID_RET(int, ioctl(fd, SIOCINQ, &queued));
