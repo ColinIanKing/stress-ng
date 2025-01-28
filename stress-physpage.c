@@ -95,7 +95,7 @@ static void stress_physpage_mtrr(
 		sentry.type = mtrr_types[i];
 
 		ret = ioctl(fd, MTRRIOC_ADD_ENTRY, &sentry);
-		if (ret != 0)
+		if (UNLIKELY(ret != 0))
 			goto err;
 		if (lseek(fd, 0, SEEK_SET) == 0) {
 			struct mtrr_gentry gentry;
@@ -109,7 +109,7 @@ static void stress_physpage_mtrr(
 				}
 				gentry.regnum++;
 			}
-			if (!found) {
+			if (UNLIKELY(!found)) {
 				pr_fail("%s: cannot find mtrr entry at %p, size %zd, type %d\n",
 					args->name, (void *)phys_addr, page_size, mtrr_types[i]);
 				*success = false;
@@ -140,17 +140,17 @@ static int stress_virt_to_phys(
 	ssize_t n;
 
 	offset = (off_t)((virt_addr / page_size) * sizeof(uint64_t));
-	if (lseek(fd_pm, offset, SEEK_SET) != offset) {
+	if (UNLIKELY(lseek(fd_pm, offset, SEEK_SET) != offset)) {
 		pr_err("%s: cannot seek on address %p in /proc/self/pagemap, errno=%d (%s)\n",
 			args->name, (void *)virt_addr, errno, strerror(errno));
 		goto err;
 	}
 	n = read(fd_pm, &pageinfo, sizeof(pageinfo));
-	if (n < 0) {
+	if (UNLIKELY(n < 0)) {
 		pr_err("%s: cannot read address %p in /proc/self/pagemap, errno=%d (%s)\n",
 			args->name, (void *)virt_addr, errno, strerror(errno));
 		goto err;
-	} else if (n != (ssize_t)sizeof(pageinfo)) {
+	} else if (UNLIKELY(n != (ssize_t)sizeof(pageinfo))) {
 		pr_fail("%s: read address %p in /proc/self/pagemap returned %zd bytes, expected %zd\n",
 			args->name, (void *)virt_addr, (size_t)n, sizeof(pageinfo));
 		goto err;
@@ -164,22 +164,22 @@ static int stress_virt_to_phys(
 		phys_addr |= (virt_addr & (page_size - 1));
 		offset = (off_t)(pfn * sizeof(uint64_t));
 
-		if (phys_addr == 0)
+		if (UNLIKELY(phys_addr == 0))
 			return 0;
-		if (fd_pc < 0)
+		if (UNLIKELY(fd_pc < 0))
 			return 0;
 
-		if (lseek(fd_pc, offset, SEEK_SET) != offset) {
+		if (UNLIKELY(lseek(fd_pc, offset, SEEK_SET) != offset)) {
 			pr_err("%s: cannot seek on address %p in /proc/kpagecount, errno=%d (%s)\n",
 				args->name, (void *)virt_addr, errno, strerror(errno));
 			goto err;
 		}
-		if (read(fd_pc, &page_count, sizeof(page_count)) != sizeof(page_count)) {
+		if (UNLIKELY(read(fd_pc, &page_count, sizeof(page_count)) != sizeof(page_count))) {
 			pr_err("%s: cannot read page count for address %p in /proc/kpagecount, errno=%d (%s)\n",
 				args->name, (void *)virt_addr, errno, strerror(errno));
 			goto err;
 		}
-		if (page_count < 1) {
+		if (UNLIKELY(page_count < 1)) {
 			pr_fail("%s: got zero page count for physical address 0x%" PRIx64 "\n",
 				args->name, phys_addr);
 			goto err;
