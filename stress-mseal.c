@@ -47,7 +47,7 @@ static int stress_mseal_expect_addr(
 	void *expect_addr,
 	int expect_errno)
 {
-	if ((addr == expect_addr) && (errno == expect_errno))
+	if (LIKELY((addr == expect_addr) && (errno == expect_errno)))
 		return 0;
 	pr_fail("%s: %s, returned errno %d (%s), expected errno %d (%s)\n",
 		args->name, msg, errno, strerror(errno),
@@ -62,7 +62,7 @@ static int stress_mseal_expect_error(
 	int expect_ret,
 	int expect_errno)
 {
-	if ((ret == expect_ret) && (errno == expect_errno))
+	if (LIKELY((ret == expect_ret) && (errno == expect_errno)))
 		return 0;
 	pr_fail("%s: %s, returned errno %d (%s), expected errno %d (%s)\n",
 		args->name, msg, errno, strerror(errno),
@@ -182,7 +182,7 @@ static int stress_mseal_mapped_first_page(stress_args_t *args)
 
 	t = stress_time_now();
 	ret = shim_mseal(mapping, size, 0);
-	if (ret == 0) {
+	if (LIKELY(ret == 0)) {
 		mseal_duration += stress_time_now() - t;
 		mseal_count += 1.0;
 	}
@@ -198,7 +198,7 @@ static int stress_mseal_mapped_last_page(stress_args_t *args)
 
 	t = stress_time_now();
 	ret = shim_mseal((void *)((uint8_t *)mapping + size), size, 0);
-	if (ret == 0) {
+	if (LIKELY(ret == 0)) {
 		mseal_duration += stress_time_now() - t;
 		mseal_count += 1.0;
 	}
@@ -214,7 +214,7 @@ static int stress_mseal_mapped_pages(stress_args_t *args)
 
 	t = stress_time_now();
 	ret = shim_mseal(mapping, mapping_size, 0);
-	if (ret == 0) {
+	if (LIKELY(ret == 0)) {
 		mseal_duration += stress_time_now() - t;
 		mseal_count += 1.0;
 	}
@@ -337,7 +337,7 @@ static int stress_mseal(stress_args_t *args)
 
 		for (i = 0; i < SIZEOF_ARRAY(mseal_funcs); i++) {
 			errno = 0;
-			if (mseal_funcs[i](args) < 0)
+			if (UNLIKELY(mseal_funcs[i](args) < 0))
 				keep_running = false;
 		}
 		stress_bogo_inc(args);
