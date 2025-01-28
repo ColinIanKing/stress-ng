@@ -113,7 +113,7 @@ static int try_remap(
 #if defined(MREMAP_FIXED)
 		void *addr = rand_mremap_addr(new_sz + args->page_size, flags);
 #endif
-		if (!stress_continue_flag()) {
+		if (UNLIKELY(!stress_continue_flag())) {
 			(void)stress_munmap_retry_enomem(*buf, old_sz);
 			*buf = 0;
 			return 0;
@@ -261,7 +261,7 @@ static int stress_mremap_child(stress_args_t *args, void *context)
 		uint8_t *buf = NULL, *ptr;
 		size_t old_sz;
 
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			goto deinit;
 
 		buf = mmap(NULL, new_sz, PROT_READ | PROT_WRITE, flags, -1, 0);
@@ -283,7 +283,7 @@ static int stress_mremap_child(stress_args_t *args, void *context)
 		/* Ensure we can write to the mapped pages */
 		if (g_opt_flags & OPT_FLAGS_VERIFY) {
 			stress_mmap_set(buf, new_sz, page_size);
-			if (stress_mmap_check(buf, sz, page_size) < 0) {
+			if (UNLIKELY(stress_mmap_check(buf, sz, page_size) < 0)) {
 				pr_fail("%s: mmap'd region of %zu "
 					"bytes does not contain expected data\n",
 					args->name, sz);
@@ -296,12 +296,12 @@ static int stress_mremap_child(stress_args_t *args, void *context)
 		old_sz = new_sz;
 		new_sz >>= 1;
 		while (new_sz > page_size) {
-			if (try_remap(args, &buf, old_sz, new_sz, mremap_mlock, &duration, &count) < 0) {
+			if (UNLIKELY(try_remap(args, &buf, old_sz, new_sz, mremap_mlock, &duration, &count) < 0)) {
 				(void)stress_munmap_retry_enomem(buf, old_sz);
 				ret = EXIT_FAILURE;
 				goto deinit;
 			}
-			if (!stress_continue(args))
+			if (UNLIKELY(!stress_continue(args)))
 				goto deinit;
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 			if (mremap_numa)
@@ -309,7 +309,7 @@ static int stress_mremap_child(stress_args_t *args, void *context)
 #endif
 			(void)stress_madvise_random(buf, new_sz);
 			if (g_opt_flags & OPT_FLAGS_VERIFY) {
-				if (stress_mmap_check(buf, new_sz, page_size) < 0) {
+				if (UNLIKELY(stress_mmap_check(buf, new_sz, page_size) < 0)) {
 					pr_fail("%s: mremap'd region "
 						"of %zu bytes does "
 						"not contain expected data\n",
@@ -325,12 +325,12 @@ static int stress_mremap_child(stress_args_t *args, void *context)
 
 		new_sz <<= 1;
 		while (new_sz < mremap_bytes) {
-			if (try_remap(args, &buf, old_sz, new_sz, mremap_mlock, &duration, &count) < 0) {
+			if (UNLIKELY(try_remap(args, &buf, old_sz, new_sz, mremap_mlock, &duration, &count) < 0)) {
 				(void)stress_munmap_retry_enomem(buf, old_sz);
 				ret = EXIT_FAILURE;
 				goto deinit;
 			}
-			if (!stress_continue(args))
+			if (UNLIKELY(!stress_continue(args)))
 				goto deinit;
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 			if (mremap_numa)
