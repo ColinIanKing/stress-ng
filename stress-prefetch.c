@@ -177,7 +177,7 @@ static inline void stress_prefetch_none(const void *addr)
 			checksum += *(ptr + 7);				\
 			ptr += 8;					\
 		}							\
-		if (checksum != checksum_sane) {			\
+		if (UNLIKELY(checksum != checksum_sane)) {		\
 			pr_fail("%s: %s method: checksum failure, got "	\
 				"0x%" PRIx64 ", expected 0x%" PRIx64 "\n",\
 				args->name, type,			\
@@ -397,7 +397,7 @@ static int stress_prefetch(stress_args_t *args)
 				prefetch_method, i, checksum_sane,
 				l3_data, l3_data_end, &total_count,
 				verify, &success);
-			if (!success)
+			if (UNLIKELY(!success))
 				break;
 		}
 		stress_bogo_inc(args);
