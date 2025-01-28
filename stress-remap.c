@@ -70,7 +70,7 @@ static bool OPTIMIZE3 check_order(
 	size_t i;
 
 	for (i = 0; i < remap_pages; i++) {
-		if (data[i * stride] != order[i]) {
+		if (UNLIKELY(data[i * stride] != order[i])) {
 			pr_fail("%s: remap %s order pages failed\n",
 				args->name, ordering);
 			return true;
@@ -231,7 +231,7 @@ static int stress_remap(stress_args_t *args)
 			rc = EXIT_NO_RESOURCE;
 			break;
 		}
-		if (check_order(args, stride, data, remap_pages, order, "reverse")) {
+		if (UNLIKELY(check_order(args, stride, data, remap_pages, order, "reverse"))) {
 			rc = EXIT_FAILURE;
 			break;
 		}
@@ -253,7 +253,7 @@ PRAGMA_UNROLL_N(4)
 			rc = EXIT_NO_RESOURCE;
 			break;
 		}
-		if (check_order(args, stride, data, remap_pages, order, "random")) {
+		if (UNLIKELY(check_order(args, stride, data, remap_pages, order, "random"))) {
 			rc = EXIT_FAILURE;
 			break;
 		}
@@ -266,7 +266,7 @@ PRAGMA_UNROLL_N(4)
 			rc = EXIT_NO_RESOURCE;
 			break;
 		}
-		if (check_order(args, stride, data, remap_pages, order, "all-to-1")) {
+		if (UNLIKELY(check_order(args, stride, data, remap_pages, order, "all-to-1"))) {
 			rc = EXIT_FAILURE;
 			break;
 		}
@@ -279,7 +279,7 @@ PRAGMA_UNROLL_N(4)
 			rc = EXIT_NO_RESOURCE;
 			break;
 		}
-		if (check_order(args, stride, data, remap_pages, order, "forward")) {
+		if (UNLIKELY(check_order(args, stride, data, remap_pages, order, "forward"))) {
 			rc = EXIT_FAILURE;
 			break;
 		}
