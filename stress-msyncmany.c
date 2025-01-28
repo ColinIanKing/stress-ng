@@ -56,14 +56,14 @@ static int stress_msyncmany_child(stress_args_t *args, void *context)
 	for (n = 0; stress_continue_flag() && (n < (size_t)max); n++) {
 		uint64_t *ptr;
 
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			break;
 		if ((g_opt_flags & OPT_FLAGS_OOM_AVOID) && stress_low_memory(page_size))
 			break;
 
 		ptr = (uint64_t *)mmap(NULL, page_size, PROT_READ | PROT_WRITE,
 			MAP_SHARED, fd, 0);
-		if (ptr == MAP_FAILED)
+		if (UNLIKELY(ptr == MAP_FAILED))
 			break;
 		if (!mapped)
 			mapped = ptr;
@@ -88,7 +88,7 @@ static int stress_msyncmany_child(stress_args_t *args, void *context)
 		*mapped = pattern;
 
 		ret = msync((void *)mapped, args->page_size, MS_SYNC | MS_INVALIDATE);
-		if (ret < 0) {
+		if (UNLIKELY(ret < 0)) {
 			pr_fail("%s: msync failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			rc = EXIT_FAILURE;
@@ -97,14 +97,14 @@ static int stress_msyncmany_child(stress_args_t *args, void *context)
 		for (i = 0; i < n; i++) {
 			const uint64_t *ptr = (uint64_t *)mappings[i];
 
-			if (!ptr)
+			if (UNLIKELY(!ptr))
 				continue;
 			if (UNLIKELY(*ptr != pattern)) {
 				pr_fail("%s: failed: mapping %zd at %p contained %" PRIx64 " and not %" PRIx64 "\n",
 					args->name, i, (const void *)ptr, *ptr, pattern);
 				rc = EXIT_FAILURE;
 				failed++;
-				if (failed >= 5)
+				if (UNLIKELY(failed >= 5))
 					break;
 			}
 		}
