@@ -43,7 +43,7 @@ static size_t pipe_get_size(const int fd)
 #if defined(F_GETPIPE_SZ)
 	ssize_t sz;
 
-	if ((sz = fcntl(fd, F_GETPIPE_SZ)) < 0)
+	if (UNLIKELY((sz = fcntl(fd, F_GETPIPE_SZ)) < 0))
 		return PIPE_BUF;
 	return sz;
 #else
@@ -65,26 +65,26 @@ static void pipe_change_size(
 #if defined(F_GETPIPE_SZ)
 	ssize_t sz;
 #endif
-	if (!pipe_size)
+	if (UNLIKELY(!pipe_size))
 		return;
 
 #if !(defined(HAVE_PIPE2) &&	\
     defined(O_DIRECT))
-	if (pipe_size < args->page_size)
+	if (UNLIKELY(pipe_size < args->page_size))
 		return;
 #endif
-	if (fcntl(fd, F_SETPIPE_SZ, pipe_size) < 0) {
+	if (UNLIKELY(fcntl(fd, F_SETPIPE_SZ, pipe_size) < 0)) {
 		pr_err("%s: cannot set pipe size, keeping "
 			"default pipe size, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 	}
 #if defined(F_GETPIPE_SZ)
 	/* Sanity check size */
-	if ((sz = fcntl(fd, F_GETPIPE_SZ)) < 0) {
+	if (UNLIKELY((sz = fcntl(fd, F_GETPIPE_SZ)) < 0)) {
 		pr_err("%s: cannot get pipe size, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 	} else {
-		if ((size_t)sz != pipe_size) {
+		if (UNLIKELY((size_t)sz != pipe_size)) {
 			pr_err("%s: cannot set desired pipe size, "
 				"pipe %zd, defaulting to size %zd\n",
 				args->name, pipe_size, sz);
@@ -228,7 +228,7 @@ static int stress_pipe_read_splice(
 
 		iov.iov_base = buf + offset;
 		offset += pipe_data_size;
-		if (offset >= offset_end)
+		if (UNLIKELY(offset >= offset_end))
 			offset = 0;
 		n = vmsplice(fd, &iov, 1, 0);
 		if (UNLIKELY(n <= 0)) {
@@ -291,7 +291,7 @@ static int stress_pipe_read_splice_verify(
 		iov.iov_base = buf + offset;
 		buf32 = (uint32_t *)iov.iov_base;
 		offset += pipe_data_size;
-		if (offset >= offset_end)
+		if (UNLIKELY(offset >= offset_end))
 			offset = 0;
 		n = vmsplice(fd, &iov, 1, 0);
 		if (UNLIKELY(n <= 0)) {
@@ -440,7 +440,7 @@ static int stress_pipe_write_splice(
 
 		iov.iov_base = buf + offset;
 		offset += pipe_data_size;
-		if (offset >= offset_end)
+		if (UNLIKELY(offset >= offset_end))
 			offset = 0;
 		ret = vmsplice(fd, &iov, 1, 0);
 		if (UNLIKELY(ret <= 0)) {
@@ -494,7 +494,7 @@ static int stress_pipe_write_splice_verify(
 		buf32 = (uint32_t *)iov.iov_base;
 		*buf32 = val++;
 		offset += pipe_data_size;
-		if (offset >= offset_end)
+		if (UNLIKELY(offset >= offset_end))
 			offset = 0;
 		ret = vmsplice(fd, &iov, 1, 0);
 		if (UNLIKELY(ret <= 0)) {
