@@ -108,18 +108,18 @@ static void stress_pci_info_get_by_name(stress_pci_info_t **pci_info_list, const
 	stress_pci_info_t *pci_info = NULL;
 
 	pci_info = (stress_pci_info_t *)calloc(1, sizeof(*pci_info));
-	if (pci_info) {
+	if (LIKELY(pci_info != NULL)) {
 		char pci_path[PATH_MAX];
 
 		(void)snprintf(pci_path, sizeof(pci_path),
 			"%s/%s", sys_pci_devices, name);
 		pci_info->path = strdup(pci_path);
-		if (!pci_info->path) {
+		if (UNLIKELY(!pci_info->path)) {
 			free(pci_info);
 			return;
 		}
 		pci_info->name = strdup(name);
-		if (!pci_info->name) {
+		if (UNLIKELY(!pci_info->name)) {
 			free(pci_info->path);
 			free(pci_info);
 			return;
@@ -198,7 +198,7 @@ static void stress_pci_exercise_file(
 			goto err;
 
 		sz = STRESS_MINIMUM(sizeof(buf), (size_t)statbuf.st_size);
-		if (rom) {
+		if (UNLIKELY(rom)) {
 			VOID_RET(ssize_t, write(fd, "1\n", 2));
 		}
 
@@ -212,7 +212,7 @@ static void stress_pci_exercise_file(
 		 *  read memory for ROMs at the moment, cf.:
 		 *  https://github.com/ColinIanKing/stress-ng/issues/255
 		 */
-		if (!rom) {
+		if (LIKELY(!rom)) {
 			n_left = sz;
 			n_read = 0;
 			t = stress_time_now();
@@ -226,7 +226,7 @@ static void stress_pci_exercise_file(
 				n_left -= n;
 				n_read += n;
 			}
-			if (n_read > 0) {
+			if (LIKELY(n_read > 0)) {
 				if (config) {
 					pci_info->metrics[PCI_METRICS_CONFIG].duration += stress_time_now() - t;
 					pci_info->metrics[PCI_METRICS_CONFIG].count += n_read;
@@ -235,8 +235,7 @@ static void stress_pci_exercise_file(
 					pci_info->metrics[PCI_METRICS_RESOURCE].count += n_read;
 				}
 			}
-		}
-		if (rom) {
+		} else {
 			VOID_RET(ssize_t, write(fd, "0\n", 2));
 		}
 err:
@@ -327,7 +326,7 @@ static int stress_pci(stress_args_t *args)
 
 	do {
 		for (pci_info = pci_info_list; pci_info; pci_info = pci_info->next) {
-			if (!stress_continue(args))
+			if (UNLIKELY(!stress_continue(args)))
 				break;
 			ret = sigsetjmp(jmp_env, 1);
 
