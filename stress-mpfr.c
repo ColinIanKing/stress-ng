@@ -398,7 +398,7 @@ static int stress_mpfr(stress_args_t *args)
 			metrics[i].count += 1.0;
 			stress_bogo_inc(args);
 
-			if (mpfr_cmp(r0, r1) != 0) {
+			if (UNLIKELY(mpfr_cmp(r0, r1) != 0)) {
 				pr_fail("%s: %s computation with %d precision inconsistent\n",
 					args->name, stress_mpfr_methods[i].name, (int)precision);
 				rc = EXIT_FAILURE;
