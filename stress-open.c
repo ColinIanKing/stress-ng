@@ -209,13 +209,13 @@ static int obsolete_futimesat(
     defined(HAVE_SYSCALL)
 	/* Try direct system call first */
 	ret = (int)syscall(__NR_futimesat, dir_fd, pathname, tv);
-	if ((ret == 0) || (errno != ENOSYS))
+	if (LIKELY((ret == 0) || (errno != ENOSYS)))
 		return ret;
 #endif
 #if defined(HAVE_FUTIMESAT)
 	/* Try libc variant next */
 	ret = (int)futimesat(dir_fd, pathname, tv);
-	if ((ret == 0) || (errno != ENOSYS))
+	if (LIKELY((ret == 0) || (errno != ENOSYS)))
 		return ret;
 #endif
 	/* Not available */
@@ -242,13 +242,13 @@ static int obsolete_futimes(const int fd, const struct timeval tv[2])
     defined(HAVE_SYSCALL)
 	/* Try direct system call first */
 	ret = (int)syscall(__NR_futimes, fd, tv);
-	if ((ret == 0) || (errno != ENOSYS))
+	if (LIKELY((ret == 0) || (errno != ENOSYS)))
 		return ret;
 #endif
 #if defined(HAVE_FUTIMES)
 	/* Try libc variant next */
 	ret = (int)futimes(fd, tv);
-	if ((ret == 0) || (errno != ENOSYS))
+	if (LIKELY((ret == 0) || (errno != ENOSYS)))
 		return ret;
 #endif
 	/* Not available */
@@ -277,7 +277,7 @@ static inline int open_arg2(
 #else
 	fd = open(pathname, flags);
 #endif
-	if (fd >= 0) {
+	if (LIKELY(fd >= 0)) {
 		(*duration) += stress_time_now() - t;
 		(*count) += 1.0;
 		(void)obsolete_futimes(fd, NULL);
@@ -304,7 +304,7 @@ static inline int open_arg3(
 	fd = open(pathname, flags, mode);
 #endif
 
-	if (fd >= 0) {
+	if (LIKELY(fd >= 0)) {
 		struct timeval tv[2];
 
 		(*duration) += stress_time_now() - t;
@@ -365,23 +365,23 @@ static int open_flag_perm(
 			(void)mkdir(filename, mode);
 		} else {
 			fd = open_arg3(filename, O_CREAT | O_RDWR, mode, duration, count);
-			if (fd >= 0)
+			if (LIKELY(fd >= 0))
 				(void)close(fd);
 		}
 	}
 #else
 	fd = open_arg3(filename, O_CREAT | O_RDWR, mode, duration, count);
-	if (fd >= 0)
+	if (LIKELY(fd >= 0))
 		(void)close(fd);
 #endif
 	fd = open_arg3(filename, flags, mode, duration, count);
 #if defined(O_DIRECTORY)
-	if (flags & O_DIRECTORY)
+	if (LIKELY(flags & O_DIRECTORY))
 		(void)shim_rmdir(filename);
 #endif
 	(void)shim_unlink(filename);
 	idx++;
-	if (idx >= open_count)
+	if (UNLIKELY(idx >= open_count))
 		idx = 0;
 
 	return fd;
@@ -635,7 +635,7 @@ static int open_direct(
 
 	t = stress_time_now();
 	fd = open(filename, O_RDWR | O_CREAT | O_TRUNC | O_DIRECT, S_IRUSR | S_IWUSR);
-	if (fd >= 0) {
+	if (LIKELY(fd >= 0)) {
 		(*duration) += stress_time_now() - t;
 		(*count) += 1.0;
 	} else {
@@ -643,7 +643,7 @@ static int open_direct(
 		struct stat statbuf;
 
 		ret = shim_stat(filename, &statbuf);
-		if (ret == 0) {
+		if (UNLIKELY(ret == 0)) {
 			pr_inf("%s: open with O_DIRECT failed but file '%s' was created%s\n",
 				args->name, filename, stress_get_fs_type(filename));
 		}
@@ -683,7 +683,7 @@ static int open_with_openat_cwd(
 
 	t = stress_time_now();
 	fd = openat(AT_FDCWD, filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
-	if (fd >= 0) {
+	if (LIKELY(fd >= 0)) {
 		struct timeval tv[2];
 
 		(*duration) += stress_time_now() - t;
@@ -737,7 +737,7 @@ static int open_with_openat_dir_fd(
 		return -1;
 
 	fd = openat(dir_fd, filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
-	if (fd >= 0) {
+	if (LIKELY(fd >= 0)) {
 		(void)obsolete_futimesat(dir_fd, filename, NULL);
 		(void)snprintf(filename, sizeof(filename), "%s/stress-open-%" PRIdMAX "-%" PRIu32,
 			temp_dir, (intmax_t)pid, rnd32);
@@ -812,12 +812,12 @@ static int open_with_openat2_cwd(
 		how.mode = S_IRUSR | S_IWUSR;
 		how.resolve = resolve_flags[j++];
 
-		if (j >= SIZEOF_ARRAY(resolve_flags))
+		if (UNLIKELY(j >= SIZEOF_ARRAY(resolve_flags)))
 			j = 0;
 
 		/* Exercise illegal usize field */
 		fd = (int)syscall(__NR_openat2, AT_FDCWD, filename, &how, 0);
-		if (fd >= 0) {
+		if (UNLIKELY(fd >= 0)) {
 			/* Unxexpected, but handle it anyhow */
 			(void)shim_unlink(filename);
 			break;
@@ -825,7 +825,7 @@ static int open_with_openat2_cwd(
 
 		t = stress_time_now();
 		fd = (int)syscall(__NR_openat2, AT_FDCWD, filename, &how, sizeof(how));
-		if (fd >= 0) {
+		if (LIKELY(fd >= 0)) {
 			(*duration) += stress_time_now() - t;
 			(*count) += 1.0;
 			(void)shim_unlink(filename);
@@ -855,7 +855,7 @@ static int open_with_open_proc_self_fd(
 
 	t = stress_time_now();
 	fd = open("/proc/self/fd/0", O_RDONLY);
-	if (fd >= 0) {
+	if (LIKELY(fd >= 0)) {
 		(*duration) += stress_time_now() - t;
 		(*count) += 1.0;
 	}
@@ -879,7 +879,7 @@ static int open_dup(
 
 	t = stress_time_now();
 	fd = dup(STDOUT_FILENO);
-	if (fd >= 0) {
+	if (LIKELY(fd >= 0)) {
 		(*duration) += stress_time_now() - t;
 		(*count) += 1.0;
 	}
@@ -946,7 +946,7 @@ static int open_modes(
 	fd = open_arg3(filename, O_CREAT | O_RDWR, mode, duration, count);
 	mode++;
 	mode &= mode_mask;
-	if (fd < 0)
+	if (UNLIKELY(fd < 0))
 		return fd;
 
 	(void)shim_unlink(filename);
@@ -1143,7 +1143,7 @@ static int stress_open(stress_args_t *args)
 			for (;;) {
 				int idx;
 
-				if (!stress_continue(args)) {
+				if (UNLIKELY(!stress_continue(args))) {
 					if (pid > 1)
 						(void)stress_kill_pid(pid);
 					goto close_all;
@@ -1156,7 +1156,7 @@ static int stress_open(stress_args_t *args)
 					break;
 
 				/* Check if we hit the open file limit */
-				if ((errno == EMFILE) || (errno == ENFILE)) {
+				if (UNLIKELY((errno == EMFILE) || (errno == ENFILE))) {
 					if (pid > 1)
 						(void)stress_kill_pid(pid);
 					goto close_all;
@@ -1172,7 +1172,7 @@ static int stress_open(stress_args_t *args)
 			}
 			stress_read_fdinfo(mypid, fds[i]);
 
-			if ((i & 8191) == 8191)
+			if (UNLIKELY((i & 8191) == 8191))
 				sync();
 
 			stress_bogo_inc(args);
