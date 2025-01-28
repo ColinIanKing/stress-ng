@@ -129,7 +129,7 @@ static int stress_null(stress_args_t *args)
 					bytes += ret;
 				}
 			}
-			if (metrics_count++ > 100)
+			if (UNLIKELY(metrics_count++ > 100))
 				metrics_count = 0;
 
 			VOID_RET(off_t, lseek(fd, (off_t)0, SEEK_SET));
@@ -143,7 +143,7 @@ static int stress_null(stress_args_t *args)
 			VOID_RET(int, shim_fdatasync(fd));
 
 			flag = fcntl(fd, F_GETFL, 0);
-			if (flag >= 0) {
+			if (LIKELY(flag >= 0)) {
 				const int newflag = O_RDWR | ((int)stress_mwc32() & fcntl_mask);
 
 				VOID_RET(int, fcntl(fd, F_SETFL, newflag));
@@ -168,7 +168,7 @@ static int stress_null(stress_args_t *args)
 #endif
 
 #if defined(__linux__)
-			if (mmap_count++ > 500) {
+			if (UNLIKELY(mmap_count++ > 500)) {
 				mmap_count = 0;
 
 				const off_t off = (off_t)stress_mwc64() & ~((off_t)page_size - 1);
