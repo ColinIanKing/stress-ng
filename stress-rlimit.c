@@ -175,11 +175,11 @@ static int stress_rlimit_child(stress_args_t *args, void *ctxt)
 		 */
 		for (i = 0; i < SIZEOF_ARRAY(resource_ids); i++) {
 			ret = getrlimit(resource_ids[i].resource, &rlim);
-			if (ret < 0)
+			if (UNLIKELY(ret < 0))
 				continue;
 
 			ret = setrlimit(resource_ids[i].resource, &rlim);
-			if (ret < 0) {
+			if (UNLIKELY(ret < 0)) {
 				pr_fail("%s: setrlimit %s failed, errno=%d (%s)\n",
 					args->name, resource_ids[i].name,
 					errno, strerror(errno));
@@ -202,13 +202,13 @@ static int stress_rlimit_child(stress_args_t *args, void *ctxt)
 		ret = sigsetjmp(jmp_env, 1);
 
 		/* Check for timer overrun */
-		if ((stress_time_now() - context->start) > (double)g_opt_timeout)
+		if (UNLIKELY((stress_time_now() - context->start) > (double)g_opt_timeout))
 			break;
 		/* Check for counter limit reached */
-		if (args->max_ops && (stress_bogo_get(args) >= args->max_ops))
+		if (UNLIKELY(args->max_ops && (stress_bogo_get(args) >= args->max_ops)))
 			break;
 
-		if (ret == 0) {
+		if (LIKELY(ret == 0)) {
 			uint8_t *ptr;
 			void *oldbrk;
 			int fds[MAX_RLIMIT_NOFILE];
