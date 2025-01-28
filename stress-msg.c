@@ -67,7 +67,7 @@ static int stress_msg_get_stats(stress_args_t *args, const int msgq_id)
 	{
 		struct msqid_ds buf;
 
-		if (msgctl(msgq_id, IPC_STAT, &buf) < 0) {
+		if (UNLIKELY(msgctl(msgq_id, IPC_STAT, &buf) < 0)) {
 			pr_fail("%s: msgctl IPC_STAT failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			return -errno;
@@ -100,7 +100,7 @@ static int stress_msg_get_stats(stress_args_t *args, const int msgq_id)
 	{
 		struct msginfo info;
 
-		if (msgctl(msgq_id, IPC_INFO, (struct msqid_ds *)&info) < 0) {
+		if (UNLIKELY(msgctl(msgq_id, IPC_INFO, (struct msqid_ds *)&info) < 0)) {
 			pr_fail("%s: msgctl IPC_INFO failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			return -errno;
@@ -112,7 +112,7 @@ static int stress_msg_get_stats(stress_args_t *args, const int msgq_id)
 	{
 		struct msginfo info;
 
-		if (msgctl(msgq_id, MSG_INFO, (struct msqid_ds *)&info) < 0) {
+		if (UNLIKELY(msgctl(msgq_id, MSG_INFO, (struct msqid_ds *)&info) < 0)) {
 			pr_fail("%s: msgctl MSG_INFO failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			return -errno;
@@ -274,7 +274,7 @@ redo:
 					msg_flag = 0;
 					goto redo;
 				}
-				if ((errno == E2BIG) || (errno == EINTR))
+				if (LIKELY((errno == E2BIG) || (errno == EINTR)))
 					continue;
 
 				pr_fail("%s: msgrcv failed, errno=%d (%s)\n",
@@ -340,7 +340,7 @@ resend:
 		msg.u.value++;
 		stress_bogo_inc(args);
 		if (UNLIKELY((msg.u.value & 0xff) == 0)) {
-			if (stress_msg_get_stats(args, msgq_id) < 0)
+			if (UNLIKELY(stress_msg_get_stats(args, msgq_id) < 0))
 				break;
 #if defined(__NetBSD__)
 			/*
