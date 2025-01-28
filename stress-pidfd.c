@@ -36,7 +36,7 @@ static int stress_pidfd_open(const pid_t pid, const unsigned int flag)
 
 	/* Exercise pidfd_open with non-existent PID */
 	fd = shim_pidfd_open(bad_pid, 0);
-	if (fd >= 0)
+	if (UNLIKELY(fd >= 0))
 		(void)close(fd);
 
 	/* Exercise pidfd_open with illegal flags */
@@ -132,7 +132,7 @@ again:
 		if (pid < 0) {
 			if (stress_redo_fork(args, errno))
 				goto again;
-			if (!stress_continue(args))
+			if (UNLIKELY(!stress_continue(args)))
 				goto finish;
 			pr_err("%s: fork failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
@@ -153,7 +153,7 @@ again:
 				unsigned int flags;
 
 				flags = fcntl(pidfd, F_GETFL, 0);
-				if ((flags & O_NONBLOCK) == 0) {
+				if (UNLIKELY((flags & O_NONBLOCK) == 0)) {
 					pr_fail("%s: pidfd_open opened using PIDFD_NONBLOCK "
 						"but O_NONBLOCK is not set on the file\n",
 						args->name);
@@ -176,7 +176,7 @@ again:
 			/* Exercise illegal mmap'ing the pidfd */
 			ptr = mmap(NULL, args->page_size, PROT_READ,
 				MAP_PRIVATE, pidfd, 0);
-			if (ptr != MAP_FAILED)
+			if (UNLIKELY(ptr != MAP_FAILED))
 				(void)munmap(ptr, args->page_size);
 
 			/* Try to get fd 0 on child pid */
@@ -186,16 +186,16 @@ again:
 
 			/* Exercise with invalid flags */
 			ret = shim_pidfd_getfd(pidfd, 0, ~0U);
-			if (ret >= 0)
+			if (UNLIKELY(ret >= 0))
 				(void)close(ret);
 
 			/* Exercise with bad_fd */
 			ret = shim_pidfd_getfd(pidfd, bad_fd, 0);
-			if (ret >= 0)
+			if (UNLIKELY(ret >= 0))
 				(void)close(ret);
 
 			ret = shim_pidfd_send_signal(pidfd, 0, NULL, 0);
-			if (ret != 0) {
+			if (UNLIKELY(ret != 0)) {
 				if (errno == ENOSYS) {
 					if (args->instance == 0)
 						pr_inf_skip("%s: skipping stress test, system call is not implemented\n",
@@ -210,13 +210,13 @@ again:
 				break;
 			}
 			ret = shim_pidfd_send_signal(pidfd, SIGSTOP, NULL, 0);
-			if (ret != 0) {
+			if (UNLIKELY(ret != 0)) {
 				pr_fail("%s: pidfd_send_signal (SIGSTOP), failed: errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				rc = EXIT_FAILURE;
 			}
 			ret = shim_pidfd_send_signal(pidfd, SIGCONT, NULL, 0);
-			if (ret != 0) {
+			if (UNLIKELY(ret != 0)) {
 				pr_fail("%s: pidfd_send_signal (SIGCONT), failed: errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				rc = EXIT_FAILURE;
