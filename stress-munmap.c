@@ -105,8 +105,7 @@ static void stress_munmap_range(
 			ctxt->count += 1.0;
 			stress_bogo_inc(args);
 
-			if ((shim_mincore(addr, page_size, vec) == 0) &&
-			    (vec[0] != 0)) {
+			if (UNLIKELY((shim_mincore(addr, page_size, vec) == 0) && (vec[0] != 0))) {
 				pr_fail("%s: unmapped page %p still resident in memory\n",
 					args->name, addr);
 				*rc = EXIT_FAILURE;
@@ -167,14 +166,14 @@ static int stress_munmap_child(stress_args_t *args, void *context)
 			&inode, path);
 		if (n < 7)
 			continue;	/* bad sscanf data */
-		if (start >= end)
+		if (UNLIKELY(start >= end))
 			continue;	/* invalid address range */
 		size = (uintptr_t)end - (uintptr_t)start;
 		(void)madvise(start, size, MADV_DONTDUMP);
 	}
 	errno = 0;
 	rewind(fp);
-	if (errno < 0) {
+	if (UNLIKELY(errno < 0)) {
 		(void)fclose(fp);
 		return EXIT_NO_RESOURCE;
 	}
@@ -190,9 +189,9 @@ static int stress_munmap_child(stress_args_t *args, void *context)
 		 */
 		if (n < 7)
 			continue;	/* bad sscanf data */
-		if (start >= end)
+		if (UNLIKELY(start >= end))
 			continue;	/* invalid address range */
-		if (start == context)
+		if (UNLIKELY(start == context))
 			continue;	/* don't want to unmap shared context */
 		if (((const void *)args >= start) && ((const void *)args < end))
 			continue;	/* don't want to unmap shard args */
@@ -214,7 +213,7 @@ static int stress_munmap_child(stress_args_t *args, void *context)
 	}
 	(void)fclose(fp);
 
-	if (stress_continue(args))
+	if (LIKELY(stress_continue(args)))
 		stress_bogo_inc(args);	/* bump per stressor */
 
 	return rc;
