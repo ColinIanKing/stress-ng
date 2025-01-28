@@ -77,7 +77,7 @@ static void stress_mq_invalid_open(
 	mqd_t mq;
 
 	mq = mq_open(name, oflag, mode, attr);
-	if (mq >= 0) {
+	if (UNLIKELY(mq >= 0)) {
 		(void)mq_close(mq);
 		(void)mq_unlink(name);
 	}
@@ -221,7 +221,7 @@ again:
 		(void)mq_close(mq);
 		(void)mq_unlink(mq_name);
 
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			goto finish;
 		pr_fail("%s: fork failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
@@ -261,7 +261,7 @@ again:
 
 					/* illegal mmap, should be ENODEV */
 					ptr = mmap(NULL, 16, PROT_READ, MAP_SHARED, mq, 0);
-					if (ptr != MAP_FAILED)
+					if (UNLIKELY(ptr != MAP_FAILED))
 						(void)munmap(ptr, 16);
 #if defined(HAVE_POLL_H) &&	\
     defined(HAVE_POLL)
@@ -273,7 +273,7 @@ again:
 #endif
 					/* Read state of queue from mq fd */
 					sret = read(mq, buffer, sizeof(buffer));
-					if (sret < 0) {
+					if (UNLIKELY(sret < 0)) {
 						if (errno == EINTR)
 							break;
 						pr_fail("%s: mq read failed, errno=%d (%s)\n",
@@ -373,7 +373,7 @@ again:
 					sret = mq_timedreceive(mq, (char *)&msg, sizeof(msg), &prio, &abs_timeout);
 				else
 					sret = mq_receive(mq, (char *)&msg, sizeof(msg), &prio);
-				if (sret < 0) {
+				if (UNLIKELY(sret < 0)) {
 					if ((errno != EINTR) && (errno != ETIMEDOUT)) {
 						pr_fail("%s: %s failed, errno=%d (%s)\n",
 							args->name,
@@ -383,13 +383,13 @@ again:
 					}
 					break;
 				}
-				if (prio >= PRIOS_MAX) {
+				if (UNLIKELY(prio >= PRIOS_MAX)) {
 					pr_fail("%s: mq_receive: unexpected priority %u, expected 0..%d\n",
 						args->name, prio, PRIOS_MAX - 1);
 					rc = EXIT_FAILURE;
 				} else {
 					if (g_opt_flags & OPT_FLAGS_VERIFY) {
-						if (msg.value != values[prio]) {
+						if (UNLIKELY(msg.value != values[prio])) {
 							pr_fail("%s: mq_receive: expected message "
 								"containing 0x%" PRIx64
 								" but received 0x%" PRIx64 " instead\n",
@@ -433,10 +433,10 @@ again:
 			const unsigned int prio = stress_mwc8modn(PRIOS_MAX);
 			const uint64_t timed = (msg.value & 1);
 
-			if ((attr_count++ & 31) == 0) {
+			if (UNLIKELY((attr_count++ & 31) == 0)) {
 				struct mq_attr old_attr;
 
-				if (mq_getattr(mq, &attr) < 0) {
+				if (UNLIKELY(mq_getattr(mq, &attr) < 0)) {
 					pr_fail("%s: mq_getattr failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 					rc = EXIT_FAILURE;
@@ -463,7 +463,7 @@ again:
 			else
 				ret = mq_send(mq, (char *)&msg, sizeof(msg), prio);
 			if (ret < 0) {
-				if ((errno != EINTR) && (errno != ETIMEDOUT)) {
+				if (UNLIKELY((errno != EINTR) && (errno != ETIMEDOUT))) {
 					pr_fail("%s: %s failed, errno=%d (%s)\n",
 						args->name,
 						timed ? "mq_timedsend" : "mq_send",
