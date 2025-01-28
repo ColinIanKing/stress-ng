@@ -125,13 +125,13 @@ again:
 	case RACE_SCHED_METHOD_ALL:
 		method_index = method_all_index;
 		method_all_index++;
-		if (method_all_index > SIZEOF_ARRAY(stress_race_sched_methods))
+		if (UNLIKELY(method_all_index > SIZEOF_ARRAY(stress_race_sched_methods)))
 			method_all_index = 1;
 		goto again;
 	case RACE_SCHED_METHOD_NEXT:
 		if (n_cpus > 0) {
 			new_cpu_idx++;
-			if (new_cpu_idx >= n_cpus)
+			if (UNLIKELY(new_cpu_idx >= n_cpus))
 				new_cpu_idx = 0;
 		}
 		break;
@@ -177,14 +177,14 @@ static int stress_race_sched_setaffinity(
 	cpu_set_t cpu_set;
 	int ret;
 
-	if (n_cpus > 0) {
+	if (LIKELY(n_cpus > 0)) {
 		CPU_ZERO(&cpu_set);
 		CPU_SET(cpus[cpu_idx], &cpu_set);
 		ret = sched_setaffinity(pid, sizeof(cpu_set), &cpu_set);
-		if (ret == 0) {
+		if (LIKELY(ret == 0)) {
 			CPU_ZERO(&cpu_set);
 			ret = sched_getaffinity(pid, sizeof(cpu_set), &cpu_set);
-			if ((ret < 0) && (errno != ESRCH)) {
+			if (UNLIKELY((ret < 0) && (errno != ESRCH))) {
 				pr_fail("%s: sched_getaffinity failed on PID %" PRIdMAX ", errno=%d (%s)\n",
 					args->name, (intmax_t)pid, errno, strerror(errno));
 				return ret;
@@ -205,9 +205,9 @@ static int stress_race_sched_setscheduler(
 	(void)shim_memset(&param, 0, sizeof(param));
 	param.sched_priority = 0;
 	ret = sched_setscheduler(pid, normal_policies[i], &param);
-	if (ret == 0) {
+	if (LIKELY(ret == 0)) {
 		ret = sched_getscheduler(pid);
-		if ((ret < 0) && (errno != ESRCH)) {
+		if (UNLIKELY((ret < 0) && (errno != ESRCH))) {
 			pr_fail("%s: sched_getscheduler failed on PID %" PRIdMAX ", errno=%d (%s)\n",
 				args->name, (intmax_t)pid, errno, strerror(errno));
 			return ret;
@@ -229,9 +229,9 @@ static int stress_race_sched_exercise(
 				const uint32_t cpu_idx = stress_call_race_sched_method_idx(child->cpu_idx, method_index);
 
 				child->cpu_idx = cpu_idx;
-				if (stress_race_sched_setaffinity(args, child->pid, cpu_idx) < 0)
+				if (UNLIKELY(stress_race_sched_setaffinity(args, child->pid, cpu_idx) < 0))
 					rc = -1;
-				if (stress_race_sched_setscheduler(args, child->pid) < 0)
+				if (UNLIKELY(stress_race_sched_setscheduler(args, child->pid) < 0))
 					rc = -1;
 			}
 		}
@@ -337,7 +337,7 @@ static int stress_race_sched_child(stress_args_t *args, void *context)
 		const uint8_t rnd = stress_mwc8();
 
 		cpu_idx = stress_call_race_sched_method_idx(cpu_idx, method_index);
-		if (stress_race_sched_setaffinity(args, mypid, cpu_idx) < 0) {
+		if (UNLIKELY(stress_race_sched_setaffinity(args, mypid, cpu_idx) < 0)) {
 			rc = EXIT_FAILURE;
 			break;
 		}
@@ -356,7 +356,7 @@ static int stress_race_sched_child(stress_args_t *args, void *context)
 				 * Reached max forks or error
 				 * (e.g. EPERM)? .. then reap
 				 */
-				if (stress_race_sched_exercise(args, method_index) < 0) {
+				if (UNLIKELY(stress_race_sched_exercise(args, method_index) < 0)) {
 					rc = EXIT_FAILURE;
 					break;
 				}
