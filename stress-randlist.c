@@ -47,7 +47,7 @@ typedef struct stress_randlist_item {
 
 static void stress_randlist_free_item(stress_randlist_item_t **item, const size_t randlist_size)
 {
-	if (!*item)
+	if (UNLIKELY(!*item))
 		return;
 
 	if ((*item)->alloc_type == STRESS_RANDLIST_ALLOC_HEAP)
@@ -95,7 +95,7 @@ static inline uint8_t OPTIMIZE3 stress_randlist_bad_data(
 
 PRAGMA_UNROLL_N(8)
 	while (data < end) {
-		if (*(data++) != dataval)
+		if (UNLIKELY(*(data++) != dataval))
 			return true;
 	}
 	return false;
@@ -116,15 +116,15 @@ static inline void OPTIMIZE3 stress_randlist_exercise(
 		ptr->dataval = dataval;
 		(void)shim_memset(ptr->data, dataval, randlist_size);
 		dataval++;
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 	}
 
 	for (ptr = head; ptr; ptr = ptr->next) {
 		shim_builtin_prefetch(ptr->next);
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
-		if (verify && stress_randlist_bad_data(ptr, randlist_size)) {
+		if (UNLIKELY(verify && stress_randlist_bad_data(ptr, randlist_size))) {
 			pr_fail("%s: data check failure in list object at 0x%p\n", args->name, ptr);
 			*rc = EXIT_FAILURE;
 		}
@@ -176,7 +176,7 @@ static int stress_randlist(stress_args_t *args)
 		}
 
 		for (ptr = compact_ptr, i = 0; i < randlist_items; i++) {
-			if (!stress_continue_flag()) {
+			if (UNLIKELY(!stress_continue_flag())) {
 				stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 				stress_randlist_free_ptrs(compact_ptr, ptrs, i, randlist_size);
 				stress_randlist_enomem(args);
@@ -190,7 +190,7 @@ static int stress_randlist(stress_args_t *args)
 		for (i = 0; i < randlist_items; i++) {
 			const size_t size = sizeof(*ptr) + randlist_size;
 
-			if (!stress_continue_flag()) {
+			if (UNLIKELY(!stress_continue_flag())) {
 				stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 				stress_randlist_free_ptrs(compact_ptr, ptrs, i, randlist_size);
 				return EXIT_SUCCESS;
@@ -200,7 +200,7 @@ retry:
 				ptr = (stress_randlist_item_t *)stress_mmap_populate(NULL, size,
 					PROT_READ | PROT_WRITE,
 					MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
-				if (ptr == MAP_FAILED) {
+				if (UNLIKELY(ptr == MAP_FAILED)) {
 					do_mmap = false;
 					goto retry;
 				}
@@ -208,7 +208,7 @@ retry:
 				mmap_allocs++;
 			} else {
 				ptr = (stress_randlist_item_t *)calloc(1, size);
-				if (!ptr) {
+				if (UNLIKELY(!ptr)) {
 					stress_randlist_free_ptrs(compact_ptr, ptrs, i, randlist_size);
 					stress_randlist_enomem(args);
 					return EXIT_NO_RESOURCE;
@@ -230,7 +230,7 @@ retry:
 		ptrs[i] = ptrs[n];
 		ptrs[n] = ptr;
 
-		if (!stress_continue_flag()) {
+		if (UNLIKELY(!stress_continue_flag())) {
 			stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 			stress_randlist_free_ptrs(compact_ptr, ptrs, i, randlist_size);
 			return EXIT_SUCCESS;
