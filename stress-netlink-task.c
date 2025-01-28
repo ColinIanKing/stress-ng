@@ -126,12 +126,12 @@ static int OPTIMIZE3 stress_netlink_sendcmd(
 		register ssize_t len;
 
 		/* Keep static analysis tools happy */
-		if (nlmsgbuf_len > (ssize_t)sizeof(stress_nlmsg_t))
+		if (UNLIKELY(nlmsgbuf_len > (ssize_t)sizeof(stress_nlmsg_t)))
 			break;
 
 		len = sendto(sock, nlmsgbuf, (size_t)nlmsgbuf_len, 0,
 			(struct sockaddr *)&addr, sizeof(addr));
-		if (len < 0) {
+		if (UNLIKELY(len < 0)) {
 			if ((errno == EAGAIN) || (errno == EINTR))
 				return 0;
 			pr_fail("%s: sendto failed: %d (%s)\n",
@@ -139,7 +139,7 @@ static int OPTIMIZE3 stress_netlink_sendcmd(
 			return -1;
 		}
 		/* avoid underflowing nlmsgbuf_len on subtraction */
-		if (len > nlmsgbuf_len)
+		if (UNLIKELY(len > nlmsgbuf_len))
 			break;
 		nlmsgbuf_len -= len;
 		nlmsgbuf += len;
@@ -321,7 +321,7 @@ static int stress_netlink_task(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		if (stress_netlink_taskstats_monitor(args, sock, pid, id, &nivcsw) < 0)
+		if (UNLIKELY(stress_netlink_taskstats_monitor(args, sock, pid, id, &nivcsw) < 0))
 			break;
 	} while (stress_continue(args));
 
