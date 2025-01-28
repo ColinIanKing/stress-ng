@@ -254,8 +254,8 @@ abort:
 
 			/* stress out poll */
 			ret = poll(poll_fds, max_fds, 1);
-			if ((g_opt_flags & OPT_FLAGS_VERIFY) &&
-			    (ret < 0) && (errno != EINTR)) {
+			if (UNLIKELY((g_opt_flags & OPT_FLAGS_VERIFY) &&
+				     (ret < 0) && (errno != EINTR))) {
 				pr_fail("%s: poll failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 			}
@@ -282,8 +282,8 @@ abort:
 			(void)sigaddset(&sigmask, SIGPIPE);
 
 			ret = shim_ppoll(poll_fds, max_fds, &ts, &sigmask);
-			if ((g_opt_flags & OPT_FLAGS_VERIFY) &&
-			    (ret < 0) && (errno != EINTR)) {
+			if (UNLIKELY((g_opt_flags & OPT_FLAGS_VERIFY) &&
+				     (ret < 0) && (errno != EINTR))) {
 				pr_fail("%s: ppoll failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 			}
@@ -303,7 +303,7 @@ abort:
 			ts.tv_sec = 0;
 			ts.tv_nsec = 1999999999;
 			VOID_RET(int, shim_ppoll(poll_fds, max_fds, &ts, &sigmask));
-			if (!stress_continue(args))
+			if (UNLIKELY(!stress_continue(args)))
 				break;
 
 #if defined(RLIMIT_NOFILE)
@@ -347,8 +347,8 @@ abort:
 			tv.tv_sec = 0;
 			tv.tv_usec = poll_random_us ? (long)stress_mwc32modn(poll_random_us) : 20000L;
 			ret = select(maxfd + 1, &rfds, NULL, NULL, &tv);
-			if ((g_opt_flags & OPT_FLAGS_VERIFY) &&
-			    (ret < 0) && (errno != EINTR)) {
+			if (UNLIKELY((g_opt_flags & OPT_FLAGS_VERIFY) &&
+				     (ret < 0) && (errno != EINTR))) {
 				pr_fail("%s: select failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 			}
@@ -362,7 +362,7 @@ abort:
 				}
 				stress_bogo_inc(args);
 			}
-			if (!stress_continue(args))
+			if (UNLIKELY(!stress_continue(args)))
 				break;
 #endif
 
@@ -383,8 +383,8 @@ abort:
 				}
 			}
 			ret = pselect(maxfd + 1, &rfds, NULL, NULL, &ts, &sigmask);
-			if ((g_opt_flags & OPT_FLAGS_VERIFY) &&
-			    (ret < 0) && (errno != EINTR)) {
+			if (UNLIKELY((g_opt_flags & OPT_FLAGS_VERIFY) &&
+				     (ret < 0) && (errno != EINTR))) {
 				pr_fail("%s: pselect failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 			}
