@@ -99,7 +99,7 @@ stress_ ## fname ## size(stress_args_t *args, const bool verify, bool *success)\
 		stress_mwc_set_seed(w, z);			\
 		duration += stress_ ## fname ## size ## helper	\
 				(args, &checksum1);		\
-		if (checksum0 != checksum1) {			\
+		if (UNLIKELY(checksum0 != checksum1)) {		\
 			pr_fail("%s: failed checksum with a "	\
 				"%s uint%d_t operation\n",	\
 				args->name, # fname, size);	\
