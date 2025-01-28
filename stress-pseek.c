@@ -129,14 +129,14 @@ retry:
 	if (proc->io_mode == IO_MODE_SEEK_WR_RD) {
 		off_t new_offset;
 
-		if (lseek(info->fd, offset, SEEK_SET) < 0) {
+		if (UNLIKELY(lseek(info->fd, offset, SEEK_SET) < 0)) {
 			pr_fail("%s: lseek failed, set offset at %" PRIdMAX ", errno=%d (%s)\n",
 				args->name, (intmax_t)offset, errno, strerror(errno));
 			return -1;
 		}
 
 		new_offset = lseek(info->fd, 0, SEEK_CUR);
-		if (new_offset != offset) {
+		if (UNLIKELY(new_offset != offset)) {
 			pr_fail("%s: lseek failed, set offset at %" PRIdMAX
 				", current offset at %" PRIdMAX "\n",
 				args->name, (intmax_t)offset, (intmax_t)new_offset);
@@ -193,14 +193,14 @@ retry:
 	if (proc->io_mode == IO_MODE_SEEK_WR_RD) {
 		off_t new_offset;
 
-		if (lseek(info->fd, offset, SEEK_SET) < 0) {
+		if (UNLIKELY(lseek(info->fd, offset, SEEK_SET) < 0)) {
 			pr_fail("%s: lseek failed, set offset at %" PRIdMAX ", errno=%d (%s)\n",
 				args->name, (intmax_t)offset, errno, strerror(errno));
 			return -1;
 		}
 
 		new_offset = lseek(info->fd, 0, SEEK_CUR);
-		if (new_offset != offset) {
+		if (UNLIKELY(new_offset != offset)) {
 			pr_fail("%s: lseek failed, set offset at %" PRIdMAX
 				", current offset at %" PRIdMAX "\n",
 				args->name, (intmax_t)offset, (intmax_t)new_offset);
@@ -269,14 +269,14 @@ static void stress_peekio_exercise(stress_peekio_proc_t *proc)
 		} else {
 			offset = (size_t)proc->proc_num * info->pseek_io_size * PSEEKIO_CHUNK_SCALE;
 		}
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			break;
 		if (stress_pseek_write_offset(args, info, proc, offset) < 0) {
 			(void)kill(info->parent_pid, SIGALRM);
 			proc->ret = -1;
 			return;
 		}
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			break;
 		if (stress_pseek_read_offset(args, info, proc, offset) < 0) {
 			(void)kill(info->parent_pid, SIGALRM);
