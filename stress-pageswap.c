@@ -78,7 +78,7 @@ static void stress_pageswap_unmap(
 
 		(void)madvise(pi, size, MADV_PAGEOUT);
 		stress_pageswap_count_paged_out(pi, size, count);
-		if (verify && (pi->self != pi)) {
+		if (UNLIKELY(verify && (pi->self != pi))) {
 			pr_fail("%s: page at %p does not contain expected data\n",
 				args->name, (void *)pi);
 			*rc = EXIT_FAILURE;
@@ -117,7 +117,7 @@ static int stress_pageswap_child(stress_args_t *args, void *context)
 
 		pi = (page_info_t *)mmap(NULL, page_size, PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_SHARED, -1, 0);
-		if (pi == MAP_FAILED) {
+		if (UNLIKELY(pi == MAP_FAILED)) {
 			stress_pageswap_unmap(args, &head, &count, &rc);
 			max = 0;
 		} else {
@@ -132,7 +132,7 @@ static int stress_pageswap_child(stress_args_t *args, void *context)
 			if (oldhead)
 				(void)madvise(oldhead, oldhead->size, MADV_PAGEOUT);
 
-			if (max++ > 65536) {
+			if (UNLIKELY(max++ > 65536)) {
 				stress_pageswap_unmap(args, &head, &count, &rc);
 				max = 0;
 			}
