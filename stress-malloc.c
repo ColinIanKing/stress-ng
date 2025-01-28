@@ -199,7 +199,7 @@ static void *stress_malloc_loop(void *ptr)
 		 * exerting any more memory pressure
 		 */
 #if defined(HAVE_LIB_PTHREAD)
-		if (!keep_thread_running_flag)
+		if (UNLIKELY(!keep_thread_running_flag))
 			break;
 #endif
 		if (info[i].addr) {
@@ -257,7 +257,7 @@ static void *stress_malloc_loop(void *ptr)
 				case 1:
 					/* POSIX.1-2001 and POSIX.1-2008 */
 					stress_alloc_action("posix_memalign", len);
-					if (posix_memalign((void **)&info[i].addr, MK_ALIGN(i), len) != 0)
+					if (UNLIKELY(posix_memalign((void **)&info[i].addr, MK_ALIGN(i), len) != 0))
 						info[i].addr = NULL;
 					break;
 #endif
