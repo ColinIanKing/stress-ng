@@ -219,14 +219,14 @@ redo:
 #endif
 #if defined(HAVE_SCHEDMIX_SEM)
 	case 24:
-		if (clock_gettime(CLOCK_REALTIME, &timeout) < 0)
+		if (UNLIKELY(clock_gettime(CLOCK_REALTIME, &timeout) < 0))
 			break;
 		timeout.tv_nsec += 1000000;
 		if (timeout.tv_nsec > 1000000000) {
 			timeout.tv_nsec -= 1000000000;
 			timeout.tv_sec++;
 		}
-		if (sem_timedwait(&schedmix_sem->sem, &timeout) < 0) {
+		if (UNLIKELY(sem_timedwait(&schedmix_sem->sem, &timeout) < 0)) {
 			/*
 			 *  can't get semaphore, then stop/continue process
 			 *  that currently holds it
@@ -341,7 +341,7 @@ static int stress_schedmix_child(stress_args_t *args)
 		new_policy = stress_sched_types[policy].sched;
 		new_policy_name = stress_sched_types[policy].sched_name;
 
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			break;
 
 		errno = 0;
@@ -437,7 +437,7 @@ case_sched_fifo:
 			/* Should never get here */
 			break;
 		}
-		if (ret < 0) {
+		if (UNLIKELY(ret < 0)) {
 			/*
 			 *  Some systems return EINVAL for non-POSIX
 			 *  scheduling policies, silently ignore these
