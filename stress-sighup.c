@@ -39,11 +39,11 @@ static void MLOCKED_TEXT stress_sighup_handler(int num)
 {
 	(void)num;
 
-	if (sighup_info) { /* Should always be not null */
+	if (LIKELY(sighup_info != NULL)) { /* Should always be not null */
 		double latency = stress_time_now() - sighup_info->t_start;
 
 		sighup_info->signalled = true;
-		if ((sighup_info->t_start > 0.0) && (latency > 0.0)) {
+		if (LIKELY((sighup_info->t_start > 0.0) && (latency > 0.0))) {
 			sighup_info->latency += latency;
 			sighup_info->count += 1.0;
 		}
@@ -196,7 +196,7 @@ rewait:
 	if (sighup_info->pid != 0) {
 		int i;
 		for (i = 0; stress_continue(args) && (i < 1000); i++) {
-			if (kill(sighup_info->pid, 0) < 0)
+			if (UNLIKELY(kill(sighup_info->pid, 0) < 0))
 				break;
 			(void)shim_usleep(250);
 		}
