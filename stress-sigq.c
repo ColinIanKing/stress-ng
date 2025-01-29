@@ -46,7 +46,7 @@ static void MLOCKED_TEXT stress_sigqhandler(
 
 static void MLOCKED_TEXT stress_sigq_chld_handler(int sig)
 {
-	if (sig == SIGCHLD) {
+	if (UNLIKELY(sig == SIGCHLD)) {
 		handled_sigchld = true;
 		stress_continue_set_flag(false);
 	}
@@ -132,7 +132,7 @@ again:
 
 			if (i++ & 1) {
 				ret = sigwaitinfo(&mask, &info);
-				if (ret < 0)
+				if (UNLIKELY(ret < 0))
 					break;
 			} else {
 				struct timespec timeout;
@@ -141,7 +141,7 @@ again:
 				timeout.tv_nsec = 0;
 
 				ret = sigtimedwait(&mask, &info, &timeout);
-				if (ret < 0) {
+				if (UNLIKELY(ret < 0)) {
 					if (errno == EAGAIN)
 						continue;
 					break;
@@ -155,7 +155,7 @@ again:
 				}
 				break;
 			}
-			if (info.si_signo != SIGUSR1)
+			if (UNLIKELY(info.si_signo != SIGUSR1))
 				break;
 		}
 		pr_dbg("%s: child got termination notice\n", args->name);
