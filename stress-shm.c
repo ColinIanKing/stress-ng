@@ -76,7 +76,7 @@ static int stress_shm_posix_check(
 	}
 
 	for (val = 0, ptr = buf; ptr < end; ptr += page_size, val++) {
-		if (*ptr != val)
+		if (UNLIKELY(*ptr != val))
 			return -1;
 
 	}
@@ -149,7 +149,7 @@ static int stress_shm_posix_child(
 
 			shm_name[0] = '\0';
 
-			if (!stress_continue_flag())
+			if (UNLIKELY(!stress_continue_flag()))
 				goto reap;
 
 			(void)snprintf(shm_name, SHM_NAME_LEN,
@@ -259,7 +259,7 @@ static int stress_shm_posix_child(
 			if (UNLIKELY(ret < 0)) {
 				pr_fail("%s: fstat failed on shared memory\n", args->name);
 			} else {
-				if (statbuf.st_size != (off_t)sz) {
+				if (UNLIKELY(statbuf.st_size != (off_t)sz)) {
 					pr_fail("%s: fstat reports different size of shared memory, "
 						"got %" PRIdMAX " bytes, expected %zd bytes\n", args->name,
 						(intmax_t)statbuf.st_size, sz);
@@ -306,7 +306,7 @@ reap:
 				(void)munmap(addrs[i], sz);
 			}
 			if (*shm_name) {
-				if (shm_unlink(shm_name) < 0) {
+				if (UNLIKELY(shm_unlink(shm_name) < 0)) {
 					pr_fail("%s: shm_unlink failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 				}
@@ -329,7 +329,7 @@ reap:
 	/* Inform parent of end of run */
 	msg.index = -1;
 	(void)shim_strscpy(msg.shm_name, "", SHM_NAME_LEN);
-	if (write(fd, &msg, sizeof(msg)) < 0) {
+	if (UNLIKELY(write(fd, &msg, sizeof(msg)) < 0)) {
 		pr_err("%s: write failed: errno=%d: (%s)\n",
 			args->name, errno, strerror(errno));
 		rc = EXIT_FAILURE;
