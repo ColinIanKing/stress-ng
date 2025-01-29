@@ -80,7 +80,7 @@ static void stress_sigurg_handler(int signum)
 
 	(void)signum;
 
-	if (recv(sockfd, buf, sizeof(buf), MSG_OOB) > 0)
+	if (LIKELY(recv(sockfd, buf, sizeof(buf), MSG_OOB) > 0))
 		sigurg_counter++;
 }
 
@@ -106,30 +106,30 @@ static int OPTIMIZE3 stress_sigurg_client(
 		socklen_t addr_len = 0;
 
 retry:
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			return EXIT_SUCCESS;
 
 		sockfd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-		if (sockfd < 0) {
+		if (UNLIKELY(sockfd < 0)) {
 			pr_fail("%s: socket failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			return EXIT_FAILURE;
 		}
-		if (stress_set_sockaddr_if(args->name, args->instance, mypid,
+		if (UNLIKELY(stress_set_sockaddr_if(args->name, args->instance, mypid,
 				AF_INET, sock_port, NULL,
-				&addr, &addr_len, NET_ADDR_ANY) < 0) {
+				&addr, &addr_len, NET_ADDR_ANY) < 0)) {
 			(void)close(sockfd);
 			sockfd = -1;
 			return EXIT_FAILURE;
 		}
-		if (connect(sockfd, addr, addr_len) < 0) {
+		if (UNLIKELY(connect(sockfd, addr, addr_len) < 0)) {
 			const int errno_tmp = errno;
 
 			(void)close(sockfd);
 			sockfd = -1;
 			(void)shim_usleep(10000);
 			retries++;
-			if (retries > 100) {
+			if (UNLIKELY(retries > 100)) {
 				/* Give up.. */
 				pr_fail("%s: connect failed, errno=%d (%s)\n",
 					args->name, errno_tmp, strerror(errno_tmp));
@@ -142,14 +142,14 @@ retry:
 			int flags;
 
 			flags = fcntl(sockfd, F_GETFD);
-			if (flags >= 0) {
+			if (LIKELY(flags >= 0)) {
 				flags |= O_ASYNC;
 				VOID_RET(int, fcntl(sockfd, F_SETFD, flags));
 			}
 		}
 #endif
 		ret = fcntl(sockfd, F_SETOWN, getpid());
-		if (ret < 0) {
+		if (UNLIKELY(ret < 0)) {
 			pr_fail("fcntl F_SETOWN, failed, errno=%d (%s)\n",
 				errno, strerror(errno));
 			(void)close(sockfd);
@@ -162,7 +162,7 @@ retry:
 			int atmark;
 
 			ret = ioctl(sockfd, SIOCATMARK, &atmark);
-			if (ret < 0) {
+			if (UNLIKELY(ret < 0)) {
 				pr_fail("ioctl failed, errno=%d (%s)\n",
 					errno, strerror(errno));
 				(void)close(sockfd);
