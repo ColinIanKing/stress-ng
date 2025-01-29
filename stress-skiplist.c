@@ -246,7 +246,7 @@ static int OPTIMIZE3 stress_skiplist(stress_args_t *args)
 		for (i = 0; i < n; i++) {
 			const unsigned long int v = (i >> 1) ^ i;
 
-			if (!skip_list_insert(&list, v)) {
+			if (UNLIKELY(!skip_list_insert(&list, v))) {
 				pr_inf("%s: out of memory initializing the skip list\n",
 					args->name);
 				skip_list_free(&list);
@@ -257,7 +257,7 @@ static int OPTIMIZE3 stress_skiplist(stress_args_t *args)
 		for (i = 0; i < n; i++) {
 			const unsigned long int v = (i >> 1) ^ i;
 
-			if (!skip_list_search(&list, v)) {
+			if (UNLIKELY(!skip_list_search(&list, v))) {
 				pr_fail("%s node containing value %lu was not found\n",
 					args->name, v);
 				rc = EXIT_FAILURE;
