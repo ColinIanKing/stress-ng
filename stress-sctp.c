@@ -115,7 +115,7 @@ static const stress_opt_t opts[] = {
 							\
 	ret = getsockopt(fd, IPPROTO_SCTP, opt,		\
 		 &info, &opt_len);			\
-	if (ret == 0) {					\
+	if (LIKELY(ret == 0)) {				\
 		VOID_RET(int, setsockopt(fd,		\
 			IPPROTO_SCTP, opt, &info,	\
 			opt_len));			\
@@ -362,7 +362,7 @@ static int OPTIMIZE3 stress_sctp_client(
 		struct sctp_event_subscribe events;
 #endif
 retry:
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			return EXIT_FAILURE;
 		fd = socket(sctp_domain, SOCK_STREAM, IPPROTO_SCTP);
 		if (UNLIKELY(fd < 0)) {
@@ -389,7 +389,7 @@ retry:
 			(void)close(fd);
 			(void)shim_usleep(10000);
 			retries++;
-			if (retries > 100) {
+			if (UNLIKELY(retries > 100)) {
 				/* Give up.. */
 				pr_fail("%s: connect failed after 100 retries, errno=%d (%s)\n",
 					args->name, save_errno, strerror(save_errno));
