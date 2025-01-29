@@ -168,13 +168,13 @@ static int stress_set(stress_args_t *args)
 
 		/* setsid will fail, ignore return */
 		VOID_RET(pid_t, setsid());
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			break;
 
 		/* getgid always succeeds */
 		gid = getgid();
 		VOID_RET(int, setgid(gid));
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			break;
 
 		if (*longname) {
@@ -202,7 +202,7 @@ static int stress_set(stress_args_t *args)
 					VOID_RET(int, setpgid(bad_pid, bad_pid));
 				}
 				VOID_RET(int, setpgid(mypid, pid));
-				if (!stress_continue(args))
+				if (UNLIKELY(!stress_continue(args)))
 					break;
 			}
 		}
@@ -219,10 +219,12 @@ static int stress_set(stress_args_t *args)
 			ret = gettimeofday(&tv, &tz);
 			if (ret == 0) {
 				ret = settimeofday(&tv, &tz);
-				if (ret != -EPERM) {
-					pr_fail("%s: settimeofday failed, did not have privilege to "
-						"set time, expected -EPERM, instead got errno=%d (%s)\n",
-						args->name, errno, strerror(errno));
+				if (ret < 0) {
+					if (UNLIKELY((errno != EPERM) && (errno != EINVAL))) {
+						pr_fail("%s: settimeofday failed, could not "
+							"set time, errno=%d (%s)\n",
+							args->name, errno, strerror(errno));
+					}
 				}
 				/*
 				 *  exercise bogus times west tz, possibly undefined behaviour but
@@ -245,7 +247,7 @@ static int stress_set(stress_args_t *args)
 			pid = getpgrp();
 			if (pid != -1) {
 				VOID_RET(int, setpgrp());
-				if (!stress_continue(args))
+				if (UNLIKELY(!stress_continue(args)))
 					break;
 			}
 		}
@@ -256,7 +258,7 @@ static int stress_set(stress_args_t *args)
 		/* getuid always succeeds */
 		uid = getuid();
 		VOID_RET(int, setuid(uid));
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			break;
 
 #if defined(HAVE_GRP_H)
@@ -479,7 +481,7 @@ static int stress_set(stress_args_t *args)
 				/* Set name back */
 				VOID_RET(int, shim_setdomainname(name, strlen(name)));
 			}
-			if (!stress_continue(args))
+			if (UNLIKELY(!stress_continue(args)))
 				break;
 		}
 #else
