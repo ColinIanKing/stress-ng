@@ -140,7 +140,7 @@ static int OPTIMIZE3 stress_shellsort(stress_args_t *args)
 			register size_t i;
 
 			for (ptr = data, i = 0; i < n - 1; i++, ptr++) {
-				if (*ptr > *(ptr + 1)) {
+				if (UNLIKELY(*ptr > *(ptr + 1))) {
 					pr_fail("%s: sort error "
 						"detected, incorrect ordering "
 						"found\n", args->name);
@@ -164,7 +164,7 @@ static int OPTIMIZE3 stress_shellsort(stress_args_t *args)
 			register size_t i;
 
 			for (ptr = data, i = 0; i < n - 1; i++, ptr++) {
-				if (*ptr < *(ptr + 1)) {
+				if (UNLIKELY(*ptr < *(ptr + 1))) {
 					pr_fail("%s: reverse sort "
 						"error detected, incorrect "
 						"ordering found\n", args->name);
@@ -192,7 +192,7 @@ static int OPTIMIZE3 stress_shellsort(stress_args_t *args)
 			register size_t i;
 
 			for (ptr = data, i = 0; i < n - 1; i++, ptr++) {
-				if (*ptr < *(ptr + 1)) {
+				if (UNLIKELY(*ptr < *(ptr + 1))) {
 					pr_fail("%s: reverse sort "
 						"error detected, incorrect "
 						"ordering found\n", args->name);
