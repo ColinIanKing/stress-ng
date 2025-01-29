@@ -73,8 +73,8 @@ static bool stress_secretmem_unmap(
 
 	for (i = 0; i < n; i++) {
 		if (mappings[i]) {
-			if ((stress_munmap_retry_enomem((void *)mappings[i], page_size) == 0) &&
-			    (stress_munmap_retry_enomem((void *)(mappings[i] + page_size2), page_size) == 0)) {
+			if (LIKELY((stress_munmap_retry_enomem((void *)mappings[i], page_size) == 0) &&
+				   (stress_munmap_retry_enomem((void *)(mappings[i] + page_size2), page_size) == 0))) {
 				mappings[i] = NULL;
 			} else {
 				/* munmap failed, e.g. ENOMEM, so flag it */
@@ -99,7 +99,7 @@ static int stress_secretmem_child(stress_args_t *args, void *context)
 	(void)context;
 
 	mappings = (uint8_t **)calloc(MMAP_MAX, sizeof(*mappings));
-	if (!mappings) {
+	if (UNLIKELY(!mappings)) {
 		pr_fail("%s: calloc failed, out of memory\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
@@ -124,21 +124,21 @@ static int stress_secretmem_child(stress_args_t *args, void *context)
 		for (n = 0; stress_continue_flag() && (n < MMAP_MAX); n++) {
 			const off_t offset = sz;
 
-			if (!stress_continue(args))
+			if (UNLIKELY(!stress_continue(args)))
 				break;
 
 			sz += page_size3;
 
 			/* expand secret memory size */
-			if (ftruncate(fd, sz) != 0)
+			if (UNLIKELY(ftruncate(fd, sz) != 0))
 				break;
 
-			if ((g_opt_flags & OPT_FLAGS_OOM_AVOID) && stress_low_memory(page_size3))
+			if (UNLIKELY((g_opt_flags & OPT_FLAGS_OOM_AVOID) && stress_low_memory(page_size3)))
 				break;
 
 			mappings[n] = (uint8_t *)mmap(NULL, page_size3,
 				PROT_READ | PROT_WRITE, MAP_SHARED, fd, offset);
-			if (mappings[n] == MAP_FAILED) {
+			if (UNLIKELY(mappings[n] == MAP_FAILED)) {
 				mappings[n] = NULL;
 				break;
 			}
@@ -153,7 +153,7 @@ static int stress_secretmem_child(stress_args_t *args, void *context)
 			/*
 			 *  Make an hole in the 3 page mapping on middle page
 			 */
-			if (stress_munmap_retry_enomem((void *)(mappings[n] + page_size), page_size) < 0) {
+			if (UNLIKELY(stress_munmap_retry_enomem((void *)(mappings[n] + page_size), page_size) < 0)) {
 				/* Failed?, remember to retry later */
 				redo_unmapping = mappings[n];
 				break;
