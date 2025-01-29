@@ -147,7 +147,7 @@ static int stress_sigbus(stress_args_t *args)
 		}
 		/* Some systems generate SIGSEGV rather than SIGBUS.. */
 		ret = sigaction(SIGSEGV, &action, NULL);
-		if (ret < 0) {
+		if (UNLIKELY(ret < 0)) {
 			pr_fail("%s: sigaction SIGSEGV: errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			goto tidy_mmap;
@@ -158,7 +158,7 @@ static int stress_sigbus(stress_args_t *args)
 		 * We return here if we get a SIGBUS, so
 		 * first check if we need to terminate
 		 */
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			break;
 
 		if (ret) {
@@ -169,10 +169,10 @@ static int stress_sigbus(stress_args_t *args)
 					args->name, (volatile void *)expected_addr, fault_addr);
 			}
 			/* We may also have SIGSEGV on some system as well as SIGBUS */
-			if (verify &&
-			    (signo != -1) &&
-			    (signo != SIGBUS) &&
-			    (signo != SIGSEGV)) {
+			if (UNLIKELY(verify &&
+				     (signo != -1) &&
+				     (signo != SIGBUS) &&
+				     (signo != SIGSEGV))) {
 				pr_fail("%s: expecting SIGBUS, got %s instead\n",
 					args->name, strsignal(signo));
 			}
