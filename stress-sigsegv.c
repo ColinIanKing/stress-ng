@@ -196,7 +196,7 @@ static void stress_sigsegv_misaligned128nt(void)
 static void stress_sigsegv_readtsc(void)
 {
 	/* SEGV reading tsc when tsc is not allowed */
-	if (prctl(PR_SET_TSC, PR_TSC_SIGSEGV, 0, 0, 0) == 0)
+	if (LIKELY(prctl(PR_SET_TSC, PR_TSC_SIGSEGV, 0, 0, 0) == 0))
 		(void)stress_asm_x86_rdtsc();
 }
 
@@ -226,7 +226,7 @@ static void stress_sigsegv_vdso(void)
 	const uintptr_t vdso = (uintptr_t)getauxval(AT_SYSINFO_EHDR);
 
 	/* No vdso, don't bother */
-	if (!vdso)
+	if (UNLIKELY(!vdso))
 		return;
 
 #if defined(HAVE_CLOCK_GETTIME) &&	\
@@ -348,19 +348,19 @@ static int stress_sigsegv(stress_args_t *args)
 		action.sa_flags = SA_SIGINFO;
 #endif
 		ret = sigaction(SIGSEGV, &action, NULL);
-		if (ret < 0) {
+		if (UNLIKELY(ret < 0)) {
 			pr_fail("%s: sigaction SIGSEGV: errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			goto tidy;
 		}
 		ret = sigaction(SIGILL, &action, NULL);
-		if (ret < 0) {
+		if (UNLIKELY(ret < 0)) {
 			pr_fail("%s: sigaction SIGILL: errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			goto tidy;
 		}
 		ret = sigaction(SIGBUS, &action, NULL);
-		if (ret < 0) {
+		if (UNLIKELY(ret < 0)) {
 			pr_fail("%s: sigaction SIGBUS: errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			goto tidy;
@@ -371,31 +371,31 @@ static int stress_sigsegv(stress_args_t *args)
 		 * We return here if we segfault, so
 		 * first check if we need to terminate
 		 */
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			break;
 
 		if (ret) {
 			/* Signal was tripped */
 #if defined(SA_SIGINFO)
-			if (verify && expected_addr && fault_addr &&
-				(fault_addr < expected_addr) &&
-				(fault_addr > (expected_addr + 8))) {
+			if (UNLIKELY(verify && expected_addr && fault_addr &&
+				     (fault_addr < expected_addr) &&
+				     (fault_addr > (expected_addr + 8)))) {
 				pr_fail("%s: expecting fault address %p, got %p instead\n",
 					args->name, (volatile void *)expected_addr, fault_addr);
 			}
-			if (verify &&
-			    (signo != -1) &&
-			    (signo != SIGSEGV) &&
-			    (signo != SIGILL) &&
-			    (signo != SIGBUS)) {
+			if (UNLIKELY((verify &&
+				     (signo != -1) &&
+				     (signo != SIGSEGV) &&
+				     (signo != SIGILL) &&
+				     (signo != SIGBUS)))) {
 				pr_fail("%s: expecting SIGSEGV/SIGILL/SIGBUS, got %s instead\n",
 					args->name, strsignal(signo));
 			}
 #if defined(BUS_OBJERR) &&	\
     defined(BUS_ADRERR)
-			if (verify && (signo == SIGBUS) &&
-				      (code != BUS_OBJERR) &&
-				      (code != BUS_ADRERR)) {
+			if (UNLIKELY((verify && (signo == SIGBUS) &&
+				     (code != BUS_OBJERR) &&
+				     (code != BUS_ADRERR)))) {
 				pr_fail("%s: expecting SIGBUS si_code BUS_OBJERR (%d) "
 					"or BUS_ADRERR (%d), got %d instead\n",
 					args->name, BUS_OBJERR, BUS_ADRERR, code);
@@ -411,7 +411,7 @@ static int stress_sigsegv(stress_args_t *args)
 			expected_addr = NULL;
 #endif
 retry:
-			if (!stress_continue(args))
+			if (UNLIKELY(!stress_continue(args)))
 				break;
 			switch (stress_mwc8modn(11)) {
 #if defined(HAVE_SIGSEGV_X86_TRAP)
