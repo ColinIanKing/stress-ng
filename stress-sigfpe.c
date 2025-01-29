@@ -330,8 +330,8 @@ static int stress_sigfpe(stress_args_t *args)
 #if defined(STRESS_CHECK_SIGINFO)
 			if (verify) {
 				if (signum == SIGFPE) {
-					if ((siginfo.si_code >= 0) &&
-				            (siginfo.si_code != expected_err_code)) {
+					if (UNLIKELY((siginfo.si_code >= 0) &&
+						     (siginfo.si_code != expected_err_code))) {
 						pr_fail("%s: got SIGFPE error %d (%s), expecting %d (%s)\n",
 							args->name,
 							siginfo.si_code, stress_sigfpe_errstr(siginfo.si_code),
@@ -377,7 +377,7 @@ static int stress_sigfpe(stress_args_t *args)
 			}
 		}
 		i++;
-		if (i >= (int)SIZEOF_ARRAY(fpe_errs))
+		if (UNLIKELY(i >= (int)SIZEOF_ARRAY(fpe_errs)))
 			i = 0;
 	}
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
