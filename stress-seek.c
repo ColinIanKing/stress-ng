@@ -148,14 +148,14 @@ static int stress_seek(stress_args_t *args)
 		ssize_t rwret;
 
 		offset = (off_t)stress_mwc64modn(len);
-		if (stress_shim_lseek(fd, (off_t)offset, SEEK_SET) < 0) {
+		if (UNLIKELY(stress_shim_lseek(fd, (off_t)offset, SEEK_SET) < 0)) {
 			pr_fail("%s: lseek failed, errno=%d (%s)%s\n",
 				args->name, errno, strerror(errno), fs_type);
 			rc = EXIT_FAILURE;
 			goto close_finish;
 		}
 re_write:
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 		rwret = write(fd, buf, sizeof(buf));
 		if (UNLIKELY(rwret <= 0)) {
