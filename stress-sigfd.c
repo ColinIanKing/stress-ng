@@ -136,7 +136,7 @@ again:
 
 			s.sival_int = val++;
 			ret = sigqueue(ppid, SIGRTMIN, s);
-			if ((ret < 0) && (errno != EAGAIN))
+			if (UNLIKELY((ret < 0) && (errno != EAGAIN)))
 				break;
 		}
 		(void)close(sfd);
