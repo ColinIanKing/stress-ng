@@ -91,7 +91,7 @@ static int stress_sigxfsz(stress_args_t *args)
 
 		limit.rlim_cur = stress_mwc32modn(max_sz);
 		if (setrlimit(RLIMIT_FSIZE, &limit) < 0) {
-			if (errno == EINVAL) {
+			if (LIKELY(errno == EINVAL)) {
 				max_sz >>= 1;
 				if (max_sz > 512)
 					continue;
@@ -104,7 +104,7 @@ static int stress_sigxfsz(stress_args_t *args)
 #if defined(HAVE_PWRITE)
 		wret = pwrite(fd, buffer, sizeof(buffer), (off_t)limit.rlim_cur);
 #else
-		if (lseek(fd, (off_t)limit.rlim_cur, SEEK_SET) < 0) {
+		if (UNLIKELY(lseek(fd, (off_t)limit.rlim_cur, SEEK_SET) < 0)) {
 			pr_inf("%s: seek to start of file failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			rc = EXIT_FAILURE;
