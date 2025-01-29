@@ -117,13 +117,13 @@ static void OPTIMIZE3 *stress_sem_thrash(void *arg)
 			}
 do_semwait:
 			j++;
-			if (j >= 3)
+			if (UNLIKELY(j >= 3))
 				j = 0;
 
 			switch (j) {
 			case 0:
 				/* Attempt a try wait */
-				if (sem_trywait(sem) < 0) {
+				if (UNLIKELY(sem_trywait(sem) < 0)) {
 					if (LIKELY(errno == EAGAIN))
 						goto do_semwait;
 					if (UNLIKELY(errno != EINTR))
@@ -147,7 +147,7 @@ do_semwait:
 					ts.tv_sec++;
 				}
 
-				if (sem_timedwait(sem, &ts) < 0) {
+				if (UNLIKELY(sem_timedwait(sem, &ts) < 0)) {
 					if (LIKELY(errno == EAGAIN ||
 						   errno == ETIMEDOUT ||
 						   errno == EINVAL))
