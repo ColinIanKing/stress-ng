@@ -195,15 +195,15 @@ static int stress_sigill(stress_args_t *args)
 		 * We return here if we get a SIGILL, so
 		 * first check if we need to terminate
 		 */
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			break;
 
 		if (ret) {
 			/* Signal was tripped */
 #if defined(SA_SIGINFO)
-			if (verify &&
-			    (signo != -1) &&
-			    (signo != SIGILL)) {
+			if (UNLIKELY(verify &&
+				     (signo != -1) &&
+				     (signo != SIGILL))) {
 				pr_fail("%s: expecting SIGILL, got %s instead\n",
 					args->name, strsignal(signo));
 			}
@@ -264,7 +264,7 @@ static int stress_sigill(stress_args_t *args)
 		action.sa_flags = SA_SIGINFO;
 #endif
 		ret = sigaction(SIGILL, &action, NULL);
-		if (ret < 0) {
+		if (UNLIKELY(ret < 0)) {
 			pr_fail("%s: sigaction SIGILL: errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			break;
