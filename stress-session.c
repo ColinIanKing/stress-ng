@@ -85,7 +85,7 @@ static int stress_session_set_and_get(stress_args_t *args, const int fd)
 	pid_t sid, gsid;
 
 	sid = setsid();
-	if (sid == (pid_t)-1) {
+	if (UNLIKELY(sid == (pid_t)-1)) {
 		stress_session_return_status(fd, errno, STRESS_SESSION_SETSID_FAILED);
 		pr_inf("%s: setsid failed: errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
@@ -93,14 +93,14 @@ static int stress_session_set_and_get(stress_args_t *args, const int fd)
 	}
 
 	gsid = getsid(getpid());
-	if (gsid == (pid_t)-1) {
+	if (UNLIKELY(gsid == (pid_t)-1)) {
 		stress_session_return_status(fd, errno, STRESS_SESSION_GETSID_FAILED);
 		pr_inf("%s: getsid failed: errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return STRESS_SESSION_GETSID_FAILED;
 	}
 
-	if (gsid != sid) {
+	if (UNLIKELY(gsid != sid)) {
 		stress_session_return_status(fd, errno, STRESS_SESSION_WRONGSID_FAILED);
 		pr_inf("%s getsid failed, got session ID %d, expected %d\n",
 			args->name, (int)gsid, (int)sid);
@@ -156,7 +156,7 @@ static int stress_session_child(stress_args_t *args, const int fd)
 			ret = shim_waitpid(pid, &status, 0);
 #endif
 			if (ret < 0) {
-				if ((errno != EINTR) && (errno == ECHILD)) {
+				if (UNLIKELY((errno != EINTR) && (errno == ECHILD))) {
 					stress_session_return_status(fd, errno, STRESS_SESSION_WAITPID_FAILED);
 					return STRESS_SESSION_WAITPID_FAILED;
 				}
