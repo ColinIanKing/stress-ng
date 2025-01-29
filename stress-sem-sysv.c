@@ -144,7 +144,7 @@ static void stress_semaphore_sysv_get_procinfo(bool *get_procinfo)
 		char buffer[1024];
 
 		ret = read(fd, buffer, sizeof(buffer));
-		if (ret <= 0)
+		if (UNLIKELY(ret <= 0))
 			break;
 	}
 	(void)close(fd);
@@ -224,7 +224,7 @@ static int OPTIMIZE3 stress_semaphore_sysv_thrash(
 				timeout.tv_sec = 1;
 				timeout.tv_nsec = 0;
 				ret = semtimedop(sem_id, &semwait, 1, &timeout);
-				if ((ret < 0) && ((errno == ENOSYS) || (errno == EINVAL))) {
+				if (UNLIKELY((ret < 0) && ((errno == ENOSYS) || (errno == EINVAL)))) {
 					got_semtimedop = false;
 					ret = semop(sem_id, &semwait, 1);
 				}
