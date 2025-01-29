@@ -145,7 +145,7 @@ static int stress_smi_count(const int cpus, uint64_t *count)
 		int ret;
 
 		ret = stress_x86_readmsr64(i, MSR_SMI_COUNT, &val);
-		if (ret < 0)
+		if (UNLIKELY(ret < 0))
 			return -1;
 		*count += val;
 	}
@@ -225,7 +225,7 @@ static int stress_smi(stress_args_t *args)
 
 		/* check for register clobbering */
 		for (i = 0; i < SIZEOF_ARRAY(r1.regs); i++) {
-			if (r1.regs[i] != r2.regs[i]) {
+			if (UNLIKELY(r1.regs[i] != r2.regs[i])) {
 				pr_fail("%s: register %s, before SMI: %" PRIx64 ", after SMI: %" PRIx64 "\n",
 					args->name, reg_names[i],
 					r1.regs[i], r2.regs[i]);
