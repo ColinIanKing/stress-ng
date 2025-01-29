@@ -107,7 +107,7 @@ static int stress_schedpolicy(stress_args_t *args)
 		new_policy = stress_sched_types[policy].sched;
 		new_policy_name = stress_sched_types[policy].sched_name;
 
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			break;
 
 		(void)shim_sched_yield();
@@ -191,7 +191,7 @@ case_sched_fifo:
 			max_prio = sched_get_priority_max(new_policy);
 
 			/* Check if min/max is supported or not */
-			if ((min_prio == -1) || (max_prio == -1))
+			if (UNLIKELY((min_prio == -1) || (max_prio == -1)))
 				continue;
 
 			rng_prio = max_prio - min_prio;
@@ -217,11 +217,11 @@ case_sched_fifo:
 			 *  scheduling policies, silently ignore these
 			 *  failures.
 			 */
-			if ((errno != EPERM) &&
-			    (errno != EINVAL) &&
-			    (errno != EINTR) &&
-			    (errno != ENOSYS) &&
-			    (errno != EBUSY)) {
+			if (UNLIKELY((errno != EPERM) &&
+				     (errno != EINVAL) &&
+				     (errno != EINTR) &&
+				     (errno != ENOSYS) &&
+				     (errno != EBUSY))) {
 				pr_fail("%s: sched_setscheduler "
 					"failed: errno=%d (%s) "
 					"for scheduler policy %s\n",
@@ -235,7 +235,7 @@ case_sched_fifo:
 			if (UNLIKELY(ret < 0)) {
 				pr_fail("%s: sched_getscheduler failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
-			} else if (ret != stress_sched_types[policy].sched) {
+			} else if (UNLIKELY(ret != stress_sched_types[policy].sched)) {
 				pr_fail("%s: sched_getscheduler "
 					"failed: PID %" PRIdMAX " has policy %d (%s) "
 					"but function returned %d (%s) instead\n",
@@ -383,7 +383,7 @@ case_sched_fifo:
 
 		attr.size = sizeof(attr);
 		ret = shim_sched_setattr(pid, &attr, 0);
-		if (ret < 0) {
+		if (UNLIKELY(ret < 0)) {
 			if (errno != ENOSYS) {
 				pr_fail("%s: sched_setattr failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
@@ -406,7 +406,7 @@ case_sched_fifo:
 		UNEXPECTED
 #endif
 		policy++;
-		if (policy >= (int)stress_sched_types_length)
+		if (UNLIKELY(policy >= (int)stress_sched_types_length))
 			policy = 0;
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
