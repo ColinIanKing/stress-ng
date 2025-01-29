@@ -173,7 +173,7 @@ PRAGMA_UNROLL_N(4)
 
 PRAGMA_UNROLL_N(4)
 	for (val = 0, ptr = buf; ptr < end; ptr += page_size, val++) {
-		if (*ptr != val)
+		if (UNLIKELY(*ptr != val))
 			return -1;
 
 	}
@@ -195,12 +195,12 @@ static void exercise_shmat(
 
 	/* Exercise shmat syscall on invalid shm_id */
 	addr = shmat(-1, NULL, 0);
-	if (addr != (void *)-1)
+	if (UNLIKELY(addr != (void *)-1))
 		(void)shmdt(addr);
 
 	/* Exercise shmat syscall on invalid flags */
 	addr = shmat(shm_id, NULL, ~0);
-	if (addr != (void *)-1)
+	if (UNLIKELY(addr != (void *)-1))
 		(void)shmdt(addr);
 
 	/* Exercise valid shmat with all possible values of flags */
@@ -231,6 +231,7 @@ static void exercise_shmat(
 		if (addr != (void *)-1) {
 			/* Exercise remap onto itself */
 			void *remap = shmat(shm_id, addr, SHM_REMAP | SHM_RDONLY);
+
 			if (remap != (void *)-1)
 				(void)shmdt(remap);
 			if (addr != remap)
@@ -247,7 +248,7 @@ static void exercise_shmat(
 #if defined(SHM_RND)
 	addr = mmap(NULL, sz, PROT_READ,
 		    MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
-	if (addr != MAP_FAILED) {
+	if (LIKELY(addr != MAP_FAILED)) {
 		(void)munmap(addr, sz);
 		addr = shmat(shm_id, addr, SHM_RND);
 		if (addr != (void *)-1)
@@ -260,9 +261,8 @@ static void exercise_shmat(
 	/* Exercise shmat with SHM_REMAP flag on NULL address */
 #if defined(SHM_REMAP)
 	addr = shmat(shm_id, NULL, SHM_REMAP);
-	if (addr != (void *)-1) {
+	if (addr != (void *)-1)
 		(void)shmdt(addr);
-	}
 #else
 	UNEXPECTED
 #endif
@@ -355,7 +355,7 @@ static void exercise_shmctl(const size_t sz, stress_args_t *args)
 		int ret;
 
 		ret = shmctl(shm_id, IPC_STAT, &buf);
-		if ((ret >= 0) && (errno == 0))
+		if (UNLIKELY((ret >= 0) && (errno == 0)))
 			pr_fail("%s: shmctl IPC_STAT unexpectedly succeeded on non-existent shared "
 				"memory segment, errno=%d (%s)\n", args->name, errno, strerror(errno));
 	}
@@ -389,7 +389,7 @@ static void exercise_shmget(const size_t sz, const char *name)
 		 * existing shared memory segment and IPC_EXCL flag
 		 */
 		shm_id2 = shmget(key, sz, IPC_CREAT | IPC_EXCL);
-		if ((shm_id2 >= 0) && (errno == 0)) {
+		if (UNLIKELY((shm_id2 >= 0) && (errno == 0))) {
 			pr_fail("%s: shmget IPC_CREAT unexpectedly succeeded and re-created "
 				"shared memory segment even with IPC_EXCL flag "
 				"specified, errno=%d (%s)\n", name, errno, strerror(errno));
@@ -401,7 +401,7 @@ static void exercise_shmget(const size_t sz, const char *name)
 		 * existing shared memory segment but of greater size
 		 */
 		shm_id2 = shmget(key, sz + (1024 * 1024), IPC_CREAT);
-		if ((shm_id2 >= 0) && (errno == 0)) {
+		if (UNLIKELY((shm_id2 >= 0) && (errno == 0))) {
 			pr_fail("%s: shmget IPC_CREAT unexpectedly succeeded and again "
 				"created shared memory segment with a greater "
 				"size, errno=%d (%s)\n", name, errno, strerror(errno));
@@ -414,7 +414,7 @@ static void exercise_shmget(const size_t sz, const char *name)
     /* Exercise shmget on invalid sizes argument*/
 #if defined(SHMMIN)
 	shm_id = shmget(key, SHMMIN - 1, IPC_CREAT);
-	if ((SHMMIN > 0) && (shm_id >= 0)) {
+	if (UNLIKELY((SHMMIN > 0) && (shm_id >= 0))) {
 		pr_fail("%s: shmget IPC_CREAT unexpectedly succeeded on invalid value of"
 			"size argument, errno=%d (%s)\n", name, errno, strerror(errno));
 		(void)shmctl(shm_id, IPC_RMID, NULL);
@@ -425,7 +425,7 @@ static void exercise_shmget(const size_t sz, const char *name)
 
 #if defined(SHMMAX)
 	shm_id = shmget(key, SHMMAX + 1, IPC_CREAT);
-	if ((SHMMAX < ~(size_t)0) && (shm_id >= 0)) {
+	if (UNLIKELY((SHMMAX < ~(size_t)0) && (shm_id >= 0))) {
 		pr_fail("%s: shmget IPC_CREAT unexpectedly succeeded on invalid value of"
 			"size argument, errno=%d (%s)\n", name, errno, strerror(errno));
 		(void)shmctl(shm_id, IPC_RMID, NULL);
@@ -442,7 +442,7 @@ static void exercise_shmget(const size_t sz, const char *name)
 				shmmax++;
 				if (shmmax > 0) {
 					shm_id = shmget(key, shmmax, IPC_CREAT);
-					if (shm_id >= 0) {
+					if (UNLIKELY(shm_id >= 0)) {
 						pr_fail("%s: shmget IPC_CREAT unexpectedly succeeded on "
 							"invalid value %zu of size argument, errno=%d (%s)\n",
 							name, shmmax, errno, strerror(errno));
@@ -470,7 +470,7 @@ static void exercise_shmget(const size_t sz, const char *name)
 #endif
 
 	shm_id = shmget(key, sz, IPC_EXCL);
-	if ((shm_id >= 0) && (errno == 0)) {
+	if (UNLIKELY((shm_id >= 0) && (errno == 0))) {
 		pr_fail("%s: shmget IPC_RMID unexpectedly succeeded on non-existent shared "
 			"memory segment, errno=%d (%s)\n", name, errno, strerror(errno));
 		(void)shmctl(shm_id, IPC_RMID, NULL);
@@ -647,7 +647,7 @@ static int stress_shm_sysv_child(
 					size_t j;
 					unique = true;
 
-					if (!stress_continue_flag())
+					if (UNLIKELY(!stress_continue_flag()))
 						goto reap;
 
 					/* Get a unique random key */
@@ -658,7 +658,7 @@ static int stress_shm_sysv_child(
 							break;
 						}
 					}
-					if (!stress_continue_flag())
+					if (UNLIKELY(!stress_continue_flag()))
 						goto reap;
 				} while (!unique);
 
@@ -666,7 +666,7 @@ static int stress_shm_sysv_child(
 				shm_id = shmget(key, sz,
 					IPC_CREAT | IPC_EXCL |
 					S_IRUSR | S_IWUSR | rnd_flag);
-				if (shm_id >= 0) {
+				if (LIKELY(shm_id >= 0)) {
 					shmget_duration += stress_time_now() - t;
 					shmget_count += 1.0;
 					break;
@@ -685,7 +685,7 @@ static int stress_shm_sysv_child(
 					sz = sz / 2;
 				}
 			}
-			if (shm_id < 0) {
+			if (UNLIKELY(shm_id < 0)) {
 				/* Run out of shm segments, just reap and die */
 				if (errno == ENOSPC) {
 					pr_inf_skip("%s: shmget ran out of free space, "
@@ -710,7 +710,7 @@ static int stress_shm_sysv_child(
 			/* Inform parent of the new shm ID */
 			msg.index = (int)i;
 			msg.shm_id = shm_id;
-			if (write(fd, &msg, sizeof(msg)) < 0) {
+			if (UNLIKELY(write(fd, &msg, sizeof(msg)) < 0)) {
 				pr_err("%s: write failed: errno=%d: (%s)\n",
 					args->name, errno, strerror(errno));
 				rc = EXIT_FAILURE;
@@ -719,7 +719,7 @@ static int stress_shm_sysv_child(
 
 			t = stress_time_now();
 			addr = shmat(shm_id, NULL, 0);
-			if (addr == (char *) -1) {
+			if (UNLIKELY(addr == (char *)-1)) {
 				ok = false;
 				pr_fail("%s: shmat on NULL address failed on id %d, (key=%d, size=%zd), errno=%d (%s)\n",
 					args->name, shm_id, (int)key, sz, errno, strerror(errno));
@@ -734,18 +734,18 @@ static int stress_shm_sysv_child(
 			shm_ids[i] = shm_id;
 			keys[i] = key;
 
-			if (!stress_continue(args))
+			if (UNLIKELY(!stress_continue(args)))
 				goto reap;
 			(void)stress_mincore_touch_pages(addr, sz);
 			(void)shim_msync(addr, sz, stress_mwc1() ? MS_ASYNC : MS_SYNC);
 
-			if (!stress_continue(args))
+			if (UNLIKELY(!stress_continue(args)))
 				goto reap;
 			(void)stress_madvise_random(addr, sz);
 
-			if (!stress_continue(args))
+			if (UNLIKELY(!stress_continue(args)))
 				goto reap;
-			if (stress_shm_sysv_check(addr, sz, page_size) < 0) {
+			if (UNLIKELY(stress_shm_sysv_check(addr, sz, page_size) < 0)) {
 				ok = false;
 				pr_fail("%s: memory check failed\n", args->name);
 				rc = EXIT_FAILURE;
@@ -769,7 +769,7 @@ static int stress_shm_sysv_child(
 			{
 				struct shmid_ds ds;
 
-				if (shmctl(shm_id, IPC_STAT, &ds) < 0)
+				if (UNLIKELY(shmctl(shm_id, IPC_STAT, &ds) < 0))
 					pr_fail("%s: shmctl IPC_STAT failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 #if defined(SHM_SET)
@@ -787,7 +787,7 @@ static int stress_shm_sysv_child(
 			{
 				struct shminfo s;
 
-				if (shmctl(shm_id, IPC_INFO, (struct shmid_ds *)&s) < 0)
+				if (UNLIKELY(shmctl(shm_id, IPC_INFO, (struct shmid_ds *)&s) < 0))
 					pr_fail("%s: shmctl IPC_INFO failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 			}
@@ -799,7 +799,7 @@ static int stress_shm_sysv_child(
 			{
 				struct shm_info s;
 
-				if (shmctl(shm_id, SHM_INFO, (struct shmid_ds *)&s) < 0)
+				if (UNLIKELY(shmctl(shm_id, SHM_INFO, (struct shmid_ds *)&s) < 0))
 					pr_fail("%s: shmctl SHM_INFO failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 			}
@@ -867,7 +867,7 @@ reap:
 				double t;
 
 				t = stress_time_now();
-				if (shmdt(addrs[i]) < 0) {
+				if (UNLIKELY(shmdt(addrs[i]) < 0)) {
 					pr_fail("%s: shmdt failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 				} else {
@@ -877,7 +877,7 @@ reap:
 			}
 			if (shm_ids[i] >= 0) {
 				if (shmctl(shm_ids[i], IPC_RMID, NULL) < 0) {
-					if ((errno != EIDRM) && (errno != EINVAL)) {
+					if (UNLIKELY((errno != EIDRM) && (errno != EINVAL))) {
 						pr_fail("%s: shmctl IPC_RMID failed, errno=%d (%s)\n",
 							args->name, errno, strerror(errno));
 					}
@@ -887,7 +887,7 @@ reap:
 			/* Inform parent shm ID is now free */
 			msg.index = (int)i;
 			msg.shm_id = -1;
-			if (write(fd, &msg, sizeof(msg)) < 0) {
+			if (UNLIKELY(write(fd, &msg, sizeof(msg)) < 0)) {
 				pr_dbg("%s: write failed: errno=%d: (%s)\n",
 					args->name, errno, strerror(errno));
 				ok = false;
