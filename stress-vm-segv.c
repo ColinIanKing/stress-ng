@@ -103,7 +103,7 @@ static int stress_vm_segv(stress_args_t *args)
 		pid_t pid;
 		int fd[2];
 
-		if (pipe(fd) < 0) {
+		if (UNLIKELY(pipe(fd) < 0)) {
 			pr_inf("%s: pipe failed, errno=%d (%s), skipping stressor\n",
 				args->name, errno, strerror(errno));
 			stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
@@ -133,7 +133,7 @@ again:
 
 			/* Parent, wait for child */
 			rret = read(fd[0], &msg, sizeof(msg));
-			if (rret < (ssize_t)sizeof(msg))
+			if (UNLIKELY(rret < (ssize_t)sizeof(msg)))
 				goto kill_child;
 
 			if (msg == MSG_CHILD_STARTED) {
@@ -166,7 +166,7 @@ kill_child:
 			(void)close(fd[0]);
 
 			wret = write(fd[1], &msg, sizeof(msg));
-			if (wret == (ssize_t)sizeof(msg)) {
+			if (LIKELY(wret == (ssize_t)sizeof(msg))) {
 				(void)sigemptyset(&set);
 				(void)sigaddset(&set, SIGSEGV);
 				(void)sigprocmask(SIG_BLOCK, &set, NULL);
