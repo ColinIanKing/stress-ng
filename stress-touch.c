@@ -201,12 +201,12 @@ static void stress_touch_loop(
 		int fd, ret;
 
 		ret = stress_lock_acquire(touch_lock);
-		if (ret)
+		if (UNLIKELY(ret))
 			break;
 		counter = stress_bogo_get(args);
 		stress_bogo_inc(args);
 		ret = stress_lock_release(touch_lock);
-		if (ret)
+		if (UNLIKELY(ret))
 			break;
 		(void)stress_temp_filename_args(args, filename,
 			sizeof(filename), counter);
@@ -227,7 +227,7 @@ static void stress_touch_loop(
 			break;
 		}
 
-		if (fd < 0) {
+		if (UNLIKELY(fd < 0)) {
 			switch (errno) {
 #if defined(EEXIST)
 			case EEXIST:
