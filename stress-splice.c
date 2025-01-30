@@ -134,7 +134,7 @@ static void stress_splice_looped_pipe(
 {
 	ssize_t ret;
 
-	if (!*use_splice_loop)
+	if (UNLIKELY(!*use_splice_loop))
 		return;
 
 	ret = splice(fds3[0], 0, fds4[1], 0, 4096, stress_splice_flag());
