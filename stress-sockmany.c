@@ -133,7 +133,7 @@ retry:
 
 				(void)shim_usleep(10000);
 				retries++;
-				if (retries > 100) {
+				if (UNLIKELY(retries > 100)) {
 					/* Give up.. */
 					stress_sockmany_cleanup(fds, i);
 					pr_fail("%s: connect failed, errno=%d (%s)\n",
