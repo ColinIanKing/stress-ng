@@ -2386,7 +2386,7 @@ static void hash_table_add(
 {
 	stress_syscall_arg_hash_t *h;
 
-	if (hash_table->index >= HASH_TABLE_POOL_SIZE)
+	if (UNLIKELY(hash_table->index >= HASH_TABLE_POOL_SIZE))
 		return;
 	h = &hash_table->pool[hash_table->index];
 	h->hash = hash;
@@ -2477,7 +2477,7 @@ static void syscall_permute(
 	unsigned long int rnd_values[4];
 	size_t num_values = 0;
 
-	if (stress_time_now() > args->time_end)
+	if (UNLIKELY(stress_time_now() > args->time_end))
 		_exit(EXIT_SUCCESS);
 
 	if (arg_num >= stress_syscall_arg->num_args) {
@@ -2615,7 +2615,7 @@ timed_out:
 	/*
 	 *  This should not fail!
 	 */
-	if (!num_values) {
+	if (UNLIKELY(!num_values)) {
 		pr_dbg("%s: argument %d has bad bitmask %lx\n", args->name, arg_num, arg_bitmask);
 		current_context->args[arg_num] = 0;
 		return;
@@ -2643,7 +2643,7 @@ static inline int stress_do_syscall(stress_args_t *args)
 
 	(void)stress_mwc32();
 
-	if (!stress_continue_flag())
+	if (UNLIKELY(!stress_continue_flag()))
 		return 0;
 
 	if (stress_drop_capabilities(args->name) < 0)
@@ -2666,11 +2666,11 @@ static inline int stress_do_syscall(stress_args_t *args)
 			_exit(EXIT_NO_RESOURCE);
 		}
 		for (i = 0; i < SIZEOF_ARRAY(sigs); i++) {
-			if (stress_sighandler(args->name, sigs[i], stress_sig_handler_exit, NULL) < 0)
+			if (UNLIKELY(stress_sighandler(args->name, sigs[i], stress_sig_handler_exit, NULL) < 0))
 				_exit(EXIT_FAILURE);
 		}
 
-		if (stress_sighandler(args->name, SIGALRM, stress_syscall_itimer_handler, NULL) < 0)
+		if (UNLIKELY(stress_sighandler(args->name, SIGALRM, stress_syscall_itimer_handler, NULL) < 0))
 			_exit(EXIT_FAILURE);
 
 		stress_parent_died_alarm();
@@ -2743,7 +2743,7 @@ static inline int stress_do_syscall(stress_args_t *args)
 				current_context->args,
 				SYSCALL_CRASH);
 
-			if (idx < SYSCALL_ARGS_SIZE)
+			if (LIKELY(idx < SYSCALL_ARGS_SIZE))
 				current_context->crash_count[idx]++;
 		}
 		rc = WEXITSTATUS(status);
@@ -2787,7 +2787,7 @@ static int stress_sysinval(stress_args_t *args)
 	 *  Run-time sanity check of zero syscalls, maybe __NR or SYS_ is not
 	 *  defined.
 	 */
-	if (SYSCALL_ARGS_SIZE == (0)) {
+	if (UNLIKELY(SYSCALL_ARGS_SIZE == (0))) {
 		if (args->instance == 0)
 			pr_inf_skip("%s: no system calls detected during build, skipping stressor\n",
 				args->name);
