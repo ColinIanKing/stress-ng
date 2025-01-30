@@ -83,7 +83,7 @@ static int stress_tsearch(stress_args_t *args)
 
 		/* Step #1, populate tree */
 		for (i = 0; i < n; i++) {
-			if (tsearch(&data[i], &root, stress_sort_cmp_fwd_int32) == NULL) {
+			if (UNLIKELY(tsearch(&data[i], &root, stress_sort_cmp_fwd_int32) == NULL)) {
 				size_t j;
 
 				pr_err("%s: cannot allocate new "
@@ -100,7 +100,7 @@ static int stress_tsearch(stress_args_t *args)
 			const void **result = tfind(&data[i], &root, stress_sort_cmp_fwd_int32);
 
 			if (g_opt_flags & OPT_FLAGS_VERIFY) {
-				if (!result) {
+				if (UNLIKELY(!result)) {
 					pr_fail("%s: element %zu could not be found\n",
 						args->name, i);
 					rc = EXIT_FAILURE;
@@ -108,7 +108,7 @@ static int stress_tsearch(stress_args_t *args)
 				} else {
 					const int32_t *val = *result;
 
-					if (*val != data[i]) {
+					if (UNLIKELY(*val != data[i])) {
 						pr_fail("%s: element "
 							"%zu found %" PRIu32
 							", expecting %" PRIu32 "\n",
@@ -127,7 +127,7 @@ static int stress_tsearch(stress_args_t *args)
 		for (i = 0; i < n; i++) {
 			const void **result = tdelete(&data[i], &root, stress_sort_cmp_fwd_int32);
 
-			if ((g_opt_flags & OPT_FLAGS_VERIFY) && (result == NULL)) {
+			if (UNLIKELY((g_opt_flags & OPT_FLAGS_VERIFY) && (result == NULL))) {
 				pr_fail("%s: element %zu could not be found\n",
 					args->name, i);
 				rc = EXIT_FAILURE;
