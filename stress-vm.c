@@ -222,7 +222,7 @@ static inline ALWAYS_INLINE PURE OPTIMIZE3 uint64_t stress_vm_mod(register uint6
  */
 static void stress_vm_check(const char *name, const size_t bit_errors)
 {
-	if (bit_errors && (g_opt_flags & OPT_FLAGS_VERIFY))
+	if (UNLIKELY(bit_errors && (g_opt_flags & OPT_FLAGS_VERIFY)))
 #if INJECT_BIT_ERRORS
 		pr_dbg("%s: detected %zu memory error%s\n",
 			name, bit_errors, bit_errors == 1 ? "" : "s");
@@ -1764,7 +1764,7 @@ static size_t TARGET_CLONES stress_vm_prime_zero(
 
 #if SIZE_MAX > UINT32_MAX
 	/* Unlikely.. */
-	if (sz > (1ULL << 63))
+	if (UNLIKELY(sz > (1ULL << 63)))
 		return 0;
 #endif
 	for (ptr = (uint8_t *)buf + offset; ptr < (uint8_t *)buf_end; ptr += prime)
@@ -1796,7 +1796,7 @@ static size_t TARGET_CLONES stress_vm_prime_zero(
 	stress_vm_check("prime-zero", bit_errors);
 abort:
 	offset++;
-	if (offset >= prime)
+	if (UNLIKELY(offset >= prime))
 		offset = 0;
 	stress_bogo_set(args, c);
 	return bit_errors;
@@ -1824,7 +1824,7 @@ static size_t TARGET_CLONES stress_vm_prime_one(
 
 #if SIZE_MAX > UINT32_MAX
 	/* Unlikely.. */
-	if (sz > (1ULL << 63))
+	if (UNLIKELY(sz > (1ULL << 63)))
 		return 0;
 #endif
 	for (ptr = (uint8_t *)buf + offset; ptr < (uint8_t *)buf_end; ptr += prime)
@@ -1856,7 +1856,7 @@ static size_t TARGET_CLONES stress_vm_prime_one(
 	stress_vm_check("prime-one", bit_errors);
 abort:
 	offset++;
-	if (offset >= prime)
+	if (UNLIKELY(offset >= prime))
 		offset = 0;
 	stress_bogo_set(args, c);
 	return bit_errors;
@@ -1884,7 +1884,7 @@ static size_t TARGET_CLONES stress_vm_prime_gray_zero(
 
 #if SIZE_MAX > UINT32_MAX
 	/* Unlikely.. */
-	if (sz > (1ULL << 63))
+	if (UNLIKELY(sz > (1ULL << 63)))
 		return 0;
 #endif
 	for (ptr = (uint8_t *)buf + offset; ptr < (uint8_t *)buf_end; ptr += prime)
@@ -1916,7 +1916,7 @@ static size_t TARGET_CLONES stress_vm_prime_gray_zero(
 	stress_vm_check("prime-gray-zero", bit_errors);
 abort:
 	offset++;
-	if (offset >= prime)
+	if (UNLIKELY(offset >= prime))
 		offset = 0;
 	stress_bogo_set(args, c);
 	return bit_errors;
@@ -1944,7 +1944,7 @@ static size_t TARGET_CLONES stress_vm_prime_gray_one(
 
 #if SIZE_MAX > UINT32_MAX
 	/* Unlikely.. */
-	if (sz > (1ULL << 63))
+	if (UNLIKELY(sz > (1ULL << 63)))
 		return 0;
 #endif
 	for (ptr = (uint8_t *)buf + offset; ptr < (uint8_t *)buf_end; ptr += prime)
@@ -1976,7 +1976,7 @@ static size_t TARGET_CLONES stress_vm_prime_gray_one(
 	stress_vm_check("prime-gray-one", bit_errors);
 abort:
 	offset++;
-	if (offset >= prime)
+	if (UNLIKELY(offset >= prime))
 		offset = 0;
 	stress_bogo_set(args, c);
 	return bit_errors;
@@ -2297,7 +2297,7 @@ static size_t TARGET_CLONES stress_vm_rowhammer(
 	(void)buf_end;
 	(void)max_ops;
 
-	if (!n) {
+	if (UNLIKELY(!n)) {
 		pr_dbg("stress-vm: rowhammer: zero uint32_t integers could "
 			"be hammered, aborting\n");
 		return 0;
@@ -3214,7 +3214,7 @@ static size_t stress_vm_all(
 
 	bit_errors = vm_methods[i].func(buf, buf_end, sz, args, max_ops);
 	i++;
-	if (i >= SIZEOF_ARRAY(vm_methods))
+	if (UNLIKELY(i >= SIZEOF_ARRAY(vm_methods)))
 		i = 1;
 
 	return bit_errors;
@@ -3277,9 +3277,9 @@ static int stress_vm_child(stress_args_t *args, void *ctxt)
 
 	do {
 		if (!vm_keep || (buf == NULL)) {
-			if (!stress_continue_flag())
+			if (UNLIKELY(!stress_continue_flag()))
 				return EXIT_SUCCESS;
-			if (((g_opt_flags & OPT_FLAGS_OOM_AVOID) && stress_low_memory(buf_sz))) {
+			if (UNLIKELY(((g_opt_flags & OPT_FLAGS_OOM_AVOID) && stress_low_memory(buf_sz)))) {
 				buf = MAP_FAILED;
 				errno = ENOMEM;
 			} else {
@@ -3298,7 +3298,7 @@ static int stress_vm_child(stress_args_t *args, void *ctxt)
 					MAP_PRIVATE | MAP_ANONYMOUS |
 					vm_flags, -1, 0);
 			}
-			if (buf == MAP_FAILED) {
+			if (UNLIKELY(buf == MAP_FAILED)) {
 				buf = NULL;
 				no_mem_retries++;
 				if (no_mem_retries >= NO_MEM_RETRIES_MAX) {
@@ -3330,7 +3330,7 @@ static int stress_vm_child(stress_args_t *args, void *ctxt)
 			else
 				(void)shim_madvise(buf, buf_sz, advice);
 #if defined(HAVE_LINUX_MEMPOLICY_H)
-			if (context->vm_numa)
+			if (UNLIKELY(context->vm_numa))
 				stress_numa_randomize_pages(context->numa_mask, buf, page_size, buf_sz);
 #endif
 		}
