@@ -225,11 +225,11 @@ static void *hash_create(const uint64_t n, const uint32_t x, const uint32_t y)
 	(void)y;
 
 	table = (sparse_hash_table_t *)calloc(1, sizeof(*table));
-	if (!table)
+	if (UNLIKELY(!table))
 		return NULL;
 
 	table->table = (sparse_hash_node_t **)calloc((size_t)n_prime, sizeof(sparse_hash_node_t *));
-	if (!table->table) {
+	if (UNLIKELY(!table->table)) {
 		free(table);
 		return NULL;
 	}
@@ -282,7 +282,7 @@ static int OPTIMIZE3 hash_put(void *handle, const uint32_t x, const uint32_t y, 
 	size_t hash;
 	const uint64_t xy = ((uint64_t)x << 32) | y;
 
-	if (!table)
+	if (UNLIKELY(!table))
 		return -1;
 
 	hash = (((size_t)x << 3) ^ y) % table->n;
@@ -297,7 +297,7 @@ static int OPTIMIZE3 hash_put(void *handle, const uint32_t x, const uint32_t y, 
 
 	/* Not found, allocate and add */
 	node = (sparse_hash_node_t *)malloc(sizeof(*node));
-	if (!node)
+	if (UNLIKELY(!node))
 		return -1;
 	node->value = value;
 	node->next = table->table[hash];
@@ -317,7 +317,7 @@ static sparse_hash_node_t OPTIMIZE3 *hash_get_node(void *handle, const uint32_t 
 	size_t hash;
 	const uint64_t xy = ((uint64_t)x << 32) | y;
 
-	if (!table)
+	if (UNLIKELY(!table))
 		return NULL;
 	hash = (((size_t)x << 3) ^ y) % table->n;
 
@@ -347,7 +347,7 @@ static void OPTIMIZE3 hash_del(void *handle, const uint32_t x, const uint32_t y)
 {
 	sparse_hash_node_t *node = hash_get_node(handle, x, y);
 
-	if (node)
+	if (LIKELY(node != NULL))
 		node->value = 0;
 }
 
@@ -364,16 +364,16 @@ static void *qhash_create(const uint64_t n, const uint32_t x, const uint32_t y)
 	(void)y;
 
 	table = (sparse_qhash_table_t *)calloc(1, sizeof(*table));
-	if (!table)
+	if (UNLIKELY(!table))
 		return NULL;
 
 	table->table = (sparse_qhash_node_t **)calloc((size_t)n_prime, sizeof(sparse_qhash_node_t *));
-	if (!table->table) {
+	if (UNLIKELY(!table->table)) {
 		free(table);
 		return NULL;
 	}
 	table->nodes = (sparse_qhash_node_t *)calloc((size_t)n, sizeof(sparse_qhash_node_t));
-	if (!table->nodes) {
+	if (UNLIKELY(!table->nodes)) {
 		free(table->table);
 		free(table);
 		return NULL;
@@ -395,7 +395,7 @@ static void qhash_destroy(void *handle, size_t *objmem)
 	sparse_qhash_table_t *table = (sparse_qhash_table_t *)handle;
 
 	*objmem = 0;
-	if (!handle)
+	if (UNLIKELY(!handle))
 		return;
 
 	*objmem = sizeof(*table) +
@@ -426,9 +426,9 @@ static int OPTIMIZE3 qhash_put(void *handle, const uint32_t x, const uint32_t y,
 	size_t hash;
 	const uint64_t xy = ((uint64_t)x << 32) | y;
 
-	if (!table)
+	if (UNLIKELY(!table))
 		return -1;
-	if (table->idx >= table->n_nodes)
+	if (UNLIKELY(table->idx >= table->n_nodes))
 		return -1;
 
 	hash = (((size_t)x << 3) ^ y) % table->n;
@@ -461,7 +461,7 @@ static sparse_qhash_node_t OPTIMIZE3 *qhash_get_node(void *handle, const uint32_
 	size_t hash;
 	const uint64_t xy = ((uint64_t)x << 32) | y;
 
-	if (!table)
+	if (UNLIKELY(!table))
 		return NULL;
 	hash = (((size_t)x << 3) ^ y) % table->n;
 
@@ -491,7 +491,7 @@ static void qhash_del(void *handle, const uint32_t x, const uint32_t y)
 {
 	sparse_qhash_node_t *node = qhash_get_node(handle, x, y);
 
-	if (node)
+	if (LIKELY(node != NULL))
 		node->value = 0;
 }
 
@@ -541,7 +541,7 @@ static int OPTIMIZE3 judy_put(void *handle, const uint32_t x, const uint32_t y, 
 	const Word_t idx = ((Word_t)x << 32) | y;
 
 	JLI(pvalue, *(Pvoid_t *)handle, idx);
-	if ((pvalue == NULL) || (pvalue == PJERR))
+	if (UNLIKELY((pvalue == NULL) || (pvalue == PJERR)))
 		return -1;
 
 	*pvalue = value;
@@ -571,7 +571,7 @@ static void judy_del(void *handle, const uint32_t x, const uint32_t y)
 	Word_t *pvalue;
 
 	JLG(pvalue, *(Pvoid_t *)handle, ((Word_t)x << 32) | y);
-	if (pvalue)
+	if (LIKELY(pvalue != NULL))
 		*pvalue = 0;
 }
 #else
@@ -640,7 +640,7 @@ static int OPTIMIZE3 rb_put(void *handle, const uint32_t x, const uint32_t y, co
 
 	node.xy = ((uint64_t)x << 32) | y;
 	found = RB_FIND(sparse_rb_tree, handle, &node);
-	if (!found) {
+	if (LIKELY(!found)) {
 		sparse_rb_t *new_node;
 
 		new_node = (sparse_rb_t *)malloc(sizeof(*new_node));
@@ -667,7 +667,7 @@ static void OPTIMIZE3 rb_del(void *handle, const uint32_t x, const uint32_t y)
 	node.xy = ((uint64_t)x << 32) | y;
 
 	found = RB_FIND(sparse_rb_tree, handle, &node);
-	if (!found)
+	if (UNLIKELY(!found))
 		return;
 
 	RB_REMOVE(sparse_rb_tree, handle, found);
@@ -763,11 +763,11 @@ static int OPTIMIZE3 splay_put(void *handle, const uint32_t x, const uint32_t y,
 
 	node.xy = ((uint64_t)x << 32) | y;
 	found = SPLAY_FIND(sparse_splay_tree, handle, &node);
-	if (!found) {
+	if (LIKELY(!found)) {
 		sparse_splay_t *new_node;
 
 		new_node = (sparse_splay_t *)malloc(sizeof(*new_node));
-		if (!new_node)
+		if (UNLIKELY(!new_node))
 			return -1;
 		new_node->value = value;
 		new_node->xy = node.xy;
@@ -790,7 +790,7 @@ static void OPTIMIZE3 splay_del(void *handle, const uint32_t x, const uint32_t y
 	node.xy = ((uint64_t)x << 32) | y;
 
 	found = SPLAY_FIND(sparse_splay_tree, handle, &node);
-	if (!found)
+	if (UNLIKELY(!found))
 		return;
 
 	SPLAY_REMOVE(sparse_splay_tree, handle, found);
@@ -879,7 +879,7 @@ static int OPTIMIZE3 list_put(void *handle, const uint32_t x, const uint32_t y, 
 		}
 		if (y_node->y > y) {
 			new_y_node = (sparse_y_list_node_t *)malloc(sizeof(*new_y_node));
-			if (!new_y_node)
+			if (UNLIKELY(!new_y_node))
 				return -1;
 			new_y_node->y = y;
 			CIRCLEQ_INIT(&new_y_node->x_head);
@@ -890,7 +890,7 @@ static int OPTIMIZE3 list_put(void *handle, const uint32_t x, const uint32_t y, 
 	}
 
 	new_y_node = (sparse_y_list_node_t *)malloc(sizeof(*new_y_node));
-	if (!new_y_node)
+	if (UNLIKELY(!new_y_node))
 		return -1;
 	new_y_node->y = y;
 	CIRCLEQ_INIT(&new_y_node->x_head);
@@ -905,7 +905,7 @@ find_x:
 		}
 		if (x_node->x > x) {
 			new_x_node = (sparse_x_list_node_t *)malloc(sizeof(*new_x_node));
-			if (!new_x_node)
+			if (UNLIKELY(!new_x_node))
 				return -1;  /* Leaves new_y_node allocated */
 			new_x_node->x = x;
 			new_x_node->value = value;
@@ -914,7 +914,7 @@ find_x:
 		}
 	}
 	new_x_node = (sparse_x_list_node_t *)calloc(1, sizeof(*new_x_node));
-	if (!new_x_node)
+	if (UNLIKELY(!new_x_node))
 		return -1;  /* Leaves new_y_node allocated */
 	new_x_node->x = x;
 	new_x_node->value = value;
@@ -954,7 +954,7 @@ static void list_del(void *handle, const uint32_t x, const uint32_t y)
 {
 	sparse_x_list_node_t *x_node = list_get_node(handle, x, y);
 
-	if (x_node)
+	if (LIKELY(x_node != NULL))
 		x_node->value = 0;
 }
 
@@ -986,12 +986,12 @@ static void *hashjudy_create(const uint64_t n, const uint32_t x, const uint32_t 
 	(void)y;
 
 	table = (sparse_hashjudy_table_t *)calloc(1, sizeof(*table));
-	if (!table)
+	if (UNLIKELY(!table))
 		return NULL;
 
 	table->n = x;
 	table->hash_table = (Pvoid_t *)calloc((size_t)x, sizeof(*table->hash_table));
-	if (!table->hash_table) {
+	if (UNLIKELY(!table->hash_table)) {
 		free(table);
 		return NULL;
 	}
@@ -1032,11 +1032,11 @@ static int OPTIMIZE3 hashjudy_put(void *handle, const uint32_t x, const uint32_t
 	sparse_hashjudy_table_t *table = (sparse_hashjudy_table_t *)handle;
 	Word_t *pvalue;
 
-	if (!table)
+	if (UNLIKELY(!table))
 		return -1;
 
 	JLI(pvalue, table->hash_table[x], y);
-	if ((pvalue == NULL) || (pvalue == PJERR))
+	if (UNLIKELY((pvalue == NULL) || (pvalue == PJERR)))
 		return -1;
 	*pvalue = (Word_t)value;
 	return 0;
@@ -1051,11 +1051,11 @@ static void OPTIMIZE3 hashjudy_del(void *handle, const uint32_t x, const uint32_
 	sparse_hashjudy_table_t *table = (sparse_hashjudy_table_t *)handle;
 	Word_t *pvalue;
 
-	if (!table)
+	if (UNLIKELY(!table))
 		return;
 
 	JLG(pvalue, table->hash_table[x], y);
-	if ((pvalue == NULL) || (pvalue == PJERR))
+	if (UNLIKELY((pvalue == NULL) || (pvalue == PJERR)))
 		return;
 	*pvalue = 0;
 }
@@ -1069,11 +1069,11 @@ static uint32_t OPTIMIZE3 hashjudy_get(void *handle, const uint32_t x, const uin
 	sparse_hashjudy_table_t *table = (sparse_hashjudy_table_t *)handle;
 	Word_t *pvalue, value;
 
-	if (!table)
+	if (UNLIKELY(!table))
 		return -1;
 
 	JLG(pvalue, table->hash_table[x], y);
-	if ((pvalue == NULL) || (pvalue == PJERR))
+	if (UNLIKELY((pvalue == NULL) || (pvalue == PJERR)))
 		return 0;
 	value = *pvalue;
 	return (uint32_t)value;
@@ -1098,7 +1098,7 @@ static int stress_sparse_method_test(
 	const uint32_t z = stress_mwc32();
 
 	handle = info->create(sparsematrix_items, sparsematrix_size, sparsematrix_size);
-	if (!handle) {
+	if (UNLIKELY(!handle)) {
 		test_info->skip_no_mem = true;
 		return SPARSE_TEST_ENOMEM;
 	}
@@ -1116,7 +1116,7 @@ static int stress_sparse_method_test(
 
 		gv = info->get(handle, x, y);
 		if (gv == 0) {
-			if (info->put(handle, x, y, v) < 0) {
+			if (UNLIKELY(info->put(handle, x, y, v) < 0)) {
 				pr_fail("%s: %s failed to put into "
 					"sparse matrix at position "
 					"(%" PRIu32 ",%" PRIu32 ")\n",
@@ -1141,7 +1141,7 @@ static int stress_sparse_method_test(
 			v = ~(uint32_t)0;
 
 		gv = info->get(handle, x, y);
-		if (gv != v) {
+		if (UNLIKELY(gv != v)) {
 			pr_fail("%s: %s mismatch (%" PRIu32 ",%" PRIu32
 				") was %" PRIu32 ", got %" PRIu32 "\n",
 				args->name, info->name, x, y, v, gv);
@@ -1217,7 +1217,7 @@ static void *mmap_create(const uint64_t n, const uint32_t x, const uint32_t y)
 	m.mmap = stress_mmap_populate(NULL, m.mmap_size,
 		PROT_READ | PROT_WRITE,
 		MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
-	if (m.mmap == MAP_FAILED)
+	if (UNLIKELY(m.mmap == MAP_FAILED))
 		return NULL;
 	stress_set_vma_anon_name(m.mmap, m.mmap_size, "sparse-data");
 	return (void *)&m;
@@ -1231,11 +1231,11 @@ static void mmap_destroy(void *handle, size_t *objmem)
 	size_t pages;
 
 	*objmem = 0;
-	if (!m)
+	if (UNLIKELY(!m))
 		return;
-	if (m->mmap == MAP_FAILED || !m->mmap)
+	if (UNLIKELY(m->mmap == MAP_FAILED || !m->mmap))
 		return;
-	if (!m->mmap_size)
+	if (UNLIKELY(!m->mmap_size))
 		return;
 
 	pages = m->mmap_size / page_size;
@@ -1263,7 +1263,7 @@ static int mmap_put(void *handle, const uint32_t x, const uint32_t y, const uint
 	sparse_mmap_t *m = (sparse_mmap_t *)handle;
 	off_t offset;
 
-	if (m->x <= x || m->y <= y)
+	if (UNLIKELY(m->x <= x || m->y <= y))
 		return -1;
 
 	offset = (x + ((uint64_t)m->y * y));
@@ -1277,7 +1277,7 @@ static void mmap_del(void *handle, const uint32_t x, const uint32_t y)
 	sparse_mmap_t *m = (sparse_mmap_t *)handle;
 	uint64_t offset;
 
-	if (m->x <= x || m->y <= y)
+	if (UNLIKELY(m->x <= x || m->y <= y))
 		return;
 
 	offset = (x + ((uint64_t)m->y * y));
@@ -1289,7 +1289,7 @@ static uint32_t mmap_get(void *handle, const uint32_t x, const uint32_t y)
 	sparse_mmap_t *m = (sparse_mmap_t *)handle;
 	uint64_t offset;
 
-	if (m->x <= x || m->y <= y)
+	if (UNLIKELY(m->x <= x || m->y <= y))
 		return (uint32_t)-1;
 
 	offset = (x + ((uint64_t)m->y * y));
@@ -1406,21 +1406,21 @@ static int stress_sparsematrix(stress_args_t *args)
 	do {
 		if (method == 0) {	/* All methods */
 			for (i = 1; i < SIZEOF_ARRAY(sparsematrix_methods); i++) {
-				if (stress_sparse_method_test(args,
+				if (UNLIKELY(stress_sparse_method_test(args,
 						(size_t)sparsematrix_items,
 						sparsematrix_size,
 						&sparsematrix_methods[i],
-						&test_info[i]) == SPARSE_TEST_FAILED) {
+						&test_info[i]) == SPARSE_TEST_FAILED)) {
 					stress_sparsematrix_create_failed(args, sparsematrix_methods[i].name);
 					goto err;
 				}
 			}
 		} else {
-			if (stress_sparse_method_test(args,
+			if (UNLIKELY(stress_sparse_method_test(args,
 					(size_t)sparsematrix_items,
 					sparsematrix_size,
 					&sparsematrix_methods[method],
-					&test_info[method]) == SPARSE_TEST_FAILED) {
+					&test_info[method]) == SPARSE_TEST_FAILED)) {
 				stress_sparsematrix_create_failed(args, sparsematrix_methods[method].name);
 				goto err;
 			}
