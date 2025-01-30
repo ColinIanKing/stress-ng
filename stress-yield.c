@@ -70,7 +70,7 @@ static void stress_yield_sched_policy(stress_args_t *args, const size_t yield_sc
 	int max_prio, min_prio, rng_prio, policy;
 	const char *policy_name;
 
-	if (yield_sched >= stress_sched_types_length)
+	if (UNLIKELY(yield_sched >= stress_sched_types_length))
 		return;
 
 	policy = stress_sched_types[yield_sched].sched;
@@ -144,7 +144,7 @@ case_sched_fifo:
 		max_prio = sched_get_priority_max(policy);
 
 		/* Check if min/max is supported or not */
-		if ((min_prio == -1) || (max_prio == -1))
+		if (UNLIKELY((min_prio == -1) || (max_prio == -1)))
 			return;
 
 		rng_prio = max_prio - min_prio;
@@ -164,7 +164,7 @@ case_sched_fifo:
 		/* Should never get here */
 		break;
 	}
-	if (ret < 0) {
+	if (UNLIKELY(ret < 0)) {
 		/*
 		 *  Some systems return EINVAL for non-POSIX
 		 *  scheduling policies, silently ignore these
@@ -288,7 +288,7 @@ static int stress_yield(stress_args_t *args)
 				double t = stress_time_now();
 
 				ret = shim_sched_yield();
-				if (ret == 0) {
+				if (LIKELY(ret == 0)) {
 					metrics[i].count += 1.0;
 					metrics[i].duration += (stress_time_now() - t);
 				} else if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY)) {
