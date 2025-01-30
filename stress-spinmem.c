@@ -118,7 +118,7 @@ static const spinmem_funcs_t spinmem_funcs[] = {
  */
 static inline void stress_spinmem_change_affinity(const uint32_t n_cpus, const uint32_t *cpus)
 {
-	if (n_cpus > 0) {
+	if (LIKELY(n_cpus > 0)) {
 		cpu_set_t mask;
 		const uint32_t i = stress_mwc32modn(n_cpus);
 		const uint32_t cpu = cpus[i];
