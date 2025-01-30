@@ -121,7 +121,7 @@ static int stress_sockpair_oomable(stress_args_t *args, void *context)
 	socket_pair_fds_bad[0] = -1;
 	socket_pair_fds_bad[1] = -1;
 	ret = socketpair(~0, SOCK_STREAM, 0, socket_pair_fds_bad);
-	if (ret == 0) {
+	if (UNLIKELY(ret == 0)) {
 		(void)close(socket_pair_fds_bad[0]);
 		(void)close(socket_pair_fds_bad[1]);
 	}
@@ -130,14 +130,14 @@ static int stress_sockpair_oomable(stress_args_t *args, void *context)
 	socket_pair_fds_bad[0] = -1;
 	socket_pair_fds_bad[1] = -1;
 	ret = socketpair(AF_UNIX, ~0, 0, socket_pair_fds_bad);
-	if (ret == 0) {
+	if (UNLIKELY(ret == 0)) {
 		(void)close(socket_pair_fds_bad[0]);
 		(void)close(socket_pair_fds_bad[1]);
 	}
 
 	/* exercise invalid socketpair type protocol */
 	ret = socketpair(AF_UNIX, SOCK_STREAM, ~0, socket_pair_fds_bad);
-	if (ret == 0) {
+	if (UNLIKELY(ret == 0)) {
 		(void)close(socket_pair_fds_bad[0]);
 		(void)close(socket_pair_fds_bad[1]);
 	}
@@ -147,7 +147,7 @@ static int stress_sockpair_oomable(stress_args_t *args, void *context)
 
 	t = stress_time_now();
 	for (max = 0; max < MAX_SOCKET_PAIRS; max++) {
-		if (!stress_continue(args)) {
+		if (UNLIKELY(!stress_continue(args))) {
 			socket_pair_close(socket_pair_fds, max, 0);
 			socket_pair_close(socket_pair_fds, max, 1);
 			return EXIT_SUCCESS;
@@ -208,7 +208,7 @@ again:
 		socket_pair_close(socket_pair_fds, max, 0);
 		socket_pair_close(socket_pair_fds, max, 1);
 
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			goto finish;
 		pr_err("%s: fork failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
@@ -287,7 +287,7 @@ abort:
 				socket_pair_memset(buf, (uint8_t)val++, sizeof(buf));
 				t = stress_time_now();
 				wret = write(socket_pair_fds[i][1], buf, sizeof(buf));
-				if (wret > 0) {
+				if (LIKELY(wret > 0)) {
 					bytes += (double)wret;
 					duration += stress_time_now() - t;
 				} else {
