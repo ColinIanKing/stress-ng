@@ -65,7 +65,7 @@ static int stress_time_warp_gettimeofday(clockid_t clockid, struct timespec *ts)
 
 	(void)clockid;
 	ret = gettimeofday(&tv, NULL);
-	if (ret == 0) {
+	if (LIKELY(ret == 0)) {
 		ts->tv_sec = tv.tv_sec;
 		ts->tv_nsec = tv.tv_usec * 1000;
 	}
@@ -81,7 +81,7 @@ static int stress_time_warp_gettimeofday(clockid_t clockid, struct timespec *ts)
 static int stress_time_warp_time(clockid_t clockid, struct timespec *ts)
 {
 	(void)clockid;
-	if (time(&ts->tv_sec) != (time_t)-1) {
+	if (LIKELY(time(&ts->tv_sec) != (time_t)-1)) {
 		ts->tv_nsec = 0;
 		return 0;
 	}
@@ -102,7 +102,7 @@ static int stress_time_warp_rusage(clockid_t clockid, struct timespec *ts)
 
 	(void)clockid;
 	ret = getrusage(RUSAGE_SELF, &usage);
-	if (ret == 0) {
+	if (LIKELY(ret == 0)) {
 		ts->tv_sec = usage.ru_utime.tv_sec + usage.ru_stime.tv_sec;
 		ts->tv_nsec = (usage.ru_utime.tv_usec + usage.ru_stime.tv_usec) * 1000;
 	}
@@ -227,11 +227,11 @@ static int stress_time_warp(stress_args_t *args)
 				continue;
 
 			ret = clocks[i].gettime(clocks[i].id, &ts);
-			if (ret == 0) {
+			if (LIKELY(ret == 0)) {
 				stress_times[i].warped +=
 					stress_time_warp_lt(&ts, &stress_times[i].ts_prev);
 				stress_times[i].ts_prev = ts;
-			} else if ((errno != EINVAL) && (errno != ENOSYS)) {
+			} else if (UNLIKELY((errno != EINVAL) && (errno != ENOSYS))) {
 				pr_fail("%s: %s failed, errno=%d (%s)\n",
 					args->name, clocks[i].name, errno, strerror(errno));
 				stress_times[i].failed = true;
