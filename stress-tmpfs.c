@@ -120,13 +120,13 @@ static int stress_tmpfs_open(stress_args_t *args, off_t *len)
 
 	*len = 0;
 	n = stress_mount_get(mnts, SIZEOF_ARRAY(mnts));
-	if (n < 0)
+	if (UNLIKELY(n < 0))
 		return -1;
 
 	for (i = 0; i < n; i++) {
 		struct statfs buf;
 
-		if (!mnts[i])
+		if (UNLIKELY(!mnts[i]))
 			continue;
 		/* Some paths should be avoided... */
 		if (!strncmp(mnts[i], "/dev", 4))
@@ -147,7 +147,7 @@ static int stress_tmpfs_open(stress_args_t *args, off_t *len)
 		(void)snprintf(path, sizeof(path), "%s/%s-%" PRIdMAX "-%" PRIu32 "-%" PRIu32,
 			mnts[i], args->name, (intmax_t)args->pid, args->instance, rnd);
 		fd = open(path, O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
-		if (fd >= 0) {
+		if (LIKELY(fd >= 0)) {
 			const char data = 0;
 			off_t rc, max_size = (off_t)buf.f_bsize * (off_t)buf.f_bavail;
 
@@ -170,13 +170,13 @@ static int stress_tmpfs_open(stress_args_t *args, off_t *len)
 			 *  over time
 			 */
 			rc = lseek(fd, max_size, SEEK_SET);
-			if (rc < 0) {
+			if (UNLIKELY(rc < 0)) {
 				(void)close(fd);
 				fd = -1;
 				continue;
 			}
 			rc = write(fd, &data, sizeof(data));
-			if (rc < 0) {
+			if (UNLIKELY(rc < 0)) {
 				(void)close(fd);
 				fd = -1;
 				continue;
@@ -210,7 +210,7 @@ static int stress_tmpfs_child(stress_args_t *args, void *ctxt)
 #endif
 
 	mappings = (mapping_info_t *)calloc(pages, sizeof(*mappings));
-	if (!mappings) {
+	if (UNLIKELY(!mappings)) {
 		pr_inf_skip("%s: failed to allocate mapping array, skipping stressor\n",
 			args->name);
 		return EXIT_NO_RESOURCE;
@@ -228,7 +228,7 @@ static int stress_tmpfs_child(stress_args_t *args, void *ctxt)
 		uint8_t *buf = NULL;
 		off_t offset;
 
-		if (no_mem_retries >= NO_MEM_RETRIES_MAX) {
+		if (UNLIKELY(no_mem_retries >= NO_MEM_RETRIES_MAX)) {
 			pr_err("%s: gave up trying to mmap, no available memory\n",
 				args->name);
 			break;
@@ -238,12 +238,12 @@ static int stress_tmpfs_child(stress_args_t *args, void *ctxt)
 		 *  exercise some random file operations
 		 */
 		offset = (off_t)stress_mwc64modn(sz + 1);
-		if (lseek(fd, offset, SEEK_SET) != (off_t)-1) {
+		if (LIKELY(lseek(fd, offset, SEEK_SET) != (off_t)-1)) {
 			char data[1];
 
 			VOID_RET(ssize_t, read(fd, data, sizeof(data)));
 		}
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 
 #if (defined(HAVE_SYS_XATTR_H) ||       \
@@ -265,7 +265,7 @@ static int stress_tmpfs_child(stress_args_t *args, void *ctxt)
 		}
 #endif
 		offset = (off_t)stress_mwc64modn(sz + 1);
-		if (lseek(fd, offset, SEEK_SET) != (off_t)-1) {
+		if (LIKELY(lseek(fd, offset, SEEK_SET) != (off_t)-1)) {
 			char data[1];
 			ssize_t wr;
 
@@ -313,7 +313,7 @@ static int stress_tmpfs_child(stress_args_t *args, void *ctxt)
 		/* Ensure we can write to the mapped pages */
 		stress_mmap_set(buf, sz, page_size);
 		if (g_opt_flags & OPT_FLAGS_VERIFY) {
-			if (stress_mmap_check(buf, sz, page_size) < 0) {
+			if (UNLIKELY(stress_mmap_check(buf, sz, page_size) < 0)) {
 				pr_fail("%s: mmap'd region of %zu bytes does "
 					"not contain expected data\n", args->name, sz);
 				rc = EXIT_FAILURE;
@@ -339,7 +339,7 @@ static int stress_tmpfs_child(stress_args_t *args, void *ctxt)
 					n--;
 					break;
 				}
-				if (!stress_continue_flag())
+				if (UNLIKELY(!stress_continue_flag()))
 					goto cleanup;
 			}
 		}
@@ -373,7 +373,7 @@ static int stress_tmpfs_child(stress_args_t *args, void *ctxt)
 						mappings[page].state = PAGE_MAPPED;
 						/* Ensure we can write to the mapped page */
 						stress_mmap_set(mappings[page].addr, page_size, page_size);
-						if (stress_mmap_check(mappings[page].addr, page_size, page_size) < 0) {
+						if (UNLIKELY(stress_mmap_check(mappings[page].addr, page_size, page_size) < 0)) {
 							pr_fail("%s: mmap'd region of %zu bytes does "
 								"not contain expected data\n", args->name, page_size);
 							rc = EXIT_FAILURE;
@@ -387,7 +387,7 @@ static int stress_tmpfs_child(stress_args_t *args, void *ctxt)
 					n--;
 					break;
 				}
-				if (!stress_continue_flag())
+				if (UNLIKELY(!stress_continue_flag()))
 					goto cleanup;
 			}
 		}
