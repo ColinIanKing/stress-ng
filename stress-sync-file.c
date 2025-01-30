@@ -63,7 +63,7 @@ static int stress_sync_allocate(
 	int ret;
 
 	ret = ftruncate(fd, 0);
-	if (ret < 0) {
+	if (UNLIKELY(ret < 0)) {
 		pr_err("%s: ftruncate failed: errno=%d (%s)%s\n",
 			args->name, errno, strerror(errno), fs_type);
 		return -errno;
@@ -71,7 +71,7 @@ static int stress_sync_allocate(
 
 #if defined(HAVE_FDATASYNC)
 	ret = shim_fdatasync(fd);
-	if (ret < 0) {
+	if (UNLIKELY(ret < 0)) {
 		if ((errno == ENOSPC) || (errno == EINTR))
 			return -errno;
 		pr_fail("%s: fdatasync failed: errno=%d (%s)%s\n",
@@ -83,7 +83,7 @@ static int stress_sync_allocate(
 #endif
 
 	ret = shim_fallocate(fd, 0, (off_t)0, sync_file_bytes);
-	if (ret < 0) {
+	if (UNLIKELY(ret < 0)) {
 		if (errno == EINTR)
 			return 0;
 		if (errno == ENOSPC)
@@ -159,7 +159,7 @@ static int stress_sync_file(stress_args_t *args)
 		const unsigned int mode = sync_modes[mode_index];
 
 		ret = stress_sync_allocate(args, fd, fs_type, sync_file_bytes);
-		if (ret < 0) {
+		if (UNLIKELY(ret < 0)) {
 			if (ret == -ENOSPC)
 				continue;
 			break;
@@ -169,7 +169,7 @@ static int stress_sync_file(stress_args_t *args)
 			const shim_off64_t sz = (stress_mwc32() & 0x1fc00) + KB;
 
 			ret = shim_sync_file_range(fd, offset, sz, mode);
-			if (ret < 0) {
+			if (UNLIKELY(ret < 0)) {
 				if (errno == ENOSYS) {
 					pr_inf_skip("%s: skipping stressor, sync_file_range is not implemented\n",
 						args->name);
@@ -182,7 +182,7 @@ static int stress_sync_file(stress_args_t *args)
 			}
 			offset += sz;
 		}
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 
 		/*
@@ -200,7 +200,7 @@ static int stress_sync_file(stress_args_t *args)
 		VOID_RET(int, shim_sync_file_range(fd, sync_file_bytes << 2, 0, mode));
 
 		ret = stress_sync_allocate(args, fd, fs_type, sync_file_bytes);
-		if (ret < 0) {
+		if (UNLIKELY(ret < 0)) {
 			if (ret == -ENOSPC)
 				continue;
 			break;
@@ -210,7 +210,7 @@ static int stress_sync_file(stress_args_t *args)
 			const shim_off64_t sz = (stress_mwc32() & 0x1fc00) + KB;
 
 			ret = shim_sync_file_range(fd, sync_file_bytes - offset, sz, mode);
-			if (ret < 0) {
+			if (UNLIKELY(ret < 0)) {
 				if (errno == ENOSYS) {
 					pr_inf_skip("%s: skipping stressor, sync_file_range is not implemented\n",
 						args->name);
@@ -223,11 +223,11 @@ static int stress_sync_file(stress_args_t *args)
 			}
 			offset += sz;
 		}
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 
 		ret = stress_sync_allocate(args, fd, fs_type, sync_file_bytes);
-		if (ret < 0) {
+		if (UNLIKELY(ret < 0)) {
 			if (ret == -ENOSPC)
 				continue;
 			break;
@@ -237,7 +237,7 @@ static int stress_sync_file(stress_args_t *args)
 			offset = (shim_off64_t)(stress_mwc64modn((uint64_t)sync_file_bytes) & ~((128 * KB) - 1));
 
 			ret = shim_sync_file_range(fd, offset, 128 * KB, mode);
-			if (ret < 0) {
+			if (UNLIKELY(ret < 0)) {
 				if (errno == ENOSYS) {
 					pr_inf_skip("%s: skipping stressor, sync_file_range is not implemented\n",
 						args->name);

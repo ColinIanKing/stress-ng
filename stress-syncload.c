@@ -311,7 +311,7 @@ static int stress_syncload(stress_args_t *args)
 		const stress_syncload_op_t op = stress_syncload_ops[delay_type];
 
 		delay_type++;
-		if (delay_type >= SIZEOF_ARRAY(stress_syncload_ops))
+		if (UNLIKELY(delay_type >= SIZEOF_ARRAY(stress_syncload_ops)))
 			delay_type = 0;
 
 		timeout += sec_busy;
