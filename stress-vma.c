@@ -148,10 +148,10 @@ static void *stress_mmapaddr_get_addr(stress_args_t *args)
 
 	/* Determine text start and heap end */
 	stress_exec_text_addr(&text_start, &text_end);
-	if ((!text_start) && (!text_end))
+	if (UNLIKELY((!text_start) && (!text_end)))
 		return NULL;
 	addr = malloc(1);
-	if (!addr)
+	if (UNLIKELY(!addr))
 		return NULL;
 
 	/* determine page aligned heap end and some slop */
@@ -185,7 +185,7 @@ static void *stress_mmapaddr_get_addr(stress_args_t *args)
 		for (i = 0, test_addr = (uintptr_t)addr; i < STRESS_VMA_PAGES; i++, test_addr += page_size) {
 			int fd[2], err;
 
-			if (pipe(fd) < 0)
+			if (UNLIKELY(pipe(fd) < 0))
 				return NULL;
 			/* Can we read the page at addr into a pipe? */
 
@@ -201,7 +201,7 @@ static void *stress_mmapaddr_get_addr(stress_args_t *args)
 				/* Is it actually mappable? */
 				mapped = mmap((void *)test_addr, page_size, PROT_READ | PROT_WRITE,
 						MAP_FIXED | MAP_ANONYMOUS | MAP_SHARED, -1, 0);
-				if (mapped == MAP_FAILED) {
+				if (LIKELY(mapped == MAP_FAILED)) {
 					(void)munmap(mapped, page_size);
 					addr = NULL;
 					break;
@@ -260,7 +260,7 @@ static void *stress_vma_mmap(void *ptr)
 #endif
 		/* Map */
 		mapped = mmap((void *)(data + offset), page_size, prot, flags, -1, 0);
-		if (mapped != MAP_FAILED) {
+		if (LIKELY(mapped != MAP_FAILED)) {
 #if defined(__linux__) &&		\
     defined(HAVE_SYS_PRCTL_H) &&	\
     defined(PR_SET_VMA) &&		\
@@ -287,7 +287,7 @@ static void *stress_vma_munmap(void *ptr)
 	while (stress_vma_continue_flag && stress_vma_continue(args)) {
 		const size_t offset = page_size * stress_mwc8modn(STRESS_VMA_PAGES);
 
-		if (munmap((void *)(data + offset), page_size) == 0)
+		if (LIKELY(munmap((void *)(data + offset), page_size) == 0))
 			stress_vma_metrics->s.metrics[STRESS_VMA_MUNMAP]++;
 	}
 	return NULL;
@@ -316,7 +316,7 @@ static void *stress_vma_mlock(void *ptr)
 		if (shim_mlock2((void *)(data + offset), len, flags) == 0) {
 			stress_vma_metrics->s.metrics[STRESS_VMA_MLOCK]++;
 		} else {
-			if (shim_mlock((void *)(data + offset), len) == 0)
+			if (LIKELY(shim_mlock((void *)(data + offset), len) == 0))
 				stress_vma_metrics->s.metrics[STRESS_VMA_MLOCK]++;
 		}
 	}
@@ -338,7 +338,7 @@ static void *stress_vma_munlock(void *ptr)
 		const size_t offset = page_size * stress_mwc8modn(STRESS_VMA_PAGES);
 		const size_t len = page_size * stress_mwc8modn(STRESS_VMA_PAGES);
 
-		if (munlock((void *)(data + offset), len) == 0)
+		if (LIKELY(munlock((void *)(data + offset), len) == 0))
 			stress_vma_metrics->s.metrics[STRESS_VMA_MUNLOCK]++;
 	}
 	return NULL;
@@ -425,7 +425,7 @@ static void *stress_vma_mincore(void *ptr)
 		const size_t len = page_size * pages;
 		unsigned char vec[STRESS_VMA_PAGES];
 
-		if (shim_mincore((void *)(data + offset), len, vec) == 0)
+		if (LIKELY(shim_mincore((void *)(data + offset), len, vec) == 0))
 			stress_vma_metrics->s.metrics[STRESS_VMA_MINCORE]++;
 	}
 	return NULL;
@@ -464,7 +464,7 @@ static void *stress_vma_mprotect(void *ptr)
 		const size_t offset = page_size * stress_mwc8modn(STRESS_VMA_PAGES);
 		const size_t len = page_size * stress_mwc8modn(STRESS_VMA_PAGES);
 
-		if (mprotect((void *)(data + offset), len, prot[i]) == 0)
+		if (LIKELY(mprotect((void *)(data + offset), len, prot[i]) == 0))
 			stress_vma_metrics->s.metrics[STRESS_VMA_MPROTECT]++;
 	}
 	return NULL;
@@ -498,7 +498,7 @@ static void *stress_vma_msync(void *ptr)
 		const size_t offset = page_size * stress_mwc8modn(STRESS_VMA_PAGES);
 		const size_t len = page_size * stress_mwc8modn(STRESS_VMA_PAGES);
 
-		if (msync((void *)(data + offset), len, flags[i]) == 0)
+		if (LIKELY(msync((void *)(data + offset), len, flags[i]) == 0))
 			stress_vma_metrics->s.metrics[STRESS_VMA_MSYNC]++;
 	}
 	return NULL;
@@ -516,11 +516,11 @@ static void *stress_vma_maps(void *ptr)
 	int fd;
 
 	fd = open("/proc/self/maps", O_RDONLY);
-	if (fd != -1) {
+	if (LIKELY(fd != -1)) {
 		while (stress_vma_continue_flag && stress_vma_continue(args)) {
 			char buf[4096];
 
-			if (lseek(fd, 0, SEEK_SET) < 0)
+			if (UNLIKELY(lseek(fd, 0, SEEK_SET) < 0))
 				break;
 			while (read(fd, buf, sizeof(buf)) > 1)
 				;
