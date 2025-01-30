@@ -58,7 +58,7 @@ static inline void strchk(
 	const int ok,
 	const char *msg)
 {
-	if ((g_opt_flags & OPT_FLAGS_VERIFY) && (!ok)) {
+	if (UNLIKELY((g_opt_flags & OPT_FLAGS_VERIFY) && (!ok))) {
 		pr_fail("%s: %s did not return expected result\n",
 			info->name, msg);
 		info->failed = true;
@@ -619,7 +619,7 @@ static size_t stress_str_all(stress_args_t *args, stress_str_args_t *info)
 	metrics[i].count += (double)str_methods[i].func(args, &info_all);
 	metrics[i].duration += (stress_time_now() - t);
 	i++;
-	if (i >= SIZEOF_ARRAY(str_methods))
+	if (UNLIKELY(i >= SIZEOF_ARRAY(str_methods)))
 		i = 1;
 	info->failed = info_all.failed;
 	return 0;
