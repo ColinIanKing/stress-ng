@@ -94,7 +94,7 @@ static int stress_statmount_statroot(
 
 	(void)shim_memset(&sm, 0, sizeof(sm));
 	t = stress_time_now();
-	if (shim_statmount(id, STATMOUNT_MNT_BASIC, &sm, sizeof(sm), 0) < 0) {
+	if (UNLIKELY(shim_statmount(id, STATMOUNT_MNT_BASIC, &sm, sizeof(sm), 0) < 0)) {
 		pr_fail("%s: statmount failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
@@ -102,12 +102,12 @@ static int stress_statmount_statroot(
 	(*duration) += stress_time_now() - t;
 	(*count) += 1.0;
 
-	if (sm.size != sizeof(sm)) {
+	if (UNLIKELY(sm.size != sizeof(sm))) {
 		pr_fail("%s: statmount.size is %zu, expected size %zu\n",
 			args->name, (size_t)sm.size, sizeof(sm));
 		return EXIT_FAILURE;
 	}
-	if (sm.mnt_id != id) {
+	if (UNLIKELY(sm.mnt_id != id)) {
 		pr_fail("%s: statmount.mnt_id is %" PRIu64 ", expected %" PRIu64 "\n",
 			args->name, (uint64_t)sm.mnt_id, id);
 		return EXIT_FAILURE;
@@ -129,7 +129,7 @@ static int stress_statmount_listroot(
 	uint64_t list[1024];
 
 	ret = shim_listmount(LSMT_ROOT, 0, list, SIZEOF_ARRAY(list), 0);
-	if (ret < 0) {
+	if (UNLIKELY(ret < 0)) {
 		if (errno == ENOSYS)
 			return EXIT_NO_RESOURCE;
 		pr_fail("%s: shim_listmount on root failed, errno=%d (%s)\n",
@@ -144,13 +144,13 @@ static int stress_statmount_listroot(
 
 		(void)shim_memset(&sm, 0, sizeof(sm));
 		t = stress_time_now();
-		if (shim_statmount(list[i], STATMOUNT_MNT_BASIC, &sm, sizeof(sm), 0) >= 0) {
+		if (LIKELY(shim_statmount(list[i], STATMOUNT_MNT_BASIC, &sm, sizeof(sm), 0) >= 0)) {
 			(*duration) += stress_time_now() - t;
 			(*count) += 1.0;
 		}
 		(void)shim_memset(&sm, 0, sizeof(sm));
 		t = stress_time_now();
-		if (shim_statmount(list[i], STATMOUNT_SB_BASIC, &sm, sizeof(sm), 0) >= 0) {
+		if (LIKELY(shim_statmount(list[i], STATMOUNT_SB_BASIC, &sm, sizeof(sm), 0) >= 0)) {
 			(*duration) += stress_time_now() - t;
 			(*count) += 1.0;
 		}
@@ -176,7 +176,7 @@ static int stress_statmount(stress_args_t *args)
 	}
 
 	ret = shim_statx(AT_FDCWD, "/", 0, STATX_MNT_ID_UNIQUE, &sx);
-	if (ret < 0) {
+	if (UNLIKELY(ret < 0)) {
 		pr_inf_skip("%s: statx on / failed, errno=%d (%s), skipping stressor",
 			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
@@ -188,11 +188,11 @@ static int stress_statmount(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		if (stress_statmount_statroot(args, id, &duration, &count) == EXIT_FAILURE) {
+		if (UNLIKELY(stress_statmount_statroot(args, id, &duration, &count) == EXIT_FAILURE)) {
 			rc = EXIT_FAILURE;
 			break;
 		}
-		if (stress_statmount_listroot(args, &duration, &count, &max_mounts) == EXIT_FAILURE) {
+		if (UNLIKELY(stress_statmount_listroot(args, &duration, &count, &max_mounts) == EXIT_FAILURE)) {
 			rc = EXIT_FAILURE;
 			break;
 		}
