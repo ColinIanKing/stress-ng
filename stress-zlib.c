@@ -563,7 +563,7 @@ static void stress_rand_data_rdrand(
 
 #if defined(HAVE_ASM_X86_RDRAND)
 	if (stress_cpu_x86_has_rdrand()) {
-		while (ptr < end) {
+		while (LIKELY(ptr < end)) {
 			register uint64_t a, b, c, d;
 
 			a = stress_asm_x86_rdrand();
@@ -1003,19 +1003,19 @@ static void TARGET_CLONES stress_rand_data_gcr(
 		gcr |= gcr45[rnd & 0xf];
 
 		*ptr++ = (uint8_t)(gcr >> 32);
-		if (ptr >= end)
+		if (UNLIKELY(ptr >= end))
 			break;
 		*ptr++ = (uint8_t)(gcr >> 24);
-		if (ptr >= end)
+		if (UNLIKELY(ptr >= end))
 			break;
 		*ptr++ = (uint8_t)(gcr >> 16);
-		if (ptr >= end)
+		if (UNLIKELY(ptr >= end))
 			break;
 		*ptr++ = (uint8_t)(gcr >> 8);
-		if (ptr >= end)
+		if (UNLIKELY(ptr >= end))
 			break;
 		*ptr++ = (uint8_t)gcr >> 0;
-		if (ptr >= end)
+		if (UNLIKELY(ptr >= end))
 			break;
 	}
 }
@@ -1121,7 +1121,7 @@ static void stress_rand_data_latin(
 	if (!ptr)
 		ptr = lorem_ipsum[stress_mwc32modn(SIZEOF_ARRAY(lorem_ipsum))];
 
-	while (dataptr < end) {
+	while (LIKELY(dataptr < end)) {
 		if (!*ptr)
 			ptr = lorem_ipsum[stress_mwc32modn(SIZEOF_ARRAY(lorem_ipsum))];
 
@@ -1447,7 +1447,7 @@ static int stress_zlib_inflate(
 	}
 	do {
 		ret = inflateInit2(&stream_inf, zlib_args.window_bits);
-		if (ret != Z_OK) {
+		if (UNLIKELY(ret != Z_OK)) {
 			pr_fail("%s: zlib inflateInit error: %s\n",
 				args->name, stress_zlib_err(ret));
 			zlib_checksum->error = true;
@@ -1463,7 +1463,7 @@ static int stress_zlib_inflate(
 				break;
 			} else if ((sz != sizeof(def_size)) || (sz < 0)) {
 				(void)inflateEnd(&stream_inf);
-				if ((errno != EINTR) && (errno != EPIPE)) {
+				if (UNLIKELY((errno != EINTR) && (errno != EPIPE))) {
 					pr_fail("%s: zlib pipe read size error: %s (ret=%zd errno=%d)\n",
 						args->name, strerror(errno), sz, errno);
 					zlib_checksum->error = true;
@@ -1482,7 +1482,7 @@ static int stress_zlib_inflate(
 				break;
 			} else if ((sz != def_size) || (sz < 0)) {
 				(void)inflateEnd(&stream_inf);
-				if ((errno != EINTR) && (errno != EPIPE)) {
+				if (UNLIKELY((errno != EINTR) && (errno != EPIPE))) {
 					pr_fail("%s: zlib pipe read buffer error: %s (ret=%zd errno=%d)\n",
 						args->name, strerror(errno), sz, errno);
 					zlib_checksum->error = true;
@@ -1589,7 +1589,7 @@ static int stress_zlib_deflate(
 		ret = deflateInit2(&stream_def, zlib_args.level,
 				Z_DEFLATED, zlib_args.window_bits,
 				zlib_args.mem_level, zlib_args.strategy);
-		if (ret != Z_OK) {
+		if (UNLIKELY(ret != Z_OK)) {
 			pr_fail("%s: zlib deflateInit error: %s\n",
 				args->name, stress_zlib_err(ret));
 			zlib_checksum->error = true;
@@ -1640,7 +1640,7 @@ static int stress_zlib_deflate(
 				stream_def.next_out = out;
 
 				ret = deflate(&stream_def, flush);
-				if (ret == Z_STREAM_ERROR) {
+				if (UNLIKELY(ret == Z_STREAM_ERROR)) {
 					pr_fail("%s: zlib deflate error: %s\n",
 						args->name, stress_zlib_err(ret));
 					(void)deflateEnd(&stream_def);
@@ -1661,7 +1661,7 @@ static int stress_zlib_deflate(
 					break;
 				} else if (sz != sizeof(def_size)) {
 					(void)deflateEnd(&stream_def);
-					if ((errno != EINTR) && (errno != EPIPE) && (errno != 0)) {
+					if (UNLIKELY((errno != EINTR) && (errno != EPIPE) && (errno != 0))) {
 						pr_fail("%s: zlib pipe write size error: %s (ret=%zd errno=%d)\n",
 							args->name, strerror(errno), sz, errno);
 						ret = EXIT_FAILURE;
@@ -1680,7 +1680,7 @@ static int stress_zlib_deflate(
 					break;
 				} else if (sz != def_size) {
 					(void)deflateEnd(&stream_def);
-					if ((errno != EINTR) && (errno != EPIPE) && (errno != 0)) {
+					if (UNLIKELY((errno != EINTR) && (errno != EPIPE) && (errno != 0))) {
 						pr_fail("%s: zlib pipe write buffer error: %s (ret=%zd errno=%d)\n",
 							args->name, strerror(errno), sz, errno);
 						ret = EXIT_FAILURE;
