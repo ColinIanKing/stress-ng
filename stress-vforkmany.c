@@ -56,7 +56,7 @@ static void vforkmany_wait(vforkmany_shared_t *vforkmany_shared, const pid_t pid
 
 		errno = 0;
 		ret = waitpid(pid, &status, 0);
-		if ((ret >= 0) || (errno != EINTR)) {
+		if (LIKELY((ret >= 0) || (errno != EINTR))) {
 			vforkmany_shared->waited++;
 			break;
 		}
@@ -167,9 +167,9 @@ fork_again:
 		do {
 			waste = (uint8_t *)mmap(NULL, waste_size, PROT_READ | PROT_WRITE,
 					MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
-			if (waste != MAP_FAILED)
+			if (UNLIKELY(waste != MAP_FAILED))
 				break;
-			if (!stress_continue_flag())
+			if (UNLIKELY(!stress_continue_flag()))
 				_exit(0);
 			waste_size >>= 1;
 		} while (waste_size > 4096);
@@ -220,7 +220,7 @@ vfork_again:
 			 * instead poll the run time and break out
 			 * of the loop if we've run out of run time
 			 */
-			if (vforkmany_shared->terminate) {
+			if (UNLIKELY(vforkmany_shared->terminate)) {
 				stress_continue_set_flag(false);
 				break;
 			}
@@ -233,7 +233,7 @@ vfork_again:
 				pid = shim_vfork();
 				stress_bogo_inc(args);
 			}
-			if (pid < 0) {
+			if (UNLIKELY(pid < 0)) {
 				/* failed */
 				(void)shim_sched_yield();
 				_exit(0);
