@@ -157,7 +157,7 @@ static int OPTIMIZE3 stress_socket_client(
 
 		(void)shim_memset(fds, 0, fds_size);
 retry:
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			return EXIT_NO_RESOURCE;
 
 		if (UNLIKELY((fd = socket(AF_UNIX, SOCK_STREAM, 0)) < 0)) {
@@ -303,11 +303,11 @@ static int OPTIMIZE3 stress_socket_server(
 	do {
 		int sfd;
 
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			break;
 
 		sfd = accept(fd, (struct sockaddr *)NULL, NULL);
-		if (sfd >= 0) {
+		if (LIKELY(sfd >= 0)) {
 			ssize_t i;
 
 			for (i = 0; stress_continue(args) && (i < max_fd); i++) {
@@ -338,20 +338,20 @@ static int OPTIMIZE3 stress_socket_server(
 				new_fd = open("/dev/zero", O_RDWR);
 #endif
 
-				if (new_fd >= 0) {
+				if (LIKELY(new_fd >= 0)) {
 					ssize_t ret;
 
 					ret = stress_socket_fd_send(sfd, new_fd);
-					if ((ret < 0) &&
-					     ((errno != EAGAIN) &&
-					      (errno != EINTR) &&
-					      (errno != EWOULDBLOCK) &&
-					      (errno != ECONNRESET) &&
-					      (errno != ENOMEM) &&
+					if (UNLIKELY((ret < 0) &&
+						     ((errno != EAGAIN) &&
+						      (errno != EINTR) &&
+						      (errno != EWOULDBLOCK) &&
+						      (errno != ECONNRESET) &&
+						      (errno != ENOMEM) &&
 #if defined(ETOOMANYREFS)
-					      (errno != ETOOMANYREFS) &&
+						      (errno != ETOOMANYREFS) &&
 #endif
-					      (errno != EPIPE))) {
+						      (errno != EPIPE)))) {
 						pr_fail("%s: sendmsg failed, errno=%d (%s)\n",
 							args->name, errno, strerror(errno));
 						(void)close(new_fd);
