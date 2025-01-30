@@ -95,7 +95,7 @@ static void stress_unlink_exercise(
 		for (i = 0; stress_continue(args) && (i < UNLINK_FILES); i++) {
 			int mode, retries = 0;
 
-			if ((i & 7) == 7) {
+			if (UNLIKELY((i & 7) == 7)) {
 				if (link(filenames[i - 1], filenames[i]) == 0) {
 					fds[i] = open(filenames[i], O_RDWR);
 					if (fds[i] < 0)
@@ -105,7 +105,7 @@ static void stress_unlink_exercise(
 retry:
 			mode = open_flags[stress_mwc8modn(SIZEOF_ARRAY(open_flags))];
 			fds[i] = open(filenames[i], O_CREAT | O_RDWR | mode, S_IRUSR | S_IWUSR);
-			if (fds[i] < 0) {
+			if (UNLIKELY(fds[i] < 0)) {
 				switch (errno) {
 				case EEXIST:
 					fds[i] = open(filenames[i], O_RDWR);
@@ -114,15 +114,15 @@ retry:
 					break;
 				case EINVAL:
 					retries++;
-					if (stress_continue(args) && (retries < 5))
+					if (LIKELY(stress_continue(args) && (retries < 5)))
 						goto retry;
 				default:
 					break;
 				}
 			} else {
-				if ((i & 63) == 0)
+				if (UNLIKELY((i & 63) == 0))
 					(void)shim_fsync(fds[i]);
-				if ((i & 511) == 0)
+				if (UNLIKELY((i & 511) == 0))
 					(void)shim_fdatasync(fds[i]);
 			}
 		}
@@ -145,7 +145,7 @@ retry:
 		 */
 		t = stress_time_now();
 		for (i = 0, n = 0; i < UNLINK_FILES; i++) {
-			if (unlink(filenames[idx[i]]) == 0)
+			if (LIKELY(unlink(filenames[idx[i]]) == 0))
 				n++;
 		}
 		metrics->duration += stress_time_now() - t;
@@ -159,7 +159,7 @@ retry:
 		for (i = 0; i < UNLINK_FILES; i++) {
 			register int fd = fds[idx[i]];
 
-			if (fd != -1)
+			if (LIKELY(fd != -1))
 				(void)close(fd);
 		}
 		if (parent)
@@ -176,7 +176,7 @@ retry:
 
 	for (i = 0; i < UNLINK_FILES; i++) {
 		if (fds[i] != -1) {
-			if ((i & 127) == 15)
+			if (UNLIKELY((i & 127) == 15))
 				(void)shim_fsync(fds[i]);
 			(void)close(fds[i]);
 		}
