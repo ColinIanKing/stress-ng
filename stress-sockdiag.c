@@ -181,20 +181,20 @@ static int sockdiag_send(stress_args_t *args, const int fd)
 		for (i = 0; i < 32; i++) {
 			request.udr.udiag_show = 1U << i;
 			ret = sendmsg(fd, &msg, 0);
-			if (ret > 0)
+			if (LIKELY(ret > 0))
 				return 1;
 			if (LIKELY(errno != EINTR))
 				return -1;
 		}
 		request.udr.udiag_show = ~0U;
 		ret = sendmsg(fd, &msg, 0);
-		if (ret > 0)
+		if (LIKELY(ret > 0))
 			return 1;
 		if (LIKELY(errno != EINTR))
 			return -1;
 
 		family++;
-		if (family >= SIZEOF_ARRAY(families))
+		if (UNLIKELY(family >= SIZEOF_ARRAY(families)))
 			family = 0;
 	}
 
@@ -210,7 +210,7 @@ static int stress_sockdiag_parse(
 	unsigned int rta_len;
 	uint32_t count = 0;
 
-	if (len < NLMSG_LENGTH(sizeof(*diag))) {
+	if (UNLIKELY(len < NLMSG_LENGTH(sizeof(*diag)))) {
 		/* short response, ignore for now */
 		return 0;
 	}
@@ -257,7 +257,7 @@ static int sockdiag_recv(stress_args_t *args, const int fd)
 				continue;
 			return -1;
 		}
-		if (!NLMSG_OK(h, ret))
+		if (UNLIKELY(!NLMSG_OK(h, ret)))
 			return -1;
 
 		for (; NLMSG_OK(h, ret); h = NLMSG_NEXT(h, ret)) {
