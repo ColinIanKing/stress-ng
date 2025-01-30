@@ -137,7 +137,7 @@ static int OPTIMIZE3 stress_udp_flood(stress_args_t *args)
 #endif
 		stress_net_release_ports(port, port);
 
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			break;
 
 		rand_port = 1024 + stress_mwc16modn(65535 - 1024);
