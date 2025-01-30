@@ -121,7 +121,7 @@ static bool stress_kmsg_drain(const int fd)
 {
 	int count = 0;
 
-	if (fd == -1)
+	if (UNLIKELY(fd == -1))
 		return false;
 
 	for (;;) {
@@ -188,7 +188,7 @@ static inline bool stress_sys_rw(stress_ctxt_t *ctxt)
 		ssize_t rret;
 
 		ret = shim_pthread_spin_lock(&lock);
-		if (ret)
+		if (UNLIKELY(ret))
 			return false;
 		(void)shim_strscpy(path, ctxt->sysfs_path, sizeof(path));
 		counter++;
@@ -196,7 +196,7 @@ static inline bool stress_sys_rw(stress_ctxt_t *ctxt)
 		if (counter > OPS_PER_SYSFS_FILE)
 			(void)shim_sched_yield();
 
-		if (!*path || !stress_continue_flag())
+		if (UNLIKELY(!*path || !stress_continue_flag()))
 			break;
 
 		t_start = stress_time_now();
@@ -210,14 +210,14 @@ static inline bool stress_sys_rw(stress_ctxt_t *ctxt)
 			goto next;
 		}
 		ret = shim_pthread_spin_lock(&open_lock);
-		if (ret) {
+		if (UNLIKELY(ret)) {
 			(void)close(fd);
 			return false;
 		}
 		ctxt->sysfs_files_opened++;
 		(void)shim_pthread_spin_unlock(&open_lock);
 
-		if (stress_time_now() - t_start > threshold) {
+		if (UNLIKELY(stress_time_now() - t_start > threshold)) {
 			(void)close(fd);
 			goto next;
 		}
@@ -228,10 +228,10 @@ static inline bool stress_sys_rw(stress_ctxt_t *ctxt)
 		while (i < (4096 * SYS_BUF_SZ)) {
 			const ssize_t sz = 1 + stress_mwc32modn(sizeof(buffer) - 1);
 
-			if (!stress_continue_flag())
+			if (UNLIKELY(!stress_continue_flag()))
 				break;
 			rret = read(fd, buffer, (size_t)sz);
-			if (rret < 0)
+			if (UNLIKELY(rret < 0))
 				break;
 			if (rret < sz)
 				break;
@@ -242,7 +242,7 @@ static inline bool stress_sys_rw(stress_ctxt_t *ctxt)
 				(void)close(fd);
 				goto drain;
 			}
-			if (stress_time_now() - t_start > threshold) {
+			if (UNLIKELY(stress_time_now() - t_start > threshold)) {
 				(void)close(fd);
 				goto next;
 			}
@@ -252,13 +252,13 @@ static inline bool stress_sys_rw(stress_ctxt_t *ctxt)
 		if (g_opt_flags & OPT_FLAGS_VERIFY) {
 			struct stat statbuf;
 
-			if (shim_fstat(fd, &statbuf) < 0)
+			if (UNLIKELY(shim_fstat(fd, &statbuf) < 0))
 				pr_fail("%s: stat failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 		}
 		(void)close(fd);
 
-		if (stress_time_now() - t_start > threshold)
+		if (UNLIKELY(stress_time_now() - t_start > threshold))
 			goto next;
 		if ((fd = open(path, O_RDONLY | O_NONBLOCK)) < 0)
 			goto next;
@@ -266,9 +266,9 @@ static inline bool stress_sys_rw(stress_ctxt_t *ctxt)
 		 *  Zero sized reads
 		 */
 		rret = read(fd, buffer, 0);
-		if (rret < 0)
+		if (UNLIKELY(rret < 0))
 			goto err;
-		if (stress_time_now() - t_start > threshold)
+		if (UNLIKELY(stress_time_now() - t_start > threshold))
 			goto next;
 		if (stress_kmsg_drain(ctxt->kmsgfd)) {
 			drain_kmsg = true;
@@ -284,7 +284,7 @@ static inline bool stress_sys_rw(stress_ctxt_t *ctxt)
 			stress_uint8_put(*ptr);
 			(void)munmap((void *)ptr, page_size);
 		}
-		if (stress_time_now() - t_start > threshold)
+		if (UNLIKELY(stress_time_now() - t_start > threshold))
 			goto next;
 
 		/*
@@ -294,7 +294,7 @@ static inline bool stress_sys_rw(stress_ctxt_t *ctxt)
 		tv.tv_usec = 0;
 		FD_ZERO(&rfds);
 		VOID_RET(int, select(fd + 1, &rfds, NULL, NULL, &tv));
-		if (stress_time_now() - t_start > threshold)
+		if (UNLIKELY(stress_time_now() - t_start > threshold))
 			goto next;
 
 #if defined(HAVE_POLL_H) &&	\
@@ -307,7 +307,7 @@ static inline bool stress_sys_rw(stress_ctxt_t *ctxt)
 			fds[0].revents = 0;
 
 			VOID_RET(int, poll(fds, 1, 1));
-			if (stress_time_now() - t_start > threshold)
+			if (UNLIKELY(stress_time_now() - t_start > threshold))
 				goto next;
 		}
 #else
@@ -374,7 +374,7 @@ static inline bool stress_sys_rw(stress_ctxt_t *ctxt)
 		}
 err:
 		(void)close(fd);
-		if (stress_time_now() - t_start > threshold)
+		if (UNLIKELY(stress_time_now() - t_start > threshold))
 			goto next;
 
 		/*
@@ -390,7 +390,7 @@ err:
 			VOID_RET(ssize_t, write(fd, buffer, 0));
 			(void)close(fd);
 
-			if (stress_time_now() - t_start > threshold)
+			if (UNLIKELY(stress_time_now() - t_start > threshold))
 				goto next;
 		} else {
 			/*
@@ -428,8 +428,8 @@ err:
 
 				/* Disable ROM read */
 				ret = write(fd, "0", 1);
-				if (ret < 0) {
-					(void)close(fd);
+				(void)close(fd);
+				if (UNLIKELY(ret < 0)) {
 					goto next;
 				}
 			}
@@ -496,19 +496,19 @@ static bool stress_sys_skip(const char *path)
 	 *  "/sys/devices/LNXSYSTM:00/LNXSYBUS:00/PNP0A03:00/device:07/" \
 	 *  "VMBUS:01/99221fa0-24ad-11e2-be98-001aa01bbf6e/channels/4/read_avail"
 	 */
-	if (strstr(path, "PNP0A03") && strstr(path, "VMBUS"))
+	if (UNLIKELY(strstr(path, "PNP0A03") && strstr(path, "VMBUS")))
 		return true;
 	/*
 	 *  Has been known to cause issues on s390x
 	 *
-	if (strstr(path, "virtio0/block") && strstr(path, "cache_type"))
+	if (UNLIKELY(strstr(path, "virtio0/block") && strstr(path, "cache_type")))
 		return true;
 	 */
 
 	/*
 	 *  The tpm driver for pre Linux 4.10 is racey so skip
 	 */
-	if ((os_release < 410) && (strstr(path, "/sys/kernel/security/tpm0")))
+	if (UNLIKELY((os_release < 410) && (strstr(path, "/sys/kernel/security/tpm0"))))
 		return true;
 
 	return false;
@@ -529,7 +529,7 @@ static void stress_sys_dir(
 	mode_t flags = S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
 	int i, n;
 
-	if (!stress_continue_flag())
+	if (UNLIKELY(!stress_continue_flag()))
 		return;
 
 	/* Don't want to go too deep */
@@ -537,11 +537,11 @@ static void stress_sys_dir(
 		return;
 
 	/* Don't want to reset any GCOV metrics */
-	if (!strcmp(path, "/sys/kernel/debug/gcov"))
+	if (UNLIKELY(!strcmp(path, "/sys/kernel/debug/gcov")))
 		return;
 
 	n = scandir(path, &dlist, NULL, mixup_sort);
-	if (n <= 0) {
+	if (UNLIKELY(n <= 0)) {
 		stress_dirent_list_free(dlist, n);
 		return;
 	}
@@ -579,7 +579,7 @@ static void stress_sys_dir(
 			goto dt_reg_free;
 
 		ret = shim_pthread_spin_lock(&lock);
-		if (ret)
+		if (UNLIKELY(ret))
 			goto dt_reg_free;
 
 		(void)shim_strscpy(ctxt->sysfs_path, tmp, sizeof(ctxt->sysfs_path));
@@ -598,10 +598,10 @@ static void stress_sys_dir(
 		do {
 			(void)shim_usleep_interruptible(1000);
 			/* Cater for very long delays */
-			if ((counter == 0) && (stress_time_now() > time_out))
+			if (UNLIKELY((counter == 0) && (stress_time_now() > time_out)))
 				break;
 			/* Cater for slower delays */
-			if ((counter > 0) && (stress_time_now() > time_end))
+			if (UNLIKELY((counter > 0) && (stress_time_now() > time_end)))
 				break;
 		} while ((counter < OPS_PER_SYSFS_FILE) && stress_continue(args));
 
@@ -623,7 +623,7 @@ dt_reg_free:
 		int ret;
 		char tmp[PATH_MAX];
 
-		if (!d)
+		if (UNLIKELY(!d))
 			continue;
 		if (shim_dirent_type(path, d) != SHIM_DT_DIR)
 			goto dt_dir_free;
@@ -835,10 +835,10 @@ again:
 				for (i = 0; i < n; i++) {
 					char sysfspath[PATH_MAX];
 
-					if (!stress_continue(args))
+					if (UNLIKELY(!stress_continue(args)))
 						break;
 
-					if (stress_is_dot_filename(dlist[j]->d_name))
+					if (UNLIKELY(stress_is_dot_filename(dlist[j]->d_name)))
 						continue;
 
 					stress_mk_filename(sysfspath, sizeof(sysfspath),
