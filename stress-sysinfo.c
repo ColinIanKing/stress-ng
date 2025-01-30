@@ -92,16 +92,14 @@ static int stress_sysinfo(stress_args_t *args)
 			int i, ret;
 
 			ret = sysinfo(&sysinfo_buf);
-			if ((ret < 0) &&
-			    (verify) &&
-			    (errno != EPERM)) {
+			if (UNLIKELY((ret < 0) && (verify) && (errno != EPERM))) {
 			 	pr_fail("%s: sysinfo failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				rc = EXIT_FAILURE;
 				break;
 			}
 
-			if (!stress_continue_flag())
+			if (UNLIKELY(!stress_continue_flag()))
 				break;
 
 			/* Linux statfs variant */
@@ -189,7 +187,7 @@ static int stress_sysinfo(stress_args_t *args)
 			struct stat sbuf;
 			struct shim_ustat ubuf;
 
-			if (!stress_continue_flag())
+			if (UNLIKELY(!stress_continue_flag()))
 				break;
 
 			for (i = 0; i < n_mounts; i++) {
@@ -272,7 +270,7 @@ static int stress_sysinfo(stress_args_t *args)
 		if (!stress_continue_flag())
 			break;
 		clk = times(&tms_buf);
-		if ((clk == (clock_t)-1) && (verify)) {
+		if (UNLIKELY((clk == (clock_t)-1) && (verify))) {
 			 pr_fail("%s: times failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 		}
