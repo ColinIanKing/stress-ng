@@ -111,11 +111,11 @@ static void check_unshare(
 
 	t = stress_time_now();
 	ret = shim_unshare(flags);
-	if ((ret < 0) &&
-            (errno != EPERM) &&
-            (errno != EACCES) &&
-            (errno != EINVAL) &&
-            (errno != ENOSPC)) {
+	if (UNLIKELY((ret < 0) &&
+		     (errno != EPERM) &&
+		     (errno != EACCES) &&
+		     (errno != EINVAL) &&
+		     (errno != ENOSPC))) {
 		pr_fail("%s: unshare(%s) failed, errno=%d (%s)\n",
 			args->name, flags_name,
 			errno, strerror(errno));
@@ -197,7 +197,7 @@ static int stress_unshare(stress_args_t *args)
 			int clone_flag = 0;
 			const bool do_flag_perm = stress_mwc1();
 
-			if (!stress_continue_flag())
+			if (UNLIKELY(!stress_continue_flag()))
 				break;
 			if (!enough_memory()) {
 				/* memory too low, back off */
