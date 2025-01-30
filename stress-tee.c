@@ -52,7 +52,7 @@ static pid_t stress_tee_spawn(
 {
 	pid_t pid;
 
-	if (pipe(fds) < 0) {
+	if (UNLIKELY(pipe(fds) < 0)) {
 		pr_err("%s: pipe failed: %d (%s)\n",
 			args->name, errno, strerror(errno));
 		return -1;
@@ -65,13 +65,12 @@ again:
 			goto again;
 		(void)close(fds[0]);
 		(void)close(fds[1]);
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			return -1;
 		pr_err("%s: fork failed: %d (%s)\n",
 			args->name, errno, strerror(errno));
 		return -1;
-	}
-	if (pid == 0) {
+	} else if (pid == 0) {
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
 
@@ -274,7 +273,7 @@ static int stress_tee(stress_args_t *args)
 				goto do_splice;
 			}
 		}
-		if (len == 0)
+		if (UNLIKELY(len == 0))
 			break;
 
 		if (UNLIKELY(len < 0)) {
@@ -311,7 +310,7 @@ do_splice:
 			len -= slen;
 		}
 
-		if (exercise_tee(args, release, pipe_in[0], pipe_out[1]) < 0)
+		if (UNLIKELY(exercise_tee(args, release, pipe_in[0], pipe_out[1]) < 0))
 			goto tidy_child2;
 
 		stress_bogo_inc(args);
