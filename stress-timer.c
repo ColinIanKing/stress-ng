@@ -119,7 +119,7 @@ static void MLOCKED_TEXT OPTIMIZE3 stress_timer_handler(int sig)
 
 	(void)sig;
 
-	if (!stress_timer_stress_continue())
+	if (UNLIKELY(!stress_timer_stress_continue()))
 		goto cancel;
 	timer_counter++;
 
@@ -147,7 +147,7 @@ cancel:
 	stress_continue_set_flag(false);
 	/* Cancel timer if we detect no more runs */
 	(void)shim_memset(&timer, 0, sizeof(timer));
-	if (timer_settime(timerid, 0, &timer, NULL) < 0)
+	if (UNLIKELY(timer_settime(timerid, 0, &timer, NULL) < 0))
 		timer_settime_failure++;
 }
 
