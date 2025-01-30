@@ -319,18 +319,18 @@ static void stress_vecshuf_set_mask(stress_vec_data_t *data)
 #endif
 }
 
-#define VEC_CHECK(type, elements, fail)				\
-do {								\
-	for (i = 0; i < elements; i++) {			\
-		if (data-> type ## _ ## elements.s.i[i] !=	\
-		    data-> type ## _ ## elements.o.i[i]) {	\
-			pr_fail("%s: shuffling error, in "	\
-				# type "x" # elements		\
-				"vector\n", args->name);	\
-			fail = true;				\
-			break;					\
-		}						\
-	}							\
+#define VEC_CHECK(type, elements, fail)					\
+do {									\
+	for (i = 0; i < elements; i++) {				\
+		if (UNLIKELY(data-> type ## _ ## elements.s.i[i] !=	\
+			     data-> type ## _ ## elements.o.i[i])) {	\
+			pr_fail("%s: shuffling error, in "		\
+				# type "x" # elements			\
+				"vector\n", args->name);		\
+			fail = true;					\
+			break;						\
+		}							\
+	}								\
 } while (0)
 
 static bool stress_vecshuf_check_data(
@@ -386,12 +386,11 @@ static int stress_vecshuf(stress_args_t *args)
 	do {
 		stress_vecshuf_set_mask(data);
 		stress_vecshuf_call_method(args, data, vecshuf_method);
-		if (stress_vecshuf_check_data(args, data)) {
+		if (UNLIKELY(stress_vecshuf_check_data(args, data))) {
 			rc = EXIT_FAILURE;
 			break;
 		}
 	} while (stress_continue(args));
-
 
 	if (args->instance == 0) {
 		double total_duration = 0.0;
