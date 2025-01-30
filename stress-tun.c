@@ -122,11 +122,11 @@ static int stress_tun(stress_args_t *args)
 		int port = 2000 + (stress_mwc16() & 0xfff);
 
 		port = stress_net_reserve_ports(port, port);
-		if (port < 0)
+		if (UNLIKELY(port < 0))
 			continue;	/* try again */
 
 		fd = open(tun_dev, O_RDWR);
-		if (fd < 0) {
+		if (UNLIKELY(fd < 0)) {
 			pr_fail("%s: cannot open %s, errno=%d (%s)\n",
 				args->name, tun_dev, errno, strerror(errno));
 			stress_net_release_ports(port, port);
@@ -137,7 +137,7 @@ static int stress_tun(stress_args_t *args)
 		ifr.ifr_flags = tun_tap ? IFF_TAP : IFF_TUN;
 
 		ret = ioctl(fd, TUNSETIFF, (void *)&ifr);
-		if (ret < 0) {
+		if (UNLIKELY(ret < 0)) {
 			pr_fail("%s: ioctl TUNSETIFF failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			(void)close(fd);
@@ -147,7 +147,7 @@ static int stress_tun(stress_args_t *args)
 		}
 
 		ret = ioctl(fd, TUNSETOWNER, owner);
-		if (ret < 0) {
+		if (UNLIKELY(ret < 0)) {
 			pr_fail("%s: ioctl TUNSETOWNER failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			rc = EXIT_FAILURE;
@@ -155,7 +155,7 @@ static int stress_tun(stress_args_t *args)
 		}
 
 		ret = ioctl(fd, TUNSETGROUP, group);
-		if (ret < 0) {
+		if (UNLIKELY(ret < 0)) {
 			pr_fail("%s: ioctl TUNSETGROUP failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			rc = EXIT_FAILURE;
@@ -163,7 +163,7 @@ static int stress_tun(stress_args_t *args)
 		}
 
 		sfd = socket(AF_INET, SOCK_DGRAM, 0);
-		if (sfd < 0)
+		if (UNLIKELY(sfd < 0))
 			goto clean_up;
 		ifr.ifr_addr.sa_family = AF_INET;
 		tun_addr = (struct sockaddr_in *)&ifr.ifr_addr;
@@ -178,11 +178,11 @@ static int stress_tun(stress_args_t *args)
 
 			(void)inet_pton(AF_INET, ip_addr, &tun_addr->sin_addr);
 			ret = ioctl(sfd, SIOCSIFADDR, &ifr);
-			if (ret == 0)
+			if (LIKELY(ret == 0))
 				break;
 		}
 		(void)close(sfd);
-		if (ret < 0)
+		if (UNLIKELY(ret < 0))
 			goto clean_up;
 
 		parent_cpu = stress_get_cpu();
@@ -202,7 +202,7 @@ static int stress_tun(stress_args_t *args)
 			(void)sched_settings_apply(true);
 
 			sfd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-			if (sfd < 0) {
+			if (UNLIKELY(sfd < 0)) {
 				switch (errno) {
 				case EMFILE:
 				case ENFILE:
@@ -229,7 +229,7 @@ static int stress_tun(stress_args_t *args)
 			inet_pton(AF_INET, ip_addr, &addr.sin_addr.s_addr);
 
 			ret = bind(sfd, (struct sockaddr *)&addr, len);
-			if (ret < 0) {
+			if (UNLIKELY(ret < 0)) {
 				switch (errno) {
 				case EADDRINUSE:
 				case ENOMEM:
@@ -250,7 +250,7 @@ static int stress_tun(stress_args_t *args)
 			for (i = 0; i < PACKETS_TO_SEND; i++) {
 				n = recvfrom(sfd, buffer, sizeof(buffer), 0,
 					(struct sockaddr *)&addr, &len);
-				if (n < 0)
+				if (UNLIKELY(n < 0))
 					break;
 			}
 child_cleanup:
@@ -266,7 +266,7 @@ child_cleanup_fd:
 			ssize_t n;
 
 			ret = ioctl(fd, TUNSETPERSIST, 0);
-			if (ret < 0) {
+			if (UNLIKELY(ret < 0)) {
 				pr_fail("%s: ioctl TUNSETPERSIST failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				rc = EXIT_FAILURE;
@@ -360,7 +360,7 @@ child_cleanup_fd:
 #endif
 
 			sfd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-			if (sfd < 0) {
+			if (UNLIKELY(sfd < 0)) {
 				pr_fail("%s: parent socket failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				goto child_reap;
@@ -375,7 +375,7 @@ child_cleanup_fd:
 			for (i = 0; stress_continue(args) && (i < PACKETS_TO_SEND); i++) {
 				n = sendto(sfd, buffer, sizeof(buffer), 0,
 					(struct sockaddr *)&addr, len);
-				if (n < 0)
+				if (UNLIKELY(n < 0))
 					break;
 				(void)shim_sched_yield();
 			}
