@@ -94,23 +94,23 @@ static int OPTIMIZE3 stress_udp_client(
 		char ALIGN64 buf[UDP_BUF];
 		pid_t *pidptr = (pid_t *)buf;
 
-		if ((fd = socket(udp_domain, SOCK_DGRAM, udp_proto)) < 0) {
+		if (UNLIKELY((fd = socket(udp_domain, SOCK_DGRAM, udp_proto)) < 0)) {
 			pr_fail("%s: socket failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			rc = EXIT_NO_RESOURCE;
 			goto child_die;
 		}
 
-		if (stress_set_sockaddr_if(args->name, args->instance, mypid,
+		if (UNLIKELY(stress_set_sockaddr_if(args->name, args->instance, mypid,
 				udp_domain, udp_port, udp_if,
-				&addr, &len, NET_ADDR_ANY) < 0) {
+				&addr, &len, NET_ADDR_ANY) < 0)) {
 			(void)close(fd);
 			rc = EXIT_NO_RESOURCE;
 			goto child_die;
 		}
 #if defined(IPPROTO_UDPLITE) &&	\
     defined(UDPLITE_SEND_CSCOV)
-		if (udp_proto == IPPROTO_UDPLITE) {
+		if (UNLIKELY(udp_proto == IPPROTO_UDPLITE)) {
 			int val = 8;	/* Just the 8 byte header */
 			socklen_t slen;
 
@@ -124,20 +124,14 @@ static int OPTIMIZE3 stress_udp_client(
 			}
 			slen = sizeof(val);
 			(void)getsockopt(fd, SOL_UDPLITE, UDPLITE_SEND_CSCOV, &val, &slen);
-		}
-#endif
-#if defined(IPPROTO_UDPLITE) &&	\
-    defined(UDPLITE_RECV_CSCOV)
-		if (udp_proto == IPPROTO_UDPLITE) {
-			int val;
-			socklen_t slen = sizeof(val);
 
+			slen = sizeof(val);
 			(void)getsockopt(fd, udp_proto, UDPLITE_RECV_CSCOV, &val, &slen);
 		}
 #endif
 
 #if defined(UDP_GRO)
-		if (udp_gro) {
+		if (UNLIKELY(udp_gro)) {
 			int val;
 			socklen_t slen = sizeof(val);
 
