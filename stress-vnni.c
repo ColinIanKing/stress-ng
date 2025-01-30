@@ -479,7 +479,7 @@ static void OPTIMIZE3 stress_vnni_exercise(stress_args_t *args, const size_t n)
 	/* and checksum the last computation */
 	checksum = stress_vnni_checksum();
 	expected_checksum = little_endian ? method->vnni_checksum_le : method->vnni_checksum_be;
-	if (checksum != expected_checksum) {
+	if (UNLIKELY(checksum != expected_checksum)) {
 		pr_fail("%s: checksum mismatch for %s, got %" PRIx32 ", expected %" PRIx32 "\n",
 			args->name, method->name, checksum, expected_checksum);
 		vnni_checksum_okay = false;
@@ -492,7 +492,7 @@ static void stress_vnni_all(stress_args_t *args)
 	size_t i;
 
 	for (i = 1; stress_continue(args) && (i < SIZEOF_ARRAY(stress_vnni_methods)); i++) {
-		if (stress_vnni_methods[i].vnni_capable) {
+		if (LIKELY(stress_vnni_methods[i].vnni_capable)) {
 			stress_vnni_exercise(args, i);
 		}
 	}
@@ -557,7 +557,7 @@ static int stress_vnni(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		if (vnni_method) {
+		if (UNLIKELY(vnni_method)) {
 			stress_vnni_exercise(args, vnni_method);
 		} else {
 			stress_vnni_all(args);
