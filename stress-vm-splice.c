@@ -174,7 +174,7 @@ static int stress_vm_splice(stress_args_t *args)
 			bytes += (double)n_bytes;
 			vm_splices += 1.0;
 		}
-		if (metrics_counter++ > 1000)
+		if (UNLIKELY(metrics_counter++ > 1000))
 			metrics_counter = 0;
 
 		stress_bogo_inc(args);
