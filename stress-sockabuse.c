@@ -111,7 +111,7 @@ static void stress_sockabuse_fd(const int fd)
 	{
 		struct timeval now;
 
-		if (gettimeofday(&now, NULL) == 0) {
+		if (LIKELY(gettimeofday(&now, NULL) == 0)) {
 			timespec[0].tv_sec = now.tv_sec;
 			timespec[1].tv_sec = now.tv_sec;
 
@@ -148,7 +148,7 @@ static void stress_sockabuse_fd(const int fd)
 		(void)munmap(ptr, 4096);
 	nfd = dup(fd);
 	VOID_RET(ssize_t, shim_copy_file_range(fd, 0, nfd, 0, 16, 0));
-	if (nfd >= 0)
+	if (LIKELY(nfd >= 0))
 		(void)close(nfd);
 #if defined(HAVE_POSIX_FADVISE) &&	\
     defined(POSIX_FADV_RANDOM)
@@ -182,20 +182,20 @@ static int stress_sockabuse_client(
 		uint64_t delay = 10000;
 
 retry:
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			return EXIT_FAILURE;
-		if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+		if (UNLIKELY((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0)) {
 			pr_fail("%s: socket failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			return EXIT_FAILURE;
 		}
 
-		if (stress_set_sockaddr(args->name, args->instance, mypid,
+		if (UNLIKELY(stress_set_sockaddr(args->name, args->instance, mypid,
 				AF_INET, sockabuse_port,
-				&addr, &addr_len, NET_ADDR_ANY) < 0) {
+				&addr, &addr_len, NET_ADDR_ANY) < 0)) {
 			return EXIT_FAILURE;
 		}
-		if (connect(fd, addr, addr_len) < 0) {
+		if (UNLIKELY(connect(fd, addr, addr_len) < 0)) {
 			(void)shutdown(fd, SHUT_RDWR);
 			(void)close(fd);
 			(void)shim_usleep(delay);
@@ -208,7 +208,7 @@ retry:
 		}
 
 		n = recv(fd, buf, sizeof(buf), 0);
-		if (n < 0) {
+		if (UNLIKELY(n < 0)) {
 			if ((errno != EINTR) && (errno != ECONNRESET))
 				pr_fail("%s: recv failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
@@ -250,14 +250,14 @@ static int stress_sockabuse_server(
 	do {
 		int i;
 
-		if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+		if (UNLIKELY((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0)) {
 			rc = stress_exit_status(errno);
 			pr_fail("%s: socket failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			continue;
 		}
-		if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR,
-			&so_reuseaddr, sizeof(so_reuseaddr)) < 0) {
+		if (UNLIKELY(setsockopt(fd, SOL_SOCKET, SO_REUSEADDR,
+			&so_reuseaddr, sizeof(so_reuseaddr)) < 0)) {
 			rc = stress_exit_status(errno);
 			pr_fail("%s: setsockopt failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
@@ -265,13 +265,13 @@ static int stress_sockabuse_server(
 			continue;
 		}
 
-		if (stress_set_sockaddr(args->name, args->instance, mypid,
+		if (UNLIKELY(stress_set_sockaddr(args->name, args->instance, mypid,
 				AF_INET, sockabuse_port,
-				&addr, &addr_len, NET_ADDR_ANY) < 0) {
+				&addr, &addr_len, NET_ADDR_ANY) < 0)) {
 			(void)close(fd);
 			continue;
 		}
-		if (bind(fd, addr, addr_len) < 0) {
+		if (UNLIKELY(bind(fd, addr, addr_len) < 0)) {
 			if (errno != EADDRINUSE) {
 				rc = stress_exit_status(errno);
 				pr_fail("%s: bind failed, errno=%d (%s)\n",
@@ -280,7 +280,7 @@ static int stress_sockabuse_server(
 			(void)close(fd);
 			continue;
 		}
-		if (listen(fd, 10) < 0) {
+		if (UNLIKELY(listen(fd, 10) < 0)) {
 			pr_fail("%s: listen failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			rc = EXIT_FAILURE;
@@ -293,25 +293,25 @@ static int stress_sockabuse_server(
 		for (i = 0; i < 16; i++) {
 			int sfd;
 
-			if (!stress_continue(args))
+			if (UNLIKELY(!stress_continue(args)))
 				break;
 
 			sfd = accept(fd, (struct sockaddr *)NULL, NULL);
-			if (sfd >= 0) {
+			if (LIKELY(sfd >= 0)) {
 				struct sockaddr saddr;
 				socklen_t len;
 				int sndbuf;
 				ssize_t n;
 
 				len = sizeof(saddr);
-				if (getsockname(fd, &saddr, &len) < 0) {
+				if (UNLIKELY(getsockname(fd, &saddr, &len) < 0)) {
 					pr_fail("%s: getsockname failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 					(void)close(sfd);
 					break;
 				}
 				len = sizeof(sndbuf);
-				if (getsockopt(fd, SOL_SOCKET, SO_SNDBUF, &sndbuf, &len) < 0) {
+				if (UNLIKELY(getsockopt(fd, SOL_SOCKET, SO_SNDBUF, &sndbuf, &len) < 0)) {
 					pr_fail("%s: getsockopt failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 					(void)close(sfd);
@@ -320,7 +320,7 @@ static int stress_sockabuse_server(
 				(void)shim_memset(buf, stress_ascii64[stress_bogo_get(args) & 63], sizeof(buf));
 
 				n = send(sfd, buf, sizeof(buf), 0);
-				if (n < 0) {
+				if (UNLIKELY(n < 0)) {
 					if ((errno != EINTR) && (errno != EPIPE))
 						pr_fail("%s: send failed, errno=%d (%s)\n",
 							args->name, errno, strerror(errno));
