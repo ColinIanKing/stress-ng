@@ -262,7 +262,7 @@ static int stress_timerfd(stress_args_t *args)
 #if defined(USE_SELECT)
 		FD_ZERO(&rdfs);
 		for (i = 0; i < timerfd_fds; i++) {
-			if (timerfds[i] >= 0)
+			if (LIKELY(timerfds[i] >= 0))
 				FD_SET(timerfds[i], &rdfs);
 		}
 		timeout.tv_sec = 0;
@@ -270,7 +270,7 @@ static int stress_timerfd(stress_args_t *args)
 #endif
 #if defined(USE_POLL)
 		for (i = 0, j = 0; i < timerfd_fds; i++) {
-			if (timerfds[i] >= 0) {
+			if (LIKELY(timerfds[i] >= 0)) {
 				pollfds[j].fd = timerfds[i];
 				pollfds[j].events = POLLIN;
 				pollfds[j].revents = 0;
