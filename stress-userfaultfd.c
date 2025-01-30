@@ -173,7 +173,7 @@ static int stress_userfaultfd_clone(void *arg)
 		register const uint8_t *end = c->data + c->sz;
 
 		/* hint we don't need these pages */
-		if (shim_madvise(c->data, c->sz, MADV_DONTNEED) < 0) {
+		if (UNLIKELY(shim_madvise(c->data, c->sz, MADV_DONTNEED) < 0)) {
 			pr_fail("%s: madvise failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			return -1;
@@ -199,7 +199,7 @@ static inline int handle_page_fault(
 	const uint8_t *data_end,
 	const size_t page_size)
 {
-	if ((addr < data_start) || (addr >= data_end)) {
+	if (UNLIKELY((addr < data_start) || (addr >= data_end))) {
 		pr_fail("%s: page fault address is out of range\n", args->name);
 		return -1;
 	}
@@ -213,7 +213,7 @@ static inline int handle_page_fault(
 		copy.src = (unsigned long int)zero_page;
 		copy.len = page_size;
 
-		if (ioctl(fd, UFFDIO_COPY, &copy) < 0) {
+		if (UNLIKELY(ioctl(fd, UFFDIO_COPY, &copy) < 0)) {
 			pr_fail("%s: page fault ioctl UFFDIO_COPY failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			return -1;
@@ -224,7 +224,7 @@ static inline int handle_page_fault(
 		zeropage.range.start = (unsigned long int)addr;
 		zeropage.range.len = page_size;
 		zeropage.mode = 0;
-		if (ioctl(fd, UFFDIO_ZEROPAGE, &zeropage) < 0) {
+		if (UNLIKELY(ioctl(fd, UFFDIO_ZEROPAGE, &zeropage) < 0)) {
 			pr_fail("%s: page fault ioctl UFFDIO_ZEROPAGE failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			return -1;
@@ -384,7 +384,7 @@ static int stress_userfaultfd_child(stress_args_t *args, void *context)
 		double counter;
 
 		/* check we should break out before we block on the read */
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 
 		t = stress_time_now();
@@ -431,7 +431,7 @@ static int stress_userfaultfd_child(stress_args_t *args, void *context)
 
 do_read:
 		ret = read(fd, &msg, sizeof(msg));
-		if (ret < 0) {
+		if (UNLIKELY(ret < 0)) {
 			if (errno == EINTR)
 				continue;
 			pr_fail("%s: read failed, errno=%d (%s)\n",
@@ -466,7 +466,6 @@ do_read:
 		wake.start = (uintptr_t)data;
 		wake.len = page_size;
 		VOID_RET(int, ioctl(fd, UFFDIO_WAKE, &wake));
-
 	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
