@@ -487,7 +487,7 @@ STRESS_PRAGMA_POP
 #else
 		UNEXPECTED
 #endif
-		if (metrics_count++ > 1000)
+		if (UNLIKELY(metrics_count++ > 1000))
 			metrics_count = 0;
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
