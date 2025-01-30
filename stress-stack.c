@@ -154,9 +154,9 @@ static bool OPTIMIZE3 stress_stack_alloc(
 
 PRAGMA_UNROLL_N(4)
 		for (check_ptr = &check; check_ptr; check_ptr = check_ptr->prev) {
-			if (i++ >= 128)
+			if (UNLIKELY(i++ >= 128))
 				break;
-			if (check_ptr->self_addr != check_ptr) {
+			if (UNLIKELY(check_ptr->self_addr != check_ptr)) {
 				pr_fail("%s: corrupt self check data on stack, got %p, expected %p\n",
 					args->name, check_ptr->self_addr, check_ptr);
 				check_success = false;
@@ -171,7 +171,7 @@ PRAGMA_UNROLL_N(4)
 	if (!check_success)
 		return false;
 
-	if (stress_continue(args))
+	if (LIKELY(stress_continue(args)))
 		return stress_stack_alloc(args, start, &check, stack_fill, stack_mlock, stack_pageout, stack_unmap, last_size);
 	return true;
 }
@@ -245,7 +245,7 @@ static int stress_stack_child(stress_args_t *args, void *context)
 		struct sigaction new_action;
 		int ret;
 
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			break;
 
 		(void)shim_memset(&new_action, 0, sizeof new_action);
@@ -255,12 +255,12 @@ static int stress_stack_child(stress_args_t *args, void *context)
 		new_action.sa_flags = SA_ONSTACK;
 #endif
 
-		if (sigaction(SIGSEGV, &new_action, NULL) < 0) {
+		if (UNLIKELY(sigaction(SIGSEGV, &new_action, NULL) < 0)) {
 			pr_fail("%s: sigaction on SIGSEGV failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			return EXIT_FAILURE;
 		}
-		if (sigaction(SIGBUS, &new_action, NULL) < 0) {
+		if (UNLIKELY(sigaction(SIGBUS, &new_action, NULL) < 0)) {
 			pr_fail("%s: sigaction on SIGBUS failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			return EXIT_FAILURE;
@@ -270,7 +270,7 @@ static int stress_stack_child(stress_args_t *args, void *context)
 		 * We return here if we segfault, so
 		 * first check if we need to terminate
 		 */
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			break;
 
 		if (ret) {
