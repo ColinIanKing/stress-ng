@@ -145,7 +145,7 @@ static int stress_switch_pipe(
 		/*
 		 *  Fallback to pipe if pipe2 fails
 		 */
-		if (pipe(pipefds) < 0) {
+		if (UNLIKELY(pipe(pipefds) < 0)) {
 			pr_fail("%s: pipe failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			return EXIT_FAILURE;
@@ -153,7 +153,7 @@ static int stress_switch_pipe(
 	}
 	buf_size = 1;
 #else
-	if (pipe(pipefds) < 0) {
+	if (UNLIKELY(pipe(pipefds) < 0)) {
 		pr_fail("%s: pipe failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
@@ -164,7 +164,7 @@ static int stress_switch_pipe(
 	buf = (char *)stress_mmap_populate(NULL, buf_size,
 			PROT_READ | PROT_WRITE,
 			MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
-	if (buf == MAP_FAILED) {
+	if (UNLIKELY(buf == MAP_FAILED)) {
 		pr_fail("%s: pipe read/write buffer allocation failed\n",
 			args->name);
 		(void)close(pipefds[0]);
@@ -174,12 +174,12 @@ static int stress_switch_pipe(
 	stress_set_vma_anon_name(buf, buf_size, "pipe-io-buffer");
 
 #if defined(F_SETPIPE_SZ)
-	if (fcntl(pipefds[0], F_SETPIPE_SZ, buf_size) < 0) {
+	if (UNLIKELY(fcntl(pipefds[0], F_SETPIPE_SZ, buf_size) < 0)) {
 		pr_dbg("%s: could not force pipe size to 1 page, "
 			"errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 	}
-	if (fcntl(pipefds[1], F_SETPIPE_SZ, buf_size) < 0) {
+	if (UNLIKELY(fcntl(pipefds[1], F_SETPIPE_SZ, buf_size) < 0)) {
 		pr_dbg("%s: could not force pipe size to 1 page, "
 			"errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
