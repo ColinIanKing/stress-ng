@@ -504,26 +504,26 @@ static int OPTIMIZE3 stress_sock_client(
 		double metric;
 
 retry:
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			goto free_controls;
 
 		/* Exercise illegal socket family  */
 		fd = socket(~0, sock_type, sock_protocol);
-		if (fd >= 0)
+		if (UNLIKELY(fd >= 0))
 			(void)close(fd);
 
 		/* Exercise illegal socket type */
 		fd = socket(sock_domain, ~0, sock_protocol);
-		if (fd >= 0)
+		if (UNLIKELY(fd >= 0))
 			(void)close(fd);
 
 		/* Exercise illegal socket protocol */
 		fd = socket(sock_domain, sock_type, ~0);
-		if (fd >= 0)
+		if (UNLIKELY(fd >= 0))
 			(void)close(fd);
 
 		fd = socket(sock_domain, sock_type, sock_protocol);
-		if (fd < 0) {
+		if (UNLIKELY(fd < 0)) {
 			pr_fail("%s: socket failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			goto free_controls;
@@ -548,19 +548,19 @@ retry:
 		(void)sock_zerocopy;
 #endif
 
-		if (stress_set_sockaddr_if(args->name, args->instance, mypid,
-				sock_domain, sock_port, sock_if,
-				&addr, &addr_len, NET_ADDR_ANY) < 0) {
+		if (UNLIKELY(stress_set_sockaddr_if(args->name, args->instance, mypid,
+						    sock_domain, sock_port, sock_if,
+						    &addr, &addr_len, NET_ADDR_ANY) < 0)) {
 			(void)close(fd);
 			goto free_controls;
 		}
-		if (connect(fd, addr, addr_len) < 0) {
+		if (UNLIKELY(connect(fd, addr, addr_len) < 0)) {
 			const int errno_tmp = errno;
 
 			(void)close(fd);
 			(void)shim_usleep(10000);
 			retries++;
-			if (retries > 100) {
+			if (UNLIKELY(retries > 100)) {
 				/* Give up.. */
 				pr_fail("%s: connect failed, errno=%d (%s)\n",
 					args->name, errno_tmp, strerror(errno_tmp));
@@ -776,7 +776,7 @@ retry:
 			 *  to ensure we exercise it without impacting
 			 *  performance.
 			 */
-			if ((count & 0x3ff) == 0) {
+			if (UNLIKELY((count & 0x3ff) == 0)) {
 				int val;
 
 				VOID_RET(int, ioctl(fd, FIONREAD, &val));
@@ -793,7 +793,7 @@ retry:
 			}
 #endif
 			/*  Periodically exercise invalid recv calls */
-			if ((count & 0x7ff) == 0)
+			if (UNLIKELY((count & 0x7ff) == 0))
 				stress_sock_invalid_recv(fd, opt);
 
 			/*
@@ -836,10 +836,11 @@ retry:
 			if (UNLIKELY(n <= 0)) {
 				if (n == 0)
 					break;
-				if ((errno != EINTR) && (errno != ECONNRESET))
+				if (UNLIKELY((errno != EINTR) && (errno != ECONNRESET))) {
 					pr_fail("%s: %s failed, errno=%d (%s)\n",
 						args->name, stress_recv_func_str(opt),
 						errno, strerror(errno));
+				}
 				break;
 			}
 			count++;
@@ -1018,7 +1019,7 @@ static int OPTIMIZE3 stress_sock_server(
 	do {
 		int sfd;
 
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			break;
 
 #if defined(HAVE_ACCEPT4)
@@ -1031,7 +1032,7 @@ static int OPTIMIZE3 stress_sock_server(
 #else
 		sfd = accept(fd, (struct sockaddr *)NULL, NULL);
 #endif
-		if (sfd >= 0) {
+		if (LIKELY(sfd >= 0)) {
 			size_t i, j, k;
 			struct sockaddr saddr;
 			socklen_t len;
@@ -1043,7 +1044,7 @@ static int OPTIMIZE3 stress_sock_server(
 #endif
 
 			len = sizeof(saddr);
-			if (getsockname(fd, &saddr, &len) < 0) {
+			if (UNLIKELY(getsockname(fd, &saddr, &len) < 0)) {
 				pr_fail("%s: getsockname failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				(void)close(sfd);
@@ -1073,7 +1074,7 @@ static int OPTIMIZE3 stress_sock_server(
 			}
 
 			len = sizeof(sndbuf);
-			if (getsockopt(fd, SOL_SOCKET, SO_SNDBUF, &sndbuf, &len) < 0) {
+			if (UNLIKELY(getsockopt(fd, SOL_SOCKET, SO_SNDBUF, &sndbuf, &len) < 0)) {
 				pr_fail("%s: getsockopt failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				(void)close(sfd);
@@ -1106,7 +1107,7 @@ static int OPTIMIZE3 stress_sock_server(
 			if (g_opt_flags & OPT_FLAGS_SOCKET_NODELAY) {
 				int one = 1;
 
-				if (setsockopt(fd, SOL_TCP, TCP_NODELAY, &one, sizeof(one)) < 0) {
+				if (UNLIKELY(setsockopt(fd, SOL_TCP, TCP_NODELAY, &one, sizeof(one)) < 0)) {
 					pr_inf("%s: setsockopt TCP_NODELAY "
 						"failed and disabled, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
@@ -1205,7 +1206,7 @@ retry_sendmmsg:
 						args->name, errno, strerror(errno));
 			}
 #if defined(SIOCOUTQ)
-			if ((count & 0x3ff) == 0) {
+			if (UNLIKELY((count & 0x3ff) == 0)) {
 				int outq_len;
 
 				if (LIKELY(ioctl(sfd, SIOCOUTQ, &outq_len) == 0)) {
@@ -1226,7 +1227,7 @@ retry_sendmmsg:
 		 *  Exercise accept4 with invalid flags
 		 */
 		sfd = accept4(fd, (struct sockaddr *)NULL, NULL, ~0);
-		if (sfd >= 0)
+		if (UNLIKELY(sfd >= 0))
 			(void)close(sfd);
 #endif
 	} while (stress_continue(args));
