@@ -128,7 +128,7 @@ static void stress_umount_read_proc_mounts(stress_args_t *args, const char *path
 		ssize_t ret;
 
 		fd = open("/proc/mounts", O_RDONLY);
-		if (fd < 0)
+		if (UNLIKELY(fd < 0))
 			break;
 		do {
 			ret = read(fd, buffer, sizeof(buffer));
@@ -181,16 +181,17 @@ static void stress_umount_mounter(stress_args_t *args, const char *path)
 		ret = mount("", path, fs, 0, opt);
 		if (ret < 0) {
 			if (errno == EPERM) {
-				static bool warned;
+				static bool warned = false;
 
-				if (!warned) {
+				if (UNLIKELY(!warned)) {
 					warned = true;
 					pr_inf_skip("%s: mount failed, no permission, "
 						"skipping stressor\n", args->name);
 				}
 				rc = EXIT_NO_RESOURCE;
-			} else if ((errno != ENOSPC) && (errno != ENOMEM) &&
-			    (errno != ENODEV)) {
+			} else if (UNLIKELY((errno != ENOSPC) &&
+					    (errno != ENOMEM) &&
+					    (errno != ENODEV))) {
 				pr_fail("%s: mount failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				rc = EXIT_FAILURE;
@@ -224,7 +225,7 @@ again:
 	if (s_pid->pid < 0) {
 		if (stress_redo_fork(args, errno))
 			goto again;
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			return 0;
 		pr_inf("%s: fork failed: %d (%s), skipping stressor\n",
 			args->name, errno, strerror(errno));
