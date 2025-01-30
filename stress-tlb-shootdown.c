@@ -132,7 +132,7 @@ static void *stress_tlb_shootdown_mmap(
 
 	do {
 		mem = mmap(addr, length, prot, flags, fd, offset);
-		if ((void *)mem != MAP_FAILED)
+		if (LIKELY((void *)mem != MAP_FAILED))
 			return mem;
 		if ((errno == EAGAIN) ||
 		    (errno == ENOMEM) ||
@@ -251,7 +251,7 @@ static int stress_tlb_shootdown(stress_args_t *args)
 
                         stress_sync_start_wait_s_pid(&s_pids[i]);
 
-			if (n_cpus > 0) {
+			if (LIKELY(n_cpus > 0)) {
 				CPU_ZERO(&mask);
 				CPU_SET((int)cpus[cpu_idx], &mask);
 				(void)sched_setaffinity(args->pid, sizeof(mask), &mask);
@@ -290,7 +290,7 @@ PRAGMA_UNROLL_N(8)
 				/*
 				 *  periodically change cpu affinity
 				 */
-				if ((stress_time_now() >= t_next) && (n_cpus > 0)) {
+				if (UNLIKELY((stress_time_now() >= t_next) && (n_cpus > 0))) {
 					cpu_idx++;
 					cpu_idx = (cpu_idx >= n_cpus) ? 0 : cpu_idx;
 
