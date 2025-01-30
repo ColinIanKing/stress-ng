@@ -218,41 +218,41 @@ static int stress_wait(stress_args_t *args)
 		 *  Exercise waitpid
 		 */
 		wret = syscall_shim_waitpid(pid_r, &status, options);
-		if ((wret < 0) && (errno != EINTR) && (errno != ECHILD)) {
+		if (UNLIKELY((wret < 0) && (errno != EINTR) && (errno != ECHILD))) {
 			pr_fail("%s: waitpid failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			break;
 		}
 		stress_wait_continued(args, status);
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 
 		/*
 		 *  Exercise wait
 		 */
 		wret = shim_wait(&status);
-		if ((wret < 0) && (errno != EINTR) && (errno != ECHILD)) {
+		if (UNLIKELY((wret < 0) && (errno != EINTR) && (errno != ECHILD))) {
 			pr_fail("%s: wait failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			ret = EXIT_FAILURE;
 			break;
 		}
 		stress_wait_continued(args, status);
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 #if defined(HAVE_WAIT3)
 		/*
 		 *  Exercise wait3 if available
 		 */
 		wret = shim_wait3(&status, options, &usage);
-		if ((wret < 0) && (errno != EINTR) && (errno != ECHILD)) {
+		if (UNLIKELY((wret < 0) && (errno != EINTR) && (errno != ECHILD))) {
 			pr_fail("%s: wait3 failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			ret = EXIT_FAILURE;
 			break;
 		}
 		stress_wait_continued(args, status);
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 #endif
 
@@ -261,56 +261,56 @@ static int stress_wait(stress_args_t *args)
 		 *  Exercise wait4 if available
 		 */
 		wret = shim_wait4(pid_r, &status, options, &usage);
-		if ((wret < 0) && (errno != EINTR) && (errno != ECHILD)) {
+		if (UNLIKELY((wret < 0) && (errno != EINTR) && (errno != ECHILD))) {
 			pr_fail("%s: wait4 failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			ret = EXIT_FAILURE;
 			break;
 		}
 		stress_wait_continued(args, status);
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 
 		/*
 		 *  Exercise PID -1 -> any child process
 		 */
 		wret = shim_wait4(-1, &status, options, &usage);
-		if ((wret < 0) && (errno != EINTR) && (errno != ECHILD)) {
+		if (UNLIKELY((wret < 0) && (errno != EINTR) && (errno != ECHILD))) {
 			pr_fail("%s: wait4 on PID -1 failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			ret = EXIT_FAILURE;
 			break;
 		}
 		stress_wait_continued(args, status);
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 
 		/*
 		 *  Exercise PID 0 -> process group of caller
 		 */
 		wret = shim_wait4(0, &status, options, &usage);
-		if ((wret < 0) && (errno != EINTR) && (errno != ECHILD)) {
+		if (UNLIKELY((wret < 0) && (errno != EINTR) && (errno != ECHILD))) {
 			pr_fail("%s: wait4 on PID 0 failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			ret = EXIT_FAILURE;
 			break;
 		}
 		stress_wait_continued(args, status);
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 
 		/*
 		 *  Exercise -ve PID -> PGID number
 		 */
 		wret = shim_wait4(-pgrp, &status, options, &usage);
-		if ((wret < 0) && (errno != EINTR) && (errno != ECHILD)) {
+		if (UNLIKELY((wret < 0) && (errno != EINTR) && (errno != ECHILD))) {
 			pr_fail("%s: wait4 on pgrp %" PRIdMAX " failed, errno=%d (%s)\n",
 				args->name, (intmax_t)pgrp, errno, strerror(errno));
 			ret = EXIT_FAILURE;
 			break;
 		}
 		stress_wait_continued(args, status);
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 
 		/*
@@ -333,7 +333,7 @@ static int stress_wait(stress_args_t *args)
 
 			(void)shim_memset(&info, 0, sizeof(info));
 			wret = waitid(P_PID, (id_t)pid_r, &info, options);
-			if ((wret < 0) && (errno != EINTR) && (errno != ECHILD)) {
+			if (UNLIKELY((wret < 0) && (errno != EINTR) && (errno != ECHILD))) {
 				pr_fail("%s: waitid failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				ret = EXIT_FAILURE;
@@ -343,20 +343,20 @@ static int stress_wait(stress_args_t *args)
 			 *  Need to look into this, but on a heavily loaded
 			 *  system we can get info.si_pid set to zero(!)
 			 */
-			if ((info.si_pid != pid_r) && (info.si_pid != 0)) {
+			if (UNLIKELY((info.si_pid != pid_r) && (info.si_pid != 0))) {
 				pr_fail("%s: waitid returned PID %ld but expected PID %ld\n",
 					args->name, (long int)info.si_pid, (long int)pid_r);
 				ret = EXIT_FAILURE;
 			}
-			if ((info.si_signo != SIGCHLD) && (info.si_signo != 0)) {
+			if (UNLIKELY((info.si_signo != SIGCHLD) && (info.si_signo != 0))) {
 				pr_fail("%s: waitid returned si_signo %d (%s) but expected SIGCHLD\n",
 					args->name, info.si_signo, stress_strsignal(info.si_signo));
 				ret = EXIT_FAILURE;
 			}
-			if ((info.si_status != EXIT_SUCCESS) &&
-			    (info.si_status != SIGSTOP) &&
-			    (info.si_status != SIGCONT) &&
-			    (info.si_status != SIGKILL)) {
+			if (UNLIKELY((info.si_status != EXIT_SUCCESS) &&
+				     (info.si_status != SIGSTOP) &&
+				     (info.si_status != SIGCONT) &&
+				     (info.si_status != SIGKILL))) {
 				pr_fail("%s: waitid returned unexpected si_status %d\n",
 					args->name, info.si_status);
 				ret = EXIT_FAILURE;
@@ -365,19 +365,17 @@ static int stress_wait(stress_args_t *args)
     defined(CLD_KILLED) &&	\
     defined(CLD_STOPPED) &&	\
     defined(CLD_CONTINUED)
-			if ((info.si_code != CLD_EXITED) &&
-			    (info.si_code != CLD_KILLED) &&
-			    (info.si_code != CLD_STOPPED) &&
-			    (info.si_code != CLD_CONTINUED) &&
-			    (info.si_code != 0)) {
+			if (UNLIKELY((info.si_code != CLD_EXITED) &&
+				     (info.si_code != CLD_KILLED) &&
+				     (info.si_code != CLD_STOPPED) &&
+				     (info.si_code != CLD_CONTINUED) &&
+				     (info.si_code != 0))) {
 				pr_fail("%s: waitid returned unexpected si_code %d\n",
 					args->name, info.si_code);
 				ret = EXIT_FAILURE;
 			}
 #endif
 			stress_wait_continued(args, status);
-			if (!stress_continue_flag())
-				break;
 		}
 #endif
 	} while (stress_continue_flag() && (!args->max_ops || (stress_bogo_get(args) < args->max_ops)));
