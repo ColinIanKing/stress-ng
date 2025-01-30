@@ -88,13 +88,13 @@ static void stress_stackmmap_push_msync(stress_stack_check_t *prev_check)
 	}
 
 	for (i = 0, ptr = &check; (i < 256) && ptr; ptr = ptr->prev, i++) {
-		if (ptr->self_addr != ptr) {
+		if (UNLIKELY(ptr->self_addr != ptr)) {
 			pr_inf("%s: sanity check address mismatch, got 0x%p, "
 				"expecting 0x%p\n", name, ptr, ptr->self_addr);
 			check_status = EXIT_FAILURE;
 			return;
 		}
-		if (ptr->waste[0] != ~(ptr->waste[1])) {
+		if (UNLIKELY(ptr->waste[0] != ~(ptr->waste[1]))) {
 			pr_inf("%s: sanity check data mismatch, got 0x%" PRIx32
 				", expecting 0x%" PRIx32 "\n", name,
 				ptr->waste[0], ptr->waste[1]);
@@ -103,7 +103,7 @@ static void stress_stackmmap_push_msync(stress_stack_check_t *prev_check)
 		}
 	}
 
-	if (stress_continue_flag())
+	if (LIKELY(stress_continue_flag()))
 		stress_stackmmap_push_msync(&check);
 
 	stress_uint32_put(check.waste[1]);
@@ -222,13 +222,13 @@ static int stress_stackmmap(stress_args_t *args)
 
 		(void)stress_mwc32();
 again:
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 		pid = fork();
 		if (pid < 0) {
 			if (stress_redo_fork(args, errno))
 				goto again;
-			if (!stress_continue(args))
+			if (UNLIKELY(!stress_continue(args)))
 				goto finish;
 			pr_err("%s: fork failed: errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
@@ -269,7 +269,7 @@ again:
 			new_action.sa_handler = stress_sig_handler_exit;
 			(void)sigemptyset(&new_action.sa_mask);
 			new_action.sa_flags = SA_ONSTACK;
-			if (sigaction(SIGSEGV, &new_action, NULL) < 0)
+			if (UNLIKELY(sigaction(SIGSEGV, &new_action, NULL) < 0))
 				_exit(EXIT_FAILURE);
 
 			/*
@@ -277,7 +277,7 @@ again:
 			 *  to handle segfaults on an overrun
 			 *  mmap'd stack
 			 */
-			if (stress_sigaltstack(stack_sig, STRESS_SIGSTKSZ) < 0)
+			if (UNLIKELY(stress_sigaltstack(stack_sig, STRESS_SIGSTKSZ) < 0))
 				_exit(EXIT_FAILURE);
 
 			check_status = EXIT_SUCCESS;
