@@ -130,7 +130,7 @@ static int stress_sigsys_libc_mapping(uintptr_t *begin, uintptr_t *end)
 	uint64_t offset, dev_major, dev_minor, inode;
 
 	fp = fopen("/proc/self/maps", "r");
-	if (!fp)
+	if (UNLIKELY(!fp))
 		goto err;
 
 	*begin = ~(uintptr_t)0;
@@ -258,7 +258,7 @@ static int OPTIMIZE3 stress_usersyscall(stress_args_t *args)
 		 *  Test case 2: call user syscall with
 		 *  dispatcher enabled
 		 */
-		if (metrics_count++ < 1000) {
+		if (LIKELY(metrics_count++ < 1000)) {
 			dispatcher_on();
 			ret = (int)syscall(USR_SYSCALL);
 			dispatcher_off();
