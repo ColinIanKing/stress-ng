@@ -41,11 +41,11 @@ static const stress_help_t help[] = {
     defined(__linux__)
 static void check_eperm(stress_args_t *args, const ssize_t ret, const int err)
 {
-	if ((g_opt_flags & OPT_FLAGS_VERIFY) &&
-	    ((ret == 0) || ((err != EPERM) &&
-			    (err != ENOSYS) &&
-			    (err != EINVAL) &&
-			    (err != ENOTTY)))) {
+	if (UNLIKELY((g_opt_flags & OPT_FLAGS_VERIFY) &&
+		     ((ret == 0) || ((err != EPERM) &&
+		      (err != ENOSYS) &&
+		      (err != EINVAL) &&
+		      (err != ENOTTY))))) {
 		pr_fail("%s: expected errno to be EPERM, got errno %d (%s) instead\n",
 			args->name, err, strerror(err));
 	}
@@ -135,7 +135,7 @@ static int stress_urandom(stress_args_t *args)
 
 			t = stress_time_now();
 			ret = read(fd_urnd, buffer, sizeof(buffer));
-			if (ret >= 0) {
+			if (LIKELY(ret >= 0)) {
 				duration += stress_time_now() - t;
 				bytes += (double)ret;
 			} else {
@@ -156,7 +156,7 @@ static int stress_urandom(stress_args_t *args)
 #if defined(RNDGETENTCNT)
 			unsigned long int val = 0;
 
-			if (ioctl(fd_rnd, RNDGETENTCNT, &val) < 0)
+			if (UNLIKELY(ioctl(fd_rnd, RNDGETENTCNT, &val) < 0))
 				goto next;
 			/* Try to avoid emptying entropy pool */
 			if (val < 128)
@@ -166,7 +166,7 @@ static int stress_urandom(stress_args_t *args)
 #endif
 			t = stress_time_now();
 			ret = read(fd_rnd, buffer, 1);
-			if (ret >= 0) {
+			if (LIKELY(ret >= 0)) {
 				duration += stress_time_now() - t;
 				bytes += (double)ret;
 			} else {
@@ -261,7 +261,7 @@ next:
 			FD_SET(fd_rnd_blk, &rdfds);
 
 			ret = select(fd_rnd_blk + 1, &rdfds, NULL, NULL, &timeout);
-			if (ret > 0) {
+			if (LIKELY(ret > 0)) {
 				if (FD_ISSET(fd_rnd_blk, &rdfds)) {
 #if defined(__linux__)
 					char *ptr;
