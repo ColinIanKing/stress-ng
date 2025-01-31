@@ -312,30 +312,30 @@ size_t stress_resources_allocate(
 		 */
 		n = i + 1;
 
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 
 		stress_get_memlimits(&shmall, &freemem, &totalmem, &freeswap, &totalswap);
-		if ((freemem > 0) && (freemem < min_mem_free))
+		if (UNLIKELY((freemem > 0) && (freemem < min_mem_free)))
 			break;
 
-		if ((stress_mwc8() & 0xf) == 0) {
+		if (UNLIKELY((stress_mwc8() & 0xf) == 0)) {
 			resources[i].m_malloc = (void *)calloc(1, page_size);
 			resources[i].m_malloc_size = page_size;
 			if (!stress_continue_flag())
 				break;
 		}
-		if ((stress_mwc8() & 0xf) == 0) {
+		if (UNLIKELY((stress_mwc8() & 0xf) == 0)) {
 			resources[i].m_sbrk = shim_sbrk((intptr_t)page_size);
 			resources[i].m_sbrk_size = page_size;
 			if (!stress_continue_flag())
 				break;
 		}
-		if ((stress_mwc8() & 0xf) == 0) {
+		if (UNLIKELY((stress_mwc8() & 0xf) == 0)) {
 			resources[i].m_mmap_size = page_size * 2;
 			resources[i].m_mmap = mmap(NULL, resources[i].m_mmap_size,
 				PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
-			if (!stress_continue_flag())
+			if (UNLIKELY(!stress_continue_flag()))
 				break;
 			if (resources[i].m_mmap != MAP_FAILED) {
 				const size_t locked = STRESS_MINIMUM(mlock_size, resources[i].m_mmap_size);
@@ -362,14 +362,14 @@ size_t stress_resources_allocate(
 		UNEXPECTED
 		(void)pipe_size;
 #endif
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 		resources[i].fd_open = open("/dev/null", O_RDONLY);
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 #if defined(HAVE_EVENTFD)
 		resources[i].fd_ev = eventfd(0, 0);
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 #else
 		UNEXPECTED
@@ -401,7 +401,7 @@ size_t stress_resources_allocate(
 			}
 			shim_fallocate(resources[i].fd_memfd, 0, 0, (off_t)stress_mwc16());
 		}
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 #else
 		UNEXPECTED
@@ -423,13 +423,13 @@ size_t stress_resources_allocate(
 				}
 			}
 		}
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 #endif
 		resources[i].fd_sock = socket(
 			domains[stress_mwc32modn((uint32_t)SIZEOF_ARRAY(domains))],
 			types[stress_mwc32modn((uint32_t)SIZEOF_ARRAY(types))], 0);
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 
 		if (socketpair(AF_UNIX, SOCK_STREAM, 0,
@@ -440,7 +440,7 @@ size_t stress_resources_allocate(
 
 #if defined(HAVE_USERFAULTFD)
 		resources[i].fd_uf = shim_userfaultfd(0);
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 #else
 		UNEXPECTED
@@ -448,7 +448,7 @@ size_t stress_resources_allocate(
 #if defined(O_TMPFILE)
 		resources[i].fd_tmp = open("/tmp", O_TMPFILE | O_RDWR,
 				      S_IRUSR | S_IWUSR);
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 		if (resources[i].fd_tmp != -1) {
 			(void)shim_fallocate(resources[i].fd_tmp, 0, 0, (off_t)page_size);
@@ -519,7 +519,7 @@ size_t stress_resources_allocate(
 			resources[i].fd_inotify = -1;
 			resources[i].wd_inotify = -1;
 		}
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 #endif
 #if defined(HAVE_PTSNAME)
@@ -531,7 +531,7 @@ size_t stress_resources_allocate(
 			if (ptyname)
 				resources[i].pty = open(ptyname, O_RDWR);
 		}
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 #endif
 
@@ -549,7 +549,7 @@ size_t stress_resources_allocate(
     defined(HAVE_PTHREAD_MUTEX_INIT) &&	\
     defined(HAVE_PTHREAD_MUTEX_DESTROY)
 		resources[i].mutex_ret = pthread_mutex_init(&resources[i].mutex, NULL);
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 #endif
 #if defined(HAVE_LIB_PTHREAD) &&	\
@@ -558,7 +558,7 @@ size_t stress_resources_allocate(
     defined(HAVE_MTX_DESTROY) &&	\
     defined(HAVE_MTX_INIT)
 		resources[i].mtx_ret = mtx_init(&resources[i].mtx, mtx_plain);
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 #endif
 #if defined(HAVE_LIB_RT) &&		\
@@ -585,7 +585,7 @@ size_t stress_resources_allocate(
     defined(CLOCK_REALTIME)
 		if (!i) {
 			resources[i].timer_fd = timerfd_create(CLOCK_REALTIME, 0);
-			if (!stress_continue_flag())
+			if (UNLIKELY(!stress_continue_flag()))
 				break;
 		}
 #endif
@@ -593,7 +593,7 @@ size_t stress_resources_allocate(
 #if defined(HAVE_LIB_PTHREAD) &&	\
     defined(HAVE_SEM_POSIX)
 		resources[i].semok = (sem_init(&resources[i].sem, 1, 1) >= 0);
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 #endif
 
@@ -605,7 +605,7 @@ size_t stress_resources_allocate(
 
 			resources[i].sem_id = semget(sem_key, 1,
 				IPC_CREAT | S_IRUSR | S_IWUSR);
-			if (!stress_continue_flag())
+			if (UNLIKELY(!stress_continue_flag()))
 				break;
 		}
 #endif
@@ -615,7 +615,7 @@ size_t stress_resources_allocate(
     defined(HAVE_SYS_MSG_H)
 		resources[i].msgq_id = msgget(IPC_PRIVATE,
 				S_IRUSR | S_IWUSR | IPC_CREAT | IPC_EXCL);
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 #endif
 
@@ -635,7 +635,7 @@ size_t stress_resources_allocate(
 
 			resources[i].mq = mq_open(resources[i].mq_name,
 				O_CREAT | O_RDWR, S_IRUSR | S_IWUSR, &attr);
-			if (!stress_continue_flag())
+			if (UNLIKELY(!stress_continue_flag()))
 				break;
 		}
 #endif
@@ -643,7 +643,7 @@ size_t stress_resources_allocate(
     defined(HAVE_PKEY_FREE)
 		resources[i].pkey = shim_pkey_alloc(0, 0);
 #endif
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 
 #if defined(HAVE_PIDFD_OPEN)
