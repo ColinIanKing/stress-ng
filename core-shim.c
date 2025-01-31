@@ -267,7 +267,7 @@ static int shim_emulate_fallocate(int fd, off_t offset, off_t len)
 		const size_t count = (size_t)STRESS_MINIMUM(n, FALLOCATE_BUF_SIZE);
 
 		ret = write(fd, buffer, count);
-		if (ret >= 0) {
+		if (LIKELY(ret >= 0)) {
 			n -= STRESS_MINIMUM(ret, n);
 		} else {
 			return -1;
@@ -320,7 +320,7 @@ int shim_posix_fallocate(int fd, off_t offset, off_t len)
 		 *  stressor has been signaled to finish, fake
 		 *  an EINTR return
 		 */
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			return EINTR;
 		offset += sz;
 		len -= sz;
@@ -888,7 +888,7 @@ int shim_nanosleep_uint64(uint64_t nsec)
 		if (nanosleep(&t, &trem) < 0) {
 			if (errno == EINTR) {
 				t = trem;
-				if (stress_continue_flag())
+				if (LIKELY(stress_continue_flag()))
 					continue;
 			} else {
 				return -1;
@@ -911,7 +911,7 @@ int shim_nanosleep_uint64(uint64_t nsec)
 				usec = (useconds_t)(t_left * STRESS_DBL_MICROSECOND);
 				if (usec == 0)
 					return 0;
-				if (stress_continue_flag())
+				if (LIKELY(stress_continue_flag()))
 					continue;
 			} else {
 				return -1;
@@ -1279,7 +1279,7 @@ int shim_brk(void *addr)
 	intptr_t inc = brkaddr - (intptr_t)addr;
 	const void *newbrk = shim_sbrk(inc);
 
-	if (newbrk == (void *)-1) {
+	if (UNLIKELY(newbrk == (void *)-1)) {
 		if (errno != ENOSYS)
 			errno = ENOMEM;
 		return -1;
@@ -1323,7 +1323,7 @@ ssize_t shim_strscpy(char *dst, const char *src, size_t len)
 {
 	register size_t i;
 
-	if (!len || (len > INT_MAX))
+	if (UNLIKELY(!len || (len > INT_MAX)))
 		return -E2BIG;
 
 	for (i = 0; len; i++, len--) {
@@ -1546,7 +1546,7 @@ pid_t shim_waitpid(pid_t pid, int *wstatus, int options)
 		 *  Retry if EINTR unless we've have 2 mins
 		 *  consecutive EINTRs then give up.
 		 */
-		if (!stress_continue_flag()) {
+		if (UNLIKELY(!stress_continue_flag())) {
 			(void)shim_kill(pid, SIGALRM);
 			if (count > 120)
 				(void)stress_kill_pid(pid);
@@ -1554,7 +1554,7 @@ pid_t shim_waitpid(pid_t pid, int *wstatus, int options)
 		/*
 		 *  Process seems unkillable, report and bail out after 10 mins
 		 */
-		if (count > 600) {
+		if (UNLIKELY(count > 600)) {
 			pr_dbg("waitpid: SIGALRM on PID %" PRIdMAX" has not resulted in "
 				"process termination after 10 minutes, giving up\n",
 				(intmax_t)pid);
@@ -2737,17 +2737,17 @@ int shim_kill(pid_t pid, int sig)
 {
 	if (sig == 0)
 		return kill(pid, sig);
-	if (pid == 1) {
+	if (UNLIKELY(pid == 1)) {
 		errno = EPERM;
 		return -1;
 	}
-	if ((pid == -1) && (sig == SIGKILL)) {
+	if (UNLIKELY((pid == -1) && (sig == SIGKILL))) {
 		errno = EINVAL;
 		return -1;
 	}
 	if (geteuid() != 0)
 		return kill(pid, sig);
-	if (pid <= 0) {
+	if (UNLIKELY(pid <= 0)) {
 		errno = EPERM;
 		return -1;
 	}
