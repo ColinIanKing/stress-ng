@@ -64,7 +64,7 @@ static void pr_log_write_buf_fd(const int fd, const char *buf, const size_t buf_
 		ssize_t ret;
 
 		ret = write(fd, ptr, n);
-		if (ret <= 0)
+		if (UNLIKELY(ret <= 0))
 			break;
 		n -= ret;
 		ptr += ret;
@@ -110,7 +110,7 @@ static void pr_log_write(const char *buf, const size_t buf_len)
 			const size_t len = strlen(pr_msg_buf.buf);
 
 			new_buf = realloc(pr_msg_buf.buf, len + buf_len + 1);
-			if (!new_buf) {
+			if (UNLIKELY(!new_buf)) {
 				pr_log_write_buf(pr_msg_buf.buf, strlen(pr_msg_buf.buf));
 				free(pr_msg_buf.buf);
 				pr_msg_buf.buf = NULL;
