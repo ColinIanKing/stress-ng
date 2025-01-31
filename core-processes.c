@@ -30,7 +30,7 @@
  */
 static int stress_dump_processes_filter(const struct dirent *d)
 {
-	if (!d)
+	if (UNLIKELY(!d))
 		return 0;
 
 	return isdigit((int)d->d_name[0]);
@@ -47,7 +47,7 @@ void stress_dump_processes(void)
 	struct dirent **namelist;
 
 	n = scandir("/proc", &namelist, stress_dump_processes_filter, alphasort);
-	if (n <= 0)
+	if (UNLIKELY(n <= 0))
 		return;
 
 	for (i = 0; i < n; i++) {
