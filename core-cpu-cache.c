@@ -68,7 +68,7 @@ static int stress_get_string_from_file(
 
 	/* system read will zero fill tmp */
 	ret = stress_system_read(path, tmp, tmp_len);
-	if (ret < 0)
+	if (UNLIKELY(ret < 0))
 		return -1;
 
 	ptr = strchr(tmp, '\n');
@@ -95,7 +95,7 @@ static stress_cpu_cache_t * stress_cpu_cache_get_by_cpu(
 {
 	uint32_t  i;
 
-	if (!cpu || !cache_level)
+	if (UNLIKELY(!cpu || !cache_level))
 		return NULL;
 
 	for (i = 0; i < cpu->cache_count; i++) {
@@ -124,7 +124,7 @@ uint16_t stress_cpu_cache_get_max_level(const stress_cpu_cache_cpus_t *cpus)
 	uint32_t  i;
 	uint16_t  max = 0;
 
-	if (!cpus) {
+	if (UNLIKELY(!cpus)) {
 		pr_dbg("%s: invalid cpus parameter\n", __func__);
 		return 0;
 	}
@@ -152,12 +152,12 @@ stress_cpu_cache_t *stress_cpu_cache_get(const stress_cpu_cache_cpus_t *cpus, co
 {
 	const stress_cpu_cache_cpu_t *cpu;
 
-	if (!cpus) {
+	if (UNLIKELY(!cpus)) {
 		pr_dbg("%s: invalid cpus parameter\n", __func__);
 		return NULL;
 	}
 
-	if (!cache_level) {
+	if (UNLIKELY(!cache_level)) {
 		pr_dbg("%s: invalid cache_level: %d\n",
 			__func__, cache_level);
 		return NULL;
@@ -179,7 +179,7 @@ static int stress_cpu_cache_get_value(
 	char tmp[128];
 
 	(void)stress_mk_filename(path, sizeof(path), cpu_path, file);
-	if (stress_get_string_from_file(path, tmp, sizeof(tmp)) == 0) {
+	if (LIKELY(stress_get_string_from_file(path, tmp, sizeof(tmp)) == 0)) {
 		if (sscanf(tmp, "%" SCNu64, value) == 1)
 			return 0;
 	}
@@ -213,7 +213,7 @@ static int stress_cpu_cache_get_alpha(
 	 * L3 cache		: n/a
 	 */
 	cpu->caches = (stress_cpu_cache_t *)calloc(count, sizeof(*(cpu->caches)));
-	if (!cpu->caches) {
+	if (UNLIKELY(!cpu->caches)) {
 		pr_err("failed to allocate %zu bytes for cpu caches\n",
 			count * sizeof(*(cpu->caches)));
 		return 0;
@@ -308,7 +308,7 @@ static int stress_cpu_cache_get_apple(stress_cpu_cache_cpu_t *cpu)
 	bool valid = false;
 
 	cpu->caches = (stress_cpu_cache_t *)calloc(count, sizeof(*(cpu->caches)));
-	if (!cpu->caches) {
+	if (UNLIKELY(!cpu->caches)) {
 		pr_err("failed to allocate %zu bytes for cpu caches\n",
 			count * sizeof(*(cpu->caches)));
 		return 0;
@@ -386,7 +386,7 @@ static int stress_cpu_cache_get_sparc64(
 	bool valid = false;
 
 	cpu->caches = (stress_cpu_cache_t *)calloc(count, sizeof(*(cpu->caches)));
-	if (!cpu->caches) {
+	if (UNLIKELY(!cpu->caches)) {
 		pr_err("failed to allocate %zu bytes for cpu caches\n",
 			count * sizeof(*(cpu->caches)));
 		return 0;
@@ -487,7 +487,7 @@ static int stress_cpu_cache_get_x86(stress_cpu_cache_cpu_t *cpu)
 
 		/* Now allocate */
 		cpu->caches = (stress_cpu_cache_t *)calloc(i, sizeof(*(cpu->caches)));
-		if (!cpu->caches) {
+		if (UNLIKELY(!cpu->caches)) {
 			pr_err("failed to allocate %zu bytes for cpu caches\n",
 			i * sizeof(*(cpu->caches)));
 			return 0;
@@ -553,11 +553,11 @@ static int stress_cpu_cache_get_sh4(stress_cpu_cache_cpu_t *cpu)
 	 */
 
 	fp = fopen("/proc/cpuinfo", "r");
-	if (!fp)
+	if (UNLIKELY(!fp))
 		return 0;
 
 	cpu->caches = (stress_cpu_cache_t *)calloc(2, sizeof(*(cpu->caches)));
-	if (!cpu->caches) {
+	if (UNLIKELY(!cpu->caches)) {
 		pr_err("failed to allocate %zu bytes for cpu caches\n",
 			2 * sizeof(*(cpu->caches)));
 		(void)fclose(fp);
@@ -605,7 +605,7 @@ static int stress_cpu_cache_get_m68k(stress_cpu_cache_cpu_t *cpu)
 	cpu->cache_count = 0;
 
 	fp = fopen("/proc/cpuinfo", "r");
-	if (!fp)
+	if (UNLIKELY(!fp))
 		return 0;
 
 	(void)shim_memset(buffer, 0, sizeof(buffer));
@@ -649,7 +649,7 @@ static int stress_cpu_cache_get_m68k(stress_cpu_cache_cpu_t *cpu)
 	}
 
 	cpu->caches = (stress_cpu_cache_t *)calloc(count, sizeof(*(cpu->caches)));
-	if (!cpu->caches) {
+	if (UNLIKELY(!cpu->caches)) {
 		pr_err("failed to allocate %zu bytes for cpu caches\n",
 			count * sizeof(*(cpu->caches)));
 		return 0;
@@ -688,7 +688,7 @@ static uint64_t stress_cpu_cache_size_to_bytes(const char *str)
 	int	 ret;
 	char	 sz;
 
-	if (!str) {
+	if (UNLIKELY(!str)) {
 		pr_dbg("%s: empty string specified\n", __func__);
 		return 0;
 	}
@@ -753,7 +753,7 @@ static stress_cpu_cache_type_t stress_cpu_cache_get_type(const char *name)
 {
 	const stress_generic_map_t *p;
 
-	if (!name) {
+	if (UNLIKELY(!name)) {
 		pr_dbg("%s: no cache type specified\n", __func__);
 		goto out;
 	}
@@ -785,9 +785,9 @@ static int stress_add_cpu_cache_detail(stress_cpu_cache_t *cache, const char *in
 	char path[PATH_MAX];
 
 	(void)shim_memset(path, 0, sizeof(path));
-	if (!cache)
+	if (UNLIKELY(!cache))
 		goto out;
-	if (!index_path)
+	if (UNLIKELY(!index_path))
 		goto out;
 	(void)stress_mk_filename(path, sizeof(path), index_path, "type");
 	if (stress_get_string_from_file(path, tmp, sizeof(tmp)) < 0)
@@ -866,13 +866,13 @@ static int stress_cpu_cache_get_index(
 
 	(void)stress_mk_filename(path, sizeof(path), cpu_path, stress_cpu_cache_dir);
 	n = scandir(path, &namelist, index_filter, index_sort);
-	if (n <= 0) {
+	if (UNLIKELY(n <= 0)) {
 		cpu->caches = NULL;
 		return 0;
 	}
 	cpu->cache_count = (uint32_t)n;
 	cpu->caches = (stress_cpu_cache_t *)calloc(cpu->cache_count, sizeof(*(cpu->caches)));
-	if (!cpu->caches) {
+	if (UNLIKELY(!cpu->caches)) {
 		size_t cache_bytes = cpu->cache_count * sizeof(*(cpu->caches));
 
 		pr_err("failed to allocate %zu bytes for cpu caches\n",
@@ -949,7 +949,7 @@ static int stress_cpu_cache_get_auxval(stress_cpu_cache_cpu_t *cpu)
 	bool valid = false;
 
 	cpu->caches = (stress_cpu_cache_t *)calloc(count, sizeof(*(cpu->caches)));
-	if (!cpu->caches) {
+	if (UNLIKELY(!cpu->caches)) {
 		pr_err("failed to allocate %zu bytes for cpu caches\n",
 			count * sizeof(*(cpu->caches)));
 		return 0;
@@ -1007,11 +1007,11 @@ static int stress_cpu_cache_get_auxval(stress_cpu_cache_cpu_t *cpu)
  */
 static void stress_cpu_cache_get_details(stress_cpu_cache_cpu_t *cpu, const char *cpu_path)
 {
-	if (!cpu) {
+	if (UNLIKELY(!cpu)) {
 		pr_dbg("%s: invalid cpu parameter\n", __func__);
 		return;
 	}
-	if (!cpu_path) {
+	if (UNLIKELY(!cpu_path)) {
 		pr_dbg("%s: invalid cpu path parameter\n", __func__);
 		return;
 	}
@@ -1099,16 +1099,16 @@ stress_cpu_cache_cpus_t *stress_cpu_cache_get_all_details(void)
 	struct dirent **namelist = NULL;
 
 	cpu_count = scandir(stress_sys_cpu_prefix, &namelist, stress_cpu_cache_filter, cpu_sort);
-	if (cpu_count < 1) {
+	if (UNLIKELY(cpu_count < 1)) {
 		pr_err("no CPUs found in %s\n", stress_sys_cpu_prefix);
 		goto out;
 	}
 	cpus = (stress_cpu_cache_cpus_t *)calloc(1, sizeof(*cpus));
-	if (!cpus)
+	if (UNLIKELY(!cpus))
 		goto out;
 
 	cpus->cpus = (stress_cpu_cache_cpu_t *)calloc((size_t)cpu_count, sizeof(*(cpus->cpus)));
-	if (!cpus->cpus) {
+	if (UNLIKELY(!cpus->cpus)) {
 		free(cpus);
 		cpus = NULL;
 		goto out;
@@ -1165,11 +1165,11 @@ stress_cpu_cache_cpus_t *stress_cpu_cache_get_all_details(void)
 		goto out;
 	}
 	cpus = (stress_cpu_cache_cpus_t *)calloc(1, sizeof(*cpus));
-	if (!cpus)
+	if (UNLIKELY(!cpus))
 		goto out;
 
 	cpus->cpus = (stress_cpu_cache_cpu_t *)calloc((size_t)cpu_count, sizeof(*(cpus->cpus)));
-	if (!cpus->cpus) {
+	if (UNLIKELY(!cpus->cpus)) {
 		free(cpus);
 		cpus = NULL;
 		goto out;
@@ -1206,10 +1206,10 @@ stress_cpu_cache_cpus_t *stress_cpu_cache_get_all_details(void)
 		return NULL;
 	}
 	cpus = (stress_cpu_cache_cpus_t *)calloc(1, sizeof(*cpus));
-	if (!cpus)
+	if (UNLIKELY(!cpus))
 		return NULL;
 	cpus->cpus = (stress_cpu_cache_cpu_t *)calloc((size_t)cpu_count, sizeof(*(cpus->cpus)));
-	if (!cpus->cpus) {
+	if (UNLIKELY(!cpus->cpus)) {
 		free(cpus);
 		return NULL;
 	}
@@ -1272,14 +1272,14 @@ void stress_cpu_cache_get_llc_size(size_t *llc_size, size_t *cache_line_size)
 	*cache_line_size = 0;
 
 	cpu_caches = stress_cpu_cache_get_all_details();
-	if (!cpu_caches)
+	if (UNLIKELY(!cpu_caches))
 		return;
 
 	max_cache_level = stress_cpu_cache_get_max_level(cpu_caches);
-	if (max_cache_level < 1)
+	if (UNLIKELY(max_cache_level < 1))
 		goto free_cpu_caches;
 	cache = stress_cpu_cache_get(cpu_caches, max_cache_level);
-	if (!cache)
+	if (UNLIKELY(!cache))
 		goto free_cpu_caches;
 
 	*llc_size = cache->size;
@@ -1309,11 +1309,11 @@ void stress_cpu_cache_get_level_size(const uint16_t cache_level, size_t *cache_s
 	*cache_line_size = 0;
 
 	cpu_caches = stress_cpu_cache_get_all_details();
-	if (!cpu_caches)
+	if (UNLIKELY(!cpu_caches))
 		return;
 
 	cache = stress_cpu_cache_get(cpu_caches, cache_level);
-	if (!cache)
+	if (UNLIKELY(!cache))
 		goto free_cpu_caches;
 
 	*cache_size = cache->size;
