@@ -260,9 +260,9 @@ int stress_oomable_child(
 	};
 
 again:
-	if (!stress_continue(args))
+	if (UNLIKELY(!stress_continue(args)))
 		return EXIT_SUCCESS;
-	if (valid_timeout && (stress_time_now() > args->time_end)) {
+	if (UNLIKELY(valid_timeout && (stress_time_now() > args->time_end))) {
 		return EXIT_SUCCESS;
 	}
 	pid = fork();
@@ -298,7 +298,7 @@ rewait:
 			(void)stress_kill_sig(pid, signals[signal_idx]);
 			if (signal_idx < SIZEOF_ARRAY(signals))
 				signal_idx++;
-			else if (stress_time_now() > t_end) {
+			else if (UNLIKELY(stress_time_now() > t_end)) {
 				pr_warn("cannot terminate process %ju, gave up after %d seconds\n", (intmax_t)pid, WAIT_TIMEOUT);
 				goto report;
 			}
@@ -369,7 +369,7 @@ rewait:
 		/* Child */
 		int ret;
 
-		if (!stress_continue(args)) {
+		if (UNLIKELY(!stress_continue(args))) {
 			stress_set_proc_state(args->name, STRESS_STATE_EXIT);
 			_exit(EXIT_SUCCESS);
 		}
@@ -388,8 +388,8 @@ rewait:
 		 * fully runnable, so check for this before doing expensive
 		 * stressor invocation
 		 */
-		if (!stress_continue(args) ||
-		    (valid_timeout && (stress_time_now() > args->time_end))) {
+		if (UNLIKELY(!stress_continue(args) ||
+			     (valid_timeout && (stress_time_now() > args->time_end)))) {
 			stress_set_proc_state(args->name, STRESS_STATE_EXIT);
 			_exit(EXIT_SUCCESS);
 		}
