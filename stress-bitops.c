@@ -816,7 +816,7 @@ static int OPTIMIZE3 stress_bitops_pwr2(const char *name, uint32_t *count)
 			for (tmp = j, c = 0; tmp; c++)
 				tmp &= (tmp - 1);
 
-			is_pwr2 == (c == 1);
+			is_pwr2 = (c == 1);
 		}
 #endif
 		result = (j > 0) & ((j & (j - 1)) == 0);
