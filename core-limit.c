@@ -80,7 +80,7 @@ void stress_set_max_limits(void)
 	struct rlimit rlim;
 
 	for (i = 0; i < SIZEOF_ARRAY(limits); i++) {
-		if (getrlimit(limits[i], &rlim) < 0)
+		if (UNLIKELY(getrlimit(limits[i], &rlim) < 0))
 			continue;
 		rlim.rlim_cur = rlim.rlim_max;
 		(void)setrlimit(limits[i], &rlim);
