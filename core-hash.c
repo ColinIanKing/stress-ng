@@ -693,11 +693,11 @@ stress_hash_table_t *stress_hash_create(const size_t n)
 		return NULL;
 
 	hash_table = (stress_hash_table_t *)calloc(1, sizeof(*hash_table));
-	if (!hash_table)
+	if (UNLIKELY(!hash_table))
 		return NULL;
 
 	hash_table->table = (stress_hash_t **)calloc(n, sizeof(*(hash_table->table)));
-	if (!hash_table->table) {
+	if (UNLIKELY(!hash_table->table)) {
 		free(hash_table);
 		return NULL;
 	}
@@ -761,7 +761,7 @@ stress_hash_t *stress_hash_add(stress_hash_table_t *hash_table, const char *str)
 	/* Not found, so add a new hash */
 	len = strlen(str) + 1;
 	hash = (stress_hash_t *)malloc(sizeof(*hash) + len);
-	if (!hash)
+	if (UNLIKELY(!hash))
 		return NULL;
 
 	hash->next = hash_table->table[h];
@@ -779,7 +779,7 @@ void stress_hash_delete(stress_hash_table_t *hash_table)
 {
 	size_t i;
 
-	if (!hash_table)
+	if (UNLIKELY(!hash_table))
 		return;
 
 	for (i = 0; i < hash_table->n; i++) {
