@@ -80,10 +80,10 @@ static void stress_cpuidle_cstate_add_unique(
 			break;
 	}
 	new_cc = (cpu_cstate_t *)malloc(sizeof(*new_cc));
-	if (!new_cc)
+	if (UNLIKELY(!new_cc))
 		return;
 	new_cc->cstate = strdup(cstate);
-	if (!new_cc->cstate) {
+	if (UNLIKELY(!new_cc->cstate)) {
 		free(new_cc);
 		return;
 	}
@@ -109,7 +109,7 @@ void stress_cpuidle_init(void)
 	cpu_cstate_list_len = 0;
 
 	cpu_dir = opendir("/sys/devices/system/cpu");
-	if (!cpu_dir)
+	if (UNLIKELY(!cpu_dir))
 		return;
 
 	/*
@@ -191,11 +191,11 @@ static void stress_cpuidle_read_cstates(
 	size_t i;
 	stress_cstate_stats_t stats;
 
-	if ((which < 0) || (which > 1))
+	if (UNLIKELY((which < 0) || (which > 1)))
 		return;
 
 	cpu_dir = opendir("/sys/devices/system/cpu");
-	if (!cpu_dir)
+	if (UNLIKELY(!cpu_dir))
 		return;
 
 	for (i = 0, cc = cpu_cstate_list; (i < STRESS_CSTATES_MAX) && cc; i++, cc = cc->next) {
@@ -342,7 +342,7 @@ void stress_cpuidle_log_info(void)
 		len += strlen(cc->cstate) + 2;
 	}
 	buf = (char *)calloc(len, sizeof(*buf));
-	if (!buf)
+	if (UNLIKELY(!buf))
 		return;
 
 	for (cc = cpu_cstate_list; cc; cc = cc->next) {
