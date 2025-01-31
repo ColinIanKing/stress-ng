@@ -242,7 +242,7 @@ static stress_smart_data_t *stress_smart_data_read(const char *path)
 	stress_smart_data_t *data;
 	size_t i, size, values_size;
 
-	if (!path)
+	if (UNLIKELY(!path))
 		return NULL;
 
 	fd = open(path, O_RDONLY);
