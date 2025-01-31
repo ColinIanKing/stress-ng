@@ -49,7 +49,7 @@ static void stress_mount_add(
 	if (*n >= max)
 		return;
 	mnt = strdup(name);
-	if (!mnt)
+	if (UNLIKELY(!mnt))
 		return;
 	mnts[*n] = mnt;
 	(*n)++;
