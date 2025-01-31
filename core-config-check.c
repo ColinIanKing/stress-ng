@@ -28,9 +28,9 @@
 #if defined(__linux__)
 static int stress_config_check_cpu_filter(const struct dirent *d)
 {
-        if (!d)
+        if (UNLIKELY(!d))
                 return 0;
-	if (strlen(d->d_name) < 4)
+	if (UNLIKELY(strlen(d->d_name) < 4))
 		return 0;
         if (strncmp(d->d_name, "cpu", 3))
 		return 0;
@@ -47,11 +47,11 @@ static int stress_config_read(const char *path, uint64_t *value)
 {
 	char buffer[256];
 
-	if (stress_system_read(path, buffer, sizeof(buffer)) < 0)
+	if (UNLIKELY(stress_system_read(path, buffer, sizeof(buffer)) < 0))
 		return -1;
-	if (!*buffer)
+	if (UNLIKELY(!*buffer))
 		return -1;
-	if (sscanf(buffer, "%" SCNu64, value) < 0)
+	if (UNLIKELY(sscanf(buffer, "%" SCNu64, value) < 0))
 		return -1;
 	return 0;
 }
@@ -132,7 +132,7 @@ void stress_config_check(void)
 			char buffer[64];
 
 			(void)snprintf(filename, sizeof(filename), "%s/%s/cpufreq/scaling_governor", cpu_path, namelist[i]->d_name);
-			if (stress_system_read(filename, buffer, sizeof(buffer)) < 0)
+			if (UNLIKELY(stress_system_read(filename, buffer, sizeof(buffer)) < 0))
 				continue;
 			if (strncmp(buffer, "powersave", 9) == 0)
 				powersave++;
