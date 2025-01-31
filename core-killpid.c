@@ -106,7 +106,7 @@ static int stress_wait_until_reaped(
 		 *  Retry if EINTR unless we've have 2 mins
 		 *  consecutive EINTRs then give up.
 		 */
-		if (!stress_continue_flag()) {
+		if (UNLIKELY(!stress_continue_flag())) {
 			(void)stress_kill_sig(pid, signum);
 			if (count > 120) {
 				if (set_stress_force_killed_bogo)
@@ -141,7 +141,7 @@ int stress_kill_and_wait(
 {
 	const pid_t mypid = getpid();
 
-	if ((pid == 0) || (pid == 1) || (pid == mypid)) {
+	if (UNLIKELY((pid == 0) || (pid == 1) || (pid == mypid))) {
 		pr_inf("%s: warning, attempt to kill PID %" PRIdMAX " ignored\n",
 			args->name, (intmax_t)pid);
 	}
@@ -149,7 +149,7 @@ int stress_kill_and_wait(
 	 *  bad pids, won't kill, but return success to avoid
 	 *  confusion of a kill that failed.
 	 */
-	if ((pid <= 1) || (pid == mypid))
+	if (UNLIKELY((pid <= 1) || (pid == mypid)))
 		return EXIT_SUCCESS;
 
 	stress_kill_sig(pid, signum);
