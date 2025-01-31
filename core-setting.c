@@ -158,7 +158,7 @@ void stress_settings_show(void)
 		n++;
 
 	settings = (stress_setting_t **)calloc(n, sizeof(*settings));
-	if (!settings)
+	if (UNLIKELY(!settings))
 		return;
 
 	for (i = 0, setting = setting_head; setting; setting = setting->next, i++)
@@ -188,7 +188,7 @@ void stress_settings_dbg(stress_args_t *args)
 		return;
 
 	settings = (stress_setting_t **)calloc(n, sizeof(*settings));
-	if (!settings)
+	if (UNLIKELY(!settings))
 		return;
 
 	pr_dbg("%s: %zu setting%s:\n", args->name, n, n == 1 ? "" : "s");
@@ -221,7 +221,7 @@ static int stress_set_setting_generic(
 		_exit(EXIT_NOT_SUCCESS);
 	}
 	setting = (stress_setting_t *)calloc(1, sizeof *setting);
-	if (!setting)
+	if (UNLIKELY(!setting))
 		goto err;
 
 	setting->stressor_name = stressor_name;
