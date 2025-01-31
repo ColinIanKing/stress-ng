@@ -299,7 +299,7 @@ rewait:
 			if (signal_idx < SIZEOF_ARRAY(signals))
 				signal_idx++;
 			else if (UNLIKELY(stress_time_now() > t_end)) {
-				pr_warn("cannot terminate process %ju, gave up after %d seconds\n", (intmax_t)pid, WAIT_TIMEOUT);
+				pr_warn("cannot terminate process %" PRIdMAX ", gave up after %d seconds\n", (intmax_t)pid, WAIT_TIMEOUT);
 				goto report;
 			}
 			/*
