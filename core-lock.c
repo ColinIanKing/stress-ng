@@ -193,7 +193,7 @@ static int stress_atomic_lock_acquire(stress_lock_t *lock)
 		double t = stress_time_now();
 
 		while (test_and_set(&lock->u.flag) == true) {
-			if (((stress_time_now() - t) > 5.0) && !stress_continue_flag()) {
+			if (UNLIKELY(((stress_time_now() - t) > 5.0) && !stress_continue_flag())) {
 				errno = EAGAIN;
 				return -1;
 			}
@@ -244,7 +244,7 @@ static int stress_atomic_lock_acquire_relax(stress_lock_t *lock)
 #else
 			(void)shim_sched_yield();
 #endif
-			if (((stress_time_now() - t) > 5.0) && !stress_continue_flag()) {
+			if (UNLIKELY(((stress_time_now() - t) > 5.0) && !stress_continue_flag())) {
 				errno = EAGAIN;
 				return -1;
 			}
@@ -280,7 +280,7 @@ static int stress_pthread_spinlock_init(stress_lock_t *lock)
 	int ret;
 
 	ret = pthread_spin_init(&lock->u.pthread_spinlock, PTHREAD_PROCESS_SHARED);
-	if (ret == 0)
+	if (LIKELY(ret == 0))
 		return 0;
 
 	errno = ret;
@@ -292,7 +292,7 @@ static int stress_pthread_spinlock_deinit(stress_lock_t *lock)
 	int ret;
 
 	ret = pthread_spin_destroy(&lock->u.pthread_spinlock);
-	if (ret == 0)
+	if (LIKELY(ret == 0))
 		return 0;
 	errno = ret;
 	return -1;
@@ -303,7 +303,7 @@ static int stress_pthread_spinlock_acquire(stress_lock_t *lock)
 	int ret;
 
 	ret = pthread_spin_lock(&lock->u.pthread_spinlock);
-	if (ret == 0)
+	if (LIKELY(ret == 0))
 		return 0;
 
 	errno = ret;
@@ -315,7 +315,7 @@ static int stress_pthread_spinlock_release(stress_lock_t *lock)
 	int ret;
 
 	ret = pthread_spin_unlock(&lock->u.pthread_spinlock);
-	if (ret == 0)
+	if (LIKELY(ret == 0))
 		return 0;
 
 	errno = ret;
@@ -340,7 +340,7 @@ static int stress_pthread_mutex_init(stress_lock_t *lock)
 	int ret;
 
 	ret = pthread_mutex_init(&lock->u.pthread_mutex, NULL);
-	if (ret == 0)
+	if (LIKELY(ret == 0))
 		return 0;
 
 	errno = ret;
@@ -359,7 +359,7 @@ static int stress_pthread_mutex_acquire(stress_lock_t *lock)
 	int ret;
 
 	ret = pthread_mutex_lock(&lock->u.pthread_mutex);
-	if (ret == 0)
+	if (LIKELY(ret == 0))
 		return 0;
 
 	errno = ret;
@@ -371,7 +371,7 @@ static int stress_pthread_mutex_release(stress_lock_t *lock)
 	int ret;
 
 	ret = pthread_mutex_unlock(&lock->u.pthread_mutex);
-	if (ret == 0)
+	if (LIKELY(ret == 0))
 		return 0;
 
 	errno = ret;
@@ -518,7 +518,7 @@ static int stress_sem_sysv_init(stress_lock_t *lock)
 		const key_t key_id = (key_t)stress_mwc16();
 		const int sem_id = semget(key_id, 1, IPC_CREAT | S_IRUSR | S_IWUSR);
 
-		if (sem_id >= 0) {
+		if (LIKELY(sem_id >= 0)) {
 			union semun {
 				int val;
 			} arg;
