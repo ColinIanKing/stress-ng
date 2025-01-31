@@ -100,7 +100,7 @@ stress_numa_mask_t *stress_numa_mask_alloc(void)
 	stress_numa_mask_t *numa_mask;
 
 	numa_mask = malloc(sizeof(*numa_mask));
-	if (!numa_mask)
+	if (UNLIKELY(!numa_mask))
 		return NULL;
 
 	numa_mask->nodes = stress_numa_count_mem_nodes(&numa_mask->max_nodes);
@@ -116,8 +116,7 @@ stress_numa_mask_t *stress_numa_mask_alloc(void)
 	numa_mask->mask_size = (size_t)(NUMA_LONG_BITS * numa_mask->numa_elements) / BITS_PER_BYTE;
 	/* allocated mask */
 	numa_mask->mask = (unsigned long int *)calloc(numa_mask->mask_size, 1);
-
-	if (!numa_mask->mask) {
+	if (UNLIKELY(!numa_mask->mask)) {
 		free(numa_mask);
 		return NULL;
 	}
@@ -130,7 +129,7 @@ stress_numa_mask_t *stress_numa_mask_alloc(void)
  */
 void stress_numa_mask_free(stress_numa_mask_t *numa_mask)
 {
-	if (!numa_mask)
+	if (UNLIKELY(!numa_mask))
 		return;
 	free(numa_mask->mask);
 	free(numa_mask);
@@ -276,7 +275,7 @@ int stress_set_mbind(const char *arg)
 
 	nodemask_sz = (max_node + (nodemask_bits - 1)) / nodemask_bits;
 	nodemask = (unsigned long int *)calloc(nodemask_sz, sizeof(*nodemask));
-	if (!nodemask) {
+	if (UNLIKELY(!nodemask)) {
 		(void)fprintf(stderr, "parsing --mbind: cannot allocate NUMA nodemask, out of memory\n");
 		_exit(EXIT_FAILURE);
 	}
