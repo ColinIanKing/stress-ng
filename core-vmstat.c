@@ -140,7 +140,7 @@ static void freebsd_get_cpu_time(
 	*idle_time = 0;
 
 	vals = (long int *)calloc(cpus * 5, sizeof(*vals));
-	if (!vals)
+	if (UNLIKELY(!vals))
 		return;
 
 	if (stress_bsd_getsysctl("kern.cp_times", vals, cpus * 5 * sizeof(*vals)) < 0)
@@ -189,7 +189,7 @@ static int stress_set_generic_stat(
 {
 	const uint64_t delay64 = stress_get_uint64_time(opt);
 
-        if ((delay64 < 1) || (delay64 > 3600)) {
+        if (UNLIKELY((delay64 < 1) || (delay64 > 3600))) {
                 (void)fprintf(stderr, "%s must in the range 1 to 3600 seconds.\n", name);
                 _exit(EXIT_FAILURE);
         }
@@ -366,7 +366,7 @@ static char *stress_iostat_iostat_name(
 
 	/* Resolve links */
 	temp_path = realpath(stress_get_temp_path(), NULL);
-	if (!temp_path)
+	if (UNLIKELY(!temp_path))
 		return NULL;
 
 	/* Find device */
@@ -875,7 +875,7 @@ static void stress_read_vmstat(stress_vmstat_t *vmstat)
 				break;
 
 			result = (struct kinfo_proc *)malloc(length);
-			if (!result)
+			if (UNLIKELY(!result))
 				break;
 
 			ret = sysctl((int *)name, (sizeof(name)/sizeof(*name))-1, result,
