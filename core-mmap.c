@@ -50,7 +50,7 @@ void OPTIMIZE3 stress_mmap_set(
 		register const uint64_t *page_end = (uint64_t *)((uintptr_t)ptr + page_size);
 #endif
 
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 
 		/*
@@ -146,7 +146,7 @@ int OPTIMIZE3 stress_mmap_check(
 			sum ^= ptr[0x1e];
 			sum ^= ptr[0x1f];
 			ptr += 32;
-			if (sum)
+			if (UNLIKELY(sum))
 				return -1;
 		}
 	}
@@ -191,7 +191,7 @@ int OPTIMIZE3 stress_mmap_check_light(
 	register const size_t ptr_inc = page_size / sizeof(*ptr);
 
 	while (LIKELY(ptr < end)) {
-		if (*ptr != val)
+		if (UNLIKELY(*ptr != val))
 			return -1;
 		ptr += ptr_inc;
 		val++;
