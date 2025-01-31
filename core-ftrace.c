@@ -200,10 +200,10 @@ static int stress_ftrace_parse_trace_stat_file(const char *path, const bool star
 			}
 		} else {
 			tn = (struct rb_node *)malloc(sizeof(*tn));
-			if (!tn)
+			if (UNLIKELY(!tn))
 				goto memory_fail;
 			tn->func_name = strdup(func_name);
-			if (!tn->func_name) {
+			if (UNLIKELY(!tn->func_name)) {
 				free(tn);
 				goto memory_fail;
 			}
@@ -370,6 +370,7 @@ static void stress_ftrace_analyze(void)
 
 	for (tn = RB_MIN(rb_tree, &rb_root); tn; tn = next) {
 		int64_t count = tn->end_count - tn->start_count;
+
 		if (count > 0) {
 			func_calls++;
 			if (strace_ftrace_is_syscall(tn->func_name)) {
