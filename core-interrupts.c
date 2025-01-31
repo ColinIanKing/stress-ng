@@ -62,7 +62,7 @@ static void stress_interrupts_counter_set(
 	const uint64_t value,
 	const int which)
 {
-	if (i >= SIZEOF_ARRAY(info))
+	if (UNLIKELY(i >= SIZEOF_ARRAY(info)))
 		return;
 	if (which == COUNTERS_START)
 		counters[i].count_start = value;
@@ -98,7 +98,7 @@ static void stress_interrupts_count(stress_interrupts_t *counters, const int whi
 #endif
 
 	fp = fopen("/proc/interrupts", "r");
-	if (!fp)
+	if (UNLIKELY(!fp))
 		return;
 
 	while (fgets(buffer, sizeof(buffer), fp)) {
