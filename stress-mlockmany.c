@@ -53,6 +53,8 @@ static int stress_mlock_interruptible(
 		const size_t sz = (len > chunk_size) ? chunk_size : len;
 		int ret;
 
+		if (stress_low_memory(sz))
+			break;
 		ret = shim_mlock((void *)ptr, sz);
 		if (ret < 0)
 			return ret;
@@ -87,7 +89,7 @@ static int stress_munlock_interruptible(
  *  stress_mlockmany()
  *	stress by forking and exiting
  */
-static int stress_mlockmany(stress_args_t *args)
+static int stress_mlockmany_child(stress_args_t *args, void *context)
 {
 	stress_pid_t *s_pids;
 	int ret;
@@ -95,6 +97,8 @@ static int stress_mlockmany(stress_args_t *args)
 	struct rlimit rlim;
 #endif
 	size_t mlock_size, mlockmany_procs = UNSET_MLOCK_PROCS;
+
+	(void)context;
 
 	(void)stress_get_setting("mlockmany-procs", &mlockmany_procs);
 
@@ -248,6 +252,15 @@ unmap:
 	(void)stress_s_pids_munmap(s_pids, mlockmany_procs);
 
 	return EXIT_SUCCESS;
+}
+
+/*
+ *  stress_mlockmany()
+ *	stress by forking and exiting
+ */
+static int stress_mlockmany(stress_args_t *args)
+{
+	return stress_oomable_child(args, NULL, stress_mlockmany_child, STRESS_OOMABLE_NORMAL);
 }
 
 const stressor_info_t stress_mlockmany_info = {
