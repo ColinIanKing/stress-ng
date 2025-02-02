@@ -18,9 +18,9 @@
 #
 
 #
-# Codename "systematic system smasher"
+# Codename "numa enhanced strainer"
 #
-VERSION=0.18.09
+VERSION=0.18.10
 
 #
 # Determine supported toolchains
