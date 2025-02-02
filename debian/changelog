@@ -1,3 +1,94 @@
+stress-ng (0.18.10-1) unstable; urgency=medium
+
+  [Christian Franke]
+  * stress-acl: reduce ACL testcases on Cygwin
+
+  [Colin Ian King]
+  * stress-mlockmany: make mlockmany mlocks less OOMy
+  * stress-sigill: also handle SIGBUS signals
+  * stress-bitops: fix assignment of is_pwr2
+  * core-out-of-memory: core-*: replace %jd with PRIdMAX
+  * core-*: add some LIKELY/UNLIKELY branch hints
+  * stress-*: add some LIKELY/UNLIKELY branch hints
+  * Manual: Fix typo "mmaphuge-numa" -> "mmanmany-numa"
+  * stress-intmath: clean up if/else statement
+  * stress-sigill: add extra illegal opcode for arm v6
+  * stress-cachehammer: cast return from mmap to uint8_t *
+  * core-cpuidle: make cpuidle_path a little larger
+  * stress-fsize: fix 32 bit file size limits, force truncate each time
+  * stress-mmahuge: rename ctxt to context
+  * stress-mmaphuge: ensure ctxt.fd is also initialized
+  * stress-mmaphuge: ensure ctxt.numa_mask is initialized
+  * stress-readahead: replace %jx with PRIxMAX
+  * core-thrash: replace %jx sscanf with 32/64 bit portable version
+  * core-thrash: read some memory related /sysfs files for Linux
+  * stress-madvise: exercise MADV_GUARD_* flags
+  * stress-sigsegv: exercise MADV_GUARD_INSTALL protected pages
+  * kernel-coverage.sh: ignore genhtml inconsistent errors
+  * stress-*: ensure numa mask frees are performed correctly
+  * stress-cpu-sched: only call stress_numa_mask_alloc if alloc succeeded
+  * stress-cachehammer: only call stress_numa_mask_alloc if alloc
+    succeeded
+  * core-numa: ignore null numa_mask and buffer ptr in
+    stress_numa_randomize_pages
+  * core-*: stress-*: replace %jd, %ju, %jx with PRIdMAX, PRIuMAX, PRIxMAX
+  * stress-cacheline: disable unrolling in stress_cacheline_rdfwd64 for
+    clang
+  * core-*, stress-*: Fix typos in comments
+  * kernel-coverage: add more stressor numa options for more coverage
+  * stress-vm-addr: add --vm-addr-numa option
+  * stress-pagemove: add --pagemove-numa option
+  * core-numa: should be mbinding to prev_ptr rather than ptr
+  * stress-llc-affinity: replace spaces with tab
+  * core-numa: optimize mbind calls to handle multiple runs of same node
+  * stress-mremap: add --mremap-numa option
+  * stress-*: Fix typo "randonly" -> "randomly"
+  * stress-mmapmany: add --mmapmany-numa option
+  * Manual: fix --ioport-opts description, it's missing some text
+  * stress-mmapfixed: correct cut-n-paste spelling mistakes
+  * stress-mmaphuge: add --mmaphuge-numa option
+  * stress-mmapfiles: move numa_nodes alloc and free to main body
+  * stress-memfd: add in missing free of numa_nodes
+  * stress-mcontend: free numa_mask once it is no longer used
+  * stress-lockbus: free numa_mask once it is no longer used
+  * stress-llc-affinity: add in missing free of numa_nodes
+  * stress-mmapfixed: add --mmapfixed-numa option
+  * kernel-coverage: add stressor numa options for more coverage
+  * stress-mmapfiles: add --memfiles-numa option
+  * stress-memfd: add --memfd-numa option
+  * core-numa: make buffer a void * pointer
+  * stress-mcontend: add --mcontend-numa option
+  * stress-cachehammer: exercise various cache options with memory access too
+  * stress-llc-affinity: add --llc-affinity-numa option
+  * stress-cachehammer: add more comments, add more code for ppc64 testing
+  * stress-cachehammer: add prefetch read and add some missing memory
+    barriers
+  * stress-cachehammer: add some UNLIKELY branch hints
+  * stress-cachehammer: add write + flush cache methods
+  * stress-cachehammer: free page after use, cleans up resource leak
+  * stress-cachehammer: remove incorrect short optarg option in help
+  * stress-cachehammer: fix short help name of stressor
+  * stress-cachehammer: cycle addr2 around the buffer
+  * stress-cachehammer: exercise two addresses per hammer operation
+  * stress-madvise: add zero size null address madvise call
+  * stress-cachehammer: use register func pointer hammer for hammer
+    function calls
+  * stress-af-alg-defconfigs: remove pkcs1pad variants
+  * stress-cachehammer: fix leak of file descriptor fd
+  * stress-af-alg: handle all bind failures the same way
+  * stress-cachehammer: add shared file mmap'd page cache hammering
+  * stress-cache: report signal name and number when catching rogue
+    signals
+  * stress-x86cpuid: update with new CPU ids from wikipedia
+  * README.md: Add another kernel issue found with stress-ng
+  * stress-af-alg: add missing af-alg names and types to failure messages
+  * stress-cpu: rename macro and variables to not contain leading _
+  * stress-cachehammer: ensure loops is at least 1 for 1 iteration
+  * Manual: fix --mmap-bytes description
+  * README.md add another link to a paper that references stress-ng
+
+ -- Colin Ian King <colin.i.king@gmail.com>  Sun, 2 Feb 2025 16:55:52 +0000
+
 stress-ng (0.18.09-1) unstable; urgency=medium
 
   * Makefile: bump version
