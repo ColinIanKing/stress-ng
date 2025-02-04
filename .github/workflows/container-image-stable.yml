@@ -40,6 +40,8 @@ jobs:
         with:
           images: |
             ${{ env.GITHUB_REGISTRY }}/${{ env.IMAGE_REPOSITORY }}
+      - name: Environment
+        run: printenv
       - name: Check Limits
         run: ulimit -a
       - name: Build and push Docker image
@@ -52,5 +54,5 @@ jobs:
             ${{ env.GITHUB_REGISTRY }}/${{ env.IMAGE_REPOSITORY }}:latest
             ${{ env.IMAGE_REPOSITORY }}:${{ github.sha }}
             ${{ env.IMAGE_REPOSITORY }}:latest
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64
           labels: ${{ steps.meta.outputs.labels }}
