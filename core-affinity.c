@@ -29,7 +29,8 @@
 
 static const char option[] = "taskset";
 
-#if defined(HAVE_SCHED_SETAFFINITY) && \
+#if defined(HAVE_SCHED_GETAFFINITY) && \
+    defined(HAVE_SCHED_SETAFFINITY) && \
     defined(HAVE_CPU_SET_T)
 
 static cpu_set_t stress_affinity_cpu_set;
@@ -389,7 +390,9 @@ uint32_t stress_get_usable_cpus(uint32_t **cpus, const bool use_affinity)
 {
 	uint32_t i, n_cpus = stress_get_processors_configured();
 
-#if defined(HAVE_SCHED_GETAFFINITY)
+#if defined(HAVE_SCHED_GETAFFINITY) && \
+    defined(HAVE_SCHED_SETAFFINITY) && \
+    defined(HAVE_CPU_SET_T)
 	if (use_affinity) {
 		/* if affinity has been set.. */
 		if (CPU_COUNT(&stress_affinity_cpu_set) > 0) {
