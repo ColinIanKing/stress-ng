@@ -785,10 +785,10 @@ void stress_perf_stat_dump(FILE *yaml, stress_stressor_t *stressors_list, const 
 		pr_yaml(yaml, "      duration: %f\n", duration);
 
 		for (p = 0; (p < STRESS_PERF_MAX) && perf_info[p].label; p++) {
-			const char *l = perf_info[p].label;
+			const char *label = perf_info[p].label;
 			const uint64_t ct = counter_totals[p];
 
-			if (l && (ct != STRESS_PERF_INVALID)) {
+			if (label && (ct != STRESS_PERF_INVALID)) {
 				char extra[32];
 				char yaml_label[128];
 				*extra = '\0';
@@ -813,11 +813,11 @@ void stress_perf_stat_dump(FILE *yaml, stress_stressor_t *stressors_list, const 
 				}
 
 				pr_inf("%'26" PRIu64 " %-24s %s%s\n",
-					ct, l, stress_perf_stat_scale(ct, duration),
+					ct, label, stress_perf_stat_scale(ct, duration),
 					extra);
 
 				*yaml_label = '\0';
-				stress_perf_yaml_label(yaml_label, l, sizeof(yaml_label));
+				stress_perf_yaml_label(yaml_label, label, sizeof(yaml_label));
 				pr_yaml(yaml, "      %s_total: %" PRIu64
 					"\n", yaml_label, ct);
 				pr_yaml(yaml, "      %s_per_second: %f\n",
