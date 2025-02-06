@@ -100,7 +100,7 @@ static void stress_mincore_expect(
  */
 static int stress_mincore(stress_args_t *args)
 {
-	uint8_t *addr = 0, *prev_addr = 0;
+	uint8_t *addr = NULL, *prev_addr = NULL;
 	const size_t page_size = args->page_size;
 	const intptr_t mask = ~((intptr_t)page_size - 1);
 	bool mincore_rand = false;
