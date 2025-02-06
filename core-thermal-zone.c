@@ -277,10 +277,11 @@ void stress_tz_dump(FILE *yaml, stress_stressor_t *stressors_list)
 
 			if (total) {
 				const double temp = (count > 0) ? ((double)total / count) / 1000.0 : 0.0;
-				const char *name = ss->stressor->name;
 				char tmp[64], *type;
 
 				if (!dumped_heading) {
+					const char *name = ss->stressor->name;
+
 					dumped_heading = true;
 					pr_inf("%s:\n", name);
 					pr_yaml(yaml, "    - stressor: %s\n", name);
