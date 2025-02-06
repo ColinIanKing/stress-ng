@@ -42,21 +42,16 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		 	NULL }
 };
 
-typedef struct {
-	const char *name;
-	const int prime_method;
-} stress_prime_method_t;
-
-static const stress_prime_method_t stress_prime_methods[] = {
-	{ "factorial",	STRESS_PRIME_METHOD_FACTORIAL },
-	{ "inc",	STRESS_PRIME_METHOD_INC },
-	{ "pwr2",	STRESS_PRIME_METHOD_PWR2 },
-	{ "pwr10",	STRESS_PRIME_METHOD_PWR10 },
+static const char *stress_prime_methods[] = {
+	"factorial",	/* STRESS_PRIME_METHOD_FACTORIAL */
+	"inc",		/* STRESS_PRIME_METHOD_INC */
+	"pwr2",		/* STRESS_PRIME_METHOD_PWR2 */
+	"pwr10",	/* STRESS_PRIME_METHOD_PWR10 */
 };
 
 static const char *stress_prime_method(const size_t i)
 {
-	return (i < SIZEOF_ARRAY(stress_prime_methods)) ? stress_prime_methods[i].name : NULL;
+	return (i < SIZEOF_ARRAY(stress_prime_methods)) ? stress_prime_methods[i] : NULL;
 }
 
 static const stress_opt_t opts[] = {
