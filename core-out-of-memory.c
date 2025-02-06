@@ -51,7 +51,8 @@ bool stress_process_oomed(const pid_t pid)
 		return oomed;
 
 	for (;;) {
-		char buf[4096], *ptr;
+		char buf[4096];
+		const char *ptr;
 		ssize_t ret;
 
 		ret = read(fd, buf, sizeof(buf) - 1);
@@ -142,7 +143,7 @@ void stress_set_oom_adjustment(stress_args_t *args, const bool killable)
 {
 	bool high_priv;
 	bool make_killable = killable;
-	char *str;
+	const char *str;
 	int ret;
 
 	/*
