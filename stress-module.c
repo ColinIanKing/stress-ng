@@ -206,9 +206,8 @@ static int get_modpath_name(
 		goto out_close;
 
 	while ((line_len = getline(&line, &len, fp)) != -1) {
-		char *module_pathp;
+		const char *module_pathp, *modulenamep;
 		char *start_postfix;
-		char *modulenamep;
 
 		lineno++;
 		parse_type = parse_get_line_type(line, (size_t)line_len, module, sizeof(module));
