@@ -238,7 +238,7 @@ static void stress_segv_handler(int signum)
 static int stress_memhotplug(stress_args_t *args)
 {
 	DIR *dir;
-	struct dirent *d;
+	const struct dirent *d;
 	stress_mem_info_t *mem_info;
 	size_t i;
 	NOCLOBBER size_t n = 0, max;
