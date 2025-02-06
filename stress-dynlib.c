@@ -158,7 +158,7 @@ static int stress_dynlib(stress_args_t *args)
 
 		for (i = 0; i < MAX_LIBNAMES; i++) {
 			if (handles[i]) {
-				uint8_t *ptr;
+				const uint8_t *ptr;
 				double t;
 
 				(void)dlerror();
