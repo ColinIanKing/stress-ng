@@ -84,13 +84,13 @@ static void stress_ignite_cpu_set(
 {
 	char path[PATH_MAX];
 	char buffer[128];
-	int retry = 0;
 	const int max_retries = 16;
 
 	if (((*setting_flag & SETTING_FREQ) == SETTING_FREQ) &&
 		(min_freq > 0) && (max_freq > 0) && (min_freq < max_freq)) {
 		const int64_t freq_delta = (max_freq - min_freq) / 10;
 		uint64_t freq;
+		int retry = 0;
 
 		(void)snprintf(path, sizeof(path),
 			"/sys/devices/system/cpu/cpu%" PRId32
