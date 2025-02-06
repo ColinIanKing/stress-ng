@@ -764,8 +764,7 @@ static void stress_fd_race_get_dev(
 static int stress_fd_race(stress_args_t *args)
 {
 	pid_t pid;
-	int rc = EXIT_SUCCESS, ret, reserved_port;
-	int *fds, fd;
+	int fd, rc = EXIT_SUCCESS, ret, reserved_port;
 	char filename[PATH_MAX];
 	stress_fd_race_filename_t *list = NULL;
 	bool fd_race_dev = false;
@@ -844,7 +843,7 @@ static int stress_fd_race(stress_args_t *args)
 	if (context.max_fd > (1024 * 1024))
 		context.max_fd  = 1024 * 1024;
 
-	context.fds_size = sizeof(*fds) * (size_t)context.max_fd;
+	context.fds_size = sizeof(*context.fds) * (size_t)context.max_fd;
 	context.fds = (int *)malloc(context.fds_size);
 	if (!context.fds) {
 		pr_inf_skip("%s: cannot allocate %zd file descriptors, skipping stressor\n",
