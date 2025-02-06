@@ -140,7 +140,7 @@ static void stress_cachehammer_deinit(void)
  */
 static void OPTIMIZE3 hammer_read(void *addr1, void *addr2, const bool is_bad_addr)
 {
-	volatile uint64_t *vptr;
+	volatile const uint64_t *vptr;
 
 	if (UNLIKELY(is_bad_addr))
 		return;
@@ -619,7 +619,7 @@ static void OPTIMIZE3 hammer_prefetch_read(void *addr1, void *addr2, const bool 
 		shim_builtin_prefetch(addr2, 0, 0);
 		stress_asm_mb();
 	} else {
-		volatile uint64_t *vptr;
+		volatile const uint64_t *vptr;
 
 		shim_builtin_prefetch(addr1, 0, 0);
 		stress_asm_mb();
