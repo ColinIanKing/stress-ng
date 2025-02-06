@@ -76,7 +76,7 @@ typedef long int	shim_loff_t;
 #if defined(HAVE_OFF64_T)
 typedef off64_t		shim_off64_t;
 #else
-typedef uint64_t	shim_off64_t;
+typedef int64_t		shim_off64_t;
 #endif
 
 /* Should be defined by POSIX, but add shim */
