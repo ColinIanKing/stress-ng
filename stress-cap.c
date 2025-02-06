@@ -168,7 +168,7 @@ static int stress_cap(stress_args_t *args)
 
 		dir = opendir("/proc");
 		if (dir) {
-			struct dirent *d;
+			const struct dirent *d;
 
 			while ((d = readdir(dir)) != NULL) {
 				intmax_t p;
