@@ -74,7 +74,7 @@ static const stress_opt_t opts[] = {
 };
 
 static void stress_fd_close(
-	int *fds,
+	const int *fds,
 	const size_t n_fds,
 	stress_fd_close_info_t *info)
 {
