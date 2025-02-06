@@ -96,7 +96,7 @@ static int stress_quota_supported(const char *name)
  */
 static int do_quotactl_call(
 	const int cmd,
-	stress_dev_info_t *dev,
+	const stress_dev_info_t *dev,
 	const int id,
 	const caddr_t addr)
 {
@@ -334,7 +334,7 @@ static int stress_quota(stress_args_t *args)
 	char *mnts[MAX_DEVS];
 	stress_dev_info_t devs[MAX_DEVS];
 	DIR *dir;
-	struct dirent *d;
+	const struct dirent *d;
 	struct stat buf;
 
 	(void)shim_memset(mnts, 0, sizeof(mnts));
