@@ -81,7 +81,7 @@ static int stress_bind_mount_child(void *parg)
 	do {
 		int rc, retries, stat_count, stat_okay;
 		DIR *dir;
-		struct dirent *d;
+		const struct dirent *d;
 		double t;
 
 		t = stress_time_now();
