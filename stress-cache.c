@@ -985,6 +985,7 @@ static void stress_get_cache_flags(const char *opt, uint32_t *cache_flags, uint3
 static int stress_cache(stress_args_t *args)
 {
 #if defined(HAVE_SCHED_GETAFFINITY) &&	\
+    defined(HAVE_SCHED_SETAFFINITY) &&	\
     defined(HAVE_SCHED_GETCPU)
 	cpu_set_t proc_mask;
 	NOCLOBBER uint32_t cpu = 0;
@@ -1061,6 +1062,7 @@ static int stress_cache(stress_args_t *args)
 			args->name, buffer_size / 1024);
 
 #if defined(HAVE_SCHED_GETAFFINITY) && 	\
+    defined(HAVE_SCHED_SETAFFINITY) &&	\
     defined(HAVE_SCHED_GETCPU)
 	if (sched_getaffinity(0, sizeof(proc_mask), &proc_mask) < 0)
 		pinned = true;
@@ -1310,6 +1312,7 @@ next:
 	}
 tidy_cpus:
 #if defined(HAVE_SCHED_GETAFFINITY) &&	\
+    defined(HAVE_SCHED_SETAFFINITY) &&	\
     defined(HAVE_SCHED_GETCPU)
 	stress_free_usable_cpus(&cpus);
 #endif
