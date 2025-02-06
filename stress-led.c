@@ -55,7 +55,8 @@ static int PURE stress_led_dot_filter(const struct dirent *d)
 
 static char *stress_led_orig_trigger(const char *str)
 {
-	char *start, *end, *orig;
+	const char *start, *end;
+	char *orig;
 	size_t len;
 
 	start = strchr(str, '[');
