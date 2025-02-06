@@ -68,7 +68,7 @@ static size_t stress_mmapfiles_dir(
 	size_t n_mappings)
 {
 	DIR *dir;
-	struct dirent *d;
+	const struct dirent *d;
 	int flags = 0;
 
 	flags |= mmapfile_info->mmapfiles_shared ? MAP_SHARED : MAP_PRIVATE;
