@@ -118,7 +118,7 @@ static int stress_l1cache_info_ok(
 	int ret;
 #if defined(__linux__)
 	stress_cpu_cache_cpus_t *cpu_caches;
-	stress_cpu_cache_t *cache = NULL;
+	const stress_cpu_cache_t *cache = NULL;
 #endif
 
 	if ((*ways > 0) && (*size > 0) && (*sets > 0) && (*line_size > 0)) {
