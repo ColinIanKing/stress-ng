@@ -226,7 +226,7 @@ static int stress_cpu_cache_get_alpha(
 		while ((idx < count) && fgets(buffer, sizeof(buffer), fp)) {
 			stress_cpu_cache_type_t cache_type = CACHE_TYPE_UNKNOWN;
 			uint16_t cache_level = 0;
-			char *ptr;
+			const char *ptr;
 			uint64_t cache_size;
 			int cache_ways, cache_line_size, n;
 
