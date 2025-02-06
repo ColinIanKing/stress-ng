@@ -146,7 +146,7 @@ static void MLOCKED_TEXT stress_af_alg_alarm_handler(int signum)
  */
 static stress_crypto_type_t name_to_type(const char *buffer)
 {
-	char *end, *ptr = strchr(buffer, ':');
+	const char *end, *ptr = strchr(buffer, ':');
 	size_t i;
 
 	if (!ptr)
