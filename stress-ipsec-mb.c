@@ -49,11 +49,6 @@
 #define IMB_SHA512_DIGEST_SIZE_IN_BYTES	SHA512_DIGEST_SIZE_IN_BYTES
 #endif
 
-typedef struct {
-	double	ops;
-	double	duration;
-} ipsec_stats_t;
-
 static const stress_help_t help[] = {
 	{ NULL,	"ipsec-mb N",		"start N workers exercising the IPSec MB encoding" },
 	{ NULL, "ipsec-mb-feature F",	"specify CPU feature F" },
@@ -72,6 +67,11 @@ static const stress_help_t help[] = {
     defined(IMB_FEATURE_AVX) &&		\
     defined(IMB_FEATURE_AVX2) &&	\
     defined(IMB_FEATURE_AVX512_SKX)
+
+typedef struct {
+	double	ops;
+	double	duration;
+} ipsec_stats_t;
 
 typedef void (*ipsec_func_t)(
         stress_args_t *args,
