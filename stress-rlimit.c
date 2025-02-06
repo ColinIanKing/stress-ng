@@ -143,7 +143,7 @@ static void MLOCKED_TEXT stress_rlimit_handler(int signum)
 
 static int stress_rlimit_child(stress_args_t *args, void *ctxt)
 {
-	stress_rlimit_context_t *context = (stress_rlimit_context_t *)ctxt;
+	const stress_rlimit_context_t *context = (stress_rlimit_context_t *)ctxt;
 	uint8_t *stack;
 
 	stack = (uint8_t *)mmap(NULL, STRESS_MINSIGSTKSZ, PROT_READ | PROT_WRITE,
