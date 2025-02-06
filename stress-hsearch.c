@@ -222,7 +222,8 @@ static int OPTIMIZE3 stress_hsearch(stress_args_t *args)
 	rc = EXIT_SUCCESS;
 	do {
 		for (i = 0; stress_continue_flag() && (i < max); i++) {
-			ENTRY e, *ep;
+			ENTRY e;
+			const ENTRY *ep;
 
 			e.key = keys[i];
 			e.data = NULL;	/* Keep Coverity quiet */
