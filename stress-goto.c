@@ -24,25 +24,20 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
-#define STRESS_GOTO_UNDEFINED	(0)
-#define STRESS_GOTO_FORWARD	(1)
-#define STRESS_GOTO_BACKWARD	(2)
-#define STRESS_GOTO_RANDOM	(3)
+#define STRESS_GOTO_UNDEFINED	(-1)
+#define STRESS_GOTO_FORWARD	(0)
+#define STRESS_GOTO_BACKWARD	(1)
+#define STRESS_GOTO_RANDOM	(2)
 
-typedef struct {
-	const char *option;
-	const int  direction;
-} stress_goto_direction_t;
-
-static const stress_goto_direction_t stress_goto_directions[] = {
-	{ "forward",	STRESS_GOTO_FORWARD },
-	{ "backward",	STRESS_GOTO_BACKWARD },
-	{ "random",	STRESS_GOTO_RANDOM },
+static const char *stress_goto_directions[] = {
+	"forward",	/* STRESS_GOTO_FORWARD */
+	"backward",	/* STRESS_GOTO_BACKWARD */
+	"random",	/* STRESS_GOTO_RANDOM */
 };
 
 static const char *stress_goto_direction(const size_t i)
 {
-	return (i < SIZEOF_ARRAY(stress_goto_directions)) ? stress_goto_directions[i].option : NULL;
+	return (i < SIZEOF_ARRAY(stress_goto_directions)) ? stress_goto_directions[i] : NULL;
 }
 
 static const stress_opt_t opts[] = {
@@ -82,7 +77,7 @@ static int OPTIMIZE_GOTO stress_goto(stress_args_t *args)
 {
 	size_t i;
 	int rc = EXIT_SUCCESS;
-	size_t goto_direction = 0;
+	size_t goto_direction = STRESS_GOTO_RANDOM;
 	double t1, t2, duration, rate;
 	uint64_t lo, hi, bogo_counter;
 
@@ -248,7 +243,7 @@ static int OPTIMIZE_GOTO stress_goto(stress_args_t *args)
 	stress_sync_start_wait(args);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
-	switch (stress_goto_directions[goto_direction].direction) {
+	switch (goto_direction) {
 	case STRESS_GOTO_FORWARD:
 		labels = labels_forward;
 		break;
