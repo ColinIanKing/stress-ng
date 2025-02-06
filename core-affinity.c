@@ -96,7 +96,7 @@ static void stress_get_topology_set(
 {
 	DIR *dir;
 	static const char path[] = "/sys/devices/system/cpu";
-	struct dirent *d;
+	const struct dirent *d;
 	int max_cpus = (int)stress_get_processors_configured();
 	cpu_set_t *sets;
 	int i, n_sets = 0, which;
@@ -123,7 +123,7 @@ static void stress_get_topology_set(
 
 	while ((d = readdir(dir)) != NULL) {
 		char filename[PATH_MAX];
-		char str[1024], *tmpptr, *ptr, *token;
+		char str[1024], *ptr, *token;
 		cpu_set_t newset;
 		int lo, hi;
 
@@ -139,7 +139,8 @@ static void stress_get_topology_set(
 
 		CPU_ZERO(&newset);
 		for (ptr = str; (token = strtok(ptr, ",")) != NULL; ptr = NULL) {
-			tmpptr = strstr(token, "-");
+			const char *tmpptr = strstr(token, "-");
+
 			if (sscanf(token, "%d", &i) != 1)
 				continue;
 			lo = hi = i;
