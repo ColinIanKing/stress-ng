@@ -30,15 +30,11 @@
 #define STRESS_FILENAME_POSIX	(1)	/* POSIX 2008.1 */
 #define STRESS_FILENAME_EXT	(2)	/* EXT* filesystems */
 
-typedef struct {
-	const uint8_t opt;
-	const char *opt_text;
-} stress_filename_opts_t;
-
-static const stress_filename_opts_t filename_opts[] = {
-	{ STRESS_FILENAME_PROBE,	"probe" },
-	{ STRESS_FILENAME_POSIX,	"posix" },
-	{ STRESS_FILENAME_EXT,		"ext" },
+/* mapping of opts text to STRESS_FILE_NAME_* values */
+static const char *filename_opts[] = {
+	"probe",	/* STRESS_FILENAME_PROBE */
+	"posix",	/* STRESS_FILENAME_POSIX */
+	"ext",		/* STRESS_FILENAME_EXT */
 };
 
 static const stress_help_t help[] = {
@@ -575,7 +571,7 @@ tidy_dir:
 
 static const char *stress_filename_opts(const size_t i)
 {
-	return (i < SIZEOF_ARRAY(filename_opts)) ? filename_opts[i].opt_text : NULL;
+	return (i < SIZEOF_ARRAY(filename_opts)) ? filename_opts[i] : NULL;
 }
 
 static const stress_opt_t opts[] = {
