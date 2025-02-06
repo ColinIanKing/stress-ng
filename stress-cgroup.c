@@ -81,7 +81,9 @@ static int stress_cgroup_mounted_state(const char *path)
 		return STRESS_CGROUP_UNKNOWN;
 
 	while (fgets(buf, sizeof(buf), fp)) {
-		char *mnt, *type, *ptr;
+		const char *mnt, *type;
+		char *ptr;
+
 		ptr = buf;
 		while (*ptr && (*ptr != ' '))
 			ptr++;
@@ -220,7 +222,8 @@ static void stress_cgroup_controllers(const char *realpathname)
 {
 	char path[PATH_MAX + 32];
 	char controllers[512];
-	char *ptr, *token;
+	const char *token;
+	char *ptr;
 	ssize_t ret;
 
 	(void)snprintf(path, sizeof(path), "%s/%s", realpathname, "cgroup.subtree_control");
