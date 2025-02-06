@@ -439,7 +439,7 @@ static void OPTIMIZE3 hammer_ppc64_dcbt(void *addr1, void *addr2, const bool is_
 		stress_asm_ppc64_dcbt(addr2);
 		stress_asm_mb();
 	} else {
-		volatile uint64_t *vptr;
+		const volatile uint64_t *vptr;
 
 		vptr = (volatile uint64_t *)addr1;
 		stress_asm_ppc64_dcbt(addr1);
