@@ -107,8 +107,7 @@ static void stress_fd_race_close_fds(
 	const int fds_max,
 	const int flag)
 {
-	size_t i, j;
-	int tmp;
+	size_t i;
 
 	if (!fds)
 		return;
@@ -143,6 +142,9 @@ static void stress_fd_race_close_fds(
 	case 3:
 		/* Close fds in randomized order */
 		for (i = 0; i < n; i++) {
+			register size_t j;
+			register int tmp;
+
 			j = (size_t)stress_mwc32modn(n);
 
 			tmp = fds[i];
