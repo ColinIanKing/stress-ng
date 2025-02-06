@@ -214,7 +214,7 @@ static void stress_filename_tidy(const char *path)
 
 	dir = opendir(path);
 	if (dir) {
-		struct dirent *d;
+		const struct dirent *d;
 
 		while ((d = readdir(dir)) != NULL) {
 			char filename[PATH_MAX];
