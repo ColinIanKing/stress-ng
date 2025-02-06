@@ -66,7 +66,7 @@ typedef struct {
 static void stress_numa_stats_read(stress_numa_stats_t *stats)
 {
 	DIR *dir;
-	struct dirent *d;
+	const struct dirent *d;
 	static const char *path = "/sys/devices/system/node";
 	static const struct {
 		const char *name;
@@ -143,10 +143,9 @@ static void stress_numa_check_maps(
 
 		n = sscanf(buffer, "%" SCNxPTR, &addr);
 		if ((n == 1) && (ptr == (void *)addr)) {
-			char *str;
-
 			/* find active= field */
-			str = strstr(buffer, "active=");
+			const char *str = strstr(buffer, "active=");
+
 			if (str) {
 				int node;
 
