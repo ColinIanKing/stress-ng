@@ -249,7 +249,7 @@ static void stress_funcret_setvar(void *ptr, const size_t size)
  *  use direct comparison, floating pointing use precision as equal values
  *  should never been compared for floating point
  */
-#define cmp_mem(a, b, type)	shim_memcmp(&a, &b, sizeof(a))
+#define cmp_mem(a, b, type)	shim_memcmp(&a.data, &b.data, sizeof(a.data))
 #define cmp_type(a, b, type)	(a != b)
 #define cmp_fp(a, b, type)	((a - b) > (type)0.0001)
 
