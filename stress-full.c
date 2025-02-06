@@ -87,7 +87,6 @@ static int stress_full(stress_args_t *args)
 
 	do {
 		ssize_t ret;
-		off_t offset;
 		uint8_t *ptr;
 		struct stat statbuf;
 
@@ -138,7 +137,7 @@ try_read:
 		}
 #if defined(HAVE_PREAD)
 		{
-			offset = (sizeof(offset) == sizeof(uint64_t)) ?
+			const off_t offset = (sizeof(offset) == sizeof(uint64_t)) ?
 				(off_t)(stress_mwc64() & 0x7fffffffffffffff) :
 				(off_t)(stress_mwc32() & 0x7fffffffUL);
 			ret = pread(fd, buffer, buffer_size, offset);
@@ -180,16 +179,19 @@ try_read:
 		}
 
 #if defined(__linux__)
-		/*
-		 *  On Linux seeks will always succeed
-		 */
-		offset = (off_t)stress_mwc64();
-		ret = lseek(fd, offset, whences[w].whence);
-		if (ret < 0) {
-			pr_fail("%s: lseek(fd, %" PRIdMAX ", %s) failed, errno=%d (%s)\n",
-				args->name, (intmax_t)offset, whences[w].name,
-				errno, strerror(errno));
-			goto fail;
+		{
+			/*
+			 *  On Linux seeks will always succeed
+			 */
+			const off_t offset = (off_t)stress_mwc64();
+
+			ret = lseek(fd, offset, whences[w].whence);
+			if (ret < 0) {
+				pr_fail("%s: lseek(fd, %" PRIdMAX ", %s) failed, errno=%d (%s)\n",
+					args->name, (intmax_t)offset, whences[w].name,
+					errno, strerror(errno));
+				goto fail;
+			}
 		}
 		w++;
 		if (w >= SIZEOF_ARRAY(whences))
