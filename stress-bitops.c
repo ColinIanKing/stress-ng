@@ -1128,10 +1128,11 @@ static int stress_bitops(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	for (i = 0, j = 0; i < SIZEOF_ARRAY(metrics); i++) {
-		char buf[32];
 		const double rate = metrics[i].duration > 0.0 ? metrics[i].count / metrics[i].duration : 0.0;
 
 		if (rate > 0.0) {
+			char buf[32];
+
 			(void)snprintf(buf, sizeof(buf), "%s mega-ops per second", bitops_methods[i].name);
 			stress_metrics_set(args, j, buf, rate / 1000000.0, STRESS_METRIC_GEOMETRIC_MEAN);
 			j++;
