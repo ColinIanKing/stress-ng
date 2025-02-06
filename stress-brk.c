@@ -110,7 +110,8 @@ static inline size_t PURE stress_brk_abs(const uint8_t *ptr1, const uint8_t *ptr
 
 static int OPTIMIZE3 stress_brk_child(stress_args_t *args, void *context)
 {
-	uint8_t *start_ptr, *unmap_ptr = NULL, *brk_failed_ptr = NULL;
+	uint8_t *start_ptr, *unmap_ptr = NULL;
+	const uint8_t *brk_failed_ptr = NULL;
 	int i = 0, brk_failed_count = 0;
 	size_t brk_bytes = DEFAULT_BRK_BYTES;
 	const size_t page_size = args->page_size;
