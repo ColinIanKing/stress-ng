@@ -36,26 +36,22 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
-#define STRESS_BAD_IOCTL_CMD_RANDOM	(0)
-#define STRESS_BAD_IOCTL_CMD_INC	(1)
+/* Index order to stress_bad_ioctl_methods */
+#define STRESS_BAD_IOCTL_CMD_INC	(0)
+#define STRESS_BAD_IOCTL_CMD_RANDOM	(1)
 #define STRESS_BAD_IOCTL_CMD_RANDOM_INC	(2)
 #define STRESS_BAD_IOCTL_CMD_STRIDE	(3)
 
-typedef struct {
-	const char *name;
-	const int ioctl_cmd_method;
-} bad_ioct_method_t;
-
-static const bad_ioct_method_t stress_bad_ioctl_methods[] = {
-	{ "inc",	STRESS_BAD_IOCTL_CMD_INC },
-	{ "random",	STRESS_BAD_IOCTL_CMD_RANDOM },
-	{ "random-inc",	STRESS_BAD_IOCTL_CMD_RANDOM_INC },
-	{ "stride",	STRESS_BAD_IOCTL_CMD_STRIDE },
+static const char *stress_bad_ioctl_methods[] = {
+	"inc",
+	"random",
+	"random-inc",
+	"stride",
 };
 
 static const char *stress_bad_ioctl_method(const size_t i)
 {
-	return (i < SIZEOF_ARRAY(stress_bad_ioctl_methods)) ?  stress_bad_ioctl_methods[i].name : NULL;
+	return (i < SIZEOF_ARRAY(stress_bad_ioctl_methods)) ? stress_bad_ioctl_methods[i] : NULL;
 }
 
 static const stress_opt_t opts[] = {
