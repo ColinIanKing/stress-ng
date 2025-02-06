@@ -70,7 +70,7 @@ static int stress_cpu_online_set(
 	const int setting)
 {
 	char filename[PATH_MAX];
-	char data[3] = { '0' + (char)setting, '\n', 0 };
+	const char data[3] = { '0' + (char)setting, '\n', 0 };
 	ssize_t ret;
 
 	(void)snprintf(filename, sizeof(filename),
