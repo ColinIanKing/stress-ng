@@ -1033,7 +1033,7 @@ static stress_open_func_t open_funcs[] = {
 static void stress_fd_dir(const char *path, double *duration, double *count)
 {
 	for (;;) {
-		struct dirent *de;
+		const struct dirent *de;
 		DIR *dir;
 
 		dir = opendir(path);
