@@ -56,7 +56,7 @@ static inline shim_off64_t stress_copy_file_seek64(int fd, shim_off64_t off64, i
 
 	if (off64 > max_off64) {
 		errno = EINVAL;
-		return -1;
+		return (shim_off64_t)-1;
 	}
 	return (shim_off64_t)lseek(fd, (off_t)off64, whence);
 #endif
