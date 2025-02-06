@@ -117,7 +117,8 @@ static int stress_bigheap_child(stress_args_t *args, void *context)
 {
 	uint64_t bigheap_growth = DEFAULT_BIGHEAP_GROWTH;
 	size_t bigheap_bytes = DEFAULT_BIGHEAP_BYTES;
-	NOCLOBBER void *ptr = NULL, *last_ptr = NULL;
+	NOCLOBBER void *ptr = NULL;
+	NOCLOBBER const void *last_ptr = NULL;
 	NOCLOBBER uint8_t *last_ptr_end = NULL;
 	NOCLOBBER size_t size = 0;
 	NOCLOBBER double duration = 0.0, count = 0.0;
