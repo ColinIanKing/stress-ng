@@ -179,7 +179,8 @@ static ssize_t stress_revio_write(
  */
 static void stress_revio_opts(const char *opt_name, const char *opt_arg, stress_type_id_t *type_id, void *value)
 {
-	char *str, *ptr, *token;
+	char *str, *ptr;
+	const char *token;
 	int revio_flags = 0;
 	int revio_oflags = 0;
 	bool opts_set = false;
