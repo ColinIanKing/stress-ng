@@ -79,7 +79,7 @@ static int stress_crypt_id(
 #endif
 	)
 {
-	char *encrypted;
+	const char *encrypted;
 	double t1, t2;
 	errno = 0;
 
