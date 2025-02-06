@@ -174,9 +174,9 @@ void stress_numa_randomize_pages(
 	const size_t page_size,
 	const size_t buffer_size)
 {
+	uint8_t *ptr;
 	uint8_t *prev_ptr = (uint8_t *)buffer;
-	uint8_t *ptr = (uint8_t *)buffer + page_size;
-	uint8_t *ptr_end = (uint8_t *)buffer + buffer_size;
+	const uint8_t *ptr_end = (uint8_t *)buffer + buffer_size;
 	unsigned long int node = (unsigned long int)stress_mwc32modn((uint32_t)numa_mask->nodes);
 	unsigned long int prev_node = node;
 	size_t size;
@@ -288,7 +288,7 @@ int stress_set_mbind(const char *arg)
 
 	for (ptr = str; (token = strtok(ptr, ",")) != NULL; ptr = NULL) {
 		unsigned long int i, lo, hi;
-		char *tmpptr = strstr(token, "-");
+		const char *tmpptr = strstr(token, "-");
 
 		hi = lo = stress_parse_node(token);
 		if (tmpptr) {
