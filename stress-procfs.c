@@ -726,7 +726,7 @@ static char *stress_random_pid(void)
 	 *  try 32 random probes before giving up
 	 */
 	for (i = 0, j = 0; i < 32; i++) {
-		char *name;
+		const char *name;
 
 		j += (size_t)stress_mwc32();
 		j %= (size_t)n;
