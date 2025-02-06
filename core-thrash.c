@@ -290,7 +290,7 @@ static inline void stress_proc_memory(void)
 
 	size_t i;
 	DIR *dir;
-	struct dirent *d;
+	const struct dirent *d;
 
 	for (i = 0; i < SIZEOF_ARRAY(proc_files); i++) {
 		stress_file_read(proc_files[i]);
