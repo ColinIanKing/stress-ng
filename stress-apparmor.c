@@ -194,7 +194,7 @@ static void stress_apparmor_dir(
 	const int depth)
 {
 	DIR *dp;
-	struct dirent *d;
+	const struct dirent *d;
 
 	if (!stress_apparmor_stress_continue_inc(args, false))
 		return;
