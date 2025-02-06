@@ -324,7 +324,7 @@ static int get_variable_sysfs_efi_vars(
 {
 	size_t i;
 	stress_efi_var_t var;
-	uint32_t *attributes = (uint32_t *)var.attributes;
+	const uint32_t *attributes = (uint32_t *)var.attributes;
 
 	static const char * const efi_sysfs_names[] = {
 		"attributes",
