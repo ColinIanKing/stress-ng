@@ -150,7 +150,7 @@ static int stress_getdents_dir(
 
 	do {
 		struct shim_linux_dirent *ptr = buf;
-		struct shim_linux_dirent *end;
+		const struct shim_linux_dirent *end;
 		double t;
 
 		t = stress_time_now();
@@ -233,7 +233,7 @@ static int stress_getdents64_dir(
 
 	do {
 		struct shim_linux_dirent64 *ptr = (struct shim_linux_dirent64 *)buf;
-		struct shim_linux_dirent64 *end;
+		const struct shim_linux_dirent64 *end;
 		int nread;
 		double t;
 
