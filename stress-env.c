@@ -130,7 +130,7 @@ static int stress_env_child(stress_args_t *args, void *context)
 			for (j = 0; j < i; j++) {
 				if (verify) {
 					const size_t env_sz = stress_env_size(arg_max);
-					char *val;
+					const char *val;
 
 					(void)snprintf(name, sizeof(name), "STRESS_ENV_%" PRIx64, j);
 					val = getenv(name);
