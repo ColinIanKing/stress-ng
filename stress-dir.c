@@ -248,7 +248,8 @@ static int stress_mkdir(const int dir_fd, const char *path, const int mode)
 	 *  50% of the time use mkdirat rather than mkdir
 	 */
 	if ((dir_fd >= 0) && stress_mwc1()) {
-		char tmp[PATH_MAX], *filename;
+		char tmp[PATH_MAX];
+		const char *filename;
 
 		(void)shim_strscpy(tmp, path, sizeof(tmp));
 		filename = basename(tmp);
