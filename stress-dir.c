@@ -130,7 +130,7 @@ static int stress_dir_read(
 	const char *path)
 {
 	DIR *dp;
-	struct dirent *de;
+	const struct dirent *de;
 
 	dp = opendir(path);
 	if (!dp)
@@ -173,7 +173,7 @@ static int stress_dir_rename(
 	const char *path)
 {
 	DIR *dp;
-	struct dirent *de;
+	const struct dirent *de;
 	char new_filename[PATH_MAX];
 	char tmp[32];
 
@@ -377,7 +377,7 @@ static int stress_dir_readdir(
 	char dirpath[PATH_MAX + 64];
 	char filename[PATH_MAX + 70];
 	int rc = 0, i, got_mask, all_mask;
-	struct dirent *entry;
+	const struct dirent *de;
 
 	(void)snprintf(dirpath, sizeof(dirpath), "%s/test-%" PRIdMAX "-%" PRIu32, pathname,
 		(intmax_t)getpid(), stress_mwc32());
@@ -411,9 +411,9 @@ static int stress_dir_readdir(
 
 	rewinddir(dir);
 	got_mask = 0;
-	while ((entry = readdir(dir))) {
-		if (isdigit((unsigned char)entry->d_name[0])) {
-			const int d = atoi(entry->d_name);
+	while ((de = readdir(dir))) {
+		if (isdigit((unsigned char)de->d_name[0])) {
+			const int d = atoi(de->d_name);
 
 			got_mask |= (1U << d);
 		}
