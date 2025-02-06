@@ -654,6 +654,8 @@ static int stress_exec(stress_args_t *args)
 #endif
 	uint64_t volatile exec_fails = 0, exec_calls = 0;
 	uint32_t exec_max = DEFAULT_EXECS;
+	size_t exec_method_idx;
+	size_t exec_fork_method_idx;
 	int exec_method = EXEC_METHOD_ALL;
 	int exec_fork_method = EXEC_FORK_METHOD_FORK;
 	bool exec_no_pthread = false;
@@ -661,9 +663,11 @@ static int stress_exec(stress_args_t *args)
 	char *str;
 
 	(void)stress_get_setting("exec-max", &exec_max);
-	(void)stress_get_setting("exec-method", &exec_method);
-	(void)stress_get_setting("exec-fork-method", &exec_fork_method);
 	(void)stress_get_setting("exec-no-pthread", &exec_no_pthread);
+	if (stress_get_setting("exec-method", &exec_method_idx))
+		exec_method = stress_exec_methods[exec_method_idx].method;
+	if (stress_get_setting("exec-fork-method", &exec_fork_method_idx))
+		exec_fork_method = stress_exec_fork_methods[exec_fork_method_idx].method;
 
 	stress_ksm_memory_merge(1);
 
