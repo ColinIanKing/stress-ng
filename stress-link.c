@@ -182,7 +182,8 @@ static int stress_link_generic(
     defined(HAVE_READLINKAT)
 				{
 					char tmpfilename[PATH_MAX], *filename;
-					char tmpdir[PATH_MAX], *dir;
+					char tmpdir[PATH_MAX];
+					const char *dir;
 					int dir_fd;
 
 					(void)shim_strscpy(tmpfilename, newpath, sizeof(tmpfilename));
