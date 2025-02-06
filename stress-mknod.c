@@ -84,7 +84,7 @@ static void stress_mknod_tidy(
 static int stress_mknod_find_dev(mode_t mode, dev_t *dev)
 {
 	DIR *dir;
-	struct dirent *d;
+	const struct dirent *d;
 	int rc = -1;
 
 	(void)shim_memset(dev, 0, sizeof(*dev));
@@ -156,7 +156,8 @@ static int stress_do_mknod(
 	 *  50% of the time use mknodat rather than mknod
 	 */
 	if ((dir_fd >= 0) && stress_mwc1()) {
-		char tmp[PATH_MAX], *filename;
+		char tmp[PATH_MAX];
+		const char *filename;
 
 		(void)shim_strscpy(tmp, path, sizeof(tmp));
 		filename = basename(tmp);
