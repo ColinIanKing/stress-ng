@@ -323,7 +323,7 @@ static int OPTIMIZE3 stress_list_circleq(
 
 	t = stress_time_now();
 	for (entry = entries; entry < entries_end; entry++) {
-		register list_entry_t *find;
+		register const list_entry_t *find;
 
 		CIRCLEQ_FOREACH(find, &head, u.circleq_entries) {
 			if (UNLIKELY(find == entry)) {
