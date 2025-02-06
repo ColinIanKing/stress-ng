@@ -69,7 +69,7 @@ static uint64_t get_L1_line_size(stress_args_t *args)
 #if defined(__linux__) ||	\
     defined(__APPLE__)
 	stress_cpu_cache_cpus_t *cpu_caches;
-	stress_cpu_cache_t *cache = NULL;
+	const stress_cpu_cache_t *cache = NULL;
 
 	cpu_caches = stress_cpu_cache_get_all_details();
 	if (!cpu_caches) {
