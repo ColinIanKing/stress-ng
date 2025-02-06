@@ -124,7 +124,7 @@ static inline int stress_punch_check_zero(
 	const size_t size)
 {
 	ssize_t ret;
-	register char *ptr, *ptr_end;
+	register const char *ptr, *ptr_end;
 
 #if defined(HAVE_PREADV)
 	ret = pread(fd, data, size, offset);
