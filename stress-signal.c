@@ -70,7 +70,7 @@ static int stress_signal(stress_args_t *args)
 {
 	int rc = EXIT_SUCCESS;
 	const pid_t pid = getpid();
-	uint64_t *pcounter = (uint64_t *)&counter;
+	const uint64_t *pcounter = (uint64_t *)&counter;
 
 	counter = 0;
 
