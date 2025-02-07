@@ -222,6 +222,8 @@ static void *stress_fstat_thread(void *ptr)
 #if !defined(__APPLE__)
 	(void)sigprocmask(SIG_BLOCK, &set, NULL);
 #endif
+	stress_random_small_sleep();
+
 	while (keep_running && stress_continue_flag()) {
 		size_t i;
 

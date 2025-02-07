@@ -357,6 +357,8 @@ static void *stress_madvise_pages(void *arg)
 		(void)sigemptyset(&set);
 		(void)sigaddset(&set, SIGBUS);
 		(void)pthread_sigmask(SIG_SETMASK, &set, NULL);
+
+		stress_random_small_sleep();
 	}
 
 	for (n = 0; n < sz; n += page_size) {

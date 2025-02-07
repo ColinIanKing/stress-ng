@@ -466,6 +466,8 @@ static void *stress_bad_ioctl_thread(void *arg)
 	 */
 	(void)sigprocmask(SIG_BLOCK, &set, NULL);
 
+	stress_random_small_sleep();
+
 	while (stress_continue_flag())
 		stress_bad_ioctl_rw(args, true, thread->thread_index);
 

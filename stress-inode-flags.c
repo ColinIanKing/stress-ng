@@ -202,6 +202,8 @@ static void *stress_inode_flags_thread(void *arg)
 	 */
 	(void)sigprocmask(SIG_BLOCK, &set, NULL);
 
+	stress_random_small_sleep();
+
 	pa->pthread_ret = stress_inode_flags_stressor(pa->args, pa->data);
 
 	return &g_nowt;

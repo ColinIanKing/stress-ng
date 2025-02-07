@@ -293,6 +293,7 @@ static void *stress_peekio_pthread(void *parg)
 {
 	stress_peekio_proc_t *proc = (stress_peekio_proc_t *)parg;
 
+	stress_random_small_sleep();
 	stress_peekio_exercise(proc);
 	return &g_nowt;
 }

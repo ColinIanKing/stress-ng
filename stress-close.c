@@ -156,6 +156,8 @@ static void *stress_close_func(void *arg)
 	(void)sigprocmask(SIG_BLOCK, &set, NULL);
 #endif
 
+	stress_random_small_sleep();
+
 	while (stress_continue(args)) {
 		const uint64_t delay =
 			max_delay_us ? stress_mwc64modn(max_delay_us) : 0;

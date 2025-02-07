@@ -67,6 +67,7 @@ static void OPTIMIZE3 *mtx_exercise(void *arg)
 	int metrics_count = 0;
 
 	stress_mwc_reseed();
+	stress_random_small_sleep();
 
 	do {
 		if (LIKELY(metrics_count > 0)) {

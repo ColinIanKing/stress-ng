@@ -133,6 +133,8 @@ static void *stress_membarrier_thread(void *arg)
 	 */
 	(void)sigprocmask(SIG_BLOCK, &set, NULL);
 
+	stress_random_small_sleep();
+
 	while (keep_running && stress_continue_flag()) {
 		if (stress_membarrier_exercise(args, info) < 0)
 			break;

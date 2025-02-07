@@ -79,6 +79,8 @@ static void *stress_exit_group_func(void *arg)
 {
 	(void)arg;
 
+	stress_random_small_sleep();
+
 	if (pthread_mutex_lock(&mutex) == 0) {
 		pthread_count++;
 		VOID_RET(int, pthread_mutex_unlock(&mutex));

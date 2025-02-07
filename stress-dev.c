@@ -4244,6 +4244,8 @@ static void *stress_dev_thread(void *arg)
 	 */
 	(void)sigprocmask(SIG_BLOCK, &set, NULL);
 
+	stress_random_small_sleep();
+
 	while (stress_continue_flag())
 		stress_dev_rw(args, &sys_dev_info, -1);
 

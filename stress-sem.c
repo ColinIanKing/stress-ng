@@ -104,6 +104,8 @@ static void OPTIMIZE3 *stress_sem_thrash(void *arg)
 	stress_args_t *args = p_args->args;
 	stress_sem_pthread_t *pthread = (stress_sem_pthread_t *)p_args->data;
 
+	stress_random_small_sleep();
+
 	do {
 		int i, j = -1;
 

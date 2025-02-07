@@ -4582,6 +4582,17 @@ void stress_clean_dir(
 }
 
 /*
+ *  stress_random_small_sleep()
+ *	0..5000 us sleep, used in pthreads to add some
+ *	small delay into startup to randomize any racy
+ *	conditions
+ */
+void stress_random_small_sleep(void)
+{
+	shim_usleep_interruptible(stress_mwc32modn(5000));
+}
+
+/*
  *  stress_yield_sleep_ms()
  *	force a yield, sleep if the yield was less than 1ms,
  *      and repeat if sleep was less than 1ms

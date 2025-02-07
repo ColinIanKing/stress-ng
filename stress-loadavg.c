@@ -127,6 +127,8 @@ static void *stress_loadavg_func(void *arg)
 	(void)arg;
 	(void)shim_nice(19);	/* be very nice */
 
+	stress_random_small_sleep();
+
 	while ((stress_time_now() < args->time_end) && keep_thread_running()) {
 #if defined(LOADAVG_IO)
 		if (fd >= 0) {

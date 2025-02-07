@@ -806,6 +806,8 @@ static void *stress_memthrash_func(void *ctxt)
 	 */
 	(void)sigprocmask(SIG_BLOCK, &set, NULL);
 
+	stress_random_small_sleep();
+
 	while (!thread_terminate && stress_continue(args)) {
 		size_t j;
 

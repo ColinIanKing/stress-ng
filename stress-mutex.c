@@ -95,6 +95,7 @@ static void OPTIMIZE3 *stress_mutex_exercise(void *arg)
 #endif
 
 	stress_mwc_reseed();
+	stress_random_small_sleep();
 
 #if defined(HAVE_PTHREAD_MUTEXATTR)
 	/*

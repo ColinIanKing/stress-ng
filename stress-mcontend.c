@@ -421,6 +421,8 @@ static void *stress_memory_contend_thread(void *arg)
 	 */
 	(void)sigprocmask(SIG_BLOCK, &set, NULL);
 
+	stress_random_small_sleep();
+
 	while (stress_continue_flag()) {
 		stress_memory_contend(pa);
 

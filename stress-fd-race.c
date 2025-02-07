@@ -246,6 +246,8 @@ static void *stress_fd_race_pthread(void *ptr)
 
 	int i;
 
+	stress_random_small_sleep();
+
 	for (i = 0; i < context->n; i++) {
 		if (context->fds[i] > 0) {
 			struct stat statbuf;
