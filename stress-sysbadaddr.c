@@ -2478,7 +2478,7 @@ static int stress_sysbadaddr_child(stress_args_t *args, void *context)
 
 			state->addr_index = 0;
 			while (state->addr_index < SIZEOF_ARRAY(bad_addrs)) {
-				void *addr = bad_addrs[state->addr_index].addr;
+				const void *addr = bad_addrs[state->addr_index].addr;
 
 				if (addr)
 					stress_do_syscall(args);
