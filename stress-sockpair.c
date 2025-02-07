@@ -43,7 +43,8 @@ static inline void OPTIMIZE3 socket_pair_memset(
 	uint8_t val,
 	const size_t sz)
 {
-	register uint8_t *ptr, *buf_end = buf + sz;
+	register uint8_t *ptr;
+	register const uint8_t *buf_end = buf + sz;
 	register uint8_t checksum = 0;
 
 PRAGMA_UNROLL_N(4)
@@ -60,7 +61,7 @@ static inline int OPTIMIZE3 socket_pair_memchk(
 	uint8_t *buf,
 	const size_t sz)
 {
-	register uint8_t *ptr, *buf_end = buf + sz;
+	register const uint8_t *ptr, *buf_end = buf + sz;
 	register uint8_t checksum = 0;
 
 PRAGMA_UNROLL_N(4)
@@ -71,7 +72,7 @@ PRAGMA_UNROLL_N(4)
 }
 
 static void socket_pair_close(
-	int fds[MAX_SOCKET_PAIRS][2],
+	const int fds[MAX_SOCKET_PAIRS][2],
 	const int max,
 	const int which)
 {
