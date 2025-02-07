@@ -230,7 +230,7 @@ static void exercise_shmat(
 		addr = shmat(shm_id, addr, SHM_REMAP);
 		if (addr != (void *)-1) {
 			/* Exercise remap onto itself */
-			void *remap = shmat(shm_id, addr, SHM_REMAP | SHM_RDONLY);
+			const void *remap = shmat(shm_id, addr, SHM_REMAP | SHM_RDONLY);
 
 			if (remap != (void *)-1)
 				(void)shmdt(remap);
