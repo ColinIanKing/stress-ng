@@ -241,7 +241,7 @@ static void *stress_vma_mmap(void *ptr)
 		const size_t offset = page_size * stress_mwc8modn(STRESS_VMA_PAGES);
 		const int prot = prots[stress_mwc8modn(SIZEOF_ARRAY(prots))];
 		int flags = MAP_FIXED | MAP_ANONYMOUS;
-		void *mapped;
+		const void *mapped;
 
 		flags |= (stress_mwc1() ? MAP_SHARED : MAP_PRIVATE);
 #if defined(MAP_GROWSDOWN)
@@ -545,7 +545,7 @@ static void *stress_vma_access(void *ptr)
 
 	while (stress_vma_continue_flag && stress_vma_continue(args)) {
 		const size_t offset = page_size * stress_mwc8modn(STRESS_VMA_PAGES);
-		volatile uint8_t *ptr8 = (volatile uint8_t *)(data + offset);
+		volatile const uint8_t *ptr8 = (volatile uint8_t *)(data + offset);
 
 		stress_vma_metrics->s.metrics[STRESS_VMA_ACCESS]++;
 		stress_uint8_put(*ptr8);
