@@ -63,7 +63,7 @@ static int check_status;		/* sanity check status */
 static void stress_stackmmap_push_msync(stress_stack_check_t *prev_check)
 {
 	void *addr = (void *)(((uintptr_t)&addr) & page_mask);
-	static void *laddr;
+	static const void *laddr;
 	stress_stack_check_t check;
 	register stress_stack_check_t *ptr;
 	register int i;
