@@ -1079,7 +1079,7 @@ static size_t TARGET_CLONES stress_vm_swap(
 
 	stress_mwc_set_seed(w1, z1);
 	for (ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr += chunk_sz) {
-		uint8_t *p = (uint8_t *)ptr;
+		const uint8_t *p = (uint8_t *)ptr;
 		const uint8_t *p_end = (uint8_t *)ptr + chunk_sz;
 		uint8_t val = stress_mwc8();
 
@@ -2383,7 +2383,8 @@ static size_t TARGET_CLONES stress_vm_mscan(
 	const uint64_t max_ops)
 {
 	size_t bit_errors = 0;
-	register uint8_t *ptr = (uint8_t *)buf, *end;
+	register uint8_t *ptr = (uint8_t *)buf;
+	register const uint8_t *end;
 	register uint64_t c = stress_bogo_get(args);
 
 	(void)sz;
