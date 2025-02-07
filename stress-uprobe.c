@@ -220,7 +220,7 @@ static int stress_uprobe(stress_args_t *args)
 		while (stress_continue(args)) {
 			char data[4096];
 			ssize_t n;
-			char *ptr;
+			const char *ptr;
 
 			FD_ZERO(&rfds);
 			FD_SET(fd, &rfds);
