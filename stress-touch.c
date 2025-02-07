@@ -112,7 +112,8 @@ static const touch_method_t touch_methods[] = {
  */
 static void stress_touch_opts(const char *opt_name, const char *opt_arg, stress_type_id_t *type_id, void *value)
 {
-	char *str, *ptr, *token;
+	char *str, *ptr;
+	const char *token;
 	int open_flags = 0;
 
 	str = stress_const_optdup(opt_arg);
@@ -161,7 +162,7 @@ static void stress_touch_dir_clean(stress_args_t *args)
 {
 	char tmp[PATH_MAX];
 	DIR *dir;
-	struct dirent *d;
+	const struct dirent *d;
 
 	sync();
 	stress_temp_dir(tmp, sizeof(tmp), args->name,
