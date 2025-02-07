@@ -96,7 +96,7 @@ static bool vnni_checksum_okay;
 static uint32_t OPTIMIZE3 stress_vnni_checksum(void)
 {
 	uint32_t sum = 0;
-	uint8_t *ptr = result;
+	const uint8_t *ptr = result;
 	const uint8_t *end = result + VEC_SIZE_BYTES;
 
 	while (ptr < end) {
@@ -367,8 +367,8 @@ PRAGMA_UNROLL_N(VEC_VNNI128_LOOPS)
 static void TARGET_CLONES OPTIMIZE3 stress_vnni_vpdpwssd(stress_args_t *args)
 {
 	register int i, j;
-	int16_t *a16 = (int16_t *)a_init;
-	int16_t *b16 = (int16_t *)b_init;
+	const int16_t *a16 = (int16_t *)a_init;
+	const int16_t *b16 = (int16_t *)b_init;
 	int32_t *r32 = (int32_t *)result;
 	register const int32_t *c32 = (int32_t *)c_init;
 
