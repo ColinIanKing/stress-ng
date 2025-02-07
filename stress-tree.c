@@ -388,7 +388,7 @@ static void OPTIMIZE3 stress_tree_binary(
 {
 	size_t i;
 	struct tree_node *node, *head = NULL;
-	struct tree_node *find;
+	const struct tree_node *find;
 	double t;
 
 	t = stress_time_now();
@@ -602,7 +602,7 @@ static void OPTIMIZE3 stress_tree_avl(
 {
 	size_t i;
 	struct tree_node *node, *head = NULL;
-	struct tree_node *find;
+	const struct tree_node *find;
 	double t;
 
 	t = stress_time_now();
