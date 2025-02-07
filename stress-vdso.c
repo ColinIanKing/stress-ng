@@ -232,8 +232,8 @@ static int dl_wrapback(struct dl_phdr_info* info, size_t info_size, void *vdso)
 			ElfW(Word *) hash = NULL;
 			ElfW(Word) j;
 			ElfW(Word) buckets = 0;
-			ElfW(Word *) bucket = NULL;
-			ElfW(Word *) chain = NULL;
+			const ElfW(Word *) bucket = NULL;
+			const ElfW(Word *) chain = NULL;
 			char *strtab = NULL;
 
 			if (!load_offset)
