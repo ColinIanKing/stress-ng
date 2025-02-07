@@ -131,9 +131,10 @@ static void stress_tee_pipe_read(stress_args_t *args, int fds[2])
 
 	while (stress_continue_flag()) {
 		register size_t n = 0;
-		ssize_t ret;
 
 		while (n < sizeof(data)) {
+			ssize_t ret;
+
 			ret = read(fds[0], &data, sizeof(data));
 			if (UNLIKELY(ret < 0)) {
 				switch (errno) {
