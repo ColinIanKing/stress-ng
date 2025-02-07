@@ -297,7 +297,7 @@ static void stress_swap_clean_dir(stress_args_t *args)
 {
 	char path[PATH_MAX];
 	DIR *dir;
-	struct dirent *d;
+	const struct dirent *d;
 
 	stress_temp_dir(path, sizeof(path), args->name,
 		args->pid, args->instance);
