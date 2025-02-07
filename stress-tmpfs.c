@@ -192,7 +192,7 @@ static int stress_tmpfs_open(stress_args_t *args, off_t *len)
 
 static int stress_tmpfs_child(stress_args_t *args, void *ctxt)
 {
-	stress_tmpfs_context_t *context = (stress_tmpfs_context_t *)ctxt;
+	const stress_tmpfs_context_t *context = (stress_tmpfs_context_t *)ctxt;
 	const size_t page_size = args->page_size;
 	const size_t sz = (size_t)context->sz;
 	const size_t pages = (size_t)sz / page_size;
