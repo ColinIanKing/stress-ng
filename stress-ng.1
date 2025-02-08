@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "30 January 2025"
+.TH STRESS-NG 1 "8 February 2025"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -5889,6 +5889,10 @@ hexadecimal digit.
 .B \-\-pci\-ops N
 stop pci stress workers after N PCI subdirectory exercising operations.
 .RE
+.TP
+.B \-\-pci\-ops\-rate N
+specify the PCI bogo-ops per second rate. This is useful for PCI bandwidth
+limiting and on x86 systems this may reduce uncore transactions.
 .TP
 .B Personality stressor
 .RS 5

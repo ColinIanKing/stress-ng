@@ -717,6 +717,7 @@ const struct option stress_long_options[] = {
 	{ "pci",		1,	0,	OPT_pci},
 	{ "pci-dev",		1,	0,	OPT_pci_dev},
 	{ "pci-ops",		1,	0,	OPT_pci_ops },
+	{ "pci-ops-rate",	1,	0,	OPT_pci_ops_rate },
 #if defined(STRESS_PERF_STATS) && 	\
     defined(HAVE_LINUX_PERF_EVENT_H)
 	{ "perf",		0,	0,	OPT_perf_stats },

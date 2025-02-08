@@ -28,7 +28,8 @@ static const stress_help_t help[] = {
 };
 
 static const stress_opt_t opts[] = {
-	{ OPT_pci_dev, "pci-dev", TYPE_ID_STR, 0, 0, NULL },
+	{ OPT_pci_dev,      "pci-dev",      TYPE_ID_STR, 0, 0, NULL },
+	{ OPT_pci_ops_rate, "pci-ops-rate", TYPE_ID_UINT32, 1, 1000000, NULL },
 	END_OPT,
 };
 
@@ -301,6 +302,12 @@ static int stress_pci(stress_args_t *args)
 	NOCLOBBER stress_pci_info_t *pci_info_list;
 	NOCLOBBER stress_pci_info_t *pci_info;
 	int ret;
+	uint32_t pci_ops_rate = 0;	/* zero = unlimited */
+	double t_start;
+	double t_delta;
+
+	(void)stress_get_setting("pci-ops-rate", &pci_ops_rate);
+	t_delta = pci_ops_rate > 0 ? (double)args->num_instances / (double)pci_ops_rate : 0.0;
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
@@ -324,6 +331,7 @@ static int stress_pci(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
+	t_start = stress_time_now();
 	do {
 		for (pci_info = pci_info_list; pci_info; pci_info = pci_info->next) {
 			if (UNLIKELY(!stress_continue(args)))
@@ -337,8 +345,19 @@ static int stress_pci(stress_args_t *args)
 
 			if (pci_info->ignore)
 				continue;
+
 			stress_pci_exercise(args, pci_info);
 			stress_bogo_inc(args);
+			if (pci_ops_rate > 0) {
+				double t_next = t_start + (stress_bogo_get(args) * t_delta);
+				double t_sleep = t_next - stress_time_now();
+				uint64_t ns;
+
+				if (LIKELY(t_sleep > 0.0)) {
+					ns = (uint64_t)(t_sleep * STRESS_DBL_NANOSECOND);
+					shim_nanosleep_uint64(ns);
+				}
+			}
 		}
 	} while (stress_continue(args));
 

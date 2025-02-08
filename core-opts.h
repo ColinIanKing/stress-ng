@@ -1040,6 +1040,7 @@ typedef enum {
 	OPT_pci,
 	OPT_pci_dev,
 	OPT_pci_ops,
+	OPT_pci_ops_rate,
 
 	OPT_perf_stats,
 
