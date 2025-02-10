@@ -277,9 +277,9 @@ static void stress_landlock_many(
 		char newpath[PATH_MAX], resolved[PATH_MAX];
 
 		if (strcmp(path, "/"))
-			(void)snprintf(newpath, sizeof(newpath), "%s/%s", path, namelist[i]->d_name);
+			(void)stress_mk_filename(newpath, sizeof(newpath), path, namelist[i]->d_name);
 		else
-			(void)snprintf(newpath, sizeof(newpath), "/%s", namelist[i]->d_name);
+			(void)stress_mk_filename(newpath, sizeof(newpath), "", namelist[i]->d_name);
 
 		if (UNLIKELY(realpath(newpath, resolved) == NULL))
 			goto next;
