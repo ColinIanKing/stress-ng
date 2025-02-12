@@ -173,7 +173,7 @@ again:
 	if (pid < 0) {
 		if (stress_redo_fork(args, errno))
 			goto again;
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			goto tidy;
 		pr_fail("%s: fork failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
@@ -249,7 +249,7 @@ abort:
 #endif
 			int ret;
 
-			if (!stress_continue(args))
+			if (UNLIKELY(!stress_continue(args)))
 				break;
 
 			/* stress out poll */
@@ -269,7 +269,7 @@ abort:
 				stress_bogo_inc(args);
 			}
 
-			if (!stress_continue(args))
+			if (UNLIKELY(!stress_continue(args)))
 				break;
 
 #if defined(HAVE_PPOLL)
@@ -296,7 +296,7 @@ abort:
 				}
 				stress_bogo_inc(args);
 			}
-			if (!stress_continue(args))
+			if (UNLIKELY(!stress_continue(args)))
 				break;
 
 			/* Exercise illegal poll timeout */
@@ -324,7 +324,7 @@ abort:
 						VOID_RET(int, shim_ppoll(poll_fds, max_fds, &ts, &sigmask));
 
 						(void)setrlimit(RLIMIT_NOFILE, &old_rlim);
-						if (!stress_continue(args))
+						if (UNLIKELY(!stress_continue(args)))
 							break;
 					}
 				}
