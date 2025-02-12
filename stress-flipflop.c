@@ -89,7 +89,7 @@ static void *stress_flipflop_worker(void *arg)
 
 	/* wait on hold or until finished flag */
 	while (*(volatile bool *)w->worker_hold) {
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			return &g_nowt;
 	}
 
@@ -109,7 +109,7 @@ static void *stress_flipflop_worker(void *arg)
 		w->nr_tries++;
 		if (ret == old)
 			w->nr_successes++;
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 	}
 
