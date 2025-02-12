@@ -107,7 +107,7 @@ int OPTIMIZE3 stress_mmap_check(
 	register uint64_t *ptr = (uint64_t *)buf;
 	register const uint64_t *end = (uint64_t *)(buf + sz);
 
-	while ((ptr < end) && stress_continue_flag()) {
+	while (LIKELY((ptr < end) && stress_continue_flag())) {
 		register const uint64_t *page_end = (uint64_t *)((uintptr_t)ptr + page_size);
 
 		while (ptr < page_end) {
