@@ -550,7 +550,7 @@ static void stress_sys_dir(
 		flags |= S_IRUSR | S_IWUSR;
 
 	/* Non-directories first */
-	for (i = 0; (i < n) && stress_continue(args); i++) {
+	for (i = 0; LIKELY((i < n) && stress_continue(args)); i++) {
 		int ret;
 		struct stat buf;
 		char tmp[PATH_MAX];
@@ -617,7 +617,7 @@ dt_reg_free:
 	}
 
 	/* Now directories.. */
-	for (i = 0; (i < n) && stress_continue(args); i++) {
+	for (i = 0; LIKELY((i < n) && stress_continue(args)); i++) {
 		const struct dirent *d = dlist[i];
 		struct stat buf;
 		int ret;
@@ -788,7 +788,7 @@ again:
 		if (pid < 0) {
 			if (stress_redo_fork(args, errno))
 				goto again;
-			if (!stress_continue(args)) {
+			if (UNLIKELY(!stress_continue(args))) {
 				rc = EXIT_SUCCESS;
 				goto finish;
 			}
