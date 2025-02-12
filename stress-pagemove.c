@@ -141,7 +141,7 @@ static int stress_pagemove_child(stress_args_t *args, void *context)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			break;
 
 		(void)madvise((void *)buf, sz, PROT_WRITE);
