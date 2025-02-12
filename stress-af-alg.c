@@ -938,7 +938,7 @@ static int stress_af_alg(stress_args_t *args)
 	}
 
 	do {
-		for (info = crypto_info_list; info && stress_continue(args); info = info->next) {
+		for (info = crypto_info_list; LIKELY(info && stress_continue(args)); info = info->next) {
 			if (info->internal || info->ignore)
 				continue;
 
