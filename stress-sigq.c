@@ -101,7 +101,7 @@ again:
 	parent_cpu = stress_get_cpu();
 	pid = fork();
 	if (pid < 0) {
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			goto finish;
 		if (stress_redo_fork(args, errno))
 			goto again;
