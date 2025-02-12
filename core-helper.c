@@ -2207,7 +2207,7 @@ uint64_t stress_get_next_prime64(const uint64_t n)
 		p = odd_n;
 
 	/* Search for next prime.. */
-	for (i = 0; stress_continue_flag() && (i < 2000); i++) {
+	for (i = 0; LIKELY(stress_continue_flag() && (i < 2000)); i++) {
 		p += 2;
 
 		if ((n % p) && stress_is_prime64(p))
@@ -2234,7 +2234,7 @@ uint64_t stress_get_prime64(const uint64_t n)
 		p = odd_n;
 
 	/* Search for next prime.. */
-	for (i = 0; stress_continue_flag() && (i < 2000); i++) {
+	for (i = 0; LIKELY(stress_continue_flag() && (i < 2000)); i++) {
 		p += 2;
 
 		if ((n % p) && stress_is_prime64(p))
