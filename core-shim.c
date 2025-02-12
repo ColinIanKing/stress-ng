@@ -262,7 +262,7 @@ static int shim_emulate_fallocate(int fd, off_t offset, off_t len)
 	(void)shim_memset(buffer, 0, FALLOCATE_BUF_SIZE);
 	n = len;
 
-	while (stress_continue_flag() && (n > 0)) {
+	while (LIKELY(stress_continue_flag() && (n > 0))) {
 		ssize_t ret;
 		const size_t count = (size_t)STRESS_MINIMUM(n, FALLOCATE_BUF_SIZE);
 
