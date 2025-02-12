@@ -218,7 +218,7 @@ static int stress_hrtimers(stress_args_t *args)
 	for (i = 0; i < PROCS_MAX; i++) {
 		stress_sync_start_init(&s_pids[i]);
 
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			goto reap;
 
 		s_pids[i].pid = fork();
