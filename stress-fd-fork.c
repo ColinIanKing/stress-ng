@@ -225,7 +225,7 @@ static int stress_fd_fork(stress_args_t *args)
 		for (i = 0; i < STRESS_PID_MAX; i++)
 			pids[i] = -1;
 
-		for (max_pids = 0, i = 0; stress_continue(args) && (i < STRESS_PID_MAX); i++) {
+		for (max_pids = 0, i = 0; LIKELY(stress_continue(args) && (i < STRESS_PID_MAX)); i++) {
 			pids[i] = fork();
 			if (pids[i] < 0) {
 				continue;
