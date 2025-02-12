@@ -182,7 +182,7 @@ static int OPTIMIZE3 stress_bitonicsort(stress_args_t *args)
 
 PRAGMA_UNROLL_N(4)
 			for (ptr = data, i = 0; i < n - 1; i++, ptr++) {
-				if (*ptr > *(ptr + 1)) {
+				if (UNLIKELY(*ptr > *(ptr + 1))) {
 					pr_fail("%s: sort error "
 						"detected, incorrect ordering "
 						"found\n", args->name);
@@ -191,7 +191,7 @@ PRAGMA_UNROLL_N(4)
 				}
 			}
 		}
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 
 		/* Reverse sort */
@@ -207,7 +207,7 @@ PRAGMA_UNROLL_N(4)
 
 PRAGMA_UNROLL_N(4)
 			for (ptr = data, i = 0; i < n - 1; i++, ptr++) {
-				if (*ptr < *(ptr + 1)) {
+				if (UNLIKELY(*ptr < *(ptr + 1))) {
 					pr_fail("%s: reverse sort "
 						"error detected, incorrect "
 						"ordering found\n", args->name);
@@ -216,7 +216,7 @@ PRAGMA_UNROLL_N(4)
 				}
 			}
 		}
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 
 		/* And re-order */
@@ -234,7 +234,7 @@ PRAGMA_UNROLL_N(4)
 			register size_t i;
 
 			for (ptr = data, i = 0; i < n - 1; i++, ptr++) {
-				if (*ptr < *(ptr + 1)) {
+				if (UNLIKELY(*ptr < *(ptr + 1))) {
 					pr_fail("%s: reverse sort "
 						"error detected, incorrect "
 						"ordering found\n", args->name);
@@ -243,7 +243,7 @@ PRAGMA_UNROLL_N(4)
 				}
 			}
 		}
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 
 		stress_bogo_inc(args);
