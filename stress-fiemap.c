@@ -162,7 +162,7 @@ static void stress_fiemap_ioctl(
 			break;
 		}
 		(void)shim_sched_yield();
-		if (!stress_continue(args)) {
+		if (UNLIKELY(!stress_continue(args))) {
 			free(fiemap);
 			break;
 		}
@@ -310,7 +310,7 @@ static int stress_fiemap(stress_args_t *args)
 	for (n = 0; n < MAX_FIEMAP_PROCS; n++) {
 		stress_sync_start_init(&s_pids[n]);
 
-		if (!stress_continue(args)) {
+		if (UNLIKELY(!stress_continue(args))) {
 			rc = EXIT_SUCCESS;
 			goto reap;
 		}
