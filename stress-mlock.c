@@ -277,7 +277,7 @@ static void stress_mlock_misc(stress_args_t *args, const size_t page_size, const
 		/* Exercising Invalid mlockall syscall and ignoring failure */
 		(void)shim_mlockall(MCL_ONFAULT);
 #endif
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			return;
 		/* Exercise Invalid mlockall syscall with invalid flag */
 		(void)shim_mlockall(~0);
@@ -368,7 +368,7 @@ static int stress_mlock_child(stress_args_t *args, void *context)
 		uint64_t mlocked_pages = 0, prev_mlocked_pages;
 #endif
 		for (n = 0; n < max; n++) {
-			if (!stress_continue(args))
+			if (UNLIKELY(!stress_continue(args)))
 				break;
 
 			/* Low memory avoidance, re-start */
@@ -442,7 +442,7 @@ static int stress_mlock_child(stress_args_t *args, void *context)
 
 			addr &= ~(intptr_t)1;
 
-			if (stress_continue(args)) {
+			if (LIKELY(stress_continue(args))) {
 				if (mlocked) {
 					double t;
 
