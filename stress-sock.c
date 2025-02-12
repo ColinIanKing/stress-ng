@@ -1119,7 +1119,7 @@ static int OPTIMIZE3 stress_sock_server(
 
 			opt = sock_opts;
 
-			for (k = 0; (k < sock_msgs) && stress_continue(args); k++) {
+			for (k = 0; LIKELY((k < sock_msgs) && stress_continue(args)); k++) {
 				int flag = sendflag;
 
 				if (UNLIKELY(sock_opts == SOCKET_OPT_RANDOM))
@@ -1379,7 +1379,7 @@ again:
 	if (pid < 0) {
 		if (stress_redo_fork(args, errno))
 			goto again;
-		if (!stress_continue(args)) {
+		if (UNLIKELY(!stress_continue(args))) {
 			rc = EXIT_SUCCESS;
 			(void)munmap((void *)mmap_buffer, MMAP_BUF_SIZE);
 			goto finish;
