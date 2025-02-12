@@ -339,7 +339,7 @@ static int stress_min_nanosleep(stress_args_t *args)
 
 			tv.tv_sec = 0;
 			tv.tv_nsec = (long int)nsec;
-			if (clock_gettime(CLOCK_MONOTONIC, &t1) < 0) {
+			if (UNLIKELY(clock_gettime(CLOCK_MONOTONIC, &t1) < 0)) {
 				pr_inf("%s: clock_gettime with CLOCK_MONOTONIC failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				goto err;
@@ -353,7 +353,7 @@ static int stress_min_nanosleep(stress_args_t *args)
 				}
 			}
 
-			if (clock_gettime(CLOCK_MONOTONIC, &t2) < 0) {
+			if (UNLIKELY(clock_gettime(CLOCK_MONOTONIC, &t2) < 0)) {
 				pr_inf("%s: clock_gettime with CLOCK_MONOTONIC failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				goto err;
