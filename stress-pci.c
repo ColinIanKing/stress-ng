@@ -257,7 +257,7 @@ static void stress_pci_exercise(stress_args_t *args, stress_pci_info_t *pci_info
 	if (n == 0)
 		pci_info->ignore = true;
 
-	for (i = 0; stress_continue(args) && (i < n); i++) {
+	for (i = 0; LIKELY(stress_continue(args) && (i < n)); i++) {
 		const char *name = list[i]->d_name;
 		const bool config = !strcmp(name, "config");
 		const bool resource = !strncmp(name, "resource", 8);
