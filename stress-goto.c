@@ -258,7 +258,7 @@ static int OPTIMIZE_GOTO stress_goto(stress_args_t *args)
 	t1 = stress_time_now();
 	for (;;) {
 L0x000:
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			break;
 		if (goto_direction == STRESS_GOTO_RANDOM)
 			labels = stress_mwc1() ? labels_backward : labels_forward;
