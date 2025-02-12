@@ -293,7 +293,7 @@ static int OPTIMIZE3 stress_race_fd_client(stress_fd_race_context *context)
 
 		(void)shim_memset(context->fds, 0, context->fds_size);
 retry:
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			return EXIT_NO_RESOURCE;
 
 		if (UNLIKELY((fd = socket(AF_UNIX, SOCK_STREAM, 0)) < 0)) {
