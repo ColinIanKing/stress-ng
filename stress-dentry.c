@@ -353,7 +353,7 @@ static int stress_dentry(stress_args_t *args)
 			int fd;
 			double t;
 
-			if (!stress_continue(args))
+			if (UNLIKELY(!stress_continue(args)))
 				goto abort;
 
 			stress_temp_filename_args(args,
@@ -397,7 +397,7 @@ static int stress_dentry(stress_args_t *args)
 			const uint64_t gray_code = (i >> 1) ^ i;
 			double t;
 
-			if (!stress_continue(args))
+			if (UNLIKELY(!stress_continue(args)))
 				goto abort;
 
 			/* The following should succeed */
