@@ -224,7 +224,7 @@ static int stress_bubblesort(stress_args_t *args)
 			sorted += (double)n;
 			if (g_opt_flags & OPT_FLAGS_VERIFY) {
 				for (ptr = data, i = 0; i < n - 1; i++, ptr++) {
-					if (*ptr > *(ptr + 1)) {
+					if (UNLIKELY(*ptr > *(ptr + 1))) {
 						pr_fail("%s: sort error "
 							"detected, incorrect ordering "
 							"found\n", args->name);
@@ -234,7 +234,7 @@ static int stress_bubblesort(stress_args_t *args)
 				}
 			}
 		}
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 
 		/* Reverse sort */
@@ -250,7 +250,7 @@ static int stress_bubblesort(stress_args_t *args)
 			sorted += (double)n;
 			if (g_opt_flags & OPT_FLAGS_VERIFY) {
 				for (ptr = data, i = 0; i < n - 1; i++, ptr++) {
-					if (*ptr < *(ptr + 1)) {
+					if (UNLIKELY(*ptr < *(ptr + 1))) {
 						pr_fail("%s: reverse sort "
 							"error detected, incorrect "
 							"ordering found\n", args->name);
@@ -260,7 +260,7 @@ static int stress_bubblesort(stress_args_t *args)
 				}
 			}
 		}
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 		/* And re-order  */
 		stress_sort_data_int32_mangle(data, n);
@@ -279,7 +279,7 @@ static int stress_bubblesort(stress_args_t *args)
 			sorted += (double)n;
 			if (g_opt_flags & OPT_FLAGS_VERIFY) {
 				for (ptr = data, i = 0; i < n - 1; i++, ptr++) {
-					if (*ptr < *(ptr + 1)) {
+					if (UNLIKELY(*ptr < *(ptr + 1))) {
 						pr_fail("%s: reverse sort "
 							"error detected, incorrect "
 							"ordering found\n", args->name);
@@ -289,7 +289,7 @@ static int stress_bubblesort(stress_args_t *args)
 				}
 			}
 		}
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 
 		stress_bogo_inc(args);
