@@ -423,7 +423,7 @@ static void *stress_memory_contend_thread(void *arg)
 
 	stress_random_small_sleep();
 
-	while (stress_continue_flag()) {
+	while (LIKELY(stress_continue_flag())) {
 		stress_memory_contend(pa);
 
 #if defined(HAVE_SCHED_SETAFFINITY)
