@@ -202,7 +202,7 @@ static void exercise_syscall(
 	NOCLOBBER bool enosys = false;
 	const pid_t pid = getpid();
 
-	if (!stress_continue(args))
+	if (UNLIKELY(!stress_continue(args)))
 		_exit(EXIT_SUCCESS);
 
 	itimer_set(args);
@@ -3918,7 +3918,7 @@ static inline int stress_do_syscall(
 	if (syscall_find(number)) {
 		return rc;
 	}
-	if (!stress_continue(args))
+	if (UNLIKELY(!stress_continue(args)))
 		return 0;
 	pid = fork();
 	if (pid < 0) {
@@ -4016,13 +4016,13 @@ static int stress_enosys(stress_args_t *args)
 	stress_sync_start_wait(args);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 again:
-	if (!stress_continue(args))
+	if (UNLIKELY(!stress_continue(args)))
 		return EXIT_SUCCESS;
 	pid = fork();
 	if (pid < 0) {
 		if (stress_redo_fork(args, errno))
 			goto again;
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			goto deinit;
 		pr_err("%s: fork failed: errno=%d: (%s)\n",
 			args->name, errno, strerror(errno));
@@ -4078,7 +4078,7 @@ again:
 		ssize_t j;
 
 		/* Child, wrapped to catch OOMs */
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			_exit(0);
 
 		stress_parent_died_alarm();
@@ -4097,36 +4097,36 @@ again:
 
 			/* Low sequential syscalls */
 			for (number = 0; number < MAX_SYSCALL + 1024; number++) {
-				if (!stress_continue(args))
+				if (UNLIKELY(!stress_continue(args)))
 					goto finish;
 				stress_do_syscall(args, number, false);
 			}
 
 			/* Random syscalls */
 			for (j = 0; j < 1024; j++) {
-				if (!stress_continue(args))
+				if (UNLIKELY(!stress_continue(args)))
 					goto finish;
 				stress_do_syscall(args, (long int)stress_mwc8() & mask64, true);
-				if (!stress_continue(args))
+				if (UNLIKELY(!stress_continue(args)))
 					goto finish;
 				stress_do_syscall(args, (long int)stress_mwc16() & mask64, true);
-				if (!stress_continue(args))
+				if (UNLIKELY(!stress_continue(args)))
 					goto finish;
 				stress_do_syscall(args, (long int)stress_mwc32() & mask24, true);
-				if (!stress_continue(args))
+				if (UNLIKELY(!stress_continue(args)))
 					goto finish;
 				stress_do_syscall(args, (long int)stress_mwc32() & mask64, true);
-				if (!stress_continue(args))
+				if (UNLIKELY(!stress_continue(args)))
 					goto finish;
 #if ULONG_MAX > 0xffffffff
 				stress_do_syscall(args, (long int)(stress_mwc64() & mask40), true);
-				if (!stress_continue(args))
+				if (UNLIKELY(!stress_continue(args)))
 					goto finish;
 				stress_do_syscall(args, (long int)(stress_mwc64() & mask48), true);
-				if (!stress_continue(args))
+				if (UNLIKELY(!stress_continue(args)))
 					goto finish;
 				stress_do_syscall(args, (long int)(stress_mwc64() & mask56), true);
-				if (!stress_continue(args))
+				if (UNLIKELY(!stress_continue(args)))
 					goto finish;
 				stress_do_syscall(args, (long int)(stress_mwc64() & mask64), true);
 #endif
@@ -4134,16 +4134,16 @@ again:
 
 			/* Various bit masks */
 			for (number = 1; number; number <<= 1) {
-				if (!stress_continue(args))
+				if (UNLIKELY(!stress_continue(args)))
 					goto finish;
 				stress_do_syscall(args, number, false);
-				if (!stress_continue(args))
+				if (UNLIKELY(!stress_continue(args)))
 					goto finish;
 				stress_do_syscall(args, number | 1, false);
-				if (!stress_continue(args))
+				if (UNLIKELY(!stress_continue(args)))
 					goto finish;
 				stress_do_syscall(args, number | (number << 1U), false);
-				if (!stress_continue(args))
+				if (UNLIKELY(!stress_continue(args)))
 					goto finish;
 				stress_do_syscall(args, ~number, false);
 			}
@@ -4153,7 +4153,7 @@ again:
 				long int n;
 
 				for (n = 0; n < 0x100; n++) {
-					if (!stress_continue(args))
+					if (UNLIKELY(!stress_continue(args)))
 						goto finish;
 					stress_do_syscall(args, n + number, false);
 				}
