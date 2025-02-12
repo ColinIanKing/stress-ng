@@ -292,7 +292,7 @@ static int stress_waitcpu(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		for (i = 0; (i < SIZEOF_ARRAY(stress_waitcpu_method)) && stress_continue(args); i++) {
+		for (i = 0; LIKELY((i < SIZEOF_ARRAY(stress_waitcpu_method)) && stress_continue(args)); i++) {
 			const int loops = 1000;
 
 			if (stress_waitcpu_method[i].supported) {
