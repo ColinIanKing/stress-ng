@@ -265,7 +265,7 @@ static double TARGET_CLONES OPTIMIZE3 name(				\
 	}								\
 									\
 	t1 = stress_time_now();						\
-	for (i = 0; stress_continue_flag() && (i < loops); i++) {	\
+	for (i = 0; LIKELY(stress_continue_flag() && (i < loops)); i++) {\
 		fp_data[0].field.r[idx] /= fp_data[0].field.mul;	\
 		fp_data[0].field.r[idx] /= fp_data[0].field.mul_rev;	\
 		fp_data[1].field.r[idx] /= fp_data[1].field.mul;	\
@@ -497,7 +497,7 @@ static int stress_fp_call_method(
 		 *  cause long doubles on some arches to abort early, so
 		 *  don't verify these results
 		 */
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			return EXIT_SUCCESS;
 
 		for (i = 0; i < FP_ELEMENTS; i++) {
