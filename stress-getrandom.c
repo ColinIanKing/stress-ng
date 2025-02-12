@@ -128,7 +128,7 @@ static int stress_getrandom(stress_args_t *args)
 		double t;
 
 		t = stress_time_now();
-		for (i = 0; stress_continue(args) && (i < SIZEOF_ARRAY(getrandom_flags)); i++) {
+		for (i = 0; LIKELY(stress_continue(args) && (i < SIZEOF_ARRAY(getrandom_flags))); i++) {
 			ssize_t ret;
 
 			ret = shim_getrandom(buffer, sizeof(buffer), getrandom_flags[i].flag);
