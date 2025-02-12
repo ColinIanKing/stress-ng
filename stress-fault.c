@@ -154,7 +154,7 @@ redo:
 #endif
 		ret = sigsetjmp(jmp_env, 1);
 		if (ret) {
-			if (!stress_continue(args))
+			if (UNLIKELY(!stress_continue(args)))
 				do_jmp = false;
 			if (fd != -1)
 				(void)close(fd);
