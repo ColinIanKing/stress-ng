@@ -285,7 +285,7 @@ static inline void stress_proc_rw(
 		(void)shim_strscpy(path, proc_path, sizeof(path));
 		(void)shim_pthread_spin_unlock(&lock);
 
-		if (!*path || !stress_continue_flag())
+		if (UNLIKELY(!*path || !stress_continue_flag()))
 			break;
 
 		if (!strncmp(path, "/proc/self", 10))
@@ -360,7 +360,7 @@ static inline void stress_proc_rw(
 		for (i = 0; i < 4096 * PROC_BUF_SZ; i++) {
 			const ssize_t sz = 1 + stress_mwc32modn((uint32_t)sizeof(buffer));
 
-			if (!stress_continue_flag())
+			if (UNLIKELY(!stress_continue_flag()))
 				break;
 			ret = read(fd, buffer, (size_t)sz);
 			if (ret < 0)
@@ -378,7 +378,7 @@ static inline void stress_proc_rw(
 		if ((fd = open(path, O_RDONLY | O_NONBLOCK)) < 0)
 			return;
 		for (i = 0; ; i++) {
-			if (!stress_continue_flag())
+			if (UNLIKELY(!stress_continue_flag()))
 				break;
 			if (((i & 0x0f) == 0) && ((stress_time_now() - t_start) > threshold))
 				goto timeout_close;
@@ -639,7 +639,7 @@ static void stress_proc_dir(
 	int i, n, ret;
 	char tmp[PATH_MAX];
 
-	if (!stress_continue_flag())
+	if (UNLIKELY(!stress_continue_flag()))
 		return;
 
 	/* Don't want to go too deep */
@@ -655,7 +655,7 @@ static void stress_proc_dir(
 	}
 
 	/* Non-directories files first */
-	for (i = 0; (i < n) && stress_continue_flag(); i++) {
+	for (i = 0; LIKELY((i < n) && stress_continue_flag()); i++) {
 		struct dirent *d = dlist[i];
 		unsigned char type;
 
@@ -687,7 +687,7 @@ static void stress_proc_dir(
 	}
 
 	/* Now recurse on directories */
-	for (i = 0; (i < n) && stress_continue_flag(); i++) {
+	for (i = 0; LIKELY((i < n) && stress_continue_flag()); i++) {
 		struct dirent *d = dlist[i];
 
 		if (d && (shim_dirent_type(path, d) == SHIM_DT_DIR)) {
@@ -803,7 +803,7 @@ static int stress_procfs(stress_args_t *args)
 			const struct dirent *d = dlist[i];
 			unsigned char type;
 
-			if (!stress_continue(args))
+			if (UNLIKELY(!stress_continue(args)))
 				break;
 
 			stress_mk_filename(procfspath, sizeof(procfspath), "/proc", d->d_name);
@@ -824,7 +824,7 @@ static int stress_procfs(stress_args_t *args)
 			stress_bogo_inc(args);
 		}
 
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			break;
 
 		stress_proc_dir(&ctxt, stress_random_pid(), true, 0);
