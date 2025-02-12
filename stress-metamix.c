@@ -108,7 +108,7 @@ static int stress_metamix_file(
 		file_info[n].offset = offset;
 		file_info[n].data_len = data_len;
 
-		if (lseek(fd, offset, SEEK_SET) == (off_t)-1) {
+		if (UNLIKELY(lseek(fd, offset, SEEK_SET) == (off_t)-1)) {
 			pr_fail("%s: write: lseek %s failed, errno=%d (%s)%s\n",
 				args->name, filename, errno, strerror(errno), fs_type);
 			rc = EXIT_FAILURE;
@@ -126,7 +126,7 @@ static int stress_metamix_file(
 		else
 			file_info[n].checksum = stress_mwc32();
 
-		if (write(fd, buf, data_len) != (ssize_t)data_len)
+		if (UNLIKELY(write(fd, buf, data_len) != (ssize_t)data_len))
 			break;
 
 		offset += data_len;
@@ -148,7 +148,7 @@ static int stress_metamix_file(
 	}
 	if (stress_mwc8() > 240) {
 		if (shim_fdatasync(fd) < 0) {
-			if ((errno != EINTR) && (errno != ENOSYS)) {
+			if (UNLIKELY((errno != EINTR) && (errno != ENOSYS))) {
 				pr_inf("%s: fdatasync on %s failed, errno=%d (%s)%s\n",
 					args->name, filename, errno, strerror(errno), fs_type);
 				rc = EXIT_FAILURE;
@@ -162,14 +162,14 @@ static int stress_metamix_file(
 	 *  stat/lstat 50/50% random choice
 	 */
 	if (stress_mwc1()) {
-		if (shim_stat(filename, &statbuf) < 0) {
+		if (UNLIKELY(shim_stat(filename, &statbuf) < 0)) {
 			pr_fail("%s: stat on %s failed, errno=%d (%s)%s\n",
 				args->name, filename, errno, strerror(errno), fs_type);
 			rc = EXIT_FAILURE;
 			goto err_unlink;
 		}
 	} else {
-		if (shim_lstat(filename, &statbuf) < 0) {
+		if (UNLIKELY(shim_lstat(filename, &statbuf) < 0)) {
 			pr_fail("%s: lstat on %s failed, errno=%d (%s)%s\n",
 				args->name, filename, errno, strerror(errno), fs_type);
 			rc = EXIT_FAILURE;
@@ -177,7 +177,7 @@ static int stress_metamix_file(
 		}
 	}
 
-	if ((intmax_t)statbuf.st_size != (intmax_t)end) {
+	if (UNLIKELY((intmax_t)statbuf.st_size != (intmax_t)end)) {
 		pr_fail("%s: stat on %s, expecting file size %" PRIdMAX ", got %" PRIdMAX "\n",
 			args->name, filename, (intmax_t)end, (intmax_t)statbuf.st_size);
 		rc = EXIT_FAILURE;
@@ -185,14 +185,14 @@ static int stress_metamix_file(
 	}
 
 	fd = open(filename, O_RDONLY);
-	if (fd < 0) {
+	if (UNLIKELY(fd < 0)) {
 		pr_fail("%s: open for read %s failed, errno=%d (%s)%s\n",
 			args->name, filename, errno, strerror(errno), fs_type);
 		rc = EXIT_FAILURE;
 		goto err_unlink;
 	}
 	if (shim_fdatasync(fd) < 0) {
-		if ((errno != EINTR) && (errno != ENOSYS) && (errno != EBADF)) {
+		if (UNLIKELY((errno != EINTR) && (errno != ENOSYS) && (errno != EBADF))) {
 			pr_inf("%s: fdatasync on %s failed, errno=%d (%s)%s\n",
 				args->name, filename, errno, strerror(errno), fs_type);
 			rc = EXIT_FAILURE;
@@ -205,7 +205,7 @@ static int stress_metamix_file(
 	fd = open(temp_dir, O_RDONLY | O_DIRECTORY);
 	if (fd != -1) {
 		if (shim_fsync(fd) < 0) {
-			if ((errno != EINTR) && (errno != ENOSYS) && (errno != EBADF)) {
+			if (UNLIKELY((errno != EINTR) && (errno != ENOSYS) && (errno != EBADF))) {
 				pr_inf("%s: fsync on directory %s failed, errno=%d (%s)%s\n",
 					args->name, temp_dir, errno, strerror(errno), fs_type);
 				rc = EXIT_FAILURE;
@@ -223,7 +223,7 @@ static int stress_metamix_file(
 	qsort((void *)file_info, n, sizeof(file_info_t), stress_metamix_cmp);
 
 	fd = open(filename, O_RDONLY);
-	if (fd < 0) {
+	if (UNLIKELY(fd < 0)) {
 		pr_fail("%s: open for read %s failed, errno=%d (%s)%s\n",
 			args->name, filename, errno, strerror(errno), fs_type);
 		rc = EXIT_FAILURE;
@@ -234,7 +234,7 @@ static int stress_metamix_file(
 		uint32_t checksum;
 		const size_t data_len = file_info[i].data_len;
 
-		if (lseek(fd, file_info[i].offset, SEEK_SET) == (off_t)-1) {
+		if (UNLIKELY(lseek(fd, file_info[i].offset, SEEK_SET) == (off_t)-1)) {
 			pr_fail("%s: read: lseek %s failed, errno=%d (%s)%s\n",
 				args->name, filename, errno, strerror(errno), fs_type);
 			rc = EXIT_FAILURE;
@@ -242,13 +242,13 @@ static int stress_metamix_file(
 		}
 
 		rret = read(fd, buf, data_len);
-		if (rret < 0) {
+		if (UNLIKELY(rret < 0)) {
 			pr_fail("%s: read failure, errno=%d (%s)%s\n",
 				args->name, errno, strerror(errno), fs_type);
 			rc = EXIT_FAILURE;
 			goto err_close;
 		}
-		if (rret != (ssize_t)data_len) {
+		if (UNLIKELY(rret != (ssize_t)data_len)) {
 			pr_fail("%s: read failure, expected %zu bytes, got %zd bytes\n",
 				args->name, data_len, rret);
 			rc = EXIT_FAILURE;
@@ -257,7 +257,7 @@ static int stress_metamix_file(
 
 		if (verify) {
 			checksum = stress_hash_jenkin(buf, data_len);
-			if (checksum != file_info[i].checksum) {
+			if (UNLIKELY(checksum != file_info[i].checksum)) {
 				pr_fail("%s: read failure, expected checksum 0x%" PRIx32 ", got 0x%" PRIx32 "\n",
 					args->name, file_info[i].checksum, checksum);
 				rc = EXIT_FAILURE;
@@ -275,7 +275,7 @@ static int stress_metamix_file(
 					checksum = stress_hash_jenkin(ptr, data_len);
 					(void)munmap(ptr, args->page_size);
 
-					if (checksum != file_info[i].checksum) {
+					if (UNLIKELY(checksum != file_info[i].checksum)) {
 						pr_fail("%s: read failure, expected checksum 0x%" PRIx32 ", got 0x%" PRIx32 "\n",
 							args->name, file_info[i].checksum, checksum);
 						rc = EXIT_FAILURE;
