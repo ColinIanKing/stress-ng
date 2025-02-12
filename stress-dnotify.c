@@ -125,7 +125,7 @@ static int dnotify_exercise(
 
 	/* Wait for up to 2 seconds for event */
 	while ((i < 2000) && (dnotify_fd == -1)) {
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			goto cleanup;
 		i++;
 		(void)shim_usleep(1000);
@@ -187,7 +187,7 @@ static int mk_file(stress_args_t *args, const char *filename, const size_t len)
 	}
 
 	(void)shim_memset(buffer, 'x', BUF_SIZE);
-	while (stress_continue(args) && (sz > 0)) {
+	while (LIKELY(stress_continue(args) && (sz > 0))) {
 		const size_t n = (sz > BUF_SIZE) ? BUF_SIZE : sz;
 		ssize_t ret;
 
@@ -458,7 +458,7 @@ static int stress_dnotify(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		for (i = 0; stress_continue(args) && (i < SIZEOF_ARRAY(dnotify_stressors)); i++) {
+		for (i = 0; LIKELY(stress_continue(args) && (i < SIZEOF_ARRAY(dnotify_stressors))); i++) {
 			ret = dnotify_stressors[i].func(args, pathname);
 			if (ret < 0) {
 				rc = EXIT_FAILURE;
