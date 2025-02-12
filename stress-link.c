@@ -144,7 +144,7 @@ static int stress_link_generic(
 		char testpath[PATH_MAX];
 		ssize_t rret;
 
-		for (i = 0; stress_continue(args) && (i < n); i++) {
+		for (i = 0; LIKELY(stress_continue(args) && (i < n)); i++) {
 			char newpath[PATH_MAX];
 			struct stat stbuf;
 
@@ -287,7 +287,7 @@ static int stress_link_generic(
 
 err_unlink:
 		/* time to finish, indicate so while the slow unlink occurs */
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 #if defined(O_DIRECTORY)
 		if (temp_dir_fd > 0)
