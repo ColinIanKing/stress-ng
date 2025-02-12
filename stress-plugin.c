@@ -133,7 +133,7 @@ static int stress_plugin_method_all(void)
 	register size_t i;
 	register int ret = 0;
 
-	for (i = 1; stress_continue_flag() && (i < stress_plugin_methods_num); i++) {
+	for (i = 1; LIKELY(stress_continue_flag() && (i < stress_plugin_methods_num)); i++) {
 		ret = stress_plugin_methods[i].func();
 		if (ret)
 			break;
@@ -303,7 +303,7 @@ again:
 		if (pid < 0) {
 			if (stress_redo_fork(args, errno))
 				goto again;
-			if (!stress_continue(args))
+			if (UNLIKELY(!stress_continue(args)))
 				goto finish;
 			pr_fail("%s: fork failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
