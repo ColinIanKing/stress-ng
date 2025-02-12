@@ -60,7 +60,7 @@ again:
 	if (pid < 0) {
 		if (stress_redo_fork(args, errno))
 			goto again;
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			return 0;
 		pr_fail("%s: fork failed: %d (%s)\n",
 			args->name, errno, strerror(errno));
@@ -111,7 +111,7 @@ again:
 	if (pid < 0) {
 		if (stress_redo_fork(args, errno))
 			goto again;
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			return 0;
 		pr_fail("%s: fork failed: %d (%s)\n",
 			args->name, errno, strerror(errno));
@@ -195,7 +195,7 @@ rewait:
 	}
 	if (sighup_info->pid != 0) {
 		int i;
-		for (i = 0; stress_continue(args) && (i < 1000); i++) {
+		for (i = 0; LIKELY(stress_continue(args) && (i < 1000)); i++) {
 			if (UNLIKELY(kill(sighup_info->pid, 0) < 0))
 				break;
 			(void)shim_usleep(250);
