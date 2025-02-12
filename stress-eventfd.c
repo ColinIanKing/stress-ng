@@ -121,7 +121,7 @@ again:
 			VOID_RET(ssize_t, read(fd1, re, sizeof(re)));
 
 			for (;;) {
-				if (!stress_continue_flag())
+				if (UNLIKELY(!stress_continue_flag()))
 					goto exit_child;
 				ret = read(fd1, &val, sizeof(val));
 				if (UNLIKELY(ret < 0)) {
@@ -157,7 +157,7 @@ again:
 
 			val = 1;
 			for (;;) {
-				if (!stress_continue_flag())
+				if (UNLIKELY(!stress_continue_flag()))
 					goto exit_child;
 				ret = write(fd2, &val, sizeof(val));
 				if (UNLIKELY(ret < 0)) {
@@ -194,7 +194,7 @@ exit_child:
 			(void)stress_read_fdinfo(self, stress_mwc1() ? fd1 : fd2);
 
 			for (;;) {
-				if (!stress_continue_flag())
+				if (UNLIKELY(!stress_continue_flag()))
 					goto exit_parent;
 
 				ret = write(fd1, &val, sizeof(val));
@@ -215,7 +215,7 @@ exit_child:
 			}
 
 			for (;;) {
-				if (!stress_continue_flag())
+				if (UNLIKELY(!stress_continue_flag()))
 					goto exit_parent;
 
 				ret = read(fd2, &val, sizeof(val));
