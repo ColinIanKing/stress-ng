@@ -106,7 +106,7 @@ static int stress_resources(stress_args_t *args)
 			}
 
 			s_pids[i].pid = pid;
-			if (!stress_continue(args))
+			if (UNLIKELY(!stress_continue(args)))
 				break;
 			stress_bogo_inc(args);
 		}
