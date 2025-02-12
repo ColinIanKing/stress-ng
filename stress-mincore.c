@@ -87,7 +87,7 @@ static void stress_mincore_expect(
 	/* Silently ignore ENOSYS for now */
 	if (UNLIKELY(err == ENOSYS))
 		return;
-	if (err != err_expected) {
+	if (UNLIKELY(err != err_expected)) {
 		pr_fail("%s: expected errno %d, got %d instead while exercising %s\n",
 			args->name, err_expected, err, msg);
 		*rc = EXIT_FAILURE;
@@ -155,11 +155,11 @@ redo: 			errno = 0;
 					/* Page not mapped */
 					break;
 				case EAGAIN:
-					if (++redo < 100)
+					if (LIKELY(++redo < 100))
 						goto redo;
 					break;
 				case ENOSYS:
-					if (args->instance == 0)
+					if (UNLIKELY(args->instance == 0))
 						pr_inf_skip("%s: mincore no not implemented, skipping stressor\n",
 							args->name);
 					rc = EXIT_NOT_IMPLEMENTED;
@@ -182,7 +182,7 @@ redo: 			errno = 0;
 					count += 1.0;
 				} else {
 					/* Should not return ENOMEM on a mapped page */
-					if (errno == ENOMEM) {
+					if (UNLIKELY(errno == ENOMEM)) {
 						pr_fail("%s: mincore on address %p failed, errno=$%d (%s)\n",
 							args->name, (void *)mapped, errno,
 							strerror(errno));
@@ -199,7 +199,7 @@ redo: 			errno = 0;
 				ret = shim_mincore((void *)fdmapped, page_size, vec);
 				if (ret < 0) {
 					/* Should not return ENOMEM on a mapped page */
-					if (errno == ENOMEM) {
+					if (UNLIKELY(errno == ENOMEM)) {
 						pr_fail("%s: mincore on address %p failed, errno=$%d (%s)\n",
 							args->name, (void *)fdmapped, errno,
 							strerror(errno));
@@ -210,7 +210,7 @@ redo: 			errno = 0;
 			if (UNLIKELY(unmapped != MAP_FAILED)) {
 				/* mincore on unmapped page should fail */
 				ret = shim_mincore((void *)unmapped, page_size, vec);
-				if (ret == 0) {
+				if (UNLIKELY(ret == 0)) {
 					pr_fail("%s: mincore on unmapped address %p should have failed but did not\n",
 						args->name, (void *)unmapped);
 					rc = EXIT_FAILURE;
@@ -277,7 +277,7 @@ redo: 			errno = 0;
 			 */
 			ret = shim_mincore(NULL, 0, NULL);
 			/*  some systems return ENOMEM.. */
-			if (errno != ENOMEM)
+			if (UNLIKELY(errno != ENOMEM))
 				stress_mincore_expect(args, ret, 0, errno, EINVAL,
 					"NULL and zero arguments", &rc);
 		}
