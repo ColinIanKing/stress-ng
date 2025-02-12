@@ -278,7 +278,7 @@ retry_bind:
 		double t, delta;
 		ssize_t ret;
 
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			break;
 
 		t = stress_time_now();
