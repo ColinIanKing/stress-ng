@@ -858,7 +858,7 @@ static void stress_iomix_drop_caches(
 		if (stress_system_write("/proc/sys/vm/drop_caches", "1", 1) < 0)
 			(void)pause();
 		(void)sleep(5);
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			return;
 		(void)sync();
 		if (stress_system_write("/proc/sys/vm/drop_caches", "2", 1) < 0)
