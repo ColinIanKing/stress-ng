@@ -329,7 +329,7 @@ retry:
 		if (UNLIKELY(!stress_continue_flag()))
 			return EXIT_SUCCESS;
 
-		for (n = 0; stress_continue(args) && (n < context->max_fd); n++) {
+		for (n = 0; LIKELY(stress_continue(args) && (n < context->max_fd)); n++) {
 			context->fds[n] = stress_race_fd_recv(fd);
 			if (context->fds[n] < 0)
 				continue;
@@ -548,7 +548,7 @@ static int OPTIMIZE3 stress_race_fd_server(
 	do {
 		int sfd;
 
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			break;
 
 		sfd = accept(fd, (struct sockaddr *)NULL, NULL);
@@ -559,7 +559,7 @@ static int OPTIMIZE3 stress_race_fd_server(
 
 			(void)shim_memset(context->fds, 0, context->fds_size);
 
-			for (i = 0; stress_continue(args) && (i < context->max_fd); i++) {
+			for (i = 0; LIKELY(stress_continue(args) && (i < context->max_fd)); i++) {
 				context->fds[i] = open(entry->filename, entry->flags);
 				context->current_fd = context->fds[i];
 
@@ -867,7 +867,7 @@ again:
 	if (pid < 0) {
 		if (stress_redo_fork(args, errno))
 			goto again;
-		if (!stress_continue(args)) {
+		if (UNLIKELY(!stress_continue(args))) {
 			rc = EXIT_SUCCESS;
 			goto tidy_barrier;
 		}
