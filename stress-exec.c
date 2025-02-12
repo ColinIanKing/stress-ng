@@ -754,7 +754,7 @@ static int stress_exec(stress_args_t *args)
 #endif
 			NOCLOBBER stress_pid_hash_t *sph;
 
-			if (!stress_continue_flag())
+			if (UNLIKELY(!stress_continue_flag()))
 				break;
 
 			sph = stress_exec_alloc_pid(alloc_stack);
