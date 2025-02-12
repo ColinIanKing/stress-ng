@@ -117,7 +117,7 @@ static void stress_inode_flags_ioctl(
 {
 	int ret, attr;
 
-	if (!(keep_running || stress_continue(args)))
+	if (UNLIKELY(!(keep_running || stress_continue(args))))
 		return;
 
 	ret = ioctl(fd, FS_IOC_GETFLAGS, &attr);
@@ -160,7 +160,7 @@ static int stress_inode_flags_stressor(
 {
 	size_t idx = 0;
 
-	while (keep_running && stress_continue(args)) {
+	while (LIKELY(keep_running && stress_continue(args))) {
 		size_t i;
 
 		/* Work through all inode flag permutations */
@@ -173,12 +173,12 @@ static int stress_inode_flags_stressor(
 		stress_inode_flags_ioctl_sane(data->file_fd);
 
 		stress_inode_flags_ioctl(args, data->dir_fd, 0);
-		for (i = 0; stress_continue(args) && (i < SIZEOF_ARRAY(inode_flags)); i++)
+		for (i = 0; LIKELY(stress_continue(args) && (i < SIZEOF_ARRAY(inode_flags))); i++)
 			stress_inode_flags_ioctl(args, data->dir_fd, inode_flags[i]);
 		stress_inode_flags_ioctl_sane(data->dir_fd);
 
 		stress_inode_flags_ioctl(args, data->file_fd, 0);
-		for (i = 0; stress_continue(args) && (i < SIZEOF_ARRAY(inode_flags)); i++)
+		for (i = 0; LIKELY(stress_continue(args) && (i < SIZEOF_ARRAY(inode_flags))); i++)
 			stress_inode_flags_ioctl(args, data->file_fd, inode_flags[i]);
 		stress_inode_flags_ioctl_sane(data->file_fd);
 		shim_fsync(data->file_fd);
