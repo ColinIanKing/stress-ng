@@ -224,11 +224,11 @@ static void *stress_fstat_thread(void *ptr)
 #endif
 	stress_random_small_sleep();
 
-	while (keep_running && stress_continue_flag()) {
+	while (LIKELY(keep_running && stress_continue_flag())) {
 		size_t i;
 
 		for (i = 0; i < FSTAT_LOOPS; i++) {
-			if (!stress_continue_flag())
+			if (UNLIKELY(!stress_continue_flag()))
 				break;
 			if (stress_fstat_helper(ctxt) < 0) {
 				pthread_info->pthread_ret = -1;
@@ -273,7 +273,7 @@ static int stress_fstat_threads(stress_args_t *args, stress_stat_info_t *si, con
 	}
 #endif
 	for (i = 0; i < FSTAT_LOOPS; i++) {
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 		if (stress_fstat_helper(&ctxt) < 0) {
 			rc = -1;
@@ -324,7 +324,7 @@ static int stress_fstat(stress_args_t *args)
 	while ((d = readdir(dp)) != NULL) {
 		char path[PATH_MAX];
 
-		if (!stress_continue_flag()) {
+		if (UNLIKELY(!stress_continue_flag())) {
 			ret = EXIT_SUCCESS;
 			(void)closedir(dp);
 			goto free_cache;
