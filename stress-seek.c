@@ -301,7 +301,7 @@ re_read:
 			int i;
 
 			offset = (off_t)stress_mwc64modn(seek_size);
-			for (i = 0; (i < 20) && stress_continue(args); i++) {
+			for (i = 0; LIKELY((i < 20) && stress_continue(args)); i++) {
 				offset = stress_shim_lseek(fd, offset, SEEK_DATA);
 				if (UNLIKELY(offset < 0))
 					break;
