@@ -426,7 +426,7 @@ static int stress_module(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			break;
 
 		if (shim_finit_module(fd, finit_args1, kernel_flags) == 0) {
