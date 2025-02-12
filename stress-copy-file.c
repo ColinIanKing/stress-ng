@@ -87,7 +87,7 @@ static int stress_copy_file_fill(
 		if (n < 0)
 			return -1;
 		sz -= n;
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			return 0;
 	}
 	return 0;
@@ -230,10 +230,10 @@ static int stress_copy_file(stress_args_t *args)
 		off64_out_orig = (shim_loff_t)stress_mwc64modn(copy_file_bytes - DEFAULT_COPY_FILE_SIZE);
 		off64_out = off64_out_orig;
 
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			break;
 		stress_copy_file_fill(args, fd_in, off64_in, DEFAULT_COPY_FILE_SIZE);
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			break;
 		t = stress_time_now();
 		copy_ret = shim_copy_file_range(fd_in, &off64_in, fd_out,
@@ -277,7 +277,7 @@ static int stress_copy_file(stress_args_t *args)
 					args->name, (intmax_t)off64_in_orig, (intmax_t)off64_out_orig);
 			}
 		}
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			break;
 
 		/*
@@ -295,7 +295,7 @@ static int stress_copy_file(stress_args_t *args)
 		 */
 		VOID_RET(ssize_t, shim_copy_file_range(fd_in, &off64_in, fd_out,
 						&off64_out, DEFAULT_COPY_FILE_SIZE, ~0U));
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			break;
 		(void)shim_fsync(fd_out);
 		stress_bogo_inc(args);
