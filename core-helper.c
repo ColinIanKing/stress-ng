@@ -3820,7 +3820,7 @@ bool stress_redo_fork(stress_args_t *args, const int err)
 		return false;
 	}
 	/* More bogo-ops to go and errors indicate a fork retry? */
-	if (stress_continue(args) &&
+	if (LIKELY(stress_continue(args)) &&
 	    ((err == EAGAIN) || (err == EINTR) || (err == ENOMEM))) {
 		(void)shim_sched_yield();
 		return true;
