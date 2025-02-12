@@ -381,7 +381,7 @@ static int stress_mpfr(stress_args_t *args)
 
 		stress_mwc_get_seed(&w, &z);
 
-		for (i = 0; stress_continue(args) && (i < SIZEOF_ARRAY(stress_mpfr_methods)); i++) {
+		for (i = 0; LIKELY(stress_continue(args) && (i < SIZEOF_ARRAY(stress_mpfr_methods))); i++) {
 			double t1;
 
 			stress_mwc_set_seed(w, z);
