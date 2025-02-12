@@ -252,7 +252,7 @@ static int stress_dccp_server(
 	do {
 		int sfd;
 
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			break;
 
 		sfd = accept(fd, (struct sockaddr *)NULL, NULL);
@@ -301,7 +301,7 @@ again:
 							msgs++;
 					}
 					stress_bogo_inc(args);
-				} while (stress_continue(args) && (k < dccp_msgs));
+				} while (LIKELY(stress_continue(args) && (k < dccp_msgs)));
 				break;
 			case DCCP_OPT_SENDMSG:
 				do {
@@ -320,7 +320,7 @@ again:
 						msgs += j;
 					}
 					stress_bogo_inc(args);
-				} while (stress_continue(args) && (k < dccp_msgs));
+				} while (LIKELY(stress_continue(args) && (k < dccp_msgs)));
 				break;
 #if defined(HAVE_SENDMMSG)
 			case DCCP_OPT_SENDMMSG:
@@ -342,7 +342,7 @@ again:
 						msgs += (MSGVEC_SIZE * j);
 					}
 					stress_bogo_inc(args);
-				} while (stress_continue(args) && (k < dccp_msgs));
+				} while (LIKELY(stress_continue(args) && (k < dccp_msgs)));
 				break;
 #endif
 			default:
@@ -444,7 +444,7 @@ again:
 	if (pid < 0) {
 		if (stress_redo_fork(args, errno))
 			goto again;
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			goto finish;
 		pr_dbg("%s: fork failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
