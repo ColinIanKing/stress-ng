@@ -141,7 +141,7 @@ static int stress_regex(stress_args_t *args)
 	do {
 		int succeeded = 0;
 
-		for (i = 0; i < SIZEOF_ARRAY(stress_posix_regex) && stress_continue(args); i++) {
+		for (i = 0; LIKELY(i < SIZEOF_ARRAY(stress_posix_regex) && stress_continue(args)); i++) {
 			double t;
 			regex_t regex;
 			int ret;
