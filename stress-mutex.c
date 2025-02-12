@@ -136,7 +136,7 @@ static void OPTIMIZE3 *stress_mutex_exercise(void *arg)
 			}
 		}
 		metrics_count++;
-		if (metrics_count > 1000)
+		if (UNLIKELY(metrics_count > 1000))
 			metrics_count = 0;
 
 		param.sched_priority = pthread_info->prio_min;
@@ -234,7 +234,7 @@ static int stress_mutex(stress_args_t *args)
 		}
 		created = true;
 
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			break;
 	}
 
