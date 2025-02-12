@@ -223,7 +223,7 @@ L0x000:
 		/* For some reason, can't interrupt SH4 in QEMU, add yield to do so */
 		(void)shim_sched_yield();
 #endif
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			break;
 		RESEED_JMP(0x000)
 
