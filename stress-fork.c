@@ -398,7 +398,7 @@ static int stress_fork_fn(
 				info[n].err = errno;
 			}
 			info[n].pid = pid;
-			if (!stress_continue(args))
+			if (UNLIKELY(!stress_continue(args)))
 				break;
 		}
 		for (i = 0; i < n; i++) {
