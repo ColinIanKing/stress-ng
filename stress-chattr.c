@@ -117,7 +117,7 @@ static int do_chattr(
 	int i;
 	NOCLOBBER int rc = EXIT_SUCCESS;
 
-	for (i = 0; (i < 128) && stress_continue(args); i++) {
+	for (i = 0; LIKELY((i < 128) && stress_continue(args)); i++) {
 		NOCLOBBER int fd, fdw;
 		int ret;
 		unsigned long int zero = 0UL, tmp, check;
@@ -154,7 +154,7 @@ static int do_chattr(
 			goto tidy_fd;
 		}
 
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			goto tidy_fd;
 
 		/* work through flags disabling them one by one */
@@ -187,14 +187,14 @@ static int do_chattr(
 			}
 		}
 
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			goto tidy_fd;
 		fdw = open(filename, O_RDWR);
 		if (fdw < 0)
 			goto tidy_fd;
 		VOID_RET(ssize_t, write(fdw, &zero, sizeof(zero)));
 
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			goto tidy_fdw;
 
 		ret = ioctl(fd, SHIM_EXT2_IOC_SETFLAGS, &flags);
@@ -261,11 +261,11 @@ static int do_chattr(
 			}
 		}
 
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			goto tidy_fdw;
 		VOID_RET(ssize_t, write(fdw, &zero, sizeof(zero)));
 
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			goto tidy_fdw;
 		if (ioctl(fd, SHIM_EXT2_IOC_SETFLAGS, &zero) == 0)
 			(*chattr_count)++;
@@ -273,7 +273,7 @@ static int do_chattr(
 		/*
 		 *  Try some random flag, exercises any illegal flags
 		 */
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			goto tidy_fdw;
 		tmp = 1ULL << (stress_mwc8() & 0x1f);
 		if (ioctl(fd, SHIM_EXT2_IOC_SETFLAGS, &tmp) == 0)
