@@ -78,7 +78,6 @@ static int stress_shm_posix_check(
 	for (val = 0, ptr = buf; ptr < end; ptr += page_size, val++) {
 		if (UNLIKELY(*ptr != val))
 			return -1;
-
 	}
 	return 0;
 }
