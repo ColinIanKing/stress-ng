@@ -244,11 +244,11 @@ static void *mmap2_try(void *addr, size_t length, int prot, int flags,
 	off_t pgoffset;
 
 	/* Non 4K-page aligned offsets need to use mmap() */
-	if (offset & 4095)
+	if (UNLIKELY(offset & 4095))
 		return mmap(addr, length, prot, flags, fd, offset);
 	pgoffset = offset >> 12;
 	ptr = (void *)syscall(__NR_mmap2, addr, length, prot, flags, fd, pgoffset);
-	if (ptr == MAP_FAILED) {
+	if (UNLIKELY(ptr == MAP_FAILED)) {
 		/* For specific failure cases retry with mmap() */
 		if ((errno == ENOSYS) || (errno == EINVAL))
 			ptr = mmap(addr, length, prot, flags, fd, offset);
@@ -294,15 +294,15 @@ static void stress_mmap_mprotect(
 		VOID_RET(int, mprotect(last_page, page_size << 1, PROT_READ | PROT_WRITE));
 
 		/* Cycle through potection */
-		if (mprotect(addr, len, PROT_NONE) < 0)
+		if (UNLIKELY(mprotect(addr, len, PROT_NONE) < 0))
 			pr_fail("%s: mprotect set to PROT_NONE failed\n", name);
-		if (mprotect(addr, len, PROT_READ) < 0)
+		if (UNLIKELY(mprotect(addr, len, PROT_READ) < 0))
 			pr_fail("%s: mprotect set to PROT_READ failed\n", name);
-		if (mprotect(addr, len, PROT_WRITE) < 0)
+		if (UNLIKELY(mprotect(addr, len, PROT_WRITE) < 0))
 			pr_fail("%s: mprotect set to PROT_WRITE failed\n", name);
-		if (mprotect(addr, len, PROT_EXEC) < 0)
+		if (UNLIKELY(mprotect(addr, len, PROT_EXEC) < 0))
 			pr_fail("%s: mprotect set to PROT_EXEC failed\n", name);
-		if (mprotect(addr, len, PROT_READ | PROT_WRITE) < 0)
+		if (UNLIKELY(mprotect(addr, len, PROT_READ | PROT_WRITE) < 0))
 			pr_fail("%s: mprotect set to PROT_READ | PROT_WRITE failed\n", name);
 	}
 #else
@@ -330,7 +330,7 @@ static void stress_mmap_invalid(
 	void *ptr;
 
 	ptr = mmap(addr, length, prot, flags, fd, offset);
-	if (ptr != MAP_FAILED)
+	if (UNLIKELY(ptr != MAP_FAILED))
 		(void)stress_munmap_retry_enomem(ptr, length);
 
 #if defined(__NR_mmap) &&	\
@@ -340,12 +340,12 @@ static void stress_mmap_invalid(
 	 *  do direct syscall if possible
 	 */
 	ptr = (void *)(uintptr_t)syscall(__NR_mmap, addr, length, prot, flags, fd, offset + 1);
-	if (ptr != MAP_FAILED)
+	if (UNLIKELY(ptr != MAP_FAILED))
 		(void)stress_munmap_retry_enomem(ptr, length);
 #endif
 	/* Do the above via libc */
 	ptr = mmap(addr, length, prot, flags, fd, offset + 1);
-	if (ptr != MAP_FAILED)
+	if (UNLIKELY(ptr != MAP_FAILED))
 		(void)stress_munmap_retry_enomem(ptr, length);
 }
 
@@ -513,16 +513,16 @@ static int stress_mmap_child(stress_args_t *args, void *ctxt)
 		uint64_t *buf64;
 #endif
 retry:
-		if (no_mem_retries >= NO_MEM_RETRIES_MAX) {
+		if (UNLIKELY(no_mem_retries >= NO_MEM_RETRIES_MAX)) {
 			pr_inf("%s: gave up trying to mmap, no available memory\n",
 				args->name);
 			break;
 		}
 
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 
-		if ((g_opt_flags & OPT_FLAGS_OOM_AVOID) && stress_low_memory(sz))
+		if (UNLIKELY((g_opt_flags & OPT_FLAGS_OOM_AVOID) && stress_low_memory(sz)))
 			goto retry;
 
 		/*
@@ -614,7 +614,7 @@ retry:
 		if (context->mmap_write_check) {
 			stress_mmap_set_light(buf, sz, page_size);
 			if (g_opt_flags & OPT_FLAGS_VERIFY) {
-				if (stress_mmap_check_light(buf, sz, page_size) < 0) {
+				if (UNLIKELY(stress_mmap_check_light(buf, sz, page_size) < 0)) {
 					pr_fail("%s: mmap'd region of %zu bytes does "
 						"not contain expected data\n", args->name, sz);
 					rc = EXIT_FAILURE;
@@ -664,7 +664,7 @@ retry:
 				stress_mmap_mprotect(args->name, mappings[page],
 					page_size, page_size, context->mmap_mprotect);
 			}
-			if (!stress_continue_flag())
+			if (UNLIKELY(!stress_continue_flag()))
 				goto cleanup;
 		}
 		/*
@@ -735,7 +735,7 @@ retry:
 #endif
 					}
 				}
-				if (!stress_continue_flag())
+				if (UNLIKELY(!stress_continue_flag()))
 					goto cleanup;
 			}
 		}
