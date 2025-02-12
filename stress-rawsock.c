@@ -138,7 +138,7 @@ static int OPTIMIZE3 stress_rawsock_client(stress_args_t *args, const int rawsoc
 	pkt.iph.daddr = addr.sin_addr.s_addr;
 
 	/* Wait for server to start */
-	while (!stop_rawsock && stress_continue(args)) {
+	while (LIKELY(!stop_rawsock && stress_continue(args))) {
 		uint32_t ready;
 
 		if (UNLIKELY(stress_lock_acquire(rawsock_lock) < 0))
@@ -151,7 +151,7 @@ static int OPTIMIZE3 stress_rawsock_client(stress_args_t *args, const int rawsoc
 		(void)shim_usleep(20000);
 	}
 
-	while (!stop_rawsock && stress_continue(args)) {
+	while (LIKELY(!stop_rawsock && stress_continue(args))) {
 		ssize_t sret;
 
 		pkt.hash = stress_hash_mulxror32((const char * )&pkt.data, sizeof(pkt.data));
@@ -191,7 +191,7 @@ static int OPTIMIZE3 stress_rawsock_server(stress_args_t *args, const pid_t pid)
 	struct sockaddr_in addr;
 	double t_start, duration = 0.0, bytes = 0.0, rate;
 
-	if (stop_rawsock || !stress_continue(args))
+	if (UNLIKELY(stop_rawsock || !stress_continue(args)))
 		goto die;
 
 	if ((fd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW)) < 0) {
@@ -209,7 +209,7 @@ static int OPTIMIZE3 stress_rawsock_server(stress_args_t *args, const pid_t pid)
 	(void)stress_lock_release(rawsock_lock);
 
 	t_start = stress_time_now();
-	while (!stop_rawsock && stress_continue(args)) {
+	while (LIKELY(!stop_rawsock && stress_continue(args))) {
 		stress_raw_packet_t ALIGN64 pkt;
 		socklen_t len = sizeof(addr);
 		ssize_t n;
@@ -285,7 +285,7 @@ again:
 			(void)shim_usleep(100000);
 			goto again;
 		}
-		if (stop_rawsock || !stress_continue(args))
+		if (UNLIKELY(stop_rawsock || !stress_continue(args)))
 			return EXIT_SUCCESS;
 		pr_fail("%s: fork failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
