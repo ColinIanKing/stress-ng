@@ -94,7 +94,7 @@ static int stress_chdir(stress_args_t *args)
 	*path = '\0';	/* Keep static analysis tools happy */
 
 	/* Populate */
-	for (i = 0; stress_continue(args) && (i < chdir_dirs); i++) {
+	for (i = 0; LIKELY(stress_continue(args) && (i < chdir_dirs)); i++) {
 		const uint64_t rnd = (uint64_t)stress_mwc32() << 32;
 		const uint32_t gray_code = (i >> 1) ^ i;
 		int flags = O_RDONLY;
@@ -146,7 +146,7 @@ static int stress_chdir(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		for (i = 0; stress_continue(args) && (i < chdir_dirs); i++) {
+		for (i = 0; LIKELY(stress_continue(args) && (i < chdir_dirs)); i++) {
 			const uint32_t j = stress_mwc32modn(chdir_dirs);
 			const int fd = chdir_info[j].fd >= 0 ? chdir_info[j].fd : chdir_info[0].fd;
 			double t;
