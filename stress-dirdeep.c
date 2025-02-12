@@ -97,7 +97,7 @@ static bool stress_dirdeep_make(
 	}
 	if (len + 2 >= path_len)
 		return true;
-	if (!stress_continue(args))
+	if (UNLIKELY(!stress_continue(args)))
 		return true;
 
 	errno = 0;
@@ -140,7 +140,7 @@ static bool stress_dirdeep_make(
 	path[len + 1] = 'h';	/* hardlink */
 	VOID_RET(int, link(linkpath, path));
 
-	for (i = 0; stress_continue(args) && (i < dirdeep_dirs); i++) {
+	for (i = 0; LIKELY(stress_continue(args) && (i < dirdeep_dirs)); i++) {
 		uint32_t j;
 		bool finish;
 
@@ -151,7 +151,7 @@ static bool stress_dirdeep_make(
 				dirdeep_bytes, inodes_start, inodes_estimate, inodes_min,
 				depth + 1);
 		if (len + 6 < path_len) {
-			for (j = 0; stress_continue(args) && (j < dirdeep_files); j++) {
+			for (j = 0; LIKELY(stress_continue(args) && (j < dirdeep_files)); j++) {
 				int fd;
 
 				(void)snprintf(path + len, path_len - len, "/%-4.4" PRIx32, j);
@@ -177,7 +177,7 @@ static bool stress_dirdeep_make(
 			break;
 	}
 	path[len] = '\0';
-	if (!stress_continue(args))
+	if (UNLIKELY(!stress_continue(args)))
 		return true;
 
 #if defined(HAVE_LINKAT) &&	\
@@ -270,7 +270,7 @@ static int stress_dir_exercise(
 		{ sec, nsec }
 	};
 #endif
-	if (!stress_continue(args))
+	if (UNLIKELY(!stress_continue(args)))
 		return 0;
 
 	if (len + 2 >= path_len)
@@ -280,7 +280,7 @@ static int stress_dir_exercise(
 	if (n < 0)
 		return -1;
 
-	for (i = 0; (i < n) && stress_continue(args); i++) {
+	for (i = 0; LIKELY((i < n) && stress_continue(args)); i++) {
 		register int ch;
 
 		/* Sanity check */
