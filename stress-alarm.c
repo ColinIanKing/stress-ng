@@ -77,7 +77,7 @@ again:
 	if (pid < 0) {
 		if (stress_redo_fork(args, errno))
 			goto again;
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			return EXIT_SUCCESS;
 		pr_fail("%s: fork failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
@@ -105,7 +105,7 @@ again:
 			if (secs_left == 0)
 				err_mask |= STRESS_SLEEP_INTMAX;
 			stress_alarm_stress_bogo_inc(args);
-			if (!stress_continue(args))
+			if (UNLIKELY(!stress_continue(args)))
 				break;
 
 			/* zeros second interrupted sleep */
@@ -118,7 +118,7 @@ again:
 			if (secs_left != 0)
 				err_mask |= STRESS_SLEEP_ZERO;
 			stress_alarm_stress_bogo_inc(args);
-			if (!stress_continue(args))
+			if (UNLIKELY(!stress_continue(args)))
 				break;
 
 			/* random duration interrupted sleep */
