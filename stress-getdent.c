@@ -126,7 +126,7 @@ static int stress_getdents_dir(
 	unsigned int buf_sz;
 	const size_t page_size = args->page_size;
 
-	if (!stress_continue(args))
+	if (UNLIKELY(!stress_continue(args)))
 		return 0;
 
 	fd = open(path, O_RDONLY | O_DIRECTORY);
@@ -214,7 +214,7 @@ static int stress_getdents64_dir(
 	unsigned int buf_sz;
 	const size_t page_size = args->page_size;
 
-	if (!stress_continue(args))
+	if (UNLIKELY(!stress_continue(args)))
 		return 0;
 
 	fd = open(path, O_RDONLY | O_DIRECTORY);
