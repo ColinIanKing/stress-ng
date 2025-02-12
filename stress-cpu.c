@@ -758,7 +758,7 @@ PRAGMA_UNROLL_N(8)
 					return EXIT_FAILURE;
 				}
 			}
-			if (!stress_continue_flag())
+			if (UNLIKELY(!stress_continue_flag()))
 				return EXIT_SUCCESS;
 		}
 	}
