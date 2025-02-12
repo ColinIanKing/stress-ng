@@ -154,7 +154,7 @@ static void stress_bad_ioctl_dev_dir(
 	const mode_t flags = S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
 	int i, n;
 
-	if (!stress_continue_flag())
+	if (UNLIKELY(!stress_continue_flag()))
 		return;
 
 	/* Don't want to go too deep */
@@ -486,7 +486,7 @@ static void stress_bad_ioctl_dir(
 {
 	int ret;
 
-	if (!stress_continue_flag())
+	if (UNLIKELY(!stress_continue_flag()))
 		return;
 	if (!node)
 		return;
