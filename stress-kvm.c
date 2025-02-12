@@ -244,7 +244,7 @@ static int stress_kvm(stress_args_t *args)
 		}
 		stress_set_vma_anon_name(run, (size_t)run_size, "kvm-run");
 
-		for (i = 0; (i < 1000) && stress_continue(args); i++) {
+		for (i = 0; LIKELY((i < 1000) && stress_continue(args)); i++) {
 			uint8_t *port;
 
 			ret = ioctl(vcpu_fd, KVM_RUN, 0);
