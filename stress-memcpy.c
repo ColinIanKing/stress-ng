@@ -57,11 +57,11 @@ static OPTIMIZE3 void *memcpy_check_func(memcpy_func_t func, void *dest, const v
 {
 	void *ptr = func(dest, src, n);
 
-	if (shim_memcmp(dest, src, n)) {
+	if (UNLIKELY(shim_memcmp(dest, src, n))) {
 		pr_fail("%s: %s: memcpy content is different than expected\n", s_args_name, s_method_name);
 		memcpy_okay = false;
 	}
-	if (ptr != dest) {
+	if (UNLIKELY(ptr != dest)) {
 		pr_fail("%s: %s: memcpy return was %p and not %p as expected\n", s_args_name, s_method_name, ptr, dest);
 		memcpy_okay = false;
 	}
@@ -77,11 +77,11 @@ static OPTIMIZE3 void *memmove_check_func(memcpy_func_t func, void *dest, const 
 {
 	void *ptr = func(dest, src, n);
 
-	if (shim_memcmp(dest, src, n)) {
+	if (UNLIKELY(shim_memcmp(dest, src, n))) {
 		pr_fail("%s: %s: memmove content is different than expected\n", s_args_name, s_method_name);
 		memcpy_okay = false;
 	}
-	if (ptr != dest) {
+	if (UNLIKELY(ptr != dest)) {
 		pr_fail("%s: %s: memmove return was %p and not %p as expected\n", s_args_name, s_method_name, ptr, dest);
 		memcpy_okay = false;
 	}
