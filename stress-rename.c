@@ -283,7 +283,7 @@ restart:
 		oldname = newname;
 		newname = tmpname;
 		stress_bogo_inc(args);
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			break;
 
 		(void)stress_temp_filename(newname, PATH_MAX,
@@ -298,7 +298,7 @@ restart:
 		oldname = newname;
 		newname = tmpname;
 		stress_bogo_inc(args);
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			break;
 
 #if defined(EXERCISE_RENAMEAT)
@@ -329,7 +329,7 @@ restart:
 			newname = tmpname;
 
 			stress_bogo_inc(args);
-			if (!stress_continue(args))
+			if (UNLIKELY(!stress_continue(args)))
 				break;
 		}
 #endif
@@ -361,7 +361,7 @@ restart:
 			newname = tmpname;
 
 			stress_bogo_inc(args);
-			if (!stress_continue(args))
+			if (UNLIKELY(!stress_continue(args)))
 				break;
 		}
 #endif
