@@ -411,7 +411,7 @@ static int stress_filename(stress_args_t *args)
 	stress_sync_start_wait(args);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 again:
-	if (!stress_continue_flag()) {
+	if (UNLIKELY(!stress_continue_flag())) {
 		/* Time to die */
 		rc = EXIT_SUCCESS;
 		goto tidy_dir;
