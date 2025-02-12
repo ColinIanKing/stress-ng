@@ -184,7 +184,7 @@ static int stress_crypt(stress_args_t *args)
 		orig_phrase[i] = '\0';
 
 		if (crypt_method == 0) {
-			for (i = 1; stress_continue(args) && (i < SIZEOF_ARRAY(crypt_methods)); i++, cm++) {
+			for (i = 1; LIKELY(stress_continue(args) && (i < SIZEOF_ARRAY(crypt_methods))); i++, cm++) {
 				(void)shim_memcpy(setting + 3, orig_setting, sizeof(orig_setting) - 3);
 				(void)shim_memcpy(setting, cm->prefix, cm->prefix_len);
 				(void)shim_memcpy(phrase, orig_phrase, sizeof(orig_phrase));
