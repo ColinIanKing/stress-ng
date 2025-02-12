@@ -579,7 +579,7 @@ static int stress_pthread(stress_args_t *args)
 			if (i + 1 > maximum)
 				maximum = i + 1;
 			stress_bogo_inc(args);
-			if (!(keep_running() && stress_continue(args)))
+			if (UNLIKELY(!(keep_running() && stress_continue(args))))
 				break;
 		}
 		attempted++;
