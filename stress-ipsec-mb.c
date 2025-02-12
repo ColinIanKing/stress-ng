@@ -753,7 +753,7 @@ static void stress_ipsec_all(
 {
 	size_t i;
 
-	for (i = 1; stress_continue(args) && (i < SIZEOF_ARRAY(stress_ipsec_funcs)); i++)
+	for (i = 1; LIKELY(stress_continue(args) && (i < SIZEOF_ARRAY(stress_ipsec_funcs))); i++)
 		stress_ipsec_call_func(args, mb_mgr, data, data_len, jobs, i);
 }
 
