@@ -251,7 +251,7 @@ static int stress_loadavg(stress_args_t *args)
 			stop_running();
 			break;
 		}
-		if (!(keep_running() && stress_continue(args)))
+		if (UNLIKELY(!(keep_running() && stress_continue(args))))
 			break;
 	}
 
