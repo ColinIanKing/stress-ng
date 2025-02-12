@@ -108,7 +108,7 @@ redo:
 		break;
 	case 1:
 		n = stress_mwc16();
-		for (i = 0; stress_continue(args) && (i < n); i++)
+		for (i = 0; LIKELY(stress_continue(args) && (i < n)); i++)
 			(void)shim_sched_yield();
 		break;
 	case 2:
@@ -116,61 +116,61 @@ redo:
 		break;
 	case 3:
 		n = stress_mwc8();
-		for (i = 0; stress_continue(args) && (i < n); i++)
+		for (i = 0; LIKELY(stress_continue(args) && (i < n)); i++)
 			(void)shim_nanosleep_uint64(stress_mwc32modn(10000));
 		break;
 	case 4:
-		for (i = 0; stress_continue(args) && (i < 1000000); i++)
+		for (i = 0; LIKELY(stress_continue(args) && (i < 1000000)); i++)
 			stress_asm_nop();
 		break;
 	case 5:
 		n = stress_mwc32modn(1000000);
-		for (i = 0; stress_continue(args) && (i < n); i++)
+		for (i = 0; LIKELY(stress_continue(args) && (i < n)); i++)
 			stress_asm_nop();
 		break;
 	case 6:
-		for (i = 0; stress_continue(args) && (i < 10000); i++)
+		for (i = 0; LIKELY(stress_continue(args) && (i < 10000)); i++)
 			VOID_RET(double, stress_time_now());
 		break;
 	case 7:
 		n = stress_mwc16modn(10000);
-		for (i = 0; stress_continue(args) && (i < n); i++)
+		for (i = 0; LIKELY(stress_continue(args) && (i < n)); i++)
 			VOID_RET(double, stress_time_now());
 		break;
 	case 8:
-		for (i = 0; stress_continue(args) && (i < 1000); i++)
+		for (i = 0; LIKELY(stress_continue(args) && (i < 1000)); i++)
 			VOID_RET(int, nice(0));
 		break;
 	case 9:
 		n = stress_mwc16modn(1000);
-		for (i = 0; stress_continue(args) && (i < n); i++)
+		for (i = 0; LIKELY(stress_continue(args) && (i < n)); i++)
 			VOID_RET(int, nice(0));
 		break;
 	case 10:
-		for (i = 0; stress_continue(args) && (i < 10); i++)
+		for (i = 0; LIKELY(stress_continue(args) && (i < 10)); i++)
 			VOID_RET(uint64_t, stress_get_prime64(stress_mwc8()));
 		break;
 	case 11:
-		for (i = 0; stress_continue(args) && (i < 1000); i++)
+		for (i = 0; LIKELY(stress_continue(args) && (i < 1000)); i++)
 			getpid();
 		break;
 	case 12:
 		n = stress_mwc16modn(1000);
-		for (i = 0; stress_continue(args) && (i < n); i++)
+		for (i = 0; LIKELY(stress_continue(args) && (i < n)); i++)
 			getpid();
 		break;
 	case 13:
-		for (i = 0; stress_continue(args) && (i < 1000); i++)
+		for (i = 0; LIKELY(stress_continue(args) && (i < 1000)); i++)
 			(void)sleep(0);
 		break;
 	case 14:
 		n = stress_mwc16modn(1000);
-		for (i = 0; stress_continue(args) && (i < n); i++)
+		for (i = 0; LIKELY(stress_continue(args) && (i < n)); i++)
 			(void)sleep(0);
 		break;
 	case 15:
 		n = stress_mwc16modn(1000);
-		for (i = 0; stress_continue(args) && (i < n); i++)
+		for (i = 0; LIKELY(stress_continue(args) && (i < n)); i++)
 			getpid();
 		break;
 	case 16:
@@ -243,7 +243,7 @@ redo:
 			 */
 			schedmix_sem->owner = getpid();
 			n = stress_mwc16();
-			for (i = 0; stress_continue(args) && (i < n); i++)
+			for (i = 0; LIKELY(stress_continue(args) && (i < n)); i++)
 				(void)shim_sched_yield();
 			schedmix_sem->owner = -1;
 			(void)sem_post(&schedmix_sem->sem);
