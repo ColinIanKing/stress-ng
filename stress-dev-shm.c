@@ -84,7 +84,7 @@ static inline int stress_dev_shm_child(
 			/*
 			 *  Now try to map this into our address space
 			 */
-			if (!stress_continue(args))
+			if (UNLIKELY(!stress_continue(args)))
 				break;
 			addr = (uint32_t *)mmap(NULL, (size_t)sz, PROT_READ | PROT_WRITE,
 				MAP_PRIVATE, fd, 0);
