@@ -632,7 +632,7 @@ again:
 		(void)close(pipefds[1]);
 		(void)munmap((void *)buf_wr, buf_wr_size);
 		(void)munmap((void *)buf_rd, buf_rd_size);
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			goto finish;
 		pr_fail("%s: fork failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
