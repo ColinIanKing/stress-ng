@@ -4265,7 +4265,7 @@ static void stress_dev_files(
 	static int try_failed = 0;
 	dev_info_t *di;
 
-	if (!stress_continue_flag())
+	if (UNLIKELY(!stress_continue_flag()))
 		return;
 
 	for (di = dev_info_list; LIKELY(di && stress_continue(args)); di = di->next) {
