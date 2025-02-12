@@ -888,14 +888,14 @@ mmap_retry:
 	mem = stress_mmap_populate(NULL, MEM_SIZE, PROT_READ | PROT_WRITE,
 			MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (mem == MAP_FAILED) {
-		if (!stress_continue_flag()) {
+		if (UNLIKELY(!stress_continue_flag())) {
 			pr_dbg("%s: mmap failed: %d %s\n",
 				args->name, errno, strerror(errno));
 			free(pthread_info);
 			return EXIT_NO_RESOURCE;
 		}
 		(void)shim_usleep(100000);
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			goto reap_mem;
 		goto mmap_retry;
 	}
@@ -917,7 +917,7 @@ mmap_retry:
 				args->name, ret, strerror(ret));
 			goto reap;
 		}
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			goto reap;
 	}
 	/* Wait for SIGALRM or SIGINT/SIGHUP etc */
