@@ -230,7 +230,7 @@ static void stress_led_exercise(stress_args_t *args, stress_led_info_t *led_info
 		char *tmp;
 		int delta = 1;
 
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			break;
 		if (token[0] == '[')
 			token++;
@@ -275,7 +275,7 @@ static int stress_led(stress_args_t *args)
 
 	do {
 		for (led_info = led_info_list; led_info; led_info = led_info->next) {
-			if (!stress_continue(args))
+			if (UNLIKELY(!stress_continue(args)))
 				break;
 			stress_led_exercise(args, led_info);
 			stress_bogo_inc(args);
