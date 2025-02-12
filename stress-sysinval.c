@@ -2702,7 +2702,7 @@ static inline int stress_do_syscall(stress_args_t *args)
 				}
 			}
 
-			for (i = 0; stress_continue(args) && (i < SYSCALL_ARGS_SIZE); i++) {
+			for (i = 0; LIKELY(stress_continue(args) && (i < SYSCALL_ARGS_SIZE)); i++) {
 				const size_t j = reorder[i];
 
 				(void)shim_memset(current_context->args, 0, sizeof(current_context->args));
