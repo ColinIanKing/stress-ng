@@ -137,7 +137,7 @@ static int stress_pipeherd(stress_args_t *args)
     defined(HAVE_RUSAGE_RU_NVCSW)
 	t1 = stress_time_now();
 #endif
-	for (i = 0; stress_continue(args) && (i < PIPE_HERD_MAX); i++) {
+	for (i = 0; LIKELY(stress_continue(args) && (i < PIPE_HERD_MAX)); i++) {
 		pid_t pid;
 
 		pid = fork();
