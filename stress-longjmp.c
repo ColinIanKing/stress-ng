@@ -103,7 +103,7 @@ static int OPTIMIZE1 stress_longjmp(stress_args_t *args)
 		if (sample_counter >= 1000)
 			sample_counter = 0;
 	}
-	if (stress_continue(args)) {
+	if (LIKELY(stress_continue(args))) {
 		if (LIKELY(sample_counter > 0)) {
 			stress_longjmp_func();
 		} else {
