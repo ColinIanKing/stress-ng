@@ -834,7 +834,7 @@ static int stress_hdd(stress_args_t *args)
 		}
 		(void)shim_unlink(filename);
 
-		if (!stress_continue(args)) {
+		if (UNLIKELY(!stress_continue(args))) {
 			(void)close(fd);
 			goto yielded;
 		}
@@ -859,7 +859,7 @@ static int stress_hdd(stress_args_t *args)
 				const uint64_t offset = (i == 0) ?
 					hdd_bytes : stress_mwc64modn(hdd_bytes) & ~511UL;
 rnd_wr_retry:
-				if (!stress_continue(args)) {
+				if (UNLIKELY(!stress_continue(args))) {
 					(void)close(fd);
 					goto yielded;
 				}
@@ -892,7 +892,7 @@ rnd_wr_retry:
 		if (hdd_flags & HDD_OPT_WR_SEQ) {
 			for (i = 0; i < hdd_bytes; i += hdd_write_size) {
 seq_wr_retry:
-				if (!stress_continue(args)) {
+				if (UNLIKELY(!stress_continue(args))) {
 					(void)close(fd);
 					goto yielded;
 				}
@@ -935,7 +935,7 @@ seq_wr_retry:
 
 			for (i = 0; i < hdd_bytes_max; i += hdd_write_size) {
 seq_rd_retry:
-				if (!stress_continue(args)) {
+				if (UNLIKELY(!stress_continue(args))) {
 					(void)close(fd);
 					goto yielded;
 				}
@@ -1008,7 +1008,7 @@ seq_rd_retry:
 					goto finish;
 				}
 rnd_rd_retry:
-				if (!stress_continue(args)) {
+				if (UNLIKELY(!stress_continue(args))) {
 					(void)close(fd);
 					goto yielded;
 				}
