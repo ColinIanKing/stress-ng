@@ -392,7 +392,7 @@ static int efi_vars_get(
 	static char data[4096];
 	int i, rc = 0;
 
-	for (i = 0; stress_continue(args) && (i < dir_count); i++) {
+	for (i = 0; LIKELY(stress_continue(args) && (i < dir_count)); i++) {
 		char *d_name = efi_dentries[i]->d_name;
 		int ret;
 
@@ -507,7 +507,7 @@ again:
 	if (pid < 0) {
 		if (stress_redo_fork(args, errno))
 			goto again;
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			goto finish;
 		pr_err("%s: fork failed: errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
