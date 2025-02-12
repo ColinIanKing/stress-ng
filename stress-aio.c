@@ -296,7 +296,7 @@ static int stress_aio(stress_args_t *args)
 	do {
 		(void)shim_usleep_interruptible(250000); /* wait until a signal occurs */
 
-		for (i = 0; stress_continue(args) && (i < opt_aio_requests); i++) {
+		for (i = 0; LIKELY(stress_continue(args) && (i < opt_aio_requests)); i++) {
 			if (io_reqs[i].status != EINPROGRESS)
 				continue;
 
