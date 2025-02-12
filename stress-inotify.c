@@ -223,7 +223,7 @@ static int inotify_exercise(
 retry:
 	n++;
 	if ((fd = inotify_init()) < 0) {
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			return EXIT_SUCCESS;
 
 		/* This is just so wrong... */
@@ -282,7 +282,7 @@ retry:
 		}
 
 redo:
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			break;
 		/*
 		 *  Exercise FIOREAD to get inotify code coverage up
@@ -426,7 +426,7 @@ static int mk_file(stress_args_t *args, const char *filename, const size_t len)
 	}
 
 	(void)shim_memset(buffer, 'x', BUF_SIZE);
-	while (stress_continue(args) && (sz > 0)) {
+	while (LIKELY(stress_continue(args) && (sz > 0))) {
 		size_t n = (sz > BUF_SIZE) ? BUF_SIZE : sz;
 		ssize_t ret;
 
@@ -1010,7 +1010,7 @@ static int stress_inotify(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		for (i = 0; stress_continue(args) && inotify_stressors[i].func; i++) {
+		for (i = 0; LIKELY(stress_continue(args) && inotify_stressors[i].func); i++) {
 			if (inotify_stressors[i].func(args, pathname, bad_fd) == EXIT_FAILURE) {
 				rc = EXIT_FAILURE;
 				break;
