@@ -1000,7 +1000,7 @@ static int stress_memrate_child(stress_args_t *args, void *ctxt)
 			context->stats[i].duration += (t2 - t1);
 			context->stats[i].valid = valid;
 
-			if (!stress_continue(args))
+			if (UNLIKELY(!stress_continue(args)))
 				break;
 		}
 		stress_bogo_inc(args);
