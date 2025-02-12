@@ -372,7 +372,7 @@ child_cleanup_fd:
 			len = sizeof(addr);
 			inet_pton(AF_INET, ip_addr, &addr.sin_addr.s_addr);
 
-			for (i = 0; stress_continue(args) && (i < PACKETS_TO_SEND); i++) {
+			for (i = 0; LIKELY(stress_continue(args) && (i < PACKETS_TO_SEND)); i++) {
 				n = sendto(sfd, buffer, sizeof(buffer), 0,
 					(struct sockaddr *)&addr, len);
 				if (UNLIKELY(n < 0))
