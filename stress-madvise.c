@@ -276,7 +276,7 @@ static int stress_random_advise(
 			}
 
 			vec = (unsigned char *)calloc(vec_size, sizeof(*vec));
-			if (vec) {
+			if (LIKELY(vec != NULL)) {
 				size_t i;
 				int ret;
 
@@ -577,13 +577,13 @@ static int stress_madvise(stress_args_t *args)
 		NOCLOBBER uint8_t *buf;
 		NOCLOBBER bool file_mapped;
 
-		if (num_mem_retries >= NUM_MEM_RETRIES_MAX) {
+		if (UNLIKELY(num_mem_retries >= NUM_MEM_RETRIES_MAX)) {
 			pr_err("%s: gave up trying to mmap, no available memory\n",
 				args->name);
 			break;
 		}
 
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 
 		file_mapped = stress_mwc1();
