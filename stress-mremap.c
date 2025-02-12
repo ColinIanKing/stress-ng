@@ -164,7 +164,7 @@ static int try_remap(
 #else
 			(void)mremap_mlock;
 #endif
-			if (metrics_counter++ > 500)
+			if (UNLIKELY(metrics_counter++ > 500))
 				metrics_counter = 0;
 
 			return 0;
