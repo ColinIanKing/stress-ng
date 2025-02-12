@@ -152,7 +152,7 @@ static int stress_mmapfixed_child(stress_args_t *args, void *context)
 		flags |= stress_mwc1() ? MAP_FIXED : MAP_FIXED_NOREPLACE;
 #endif
 
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 
 		if (stress_mmapfixed_is_mapped((void *)addr, sz, page_size))
@@ -224,7 +224,7 @@ static int stress_mmapfixed_child(stress_args_t *args, void *context)
 				if (newbuf && (newbuf != MAP_FAILED)) {
 					buf64 = (uint64_t *)newbuf;
 
-					if (*buf64 != val64) {
+					if (UNLIKELY(*buf64 != val64)) {
 						pr_fail("%s: remap from %p to %p contains 0x%" PRIx64
 							" and not expected value 0x%" PRIx64 "\n",
 							args->name, buf, newbuf, *buf64, val64);
