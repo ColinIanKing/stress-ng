@@ -322,13 +322,13 @@ size_t stress_resources_allocate(
 		if (UNLIKELY((stress_mwc8() & 0xf) == 0)) {
 			resources[i].m_malloc = (void *)calloc(1, page_size);
 			resources[i].m_malloc_size = page_size;
-			if (!stress_continue_flag())
+			if (UNLIKELY(!stress_continue_flag()))
 				break;
 		}
 		if (UNLIKELY((stress_mwc8() & 0xf) == 0)) {
 			resources[i].m_sbrk = shim_sbrk((intptr_t)page_size);
 			resources[i].m_sbrk_size = page_size;
-			if (!stress_continue_flag())
+			if (UNLIKELY(!stress_continue_flag()))
 				break;
 		}
 		if (UNLIKELY((stress_mwc8() & 0xf) == 0)) {
@@ -540,7 +540,7 @@ size_t stress_resources_allocate(
 			resources[i].pthread_ret =
 				pthread_create(&resources[i].pthread, NULL,
 					stress_resources_pthread_func, NULL);
-			if (!stress_continue_flag())
+			if (UNLIKELY(!stress_continue_flag()))
 				break;
 		}
 #endif
@@ -573,7 +573,7 @@ size_t stress_resources_allocate(
 			sevp.sigev_value.sival_ptr = &resources[i].timerid;
 			resources[i].timerok =
 				(timer_create(CLOCK_REALTIME, &sevp, &resources[i].timerid) == 0);
-			if (!stress_continue_flag())
+			if (UNLIKELY(!stress_continue_flag()))
 				break;
 		}
 #endif
