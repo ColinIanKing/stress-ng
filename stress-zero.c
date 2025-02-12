@@ -160,7 +160,7 @@ static int stress_zero(stress_args_t *args)
 			double t;
 
 			t = stress_time_now();
-			for (i = 0; (i < 1024) && stress_continue(args); i++) {
+			for (i = 0; LIKELY((i < 1024) && stress_continue(args)); i++) {
 				ret = read(fd, rd_buffer, page_size);
 				if (UNLIKELY(ret < 0)) {
 					if ((errno == EAGAIN) || (errno == EINTR))
