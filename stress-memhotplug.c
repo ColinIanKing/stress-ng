@@ -319,7 +319,7 @@ static int stress_memhotplug(stress_args_t *args)
 	do {
 		bool ok = false;
 
-		for (i = 0; stress_continue(args) && (i < max); i++) {
+		for (i = 0; LIKELY(stress_continue(args) && (i < max)); i++) {
 			stress_memhotplug_mem_toggle(memhotplug_mmap, &mem_info[i], &metrics);
 			if (!mem_info[i].timeout)
 				ok = true;
