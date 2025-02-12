@@ -100,7 +100,7 @@ again:
 		(void)close(fd1);
 		(void)close(fd2);
 
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			return EXIT_SUCCESS;
 		pr_fail("%s: fork failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
