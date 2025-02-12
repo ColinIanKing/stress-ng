@@ -160,7 +160,7 @@ retry:
 	switch (errno) {
 	case EAGAIN:
 	case EINTR:
-		if (stress_continue(args))
+		if (LIKELY(stress_continue(args)))
 			goto retry;
 		return 0;
 	case ENOSPC:
@@ -240,7 +240,7 @@ PRAGMA_UNROLL_N(4)
 	switch (errno) {
 	case EAGAIN:
 	case EINTR:
-		if (stress_continue(args))
+		if (LIKELY(stress_continue(args)))
 			goto retry;
 		return 0;
 	case ENOSPC: /* e.g. on vfat */
