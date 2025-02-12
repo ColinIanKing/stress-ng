@@ -246,7 +246,7 @@ static int stress_rmap(stress_args_t *args)
 	for (i = 0; i < MAPPINGS_MAX; i++) {
 		const off_t offset = (off_t)(i * page_size);
 
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			goto cleanup;
 
 		mappings[i] =
@@ -266,7 +266,7 @@ static int stress_rmap(stress_args_t *args)
 	for (i = 0; i < RMAP_CHILD_MAX; i++) {
 		stress_sync_start_init(&s_pids[i]);
 
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			goto cleanup;
 
 		s_pids[i].pid = fork();
