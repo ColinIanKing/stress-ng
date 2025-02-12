@@ -257,7 +257,7 @@ static int stress_bigheap_child(stress_args_t *args, void *context)
 				*uintptr = (uintptr_t)uintptr;
 			}
 			while (uintptr < uintptr_end) {
-				if (!stress_continue(args))
+				if (UNLIKELY(!stress_continue(args)))
 					goto finish;
 				*uintptr = (uintptr_t)uintptr;
 				uintptr += stride / sizeof(uintptr_t);
