@@ -92,7 +92,7 @@ static void stress_unlink_exercise(
 		for (i = 0; i < UNLINK_FILES; i++)
 			fds[i] = -1;
 
-		for (i = 0; stress_continue(args) && (i < UNLINK_FILES); i++) {
+		for (i = 0; LIKELY(stress_continue(args) && (i < UNLINK_FILES)); i++) {
 			int mode, retries = 0;
 
 			if (UNLIKELY((i & 7) == 7)) {
