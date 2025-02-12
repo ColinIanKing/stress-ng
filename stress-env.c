@@ -156,7 +156,7 @@ static int stress_env_child(stress_args_t *args, void *context)
 					rc = EXIT_FAILURE;
 				}
 				stress_bogo_inc(args);
-				if (!stress_continue(args))
+				if (UNLIKELY(!stress_continue(args)))
 					goto reap;
 			}
 			i = 0;
