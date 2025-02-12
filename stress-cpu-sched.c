@@ -681,7 +681,7 @@ static int stress_cpu_sched_child(stress_args_t *args, void *context)
 	for (i = 0; i < MAX_CPU_SCHED_PROCS; i++) {
 		stress_cpu_sched_pids[i].pid = -1;
 	}
-	for (i = 0; (i < MAX_CPU_SCHED_PROCS) && stress_continue(args); i++) {
+	for (i = 0; LIKELY((i < MAX_CPU_SCHED_PROCS) && stress_continue(args)); i++) {
 		pid_t pid;
 		int retry = 0;
 
@@ -778,7 +778,7 @@ again:
 	do {
 		stress_cpu_sched_mix_pids(pids, stress_cpu_sched_pids, MAX_CPU_SCHED_PROCS);
 
-		for (i = 0; (i < MAX_CPU_SCHED_PROCS) && stress_continue(args); i++) {
+		for (i = 0; LIKELY((i < MAX_CPU_SCHED_PROCS) && stress_continue(args)); i++) {
 			const pid_t pid = pids[i].pid;
 			const bool stop_cont = stress_mwc1();
 
@@ -808,7 +808,7 @@ again:
 				(void)kill(pid, SIGCONT);
 			stress_bogo_inc(args);
 		}
-		for (i = 0; (i < (MAX_CPU_SCHED_PROCS >> 2)) && stress_continue(args); i++) {
+		for (i = 0; (i < LIKELY((MAX_CPU_SCHED_PROCS >> 2)) && stress_continue(args)); i++) {
 			const pid_t pid = pids[stress_mwc8modn(MAX_CPU_SCHED_PROCS)].pid;
 
 			if (LIKELY(pid != -1)) {
