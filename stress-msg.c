@@ -237,7 +237,7 @@ static int OPTIMIZE3 stress_msg_receiver(
 		register uint32_t i;
 		register const long int mtype = msg_types == 0 ? 0 : -(msg_types + 1);
 
-		for (i = 0; stress_continue(args); i++) {
+		for (i = 0; LIKELY(stress_continue(args)); i++) {
 #if defined(IPC_NOWAIT)
 			int msg_flag = (i & 0x1ff) ? 0 : IPC_NOWAIT;
 #else
@@ -407,7 +407,7 @@ static int stress_msg(stress_args_t *args)
 
 	stress_msgget();
 	for (n = 0; n < max_ids; n++) {
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			break;
 		msgq_ids[n] = msgget(IPC_PRIVATE, S_IRUSR | S_IWUSR | IPC_CREAT | IPC_EXCL);
 		if ((msgq_ids[n] < 0) &&
@@ -416,7 +416,7 @@ static int stress_msg(stress_args_t *args)
 	}
 	stress_bogo_inc(args);
 
-	if (!stress_continue(args))
+	if (UNLIKELY(!stress_continue(args)))
 		goto cleanup;
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
@@ -428,7 +428,7 @@ again:
 	if (pid < 0) {
 		if (stress_redo_fork(args, errno))
 			goto again;
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			goto cleanup;
 		pr_fail("%s: fork failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
