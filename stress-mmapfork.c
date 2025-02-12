@@ -146,7 +146,7 @@ static int stress_mmapfork(stress_args_t *args)
 			s_pids[i].pid = -1;
 
 		for (i = 0; i < MAX_PIDS; i++) {
-			if (!stress_continue(args))
+			if (UNLIKELY(!stress_continue(args)))
 				goto reap;
 
 			s_pids[i].pid = fork();
@@ -164,7 +164,7 @@ static int stress_mmapfork(stress_args_t *args)
 					_exit(MMAPFORK_FAILURE);
 
 				(void)shim_memset(&info, 0, sizeof(info));
-				if (sysinfo(&info) < 0) {
+				if (UNLIKELY(sysinfo(&info) < 0)) {
 					pr_fail("%s: sysinfo failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 					_exit(MMAPFORK_FAILURE);
@@ -230,7 +230,7 @@ static int stress_mmapfork(stress_args_t *args)
 				continue;
 
 			if (shim_waitpid(s_pids[i].pid, &status, 0) < 0) {
-				if (errno != EINTR) {
+				if (UNLIKELY(errno != EINTR)) {
 					pr_err("%s: waitpid errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 				} else {
