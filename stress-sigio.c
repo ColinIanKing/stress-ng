@@ -65,7 +65,7 @@ static void MLOCKED_TEXT stress_sigio_handler(int signum)
 		/*
 		 *  Data is ready, so drain as much as possible
 		 */
-		while (stress_continue_flag() && (stress_time_now() < time_end)) {
+		while (LIKELY(stress_continue_flag() && (stress_time_now() < time_end))) {
 			ssize_t ret;
 
 			got_err = 0;
@@ -146,7 +146,7 @@ again:
 	if (pid < 0) {
 		if (stress_redo_fork(args, errno))
 			goto again;
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			goto finish;
 		pr_err("%s: fork failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
