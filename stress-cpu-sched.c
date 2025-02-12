@@ -399,7 +399,7 @@ static void MLOCKED_TEXT stress_cpu_sched_hrtimer_handler(int sig)
 		return;
 	}
 
-	if (stress_continue_flag()) {
+	if (LIKELY(stress_continue_flag())) {
 		const pid_t pid = getpid();
 		if (n_cpus > 0) {
 			const int cpu_idx = stress_cpu_sched_rand_cpu_idx();
