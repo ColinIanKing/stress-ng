@@ -328,7 +328,7 @@ static int stress_memfd_child(stress_args_t *args, void *context)
 					goto memfd_unmap;
 				}
 			}
-			if (!stress_continue_flag())
+			if (UNLIKELY(!stress_continue_flag()))
 				goto memfd_unmap;
 		}
 
@@ -343,12 +343,12 @@ static int stress_memfd_child(stress_args_t *args, void *context)
 			if (fds[i] < 0)
 				continue;
 
-			if (!stress_continue_flag())
+			if (UNLIKELY(!stress_continue_flag()))
 				break;
 
 			/* Allocate space */
 			ret = ftruncate(fds[i], (off_t)size);
-			if (ret < 0) {
+			if (UNLIKELY(ret < 0)) {
 				switch (errno) {
 				case EINTR:
 					break;
@@ -364,7 +364,7 @@ static int stress_memfd_child(stress_args_t *args, void *context)
 			 */
 			maps[i] = mmap(NULL, size, PROT_WRITE,
 					MAP_FILE | MAP_SHARED, fds[i], 0);
-			if (maps[i] == MAP_FAILED)
+			if (UNLIKELY(maps[i] == MAP_FAILED))
 				continue;
 			if (memfd_mlock)
 				(void)shim_mlock(maps[i], size);
@@ -394,7 +394,7 @@ static int stress_memfd_child(stress_args_t *args, void *context)
 			 */
 			VOID_RET(ssize_t, shim_fallocate(fds[i], 0, (off_t)size, 0));
 
-			if (!stress_continue_flag())
+			if (UNLIKELY(!stress_continue_flag()))
 				goto memfd_unmap;
 		}
 
@@ -405,7 +405,7 @@ static int stress_memfd_child(stress_args_t *args, void *context)
 				continue;
 #if defined(SEEK_SET)
 			if (lseek(fds[i], (off_t)size >> 1, SEEK_SET) < 0) {
-				if ((errno != ENXIO) && (errno != EINVAL)) {
+				if (UNLIKELY((errno != ENXIO) && (errno != EINVAL))) {
 					pr_fail("%s: lseek SEEK_SET failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 					rc = EXIT_FAILURE;
@@ -414,7 +414,7 @@ static int stress_memfd_child(stress_args_t *args, void *context)
 #endif
 #if defined(SEEK_CUR)
 			if (lseek(fds[i], (off_t)0, SEEK_CUR) < 0) {
-				if ((errno != ENXIO) && (errno != EINVAL)) {
+				if (UNLIKELY((errno != ENXIO) && (errno != EINVAL))) {
 					pr_fail("%s: lseek SEEK_CUR failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 					rc = EXIT_FAILURE;
@@ -423,7 +423,7 @@ static int stress_memfd_child(stress_args_t *args, void *context)
 #endif
 #if defined(SEEK_END)
 			if (lseek(fds[i], (off_t)0, SEEK_END) < 0) {
-				if ((errno != ENXIO) && (errno != EINVAL)) {
+				if (UNLIKELY((errno != ENXIO) && (errno != EINVAL))) {
 					pr_fail("%s: lseek SEEK_END failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 					rc = EXIT_FAILURE;
@@ -432,7 +432,7 @@ static int stress_memfd_child(stress_args_t *args, void *context)
 #endif
 #if defined(SEEK_HOLE)
 			if (lseek(fds[i], (off_t)0, SEEK_HOLE) < 0) {
-				if ((errno != ENXIO) && (errno != EINVAL)) {
+				if (UNLIKELY((errno != ENXIO) && (errno != EINVAL))) {
 					pr_fail("%s: lseek SEEK_HOLE failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 					rc = EXIT_FAILURE;
@@ -441,14 +441,14 @@ static int stress_memfd_child(stress_args_t *args, void *context)
 #endif
 #if defined(SEEK_DATA)
 			if (lseek(fds[i], (off_t)0, SEEK_DATA) < 0) {
-				if ((errno != ENXIO) && (errno != EINVAL)) {
+				if (UNLIKELY((errno != ENXIO) && (errno != EINVAL))) {
 					pr_fail("%s: lseek SEEK_DATA failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 					rc = EXIT_FAILURE;
 				}
 			}
 #endif
-			if (!stress_continue_flag())
+			if (UNLIKELY(!stress_continue_flag()))
 				goto memfd_unmap;
 		}
 
@@ -469,29 +469,29 @@ memfd_unmap:
 				uint64_t val;
 				const ssize_t test_size = page_size << 1;
 
-				if (ftruncate(fds[i], (off_t)test_size) < 0)
+				if (UNLIKELY(ftruncate(fds[i], (off_t)test_size) < 0))
 					continue;
 				buf = mmap(NULL, test_size, PROT_READ | PROT_WRITE,
 						MAP_PRIVATE, fds[i], 0);
-				if (buf == MAP_FAILED)
+				if (UNLIKELY(buf == MAP_FAILED))
 					continue;
 				if (memfd_mlock)
 					(void)shim_mlock(buf, test_size);
 				val = stress_mwc64();
 				stress_memfd_fill_pages_generic(val, buf, test_size);
 
-				if (madvise(buf, test_size, MADV_PAGEOUT) < 0)
+				if (UNLIKELY(madvise(buf, test_size, MADV_PAGEOUT) < 0))
 					goto buf_unmap;
-				if (ftruncate(fds[i], (off_t)page_size) < 0)
+				if (UNLIKELY(ftruncate(fds[i], (off_t)page_size) < 0))
 					goto buf_unmap;
-				if (ftruncate(fds[i], (off_t)test_size) < 0)
+				if (UNLIKELY(ftruncate(fds[i], (off_t)test_size) < 0))
 					goto buf_unmap;
-				if (!stress_memfd_check(val, buf, page_size, 1)) {
+				if (UNLIKELY(!stress_memfd_check(val, buf, page_size, 1))) {
 					pr_fail("%s: unexpected memfd %d data mismatch in first page\n",
 						args->name, fds[i]);
 					rc = EXIT_FAILURE;
 				}
-				if (!stress_memfd_check(0ULL, uint64_ptr_offset(buf, page_size), page_size, 0)) {
+				if (UNLIKELY(!stress_memfd_check(0ULL, uint64_ptr_offset(buf, page_size), page_size, 0))) {
 					pr_fail("%s: unexpected memfd %d data mismatch in zero'd second page\n",
 						args->name, fds[i]);
 					rc = EXIT_FAILURE;
