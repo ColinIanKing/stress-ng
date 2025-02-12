@@ -252,7 +252,7 @@ static int OPTIMIZE3 stress_sigurg_server(
 	do {
 		int sfd;
 
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			break;
 
 		sfd = accept(fd, (struct sockaddr *)NULL, NULL);
@@ -324,7 +324,7 @@ again:
 	if (pid < 0) {
 		if (stress_redo_fork(args, errno))
 			goto again;
-		if (!stress_continue(args)) {
+		if (UNLIKELY(!stress_continue(args))) {
 			rc = EXIT_SUCCESS;
 			goto finish;
 		}
