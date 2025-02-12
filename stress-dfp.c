@@ -189,7 +189,7 @@ static double TARGET_CLONES OPTIMIZE3 name(				\
 	}								\
 									\
 	t1 = stress_time_now();						\
-	for (i = 0; stress_continue_flag() && (i < loops); i++) {	\
+	for (i = 0; LIKELY(stress_continue_flag() && (i < loops)); i++) {\
 		dfp_data[0].field.r[idx] /= dfp_data[0].field.mul;	\
 		dfp_data[0].field.r[idx] /= dfp_data[0].field.mul_rev;	\
 		dfp_data[1].field.r[idx] /= dfp_data[1].field.mul;	\
