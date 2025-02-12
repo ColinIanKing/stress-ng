@@ -139,7 +139,7 @@ static int stress_dynlib(stress_args_t *args)
 		int ret;
 
 		ret = sigsetjmp(jmp_env, 1);
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			break;
 		if (ret)
 			goto tidy;
