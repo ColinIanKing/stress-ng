@@ -444,7 +444,7 @@ static int stress_dentry(stress_args_t *args)
 
 		stress_dentry_misc(dir_path);
 
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 	} while ((rc == EXIT_SUCCESS) && stress_continue(args));
 
