@@ -145,7 +145,7 @@ static void NORETURN stress_exit_group_child(stress_args_t *args)
 			exit_group_failed++;
 			_exit(0);
 		}
-		if (!(keep_running() && stress_continue(args)))
+		if (UNLIKELY(!(keep_running() && stress_continue(args))))
 			break;
 	}
 	ret = pthread_mutex_unlock(&mutex);
@@ -162,7 +162,7 @@ static void NORETURN stress_exit_group_child(stress_args_t *args)
 	for (j = 0; j < 1000; j++) {
 		bool all_running = false;
 
-		if (!stress_continue(args)) {
+		if (UNLIKELY(!stress_continue(args))) {
 			stop_running();
 			shim_exit_group(0);
 			break;
