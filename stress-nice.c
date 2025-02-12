@@ -125,7 +125,7 @@ static int stress_nice(stress_args_t *args)
 #if defined(HAVE_SETPRIORITY)
 			case 1:
 				pid = getpid();
-				for (i = min_prio; (i <= max_prio) && stress_continue(args); i++) {
+				for (i = min_prio; LIKELY((i <= max_prio) && stress_continue(args)); i++) {
 					errno = 0;
 					(void)setpriority(PRIO_PROCESS, (id_t)pid, i);
 					if (!errno)
@@ -135,7 +135,7 @@ static int stress_nice(stress_args_t *args)
 				break;
 #endif
 			default:
-				for (i = -19; (i < 20) && stress_continue(args); i++) {
+				for (i = -19; LIKELY((i < 20) && stress_continue(args)); i++) {
 					int ret;
 #if defined(HAVE_GETPRIORITY)
 					int old_prio, new_prio;
