@@ -440,7 +440,7 @@ static void stress_fanotify_read_events(
 	metadata = (struct fanotify_event_metadata *)buffer;
 
 	while (FAN_EVENT_OK(metadata, len)) {
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 		if ((metadata->fd != FAN_NOFD) && (metadata->fd >= 0)) {
 #if defined(FAN_OPEN)
