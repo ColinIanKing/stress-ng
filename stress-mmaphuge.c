@@ -148,7 +148,7 @@ static int stress_mmaphuge_child(stress_args_t *args, void *v_context)
 				}
 				bufs[i].buf = buf;
 				idx++;
-				if (idx >= SIZEOF_ARRAY(stress_mmap_settings))
+				if (UNLIKELY(idx >= SIZEOF_ARRAY(stress_mmap_settings)))
 					idx = 0;
 
 				if (buf != MAP_FAILED) {
@@ -171,7 +171,7 @@ static int stress_mmaphuge_child(stress_args_t *args, void *v_context)
 					}
 					/* ..and sanity check */
 					for (val = rndval, ptr = (uint64_t *)buf; ptr < buf_end; ptr += stride, val++) {
-						if (*ptr != val) {
+						if (UNLIKELY(*ptr != val)) {
 							pr_fail("%s: memory %p at offset 0x%zx check error, "
 								"got 0x%" PRIx64 ", expecting 0x%" PRIx64 "\n",
 								args->name, buf, (uint8_t *)ptr - buf, *ptr, val);
