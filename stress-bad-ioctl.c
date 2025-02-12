@@ -173,7 +173,7 @@ static void stress_bad_ioctl_dev_dir(
 		const struct dirent *d = dlist[i];
 		size_t len;
 
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			break;
 		if (stress_is_dot_filename(d->d_name))
 			continue;
