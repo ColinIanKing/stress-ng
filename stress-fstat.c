@@ -360,7 +360,7 @@ static int stress_fstat(stress_args_t *args)
 		stat_some = false;
 
 		for (si = stat_info; si && stress_continue_flag(); si = si->next) {
-			if (!stress_continue(args))
+			if (UNLIKELY(!stress_continue(args)))
 				break;
 			if (si->ignore == IGNORE_ALL)
 				continue;
