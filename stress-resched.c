@@ -117,7 +117,7 @@ static void OPTIMIZE3 NORETURN stress_resched_child(
 
 		VOID_RET(int, nice(1));
 
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			break;
 	}
 	_exit(rc);
@@ -201,7 +201,7 @@ static int stress_resched(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	/* Start off one child process per positive nice level */
-	for (i = 0; stress_continue(args) && (i < s_pids_max); i++)
+	for (i = 0; LIKELY(stress_continue(args) && (i < s_pids_max)); i++)
 		stress_resched_spawn(args, s_pids, i, max_prio, yields);
 
 	do {
