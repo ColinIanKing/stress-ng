@@ -4268,7 +4268,7 @@ static void stress_dev_files(
 	if (!stress_continue_flag())
 		return;
 
-	for (di = dev_info_list; di && stress_continue(args); di = di->next) {
+	for (di = dev_info_list; LIKELY(di && stress_continue(args)); di = di->next) {
 		int ret;
 
 		/* Should never happen */
@@ -4385,21 +4385,21 @@ static void stress_dev_infos_get(
 	int i, n;
 	const mode_t flags = S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
 
-	if (!stress_continue(args))
+	if (UNLIKELY(!stress_continue(args)))
 		return;
 
 	n = scandir(path, &dlist, NULL, alphasort);
 	if (n <= 0)
 		return;
 
-	for (i = 0; stress_continue(args) && (i < n); i++) {
+	for (i = 0; LIKELY(stress_continue(args) && (i < n)); i++) {
 		int ret;
 		struct stat statbuf;
 		char tmp[PATH_MAX];
 		struct dirent *d = dlist[i];
 		size_t len;
 
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			break;
 		if (stress_is_dot_filename(d->d_name))
 			continue;
@@ -4548,21 +4548,21 @@ static void stress_sys_dev_infos_get(
 	int i, n;
 	const mode_t flags = S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
 
-	if (!stress_continue(args))
+	if (UNLIKELY(!stress_continue(args)))
 		return;
 
 	n = scandir(path, &dlist, NULL, alphasort);
 	if (n <= 0)
 		return;
 
-	for (i = 0; stress_continue(args) && (i < n); i++) {
+	for (i = 0; LIKELY(stress_continue(args) && (i < n)); i++) {
 		int ret;
 		struct stat statbuf;
 		char tmp[PATH_MAX];
 		struct dirent *d = dlist[i];
 		sys_dev_info_t *sys_dev_info;
 
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			break;
 		if (stress_is_dot_filename(d->d_name))
 			continue;
