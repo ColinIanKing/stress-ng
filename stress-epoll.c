@@ -141,7 +141,7 @@ static void MLOCKED_TEXT epoll_timer_handler(int sig)
 	(void)sig;
 
 	/* Cancel timer if we detect no more runs */
-	if (!stress_continue_flag()) {
+	if (UNLIKELY(!stress_continue_flag())) {
 		struct itimerspec timer;
 
 		timer.it_value.tv_sec = 0;
@@ -538,7 +538,7 @@ static int epoll_client(
 		if (port_counter >= max_servers)
 			port_counter = 0;
 retry:
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 
 		if (UNLIKELY((fd = socket(epoll_domain, SOCK_STREAM, 0)) < 0)) {
