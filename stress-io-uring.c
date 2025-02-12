@@ -456,7 +456,7 @@ static int stress_io_uring_submit(
 	}
 
 retry:
-	if (!stress_continue(args))
+	if (UNLIKELY(!stress_continue(args)))
 		return EXIT_NO_RESOURCE;
 	ret = shim_io_uring_enter(submit->io_uring_fd, 1,
 		1, IORING_ENTER_GETEVENTS);
@@ -1194,7 +1194,7 @@ static int stress_io_uring_child(stress_args_t *args, void *context)
 		for (j = 0; j < SIZEOF_ARRAY(stress_io_uring_setups); j++) {
 			size_t idx = io_uring_rand ? (size_t)stress_mwc8modn((uint8_t)SIZEOF_ARRAY(stress_io_uring_setups)) : j;
 
-			if (!stress_continue(args))
+			if (UNLIKELY(!stress_continue(args)))
 				break;
 			if (user_data[idx].supported) {
 				rc = stress_io_uring_submit(args,
@@ -1208,15 +1208,12 @@ static int stress_io_uring_child(stress_args_t *args, void *context)
 		}
 		if (i++ >= 4096) {
 			i = 0;
-			if (stress_continue(args))
+			if (LIKELY(stress_continue(args)))
 				(void)stress_read_fdinfo(self, submit.io_uring_fd);
 		}
 		(void)close(io_uring_file.fd);
 		if (io_uring_file.fd_at >= 0)
 			(void)close(io_uring_file.fd_at);
-
-		if (!stress_continue(args))
-			break;
 	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
