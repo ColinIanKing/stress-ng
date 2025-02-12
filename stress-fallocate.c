@@ -166,7 +166,7 @@ static int stress_fallocate(stress_args_t *args)
 #else
 		ret = shim_fallocate(fd_async, 0, (off_t)0, fallocate_bytes);
 #endif
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 		(void)shim_fsync(fd);
 		if ((ret == 0) && (g_opt_flags & OPT_FLAGS_VERIFY)) {
@@ -188,10 +188,10 @@ static int stress_fallocate(stress_args_t *args)
 
 		if (ftruncate(fd, 0) < 0)
 			ftrunc_errs++;
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 		(void)shim_fsync(fd);
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 
 		if (g_opt_flags & OPT_FLAGS_VERIFY) {
@@ -213,14 +213,14 @@ static int stress_fallocate(stress_args_t *args)
 		if (ftruncate(fd, fallocate_bytes) < 0)
 			ftrunc_errs++;
 		(void)shim_fsync(fd);
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 		if (ftruncate(fd, 0) < 0)
 			ftrunc_errs++;
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 		(void)shim_fsync(fd);
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 
 		if (SIZEOF_ARRAY(modes) > 1) {
@@ -228,10 +228,10 @@ static int stress_fallocate(stress_args_t *args)
 			 *  non-portable Linux fallocate()
 			 */
 			(void)shim_fallocate(fd, 0, (off_t)0, fallocate_bytes);
-			if (!stress_continue_flag())
+			if (UNLIKELY(!stress_continue_flag()))
 				break;
 			(void)shim_fsync(fd);
-			if (!stress_continue_flag())
+			if (UNLIKELY(!stress_continue_flag()))
 				break;
 
 			for (i = 0; i < 64; i++) {
@@ -240,7 +240,7 @@ static int stress_fallocate(stress_args_t *args)
 
 				if (shim_fallocate(fd, modes[j], offset, 64 * KB) == 0)
 					(void)shim_fsync(fd);
-				if (!stress_continue_flag())
+				if (UNLIKELY(!stress_continue_flag()))
 					break;
 			}
 			/* Exercise all the mode permutations, most will fail */
@@ -249,15 +249,15 @@ static int stress_fallocate(stress_args_t *args)
 
 				if (shim_fallocate(fd, mode_perms[i], offset, 4 * KB) == 0)
 					(void)shim_fsync(fd);
-				if (!stress_continue_flag())
+				if (UNLIKELY(!stress_continue_flag()))
 					break;
 			}
 			if (ftruncate(fd, 0) < 0)
 				ftrunc_errs++;
-			if (!stress_continue_flag())
+			if (UNLIKELY(!stress_continue_flag()))
 				break;
 			(void)shim_fsync(fd);
-			if (!stress_continue_flag())
+			if (UNLIKELY(!stress_continue_flag()))
 				break;
 		}
 
@@ -270,7 +270,7 @@ static int stress_fallocate(stress_args_t *args)
 #else
 		VOID_RET(int, shim_fallocate(bad_fd, 0, (off_t)0, fallocate_bytes));
 #endif
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 
 		/*
@@ -279,7 +279,7 @@ static int stress_fallocate(stress_args_t *args)
 		if (SIZEOF_ARRAY(illegal_modes) > 1) {
 			for (i = 0; i < SIZEOF_ARRAY(illegal_modes); i++) {
 				VOID_RET(int, shim_fallocate(fd, illegal_modes[i], (off_t)0, fallocate_bytes));
-				if (!stress_continue_flag())
+				if (UNLIKELY(!stress_continue_flag()))
 					break;
 			}
 		}
@@ -295,10 +295,10 @@ static int stress_fallocate(stress_args_t *args)
 		 *  exercise illegal negative offset and lengths
 		 */
 		VOID_RET(int, shim_posix_fallocate(fd, (off_t)-1, (off_t)0));
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 		VOID_RET(int, shim_posix_fallocate(fd, (off_t)0, (off_t)-1));
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 		VOID_RET(int, shim_posix_fallocate(fd, (off_t)-1, (off_t)-1));
 
