@@ -2389,7 +2389,7 @@ static inline int stress_do_syscall(stress_args_t *args)
 	/* force update of 1 bit mwc random val */
 	(void)stress_mwc1();
 
-	if (!stress_continue(args))
+	if (UNLIKELY(!stress_continue(args)))
 		return 0;
 	pid = fork();
 	if (pid < 0) {
