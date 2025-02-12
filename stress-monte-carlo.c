@@ -189,7 +189,7 @@ static double OPTIMIZE3 stress_mc_getrandom_rand(void)
 	}
 	r = scale_u64 * (double)buf[idx];
 	idx++;
-	if (idx >= SIZEOF_ARRAY(buf))
+	if (UNLIKELY(idx >= SIZEOF_ARRAY(buf)))
 		idx = 0;
 	return r;
 }
