@@ -136,7 +136,7 @@ static void *stress_membarrier_thread(void *arg)
 	stress_random_small_sleep();
 
 	while (keep_running && stress_continue_flag()) {
-		if (stress_membarrier_exercise(args, info) < 0)
+		if (UNLIKELY(stress_membarrier_exercise(args, info) < 0))
 			break;
 	}
 
@@ -157,7 +157,7 @@ static int stress_membarrier(stress_args_t *args)
 	double duration = 0.0, count = 0.0, rate;
 
 	ret = shim_membarrier(MEMBARRIER_CMD_QUERY, 0, 0);
-	if (ret < 0) {
+	if (UNLIKELY(ret < 0)) {
 		if (errno == ENOSYS) {
 			if (args->instance == 0)
 				pr_inf_skip("%s: stressor will be skipped, "
@@ -197,7 +197,7 @@ static int stress_membarrier(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		if (stress_membarrier_exercise(args, &info[MAX_MEMBARRIER_THREADS]) < 0) {
+		if (UNLIKELY(stress_membarrier_exercise(args, &info[MAX_MEMBARRIER_THREADS]) < 0)) {
 			pr_fail("%s: membarrier failed: errno=%d: (%s)\n",
 				args->name, errno, strerror(errno));
 			rc = EXIT_FAILURE;
