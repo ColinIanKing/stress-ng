@@ -295,7 +295,7 @@ static int stress_chmod(stress_args_t *args)
 			(void)shim_usleep(100000);
 #endif
 			/* Timed out, then give up */
-			if (!stress_continue_flag()) {
+			if (UNLIKELY(!stress_continue_flag())) {
 				rc = EXIT_SUCCESS;
 				goto tidy;
 			}
