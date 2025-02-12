@@ -281,7 +281,7 @@ static ssize_t stress_aiol_wait(
 		ret = shim_io_getevents_random(info, 1, (long int)(n - i), timeout_ptr);
 		if (UNLIKELY(ret < 0)) {
 			if (errno == EINTR) {
-				if (stress_continue_flag()) {
+				if (LIKELY(stress_continue_flag())) {
 					continue;
 				} else {
 					/* indicate terminated early */
@@ -296,7 +296,7 @@ static ssize_t stress_aiol_wait(
 			i += (size_t)ret;
 			info->aiol_completions += ret;
 		}
-		if (!stress_continue_flag()) {
+		if (UNLIKELY(!stress_continue_flag())) {
 			/* indicate terminated early */
 			return -1;
 		}
