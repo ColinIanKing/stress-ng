@@ -92,7 +92,7 @@ static void stress_munmap_range(
 	const size_t stride = stress_munmap_stride(n_pages + stress_mwc8());
 	size_t i, j;
 
-	for (i = 0, j = 0; stress_continue(args) && (i < n_pages); i++) {
+	for (i = 0, j = 0; LIKELY(stress_continue(args) && (i < n_pages)); i++) {
 		const size_t offset = j << page_shift;
 		void *addr = ((uint8_t *)start) + offset;
 		double t;
