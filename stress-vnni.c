@@ -491,7 +491,7 @@ static void stress_vnni_all(stress_args_t *args)
 {
 	size_t i;
 
-	for (i = 1; stress_continue(args) && (i < SIZEOF_ARRAY(stress_vnni_methods)); i++) {
+	for (i = 1; LIKELY(stress_continue(args) && (i < SIZEOF_ARRAY(stress_vnni_methods))); i++) {
 		if (LIKELY(stress_vnni_methods[i].vnni_capable)) {
 			stress_vnni_exercise(args, i);
 		}
