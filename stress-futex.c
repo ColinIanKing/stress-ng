@@ -124,7 +124,7 @@ again:
 			 *  Break early in case wake gets stuck
 			 *  (which it shouldn't)
 			 */
-			if (!stress_continue_flag())
+			if (UNLIKELY(!stress_continue_flag()))
 				break;
 			ret = shim_futex_wake(futex, 1);
 			if (g_opt_flags & OPT_FLAGS_VERIFY) {
@@ -154,7 +154,7 @@ again:
 			int ret;
 
 			/* Break early before potential long wait */
-			if (!stress_continue_flag())
+			if (UNLIKELY(!stress_continue_flag()))
 				break;
 
 			ret = stress_futex_wait(futex, 0, 5000);
