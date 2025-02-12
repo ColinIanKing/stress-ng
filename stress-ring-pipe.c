@@ -208,7 +208,7 @@ static int stress_ring_pipe(stress_args_t *args)
 			pr_inf("%s: unexpected poll timeout\n", args->name);
 			break;
 		} else {
-			for (i = 0; stress_continue(args) && (i < n_pipes); i++) {
+			for (i = 0; LIKELY(stress_continue(args) && (i < n_pipes)); i++) {
 				if (poll_fds[i].revents & POLLIN) {
 					double t;
 					register size_t j = (i + 1);
