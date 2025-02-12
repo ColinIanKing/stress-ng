@@ -240,7 +240,7 @@ static int stress_heapsort(stress_args_t *args)
 				}
 			}
 		}
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 
 		/* Reverse sort */
@@ -266,7 +266,7 @@ static int stress_heapsort(stress_args_t *args)
 				}
 			}
 		}
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 		/* And re-order  */
 		stress_sort_data_int32_mangle(data, n);
@@ -295,7 +295,7 @@ static int stress_heapsort(stress_args_t *args)
 				}
 			}
 		}
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 
 		stress_bogo_inc(args);
