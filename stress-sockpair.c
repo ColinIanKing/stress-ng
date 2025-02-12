@@ -227,7 +227,7 @@ again:
 			uint8_t buf[SOCKET_PAIR_BUF] ALIGN64;
 			ssize_t n;
 
-			for (i = 0; stress_continue(args) && (i < max); i++) {
+			for (i = 0; LIKELY(stress_continue(args) && (i < max)); i++) {
 				errno = 0;
 
 				n = read(socket_pair_fds[i][0], buf, sizeof(buf));
@@ -272,14 +272,14 @@ abort:
 		socket_pair_close(socket_pair_fds, max, 0);
 
 		do {
-			for (i = 0; stress_continue(args) && (i < max); i++) {
+			for (i = 0; LIKELY(stress_continue(args) && (i < max)); i++) {
 				ssize_t wret;
 
 				/* Low memory avoidance, re-start */
 				if (UNLIKELY(oom_avoid)) {
 					while (stress_low_memory(low_mem_size)) {
 						low_memory_count++;
-						if (!stress_continue_flag())
+						if (UNLIKELY(!stress_continue_flag()))
 							goto tidy;
 						(void)shim_usleep(100000);
 					}
