@@ -1177,7 +1177,7 @@ static int stress_cache(stress_args_t *args)
 		 *  check if we need to terminate
 		 */
 		if (jmpret) {
-			if (stress_continue(args))
+			if (LIKELY(stress_continue(args)))
 				goto next;
 			break;
 		}
@@ -1261,7 +1261,7 @@ static int stress_cache(stress_args_t *args)
 			 *  We return here if we segfault, so
 			 *  first check if we need to terminate
 			 */
-			if (!stress_continue(args))
+			if (UNLIKELY(!stress_continue(args)))
 				break;
 
 			if (!jmpret)
