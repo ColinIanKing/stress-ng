@@ -115,7 +115,7 @@ again:
 		if (pid < 0) {
 			if (stress_redo_fork(args, errno))
 				goto again;
-			if (!stress_continue(args)) {
+			if (UNLIKELY(!stress_continue(args))) {
 				(void)close(fd[0]);
 				(void)close(fd[1]);
 				goto finish;
