@@ -119,7 +119,7 @@ static void stress_itimer_handler(int sig)
 	if ((itimer_counter & 65535) == 0)
 		if (stress_time_now() > time_end)
 			goto cancel;
-	if (stress_continue_flag()) {
+	if (LIKELY(stress_continue_flag())) {
 		stress_itimer_set(&timer);
 		return;
 	}
