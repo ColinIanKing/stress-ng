@@ -299,7 +299,7 @@ static int epoll_notification(
 		int fd;
 		struct epoll_event event;
 
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			return -1;
 		/* Try to limit too many open fds */
 		if (*fd_count > epoll_sockets)
@@ -639,7 +639,7 @@ retry:
 		}
 		(void)close(fd);
 		stress_bogo_inc(args);
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			break;
 		(void)shim_sched_yield();
 	} while (stress_continue(args));
@@ -838,7 +838,7 @@ static void NORETURN epoll_server(
 		errno = 0;
 
 		ret = sigsetjmp(jmp_env, 1);
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			break;
 		if (UNLIKELY(ret != 0))
 			wait_segv = true;
