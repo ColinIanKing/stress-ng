@@ -511,7 +511,7 @@ static int stress_priv_instr(stress_args_t *args)
 
 	do {
 		ret = sigsetjmp(jmp_env, 1);
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			goto finish;
 	} while (ret == 1);
 
