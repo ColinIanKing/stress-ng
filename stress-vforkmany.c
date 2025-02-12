@@ -138,7 +138,7 @@ fork_again:
 	if (chpid < 0) {
 		if (stress_redo_fork(args, errno))
 			goto fork_again;
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			goto finish;
 		pr_err("%s: fork failed: errno=%d: (%s)\n",
 			args->name, errno, strerror(errno));
@@ -183,7 +183,7 @@ fork_again:
 			}
 			(void)stress_mincore_touch_pages_interruptible(waste, waste_size);
 		}
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			_exit(0);
 
 		if (vforkmany_vm) {
