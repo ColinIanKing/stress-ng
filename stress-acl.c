@@ -330,7 +330,7 @@ static int stress_acl_exercise(
 {
 	size_t i;
 
-	for (i = 0; i < acl_count && stress_continue(args); i++) {
+	for (i = 0; LIKELY(i < acl_count && stress_continue(args)); i++) {
 		const double t1 = stress_time_now();
 
 		if (LIKELY(acl_set_file(filename, type, acls[i]) == 0)) {
