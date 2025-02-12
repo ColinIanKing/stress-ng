@@ -157,13 +157,13 @@ static int stress_cap(stress_args_t *args)
 		DIR *dir;
 
 		stress_capgetset_pid(args, 1, false, true);
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			break;
 		stress_capgetset_pid(args, args->pid, true, true);
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			break;
 		stress_capgetset_pid(args, getppid(), false, false);
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			break;
 
 		dir = opendir("/proc");
@@ -178,7 +178,7 @@ static int stress_cap(stress_args_t *args)
 				if (sscanf(d->d_name, "%" SCNdMAX, &p) != 1)
 					continue;
 				stress_capgetset_pid(args, (pid_t)p, false, false);
-				if (!stress_continue(args))
+				if (UNLIKELY(!stress_continue(args)))
 					break;
 			}
 			(void)closedir(dir);
