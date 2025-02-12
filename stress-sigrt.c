@@ -83,7 +83,7 @@ again:
 		if (pids[i] < 0) {
 			if (stress_redo_fork(args, errno))
 				goto again;
-			if (!stress_continue(args))
+			if (UNLIKELY(!stress_continue(args)))
 				goto reap;
 			pr_err("%s: fork failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
