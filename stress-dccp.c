@@ -114,7 +114,7 @@ static int stress_dccp_client(
 		int retries = 0;
 		socklen_t addr_len = 0;
 retry:
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			return EXIT_FAILURE;
 		if ((fd = socket(dccp_domain, SOCK_DCCP, IPPROTO_DCCP)) < 0) {
 			if ((errno == ESOCKTNOSUPPORT) ||
