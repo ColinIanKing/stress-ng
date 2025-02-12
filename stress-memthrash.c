@@ -808,11 +808,11 @@ static void *stress_memthrash_func(void *ctxt)
 
 	stress_random_small_sleep();
 
-	while (!thread_terminate && stress_continue(args)) {
+	while (LIKELY(!thread_terminate && stress_continue(args))) {
 		size_t j;
 
-		for (j = MATRIX_SIZE_MIN_SHIFT; j <= MATRIX_SIZE_MAX_SHIFT &&
-		     !thread_terminate && stress_continue(args); j++) {
+		for (j = MATRIX_SIZE_MIN_SHIFT; LIKELY(j <= MATRIX_SIZE_MAX_SHIFT &&
+		     !thread_terminate && stress_continue(args)); j++) {
 			size_t mem_size = 1 << (2 * j);
 			size_t i;
 
