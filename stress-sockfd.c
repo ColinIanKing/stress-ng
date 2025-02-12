@@ -193,7 +193,7 @@ retry:
 		if (UNLIKELY(!stress_continue_flag()))
 			return EXIT_SUCCESS;
 
-		for (n = 0; stress_continue(args) && (n < max_fd); n++) {
+		for (n = 0; LIKELY(stress_continue(args) && (n < max_fd)); n++) {
 			fds[n] = stress_socket_fd_recv(fd);
 			if (fds[n] < 0)
 				continue;
@@ -310,7 +310,7 @@ static int OPTIMIZE3 stress_socket_server(
 		if (LIKELY(sfd >= 0)) {
 			ssize_t i;
 
-			for (i = 0; stress_continue(args) && (i < max_fd); i++) {
+			for (i = 0; LIKELY(stress_continue(args) && (i < max_fd)); i++) {
 				int new_fd;
 
 #if defined(HAVE_SELECT)
@@ -452,7 +452,7 @@ again:
 	if (pid < 0) {
 		if (stress_redo_fork(args, errno))
 			goto again;
-		if (!stress_continue(args)) {
+		if (UNLIKELY(!stress_continue(args))) {
 			ret = EXIT_SUCCESS;
 			goto finish;
 		}
