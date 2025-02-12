@@ -147,7 +147,7 @@ static int stress_mlockmany_child(stress_args_t *args, void *context)
 			s_pids[n].pid = -1;
 
 			/* In case we've missed SIGALRM */
-			if (stress_time_now() > args->time_end) {
+			if (UNLIKELY(stress_time_now() > args->time_end)) {
 				stress_continue_set_flag(false);
 				break;
 			}
@@ -168,7 +168,7 @@ static int stress_mlockmany_child(stress_args_t *args, void *context)
 				size_t mmap_size = mlock_size;
 
 				/* In case we've missed SIGALRM */
-				if (stress_time_now() > args->time_end)
+				if (UNLIKELY(stress_time_now() > args->time_end))
 					_exit(0);
 
 				stress_parent_died_alarm();
@@ -182,7 +182,7 @@ static int stress_mlockmany_child(stress_args_t *args, void *context)
 					_exit(0);
 
 				while (mmap_size > args->page_size) {
-					if (!stress_continue(args))
+					if (UNLIKELY(!stress_continue(args)))
 						_exit(0);
 					ptr = mmap(NULL, mmap_size, PROT_READ | PROT_WRITE,
 						MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
@@ -199,7 +199,7 @@ static int stress_mlockmany_child(stress_args_t *args, void *context)
 
 				mlock_size = mmap_size;
 				while (mlock_size > args->page_size) {
-					if (!stress_continue(args))
+					if (UNLIKELY(!stress_continue(args)))
 						_exit(0);
 					ret = stress_mlock_interruptible(args, ptr, mlock_size);
 					if (ret == 0)
@@ -209,24 +209,24 @@ static int stress_mlockmany_child(stress_args_t *args, void *context)
 
 				while (stress_continue(args)) {
 					(void)stress_munlock_interruptible(args, ptr, mlock_size);
-					if (!stress_continue(args))
+					if (UNLIKELY(!stress_continue(args)))
 						goto unmap;
 					(void)stress_mlock_interruptible(args, ptr, mlock_size);
-					if (!stress_continue(args))
+					if (UNLIKELY(!stress_continue(args)))
 						goto unlock;
 					/* Try invalid sizes */
 					(void)shim_mlock(ptr, 0);
 					(void)shim_munlock(ptr, 0);
 
 					(void)stress_mlock_interruptible(args, ptr, mlock_size << 1);
-					if (!stress_continue(args))
+					if (UNLIKELY(!stress_continue(args)))
 						goto unlock;
 					(void)stress_munlock_interruptible(args, ptr, mlock_size << 1);
-					if (!stress_continue(args))
+					if (UNLIKELY(!stress_continue(args)))
 						goto unlock;
 
 					(void)shim_munlock(ptr, ~(size_t)0);
-					if (!stress_continue(args))
+					if (UNLIKELY(!stress_continue(args)))
 						goto unlock;
 					(void)shim_usleep_interruptible(10000);
 				}
@@ -241,7 +241,7 @@ unmap:
 				stress_bogo_inc(args);
 			} else if (pid < 0)
 				break;
-			if (!stress_continue(args))
+			if (UNLIKELY(!stress_continue(args)))
 				break;
 		}
 		stress_kill_and_wait_many(args, s_pids, n, SIGALRM, false);
