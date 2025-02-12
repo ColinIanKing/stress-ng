@@ -133,7 +133,7 @@ static int stress_bad_altstack_child(stress_args_t *args)
 		 *  but not a segfault in the sighandler
 		 *  ..bail out fast as we can
 		 */
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			_exit(EXIT_SUCCESS);
 	}
 
@@ -205,7 +205,7 @@ static int stress_bad_altstack_child(stress_args_t *args)
 
 	for (i = 0; i < 10; i++) {
 retry:
-		if (!stress_continue(args))
+		if (UNLIKELY(!stress_continue(args)))
 			return EXIT_SUCCESS;
 		rnd = stress_mwc32modn(11);
 		switch (rnd) {
@@ -298,7 +298,7 @@ retry:
 		}
 	}
 	/* No luck, well that's unexpected.. */
-	if (!stress_continue(args))
+	if (UNLIKELY(!stress_continue(args)))
 		pr_fail("%s: child process with illegal stack unexpectedly worked, %d\n",
 			args->name, rnd);
 	return EXIT_FAILURE;
@@ -390,7 +390,7 @@ again:
 		if (pid < 0) {
 			if (stress_redo_fork(args, errno))
 				goto again;
-			if (!stress_continue(args))
+			if (UNLIKELY(!stress_continue(args)))
 				return EXIT_SUCCESS;
 			pr_err("%s: fork failed: errno=%d: (%s)\n",
 				args->name, errno, strerror(errno));
