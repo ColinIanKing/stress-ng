@@ -420,7 +420,7 @@ again:
 	if (pid < 0) {
 		if (stress_redo_fork(args, errno))
 			goto again;
-		if (!stress_continue(args)) {
+		if (UNLIKELY(!stress_continue(args))) {
 			rc = EXIT_SUCCESS;
 			goto tidy_dir;
 		}
@@ -485,61 +485,61 @@ again:
 			/* Should succeed */
 			stress_filename_generate(ptr, 1, ch);
 			stress_filename_test(args, filename, 1, true, mypid, &rc);
-			if (!stress_continue(args))
+			if (UNLIKELY(!stress_continue(args)))
 				break;
 			stress_filename_generate_random(ptr, 1, chars_allowed);
 			stress_filename_test(args, filename, 1, true, mypid, &rc);
-			if (!stress_continue(args))
+			if (UNLIKELY(!stress_continue(args)))
 				break;
 
 			/* Should succeed */
 			stress_filename_generate(ptr, sz_max, ch);
 			stress_filename_test(args, filename, sz_max, true, mypid, &rc);
-			if (!stress_continue(args))
+			if (UNLIKELY(!stress_continue(args)))
 				break;
 			stress_filename_generate_random(ptr, sz_max, chars_allowed);
 			stress_filename_test(args, filename, sz_max, true, mypid, &rc);
-			if (!stress_continue(args))
+			if (UNLIKELY(!stress_continue(args)))
 				break;
 
 			/* Should succeed */
 			stress_filename_generate(ptr, sz_max - 1, ch);
 			stress_filename_test(args, filename, sz_max - 1, true, mypid, &rc);
-			if (!stress_continue(args))
+			if (UNLIKELY(!stress_continue(args)))
 				break;
 			stress_filename_generate_random(ptr, sz_max - 1, chars_allowed);
 			stress_filename_test(args, filename, sz_max - 1, true, mypid, &rc);
-			if (!stress_continue(args))
+			if (UNLIKELY(!stress_continue(args)))
 				break;
 
 			/* Should fail */
 			stress_filename_generate(ptr, sz_max + 1, ch);
 			stress_filename_test(args, filename, sz_max + 1, false, mypid, &rc);
-			if (!stress_continue(args))
+			if (UNLIKELY(!stress_continue(args)))
 				break;
 			stress_filename_generate_random(ptr, sz_max + 1, chars_allowed);
 			stress_filename_test(args, filename, sz_max + 1, false, mypid, &rc);
-			if (!stress_continue(args))
+			if (UNLIKELY(!stress_continue(args)))
 				break;
 
 			/* Should succeed */
 			stress_filename_generate(ptr, sz, ch);
 			stress_filename_test(args, filename, sz, true, mypid, &rc);
-			if (!stress_continue(args))
+			if (UNLIKELY(!stress_continue(args)))
 				break;
 			stress_filename_generate_random(ptr, sz, chars_allowed);
 			stress_filename_test(args, filename, sz, true, mypid, &rc);
-			if (!stress_continue(args))
+			if (UNLIKELY(!stress_continue(args)))
 				break;
 
 			/* Should succeed */
 			stress_filename_generate(ptr, rnd_sz, ch);
 			stress_filename_test(args, filename, rnd_sz, true, mypid, &rc);
-			if (!stress_continue(args))
+			if (UNLIKELY(!stress_continue(args)))
 				break;
 			stress_filename_generate_random(ptr, rnd_sz, chars_allowed);
 			stress_filename_test(args, filename, rnd_sz, true, mypid, &rc);
-			if (!stress_continue(args))
+			if (UNLIKELY(!stress_continue(args)))
 				break;
 
 #if defined(HAVE_PATHCONF)
