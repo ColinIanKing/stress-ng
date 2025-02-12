@@ -674,7 +674,7 @@ static int stress_vma_child(stress_args_t *args, void *void_ctxt)
 	for (i = 0; i < STRESS_VMA_PROCS; i++)
 		stress_sync_start_init(&s_pids[i]);
 
-	for (i = 0; (stress_continue(args)) && (i < STRESS_VMA_PROCS); i++) {
+	for (i = 0; LIKELY(stress_continue(args) && (i < STRESS_VMA_PROCS)); i++) {
 		s_pids[i].pid = fork();
 		if (s_pids[i].pid < 0)
 			continue;
