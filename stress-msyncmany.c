@@ -53,7 +53,7 @@ static int stress_msyncmany_child(stress_args_t *args, void *context)
 		return EXIT_NO_RESOURCE;
 	}
 
-	for (n = 0; stress_continue_flag() && (n < (size_t)max); n++) {
+	for (n = 0; LIKELY(stress_continue_flag() && (n < (size_t)max)); n++) {
 		uint64_t *ptr;
 
 		if (UNLIKELY(!stress_continue(args)))
