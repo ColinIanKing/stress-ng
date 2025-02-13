@@ -102,7 +102,7 @@ static int monitor(stress_args_t *args, const int sock)
 		const struct cn_msg *cn_msg;
 		const struct proc_event *proc_ev;
 
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			return 0;
 
 		if ((nlmsghdr->nlmsg_type == NLMSG_ERROR) ||
