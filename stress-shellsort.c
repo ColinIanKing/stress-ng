@@ -149,7 +149,7 @@ static int OPTIMIZE3 stress_shellsort(stress_args_t *args)
 				}
 			}
 		}
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 
 		/* Reverse sort */
@@ -173,7 +173,7 @@ static int OPTIMIZE3 stress_shellsort(stress_args_t *args)
 				}
 			}
 		}
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 
 		/* And re-order */
