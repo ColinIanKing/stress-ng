@@ -109,7 +109,7 @@ static void OPTIMIZE3 *stress_sem_thrash(void *arg)
 	do {
 		int i, j = -1;
 
-		for (i = 0; (i < 1000) && stress_continue_flag(); i++) {
+		for (i = 0; LIKELY((i < 1000) && stress_continue_flag()); i++) {
 			int value;
 			struct timespec ts;
 
@@ -259,7 +259,7 @@ static int stress_sem(stress_args_t *args)
 				args->name, sem_pthreads[i].ret, strerror(sem_pthreads[i].ret));
 			break;
 		}
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 		created = true;
 	}
