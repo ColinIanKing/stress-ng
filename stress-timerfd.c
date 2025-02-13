@@ -279,7 +279,7 @@ static int stress_timerfd(stress_args_t *args)
 		}
 #endif
 
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 #if defined(USE_SELECT)
 		ret = select(max_timerfd + 1, &rdfs, NULL, NULL, &timeout);
