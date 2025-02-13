@@ -144,7 +144,7 @@ static void stress_malloc_page_touch(
 		register uint8_t *ptr;
 		const uint8_t *end = buffer + size;
 
-		for (ptr = buffer; stress_continue_flag() && (ptr < end); ptr += page_size)
+		for (ptr = buffer; LIKELY(stress_continue_flag() && (ptr < end)); ptr += page_size)
 			*ptr = 0xff;
 	} else {
 		(void)stress_mincore_touch_pages_interruptible(buffer, size);
