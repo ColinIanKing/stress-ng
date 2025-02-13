@@ -223,7 +223,7 @@ static int stress_race_sched_exercise(
 	stress_race_sched_child_t *child;
 	int i, rc = 0;
 
-	for (i = 0; stress_continue_flag() && (i < 20); i++)  {
+	for (i = 0; LIKELY(stress_continue_flag() && (i < 20)); i++)  {
 		for (child = children.head; child; child = child->next) {
 			if (stress_mwc1()) {
 				const uint32_t cpu_idx = stress_call_race_sched_method_idx(child->cpu_idx, method_index);
