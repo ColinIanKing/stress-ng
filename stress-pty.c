@@ -132,7 +132,7 @@ static int stress_pty(stress_args_t *args)
 					}
 				}
 			}
-			if (!stress_continue_flag())
+			if (UNLIKELY(!stress_continue_flag()))
 				goto clean;
 		}
 		/*
@@ -443,7 +443,7 @@ static int stress_pty(stress_args_t *args)
 #endif
 				}
 			}
-			if (!stress_continue_flag())
+			if (UNLIKELY(!stress_continue_flag()))
 				goto clean;
 		}
 #if defined(TIOCSETD) &&	\
