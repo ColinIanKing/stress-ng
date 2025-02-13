@@ -143,7 +143,7 @@ static int stress_mtx(stress_args_t *args)
 				args->name, pthread_info[i].ret, strerror(pthread_info[i].ret));
 			break;
 		}
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 		created = true;
 	}
