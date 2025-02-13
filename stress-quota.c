@@ -195,7 +195,7 @@ static int do_quotas(stress_args_t *args, stress_dev_info_t *const dev)
 	(void)shim_memset(&status, 0, sizeof(status));
 
 #if defined(Q_GETQUOTA)
-	if (stress_continue_flag()) {
+	if (LIKELY(stress_continue_flag())) {
 		struct dqblk dqblk;
 
 		(void)shim_memset(&dqblk, 0, sizeof(dqblk));
@@ -207,7 +207,7 @@ static int do_quotas(stress_args_t *args, stress_dev_info_t *const dev)
 	}
 #endif
 #if defined(Q_GETNEXTQUOTA)
-	if (stress_continue_flag()) {
+	if (LIKELY(stress_continue_flag())) {
 		struct shim_nextdqblk nextdqblk;
 
 		(void)shim_memset(&nextdqblk, 0, sizeof(nextdqblk));
@@ -219,7 +219,7 @@ static int do_quotas(stress_args_t *args, stress_dev_info_t *const dev)
 	}
 #endif
 #if defined(Q_GETFMT)
-	if (stress_continue_flag()) {
+	if (LIKELY(stress_continue_flag())) {
 		uint32_t format;
 
 		(void)shim_memset(&format, 0, sizeof(format));
@@ -231,7 +231,7 @@ static int do_quotas(stress_args_t *args, stress_dev_info_t *const dev)
 	}
 #endif
 #if defined(Q_GETINFO)
-	if (stress_continue_flag()) {
+	if (LIKELY(stress_continue_flag())) {
 		struct dqinfo dqinfo;
 
 		(void)shim_memset(&dqinfo, 0, sizeof(dqinfo));
@@ -244,7 +244,7 @@ static int do_quotas(stress_args_t *args, stress_dev_info_t *const dev)
 #endif
 #if defined(Q_GETSTATS)
 	/* Obsolete in recent kernels */
-	if (stress_continue_flag()) {
+	if (LIKELY(stress_continue_flag())) {
 		struct dqstats dqstats;
 
 		(void)shim_memset(&dqstats, 0, sizeof(dqstats));
@@ -256,7 +256,7 @@ static int do_quotas(stress_args_t *args, stress_dev_info_t *const dev)
 	}
 #endif
 #if defined(Q_SYNC)
-	if (stress_continue_flag()) {
+	if (LIKELY(stress_continue_flag())) {
 		err = do_quotactl(args, "Q_SYNC", &status,
 			QCMD(Q_SYNC, USRQUOTA),
 			dev, 0, 0);
@@ -415,7 +415,7 @@ static int stress_quota(stress_args_t *args)
 		do {
 			int failed = 0, skipped = 0;
 
-			for (i = 0; stress_continue_flag() && (i < n_devs); i++) {
+			for (i = 0; LIKELY(stress_continue_flag() && (i < n_devs)); i++) {
 				int ret;
 
 				/* This failed before, so don't re-test */
