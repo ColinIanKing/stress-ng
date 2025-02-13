@@ -221,7 +221,7 @@ static int OPTIMIZE3 stress_hsearch(stress_args_t *args)
 
 	rc = EXIT_SUCCESS;
 	do {
-		for (i = 0; stress_continue_flag() && (i < max); i++) {
+		for (i = 0; LIKELY(stress_continue_flag() && (i < max)); i++) {
 			ENTRY e;
 			const ENTRY *ep;
 
@@ -229,11 +229,11 @@ static int OPTIMIZE3 stress_hsearch(stress_args_t *args)
 			e.data = NULL;	/* Keep Coverity quiet */
 			ep = hsearch_func(e, FIND);
 			if (verify) {
-				if (ep == NULL) {
+				if (UNLIKELY(ep == NULL)) {
 					pr_fail("%s: cannot find key %s\n", args->name, keys[i]);
 					rc = EXIT_FAILURE;
 				} else {
-					if (i != (size_t)ep->data) {
+					if (UNLIKELY(i != (size_t)ep->data)) {
 						pr_fail("%s: hash returned incorrect data %zd\n", args->name, i);
 						rc = EXIT_FAILURE;
 					}
