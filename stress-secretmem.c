@@ -121,7 +121,7 @@ static int stress_secretmem_child(stress_args_t *args, void *context)
 		uint8_t *redo_unmapping = NULL;
 		off_t sz = 0;
 
-		for (n = 0; stress_continue_flag() && (n < MMAP_MAX); n++) {
+		for (n = 0; LIKELY(stress_continue_flag() && (n < MMAP_MAX)); n++) {
 			const off_t offset = sz;
 
 			if (UNLIKELY(!stress_continue(args)))
