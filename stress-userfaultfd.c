@@ -409,7 +409,7 @@ static int stress_userfaultfd_child(stress_args_t *args, void *context)
 				if (errno != ENOMEM) {
 					pr_fail("%s: poll failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
-					if (!stress_continue_flag())
+					if (UNLIKELY(!stress_continue_flag()))
 						break;
 				}
 				/*
@@ -436,7 +436,7 @@ do_read:
 				continue;
 			pr_fail("%s: read failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
-			if (!stress_continue_flag())
+			if (UNLIKELY(!stress_continue_flag()))
 				break;
 			continue;
 		}
