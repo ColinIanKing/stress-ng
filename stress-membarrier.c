@@ -135,7 +135,7 @@ static void *stress_membarrier_thread(void *arg)
 
 	stress_random_small_sleep();
 
-	while (keep_running && stress_continue_flag()) {
+	while (LIKELY(keep_running && stress_continue_flag())) {
 		if (UNLIKELY(stress_membarrier_exercise(args, info) < 0))
 			break;
 	}
