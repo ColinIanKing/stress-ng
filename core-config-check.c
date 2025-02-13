@@ -105,6 +105,7 @@ void stress_config_check(void)
 	if (g_opt_flags & OPT_FLAGS_METRICS) {
 		static const char autogroup_path[] = "/proc/sys/kernel/sched_autogroup_enabled";
 		static const char cpu_path[] = "/sys/devices/system/cpu";
+		static const char boost_path[] = "/sys/devices/system/cpu/cpufreq/boost";
 		uint64_t value;
 		struct dirent **namelist;
 		int n, i;
@@ -124,6 +125,12 @@ void stress_config_check(void)
 					"improve performance metrics\n", autogroup_path, value);
 			}
 #endif
+		}
+
+		if ((stress_config_read(boost_path, &value) != -1) && (value == 0)) {
+			pr_inf("note: boost is disabled and this may impact "
+				"top performance; setting %s to 1 may improve "
+				"performance.", boost_path);
 		}
 
 		n = scandir(cpu_path, &namelist, stress_config_check_cpu_filter, alphasort);
