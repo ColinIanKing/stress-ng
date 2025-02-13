@@ -275,7 +275,7 @@ static int stress_nanosleep(stress_args_t *args)
 			goto tidy;
 		}
 		/* Timed out? abort! */
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			goto tidy;
 	}
 
