@@ -1058,7 +1058,7 @@ static int stress_regs(stress_args_t *args)
 	do {
 		int i;
 
-		for (i = 0; stress_continue_flag() & (i < 1000); i++)
+		for (i = 0; LIKELY(stress_continue_flag() & (i < 1000)); i++)
 			stress_regs_helper(args, v);
 		v++;
 		stress_bogo_inc(args);
