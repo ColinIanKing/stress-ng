@@ -492,6 +492,9 @@ stress-ng has found various Kernel, QEMU bugs/regressions, and libc bugs; approp
 * [reiserfs panic using fsize stressor](https://bugzilla.kernel.org/show_bug.cgi?id=219497)
 * [soft-lockups: mm/page_alloc: add cond_resched in __drain_all_pages()](https://lore.kernel.org/linux-mm/3b000941-b1b6-befa-4ec9-2bff63d557c1@google.com/T/)]
 
+2025:
+* [Tegra Security Engine driver improvements](https://www.spinics.net/lists/kernel/msg5546707.html])
+
 ## Kernel improvements that used stress-ng
 
 2020:
@@ -699,6 +702,7 @@ stress-ng has found various Kernel, QEMU bugs/regressions, and libc bugs; approp
 2025:
  * [SPY-PMU: Side-Channel Profiling of Your Performance Monitoring Unit to Leak Remote User Activity](https://eprint.iacr.org/2025/014)
  * [RCAEval: A Benchmark for Root Cause Analysis of Microservice Systems with Telemetry Data](https://arxiv.org/html/2412.17015v4)
+ * [Performance Prediction of On-NIC Network Functions with Multi-Resource Contention and Traffic Awareness](https://arxiv.org/html/2405.05529v5)
 
 I am keen to add to the stress-ng project page any citations to research or
 projects that use stress-ng.  I also appreciate information concerning kernel
