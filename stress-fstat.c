@@ -359,7 +359,7 @@ static int stress_fstat(stress_args_t *args)
 	do {
 		stat_some = false;
 
-		for (si = stat_info; si && stress_continue_flag(); si = si->next) {
+		for (si = stat_info; LIKELY(si && stress_continue_flag()); si = si->next) {
 			if (UNLIKELY(!stress_continue(args)))
 				break;
 			if (si->ignore == IGNORE_ALL)
