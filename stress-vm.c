@@ -3445,7 +3445,7 @@ static int stress_vm(stress_args_t *args)
 	if (args->instance == 0)
 		pr_dbg("%s: using method '%s'\n", args->name, context.vm_method->name);
 
-	for (retries = 0; (retries < 100) && stress_continue_flag(); retries++) {
+	for (retries = 0; LIKELY((retries < 100) && stress_continue_flag()); retries++) {
 		context.bit_error_count = (uint64_t *)
 			stress_mmap_populate(NULL, page_size,
 				PROT_READ | PROT_WRITE,
@@ -3458,7 +3458,7 @@ static int stress_vm(stress_args_t *args)
 
 	/* Cannot allocate a single page for bit error counter */
 	if (context.bit_error_count == MAP_FAILED) {
-		if (stress_continue_flag()) {
+		if (LIKELY(stress_continue_flag())) {
 			pr_err("%s: could not mmap bit error counter: "
 				"retry count=%zu, errno=%d (%s)\n",
 				args->name, retries, err, strerror(err));
