@@ -493,7 +493,7 @@ stress-ng has found various Kernel, QEMU bugs/regressions, and libc bugs; approp
 * [soft-lockups: mm/page_alloc: add cond_resched in __drain_all_pages()](https://lore.kernel.org/linux-mm/3b000941-b1b6-befa-4ec9-2bff63d557c1@google.com/T/)]
 
 2025:
-* [Tegra Security Engine driver improvements](https://www.spinics.net/lists/kernel/msg5546707.html])
+* [Tegra Security Engine driver improvements](https://www.spinics.net/lists/kernel/msg5546707.html)
 
 ## Kernel improvements that used stress-ng
 
