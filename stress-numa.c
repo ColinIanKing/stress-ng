@@ -335,7 +335,7 @@ static int stress_numa(stress_args_t *args)
 
 		VOID_RET(int, shim_get_mempolicy(&mode, numa_mask->mask, numa_mask->max_nodes, buf, MPOL_F_MEMS_ALLOWED | MPOL_F_NODE));
 
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 
 		ret = shim_set_mempolicy(MPOL_PREFERRED, NULL, numa_mask->max_nodes);
@@ -348,7 +348,7 @@ static int stress_numa(stress_args_t *args)
 		}
 
 		(void)stress_mmap_set_light(buf, numa_bytes, page_size);
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 
 		/* Create a mix of _NONES options, invalid ones too */
@@ -459,7 +459,7 @@ static int stress_numa(stress_args_t *args)
 				(unsigned long int)numa_bytes, node, 0);
 			(void)stress_mmap_set_light(buf, numa_bytes, page_size);
 		}
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 
 		/*
@@ -492,7 +492,7 @@ static int stress_numa(stress_args_t *args)
 				(unsigned long int)numa_bytes, node, 0);
 			(void)stress_mmap_set_light(buf, numa_bytes, page_size);
 		}
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 
 		/* Exercise invalid start address */
@@ -560,7 +560,7 @@ static int stress_numa(stress_args_t *args)
 		VOID_RET(long int, shim_migrate_pages(args->pid, ~0UL, old_numa_mask->mask, numa_mask->mask));
 		VOID_RET(long int, shim_migrate_pages(args->pid, 0, old_numa_mask->mask, numa_mask->mask));
 
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 
 		for (j = 0; j < 16; j++) {
@@ -639,7 +639,7 @@ static int stress_numa(stress_args_t *args)
 				}
 			}
 			(void)stress_mmap_set_light(buf, numa_bytes, page_size);
-			if (!stress_continue_flag())
+			if (UNLIKELY(!stress_continue_flag()))
 				break;
 		}
 
