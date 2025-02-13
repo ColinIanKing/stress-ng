@@ -349,7 +349,7 @@ static int OPTIMIZE3 stress_qsort(stress_args_t *args)
 		if (!stress_qsort_verify_forward(args, data, n, &rc))
 			break;
 
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 
 		/* Reverse sort */
@@ -363,7 +363,7 @@ static int OPTIMIZE3 stress_qsort(stress_args_t *args)
 		if (!stress_qsort_verify_reverse(args, data, n, &rc))
 			break;
 
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 
 		stress_sort_data_int32_mangle(data, n);
