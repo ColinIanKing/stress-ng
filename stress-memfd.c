@@ -464,7 +464,7 @@ memfd_unmap:
 			 *  Check for zap_pte bug, see Linux commit
 			 *  5abfd71d936a8aefd9f9ccd299dea7a164a5d455
 			 */
-			for (i = 0; stress_continue_flag() && (i < memfd_fds); i++) {
+			for (i = 0; LIKELY(stress_continue_flag() && (i < memfd_fds)); i++) {
 				uint64_t *buf;
 				uint64_t val;
 				const ssize_t test_size = page_size << 1;
