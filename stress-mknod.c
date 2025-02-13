@@ -272,7 +272,7 @@ static int stress_mknod(stress_args_t *args)
 		}
 
 		stress_mknod_tidy(args, i);
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 		(void)sync();
 	} while (stress_continue(args));
