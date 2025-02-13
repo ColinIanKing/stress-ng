@@ -267,7 +267,7 @@ static int stress_sysinfo(stress_args_t *args)
 		}
 #endif
 
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 		clk = times(&tms_buf);
 		if (UNLIKELY((clk == (clock_t)-1) && (verify))) {
