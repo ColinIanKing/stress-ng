@@ -631,7 +631,7 @@ static int stress_shm_sysv_child(
 				sz = shmall;
 			if ((freemem > page_size) && sz > freemem)
 				sz = freemem;
-			if (!stress_continue_flag())
+			if (UNLIKELY(!stress_continue_flag()))
 				goto reap;
 
 			for (count = 0; count < KEY_GET_RETRIES; count++) {
@@ -966,7 +966,7 @@ static int stress_shm_sysv(stress_args_t *args)
 	stress_sync_start_wait(args);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
-	while (stress_continue_flag() && retry) {
+	while (LIKELY(stress_continue_flag() && retry)) {
 		if (pipe(pipefds) < 0) {
 			pr_fail("%s: pipe failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
