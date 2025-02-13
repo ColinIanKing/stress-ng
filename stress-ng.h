@@ -89,6 +89,12 @@
 #define _REENTRANT
 #endif
 
+/* Stop pcc complaining about attribute COLD not being available */
+#if defined(__PCC__)
+#undef __COLD
+#define __COLD
+#endif
+
 /*
  *  Standard includes, assume we have this as the
  *  minimal standard baseline
