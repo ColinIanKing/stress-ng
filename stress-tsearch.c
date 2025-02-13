@@ -96,7 +96,7 @@ static int stress_tsearch(stress_args_t *args)
 		/* Step #2, find */
 		stress_sort_compare_reset();
 		t = stress_time_now();
-		for (i = 0; stress_continue_flag() && (i < n); i++) {
+		for (i = 0; LIKELY(stress_continue_flag() && (i < n)); i++) {
 			const void **result = tfind(&data[i], &root, stress_sort_cmp_fwd_int32);
 
 			if (g_opt_flags & OPT_FLAGS_VERIFY) {
