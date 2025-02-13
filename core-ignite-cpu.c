@@ -64,6 +64,7 @@ static stress_settings_t settings[] = {
 	/* x86 Intel P-State maximizing settings */
 	SETTING("/sys/devices/system/cpu/intel_pstate/max_perf_pct", "100"),
 	SETTING("/sys/devices/system/cpu/intel_pstate/no_turbo", "0"),
+	SETTING("/sys/devices/system/cpu/cpufreq/boost", "1"),
 #endif
 	SETTING(NULL, NULL)
 };
