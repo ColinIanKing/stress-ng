@@ -585,7 +585,7 @@ static int stress_sem_sysv(stress_args_t *args)
 
 		if (semaphore_sysv_spawn(args, &s_pids_head, &s_pids[i], semaphore_sysv_setall) < 0)
 			goto reap;
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			goto reap;
 	}
 
