@@ -272,7 +272,7 @@ static int stress_yield(stress_args_t *args)
 	stress_sync_start_wait(args);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
-	for (i = 0; stress_continue_flag() && (i < yielders); i++) {
+	for (i = 0; LIKELY(stress_continue_flag() && (i < yielders)); i++) {
 		pids[i] = fork();
 		if (pids[i] < 0) {
 			pr_dbg("%s: fork failed (instance %" PRIu32
