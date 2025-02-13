@@ -348,7 +348,7 @@ skip_pselect:
 		if (x86_has_waitpkg) {
 			int i;
 
-			for (i = 1; stress_continue_flag() && (i < 1024); i <<= 1)
+			for (i = 1; LIKELY(stress_continue_flag() && (i < 1024)); i <<= 1)
 				stress_asm_x86_tpause(0, i);
 		}
 #endif
@@ -411,7 +411,7 @@ static int stress_sleep(stress_args_t *args)
 			goto tidy;
 		}
 		/* Timed out? abort! */
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			goto tidy;
 	}
 
