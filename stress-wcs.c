@@ -135,7 +135,7 @@ static size_t stress_wcscasecmp(stress_args_t *args, stress_wcs_args_t *info)
 	const size_t len1 = info->len1;
 	register size_t i;
 
-	for (i = 1; stress_continue_flag() && (i < len1); i++) {
+	for (i = 1; LIKELY(stress_continue_flag() && (i < len1)); i++) {
 		WCSCHK(info, 0 == test_wcscasecmp(str1, str1));
 		WCSCHK(info, 0 == test_wcscasecmp(str2, str2));
 
@@ -171,7 +171,7 @@ static size_t stress_wcsncasecmp(stress_args_t *args, stress_wcs_args_t *info)
 	const size_t len2 = info->len2;
 	register size_t i;
 
-	for (i = 1; stress_continue_flag() && (i < len1); i++) {
+	for (i = 1; LIKELY(stress_continue_flag() && (i < len1)); i++) {
 		WCSCHK(info, 0 == test_wcsncasecmp(str1, str1, len1));
 		WCSCHK(info, 0 == test_wcsncasecmp(str2, str2, len2));
 
@@ -213,7 +213,7 @@ static size_t stress_wcslcpy(stress_args_t *args, stress_wcs_args_t *info)
 	const size_t strlen2 = wcslen(str2);
 	register size_t i;
 
-	for (i = 0; stress_continue_flag() && (i < len1 - 1); i++) {
+	for (i = 0; LIKELY(stress_continue_flag() && (i < len1 - 1)); i++) {
 		WCSCHK(info, strlen1 == test_wcslcpy(strdst, str1, strdstlen));
 		WCSCHK(info, strlen2 == test_wcslcpy(strdst, str2, strdstlen));
 	}
@@ -237,7 +237,7 @@ static size_t stress_wcscpy(stress_args_t *args, stress_wcs_args_t *info)
 	const size_t len1 = info->len1;
 	register size_t i;
 
-	for (i = 0; stress_continue_flag() && (i < len1 - 1); i++) {
+	for (i = 0; LIKELY(stress_continue_flag() && (i < len1 - 1)); i++) {
 		WCSCHK(info, strdst == test_wcscpy(strdst, str1));
 		WCSCHK(info, strdst == test_wcscpy(strdst, str2));
 	}
@@ -270,7 +270,7 @@ static size_t stress_wcslcat(stress_args_t *args, stress_wcs_args_t *info)
 	const size_t strdstlen = info->strdstlen;
 	register size_t i;
 
-	for (i = 0; stress_continue_flag() && (i < len1 - 1); i++) {
+	for (i = 0; LIKELY(stress_continue_flag() && (i < len1 - 1)); i++) {
 		*strdst = L'\0';
 		WCSCHK(info, str1_len == test_wcslcat(strdst, str1, strdstlen));
 		*strdst = L'\0';
@@ -302,7 +302,7 @@ static size_t stress_wcscat(stress_args_t *args, stress_wcs_args_t *info)
 	const size_t len1 = info->len1;
 	register size_t i;
 
-	for (i = 0; stress_continue_flag() && (i < len1 - 1); i++) {
+	for (i = 0; LIKELY(stress_continue_flag() && (i < len1 - 1)); i++) {
 		*strdst = L'\0';
 		WCSCHK(info, strdst == test_wcscat(strdst, str1));
 		*strdst = L'\0';
@@ -337,7 +337,7 @@ static size_t stress_wcsncat(stress_args_t *args, stress_wcs_args_t *info)
 	const size_t len2 = info->len2;
 	register size_t i;
 
-	for (i = 0; stress_continue_flag() && (i < len1 - 1); i++) {
+	for (i = 0; LIKELY(stress_continue_flag() && (i < len1 - 1)); i++) {
 		*strdst = '\0';
 		WCSCHK(info, strdst == test_wcsncat(strdst, str1, len1));
 		*strdst = '\0';
@@ -370,7 +370,7 @@ static size_t stress_wcschr(stress_args_t *args, stress_wcs_args_t *info)
 	const size_t len1 = info->len1;
 	register size_t i;
 
-	for (i = 0; stress_continue_flag() && (i < len1 - 1); i++) {
+	for (i = 0; LIKELY(stress_continue_flag() && (i < len1 - 1)); i++) {
 		WCSCHK(info, NULL == test_wcschr(str1, '_'));
 		WCSCHK(info, NULL != test_wcschr(str1, str1[0]));
 
@@ -398,7 +398,7 @@ static size_t stress_wcsrchr(stress_args_t *args, stress_wcs_args_t *info)
 	const size_t len1 = info->len1;
 	register size_t i;
 
-	for (i = 0; stress_continue_flag() && (i < len1 - 1); i++) {
+	for (i = 0; LIKELY(stress_continue_flag() && (i < len1 - 1)); i++) {
 		WCSCHK(info, NULL == test_wcsrchr(str1, '_'));
 		WCSCHK(info, NULL != test_wcsrchr(str1, str1[0]));
 
@@ -427,7 +427,7 @@ static size_t stress_wcscmp(stress_args_t *args, stress_wcs_args_t *info)
 	const size_t len1 = info->len1;
 	register size_t i;
 
-	for (i = 1; stress_continue_flag() && (i < len1); i++) {
+	for (i = 1; LIKELY(stress_continue_flag() && (i < len1)); i++) {
 		WCSCHK(info, 0 == test_wcscmp(str1, str1));
 		WCSCHK(info, 0 == test_wcscmp(str2, str2));
 
@@ -463,7 +463,7 @@ static size_t stress_wcsncmp(stress_args_t *args, stress_wcs_args_t *info)
 	const size_t len2 = info->len2;
 	register size_t i;
 
-	for (i = 1; stress_continue_flag() && (i < len1); i++) {
+	for (i = 1; LIKELY(stress_continue_flag() && (i < len1)); i++) {
 		WCSCHK(info, 0 == test_wcsncmp(str1, str1, len1));
 		WCSCHK(info, 0 == test_wcsncmp(str2, str2, len2));
 
@@ -499,12 +499,12 @@ static size_t stress_wcslen(stress_args_t *args, stress_wcs_args_t *info)
 	const size_t len2 = info->len2;
 	register size_t i;
 
-	for (i = 0; stress_continue_flag() && (i < len1 - 1); i++) {
+	for (i = 0; LIKELY(stress_continue_flag() && (i < len1 - 1)); i++) {
 		WCSCHK(info, len1 - 1 == test_wcslen(str1));
 		WCSCHK(info, len1 - 1 - i == test_wcslen(str1 + i));
 	}
 
-	for (i = 0; stress_continue_flag() && (i < len2 - 1); i++) {
+	for (i = 0; LIKELY(stress_continue_flag() && (i < len2 - 1)); i++) {
 		WCSCHK(info, len2 - 1 == test_wcslen(str2));
 		WCSCHK(info, len2 - 1 - i == test_wcslen(str2 + i));
 	}
@@ -529,7 +529,7 @@ static size_t stress_wcscoll(stress_args_t *args, stress_wcs_args_t *info)
 	const size_t len1 = info->len1;
 	register size_t i;
 
-	for (i = 1; stress_continue_flag() && (i < len1); i++) {
+	for (i = 1; LIKELY(stress_continue_flag() && (i < len1)); i++) {
 		WCSCHK(info, 0 == test_wcscoll(str1, str1));
 		WCSCHK(info, 0 == test_wcscoll(str2, str2));
 
@@ -566,7 +566,7 @@ static size_t stress_wcsxfrm(stress_args_t *args, stress_wcs_args_t *info)
 	const size_t strdstlen = info->strdstlen;
 	register size_t i;
 
-	for (i = 0; stress_continue_flag() && (i < len1 - 1); i++) {
+	for (i = 0; LIKELY(stress_continue_flag() && (i < len1 - 1)); i++) {
 		*strdst = '\0';
 		WCSCHK(info, 0 != test_wcsxfrm(strdst, str1, strdstlen));
 		*strdst = '\0';
