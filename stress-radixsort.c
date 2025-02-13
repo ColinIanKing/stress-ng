@@ -261,7 +261,7 @@ static int stress_radixsort(stress_args_t *args)
 	do {
 		/* Sort "random" data */
 		(void)radixsort_func(data, n, NULL, 0);
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 
 		if (g_opt_flags & OPT_FLAGS_VERIFY) {
