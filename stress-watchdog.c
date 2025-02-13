@@ -160,7 +160,7 @@ static int stress_watchdog(stress_args_t *args)
 		stress_watchdog_magic_close();
 
 #if defined(WDIOC_KEEPALIVE)
-		if (stress_continue_flag()) {
+		if (LIKELY(stress_continue_flag())) {
 			VOID_RET(int, ioctl(fd, WDIOC_KEEPALIVE, 0));
 		}
 #else
@@ -168,7 +168,7 @@ static int stress_watchdog(stress_args_t *args)
 #endif
 
 #if defined(WDIOC_GETTIMEOUT)
-		if (stress_continue_flag()) {
+		if (LIKELY(stress_continue_flag())) {
 			int timeout = 0;
 
 			if ((ioctl(fd, WDIOC_GETTIMEOUT, &timeout) == 0) &&
@@ -183,7 +183,7 @@ static int stress_watchdog(stress_args_t *args)
 #endif
 
 #if defined(WDIOC_GETPRETIMEOUT)
-		if (stress_continue_flag()) {
+		if (LIKELY(stress_continue_flag())) {
 			int timeout = 0;
 
 			if ((ioctl(fd, WDIOC_GETPRETIMEOUT, &timeout) == 0) &&
@@ -198,7 +198,7 @@ static int stress_watchdog(stress_args_t *args)
 #endif
 
 #if defined(WDIOC_GETTIMELEFT)
-		if (stress_continue_flag()) {
+		if (LIKELY(stress_continue_flag())) {
 			int timeout = 0;
 
 			if ((ioctl(fd, WDIOC_GETTIMELEFT, &timeout) == 0) &&
@@ -213,7 +213,7 @@ static int stress_watchdog(stress_args_t *args)
 #endif
 
 #if defined(WDIOC_GETSUPPORT)
-		if (stress_continue_flag()) {
+		if (LIKELY(stress_continue_flag())) {
 			struct watchdog_info ident;
 
 			VOID_RET(int, ioctl(fd, WDIOC_GETSUPPORT, &ident));
@@ -223,7 +223,7 @@ static int stress_watchdog(stress_args_t *args)
 #endif
 
 #if defined(WDIOC_GETSTATUS)
-		if (stress_continue_flag()) {
+		if (LIKELY(stress_continue_flag())) {
 			int flags;
 
 			VOID_RET(int, ioctl(fd, WDIOC_GETSTATUS, &flags));
@@ -233,7 +233,7 @@ static int stress_watchdog(stress_args_t *args)
 #endif
 
 #if defined(WDIOC_GETBOOTSTATUS)
-		if (stress_continue_flag()) {
+		if (LIKELY(stress_continue_flag())) {
 			int flags;
 
 			VOID_RET(int, ioctl(fd, WDIOC_GETBOOTSTATUS, &flags));
@@ -243,7 +243,7 @@ static int stress_watchdog(stress_args_t *args)
 #endif
 
 #if defined(WDIOC_GETTEMP)
-		if (stress_continue_flag()) {
+		if (LIKELY(stress_continue_flag())) {
 			int temperature = 0;
 
 			if ((ioctl(fd, WDIOC_GETTEMP, &temperature) == 0) &&
