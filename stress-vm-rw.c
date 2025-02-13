@@ -208,7 +208,7 @@ static int OPTIMIZE3 stress_vm_parent(stress_context_t *ctxt)
 
 		/* Wait for address of child's buffer */
 redo_rd2:
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 		rwret = read(ctxt->pipe_wr[0], &msg_rd, sizeof(msg_rd));
 		if (UNLIKELY(rwret < 0)) {
@@ -305,7 +305,7 @@ redo_rd2:
 		msg_wr.val = val;
 		val++;
 redo_wr2:
-		if (!stress_continue_flag())
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 		/* Inform child that memory has been changed */
 		rwret = write(ctxt->pipe_rd[1], &msg_wr, sizeof(msg_wr));
