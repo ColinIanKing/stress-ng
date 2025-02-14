@@ -143,6 +143,10 @@ override CFLAGS += $(foreach flag,-fmodulo-sched,$(cc_supports_flag))
 endif
 endif
 
+ifeq ($(COMPILER),icx)
+override CFLAGS += -vec -ax
+endif
+
 #
 # Enable Link Time Optimization
 #
