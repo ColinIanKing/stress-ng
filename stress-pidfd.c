@@ -221,6 +221,12 @@ again:
 					args->name, errno, strerror(errno));
 				rc = EXIT_FAILURE;
 			}
+#if defined(PIDFD_SELF_THREAD)
+			(void)shim_pidfd_send_signal(PIDFD_SELF_THREAD, 0, NULL, 0);
+#endif
+#if defined(PIDFD_SELF_THREAD_GROUP)
+			(void)shim_pidfd_send_signal(PIDFD_SELF_THREAD_GROUP, 0, NULL, 0);
+#endif
 			stress_pidfd_reap(pid, pidfd);
 		}
 		stress_bogo_inc(args);
