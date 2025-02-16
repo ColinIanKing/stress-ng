@@ -194,6 +194,7 @@
 	MACRO(mmapfork)		\
 	MACRO(mmaphuge)		\
 	MACRO(mmapmany)		\
+	MACRO(mmaptorture)	\
 	MACRO(module)		\
 	MACRO(monte_carlo)	\
 	MACRO(mpfr)		\

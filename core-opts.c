@@ -621,6 +621,8 @@ const struct option stress_long_options[] = {
 	{ "mmapmany-mlock",	0,	0,	OPT_mmapmany_mlock },
 	{ "mmapmany-numa",	0,	0,	OPT_mmapmany_numa },
 	{ "mmapmany-ops",	1,	0,	OPT_mmapmany_ops },
+	{ "mmaptorture",	1,	0,	OPT_mmaptorture },
+	{ "mmaptorture-ops",	1,	0,	OPT_mmaptorture_ops },
 	{ "module",		1,	0,	OPT_module},
 	{ "module-ops",		1,	0,	OPT_module_ops },
 	{ "module-name",	1,	0,	OPT_module_name},

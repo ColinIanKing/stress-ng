@@ -500,6 +500,7 @@ STRESS_SRC = \
 	stress-mmapfork.c \
 	stress-mmaphuge.c \
 	stress-mmapmany.c \
+	stress-mmaptorture.c \
 	stress-module.c \
 	stress-monte-carlo.c \
 	stress-mprotect.c \

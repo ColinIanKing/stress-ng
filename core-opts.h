@@ -915,6 +915,9 @@ typedef enum {
 	OPT_mmapmany_numa,
 	OPT_mmapmany_ops,
 
+	OPT_mmaptorture,
+	OPT_mmaptorture_ops,
+
 	OPT_module,
 	OPT_module_name,
 	OPT_module_no_modver,

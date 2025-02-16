@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "8 February 2025"
+.TH STRESS-NG 1 "16 February 2025"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -5255,6 +5255,22 @@ for systems that do not support NUMA or have less than 2 NUMA nodes.
 .TP
 .B \-\-mmapmany\-ops N
 stop after N mmapmany bogo operations
+.RE
+.TP
+.B Memory map torture stressor
+.RS 5
+.TQ
+.B \-\-mmaptorture N
+start N workers that exercise memory mapping operations on a shared file. Mappings
+of various random sizes are tortured with calls to madvise, mremap, mprotect,
+msync, mlock, munlock, mincore while the underlying file is modified by writes,
+truncation and hole punching. Mapped data is read and written and sync'd back to
+file. For NUMA systems, pages are randomly placed across NUMA nodes. All this
+activity causes cache misses, exercises the TLB and causes IPI interrupts between
+CPUs.
+.TP
+.B \-\-mmaptorture\-ops N
+stop after N iterations of memory mapping torture operations.
 .RE
 .TP
 .B Kernel module loading stressor (Linux)
