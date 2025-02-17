@@ -333,9 +333,14 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 				volatile uint8_t *vptr = (volatile uint8_t *)(mmap_data + offset);
 
 				(*vptr)++;
-				stress_mmaptorture_msync(mmap_data,  MMAP_PAGES_MAX * page_size, page_size);
+				stress_mmaptorture_msync(mmap_data, MMAP_PAGES_MAX * page_size, page_size);
 			}
 		}
+#if defined(HAVE_REMAP_FILE_PAGES) &&   \
+    !defined(STRESS_ARCH_SPARC)
+		(void)remap_file_pages(mmap_data, MMAP_PAGES_MAX * page_size, PROT_NONE, 0, MAP_SHARED | MAP_NONBLOCK);
+		(void)mprotect(mmap_data, MMAP_PAGES_MAX * page_size, PROT_READ | PROT_WRITE);
+#endif
 
 		for (n = 0; n < MMAP_MAX; n++) {
 			int flag = 0;
