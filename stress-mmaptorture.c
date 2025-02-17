@@ -276,6 +276,7 @@ static void NORETURN MLOCKED_TEXT stress_mmaptorture_sighandler(int signum)
 
 static void stress_mmaptorture_msync(uint8_t *addr, const size_t length, const size_t page_size)
 {
+#if defined(HAVE_MSYNC)
 	size_t i;
 
 	for (i = 0; i < length; i += page_size) {
@@ -286,6 +287,11 @@ static void stress_mmaptorture_msync(uint8_t *addr, const size_t length, const s
 			(void)msync((void *)(addr + i), length, flag);
 		}
 	}
+#else
+	(void)addr;
+	(void)length;
+	(void)page_size;
+#endif
 }
 
 static int stress_mmaptorture_child(stress_args_t *args, void *context)
