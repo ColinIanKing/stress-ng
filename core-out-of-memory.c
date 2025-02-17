@@ -281,13 +281,15 @@ again:
 	} else if (pid > 0) {
 		/* Parent, wait for child */
 		int status, ret;
-		double t_end = stress_time_now() + WAIT_TIMEOUT;
+		double t_end = -1.0;
 
 		args->stats->s_pid.oomable_child = pid;
 rewait:
 		stress_set_proc_state(args->name, STRESS_STATE_WAIT);
 		ret = waitpid(pid, &status, 0);
 		if (ret < 0) {
+			if (t_end < 0.0)
+				t_end = stress_time_now() + WAIT_TIMEOUT;
 			stress_set_proc_state(args->name, STRESS_STATE_RUN);
 			/* No longer alive? */
 			if (errno == ECHILD)
