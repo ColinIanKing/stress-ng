@@ -421,7 +421,6 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 			if (numa_mask && stress_mwc1()) {
 				stress_numa_randomize_pages(numa_mask, (void *)ptr, page_size, mmap_size);
-#endif
 
 #if defined(HAVE_MSYNC) &&	\
     defined(MS_SYNC) &&		\
@@ -429,6 +428,7 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 				stress_mmaptorture_msync(ptr, mmap_size, page_size);
 #endif
 			}
+#endif
 #if defined(HAVE_MADVISE)
 			(void)madvise((void *)ptr, mmap_size, madvise_option);
 #endif
