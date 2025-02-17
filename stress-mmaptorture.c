@@ -25,12 +25,12 @@
 static const stress_help_t help[] = {
 	{ NULL,	"mmaptorture N",	"start N workers torturing page mappings" },
 	{ NULL,	"mmaptorture-ops N",	"stop after N mmaptorture bogo operations" },
-	{ NULL,	NULL,		  	NULL }
+	{ NULL,	NULL,			NULL }
 };
 
 typedef struct {
 	uint8_t *addr;
-	size_t 	size;
+	size_t	size;
 } mmap_info_t;
 
 #define MMAP_MAX	(128)
@@ -175,7 +175,7 @@ static const int mprotect_flags[] = {
 #if defined(PROT_WRITE)
 	PROT_WRITE,
 #endif
-#if defined(PROT_READ) && 	\
+#if defined(PROT_READ) &&	\
     defined(PROT_WRITE)
 	PROT_READ | PROT_WRITE,
 #endif
@@ -260,12 +260,18 @@ static void NORETURN MLOCKED_TEXT stress_mmaptorture_sighandler(int signum)
 	siglongjmp(jmp_env, 1);	/* Ugly, bounce back */
 }
 
-static void stress_mmaptorture_msync(void *addr, size_t length)
+static void stress_mmaptorture_msync(uint8_t *addr, const size_t length, const size_t page_size)
 {
-	const int flag = (stress_mwc1() ? MS_SYNC : MS_ASYNC) |
-			 (stress_mwc1() ? 0 : MS_INVALIDATE);
+	size_t i;
 
-	(void)msync(addr, length, flag);
+	for (i = 0; i < length; i += page_size) {
+		if (stress_mwc1()) {
+			const int flag = (stress_mwc1() ? MS_SYNC : MS_ASYNC) |
+					 (stress_mwc1() ? 0 : MS_INVALIDATE);
+
+			(void)msync((void *)(addr + i), length, flag);
+		}
+	}
 }
 
 static int stress_mmaptorture_child(stress_args_t *args, void *context)
@@ -327,7 +333,7 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 				volatile uint8_t *vptr = (volatile uint8_t *)(mmap_data + offset);
 
 				(*vptr)++;
-				stress_mmaptorture_msync(mmap_data,  MMAP_PAGES_MAX * page_size);
+				stress_mmaptorture_msync(mmap_data,  MMAP_PAGES_MAX * page_size, page_size);
 			}
 		}
 
@@ -350,7 +356,7 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 			mmap_size = page_size * (1 + stress_mwc8modn(MMAP_SIZE_MAP));
 			offset = page_size * stress_mwc16modn(MMAP_PAGES_MAX);
 #if defined(HAVE_FALLOCATE)
-#if defined(FALLOC_FL_PUNCH_HOLE) && 	\
+#if defined(FALLOC_FL_PUNCH_HOLE) &&	\
     defined(FALLOC_FL_KEEP_SIZE)
 			if (stress_mwc1()) {
 				(void)shim_fallocate(mmap_fd, 0, offset, mmap_size);
@@ -395,16 +401,14 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 					shim_builtin_prefetch((void *)(ptr + i));
 			}
 #if defined(HAVE_LINUX_MEMPOLICY_H)
-			if (numa_mask && stress_mwc1())
+			if (numa_mask && stress_mwc1()) {
 				stress_numa_randomize_pages(numa_mask, (void *)ptr, page_size, mmap_size);
 #endif
 
 #if defined(HAVE_MSYNC) &&	\
     defined(MS_SYNC) &&		\
     defined(MS_ASYNC)
-			for (i = 0; i < mmap_size; i += page_size) {
-				if (stress_mwc1())
-					stress_mmaptorture_msync((void *)(ptr + i), page_size);
+				stress_mmaptorture_msync(ptr, mmap_size, page_size);
 			}
 #endif
 #if defined(HAVE_MADVISE)
@@ -431,8 +435,7 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 			for (i = 0; i < mmap_size; i += page_size) {
 				if (stress_mwc1())
 					(void)shim_munlock((void *)(ptr + i), page_size);
-				if (stress_mwc1())
-					stress_mmaptorture_msync((void *)ptr, mmap_size);
+				stress_mmaptorture_msync(ptr + i, page_size, page_size);
 #if defined(HAVE_MADVISE) &&	\
     defined(MADV_FREE)
 				if (stress_mwc1())
@@ -471,7 +474,7 @@ mappings_unmap:
 				}
 #endif
 
-#if defined(HAVE_MADVISE) && 	\
+#if defined(HAVE_MADVISE) &&	\
     defined(MADV_NORMAL)
 				(void)madvise((void *)ptr, mmap_size, MADV_NORMAL);
 #endif
@@ -479,7 +482,7 @@ mappings_unmap:
 				(void)mprotect((void *)ptr, mmap_size, PROT_READ | PROT_WRITE);
 #endif
 				(void)shim_munlock((void *)ptr, mmap_size);
-#if defined(HAVE_MADVISE) && 	\
+#if defined(HAVE_MADVISE) &&	\
     defined(MADV_DONTNEED)
 				if (stress_mwc1())
 					(void)madvise((void *)ptr, mmap_size, MADV_DONTNEED);
@@ -525,7 +528,7 @@ static int stress_mmaptorture(stress_args_t *args)
 const stressor_info_t stress_mmaptorture_info = {
 	.stressor = stress_mmaptorture,
 	.class = CLASS_VM | CLASS_OS,
-	.verify = VERIFY_ALWAYS,
+	.verify = VERIFY_NONE,
 	.init = stress_mmaptorture_init,
 	.deinit = stress_mmaptorture_deinit,
 	.help = help
