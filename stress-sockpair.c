@@ -72,7 +72,7 @@ PRAGMA_UNROLL_N(4)
 }
 
 static void socket_pair_close(
-	const int fds[MAX_SOCKET_PAIRS][2],
+	int fds[MAX_SOCKET_PAIRS][2],
 	const int max,
 	const int which)
 {
