@@ -483,10 +483,11 @@ mappings_unmap:
     defined(MADV_REMOVE)
 				size_t j;
 #endif
-				uint8_t *newptr;
 
 #if defined(HAVE_MREMAP)
 				if (mmap_size > page_size) {
+					uint8_t *newptr;
+
 					newptr = (uint8_t *)mremap(ptr, mmap_size, mmap_size - page_size, MREMAP_MAYMOVE);
 					if (newptr != MAP_FAILED) {
 						ptr = newptr;
