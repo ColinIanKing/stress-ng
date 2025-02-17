@@ -458,9 +458,9 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
     defined(MADV_FREE)
 				if (stress_mwc1())
 					(void)madvise((void *)(ptr + i), page_size, MADV_FREE);
+#endif
 			}
 
-#endif
 			if (stress_mwc1())
 				(void)shim_mincore((void *)ptr, mmap_size, vec);
 
@@ -479,7 +479,10 @@ mappings_unmap:
 			mmap_size = mappings[i].size;
 
 			if ((ptr != MAP_FAILED) && (mmap_size > 0)) {
+#if defined(HAVE_MADVISE) &&	\
+    defined(MADV_REMOVE)
 				size_t j;
+#endif
 				uint8_t *newptr;
 
 #if defined(HAVE_MREMAP)
