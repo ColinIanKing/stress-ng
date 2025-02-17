@@ -427,8 +427,8 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
     defined(MS_SYNC) &&		\
     defined(MS_ASYNC)
 				stress_mmaptorture_msync(ptr, mmap_size, page_size);
-			}
 #endif
+			}
 #if defined(HAVE_MADVISE)
 			(void)madvise((void *)ptr, mmap_size, madvise_option);
 #endif
