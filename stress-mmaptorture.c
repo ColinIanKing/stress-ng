@@ -24,6 +24,7 @@
 
 static const stress_help_t help[] = {
 	{ NULL,	"mmaptorture N",	"start N workers torturing page mappings" },
+	{ NULL, "mmaptorture-bytes N",	"size of file backed region to be memory mapped" },
 	{ NULL,	"mmaptorture-ops N",	"stop after N mmaptorture bogo operations" },
 	{ NULL,	NULL,			NULL }
 };
@@ -33,18 +34,23 @@ typedef struct {
 	size_t	size;
 } mmap_info_t;
 
-#define MMAP_MAX	(128)
-#define MMAP_PAGES_MAX	(1024)
-#define MMAP_SIZE_MAP	(4)	/* in pages */
+#define MMAP_MAPPINGS_MAX	(128)
+#define MMAP_SIZE_MAP		(4)	/* in pages */
 
-#define PAGE_WR_FLAG	(0x01)
-#define PAGE_RD_FLAG	(0x02)
+#define PAGE_WR_FLAG		(0x01)
+#define PAGE_RD_FLAG		(0x02)
+
+#define MIN_MMAPTORTURE_BYTES		(16 * MB)
+#define MAX_MMAPTORTURE_BYTES   	(MAX_MEM_LIMIT)
+#define DEFAULT_MMAPTORTURE_BYTES	(1024 * 4096)
 
 static sigjmp_buf jmp_env;
 
 static int mmap_fd;
-const char *name = "mmaptorture";
-uint8_t *mmap_data;
+static const char *name = "mmaptorture";
+static uint8_t *mmap_data;
+static size_t mmap_bytes = DEFAULT_MMAPTORTURE_BYTES;
+static bool mmap_bytes_adjusted = false;
 
 #if defined(HAVE_MADVISE)
 static const int madvise_options[] = {
@@ -221,9 +227,19 @@ static void stress_mmaptorture_init(const uint32_t num_instances)
 {
 	char path[PATH_MAX];
 	const pid_t pid = getpid();
-	const size_t len = MMAP_PAGES_MAX * stress_get_page_size();
+	const size_t page_size = stress_get_page_size();
 
 	(void)num_instances;
+
+	mmap_bytes = DEFAULT_MMAPTORTURE_BYTES;
+	stress_get_setting("mmaptorture-bytes", &mmap_bytes);
+
+	mmap_bytes = (num_instances < 1) ? mmap_bytes : mmap_bytes / num_instances;
+	mmap_bytes &= ~(page_size - 1);
+	if (mmap_bytes < page_size * MMAP_SIZE_MAP * 2) {
+		mmap_bytes = (page_size * MMAP_SIZE_MAP * 2);
+		mmap_bytes_adjusted = true;
+	}
 
 	if (stress_temp_dir_mk(name, pid, 0) < 0) {
 		mmap_fd = -1;
@@ -238,18 +254,16 @@ static void stress_mmaptorture_init(const uint32_t num_instances)
 	}
 	(void)unlink(path);
 
-	VOID_RET(int, ftruncate(mmap_fd, len));
-	mmap_data = mmap(NULL, len, PROT_READ | PROT_WRITE, MAP_SHARED, mmap_fd, 0);
+	VOID_RET(int, ftruncate(mmap_fd, mmap_bytes));
+	mmap_data = mmap(NULL, mmap_bytes, PROT_READ | PROT_WRITE, MAP_SHARED, mmap_fd, 0);
 }
 
 static void stress_mmaptorture_deinit(void)
 {
-	const size_t len = MMAP_PAGES_MAX * stress_get_page_size();
-
 	if (mmap_fd == -1)
 		return;
 	if (mmap_data != MAP_FAILED)
-		(void)munmap((void *)mmap_data, len);
+		(void)munmap((void *)mmap_data, mmap_bytes);
 	(void)stress_temp_dir_rm(name, getpid(), 0);
 }
 
@@ -277,12 +291,12 @@ static void stress_mmaptorture_msync(uint8_t *addr, const size_t length, const s
 static int stress_mmaptorture_child(stress_args_t *args, void *context)
 {
 	const size_t page_size = args->page_size;
+	const size_t page_mask = ~(page_size - 1);
 	NOCLOBBER mmap_info_t *mappings;
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 	NOCLOBBER stress_numa_mask_t *numa_mask = NULL;
 #endif
 	size_t i;
-
 	(void)context;
 
 	if (sigsetjmp(jmp_env, 1)) {
@@ -295,7 +309,7 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 	if (stress_sighandler(args->name, SIGSEGV, stress_mmaptorture_sighandler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 
-	mappings = (mmap_info_t *)calloc((size_t)MMAP_MAX, sizeof(*mappings));
+	mappings = (mmap_info_t *)calloc((size_t)MMAP_MAPPINGS_MAX, sizeof(*mappings));
 	if (UNLIKELY(!mappings)) {
 		pr_fail("%s: calloc failed, out of memory\n", args->name);
 		return EXIT_NO_RESOURCE;
@@ -305,7 +319,7 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 	if (stress_numa_nodes() > 0)
 		numa_mask = stress_numa_mask_alloc();
 #endif
-	for (i = 0; i < MMAP_MAX; i++) {
+	for (i = 0; i < MMAP_MAPPINGS_MAX; i++) {
 		mappings[i].addr = MAP_FAILED;
 		mappings[i].size = 0;
 	}
@@ -322,8 +336,7 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 
 		VOID_RET(int, ftruncate(mmap_fd, 0));
 
-		offset = page_size * stress_mwc16modn(MMAP_PAGES_MAX);
-
+		offset = stress_mwc64modn((uint64_t)mmap_bytes) & page_mask;
 		if (lseek(mmap_fd, offset, SEEK_SET) == offset) {
 			char data[page_size];
 
@@ -333,16 +346,16 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 				volatile uint8_t *vptr = (volatile uint8_t *)(mmap_data + offset);
 
 				(*vptr)++;
-				stress_mmaptorture_msync(mmap_data, MMAP_PAGES_MAX * page_size, page_size);
+				stress_mmaptorture_msync(mmap_data, mmap_bytes, page_size);
 			}
 		}
 #if defined(HAVE_REMAP_FILE_PAGES) &&   \
     !defined(STRESS_ARCH_SPARC)
-		(void)remap_file_pages(mmap_data, MMAP_PAGES_MAX * page_size, PROT_NONE, 0, MAP_SHARED | MAP_NONBLOCK);
-		(void)mprotect(mmap_data, MMAP_PAGES_MAX * page_size, PROT_READ | PROT_WRITE);
+		(void)remap_file_pages(mmap_data, mmap_bytes, PROT_NONE, 0, MAP_SHARED | MAP_NONBLOCK);
+		(void)mprotect(mmap_data, mmap_bytes, PROT_READ | PROT_WRITE);
 #endif
 
-		for (n = 0; n < MMAP_MAX; n++) {
+		for (n = 0; n < MMAP_MAPPINGS_MAX; n++) {
 			int flag = 0;
 #if defined(HAVE_MADVISE)
 			const int madvise_option = madvise_options[stress_mwc8modn(SIZEOF_ARRAY(madvise_options))];
@@ -359,7 +372,7 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 				break;
 
 			mmap_size = page_size * (1 + stress_mwc8modn(MMAP_SIZE_MAP));
-			offset = page_size * stress_mwc16modn(MMAP_PAGES_MAX);
+			offset = stress_mwc64modn((uint64_t)mmap_bytes) & page_mask;
 #if defined(HAVE_FALLOCATE)
 #if defined(FALLOC_FL_PUNCH_HOLE) &&	\
     defined(FALLOC_FL_KEEP_SIZE)
@@ -523,6 +536,15 @@ mappings_unmap:
  */
 static int stress_mmaptorture(stress_args_t *args)
 {
+	if (args->instance == 0) {
+		char str1[64], str2[64];
+
+		stress_uint64_to_str(str1, sizeof(str1), (uint64_t)mmap_bytes);
+		stress_uint64_to_str(str2, sizeof(str2), (uint64_t)mmap_bytes * args->num_instances);
+
+		pr_inf("%s: using %smmap'd size %s per stressor (total %s)\n", args->name,
+			mmap_bytes_adjusted ? "adjusted " : "", str1, str2);
+	}
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
@@ -530,11 +552,16 @@ static int stress_mmaptorture(stress_args_t *args)
 	return stress_oomable_child(args, NULL, stress_mmaptorture_child, STRESS_OOMABLE_NORMAL);
 }
 
+static const stress_opt_t opts[] = {
+        { OPT_mmaptorture_bytes, "mmaptorture-bytes",  TYPE_ID_SIZE_T_BYTES_VM, MIN_MMAPTORTURE_BYTES, MAX_MMAPTORTURE_BYTES, NULL },
+};
+
 const stressor_info_t stress_mmaptorture_info = {
 	.stressor = stress_mmaptorture,
 	.class = CLASS_VM | CLASS_OS,
 	.verify = VERIFY_NONE,
 	.init = stress_mmaptorture_init,
 	.deinit = stress_mmaptorture_deinit,
+	.opts = opts,
 	.help = help
 };
