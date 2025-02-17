@@ -350,6 +350,7 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 			}
 		}
 #if defined(HAVE_REMAP_FILE_PAGES) &&   \
+    defined(MAP_NONBLOCK) &&		\
     !defined(STRESS_ARCH_SPARC)
 		(void)remap_file_pages(mmap_data, mmap_bytes, PROT_NONE, 0, MAP_SHARED | MAP_NONBLOCK);
 		(void)mprotect(mmap_data, mmap_bytes, PROT_READ | PROT_WRITE);
