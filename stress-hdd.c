@@ -76,12 +76,7 @@ typedef struct {
 	const char *opt;	/* User option */
 	const int flag;		/* HDD_OPT_ flag */
 	const int exclude;	/* Excluded HDD_OPT_ flags */
-#if (defined(POSIX_FADV_SEQ) || defined(POSIX_FADV_RANDOM) ||		\
-     defined(POSIX_FADV_NOREUSE) || defined(POSIX_FADV_WILLNEED) ||	\
-     defined(POSIX_FADV_DONTNEED)) && 					\
-     defined(HAVE_POSIX_FADVISE)
 	const int advice;	/* posix_fadvise value */	/* cppcheck-suppress unusedStructMember */
-#endif
 	const int oflag;	/* open O_* flags */
 } stress_hdd_opts_t;
 
