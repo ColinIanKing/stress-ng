@@ -19,6 +19,7 @@
 #include "stress-ng.h"
 #include "core-builtin.h"
 #include "core-cpu-cache.h"
+#include "core-killpid.h"
 #include "core-numa.h"
 #include "core-out-of-memory.h"
 
@@ -336,6 +337,7 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 		register uint8_t *ptr;
 		register size_t mmap_size;
 		off_t offset;
+		pid_t pid = -1;
 
 		if (sigsetjmp(jmp_env, 1))
 			goto mappings_unmap;
@@ -486,6 +488,35 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 			stress_bogo_inc(args);
 		}
 
+		if (stress_mwc1()) {
+			pid = fork();
+			if (pid == 0) {
+				/* Pass 1, free random pages */
+				for (i = 0; i < n; i++) {
+					if (stress_mwc1()) {
+						ptr = mappings[i].addr;
+						mmap_size = mappings[i].size;
+						if ((ptr != MAP_FAILED) && (mmap_size > 0)) {
+							(void)stress_munmap_retry_enomem((void *)(ptr + i), page_size);
+							mappings[i].addr = MAP_FAILED;
+							mappings[i].size = 0;
+						}
+					}
+				}
+				/* Pass 2, free unfreed pages */
+				for (i = 0; i < n; i++) {
+					ptr = mappings[i].addr;
+					mmap_size = mappings[i].size;
+					if ((ptr != MAP_FAILED) && (mmap_size > 0)) {
+						(void)stress_munmap_retry_enomem((void *)(ptr + i), page_size);
+						mappings[i].addr = MAP_FAILED;
+						mappings[i].size = 0;
+					}
+				}
+				_exit(0);
+			}
+		}
+
 mappings_unmap:
 		for (i = 0; i < n; i++) {
 			ptr = mappings[i].addr;
@@ -535,6 +566,8 @@ mappings_unmap:
 			mappings[i].addr = MAP_FAILED;
 			mappings[i].size = 0;
 		}
+		if (pid > 0)
+			(void)stress_kill_and_wait(args, pid, SIGKILL, false);
 	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
