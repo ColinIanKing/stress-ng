@@ -494,6 +494,7 @@ stress-ng has found various Kernel, QEMU bugs/regressions, and libc bugs; approp
 
 2025:
 * [Tegra Security Engine driver improvements](https://www.spinics.net/lists/kernel/msg5546707.html)
+* [sched_ext: Fix lock imbalance in dispatch_to_local_dsq()](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=1626e5ef0b00386a4fd083fa7c46c8edbd75f9b4)
 
 ## Kernel improvements that used stress-ng
 
