@@ -40,8 +40,6 @@ jobs:
         with:
           images: |
             ${{ env.GITHUB_REGISTRY }}/${{ env.IMAGE_REPOSITORY }}
-      - name: Environment
-        run: printenv
       - name: Check Limits
         run: ulimit -a
       - name: Build and push Docker image
