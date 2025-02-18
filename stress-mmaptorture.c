@@ -493,6 +493,8 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 			if (pid == 0) {
 				/* Pass 1, free random pages */
 				for (i = 0; i < n; i++) {
+					(void)madvise((void *)ptr, mmap_size, MADV_DONTNEED);
+
 					if (stress_mwc1()) {
 						ptr = mappings[i].addr;
 						mmap_size = mappings[i].size;
