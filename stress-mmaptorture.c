@@ -460,12 +460,18 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 			for (i = 0; i < mmap_size; i += page_size) {
 				if (stress_mwc1())
 					(void)shim_munlock((void *)(ptr + i), page_size);
+#if defined(HAVE_MADVISE) &&	\
+    defined(MADV_PAGEOUT)
+				if (stress_mwc1())
+					(void)madvise((void *)(ptr + i), page_size, MADV_PAGEOUT);
+#endif
 				stress_mmaptorture_msync(ptr + i, page_size, page_size);
 #if defined(HAVE_MADVISE) &&	\
     defined(MADV_FREE)
 				if (stress_mwc1())
 					(void)madvise((void *)(ptr + i), page_size, MADV_FREE);
 #endif
+
 			}
 
 			if (stress_mwc1())
