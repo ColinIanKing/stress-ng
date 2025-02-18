@@ -182,6 +182,13 @@ override CFLAGS += -DCOVERITY
 endif
 
 #
+# Building in github?
+#
+ifneq ($(GITHUB_RUN_ATTEMPT),)
+override VERBOSE=1
+endif
+
+#
 # Disable any user defined PREFV setting
 #
 ifneq ($(PRE_V),)
