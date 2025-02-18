@@ -337,7 +337,7 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 		register uint8_t *ptr;
 		register size_t mmap_size;
 		off_t offset;
-		pid_t pid = -1;
+		NOCLOBBER pid_t pid = -1;
 
 		if (sigsetjmp(jmp_env, 1))
 			goto mappings_unmap;
