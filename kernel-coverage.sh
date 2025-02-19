@@ -604,6 +604,9 @@ do_stress --mmaphuge -1 --mmaphuge-mmaps 32768
 do_stress --mmapmany -1 --mmapmany-mlock
 do_stress --mmapmany -1 --mmapmany-numa
 
+do_stress --mmaptorture -1 --mmaptorture-bytes 30%
+do_stress --mmaptorture -1 --mmaptorture-msync 95
+
 do_stress --module -1 --module-name bfq
 
 do_stress --mpfr -1 --mpfr-precision 8192
