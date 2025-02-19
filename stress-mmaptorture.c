@@ -45,7 +45,7 @@ typedef struct {
 
 #define MIN_MMAPTORTURE_BYTES		(16 * MB)
 #define MAX_MMAPTORTURE_BYTES   	(MAX_MEM_LIMIT)
-#define DEFAULT_MMAPTORTURE_BYTES	(1024 * 4096)
+#define DEFAULT_MMAPTORTURE_BYTES	(256 * MB)
 
 typedef struct {
 	uint64_t	mmap_pages;
@@ -266,7 +266,7 @@ static void stress_mmaptorture_init(const uint32_t num_instances)
 	}
 	(void)unlink(path);
 
-	VOID_RET(int, ftruncate(mmap_fd, mmap_bytes));
+	VOID_RET(int, ftruncate(mmap_fd, (off_t)mmap_bytes));
 	mmap_data = mmap(NULL, mmap_bytes, PROT_READ | PROT_WRITE, MAP_SHARED, mmap_fd, 0);
 }
 
@@ -367,7 +367,8 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 		if (sigsetjmp(jmp_env, 1))
 			goto mappings_unmap;
 
-		VOID_RET(int, ftruncate(mmap_fd, 0));
+		VOID_RET(int, ftruncate(mmap_fd, (off_t)stress_mwc64modn((uint64_t)mmap_bytes)));
+		VOID_RET(int, ftruncate(mmap_fd, (off_t)mmap_bytes));
 
 		offset = stress_mwc64modn((uint64_t)mmap_bytes) & page_mask;
 		if (lseek(mmap_fd, offset, SEEK_SET) == offset) {
