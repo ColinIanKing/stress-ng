@@ -454,6 +454,17 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 				if ((flag & PAGE_RD_FLAG) && (mprotect_flag & PROT_READ))
 					*(volatile uint8_t *)(ptr + i);
 			}
+#if defined(MAP_FIXED_NOREPLACE)
+			{
+				void *tmp;
+
+				/* mmap onto an existing virt addr, should fail */
+				tmp = mmap((void *)ptr, mmap_size, PROT_READ | PROT_WRITE,
+					MAP_SHARED | MAP_FIXED_NOREPLACE, mmap_fd, offset);
+				if (tmp != MAP_FAILED)
+					(void)munmap(tmp, mmap_size);
+			}
+#endif
 
 #if defined(HAVE_MPROTECT)
 			if (stress_mwc1())
@@ -490,8 +501,9 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 				if (ret == 0) {
 #if defined(MAP_FIXED)
 					if (stress_mwc1()) {
-						mappings[n].addr = mmap(mappings[n].addr, page_size, 
-								PROT_READ | PROT_WRITE, MAP_FIXED | MAP_SHARED, mmap_fd, mappings[n].offset);
+						mappings[n].addr = mmap((void *)mappings[n].addr, page_size, 
+								PROT_READ | PROT_WRITE, MAP_FIXED | MAP_SHARED,
+								mmap_fd, mappings[n].offset);
 						mappings[n].size = page_size;
 					} else {
 						mappings[n].addr = MAP_FAILED;
