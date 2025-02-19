@@ -1295,8 +1295,8 @@ void stress_set_timer_slack(void)
  */
 void stress_set_proc_name_init(int argc, char *argv[], char *envp[])
 {
-#if defined(HAVE_BSD_UNISTD_H) &&	\
-    defined(HAVE_SETPROCTITLE)
+#if defined(HAVE_SETPROCTITLE) && \
+    defined(HAVE_SETPROCTITLE_INIT)
 	(void)setproctitle_init(argc, argv, envp);
 #else
 	(void)argc;
@@ -1322,8 +1322,7 @@ void stress_set_proc_name(const char *name)
 	(void)snprintf(long_name, sizeof(long_name), "%s-%s",
 			g_app_name, name);
 
-#if defined(HAVE_BSD_UNISTD_H) &&	\
-    defined(HAVE_SETPROCTITLE)
+#if defined(HAVE_SETPROCTITLE)
 	/* Sets argv[0] */
 	setproctitle("-%s", long_name);
 #endif
