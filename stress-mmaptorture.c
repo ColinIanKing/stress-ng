@@ -46,13 +46,22 @@ typedef struct {
 #define MAX_MMAPTORTURE_BYTES   	(MAX_MEM_LIMIT)
 #define DEFAULT_MMAPTORTURE_BYTES	(1024 * 4096)
 
-static sigjmp_buf jmp_env;
+typedef struct {
+	uint64_t	mmap_pages;
+	uint64_t	sync_pages;
+	uint64_t	lock_pages;
+	uint64_t	mprotect_pages;
+	uint64_t	madvise_pages;
+	uint64_t	remapped_pages;
+} mmap_stats_t;
 
+static sigjmp_buf jmp_env;
 static int mmap_fd;
 static const char *name = "mmaptorture";
 static uint8_t *mmap_data;
 static size_t mmap_bytes = DEFAULT_MMAPTORTURE_BYTES;
 static bool mmap_bytes_adjusted = false;
+static mmap_stats_t *mmap_stats;
 
 #if defined(HAVE_MADVISE)
 static const int madvise_options[] = {
@@ -286,7 +295,8 @@ static void stress_mmaptorture_msync(uint8_t *addr, const size_t length, const s
 			const int flag = (stress_mwc1() ? MS_SYNC : MS_ASYNC) |
 					 (stress_mwc1() ? 0 : MS_INVALIDATE);
 
-			(void)msync((void *)(addr + i), length, flag);
+			(void)msync((void *)(addr + i), page_size, flag);
+			mmap_stats->sync_pages++;
 		}
 	}
 #else
@@ -360,8 +370,10 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 #if defined(HAVE_REMAP_FILE_PAGES) &&   \
     defined(MAP_NONBLOCK) &&		\
     !defined(STRESS_ARCH_SPARC)
-		(void)remap_file_pages(mmap_data, mmap_bytes, PROT_NONE, 0, MAP_SHARED | MAP_NONBLOCK);
-		(void)mprotect(mmap_data, mmap_bytes, PROT_READ | PROT_WRITE);
+		if (remap_file_pages(mmap_data, mmap_bytes, PROT_NONE, 0, MAP_SHARED | MAP_NONBLOCK) == 0)
+			mmap_stats->remapped_pages += mmap_bytes / page_size;
+		if (mprotect(mmap_data, mmap_bytes, PROT_READ | PROT_WRITE) == 0)
+			mmap_stats->mprotect_pages += mmap_bytes / page_size;
 #endif
 
 		for (n = 0; n < MMAP_MAPPINGS_MAX; n++) {
@@ -423,6 +435,7 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 					}
 				}
 			}
+			mmap_stats->mmap_pages += mmap_size / page_size;
 			mappings[n].addr = ptr;
 			mappings[n].size = mmap_size;
 			mappings[n].offset = offset;
@@ -443,12 +456,15 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 			}
 #endif
 #if defined(HAVE_MADVISE)
-			(void)madvise((void *)ptr, mmap_size, madvise_option);
+			if (madvise((void *)ptr, mmap_size, madvise_option) == 0)
+				mmap_stats->madvise_pages += mmap_size / page_size;
 #endif
 			(void)shim_mincore((void *)ptr, mmap_size, vec);
 			for (i = 0; i < mmap_size; i += page_size) {
-				if (stress_mwc1())
-					(void)shim_mlock((void *)(ptr + i), page_size);
+				if (stress_mwc1()) {
+					if (shim_mlock((void *)(ptr + i), page_size) == 0)
+						mmap_stats->lock_pages++;
+				}
 				if ((flag & PAGE_WR_FLAG) && (mprotect_flag & PROT_WRITE))
 					*(volatile uint8_t *)(ptr + i) = stress_mwc64();
 				if ((flag & PAGE_RD_FLAG) && (mprotect_flag & PROT_READ))
@@ -461,14 +477,17 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 				/* mmap onto an existing virt addr, should fail */
 				tmp = mmap((void *)ptr, mmap_size, PROT_READ | PROT_WRITE,
 					MAP_SHARED | MAP_FIXED_NOREPLACE, mmap_fd, offset);
-				if (tmp != MAP_FAILED)
+				if (tmp != MAP_FAILED) {
+					mmap_stats->mmap_pages += mmap_size / page_size;
 					(void)munmap(tmp, mmap_size);
+				}
 			}
 #endif
 
 #if defined(HAVE_MPROTECT)
 			if (stress_mwc1())
-				(void)mprotect((void *)ptr, mmap_size, mprotect_flag);
+				if (mprotect((void *)ptr, mmap_size, mprotect_flag) == 0)
+					mmap_stats->mprotect_pages += mmap_size / page_size;
 #endif
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 			if (stress_mwc1() && (numa_mask))
@@ -479,16 +498,19 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 					(void)shim_munlock((void *)(ptr + i), page_size);
 #if defined(HAVE_MADVISE) &&	\
     defined(MADV_PAGEOUT)
-				if (stress_mwc1())
-					(void)madvise((void *)(ptr + i), page_size, MADV_PAGEOUT);
+				if (stress_mwc1()) {
+					if (madvise((void *)(ptr + i), page_size, MADV_PAGEOUT) == 0)
+						mmap_stats->madvise_pages++;
+				}
 #endif
 				stress_mmaptorture_msync(ptr + i, page_size, page_size);
 #if defined(HAVE_MADVISE) &&	\
     defined(MADV_FREE)
-				if (stress_mwc1())
-					(void)madvise((void *)(ptr + i), page_size, MADV_FREE);
+				if (stress_mwc1()) {
+					if (madvise((void *)(ptr + i), page_size, MADV_FREE) == 0)
+						mmap_stats->madvise_pages++;
+				}
 #endif
-
 			}
 
 			if (stress_mwc1())
@@ -501,10 +523,14 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 				if (ret == 0) {
 #if defined(MAP_FIXED)
 					if (stress_mwc1()) {
-						mappings[n].addr = mmap((void *)mappings[n].addr, page_size, 
+						mappings[n].addr = mmap((void *)mappings[n].addr, page_size,
 								PROT_READ | PROT_WRITE, MAP_FIXED | MAP_SHARED,
 								mmap_fd, mappings[n].offset);
-						mappings[n].size = page_size;
+						if (UNLIKELY(mappings[n].addr == MAP_FAILED)) {
+							mappings[n].size = 0;
+						} else {
+							mmap_stats->mmap_pages++;
+						}
 					} else {
 						mappings[n].addr = MAP_FAILED;
 						mappings[n].size = 0;
@@ -514,7 +540,6 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 					mappings[n].addr = MAP_FAILED;
 					mappings[n].size = 0;
 				}
-			
 			}
 			stress_bogo_inc(args);
 		}
@@ -524,7 +549,8 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 			if (pid == 0) {
 				/* Pass 1, free random pages */
 				for (i = 0; i < n; i++) {
-					(void)madvise((void *)ptr, mmap_size, MADV_DONTNEED);
+					if (madvise((void *)ptr, mmap_size, MADV_DONTNEED) == 0)
+						mmap_stats->madvise_pages += mmap_size / page_size;
 
 					if (stress_mwc1()) {
 						ptr = mappings[i].addr;
@@ -564,33 +590,41 @@ mappings_unmap:
 #if defined(HAVE_MREMAP)
 				if (mmap_size > page_size) {
 					uint8_t *newptr;
+					size_t new_size = mmap_size - page_size;
 
-					newptr = (uint8_t *)mremap(ptr, mmap_size, mmap_size - page_size, MREMAP_MAYMOVE);
+					newptr = (uint8_t *)mremap(ptr, mmap_size, new_size, MREMAP_MAYMOVE);
 					if (newptr != MAP_FAILED) {
 						ptr = newptr;
 						mmap_size -= page_size;
+						mmap_stats->remapped_pages += mmap_size / new_size;
 					}
 				}
 #endif
 
 #if defined(HAVE_MADVISE) &&	\
     defined(MADV_NORMAL)
-				(void)madvise((void *)ptr, mmap_size, MADV_NORMAL);
+				if (madvise((void *)ptr, mmap_size, MADV_NORMAL) == 0)
+					mmap_stats->madvise_pages += mmap_size / page_size;
 #endif
 #if defined(HAVE_MPROTECT)
-				(void)mprotect((void *)ptr, mmap_size, PROT_READ | PROT_WRITE);
+				if (mprotect((void *)ptr, mmap_size, PROT_READ | PROT_WRITE) == 0)
+					mmap_stats->mprotect_pages += mmap_size / page_size;
 #endif
 				(void)shim_munlock((void *)ptr, mmap_size);
 #if defined(HAVE_MADVISE) &&	\
     defined(MADV_DONTNEED)
-				if (stress_mwc1())
-					(void)madvise((void *)ptr, mmap_size, MADV_DONTNEED);
+				if (stress_mwc1()) {
+					if (madvise((void *)ptr, mmap_size, MADV_DONTNEED) == 0)
+						mmap_stats->madvise_pages += mmap_size / page_size;
+				}
 #endif
 #if defined(HAVE_MADVISE) &&	\
     defined(MADV_REMOVE)
 				for (j = 0; j < mmap_size; j += page_size) {
-					if (stress_mwc1())
-						(void)madvise((void *)(ptr + j), mmap_size, MADV_REMOVE);
+					if (stress_mwc1()) {
+						if (madvise((void *)(ptr + j), page_size, MADV_REMOVE) == 0)
+							mmap_stats->madvise_pages += 1;
+					}
 					(void)stress_munmap_retry_enomem((void *)(ptr + j), page_size);
 				}
 #endif
@@ -619,6 +653,17 @@ mappings_unmap:
  */
 static int stress_mmaptorture(stress_args_t *args)
 {
+	int ret;
+	double t_start, duration, rate;
+
+	mmap_stats = (mmap_stats_t *)stress_mmap_populate(NULL, sizeof(*mmap_stats),
+					PROT_READ | PROT_WRITE,
+					MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+	if (mmap_stats == MAP_FAILED) {
+		pr_inf_skip("%s: cannot mmap stats shared page, skipping stressor\n", args->name);
+		return EXIT_NO_RESOURCE;
+	}
+
 	if (args->instance == 0) {
 		char str1[64], str2[64];
 
@@ -632,7 +677,26 @@ static int stress_mmaptorture(stress_args_t *args)
 	stress_sync_start_wait(args);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
-	return stress_oomable_child(args, NULL, stress_mmaptorture_child, STRESS_OOMABLE_NORMAL);
+	t_start = stress_time_now();
+	ret = stress_oomable_child(args, NULL, stress_mmaptorture_child, STRESS_OOMABLE_NORMAL);
+	duration = stress_time_now() - t_start;
+
+	rate = (duration > 0.0) ? (double)mmap_stats->mmap_pages / duration : 0.0;
+	stress_metrics_set(args, 0, "pages mapped pec sec", rate, STRESS_METRIC_HARMONIC_MEAN);
+	rate = (duration > 0.0) ? (double)mmap_stats->sync_pages / duration : 0.0;
+	stress_metrics_set(args, 1, "pages synced pec sec", rate, STRESS_METRIC_HARMONIC_MEAN);
+	rate = (duration > 0.0) ? (double)mmap_stats->lock_pages / duration : 0.0;
+	stress_metrics_set(args, 2, "pages locked pec sec", rate, STRESS_METRIC_HARMONIC_MEAN);
+	rate = (duration > 0.0) ? (double)mmap_stats->mprotect_pages / duration : 0.0;
+	stress_metrics_set(args, 3, "pages mprotected pec sec", rate, STRESS_METRIC_HARMONIC_MEAN);
+	rate = (duration > 0.0) ? (double)mmap_stats->madvise_pages / duration : 0.0;
+	stress_metrics_set(args, 4, "pages madvised pec sec", rate, STRESS_METRIC_HARMONIC_MEAN);
+	rate = (duration > 0.0) ? (double)mmap_stats->remapped_pages / duration : 0.0;
+	stress_metrics_set(args, 5, "pages remapped pec sec", rate, STRESS_METRIC_HARMONIC_MEAN);
+
+	(void)munmap((void *)mmap_stats, sizeof(*mmap_stats));
+
+	return ret;
 }
 
 static const stress_opt_t opts[] = {
