@@ -332,12 +332,11 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 	}
 
 	do {
-		NOCLOBBER size_t n;
 		unsigned char vec[MMAP_SIZE_MAP];
-		register uint8_t *ptr;
-		register size_t mmap_size;
-		off_t offset;
+		NOCLOBBER uint8_t *ptr;
+		NOCLOBBER size_t n, mmap_size;
 		NOCLOBBER pid_t pid = -1;
+		off_t offset;
 
 		if (sigsetjmp(jmp_env, 1))
 			goto mappings_unmap;
@@ -442,7 +441,7 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 			(void)madvise((void *)ptr, mmap_size, madvise_option);
 #endif
 			(void)shim_mincore((void *)ptr, mmap_size, vec);
-			for (i = 0; i < mmap_size; i += page_size) {
+			for (i = 0; i < mmap_size; i += 64) {
 				if (stress_mwc1())
 					(void)shim_mlock((void *)(ptr + i), page_size);
 				if ((flag & PAGE_WR_FLAG) && (mprotect_flag & PROT_WRITE))
