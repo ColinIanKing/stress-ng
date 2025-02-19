@@ -33,6 +33,7 @@ static const stress_help_t help[] = {
 typedef struct {
 	uint8_t *addr;
 	size_t	size;
+	off_t	offset;
 } mmap_info_t;
 
 #define MMAP_MAPPINGS_MAX	(128)
@@ -404,6 +405,7 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 					if (UNLIKELY(ptr == MAP_FAILED))  {
 						mappings[n].addr = MAP_FAILED;
 						mappings[n].size = 0;
+						mappings[n].offset = 0;
 						continue;
 					}
 				}
@@ -416,12 +418,15 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 					if (UNLIKELY(ptr == MAP_FAILED))  {
 						mappings[n].addr = MAP_FAILED;
 						mappings[n].size = 0;
+						mappings[n].offset = 0;
 						continue;
 					}
 				}
 			}
 			mappings[n].addr = ptr;
 			mappings[n].size = mmap_size;
+			mappings[n].offset = offset;
+
 			if (stress_mwc1()) {
 				for (i = 0; i < mmap_size; i += 64)
 					shim_builtin_prefetch((void *)(ptr + i));
@@ -441,7 +446,7 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 			(void)madvise((void *)ptr, mmap_size, madvise_option);
 #endif
 			(void)shim_mincore((void *)ptr, mmap_size, vec);
-			for (i = 0; i < mmap_size; i += 64) {
+			for (i = 0; i < mmap_size; i += page_size) {
 				if (stress_mwc1())
 					(void)shim_mlock((void *)(ptr + i), page_size);
 				if ((flag & PAGE_WR_FLAG) && (mprotect_flag & PROT_WRITE))
@@ -479,11 +484,26 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 				(void)shim_mincore((void *)ptr, mmap_size, vec);
 
 			if (stress_mwc1()) {
-				(void)stress_munmap_retry_enomem((void *)ptr, mmap_size);
-				mappings[n].addr = MAP_FAILED;
-				mappings[n].size = 0;
-			}
+				int ret;
 
+				ret = stress_munmap_retry_enomem((void *)ptr, mmap_size);
+				if (ret == 0) {
+#if defined(MAP_FIXED)
+					if (stress_mwc1()) {
+						mappings[n].addr = mmap(mappings[n].addr, page_size, 
+								PROT_READ | PROT_WRITE, MAP_FIXED | MAP_SHARED, mmap_fd, mappings[n].offset);
+						mappings[n].size = page_size;
+					} else {
+						mappings[n].addr = MAP_FAILED;
+						mappings[n].size = 0;
+					}
+#endif
+				} else {
+					mappings[n].addr = MAP_FAILED;
+					mappings[n].size = 0;
+				}
+			
+			}
 			stress_bogo_inc(args);
 		}
 
