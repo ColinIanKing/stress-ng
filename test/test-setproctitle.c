@@ -31,7 +31,13 @@
 
 int main(int argc, char *argv[], char *envp[])
 {
+#if !(defined(__APPLE__) || \
+      defined(__DragonFly__) || \
+      defined(__FreeBSD__) || \
+      defined(__NetBSD__) || \
+      defined(__OpenBSD__))
 	setproctitle_init(argc, argv, envp);
+#endif
 	setproctitle("-%s", "this is a test");
 	return 0;
 }
