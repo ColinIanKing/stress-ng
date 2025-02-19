@@ -917,6 +917,7 @@ typedef enum {
 
 	OPT_mmaptorture,
 	OPT_mmaptorture_bytes,
+	OPT_mmaptorture_msync,
 	OPT_mmaptorture_ops,
 
 	OPT_module,

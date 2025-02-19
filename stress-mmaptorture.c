@@ -26,6 +26,7 @@
 static const stress_help_t help[] = {
 	{ NULL,	"mmaptorture N",	"start N workers torturing page mappings" },
 	{ NULL, "mmaptorture-bytes N",	"size of file backed region to be memory mapped" },
+	{ NULL, "mmaptorture-msync N",	"percentage of pages to be msync'd (default 10%)" },
 	{ NULL,	"mmaptorture-ops N",	"stop after N mmaptorture bogo operations" },
 	{ NULL,	NULL,			NULL }
 };
@@ -285,13 +286,24 @@ static void NORETURN MLOCKED_TEXT stress_mmaptorture_sighandler(int signum)
 	siglongjmp(jmp_env, 1);	/* Ugly, bounce back */
 }
 
-static void stress_mmaptorture_msync(uint8_t *addr, const size_t length, const size_t page_size)
+static void stress_mmaptorture_msync(
+	uint8_t *addr,
+	const size_t length,
+	const size_t page_size,
+	const uint32_t mmaptorture_msync)
 {
 #if defined(HAVE_MSYNC)
 	size_t i;
+	uint32_t percent;
+
+	if (mmaptorture_msync > 100)
+		percent = 10000000 * 100;
+	else
+		percent = 10000000 * mmaptorture_msync;
+
 
 	for (i = 0; i < length; i += page_size) {
-		if (stress_mwc1()) {
+		if (stress_mwc32modn(1000000000) < percent) {
 			const int flag = (stress_mwc1() ? MS_SYNC : MS_ASYNC) |
 					 (stress_mwc1() ? 0 : MS_INVALIDATE);
 
@@ -310,12 +322,15 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 {
 	const size_t page_size = args->page_size;
 	const size_t page_mask = ~(page_size - 1);
+	NOCLOBBER uint32_t mmaptorture_msync = 10;
 	NOCLOBBER mmap_info_t *mappings;
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 	NOCLOBBER stress_numa_mask_t *numa_mask = NULL;
 #endif
 	size_t i;
 	(void)context;
+
+	stress_get_setting("mmaptorture-msync", &mmaptorture_msync);
 
 	if (sigsetjmp(jmp_env, 1)) {
 		pr_inf_skip("%s: premature SIGSEGV caught, skipping stressor\n",
@@ -364,7 +379,7 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 				volatile uint8_t *vptr = (volatile uint8_t *)(mmap_data + offset);
 
 				(*vptr)++;
-				stress_mmaptorture_msync(mmap_data, mmap_bytes, page_size);
+				stress_mmaptorture_msync(mmap_data, mmap_bytes, page_size, mmaptorture_msync);
 			}
 		}
 #if defined(HAVE_REMAP_FILE_PAGES) &&   \
@@ -445,15 +460,14 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 					shim_builtin_prefetch((void *)(ptr + i));
 			}
 #if defined(HAVE_LINUX_MEMPOLICY_H)
-			if (numa_mask && stress_mwc1()) {
+			if (numa_mask && stress_mwc1())
 				stress_numa_randomize_pages(numa_mask, (void *)ptr, page_size, mmap_size);
 
 #if defined(HAVE_MSYNC) &&	\
     defined(MS_SYNC) &&		\
     defined(MS_ASYNC)
-				stress_mmaptorture_msync(ptr, mmap_size, page_size);
+			stress_mmaptorture_msync(ptr, mmap_size, page_size, mmaptorture_msync);
 #endif
-			}
 #endif
 #if defined(HAVE_MADVISE)
 			if (madvise((void *)ptr, mmap_size, madvise_option) == 0)
@@ -503,7 +517,7 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 						mmap_stats->madvise_pages++;
 				}
 #endif
-				stress_mmaptorture_msync(ptr + i, page_size, page_size);
+				stress_mmaptorture_msync(ptr + i, page_size, page_size, mmaptorture_msync);
 #if defined(HAVE_MADVISE) &&	\
     defined(MADV_FREE)
 				if (stress_mwc1()) {
@@ -700,7 +714,8 @@ static int stress_mmaptorture(stress_args_t *args)
 }
 
 static const stress_opt_t opts[] = {
-        { OPT_mmaptorture_bytes, "mmaptorture-bytes",  TYPE_ID_SIZE_T_BYTES_VM, MIN_MMAPTORTURE_BYTES, MAX_MMAPTORTURE_BYTES, NULL },
+        { OPT_mmaptorture_bytes, "mmaptorture-bytes", TYPE_ID_SIZE_T_BYTES_VM, MIN_MMAPTORTURE_BYTES, MAX_MMAPTORTURE_BYTES, NULL },
+	{ OPT_mmaptorture_msync, "mmaptorture-msync", TYPE_ID_UINT32, 0, 100, NULL },
 };
 
 const stressor_info_t stress_mmaptorture_info = {
