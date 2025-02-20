@@ -38,7 +38,7 @@ typedef struct {
 } mmap_info_t;
 
 #define MMAP_MAPPINGS_MAX	(128)
-#define MMAP_SIZE_MAP		(4)	/* in pages */
+#define MMAP_SIZE_MAP		(512)	/* in pages */
 
 #define PAGE_WR_FLAG		(0x01)
 #define PAGE_RD_FLAG		(0x02)
@@ -427,7 +427,7 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 			if (UNLIKELY(!stress_continue(args)))
 				break;
 
-			mmap_size = page_size * (1 + stress_mwc8modn(MMAP_SIZE_MAP));
+			mmap_size = page_size * (1 + stress_mwc16modn(MMAP_SIZE_MAP));
 			offset = stress_mwc64modn((uint64_t)mmap_bytes) & page_mask;
 #if defined(HAVE_FALLOCATE)
 #if defined(FALLOC_FL_PUNCH_HOLE) &&	\
