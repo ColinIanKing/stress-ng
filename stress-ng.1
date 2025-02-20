@@ -5261,13 +5261,13 @@ stop after N mmapmany bogo operations
 .RS 5
 .TQ
 .B \-\-mmaptorture N
-start N workers that exercise memory mapping operations on a shared file. Mappings
-of various random sizes are tortured with calls to madvise, mremap, mprotect,
-msync, mlock, munlock, mincore while the underlying file is modified by writes,
-truncation and hole punching. Mapped data is read and written and sync'd back to
-file. For NUMA systems, pages are randomly placed across NUMA nodes. All this
-activity causes cache misses, exercises the TLB and causes IPI interrupts between
-CPUs.
+start N workers that exercise memory mapping operations on a shared file.
+Mappings of various random sizes are tortured with calls to madvise, mremap,
+mprotect, msync, mlock, munlock, mseal and mincore while the underlying file
+is modified by writes, truncation and hole punching. Mapped data is read and
+written and sync'd back to file. For NUMA systems, pages are randomly placed
+across NUMA nodes. All this activity causes cache misses, exercises the TLB
+and causes IPI interrupts between CPUs.
 .TP
 .B \-\-mmaptorture\-bytes N
 allocate N bytes in total for all the mmaptorture stressor instances, the default is
