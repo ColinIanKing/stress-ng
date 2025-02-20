@@ -333,7 +333,6 @@ static void stress_mmaptorture_vm_name(
 		name[1] = hex[j & 0xf];
 
 		stress_set_vma_anon_name(ptr + i, page_size, name);
-		pr_inf("%zd %s\n", i, name);
 	}
 }
 
