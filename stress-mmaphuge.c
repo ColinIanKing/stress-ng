@@ -191,7 +191,7 @@ static int stress_mmaphuge_child(stress_args_t *args, void *v_context)
 		}
 
 		for (i = 0; LIKELY(stress_continue(args) && (i < context->mmaphuge_mmaps)); i++) {
-			if (bufs[i].buf != MAP_FAILED)
+			if (bufs[i].buf == MAP_FAILED)
 				continue;
 			/* Try Transparent Huge Pages THP */
 #if defined(MADV_HUGEPAGE)
