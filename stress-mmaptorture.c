@@ -235,6 +235,23 @@ static const int mmap_flags[] = {
 	0,
 };
 
+#if defined(HAVE_MLOCKALL) &&	\
+    defined(MCL_CURRENT) && 	\
+    defined(MCL_FUTURE)
+static const int mlockall_flags[] = {
+#if defined(MCL_CURRENT)
+	MCL_CURRENT,
+#endif
+#if defined(MCL_FUTURE)
+	MCL_FUTURE,
+#endif
+#if defined(MCL_CURRENT) && 	\
+    defined(MCL_FUTURE)
+	MCL_CURRENT | MCL_FUTURE,
+#endif
+};
+#endif
+
 static void stress_mmaptorture_init(const uint32_t num_instances)
 {
 	char path[PATH_MAX];
@@ -583,6 +600,15 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 		if (stress_mwc1()) {
 			pid = fork();
 			if (pid == 0) {
+#if defined(HAVE_MLOCKALL) &&	\
+    defined(MCL_CURRENT) && 	\
+    defined(MCL_FUTURE)
+				{
+					const size_t idx = stress_mwc8modn(SIZEOF_ARRAY(mlockall_flags));
+
+					(void)shim_mlockall(mlockall_flags[idx]);
+				}
+#endif
 				/* Pass 1, free random pages */
 				for (i = 0; i < n; i++) {
 					ptr = mappings[i].addr;
@@ -621,6 +647,9 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 						mappings[i].size = 0;
 					}
 				}
+#if defined(HAVE_MUNLOCKALL)
+				shim_munlockall();
+#endif
 				_exit(0);
 			}
 		}
