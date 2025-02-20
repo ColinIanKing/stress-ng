@@ -318,6 +318,21 @@ static void stress_mmaptorture_msync(
 #endif
 }
 
+static void stress_mmaptorture_vm_name(void *ptr, const size_t size)
+{
+	static bool setname = true;
+
+	if (setname) {
+		char name[32];
+
+		errno = 0;
+		(void)stress_rndstr(name, sizeof(name));
+		stress_set_vma_anon_name(ptr, size, name);
+		if (errno != 0)
+			setname = false;
+	}
+}
+
 static int stress_mmaptorture_child(stress_args_t *args, void *context)
 {
 	const size_t page_size = args->page_size;
@@ -394,6 +409,7 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 
 		for (n = 0; n < MMAP_MAPPINGS_MAX; n++) {
 			int flag = 0;
+
 #if defined(HAVE_MADVISE)
 			const int madvise_option = madvise_options[stress_mwc8modn(SIZEOF_ARRAY(madvise_options))];
 #endif
@@ -439,10 +455,10 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 				}
 			} else {
 				ptr = (uint8_t *)mmap(NULL, mmap_size, PROT_READ | PROT_WRITE,
-					MAP_PRIVATE | MAP_ANONYMOUS | mmap_flag, -1, 0);
+					MAP_SHARED | MAP_ANONYMOUS | mmap_flag, -1, 0);
 				if (UNLIKELY(ptr == MAP_FAILED)) {
 					ptr = (uint8_t *)mmap(NULL, mmap_size, PROT_READ | PROT_WRITE,
-						MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+						MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 					if (UNLIKELY(ptr == MAP_FAILED))  {
 						mappings[n].addr = MAP_FAILED;
 						mappings[n].size = 0;
@@ -455,6 +471,7 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 			mappings[n].addr = ptr;
 			mappings[n].size = mmap_size;
 			mappings[n].offset = offset;
+			stress_mmaptorture_vm_name((void *)ptr, mmap_size);
 
 			if (stress_mwc1()) {
 				for (i = 0; i < mmap_size; i += 64)
@@ -544,6 +561,7 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 						if (UNLIKELY(mappings[n].addr == MAP_FAILED)) {
 							mappings[n].size = 0;
 						} else {
+							stress_mmaptorture_vm_name((void *)mappings[n].addr, page_size);
 							mmap_stats->mmap_pages++;
 						}
 					} else {
