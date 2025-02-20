@@ -4241,7 +4241,7 @@ close_slow:
 
 /*
  *  stress_file_rw_hint_short()
- *	hint that file data opened on fd hash short lifetime
+ *	hint that file data opened on fd has short lifetime
  */
 void stress_file_rw_hint_short(const int fd)
 {
