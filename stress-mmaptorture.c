@@ -318,18 +318,22 @@ static void stress_mmaptorture_msync(
 #endif
 }
 
-static void stress_mmaptorture_vm_name(void *ptr, const size_t size)
+static void stress_mmaptorture_vm_name(
+	uint8_t *ptr,
+	const size_t size,
+	const size_t page_size)
 {
-	static bool setname = true;
+	char name[32];
+	size_t i, j;
+	char hex[] = "0123456789ABCDEF";
 
-	if (setname) {
-		char name[32];
-
-		errno = 0;
+	for (i = 0, j = 0; i < size; i += page_size, j++) {
 		(void)stress_rndstr(name, sizeof(name));
-		stress_set_vma_anon_name(ptr, size, name);
-		if (errno != 0)
-			setname = false;
+		name[0] = hex[(j >> 4) & 0xf];
+		name[1] = hex[j & 0xf];
+
+		stress_set_vma_anon_name(ptr + i, page_size, name);
+		pr_inf("%zd %s\n", i, name);
 	}
 }
 
@@ -471,7 +475,7 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 			mappings[n].addr = ptr;
 			mappings[n].size = mmap_size;
 			mappings[n].offset = offset;
-			stress_mmaptorture_vm_name((void *)ptr, mmap_size);
+			stress_mmaptorture_vm_name((void *)ptr, mmap_size, page_size);
 
 			if (stress_mwc1()) {
 				for (i = 0; i < mmap_size; i += 64)
@@ -561,7 +565,7 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 						if (UNLIKELY(mappings[n].addr == MAP_FAILED)) {
 							mappings[n].size = 0;
 						} else {
-							stress_mmaptorture_vm_name((void *)mappings[n].addr, page_size);
+							stress_mmaptorture_vm_name((void *)mappings[n].addr, page_size, page_size);
 							mmap_stats->mmap_pages++;
 						}
 					} else {
