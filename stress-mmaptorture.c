@@ -564,12 +564,13 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 			if (pid == 0) {
 				/* Pass 1, free random pages */
 				for (i = 0; i < n; i++) {
+					ptr = mappings[i].addr;
+					mmap_size = mappings[i].size;
+
 					if (madvise((void *)ptr, mmap_size, MADV_DONTNEED) == 0)
 						mmap_stats->madvise_pages += mmap_size / page_size;
 
 					if (stress_mwc1()) {
-						ptr = mappings[i].addr;
-						mmap_size = mappings[i].size;
 						if ((ptr != MAP_FAILED) && (mmap_size > 0)) {
 							(void)stress_munmap_retry_enomem((void *)(ptr + i), page_size);
 							mappings[i].addr = MAP_FAILED;
@@ -577,12 +578,24 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 						}
 					}
 				}
+
+				for (i = 0; i < n; i++) {
+					ptr = mappings[i].addr;
+					mmap_size = mappings[i].size;
+
+					if ((ptr != MAP_FAILED) && (mmap_size > 0)) {
+						(void)shim_mseal(ptr, mmap_size, 0);
+						break;
+					}
+				}
+
 				/* Pass 2, free unfreed pages */
 				for (i = 0; i < n; i++) {
 					ptr = mappings[i].addr;
 					mmap_size = mappings[i].size;
+
 					if ((ptr != MAP_FAILED) && (mmap_size > 0)) {
-						(void)stress_munmap_retry_enomem((void *)(ptr + i), page_size);
+						(void)stress_munmap_retry_enomem((void *)ptr, mmap_size);
 						mappings[i].addr = MAP_FAILED;
 						mappings[i].size = 0;
 					}
