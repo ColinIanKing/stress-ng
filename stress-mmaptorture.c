@@ -229,6 +229,9 @@ static const int mmap_flags[] = {
 #if defined(MAP_SYNC)
 	MAP_SYNC,
 #endif
+#if defined(MAP_UNINITIALIZED)
+	MAP_UNINITIALIZED,
+#endif
 #if defined(MAP_HUGETLB)
 	/* MAP_HUGETLB | (21 << MAP_HUGE_SHIFT), */
 #endif
@@ -426,9 +429,14 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 		if (mprotect(mmap_data, mmap_bytes, PROT_READ | PROT_WRITE) == 0)
 			mmap_stats->mprotect_pages += mmap_bytes / page_size;
 #endif
+		for (n = 0; n < MMAP_MAPPINGS_MAX; n++) {
+			mappings[n].addr = MAP_FAILED;
+			mappings[n].size = 0;
+			mappings[n].offset = 0;
+		}
 
 		for (n = 0; n < MMAP_MAPPINGS_MAX; n++) {
-			int flag = 0;
+			int flag = 0, mmap_flag;
 
 #if defined(HAVE_MADVISE)
 			const int madvise_option = madvise_options[stress_mwc8modn(SIZEOF_ARRAY(madvise_options))];
@@ -438,11 +446,12 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 #else
 			const int mprotect_flag = ~0;
 #endif
-			int mmap_flag = mmap_flags[stress_mwc8modn(SIZEOF_ARRAY(mmap_flags))] |
-				        mmap_flags[stress_mwc8modn(SIZEOF_ARRAY(mmap_flags))];
 
+retry:
 			if (UNLIKELY(!stress_continue(args)))
 				break;
+			mmap_flag = mmap_flags[stress_mwc8modn(SIZEOF_ARRAY(mmap_flags))] |
+				    mmap_flags[stress_mwc8modn(SIZEOF_ARRAY(mmap_flags))];
 
 			mmap_size = page_size * (1 + stress_mwc16modn(MMAP_SIZE_MAP));
 			offset = stress_mwc64modn((uint64_t)mmap_bytes) & page_mask;
@@ -466,12 +475,8 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 				if (UNLIKELY(ptr == MAP_FAILED)) {
 					ptr = (uint8_t *)mmap(NULL, mmap_size, PROT_READ | PROT_WRITE,
 						MAP_SHARED, mmap_fd, offset);
-					if (UNLIKELY(ptr == MAP_FAILED))  {
-						mappings[n].addr = MAP_FAILED;
-						mappings[n].size = 0;
-						mappings[n].offset = 0;
-						continue;
-					}
+					if (UNLIKELY(ptr == MAP_FAILED))
+						goto retry;
 				}
 			} else {
 				ptr = (uint8_t *)mmap(NULL, mmap_size, PROT_READ | PROT_WRITE,
@@ -479,12 +484,8 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 				if (UNLIKELY(ptr == MAP_FAILED)) {
 					ptr = (uint8_t *)mmap(NULL, mmap_size, PROT_READ | PROT_WRITE,
 						MAP_SHARED | MAP_ANONYMOUS, -1, 0);
-					if (UNLIKELY(ptr == MAP_FAILED))  {
-						mappings[n].addr = MAP_FAILED;
-						mappings[n].size = 0;
-						mappings[n].offset = 0;
-						continue;
-					}
+					if (UNLIKELY(ptr == MAP_FAILED))
+						goto retry;
 				}
 			}
 			mmap_stats->mmap_pages += mmap_size / page_size;
