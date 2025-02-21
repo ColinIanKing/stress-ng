@@ -358,16 +358,16 @@ static void stress_mmaptorture_vm_name(
 	const size_t size,
 	const size_t page_size)
 {
-	char name[32];
+	char vma_name[32];
 	size_t i, j;
 	char hex[] = "0123456789ABCDEF";
 
 	for (i = 0, j = 0; i < size; i += page_size, j++) {
-		(void)stress_rndstr(name, sizeof(name));
-		name[0] = hex[(j >> 4) & 0xf];
-		name[1] = hex[j & 0xf];
+		(void)stress_rndstr(vma_name, sizeof(vma_name));
+		vma_name[0] = hex[(j >> 4) & 0xf];
+		vma_name[1] = hex[j & 0xf];
 
-		stress_set_vma_anon_name(ptr + i, page_size, name);
+		stress_set_vma_anon_name(ptr + i, page_size, vma_name);
 	}
 }
 
@@ -511,24 +511,24 @@ retry:
 			if (stress_mwc1()) {
 				/* anonymous shm mapping */
 				int shm_fd;
-				char name[128];
+				char shm_name[128];
 
-				(void)snprintf(name, sizeof(name), "%s-%" PRIdMAX "-%zd",
+				(void)snprintf(shm_name, sizeof(shm_name), "%s-%" PRIdMAX "-%zd",
 						args->name, (intmax_t)mypid, n);
-				shm_fd = shm_open(name, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
+				shm_fd = shm_open(shm_name, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
 				if (shm_fd < 0)
 					goto retry;
 				ptr = mmap(NULL, mmap_size, PROT_READ | PROT_WRITE,
 						MAP_SHARED | mmap_flag, shm_fd, offset);
 				if (ptr != MAP_FAILED) {
-					(void)shm_unlink(name);
+					(void)shm_unlink(shm_name);
 					(void)close(shm_fd);
 					goto mapped_ok;
 				}
 				ptr = mmap(NULL, mmap_size, PROT_READ | PROT_WRITE,
 						MAP_SHARED, shm_fd, offset);
 				if (ptr != MAP_FAILED) {
-					(void)shm_unlink(name);
+					(void)shm_unlink(shm_name);
 					(void)close(shm_fd);
 					goto mapped_ok;
 				}
