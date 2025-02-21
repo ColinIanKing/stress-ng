@@ -360,6 +360,7 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 {
 	const size_t page_size = args->page_size;
 	const size_t page_mask = ~(page_size - 1);
+	const pid_t mypid = getpid();
 	NOCLOBBER uint32_t mmaptorture_msync = 10;
 	NOCLOBBER mmap_info_t *mappings;
 #if defined(HAVE_LINUX_MEMPOLICY_H)
@@ -393,6 +394,7 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 	for (i = 0; i < MMAP_MAPPINGS_MAX; i++) {
 		mappings[i].addr = MAP_FAILED;
 		mappings[i].size = 0;
+		mappings[i].offset = 0;
 	}
 
 	do {
@@ -470,24 +472,59 @@ retry:
 #endif
 #endif
 			if (stress_mwc1()) {
+				/* file based mmap */
 				ptr = (uint8_t *)mmap(NULL, mmap_size, PROT_READ | PROT_WRITE,
-					MAP_SHARED | mmap_flag, mmap_fd, offset);
-				if (UNLIKELY(ptr == MAP_FAILED)) {
-					ptr = (uint8_t *)mmap(NULL, mmap_size, PROT_READ | PROT_WRITE,
-						MAP_SHARED, mmap_fd, offset);
-					if (UNLIKELY(ptr == MAP_FAILED))
-						goto retry;
-				}
-			} else {
+							MAP_SHARED | mmap_flag, mmap_fd, offset);
+				if (ptr != MAP_FAILED)
+					goto mapped_ok;
 				ptr = (uint8_t *)mmap(NULL, mmap_size, PROT_READ | PROT_WRITE,
-					MAP_SHARED | MAP_ANONYMOUS | mmap_flag, -1, 0);
-				if (UNLIKELY(ptr == MAP_FAILED)) {
-					ptr = (uint8_t *)mmap(NULL, mmap_size, PROT_READ | PROT_WRITE,
-						MAP_SHARED | MAP_ANONYMOUS, -1, 0);
-					if (UNLIKELY(ptr == MAP_FAILED))
-						goto retry;
-				}
+							MAP_SHARED, mmap_fd, offset);
+				if (ptr != MAP_FAILED)
+					goto mapped_ok;
+				goto retry;
 			}
+#if defined(HAVE_LIB_RT) &&	\
+    defined(HAVE_SHM_OPEN) &&	\
+    defined(HAVE_SHM_UNLINK)
+			if (stress_mwc1()) {
+				/* anonymous shm mapping */
+				int shm_fd;
+				char name[128];
+
+				(void)snprintf(name, sizeof(name), "%s-%" PRIdMAX "-%zd",
+						args->name, (intmax_t)mypid, n);
+				shm_fd = shm_open(name, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
+				if (shm_fd < 0)
+					goto retry;
+				ptr = mmap(NULL, mmap_size, PROT_READ | PROT_WRITE,
+						MAP_SHARED | mmap_flag, shm_fd, offset);
+				if (ptr != MAP_FAILED) {
+					(void)shm_unlink(name);
+					(void)close(shm_fd);
+					goto mapped_ok;
+				}
+				ptr = mmap(NULL, mmap_size, PROT_READ | PROT_WRITE,
+						MAP_SHARED, shm_fd, offset);
+				if (ptr != MAP_FAILED) {
+					(void)shm_unlink(name);
+					(void)close(shm_fd);
+					goto mapped_ok;
+				}
+				goto retry;
+			}
+#endif
+			/* anonymous mmap mapping */
+			ptr = (uint8_t *)mmap(NULL, mmap_size, PROT_READ | PROT_WRITE,
+						MAP_SHARED | MAP_ANONYMOUS | mmap_flag, -1, 0);
+			if (LIKELY(ptr != MAP_FAILED))
+				goto mapped_ok;
+			ptr = (uint8_t *)mmap(NULL, mmap_size, PROT_READ | PROT_WRITE,
+						MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+			if (LIKELY(ptr != MAP_FAILED))
+				goto mapped_ok;
+			goto retry;
+
+mapped_ok:
 			mmap_stats->mmap_pages += mmap_size / page_size;
 			mappings[n].addr = ptr;
 			mappings[n].size = mmap_size;
