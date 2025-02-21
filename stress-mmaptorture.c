@@ -417,6 +417,7 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 		NOCLOBBER uint8_t *ptr;
 		NOCLOBBER size_t n, mmap_size;
 		NOCLOBBER pid_t pid = -1;
+		NOCLOBBER uint64_t total_bytes = 0;
 		off_t offset;
 
 		if (sigsetjmp(jmp_env, 1))
@@ -467,6 +468,11 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 retry:
 			if (UNLIKELY(!stress_continue(args)))
 				break;
+
+			/* Don't exceed mmap limit */
+			if (total_bytes >= mmap_bytes)
+				break;
+
 			mmap_flag = mmap_flags[stress_mwc8modn(SIZEOF_ARRAY(mmap_flags))] |
 				    mmap_flags[stress_mwc8modn(SIZEOF_ARRAY(mmap_flags))];
 
@@ -543,6 +549,7 @@ retry:
 			goto retry;
 
 mapped_ok:
+			total_bytes += mmap_size;
 			mmap_stats->mmap_pages += mmap_size / page_size;
 			mappings[n].addr = ptr;
 			mappings[n].size = mmap_size;
