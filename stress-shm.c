@@ -55,7 +55,9 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
-#if defined(HAVE_LIB_RT)
+#if defined(HAVE_LIB_RT) &&	\
+    defined(HAVE_SHM_OPEN) &&	\
+    defined(HAVE_SHM_UNLINK)
 
 /*
  *  stress_shm_posix_check()

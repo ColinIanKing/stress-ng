@@ -366,7 +366,9 @@ static int stress_close(stress_args_t *args)
 			fd = open("/tmp/", O_RDONLY | O_DIRECTORY | O_CLOEXEC);
 			break;
 #endif
-#if defined(HAVE_LIB_RT)
+#if defined(HAVE_LIB_RT) &&	\
+    defined(HAVE_SHM_OPEN) &&	\
+    defined(HAVE_SHM_UNLINK)
 		case 12:
 			fd = shm_open(shm_name, O_CREAT | O_RDWR | O_TRUNC,
 				S_IRUSR | S_IWUSR);
