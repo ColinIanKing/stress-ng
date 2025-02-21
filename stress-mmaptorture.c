@@ -54,6 +54,9 @@ typedef struct {
 	uint64_t	mprotect_pages;
 	uint64_t	madvise_pages;
 	uint64_t	remapped_pages;
+	uint64_t	sigbus_traps;
+	uint64_t	sigsegv_traps;
+	uint64_t	mmap_retries;
 } mmap_stats_t;
 
 static sigjmp_buf jmp_env;
@@ -303,6 +306,18 @@ static void NORETURN MLOCKED_TEXT stress_mmaptorture_sighandler(int signum)
 {
 	(void)signum;
 
+	switch (signum) {
+	case SIGBUS:
+		if (mmap_stats)
+			mmap_stats->sigbus_traps++;
+		break;
+	case SIGSEGV:
+		if (mmap_stats)
+			mmap_stats->sigbus_traps++;
+		break;
+	default:
+		break;
+	}
 	siglongjmp(jmp_env, 1);	/* Ugly, bounce back */
 }
 
@@ -481,6 +496,7 @@ retry:
 							MAP_SHARED, mmap_fd, offset);
 				if (ptr != MAP_FAILED)
 					goto mapped_ok;
+				mmap_stats->mmap_retries++;
 				goto retry;
 			}
 #if defined(HAVE_LIB_RT) &&	\
@@ -510,6 +526,7 @@ retry:
 					(void)close(shm_fd);
 					goto mapped_ok;
 				}
+				mmap_stats->mmap_retries++;
 				goto retry;
 			}
 #endif
@@ -522,6 +539,7 @@ retry:
 						MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 			if (LIKELY(ptr != MAP_FAILED))
 				goto mapped_ok;
+			mmap_stats->mmap_retries++;
 			goto retry;
 
 mapped_ok:
@@ -809,6 +827,12 @@ static int stress_mmaptorture(stress_args_t *args)
 	stress_metrics_set(args, 4, "pages madvised pec sec", rate, STRESS_METRIC_HARMONIC_MEAN);
 	rate = (duration > 0.0) ? (double)mmap_stats->remapped_pages / duration : 0.0;
 	stress_metrics_set(args, 5, "pages remapped pec sec", rate, STRESS_METRIC_HARMONIC_MEAN);
+	rate = (duration > 0.0) ? (double)mmap_stats->mmap_retries / duration : 0.0;
+	stress_metrics_set(args, 6, "mmap retries pec sec", rate, STRESS_METRIC_HARMONIC_MEAN);
+	rate = (duration > 0.0) ? (double)mmap_stats->sigbus_traps / duration : 0.0;
+	stress_metrics_set(args, 7, "intentional SIGBUS signals sec", rate, STRESS_METRIC_HARMONIC_MEAN);
+	rate = (duration > 0.0) ? (double)mmap_stats->sigsegv_traps / duration : 0.0;
+	stress_metrics_set(args, 8, "intentional SIGSEGV signals sec", rate, STRESS_METRIC_HARMONIC_MEAN);
 
 	(void)munmap((void *)mmap_stats, sizeof(*mmap_stats));
 
