@@ -376,8 +376,10 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 	const size_t page_size = args->page_size;
 	const size_t page_mask = ~(page_size - 1);
 	const pid_t mypid = getpid();
+	char *data;
 	NOCLOBBER uint32_t mmaptorture_msync = 10;
 	NOCLOBBER mmap_info_t *mappings;
+	NOCLOBBER off_t mmap_fd_offset = 0;
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 	NOCLOBBER stress_numa_mask_t *numa_mask = NULL;
 #endif
@@ -396,9 +398,16 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 	if (stress_sighandler(args->name, SIGSEGV, stress_mmaptorture_sighandler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 
+	data = malloc(page_size);
+	if (UNLIKELY(!data)) {
+		pr_fail("%s: malloc failed, out of memory\n", args->name);
+		return EXIT_NO_RESOURCE;
+	}
+
 	mappings = (mmap_info_t *)calloc((size_t)MMAP_MAPPINGS_MAX, sizeof(*mappings));
 	if (UNLIKELY(!mappings)) {
 		pr_fail("%s: calloc failed, out of memory\n", args->name);
+		free(data);
 		return EXIT_NO_RESOURCE;
 	}
 
@@ -428,11 +437,8 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 
 		offset = stress_mwc64modn((uint64_t)mmap_bytes) & page_mask;
 		if (lseek(mmap_fd, offset, SEEK_SET) == offset) {
-			char data[page_size];
-
-			shim_memset(data, stress_mwc8(), sizeof(data));
-
-			if (write(mmap_fd, data, sizeof(data)) == (ssize_t)sizeof(data)) {
+			(void)shim_memset(data, stress_mwc8(), page_size);
+			if (write(mmap_fd, data, page_size) == (ssize_t)page_size) {
 				volatile uint8_t *vptr = (volatile uint8_t *)(mmap_data + offset);
 
 				(*vptr)++;
@@ -774,6 +780,27 @@ mappings_unmap:
 			mappings[i].addr = MAP_FAILED;
 			mappings[i].size = 0;
 		}
+
+		if (stress_mwc1()) {
+			if (shim_fallocate(mmap_fd, 0, mmap_fd_offset, page_size) == 0)
+				(void)shim_memcpy(data, mmap_data + mmap_fd_offset, page_size);
+		} else {
+#if defined(HAVE_PWRITE)
+			(void)shim_memset(data, stress_mwc8(), page_size);
+			if (pwrite(mmap_fd, data, page_size, mmap_fd_offset) == (ssize_t)page_size)
+				(void)shim_memcpy(data, mmap_data + mmap_fd_offset, page_size);
+#else
+			(void)shim_memset(data, stress_mwc8(), page_size);
+			if (lseek(mmap_fd, mmap_fd_offset, SEEK_SET) == mmap_fd_offset) {
+				if (write(mmap_fd, data, page_size) == (ssize_t)page_size)
+					(void)shim_memcpy(data, mmap_data + mmap_fd_offset, page_size);
+			}
+#endif
+		}
+		mmap_fd_offset += page_size;
+		if (mmap_fd_offset >= (off_t)mmap_bytes)
+			mmap_bytes = 0;
+
 		if (pid > 0)
 			(void)stress_kill_and_wait(args, pid, SIGKILL, false);
 	} while (stress_continue(args));
@@ -785,6 +812,8 @@ mappings_unmap:
 		stress_numa_mask_free(numa_mask);
 #endif
 	free(mappings);
+	free(data);
+
 	return EXIT_SUCCESS;
 }
 
