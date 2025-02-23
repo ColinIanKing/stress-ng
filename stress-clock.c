@@ -457,7 +457,7 @@ static int stress_clock(stress_args_t *args)
 				if (UNLIKELY(ret < 0)) {
 					timer_fail[i] = true;
 					if (g_opt_flags & OPT_FLAGS_VERIFY) {
-						if ((errno == EINVAL) || (errno == EPERM))
+						if ((errno == EINVAL) || (errno == EPERM) || (errno == ENOTSUP))
 							continue;
 						pr_fail("%s: timer_create failed for timer '%s', errno=%d (%s)\n",
 							args->name,

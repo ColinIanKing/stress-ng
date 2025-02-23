@@ -193,7 +193,7 @@ static int stress_timer(stress_args_t *args)
 	sev.sigev_signo = SIGRTMIN;
 	sev.sigev_value.sival_ptr = &timerid;
 	if (timer_create(CLOCK_REALTIME, &sev, &timerid) < 0) {
-		if ((errno == EAGAIN) || (errno == ENOMEM)) {
+		if ((errno == EAGAIN) || (errno == ENOMEM) || (errno == ENOTSUP)) {
 			pr_inf_skip("%s: could not create timer, out of "
 				"resources, skipping stressor\n",
 				args->name);
