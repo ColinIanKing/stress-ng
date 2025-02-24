@@ -843,5 +843,15 @@ if [ -e $PERF_PARANOID ]; then
 	(echo $paranoid_saved | sudo tee $PERF_PARANOID) > /dev/null
 fi
 
+#
+#  Process gcov data
+#
 sudo lcov -c --branch-coverage -o kernel.info --keep-going >& /dev/null
+#
+#  Convert to html
+#
 sudo genhtml --ignore-errors inconsistent -o html kernel.info
+#
+#  Covert to ascii for machine parsing
+#
+sudo find html -print -name "*.html" -exec html2text -ascii -o {}.txt {} \;
