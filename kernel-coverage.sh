@@ -843,5 +843,5 @@ if [ -e $PERF_PARANOID ]; then
 	(echo $paranoid_saved | sudo tee $PERF_PARANOID) > /dev/null
 fi
 
-sudo lcov -c -o kernel.info --keep-going >& /dev/null
+sudo lcov -c --branch-coverage -o kernel.info --keep-going >& /dev/null
 sudo genhtml --ignore-errors inconsistent -o html kernel.info
