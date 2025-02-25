@@ -28,8 +28,9 @@
 
 #include <time.h>
 
-#define MR_RD			(0)
-#define MR_WR			(1)
+#define MR_RD			(0x0001)
+#define MR_WR			(0x0002)
+#define MR_RW			(MR_RD | MR_WR)
 
 #define MIN_MEMRATE_BYTES       (4 * KB)
 #define MAX_MEMRATE_BYTES       (MAX_MEM_LIMIT)
@@ -41,10 +42,11 @@
 static const stress_help_t help[] = {
 	{ NULL,	"memrate N",		"start N workers exercised memory read/writes" },
 	{ NULL,	"memrate-bytes N",	"size of memory buffer being exercised" },
+	{ NULL,	"memrate-flush",	"flush cache before each iteration" },
+	{ NULL, "memrate-method M",	"specify read/write memory exercising method" },
 	{ NULL,	"memrate-ops N",	"stop after N memrate bogo operations" },
 	{ NULL,	"memrate-rd-mbs N",	"read rate from buffer in megabytes per second" },
 	{ NULL,	"memrate-wr-mbs N",	"write rate to buffer in megabytes per second" },
-	{ NULL,	"memrate-flush",	"flush cache before each iteration" },
 	{ NULL,	NULL,			NULL }
 };
 
@@ -68,6 +70,7 @@ typedef struct {
 	uint64_t memrate_bytes;
 	uint64_t memrate_rd_mbs;
 	uint64_t memrate_wr_mbs;
+	size_t memrate_method;
 	void *start;
 	void *end;
 	bool memrate_flush;
@@ -847,6 +850,7 @@ STRESS_MEMRATE_WRITE(8, uint8_t)
 STRESS_MEMRATE_WRITE_RATE(8, uint8_t)
 
 static stress_memrate_info_t memrate_info[] = {
+	{ "all",	MR_RW,  NULL,				NULL },
 #if defined(HAVE_ASM_X86_REP_STOSQ) &&	\
     !defined(__ILP32__)
 	{ "write64stoq", MR_WR,	stress_memrate_write_stos64,	stress_memrate_write_stos_rate64 },
@@ -962,6 +966,25 @@ static inline uint64_t stress_memrate_dispatch(
 	}
 }
 
+static void stress_memrate_dispatch_method(
+	const stress_memrate_context_t *context,
+	const size_t method)
+{
+	double t1, t2;
+	uint64_t kbytes;
+	const stress_memrate_info_t *info = &memrate_info[method];
+	bool valid = false;
+
+	if (context->memrate_flush)
+		stress_memrate_flush(context);
+	t1 = stress_time_now();
+	kbytes = stress_memrate_dispatch(info, context, &valid);
+	context->stats[method].kbytes += (double)kbytes;
+	t2 = stress_time_now();
+	context->stats[method].duration += (t2 - t1);
+	context->stats[method].valid = valid;
+}
+
 static int stress_memrate_child(stress_args_t *args, void *ctxt)
 {
 	stress_memrate_context_t *context = (stress_memrate_context_t *)ctxt;
@@ -989,23 +1012,14 @@ static int stress_memrate_child(stress_args_t *args, void *ctxt)
 	do {
 		size_t i;
 
-		for (i = 0; i < memrate_items; i++) {
-			double t1, t2;
-			uint64_t kbytes;
-			const stress_memrate_info_t *info = &memrate_info[i];
-			bool valid = false;
-
-			if (context->memrate_flush)
-				stress_memrate_flush(context);
-			t1 = stress_time_now();
-			kbytes = stress_memrate_dispatch(info, context, &valid);
-			context->stats[i].kbytes += (double)kbytes;
-			t2 = stress_time_now();
-			context->stats[i].duration += (t2 - t1);
-			context->stats[i].valid = valid;
-
-			if (UNLIKELY(!stress_continue(args)))
-				break;
+		if (context->memrate_method == 0) {
+			for (i = 1; i < memrate_items; i++) {
+				stress_memrate_dispatch_method(context, i);
+				if (UNLIKELY(!stress_continue(args)))
+					break;
+			}
+		} else {
+			stress_memrate_dispatch_method(context, context->memrate_method);
 		}
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
@@ -1029,14 +1043,24 @@ static int stress_memrate(stress_args_t *args)
 	context.memrate_rd_mbs = ~0ULL;
 	context.memrate_wr_mbs = ~0ULL;
 	context.memrate_flush = false;
+	context.memrate_method = 0; 	/* all */
+	int flag;
 
 	(void)stress_get_setting("memrate-bytes", &context.memrate_bytes);
 	(void)stress_get_setting("memrate-flush", &context.memrate_flush);
 	(void)stress_get_setting("memrate-rd-mbs", &context.memrate_rd_mbs);
 	(void)stress_get_setting("memrate-wr-mbs", &context.memrate_wr_mbs);
+	(void)stress_get_setting("memrate-method", &context.memrate_method);
 
 	if ((context.memrate_rd_mbs == 0ULL) && (context.memrate_wr_mbs == 0ULL)) {
 		pr_fail("%s: cannot use zero MB rates for read and write\n", args->name);
+		return EXIT_FAILURE;
+	}
+	flag = ((context.memrate_rd_mbs == 0) ? 0 : MR_RD) |
+	       ((context.memrate_wr_mbs == 0) ? 0 : MR_WR);
+	if ((flag & memrate_info[context.memrate_method].rdwr) == 0) {
+		pr_fail("%s: cannot use zero MB rate and just methood %s\n",
+			args->name, memrate_info[context.memrate_method].name);
 		return EXIT_FAILURE;
 	}
 
@@ -1077,7 +1101,7 @@ static int stress_memrate(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	pr_block_begin();
-	for (i = 0; i < memrate_items; i++) {
+	for (i = 1; i < memrate_items; i++) {
 		if (!context.stats[i].valid)
 			continue;
 		if (context.stats[i].duration > 0.0) {
@@ -1099,11 +1123,18 @@ static int stress_memrate(stress_args_t *args)
 	return rc;
 }
 
+static const char *stress_memmap_method(const size_t i)
+{
+        return (i < SIZEOF_ARRAY(memrate_info)) ? memrate_info[i].name : NULL;
+}
+
+
 static const stress_opt_t opts[] = {
 	{ OPT_memrate_bytes,  "memrate-bytes",  TYPE_ID_UINT64_BYTES_VM, MIN_MEMRATE_BYTES, MAX_MEMRATE_BYTES, NULL },
 	{ OPT_memrate_flush,  "memrate-flush",  TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_memrate_rd_mbs, "memrate-rd-mbs", TYPE_ID_UINT64, 0, 1000000, NULL },
 	{ OPT_memrate_wr_mbs, "memrate-wr-mbs", TYPE_ID_UINT64, 0, 1000000, NULL },
+	{ OPT_memrate_method, "memrate-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_memmap_method },
 	END_OPT,
 };
 

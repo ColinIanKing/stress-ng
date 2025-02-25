@@ -4742,6 +4742,44 @@ LLC (lower level cache size).
 flush cache between each memory exercising test to remove caching benefits in
 memory rate metrics.
 .TP
+.B \-\-memrate\-method
+specify a memrate stress method, some methods are available to specific architectures
+or toolchains that support them. Available memrate stress methods are described
+as follows:
+.sp
+.TS
+lB2 lB
+l lx.
+Method	Description
+all	iterate over all the below memrate methods
+read128pf	read 128 bits per read using prefetching
+read64pf	read 64 bits per read using prefetching
+read1024	read a vector of 1024 bits per read
+read512	read a vector of 512 bits per read
+read256	read a vector of 256 bits per read
+read128	read 128 bits per read
+read64	read 64 bits per read
+read32	read 32 bits per read
+read16	read 16 bits per read
+read8	read 8 bits per read
+write64stoq	write 64 bits per write with x86 rep stoq
+write32stow	write 32 bits per write with x86 rep stow
+write16stod	write 16 bits per write with x86 rep stod
+write8stob	write 8 bits per write with x86 rep stob
+write128nt	write 128 bits per write using non-temporal store
+write64nt	write 64 bits per write using non-temporal store
+write32nt	write 32 bits per write using non-temporal store
+write1024	write a vector of 1024 bits per write
+write512	write a vector of 512 bits per write
+write256	write a vector of 256 bits per write
+write128	write 128 bits per write
+write64	write 64 bits per write
+write32	write 32 bits per write
+write16	write 16 bits per write
+write8	write 8 bits per write
+memset	write using libc memset
+.TE
+.TP
 .B \-\-memrate\-ops N
 stop after N bogo memrate operations.
 .TP

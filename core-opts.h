@@ -823,6 +823,7 @@ typedef enum {
 	OPT_memrate,
 	OPT_memrate_bytes,
 	OPT_memrate_flush,
+	OPT_memrate_method,
 	OPT_memrate_ops,
 	OPT_memrate_rd_mbs,
 	OPT_memrate_wr_mbs,
