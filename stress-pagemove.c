@@ -144,7 +144,7 @@ static int stress_pagemove_child(stress_args_t *args, void *context)
 		if (UNLIKELY(!stress_continue(args)))
 			break;
 
-		(void)madvise((void *)buf, sz, PROT_WRITE);
+		(void)mprotect((void *)buf, sz, PROT_WRITE);
 
 		for (page_num = 0, ptr = buf; ptr < buf_end; ptr += page_size, page_num++) {
 			page_info_t *p = (page_info_t *)ptr;
@@ -153,7 +153,7 @@ static int stress_pagemove_child(stress_args_t *args, void *context)
 			p->virt_addr = (void *)ptr;
 		}
 
-		(void)madvise((void *)buf, sz, PROT_READ);
+		(void)mprotect((void *)buf, sz, PROT_READ);
 
 		for (page_num = 0, ptr = buf; ptr < buf_end; ptr += page_size, page_num++) {
 			register const page_info_t *p = (page_info_t *)ptr;
