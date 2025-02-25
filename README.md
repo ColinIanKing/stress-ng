@@ -704,6 +704,8 @@ stress-ng has found various Kernel, QEMU bugs/regressions, and libc bugs; approp
  * [SPY-PMU: Side-Channel Profiling of Your Performance Monitoring Unit to Leak Remote User Activity](https://eprint.iacr.org/2025/014)
  * [RCAEval: A Benchmark for Root Cause Analysis of Microservice Systems with Telemetry Data](https://arxiv.org/html/2412.17015v4)
  * [Performance Prediction of On-NIC Network Functions with Multi-Resource Contention and Traffic Awareness](https://arxiv.org/html/2405.05529v5)
+ * [KernelSnitch: Side-Channel Attacks on Kernel Data Structures](https://www.ndss-symposium.org/wp-content/uploads/2025-223-paper.pdf)
+ * [A measurement-based approach to analyze the power consumption of the softwarized 5G core](https://arxiv.org/pdf/2502.13879)
 
 I am keen to add to the stress-ng project page any citations to research or
 projects that use stress-ng.  I also appreciate information concerning kernel
