@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "19 February 2025"
+.TH STRESS-NG 1 "25 February 2025"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -4748,12 +4748,12 @@ stop after N bogo memrate operations.
 .B \-\-memrate\-rd\-mbs N
 specify the maximum allowed read rate in MB/sec. The actual read rate
 is dependent on scheduling jitter and memory accesses from other running
-processes.
+processes. Setting this to zero will disable reads.
 .TP
 .B \-\-memrate\-wr\-mbs N
 specify the maximum allowed read rate in MB/sec. The actual write rate
 is dependent on scheduling jitter and memory accesses from other running
-processes.
+processes. Setting this to zero will disable writes.
 .RE
 .TP
 .B Memory thrash stressor

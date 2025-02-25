@@ -951,11 +951,15 @@ static inline uint64_t stress_memrate_dispatch(
 	const stress_memrate_context_t *context,
 	bool *valid)
 {
-	if (((info->rdwr == MR_RD) && (context->memrate_rd_mbs == ~0ULL)) ||
-	    ((info->rdwr == MR_WR) && (context->memrate_wr_mbs == ~0ULL))) {
+	if (((info->rdwr == MR_RD) && (context->memrate_rd_mbs == 0ULL)) ||
+	    ((info->rdwr == MR_WR) && (context->memrate_wr_mbs == 0ULL))) {
+		return 0;
+	} else if (((info->rdwr == MR_RD) && (context->memrate_rd_mbs == ~0ULL)) ||
+		 ((info->rdwr == MR_WR) && (context->memrate_wr_mbs == ~0ULL))) {
 		return info->func(context, valid);
+	} else {
+		return info->func_rate(context, valid);
 	}
-	return info->func_rate(context, valid);
 }
 
 static int stress_memrate_child(stress_args_t *args, void *ctxt)
@@ -1031,6 +1035,11 @@ static int stress_memrate(stress_args_t *args)
 	(void)stress_get_setting("memrate-rd-mbs", &context.memrate_rd_mbs);
 	(void)stress_get_setting("memrate-wr-mbs", &context.memrate_wr_mbs);
 
+	if ((context.memrate_rd_mbs == 0ULL) && (context.memrate_wr_mbs == 0ULL)) {
+		pr_fail("%s: cannot use zero MB rates for read and write\n", args->name);
+		return EXIT_FAILURE;
+	}
+
 	stats_size = memrate_items * sizeof(*context.stats);
 	stats_size = (stats_size + args->page_size - 1) & ~(args->page_size - 1);
 
@@ -1093,8 +1102,8 @@ static int stress_memrate(stress_args_t *args)
 static const stress_opt_t opts[] = {
 	{ OPT_memrate_bytes,  "memrate-bytes",  TYPE_ID_UINT64_BYTES_VM, MIN_MEMRATE_BYTES, MAX_MEMRATE_BYTES, NULL },
 	{ OPT_memrate_flush,  "memrate-flush",  TYPE_ID_BOOL, 0, 1, NULL },
-	{ OPT_memrate_rd_mbs, "memrate-rd-mbs", TYPE_ID_UINT64, 1, 1000000, NULL },
-	{ OPT_memrate_wr_mbs, "memrate-wr-mbs", TYPE_ID_UINT64, 1, 1000000, NULL },
+	{ OPT_memrate_rd_mbs, "memrate-rd-mbs", TYPE_ID_UINT64, 0, 1000000, NULL },
+	{ OPT_memrate_wr_mbs, "memrate-wr-mbs", TYPE_ID_UINT64, 0, 1000000, NULL },
 	END_OPT,
 };
 
