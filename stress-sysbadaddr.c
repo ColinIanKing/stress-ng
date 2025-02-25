@@ -1229,7 +1229,7 @@ static void bad_lstat3(stress_bad_addr_t *ba, volatile uint64_t *counter)
 static void bad_madvise(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	(*counter)++;
-	VOID_RET(int, madvise((void *)ba->addr, 8192, MADV_NORMAL));
+	VOID_RET(int, shim_madvise((void *)ba->addr, 8192, SHIM_MADV_NORMAL));
 }
 #else
 UNEXPECTED
