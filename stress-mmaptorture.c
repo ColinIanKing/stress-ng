@@ -67,126 +67,129 @@ static size_t mmap_bytes = DEFAULT_MMAPTORTURE_BYTES;
 static bool mmap_bytes_adjusted = false;
 static mmap_stats_t *mmap_stats;
 
-#if defined(HAVE_MADVISE)
 static const int madvise_options[] = {
-#if defined(MADV_NORMAL)
-	MADV_NORMAL,
+#if defined(SHIM_MADV_NORMAL)
+	SHIM_MADV_NORMAL,
 #endif
-#if defined(MADV_RANDOM)
-	MADV_RANDOM,
+#if defined(SHIM_MADV_RANDOM)
+	SHIM_MADV_RANDOM,
 #endif
-#if defined(MADV_SEQUENTIAL)
-	MADV_SEQUENTIAL,
+#if defined(SHIM_MADV_SEQUENTIAL)
+	SHIM_MADV_SEQUENTIAL,
 #endif
-#if defined(MADV_WILLNEED)
-	MADV_WILLNEED,
+#if defined(SHIM_MADV_WILLNEED)
+	SHIM_MADV_WILLNEED,
 #endif
-#if defined(MADV_DONTNEED)
-	MADV_DONTNEED,
+#if defined(SHIM_MADV_DONTNEED)
+	SHIM_MADV_DONTNEED,
 #endif
-#if defined(MADV_REMOVE)
-	MADV_REMOVE,
+#if defined(SHIM_MADV_REMOVE)
+	SHIM_MADV_REMOVE,
 #endif
-#if defined(MADV_DONTFORK)
-	MADV_DONTFORK,
+#if defined(SHIM_MADV_DONTFORK)
+	SHIM_MADV_DONTFORK,
 #endif
-#if defined(MADV_DOFORK)
-	MADV_DOFORK,
+#if defined(SHIM_MADV_DOFORK)
+	SHIM_MADV_DOFORK,
 #endif
-#if defined(MADV_MERGEABLE)
-	MADV_MERGEABLE,
+#if defined(SHIM_MADV_MERGEABLE)
+	SHIM_MADV_MERGEABLE,
 #endif
-#if defined(MADV_UNMERGEABLE)
-	MADV_UNMERGEABLE,
+#if defined(SHIM_MADV_UNMERGEABLE)
+	SHIM_MADV_UNMERGEABLE,
 #endif
-#if defined(MADV_SOFT_OFFLINE)
-	MADV_SOFT_OFFLINE,
+#if defined(SHIM_MADV_SOFT_OFFLINE)
+	SHIM_MADV_SOFT_OFFLINE,
 #endif
-#if defined(MADV_HUGEPAGE)
-	MADV_HUGEPAGE,
+#if defined(SHIM_MADV_HUGEPAGE)
+	SHIM_MADV_HUGEPAGE,
 #endif
-#if defined(MADV_NOHUGEPAGE)
-	MADV_NOHUGEPAGE,
+#if defined(SHIM_MADV_NOHUGEPAGE)
+	SHIM_MADV_NOHUGEPAGE,
 #endif
-#if defined(MADV_DONTDUMP)
-	MADV_DONTDUMP,
+#if defined(SHIM_MADV_DONTDUMP)
+	SHIM_MADV_DONTDUMP,
 #endif
-#if defined(MADV_DODUMP)
-	MADV_DODUMP,
+#if defined(SHIM_MADV_DODUMP)
+	SHIM_MADV_DODUMP,
 #endif
-#if defined(MADV_FREE)
-	MADV_FREE,
+#if defined(SHIM_MADV_FREE)
+	SHIM_MADV_FREE,
 #endif
-#if defined(MADV_WIPEONFORK)
-	MADV_WIPEONFORK,
+#if defined(SHIM_MADV_WIPEONFORK)
+	SHIM_MADV_WIPEONFORK,
 #endif
-#if defined(MADV_KEEPONFORK)
-	MADV_KEEPONFORK,
+#if defined(SHIM_MADV_KEEPONFORK)
+	SHIM_MADV_KEEPONFORK,
 #endif
-#if defined(MADV_INHERIT_ZERO)
-	MADV_INHERIT_ZERO,
+#if defined(SHIM_MADV_INHERIT_ZERO)
+	SHIM_MADV_INHERIT_ZERO,
 #endif
-#if defined(MADV_COLD)
-	MADV_COLD,
+#if defined(SHIM_MADV_COLD)
+	SHIM_MADV_COLD,
 #endif
-#if defined(MADV_PAGEOUT)
-	MADV_PAGEOUT,
+#if defined(SHIM_MADV_PAGEOUT)
+	SHIM_MADV_PAGEOUT,
 #endif
-#if defined(MADV_POPULATE_READ)
-	MADV_POPULATE_READ,
+#if defined(SHIM_MADV_POPULATE_READ)
+	SHIM_MADV_POPULATE_READ,
 #endif
-#if defined(MADV_POPULATE_WRITE)
-	MADV_POPULATE_WRITE,
+#if defined(SHIM_MADV_POPULATE_WRITE)
+	SHIM_MADV_POPULATE_WRITE,
 #endif
-#if defined(MADV_DONTNEED_LOCKED)
-	MADV_DONTNEED_LOCKED,
+#if defined(SHIM_MADV_DONTNEED_LOCKED)
+	SHIM_MADV_DONTNEED_LOCKED,
 #endif
 /* Linux 6.0 */
-#if defined(MADV_COLLAPSE)
-	MADV_COLLAPSE,
+#if defined(SHIM_MADV_COLLAPSE)
+	SHIM_MADV_COLLAPSE,
 #endif
 /* FreeBSD */
-#if defined(MADV_AUTOSYNC)
-	MADV_AUTOSYNC,
+#if defined(SHIM_MADV_AUTOSYNC)
+	SHIM_MADV_AUTOSYNC,
 #endif
 /* FreeBSD and DragonFlyBSD */
-#if defined(MADV_CORE)
-	MADV_CORE,
+#if defined(SHIM_MADV_CORE)
+	SHIM_MADV_CORE,
 #endif
 /* FreeBSD */
-#if defined(MADV_PROTECT)
-	MADV_PROTECT,
+#if defined(SHIM_MADV_PROTECT)
+	SHIM_MADV_PROTECT,
 #endif
 /* Linux 5.14 */
-#if defined(MADV_POPULATE_READ)
-	MADV_POPULATE_READ,
+#if defined(SHIM_MADV_POPULATE_READ)
+	SHIM_MADV_POPULATE_READ,
 #endif
 /* Linux 5.14 */
-#if defined(MADV_POPULATE_WRITE)
-	MADV_POPULATE_WRITE,
+#if defined(SHIM_MADV_POPULATE_WRITE)
+	SHIM_MADV_POPULATE_WRITE,
 #endif
 /* OpenBSD */
-#if defined(MADV_SPACEAVAIL)
-	MADV_SPACEAVAIL,
+#if defined(SHIM_MADV_SPACEAVAIL)
+	SHIM_MADV_SPACEAVAIL,
 #endif
 /* OS X */
-#if defined(MADV_ZERO_WIRED_PAGES)
-	MADV_ZERO_WIRED_PAGES,
+#if defined(SHIM_MADV_ZERO_WIRED_PAGES)
+	SHIM_MADV_ZERO_WIRED_PAGES,
 #endif
 /* Solaris */
-#if defined(MADV_ACCESS_DEFAULT)
-	MADV_ACCESS_DEFAULT,
+#if defined(SHIM_MADV_ACCESS_DEFAULT)
+	SHIM_MADV_ACCESS_DEFAULT,
 #endif
 /* Solaris */
-#if defined(MADV_ACCESS_LWP)
-	MADV_ACCESS_LWP,
+#if defined(SHIM_MADV_ACCESS_LWP)
+	SHIM_MADV_ACCESS_LWP,
 #endif
 /* Solaris */
-#if defined(MADV_ACCESS_MANY)
-	MADV_ACCESS_MANY,
+#if defined(SHIM_MADV_ACCESS_MANY)
+	SHIM_MADV_ACCESS_MANY,
+#endif
+#if !defined(MADV_NORMAL) || \
+    (MADV_NORMAL != 0)
+	/* ensure we always have at least one item in array */
+	0,
 #endif
 };
-#endif
 
 #if defined(HAVE_MPROTECT)
 static const int mprotect_flags[] = {
@@ -462,9 +465,7 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 		for (n = 0; n < MMAP_MAPPINGS_MAX; n++) {
 			int flag = 0, mmap_flag;
 
-#if defined(HAVE_MADVISE)
 			const int madvise_option = madvise_options[stress_mwc8modn(SIZEOF_ARRAY(madvise_options))];
-#endif
 #if defined(HAVE_MPROTECT)
 			const int mprotect_flag = mprotect_flags[stress_mwc8modn(SIZEOF_ARRAY(mprotect_flags))];
 #else
@@ -576,10 +577,8 @@ mapped_ok:
 			stress_mmaptorture_msync(ptr, mmap_size, page_size, mmaptorture_msync);
 #endif
 #endif
-#if defined(HAVE_MADVISE)
-			if (madvise((void *)ptr, mmap_size, madvise_option) == 0)
+			if (shim_madvise((void *)ptr, mmap_size, madvise_option) == 0)
 				mmap_stats->madvise_pages += mmap_size / page_size;
-#endif
 			(void)shim_mincore((void *)ptr, mmap_size, vec);
 			for (i = 0; i < mmap_size; i += page_size) {
 				if (stress_mwc1()) {
@@ -617,18 +616,16 @@ mapped_ok:
 			for (i = 0; i < mmap_size; i += page_size) {
 				if (stress_mwc1())
 					(void)shim_munlock((void *)(ptr + i), page_size);
-#if defined(HAVE_MADVISE) &&	\
-    defined(MADV_PAGEOUT)
+#if defined(SHIM_MADV_PAGEOUT)
 				if (stress_mwc1()) {
-					if (madvise((void *)(ptr + i), page_size, MADV_PAGEOUT) == 0)
+					if (shim_madvise((void *)(ptr + i), page_size, SHIM_MADV_PAGEOUT) == 0)
 						mmap_stats->madvise_pages++;
 				}
 #endif
 				stress_mmaptorture_msync(ptr + i, page_size, page_size, mmaptorture_msync);
-#if defined(HAVE_MADVISE) &&	\
-    defined(MADV_FREE)
+#if defined(SHIM_MADV_FREE)
 				if (stress_mwc1()) {
-					if (madvise((void *)(ptr + i), page_size, MADV_FREE) == 0)
+					if (shim_madvise((void *)(ptr + i), page_size, SHIM_MADV_FREE) == 0)
 						mmap_stats->madvise_pages++;
 				}
 #endif
@@ -683,9 +680,8 @@ mapped_ok:
 					ptr = mappings[i].addr;
 					mmap_size = mappings[i].size;
 
-#if defined(HAVE_MADVISE) &&	\
-    defined(MADV_DONTNEED)
-					if (madvise((void *)ptr, mmap_size, MADV_DONTNEED) == 0)
+#if defined(SHIM_MADV_DONTNEED)
+					if (shim_madvise((void *)ptr, mmap_size, SHIM_MADV_DONTNEED) == 0)
 						mmap_stats->madvise_pages += mmap_size / page_size;
 #endif
 
@@ -732,11 +728,6 @@ mappings_unmap:
 			mmap_size = mappings[i].size;
 
 			if ((ptr != MAP_FAILED) && (mmap_size > 0)) {
-#if defined(HAVE_MADVISE) &&	\
-    defined(MADV_REMOVE)
-				size_t j;
-#endif
-
 #if defined(HAVE_MREMAP)
 				if (mmap_size > page_size) {
 					uint8_t *newptr;
@@ -751,9 +742,8 @@ mappings_unmap:
 				}
 #endif
 
-#if defined(HAVE_MADVISE) &&	\
-    defined(MADV_NORMAL)
-				if (madvise((void *)ptr, mmap_size, MADV_NORMAL) == 0)
+#if defined(SHIM_MADV_NORMAL)
+				if (shim_madvise((void *)ptr, mmap_size, MADV_NORMAL) == 0)
 					mmap_stats->madvise_pages += mmap_size / page_size;
 #endif
 #if defined(HAVE_MPROTECT)
@@ -761,21 +751,23 @@ mappings_unmap:
 					mmap_stats->mprotect_pages += mmap_size / page_size;
 #endif
 				(void)shim_munlock((void *)ptr, mmap_size);
-#if defined(HAVE_MADVISE) &&	\
-    defined(MADV_DONTNEED)
+#if defined(SHIM_MADV_DONTNEED)
 				if (stress_mwc1()) {
-					if (madvise((void *)ptr, mmap_size, MADV_DONTNEED) == 0)
+					if (shim_madvise((void *)ptr, mmap_size, MADV_DONTNEED) == 0)
 						mmap_stats->madvise_pages += mmap_size / page_size;
 				}
 #endif
-#if defined(HAVE_MADVISE) &&	\
-    defined(MADV_REMOVE)
-				for (j = 0; j < mmap_size; j += page_size) {
-					if (stress_mwc1()) {
-						if (madvise((void *)(ptr + j), page_size, MADV_REMOVE) == 0)
-							mmap_stats->madvise_pages += 1;
+#if defined(SHIM_MADV_REMOVE)
+				{
+					size_t j;
+
+					for (j = 0; j < mmap_size; j += page_size) {
+						if (stress_mwc1()) {
+							if (shim_madvise((void *)(ptr + j), page_size, MADV_REMOVE) == 0)
+								mmap_stats->madvise_pages += 1;
+						}
+						(void)stress_munmap_retry_enomem((void *)(ptr + j), page_size);
 					}
-					(void)stress_munmap_retry_enomem((void *)(ptr + j), page_size);
 				}
 #endif
 				(void)shim_mincore((void *)ptr, mmap_size, vec);

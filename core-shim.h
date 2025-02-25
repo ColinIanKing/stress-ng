@@ -128,6 +128,166 @@ typedef int64_t		shim_off64_t;
 #define SHIM_DT_UNKNOWN	(0)
 #endif
 
+#if defined(MADV_NORMAL)
+#define SHIM_MADV_NORMAL	MADV_NORMAL
+#endif
+
+#if defined(MADV_SEQUENTIAL)
+#define SHIM_MADV_SEQUENTIAL	MADV_SEQUENTIAL
+#endif
+
+#if defined(MADV_RANDOM)
+#define SHIM_MADV_RANDOM	MADV_RANDOM
+#endif
+
+#if defined(MADV_WILLNEED)
+#define SHIM_MADV_WILLNEED	MADV_WILLNEED
+#endif
+
+#if defined(MADV_DONTNEED)
+#define SHIM_MADV_DONTNEED	MADV_DONTNEED
+#endif
+
+#if defined(MADV_REMOVE)
+#define SHIM_MADV_REMOVE	MADV_REMOVE
+#endif
+
+#if defined(MADV_DONTFORK)
+#define SHIM_MADV_DONTFORK	MADV_DONTFORK
+#endif
+
+#if defined(MADV_DOFORK)
+#define SHIM_MADV_DOFORK	MADV_DOFORK
+#endif
+
+#if defined(MADV_MERGEABLE)
+#define SHIM_MADV_MERGEABLE	MADV_MERGEABLE
+#endif
+
+#if defined(MADV_UNMERGEABLE)
+#define SHIM_MADV_UNMERGEABLE	MADV_UNMERGEABLE
+#endif
+
+#if defined(MADV_SOFT_OFFLINE)
+#define SHIM_MADV_SOFT_OFFLINE	MADV_SOFT_OFFLINE
+#endif
+
+#if defined(MADV_HUGEPAGE)
+#define SHIM_MADV_HUGEPAGE	MADV_HUGEPAGE
+#endif
+
+#if defined(MADV_NOHUGEPAGE)
+#define SHIM_MADV_NOHUGEPAGE	MADV_NOHUGEPAGE
+#endif
+
+#if defined(MADV_DONTDUMP)
+#define SHIM_MADV_DONTDUMP	MADV_DONTDUMP
+#endif
+
+#if defined(MADV_DODUMP)
+#define SHIM_MADV_DODUMP	MADV_DODUMP
+#endif
+
+#if defined(MADV_FREE)
+#define SHIM_MADV_FREE		MADV_FREE
+#endif
+
+#if defined(MADV_WIPEONFORK)
+#define SHIM_MADV_WIPEONFORK	MADV_WIPEONFORK
+#endif
+
+#if defined(MADV_KEEPONFORK)
+#define SHIM_MADV_KEEPONFORK	MADV_KEEPONFORK
+#endif
+
+#if defined(MADV_INHERIT_ZERO)
+#define SHIM_MADV_INHERIT_ZERO	MADV_INHERIT_ZERO
+#endif
+
+#if defined(MADV_COLD)
+#define SHIM_MADV_COLD		MADV_COLD
+#endif
+
+#if defined(MADV_PAGEOUT)
+#define SHIM_MADV_PAGEOUT	MADV_PAGEOUT
+#endif
+
+#if defined(MADV_POPULATE_READ)
+#define SHIM_MADV_POPULATE_READ	MADV_POPULATE_READ
+#endif
+
+#if defined(MADV_POPULATE_WRITE)
+#define SHIM_MADV_POPULATE_WRITE MADV_POPULATE_WRITE
+#endif
+
+#if defined(MADV_DONTNEED_LOCKED)
+#define SHIM_MADV_DONTNEED_LOCKED MADV_DONTNEED_LOCKED
+#endif
+
+#if defined(MADV_COLLAPSE)
+#define SHIM_MADV_COLLAPSE	MADV_COLLAPSE
+#endif
+
+#if defined(MADV_AUTOSYNC)
+#define SHIM_MADV_AUTOSYNC	MADV_AUTOSYNC
+#endif
+
+#if defined(MADV_CORE)
+#define SHIM_MADV_CORE		MADV_CORE
+#endif
+
+#if defined(MADV_PROTECT)
+#define SHIM_MADV_PROTECT	MADV_PROTECT
+#endif
+
+#if defined(MADV_POPULATE_READ)
+#define SHIM_MADV_POPULATE_READ	MADV_POPULATE_READ
+#endif
+
+#if defined(MADV_POPULATE_WRITE)
+#define SHIM_MADV_POPULATE_WRITE MADV_POPULATE_WRITE
+#endif
+
+#if defined(MADV_SPACEAVAIL)
+#define SHIM_MADV_SPACEAVAIL	MADV_SPACEAVAIL
+#endif
+
+#if defined(MADV_ZERO_WIRED_PAGES)
+#define SHIM_MADV_ZERO_WIRED_PAGES MADV_ZERO_WIRED_PAGES
+#endif
+
+#if defined(MADV_ACCESS_DEFAULT)
+#define SHIM_MADV_ACCESS_DEFAULT MADV_ACCESS_DEFAULT
+#endif
+
+#if defined(MADV_ACCESS_LWP)
+#define SHIM_MADV_ACCESS_LWP	MADV_ACCESS_LWP
+#endif
+
+#if defined(MADV_ACCESS_MANY)
+#define SHIM_MADV_ACCESS_MANY	MADV_ACCESS_MANY
+#endif
+
+#if defined(POSIX_MADV_NORMAL)
+#define SHIM_POSIX_MADV_NORMAL	POSIX_MADV_NORMAL
+#endif
+
+#if defined(POSIX_MADV_SEQUENTIAL)
+#define SHIM_POSIX_MADV_SEQUENTIAL POSIX_MADV_SEQUENTIAL
+#endif
+
+#if defined(POSIX_MADV_RANDOM)
+#define SHIM_POSIX_MADV_RANDOM	POSIX_MADV_RANDOM
+#endif
+
+#if defined(POSIX_MADV_WILLNEED)
+#define SHIM_POSIX_MADV_WILLNEED POSIX_MADV_WILLNEED
+#endif
+
+#if defined(POSIX_MADV_DONTNEED)
+#define SHIM_POSIX_MADV_DONTNEED POSIX_MADV_DONTNEED
+#endif
+
 /* clone3 clone args */
 struct shim_clone_args {
 	uint64_t flags;		/* Flags bit mask */

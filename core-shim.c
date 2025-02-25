@@ -1051,7 +1051,44 @@ int shim_sysfs(int option, ...)
 int shim_madvise(void *addr, size_t length, int advice)
 {
 #if defined(HAVE_MADVISE)
-	return (int)madvise(addr, length, advice);
+	int madvice;
+
+	switch (advice) {
+#if defined(POSIX_MADV_NORMAL) &&	\
+    defined(MADV_NORMAL)
+	case POSIX_MADV_NORMAL:
+		madvice = MADV_NORMAL;
+		break;
+#endif
+#if defined(POSIX_MADV_SEQUENTIAL) &&	\
+    defined(MADV_SEQUENTIAL)
+	case POSIX_MADV_SEQUENTIAL:
+		madvice = MADV_SEQUENTIAL;
+		break;
+#endif
+#if defined(POSIX_MADV_RANDOM) &&	\
+    defined(MADV_RANDOM)
+	case POSIX_MADV_RANDOM:
+		madvice = MADV_RANDOM;
+		break;
+#endif
+#if defined(POSIX_MADV_WILLNEED) &&	\
+    defined(MADV_WILLNEED)
+	case POSIX_MADV_WILLNEED:
+		madvice = MADV_WILLNEED;
+		break;
+#endif
+#if defined(POSIX_MADV_DONTNEED) &&	\
+    defined(MADV_DONTNEED)
+	case POSIX_MADV_DONTNEED:
+		madvice = MADV_DONTNEED;
+		break;
+#endif
+	default:
+		madvice = advice;
+		break;
+	}
+	return (int)madvise(addr, length, madvice);
 #elif defined(__NR_madvise) &&	\
       defined(HAVE_SYSCALL)
 	return (int)syscall(__NR_madvise, addr, length, advice);
