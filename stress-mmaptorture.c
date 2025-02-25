@@ -683,8 +683,11 @@ mapped_ok:
 					ptr = mappings[i].addr;
 					mmap_size = mappings[i].size;
 
+#if defined(HAVE_MADVISE) &&	\
+    defined(MADV_DONTNEED)
 					if (madvise((void *)ptr, mmap_size, MADV_DONTNEED) == 0)
 						mmap_stats->madvise_pages += mmap_size / page_size;
+#endif
 
 					if (stress_mwc1()) {
 						if ((ptr != MAP_FAILED) && (mmap_size > 0)) {
