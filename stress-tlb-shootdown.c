@@ -314,21 +314,19 @@ PRAGMA_UNROLL_N(8)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-#if defined(HAVE_MADVISE) &&	\
-    defined(MADV_DONTNEED)
-		(void)madvise(memfd, mmapfd_size, MADV_DONTNEED);
+#if defined(SHIM_MADV_DONTNEED)
+		(void)shim_madvise(memfd, mmapfd_size, SHIM_MADV_DONTNEED);
 		stress_tlb_shootdown_write_mem(memfd, mmapfd_size, page_size);
 
-		(void)madvise(memfd, mmapfd_size, MADV_DONTNEED);
+		(void)shim_madvise(memfd, mmapfd_size, SHIM_MADV_DONTNEED);
 		stress_tlb_shootdown_read_mem(memfd, mmapfd_size, page_size);
-#endif
 
-		(void)madvise(mem, mmap_size, MADV_DONTNEED);
+		(void)shim_madvise(mem, mmap_size, SHIM_MADV_DONTNEED);
 		stress_tlb_shootdown_read_mem(mem, mmap_size, page_size);
 
-		(void)madvise(mem, mmap_size, MADV_DONTNEED);
+		(void)shim_madvise(mem, mmap_size, SHIM_MADV_DONTNEED);
 		stress_tlb_shootdown_write_mem(mem, mmap_size, page_size);
-
+#endif
 #if defined(__linux__)
 		{
 			static const char flush_ceiling[] = "/sys/kernel/debug/x86/tlb_single_page_flush_ceiling";
