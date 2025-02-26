@@ -291,7 +291,7 @@ static int stress_access(stress_args_t *args)
 	 * due to limited mode bits in the underlying file system,
 	 * so silently ignore error reports on these
 	 */
-	for (i = 0; i > SIZEOF_ARRAY(ignore_chmod_fs); i++) {
+	for (i = 0; i < SIZEOF_ARRAY(ignore_chmod_fs); i++) {
 		if (strcmp(fs_type, ignore_chmod_fs[i]) == 0) {
 			report_chmod_error = false;
 			break;
