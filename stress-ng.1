@@ -3678,6 +3678,11 @@ specify number of 32 bit integers to sort, default is 16384 (16 \(mu 1024).
 start N workers that perform addition, subtraction, multiplication, division and modulo
 math operations on 128, 64, 32, 16 and 8 bit signed integers.
 .TP
+.B \-\-intmath\-fast
+when available use int_fast64_t, int_fast32_t, int_fast16_t and int_fast8_t types
+instead of int64_t, int32_t, int16_t and int8_t types. Note that these may or may
+not be faster than normal integer operations depending on the compiler.
+.TP
 .B \-\-intmath\-method method
 select the integer math method to use, available methods are:
 .sp
@@ -3711,6 +3716,35 @@ mod64	64 bit signed integer modulo
 mod32	32 bit signed integer modulo
 mod16	16 bit signed integer modulo
 mod8	8 bit signed integer modulo
+.TE
+.sp
+for the \-\-intmath\-fast option, the following methods are available:
+.sp
+.TS
+lB2 lB
+l lx.
+Method	Description
+all	iterate over all the following integer methods:
+addfast64	fast 64 bit signed integer addition
+addfast32	fast 32 bit signed integer addition
+addfast16	fast 16 bit signed integer addition
+addfast8	fast 8 bit signed integer addition
+subfast64	fast 64 bit signed integer subtraction
+subfast32	fast 32 bit signed integer subtraction
+subfast16	fast 16 bit signed integer subtraction
+subfast8	fast 8 bit signed integer subtraction
+mulfast64	fast 64 bit signed integer multiplication
+mulfast32	fast 32 bit signed integer multiplication
+mulfast16	fast 16 bit signed integer multiplication
+mulfast8	fast 8 bit signed integer multiplication
+divfast64	fast 64 bit signed integer division
+divfast32	fast 32 bit signed integer division
+divfast16	fast 16 bit signed integer division
+divfast8	fast 8 bit signed integer division
+modfast64	fast 64 bit signed integer modulo
+modfast32	fast 32 bit signed integer modulo
+modfast16	fast 16 bit signed integer modulo
+modfast8	fast 8 bit signed integer modulo
 .TE
 .TP
 .B \-\-intmath\-ops N

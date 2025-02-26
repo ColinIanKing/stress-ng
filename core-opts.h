@@ -620,6 +620,7 @@ typedef enum {
 	OPT_insertionsort_size,
 
 	OPT_intmath,
+	OPT_intmath_fast,
 	OPT_intmath_method,
 	OPT_intmath_ops,
 

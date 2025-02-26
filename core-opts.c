@@ -389,6 +389,7 @@ const struct option stress_long_options[] = {
 	{ "insertionsort-ops",	1,	0,	OPT_insertionsort_ops },
 	{ "insertionsort-size",	1,	0,	OPT_insertionsort_size },
 	{ "intmath",		1,	0,	OPT_intmath },
+	{ "intmath-fast",	0,	0,	OPT_intmath_fast },
 	{ "intmath-method",	1,	0,	OPT_intmath_method },
 	{ "intmath-ops",	1,	0,	OPT_intmath_ops },
 	{ "io",			1,	0,	OPT_io },

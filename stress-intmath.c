@@ -24,8 +24,16 @@
 
 #define NO_TARGET_CLONES
 
+#if defined(HAVE_INT_FAST64_T) ||	\
+    defined(HAVE_INT_FAST32_T) ||	\
+    defined(HAVE_INT_FAST16_T) ||	\
+    defined(HAVE_INT_FAST8_T)
+#define HAVE_INT_FAST
+#endif
+
 static const stress_help_t help[] = {
 	{ NULL,	"intmath N",	  "start N workers that exercising signed integer math operations" },
+	{ NULL, "intmath-fast",	  "use int_fast*_t fast integers" },
 	{ NULL,	"intmath-method", "select the method of integer math operation" },
 	{ NULL,	"intmath-ops N",  "stop after N bogo signed integer math operations" },
 	{ NULL,	NULL,		  NULL }
@@ -41,6 +49,18 @@ typedef struct {
 #if defined(HAVE_INT128_T)
 		__int128_t result128[2];
 #endif
+#if defined(HAVE_INT_FAST64_T)
+		int_fast64_t resultfast64[2];
+#endif
+#if defined(HAVE_INT_FAST32_T)
+		int_fast32_t resultfast32[2];
+#endif
+#if defined(HAVE_INT_FAST16_T)
+		int_fast16_t resultfast16[2];
+#endif
+#if defined(HAVE_INT_FAST8_T)
+		int_fast8_t resultfast8[2];
+#endif
 		int64_t result64[2];
 		int32_t result32[2];
 		int16_t result16[2];
@@ -49,6 +69,18 @@ typedef struct {
 	struct {
 #if defined(HAVE_INT128_T)
 		__int128_t result128[2];
+#endif
+#if defined(HAVE_INT_FAST64_T)
+		int_fast64_t resultfast64[2];
+#endif
+#if defined(HAVE_INT_FAST32_T)
+		int_fast32_t resultfast32[2];
+#endif
+#if defined(HAVE_INT_FAST16_T)
+		int_fast16_t resultfast16[2];
+#endif
+#if defined(HAVE_INT_FAST8_T)
+		int_fast8_t resultfast8[2];
 #endif
 		int64_t result64[2];
 		int32_t result32[2];
@@ -59,6 +91,18 @@ typedef struct {
 #if defined(HAVE_INT128_T)
 		__int128_t result128[2];
 #endif
+#if defined(HAVE_INT_FAST64_T)
+		int_fast64_t resultfast64[2];
+#endif
+#if defined(HAVE_INT_FAST32_T)
+		int_fast32_t resultfast32[2];
+#endif
+#if defined(HAVE_INT_FAST16_T)
+		int_fast16_t resultfast16[2];
+#endif
+#if defined(HAVE_INT_FAST8_T)
+		int_fast8_t resultfast8[2];
+#endif
 		int64_t result64[2];
 		int32_t result32[2];
 		int16_t result16[2];
@@ -68,6 +112,18 @@ typedef struct {
 #if defined(HAVE_INT128_T)
 		__int128_t result128[2];
 #endif
+#if defined(HAVE_INT_FAST64_T)
+		int_fast64_t resultfast64[2];
+#endif
+#if defined(HAVE_INT_FAST32_T)
+		int_fast32_t resultfast32[2];
+#endif
+#if defined(HAVE_INT_FAST16_T)
+		int_fast16_t resultfast16[2];
+#endif
+#if defined(HAVE_INT_FAST8_T)
+		int_fast8_t resultfast8[2];
+#endif
 		int64_t result64[2];
 		int32_t result32[2];
 		int16_t result16[2];
@@ -76,6 +132,18 @@ typedef struct {
 	struct {
 #if defined(HAVE_INT128_T)
 		__int128_t result128[2];
+#endif
+#if defined(HAVE_INT_FAST64_T)
+		int_fast64_t resultfast64[2];
+#endif
+#if defined(HAVE_INT_FAST32_T)
+		int_fast32_t resultfast32[2];
+#endif
+#if defined(HAVE_INT_FAST16_T)
+		int_fast16_t resultfast16[2];
+#endif
+#if defined(HAVE_INT_FAST8_T)
+		int_fast8_t resultfast8[2];
 #endif
 		int64_t result64[2];
 		int32_t result32[2];
@@ -315,6 +383,18 @@ PRAGMA_UNROLL_N(8)						\
 #if defined(HAVE_INT128_T)
 STRESS_INTMATH_ADD(__int128_t, 128, NO_TARGET_CLONES)
 #endif
+#if defined(HAVE_INT_FAST64_T)
+STRESS_INTMATH_ADD(int_fast64_t, fast64, NO_TARGET_CLONES)
+#endif
+#if defined(HAVE_INT_FAST32_T)
+STRESS_INTMATH_ADD(int_fast32_t, fast32, NO_TARGET_CLONES)
+#endif
+#if defined(HAVE_INT_FAST16_T)
+STRESS_INTMATH_ADD(int_fast16_t, fast16, NO_TARGET_CLONES)
+#endif
+#if defined(HAVE_INT_FAST8_T)
+STRESS_INTMATH_ADD(int_fast8_t, fast8, NO_TARGET_CLONES)
+#endif
 STRESS_INTMATH_ADD(int64_t, 64, NO_TARGET_CLONES)
 STRESS_INTMATH_ADD(int32_t, 32, NO_TARGET_CLONES)
 STRESS_INTMATH_ADD(int16_t, 16, TARGET_CLONES)
@@ -322,6 +402,18 @@ STRESS_INTMATH_ADD(int8_t,   8, TARGET_CLONES)
 
 #if defined(HAVE_INT128_T)
 STRESS_INTMATH_SUB(__int128_t, 128, NO_TARGET_CLONES)
+#endif
+#if defined(HAVE_INT_FAST64_T)
+STRESS_INTMATH_SUB(int_fast64_t, fast64, NO_TARGET_CLONES)
+#endif
+#if defined(HAVE_INT_FAST32_T)
+STRESS_INTMATH_SUB(int_fast32_t, fast32, NO_TARGET_CLONES)
+#endif
+#if defined(HAVE_INT_FAST16_T)
+STRESS_INTMATH_SUB(int_fast16_t, fast16, NO_TARGET_CLONES)
+#endif
+#if defined(HAVE_INT_FAST8_T)
+STRESS_INTMATH_SUB(int_fast8_t, fast8, NO_TARGET_CLONES)
 #endif
 STRESS_INTMATH_SUB(int64_t, 64, NO_TARGET_CLONES)
 STRESS_INTMATH_SUB(int32_t, 32, NO_TARGET_CLONES)
@@ -331,6 +423,18 @@ STRESS_INTMATH_SUB(int8_t,   8, NO_TARGET_CLONES)
 #if defined(HAVE_INT128_T)
 STRESS_INTMATH_MUL(__int128_t, 128, NO_TARGET_CLONES)
 #endif
+#if defined(HAVE_INT_FAST64_T)
+STRESS_INTMATH_MUL(int_fast64_t, fast64, NO_TARGET_CLONES)
+#endif
+#if defined(HAVE_INT_FAST32_T)
+STRESS_INTMATH_MUL(int_fast32_t, fast32, NO_TARGET_CLONES)
+#endif
+#if defined(HAVE_INT_FAST16_T)
+STRESS_INTMATH_MUL(int_fast16_t, fast16, NO_TARGET_CLONES)
+#endif
+#if defined(HAVE_INT_FAST8_T)
+STRESS_INTMATH_MUL(int_fast8_t, fast8, NO_TARGET_CLONES)
+#endif
 STRESS_INTMATH_MUL(int64_t, 64, NO_TARGET_CLONES)
 STRESS_INTMATH_MUL(int32_t, 32, NO_TARGET_CLONES)
 STRESS_INTMATH_MUL(int16_t, 16, NO_TARGET_CLONES)
@@ -339,6 +443,18 @@ STRESS_INTMATH_MUL(int8_t,   8, NO_TARGET_CLONES)
 #if defined(HAVE_INT128_T)
 STRESS_INTMATH_DIV(__int128_t, 128, NO_TARGET_CLONES)
 #endif
+#if defined(HAVE_INT_FAST64_T)
+STRESS_INTMATH_DIV(int_fast64_t, fast64, NO_TARGET_CLONES)
+#endif
+#if defined(HAVE_INT_FAST32_T)
+STRESS_INTMATH_DIV(int_fast32_t, fast32, NO_TARGET_CLONES)
+#endif
+#if defined(HAVE_INT_FAST16_T)
+STRESS_INTMATH_DIV(int_fast16_t, fast16, NO_TARGET_CLONES)
+#endif
+#if defined(HAVE_INT_FAST8_T)
+STRESS_INTMATH_DIV(int_fast8_t, fast8, NO_TARGET_CLONES)
+#endif
 STRESS_INTMATH_DIV(int64_t, 64, NO_TARGET_CLONES)
 STRESS_INTMATH_DIV(int32_t, 32, NO_TARGET_CLONES)
 STRESS_INTMATH_DIV(int16_t, 16, NO_TARGET_CLONES)
@@ -346,6 +462,18 @@ STRESS_INTMATH_DIV(int8_t,   8, NO_TARGET_CLONES)
 
 #if defined(HAVE_INT128_T)
 STRESS_INTMATH_MOD(__int128_t, 128, NO_TARGET_CLONES)
+#endif
+#if defined(HAVE_INT_FAST64_T)
+STRESS_INTMATH_MOD(int_fast64_t, fast64, NO_TARGET_CLONES)
+#endif
+#if defined(HAVE_INT_FAST32_T)
+STRESS_INTMATH_MOD(int_fast32_t, fast32, NO_TARGET_CLONES)
+#endif
+#if defined(HAVE_INT_FAST16_T)
+STRESS_INTMATH_MOD(int_fast16_t, fast16, NO_TARGET_CLONES)
+#endif
+#if defined(HAVE_INT_FAST8_T)
+STRESS_INTMATH_MOD(int_fast8_t, fast8, NO_TARGET_CLONES)
 #endif
 STRESS_INTMATH_MOD(int64_t, 64, NO_TARGET_CLONES)
 STRESS_INTMATH_MOD(int32_t, 32, NO_TARGET_CLONES)
@@ -396,13 +524,86 @@ static const stress_intmath_method_t stress_intmath_methods[] = {
 	{ "mod8",	400,	stress_intmath_mod_8 },
 };
 
+static const stress_intmath_method_t stress_intfastmath_methods[] = {
+#if defined(HAVE_INT_FAST)
+	{ "all",	0,	NULL },
+#endif
+
+#if defined(HAVE_INT_FAST64_T)
+	{ "addfast64",	800,	stress_intmath_add_fast64 },
+#endif
+#if defined(HAVE_INT_FAST32_T)
+	{ "addfast32",	800,	stress_intmath_add_fast32 },
+#endif
+#if defined(HAVE_INT_FAST16_T)
+	{ "addfast16",	800,	stress_intmath_add_fast16 },
+#endif
+#if defined(HAVE_INT_FAST8_T)
+	{ "addfast8",	800,	stress_intmath_add_fast8 },
+#endif
+
+#if defined(HAVE_INT_FAST64_T)
+	{ "subfast64",	800,	stress_intmath_sub_fast64 },
+#endif
+#if defined(HAVE_INT_FAST32_T)
+	{ "subfast32",	800,	stress_intmath_sub_fast32 },
+#endif
+#if defined(HAVE_INT_FAST16_T)
+	{ "subfast16",	800,	stress_intmath_sub_fast16 },
+#endif
+#if defined(HAVE_INT_FAST8_T)
+	{ "subfast8",	800,	stress_intmath_sub_fast8 },
+#endif
+
+#if defined(HAVE_INT_FAST64_T)
+	{ "mulfast64",	400,	stress_intmath_mul_fast64 },
+#endif
+#if defined(HAVE_INT_FAST32_T)
+	{ "mulfast32",	400,	stress_intmath_mul_fast32 },
+#endif
+#if defined(HAVE_INT_FAST16_T)
+	{ "mulfast16",	400,	stress_intmath_mul_fast16 },
+#endif
+#if defined(HAVE_INT_FAST8_T)
+	{ "mulfast8",	400,	stress_intmath_mul_fast8 },
+#endif
+
+#if defined(HAVE_INT_FAST64_T)
+	{ "divfast64",	400,	stress_intmath_div_fast64 },
+#endif
+#if defined(HAVE_INT_FAST32_T)
+	{ "divfast32",	400,	stress_intmath_div_fast32 },
+#endif
+#if defined(HAVE_INT_FAST16_T)
+	{ "divfast16",	400,	stress_intmath_div_fast16 },
+#endif
+#if defined(HAVE_INT_FAST8_T)
+	{ "divfast8",	400,	stress_intmath_div_fast8 },
+#endif
+
+#if defined(HAVE_INT_FAST64_T)
+	{ "modfast64",	400,	stress_intmath_mod_fast64 },
+#endif
+#if defined(HAVE_INT_FAST32_T)
+	{ "modfast32",	400,	stress_intmath_mod_fast32 },
+#endif
+#if defined(HAVE_INT_FAST16_T)
+	{ "modfast16",	400,	stress_intmath_mod_fast16 },
+#endif
+#if defined(HAVE_INT_FAST8_T)
+	{ "modfast8",	400,	stress_intmath_mod_fast8 },
+#endif
+};
+
 #define STRESS_INTMATH_MAX_METHODS	(SIZEOF_ARRAY(stress_intmath_methods))
+#define STRESS_INTFASTMATH_MAX_METHODS	(SIZEOF_ARRAY(stress_intfastmath_methods))
 
 static stress_metrics_t stress_intmath_metrics[STRESS_INTMATH_MAX_METHODS];
 static bool stress_intmath_initialized[STRESS_INTMATH_MAX_METHODS];
 
 static bool stress_intmath_exercise(
 	stress_args_t *args,
+	const stress_intmath_method_t *methods,
 	stress_intmath_vals_t *vals,
 	const size_t method,
 	const bool verify)
@@ -411,18 +612,18 @@ static bool stress_intmath_exercise(
 	double duration;
 
 	if (!stress_intmath_initialized[method]) {
-		(void)stress_intmath_methods[method].func(vals, 0, false, &duration);
+		(void)methods[method].func(vals, 0, false, &duration);
 		stress_intmath_initialized[method] = true;
 		stress_intmath_metrics[method].duration += duration;
 		stress_intmath_metrics[method].count += 1.0;
 	}
 
-	correct = stress_intmath_methods[method].func(vals, 1, verify, &duration);
+	correct = methods[method].func(vals, 1, verify, &duration);
 	if (LIKELY(correct)) {
 		stress_intmath_metrics[method].duration += duration;
 		stress_intmath_metrics[method].count += 1.0;
 	} else {
-		pr_fail("%s: %s failed verification\n", args->name, stress_intmath_methods[method].name);
+		pr_fail("%s: %s failed verification\n", args->name, methods[method].name);
 	}
 
 	return correct;
@@ -436,11 +637,32 @@ static bool stress_intmath_exercise(
 static int stress_intmath(stress_args_t *args)
 {
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
+	bool intmath_fast = false;
 	stress_intmath_vals_t vals ALIGN64;
+	const stress_intmath_method_t *methods;
 	size_t intmath_method = 0;	/* all */
+	size_t methods_max;
 	size_t i, j;
 
 	(void)stress_get_setting("intmath-method", &intmath_method);
+	(void)stress_get_setting("intmath-fast", &intmath_fast);
+
+#if !defined(HAVE_INT_FAST)
+	if (intmath_fast) {
+		pr_inf_skip("%s: intmath-fast was selected but it is "
+			    "unavailable for this system, skipping stressor\n",
+			    args->name);
+		return EXIT_NO_RESOURCE;
+	}
+#endif
+
+	if (intmath_fast) {
+		methods = stress_intfastmath_methods;
+		methods_max = STRESS_INTFASTMATH_MAX_METHODS;
+	} else {
+		methods = stress_intmath_methods;
+		methods_max = STRESS_INTMATH_MAX_METHODS;
+	}
 
 	for (i = 0; i < 4; i++)
 #if defined(HAVE_INT128_T)
@@ -459,22 +681,22 @@ static int stress_intmath(stress_args_t *args)
 
 	do {
 		if (intmath_method == 0) {
-			for (i = 1; i < STRESS_INTMATH_MAX_METHODS; i++) {
-				stress_intmath_exercise(args, &vals, i, verify);
+			for (i = 1; i < methods_max; i++) {
+				stress_intmath_exercise(args, methods, &vals, i, verify);
 			}
 		} else {
-			stress_intmath_exercise(args, &vals, intmath_method, verify);
+			stress_intmath_exercise(args, methods, &vals, intmath_method, verify);
 		}
 
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
 
-	for (i = 1, j = 0; i < STRESS_INTMATH_MAX_METHODS; i++) {
+	for (i = 1, j = 0; i < methods_max; i++) {
 		if (stress_intmath_metrics[i].duration > 0.0) {
-			const double rate = stress_intmath_metrics[i].count * stress_intmath_methods[i].ops / stress_intmath_metrics[i].duration;
+			const double rate = stress_intmath_metrics[i].count * methods[i].ops / stress_intmath_metrics[i].duration;
 			char msg[64];
 
-			(void)snprintf(msg, sizeof(msg), "%s M-ops per sec", stress_intmath_methods[i].name);
+			(void)snprintf(msg, sizeof(msg), "%s M-ops per sec", methods[i].name);
                         stress_metrics_set(args, j, msg, rate / 1000000.0, STRESS_METRIC_HARMONIC_MEAN);
 			j++;
 		}
@@ -486,11 +708,24 @@ static int stress_intmath(stress_args_t *args)
 
 static const char *stress_intmath_method(const size_t i)
 {
-	return (i < STRESS_INTMATH_MAX_METHODS) ? stress_intmath_methods[i].name : NULL;
+	bool intmath_fast = false;
+
+	(void)stress_get_setting("intmath-fast", &intmath_fast);
+
+	if (intmath_fast) {
+#if defined(HAVE_INT_FAST)
+		return (i < STRESS_INTFASTMATH_MAX_METHODS) ? stress_intfastmath_methods[i].name : NULL;
+#else
+		return NULL;
+#endif
+	} else {
+		return (i < STRESS_INTMATH_MAX_METHODS) ? stress_intmath_methods[i].name : NULL;
+	}
 }
 
 static const stress_opt_t opts[] = {
 	{ OPT_intmath_method, "intmath-method", TYPE_ID_SIZE_T_METHOD, 0, 1, stress_intmath_method },
+	{ OPT_intmath_fast,   "intmath-fast",   TYPE_ID_BOOL, 0, 1, NULL },
 	END_OPT,
 };
 
