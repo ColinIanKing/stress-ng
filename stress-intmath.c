@@ -45,6 +45,11 @@ typedef struct {
 #else
 	int64_t init[4];
 #endif
+#if defined(HAVE_INT_FAST64_T)
+	int_fast64_t initfast[4];
+#else
+	int64_t initfast[4];
+#endif
 	struct {
 #if defined(HAVE_INT128_T)
 		__int128_t result128[2];
@@ -160,7 +165,7 @@ typedef struct {
 	intmath_func_t func;
 } stress_intmath_method_t;
 
-#define STRESS_INTMATH_ADD(type, n, clones)			\
+#define STRESS_INTMATH_ADD(type, n, init_array, clones)		\
 static bool OPTIMIZE3 clones stress_intmath_add_ ## n(		\
 	stress_intmath_vals_t *vals,				\
 	const int idx,						\
@@ -173,10 +178,10 @@ static bool OPTIMIZE3 clones stress_intmath_add_ ## n(		\
 	register type r0, r1, r2, r3;				\
 	register type i0, i1, i2, i3;				\
 								\
-	r0 = (type)vals->init[0];				\
-	r1 = (type)vals->init[1];				\
-	r2 = (type)vals->init[2];				\
-	r3 = (type)vals->init[3];				\
+	r0 = (type)vals->init_array[0];				\
+	r1 = (type)vals->init_array[1];				\
+	r2 = (type)vals->init_array[2];				\
+	r3 = (type)vals->init_array[3];				\
 								\
 	i0 = ~r0;						\
 	i1 = ~r1;						\
@@ -205,7 +210,7 @@ PRAGMA_UNROLL_N(8)						\
 	return true;						\
 }
 
-#define STRESS_INTMATH_SUB(type, n, clones)			\
+#define STRESS_INTMATH_SUB(type, n, init_array, clones)		\
 static bool OPTIMIZE3 clones stress_intmath_sub_ ## n(		\
 	stress_intmath_vals_t *vals,				\
 	const int idx,						\
@@ -218,10 +223,10 @@ static bool OPTIMIZE3 clones stress_intmath_sub_ ## n(		\
 	register type r0, r1, r2, r3;				\
 	register type i0, i1, i2, i3;				\
 								\
-	r0 = (type)vals->init[0];				\
-	r1 = (type)vals->init[1];				\
-	r2 = (type)vals->init[2];				\
-	r3 = (type)vals->init[3];				\
+	r0 = (type)vals->init_array[0];				\
+	r1 = (type)vals->init_array[1];				\
+	r2 = (type)vals->init_array[2];				\
+	r3 = (type)vals->init_array[3];				\
 								\
 	i0 = r3;						\
 	i1 = r2;						\
@@ -250,7 +255,7 @@ PRAGMA_UNROLL_N(8)						\
 	return true;						\
 }
 
-#define STRESS_INTMATH_MUL(type, n, clones)			\
+#define STRESS_INTMATH_MUL(type, n, init_array, clones)		\
 static bool OPTIMIZE3 clones stress_intmath_mul_ ## n(		\
 	stress_intmath_vals_t *vals,				\
 	const int idx,						\
@@ -267,10 +272,10 @@ static bool OPTIMIZE3 clones stress_intmath_mul_ ## n(		\
 	register type s2 = 1;					\
 	register type s3 = 1;					\
 								\
-	i0 = (type)vals->init[0];				\
-	i1 = (type)vals->init[1];				\
-	i2 = (type)vals->init[2];				\
-	i3 = (type)vals->init[3];				\
+	i0 = (type)vals->init_array[0];				\
+	i1 = (type)vals->init_array[1];				\
+	i2 = (type)vals->init_array[2];				\
+	i3 = (type)vals->init_array[3];				\
 	r3 = ~i0;						\
 								\
 	t = stress_time_now();					\
@@ -294,7 +299,7 @@ PRAGMA_UNROLL_N(8)						\
 	return true;						\
 }
 
-#define STRESS_INTMATH_DIV(type, n, clones)			\
+#define STRESS_INTMATH_DIV(type, n, init_array, clones)		\
 static bool OPTIMIZE3 clones stress_intmath_div_ ## n(		\
 	stress_intmath_vals_t *vals,				\
 	const int idx,						\
@@ -311,10 +316,10 @@ static bool OPTIMIZE3 clones stress_intmath_div_ ## n(		\
 	register type s2 = 1;					\
 	register type s3 = 1;					\
 								\
-	i0 = (type)vals->init[0];				\
-	i1 = (type)vals->init[1];				\
-	i2 = (type)vals->init[2];				\
-	i3 = (type)vals->init[3];				\
+	i0 = (type)vals->init_array[0];				\
+	i1 = (type)vals->init_array[1];				\
+	i2 = (type)vals->init_array[2];				\
+	i3 = (type)vals->init_array[3];				\
 								\
 	t = stress_time_now();					\
 PRAGMA_UNROLL_N(8)						\
@@ -337,7 +342,7 @@ PRAGMA_UNROLL_N(8)						\
 	return true;						\
 }
 
-#define STRESS_INTMATH_MOD(type, n, clones)			\
+#define STRESS_INTMATH_MOD(type, n, init_array, clones)		\
 static bool OPTIMIZE3 clones stress_intmath_mod_ ## n(		\
 	stress_intmath_vals_t *vals,				\
 	const int idx,						\
@@ -354,10 +359,10 @@ static bool OPTIMIZE3 clones stress_intmath_mod_ ## n(		\
 	register type s2 = 1;					\
 	register type s3 = 1;					\
 								\
-	i0 = (type)vals->init[0];				\
-	i1 = (type)vals->init[1];				\
-	i2 = (type)vals->init[2];				\
-	i3 = (type)vals->init[3];				\
+	i0 = (type)vals->init_array[0];				\
+	i1 = (type)vals->init_array[1];				\
+	i2 = (type)vals->init_array[2];				\
+	i3 = (type)vals->init_array[3];				\
 								\
 	t = stress_time_now();					\
 PRAGMA_UNROLL_N(8)						\
@@ -381,104 +386,104 @@ PRAGMA_UNROLL_N(8)						\
 }
 
 #if defined(HAVE_INT128_T)
-STRESS_INTMATH_ADD(__int128_t, 128, NO_TARGET_CLONES)
+STRESS_INTMATH_ADD(__int128_t, 128, init, NO_TARGET_CLONES)
 #endif
 #if defined(HAVE_INT_FAST64_T)
-STRESS_INTMATH_ADD(int_fast64_t, fast64, NO_TARGET_CLONES)
+STRESS_INTMATH_ADD(int_fast64_t, fast64, initfast, NO_TARGET_CLONES)
 #endif
 #if defined(HAVE_INT_FAST32_T)
-STRESS_INTMATH_ADD(int_fast32_t, fast32, NO_TARGET_CLONES)
+STRESS_INTMATH_ADD(int_fast32_t, fast32, initfast, NO_TARGET_CLONES)
 #endif
 #if defined(HAVE_INT_FAST16_T)
-STRESS_INTMATH_ADD(int_fast16_t, fast16, NO_TARGET_CLONES)
+STRESS_INTMATH_ADD(int_fast16_t, fast16, initfast, NO_TARGET_CLONES)
 #endif
 #if defined(HAVE_INT_FAST8_T)
-STRESS_INTMATH_ADD(int_fast8_t, fast8, NO_TARGET_CLONES)
+STRESS_INTMATH_ADD(int_fast8_t, fast8, initfast, NO_TARGET_CLONES)
 #endif
-STRESS_INTMATH_ADD(int64_t, 64, NO_TARGET_CLONES)
-STRESS_INTMATH_ADD(int32_t, 32, NO_TARGET_CLONES)
-STRESS_INTMATH_ADD(int16_t, 16, TARGET_CLONES)
-STRESS_INTMATH_ADD(int8_t,   8, TARGET_CLONES)
+STRESS_INTMATH_ADD(int64_t, 64, init, NO_TARGET_CLONES)
+STRESS_INTMATH_ADD(int32_t, 32, init, NO_TARGET_CLONES)
+STRESS_INTMATH_ADD(int16_t, 16, init, TARGET_CLONES)
+STRESS_INTMATH_ADD(int8_t,   8, init, TARGET_CLONES)
 
 #if defined(HAVE_INT128_T)
-STRESS_INTMATH_SUB(__int128_t, 128, NO_TARGET_CLONES)
+STRESS_INTMATH_SUB(__int128_t, 128, init, NO_TARGET_CLONES)
 #endif
 #if defined(HAVE_INT_FAST64_T)
-STRESS_INTMATH_SUB(int_fast64_t, fast64, NO_TARGET_CLONES)
+STRESS_INTMATH_SUB(int_fast64_t, fast64, initfast, NO_TARGET_CLONES)
 #endif
 #if defined(HAVE_INT_FAST32_T)
-STRESS_INTMATH_SUB(int_fast32_t, fast32, NO_TARGET_CLONES)
+STRESS_INTMATH_SUB(int_fast32_t, fast32, initfast, NO_TARGET_CLONES)
 #endif
 #if defined(HAVE_INT_FAST16_T)
-STRESS_INTMATH_SUB(int_fast16_t, fast16, NO_TARGET_CLONES)
+STRESS_INTMATH_SUB(int_fast16_t, fast16, initfast, NO_TARGET_CLONES)
 #endif
 #if defined(HAVE_INT_FAST8_T)
-STRESS_INTMATH_SUB(int_fast8_t, fast8, NO_TARGET_CLONES)
+STRESS_INTMATH_SUB(int_fast8_t, fast8, initfast, NO_TARGET_CLONES)
 #endif
-STRESS_INTMATH_SUB(int64_t, 64, NO_TARGET_CLONES)
-STRESS_INTMATH_SUB(int32_t, 32, NO_TARGET_CLONES)
-STRESS_INTMATH_SUB(int16_t, 16, NO_TARGET_CLONES)
-STRESS_INTMATH_SUB(int8_t,   8, NO_TARGET_CLONES)
+STRESS_INTMATH_SUB(int64_t, 64, init, NO_TARGET_CLONES)
+STRESS_INTMATH_SUB(int32_t, 32, init, NO_TARGET_CLONES)
+STRESS_INTMATH_SUB(int16_t, 16, init, NO_TARGET_CLONES)
+STRESS_INTMATH_SUB(int8_t,   8, init, NO_TARGET_CLONES)
 
 #if defined(HAVE_INT128_T)
-STRESS_INTMATH_MUL(__int128_t, 128, NO_TARGET_CLONES)
+STRESS_INTMATH_MUL(__int128_t, 128, init, NO_TARGET_CLONES)
 #endif
 #if defined(HAVE_INT_FAST64_T)
-STRESS_INTMATH_MUL(int_fast64_t, fast64, NO_TARGET_CLONES)
+STRESS_INTMATH_MUL(int_fast64_t, fast64, initfast, NO_TARGET_CLONES)
 #endif
 #if defined(HAVE_INT_FAST32_T)
-STRESS_INTMATH_MUL(int_fast32_t, fast32, NO_TARGET_CLONES)
+STRESS_INTMATH_MUL(int_fast32_t, fast32, initfast, NO_TARGET_CLONES)
 #endif
 #if defined(HAVE_INT_FAST16_T)
-STRESS_INTMATH_MUL(int_fast16_t, fast16, NO_TARGET_CLONES)
+STRESS_INTMATH_MUL(int_fast16_t, fast16, initfast, NO_TARGET_CLONES)
 #endif
 #if defined(HAVE_INT_FAST8_T)
-STRESS_INTMATH_MUL(int_fast8_t, fast8, NO_TARGET_CLONES)
+STRESS_INTMATH_MUL(int_fast8_t, fast8, initfast, NO_TARGET_CLONES)
 #endif
-STRESS_INTMATH_MUL(int64_t, 64, NO_TARGET_CLONES)
-STRESS_INTMATH_MUL(int32_t, 32, NO_TARGET_CLONES)
-STRESS_INTMATH_MUL(int16_t, 16, NO_TARGET_CLONES)
-STRESS_INTMATH_MUL(int8_t,   8, NO_TARGET_CLONES)
+STRESS_INTMATH_MUL(int64_t, 64, init, NO_TARGET_CLONES)
+STRESS_INTMATH_MUL(int32_t, 32, init, NO_TARGET_CLONES)
+STRESS_INTMATH_MUL(int16_t, 16, init, NO_TARGET_CLONES)
+STRESS_INTMATH_MUL(int8_t,   8, init, NO_TARGET_CLONES)
 
 #if defined(HAVE_INT128_T)
-STRESS_INTMATH_DIV(__int128_t, 128, NO_TARGET_CLONES)
+STRESS_INTMATH_DIV(__int128_t, 128, init, NO_TARGET_CLONES)
 #endif
 #if defined(HAVE_INT_FAST64_T)
-STRESS_INTMATH_DIV(int_fast64_t, fast64, NO_TARGET_CLONES)
+STRESS_INTMATH_DIV(int_fast64_t, fast64, initfast, NO_TARGET_CLONES)
 #endif
 #if defined(HAVE_INT_FAST32_T)
-STRESS_INTMATH_DIV(int_fast32_t, fast32, NO_TARGET_CLONES)
+STRESS_INTMATH_DIV(int_fast32_t, fast32, initfast, NO_TARGET_CLONES)
 #endif
 #if defined(HAVE_INT_FAST16_T)
-STRESS_INTMATH_DIV(int_fast16_t, fast16, NO_TARGET_CLONES)
+STRESS_INTMATH_DIV(int_fast16_t, fast16, initfast, NO_TARGET_CLONES)
 #endif
 #if defined(HAVE_INT_FAST8_T)
-STRESS_INTMATH_DIV(int_fast8_t, fast8, NO_TARGET_CLONES)
+STRESS_INTMATH_DIV(int_fast8_t, fast8, initfast, NO_TARGET_CLONES)
 #endif
-STRESS_INTMATH_DIV(int64_t, 64, NO_TARGET_CLONES)
-STRESS_INTMATH_DIV(int32_t, 32, NO_TARGET_CLONES)
-STRESS_INTMATH_DIV(int16_t, 16, NO_TARGET_CLONES)
-STRESS_INTMATH_DIV(int8_t,   8, NO_TARGET_CLONES)
+STRESS_INTMATH_DIV(int64_t, 64, init, NO_TARGET_CLONES)
+STRESS_INTMATH_DIV(int32_t, 32, init, NO_TARGET_CLONES)
+STRESS_INTMATH_DIV(int16_t, 16, init, NO_TARGET_CLONES)
+STRESS_INTMATH_DIV(int8_t,   8, init, NO_TARGET_CLONES)
 
 #if defined(HAVE_INT128_T)
-STRESS_INTMATH_MOD(__int128_t, 128, NO_TARGET_CLONES)
+STRESS_INTMATH_MOD(__int128_t, 128, init, NO_TARGET_CLONES)
 #endif
 #if defined(HAVE_INT_FAST64_T)
-STRESS_INTMATH_MOD(int_fast64_t, fast64, NO_TARGET_CLONES)
+STRESS_INTMATH_MOD(int_fast64_t, fast64, initfast, NO_TARGET_CLONES)
 #endif
 #if defined(HAVE_INT_FAST32_T)
-STRESS_INTMATH_MOD(int_fast32_t, fast32, NO_TARGET_CLONES)
+STRESS_INTMATH_MOD(int_fast32_t, fast32, initfast, NO_TARGET_CLONES)
 #endif
 #if defined(HAVE_INT_FAST16_T)
-STRESS_INTMATH_MOD(int_fast16_t, fast16, NO_TARGET_CLONES)
+STRESS_INTMATH_MOD(int_fast16_t, fast16, initfast, NO_TARGET_CLONES)
 #endif
 #if defined(HAVE_INT_FAST8_T)
-STRESS_INTMATH_MOD(int_fast8_t, fast8, NO_TARGET_CLONES)
+STRESS_INTMATH_MOD(int_fast8_t, fast8, initfast, NO_TARGET_CLONES)
 #endif
-STRESS_INTMATH_MOD(int64_t, 64, NO_TARGET_CLONES)
-STRESS_INTMATH_MOD(int32_t, 32, NO_TARGET_CLONES)
-STRESS_INTMATH_MOD(int16_t, 16, NO_TARGET_CLONES)
-STRESS_INTMATH_MOD(int8_t,   8, NO_TARGET_CLONES)
+STRESS_INTMATH_MOD(int64_t, 64, init, NO_TARGET_CLONES)
+STRESS_INTMATH_MOD(int32_t, 32, init, NO_TARGET_CLONES)
+STRESS_INTMATH_MOD(int16_t, 16, init, NO_TARGET_CLONES)
+STRESS_INTMATH_MOD(int8_t,   8, init, NO_TARGET_CLONES)
 
 static const stress_intmath_method_t stress_intmath_methods[] = {
 	{ "all",	0,	NULL },
@@ -664,12 +669,18 @@ static int stress_intmath(stress_args_t *args)
 		methods_max = STRESS_INTMATH_MAX_METHODS;
 	}
 
-	for (i = 0; i < 4; i++)
+	for (i = 0; i < 4; i++) {
 #if defined(HAVE_INT128_T)
 		vals.init[i] = ((__int128_t)stress_mwc64() << 64) | stress_mwc64();
 #else
 		vals.init[i] = (int64_t)stress_mwc64();
 #endif
+#if defined(HAVE_INT_FAST64_T)
+		vals.initfast[i] = (int_fast64_t)stress_mwc64();
+#else
+		vals.initfast[i] = (int64_t)stress_mwc64();
+#endif
+	}
 
 	(void)shim_memset(stress_intmath_initialized, 0, sizeof(stress_intmath_initialized));
 
