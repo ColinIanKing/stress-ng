@@ -270,7 +270,7 @@ static void stress_mmaptorture_init(const uint32_t num_instances)
 	(void)num_instances;
 
 	mmap_bytes = DEFAULT_MMAPTORTURE_BYTES;
-	stress_get_setting("mmaptorture-bytes", &mmap_bytes);
+	(void)stress_get_setting("mmaptorture-bytes", &mmap_bytes);
 
 	mmap_bytes = (num_instances < 1) ? mmap_bytes : mmap_bytes / num_instances;
 	mmap_bytes &= ~(page_size - 1);
@@ -389,7 +389,7 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 	size_t i;
 	(void)context;
 
-	stress_get_setting("mmaptorture-msync", &mmaptorture_msync);
+	(void)stress_get_setting("mmaptorture-msync", &mmaptorture_msync);
 
 	if (sigsetjmp(jmp_env, 1)) {
 		pr_inf_skip("%s: premature SIGSEGV caught, skipping stressor\n",
