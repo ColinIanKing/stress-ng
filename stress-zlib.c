@@ -1593,6 +1593,10 @@ static int stress_zlib_deflate(
 			pr_fail("%s: zlib deflateInit error: %s\n",
 				args->name, stress_zlib_err(ret));
 			zlib_checksum->error = true;
+			(void)deflateEnd(&stream_def);
+			stream_def.zalloc = Z_NULL;
+			stream_def.zfree = Z_NULL;
+			stream_def.opaque = Z_NULL;
 			ret = EXIT_FAILURE;
 			goto zlib_checksum_error;
 		}
