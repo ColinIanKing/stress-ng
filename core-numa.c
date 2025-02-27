@@ -177,14 +177,16 @@ void stress_numa_randomize_pages(
 	uint8_t *ptr;
 	uint8_t *prev_ptr = (uint8_t *)buffer;
 	const uint8_t *ptr_end = (uint8_t *)buffer + buffer_size;
-	unsigned long int node = (unsigned long int)stress_mwc32modn((uint32_t)numa_mask->nodes);
-	unsigned long int prev_node = node;
+	unsigned long int node, prev_node;
 	size_t size;
 
 	if (UNLIKELY(!numa_mask))
 		return;
 	if (UNLIKELY(!buffer))
 		return;
+
+	node = (unsigned long int)stress_mwc32modn((uint32_t)numa_mask->nodes);
+	prev_node = node;
 
 	(void)shim_memset(numa_mask->mask, 0, numa_mask->mask_size);
 
