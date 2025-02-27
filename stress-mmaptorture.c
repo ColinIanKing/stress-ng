@@ -378,7 +378,11 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 {
 	const size_t page_size = args->page_size;
 	const size_t page_mask = ~(page_size - 1);
+#if defined(HAVE_LIB_RT) &&	\
+    defined(HAVE_SHM_OPEN) &&	\
+    defined(HAVE_SHM_UNLINK)
 	const pid_t mypid = getpid();
+#endif
 	char *data;
 	NOCLOBBER uint32_t mmaptorture_msync = 10;
 	NOCLOBBER mmap_info_t *mappings;
