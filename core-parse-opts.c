@@ -165,8 +165,7 @@ uint8_t stress_get_uint8(const char *const str)
 		longjmp(g_error_env, 1);
 	}
 	if (val > UINT8_MAX) {
-		(void)fprintf(stderr, "Invalid number %s too large (> %u)\n",
-			str, UINT8_MAX);
+		(void)fprintf(stderr, "Invalid number %s too large (> %d)\n", str, (int)UINT8_MAX);
 		longjmp(g_error_env, 1);
 	}
 	return (uint8_t)val;
@@ -211,7 +210,7 @@ uint16_t stress_get_uint16(const char *const str)
 		longjmp(g_error_env, 1);
 	}
 	if (val > UINT16_MAX) {
-		(void)fprintf(stderr, "Invalid number %s too large (> %u)\n", str, UINT16_MAX);
+		(void)fprintf(stderr, "Invalid number %s too large (> %d)\n", str, (int)UINT16_MAX);
 		longjmp(g_error_env, 1);
 	}
 	return (uint16_t)val;
@@ -256,7 +255,7 @@ uint32_t stress_get_uint32(const char *const str)
 		longjmp(g_error_env, 1);
 	}
 	if (val > UINT32_MAX) {
-		(void)fprintf(stderr, "Invalid number %s too large (> %u)\n", str, UINT32_MAX);
+		(void)fprintf(stderr, "Invalid number %s too large (> %u)\n", str, (unsigned int)UINT32_MAX);
 		longjmp(g_error_env, 1);
 	}
 	return (uint32_t)val;
@@ -334,7 +333,7 @@ unsigned int stress_get_uint(const char *const str)
 		longjmp(g_error_env, 1);
 	}
 	if (val > UINT_MAX) {
-		(void)fprintf(stderr, "Invalid number %s too large (> %u)\n", str, UINT_MAX);
+		(void)fprintf(stderr, "Invalid number %s too large (> %u)\n", str, (unsigned int)UINT_MAX);
 		longjmp(g_error_env, 1);
 	}
 	return (unsigned int)val;
