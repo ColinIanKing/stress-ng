@@ -184,14 +184,14 @@ static int stress_pagein_proc(const pid_t pid)
 		if ((sizeof(off_t) < 32) || (sizeof(off_t) > 64))
 			continue;
 		else if (sizeof(off_t) == 32) {
-			int32_t begin32, end32;
+			uint32_t begin32, end32;
 
 			if (sscanf(buffer, "%" SCNx32 "-%" SCNx32 " %5s %*x %*x:%*x %*d %1023s", &begin32, &end32, prot, tmppath) != 4)
 				continue;
 			begin = (off_t)begin32;
 			end = (off_t)end32;
 		} else if (sizeof(off_t) <= 64) {
-			int64_t begin64, end64;
+			uint64_t begin64, end64;
 
 			if (sscanf(buffer, "%" SCNx64 "-%" SCNx64 " %5s %*x %*x:%*x %*d %1023s", &begin64, &end64, prot, tmppath) != 4)
 				continue;
