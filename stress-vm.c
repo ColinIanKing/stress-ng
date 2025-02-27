@@ -3463,8 +3463,10 @@ static int stress_vm(stress_args_t *args)
 				"retry count=%zu, errno=%d (%s)\n",
 				args->name, retries, err, strerror(err));
 		}
+#if defined(HAVE_LINUX_MEMPOLICY_H)
 		if (context.numa_mask)
 			stress_numa_mask_free(context.numa_mask);
+#endif
 		return EXIT_NO_RESOURCE;
 	}
 	stress_set_vma_anon_name(context.bit_error_count, page_size, "bit-error-count");
