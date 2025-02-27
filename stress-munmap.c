@@ -141,7 +141,8 @@ static int stress_munmap_child(stress_args_t *args, void *context)
 	const pid_t pid = getpid();
 	munmap_context_t *ctxt = (munmap_context_t *)context;
 	void *start, *end, *offset;
-	int major, minor, n;
+	int n;
+	unsigned int major, minor;
 	int rc = EXIT_SUCCESS;
 	uint64_t inode;
 
