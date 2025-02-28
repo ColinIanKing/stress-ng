@@ -284,7 +284,7 @@ retry_bind:
 		t = stress_time_now();
 		ret = send(fd, input, j, 0);
 		if (UNLIKELY(ret != (ssize_t)j)) {
-			if (ret < 0) {
+			if ((ret < 0) && (errno != 0)) {
 				if (errno == EINTR)
 					break;
 				if ((errno == ENOKEY) || (errno == ENOENT))
@@ -531,6 +531,8 @@ retry_bind:
 		msg.msg_iovlen = 1;
 
 		if (UNLIKELY(sendmsg(fd, &msg, 0) < 0)) {
+			if (errno == 0)
+				break;
 			if (errno == EINTR)
 				break;
 			if (errno == ENOMEM)
@@ -593,6 +595,8 @@ retry_bind:
 
 		t = stress_time_now();
 		if (UNLIKELY(sendmsg(fd, &msg, 0) < 0)) {
+			if (errno == 0)
+				break;
 			if (errno == ENOMEM)
 				break;
 			if (errno == EINTR)
