@@ -454,7 +454,7 @@ static int stress_mcontend(stress_args_t *args)
 	void *data[MAX_MAPPINGS];
 	char filename[PATH_MAX];
 	stress_pthread_args_t pa;
-	bool mcontend_numa;
+	bool mcontend_numa = false;
 	int fd, rc;
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 	stress_numa_mask_t *numa_mask = NULL;
