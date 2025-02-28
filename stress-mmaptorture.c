@@ -353,6 +353,7 @@ static void stress_mmaptorture_msync(
 	(void)addr;
 	(void)length;
 	(void)page_size;
+	(void)mmaptorture_msync;
 #endif
 }
 
