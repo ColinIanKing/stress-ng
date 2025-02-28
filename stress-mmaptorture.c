@@ -293,7 +293,7 @@ static void stress_mmaptorture_init(const uint32_t num_instances)
 	(void)unlink(path);
 
 	VOID_RET(int, ftruncate(mmap_fd, (off_t)mmap_bytes));
-	mmap_data = mmap(NULL, mmap_bytes, PROT_READ | PROT_WRITE, MAP_SHARED, mmap_fd, 0);
+	mmap_data = (uint8_t *)mmap(NULL, mmap_bytes, PROT_READ | PROT_WRITE, MAP_SHARED, mmap_fd, 0);
 }
 
 static void stress_mmaptorture_deinit(void)
@@ -530,15 +530,15 @@ retry:
 				shm_fd = shm_open(shm_name, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
 				if (shm_fd < 0)
 					goto retry;
-				ptr = mmap(NULL, mmap_size, PROT_READ | PROT_WRITE,
-						MAP_SHARED | mmap_flag, shm_fd, offset);
+				ptr = (uint8_t *)mmap(NULL, mmap_size, PROT_READ | PROT_WRITE,
+							MAP_SHARED | mmap_flag, shm_fd, offset);
 				if (ptr != MAP_FAILED) {
 					(void)shm_unlink(shm_name);
 					(void)close(shm_fd);
 					goto mapped_ok;
 				}
-				ptr = mmap(NULL, mmap_size, PROT_READ | PROT_WRITE,
-						MAP_SHARED, shm_fd, offset);
+				ptr = (uint8_t *)mmap(NULL, mmap_size, PROT_READ | PROT_WRITE,
+							MAP_SHARED, shm_fd, offset);
 				if (ptr != MAP_FAILED) {
 					(void)shm_unlink(shm_name);
 					(void)close(shm_fd);
@@ -646,7 +646,7 @@ mapped_ok:
 				if (ret == 0) {
 #if defined(MAP_FIXED)
 					if (stress_mwc1()) {
-						mappings[n].addr = mmap((void *)mappings[n].addr, page_size,
+						mappings[n].addr = (uint8_t *)mmap((void *)mappings[n].addr, page_size,
 								PROT_READ | PROT_WRITE, MAP_FIXED | MAP_SHARED,
 								mmap_fd, mappings[n].offset);
 						if (UNLIKELY(mappings[n].addr == MAP_FAILED)) {
