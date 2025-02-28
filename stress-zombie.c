@@ -46,10 +46,10 @@ static const stress_help_t help[] = {
 };
 
 /*
- *  stress_pid_not_a_zombie()
- *	return true if we are 100% sure the process is not a zombie
+ *  stress_pid_a_zombie()
+ *	return false if we are 100% sure the process not a zombie
  */
-static bool stress_pid_not_a_zombie(const pid_t pid)
+static bool stress_pid_a_zombie(const pid_t pid)
 {
 #if defined(__linux__)
 	char path[PATH_MAX];
@@ -60,18 +60,18 @@ static bool stress_pid_not_a_zombie(const pid_t pid)
 	(void)snprintf(path, sizeof(path), "/proc/%" PRIdMAX "/stat", (intmax_t)pid);
 	fd = open(path, O_RDONLY);
 	if (fd < 0)
-		return false;	/* Unknown */
+		return true;	/* Unknown */
 	n = read(fd, buf, sizeof(buf));
 	(void)close(fd);
 	if (n < 0)
-		return false;	/* Unknown */
+		return true;	/* Unknown */
 	while (*ptr) {
 		if (*ptr == ')')
 			break;
 		ptr++;
 	}
 	if (!*ptr)
-		return false;	/* Unknown */
+		return true;	/* Unknown */
 	ptr++;
 	while (*ptr) {
 		if (*ptr != ' ')
@@ -79,14 +79,14 @@ static bool stress_pid_not_a_zombie(const pid_t pid)
 		ptr++;
 	}
 	if (!*ptr)
-		return false;	/* Unknown */
+		return true;	/* Unknown */
 
 	/* Process should not be in runnable state */
-	return (*ptr == 'R');
+	return (*ptr == 'Z');
 #else
 	(void)pid;
 
-	return false; 	/* No idea */
+	return true; 	/* No idea */
 #endif
 }
 
@@ -136,9 +136,19 @@ static void stress_zombie_head_remove(stress_args_t *args, const bool check)
 
 		if (verify && check) {
 			if (pid > 1) {
-				(void)stress_kill_pid(pid);
-				(void)shim_sched_yield();
-				if (stress_pid_not_a_zombie(pid))
+				uint64_t usec = 1;
+				bool zombie = false;
+
+				while (usec <= 262144) {
+					(void)stress_kill_pid(pid);
+					if (stress_pid_a_zombie(pid)) {
+						zombie = true;
+						break;
+					}
+					shim_usleep(usec);
+					usec <<= 1ULL;
+				}
+				if (!zombie)
 					pr_fail("%s: PID %" PRIdMAX " is not in the expected zombie state\n",
 						args->name, (intmax_t)pid);
 			}
