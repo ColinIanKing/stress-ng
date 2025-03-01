@@ -18,9 +18,9 @@
 #
 
 #
-# Codename "numa enhanced strainer"
+# Codename "optimized os oppressor"
 #
-VERSION=0.18.10
+VERSION=0.18.11
 
 #
 # Determine supported toolchains
