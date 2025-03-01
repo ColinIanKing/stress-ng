@@ -1,3 +1,137 @@
+stress-ng (0.18.11-1) unstable; urgency=medium
+
+  * core-helper: add check for Cygwin
+  * stress-zombie: repeat zombie state checks for more robust checking
+  * stress-af-alg: ignore errno = 0 send* failures
+  * stress-mcontend: ensure mcontend_numa is defaulted to false
+  * stress-pci: make t_delta non-clobberable
+  * stress-mmaptorture: cat mmap returns to uint8_t *
+  * stress-zombie: add sched_yield before zombie Z state check
+  * stress-mmaptorture: voidify function argument mmaptorture_msync
+  * stress-vm: add HAVE_LINUX_MEMPOLICY_H check when using numa.mask
+  * stress-tun: perform addition before casting to uint8_t
+  * core-thrash: make begin/end unsigned to match %x sscanf format
+    specifier
+  * stress-munmap: make major and minor unsigned ints to match scanf %x
+    specifiers
+  * core-numa: avoid pointer arithmetic on potentially NULL buffer
+  * core-numa: don't dereference numa_mask before it's null checked
+  * core-parse-opts: ensure format specifier and type match
+  * stress-mmaptorture: only declare variable mypid when required
+  * stress-zlib: call deflateEnd on error return path
+  * stress-tsearch: avoid division by zero
+  * stress-access: fix array termination comparison
+  * workload: avoid division by zero when sum is 0.0
+  * stress-vm: free context.numa_mask on error return path
+  * stress-mmaptorture: voidify return from stress_get_setting
+  * stress-intmath: load init values for fast ints from a fast int array
+  * test-intmath: add a --intmath-fast option to exercise int_fast*_t types
+  * README.md: add a couple more references to papers
+  * core-memrate: add --memrate-method to specify read/write method
+  * stress-memrate: allow zero values of memrate-rd-mbs and memrate-wr-mbs
+  * stress-sysbadaddr: use shim_madvise for madvise calls
+  * stress-tlb-shootdown: use shim_madvise for madvise calls
+  * stress-pagemove: fix mprotect calls
+  * core-shim: add shim macros for madvise advice
+  * stress-mmaptorture: #ifdef around madvise, fix QNX build
+  * kernel-coverage: add html to text conversion
+  * kernel-coverage: add --branch-coverage coverage option
+  * stress-*: handle ENOSUP errors on timer_create more graciously
+  * stress-mmaptorture: populate mapping file and read mapping
+  * stress-mmaptorture: rename temp strings name to avoid name shadowing
+  * stress-ng.h: use 64 bit LFS
+  * stress-mmaptorture: don't map more than mmaptoture-bytes
+  * stress-mmaptorture: add some more torture metrics
+  * stress-mmaptorture: use shm_open and shm_unlink for anon mappings
+  * stress-close, stress-shm: check for SHM_OPEN and SHM_UNLINK
+  * test: add shm-open and shm-unlink build time config checks
+  * stress-mmaptorture: retry if mmap's fail rather than continuing
+  * stress-mmaphuge: fix inverted MAP_FAILED check on madvise calls
+  * stress-mmaptorture: add mlockall/munlockall in child process
+  * stress-mmaptorture: bump MMAP_SIZE_MAP from 4 to 512 pages
+  * stress-mmaptorture: remove debug
+  * stress-mmaptorture: name each mmap'd page to create more VMAs
+  * stress-mmaptorture: where possible, set vma name
+  * core-helper: fix typo in comment: hash -> has
+  * Manual: add mseal notes in mmaptruncate description
+  * stress-mmaptorture: mseal a page in child process, fix munmap address
+  * test: add check for setproctitle_init
+  * test/test-setproctitle: remove check for setproctitle_init on BSD
+    systems
+  * stress-mmaptorture: increase size default to 256MB, add random
+    ftruncate
+  * kernel-coverage: add mmaptorture options
+  * stress-mmaptorture: add --mmaptorture-msync option to change % rate
+    of msyncs
+  * stress-mmaptorture: add mmap stats and metrics
+  * stress-mmaptorture: mmap onto an existing virt address with
+    MAP_NOREPLACE
+  * stress-mmaptorture: add MAP_FIXED re-map on just unmapped page
+  * stress-mmaptorture: make variables nonclobberable due to longjmp
+  * Dockerfile: make static stress-ng image, disable GPU stressor
+  * github workflows: enable more arches now we have a Debian build
+  * stress-mmaptorture: madvise don't need before unmapping pages in child
+  * stress-mmaptorture: make pid noclobberable
+  * github workflows: remove printenv
+  * stress-mmaptorture: randomly fork child to dup and remove mappings
+  * stress-mmaptorture: add random swap outs on pages
+  * github workflows: enable more arches now we have a Debian build
+  * Dockerfile: build images on Debian
+  * Makefile: enable verbose build for github docker builds
+  * README.md: add another kernel issue found with stress-ng
+  * stress-mmaptorture: cater for systems that don't support msync
+  * Revert "stress-hdd: make stress_hdd_opts_t field advise build dependant
+  * stress-mmaptorture: cater for systems without MAP_NONBLOCK
+  * stress-sockpair: unconstify fds arg, gcc 4.8.2 complains about this
+  * stress-mmaptorture: reduce scope on newptr
+  * stress-mmaptorture: move #endif
+  * stress-mmaptorture: move } outside #ifdef block
+  * stress-madvise: fix build issues with HAVE_MADVISE undefined
+  * stress-mmaptorture: add --mmaptorture-bytes option
+  * stress-mmaptorture: add remap_file_pages call where available
+  * stress-mmaptorture: rework msync helper, msync pages randomly
+  * core-out-of-memory: start timeout from first waitpid exit
+  * stress-mmaptorture: add stressor that tortures mmap'd memory
+  * Makefile: add some Intel icx compiler optimization flags
+  * stress-pidfd: exercise PIDFD_SELF_THREAD and PIDFD_SELF_THREAD* fds
+  * README.md: remove ] in link
+  * README.md: add kernel issue and recent paper on stress-ng
+  * core-config-check: check /sys/devices/system/cpu/cpufreq/boost is set
+    to 1
+  * core-ignite-cpu: enable cpu boost
+  * stress-ng.h: silence PCC build warnings on __cold__ not being supported
+  * core-*, stress-*: add LIKELY/UNLIKELY hints for stress_continue_flag
+  * core-*, stress-*: make various pointers and variables const
+  * stress-shm: remove empty line
+  * core-helper: add stress_random_small_sleep for small pthread startup
+    delays
+  * stress-vma: reduce scope of variable ret
+  * stress-tee: reduce scope of variable ret
+  * stress-prime: simplify mapping of prime methods
+  * stress-mincore: initialize pointers with NULL instead of zero
+  * stress-ipsec-mb: move ipsec_stats_t where it is required
+  * stress-cache: add missing checks for HAVE_SCHED_SETAFFINITY
+  * stress-hdd: make stress_hdd_opts_t field advise build dependant
+  * stress-goto: simplify the goto direction mechanism
+  * stress-funcret: compare data in struct rather than whole struct
+  * stress-filename: simplify mapping of filename opts in method
+  * stress-fd-race: remove redundant pointer fds
+  * stress-fd-race: reduce scope of variables j and tmp, make them
+    registers too
+  * stress-exec: fix index -> method mapping on methods
+  * stress-copy-file: cast -1 to shim_off64_t to be pedantic
+  * core-shim: fix incorrect signed type for shim_off64_t
+  * stress-bitops: reduce scope of buf
+  * stress-bad-ioctl: remove need ioctl_cmd_method field, use index instead
+  * core-thermal-zone: reduce scope of pointer name
+  * core-affinity: constify pointers d and tmpptr, reduce scope of tmpptr
+  * core-ignite-cpu: reduce scope of variable retry
+  * core-perf: rename pointer l to label to make it more readable
+  * README.md: add another research paper link
+  * core-affinity: add checks for HAVE_SCHED_SETAFFINITY
+
+ -- Colin Ian King <colin.i.king@gmail.com>  Sat, 1 Mar 2025 17:46:17 +0000
+
 stress-ng (0.18.10-1) unstable; urgency=medium
 
   [Christian Franke]
