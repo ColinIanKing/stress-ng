@@ -1802,6 +1802,8 @@ static char *stress_get_libc_version(void)
 
 	(void)snprintf(buf, sizeof(buf), "uclibc %d.%d", __UCLIBC_MAJOR__, __UCLIBC_MINOR__);
 	return buf;
+#elif defined(__CYGWIN__)
+	return "Cygwin libc";
 #elif defined(__DARWIN_C_LEVEL)
 	return "Darwin libc";
 #elif defined(HAVE_CC_MUSL_GCC)
