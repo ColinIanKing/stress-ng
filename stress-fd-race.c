@@ -838,7 +838,7 @@ static int stress_fd_race(stress_args_t *args)
 	 */
 	if (geteuid() == 0) {
 		context.max_fd -= 64;
-		context.max_fd /= args->num_instances ? args->num_instances : 1;
+		context.max_fd /= args->instances ? args->instances : 1;
 		if (context.max_fd < 0)
 			context.max_fd = 1;
 	}

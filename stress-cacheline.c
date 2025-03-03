@@ -662,9 +662,9 @@ static int stress_cacheline_child(
  *  stress_cacheline_init()
  *	called once by stress-ng, so we can set idx to 0
  */
-static void stress_cacheline_init(const uint32_t num_instances)
+static void stress_cacheline_init(const uint32_t instances)
 {
-	(void)num_instances;
+	(void)instances;
 
 	g_shared->cacheline.index = 0;
 	g_shared->cacheline.lock = stress_lock_create("cacheline");
@@ -734,7 +734,7 @@ static int stress_cacheline(stress_args_t *args)
 		pr_dbg("%s: using method '%s'\n", args->name, cacheline_methods[cacheline_method].name);
 		pr_dbg("%s: L1 cache line size %zd bytes\n", args->name, l1_cacheline_size);
 
-		if ((args->num_instances * 2) < l1_cacheline_size) {
+		if ((args->instances * 2) < l1_cacheline_size) {
 			pr_inf("%s: to fully exercise a %zd byte cache line, %zd instances are required\n",
 				args->name, l1_cacheline_size, l1_cacheline_size / 2);
 		}

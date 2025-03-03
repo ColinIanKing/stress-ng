@@ -108,7 +108,7 @@ static int stress_mlockmany_child(stress_args_t *args, void *context)
 	VOID_RET(int, stress_drop_capabilities(args->name));
 
 	if (mlockmany_procs == UNSET_MLOCK_PROCS) {
-		mlockmany_procs = args->num_instances > 0 ? DEFAULT_MLOCK_PROCS / args->num_instances : 1;
+		mlockmany_procs = args->instances > 0 ? DEFAULT_MLOCK_PROCS / args->instances : 1;
 		if (mlockmany_procs < 1)
 			mlockmany_procs = 1;
 	}

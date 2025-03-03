@@ -170,7 +170,7 @@ static int stress_mmapfork(stress_args_t *args)
 					_exit(MMAPFORK_FAILURE);
 				}
 
-				len = ((size_t)info.freeram / (args->num_instances * MAX_PIDS)) / 2;
+				len = ((size_t)info.freeram / (args->instances * MAX_PIDS)) / 2;
 
 #if defined(MADV_WIPEONFORK)
 				if (wipe_ok && (wipe_ptr != MAP_FAILED) &&

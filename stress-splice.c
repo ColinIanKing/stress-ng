@@ -171,7 +171,7 @@ static int stress_splice(stress_args_t *args)
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			splice_bytes = MIN_SPLICE_BYTES;
 	}
-	splice_bytes /= args->num_instances;
+	splice_bytes /= args->instances;
 	if (splice_bytes < MIN_SPLICE_BYTES)
 		splice_bytes = MIN_SPLICE_BYTES;
 

@@ -223,7 +223,7 @@ static int stress_memfd_child(stress_args_t *args, void *context)
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			memfd_bytes = MIN_MEMFD_BYTES;
 	}
-	memfd_bytes /= args->num_instances;
+	memfd_bytes /= args->instances;
 	if (memfd_bytes < MIN_MEMFD_BYTES)
 		memfd_bytes = MIN_MEMFD_BYTES;
 

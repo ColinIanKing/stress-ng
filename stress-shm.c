@@ -367,7 +367,7 @@ static int stress_shm(stress_args_t *args)
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			shm_posix_bytes = MIN_SHM_POSIX_BYTES;
 	}
-	shm_posix_bytes /= args->num_instances;
+	shm_posix_bytes /= args->instances;
 	if (shm_posix_bytes < MIN_SHM_POSIX_BYTES)
 		shm_posix_bytes = MIN_SHM_POSIX_BYTES;
 	if (shm_posix_bytes < page_size)

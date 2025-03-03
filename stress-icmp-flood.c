@@ -176,7 +176,7 @@ static int stress_icmp_flood(stress_args_t *args)
 		rate / (double)MB, STRESS_METRIC_HARMONIC_MEAN);
 	rate = (counter > 0) ? 100.0 * (double)sendto_ok / (double)counter : 0.0;
 	stress_metrics_set(args, 2, "% successful sendto messages",
-		rate / (args->num_instances), STRESS_METRIC_TOTAL);
+		rate / args->instances, STRESS_METRIC_TOTAL);
 
 	rc = EXIT_SUCCESS;
 

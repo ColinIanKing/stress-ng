@@ -959,7 +959,7 @@ static int stress_memthrash(stress_args_t *args)
 
 	context.args = args;
 	context.total_cpus = (uint32_t)stress_get_processors_online();
-	context.max_threads = stress_memthrash_max(args->num_instances, context.total_cpus);
+	context.max_threads = stress_memthrash_max(args->instances, context.total_cpus);
 #if defined(HAVE_MEMTHRASH_NUMA)
 	{
 		context.numa_mask = stress_numa_mask_alloc();
@@ -978,12 +978,12 @@ static int stress_memthrash(stress_args_t *args)
 		pr_inf("%s: starting %" PRIu32 " thread%s on each of the %"
 			PRIu32 " stressors on a %" PRIu32 " CPU system\n",
 			args->name, context.max_threads, plural(context.max_threads),
-			args->num_instances, context.total_cpus);
-		if (context.max_threads * args->num_instances > context.total_cpus) {
+			args->instances, context.total_cpus);
+		if (context.max_threads * args->instances > context.total_cpus) {
 			pr_inf("%s: this is not an optimal choice of stressors, "
 				"try %" PRIu32 " instead\n",
 			args->name,
-			stress_memthash_optimal(args->num_instances, context.total_cpus));
+			stress_memthash_optimal(args->instances, context.total_cpus));
 		}
 	}
 

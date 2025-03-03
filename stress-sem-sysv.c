@@ -63,11 +63,11 @@ static const stress_opt_t opts[] = {
  *  stress_semaphore_sysv_init()
  *	initialise a System V semaphore
  */
-static void stress_semaphore_sysv_init(const uint32_t num_instances)
+static void stress_semaphore_sysv_init(const uint32_t instances)
 {
 	int count = 0, sem_id;
 
-	(void)num_instances;
+	(void)instances;
 
 	/* Exercise invalid nsems, EINVAL */
 	sem_id = semget((key_t)stress_mwc16(), -1, IPC_CREAT | S_IRUSR | S_IWUSR);

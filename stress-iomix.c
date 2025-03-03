@@ -1108,7 +1108,7 @@ static int stress_iomix(stress_args_t *args)
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			iomix_bytes = MIN_IOMIX_BYTES;
 	}
-	iomix_bytes /= args->num_instances;
+	iomix_bytes /= args->instances;
 	if (iomix_bytes < (off_t)MIN_IOMIX_BYTES)
 		iomix_bytes = (off_t)MIN_IOMIX_BYTES;
 	if (iomix_bytes < (off_t)page_size)

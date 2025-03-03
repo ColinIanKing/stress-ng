@@ -3269,7 +3269,7 @@ static int stress_vm_child(stress_args_t *args, void *ctxt)
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			vm_bytes = MIN_VM_BYTES;
 	}
-	vm_bytes /= args->num_instances;
+	vm_bytes /= args->instances;
 	if (vm_bytes < MIN_VM_BYTES)
 		vm_bytes = MIN_VM_BYTES;
 	buf_sz = vm_bytes & ~(page_size - 1);

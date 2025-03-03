@@ -309,7 +309,7 @@ static int stress_revio(stress_args_t *args)
 			revio_bytes = MIN_REVIO_BYTES;
 	}
 
-	revio_bytes /= args->num_instances;
+	revio_bytes /= args->instances;
 
 	/* Ensure complete file size is not less than the I/O size */
 	if (revio_bytes < DEFAULT_REVIO_WRITE_SIZE) {

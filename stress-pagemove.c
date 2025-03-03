@@ -88,7 +88,7 @@ static int stress_pagemove_child(stress_args_t *args, void *context)
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			pagemove_bytes = MIN_PAGE_MOVE_BYTES;
 	}
-	pagemove_bytes /= args->num_instances;
+	pagemove_bytes /= args->instances;
 	if (pagemove_bytes < MIN_PAGE_MOVE_BYTES)
 		pagemove_bytes = MIN_PAGE_MOVE_BYTES;
 	if (pagemove_bytes < page_size)

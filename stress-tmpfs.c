@@ -159,7 +159,7 @@ static int stress_tmpfs_open(stress_args_t *args, off_t *len)
 				if (max_size > (off_t)MAX_TMPFS_SIZE)
 					max_size = (off_t)MAX_TMPFS_SIZE;
 			}
-			max_size /= args->num_instances;
+			max_size /= args->instances;
 			max_size += (args->page_size - 1);
 			max_size &= ~(off_t)(args->page_size - 1);
 

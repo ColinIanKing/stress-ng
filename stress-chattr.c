@@ -242,7 +242,7 @@ static int do_chattr(
 			 *  since some flag settings are not set if the filesystem
 			 *  cannot honor them).
 			 */
-			if (args->num_instances == 1) {
+			if (args->instances == 1) {
 				tmp = mask & ~(SHIM_EXT3_JOURNAL_DATA_FL | SHIM_EXT4_EXTENTS_FL);
 				if (((flags & tmp) | (check & tmp)) != (flags & tmp)) {
 					char flags_str[65], check_str[65];

@@ -193,7 +193,7 @@ static int stress_yield(stress_args_t *args)
 	size_t metrics_size;
 	uint64_t max_ops_per_yielder;
 	int32_t cpus = stress_get_processors_configured();
-	const uint32_t instances = args->num_instances;
+	const uint32_t instances = args->instances;
 	uint32_t yielders = 2, yield_procs = 0;
 	double count, duration, ns;
 #if defined(HAVE_SCHED_GETAFFINITY)

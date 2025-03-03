@@ -94,9 +94,9 @@ static const stress_policy_t cyclic_policies[] = {
 
 #define NUM_CYCLIC_POLICIES	(SIZEOF_ARRAY(cyclic_policies))
 
-static void stress_cyclic_init(const uint32_t num_instances)
+static void stress_cyclic_init(const uint32_t instances)
 {
-	(void)num_instances;
+	(void)instances;
 
 	stress_cyclic_state = (stress_cyclic_state_t *)
 		stress_mmap_populate(NULL, sizeof(*stress_cyclic_state),
@@ -585,7 +585,7 @@ static int stress_cyclic_supported(const char *name)
 
 static int stress_cyclic(stress_args_t *args)
 {
-	const uint32_t num_instances = args->num_instances;
+	const uint32_t instances = args->instances;
 	struct sigaction old_action_xcpu;
 	struct rlimit rlim;
 	pid_t pid;
@@ -651,7 +651,7 @@ static int stress_cyclic(stress_args_t *args)
 			"be %" PRIu64 " seconds\n", args->name, timeout);
 	}
 
-	if ((num_instances > 1) && (args->instance == 0)) {
+	if ((instances > 1) && (args->instance == 0)) {
 		pr_inf("%s: for best results, run just 1 instance of "
 			"this stressor\n", args->name);
 	}

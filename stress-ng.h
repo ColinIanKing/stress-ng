@@ -218,7 +218,7 @@ typedef struct {
 	uint64_t max_ops;		/* max number of bogo ops */
 	stress_counter_info_t ci;	/* counter info struct */
 	uint32_t instance;		/* stressor instance # */
-	uint32_t num_instances;		/* number of instances */
+	uint32_t instances;		/* number of instances */
 	pid_t pid;			/* stress pid info */
 	size_t page_size;		/* page size */
 	double time_end;		/* when to end */
@@ -234,7 +234,7 @@ typedef struct stress_stressor_info {
 	const struct stress *stressor;	/* stressor */
 	struct stress_stats **stats;	/* stressor stats info */
 	int32_t completed_instances;	/* count of completed instances */
-	int32_t num_instances;		/* number of instances per stressor */
+	int32_t instances;		/* number of instances per stressor */
 	uint64_t bogo_ops;		/* number of bogo ops */
 	uint32_t status[STRESS_STRESSOR_STATUS_MAX];
 					/* number of instances that passed/failed/skipped */
@@ -441,7 +441,7 @@ typedef enum {
 typedef struct stressor_info {
 	int (*stressor)(stress_args_t *args);	/* stressor function */
 	int (*supported)(const char *name);	/* return 0 = supported, -1, not */
-	void (*init)(const uint32_t num_instances); /* stressor init, NULL = ignore */
+	void (*init)(const uint32_t instances); /* stressor init, NULL = ignore */
 	void (*deinit)(void);		/* stressor de-init, NULL = ignore */
 	void (*set_default)(void);	/* default set-up */
 	void (*set_limit)(uint64_t max);/* set limits */

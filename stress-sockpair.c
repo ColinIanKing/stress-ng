@@ -114,7 +114,7 @@ static int stress_sockpair_oomable(stress_args_t *args, void *context)
 	int i, max, ret, parent_cpu;
 	double t, duration, rate, bytes = 0.0;
 	uint64_t low_memory_count = 0;
-	const size_t low_mem_size = args->page_size * 32 * args->num_instances;
+	const size_t low_mem_size = args->page_size * 32 * args->instances;
 	const bool oom_avoid = !!(g_opt_flags & OPT_FLAGS_OOM_AVOID);
 	(void)context;
 

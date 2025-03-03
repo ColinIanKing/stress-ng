@@ -820,7 +820,7 @@ static int stress_procfs(stress_args_t *args)
 				stress_proc_dir(&ctxt, procfspath, true, 0);
 			}
 
-			j = (j + args->num_instances) % (size_t)n;
+			j = (j + args->instances) % (size_t)n;
 			stress_bogo_inc(args);
 		}
 

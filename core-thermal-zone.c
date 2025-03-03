@@ -265,7 +265,7 @@ void stress_tz_dump(FILE *yaml, stress_stressor_t *stressors_list)
 
 			tz_info = tz_infos[i];
 
-			for (j = 0; j < ss->num_instances; j++) {
+			for (j = 0; j < ss->instances; j++) {
 				const uint64_t temp =
 					ss->stats[j]->tz.tz_stat[tz_info->index].temperature;
 				/* Avoid crazy temperatures. e.g. > 250 C */

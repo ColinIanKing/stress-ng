@@ -224,7 +224,7 @@ static int stress_cpu_online(stress_args_t *args)
 		free(cpu_online);
 		return EXIT_FAILURE;
 	}
-	if ((args->num_instances > 1) && cpu_online_all) {
+	if ((args->instances > 1) && cpu_online_all) {
 		if (args->instance == 0) {
 			pr_inf("%s: disabling --cpu-online-all option because "
 			       "more than 1 %s stressor is being invoked\n",
@@ -350,7 +350,7 @@ static int stress_cpu_online(stress_args_t *args)
 				break;
 			if (rc == EXIT_SUCCESS) {
 				rc = stress_cpu_online_get(cpu, &setting);
-				if ((rc == EXIT_SUCCESS) && (args->num_instances == 0) && (setting != 0)) {
+				if ((rc == EXIT_SUCCESS) && (args->instances == 0) && (setting != 0)) {
 					pr_inf("%s: set cpu %" PRIu32 " offline, expecting setting to be 0, got %d instead\n",
 						args->name, cpu, setting);
 				} else {
@@ -365,7 +365,7 @@ static int stress_cpu_online(stress_args_t *args)
 				break;
 			if (rc == EXIT_SUCCESS) {
 				rc = stress_cpu_online_get(cpu, &setting);
-				if ((rc == EXIT_SUCCESS) && (args->num_instances == 0) && (setting != 1)) {
+				if ((rc == EXIT_SUCCESS) && (args->instances == 0) && (setting != 1)) {
 					pr_inf("%s: set cpu %" PRIu32 " offline, expecting setting to be 1, got %d instead\n",
 						args->name, cpu, setting);
 				} else {

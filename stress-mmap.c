@@ -980,7 +980,7 @@ static int stress_mmap(stress_args_t *args)
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			context.mmap_bytes = MIN_MMAP_BYTES;
 	}
-	context.mmap_bytes /= args->num_instances;
+	context.mmap_bytes /= args->instances;
 	if (context.mmap_bytes < MIN_MMAP_BYTES)
 		context.mmap_bytes = MIN_MMAP_BYTES;
 	if (context.mmap_bytes < page_size)

@@ -272,7 +272,7 @@ static int stress_fiemap(stress_args_t *args)
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			fiemap_bytes = MIN_FIEMAP_SIZE;
 	}
-	fiemap_bytes /= args->num_instances;
+	fiemap_bytes /= args->instances;
 	if (fiemap_bytes < MIN_FIEMAP_SIZE)
 		fiemap_bytes = MIN_FIEMAP_SIZE;
 

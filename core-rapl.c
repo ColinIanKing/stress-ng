@@ -323,7 +323,7 @@ void stress_rapl_dump(FILE *yaml, stress_stressor_t *stressors_list, stress_rapl
 			if (i >= STRESS_RAPL_DOMAINS_MAX)
 				continue;
 
-			for (j = 0; j < ss->num_instances; j++) {
+			for (j = 0; j < ss->instances; j++) {
 				double power = ss->stats[j]->rapl.power_watts[i];
 
 				if (power > 0.0) {

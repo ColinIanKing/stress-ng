@@ -257,9 +257,9 @@ static inline size_t PURE stress_min_nanosleep_log2plus1(size_t n)
 #endif
 }
 
-static void stress_min_nanosleep_init(const uint32_t num_instances)
+static void stress_min_nanosleep_init(const uint32_t instances)
 {
-	delays_size = (size_t)num_instances * sizeof(*delays);
+	delays_size = (size_t)instances * sizeof(*delays);
 
 	delays = stress_mmap_populate(NULL, delays_size, PROT_READ | PROT_WRITE,
 					MAP_ANONYMOUS | MAP_SHARED, -1, 0);
@@ -390,7 +390,7 @@ err:
 
 		do {
 			count = 0;
-			for (k = 0; k < args->num_instances; k++) {
+			for (k = 0; k < args->instances; k++) {
 				int ret, status;
 
 				if (!delays[k].started) {
@@ -412,7 +412,7 @@ err:
 						delays[k].finished = true;
 				}
 			}
-		} while (count != args->num_instances);
+		} while (count != args->instances);
 
 		pr_block_begin();
 		pr_inf("using scheduler '%s'\n", stress_min_nanosleep_sched_name());
@@ -424,7 +424,7 @@ err:
 
 			stress_min_nanosleep_init_delay(&result, delays[0].delay[i].nsec);
 
-			for (k = 0; k < args->num_instances; k++) {
+			for (k = 0; k < args->instances; k++) {
 				delay = &delays[k].delay[i];
 
 				if (delay->updated) {

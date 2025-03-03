@@ -483,7 +483,7 @@ static void stress_gpu_alarm_handler(int sig)
 static void *stress_gpu_pthread(void *arg)
 {
 	stress_args_t *args = (stress_args_t *)arg;
-	uint64_t sleep_usecs = 100000UL * (uint64_t)args->num_instances;
+	uint64_t sleep_usecs = 100000UL * (uint64_t)args->instances;
 	uint64_t start_sleep_usecs = 100000UL * (uint64_t)args->instance;
 
 	(void)shim_usleep(start_sleep_usecs);

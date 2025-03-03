@@ -113,7 +113,7 @@ static int stress_fallocate(stress_args_t *args)
 			fallocate_bytes = MIN_FALLOCATE_BYTES;
 	}
 
-	fallocate_bytes /= args->num_instances;
+	fallocate_bytes /= args->instances;
 	if (fallocate_bytes < (off_t)MIN_FALLOCATE_BYTES)
 		fallocate_bytes = (off_t)MIN_FALLOCATE_BYTES;
 	ret = stress_temp_dir_mk_args(args);

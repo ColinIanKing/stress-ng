@@ -821,7 +821,7 @@ static int stress_stream(stress_args_t *args)
 	}
 
 	/* ..and shared amongst all the STREAM stressor instances */
-	L3 /= args->num_instances;
+	L3 /= args->instances;
 	if (L3 < args->page_size)
 		L3 = args->page_size;
 

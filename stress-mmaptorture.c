@@ -261,18 +261,16 @@ static const int mlockall_flags[] = {
 };
 #endif
 
-static void stress_mmaptorture_init(const uint32_t num_instances)
+static void stress_mmaptorture_init(const uint32_t instances)
 {
 	char path[PATH_MAX];
 	const pid_t pid = getpid();
 	const size_t page_size = stress_get_page_size();
 
-	(void)num_instances;
-
 	mmap_bytes = DEFAULT_MMAPTORTURE_BYTES;
 	(void)stress_get_setting("mmaptorture-bytes", &mmap_bytes);
 
-	mmap_bytes = (num_instances < 1) ? mmap_bytes : mmap_bytes / num_instances;
+	mmap_bytes = (instances < 1) ? mmap_bytes : mmap_bytes / instances;
 	mmap_bytes &= ~(page_size - 1);
 	if (mmap_bytes < page_size * MMAP_SIZE_MAP * 2) {
 		mmap_bytes = (page_size * MMAP_SIZE_MAP * 2);
@@ -838,7 +836,7 @@ static int stress_mmaptorture(stress_args_t *args)
 		char str1[64], str2[64];
 
 		stress_uint64_to_str(str1, sizeof(str1), (uint64_t)mmap_bytes);
-		stress_uint64_to_str(str2, sizeof(str2), (uint64_t)mmap_bytes * args->num_instances);
+		stress_uint64_to_str(str2, sizeof(str2), (uint64_t)mmap_bytes * args->instances);
 
 		pr_inf("%s: using %smmap'd size %s per stressor (total %s)\n", args->name,
 			mmap_bytes_adjusted ? "adjusted " : "", str1, str2);

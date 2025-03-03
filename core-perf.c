@@ -765,7 +765,7 @@ void stress_perf_stat_dump(FILE *yaml, stress_stressor_t *stressors_list, const 
 		for (p = 0; (p < STRESS_PERF_MAX) && perf_info[p].label; p++) {
 			int32_t j;
 
-			for (j = 0; j < ss->num_instances; j++) {
+			for (j = 0; j < ss->instances; j++) {
 				const uint64_t counter = sp->perf_stat[p].counter;
 
 				if (counter == STRESS_PERF_INVALID) {

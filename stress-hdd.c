@@ -679,7 +679,7 @@ static int stress_hdd(stress_args_t *args)
 			hdd_bytes = MIN_HDD_BYTES;
 	}
 
-	hdd_bytes /= args->num_instances;
+	hdd_bytes /= args->instances;
 	if (hdd_bytes < MIN_HDD_WRITE_SIZE)
 		hdd_bytes = MIN_HDD_WRITE_SIZE;
 

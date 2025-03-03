@@ -113,7 +113,7 @@ static int stress_sync_file(stress_args_t *args)
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			sync_file_bytes = MIN_SYNC_FILE_BYTES;
 	}
-	sync_file_bytes /= args->num_instances;
+	sync_file_bytes /= args->instances;
 	if (sync_file_bytes < (off_t)MIN_SYNC_FILE_BYTES)
 		sync_file_bytes = (off_t)MIN_SYNC_FILE_BYTES;
 

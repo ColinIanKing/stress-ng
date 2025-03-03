@@ -211,10 +211,10 @@ static inline size_t stress_max_ids(stress_args_t *args)
 	size_t max_ids;
 
 	/* Avoid static analysis complaining about division errors */
-	if (args->num_instances < 1)
+	if (args->instances < 1)
 		return STRESS_MAX_IDS;
 
-	max_ids = STRESS_MAX_IDS / args->num_instances;
+	max_ids = STRESS_MAX_IDS / args->instances;
 	if (max_ids < 2)
 		return 2;
 	return max_ids;

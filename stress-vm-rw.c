@@ -373,7 +373,7 @@ static int stress_vm_rw(stress_args_t *args)
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			vm_rw_bytes = MIN_VM_RW_BYTES;
 	}
-	vm_rw_bytes /= args->num_instances;
+	vm_rw_bytes /= args->instances;
 	if (vm_rw_bytes < MIN_VM_RW_BYTES)
 		vm_rw_bytes = MIN_VM_RW_BYTES;
 	if (vm_rw_bytes < args->page_size)

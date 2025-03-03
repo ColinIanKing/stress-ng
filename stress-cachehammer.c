@@ -77,14 +77,14 @@ static bool hammer_valid(void)
 	return true;
 }
 
-static void stress_cachehammer_init(const uint32_t num_instances)
+static void stress_cachehammer_init(const uint32_t instances)
 {
 	int fd;
 	const size_t page_size = stress_get_page_size();
 	ssize_t ret;
 	uint8_t *page;
 
-	(void)num_instances;
+	(void)instances;
 
 	(void)memset(cachehammer_filename, 0, sizeof(cachehammer_filename));
 	(void)memset(cachehammer_path, 0, sizeof(cachehammer_path));

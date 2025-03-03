@@ -71,9 +71,9 @@ static void MLOCKED_TEXT rawsock_sigalrm_handler(int signum)
 	stop_rawsock = true;
 }
 
-static void stress_rawsock_init(const uint32_t num_instances)
+static void stress_rawsock_init(const uint32_t instances)
 {
-	(void)num_instances;
+	(void)instances;
 
 	rawsock_lock = stress_lock_create("rawsock");
 	stop_rawsock = false;
@@ -146,7 +146,7 @@ static int OPTIMIZE3 stress_rawsock_client(stress_args_t *args, const int rawsoc
 		ready = g_shared->rawsock.ready;
 		(void)stress_lock_release(rawsock_lock);
 
-		if (ready == args->num_instances)
+		if (ready == args->instances)
 			break;
 		(void)shim_usleep(20000);
 	}

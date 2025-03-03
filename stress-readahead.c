@@ -108,7 +108,7 @@ static int stress_readahead(stress_args_t *args)
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			readahead_bytes = MIN_READAHEAD_BYTES;
 	}
-	readahead_bytes /= args->num_instances;
+	readahead_bytes /= args->instances;
 	if (readahead_bytes < MIN_READAHEAD_BYTES)
 		readahead_bytes = MIN_READAHEAD_BYTES;
 

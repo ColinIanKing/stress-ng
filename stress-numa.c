@@ -200,8 +200,8 @@ static int stress_numa(stress_args_t *args)
 	if (numa_bytes == 0) {
 		numa_bytes = DEFAULT_NUMA_MMAP_BYTES;
 	} else {
-		if (args->num_instances > 0) {
-			numa_bytes /= args->num_instances;
+		if (args->instances > 0) {
+			numa_bytes /= args->instances;
 			numa_bytes &= ~(page_size - 1);
 		}
 		if (numa_bytes < MIN_NUMA_MMAP_BYTES)

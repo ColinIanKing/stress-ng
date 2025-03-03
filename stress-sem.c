@@ -64,9 +64,9 @@ static int sem_global_errno;
 
 static stress_sem_pthread_t sem_pthreads[MAX_SEM_POSIX_PROCS] ALIGN64;
 
-static void stress_sem_init(const uint32_t num_instances)
+static void stress_sem_init(const uint32_t instances)
 {
-	(void)num_instances;
+	(void)instances;
 
 	sem_global_errno = 0;
 	sem_global = (sem_t *)stress_mmap_populate(NULL, sizeof(*sem_global),
@@ -78,7 +78,7 @@ static void stress_sem_init(const uint32_t num_instances)
 		return;
 	}
 	stress_set_vma_anon_name(sem_global, sizeof(*sem_global), "shared-semaphore");
-	if (sem_init(sem_global, 0, (unsigned int)num_instances) < 0) {
+	if (sem_init(sem_global, 0, (unsigned int)instances) < 0) {
 		sem_global_errno = errno;
 		(void)munmap((void *)sem_global, sizeof(*sem_global));
 		sem_global = NULL;

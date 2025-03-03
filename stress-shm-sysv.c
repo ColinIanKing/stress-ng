@@ -582,7 +582,7 @@ static int stress_shm_sysv_child(
 	int rc = EXIT_SUCCESS;
 	bool ok = true;
 	int mask = ~0;
-	uint32_t instances = args->num_instances;
+	uint32_t instances = args->instances;
 	const size_t buffer_size = (page_size / sizeof(uint64_t)) + 1;
 	uint64_t *buffer;
 	double shmget_duration = 0.0, shmget_count = 0.0;
@@ -956,7 +956,7 @@ static int stress_shm_sysv(stress_args_t *args)
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			shm_sysv_segments = MIN_SHM_SYSV_SEGMENTS;
 	}
-	shm_sysv_segments /= args->num_instances;
+	shm_sysv_segments /= args->instances;
 	if (shm_sysv_segments < 1)
 		shm_sysv_segments = 1;
 

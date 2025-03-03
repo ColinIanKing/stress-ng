@@ -459,7 +459,7 @@ static int stress_opcode(stress_args_t *args)
 	stress_sync_start_wait(args);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
-	op_start = (num_opcodes * (double)args->instance) / args->num_instances;
+	op_start = (num_opcodes * (double)args->instance) / args->instances;
 	vstate->opcode = (uint64_t)op_start;
 
 	t = stress_time_now();
@@ -620,9 +620,9 @@ finish:
 	if ((duration > 0.0) &&
 	    (vstate->ops_attempted > 0.0) &&
 	    (args->instance == 0) &&
-	    (args->num_instances > 0)) {
+	    (args->instances > 0)) {
 		const double secs_in_tropical_year = 365.2422 * 24.0 * 60.0 * 60.0;
-		double estimated_duration = (duration * num_opcodes / vstate->ops_attempted) / args->num_instances;
+		double estimated_duration = (duration * num_opcodes / vstate->ops_attempted) / args->instances;
 
 		if (estimated_duration > secs_in_tropical_year * 5) {
 			estimated_duration = round(estimated_duration / secs_in_tropical_year);

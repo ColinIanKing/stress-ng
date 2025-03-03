@@ -61,7 +61,7 @@ static int stress_vm_splice(stress_args_t *args)
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			vm_splice_bytes = MIN_VM_SPLICE_BYTES;
 	}
-	vm_splice_bytes /= args->num_instances;
+	vm_splice_bytes /= args->instances;
 	if (vm_splice_bytes < MIN_VM_SPLICE_BYTES)
 		vm_splice_bytes = MIN_VM_SPLICE_BYTES;
 	if (vm_splice_bytes < page_size)

@@ -415,7 +415,7 @@ static int stress_aiol(stress_args_t *args)
 		aio_max_nr = DEFAULT_AIO_MAX_NR;
 	}
 
-	aio_max_nr /= (args->num_instances == 0) ? 1 : args->num_instances;
+	aio_max_nr /= (args->instances == 0) ? 1 : args->instances;
 	if (aio_max_nr < 1)
 		aio_max_nr = 1;
 	if (aiol_requiests > aio_max_nr) {

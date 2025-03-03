@@ -163,7 +163,7 @@ static int stress_copy_file(stress_args_t *args)
 			copy_file_bytes = MIN_COPY_FILE_BYTES;
 	}
 
-	copy_file_bytes /= args->num_instances;
+	copy_file_bytes /= args->instances;
 	if (copy_file_bytes < DEFAULT_COPY_FILE_SIZE)
 		copy_file_bytes = DEFAULT_COPY_FILE_SIZE * 2;
 	if (copy_file_bytes < MIN_COPY_FILE_BYTES)

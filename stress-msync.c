@@ -122,7 +122,7 @@ static int stress_msync(stress_args_t *args)
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			msync_bytes = MIN_MSYNC_BYTES;
 	}
-	msync_bytes /= args->num_instances;
+	msync_bytes /= args->instances;
 	if (msync_bytes < MIN_MSYNC_BYTES)
 		msync_bytes = MIN_MSYNC_BYTES;
 	if (msync_bytes < page_size)

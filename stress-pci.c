@@ -307,7 +307,7 @@ static int stress_pci(stress_args_t *args)
 	NOCLOBBER double t_delta;
 
 	(void)stress_get_setting("pci-ops-rate", &pci_ops_rate);
-	t_delta = pci_ops_rate > 0 ? (double)args->num_instances / (double)pci_ops_rate : 0.0;
+	t_delta = pci_ops_rate > 0 ? (double)args->instances / (double)pci_ops_rate : 0.0;
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);

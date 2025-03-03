@@ -268,9 +268,9 @@ static inline double stress_syncload_gettime(void)
 	return g_shared->syncload.start_time;
 }
 
-static void stress_syncload_init(const uint32_t num_instances)
+static void stress_syncload_init(const uint32_t instances)
 {
-	(void)num_instances;
+	(void)instances;
 
 	g_shared->syncload.start_time = stress_time_now();
 }

@@ -679,7 +679,7 @@ reap:
 	stress_metrics_set(args, 0, "nanosecs to start a pthread",
 		average * STRESS_DBL_NANOSECOND, STRESS_METRIC_HARMONIC_MEAN);
 	(void)snprintf(msg, sizeof(msg), "%% of %" PRIu64 " pthreads created",
-		pthread_max * args->num_instances);
+		pthread_max * args->instances);
 	if (attempted > 0)
 		stress_metrics_set(args, 1, msg,
 			100.0 * (double)(attempted - limited) / (double)attempted,

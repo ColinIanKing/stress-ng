@@ -464,7 +464,7 @@ static int stress_malloc(stress_args_t *args)
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			malloc_bytes = MIN_MALLOC_BYTES;
 	}
-	malloc_bytes /= args->num_instances;
+	malloc_bytes /= args->instances;
 	if (malloc_bytes < MIN_MALLOC_BYTES)
 		malloc_bytes = MIN_MALLOC_BYTES;
 

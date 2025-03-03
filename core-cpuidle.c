@@ -299,7 +299,7 @@ void stress_cpuidle_dump(FILE *yaml, stress_stressor_t *stressors_list)
 			double duration_us = 0.0;
 			double residency_us = 0.0;
 
-			for (j = 0; j < ss->num_instances; j++) {
+			for (j = 0; j < ss->instances; j++) {
 				duration_us += ss->stats[j]->cstates.time[i];
 				residency_us += ss->stats[j]->cstates.residency[i];
 				valid |= ss->stats[j]->cstates.valid;

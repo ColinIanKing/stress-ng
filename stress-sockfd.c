@@ -429,7 +429,7 @@ static int stress_sockfd(stress_args_t *args)
 	 */
 	if (geteuid() == 0) {
 		max_fd -= 64;
-		max_fd /= args->num_instances ? args->num_instances : 1;
+		max_fd /= args->instances ? args->instances : 1;
 		if (max_fd < 0)
 			max_fd = 1;
 	}

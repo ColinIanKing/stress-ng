@@ -1137,13 +1137,13 @@ static void stress_af_alg_info_free(stress_crypto_info_t *info)
  *  stress_af_alg_init()
  *	populate crypto info list from data from /proc/crypto
  */
-static void stress_af_alg_init(const uint32_t num_instances)
+static void stress_af_alg_init(const uint32_t instances)
 {
 	FILE *fp;
 	char buffer[1024];
 	stress_crypto_info_t info;
 
-	(void)num_instances;
+	(void)instances;
 
 	crypto_info_list = NULL;
 	fp = fopen("/proc/crypto", "r");

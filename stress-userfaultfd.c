@@ -271,7 +271,7 @@ static int stress_userfaultfd_child(stress_args_t *args, void *context)
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			userfaultfd_bytes = MIN_USERFAULT_BYTES;
 	}
-	userfaultfd_bytes /= args->num_instances;
+	userfaultfd_bytes /= args->instances;
 	if (userfaultfd_bytes < MIN_USERFAULT_BYTES)
 		userfaultfd_bytes = MIN_USERFAULT_BYTES;
 	if (userfaultfd_bytes < args->page_size)

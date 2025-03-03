@@ -219,7 +219,7 @@ static int stress_mremap_child(stress_args_t *args, void *context)
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			mremap_bytes = MIN_MREMAP_BYTES;
 	}
-	mremap_bytes /= args->num_instances;
+	mremap_bytes /= args->instances;
 	if (mremap_bytes < MIN_MREMAP_BYTES)
 		mremap_bytes = MIN_MREMAP_BYTES;
 	if (mremap_bytes < page_size)

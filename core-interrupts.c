@@ -222,7 +222,7 @@ void stress_interrupts_dump(FILE *yaml, stress_stressor_t *stressors_list)
 			int count = 0;
 			int32_t j;
 
-			for (j = 0; j < ss->num_instances; j++) {
+			for (j = 0; j < ss->instances; j++) {
 				const int64_t delta =
 					ss->stats[j]->interrupts[i].count_stop -
 					ss->stats[j]->interrupts[i].count_start;
