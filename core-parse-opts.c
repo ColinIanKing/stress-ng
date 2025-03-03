@@ -520,6 +520,38 @@ uint64_t stress_get_uint64_percent(
 }
 
 /*
+ *  stress_get_int32_instance_percent()
+ *	get instance by number or by percentage
+ */
+int32_t stress_get_int32_instance_percent(const char *const str)
+{
+	const size_t len = strlen(str);
+
+	/* Convert to % over N instances */
+	if ((len > 1) && (str[len - 1] == '%')) {
+		double val;
+
+		if (sscanf(str, "%lf", &val) != 1) {
+			(void)fprintf(stderr, "Invalid percentage %s\n", str);
+			longjmp(g_error_env, 1);
+		}
+		if (val < 0.0) {
+			return -1;
+		} else if (val > 0.0) {
+			const int32_t cpus = stress_get_processors_configured();
+
+			val = (double)cpus * val / 100.0;
+			if (val < 1.0)
+				return 1;
+			return (int32_t)val;
+		} else {
+			return 0;
+		}
+	}
+	return stress_get_int32(str);
+}
+
+/*
  *  stress_get_uint64_byte_memory()
  *	get memory size from string. If it contains %
  *	at the end, then convert it into the available

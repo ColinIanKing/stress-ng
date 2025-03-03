@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "25 February 2025"
+.TH STRESS-NG 1 "3 March 2025"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -55,7 +55,9 @@ One can specify the number of processes to invoke per type of stress test;
 specifying a zero value will select the number of processors
 available as defined by sysconf(_SC_NPROCESSORS_CONF), if that can't be
 determined then the number of online CPUs is used.  If the value is less
-than zero then the number of online CPUs is used.
+than zero then the number of online CPUs is used. Specifying the number as
+a percentage will select the percentage of configured CPUs (truncated down to
+nearest whole number).
 .SH OPTIONS
 .PP
 .B General stress\-ng control options:
@@ -10022,6 +10024,14 @@ stop zombie stress workers after N bogo zombie operations.
 .IP
 run 8 virtual memory stressors that combined use 80% of the available memory
 for 1 hour. Thus each stressor uses 10% of the available memory.
+.LP
+\f[CR]stress\-ng \-\-vm 50% -t 1h\f[]
+.IP
+run virtual memory stressors on 50% of the number of online cpus for 1 hour.
+.LP
+\f[CR]stress\-ng \-\-vm 200% -t 1h\f[]
+.IP
+run virtual memory stressors on 2 times the number of online cpus for 1 hour.
 .LP
 \f[CR]stress\-ng \-\-cpu 4 \-\-io 2 \-\-vm 1 \-\-vm\-bytes 1G \-\-timeout 60s\f[]
 .IP

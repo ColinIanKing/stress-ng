@@ -3255,7 +3255,7 @@ next_opt:
 
 				g_stressor_current = ss;
 				g_opt_flags |= OPT_FLAGS_SET;
-				ss->instances = stress_get_int32(optarg);
+				ss->instances = stress_get_int32_instance_percent(optarg);
 				stress_get_processors(&ss->instances);
 				stress_check_max_stressors(name, ss->instances);
 				goto next_opt;
