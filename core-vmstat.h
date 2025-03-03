@@ -28,6 +28,7 @@ extern WARN_UNUSED int stress_set_thermalstat(const char *const opt);
 extern WARN_UNUSED int stress_set_iostat(const char *const opt);
 extern WARN_UNUSED int stress_set_raplstat(const char *const opt);
 extern WARN_UNUSED char *stress_find_mount_dev(const char *name);
+extern void stress_set_vmstat_units(const char *const opt);
 extern void stress_vmstat_start(void);
 extern void stress_vmstat_stop(void);
 

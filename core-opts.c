@@ -1229,6 +1229,7 @@ const struct option stress_long_options[] = {
 	{ "vma",		1,	0,	OPT_vma },
 	{ "vma-ops",		1,	0,	OPT_vma_ops },
 	{ "vmstat",		1,	0,	OPT_vmstat },
+	{ "vmstat-units",	1,	0,	OPT_vmstat_units },
 	{ "vnni",		1,	0,	OPT_vnni },
 	{ "vnni-intrinsic",	0,	0,	OPT_vnni_intrinsic },
 	{ "vnni-method",	1,	0,	OPT_vnni_method },

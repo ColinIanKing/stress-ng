@@ -115,11 +115,14 @@ typedef struct {
 	uint64_t	discard_ticks;	/* total wait time for discard requests */
 } stress_iostat_t;
 
+static uint64_t vmstat_units_kb = 1;	/* kilobytes */
+
 static int32_t status_delay = 0;
 static int32_t vmstat_delay = 0;
 static int32_t thermalstat_delay = 0;
 static int32_t iostat_delay = 0;
 static int32_t raplstat_delay = 0;
+
 
 #if defined(__FreeBSD__)
 /*
@@ -213,6 +216,11 @@ int stress_set_status(const char *const opt)
 int stress_set_vmstat(const char *const opt)
 {
 	return stress_set_generic_stat(opt, "vmstat", &vmstat_delay);
+}
+
+void stress_set_vmstat_units(const char *const opt)
+{
+	vmstat_units_kb = stress_get_uint64_byte_scale(opt) / 1024;
 }
 
 /*
@@ -1263,10 +1271,10 @@ void stress_vmstat_start(void)
 			       " %2.0f\n",			/* st */
 				vmstat.procs_running,
 				vmstat.procs_blocked,
-				vmstat.swap_used,
-				vmstat.memory_free,
-				vmstat.memory_buff,
-				vmstat.memory_cached + vmstat.memory_reclaimable,
+				vmstat.swap_used / vmstat_units_kb,
+				vmstat.memory_free / vmstat_units_kb,
+				vmstat.memory_buff / vmstat_units_kb,
+				(vmstat.memory_cached + vmstat.memory_reclaimable) / vmstat_units_kb,
 				vmstat.swap_in / (uint64_t)vmstat_delay,
 				vmstat.swap_out / (uint64_t)vmstat_delay,
 				vmstat.block_in / (uint64_t)vmstat_delay,

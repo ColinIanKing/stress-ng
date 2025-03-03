@@ -1707,6 +1707,7 @@ typedef enum {
 	OPT_vma_ops,
 
 	OPT_vmstat,
+	OPT_vmstat_units,
 
 	OPT_vnni,
 	OPT_vnni_intrinsic,

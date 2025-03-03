@@ -661,6 +661,10 @@ interrupts, context switches, disks and cpu activity.  The output is similar
 that to the output from the vmstat(8) utility. Not fully supported on various
 UNIX systems.
 .TP
+.B \-\-vmstat\-units [ k | m | g | t | p | e ]
+specify vmstat memory units in terms of kilobytes (k), megabytes (m), gigabytes (g),
+terabytes (t), petabytes (p) or exabytes (e). Default is in kilobytes.
+.TP
 .B \-w, \-\-with list
 specify stressors to run when using the \-\-all, \-\-seq or \-\-permute options.
 For example to run 5 instances of the cpu, hash, nop and vm stressors one after

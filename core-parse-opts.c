@@ -406,22 +406,53 @@ err:
 	return 0;
 }
 
+static const stress_scale_t scales[] = {
+	{ 'b', 	1ULL },		/* bytes */
+	{ 'k',  1ULL << 10 },	/* kilobytes */
+	{ 'm',  1ULL << 20 },	/* megabytes */
+	{ 'g',  1ULL << 30 },	/* gigabytes */
+	{ 't',  1ULL << 40 },	/* terabytes */
+	{ 'p',  1ULL << 50 },	/* petabytes */
+	{ 'e',  1ULL << 60 },	/* exabytes */
+	{ 0,    0 },
+};
+
+uint64_t stress_get_uint64_byte_scale(const char *const str)
+{
+	int ch, i;
+	const int len = strlen(str);
+
+	if (len < 1) {
+		(void)fprintf(stderr, "Illegal empty specifier\n");
+		goto err;
+	} else if (len > 1) {
+		goto illegal;
+	}
+	ch = tolower((int)str[0]);
+	for (i = 1; scales[i].ch; i++) {
+		if (ch == scales[i].ch)
+			return scales[i].scale;
+	}
+
+illegal:
+	(void)fprintf(stderr, "Illegal specifier '%s', allower specifiers: ", str);
+err:
+
+	for (i = 1; scales[i].ch; i++) {
+		fprintf(stderr, "%s%c", ((i == 0) ? "" : ", "), scales[i].ch);
+	}
+	fprintf(stderr, "\n");
+	longjmp(g_error_env, 1);
+	/* should never get here */
+	return 0;
+}
+
 /*
  *  stress_get_uint64_byte()
  *	size in bytes, K bytes, M bytes or G bytes
  */
 uint64_t stress_get_uint64_byte(const char *const str)
 {
-	static const stress_scale_t scales[] = {
-		{ 'b', 	1ULL },		/* bytes */
-		{ 'k',  1ULL << 10 },	/* kilobytes */
-		{ 'm',  1ULL << 20 },	/* megabytes */
-		{ 'g',  1ULL << 30 },	/* gigabytes */
-		{ 't',  1ULL << 40 },	/* terabytes */
-		{ 'p',  1ULL << 50 },	/* petabytes */
-		{ 'e',  1ULL << 60 },	/* exabytes */
-		{ 0,    0 },
-	};
 	size_t llc_size = 0, cache_line_size = 0;
 
 	if (strncasecmp(str, "L", 1) != 0)

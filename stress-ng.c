@@ -396,6 +396,7 @@ static const stress_help_t help_generic[] = {
 	{ NULL,		"verifiable",		"show stressors that enable verification via --verify" },
 	{ "V",		"version",		"show version" },
 	{ NULL,		"vmstat S",		"show memory and process statistics every S seconds" },
+	{ NULL,		"vmstat-units U",	"vmstat memory units, one of k | m | g | t | p | e" },
 	{ "x",		"exclude list",		"list of stressors to exclude (not run)" },
 	{ "w",		"with list",		"list of stressors to invoke (use with --seq or --all)" },
 	{ "Y",		"yaml file",		"output results to YAML formatted file" },
@@ -3482,6 +3483,9 @@ next_opt:
 		case OPT_vmstat:
 			if (stress_set_vmstat(optarg) < 0)
 				exit(EXIT_FAILURE);
+			break;
+		case OPT_vmstat_units:
+			stress_set_vmstat_units(optarg);
 			break;
 		case OPT_thermalstat:
 			if (stress_set_thermalstat(optarg) < 0)
