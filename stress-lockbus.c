@@ -130,11 +130,23 @@ do {						\
 	MEM_LOCK(ptr, 0);			\
 } while (0)
 
-#if defined(STRESS_ARCH_X86)
 static sigjmp_buf jmp_env;
+static bool do_misaligned;
+#if defined(STRESS_ARCH_X86)
 static bool do_splitlock;
+#endif
 
-static void NORETURN MLOCKED_TEXT stress_sigbus_handler(int signum)
+static void NORETURN MLOCKED_TEXT stress_sigbus_misaligned_handler(int signum)
+{
+	(void)signum;
+
+	do_misaligned = false;
+
+	siglongjmp(jmp_env, 1);
+}
+
+#if defined(STRESS_ARCH_X86)
+static void NORETURN MLOCKED_TEXT stress_sigbus_splitlock_handler(int signum)
 {
 	(void)signum;
 
@@ -153,13 +165,14 @@ static int stress_lockbus(stress_args_t *args)
 	uint32_t *buffer;
 	double t, rate;
 	NOCLOBBER double duration, count;
+	uint32_t *misaligned_ptr1, *misaligned_ptr2;
 #if defined(STRESS_ARCH_X86)
 	uint32_t *splitlock_ptr1, *splitlock_ptr2;
 	bool lockbus_nosplit = false;
 
 	(void)stress_get_setting("lockbus-nosplit", &lockbus_nosplit);
 
-	if (stress_sighandler(args->name, SIGBUS, stress_sigbus_handler, NULL) < 0)
+	if (stress_sighandler(args->name, SIGBUS, stress_sigbus_splitlock_handler, NULL) < 0)
 		return EXIT_FAILURE;
 #endif
 #if defined(HAVE_NUMA_LOCKBUS)
@@ -176,7 +189,24 @@ static int stress_lockbus(stress_args_t *args)
 	}
 	stress_set_vma_anon_name(buffer, BUFFER_SIZE, "lockbus-data");
 
+	do_misaligned = true;
+	misaligned_ptr1 = (uint32_t *)(uintptr_t)((uint8_t *)buffer + 1);
+	misaligned_ptr2 = (uint32_t *)(uintptr_t)((uint8_t *)buffer + 10);
+
+	if (stress_sighandler(args->name, SIGBUS, stress_sigbus_misaligned_handler, NULL) < 0)
+		return EXIT_FAILURE;
+	if (sigsetjmp(jmp_env, 1) && !stress_continue(args))
+		goto misaligned_done;
+	MEM_LOCK_AND_INC(misaligned_ptr1, 1);
+	MEM_LOCK_AND_INC(misaligned_ptr2, 1);
+misaligned_done:
+	if (args->instance == 0)
+		pr_dbg("%s: misaligned splitlocks %s\n", args->name,
+			do_misaligned ? "enabled" : "disabled");
+
 #if defined(STRESS_ARCH_X86)
+	if (stress_sighandler(args->name, SIGBUS, stress_sigbus_splitlock_handler, NULL) < 0)
+		return EXIT_FAILURE;
 	/* Split lock on a page boundary */
 	splitlock_ptr1 = (uint32_t *)(uintptr_t)(((uint8_t *)buffer) + args->page_size - (sizeof(*splitlock_ptr1) >> 1));
 	/* Split lock on a cache boundary */
@@ -228,6 +258,7 @@ static int stress_lockbus(stress_args_t *args)
 		MEM_LOCKx8(ptr1);
 		MEM_LOCKx8(ptr2);
 
+
 #if defined(HAVE_SYNC_BOOL_COMPARE_AND_SWAP)
 		{
 			register uint32_t val;
@@ -246,6 +277,12 @@ static int stress_lockbus(stress_args_t *args)
 			SYNC_BOOL_COMPARE_AND_SWAP(ptr2, zero, val);
 		}
 #endif
+		if (do_misaligned) {
+			MEM_LOCK_AND_INCx8(misaligned_ptr1, inc);
+			MEM_LOCK_AND_INCx8(misaligned_ptr2, inc);
+			count += (8.0 * 2.0);
+		}
+
 		duration += (stress_time_now() - t);
 #if defined(HAVE_SYNC_BOOL_COMPARE_AND_SWAP)
 		count += (8.0 * 12.0) + 6.0;
