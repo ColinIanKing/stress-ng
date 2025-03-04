@@ -206,10 +206,21 @@ static pid_t stress_access_spawn(
 			metrics[1].duration += stress_time_now() - t;
 			metrics[1].count += 1.0;
 
+			if (g_opt_flags & OPT_FLAGS_AGGRESSIVE) {
+				t = stress_time_now();
+				VOID_RET(int, access(filename, modes[0].access_mode));
+				VOID_RET(int, access(filename, modes[j].access_mode));
+				VOID_RET(int, access(filename, modes[0].access_mode));
+				VOID_RET(int, access(filename, modes[j].access_mode));
+				metrics[1].duration += stress_time_now() - t;
+				metrics[1].count += 4.0;
+			} else {
+				(void)shim_sched_yield();
+			}
+
 			j++;
 			if (UNLIKELY(j >= SIZEOF_ARRAY(modes)))
 				j = 0;
-			(void)shim_sched_yield();
 		} while (stress_continue(args));
 		_exit(0);
 	} else {
