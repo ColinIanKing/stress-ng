@@ -299,7 +299,7 @@ rewait:
 					args->name, errno, strerror(errno));
 
 			(void)stress_kill_sig(pid, signals[signal_idx]);
-			if (signal_idx < SIZEOF_ARRAY(signals))
+			if (signal_idx < SIZEOF_ARRAY(signals) - 1)
 				signal_idx++;
 			else if (UNLIKELY(stress_time_now() > t_end)) {
 				pr_warn("cannot terminate process %" PRIdMAX ", gave up after %d seconds\n", (intmax_t)pid, WAIT_TIMEOUT);
