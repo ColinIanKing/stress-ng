@@ -124,7 +124,7 @@ static int stress_bigheap_child(stress_args_t *args, void *context)
 	NOCLOBBER double duration = 0.0, count = 0.0;
 	NOCLOBBER bool segv_reported = false;
 	const size_t page_size = args->page_size;
-	const size_t stride = page_size;
+	const size_t stride = (g_opt_flags & OPT_FLAGS_AGGRESSIVE) ? sizeof(uintptr_t) : page_size;
 	double rate;
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 	const bool oom_avoid = !!(g_opt_flags & OPT_FLAGS_OOM_AVOID);
@@ -226,6 +226,15 @@ static int stress_bigheap_child(stress_args_t *args, void *context)
 		if (old_ptr) {
 			phase = STRESS_BIGHEAP_REALLOC;
 			ptr = realloc(old_ptr, size);
+			if (g_opt_flags && OPT_FLAGS_AGGRESSIVE) {
+				if (LIKELY(ptr != NULL)) {
+					old_ptr = ptr;
+					size += 64;
+					ptr = realloc(old_ptr, size);
+					if (LIKELY(ptr != NULL))
+						stress_bogo_inc(args);
+				}
+			}
 		} else {
 			phase = STRESS_BIGHEAP_MALLOC;
 			ptr = malloc(size);
