@@ -177,6 +177,31 @@ static void stress_affinity_child(
 						args->name, cpu);
 			}
 		}
+		if (g_opt_flags & OPT_FLAGS_AGGRESSIVE) {
+			uint32_t next_cpu = (cpu + 1) % info->cpus;
+			uint32_t prev_cpu = (cpu + info->cpus - 1) % info->cpus;
+
+			CPU_ZERO(&mask);
+			CPU_SET(next_cpu, &mask);
+			(void)sched_setaffinity(0, sizeof(mask), &mask);
+			(void)shim_sched_yield();
+
+			CPU_ZERO(&mask);
+			CPU_SET(stress_mwc32modn(info->cpus), &mask);
+			(void)sched_setaffinity(0, sizeof(mask), &mask);
+			(void)shim_sched_yield();
+
+			CPU_ZERO(&mask);
+			CPU_SET(next_cpu, &mask);
+			(void)sched_setaffinity(0, sizeof(mask), &mask);
+			(void)shim_sched_yield();
+
+			CPU_ZERO(&mask);
+			CPU_SET(prev_cpu, &mask);
+			(void)sched_setaffinity(0, sizeof(mask), &mask);
+			(void)shim_sched_yield();
+		}
+
 		/* Exercise getaffinity with invalid pid */
 		VOID_RET(int, sched_getaffinity(-1, sizeof(mask), &mask));
 
