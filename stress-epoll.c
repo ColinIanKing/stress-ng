@@ -980,7 +980,12 @@ static int stress_epoll(stress_args_t *args)
 
 	(void)stress_get_setting("epoll-domain", &epoll_domain);
 	(void)stress_get_setting("epoll-port", &epoll_port);
-	(void)stress_get_setting("epoll-sockets", &epoll_sockets);
+	if (!stress_get_setting("epoll-sockets", &epoll_sockets)) {
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
+			epoll_sockets = MAX_EPOLL_SOCKETS;
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
+			epoll_sockets = MIN_EPOLL_SOCKETS;
+	}
 
 	if (stress_sighandler(args->name, SIGPIPE, SIG_IGN, NULL) < 0)
 		return EXIT_NO_RESOURCE;
