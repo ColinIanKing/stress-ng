@@ -111,7 +111,7 @@ static inline void OPTIMIZE3 stress_tlb_shootdown_write_mem(
 			m += STRESS_CACHE_LINE_SIZE;
 		}
 	}
-	(void)shim_cacheflush((char *)mem, (int)size, SHIM_DCACHE);
+	stress_cpu_data_cache_flush((void *)mem, size);
 }
 
 /*
