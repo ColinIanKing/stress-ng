@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-builtin.h"
+#include "core-cpu-cache.h"
 #include "core-mincore.h"
 #include "core-out-of-memory.h"
 #include "core-pragma.h"
@@ -108,6 +109,8 @@ static bool OPTIMIZE3 stress_stack_alloc(
 			*(ptr + 1) = stress_mwc32() | 1;
 		}
 	}
+	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+		stress_cpu_data_cache_flush(data, STRESS_DATA_SIZE);
 #if defined(HAVE_MLOCK)
 	if (stack_mlock) {
 		intptr_t ptr = ((intptr_t)data) + ((intptr_t)page_size - 1);
