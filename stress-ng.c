@@ -328,7 +328,7 @@ static const stress_help_t help_generic[] = {
 	{ NULL,		"interrupts",		"check for error interrupts" },
 	{ NULL,		"ionice-class C",	"specify ionice class (idle, besteffort, realtime)" },
 	{ NULL,		"ionice-level L",	"specify ionice level (0 max, 7 min)" },
-	{ NULL,		"iostate S",		"show I/O statistics every S seconds" },
+	{ NULL,		"iostat S",		"show I/O statistics every S seconds" },
 	{ "j",		"job jobfile",		"run the named jobfile" },
 	{ NULL,		"keep-files",		"do not remove files or directories" },
 	{ "k",		"keep-name",		"keep stress worker names to be 'stress-ng'" },
