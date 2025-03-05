@@ -20,6 +20,7 @@
  */
 #include "stress-ng.h"
 #include "core-builtin.h"
+#include "core-cpu-cache.h"
 #include "core-killpid.h"
 #include "core-out-of-memory.h"
 #include "core-pthread.h"
@@ -355,6 +356,7 @@ static void *stress_vma_madvise(void *ptr)
 	stress_args_t *args = (stress_args_t *)ctxt->args;
 	const uintptr_t data = (uintptr_t)ctxt->data;
 	const size_t page_size = args->page_size;
+	const bool aggressive = !!(g_opt_flags & OPT_FLAGS_AGGRESSIVE);
 
 	static const int advice[] = {
 #if defined(MADV_NORMAL)
@@ -402,6 +404,8 @@ static void *stress_vma_madvise(void *ptr)
 
 		if (madvise((void *)(data + offset), len, advice[i]) == 0)
 			stress_vma_metrics->s.metrics[STRESS_VMA_MADVISE]++;
+		if (aggressive)
+			stress_cpu_data_cache_flush((void *)ptr, page_size);
 	}
 	return NULL;
 }
@@ -542,6 +546,7 @@ static void *stress_vma_access(void *ptr)
 	stress_args_t *args = (stress_args_t *)ctxt->args;
 	const uintptr_t data = (uintptr_t)ctxt->data;
 	const size_t page_size = args->page_size;
+	const bool aggressive = !!(g_opt_flags & OPT_FLAGS_AGGRESSIVE);
 
 	while (stress_vma_continue_flag && stress_vma_continue(args)) {
 		const size_t offset = page_size * stress_mwc8modn(STRESS_VMA_PAGES);
@@ -549,6 +554,8 @@ static void *stress_vma_access(void *ptr)
 
 		stress_vma_metrics->s.metrics[STRESS_VMA_ACCESS]++;
 		stress_uint8_put(*ptr8);
+		if (aggressive)
+			stress_cpu_data_cache_flush((void *)ptr, page_size);
 	}
 	return NULL;
 }
