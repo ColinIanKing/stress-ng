@@ -60,7 +60,12 @@ static int stress_chdir(stress_args_t *args)
 	bool tidy_info = false;
 	double count = 0.0, duration = 0.0, rate, start_time;
 
-	(void)stress_get_setting("chdir-dirs", &chdir_dirs);
+	if (!stress_get_setting("chdir-dirs", &chdir_dirs)) {
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
+			chdir_dirs = MAX_CHDIR_DIRS;
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
+			chdir_dirs = MIN_CHDIR_DIRS;
+	}
 	chdir_info = (stress_chdir_info_t *)calloc(chdir_dirs, sizeof(*chdir_info));
 	if (!chdir_info) {
 		pr_inf_skip("%s: out of memory allocating %" PRIu32 " chdir structs, "
