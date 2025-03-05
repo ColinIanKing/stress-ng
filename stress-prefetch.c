@@ -218,10 +218,7 @@ static inline void OPTIMIZE3 stress_prefetch_benchmark(
 	uint64_t *pre_ptr;
 	register uint64_t checksum;
 
-	shim_cacheflush((char *)l3_data, (int)l3_data_size, SHIM_DCACHE);
-#if defined(HAVE_BUILTIN___CLEAR_CACHE)
-	__builtin___clear_cache((void *)l3_data, (void *)l3_data_end);
-#endif
+	stress_cpu_data_cache_flush((void *)l3_data, l3_data_size);
 
 	/* Benchmark loop */
 	ptr = l3_data;
@@ -236,10 +233,7 @@ static inline void OPTIMIZE3 stress_prefetch_benchmark(
 	stress_void_ptr_put((volatile void *)ptr);
 	stress_void_ptr_put((volatile void *)pre_ptr);
 
-	shim_cacheflush((char *)l3_data, (int)l3_data_size, SHIM_DCACHE);
-#if defined(HAVE_BUILTIN___CLEAR_CACHE)
-	__builtin___clear_cache((void *)l3_data, (void *)l3_data_end);
-#endif
+	stress_cpu_data_cache_flush((void *)l3_data, l3_data_size);
 
 	ptr = l3_data;
 	pre_ptr = l3_data + prefetch_info[i].offset;
