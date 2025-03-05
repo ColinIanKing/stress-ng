@@ -453,7 +453,13 @@ static int stress_dir(stress_args_t *args)
 
 	stress_temp_dir(pathname, sizeof(pathname), args->name,
 		args->pid, args->instance);
-	(void)stress_get_setting("dir-dirs", &dir_dirs);
+	if (!stress_get_setting("dir-dirs", &dir_dirs)) {
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
+			dir_dirs = MAX_DIR_DIRS;
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
+			dir_dirs = MIN_DIR_DIRS;
+	}
+
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
