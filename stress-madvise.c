@@ -390,6 +390,16 @@ static void *stress_madvise_pages(void *arg)
 #endif
 		(void)shim_msync(ptr, page_size, MS_ASYNC);
 	}
+#if defined(MADV_PAGEOUT) && defined(MS_SYNC)
+	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE) {
+		(void)shim_madvise(buf, sz, MADV_PAGEOUT);
+		(void)shim_msync(buf, sz, MS_SYNC);
+#if defined(MADV_POPULATE_WRITE)
+		(void)shim_madvise(buf, sz, MADV_POPULATE_WRITE);
+		(void)shim_msync(buf, sz, MS_SYNC);
+#endif
+	}
+#endif
 
 	/*
 	 *  Exercise a highly likely bad advice option
