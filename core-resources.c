@@ -396,6 +396,7 @@ size_t stress_resources_allocate(
 				else {
 					resources[i].ptr_memfd_size = page_size;
 					stress_set_vma_anon_name(resources[i].ptr_memfd, page_size, "resources-memfd");
+					(void)stress_mincore_touch_pages_interruptible(resources[i].ptr_memfd, page_size);
 					(void)stress_madvise_mergeable(resources[i].ptr_memfd, page_size);
 				}
 			}
@@ -419,6 +420,7 @@ size_t stress_resources_allocate(
 				else {
 					resources[i].ptr_memfd_secret_size = page_size;
 					stress_set_vma_anon_name(resources[i].ptr_memfd_secret, page_size, "resources-memfd-secret");
+					(void)stress_mincore_touch_pages_interruptible(resources[i].ptr_memfd_secret, page_size);
 					(void)stress_madvise_mergeable(resources[i].ptr_memfd_secret, page_size);
 				}
 			}
