@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-bitops.h"
+#include "core-cpu-cache.h"
 #include "core-madvise.h"
 #include "core-numa.h"
 #include "core-out-of-memory.h"
@@ -86,6 +87,8 @@ PRAGMA_UNROLL_N(4)
 		*(buf + n) = rnd;
 		step = (step >= 4096) ? 1 : step << 1;
 	}
+	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+		stress_cpu_data_cache_flush((void *)buf, sz);
 PRAGMA_UNROLL_N(4)
 	for (step = 1, n = 0; n < sz; n += step) {
 		if (UNLIKELY(*(buf + n) != rnd))
@@ -111,6 +114,8 @@ PRAGMA_UNROLL_N(4)
 		*(buf + (n ^ mask)) = rnd;
 		step = (step >= 4096) ? 1 : step << 1;
 	}
+	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+		stress_cpu_data_cache_flush((void *)buf, sz);
 PRAGMA_UNROLL_N(4)
 	for (step = 1, n = 0; n < sz; n += step) {
 		if (UNLIKELY(*(buf + (n ^ mask)) != rnd))
@@ -138,6 +143,8 @@ PRAGMA_UNROLL_N(4)
 
 		*(buf + gray) = rnd;
 	}
+	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+		stress_cpu_data_cache_flush((void *)buf, sz);
 PRAGMA_UNROLL_N(4)
 	for (n = 0; n < sz; n++) {
 		size_t gray = ((n >> 1) ^ n) & mask;
@@ -166,6 +173,8 @@ PRAGMA_UNROLL_N(4)
 
 		*(buf + gray) = rnd;
 	}
+	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+		stress_cpu_data_cache_flush((void *)buf, sz);
 PRAGMA_UNROLL_N(4)
 	for (n = 0; n < sz; n++) {
 		size_t gray = (((n >> 1) ^ n) ^ mask) & mask;
@@ -199,6 +208,8 @@ PRAGMA_UNROLL_N(4)
 
 		*(buf + i) = rnd;
 	}
+	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+		stress_cpu_data_cache_flush((void *)buf, sz);
 PRAGMA_UNROLL_N(4)
 	for (n = 0; n < sz; n++) {
 		size_t i = stress_reverse64(n << shift) & mask;
@@ -232,6 +243,8 @@ PRAGMA_UNROLL_N(4)
 
 		*(buf + i) = rnd;
 	}
+	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+		stress_cpu_data_cache_flush((void *)buf, sz);
 PRAGMA_UNROLL_N(4)
 	for (n = 0; n < sz; n++) {
 		size_t i = (stress_reverse64(n << shift) ^ mask) & mask;
@@ -281,6 +294,8 @@ PRAGMA_UNROLL_N(4)
 
 		*(buf + i) = rnd;
 	}
+	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+		stress_cpu_data_cache_flush((void *)buf, sz);
 PRAGMA_UNROLL_N(4)
 	for (n = 0; n < sz; n++) {
 		size_t i = (n ^ mask) & mask;
@@ -306,6 +321,8 @@ PRAGMA_UNROLL_N(4)
 	for (ptr = (uint8_t *)buf + sz - 1; ptr != buf; ptr--) {
 		*ptr = rnd;
 	}
+	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+		stress_cpu_data_cache_flush((void *)buf, sz);
 PRAGMA_UNROLL_N(4)
 	for (ptr = (uint8_t *)buf + sz - 1; ptr != buf; ptr--) {
 		if (UNLIKELY(*ptr != rnd))
@@ -369,6 +386,8 @@ PRAGMA_UNROLL_N(4)
 		for (ptr = buf; ptr < ptr_end; ptr += stride)
 			*ptr = rnd;
 	}
+	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+		stress_cpu_data_cache_flush((void *)buf, sz);
 PRAGMA_UNROLL_N(4)
 	for (bits = 0; bits < nbits; bits++) {
 		register size_t stride = 1U << bits;
@@ -402,7 +421,8 @@ PRAGMA_UNROLL_N(4)
 		buf[gray & mask] = rnd;
 		buf[(gray ^ mask) & mask] = rnd;
 	}
-
+	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+		stress_cpu_data_cache_flush((void *)buf, sz);
 PRAGMA_UNROLL_N(4)
 	for (n = 0; n < sz; n++) {
 		register size_t gray = ((n >> 1) ^ n);
