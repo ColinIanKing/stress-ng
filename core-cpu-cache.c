@@ -1326,3 +1326,26 @@ free_cpu_caches:
 	*cache_line_size = 0;
 #endif
 }
+
+/*
+ *  stress_cpu_data_cache_flush()
+ *	flush data cache, optimal down to more generic
+ */
+void OPTIMIZE3 stress_cpu_data_cache_flush(void *addr, const size_t len)
+{
+	register void *addr_end = (void *)(((uintptr_t)addr) + len);
+#if defined(HAVE_ASM_X86_CLFLUSHOPT)
+	while (addr < addr_end)
+		stress_asm_x86_clflushopt(addr);
+	return;
+#elif defined(HAVE_ASM_X86_CLFLUSH)
+
+	while (addr < addr_end)
+		stress_asm_x86_clflush(addr);
+	return;
+#elif defined(HAVE_BUILTIN___CLEAR_CACHE)
+	__builtin___clear_cache(addr, addr_end);
+	/* fall through */
+#endif
+	shim_cacheflush(addr, len, SHIM_ICACHE);
+}
