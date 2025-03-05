@@ -199,7 +199,12 @@ static int stress_dccp_server(
 	double t1 = 0.0, t2 = 0.0, dt;
 	size_t dccp_msgs = DEFAULT_DCCP_MSGS;
 
-	(void)stress_get_setting("dccp-msgs", &dccp_msgs);
+	if (!stress_get_setting("dccp-msgs", &dccp_msgs)) {
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
+			dccp_msgs = MAX_DCCP_MSGS;
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
+			dccp_msgs = MIN_DCCP_MSGS;
+	}
 
 	if (stress_sig_stop_stressing(args->name, SIGALRM) < 0) {
 		rc = EXIT_FAILURE;
