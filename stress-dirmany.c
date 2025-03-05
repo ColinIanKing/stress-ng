@@ -172,7 +172,12 @@ static int stress_dirmany(stress_args_t *args)
 	if (ret < 0)
 		return stress_exit_status(-ret);
 
-	(void)stress_get_setting("dirmany-bytes", &dirmany_bytes);
+	if (!stress_get_setting("dirmany-bytes", &dirmany_bytes)) {
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
+			dirmany_bytes = 1 * TB;
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
+			dirmany_bytes = MIN_DIRMANY_BYTES;
+	}
 
 	if (args->instance == 0) {
 		char sz[32];
