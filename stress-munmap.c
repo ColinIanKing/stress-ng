@@ -154,7 +154,8 @@ static int stress_munmap_child(stress_args_t *args, void *context)
 	if (!fp)
 		return EXIT_NO_RESOURCE;
 #if defined(HAVE_MADVISE) &&	\
-    defined(MADV_DONTDUMP)
+    (defined(MADV_DONTDUMP) || 	\
+     defined(MADV_PAGEOUT))
 	/*
 	 *  Vainly attempt to reduce any potential core dump size
 	 */
@@ -170,7 +171,14 @@ static int stress_munmap_child(stress_args_t *args, void *context)
 		if (UNLIKELY(start >= end))
 			continue;	/* invalid address range */
 		size = (uintptr_t)end - (uintptr_t)start;
+#if defined(MADV_DONTDUMP)
 		(void)madvise(start, size, MADV_DONTDUMP);
+#endif
+#if defined(MADV_PAGEOUT)
+		if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+			(void)madvise(start, size, MADV_PAGEOUT);
+#endif
+
 	}
 	errno = 0;
 	rewind(fp);
