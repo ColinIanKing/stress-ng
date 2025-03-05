@@ -404,8 +404,8 @@ static inline OPTIMIZE3 void stress_memory_contend(const stress_pthread_args_t *
 		read64(data1);
 		stress_asm_mb();
 	}
-	(void)shim_cacheflush((void *)data0, 64, SHIM_DCACHE);
-	(void)shim_cacheflush((void *)data1, 64, SHIM_DCACHE);
+	(void)stress_cpu_data_cache_flush((void *)data0, 64);
+	(void)stress_cpu_data_cache_flush((void *)data1, 64);
 }
 
 /*
