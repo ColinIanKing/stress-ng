@@ -424,12 +424,12 @@ static void OPTIMIZE3 TARGET_CLONES stress_workload_read(void *buffer, const siz
 		ptr += 2;
 	}
 
-	shim_cacheflush(buffer, (int)buffer_len, SHIM_DCACHE);
+	stress_cpu_data_cache_flush(buffer, buffer_len);
 #else
 	register uint64_t *ptr = (uint64_t *)buffer;
 	register uint64_t *end = (uint64_t *)(((uintptr_t)buffer) + buffer_len);
 
-	shim_cacheflush(buffer, (int)buffer_len, SHIM_DCACHE);
+	stress_cpu_data_cache_flush(buffer, buffer_len);
 	while (ptr < end) {
 		(void)*(volatile uint64_t *)&ptr[0x00];
 		(void)*(volatile uint64_t *)&ptr[0x01];
