@@ -128,6 +128,7 @@ static int stress_bigheap_child(stress_args_t *args, void *context)
 	double rate;
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 	const bool oom_avoid = !!(g_opt_flags & OPT_FLAGS_OOM_AVOID);
+	const bool aggressive = !!(g_opt_flags & OPT_FLAGS_AGGRESSIVE);
 	bool bigheap_mlock = false;
 	struct sigaction action;
 	int ret;
@@ -237,7 +238,11 @@ static int stress_bigheap_child(stress_args_t *args, void *context)
 			}
 		} else {
 			phase = STRESS_BIGHEAP_MALLOC;
-			ptr = malloc(size);
+			if (UNLIKELY(aggressive)) {
+				ptr = calloc(1, size);
+			} else {
+				ptr = malloc(size);
+			}
 		}
 		if (UNLIKELY(ptr == NULL)) {
 			phase = STRESS_BIGHEAP_OUT_OF_MEMORY;
