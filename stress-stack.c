@@ -92,7 +92,7 @@ static bool OPTIMIZE3 stress_stack_alloc(
 		return true;
 
 	if (stack_fill) {
-		(void)shim_memset(data, 0, STRESS_DATA_SIZE);
+		(void)shim_memset(data, stress_mwc8(), STRESS_DATA_SIZE);
 	} else {
 		register size_t i;
 
