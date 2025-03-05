@@ -298,6 +298,10 @@ static void *stress_malloc_loop(void *ptr)
 					stress_malloc_page_touch((void *)info[i].addr, len, page_size);
 					*info[i].addr = (uintptr_t)info[i].addr;	/* stash address */
 					info[i].len = len;
+
+					if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+						stress_cpu_data_cache_flush((void *)info[i].addr, len);
+
 					if (UNLIKELY(!stress_bogo_inc_lock(args, counter_lock, true)))
 						break;
 
