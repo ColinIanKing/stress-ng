@@ -232,7 +232,7 @@ static int stress_bigheap_child(stress_args_t *args, void *context)
 		if (old_ptr) {
 			phase = STRESS_BIGHEAP_REALLOC;
 			ptr = realloc(old_ptr, size);
-			if (g_opt_flags && OPT_FLAGS_AGGRESSIVE) {
+			if (g_opt_flags & OPT_FLAGS_AGGRESSIVE) {
 				if (LIKELY(ptr != NULL)) {
 					old_ptr = ptr;
 					size += 64;
