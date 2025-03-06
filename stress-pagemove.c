@@ -79,9 +79,14 @@ static int stress_pagemove_child(stress_args_t *args, void *context)
 
 	(void)context;
 
-	(void)stress_get_setting("pagemove-mlock", &pagemove_mlock);
-	(void)stress_get_setting("pagemove-numa", &pagemove_numa);
-
+	if (!stress_get_setting("pagemove-mlock", &pagemove_mlock)) {
+		if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+			pagemove_mlock = true;
+	}
+	if (!stress_get_setting("pagemove-numa", &pagemove_numa)) {
+		if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+			pagemove_numa = true;
+	}
 	if (!stress_get_setting("pagemove-bytes", &pagemove_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			pagemove_bytes = MAX_32;
