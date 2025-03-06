@@ -188,7 +188,7 @@ static void stress_open_max(const char *opt_name, const char *opt_arg, stress_ty
 
 static const stress_opt_t opts[] = {
 	{ OPT_open_fd,  "open-fd",  TYPE_ID_BOOL, 0, 1, NULL },
-	{ OPT_open_max,	"open-max", TYPE_ID_CALLBACK, 0, 0, stress_open_max },
+	{ OPT_open_max,	"open-max", TYPE_ID_CALLBACK, 0, 1, stress_open_max },
 	END_OPT,
 };
 
@@ -1083,7 +1083,10 @@ static int stress_open(stress_args_t *args)
 		return stress_exit_status(-ret);
 	(void)stress_temp_dir_args(args, temp_dir, sizeof(temp_dir));
 
-	(void)stress_get_setting("open-max", &open_max);
+	if (!stress_get_setting("open-max", &open_max)) {
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
+			open_max = 1;
+	}
 	(void)stress_get_setting("open-fd", &open_fd);
 
 	/* Limit to maximum size_t allocation size */
@@ -1094,7 +1097,6 @@ static int stress_open(stress_args_t *args)
 		open_max = INT_MAX;
 	if (open_max < 1)
 		open_max = 1;
-
 
 	sz = open_max * sizeof(*fds);
 	fds = (int *)mmap(NULL, sz, PROT_READ | PROT_WRITE,
