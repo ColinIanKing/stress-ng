@@ -48,7 +48,10 @@ static int stress_resources(stress_args_t *args)
 	stress_pid_t *s_pids;
 	bool resources_mlock = false;
 
-	(void)stress_get_setting("resources-mlock", &resources_mlock);
+	if (!stress_get_setting("resources-mlock", &resources_mlock)) {
+		if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+			resources_mlock = true;
+	}
 
 	stress_get_memlimits(&shmall, &freemem, &totalmem, &freeswap, &totalswap);
 	min_mem_free = (freemem / 100) * 2;
