@@ -184,6 +184,8 @@ static int stress_mmapfork(stress_args_t *args)
 				if (!stress_get_setting("mmapfork-bytes", &len)) {
 					if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 						len = MIN_MMAPFORK_BYTES;
+					if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
+						len = MAX_32;
 				}
 
 				if (len < MIN_MMAPFORK_BYTES)
