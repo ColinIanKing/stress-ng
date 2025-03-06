@@ -117,7 +117,12 @@ static int stress_fd_fork(stress_args_t *args)
 	double rate, t_start = -1.0, t_max = -1.0;
 	char *filename;
 
-	(void)stress_get_setting("fd-fork-fds", &fd_fork_fds);
+	if (!stress_get_setting("fd-fork-fds", &fd_fork_fds)) {
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
+			fd_fork_fds = STRESS_FD_MAX;
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
+			fd_fork_fds = STRESS_FD_MIN;
+	}
 	(void)stress_get_setting("fd-fork-file", &fd_fork_file);
 
 	if (fd_fork_fds > max_fd) {
