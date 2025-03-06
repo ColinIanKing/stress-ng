@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-capabilities.h"
 #include "core-killpid.h"
 
@@ -195,6 +196,23 @@ static int stress_ramfs_fs_ops(
 					break;
 				offset = end;
 			}
+			if (g_opt_flags & OPT_FLAGS_AGGRESSIVE) {
+				uint64_t i;
+				uint8_t buf[8192] ALIGN64;
+				const size_t sz = sizeof(buf);
+
+				stress_uint8rnd4(buf, sz);
+				if (lseek(fd, 0, SEEK_SET) == 0) {
+					for (i = 0; i < ramfs_size; i += sz) {
+						const uint64_t r = stress_mwc64();
+
+						shim_memcpy(buf, &r, sizeof(r));
+						if (write(fd, buf, sz) != (ssize_t)sz)
+							break;
+					}
+				}
+				fsync(fd);
+			}
 		}
 		if (symlink(pathname, symlinkname) < 0) {
 			pr_fail("%s: cannot create symbolic link on ram based file system, errno=%d (%s)\n",
@@ -274,7 +292,10 @@ static int stress_ramfs_child(stress_args_t *args)
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			ramfs_size = MIN_RAMFS_SIZE;
 	}
-	(void)stress_get_setting("ramfs-fill", &ramfs_fill);
+	if (!stress_get_setting("ramfs-fill", &ramfs_fill)) {
+		if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+			ramfs_fill = true;
+	}
 
 	if (ramfs_size & (page_size - 1)) {
 		ramfs_size &= page_mask;
