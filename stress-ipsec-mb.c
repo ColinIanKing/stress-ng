@@ -26,6 +26,9 @@
 #include <intel-ipsec-mb.h>
 #endif
 
+#define MIN_IPSEC_MB_JOBS		(1)
+#define MAX_IPSEC_MB_JOBS		(65536)
+
 #if IMB_VERSION_NUM <= 0x3700
 #define IMB_MGR				MB_MGR
 #define IMB_JOB				JOB_AES_HMAC
@@ -777,7 +780,12 @@ static int stress_ipsec_mb(stress_args_t *args)
 	size_t ipsec_mb_method = 0;
 	int ipsec_mb_jobs = 128;
 
-	(void)stress_get_setting("ipsec-mb-jobs", &ipsec_mb_jobs);
+	if (!stress_get_setting("ipsec-mb-jobs", &ipsec_mb_jobs)) {
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
+			ipsec_mb_jobs = MAX_IPSEC_MB_JOBS;
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
+			ipsec_mb_jobs = MIN_IPSEC_MB_JOBS;
+	}
 	(void)stress_get_setting("ipsec-mb-method", &ipsec_mb_method);
 
 	if (imb_get_version() < IMB_VERSION(0, 51, 0)) {
@@ -896,7 +904,7 @@ static int stress_ipsec_mb_supported(const char *name)
 
 static const stress_opt_t opts[] = {
 	{ OPT_ipsec_mb_feature, "ipsec-mb-feature", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_unimplemented_method },
-	{ OPT_ipsec_mb_jobs,    "ipsec-mb-jobs",    TYPE_ID_INT, 1, 65536, NULL },
+	{ OPT_ipsec_mb_jobs,    "ipsec-mb-jobs",    TYPE_ID_INT, MIN_IPSEC_MB_JOBS, MAX_IPSEC_MB_JOBS, NULL },
 	{ OPT_ipsec_mb_method,  "ipsec-mb-method",  TYPE_ID_SIZE_T_METHOD, 0, 0, stress_unimplemented_method },
 	END_OPT,
 };
