@@ -939,7 +939,10 @@ static int stress_shm_sysv(stress_args_t *args)
 	size_t shm_sysv_bytes = DEFAULT_SHM_SYSV_BYTES;
 	size_t shm_sysv_segments = DEFAULT_SHM_SYSV_SEGMENTS;
 
-	(void)stress_get_setting("shm-sysv-mlock", &shm_sysv_mlock);
+	if (!stress_get_setting("shm-sysv-mlock", &shm_sysv_mlock)) {
+		if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+			shm_sysv_mlock = true;
+	}
 
 	if (!stress_get_setting("shm-sysv-bytes", &shm_sysv_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
