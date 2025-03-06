@@ -239,7 +239,12 @@ static int stress_fifo(stress_args_t *args)
 			fifo_readers = MIN_FIFO_READERS;
 	}
 
-	(void)stress_get_setting("fifo-data-size", &fifo_data_size);
+	if (!stress_get_setting("fifo-data-size", &fifo_data_size)) {
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
+			fifo_data_size = MAX_FIFO_DATA_SIZE;
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
+			fifo_data_size = MIN_FIFO_DATA_SIZE;
+	}
 
 	s_pids = stress_s_pids_mmap(MAX_FIFO_READERS);
 	if (s_pids == MAP_FAILED) {
