@@ -33,6 +33,15 @@
 #define JPEG_IMAGE_FLAT		(0x04)
 #define JPEG_IMAGE_BROWN	(0x05)
 
+#define MIN_JPEG_HEIGHT		(256)
+#define MAX_JPEG_HEIGHT		(4096)
+
+#define MIN_JPEG_WIDTH		(256)
+#define MAX_JPEG_WIDTH		(4096)
+
+#define MIN_JPEG_QUALITY	(1)
+#define MAX_JPEG_QUALITY	(100)
+
 typedef struct {
 	const char *name;
 	const int  type;
@@ -63,10 +72,10 @@ static const char *stress_jpeg_image(const size_t i)
 }
 
 static const stress_opt_t opts[] = {
-	{ OPT_jpeg_height,  "jpeg-height",   TYPE_ID_INT32, 256, 4096, NULL },
+	{ OPT_jpeg_height,  "jpeg-height",   TYPE_ID_INT32, MIN_JPEG_HEIGHT, MAX_JPEG_HEIGHT, NULL },
 	{ OPT_jpeg_image,   "jpeg-image",    TYPE_ID_SIZE_T_METHOD, 0, 0, stress_jpeg_image },
-	{ OPT_jpeg_width,   "jpeg-width",    TYPE_ID_INT32, 256, 4096, NULL },
-	{ OPT_jpeg_quality, "jpeg-quality",  TYPE_ID_INT32, 1, 100, NULL },
+	{ OPT_jpeg_width,   "jpeg-width",    TYPE_ID_INT32, MIN_JPEG_WIDTH, MAX_JPEG_WIDTH, NULL },
+	{ OPT_jpeg_quality, "jpeg-quality",  TYPE_ID_INT32, MIN_JPEG_QUALITY, MAX_JPEG_QUALITY, NULL },
 	END_OPT,
 };
 
@@ -354,9 +363,24 @@ static int stress_jpeg(stress_args_t *args)
 	double total_pixels = 0.0, t_start, duration, rate, ratio;
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 
-	(void)stress_get_setting("jpeg-width", &x_max);
-	(void)stress_get_setting("jpeg-height", &y_max);
-	(void)stress_get_setting("jpeg-quality", &jpeg_quality);
+	if (!stress_get_setting("jpeg-width", &x_max)) {
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
+			x_max = MAX_JPEG_WIDTH;
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
+			x_max = MIN_JPEG_WIDTH;
+	}
+	if (!stress_get_setting("jpeg-height", &y_max)) {
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
+			y_max = MAX_JPEG_HEIGHT;
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
+			y_max = MIN_JPEG_HEIGHT;
+	}
+	if (!stress_get_setting("jpeg-quality", &jpeg_quality)) {
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
+			jpeg_quality = MAX_JPEG_QUALITY;
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
+			jpeg_quality = MIN_JPEG_QUALITY;
+	}
 	(void)stress_get_setting("jpeg-image", &jpeg_image);
 
 	rgb_size = (size_t)x_max * (size_t)y_max * 3;
