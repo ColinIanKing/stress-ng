@@ -213,7 +213,12 @@ static int stress_nanosleep(stress_args_t *args)
 #endif
 	cpu_cstate_t *cstate_list = stress_cpuidle_cstate_list_head();
 
-	(void)stress_get_setting("nanosleep-threads", &nanosleep_threads);
+	if (!stress_get_setting("nanosleep-threads", &nanosleep_threads)) {
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
+			nanosleep_threads = MAX_NANOSLEEP_THREADS;
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
+			nanosleep_threads = MIN_NANOSLEEP_THREADS;
+	}
 	max_ops = args->max_ops ? (args->max_ops / nanosleep_threads) + 1 : 0;
 
 	(void)stress_get_setting("stress-nanosleep-method", &mask);
