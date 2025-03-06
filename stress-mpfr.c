@@ -25,6 +25,10 @@
 #include <mpfr.h>
 #endif
 
+#define MIN_MPFR_PRECISION	(32)
+#define MAX_MPFR_PRECISION	(1000000)
+#define DEFAULT_MPFR_PRECISION	(1000)
+
 static const stress_help_t help[] = {
 	{ NULL,	"mpfr N",		"start N workers performing multi-precision floating point operations" },
 	{ NULL,	"mpfr-ops N",		"stop after N multi-precision floating point operations" },
@@ -33,7 +37,7 @@ static const stress_help_t help[] = {
 };
 
 static const stress_opt_t opts[] = {
-	{ OPT_mpfr_precision, "mpfr-precision", TYPE_ID_UINT32, 32, 1000000, NULL },
+	{ OPT_mpfr_precision, "mpfr-precision", TYPE_ID_UINT32, MIN_MPFR_PRECISION, MAX_MPFR_PRECISION, NULL },
 	END_OPT,
 };
 
@@ -358,7 +362,7 @@ static const stress_mpfr_method_t stress_mpfr_methods[] = {
 static int stress_mpfr(stress_args_t *args)
 {
 	mpfr_prec_t precision;
-	uint32_t mpfr_precision = 1000;
+	uint32_t mpfr_precision = DEFAULT_MPFR_PRECISION;
 	register size_t i;
 	mpfr_t r0, r1;
 	static stress_metrics_t metrics[SIZEOF_ARRAY(stress_mpfr_methods)];
@@ -366,7 +370,12 @@ static int stress_mpfr(stress_args_t *args)
 
 	stress_zero_metrics(metrics, SIZEOF_ARRAY(metrics));
 
-	(void)stress_get_setting("mpfr-precision", &mpfr_precision);
+	if (!stress_get_setting("mpfr-precision", &mpfr_precision)) {
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
+			mpfr_precision = MAX_MPFR_PRECISION;
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
+			mpfr_precision = MIN_MPFR_PRECISION;
+	}
 	precision = (mpfr_prec_t)mpfr_precision;
 
 	mpfr_init2(r0, precision);
