@@ -22,6 +22,9 @@
 #include "core-numa.h"
 #include "core-out-of-memory.h"
 
+#define MIN_MMAPHUGE_MMAPS	(1)
+#define MAX_MMAPHUGE_MMAPS	(65536)
+
 static const stress_help_t help[] = {
 	{ NULL,	"mmaphuge N",		"start N workers stressing mmap with huge mappings" },
 	{ NULL, "mmaphuge-file",	"perform mappings on a temporary file" },
@@ -35,7 +38,7 @@ static const stress_help_t help[] = {
 static const stress_opt_t opts[] = {
 	{ OPT_mmaphuge_file,  "mmaphuge-file",  TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_mmaphuge_mlock, "mmaphuge-mlock", TYPE_ID_BOOL, 0, 1, NULL },
-	{ OPT_mmaphuge_mmaps, "mmaphuge-mmaps", TYPE_ID_SIZE_T, 1, 65536, NULL },
+	{ OPT_mmaphuge_mmaps, "mmaphuge-mmaps", TYPE_ID_SIZE_T, MIN_MMAPHUGE_MMAPS, MAX_MMAPHUGE_MMAPS, NULL },
 	{ OPT_mmaphuge_numa,  "mmaphuge-numa",  TYPE_ID_BOOL, 0, 1, NULL },
 };
 
@@ -251,7 +254,12 @@ static int stress_mmaphuge(stress_args_t *args)
 	context.sz = 16 * MB;
 	context.fd = -1;
 	context.mmaphuge_mmaps = MAX_MMAP_BUFS;
-	(void)stress_get_setting("mmaphuge-mmaps", &context.mmaphuge_mmaps);
+	if (!stress_get_setting("mmaphuge-mmaps", &context.mmaphuge_mmaps)) {
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
+			context.mmaphuge_mmaps = MAX_MMAPHUGE_MMAPS;
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
+			context.mmaphuge_mmaps = MIN_MMAPHUGE_MMAPS;
+	}
 	context.mmaphuge_file = false;
 	(void)stress_get_setting("mmaphuge-file", &context.mmaphuge_file);
 	context.mmaphuge_numa = false;
