@@ -662,7 +662,12 @@ static int stress_exec(stress_args_t *args)
 	size_t arg_max, cache_max;
 	char *str;
 
-	(void)stress_get_setting("exec-max", &exec_max);
+	if (!stress_get_setting("exec-max", &exec_max)) {
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
+			exec_max = MAX_EXECS;
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
+			exec_max = MIN_EXECS;
+	}
 	(void)stress_get_setting("exec-no-pthread", &exec_no_pthread);
 	if (stress_get_setting("exec-method", &exec_method_idx))
 		exec_method = stress_exec_methods[exec_method_idx].method;
