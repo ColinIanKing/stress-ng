@@ -295,7 +295,12 @@ static int stress_fpunch(stress_args_t *args)
 	stress_punch_buf_t *buf;
 	uint64_t punches, fpunch_bytes = DEFAULT_FPUNCH_BYTES, max_punches;
 
-	(void)stress_get_setting("fpunch-bytes", &fpunch_bytes);
+	if (!stress_get_setting("fpunch-bytes", &fpunch_bytes)) {
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
+			fpunch_bytes = MAX_FPUNCH_BYTES;
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
+			fpunch_bytes = MIN_FPUNCH_BYTES;
+	}
 	max_punches = (off_t)(fpunch_bytes / (off_t)stride);
 
 	s_pids = stress_s_pids_mmap(STRESS_PUNCH_PIDS);
