@@ -1,5 +1,5 @@
 #
-# hot-cpu class stressors:
+# cpu class stressors:
 #   various options have been commented out, one can remove the
 #   proceeding comment to enable these options if required.
 
