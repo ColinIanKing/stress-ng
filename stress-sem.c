@@ -218,7 +218,10 @@ static int stress_sem(stress_args_t *args)
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			semaphore_posix_procs = MIN_SEM_POSIX_PROCS;
 	}
-	(void)stress_get_setting("sem-shared", &sem_shared);
+	if (!stress_get_setting("sem-shared", &sem_shared)) {
+		if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+			sem_shared = true;
+	}
 
 	if (sem_shared) {
 		if (!sem_global) {
