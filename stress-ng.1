@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "3 March 2025"
+.TH STRESS-NG 1 "6 March 2025"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -3616,18 +3616,9 @@ use a maximum packet size of 65535 bytes instead of the default of 1000 bytes.
 stop icmp flood workers after N ICMP ping packets have been sent.
 .RE
 .TP
-.B Idle pages stressor (Linux)
+.B Idle page scan stressor (Linux)
 .RS 5
 .TQ
-.B \-\-idle\-scan N
-start N workers that scan the idle page bitmap across a range of physical
-pages. This sets and checks for idle pages via the idle page tracking
-interface /sys/kernel/mm/page_idle/bitmap.  This is for Linux only.
-.TP
-.B \-\-idle\-scan\-ops N
-stop after N bogo page scan operations. Currently one bogo page scan
-operation is equivalent to setting and checking 64 physical pages.
-.TP
 .B \-\-idle\-page N
 start N workers that walks through every page exercising the Linux
 /sys/kernel/mm/page_idle/bitmap interface. Requires CAP_SYS_RESOURCE
