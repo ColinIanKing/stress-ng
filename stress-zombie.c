@@ -145,7 +145,7 @@ static void stress_zombie_head_remove(stress_args_t *args, const bool check)
 						zombie = true;
 						break;
 					}
-					shim_usleep(usec);
+					(void)shim_usleep(usec);
 					usec <<= 1ULL;
 				}
 				if (!zombie)
