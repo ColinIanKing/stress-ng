@@ -1339,17 +1339,16 @@ void OPTIMIZE3 stress_cpu_data_cache_flush(void *addr, const size_t len)
 		stress_asm_x86_clflushopt(addr);
 		addr += 64;
 	}
-	return;
 #elif defined(HAVE_ASM_X86_CLFLUSH)
 
 	while (addr < addr_end) {
 		stress_asm_x86_clflush(addr);
 		addr += 64;
 	}
-	return;
 #elif defined(HAVE_BUILTIN___CLEAR_CACHE)
 	__builtin___clear_cache(addr, addr_end);
-	/* fall through */
-#endif
+#else
+	__builtin___clear_cache(addr, addr_end);
 	shim_cacheflush(addr, len, SHIM_ICACHE);
+#endif
 }
