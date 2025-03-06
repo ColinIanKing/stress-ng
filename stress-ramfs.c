@@ -29,7 +29,7 @@
 #endif
 
 #define MIN_RAMFS_SIZE	(1 * MB)
-#define MAX_RAMFS_SIZE	(1 * GB)
+#define MAX_RAMFS_SIZE	(2 * GB)
 
 static const stress_help_t help[] = {
 	{ NULL,	"ramfs N",	 "start N workers exercising ramfs mounts" },
@@ -289,7 +289,7 @@ static int stress_ramfs_child(stress_args_t *args)
 	if (!stress_get_setting("ramfs-size", &ramfs_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			ramfs_size = MAX_RAMFS_SIZE;
-		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			ramfs_size = MIN_RAMFS_SIZE;
 	}
 	if (!stress_get_setting("ramfs-fill", &ramfs_fill)) {
