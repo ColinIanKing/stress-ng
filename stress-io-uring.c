@@ -34,6 +34,9 @@
 #include <attr/xattr.h>
 #endif
 
+#define MIN_IO_URING_ENTRIES	(1)
+#define MAX_IO_URING_ENTRIES	(16384)
+
 static const stress_help_t help[] = {
 	{ NULL,	"io-uring N",		"start N workers that issue io-uring I/O requests" },
 	{ NULL, "io-uring-entries N",	"specify number if io-uring ring entries" },
@@ -43,7 +46,7 @@ static const stress_help_t help[] = {
 };
 
 static const stress_opt_t opts[] = {
-	{ OPT_io_uring_entries, "io-uring-entries", TYPE_ID_UINT32, 1, 16384, NULL },
+	{ OPT_io_uring_entries, "io-uring-entries", TYPE_ID_UINT32, MIN_IO_URING_ENTRIES, MAX_IO_URING_ENTRIES, NULL },
 	{ OPT_io_uring_rand,    "io-uring-rand",    TYPE_ID_BOOL,   0, 1, NULL },
 	END_OPT,
 };
@@ -1102,7 +1105,12 @@ static int stress_io_uring_child(stress_args_t *args, void *context)
 
 	io_uring_rand = false;
 
-	(void)stress_get_setting("io-uring-entries", &io_uring_entries);
+	if (!stress_get_setting("io-uring-entries", &io_uring_entries)) {
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
+			io_uring_entries = MAX_IO_URING_ENTRIES;
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
+			io_uring_entries = MIN_IO_URING_ENTRIES;
+	}
 	(void)stress_get_setting("io-uring-rand", &io_uring_rand);
 
 	(void)shim_memset(&submit, 0, sizeof(submit));
