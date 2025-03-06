@@ -385,7 +385,10 @@ static int stress_pseek(stress_args_t *args)
 	info.pseek_io_size = DEFAULT_PSEEKIO_IO_SIZE;
 	info.parent_pid = getpid();
 
-	(void)stress_get_setting("pseek-rand", &info.pseek_rand);
+	if (!stress_get_setting("pseek-rand", &info.pseek_rand)) {
+		if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+			info.pseek_rand = true;
+	}
 	(void)stress_get_setting("pseek-io-size", &info.pseek_io_size);
 
 	for (i = 0; i < pseek_procs; i++) {
