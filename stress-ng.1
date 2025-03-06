@@ -5066,7 +5066,7 @@ using mknod and unlink.
 stop directory thrash workers after N bogo mknod operations.
 .RE
 .TP
-.B Mapped memory pages lock/unlock stressor
+.B Memory mapped pages lock/unlock stressor
 .RS 5
 .TQ
 .B \-\-mlock N
@@ -5080,7 +5080,11 @@ pages are munlocked and the pages are unmapped.
 .TP
 .B \-\-mlock\-ops N
 stop after N mlock bogo operations.
+.RE
 .TP
+.B Many child memory mapped page lock/unlock process stressor
+.RS 5
+.TQ
 .B \-\-mlockmany N
 start N workers that fork off a default of 1024 child processes in total;
 each child will attempt to anonymously mmap and mlock the maximum allowed
