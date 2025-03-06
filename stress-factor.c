@@ -22,6 +22,9 @@
 #include <gmp.h>
 #endif
 
+#define MIN_FACTOR_DIGITS	(8)
+#define MAX_FACTOR_DIGITS	(100000000)
+
 static const stress_help_t help[] = {
 	{ NULL,	"factor N",		"start N workers performing large integer factorization" },
 	{ NULL,	"factor-digits N",	"specific number of digits of number to factor" },
@@ -30,7 +33,7 @@ static const stress_help_t help[] = {
 };
 
 static const stress_opt_t opts[] = {
-	{ OPT_factor_digits, "factor-digits", TYPE_ID_SIZE_T, 8, 100000000, NULL },
+	{ OPT_factor_digits, "factor-digits", TYPE_ID_SIZE_T, MIN_FACTOR_DIGITS, MAX_FACTOR_DIGITS, NULL },
 	END_OPT,
 };
 
@@ -44,7 +47,12 @@ static int OPTIMIZE3 stress_factor(stress_args_t *args)
 	uint64_t ops, factors;
 	mpz_t value, divisor, q, r, tmp;
 
-	(void)stress_get_setting("factor-digits", &factor_digits);
+	if (!stress_get_setting("factor-digits", &factor_digits)) {
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
+			factor_digits = MAX_FACTOR_DIGITS;
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
+			factor_digits = MIN_FACTOR_DIGITS;
+	}
 
 	mpz_inits(value, divisor, q, r, tmp, NULL);
 
