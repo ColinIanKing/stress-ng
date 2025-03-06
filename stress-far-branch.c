@@ -23,6 +23,9 @@
 #include "core-madvise.h"
 #include "core-pragma.h"
 
+#define MIN_FAR_BRANCH_PAGES	(1)
+#define MAX_FAR_BRANCH_PAGES	(65536)
+
 static const stress_help_t help[] = {
 	{ NULL,	"far-branch N",		"start N far branching workers" },
 	{ NULL, "far-branch-flush",	"periodically flush instruction cache" },
@@ -33,7 +36,7 @@ static const stress_help_t help[] = {
 
 static const stress_opt_t opts[] = {
 	{ OPT_far_branch_flush, "far-branch-flush", TYPE_ID_BOOL, 0, 1, NULL },
-	{ OPT_far_branch_pages, "far-branch-pages", TYPE_ID_SIZE_T, 1, 65536, NULL },
+	{ OPT_far_branch_pages, "far-branch-pages", TYPE_ID_SIZE_T, MIN_FAR_BRANCH_PAGES, MAX_FAR_BRANCH_PAGES, NULL },
 	END_OPT,
 };
 
@@ -284,7 +287,12 @@ static int stress_far_branch(stress_args_t *args)
 	NOCLOBBER bool far_branch_flush = false;
 
 	(void)stress_get_setting("far-branch-flush", &far_branch_flush);
-	(void)stress_get_setting("far-branch-pages", &n_pages);
+	if (!stress_get_setting("far-branch-pages", &n_pages)) {
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
+			n_pages = MAX_FAR_BRANCH_PAGES;
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
+			n_pages = MIN_FAR_BRANCH_PAGES;
+	}
 	max_funcs = (n_pages * page_size) / stress_ret_opcode.stride;
 
 	ret = sigsetjmp(jmp_env, 1);
