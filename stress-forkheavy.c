@@ -157,8 +157,18 @@ static int stress_forkheavy_child(stress_args_t *args, void *context)
 	if (min_mem_free < MIN_MEM_FREE)
 		min_mem_free = MIN_MEM_FREE;
 
-	(void)stress_get_setting("forkheavy-allocs", &forkheavy_allocs);
-	(void)stress_get_setting("forkheavy-procs", &forkheavy_procs);
+	if (!stress_get_setting("forkheavy-allocs", &forkheavy_allocs)) {
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
+			forkheavy_allocs = MAX_FORKHEAVY_ALLOCS;
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
+			forkheavy_allocs = MAX_FORKHEAVY_ALLOCS;
+	}
+	if (!stress_get_setting("forkheavy-procs", &forkheavy_procs)) {
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
+			forkheavy_procs = MAX_FORKHEAVY_PROCS;
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
+			forkheavy_procs = MIN_FORKHEAVY_PROCS;
+	}
 	(void)stress_get_setting("forkheavy-mlock", &forkheavy_mlock);
 
 #if defined(MCL_FUTURE)
