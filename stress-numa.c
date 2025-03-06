@@ -185,7 +185,7 @@ static int stress_numa(stress_args_t *args)
 	int failed = 0;
 	void **pages;
 	size_t k;
-	bool numa_shuffle_addr, numa_shuffle_node;
+	bool numa_shuffle_addr = false, numa_shuffle_node = false;
 	stress_numa_stats_t stats_begin, stats_end;
 	size_t status_size, dest_nodes_size, pages_size;
 	double t, duration, metric;
@@ -199,8 +199,14 @@ static int stress_numa(stress_args_t *args)
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			numa_bytes = MIN_NUMA_MMAP_BYTES;
 	}
-	(void)stress_get_setting("numa-shuffle-addr", &numa_shuffle_addr);
-	(void)stress_get_setting("numa-shuffle-node", &numa_shuffle_node);
+	if (!stress_get_setting("numa-shuffle-addr", &numa_shuffle_addr)) {
+		if (g_opt_flags && OPT_FLAGS_AGGRESSIVE)
+			numa_shuffle_addr = true;
+	}
+	if (!stress_get_setting("numa-shuffle-node", &numa_shuffle_node)) {
+		if (g_opt_flags && OPT_FLAGS_AGGRESSIVE)
+			numa_shuffle_node = true;
+	}
 
 	if (numa_bytes == 0) {
 		numa_bytes = DEFAULT_NUMA_MMAP_BYTES;
