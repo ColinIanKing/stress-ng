@@ -5758,7 +5758,7 @@ ioctl commands.
 stop after N netdev bogo operations completed.
 .RE
 .TP
-.B Netlink stressor (Linux)
+.B Netlink proc stressor (Linux)
 .RS 5
 .TQ
 .B \-\-netlink\-proc N
@@ -5769,6 +5769,10 @@ CAP_NET_ADMIN capability.
 .TP
 .B \-\-netlink\-proc\-ops N
 stop the proc netlink connector stressors after N bogo ops.
+.RE
+.TP
+.B Netlink task stressor (Linux)
+.RS 5
 .TP
 .B \-\-netlink\-task N
 start N workers that collect task statistics via the netlink taskstats
