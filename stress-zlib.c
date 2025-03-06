@@ -48,6 +48,12 @@ static const stress_help_t help[] = {
 #define DATA_SIZE_64K 	(KB * 64)	/* Must be a multiple of 64 bytes */
 #define DATA_SIZE DATA_SIZE_64K
 
+#define ZLIB_MIN_COMPRESSION	(0)
+#define ZLIB_MAX_COMPRESSION	(Z_BEST_COMPRESSION)
+
+#define ZLIB_MIN_MEM_LEVEL	(1)
+#define ZLIB_MAX_MEM_LEVEL	(9)
+
 typedef void (*stress_zlib_rand_data_func)(stress_args_t *args,
 	uint64_t *RESTRICT data, uint64_t *RESTRICT data_end);
 
@@ -1349,9 +1355,10 @@ static const char *stress_zlib_method(const size_t i)
 	return (i < SIZEOF_ARRAY(zlib_rand_data_methods)) ? zlib_rand_data_methods[i].name : NULL;
 }
 
+
 static const stress_opt_t opts[] = {
-	{ OPT_zlib_level,        "zlib-level",        TYPE_ID_UINT32, 0, Z_BEST_COMPRESSION, NULL },
-	{ OPT_zlib_mem_level,    "zlib-mem-level",    TYPE_ID_UINT32, 1, 9, NULL },
+	{ OPT_zlib_level,        "zlib-level",        TYPE_ID_UINT32, ZLIB_MIN_COMPRESSION, ZLIB_MAX_COMPRESSION, NULL },
+	{ OPT_zlib_mem_level,    "zlib-mem-level",    TYPE_ID_UINT32, ZLIB_MIN_MEM_LEVEL, ZLIB_MAX_MEM_LEVEL, NULL },
 	{ OPT_zlib_method,       "zlib-method",       TYPE_ID_SIZE_T_METHOD, 0, 0, stress_zlib_method },
 	{ OPT_zlib_window_bits,  "zlib-window-bits",  TYPE_ID_CALLBACK, 0, 0, stress_zlib_window_bits },
 	{ OPT_zlib_stream_bytes, "zlib-stream-bytes", TYPE_ID_UINT64_BYTES_VM, 0, MAX_MEM_LIMIT, NULL },
@@ -1393,15 +1400,25 @@ static const char *stress_zlib_err(const int zlib_err)
  *	get all zlib arguments at once
  */
 static void stress_zlib_get_args(stress_zlib_args_t *params) {
-	params->level = Z_BEST_COMPRESSION;
+	params->level = ZLIB_MAX_COMPRESSION;
 	params->mem_level = 8;
 	params->method = 0;
 	params->window_bits = 15;
 	params->stream_bytes = 0;
 	params->strategy = Z_DEFAULT_STRATEGY;
 
-	(void)stress_get_setting("zlib-level", &params->level);
-	(void)stress_get_setting("zlib-mem-level", &params->mem_level);
+	if (!stress_get_setting("zlib-level", &params->level)) {
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
+			params->level = Z_BEST_COMPRESSION;
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
+			params->level = 0;
+	}
+	if (!stress_get_setting("zlib-mem-level", &params->mem_level)) {
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
+			params->level = ZLIB_MAX_MEM_LEVEL;
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
+			params->level = ZLIB_MIN_MEM_LEVEL;
+	}
 	(void)stress_get_setting("zlib-method", &params->method);
 	(void)stress_get_setting("zlib-window-bits", &params->window_bits);
 	(void)stress_get_setting("zlib-stream-bytes", &params->stream_bytes);
