@@ -22,9 +22,13 @@
 #include "core-pragma.h"
 #include "core-put.h"
 
-#define STRESS_RANDLIST_DEFAULT_ITEMS	(100000)
-#define STRESS_RANDLIST_MAX_SIZE	(8192)
-#define STRESS_RANDLIST_DEFAULT_SIZE	(64)
+#define MIN_RANDLIST_SIZE		(1)
+#define MAX_RANDLIST_SIZE		(8192)
+#define DEFAULT_RANDLIST_SIZE		(64)
+
+#define MIN_RANDLIST_ITEMS		(1)
+#define MAX_RANDLIST_ITEMS		(0xffffffffULL)
+#define DEFAULT_RANDLIST_ITEMS		(100000)
 
 #define STRESS_RANDLIST_ALLOC_HEAP	(0)
 #define STRESS_RANDLIST_ALLOC_MMAP	(1)
@@ -144,15 +148,25 @@ static int stress_randlist(stress_args_t *args)
 	bool do_mmap = false;
 	bool randlist_compact = false;
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
-	size_t randlist_items = STRESS_RANDLIST_DEFAULT_ITEMS;
-	size_t randlist_size = STRESS_RANDLIST_DEFAULT_SIZE;
+	size_t randlist_items = DEFAULT_RANDLIST_ITEMS;
+	size_t randlist_size = DEFAULT_RANDLIST_SIZE;
 	size_t heap_allocs = 0;
 	size_t mmap_allocs = 0;
 	int rc = EXIT_SUCCESS;
 
 	(void)stress_get_setting("randlist-compact", &randlist_compact);
-	(void)stress_get_setting("randlist-items", &randlist_items);
-	(void)stress_get_setting("randlist-size", &randlist_size);
+	if (!stress_get_setting("randlist-items", &randlist_items)) {
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
+			randlist_items = MAX_RANDLIST_ITEMS;
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
+			randlist_items = MIN_RANDLIST_ITEMS;
+	}
+	if (!stress_get_setting("randlist-size", &randlist_size)) {
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
+			randlist_size = MAX_RANDLIST_SIZE;
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
+			randlist_size = MIN_RANDLIST_SIZE;
+	}
 
 	if (randlist_size >= args->page_size)
 		do_mmap = true;
@@ -276,8 +290,8 @@ retry:
 
 static const stress_opt_t opts[] = {
 	{ OPT_randlist_compact,	"randlist-compact", TYPE_ID_BOOL, 0, 1, NULL },
-	{ OPT_randlist_items,	"randlist-items",   TYPE_ID_SIZE_T, 1, 0xffffffffULL, NULL },
-	{ OPT_randlist_size,	"randlist-size",    TYPE_ID_SIZE_T, 1, STRESS_RANDLIST_MAX_SIZE, NULL },
+	{ OPT_randlist_items,	"randlist-items",   TYPE_ID_SIZE_T, MIN_RANDLIST_ITEMS, MAX_RANDLIST_ITEMS, NULL },
+	{ OPT_randlist_size,	"randlist-size",    TYPE_ID_SIZE_T, MIN_RANDLIST_SIZE, MAX_RANDLIST_SIZE, NULL },
 	END_OPT,
 };
 
