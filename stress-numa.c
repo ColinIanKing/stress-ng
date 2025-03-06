@@ -200,11 +200,11 @@ static int stress_numa(stress_args_t *args)
 			numa_bytes = MIN_NUMA_MMAP_BYTES;
 	}
 	if (!stress_get_setting("numa-shuffle-addr", &numa_shuffle_addr)) {
-		if (g_opt_flags && OPT_FLAGS_AGGRESSIVE)
+		if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
 			numa_shuffle_addr = true;
 	}
 	if (!stress_get_setting("numa-shuffle-node", &numa_shuffle_node)) {
-		if (g_opt_flags && OPT_FLAGS_AGGRESSIVE)
+		if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
 			numa_shuffle_node = true;
 	}
 
