@@ -382,7 +382,12 @@ static int stress_msg(stress_args_t *args)
 	size_t j, n, msg_bytes = sizeof(msg.u.value);
 
 	(void)stress_get_setting("msg-types", &msg_types);
-	(void)stress_get_setting("msg-bytes", &msg_bytes);
+	if (!stress_get_setting("msg-bytes", &msg_bytes)) {
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
+			msg_bytes = MAX_MSG_BYTES;
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
+			msg_bytes = MIN_MSG_BYTES;
+	}
 
 	msgq_ids = (int *)calloc(max_ids, sizeof(*msgq_ids));
 	if (!msgq_ids) {
