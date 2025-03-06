@@ -21,6 +21,10 @@
 #include "core-arch.h"
 #include "core-pragma.h"
 
+#define MIN_REMAP_PAGES		(1)
+#define MAX_REMAP_PAGES		(0x80000000ULL)
+#define DEFAULT_REMAP_PAGES	(512)		/* Must be a power of 2 */
+
 static const stress_help_t help[] = {
 	{ NULL,	"remap N",		"start N workers exercising page remappings" },
 	{ NULL,	"remap-mlock",		"attempt to mlock pages into memory" },
@@ -31,14 +35,12 @@ static const stress_help_t help[] = {
 
 static const stress_opt_t opts[] = {
 	{ OPT_remap_mlock, "remap-mlock", TYPE_ID_BOOL, 0, 1, NULL },
-	{ OPT_remap_pages, "remap-pages", TYPE_ID_SIZE_T, 1, 0x80000000ULL, NULL },
+	{ OPT_remap_pages, "remap-pages", TYPE_ID_SIZE_T, MIN_REMAP_PAGES, MAX_REMAP_PAGES, NULL },
 	END_OPT,
 };
 
 #if defined(HAVE_REMAP_FILE_PAGES) &&	\
     !defined(STRESS_ARCH_SPARC)
-
-#define N_PAGES		(512)		/* Must be a power of 2 */
 
 typedef uint16_t stress_mapdata_t;
 
@@ -141,7 +143,7 @@ static int stress_remap(stress_args_t *args)
 {
 	stress_mapdata_t *data;
 	size_t *order;
-	size_t remap_pages = N_PAGES;
+	size_t remap_pages = DEFAULT_REMAP_PAGES;
 	uint8_t *unmapped, *mapped;
 	const size_t page_size = args->page_size;
 	const size_t stride = page_size / sizeof(*data);
@@ -151,12 +153,15 @@ static int stress_remap(stress_args_t *args)
 	int rc = EXIT_SUCCESS;
 
 	(void)stress_get_setting("remap-mlock", &remap_mlock);
-	(void)stress_get_setting("remap-pages", &remap_pages);
+	if (!stress_get_setting("remap-pages", &remap_pages)) {
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
+			remap_pages = MIN_REMAP_PAGES;
+	}
 
 	if ((remap_pages & (remap_pages - 1)) != 0) {
 		(void)pr_inf("%s: value for option --remap-pages %zu must be a power of 2, falling back to using default %d\n",
-			args->name, remap_pages, N_PAGES);
-		remap_pages = N_PAGES;
+			args->name, remap_pages, DEFAULT_REMAP_PAGES);
+		remap_pages = DEFAULT_REMAP_PAGES;
 	}
 
 	data_size = remap_pages * page_size;
