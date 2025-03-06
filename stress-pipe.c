@@ -23,6 +23,12 @@
 
 #include <sys/ioctl.h>
 
+#define MIN_PIPE_SIZE		(4096)
+#define MAX_PIPE_SIZE		(1024 * 1024)
+
+#define MIN_PIPE_DATA_SIZE	(8)
+#define MAX_PIPE_DATA_SIZE	(4096)
+
 static const stress_help_t help[] = {
 	{ "p N", "pipe N",		"start N workers exercising pipe I/O" },
 	{ NULL,	"pipe-data-size N",	"set pipe size of each pipe write to N bytes" },
@@ -537,7 +543,12 @@ static int stress_pipe(stress_args_t *args)
 	bool pipe_vmsplice = false;
 
 	(void)stress_get_setting("pipe-vmsplice", &pipe_vmsplice);
-	(void)stress_get_setting("pipe-data-size", &pipe_data_size);
+	if (!stress_get_setting("pipe-data-size", &pipe_data_size)) {
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
+			pipe_data_size = MAX_PIPE_DATA_SIZE;
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
+			pipe_data_size = MIN_PIPE_DATA_SIZE;
+	}
 
 	if (stress_sig_stop_stressing(args->name, SIGPIPE) < 0)
 		return EXIT_FAILURE;
@@ -572,7 +583,12 @@ static int stress_pipe(stress_args_t *args)
 	{
 		size_t pipe_size = 0;
 
-		(void)stress_get_setting("pipe-size", &pipe_size);
+		if (!stress_get_setting("pipe-size", &pipe_size)) {
+			if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
+				pipe_size = MAX_PIPE_SIZE;
+			if (g_opt_flags & OPT_FLAGS_MINIMIZE)
+				pipe_size = MIN_PIPE_SIZE;
+		}
 		if (pipe_size > 0) {
 			pipe_change_size(args, pipefds[0], pipe_size);
 			pipe_change_size(args, pipefds[1], pipe_size);
@@ -709,10 +725,10 @@ finish:
 
 static const stress_opt_t opts[] = {
 #if defined(F_SETPIPE_SZ)
-	{ OPT_pipe_size,      "pipe-size",      TYPE_ID_SIZE_T_BYTES_VM, 4096, 1024 * 1024, NULL },
+	{ OPT_pipe_size,      "pipe-size",      TYPE_ID_SIZE_T_BYTES_VM, MIN_PIPE_SIZE, MAX_PIPE_SIZE, NULL },
 #endif
 	/* FIXME: was min = 8, max = stress_get_page_size() */
-	{ OPT_pipe_data_size, "pipe-data-size", TYPE_ID_SIZE_T_BYTES_VM, 8, 4096, NULL },
+	{ OPT_pipe_data_size, "pipe-data-size", TYPE_ID_SIZE_T_BYTES_VM, MIN_PIPE_DATA_SIZE, MAX_PIPE_DATA_SIZE, NULL },
 	{ OPT_pipe_vmsplice,  "pipe-vmsplice",  TYPE_ID_BOOL, 0, 1, NULL },
 	END_OPT,
 };
