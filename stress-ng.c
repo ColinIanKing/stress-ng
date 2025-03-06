@@ -1239,6 +1239,9 @@ static void stress_wait_aggressive(
 		for (ss = stressors_list; ss; ss = ss->next) {
 			int32_t j;
 
+			if (ss->ignore.run || ss->ignore.permute)
+				continue;
+
 			for (j = 0; j < ss->instances; j++) {
 				stress_stats_t *const stats = ss->stats[j];
 				const pid_t pid = stats->s_pid.pid;
