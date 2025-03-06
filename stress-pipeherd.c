@@ -90,7 +90,10 @@ static int stress_pipeherd(stress_args_t *args)
 	double t1, t2;
 #endif
 
-	(void)stress_get_setting("pipeherd-yield", &pipeherd_yield);
+	if (!stress_get_setting("pipeherd-yield", &pipeherd_yield)) {
+		if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+			pipeherd_yield = true;
+	}
 
 	if (pipe(fd) < 0) {
 		pr_fail("%s: pipe failed: %d (%s)\n",
