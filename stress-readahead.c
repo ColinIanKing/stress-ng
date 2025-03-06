@@ -104,7 +104,7 @@ static int stress_readahead(stress_args_t *args)
 
 	if (!stress_get_setting("readahead-bytes", &readahead_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			readahead_bytes = MAXIMIZED_FILE_SIZE;
+			readahead_bytes = MAX_32;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			readahead_bytes = MIN_READAHEAD_BYTES;
 	}
