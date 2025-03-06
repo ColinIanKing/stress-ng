@@ -27,6 +27,9 @@
 #include <sys/mount.h>
 #endif
 
+#define MIN_RAMFS_SIZE	(1 * MB)
+#define MAX_RAMFS_SIZE	(1 * GB)
+
 static const stress_help_t help[] = {
 	{ NULL,	"ramfs N",	 "start N workers exercising ramfs mounts" },
 	{ NULL, "ramfs-size N",  "set the ramfs size in bytes, e.g. 2M is 2MB" },
@@ -51,7 +54,7 @@ static int stress_ramfs_supported(const char *name)
 }
 
 static const stress_opt_t opts[] = {
-	{ OPT_ramfs_size, "ramfs-size", TYPE_ID_UINT64_BYTES_VM, 1 * MB, 1 * GB, NULL },
+	{ OPT_ramfs_size, "ramfs-size", TYPE_ID_UINT64_BYTES_VM, MIN_RAMFS_SIZE, MAX_RAMFS_SIZE, NULL },
 	{ OPT_ramfs_fill, "ramfs-fill", TYPE_ID_BOOL, 0, 1, NULL },
 	END_OPT,
 };
@@ -265,7 +268,12 @@ static int stress_ramfs_child(stress_args_t *args)
 	stress_parent_died_alarm();
 	(void)sched_settings_apply(true);
 
-	(void)stress_get_setting("ramfs-size", &ramfs_size);
+	if (!stress_get_setting("ramfs-size", &ramfs_size)) {
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
+			ramfs_size = MAX_RAMFS_SIZE;
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
+			ramfs_size = MIN_RAMFS_SIZE;
+	}
 	(void)stress_get_setting("ramfs-fill", &ramfs_fill);
 
 	if (ramfs_size & (page_size - 1)) {
