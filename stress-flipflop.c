@@ -28,12 +28,14 @@
 
 #include <sched.h>
 
-#define BOGO_SCALE	(100000)
+#define BOGO_SCALE		(100000)
+#define MIN_FLIPFLOP_BITS	(1)
+#define MAX_FLIPFLOP_BITS	(65536)
 
 static const stress_opt_t opts[] = {
 	{ OPT_flipflop_taskset1, "flipflop-taskset1", TYPE_ID_STR, 0, 0, NULL },
 	{ OPT_flipflop_taskset2, "flipflop-taskset2", TYPE_ID_STR, 0, 0, NULL },
-	{ OPT_flipflop_bits,     "flipflop-bits",     TYPE_ID_UINT32, 1, 65536, NULL },
+	{ OPT_flipflop_bits,     "flipflop-bits",     TYPE_ID_UINT32, MIN_FLIPFLOP_BITS, MAX_FLIPFLOP_BITS, NULL },
 	END_OPT,
 };
 
@@ -205,7 +207,12 @@ static int stress_flipflop(stress_args_t *args)
 	char *flipflop_taskset1 = NULL, *flipflop_taskset2 = NULL;
 	const bool loop_until_max_ops = (args->max_ops > 0);
 
-	(void)stress_get_setting("flipflop-bits", &flipflop_bits);
+	if (!stress_get_setting("flipflop-bits", &flipflop_bits)) {
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
+			flipflop_bits = MAX_FLIPFLOP_BITS;
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
+			flipflop_bits = MIN_FLIPFLOP_BITS;
+	}
 	(void)stress_get_setting("flipflop-taskset1", &flipflop_taskset1);
 	(void)stress_get_setting("flipflop-taskset2", &flipflop_taskset2);
 
