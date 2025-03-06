@@ -90,7 +90,12 @@ static int stress_icmp_flood(stress_args_t *args)
 	uint32_t max_payload_size;
 	bool icmp_flood_max_size = false;
 
-	(void)stress_get_setting("icmp-flood-max-size", &icmp_flood_max_size);
+	if (!stress_get_setting("icmp-flood-max-size", &icmp_flood_max_size)) {
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
+			icmp_flood_max_size = 0;
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
+			icmp_flood_max_size = 1;
+	}
 	max_payload_size = icmp_flood_max_size ? MAX_PAYLOAD_SIZE : DEFAULT_PAYLOAD_SIZE;
 
 	(void)shim_memset(pkt, 0, sizeof(pkt));
