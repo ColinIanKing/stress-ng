@@ -40,7 +40,9 @@
 #define MAX_MALLOC_THRESHOLD	(256 * MB)
 #define DEFAULT_MALLOC_THRESHOLD (128 * KB)
 
+#define MIN_MALLOC_PTHREADS	(0)
 #define MAX_MALLOC_PTHREADS	(32)
+#define DEFAULT_MALLOC_PTHREADS	(0)
 
 #define MK_ALIGN(x)	(1U << (3 + ((x) & 7)))
 
@@ -366,7 +368,7 @@ static int stress_malloc_child(stress_args_t *args, void *context)
 	 *  instances 1..N are pthreads 0..N-1
 	 */
 	stress_malloc_args_t malloc_args[MAX_MALLOC_PTHREADS + 1];
-	size_t malloc_pthreads = 0;
+	size_t malloc_pthreads = DEFAULT_MALLOC_PTHREADS;
 #if defined(HAVE_LIB_PTHREAD)
 	stress_pthread_info_t pthreads[MAX_MALLOC_PTHREADS];
 	size_t j;
@@ -384,7 +386,12 @@ static int stress_malloc_child(stress_args_t *args, void *context)
 	if (stress_sighandler(args->name, SIGSEGV, stress_malloc_sigsegv_handler, NULL) < 0)
 		return EXIT_FAILURE;
 
-	(void)stress_get_setting("malloc-pthreads", &malloc_pthreads);
+	if (!stress_get_setting("malloc-pthreads", &malloc_pthreads)) {
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
+			malloc_pthreads = MAX_MALLOC_PTHREADS;
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
+			malloc_pthreads = MIN_MALLOC_PTHREADS;
+	}
 
 #if defined(MCL_FUTURE)
 	if (malloc_mlock) {
@@ -511,7 +518,7 @@ static const stress_opt_t opts[] = {
 	{ OPT_malloc_bytes,	"malloc-bytes",     TYPE_ID_SIZE_T_BYTES_VM, MIN_MALLOC_BYTES, MAX_MALLOC_BYTES, NULL },
 	{ OPT_malloc_max,	"malloc-max",       TYPE_ID_SIZE_T_BYTES_VM, MIN_MALLOC_MAX, MAX_MALLOC_MAX, NULL },
 	{ OPT_malloc_mlock,	"malloc-mlock",     TYPE_ID_BOOL, 0, 1, NULL },
-	{ OPT_malloc_pthreads,	"malloc-pthreads",  TYPE_ID_SIZE_T, 0, MAX_MALLOC_PTHREADS, NULL },
+	{ OPT_malloc_pthreads,	"malloc-pthreads",  TYPE_ID_SIZE_T, MIN_MALLOC_PTHREADS, MAX_MALLOC_PTHREADS, NULL },
 	{ OPT_malloc_threshold,	"malloc-thresh",    TYPE_ID_SIZE_T_BYTES_VM, MIN_MALLOC_THRESHOLD, MAX_MALLOC_THRESHOLD, NULL },
 	{ OPT_malloc_touch,	"malloc-touch",     TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_malloc_trim,	"malloc-trim",      TYPE_ID_BOOL, 0, 1, NULL },
