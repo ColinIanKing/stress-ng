@@ -338,7 +338,10 @@ static int stress_swap_child(stress_args_t *args, void *context)
 
 	(void)context;
 
-	(void)stress_get_setting("swap-self", &swap_self);
+	if (!stress_get_setting("swap-self", &swap_self)) {
+		if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+			swap_self = true;
+	}
 
 	page = mmap(NULL, page_size, PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
