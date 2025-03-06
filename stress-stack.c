@@ -191,10 +191,22 @@ static int stress_stack_child(stress_args_t *args, void *context)
 
 	(void)context;
 
-	(void)stress_get_setting("stack-fill", &stack_fill);
-	(void)stress_get_setting("stack-mlock", &stack_mlock);
-	(void)stress_get_setting("stack-pageout", &stack_pageout);
-	(void)stress_get_setting("stack-unmap", &stack_unmap);
+	if (!stress_get_setting("stack-fill", &stack_fill)) {
+		if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+			stack_fill = true;
+	}
+	if (!stress_get_setting("stack-mlock", &stack_mlock)) {
+		if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+			stack_mlock = true;
+	}
+	if (!stress_get_setting("stack-pageout", &stack_pageout)) {
+		if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+			stack_pageout = true;
+	}
+	if (!stress_get_setting("stack-unmap", &stack_unmap)) {
+		if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+			stack_unmap = true;
+	}
 
 #if !defined(MADV_PAGEOUT)
 	if (stack_pageout && (args->instance == 0)) {
