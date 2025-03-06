@@ -43,9 +43,14 @@ typedef struct {
 #define PAGE_WR_FLAG		(0x01)
 #define PAGE_RD_FLAG		(0x02)
 
+
 #define MIN_MMAPTORTURE_BYTES		(16 * MB)
 #define MAX_MMAPTORTURE_BYTES   	(MAX_MEM_LIMIT)
 #define DEFAULT_MMAPTORTURE_BYTES	(256 * MB)
+
+#define MIN_MMAPTORTURE_MSYNC		(0)
+#define MAX_MMAPTORTURE_MSYNC		(100)
+#define DEFAULT_MMAPTORTURE_MSYNC	(10)
 
 typedef struct {
 	uint64_t	mmap_pages;
@@ -268,7 +273,12 @@ static void stress_mmaptorture_init(const uint32_t instances)
 	const size_t page_size = stress_get_page_size();
 
 	mmap_bytes = DEFAULT_MMAPTORTURE_BYTES;
-	(void)stress_get_setting("mmaptorture-bytes", &mmap_bytes);
+	if (!stress_get_setting("mmaptorture-bytes", &mmap_bytes)) {
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
+			mmap_bytes = MAX_32;
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
+			mmap_bytes = MIN_MMAPTORTURE_BYTES;
+	}
 
 	mmap_bytes = (instances < 1) ? mmap_bytes : mmap_bytes / instances;
 	mmap_bytes &= ~(page_size - 1);
@@ -383,7 +393,7 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 	const pid_t mypid = getpid();
 #endif
 	char *data;
-	NOCLOBBER uint32_t mmaptorture_msync = 10;
+	NOCLOBBER uint32_t mmaptorture_msync = DEFAULT_MMAPTORTURE_MSYNC;
 	NOCLOBBER mmap_info_t *mappings;
 	NOCLOBBER off_t mmap_fd_offset = 0;
 #if defined(HAVE_LINUX_MEMPOLICY_H)
@@ -392,7 +402,12 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 	size_t i;
 	(void)context;
 
-	(void)stress_get_setting("mmaptorture-msync", &mmaptorture_msync);
+	if (!stress_get_setting("mmaptorture-msync", &mmaptorture_msync)) {
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
+			mmaptorture_msync = MAX_MMAPTORTURE_MSYNC;
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
+			mmaptorture_msync = 1;
+	}
 
 	if (sigsetjmp(jmp_env, 1)) {
 		pr_inf_skip("%s: premature SIGSEGV caught, skipping stressor\n",
@@ -875,7 +890,7 @@ static int stress_mmaptorture(stress_args_t *args)
 
 static const stress_opt_t opts[] = {
         { OPT_mmaptorture_bytes, "mmaptorture-bytes", TYPE_ID_SIZE_T_BYTES_VM, MIN_MMAPTORTURE_BYTES, MAX_MMAPTORTURE_BYTES, NULL },
-	{ OPT_mmaptorture_msync, "mmaptorture-msync", TYPE_ID_UINT32, 0, 100, NULL },
+	{ OPT_mmaptorture_msync, "mmaptorture-msync", TYPE_ID_UINT32, MIN_MMAPTORTURE_MSYNC, MAX_MMAPTORTURE_MSYNC, NULL },
 };
 
 const stressor_info_t stress_mmaptorture_info = {
