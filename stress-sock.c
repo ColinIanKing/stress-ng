@@ -924,7 +924,12 @@ static int OPTIMIZE3 stress_sock_server(
 	uint32_t count = 0;
 #endif
 
-	(void)stress_get_setting("sock-msgs", &sock_msgs);
+	if (!stress_get_setting("sock-msgs", &sock_msgs)) {
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
+			sock_msgs = MAX_SOCKET_MSGS;
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
+			sock_msgs = MIN_SOCKET_MSGS;
+	}
 
 	if (stress_sig_stop_stressing(args->name, SIGALRM) < 0) {
 		rc = EXIT_FAILURE;
