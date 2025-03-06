@@ -25,6 +25,9 @@
 
 #include <math.h>
 
+#define MIN_MONTE_CARLO_SAMPLES	(1)
+#define MAX_MONTE_CARLO_SAMPLES	(0xffffffffULL)
+
 /* Don't use HAVE_ASM_X86_RDRAND for now, it is too slow */
 #undef HAVE_ASM_X86_RDRAND
 
@@ -492,7 +495,7 @@ static const char *stress_monte_carlo_rand(const size_t i)
 static const stress_opt_t opts[] = {
 	{ OPT_monte_carlo_method,  "monte-carlo-method",  TYPE_ID_SIZE_T_METHOD, 0, 0, stress_monte_carlo_method },
 	{ OPT_monte_carlo_rand,    "monte-carlo-rand",    TYPE_ID_SIZE_T_METHOD, 0, 0, stress_monte_carlo_rand },
-	{ OPT_monte_carlo_samples, "monte-carlo-samples", TYPE_ID_UINT32, 1, 0xffffffffULL, NULL },
+	{ OPT_monte_carlo_samples, "monte-carlo-samples", TYPE_ID_UINT32, MIN_MONTE_CARLO_SAMPLES, MAX_MONTE_CARLO_SAMPLES, NULL },
 	END_OPT,
 };
 
@@ -587,7 +590,12 @@ static int stress_monte_carlo(stress_args_t *args)
 	monte_carlo_rand = 0;
 	(void)stress_get_setting("monte-carlo-method", &monte_carlo_method);
 	(void)stress_get_setting("monte-carlo-rand", &monte_carlo_rand);
-	(void)stress_get_setting("monte-carlo-samples", &monte_carlo_samples);
+	if (!stress_get_setting("monte-carlo-samples", &monte_carlo_samples)) {
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
+			monte_carlo_samples = MAX_MONTE_CARLO_SAMPLES;
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
+			monte_carlo_samples = MIN_MONTE_CARLO_SAMPLES;
+	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
