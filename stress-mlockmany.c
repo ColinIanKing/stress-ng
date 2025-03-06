@@ -24,8 +24,11 @@
 #include "core-mincore.h"
 #include "core-out-of-memory.h"
 
-#define UNSET_MLOCK_PROCS		(0)
-#define DEFAULT_MLOCK_PROCS		(1024)
+#define UNSET_MLOCKMANY_PROCS		(0)
+#define DEFAULT_MLOCKMANY_PROCS		(1024)
+
+#define MIN_MLOCKMANY_PROCS		(1)
+#define MAX_MLOCKMANY_PROCS		(1000000)
 
 static const stress_help_t help[] = {
 	{ NULL,	"mlockmany N",	   	"start N workers exercising many mlock/munlock processes" },
@@ -35,7 +38,7 @@ static const stress_help_t help[] = {
 };
 
 static const stress_opt_t opts[] = {
-	{ OPT_mlockmany_procs, "mlockmany-procs", TYPE_ID_SIZE_T, 1, 1000000, NULL },
+	{ OPT_mlockmany_procs, "mlockmany-procs", TYPE_ID_SIZE_T, MIN_MLOCKMANY_PROCS, MAX_MLOCKMANY_PROCS, NULL },
 	END_OPT,
 };
 
@@ -96,19 +99,24 @@ static int stress_mlockmany_child(stress_args_t *args, void *context)
 #if defined(RLIMIT_MEMLOCK)
 	struct rlimit rlim;
 #endif
-	size_t mlock_size, mlockmany_procs = UNSET_MLOCK_PROCS;
+	size_t mlock_size, mlockmany_procs = UNSET_MLOCKMANY_PROCS;
 
 	(void)context;
 
-	(void)stress_get_setting("mlockmany-procs", &mlockmany_procs);
+	if (!stress_get_setting("mlockmany-procs", &mlockmany_procs)) {
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
+			mlockmany_procs = MAX_MLOCKMANY_PROCS;
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
+			mlockmany_procs = MIN_MLOCKMANY_PROCS;
+	}
 
 	stress_set_oom_adjustment(args, true);
 
 	/* Explicitly drop capabilities, makes it more OOM-able */
 	VOID_RET(int, stress_drop_capabilities(args->name));
 
-	if (mlockmany_procs == UNSET_MLOCK_PROCS) {
-		mlockmany_procs = args->instances > 0 ? DEFAULT_MLOCK_PROCS / args->instances : 1;
+	if (mlockmany_procs == UNSET_MLOCKMANY_PROCS) {
+		mlockmany_procs = args->instances > 0 ? DEFAULT_MLOCKMANY_PROCS / args->instances : 1;
 		if (mlockmany_procs < 1)
 			mlockmany_procs = 1;
 	}
