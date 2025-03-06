@@ -21,6 +21,15 @@
 #include "core-pragma.h"
 #include "core-target-clones.h"
 
+#define MIN_FRACTAL_ITERATIONS	(1)
+#define MAX_FRACTAL_ITERATIONS	(65535)
+
+#define MIN_FRACTAL_XSIZE	(64)
+#define MAX_FRACTAL_XSIZE	(1000000)
+
+#define MIN_FRACTAL_YSIZE	(64)
+#define MAX_FRACTAL_YSIZE	(1000000)
+
 /*
  *  Generate fractals in rows, split the row computation
  *  amongst stressor with the next row to be computed shared
@@ -189,10 +198,10 @@ static const char *stress_fractal_method(const size_t i)
 }
 
 static const stress_opt_t opts[] = {
-	{ OPT_fractal_iterations, "fractal-iterations", TYPE_ID_INT32, 1, 65535, NULL },
+	{ OPT_fractal_iterations, "fractal-iterations", TYPE_ID_INT32, MIN_FRACTAL_ITERATIONS, MAX_FRACTAL_ITERATIONS, NULL },
 	{ OPT_fractal_method,     "fractal-method",     TYPE_ID_SIZE_T_METHOD, 0, 0, stress_fractal_method },
-	{ OPT_fractal_xsize,      "fractal-xsize",      TYPE_ID_INT32, 64, 1000000, NULL },
-	{ OPT_fractal_ysize,      "fractal-ysize",      TYPE_ID_INT32, 64, 1000000, NULL },
+	{ OPT_fractal_xsize,      "fractal-xsize",      TYPE_ID_INT32, MIN_FRACTAL_XSIZE, MAX_FRACTAL_XSIZE, NULL },
+	{ OPT_fractal_ysize,      "fractal-ysize",      TYPE_ID_INT32, MIN_FRACTAL_YSIZE, MAX_FRACTAL_YSIZE, NULL },
 	END_OPT,
 };
 
@@ -209,9 +218,24 @@ static int stress_fractal(stress_args_t *args)
 	info = stress_fractal_methods[fractal_method].info;
 	func = stress_fractal_methods[fractal_method].func;
 
-	(void)stress_get_setting("fractal-iterations", &info.iterations);
-	(void)stress_get_setting("fractal-xsize", &info.xsize);
-	(void)stress_get_setting("fractal-ysize", &info.ysize);
+	if (!stress_get_setting("fractal-iterations", &info.iterations)) {
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
+			info.iterations = MAX_FRACTAL_ITERATIONS;
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
+			info.iterations = MIN_FRACTAL_ITERATIONS;
+	}
+	if (!stress_get_setting("fractal-xsize", &info.xsize)) {
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
+			info.xsize = MAX_FRACTAL_XSIZE;
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
+			info.xsize = MIN_FRACTAL_XSIZE;
+	}
+	if (!stress_get_setting("fractal-ysize", &info.ysize)) {
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
+			info.ysize = MAX_FRACTAL_XSIZE;
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
+			info.ysize = MIN_FRACTAL_XSIZE;
+	}
 
 	data_sz = sizeof(*info.data) * (size_t)info.xsize;
 	info.data = stress_mmap_populate(NULL, data_sz, PROT_READ | PROT_WRITE,
