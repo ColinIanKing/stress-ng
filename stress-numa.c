@@ -193,7 +193,12 @@ static int stress_numa(stress_args_t *args)
 	stress_numa_mask_t *numa_mask, *old_numa_mask;
 	unsigned long node = 0;
 
-	(void)stress_get_setting("numa-bytes", &numa_bytes);
+	if (!stress_get_setting("numa-bytes", &numa_bytes)) {
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
+			numa_bytes = MAX_32;
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
+			numa_bytes = MIN_NUMA_MMAP_BYTES;
+	}
 	(void)stress_get_setting("numa-shuffle-addr", &numa_shuffle_addr);
 	(void)stress_get_setting("numa-shuffle-node", &numa_shuffle_node);
 
