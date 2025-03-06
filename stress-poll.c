@@ -104,7 +104,12 @@ static int OPTIMIZE3 stress_poll(stress_args_t *args)
 	int *rnd_fds_index;
 	uint32_t poll_random_us = 0;
 
-	(void)stress_get_setting("poll-fds", &max_fds);
+	if (!stress_get_setting("poll-fds", &max_fds)) {
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
+			max_fds = MAX_POLL_FDS;
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
+			max_fds = MIN_POLL_FDS;
+	}
 	(void)stress_get_setting("poll-random-us", &poll_random_us);
 
 	pipe_fds = (pipe_fds_t *)calloc(max_fds, sizeof(*pipe_fds));
