@@ -359,7 +359,10 @@ static int stress_shm(stress_args_t *args)
 	size_t shm_posix_bytes = DEFAULT_SHM_POSIX_BYTES;
 	size_t shm_posix_objects = DEFAULT_SHM_POSIX_OBJECTS;
 
-	(void)stress_get_setting("shm-mlock", &shm_mlock);
+	if (!stress_get_setting("shm-mlock", &shm_mlock)) {
+		if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+			shm_mlock = true;
+	}
 
 	if (!stress_get_setting("shm-bytes", &shm_posix_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
