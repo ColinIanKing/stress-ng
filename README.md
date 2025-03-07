@@ -706,6 +706,7 @@ stress-ng has found various Kernel, QEMU bugs/regressions, and libc bugs; approp
  * [Performance Prediction of On-NIC Network Functions with Multi-Resource Contention and Traffic Awareness](https://arxiv.org/html/2405.05529v5)
  * [KernelSnitch: Side-Channel Attacks on Kernel Data Structures](https://www.ndss-symposium.org/wp-content/uploads/2025-223-paper.pdf)
  * [A measurement-based approach to analyze the power consumption of the softwarized 5G core](https://arxiv.org/pdf/2502.13879)
+ * [When Radiation Meets Linux: Analyzing Soft Errors in Linux on COTS SoCs under Proton Irradiation](https://arxiv.org/html/2503.03722v1)
 
 I am keen to add to the stress-ng project page any citations to research or
 projects that use stress-ng.  I also appreciate information concerning kernel
