@@ -3755,28 +3755,43 @@ void stress_set_stack_smash_check_flag(const bool flag)
 	stress_stack_check_flag = flag;
 }
 
+static inline bool stress_is_a_pipe(const int fd)
+{
+	struct stat statbuf;
+
+	if (shim_fstat(fd, &statbuf) != 0)
+		return false;
+	if (S_ISFIFO(statbuf.st_mode))
+		return true;
+	return false;
+}
+
 /*
  *  stress_get_tty_width()
  *	get tty column width
  */
 int stress_get_tty_width(void)
 {
-	const int max_width = 80;
+	const int default_width = 80;
 #if defined(HAVE_WINSIZE) &&	\
     defined(TIOCGWINSZ)
 	struct winsize ws;
-	int ret;
+	int ret, fd;
 
-	ret = ioctl(fileno(stdout), TIOCGWINSZ, &ws);
+	if (stress_is_a_pipe(fileno(stdout)))
+		fd = fileno(stdin);
+	else
+		fd = fileno(stdout);
+
+	ret = ioctl(fd, TIOCGWINSZ, &ws);
 	if (UNLIKELY(ret < 0))
-		return max_width;
+		return default_width;
 	ret = (int)ws.ws_col;
 	if (UNLIKELY((ret <= 0) || (ret > 1024)))
-		return max_width;
+		return default_width;
 	return ret;
 #else
-	UNEXPECTED
-	return max_width;
+	return default_width;
 #endif
 }
 
