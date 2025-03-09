@@ -25,13 +25,14 @@
 #include "core-cpu-cache.h"
 #include "core-put.h"
 
-#define MIN_PREFETCH_L3_SIZE      (4 * KB)
-#define MAX_PREFETCH_L3_SIZE      (MAX_MEM_LIMIT)
-#define DEFAULT_PREFETCH_L3_SIZE  (4 * MB)
+#define MIN_PREFETCH_L3_SIZE		(4 * KB)
+#define MAX_PREFETCH_L3_SIZE		(MAX_MEM_LIMIT)
+#define DEFAULT_PREFETCH_L3_SIZE	(4 * MB)
 
-#define STRESS_PREFETCH_OFFSETS	(128)
-#define STRESS_CACHE_LINE_SIZE	(64)
+#define STRESS_PREFETCH_OFFSETS		(128)
+#define STRESS_CACHE_LINE_SIZE		(64)
 
+#define STRESS_PTRU64_ADD(ptru64, inc)	(uint64_t *)(((uintptr_t)(ptru64)) + inc)
 
 static const stress_help_t help[] = {
 	{ NULL,	"prefetch N",		"start N workers exercising memory prefetching " },
@@ -170,12 +171,12 @@ static inline void stress_prefetch_none(const void *addr)
 			checksum += *(ptr + 1);				\
 			checksum += *(ptr + 2);				\
 			checksum += *(ptr + 3);				\
-			pre_ptr += 8;					\
+			pre_ptr = STRESS_PTRU64_ADD(pre_ptr, STRESS_CACHE_LINE_SIZE); \
 			checksum += *(ptr + 4);				\
 			checksum += *(ptr + 5);				\
 			checksum += *(ptr + 6);				\
 			checksum += *(ptr + 7);				\
-			ptr += 8;					\
+			ptr = STRESS_PTRU64_ADD(ptr, STRESS_CACHE_LINE_SIZE); \
 		}							\
 		if (UNLIKELY(checksum != checksum_sane)) {		\
 			pr_fail("%s: %s method: checksum failure, got "	\
@@ -191,12 +192,12 @@ static inline void stress_prefetch_none(const void *addr)
 			(void)(*(ptr + 1));				\
 			(void)(*(ptr + 2));				\
 			(void)(*(ptr + 3));				\
-			pre_ptr += 8;					\
+			pre_ptr = STRESS_PTRU64_ADD(pre_ptr, STRESS_CACHE_LINE_SIZE); \
 			(void)(*(ptr + 4));				\
 			(void)(*(ptr + 5));				\
 			(void)(*(ptr + 6));				\
 			(void)(*(ptr + 7));				\
-			ptr += 8;					\
+			ptr = STRESS_PTRU64_ADD(ptr, STRESS_CACHE_LINE_SIZE); \
 		}							\
 	}
 
@@ -222,11 +223,11 @@ static inline void OPTIMIZE3 stress_prefetch_benchmark(
 
 	/* Benchmark loop */
 	ptr = l3_data;
-	pre_ptr = l3_data + prefetch_info[i].offset;
+	pre_ptr = STRESS_PTRU64_ADD(l3_data, prefetch_info[i].offset);
 	t1 = stress_time_now();
 	while (ptr < l3_data_end) {
-		ptr += 8;
-		pre_ptr += 8;
+		ptr = STRESS_PTRU64_ADD(ptr, STRESS_CACHE_LINE_SIZE);
+		pre_ptr = STRESS_PTRU64_ADD(pre_ptr, STRESS_CACHE_LINE_SIZE);
 		stress_asm_mb();
 	}
 	t2 = stress_time_now();
@@ -366,7 +367,7 @@ static int stress_prefetch(stress_args_t *args)
 	}
 	stress_set_vma_anon_name(l3_data, l3_data_mmap_size, "l3data");
 
-	l3_data_end = (uint64_t *)((uintptr_t)l3_data + l3_data_size);
+	l3_data_end = STRESS_PTRU64_ADD(l3_data, l3_data_size);
 	checksum_sane = stress_prefetch_data_set(l3_data, l3_data_end);
 
 	for (i = 0; i < SIZEOF_ARRAY(prefetch_info); i++) {
