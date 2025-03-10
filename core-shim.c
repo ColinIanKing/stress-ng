@@ -2337,8 +2337,10 @@ int shim_gettimeofday(struct timeval *tv, struct timezone *tz)
  */
 int shim_close_range(unsigned int fd, unsigned int max_fd, unsigned int flags)
 {
-#if defined(__NR_close_range) &&	\
-    defined(HAVE_SYSCALL)
+#if defined(HAVE_CLOSE_RANGE)
+	return close_range(fd, max_fd, flags);
+#elif defined(__NR_close_range) &&	\
+      defined(HAVE_SYSCALL)
 	return (int)syscall(__NR_close_range, fd, max_fd, flags);
 #else
 	return (int)shim_enosys(0, fd, max_fd, flags);
