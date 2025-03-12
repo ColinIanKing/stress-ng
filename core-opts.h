@@ -1615,6 +1615,9 @@ typedef enum {
 	OPT_udp_flood_domain,
 	OPT_udp_flood_if,
 
+	OPT_umask,
+	OPT_umask_ops,
+
 	OPT_umount,
 	OPT_umount_ops,
 

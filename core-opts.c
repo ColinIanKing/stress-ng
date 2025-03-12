@@ -1153,6 +1153,8 @@ const struct option stress_long_options[] = {
 	{ "udp-flood-domain",	1,	0,	OPT_udp_flood_domain },
 	{ "udp-flood-if",	1,	0,	OPT_udp_flood_if },
 	{ "udp-flood-ops",	1,	0,	OPT_udp_flood_ops },
+	{ "umask",		1,	0,	OPT_umask },
+	{ "umask-ops",		1,	0,	OPT_umask_ops },
 	{ "umount",		1,	0,	OPT_umount },
 	{ "umount-ops",		1,	0,	OPT_umount_ops },
 	{ "unlink",		1,	0,	OPT_unlink },

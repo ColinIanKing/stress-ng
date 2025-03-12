@@ -349,6 +349,7 @@
 	MACRO(tun)		\
 	MACRO(udp)		\
 	MACRO(udp_flood)	\
+	MACRO(umask)		\
 	MACRO(umount)		\
 	MACRO(unlink)		\
 	MACRO(unshare)		\

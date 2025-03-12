@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "6 March 2025"
+.TH STRESS-NG 1 "12 March 2025"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -8640,6 +8640,18 @@ up or does not support the domain then the loopback (lo) interface is used as th
 .TP
 .B \-\-udp\-flood\-ops N
 stop udp-flood stress workers after N bogo operations.
+.RE
+.TP
+.B File umask stressor
+.RS 5
+.TQ
+.B \-\-umask N
+start N workers that exercise setting umask and creating/fstat'ing/closing/unlinking a
+file and checking the file mode is set correctly. This exercises umask mask values
+from octal 0000 to 0777 inclusive.
+.TP
+.B \-\-umask\-ops N
+stop after N rounds of exercising umask values 0000 to 0777.
 .RE
 .TP
 .B Umount stressor
