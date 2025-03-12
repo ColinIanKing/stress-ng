@@ -869,6 +869,7 @@ static inline int stress_matrix_exercise(
 		pr_fail("%s: matrix allocation failed, out of memory\n", args->name);
 		goto tidy_ret;
 	}
+	stress_madvise_collapse(a, matrix_mmap_size);
 	stress_set_vma_anon_name(a, matrix_mmap_size, "matrix-a");
 
 	b = (matrix_ptr_t)stress_mmap_populate(NULL, matrix_mmap_size,
@@ -877,6 +878,7 @@ static inline int stress_matrix_exercise(
 		pr_fail("%s: matrix allocation failed, out of memory\n", args->name);
 		goto tidy_a;
 	}
+	stress_madvise_collapse(b, matrix_mmap_size);
 	stress_set_vma_anon_name(b, matrix_mmap_size, "matrix-b");
 
 	r = (matrix_ptr_t)stress_mmap_populate(NULL, matrix_mmap_size,
@@ -885,6 +887,7 @@ static inline int stress_matrix_exercise(
 		pr_fail("%s: matrix allocation failed, out of memory\n", args->name);
 		goto tidy_b;
 	}
+	stress_madvise_collapse(r, matrix_mmap_size);
 	stress_set_vma_anon_name(r, matrix_mmap_size, "matrix-r");
 
 	if (verify) {
@@ -894,6 +897,8 @@ static inline int stress_matrix_exercise(
 			pr_fail("%s: matrix allocation failed, out of memory\n", args->name);
 			goto tidy_r;
 		}
+		stress_madvise_collapse(s, matrix_mmap_size);
+		stress_set_vma_anon_name(r, matrix_mmap_size, "matrix-s");
 	}
 
 	/*
