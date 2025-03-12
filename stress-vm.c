@@ -98,8 +98,11 @@ static const stress_vm_madvise_info_t vm_madvise_info[] = {
 	/* No MADVISE, default to normal, ignored */
 	{ "normal",	0 },
 #else
+#if defined(MADV_COLLAPSE)
+	{ "collapse",	MADV_COLLAPSE },
+#endif
 #if defined(MADV_DONTNEED)
-	{ "dontneed",	MADV_DONTNEED},
+	{ "dontneed",	MADV_DONTNEED },
 #endif
 #if defined(MADV_HUGEPAGE)
 	{ "hugepage",	MADV_HUGEPAGE },
