@@ -783,6 +783,10 @@ mappings_unmap:
 						if (stress_mwc1()) {
 							if (shim_madvise((void *)(ptr + j), page_size, MADV_REMOVE) == 0)
 								mmap_stats->madvise_pages += 1;
+#if defined(MADV_RANDOM)
+							else if (shim_madvise((void *)(ptr + j), 0, MADV_RANDOM) == 0)
+								mmap_stats->madvise_pages += 1;
+#endif
 						}
 						(void)stress_munmap_retry_enomem((void *)(ptr + j), page_size);
 					}
