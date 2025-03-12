@@ -8,12 +8,12 @@ stress-ng will stress test a computer system in various selectable ways. It
 was designed to exercise various physical subsystems of a computer as well as
 the various operating system kernel interfaces. Stress-ng features:
 
-  * 350+ stress tests
-  * 80+ CPU specific stress tests that exercise floating point, integer,
+  * 360+ stress tests
+  * 100+ CPU specific stress tests that exercise floating point, integer,
     bit manipulation and control flow
-  * 20+ virtual memory stress tests
-  * 40+ file system stress tests
-  * 30+ memory/CPU cache stress tests
+  * 60+ virtual memory stress tests
+  * 80+ file system stress tests
+  * 50+ memory/CPU cache stress tests
   * portable: builds on Linux (Debian, Devuan, RHEL, Fedora, Centos, Slackware
     OpenSUSE, Ubuntu, etc..), Solaris, FreeBSD, NetBSD, OpenBSD, DragonFlyBSD,
     Minix, Android, MacOS X, Serenity OS, GNU/Hurd, Haiku, Windows Subsystem
