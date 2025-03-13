@@ -21,7 +21,8 @@
 
 extern int stress_madvise_random(void *addr, const size_t length);
 extern int stress_madvise_mergeable(void *addr, const size_t length);
-extern int stress_madvise_collapse(void *addr, size_t len);
+extern int stress_madvise_collapse(void *addr, size_t length);
+extern int stress_madvise_nohugepage(void *addr, const size_t length);
 extern void stress_madvise_pid_all_pages(const pid_t pid, const int advise);
 
 #endif

@@ -121,8 +121,8 @@ int stress_madvise_random(void *addr, const size_t length)
  */
 int stress_madvise_mergeable(void *addr, const size_t length)
 {
-#if defined(MADV_MERGEABLE) && \
-    defined(HAVE_MADVISE)
+#if defined(HAVE_MADVISE) &&	\
+    defined(MADV_MERGEABLE)
 	return madvise(addr, length, MADV_MERGEABLE);
 #else
 	(void)addr;
@@ -135,11 +135,27 @@ int stress_madvise_mergeable(void *addr, const size_t length)
  *  stress_madvise_collapse()
  *	where possible collapse mapping into THP
  */
-int stress_madvise_collapse(void *addr, size_t len)
+int stress_madvise_collapse(void *addr, size_t length)
 {
 #if defined(HAVE_MADVISE) &&	\
     defined(MADV_COLLAPSE)
-	return madvise(addr, len, MADV_COLLAPSE);
+	return madvise(addr, length, MADV_COLLAPSE);
+#else
+	(void)addr;
+	(void)length;
+	return 0;
+#endif
+}
+
+/*
+ *  stress_madvise_nohugepage()
+ *	apply MADV_NOHUGEPAGE to force as many PTEs as possible
+ */
+int stress_madvise_nohugepage(void *addr, const size_t length)
+{
+#if defined(HAVE_MADVISE) && \
+    defined(MADV_NOHUGEPAGE)
+	return madvise(addr, length, MADV_NOHUGEPAGE);
 #else
 	(void)addr;
 	(void)length;
