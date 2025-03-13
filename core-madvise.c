@@ -132,6 +132,22 @@ int stress_madvise_mergeable(void *addr, const size_t length)
 }
 
 /*
+ *  stress_madvise_collapse()
+ *	where possible collapse mapping into THP
+ */
+int stress_madvise_collapse(void *addr, size_t len)
+{
+#if defined(HAVE_MADVISE) &&	\
+    defined(MADV_COLLAPSE)
+	return madvise(addr, len, MADV_COLLAPSE);
+#else
+	(void)addr;
+	(void)length;
+	return 0;
+#endif
+}
+
+/*
  *  stress_madvise_pid_all_pages()
  *	apply madvise advise to all pages in a progress
  */

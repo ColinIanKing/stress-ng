@@ -997,7 +997,7 @@ static int stress_memrate_child(stress_args_t *args, void *ctxt)
 		return EXIT_NO_RESOURCE;
 
 	stress_set_vma_anon_name(buffer, context->memrate_bytes, "memrate-buffer");
-	stress_madvise_collapse(buffer, context->memrate_bytes);
+	(void)stress_madvise_collapse(buffer, context->memrate_bytes);
 	buffer_end = (uint8_t *)buffer + context->memrate_bytes;
 	stress_memrate_init_data(buffer, buffer_end);
 

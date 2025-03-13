@@ -5185,15 +5185,3 @@ PRAGMA_UNROLL_N(8)
 	}
 	return false;
 }
-
-/*
- *  stress_madvise_collapse()
- *	where possible collapse mapping into THP
- */
-void stress_madvise_collapse(void *addr, size_t len)
-{
-#if defined(HAVE_MADVISE) &&	\
-    defined(MADV_COLLAPSE)
-	(void)madvise(addr, len, MADV_COLLAPSE);
-#endif
-}
