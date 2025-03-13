@@ -18,9 +18,10 @@
  *
  */
 #include "stress-ng.h"
+#include "core-madvise.h"
+#include "core-pragma.h"
 #include "core-sort.h"
 #include "core-target-clones.h"
-#include "core-pragma.h"
 
 #define THRESH 63
 
@@ -305,6 +306,7 @@ static int OPTIMIZE3 stress_qsort(stress_args_t *args)
 			"skipping stressor\n", args->name, n, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
+	(void)stress_madvise_collapse(data, data_size);
 	stress_set_vma_anon_name(data, data_size, "qsort-data");
 
 	ret = sigsetjmp(jmp_env, 1);
