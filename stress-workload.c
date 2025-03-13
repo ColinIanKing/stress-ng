@@ -25,6 +25,7 @@
 #include "core-asm-generic.h"
 #include "core-cpu-cache.h"
 #include "core-builtin.h"
+#include "core-madvise.h"
 #include "core-pthread.h"
 #include "core-put.h"
 #include "core-sched.h"
@@ -899,6 +900,7 @@ static int stress_workload(stress_args_t *args)
 			"skipping stressor\n", args->name, buffer_len);
 		return EXIT_NO_RESOURCE;
 	}
+	(void)stress_madvise_nohugepage(buffer, buffer_len);
 	stress_set_vma_anon_name(buffer, buffer_len, "workload-buffer");
 
 	if (workload_threads > 0) {
