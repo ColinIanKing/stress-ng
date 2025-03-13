@@ -17,6 +17,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-madvise.h"
 #include "core-sort.h"
 
 #define MIN_INSERTIONSORT_SIZE		(1 * KB)
@@ -98,7 +99,7 @@ static int stress_insertionsort(stress_args_t *args)
 {
 	uint64_t insertionsort_size = DEFAULT_INSERTIONSORT_SIZE;
 	int32_t *data, *ptr;
-	size_t n, i;
+	size_t n, i, data_size;
 	struct sigaction old_action;
 	int ret;
 	double rate;
@@ -112,12 +113,18 @@ static int stress_insertionsort(stress_args_t *args)
 			insertionsort_size = MIN_INSERTIONSORT_SIZE;
 	}
 	n = (size_t)insertionsort_size;
+	data_size = n * sizeof(*data);
 
-	if ((data = (int32_t *)calloc(n, sizeof(*data))) == NULL) {
-		pr_inf_skip("%s: failed to allocate %zu integers, skipping stressor\n",
-			args->name, n);
+	data = (int32_t *)stress_mmap_populate(NULL, data_size,
+				PROT_READ | PROT_WRITE,
+				MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+	if (data == MAP_FAILED) {
+		pr_inf_skip("%s: mmap failed allocating %zu 32 bit integers, "
+			"skipping stressor\n", args->name, n);
 		return EXIT_NO_RESOURCE;
 	}
+	(void)stress_madvise_collapse(data, data_size);
+	stress_set_vma_anon_name(data, data_size, "insertionsort-data");
 
 	ret = sigsetjmp(jmp_env, 1);
 	if (ret) {
@@ -219,7 +226,7 @@ tidy:
 	stress_metrics_set(args, 1, "insertionsort comparisons per item",
 		count / sorted, STRESS_METRIC_HARMONIC_MEAN);
 
-	free(data);
+	(void)munmap((void *)data, data_size);
 
 	return rc;
 }
