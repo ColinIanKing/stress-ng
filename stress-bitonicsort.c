@@ -17,6 +17,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-madvise.h"
 #include "core-pragma.h"
 #include "core-sort.h"
 
@@ -122,7 +123,7 @@ static int OPTIMIZE3 stress_bitonicsort(stress_args_t *args)
 {
 	uint64_t bitonicsort_size = DEFAULT_BITONICSORT_SIZE;
 	int32_t *data, *ptr;
-	size_t n;
+	size_t n, data_size;
 	struct sigaction old_action;
 	int ret;
 	NOCLOBBER int rc = EXIT_SUCCESS;
@@ -137,13 +138,18 @@ static int OPTIMIZE3 stress_bitonicsort(stress_args_t *args)
 			bitonicsort_size = MIN_BITONICSORT_SIZE;
 	}
 	n = (size_t)bitonicsort_size;
+	data_size = n * sizeof(*data);
 
-	if ((data = (int32_t *)calloc(n, sizeof(*data))) == NULL) {
-		pr_inf_skip("%s: malloc failed to allocate %zu integers, "
+	data = (int32_t *)stress_mmap_populate(NULL, data_size,
+				PROT_READ | PROT_WRITE,
+				MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+	if (data == MAP_FAILED) {
+		pr_inf_skip("%s: mmap failed allocating %zu 32 bit integers, "
 			"skipping stressor\n", args->name, n);
 		return EXIT_NO_RESOURCE;
 	}
-
+	(void)stress_madvise_collapse(data, data_size);
+	stress_set_vma_anon_name(data, data_size, "qsort-data");
 
 	ret = sigsetjmp(jmp_env, 1);
 	if (ret) {
@@ -259,7 +265,7 @@ tidy:
 	stress_metrics_set(args, 1, "bitonicsort comparisons per item",
 		count / sorted, STRESS_METRIC_HARMONIC_MEAN);
 
-	free(data);
+	(void)munmap((void *)data, data_size);
 
 	return rc;
 }
