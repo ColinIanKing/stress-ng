@@ -491,10 +491,15 @@ stress-ng has found various Kernel, QEMU bugs/regressions, and libc bugs; approp
 * [sched/numa: Fix the potential null pointer dereference in task_numa_work()](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?9c70b2a33cd2aa6a5a59c5523ef053bd42265209)
 * [reiserfs panic using fsize stressor](https://bugzilla.kernel.org/show_bug.cgi?id=219497)
 * [soft-lockups: mm/page_alloc: add cond_resched in __drain_all_pages()](https://lore.kernel.org/linux-mm/3b000941-b1b6-befa-4ec9-2bff63d557c1@google.com/T/)]
+* [can: m_can: fix missed interrupts with m_can_pci](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=743375f8deee360b0e902074bab99b0c9368d42f)
+* [sched/deadline: Fix warning in migrate_enable for boosted tasks](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=0664e2c311b9fa43b33e3e81429cd0c2d7f9c638)
+* [iomap: elide flush from partial eof zero range](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=fde4c4c3ec1c1590eb09f97f9525fa7dd8df8343)
 
 2025:
 * [Tegra Security Engine driver improvements](https://www.spinics.net/lists/kernel/msg5546707.html)
 * [sched_ext: Fix lock imbalance in dispatch_to_local_dsq()](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=1626e5ef0b00386a4fd083fa7c46c8edbd75f9b4)
+* [mm/zswap: fix inconsistency when zswap_store_page() fails](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=63895d20d63b446f5049a963983489319c2ea3e2)
+* [LoongArch: Set max_pfn with the PFN of the last page](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=c8477bb0a8e7f6b2e47952b403c5cb67a6929e55)
 
 ## Kernel improvements that used stress-ng
 
