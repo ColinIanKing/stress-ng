@@ -17,6 +17,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-madvise.h"
 #include "core-sort.h"
 #include "core-pragma.h"
 
@@ -156,7 +157,7 @@ static int stress_bubblesort(stress_args_t *args)
 {
 	uint64_t bubblesort_size = DEFAULT_HEAPSORT_SIZE;
 	int32_t *data, *ptr;
-	size_t n, i, bubblesort_method = 0;
+	size_t n, i, data_size, bubblesort_method = 0;
 	struct sigaction old_action;
 	int ret;
 	double rate;
@@ -178,13 +179,18 @@ static int stress_bubblesort(stress_args_t *args)
 			bubblesort_size = MIN_HEAPSORT_SIZE;
 	}
 	n = (size_t)bubblesort_size;
+	data_size = n * sizeof(*data);
 
-	if ((data = (int32_t *)calloc(n, sizeof(*data))) == NULL) {
-		pr_inf_skip("%s: failed to allocate %zu integers, skipping stressor\n",
-			args->name, n);
+	data = (int32_t *)stress_mmap_populate(NULL, data_size,
+				PROT_READ | PROT_WRITE,
+				MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+	if (data == MAP_FAILED) {
+		pr_inf_skip("%s: mmap failed allocating %zu 32 bit integers, "
+				"skipping stressor\n", args->name, n);
 		return EXIT_NO_RESOURCE;
 	}
-
+	(void)stress_madvise_collapse(data, data_size);
+	stress_set_vma_anon_name(data, data_size, "bubblesort-data");
 
 	ret = sigsetjmp(jmp_env, 1);
 	if (ret) {
@@ -305,7 +311,7 @@ tidy:
 	stress_metrics_set(args, 1, "bubblesort comparisons per item",
 		count / sorted, STRESS_METRIC_HARMONIC_MEAN);
 
-	free(data);
+	(void)munmap((void *)data, data_size);
 
 	return rc;
 }
