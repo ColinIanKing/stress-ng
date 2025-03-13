@@ -149,7 +149,7 @@ static int OPTIMIZE3 stress_bitonicsort(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 	(void)stress_madvise_collapse(data, data_size);
-	stress_set_vma_anon_name(data, data_size, "qsort-data");
+	stress_set_vma_anon_name(data, data_size, "bitonicsort-data");
 
 	ret = sigsetjmp(jmp_env, 1);
 	if (ret) {
