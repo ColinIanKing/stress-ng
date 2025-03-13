@@ -518,7 +518,7 @@ static int stress_fma(stress_args_t *args)
 		pr_inf("%s: libc fma functions not available, defaulting "
 			"to non-libc fma operations\n", args->name);
 	}
-	fma_func_array = &stress_fma_funcs;
+	fma_func_array = stress_fma_funcs;
 #endif
 
 	stress_catch_sigill();
