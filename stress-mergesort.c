@@ -18,8 +18,9 @@
  *
  */
 #include "stress-ng.h"
-#include "core-sort.h"
 #include "core-builtin.h"
+#include "core-madvise.h"
+#include "core-sort.h"
 #include "core-target-clones.h"
 
 #define MIN_MERGESORT_SIZE	(1 * KB)
@@ -278,6 +279,7 @@ static int stress_mergesort(stress_args_t *args)
 			args->name, n);
 		return EXIT_NO_RESOURCE;
 	}
+	(void)stress_madvise_collapse(data, data_size);
 	stress_set_vma_anon_name(data, data_size, "mergesort-data");
 
 	ret = sigsetjmp(jmp_env, 1);
