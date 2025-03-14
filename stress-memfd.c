@@ -56,6 +56,7 @@ static const stress_opt_t opts[] = {
 	{ OPT_memfd_mlock,   "memfd-mlock",   TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_memfd_numa,    "memfd-numa",    TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_memfd_zap_pte, "memfd-zap-pte", TYPE_ID_BOOL, 0, 1, NULL },
+	END_OPT
 };
 
 #if defined(HAVE_MEMFD_CREATE)

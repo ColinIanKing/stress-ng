@@ -40,6 +40,7 @@ static const stress_opt_t opts[] = {
 	{ OPT_mmaphuge_mlock, "mmaphuge-mlock", TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_mmaphuge_mmaps, "mmaphuge-mmaps", TYPE_ID_SIZE_T, MIN_MMAPHUGE_MMAPS, MAX_MMAPHUGE_MMAPS, NULL },
 	{ OPT_mmaphuge_numa,  "mmaphuge-numa",  TYPE_ID_BOOL, 0, 1, NULL },
+	END_OPT
 };
 
 #if defined(MAP_HUGETLB)

@@ -895,6 +895,7 @@ static int stress_mmaptorture(stress_args_t *args)
 static const stress_opt_t opts[] = {
         { OPT_mmaptorture_bytes, "mmaptorture-bytes", TYPE_ID_SIZE_T_BYTES_VM, MIN_MMAPTORTURE_BYTES, MAX_MMAPTORTURE_BYTES, NULL },
 	{ OPT_mmaptorture_msync, "mmaptorture-msync", TYPE_ID_UINT32, MIN_MMAPTORTURE_MSYNC, MAX_MMAPTORTURE_MSYNC, NULL },
+	END_OPT
 };
 
 const stressor_info_t stress_mmaptorture_info = {
