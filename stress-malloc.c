@@ -243,7 +243,7 @@ static void *stress_malloc_loop(void *ptr)
 			}
 		} else {
 			if (action && !low_mem) {
-				size_t n, len = stress_alloc_size(malloc_bytes);
+				size_t n, len = stress_alloc_size(malloc_bytes), tmp_align;
 
 				switch (do_calloc) {
 				case 0:
@@ -267,8 +267,11 @@ static void *stress_malloc_loop(void *ptr)
     !defined(__OpenBSD__)
 				case 2:
 					/* C11 aligned allocation */
+					tmp_align = MK_ALIGN(i);
+					/* round len to multiple of alignment */
+					len = (len + tmp_align - 1) & ~(tmp_align - 1);
 					stress_alloc_action("aligned_alloc", len);
-					info[i].addr = aligned_alloc(MK_ALIGN(i), len);
+					info[i].addr = aligned_alloc(tmp_align, len);
 					break;
 #endif
 #if defined(HAVE_MEMALIGN)
