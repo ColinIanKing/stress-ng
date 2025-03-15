@@ -406,7 +406,7 @@ err:
 	return 0;
 }
 
-static const stress_scale_t scales[] = {
+static const stress_scale_t size_scales[] = {
 	{ 'b', 	1ULL },		/* bytes */
 	{ 'k',  1ULL << 10 },	/* kilobytes */
 	{ 'm',  1ULL << 20 },	/* megabytes */
@@ -429,17 +429,17 @@ uint64_t stress_get_uint64_byte_scale(const char *const str)
 		goto illegal;
 	}
 	ch = tolower((int)str[0]);
-	for (i = 1; scales[i].ch; i++) {
-		if (ch == scales[i].ch)
-			return scales[i].scale;
+	for (i = 1; size_scales[i].ch; i++) {
+		if (ch == size_scales[i].ch)
+			return size_scales[i].scale;
 	}
 
 illegal:
 	(void)fprintf(stderr, "Illegal specifier '%s', allower specifiers: ", str);
 err:
 
-	for (i = 1; scales[i].ch; i++) {
-		fprintf(stderr, "%s%c", ((i == 0) ? "" : ", "), scales[i].ch);
+	for (i = 1; size_scales[i].ch; i++) {
+		fprintf(stderr, "%s%c", ((i == 0) ? "" : ", "), size_scales[i].ch);
 	}
 	fprintf(stderr, "\n");
 	longjmp(g_error_env, 1);
@@ -456,7 +456,7 @@ uint64_t stress_get_uint64_byte(const char *const str)
 	size_t llc_size = 0, cache_line_size = 0;
 
 	if (strncasecmp(str, "L", 1) != 0)
-		return stress_get_uint64_scale(str, scales, "length");
+		return stress_get_uint64_scale(str, size_scales, "length");
 
 	/* Try cache sizes */
 	if (strcasecmp(str, "LLC")  == 0) {
@@ -591,7 +591,7 @@ uint64_t stress_get_uint64_byte_filesystem(
  */
 uint64_t stress_get_uint64_time(const char *const str)
 {
-	static const stress_scale_t scales[] = {
+	static const stress_scale_t time_scales[] = {
 		{ 's', 	1ULL },			/* seconds */
 		{ 'm',  60ULL },		/* minutes */
 		{ 'h',  3600ULL },		/* hours */
@@ -600,7 +600,7 @@ uint64_t stress_get_uint64_time(const char *const str)
 		{ 'y',  31536000 },		/* years */
 	};
 
-	return stress_get_uint64_scale(str, scales, "time");
+	return stress_get_uint64_scale(str, time_scales, "time");
 }
 
 int stress_parse_opt(const char *stressor_name, const char *opt_arg, const stress_opt_t *opt)
