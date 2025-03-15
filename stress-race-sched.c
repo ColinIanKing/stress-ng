@@ -125,7 +125,7 @@ again:
 	case RACE_SCHED_METHOD_ALL:
 		method_index = method_all_index;
 		method_all_index++;
-		if (UNLIKELY(method_all_index > SIZEOF_ARRAY(stress_race_sched_methods)))
+		if (UNLIKELY(method_all_index >= SIZEOF_ARRAY(stress_race_sched_methods)))
 			method_all_index = 1;
 		goto again;
 	case RACE_SCHED_METHOD_NEXT:
