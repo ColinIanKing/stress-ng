@@ -237,8 +237,8 @@ static int stress_uprobe(stress_args_t *args)
 			n = read(fd, data, sizeof(data));
 			if (UNLIKELY(n <= 0))
 				break;
-			if (n >= sizeof(data))
-				n = sizeof(data) - 1;
+			if (n >= (ssize_t)sizeof(data))
+				n = (ssize_t)sizeof(data) - 1;
 			data[n] = '\0';
 			bytes += (double)n;
 
