@@ -82,7 +82,7 @@ static int stress_uprobe_write(const char *path, const int flags, const char *st
  */
 static void *stress_uprobe_libc_start(const pid_t pid, char *libc_path)
 {
-	char path[PATH_MAX], perm[5], buf[1024];
+	char path[PATH_MAX], perm[5], buf[PATH_MAX];
 	FILE *fp;
 	uint64_t start, end, offset, dev_major, dev_minor, inode;
 	void *addr = NULL;
@@ -123,7 +123,7 @@ static void *stress_uprobe_libc_start(const pid_t pid, char *libc_path)
  */
 static int stress_uprobe(stress_args_t *args)
 {
-	char buf[PATH_MAX + 256], libc_path[PATH_MAX];
+	char buf[PATH_MAX + 256], libc_path[PATH_MAX + 1];
 	int ret;
 	char event[128];
 	ptrdiff_t offset;
@@ -237,6 +237,9 @@ static int stress_uprobe(stress_args_t *args)
 			n = read(fd, data, sizeof(data));
 			if (UNLIKELY(n <= 0))
 				break;
+			if (n >= sizeof(data))
+				n = sizeof(data) - 1;
+			data[n] = '\0';
 			bytes += (double)n;
 
 			/*
