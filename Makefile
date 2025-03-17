@@ -117,6 +117,17 @@ override CFLAGS += $(foreach flag,$(PEDANTIC_FLAGS),$(cc_supports_flag))
 endif
 
 #
+# Sanitize flags
+#
+ifeq ($(SANITIZE),1)
+SANITIZE_FLAGS := \
+	-fsanitize=null -fsanitize=bounds-strict -fsanitize=bounds \
+	-fsanitize=object-size -fsanitize=pointer-overflow -fsanitize=builtin \
+	-fsanitize=alignment -fsanitize=object-size
+override CFLAGS += $(foreach flag,$(SANITIZE_FLAGS),$(cc_supports_flag))
+endif
+
+#
 # Test for hardening flags and apply them if applicable
 #
 MACHINE := $(shell make -f Makefile.machine)
