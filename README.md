@@ -746,4 +746,5 @@ Nikolas Kyx, Paul Menzel, Piyush Goyal, Ralf Ramsauer, Rosen Penev,
 Rulin Huang, Sascha Hauer, Sergey Matyukevich, Siddhesh Poyarekar,
 Shoily Rahman, Dominik Steinberger, Stian Onarheim, Thadeu Lima de
 Souza Cascardo, Thia Wyrod, Thinh Tran, Tim Gardner, Tim Gates, Tim Orling,
-Tommi Rantala, Witold Baryluk, Yiwei Lin, Yong-Xuan Wang, Zhiyi Sun.
+Tommi Rantala, Witold Baryluk, Yiwei Lin, Yong-Xuan Wang, Zhiyi Sun,
+Zong Li.
