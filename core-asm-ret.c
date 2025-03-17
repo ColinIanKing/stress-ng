@@ -54,7 +54,7 @@ const stress_ret_opcode_t stress_ret_opcode =
 #elif defined(STRESS_ARCH_PPC64) && defined(STRESS_ARCH_LE)
 	{ 8, 8, "blr; nop", { 0x20, 0x00, 0x80, 0x4e, 0x00, 0x00, 0x00, 0x60 } };
 #elif defined(STRESS_ARCH_RISCV)
-	{ 2, 2, "ret", { 0x82, 0x080 } };
+	{ 8, 8, "lpad 0x0; ret", { 0x17, 0x00, 0x00, 0x00, 0x82, 0x80 } };
 #elif defined(STRESS_ARCH_S390)
 	{ 2, 2, "br %r14", { 0x07, 0xfe } };
 #elif defined(STRESS_ARCH_SH4)
