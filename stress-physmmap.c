@@ -209,6 +209,8 @@ static int stress_physmmap(stress_args_t *args)
 			t2 = stress_time_now();
 	} while (mappable && stress_continue(args));
 done:
+	if (!mappable)
+		pr_inf("%s: unable to mmap any pages from /dev/mem\n", args->name);
 	if ((args->instance == 0) && (t2 > 0.0)) {
 		uint64_t mappable_pages = 0;
 
