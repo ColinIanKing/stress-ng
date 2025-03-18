@@ -212,7 +212,7 @@ done:
 	if (!mappable)
 		pr_inf("%s: unable to mmap any pages from /dev/mem\n", args->name);
 	if ((args->instance == 0) && (t2 > 0.0)) {
-		uint64_t mappable_pages = 0;
+		register size_t mappable_pages = 0;
 
 		mappable_pages = 0;
 		for (physmmap = physmmap_head; physmmap; physmmap = physmmap->next) {
