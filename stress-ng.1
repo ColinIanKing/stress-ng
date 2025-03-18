@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "12 March 2025"
+.TH STRESS-NG 1 "18 March 2025"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -6022,7 +6022,7 @@ stressors contain simple mutex and memory coherency sanity checks.
 stop peterson workers after N mutex operations.
 .RE
 .TP
-.B Page map stressor
+.B Page mmap stressor
 .RS 5
 .TQ
 .B \-\-physpage N
@@ -6037,6 +6037,19 @@ pages (Linux and x86 only).
 .TP
 .B \-\-physpage\-ops N
 stop physpage stress workers after N bogo physical address lookups.
+.RE
+.TP
+.B Physical page mmap stressor (using /dev/mem)
+.RS 5
+.TQ
+.B \-\-physmmap N
+start N workers that try to mmap available System RAM (as specified by /proc/iomem)
+using /dev/mem and randomized private or shared pages. This requires CAP_SYS_ADMIN
+capabilities to fully read /proc/iomem and mmap onto /dev/mem. Note systems may
+be fully locked down and mmapping onto /dev/mem is impossible.
+.TP
+.B \-\-physmmap\-ops N
+stop physmmap stress workers after N bogo mmap attempts.
 .RE
 .TP
 .B Process signals (pidfd_send_signal) stressor

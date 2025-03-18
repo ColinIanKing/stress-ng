@@ -225,6 +225,7 @@
 	MACRO(personality)	\
 	MACRO(peterson)		\
 	MACRO(physpage)		\
+	MACRO(physmmap)		\
 	MACRO(pidfd)		\
 	MACRO(ping_sock)	\
 	MACRO(pipe)		\

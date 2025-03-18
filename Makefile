@@ -549,6 +549,7 @@ STRESS_SRC = \
 	stress-personality.c \
 	stress-peterson.c \
 	stress-physpage.c \
+	stress-physmmap.c \
 	stress-pidfd.c \
 	stress-ping-sock.c \
 	stress-pipe.c \

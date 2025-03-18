@@ -736,6 +736,8 @@ const struct option stress_long_options[] = {
 	{ "physpage",		1,	0,	OPT_physpage },
 	{ "physpage-mtrr",	0,	0,	OPT_physpage_mtrr },
 	{ "physpage-ops",	1,	0,	OPT_physpage_ops },
+	{ "physmmap",		1,	0,	OPT_physmmap },
+	{ "physmmap-ops",	1,	0,	OPT_physmmap_ops },
 	{ "pidfd",		1,	0,	OPT_pidfd },
 	{ "pidfd-ops",		1,	0,	OPT_pidfd_ops },
 	{ "ping-sock",		1,	0,	OPT_ping_sock },
