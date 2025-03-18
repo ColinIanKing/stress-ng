@@ -31,6 +31,7 @@ static const stress_help_t help[] = {
 
 typedef struct stress_physmmap {
 	uintptr_t	addr;		/* address range begin */
+	size_t		region_size;	/* end - begin */
 	size_t		pages;		/* pages in range */
 	uint64_t	*bitmap;	/* bitmap, 1 = mmap, 0 = don't mmap */
 	size_t		bitmap_size;	/* size of bitmap in bytes */
@@ -85,7 +86,8 @@ static stress_physmmap_t *stress_physmmap_get_ranges(stress_args_t *args)
 			new_physmmap = malloc(sizeof(*new_physmmap));
 			if (!new_physmmap)
 				break;
-			new_physmmap->pages = (addr_end - addr_begin) / args->page_size;
+			new_physmmap->region_size = addr_end - addr_begin;
+			new_physmmap->pages = new_physmmap->region_size / args->page_size;
 			new_physmmap->bitmap_size = (new_physmmap->pages + bitmap_obj_size - 1) & ~(bitmap_obj_size - 1);
 			new_physmmap->bitmap = malloc(new_physmmap->bitmap_size);
 			if (!new_physmmap->bitmap) {
@@ -128,6 +130,17 @@ static void stress_physmmap_free_ranges(stress_physmmap_t *head)
 	}
 }
 
+static int stress_physmmap_flags(void)
+{
+	int flags;
+
+	flags = stress_mwc1() ? MAP_SHARED : MAP_PRIVATE;
+#if defined(MAP_POPULATE)
+	flags |= stress_mwc1() ? 0 : MAP_POPULATE;
+#endif
+	return flags;
+}
+
 /*
  *  stress_physmmap()
  *	stress physical page lookups
@@ -137,7 +150,7 @@ static int stress_physmmap(stress_args_t *args)
 	int fd_mem;
 	const size_t page_size = args->page_size;
 	stress_physmmap_t *physmmap_head, *physmmap;
-	uint64_t map_success = 0, map_failed = 0;
+	uint64_t mmaps_succeed = 0, mmaps_failed = 0;
 	double t1, t2;
 	size_t total_pages = 0;
 	bool mappable = false;
@@ -173,35 +186,53 @@ static int stress_physmmap(stress_args_t *args)
 			register size_t i;
 			register uintptr_t offset = physmmap->addr;
 			register bool physmmap_mappable;
+			void *ptr_all;
+			int flags;
 
+			if (!stress_continue(args))
+				goto done;
 			if (!physmmap->mappable)
 				continue;
 
+			/*
+			 *  Attempt to mmap the entire region in one go
+			 */
+			flags = stress_physmmap_flags();
+			ptr_all = mmap(NULL, physmmap->region_size, PROT_READ, flags, fd_mem, (off_t)offset);
+
+			/*
+			 *  Attempt to mmap the region page by page
+			 */
 			physmmap_mappable = false;
 			for (i = 0; (i < physmmap->pages); i++, offset += page_size) {
 				void *ptr;
-				int flags;
 
 				if (!stress_continue(args))
-					goto done;
+					break;
 
-				flags = stress_mwc1() ? MAP_SHARED : MAP_PRIVATE;
-#if defined(MAP_POPULATE)
-				flags |= stress_mwc1() ? 0 : MAP_POPULATE;
-#endif
 				if (!STRESS_GETBIT(physmmap->bitmap, i))
 					continue;
+
+				flags = stress_physmmap_flags();
 				ptr = mmap(NULL, page_size, PROT_READ, flags, fd_mem, (off_t)offset);
 				if (ptr != MAP_FAILED) {
-					map_success++;
+					mmaps_succeed++;
 					mappable = true;
 					physmmap_mappable = true;
 					(void)munmap(ptr, page_size);
 				} else {
-					map_failed++;
+					mmaps_failed++;
 					STRESS_CLRBIT(physmmap->bitmap, i);
 				}
 				stress_bogo_inc(args);
+			}
+			if (ptr_all != MAP_FAILED) {
+				mmaps_succeed++;
+				mappable = true;
+				physmmap_mappable = true;
+				(void)munmap(ptr_all, physmmap->region_size);
+			} else {
+				mmaps_failed++;
 			}
 			physmmap->mappable = physmmap_mappable;
 		}
@@ -229,8 +260,8 @@ done:
 			args->name, t2 - t1, total_pages, mappable_pages);
 	}
 
-	stress_metrics_set(args, 0, "/dev/kmem pages mmapped", (double)map_success, STRESS_METRIC_TOTAL);
-	stress_metrics_set(args, 1, "/dev/kmem pages not mmappable", (double)map_failed , STRESS_METRIC_TOTAL);
+	stress_metrics_set(args, 0, "/dev/kmem mmaps succeed", (double)mmaps_succeed, STRESS_METRIC_TOTAL);
+	stress_metrics_set(args, 1, "/dev/kmem mmaps failed", (double)mmaps_failed , STRESS_METRIC_TOTAL);
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
