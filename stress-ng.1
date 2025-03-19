@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "18 March 2025"
+.TH STRESS-NG 1 "19 March 2025"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -6050,6 +6050,9 @@ be fully locked down and mmapping onto /dev/mem is impossible.
 .TP
 .B \-\-physmmap\-ops N
 stop physmmap stress workers after N bogo mmap attempts.
+.TP
+.B \-\-physmmap\-read
+perform 64 bit reads of all the data in each mmap'd page.
 .RE
 .TP
 .B Process signals (pidfd_send_signal) stressor

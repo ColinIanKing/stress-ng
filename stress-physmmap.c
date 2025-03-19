@@ -20,11 +20,18 @@
 #include "core-arch.h"
 #include "core-builtin.h"
 #include "core-capabilities.h"
+#include "core-pragma.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"physmmap N",	  "start N workers performing /dev/mem physical page mmaps/munmaps" },
 	{ NULL,	"physmmap-ops N", "stop after N /dev/mem physical page mmap/munmap bogo operations" },
+	{ NULL, "physmmap-read",  "read data from mappping" },
 	{ NULL,	NULL,		  NULL }
+};
+
+static const stress_opt_t opts[] = {
+	{ OPT_physmmap_read, "physmmap-read", TYPE_ID_BOOL, 0, 1, NULL },
+	END_OPT,
 };
 
 #if defined(__linux__)
@@ -141,6 +148,25 @@ static int stress_physmmap_flags(void)
 	return flags;
 }
 
+static inline void stress_physmmap_read(void *data, const size_t size)
+{
+	register volatile uint64_t *ptr = (uint64_t *)data;
+	register uint64_t *ptr_end = (uint64_t *)((uintptr_t)data + size);
+
+PRAGMA_UNROLL_N(2)
+	while (ptr < ptr_end) {
+		(void)*(ptr + 0);
+		(void)*(ptr + 1);
+		(void)*(ptr + 2);
+		(void)*(ptr + 3);
+		(void)*(ptr + 4);
+		(void)*(ptr + 5);
+		(void)*(ptr + 6);
+		(void)*(ptr + 7);
+		ptr += 8;
+	}
+}
+
 /*
  *  stress_physmmap()
  *	stress physical page lookups
@@ -154,6 +180,9 @@ static int stress_physmmap(stress_args_t *args)
 	double t1, t2;
 	size_t total_pages = 0;
 	bool mappable = false;
+	bool physmmap_read = false;
+
+	(void)stress_get_setting("physmmap-read", &physmmap_read);
 
 	fd_mem = open("/dev/mem", O_RDONLY | O_SYNC);
 	if (fd_mem < 0) {
@@ -216,6 +245,8 @@ static int stress_physmmap(stress_args_t *args)
 				flags = stress_physmmap_flags();
 				ptr = mmap(NULL, page_size, PROT_READ, flags, fd_mem, (off_t)offset);
 				if (ptr != MAP_FAILED) {
+					if (physmmap_read)
+						stress_physmmap_read(ptr, page_size);
 					mmaps_succeed++;
 					mappable = true;
 					physmmap_mappable = true;
@@ -227,6 +258,7 @@ static int stress_physmmap(stress_args_t *args)
 				stress_bogo_inc(args);
 			}
 			if (ptr_all != MAP_FAILED) {
+				stress_physmmap_read(ptr_all, physmmap->region_size);
 				mmaps_succeed++;
 				mappable = true;
 				physmmap_mappable = true;
@@ -276,6 +308,7 @@ const stressor_info_t stress_physmmap_info = {
 	.supported = stress_physmmap_supported,
 	.class = CLASS_VM,
 	.verify = VERIFY_ALWAYS,
+	.opts = opts,
 	.help = help
 };
 #else
@@ -283,6 +316,7 @@ const stressor_info_t stress_physmmap_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_VM,
 	.verify = VERIFY_ALWAYS,
+	.opts = opts,
 	.help = help,
 	.unimplemented_reason = "only supported on Linux"
 };

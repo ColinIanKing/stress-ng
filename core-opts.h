@@ -1065,6 +1065,7 @@ typedef enum {
 
 	OPT_physmmap,
 	OPT_physmmap_ops,
+	OPT_physmmap_read,
 
 	OPT_pidfd,
 	OPT_pidfd_ops,
