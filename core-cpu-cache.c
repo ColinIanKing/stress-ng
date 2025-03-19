@@ -1347,9 +1347,9 @@ void OPTIMIZE3 stress_cpu_data_cache_flush(void *addr, const size_t len)
 		ptr += 64;
 	}
 #elif defined(HAVE_BUILTIN___CLEAR_CACHE)
-	__builtin___clear_cache(addr, addr_end);
+	__builtin___clear_cache(addr, (void *)ptr_end);
 #else
-	__builtin___clear_cache(addr, addr_end);
+	__builtin___clear_cache(addr, (void *)ptr_end);
 	shim_cacheflush(addr, len, SHIM_ICACHE);
 #endif
 }
