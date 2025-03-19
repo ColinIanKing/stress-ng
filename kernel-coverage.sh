@@ -650,7 +650,10 @@ do_stress --prefetch -1 --prefetch-l3-size 16M
 do_stress --pthread -1 --pthread-max 512
 do_stress --pthread -1 --pthread-max 1024
 
+do_stress --physmmap -1 --physmmap-read
+
 do_stress --physpage -1 --physpage-mtrr
+
 
 do_stress --pipeherd -1 --pipeherd-yield
 
