@@ -168,7 +168,7 @@ static const stress_opt_t opts[] = {
 		k = (k >= buffer_size) ? k - buffer_size : k;		\
 									\
 		if ((flags) & CACHE_FLAGS_PREFETCH) {			\
-			shim_builtin_prefetch(&buffer[i + 1], 1, 1);	\
+			shim_builtin_prefetch(&buffer[i + 1], 1, 3);	\
 		}							\
 		if ((flags) & CACHE_FLAGS_CLDEMOTE) {			\
 			SHIM_CLDEMOTE(&buffer[i]);			\
