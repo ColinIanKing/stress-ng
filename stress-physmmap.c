@@ -307,7 +307,7 @@ const stressor_info_t stress_physmmap_info = {
 	.stressor = stress_physmmap,
 	.supported = stress_physmmap_supported,
 	.class = CLASS_VM,
-	.verify = VERIFY_ALWAYS,
+	.verify = VERIFY_NONE,
 	.opts = opts,
 	.help = help
 };
@@ -315,7 +315,7 @@ const stressor_info_t stress_physmmap_info = {
 const stressor_info_t stress_physmmap_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_VM,
-	.verify = VERIFY_ALWAYS,
+	.verify = VERIFY_NONE,
 	.opts = opts,
 	.help = help,
 	.unimplemented_reason = "only supported on Linux"
