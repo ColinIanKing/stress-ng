@@ -715,6 +715,7 @@ stress-ng has found various Kernel, QEMU bugs/regressions, and libc bugs; approp
  * [CINERGY: Reasoning over the Worst Case Power Consumption of Cloud Virtual Machines](https://hal.science/hal-04981001/document)
  * [KernelSnitch: Side-Channel Attacks on Kernel Data Structures](https://www.ndss-symposium.org/wp-content/uploads/2025-223-paper.pdf)
  * [xPUE: Extending Power Usage Effectiveness Metrics for Cloud Infrastructures](https://arxiv.org/pdf/2503.07124)
+ * [FALCON: A Framework for Fault Prediction in Open RAN Using Multi-Level Telemetry](https://arxiv.org/pdf/2503.06197)
 
 I am keen to add to the stress-ng project page any citations to research or
 projects that use stress-ng.  I also appreciate information concerning kernel
