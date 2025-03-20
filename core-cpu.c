@@ -23,6 +23,13 @@
 #include "core-builtin.h"
 #include "core-cpu.h"
 
+#if defined(XMMINTRIN_H)
+#include <ximmintrin.h>
+#endif
+
+#define X86_FP_DAZ		(0x0040UL)
+#define X86_FP_FTZ		(0x8000UL)
+
 	/* Name + dest reg */			/* Input -> Output */
 #define CPUID_sse3_ECX		(1U << 0)	/* EAX=0x1 -> ECX */
 #define CPUID_pclmulqdq_ECX	(1U << 1)	/* EAX=0x1 -> ECX */
@@ -717,3 +724,37 @@ bool stress_cpu_x86_has_avx512_bw(void)
 #endif
 }
 
+/*
+ *  stress_cpu_disable_fp_subnormals
+ *     Floating Point subnormals can be expensive and require
+ *     micro-ops from the Microcode Sequencer ROM. Disabling
+ *     these makes FP ops faster but not strictly IEEE compliant.
+ *     See https://en.wikipedia.org/wiki/Subnormal_number
+ */
+void stress_cpu_disable_fp_subnormals(void)
+{
+#if defined(STRESS_ARCH_X86) &&		\
+    defined(HAVE_IMMINTRIN_H) &&	\
+    defined(HAVE_MM_GETCSR) &&		\
+    defined(HAVE_MM_SETCSR)
+	if (stress_cpu_x86_has_sse())
+		_mm_setcsr(_mm_getcsr() | (X86_FP_DAZ | X86_FP_FTZ));
+#endif
+}
+
+/*
+ *  stress_cpu_enable_fp_subnormals
+ *     Floating Point subnormals can be expensive and require
+ *     micro-ops from the Microcode Sequencer ROM. Enable them to
+ *     be IEEE compliant and slower.
+ */
+void stress_cpu_enable_fp_subnormals(void)
+{
+#if defined(STRESS_ARCH_X86) &&		\
+    defined(HAVE_IMMINTRIN_H) &&	\
+    defined(HAVE_MM_GETCSR) &&		\
+    defined(HAVE_MM_SETCSR)
+	if (stress_cpu_x86_has_sse())
+		_mm_setcsr(_mm_getcsr() & ~(X86_FP_DAZ | X86_FP_FTZ));
+#endif
+}
