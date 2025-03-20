@@ -3088,13 +3088,16 @@ static int OPTIMIZE3 stress_cpu(stress_args_t *args)
 	stress_sync_start_wait(args);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
+
 	/*
 	 * Normal use case, 100% load, simple spinning on CPU
 	 */
 	if (cpu_load == 100) {
+		stress_cpu_disable_fp_subnormals();
 		do {
 			rc = stress_call_cpu_method(cpu_method, args, &counter);
 		} while ((rc == EXIT_SUCCESS) && stress_continue(args));
+		stress_cpu_enable_fp_subnormals();
 
 		stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 		return rc;
@@ -3105,6 +3108,7 @@ static int OPTIMIZE3 stress_cpu(stress_args_t *args)
 	 * not intended to be 100% accurate timing, it is good
 	 * enough for most purposes.
 	 */
+	stress_cpu_disable_fp_subnormals();
 	bias = 0.0;
 	do {
 		double delay_cpu_clock, t1_cpu_clock, t2_cpu_clock;
@@ -3183,6 +3187,7 @@ static int OPTIMIZE3 stress_cpu(stress_args_t *args)
 			bias = (t3_wall_clock - t2_wall_clock) - delay;
 		}
 	} while ((rc == EXIT_SUCCESS) && stress_continue(args));
+	stress_cpu_enable_fp_subnormals();
 
 	if (stress_is_affinity_set() && (args->instance == 0)) {
 		pr_inf("%s: CPU affinity probably set, this can affect CPU loading\n",
