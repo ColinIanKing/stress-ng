@@ -25,6 +25,7 @@
 #include "core-out-of-memory.h"
 #include "core-pragma.h"
 
+#include <ctype.h>
 #include <sched.h>
 
 static const stress_help_t help[] = {
@@ -39,8 +40,68 @@ static const stress_help_t help[] = {
 #define MAX_TLB_PROCS		(8)
 #define MIN_TLB_PROCS		(2)
 #define MMAP_PAGES		(512)
+#define MMAP_FD_PAGES		(4)
 #define STRESS_CACHE_LINE_SHIFT	(6)	/* Typical 64 byte size */
 #define STRESS_CACHE_LINE_SIZE	(1 << STRESS_CACHE_LINE_SHIFT)
+
+/*
+ * stress_tlb_interrupts()
+ *	parse /proc/interrupts for per CPU TLB shootdown count
+ */
+static uint64_t stress_tlb_interrupts(void)
+{
+#if defined(__linux__)
+	FILE *fp;
+	char buffer[8192];
+	uint64_t total = 0;
+
+	fp = fopen("/proc/interrupts", "r");
+	if (!fp)
+		return 0ULL;
+
+	(void)shim_memset(buffer, 0, sizeof(buffer));
+	while (fgets(buffer, sizeof(buffer), fp) != NULL) {
+		char *ptr;
+		char *eptr;
+		long long val;
+
+		ptr = strstr(buffer, "TLB:");
+		if (!ptr)
+			continue;
+
+		ptr += 4; /* skip over TLB: */
+		while (*ptr) {
+			/* skip over spaces */
+			while (*ptr == ' ')
+				ptr++;
+			/* end of string? */
+			if (!*ptr)
+				break;
+			/* not a digit? */
+			if (!isdigit((int)*ptr))
+				break;
+
+			eptr = NULL;
+			val = strtoll(ptr, &eptr, 10);
+			/* no number parsed? */
+			if (!eptr)
+				break;
+			/* should be positive */
+			if (val < 0)
+				break;
+			/* sum per CPU TLB shootdown count */
+			total += (uint64_t)val;
+			ptr = eptr;
+		}
+		break;
+	}
+	(void)fclose(fp);
+
+	return total;
+#else
+	return 0ULL;
+#endif
+}
 
 /*
  *  stress_tlb_shootdown_read_mem()
@@ -154,9 +215,13 @@ static void *stress_tlb_shootdown_mmap(
  */
 static int stress_tlb_shootdown(stress_args_t *args)
 {
+	double rate, t_begin, duration;
+	uint64_t tlb_begin, tlb_end;
 	const size_t page_size = args->page_size;
 	const size_t mmap_size = page_size * MMAP_PAGES;
+	const size_t mmap_mask = mmap_size - 1;
 	const size_t cache_lines = mmap_size >> STRESS_CACHE_LINE_SHIFT;
+	size_t offset;
 	uint32_t *cpus;
 	const uint32_t n_cpus = stress_get_usable_cpus(&cpus, true);
 	stress_pid_t *s_pids, *s_pids_head = NULL;
@@ -168,7 +233,8 @@ static int stress_tlb_shootdown(stress_args_t *args)
     defined(MADV_DONTNEED)
 	int fd, ret;
 	uint8_t *memfd;
-	const size_t mmapfd_size = page_size * 4;
+	const size_t mmapfd_size = page_size * MMAP_FD_PAGES;
+	const size_t mmapfd_mask = mmapfd_size - 1;
 	char filename[PATH_MAX];
 #endif
 
@@ -208,6 +274,9 @@ static int stress_tlb_shootdown(stress_args_t *args)
 		rc = EXIT_NO_RESOURCE;
 		goto err_close;
 	}
+#if defined(MADV_NOHUGEPAGE)
+	(void)shim_madvise(memfd, mmapfd_size, MADV_NOHUGEPAGE);
+#endif
 #endif
 
 	mem = stress_tlb_shootdown_mmap(args, NULL, mmap_size,
@@ -217,6 +286,9 @@ static int stress_tlb_shootdown(stress_args_t *args)
 		rc = EXIT_NO_RESOURCE;
 		goto err_munmap_memfd;
 	}
+#if defined(MADV_NOHUGEPAGE)
+	(void)shim_madvise(mem, mmap_size, MADV_NOHUGEPAGE);
+#endif
 	stress_set_vma_anon_name(mem, mmap_size, "tlb-shootdown-buffer");
 	(void)shim_memset(mem, 0xff, mmap_size);
 
@@ -226,13 +298,15 @@ static int stress_tlb_shootdown(stress_args_t *args)
 	if (tlb_procs < MIN_TLB_PROCS)
 		tlb_procs = MIN_TLB_PROCS;
 
+	t_begin = stress_time_now();
+	tlb_begin = stress_tlb_interrupts();
+
 	for (i = 0; i < tlb_procs; i++)
 		stress_sync_start_init(&s_pids[i]);
 
 	for (i = 0; i < tlb_procs; i++) {
 		uint32_t cpu_idx = 0;
 		const size_t stride = (137 + (size_t)stress_get_next_prime64((uint64_t)cache_lines)) << STRESS_CACHE_LINE_SHIFT;
-		const size_t mem_mask = (mmap_size - 1);
 
 		s_pids[i].pid = fork();
 		if (s_pids[i].pid < 0) {
@@ -262,29 +336,41 @@ static int stress_tlb_shootdown(stress_args_t *args)
 
 			do {
 				size_t l;
-				size_t k = stress_mwc32() & mem_mask;
+				size_t k = stress_mwc32() & mmap_mask;
 				const uint8_t rnd8 = stress_mwc8();
 				volatile uint8_t *vmem;
 
-				(void)mprotect(mem, mmap_size, PROT_READ);
-				stress_tlb_shootdown_read_mem(mem, mmap_size, page_size);
+				offset = stress_mwc32() & mmap_mask;
+				(void)mprotect(mem + offset, page_size, PROT_READ);
+				stress_tlb_shootdown_read_mem(mem + offset, page_size, page_size);
 
-				(void)mprotect(mem, mmap_size, PROT_WRITE);
-				stress_tlb_shootdown_write_mem(mem, mmap_size, page_size);
+				(void)mprotect(mem + offset, page_size, PROT_WRITE);
+				stress_tlb_shootdown_write_mem(mem + offset, page_size, page_size);
 
 				vmem = mem;
 				(void)mprotect(mem, mmap_size, PROT_READ);
 PRAGMA_UNROLL_N(8)
 				for (l = 0; l < cache_lines; l++) {
 					(void)vmem[k];
-					k = (k + stride) & mem_mask;
+					k = (k + stride) & mmap_mask;
 				}
 				(void)mprotect(mem, mmap_size, PROT_WRITE);
 PRAGMA_UNROLL_N(8)
 				for (l = 0; l < cache_lines; l++) {
 					vmem[k] = (uint8_t)(k + rnd8);
-					k = (k + stride) & mem_mask;
+					k = (k + stride) & mmap_mask;
 				}
+				(void)mprotect(mem, mmap_size, PROT_READ | PROT_WRITE);
+#if defined(SHIM_MADV_DONTNEED)
+				offset = stress_mwc32() & mmapfd_mask;
+
+				(void)shim_madvise(mem + offset, page_size, SHIM_MADV_DONTNEED);
+				stress_tlb_shootdown_read_mem(mem + offset, page_size, page_size);
+
+				(void)shim_madvise(memfd + offset, page_size, SHIM_MADV_DONTNEED);
+				stress_tlb_shootdown_write_mem(memfd, page_size, page_size);
+				shim_msync(memfd, mmap_size, MS_ASYNC);
+#endif
 				stress_bogo_inc(args);
 
 				/*
@@ -315,17 +401,21 @@ PRAGMA_UNROLL_N(8)
 
 	do {
 #if defined(SHIM_MADV_DONTNEED)
-		(void)shim_madvise(memfd, mmapfd_size, SHIM_MADV_DONTNEED);
-		stress_tlb_shootdown_write_mem(memfd, mmapfd_size, page_size);
+		offset = stress_mwc32() & mmapfd_mask;
+		(void)shim_madvise(memfd + offset, page_size, SHIM_MADV_DONTNEED);
+		stress_tlb_shootdown_write_mem(memfd, page_size, page_size);
+		(void)shim_msync(memfd, mmapfd_size, MS_SYNC);
 
-		(void)shim_madvise(memfd, mmapfd_size, SHIM_MADV_DONTNEED);
-		stress_tlb_shootdown_read_mem(memfd, mmapfd_size, page_size);
+		(void)shim_madvise(memfd + offset, page_size, SHIM_MADV_DONTNEED);
+		stress_tlb_shootdown_read_mem(memfd + offset, page_size, page_size);
+		(void)shim_msync(memfd, mmapfd_size, MS_SYNC);
 
-		(void)shim_madvise(mem, mmap_size, SHIM_MADV_DONTNEED);
-		stress_tlb_shootdown_read_mem(mem, mmap_size, page_size);
+		offset = stress_mwc32() & mmap_mask;
+		(void)shim_madvise(mem + offset, page_size, SHIM_MADV_DONTNEED);
+		stress_tlb_shootdown_read_mem(mem + offset, page_size, page_size);
 
-		(void)shim_madvise(mem, mmap_size, SHIM_MADV_DONTNEED);
-		stress_tlb_shootdown_write_mem(mem, mmap_size, page_size);
+		(void)shim_madvise(mem + offset, page_size, SHIM_MADV_DONTNEED);
+		stress_tlb_shootdown_write_mem(mem + offset, page_size, page_size);
 #endif
 #if defined(__linux__)
 		{
@@ -338,11 +428,26 @@ PRAGMA_UNROLL_N(8)
 				VOID_RET(ssize_t, stress_system_write(flush_ceiling, buf, rd_ret));
 		}
 #endif
+#if defined(MADV_NOHUGEPAGE) && 	\
+    defined(MADV_COLLAPSE)
+		(void)shim_madvise(mem, mmap_size, MADV_COLLAPSE);
+		(void)shim_madvise(mem, mmap_size, MADV_NOHUGEPAGE);
+
+		(void)shim_madvise(memfd, mmapfd_size, MADV_COLLAPSE);
+		(void)shim_madvise(memfd, mmapfd_size, MADV_NOHUGEPAGE);
+		(void)shim_msync(memfd, mmapfd_size, MS_SYNC);
+#endif
 
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+	tlb_end = stress_tlb_interrupts();
+	duration = stress_time_now() - t_begin;
+
+	rate = (duration > 0.0) ? (double)(tlb_end - tlb_begin) / duration : 0.0;
+	if (rate > 0)
+		stress_metrics_set(args, 0, "TLB shootdowns/sec", rate, STRESS_METRIC_GEOMETRIC_MEAN);
 
 	stress_kill_and_wait_many(args, s_pids, tlb_procs, SIGALRM, true);
 
