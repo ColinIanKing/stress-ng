@@ -1337,11 +1337,15 @@ void OPTIMIZE3 stress_cpu_data_cache_flush(void *addr, const size_t len)
 	register const uint8_t *ptr_end = ptr + len;
 
 #if defined(HAVE_ASM_X86_CLFLUSHOPT)
-	while (ptr < ptr_end) {
-		stress_asm_x86_clflushopt((void *)ptr);
-		ptr += 64;
+	if (stress_cpu_x86_has_clflushopt()) {
+		while (ptr < ptr_end) {
+			stress_asm_x86_clflushopt((void *)ptr);
+			ptr += 64;
+		}
+		return;
 	}
-#elif defined(HAVE_ASM_X86_CLFLUSH)
+#endif
+#if defined(HAVE_ASM_X86_CLFLUSH)
 	while (ptr < ptr_end) {
 		stress_asm_x86_clflush((void *)ptr);
 		ptr += 64;
