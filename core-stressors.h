@@ -79,6 +79,7 @@
 	MACRO(dnotify)		\
 	MACRO(dup)		\
 	MACRO(dynlib)		\
+	MACRO(easy_opcode)	\
 	MACRO(efivar)		\
 	MACRO(eigen)		\
 	MACRO(enosys)		\

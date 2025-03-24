@@ -403,6 +403,7 @@ STRESS_SRC = \
 	stress-dnotify.c \
 	stress-dup.c \
 	stress-dynlib.c \
+	stress-easy-opcode.c \
 	stress-eigen.c \
 	stress-efivar.c \
 	stress-enosys.c \

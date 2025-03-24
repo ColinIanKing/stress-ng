@@ -207,6 +207,8 @@ const struct option stress_long_options[] = {
 	{ "dup-ops",		1,	0,	OPT_dup_ops },
 	{ "dynlib",		1,	0,	OPT_dynlib },
 	{ "dynlib-ops",		1,	0,	OPT_dynlib_ops },
+	{ "easy-opcode",	1,	0,	OPT_easy_opcode },
+	{ "easy-opcode-ops",	1,	0,	OPT_easy_opcode_ops },
 	{ "eigen",		1,	0,	OPT_eigen },
 	{ "eigen-ops",		1,	0,	OPT_eigen_ops },
 	{ "eigen-method",	1,	0,	OPT_eigen_method },

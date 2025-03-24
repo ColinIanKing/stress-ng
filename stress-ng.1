@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "19 March 2025"
+.TH STRESS-NG 1 "24 March 2025"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -2287,6 +2287,23 @@ dlopen(3) for more details of this mechanism.
 .TP
 .B \-\-dynlib\-ops N
 stop workers after N bogo load/unload cycles.
+.RE
+.TP
+.B Easy CPU opcode stressor
+.RS 5
+.TQ
+.B \-\-easy\-opcode N
+start N workers that exercise 64 continuous pages of radomly selected
+simple CPU opcodes.  For example, for x86 processors this just execises
+single byte opcodes such as nop and op-codes that set/clear CPU flags
+to put pressure on the front-end decoder and instruction cache. For
+RISC processors opcodes such as nop and simple register moves to/from
+the same registers are used. Smart emulators may remove some of these
+opcodes (e.g move r0,r0) and hence opcode rates may be artificially
+high.
+.TP
+.B \-\-easy\-opcode\-ops N
+stop after N executions of 64 continuous pages of opcodes.
 .RE
 .TP
 .B Eigen C++ matrix library stressor

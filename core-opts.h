@@ -384,6 +384,9 @@ typedef enum {
 	OPT_dynlib,
 	OPT_dynlib_ops,
 
+	OPT_easy_opcode,
+	OPT_easy_opcode_ops,
+
 	OPT_eigen,
 	OPT_eigen_ops,
 	OPT_eigen_method,
