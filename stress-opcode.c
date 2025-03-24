@@ -46,7 +46,7 @@ static const stress_help_t help[] = {
 	{ NULL,	"opcode N",		"start N workers exercising random opcodes" },
 	{ NULL,	"opcode-method M",	"set opcode stress method (M = random, inc, mixed, text)" },
 	{ NULL,	"opcode-ops N",		"stop after N opcode bogo operations" },
-	{ NULL, NULL,		   NULL }
+	{ NULL, NULL,		   	NULL }
 };
 
 #if defined(HAVE_LINUX_SECCOMP_H) &&	\
@@ -448,9 +448,9 @@ static int stress_opcode(stress_args_t *args)
 		(void)munmap((void *)state, sizeof(*state));
 		return EXIT_NO_RESOURCE;
 	}
-	stress_set_vma_anon_name(opcodes, page_size * PAGES, "opcodes");
+	stress_set_vma_anon_name(opcodes, page_size * (PAGES + 2), "opcodes");
 	/* Force pages resident */
-	(void)shim_memset(opcodes, 0x00, page_size * PAGES);
+	(void)shim_memset(opcodes, 0x00, page_size * (PAGES + 2));
 
 	(void)stress_get_setting("opcode-method", &opcode_method);
 	method = &stress_opcode_methods[opcode_method];
@@ -493,8 +493,9 @@ again:
 		}
 		if (pid == 0) {
 			struct itimerval it;
+			const size_t ops_size = page_size * PAGES;
 			void *ops_begin = (uint8_t *)((uintptr_t)opcodes + page_size);
-			void *ops_end = (uint8_t *)((uintptr_t)opcodes + (page_size * (PAGES - 1)));
+			void *ops_end = ops_begin + ops_size;
 			NOCLOBBER void *ops_ptr;
 
 			(void)sched_settings_apply(true);
@@ -517,13 +518,13 @@ again:
 
 			(void)mprotect((void *)opcodes, page_size, PROT_NONE);
 			(void)mprotect((void *)ops_end, page_size, PROT_NONE);
-			(void)mprotect((void *)ops_begin, page_size, PROT_WRITE);
+			(void)mprotect((void *)ops_begin, ops_size, PROT_WRITE);
 
 			/* Populate with opcodes */
 			method->func(page_size, ops_begin, ops_end, &vstate->opcode);
 
 			/* Make read-only executable and force I$ flush */
-			(void)mprotect((void *)ops_begin, page_size, PROT_READ | PROT_EXEC);
+			(void)mprotect((void *)ops_begin, ops_size, PROT_READ | PROT_EXEC);
 			shim_flush_icache((char *)ops_begin, (char *)ops_end);
 
 			stress_parent_died_alarm();
@@ -664,7 +665,7 @@ finish:
 err:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	(void)munmap((void *)opcodes, page_size * PAGES);
+	(void)munmap((void *)opcodes, page_size * (PAGES + 2));
 	(void)munmap((void *)state, sizeof(*state));
 	return rc;
 }
