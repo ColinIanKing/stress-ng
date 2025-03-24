@@ -172,7 +172,7 @@ static const stress_easy_opcode_t easy_opcodes[] = {
 #elif defined(STRESS_ARCH_PPC64) && defined(STRESS_ARCH_LE)
 #define HAVE_EASY_OPCODES
 static const stress_easy_opcode_t easy_opcodes[] = {
-	{ 4. { 0x00, 0x00, 0x00, 0x60  } }, /* nop */
+	{ 4, { 0x00, 0x00, 0x00, 0x60  } }, /* nop */
 	{ 4, { 0x78, 0x1b, 0x63, 0x07c } }, /* mr %r3,%r3 */
 	{ 4, { 0x78, 0x23, 0x84, 0x07c } }, /* mr %r4,%r4 */
 	{ 4, { 0x78, 0x2b, 0xa5, 0x07c } }, /* mr %r5,%r5 */
