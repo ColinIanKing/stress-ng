@@ -22,20 +22,6 @@
 #include "core-builtin.h"
 #include "core-killpid.h"
 
-#if defined(__BYTE_ORDER__) &&  \
-    defined(__ORDER_LITTLE_ENDIAN__)
-#if __BYTE_ORDER__  == __ORDER_LITTLE_ENDIAN__
-#define STRESS_ARCH_LE
-#endif
-#endif
-
-#if defined(__BYTE_ORDER__) &&  \
-    defined(__ORDER_BIG_ENDIAN__)
-#if __BYTE_ORDER__  == __ORDER_BIG_ENDIAN__
-#define STRESS_ARCH_BE
-#endif
-#endif
-
 static const stress_help_t help[] = {
 	{ NULL,	"easy-opcode N",	"start N workers exercising random easy opcodes" },
 	{ NULL,	"easy-opcode-ops N",	"stop after N easy opcode bogo operations" },

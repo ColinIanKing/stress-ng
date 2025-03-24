@@ -19,6 +19,20 @@
 #ifndef CORE_ARCH_H
 #define CORE_ARCH_H
 
+#if defined(__BYTE_ORDER__) &&  \
+    defined(__ORDER_LITTLE_ENDIAN__)
+#if __BYTE_ORDER__  == __ORDER_LITTLE_ENDIAN__
+#define STRESS_ARCH_LE
+#endif
+#endif
+
+#if defined(__BYTE_ORDER__) &&  \
+    defined(__ORDER_BIG_ENDIAN__)
+#if __BYTE_ORDER__  == __ORDER_BIG_ENDIAN__
+#define STRESS_ARCH_BE
+#endif
+#endif
+
 /* Arch specific, x86-64 */
 #if defined(__x86_64__) || defined(__x86_64) || \
     defined(__amd64__) || defined(__amd64)
