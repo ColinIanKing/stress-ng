@@ -66,6 +66,7 @@ static stress_physmmap_t *stress_physmmap_get_ranges(stress_args_t *args)
 	FILE *fp;
 	char buf[4096];
 	stress_physmmap_t *head = NULL, *tail = NULL;
+	const size_t max_size = (~(size_t)0) - args->page_size;
 
 	fp = fopen("/proc/iomem", "r");
 	if (!fp) {
@@ -74,10 +75,12 @@ static stress_physmmap_t *stress_physmmap_get_ranges(stress_args_t *args)
 		return NULL;
 	}
 
+	(void)shim_memset(buf, 0, sizeof(buf));
 	while (fgets(buf, sizeof(buf), fp) != NULL) {
 		if (strstr(buf, "System RAM")) {
 			uintptr_t addr_begin, addr_end;
 			stress_physmmap_t *new_physmmap;
+			size_t region_size;
 			const size_t bitmap_obj_size = sizeof(*new_physmmap->bitmap);
 
 			/* can parse? ignore */
@@ -86,15 +89,16 @@ static stress_physmmap_t *stress_physmmap_get_ranges(stress_args_t *args)
 			/* bad begin / end addresses? */
 			if (addr_begin >= addr_end)
 				continue;
-			/* too small for a 1 page/ */
-			if (addr_end - addr_begin < args->page_size)
+			region_size = addr_end - addr_begin;
+			if ((region_size < args->page_size) ||
+			    (region_size > max_size))
 				continue;
 
 			new_physmmap = malloc(sizeof(*new_physmmap));
 			if (!new_physmmap)
 				break;
-			new_physmmap->region_size = addr_end - addr_begin;
-			new_physmmap->pages = new_physmmap->region_size / args->page_size;
+			new_physmmap->region_size = region_size;
+			new_physmmap->pages = region_size / args->page_size;
 			new_physmmap->bitmap_size = (new_physmmap->pages + bitmap_obj_size - 1) & ~(bitmap_obj_size - 1);
 			new_physmmap->bitmap = malloc(new_physmmap->bitmap_size);
 			if (!new_physmmap->bitmap) {
