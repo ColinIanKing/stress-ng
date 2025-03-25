@@ -338,7 +338,7 @@ again:
 		} else if (pid == 0) {
 			const size_t ops_size = page_size * PAGES;
 			void *ops_begin = (uint8_t *)((uintptr_t)opcodes + page_size);
-			void *ops_end = ops_begin + ops_size;
+			void *ops_end = (void *)((uint8_t *)ops_begin + ops_size);
 			static volatile uint64_t bogo_ops = 0;
 
 			(void)sched_settings_apply(true);
