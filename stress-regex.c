@@ -41,7 +41,7 @@ typedef struct stress_posix_regex {
 
 static const stress_posix_regex_t stress_posix_regex[] = {
 	{ "^(((((((((((((([a-z])*)*)*)*)*)*)*)*)*)*)*)*)*)*", "devious alphas" },
-	{ "^(((((((((((((([0-9])*)*)*)*)*)*)*)*)*)*)*)*)*)*", "devious alphas" },
+	{ "^(((((((((((((([0-9])*)*)*)*)*)*)*)*)*)*)*)*)*)*", "devious digits" },
 	{ "(([a-z])+.)+", "pathological" },
 	{ "^.*$", "match all" },
 	{ "^[0-9]*$", "positive integers" },
