@@ -909,8 +909,9 @@ static int open_rdonly_trunc(
 
 	/* undefined behaviour, will open, may truncate on some systems */
 	fd = open_arg2(filename, O_RDONLY | O_TRUNC, duration, count);
-	if (fd >= 0)
-		(void)shim_unlink(filename);
+	(void)fd;
+	(void)shim_unlink(filename);
+
 	return fd;
 }
 #endif
