@@ -952,10 +952,12 @@ case_stream_index_1:
 				stress_stream_checksum_to_hexstr(new_str, sizeof(new_str), new_checksum);
 				stress_stream_checksum_to_hexstr(old_str, sizeof(old_str), old_checksum);
 
-				pr_fail("%s: checksum failure, got 0x%s, expecting 0x%s\n",
-					args->name, new_str, old_str);
-				rc = EXIT_FAILURE;
-				break;
+				if (strcmp(old_str, new_str)) {
+					pr_fail("%s: checksum failure, got 0x%s, expecting 0x%s\n",
+						args->name, new_str, old_str);
+					rc = EXIT_FAILURE;
+					break;
+				}
 			} else {
 				old_checksum = new_checksum;
 			}
