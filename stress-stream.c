@@ -96,7 +96,7 @@ static void stress_stream_checksum_to_hexstr(char *str, const size_t len, const 
 	for (i = 0, j = 0; (i < sizeof(checksum)) && (j < len); i++, j += 2) {
 		(void)snprintf(str + j, 3, "%2.2x", ptr[i]);
 	}
-	str[i] = '\0';
+	str[j] = '\0';
 }
 
 static inline void OPTIMIZE3 TARGET_CLONES stress_stream_copy_index0(
