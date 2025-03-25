@@ -243,7 +243,11 @@ static void *stress_malloc_loop(void *ptr)
 			}
 		} else {
 			if (action && !low_mem) {
-				size_t n, len = stress_alloc_size(malloc_bytes), tmp_align;
+				size_t n, len = stress_alloc_size(malloc_bytes);
+#if defined(HAVE_ALIGNED_ALLOC) &&	\
+    !defined(__OpenBSD__)
+				size_t tmp_align;
+#endif
 
 				switch (do_calloc) {
 				case 0:
