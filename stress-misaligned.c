@@ -1023,14 +1023,18 @@ static void stress_misaligned_int128atomic(
 
 	while (LIKELY(stress_continue_flag() && --i)) {
 		/* No add 16 variant, so do 2 x 8 adds for now */
-		SHIM_ATOMIC_FETCH_ADD_8(ptr1, 1, __ATOMIC_SEQ_CST);
-		SHIM_ATOMIC_FETCH_ADD_8(ptr1 + 1, 1, __ATOMIC_SEQ_CST);
+		volatile uint64_t *ptr1u64 = (volatile uint64_t *)ptr1;
+		volatile uint64_t *ptr2u64 = (volatile uint64_t *)ptr2;
+		volatile uint64_t *ptr3u64 = (volatile uint64_t *)ptr3;
 
-		SHIM_ATOMIC_FETCH_ADD_8(ptr2, 1, __ATOMIC_SEQ_CST);
-		SHIM_ATOMIC_FETCH_ADD_8(ptr2 + 1, 1, __ATOMIC_SEQ_CST);
+		SHIM_ATOMIC_FETCH_ADD_8(ptr1u64, 1, __ATOMIC_SEQ_CST);
+		SHIM_ATOMIC_FETCH_ADD_8(ptr1u64 + 1, 1, __ATOMIC_SEQ_CST);
 
-		SHIM_ATOMIC_FETCH_ADD_8(ptr3, 1, __ATOMIC_SEQ_CST);
-		SHIM_ATOMIC_FETCH_ADD_8(ptr3 + 1, 1, __ATOMIC_SEQ_CST);
+		SHIM_ATOMIC_FETCH_ADD_8(ptr2u64, 1, __ATOMIC_SEQ_CST);
+		SHIM_ATOMIC_FETCH_ADD_8(ptr2u64 + 1, 1, __ATOMIC_SEQ_CST);
+
+		SHIM_ATOMIC_FETCH_ADD_8(ptr3u64, 1, __ATOMIC_SEQ_CST);
+		SHIM_ATOMIC_FETCH_ADD_8(ptr3u64 + 1, 1, __ATOMIC_SEQ_CST);
 	 }
 }
 #endif
