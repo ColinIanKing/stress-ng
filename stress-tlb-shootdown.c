@@ -370,7 +370,7 @@ PRAGMA_UNROLL_N(8)
 
 				(void)shim_madvise(memfd + offset, page_size, SHIM_MADV_DONTNEED);
 				stress_tlb_shootdown_write_mem(memfd, page_size, page_size);
-				shim_msync(memfd, mmap_size, MS_ASYNC);
+				shim_msync(memfd, mmapfd_size, MS_ASYNC);
 #endif
 				stress_bogo_inc(args);
 
