@@ -218,6 +218,7 @@ static int stress_tlb_shootdown(stress_args_t *args)
 	double rate, t_begin, duration;
 	uint64_t tlb_begin, tlb_end;
 	const size_t page_size = args->page_size;
+	const size_t page_mask = ~(page_size - 1);
 	const size_t mmap_size = page_size * MMAP_PAGES;
 	const size_t mmap_mask = mmap_size - 1;
 	const size_t cache_lines = mmap_size >> STRESS_CACHE_LINE_SHIFT;
@@ -340,7 +341,7 @@ static int stress_tlb_shootdown(stress_args_t *args)
 				const uint8_t rnd8 = stress_mwc8();
 				volatile uint8_t *vmem;
 
-				offset = stress_mwc32() & mmap_mask;
+				offset = (stress_mwc32() & mmap_mask) & page_mask;
 				(void)mprotect(mem + offset, page_size, PROT_READ);
 				stress_tlb_shootdown_read_mem(mem + offset, page_size, page_size);
 
@@ -362,7 +363,7 @@ PRAGMA_UNROLL_N(8)
 				}
 				(void)mprotect(mem, mmap_size, PROT_READ | PROT_WRITE);
 #if defined(SHIM_MADV_DONTNEED)
-				offset = stress_mwc32() & mmapfd_mask;
+				offset = (stress_mwc32() & mmapfd_mask) & mmap_mask;
 
 				(void)shim_madvise(mem + offset, page_size, SHIM_MADV_DONTNEED);
 				stress_tlb_shootdown_read_mem(mem + offset, page_size, page_size);
