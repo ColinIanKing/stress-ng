@@ -402,7 +402,7 @@ PRAGMA_UNROLL_N(8)
 
 	do {
 #if defined(SHIM_MADV_DONTNEED)
-		offset = stress_mwc32() & mmapfd_mask;
+		offset = (stress_mwc32() & mmapfd_mask) & page_mask;
 		(void)shim_madvise(memfd + offset, page_size, SHIM_MADV_DONTNEED);
 		stress_tlb_shootdown_write_mem(memfd, page_size, page_size);
 		(void)shim_msync(memfd, mmapfd_size, MS_SYNC);
@@ -411,7 +411,7 @@ PRAGMA_UNROLL_N(8)
 		stress_tlb_shootdown_read_mem(memfd + offset, page_size, page_size);
 		(void)shim_msync(memfd, mmapfd_size, MS_SYNC);
 
-		offset = stress_mwc32() & mmap_mask;
+		offset = (stress_mwc32() & mmap_mask) & page_mask;
 		(void)shim_madvise(mem + offset, page_size, SHIM_MADV_DONTNEED);
 		stress_tlb_shootdown_read_mem(mem + offset, page_size, page_size);
 
