@@ -2378,7 +2378,7 @@ ssize_t shim_readlink(const char *pathname, char *buf, size_t bufsiz)
 
 /*
  *  shim_sgetmask
- *	wrapper for obsolute linux system call sgetmask()
+ *	wrapper for obsolete linux system call sgetmask()
  */
 long int shim_sgetmask(void)
 {
@@ -2392,7 +2392,7 @@ long int shim_sgetmask(void)
 
 /*
  *  shim_ssetmask
- *	wrapper for obsolute linux system call ssetmask()
+ *	wrapper for obsolete linux system call ssetmask()
  */
 long int shim_ssetmask(long int newmask)
 {
