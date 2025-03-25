@@ -25,7 +25,7 @@
 static const stress_help_t help[] = {
 	{ NULL,	"physmmap N",	  "start N workers performing /dev/mem physical page mmaps/munmaps" },
 	{ NULL,	"physmmap-ops N", "stop after N /dev/mem physical page mmap/munmap bogo operations" },
-	{ NULL, "physmmap-read",  "read data from mappping" },
+	{ NULL, "physmmap-read",  "read data from mapping" },
 	{ NULL,	NULL,		  NULL }
 };
 
