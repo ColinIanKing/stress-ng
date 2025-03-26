@@ -27,6 +27,15 @@
 #define HAVE_NUMA_LOCKBUS	(1)
 #endif
 
+#if defined(HAVE_LIB_RT) &&		\
+    defined(HAVE_TIMER_CREATE) &&	\
+    defined(HAVE_TIMER_DELETE) &&	\
+    defined(HAVE_TIMER_GETOVERRUN) &&	\
+    defined(HAVE_TIMER_SETTIME)
+#include <time.h>
+#define HAVE_TIMER_FUNCS
+#endif
+
 static const stress_help_t help[] = {
 	{ NULL,	"lockbus N",	 	"start N workers locking a memory increment" },
 	{ NULL, "lockbus-nosplit",	"disable split locks" },
@@ -166,6 +175,10 @@ static int stress_lockbus(stress_args_t *args)
 	double t, rate;
 	NOCLOBBER double duration, count;
 	uint32_t *misaligned_ptr1, *misaligned_ptr2;
+#if defined(HAVE_TIMER_FUNCS)
+	timer_t timerid;
+	NOCLOBBER int timer_ret = -1;
+#endif
 #if defined(STRESS_ARCH_X86)
 	uint32_t *splitlock_ptr1, *splitlock_ptr2;
 	bool lockbus_nosplit = false;
@@ -195,11 +208,53 @@ static int stress_lockbus(stress_args_t *args)
 
 	if (stress_sighandler(args->name, SIGBUS, stress_sigbus_misaligned_handler, NULL) < 0)
 		return EXIT_FAILURE;
-	if (sigsetjmp(jmp_env, 1) && !stress_continue(args))
+#if defined(HAVE_TIMER_FUNCS)
+	if (stress_sighandler(args->name, SIGRTMIN, stress_sigbus_misaligned_handler, NULL) < 0)
+		return EXIT_FAILURE;
+#endif
+	if (sigsetjmp(jmp_env, 1))
 		goto misaligned_done;
+#if defined(HAVE_TIMER_FUNCS)
+	/*
+	 *  Use a 1 second timer to jmp out of a hung
+	 *  misaligned splitlock.
+	 */
+	{
+		struct sigevent sev;
+		struct itimerspec timer;
+
+		sev.sigev_notify = SIGEV_SIGNAL;
+		sev.sigev_signo = SIGRTMIN;
+		sev.sigev_value.sival_ptr = &timerid;
+
+#if defined(CLOCK_PROCESS_CPUTIME_ID)
+		timer_ret = timer_create(CLOCK_PROCESS_CPUTIME_ID, &sev, &timerid);
+#else
+		timer_ret = timer_create(CLOCK_REALTIME, &sev, &timerid);
+#endif
+		if (timer_ret == 0) {
+			timer.it_value.tv_sec = 1;
+			timer.it_value.tv_nsec = 0;
+			timer.it_interval.tv_sec = 1;
+			timer.it_interval.tv_nsec = 0;
+			if (timer_settime(timerid, 0, &timer, NULL) < 0) {
+				(void)timer_delete(timerid);
+				timer_ret = -1;
+			}
+		}
+	}
+#endif
+	/* These can hang on old ppc64 linux kernels */
 	MEM_LOCK_AND_INC(misaligned_ptr1, 1);
 	MEM_LOCK_AND_INC(misaligned_ptr2, 1);
+
 misaligned_done:
+#if defined(HAVE_TIMER_FUNCS)
+	if (timer_ret == 0) {
+		(void)timer_delete(timerid);
+		timer_ret = -1;
+	}
+#endif
 	if (args->instance == 0)
 		pr_dbg("%s: misaligned splitlocks %s\n", args->name,
 			do_misaligned ? "enabled" : "disabled");
