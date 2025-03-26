@@ -18,8 +18,8 @@
  */
 #include <stdint.h>
 
-#if !(defined(__PPC64__) || defined(__ppc64__))
-#error ppc64 dcbst instruction not supported
+#if !(defined(__PPC__) || defined(__ppc__))
+#error ppc dcbst instruction not supported
 #endif
 
 static inline void dcbst(void *addr)

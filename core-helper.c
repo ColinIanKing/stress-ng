@@ -2599,7 +2599,8 @@ int stress_sigrestore(
 unsigned int stress_get_cpu(void)
 {
 #if defined(HAVE_SCHED_GETCPU)
-#if defined(__PPC64__) ||	\
+#if defined(__PPC64__) || defined(__ppc64__) ||	\
+    defined(__PPC__) || defined(__ppc__) ||	\
     defined(__s390x__)
 	unsigned int cpu, node;
 

@@ -719,6 +719,69 @@ do {			\
 }
 #endif
 
+#if defined(STRESS_ARCH_PPC)
+
+#define STRESS_REGS_HELPER
+/*
+ *  stress_regs_helper(void)
+ *	stress PPC registers
+ *	Notice, r30 should not be used:
+ *	stress-regs.c: error: r30 cannot be used in 'asm' here
+ */
+static void NOINLINE OPTIMIZE0 stress_regs_helper(stress_args_t *args, register uint64_t v)
+{
+	uint32_t v32 = (uint32_t)v;
+	register uint32_t r14 __asm__("r14") = v32;
+	register uint32_t r15 __asm__("r15") = r14 >> 1;
+	register uint32_t r16 __asm__("r16") = r14 << 1;
+	register uint32_t r17 __asm__("r17") = r14 >> 2;
+	register uint32_t r18 __asm__("r18") = r14 << 2;
+	register uint32_t r19 __asm__("r19") = ~r14;
+	register uint32_t r20 __asm__("r20") = ~r15;
+	register uint32_t r21 __asm__("r21") = ~r16;
+	register uint32_t r22 __asm__("r22") = ~r17;
+	register uint32_t r23 __asm__("r23") = ~r18;
+	register uint32_t r24 __asm__("r24") = r14 ^ 0xa5a5a5a5UL;
+	register uint32_t r25 __asm__("r25") = r15 ^ 0xa5a5a5a5UL;
+	register uint32_t r26 __asm__("r26") = r16 ^ 0xa5a5a5a5UL;
+	register uint32_t r27 __asm__("r27") = r17 ^ 0xa5a5a5a5UL;
+	register uint32_t r28 __asm__("r28") = r18 ^ 0xa5a5a5a5UL;
+	register uint32_t r29 __asm__("r29") = r14 ^ 0xa5a5a5a5UL;
+
+#define SHUFFLE_REGS()	\
+do {			\
+	r29 = r14;	\
+	r14 = r15;	\
+	r15 = r16;	\
+	r16 = r17;	\
+	r17 = r18;	\
+	r18 = r19;	\
+	r19 = r20;	\
+	r20 = r21;	\
+	r21 = r22;	\
+	r22 = r23;	\
+	r23 = r24;	\
+	r24 = r25;	\
+	r25 = r26;	\
+	r26 = r27;	\
+	r27 = r28;	\
+	r28 = r29;	\
+} while (0);		\
+
+	SHUFFLE_REGS16();
+
+	stash32 = r14;
+	REGS_CHECK(args, "r14", v32, stash32);
+
+	stash32 = r14 + r15 + r16 + r17 +
+		r18 + r19 + r20 + r21 +
+		r22 + r23 + r24 + r25 +
+		r26 + r27 + r28 + r29;
+
+#undef SHUFFLE_REGS
+}
+#endif
+
 #if defined(STRESS_ARCH_SPARC)
 
 #define STRESS_REGS_HELPER

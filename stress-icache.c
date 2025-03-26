@@ -33,6 +33,7 @@ static const stress_help_t help[] = {
      defined(STRESS_ARCH_ARM) ||	\
      defined(STRESS_ARCH_RISCV) ||	\
      defined(STRESS_ARCH_S390) ||	\
+     defined(STRESS_ARCH_PPC) ||	\
      defined(STRESS_ARCH_PPC64)) &&	\
      defined(HAVE_MPROTECT)
 

@@ -109,6 +109,37 @@ static void TARGET_CLONES OPTIMIZE3 stress_llc_write_cache_line_64_ppc64_dcbst(
 }
 #endif
 
+#if defined(HAVE_ASM_PPC_DCBST)
+static void TARGET_CLONES OPTIMIZE3 stress_llc_write_cache_line_64_ppc_dcbst(
+	uint64_t *buf,
+	const uint64_t *buf_end,
+	double *duration,
+	const size_t cache_line_size)
+{
+	double t1, t2;
+	static uint64_t val = 0;
+	register uint64_t *ptr;
+
+	(void)cache_line_size;
+
+	t1 = stress_time_now();
+	for (ptr = buf; ptr < buf_end; ptr += 8, val++) {
+		*(ptr + 0) = val;
+		*(ptr + 1) = val;
+		*(ptr + 2) = val;
+		*(ptr + 3) = val;
+		*(ptr + 4) = val;
+		*(ptr + 5) = val;
+		*(ptr + 6) = val;
+		*(ptr + 7) = val;
+		stress_asm_ppc_dcbst((void *)ptr);
+	}
+	t2 = stress_time_now();
+
+	*duration += (t2 - t1);
+}
+#endif
+
 #if defined(HAVE_ASM_X86_CLFLUSH)
 static void TARGET_CLONES OPTIMIZE3 stress_llc_write_cache_line_64_x86_clfsh(
 	uint64_t *buf,
@@ -213,6 +244,32 @@ static void TARGET_CLONES OPTIMIZE3 stress_llc_write_cache_line_n_ppc64_dcbst(
 		for (cptr = ptr, cptr_end = ptr + n; cptr < cptr_end; cptr++)
 			*cptr = val;
 		stress_asm_ppc64_dcbst((void *)ptr);
+	}
+	t2 = stress_time_now();
+
+	*duration += (t2 - t1);
+}
+#endif
+
+#if defined(HAVE_ASM_PPC_DCBST)
+static void TARGET_CLONES OPTIMIZE3 stress_llc_write_cache_line_n_ppc_dcbst(
+	uint64_t *buf,
+	const uint64_t *buf_end,
+	double *duration,
+	const size_t cache_line_size)
+{
+	double t1, t2;
+	static uint64_t val = 0;
+	register uint64_t *ptr;
+	const size_t n = cache_line_size / sizeof(uint64_t);
+
+	t1 = stress_time_now();
+	for (ptr = buf; ptr < buf_end; ptr += n, val++) {
+		register uint64_t *cptr, *cptr_end;
+
+		for (cptr = ptr, cptr_end = ptr + n; cptr < cptr_end; cptr++)
+			*cptr = val;
+		stress_asm_ppc_dcbst((void *)ptr);
 	}
 	t2 = stress_time_now();
 
@@ -433,6 +490,12 @@ static int stress_llc_affinity(stress_args_t *args)
 			clflush_op = "dcbst";
 		} else
 #endif
+#if defined(HAVE_ASM_PPC_DCBST)
+		if (llc_affinity_clflush) {
+			write_func = stress_llc_write_cache_line_64_ppc_dcbst;
+			clflush_op = "dcbst";
+		} else
+#endif
 #if defined(HAVE_ASM_X86_CLFLUSHOPT)
 		if (llc_affinity_clflush && stress_cpu_x86_has_clflushopt()) {
 			write_func = stress_llc_write_cache_line_64_x86_clfshopt;
@@ -451,6 +514,12 @@ static int stress_llc_affinity(stress_args_t *args)
 #if defined(HAVE_ASM_PPC64_DCBST)
 		if (llc_affinity_clflush) {
 			write_func = stress_llc_write_cache_line_n_ppc64_dcbst;
+			clflush_op = "dcbst";
+		} else
+#endif
+#if defined(HAVE_ASM_PPC_DCBST)
+		if (llc_affinity_clflush) {
+			write_func = stress_llc_write_cache_line_n_ppc_dcbst;
 			clflush_op = "dcbst";
 		} else
 #endif

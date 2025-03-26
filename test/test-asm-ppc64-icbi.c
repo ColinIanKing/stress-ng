@@ -18,7 +18,7 @@
  */
 #include <stdint.h>
 
-#if !defined(__PPC64__)
+#if !(defined(__PPC64__) || defined(__ppc64__))
 #error ppc64 icbi instruction not supported
 #endif
 

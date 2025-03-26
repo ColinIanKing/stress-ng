@@ -76,14 +76,14 @@
 #endif
 
 /* Arch specific PPC64 */
-#if defined(__PPC64__)
+#if defined(__PPC64__) || defined(__ppc64__)
 #define STRESS_ARCH_PPC64	(1)
 #define STRESS_OPCODE_SIZE	(32)
 #define STRESS_OPCODE_MASK	(0xffffffffUL)
 #endif
 
 /* Arch specific PPC (32 bit ) */
-#if defined(__PPC__)
+#if defined(__PPC__) || defined(__ppc__)
 #define STRESS_ARCH_PPC		(1)
 #define STRESS_OPCODE_SIZE	(32)
 #define STRESS_OPCODE_MASK	(0xffffffffUL)

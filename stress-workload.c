@@ -387,6 +387,11 @@ static void stress_workload_pause(void)
 	stress_asm_ppc64_yield();
 	stress_asm_ppc64_yield();
 	stress_asm_ppc64_yield();
+#elif defined(STRESS_ARCH_PPC)
+	stress_asm_ppc_yield();
+	stress_asm_ppc_yield();
+	stress_asm_ppc_yield();
+	stress_asm_ppc_yield();
 #elif defined(STRESS_ARCH_RISCV)
 	stress_asm_riscv_pause();
 	stress_asm_riscv_pause();

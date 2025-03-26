@@ -426,6 +426,35 @@ static void OPTIMIZE3 hammer_ppc64_dcbst(void *addr1, void *addr2, const bool is
 }
 #endif
 
+#if defined(HAVE_ASM_PPC_DCBST)
+/*
+ *  hammer_ppc_dcbst()
+ *	powerpc Data Cache Block Store
+ */
+static void OPTIMIZE3 hammer_ppc_dcbst(void *addr1, void *addr2, const bool is_bad_addr)
+{
+	if (UNLIKELY(is_bad_addr)) {
+		stress_asm_ppc_dcbst(addr1);
+		stress_asm_mb();
+		stress_asm_ppc_dcbst(addr2);
+		stress_asm_mb();
+	} else {
+		volatile uint64_t *vptr = (volatile uint64_t *)addr1;
+
+		*vptr = ~0ULL;
+		stress_asm_mb();
+		stress_asm_ppc_dcbst(addr1);
+		stress_asm_mb();
+
+		vptr = (volatile uint64_t *)addr2;
+		*vptr = ~0ULL;
+		stress_asm_mb();
+		stress_asm_ppc_dcbst(addr2);
+		stress_asm_mb();
+	}
+}
+#endif
+
 #if defined(HAVE_ASM_PPC64_DCBT)
 /*
  *  hammer_ppc64_dcbt()
@@ -456,6 +485,36 @@ static void OPTIMIZE3 hammer_ppc64_dcbt(void *addr1, void *addr2, const bool is_
 }
 #endif
 
+#if defined(HAVE_ASM_PPC_DCBT)
+/*
+ *  hammer_ppc_dcbt()
+ *	powerpc Data Cache Block Touch
+ */
+static void OPTIMIZE3 hammer_ppc_dcbt(void *addr1, void *addr2, const bool is_bad_addr)
+{
+	if (UNLIKELY(is_bad_addr)) {
+		stress_asm_ppc_dcbt(addr1);
+		stress_asm_mb();
+		stress_asm_ppc_dcbt(addr2);
+		stress_asm_mb();
+	} else {
+		const volatile uint64_t *vptr;
+
+		vptr = (volatile uint64_t *)addr1;
+		stress_asm_ppc_dcbt(addr1);
+		stress_asm_mb();
+		(void)*vptr;
+		stress_asm_mb();
+
+		vptr = (volatile uint64_t *)addr2;
+		stress_asm_ppc_dcbt(addr2);
+		stress_asm_mb();
+		(void)*vptr;
+		stress_asm_mb();
+	}
+}
+#endif
+
 #if defined(HAVE_ASM_PPC64_DCBTST)
 /*
  *  hammer_ppc64_dcbtst()
@@ -479,6 +538,36 @@ static void OPTIMIZE3 hammer_ppc64_dcbtst(void *addr1, void *addr2, const bool i
 
 		vptr = (volatile uint64_t *)addr2;
 		stress_asm_ppc64_dcbtst(addr2);
+		stress_asm_mb();
+		*vptr = ~0ULL;
+		stress_asm_mb();
+	}
+}
+#endif
+
+#if defined(HAVE_ASM_PPC_DCBTST)
+/*
+ *  hammer_ppc_dcbtst()
+ *	powerpc Data Cache Block Touch for Store
+ */
+static void OPTIMIZE3 hammer_ppc_dcbtst(void *addr1, void *addr2, const bool is_bad_addr)
+{
+	if (UNLIKELY(is_bad_addr)) {
+		stress_asm_ppc_dcbtst(addr1);
+		stress_asm_mb();
+		stress_asm_ppc_dcbtst(addr2);
+		stress_asm_mb();
+	} else {
+		volatile uint64_t *vptr;
+
+		vptr = (volatile uint64_t *)addr1;
+		stress_asm_ppc_dcbtst(addr1);
+		stress_asm_mb();
+		*vptr = ~0ULL;
+		stress_asm_mb();
+
+		vptr = (volatile uint64_t *)addr2;
+		stress_asm_ppc_dcbtst(addr2);
 		stress_asm_mb();
 		*vptr = ~0ULL;
 		stress_asm_mb();
@@ -825,6 +914,15 @@ static const stress_cachehammer_func_t stress_cachehammer_funcs[] = {
 #endif
 #if defined(HAVE_ASM_X86_CLWB)
 	{ "clwb",	stress_cpu_x86_has_clwb,	hammer_clwb },
+#endif
+#if defined(HAVE_ASM_PPC_DCBST)
+	{ "dcbst",	hammer_valid,			hammer_ppc_dcbst },
+#endif
+#if defined(HAVE_ASM_PPC_DCBT)
+	{ "dcbt",	hammer_valid,			hammer_ppc_dcbt },
+#endif
+#if defined(HAVE_ASM_PPC_DCBTST)
+	{ "dcbtst",	hammer_valid,			hammer_ppc_dcbtst },
 #endif
 #if defined(HAVE_ASM_PPC64_DCBST)
 	{ "dcbst",	hammer_valid,			hammer_ppc64_dcbst },

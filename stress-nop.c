@@ -203,6 +203,12 @@ STRESS_NOP_SPIN_OP(ppc64_mdoio, stress_asm_ppc64_mdoio);
 STRESS_NOP_SPIN_OP(ppc64_mdoom, stress_asm_ppc64_mdoom);
 #endif
 
+#if defined(STRESS_ARCH_PPC)
+STRESS_NOP_SPIN_OP(ppc_yield, stress_asm_ppc_yield);
+STRESS_NOP_SPIN_OP(ppc_mdoio, stress_asm_ppc_mdoio);
+STRESS_NOP_SPIN_OP(ppc_mdoom, stress_asm_ppc_mdoom);
+#endif
+
 #if defined(STRESS_ARCH_S390)
 static inline void stress_op_s390_nopr(void)
 {
@@ -253,6 +259,11 @@ static stress_nop_instr_t nop_instrs[] = {
 	{ "mdoio",	stress_nop_spin_ppc64_mdoio,	NULL,	false,	false },
 	{ "mdoom",	stress_nop_spin_ppc64_mdoom,	NULL,	false,	false },
 	{ "yield",	stress_nop_spin_ppc64_yield,	NULL,	false,	false },
+#endif
+#if defined(STRESS_ARCH_PPC)
+	{ "mdoio",	stress_nop_spin_ppc_mdoio,	NULL,	false,	false },
+	{ "mdoom",	stress_nop_spin_ppc_mdoom,	NULL,	false,	false },
+	{ "yield",	stress_nop_spin_ppc_yield,	NULL,	false,	false },
 #endif
 	/* Must be last of the array */
 	{ "random",	stress_nop_random,		NULL,	false,	false },

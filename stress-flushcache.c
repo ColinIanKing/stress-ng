@@ -36,6 +36,7 @@ static const stress_help_t help[] = {
      defined(STRESS_ARCH_ARM) ||	\
      defined(STRESS_ARCH_RISCV) ||	\
      defined(STRESS_ARCH_S390) ||	\
+     defined(STRESS_ARCH_PPC) ||	\
      defined(STRESS_ARCH_PPC64)) &&	\
      defined(HAVE_MPROTECT) &&		\
      ((defined(HAVE_COMPILER_GCC_OR_MUSL) && NEED_GNUC(4,6,0)) ||	\
@@ -121,6 +122,24 @@ static inline void dcbst_page(
 }
 #endif
 
+#if defined(HAVE_ASM_PPC_DCBST)
+static inline void dcbst_page(
+	void *addr,
+	const size_t page_size,
+	const size_t cl_size)
+{
+	register uint8_t *ptr = (uint8_t *)addr;
+	const uint8_t *ptr_end = ptr + page_size;
+
+	while (ptr < ptr_end) {
+		(*(volatile uint8_t *)ptr)++;
+		(*(volatile uint8_t *)ptr)--;
+		stress_asm_ppc_dcbst((void *)ptr);
+		ptr += cl_size;
+	}
+}
+#endif
+
 #if defined(HAVE_ASM_X86_CLDEMOTE)
 static inline void cldemote_page(
 	void *addr,
@@ -187,11 +206,15 @@ static inline int stress_flush_icache(
 		shim_flush_icache((char *)ptr, (char *)ptr + cl_size);
 #if defined(HAVE_ASM_PPC64_ICBI)
 		stress_asm_ppc64_icbi((void *)ptr);
+#elif defined(HAVE_ASM_PPC_ICBI)
+		stress_asm_ppc_icbi((void *)ptr);
 #endif
 		*vptr = val;
 		shim_flush_icache((char *)ptr, (char *)ptr + cl_size);
 #if defined(HAVE_ASM_PPC64_ICBI)
 		stress_asm_ppc64_icbi((void *)ptr);
+#elif defined(HAVE_ASM_PPC_ICBI)
+		stress_asm_ppc_icbi((void *)ptr);
 #endif
 		ptr += cl_size;
 	}
@@ -217,6 +240,7 @@ static inline int stress_flush_dcache(
 	const size_t page_size = args->page_size;
 #if defined(HAVE_ASM_X86_CLFLUSH) ||	\
     defined(HAVE_ASM_X86_CLDEMOTE) ||	\
+    defined(HAVE_ASM_PPC_DCBST) ||	\
     defined(HAVE_ASM_PPC64_DCBST)
 	const size_t cl_size = context->cl_size;
 #endif

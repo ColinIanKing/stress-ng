@@ -31,6 +31,14 @@
 #define STRESS_SYNCLOAD_MS_MIN		(1)	/* 1 millisecond */
 #define STRESS_SYNCLOAD_MS_MAX		(10000)	/* 1 second */
 
+#if defined(__APPLE__)
+#define REGISTER_PREFIX "r"
+#else
+#define REGISTER_PREFIX ""
+#endif
+
+#define REGISTER(r) REGISTER_PREFIX #r
+
 typedef void(* stress_syncload_op_t)(void);
 
 static bool stress_sysload_x86_has_rdrand;
@@ -106,13 +114,13 @@ static void stress_syncload_yield(void)
 }
 #endif
 
-#if defined(STRESS_ARCH_PPC64)
+#if defined(STRESS_ARCH_PPC64) || defined(STRESS_ARCH_PPC)
 static void stress_syncload_yield(void)
 {
-        __asm__ __volatile__("or 27,27,27;\n");
-        __asm__ __volatile__("or 27,27,27;\n");
-        __asm__ __volatile__("or 27,27,27;\n");
-        __asm__ __volatile__("or 27,27,27;\n");
+        __asm__ __volatile__("or " REGISTER(27) "," REGISTER(27) "," REGISTER(27) ";\n");
+        __asm__ __volatile__("or " REGISTER(27) "," REGISTER(27) "," REGISTER(27) ";\n");
+        __asm__ __volatile__("or " REGISTER(27) "," REGISTER(27) "," REGISTER(27) ";\n");
+        __asm__ __volatile__("or " REGISTER(27) "," REGISTER(27) "," REGISTER(27) ";\n");
 }
 #endif
 

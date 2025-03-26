@@ -188,6 +188,28 @@ static void stress_waitcpu_ppc64_mdoom(void)
 }
 #endif
 
+#if defined(STRESS_ARCH_PPC)
+static bool stress_waitcpu_ppc_supported(void)
+{
+	return true;
+}
+
+static void stress_waitcpu_ppc_yield(void)
+{
+	stress_asm_ppc_yield();
+}
+
+static void stress_waitcpu_ppc_mdoio(void)
+{
+	stress_asm_ppc_mdoio();
+}
+
+static void stress_waitcpu_ppc_mdoom(void)
+{
+	stress_asm_ppc_mdoom();
+}
+#endif
+
 #if defined(STRESS_ARCH_RISCV)
 static bool stress_waitcpu_riscv_pause_supported(void)
 {
@@ -242,6 +264,11 @@ stress_waitcpu_method_t stress_waitcpu_method[] = {
 	{ "mdoio",	stress_waitcpu_ppc64_mdoio,	stress_waitcpu_ppc64_supported,		false, 0.0, 0.0, 0.0 },
 	{ "mdoom",	stress_waitcpu_ppc64_mdoom,	stress_waitcpu_ppc64_supported,		false, 0.0, 0.0, 0.0 },
 	{ "yield",	stress_waitcpu_ppc64_yield,	stress_waitcpu_ppc64_supported,		false, 0.0, 0.0, 0.0 },
+#endif
+#if defined(STRESS_ARCH_PPC)
+	{ "mdoio",	stress_waitcpu_ppc_mdoio,	stress_waitcpu_ppc_supported,		false, 0.0, 0.0, 0.0 },
+	{ "mdoom",	stress_waitcpu_ppc_mdoom,	stress_waitcpu_ppc_supported,		false, 0.0, 0.0, 0.0 },
+	{ "yield",	stress_waitcpu_ppc_yield,	stress_waitcpu_ppc_supported,		false, 0.0, 0.0, 0.0 },
 #endif
 #if defined(STRESS_ARCH_LOONG64)
 #if defined(HAVE_ASM_LOONG64_DBAR)
