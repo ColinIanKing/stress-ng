@@ -207,6 +207,7 @@ static int stress_atomic_lock_acquire(stress_lock_t *lock)
 #if defined(HAVE_ASM_X86_PAUSE) ||	\
     defined(HAVE_ASM_LOONG64_DBAR) ||	\
     defined(STRESS_ARCH_PPC64) ||	\
+    defined(STRESS_ARCH_PPC) ||	\
     defined(STRESS_ARCH_RISCV)
 #define STRESS_LOCK_BACKOFF
 #endif
@@ -230,6 +231,8 @@ static int stress_atomic_lock_acquire_relax(stress_lock_t *lock)
 				stress_asm_loong64_dbar();
 #elif defined(STRESS_ARCH_PPC64)
 				stress_asm_ppc64_yield();
+#elif defined(STRESS_ARCH_PPC)
+				stress_asm_ppc_yield();
 #elif defined(STRESS_ARCH_RISCV)
 				stress_asm_riscv_pause();
 #endif

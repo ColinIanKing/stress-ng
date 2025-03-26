@@ -66,6 +66,7 @@ static const stress_opt_t opts[] = {
        defined(STRESS_ARCH_M68K) ||			\
        defined(STRESS_ARCH_MIPS) ||			\
        defined(STRESS_ARCH_PPC64) ||			\
+       defined(STRESS_ARCH_PPC) ||			\
        defined(STRESS_ARCH_RISCV) ||			\
        defined(STRESS_ARCH_S390) ||			\
        defined(STRESS_ARCH_SH4) ||			\

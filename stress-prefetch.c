@@ -74,6 +74,8 @@ typedef struct {
 #define STRESS_PREFETCH_ARM_PRFM_PLDL1STRM (12)
 #define STRESS_PREFETCH_ARM_PRFM_PLDL2STRM (13)
 #define STRESS_PREFETCH_ARM_PRFM_PLDL3STRM (14)
+#define STRESS_PREFETCH_PPC_DCBT           (15)
+#define STRESS_PREFETCH_PPC_DCBTST         (16)
 
 static inline bool stress_prefetch_true(void)
 {
@@ -109,6 +111,12 @@ stress_prefetch_method_t prefetch_methods[] = {
 	{ "prfm_pldl1strm",	STRESS_PREFETCH_ARM_PRFM_PLDL1STRM,	stress_prefetch_true,	true },
 	{ "prfm_pldl2strm",	STRESS_PREFETCH_ARM_PRFM_PLDL2STRM,	stress_prefetch_true,	true },
 	{ "prfm_pldl3strm",	STRESS_PREFETCH_ARM_PRFM_PLDL3STRM,	stress_prefetch_true,	true },
+#endif
+#if defined(HAVE_ASM_PPC_DCBT)
+	{ "dcbt",		STRESS_PREFETCH_PPC_DCBT,	stress_prefetch_true,	true },
+#endif
+#if defined(HAVE_ASM_PPC_DCBTST)
+	{ "dcbtst",		STRESS_PREFETCH_PPC_DCBTST,	stress_prefetch_true,	true },
 #endif
 };
 
@@ -320,6 +328,16 @@ static inline void OPTIMIZE3 stress_prefetch_benchmark(
 			break;
 		case STRESS_PREFETCH_ARM_PRFM_PLDL3STRM:
 			STRESS_PREFETCH_LOOP(stress_asm_arm_prfm_pldl3strm, "arm prfm pldl3strm");
+			break;
+#endif
+#if defined(HAVE_ASM_PPC_DCBT)
+		case STRESS_PREFETCH_PPC_DCBT:
+			STRESS_PREFETCH_LOOP(stress_asm_ppc_dcbt, "ppc dcbt");
+			break;
+#endif
+#if defined(HAVE_ASM_PPC_DCBTST)
+		case STRESS_PREFETCH_PPC_DCBTST:
+			STRESS_PREFETCH_LOOP(stress_asm_ppc_dcbtst, "ppc dcbtst");
 			break;
 #endif
 		}

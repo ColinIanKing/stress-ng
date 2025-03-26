@@ -18,7 +18,7 @@
  */
 
 #if !defined(__PPC64__)
-#error ppc64 darn instruction not supported
+#error ppc64 msync instruction not supported
 #endif
 
 int main(void)

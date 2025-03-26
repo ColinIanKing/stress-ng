@@ -16,7 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
-#if !defined(__PPC64__)
+#if !(defined(__PPC64__) || defined(__ppc64__))
 #error ppc64 dcbtst instruction not supported
 #endif
 

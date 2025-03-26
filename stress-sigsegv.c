@@ -233,6 +233,7 @@ static void stress_sigsegv_vdso(void)
     (defined(STRESS_ARCH_ARM) ||	\
      defined(STRESS_ARCH_MIPS) ||	\
      defined(STRESS_ARCH_PPC64) || 	\
+     defined(STRESS_ARCH_PPC) || 	\
      defined(STRESS_ARCH_RISCV) ||	\
      defined(STRESS_ARCH_S390) ||	\
      defined(STRESS_ARCH_X86))
@@ -241,6 +242,7 @@ static void stress_sigsegv_vdso(void)
 #if defined(STRESS_ARCH_ARM) ||		\
     defined(STRESS_ARCH_MIPS) ||	\
     defined(STRESS_ARCH_PPC64) || 	\
+    defined(STRESS_ARCH_PPC) || 	\
     defined(STRESS_ARCH_RISCV) ||	\
     defined(STRESS_ARCH_S390) ||	\
     defined(STRESS_ARCH_X86)

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022-2025 Colin Ian King.
+ * Copyright (C) 2024-2025 Colin Ian King.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -16,20 +16,18 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
-#include <stdint.h>
-
-#if !(defined(__PPC64__) || defined(__ppc64__))
-#error ppc64 dcbst instruction not supported
+#if !(defined(__PPC__) || defined(__ppc__))
+#error ppc dcbt instruction not supported
 #endif
 
-static inline void dcbst(void *addr)
+static inline void dcbt(void *addr)
 {
-	__asm__ __volatile__ ("dcbst %y0" : : "Z"(*(uint8_t *)addr) : "memory");
+	__asm__ __volatile__("dcbt 0,%0" : : "r"(addr));
 }
 
 int main(void)
 {
 	static char buffer[1024];
 
-	dcbst(buffer);
+	dcbt(buffer);
 }

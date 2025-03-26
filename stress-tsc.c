@@ -162,7 +162,7 @@ static inline uint64_t rdtsc(void)
 	return stress_asm_x86_rdtsc();
 }
 
-#elif defined(STRESS_ARCH_PPC64) &&		\
+#elif (defined(STRESS_ARCH_PPC64) || defined(STRESS_ARCH_PPC)) &&	\
       defined(HAVE_SYS_PLATFORM_PPC_H) &&	\
       defined(HAVE_PPC_GET_TIMEBASE)
 
