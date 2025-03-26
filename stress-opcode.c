@@ -439,7 +439,7 @@ static int stress_opcode(stress_args_t *args)
 	stress_set_vma_anon_name(state, sizeof(*state), "state");
 	vstate = (volatile stress_opcode_state_t *)state;
 
-	opcodes = (void *)stress_mmap_populate(NULL, page_size * PAGES,
+	opcodes = (void *)stress_mmap_populate(NULL, page_size * (PAGES + 2),
 				PROT_READ | PROT_WRITE,
 				MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (opcodes == MAP_FAILED) {
