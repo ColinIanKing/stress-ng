@@ -82,8 +82,6 @@ static bool OPTIMIZE3 TARGET_CLONES stress_hyperbolic_coshl(stress_args_t *args)
 
 	switch (sizeof(precision)) {
 	case 16:
-		precision = 1E-12;
-		break;
 	case 12:
 		precision = 1E-8;
 		break;
@@ -145,8 +143,6 @@ static bool OPTIMIZE3 TARGET_CLONES stress_hyperbolic_sinhl(stress_args_t *args)
 
 	switch (sizeof(precision)) {
 	case 16:
-		precision = 1E-12;
-		break;
 	case 12:
 		precision = 1E-8;
 		break;
