@@ -84,8 +84,6 @@ static bool OPTIMIZE3 TARGET_CLONES stress_trig_cosl(stress_args_t *args)
 
 	switch (sizeof(precision)) {
 	case 16:
-		precision = 1E-12;
-		break;
 	case 12:
 		precision = 1E-8;
 		break;
@@ -147,8 +145,6 @@ static bool OPTIMIZE3 TARGET_CLONES stress_trig_sinl(stress_args_t *args)
 
 	switch (sizeof(precision)) {
 	case 16:
-		precision = 1E-12;
-		break;
 	case 12:
 		precision = 1E-8;
 		break;
@@ -225,8 +221,6 @@ static bool OPTIMIZE3 TARGET_CLONES stress_trig_sincosl(stress_args_t *args)
 
 	switch (sizeof(precision)) {
 	case 16:
-		precision = 1E-12;
-		break;
 	case 12:
 		precision = 1E-8;
 		break;
