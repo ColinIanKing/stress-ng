@@ -716,6 +716,7 @@ stress-ng has found various Kernel, QEMU bugs/regressions, and libc bugs; approp
  * [KernelSnitch: Side-Channel Attacks on Kernel Data Structures](https://www.ndss-symposium.org/wp-content/uploads/2025-223-paper.pdf)
  * [xPUE: Extending Power Usage Effectiveness Metrics for Cloud Infrastructures](https://arxiv.org/pdf/2503.07124)
  * [FALCON: A Framework for Fault Prediction in Open RAN Using Multi-Level Telemetry](https://arxiv.org/pdf/2503.06197)
+ * [Profiling with trust: system monitoring from trusted execution environments](https://www.researchgate.net/publication/378265673_Profiling_with_trust_system_monitoring_from_trusted_execution_environments)
 
 I am keen to add to the stress-ng project page any citations to research or
 projects that use stress-ng.  I also appreciate information concerning kernel
