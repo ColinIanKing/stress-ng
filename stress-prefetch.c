@@ -98,10 +98,12 @@ stress_prefetch_method_t prefetch_methods[] = {
 #if defined(HAVE_ASM_X86_PREFETCHNTA)
 	{ "prefetchnta",	STRESS_PREFETCH_X86_PREFETCHNTA, stress_cpu_x86_has_sse, true },
 #endif
-#if defined(HAVE_ASM_PPC64_DCBT)
+#if defined(STRESS_ARCH_PPC64) &&	\
+    defined(HAVE_ASM_PPC64_DCBT)
 	{ "dcbt",		STRESS_PREFETCH_PPC64_DCBT,	stress_prefetch_true,	true },
 #endif
-#if defined(HAVE_ASM_PPC64_DCBTST)
+#if defined(STRESS_ARCH_PPC64) &&	\
+    defined(HAVE_ASM_PPC64_DCBTST)
 	{ "dcbtst",		STRESS_PREFETCH_PPC64_DCBTST,	stress_prefetch_true,	true },
 #endif
 #if defined(HAVE_ASM_ARM_PRFM)
@@ -112,10 +114,12 @@ stress_prefetch_method_t prefetch_methods[] = {
 	{ "prfm_pldl2strm",	STRESS_PREFETCH_ARM_PRFM_PLDL2STRM,	stress_prefetch_true,	true },
 	{ "prfm_pldl3strm",	STRESS_PREFETCH_ARM_PRFM_PLDL3STRM,	stress_prefetch_true,	true },
 #endif
-#if defined(HAVE_ASM_PPC_DCBT)
+#if defined(STRESS_ARCH_PPC) &&	\
+    defined(HAVE_ASM_PPC_DCBT)
 	{ "dcbt",		STRESS_PREFETCH_PPC_DCBT,	stress_prefetch_true,	true },
 #endif
-#if defined(HAVE_ASM_PPC_DCBTST)
+#if defined(STRESS_ARCH_PPC) &&	\
+    defined(HAVE_ASM_PPC_DCBTST)
 	{ "dcbtst",		STRESS_PREFETCH_PPC_DCBTST,	stress_prefetch_true,	true },
 #endif
 };
@@ -300,12 +304,14 @@ static inline void OPTIMIZE3 stress_prefetch_benchmark(
 			STRESS_PREFETCH_LOOP(stress_asm_x86_prefetchnta, "x86 prefetchnta");
 			break;
 #endif
-#if defined(HAVE_ASM_PPC64_DCBT)
+#if defined(STRESS_ARCH_PPC64) &&	\
+    defined(HAVE_ASM_PPC64_DCBT)
 		case STRESS_PREFETCH_PPC64_DCBT:
 			STRESS_PREFETCH_LOOP(stress_asm_ppc64_dcbt, "ppc64 dcbt");
 			break;
 #endif
-#if defined(HAVE_ASM_PPC64_DCBTST)
+#if defined(STRESS_ARCH_PPC64) &&	\
+    defined(HAVE_ASM_PPC64_DCBTST)
 		case STRESS_PREFETCH_PPC64_DCBTST:
 			STRESS_PREFETCH_LOOP(stress_asm_ppc64_dcbtst, "ppc64 dcbtst");
 			break;
@@ -330,12 +336,14 @@ static inline void OPTIMIZE3 stress_prefetch_benchmark(
 			STRESS_PREFETCH_LOOP(stress_asm_arm_prfm_pldl3strm, "arm prfm pldl3strm");
 			break;
 #endif
-#if defined(HAVE_ASM_PPC_DCBT)
+#if defined(STRESS_ARCH_PPC) &&	\
+    defined(HAVE_ASM_PPC_DCBT)
 		case STRESS_PREFETCH_PPC_DCBT:
 			STRESS_PREFETCH_LOOP(stress_asm_ppc_dcbt, "ppc dcbt");
 			break;
 #endif
-#if defined(HAVE_ASM_PPC_DCBTST)
+#if defined(STRESS_ARCH_PPC) &&	\
+    defined(HAVE_ASM_PPC_DCBTST)
 		case STRESS_PREFETCH_PPC_DCBTST:
 			STRESS_PREFETCH_LOOP(stress_asm_ppc_dcbtst, "ppc dcbtst");
 			break;

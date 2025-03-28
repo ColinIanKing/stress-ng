@@ -104,7 +104,8 @@ static inline void clear_cache_page(
 }
 #endif
 
-#if defined(HAVE_ASM_PPC64_DCBST)
+#if defined(STRESS_ARCH_PPC64) &&	\
+    defined(HAVE_ASM_PPC64_DCBST)
 static inline void dcbst_page(
 	void *addr,
 	const size_t page_size,
@@ -122,7 +123,8 @@ static inline void dcbst_page(
 }
 #endif
 
-#if defined(HAVE_ASM_PPC_DCBST)
+#if defined(STRESS_ARCH_PPC) &&	\
+    defined(HAVE_ASM_PPC_DCBST)
 static inline void dcbst_page(
 	void *addr,
 	const size_t page_size,

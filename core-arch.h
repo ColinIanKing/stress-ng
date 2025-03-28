@@ -97,7 +97,8 @@
 #endif
 
 /* Arch specific PPC (32 bit ) */
-#if defined(__PPC__) || defined(__ppc__)
+#if (defined(__PPC__) || defined(__ppc__)) &&	\
+    !defined(STRESS_ARCH_PPC64)
 #define STRESS_ARCH_PPC		(1)
 #define STRESS_OPCODE_SIZE	(32)
 #define STRESS_OPCODE_MASK	(0xffffffffUL)

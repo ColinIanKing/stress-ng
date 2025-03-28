@@ -397,7 +397,8 @@ static void OPTIMIZE3 hammer_clearcache(void *addr1, void *addr2, const bool is_
 }
 #endif
 
-#if defined(HAVE_ASM_PPC64_DCBST)
+#if defined(STRESS_ARCH_PPC64) &&	\
+    defined(HAVE_ASM_PPC64_DCBST)
 /*
  *  hammer_ppc64_dcbst()
  *	powerpc64 Data Cache Block Store
@@ -426,7 +427,8 @@ static void OPTIMIZE3 hammer_ppc64_dcbst(void *addr1, void *addr2, const bool is
 }
 #endif
 
-#if defined(HAVE_ASM_PPC_DCBST)
+#if defined(STRESS_ARCH_PPC) &&	\
+    defined(HAVE_ASM_PPC_DCBST)
 /*
  *  hammer_ppc_dcbst()
  *	powerpc Data Cache Block Store
@@ -455,7 +457,8 @@ static void OPTIMIZE3 hammer_ppc_dcbst(void *addr1, void *addr2, const bool is_b
 }
 #endif
 
-#if defined(HAVE_ASM_PPC64_DCBT)
+#if defined(STRESS_ARCH_PPC64) &&	\
+    defined(HAVE_ASM_PPC64_DCBT)
 /*
  *  hammer_ppc64_dcbt()
  *	powerpc64 Data Cache Block Touch
@@ -485,7 +488,8 @@ static void OPTIMIZE3 hammer_ppc64_dcbt(void *addr1, void *addr2, const bool is_
 }
 #endif
 
-#if defined(HAVE_ASM_PPC_DCBT)
+#if defined(STRESS_ARCH_PPC) &&	\
+    defined(HAVE_ASM_PPC_DCBT)
 /*
  *  hammer_ppc_dcbt()
  *	powerpc Data Cache Block Touch
@@ -515,7 +519,8 @@ static void OPTIMIZE3 hammer_ppc_dcbt(void *addr1, void *addr2, const bool is_ba
 }
 #endif
 
-#if defined(HAVE_ASM_PPC64_DCBTST)
+#if defined(STRESS_ARCH_PPC64) &&	\
+    defined(HAVE_ASM_PPC64_DCBTST)
 /*
  *  hammer_ppc64_dcbtst()
  *	powerpc64 Data Cache Block Touch for Store
@@ -545,7 +550,8 @@ static void OPTIMIZE3 hammer_ppc64_dcbtst(void *addr1, void *addr2, const bool i
 }
 #endif
 
-#if defined(HAVE_ASM_PPC_DCBTST)
+#if defined(STRESS_ARCH_PPC) &&	\
+    defined(HAVE_ASM_PPC_DCBTST)
 /*
  *  hammer_ppc_dcbtst()
  *	powerpc Data Cache Block Touch for Store
@@ -575,7 +581,8 @@ static void OPTIMIZE3 hammer_ppc_dcbtst(void *addr1, void *addr2, const bool is_
 }
 #endif
 
-#if defined(HAVE_ASM_PPC64_MSYNC)
+#if defined(STRESS_ARCH_PPC64) &&	\
+    defined(HAVE_ASM_PPC64_MSYNC)
 /*
  *  hammer_ppc64_msync()
  *	msync to memory
@@ -915,25 +922,32 @@ static const stress_cachehammer_func_t stress_cachehammer_funcs[] = {
 #if defined(HAVE_ASM_X86_CLWB)
 	{ "clwb",	stress_cpu_x86_has_clwb,	hammer_clwb },
 #endif
-#if defined(HAVE_ASM_PPC_DCBST)
+#if defined(STRESS_ARCH_PPC) &&	\
+    defined(HAVE_ASM_PPC_DCBST)
 	{ "dcbst",	hammer_valid,			hammer_ppc_dcbst },
 #endif
-#if defined(HAVE_ASM_PPC_DCBT)
+#if defined(STRESS_ARCH_PPC) &&	\
+    defined(HAVE_ASM_PPC_DCBT)
 	{ "dcbt",	hammer_valid,			hammer_ppc_dcbt },
 #endif
-#if defined(HAVE_ASM_PPC_DCBTST)
+#if defined(STRESS_ARCH_PPC) &&	\
+    defined(HAVE_ASM_PPC_DCBTST)
 	{ "dcbtst",	hammer_valid,			hammer_ppc_dcbtst },
 #endif
-#if defined(HAVE_ASM_PPC64_DCBST)
+#if defined(STRESS_ARCH_PPC64) &&	\
+    defined(HAVE_ASM_PPC64_DCBST)
 	{ "dcbst",	hammer_valid,			hammer_ppc64_dcbst },
 #endif
-#if defined(HAVE_ASM_PPC64_DCBT)
+#if defined(STRESS_ARCH_PPC64) &&	\
+    defined(HAVE_ASM_PPC64_DCBT)
 	{ "dcbt",	hammer_valid,			hammer_ppc64_dcbt },
 #endif
-#if defined(HAVE_ASM_PPC64_DCBTST)
+#if defined(STRESS_ARCH_PPC64) &&	\
+    defined(HAVE_ASM_PPC64_DCBTST)
 	{ "dcbtst",	hammer_valid,			hammer_ppc64_dcbtst },
 #endif
-#if defined(HAVE_ASM_PPC64_MSYNC)
+#if defined(STRESS_ARCH_PPC64) &&	\
+    defined(HAVE_ASM_PPC64_MSYNC)
 	{ "msync",	hammer_valid,			hammer_ppc64_msync },
 #endif
 	{ "prefetch", 	hammer_valid,			hammer_prefetch },
