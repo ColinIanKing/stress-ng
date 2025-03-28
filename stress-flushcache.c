@@ -260,7 +260,8 @@ static inline int stress_flush_dcache(
 		if (context->x86_demote)
 			cldemote_page((void *)ptr, page_size, cl_size);
 #endif
-#if defined(HAVE_ASM_PPC64_DCBST)
+#if defined(HAVE_ASM_PPC_DCBST) ||	\
+    defined(HAVE_ASM_PPC64_DCBST)
 		dcbst_page((void *)ptr, page_size, cl_size);
 #endif
 		shim_cacheflush((void *)ptr, page_size, SHIM_DCACHE);
