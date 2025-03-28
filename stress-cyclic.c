@@ -594,7 +594,8 @@ static int stress_cyclic(stress_args_t *args)
 	uint64_t cyclic_dist = 0;
 	int32_t cyclic_prio = INT32_MAX;
 	size_t cyclic_samples = DEFAULT_SAMPLES;
-	int policy, rc = EXIT_SUCCESS;
+	NOCLOBBER int policy;
+	int rc = EXIT_SUCCESS;
 	size_t cyclic_policy = 0;
 	size_t cyclic_method = 0;
 	const double start = stress_time_now();
