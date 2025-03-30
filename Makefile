@@ -18,9 +18,9 @@
 #
 
 #
-# Codename "optimized os oppressor"
+# Codename "manic memory mangler"
 #
-VERSION=0.18.11
+VERSION=0.18.12
 
 #
 # Determine supported toolchains
