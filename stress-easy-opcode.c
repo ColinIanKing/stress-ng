@@ -360,6 +360,11 @@ again:
 
 			for (;;) {
 				((void (*)(void))(ops_begin))();
+#if defined(STRESS_ARCH_X86) &&	\
+    defined(HAVE_EASY_OPCODES)
+				__asm__ __inline__("cld;\n");
+#endif
+
 				bogo_ops++;
 
 				if (UNLIKELY(!g_stress_continue_flag))
