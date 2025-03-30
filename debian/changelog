@@ -1,3 +1,230 @@
+stress-ng (0.18.12-1) unstable; urgency=medium
+
+  [Dmitry Antipov]
+  * stress-link/memfd/mmaphuge/mmaptorture: fix global buffer overflow
+
+  [Dmitry Grand]
+  * fix error: assignment to ‘void (* const*)(stress_fma_t *)’
+
+  [Nicolas Bouton]
+  * stress-prefetch: add aarch64 load prefetch instructions (prfm)
+
+  [Sergey Fedorov]
+  * Enable PPC32 builds, use PPC32 opcodes
+
+  [Zong Li]
+  * core-asm-ret: add lpad instruction in return code on RISC-V
+
+  [Colin Ian King]
+  * debian/control: update standards version to 4.7.2
+  * stress-easycopy: ensure direction flag is cleared
+  * core-asm-ret: add PPC64 big endian and PPC little and big endian
+    support
+  * stress-flushcache: call dcbst_page for PPC and PPC64
+  * stress-*: improve checking for ppc and ppc64
+  * README.md: update contributor list
+  * stress-nop: make policy non-clobberable for ppc32 gcc 4.9.2 builds
+  * stress-cyclic: make policy non-clobberable for ppc32 gcc 4.9.2 builds
+  * README.md: add another research paper link
+  * stress-hyperbolic: long double trig should be at least as accurate
+    as double
+  * stress-trig: long double trig should be at least as accurate as
+    double
+  * stress-opcode: Fix incorrect opcode mmap size, 2 pages short
+  * stress-lockbus: add timer to break out stuck split locks on ppc64
+  * stress-regex: Fix digits regex name, should be digits and not alphas
+  * stress-physmmap: Fix spelling mistake "mappping" -> "mapping"
+  * core-shim: fix spelling mistake "obsolute" -> "obsolete"
+  * stress-tlb-shootdown: page align two more offsets
+  * stress-tlb-shootdown: msync memfd mapping using the correct size
+  * stress-malloc: only declare tmp_align for aligned allocations
+  * stress-tlb-shootdown: page align offsets
+  * stress-opcode: fix void * pointer arithmetic, use uint8_t *
+  * stress-easy-opcode: fix void * pointer arithmetic, use uint8_t *
+  * stress-misaligned: perform __uint128_t access using uint64_t pointers
+  * stress-open: always unlink file on O_TRUNC open
+  * stress-stream: add hex string compare of checksums
+  * stress-stream: fix checksum string termination, should be using
+    index j
+  * Manual: Fix spelling mistake "execises" -> "exercises"
+  * stress-physmmap: add upper region size bounds check
+  * stress-easy-opcode: ensure enough end spaces is available for
+    return ops(s)
+  * core-arch.h: move endian macros to core-arch.h
+  * stress-easy-opcode: fix ppc64 build, replace . with ,
+  * stress-opcode: clean up object code size handling
+  * stress-easy-opcode: add a simple easy opcode stressor
+  * stress-tlb-shootdown: make TLB shootdowns more aggressive, add
+    metrics
+  * core-cpu-cache: only use clflushopt if it is supported by the
+    processor
+  * stress-cpu: disable FP denormalization to improve performance
+  * core-cpu: add helpers to disable/enable fp denormalization
+  * kernel-coverage: add --physmmap-read test
+  * stress-physmmap: use VERIFY_NONE since there are no verifications
+  * core-cpu-cache: fix build issue, use renamed variable
+  * stress-physmmap: add --physmmap-read option to force read data in
+    every page
+  * stress-misaligned: use atomic_fetch_add if 2,4,8 byte variants
+    unavailable
+  * core-cpu-cache: use uint8_t for pointers to avoid void * pointer
+    arithmetic
+  * stress-cache: prefetch data closer to the CPU
+  * stress-physmmap: attempt to mmap entire region in one mmap
+  * stress-physmmap: make mappable_pages a register size_t
+  * stress-physmmap: report if no pages were mappable
+  * stress-physmmap: add physical memory mapping (/dev/mem) stressor
+  * README.md: Add Nicolas Bouton to contributors list
+  * Makefile: add sanitization build flags
+  * README.md: Add Zong Li to contributors list
+  * Remove stress-mpfr.
+  * core-parse-opts: rename scales to type of scaling
+  * stress-uprobe: cast size_t to ssize_t for sane type comparison
+  * stress-uprobe: prevent buffer overflows when parsing data
+  * stress-race-sched: fix off-by-one comparison on method_all_index
+  * stress-malloc: ensured aligned_alloc is a multiple of alignment
+  * README.md: Add Dmitry Antipov and Dmitry Grand to contributors list
+  * README.md add another research citation
+  * README.md: add some more kernel bug references
+  * stress-shellsort: use mmap data, collapse pages to try to sort on
+    hugepage mapped data
+  * stress-insertionsort: use mmap data, collapse pages to try to sort
+    on hugepage mapped data
+  * stress-heapsort: used mmap data, collapse pages to try to sort on
+    hugepage mapped data
+  * stress-bubblesort: used mmap data, collapse pages to try to sort on
+    hugepage mapped data
+  * stress-bitononicsort: fix mmap'd anon mapped name
+  * stress-bitonicsort: used mmap data, collapse pages to try to sort on
+    hugepage mapped data
+  * stress-qsort: collapse pages to try to sort on hugepage mapped data
+  * stress-mergesort: collapse pages to try to sort on hugepage mapped
+    data
+  * stress-workload: force no hugepages on mapping for more PTEs
+  * stress-numa: force no hugepages on mapping for more PTEs
+  * stress-memthrash: force no hugepages on mapping for more PTEs
+  * core-madvise: add stress_madvise_nohugepage, clean up madvise helpers
+  * core-madvise: move stress_madvise_collapse from core-helper to
+    core-madvise
+  * stress-vm: add collapse to vm-madvise options for MADV_COLLAPSE
+  * stress-matrix-3d: improve performance by using MADV_COLLAPSE
+  * stress-matrix: improve performance by using MADV_COLLAPSE
+  * stress-memrate: improve performance by using MADV_COLLAPSE
+  * core-heler: add stress_madvise_collapse to collapse pages to
+    hugepages
+  * README.md: update number of stressors and stressor types
+  * stress-umask: add umask system call exercising stressor
+  * stress-mmaptorture: add MADV_RANDOM on zero sized allocation
+  * README.md: add a couple more research paper links
+  * core-shim: add build-time check for close_range, use it in core-shim
+  * stress-prefetch: perform uint64_t pointer addition correctly
+  * core-helper: check for pipe on stdin and sort out tty width
+    accordingly
+  * README.md: add another research paper link
+  * matrix-methods.job: remove hot from hot-cpu
+  * core-cpu-cache: add #elif for cacheflush, helps static analyzer
+  * stress-bigheap: use bit-wise & for logical anding
+  * stress-numa: use bit-wise & for logical anding
+  * stress-zombie: voidify return from shim_usleep()
+  * stress-zlib: maximize/minimize --zlib-level, --zlib-mem-level
+  * stress-yield: maximize/minimize --yield-procs
+  * stress-swap: enable --swap-self on --aggressive
+  * stress-stack: enable --stack-{fill|mlock|pageout|swap} on
+    --aggressive
+  * stress-sock: maximize/minimize --sock-msgs
+  * stress-shm-sysv: enable --shm-sysv-mlock on --aggressive
+  * stress-shm: enable --shm-mlock on --aggressive
+  * Manual: fix missing sysv shared memory heading
+  * stress-sem: enable --sem-shared on --aggressive
+  * stress-resources: enable --resources-mlock on --aggressive
+  * stress-remap: minimize --remap-pages
+  * stress-readahead: limit --readahead-bytes maximized setting to MAX_32
+  * stress-randlist: maximize/minimize --randlist-items, --randlist-size
+  * stress-ramfs: fix minimize option, bump max ramfs size to 2GB
+  * stress-ramfs: make --ramfs-fill fill pages with random data
+  * stress-ng: check for stressors that should be ignore
+  * stress-ramfs: maximize/minimize --ramfs-size
+  * stress-pty: maximize/minimize --pty-max
+  * stress-pseek: maximize/minimize --pseek-io-size
+  * stress-pseek: enable --pseek-rand on --aggressive
+  * stress-poll: maximize/minimize --poll-fds
+  * stress-pipeherd: enable --pipeherd-yield on --aggressive
+  * stress-pipe: maximize/minimize --pipe-data-size, --pipe-size
+  * Manual: fix indentation on --pci-ops-rate option
+  * stress-pagemove: enable --pagemove-mlock and --pagemove-numa on
+    --aggressive
+  * stress-open: minimize --open-max
+  * stress-numa: enable numa-shuffle-addr and numa-shuffle-node on
+    --aggressive
+  * stress-numa: maximize/minimize --numa-bytes
+  * Manual: fix missing netlink task title
+  * stress-nanosleep: maximize/minimize --nanosleep-threads
+  * stress-msg: maximize/minimize --msg-bytes
+  * stress-mpfr: maximize/minimize --mpfr-precision
+  * stress-monte-carlo: maximize/minimize --monte-carlo-samples
+  * stress-mmaptorture: maximize/minimize --mmaptorture-bytes,
+    --mmaptorture-msync
+  * stress-mmaphuge: maximize/minimize --mmaphuge-mmaps
+  * stress-mmapfork: maximize --mmapfork-bytes
+  * stress-mlockmany: maximize/minimize --mlockmany-procs
+  * Manual: fix missing title for mmapmany stressor
+  * stress-malloc: maximize/minimize --malloc-pthreads
+  * stress-jpeg: maximize/minimize --jpeg-height, --jpeg-width,
+    --jpeg-quality
+  * stress-ipsec-mb: maximize/minimize --ipsec-mb-jobs
+  * stress-io-uring: maximize/minimize --io-uring-entries
+  * Manual: remove idle-page help
+  * stress-icmp-flood: maximize/minimize --icmp-flood-max-size
+  * stress-fractal: maximize/minimize --fractal-iterations,
+    --fractal-sizex, --fractal-sizey
+  * stress-fpunch: maximize/minimize --fpunch-bytes
+  * stress-forkheavy: maximize/minimize --forkheavy-allocs,
+    --forkheavy-procs
+  * stress-flipflop: maximize/minimize --flipflop-bits
+  * stress-fifo: maximize/minimize --fifo-data-size
+  * stress-fd-fork: maximize/minimize --fd-fork-fds
+  * stress-far-branch: maximize/minimize --far-branch-pages
+  * stress-factor: maximize/minimize --factor-digits
+  * stress-exec: maximize/minimize --exec-max
+  * stress-ng: fix help, iostate -> iostat
+  * stress-epoll: maximize/minimize --epoll-sockets
+  * stress-dirmany: maximize/minimize --dirmany-bytes
+  * stress-dir: maximize/minimize --dir-dirs
+  * stress-dccp: maximize/minimize dccp-msgs
+  * stress-chdir: maximize/minimize chdir-dirs
+  * stress-bigheap: maximize/minimize bigheap-bytes
+  * stress-malloc: flush pages when using --aggressive
+  * core-resources: ensure all mapped pages are touched
+  * stress-bigheap: use memory clearing calloc when using --aggressive
+  * stress-vm: flush pages when using --aggressive
+  * stress-vm-addr: flush pages when using --aggressive
+  * stress-vma: flush pages when using --aggressive
+  * stress-stack: flush touched stack pages when using --aggressive
+  * stress-stack: make --stack-fill option fill stack with random data
+  * stress-workload: use stress_cpu_data_cache_flush to flush data
+  * stress-tlb-shoodown: use stress_cpu_data_cache_flush to flush data
+  * stress-sysbadaddr: use stress_cpu_data_cache_flush to flush page
+  * stress-sigsegv: use stress_cpu_data_cache_flush to flush data
+  * stress-mcontend: use stress_cpu_data_cache_flush to flush cache line
+  * stress-prefetch: use stress_cpu_data_cache_flush for cache flushing
+  * core-cpu-cache: increment addr by cache line size
+  * core-cpu-cache: add more optimized data cache flush helper
+  * stress-pageswap: madvise populate read when using --aggressive option
+  * stress-munmap: for pages to page out with --aggressive option
+  * stress-madvise: force more swapouts/swapins with --aggressive options
+  * core-out-of-memory: Fix off-by-one array overflow error
+  * stess-bigheap: increase reallocs and memory checks with --aggressive
+  * stress-affinity: add more sched_setaffinity call with --aggressive
+    option
+  * stress-access: add more access calls with --aggressive option enabled
+  * stress-lockbus: add 1 byte and 2 byte misaligned 32 bit lock bus
+    operations
+  * stress-ng: enable specifying number of instances as % of cpus
+  * core-*, stress-*: rename num_instances to instances
+  * core-vmstat: add vmstat memory scaling option --vmstat-units U
+
+ -- Colin Ian King <colin.i.king@gmail.com>  Sun, 30 Mar 2025 13:49:32 +0100
+
 stress-ng (0.18.11-1) unstable; urgency=medium
 
   * core-helper: add check for Cygwin
