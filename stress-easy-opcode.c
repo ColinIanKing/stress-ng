@@ -362,7 +362,7 @@ again:
 				((void (*)(void))(ops_begin))();
 #if defined(STRESS_ARCH_X86) &&	\
     defined(HAVE_EASY_OPCODES)
-				__asm__ __inline__("cld;\n");
+				__asm__ __volatile__("cld;\n");
 #endif
 
 				bogo_ops++;
