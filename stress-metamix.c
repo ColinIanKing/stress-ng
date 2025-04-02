@@ -108,7 +108,7 @@ static int stress_metamix_file(
 		file_info[n].offset = offset;
 		file_info[n].data_len = data_len;
 
-		if (UNLIKELY(lseek(fd, offset, SEEK_SET) == (off_t)-1)) {
+		if (UNLIKELY(lseek(fd, offset, SEEK_SET) < 0)) {
 			pr_fail("%s: write: lseek %s failed, errno=%d (%s)%s\n",
 				args->name, filename, errno, strerror(errno), fs_type);
 			rc = EXIT_FAILURE;
@@ -234,7 +234,7 @@ static int stress_metamix_file(
 		uint32_t checksum;
 		const size_t data_len = file_info[i].data_len;
 
-		if (UNLIKELY(lseek(fd, file_info[i].offset, SEEK_SET) == (off_t)-1)) {
+		if (UNLIKELY(lseek(fd, file_info[i].offset, SEEK_SET) < 0)) {
 			pr_fail("%s: read: lseek %s failed, errno=%d (%s)%s\n",
 				args->name, filename, errno, strerror(errno), fs_type);
 			rc = EXIT_FAILURE;
