@@ -238,7 +238,7 @@ static int stress_tmpfs_child(stress_args_t *args, void *ctxt)
 		 *  exercise some random file operations
 		 */
 		offset = (off_t)stress_mwc64modn(sz + 1);
-		if (LIKELY(lseek(fd, offset, SEEK_SET) != (off_t)-1)) {
+		if (LIKELY(lseek(fd, offset, SEEK_SET) >= 0)) {
 			char data[1];
 
 			VOID_RET(ssize_t, read(fd, data, sizeof(data)));
@@ -265,7 +265,7 @@ static int stress_tmpfs_child(stress_args_t *args, void *ctxt)
 		}
 #endif
 		offset = (off_t)stress_mwc64modn(sz + 1);
-		if (LIKELY(lseek(fd, offset, SEEK_SET) != (off_t)-1)) {
+		if (LIKELY(lseek(fd, offset, SEEK_SET) >= 0)) {
 			char data[1];
 			ssize_t wr;
 
