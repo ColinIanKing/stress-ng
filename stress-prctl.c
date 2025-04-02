@@ -125,6 +125,13 @@ static const stress_help_t help[] = {
     defined(PR_GET_MEMORY_MERGE) ||		/* 68 */ \
     defined(PR_RISCV_V_SET_CONTROL) ||		/* 69 */ \
     defined(PR_RISCV_V_GET_CONTROL) ||		/* 70 */ \
+    defined(PR_RISCV_SET_ICACHE_FLUSH_CTX) ||	/* 71 */ \
+    defined(PR_PPC_GET_DEXCR) ||		/* 72 */ \
+    defined(PR_PPC_SET_DEXCR) ||		/* 73 */ \
+    defined(PR_GET_SHADOW_STACK_STATUS) ||	/* 74 */ \
+    defined(PR_SET_SHADOW_STACK_STATUS) ||	/* 75 */ \
+    defined(PR_LOCK_SHADOW_STACK_STATUS) ||	/* 76 */ \
+    defined(PR_TIMER_CREATE_RESTORE_IDS) ||	/* 77 */ \
     defined(PR_GET_AUXV) ||			/* 0x41555856 */ \
     defined(PR_SET_VMA) ||			/* 0x53564d41 */ \
     defined(PR_SET_PTRACER)			/* 0x59616d61 */
@@ -1054,6 +1061,67 @@ static int stress_prctl_child(
 	}
 #endif
 
+#if defined(PR_RISCV_SET_ICACHE_FLUSH_CTX) &&	\
+    defined(PR_RISCV_CTX_SW_FENCEI_ON) && 	\
+    defined(PR_RISCV_CTX_SW_FENCEI_OFF) &&	\
+    defined(PR_RISCV_SCOPE_PER_PROCESS)
+	/* RISC-V only, but try it on all arches */
+	{
+		if (prctl(PR_RISCV_SET_ICACHE_FLUSH_CTX, PR_RISCV_CTX_SW_FENCEI_ON, PR_RISCV_SCOPE_PER_PROCESS) >= 0)
+			(void)prctl(PR_RISCV_SET_ICACHE_FLUSH_CTX, PR_RISCV_CTX_SW_FENCEI_OFF, PR_RISCV_SCOPE_PER_PROCESS);
+	}
+#endif
+
+#if defined(PR_PPC_GET_DEXCR)
+	/* PowerPC, but try it on all arches */
+	{
+#if defined(PR_PPC_DEXCR_SBHE)
+		VOID_RET(unsigned long int, prctl(PR_PPC_GET_DEXCR, PR_PPC_DEXCR_SBHE, 0, 0, 0));
+#endif
+#if defined(PR_PPC_DEXCR_IBRTPD)
+		VOID_RET(unsigned long int, prctl(PR_PPC_GET_DEXCR, PR_PPC_DEXCR_IBRTPD, 0, 0, 0));
+#endif
+#if defined(PR_PPC_DEXCR_SRAPD)
+		VOID_RET(unsigned long int, prctl(PR_PPC_GET_DEXCR, PR_PPC_DEXCR_SRAPD, 0, 0, 0));
+#endif
+#if defined(PR_PPC_DEXCR_NPHIE)
+		VOID_RET(unsigned long int, prctl(PR_PPC_GET_DEXCR, PR_PPC_DEXCR_NPHIE, 0, 0, 0));
+#endif
+#if defined(PR_PPC_SET_DEXCR)
+		/* not exercised */
+#endif
+	}
+#endif
+
+#if defined(PR_GET_SHADOW_STACK_STATUS)
+	{
+		unsigned long mode;
+		int ret;
+
+		ret = prctl(PR_GET_SHADOW_STACK_STATUS, &mode, 0, 0, 0);
+#if defined(PR_SET_SHADOW_STACK_STATUS)
+		if (ret >= 0)
+			ret = prctl(PR_SET_SHADOW_STACK_STATUS, mode);
+#endif
+		(void)ret;
+	}
+#endif
+
+#if defined(PR_LOCK_SHADOW_STACK_STATUS)
+	/* not implemented (yet) */
+#endif
+
+#if defined(PR_TIMER_CREATE_RESTORE_IDS) &&	\
+    defined(PR_TIMER_CREATE_RESTORE_IDS_OFF) &&	\
+    defined(PR_TIMER_CREATE_RESTORE_IDS_ON) &&	\
+    defined(PR_TIMER_CREATE_RESTORE_IDS_GET)
+	{
+		if (prctl(PR_TIMER_CREATE_RESTORE_IDS, PR_TIMER_CREATE_RESTORE_IDS_ON, 0, 0, 0) >= 0) {
+			VOID_RET(int, prctl(PR_TIMER_CREATE_RESTORE_IDS, PR_TIMER_CREATE_RESTORE_IDS_GET, 0, 0, 0));
+			VOID_RET(int, prctl(PR_TIMER_CREATE_RESTORE_IDS, PR_TIMER_CREATE_RESTORE_IDS_OFF, 0, 0, 0));
+		}
+	}
+#endif
 	stress_arch_prctl();
 
 	stress_prctl_syscall_user_dispatch(args);
