@@ -28,6 +28,7 @@
 #define SETTING_FREQ			(SETTING_SCALING_FREQ | SETTING_CPUINFO_FREQ)
 #define SETTING_ENERGY_PERF_BIAS	(0x04)
 #define SETTING_GOVERNOR		(0x08)
+#define SETTING_RESUME_LATENCY_US	(0x10)
 
 typedef struct {
 	const char *path;		/* Path of /sys control */
@@ -43,6 +44,7 @@ typedef struct {
 	uint64_t scaling_min_freq;	/* Min scaling frequency */
 	uint64_t cpuinfo_max_freq;	/* Max cpu frequency */
 	uint64_t cpuinfo_min_freq;	/* Min cpu frequency */
+	uint64_t resume_latency_us;	/* pm_qos_resume_latency_us */
 	char cur_governor[128];		/* Original governor setting */
 	uint8_t setting_flag;		/* 0 if setting can't be read or set */
 	int8_t	energy_perf_bias;	/* Energy perf bias */
@@ -79,6 +81,7 @@ static void stress_ignite_cpu_set(
 	const int32_t cpu,
 	const uint64_t max_freq,
 	const uint64_t min_freq,
+	const uint64_t resume_latency_us,
 	const int8_t energy_perf_bias,
 	const char *governor,
 	uint8_t *setting_flag)
@@ -111,6 +114,15 @@ static void stress_ignite_cpu_set(
 				break;
 			freq -= freq_delta;
 		}
+	}
+
+	if (*setting_flag & SETTING_RESUME_LATENCY_US) {
+		(void)snprintf(path, sizeof(path),
+			"/sys/devices/system/cpu/cpu%" PRId32
+			"/power/pm_qos_resume_latency_us", cpu);
+		(void)snprintf(buffer, sizeof(buffer), "%" PRIu64 "\n", resume_latency_us);
+		if (stress_system_write(path, buffer, strlen(buffer)) < 0)
+			*setting_flag &= ~SETTING_RESUME_LATENCY_US;
 	}
 
 	if ((*setting_flag & SETTING_ENERGY_PERF_BIAS) && (energy_perf_bias >= 0)) {
@@ -171,6 +183,7 @@ void stress_ignite_cpu_start(void)
 			cpu_settings[cpu].scaling_min_freq = 0;
 			cpu_settings[cpu].cpuinfo_max_freq = 0;
 			cpu_settings[cpu].cpuinfo_min_freq = 0;
+			cpu_settings[cpu].resume_latency_us = 0;
 			cpu_settings[cpu].setting_flag = 0;
 			cpu_settings[cpu].energy_perf_bias = -1;
 
@@ -185,6 +198,7 @@ void stress_ignite_cpu_start(void)
 				if (ret == 1)
 					cpu_settings[cpu].setting_flag |= SETTING_SCALING_FREQ;
 			}
+
 			(void)shim_memset(buffer, 0, sizeof(buffer));
 			(void)snprintf(path, sizeof(path),
 				"/sys/devices/system/cpu/cpu%" PRId32
@@ -208,6 +222,7 @@ void stress_ignite_cpu_start(void)
 				if (ret == 1)
 					cpu_settings[cpu].setting_flag |= SETTING_CPUINFO_FREQ;
 			}
+
 			(void)shim_memset(buffer, 0, sizeof(buffer));
 			(void)snprintf(path, sizeof(path),
 				"/sys/devices/system/cpu/cpu%" PRId32
@@ -218,6 +233,18 @@ void stress_ignite_cpu_start(void)
 					&cpu_settings[cpu].cpuinfo_min_freq);
 				if (ret != 1)
 					cpu_settings[cpu].setting_flag &= ~SETTING_CPUINFO_FREQ;
+			}
+
+			(void)shim_memset(buffer, 0, sizeof(buffer));
+			(void)snprintf(path, sizeof(path),
+				"/sys/devices/system/cpu/cpu%" PRId32
+				"/power/pm_qos_resume_latency_us", cpu);
+			ret = stress_system_read(path, buffer, sizeof(buffer));
+			if (ret > 0) {
+				ret = sscanf(buffer, "%" SCNu64,
+					&cpu_settings[cpu].resume_latency_us);
+				if (ret == 1)
+					cpu_settings[cpu].setting_flag |= SETTING_RESUME_LATENCY_US;
 			}
 
 			(void)shim_memset(cpu_settings[cpu].cur_governor, 0,
@@ -325,6 +352,7 @@ void stress_ignite_cpu_start(void)
 					stress_ignite_cpu_set(true, cpu,
 						cpu_settings[cpu].cpuinfo_max_freq,
 						cpu_settings[cpu].cpuinfo_min_freq,
+						1,
 						0,
 						governor,
 						&cpu_settings[cpu].setting_flag);
@@ -358,6 +386,7 @@ void stress_ignite_cpu_stop(void)
 			stress_ignite_cpu_set(false, cpu,
 				cpu_settings[cpu].cpuinfo_max_freq,
 				cpu_settings[cpu].cpuinfo_min_freq,
+				cpu_settings[cpu].resume_latency_us,
 				cpu_settings[cpu].energy_perf_bias,
 				cpu_settings[cpu].cur_governor,
 				&cpu_settings[cpu].setting_flag);
