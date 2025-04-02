@@ -582,7 +582,7 @@ static int stress_file_ioctl(stress_args_t *args)
 			r.l_len = (int64_t)file_sz * 2;
 			VOID_RET(int, ioctl(fd, FS_IOC_RESVSP, &r));
 
-			if (lseek(fd, (off_t)0, SEEK_SET) != (off_t)-1) {
+			if (lseek(fd, (off_t)0, SEEK_SET) >= 0) {
 				(void)shim_memset(&r, 0, sizeof(r));
 				r.l_whence = SEEK_CUR;
 				r.l_start = (int64_t)0;
@@ -612,7 +612,7 @@ static int stress_file_ioctl(stress_args_t *args)
 
 			VOID_RET(int, ioctl(fd, FS_IOC_RESVSP64, &r));
 
-			if (lseek(fd, (off_t)0, SEEK_SET) != (off_t)-1) {
+			if (lseek(fd, (off_t)0, SEEK_SET) >= 0) {
 				(void)shim_memset(&r, 0, sizeof(r));
 				r.l_whence = SEEK_CUR;
 				r.l_start = (int64_t)0;
