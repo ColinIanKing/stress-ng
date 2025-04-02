@@ -494,6 +494,7 @@ stress-ng has found various Kernel, QEMU bugs/regressions, and libc bugs; approp
 * [can: m_can: fix missed interrupts with m_can_pci](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=743375f8deee360b0e902074bab99b0c9368d42f)
 * [sched/deadline: Fix warning in migrate_enable for boosted tasks](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=0664e2c311b9fa43b33e3e81429cd0c2d7f9c638)
 * [iomap: elide flush from partial eof zero range](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=fde4c4c3ec1c1590eb09f97f9525fa7dd8df8343)
+* [opening /dev/snapshot twice causes oops](https://bugzilla.kernel.org/show_bug.cgi?id=219975)
 
 2025:
 * [Tegra Security Engine driver improvements](https://www.spinics.net/lists/kernel/msg5546707.html)
