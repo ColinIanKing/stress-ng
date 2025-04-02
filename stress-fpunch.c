@@ -103,9 +103,8 @@ static ssize_t stress_punch_pwrite(
 #else
 	if (UNLIKELY(!stress_continue(args)))
 		return 0;
-	if (lseek(fd, offset, SEEK_SET) < (off_t)-1)
+	if (lseek(fd, offset, SEEK_SET) < 0)
 		return 0;
-
 	if (UNLIKELY(!stress_continue(args)))
 		return 0;
 	return write(fd, data, size);
@@ -129,7 +128,7 @@ static inline int stress_punch_check_zero(
 #if defined(HAVE_PREADV)
 	ret = pread(fd, data, size, offset);
 #else
-	if (lseek(fd, offset, SEEK_SET) < (off_t)-1)
+	if (lseek(fd, offset, SEEK_SET) < 0)
 		return 0;
 	ret = read(fd, data, size);
 #endif
