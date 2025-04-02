@@ -165,6 +165,12 @@ static const unsigned int init_flags[] =
 #if defined(FAN_REPORT_NAME)
 	FAN_REPORT_NAME,
 #endif
+#if defined(FAN_REPORT_TID)
+	FAN_REPORT_TID,
+#endif
+#if defined(FAN_REPORT_FID)
+	FAN_REPORT_FID,
+#endif
 #if defined(FAN_REPORT_DIR_FID)
 	FAN_REPORT_DIR_FID,
 #endif
@@ -173,6 +179,12 @@ static const unsigned int init_flags[] =
 #endif
 #if defined(FAN_REPORT_TARGET_FID)
 	FAN_REPORT_TARGET_FID,
+#endif
+#if defined(FAN_REPORT_FD_ERROR)
+	FAN_REPORT_FD_ERROR,
+#endif
+#if defined(FAN_REPORT_MNT)
+	FAN_REPORT_MNT,
 #endif
 };
 
