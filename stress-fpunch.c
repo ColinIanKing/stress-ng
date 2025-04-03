@@ -26,6 +26,11 @@
 #define MAX_FPUNCH_BYTES	(2 * GB)
 #define DEFAULT_FPUNCH_BYTES	(16 * MB)
 
+#if defined(HAVE_PREADV) || \
+    defined(HAVE_PWRITEV)
+#define HAVE_PREADV_WRITEV
+#endif
+
 static const stress_help_t help[] = {
 	{ NULL,	"fpunch N",		"start N workers punching holes in a 16MB file" },
 	{ NULL,	"fpunch-bytes N",	"size of file being punched" },
@@ -334,8 +339,6 @@ static int stress_fpunch(stress_args_t *args)
 			args->name, filename, errno, strerror(errno));
 		goto tidy_temp;
 	}
-	(void)shim_unlink(filename);
-
 	stress_file_rw_hint_short(fd);
 
 	(void)shim_memset(&buf->buf_before, 0xff, sizeof(buf->buf_before));
@@ -374,16 +377,37 @@ static int stress_fpunch(stress_args_t *args)
 		if (s_pids[i].pid == 0) {
 			s_pids[i].pid = getpid();
 			stress_sync_start_wait_s_pid(&s_pids[i]);
+			int ret;
+#if !defined(HAVE_PREADV_WRITEV)
+			int tmp_fd;
+#endif
 
 			VOID_RET(int, stress_sighandler(args->name, SIGALRM, stress_fpunch_child_handler, NULL));
-			if (stress_punch_file(args, buf, fpunch_bytes, i, fd) < 0)
+#if defined(HAVE_PREADV_WRITEV)
+			ret = stress_punch_file(args, buf, fpunch_bytes, i, fd);
+			(void)close(fd);
+#else
+			/*
+			 *  If system does not support preadv/pwritev then
+			 *  each child requires it's own fd. This is because
+			 *  lseeks on a shared fd will set the offset for all
+			 *  the child processes sharing the fd and we want to
+			 *  avoid this.
+			 */
+			if ((tmp_fd = open(filename, O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
+				rc = stress_exit_status(errno);
+				pr_fail("%s: open %s failed, errno=%d (%s)\n",
+					args->name, filename, errno, strerror(errno));
 				_exit(EXIT_FAILURE);
-			_exit(EXIT_SUCCESS);
+			}
+			ret = stress_punch_file(args, buf, fpunch_bytes, i, tmp_fd);
+			(void)close(tmp_fd);
+#endif
+			_exit((ret < 0) ? EXIT_FAILURE : EXIT_SUCCESS);
 		} else if (s_pids[i].pid > 0) {
 			stress_sync_start_s_pid_list_add(&s_pids_head, &s_pids[i]);
 		}
 	}
-
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
 	stress_sync_start_cont_list(s_pids_head);
@@ -402,6 +426,7 @@ static int stress_fpunch(stress_args_t *args)
 		(double)extents, STRESS_METRIC_GEOMETRIC_MEAN);
 
 tidy:
+	(void)shim_unlink(filename);
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	if (fd != -1)
 		(void)close(fd);
