@@ -329,6 +329,8 @@ rewait:
 
 			/* If we got killed by OOM killer, re-start */
 			if ((signals[signal_idx] != SIGKILL) && (WTERMSIG(status) == SIGKILL)) {
+				bool oomed = stress_process_oomed(pid);
+
 				/*
 				 *  The --oomable flag was enabled, so
 				 *  the behaviour here is to no longer
@@ -339,19 +341,25 @@ rewait:
 				if (g_opt_flags & OPT_FLAGS_OOMABLE) {
 					stress_log_system_mem_info();
 					if (not_quiet)
-						pr_dbg("%s: assuming killed by OOM "
+						pr_dbg("%s: %sPID %" PRIdMAX " killed by OOM "
 							"killer, bailing out "
 							"(instance %d)\n",
-							args->name, args->instance);
+							args->name,
+							oomed ? "" : "assuming ",
+							(intmax_t)pid,
+							args->instance);
 					stress_clean_dir(args->name, args->pid, args->instance);
 					return EXIT_SUCCESS;
 				} else {
 					stress_log_system_mem_info();
 					if (not_quiet)
-						pr_dbg("%s: assuming killed by OOM "
+						pr_dbg("%s: %sPID %" PRIdMAX " killed by OOM "
 							"killer, restarting again "
 							"(instance %d)\n",
-							args->name, args->instance);
+							args->name,
+							oomed ? "" : "assuming ",
+							(intmax_t)pid,
+							args->instance);
 					ooms++;
 					goto again;
 				}
@@ -359,10 +367,12 @@ rewait:
 			/* If we got killed by sigsegv, re-start */
 			if (WTERMSIG(status) == SIGSEGV) {
 				if (not_quiet)
-					pr_dbg("%s: killed by SIGSEGV, "
+					pr_dbg("%s: PID %" PRIdMAX " killed by SIGSEGV, "
 						"restarting again "
 						"(instance %d)\n",
-						args->name, args->instance);
+						args->name,
+						(intmax_t)pid,
+						args->instance);
 				segvs++;
 				goto again;
 			}
