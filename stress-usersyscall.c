@@ -223,7 +223,7 @@ static int OPTIMIZE3 stress_usersyscall(stress_args_t *args)
 
 	ret = sigaction(SIGSYS, &action, NULL);
 	if (ret < 0) {
-		pr_fail("%s: sigaction SIGSYS: errno=%d (%s)\n",
+		pr_fail("%s: sigaction SIGSYS failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}

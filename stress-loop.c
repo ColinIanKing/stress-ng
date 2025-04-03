@@ -165,7 +165,7 @@ static int stress_loop(stress_args_t *args)
 		 */
 		ctrl_dev = open("/dev/loop-control", O_RDWR);
 		if (ctrl_dev < 0) {
-			pr_fail("%s: cannot open /dev/loop-control: %d (%s)\n",
+			pr_fail("%s: cannot open /dev/loop-control, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			break;
 		}

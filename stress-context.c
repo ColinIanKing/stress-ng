@@ -135,7 +135,7 @@ static int stress_context_init(
 	(void)shim_memset(context_data, 0, sizeof(*context_data));
 
 	if (getcontext(&context_data->cu.uctx) < 0) {
-		pr_fail("%s: getcontext failed: %d (%s)\n",
+		pr_fail("%s: getcontext failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return -1;
 	}
@@ -144,7 +144,7 @@ static int stress_context_init(
 					PROT_READ | PROT_WRITE,
 					MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (context_data->stack == MAP_FAILED) {
-		pr_fail("%s: mmap of %d bytes for stack failed: %d (%s)\n",
+		pr_fail("%s: mmap of %d bytes for stack failed, errno=%d (%s)\n",
 			args->name, STACK_ALLOC, errno, strerror(errno));
 		return -1;
 	}
@@ -211,7 +211,7 @@ static int stress_context(stress_args_t *args)
 	/* And start.. */
 	t = stress_time_now();
 	if (swapcontext(&uctx_main, &context[0].cu.uctx) < 0) {
-		pr_fail("%s: swapcontext failed: %d (%s)\n",
+		pr_fail("%s: swapcontext failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		rc = EXIT_FAILURE;
 		goto fail;

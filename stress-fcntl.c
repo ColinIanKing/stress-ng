@@ -94,7 +94,7 @@ static void check_return(
 		if ((errno != EINVAL) &&
 		    (errno != EINTR) &&
 		    (errno != EPERM)) {
-			pr_fail("%s: fcntl %s failed: errno=%d (%s)\n",
+			pr_fail("%s: fcntl %s failed, errno=%d (%s)\n",
 				args->name, cmd, errno, strerror(errno));
 			*rc = EXIT_FAILURE;
 		}

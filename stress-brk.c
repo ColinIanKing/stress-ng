@@ -234,7 +234,7 @@ static int OPTIMIZE3 stress_brk_child(stress_args_t *args, void *context)
 				VOID_RET(int, shim_brk(start_ptr));
 				i = 0;
 			} else {
-				pr_fail("%s: sbrk(%d) failed: errno=%d (%s)\n",
+				pr_fail("%s: sbrk(%d) failed, errno=%d (%s)\n",
 					args->name, (int)page_size, saved_errno,
 					strerror(saved_errno));
 				return EXIT_FAILURE;

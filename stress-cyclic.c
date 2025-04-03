@@ -661,7 +661,7 @@ static int stress_cyclic(stress_args_t *args)
 						PROT_READ | PROT_WRITE,
 						MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (rt_stats == MAP_FAILED) {
-		pr_inf_skip("%s: mmap of shared statistics data failed: %d (%s)\n",
+		pr_inf_skip("%s: mmap of shared statistics data failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
@@ -673,7 +673,7 @@ static int stress_cyclic(stress_args_t *args)
 						PROT_READ | PROT_WRITE,
 						MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (rt_stats->latencies == MAP_FAILED) {
-		pr_inf_skip("%s: mmap of %zd samples failed: %d (%s)\n",
+		pr_inf_skip("%s: mmap of %zd samples failed, errno=%d (%s)\n",
 			args->name, cyclic_samples, errno, strerror(errno));
 		(void)munmap((void *)rt_stats, size);
 		return EXIT_NO_RESOURCE;
@@ -799,7 +799,7 @@ redo_policy:
 
 				if (count == 0)
 					pr_fail("%s: sched_setscheduler "
-						"failed: errno=%d (%s) "
+						"failed, errno=%d (%s) "
 						"for scheduler policy %s%s\n",
 						args->name, errno, strerror(errno),
 						cyclic_policies[cyclic_policy].name,

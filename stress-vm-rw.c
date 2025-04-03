@@ -162,7 +162,7 @@ cleanup:
 	if (UNLIKELY(write(ctxt->pipe_wr[1], &msg_wr, sizeof(msg_wr)) <= 0)) {
 		if (errno != EBADF)
 			pr_dbg("%s: failed to write termination message "
-				"over pipe: errno=%d (%s)\n",
+				"over pipe, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 	}
 
@@ -343,7 +343,7 @@ fail:
 		if (errno != EBADF)
 			pr_dbg("%s: failed to write "
 				"termination message "
-				"over pipe: errno=%d (%s)\n",
+				"over pipe, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 	}
 	(void)close(ctxt->pipe_wr[0]);

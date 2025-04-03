@@ -221,7 +221,7 @@ static int stress_bubblesort(stress_args_t *args)
 		stress_sort_compare_reset();
 		t = stress_time_now();
 		if (bubblesort_func(data, n, sizeof(*data), stress_sort_cmp_fwd_int32) < 0) {
-			pr_fail("%s: bubblesort of random data failed: %d (%s)\n",
+			pr_fail("%s: bubblesort of random data failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			rc = EXIT_FAILURE;
 		} else {
@@ -247,7 +247,7 @@ static int stress_bubblesort(stress_args_t *args)
 		stress_sort_compare_reset();
 		t = stress_time_now();
 		if (bubblesort_func(data, n, sizeof(*data), stress_sort_cmp_rev_int32) < 0) {
-			pr_fail("%s: reversed bubblesort of random data failed: %d (%s)\n",
+			pr_fail("%s: reversed bubblesort of random data failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			rc = EXIT_FAILURE;
 		} else {
@@ -276,7 +276,7 @@ static int stress_bubblesort(stress_args_t *args)
 		stress_sort_compare_reset();
 		t = stress_time_now();
 		if (bubblesort_func(data, n, sizeof(*data), stress_sort_cmp_rev_int32) < 0) {
-			pr_fail("%s: reversed bubblesort of random data failed: %d (%s)\n",
+			pr_fail("%s: reversed bubblesort of random data failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			rc = EXIT_FAILURE;
 		} else {

@@ -133,7 +133,7 @@ static void stress_ramfs_umount(stress_args_t *args, const char *path)
 			goto misc_tests;
 		default:
 			/* Unexpected, so report it */
-			pr_inf("%s: umount failed %s: %d %s\n", args->name,
+			pr_inf("%s: umount failed %s, errno=%d %s\n", args->name,
 				path, errno, strerror(errno));
 			break;
 		}
@@ -366,7 +366,7 @@ static int stress_ramfs_child(stress_args_t *args)
 			if ((errno == ENOSYS) ||
 			    (errno == ENODEV))
 				goto skip_fsopen;
-			pr_fail("%s: fsopen failed: errno=%d (%s)\n",
+			pr_fail("%s: fsopen failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			goto skip_fsopen;
 		}
@@ -374,7 +374,7 @@ static int stress_ramfs_child(stress_args_t *args)
 		if (shim_fsconfig(fd, FSCONFIG_SET_STRING, "size", opt, 0) < 0) {
 			if (errno == ENOSYS)
 				goto cleanup_fd;
-			pr_fail("%s: fsconfig failed: errno=%d (%s)\n",
+			pr_fail("%s: fsconfig failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			rc = EXIT_FAILURE;
 			goto cleanup_fd;
@@ -382,7 +382,7 @@ static int stress_ramfs_child(stress_args_t *args)
 		if (shim_fsconfig(fd, FSCONFIG_CMD_CREATE, NULL, NULL, 0) < 0) {
 			if (errno == ENOSYS)
 				goto cleanup_fd;
-			pr_fail("%s: fsconfig failed: errno=%d (%s)\n",
+			pr_fail("%s: fsconfig failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			rc = EXIT_FAILURE;
 			goto cleanup_fd;
@@ -397,7 +397,7 @@ static int stress_ramfs_child(stress_args_t *args)
 			 */
 			if ((errno == ENOSPC) || (errno == ENOMEM))
 				goto cleanup_fd;
-			pr_fail("%s: fsmount failed: errno=%d (%s)\n",
+			pr_fail("%s: fsmount failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			rc = EXIT_FAILURE;
 			goto cleanup_fd;
@@ -405,7 +405,7 @@ static int stress_ramfs_child(stress_args_t *args)
 		if (shim_move_mount(mfd, "", AT_FDCWD, realpathname, MOVE_MOUNT_F_EMPTY_PATH) < 0) {
 			if (errno == ENOSYS)
 				goto cleanup_mfd;
-			pr_fail("%s: move_mount failed: errno=%d (%s)\n",
+			pr_fail("%s: move_mount failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			rc = EXIT_FAILURE;
 			goto cleanup_mfd;
@@ -455,7 +455,7 @@ again:
 				goto again;
 			if (UNLIKELY(!stress_continue(args)))
 				goto finish;
-			pr_err("%s: fork failed: errno=%d (%s)\n",
+			pr_err("%s: fork failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 		} else if (pid > 0) {
 			pid_t waitret;
@@ -465,7 +465,7 @@ again:
 			waitret = shim_waitpid(pid, &status, 0);
 			if (waitret < 0) {
 				if (errno != EINTR) {
-					pr_dbg("%s: waitpid() on PID %" PRIdMAX "failed, errno=%d (%s)\n",
+					pr_dbg("%s: waitpid() on PID %" PRIdMAX " failed, errno=%d (%s)\n",
 						args->name, (intmax_t)pid, errno, strerror(errno));
 					(void)stress_kill_pid(pid);
 				}

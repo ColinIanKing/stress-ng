@@ -300,7 +300,7 @@ static int stress_switch_sem_sysv(
 			break;
 	}
 	if (sem_id < 0) {
-		pr_err("%s: semaphore init (SYSV) failed: errno=%d (%s)\n",
+		pr_err("%s: semaphore init (SYSV) failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
                 return EXIT_FAILURE;
         }
@@ -415,7 +415,7 @@ static int stress_switch_mq(
 	attr.mq_curmsgs = 0;
 	mq = mq_open(mq_name, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR, &attr);
 	if (mq < 0) {
-		pr_err("%s: message queue open failed: errno=%d (%s)\n",
+		pr_err("%s: message queue open failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
                 return EXIT_FAILURE;
 	}

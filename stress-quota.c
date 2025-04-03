@@ -175,7 +175,7 @@ static int do_quotactl(
 			return errno;
 		default:
 			status->failed++;
-			pr_fail("%s: quotactl command %s on %s (%s) failed: errno=%d (%s)\n",
+			pr_fail("%s: quotactl command %s on %s (%s) failed, errno=%d (%s)\n",
 				args->name, cmdname, dev->name, dev->mount, errno, strerror(errno));
 		}
 	}
@@ -344,7 +344,7 @@ static int stress_quota(stress_args_t *args)
 
 	dir = opendir("/dev/");
 	if (!dir) {
-		pr_err("%s: opendir on /dev failed: errno=%d: (%s)\n",
+		pr_err("%s: opendir on /dev failed, errno=%d: (%s)\n",
 			args->name, errno, strerror(errno));
 		return rc;
 	}

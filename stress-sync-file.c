@@ -64,7 +64,7 @@ static int stress_sync_allocate(
 
 	ret = ftruncate(fd, 0);
 	if (UNLIKELY(ret < 0)) {
-		pr_err("%s: ftruncate failed: errno=%d (%s)%s\n",
+		pr_err("%s: ftruncate failed, errno=%d (%s)%s\n",
 			args->name, errno, strerror(errno), fs_type);
 		return -errno;
 	}
@@ -74,7 +74,7 @@ static int stress_sync_allocate(
 	if (UNLIKELY(ret < 0)) {
 		if ((errno == ENOSPC) || (errno == EINTR))
 			return -errno;
-		pr_fail("%s: fdatasync failed: errno=%d (%s)%s\n",
+		pr_fail("%s: fdatasync failed, errno=%d (%s)%s\n",
 			args->name, errno, strerror(errno), fs_type);
 		return -errno;
 	}
@@ -88,7 +88,7 @@ static int stress_sync_allocate(
 			return 0;
 		if (errno == ENOSPC)
 			return -errno;
-		pr_err("%s: fallocate failed: errno=%d (%s)%s\n",
+		pr_err("%s: fallocate failed, errno=%d (%s)%s\n",
 			args->name, errno, strerror(errno), fs_type);
 		return -errno;
 	}
@@ -125,7 +125,7 @@ static int stress_sync_file(stress_args_t *args)
 		filename, sizeof(filename), stress_mwc32());
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		if ((errno == ENFILE) || (errno == ENOMEM) || (errno == ENOSPC)) {
-			pr_inf_skip("%s: cannot create file to sync on, skipping stressor: errno=%d (%s)\n",
+			pr_inf_skip("%s: cannot create file to sync on, skipping stressor, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			return EXIT_NO_RESOURCE;
 		}

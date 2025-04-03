@@ -282,7 +282,7 @@ static int stress_sigsegv(stress_args_t *args)
 	ro_ptr = (uint8_t *)mmap(NULL, args->page_size, PROT_READ,
 		MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (ro_ptr == MAP_FAILED) {
-		pr_inf_skip("%s: mmap of read only page failed: "
+		pr_inf_skip("%s: mmap of read only page failed, "
 			"errno=%d (%s), skipping stressor\n",
 			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
@@ -293,7 +293,7 @@ static int stress_sigsegv(stress_args_t *args)
 	none_ptr = (uint8_t *)mmap(NULL, args->page_size, PROT_NONE,
 		MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (none_ptr == MAP_FAILED) {
-		pr_inf_skip("%s: mmap of write only page failed: "
+		pr_inf_skip("%s: mmap of write only page failed, "
 			"errno=%d (%s), skipping stressor\n",
 			args->name, errno, strerror(errno));
 		(void)munmap((void *)ro_ptr, args->page_size);
@@ -307,7 +307,7 @@ static int stress_sigsegv(stress_args_t *args)
 	guard_ptr = (uint8_t *)mmap(NULL, args->page_size, PROT_READ | PROT_WRITE,
 		MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (guard_ptr == MAP_FAILED) {
-		pr_inf_skip("%s: mmap of guard page failed: "
+		pr_inf_skip("%s: mmap of guard page failed, "
 			"errno=%d (%s), skipping stressor\n",
 			args->name, errno, strerror(errno));
 		(void)munmap((void *)none_ptr, args->page_size);
@@ -351,19 +351,19 @@ static int stress_sigsegv(stress_args_t *args)
 #endif
 		ret = sigaction(SIGSEGV, &action, NULL);
 		if (UNLIKELY(ret < 0)) {
-			pr_fail("%s: sigaction SIGSEGV: errno=%d (%s)\n",
+			pr_fail("%s: sigaction SIGSEGV failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			goto tidy;
 		}
 		ret = sigaction(SIGILL, &action, NULL);
 		if (UNLIKELY(ret < 0)) {
-			pr_fail("%s: sigaction SIGILL: errno=%d (%s)\n",
+			pr_fail("%s: sigaction SIGILL failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			goto tidy;
 		}
 		ret = sigaction(SIGBUS, &action, NULL);
 		if (UNLIKELY(ret < 0)) {
-			pr_fail("%s: sigaction SIGBUS: errno=%d (%s)\n",
+			pr_fail("%s: sigaction SIGBUS failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			goto tidy;
 		}

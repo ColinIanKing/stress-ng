@@ -173,7 +173,7 @@ static int stress_shm_posix_child(
 			shm_name[SHM_NAME_LEN - 1] = '\0';
 			(void)shim_strscpy(msg.shm_name, shm_name, SHM_NAME_LEN);
 			if (UNLIKELY(write(fd, &msg, sizeof(msg)) < 0)) {
-				pr_err("%s: write failed: errno=%d: (%s)\n",
+				pr_err("%s: write failed, errno=%d: (%s)\n",
 					args->name, errno, strerror(errno));
 				rc = EXIT_FAILURE;
 				(void)close(shm_fd);
@@ -318,7 +318,7 @@ reap:
 			msg.shm_name[SHM_NAME_LEN - 1] = '\0';
 			(void)shim_strscpy(msg.shm_name, shm_name, SHM_NAME_LEN - 1);
 			if (UNLIKELY(write(fd, &msg, sizeof(msg)) < 0)) {
-				pr_dbg("%s: write failed: errno=%d: (%s)\n",
+				pr_dbg("%s: write failed, errno=%d: (%s)\n",
 					args->name, errno, strerror(errno));
 				ok = false;
 			}
@@ -331,7 +331,7 @@ reap:
 	msg.index = -1;
 	(void)shim_strscpy(msg.shm_name, "", SHM_NAME_LEN);
 	if (UNLIKELY(write(fd, &msg, sizeof(msg)) < 0)) {
-		pr_err("%s: write failed: errno=%d: (%s)\n",
+		pr_err("%s: write failed, errno=%d: (%s)\n",
 			args->name, errno, strerror(errno));
 		rc = EXIT_FAILURE;
 	}
@@ -416,7 +416,7 @@ again:
 				rc = EXIT_SUCCESS;
 				goto finish;
 			}
-			pr_err("%s: fork failed: errno=%d: (%s)\n",
+			pr_err("%s: fork failed, errno=%d: (%s)\n",
 				args->name, errno, strerror(errno));
 			(void)close(pipefds[0]);
 			(void)close(pipefds[1]);

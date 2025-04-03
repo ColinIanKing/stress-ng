@@ -168,7 +168,7 @@ static int stress_uprobe(stress_args_t *args)
 					goto terminate;
 				}
 			}
-			pr_inf_skip("%s: cannot open trace file: errno=%d (%s), skipping stressor\n",
+			pr_inf_skip("%s: cannot open trace file, errno=%d (%s), skipping stressor\n",
 				args->name, errno, strerror(errno));
 			stress_continue_set_flag(false);
 			rc = EXIT_NO_RESOURCE;
@@ -181,7 +181,7 @@ static int stress_uprobe(stress_args_t *args)
 		ret = stress_uprobe_write("/sys/kernel/debug/tracing/uprobe_events",
 			O_WRONLY | O_CREAT | O_APPEND, buf);
 		if (UNLIKELY(ret < 0)) {
-			pr_inf_skip("%s: cannot set uprobe_event: errno=%d (%s), skipping stressor\n",
+			pr_inf_skip("%s: cannot set uprobe_event, errno=%d (%s), skipping stressor\n",
 				args->name, errno, strerror(errno));
 			rc = EXIT_NO_RESOURCE;
 			goto terminate;
@@ -191,7 +191,7 @@ static int stress_uprobe(stress_args_t *args)
 		(void)snprintf(buf, sizeof(buf), "/sys/kernel/debug/tracing/events/uprobes/%s/enable", event);
 		ret = stress_uprobe_write(buf, O_WRONLY | O_CREAT | O_TRUNC, "1\n");
 		if (UNLIKELY(ret < 0)) {
-			pr_inf_skip("%s: cannot enable uprobe_event: errno=%d (%s), skipping stressor\n",
+			pr_inf_skip("%s: cannot enable uprobe_event, errno=%d (%s), skipping stressor\n",
 				args->name, errno, strerror(errno));
 			stress_continue_set_flag(false);
 			rc = EXIT_NO_RESOURCE;

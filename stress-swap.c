@@ -346,7 +346,7 @@ static int stress_swap_child(stress_args_t *args, void *context)
 	page = mmap(NULL, page_size, PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (page == MAP_FAILED) {
-		pr_inf_skip("%s: failed to allocate 1 page: errno=%d (%s), skipping stressor\n",
+		pr_inf_skip("%s: failed to allocate 1 page, errno=%d (%s), skipping stressor\n",
 			args->name, errno, strerror(errno));
 		ret = EXIT_NO_RESOURCE;
 		goto tidy_ret;
@@ -495,7 +495,7 @@ static int stress_swap_child(stress_args_t *args, void *context)
 				const uintptr_t *up = (uintptr_t *)(uintptr_t)p;
 
 				if (*up != (uintptr_t)p) {
-					pr_fail("%s: failed: address %p contains "
+					pr_fail("%s: failed, address %p contains "
 						"%" PRIuPTR " and not %" PRIuPTR "\n",
 						args->name, (void *)p, *up, (uintptr_t)p);
 				}

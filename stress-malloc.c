@@ -178,7 +178,7 @@ static void *stress_malloc_loop(void *ptr)
 			MAP_PRIVATE | MAP_ANONYMOUS,
 			-1, 0);
 	if (info == MAP_FAILED) {
-		pr_inf("%s: cannot mmap address buffer of size %zd bytes: %d (%s)\n",
+		pr_inf("%s: cannot mmap address buffer of size %zd bytes, errno=%d (%s)\n",
 			args->name, info_size, errno, strerror(errno));
 		malloc_args->rc = EXIT_FAILURE;
 		return &g_nowt;

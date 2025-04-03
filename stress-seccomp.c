@@ -175,7 +175,7 @@ static int stress_seccomp_supported(const char *name)
 	pid = fork();
 	if (pid < 0) {
 		pr_inf_skip("%s stressor will be skipped, the check for seccomp "
-			"failed, fork failed: errno=%d (%s)\n",
+			"failed, fork failed, errno=%d (%s)\n",
 			name, errno, strerror(errno));
 		return -1;
 	}
@@ -187,7 +187,7 @@ static int stress_seccomp_supported(const char *name)
 	}
 	if (shim_waitpid(pid, &status, 0) < 0) {
 		pr_inf_skip("%s stressor will be skipped, the check for seccomp "
-			"failed, wait failed: errno=%d (%s)\n",
+			"failed, wait failed, errno=%d (%s)\n",
 			name, errno, strerror(errno));
 		return -1;
 	}

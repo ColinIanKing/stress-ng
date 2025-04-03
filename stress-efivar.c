@@ -509,7 +509,7 @@ again:
 			goto again;
 		if (UNLIKELY(!stress_continue(args)))
 			goto finish;
-		pr_err("%s: fork failed: errno=%d (%s)\n",
+		pr_err("%s: fork failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 	} else if (pid > 0) {
 		int status;
@@ -519,7 +519,7 @@ again:
 		ret = shim_waitpid(pid, &status, 0);
 		if (ret < 0) {
 			if (errno != EINTR)
-				pr_dbg("%s: waitpid() on PID %" PRIdMAX ", errno=%d (%s)\n",
+				pr_dbg("%s: waitpid() on PID %" PRIdMAX " failed, errno=%d (%s)\n",
 					args->name, (intmax_t)pid, errno, strerror(errno));
 			stress_force_killed_bogo(args);
 			(void)stress_kill_pid_wait(pid, NULL);

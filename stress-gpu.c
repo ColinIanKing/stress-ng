@@ -389,7 +389,7 @@ static int egl_init(
 
 	fd = open(gpu_devnode, O_RDWR);
 	if (fd < 0) {
-		pr_inf_skip("%s: couldn't open device '%s': errno=%d (%s), skipping stressor\n",
+		pr_inf_skip("%s: couldn't open device '%s', errno=%d (%s), skipping stressor\n",
 			args->name, gpu_devnode, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}

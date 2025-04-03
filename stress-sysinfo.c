@@ -125,7 +125,7 @@ static int stress_sysinfo(stress_args_t *args)
 					    (errno != EACCES) &&
 					    (errno != ENOTCONN) &&
 					    (errno != EPERM)) {
-						pr_fail("%s: statfs on %s failed: errno=%d (%s)\n",
+						pr_fail("%s: statfs on %s failed, errno=%d (%s)\n",
 							args->name, mnts[i], errno,
 							strerror(errno));
 						rc = EXIT_FAILURE;
@@ -164,7 +164,7 @@ static int stress_sysinfo(stress_args_t *args)
 					    (errno != EACCES) &&
 					    (errno != ENOTCONN) &&
 					    (errno != EPERM)) {
-						pr_fail("%s: fstatfs on %s failed: errno=%d (%s)\n",
+						pr_fail("%s: fstatfs on %s failed, errno=%d (%s)\n",
 							args->name, mnts[i], errno,
 							strerror(errno));
 						rc = EXIT_FAILURE;
@@ -205,7 +205,7 @@ static int stress_sysinfo(stress_args_t *args)
 					    (errno != ENOSYS) &&
 					    (errno != ENOTCONN) &&
 					    (errno != EPERM)) {
-						pr_fail("%s: ustat on %s failed: errno=%d (%s)\n",
+						pr_fail("%s: ustat on %s failed, errno=%d (%s)\n",
 							args->name, mnts[i], errno,
 							strerror(errno));
 						rc = EXIT_FAILURE;
@@ -252,7 +252,7 @@ static int stress_sysinfo(stress_args_t *args)
 					    (errno != EACCES) &&
 					    (errno != ENOTCONN) &&
 					    (errno != EPERM)) {
-						pr_fail("%s: statvfs on %s failed: errno=%d (%s)\n",
+						pr_fail("%s: statvfs on %s failed, errno=%d (%s)\n",
 							args->name, mnts[i], errno,
 							strerror(errno));
 						rc = EXIT_FAILURE;

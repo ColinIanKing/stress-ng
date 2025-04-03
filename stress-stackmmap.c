@@ -183,7 +183,7 @@ static int stress_stackmmap(stress_args_t *args)
 	stress_set_vma_anon_name(stack_mmap, STRESS_SIGSTKSZ, "altstack-file");
 
 	if (shim_madvise((void *)stack_mmap, MMAPSTACK_SIZE, MADV_RANDOM) < 0) {
-		pr_dbg("%s: madvise failed: errno=%d (%s)\n",
+		pr_dbg("%s: madvise failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 	}
 	(void)shim_memset(stack_mmap, 0, MMAPSTACK_SIZE);
@@ -230,7 +230,7 @@ again:
 				goto again;
 			if (UNLIKELY(!stress_continue(args)))
 				goto finish;
-			pr_err("%s: fork failed: errno=%d (%s)\n",
+			pr_err("%s: fork failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 		} else if (pid > 0) {
 			pid_t waitret;

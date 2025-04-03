@@ -178,7 +178,7 @@ static void stress_cgroup_umount(
 			return;
 		default:
 			/* Unexpected, so report it */
-			pr_inf("%s: umount failed %s: %d %s\n", args->name,
+			pr_inf("%s: umount failed %s, errno=%d %s\n", args->name,
 				path, errno, strerror(errno));
 			break;
 		}
@@ -529,7 +529,7 @@ again:
 				goto again;
 			if (UNLIKELY(!stress_continue(args)))
 				goto finish;
-			pr_err("%s: fork failed: errno=%d (%s)\n",
+			pr_err("%s: fork failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 		} else if (pid > 0) {
 			int status;
@@ -539,7 +539,7 @@ again:
 			waitret = shim_waitpid(pid, &status, 0);
 			if (waitret < 0) {
 				if (errno != EINTR) {
-					pr_dbg("%s: waitpid() on PID %" PRIdMAX ", errno=%d (%s)\n",
+					pr_dbg("%s: waitpid() on PID %" PRIdMAX " failed, errno=%d (%s)\n",
 						args->name, (intmax_t)pid, errno, strerror(errno));
 					(void)stress_kill_pid(pid);
 				}

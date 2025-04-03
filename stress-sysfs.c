@@ -725,7 +725,7 @@ static int stress_sysfs(stress_args_t *args)
 #endif
 	sysfs_hash_table = stress_hash_create(1021);
 	if (!sysfs_hash_table) {
-		pr_err("%s: cannot create sysfs hash table: %d (%s))\n",
+		pr_err("%s: cannot create sysfs hash table, errno=%d (%s))\n",
 			args->name, errno, strerror(errno));
 		rc = EXIT_NO_RESOURCE;
 		goto exit_free;
@@ -800,7 +800,7 @@ again:
 			wret = waitpid(pid, &status, 0);
 			if (wret < 0) {
 				if (errno != EINTR)
-					pr_dbg("%s: waitpid() on PID %" PRIdMAX "failed, errno=%d (%s)\n",
+					pr_dbg("%s: waitpid() on PID %" PRIdMAX " failed, errno=%d (%s)\n",
 						args->name, (intmax_t)pid, errno, strerror(errno));
 				/* Ring ring, time to die */
 				stress_kill_and_wait(args, pid, SIGALRM, true);

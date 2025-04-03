@@ -889,7 +889,7 @@ mmap_retry:
 			MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (mem == MAP_FAILED) {
 		if (UNLIKELY(!stress_continue_flag())) {
-			pr_dbg("%s: mmap failed: %d %s\n",
+			pr_dbg("%s: mmap failed, errno=%d %s\n",
 				args->name, errno, strerror(errno));
 			free(pthread_info);
 			return EXIT_NO_RESOURCE;

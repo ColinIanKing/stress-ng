@@ -276,7 +276,7 @@ static int stress_sigfpe(stress_args_t *args)
 
 	ret = sigaction(SIGFPE, &action, NULL);
 	if (ret < 0) {
-		pr_err("%s: sigaction SIGFPE: errno=%d (%s)\n",
+		pr_err("%s: sigaction SIGFPE failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
@@ -286,7 +286,7 @@ static int stress_sigfpe(stress_args_t *args)
 	 */
 	ret = sigaction(SIGILL, &action, NULL);
 	if (ret < 0) {
-		pr_err("%s: sigaction SIGILL: errno=%d (%s)\n",
+		pr_err("%s: sigaction SIGILL failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}

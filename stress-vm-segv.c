@@ -120,7 +120,7 @@ again:
 				(void)close(fd[1]);
 				goto finish;
 			}
-			pr_err("%s: fork failed: errno=%d: (%s)\n",
+			pr_err("%s: fork failed, errno=%d: (%s)\n",
 				args->name, errno, strerror(errno));
 			(void)close(fd[0]);
 			(void)close(fd[1]);

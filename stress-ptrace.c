@@ -107,7 +107,7 @@ again:
 		 */
 		if (ptrace(PTRACE_TRACEME) != 0) {
 			pr_inf_skip("%s: child cannot be traced, "
-				"skipping stressor: errno=%d (%s)\n",
+				"skipping stressor, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			_exit(EXIT_SUCCESS);
 		}
@@ -145,7 +145,7 @@ again:
 		if (ptrace(PTRACE_SETOPTIONS, pid,
 			0, PTRACE_O_TRACESYSGOOD) < 0) {
 			pr_inf_skip("%s: child cannot be traced, "
-				"skipping stressor: errno=%d (%s)\n",
+				"skipping stressor, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			if ((errno == ESRCH) || (errno == EPERM) || (errno == EACCES)) {
 				/* Ensure child is really dead and reap */

@@ -155,7 +155,7 @@ static int stress_rawdev_wiggle(
 			ret = pread(fd, buffer, blksz, offset);
 			if (UNLIKELY(ret < 0)) {
 				if (errno != EINTR) {
-					pr_fail("%s: pread at %" PRIdMAX "failed, errno=%d (%s)\n",
+					pr_fail("%s: pread at %" PRIdMAX " failed, errno=%d (%s)\n",
 						args->name, (intmax_t)offset, errno, strerror(errno));
 					return -1;
 				}
@@ -408,14 +408,14 @@ static int stress_rawdev(stress_args_t *args)
 
 	fd = open(devpath, O_RDONLY | O_NONBLOCK);
 	if (fd < 0) {
-		pr_inf("%s: cannot open raw block device: errno=%d (%s)\n",
+		pr_inf("%s: cannot open raw block device, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		free(metrics);
 		return EXIT_NO_RESOURCE;
 	}
 	ret = ioctl(fd, BLKGETSIZE, &blks);
 	if (ret < 0) {
-		pr_inf("%s: cannot get block size: errno=%d (%s)\n",
+		pr_inf("%s: cannot get block size, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		(void)close(fd);
 		free(metrics);
@@ -423,7 +423,7 @@ static int stress_rawdev(stress_args_t *args)
 	}
 	ret = ioctl(fd, BLKSSZGET, &blksz);
 	if (ret < 0) {
-		pr_inf("%s: cannot get block size: errno=%d (%s)\n",
+		pr_inf("%s: cannot get block size, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		(void)close(fd);
 		free(metrics);
@@ -451,7 +451,7 @@ static int stress_rawdev(stress_args_t *args)
 	(void)close(fd);
 	fd = open(devpath, O_RDONLY | O_DIRECT);
 	if (fd < 0) {
-		pr_inf("%s: cannot open raw block device: errno=%d (%s)\n",
+		pr_inf("%s: cannot open raw block device, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		(void)munmap((void *)buffer, mmapsz);
 		free(metrics);

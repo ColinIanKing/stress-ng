@@ -98,7 +98,7 @@ again:
 			if (fd < 0) {
 				if ((errno != EWOULDBLOCK) &&
                                     (errno != EACCES)) {
-					pr_dbg("%s: open failed (child): errno=%d: (%s)\n",
+					pr_dbg("%s: open failed (child), errno=%d: (%s)\n",
 						args->name, errno, strerror(errno));
 					if (count++ > 3)
 						break;
@@ -132,7 +132,7 @@ static int stress_try_lease(
 		int ret;
 
 		ret = stress_exit_status(errno);
-		pr_err("%s: open failed (parent): errno=%d: (%s)\n",
+		pr_err("%s: open failed (parent), errno=%d: (%s)\n",
 			args->name, errno, strerror(errno));
 		return ret;
 	}
@@ -156,7 +156,7 @@ static int stress_try_lease(
 		if (UNLIKELY(!stress_continue_flag()))
 			break;
 		if (errno != EAGAIN) {
-			pr_fail("%s: fcntl failed: errno=%d: (%s)%s\n",
+			pr_fail("%s: fcntl failed, errno=%d: (%s)%s\n",
 				args->name, errno, strerror(errno),
 				stress_get_fs_type(filename));
 			rc = EXIT_FAILURE;
@@ -202,7 +202,7 @@ static int stress_lease(stress_args_t *args)
 	fd = creat(filename, S_IRUSR | S_IWUSR);
 	if (fd < 0) {
 		ret = stress_exit_status(errno);
-		pr_err("%s: creat failed: errno=%d: (%s)\n",
+		pr_err("%s: creat failed, errno=%d: (%s)\n",
 			args->name, errno, strerror(errno));
 		(void)stress_temp_dir_rm_args(args);
 		return ret;

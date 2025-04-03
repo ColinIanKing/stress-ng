@@ -204,7 +204,7 @@ again:
 			n = read(fds[0], &rc, sizeof(rc));
 			if (n < (ssize_t)sizeof(rc)) {
 				if (errno != EINTR) {
-					pr_dbg("%s: read failed: "
+					pr_dbg("%s: read failed, "
 						"errno=%d (%s)\n",
 						args->name,
 						errno, strerror(errno));

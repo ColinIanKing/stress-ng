@@ -134,7 +134,7 @@ static int OPTIMIZE3 stress_netlink_sendcmd(
 		if (UNLIKELY(len < 0)) {
 			if ((errno == EAGAIN) || (errno == EINTR))
 				return 0;
-			pr_fail("%s: sendto failed: %d (%s)\n",
+			pr_fail("%s: sendto failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			return -1;
 		}
@@ -218,7 +218,7 @@ static int OPTIMIZE3 stress_netlink_taskstats_monitor(
 						&pid_data,
 						(uint16_t)sizeof(pid_data));
 		if (UNLIKELY(ret < 0)) {
-			pr_fail("%s: sendto TASKSTATS_CMD_GET failed: %d (%s)\n",
+			pr_fail("%s: sendto TASKSTATS_CMD_GET failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			break;
 		}
@@ -229,7 +229,7 @@ static int OPTIMIZE3 stress_netlink_taskstats_monitor(
 			continue;
 
 		if (!NLMSG_OK((&msg.n), (unsigned int)msg_len)) {
-			pr_fail("%s: recv failed: %d (%s)\n",
+			pr_fail("%s: recv failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			break;
 		}
@@ -268,7 +268,7 @@ static int stress_netlink_task(stress_args_t *args)
 				args->name, errno, strerror(errno));
 			return EXIT_NO_RESOURCE;
 		}
-		pr_fail("%s: socket failed: errno=%d (%s)\n",
+		pr_fail("%s: socket failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
@@ -277,7 +277,7 @@ static int stress_netlink_task(stress_args_t *args)
 	addr.nl_family = AF_NETLINK;
 
 	if (bind(sock, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
-		pr_err("%s: bind failed: errno=%d (%s)\n",
+		pr_err("%s: bind failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		(void)close(sock);
 		return EXIT_FAILURE;
@@ -288,12 +288,12 @@ static int stress_netlink_task(stress_args_t *args)
 					CTRL_ATTR_FAMILY_NAME,
 					(const void *)name, sizeof(name));
 	if (ret < 0) {
-		pr_fail("%s: sendto CTRL_CMD_GETFAMILY failed: %d (%s)\n",
+		pr_fail("%s: sendto CTRL_CMD_GETFAMILY failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 	}
 	len = recv(sock, &nlmsg, sizeof(nlmsg), 0);
 	if (len < 0) {
-		pr_fail("%s: recv failed: %d (%s)\n",
+		pr_fail("%s: recv failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		(void)close(sock);
 		return EXIT_FAILURE;

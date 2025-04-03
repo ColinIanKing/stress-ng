@@ -110,7 +110,7 @@ static int stress_fsize_boundary(
 	ret = shim_fallocate(fd, 0, off, size);
 	if (ret < 0) {
 		if ((errno != EFBIG) && (errno != ENOSPC) && (errno != EINTR)) {
-			pr_fail("%s: fallocate failed at offset %" PRIdMAX" (0x%" PRIxMAX ") with unexpected error: %d (%s)\n",
+			pr_fail("%s: fallocate failed at offset %" PRIdMAX" (0x%" PRIxMAX ") with unexpected error, errno=%d (%s)\n",
 				args->name, (intmax_t)off, (intmax_t)off,
 				errno, strerror(errno));
 			rc = EXIT_FAILURE;
@@ -140,7 +140,7 @@ static int stress_fsize_boundary(
 		}
 		return rc;
 	} else if ((errno != EFBIG) && (errno != ENOSPC) && (errno != EINTR)) {
-		pr_fail("%s: fallocate failed at offset %" PRIdMAX" (0x%" PRIxMAX ") with unexpected error: %d (%s)\n",
+		pr_fail("%s: fallocate failed at offset %" PRIdMAX" (0x%" PRIxMAX ") with unexpected error, errno=%d (%s)\n",
 			args->name, (intmax_t)off, (intmax_t)off,
 			errno, strerror(errno));
 		return EXIT_FAILURE;
@@ -259,7 +259,7 @@ static int stress_fsize(stress_args_t *args)
 				args->name, (intmax_t)max, (intmax_t)max);
 			rc = EXIT_FAILURE;
 		} else if ((errno != EFBIG) && (errno != ENOSPC) && (errno != EINTR)) {
-			pr_fail("%s: failed at offset %" PRIdMAX " (0x%" PRIxMAX ") with unexpected error: %d (%s)\n",
+			pr_fail("%s: failed at offset %" PRIdMAX " (0x%" PRIxMAX ") with unexpected error, errno=%d (%s)\n",
 				args->name, (intmax_t)max, (intmax_t)max, errno, strerror(errno) );
 			rc = EXIT_FAILURE;
 		}

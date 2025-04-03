@@ -225,8 +225,8 @@ static int stress_sem(stress_args_t *args)
 
 	if (sem_shared) {
 		if (!sem_global) {
-			pr_fail("%s: semaphore init (POSIX) failed: failed to "
-				"mmap or init shared semaphore: errno=%d (%s)\n",
+			pr_fail("%s: semaphore init (POSIX) failed, failed to "
+				"mmap or init shared semaphore, errno=%d (%s)\n",
 				args->name, sem_global_errno, strerror(sem_global_errno));
 			return EXIT_FAILURE;
 		}
@@ -234,7 +234,7 @@ static int stress_sem(stress_args_t *args)
 	} else {
 		/* create a local semaphore */
 		if (sem_init(&sem_local, 0, 1) < 0) {
-			pr_fail("%s: semaphore init (POSIX) failed: errno=%d (%s)\n",
+			pr_fail("%s: semaphore init (POSIX) failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			return EXIT_FAILURE;
 		}

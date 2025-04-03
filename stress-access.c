@@ -348,7 +348,7 @@ static int stress_access(stress_args_t *args)
 
 			ret = fchmod(fd1, modes[i].chmod_mode);
 			if (UNLIKELY(CHMOD_ERR(ret))) {
-				pr_fail("%s: fchmod %3.3o failed: %d (%s)%s\n",
+				pr_fail("%s: fchmod %3.3o failed, errno=%d (%s)%s\n",
 					args->name, (unsigned int)modes[i].chmod_mode,
 					errno, strerror(errno), fs_type);
 				rc = EXIT_FAILURE;
@@ -361,7 +361,7 @@ static int stress_access(stress_args_t *args)
 				metrics[0].count += 1.0;
 			} else {
 				if (report_chmod_error) {
-					pr_fail("%s: access %3.3o on chmod mode %3.3o failed: %d (%s)%s\n",
+					pr_fail("%s: access %3.3o on chmod mode %3.3o failed, errno=%d (%s)%s\n",
 						args->name,
 						modes[i].access_mode,
 						(unsigned int)modes[i].chmod_mode,
@@ -378,7 +378,7 @@ static int stress_access(stress_args_t *args)
 				metrics[0].count += 1.0;
 			} else if (errno != ENOSYS) {
 				if (report_chmod_error) {
-					pr_fail("%s: faccessat %3.3o on chmod mode %3.3o failed: %d (%s)%s\n",
+					pr_fail("%s: faccessat %3.3o on chmod mode %3.3o failed, errno=%d (%s)%s\n",
 						args->name,
 						modes[i].access_mode,
 						(unsigned int)modes[i].chmod_mode,
@@ -413,7 +413,7 @@ static int stress_access(stress_args_t *args)
 				metrics[0].count += 1.0;
 			} else if (errno != ENOSYS) {
 				if (report_chmod_error) {
-					pr_fail("%s: faccessat2 %3.3o on chmod mode %3.3o failed: %d (%s)%s\n",
+					pr_fail("%s: faccessat2 %3.3o on chmod mode %3.3o failed, errno=%d (%s)%s\n",
 						args->name,
 						modes[i].access_mode,
 						(unsigned int)modes[i].chmod_mode,
@@ -437,7 +437,7 @@ static int stress_access(stress_args_t *args)
 
 				ret = fchmod(fd1, chmod_mode);
 				if (CHMOD_ERR(ret)) {
-					pr_fail("%s: fchmod %3.3o failed: %d (%s)%s\n",
+					pr_fail("%s: fchmod %3.3o failed, errno=%d (%s)%s\n",
 						args->name, (unsigned int)chmod_mode,
 						errno, strerror(errno), fs_type);
 					rc = EXIT_FAILURE;
@@ -448,7 +448,7 @@ static int stress_access(stress_args_t *args)
 				ret = access(filename1, modes[i].access_mode);
 				if (UNLIKELY((ret == 0) && dont_ignore)) {
 					if (report_chmod_error) {
-						pr_fail("%s: access %3.3o on chmod mode %3.3o was ok (not expected): %d (%s)%s\n",
+						pr_fail("%s: access %3.3o on chmod mode %3.3o was ok (not expected), errno=%d (%s)%s\n",
 							args->name,
 							modes[i].access_mode,
 							(unsigned int)chmod_mode,
@@ -467,7 +467,7 @@ static int stress_access(stress_args_t *args)
 					AT_SYMLINK_NOFOLLOW);
 				if (UNLIKELY((ret == 0) && dont_ignore)) {
 					if (report_chmod_error) {
-						pr_fail("%s: faccessat %3.3o on chmod mode %3.3o was ok (not expected): %d (%s)%s\n",
+						pr_fail("%s: faccessat %3.3o on chmod mode %3.3o was ok (not expected), errno=%d (%s)%s\n",
 							args->name,
 							modes[i].access_mode,
 							(unsigned int)chmod_mode,

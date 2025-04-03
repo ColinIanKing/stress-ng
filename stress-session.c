@@ -87,7 +87,7 @@ static int stress_session_set_and_get(stress_args_t *args, const int fd)
 	sid = setsid();
 	if (UNLIKELY(sid == (pid_t)-1)) {
 		stress_session_return_status(fd, errno, STRESS_SESSION_SETSID_FAILED);
-		pr_inf("%s: setsid failed: errno=%d (%s)\n",
+		pr_inf("%s: setsid failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return STRESS_SESSION_SETSID_FAILED;
 	}
@@ -95,7 +95,7 @@ static int stress_session_set_and_get(stress_args_t *args, const int fd)
 	gsid = getsid(getpid());
 	if (UNLIKELY(gsid == (pid_t)-1)) {
 		stress_session_return_status(fd, errno, STRESS_SESSION_GETSID_FAILED);
-		pr_inf("%s: getsid failed: errno=%d (%s)\n",
+		pr_inf("%s: getsid failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return STRESS_SESSION_GETSID_FAILED;
 	}
@@ -131,7 +131,7 @@ static int stress_session_child(stress_args_t *args, const int fd)
 			return STRESS_SESSION_SUCCESS;
 		}
 		stress_session_return_status(fd, errno, STRESS_SESSION_FORK_FAILED);
-		pr_err("%s: fork failed: errno=%d (%s)\n",
+		pr_err("%s: fork failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return STRESS_SESSION_FORK_FAILED;
 	} else if (pid == 0) {
@@ -179,7 +179,7 @@ static int stress_session(stress_args_t *args)
 	int rc = EXIT_SUCCESS;
 
 	if (pipe(fds) < 0) {
-		pr_inf("%s: pipe failed: errno=%d (%s)\n",
+		pr_inf("%s: pipe failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
@@ -195,7 +195,7 @@ static int stress_session(stress_args_t *args)
 		if (pid < 0) {
 			if ((errno == EAGAIN) || (errno == ENOMEM))
 				continue;
-			pr_inf("%s: fork failed: errno=%d (%s)\n",
+			pr_inf("%s: fork failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			(void)close(fds[0]);
 			(void)close(fds[1]);
@@ -225,7 +225,7 @@ static int stress_session(stress_args_t *args)
 						stress_session_error(WEXITSTATUS(status)));
 					rc = EXIT_FAILURE;
 				} else {
-					pr_fail("%s: failure in child, %s: errno=%d (%s)\n",
+					pr_fail("%s: failure in child, %s, errno=%d (%s)\n",
 						args->name,
 						stress_session_error(error.status),
 						error.err, strerror(error.err));

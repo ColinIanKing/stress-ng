@@ -100,7 +100,7 @@ static int OPTIMIZE3 stress_utime(stress_args_t *args)
 		filename, sizeof(filename), stress_mwc32());
 	if ((fd = open(filename, O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR)) < 0) {
 		ret = stress_exit_status(errno);
-		pr_err("%s: open failed: errno=%d (%s)\n",
+		pr_err("%s: open failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		(void)stress_temp_dir_rm_args(args);
 		if (dir_fd >= 0) /* cppcheck-suppress knownConditionTrueFalse */
@@ -130,7 +130,7 @@ static int OPTIMIZE3 stress_utime(stress_args_t *args)
 		timevals[1] = timevals[0];
 		if (LIKELY(metrics_count > 0)) {
 			if (UNLIKELY(utimes(filename, timevals) < 0)) {
-				pr_dbg("%s: utimes failed: errno=%d (%s)%s\n",
+				pr_dbg("%s: utimes failed, errno=%d (%s)%s\n",
 					args->name, errno, strerror(errno),
 					stress_get_fs_type(filename));
 				break;
@@ -138,7 +138,7 @@ static int OPTIMIZE3 stress_utime(stress_args_t *args)
 		} else {
 			t = stress_time_now();
 			if (UNLIKELY(utimes(filename, timevals) < 0)) {
-				pr_dbg("%s: utimes failed: errno=%d (%s)%s\n",
+				pr_dbg("%s: utimes failed, errno=%d (%s)%s\n",
 					args->name, errno, strerror(errno),
 					stress_get_fs_type(filename));
 				break;
@@ -149,7 +149,7 @@ static int OPTIMIZE3 stress_utime(stress_args_t *args)
 
 		if (LIKELY(metrics_count > 0)) {
 			if (UNLIKELY(utimes(filename, NULL) < 0)) {
-				pr_dbg("%s: utimes failed: errno=%d (%s)%s\n",
+				pr_dbg("%s: utimes failed, errno=%d (%s)%s\n",
 					args->name, errno, strerror(errno),
 					stress_get_fs_type(filename));
 				break;
@@ -157,7 +157,7 @@ static int OPTIMIZE3 stress_utime(stress_args_t *args)
 		} else {
 			t = stress_time_now();
 			if (UNLIKELY(utimes(filename, NULL) < 0)) {
-				pr_dbg("%s: utimes failed: errno=%d (%s)%s\n",
+				pr_dbg("%s: utimes failed, errno=%d (%s)%s\n",
 					args->name, errno, strerror(errno),
 					stress_get_fs_type(filename));
 				break;
@@ -207,7 +207,7 @@ static int OPTIMIZE3 stress_utime(stress_args_t *args)
 #if defined(HAVE_FUTIMENS)
 		if (LIKELY(metrics_count > 0)) {
 			if (UNLIKELY(futimens(fd, NULL) < 0)) {
-				pr_dbg("%s: futimens failed: errno=%d (%s)%s\n",
+				pr_dbg("%s: futimens failed, errno=%d (%s)%s\n",
 					args->name, errno, strerror(errno),
 					stress_get_fs_type(filename));
 				break;
@@ -215,7 +215,7 @@ static int OPTIMIZE3 stress_utime(stress_args_t *args)
 		} else {
 			t = stress_time_now();
 			if (UNLIKELY(futimens(fd, NULL) < 0)) {
-				pr_dbg("%s: futimens failed: errno=%d (%s)%s\n",
+				pr_dbg("%s: futimens failed, errno=%d (%s)%s\n",
 					args->name, errno, strerror(errno),
 					stress_get_fs_type(filename));
 				break;
@@ -238,7 +238,7 @@ static int OPTIMIZE3 stress_utime(stress_args_t *args)
 		ts[1].tv_nsec = UTIME_NOW;
 		if (LIKELY(metrics_count > 0)) {
 			if (UNLIKELY(futimens(fd, ts) < 0)) {
-				pr_dbg("%s: futimens failed: errno=%d (%s)%s\n",
+				pr_dbg("%s: futimens failed, errno=%d (%s)%s\n",
 					args->name, errno, strerror(errno),
 					stress_get_fs_type(filename));
 				break;
@@ -246,7 +246,7 @@ static int OPTIMIZE3 stress_utime(stress_args_t *args)
 		} else {
 			t = stress_time_now();
 			if (UNLIKELY(futimens(fd, ts) < 0)) {
-				pr_dbg("%s: futimens failed: errno=%d (%s)%s\n",
+				pr_dbg("%s: futimens failed, errno=%d (%s)%s\n",
 					args->name, errno, strerror(errno),
 					stress_get_fs_type(filename));
 				break;
@@ -293,7 +293,7 @@ static int OPTIMIZE3 stress_utime(stress_args_t *args)
 		ts[0].tv_nsec = UTIME_OMIT;
 		if (LIKELY(metrics_count > 0)) {
 			if (UNLIKELY(futimens(fd, ts) < 0)) {
-				pr_dbg("%s: futimens failed: errno=%d (%s)%s\n",
+				pr_dbg("%s: futimens failed, errno=%d (%s)%s\n",
 					args->name, errno, strerror(errno),
 					stress_get_fs_type(filename));
 				break;
@@ -301,7 +301,7 @@ static int OPTIMIZE3 stress_utime(stress_args_t *args)
 		} else {
 			t = stress_time_now();
 			if (UNLIKELY(futimens(fd, ts) < 0)) {
-				pr_dbg("%s: futimens failed: errno=%d (%s)%s\n",
+				pr_dbg("%s: futimens failed, errno=%d (%s)%s\n",
 					args->name, errno, strerror(errno),
 					stress_get_fs_type(filename));
 				break;
@@ -402,7 +402,7 @@ STRESS_PRAGMA_POP
 
 			if (LIKELY(metrics_count > 0)) {
 				if (UNLIKELY(shim_utime(filename, &utbuf) < 0)) {
-					pr_fail("%s: utime failed: errno=%d (%s)%s\n",
+					pr_fail("%s: utime failed, errno=%d (%s)%s\n",
 						args->name, errno, strerror(errno),
 						stress_get_fs_type(filename));
 					rc = EXIT_FAILURE;
@@ -411,7 +411,7 @@ STRESS_PRAGMA_POP
 			} else {
 				t = stress_time_now();
 				if (UNLIKELY(shim_utime(filename, &utbuf) < 0)) {
-					pr_fail("%s: utime failed: errno=%d (%s)%s\n",
+					pr_fail("%s: utime failed, errno=%d (%s)%s\n",
 						args->name, errno, strerror(errno),
 						stress_get_fs_type(filename));
 					rc = EXIT_FAILURE;
@@ -426,13 +426,13 @@ STRESS_PRAGMA_POP
 
 				if (shim_stat(filename, &statbuf) == 0) {
 					if (statbuf.st_atime < tv.tv_sec) {
-						pr_fail("%s: utime failed: access time is less than expected time\n",
+						pr_fail("%s: utime failed, access time is less than expected time\n",
 							args->name);
 						rc = EXIT_FAILURE;
 						break;
 					}
 					if (statbuf.st_mtime < tv.tv_sec) {
-						pr_fail("%s: utime failed: modified time is less than expected time\n",
+						pr_fail("%s: utime failed, modified time is less than expected time\n",
 							args->name);
 						rc = EXIT_FAILURE;
 						break;
@@ -441,7 +441,7 @@ STRESS_PRAGMA_POP
 			}
 			if (LIKELY(metrics_count > 0)) {
 				if (UNLIKELY(shim_utime(filename, NULL) < 0)) {
-					pr_fail("%s: utime failed: errno=%d (%s)%s\n",
+					pr_fail("%s: utime failed, errno=%d (%s)%s\n",
 						args->name, errno, strerror(errno),
 						stress_get_fs_type(filename));
 					rc = EXIT_FAILURE;
@@ -450,7 +450,7 @@ STRESS_PRAGMA_POP
 			} else {
 				t = stress_time_now();
 				if (UNLIKELY(shim_utime(filename, NULL) < 0)) {
-					pr_fail("%s: utime failed: errno=%d (%s)%s\n",
+					pr_fail("%s: utime failed, errno=%d (%s)%s\n",
 						args->name, errno, strerror(errno),
 						stress_get_fs_type(filename));
 					rc = EXIT_FAILURE;

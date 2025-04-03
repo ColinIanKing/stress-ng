@@ -503,7 +503,7 @@ int stress_thrash_start(void)
 	thrash_pid = fork();
 	if (thrash_pid < 0) {
 		thrash_run = false;
-		pr_err("thrash background process failed to fork: %d (%s)\n",
+		pr_err("thrash background process failed to fork, errno=%d (%s)\n",
 			errno, strerror(errno));
 		return -1;
 	} else if (thrash_pid == 0) {

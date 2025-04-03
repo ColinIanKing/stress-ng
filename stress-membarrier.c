@@ -165,7 +165,7 @@ static int stress_membarrier(stress_args_t *args)
 					args->name);
 			return EXIT_NOT_IMPLEMENTED;
 		}
-		pr_fail("%s: membarrier failed: errno=%d: (%s)\n",
+		pr_fail("%s: membarrier failed, errno=%d: (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
@@ -198,7 +198,7 @@ static int stress_membarrier(stress_args_t *args)
 
 	do {
 		if (UNLIKELY(stress_membarrier_exercise(args, &info[MAX_MEMBARRIER_THREADS]) < 0)) {
-			pr_fail("%s: membarrier failed: errno=%d: (%s)\n",
+			pr_fail("%s: membarrier failed, errno=%d: (%s)\n",
 				args->name, errno, strerror(errno));
 			rc = EXIT_FAILURE;
 		}

@@ -247,7 +247,7 @@ static int stress_time_warp(stress_args_t *args)
 	 */
 	for (i = 0; i < SIZEOF_ARRAY(clocks); i++) {
 		if (stress_time_warp_lt(&stress_times[i].ts_prev, &stress_times[i].ts_init)) {
-			pr_fail("%s: failed: %30.30s, detected %" PRIu64 " time wrap-around\n",
+			pr_fail("%s: failed, %30.30s, detected %" PRIu64 " time wrap-around\n",
 				args->name, clocks[i].name, stress_times[i].warped);
 			rc = EXIT_FAILURE;
 		}
@@ -259,7 +259,7 @@ static int stress_time_warp(stress_args_t *args)
 	 */
 	for (i = 0; i < SIZEOF_ARRAY(clocks); i++) {
 		if (clocks[i].monotonic && stress_times[i].warped) {
-			pr_fail("%s: failed: %30.30s, detected %" PRIu64 " time warps\n",
+			pr_fail("%s: failed, %30.30s, detected %" PRIu64 " time warps\n",
 				args->name, clocks[i].name, stress_times[i].warped);
 			rc = EXIT_FAILURE;
 		}

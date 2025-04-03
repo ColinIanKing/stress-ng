@@ -106,7 +106,7 @@ static int stress_umount_umount(stress_args_t *args, const char *path, const uin
 			return rc;
 		default:
 			/* Unexpected, so report it */
-			pr_inf("%s: umount failed %s: %d %s\n", args->name,
+			pr_inf("%s: umount failed %s, errno=%d %s\n", args->name,
 				path, errno, strerror(errno));
 			return EXIT_FAILURE;
 		}
@@ -227,7 +227,7 @@ again:
 			goto again;
 		if (UNLIKELY(!stress_continue(args)))
 			return 0;
-		pr_inf("%s: fork failed: %d (%s), skipping stressor\n",
+		pr_inf("%s: fork failed, errno=%d (%s), skipping stressor\n",
 			args->name, errno, strerror(errno));
 		return -1;
 	} else if (s_pid->pid == 0) {

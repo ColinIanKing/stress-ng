@@ -478,7 +478,7 @@ static int stress_mcontend(stress_args_t *args)
 
 	fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
 	if (fd < 0) {
-		pr_inf("%s: open failed: errno=%d (%s)\n",
+		pr_inf("%s: open failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		(void)shim_unlink(filename);
 		(void)stress_temp_dir_rm_args(args);
@@ -491,7 +491,7 @@ static int stress_mcontend(stress_args_t *args)
 
 	rc = page_write_sync(fd, page_size);
 	if (rc < 0) {
-		pr_inf("%s: mmap backing file write failed: errno=%d (%s)\n",
+		pr_inf("%s: mmap backing file write failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		(void)close(fd);
 		(void)stress_temp_dir_rm_args(args);
@@ -510,7 +510,7 @@ static int stress_mcontend(stress_args_t *args)
 	data[0] = stress_mmap_populate(NULL, page_size, PROT_READ | PROT_WRITE,
 			MAP_PRIVATE, fd, 0);
 	if (data[0] == MAP_FAILED) {
-		pr_inf("%s: mmap failed: errno=%d (%s)\n",
+		pr_inf("%s: mmap failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		(void)close(fd);
 		(void)stress_temp_dir_rm_args(args);
@@ -522,7 +522,7 @@ static int stress_mcontend(stress_args_t *args)
 	data[1] = stress_mmap_populate(NULL, page_size , PROT_READ | PROT_WRITE,
 			MAP_PRIVATE, fd, 0);
 	if (data[1] == MAP_FAILED) {
-		pr_inf("%s: mmap failed: errno=%d (%s)\n",
+		pr_inf("%s: mmap failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		(void)munmap(data[0], page_size);
 		(void)close(fd);

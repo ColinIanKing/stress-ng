@@ -273,13 +273,13 @@ static int stress_sigill(stress_args_t *args)
 #endif
 		ret = sigaction(SIGILL, &action, NULL);
 		if (UNLIKELY(ret < 0)) {
-			pr_fail("%s: sigaction SIGILL: errno=%d (%s)\n",
+			pr_fail("%s: sigaction SIGILL failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			break;
 		}
 		ret = sigaction(SIGBUS, &action, NULL);
 		if (UNLIKELY(ret < 0)) {
-			pr_fail("%s: sigaction SIGBUS: errno=%d (%s)\n",
+			pr_fail("%s: sigaction SIGBUS failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			break;
 		}

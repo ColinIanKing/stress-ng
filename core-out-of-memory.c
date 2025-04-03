@@ -275,7 +275,7 @@ again:
 			goto again;
 		}
 		if (not_quiet)
-			pr_err("%s: fork failed: errno=%d: (%s)\n",
+			pr_err("%s: fork failed, errno=%d: (%s)\n",
 				args->name, errno, strerror(errno));
 		return -1;
 	} else if (pid > 0) {
@@ -295,8 +295,8 @@ rewait:
 			if (errno == ECHILD)
 				goto report;
 			if ((errno != EINTR) && not_quiet)
-				pr_dbg("%s: waitpid(): errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
+				pr_dbg("%s: waitpid() on PID %" PRIdMAX " failed, errno=%d (%s)\n",
+					args->name, (intmax_t)pid, errno, strerror(errno));
 
 			(void)stress_kill_sig(pid, signals[signal_idx]);
 			if (signal_idx < SIZEOF_ARRAY(signals) - 1)

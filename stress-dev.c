@@ -4758,7 +4758,7 @@ again:
 			wret = waitpid(pid, &status, 0);
 			if (wret < 0) {
 				if (errno != EINTR)
-					pr_dbg("%s: waitpid() on PID %" PRIdMAX" : errno=%d (%s)\n",
+					pr_dbg("%s: waitpid() on PID %" PRIdMAX" failed, errno=%d (%s)\n",
 						args->name, (intmax_t)pid, errno, strerror(errno));
 				/* Ring ring, time to die */
 				(void)stress_kill_and_wait(args, pid, SIGALRM, false);

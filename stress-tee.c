@@ -53,7 +53,7 @@ static pid_t stress_tee_spawn(
 	pid_t pid;
 
 	if (UNLIKELY(pipe(fds) < 0)) {
-		pr_err("%s: pipe failed: %d (%s)\n",
+		pr_err("%s: pipe failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return -1;
 	}
@@ -67,7 +67,7 @@ again:
 		(void)close(fds[1]);
 		if (UNLIKELY(!stress_continue(args)))
 			return -1;
-		pr_err("%s: fork failed: %d (%s)\n",
+		pr_err("%s: fork failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return -1;
 	} else if (pid == 0) {
@@ -237,7 +237,7 @@ static int stress_tee(stress_args_t *args)
 
 	fd = open("/dev/null", O_WRONLY);
 	if (fd < 0) {
-		pr_err("%s: open /dev/null failed: errno=%d (%s)\n",
+		pr_err("%s: open /dev/null failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
@@ -292,7 +292,7 @@ static int stress_tee(stress_args_t *args)
 				ret = EXIT_NO_RESOURCE;
 				goto tidy_child2;
 			}
-			pr_fail("%s: tee failed: errno=%d (%s)\n",
+			pr_fail("%s: tee failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			goto tidy_child2;
 		}
@@ -304,7 +304,7 @@ do_splice:
 			if (UNLIKELY(errno == EINTR))
 				break;
 			if (UNLIKELY(slen < 0)) {
-				pr_err("%s: splice failed: errno=%d (%s)\n",
+				pr_err("%s: splice failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				goto tidy_child2;
 			}

@@ -449,7 +449,7 @@ case_sched_fifo:
 			    (errno != ENOSYS) &&
 			    (errno != EBUSY)) {
 				pr_fail("%s: sched_setscheduler "
-					"failed: errno=%d (%s) "
+					"failed, errno=%d (%s) "
 					"for scheduler policy %s\n",
 					args->name, errno, strerror(errno),
 					new_policy_name);

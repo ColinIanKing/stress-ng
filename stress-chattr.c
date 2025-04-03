@@ -143,7 +143,7 @@ static int do_chattr(
 			    (errno != ENOTTY) &&
 			    (errno != EINVAL)) {
 				/* unexpected failure */
-				pr_fail("%s: ioctl SHIM_EXT2_IOC_GETFLAGS failed: errno=%d (%s)%s\n",
+				pr_fail("%s: ioctl SHIM_EXT2_IOC_GETFLAGS failed, errno=%d (%s)%s\n",
 					args->name, errno, strerror(errno),
 					stress_get_fs_type(filename));
 				rc = EXIT_FAILURE;
@@ -172,7 +172,7 @@ static int do_chattr(
 					    (errno != EPERM) &&
 					    (errno != EINVAL)) {
 						/* unexpected failure */
-						pr_fail("%s: ioctl SHIM_EXT2_IOC_SETFLAGS (chattr zero flags) failed: errno=%d (%s)%s\n",
+						pr_fail("%s: ioctl SHIM_EXT2_IOC_SETFLAGS (chattr zero flags) failed, errno=%d (%s)%s\n",
 							args->name,
 							errno, strerror(errno),
 							stress_get_fs_type(filename));
@@ -207,7 +207,7 @@ static int do_chattr(
 				char flags_str[65];
 
 				stress_chattr_flags_str(flags, flags_str, sizeof(flags_str));
-				pr_fail("%s: ioctl SHIM_EXT2_IOC_SETFLAGS 0x%lx (chattr '%s') failed: errno=%d (%s)%s\n",
+				pr_fail("%s: ioctl SHIM_EXT2_IOC_SETFLAGS 0x%lx (chattr '%s') failed, errno=%d (%s)%s\n",
 					args->name, flags, flags_str,
 					errno, strerror(errno),
 					stress_get_fs_type(filename));
@@ -227,7 +227,7 @@ static int do_chattr(
 			    (errno != ENOTTY) &&
 			    (errno != EINVAL)) {
 				/* unexpected failure */
-				pr_fail("%s: ioctl SHIM_EXT2_IOC_GETFLAGS failed: errno=%d (%s)%s\n",
+				pr_fail("%s: ioctl SHIM_EXT2_IOC_GETFLAGS failed, errno=%d (%s)%s\n",
 					args->name,
 					errno, strerror(errno),
 					stress_get_fs_type(filename));

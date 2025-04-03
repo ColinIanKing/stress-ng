@@ -107,7 +107,7 @@ static int stress_sigbus(stress_args_t *args)
 		PROT_READ | PROT_WRITE,
 		MAP_SHARED, fd, 0);
 	if (ptr == MAP_FAILED) {
-		pr_inf_skip("%s: mmap of read only page failed: "
+		pr_inf_skip("%s: mmap of read only page failed, "
 			"errno=%d (%s), skipping stressor\n",
 			args->name, errno, strerror(errno));
 		rc = EXIT_NO_RESOURCE;
@@ -141,14 +141,14 @@ static int stress_sigbus(stress_args_t *args)
 #endif
 		ret = sigaction(SIGBUS, &action, NULL);
 		if (ret < 0) {
-			pr_fail("%s: sigaction SIGBUS: errno=%d (%s)\n",
+			pr_fail("%s: sigaction SIGBUS failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			goto tidy_mmap;
 		}
 		/* Some systems generate SIGSEGV rather than SIGBUS.. */
 		ret = sigaction(SIGSEGV, &action, NULL);
 		if (UNLIKELY(ret < 0)) {
-			pr_fail("%s: sigaction SIGSEGV: errno=%d (%s)\n",
+			pr_fail("%s: sigaction SIGSEGV failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			goto tidy_mmap;
 		}

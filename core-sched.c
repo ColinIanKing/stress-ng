@@ -219,7 +219,7 @@ int stress_set_sched(
 				return -E2BIG;
 			rc = -errno;
 			if (!quiet)
-				pr_inf("%s: cannot set scheduler '%s': errno=%d (%s)\n",
+				pr_inf("%s: cannot set scheduler '%s', errno=%d (%s)\n",
 					prefix, stress_get_sched_name(sched),
 					errno, strerror(errno));
 			return rc;
@@ -241,7 +241,7 @@ int stress_set_sched(
 	if (rc < 0) {
 		rc = -errno;
 		if (!quiet)
-			pr_inf("%s: cannot set scheduler '%s': errno=%d (%s)\n",
+			pr_inf("%s: cannot set scheduler '%s', errno=%d (%s)\n",
 				prefix,
 				stress_get_sched_name(sched),
 				errno, strerror(errno));

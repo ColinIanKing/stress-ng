@@ -230,7 +230,7 @@ static void stress_softlockup_child(
 		if (ret < 0) {
 			if (errno != EPERM) {
 				pr_fail("%s: sched_setscheduler "
-					"failed: errno=%d (%s) "
+					"failed, errno=%d (%s) "
 					"for scheduler policy %s\n",
 					args->name, errno, strerror(errno),
 					policies[policy].name);

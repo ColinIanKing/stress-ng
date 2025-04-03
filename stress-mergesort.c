@@ -314,7 +314,7 @@ static int stress_mergesort(stress_args_t *args)
 		t = stress_time_now();
 		/* Sort "random" data */
 		if (UNLIKELY(mergesort_func(data, n, sizeof(*data), stress_sort_cmp_fwd_int32) < 0)) {
-			pr_fail("%s: mergesort of random data failed: %d (%s)\n",
+			pr_fail("%s: mergesort of random data failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			rc = EXIT_FAILURE;
 			break;
@@ -342,7 +342,7 @@ static int stress_mergesort(stress_args_t *args)
 		stress_sort_compare_reset();
 		t = stress_time_now();
 		if (mergesort_func(data, n, sizeof(*data), stress_sort_cmp_rev_int32) < 0) {
-			pr_fail("%s: reversed mergesort of random data failed: %d (%s)\n",
+			pr_fail("%s: reversed mergesort of random data failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			rc = EXIT_FAILURE;
 			break;
@@ -374,7 +374,7 @@ static int stress_mergesort(stress_args_t *args)
 		stress_sort_compare_reset();
 		t = stress_time_now();
 		if (mergesort_func(data, n, sizeof(*data), stress_sort_cmp_rev_int32) < 0) {
-			pr_fail("%s: reversed mergesort of random data failed: %d (%s)\n",
+			pr_fail("%s: reversed mergesort of random data failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			rc = EXIT_FAILURE;
 			break;

@@ -175,7 +175,7 @@ case_sched_fifo:
 		    (errno != ENOSYS) &&
 		    (errno != EBUSY)) {
 			pr_dbg("%s: sched_setscheduler "
-				"failed: errno=%d (%s) "
+				"failed, errno=%d (%s) "
 				"for scheduler policy %s\n",
 				args->name, errno, strerror(errno),
 				policy_name);
@@ -281,7 +281,7 @@ static int stress_yield(stress_args_t *args)
 		pids[i] = fork();
 		if (pids[i] < 0) {
 			pr_dbg("%s: fork failed (instance %" PRIu32
-				", yielder %zd): errno=%d (%s)\n",
+				", yielder %zd), errno=%d (%s)\n",
 				args->name, args->instance, i, errno, strerror(errno));
 		} else if (pids[i] == 0) {
 			stress_parent_died_alarm();

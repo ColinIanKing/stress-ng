@@ -703,7 +703,7 @@ static int stress_set_handler(const char *stress, const bool child)
 	sa.sa_sigaction = stress_sigalrm_action_handler;
 	sa.sa_flags = SA_SIGINFO;
 	if (sigaction(SIGALRM, &sa, NULL) < 0) {
-		pr_fail("%s: sigaction SIGALRM: errno=%d (%s)\n",
+		pr_fail("%s: sigaction SIGALRM failed, errno=%d (%s)\n",
                         stress, errno, strerror(errno));
 	}
 #else
@@ -1907,7 +1907,7 @@ again:
 					(void)shim_usleep(100000);
 					goto again;
 				}
-				pr_err("Cannot fork: errno=%d (%s)\n",
+				pr_err("cannot fork, errno=%d (%s)\n",
 					errno, strerror(errno));
 				stress_kill_stressors(SIGALRM, false);
 				goto wait_for_stressors;
@@ -2532,7 +2532,7 @@ static void stress_times_dump(
 		return;
 
 	if (times(&buf) == (clock_t)-1) {
-		pr_err("cannot get run time information: errno=%d (%s)\n",
+		pr_err("cannot get run time information, errno=%d (%s)\n",
 			errno, strerror(errno));
 		return;
 	}
@@ -3924,7 +3924,7 @@ int main(int argc, char **argv, char **envp)
 
 	if (stress_get_processors_configured() < 0) {
 		pr_err("sysconf failed, number of cpus configured "
-			"unknown: errno=%d: (%s)\n",
+			"unknown, errno=%d: (%s)\n",
 			errno, strerror(errno));
 		ret = EXIT_FAILURE;
 		goto exit_settings_free;
@@ -3932,7 +3932,7 @@ int main(int argc, char **argv, char **envp)
 	ticks_per_sec = stress_get_ticks_per_second();
 	if (ticks_per_sec < 0) {
 		pr_err("sysconf failed, clock ticks per second "
-			"unknown: errno=%d (%s)\n",
+			"unknown, errno=%d (%s)\n",
 			errno, strerror(errno));
 		ret = EXIT_FAILURE;
 		goto exit_settings_free;

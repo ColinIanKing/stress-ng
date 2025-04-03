@@ -611,7 +611,7 @@ retry:
 			case ENOENT:	   /* unix domain not yet created */
 				break;
 			default:
-				pr_dbg("%s: connect failed: %d (%s)\n",
+				pr_dbg("%s: connect failed, errno=%d (%s)\n",
 					args->name, saved_errno, strerror(saved_errno));
 				break;
 			}

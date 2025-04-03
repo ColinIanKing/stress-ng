@@ -381,7 +381,7 @@ again:
 			ret = shim_waitpid(pid, &status, 0);
 			if (ret < 0) {
 				if (errno != EINTR)
-					pr_dbg("%s: waitpid() on PID %" PRIdMAX ": errno=%d (%s)\n",
+					pr_dbg("%s: waitpid() on PID %" PRIdMAX " failed, errno=%d (%s)\n",
 						args->name, (intmax_t)pid, errno, strerror(errno));
 				(void)stress_kill_pid_wait(pid, NULL);
 			}

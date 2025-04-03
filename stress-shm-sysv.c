@@ -711,7 +711,7 @@ static int stress_shm_sysv_child(
 			msg.index = (int)i;
 			msg.shm_id = shm_id;
 			if (UNLIKELY(write(fd, &msg, sizeof(msg)) < 0)) {
-				pr_err("%s: write failed: errno=%d: (%s)\n",
+				pr_err("%s: write failed, errno=%d: (%s)\n",
 					args->name, errno, strerror(errno));
 				rc = EXIT_FAILURE;
 				goto reap;
@@ -888,7 +888,7 @@ reap:
 			msg.index = (int)i;
 			msg.shm_id = -1;
 			if (UNLIKELY(write(fd, &msg, sizeof(msg)) < 0)) {
-				pr_dbg("%s: write failed: errno=%d: (%s)\n",
+				pr_dbg("%s: write failed, errno=%d: (%s)\n",
 					args->name, errno, strerror(errno));
 				ok = false;
 			}
@@ -908,7 +908,7 @@ reap:
 	msg.index = -1;
 	msg.shm_id = -1;
 	if (write(fd, &msg, sizeof(msg)) < 0) {
-		pr_err("%s: write failed: errno=%d: (%s)\n",
+		pr_err("%s: write failed, errno=%d: (%s)\n",
 			args->name, errno, strerror(errno));
 		rc = EXIT_FAILURE;
 	}
@@ -981,7 +981,7 @@ fork_again:
 			/* Can't fork, retry? */
 			if (errno == EAGAIN)
 				goto fork_again;
-			pr_err("%s: fork failed: errno=%d: (%s)\n",
+			pr_err("%s: fork failed, errno=%d: (%s)\n",
 				args->name, errno, strerror(errno));
 			(void)close(pipefds[0]);
 			(void)close(pipefds[1]);

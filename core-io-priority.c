@@ -93,7 +93,7 @@ void stress_set_iopriority(const int32_t class, const int32_t level)
 	rc = shim_ioprio_set(IOPRIO_WHO_PROCESS, 0,
 		IOPRIO_PRIO_VALUE(class, data));
 	if ((rc < 0) && (errno != ENOSYS)) {
-		(void)fprintf(stderr, "Cannot set I/O priority: errno=%d (%s)\n",
+		(void)fprintf(stderr, "Cannot set I/O priority, errno=%d (%s)\n",
 			errno, strerror(errno));
 		_exit(EXIT_FAILURE);
 	}

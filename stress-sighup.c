@@ -62,7 +62,7 @@ again:
 			goto again;
 		if (UNLIKELY(!stress_continue(args)))
 			return 0;
-		pr_fail("%s: fork failed: %d (%s)\n",
+		pr_fail("%s: fork failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return -1;
 	} else if (pid == 0) {
@@ -113,7 +113,7 @@ again:
 			goto again;
 		if (UNLIKELY(!stress_continue(args)))
 			return 0;
-		pr_fail("%s: fork failed: %d (%s)\n",
+		pr_fail("%s: fork failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	} else if (pid == 0) {

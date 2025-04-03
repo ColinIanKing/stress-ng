@@ -157,7 +157,7 @@ static int stress_regex(stress_args_t *args)
 
 					failed[i] = true;
 					(void)regerror(ret, &regex, errbuf, sizeof(errbuf));
-					pr_inf("%s: failed to compile %s regex '%s', error: %s\n",
+					pr_inf("%s: failed to compile %s regex '%s', error %s\n",
 						args->name, stress_posix_regex[i].description,
 						stress_posix_regex[i].regex, errbuf);
 

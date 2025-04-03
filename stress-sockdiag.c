@@ -301,14 +301,14 @@ static int stress_sockdiag(stress_args_t *args)
 				rc  = EXIT_NOT_IMPLEMENTED;
 				break;
 			}
-			pr_fail("%s: NETLINK_SOCK_DIAG open failed: errno=%d (%s)\n",
+			pr_fail("%s: NETLINK_SOCK_DIAG open failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			rc = EXIT_FAILURE;
 			break;
 		}
 		ret = sockdiag_send(args, fd);
 		if (UNLIKELY(ret < 0)) {
-			pr_fail("%s: NETLINK_SOCK_DIAG send query failed: errno=%d (%s)\n",
+			pr_fail("%s: NETLINK_SOCK_DIAG send query failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			rc = EXIT_FAILURE;
 			(void)close(fd);

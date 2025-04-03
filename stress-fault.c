@@ -177,7 +177,7 @@ redo:
 				(void)close(fd);
 				goto next;
 			}
-			pr_err("%s: mmap failed: errno=%d (%s)\n",
+			pr_err("%s: mmap failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			(void)close(fd);
 			break;
@@ -210,7 +210,7 @@ redo:
 		}
 #endif
 		if (stress_munmap_retry_enomem((void *)ptr, page_size) < 0) {
-			pr_err("%s: munmap failed: errno=%d (%s)\n",
+			pr_err("%s: munmap failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			break;
 		}

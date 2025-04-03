@@ -115,7 +115,7 @@ static int stress_vforkmany(stress_args_t *args)
 			PROT_READ | PROT_WRITE,
 			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (vforkmany_shared == MAP_FAILED) {
-		pr_inf("%s: mmap failed: %d (%s)\n",
+		pr_inf("%s: mmap failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		VOID_RET(int, stress_sigaltstack(NULL, 0));
 		(void)munmap((void *)stack_sig, STRESS_SIGSTKSZ);
@@ -141,7 +141,7 @@ fork_again:
 			goto fork_again;
 		if (UNLIKELY(!stress_continue(args)))
 			goto finish;
-		pr_err("%s: fork failed: errno=%d: (%s)\n",
+		pr_err("%s: fork failed, errno=%d: (%s)\n",
 			args->name, errno, strerror(errno));
 		(void)munmap((void *)vforkmany_shared, sizeof(*vforkmany_shared));
 		VOID_RET(int, stress_sigaltstack(NULL, 0));

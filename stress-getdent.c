@@ -89,7 +89,7 @@ static inline int stress_getdents_rand(
 		if (j >= n)
 			j = 0;
 	}
-	pr_fail("%s: getdents: errno=%d (%s)%s\n",
+	pr_fail("%s: getdents failed, errno=%d (%s)%s\n",
 		args->name, -ret, strerror(-ret), stress_get_fs_type(path));
 
 	return ret;

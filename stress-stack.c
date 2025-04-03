@@ -248,7 +248,7 @@ static int stress_stack_child(stress_args_t *args, void *context)
 	stress_parent_died_alarm();
 
 	if (start_ptr == (void *) -1) {
-		pr_err("%s: sbrk(0) failed: errno=%d (%s)\n",
+		pr_err("%s: sbrk(0) failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}

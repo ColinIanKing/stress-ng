@@ -80,7 +80,7 @@ static int stress_klog(stress_args_t *args)
 						args->name);
 			} else {
 				pr_fail("%s: cannot determine syslog buffer "
-					"size: errno=%d (%s)\n",
+					"size, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 			}
 		}

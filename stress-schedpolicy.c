@@ -223,7 +223,7 @@ case_sched_fifo:
 				     (errno != ENOSYS) &&
 				     (errno != EBUSY))) {
 				pr_fail("%s: sched_setscheduler "
-					"failed: errno=%d (%s) "
+					"failed, errno=%d (%s) "
 					"for scheduler policy %s\n",
 					args->name, errno, strerror(errno),
 					new_policy_name);
@@ -237,7 +237,7 @@ case_sched_fifo:
 					args->name, errno, strerror(errno));
 			} else if (UNLIKELY(ret != stress_sched_types[policy].sched)) {
 				pr_fail("%s: sched_getscheduler "
-					"failed: PID %" PRIdMAX " has policy %d (%s) "
+					"failed, PID %" PRIdMAX " has policy %d (%s) "
 					"but function returned %d (%s) instead\n",
 					args->name, (intmax_t)pid, new_policy,
 					new_policy_name, ret,

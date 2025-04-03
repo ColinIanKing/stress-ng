@@ -526,7 +526,7 @@ static int stress_fanotify(stress_args_t *args)
 	}
 
 	if (pid < 0) {
-		pr_err("%s: fork failed: errno=%d (%s)\n",
+		pr_err("%s: fork failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		rc = EXIT_NO_RESOURCE;
 		goto tidy;

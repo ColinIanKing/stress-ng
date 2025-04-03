@@ -106,7 +106,7 @@ static void stress_fifo_reader(
 
 	fd = open(fifoname, O_RDONLY | O_NONBLOCK);
 	if (fd < 0) {
-		pr_fail("%s: fifo read open failed: errno=%d (%s)\n",
+		pr_fail("%s: fifo read open failed, errno=%d (%s)\n",
 			name, errno, strerror(errno));
 		return;
 	}
@@ -124,7 +124,7 @@ redo_poll:
 		if (UNLIKELY(ret < 0)) {
 			if ((errno == EAGAIN) || (errno == EINTR))
 				continue;
-			pr_err("%s: poll failed: errno=%d (%s)\n",
+			pr_err("%s: poll failed, errno=%d (%s)\n",
 				name, errno, strerror(errno));
 			break;
 		} else if (ret == 0) {
@@ -152,7 +152,7 @@ redo_select:
 		if (UNLIKELY(ret < 0)) {
 			if ((errno == EAGAIN) || (errno == EINTR))
 				continue;
-			pr_err("%s: select failed: errno=%d (%s)\n",
+			pr_err("%s: select failed, errno=%d (%s)\n",
 				name, errno, strerror(errno));
 			break;
 		} else if (ret == 0) {
@@ -179,7 +179,7 @@ redo_select:
 		if (UNLIKELY(sz < 0)) {
 			if ((errno == EAGAIN) || (errno == EINTR))
 				continue;
-			pr_fail("%s: fifo read failed: errno=%d (%s)\n",
+			pr_fail("%s: fifo read failed, errno=%d (%s)\n",
 				name, errno, strerror(errno));
 			break;
 		}
@@ -263,7 +263,7 @@ static int stress_fifo(stress_args_t *args)
 
 	if (mkfifo(fifoname, S_IRUSR | S_IWUSR) < 0) {
 		rc = stress_exit_status(errno);
-		pr_fail("%s: mkfifo failed: errno=%d (%s)\n",
+		pr_fail("%s: mkfifo failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		goto tidy;
 	}
@@ -300,7 +300,7 @@ static int stress_fifo(stress_args_t *args)
 			rc = 0;
 		} else {
 			rc = stress_exit_status(fd);
-			pr_fail("%s: fifo write open failed: "
+			pr_fail("%s: fifo write open failed, "
 				"errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 		}

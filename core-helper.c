@@ -2437,7 +2437,7 @@ int stress_sigaltstack(void *stack, const size_t size)
 	}
 
 	if (stress_sigaltstack_no_check(stack, size) < 0) {
-		pr_fail("sigaltstack failed: errno=%d (%s)\n",
+		pr_fail("sigaltstack failed, errno=%d (%s)\n",
 			errno, strerror(errno));
 		return -1;
 	}
@@ -2509,7 +2509,7 @@ int stress_sighandler(
 #endif
 
 	if (sigaction(signum, &new_action, orig_action) < 0) {
-		pr_fail("%s: sigaction %s: errno=%d (%s)\n",
+		pr_fail("%s: sigaction %s, errno=%d (%s)\n",
 			name, stress_strsignal(signum), errno, strerror(errno));
 		return -1;
 	}
@@ -2585,7 +2585,7 @@ int stress_sigrestore(
 	struct sigaction *orig_action)
 {
 	if (sigaction(signum, orig_action, NULL) < 0) {
-		pr_fail("%s: sigaction %s restore: errno=%d (%s)\n",
+		pr_fail("%s: sigaction %s restore, errno=%d (%s)\n",
 			name, stress_strsignal(signum), errno, strerror(errno));
 		return -1;
 	}
@@ -2993,7 +2993,7 @@ int stress_drop_capabilities(const char *name)
 
 	ret = capget(&uch, ucd);
 	if (UNLIKELY(ret < 0)) {
-		pr_fail("%s: capget on PID %" PRIdMAX " failed: errno=%d (%s)\n",
+		pr_fail("%s: capget on PID %" PRIdMAX " failed, errno=%d (%s)\n",
 			name, (intmax_t)uch.pid, errno, strerror(errno));
 		return -1;
 	}
@@ -3014,7 +3014,7 @@ int stress_drop_capabilities(const char *name)
 
 	ret = capset(&uch, ucd);
 	if (UNLIKELY(ret < 0)) {
-		pr_fail("%s: capset on PID %" PRIdMAX " failed: errno=%d (%s)\n",
+		pr_fail("%s: capset on PID %" PRIdMAX " failed, errno=%d (%s)\n",
 			name, (intmax_t)uch.pid, errno, strerror(errno));
 		return -1;
 	}

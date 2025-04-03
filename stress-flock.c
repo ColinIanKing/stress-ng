@@ -50,13 +50,13 @@ static int stress_flock_child(
 
 	fd1 = open(filename, O_RDONLY);
 	if (fd1 < 0) {
-		pr_err("%s: failed to open %s: errno=%d (%s)\n",
+		pr_err("%s: failed to open %s, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
 	fd2 = open(filename, O_RDONLY);
 	if (fd2 < 0) {
-		pr_err("%s: failed to open %s: errno=%d (%s)\n",
+		pr_err("%s: failed to open %s, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
 		(void)close(fd1);
 		return EXIT_FAILURE;
@@ -319,7 +319,7 @@ static int stress_flock(stress_args_t *args)
 		filename, sizeof(filename), stress_mwc32());
 	fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
 	if (fd < 0) {
-		pr_err("%s: failed to create %s: errno=%d (%s)\n",
+		pr_err("%s: failed to create %s, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
 		goto err;
 	}

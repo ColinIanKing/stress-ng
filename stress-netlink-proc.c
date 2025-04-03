@@ -202,7 +202,7 @@ static int stress_netlink_proc(stress_args_t *args)
 				args->name, errno, strerror(errno));
 			return EXIT_NO_RESOURCE;
 		}
-		pr_fail("%s: socket failed: errno=%d (%s)\n",
+		pr_fail("%s: socket failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
@@ -219,7 +219,7 @@ static int stress_netlink_proc(stress_args_t *args)
 			(void)close(sock);
 			return EXIT_NO_RESOURCE;
 		}
-		pr_err("%s: bind failed: errno=%d (%s)\n",
+		pr_err("%s: bind failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		(void)close(sock);
 		return EXIT_FAILURE;
@@ -250,7 +250,7 @@ static int stress_netlink_proc(stress_args_t *args)
 			(void)close(sock);
 			return EXIT_NO_RESOURCE;
 		}
-		pr_fail("%s: writev failed: errno=%d (%s)\n",
+		pr_fail("%s: writev failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		(void)close(sock);
 		return EXIT_FAILURE;

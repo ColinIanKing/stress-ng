@@ -164,7 +164,7 @@ static int stress_handle_child(stress_args_t *args, void *context)
 			break;
 		}
 		if (UNLIKELY(mount_fd < 0)) {
-			pr_fail("%s: failed to open mount path '%s': errno=%d (%s)\n",
+			pr_fail("%s: failed to open mount path '%s', errno=%d (%s)\n",
 				args->name, mount_info[i].mount_path, errno, strerror(errno));
 			rc = EXIT_FAILURE;
 			free(fhp);
@@ -174,7 +174,7 @@ static int stress_handle_child(stress_args_t *args, void *context)
 		if (UNLIKELY(fd < 0)) {
 			/* We don't abort if EPERM occurs, that's not a test failure */
 			if (errno != EPERM) {
-				pr_fail("%s: open_by_handle_at: failed to open: errno=%d (%s)\n",
+				pr_fail("%s: open_by_handle_at: failed to open, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				(void)close(mount_fd);
 				rc = EXIT_FAILURE;

@@ -271,7 +271,7 @@ static int stress_rmap(stress_args_t *args)
 
 		s_pids[i].pid = fork();
 		if (s_pids[i].pid < 0) {
-			pr_err("%s: fork failed: errno=%d: (%s)\n",
+			pr_err("%s: fork failed, errno=%d: (%s)\n",
 				args->name, errno, strerror(errno));
 			goto cleanup;
 		} else if (s_pids[i].pid == 0) {

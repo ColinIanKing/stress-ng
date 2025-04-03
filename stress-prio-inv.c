@@ -383,7 +383,7 @@ static int stress_prio_inv(stress_args_t *args)
 	 *  Attempt to use priority inheritance on mutex
 	 */
 	if (pthread_mutexattr_init(&mutexattr) < 0) {
-		pr_fail("pthread_mutexattr_init failed: errno=%d (%s)\n",
+		pr_fail("pthread_mutexattr_init failed, errno=%d (%s)\n",
 			errno, strerror(errno));
 		(void)pthread_mutex_destroy(&prio_inv_info->mutex);
 		return EXIT_FAILURE;
@@ -408,7 +408,7 @@ static int stress_prio_inv(stress_args_t *args)
 	VOID_RET(int, pthread_mutexattr_setprioceiling(&mutexattr, prio_max));
 	VOID_RET(int, pthread_mutexattr_setrobust(&mutexattr, PTHREAD_MUTEX_ROBUST));
 	if (pthread_mutex_init(&prio_inv_info->mutex, &mutexattr) < 0) {
-		pr_fail("%s: pthread_mutex_init failed: errno=%d: (%s)\n",
+		pr_fail("%s: pthread_mutex_init failed, errno=%d: (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}

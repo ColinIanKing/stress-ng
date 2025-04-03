@@ -50,7 +50,7 @@ static int icache_madvise_nohugepage(
 		 */
 		if (errno != EINVAL) {
 			pr_inf("%s: madvise MADV_NOHUGEPAGE failed on text "
-				"page %p: errno=%d (%s)\n",
+				"page %p, errno=%d (%s)\n",
 				args->name, addr, errno, strerror(errno));
 			return -1;
 		}
@@ -73,7 +73,7 @@ static int NOINLINE icache_mprotect(
 
 	ret = mprotect(addr, size, prot);
 	if (ret < 0) {
-		pr_inf("%s: mprotect failed on text page %p: errno=%d (%s)\n",
+		pr_inf("%s: mprotect failed on text page %p, errno=%d (%s)\n",
 			args->name, addr, errno, strerror(errno));
 	}
 	return ret;

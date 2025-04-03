@@ -293,7 +293,7 @@ retry_bind:
 					stress_af_alg_ignore(args, info, "send()");
 					break;
 				}
-				pr_fail("%s: %s (%s): send failed: errno=%d (%s)\n",
+				pr_fail("%s: %s (%s): send failed, errno=%d (%s)\n",
 						args->name, info->name, info->type,
 						errno, strerror(errno));
 				rc = EXIT_FAILURE;
@@ -309,7 +309,7 @@ retry_bind:
 					break;
 				if (errno == EOPNOTSUPP)
 					goto err_abort;
-				pr_fail("%s: %s (%s): recv failed: errno=%d (%s)\n",
+				pr_fail("%s: %s (%s): recv failed, errno=%d (%s)\n",
 					args->name, info->name, info->type,
 					errno, strerror(errno));
 				rc = EXIT_FAILURE;
@@ -541,7 +541,7 @@ retry_bind:
 				stress_af_alg_ignore(args, info, "sendmsg()");
 				break;
 			}
-			pr_fail("%s: %s (%s): sendmsg failed: errno=%d (%s)\n",
+			pr_fail("%s: %s (%s): sendmsg failed, errno=%d (%s)\n",
 				args->name, info->name, info->type,
 				errno, strerror(errno));
 			rc = EXIT_FAILURE;
@@ -554,7 +554,7 @@ retry_bind:
 					break;
 				if (errno == EOPNOTSUPP)
 					goto err_abort;
-				pr_fail("%s: %s (%s): read failed: errno=%d (%s)\n",
+				pr_fail("%s: %s (%s): read failed, errno=%d (%s)\n",
 					args->name, info->name, info->type,
 					errno, strerror(errno));
 				rc = EXIT_FAILURE;
@@ -605,14 +605,14 @@ retry_bind:
 				stress_af_alg_ignore(args, info, "sendmsg()");
 				break;
 			}
-			pr_fail("%s: %s (%s): sendmsg failed: errno=%d (%s)\n",
+			pr_fail("%s: %s (%s): sendmsg failed, errno=%d (%s)\n",
 				args->name, info->name, info->type,
 				errno, strerror(errno));
 			rc = EXIT_FAILURE;
 			goto err_close;
 		}
 		if (UNLIKELY(read(fd, output, DATA_LEN) != DATA_LEN)) {
-			pr_fail("%s: %s (%s): read failed: errno=%d (%s)\n",
+			pr_fail("%s: %s (%s): read failed, errno=%d (%s)\n",
 				args->name, info->name, info->type,
 				errno, strerror(errno));
 			rc = EXIT_FAILURE;

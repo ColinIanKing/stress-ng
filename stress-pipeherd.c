@@ -96,7 +96,7 @@ static int stress_pipeherd(stress_args_t *args)
 	}
 
 	if (pipe(fd) < 0) {
-		pr_fail("%s: pipe failed: %d (%s)\n",
+		pr_fail("%s: pipe failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
@@ -120,7 +120,7 @@ static int stress_pipeherd(stress_args_t *args)
 	data.check = check;
 	sz = write(fd[1], &data, sizeof(data));
 	if (sz < 0) {
-		pr_fail("%s: write to pipe failed: %d (%s)\n",
+		pr_fail("%s: write to pipe failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		(void)close(fd[0]);
 		(void)close(fd[1]);

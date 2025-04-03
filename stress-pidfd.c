@@ -203,7 +203,7 @@ again:
 					stress_pidfd_reap(pid, pidfd);
 					return EXIT_NOT_IMPLEMENTED;
 				}
-				pr_fail("%s: pidfd_send_signal failed: errno=%d (%s)\n",
+				pr_fail("%s: pidfd_send_signal failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				rc = EXIT_FAILURE;
 				stress_pidfd_reap(pid, pidfd);
@@ -211,13 +211,13 @@ again:
 			}
 			ret = shim_pidfd_send_signal(pidfd, SIGSTOP, NULL, 0);
 			if (UNLIKELY(ret != 0)) {
-				pr_fail("%s: pidfd_send_signal (SIGSTOP), failed: errno=%d (%s)\n",
+				pr_fail("%s: pidfd_send_signal (SIGSTOP), failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				rc = EXIT_FAILURE;
 			}
 			ret = shim_pidfd_send_signal(pidfd, SIGCONT, NULL, 0);
 			if (UNLIKELY(ret != 0)) {
-				pr_fail("%s: pidfd_send_signal (SIGCONT), failed: errno=%d (%s)\n",
+				pr_fail("%s: pidfd_send_signal (SIGCONT), failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				rc = EXIT_FAILURE;
 			}

@@ -1465,7 +1465,7 @@ static int stress_zlib_inflate(
 	do {
 		ret = inflateInit2(&stream_inf, zlib_args.window_bits);
 		if (UNLIKELY(ret != Z_OK)) {
-			pr_fail("%s: zlib inflateInit error: %s\n",
+			pr_fail("%s: zlib inflateInit error, %s\n",
 				args->name, stress_zlib_err(ret));
 			zlib_checksum->error = true;
 			goto zlib_checksum_error;
@@ -1481,7 +1481,7 @@ static int stress_zlib_inflate(
 			} else if ((sz != sizeof(def_size)) || (sz < 0)) {
 				(void)inflateEnd(&stream_inf);
 				if (UNLIKELY((errno != EINTR) && (errno != EPIPE))) {
-					pr_fail("%s: zlib pipe read size error: %s (ret=%zd errno=%d)\n",
+					pr_fail("%s: zlib pipe read size error, %s (ret=%zd errno=%d)\n",
 						args->name, strerror(errno), sz, errno);
 					zlib_checksum->error = true;
 					goto zlib_checksum_error;
@@ -1500,7 +1500,7 @@ static int stress_zlib_inflate(
 			} else if ((sz != def_size) || (sz < 0)) {
 				(void)inflateEnd(&stream_inf);
 				if (UNLIKELY((errno != EINTR) && (errno != EPIPE))) {
-					pr_fail("%s: zlib pipe read buffer error: %s (ret=%zd errno=%d)\n",
+					pr_fail("%s: zlib pipe read buffer error, %s (ret=%zd errno=%d)\n",
 						args->name, strerror(errno), sz, errno);
 					zlib_checksum->error = true;
 					goto zlib_checksum_error;
@@ -1526,7 +1526,7 @@ static int stress_zlib_inflate(
 				case Z_NEED_DICT:
 				case Z_DATA_ERROR:
 				case Z_MEM_ERROR:
-					pr_fail("%s: zlib inflate error: %s\n",
+					pr_fail("%s: zlib inflate error, %s\n",
 						args->name, stress_zlib_err(ret));
 					(void)inflateEnd(&stream_inf);
 					goto zlib_checksum_error;
@@ -1607,7 +1607,7 @@ static int stress_zlib_deflate(
 				Z_DEFLATED, zlib_args.window_bits,
 				zlib_args.mem_level, zlib_args.strategy);
 		if (UNLIKELY(ret != Z_OK)) {
-			pr_fail("%s: zlib deflateInit error: %s\n",
+			pr_fail("%s: zlib deflateInit error, %s\n",
 				args->name, stress_zlib_err(ret));
 			zlib_checksum->error = true;
 			(void)deflateEnd(&stream_def);
@@ -1662,7 +1662,7 @@ static int stress_zlib_deflate(
 
 				ret = deflate(&stream_def, flush);
 				if (UNLIKELY(ret == Z_STREAM_ERROR)) {
-					pr_fail("%s: zlib deflate error: %s\n",
+					pr_fail("%s: zlib deflate error, %s\n",
 						args->name, stress_zlib_err(ret));
 					(void)deflateEnd(&stream_def);
 					ret = EXIT_FAILURE;
@@ -1683,7 +1683,7 @@ static int stress_zlib_deflate(
 				} else if (sz != sizeof(def_size)) {
 					(void)deflateEnd(&stream_def);
 					if (UNLIKELY((errno != EINTR) && (errno != EPIPE) && (errno != 0))) {
-						pr_fail("%s: zlib pipe write size error: %s (ret=%zd errno=%d)\n",
+						pr_fail("%s: zlib pipe write size error, %s (ret=%zd errno=%d)\n",
 							args->name, strerror(errno), sz, errno);
 						ret = EXIT_FAILURE;
 						goto zlib_checksum_error;
@@ -1702,7 +1702,7 @@ static int stress_zlib_deflate(
 				} else if (sz != def_size) {
 					(void)deflateEnd(&stream_def);
 					if (UNLIKELY((errno != EINTR) && (errno != EPIPE) && (errno != 0))) {
-						pr_fail("%s: zlib pipe write buffer error: %s (ret=%zd errno=%d)\n",
+						pr_fail("%s: zlib pipe write buffer error, %s (ret=%zd errno=%d)\n",
 							args->name, strerror(errno), sz, errno);
 						ret = EXIT_FAILURE;
 						goto zlib_checksum_error;

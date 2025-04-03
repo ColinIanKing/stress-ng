@@ -76,7 +76,7 @@ static int stress_flushcache_mprotect(
 
 	ret = mprotect(addr, size, prot);
 	if (ret < 0) {
-		pr_inf("%s: mprotect failed on text page %p: errno=%d (%s)\n",
+		pr_inf("%s: mprotect failed on text page %p, errno=%d (%s)\n",
 			args->name, addr, errno, strerror(errno));
 	}
 	return ret;

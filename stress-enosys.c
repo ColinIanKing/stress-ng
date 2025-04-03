@@ -4025,7 +4025,7 @@ again:
 			goto again;
 		if (UNLIKELY(!stress_continue(args)))
 			goto deinit;
-		pr_err("%s: fork failed: errno=%d: (%s)\n",
+		pr_err("%s: fork failed, errno=%d: (%s)\n",
 			args->name, errno, strerror(errno));
 	} else if (pid > 0) {
 		pid_t ret;
@@ -4035,7 +4035,7 @@ again:
 		ret = shim_waitpid(pid, &status, 0);
 		if (ret < 0) {
 			if (errno != EINTR)
-				pr_dbg("%s: waitpid() on PID %" PRIdMAX ", errno=%d (%s)\n",
+				pr_dbg("%s: waitpid() on PID %" PRIdMAX " failed, errno=%d (%s)\n",
 					args->name, (intmax_t)pid, errno, strerror(errno));
 			(void)shim_kill(pid, SIGALRM);
 

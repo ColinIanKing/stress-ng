@@ -129,7 +129,7 @@ static void aio_issue_cancel(const char *name, stress_io_req_t *io_req)
 			(void)shim_usleep_interruptible(250000);
 			break;
 		default:
-			pr_fail("%s: %d error: %d %s\n",
+			pr_fail("%s: %d aio_error(), errno=%d %s\n",
 				name, io_req->request,
 				errno, strerror(errno));
 			break;
@@ -169,7 +169,7 @@ static int issue_aio_request(
 			    (errno == EINTR) ||
 			    (errno == EBUSY))
 				continue;
-			pr_fail("%s: failed to issue aio request: %d (%s)\n",
+			pr_fail("%s: failed to issue aio request, errno=%d (%s)\n",
 				name, errno, strerror(errno));
 		}
 		return ret;
@@ -209,7 +209,7 @@ static int issue_aio_sync_request(
 		if (ret < 0) {
 			if ((errno == EAGAIN) || (errno == EINTR))
 				continue;
-			pr_fail("%s: failed to issue aio request: %d (%s)\n",
+			pr_fail("%s: failed to issue aio request, errno=%d (%s)\n",
 				name, errno, strerror(errno));
 		}
 		return ret;
