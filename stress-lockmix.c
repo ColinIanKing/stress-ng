@@ -264,7 +264,6 @@ static int stress_lockmix_unlock(stress_args_t *args, const int fd)
 		break;
 #endif
 	default:
-pr_inf("UNKNOWN %p %d\n", lockmix_infos.head, lockmix_infos.head->type);
 		/* take off head anyhow */
 		stress_lockmix_info_head_remove();
 		break;
