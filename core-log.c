@@ -207,7 +207,7 @@ void pr_openlog(const char *filename)
 	log_fd = open(filename, O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR);
 	if (log_fd < 0) {
 		log_fd = -1;
-		pr_err("Cannot open log file %s, errno=%d (%s)\n", filename, errno, strerror(errno));
+		pr_err("cannot open log file %s, errno=%d (%s)\n", filename, errno, strerror(errno));
 		return;
 	}
 }

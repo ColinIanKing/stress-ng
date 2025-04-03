@@ -840,7 +840,7 @@ void stress_perf_stat_dump(FILE *yaml, stress_stressor_t *stressors_list, const 
 					paranoid = true;
 			}
 			if (paranoid && (level > 1)) {
-				pr_inf("Cannot read perf counters, "
+				pr_inf("cannot read perf counters, "
 					"do not have CAP_SYS_ADMIN capability "
 					"or %s is set too high (%d)\n",
 					path, level);

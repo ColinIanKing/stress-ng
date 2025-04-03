@@ -142,7 +142,7 @@ static void stress_fiemap_ioctl(
 
 		fiemap = (struct fiemap *)calloc(1, sizeof(*fiemap));
 		if (UNLIKELY(!fiemap)) {
-			pr_err("Out of memory allocating fiemap\n");
+			pr_err("out of memory allocating fiemap\n");
 			break;
 		}
 		fiemap->fm_length = ~0UL;

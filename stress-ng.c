@@ -2002,7 +2002,7 @@ static int stress_show_stressors(void)
 			if (buffer_len >= 0) {
 				newstr = realloc(str, (size_t)(len + buffer_len + 1));
 				if (!newstr) {
-					pr_err("Cannot allocate temporary buffer\n");
+					pr_err("cannot allocate temporary buffer\n");
 					free(str);
 					return -1;
 				}
@@ -2978,7 +2978,7 @@ static stress_stressor_t *stress_find_proc_info(const stress_t *stressor)
 #endif
 	ss = (stress_stressor_t *)calloc(1, sizeof(*ss));
 	if (!ss) {
-		(void)fprintf(stderr, "Cannot allocate stressor state info\n");
+		(void)fprintf(stderr, "cannot allocate stressor state info\n");
 		exit(EXIT_FAILURE);
 	}
 	ss->stressor = stressor;
@@ -3114,7 +3114,7 @@ static inline void stress_set_random_stressors(void)
 		const uint32_t n_procs = stress_get_num_stressors();
 
 		if (g_opt_flags & OPT_FLAGS_SET) {
-			(void)fprintf(stderr, "Cannot specify random "
+			(void)fprintf(stderr, "cannot specify random "
 				"option with other stress processes "
 				"selected\n");
 			exit(EXIT_FAILURE);
@@ -3164,7 +3164,7 @@ static void stress_with(const int32_t instances)
 		}
 		ss = stress_find_proc_info(stressor);
 		if (!ss) {
-			(void)fprintf(stderr, "Cannot allocate stressor state info\n");
+			(void)fprintf(stderr, "cannot allocate stressor state info\n");
 			exit(EXIT_FAILURE);
 		}
 		ss->instances = instances;
@@ -3193,7 +3193,7 @@ static void stress_enable_all_stressors(const int32_t instances)
 		stress_stressor_t *ss = stress_find_proc_info(&stressors[i]);
 
 		if (!ss) {
-			(void)fprintf(stderr, "Cannot allocate stressor state info\n");
+			(void)fprintf(stderr, "cannot allocate stressor state info\n");
 			exit(EXIT_FAILURE);
 		}
 		ss->instances = instances;
@@ -3369,7 +3369,7 @@ next_opt:
 		case OPT_max_fd:
 			max_fds = (uint64_t)stress_get_file_limit();
 			u64 = stress_get_uint64_percent(optarg, 1, max_fds,
-				"Cannot determine maximum file descriptor limit");
+				"cannot determine maximum file descriptor limit");
 			stress_check_range(optarg, u64, 8, max_fds);
 			stress_set_setting_global("max-fd", TYPE_ID_UINT64, &u64);
 			break;
@@ -3798,7 +3798,7 @@ static FILE *stress_yaml_open(const char *yaml_filename)
 	if (yaml_filename) {
 		yaml = fopen(yaml_filename, "w");
 		if (!yaml)
-			pr_err("Cannot output YAML data to %s\n", yaml_filename);
+			pr_err("cannot output YAML data to %s\n", yaml_filename);
 
 		pr_yaml(yaml, "---\n");
 		stress_yaml_runinfo(yaml);
@@ -4126,7 +4126,7 @@ int main(int argc, char **argv, char **envp)
 	stress_set_proc_limits();
 
 	if (!stressors_head) {
-		pr_err("No stress workers invoked%s\n",
+		pr_err("no stress workers invoked%s\n",
 			unsupported ? " (one or more were unsupported)" : "");
 		/*
 		 *  If some stressors were given but marked as
