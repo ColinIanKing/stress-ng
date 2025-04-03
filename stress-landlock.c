@@ -439,8 +439,8 @@ again:
 	} else {
 		if (shim_waitpid(pid, &status, 0) < 0) {
 			if (errno != EINTR) {
-				pr_err("%s: waitpid errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
+				pr_err("%s: waitpid() on PID %" PRIdMAX ": errno=%d (%s)\n",
+					args->name, (intmax_t)pid, errno, strerror(errno));
 			} else {
 				/* Probably an SIGARLM, force kill & reap */
 				(void)stress_kill_pid_wait(pid, NULL);

@@ -434,8 +434,8 @@ static int stress_seccomp(stress_args_t *args)
 			/* Wait for child to exit or get killed by seccomp */
 			if (shim_waitpid(pid, &status, 0) < 0) {
 				if (errno != EINTR)
-					pr_dbg("%s: waitpid failed, errno=%d (%s)\n",
-						args->name, errno, strerror(errno));
+					pr_dbg("%s: waitpid() on PID %" PRIdMAX " failed, errno=%d (%s)\n",
+						args->name, (intmax_t)pid, errno, strerror(errno));
 			} else {
 				/* Did the child hit a weird error? */
 				if (WIFEXITED(status) &&

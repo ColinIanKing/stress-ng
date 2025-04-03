@@ -52,7 +52,8 @@ static const stress_help_t help[] = {
 static void vforkmany_wait(vforkmany_shared_t *vforkmany_shared, const pid_t pid)
 {
 	for (;;) {
-		int ret, status;
+		pid_t ret;
+		int status;
 
 		errno = 0;
 		ret = waitpid(pid, &status, 0);

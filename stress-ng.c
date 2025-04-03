@@ -1080,7 +1080,8 @@ static void stress_wait_pid(
 	bool *metrics_success,
 	const int flag)
 {
-	int status, ret;
+	pid_t ret;
+	int status;
 	bool do_abort = false;
 	const char *name = ss->stressor->name;
 
@@ -1101,16 +1102,16 @@ redo:
 #if NEED_GLIBC(2,1,0)
 				const char *signame = strsignal(wterm_signal);
 
-				pr_dbg("%s: [%d] terminated on signal: %d (%s)\n",
-					name, ret, wterm_signal, signame);
+				pr_dbg("%s: [%" PRIdMAX "] terminated on signal: %d (%s)\n",
+					name, (intmax_t)ret, wterm_signal, signame);
 #else
-				pr_dbg("%s: [%d] terminated on signal: %d\n",
-					name, ret, wterm_signal);
+				pr_dbg("%s: [%d" PRIdMAX "] terminated on signal: %d\n",
+					name, (intmax_t)ret, wterm_signal);
 #endif
 			}
 #else
-			pr_dbg("%s [%d] terminated on signal\n",
-				name, ret);
+			pr_dbg("%s [%" PRIdMAX "] terminated on signal\n",
+				name, (intmax_t)ret);
 #endif
 			/*
 			 *  If the stressor got killed by OOM or SIGKILL
@@ -1119,11 +1120,11 @@ redo:
 			 *  failure.
 			 */
 			if (stress_process_oomed(ret)) {
-				pr_dbg("%s: [%d] killed by the OOM killer\n",
-					name, ret);
+				pr_dbg("%s: [%" PRIdMAX "] killed by the OOM killer\n",
+					name, (intmax_t)ret);
 			} else if (wterm_signal == SIGKILL) {
-				pr_dbg("%s: [%d] possibly killed by the OOM killer\n",
-					name, ret);
+				pr_dbg("%s: [%" PRIdMAX "] possibly killed by the OOM killer\n",
+					name, (intmax_t)ret);
 			} else if (wterm_signal != SIGALRM) {
 				*success = false;
 			}
@@ -1134,8 +1135,8 @@ redo:
 			break;
 		case EXIT_NO_RESOURCE:
 			ss->status[STRESS_STRESSOR_STATUS_SKIPPED]++;
-			pr_warn_skip("%s: [%d] aborted early, out of system resources\n",
-				name, ret);
+			pr_warn_skip("%s: [%" PRIdMAX "] aborted early, out of system resources\n",
+				name, (intmax_t)ret);
 			*resource_success = false;
 			do_abort = true;
 			break;
@@ -1148,14 +1149,14 @@ redo:
 			do_abort = true;
 			*success = false;
 #if defined(STRESS_REPORT_EXIT_SIGNALED)
-			pr_dbg("%s: [%d] aborted via a termination signal\n",
-				name, ret);
+			pr_dbg("%s: [%" PRIdMAX "] aborted via a termination signal\n",
+				name, (intmax_t)ret);
 #endif
 			break;
 		case EXIT_BY_SYS_EXIT:
 			ss->status[STRESS_STRESSOR_STATUS_FAILED]++;
-			pr_dbg("%s: [%d] aborted via exit() which was not expected\n",
-				name, ret);
+			pr_dbg("%s: [%" PRIdMAX "] aborted via exit() which was not expected\n",
+				name, (intmax_t)ret);
 			do_abort = true;
 			break;
 		case EXIT_METRICS_UNTRUSTWORTHY:
@@ -1173,8 +1174,8 @@ redo:
 			goto wexit_status_default;
 		default:
 wexit_status_default:
-			pr_err("%s: [%d] terminated with an error, exit status=%d (%s)\n",
-				name, ret, wexit_status,
+			pr_err("%s: [%" PRIdMAX "] terminated with an error, exit status=%d (%s)\n",
+				name, (intmax_t)ret, wexit_status,
 				stress_exit_status_to_string(wexit_status));
 			*success = false;
 			do_abort = true;
@@ -1187,8 +1188,8 @@ wexit_status_default:
 		}
 
 		stress_stressor_finished(&stats->s_pid.pid);
-		pr_dbg("%s: [%d] terminated (%s)\n",
-			name, ret,
+		pr_dbg("%s: [%" PRIdMAX "] terminated (%s)\n",
+			name, (intmax_t)ret,
 			stress_exit_status_to_string(wexit_status));
 	} else if (ret == -1) {
 		/* Somebody interrupted the wait */

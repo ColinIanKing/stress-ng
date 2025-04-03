@@ -154,13 +154,14 @@ again:
 			return EXIT_FAILURE;
 		} else if (pid > 0) {
 			/* Parent */
-			int ret, status = 0;
+			pid_t ret;
+			int status = 0;
 
 			ret = shim_waitpid(pid, &status, 0);
 			if (ret < 0) {
 				if (errno != EINTR)
-					pr_dbg("%s: waitpid(): errno=%d (%s)\n",
-						args->name, errno, strerror(errno));
+					pr_dbg("%s: waitpid() on PID %" PRIdMAX ": errno=%d (%s)\n",
+						args->name, (intmax_t)pid, errno, strerror(errno));
 				stress_force_killed_bogo(args);
 				(void)stress_kill_pid_wait(pid, &status);
 			}

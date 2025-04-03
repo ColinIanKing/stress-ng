@@ -24,5 +24,5 @@ int main(void)
 {
 	int status;
 
-	return waitpid(999999, &status, 0);
+	return (int)waitpid(999999, &status, 0);
 }

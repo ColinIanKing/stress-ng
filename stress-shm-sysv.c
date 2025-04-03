@@ -1040,9 +1040,9 @@ fork_again:
 				if ((WTERMSIG(status) == SIGKILL) ||
 				    (WTERMSIG(status) == SIGBUS)) {
 					stress_log_system_mem_info();
-					pr_dbg("%s: assuming killed by OOM killer, "
+					pr_dbg("%s: assuming PID %" PRIdMAX " killed by OOM killer, "
 						"restarting again (instance %d)\n",
-						args->name, args->instance);
+						args->name, (intmax_t)pid, args->instance);
 					restarts++;
 				}
 			}

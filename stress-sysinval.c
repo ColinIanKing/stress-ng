@@ -2719,21 +2719,20 @@ static inline int stress_do_syscall(stress_args_t *args)
 		}
 		_exit(EXIT_SUCCESS);
 	} else {
-		int ret, status;
+		int status;
 
 		/*
 		 *  Don't use retry shim_waitpid here, we want to force
 		 *  kill the child no matter what happens at this point
 		 */
-		ret = waitpid(pid, &status, 0);
-		if (ret < 0) {
+		if (waitpid(pid, &status, 0) < 0) {
 			/*
 			 *  SIGALRM or a waitpid failure, so force
 			 *  kill and reap of child to make sure
 			 *  it is really dead and buried
 			 */
 			(void)stress_kill_pid(pid);
-			VOID_RET(int, waitpid(pid, &status, 0));
+			VOID_RET(pid_t, waitpid(pid, &status, 0));
 		}
 		if (current_context->type == SYSCALL_CRASH) {
 			const size_t idx = current_context->idx;

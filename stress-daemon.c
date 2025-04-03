@@ -45,7 +45,7 @@ static void daemon_wait_pid(const pid_t pid, const bool daemon_wait)
 	if (daemon_wait) {
 		int status;
 
-		VOID_RET(int, waitpid(pid, &status, 0));
+		VOID_RET(pid_t, waitpid(pid, &status, 0));
 	}
 }
 

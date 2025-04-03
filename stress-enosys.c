@@ -3978,7 +3978,8 @@ static inline int stress_do_syscall(
 			(long int)buffer);
 		_exit(0);
 	} else {
-		int ret, status;
+		pid_t ret;
+		int status;
 
 		/*
 		 * Don't use shim_waitpid here, we want to force
@@ -4027,14 +4028,15 @@ again:
 		pr_err("%s: fork failed: errno=%d: (%s)\n",
 			args->name, errno, strerror(errno));
 	} else if (pid > 0) {
-		int status, ret;
+		pid_t ret;
+		int status;
 
 		/* Parent, wait for child */
 		ret = shim_waitpid(pid, &status, 0);
 		if (ret < 0) {
 			if (errno != EINTR)
-				pr_dbg("%s: waitpid(): errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
+				pr_dbg("%s: waitpid() on PID %" PRIdMAX ", errno=%d (%s)\n",
+					args->name, (intmax_t)pid, errno, strerror(errno));
 			(void)shim_kill(pid, SIGALRM);
 
 			/* Still alive, kill it */

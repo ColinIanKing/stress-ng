@@ -219,8 +219,8 @@ static int stress_wait(stress_args_t *args)
 		 */
 		wret = syscall_shim_waitpid(pid_r, &status, options);
 		if (UNLIKELY((wret < 0) && (errno != EINTR) && (errno != ECHILD))) {
-			pr_fail("%s: waitpid failed, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
+			pr_fail("%s: waitpid on PID %" PRIdMAX " failed, errno=%d (%s)\n",
+				args->name, (intmax_t)pid_r, errno, strerror(errno));
 			break;
 		}
 		stress_wait_continued(args, status);

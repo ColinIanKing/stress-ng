@@ -159,7 +159,7 @@ static int static_dup2_child(info_t *info)
 		int status;
 
 		(void)stress_kill_pid(info->pid_clone);
-		VOID_RET(int, waitpid(info->pid_clone, &status, (int)__WCLONE));
+		VOID_RET(pid_t, waitpid(info->pid_clone, &status, (int)__WCLONE));
 	}
 
 	(void)close(info->fd);

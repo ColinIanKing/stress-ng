@@ -233,8 +233,8 @@ static int stress_mmapfork(stress_args_t *args)
 
 			if (shim_waitpid(s_pids[i].pid, &status, 0) < 0) {
 				if (UNLIKELY(errno != EINTR)) {
-					pr_err("%s: waitpid errno=%d (%s)\n",
-						args->name, errno, strerror(errno));
+					pr_err("%s: waitpid() on PID %" PRIdMAX ": errno=%d (%s)\n",
+						args->name, (intmax_t)s_pids[i].pid, errno, strerror(errno));
 				} else {
 					/* Probably an SIGARLM, force reap */
 					goto reap;

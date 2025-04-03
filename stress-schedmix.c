@@ -195,7 +195,7 @@ redo:
 		if (pid == 0) {
 			_exit(0);
 		} else if (pid > 0) {
-			VOID_RET(int, shim_waitpid(pid, &status, 0));
+			VOID_RET(pid_t, shim_waitpid(pid, &status, 0));
 		}
 		break;
 	case 21:

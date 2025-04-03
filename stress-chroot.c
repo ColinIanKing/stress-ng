@@ -465,14 +465,15 @@ again:
 			_exit(ret);
 		} else {
 			/* Parent */
-			int status, waitret;
+			int status;
+			pid_t waitret;
 
 			waitret = shim_waitpid(pid, &status, 0);
 			if (waitret < 0) {
 				if (errno == EINTR)
 					break;
-				pr_fail("%s: waitpid waiting on chroot child failed, errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
+				pr_fail("%s: waitpid waiting on chroot child PID %" PRIdMAX " failed, errno=%d (%s)\n",
+					args->name, (intmax_t)pid, errno, strerror(errno));
 				goto tidy_all;
 			}
 			if (WEXITSTATUS(status) != EXIT_SUCCESS)

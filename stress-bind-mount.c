@@ -229,8 +229,8 @@ static int stress_bind_mount(stress_args_t *args)
 			return EXIT_FAILURE;
 		}
 		if (shim_waitpid(pid, &status, 0) < 0) {
-			pr_inf("%s: waitpid on failed, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
+			pr_inf("%s: waitpid on PID %" PRIdMAX " failed, errno=%d (%s)\n",
+				args->name, (intmax_t)pid, errno, strerror(errno));
 			break;
 		}
 		if (WIFEXITED(status)) {

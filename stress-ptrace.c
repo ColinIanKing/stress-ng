@@ -59,8 +59,8 @@ static inline bool OPTIMIZE3 stress_syscall_wait(
 		}
 		if (UNLIKELY(shim_waitpid(pid, &status, 0) < 0)) {
 			if ((errno != EINTR) && (errno != ECHILD))
-				pr_fail("%s: waitpid failed, errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
+				pr_fail("%s: waitpid() on PID %" PRIdMAX " failed, errno=%d (%s)\n",
+					args->name, (intmax_t)pid, errno, strerror(errno));
 			return true;
 		}
 
@@ -136,8 +136,8 @@ again:
 
 		if (shim_waitpid(pid, &status, 0) < 0) {
 			if ((errno != EINTR) && (errno != ECHILD)) {
-				pr_fail("%s: waitpid failed, errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
+				pr_fail("%s: waitpid() on PID %" PRIdMAX " failed, errno=%d (%s)\n",
+					args->name, (intmax_t)pid, errno, strerror(errno));
 				return EXIT_FAILURE;
 			}
 			return EXIT_SUCCESS;
@@ -152,8 +152,8 @@ again:
 				(void)stress_kill_pid(pid);
 				if (shim_waitpid(pid, &status, 0) < 0) {
 					if ((errno != EINTR) && (errno != ECHILD)) {
-						pr_fail("%s: waitpid failed, errno=%d (%s)\n",
-							args->name, errno, strerror(errno));
+						pr_fail("%s: waitpid() on PID %" PRIdMAX " failed, errno=%d (%s)\n",
+							args->name, (intmax_t)pid, errno, strerror(errno));
 						return EXIT_FAILURE;
 					}
 					return EXIT_SUCCESS;

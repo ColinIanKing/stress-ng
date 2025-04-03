@@ -145,17 +145,18 @@ static int stress_session_child(stress_args_t *args, const int fd)
 		/* 25% of calls will be orphans */
 		stress_mwc_reseed();
 		if (stress_mwc8() >= 64) {
+			pid_t wret;
 #if defined(HAVE_WAIT4)
 			struct rusage usage;
 
 			if (stress_mwc1())
-				ret = shim_wait4(pid, &status, 0, &usage);
+				wret = shim_wait4(pid, &status, 0, &usage);
 			else
-				ret = shim_waitpid(pid, &status, 0);
+				wret = shim_waitpid(pid, &status, 0);
 #else
-			ret = shim_waitpid(pid, &status, 0);
+			wret = shim_waitpid(pid, &status, 0);
 #endif
-			if (ret < 0) {
+			if (wret < 0) {
 				if (UNLIKELY((errno != EINTR) && (errno == ECHILD))) {
 					stress_session_return_status(fd, errno, STRESS_SESSION_WAITPID_FAILED);
 					return STRESS_SESSION_WAITPID_FAILED;

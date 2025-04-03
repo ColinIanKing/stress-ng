@@ -4751,14 +4751,15 @@ again:
 			if (stress_redo_fork(args, errno))
 				goto again;
 		} else if (pid > 0) {
-			int status, wret;
+			int status;
+			pid_t wret;
 
 			/* Parent, wait for child */
 			wret = waitpid(pid, &status, 0);
 			if (wret < 0) {
 				if (errno != EINTR)
-					pr_dbg("%s: waitpid(): errno=%d (%s)\n",
-						args->name, errno, strerror(errno));
+					pr_dbg("%s: waitpid() on PID %" PRIdMAX" : errno=%d (%s)\n",
+						args->name, (intmax_t)pid, errno, strerror(errno));
 				/* Ring ring, time to die */
 				(void)stress_kill_and_wait(args, pid, SIGALRM, false);
 			} else {

@@ -121,7 +121,8 @@ again:
 
 			_exit(EXIT_FAILURE);
 		} else {
-			int ret, status;
+			pid_t ret;
+			int  status;
 
 rewait:
 			ret = shim_waitpid(pid, &status, 0);
@@ -129,8 +130,8 @@ rewait:
 				if (errno == EINTR) {
 					goto rewait;
 				}
-				pr_fail("%s: waitpid failed: %d (%s)\n",
-					args->name, errno, strerror(errno));
+				pr_fail("%s: waitpid() on PID %" PRIdMAX " failed, %d (%s)\n",
+					args->name, (intmax_t)pid, errno, strerror(errno));
 				rc = EXIT_FAILURE;
 			} else {
 				if (WIFSIGNALED(status) &&

@@ -126,7 +126,7 @@ again:
 			(void)close(fd[1]);
 			return EXIT_NO_RESOURCE;
 		} else if (pid > 0) {
-			int status, ret, msg;
+			int status, msg;
 			ssize_t rret;
 
 			(void)close(fd[1]);
@@ -144,8 +144,7 @@ again:
 				goto kill_child;
 			}
 
-			ret = shim_waitpid(pid, &status, 0);
-			if (ret < 0)
+			if (shim_waitpid(pid, &status, 0) < 0)
 				goto kill_child;
 			if (WTERMSIG(status) == SIGSEGV)
 				stress_bogo_inc(args);

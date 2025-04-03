@@ -52,8 +52,8 @@ static void MLOCKED_TEXT stress_sighup_handler(int num)
 
 static int stress_sighup_raise_signal(stress_args_t *args)
 {
-	pid_t pid;
-	int ret, status;
+	pid_t pid, ret;
+	int status;
 
 again:
 	pid = fork();
@@ -78,8 +78,8 @@ rewait:
 	if (ret < 0) {
 		if (errno == EINTR)
 			goto rewait;
-		pr_fail("%s: waitpid failed: %d (%s)\n",
-			args->name, errno, strerror(errno));
+		pr_fail("%s: waitpid() on PID %" PRIdMAX " failed, errno=%d (%s)\n",
+			args->name, (intmax_t)pid, errno, strerror(errno));
 		return EXIT_FAILURE;
 	} else {
 		if (sighup_info->signalled == false) {
@@ -99,8 +99,8 @@ static void stress_sighup_closefds(int fds[2])
 
 static int stress_sighup_process_group(stress_args_t *args)
 {
-	pid_t pid;
-	int ret, status;
+	pid_t pid, ret;
+	int status;
 	char msg = 'x';
 
 	VOID_RET(int, stress_sighandler(args->name, SIGHUP, stress_sighup_handler, NULL));
@@ -187,8 +187,8 @@ rewait:
 	if (ret < 0) {
 		if (errno == EINTR)
 			goto rewait;
-		pr_fail("%s: waitpid failed: %d (%s)\n",
-			args->name, errno, strerror(errno));
+		pr_fail("%s: waitpid() on PID %" PRIdMAX " failed, errno=%d (%s)\n",
+			args->name, (intmax_t)pid, errno, strerror(errno));
 		if (sighup_info->pid != 0)
 			(void)stress_kill_pid_wait(sighup_info->pid, &status);
 		return EXIT_FAILURE;

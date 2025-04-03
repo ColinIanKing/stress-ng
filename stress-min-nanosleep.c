@@ -391,7 +391,8 @@ err:
 		do {
 			count = 0;
 			for (k = 0; k < args->instances; k++) {
-				int ret, status;
+				pid_t ret;
+				int status;
 
 				if (!delays[k].started) {
 					count++;

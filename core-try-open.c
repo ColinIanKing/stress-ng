@@ -39,7 +39,7 @@ static void stress_try_kill(
 		int status;
 
 		VOID_RET(int, stress_kill_pid(pid));
-		VOID_RET(int, waitpid(pid, &status, WNOHANG));
+		VOID_RET(pid_t, waitpid(pid, &status, WNOHANG));
 		if ((shim_kill(pid, 0) < 0) && (errno == ESRCH))
 			return;
 		(void)shim_usleep(10000 * i);
@@ -60,7 +60,7 @@ int stress_try_open(
 	const unsigned long int timeout_ns)
 {
 	pid_t pid;
-	int ret, status = 0;
+	int status = 0;
 	struct stat statbuf;
 	const int retries = 20;
 	const unsigned long int sleep_ns = timeout_ns / retries;
@@ -91,6 +91,8 @@ int stress_try_open(
 	}
 
 	for (i = 0; i < retries; i++) {
+		pid_t ret;
+
 		/*
 		 *  Child may block on open forever if the driver
 		 *  is broken, so use WNOHANG wait to poll rather

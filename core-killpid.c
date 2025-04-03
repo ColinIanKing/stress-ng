@@ -54,7 +54,7 @@ int stress_kill_pid(const pid_t pid)
  *	kill and wait for a pid. If status is non-null copy waitpid
  *	status to it.
  */
-int stress_kill_pid_wait(const pid_t pid, int *status)
+pid_t stress_kill_pid_wait(const pid_t pid, int *status)
 {
 	int tmp_status = 0;
 

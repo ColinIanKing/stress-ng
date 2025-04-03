@@ -600,14 +600,15 @@ exercise:
 			_exit(0);
 		}
 		if (pid > 0) {
-			int ret, status;
+			pid_t ret;
+			int status;
 
 			forks++;
 			ret = shim_waitpid(pid, &status, 0);
 			if (ret < 0) {
 				if (errno != EINTR)
-					pr_dbg("%s: waitpid(): errno=%d (%s)\n",
-						args->name, errno, strerror(errno));
+					pr_dbg("%s: waitpid() on PID %" PRIdMAX" : errno=%d (%s)\n",
+						args->name, (intmax_t)pid, errno, strerror(errno));
 				(void)stress_kill_pid_wait(pid, NULL);
 			}
 			stress_bogo_inc(args);

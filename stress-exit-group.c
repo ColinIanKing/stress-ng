@@ -212,10 +212,11 @@ again:
 			stress_exit_group_child(args);
 		} else {
 			int status;
+			pid_t wret;
 
-			ret = waitpid(pid, &status, 0);
+			wret = waitpid(pid, &status, 0);
 			(void)pthread_mutex_destroy(&mutex);
-			if (ret < 0)
+			if (wret < 0)
 				break;
 
 			stress_bogo_inc(args);

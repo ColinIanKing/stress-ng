@@ -233,14 +233,15 @@ again:
 			pr_err("%s: fork failed: errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 		} else if (pid > 0) {
-			int status, waitret;
+			pid_t waitret;
+			int status;
 
 			/* Parent, wait for child */
 			waitret = shim_waitpid(pid, &status, 0);
 			if (waitret < 0) {
 				if (errno != EINTR)
-					pr_dbg("%s: waitpid(): errno=%d (%s)\n",
-						args->name, errno, strerror(errno));
+					pr_dbg("%s: waitpid() on PID %" PRIdMAX " failed, errno=%d (%s)\n",
+						args->name, (intmax_t)pid, errno, strerror(errno));
 				stress_kill_and_wait(args, pid, SIGTERM, false);
 			} else {
 				if (WIFEXITED(status)) {

@@ -166,7 +166,7 @@ static int stress_kill(stress_args_t *args)
 		int status;
 
 		VOID_RET(int, kill(pid, SIGKILL));
-		VOID_RET(int, waitpid(pid, &status, 0));
+		VOID_RET(pid_t, waitpid(pid, &status, 0));
 	}
 
 	rate = (duration > 0.0) ? count / duration : 0.0;

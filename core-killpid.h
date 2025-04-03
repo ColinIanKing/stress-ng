@@ -22,7 +22,7 @@
 #include "core-attribute.h"
 
 extern int stress_kill_pid(const pid_t pid);
-extern int stress_kill_pid_wait(const pid_t pid, int *status);
+extern pid_t stress_kill_pid_wait(const pid_t pid, int *status);
 extern int stress_kill_sig(const pid_t pid, const int signum);
 extern int stress_kill_and_wait(stress_args_t *args, const pid_t pid,
 	const int signum, const bool set_stress_force_killed_bogo);

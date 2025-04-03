@@ -3512,7 +3512,8 @@ pid_t stress_get_unused_pid_racy(const bool fork_test)
 		if (pid == 0) {
 			_exit(0);
 		} else if (pid > 0) {
-			int status, ret;
+			int status;
+			pid_t ret;
 
 			ret = waitpid(pid, &status, 0);
 			if ((ret == pid) &&

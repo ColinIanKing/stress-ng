@@ -810,7 +810,7 @@ close_sfd:
 		}
 		(void)close(sfd);
 reap_child:
-		VOID_RET(int, waitpid(pid, &status, 0));
+		VOID_RET(pid_t, waitpid(pid, &status, 0));
 	}
 	t1 = syscall_shared_info->t1;
 	t2 = syscall_shared_info->t2;
@@ -910,7 +910,7 @@ static int syscall_alarm(void)
 	} else {
 		int status;
 
-		(void)waitpid(pid, &status, 0);
+		VOID_RET(pid_t, waitpid(pid, &status, 0));
 		t1 = syscall_shared_info->t1;
 		t2 = syscall_shared_info->t2;
 		ret = syscall_shared_info->syscall_ret;
@@ -1070,7 +1070,7 @@ static int syscall_chroot(void)
 	} else {
 		int status;
 
-		VOID_RET(int, waitpid(pid, &status, 0));
+		VOID_RET(pid_t, waitpid(pid, &status, 0));
 		t1 = syscall_shared_info->t1;
 		t2 = syscall_shared_info->t2;
 		syscall_errno = syscall_shared_info->syscall_errno;
@@ -1235,7 +1235,7 @@ static int syscall_clone(void)
 		    &parent_tid, NULL, &child_tid);
 	if (pid < 0)
 		return -1;
-	VOID_RET(int, waitpid(pid, &status, 0));
+	VOID_RET(pid_t, waitpid(pid, &status, 0));
 	t2 = syscall_shared_info->t2;
 	return pid;
 }
@@ -1277,7 +1277,7 @@ static int syscall_clone3(void)
 		syscall_shared_info->t_set = true;
 		_exit(0);
 	}
-	VOID_RET(int, waitpid(pid, &status, 0));
+	VOID_RET(pid_t, waitpid(pid, &status, 0));
 	t2 = syscall_shared_info->t2;
 	return pid;
 }
@@ -1599,7 +1599,7 @@ static int syscall_execve(void)
 	} else {
 		int status;
 
-		VOID_RET(int, waitpid(pid, &status, 0));
+		VOID_RET(pid_t, waitpid(pid, &status, 0));
 		t1 = syscall_shared_info->t1;
 		t2 = syscall_time_now();
 	}
@@ -1661,7 +1661,7 @@ static int syscall_execveat(void)
 	} else {
 		int status;
 
-		VOID_RET(int, waitpid(pid, &status, 0));
+		VOID_RET(pid_t, waitpid(pid, &status, 0));
 		t1 = syscall_shared_info->t1;
 		t2 = syscall_time_now();
 	}
@@ -1685,7 +1685,7 @@ static int syscall_exit(void)
 	} else {
 		int status;
 
-		VOID_RET(int, waitpid(pid, &status, 0));
+		VOID_RET(pid_t, waitpid(pid, &status, 0));
 		t2 = syscall_time_now();
 		t1 = syscall_shared_info->t1;
 	}
@@ -1983,7 +1983,7 @@ static int syscall_fork(void)
 		int status;
 
 		t2 = syscall_time_now();
-		VOID_RET(int, waitpid(pid, &status, 0));
+		VOID_RET(pid_t, waitpid(pid, &status, 0));
 	}
 	return 0;
 }
@@ -2957,7 +2957,7 @@ static int syscall_kill(void)
 		ret = kill(pid, SIGKILL);
 		t2 = syscall_time_now();
 
-		(void)waitpid(pid, &status, 0);
+		VOID_RET(pid_t, waitpid(pid, &status, 0));
 	}
 #else
 	t1 = syscall_time_now();
@@ -4308,7 +4308,8 @@ static int syscall_pause(void)
 		_exit(0);
 	} else {
 		for (;;) {
-			int status, ret;
+			pid_t ret;
+			int status;
 
 			VOID_RET(int, kill(pid, SIGUSR1));
 
@@ -5118,7 +5119,7 @@ static int syscall_rfork(void)
 		int status;
 
 		t2 = syscall_time_now();
-		VOID_RET(int, waitpid(pid, &status, 0));
+		VOID_RET(pid_t, waitpid(pid, &status, 0));
 	}
 	return 0;
 }
@@ -6391,17 +6392,18 @@ static int syscall_sigsuspend(void)
 		int status;
 
 		do {
+			pid_t wret;
 
 			VOID_RET(int, kill(pid, SIGUSR1));
 
-			ret = waitpid(pid, &status, WNOHANG);
-			if (ret == pid)
+			wret = waitpid(pid, &status, WNOHANG);
+			if (wret == pid)
 				break;
 			(void)shim_sched_yield();
 		} while (stress_continue_flag());
 
 		VOID_RET(int, kill(pid, SIGKILL));
-		VOID_RET(int, waitpid(pid, &status, WNOHANG));
+		VOID_RET(pid_t, waitpid(pid, &status, WNOHANG));
 	}
 	t1 = syscall_shared_info->t1;
 	t2 = syscall_shared_info->t2;
@@ -7122,7 +7124,7 @@ static int syscall_unshare(void)
 		    &parent_tid, NULL, &child_tid);
 	if (pid < 0)
 		return -1;
-	VOID_RET(int, waitpid(pid, &status, 0));
+	VOID_RET(pid_t, waitpid(pid, &status, 0));
 	t1 = syscall_shared_info->t1;
 	t2 = syscall_shared_info->t2;
 
@@ -7221,7 +7223,7 @@ static int syscall_vfork(void)
 		int status;
 
 		t2 = syscall_time_now();
-		VOID_RET(int, waitpid(pid, &status, 0));
+		VOID_RET(pid_t, waitpid(pid, &status, 0));
 	}
 	return 0;
 }
@@ -7393,7 +7395,7 @@ static int syscall_waitpid(void)
 		int status;
 
 		for (;;) {
-			int ret;
+			pid_t ret;
 
 			ret = waitpid(pid, &status, 0);
 			if (ret == pid)

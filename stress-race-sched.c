@@ -277,7 +277,8 @@ static stress_race_sched_child_t *stress_race_sched_new(void)
 static void stress_race_sched_head_remove(const int options)
 {
 	if (children.head) {
-		int status, ret;
+		pid_t ret;
+		int status;
 		stress_race_sched_child_t *head = children.head;
 
 		ret = waitpid(children.head->pid, &status, options);

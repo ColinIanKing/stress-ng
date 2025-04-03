@@ -750,7 +750,7 @@ static int stress_exec(stress_args_t *args)
 
 		for (i = 0; i < exec_max; i++) {
 			int status;
-			pid_t pid;
+			pid_t pid, wret;
 #if defined(HAVE_CLONE)
 			char *stack_top;
 			const bool alloc_stack = (exec_fork_method == EXEC_FORK_METHOD_CLONE);
@@ -833,9 +833,9 @@ static int stress_exec(stress_args_t *args)
 			stress_exec_add_pid(sph, pid);
 
 			/* Check if we can reap children */
-			ret = waitpid(-1, &status, WNOHANG);
-			if ((ret > 0) && WIFEXITED(status)) {
-				stress_exec_remove_pid((pid_t)ret);
+			wret = waitpid(-1, &status, WNOHANG);
+			if ((wret > 0) && WIFEXITED(status)) {
+				stress_exec_remove_pid(wret);
 				exec_calls++;
 				stress_bogo_inc(args);
 			}
