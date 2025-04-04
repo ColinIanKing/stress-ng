@@ -290,6 +290,16 @@ static void stress_posix_fallocate(const int fd)
 }
 #endif
 
+#if defined(HAVE_READAHEAD)
+static void stress_filerace_readahead(const int fd)
+{
+	const off_t offset = ((off_t)stress_mwc32()) & OFFSET_MASK;
+	const size_t len = ((off_t)stress_mwc16()) & OFFSET_MASK;
+
+	VOID_RET(int, readahead(fd, offset, len));
+}
+#endif
+
 static stress_filerace_fops_t stress_filerace_fops[] = {
 	stress_filerace_fstat,
 	stress_filerace_lseek_set,
@@ -353,6 +363,9 @@ static stress_filerace_fops_t stress_filerace_fops[] = {
 #endif
 #if defined(POSIX_FALLOCATE)
 	stress_posix_fallocate,
+#endif
+#if defined(HAVE_READAHEAD)
+	stress_filerace_readahead,
 #endif
 };
 
