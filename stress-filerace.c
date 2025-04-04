@@ -243,6 +243,52 @@ static void stress_filerace_fibmap(const int fd)
 }
 #endif
 
+#if defined(HAVE_POSIX_FADVISE) && 	\
+    defined(POSIX_FADV_NORMAL) &&	\
+    defined(POSIX_FADV_SEQUENTIAL) &&	\
+    defined(POSIX_FADV_RANDOM) &&	\
+    defined(POSIX_FADV_NOREUSE) &&	\
+    defined(POSIX_FADV_WILLNEED) &&	\
+    defined(POSIX_FADV_DONTNEED)
+static void stress_filerace_posix_fadvise(const int fd)
+{
+	static const int advice[] = {
+#if defined(POSIX_FADV_NORMAL)
+		POSIX_FADV_NORMAL,
+#endif
+#if defined(POSIX_FADV_SEQUENTIAL)
+		POSIX_FADV_SEQUENTIAL,
+#endif
+#if defined(POSIX_FADV_RANDOM)
+		POSIX_FADV_RANDOM,
+#endif
+#if defined(POSIX_FADV_NOREUSE)
+		POSIX_FADV_NOREUSE,
+#endif
+#if defined(POSIX_FADV_WILLNEED)
+		POSIX_FADV_WILLNEED,
+#endif
+#if defined(POSIX_FADV_DONTNEED)
+		POSIX_FADV_DONTNEED,
+#endif
+	};
+	const off_t offset = ((off_t)stress_mwc32()) & OFFSET_MASK;
+	const off_t len = ((off_t)stress_mwc16()) & OFFSET_MASK;
+	const int new_advice = advice[stress_mwc8modn((uint8_t)SIZEOF_ARRAY(advice))];
+
+	VOID_RET(int, posix_fadvise(fd, offset, len, new_advice));
+}
+#endif
+
+#if defined(POSIX_FALLOCATE)
+static void stress_posix_fallocate(const int fd)
+{
+	const off_t offset = ((off_t)stress_mwc32()) & OFFSET_MASK;
+	const off_t len = ((off_t)stress_mwc16()) & OFFSET_MASK;
+
+	VOID_RET(int, posix_fallocate(fd, offset, len));
+}
+#endif
 
 static stress_filerace_fops_t stress_filerace_fops[] = {
 	stress_filerace_fstat,
@@ -295,6 +341,18 @@ static stress_filerace_fops_t stress_filerace_fops[] = {
 #endif
 #if defined(FIBMAP)
 	stress_filerace_fibmap,
+#endif
+#if defined(HAVE_POSIX_FADVISE) && 	\
+    defined(POSIX_FADV_NORMAL) &&	\
+    defined(POSIX_FADV_SEQUENTIAL) &&	\
+    defined(POSIX_FADV_RANDOM) &&	\
+    defined(POSIX_FADV_NOREUSE) &&	\
+    defined(POSIX_FADV_WILLNEED) &&	\
+    defined(POSIX_FADV_DONTNEED)
+	stress_filerace_posix_fadvise,
+#endif
+#if defined(POSIX_FALLOCATE)
+	stress_posix_fallocate,
 #endif
 };
 
