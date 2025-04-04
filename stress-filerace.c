@@ -41,8 +41,8 @@ static uid_t uid;
 static gid_t gid;
 
 static const stress_help_t help[] = {
-	{ NULL,	"filename N",		"start N workers exercising filenames" },
-	{ NULL,	"filename-ops N",	"stop after N filename bogo operations" },
+	{ NULL,	"filerace N",		"start N workers that attemp to race file system calls" },
+	{ NULL,	"filerace-ops N",	"stop after N filerace bogo operations" },
 	{ NULL,	NULL,			NULL }
 };
 
