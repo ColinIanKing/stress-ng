@@ -130,39 +130,67 @@ static void stress_filerace_fdatasync(const int fd, const char *filename)
 
 static void stress_filerace_write(const int fd, const char *filename)
 {
-	uint32_t data = stress_mwc32();
-
 	(void)filename;
-	VOID_RET(ssize_t, write(fd, &data, sizeof(data)));
+	if (stress_mwc1()) {
+		uint32_t data = stress_mwc32();
+
+		VOID_RET(ssize_t, write(fd, &data, sizeof(data)));
+	} else {
+		uint8_t data[512];
+
+		shim_memset(data, stress_mwc8(), sizeof(data));
+		VOID_RET(ssize_t, write(fd, &data, sizeof(data)));
+	}
 }
 
 static void stress_filerace_read(const int fd, const char *filename)
 {
-	uint32_t data;
-
 	(void)filename;
-	VOID_RET(ssize_t, read(fd, &data, sizeof(data)));
+	if (stress_mwc1()) {
+		uint32_t data;
+
+		VOID_RET(ssize_t, read(fd, &data, sizeof(data)));
+	} else {
+		uint8_t data[512];
+
+		VOID_RET(ssize_t, read(fd, &data, sizeof(data)));
+	}
 }
 
 #if defined(HAVE_PWRITE)
 static void stress_filerace_pwrite(const int fd, const char *filename)
 {
-	uint32_t data = stress_mwc32();
 	const off_t offset = ((off_t)stress_mwc32()) & OFFSET_MASK;
 
 	(void)filename;
-	VOID_RET(ssize_t, pwrite(fd, &data, sizeof(data), offset));
+	if (stress_mwc1()) {
+		uint32_t data = stress_mwc32();
+
+		VOID_RET(ssize_t, pwrite(fd, &data, sizeof(data), offset));
+	} else {
+		uint8_t data[512];
+
+		shim_memset(data, stress_mwc8(), sizeof(data));
+		VOID_RET(ssize_t, pwrite(fd, &data, sizeof(data), offset));
+	}
 }
 #endif
 
 #if defined(HAVE_PREAD)
 static void stress_filerace_pread(const int fd, const char *filename)
 {
-	uint32_t data;
 	const off_t offset = ((off_t)stress_mwc32()) & OFFSET_MASK;
 
 	(void)filename;
-	VOID_RET(ssize_t, pread(fd, &data, sizeof(data), offset));
+	if (stress_mwc1()) {
+		uint32_t data;
+
+		VOID_RET(ssize_t, pread(fd, &data, sizeof(data), offset));
+	} else {
+		uint8_t data[512];
+
+		VOID_RET(ssize_t, pread(fd, &data, sizeof(data), offset));
+	}
 }
 #endif
 
