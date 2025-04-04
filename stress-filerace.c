@@ -399,6 +399,27 @@ static void stress_filerace_readlink(const int fd, const char *filename)
 	VOID_RET(int, readlink(filename, buf, sizeof(buf)));
 }
 
+static void stress_filerace_openmany(const int fd, const char *filename)
+{
+	size_t i;
+
+	int fds[MAX_FDS];
+
+	for (i = 0; i < SIZEOF_ARRAY(fds); i++) {
+		fds[i] = open(filename, O_RDWR | O_APPEND, S_IRUSR | S_IWUSR);
+		if (fds[i] > -1) {
+			uint32_t val = stress_mwc32();
+
+			VOID_RET(off_t, lseek(fd, (off_t)val, SEEK_SET));
+			VOID_RET(ssize_t, write(fd, &val, sizeof(val)));
+		}
+	}
+	for (i = 0; i < SIZEOF_ARRAY(fds); i++) {
+		if (fds[i] > -1)
+			(void)close(fds[i]);
+	}
+}
+
 static stress_filerace_fops_t stress_filerace_fops[] = {
 	stress_filerace_fstat,
 	stress_filerace_lseek_set,
@@ -472,6 +493,7 @@ static stress_filerace_fops_t stress_filerace_fops[] = {
 	stress_filerace_stat,
 	stress_filerace_truncate,
 	stress_filerace_readlink,
+	stress_filerace_openmany,
 };
 
 static void stress_filerace_file(const int fd, const char *filename)
