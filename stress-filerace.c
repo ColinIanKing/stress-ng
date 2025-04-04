@@ -35,6 +35,8 @@
 
 #define OFFSET_MASK		~((off_t)511ULL)
 
+typedef void (*stress_filerace_fops_t)(const int fd, const char *filename);
+
 static uid_t uid;
 static gid_t gid;
 
@@ -70,86 +72,96 @@ static void stress_filerace_tidy(const char *path)
 	(void)shim_rmdir(path);
 }
 
-typedef void (*stress_filerace_fops_t)(const int fd);
-
-static void stress_filerace_fstat(const int fd)
+static void stress_filerace_fstat(const int fd, const char *filename)
 {
 	struct stat buf;
 
+	(void)filename;
 	VOID_RET(int, fstat(fd, &buf));
 }
 
-static void stress_filerace_lseek_set(const int fd)
+static void stress_filerace_lseek_set(const int fd, const char *filename)
 {
+	(void)filename;
 	VOID_RET(off_t, lseek(fd, (off_t)stress_mwc32(), SEEK_SET));
 }
 
-static void stress_filerace_lseek_end(const int fd)
+static void stress_filerace_lseek_end(const int fd, const char *filename)
 {
+	(void)filename;
 	VOID_RET(off_t, lseek(fd, 0, SEEK_END));
 }
 
-static void stress_filerace_lseek_fchmod(const int fd)
+static void stress_filerace_fchmod(const int fd, const char *filename)
 {
+	(void)filename;
 	VOID_RET(int, fchmod(fd, S_IRUSR | S_IWUSR));
 }
 
-static void stress_filerace_lseek_fchown(const int fd)
+static void stress_filerace_fchown(const int fd, const char *filename)
 {
+	(void)filename;
 	VOID_RET(int, fchown(fd, uid, gid));
 }
 
 #if defined(F_GETFL)
-static void stress_filerace_lseek_fcntl(const int fd)
+static void stress_filerace_fcntl(const int fd, const char *filename)
 {
+	(void)filename;
 	VOID_RET(int, fcntl(fd, F_GETFL));
 }
 #endif
 
 #if defined(HAVE_FSYNC)
-static void stress_filerace_lseek_fsync(const int fd)
+static void stress_filerace_fsync(const int fd, const char *filename)
 {
+	(void)filename;
 	VOID_RET(int, fsync(fd));
 }
 #endif
 
 #if defined(HAVE_FDATASYNC)
-static void stress_filerace_lseek_fdatasync(const int fd)
+static void stress_filerace_fdatasync(const int fd, const char *filename)
 {
+	(void)filename;
 	VOID_RET(int, fdatasync(fd));
 }
 #endif
 
-static void stress_filerace_write(const int fd)
+static void stress_filerace_write(const int fd, const char *filename)
 {
 	uint32_t data = stress_mwc32();
 
+	(void)filename;
 	VOID_RET(ssize_t, write(fd, &data, sizeof(data)));
 }
 
-static void stress_filerace_read(const int fd)
+static void stress_filerace_read(const int fd, const char *filename)
 {
 	uint32_t data;
 
+	(void)filename;
 	VOID_RET(ssize_t, read(fd, &data, sizeof(data)));
 }
 
 #if defined(HAVE_PWRITE)
-static void stress_filerace_pwrite(const int fd)
+static void stress_filerace_pwrite(const int fd, const char *filename)
 {
 	uint32_t data = stress_mwc32();
 	const off_t offset = ((off_t)stress_mwc32()) & OFFSET_MASK;
 
+	(void)filename;
 	VOID_RET(ssize_t, pwrite(fd, &data, sizeof(data), offset));
 }
 #endif
 
 #if defined(HAVE_PREAD)
-static void stress_filerace_pread(const int fd)
+static void stress_filerace_pread(const int fd, const char *filename)
 {
 	uint32_t data;
 	const off_t offset = ((off_t)stress_mwc32()) & OFFSET_MASK;
 
+	(void)filename;
 	VOID_RET(ssize_t, pread(fd, &data, sizeof(data), offset));
 }
 #endif
@@ -157,59 +169,66 @@ static void stress_filerace_pread(const int fd)
 #if defined(HAVE_FALLOCATE) &&		\
     defined(FALLOC_FL_PUNCH_HOLE) &&	\
     defined(FALLOC_FL_KEEP_SIZE)
-static void stress_filerace_fallocate_punch_hole(const int fd)
+static void stress_filerace_fallocate_punch_hole(const int fd, const char *filename)
 {
 	const off_t offset = ((off_t)stress_mwc32()) & OFFSET_MASK;
 	const off_t len = ((off_t)stress_mwc16()) & OFFSET_MASK;
 
+	(void)filename;
 	VOID_RET(int, fallocate(fd, FALLOC_FL_PUNCH_HOLE | FALLOC_FL_KEEP_SIZE, offset, len));
 }
 #endif
 
 #if defined(HAVE_FALLOCATE) &&		\
     defined(FALLOC_FL_COLLAPSE_RANGE)
-static void stress_filerace_fallocate_collapse_range(const int fd)
+static void stress_filerace_fallocate_collapse_range(const int fd, const char *filename)
 {
 	const off_t offset = ((off_t)stress_mwc32()) & OFFSET_MASK;
 	const off_t len = ((off_t)stress_mwc16()) & OFFSET_MASK;
 
+	(void)filename;
 	VOID_RET(int, fallocate(fd, FALLOC_FL_COLLAPSE_RANGE, offset, len));
 }
 #endif
 
 #if defined(HAVE_FALLOCATE) &&		\
     defined(FALLOC_FL_ZERO_RANGE)
-static void stress_filerace_fallocate_zero_range(const int fd)
+static void stress_filerace_fallocate_zero_range(const int fd, const char *filename)
 {
 	const off_t offset = ((off_t)stress_mwc32()) & OFFSET_MASK;
 	const off_t len = ((off_t)stress_mwc16()) & OFFSET_MASK;
 
+	(void)filename;
 	VOID_RET(int, fallocate(fd, FALLOC_FL_ZERO_RANGE, offset, len));
 }
 #endif
 
 #if defined(HAVE_FALLOCATE) &&		\
     defined(FALLOC_FL_INSERT_RANGE)
-static void stress_filerace_fallocate_insert_range(const int fd)
+static void stress_filerace_fallocate_insert_range(const int fd, const char *filename)
 {
 	const off_t offset = ((off_t)stress_mwc32()) & OFFSET_MASK;
 	const off_t len = ((off_t)stress_mwc16()) & OFFSET_MASK;
 
+	(void)filename;
 	VOID_RET(int, fallocate(fd, FALLOC_FL_INSERT_RANGE, offset, len));
 }
 #endif
 
-static void stress_filerace_ftruncate(const int fd)
+static void stress_filerace_ftruncate(const int fd, const char *filename)
 {
 	const off_t offset = (off_t)stress_mwc16();
 
+	(void)filename;
 	VOID_RET(int, ftruncate(fd, offset));
 }
 
 #if defined(HAVE_FUTIMES)
-static void stress_filerace_futimes(const int fd)
+static void stress_filerace_futimes(const int fd, const char *filename)
 {
 	struct timeval tv[2];
+
+	(void)filename;
 
 	tv[0].tv_sec = (time_t)stress_mwc64() & 0x3ffffffffULL;
 	tv[0].tv_usec = (time_t)stress_mwc32modn(1000000);
@@ -224,18 +243,20 @@ static void stress_filerace_futimes(const int fd)
 #if defined(HAVE_FLOCK) &&	\
     defined(LOCK_EX) &&		\
     defined(LOCK_UN)
-static void stress_filerace_flock(const int fd)
+static void stress_filerace_flock(const int fd, const char *filename)
 {
+	(void)filename;
 	VOID_RET(int, flock(fd, LOCK_EX));
 	VOID_RET(int, flock(fd, LOCK_UN));
 }
 #endif
 
 #if defined(FIBMAP)
-static void stress_filerace_fibmap(const int fd)
+static void stress_filerace_fibmap(const int fd, const char *filename)
 {
 	int block;
 
+	(void)filename;
 	block = 0;
 	VOID_RET(int, ioctl(fd, FIBMAP, &block));
 	block = stress_mwc32();
@@ -250,7 +271,7 @@ static void stress_filerace_fibmap(const int fd)
     defined(POSIX_FADV_NOREUSE) &&	\
     defined(POSIX_FADV_WILLNEED) &&	\
     defined(POSIX_FADV_DONTNEED)
-static void stress_filerace_posix_fadvise(const int fd)
+static void stress_filerace_posix_fadvise(const int fd, const char *filename)
 {
 	static const int advice[] = {
 #if defined(POSIX_FADV_NORMAL)
@@ -276,44 +297,94 @@ static void stress_filerace_posix_fadvise(const int fd)
 	const off_t len = ((off_t)stress_mwc16()) & OFFSET_MASK;
 	const int new_advice = advice[stress_mwc8modn((uint8_t)SIZEOF_ARRAY(advice))];
 
+	(void)filename;
 	VOID_RET(int, posix_fadvise(fd, offset, len, new_advice));
 }
 #endif
 
 #if defined(POSIX_FALLOCATE)
-static void stress_filerace_posix_fallocate(const int fd)
+static void stress_filerace_posix_fallocate(const int fd, const char *filename)
 {
 	const off_t offset = ((off_t)stress_mwc32()) & OFFSET_MASK;
 	const off_t len = ((off_t)stress_mwc16()) & OFFSET_MASK;
 
+	(void)filename;
 	VOID_RET(int, posix_fallocate(fd, offset, len));
 }
 #endif
 
 #if defined(HAVE_READAHEAD)
-static void stress_filerace_readahead(const int fd)
+static void stress_filerace_readahead(const int fd, const char *filename)
 {
 	const off_t offset = ((off_t)stress_mwc32()) & OFFSET_MASK;
 	const size_t len = ((off_t)stress_mwc16()) & OFFSET_MASK;
 
+	(void)filename;
 	VOID_RET(int, readahead(fd, offset, len));
 }
 #endif
+
+static void stress_filerace_chmod(const int fd, const char *filename)
+{
+	(void)fd;
+	VOID_RET(int, chmod(filename, S_IRUSR | S_IWUSR));
+}
+
+static void stress_filerace_chown(const int fd, const char *filename)
+{
+	(void)fd;
+	VOID_RET(int, chown(filename, uid, gid));
+}
+
+static void stress_filerace_open(const int fd, const char *filename)
+{
+	int new_fd;
+
+	(void)fd;
+	new_fd = open(filename, O_RDONLY);
+	if (new_fd > -1)
+		(void)close(new_fd);
+}
+
+static void stress_filerace_stat(const int fd, const char *filename)
+{
+	struct stat buf;
+
+	(void)fd;
+	VOID_RET(int, stat(filename, &buf));
+}
+
+static void stress_filerace_truncate(const int fd, const char *filename)
+{
+	const off_t offset = (off_t)stress_mwc16();
+
+	(void)fd;
+	VOID_RET(int, truncate(filename, offset));
+}
+
+static void stress_filerace_readlink(const int fd, const char *filename)
+{
+	char buf[PATH_MAX];
+
+	(void)fd;
+	/* will always fail */
+	VOID_RET(int, readlink(filename, buf, sizeof(buf)));
+}
 
 static stress_filerace_fops_t stress_filerace_fops[] = {
 	stress_filerace_fstat,
 	stress_filerace_lseek_set,
 	stress_filerace_lseek_end,
-	stress_filerace_lseek_fchmod,
-	stress_filerace_lseek_fchown,
+	stress_filerace_fchmod,
+	stress_filerace_fchown,
 #if defined(F_GETFL)
-	stress_filerace_lseek_fcntl,
+	stress_filerace_fcntl,
 #endif
 #if defined(HAVE_FSYNC)
-	stress_filerace_lseek_fsync,
+	stress_filerace_fsync,
 #endif
 #if defined(HAVE_FDATASYNC)
-	stress_filerace_lseek_fdatasync,
+	stress_filerace_fdatasync,
 #endif
 	stress_filerace_write,
 	stress_filerace_read,
@@ -367,16 +438,22 @@ static stress_filerace_fops_t stress_filerace_fops[] = {
 #if defined(HAVE_READAHEAD)
 	stress_filerace_readahead,
 #endif
+	stress_filerace_chmod,
+	stress_filerace_chown,
+	stress_filerace_open,
+	stress_filerace_stat,
+	stress_filerace_truncate,
+	stress_filerace_readlink,
 };
 
-static void stress_filerace_fd(const int fd)
+static void stress_filerace_file(const int fd, const char *filename)
 {
 	int i;
 
 	for (i = 0; i < stress_mwc8modn(32); i++) {
 		size_t idx = stress_mwc8modn((uint8_t)SIZEOF_ARRAY(stress_filerace_fops));
 
-		stress_filerace_fops[idx](fd);
+		stress_filerace_fops[idx](fd, filename);
 	}
 }
 
@@ -439,7 +516,7 @@ static void stress_filerace_child(stress_args_t *args, const char *pathname, con
 			stress_filerace_filename(pathname, filename, sizeof(filename));
 			fds[fd_idx] = creat(filename, S_IRUSR | S_IWUSR);
 			if (fds[fd_idx] > 0) {
-				stress_filerace_fd(fds[fd_idx]);
+				stress_filerace_file(fds[fd_idx], filename);
 				fd_idx++;
 			}
 			break;
@@ -452,7 +529,7 @@ static void stress_filerace_child(stress_args_t *args, const char *pathname, con
 			flag = flags[stress_mwc8modn((uint8_t)SIZEOF_ARRAY(flags))];
 			fds[fd_idx] = open(filename, O_APPEND | flag, S_IRUSR | S_IWUSR);
 			if (fds[fd_idx] > 0) {
-				stress_filerace_fd(fds[fd_idx]);
+				stress_filerace_file(fds[fd_idx], filename);
 				fd_idx++;
 			}
 			break;
@@ -461,7 +538,7 @@ static void stress_filerace_child(stress_args_t *args, const char *pathname, con
 			flag = flags[stress_mwc8modn((uint8_t)SIZEOF_ARRAY(flags))];
 			fds[fd_idx] = open(filename, O_CREAT | flag, S_IRUSR | S_IWUSR);
 			if (fds[fd_idx] > 0) {
-				stress_filerace_fd(fds[fd_idx]);
+				stress_filerace_file(fds[fd_idx], filename);
 				fd_idx++;
 			}
 			break;
