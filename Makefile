@@ -426,6 +426,7 @@ STRESS_SRC = \
 	stress-fifo.c \
 	stress-file-ioctl.c \
 	stress-filename.c \
+	stress-filerace.c \
 	stress-flipflop.c \
 	stress-flock.c \
 	stress-flushcache.c \

@@ -278,6 +278,8 @@ const struct option stress_long_options[] = {
 	{ "filename",		1,	0,	OPT_filename },
 	{ "filename-ops",	1,	0,	OPT_filename_ops },
 	{ "filename-opts",	1,	0,	OPT_filename_opts },
+	{ "filerace",		1,	0,	OPT_filerace },
+	{ "filerace-ops",	1,	0,	OPT_filerace_ops },
 	{ "flipflop",		1,	0,	OPT_flipflop },
 	{ "flipflop-bits",	1,	0,	OPT_flipflop_bits },
 	{ "flipflop-ops",	1,	0,	OPT_flipflop_ops },

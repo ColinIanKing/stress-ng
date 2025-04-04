@@ -476,6 +476,9 @@ typedef enum {
 	OPT_filename_ops,
 	OPT_filename_opts,
 
+	OPT_filerace,
+	OPT_filerace_ops,
+
 	OPT_flipflop,
 	OPT_flipflop_bits,
 	OPT_flipflop_ops,

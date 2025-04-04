@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "24 March 2025"
+.TH STRESS-NG 1 "4 April 2025"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -2828,6 +2828,22 @@ use characters allowed by the ext2, ext3, ext4 file systems, namely any 8
 bit character apart from NUL and /
 T}
 .TE
+.RE
+.TP
+.B File race stressor
+.RS 5
+.TQ
+.B \-\-filerace N
+start N workers that each run 8 concurrent processes that exercise a randomized
+set of file related system calls on 256 random files. This attempts to trip any
+file system race conditions while files are being operated upon. The randomized
+operations will cause some invalid file operations to fail, these failures are
+silently ignored.
+.TP
+.B \-\-filerace\-ops N
+stop after N randomized file bogo-operations, this is not a reliable metric
+of performance because of the highly randomized actions occuring on randomly
+selected files.
 .RE
 .TP
 .B Single cacheline coherency scalability stressor
