@@ -443,6 +443,19 @@ static void stress_filerace_lease_rdlck(const int fd, const char *filename)
 }
 #endif
 
+#if defined(HAVE_LOCKF)
+static void stress_filerace_lockf(const int fd, const char *filename)
+{
+	(void)filename;
+	uint32_t val = stress_mwc32();
+
+	if (lseek(fd, (off_t)val, SEEK_SET) >= 0) {
+		if (write(fd, &val, sizeof(val)) > 0)
+			VOID_RET(int, lockf(fd, F_LOCK, sizeof(val)));
+	}
+}
+#endif
+
 static stress_filerace_fops_t stress_filerace_fops[] = {
 	stress_filerace_fstat,
 	stress_filerace_lseek_set,
@@ -526,6 +539,9 @@ static stress_filerace_fops_t stress_filerace_fops[] = {
     defined(F_RDLCK) &&         \
     defined(F_UNLCK)
 	stress_filerace_lease_rdlck,
+#endif
+#if defined(HAVE_LOCKF)
+	stress_filerace_lockf,
 #endif
 };
 
