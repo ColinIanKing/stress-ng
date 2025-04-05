@@ -188,7 +188,7 @@ static int stress_lockofd_contention(
 
 		if (UNLIKELY(!stress_continue_flag()))
 			break;
-		rc = fcntl(fd, F_OFD_GETLK, &f);
+		rc = fcntl(fd, F_OFD_SETLK, &f);
 		if (rc < 0)
 			continue;
 
