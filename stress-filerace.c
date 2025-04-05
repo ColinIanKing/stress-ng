@@ -66,6 +66,7 @@ static void stress_filerace_tidy(const char *path)
 			(void)stress_mk_filename(filename, sizeof(filename),
 				path, d->d_name);
 			(void)shim_unlink(filename);
+			(void)shim_rmdir(filename);
 		}
 		(void)closedir(dir);
 	}
@@ -555,7 +556,7 @@ static void stress_filerace_child(stress_args_t *args, const char *pathname, con
 		char filename[PATH_MAX];
 		char filename2[PATH_MAX];
 		int flag;
-		int which = stress_mwc8modn(8);
+		int which = stress_mwc8modn(9);
 		DIR *dir;
 		struct dirent *d;
 		struct stat buf;
@@ -564,6 +565,8 @@ static void stress_filerace_child(stress_args_t *args, const char *pathname, con
 		default:
 		case 0:
 			stress_filerace_filename(pathname, filename, sizeof(filename));
+			(void)shim_unlink(filename);
+			(void)shim_rmdir(filename);
 			fds[fd_idx] = creat(filename, S_IRUSR | S_IWUSR);
 			if (fds[fd_idx] > 0) {
 				stress_filerace_file(fds[fd_idx], filename);
@@ -572,7 +575,8 @@ static void stress_filerace_child(stress_args_t *args, const char *pathname, con
 			break;
 		case 1:
 			stress_filerace_filename(pathname, filename, sizeof(filename));
-			(void)unlink(filename);
+			(void)shim_unlink(filename);
+			(void)shim_rmdir(filename);
 			break;
 		case 2:
 			stress_filerace_filename(pathname, filename, sizeof(filename));
@@ -632,8 +636,19 @@ static void stress_filerace_child(stress_args_t *args, const char *pathname, con
 				VOID_RET(int, link(filename2, filename));
 			else
 				VOID_RET(int, symlink(filename2, filename));
+			VOID_RET(int, lchown(filename, uid, gid));
+			VOID_RET(int, lchown(filename2, uid, gid));
+			VOID_RET(int, lstat(filename, &buf));
+			VOID_RET(int, lstat(filename2, &buf));
+			break;
+		case 8:
+			stress_filerace_filename(pathname, filename, sizeof(filename));
+			(void)shim_unlink(filename);
+			(void)shim_rmdir(filename);
+			VOID_RET(int, mkdir(filename, S_IRUSR | S_IWUSR));
 			break;
 		}
+
 		if (fd_idx >= SIZEOF_ARRAY(fds)) {
 			for (i = 0; i < SIZEOF_ARRAY(fds); i++) {
 				if (fds[i] != -1) {
