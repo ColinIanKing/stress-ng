@@ -46,6 +46,11 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
+static void MLOCKED_TEXT stress_sigio_handler(int signum)
+{
+	(void)signum;
+}
+
 /*
  *  stress_filerace_tidy()
  *	clean up residual files
@@ -407,7 +412,7 @@ static void stress_filerace_openmany(const int fd, const char *filename)
 	int fds[MAX_FDS];
 
 	for (i = 0; i < SIZEOF_ARRAY(fds); i++) {
-		fds[i] = open(filename, O_RDWR | O_APPEND, S_IRUSR | S_IWUSR);
+		fds[i] = open(filename, O_CREAT | O_RDWR | O_APPEND, S_IRUSR | S_IWUSR);
 		if (fds[i] > -1) {
 			uint32_t val = stress_mwc32();
 
@@ -658,10 +663,11 @@ static void stress_filerace_child(stress_args_t *args, const char *pathname, con
 		char filename[PATH_MAX];
 		char filename2[PATH_MAX];
 		int flag;
-		int which = stress_mwc8modn(9);
+		int which = stress_mwc8modn(10);
 		DIR *dir;
 		struct dirent *d;
 		struct stat buf;
+		uint8_t n;
 
 		switch (which) {
 		default:
@@ -683,7 +689,7 @@ static void stress_filerace_child(stress_args_t *args, const char *pathname, con
 		case 2:
 			stress_filerace_filename(pathname, filename, sizeof(filename));
 			flag = flags[stress_mwc8modn((uint8_t)SIZEOF_ARRAY(flags))];
-			fds[fd_idx] = open(filename, O_APPEND | flag, S_IRUSR | S_IWUSR);
+			fds[fd_idx] = open(filename, O_CREAT | O_RDWR | O_APPEND | flag, S_IRUSR | S_IWUSR);
 			if (fds[fd_idx] > 0) {
 				stress_filerace_file(fds[fd_idx], filename);
 				fd_idx++;
@@ -692,7 +698,7 @@ static void stress_filerace_child(stress_args_t *args, const char *pathname, con
 		case 3:
 			stress_filerace_filename(pathname, filename, sizeof(filename));
 			flag = flags[stress_mwc8modn((uint8_t)SIZEOF_ARRAY(flags))];
-			fds[fd_idx] = open(filename, O_CREAT | flag, S_IRUSR | S_IWUSR);
+			fds[fd_idx] = open(filename, O_CREAT | O_RDWR | flag, S_IRUSR | S_IWUSR);
 			if (fds[fd_idx] > 0) {
 				stress_filerace_file(fds[fd_idx], filename);
 				fd_idx++;
@@ -749,6 +755,15 @@ static void stress_filerace_child(stress_args_t *args, const char *pathname, con
 			(void)shim_rmdir(filename);
 			VOID_RET(int, mkdir(filename, S_IRUSR | S_IWUSR));
 			break;
+		case 9:
+			for (n = 0; n < 64; n++) {
+				int fd;
+
+				(void)snprintf(filename, sizeof(filename), "%s/%2.2" PRIx8, pathname, n);
+				fd = open(filename, O_CREAT | O_RDWR | O_APPEND, S_IRUSR | S_IWUSR);
+				if (fd > -1)
+					(void)close(fd);
+			}
 		}
 
 		if (fd_idx >= SIZEOF_ARRAY(fds)) {
@@ -780,6 +795,9 @@ static int stress_filerace(stress_args_t *args)
 	char pathname[PATH_MAX - 256];
 	pid_t pids[MAX_FILERACE_PROCS];
 	size_t i, children = 0;
+
+	if (stress_sighandler(args->name, SIGIO, stress_sigio_handler, NULL) < 0)
+		return EXIT_FAILURE;
 
 	uid = getuid();
 	gid = getgid();
