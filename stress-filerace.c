@@ -421,6 +421,28 @@ static void stress_filerace_openmany(const int fd, const char *filename)
 	}
 }
 
+#if defined(F_SETLEASE) &&      \
+    defined(F_WRLCK) &&         \
+    defined(F_UNLCK)
+static void stress_filerace_lease_wrlck(const int fd, const char *filename)
+{
+	(void)filename;
+	if (fcntl(fd, F_SETLEASE, F_WRLCK) == 0)
+		VOID_RET(int, fcntl(fd, F_SETLEASE, F_UNLCK));
+}
+#endif
+
+#if defined(F_SETLEASE) &&      \
+    defined(F_RDLCK) &&         \
+    defined(F_UNLCK)
+static void stress_filerace_lease_rdlck(const int fd, const char *filename)
+{
+	(void)filename;
+	if (fcntl(fd, F_SETLEASE, F_RDLCK) == 0)
+		VOID_RET(int, fcntl(fd, F_SETLEASE, F_UNLCK));
+}
+#endif
+
 static stress_filerace_fops_t stress_filerace_fops[] = {
 	stress_filerace_fstat,
 	stress_filerace_lseek_set,
@@ -495,6 +517,16 @@ static stress_filerace_fops_t stress_filerace_fops[] = {
 	stress_filerace_truncate,
 	stress_filerace_readlink,
 	stress_filerace_openmany,
+#if defined(F_SETLEASE) &&      \
+    defined(F_WRLCK) &&         \
+    defined(F_UNLCK)
+	stress_filerace_lease_wrlck,
+#endif
+#if defined(F_SETLEASE) &&      \
+    defined(F_RDLCK) &&         \
+    defined(F_UNLCK)
+	stress_filerace_lease_rdlck,
+#endif
 };
 
 static void stress_filerace_file(const int fd, const char *filename)
