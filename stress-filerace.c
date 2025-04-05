@@ -46,10 +46,12 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
+#if defined(SIGIO)
 static void MLOCKED_TEXT stress_sigio_handler(int signum)
 {
 	(void)signum;
 }
+#endif
 
 /*
  *  stress_filerace_tidy()
@@ -796,8 +798,10 @@ static int stress_filerace(stress_args_t *args)
 	pid_t pids[MAX_FILERACE_PROCS];
 	size_t i, children = 0;
 
+#if defined(SIGIO)
 	if (stress_sighandler(args->name, SIGIO, stress_sigio_handler, NULL) < 0)
 		return EXIT_FAILURE;
+#endif
 
 	uid = getuid();
 	gid = getgid();
