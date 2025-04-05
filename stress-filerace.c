@@ -446,12 +446,58 @@ static void stress_filerace_lease_rdlck(const int fd, const char *filename)
 #if defined(HAVE_LOCKF)
 static void stress_filerace_lockf(const int fd, const char *filename)
 {
-	(void)filename;
 	uint32_t val = stress_mwc32();
 
+	(void)filename;
 	if (lseek(fd, (off_t)val, SEEK_SET) >= 0) {
 		if (write(fd, &val, sizeof(val)) > 0)
 			VOID_RET(int, lockf(fd, F_LOCK, sizeof(val)));
+	}
+}
+#endif
+
+#if defined(F_OFD_SETLK) &&     \
+    defined(F_WRLCK)
+static void stress_filerace_lockofd_wr(const int fd, const char *filename)
+{
+	uint32_t val = stress_mwc32();
+
+	(void)filename;
+
+	if (lseek(fd, (off_t)val, SEEK_SET) >= 0) {
+		if (write(fd, &val, sizeof(val)) > 0) {
+			struct flock f;
+
+			f.l_type = F_WRLCK;
+			f.l_whence = SEEK_SET;
+			f.l_start = (off_t)val;
+			f.l_len = sizeof(val);
+			f.l_pid = 0;
+
+			VOID_RET(int, fcntl(fd, F_OFD_SETLK, &f));
+		}
+	}
+}
+#endif
+
+#if defined(F_OFD_SETLK) &&     \
+    defined(F_RDLCK)
+static void stress_filerace_lockofd_rd(const int fd, const char *filename)
+{
+	uint32_t val = stress_mwc32();
+
+	(void)filename;
+
+	if (lseek(fd, (off_t)val, SEEK_SET) >= 0) {
+		struct flock f;
+
+		f.l_type = F_RDLCK;
+		f.l_whence = SEEK_SET;
+		f.l_start = (off_t)val;
+		f.l_len = sizeof(val);
+		f.l_pid = 0;
+
+		VOID_RET(int, fcntl(fd, F_OFD_SETLK, &f));
 	}
 }
 #endif
@@ -542,6 +588,14 @@ static stress_filerace_fops_t stress_filerace_fops[] = {
 #endif
 #if defined(HAVE_LOCKF)
 	stress_filerace_lockf,
+#endif
+#if defined(F_OFD_SETLK) &&     \
+    defined(F_WRLCK)
+	stress_filerace_lockofd_wr,
+#endif
+#if defined(F_OFD_SETLK) &&     \
+    defined(F_RDLCK)
+	stress_filerace_lockofd_rd,
 #endif
 };
 
