@@ -510,7 +510,7 @@ static void stress_filerace_file(const int fd, const char *filename)
 
 static void stress_filerace_filename(const char *pathname, char *filename, const size_t filename_len)
 {
-	const uint8_t rnd = stress_mwc8() & 0xff;
+	const uint8_t rnd = stress_mwc8() & 0x3f;
 
 	(void)snprintf(filename, filename_len, "%s/%2.2" PRIx8, pathname, rnd);
 }
