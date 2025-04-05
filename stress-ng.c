@@ -1105,7 +1105,7 @@ redo:
 				pr_dbg("%s: [%" PRIdMAX "] terminated on signal: %d (%s)\n",
 					name, (intmax_t)ret, wterm_signal, signame);
 #else
-				pr_dbg("%s: [%d" PRIdMAX "] terminated on signal: %d\n",
+				pr_dbg("%s: [%" PRIdMAX "] terminated on signal: %d\n",
 					name, (intmax_t)ret, wterm_signal);
 #endif
 			}
