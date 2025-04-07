@@ -301,6 +301,19 @@ static void stress_filerace_fibmap(const int fd, const char *filename)
 #endif
 
 #if defined(HAVE_POSIX_FADVISE) && 	\
+    defined(POSIX_FADV_DONTNEED)
+static void stress_filerace_posix_fadvise_dontneed_all(const int fd, const char *filename)
+{
+	struct stat buf;
+
+	(void)filename;
+	if (fstat(fd, &buf) < 0)
+		return;
+	VOID_RET(int, posix_fadvise(fd, 0, (off_t)buf.st_size, POSIX_FADV_DONTNEED));
+}
+#endif
+
+#if defined(HAVE_POSIX_FADVISE) && 	\
     defined(POSIX_FADV_NORMAL) &&	\
     defined(POSIX_FADV_SEQUENTIAL) &&	\
     defined(POSIX_FADV_RANDOM) &&	\
@@ -560,6 +573,10 @@ static stress_filerace_fops_t stress_filerace_fops[] = {
 #endif
 #if defined(FIBMAP)
 	stress_filerace_fibmap,
+#endif
+#if defined(HAVE_POSIX_FADVISE) && 	\
+    defined(POSIX_FADV_DONTNEED)
+	stress_filerace_posix_fadvise_dontneed_all,
 #endif
 #if defined(HAVE_POSIX_FADVISE) && 	\
     defined(POSIX_FADV_NORMAL) &&	\
