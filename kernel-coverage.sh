@@ -356,18 +356,22 @@ do
 		MNTDEV=$(findmnt -T $MNT -o SOURCE  --verbose -n)
 		MNTDEVBASE=$(basename $MNTDEV)
 		echo MNTDEV $MNTDEV MNTDEVBASE $MNTDEVBASE
-		IOSCHED=$(cat /sys/block/${MNTDEVBASE}/queue/scheduler | sed  's/.*\[\(.*\)\].*/\1/')
-		IOSCHEDS=$(cat /sys/block/${MNTDEVBASE}/queue/scheduler | sed 's/\[//' | sed s'/\]//')
-
 		DURATION=10
-		for IO in $IOSCHEDS
-		do
-			echo "Filesystem: $FS $MNTDEV, iosched $IO of $IOSCHEDS"
-			echo $IO | sudo tee /sys/block/${MNTDEVBASE}/queue/scheduler
+		if [ -e /sys/block/${MNTDEVBASE}/queue/scheduler ]; then
+			IOSCHED=$(cat /sys/block/${MNTDEVBASE}/queue/scheduler | sed  's/.*\[\(.*\)\].*/\1/')
+			IOSCHEDS=$(cat /sys/block/${MNTDEVBASE}/queue/scheduler | sed 's/\[//' | sed s'/\]//')
+			for IO in $IOSCHEDS
+			do
+				echo "Filesystem: $FS $MNTDEV, iosched $IO of $IOSCHEDS"
+				echo $IO | sudo tee /sys/block/${MNTDEVBASE}/queue/scheduler
+				do_stress --iomix -1 --iostat 1
+			done
+			# revert to original ioscheduler
+			echo $IOSCHED | sudo tee /sys/block/${MNTDEVBASE}/queue/scheduler
+		else
+			echo "Filesystem: $FS $MNTDEV, no iosched"
 			do_stress --iomix -1 --iostat 1
-		done
-		# revert to original ioscheduler
-		echo $IOSCHED | sudo tee /sys/block/${MNTDEVBASE}/queue/scheduler
+		fi
 
 		echo "Filesystem: $FS"
 		do_stress --hdd -1 --hdd-ops 50000 --hdd-opts direct,utimes  --temp-path $MNT --iostat 1
