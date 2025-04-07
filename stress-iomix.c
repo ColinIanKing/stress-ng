@@ -1028,6 +1028,28 @@ static void stress_iomix_cachestat(
 }
 #endif
 
+#if defined(HAVE_READAHEAD)
+static void stress_iomix_readahead(
+	stress_args_t *args,
+	const int fd,
+	const char *fs_type,
+	const off_t iomix_bytes)
+{
+	(void)fs_type;
+
+	do {
+		const off_t offset = stress_iomix_rnd_offset(iomix_bytes);
+		const size_t len = 512 * stress_mwc8modn(16);
+
+		VOID_RET(int, readahead(fd, offset, len));
+
+		(void)shim_usleep(stress_mwc32modn(2000000));
+		if (UNLIKELY(!stress_bogo_inc_lock(args, counter_lock, true)))
+			return;
+	} while (stress_bogo_inc_lock(args, counter_lock, false));
+}
+#endif
+
 static stress_iomix_func iomix_funcs[] = {
 	stress_iomix_wr_seq_bursts,
 	stress_iomix_wr_rnd_bursts,
@@ -1061,6 +1083,9 @@ static stress_iomix_func iomix_funcs[] = {
 #if defined(__linux__) &&	\
     defined(__NR_cachestat)
 	stress_iomix_cachestat,
+#endif
+#if defined(HAVE_READAHEAD)
+	stress_iomix_readahead,
 #endif
 };
 
