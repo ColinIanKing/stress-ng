@@ -7048,7 +7048,9 @@ and GBytes using the suffix b, k, m or g.
 .TP
 .B \-\-revio\-opts list
 specify various stress test options as a comma separated list. Options are the
-same as \-\-hdd\-opts but without the iovec option.
+same as \-\-hdd\-opts but without the iovec option and with a readahead option
+to force a readahead action over the entire file once it has been completely
+written.
 .TP
 .B \-\-revio\-ops N
 stop revio stress workers after N bogo operations.

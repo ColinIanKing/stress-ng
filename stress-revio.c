@@ -48,6 +48,7 @@
 #define REVIO_OPT_FSYNC		(0x00200000)
 #define REVIO_OPT_FDATASYNC	(0x00400000)
 #define REVIO_OPT_SYNCFS	(0x00800000)
+#define REVIO_OPT_READAHEAD	(0x01000000)
 
 static const stress_help_t help[] = {
 	{ NULL,	"revio N",		"start N workers performing reverse I/O" },
@@ -122,6 +123,9 @@ static const stress_revio_opts_t revio_opts[] = {
 #if defined(HAVE_FDATASYNC)
 	{ "fdatasync",	REVIO_OPT_FDATASYNC, 0, 0, 0 },
 #endif
+#if defined(HAVE_READAHEAD)
+	{ "readahead",	REVIO_OPT_READAHEAD, 0, 0, 0 },
+#endif
 #if defined(HAVE_SYNCFS)
 	{ "syncfs",	REVIO_OPT_SYNCFS, 0, 0, 0 },
 #endif
@@ -169,7 +173,6 @@ static ssize_t stress_revio_write(
 	if (UNLIKELY(!stress_continue_flag()))
 		return ret;
 #endif
-
 	return ret;
 }
 
@@ -437,6 +440,16 @@ PRAGMA_UNROLL_N(4)
 		iterations++;
 		extents = stress_get_extents(fd);
 		avg_extents += (double)extents;
+#if defined(HAVE_READAHEAD)
+		if (revio_flags & REVIO_OPT_READAHEAD) {
+#if defined(HAVE_POSIX_FADVISE) &&	\
+    defined(POSIX_FADV_DONTNEED)
+			VOID_RET(int, posix_fadvise(fd, 0, revio_bytes, POSIX_FADV_DONTNEED));
+#endif
+			if (lseek(fd, 0, SEEK_SET) == 0)
+				(void)readahead(fd, 0, revio_bytes);
+		}
+#endif
 		(void)close(fd);
 	} while (stress_continue(args));
 
