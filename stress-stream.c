@@ -694,7 +694,6 @@ static inline void *stress_stream_mmap(
 static inline uint64_t get_stream_L3_size(stress_args_t *args)
 {
 	uint64_t cache_size = 2 * MB;
-#if defined(__linux__)
 	stress_cpu_cache_cpus_t *cpu_caches;
 	stress_cpu_cache_t *cache = NULL;
 	uint16_t max_cache_level;
@@ -730,19 +729,12 @@ static inline uint64_t get_stream_L3_size(stress_args_t *args)
 	cache_size = cache->size;
 
 	stress_free_cpu_caches(cpu_caches);
-#else
-	if (!args->instance)
-		pr_inf("%s: using built-in defaults as unable to "
-			"determine cache details\n", args->name);
-#endif
 
-#if defined(__linux__)
 report_size:
 	cache_size *= numa_nodes;
 	if ((args->instance == 0) && (numa_nodes > 1))
 		pr_inf("%s: scaling L3 cache size by number of numa nodes %d to %" PRIu64 "K\n",
 			args->name, numa_nodes, cache_size / 1024);
-#endif
 	return cache_size;
 }
 
