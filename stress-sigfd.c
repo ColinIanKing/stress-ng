@@ -36,7 +36,6 @@ static const stress_help_t help[] = {
 
 #if defined(HAVE_SYS_SIGNALFD_H) && 	\
     defined(HAVE_SIGNALFD) &&		\
-    NEED_GLIBC(2,8,0) && 		\
     defined(HAVE_SIGQUEUE)
 
 #if defined(__NR_signalfd4) &&		\
