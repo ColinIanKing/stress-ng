@@ -599,6 +599,30 @@ static void stress_filerace_lockofd_rd(const int fd, const char *filename)
 }
 #endif
 
+static void stress_filerace_chdir(const int fd, const char *filename)
+{
+	char cwdpath[PATH_MAX];
+
+	(void)fd;
+	if (getcwd(cwdpath, sizeof(cwdpath)) == NULL)
+		return;
+	if (chdir(filename) < 0)
+		return;
+	VOID_RET(int, chdir(cwdpath));
+}
+
+static void stress_filerace_fchdir(const int fd, const char *filename)
+{
+	char cwdpath[PATH_MAX];
+
+	(void)filename;
+	if (getcwd(cwdpath, sizeof(cwdpath)) == NULL)
+		return;
+	if (fchdir(fd) < 0)
+		return;
+	VOID_RET(int, chdir(cwdpath));
+}
+
 static stress_filerace_fops_t stress_filerace_fops[] = {
 	stress_filerace_fstat,
 	stress_filerace_lseek_set,
@@ -622,6 +646,8 @@ static stress_filerace_fops_t stress_filerace_fops[] = {
 #if defined(HAVE_PREAD)
 	stress_filerace_pread,
 #endif
+
+
 #if defined(HAVE_FALLOCATE) &&		\
     defined(FALLOC_FL_PUNCH_HOLE) &&	\
     defined(FALLOC_FL_KEEP_SIZE)
@@ -710,6 +736,8 @@ static stress_filerace_fops_t stress_filerace_fops[] = {
     defined(F_RDLCK)
 	stress_filerace_lockofd_rd,
 #endif
+	stress_filerace_chdir,
+	stress_filerace_fchdir,
 };
 
 static void stress_filerace_file(const int fd, const char *filename)
@@ -772,6 +800,7 @@ static void stress_filerace_child(stress_args_t *args, const char *pathname, con
 		char filename2[PATH_MAX];
 		int flag;
 		int which = stress_mwc8modn(10);
+		int fd;
 		DIR *dir;
 		struct dirent *d;
 		struct stat buf;
@@ -828,10 +857,7 @@ static void stress_filerace_child(stress_args_t *args, const char *pathname, con
 				break;
 			} else {
 #if defined(O_DIRECTORY)
-				int fd;
-
 				fd = open(pathname, O_DIRECTORY);
-				if (fd)
 					(void)close(fd);
 #endif
 				VOID_RET(int, stat(pathname, &buf));
@@ -861,7 +887,14 @@ static void stress_filerace_child(stress_args_t *args, const char *pathname, con
 			stress_filerace_filename(pathname, filename, sizeof(filename));
 			(void)shim_unlink(filename);
 			(void)shim_rmdir(filename);
-			VOID_RET(int, mkdir(filename, S_IRUSR | S_IWUSR));
+			VOID_RET(int, mkdir(filename, S_IRUSR | S_IWUSR | S_IXUSR));
+#if defined(O_DIRECTORY)
+			fd = open(filename, O_DIRECTORY);
+			if (fd >= 0) {
+				stress_filerace_file(fd, filename);
+				(void)close(fd);
+			}
+#endif
 			break;
 		case 9:
 			for (n = 0; n < 64; n++) {
