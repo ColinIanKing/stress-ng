@@ -718,6 +718,7 @@ stress-ng has found various Kernel, QEMU bugs/regressions, and libc bugs; approp
  * [xPUE: Extending Power Usage Effectiveness Metrics for Cloud Infrastructures](https://arxiv.org/pdf/2503.07124)
  * [FALCON: A Framework for Fault Prediction in Open RAN Using Multi-Level Telemetry](https://arxiv.org/pdf/2503.06197)
  * [Profiling with trust: system monitoring from trusted execution environments](https://www.researchgate.net/publication/378265673_Profiling_with_trust_system_monitoring_from_trusted_execution_environments)
+ * [GAL-MAD: Towards Explainable Anomaly Detection in Microservice Applications using Graph Attention Networks](https://www.arxiv.org/pdf/2504.00058)
 
 I am keen to add to the stress-ng project page any citations to research or
 projects that use stress-ng.  I also appreciate information concerning kernel
