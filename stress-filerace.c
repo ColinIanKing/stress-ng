@@ -716,6 +716,37 @@ unmap:
 }
 #endif
 
+#if defined(F_SET_RW_HINT)
+static void stress_filerace_fcntl_rw_hint(const int fd, const char *filename)
+{
+	static const unsigned long hints[] = {
+#if defined(RWH_WRITE_LIFE_EXTREME)
+		RWH_WRITE_LIFE_EXTREME,
+#endif
+#if defined(RWH_WRITE_LIFE_LONG)
+		RWH_WRITE_LIFE_LONG,
+#endif
+#if defined(RWH_WRITE_LIFE_MEDIUM)
+		RWH_WRITE_LIFE_MEDIUM,
+#endif
+#if defined(RWH_WRITE_LIFE_SHORT)
+		RWH_WRITE_LIFE_SHORT,
+#endif
+#if defined(RWH_WRITE_LIFE_NONE)
+		RWH_WRITE_LIFE_NONE,
+#endif
+#if defined(RWF_WRITE_LIFE_NOT_SET)
+		RWF_WRITE_LIFE_NOT_SET,
+#endif
+		0UL,
+	};
+	const unsigned hint = hints[stress_mwc8modn((uint8_t)SIZEOF_ARRAY(hints))];
+
+	(void)filename;
+	VOID_RET(int, fcntl(fd, F_SET_RW_HINT, &hint));
+}
+#endif
+
 static stress_filerace_fops_t stress_filerace_fops[] = {
 	stress_filerace_fstat,
 	stress_filerace_lseek_set,
@@ -839,6 +870,9 @@ static stress_filerace_fops_t stress_filerace_fops[] = {
     defined(HAVE_FALLOCATE) &&	\
     defined(FALLOC_FL_ZERO_RANGE)
 	stress_filerace_mmap,
+#endif
+#if defined(F_SET_RW_HINT)
+	stress_filerace_fcntl_rw_hint,
 #endif
 };
 
