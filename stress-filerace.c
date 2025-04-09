@@ -631,6 +631,60 @@ static void stress_filerace_fchdir(const int fd, const char *filename)
 	VOID_RET(int, chdir(cwdpath));
 }
 
+#if defined(MS_ASYNC) &&	\
+    defined(MS_SYNC) &&		\
+    defined(HAVE_FALLOCATE) &&	\
+    defined(FALLOC_FL_ZERO_RANGE)
+static sigjmp_buf mmap_jmpbuf;
+
+static void NORETURN MLOCKED_TEXT stress_filerace_mmap_sigbus_handler(int sig)
+{
+	(void)sig;
+
+	siglongjmp(mmap_jmpbuf, 1);
+}
+
+static void stress_filerace_mmap(const int fd, const char *filename)
+{
+	NOCLOBBER void *ptr;
+	NOCLOBBER size_t mmap_size;
+	off_t offset;
+	struct sigaction new_action, old_action;
+
+	mmap_size = stress_get_page_size() * (1 + (stress_mwc8() & 0xf));
+	offset = ((off_t)stress_mwc32()) & ~(off_t)(mmap_size - 1);
+
+	(void)filename;
+
+	(void)shim_memset(&new_action, 0, sizeof(new_action));
+	new_action.sa_handler = stress_filerace_mmap_sigbus_handler;
+	(void)sigemptyset(&new_action.sa_mask);
+	new_action.sa_flags = SA_NOCLDSTOP;
+
+	/*
+	 *  a SIGBUS handler is required because the file may
+	 *  be truncated or a hole punched in the file after the
+	 *  fallocate causing the mmap'd region to be no longer
+	 *  backed by the file
+	 */
+	if (sigaction(SIGBUS, &new_action, &old_action) < 0)
+		return;
+	if (fallocate(fd, FALLOC_FL_ZERO_RANGE, offset, mmap_size) < 0)
+		return;
+	ptr = mmap(NULL, mmap_size, PROT_READ | PROT_WRITE,
+		   MAP_SHARED, fd, offset);
+	if (ptr == MAP_FAILED)
+		return;
+	if (sigsetjmp(mmap_jmpbuf, 1) != 0)
+		goto unmap;
+	(void)shim_memset(ptr, stress_mwc8(), mmap_size);
+	VOID_RET(int, msync(ptr, mmap_size, stress_mwc1() ? MS_ASYNC : MS_SYNC));
+unmap:
+	(void)munmap(ptr, mmap_size);
+	(void)sigaction(SIGBUS, &old_action, NULL);
+}
+#endif
+
 static stress_filerace_fops_t stress_filerace_fops[] = {
 	stress_filerace_fstat,
 	stress_filerace_lseek_set,
@@ -746,6 +800,12 @@ static stress_filerace_fops_t stress_filerace_fops[] = {
 #endif
 	stress_filerace_chdir,
 	stress_filerace_fchdir,
+#if defined(MS_ASYNC) &&	\
+    defined(MS_SYNC) &&		\
+    defined(HAVE_FALLOCATE) &&	\
+    defined(FALLOC_FL_ZERO_RANGE)
+	stress_filerace_mmap,
+#endif
 };
 
 static void stress_filerace_file(const int fd, const char *filename)
