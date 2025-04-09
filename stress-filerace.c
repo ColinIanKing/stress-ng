@@ -440,6 +440,23 @@ static void stress_filerace_stat(const int fd, const char *filename)
 	VOID_RET(int, stat(filename, &buf));
 }
 
+static void stress_filerace_statx_fd(const int fd, const char *filename)
+{
+	shim_statx_t bufx;
+
+	(void)filename;
+	VOID_RET(int, shim_statx(fd, NULL, AT_EMPTY_PATH, SHIM_STATX_ALL, &bufx));
+}
+
+static void stress_filerace_statx_filename(const int fd, const char *filename)
+{
+	shim_statx_t bufx;
+
+	(void)fd;
+	VOID_RET(int, shim_statx((*filename == '.') ? AT_FDCWD : 0,
+				 filename, 0, SHIM_STATX_ALL, &bufx));
+}
+
 static void stress_filerace_truncate(const int fd, const char *filename)
 {
 	const off_t offset = (off_t)stress_mwc16();
@@ -767,6 +784,8 @@ static stress_filerace_fops_t stress_filerace_fops[] = {
 	stress_filerace_chown,
 	stress_filerace_open,
 	stress_filerace_stat,
+	stress_filerace_statx_fd,
+	stress_filerace_statx_filename,
 	stress_filerace_truncate,
 	stress_filerace_readlink,
 	stress_filerace_openmany,
