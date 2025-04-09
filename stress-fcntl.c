@@ -578,7 +578,7 @@ lock_abort:	{ /* Nowt */ }
 		const off_t start = stress_mwc16() & 0x7fff;
 
 		if (UNLIKELY(ftruncate(fd, 65536) < 0)) {
-			pr_fail("%s: ftuncate failed, errno=%d (%s)\n",
+			pr_fail("%s: ftruncate failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			goto ofd_lock_abort;
 		}
