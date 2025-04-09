@@ -473,7 +473,7 @@ static void do_fcntl(
 		f.l_pid = args->pid;
 
 		ret = fcntl(fd, F_SETLKW, &f);
-		if (UNLIKELY((ret < 0) && (errno == EAGAIN)))
+		if (UNLIKELY((ret < 0) && ((errno == EAGAIN) || (errno == EDEADLK))))
 			goto lock_abort;
 		check_return(args, ret, "F_SETLKW (F_WRLCK)", rc);
 
@@ -493,7 +493,7 @@ static void do_fcntl(
 		f.l_pid = args->pid;
 
 		ret = fcntl(fd, F_SETLKW, &f);
-		if (UNLIKELY((ret < 0) && (errno == EAGAIN)))
+		if (UNLIKELY((ret < 0) && ((errno == EAGAIN) || (errno == EDEADLK))))
 			goto lock_abort;
 		check_return(args, ret, "F_SETLKW (F_WRLCK)", rc);
 
@@ -523,7 +523,7 @@ static void do_fcntl(
 		f.l_pid = args->pid;
 
 		ret = fcntl(fd, F_SETLKW, &f);
-		if (UNLIKELY((ret < 0) && (errno == EAGAIN)))
+		if (UNLIKELY((ret < 0) && ((errno == EAGAIN) || (errno == EDEADLK))))
 			goto lock_abort;
 		check_return(args, ret, "F_SETLKW (F_WRLCK)", rc);
 
@@ -622,7 +622,7 @@ lock_abort:	{ /* Nowt */ }
 		f.l_pid = 0;
 
 		ret = fcntl(fd, F_OFD_SETLKW, &f);
-		if (UNLIKELY((ret < 0) && (errno == EAGAIN)))
+		if (UNLIKELY((ret < 0) && ((errno == EAGAIN) || (errno == EDEADLK))))
 			goto ofd_lock_abort;
 		check_return(args, ret, "F_OFD_SETLKW (F_WRLCK)", rc);
 
