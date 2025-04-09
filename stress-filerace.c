@@ -46,6 +46,68 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
+/*
+ *  mix of open write flags
+ */
+static const int open_wr_flags[] = {
+	0,
+#if defined(O_ASYNC)
+	O_ASYNC,
+#endif
+#if defined(O_CLOEXEC)
+	O_CLOEXEC,
+#endif
+#if defined(O_DIRECT)
+	O_DIRECT,
+#endif
+#if defined(O_DSYNC)
+	O_DSYNC,
+#endif
+#if defined(O_EXCL)
+	O_EXCL,
+#endif
+#if defined(O_LARGEFILE)
+	O_LARGEFILE,
+#endif
+#if defined(O_NOATIME)
+	O_NOATIME,
+#endif
+#if defined(O_NOFOLLOW)
+	O_NOFOLLOW,
+#endif
+#if defined(O_NONBLOCK)
+	O_NONBLOCK,
+#endif
+#if defined(O_SYNC)
+	O_SYNC,
+#endif
+#if defined(O_TRUNC)
+	O_TRUNC,
+#endif
+};
+
+/*
+ *  mix of open read flags
+ */
+static const int open_rd_flags[] = {
+	0,
+#if defined(O_CLOEXEC)
+	O_CLOEXEC,
+#endif
+#if defined(O_LARGEFILE)
+	O_LARGEFILE,
+#endif
+#if defined(O_NOATIME)
+	O_NOATIME,
+#endif
+#if defined(O_NOFOLLOW)
+	O_NOFOLLOW,
+#endif
+#if defined(O_NONBLOCK)
+	O_NONBLOCK,
+#endif
+};
+
 #if defined(SIGIO)
 static void MLOCKED_TEXT stress_sigio_handler(int signum)
 {
@@ -71,7 +133,6 @@ static void stress_filerace_read_random_uint32(const int fd)
 		VOID_RET(ssize_t, write(fd, &tmp, sizeof(tmp)));
 	}
 }
-
 
 /*
  *  stress_filerace_tidy()
@@ -436,12 +497,24 @@ static void stress_filerace_chown(const int fd, const char *filename)
 	VOID_RET(int, chown(filename, uid, gid));
 }
 
-static void stress_filerace_open(const int fd, const char *filename)
+static void stress_filerace_open_rd(const int fd, const char *filename)
 {
 	int new_fd;
+	const int flag = open_rd_flags[stress_mwc8modn((uint8_t)SIZEOF_ARRAY(open_rd_flags))];
 
 	(void)fd;
-	new_fd = open(filename, O_RDONLY);
+	new_fd = open(filename, O_RDONLY | flag);
+	if (new_fd > -1)
+		(void)close(new_fd);
+}
+
+static void stress_filerace_open_wr(const int fd, const char *filename)
+{
+	int new_fd;
+	const int flag = open_wr_flags[stress_mwc8modn((uint8_t)SIZEOF_ARRAY(open_wr_flags))];
+
+	(void)fd;
+	new_fd = open(filename, O_APPEND | O_WRONLY | flag);
 	if (new_fd > -1)
 		(void)close(new_fd);
 }
@@ -828,7 +901,8 @@ static stress_filerace_fops_t stress_filerace_fops[] = {
 #endif
 	stress_filerace_chmod,
 	stress_filerace_chown,
-	stress_filerace_open,
+	stress_filerace_open_rd,
+	stress_filerace_open_wr,
 	stress_filerace_stat,
 	stress_filerace_statx_fd,
 	stress_filerace_statx_filename,
@@ -900,34 +974,6 @@ static void stress_filerace_child(stress_args_t *args, const char *pathname, con
 	size_t i;
 	size_t fd_idx = 0;
 
-	static const int flags[] = {
-		0,
-#if defined(O_DIRECT)
-		O_DIRECT,
-#endif
-#if defined(O_DSYNC)
-		O_DSYNC,
-#endif
-#if defined(O_EXCL)
-		O_EXCL,
-#endif
-#if defined(O_NOATIME)
-		O_NOATIME,
-#endif
-#if defined(O_NOFOLLOW)
-		O_NOFOLLOW,
-#endif
-#if defined(O_NONBLOCK)
-		O_NONBLOCK,
-#endif
-#if defined(O_SYNC)
-		O_SYNC,
-#endif
-#if defined(O_TRUNC)
-		O_TRUNC,
-#endif
-	};
-
 	for (i = 0; i < SIZEOF_ARRAY(fds); i++)
 		fds[i] = -1;
 
@@ -961,7 +1007,7 @@ static void stress_filerace_child(stress_args_t *args, const char *pathname, con
 			break;
 		case 2:
 			stress_filerace_filename(pathname, filename, sizeof(filename));
-			flag = flags[stress_mwc8modn((uint8_t)SIZEOF_ARRAY(flags))];
+			flag = open_wr_flags[stress_mwc8modn((uint8_t)SIZEOF_ARRAY(open_wr_flags))];
 			fds[fd_idx] = open(filename, O_CREAT | O_RDWR | O_APPEND | flag, S_IRUSR | S_IWUSR);
 			if (fds[fd_idx] > 0) {
 				stress_filerace_file(fds[fd_idx], filename);
@@ -970,7 +1016,7 @@ static void stress_filerace_child(stress_args_t *args, const char *pathname, con
 			break;
 		case 3:
 			stress_filerace_filename(pathname, filename, sizeof(filename));
-			flag = flags[stress_mwc8modn((uint8_t)SIZEOF_ARRAY(flags))];
+			flag = open_wr_flags[stress_mwc8modn((uint8_t)SIZEOF_ARRAY(open_wr_flags))];
 			fds[fd_idx] = open(filename, O_CREAT | O_RDWR | flag, S_IRUSR | S_IWUSR);
 			if (fds[fd_idx] > 0) {
 				stress_filerace_file(fds[fd_idx], filename);
