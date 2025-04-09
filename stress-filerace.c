@@ -304,6 +304,7 @@ static void stress_filerace_flock_ex(const int fd, const char *filename)
 	(void)filename;
 	if (flock(fd, LOCK_EX) == 0) {
 		stress_filerace_write_random_uint32(fd);
+		stress_random_small_sleep();
 		VOID_RET(int, flock(fd, LOCK_UN));
 	}
 }
@@ -317,6 +318,7 @@ static void stress_filerace_flock_sh(const int fd, const char *filename)
 	(void)filename;
 	if (flock(fd, LOCK_SH) == 0) {
 		stress_filerace_write_random_uint32(fd);
+		stress_random_small_sleep();
 		VOID_RET(int, flock(fd, LOCK_UN));
 	}
 }
@@ -480,6 +482,7 @@ static void stress_filerace_lease_wrlck(const int fd, const char *filename)
 	(void)filename;
 	if (fcntl(fd, F_SETLEASE, F_WRLCK) == 0) {
 		stress_filerace_write_random_uint32(fd);
+		stress_random_small_sleep();
 		VOID_RET(int, fcntl(fd, F_SETLEASE, F_UNLCK));
 	}
 }
@@ -493,6 +496,7 @@ static void stress_filerace_lease_rdlck(const int fd, const char *filename)
 	(void)filename;
 	if (fcntl(fd, F_SETLEASE, F_RDLCK) == 0) {
 		stress_filerace_read_random_uint32(fd);
+		stress_random_small_sleep();
 		VOID_RET(int, fcntl(fd, F_SETLEASE, F_UNLCK));
 	}
 }
@@ -509,6 +513,7 @@ static void stress_filerace_lockf_lock(const int fd, const char *filename)
 	if (lockf(fd, F_LOCK, sizeof(val)) == 0) {
 		if (lseek(fd, (off_t)val, SEEK_SET) >= 0)
 			VOID_RET(ssize_t, write(fd, &val, sizeof(val)));
+		stress_random_small_sleep();
 		VOID_RET(int, lockf(fd, F_ULOCK, sizeof(val)));
 	}
 }
@@ -525,6 +530,7 @@ static void stress_filerace_lockf_tlock(const int fd, const char *filename)
 	if (lockf(fd, F_TLOCK, sizeof(val)) == 0) {
 		if (lseek(fd, (off_t)val, SEEK_SET) >= 0)
 			VOID_RET(ssize_t, write(fd, &val, sizeof(val)));
+		stress_random_small_sleep();
 		VOID_RET(int, lockf(fd, F_ULOCK, sizeof(val)));
 	}
 }
@@ -552,6 +558,7 @@ static void stress_filerace_lockofd_wr(const int fd, const char *filename)
 
 			if (lseek(fd, (off_t)val, SEEK_SET) >= 0)
 				VOID_RET(ssize_t, write(fd, &val, sizeof(val)));
+			stress_random_small_sleep();
 
 			f.l_type = F_UNLCK;
 			f.l_whence = SEEK_SET;
@@ -588,6 +595,7 @@ static void stress_filerace_lockofd_rd(const int fd, const char *filename)
 
 			VOID_RET(ssize_t, read(fd, &tmp, sizeof(tmp)));
 		}
+		stress_random_small_sleep();
 
 		f.l_type = F_UNLCK;
 		f.l_whence = SEEK_SET;
