@@ -128,7 +128,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_fractal_mandelbrot(fractal_info_t *in
 	uint16_t *data = info->data;
 
 	/* Even numbers of columns */
-	for (ix = 0; LIKELY(ix < (xsize & (int32_t)0xfffffffe)); ix++) {
+	for (ix = 0; LIKELY(ix < (xsize & (int32_t)0xfffffffe)); ix += 2) {
 		register double x0 = 0.0, y0 = 0.0;
 		register double x1 = 0.0, y1 = 0.0;
 		register int32_t iter0 = 0;
@@ -136,11 +136,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_fractal_mandelbrot(fractal_info_t *in
 		register double xc1 = xc + dx;
 
 		for (;;) {
-			register const double x0_2 = x0 * x0;
-			register const double y0_2 = y0 * y0;
-			register const double x1_2 = x1 * x1;
-			register const double y1_2 = y1 * y1;
-			register double t0, t1;
+			register double x0_2, y0_2, x1_2, y1_2, t0, t1;
 			register bool end0, end1;
 
 			end0 = (iter0 >= max_iter);
@@ -148,7 +144,11 @@ static void OPTIMIZE3 TARGET_CLONES stress_fractal_mandelbrot(fractal_info_t *in
 			if (UNLIKELY(end0 & end1))
 				break;
 
+			x0_2 = x0 * x0;
+			y0_2 = y0 * y0;
 			end0 |= (x0_2 + y0_2 >= 4.0);
+			x1_2 = x1 * x1;
+			y1_2 = y1 * y1;
 			end1 |= (x1_2 + y1_2 >= 4.0);
 			iter0 += !end0;
 			iter1 += !end1;
@@ -194,17 +194,63 @@ static void OPTIMIZE3 TARGET_CLONES stress_fractal_mandelbrot(fractal_info_t *in
 
 /*
  *  stress_fractal_julia()
- *	classic Julia set generator, naive method
+ *	classic Julia set generator, naive method, unrolled x 2
  */
 static void OPTIMIZE3 TARGET_CLONES stress_fractal_julia(fractal_info_t *info, const int32_t row)
 {
 	register int32_t ix;
 	const int32_t max_iter = info->iterations;
 	const double y_start = info->ymin + ((double)row * info->dy);
+	const double dx = info->dx;
+	const int32_t xsize = info->xsize;
 	double x_start = info->xmin;
 	uint16_t *data = info->data;
 
-	for (ix = 0; ix < info->xsize; ix++) {
+	/* Even numbers of columns */
+	for (ix = 0; LIKELY(ix < (xsize & (int32_t)0xfffffffe)); ix += 2) {
+		register int32_t iter0 = 0;
+		register int32_t iter1 = 0;
+		register double x0 = x_start;
+		register double y0 = y_start;
+		register double x1 = x_start + dx;
+		register double y1 = y_start;
+
+		for (;;) {
+			register double x0_2, y0_2, x1_2, y1_2, t0, t1;
+			register bool end0, end1;
+
+			end0 = (iter0 >= max_iter);
+			end1 = (iter1 >= max_iter);
+			if (UNLIKELY(end0 & end1))
+				break;
+
+			x0_2 = x0 * x0;
+			y0_2 = y0 * y0;
+			end0 |= (x0_2 + y0_2 >= 4.0);
+			x1_2 = x1 * x1;
+			y1_2 = y1 * y1;
+			end1 |= (x1_2 + y1_2 >= 4.0);
+			iter0 += !end0;
+			iter1 += !end1;
+
+			if (end0 & end1)
+				break;
+
+			t0 = x0_2 - y0_2 - 0.79;
+			t1 = x1_2 - y1_2 - 0.79;
+			y0 = (2 * x0 * y0) + 0.15;
+			y1 = (2 * x1 * y1) + 0.15;
+			x0 = t0;
+			x1 = t1;
+		}
+		x_start += dx + dx;
+		data[0] = (uint16_t)iter0;
+		data[1] = (uint16_t)iter1;
+		data += 2;
+	}
+
+	/* residual */
+	for (; ix < xsize; ix++) {
 		register int32_t iter = 0;
 		register double x = x_start;
 		register double y = y_start;
@@ -222,7 +268,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_fractal_julia(fractal_info_t *info, c
 			y = (2 * x * y) + 0.15;
 			x = t;
 		}
-		x_start += info->dx;
+		x_start += dx;
 		*(data++) = (uint16_t)iter;
 	}
 }
