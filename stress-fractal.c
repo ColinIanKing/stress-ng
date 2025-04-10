@@ -116,7 +116,7 @@ static inline int32_t stress_fractal_get_row(stress_args_t *args, int32_t max_ro
 
 /*
  *  stress_fractal_mandelbrot()
- *	classic Mandlebot generator, naive method
+ *	classic Mandlebot generator, naive method, unrolled x 2
  */
 static void OPTIMIZE3 TARGET_CLONES stress_fractal_mandelbrot(fractal_info_t *info, const int32_t row)
 {
@@ -124,10 +124,53 @@ static void OPTIMIZE3 TARGET_CLONES stress_fractal_mandelbrot(fractal_info_t *in
 	const int32_t max_iter = info->iterations;
 	const double dx = info->dx;
 	const int32_t xsize = info->xsize;
-	double xc, yc = info->ymin + ((double)row * info->dy);
+	double xc = info->xmin, yc = info->ymin + ((double)row * info->dy);
 	uint16_t *data = info->data;
 
-	for (ix = 0, xc = info->xmin; LIKELY(ix < xsize); ix++, xc += dx) {
+	/* Even numbers of columns */
+	for (ix = 0; LIKELY(ix < (xsize & (int32_t)0xfffffffe)); ix++) {
+		register double x0 = 0.0, y0 = 0.0;
+		register double x1 = 0.0, y1 = 0.0;
+		register int32_t iter0 = 0;
+		register int32_t iter1 = 0;
+		register double xc1 = xc + dx;
+
+		for (;;) {
+			register const double x0_2 = x0 * x0;
+			register const double y0_2 = y0 * y0;
+			register const double x1_2 = x1 * x1;
+			register const double y1_2 = y1 * y1;
+			register double t0, t1;
+			register bool end0, end1;
+
+			end0 = (iter0 >= max_iter);
+			end1 = (iter1 >= max_iter);
+			if (UNLIKELY(end0 & end1))
+				break;
+
+			end0 |= (x0_2 + y0_2 >= 4.0);
+			end1 |= (x1_2 + y1_2 >= 4.0);
+			iter0 += !end0;
+			iter1 += !end1;
+
+			if (end0 & end1)
+				break;
+
+			t0 = x0_2 - y0_2 + xc;
+			t1 = x1_2 - y1_2 + xc1;
+			y0 = (2 * x0 * y0) + yc;
+			y1 = (2 * x1 * y1) + yc;
+			x0 = t0;
+			x1 = t1;
+		}
+		xc = xc1 + dx;
+		data[0] = (uint16_t)iter0;
+		data[1] = (uint16_t)iter1;
+		data += 2;
+	}
+
+	/* residual */
+	for (; LIKELY(ix < xsize); ix++) {
 		register double x = 0.0, y = 0.0;
 		register int32_t iter = 0;
 
@@ -140,6 +183,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_fractal_mandelbrot(fractal_info_t *in
 				break;
 
 			t = x2 - y2 + xc;
+			xc += dx;
 			iter++;
 			y = (2 * x * y) + yc;
 			x = t;
