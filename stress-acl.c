@@ -40,7 +40,6 @@ static const stress_opt_t opts[] = {
 #if defined(HAVE_LIB_ACL) &&		\
     defined(HAVE_ACL_LIBACL_H) &&	\
     defined(HAVE_SYS_ACL_H)
-
 static const acl_tag_t stress_acl_tags[] = {
 	ACL_USER_OBJ,
 	ACL_GROUP_OBJ,
@@ -92,9 +91,9 @@ static inline void stress_acl_delete_all(const char *filename, const acl_type_t 
 		(void)acl_delete_entry(acl, entry);
 		which = ACL_NEXT_ENTRY;
 	}
-	if (acl_valid(acl) == 0)
-		acl_set_file(filename, type, acl);
+	(void)acl_set_file(filename, type, acl);
 	acl_free(acl);
+	(void)acl_delete_def_file(filename);
 }
 
 #if defined(HAVE_ACL_CMP)
