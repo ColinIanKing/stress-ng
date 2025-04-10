@@ -29,6 +29,12 @@
 #if defined(HAVE_LINUX_FS_H)
 #include <linux/fs.h>
 #endif
+#if defined(HAVE_SYS_ACL_H)
+#include <sys/acl.h>
+#endif
+#if defined(HAVE_ACL_LIBACL_H)
+#include <acl/libacl.h>
+#endif
 
 #define MAX_FILERACE_PROCS	(7)
 #define MAX_FDS			(64)
@@ -820,6 +826,114 @@ static void stress_filerace_fcntl_rw_hint(const int fd, const char *filename)
 }
 #endif
 
+#if defined(HAVE_LIB_ACL) &&		\
+    defined(HAVE_ACL_LIBACL_H) &&	\
+    defined(HAVE_SYS_ACL_H)
+
+static const acl_type_t stress_filerace_acl_types[] = {
+	ACL_TYPE_ACCESS,
+#ifndef __CYGWIN__ /* Cygwin supports default ACLs only for directories */
+	ACL_TYPE_DEFAULT,
+#endif
+};
+
+static const acl_tag_t stress_filerace_acl_tags[] = {
+	ACL_USER_OBJ,
+	ACL_USER,
+	ACL_GROUP_OBJ,
+#ifndef __CYGWIN__ /* Cygwin ignores redundant GROUP entries */
+	ACL_GROUP,
+#endif
+	ACL_OTHER,
+};
+
+static void stress_filerace_acl_get(const int fd, const char *filename)
+{
+	size_t i;
+
+	(void)fd;
+	for (i = 0; i < SIZEOF_ARRAY(stress_filerace_acl_types); i++) {
+		acl_t acl;
+
+		acl = acl_get_file(filename, stress_filerace_acl_types[i]);
+		if (acl)
+			acl_free(acl);
+	}
+}
+
+static void stress_filerace_acl_set(const int fd, const char *filename)
+{
+	acl_t acl;
+	acl_entry_t entry = (acl_entry_t)NULL;
+	acl_permset_t permset;
+	size_t i;
+	uid_t uid = getuid();
+
+	(void)fd;
+	acl = acl_init((int)SIZEOF_ARRAY(stress_filerace_acl_tags));
+	if (acl == (acl_t)NULL)
+		return;
+
+	for (i = 0; i < SIZEOF_ARRAY(stress_filerace_acl_tags); i++) {
+		if (acl_create_entry(&acl, &entry) != 0) {
+			acl_free(acl);
+			return;
+		}
+		if (acl_set_tag_type(entry, stress_filerace_acl_tags[i]) != 0) {
+			acl_free(acl);
+			return;
+		}
+
+		switch (stress_filerace_acl_tags[i]) {
+		case ACL_USER:
+			acl_set_qualifier(entry, &uid);
+			break;
+		case ACL_GROUP:
+			acl_set_qualifier(entry, &gid);
+			break;
+		}
+		if (acl_get_permset(entry, &permset) != 0) {
+			acl_free(acl);
+			return;
+		}
+		if (acl_clear_perms(permset) != 0) {
+			acl_free(acl);
+			return;
+		}
+		acl_add_perm(permset, ACL_READ);
+		acl_add_perm(permset, ACL_WRITE);
+		if (acl_set_permset(entry, permset) != 0) {
+			acl_free(acl);
+			return;
+		}
+		acl_calc_mask(&acl);
+	}
+	acl_set_file(filename, ACL_TYPE_ACCESS, acl);
+	acl_free(acl);
+}
+
+static void stress_filerace_acl_del(const int fd, const char *filename)
+{
+	acl_t acl;
+	acl_entry_t entry;
+	int which = ACL_FIRST_ENTRY;
+
+	(void)fd;
+	acl = acl_get_file(filename, ACL_TYPE_ACCESS);
+	if (acl == (acl_t)NULL)
+		return;
+	for (;;) {
+		if (acl_get_entry(acl, which, &entry) <= 0)
+			break;
+		(void)acl_delete_entry(acl, entry);
+		which = ACL_NEXT_ENTRY;
+	}
+	(void)acl_set_file(filename, ACL_TYPE_ACCESS, acl);
+	acl_free(acl);
+	acl_delete_def_file(filename);
+}
+#endif
+
 static stress_filerace_fops_t stress_filerace_fops[] = {
 	stress_filerace_fstat,
 	stress_filerace_lseek_set,
@@ -843,8 +957,6 @@ static stress_filerace_fops_t stress_filerace_fops[] = {
 #if defined(HAVE_PREAD)
 	stress_filerace_pread,
 #endif
-
-
 #if defined(HAVE_FALLOCATE) &&		\
     defined(FALLOC_FL_PUNCH_HOLE) &&	\
     defined(FALLOC_FL_KEEP_SIZE)
@@ -947,6 +1059,13 @@ static stress_filerace_fops_t stress_filerace_fops[] = {
 #endif
 #if defined(F_SET_RW_HINT)
 	stress_filerace_fcntl_rw_hint,
+#endif
+#if defined(HAVE_LIB_ACL) &&		\
+    defined(HAVE_ACL_LIBACL_H) &&	\
+    defined(HAVE_SYS_ACL_H)
+	stress_filerace_acl_get,
+	stress_filerace_acl_set,
+	stress_filerace_acl_del,
 #endif
 };
 
