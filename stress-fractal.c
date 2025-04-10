@@ -18,7 +18,6 @@
  */
 #include "stress-ng.h"
 
-#include "core-pragma.h"
 #include "core-target-clones.h"
 
 #define MIN_FRACTAL_ITERATIONS	(1)
@@ -122,7 +121,7 @@ static inline int32_t stress_fractal_get_row(stress_args_t *args, int32_t max_ro
 static void OPTIMIZE3 TARGET_CLONES stress_fractal_mandelbrot(fractal_info_t *info, const int32_t row)
 {
 	register int32_t ix;
-	const double max_iter = info->iterations;
+	const int32_t max_iter = info->iterations;
 	const double dx = info->dx;
 	const int32_t xsize = info->xsize;
 	double xc, yc = info->ymin + ((double)row * info->dy);
@@ -132,7 +131,6 @@ static void OPTIMIZE3 TARGET_CLONES stress_fractal_mandelbrot(fractal_info_t *in
 		register double x = 0.0, y = 0.0;
 		register int32_t iter = 0;
 
-PRAGMA_UNROLL_N(2)
 		while (LIKELY(iter < max_iter)) {
 			register const double x2 = x * x;
 			register const double y2 = y * y;
@@ -146,7 +144,7 @@ PRAGMA_UNROLL_N(2)
 			y = (2 * x * y) + yc;
 			x = t;
 		}
-		*(data++) = iter;
+		*(data++) = (uint16_t)iter;
 	}
 }
 
@@ -157,6 +155,7 @@ PRAGMA_UNROLL_N(2)
 static void OPTIMIZE3 TARGET_CLONES stress_fractal_julia(fractal_info_t *info, const int32_t row)
 {
 	register int32_t ix;
+	const int32_t max_iter = info->iterations;
 	const double y_start = info->ymin + ((double)row * info->dy);
 	double x_start = info->xmin;
 	uint16_t *data = info->data;
@@ -166,8 +165,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_fractal_julia(fractal_info_t *info, c
 		register double x = x_start;
 		register double y = y_start;
 
-PRAGMA_UNROLL_N(2)
-		while (LIKELY(iter < info->iterations)) {
+		while (LIKELY(iter < max_iter)) {
 			register const double x2 = x * x;
 			register const double y2 = y * y;
 			register double t;
@@ -181,7 +179,7 @@ PRAGMA_UNROLL_N(2)
 			x = t;
 		}
 		x_start += info->dx;
-		*(data++) = iter;
+		*(data++) = (uint16_t)iter;
 	}
 }
 
