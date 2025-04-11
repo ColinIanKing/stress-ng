@@ -368,9 +368,7 @@ misaligned_done:
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
 
-#if defined(STRESS_ARCH_X86)
 done:
-#endif
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	rate = (count > 0.0) ? duration / count : 0.0;
