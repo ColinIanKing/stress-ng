@@ -47,6 +47,12 @@ static void NORETURN MLOCKED_TEXT stress_bushandler(
 	(void)num;
 	(void)ucontext;
 
+#if defined(STRESS_ARCH_X86_64)
+	/* Clear AC bit in EFLAGS */
+	__asm__ __volatile__("pushf;\n"
+			     "andl $0xfffbffff, (%rsp);\n"
+			     "popf;\n");
+#endif
 	fault_addr = info->si_addr;
 	signo = info->si_signo;
 	code = info->si_code;
@@ -219,9 +225,26 @@ static int stress_sigbus(stress_args_t *args)
 				uint32_t *ptr32 = (uint32_t *)(ptr8 + 1);
 				uint16_t *ptr16 = (uint16_t *)(ptr8 + 1);
 
+#if defined(STRESS_ARCH_X86_64)
+				/*
+				 *  On x86 enabling AC bit in EFLAGS will
+				 *  allow SIGBUS to be generated on misaligned
+				 *  access
+				 */
+				__asm__ __volatile__("pushf;\n"
+						     "orl $0x00040000, (%rsp);\n"
+						     "popf;\n");
+
+#endif
 				(*ptr64)++;
 				(*ptr32)++;
 				(*ptr16)++;
+#if defined(STRESS_ARCH_X86_64)
+				/* Clear AC bit in EFLAGS */
+				__asm__ __volatile__("pushf;\n"
+						     "andl $0xfffbffff, (%rsp);\n"
+						     "popf;\n");
+#endif
 			}
 
 			/* Access un-backed file mmapping */
