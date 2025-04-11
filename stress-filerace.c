@@ -544,10 +544,10 @@ static void stress_filerace_statx_fd(const int fd, const char *filename)
 static void stress_filerace_statx_filename(const int fd, const char *filename)
 {
 	shim_statx_t bufx;
+	const int dir_fd = (*filename == '.') ? AT_FDCWD : 0;
 
 	(void)fd;
-	VOID_RET(int, shim_statx((*filename == '.') ? AT_FDCWD : 0,
-				 filename, 0, SHIM_STATX_ALL, &bufx));
+	VOID_RET(int, shim_statx(dir_fd, filename, 0, SHIM_STATX_ALL, &bufx));
 }
 
 static void stress_filerace_truncate(const int fd, const char *filename)
@@ -564,8 +564,20 @@ static void stress_filerace_readlink(const int fd, const char *filename)
 
 	(void)fd;
 	/* will always fail */
-	VOID_RET(int, readlink(filename, buf, sizeof(buf)));
+	VOID_RET(ssize_t, readlink(filename, buf, sizeof(buf)));
 }
+
+#if defined(HAVE_READLINKAT)
+static void stress_filerace_readlinkat(const int fd, const char *filename)
+{
+	char buf[PATH_MAX];
+	const int dir_fd = (*filename == '.') ? AT_FDCWD : 0;
+
+	(void)fd;
+	/* will always fail */
+	VOID_RET(ssize_t, readlinkat(dir_fd, filename, buf, sizeof(buf)));
+}
+#endif
 
 static void stress_filerace_openmany(const int fd, const char *filename)
 {
@@ -946,16 +958,18 @@ static void stress_filerace_access(const int fd, const char *filename)
 #if defined(HAVE_FACCESSAT)
 static void stress_filerace_faccessat(const int fd, const char *filename)
 {
+	const int dir_fd = (*filename == '.') ? AT_FDCWD : 0;
+
 	VOID_RET(int, faccessat(fd, "", F_OK, AT_EMPTY_PATH));
 	VOID_RET(int, faccessat(fd, "", F_OK, AT_EMPTY_PATH | AT_SYMLINK_NOFOLLOW));
 	VOID_RET(int, faccessat(fd, "", F_OK, AT_EMPTY_PATH | AT_SYMLINK_NOFOLLOW));
 	VOID_RET(int, faccessat(fd, "", F_OK, AT_EMPTY_PATH | AT_EACCESS));
 	VOID_RET(int, faccessat(fd, "", F_OK, AT_EMPTY_PATH | AT_SYMLINK_NOFOLLOW | AT_EACCESS));
 	VOID_RET(int, faccessat(fd, "", F_OK, AT_EMPTY_PATH | AT_SYMLINK_NOFOLLOW | AT_EACCESS));
-	VOID_RET(int, faccessat((*filename == '.') ? AT_FDCWD : 0, filename, F_OK, 0 ));
-	VOID_RET(int, faccessat((*filename == '.') ? AT_FDCWD : 0, filename, F_OK, AT_SYMLINK_NOFOLLOW));
-	VOID_RET(int, faccessat((*filename == '.') ? AT_FDCWD : 0, filename, F_OK, AT_EACCESS));
-	VOID_RET(int, faccessat((*filename == '.') ? AT_FDCWD : 0, filename, F_OK, AT_SYMLINK_NOFOLLOW | AT_EACCESS));
+	VOID_RET(int, faccessat(dir_fd, filename, F_OK, 0 ));
+	VOID_RET(int, faccessat(dir_fd, filename, F_OK, AT_SYMLINK_NOFOLLOW));
+	VOID_RET(int, faccessat(dir_fd, filename, F_OK, AT_EACCESS));
+	VOID_RET(int, faccessat(dir_fd, filename, F_OK, AT_SYMLINK_NOFOLLOW | AT_EACCESS));
 }
 #endif
 
@@ -964,7 +978,7 @@ static void stress_filerace_name_to_handle_at(const int fd, const char *filename
 {
 	struct file_handle fhp, *handle;
 	int mount_id = 0;
-	int dir_fd = (*filename == '.') ? AT_FDCWD : 0;
+	const int dir_fd = (*filename == '.') ? AT_FDCWD : 0;
 
 	/* Get handle size */
 	shim_memset(&fhp, 0, sizeof(fhp));
@@ -1073,6 +1087,9 @@ static stress_filerace_fops_t stress_filerace_fops[] = {
 	stress_filerace_statx_filename,
 	stress_filerace_truncate,
 	stress_filerace_readlink,
+#if defined(HAVE_READLINKAT)
+	stress_filerace_readlinkat,
+#endif
 	stress_filerace_openmany,
 #if defined(F_SETLEASE) &&      \
     defined(F_WRLCK) &&         \
