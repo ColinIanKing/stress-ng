@@ -145,6 +145,15 @@ static bool do_misaligned;
 #if defined(STRESS_ARCH_X86)
 static bool do_splitlock;
 #endif
+static bool do_sigill;
+
+static void NORETURN MLOCKED_TEXT stress_sigill_handler(int signum)
+{
+	if (signum == SIGILL)
+		do_sigill = true;
+
+	siglongjmp(jmp_env, 1);
+}
 
 static void NORETURN MLOCKED_TEXT stress_sigbus_misaligned_handler(int signum)
 {
@@ -175,6 +184,7 @@ static int stress_lockbus(stress_args_t *args)
 	uint32_t *buffer;
 	double t, rate;
 	NOCLOBBER double duration, count;
+	NOCLOBBER int rc = EXIT_SUCCESS;
 	uint32_t *misaligned_ptr1, *misaligned_ptr2;
 #if defined(HAVE_TIMER_FUNCS)
 	timer_t timerid;
@@ -184,6 +194,7 @@ static int stress_lockbus(stress_args_t *args)
 	uint32_t *splitlock_ptr1, *splitlock_ptr2;
 	bool lockbus_nosplit = false;
 
+	do_sigill = false;
 	(void)stress_get_setting("lockbus-nosplit", &lockbus_nosplit);
 
 	if (stress_sighandler(args->name, SIGBUS, stress_sigbus_splitlock_handler, NULL) < 0)
@@ -213,6 +224,8 @@ static int stress_lockbus(stress_args_t *args)
 	if (stress_sighandler(args->name, SIGRTMIN, stress_sigbus_misaligned_handler, NULL) < 0)
 		return EXIT_FAILURE;
 #endif
+	if (stress_sighandler(args->name, SIGILL, stress_sigill_handler, NULL) < 0)
+		return EXIT_FAILURE;
 	if (sigsetjmp(jmp_env, 1))
 		goto misaligned_done;
 #if defined(HAVE_TIMER_FUNCS)
@@ -256,6 +269,13 @@ misaligned_done:
 		timer_ret = -1;
 	}
 #endif
+	if (do_sigill) {
+		pr_inf_skip("%s: SIGILL occurred on atomic lock operations "
+			"(possibly unsupported opcodes), skipping stressor\n",
+			args->name);
+		rc = EXIT_NO_RESOURCE;
+		goto done;
+	}
 	if (args->instance == 0)
 		pr_dbg("%s: misaligned splitlocks %s\n", args->name,
 			do_misaligned ? "enabled" : "disabled");
@@ -359,7 +379,7 @@ done:
 
 	(void)munmap((void *)buffer, BUFFER_SIZE);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 const stressor_info_t stress_lockbus_info = {
