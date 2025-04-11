@@ -35,6 +35,9 @@
 #if defined(HAVE_ACL_LIBACL_H)
 #include <acl/libacl.h>
 #endif
+#if defined(HAVE_SYS_SENDFILE_H)
+#include <sys/sendfile.h>
+#endif
 
 #define MAX_FILERACE_PROCS	(7)
 #define MAX_FDS			(64)
@@ -973,6 +976,27 @@ static void stress_filerace_faccessat(const int fd, const char *filename)
 }
 #endif
 
+#if defined(HAVE_SENDFILE) &&	\
+    defined(HAVE_SYS_SENDFILE_H)
+static void stress_filerace_sendfile_fd(const int fd, const char *filename)
+{
+	int fd_zero;
+	off_t offset;
+
+	(void)filename;
+	fd_zero = open("/dev/urandom", O_RDONLY);
+	if (fd_zero < 0)
+		return;
+
+	offset = ((off_t)stress_mwc32()) & OFFSET_MASK;
+	VOID_RET(off_t, lseek(fd, offset, SEEK_SET));
+	offset = 0;
+	VOID_RET(ssize_t, sendfile(fd, fd_zero, &offset, 4096 * (stress_mwc8() & 0xf)));
+
+	(void)close(fd_zero);
+}
+#endif
+
 #if defined(HAVE_NAME_TO_HANDLE_AT)
 static void stress_filerace_name_to_handle_at(const int fd, const char *filename)
 {
@@ -1143,6 +1167,10 @@ static stress_filerace_fops_t stress_filerace_fops[] = {
 #endif
 #if defined(HAVE_NAME_TO_HANDLE_AT)
 	stress_filerace_name_to_handle_at,
+#endif
+#if defined(HAVE_SENDFILE) &&	\
+    defined(HAVE_SYS_SENDFILE_H)
+	stress_filerace_sendfile_fd,
 #endif
 };
 
