@@ -959,6 +959,34 @@ static void stress_filerace_faccessat(const int fd, const char *filename)
 }
 #endif
 
+#if defined(HAVE_NAME_TO_HANDLE_AT)
+static void stress_filerace_name_to_handle_at(const int fd, const char *filename)
+{
+	struct file_handle fhp, *handle;
+	int mount_id = 0;
+	int dir_fd = (*filename == '.') ? AT_FDCWD : 0;
+
+	/* Get handle size */
+	shim_memset(&fhp, 0, sizeof(fhp));
+	if ((name_to_handle_at(dir_fd, filename, &fhp, &mount_id, 0) != -1) &&
+	    (errno != EOVERFLOW))
+		return;
+	/* Invalid, abort */
+	if (fhp.handle_bytes < 1)
+		return;
+	/* Allocate handle with enough size */
+	handle = (struct file_handle *)calloc(1, sizeof(fhp) + fhp.handle_bytes);
+	if (!handle)
+		return;
+	handle->handle_bytes = fhp.handle_bytes;
+	VOID_RET(int, name_to_handle_at(dir_fd, filename, handle, &mount_id, 0));
+	VOID_RET(int, name_to_handle_at(dir_fd, filename, handle, &mount_id, AT_SYMLINK_FOLLOW));
+	VOID_RET(int, name_to_handle_at(fd, "", handle, &mount_id, AT_EMPTY_PATH));
+	VOID_RET(int, name_to_handle_at(fd, "", handle, &mount_id, AT_EMPTY_PATH | AT_SYMLINK_FOLLOW));
+	free(handle);
+}
+#endif
+
 static stress_filerace_fops_t stress_filerace_fops[] = {
 	stress_filerace_fstat,
 	stress_filerace_lseek_set,
@@ -1095,6 +1123,9 @@ static stress_filerace_fops_t stress_filerace_fops[] = {
 	stress_filerace_access,
 #if defined(HAVE_FACCESSAT)
 	stress_filerace_faccessat,
+#endif
+#if defined(HAVE_NAME_TO_HANDLE_AT)
+	stress_filerace_name_to_handle_at,
 #endif
 };
 
