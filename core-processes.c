@@ -44,7 +44,7 @@ void stress_dump_processes(void)
 {
 	int i, n, pid_width = 5;
 
-	struct dirent **namelist;
+	struct dirent **namelist = NULL;
 
 	n = scandir("/proc", &namelist, stress_dump_processes_filter, alphasort);
 	if (UNLIKELY(n <= 0))

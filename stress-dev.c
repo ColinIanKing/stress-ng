@@ -4388,6 +4388,7 @@ static void stress_dev_infos_get(
 	if (UNLIKELY(!stress_continue(args)))
 		return;
 
+	dlist = NULL;
 	n = scandir(path, &dlist, NULL, alphasort);
 	if (n <= 0)
 		return;
@@ -4551,6 +4552,7 @@ static void stress_sys_dev_infos_get(
 	if (UNLIKELY(!stress_continue(args)))
 		return;
 
+	dlist = NULL;
 	n = scandir(path, &dlist, NULL, alphasort);
 	if (n <= 0)
 		return;
