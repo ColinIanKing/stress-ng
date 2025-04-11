@@ -107,7 +107,7 @@ void stress_config_check(void)
 		static const char cpu_path[] = "/sys/devices/system/cpu";
 		static const char boost_path[] = "/sys/devices/system/cpu/cpufreq/boost";
 		uint64_t value;
-		struct dirent **namelist;
+		struct dirent **namelist = NULL;
 		int n, i;
 		int powersave = 0;
 
