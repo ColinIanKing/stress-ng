@@ -934,6 +934,31 @@ static void stress_filerace_acl_del(const int fd, const char *filename)
 }
 #endif
 
+static void stress_filerace_access(const int fd, const char *filename)
+{
+	(void)fd;
+	VOID_RET(int, access(filename, F_OK));
+	VOID_RET(int, access(filename, R_OK));
+	VOID_RET(int, access(filename, W_OK));
+	VOID_RET(int, access(filename, X_OK));
+}
+
+#if defined(HAVE_FACCESSAT)
+static void stress_filerace_faccessat(const int fd, const char *filename)
+{
+	VOID_RET(int, faccessat(fd, "", F_OK, AT_EMPTY_PATH));
+	VOID_RET(int, faccessat(fd, "", F_OK, AT_EMPTY_PATH | AT_SYMLINK_NOFOLLOW));
+	VOID_RET(int, faccessat(fd, "", F_OK, AT_EMPTY_PATH | AT_SYMLINK_NOFOLLOW));
+	VOID_RET(int, faccessat(fd, "", F_OK, AT_EMPTY_PATH | AT_EACCESS));
+	VOID_RET(int, faccessat(fd, "", F_OK, AT_EMPTY_PATH | AT_SYMLINK_NOFOLLOW | AT_EACCESS));
+	VOID_RET(int, faccessat(fd, "", F_OK, AT_EMPTY_PATH | AT_SYMLINK_NOFOLLOW | AT_EACCESS));
+	VOID_RET(int, faccessat((*filename == '.') ? AT_FDCWD : 0, filename, F_OK, 0 ));
+	VOID_RET(int, faccessat((*filename == '.') ? AT_FDCWD : 0, filename, F_OK, AT_SYMLINK_NOFOLLOW));
+	VOID_RET(int, faccessat((*filename == '.') ? AT_FDCWD : 0, filename, F_OK, AT_EACCESS));
+	VOID_RET(int, faccessat((*filename == '.') ? AT_FDCWD : 0, filename, F_OK, AT_SYMLINK_NOFOLLOW | AT_EACCESS));
+}
+#endif
+
 static stress_filerace_fops_t stress_filerace_fops[] = {
 	stress_filerace_fstat,
 	stress_filerace_lseek_set,
@@ -1066,6 +1091,10 @@ static stress_filerace_fops_t stress_filerace_fops[] = {
 	stress_filerace_acl_get,
 	stress_filerace_acl_set,
 	stress_filerace_acl_del,
+#endif
+	stress_filerace_access,
+#if defined(HAVE_FACCESSAT)
+	stress_filerace_faccessat,
 #endif
 };
 
