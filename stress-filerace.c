@@ -1177,8 +1177,9 @@ static stress_filerace_fops_t stress_filerace_fops[] = {
 static void stress_filerace_file(const int fd, const char *filename)
 {
 	int i;
+	const int iters = (int)(stress_mwc8() & 0x1f) + 5;
 
-	for (i = 0; i < stress_mwc8modn(32); i++) {
+	for (i = 0; i < iters; i++) {
 		size_t idx = stress_mwc8modn((uint8_t)SIZEOF_ARRAY(stress_filerace_fops));
 
 		stress_filerace_fops[idx](fd, filename);
