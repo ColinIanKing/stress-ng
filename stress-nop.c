@@ -181,6 +181,11 @@ static inline ALWAYS_INLINE void stress_op_x86_nop15(void)
 	__asm__ __volatile__(".byte 0x66, 0x66, 0x66, 0x66, 0x66, 0x66, 0x66, 0x0f, 0x1f, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00;\n");
 }
 
+static inline ALWAYS_INLINE void stress_op_x86_fnop(void)
+{
+	__asm__ __volatile__(".byte 0xd9, 0xd0;\n");
+}
+
 STRESS_NOP_SPIN_OP(x86_nop2, stress_op_x86_nop2)
 STRESS_NOP_SPIN_OP(x86_nop3, stress_op_x86_nop3)
 STRESS_NOP_SPIN_OP(x86_nop4, stress_op_x86_nop4)
@@ -195,6 +200,7 @@ STRESS_NOP_SPIN_OP(x86_nop12, stress_op_x86_nop12)
 STRESS_NOP_SPIN_OP(x86_nop13, stress_op_x86_nop13)
 STRESS_NOP_SPIN_OP(x86_nop14, stress_op_x86_nop14)
 STRESS_NOP_SPIN_OP(x86_nop15, stress_op_x86_nop15)
+STRESS_NOP_SPIN_OP(x86_fnop, stress_op_x86_fnop)
 #endif
 
 #if defined(STRESS_ARCH_PPC64)
@@ -238,6 +244,7 @@ static stress_nop_instr_t nop_instrs[] = {
 	{ "nop13",	stress_nop_spin_x86_nop13,	NULL,	false,	false },
 	{ "nop14",	stress_nop_spin_x86_nop14,	NULL,	false,	false },
 	{ "nop15",	stress_nop_spin_x86_nop15,	NULL,	false,	false },
+	{ "fnop",	stress_nop_spin_x86_fnop,	NULL,	false,	false },
 #endif
 #if defined(STRESS_ARCH_S390)
 	{ "nopr",	stress_nop_spin_s390_nopr,	NULL,	false,	false },

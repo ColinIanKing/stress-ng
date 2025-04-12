@@ -5837,9 +5837,9 @@ stressor is available if the assembler supports the "nop" instruction.
 .TP
 .B \-\-nop\-instr INSTR
 use alternative nop instruction INSTR. For x86 CPUs INSTR can be one
-of nop, pause, nop2 (2 byte nop) through to nop15 (15 byte nop). For
-ARM CPUs, INSTR can be one of nop or yield. For PPC64 CPUs, INSTR
-can be one of nop, mdoio, mdoom or yield. For S390 CPUs, INSTR
+of nop, pause, nop2 (2 byte nop) through to nop15 (15 byte nop) and
+fnop. For ARM CPUs, INSTR can be one of nop or yield. For PPC64 CPUs,
+INSTR can be one of nop, mdoio, mdoom or yield. For S390 CPUs, INSTR
 can be one of nop or nopr. For other processors, INSTR
 is only nop. The random INSTR option selects a random mix of the
 available nop instructions. If the chosen INSTR generates an SIGILL
