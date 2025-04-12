@@ -40,7 +40,7 @@
 #endif
 
 #define MAX_FILERACE_PROCS	(7)
-#define MAX_FDS			(64)
+#define MAX_FDS			(128)
 
 #define OFFSET_MASK		~((off_t)511ULL)
 
@@ -632,14 +632,20 @@ static void stress_filerace_lease_rdlck(const int fd, const char *filename)
     defined(F_ULOCK)
 static void stress_filerace_lockf_lock(const int fd, const char *filename)
 {
-	uint32_t val = stress_mwc32();
+	/* lock 4096 bytes in first 64K  of file */
+	off_t offset = stress_mwc16() & ~(off_t)(4095);
+	char data[4096];
 
 	(void)filename;
-	if (lockf(fd, F_LOCK, sizeof(val)) == 0) {
-		if (lseek(fd, (off_t)val, SEEK_SET) >= 0)
-			VOID_RET(ssize_t, write(fd, &val, sizeof(val)));
-		stress_random_small_sleep();
-		VOID_RET(int, lockf(fd, F_ULOCK, sizeof(val)));
+	(void)shim_memset(data, stress_mwc8(), sizeof(data));
+
+	if (lseek(fd, offset, SEEK_SET) >= 0) {
+		if (lockf(fd, F_LOCK, sizeof(data)) == 0) {
+			VOID_RET(ssize_t, write(fd, data, sizeof(data)));
+			stress_random_small_sleep();
+			VOID_RET(ssize_t, lseek(fd, offset, SEEK_SET));
+			VOID_RET(int, lockf(fd, F_ULOCK, sizeof(data)));
+		}
 	}
 }
 #endif
@@ -649,14 +655,20 @@ static void stress_filerace_lockf_lock(const int fd, const char *filename)
     defined(F_ULOCK)
 static void stress_filerace_lockf_tlock(const int fd, const char *filename)
 {
-	uint32_t val = stress_mwc32();
+	/* lock 4096 bytes in first 64K  of file */
+	off_t offset = stress_mwc16() & ~(off_t)(4095);
+	char data[4096];
 
 	(void)filename;
-	if (lockf(fd, F_TLOCK, sizeof(val)) == 0) {
-		if (lseek(fd, (off_t)val, SEEK_SET) >= 0)
-			VOID_RET(ssize_t, write(fd, &val, sizeof(val)));
-		stress_random_small_sleep();
-		VOID_RET(int, lockf(fd, F_ULOCK, sizeof(val)));
+	(void)shim_memset(data, stress_mwc8(), sizeof(data));
+
+	if (lseek(fd, offset, SEEK_SET) >= 0) {
+		if (lockf(fd, F_TLOCK, sizeof(data)) == 0) {
+			VOID_RET(ssize_t, write(fd, data, sizeof(data)));
+			stress_random_small_sleep();
+			VOID_RET(ssize_t, lseek(fd, offset, SEEK_SET));
+			VOID_RET(int, lockf(fd, F_ULOCK, sizeof(data)));
+		}
 	}
 }
 #endif
@@ -665,8 +677,13 @@ static void stress_filerace_lockf_tlock(const int fd, const char *filename)
     defined(F_TEST)
 static void stress_filerace_lockf_test(const int fd, const char *filename)
 {
+	/* lock 4096 bytes in first 64K  of file */
+	off_t offset = stress_mwc16() & ~(off_t)(4095);
+
 	(void)filename;
-	VOID_RET(int, lockf(fd, F_TEST, sizeof(uint32_t)));
+
+	if (lseek(fd, offset, SEEK_SET) >= 0)
+		VOID_RET(int, lockf(fd, F_TEST, 4096));
 }
 #endif
 
@@ -675,29 +692,32 @@ static void stress_filerace_lockf_test(const int fd, const char *filename)
     defined(F_UNLCK)
 static void stress_filerace_lockofd_wr(const int fd, const char *filename)
 {
-	uint32_t val = stress_mwc32();
+	/* lock 4096 bytes in first 64K  of file */
+	off_t offset = stress_mwc16() & ~(off_t)(4095);
+	char data[4096];
 
 	(void)filename;
+	(void)shim_memset(data, stress_mwc8(), sizeof(data));
 
-	if (lseek(fd, (off_t)val, SEEK_SET) >= 0) {
-		if (write(fd, &val, sizeof(val)) > 0) {
+	if (lseek(fd, offset, SEEK_SET) >= 0) {
+		if (write(fd, data, sizeof(data)) > 0) {
 			struct flock f;
 
 			f.l_type = F_WRLCK;
 			f.l_whence = SEEK_SET;
-			f.l_start = (off_t)val;
-			f.l_len = sizeof(val);
+			f.l_start = offset;
+			f.l_len = sizeof(data);
 			f.l_pid = 0;
 			VOID_RET(int, fcntl(fd, F_OFD_SETLK, &f));
 
-			if (lseek(fd, (off_t)val, SEEK_SET) >= 0)
-				VOID_RET(ssize_t, write(fd, &val, sizeof(val)));
+			if (lseek(fd, offset, SEEK_SET) >= 0)
+				VOID_RET(ssize_t, write(fd, data, sizeof(data)));
 			stress_random_small_sleep();
 
 			f.l_type = F_UNLCK;
 			f.l_whence = SEEK_SET;
-			f.l_start = (off_t)val;
-			f.l_len = sizeof(val);
+			f.l_start = offset;
+			f.l_len = sizeof(data);
 			f.l_pid = 0;
 			VOID_RET(int, fcntl(fd, F_OFD_SETLK, &f));
 		}
@@ -710,31 +730,31 @@ static void stress_filerace_lockofd_wr(const int fd, const char *filename)
     defined(F_UNLCK)
 static void stress_filerace_lockofd_rd(const int fd, const char *filename)
 {
-	uint32_t val = stress_mwc32();
+	/* lock 4096 bytes in first 64K  of file */
+	off_t offset = stress_mwc16() & ~(off_t)(4095);
+	char data[4096];
 
 	(void)filename;
 
-	if (lseek(fd, (off_t)val, SEEK_SET) >= 0) {
+	if (lseek(fd, offset, SEEK_SET) >= 0) {
 		struct flock f;
 
 		f.l_type = F_RDLCK;
 		f.l_whence = SEEK_SET;
-		f.l_start = (off_t)val;
-		f.l_len = sizeof(val);
+		f.l_start = offset;
+		f.l_len = sizeof(data);
 		f.l_pid = 0;
 		VOID_RET(int, fcntl(fd, F_OFD_SETLK, &f));
 
-		if (lseek(fd, (off_t)val, SEEK_SET) >= 0) {
-			uint32_t tmp;
-
-			VOID_RET(ssize_t, read(fd, &tmp, sizeof(tmp)));
+		if (lseek(fd, offset, SEEK_SET) >= 0) {
+			VOID_RET(ssize_t, read(fd, data, sizeof(data)));
 		}
 		stress_random_small_sleep();
 
 		f.l_type = F_UNLCK;
 		f.l_whence = SEEK_SET;
-		f.l_start = (off_t)val;
-		f.l_len = sizeof(val);
+		f.l_start = offset;
+		f.l_len = sizeof(data);
 		f.l_pid = 0;
 		VOID_RET(int, fcntl(fd, F_OFD_SETLK, &f));
 	}
@@ -1190,7 +1210,7 @@ static stress_filerace_fops_t stress_filerace_fops[] = {
 static void stress_filerace_file(const int fd, const char *filename)
 {
 	int i;
-	const int iters = (int)(stress_mwc8() & 0x1f) + 5;
+	const int iters = (int)(stress_mwc8() & 0x1f) + 1;
 
 	for (i = 0; i < iters; i++) {
 		size_t idx = stress_mwc8modn((uint8_t)SIZEOF_ARRAY(stress_filerace_fops));
@@ -1234,7 +1254,8 @@ static void stress_filerace_child(stress_args_t *args, const char *pathname, con
 			(void)shim_rmdir(filename);
 			fds[fd_idx] = creat(filename, S_IRUSR | S_IWUSR);
 			if (fds[fd_idx] > 0) {
-				stress_filerace_file(fds[fd_idx], filename);
+				if (stress_continue(args))
+					stress_filerace_file(fds[fd_idx], filename);
 				fd_idx++;
 			}
 			break;
@@ -1248,7 +1269,8 @@ static void stress_filerace_child(stress_args_t *args, const char *pathname, con
 			flag = open_wr_flags[stress_mwc8modn((uint8_t)SIZEOF_ARRAY(open_wr_flags))];
 			fds[fd_idx] = open(filename, O_CREAT | O_RDWR | O_APPEND | flag, S_IRUSR | S_IWUSR);
 			if (fds[fd_idx] > 0) {
-				stress_filerace_file(fds[fd_idx], filename);
+				if (stress_continue(args))
+					stress_filerace_file(fds[fd_idx], filename);
 				fd_idx++;
 			}
 			break;
@@ -1257,7 +1279,8 @@ static void stress_filerace_child(stress_args_t *args, const char *pathname, con
 			flag = open_wr_flags[stress_mwc8modn((uint8_t)SIZEOF_ARRAY(open_wr_flags))];
 			fds[fd_idx] = open(filename, O_CREAT | O_RDWR | flag, S_IRUSR | S_IWUSR);
 			if (fds[fd_idx] > 0) {
-				stress_filerace_file(fds[fd_idx], filename);
+				if (stress_continue(args))
+					stress_filerace_file(fds[fd_idx], filename);
 				fd_idx++;
 			}
 			break;
@@ -1311,7 +1334,8 @@ static void stress_filerace_child(stress_args_t *args, const char *pathname, con
 #if defined(O_DIRECTORY)
 			fd = open(filename, O_DIRECTORY);
 			if (fd >= 0) {
-				stress_filerace_file(fd, filename);
+				if (stress_continue(args))
+					stress_filerace_file(fd, filename);
 				(void)close(fd);
 			}
 #endif
@@ -1328,11 +1352,27 @@ static void stress_filerace_child(stress_args_t *args, const char *pathname, con
 		}
 
 		if (fd_idx >= SIZEOF_ARRAY(fds)) {
+			pid_t pid = -1;
+
+			if (stress_continue(args))
+				pid = fork();
+
 			for (i = 0; i < SIZEOF_ARRAY(fds); i++) {
 				if (fds[i] != -1) {
+					if (stress_continue(args))
+						stress_filerace_file(fds[i], filename);
 					(void)close(fds[i]);
 					fds[i] = -1;
 				}
+			}
+
+			if (pid == 0) {
+				_exit(0);
+			} else if (pid > 0) {
+				int status;
+
+				if (shim_waitpid(pid, &status, 0) < 0)
+					(void)stress_kill_pid(pid);
 			}
 			fd_idx = 0;
 		}
