@@ -661,6 +661,15 @@ static void stress_filerace_lockf_tlock(const int fd, const char *filename)
 }
 #endif
 
+#if defined(HAVE_LOCKF) &&	\
+    defined(F_TEST)
+static void stress_filerace_lockf_test(const int fd, const char *filename)
+{
+	(void)filename;
+	VOID_RET(int, lockf(fd, F_TEST, sizeof(uint32_t)));
+}
+#endif
+
 #if defined(F_OFD_SETLK) &&     \
     defined(F_WRLCK) &&		\
     defined(F_UNLCK)
@@ -1134,6 +1143,10 @@ static stress_filerace_fops_t stress_filerace_fops[] = {
     defined(F_TLOCK) &&		\
     defined(F_ULOCK)
 	stress_filerace_lockf_tlock,
+#endif
+#if defined(HAVE_LOCKF) &&	\
+    defined(F_TEST)
+	stress_filerace_lockf_test,
 #endif
 #if defined(F_OFD_SETLK) &&     \
     defined(F_WRLCK)
