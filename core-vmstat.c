@@ -109,10 +109,6 @@ typedef struct {
 	uint64_t	in_flight;	/* number of I/Os currently in flight */
 	uint64_t	io_ticks;	/* total time this block device has been active */
 	uint64_t	time_in_queue;	/* total wait time for all requests */
-	uint64_t	discard_io;	/* number of discard I/Os processed */
-	uint64_t	discard_merges;	/* number of discard I/Os merged with in-queue I/O */
-	uint64_t	discard_sectors;/* number of sectors discarded */
-	uint64_t	discard_ticks;	/* total wait time for discard requests */
 } stress_iostat_t;
 
 static uint64_t vmstat_units_kb = 1;	/* kilobytes */
@@ -419,25 +415,21 @@ static void stress_read_iostat(const char *iostat_name, stress_iostat_t *iostat)
 		int ret;
 
 		ret = fscanf(fp,
-			    "%" PRIu64 " %" PRIu64
-			    " %" PRIu64 " %" PRIu64
-			    " %" PRIu64 " %" PRIu64
-			    " %" PRIu64 " %" PRIu64
-			    " %" PRIu64 " %" PRIu64
-			    " %" PRIu64 " %" PRIu64
-			    " %" PRIu64 " %" PRIu64
-			    " %" PRIu64,
+			    "%" SCNu64 " %" SCNu64
+			    " %" SCNu64 " %" SCNu64
+			    " %" SCNu64 " %" SCNu64
+			    " %" SCNu64 " %" SCNu64
+			    " %" SCNu64 " %" SCNu64
+			    " %" SCNu64,
 			&iostat->read_io, &iostat->read_merges,
 			&iostat->read_sectors, &iostat->read_ticks,
 			&iostat->write_io, &iostat->write_merges,
 			&iostat->write_sectors, &iostat->write_ticks,
 			&iostat->in_flight, &iostat->io_ticks,
-			&iostat->time_in_queue,
-			&iostat->discard_io, &iostat->discard_merges,
-			&iostat->discard_sectors, &iostat->discard_ticks);
+			&iostat->time_in_queue);
 		(void)fclose(fp);
 
-		if (ret != 15)
+		if (ret != 11)
 			(void)shim_memset(iostat, 0, sizeof(*iostat));
 	}
 }
@@ -468,10 +460,6 @@ static void stress_get_iostat(const char *iostat_name, stress_iostat_t *iostat)
 	STRESS_IOSTAT_DELTA(in_flight);
 	STRESS_IOSTAT_DELTA(io_ticks);
 	STRESS_IOSTAT_DELTA(time_in_queue);
-	STRESS_IOSTAT_DELTA(discard_io);
-	STRESS_IOSTAT_DELTA(discard_merges);
-	STRESS_IOSTAT_DELTA(discard_sectors);
-	STRESS_IOSTAT_DELTA(discard_ticks);
 	(void)shim_memcpy(&iostat_prev, &iostat_current, sizeof(iostat_prev));
 }
 #endif
@@ -1356,17 +1344,15 @@ void stress_vmstat_start(void)
 
 			pr_block_begin();
 			if (iostat_count == 0)
-				pr_inf("iostat: Inflght   Rd K/s   Wr K/s Dscd K/s     Rd/s     Wr/s   Dscd/s\n");
+				pr_inf("iostat: Inflght   Rd K/s   Wr K/s     Rd/s     Wr/s\n");
 
 			/* sectors are 512 bytes, so >> 1 to get stats in 1024 bytes */
-			pr_inf("iostat: %7.0f %8.0f %8.0f %8.0f %8.0f %8.0f %8.0f\n",
+			pr_inf("iostat: %7.0f %8.0f %8.0f %8.0f %8.0f\n",
 				(double)iostat.in_flight * clk_scale,
 				(double)(iostat.read_sectors >> 1) * clk_scale,
 				(double)(iostat.write_sectors >> 1) * clk_scale,
-				(double)(iostat.discard_sectors >> 1) * clk_scale,
 				(double)iostat.read_io * clk_scale,
-				(double)iostat.write_io * clk_scale,
-				(double)iostat.discard_io * clk_scale);
+				(double)iostat.write_io * clk_scale);
 			pr_block_end();
 
 			iostat_count++;
