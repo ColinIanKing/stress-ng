@@ -168,7 +168,7 @@ static inline ALWAYS_INLINE bool stress_lock_valid(const stress_lock_t *lock)
  *  Locking via atomic spinlock
  */
 #if LOCK_METHOD_ATOMIC_SPINLOCK != 0
-static inline ALWAYS_INLINE int test_and_set(bool *addr)
+static inline bool test_and_set(bool *addr)
 {
 	return __atomic_test_and_set((void *)addr, __ATOMIC_ACQ_REL);
 }
@@ -187,7 +187,7 @@ static int PURE stress_atomic_lock_deinit(stress_lock_t *lock)
 	return 0;
 }
 
-static int OPTIMIZE3 stress_atomic_lock_acquire(stress_lock_t *lock)
+static int stress_atomic_lock_acquire(stress_lock_t *lock)
 {
 	if (LIKELY(lock != NULL)) {
 		double t = stress_time_now();
@@ -212,7 +212,7 @@ static int OPTIMIZE3 stress_atomic_lock_acquire(stress_lock_t *lock)
 #define STRESS_LOCK_BACKOFF
 #endif
 
-static int OPTIMIZE3 stress_atomic_lock_acquire_relax(stress_lock_t *lock)
+static int stress_atomic_lock_acquire_relax(stress_lock_t *lock)
 {
 	if (LIKELY(lock != NULL)) {
 		double t = stress_time_now();

@@ -71,33 +71,23 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		 	NULL }
 };
 
-typedef struct {
-	void *lock;
-	int32_t row;
-} stress_fractal_row_t;
-
-static stress_fractal_row_t *stress_fractal_row = (stress_fractal_row_t *)MAP_FAILED;
-
 static void stress_fractal_init(const uint32_t instances)
 {
 	(void)instances;
 
-	stress_fractal_row = stress_mmap_populate(NULL, sizeof(stress_fractal_row_t),
-					PROT_READ | PROT_WRITE,
-					MAP_ANONYMOUS | MAP_SHARED, -1, 0);
-	if (stress_fractal_row == MAP_FAILED)
-		return;
-	stress_fractal_row->lock = stress_lock_create("fractal");
-	stress_fractal_row->row = 0;
+	g_shared->fractal.lock = stress_lock_create("fractal");
+	g_shared->fractal.row = 0;
+
+	if (g_shared->fractal.lock == NULL)
+		printf("fractal lock create failed\n");
 }
 
 static void stress_fractal_deinit(void)
 {
-	if (stress_fractal_row != MAP_FAILED) {
-		stress_lock_destroy(stress_fractal_row->lock);
-		(void)munmap(stress_fractal_row, sizeof(stress_fractal_row_t));
+	if (g_shared->fractal.lock) {
+		stress_lock_destroy(g_shared->fractal.lock);
+		g_shared->fractal.lock = NULL;
 	}
-	stress_fractal_row = MAP_FAILED;
 }
 
 /*
@@ -110,16 +100,16 @@ static inline int32_t stress_fractal_get_row(stress_args_t *args, int32_t max_ro
 {
 	int32_t row, row_next;
 
-	if (UNLIKELY(stress_lock_acquire(stress_fractal_row->lock) < 0))
+	if (UNLIKELY(stress_lock_acquire_relax(g_shared->fractal.lock) < 0))
 		return -1;
-	row = stress_fractal_row->row;
+	row = g_shared->fractal.row;
 	row_next = row + 1;
 	if (UNLIKELY(row_next >= max_rows)) {
 		row_next = 0;
 		stress_bogo_inc(args);
 	}
-	stress_fractal_row->row = row_next;
-	if (UNLIKELY(stress_lock_release(stress_fractal_row->lock) < 0))
+	g_shared->fractal.row = row_next;
+	if (UNLIKELY(stress_lock_release(g_shared->fractal.lock) < 0))
 		return -1;
 	return row;
 }
@@ -311,17 +301,6 @@ static int stress_fractal(stress_args_t *args)
 	size_t data_sz;
 	double rate, rows = 0.0, t, duration = 0.0;
 
-	if (stress_fractal_row == MAP_FAILED) {
-		pr_inf_skip("%s: failed to mmap fractal row lock structure, skipping stressor\n",
-			args->name);
-		return EXIT_FAILURE;
-	}
-	if (stress_fractal_row->lock == NULL) {
-		pr_inf_skip("%s: failed to create row lock, skipping stressor\n",
-			args->name);
-		return EXIT_FAILURE;
-	}
-
 	(void)stress_get_setting("fractal-method", &fractal_method);
 
 	info = stress_fractal_methods[fractal_method].info;
@@ -361,6 +340,13 @@ static int stress_fractal(stress_args_t *args)
 			args->name, stress_fractal_methods[fractal_method].name,
 			info.xsize, info.ysize, info.iterations,
 			info.xmin, info.ymin, info.xmax, info.ymax);
+	}
+
+	if (!g_shared->fractal.lock) {
+		pr_inf_skip("%s: failed to create shared fractal row lock, skipping stressor\n",
+			args->name);
+		(void)munmap((void *)info.data, data_sz);
+		return EXIT_NO_RESOURCE;
 	}
 
 	if (info.data == MAP_FAILED) {
