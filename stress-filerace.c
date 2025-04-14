@@ -1028,6 +1028,9 @@ static void stress_filerace_faccessat(const int fd, const char *filename)
     defined(AT_SYMLINK_NOFOLLOW)
 	VOID_RET(int, faccessat(dir_fd, filename, F_OK, AT_SYMLINK_NOFOLLOW | AT_EACCESS));
 #endif
+#else
+	(void)fd;
+	(void)filename;
 #endif
 }
 #endif
