@@ -536,6 +536,8 @@ static void stress_filerace_stat(const int fd, const char *filename)
 	VOID_RET(int, stat(filename, &buf));
 }
 
+#if defined(AT_EMPTY_PATH) &&	\
+    defined(SHIM_STATX_ALL)
 static void stress_filerace_statx_fd(const int fd, const char *filename)
 {
 	shim_statx_t bufx;
@@ -543,7 +545,10 @@ static void stress_filerace_statx_fd(const int fd, const char *filename)
 	(void)filename;
 	VOID_RET(int, shim_statx(fd, NULL, AT_EMPTY_PATH, SHIM_STATX_ALL, &bufx));
 }
+#endif
 
+#if defined(AT_FDCWD) &&	\
+    defined(SHIM_STATX_ALL)
 static void stress_filerace_statx_filename(const int fd, const char *filename)
 {
 	shim_statx_t bufx;
@@ -552,6 +557,7 @@ static void stress_filerace_statx_filename(const int fd, const char *filename)
 	(void)fd;
 	VOID_RET(int, shim_statx(dir_fd, filename, 0, SHIM_STATX_ALL, &bufx));
 }
+#endif
 
 static void stress_filerace_truncate(const int fd, const char *filename)
 {
@@ -990,18 +996,39 @@ static void stress_filerace_access(const int fd, const char *filename)
 #if defined(HAVE_FACCESSAT)
 static void stress_filerace_faccessat(const int fd, const char *filename)
 {
+#if defined(F_OK) && 	\
+    defined(AT_FDCWD)
 	const int dir_fd = (*filename == '.') ? AT_FDCWD : 0;
 
+#if defined(AT_EMPTY_PATH)
 	VOID_RET(int, faccessat(fd, "", F_OK, AT_EMPTY_PATH));
+#endif
+#if defined(AT_EMPTY_PATH) &&	\
+    defined(AT_SYMLINK_NOFOLLOW)
 	VOID_RET(int, faccessat(fd, "", F_OK, AT_EMPTY_PATH | AT_SYMLINK_NOFOLLOW));
-	VOID_RET(int, faccessat(fd, "", F_OK, AT_EMPTY_PATH | AT_SYMLINK_NOFOLLOW));
+#endif
+#if defined(AT_EMPTY_PATH) &&	\
+    defined(AT_EACCESS)
 	VOID_RET(int, faccessat(fd, "", F_OK, AT_EMPTY_PATH | AT_EACCESS));
+#endif
+#if defined(AT_EMPTY_PATH) &&	\
+    defined(AT_EACCESS) &&	\
+    defined(AT_SYMLINK_NOFOLLOW)
 	VOID_RET(int, faccessat(fd, "", F_OK, AT_EMPTY_PATH | AT_SYMLINK_NOFOLLOW | AT_EACCESS));
-	VOID_RET(int, faccessat(fd, "", F_OK, AT_EMPTY_PATH | AT_SYMLINK_NOFOLLOW | AT_EACCESS));
+#endif
+
 	VOID_RET(int, faccessat(dir_fd, filename, F_OK, 0 ));
+#if defined(AT_SYMLINK_NOFOLLOW)
 	VOID_RET(int, faccessat(dir_fd, filename, F_OK, AT_SYMLINK_NOFOLLOW));
+#endif
+#if defined(AT_EACCESS)
 	VOID_RET(int, faccessat(dir_fd, filename, F_OK, AT_EACCESS));
+#endif
+#if defined(AT_EACCESS) &&	\
+    defined(AT_SYMLINK_NOFOLLOW)
 	VOID_RET(int, faccessat(dir_fd, filename, F_OK, AT_SYMLINK_NOFOLLOW | AT_EACCESS));
+#endif
+#endif
 }
 #endif
 
@@ -1047,9 +1074,16 @@ static void stress_filerace_name_to_handle_at(const int fd, const char *filename
 		return;
 	handle->handle_bytes = fhp.handle_bytes;
 	VOID_RET(int, name_to_handle_at(dir_fd, filename, handle, &mount_id, 0));
+#if defined(AT_SYMLINK_FOLLOW)
 	VOID_RET(int, name_to_handle_at(dir_fd, filename, handle, &mount_id, AT_SYMLINK_FOLLOW));
+#endif
+#if defined(AT_EMPTY_PATH)
 	VOID_RET(int, name_to_handle_at(fd, "", handle, &mount_id, AT_EMPTY_PATH));
+#endif
+#if defined(AT_EMPTY_PATH) &&	\
+    defined(AT_SYMLINK_FOLLOW)
 	VOID_RET(int, name_to_handle_at(fd, "", handle, &mount_id, AT_EMPTY_PATH | AT_SYMLINK_FOLLOW));
+#endif
 	free(handle);
 }
 #endif
@@ -1136,8 +1170,14 @@ static stress_filerace_fops_t stress_filerace_fops[] = {
 	stress_filerace_open_rd,
 	stress_filerace_open_wr,
 	stress_filerace_stat,
+#if defined(AT_EMPTY_PATH) &&	\
+    defined(SHIM_STATX_ALL)
 	stress_filerace_statx_fd,
+#endif
+#if defined(AT_FDCWD) &&	\
+    defined(SHIM_STATX_ALL)
 	stress_filerace_statx_filename,
+#endif
 	stress_filerace_truncate,
 	stress_filerace_readlink,
 #if defined(HAVE_READLINKAT)
