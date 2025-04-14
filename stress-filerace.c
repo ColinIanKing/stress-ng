@@ -22,9 +22,10 @@
 #include "core-out-of-memory.h"
 
 #include <sys/types.h>
-#include <dirent.h>
 #include <sys/file.h>
 #include <sys/ioctl.h>
+#include <dirent.h>
+#include <time.h>
 
 #if defined(HAVE_LINUX_FS_H)
 #include <linux/fs.h>
@@ -1251,11 +1252,19 @@ static void stress_filerace_file(const int fd, const char *filename)
 {
 	int i;
 	const int iters = (int)(stress_mwc8() & 0x1f) + 1;
+	const time_t t = time(NULL);
 
-	for (i = 0; i < iters; i++) {
-		size_t idx = stress_mwc8modn((uint8_t)SIZEOF_ARRAY(stress_filerace_fops));
+	if ((t < 0) || (t & 1)) {
+		for (i = 0; i < iters; i++) {
+			const size_t idx = stress_mwc8modn((uint8_t)SIZEOF_ARRAY(stress_filerace_fops));
 
-		stress_filerace_fops[idx](fd, filename);
+			stress_filerace_fops[idx](fd, filename);
+		}
+	} else {
+		const size_t idx = (size_t)(t / 2) % SIZEOF_ARRAY(stress_filerace_fops);
+
+		for (i = 0; i < iters; i++)
+			stress_filerace_fops[idx](fd, filename);
 	}
 }
 
