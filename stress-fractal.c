@@ -96,22 +96,41 @@ static void stress_fractal_deinit(void)
  *	bump the bogo-counter to keep track of entire fractals being
  *	generated
  */
-static inline int32_t stress_fractal_get_row(stress_args_t *args, int32_t max_rows)
+static inline ALWAYS_INLINE int32_t stress_fractal_get_row(stress_args_t *args, int32_t max_rows)
 {
+#if defined(HAVE_ATOMIC_FETCH_ADD) &&	\
+    defined(__ATOMIC_ACQUIRE)
+	/*
+	 *  Fast method, inc and modulo. There is an issue where
+	 *  the row eventualy wraps and the next row will be incorrect
+	 *  if max_rows does not divide exactly into row. However, since
+	 *  this is just a compute benchmark, this is a minor issue.
+	 */
+	register int32_t row = __atomic_fetch_add(&g_shared->fractal.row, 1, __ATOMIC_ACQUIRE) % max_rows;
+
+	if (UNLIKELY(row == 0))
+		stress_bogo_inc(args);
+	return row;
+#else
+	/*
+	 *  Slow method, always correct but much slower as it requires
+	 *  a lock.
+	 */
 	int32_t row, row_next;
 
 	if (UNLIKELY(stress_lock_acquire_relax(g_shared->fractal.lock) < 0))
 		return -1;
 	row = g_shared->fractal.row;
 	row_next = row + 1;
-	if (UNLIKELY(row_next >= max_rows)) {
+	if (UNLIKELY(row_next >= max_rows))
 		row_next = 0;
-		stress_bogo_inc(args);
-	}
 	g_shared->fractal.row = row_next;
 	if (UNLIKELY(stress_lock_release(g_shared->fractal.lock) < 0))
 		return -1;
+	if (UNLIKELY(row == 0))
+		stress_bogo_inc(args);
 	return row;
+#endif
 }
 
 /*
