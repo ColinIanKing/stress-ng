@@ -132,17 +132,6 @@ static void stress_filerace_write_random_uint32(const int fd)
 		VOID_RET(ssize_t, write(fd, &val, sizeof(val)));
 }
 
-static void stress_filerace_read_random_uint32(const int fd)
-{
-	const uint32_t val = stress_mwc32();
-
-	if (lseek(fd, (off_t)val, SEEK_SET) >= 0) {
-		uint32_t tmp = val;
-
-		VOID_RET(ssize_t, write(fd, &tmp, sizeof(tmp)));
-	}
-}
-
 /*
  *  stress_filerace_tidy()
  *	clean up residual files
@@ -626,7 +615,13 @@ static void stress_filerace_lease_rdlck(const int fd, const char *filename)
 {
 	(void)filename;
 	if (fcntl(fd, F_SETLEASE, F_RDLCK) == 0) {
-		stress_filerace_read_random_uint32(fd);
+		const uint32_t val = stress_mwc32();
+
+		if (lseek(fd, (off_t)val, SEEK_SET) >= 0) {
+			uint32_t tmp = val;
+
+			VOID_RET(ssize_t, write(fd, &tmp, sizeof(tmp)));
+		}
 		stress_random_small_sleep();
 		VOID_RET(int, fcntl(fd, F_SETLEASE, F_UNLCK));
 	}
