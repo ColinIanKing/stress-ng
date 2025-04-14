@@ -1000,6 +1000,8 @@ static void stress_filerace_faccessat(const int fd, const char *filename)
     defined(AT_FDCWD)
 	const int dir_fd = (*filename == '.') ? AT_FDCWD : 0;
 
+	(void)fd;
+	(void)filename;
 #if defined(AT_EMPTY_PATH)
 	VOID_RET(int, faccessat(fd, "", F_OK, AT_EMPTY_PATH));
 #endif
