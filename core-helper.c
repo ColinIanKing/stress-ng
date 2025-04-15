@@ -147,11 +147,11 @@ int __dso_handle;
 
 #define STRESS_ABS_MIN_STACK_SIZE	(64 * 1024)
 
-const char ALIGN64 stress_ascii64[64] =
+const char ALIGN64 NONSTRING stress_ascii64[64] =
 	"0123456789ABCDEFGHIJKLMNOPQRSTUV"
 	"WXYZabcdefghijklmnopqrstuvwxyz@!";
 
-const char ALIGN64 stress_ascii32[32] =
+const char ALIGN64 NONSTRING stress_ascii32[32] =
 	"ABCDEFGHIJKLMNOPQRSTUVWXYZ_+@:#!";
 
 static bool stress_stack_check_flag;

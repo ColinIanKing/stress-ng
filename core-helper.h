@@ -41,8 +41,8 @@ static inline WARN_UNUSED ALWAYS_INLINE void *stress_align_stack(void *stack_top
 	return (void *)((uintptr_t)stack_top & ~(uintptr_t)0xf);
 }
 
-extern const char ALIGN64 stress_ascii64[64];
-extern const char ALIGN64 stress_ascii32[32];
+extern const char ALIGN64 NONSTRING stress_ascii64[64];
+extern const char ALIGN64 NONSTRING stress_ascii32[32];
 
 extern void stress_temp_path_free(void);
 extern WARN_UNUSED int stress_set_temp_path(const char *path);

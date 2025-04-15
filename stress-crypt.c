@@ -152,7 +152,7 @@ static int stress_crypt(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		static const char seedchars[64] ALIGN64 =
+		static const char seedchars[64] ALIGN64 NONSTRING =
 			"./0123456789ABCDEFGHIJKLMNOPQRST"
 			"UVWXYZabcdefghijklmnopqrstuvwxyz";
 #if defined(HAVE_CRYPT_R)

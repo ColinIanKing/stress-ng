@@ -436,7 +436,7 @@ OPTIMIZE3 void stress_rndstr(char *str, const size_t len)
 	 * Be careful if expanding this alphabet, some of this function's users
 	 * use it to generate random filenames.
 	 */
-	static const char alphabet[64] =
+	static const char NONSTRING alphabet[64] =
 		"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 		"abcdefghijklmnopqrstuvwxyz"
 		"0123456789-_";
