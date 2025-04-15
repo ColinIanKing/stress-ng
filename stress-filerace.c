@@ -341,6 +341,20 @@ static void stress_filerace_ftruncate(const int fd, const char *filename)
 	VOID_RET(int, ftruncate(fd, offset));
 }
 
+static void stress_filerace_ftruncate_filename(const int fd, const char *filename)
+{
+	int tmp_fd;
+
+	(void)fd;
+	tmp_fd = open(filename, O_WRONLY | O_APPEND | O_CREAT, S_IRUSR | S_IWUSR);
+	if (tmp_fd != -1) {
+		const off_t offset = (off_t)stress_mwc16();
+
+		VOID_RET(int, ftruncate(fd, offset));
+		(void)close(tmp_fd);
+	}
+}
+
 static void stress_filerace_utimes(const int fd, const char *filename)
 {
 	struct timeval tv[2];
@@ -1148,6 +1162,7 @@ static stress_filerace_fops_t stress_filerace_fops[] = {
 	stress_filerace_fallocate_insert_range,
 #endif
 	stress_filerace_ftruncate,
+	stress_filerace_ftruncate_filename,
 	stress_filerace_utimes,
 #if defined(HAVE_FUTIMES)
 	stress_filerace_futimes,
