@@ -1446,6 +1446,33 @@ static void stress_filerace_child(stress_args_t *args, const char *pathname, con
 			break;
 		}
 
+#if defined(__linux__) &&	\
+    defined(__NR_getdents)
+		/* read test directory as fast as possible in various sized chunks */
+		{
+			int fd;
+
+			fd = open(pathname, O_RDONLY | O_DIRECTORY);
+			if (fd != -1) {
+				size_t i;
+				char dirbuf[1024];
+
+				for (i = 32; i <= sizeof(dirbuf); i = i + i) {
+					if (lseek(fd, 0, SEEK_SET) != (off_t)-1) {
+						do {
+							long rd;
+
+							rd = syscall(SYS_getdents, fd, dirbuf, i);
+							if (rd <= 0)
+								break;
+						} while (stress_continue(args));
+					}
+				}
+			}
+			(void)close(fd);
+		}
+#endif
+
 		if (fd_idx >= SIZEOF_ARRAY(fds)) {
 			pid_t pid = -1;
 
