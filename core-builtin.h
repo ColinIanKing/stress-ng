@@ -791,6 +791,14 @@
 #define shim_roundl(x)		roundl((x))
 #endif
 
+#if defined(HAVE_BUILTIN_STDC_ROTATE_LEFT)
+#define shim_rol8n(x, bits)	 __builtin_stdc_rotate_left(x, bits)
+#define shim_rol16n(x, bits)	 __builtin_stdc_rotate_left(x, bits)
+#define shim_rol32n(x, bits)	 __builtin_stdc_rotate_left(x, bits)
+#define shim_rol64n(x, bits)	 __builtin_stdc_rotate_left(x, bits)
+#define shim_rol128n(x, bits)	 __builtin_stdc_rotate_left(x, bits)
+#else
+
 #if defined(HAVE_BUILTIN_ROTATELEFT8)
 #define shim_rol8n(x, bits)	 __builtin_rotateleft8(x, bits)
 #elif defined(HAVE_INTRINSIC_ROLB) &&	\
@@ -849,6 +857,15 @@ static inline __uint128_t ALWAYS_INLINE shim_rol128n(const __uint128_t x, const 
 	return ((x << bits) | x >> (128 - bits));
 }
 #endif
+#endif
+
+#if defined(HAVE_BUILTIN_STDC_ROTATE_RIGHT)
+#define shim_ror8n(x, bits)	__builtin_stdc_rotate_right(x, bits)
+#define shim_ror16n(x, bits)	__builtin_stdc_rotate_right(x, bits)
+#define shim_ror32n(x, bits)	__builtin_stdc_rotate_right(x, bits)
+#define shim_ror64n(x, bits)	__builtin_stdc_rotate_right(x, bits)
+#define shim_ror128n(x, bits)	__builtin_stdc_rotate_right(x, bits)
+#else
 
 #if defined(HAVE_BUILTIN_ROTATERIGHT8)
 #define shim_ror8n(x, bits)	__builtin_rotateright8(x, bits)
@@ -907,6 +924,7 @@ static inline __uint128_t ALWAYS_INLINE shim_ror128n(const __uint128_t x, const 
 {
 	return ((x >> bits) | x << (128 - bits));
 }
+#endif
 #endif
 
 #define shim_rol8(x)	shim_rol8n((x), 1)
