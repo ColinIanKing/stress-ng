@@ -42,7 +42,7 @@
 
 #define TARGET_CLONES	__attribute__((target_clones(TARGET_CLONE)))
 
-static int TARGET_CLONES have_target_clones(void)
+int TARGET_CLONES have_target_clones(void)
 {
 	return 0;
 }
