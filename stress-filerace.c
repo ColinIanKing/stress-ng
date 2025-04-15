@@ -464,7 +464,7 @@ static void stress_filerace_posix_fadvise(const int fd, const char *filename)
 }
 #endif
 
-#if defined(POSIX_FALLOCATE)
+#if defined(HAVE_POSIX_FALLOCATE)
 static void stress_filerace_posix_fallocate(const int fd, const char *filename)
 {
 	const off_t offset = ((off_t)stress_mwc32()) & OFFSET_MASK;
@@ -472,6 +472,22 @@ static void stress_filerace_posix_fallocate(const int fd, const char *filename)
 
 	(void)filename;
 	VOID_RET(int, posix_fallocate(fd, offset, len));
+}
+#endif
+
+#if defined(HAVE_POSIX_FALLOCATE)
+static void stress_filerace_posix_fallocate_filename(const int fd, const char *filename)
+{
+	const off_t offset = ((off_t)stress_mwc32()) & OFFSET_MASK;
+	const off_t len = ((off_t)stress_mwc16()) & OFFSET_MASK;
+	int tmp_fd;
+
+	(void)fd;
+	tmp_fd = open(filename, O_WRONLY | O_APPEND | O_CREAT, S_IRUSR | S_IWUSR);
+	if (tmp_fd != -1) {
+		VOID_RET(int, posix_fallocate(tmp_fd, offset, len));
+		(void)close(tmp_fd);
+	}
 }
 #endif
 
@@ -1162,8 +1178,11 @@ static stress_filerace_fops_t stress_filerace_fops[] = {
     defined(POSIX_FADV_DONTNEED)
 	stress_filerace_posix_fadvise,
 #endif
-#if defined(POSIX_FALLOCATE)
+#if defined(HAVE_POSIX_FALLOCATE)
 	stress_filerace_posix_fallocate,
+#endif
+#if defined(HAVE_POSIX_FALLOCATE)
+	stress_filerace_posix_fallocate_filename,
 #endif
 #if defined(HAVE_READAHEAD)
 	stress_filerace_readahead,
