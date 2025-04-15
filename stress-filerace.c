@@ -74,9 +74,6 @@ static const int open_wr_flags[] = {
 #if defined(O_DSYNC)
 	O_DSYNC,
 #endif
-#if defined(O_EXCL)
-	O_EXCL,
-#endif
 #if defined(O_LARGEFILE)
 	O_LARGEFILE,
 #endif
