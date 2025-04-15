@@ -49,6 +49,7 @@ typedef void (*stress_filerace_fops_t)(const int fd, const char *filename);
 
 static uid_t uid;
 static gid_t gid;
+static time_t t_start;
 
 static const stress_help_t help[] = {
 	{ NULL,	"filerace N",		"start N workers that attemp to race file system calls" },
@@ -152,6 +153,7 @@ static void stress_filerace_tidy(const char *path)
 				continue;
 			(void)stress_mk_filename(filename, sizeof(filename),
 				path, d->d_name);
+			/* could be a file or a dir, so remove both */
 			(void)shim_unlink(filename);
 			(void)shim_rmdir(filename);
 		}
@@ -1255,12 +1257,18 @@ static void stress_filerace_file(const int fd, const char *filename)
 	const time_t t = time(NULL);
 
 	if ((t < 0) || (t & 1)) {
+		/*
+		 *  exercise different random choices on odd seconds
+		 */
 		for (i = 0; i < iters; i++) {
 			const size_t idx = stress_mwc8modn((uint8_t)SIZEOF_ARRAY(stress_filerace_fops));
 
 			stress_filerace_fops[idx](fd, filename);
 		}
 	} else {
+		/*
+		 *  exercise the same file system calls on even seconds
+		 */
 		const size_t idx = (size_t)(t / 2) % SIZEOF_ARRAY(stress_filerace_fops);
 
 		for (i = 0; i < iters; i++)
@@ -1268,9 +1276,26 @@ static void stress_filerace_file(const int fd, const char *filename)
 	}
 }
 
+/*
+ *  stress_filerace_filename()
+ *	generate a filename. These are randomly generated in a range
+ *	of 0..63 with the upper limit increasing by one per 2 seconds
+ *	until it wraps back round to zero. This allows the stressor
+ *	to hammer a small set of shared files or a larger range for
+ *	a suitable racy mix.
+ */
 static void stress_filerace_filename(const char *pathname, char *filename, const size_t filename_len)
 {
-	const uint8_t rnd = stress_mwc8() & 0x3f;
+	time_t t = (time(NULL) - t_start) >> 1;
+	uint8_t rnd;
+
+	/* wrap or -ve time? */
+	if (t < 0) {
+		t_start = t;
+		t = 0;
+	}
+	t &= 0x3f;
+	rnd = stress_mwc8() % (uint8_t)(t + 1);
 
 	(void)snprintf(filename, filename_len, "%s/%2.2" PRIx8, pathname, rnd);
 }
@@ -1288,7 +1313,7 @@ static void stress_filerace_child(stress_args_t *args, const char *pathname, con
 		char filename[PATH_MAX];
 		char filename2[PATH_MAX];
 		int flag;
-		int which = stress_mwc8modn(10);
+		int which = stress_mwc8modn(11);
 		int fd;
 		DIR *dir;
 		struct dirent *d;
@@ -1336,7 +1361,13 @@ static void stress_filerace_child(stress_args_t *args, const char *pathname, con
 		case 4:
 			stress_filerace_filename(pathname, filename, sizeof(filename));
 			stress_filerace_filename(pathname, filename2, sizeof(filename2));
+			(void)rename(filename, filename2);
+
+			stress_filerace_filename(pathname, filename, sizeof(filename));
 			(void)rename(filename2, filename);
+
+			stress_filerace_filename(pathname, filename2, sizeof(filename2));
+			(void)rename(filename, filename2);
 			break;
 		case 5:
 			if (stress_mwc8() < 8) {
@@ -1398,6 +1429,21 @@ static void stress_filerace_child(stress_args_t *args, const char *pathname, con
 				if (fd > -1)
 					(void)close(fd);
 			}
+			break;
+		case 10:
+			stress_filerace_filename(pathname, filename, sizeof(filename));
+
+			for (n = 0; n < 64; n++) {
+				int fd;
+
+				flag = open_wr_flags[stress_mwc8modn((uint8_t)SIZEOF_ARRAY(open_wr_flags))];
+				fd = open(filename, O_CREAT | O_RDWR | flag, S_IRUSR | S_IWUSR);
+				if (fd > -1)
+					(void)close(fd);
+				(void)unlink(filename);
+				(void)rmdir(filename);
+			}
+			break;
 		}
 
 		if (fd_idx >= SIZEOF_ARRAY(fds)) {
@@ -1446,6 +1492,7 @@ static int stress_filerace(stress_args_t *args)
 	pid_t pids[MAX_FILERACE_PROCS];
 	size_t i, children = 0;
 
+	t_start = time(NULL);
 #if defined(SIGIO)
 	if (stress_sighandler(args->name, SIGIO, stress_sigio_handler, NULL) < 0)
 		return EXIT_FAILURE;
