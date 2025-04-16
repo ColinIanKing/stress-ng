@@ -149,8 +149,13 @@ static bool do_sigill;
 
 static void NORETURN MLOCKED_TEXT stress_sigill_handler(int signum)
 {
-	if (signum == SIGILL)
+	if (signum == SIGILL) {
+#if defined(STRESS_ARCH_S390)
+		do_misaligned = false;
+#else
 		do_sigill = true;
+#endif
+	}
 
 	siglongjmp(jmp_env, 1);
 }
@@ -228,6 +233,7 @@ static int stress_lockbus(stress_args_t *args)
 		return EXIT_FAILURE;
 	if (sigsetjmp(jmp_env, 1))
 		goto misaligned_done;
+
 #if defined(HAVE_TIMER_FUNCS)
 	/*
 	 *  Use a 1 second timer to jmp out of a hung
@@ -333,7 +339,6 @@ misaligned_done:
 		MEM_LOCK_AND_INCx8(ptr0, inc);
 		MEM_LOCKx8(ptr1);
 		MEM_LOCKx8(ptr2);
-
 
 #if defined(HAVE_SYNC_BOOL_COMPARE_AND_SWAP)
 		{
