@@ -242,7 +242,7 @@ endif
 # Static flags, only to be used when using GCC
 #
 ifeq ($(STATIC),1)
-override LDFLAGS += -static -z muldefs
+override LDFLAGS += -static -z muldefs -ffunction-sections -fdata-sections -Wl,--gc-sections
 override CFLAGS += -DBUILD_STATIC
 endif
 
