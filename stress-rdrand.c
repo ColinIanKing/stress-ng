@@ -123,7 +123,7 @@ static int stress_rdrand_supported(const char *name)
 
 static inline uint64_t rand64(void)
 {
-	return stress_asm_ppc64_darn();
+	return (uint64_t)(stress_asm_ppc64_darn() << 32) | (uint64_t)stress_asm_ppc64_darn();
 }
 #endif
 
@@ -260,7 +260,7 @@ static int stress_rdrand(stress_args_t *args)
 {
 	double average;
 	uint64_t lo, hi;
-	int out_of_range;
+	bool out_of_range;
 	int rc = EXIT_SUCCESS;
 	size_t j;
 #if defined(HAVE_SEED_CAPABILITY)
@@ -366,18 +366,32 @@ static int stress_rdrand(stress_args_t *args)
 	 */
 	average /= (double)SIZEOF_ARRAY(counters);
 	if (average > 10000.0) {
+		double total = 0.0;
+
 		lo = (uint64_t)average - (average * 0.05);
 		hi = (uint64_t)average + (average * 0.05);
-		out_of_range = 0;
+		out_of_range = false;
 
 		for (j = 0; j < SIZEOF_ARRAY(counters); j++) {
+			total += counters[j];
 			if ((counters[j] < lo) || (counters[j] > hi)) {
-				out_of_range++;
+				out_of_range = true;
 				rc = EXIT_FAILURE;
 			}
 		}
-		if (out_of_range)
+		if (out_of_range) {
 			pr_fail("%s: poor distribution of random values\n", args->name);
+			if (args->instance == 0) {
+				uint64_t i;
+				const uint64_t shift = 1ULL << 60;
+
+				pr_inf("Frequency distribution:\n");
+				for (i = 0; i < (uint64_t)SIZEOF_ARRAY(counters); i++) {
+					pr_inf("0x%16.16" PRIx64 "..0x%16.16" PRIx64 " %5.2f%% %10" PRIu64 "\n",
+						i  * shift, ((i + 1) * shift) - 1, counters[i] * 100.0 / total, counters[i]);
+				}
+			}
+		}
 	}
 
 	return rc;
