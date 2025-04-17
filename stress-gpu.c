@@ -70,9 +70,6 @@ static volatile double gpu_freq_sum;
 static volatile uint64_t gpu_freq_count;
 #endif
 
-static volatile bool do_jmp = true;
-static sigjmp_buf jmp_env;
-
 static GLuint program;
 static EGLDisplay display;
 static EGLSurface surface;
@@ -463,16 +460,6 @@ static int stress_gpu_supported(const char *name)
 	return 0;
 }
 
-static void stress_gpu_alarm_handler(int sig)
-{
-	(void)sig;
-
-	if (do_jmp) {
-		do_jmp = false;
-		siglongjmp(jmp_env, 1);         /* Ugly, bounce back */
-        }
-}
-
 #if defined(HAVE_LIB_PTHREAD)
 /*
  *  stress_gpu_pthread()
@@ -511,7 +498,6 @@ static int stress_gpu_child(stress_args_t *args, void *context)
 	GLsizei texsize = 4096;
 	GLsizei uploads = 1;
 	const char *gpu_devnode = default_gpu_devnode;
-	struct sigaction old_action;
 	sigset_t set;
 #if defined(HAVE_LIB_PTHREAD)
 	pthread_t pthread;
@@ -532,9 +518,6 @@ static int stress_gpu_child(stress_args_t *args, void *context)
 	(void)sigprocmask(SIG_BLOCK, &set, NULL);
 
 	(void)context;
-
-	if (stress_sighandler(args->name, SIGALRM, stress_gpu_alarm_handler, &old_action) < 0)
-		return EXIT_NO_RESOURCE;
 
 	(void)setenv("MESA_SHADER_CACHE_DISABLE", "true", 1);
 
@@ -561,14 +544,6 @@ static int stress_gpu_child(stress_args_t *args, void *context)
 	stress_sync_start_wait(args);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
-	ret = sigsetjmp(jmp_env, 1);
-	if (ret) {
-		/*
-		 * We return here if SIGALRM jmp'd back
-		 */
-		goto finish;
-	}
-
 	do {
 		stress_gpu_run(texsize, uploads);
 		if (glGetError() != GL_NO_ERROR)
@@ -576,7 +551,6 @@ static int stress_gpu_child(stress_args_t *args, void *context)
 		stress_bogo_inc(args);
 	} while (!stress_sigalrm_pending() && stress_continue(args));
 
-finish:
 #if defined(HAVE_LIB_PTHREAD)
 	if (pret == 0) {
 		(void)pthread_cancel(pthread);
@@ -588,9 +562,6 @@ finish:
 					rate, STRESS_METRIC_HARMONIC_MEAN);
 	}
 #endif
-
-	do_jmp = false;
-	(void)stress_sigrestore(args->name, SIGALRM, &old_action);
 
 	ret = EXIT_SUCCESS;
 deinit:
