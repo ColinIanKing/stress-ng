@@ -27,14 +27,6 @@
 #define LOOPS_PER_CALL	(65536)
 #define DFP_ELEMENTS	(8)
 
-/* Currently division with float 80 on ICC trips SIGFPEs, so disable */
-#if defined(__ICC)
-#undef HAVE__float80
-#endif
-#if defined(__OpenBSD__)
-#undef HAVE__float128
-#endif
-
 #define STRESS_DFP_TYPE_DECIMAL32	(0)
 #define STRESS_DFP_TYPE_DECIMAL64	(1)
 #define STRESS_DFP_TYPE_DECIMAL128	(2)
