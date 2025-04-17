@@ -176,6 +176,7 @@ typedef struct {
  */
 static stress_syscall_hash_table_t *hash_table;
 
+static volatile bool do_jmp;
 static sigjmp_buf jmpbuf;
 
 static const int sigs[] = {
@@ -2402,7 +2403,8 @@ static void MLOCKED_TEXT stress_syscall_itimer_handler(int sig)
 {
 	(void)sig;
 
-	if (current_context) {
+	if (do_jmp && current_context) {
+		do_jmp = false;
 		current_context->type = SYSCALL_TIMED_OUT;
 		siglongjmp(jmpbuf, 1);
 	}
@@ -2521,6 +2523,7 @@ static void syscall_permute(
 			current_context->type = SYSCALL_TIMED_OUT;
 			goto timed_out;
 		}
+		do_jmp = true;
 
 		*syscall_exercised = true;
 
@@ -2546,6 +2549,7 @@ static void syscall_permute(
 		*/
 
 timed_out:
+		do_jmp = false;
 		if (current_context->type == SYSCALL_TIMED_OUT) {
 			/*
 			 *  Remember syscalls that block for too long so we don't retry them
