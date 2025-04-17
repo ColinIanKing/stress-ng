@@ -49,6 +49,7 @@ static const stress_opt_t opts[] = {
     defined(HAVE_LINUX_SOCKET_H) &&	\
     defined(AF_ALG)
 
+static volatile bool do_jmp = true;
 static sigjmp_buf jmpbuf;
 
 #if !defined(SOL_ALG)
@@ -136,8 +137,10 @@ static void MLOCKED_TEXT stress_af_alg_alarm_handler(int signum)
 	 * If we've not stopped after 5 seconds then an af-alg
 	 * got stuck, so force  jmp to terminate path
 	 */
-	if (UNLIKELY(count++ > 5))
+	if (UNLIKELY(do_jmp && count++ > 5)) {
+		do_jmp = false;
 		siglongjmp(jmpbuf, 1);
+	}
 }
 
 /*
@@ -977,6 +980,7 @@ static int stress_af_alg(stress_args_t *args)
 
 	rc = EXIT_SUCCESS;
 deinit:
+	do_jmp = false;
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	for (idx = 0, info = crypto_info_list; info; info = info->next) {
