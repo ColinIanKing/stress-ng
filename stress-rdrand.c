@@ -116,6 +116,12 @@ static int stress_rdrand_supported(const char *name)
 		return 0;
 	}
 #endif
+#if defined(HAVE_BUILTIN_CPU_IS_POWER11)
+	if (__builtin_cpu_is("power11")) {
+		rdrand_supported = true;
+		return 0;
+	}
+#endif
 	pr_inf_skip("%s stressor will be skipped, cannot detect if the CPU "
 		"supports the instruction 'darn'\n", name);
 	return -1;
