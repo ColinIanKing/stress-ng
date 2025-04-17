@@ -57,6 +57,7 @@ typedef uint64_t stress_uint32w256_t	__attribute__ ((vector_size(256 / 8)));
 typedef uint64_t stress_uint32w128_t	__attribute__ ((vector_size(128 / 8)));
 #endif
 
+static volatile bool do_jmp = true;
 static sigjmp_buf jmpbuf;
 
 typedef struct {
@@ -85,10 +86,14 @@ typedef struct {
 	const stress_memrate_func_t	func_rate;
 } stress_memrate_info_t;
 
-static void NORETURN MLOCKED_TEXT stress_memrate_alarm_handler(int signum)
+static void stress_memrate_alarm_handler(int signum)
 {
         (void)signum;
-        siglongjmp(jmpbuf, 1);
+
+	if (do_jmp) {
+		do_jmp = false;
+	        siglongjmp(jmpbuf, 1);
+	}
 }
 
 static uint64_t stress_memrate_loops(
@@ -1026,6 +1031,7 @@ static int stress_memrate_child(stress_args_t *args, void *ctxt)
 	} while (stress_continue(args));
 
 tidy:
+	do_jmp = false;
 	(void)munmap((void *)buffer, context->memrate_bytes);
 	return EXIT_SUCCESS;
 }
