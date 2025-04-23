@@ -245,7 +245,8 @@ and the process id as a prefix to all output. The \-\-log\-brief option will
 output messages without these fields to produce a less verbose output.
 .TP
 .B \-\-log\-file filename
-write messages to the specified log file.
+write messages to the specified log file, this does not replace the output
+from stdout, but creates a logged copy of it in the specified file.
 .TP
 .B \-\-log\-lockless
 log messages use a lock to avoid intermingling of blocks of stressor messages,
