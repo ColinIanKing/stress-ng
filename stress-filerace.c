@@ -1499,8 +1499,8 @@ static void stress_filerace_child(stress_args_t *args, const char *pathname, con
 						} while (stress_continue(args));
 					}
 				}
+				(void)close(fd);
 			}
-			(void)close(fd);
 		}
 #endif
 
