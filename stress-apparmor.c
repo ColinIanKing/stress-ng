@@ -22,6 +22,7 @@
 #include "core-capabilities.h"
 #include "core-killpid.h"
 #include "core-lock.h"
+#include "core-sync.h"
 
 #if defined(HAVE_SYS_APPARMOR_H)
 #include <sys/apparmor.h>
@@ -662,7 +663,7 @@ static int stress_apparmor(stress_args_t *args)
 		return EXIT_FAILURE;
 	}
 
-	s_pids = stress_s_pids_mmap(MAX_APPARMOR_FUNCS);
+	s_pids = stress_sync_s_pids_mmap(MAX_APPARMOR_FUNCS);
 	if (s_pids == MAP_FAILED) {
 		pr_inf_skip("%s: failed to mmap %zu PIDs, skipping stressor\n", args->name, MAX_APPARMOR_FUNCS);
                 return EXIT_NO_RESOURCE;
@@ -736,7 +737,7 @@ err_free_data_copy:
 err_free_shared_info:
 	(void)munmap((void *)stress_apparmor_shared_info, sizeof(*stress_apparmor_shared_info));
 err_free_s_pids:
-	(void)stress_s_pids_munmap(s_pids, MAX_APPARMOR_FUNCS);
+	(void)stress_sync_s_pids_munmap(s_pids, MAX_APPARMOR_FUNCS);
 
 	return rc;
 }

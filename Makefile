@@ -323,6 +323,7 @@ HEADERS = \
 	core-smart.h \
 	core-sort.h \
 	core-stressors.h \
+	core-sync.h \
 	core-syslog.h \
 	core-target-clones.h \
 	core-thermal-zone.h \
@@ -763,6 +764,7 @@ CORE_SRC = \
 	core-shim.c \
 	core-smart.c \
 	core-sort.c \
+	core-sync.c \
 	core-thermal-zone.c \
 	core-time.c \
 	core-thrash.c \

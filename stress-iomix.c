@@ -21,6 +21,7 @@
 #include "core-builtin.h"
 #include "core-killpid.h"
 #include "core-put.h"
+#include "core-sync.h"
 
 #include <sys/ioctl.h>
 
@@ -1110,7 +1111,7 @@ static int stress_iomix(stress_args_t *args)
 	if (stress_sigchld_set_handler(args) < 0)
 		return EXIT_NO_RESOURCE;
 
-	s_pids = stress_s_pids_mmap(MAX_IOMIX_PROCS);
+	s_pids = stress_sync_s_pids_mmap(MAX_IOMIX_PROCS);
 	if (s_pids == MAP_FAILED) {
 		pr_inf_skip("%s: failed to mmap %zu PIDs, skipping stressor\n", args->name, MAX_IOMIX_PROCS);
 		return EXIT_NO_RESOURCE;
@@ -1230,7 +1231,7 @@ lock_destroy:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)stress_lock_destroy(counter_lock);
 tidy_s_pids:
-	(void)stress_s_pids_munmap(s_pids, MAX_IOMIX_PROCS);
+	(void)stress_sync_s_pids_munmap(s_pids, MAX_IOMIX_PROCS);
 
 	return ret;
 }

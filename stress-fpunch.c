@@ -21,6 +21,7 @@
 #include "core-builtin.h"
 #include "core-killpid.h"
 #include "core-madvise.h"
+#include "core-sync.h"
 
 #define MIN_FPUNCH_BYTES	(1 * MB)
 #define MAX_FPUNCH_BYTES	(2 * GB)
@@ -307,7 +308,7 @@ static int stress_fpunch(stress_args_t *args)
 	}
 	max_punches = (off_t)(fpunch_bytes / (off_t)stride);
 
-	s_pids = stress_s_pids_mmap(STRESS_PUNCH_PIDS);
+	s_pids = stress_sync_s_pids_mmap(STRESS_PUNCH_PIDS);
 	if (s_pids == MAP_FAILED) {
                 pr_inf_skip("%s: failed to mmap %d PIDs, skipping stressor\n", args->name, STRESS_PUNCH_PIDS);
 		return EXIT_NO_RESOURCE;
@@ -435,7 +436,7 @@ tidy_temp:
 tidy_buf:
 	(void)munmap((void *)buf, sizeof(*buf));
 tidy_s_pids:
-	(void)stress_s_pids_munmap(s_pids, STRESS_PUNCH_PIDS);
+	(void)stress_sync_s_pids_munmap(s_pids, STRESS_PUNCH_PIDS);
 
 	return rc;
 }

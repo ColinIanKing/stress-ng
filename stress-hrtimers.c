@@ -21,6 +21,7 @@
 #include "core-builtin.h"
 #include "core-killpid.h"
 #include "core-out-of-memory.h"
+#include "core-sync.h"
 
 #include <sched.h>
 #include <time.h>
@@ -197,7 +198,7 @@ static int stress_hrtimers(stress_args_t *args)
 	if (stress_sigchld_set_handler(args) < 0)
 		return EXIT_NO_RESOURCE;
 
-	s_pids = stress_s_pids_mmap(PROCS_MAX);
+	s_pids = stress_sync_s_pids_mmap(PROCS_MAX);
 	if (s_pids == MAP_FAILED) {
 		pr_inf_skip("%s: failed to mmap %d PIDs, skipping stressor\n", args->name, PROCS_MAX);
 		return EXIT_NO_RESOURCE;
@@ -270,7 +271,7 @@ reap:
 	}
 	stress_lock_destroy(lock);
 tidy_s_pids:
-	(void)stress_s_pids_munmap(s_pids, PROCS_MAX);
+	(void)stress_sync_s_pids_munmap(s_pids, PROCS_MAX);
 
 	return rc;
 }

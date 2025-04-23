@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-builtin.h"
 #include "core-killpid.h"
+#include "core-sync.h"
 
 #include <sched.h>
 
@@ -234,7 +235,7 @@ static int stress_affinity(stress_args_t *args)
 	stress_affinity_info_t *info;
 	const size_t info_sz = (sizeof(*info) + args->page_size) & ~(args->page_size - 1);
 
-	s_pids = stress_s_pids_mmap(STRESS_AFFINITY_PROCS);
+	s_pids = stress_sync_s_pids_mmap(STRESS_AFFINITY_PROCS);
 	if (s_pids == MAP_FAILED) {
 		pr_inf_skip("%s: failed to mmap %d PIDs, skipping stressor\n", args->name, STRESS_AFFINITY_PROCS);
 		return EXIT_NO_RESOURCE;
@@ -243,7 +244,7 @@ static int stress_affinity(stress_args_t *args)
 	counter_lock = stress_lock_create("counter");
 	if (!counter_lock) {
 		pr_inf_skip("%s: failed to create counter lock. skipping stressor\n", args->name);
-		(void)stress_s_pids_munmap(s_pids, STRESS_AFFINITY_PROCS);
+		(void)stress_sync_s_pids_munmap(s_pids, STRESS_AFFINITY_PROCS);
 		return EXIT_NO_RESOURCE;
 	}
 
@@ -254,7 +255,7 @@ static int stress_affinity(stress_args_t *args)
 		pr_inf_skip("%s: cannot mmap %zd bytes for shared counters, skipping stressor\n",
 			args->name, info_sz);
 		(void)stress_lock_destroy(counter_lock);
-		(void)stress_s_pids_munmap(s_pids, STRESS_AFFINITY_PROCS);
+		(void)stress_sync_s_pids_munmap(s_pids, STRESS_AFFINITY_PROCS);
 		return EXIT_NO_RESOURCE;
 	}
 	stress_set_vma_anon_name(info, info_sz, "counters");
@@ -308,7 +309,7 @@ static int stress_affinity(stress_args_t *args)
 
 	(void)munmap((void *)info, info_sz);
 	(void)stress_lock_destroy(counter_lock);
-	(void)stress_s_pids_munmap(s_pids, STRESS_AFFINITY_PROCS);
+	(void)stress_sync_s_pids_munmap(s_pids, STRESS_AFFINITY_PROCS);
 
 	return EXIT_SUCCESS;
 }

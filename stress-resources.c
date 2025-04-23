@@ -22,6 +22,7 @@
 #include "core-killpid.h"
 #include "core-out-of-memory.h"
 #include "core-resources.h"
+#include "core-sync.h"
 
 #define MIN_MEM_FREE	(16 * MB)
 #define MAX_PIDS 	(2048)
@@ -65,7 +66,7 @@ static int stress_resources(stress_args_t *args)
 	UNEXPECTED
 #endif
 
-	s_pids = stress_s_pids_mmap(num_pids);
+	s_pids = stress_sync_s_pids_mmap(num_pids);
 	if (s_pids == MAP_FAILED) {
 		pr_inf_skip("%s: failed to mmap %zu PIDs, skipping stressor\n", args->name, num_pids);
 		return EXIT_NO_RESOURCE;
@@ -75,7 +76,7 @@ static int stress_resources(stress_args_t *args)
 	if (!resources) {
 		pr_inf_skip("%s: cannot allocate %zd resource structures, skipping stressor\n",
 			args->name, num_resources);
-		(void)stress_s_pids_munmap(s_pids, num_pids);
+		(void)stress_sync_s_pids_munmap(s_pids, num_pids);
 		return EXIT_NO_RESOURCE;
 	}
 
@@ -118,7 +119,7 @@ static int stress_resources(stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	free(resources);
-	(void)stress_s_pids_munmap(s_pids, num_pids);
+	(void)stress_sync_s_pids_munmap(s_pids, num_pids);
 
 	return EXIT_SUCCESS;
 }

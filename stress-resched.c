@@ -19,6 +19,7 @@
 #include "stress-ng.h"
 #include "core-builtin.h"
 #include "core-killpid.h"
+#include "core-sync.h"
 
 #include <sched.h>
 
@@ -171,7 +172,7 @@ static int stress_resched(stress_args_t *args)
 #endif
 #endif
 	s_pids_max = max_prio + 1; /* 0.. max_prio */
-	s_pids = stress_s_pids_mmap((size_t)s_pids_max);
+	s_pids = stress_sync_s_pids_mmap((size_t)s_pids_max);
 	if (s_pids == MAP_FAILED) {
 		pr_inf_skip("%s: failed to mmap %d PIDs, skipping stressor\n", args->name, s_pids_max);
 		return EXIT_NO_RESOURCE;
@@ -260,7 +261,7 @@ static int stress_resched(stress_args_t *args)
 
 	(void)munmap((void *)yields, yields_size);
 tidy_s_pids:
-	(void)stress_s_pids_munmap(s_pids, (size_t)s_pids_max);
+	(void)stress_sync_s_pids_munmap(s_pids, (size_t)s_pids_max);
 
 	return rc;
 }

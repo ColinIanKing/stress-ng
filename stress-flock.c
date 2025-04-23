@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-builtin.h"
 #include "core-killpid.h"
+#include "core-sync.h"
 
 #include <sys/file.h>
 
@@ -303,7 +304,7 @@ static int stress_flock(stress_args_t *args)
 	stress_pid_t *s_pids, *s_pids_head = NULL;
 	char filename[PATH_MAX];
 
-	s_pids = stress_s_pids_mmap(MAX_FLOCK_STRESSORS);
+	s_pids = stress_sync_s_pids_mmap(MAX_FLOCK_STRESSORS);
 	if (s_pids == MAP_FAILED) {
 		pr_inf_skip("%s: failed to mmap %d PIDs, skipping stressor\n", args->name, MAX_FLOCK_STRESSORS);
 		return EXIT_NO_RESOURCE;
@@ -360,7 +361,7 @@ err:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)stress_temp_dir_rm_args(args);
 err_free_s_pids:
-	(void)stress_s_pids_munmap(s_pids, MAX_FLOCK_STRESSORS);
+	(void)stress_sync_s_pids_munmap(s_pids, MAX_FLOCK_STRESSORS);
 
 	return rc;
 }

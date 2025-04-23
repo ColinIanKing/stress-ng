@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-builtin.h"
 #include "core-killpid.h"
+#include "core-sync.h"
 
 #if defined(HAVE_SEM_SYSV)
 #include <sys/sem.h>
@@ -574,7 +575,7 @@ static int stress_sem_sysv(stress_args_t *args)
 	if (stress_sighandler(args->name, SIGCHLD, stress_sighandler_nop, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 
-	s_pids = stress_s_pids_mmap(MAX_SEM_SYSV_PROCS);
+	s_pids = stress_sync_s_pids_mmap(MAX_SEM_SYSV_PROCS);
 	if (s_pids == MAP_FAILED) {
 		pr_inf_skip("%s: failed to mmap %d PIDs, skipping stressor\n", args->name, MAX_SEM_SYSV_PROCS);
 		return EXIT_NO_RESOURCE;
@@ -600,7 +601,7 @@ static int stress_sem_sysv(stress_args_t *args)
 reap:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	stress_kill_and_wait_many(args, s_pids, semaphore_sysv_procs, SIGALRM, true);
-	stress_s_pids_munmap(s_pids, MAX_SEM_SYSV_PROCS);
+	stress_sync_s_pids_munmap(s_pids, MAX_SEM_SYSV_PROCS);
 
 	return rc;
 }

@@ -23,6 +23,7 @@
 #include "core-madvise.h"
 #include "core-mincore.h"
 #include "core-out-of-memory.h"
+#include "core-sync.h"
 
 #define UNSET_MLOCKMANY_PROCS		(0)
 #define DEFAULT_MLOCKMANY_PROCS		(1024)
@@ -121,7 +122,7 @@ static int stress_mlockmany_child(stress_args_t *args, void *context)
 			mlockmany_procs = 1;
 	}
 
-	s_pids = stress_s_pids_mmap(mlockmany_procs);
+	s_pids = stress_sync_s_pids_mmap(mlockmany_procs);
 	if (s_pids == MAP_FAILED) {
 		pr_inf_skip("%s: failed to mmap %zu PIDs, skipping stressor\n", args->name, mlockmany_procs);
 		return EXIT_NO_RESOURCE;
@@ -257,7 +258,7 @@ unmap:
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	(void)stress_s_pids_munmap(s_pids, mlockmany_procs);
+	(void)stress_sync_s_pids_munmap(s_pids, mlockmany_procs);
 
 	return EXIT_SUCCESS;
 }

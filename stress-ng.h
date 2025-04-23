@@ -869,8 +869,6 @@ extern void stress_sync_start_cont_list(stress_pid_t *s_pids_head);
 extern void stress_sync_start_cont_s_pid(stress_pid_t *s_pid);
 extern void stress_sync_start_wait(stress_args_t *args);
 extern void stress_sync_start_wait_s_pid(stress_pid_t *s_pid);
-extern stress_pid_t *stress_s_pids_mmap(const size_t num);
-extern int stress_s_pids_munmap(stress_pid_t *s_pids, const size_t num);
 
 static inline void stress_sync_start_s_pid_list_add(stress_pid_t **s_pids_head, stress_pid_t *s_pid)
 {

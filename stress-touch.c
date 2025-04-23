@@ -19,6 +19,7 @@
 #include "stress-ng.h"
 #include "core-killpid.h"
 #include "core-lock.h"
+#include "core-sync.h"
 
 #define TOUCH_PROCS	(4)
 
@@ -299,7 +300,7 @@ static int stress_touch(stress_args_t *args)
 	stress_pid_t *s_pids, *s_pids_head = NULL;
 	size_t i;
 
-	s_pids = stress_s_pids_mmap(TOUCH_PROCS);
+	s_pids = stress_sync_s_pids_mmap(TOUCH_PROCS);
 	if (s_pids == MAP_FAILED) {
 		pr_inf_skip("%s: failed to mmap %d PIDs, skipping stressor\n", args->name, TOUCH_PROCS);
 		return EXIT_NO_RESOURCE;
@@ -308,7 +309,7 @@ static int stress_touch(stress_args_t *args)
 	touch_lock = stress_lock_create("counter");
 	if (!touch_lock) {
 		pr_inf_skip("%s: cannot create lock, skipping stressor\n", args->name);
-		(void)stress_s_pids_munmap(s_pids, TOUCH_PROCS);
+		(void)stress_sync_s_pids_munmap(s_pids, TOUCH_PROCS);
 		return EXIT_NO_RESOURCE;
 	}
 
@@ -325,7 +326,7 @@ static int stress_touch(stress_args_t *args)
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0) {
 		(void)stress_lock_destroy(touch_lock);
-		(void)stress_s_pids_munmap(s_pids, TOUCH_PROCS);
+		(void)stress_sync_s_pids_munmap(s_pids, TOUCH_PROCS);
 		return stress_exit_status(-ret);
 	}
 
@@ -359,7 +360,7 @@ static int stress_touch(stress_args_t *args)
 	stress_touch_dir_clean(args);
 	(void)stress_temp_dir_rm_args(args);
 	(void)stress_lock_destroy(touch_lock);
-	(void)stress_s_pids_munmap(s_pids, TOUCH_PROCS);
+	(void)stress_sync_s_pids_munmap(s_pids, TOUCH_PROCS);
 
 	return EXIT_SUCCESS;
 }

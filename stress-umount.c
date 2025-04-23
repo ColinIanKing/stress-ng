@@ -20,6 +20,7 @@
 #include "core-builtin.h"
 #include "core-capabilities.h"
 #include "core-killpid.h"
+#include "core-sync.h"
 
 #if defined(HAVE_SYS_MOUNT_H)
 #include <sys/mount.h>
@@ -260,7 +261,7 @@ static int stress_umount(stress_args_t *args)
 	int ret = EXIT_NO_RESOURCE;
 	char pathname[PATH_MAX], realpathname[PATH_MAX];
 
-	s_pids = stress_s_pids_mmap(STRESS_UMOUNT_PROCS);
+	s_pids = stress_sync_s_pids_mmap(STRESS_UMOUNT_PROCS);
 	if (s_pids == MAP_FAILED) {
 		pr_inf_skip("%s: failed to mmap %d PIDs, skipping stressor\n", args->name, STRESS_UMOUNT_PROCS);
 		return EXIT_NO_RESOURCE;
@@ -271,7 +272,7 @@ static int stress_umount(stress_args_t *args)
 	stress_sync_start_init(&s_pids[2]);
 
 	if (stress_sigchld_set_handler(args) < 0) {
-		(void)stress_s_pids_munmap(s_pids, STRESS_UMOUNT_PROCS);
+		(void)stress_sync_s_pids_munmap(s_pids, STRESS_UMOUNT_PROCS);
 		return EXIT_NO_RESOURCE;
 	}
 
@@ -280,14 +281,14 @@ static int stress_umount(stress_args_t *args)
 	if (mkdir(pathname, S_IRGRP | S_IWGRP) < 0) {
 		pr_fail("%s: cannot mkdir %s, errno=%d (%s)\n",
 			args->name, pathname, errno, strerror(errno));
-		(void)stress_s_pids_munmap(s_pids, STRESS_UMOUNT_PROCS);
+		(void)stress_sync_s_pids_munmap(s_pids, STRESS_UMOUNT_PROCS);
 		return EXIT_FAILURE;
 	}
 	if (!realpath(pathname, realpathname)) {
 		pr_fail("%s: cannot realpath %s, errno=%d (%s)\n",
 			args->name, pathname, errno, strerror(errno));
 		(void)stress_temp_dir_rm_args(args);
-		(void)stress_s_pids_munmap(s_pids, STRESS_UMOUNT_PROCS);
+		(void)stress_sync_s_pids_munmap(s_pids, STRESS_UMOUNT_PROCS);
 		return EXIT_FAILURE;
 	}
 
@@ -313,7 +314,7 @@ reap:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	stress_kill_and_wait_many(args, s_pids, STRESS_UMOUNT_PROCS, SIGALRM, true);
 	(void)stress_temp_dir_rm_args(args);
-	(void)stress_s_pids_munmap(s_pids, STRESS_UMOUNT_PROCS);
+	(void)stress_sync_s_pids_munmap(s_pids, STRESS_UMOUNT_PROCS);
 
 	return ret;
 }

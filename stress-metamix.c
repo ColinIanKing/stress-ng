@@ -20,6 +20,7 @@
 #include "core-builtin.h"
 #include "core-hash.h"
 #include "core-killpid.h"
+#include "core-sync.h"
 
 #define MIN_METAMIX_BYTES		(512)
 #define MAX_METAMIX_BYTES		(MAX_FILE_LIMIT)
@@ -327,7 +328,7 @@ static int stress_metamix(stress_args_t *args)
 	if (stress_sigchld_set_handler(args) < 0)
 		return EXIT_NO_RESOURCE;
 
-	s_pids = stress_s_pids_mmap(METAMIX_PROCS);
+	s_pids = stress_sync_s_pids_mmap(METAMIX_PROCS);
 	if (s_pids == MAP_FAILED) {
 		pr_inf_skip("%s: failed to mmap %d PIDs, skipping stressor\n", args->name, METAMIX_PROCS);
 		return EXIT_NO_RESOURCE;
@@ -397,7 +398,7 @@ lock_destroy:
 	(void)stress_lock_destroy(counter_lock);
 tidy_s_pids:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
-	(void)stress_s_pids_munmap(s_pids, METAMIX_PROCS);
+	(void)stress_sync_s_pids_munmap(s_pids, METAMIX_PROCS);
 
 	return ret;
 }

@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-capabilities.h"
 #include "core-killpid.h"
+#include "core-sync.h"
 
 #define STRESS_ACCESS_PROCS	(2)
 
@@ -265,7 +266,7 @@ static int stress_access(stress_args_t *args)
 		"fuse"
 	};
 
-	s_pids = stress_s_pids_mmap(STRESS_ACCESS_PROCS);
+	s_pids = stress_sync_s_pids_mmap(STRESS_ACCESS_PROCS);
 	if (s_pids == MAP_FAILED) {
 		pr_inf_skip("%s: failed to mmap %d PIDs, skipping stressor\n", args->name, STRESS_ACCESS_PROCS);
 		return EXIT_NO_RESOURCE;
@@ -273,7 +274,7 @@ static int stress_access(stress_args_t *args)
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0) {
-		(void)stress_s_pids_munmap(s_pids, STRESS_ACCESS_PROCS);
+		(void)stress_sync_s_pids_munmap(s_pids, STRESS_ACCESS_PROCS);
 		return stress_exit_status(-ret);
 	}
 
@@ -514,7 +515,7 @@ tidy:
 	(void)shim_unlink(filename2);
 	(void)shim_unlink(filename1);
 	(void)stress_temp_dir_rm_args(args);
-	(void)stress_s_pids_munmap(s_pids, STRESS_ACCESS_PROCS);
+	(void)stress_sync_s_pids_munmap(s_pids, STRESS_ACCESS_PROCS);
 
 	return rc;
 }

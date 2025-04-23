@@ -22,6 +22,7 @@
 #include "core-killpid.h"
 #include "core-net.h"
 #include "core-pragma.h"
+#include "core-sync.h"
 
 #include <time.h>
 
@@ -990,7 +991,7 @@ static int stress_epoll(stress_args_t *args)
 	if (stress_sighandler(args->name, SIGPIPE, SIG_IGN, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 
-	s_pids = stress_s_pids_mmap(MAX_SERVERS);
+	s_pids = stress_sync_s_pids_mmap(MAX_SERVERS);
 	if (s_pids == MAP_FAILED) {
 		pr_inf_skip("%s: failed to mmap %d PIDs, skipping stressor\n", args->name, MAX_SERVERS);
 		return EXIT_NO_RESOURCE;
@@ -1014,7 +1015,7 @@ static int stress_epoll(stress_args_t *args)
 		if (reserved_port < 0) {
 			pr_inf_skip("%s: cannot reserve port %d, skipping stressor\n",
 				args->name, start_port);
-			(void)stress_s_pids_munmap(s_pids, MAX_SERVERS);
+			(void)stress_sync_s_pids_munmap(s_pids, MAX_SERVERS);
 			return EXIT_NO_RESOURCE;
 		}
 		/* adjust for reserved port range */
@@ -1037,7 +1038,7 @@ static int stress_epoll(stress_args_t *args)
 		if (reserved_port < 0) {
 			pr_inf_skip("%s: cannot reserve ports %d..%d, skipping stressor\n",
 				args->name, start_port, end_port);
-			(void)stress_s_pids_munmap(s_pids, MAX_SERVERS);
+			(void)stress_sync_s_pids_munmap(s_pids, MAX_SERVERS);
 			return EXIT_NO_RESOURCE;
 		}
 		/* adjust for reserved port range */
@@ -1083,7 +1084,7 @@ reap:
 	stress_net_release_ports(start_port, end_port);
 
 	stress_kill_and_wait_many(args, s_pids, max_servers, SIGALRM, true);
-	(void)stress_s_pids_munmap(s_pids, MAX_SERVERS);
+	(void)stress_sync_s_pids_munmap(s_pids, MAX_SERVERS);
 
 	return rc;
 }

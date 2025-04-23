@@ -22,6 +22,7 @@
 #include "core-killpid.h"
 #include "core-madvise.h"
 #include "core-out-of-memory.h"
+#include "core-sync.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"mprotect N",	 "start N workers exercising mprotect on memory" },
@@ -173,7 +174,7 @@ static int stress_mprotect(stress_args_t *args)
 	int prot_bits = 0, *prot_flags, rc = EXIT_SUCCESS;
 	size_t n_flags;
 
-	s_pids = stress_s_pids_mmap(MPROTECT_MAX);
+	s_pids = stress_sync_s_pids_mmap(MPROTECT_MAX);
 	if (s_pids == MAP_FAILED) {
 		pr_inf_skip("%s: failed to mmap %d PIDs, skipping stressor\n", args->name, MPROTECT_MAX);
 		return EXIT_NO_RESOURCE;
@@ -255,7 +256,7 @@ static int stress_mprotect(stress_args_t *args)
 	free(prot_flags);
 
 tidy_s_pids:
-	(void)stress_s_pids_munmap(s_pids, MPROTECT_MAX);
+	(void)stress_sync_s_pids_munmap(s_pids, MPROTECT_MAX);
 
 	return rc;
 }

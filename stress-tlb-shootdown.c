@@ -24,6 +24,7 @@
 #include "core-killpid.h"
 #include "core-out-of-memory.h"
 #include "core-pragma.h"
+#include "core-sync.h"
 
 #include <ctype.h>
 #include <sched.h>
@@ -239,7 +240,7 @@ static int stress_tlb_shootdown(stress_args_t *args)
 	char filename[PATH_MAX];
 #endif
 
-	s_pids = stress_s_pids_mmap(MAX_TLB_PROCS);
+	s_pids = stress_sync_s_pids_mmap(MAX_TLB_PROCS);
 	if (s_pids == MAP_FAILED) {
 		pr_inf_skip("%s: failed to mmap %d PIDs, skipping stressor\n", args->name, MAX_TLB_PROCS);
 		rc = EXIT_NO_RESOURCE;
@@ -462,7 +463,7 @@ err_close:
 err_rmdir:
 	(void)stress_temp_dir_rm_args(args);
 err_s_pids:
-	(void)stress_s_pids_munmap(s_pids, MAX_TLB_PROCS);
+	(void)stress_sync_s_pids_munmap(s_pids, MAX_TLB_PROCS);
 #endif
 err_free_cpus:
 	stress_free_usable_cpus(&cpus);

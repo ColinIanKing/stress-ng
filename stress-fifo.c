@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-builtin.h"
 #include "core-killpid.h"
+#include "core-sync.h"
 
 #include <sys/ioctl.h>
 
@@ -246,7 +247,7 @@ static int stress_fifo(stress_args_t *args)
 			fifo_data_size = MIN_FIFO_DATA_SIZE;
 	}
 
-	s_pids = stress_s_pids_mmap(MAX_FIFO_READERS);
+	s_pids = stress_sync_s_pids_mmap(MAX_FIFO_READERS);
 	if (s_pids == MAP_FAILED) {
 		pr_inf_skip("%s: failed to mmap %d PIDs, skipping stressor\n", args->name, MAX_FIFO_READERS);
 		return EXIT_NO_RESOURCE;
@@ -347,7 +348,7 @@ tidy:
 	(void)shim_unlink(fifoname);
 	(void)stress_temp_dir_rm_args(args);
 tidy_pids:
-	(void)stress_s_pids_munmap(s_pids, MAX_FIFO_READERS);
+	(void)stress_sync_s_pids_munmap(s_pids, MAX_FIFO_READERS);
 
 	return rc;
 }

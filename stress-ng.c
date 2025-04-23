@@ -43,6 +43,7 @@
 #include "core-shared-heap.h"
 #include "core-smart.h"
 #include "core-stressors.h"
+#include "core-sync.h"
 #include "core-syslog.h"
 #include "core-thermal-zone.h"
 #include "core-thrash.h"
@@ -82,11 +83,6 @@
 #define STRESS_STRESSOR_NOT_IGNORED		(0)
 #define STRESS_STRESSOR_UNSUPPORTED		(1)
 #define STRESS_STRESSOR_EXCLUDED		(2)
-
-#define STRESS_SYNC_START_FLAG_WAITING		(0)
-#define STRESS_SYNC_START_FLAG_STARTED		(1)
-#define STRESS_SYNC_START_FLAG_RUNNING		(2)
-#define STRESS_SYNC_START_FLAG_FINISHED		(3)
 
 typedef void (*stress_sighandler_t)(int signum);
 
@@ -917,154 +913,6 @@ static const char * PURE stress_exit_status_to_string(const int status)
 			return stress_exit_status_map[i].description;
 	}
 	return "unknown";
-}
-
-/*
- *  stress_start_timeout()
- *	set the timeout for SIGALRM for a stressor
- */
-static void stress_start_timeout(void)
-{
-	if (g_opt_timeout)
-		(void)alarm((unsigned int)g_opt_timeout);
-}
-
-/*
- *  stress_s_pids_mmap()
- *	mmap an array of stress_pids_t of num elements; these need
- *	to map as shared so stressor and parent can load/store the
- *	state setting.
- */
-stress_pid_t *stress_s_pids_mmap(const size_t num)
-{
-	stress_pid_t *s_pids;
-	const size_t size = num * sizeof(stress_pid_t);
-
-	s_pids = (stress_pid_t *)mmap(NULL, size, PROT_READ | PROT_WRITE,
-			MAP_ANONYMOUS | MAP_SHARED, -1, 0);
-	if (s_pids != MAP_FAILED)
-		stress_set_vma_anon_name(s_pids, size, "s_pids");
-	return s_pids;
-}
-
-/*
- *  stress_s_pids_munmap()
- *	unmap num sized stress_pids_t array
- */
-int stress_s_pids_munmap(stress_pid_t *s_pids, const size_t num)
-{
-	return munmap((void *)s_pids, num * sizeof(stress_pid_t));
-}
-
-/*
- *  stress_sync_state_store()
- *	store the stress_pids_t state, try and use atomic updates where
- *	possible. non-atomic state changes are OK, but can require
- *	additional re-polled read loops so are less optimal when
- *	reading state changes
- */
-static inline ALWAYS_INLINE void stress_sync_state_store(stress_pid_t *s_pid, uint8_t state)
-{
-#if defined(HAVE_ATOMIC_STORE)
-	__atomic_store(&s_pid->state, &state, __ATOMIC_SEQ_CST);
-#else
-	/* racy alternative */
-	s_pid->state = state;
-#endif
-}
-
-/*
- *  stress_sync_state_load()
- *	load the stress_pid_state
- */
-static inline ALWAYS_INLINE void stress_sync_state_load(stress_pid_t *s_pid, uint8_t *state)
-{
-#if defined(HAVE_ATOMIC_LOAD)
-	__atomic_load(&s_pid->state, state, __ATOMIC_SEQ_CST);
-#else
-	/* racy alternative */
-	*state = s_pid->state;
-#endif
-}
-
-/*
- *  stress_sync_start_init()
- *	initialize the stress_pid_t state
- */
-void stress_sync_start_init(stress_pid_t *s_pid)
-{
-	s_pid->pid = -1;
-	stress_sync_state_store(s_pid, STRESS_SYNC_START_FLAG_STARTED);
-}
-
-/*
- *  stress_sync_start_wait_s_pid()
- *	put process into a stop (waiting) state, will be
- *	woken up by a parent call to stress_sync_start_cont_s_pid()
- */
-void stress_sync_start_wait_s_pid(stress_pid_t *s_pid)
-{
-	pid_t pid;
-
-	if (!(g_opt_flags & OPT_FLAGS_SYNC_START))
-		return;
-
-	pid = s_pid->oomable_child ? s_pid->oomable_child : s_pid->pid;
-	if (pid <= 1)
-		return;
-
-	stress_sync_state_store(s_pid, STRESS_SYNC_START_FLAG_WAITING);
-	if (kill(pid, SIGSTOP) < 0) {
-		pr_inf("cannot stop stressor on for --sync-start, errno=%d (%s)",
-			errno, strerror(errno));
-	}
-	stress_sync_state_store(s_pid, STRESS_SYNC_START_FLAG_RUNNING);
-	stress_start_timeout();
-}
-
-/*
- *  stress_sync_start_wait()
- *	put stressor into a stop (waiting) state, will be
- *	woken up by a parent call to stress_sync_start_cont_s_pid()
- */
-void stress_sync_start_wait(stress_args_t *args)
-{
-	pid_t pid;
-	stress_pid_t *s_pid;
-
-	if (!(g_opt_flags & OPT_FLAGS_SYNC_START))
-		return;
-
-	s_pid = &args->stats->s_pid;
-	pid = s_pid->oomable_child ? s_pid->oomable_child : s_pid->pid;
-	if (pid <= 1)
-		return;
-
-	stress_sync_state_store(s_pid, STRESS_SYNC_START_FLAG_WAITING);
-	if (kill(pid, SIGSTOP) < 0) {
-		pr_inf("%s: cannot stop stressor on for --sync-start, errno=%d (%s)",
-			args->name, errno, strerror(errno));
-	}
-	stress_sync_state_store(s_pid, STRESS_SYNC_START_FLAG_RUNNING);
-	stress_start_timeout();
-}
-
-/*
- *  stress_sync_start_cont_s_pid()
- *	wake up (continue) a stopped process
- */
-void stress_sync_start_cont_s_pid(stress_pid_t *s_pid)
-{
-	pid_t pid;
-
-	if (!(g_opt_flags & OPT_FLAGS_SYNC_START))
-		return;
-
-	pid = s_pid->oomable_child ? s_pid->oomable_child : s_pid->pid;
-	if (pid <= 1)
-		return;
-
-	(void)kill(pid, SIGCONT);
 }
 
 /*

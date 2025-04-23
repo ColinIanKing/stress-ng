@@ -22,6 +22,7 @@
 #include "core-killpid.h"
 #include "core-out-of-memory.h"
 #include "core-pragma.h"
+#include "core-sync.h"
 
 #define RMAP_CHILD_MAX		(16)
 #define MAPPINGS_MAX		(64)
@@ -188,7 +189,7 @@ static int stress_rmap(stress_args_t *args)
 	if (stress_sigchld_set_handler(args) < 0)
 		return EXIT_NO_RESOURCE;
 
-	s_pids = stress_s_pids_mmap(RMAP_CHILD_MAX);
+	s_pids = stress_sync_s_pids_mmap(RMAP_CHILD_MAX);
 	if (s_pids == MAP_FAILED) {
 		pr_inf_skip("%s: failed to mmap %d PIDs, skipping stressor\n", args->name, RMAP_CHILD_MAX);
 		return EXIT_NO_RESOURCE;
@@ -197,7 +198,7 @@ static int stress_rmap(stress_args_t *args)
 	counter_lock = stress_lock_create("counter");
 	if (!counter_lock) {
 		pr_inf_skip("%s: failed to create counter lock. skipping stressor\n", args->name);
-		(void)stress_s_pids_munmap(s_pids, RMAP_CHILD_MAX);
+		(void)stress_sync_s_pids_munmap(s_pids, RMAP_CHILD_MAX);
 		return EXIT_NO_RESOURCE;
 	}
 
@@ -212,7 +213,7 @@ static int stress_rmap(stress_args_t *args)
 	rc = stress_temp_dir_mk_args(args);
 	if (rc < 0) {
 		(void)stress_lock_destroy(counter_lock);
-		(void)stress_s_pids_munmap(s_pids, RMAP_CHILD_MAX);
+		(void)stress_sync_s_pids_munmap(s_pids, RMAP_CHILD_MAX);
 		return stress_exit_status((int)-rc);
 	}
 
@@ -226,7 +227,7 @@ static int stress_rmap(stress_args_t *args)
 		(void)shim_unlink(filename);
 		(void)stress_temp_dir_rm_args(args);
 		(void)stress_lock_destroy(counter_lock);
-		(void)stress_s_pids_munmap(s_pids, RMAP_CHILD_MAX);
+		(void)stress_sync_s_pids_munmap(s_pids, RMAP_CHILD_MAX);
 
 		return (int)rc;
 	}
@@ -238,7 +239,7 @@ static int stress_rmap(stress_args_t *args)
 		(void)close(fd);
 		(void)stress_temp_dir_rm_args(args);
 		(void)stress_lock_destroy(counter_lock);
-		(void)stress_s_pids_munmap(s_pids, RMAP_CHILD_MAX);
+		(void)stress_sync_s_pids_munmap(s_pids, RMAP_CHILD_MAX);
 
 		return EXIT_NO_RESOURCE;
 	}
@@ -321,7 +322,7 @@ cleanup:
 	(void)close(fd);
 	(void)stress_temp_dir_rm_args(args);
 	(void)stress_lock_destroy(counter_lock);
-	(void)stress_s_pids_munmap(s_pids, RMAP_CHILD_MAX);
+	(void)stress_sync_s_pids_munmap(s_pids, RMAP_CHILD_MAX);
 
 	return rc;
 }

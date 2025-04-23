@@ -25,6 +25,7 @@
 #include "core-out-of-memory.h"
 #include "core-pthread.h"
 #include "core-put.h"
+#include "core-sync.h"
 
 #if defined(HAVE_SYS_PRCTL_H)
 #include <sys/prctl.h>
@@ -671,7 +672,7 @@ static int stress_vma_child(stress_args_t *args, void *void_ctxt)
 	stress_vma_context_t *ctxt = (stress_vma_context_t *)void_ctxt;
 	int ret;
 
-	s_pids = stress_s_pids_mmap(STRESS_VMA_PROCS);
+	s_pids = stress_sync_s_pids_mmap(STRESS_VMA_PROCS);
 	if (s_pids == MAP_FAILED) {
 		pr_inf_skip("%s: failed to mmap %d PIDs, skipping stressor\n", args->name, STRESS_VMA_PROCS);
 		return EXIT_NO_RESOURCE;
@@ -707,7 +708,7 @@ static int stress_vma_child(stress_args_t *args, void *void_ctxt)
 	} while (stress_continue(args));
 
 	ret = stress_kill_and_wait_many(args, s_pids, i, SIGALRM, false);
-	(void)stress_s_pids_munmap(s_pids, STRESS_VMA_PROCS);
+	(void)stress_sync_s_pids_munmap(s_pids, STRESS_VMA_PROCS);
 
 	return ret;
 }

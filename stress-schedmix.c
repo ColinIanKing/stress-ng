@@ -22,6 +22,7 @@
 #include "core-capabilities.h"
 #include "core-killpid.h"
 #include "core-sched.h"
+#include "core-sync.h"
 
 #include <sched.h>
 #include <time.h>
@@ -485,7 +486,7 @@ static int stress_schedmix(stress_args_t *args)
 		return EXIT_NOT_IMPLEMENTED;
 	}
 
-	s_pids = stress_s_pids_mmap(MAX_SCHEDMIX_PROCS);
+	s_pids = stress_sync_s_pids_mmap(MAX_SCHEDMIX_PROCS);
 	if (s_pids == MAP_FAILED) {
 		pr_inf_skip("%s: failed to mmap %d PIDs, skipping stressor\n", args->name, MAX_SCHEDMIX_PROCS);
 		return EXIT_NO_RESOURCE;
@@ -550,7 +551,7 @@ static int stress_schedmix(stress_args_t *args)
 
 	rc = stress_kill_and_wait_many(args, s_pids, schedmix_procs, SIGALRM, true);
 
-	(void)stress_s_pids_munmap(s_pids, MAX_SCHEDMIX_PROCS);
+	(void)stress_sync_s_pids_munmap(s_pids, MAX_SCHEDMIX_PROCS);
 
 	return rc;
 }

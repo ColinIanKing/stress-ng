@@ -22,6 +22,7 @@
 #include "core-builtin.h"
 #include "core-capabilities.h"
 #include "core-killpid.h"
+#include "core-sync.h"
 
 #include <sched.h>
 
@@ -285,7 +286,7 @@ static int stress_softlockup(stress_args_t *args)
 		stress_set_vma_anon_name(softlockup_buffer, MB, "x86-rep-stosb-data");
 #endif
 
-	s_pids = stress_s_pids_mmap((size_t)cpus_online);
+	s_pids = stress_sync_s_pids_mmap((size_t)cpus_online);
 	if (s_pids == MAP_FAILED) {
 		pr_inf_skip("%s: failed to mmap %zu PIDs, skipping stressor\n", args->name, (size_t)cpus_online);
 		return EXIT_NO_RESOURCE;
@@ -300,7 +301,7 @@ static int stress_softlockup(stress_args_t *args)
 					"available, skipping stressor\n",
 					args->name);
 		}
-		(void)stress_s_pids_munmap(s_pids, (size_t)cpus_online);
+		(void)stress_sync_s_pids_munmap(s_pids, (size_t)cpus_online);
 		return EXIT_NOT_IMPLEMENTED;
 	}
 
@@ -325,7 +326,7 @@ static int stress_softlockup(stress_args_t *args)
 				"scheduling policies, skipping test\n",
 					args->name);
 		}
-		(void)stress_s_pids_munmap(s_pids, (size_t)cpus_online);
+		(void)stress_sync_s_pids_munmap(s_pids, (size_t)cpus_online);
 		return EXIT_NOT_IMPLEMENTED;
 	}
 
@@ -377,7 +378,7 @@ finish:
 		(void)munmap((void *)softlockup_buffer, MB);
 #endif
 
-	(void)stress_s_pids_munmap(s_pids, (size_t)cpus_online);
+	(void)stress_sync_s_pids_munmap(s_pids, (size_t)cpus_online);
 
 	return rc;
 }
