@@ -1743,6 +1743,12 @@ static void MLOCKED_TEXT stress_run(
 			stats->args.ci.counter_ready = true;
 			stats->args.ci.counter = 0;
 			stats->checksum = *checksum;
+
+			if (g_opt_flags & OPT_FLAGS_DRY_RUN) {
+				stats->s_pid.reaped = true;
+				stats->s_pid.pid = -1;
+				continue;
+			}
 again:
 			if (!stress_continue_flag())
 				break;
@@ -2002,6 +2008,12 @@ static void stress_metrics_check(bool *success)
 		pr_dbg("metrics-check: no stressors run\n");
 		return;
 	}
+
+	/*
+	 *  Dry run, nothing happened
+	 */
+	if (g_opt_flags & OPT_FLAGS_DRY_RUN)
+		return;
 
 	/*
 	 *  Bogo ops counter should be not zero for the majority of
