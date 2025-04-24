@@ -97,7 +97,7 @@ static bool stress_vma_continue_flag;
 
 static bool stress_vma_continue(stress_args_t *args)
 {
-	if (UNLIKELY(!g_stress_continue_flag))
+	if (UNLIKELY(!stress_continue_flag()))
 		return false;
 	if (LIKELY(args->max_ops == 0))
 		return true;
