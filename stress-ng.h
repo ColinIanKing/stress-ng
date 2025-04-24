@@ -237,7 +237,7 @@ typedef struct stress_stressor_info {
 	struct stress_stats **stats;	/* stressor stats info */
 	int32_t completed_instances;	/* count of completed instances */
 	int32_t instances;		/* number of instances per stressor */
-	uint64_t bogo_ops;		/* number of bogo ops */
+	uint64_t bogo_max_ops;		/* max number of bogo ops, 0 = disabled */
 	uint32_t status[STRESS_STRESSOR_STATUS_MAX];
 					/* number of instances that passed/failed/skipped */
 	struct {

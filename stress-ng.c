@@ -1545,7 +1545,7 @@ static int MLOCKED_TEXT stress_run_child(
 		stats->args.mapped = &g_shared->mapped;
 		stats->args.metrics = &stats->metrics;
 		stats->args.info = info;
-		stats->args.bogo.max_ops = g_stressor_current->bogo_ops;
+		stats->args.bogo.max_ops = g_stressor_current->bogo_max_ops;
 		stats->args.bogo.ci.counter = 0;
 
 		if (instance == 0)
@@ -1650,7 +1650,7 @@ static int MLOCKED_TEXT stress_run_child(
 	if (stats->args.bogo.ci.run_ok &&
 	    (g_shared && !g_shared->caught_sigint) &&
 	    (run_duration < (double)g_opt_timeout) &&
-	    (!(g_stressor_current->bogo_ops && stats->args.bogo.ci.counter >= g_stressor_current->bogo_ops))) {
+	    (!(g_stressor_current->bogo_max_ops && stats->args.bogo.ci.counter >= g_stressor_current->bogo_max_ops))) {
 		pr_warn("%s: WARNING: finished prematurely after just %s\n",
 			name, stress_duration_to_str(run_duration, true, true));
 	}
@@ -3126,14 +3126,14 @@ next_opt:
 				goto next_opt;
 			}
 			if (stressors[i].op == (stress_op_t)c) {
-				uint64_t bogo_ops;
+				uint64_t bogo_max_ops;
 
-				bogo_ops = stress_get_uint64(optarg);
-				stress_check_range(stress_opt_name(c), bogo_ops, MIN_OPS, MAX_OPS);
+				bogo_max_ops = stress_get_uint64(optarg);
+				stress_check_range(stress_opt_name(c), bogo_max_ops, MIN_OPS, MAX_OPS);
 				/* We don't need to set this, but it may be useful */
-				stress_set_setting_global(stress_opt_name(c), TYPE_ID_UINT64, &bogo_ops);
+				stress_set_setting_global(stress_opt_name(c), TYPE_ID_UINT64, &bogo_max_ops);
 				if (g_stressor_current)
-					g_stressor_current->bogo_ops = bogo_ops;
+					g_stressor_current->bogo_max_ops = bogo_max_ops;
 				goto next_opt;
 			}
 			if (stressors[i].info->opts) {
@@ -3470,10 +3470,10 @@ static void stress_setup_parallel(const uint32_t class, const int32_t instances)
 
 		/*
 		 * Share bogo ops between processes equally, rounding up
-		 * if nonzero bogo_ops
+		 * if nonzero bogo_max_ops
 		 */
-		ss->bogo_ops = ss->instances ?
-			(ss->bogo_ops + (ss->instances - 1)) / ss->instances : 0;
+		ss->bogo_max_ops = ss->instances ?
+			(ss->bogo_max_ops + (ss->instances - 1)) / ss->instances : 0;
 		if (ss->instances)
 			stress_alloc_proc_resources(&ss->stats, ss->instances);
 	}
