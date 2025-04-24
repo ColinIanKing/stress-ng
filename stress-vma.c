@@ -99,9 +99,9 @@ static bool stress_vma_continue(stress_args_t *args)
 {
 	if (UNLIKELY(!stress_continue_flag()))
 		return false;
-	if (LIKELY(args->max_ops == 0))
+	if (LIKELY(args->bogo.max_ops == 0))
 		return true;
-        return stress_vma_metrics->s.metrics[STRESS_VMA_MMAP] < args->max_ops;
+        return stress_vma_metrics->s.metrics[STRESS_VMA_MMAP] < args->bogo.max_ops;
 }
 
 #if defined(__linux__) &&		\

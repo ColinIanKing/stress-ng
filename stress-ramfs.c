@@ -423,7 +423,7 @@ skip_fsopen:
 #endif
 		stress_bogo_inc(args);
 	} while (keep_mounting && stress_continue(args) &&
-		 (!args->max_ops || (stress_bogo_get(args) < args->max_ops)));
+		 (!args->bogo.max_ops || (stress_bogo_get(args) < args->bogo.max_ops)));
 
 cleanup:
 	stress_ramfs_umount(args, realpathname);

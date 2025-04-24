@@ -83,7 +83,7 @@ static int stress_sigvtalrm(stress_args_t *args)
 {
 	struct itimerval timer;
 
-	max_ops = args->max_ops;
+	max_ops = args->bogo.max_ops;
 
 	if (stress_sighandler(args->name, SIGVTALRM, stress_sigvtalrm_handler, NULL) < 0)
 		return EXIT_FAILURE;

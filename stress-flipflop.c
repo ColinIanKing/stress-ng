@@ -205,7 +205,7 @@ static int stress_flipflop(stress_args_t *args)
 	size_t bits_size;
 	int rc = EXIT_SUCCESS, setbits;
 	char *flipflop_taskset1 = NULL, *flipflop_taskset2 = NULL;
-	const bool loop_until_max_ops = (args->max_ops > 0);
+	const bool loop_until_max_ops = (args->bogo.max_ops > 0);
 
 	if (!stress_get_setting("flipflop-bits", &flipflop_bits)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -257,7 +257,7 @@ static int stress_flipflop(stress_args_t *args)
 		goto free_dist;
 	}
 
-	max_ops = (args->max_ops * BOGO_SCALE) / (2 * flipflop_bits);
+	max_ops = (args->bogo.max_ops * BOGO_SCALE) / (2 * flipflop_bits);
 	workers = (stress_flipflop_worker_t *)calloc(2 * flipflop_bits, sizeof(stress_flipflop_worker_t));
 	if (!workers) {
 		pr_inf("%s: failed to allocate workers array, skipping stressor\n",
@@ -296,7 +296,7 @@ static int stress_flipflop(stress_args_t *args)
 		}
 
 		if (loop_until_max_ops && all_done) {
-			bogo_ops = args->max_ops * BOGO_SCALE;
+			bogo_ops = args->bogo.max_ops * BOGO_SCALE;
 			break;
 		}
 	} while (stress_continue(args));

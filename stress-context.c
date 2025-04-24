@@ -192,7 +192,7 @@ static int stress_context(stress_args_t *args)
 	(void)shim_memset(&uctx_main, 0, sizeof(uctx_main));
 
 	context_counter = 0;
-	stress_max_ops = args->max_ops * 1000;
+	stress_max_ops = args->bogo.max_ops * 1000;
 
 	/* Create 3 micro threads */
 	for (i = 0; i < STRESS_CONTEXTS; i++) {

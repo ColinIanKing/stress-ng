@@ -172,7 +172,7 @@ static int stress_timer(stress_args_t *args)
 	(void)sigaddset(&mask, SIGINT);
 	(void)sigprocmask(SIG_SETMASK, &mask, NULL);
 
-	max_ops = args->max_ops;
+	max_ops = args->bogo.max_ops;
 
 	timer_rand = false;
 	(void)stress_get_setting("timer-rand", &timer_rand);

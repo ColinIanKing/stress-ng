@@ -165,7 +165,7 @@ bind_umount:
 		}
 		stress_bogo_inc(args);
 	} while (stress_continue_flag() &&
-		 (!args->max_ops || (stress_bogo_get(args) < args->max_ops)));
+		 (!args->bogo.max_ops || (stress_bogo_get(args) < args->bogo.max_ops)));
 
 	rate = (mount_count > 0.0) ? (double)mount_duration / mount_count : 0.0;
 	stress_metrics_set(args, 0, "microsecs per mount",

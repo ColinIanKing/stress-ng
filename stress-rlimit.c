@@ -205,7 +205,7 @@ static int stress_rlimit_child(stress_args_t *args, void *ctxt)
 		if (UNLIKELY((stress_time_now() - context->start) > (double)g_opt_timeout))
 			break;
 		/* Check for counter limit reached */
-		if (UNLIKELY(args->max_ops && (stress_bogo_get(args) >= args->max_ops)))
+		if (UNLIKELY(args->bogo.max_ops && (stress_bogo_get(args) >= args->bogo.max_ops)))
 			break;
 
 		if (LIKELY(ret == 0)) {

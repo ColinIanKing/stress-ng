@@ -69,7 +69,7 @@ static const stress_help_t help[] = {
 static bool OPTIMIZE3 stress_continue_vm(stress_args_t *args)
 {
 	return (LIKELY(stress_continue_flag()) &&
-	        LIKELY(!args->max_ops || (stress_bogo_get(args) < args->max_ops)));
+	        LIKELY(!args->bogo.max_ops || (stress_bogo_get(args) < args->bogo.max_ops)));
 }
 
 /*

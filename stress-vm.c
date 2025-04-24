@@ -138,7 +138,7 @@ static const stress_vm_madvise_info_t vm_madvise_info[] = {
 static bool OPTIMIZE3 stress_continue_vm(stress_args_t *args)
 {
 	return (LIKELY(stress_continue_flag()) &&
-	        LIKELY(!args->max_ops || ((stress_bogo_get(args) >> VM_BOGO_SHIFT) < args->max_ops)));
+	        LIKELY(!args->bogo.max_ops || ((stress_bogo_get(args) >> VM_BOGO_SHIFT) < args->bogo.max_ops)));
 }
 
 #define SET_AND_TEST(ptr, val, bit_errors)	\
@@ -3357,7 +3357,7 @@ static void stress_vm_flags(const char *opt, int *vm_flags, const int bitmask)
 static int stress_vm_child(stress_args_t *args, void *ctxt)
 {
 	int no_mem_retries = 0;
-	const uint64_t max_ops = args->max_ops << VM_BOGO_SHIFT;
+	const uint64_t max_ops = args->bogo.max_ops << VM_BOGO_SHIFT;
 	uint64_t vm_hang = DEFAULT_VM_HANG;
 	void *buf = NULL, *buf_end = NULL;
 	int vm_flags = 0;                      /* VM mmap flags */

@@ -293,7 +293,7 @@ static int stress_sigurg(stress_args_t *args)
 	int sock_port = DEFAULT_SOCKET_PORT;
 	int rc = EXIT_SUCCESS, reserved_port, parent_cpu;
 
-	max_ops = args->max_ops;
+	max_ops = args->bogo.max_ops;
 
 	if (stress_sigchld_set_handler(args) < 0)
 		return EXIT_NO_RESOURCE;

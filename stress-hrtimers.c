@@ -214,7 +214,7 @@ static int stress_hrtimers(stress_args_t *args)
         (void)stress_get_setting("hrtimers-adjust", &hrtimers_adjust);
 	overrun = 0;
 	ns_delay = hrtimers_adjust ? 10000 : -1;
-	max_ops = args->max_ops / PROCS_MAX;
+	max_ops = args->bogo.max_ops / PROCS_MAX;
 
 	for (i = 0; i < PROCS_MAX; i++) {
 		stress_sync_start_init(&s_pids[i]);

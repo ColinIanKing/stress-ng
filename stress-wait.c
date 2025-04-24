@@ -378,7 +378,7 @@ static int stress_wait(stress_args_t *args)
 			stress_wait_continued(args, status);
 		}
 #endif
-	} while (stress_continue_flag() && (!args->max_ops || (stress_bogo_get(args) < args->max_ops)));
+	} while (stress_continue_flag() && (!args->bogo.max_ops || (stress_bogo_get(args) < args->bogo.max_ops)));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)stress_kill_pid_wait(pid_k, NULL);

@@ -214,9 +214,11 @@ typedef struct {
 
 /* stressor args */
 typedef struct {
+	struct {
+		uint64_t max_ops;		/* max number of bogo ops */
+		stress_counter_info_t ci;	/* counter info struct */
+	} bogo;
 	const char *name;		/* stressor name */
-	uint64_t max_ops;		/* max number of bogo ops */
-	stress_counter_info_t ci;	/* counter info struct */
 	uint32_t instance;		/* stressor instance # */
 	uint32_t instances;		/* number of instances */
 	pid_t pid;			/* stress pid info */
@@ -731,11 +733,11 @@ static inline void ALWAYS_INLINE OPTIMIZE3 stress_continue_set_flag(const bool s
  */
 static inline void ALWAYS_INLINE OPTIMIZE3 stress_bogo_add(stress_args_t *args, const uint64_t inc)
 {
-	args->ci.counter_ready = false;
+	args->bogo.ci.counter_ready = false;
 	stress_asm_mb();
-	args->ci.counter += inc;
+	args->bogo.ci.counter += inc;
 	stress_asm_mb();
-	args->ci.counter_ready = true;
+	args->bogo.ci.counter_ready = true;
 }
 
 /*
@@ -748,11 +750,11 @@ static inline void ALWAYS_INLINE OPTIMIZE3 stress_bogo_add(stress_args_t *args, 
  */
 static inline void ALWAYS_INLINE OPTIMIZE3 stress_bogo_inc(stress_args_t *args)
 {
-	args->ci.counter_ready = false;
+	args->bogo.ci.counter_ready = false;
 	stress_asm_mb();
-	args->ci.counter++;
+	args->bogo.ci.counter++;
 	stress_asm_mb();
-	args->ci.counter_ready = true;
+	args->bogo.ci.counter_ready = true;
 }
 
 /*
@@ -761,7 +763,7 @@ static inline void ALWAYS_INLINE OPTIMIZE3 stress_bogo_inc(stress_args_t *args)
  */
 static inline uint64_t ALWAYS_INLINE OPTIMIZE3 stress_bogo_get(stress_args_t *args)
 {
-	return args->ci.counter;
+	return args->bogo.ci.counter;
 }
 
 /*
@@ -770,7 +772,7 @@ static inline uint64_t ALWAYS_INLINE OPTIMIZE3 stress_bogo_get(stress_args_t *ar
  */
 static inline void ALWAYS_INLINE OPTIMIZE3 stress_bogo_ready(stress_args_t *args)
 {
-	args->ci.counter_ready = true;
+	args->bogo.ci.counter_ready = true;
 }
 
 /*
@@ -783,11 +785,11 @@ static inline void ALWAYS_INLINE OPTIMIZE3 stress_bogo_ready(stress_args_t *args
  */
 static inline void ALWAYS_INLINE OPTIMIZE3 stress_bogo_set(stress_args_t *args, const uint64_t val)
 {
-	args->ci.counter_ready = false;
+	args->bogo.ci.counter_ready = false;
 	stress_asm_mb();
-	args->ci.counter = val;
+	args->bogo.ci.counter = val;
 	stress_asm_mb();
-	args->ci.counter_ready = true;
+	args->bogo.ci.counter_ready = true;
 }
 
 /*
@@ -798,7 +800,7 @@ static inline void ALWAYS_INLINE OPTIMIZE3 stress_bogo_set(stress_args_t *args, 
  */
 static inline void ALWAYS_INLINE stress_force_killed_bogo(stress_args_t *args)
 {
-	args->ci.force_killed = true;
+	args->bogo.ci.force_killed = true;
 }
 
 /*
@@ -809,9 +811,9 @@ static inline bool ALWAYS_INLINE OPTIMIZE3 stress_continue(stress_args_t *args)
 {
 	if (UNLIKELY(!g_stress_continue_flag))
 		return false;
-	if (LIKELY(args->max_ops == 0))
+	if (LIKELY(args->bogo.max_ops == 0))
 		return true;
-	return stress_bogo_get(args) < args->max_ops;
+	return stress_bogo_get(args) < args->bogo.max_ops;
 }
 
 /*

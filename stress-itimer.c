@@ -147,7 +147,7 @@ static int stress_itimer(stress_args_t *args)
 	(void)sigaddset(&mask, SIGINT);
 	(void)sigprocmask(SIG_SETMASK, &mask, NULL);
 
-	max_ops = args->max_ops;
+	max_ops = args->bogo.max_ops;
 
 	if (!stress_get_setting("itimer-freq", &itimer_freq)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)

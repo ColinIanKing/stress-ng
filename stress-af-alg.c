@@ -327,7 +327,7 @@ retry_bind:
 			info->metrics.count += 1.0;
 		}
 		stress_bogo_inc(args);
-		if (args->max_ops && (stress_bogo_get(args) >= args->max_ops)) {
+		if (args->bogo.max_ops && (stress_bogo_get(args) >= args->bogo.max_ops)) {
 			rc = EXIT_SUCCESS;
 			goto err_close;
 		}
@@ -743,7 +743,7 @@ retry_bind:
 			info->metrics.count += 1.0;
 		}
 		stress_bogo_inc(args);
-		if (args->max_ops && (stress_bogo_get(args) >= args->max_ops)) {
+		if (args->bogo.max_ops && (stress_bogo_get(args) >= args->bogo.max_ops)) {
 			rc = EXIT_SUCCESS;
 			goto err_close;
 		}

@@ -369,7 +369,7 @@ again:
 
 				if (UNLIKELY(!stress_continue_flag()))
 					break;
-				if (UNLIKELY((args->max_ops > 0) && state->bogo_ops >= args->max_ops))
+				if (UNLIKELY((args->bogo.max_ops > 0) && state->bogo_ops >= args->bogo.max_ops))
 					break;
 			}
 			state->bogo_ops = bogo_ops;

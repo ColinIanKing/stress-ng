@@ -56,11 +56,11 @@ static int stress_sigpipe(stress_args_t *args)
 	int rc = EXIT_SUCCESS;
 	int pipefds[2];
 	sigpipe_count = 0;
-	sigpipe_max_count = args->max_ops;
+	sigpipe_max_count = args->bogo.max_ops;
 
 	if (stress_sighandler(args->name, SIGPIPE,
-		(args->max_ops == 0) ? stress_sigpipe_handler :
-				       stress_sigpipe_handler_count_check, NULL) < 0)
+		(args->bogo.max_ops == 0) ? stress_sigpipe_handler :
+					    stress_sigpipe_handler_count_check, NULL) < 0)
 		return EXIT_FAILURE;
 
 	if (UNLIKELY(pipe(pipefds) < 0)) {
