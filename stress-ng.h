@@ -709,7 +709,7 @@ extern void *g_nowt;			/* void pointer to NULL */
  *  stress_continue_flag()
  *	get stress_continue_flag state
  */
-static inline bool ALWAYS_INLINE OPTIMIZE3 stress_continue_flag(void)
+static inline bool ALWAYS_INLINE stress_continue_flag(void)
 {
 	return g_stress_continue_flag;
 }
@@ -718,7 +718,7 @@ static inline bool ALWAYS_INLINE OPTIMIZE3 stress_continue_flag(void)
  *  stress_continue_set_flag()
  *	set stress_continue_flag state
  */
-static inline void ALWAYS_INLINE OPTIMIZE3 stress_continue_set_flag(const bool setting)
+static inline void ALWAYS_INLINE stress_continue_set_flag(const bool setting)
 {
 	g_stress_continue_flag = setting;
 }
@@ -731,7 +731,7 @@ static inline void ALWAYS_INLINE OPTIMIZE3 stress_continue_set_flag(const bool s
  *	the counter in a child and the child is force KILL'd then indicate
  *	so with the stress_force_killed_bogo() call from the parent.
  */
-static inline void ALWAYS_INLINE OPTIMIZE3 stress_bogo_add(stress_args_t *args, const uint64_t inc)
+static inline void ALWAYS_INLINE stress_bogo_add(stress_args_t *args, const uint64_t inc)
 {
 	args->bogo.ci.counter_ready = false;
 	stress_asm_mb();
@@ -748,7 +748,7 @@ static inline void ALWAYS_INLINE OPTIMIZE3 stress_bogo_add(stress_args_t *args, 
  *	the counter in a child and the child is force KILL'd then indicate
  *	so with the stress_force_killed_bogo() call from the parent.
  */
-static inline void ALWAYS_INLINE OPTIMIZE3 stress_bogo_inc(stress_args_t *args)
+static inline void ALWAYS_INLINE stress_bogo_inc(stress_args_t *args)
 {
 	args->bogo.ci.counter_ready = false;
 	stress_asm_mb();
@@ -761,7 +761,7 @@ static inline void ALWAYS_INLINE OPTIMIZE3 stress_bogo_inc(stress_args_t *args)
  *  stress_bogo_get()
  *	get the stressor bogo ops counter
  */
-static inline uint64_t ALWAYS_INLINE OPTIMIZE3 stress_bogo_get(stress_args_t *args)
+static inline uint64_t ALWAYS_INLINE stress_bogo_get(stress_args_t *args)
 {
 	return args->bogo.ci.counter;
 }
@@ -770,7 +770,7 @@ static inline uint64_t ALWAYS_INLINE OPTIMIZE3 stress_bogo_get(stress_args_t *ar
  *  stress_bogo_ready()
  *	set counter ready flag to true
  */
-static inline void ALWAYS_INLINE OPTIMIZE3 stress_bogo_ready(stress_args_t *args)
+static inline void ALWAYS_INLINE stress_bogo_ready(stress_args_t *args)
 {
 	args->bogo.ci.counter_ready = true;
 }
@@ -783,7 +783,7 @@ static inline void ALWAYS_INLINE OPTIMIZE3 stress_bogo_ready(stress_args_t *args
  *	the counter in a child and the child is force KILL'd then indicate
  *	so with the stress_force_killed_bogo() call from the parent.
  */
-static inline void ALWAYS_INLINE OPTIMIZE3 stress_bogo_set(stress_args_t *args, const uint64_t val)
+static inline void ALWAYS_INLINE stress_bogo_set(stress_args_t *args, const uint64_t val)
 {
 	args->bogo.ci.counter_ready = false;
 	stress_asm_mb();
@@ -807,13 +807,13 @@ static inline void ALWAYS_INLINE stress_force_killed_bogo(stress_args_t *args)
  *  stress_continue()
  *      returns true if we can keep on running a stressor
  */
-static inline bool ALWAYS_INLINE OPTIMIZE3 stress_continue(stress_args_t *args)
+static inline bool ALWAYS_INLINE stress_continue(stress_args_t *args)
 {
 	if (UNLIKELY(!g_stress_continue_flag))
 		return false;
 	if (LIKELY(args->bogo.max_ops == 0))
 		return true;
-	return stress_bogo_get(args) < args->bogo.max_ops;
+	return args->bogo.ci.counter < args->bogo.max_ops;
 }
 
 /*
