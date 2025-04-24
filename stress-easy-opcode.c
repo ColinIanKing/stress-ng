@@ -367,7 +367,7 @@ again:
 
 				bogo_ops++;
 
-				if (UNLIKELY(!g_stress_continue_flag))
+				if (UNLIKELY(!stress_continue_flag()))
 					break;
 				if (UNLIKELY((args->max_ops > 0) && state->bogo_ops >= args->max_ops))
 					break;
