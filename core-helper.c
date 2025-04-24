@@ -1816,8 +1816,80 @@ static char *stress_get_libc_version(void)
 #endif
 }
 
+#define XSTR(s) STR(s)
+#define STR(s) #s
+
 /*
- *  stress_run_info()
+ *  stress_buildinfo()
+ *     info about compiler, built date and compilation flags
+ */
+void stress_buildinfo(void)
+{
+	if (g_opt_flags & OPT_FLAGS_BUILDINFO) {
+		pr_inf("compiler: %s\n", stress_get_compiler());
+#if defined(__DATE__) &&	\
+    defined(__TIME__)
+		pr_inf("build date: " __DATE__ " " __TIME__ "\n");
+#endif
+#if defined(HAVE_CFLAGS)
+		pr_inf("CFLAGS: " HAVE_CFLAGS "\n");
+#endif
+#if defined(HAVE_CXXFLAGS)
+		pr_inf("CXXFLAGS: " HAVE_CXXFLAGS "\n");
+#endif
+#if defined(HAVE_LDFLAGS)
+		pr_inf("LDFLAGS: " HAVE_LDFLAGS "\n");
+#endif
+#if defined(__STDC_VERSION__)
+		pr_inf("STDC Version: " XSTR(__STDC_VERSION__) "\n");
+#endif
+#if defined(__STDC_HOSTED__)
+		pr_inf("STDC Hosted: " XSTR(__STDC_HOSTED__) "\n");
+#endif
+	}
+}
+
+/*
+ *  stress_yaml_buildinfo()
+ *     log info about compiler, built date and compilation flags
+ */
+void stress_yaml_buildinfo(FILE *yaml)
+{
+	if (UNLIKELY(!yaml))
+		return;
+
+	pr_yaml(yaml, "build-info:\n");
+	pr_yaml(yaml, "      compiler: '%s'\n", stress_get_compiler());
+#if defined(__DATE__)
+	pr_yaml(yaml, "      build-date: '" __DATE__ "'\n");
+#endif
+#if defined(__TIME__)
+	pr_yaml(yaml, "      build-time: '" __TIME__ "'\n");
+#endif
+#if defined(HAVE_CFLAGS)
+	pr_yaml(yaml, "      cflags: '" HAVE_CFLAGS "'\n");
+#endif
+#if defined(HAVE_CXXFLAGS)
+	pr_yaml(yaml, "      cxxflags: '" HAVE_CXXFLAGS "'\n");
+#endif
+#if defined(HAVE_LDFLAGS)
+	pr_yaml(yaml, "      ldflags: '" HAVE_LDFLAGS "'\n");
+#endif
+#if defined(__STDC_VERSION__)
+	pr_yaml(yaml, "      stdc-version: '" XSTR(__STDC_VERSION__) "'\n");
+#endif
+#if defined(__STDC_HOSTED__)
+	pr_yaml(yaml, "      stdc-hosted: '" XSTR(__STDC_HOSTED__) "'\n");
+#endif
+	pr_yaml(yaml, "\n");
+}
+
+
+#undef XSTR
+#undef STR
+
+/*
+ *  stress_runinfo()
  *	short info about the system we are running stress-ng on
  *	for the -v option
  */

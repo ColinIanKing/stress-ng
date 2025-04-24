@@ -145,6 +145,7 @@ static stress_sigalrm_info_t sigalrm_info;
 static const stress_opt_flag_t opt_flags[] = {
 	{ OPT_abort,		OPT_FLAGS_ABORT },
 	{ OPT_aggressive,	OPT_FLAGS_AGGRESSIVE_MASK },
+	{ OPT_buildinfo,	OPT_FLAGS_BUILDINFO },
 	{ OPT_c_states,		OPT_FLAGS_C_STATES },
 	{ OPT_change_cpu,	OPT_FLAGS_CHANGE_CPU },
 	{ OPT_dry_run,		OPT_FLAGS_DRY_RUN },
@@ -3661,6 +3662,7 @@ static FILE *stress_yaml_open(const char *yaml_filename)
 			pr_err("cannot output YAML data to %s\n", yaml_filename);
 
 		pr_yaml(yaml, "---\n");
+		stress_yaml_buildinfo(yaml);
 		stress_yaml_runinfo(yaml);
 	}
 	return yaml;
@@ -3889,6 +3891,7 @@ int main(int argc, char **argv, char **envp)
 	stress_log_system_info();
 	stress_log_system_mem_info();
 	stress_runinfo();
+	stress_buildinfo();
 	stress_cpuidle_log_info();
 	pr_dbg("%" PRId32 " processor%s online, %" PRId32
 		" processor%s configured\n",

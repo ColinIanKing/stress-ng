@@ -88,6 +88,7 @@
 #define OPT_FLAGS_C_STATES	 STRESS_BIT_ULL(57)	/* --c-states */
 #define OPT_FLAGS_STRESSOR_TIME	 STRESS_BIT_ULL(58)	/* --stressor-time */
 #define OPT_FLAGS_TASKSET_RANDOM STRESS_BIT_ULL(59)	/* --taskset-random */
+#define OPT_FLAGS_BUILDINFO	 STRESS_BIT_ULL(60)	/* --buildinfo */
 
 #define OPT_FLAGS_MINMAX_MASK		\
 	(OPT_FLAGS_MINIMIZE | OPT_FLAGS_MAXIMIZE)
@@ -233,6 +234,8 @@ typedef enum {
 	OPT_bubblesort_method,
 	OPT_bubblesort_ops,
 	OPT_bubblesort_size,
+
+	OPT_buildinfo,
 
 	OPT_c_states,
 

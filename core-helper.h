@@ -97,6 +97,8 @@ extern const char *stress_get_signal_name(const int signum);
 extern const char *stress_strsignal(const int signum) RETURNS_NONNULL;
 extern WARN_UNUSED bool stress_little_endian(void);
 extern void stress_uint8rnd4(uint8_t *data, const size_t len);
+extern void stress_buildinfo(void);
+extern void stress_yaml_buildinfo(FILE *yaml);
 extern void stress_runinfo(void);
 extern void stress_yaml_runinfo(FILE *yaml);
 extern WARN_UNUSED int stress_cache_alloc(const char *name);

@@ -789,7 +789,7 @@ all: config.h stress-ng
 
 %.o: %.c $(HEADERS) $(HEADERS_GEN)
 	$(PRE_Q)echo "CC $<"
-	$(PRE_V)$(CC) $(CFLAGS) -c -o $@ $<
+	$(PRE_V)$(CC) $(CFLAGS) -DHAVE_CFLAGS='"$(CFLAGS)"' -DHAVE_LDFLAGS='"$(LDFLAGS)"' -DHAVE_CXXFLAGS='"$(CXXFLAGS)"' -c -o $@ $<
 
 stress-vnni.o: stress-vnni.c $(HEADERS) $(HEADERS_GEN)
 	$(PRE_Q)echo "CC $<"
