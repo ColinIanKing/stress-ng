@@ -19,7 +19,6 @@
 #ifndef CORE_PERF_H
 #define CORE_PERF_H
 
-#include "stress-ng.h"
 #include "core-attribute.h"
 
 /* perf related constants */
