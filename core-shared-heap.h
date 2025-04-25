@@ -19,7 +19,6 @@
 #ifndef CORE_SHARED_HEAP_H
 #define CORE_SHARED_HEAP_H
 
-#include "stress-ng.h"
 #include "core-setting.h"
 
 extern WARN_UNUSED void *stress_shared_heap_init(void);
