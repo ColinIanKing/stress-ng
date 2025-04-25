@@ -19,8 +19,6 @@
 #ifndef CORE_TRY_OPEN_H
 #define CORE_TRY_OPEN_H
 
-#include "core-attribute.h"
-
 #define STRESS_TRY_OPEN_OK	  (0)		/* File can be opened */
 #define STRESS_TRY_OPEN_FORK_FAIL (1)		/* Try failed, e.g. can't fork */
 #define STRESS_TRY_OPEN_WAIT_FAIL (2)		/* Wait on child open failed */
