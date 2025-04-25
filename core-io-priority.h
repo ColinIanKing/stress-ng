@@ -19,8 +19,6 @@
 #ifndef CORE_IO_PRIORITY_H
 #define CORE_IO_PRIORITY_H
 
-#include "core-attribute.h"
-
 /*
  *  See ioprio_set(2) and linux/ioprio.h, glibc has no definitions
  *  for these at present. Also refer to Documentation/block/ioprio.txt
