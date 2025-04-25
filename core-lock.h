@@ -19,8 +19,6 @@
 #ifndef CORE_LOCK_H
 #define CORE_LOCK_H
 
-#include "core-attribute.h"
-
 extern int stress_lock_mem_map(void);
 extern void stress_lock_mem_unmap(void);
 
