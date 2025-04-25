@@ -19,8 +19,6 @@
 #ifndef CORE_THERMAL_ZONES_H
 #define CORE_THERMAL_ZONES_H
 
-#include "core-attribute.h"
-
 /* linux thermal zones */
 #define	STRESS_THERMAL_ZONES	 (1)
 #define STRESS_THERMAL_ZONES_MAX (31)	/* best if prime */
