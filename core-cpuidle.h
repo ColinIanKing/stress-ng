@@ -19,8 +19,6 @@
 #ifndef CORE_CPUIDLE_H
 #define CORE_CPUIDLE_H
 
-#include "core-attribute.h"
-
 typedef struct cpu_cstate {
 	struct cpu_cstate *next;	/* next cpu c-state */
 	uint32_t residency;		/* residency in microseconds */
