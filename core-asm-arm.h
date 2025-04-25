@@ -20,8 +20,8 @@
 #ifndef CORE_ASM_ARM_H
 #define CORE_ASM_ARM_H
 
-#include "stress-ng.h"
 #include "core-arch.h"
+#include "core-attribute.h"
 
 #if defined(STRESS_ARCH_ARM)
 
