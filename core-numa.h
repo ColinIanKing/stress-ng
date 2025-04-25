@@ -23,8 +23,6 @@
 #include <linux/mempolicy.h>
 #endif
 
-#include "core-attribute.h"
-
 #define BITS_PER_BYTE		(8)
 #define NUMA_LONG_BITS		(sizeof(unsigned long int) * BITS_PER_BYTE)
 
