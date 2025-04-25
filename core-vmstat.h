@@ -19,7 +19,6 @@
 #ifndef CORE_VMSTAT_H
 #define CORE_VMSTAT_H
 
-#include "stress-ng.h"
 #include "core-attribute.h"
 
 extern WARN_UNUSED int stress_set_status(const char *const opt);
