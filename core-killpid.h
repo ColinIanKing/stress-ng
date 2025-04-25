@@ -19,8 +19,6 @@
 #ifndef CORE_KILLPID_H
 #define CORE_KILLPID_H
 
-#include "core-attribute.h"
-
 extern int stress_kill_pid(const pid_t pid);
 extern pid_t stress_kill_pid_wait(const pid_t pid, int *status);
 extern int stress_kill_sig(const pid_t pid, const int signum);
