@@ -21,7 +21,6 @@
 #define CORE_RESOURCES_H
 
 #include <sys/socket.h>
-#include "core-attribute.h"
 #include "core-killpid.h"
 #include "core-pthread.h"
 
