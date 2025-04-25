@@ -20,7 +20,6 @@
 #define CORE_RAPL_H
 
 #include "core-arch.h"
-#include "core-attribute.h"
 
 #if defined(__linux__) &&	\
     defined(STRESS_ARCH_X86)
