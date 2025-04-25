@@ -19,8 +19,8 @@
 #ifndef CORE_ASM_X86_H
 #define CORE_ASM_X86_H
 
-#include "stress-ng.h"
 #include "core-arch.h"
+#include "core-attribute.h"
 
 #if defined(__LP64) || defined(__LP64__)
 #define STRESS_ARCH_X86_LP64
