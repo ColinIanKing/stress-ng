@@ -948,15 +948,10 @@ redo:
 			const int wterm_signal = WTERMSIG(status);
 
 			if (wterm_signal != SIGALRM) {
-#if NEED_GLIBC(2,1,0)
-				const char *signame = strsignal(wterm_signal);
+				const char *signame = stress_strsignal(wterm_signal);
 
-				pr_dbg("%s: [%" PRIdMAX "] terminated on signal: %d (%s)\n",
-					name, (intmax_t)ret, wterm_signal, signame);
-#else
-				pr_dbg("%s: [%" PRIdMAX "] terminated on signal: %d\n",
-					name, (intmax_t)ret, wterm_signal);
-#endif
+				pr_dbg("%s: [%" PRIdMAX "] terminated on %s\n",
+					name, (intmax_t)ret, signame);
 			}
 #else
 			pr_dbg("%s [%" PRIdMAX "] terminated on signal\n",
