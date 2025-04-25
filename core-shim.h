@@ -19,8 +19,6 @@
 #ifndef CORE_SHIM_H
 #define CORE_SHIM_H
 
-#include "core-attribute.h"
-
 #if defined(HAVE_SYS_UIO_H)
 #include <sys/uio.h>
 #endif
