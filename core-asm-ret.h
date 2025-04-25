@@ -16,9 +16,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
-#include "stress-ng.h"
-#include "core-attribute.h"
-
 #ifndef CORE_ASM_RET_H
 #define CORE_ASM_RET_H
 
