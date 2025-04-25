@@ -19,8 +19,6 @@
 #ifndef CORE_SETTING_H
 #define CORE_SETTING_H
 
-#include "core-attribute.h"
-
 /* native setting types */
 typedef enum {
 	TYPE_ID_UNDEFINED = 0,		/* no-id */
