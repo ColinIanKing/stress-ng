@@ -19,8 +19,6 @@
 #ifndef CORE_PERF_H
 #define CORE_PERF_H
 
-#include "core-attribute.h"
-
 /* perf related constants */
 #if defined(HAVE_LIB_PTHREAD) &&	\
     defined(HAVE_LINUX_PERF_EVENT_H) &&	\
