@@ -19,8 +19,6 @@
 #ifndef CORE_INTERRUPTS_H
 #define CORE_INTERRUPTS_H
 
-#include "core-attribute.h"
-
 extern void stress_interrupts_start(stress_interrupts_t *counters);
 extern void stress_interrupts_stop(stress_interrupts_t *counters);
 extern void stress_interrupts_check_failure(const char *name,
