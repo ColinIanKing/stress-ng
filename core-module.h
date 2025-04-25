@@ -19,8 +19,6 @@
 #ifndef CORE_MODULE_H
 #define CORE_MODULE_H
 
-#include "core-attribute.h"
-
 extern int stress_module_load(const char *name, const char *alias,
 	const char *options, bool *already_loaded);
 extern int stress_module_unload(const char *name, const char *alias,
