@@ -813,10 +813,7 @@ static inline void ALWAYS_INLINE stress_force_killed_bogo(stress_args_t *args)
  *  stress_continue()
  *      returns true if we can keep on running a stressor
  */
-static inline int ALWAYS_INLINE stress_continue(stress_args_t *args)
-{
-	return LIKELY(args->bogo.ci.counter < args->bogo.max_ops);
-}
+#define stress_continue(args) 	LIKELY(args->bogo.ci.counter < args->bogo.max_ops)
 
 /*
  *  stress_bogo_add_lock()
