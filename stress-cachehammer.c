@@ -91,38 +91,35 @@ static void stress_cachehammer_init(const uint32_t instances)
 
 	page = calloc(page_size, sizeof(*page));
 	if (!page)
-		return;
+		goto err_nullstr;
 	if (stress_temp_dir(cachehammer_path, sizeof(cachehammer_path),
-			    "cachehammer", getppid(), 0) < 0) {
-		free(page);
-		return;
-	}
-	if (mkdir(cachehammer_path, S_IRWXU) < 0) {
-		free(page);
-		return;
-	}
+			    "cachehammer", getpid(), 0) < 0)
+		goto err_free;
+	if (mkdir(cachehammer_path, S_IRWXU) < 0)
+		goto err_rmdir;
 	(void)stress_mk_filename(cachehammer_filename,
 		sizeof(cachehammer_filename), cachehammer_path, "mmap-page");
-
 	fd = open(cachehammer_filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
 	if (fd < 0)
-		goto err;
+		goto err_unlink;
 	ret = write(fd, page, page_size);
 	(void)close(fd);
 
 	if (ret != (ssize_t)page_size)
-		goto err;
+		goto err_unlink;
 
 	free(page);
 	return;
 
-err:
+err_unlink:
 	(void)unlink(cachehammer_filename);
+err_rmdir:
 	(void)shim_rmdir(cachehammer_path);
-
+err_free:
+	free(page);
+err_nullstr:
 	*cachehammer_filename = '\0';
 	*cachehammer_path = '\0';
-	free(page);
 	return;
 }
 
@@ -1047,6 +1044,11 @@ static int OPTIMIZE3 stress_cachehammer(stress_args_t *args)
 	NOCLOBBER size_t tries = 0;
 	char buf[1024];
 
+	if (!*cachehammer_filename) {
+		pr_inf_skip("%s: shared file not created, skipping stressor\n",
+			args->name);
+		return EXIT_NO_RESOURCE;
+	}
 	func_index = 0;
 	for (i = 0; i < SIZEOF_ARRAY(stress_cachehammer_funcs); i++) {
 		valid[i] = stress_cachehammer_funcs[i].valid();
