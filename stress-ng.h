@@ -498,6 +498,8 @@ extern const char stress_config[];
 
 #define MIN_OPS			(1ULL)
 #define MAX_OPS			(100000000ULL)
+#define NEVER_END_OPS		(0xffffffffffffffffULL)
+
 #define MAX_32			(0xffffffffUL)
 #define MAX_48			(0xffffffffffffULL)
 #define MAX_64			(0xffffffffffffffffULL)
@@ -705,6 +707,8 @@ extern volatile bool g_stress_continue_flag; /* false to exit stressor */
 extern jmp_buf g_error_env;		/* parsing error env */
 extern void *g_nowt;			/* void pointer to NULL */
 
+extern void stress_zero_bogo_max_ops(void);
+
 /*
  *  stress_continue_flag()
  *	get stress_continue_flag state
@@ -721,6 +725,8 @@ static inline bool ALWAYS_INLINE stress_continue_flag(void)
 static inline void ALWAYS_INLINE stress_continue_set_flag(const bool setting)
 {
 	g_stress_continue_flag = setting;
+	if (!setting)
+		stress_zero_bogo_max_ops();
 }
 
 /*
@@ -807,13 +813,9 @@ static inline void ALWAYS_INLINE stress_force_killed_bogo(stress_args_t *args)
  *  stress_continue()
  *      returns true if we can keep on running a stressor
  */
-static inline bool ALWAYS_INLINE stress_continue(stress_args_t *args)
+static inline int ALWAYS_INLINE stress_continue(stress_args_t *args)
 {
-	if (UNLIKELY(!g_stress_continue_flag))
-		return false;
-	if (LIKELY(args->bogo.max_ops == 0))
-		return true;
-	return args->bogo.ci.counter < args->bogo.max_ops;
+	return LIKELY(args->bogo.ci.counter < args->bogo.max_ops);
 }
 
 /*

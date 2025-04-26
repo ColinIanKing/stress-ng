@@ -524,6 +524,25 @@ static int stress_exclude(void)
 }
 
 /*
+ *  stress_zero_bogo_max_ops()
+ *	zero'ing all the bogo_max_ops stops all stressors
+ *	that are checking on stress_continue()
+ */
+void stress_zero_bogo_max_ops(void)
+{
+	stress_stressor_t *ss;
+
+	for (ss = stressors_head; ss; ss = ss->next) {
+		int32_t i;
+
+		if (!ss->ignore.run) {
+			for (i = 0; i < ss->instances; i++)
+				ss->stats[i]->args.bogo.max_ops = 0;
+		}
+	}
+}
+
+/*
  *  stress_kill_stressors()
  * 	kill stressor tasks using signal sig
  */
@@ -593,6 +612,8 @@ static void MLOCKED_TEXT stress_sigalrm_handler(int signum)
 			}
 		}
 	}
+	stress_zero_bogo_max_ops();
+
 	if (getpid() == main_pid) {
 		/* Parent */
 		wait_flag = false;
@@ -1540,7 +1561,8 @@ static int MLOCKED_TEXT stress_run_child(
 		stats->args.mapped = &g_shared->mapped;
 		stats->args.metrics = &stats->metrics;
 		stats->args.info = info;
-		stats->args.bogo.max_ops = g_stressor_current->bogo_max_ops;
+		stats->args.bogo.max_ops = g_stressor_current->bogo_max_ops ?
+			g_stressor_current->bogo_max_ops : NEVER_END_OPS;
 		stats->args.bogo.ci.counter = 0;
 
 		if (instance == 0)
@@ -1731,6 +1753,7 @@ static void MLOCKED_TEXT stress_run(
 			int rc;
 			stress_stats_t *const stats = g_stressor_current->stats[j];
 
+
 #if defined(STRESS_TERMINATE_PREMATURELY)
 			if (g_opt_timeout && (stress_time_now() - time_start > (double)g_opt_timeout))
 				goto abort;
@@ -1768,6 +1791,7 @@ again:
 				stats->s_pid.pid = child_pid;
 				if (g_opt_flags & OPT_FLAGS_C_STATES)
 					stress_cpuidle_read_cstates_begin(&stats->cstates);
+
 				rc = stress_run_child(checksum,
 						stats, fork_time_start,
 						backoff, ticks_per_sec,
