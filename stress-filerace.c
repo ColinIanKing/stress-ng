@@ -942,7 +942,6 @@ static void stress_filerace_acl_set(const int fd, const char *filename)
 	acl_entry_t entry = (acl_entry_t)NULL;
 	acl_permset_t permset;
 	size_t i;
-	uid_t uid = getuid();
 
 	(void)fd;
 	acl = acl_init((int)SIZEOF_ARRAY(stress_filerace_acl_tags));
@@ -1453,24 +1452,24 @@ static void stress_filerace_child(stress_args_t *args, const char *pathname, con
 			break;
 		case 9:
 			for (n = 0; n < 64; n++) {
-				int fd;
+				int tmp_fd;
 
 				(void)snprintf(filename, sizeof(filename), "%s/%2.2" PRIx8, pathname, n);
-				fd = open(filename, O_CREAT | O_RDWR | O_APPEND, S_IRUSR | S_IWUSR);
-				if (fd > -1)
-					(void)close(fd);
+				tmp_fd = open(filename, O_CREAT | O_RDWR | O_APPEND, S_IRUSR | S_IWUSR);
+				if (tmp_fd > -1)
+					(void)close(tmp_fd);
 			}
 			break;
 		case 10:
 			stress_filerace_filename(pathname, filename, sizeof(filename));
 
 			for (n = 0; n < 64; n++) {
-				int fd;
+				int tmp_fd;
 
 				flag = open_wr_flags[stress_mwc8modn((uint8_t)SIZEOF_ARRAY(open_wr_flags))];
-				fd = open(filename, O_CREAT | O_RDWR | flag, S_IRUSR | S_IWUSR);
-				if (fd > -1)
-					(void)close(fd);
+				tmp_fd = open(filename, O_CREAT | O_RDWR | flag, S_IRUSR | S_IWUSR);
+				if (tmp_fd > -1)
+					(void)close(tmp_fd);
 				(void)unlink(filename);
 				(void)rmdir(filename);
 			}
@@ -1481,25 +1480,25 @@ static void stress_filerace_child(stress_args_t *args, const char *pathname, con
     defined(__NR_getdents)
 		/* read test directory as fast as possible in various sized chunks */
 		{
-			int fd;
+			int tmp_fd;
 
-			fd = open(pathname, O_RDONLY | O_DIRECTORY);
-			if (fd != -1) {
-				size_t i;
+			tmp_fd = open(pathname, O_RDONLY | O_DIRECTORY);
+			if (tmp_fd != -1) {
+				size_t j;
 				char dirbuf[1024];
 
-				for (i = 32; i <= sizeof(dirbuf); i = i + i) {
-					if (lseek(fd, 0, SEEK_SET) != (off_t)-1) {
+				for (j = 32; j <= sizeof(dirbuf); j = j + j) {
+					if (lseek(tmp_fd, 0, SEEK_SET) != (off_t)-1) {
 						do {
 							long rd;
 
-							rd = syscall(SYS_getdents, fd, dirbuf, i);
+							rd = syscall(SYS_getdents, tmp_fd, dirbuf, j);
 							if (rd <= 0)
 								break;
 						} while (stress_continue(args));
 					}
 				}
-				(void)close(fd);
+				(void)close(tmp_fd);
 			}
 		}
 #endif
