@@ -64,5 +64,16 @@ static inline ALWAYS_INLINE void stress_sync_state_load(stress_pid_t *s_pid, uin
 #endif
 }
 
+/*
+ *  stress_sync_start_s_pid_list_add()
+ *	add s_pid to pid list head
+ */
+static inline ALWAYS_INLINE void stress_sync_start_s_pid_list_add(
+	stress_pid_t **s_pids_head,
+	stress_pid_t *s_pid)
+{
+	s_pid->next = *s_pids_head;
+	*s_pids_head = s_pid;
+}
 
 #endif

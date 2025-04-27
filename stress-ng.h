@@ -866,13 +866,6 @@ static inline bool stress_bogo_inc_lock(stress_args_t *args, void *lock, const b
 #define STRESS_METRIC_MAXIMUM		(0x4)
 
 extern WARN_UNUSED int stress_parse_opts(int argc, char **argv, const bool jobmode);
-
-static inline void stress_sync_start_s_pid_list_add(stress_pid_t **s_pids_head, stress_pid_t *s_pid)
-{
-	s_pid->next = *s_pids_head;
-	*s_pids_head = s_pid;
-}
-
 extern void stress_shared_readonly(void);
 extern void stress_shared_unmap(void);
 extern void stress_log_system_mem_info(void);
