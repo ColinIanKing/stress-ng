@@ -136,3 +136,52 @@ void stress_sync_start_cont_s_pid(stress_pid_t *s_pid)
 
 	(void)kill(pid, SIGCONT);
 }
+
+void stress_sync_start_cont_list(stress_pid_t *s_pids_head)
+{
+	int unready, n_pids;
+
+	if (!(g_opt_flags & OPT_FLAGS_SYNC_START))
+		return;
+
+	do {
+		stress_pid_t *s_pid;
+
+		unready = 0;
+		n_pids = 0;
+		for (s_pid = s_pids_head; s_pid; s_pid = s_pid->next) {
+			uint8_t state;
+
+			n_pids++;
+			stress_sync_state_load(s_pid, &state);
+			if (state == STRESS_SYNC_START_FLAG_FINISHED)
+				continue;
+			if (state != STRESS_SYNC_START_FLAG_WAITING)
+				unready++;
+		}
+		if (!unready)
+			break;
+		(void)shim_usleep(10000);
+		unready = 0;
+	} while (stress_continue_flag());
+
+	if (!unready) {
+		do {
+			stress_pid_t *s_pid;
+			int running = 0, finished = 0;
+			uint8_t state;
+
+			for (s_pid = s_pids_head; s_pid; s_pid = s_pid->next) {
+				stress_sync_start_cont_s_pid(s_pid);
+				stress_sync_state_load(s_pid, &state);
+				if (state == STRESS_SYNC_START_FLAG_FINISHED)
+					finished++;
+				if (state == STRESS_SYNC_START_FLAG_RUNNING)
+					running++;
+			}
+			if ((running + finished) == n_pids)
+				break;
+			(void)shim_usleep(10000);
+		} while (stress_continue_flag());
+	}
+}

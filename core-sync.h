@@ -25,12 +25,13 @@
 #define STRESS_SYNC_START_FLAG_RUNNING		(2)
 #define STRESS_SYNC_START_FLAG_FINISHED		(3)
 
-stress_pid_t *stress_sync_s_pids_mmap(const size_t num);
-int stress_sync_s_pids_munmap(stress_pid_t *s_pids, const size_t num);
-void stress_sync_start_init(stress_pid_t *s_pid);
-void stress_sync_start_wait_s_pid(stress_pid_t *s_pid);
-void stress_sync_start_wait(stress_args_t *args);
-void stress_sync_start_cont_s_pid(stress_pid_t *s_pid);
+extern stress_pid_t *stress_sync_s_pids_mmap(const size_t num);
+extern int stress_sync_s_pids_munmap(stress_pid_t *s_pids, const size_t num);
+extern void stress_sync_start_init(stress_pid_t *s_pid);
+extern void stress_sync_start_wait_s_pid(stress_pid_t *s_pid);
+extern void stress_sync_start_wait(stress_args_t *args);
+extern void stress_sync_start_cont_s_pid(stress_pid_t *s_pid);
+extern void stress_sync_start_cont_list(stress_pid_t *s_pids_head);
 
 /*
  *  stress_sync_state_store()
