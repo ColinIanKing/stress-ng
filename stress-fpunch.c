@@ -377,7 +377,6 @@ static int stress_fpunch(stress_args_t *args)
 		if (s_pids[i].pid == 0) {
 			s_pids[i].pid = getpid();
 			stress_sync_start_wait_s_pid(&s_pids[i]);
-			int ret;
 #if !defined(HAVE_PREADV_WRITEV)
 			int tmp_fd;
 #endif
