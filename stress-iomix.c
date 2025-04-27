@@ -21,7 +21,6 @@
 #include "core-builtin.h"
 #include "core-killpid.h"
 #include "core-put.h"
-#include "core-sync.h"
 
 #include <sys/ioctl.h>
 

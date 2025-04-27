@@ -22,7 +22,6 @@
 #include "core-killpid.h"
 #include "core-net.h"
 #include "core-pragma.h"
-#include "core-sync.h"
 
 #include <time.h>
 

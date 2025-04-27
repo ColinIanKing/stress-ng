@@ -19,7 +19,6 @@
 #include "stress-ng.h"
 #include "core-killpid.h"
 #include "core-lock.h"
-#include "core-sync.h"
 
 #define TOUCH_PROCS	(4)
 

@@ -23,7 +23,6 @@
 #include "core-madvise.h"
 #include "core-mincore.h"
 #include "core-out-of-memory.h"
-#include "core-sync.h"
 
 #define UNSET_MLOCKMANY_PROCS		(0)
 #define DEFAULT_MLOCKMANY_PROCS		(1024)

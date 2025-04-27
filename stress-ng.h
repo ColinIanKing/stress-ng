@@ -258,6 +258,7 @@ typedef struct stress_stressor_info {
 #include "core-mwc.h"
 #include "core-rapl.h"
 #include "core-sched.h"
+#include "core-sync.h"
 #include "core-shim.h"
 #include "core-time.h"
 #include "core-thermal-zone.h"
@@ -865,11 +866,7 @@ static inline bool stress_bogo_inc_lock(stress_args_t *args, void *lock, const b
 #define STRESS_METRIC_MAXIMUM		(0x4)
 
 extern WARN_UNUSED int stress_parse_opts(int argc, char **argv, const bool jobmode);
-extern void stress_sync_start_init(stress_pid_t *s_pid);
 extern void stress_sync_start_cont_list(stress_pid_t *s_pids_head);
-extern void stress_sync_start_cont_s_pid(stress_pid_t *s_pid);
-extern void stress_sync_start_wait(stress_args_t *args);
-extern void stress_sync_start_wait_s_pid(stress_pid_t *s_pid);
 
 static inline void stress_sync_start_s_pid_list_add(stress_pid_t **s_pids_head, stress_pid_t *s_pid)
 {

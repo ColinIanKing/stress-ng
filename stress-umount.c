@@ -20,7 +20,6 @@
 #include "core-builtin.h"
 #include "core-capabilities.h"
 #include "core-killpid.h"
-#include "core-sync.h"
 
 #if defined(HAVE_SYS_MOUNT_H)
 #include <sys/mount.h>

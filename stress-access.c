@@ -20,7 +20,6 @@
 #include "stress-ng.h"
 #include "core-capabilities.h"
 #include "core-killpid.h"
-#include "core-sync.h"
 
 #define STRESS_ACCESS_PROCS	(2)
 

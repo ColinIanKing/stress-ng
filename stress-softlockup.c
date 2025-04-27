@@ -22,7 +22,6 @@
 #include "core-builtin.h"
 #include "core-capabilities.h"
 #include "core-killpid.h"
-#include "core-sync.h"
 
 #include <sched.h>
 

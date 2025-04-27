@@ -22,7 +22,6 @@
 #include "core-killpid.h"
 #include "core-out-of-memory.h"
 #include "core-pragma.h"
-#include "core-sync.h"
 
 #define RMAP_CHILD_MAX		(16)
 #define MAPPINGS_MAX		(64)

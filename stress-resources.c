@@ -22,7 +22,6 @@
 #include "core-killpid.h"
 #include "core-out-of-memory.h"
 #include "core-resources.h"
-#include "core-sync.h"
 
 #define MIN_MEM_FREE	(16 * MB)
 #define MAX_PIDS 	(2048)

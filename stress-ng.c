@@ -43,7 +43,6 @@
 #include "core-shared-heap.h"
 #include "core-smart.h"
 #include "core-stressors.h"
-#include "core-sync.h"
 #include "core-syslog.h"
 #include "core-thermal-zone.h"
 #include "core-thrash.h"

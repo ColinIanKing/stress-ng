@@ -25,7 +25,6 @@
 #include "core-out-of-memory.h"
 #include "core-pthread.h"
 #include "core-put.h"
-#include "core-sync.h"
 
 #if defined(HAVE_SYS_PRCTL_H)
 #include <sys/prctl.h>
