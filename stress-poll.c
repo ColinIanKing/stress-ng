@@ -222,7 +222,8 @@ abort:
 		/* Parent read */
 
 #if defined(HAVE_SYS_SELECT_H) &&	\
-    defined(HAVE_SELECT)
+    (defined(HAVE_SELECT) ||		\
+     defined(HAVE_PSELECT))
 		int maxfd = 0;
 		fd_set rfds;
 #endif
