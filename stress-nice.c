@@ -48,9 +48,13 @@ static void stress_nice_delay(void)
 static int stress_nice(stress_args_t *args)
 {
 	const bool cap_sys_nice = stress_check_capability(SHIM_CAP_SYS_NICE);
+#if defined(HAVE_SETPRIORITY) || 	\
+    defined(HAVE_GETPRIORITY)
+#endif
+	int rc = EXIT_SUCCESS;
 #if defined(HAVE_SETPRIORITY)
 	/* Make an assumption on priority range */
-	int max_prio = 20, min_prio = -20, rc = EXIT_SUCCESS;
+	int max_prio = 20, min_prio = -20;
 
 #if defined(RLIMIT_NICE)
 	{
@@ -78,7 +82,8 @@ static int stress_nice(stress_args_t *args)
 
 		pid = fork();
 		if (pid == 0) {
-#if defined(HAVE_GETPRIORITY)
+#if defined(HAVE_GETPRIORITY) &&	\
+    defined(HAVE_SETPRIORITY)
 			static const shim_priority_which_t prio_which[] = {
 				PRIO_PROCESS,
 				PRIO_USER,
