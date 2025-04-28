@@ -90,10 +90,14 @@ static inline void stress_schedmix_waste_time(stress_args_t *args)
 	struct timespec timeout;
 #endif
 #if defined(HAVE_SYS_SELECT_H) &&       \
-    defined(HAVE_SELECT)
+    (defined(HAVE_SELECT) ||		\
+     defined(HAVE_PSELECT))
 	fd_set rfds;
-	struct timeval tv;
 	const int fdstdin = fileno(stdin);
+#endif
+#if defined(HAVE_SYS_SELECT_H) &&       \
+    defined(HAVE_SELECT)
+	struct timeval tv;
 #endif
 #if defined(HAVE_SYS_SELECT_H) &&       \
     defined(HAVE_PSELECT)
