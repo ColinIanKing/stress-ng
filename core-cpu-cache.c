@@ -1334,7 +1334,7 @@ free_cpu_caches:
 void OPTIMIZE3 stress_cpu_data_cache_flush(void *addr, const size_t len)
 {
 	register uint8_t *ptr = (uint8_t *)addr;
-	register const uint8_t *ptr_end = ptr + len;
+	register uint8_t *ptr_end = ptr + len;
 
 #if defined(HAVE_ASM_X86_CLFLUSHOPT)
 	if (stress_cpu_x86_has_clflushopt()) {
