@@ -293,9 +293,9 @@ static int pr_msg(
 					abort_msg_emitted = true;
 					stress_continue_set_flag(false);
 
-					(void)snprintf(buf, sizeof(buf), "info: %d failures "
-						"reached, aborting stress "
-						"process\n", ABORT_FAILURES);
+					(void)snprintf(buf, sizeof(buf), "%s: %s%s [%" PRIdMAX "] "
+						"info: %d failures reached, aborting stress process\n",
+						g_app_name, ts, type, (intmax_t)pid, ABORT_FAILURES);
 					len = strlen(buf);
 					pr_log_write(buf, len);
 				}
