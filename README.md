@@ -38,16 +38,6 @@ Linux systems to make the stressors unkillable in low memory situations, so use
 this judiciously. With the appropriate privilege, stress-ng can allow the ionice
 class and ionice levels to be adjusted, again, this should be used with care.
 
-## Tarballs
-
-Tarballs of each version of stress-ng can be downloaded using the URL:
-
-https://github.com/ColinIanKing/stress-ng/tarball/version
-
-where version is the relevant version number, for example:
-
-https://github.com/ColinIanKing/stress-ng/tarball/V0.13.05
-
 ## Running latest stress-ng snapshot in a container
 
 ```bash
