@@ -153,14 +153,12 @@ static void stress_resched_spawn(
 static int stress_resched(stress_args_t *args)
 {
 	stress_pid_t *s_pids;
-	int rc = EXIT_SUCCESS;
-
-#if defined(HAVE_SETPRIORITY)
-	int i, s_pids_max, max_prio = 19;
+	int i, s_pids_max, max_prio = 19, rc = EXIT_SUCCESS;
 	size_t yields_size;
 	uint64_t *yields;
 
-#if defined(RLIMIT_NICE)
+#if defined(HAVE_SETPRIORITY) &&	\
+    defined(RLIMIT_NICE)
 	{
 		struct rlimit rlim;
 
@@ -168,7 +166,6 @@ static int stress_resched(stress_args_t *args)
 			max_prio = 20 - (int)rlim.rlim_cur;
 		}
 	}
-#endif
 #endif
 	s_pids_max = max_prio + 1; /* 0.. max_prio */
 	s_pids = stress_sync_s_pids_mmap((size_t)s_pids_max);
