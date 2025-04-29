@@ -64,6 +64,12 @@ static void NORETURN MLOCKED_TEXT stress_bushandler(int signum)
 {
 	(void)signum;
 
+#if defined(STRESS_ARCH_X86_64)
+	/* Clear AC bit in EFLAGS */
+	__asm__ __volatile__("pushf;\n"
+			     "andl $0xfffbffff, (%rsp);\n"
+			     "popf;\n");
+#endif
 	siglongjmp(jmp_env, 1);		/* Ugly, bounce back */
 }
 #endif
