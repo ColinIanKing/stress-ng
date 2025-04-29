@@ -158,7 +158,7 @@ endif
 #
 # Relax compxchg flags
 #
-ifneq ($(filter-out clang icc scan-build,$(COMPILER)),)
+ifneq ($(filter-out clang icc pcc scan-build,$(COMPILER)),)
 override CFLAGS += $(foreach flag,-mrelax-cmpxchg-loop,$(cc_supports_flag))
 endif
 
