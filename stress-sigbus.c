@@ -90,6 +90,7 @@ static int stress_sigbus(stress_args_t *args)
 #if defined(SA_SIGINFO)
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 #endif
+	NOCLOBBER double time_start;
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
@@ -138,6 +139,8 @@ static int stress_sigbus(stress_args_t *args)
 	stress_sync_start_wait(args);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
+	time_start = stress_time_now();
+
 	for (;;) {
 		struct sigaction action;
 
@@ -171,6 +174,9 @@ static int stress_sigbus(stress_args_t *args)
 		 * first check if we need to terminate
 		 */
 		if (UNLIKELY(!stress_continue(args)))
+			break;
+
+		if (UNLIKELY((stress_time_now() - time_start) > (double)g_opt_timeout))
 			break;
 
 		if (ret) {
