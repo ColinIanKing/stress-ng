@@ -902,7 +902,7 @@ tidy_dir:
 
 const stressor_info_t stress_fd_race_info = {
 	.stressor = stress_fd_race,
-	.class = CLASS_NETWORK | CLASS_OS,
+	.class = CLASS_OS,
 	.verify = VERIFY_ALWAYS,
 	.opts = opts,
 	.help = help
@@ -910,7 +910,7 @@ const stressor_info_t stress_fd_race_info = {
 #else
 const stressor_info_t stress_fd_race_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_NETWORK | CLASS_OS,
+	.class = CLASS_OS,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.opts = opts,
