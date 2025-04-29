@@ -52,8 +52,7 @@ static const stress_opt_t opts[] = {
        defined(HAVE_COMPILER_CLANG) ||			\
        defined(HAVE_COMPILER_ICC) ||			\
        defined(HAVE_COMPILER_ICX) ||			\
-       defined(HAVE_COMPILER_TCC) ||			\
-       defined(HAVE_COMPILER_PCC)) &&			\
+       defined(HAVE_COMPILER_TCC)) &&			\
        defined(STRESS_ARCH_X86)) ||			\
      (defined(HAVE_COMPILER_GCC_OR_MUSL) && 		\
       (defined(HAVE_ATOMIC_ADD_FETCH) ||		\
