@@ -53,10 +53,11 @@ static void NORETURN MLOCKED_TEXT stress_bushandler(
 			     "andl $0xfffbffff, (%rsp);\n"
 			     "popf;\n");
 #endif
-	fault_addr = info->si_addr;
-	signo = info->si_signo;
-	code = info->si_code;
-
+	if (info) {
+		fault_addr = info->si_addr;
+		signo = info->si_signo;
+		code = info->si_code;
+	}
 	siglongjmp(jmp_env, 1);		/* Ugly, bounce back */
 }
 #else
@@ -169,15 +170,16 @@ static int stress_sigbus(stress_args_t *args)
 		}
 
 		ret = sigsetjmp(jmp_env, 1);
+
+		/* Timed out? */
+		if (UNLIKELY((stress_time_now() - time_start) > (double)g_opt_timeout))
+			goto tidy_exit;
 		/*
 		 * We return here if we get a SIGBUS, so
 		 * first check if we need to terminate
 		 */
 		if (UNLIKELY(!stress_continue(args)))
-			break;
-
-		if (UNLIKELY((stress_time_now() - time_start) > (double)g_opt_timeout))
-			break;
+			goto tidy_exit;
 
 		if (ret) {
 			/* Signal was tripped */
@@ -263,6 +265,7 @@ static int stress_sigbus(stress_args_t *args)
 			(*(ptr + page_size))++;
 		}
 	}
+tidy_exit:
 	rc = EXIT_SUCCESS;
 tidy_mmap:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
