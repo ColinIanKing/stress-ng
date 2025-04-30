@@ -110,7 +110,7 @@ static inline size_t PURE stress_brk_abs(const uint8_t *ptr1, const uint8_t *ptr
 
 static int OPTIMIZE3 stress_brk_child(stress_args_t *args, void *context)
 {
-	uint8_t *start_ptr, *unmap_ptr = NULL;
+	uint8_t *start_ptr, *new_start_ptr, *unmap_ptr = NULL;
 	const uint8_t *brk_failed_ptr = NULL;
 	int i = 0, brk_failed_count = 0;
 	size_t brk_bytes = DEFAULT_BRK_BYTES;
@@ -121,6 +121,7 @@ static int OPTIMIZE3 stress_brk_child(stress_args_t *args, void *context)
 	double rate;
 	const bool brk_touch = !brk_context->brk_notouch;
 	uint8_t *ptr;
+	uint64_t out_of_memory = 0, sbrk_expands = 0, sbrk_shrinks = 0;
 
 	(void)stress_get_setting("brk-bytes", &brk_bytes);
 
@@ -143,9 +144,42 @@ static int OPTIMIZE3 stress_brk_child(stress_args_t *args, void *context)
 		double t;
 		int saved_errno = 0;
 
-		if (stress_brk_abs(ptr, start_ptr) > brk_bytes) {
+		if (stress_brk_abs(ptr, start_ptr) >= brk_bytes) {
+			intptr_t diff;
+
 			ptr = start_ptr;
-			VOID_RET(int, shim_brk(ptr));
+			VOID_RET(int, shim_brk(start_ptr));
+			VOID_RET(void *, shim_sbrk(0));
+
+			/* Get brk address, should not fail */
+			ptr = shim_sbrk(0);
+			if (ptr == (void *)-1) {
+				pr_fail("%s: sbrk(0) failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
+				return EXIT_FAILURE;
+			}
+			diff = ptr - start_ptr;
+			/*
+			 *  Apply hammer to brk, really push it back
+			 *  to start
+			 */
+			if (diff > 0) {
+				ptr = shim_sbrk(-diff);
+				if (ptr == (void *)-1) {
+					pr_fail("%s: sbrk(%" PRIxPTR ") failed, errno=%d (%s)\n",
+						args->name, -diff, errno, strerror(errno));
+					return EXIT_FAILURE;
+				} else {
+					sbrk_shrinks++;
+				}
+				/* Get brk address, should not fail */
+				ptr = shim_sbrk(0);
+				if (ptr == (void *)-1) {
+					pr_fail("%s: sbrk(0) failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
+					return EXIT_FAILURE;
+				}
+			}
 			i = 0;
 		}
 
@@ -159,9 +193,11 @@ static int OPTIMIZE3 stress_brk_child(stress_args_t *args, void *context)
 		if (LIKELY(i < 8)) {
 			/* Expand brk by 1 page */
 			t = stress_time_now();
-			if (LIKELY(shim_sbrk((intptr_t)page_size) != (void *)-1)) {
+			new_start_ptr = shim_sbrk((intptr_t)page_size);
+			if (new_start_ptr != (void *)-1) {
 				uintptr_t *tmp;
 
+				sbrk_expands++;
 				sbrk_exp_duration += stress_time_now() - t;
 				sbrk_exp_count += 1.0;
 
@@ -170,12 +206,15 @@ static int OPTIMIZE3 stress_brk_child(stress_args_t *args, void *context)
 				brk_failed_count = 0;
 				if (!unmap_ptr)
 					unmap_ptr = ptr;
+				if (new_start_ptr != (ptr - page_size))
+					ptr = new_start_ptr + page_size;
 				stress_brk_page_resident(ptr, page_size, brk_touch);
 
 				/* stash a check value */
 				tmp = (uintptr_t *)((uintptr_t)ptr - sizeof(uintptr_t));
 				*tmp = (uintptr_t)tmp;
 			} else {
+				out_of_memory++;
 				saved_errno = errno;
 				if (brk_failed_ptr == ptr) {
 					brk_failed_count++;
@@ -198,6 +237,7 @@ static int OPTIMIZE3 stress_brk_child(stress_args_t *args, void *context)
 			/* Shrink brk by 1 page */
 			t = stress_time_now();
 			if (LIKELY(shim_sbrk(-page_size) != (void *)-1)) {
+				sbrk_shrinks++;
 				saved_errno = errno;
 				sbrk_shr_duration += stress_time_now() - t;
 				sbrk_shr_count += 1.0;
@@ -242,6 +282,11 @@ static int OPTIMIZE3 stress_brk_child(stress_args_t *args, void *context)
 		}
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
+
+	pr_dbg("%s: %" PRIu64 " occurrences of sbrk out of memory\n",
+		args->name, out_of_memory);
+	pr_dbg("%s: %" PRIu64 " successful sbrk expands, %" PRIu64 " succussful sbrk shinks\n",
+		args->name, sbrk_expands, sbrk_shrinks);
 
 	rate = (sbrk_exp_count > 0.0) ? (double)sbrk_exp_duration / sbrk_exp_count : 0.0;
 	stress_metrics_set(args, 0, "nanosecs per sbrk page expand",
