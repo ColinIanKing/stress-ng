@@ -28,6 +28,11 @@ static volatile int signo;
 static volatile int code;
 #endif
 
+/*
+ *  currently disabled
+#define SET_AC_EFLAGS
+ */
+
 static const stress_help_t help[] = {
 	{ NULL,	"sigbus N",	"start N workers generating bus faults" },
 	{ NULL,	"sigbus-ops N",	"stop after N bogo bus faults" },
@@ -47,7 +52,8 @@ static void NORETURN MLOCKED_TEXT stress_bushandler(
 	(void)num;
 	(void)ucontext;
 
-#if defined(STRESS_ARCH_X86_64)
+#if defined(STRESS_ARCH_X86_64) &&	\
+    defined(SET_AC_EFLAGS)
 	/* Clear AC bit in EFLAGS */
 	__asm__ __volatile__("pushf;\n"
 			     "andl $0xfffbffff, (%rsp);\n"
@@ -65,7 +71,8 @@ static void NORETURN MLOCKED_TEXT stress_bushandler(int signum)
 {
 	(void)signum;
 
-#if defined(STRESS_ARCH_X86_64)
+#if defined(STRESS_ARCH_X86_64) &&	\
+    defined(SET_AC_EFLAGS)
 	/* Clear AC bit in EFLAGS */
 	__asm__ __volatile__("pushf;\n"
 			     "andl $0xfffbffff, (%rsp);\n"
@@ -239,7 +246,8 @@ static int stress_sigbus(stress_args_t *args)
 				uint32_t *ptr32 = (uint32_t *)(ptr8 + 1);
 				uint16_t *ptr16 = (uint16_t *)(ptr8 + 1);
 
-#if defined(STRESS_ARCH_X86_64)
+#if defined(STRESS_ARCH_X86_64) &&	\
+    defined(SET_AC_EFLAGS)
 				/*
 				 *  On x86 enabling AC bit in EFLAGS will
 				 *  allow SIGBUS to be generated on misaligned
@@ -253,7 +261,8 @@ static int stress_sigbus(stress_args_t *args)
 				(*ptr64)++;
 				(*ptr32)++;
 				(*ptr16)++;
-#if defined(STRESS_ARCH_X86_64)
+#if defined(STRESS_ARCH_X86_64) &&	\
+    defined(SET_AC_EFLAGS)
 				/* Clear AC bit in EFLAGS */
 				__asm__ __volatile__("pushf;\n"
 						     "andl $0xfffbffff, (%rsp);\n"
