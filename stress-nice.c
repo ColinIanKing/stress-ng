@@ -107,13 +107,15 @@ static int stress_nice(stress_args_t *args)
 #if defined(HAVE_GETPRIORITY) &&	\
     defined(HAVE_SETPRIORITY)
 			for (i = 0; i < (int)SIZEOF_ARRAY(prio_which); i++) {
+				const shim_priority_which_t prio = prio_which[i];
 				int ret;
 
 				errno = 0;
-				ret = getpriority(prio_which[i], 0);
-				if ((errno == 0) && (!cap_sys_nice)) {
-					VOID_RET(int, setpriority(prio_which[i], 0, ret));
-				}
+				ret = getpriority(prio, 0);
+
+				/* Only set priority on child process */
+				if ((prio == PRIO_PROCESS) && (errno == 0) && (!cap_sys_nice))
+					VOID_RET(int, setpriority(prio, 0, ret));
 			}
 #endif
 
