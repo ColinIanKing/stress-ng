@@ -125,7 +125,12 @@ static int stress_nice(stress_args_t *args)
 			 *  arguments to get more kernel test coverage
 			 */
 			(void)setpriority((shim_priority_which_t)INT_MIN, 0, max_prio - 1);
+			(void)setpriority((shim_priority_which_t)INT_MIN, -1, max_prio - 1);
 			(void)setpriority((shim_priority_which_t)INT_MAX, 0, max_prio - 1);
+			(void)setpriority((shim_priority_which_t)INT_MAX, -1, max_prio - 1);
+			(void)setpriority(PRIO_PROCESS, -1, max_prio - 1);
+			(void)setpriority(PRIO_USER, -1, max_prio - 1);
+			(void)setpriority(PRIO_PGRP, -1, max_prio - 1);
 #endif
 
 			switch (which) {
