@@ -18,9 +18,9 @@
 #
 
 #
-# Codename "manic memory mangler"
+# Codename "furious file frobnicater"
 #
-VERSION=0.18.12
+VERSION=0.19.00
 
 #
 # Determine supported toolchains
