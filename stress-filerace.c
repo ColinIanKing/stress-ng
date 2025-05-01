@@ -52,7 +52,7 @@ static gid_t gid;
 static time_t t_start;
 
 static const stress_help_t help[] = {
-	{ NULL,	"filerace N",		"start N workers that attemp to race file system calls" },
+	{ NULL,	"filerace N",		"start N workers that attempt to race file system calls" },
 	{ NULL,	"filerace-ops N",	"stop after N filerace bogo operations" },
 	{ NULL,	NULL,			NULL }
 };
