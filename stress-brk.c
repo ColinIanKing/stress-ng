@@ -323,9 +323,9 @@ static int stress_brk(stress_args_t *args)
 	(void)stress_get_setting("brk-notouch", &brk_context->brk_notouch);
 
 #if !defined(MCL_FUTURE)
-	if ((args->instance == 0) && brk_context.brk_mlock) {
+	if ((args->instance == 0) && brk_context->brk_mlock) {
 		pr_inf("%s: --brk-mlock option was enabled but support for "
-			"mlock(MCL_FUTURE) is not available\n",
+			"mlockall(MCL_FUTURE) is not available\n",
 			args->name);
 	}
 #endif
