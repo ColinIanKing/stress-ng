@@ -20,7 +20,7 @@
 
 int main(void)
 {
-	struct sctp_association s;
+	struct sctp_udpencaps s;
 
 	(void)s;
 

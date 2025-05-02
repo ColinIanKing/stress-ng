@@ -320,10 +320,10 @@ static void stress_sctp_sockopts(const int fd)
 	STRESS_SCTP_SOCKOPT(SCTP_EXPOSE_POTENTIALLY_FAILED_STATE, struct sctp_assoc_value)
 #endif
 #if defined(SCTP_REMOTE_UDP_ENCAPS_PORT) && 	\
-    defined(HAVE_SCTP_ASSOCIATION)
-	STRESS_SCTP_SOCKOPT(SCTP_REMOTE_UDP_ENCAPS_PORT, struct sctp_association)
+    defined(HAVE_SCTP_UDPENCAPS)
+	STRESS_SCTP_SOCKOPT(SCTP_REMOTE_UDP_ENCAPS_PORT, struct sctp_udpencaps)
 #else
-	//UNEXPECTED
+	UNEXPECTED
 #endif
 #if defined(SCTP_PLPMTUD_PROBE_INTERVAL) &&	\
     defined(HAVE_SCTP_PROBEINTERVAL)
