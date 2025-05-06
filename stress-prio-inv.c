@@ -81,6 +81,8 @@
 #define STRESS_PRIO_INV_POLICY_RR	(-6)
 #endif
 
+static double t_end = 0.0;
+
 static const stress_help_t help[] = {
 	{ NULL,	"prio-inv",		"start N workers exercising priority inversion lock operations" },
 	{ NULL,	"prio-inv-ops N",	"stop after N priority inversion lock bogo operations" },
@@ -181,7 +183,7 @@ static void cpu_exercise(const size_t instance, stress_prio_inv_info_t *prio_inv
 
 	do {
 		stress_prio_inv_getrusage(child_info);
-	} while (stress_continue(args));
+	} while (stress_continue(args) && (stress_time_now() < t_end));
 }
 
 /*
@@ -209,7 +211,7 @@ static void mutex_exercise(const size_t instance, stress_prio_inv_info_t *prio_i
 				args->name, errno, strerror(errno));
 			break;
 		}
-	} while (stress_continue(args));
+	} while (stress_continue(args) && (stress_time_now() < t_end));
 }
 
 static int stress_prio_inv_set_prio_policy(
@@ -330,6 +332,8 @@ static int stress_prio_inv(stress_args_t *args)
 		cpu_exercise,
 		mutex_exercise,
 	};
+
+	t_end = stress_time_now() + (double)g_opt_timeout;
 
 	prio_inv_info = (stress_prio_inv_info_t *)mmap(
 				NULL, sizeof(*prio_inv_info),
