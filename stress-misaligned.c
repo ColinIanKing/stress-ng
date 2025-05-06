@@ -1253,7 +1253,7 @@ static int stress_misaligned(stress_args_t *args)
 #if defined(HAVE_MISALIGNED_NUMA)
 	numa_mask = stress_numa_mask_alloc();
 	if (numa_mask)
-		stress_numa_randomize_pages(numa_mask, buffer, page_size, buffer_size);
+		stress_numa_randomize_pages(args, numa_mask, buffer, page_size, buffer_size);
 #endif
 
 #if defined(HAVE_TIMER_FUNCTIONALITY)
@@ -1319,7 +1319,7 @@ static int stress_misaligned(stress_args_t *args)
 			numa_loop++;
 			if (numa_loop > 1024) {
 				numa_loop = 0;
-				stress_numa_randomize_pages(numa_mask, buffer, page_size, buffer_size);
+				stress_numa_randomize_pages(args, numa_mask, buffer, page_size, buffer_size);
 			}
 		}
 #endif

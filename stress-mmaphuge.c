@@ -163,7 +163,7 @@ static int stress_mmaphuge_child(stress_args_t *args, void *v_context)
 
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 					if (context->mmaphuge_numa)
-						stress_numa_randomize_pages(context->numa_mask, buf, page_size, sz);
+						stress_numa_randomize_pages(args, context->numa_mask, buf, page_size, sz);
 #endif
 
 					if (context->mmaphuge_mlock)

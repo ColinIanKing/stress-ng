@@ -560,8 +560,8 @@ static int stress_mcontend(stress_args_t *args)
 
 #if defined(HAVE_LINUX_MEMPOLICY_H)
         if (mcontend_numa && numa_mask) {
-                stress_numa_randomize_pages(numa_mask, data[0], page_size, page_size);
-                stress_numa_randomize_pages(numa_mask, data[1], page_size, page_size);
+                stress_numa_randomize_pages(args, numa_mask, data[0], page_size, page_size);
+                stress_numa_randomize_pages(args, numa_mask, data[1], page_size, page_size);
 		stress_numa_mask_free(numa_mask);
 	}
 #endif

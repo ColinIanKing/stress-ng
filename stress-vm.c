@@ -3453,7 +3453,7 @@ static int stress_vm_child(stress_args_t *args, void *ctxt)
 				(void)shim_madvise(buf, buf_sz, advice);
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 			if (UNLIKELY(context->vm_numa))
-				stress_numa_randomize_pages(context->numa_mask, buf, page_size, buf_sz);
+				stress_numa_randomize_pages(args, context->numa_mask, buf, page_size, buf_sz);
 #endif
 		}
 

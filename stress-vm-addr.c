@@ -503,7 +503,7 @@ static int stress_vm_addr_child(stress_args_t *args, void *ctxt)
 			(void)stress_madvise_mergeable(buf, buf_sz);
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 			if (context->vm_addr_numa)
-				stress_numa_randomize_pages(context->numa_mask, buf, page_size, buf_sz);
+				stress_numa_randomize_pages(args, context->numa_mask, buf, page_size, buf_sz);
 #endif
 			if (context->vm_addr_mlock)
 				(void)shim_mlock(buf, buf_sz);

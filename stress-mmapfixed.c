@@ -166,7 +166,7 @@ static int stress_mmapfixed_child(stress_args_t *args, void *context)
 			goto next;
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 		if (info->mmapfixed_numa)
-			stress_numa_randomize_pages(info->numa_mask, buf, sz, page_size);
+			stress_numa_randomize_pages(args, info->numa_mask, buf, sz, page_size);
 #endif
 		if (info->mmapfixed_mlock)
 			(void)shim_mlock(buf, sz);
@@ -197,7 +197,7 @@ static int stress_mmapfixed_child(stress_args_t *args, void *context)
 
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 			if (info->mmapfixed_numa)
-				stress_numa_randomize_pages(info->numa_mask, buf, sz, page_size);
+				stress_numa_randomize_pages(args, info->numa_mask, buf, sz, page_size);
 #endif
 			if (info->mmapfixed_mlock)
 				(void)shim_mlock(buf, sz);
@@ -234,7 +234,7 @@ static int stress_mmapfixed_child(stress_args_t *args, void *context)
 					buf = newbuf;
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 					if (info->mmapfixed_numa)
-						stress_numa_randomize_pages(info->numa_mask, buf, sz, page_size);
+						stress_numa_randomize_pages(args, info->numa_mask, buf, sz, page_size);
 #endif
 					if (info->mmapfixed_mlock)
 						(void)shim_mlock(buf, sz);

@@ -587,7 +587,7 @@ mapped_ok:
 			}
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 			if (numa_mask && stress_mwc1())
-				stress_numa_randomize_pages(numa_mask, (void *)ptr, page_size, mmap_size);
+				stress_numa_randomize_pages(args, numa_mask, (void *)ptr, page_size, mmap_size);
 
 #if defined(HAVE_MSYNC) &&	\
     defined(MS_SYNC) &&		\
@@ -629,7 +629,7 @@ mapped_ok:
 #endif
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 			if (stress_mwc1() && (numa_mask))
-				stress_numa_randomize_pages(numa_mask, (void *)ptr, page_size, mmap_size);
+				stress_numa_randomize_pages(args, numa_mask, (void *)ptr, page_size, mmap_size);
 #endif
 			for (i = 0; i < mmap_size; i += page_size) {
 				if (stress_mwc1())

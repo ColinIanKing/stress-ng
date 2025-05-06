@@ -126,7 +126,7 @@ static size_t stress_mmapfiles_dir(
 				if (mmapfile_info->mmapfiles_numa) {
 					const size_t page_len = (len + (page_size - 1)) & ~(page_size - 1);
 					if (page_len > 0)
-						stress_numa_randomize_pages(mmapfile_info->numa_mask, ptr, page_len, page_size);
+						stress_numa_randomize_pages(args, mmapfile_info->numa_mask, ptr, page_len, page_size);
 				}
 #endif
 				if (mmapfile_info->mmapfiles_populate) {

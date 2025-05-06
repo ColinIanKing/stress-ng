@@ -599,7 +599,7 @@ retry:
 			(void)stress_madvise_random(buf, sz);
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 		if (context->mmap_numa)
-			stress_numa_randomize_pages(context->numa_mask, buf, page_size, sz);
+			stress_numa_randomize_pages(args, context->numa_mask, buf, page_size, sz);
 #endif
 		if (context->mmap_mergeable)
 			(void)stress_madvise_mergeable(buf, sz);

@@ -191,7 +191,7 @@ static int stress_pagemove_child(stress_args_t *args, void *context)
 				}
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 				if (pagemove_numa)
-					stress_numa_randomize_pages(numa_mask, remap_addr1, page_size, page_size);
+					stress_numa_randomize_pages(args, numa_mask, remap_addr1, page_size, page_size);
 #endif
 				if (pagemove_mlock)
 					(void)shim_mlock(remap_addr1, page_size);
@@ -204,7 +204,7 @@ static int stress_pagemove_child(stress_args_t *args, void *context)
 				}
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 				if (pagemove_numa)
-					stress_numa_randomize_pages(numa_mask, remap_addr2, page_size, page_size);
+					stress_numa_randomize_pages(args, numa_mask, remap_addr2, page_size, page_size);
 #endif
 				if (pagemove_mlock)
 					(void)shim_mlock(remap_addr2, page_size);
@@ -217,7 +217,7 @@ static int stress_pagemove_child(stress_args_t *args, void *context)
 				}
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 				if (pagemove_numa)
-					stress_numa_randomize_pages(numa_mask, remap_addr3, page_size, page_size);
+					stress_numa_randomize_pages(args, numa_mask, remap_addr3, page_size, page_size);
 #endif
 				if (pagemove_mlock)
 					(void)shim_mlock(remap_addr3, page_size);
@@ -237,7 +237,7 @@ static int stress_pagemove_child(stress_args_t *args, void *context)
 				}
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 				if (pagemove_numa)
-					stress_numa_randomize_pages(numa_mask, remap_addr1, page_size, page_size);
+					stress_numa_randomize_pages(args, numa_mask, remap_addr1, page_size, page_size);
 #endif
 				if (pagemove_mlock)
 					(void)shim_mlock(remap_addr1, page_size);
@@ -254,7 +254,7 @@ static int stress_pagemove_child(stress_args_t *args, void *context)
 				}
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 				if (pagemove_numa)
-					stress_numa_randomize_pages(numa_mask, remap_addr2, page_size, page_size);
+					stress_numa_randomize_pages(args, numa_mask, remap_addr2, page_size, page_size);
 #endif
 				if (pagemove_mlock)
 					(void)shim_mlock(remap_addr2, page_size);
@@ -271,7 +271,7 @@ static int stress_pagemove_child(stress_args_t *args, void *context)
 				}
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 				if (pagemove_numa)
-					stress_numa_randomize_pages(numa_mask, remap_addr3, page_size, page_size);
+					stress_numa_randomize_pages(args, numa_mask, remap_addr3, page_size, page_size);
 #endif
 				if (pagemove_mlock)
 					(void)shim_mlock(remap_addr3, page_size);

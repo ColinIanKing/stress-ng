@@ -303,7 +303,7 @@ misaligned_done:
 #if defined(HAVE_NUMA_LOCKBUS)
 	numa_mask = stress_numa_mask_alloc();
 	if (numa_mask) {
-		stress_numa_randomize_pages(numa_mask, buffer, args->page_size, BUFFER_SIZE);
+		stress_numa_randomize_pages(args, numa_mask, buffer, args->page_size, BUFFER_SIZE);
 		stress_numa_mask_free(numa_mask);
 	}
 #endif

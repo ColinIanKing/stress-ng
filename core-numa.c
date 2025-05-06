@@ -169,6 +169,7 @@ static void stress_check_numa_range(
  *	randomize NUMA node for pages in buffer
  */
 void stress_numa_randomize_pages(
+	stress_args_t *args,
 	stress_numa_mask_t *numa_mask,
 	void *buffer,
 	const size_t page_size,
@@ -176,29 +177,54 @@ void stress_numa_randomize_pages(
 {
 	uint8_t *ptr, *prev_ptr, *ptr_end;
 	unsigned long int node, prev_node;
-	size_t size;
+	const size_t buffer_pages = buffer_size / page_size;
+	size_t chunks = buffer_pages;
+	size_t size, chunk_size;
 
 	if (UNLIKELY(!numa_mask))
 		return;
 	if (UNLIKELY(!buffer))
 		return;
 
+	/*
+	 *   Limit number of numa node bind calls to 65536
+	 *   so that setup doesn't take a prohibitively long
+	 *   time
+	 */
+	for (chunks = buffer_pages; chunks > 65536; chunks >>= 1)
+		;
+
+	chunk_size = buffer_size / chunks;
+	chunk_size &= ~(page_size - 1);
+	chunk_size = (chunk_size < page_size) ? page_size : chunk_size;
+
+	if (args->instance == 0)
+		pr_dbg("%s: randomizing %zu page%s to NUMA nodes in %zu page size chunks\n",
+			args->name, buffer_pages, (buffer_pages == 1) ? "" : "s",
+			chunk_size / page_size);
+
 	node = (unsigned long int)stress_mwc32modn((uint32_t)numa_mask->nodes);
 	prev_node = node;
-	prev_ptr = (uint8_t *)buffer;
-	ptr_end = (uint8_t *)buffer + buffer_size;
+	ptr = (uint8_t *)buffer;
+	prev_ptr = ptr;
+	ptr_end = ptr + buffer_size;
 
 	(void)shim_memset(numa_mask->mask, 0, numa_mask->mask_size);
 
 	/*
 	 *  Try to bind bunches of pages that have the same node
 	 */
-	for (ptr = (uint8_t *)buffer; ptr < ptr_end; ptr += page_size) {
+	for (; ptr < ptr_end; ptr += chunk_size) {
 		node = (unsigned long int)stress_mwc32modn((uint32_t)numa_mask->nodes);
 		if (node == prev_node)
 			continue;
+		if (!stress_continue_flag()) {
+			errno = 0;
+			return;
+		}
 
 		size = ptr - prev_ptr;
+
 		STRESS_SETBIT(numa_mask->mask, (unsigned long int)node);
 		(void)shim_mbind((void *)prev_ptr, size, MPOL_BIND, numa_mask->mask,
                         numa_mask->max_nodes, MPOL_MF_MOVE);

@@ -92,7 +92,8 @@ extern unsigned long int stress_numa_nodes(void);
 extern int stress_set_mbind(const char *arg);
 extern stress_numa_mask_t *stress_numa_mask_alloc(void);
 extern void stress_numa_mask_free(stress_numa_mask_t *mask);
-extern void stress_numa_randomize_pages(stress_numa_mask_t *numa_mask, void *buffer,
+extern void stress_numa_randomize_pages(stress_args_t *args,
+	stress_numa_mask_t *numa_mask, void *buffer,
         const size_t page_size, const size_t buffer_size);
 
 #endif

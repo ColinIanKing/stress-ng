@@ -1136,8 +1136,8 @@ static int OPTIMIZE3 stress_cachehammer(stress_args_t *args)
 		stress_numa_mask_t *numa_mask = stress_numa_mask_alloc();
 
 		if (numa_mask) {
-			stress_numa_randomize_pages(numa_mask, local_buffer, page_size, local_buffer_size);
-			stress_numa_randomize_pages(numa_mask, local_page, page_size, page_size);
+			stress_numa_randomize_pages(args, numa_mask, local_buffer, page_size, local_buffer_size);
+			stress_numa_randomize_pages(args, numa_mask, local_page, page_size, page_size);
 			stress_numa_mask_free(numa_mask);
 		}
 	}

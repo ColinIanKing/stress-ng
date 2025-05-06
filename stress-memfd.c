@@ -371,7 +371,7 @@ static int stress_memfd_child(stress_args_t *args, void *context)
 				(void)shim_mlock(maps[i], size);
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 			if (memfd_numa && numa_mask)
-				stress_numa_randomize_pages(numa_mask, maps[i], size, page_size);
+				stress_numa_randomize_pages(args, numa_mask, maps[i], size, page_size);
 #endif
 			stress_memfd_fill_pages_generic(stress_mwc64(), maps[i], size);
 			if (memfd_madvise) {
