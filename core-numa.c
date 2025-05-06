@@ -180,6 +180,8 @@ void stress_numa_randomize_pages(
 	const size_t buffer_pages = buffer_size / page_size;
 	size_t chunks = buffer_pages;
 	size_t size, chunk_size;
+	size_t parts = (size_t)numa_mask->nodes * (size_t)args->instances;
+	size_t max_chunks = (parts > 0) ? (256 * 1024) / parts : 65536;
 
 	if (UNLIKELY(!numa_mask))
 		return;
@@ -187,11 +189,11 @@ void stress_numa_randomize_pages(
 		return;
 
 	/*
-	 *   Limit number of numa node bind calls to 65536
+	 *   Limit number of numa node bind calls to max_chunks
 	 *   so that setup doesn't take a prohibitively long
 	 *   time
 	 */
-	for (chunks = buffer_pages; chunks > 65536; chunks >>= 1)
+	for (chunks = buffer_pages; chunks > max_chunks; chunks >>= 1)
 		;
 
 	chunk_size = buffer_size / chunks;
@@ -199,8 +201,10 @@ void stress_numa_randomize_pages(
 	chunk_size = (chunk_size < page_size) ? page_size : chunk_size;
 
 	if (args->instance == 0)
-		pr_dbg("%s: randomizing %zu page%s to NUMA nodes in %zu page size chunks\n",
-			args->name, buffer_pages, (buffer_pages == 1) ? "" : "s",
+		pr_dbg("%s: randomizing %zu page%s to %ld NUMA node%s in %zu page size chunks\n",
+			args->name,
+			buffer_pages, (buffer_pages == 1) ? "" : "s",
+			numa_mask->nodes, (numa_mask->nodes == 1) ? "" : "s",
 			chunk_size / page_size);
 
 	node = (unsigned long int)stress_mwc32modn((uint32_t)numa_mask->nodes);
