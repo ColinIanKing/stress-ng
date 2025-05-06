@@ -29,9 +29,9 @@
  *   a shared memory heap.
  */
 #if defined(HAVE_BUILTIN_CONSTANT_P)
-#define STRESS_MAX_SHARED_HEAP_SIZE		(32 * KB)
+#define STRESS_MAX_SHARED_HEAP_SIZE		(64 * KB)
 #else
-#define STRESS_MAX_SHARED_HEAP_SIZE		(128 * KB)
+#define STRESS_MAX_SHARED_HEAP_SIZE		(256 * KB)
 #endif
 
 /* Used just to determine number of stressors via STRESS_MAX */
