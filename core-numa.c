@@ -362,6 +362,7 @@ int stress_set_mbind(const char *arg)
 
 #else
 void stress_numa_randomize_pages(
+	stress_args_t *args,
 	stress_numa_mask_t *numa_mask,
 	void *buffer,
 	const size_t page_size,
