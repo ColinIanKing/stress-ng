@@ -491,6 +491,7 @@ stress-ng has found various Kernel, QEMU bugs/regressions, and libc bugs; approp
 * [sched_ext: Fix lock imbalance in dispatch_to_local_dsq()](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=1626e5ef0b00386a4fd083fa7c46c8edbd75f9b4)
 * [mm/zswap: fix inconsistency when zswap_store_page() fails](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=63895d20d63b446f5049a963983489319c2ea3e2)
 * [LoongArch: Set max_pfn with the PFN of the last page](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=c8477bb0a8e7f6b2e47952b403c5cb67a6929e55)
+* [net: ipv4: Fix destination address determination in flowi4_init_output](https://lkml.org/lkml/2025/5/8/536)
 
 ## Kernel improvements that used stress-ng
 
