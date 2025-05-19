@@ -290,7 +290,7 @@ static inline void stress_proc_rw(
 
 		if (!strncmp(path, "/proc/self", 10))
 			writeable = false;
-		if (!strncmp(path, "/proc", 5) && isdigit((unsigned char)path[5]))
+		if (!strncmp(path, "/proc/", 6) && isdigit((unsigned char)path[6]))
 			writeable = false;
 
 		t_start = stress_time_now();
