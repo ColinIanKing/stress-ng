@@ -207,6 +207,13 @@ PRAGMA_UNROLL_N(8)
 	stress_sync_start_wait(args);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
+	if (statbuf.st_size < (off_t)readahead_bytes) {
+		pr_inf_skip("%s: out of free file space on %s, stressor instance %" PRIu32 " terminating early\n",
+			args->name, stress_get_temp_path(), args->instance);
+		rc = EXIT_NO_RESOURCE;
+		goto close_finish;
+	}
+
 	stress_readahead_generate_offsets(offsets, rounded_readahead_bytes);
 
 	do {
@@ -224,8 +231,8 @@ rnd_rd_retry:
 				if ((errno == EAGAIN) || (errno == EINTR))
 					goto rnd_rd_retry;
 				if (errno) {
-					pr_fail("%s: read failed, errno=%d (%s)%s\n",
-						args->name, errno, strerror(errno), fs_type);
+					pr_fail("%s: read failed, errno=%d (%s)%s (%lx)\n",
+						args->name, errno, strerror(errno), fs_type, offsets[i]);
 					goto close_finish;
 				}
 				continue;
