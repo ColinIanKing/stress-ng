@@ -177,7 +177,7 @@ seq_wr_retry:
 
 PRAGMA_UNROLL_N(8)
 		for (j = 0; j < (BUF_SIZE / sizeof(*buf)); j++)
-			buf[j] = (buffer_t)o + j;
+			buf[j] = (buffer_t)(o << 12) + j;
 
 		pret = pwrite(fd, buf, BUF_SIZE, (off_t)i);
 		if (pret <= 0) {
@@ -246,10 +246,16 @@ rnd_rd_retry:
 
 PRAGMA_UNROLL_N(8)
 				for (j = 0; j < (BUF_SIZE / sizeof(*buf)); j++) {
-					const buffer_t v = (buffer_t)o + j;
+					const buffer_t v = (buffer_t)(o << 12) + j;
 
-					if (UNLIKELY(buf[j] != v))
+					if (UNLIKELY(buf[j] != v)) {
+						if (baddata == 0) {
+							pr_inf("%s: first data error at offset 0x%" PRIxMAX
+								", got 0x%" PRIx64 ", expecting 0x%" PRIx64 "\n", 
+								args->name, (intmax_t)(offsets[i] + (j * sizeof(*buf))), buf[j], v);
+						}
 						baddata++;
+					}
 				}
 				if (UNLIKELY(baddata)) {
 					pr_fail("%s: error in data between 0x%" PRIxMAX " and 0x%" PRIxMAX "\n",
