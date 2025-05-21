@@ -311,16 +311,37 @@ static inline void stress_proc_rw(
 		}
 
 		/*
-		 *  fstat the file
+		 *  fstat the file, skip char and block devices
 		 */
+#if defined(S_IFMT)
 		ret = shim_fstat(fd, &statbuf);
 		if (ret == 0) {
-#if defined(S_IFMT) &&	\
-    defined(S_IFIFO)
-			if ((statbuf.st_mode & S_IFMT) != S_IFIFO)
+			switch (statbuf.st_mode & S_IFMT) {
+#if defined(S_IFIFO)
+			case S_IFIFO:
 				skip_fifo = false;
+				break;
 #endif
+#if defined(S_IFCHR)
+			case S_IFCHR:
+				/*
+				 *  Reading from char devices such as tty devices steals
+				 *  user input so avoid using these
+				 */
+				(void)close(fd);
+				return;
+#endif
+#if defined(S_IFBLK)
+			case S_IFBLK:
+				/* Avoid accessing block devices */
+				(void)close(fd);
+				return;
+#endif
+			default:
+				break;
+			}
 		}
+#endif
 
 #if defined(__linux__)
 		/*
