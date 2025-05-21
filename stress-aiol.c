@@ -380,7 +380,7 @@ static int stress_aiol(stress_args_t *args)
 	int flags = O_DIRECT;
 	char filename[PATH_MAX];
 	char buf[1];
-	uint32_t aiol_requiests = DEFAULT_AIO_LINUX_REQUESTS;
+	uint32_t aiol_requests = DEFAULT_AIO_LINUX_REQUESTS;
 	uint32_t aio_max_nr = DEFAULT_AIO_MAX_NR;
 	int j = 0;
 	size_t i;
@@ -393,14 +393,14 @@ static int stress_aiol(stress_args_t *args)
 
 	(void)shim_memset(&info, 0, sizeof(info));
 
-	if (!stress_get_setting("aiol-requests", &aiol_requiests)) {
+	if (!stress_get_setting("aiol-requests", &aiol_requests)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			aiol_requiests = MAX_AIO_LINUX_REQUESTS;
+			aiol_requests = MAX_AIO_LINUX_REQUESTS;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			aiol_requiests = MIN_AIO_LINUX_REQUESTS;
+			aiol_requests = MIN_AIO_LINUX_REQUESTS;
 	}
-	if ((aiol_requiests < MIN_AIO_LINUX_REQUESTS) ||
-	    (aiol_requiests > MAX_AIO_LINUX_REQUESTS)) {
+	if ((aiol_requests < MIN_AIO_LINUX_REQUESTS) ||
+	    (aiol_requests > MAX_AIO_LINUX_REQUESTS)) {
 		pr_fail("%s: iol_requests out of range", args->name);
 		return EXIT_FAILURE;
 	}
@@ -418,15 +418,15 @@ static int stress_aiol(stress_args_t *args)
 	aio_max_nr /= (args->instances == 0) ? 1 : args->instances;
 	if (aio_max_nr < 1)
 		aio_max_nr = 1;
-	if (aiol_requiests > aio_max_nr) {
-		aiol_requiests = aio_max_nr;
+	if (aiol_requests > aio_max_nr) {
+		aiol_requests = aio_max_nr;
 		if (args->instance == 0)
 			pr_inf("%s: Limiting AIO requests to "
 				"%" PRIu32 " per stressor (avoids running out of resources)\n",
-				args->name, aiol_requiests);
+				args->name, aiol_requests);
 	}
 
-	if (stress_aiol_alloc(args, aiol_requiests, &info)) {
+	if (stress_aiol_alloc(args, aiol_requests, &info)) {
 		stress_aiol_free(&info);
 		return EXIT_NO_RESOURCE;
 	}
@@ -439,7 +439,7 @@ static int stress_aiol(stress_args_t *args)
 	if (ret >= 0)
 		(void)shim_io_destroy(info.ctx_id);
 
-	ret = shim_io_setup(aiol_requiests, &info.ctx_id);
+	ret = shim_io_setup(aiol_requests, &info.ctx_id);
 	if (ret < 0) {
 		/*
 		 *  The libaio interface returns -errno in the
@@ -506,7 +506,7 @@ retry_open:
 	 *  same file. If we can't open a file (e.g. out of file descriptors)
 	 *  then use the same fd as fd[0]
 	 */
-	for (i = 1; i < aiol_requiests; i++) {
+	for (i = 1; i < aiol_requests; i++) {
 		info.fds[i] = open(filename, O_RDWR | flags, S_IRUSR | S_IWUSR);
 		if (info.fds[i] < 0)
 			info.fds[i] = info.fds[0];
@@ -529,8 +529,8 @@ retry_open:
 		/*
 		 *  async writes
 		 */
-		(void)shim_memset(info.cb, 0, aiol_requiests * sizeof(*info.cb));
-		for (bufptr = info.buffer, i = 0, off = offset; i < aiol_requiests; i++, bufptr += BUFFER_SZ, off += BUFFER_SZ) {
+		(void)shim_memset(info.cb, 0, aiol_requests * sizeof(*info.cb));
+		for (bufptr = info.buffer, i = 0, off = offset; i < aiol_requests; i++, bufptr += BUFFER_SZ, off += BUFFER_SZ) {
 			const uint8_t pattern = (uint8_t)(j + ((((intptr_t)bufptr) >> 12) & 0xff));
 
 			stress_aiol_fill_buffer(pattern, bufptr, BUFFER_SZ);
@@ -542,9 +542,9 @@ retry_open:
 			info.cb[i].u.c.nbytes = BUFFER_SZ;
 			info.cbs[i] = &info.cb[i];
 		}
-		if (UNLIKELY(stress_aiol_submit(args, &info, aiol_requiests, false) < 0))
+		if (UNLIKELY(stress_aiol_submit(args, &info, aiol_requests, false) < 0))
 			break;
-		if (UNLIKELY(stress_aiol_wait(args, &info, aiol_requiests) < 0))
+		if (UNLIKELY(stress_aiol_wait(args, &info, aiol_requests) < 0))
 			break;
 		stress_bogo_inc(args);
 		if (UNLIKELY(!stress_continue(args)))
@@ -553,8 +553,8 @@ retry_open:
 		/*
 		 *  async reads
 		 */
-		(void)shim_memset(info.cb, 0, aiol_requiests * sizeof(*info.cb));
-		for (bufptr = info.buffer, i = 0, off = offset; i < aiol_requiests; i++, bufptr += BUFFER_SZ, off += BUFFER_SZ) {
+		(void)shim_memset(info.cb, 0, aiol_requests * sizeof(*info.cb));
+		for (bufptr = info.buffer, i = 0, off = offset; i < aiol_requests; i++, bufptr += BUFFER_SZ, off += BUFFER_SZ) {
 			(void)shim_memset(bufptr, 0, BUFFER_SZ);
 
 			info.cb[i].aio_fildes = info.fds[i];
@@ -565,10 +565,10 @@ retry_open:
 			info.cbs[i] = &info.cb[i];
 		}
 
-		if (UNLIKELY(stress_aiol_submit(args, &info, aiol_requiests, false) < 0))
+		if (UNLIKELY(stress_aiol_submit(args, &info, aiol_requests, false) < 0))
 			break;
 
-		n = stress_aiol_wait(args, &info, aiol_requiests);
+		n = stress_aiol_wait(args, &info, aiol_requests);
 		if (UNLIKELY(n < 0))
 			break;
 
@@ -594,8 +594,8 @@ retry_open:
 		/*
 		 *  async pwritev
 		 */
-		(void)shim_memset(info.cb, 0, aiol_requiests * sizeof(*info.cb));
-		for (bufptr = info.buffer, i = 0, off = offset; i < aiol_requiests; i++, bufptr += BUFFER_SZ, off += BUFFER_SZ) {
+		(void)shim_memset(info.cb, 0, aiol_requests * sizeof(*info.cb));
+		for (bufptr = info.buffer, i = 0, off = offset; i < aiol_requests; i++, bufptr += BUFFER_SZ, off += BUFFER_SZ) {
 			const uint8_t pattern = (uint8_t)(j + ((((intptr_t)bufptr) >> 12) & 0xff));
 
 			stress_aiol_fill_buffer(pattern, bufptr, BUFFER_SZ);
@@ -610,9 +610,9 @@ retry_open:
 			info.cb[i].u.c.nbytes = 1;
 			info.cbs[i] = &info.cb[i];
 		}
-		if (UNLIKELY(stress_aiol_submit(args, &info, aiol_requiests, false) < 0))
+		if (UNLIKELY(stress_aiol_submit(args, &info, aiol_requests, false) < 0))
 			break;
-		if (UNLIKELY(stress_aiol_wait(args, &info, aiol_requiests) < 0))
+		if (UNLIKELY(stress_aiol_wait(args, &info, aiol_requests) < 0))
 			break;
 		stress_bogo_inc(args);
 		if (UNLIKELY(!stress_continue(args)))
@@ -621,8 +621,8 @@ retry_open:
 		/*
 		 *  async preadv
 		 */
-		(void)shim_memset(info.cb, 0, aiol_requiests * sizeof(*info.cb));
-		for (bufptr = info.buffer, i = 0, off = offset; i < aiol_requiests; i++, bufptr += BUFFER_SZ, off += BUFFER_SZ) {
+		(void)shim_memset(info.cb, 0, aiol_requests * sizeof(*info.cb));
+		for (bufptr = info.buffer, i = 0, off = offset; i < aiol_requests; i++, bufptr += BUFFER_SZ, off += BUFFER_SZ) {
 			const uint8_t pattern = (uint8_t)(j + ((((intptr_t)bufptr) >> 12) & 0xff));
 
 			stress_aiol_fill_buffer(pattern, bufptr, BUFFER_SZ);
@@ -637,9 +637,9 @@ retry_open:
 			info.cb[i].u.c.nbytes = 1;
 			info.cbs[i] = &info.cb[i];
 		}
-		if (UNLIKELY(stress_aiol_submit(args, &info, aiol_requiests, false) < 0))
+		if (UNLIKELY(stress_aiol_submit(args, &info, aiol_requests, false) < 0))
 			break;
-		if (UNLIKELY(stress_aiol_wait(args, &info, aiol_requiests) < 0))
+		if (UNLIKELY(stress_aiol_wait(args, &info, aiol_requests) < 0))
 			break;
 		stress_bogo_inc(args);
 		if (UNLIKELY(!stress_continue(args)))
@@ -737,8 +737,8 @@ retry_open:
 		/*
 		 *  Exercise aio_poll with illegal settings
 		 */
-		(void)shim_memset(info.cb, 0, aiol_requiests * sizeof(*info.cb));
-		for (i = 0; i < aiol_requiests; i++) {
+		(void)shim_memset(info.cb, 0, aiol_requests * sizeof(*info.cb));
+		for (i = 0; i < aiol_requests; i++) {
 			info.cb[i].aio_fildes = info.fds[i];
 			info.cb[i].aio_lio_opcode = IO_CMD_POLL;
 			info.cb[i].u.c.buf = (void *)POLLIN;
@@ -747,10 +747,10 @@ retry_open:
 			(void)shim_memset(&info.cb[i].u.c.nbytes, 0xff, sizeof(info.cb[i].u.c.nbytes));
 			info.cbs[i] = &info.cb[i];
 		}
-		if (UNLIKELY(stress_aiol_submit(args, &info, aiol_requiests, true) < 0))
+		if (UNLIKELY(stress_aiol_submit(args, &info, aiol_requests, true) < 0))
 			break;
 		if (errno == 0)
-			(void)stress_aiol_wait(args, &info, aiol_requiests);
+			(void)stress_aiol_wait(args, &info, aiol_requests);
 		stress_bogo_inc(args);
 		if (UNLIKELY(!stress_continue(args)))
 			break;
@@ -767,7 +767,7 @@ retry_open:
 
 			j = 0;
 			if (do_sync) {
-				(void)shim_memset(info.cb, 0, aiol_requiests * sizeof(*info.cb));
+				(void)shim_memset(info.cb, 0, aiol_requests * sizeof(*info.cb));
 				info.cb[0].aio_fildes = info.fds[0];
 				info.cb[0].aio_lio_opcode = stress_mwc1() ? IO_CMD_FDSYNC : IO_CMD_FSYNC;
 				info.cb[0].u.c.buf = NULL;
@@ -791,7 +791,7 @@ retry_open:
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)close(info.fds[0]);
-	for (i = 1; i < aiol_requiests; i++) {
+	for (i = 1; i < aiol_requests; i++) {
 		if (info.fds[i] != info.fds[0])
 			(void)close(info.fds[i]);
 	}
