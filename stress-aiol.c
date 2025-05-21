@@ -69,6 +69,7 @@ typedef struct {
 	struct iocb **cbs;
 	int *fds;
 	struct iovec *iov;
+	int *write_res;
 	io_context_t ctx_id;
 } stress_aiol_info_t;
 
@@ -231,8 +232,8 @@ static int stress_aiol_submit(
 	const size_t n,
 	const bool ignore_einval)
 {
+	int ret;
 	do {
-		int ret;
 
 		errno = 0;
 		ret = shim_io_submit(info->ctx_id, (long int)n, info->cbs);
@@ -249,7 +250,7 @@ static int stress_aiol_submit(
 		}
 	} while (stress_continue(args));
 
-	return 0;
+	return ret;
 }
 
 /*
@@ -335,8 +336,13 @@ static int stress_aiol_alloc(
 	info->iov = (struct iovec *)calloc(n, sizeof(*info->iov));
 	if (!info->iov)
 		goto free_fds;
+	info->write_res = (int *)calloc(n, sizeof(*info->write_res));
+	if (!info->write_res)
+		goto free_iov;
 	return 0;
 
+free_iov:
+	free(info->iov);
 free_fds:
 	free(info->fds);
 free_cbs:
@@ -367,6 +373,7 @@ static void stress_aiol_free(stress_aiol_info_t *info)
 	free(info->cbs);
 	free(info->fds);
 	free(info->iov);
+	free(info->write_res);
 	(void)shim_memset(info, 0, sizeof(*info));
 }
 
@@ -541,14 +548,24 @@ retry_open:
 			info.cb[i].u.c.offset = off;
 			info.cb[i].u.c.nbytes = BUFFER_SZ;
 			info.cbs[i] = &info.cb[i];
+
+			info.events[i].obj = NULL;
+			info.events[i].data = NULL;
+			info.events[i].res = ~0;
+			info.events[i].res2 = ~0;
 		}
-		if (UNLIKELY(stress_aiol_submit(args, &info, aiol_requests, false) < 0))
+		n = stress_aiol_submit(args, &info, aiol_requests, false);
+		if (UNLIKELY(n != aiol_requests))
 			break;
-		if (UNLIKELY(stress_aiol_wait(args, &info, aiol_requests) < 0))
+		n = stress_aiol_wait(args, &info, aiol_requests);
+		if (UNLIKELY(n != aiol_requests))
 			break;
 		stress_bogo_inc(args);
 		if (UNLIKELY(!stress_continue(args)))
 			break;
+
+		for (i = 0; i < (size_t)n; i++)
+			info.write_res[i] = info.events[i].res;
 
 		/*
 		 *  async reads
@@ -570,15 +587,17 @@ retry_open:
 			info.events[i].res2 = ~0;
 		}
 
-		if (UNLIKELY(stress_aiol_submit(args, &info, aiol_requests, false) < 0))
+		n = stress_aiol_submit(args, &info, aiol_requests, false);
+		if (UNLIKELY(n < aiol_requests))
 			break;
 
 		n = stress_aiol_wait(args, &info, aiol_requests);
-		if (UNLIKELY(n < 0))
+		if (UNLIKELY(n < aiol_requests))
 			break;
 
 		for (i = 0; i < (size_t)n; i++) {
 			uint8_t pattern;
+			size_t idx;
 			struct iocb *obj = info.events[i].obj;
 
 			if (!obj)
@@ -589,6 +608,14 @@ retry_open:
 				continue;
 
 			bufptr = obj->u.c.buf;
+
+			/* map returned buffer to index */
+			idx = (bufptr - info.buffer) / BUFFER_SZ;
+			if (idx >= (size_t)n)
+				continue;
+			/* ignore read check if corresponding write failed */
+			if (info.write_res[idx] < 0)
+				continue;
 			pattern = (uint8_t)(j + ((((intptr_t)bufptr) >> 12) & 0xff));
 
 			if (stress_aiol_check_buffer(pattern, bufptr, BUFFER_SZ) != true) {
