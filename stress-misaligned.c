@@ -1221,7 +1221,8 @@ static int stress_misaligned(stress_args_t *args)
 #endif
 #endif
 #if defined(HAVE_MISALIGNED_NUMA)
-	stress_numa_mask_t *numa_mask;
+	NOCLOBBER stress_numa_mask_t *numa_mask = NULL;
+	NOCLOBBER stress_numa_mask_t *numa_nodes = NULL;
 	int numa_loop;
 #endif
 	(void)stress_get_setting("misaligned-method", &misaligned_method);
@@ -1252,8 +1253,22 @@ static int stress_misaligned(stress_args_t *args)
 
 #if defined(HAVE_MISALIGNED_NUMA)
 	numa_mask = stress_numa_mask_alloc();
-	if (numa_mask)
-		stress_numa_randomize_pages(args, numa_mask, buffer, page_size, buffer_size);
+	if (numa_mask) {
+		numa_nodes = stress_numa_mask_alloc();
+		if (!numa_nodes) {
+			stress_numa_mask_free(numa_mask);
+			numa_mask = NULL;
+		} else {
+			if (stress_numa_mask_nodes_get(numa_nodes) < 1) {
+				stress_numa_mask_free(numa_nodes);
+				numa_nodes = NULL;
+				stress_numa_mask_free(numa_mask);
+				numa_mask = NULL;
+			} else {
+				stress_numa_randomize_pages(args, numa_nodes, numa_mask, buffer, page_size, buffer_size);
+			}
+		}
+	}
 #endif
 
 #if defined(HAVE_TIMER_FUNCTIONALITY)
@@ -1315,11 +1330,11 @@ static int stress_misaligned(stress_args_t *args)
 		 *  On NUMA systems with > 1 node, randomize the
 		 *  NUMA node binding of pages in the buffer
 		 */
-		if (numa_mask && (numa_mask->nodes > 1)) {
+		if (numa_mask && numa_nodes && (numa_mask->nodes > 1)) {
 			numa_loop++;
 			if (numa_loop > 1024) {
 				numa_loop = 0;
-				stress_numa_randomize_pages(args, numa_mask, buffer, page_size, buffer_size);
+				stress_numa_randomize_pages(args, numa_nodes, numa_mask, buffer, page_size, buffer_size);
 			}
 		}
 #endif
@@ -1345,6 +1360,8 @@ static int stress_misaligned(stress_args_t *args)
 #if defined(HAVE_MISALIGNED_NUMA)
 	if (numa_mask)
 		stress_numa_mask_free(numa_mask);
+	if (numa_nodes)
+		stress_numa_mask_free(numa_nodes);
 #endif
 	(void)munmap((void *)buffer, buffer_size);
 

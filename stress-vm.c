@@ -71,6 +71,7 @@ typedef struct {
 	const stress_vm_method_info_t *vm_method;
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 	stress_numa_mask_t *numa_mask;
+	stress_numa_mask_t *numa_nodes;
 #endif
 	bool vm_numa;
 } stress_vm_context_t;
@@ -3453,7 +3454,7 @@ static int stress_vm_child(stress_args_t *args, void *ctxt)
 				(void)shim_madvise(buf, buf_sz, advice);
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 			if (UNLIKELY(context->vm_numa))
-				stress_numa_randomize_pages(args, context->numa_mask, buf, page_size, buf_sz);
+				stress_numa_randomize_pages(args, context->numa_nodes, context->numa_mask, buf, page_size, buf_sz);
 #endif
 		}
 
@@ -3537,20 +3538,9 @@ static int stress_vm(stress_args_t *args)
 	(void)stress_get_setting("vm-numa", &context.vm_numa);
 	if (context.vm_numa) {
 #if defined(HAVE_LINUX_MEMPOLICY_H)
-		if (stress_numa_nodes() > 1) {
-			context.numa_mask = stress_numa_mask_alloc();
-			if (!context.numa_mask) {
-				pr_inf("%s: cannot allocate NUMA mask, disabling --vm-numa\n",
-					args->name);
-				context.vm_numa = false;
-			}
-		} else {
-			if (args->instance == 0) {
-				pr_inf("%s: only 1 NUMA node available, disabling --vm-numa\n",
-					args->name);
-				context.vm_numa = false;
-			}
-		}
+		stress_numa_mask_and_node_alloc(args, &context.numa_nodes,
+						&context.numa_mask, "--vm-numa",
+						&context.vm_numa);
 #else
 		if (args->instance == 0)
 			pr_inf("%s: --vm-numa selected but not supported by this system, disabling option\n",
@@ -3587,6 +3577,8 @@ static int stress_vm(stress_args_t *args)
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 		if (context.numa_mask)
 			stress_numa_mask_free(context.numa_mask);
+		if (context.numa_nodes)
+			stress_numa_mask_free(context.numa_nodes);
 #endif
 		return EXIT_NO_RESOURCE;
 	}
@@ -3614,6 +3606,8 @@ static int stress_vm(stress_args_t *args)
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 	if (context.numa_mask)
 		stress_numa_mask_free(context.numa_mask);
+	if (context.numa_nodes)
+		stress_numa_mask_free(context.numa_nodes);
 #endif
 	tmp_counter = stress_bogo_get(args) >> VM_BOGO_SHIFT;
 	stress_bogo_set(args, tmp_counter);

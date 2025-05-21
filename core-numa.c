@@ -92,6 +92,99 @@ unsigned long int stress_numa_count_mem_nodes(unsigned long int *max_node)
 }
 
 /*
+ *  stress_numa_mask_nodes_get()
+ *	set numa_mask bits with the NUMA nodes available
+ */
+unsigned long int stress_numa_mask_nodes_get(stress_numa_mask_t *numa_mask)
+{
+	FILE *fp;
+	unsigned long int node_id = 0;
+	char buffer[8192];
+	const char *str = NULL, *ptr;
+	long int n = 0;
+
+	(void)shim_memset(numa_mask->mask, 0, numa_mask->mask_size);
+
+	fp = fopen("/proc/self/status", "r");
+	if (!fp)
+		return -1;
+
+	while (fgets(buffer, sizeof(buffer), fp)) {
+		if (!strncmp(buffer, "Mems_allowed:", 13)) {
+			str = buffer + 13;
+			break;
+		}
+	}
+	(void)fclose(fp);
+
+	if (!str)
+		return -1;
+
+	ptr = buffer + strlen(buffer) - 2;
+
+	/*
+	 *  Parse hex digits into NUMA node ids, these
+	 *  are listed with least significant node last
+	 *  so we need to scan backwards from the end of
+	 *  the string back to the start.
+	 */
+	while ((*ptr != ' ') && (ptr > str)) {
+		int i;
+		unsigned int val;
+
+		/* Skip commas */
+		if (*ptr == ',') {
+			ptr--;
+			continue;
+		}
+
+		if (sscanf(ptr, "%1x", &val) != 1)
+			return -1;
+
+		/* Each hex digit represent 4 memory nodes */
+		for (i = 0; i < 4; i++) {
+			if (val & (1 << i)) {
+				n++;
+				STRESS_SETBIT(numa_mask->mask, node_id);
+			}
+			node_id++;
+			/* Don't allow overflow! */
+			if (node_id > numa_mask->max_nodes)
+				break;
+		}
+		ptr--;
+	}
+	return n;
+}
+
+/*
+ *  stress_numa_next_node()
+ *	find next node after node in numa_nodes mask
+ */
+unsigned long stress_numa_next_node(
+	const unsigned long int node,
+	stress_numa_mask_t *numa_nodes)
+{
+	unsigned long int i;
+	unsigned long int new_node = node;
+
+	/* Avoid overflow */
+	if (new_node > numa_nodes->max_nodes)
+		new_node = 0;
+
+	for (i = 0; i < numa_nodes->max_nodes; i++) {
+		new_node++;
+		if (new_node >= numa_nodes->max_nodes)
+			new_node = 0;
+
+		if (STRESS_GETBIT(numa_nodes->mask, new_node))
+			return new_node;
+	}
+	/* give up! */
+	return node;
+}
+
+/*
  *  stress_numa_mask_alloc()
  *	allocate numa mask
  */
@@ -170,7 +263,8 @@ static void stress_check_numa_range(
  */
 void stress_numa_randomize_pages(
 	stress_args_t *args,
-	stress_numa_mask_t *numa_mask,
+	stress_numa_mask_t *numa_nodes,	/* bit map of NUMA nodes available */
+	stress_numa_mask_t *numa_mask,	/* mask for temp NUMA actions */
 	void *buffer,
 	const size_t page_size,
 	const size_t buffer_size)
@@ -196,18 +290,23 @@ void stress_numa_randomize_pages(
 	for (chunks = buffer_pages; chunks > max_chunks; chunks >>= 1)
 		;
 
+	if (chunks == 0)
+		return;
 	chunk_size = buffer_size / chunks;
 	chunk_size &= ~(page_size - 1);
 	chunk_size = (chunk_size < page_size) ? page_size : chunk_size;
 
+#if 0
 	if (args->instance == 0)
 		pr_dbg("%s: randomizing %zu page%s to %ld NUMA node%s in %zu page size chunks\n",
 			args->name,
 			buffer_pages, (buffer_pages == 1) ? "" : "s",
 			numa_mask->nodes, (numa_mask->nodes == 1) ? "" : "s",
 			chunk_size / page_size);
+#endif
 
 	node = (unsigned long int)stress_mwc32modn((uint32_t)numa_mask->nodes);
+	node = stress_numa_next_node(node, numa_nodes);
 	prev_node = node;
 	ptr = (uint8_t *)buffer;
 	prev_ptr = ptr;
@@ -220,6 +319,7 @@ void stress_numa_randomize_pages(
 	 */
 	for (; ptr < ptr_end; ptr += chunk_size) {
 		node = (unsigned long int)stress_mwc32modn((uint32_t)numa_mask->nodes);
+		node = stress_numa_next_node(node, numa_nodes);
 		if (node == prev_node)
 			continue;
 		if (!stress_continue_flag()) {
@@ -360,15 +460,62 @@ int stress_set_mbind(const char *arg)
 	return 0;
 }
 
+/*
+ *  stress_numa_mask_and_node_alloc()
+ *	allocate nodes and mask
+ */
+void stress_numa_mask_and_node_alloc(
+	stress_args_t *args,
+	stress_numa_mask_t **numa_nodes,/* bit map of NUMA nodes available */
+	stress_numa_mask_t **numa_mask,	/* mask for temp NUMA actions */
+	const char *option,
+	bool *flag)
+{
+#if 0
+	if (stress_numa_nodes() <= 1) {
+		if (args->instance == 0)
+			pr_inf("%s: only 1 NUMA node available, disabling %s\n",
+				args->name, option);
+		goto err;
+	}
+#endif
+	*numa_mask = stress_numa_mask_alloc();
+	if (!*numa_mask) {
+		pr_inf("%s: cannot allocate NUMA mask, disabling %s\n",
+			args->name, option);
+		goto err;
+	}
+	*numa_nodes = stress_numa_mask_alloc();
+	if (!*numa_nodes) {
+		pr_inf("%s: cannot allocate NUMA nodes, disabling %s\n",
+			args->name, option);
+		stress_numa_mask_free(*numa_mask);
+		goto err;
+	}
+	if (stress_numa_mask_nodes_get(*numa_nodes) < 1) {
+		pr_inf("%s: cannot get NUMA nodes, disabling %s\n",
+			args->name, option);
+			stress_numa_mask_free(*numa_nodes);
+			stress_numa_mask_free(*numa_mask);
+	}
+	return;
+err:
+	*numa_mask = NULL;
+	*numa_nodes = NULL;
+	*flag = false;
+}
+
 #else
 void stress_numa_randomize_pages(
 	stress_args_t *args,
+	stress_numa_mask_t *numa_nodes,
 	stress_numa_mask_t *numa_mask,
 	void *buffer,
 	const size_t page_size,
 	const size_t buffer_size)
 {
 	(void)args;
+	(void)numa_nodes;
 	(void)numa_mask;
 	(void)buffer;
 	(void)page_size;

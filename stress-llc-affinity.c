@@ -402,9 +402,10 @@ static int stress_llc_affinity(stress_args_t *args)
 	bool llc_affinity_clflush = false;
 	bool llc_affinity_numa = false;
 	char *clflush_op = NULL;
-	const int numa_nodes = stress_numa_nodes();
+	const int n_numa_nodes = stress_numa_nodes();
 #if defined(HAVE_LINUX_MEMPOLICY_H)
         stress_numa_mask_t *numa_mask = NULL;
+        stress_numa_mask_t *numa_nodes = NULL;
 #endif
 
 	stress_catch_sigill();
@@ -420,11 +421,11 @@ static int stress_llc_affinity(stress_args_t *args)
 		stress_free_usable_cpus(&cpus);
 		return EXIT_NO_RESOURCE;
 	}
-        llc_size *= numa_nodes;
+        llc_size *= n_numa_nodes;
         if (!args->instance) {
-		if (numa_nodes > 1)  {
+		if (n_numa_nodes > 1)  {
 			pr_inf("%s: scaling LLC cache size by number of numa nodes %d to %zdK\n",
-				args->name, numa_nodes, llc_size / 1024);
+				args->name, n_numa_nodes, llc_size / 1024);
 		} else  {
 			pr_inf("%s: using LLC cache size of %zuK\n",
 				args->name, llc_size / 1024);
@@ -447,20 +448,7 @@ static int stress_llc_affinity(stress_args_t *args)
 
 	if (llc_affinity_numa) {
 #if defined(HAVE_LINUX_MEMPOLICY_H)
-		if (stress_numa_nodes() > 1) {
-			numa_mask = stress_numa_mask_alloc();
-			if (!numa_mask) {
-				pr_inf("%s: cannot allocate NUMA mask, disabling --llc-affinity-numa\n",
-					args->name);
-				llc_affinity_numa = false;
-			}
-		} else {
-			if (args->instance == 0) {
-				pr_inf("%s: only 1 NUMA node available, disabling --llc-affinity-numa\n",
-					args->name);
-				llc_affinity_numa = false;
-			}
-		}
+		stress_numa_mask_and_node_alloc(args, &numa_nodes, &numa_mask, "--llc-affinity-numa", &llc_affinity_numa);
 #else
 		if (args->instance == 0)
 			pr_inf("%s: --llc-affinity-numa selected but not supported by this system, disabling option\n",
@@ -469,9 +457,11 @@ static int stress_llc_affinity(stress_args_t *args)
 #endif
 	}
 #if defined(HAVE_LINUX_MEMPOLICY_H)
-	if (llc_affinity_numa && numa_mask) {
-		stress_numa_randomize_pages(args, numa_mask, buf, page_size, mmap_sz);
+	if (llc_affinity_numa && numa_mask && numa_nodes) {
+		if (stress_numa_mask_nodes_get(numa_nodes) > 0)
+			stress_numa_randomize_pages(args, numa_nodes, numa_mask, buf, page_size, mmap_sz);
 		stress_numa_mask_free(numa_mask);
+		stress_numa_mask_free(numa_nodes);
 	}
 #endif
 	if (llc_affinity_mlock)

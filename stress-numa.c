@@ -190,8 +190,8 @@ static int stress_numa(stress_args_t *args)
 	size_t status_size, dest_nodes_size, pages_size;
 	double t, duration, metric;
 	uint64_t correct_nodes = 0, total_nodes = 0;
-	stress_numa_mask_t *numa_mask, *old_numa_mask;
-	unsigned long node = 0;
+	stress_numa_mask_t *numa_mask, *old_numa_mask, *numa_nodes;
+	unsigned long int node;
 
 	if (!stress_get_setting("numa-bytes", &numa_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -221,13 +221,23 @@ static int stress_numa(stress_args_t *args)
 
 	num_pages = numa_bytes / page_size;
 
-	numa_mask = stress_numa_mask_alloc();
-	if (!numa_mask) {
+	numa_nodes = stress_numa_mask_alloc();
+	if (!numa_nodes) {
 		pr_inf_skip("%s: no NUMA nodes found, skipping test\n", args->name);
 		rc = EXIT_NO_RESOURCE;
 		goto deinit;
 	}
-
+	if (stress_numa_mask_nodes_get(numa_nodes) < 1) {
+		pr_inf_skip("%s: no NUMA nodes found, skipping test\n", args->name);
+		rc = EXIT_NO_RESOURCE;
+		goto numa_nodes_free;
+	}
+	numa_mask = stress_numa_mask_alloc();
+	if (!numa_mask) {
+		pr_inf_skip("%s: no NUMA nodes found, skipping test\n", args->name);
+		rc = EXIT_NO_RESOURCE;
+		goto numa_nodes_free;
+	}
 	old_numa_mask = stress_numa_mask_alloc();
 	if (!old_numa_mask) {
 		pr_inf_skip("%s: no NUMA nodes found, skipping test\n", args->name);
@@ -300,6 +310,8 @@ static int stress_numa(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
+	node = stress_numa_next_node(0, numa_nodes);
 
 	k = 0;
 	t = stress_time_now();
@@ -544,9 +556,7 @@ static int stress_numa(stress_args_t *args)
 		}
 
 		/* Move to next node */
-		node++;
-		if (node >= numa_mask->nodes)
-			node = 0;
+		node = stress_numa_next_node(node, numa_nodes);
 
 		/*
 		 *  Migrate all this processes pages to the current new node
@@ -733,6 +743,8 @@ old_numa_mask_free:
 	stress_numa_mask_free(old_numa_mask);
 numa_mask_free:
 	stress_numa_mask_free(numa_mask);
+numa_nodes_free:
+	stress_numa_mask_free(numa_nodes);
 deinit:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

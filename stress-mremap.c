@@ -206,6 +206,7 @@ static int stress_mremap_child(stress_args_t *args, void *context)
 	int ret = EXIT_SUCCESS;
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 	stress_numa_mask_t *numa_mask = NULL;
+	stress_numa_mask_t *numa_nodes = NULL;
 #endif
 
 #if defined(MAP_POPULATE)
@@ -231,20 +232,9 @@ static int stress_mremap_child(stress_args_t *args, void *context)
 
 	if (mremap_numa) {
 #if defined(HAVE_LINUX_MEMPOLICY_H)
-		if (stress_numa_nodes() > 1) {
-			numa_mask = stress_numa_mask_alloc();
-			if (!numa_mask) {
-				pr_inf("%s: cannot allocate NUMA mask, disabling --mremap-numa\n",
-					args->name);
-				mremap_numa = false;
-			}
-		} else {
-			if (args->instance == 0) {
-				pr_inf("%s: only 1 NUMA node available, disabling --mremap-numa\n",
-					args->name);
-				mremap_numa = false;
-			}
-		}
+		stress_numa_mask_and_node_alloc(args, &numa_nodes,
+						&numa_mask, "--mremap-numa",
+						&mremap_numa);
 #else
 		if (args->instance == 0)
 			pr_inf("%s: --mremap-numa selected but not supported by this system, disabling option\n",
@@ -274,7 +264,7 @@ static int stress_mremap_child(stress_args_t *args, void *context)
 		}
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 		if (mremap_numa)
-			stress_numa_randomize_pages(args, numa_mask, buf, page_size, sz);
+			stress_numa_randomize_pages(args, numa_nodes, numa_mask, buf, page_size, sz);
 #endif
 		(void)stress_madvise_random(buf, new_sz);
 		(void)stress_madvise_mergeable(buf, new_sz);
@@ -305,7 +295,7 @@ static int stress_mremap_child(stress_args_t *args, void *context)
 				goto deinit;
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 			if (mremap_numa)
-				stress_numa_randomize_pages(args, numa_mask, buf, page_size, new_sz);
+				stress_numa_randomize_pages(args, numa_nodes, numa_mask, buf, page_size, new_sz);
 #endif
 			(void)stress_madvise_random(buf, new_sz);
 			if (g_opt_flags & OPT_FLAGS_VERIFY) {
@@ -334,7 +324,7 @@ static int stress_mremap_child(stress_args_t *args, void *context)
 				goto deinit;
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 			if (mremap_numa)
-				stress_numa_randomize_pages(args, numa_mask, buf, page_size, new_sz);
+				stress_numa_randomize_pages(args, numa_nodes, numa_mask, buf, page_size, new_sz);
 #endif
 			(void)stress_madvise_random(buf, new_sz);
 			old_sz = new_sz;
@@ -369,6 +359,8 @@ deinit:
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 	if (numa_mask)
 		stress_numa_mask_free(numa_mask);
+	if (numa_nodes)
+		stress_numa_mask_free(numa_nodes);
 #endif
 
 	return ret;

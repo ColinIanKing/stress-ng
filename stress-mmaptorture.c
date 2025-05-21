@@ -398,6 +398,7 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 	NOCLOBBER off_t mmap_fd_offset = 0;
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 	NOCLOBBER stress_numa_mask_t *numa_mask = NULL;
+	NOCLOBBER stress_numa_mask_t *numa_nodes = NULL;
 #endif
 	size_t i;
 	(void)context;
@@ -433,8 +434,16 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 	}
 
 #if defined(HAVE_LINUX_MEMPOLICY_H)
-	if (stress_numa_nodes() > 0)
+	if (stress_numa_nodes() > 0) {
 		numa_mask = stress_numa_mask_alloc();
+		if (numa_mask) {
+			numa_nodes = stress_numa_mask_alloc();
+			if (!numa_nodes) {
+				stress_numa_mask_free(numa_mask);
+				numa_mask = NULL;
+			}
+		}
+	}
 #endif
 	for (i = 0; i < MMAP_MAPPINGS_MAX; i++) {
 		mappings[i].addr = MAP_FAILED;
@@ -586,8 +595,8 @@ mapped_ok:
 					shim_builtin_prefetch((void *)(ptr + i));
 			}
 #if defined(HAVE_LINUX_MEMPOLICY_H)
-			if (numa_mask && stress_mwc1())
-				stress_numa_randomize_pages(args, numa_mask, (void *)ptr, page_size, mmap_size);
+			if (numa_mask && numa_nodes && stress_mwc1())
+				stress_numa_randomize_pages(args, numa_nodes, numa_mask, (void *)ptr, page_size, mmap_size);
 
 #if defined(HAVE_MSYNC) &&	\
     defined(MS_SYNC) &&		\
@@ -628,8 +637,8 @@ mapped_ok:
 					mmap_stats->mprotect_pages += mmap_size / page_size;
 #endif
 #if defined(HAVE_LINUX_MEMPOLICY_H)
-			if (stress_mwc1() && (numa_mask))
-				stress_numa_randomize_pages(args, numa_mask, (void *)ptr, page_size, mmap_size);
+			if (numa_mask && numa_nodes && stress_mwc1())
+				stress_numa_randomize_pages(args, numa_nodes, numa_mask, (void *)ptr, page_size, mmap_size);
 #endif
 			for (i = 0; i < mmap_size; i += page_size) {
 				if (stress_mwc1())
@@ -827,6 +836,8 @@ mappings_unmap:
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 	if (numa_mask)
 		stress_numa_mask_free(numa_mask);
+	if (numa_nodes)
+		stress_numa_mask_free(numa_nodes);
 #endif
 	free(mappings);
 	free(data);

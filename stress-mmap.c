@@ -82,6 +82,7 @@ typedef struct {
 	int *mmap_flag_perms;
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 	stress_numa_mask_t *numa_mask;
+	stress_numa_mask_t *numa_nodes;
 #endif
 } stress_mmap_context_t;
 
@@ -599,7 +600,7 @@ retry:
 			(void)stress_madvise_random(buf, sz);
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 		if (context->mmap_numa)
-			stress_numa_randomize_pages(args, context->numa_mask, buf, page_size, sz);
+			stress_numa_randomize_pages(args, context->numa_nodes, context->numa_mask, buf, page_size, sz);
 #endif
 		if (context->mmap_mergeable)
 			(void)stress_madvise_mergeable(buf, sz);
@@ -934,6 +935,7 @@ static int stress_mmap(stress_args_t *args)
 #endif
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 	context.numa_mask = NULL;
+	context.numa_nodes = NULL;
 #endif
 
 	(void)stress_get_setting("mmap-async", &context.mmap_async);
@@ -1060,19 +1062,9 @@ redo:
 
 	if (context.mmap_numa) {
 #if defined(HAVE_LINUX_MEMPOLICY_H)
-		if (stress_numa_nodes() > 1) {
-			context.numa_mask = stress_numa_mask_alloc();
-			if (!context.numa_mask) {
-				pr_inf("%s: cannot allocate NUMA mask, disabling --mmap-numa\n",
-					args->name);
-				context.mmap_numa = false;
-			}
-		} else {
-			if (args->instance == 0)
-				pr_inf("%s: only 1 NUMA node available, disabling --mmap-numa\n",
-					args->name);
-			context.mmap_numa = false;
-		}
+		stress_numa_mask_and_node_alloc(args, &context.numa_nodes,
+						&context.numa_mask, "--mmap-numa",
+						&context.mmap_numa);
 #else
 		if (args->instance == 0)
 			pr_inf("%s: --mmap-numa selected but not supported by this system, disabling option\n",
@@ -1098,8 +1090,10 @@ redo:
 	if (context.mmap_flag_perms)
 		free(context.mmap_flag_perms);
 #if defined(HAVE_LINUX_MEMPOLICY_H)
-	if (context.mmap_numa)
+	if (context.mmap_numa) {
 		stress_numa_mask_free(context.numa_mask);
+		stress_numa_mask_free(context.numa_nodes);
+	}
 #endif
 
 	return ret;

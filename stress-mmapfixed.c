@@ -29,6 +29,7 @@ typedef struct {
 	bool mmapfixed_numa;
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 	stress_numa_mask_t *numa_mask;
+	stress_numa_mask_t *numa_nodes;
 #endif
 } mmapfixed_info_t;
 
@@ -166,7 +167,7 @@ static int stress_mmapfixed_child(stress_args_t *args, void *context)
 			goto next;
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 		if (info->mmapfixed_numa)
-			stress_numa_randomize_pages(args, info->numa_mask, buf, sz, page_size);
+			stress_numa_randomize_pages(args, info->numa_nodes, info->numa_mask, buf, sz, page_size);
 #endif
 		if (info->mmapfixed_mlock)
 			(void)shim_mlock(buf, sz);
@@ -197,7 +198,7 @@ static int stress_mmapfixed_child(stress_args_t *args, void *context)
 
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 			if (info->mmapfixed_numa)
-				stress_numa_randomize_pages(args, info->numa_mask, buf, sz, page_size);
+				stress_numa_randomize_pages(args, info->numa_nodes, info->numa_mask, buf, sz, page_size);
 #endif
 			if (info->mmapfixed_mlock)
 				(void)shim_mlock(buf, sz);
@@ -234,7 +235,7 @@ static int stress_mmapfixed_child(stress_args_t *args, void *context)
 					buf = newbuf;
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 					if (info->mmapfixed_numa)
-						stress_numa_randomize_pages(args, info->numa_mask, buf, sz, page_size);
+						stress_numa_randomize_pages(args, info->numa_nodes, info->numa_mask, buf, sz, page_size);
 #endif
 					if (info->mmapfixed_mlock)
 						(void)shim_mlock(buf, sz);
@@ -270,6 +271,7 @@ static int stress_mmapfixed(stress_args_t *args)
 	info.mmapfixed_numa = false;
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 	info.numa_mask = NULL;
+	info.numa_nodes = NULL;
 #endif
 
 	(void)stress_get_setting("mmapfixed-mlock", &info.mmapfixed_mlock);
@@ -277,20 +279,9 @@ static int stress_mmapfixed(stress_args_t *args)
 
 	if (info.mmapfixed_numa) {
 #if defined(HAVE_LINUX_MEMPOLICY_H)
-		if (stress_numa_nodes() >= 1) {
-			info.numa_mask = stress_numa_mask_alloc();
-			if (!info.numa_mask) {
-				pr_inf("%s: cannot allocate NUMA mask, disabling --mmapfixed-numa\n",
-					args->name);
-				info.mmapfixed_numa = false;
-			}
-		} else {
-			if (args->instance == 0) {
-				pr_inf("%s: only 1 NUMA node available, disabling --mmapfixed-numa\n",
-					args->name);
-				info.mmapfixed_numa = false;
-			}
-		}
+		stress_numa_mask_and_node_alloc(args, &info.numa_nodes,
+						&info.numa_mask, "--mmapfixed-numa",
+						&info.mmapfixed_numa);
 #else
 		if (args->instance == 0)
 			pr_inf("%s: --mmapfixed-numa selected but not supported by this system, disabling option\n",
@@ -303,6 +294,8 @@ static int stress_mmapfixed(stress_args_t *args)
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 	if (info.numa_mask)
 		stress_numa_mask_free(info.numa_mask);
+	if (info.numa_nodes)
+		stress_numa_mask_free(info.numa_nodes);
 #endif
 
 	return ret;

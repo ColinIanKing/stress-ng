@@ -75,6 +75,7 @@ static int stress_pagemove_child(stress_args_t *args, void *context)
 	bool pagemove_numa = false;
 #if defined(HAVE_LINUX_MEMPOLICY_H)
        stress_numa_mask_t *numa_mask = NULL;
+       stress_numa_mask_t *numa_nodes = NULL;
 #endif
 
 	(void)context;
@@ -119,20 +120,8 @@ static int stress_pagemove_child(stress_args_t *args, void *context)
 
 	if (pagemove_numa) {
 #if defined(HAVE_LINUX_MEMPOLICY_H)
-		if (stress_numa_nodes() > 1) {
-			numa_mask = stress_numa_mask_alloc();
-			if (!numa_mask) {
-				pr_inf("%s: cannot allocate NUMA mask, disabling --pagemove-numa\n",
-					args->name);
-				pagemove_numa = false;
-			}
-		} else {
-			if (args->instance == 0) {
-				pr_inf("%s: only 1 NUMA node available, disabling --pagemove-numa\n",
-					args->name);
-				pagemove_numa = false;
-			}
-		}
+		stress_numa_mask_and_node_alloc(args, &numa_nodes, &numa_mask,
+						"--pagemove-numa", &pagemove_numa);
 #else
 		if (args->instance == 0)
 			pr_inf("%s: --pagemove-numa selected but not supported by this system, disabling option\n",
@@ -191,7 +180,7 @@ static int stress_pagemove_child(stress_args_t *args, void *context)
 				}
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 				if (pagemove_numa)
-					stress_numa_randomize_pages(args, numa_mask, remap_addr1, page_size, page_size);
+					stress_numa_randomize_pages(args, numa_nodes, numa_mask, remap_addr1, page_size, page_size);
 #endif
 				if (pagemove_mlock)
 					(void)shim_mlock(remap_addr1, page_size);
@@ -204,7 +193,7 @@ static int stress_pagemove_child(stress_args_t *args, void *context)
 				}
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 				if (pagemove_numa)
-					stress_numa_randomize_pages(args, numa_mask, remap_addr2, page_size, page_size);
+					stress_numa_randomize_pages(args, numa_nodes, numa_mask, remap_addr2, page_size, page_size);
 #endif
 				if (pagemove_mlock)
 					(void)shim_mlock(remap_addr2, page_size);
@@ -217,7 +206,7 @@ static int stress_pagemove_child(stress_args_t *args, void *context)
 				}
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 				if (pagemove_numa)
-					stress_numa_randomize_pages(args, numa_mask, remap_addr3, page_size, page_size);
+					stress_numa_randomize_pages(args, numa_nodes, numa_mask, remap_addr3, page_size, page_size);
 #endif
 				if (pagemove_mlock)
 					(void)shim_mlock(remap_addr3, page_size);
@@ -237,7 +226,7 @@ static int stress_pagemove_child(stress_args_t *args, void *context)
 				}
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 				if (pagemove_numa)
-					stress_numa_randomize_pages(args, numa_mask, remap_addr1, page_size, page_size);
+					stress_numa_randomize_pages(args, numa_nodes, numa_mask, remap_addr1, page_size, page_size);
 #endif
 				if (pagemove_mlock)
 					(void)shim_mlock(remap_addr1, page_size);
@@ -254,7 +243,7 @@ static int stress_pagemove_child(stress_args_t *args, void *context)
 				}
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 				if (pagemove_numa)
-					stress_numa_randomize_pages(args, numa_mask, remap_addr2, page_size, page_size);
+					stress_numa_randomize_pages(args, numa_nodes, numa_mask, remap_addr2, page_size, page_size);
 #endif
 				if (pagemove_mlock)
 					(void)shim_mlock(remap_addr2, page_size);
@@ -271,7 +260,7 @@ static int stress_pagemove_child(stress_args_t *args, void *context)
 				}
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 				if (pagemove_numa)
-					stress_numa_randomize_pages(args, numa_mask, remap_addr3, page_size, page_size);
+					stress_numa_randomize_pages(args, numa_nodes, numa_mask, remap_addr3, page_size, page_size);
 #endif
 				if (pagemove_mlock)
 					(void)shim_mlock(remap_addr3, page_size);
@@ -297,6 +286,8 @@ fail:
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 	if (numa_mask)
 		stress_numa_mask_free(numa_mask);
+	if (numa_nodes)
+		stress_numa_mask_free(numa_nodes);
 #endif
 
 	rate = (duration > 0.0) ? count / duration : 0.0;

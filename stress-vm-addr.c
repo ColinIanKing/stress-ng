@@ -46,6 +46,7 @@ typedef struct {
 	const stress_vm_addr_method_info_t *vm_addr_method;
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 	stress_numa_mask_t *numa_mask;
+	stress_numa_mask_t *numa_nodes;
 #endif
 	bool vm_addr_mlock;
 	bool vm_addr_numa;
@@ -503,7 +504,7 @@ static int stress_vm_addr_child(stress_args_t *args, void *ctxt)
 			(void)stress_madvise_mergeable(buf, buf_sz);
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 			if (context->vm_addr_numa)
-				stress_numa_randomize_pages(args, context->numa_mask, buf, page_size, buf_sz);
+				stress_numa_randomize_pages(args, context->numa_nodes, context->numa_mask, buf, page_size, buf_sz);
 #endif
 			if (context->vm_addr_mlock)
 				(void)shim_mlock(buf, buf_sz);
@@ -546,6 +547,7 @@ static int stress_vm_addr(stress_args_t *args)
 	context.bit_error_count = MAP_FAILED;
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 	context.numa_mask = NULL;
+	context.numa_nodes = NULL;
 #endif
 
 	if (args->instance == 0)
@@ -575,20 +577,9 @@ static int stress_vm_addr(stress_args_t *args)
 
 	if (context.vm_addr_numa) {
 #if defined(HAVE_LINUX_MEMPOLICY_H)
-		if (stress_numa_nodes() > 1) {
-			context.numa_mask = stress_numa_mask_alloc();
-			if (!context.numa_mask) {
-				pr_inf("%s: cannot allocate NUMA mask, disabling --vm-addr-numa\n",
-					args->name);
-				context.vm_addr_numa = false;
-			}
-		} else {
-			if (args->instance == 0) {
-				pr_inf("%s: only 1 NUMA node available, disabling --vm-addr-numa\n",
-					args->name);
-				context.vm_addr_numa = false;
-			}
-		}
+		stress_numa_mask_and_node_alloc(args, &context.numa_nodes,
+						&context.numa_mask, "--vm-addr-numa",
+						&context.vm_addr_numa);
 #else
 		if (args->instance == 0)
 			pr_inf("%s: --vm-addr-uma selected but not supported by this system, disabling option\n",
@@ -616,6 +607,8 @@ static int stress_vm_addr(stress_args_t *args)
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 	if (context.numa_mask)
 		stress_numa_mask_free(context.numa_mask);
+	if (context.numa_nodes)
+		stress_numa_mask_free(context.numa_nodes);
 #endif
 	(void)munmap((void *)context.bit_error_count, page_size);
 

@@ -61,6 +61,7 @@ static int stress_mmapmany_child(stress_args_t *args, void *context)
 	int rc = EXIT_SUCCESS;
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 	stress_numa_mask_t *numa_mask = NULL;
+	stress_numa_mask_t *numa_nodes = NULL;
 #endif
 
 	(void)context;
@@ -76,20 +77,9 @@ static int stress_mmapmany_child(stress_args_t *args, void *context)
 
 	if (mmapmany_numa) {
 #if defined(HAVE_LINUX_MEMPOLICY_H)
-		if (stress_numa_nodes() > 1) {
-			numa_mask = stress_numa_mask_alloc();
-			if (!numa_mask) {
-				pr_inf("%s: cannot allocate NUMA mask, disabling --mmapmany-numa\n",
-					args->name);
-				mmapmany_numa = false;
-			}
-		} else {
-			if (args->instance == 0) {
-				pr_inf("%s: only 1 NUMA node available, disabling --mmapmany-numa\n",
-					args->name);
-				mmapmany_numa = false;
-			}
-		}
+		stress_numa_mask_and_node_alloc(args, &numa_nodes,
+						&numa_mask, "--mmapmany-numa",
+						&mmapmany_numa);
 #else
 		if (args->instance == 0)
 			pr_inf("%s: --mmapmany-numa selected but not supported by this system, disabling option\n",
@@ -117,7 +107,7 @@ static int stress_mmapmany_child(stress_args_t *args, void *context)
 				break;
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 			if (mmapmany_numa)
-				stress_numa_randomize_pages(args, numa_mask, ptr, page_size, page_size * 3);
+				stress_numa_randomize_pages(args, numa_nodes, numa_mask, ptr, page_size, page_size * 3);
 #endif
 
 			if (mmapmany_mlock)
@@ -167,6 +157,8 @@ static int stress_mmapmany_child(stress_args_t *args, void *context)
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 	if (numa_mask)
 		stress_numa_mask_free(numa_mask);
+	if (numa_nodes)
+		stress_numa_mask_free(numa_nodes);
 #endif
 	free(mappings);
 	return rc;

@@ -75,6 +75,7 @@ typedef struct {
 	int fd;
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 	stress_numa_mask_t *numa_mask;
+	stress_numa_mask_t *numa_nodes;
 #endif
 } stress_mmaphuge_context_t;
 
@@ -163,7 +164,7 @@ static int stress_mmaphuge_child(stress_args_t *args, void *v_context)
 
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 					if (context->mmaphuge_numa)
-						stress_numa_randomize_pages(args, context->numa_mask, buf, page_size, sz);
+						stress_numa_randomize_pages(args, context->numa_nodes, context->numa_mask, buf, page_size, sz);
 #endif
 
 					if (context->mmaphuge_mlock)
@@ -324,20 +325,9 @@ static int stress_mmaphuge(stress_args_t *args)
 
 	if (context.mmaphuge_numa) {
 #if defined(HAVE_LINUX_MEMPOLICY_H)
-		if (stress_numa_nodes() > 1) {
-			context.numa_mask = stress_numa_mask_alloc();
-			if (!context.numa_mask) {
-				pr_inf("%s: cannot allocate NUMA mask, disabling --mmaphuge-numa\n",
-					args->name);
-				context.mmaphuge_numa = false;
-			}
-		} else {
-			if (args->instance == 0) {
-				pr_inf("%s: only 1 NUMA node available, disabling --mmaphuge-numa\n",
-					args->name);
-				context.mmaphuge_numa = false;
-			}
-		}
+		stress_numa_mask_and_node_alloc(args, &context.numa_nodes,
+						&context.numa_mask, "--mmaphuge-numa",
+						&context.mmaphuge_numa);
 #else
 		if (args->instance == 0)
 			pr_inf("%s: --mmaphuge-numa selected but not supported by this system, disabling option\n",
@@ -351,6 +341,8 @@ static int stress_mmaphuge(stress_args_t *args)
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 	if (context.numa_mask)
 		stress_numa_mask_free(context.numa_mask);
+	if (context.numa_nodes)
+		stress_numa_mask_free(context.numa_nodes);
 #endif
 	free(context.bufs);
 

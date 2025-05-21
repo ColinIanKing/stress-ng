@@ -186,6 +186,7 @@ static int stress_memfd_child(stress_args_t *args, void *context)
 	char filename_rndstr[64], filename_unusual[64], filename_pid[64];
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 	stress_numa_mask_t *numa_mask = NULL;
+	stress_numa_mask_t *numa_nodes = NULL;
 #endif
 
 	stress_catch_sigill();
@@ -250,20 +251,7 @@ static int stress_memfd_child(stress_args_t *args, void *context)
 
 	if (memfd_numa) {
 #if defined(HAVE_LINUX_MEMPOLICY_H)
-		if (stress_numa_nodes() > 1) {
-			numa_mask = stress_numa_mask_alloc();
-			if (!numa_mask) {
-				pr_inf("%s: cannot allocate NUMA mask, disabling --memfd-numa\n",
-					args->name);
-				memfd_numa = false;
-			}
-		} else {
-			if (args->instance == 0) {
-				pr_inf("%s: only 1 NUMA node available, disabling --memfd-numa\n",
-					args->name);
-				memfd_numa = false;
-			}
-		}
+		stress_numa_mask_and_node_alloc(args, &numa_nodes, &numa_mask, "--memfd-numa", &memfd_numa);
 #else
 		if (args->instance == 0)
 			pr_inf("%s: --memfd-numa selected but not supported by this system, disabling option\n",
@@ -370,8 +358,8 @@ static int stress_memfd_child(stress_args_t *args, void *context)
 			if (memfd_mlock)
 				(void)shim_mlock(maps[i], size);
 #if defined(HAVE_LINUX_MEMPOLICY_H)
-			if (memfd_numa && numa_mask)
-				stress_numa_randomize_pages(args, numa_mask, maps[i], size, page_size);
+			if (memfd_numa && numa_mask && numa_nodes)
+				stress_numa_randomize_pages(args, numa_nodes, numa_mask, maps[i], size, page_size);
 #endif
 			stress_memfd_fill_pages_generic(stress_mwc64(), maps[i], size);
 			if (memfd_madvise) {
@@ -567,6 +555,8 @@ buf_unmap:
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 	if (numa_mask)
 		stress_numa_mask_free(numa_mask);
+	if (numa_nodes)
+		stress_numa_mask_free(numa_nodes);
 #endif
 	free(maps);
 	free(fds);

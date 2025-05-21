@@ -51,6 +51,7 @@ typedef struct {
 	stress_mapping_t *mappings;
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 	stress_numa_mask_t *numa_mask;
+	stress_numa_mask_t *numa_nodes;
 #endif
 } stress_mmapfile_info_t;
 
@@ -126,7 +127,7 @@ static size_t stress_mmapfiles_dir(
 				if (mmapfile_info->mmapfiles_numa) {
 					const size_t page_len = (len + (page_size - 1)) & ~(page_size - 1);
 					if (page_len > 0)
-						stress_numa_randomize_pages(args, mmapfile_info->numa_mask, ptr, page_len, page_size);
+						stress_numa_randomize_pages(args, mmapfile_info->numa_nodes, mmapfile_info->numa_mask, ptr, page_len, page_size);
 				}
 #endif
 				if (mmapfile_info->mmapfiles_populate) {
@@ -257,6 +258,7 @@ static int stress_mmapfiles(stress_args_t *args)
 	mmapfile_info->mappings = NULL;
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 	mmapfile_info->numa_mask = NULL;
+	mmapfile_info->numa_nodes = NULL;
 #endif
 
 	(void)stress_get_setting("mmapfiles-numa", &mmapfile_info->mmapfiles_numa);
@@ -265,20 +267,9 @@ static int stress_mmapfiles(stress_args_t *args)
 
 	if (mmapfile_info->mmapfiles_numa) {
 #if defined(HAVE_LINUX_MEMPOLICY_H)
-		if (stress_numa_nodes() > 1) {
-			mmapfile_info->numa_mask = stress_numa_mask_alloc();
-			if (!mmapfile_info->numa_mask) {
-				pr_inf("%s: cannot allocate NUMA mask, disabling --mapfiles-numa\n",
-					args->name);
-				mmapfile_info->mmapfiles_numa = false;
-			}
-		} else {
-			if (args->instance == 0) {
-				pr_inf("%s: only 1 NUMA node available, disabling --mmapfiles-numa\n",
-					args->name);
-				mmapfile_info->mmapfiles_numa = false;
-			}
-		}
+		stress_numa_mask_and_node_alloc(args, &mmapfile_info->numa_nodes,
+						&mmapfile_info->numa_mask, "--mmapfiles-numa",
+						&mmapfile_info->mmapfiles_numa);
 #else
 		if (args->instance == 0)
 			pr_inf("%s: --mmapfiles-numa selected but not supported by this system, disabling option\n",
@@ -304,6 +295,8 @@ static int stress_mmapfiles(stress_args_t *args)
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 	if (mmapfile_info->numa_mask)
 		stress_numa_mask_free(mmapfile_info->numa_mask);
+	if (mmapfile_info->numa_nodes)
+		stress_numa_mask_free(mmapfile_info->numa_nodes);
 #endif
 	(void)munmap((void *)mmapfile_info, sizeof(*mmapfile_info));
 
