@@ -205,12 +205,12 @@ PRAGMA_UNROLL_N(2)
  *	check buffer contains some known pattern
  */
 static inline PURE OPTIMIZE3 bool stress_aiol_check_buffer(
-	const int request,
+	const uint8_t pattern,
 	const uint8_t *const buffer,
 	const size_t size)
 {
 	register size_t i;
-	register uint8_t pat = (uint8_t)request;
+	register uint8_t pat = (uint8_t)pattern;
 
 PRAGMA_UNROLL_N(2)
 	for (i = 0; i < size; i++, pat++) {
