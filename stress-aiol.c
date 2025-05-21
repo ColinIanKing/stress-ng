@@ -563,6 +563,11 @@ retry_open:
 			info.cb[i].u.c.offset = off;
 			info.cb[i].u.c.nbytes = BUFFER_SZ;
 			info.cbs[i] = &info.cb[i];
+
+			info.events[i].obj = NULL;
+			info.events[i].data = NULL;
+			info.events[i].res = ~0;
+			info.events[i].res2 = ~0;
 		}
 
 		if (UNLIKELY(stress_aiol_submit(args, &info, aiol_requests, false) < 0))
@@ -577,6 +582,10 @@ retry_open:
 			struct iocb *obj = info.events[i].obj;
 
 			if (!obj)
+				continue;
+			if (info.events[i].res != BUFFER_SZ)
+				continue;
+			if (info.events[i].res2)
 				continue;
 
 			bufptr = obj->u.c.buf;
