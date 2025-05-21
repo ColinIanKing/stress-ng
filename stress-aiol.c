@@ -565,7 +565,7 @@ retry_open:
 			break;
 
 		for (i = 0; i < (size_t)n; i++)
-			info.write_res[i] = info.events[i].res;
+			info.write_res[i] = (int)info.events[i].res;
 
 		/*
 		 *  async reads
