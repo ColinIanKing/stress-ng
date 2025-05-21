@@ -25,7 +25,6 @@
 #define MAX_FSTAT_THREADS	(4)
 #define FSTAT_LOOPS		(16)
 
-static volatile bool keep_running;
 static sigset_t set;
 
 static const stress_help_t help[] = {
@@ -70,18 +69,6 @@ typedef struct ctxt {
 	uid_t euid;			/* euid of process */
 	int bad_fd;			/* bad/invalid fd */
 } stress_fstat_context_t;
-
-/*
- *  handle_fstat_sigalrm()
- *      catch SIGALRM
- */
-static void MLOCKED_TEXT handle_fstat_sigalrm(int signum)
-{
-	(void)signum;
-
-	keep_running = false;
-	stress_continue_set_flag(false);
-}
 
 /*
  *  do_not_stat()
@@ -224,16 +211,16 @@ static void *stress_fstat_thread(void *ptr)
 #endif
 	stress_random_small_sleep();
 
-	while (LIKELY(keep_running && stress_continue_flag())) {
+	while (LIKELY(stress_continue_flag())) {
 		size_t i;
 
 		for (i = 0; i < FSTAT_LOOPS; i++) {
-			if (UNLIKELY(!stress_continue_flag()))
-				break;
 			if (stress_fstat_helper(ctxt) < 0) {
 				pthread_info->pthread_ret = -1;
 				break;
 			}
+			if (UNLIKELY(!stress_continue_flag()))
+				break;
 		}
 		(void)shim_sched_yield();
 	}
@@ -261,7 +248,6 @@ static int stress_fstat_threads(stress_args_t *args, stress_stat_info_t *si, con
 	stress_fstat_pthread_info_t pthreads[MAX_FSTAT_THREADS];
 #endif
 
-	keep_running = true;
 #if defined(HAVE_LIB_PTHREAD)
 	(void)shim_memset(pthreads, 0, sizeof(pthreads));
 
@@ -273,14 +259,13 @@ static int stress_fstat_threads(stress_args_t *args, stress_stat_info_t *si, con
 	}
 #endif
 	for (i = 0; i < FSTAT_LOOPS; i++) {
-		if (UNLIKELY(!stress_continue_flag()))
-			break;
 		if (stress_fstat_helper(&ctxt) < 0) {
 			rc = -1;
 			break;
 		}
+		if (UNLIKELY(!stress_continue_flag()))
+			break;
 	}
-	keep_running = false;
 
 #if defined(HAVE_LIB_PTHREAD)
 	for (i = 0; i < MAX_FSTAT_THREADS; i++) {
@@ -310,9 +295,6 @@ static int stress_fstat(stress_args_t *args)
 	char *fstat_dir = "/dev";
 
 	(void)stress_get_setting("fstat-dir", &fstat_dir);
-
-	if (stress_sighandler(args->name, SIGALRM, handle_fstat_sigalrm, NULL) < 0)
-		return EXIT_FAILURE;
 
 	if ((dp = opendir(fstat_dir)) == NULL) {
 		pr_err("%s: opendir on %s failed, errno=%d: (%s)\n",
