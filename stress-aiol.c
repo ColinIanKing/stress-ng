@@ -555,10 +555,10 @@ retry_open:
 			info.events[i].res2 = ~0;
 		}
 		n = stress_aiol_submit(args, &info, aiol_requests, false);
-		if (UNLIKELY(n != aiol_requests))
+		if (UNLIKELY(n != (ssize_t)aiol_requests))
 			break;
 		n = stress_aiol_wait(args, &info, aiol_requests);
-		if (UNLIKELY(n != aiol_requests))
+		if (UNLIKELY(n != (ssize_t)aiol_requests))
 			break;
 		stress_bogo_inc(args);
 		if (UNLIKELY(!stress_continue(args)))
@@ -588,11 +588,11 @@ retry_open:
 		}
 
 		n = stress_aiol_submit(args, &info, aiol_requests, false);
-		if (UNLIKELY(n < aiol_requests))
+		if (UNLIKELY(n < (ssize_t)aiol_requests))
 			break;
 
 		n = stress_aiol_wait(args, &info, aiol_requests);
-		if (UNLIKELY(n < aiol_requests))
+		if (UNLIKELY(n < (ssize_t)aiol_requests))
 			break;
 
 		for (i = 0; i < (size_t)n; i++) {
