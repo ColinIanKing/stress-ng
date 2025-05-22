@@ -31,14 +31,22 @@ static const stress_help_t help[] = {
 
 #if defined(HAVE_PERSONALITY)
 
-/* Personalities are determined at build time */
+#define INVALID_PERSONALITY	(0xffff)
+
+/*
+ *  Personalities are determined at build time, some systems don't
+ *  define these so use INVALID_PERSONALITY to unsure the array
+ *  is not zero sized as this causes some pedantic compilers to
+ *  complain about zero sized allocation of the failed array
+ */
 static const unsigned long int personalities[] ALIGN64 = {
 #include "personality.h"
+	INVALID_PERSONALITY,
 };
 
 static int stress_personality_supported(const char *name)
 {
-	if (SIZEOF_ARRAY(personalities) == 0) {
+	if (SIZEOF_ARRAY(personalities) <= 1) {
 		pr_inf_skip("%s: stressor will be skipped, no personalities to stress test\n", name);
 		return -1;
 	}
@@ -55,7 +63,7 @@ static int stress_personality(stress_args_t *args)
 	bool *failed;
 	int rc = EXIT_SUCCESS;
 
-	if (UNLIKELY(n == 0)) {
+	if (n <= 1) {
 		/* should never reach here, but just in case we do.. */
 		pr_inf_skip("%s: no personalities to stress test, skipping stressor\n", args->name);
 		return EXIT_NOT_IMPLEMENTED;
@@ -82,6 +90,8 @@ static int stress_personality(stress_args_t *args)
 			const unsigned long int p = personalities[i];
 			int ret;
 
+			if (UNLIKELY(p == INVALID_PERSONALITY))
+				break;
 			if (UNLIKELY(!stress_continue_flag()))
 				break;
 			if (UNLIKELY(failed[i])) {
