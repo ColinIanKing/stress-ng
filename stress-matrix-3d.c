@@ -31,7 +31,7 @@
 static const stress_help_t help[] = {
 	{ NULL,	"matrix-3d N",		"start N workers exercising 3D matrix operations" },
 	{ NULL,	"matrix-3d-method M",	"specify 3D matrix stress method M, default is all" },
-	{ NULL,	"matrix-3d-ops N",	"stop after N 3D maxtrix bogo operations" },
+	{ NULL,	"matrix-3d-ops N",	"stop after N 3D matrix bogo operations" },
 	{ NULL,	"matrix-3d-size N",	"specify the size of the N x N x N matrix" },
 	{ NULL,	"matrix-3d-zyx",	"matrix operation is z by y by x instead of x by y by z" },
 	{ NULL,	NULL,			NULL }

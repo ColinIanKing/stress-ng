@@ -31,7 +31,7 @@
 static const stress_help_t help[] = {
 	{ NULL,	"matrix N",		"start N workers exercising matrix operations" },
 	{ NULL,	"matrix-method M",	"specify matrix stress method M, default is all" },
-	{ NULL,	"matrix-ops N",		"stop after N maxtrix bogo operations" },
+	{ NULL,	"matrix-ops N",		"stop after N matrix bogo operations" },
 	{ NULL,	"matrix-size N",	"specify the size of the N x N matrix" },
 	{ NULL,	"matrix-yx",		"matrix operation is y by x instead of x by y" },
 	{ NULL,	NULL,			NULL }
@@ -42,7 +42,7 @@ static const stress_help_t help[] = {
 typedef float	stress_matrix_type_t;
 
 /*
- *  the matrix stress test has different classes of maxtrix stressor
+ *  the matrix stress test has different classes of matrix stressor
  */
 typedef void (*stress_matrix_func_t)(
 	const size_t n,
