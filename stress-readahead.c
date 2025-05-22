@@ -231,8 +231,8 @@ rnd_rd_retry:
 				if ((errno == EAGAIN) || (errno == EINTR))
 					goto rnd_rd_retry;
 				if (errno) {
-					pr_fail("%s: read failed, errno=%d (%s)%s (%lx)\n",
-						args->name, errno, strerror(errno), fs_type, offsets[i]);
+					pr_fail("%s: read failed, errno=%d (%s)%s at offset 0x%" PRIxMAX "\n",
+						args->name, errno, strerror(errno), fs_type, (intmax_t)offsets[i]);
 					goto close_finish;
 				}
 				continue;
