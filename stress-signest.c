@@ -34,6 +34,9 @@ static const int defined_signals[] = {
 #if defined(SIGABRT)
 	SIGABRT,
 #endif
+#if defined(SIGALRM)
+	SIGALRM,
+#endif
 #if defined(SIGBUS)
 	SIGBUS,
 #endif
