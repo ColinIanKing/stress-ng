@@ -81,8 +81,6 @@
 #define STRESS_PRIO_INV_POLICY_RR	(-6)
 #endif
 
-static double t_end = 0.0;
-
 static const stress_help_t help[] = {
 	{ NULL,	"prio-inv",		"start N workers exercising priority inversion lock operations" },
 	{ NULL,	"prio-inv-ops N",	"stop after N priority inversion lock bogo operations" },
@@ -153,6 +151,8 @@ static const stress_opt_t opts[] = {
      defined(SCHED_OTHER) ||				\
      defined(SCHED_BATCH) ||				\
      defined(SCHED_IDLE))
+
+static double t_end = 0.0;
 
 typedef struct {
 	stress_prio_inv_child_info_t	child_info[MUTEX_PROCS];
