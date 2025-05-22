@@ -954,10 +954,12 @@ static int stress_workload(stress_args_t *args)
 			goto exit_free_threads;
 		}
 #else
-		pr_inf("%s: %" PRIu32 " workload threads were requested but "
-			"system does not have pthread or POSIX message queue "
-			"support, dropping back to single process workload "
-			"worker\n", args->name, workload_threads);
+		if (args->instance == 0) {
+			pr_inf("%s: %" PRIu32 " workload threads were requested but "
+				"system does not have pthread or POSIX message queue "
+				"support, dropping back to single process workload "
+				"worker\n", args->name, workload_threads);
+		}
 		workload_threads = 0;
 #endif
 	}
