@@ -384,7 +384,8 @@ static int stress_far_branch(stress_args_t *args)
 	total_funcs &= ~((size_t)15);
 
 	if (args->instance == 0)
-		pr_inf("%s: %zu functions over %zu pages\n", args->name, total_funcs, n_pages);
+		pr_inf("%s: %zu functions over %zu x %zuK pages\n",
+			args->name, total_funcs, n_pages, page_size >> 10);
 
 	funcs[0] = stress_far_branch_check;
 
