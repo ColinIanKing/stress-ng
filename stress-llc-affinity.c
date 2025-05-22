@@ -424,10 +424,10 @@ static int stress_llc_affinity(stress_args_t *args)
         llc_size *= n_numa_nodes;
         if (!args->instance) {
 		if (n_numa_nodes > 1)  {
-			pr_inf("%s: scaling LLC cache size by number of numa nodes %d to %zdK\n",
+			pr_inf("%s: scaling lower level cache size by number of numa nodes %d to %zdK\n",
 				args->name, n_numa_nodes, llc_size / 1024);
 		} else  {
-			pr_inf("%s: using LLC cache size of %zuK\n",
+			pr_inf("%s: using lower level cache size of %zuK\n",
 				args->name, llc_size / 1024);
 		}
 	}
