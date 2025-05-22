@@ -252,6 +252,7 @@ static int stress_mmaphuge(stress_args_t *args)
 
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 	context.numa_mask = NULL;
+	context.numa_nodes = NULL;
 #endif
 	context.sz = 16 * MB;
 	context.fd = -1;
