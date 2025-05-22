@@ -536,4 +536,19 @@ int stress_set_mbind(const char *arg)
 	(void)fprintf(stderr, "%s: setting NUMA memory policy binding not supported\n", option);
 	_exit(EXIT_FAILURE);
 }
+
+void stress_numa_mask_and_node_alloc(
+	stress_args_t *args,
+	stress_numa_mask_t **numa_nodes,/* bit map of NUMA nodes available */
+	stress_numa_mask_t **numa_mask,	/* mask for temp NUMA actions */
+	const char *numa_option,
+	bool *flag)
+{
+	(void)args;
+	(void)numa_option;
+
+	*numa_mask = NULL;
+	*numa_nodes = NULL;
+	*flag = false;
+}
 #endif
