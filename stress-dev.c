@@ -874,6 +874,7 @@ static void stress_dev_tty(
 	}
 #endif
 
+#if STRESS_DEV_EXERCISE_TCXONC
 #if defined(TCXONC) &&	\
     defined(TCOOFF) && 	\
     defined(TCOON)
@@ -894,6 +895,7 @@ static void stress_dev_tty(
 			ret = ioctl(fd, TCXONC, TCION);
 		(void)ret;
 	}
+#endif
 #endif
 
 #if defined(TIOCCONS)
