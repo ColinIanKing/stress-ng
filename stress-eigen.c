@@ -27,7 +27,7 @@
 static const stress_help_t help[] = {
 	{ NULL,	"eigen N",	  "start N workers exercising eigen operations" },
 	{ NULL,	"eigen-method M", "specify eigen stress method M, default is all" },
-	{ NULL,	"eigen-ops N",	  "stop after N maxtrix bogo operations" },
+	{ NULL,	"eigen-ops N",	  "stop after N matrix bogo operations" },
 	{ NULL,	"eigen-size N",	  "specify the size of the N x N eigen" },
 	{ NULL,	NULL,		  NULL }
 };
@@ -35,7 +35,7 @@ static const stress_help_t help[] = {
 #if defined(HAVE_EIGEN)
 
 /*
- *  the eigen stress test has different classes of maxtrix stressor
+ *  the eigen stress test has different classes of matrix stressor
  */
 typedef int (*stress_eigen_func_t)(const size_t size, double *duration, double *count);
 
