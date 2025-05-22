@@ -70,7 +70,7 @@ static int stress_l1cache_info_check(
 	if (args->instance == 0) {
 		char szstr[64];
 
-		stress_uint64_to_str(szstr, sizeof(szstr), sz);
+		stress_uint64_to_str(szstr, sizeof(szstr), sz, 0, true);
 
 		pr_inf("%s: l1cache: size: %s, sets: %" PRIu32
 			", ways: %" PRIu32 ", line size: %" PRIu32 " bytes\n",

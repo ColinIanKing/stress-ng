@@ -3427,7 +3427,7 @@ static int stress_vm_child(stress_args_t *args, void *ctxt)
 				if (no_mem_retries >= NO_MEM_RETRIES_MAX) {
 					char str[32];
 
-					(void)stress_uint64_to_str(str, sizeof(str), (uint64_t)buf_sz);
+					(void)stress_uint64_to_str(str, sizeof(str), (uint64_t)buf_sz, 1, true);
 					pr_inf_skip("%s: gave up trying to mmap %s after %d attempts, "
 						"errno=%d (%s), skipping stressor\n",
 						args->name, str, NO_MEM_RETRIES_MAX,

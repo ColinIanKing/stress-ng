@@ -95,10 +95,10 @@ void stress_check_range_bytes(
 
 		(void)fprintf(stderr, "Value %sB is out of range for %s,"
 			" allowed: %sB .. %sB\n",
-			stress_uint64_to_str(strval, sizeof(strval), val),
+			stress_uint64_to_str(strval, sizeof(strval), val, 1, false),
 			opt,
-			stress_uint64_to_str(strlo, sizeof(strlo), lo),
-			stress_uint64_to_str(strhi, sizeof(strhi), hi));
+			stress_uint64_to_str(strlo, sizeof(strlo), lo, 1, false),
+			stress_uint64_to_str(strhi, sizeof(strhi), hi, 1, false));
 		longjmp(g_error_env, 1);
 	}
 }

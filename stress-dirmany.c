@@ -183,7 +183,7 @@ static int stress_dirmany(stress_args_t *args)
 		char sz[32];
 
 		pr_dbg("%s: %s byte file size\n", args->name,
-			dirmany_bytes ? stress_uint64_to_str(sz, sizeof(sz), (uint64_t)dirmany_bytes) : "0");
+			dirmany_bytes ? stress_uint64_to_str(sz, sizeof(sz), (uint64_t)dirmany_bytes, 1, true) : "0");
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);

@@ -84,7 +84,7 @@ static void stress_settings_show_setting(
 	case TYPE_ID_UINT64_BYTES_FS:
 	case TYPE_ID_UINT64_BYTES_VM:
 		pr_func(" %-20.20s %s %s\n", setting->name,
-			stress_uint64_to_str(tmp, sizeof(tmp), setting->u.uint64),
+			stress_uint64_to_str(tmp, sizeof(tmp), setting->u.uint64, 1, false),
 			show_type ? " (uint64_t)" : "");
 		break;
 	case TYPE_ID_INT64:
@@ -99,7 +99,7 @@ static void stress_settings_show_setting(
 	case TYPE_ID_SIZE_T_BYTES_FS:
 	case TYPE_ID_SIZE_T_BYTES_VM:
 		pr_func(" %-20.20s %s %s\n", setting->name,
-			stress_uint64_to_str(tmp, sizeof(tmp), (uint64_t)setting->u.size),
+			stress_uint64_to_str(tmp, sizeof(tmp), (uint64_t)setting->u.size, 1, false),
 			show_type ? " (size_t)" : "");
 		break;
 	case TYPE_ID_SSIZE_T:

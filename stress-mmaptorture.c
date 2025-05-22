@@ -865,8 +865,8 @@ static int stress_mmaptorture(stress_args_t *args)
 	if (args->instance == 0) {
 		char str1[64], str2[64];
 
-		stress_uint64_to_str(str1, sizeof(str1), (uint64_t)mmap_bytes);
-		stress_uint64_to_str(str2, sizeof(str2), (uint64_t)mmap_bytes * args->instances);
+		stress_uint64_to_str(str1, sizeof(str1), (uint64_t)mmap_bytes, 1, true);
+		stress_uint64_to_str(str2, sizeof(str2), (uint64_t)mmap_bytes * args->instances, 1, true);
 
 		pr_inf("%s: using %smmap'd size %s per stressor (total %s)\n", args->name,
 			mmap_bytes_adjusted ? "adjusted " : "", str1, str2);

@@ -1933,9 +1933,9 @@ void stress_runinfo(void)
 	if (stress_get_meminfo(&freemem, &totalmem, &freeswap, &totalswap) == 0) {
 		char ram_t[32], ram_f[32], ram_s[32];
 
-		stress_uint64_to_str(ram_t, sizeof(ram_t), (uint64_t)totalmem);
-		stress_uint64_to_str(ram_f, sizeof(ram_f), (uint64_t)freemem);
-		stress_uint64_to_str(ram_s, sizeof(ram_s), (uint64_t)freeswap);
+		stress_uint64_to_str(ram_t, sizeof(ram_t), (uint64_t)totalmem, 1, false);
+		stress_uint64_to_str(ram_f, sizeof(ram_f), (uint64_t)freemem, 1, false);
+		stress_uint64_to_str(ram_s, sizeof(ram_s), (uint64_t)freeswap, 1, false);
 		pr_dbg("RAM total: %s, RAM free: %s, swap free: %s\n", ram_t, ram_f, ram_s);
 	}
 	real_path_ret = realpath(temp_path, real_path);
@@ -2898,9 +2898,10 @@ bool stress_sigalrm_pending(void)
 
 /*
  *  stress_uint64_to_str()
- *	turn 64 bit size to human readable string
+ *	turn 64 bit size to human readable string, if no_zero is true, truncate
+ *	to integer if decimal part is zero
  */
-char *stress_uint64_to_str(char *str, size_t len, const uint64_t val)
+char *stress_uint64_to_str(char *str, size_t len, const uint64_t val, const int precision, bool no_zero)
 {
 	typedef struct {
 		const uint64_t size;
@@ -2918,6 +2919,7 @@ char *stress_uint64_to_str(char *str, size_t len, const uint64_t val)
 	size_t i;
 	const char *suffix = "";
 	uint64_t scale = 1;
+	int prec = precision;
 
 	if (UNLIKELY((!str) || (len < 1)))
 		return str;
@@ -2932,7 +2934,9 @@ char *stress_uint64_to_str(char *str, size_t len, const uint64_t val)
 		}
 	}
 
-	(void)snprintf(str, len, "%.1f%s", (double)val / (double)scale, suffix);
+	if (no_zero && ((val % scale) == 0))
+		prec = 0;
+	(void)snprintf(str, len, "%.*f%s", prec, (double)val / (double)scale, suffix);
 
 	return str;
 }

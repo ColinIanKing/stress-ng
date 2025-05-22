@@ -3222,7 +3222,7 @@ next_opt:
 					bytes = freemem / 2;
 					pr_inf("option --oom-avoid-bytes too large, limiting to "
 						"50%% (%s) of free memory\n",
-						stress_uint64_to_str(buf, sizeof(buf), (uint64_t)bytes));
+						stress_uint64_to_str(buf, sizeof(buf), (uint64_t)bytes, 1, true));
 				}
 				stress_set_setting_global("oom-avoid-bytes", TYPE_ID_SIZE_T, &bytes);
 				g_opt_flags |= OPT_FLAGS_OOM_AVOID;

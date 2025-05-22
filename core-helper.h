@@ -132,7 +132,8 @@ extern WARN_UNUSED int stress_unimplemented(stress_args_t *args);
 extern WARN_UNUSED size_t stress_probe_max_pipe_size(void);
 extern WARN_UNUSED void *stress_align_address(const void *addr, const size_t alignment);
 extern WARN_UNUSED bool stress_sigalrm_pending(void);
-extern char *stress_uint64_to_str(char *str, size_t len, const uint64_t val);
+extern char *stress_uint64_to_str(char *str, size_t len, const uint64_t val,
+	const int precisionm, const bool no_zero);
 extern void stress_getset_capability(void);
 extern WARN_UNUSED bool stress_check_capability(const int capability);
 extern WARN_UNUSED int stress_drop_capabilities(const char *name);

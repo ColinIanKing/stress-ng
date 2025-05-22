@@ -179,7 +179,7 @@ fork_again:
 			if (waste_size != vforkmany_vm_bytes) {
 				static char buf[32];
 
-				stress_uint64_to_str(buf, sizeof(buf), (uint64_t)waste_size);
+				stress_uint64_to_str(buf, sizeof(buf), (uint64_t)waste_size, 1, true);
 				pr_dbg("%s: could only mmap a region of size of %s\n", args->name, buf);
 			}
 			(void)stress_mincore_touch_pages_interruptible(waste, waste_size);
