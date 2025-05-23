@@ -830,8 +830,6 @@ static int stress_procfs(stress_args_t *args)
 			const struct dirent *d = dlist[j];
 			unsigned char type;
 
-			pr_inf("%d %s\n", i, dlist[j]->d_name);
-
 			if (UNLIKELY(!stress_continue(args)))
 				break;
 
