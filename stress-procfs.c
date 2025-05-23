@@ -817,11 +817,11 @@ static int stress_procfs(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		size_t j = args->instance % (size_t)n;
+		size_t j = stress_mwc32() % n;
 
 		for (i = 0; i < n; i++) {
 			char procfspath[PATH_MAX];
-			const struct dirent *d = dlist[i];
+			const struct dirent *d = dlist[j];
 			unsigned char type;
 
 			if (UNLIKELY(!stress_continue(args)))
@@ -841,7 +841,8 @@ static int stress_procfs(stress_args_t *args)
 				stress_proc_dir(&ctxt, procfspath, true, 0);
 			}
 
-			j = (j + args->instances) % (size_t)n;
+			j = (j + args->instance + 1) % n;
+			pr_inf("%zd\n", j);
 			stress_bogo_inc(args);
 		}
 
