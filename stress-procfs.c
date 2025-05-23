@@ -842,7 +842,6 @@ static int stress_procfs(stress_args_t *args)
 			}
 
 			j = (j + args->instance + 1) % n;
-			pr_inf("%zd\n", j);
 			stress_bogo_inc(args);
 		}
 
