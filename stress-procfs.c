@@ -98,7 +98,7 @@ static int stress_dirent_proc_prune(struct dirent **dlist, const int n)
 				ignore = true;
 			else if (isdigit((unsigned char)dlist[i]->d_name[0])) {
 				/* only allow a small numeric files.. */
-				ignore = (digit_count > 1);
+				ignore = (digit_count > 5);
 				digit_count++;
 			}
 
