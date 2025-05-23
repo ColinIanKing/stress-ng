@@ -19,7 +19,9 @@
  */
 #include "stress-ng.h"
 #include "core-arch.h"
+#include "core-bitops.h"
 #include "core-builtin.h"
+#include "core-hash.h"
 #include "core-pthread.h"
 #include "core-put.h"
 
@@ -133,23 +135,26 @@ static int stress_proc_scandir(
 	return n;
 }
 
-static uint32_t path_sum(const char *path)
+/*
+ *  mixup_hash()
+ *	for numerical pids reverse bits to mash order, otherwise
+ *	use fast string hash function
+ */
+static uint32_t mixup_hash(const char *str)
 {
-	const char *ptr = path;
-	register uint32_t sum = mixup;
+	if (isdigit((int)str[0])) {
+		const uint32_t val = atol(str);
 
-	while (*ptr) {
-		sum <<= 1;
-		sum += (uint32_t)*(ptr++);
+		return stress_reverse32(val ^ mixup);
 	}
+	return stress_hash_pjw(str) ^ mixup;
 
-	return sum;
 }
 
 static int mixup_sort(const struct dirent **d1, const struct dirent **d2)
 {
-	register const uint32_t s1 = path_sum((*d1)->d_name);
-	register const uint32_t s2 = path_sum((*d2)->d_name);
+	register const uint32_t s1 = mixup_hash((*d1)->d_name);
+	register const uint32_t s2 = mixup_hash((*d2)->d_name);
 
 	if (s1 == s2)
 		return 0;
@@ -737,6 +742,7 @@ static char *stress_random_pid(void)
 
 	(void)shim_strscpy(path, "/proc/self", sizeof(path));
 
+	mixup = stress_mwc32();
 	n = stress_proc_scandir("/proc", &dlist, NULL, mixup_sort);
 	if (!n) {
 		stress_dirent_list_free(dlist, n);
@@ -787,7 +793,7 @@ static int stress_procfs(stress_args_t *args)
 	stress_ctxt_t ctxt;
 	struct dirent **dlist = NULL;
 
-	n = stress_proc_scandir("/proc", &dlist, NULL, alphasort);
+	n = stress_proc_scandir("/proc", &dlist, NULL, mixup_sort);
 	if (n <= 0)
 		return stress_procfs_no_entries(args);
 
@@ -823,6 +829,8 @@ static int stress_procfs(stress_args_t *args)
 			char procfspath[PATH_MAX];
 			const struct dirent *d = dlist[j];
 			unsigned char type;
+
+			pr_inf("%d %s\n", i, dlist[j]->d_name);
 
 			if (UNLIKELY(!stress_continue(args)))
 				break;
