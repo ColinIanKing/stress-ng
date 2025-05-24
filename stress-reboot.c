@@ -201,7 +201,7 @@ static int stress_reboot(stress_args_t *args)
 	free(stack);
 #endif
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 const stressor_info_t stress_reboot_info = {
