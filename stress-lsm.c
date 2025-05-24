@@ -17,6 +17,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 #if defined(HAVE_LINUX_LSM_H)
 #include <linux/lsm.h>
@@ -153,6 +154,7 @@ static int stress_lsm(stress_args_t *args)
 		for (j = 0; j < SIZEOF_ARRAY(attr); j++) {
 			struct lsm_ctx *ctx = (struct lsm_ctx *)buf;
 			struct lsm_ctx *ctx_end = (struct lsm_ctx *)((uintptr_t)buf + buf_size);
+			struct lsm_ctx tmp_ctx ALIGNED(8);
 
 			size = buf_size;
 			t = stress_time_now();
@@ -206,11 +208,13 @@ static int stress_lsm(stress_args_t *args)
 			 *  exercise invalid ctx_len, see Linux commits
 			 *  a04a1198088a and d8bdd795d383
 			 */
-			ctx->id = LSM_ID_APPARMOR;
-			ctx->flags = 0;
-			ctx->len = sizeof(*ctx);
-			ctx->ctx_len = -sizeof(*ctx);
-			VOID_RET(int, shim_lsm_set_self_attr(LSM_ATTR_CURRENT, ctx, sizeof(*ctx), 0));
+			shim_memcpy(&tmp_ctx, ctx, sizeof(tmp_ctx));
+
+			tmp_ctx.id = LSM_ID_APPARMOR;
+			tmp_ctx.flags = 0;
+			tmp_ctx.len = sizeof(tmp_ctx);
+			tmp_ctx.ctx_len = -sizeof(tmp_ctx);
+			VOID_RET(int, shim_lsm_set_self_attr(LSM_ATTR_CURRENT, &tmp_ctx, sizeof(tmp_ctx), 0));
 		}
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
