@@ -152,7 +152,6 @@ static int OPTIMIZE3 stress_brk_child(stress_args_t *args, void *context)
 		if (reset_brk || (stress_brk_abs(ptr, start_ptr) >= brk_context->brk_bytes)) {
 			intptr_t diff;
 
-			ptr = start_ptr;
 			VOID_RET(int, shim_brk(start_ptr));
 			VOID_RET(void *, shim_sbrk(0));
 
