@@ -50,6 +50,7 @@ override CFLAGS += -DHAVE_CC_MUSL_GCC
 endif
 ifneq ($(shell $(CC) -v 2>&1 | grep scan-build),)
 COMPILER = scan-build
+override CC := $(CC) clang
 endif
 
 #
