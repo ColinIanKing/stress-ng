@@ -295,7 +295,7 @@ timed_out:
 				 *  state change. Currently this is disabled.
 				 */
 				if ((ret == 0) && (semaphore_sysv_setall))
-					ret = semctl(sem_id, 2, SETALL, s);
+					VOID_RET(int, semctl(sem_id, 2, SETALL, s));
 #endif
 				free(s.array);
 			}
