@@ -309,6 +309,9 @@ void stress_cpuidle_dump(FILE *yaml, stress_stressor_t *stressors_list)
 					100.0 * residency_us / (1000000.0 * duration_us) : 0.0;
 			c0_residency -= residencies[i];
 		}
+		/* and zero residuals to be safe */
+		for (; i < STRESS_CSTATES_MAX; i++)
+			 residencies[i] = 0.0;
 
 		if (valid) {
 			pr_inf("%s:\n", ss->stressor->name);
