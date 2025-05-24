@@ -1346,7 +1346,6 @@ static void stress_filerace_child(stress_args_t *args, const char *pathname, con
 		int which = stress_mwc8modn(11);
 		int fd;
 		DIR *dir;
-		struct dirent *d;
 		struct stat buf;
 		uint8_t n;
 
@@ -1403,7 +1402,7 @@ static void stress_filerace_child(stress_args_t *args, const char *pathname, con
 			if (stress_mwc8() < 8) {
 				dir = opendir(pathname);
 				if (dir) {
-					while ((d = readdir(dir)) != NULL) {
+					while (readdir(dir) != NULL) {
 					}
 					(void)closedir(dir);
 				}
