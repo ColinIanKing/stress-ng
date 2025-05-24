@@ -25,7 +25,7 @@
 
 typedef struct skip_node {
 	unsigned long int value;
-	struct skip_node *skip_nodes[1];
+	struct skip_node **skip_nodes;
 } skip_node_t;
 
 typedef struct {
@@ -63,9 +63,14 @@ static inline size_t OPTIMIZE3 skip_list_random_level(const size_t max_level)
  */
 static inline skip_node_t *skip_node_alloc(const size_t levels)
 {
-	const size_t sz = sizeof(skip_node_t) + (levels * sizeof(skip_node_t *));
+	const size_t sz = sizeof(skip_node_t) + ((levels + 1) * sizeof(skip_node_t *));
+	skip_node_t *skip_node;
 
-	return (skip_node_t *)calloc(1, sz);
+	skip_node = calloc(1, sz);
+	if (!skip_node)
+		return NULL;
+	skip_node->skip_nodes = (skip_node_t **)(skip_node + 1);
+	return skip_node;
 }
 
 /*
