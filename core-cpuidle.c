@@ -198,7 +198,7 @@ static void stress_cpuidle_read_cstates(
 	if (UNLIKELY(!cpu_dir))
 		return;
 
-	for (i = 0, cc = cpu_cstate_list; (i < STRESS_CSTATES_MAX) && cc; i++, cc = cc->next) {
+	for (i = 0; i < STRESS_CSTATES_MAX; i++) {
 		stats.valid = false;
 		stats.time[i] = 0.0;
 		stats.residency[i] = 0.0;
