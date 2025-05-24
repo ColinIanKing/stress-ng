@@ -2440,7 +2440,7 @@ ipv6 and unix are supported.
 stop epoll workers after N bogo operations.
 .TP
 .B \-\-epoll\-port P
-start at socket port P. For N epoll worker processes, ports P to (P * 4) - 1
+start at socket port P. For N epoll worker processes, ports P to (P \(mu 4) - 1
 are used for ipv4, ipv6 domains and ports P to P - 1 are used for the unix
 domain.
 .TP
@@ -6862,7 +6862,7 @@ CAP_NET_RAW to run.
 stop rawpkt workers after N packets from the sender process are received.
 .TP
 .B \-\-rawpkt\-port N
-start at port P. For N rawpkt worker processes, ports P to (P * 4) - 1
+start at port P. For N rawpkt worker processes, ports P to (P \(mu 4) - 1
 are used. The default starting port is port 14000.
 .TP
 .B \-\-rawpkt\-rxring N
@@ -6885,7 +6885,7 @@ up or does not support the domain then the loopback (lo) interface is used as th
 stop rawudp workers after N packets are received.
 .TP
 .B \-\-rawudp\-port N
-start at port P. For N rawudp worker processes, ports P to (P * 4) - 1
+start at port P. For N rawudp worker processes, ports P to (P \(mu 4) - 1
 are used. The default starting port is port 13000.
 .RE
 .TP
@@ -7221,7 +7221,7 @@ up or does not support the domain then the loopback (lo) interface is used as th
 stop sctp workers after N bogo operations.
 .TP
 .B \-\-sctp\-port P
-start at sctp port P. For N sctp worker processes, ports P to (P * 4) - 1
+start at sctp port P. For N sctp worker processes, ports P to (P \(mu 4) - 1
 are used for ipv4, ipv6 domains and ports P to P - 1 are used for the unix
 domain.
 .TP
@@ -8116,13 +8116,13 @@ copy	T{
 c[i] = a[i]
 T}
 scale	T{
-b[i] = scalar * c[i]
+b[i] = scalar \(mu c[i]
 T}
 add	T{
 c[i] = a[i] + b[i]
 T}
 triad	T{
-a[i] = b[i] + (c[i] * scalar)
+a[i] = b[i] + (c[i] \(mu scalar)
 T}
 .TE
 .RS
