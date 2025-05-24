@@ -4716,14 +4716,16 @@ static int stress_dev(stress_args_t *args)
 		stress_dev_infos_get(args, "/dev", tty_name, &dev_info_list, &dev_info_list_len);
 		stress_sys_dev_infos_get(args, "/sys/dev", &sys_dev_info_list, &sys_dev_info_list_end, 0);
 	}
-	pa.data = (void *)sys_dev_info_list;
 
 	/* This should be rare */
 	if (dev_info_list_len == 0) {
 		pr_inf_skip("%s: cannot allocate device information or find any "
 			"testable devices, skipping stressor\n", args->name);
+		stress_dev_infos_free(&dev_info_list);
+		stress_sys_dev_infos_free(&sys_dev_info_list);
 		return EXIT_NO_RESOURCE;
 	}
+	pa.data = (void *)sys_dev_info_list;
 
 	stress_dev_infos_mixup(&dev_info_list, dev_info_list_len);
 
