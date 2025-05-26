@@ -46,6 +46,11 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
+#define PROCFS_FLAG_READ	(0x01)
+#define PROCFS_FLAG_WRITE	(0x02)
+#define PROCFS_FLAG_TIMEOUT	(0x10)
+#define PROCFS_FLAG_READ_WRITE	(PROCFS_FLAG_READ | PROCFS_FLAG_WRITE)
+
 #if defined(HAVE_LIB_PTHREAD) &&	\
     defined(__linux__)
 
@@ -100,7 +105,7 @@ static int stress_dirent_proc_prune(struct dirent **dlist, const int n)
 				ignore = true;
 			else if (isdigit((unsigned char)dlist[i]->d_name[0])) {
 				/* only allow a small numeric files.. */
-				ignore = (digit_count > 5);
+				//ignore = (digit_count > 5);
 				digit_count++;
 			}
 
@@ -280,9 +285,7 @@ static inline void stress_proc_rw(
 		struct stat statbuf;
 		size_t len;
 		ssize_t i;
-		bool timeout = false;
-		bool writeable = true;
-		bool backward_reads = true;
+		int procfs_flag = PROCFS_FLAG_READ_WRITE;
 
 		ret = shim_pthread_spin_lock(&lock);
 		if (ret)
@@ -290,16 +293,18 @@ static inline void stress_proc_rw(
 		(void)shim_strscpy(path, proc_path, sizeof(path));
 		(void)shim_pthread_spin_unlock(&lock);
 
+redo:
 		if (UNLIKELY(!*path || !stress_continue_flag()))
 			break;
 
+		if (strstr(path, "map_files"))
+			return;
 		if (!strncmp(path, "/proc/self", 10))
-			writeable = false;
+			procfs_flag &= ~PROCFS_FLAG_WRITE;
 		if (!strncmp(path, "/proc/", 6) && isdigit((unsigned char)path[6]))
-			writeable = false;
+			procfs_flag &= ~PROCFS_FLAG_WRITE;
 
 		t_start = stress_time_now();
-
 		if ((fd = open(path, O_RDONLY | O_NONBLOCK)) < 0)
 			return;
 
@@ -321,10 +326,24 @@ static inline void stress_proc_rw(
 #if defined(S_IFMT)
 		ret = shim_fstat(fd, &statbuf);
 		if (ret == 0) {
+			char linkpath[PATH_MAX];
+
 			switch (statbuf.st_mode & S_IFMT) {
+#if defined(S_IFLNK)
+			case S_IFLNK:
+				/* shouldn't happen */
+				ret = readlink(path, linkpath, sizeof(linkpath));
+				if (ret < 0) {
+					(void)close(fd);
+					return;
+				}
+				(void)strlcpy(path, linkpath, sizeof(path));
+				goto redo;
+#endif
 #if defined(S_IFIFO)
 			case S_IFIFO:
-				backward_reads = false;
+				/* Avoid reading/writing pipes */
+				procfs_flag &= ~PROCFS_FLAG_READ_WRITE;
 				break;
 #endif
 #if defined(S_IFCHR)
@@ -333,14 +352,20 @@ static inline void stress_proc_rw(
 				 *  Reading from char devices such as tty devices steals
 				 *  user input so avoid using these
 				 */
-				(void)close(fd);
-				return;
+				procfs_flag &= ~PROCFS_FLAG_READ_WRITE;
+				break;
 #endif
 #if defined(S_IFBLK)
 			case S_IFBLK:
-				/* Avoid accessing block devices */
-				(void)close(fd);
-				return;
+				/* Avoid reading/writing block devices */
+				procfs_flag &= ~PROCFS_FLAG_READ_WRITE;
+				break;
+#endif
+#if defined(S_IFSOCK)
+			case S_IFSOCK:
+				/* Avoid reading/writing sockets */
+				procfs_flag &= ~PROCFS_FLAG_READ_WRITE;
+				break;
 #endif
 			default:
 				break;
@@ -383,81 +408,83 @@ static inline void stress_proc_rw(
 		/*
 		 *  Multiple randomly sized reads
 		 */
-		for (i = 0; i < 4096 * PROC_BUF_SZ; i++) {
-			const ssize_t sz = 1 + stress_mwc32modn((uint32_t)sizeof(buffer));
+		if (procfs_flag & PROCFS_FLAG_READ) {
+			for (i = 0; i < 4096 * PROC_BUF_SZ; i++) {
+				const ssize_t sz = 1 + stress_mwc32modn((uint32_t)sizeof(buffer));
 
-			if (UNLIKELY(!stress_continue_flag()))
-				break;
-			ret = read(fd, buffer, (size_t)sz);
-			if (ret < 0)
-				break;
-			if (ret < sz)
-				break;
-			i += sz;
+				if (UNLIKELY(!stress_continue_flag()))
+					break;
+				ret = read(fd, buffer, (size_t)sz);
+				if (ret < 0)
+					break;
+				if (ret < sz)
+					break;
+				i += sz;
 
+				if ((stress_time_now() - t_start) > threshold)
+					goto timeout_close;
+			}
+			(void)close(fd);
+
+			/* Multiple 1 char sized reads */
+			if (procfs_flag & PROCFS_FLAG_READ) {
+				if ((fd = open(path, O_RDONLY | O_NONBLOCK)) < 0)
+					return;
+				for (i = 0; ; i++) {
+					if (UNLIKELY(!stress_continue_flag()))
+						break;
+					if (((i & 0x0f) == 0) && ((stress_time_now() - t_start) > threshold))
+						goto timeout_close;
+					ret = read(fd, buffer, 1);
+					if (ret < 1)
+						break;
+				}
+				(void)close(fd);
+			}
+
+			if ((fd = open(path, O_RDONLY | O_NONBLOCK)) < 0)
+				return;
 			if ((stress_time_now() - t_start) > threshold)
 				goto timeout_close;
-		}
-		(void)close(fd);
+			/*
+			 *  Zero sized reads
+			 */
+			ret = read(fd, buffer, 0);
+			if (ret < 0)
+				goto err;
+			/*
+			 *  Broken offset reads, see Linux commit
+			 *  3bfa7e141b0bbb818b25e0daafb65aee92e49ac4
+			 *  "fs/seq_file.c: seq_read(): add info message
+			 *  about buggy .next functions"
+			 */
+			pos = lseek(fd, 0, SEEK_SET);
+			if (pos < 0)
+				goto mmap_test;
+			(void)shim_memset(buffer, 0, sizeof(buffer));
+			ret = read(fd, buffer, sizeof(buffer));
+			if (ret < 0)
+				goto mmap_test;
+			if (ret < (ssize_t)(sizeof(buffer) >> 1)) {
+				char *bptr;
 
-		/* Multiple 1 char sized reads */
-		if ((fd = open(path, O_RDONLY | O_NONBLOCK)) < 0)
-			return;
-		for (i = 0; ; i++) {
-			if (UNLIKELY(!stress_continue_flag()))
-				break;
-			if (((i & 0x0f) == 0) && ((stress_time_now() - t_start) > threshold))
-				goto timeout_close;
-			ret = read(fd, buffer, 1);
-			if (ret < 1)
-				break;
-		}
-		(void)close(fd);
+				for (bptr = buffer; *bptr && (*bptr != '\n'); bptr++)
+					;
+				if (*bptr == '\n') {
+					const off_t offset = 2 + (bptr - buffer);
 
-		if ((fd = open(path, O_RDONLY | O_NONBLOCK)) < 0)
-			return;
-		if ((stress_time_now() - t_start) > threshold)
-			goto timeout_close;
-		/*
-		 *  Zero sized reads
-		 */
-		ret = read(fd, buffer, 0);
-		if (ret < 0)
-			goto err;
-		/*
-		 *  Broken offset reads, see Linux commit
-		 *  3bfa7e141b0bbb818b25e0daafb65aee92e49ac4
-		 *  "fs/seq_file.c: seq_read(): add info message
-		 *  about buggy .next functions"
-		 */
-		pos = lseek(fd, 0, SEEK_SET);
-		if (pos < 0)
-			goto mmap_test;
-		(void)shim_memset(buffer, 0, sizeof(buffer));
-		ret = read(fd, buffer, sizeof(buffer));
-		if (ret < 0)
-			goto mmap_test;
-		if (ret < (ssize_t)(sizeof(buffer) >> 1)) {
-			char *bptr;
-
-			for (bptr = buffer; *bptr && (*bptr != '\n'); bptr++)
-				;
-			if (*bptr == '\n') {
-				const off_t offset = 2 + (bptr - buffer);
-
-				pos = lseek(fd, offset, SEEK_SET);
-				if (pos == offset) {
-					/* Causes incorrect 2nd read */
-					VOID_RET(ssize_t, read(fd, buffer, sizeof(buffer)));
+					pos = lseek(fd, offset, SEEK_SET);
+					if (pos == offset) {
+						/* Causes incorrect 2nd read */
+						VOID_RET(ssize_t, read(fd, buffer, sizeof(buffer)));
+					}
 				}
 			}
-		}
 
-		/*
-		 *  exercise 13 x 5 byte reads backwards through procfs file to
-		 *  ensure we perform some weird misaligned non-word sized reads
-		 */
-		if (backward_reads) {
+			/*
+			 *  exercise 13 x 5 byte reads backwards through procfs file to
+			 *  ensure we perform some weird misaligned non-word sized reads
+			 */
 			off_t dec;
 
 			pos = lseek(fd, 0, SEEK_END);
@@ -481,22 +508,24 @@ static inline void stress_proc_rw(
 		}
 
 mmap_test:
-		/*
-		 *  mmap it
-		 */
-		ptr = (uint8_t *)mmap(NULL, page_size, PROT_READ,
+		if (procfs_flag & PROCFS_FLAG_READ) {
+			/*
+			 *  mmap it
+			 */
+			ptr = (uint8_t *)mmap(NULL, page_size, PROT_READ,
 #if defined(MAP_POPULATE)
-			MAP_POPULATE |
+				MAP_POPULATE |
 #endif
-			MAP_SHARED | MAP_ANONYMOUS,
-			fd, 0);
-		if (ptr != MAP_FAILED) {
-			stress_uint8_put(*ptr);
-			(void)munmap((void *)ptr, page_size);
-		}
+				MAP_SHARED | MAP_ANONYMOUS,
+				fd, 0);
+			if (ptr != MAP_FAILED) {
+				stress_uint8_put(*ptr);
+				(void)munmap((void *)ptr, page_size);
+			}
 
-		if ((stress_time_now() - t_start) > threshold)
-			goto timeout_close;
+			if ((stress_time_now() - t_start) > threshold)
+				goto timeout_close;
+		}
 
 #if defined(FIONREAD)
 		{
@@ -546,33 +575,35 @@ mmap_test:
 		}
 #endif
 
-		/*
-		 *  Seek and read
-		 */
-		pos = lseek(fd, 0, SEEK_SET);
-		if (pos == (off_t)-1)
-			goto err;
-		pos = lseek(fd, 1, SEEK_CUR);
-		if (pos == (off_t)-1)
-			goto err;
-		pos = lseek(fd, 0, SEEK_END);
-		if (pos == (off_t)-1)
-			goto err;
-		pos = lseek(fd, 1, SEEK_SET);
-		if (pos == (off_t)-1)
+		if (procfs_flag & PROCFS_FLAG_READ) {
+			/*
+			 *  Seek and read
+			 */
+			pos = lseek(fd, 0, SEEK_SET);
+			if (pos == (off_t)-1)
+				goto err;
+			pos = lseek(fd, 1, SEEK_CUR);
+			if (pos == (off_t)-1)
+				goto err;
+			pos = lseek(fd, 0, SEEK_END);
+			if (pos == (off_t)-1)
+				goto err;
+			pos = lseek(fd, 1, SEEK_SET);
+			if (pos == (off_t)-1)
 			goto err;
 
-		if ((stress_time_now() - t_start) > threshold)
-			goto timeout_close;
+			if ((stress_time_now() - t_start) > threshold)
+				goto timeout_close;
 
-		VOID_RET(ssize_t, read(fd, buffer, 1));
+			VOID_RET(ssize_t, read(fd, buffer, 1));
+		}
 err:
 		if ((stress_time_now() - t_start) > threshold)
 			goto timeout_close;
 
 		(void)close(fd);
 
-		if (writeable && ctxt->writeable) {
+		if ((procfs_flag & PROCFS_FLAG_WRITE) && ctxt->writeable) {
 			/*
 			 *  Zero sized writes
 			 */
@@ -610,7 +641,7 @@ err:
 		}
 next:
 		if (loops > 0) {
-			if (timeout)
+			if (procfs_flag & PROCFS_FLAG_TIMEOUT)
 				break;
 			loops--;
 		}
@@ -618,7 +649,7 @@ next:
 
 timeout_close:
 		(void)close(fd);
-		timeout = true;
+		procfs_flag |= PROCFS_FLAG_TIMEOUT;
 		goto next;
 	}
 }
