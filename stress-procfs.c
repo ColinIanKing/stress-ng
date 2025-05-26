@@ -297,8 +297,6 @@ redo:
 		if (UNLIKELY(!*path || !stress_continue_flag()))
 			break;
 
-		if (strstr(path, "map_files"))
-			return;
 		if (!strncmp(path, "/proc/self", 10))
 			procfs_flag &= ~PROCFS_FLAG_WRITE;
 		if (!strncmp(path, "/proc/", 6) && isdigit((unsigned char)path[6]))
