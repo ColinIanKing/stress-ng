@@ -282,7 +282,7 @@ static inline void stress_proc_rw(
 		ssize_t i;
 		bool timeout = false;
 		bool writeable = true;
-		bool skip_fifo = true;
+		bool backward_reads = true;
 
 		ret = shim_pthread_spin_lock(&lock);
 		if (ret)
@@ -324,7 +324,7 @@ static inline void stress_proc_rw(
 			switch (statbuf.st_mode & S_IFMT) {
 #if defined(S_IFIFO)
 			case S_IFIFO:
-				skip_fifo = false;
+				backward_reads = false;
 				break;
 #endif
 #if defined(S_IFCHR)
@@ -457,7 +457,7 @@ static inline void stress_proc_rw(
 		 *  exercise 13 x 5 byte reads backwards through procfs file to
 		 *  ensure we perform some weird misaligned non-word sized reads
 		 */
-		if (!skip_fifo) {
+		if (backward_reads) {
 			off_t dec;
 
 			pos = lseek(fd, 0, SEEK_END);
