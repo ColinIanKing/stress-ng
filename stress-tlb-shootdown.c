@@ -63,7 +63,6 @@ static uint64_t stress_tlb_interrupts(void)
 	while (fgets(buffer, sizeof(buffer), fp) != NULL) {
 		char *ptr;
 		char *eptr;
-		long long val;
 
 		ptr = strstr(buffer, "TLB:");
 		if (!ptr)
@@ -71,6 +70,8 @@ static uint64_t stress_tlb_interrupts(void)
 
 		ptr += 4; /* skip over TLB: */
 		while (*ptr) {
+			long long val;
+
 			/* skip over spaces */
 			while (*ptr == ' ')
 				ptr++;
