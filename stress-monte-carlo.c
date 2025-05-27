@@ -611,9 +611,8 @@ static int stress_monte_carlo(stress_args_t *args)
 
 	for (idx = 0, i = 1; i < METHODS_MAX; i++) {
 		for (j = 1; j < RANDS_MAX; j++) {
-			char buf[64];
-
 			if (metrics[i][j].duration > 0.0) {
+				char buf[64];
 				const double rate = metrics[i][j].count / metrics[i][j].duration;
 
 				(void)snprintf(buf, sizeof(buf), "samples/sec, %s using %s",
