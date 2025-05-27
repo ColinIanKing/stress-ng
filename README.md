@@ -542,7 +542,7 @@ stress-ng has found various Kernel, QEMU bugs/regressions, and libc bugs; approp
 * [mm: optimize the redundant loop of mm_update_owner_next()](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=76ba6acfcce871db13ad51c6dc8f56fec2e92853)
 
 2025:
-* [select: do_pollfd: add unlikely branch hint return path] (https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=5730609ffd7e558e1e3305d0c6839044e8f6591b)
+* [select: do_pollfd: add unlikely branch hint return path](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=5730609ffd7e558e1e3305d0c6839044e8f6591b)
 
 I appreciate information concerning kernel bugs or performance regressions found with stress-ng.
 
