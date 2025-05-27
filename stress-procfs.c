@@ -21,6 +21,7 @@
 #include "core-arch.h"
 #include "core-bitops.h"
 #include "core-builtin.h"
+#include "core-capabilities.h"
 #include "core-hash.h"
 #include "core-pthread.h"
 #include "core-put.h"
@@ -52,7 +53,7 @@ static const stress_help_t help[] = {
 #define PROCFS_FLAG_READ_WRITE	(PROCFS_FLAG_READ | PROCFS_FLAG_WRITE)
 
 #if defined(HAVE_LIB_PTHREAD) &&	\
-    defined(__linux__)
+    (defined(__linux__) || defined(__CYGWIN__))
 
 #define PROC_BUF_SZ		(4096)
 #define MAX_PROCFS_THREADS	(4)
@@ -701,6 +702,16 @@ static void stress_proc_dir(
 	if (depth > 20)
 		return;
 
+#if defined(__CYGWIN__)
+	/*
+	 * Cygwin maps the Windows registry to /proc/registry{,32,64}
+	 * (>1M entries, >50K entries on depth 2) and the path names of the
+	 * NTDLL layer to /proc/sys, ignore both for now
+	 */
+	if (!strncmp(path, "/proc/registry", 14) || !strcmp(path, "/proc/sys"))
+		return;
+#endif
+
 	mixup = stress_mwc32();
 	dlist = NULL;
 	n = stress_proc_scandir(path, &dlist, NULL, mixup_sort);
@@ -831,7 +842,7 @@ static int stress_procfs(stress_args_t *args)
 	(void)shim_strscpy(proc_path, "/proc/self", sizeof(proc_path));
 
 	ctxt.args = args;
-	ctxt.writeable = (geteuid() != 0);
+	ctxt.writeable = !stress_check_capability(SHIM_CAP_IS_ROOT);
 
 	rc = shim_pthread_spin_init(&lock, PTHREAD_PROCESS_PRIVATE);
 	if (rc) {
