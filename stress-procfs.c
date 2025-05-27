@@ -335,7 +335,7 @@ redo:
 				if (ret < 0)
 					return;
 				linkpath[ret] = '\0';
-				(void)strlcpy(path, linkpath, sizeof(path));
+				(void)shim_strscpy(path, linkpath, sizeof(path));
 				goto redo;
 #endif
 #if defined(S_IFIFO)
