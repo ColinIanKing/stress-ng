@@ -208,7 +208,7 @@ int stress_parse_cpu_affinity(const char *arg, cpu_set_t *set, int *setbits)
 
 	for (ptr = str; (token = strtok(ptr, ",")) != NULL; ptr = NULL) {
 		int lo, hi;
-		char *tmpptr = strstr(token, "-");
+		const char *tmpptr = strstr(token, "-");
 
 		if (!strcmp(token, "odd")) {
 			for (i = 1; i < max_cpus; i += 2) {
