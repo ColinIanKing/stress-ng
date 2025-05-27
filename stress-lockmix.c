@@ -286,7 +286,11 @@ static int stress_lockmix_contention(
 	do {
 		off_t offset;
 		off_t len;
+#if defined(HAVE_LOCKMIX_LOCKA) ||	\
+    defined(HAVE_LOCKMIX_LOCKF) ||	\
+    defined(HAVE_LOCKMIX_LOCKOFD)
 		int rc;
+#endif
 		uint8_t type;
 		size_t type_idx;
 		stress_lockmix_info_t *lockmix_info;
