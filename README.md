@@ -576,3 +576,10 @@ Siddhesh Poyarekar, Shoily Rahman, Dominik Steinberger,
 Stian Onarheim, Thadeu Lima de Souza Cascardo, Thia Wyrod, Thinh Tran,
 Tim Gardner, Tim Gates, Tim Orling, Tommi Rantala, Witold Baryluk,
 Yiwei Lin, Yong-Xuan Wang, Zhiyi Sun, Zong Li.
+
+## Static Analysis
+
+<a href="https://scan.coverity.com/projects/stress-ng">
+  <img alt="Coverity Scan Build Status"
+       src="https://scan.coverity.com/projects/921/badge.svg"/>
+</a>
