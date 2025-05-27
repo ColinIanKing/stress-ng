@@ -349,12 +349,12 @@ static int stress_pci(stress_args_t *args)
 			stress_pci_exercise(args, pci_info);
 			stress_bogo_inc(args);
 			if (pci_ops_rate > 0) {
-				double t_next = t_start + (stress_bogo_get(args) * t_delta);
-				double t_sleep = t_next - stress_time_now();
-				uint64_t ns;
+				const double t_next = t_start + (stress_bogo_get(args) * t_delta);
+				const double t_sleep = t_next - stress_time_now();
 
 				if (LIKELY(t_sleep > 0.0)) {
-					ns = (uint64_t)(t_sleep * STRESS_DBL_NANOSECOND);
+					const uint64_t ns = (uint64_t)(t_sleep * STRESS_DBL_NANOSECOND);
+
 					shim_nanosleep_uint64(ns);
 				}
 			}
