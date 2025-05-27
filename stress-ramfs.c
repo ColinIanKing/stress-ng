@@ -197,12 +197,13 @@ static int stress_ramfs_fs_ops(
 				offset = end;
 			}
 			if (g_opt_flags & OPT_FLAGS_AGGRESSIVE) {
-				uint64_t i;
 				uint8_t buf[8192] ALIGN64;
 				const size_t sz = sizeof(buf);
 
 				stress_uint8rnd4(buf, sz);
 				if (lseek(fd, 0, SEEK_SET) == 0) {
+					uint64_t i;
+
 					for (i = 0; i < ramfs_size; i += sz) {
 						const uint64_t r = stress_mwc64();
 
