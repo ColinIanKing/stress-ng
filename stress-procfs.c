@@ -324,17 +324,17 @@ redo:
 #if defined(S_IFMT)
 		ret = shim_fstat(fd, &statbuf);
 		if (ret == 0) {
-			char linkpath[PATH_MAX];
+			char linkpath[PATH_MAX + 1];
 
 			switch (statbuf.st_mode & S_IFMT) {
 #if defined(S_IFLNK)
 			case S_IFLNK:
-				/* shouldn't happen */
-				ret = readlink(path, linkpath, sizeof(linkpath));
-				if (ret < 0) {
-					(void)close(fd);
+				/* should never get here */
+				ret = shim_readlink(path, linkpath, sizeof(linkpath) - 1);
+				(void)close(fd);
+				if (ret < 0)
 					return;
-				}
+				linkpath[ret] = '\0';
 				(void)strlcpy(path, linkpath, sizeof(path));
 				goto redo;
 #endif
