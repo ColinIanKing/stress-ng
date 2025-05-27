@@ -1344,7 +1344,9 @@ static void stress_filerace_child(stress_args_t *args, const char *pathname, con
 		char filename2[PATH_MAX];
 		int flag;
 		int which = stress_mwc8modn(11);
+#if defined(O_DIRECTORY)
 		int fd;
+#endif
 		DIR *dir;
 		struct stat buf;
 		uint8_t n;
