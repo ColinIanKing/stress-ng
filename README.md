@@ -485,6 +485,11 @@ stress-ng has found various Kernel, QEMU bugs/regressions, and libc bugs; approp
 * [sched/deadline: Fix warning in migrate_enable for boosted tasks](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=0664e2c311b9fa43b33e3e81429cd0c2d7f9c638)
 * [iomap: elide flush from partial eof zero range](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=fde4c4c3ec1c1590eb09f97f9525fa7dd8df8343)
 * [opening /dev/snapshot twice causes oops](https://bugzilla.kernel.org/show_bug.cgi?id=219975)
+* [Cygwin: cygwin 3.5.4-1: lockf() aborts on overlap and does not fail on overflow](https://cygwin.com/pipermail/cygwin/2024-October/256528.html)
+* [Cygwin: cygwin 3.5.4-1: signal handling destroys 'long double' values](https://cygwin.com/pipermail/cygwin/2024-October/256503.html)
+* [Cygwin: Segfault in pthread_sigqueue() or sigtimewait()](https://cygwin.com/pipermail/cygwin/2024-November/256762.html)
+* [Cygwin: stress-ng --lockmix 1 crashes with *** fatal error - NtCreateEvent(lock): 0xC0000035](https://cygwin.com/pipermail/cygwin/2024-November/256750.html)
+* [Cygwin: SIGKILL may no longer work after many SIGCONT/SIGSTOP signals](https://cygwin.com/pipermail/cygwin/2024-November/256744.html)
 
 2025:
 * [Tegra Security Engine driver improvements](https://www.spinics.net/lists/kernel/msg5546707.html)
@@ -492,6 +497,12 @@ stress-ng has found various Kernel, QEMU bugs/regressions, and libc bugs; approp
 * [mm/zswap: fix inconsistency when zswap_store_page() fails](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=63895d20d63b446f5049a963983489319c2ea3e2)
 * [LoongArch: Set max_pfn with the PFN of the last page](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=c8477bb0a8e7f6b2e47952b403c5cb67a6929e55)
 * [net: ipv4: Fix destination address determination in flowi4_init_output](https://lkml.org/lkml/2025/5/8/536)
+* [Cygwin: mq_send()/mq_receive() may never return if used from threads](https://cygwin.com/pipermail/cygwin/2025-January/257120.html)
+* [Cygwin: mq_send(-1, ...) segfaults instead of failing with EBADF](https://cygwin.com/pipermail/cygwin/2025-January/257090.html)
+* [Cygwin: STATUS_HEAP_CORRUPTION if signal arrives when x86 direction flag is set](https://cygwin.com/pipermail/cygwin/2025-March/257704.html)
+* [Cygwin: No errno set after too many open("/dev/ptmx", ...)](https://cygwin.com/pipermail/cygwin/2025-March/257786.html)
+* [Cygwin: strace: infinite exception c0000005 loop on segmentation fault](https://cygwin.com/pipermail/cygwin/2025-May/258144.html)
+* [Cygwin: Hang or crash after multiple SIGILL or SIGSEGV and siglongjmp](https://sourceware.org/pipermail/cygwin/2025-March/257726.html)
 
 ## Kernel improvements that used stress-ng
 
