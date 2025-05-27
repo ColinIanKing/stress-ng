@@ -1134,6 +1134,7 @@ void stress_vmstat_start(void)
 	char iostat_name[PATH_MAX];
 	stress_iostat_t iostat;
 #endif
+	bool thermalstat_zero = true;
 
 	if ((vmstat_delay == 0) &&
 	    (thermalstat_delay == 0) &&
@@ -1189,7 +1190,7 @@ void stress_vmstat_start(void)
 		if (vmstat_delay > 0)
 			sleep_delay = STRESS_MINIMUM(vmstat_delay, sleep_delay);
 		if (thermalstat_delay > 0)
-			sleep_delay = STRESS_MINIMUM(thermalstat_delay, sleep_delay);
+			sleep_delay = thermalstat_zero ? 0 : STRESS_MINIMUM(thermalstat_delay, sleep_delay);
 #if defined(HAVE_SYS_SYSMACROS_H) &&	\
     defined(__linux__)
 		if (iostat_delay > 0)
@@ -1216,16 +1217,16 @@ void stress_vmstat_start(void)
 
 		if ((vmstat_delay > 0) && (vmstat_sleep <= 0))
 			vmstat_sleep = vmstat_delay;
-		if ((thermalstat_delay > 0) && (thermalstat_sleep <= 0))
-			thermalstat_sleep = thermalstat_delay;
 		if ((iostat_delay > 0) && (iostat_sleep <= 0))
 			iostat_sleep = iostat_delay;
 		if ((status_delay > 0) && (status_sleep <= 0))
 			status_sleep = status_delay;
 		if ((raplstat_delay > 0) && (raplstat_sleep <= 0))
 			raplstat_sleep = raplstat_delay;
+		if ((thermalstat_delay > 0) && (thermalstat_sleep <= 0))
+			thermalstat_sleep = thermalstat_delay;
 
-		if (vmstat_sleep == vmstat_delay) {
+		if ((sleep_delay > 0) && (vmstat_sleep == vmstat_delay)) {
 			static uint32_t vmstat_count = 0;
 			double total_ticks, percent;
 
@@ -1291,6 +1292,7 @@ void stress_vmstat_start(void)
 #endif
 			static uint32_t thermalstat_count = 0;
 
+			thermalstat_zero = false;
 			therms = (char *)calloc(therms_len, sizeof(*therms));
 			if (therms) {
 #if defined(__linux__)
@@ -1336,7 +1338,7 @@ void stress_vmstat_start(void)
 
 #if defined(HAVE_SYS_SYSMACROS_H) &&	\
     defined(__linux__)
-		if (iostat_delay == iostat_sleep) {
+		if ((sleep_delay > 0) && (iostat_delay == iostat_sleep)) {
 			double clk_scale = (iostat_delay > 0) ? 1.0 / iostat_delay : 0.0;
 			static uint32_t iostat_count = 0;
 
@@ -1372,7 +1374,8 @@ void stress_vmstat_start(void)
 				stress_duration_to_str(runtime, false, true));
 		}
 #if defined(STRESS_RAPL)
-		if ((raplstat_delay > 0) &&
+		if ((sleep_delay > 0) &&
+		    (raplstat_delay > 0) &&
 		    (raplstat_sleep == raplstat_delay) &&
 		    (g_opt_flags & OPT_FLAGS_RAPL_REQUIRED)) {
 			int ret;
