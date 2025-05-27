@@ -763,12 +763,12 @@ static void stress_filerace_lockofd_rd(const int fd, const char *filename)
 {
 	/* lock 4096 bytes in first 64K  of file */
 	off_t offset = stress_mwc16() & ~(off_t)(4095);
-	char data[4096];
 
 	(void)filename;
 
 	if (lseek(fd, offset, SEEK_SET) >= 0) {
 		struct flock f;
+		char data[4096];
 
 		f.l_type = F_RDLCK;
 		f.l_whence = SEEK_SET;
