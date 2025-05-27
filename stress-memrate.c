@@ -1016,9 +1016,9 @@ static int stress_memrate_child(stress_args_t *args, void *ctxt)
 		return EXIT_NO_RESOURCE;
 
 	do {
-		size_t i;
-
 		if (context->memrate_method == 0) {
+			size_t i;
+
 			for (i = 1; i < memrate_items; i++) {
 				stress_memrate_dispatch_method(context, i);
 				if (UNLIKELY(!stress_continue(args)))
