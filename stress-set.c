@@ -220,7 +220,9 @@ static int stress_set(stress_args_t *args)
 			if (ret == 0) {
 				ret = settimeofday(&tv, &tz);
 				if (ret < 0) {
-					if (UNLIKELY((errno != EPERM) && (errno != EINVAL))) {
+					if (UNLIKELY((errno != EPERM) &&
+					             (errno != EINVAL) &&
+						     (errno != ENOBUFS))) {
 						pr_fail("%s: settimeofday failed, could not "
 							"set time, errno=%d (%s)\n",
 							args->name, errno, strerror(errno));
