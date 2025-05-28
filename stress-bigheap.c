@@ -120,11 +120,10 @@ static int stress_bigheap_child(stress_args_t *args, void *context)
 	NOCLOBBER void *ptr = NULL;
 	NOCLOBBER const void *last_ptr = NULL;
 	NOCLOBBER uint8_t *last_ptr_end = NULL;
-	NOCLOBBER size_t size = 0;
+	NOCLOBBER size_t size = 0, stride;
 	NOCLOBBER double duration = 0.0, count = 0.0;
 	NOCLOBBER bool segv_reported = false;
 	const size_t page_size = args->page_size;
-	const size_t stride = (g_opt_flags & OPT_FLAGS_AGGRESSIVE) ? sizeof(uintptr_t) : page_size;
 	double rate;
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 	const bool oom_avoid = !!(g_opt_flags & OPT_FLAGS_OOM_AVOID);
@@ -134,6 +133,7 @@ static int stress_bigheap_child(stress_args_t *args, void *context)
 	int ret;
 	NOCLOBBER int rc = EXIT_SUCCESS;
 
+	stride = (g_opt_flags & OPT_FLAGS_AGGRESSIVE) ? sizeof(uintptr_t) : page_size;
 	fault_addr = NULL;
 	signo = -1;
 	sigcode = -1;
