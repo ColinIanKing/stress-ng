@@ -64,7 +64,7 @@ endif
 KERNEL=$(shell uname -s)
 NODENAME=$(shell uname -n)
 
-override CFLAGS += -Wall -Wextra -DVERSION='"$(VERSION)"' -std=gnu99
+override CFLAGS += -Wall -Wextra -DVERSION='"$(VERSION)"'
 
 #
 #  Building stress-vnni with less than -O2 causes breakage with
@@ -259,9 +259,13 @@ endif
 # Finalize flags
 #
 
-override CFLAGS := $(CFLAGS)
+override CXXFLAGS += $(CFLAGS)
+
+override CXXFLAGS := $(CXXFLAGS)
+override CPPFLAGS := $(CPPFLAGS)
 override LDFLAGS := $(LDFLAGS)
 override VNNI_CFLAGS := $(VNNI_CFLAGS)
+override CFLAGS := $(CFLAGS) -std=gnu99
 
 BINDIR=/usr/bin
 MANDIR=/usr/share/man/man1
@@ -815,11 +819,11 @@ stress-ng: config.h $(OBJS)
 
 stress-eigen-ops.o: config.h stress-eigen-ops.cpp stress-eigen-ops.c
 	$(PRE_V)if grep -q '^#define HAVE_EIGEN' config.h; then \
-		echo "CXX stress-eigen-ops.cpp";	\
-		$(CXX) -c -o stress-eigen-ops.o stress-eigen-ops.cpp; \
+		echo "CXX $(CXXFLAGS) stress-eigen-ops.cpp";	\
+		$(CXX) $(CXXFLAGS) -c -o stress-eigen-ops.o stress-eigen-ops.cpp; \
 	else \
 		echo "CC stress-eigen-ops.c";	\
-		$(CC) -c -o stress-eigen-ops.o stress-eigen-ops.c; \
+		$(CC) $(CFLAGS) -c -o stress-eigen-ops.o stress-eigen-ops.c; \
 	fi
 
 config.h config:
