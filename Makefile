@@ -819,7 +819,7 @@ stress-ng: config.h $(OBJS)
 
 stress-eigen-ops.o: config.h stress-eigen-ops.cpp stress-eigen-ops.c
 	$(PRE_V)if grep -q '^#define HAVE_EIGEN' config.h; then \
-		echo "CXX $(CXXFLAGS) stress-eigen-ops.cpp";	\
+		echo "CXX stress-eigen-ops.cpp";	\
 		$(CXX) $(CXXFLAGS) -c -o stress-eigen-ops.o stress-eigen-ops.cpp; \
 	else \
 		echo "CC stress-eigen-ops.c";	\
