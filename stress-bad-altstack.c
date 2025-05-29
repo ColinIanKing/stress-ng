@@ -259,7 +259,7 @@ retry:
 			}
 			if (ret == 0)
 				stress_bad_altstack_force_fault(stack);
-			stress_bad_altstack_force_fault(g_shared->nullptr);
+			stress_bad_altstack_force_fault(g_shared->null_ptr);
 			goto retry;
 		case 8:
 #if defined(HAVE_VDSO_VIA_GETAUXVAL)
@@ -293,7 +293,7 @@ retry:
 		case 0:
 			/* Illegal unmapped stack */
 			(void)munmap(stack, stress_minsigstksz);
-			stress_bad_altstack_force_fault(g_shared->nullptr);
+			stress_bad_altstack_force_fault(g_shared->null_ptr);
 			break;
 		}
 	}

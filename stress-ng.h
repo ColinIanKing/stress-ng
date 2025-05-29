@@ -601,7 +601,7 @@ typedef struct {
 	size_t length;			/* Size of shared segment */
 	double time_started;		/* Time when stressing started */
 	const uint64_t zero;		/* zero'd 64 bit data */
-	void *nullptr;			/* Null pointer */
+	void *null_ptr;			/* Null pointer */
 	uint64_t klog_errors;		/* Number of errors detected in klog */
 	bool caught_sigint;		/* True if SIGINT caught */
 	pid_t (*vfork)(void);		/* vfork syscall */
