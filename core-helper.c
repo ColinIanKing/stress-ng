@@ -2575,6 +2575,15 @@ int stress_sighandler(
 	(void)shim_memset(&new_action, 0, sizeof new_action);
 	new_action.sa_handler = handler;
 	(void)sigemptyset(&new_action.sa_mask);
+	/*
+	 *  Prevent signal handlers interrupting the SIGALRM handler
+	 *  since these handlers my siglongjmp out of the context and
+	 *  the rest of the SIGALRM handler is not executed. Basically
+	 *  defer SIGALRM from being called until the handler has
+	 *  completed. This only applies to non-SIGALRM handlers.
+	 */
+	if (signum != SIGALRM)
+		sigaddset(&new_action.sa_mask, SIGALRM);
 	new_action.sa_flags = SA_NOCLDSTOP;
 #if defined(HAVE_SIGALTSTACK)
 	new_action.sa_flags |= SA_ONSTACK;
