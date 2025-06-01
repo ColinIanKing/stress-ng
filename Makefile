@@ -18,9 +18,9 @@
 #
 
 #
-# Codename "furious file frobnicater"
+# Codename "crunchy chocolate cookie"
 #
-VERSION=0.19.00
+VERSION=0.19.01
 
 #
 # Determine supported toolchains
