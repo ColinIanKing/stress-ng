@@ -304,10 +304,14 @@ static int stress_cpu_online(stress_args_t *args)
 	do {
 		switch (args->instance) {
 		case 1:
-			cpu = (cpu + 1) % (uint32_t)cpus;
+			cpu++;
+			if (cpu >= (uint32_t)cpus)
+				cpu = 0;
 			break;
 		case 2:
-			cpu = (cpu - 1) % (uint32_t)cpus;
+			if (cpu == 0)
+				cpu = cpus;
+			cpu--;
 			break;
 		default:
 			cpu = stress_mwc32modn((uint32_t)cpus);
