@@ -1042,6 +1042,27 @@ static void stress_fd_flistxattr(int fd)
 }
 #endif
 
+#if defined(HAVE_VMSPLICE) &&	\
+    defined(SPLICE_F_NONBLOCK)
+static void stress_fd_vmslice(int fd)
+{
+	struct iovec iov[1];
+	const size_t sz = 4096;
+	void *ptr;
+
+	ptr = mmap(NULL, sz, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+	if (ptr == MAP_FAILED)
+		return;
+
+	iov[0].iov_base = ptr;
+	iov[0].iov_len = sz;
+
+	(void)vmsplice(fd, iov, 1, SPLICE_F_NONBLOCK);
+
+	(void)munmap(ptr, sz);
+}
+#endif
+
 static fd_func_t fd_funcs[] = {
 	stress_fd_sockopt_reuseaddr,
 	stress_fd_lseek,
@@ -1153,12 +1174,16 @@ static fd_func_t fd_funcs[] = {
     defined(HAVE_FLISTXATTR)
 	stress_fd_flistxattr,
 #endif
+#if defined(HAVE_VMSPLICE) &&	\
+    defined(SPLICE_F_NONBLOCK)
+	stress_fd_vmslice,
+#endif
 };
 
 /*
- *  Handle and ignore SIGIO signals
+ *  Handle and ignore SIGIO/SIGPIPE signals
  */
-static void stress_fd_sigio_handler(int sig)
+static void stress_fd_sig_handler(int sig)
 {
 	(void)sig;
 }
@@ -1174,7 +1199,9 @@ static int stress_fd_abuse(stress_args_t *args)
 	pid_t pid;
 	int fds[SIZEOF_ARRAY(open_funcs)];
 
-	if (stress_sighandler(args->name, SIGIO, stress_fd_sigio_handler, NULL) < 0)
+	if (stress_sighandler(args->name, SIGIO, stress_fd_sig_handler, NULL) < 0)
+		return EXIT_NO_RESOURCE;
+	if (stress_sighandler(args->name, SIGPIPE, stress_fd_sig_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 
 	if (stress_temp_dir_mk_args(args) < 0) {
