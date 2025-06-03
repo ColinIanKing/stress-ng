@@ -75,6 +75,35 @@ static int stress_fd_creat_file(void)
 	return -1;
 }
 
+static int stress_fd_open_file_ro(void)
+{
+	return open(stress_fd_filename, O_RDONLY);
+}
+
+static int stress_fd_open_file_wo(void)
+{
+	return open(stress_fd_filename, O_WRONLY | O_APPEND, S_IRUSR | S_IWUSR);
+}
+
+static int stress_fd_open_file_rw(void)
+{
+	return open(stress_fd_filename, O_RDWR | O_APPEND, S_IRUSR | S_IWUSR);
+}
+
+#if defined(O_ASYNC)
+static int stress_fd_open_file_rw_async(void)
+{
+	return open(stress_fd_filename, O_RDWR | O_APPEND | O_ASYNC, S_IRUSR | S_IWUSR);
+}
+#endif
+
+#if defined(O_DIRECT)
+static int stress_fd_open_file_rw_direct(void)
+{
+	return open(stress_fd_filename, O_RDWR | O_APPEND | O_DIRECT, S_IRUSR | S_IWUSR);
+}
+#endif
+
 #if defined(O_NONBLOCK) &&	\
     defined(O_DIRECTORY)
 static int stress_fd_open_temp_path(void)
@@ -84,6 +113,54 @@ static int stress_fd_open_temp_path(void)
 	if (tmp)
 		return openat(AT_FDCWD, tmp, O_RDONLY | O_NONBLOCK | O_DIRECTORY);
 	return -1;
+}
+#endif
+
+#if defined(O_DSYNC)
+static int stress_fd_open_file_rw_dsync(void)
+{
+	return open(stress_fd_filename, O_RDWR | O_APPEND | O_DSYNC, S_IRUSR | S_IWUSR);
+}
+#endif
+
+#if defined(O_LARGEFILE)
+static int stress_fd_open_file_rw_largefile(void)
+{
+	if (O_LARGEFILE)
+		return open(stress_fd_filename, O_RDWR | O_APPEND | O_LARGEFILE, S_IRUSR | S_IWUSR);
+	return -1;
+}
+#endif
+
+#if defined(O_NOATIME)
+static int stress_fd_open_file_rw_noatime(void)
+{
+	return open(stress_fd_filename, O_RDWR | O_APPEND | O_NOATIME, S_IRUSR | S_IWUSR);
+}
+#endif
+
+#if defined(O_NONBLOCK)
+static int stress_fd_open_file_rw_nonblock(void)
+{
+	return open(stress_fd_filename, O_RDWR | O_APPEND | O_NONBLOCK, S_IRUSR | S_IWUSR);
+}
+#endif
+
+#if defined(O_PATH)
+static int stress_fd_open_file_path(void)
+{
+	const char *tmp = stress_get_temp_path();
+
+	if (tmp)
+		return open(tmp, O_PATH);
+	return -1;
+}
+#endif
+
+#if defined(O_SYNC)
+static int stress_fd_open_file_rw_sync(void)
+{
+	return open(stress_fd_filename, O_RDWR | O_APPEND | O_SYNC, S_IRUSR | S_IWUSR);
 }
 #endif
 
@@ -305,6 +382,33 @@ static open_func_t open_funcs[] = {
 	stress_fd_open_null,
 	stress_fd_open_zero,
 	stress_fd_creat_file,
+	stress_fd_open_file_ro,
+	stress_fd_open_file_wo,
+	stress_fd_open_file_rw,
+#if defined(O_ASYNC)
+	stress_fd_open_file_rw_async,
+#endif
+#if defined(O_DIRECT)
+	stress_fd_open_file_rw_direct,
+#endif
+#if defined(O_DSYNC)
+	stress_fd_open_file_rw_dsync,
+#endif
+#if defined(O_LARGEFILE)
+	stress_fd_open_file_rw_largefile,
+#endif
+#if defined(O_NOATIME)
+	stress_fd_open_file_rw_noatime,
+#endif
+#if defined(O_NONBLOCK)
+	stress_fd_open_file_rw_nonblock,
+#endif
+#if defined(O_PATH)
+	stress_fd_open_file_path,
+#endif
+#if defined(O_SYNC)
+	stress_fd_open_file_rw_sync,
+#endif
 #if defined(O_NONBLOCK) &&	\
     defined(O_DIRECTORY)
 	stress_fd_open_temp_path,
