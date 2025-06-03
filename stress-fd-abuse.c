@@ -947,6 +947,14 @@ static fd_func_t fd_funcs[] = {
 };
 
 /*
+ *  Handle and ignore SIGIO signals
+ */
+static void stress_fd_sigio_handler(int sig)
+{
+	(void)sig;
+}
+
+/*
  *  stress on sync()
  *	stress system by IO sync calls
  */
@@ -955,8 +963,10 @@ static int stress_fd_abuse(stress_args_t *args)
 	size_t i, n;
 	int rc = EXIT_SUCCESS;
 	pid_t pid;
-
 	int fds[SIZEOF_ARRAY(open_funcs)];
+
+	if (stress_sighandler(args->name, SIGIO, stress_fd_sigio_handler, NULL) < 0)
+		return EXIT_NO_RESOURCE;
 
 	if (stress_temp_dir_mk_args(args) < 0) {
 		shim_memset(stress_fd_filename, 0, sizeof(stress_fd_filename));
@@ -966,8 +976,8 @@ static int stress_fd_abuse(stress_args_t *args)
 	}
 
 	if (args->instance == 0)
-	pr_dbg("%s: %zd fd opening operations, %zd fd exercising operations\n",
-		args->name, SIZEOF_ARRAY(open_funcs), SIZEOF_ARRAY(fd_funcs));
+		pr_dbg("%s: %zd fd opening operations, %zd fd exercising operations\n",
+			args->name, SIZEOF_ARRAY(open_funcs), SIZEOF_ARRAY(fd_funcs));
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
@@ -1016,7 +1026,6 @@ static int stress_fd_abuse(stress_args_t *args)
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
-
 
 	if (*stress_fd_filename) {
 		shim_unlink(stress_fd_filename);
