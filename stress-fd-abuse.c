@@ -894,6 +894,17 @@ static void stress_fd_flock(int fd)
 }
 #endif
 
+#if defined(F_DUPFD)
+static void stress_fd_fcntl_f_dupfd(int fd)
+{
+	int fd2;
+
+	fd2 = fcntl(fd, F_DUPFD, stress_mwc16() + 100);
+	if (fd2 >= 0)
+		(void)close(fd2);
+}
+#endif
+
 #if defined(F_NOTIFY) &&	\
     defined(DN_ACCESS)
 static void stress_fd_fnctl_f_notify(int fd)
@@ -1135,6 +1146,9 @@ static fd_func_t fd_funcs[] = {
     defined(LOCK_EX) &&         \
     defined(LOCK_UN)
 	stress_fd_flock,
+#endif
+#if defined(F_DUPFD)
+	stress_fd_fcntl_f_dupfd,
 #endif
 #if defined(F_NOTIFY) &&	\
     defined(DN_ACCESS)
