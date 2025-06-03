@@ -50,6 +50,17 @@
 #if defined(HAVE_SYS_EPOLL_H)
 #include <sys/epoll.h>
 #endif
+#if defined(HAVE_SYS_XATTR_H)
+#include <sys/xattr.h>
+#undef HAVE_ATTR_XATTR_H
+#elif defined(HAVE_ATTR_XATTR_H)
+#include <attr/xattr.h>
+#endif
+/*  Sanity check */
+#if defined(HAVE_SYS_XATTR_H) &&        \
+    defined(HAVE_ATTR_XATTR_H)
+#error cannot have both HAVE_SYS_XATTR_H and HAVE_ATTR_XATTR_H
+#endif
 
 typedef int (*open_func_t)(void);
 typedef void (*fd_func_t)(int fd);
@@ -1020,6 +1031,17 @@ static void stress_fd_lockf(int fd)
 }
 #endif
 
+#if (defined(HAVE_SYS_XATTR_H) ||	\
+     defined(HAVE_ATTR_XATTR_H)) &&	\
+    defined(HAVE_FLISTXATTR)
+static void stress_fd_flistxattr(int fd)
+{
+	char buffer[4096];
+
+	(void)flistxattr(fd, buffer, sizeof(buffer));
+}
+#endif
+
 static fd_func_t fd_funcs[] = {
 	stress_fd_sockopt_reuseaddr,
 	stress_fd_lseek,
@@ -1125,6 +1147,11 @@ static fd_func_t fd_funcs[] = {
     defined(F_TLOCK) &&		\
     defined(F_UNLOCK)
 	stress_fd_lockf,
+#endif
+#if (defined(HAVE_SYS_XATTR_H) ||	\
+     defined(HAVE_ATTR_XATTR_H)) &&	\
+    defined(HAVE_FLISTXATTR)
+	stress_fd_flistxattr,
 #endif
 };
 
