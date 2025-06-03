@@ -1009,6 +1009,17 @@ static void stress_fd_setns(int fd)
 }
 #endif
 
+#if defined(HAVE_LOCKF) &&	\
+    defined(F_TLOCK) &&		\
+    defined(F_UNLOCK)
+static void stress_fd_lockf(int fd)
+{
+	if (lockf(fd, F_TLOCK, 0) < 0)
+		return;
+	(void)lockf(fd, F_UNLOCK);
+}
+#endif
+
 static fd_func_t fd_funcs[] = {
 	stress_fd_sockopt_reuseaddr,
 	stress_fd_lseek,
@@ -1109,6 +1120,11 @@ static fd_func_t fd_funcs[] = {
 #endif
 #if defined(HAVE_SETNS)
 	stress_fd_setns,
+#endif
+#if defined(HAVE_LOCKF) &&	\
+    defined(F_TLOCK) &&		\
+    defined(F_UNLOCK)
+	stress_fd_lockf,
 #endif
 };
 
