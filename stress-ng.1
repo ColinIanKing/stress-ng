@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "1 May 2025"
+.TH STRESS-NG 1 "3 June 2025"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -2669,6 +2669,19 @@ and F_OFD_SETLKW.
 .TP
 .B \-\-fcntl\-ops N
 stop the fcntl workers after N bogo fcntl operations.
+.RE
+.TP
+.B File descriptor abusing stressor
+.RS 5
+.TQ
+.B \-\-fd\-abuse N
+start N workers that open file descriptors using various ways (file, dup, socket,
+pipe, timerfd, pidfd, userfaultfd, etc.) and perform valid and invalid file
+operations on these descriptors. This exercises a mix of successful and failed
+file operations on a wide range of file descriptor types.
+.TP
+.B \-\-fd\-abuse\-ops N
+stop after N file abuse file operation bogo-ops.
 .RE
 .TP
 .B File descriptor duplication and closing stressor

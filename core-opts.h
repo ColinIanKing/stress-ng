@@ -449,6 +449,9 @@ typedef enum {
 	OPT_fcntl,
 	OPT_fcntl_ops,
 
+	OPT_fd_abuse,
+	OPT_fd_abuse_ops,
+
 	OPT_fd_fork,
 	OPT_fd_fork_fds,
 	OPT_fd_fork_file,

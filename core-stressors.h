@@ -95,6 +95,7 @@
 	MACRO(far_branch)	\
 	MACRO(fault)		\
 	MACRO(fcntl)		\
+	MACRO(fd_abuse)		\
 	MACRO(fd_fork)		\
 	MACRO(fd_race)		\
 	MACRO(fibsearch)	\
