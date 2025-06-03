@@ -75,6 +75,8 @@ static int stress_fd_creat_file(void)
 	return -1;
 }
 
+#if defined(O_NONBLOCK) &&	\
+    defined(O_DIRECTORY)
 static int stress_fd_open_temp_path(void)
 {
 	const char *tmp = stress_get_temp_path();
@@ -83,6 +85,7 @@ static int stress_fd_open_temp_path(void)
 		return openat(AT_FDCWD, tmp, O_RDONLY | O_NONBLOCK | O_DIRECTORY);
 	return -1;
 }
+#endif
 
 static int stress_fd_open_pipe_rd_end(void)
 {
@@ -302,7 +305,10 @@ static open_func_t open_funcs[] = {
 	stress_fd_open_null,
 	stress_fd_open_zero,
 	stress_fd_creat_file,
+#if defined(O_NONBLOCK) &&	\
+    defined(O_DIRECTORY)
 	stress_fd_open_temp_path,
+#endif
 	stress_fd_open_pipe_rd_end,
 	stress_fd_open_pipe_wr_end,
 #if defined(HAVE_PIPE2)
@@ -986,7 +992,7 @@ static int stress_fd_abuse(stress_args_t *args)
 	for (i = 0, n = 0; i < SIZEOF_ARRAY(fds); i++) {
 		const int fd = open_funcs[i]();
 
-		if (fd < 0)
+		if (fd < 0) 
 			continue;
 		fds[n++] = fd;
 	}
