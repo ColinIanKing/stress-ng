@@ -46,6 +46,9 @@
 #if defined(HAVE_SYS_STATVFS_H)
 #include <sys/statvfs.h>
 #endif
+#if defined(HAVE_SYS_EPOLL_H)
+#include <sys/epoll.h>
+#endif
 
 typedef int (*open_func_t)(void);
 typedef void (*fd_func_t)(int fd);
@@ -383,6 +386,14 @@ static int stress_fd_open_pidfd(void)
 }
 #endif
 
+#if defined(HAVE_SYS_EPOLL_H) &&	\
+    defined(HAVE_EPOLL_CREATE)
+static int stress_fd_open_epoll_create(void)
+{
+	return epoll_create(1);
+}
+#endif
+
 static open_func_t open_funcs[] = {
 	stress_get_bad_fd,
 	stress_fd_open_null,
@@ -493,6 +504,10 @@ static open_func_t open_funcs[] = {
 #endif
 #if defined(HAVE_PIDFD_OPEN)
 	stress_fd_open_pidfd,
+#endif
+#if defined(HAVE_SYS_EPOLL_H) &&	\
+    defined(HAVE_EPOLL_CREATE)
+	stress_fd_open_epoll_create,
 #endif
 };
 
@@ -976,6 +991,16 @@ static void stress_fd_fcntl_f_setlease(int fd)
 }
 #endif
 
+#if defined(HAVE_WAITID)
+static void stress_fd_waitid(int fd)
+{
+	siginfo_t info;
+
+	(void)shim_memset(&info, 0, sizeof(info));
+	(void)waitid(P_PIDFD, (id_t)fd, &info, WNOHANG);
+}
+#endif
+
 static fd_func_t fd_funcs[] = {
 	stress_fd_sockopt_reuseaddr,
 	stress_fd_lseek,
@@ -1070,6 +1095,9 @@ static fd_func_t fd_funcs[] = {
     defined(F_WRLCK) &&		\
     defined(F_UNLCK)
 	stress_fd_fcntl_f_setlease,
+#endif
+#if defined(HAVE_WAITID)
+	stress_fd_waitid,
 #endif
 };
 
