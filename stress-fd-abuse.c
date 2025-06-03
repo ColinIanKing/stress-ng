@@ -22,6 +22,7 @@
 
 #include <sys/ioctl.h>
 #include <sys/file.h>
+#include <sched.h>
 
 #include <sys/socket.h>
 #if defined(HAVE_SYS_UN_H)
@@ -1001,6 +1002,13 @@ static void stress_fd_waitid(int fd)
 }
 #endif
 
+#if defined(HAVE_SETNS)
+static void stress_fd_setns(int fd)
+{
+	(void)setns(fd, 0);
+}
+#endif
+
 static fd_func_t fd_funcs[] = {
 	stress_fd_sockopt_reuseaddr,
 	stress_fd_lseek,
@@ -1098,6 +1106,9 @@ static fd_func_t fd_funcs[] = {
 #endif
 #if defined(HAVE_WAITID)
 	stress_fd_waitid,
+#endif
+#if defined(HAVE_SETNS)
+	stress_fd_setns,
 #endif
 };
 
