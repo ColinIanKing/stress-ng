@@ -466,7 +466,7 @@ static void stress_fd_bind_af_inet6(int fd)
 
 static void stress_fd_select_rd(int fd)
 {
-	if (fd < FD_SETSIZE) {
+	if ((fd >= 0) && (fd < FD_SETSIZE)) {
 		fd_set rfds;
 		struct timeval timeout;
 
@@ -481,7 +481,7 @@ static void stress_fd_select_rd(int fd)
 
 static void stress_fd_select_wr(int fd)
 {
-	if (fd < FD_SETSIZE) {
+	if ((fd >= 0) && (fd < FD_SETSIZE)) {
 		fd_set wfds;
 		struct timeval timeout;
 
@@ -497,7 +497,7 @@ static void stress_fd_select_wr(int fd)
 #if defined(HAVE_PSELECT)
 static void stress_fd_pselect_rdwr(int fd)
 {
-	if (fd < FD_SETSIZE) {
+	if ((fd >= 0) && (fd < FD_SETSIZE)) {
 		struct timespec tv;
 		fd_set rfds, wfds;
 
