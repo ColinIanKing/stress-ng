@@ -18,6 +18,7 @@
  */
 #include "stress-ng.h"
 #include "core-builtin.h"
+#include "core-killpid.h"
 
 #include <sys/ioctl.h>
 #include <sys/file.h>
@@ -953,6 +954,7 @@ static int stress_fd_abuse(stress_args_t *args)
 {
 	size_t i, n;
 	int rc = EXIT_SUCCESS;
+	pid_t pid;
 
 	int fds[SIZEOF_ARRAY(open_funcs)];
 
@@ -979,13 +981,19 @@ static int stress_fd_abuse(stress_args_t *args)
 		fds[n++] = fd;
 	}
 
+	/*
+	 *  Parent and child processes operated on same
+	 *  fds for more of a stress mix.
+	 */
+	pid = fork();
 	do {
 		size_t j;
 
 		for (i = 0; stress_continue(args) && (i < n); i++) {
 			for (j = 0; stress_continue(args) && (j < SIZEOF_ARRAY(fd_funcs)); j++) {
 				fd_funcs[j](fds[i]);
-				stress_bogo_inc(args);
+				if (pid > -1)
+					stress_bogo_inc(args);
 			}
 		}
 
@@ -994,11 +1002,21 @@ static int stress_fd_abuse(stress_args_t *args)
 			register const size_t fd_idx = stress_mwc8modn(n);
 
 			fd_funcs[func_idx](fd_idx);
-			stress_bogo_inc(args);
+			if (pid > -1)
+				stress_bogo_inc(args);
 		}
 	} while (stress_continue(args));
 
+	if (pid < 0) {
+		/* do nothing */
+	} else if (pid == 0) {
+		_exit(0);
+	} else {
+		(void)stress_kill_and_wait(args, pid, SIGKILL, false);
+	}
+
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
 
 	if (*stress_fd_filename) {
 		shim_unlink(stress_fd_filename);
