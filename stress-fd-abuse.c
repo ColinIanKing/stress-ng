@@ -90,6 +90,12 @@ static int stress_fd_open_file_rw(void)
 	return open(stress_fd_filename, O_RDWR | O_APPEND, S_IRUSR | S_IWUSR);
 }
 
+static int stress_fd_open_file_noaccess(void)
+{
+	/* Linux allows this for ioctls, O_NOACCESS */
+	return open(stress_fd_filename, O_WRONLY | O_RDWR | O_APPEND, S_IRUSR | S_IWUSR);
+}
+
 #if defined(O_ASYNC)
 static int stress_fd_open_file_rw_async(void)
 {
@@ -385,6 +391,7 @@ static open_func_t open_funcs[] = {
 	stress_fd_open_file_ro,
 	stress_fd_open_file_wo,
 	stress_fd_open_file_rw,
+	stress_fd_open_file_noaccess,
 #if defined(O_ASYNC)
 	stress_fd_open_file_rw_async,
 #endif
@@ -655,6 +662,15 @@ static void stress_fd_mmap_rd(int fd)
 	void *ptr;
 
 	ptr = mmap(NULL, 4096, PROT_READ, MAP_SHARED, fd, 0);
+	if (ptr != MAP_FAILED)
+		(void)munmap(ptr, 4096);
+}
+
+static void stress_fd_mmap_wr(int fd)
+{
+	void *ptr;
+
+	ptr = mmap(NULL, 4096, PROT_WRITE, MAP_SHARED, fd, 0);
 	if (ptr != MAP_FAILED)
 		(void)munmap(ptr, 4096);
 }
@@ -980,6 +996,7 @@ static fd_func_t fd_funcs[] = {
 	stress_fd_ppoll_rdwr,
 #endif
 	stress_fd_mmap_rd,
+	stress_fd_mmap_wr,
 #if defined(IN_MASK_CREATE) &&  \
     defined(IN_MASK_ADD)
 	stress_fd_inotify_add_watch,
@@ -1096,7 +1113,7 @@ static int stress_fd_abuse(stress_args_t *args)
 	for (i = 0, n = 0; i < SIZEOF_ARRAY(fds); i++) {
 		const int fd = open_funcs[i]();
 
-		if (fd < 0) 
+		if (fd < 0)
 			continue;
 		fds[n++] = fd;
 	}
