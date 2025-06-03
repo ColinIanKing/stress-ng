@@ -1278,8 +1278,8 @@ static int stress_fd_abuse(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	if (*stress_fd_filename) {
-		shim_unlink(stress_fd_filename);
-		stress_temp_dir_rm_args(args);
+		(void)shim_unlink(stress_fd_filename);
+		(void)stress_temp_dir_rm_args(args);
 	}
 	for (i = 0; i < n; i++)
 		(void)close(fds[i]);
