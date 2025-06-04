@@ -20,6 +20,10 @@
 #include "core-builtin.h"
 #include "core-killpid.h"
 
+#if defined(HAVE_LINUX_IF_TUN_H)
+#include <linux/if_tun.h>
+#endif
+
 #include <sys/ioctl.h>
 #include <sys/file.h>
 #include <sched.h>
@@ -34,6 +38,15 @@
 #endif
 #if defined(HAVE_NET_IF_H)
 #include <net/if.h>
+#endif
+#if defined(HAVE_LINUX_IF_PACKET_H)
+#include <linux/if_packet.h>
+#endif
+#if defined(HAVE_LINUX_CONNECTOR_H)
+#include <linux/connector.h>
+#endif
+#if defined(HAVE_LINUX_NETLINK_H)
+#include <linux/netlink.h>
 #endif
 #if defined(HAVE_SYS_EVENTFD_H)
 #include <sys/eventfd.h>
@@ -340,6 +353,127 @@ static int stress_fd_open_sock_af_inet_dgram_icmp(void)
 }
 #endif
 
+#if defined(AF_AX25) &&		\
+    defined(SOCK_DGRAM)
+static int stress_fd_open_sock_af_ax25(void)
+{
+	return socket(AF_AX25, SOCK_DGRAM, 0);
+}
+#endif
+
+#if defined(AF_X25) &&		\
+    defined(SOCK_SEQPACKET)
+static int stress_fd_open_sock_af_x25(void)
+{
+	return socket(AF_X25, SOCK_SEQPACKET, 0);
+}
+#endif
+
+#if defined(AF_IPX) &&		\
+    defined(SOCK_SEQPACKET)
+static int stress_fd_open_sock_af_ipx(void)
+{
+	return socket(AF_IPX, SOCK_SEQPACKET, 0);
+}
+#endif
+
+#if defined(AF_APPLETALK) &&	\
+    defined(SOCK_DGRAM)
+static int stress_fd_open_sock_af_appletalk(void)
+{
+	return socket(AF_APPLETALK, SOCK_DGRAM, 0);
+}
+#endif
+#if defined(AF_PACKET) &&	\
+    defined(SOCK_RAW) &&	\
+    defined(ETH_P_ALL)
+static int stress_fd_open_sock_af_packet(void)
+{
+	return socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
+}
+#endif
+
+#if defined(AF_KEY) &&	\
+    defined(SOCK_RAW)
+static int stress_fd_open_sock_af_key(void)
+{
+	return socket(AF_KEY, SOCK_RAW, 0);
+}
+#endif
+
+#if defined(AF_NETLINK) &&	\
+    defined(SOCK_DGRAM) &&	\
+    defined(NETLINK_CONNECTOR)
+static int stress_fd_open_sock_af_netlink(void)
+{
+	return socket(AF_NETLINK, SOCK_DGRAM, NETLINK_CONNECTOR);
+}
+#endif
+
+#if defined(AF_RDS) &&	\
+    defined(SOCK_SEQPACKET)
+static int stress_fd_open_sock_af_rds(void)
+{
+	return socket(AF_RDS, SOCK_SEQPACKET, 0);
+}
+#endif
+
+#if defined(AF_PPPOX) &&	\
+    defined(SOCK_DGRAM)
+static int stress_fd_open_sock_af_ppox(void)
+{
+	return socket(AF_PPPOX, SOCK_DGRAM, 0);
+}
+#endif
+
+#if defined(AF_LLC) &&	\
+    defined(SOCK_STREAM)
+static int stress_fd_open_sock_af_llc(void)
+{
+	return socket(AF_LLC, SOCK_STREAM, 0);
+}
+#endif
+
+#if defined(AF_CAN) &&	\
+    defined(SOCK_RAW)
+static int stress_fd_open_sock_af_can(void)
+{
+	return socket(AF_CAN, SOCK_RAW, 1);
+}
+#endif
+
+#if defined(AF_TIPC) &&	\
+    defined(SOCK_SEQPACKET)
+static int stress_fd_open_sock_af_tipc(void)
+{
+	return socket(AF_TIPC, SOCK_SEQPACKET, 0);
+}
+#endif
+
+#if defined(AF_BLUETOOTH) &&	\
+    defined(SOCK_SEQPACKET)
+static int stress_fd_open_sock_af_bluetooth(void)
+{
+	return socket(AF_BLUETOOTH, SOCK_SEQPACKET, 0);
+}
+#endif
+
+#if defined(AF_KCM) &&	\
+    defined(SOCK_SEQPACKET)
+static int stress_fd_open_sock_af_kcm(void)
+{
+	return socket(AF_KCM, SOCK_SEQPACKET, 0);
+}
+#endif
+
+#if defined(AF_XDP) &&	\
+    defined(SOCK_RAW)
+static int stress_fd_open_sock_af_xdp(void)
+{
+	return socket(AF_XDP, SOCK_RAW, 0);
+}
+#endif
+
 static int stress_fd_open_socketpair(void)
 {
 	int sv[2];
@@ -493,6 +627,68 @@ static open_func_t open_funcs[] = {
     defined(SOCK_DGRAM) &&	\
     defined(IPPROTO_ICMP)
 	stress_fd_open_sock_af_inet_dgram_icmp,
+#endif
+#if defined(AF_AX25) &&		\
+    defined(SOCK_DGRAM)
+	stress_fd_open_sock_af_ax25,
+#endif
+#if defined(AF_X25) &&		\
+    defined(SOCK_SEQPACKET)
+	stress_fd_open_sock_af_x25,
+#endif
+#if defined(AF_IPX) &&		\
+    defined(SOCK_SEQPACKET)
+	stress_fd_open_sock_af_ipx,
+#endif
+#if defined(AF_APPLETALK) &&	\
+    defined(SOCK_DGRAM)
+	stress_fd_open_sock_af_appletalk,
+#endif
+#if defined(AF_KEY) &&	\
+    defined(SOCK_RAW)
+	stress_fd_open_sock_af_key,
+#endif
+#if defined(AF_PACKET) &&	\
+    defined(SOCK_RAW) &&	\
+    defined(ETH_P_ALL)
+	stress_fd_open_sock_af_packet,
+#endif
+#if defined(AF_NETLINK) &&	\
+    defined(SOCK_DGRAM) &&	\
+    defined(NETLINK_CONNECTOR)
+	stress_fd_open_sock_af_netlink,
+#endif
+#if defined(AF_RDS) &&	\
+    defined(SOCK_SEQPACKET)
+	stress_fd_open_sock_af_rds,
+#endif
+#if defined(AF_PPPOX) &&	\
+    defined(SOCK_DGRAM)
+	stress_fd_open_sock_af_ppox,
+#endif
+#if defined(AF_LLC) &&	\
+    defined(SOCK_STREAM)
+	stress_fd_open_sock_af_llc,
+#endif
+#if defined(AF_CAN) &&	\
+    defined(SOCK_RAW)
+	stress_fd_open_sock_af_can,
+#endif
+#if defined(AF_TIPC) &&	\
+    defined(SOCK_DGRAM)
+	stress_fd_open_sock_af_tipc,
+#endif
+#if defined(AF_BLUETOOTH) &&	\
+    defined(SOCK_SEQPACKET)
+	stress_fd_open_sock_af_bluetooth,
+#endif
+#if defined(AF_KCM) &&	\
+    defined(SOCK_SEQPACKET)
+	stress_fd_open_sock_af_kcm,
+#endif
+#if defined(AF_XDP) &&	\
+    defined(SOCK_SEQPACKET)
+	stress_fd_open_sock_af_xdp,
 #endif
 	stress_fd_open_socketpair,
 #if defined(HAVE_USERFAULTFD)
