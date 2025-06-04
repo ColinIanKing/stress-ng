@@ -1160,7 +1160,7 @@ static void stress_fd_fcntl_f_getown(int fd)
 #if defined(F_SETPIPE_SZ)
 static void stress_fd_fctnl_f_setpipe_sz(int fd)
 {
-	(void)fcntl(fd, F_SETPIPE_SZ, 8192);
+	(void)fcntl(fd, F_SETPIPE_SZ, 1024);	/* Illegal */
 	(void)fcntl(fd, F_SETPIPE_SZ, 4096);
 }
 #endif
