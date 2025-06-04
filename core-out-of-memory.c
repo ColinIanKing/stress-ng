@@ -331,6 +331,8 @@ rewait:
 			if ((signals[signal_idx] != SIGKILL) && (WTERMSIG(status) == SIGKILL)) {
 				bool oomed = stress_process_oomed(pid);
 
+				args->bogo.possibly_oom_killed = true;
+
 				/*
 				 *  The --oomable flag was enabled, so
 				 *  the behaviour here is to no longer

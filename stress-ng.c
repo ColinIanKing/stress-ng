@@ -1514,6 +1514,7 @@ static int MLOCKED_TEXT stress_run_child(
 		stats->args.bogo.max_ops = g_stressor_current->bogo_max_ops ?
 			g_stressor_current->bogo_max_ops : NEVER_END_OPS;
 		stats->args.bogo.ci.counter = 0;
+		stats->args.bogo.possibly_oom_killed = false;
 
 		if (instance == 0)
 			stress_settings_dbg(&stats->args);
@@ -1930,6 +1931,7 @@ static void stress_metrics_check(bool *success)
 			const stress_stats_t *const stats = ss->stats[j];
 			const stress_checksum_t *checksum = stats->checksum;
 			stress_checksum_t stats_checksum;
+			char *oom_message;
 
 			if (!stats->completed)
 				continue;
@@ -1950,22 +1952,31 @@ static void stress_metrics_check(bool *success)
 			stats_checksum.data.ci.run_ok = stats->args.bogo.ci.run_ok;
 			stress_hash_checksum(&stats_checksum);
 
+			oom_message = stats->args.bogo.possibly_oom_killed ?
+				" (possibly terminated by out-of-memory killer)" : "";
+
 			if (stats->args.bogo.ci.counter != checksum->data.ci.counter) {
-				pr_fail("%s instance %d corrupted bogo-ops counter, %" PRIu64 " vs %" PRIu64 "\n",
+				pr_fail("%s instance %d corrupted bogo-ops counter, %" PRIu64 " vs %" PRIu64 "%s\n",
 					ss->stressor->name, j,
-					stats->args.bogo.ci.counter, checksum->data.ci.counter);
+					stats->args.bogo.ci.counter, checksum->data.ci.counter,
+					oom_message);
+				oom_message = "";
 				ok = false;
 			}
 			if (stats->args.bogo.ci.run_ok != checksum->data.ci.run_ok) {
-				pr_fail("%s instance %d corrupted run flag, %d vs %d\n",
+				pr_fail("%s instance %d corrupted run flag, %d vs %d%s\n",
 					ss->stressor->name, j,
-					stats->args.bogo.ci.run_ok, checksum->data.ci.run_ok);
+					stats->args.bogo.ci.run_ok, checksum->data.ci.run_ok,
+					oom_message);
+				oom_message = "";
 				ok = false;
 			}
 			if (stats_checksum.hash != checksum->hash) {
-				pr_fail("%s instance %d hash error in bogo-ops counter and run flag, %" PRIu32 " vs %" PRIu32 "\n",
+				pr_fail("%s instance %d hash error in bogo-ops counter and run flag, %" PRIu32 " vs %" PRIu32 "%s\n",
 					ss->stressor->name, j,
-					stats_checksum.hash, checksum->hash);
+					stats_checksum.hash, checksum->hash,
+					oom_message);
+				oom_message = "";
 				ok = false;
 			}
 		}
