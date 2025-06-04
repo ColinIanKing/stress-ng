@@ -19,6 +19,7 @@
 #include "stress-ng.h"
 #include "core-builtin.h"
 #include "core-killpid.h"
+#include "core-out-of-memory.h"
 
 #if defined(HAVE_LINUX_IF_TUN_H)
 #include <linux/if_tun.h>
@@ -1398,36 +1399,13 @@ static void stress_fd_sig_handler(int sig)
 	(void)sig;
 }
 
-/*
- *  stress on sync()
- *	stress system by IO sync calls
- */
-static int stress_fd_abuse(stress_args_t *args)
+static int stress_fd_abuse_process(stress_args_t *args, void *context)
 {
 	size_t i, n;
-	int rc = EXIT_SUCCESS;
 	pid_t pid;
 	int fds[SIZEOF_ARRAY(open_funcs)];
 
-	if (stress_sighandler(args->name, SIGIO, stress_fd_sig_handler, NULL) < 0)
-		return EXIT_NO_RESOURCE;
-	if (stress_sighandler(args->name, SIGPIPE, stress_fd_sig_handler, NULL) < 0)
-		return EXIT_NO_RESOURCE;
-
-	if (stress_temp_dir_mk_args(args) < 0) {
-		shim_memset(stress_fd_filename, 0, sizeof(stress_fd_filename));
-	} else {
-		(void)stress_temp_filename_args(args, stress_fd_filename,
-			sizeof(stress_fd_filename), stress_mwc32());
-	}
-
-	if (args->instance == 0)
-		pr_dbg("%s: %zd fd opening operations, %zd fd exercising operations\n",
-			args->name, SIZEOF_ARRAY(open_funcs), SIZEOF_ARRAY(fd_funcs));
-
-	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
-	stress_sync_start_wait(args);
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	(void)context;
 
 	for (i = 0, n = 0; i < SIZEOF_ARRAY(fds); i++) {
 		const int fd = open_funcs[i]();
@@ -1473,19 +1451,54 @@ static int stress_fd_abuse(stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
+	for (i = 0; i < n; i++)
+		(void)close(fds[i]);
+
 	if (*stress_fd_filename) {
 		(void)shim_unlink(stress_fd_filename);
 		(void)stress_temp_dir_rm_args(args);
 	}
-	for (i = 0; i < n; i++)
-		(void)close(fds[i]);
+	return EXIT_SUCCESS;
+}
+
+/*
+ *  stress on sync()
+ *	stress system by IO sync calls
+ */
+static int stress_fd_abuse(stress_args_t *args)
+{
+	int rc = EXIT_SUCCESS;
+
+	if (stress_sighandler(args->name, SIGIO, stress_fd_sig_handler, NULL) < 0)
+		return EXIT_NO_RESOURCE;
+	if (stress_sighandler(args->name, SIGPIPE, stress_fd_sig_handler, NULL) < 0)
+		return EXIT_NO_RESOURCE;
+
+	if (stress_temp_dir_mk_args(args) < 0) {
+		shim_memset(stress_fd_filename, 0, sizeof(stress_fd_filename));
+	} else {
+		(void)stress_temp_filename_args(args, stress_fd_filename,
+			sizeof(stress_fd_filename), stress_mwc32());
+	}
+
+	if (args->instance == 0)
+		pr_dbg("%s: %zd fd opening operations, %zd fd exercising operations\n",
+			args->name, SIZEOF_ARRAY(open_funcs), SIZEOF_ARRAY(fd_funcs));
+
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
+	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
+	rc = stress_oomable_child(args, NULL, stress_fd_abuse_process, STRESS_OOMABLE_NORMAL);
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	return rc;
 }
 
 const stressor_info_t stress_fd_abuse_info = {
 	.stressor = stress_fd_abuse,
-	.class = CLASS_FILESYSTEM | CLASS_OS,
-	.verify = VERIFY_ALWAYS,
+	.class = CLASS_OS,
+	.verify = VERIFY_NONE,
 	.help = help
 };
