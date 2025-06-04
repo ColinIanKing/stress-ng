@@ -87,6 +87,17 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
+static bool stress_fd_now(double *t, const double next)
+{
+	const double t_now = stress_time_now();
+
+	if (*t < t_now) {
+		*t = t_now + next;
+		return true;
+	}
+	return false;
+}
+
 static int stress_fd_open_null(void)
 {
 	return open("/dev/null", O_RDWR);
@@ -964,7 +975,10 @@ static void stress_fd_fcntl_f_getfl(int fd)
 
 static void stress_fd_ftruncate(int fd)
 {
-	VOID_RET(int, ftruncate(fd, 0));
+	static double t = 0.0;
+
+	if (stress_fd_now(&t, 10.0))
+		VOID_RET(int, ftruncate(fd, 0));
 }
 
 #if defined(POSIX_FADV_RANDOM) ||	\
@@ -1027,20 +1041,29 @@ static void stress_fd_getpeername(int fd)
 #if defined(HAVE_SYNCFS)
 static void stress_fd_syncfs(int fd)
 {
-	(void)syncfs(fd);
+	static double t = 0.0;
+
+	if (stress_fd_now(&t, 29.0))
+		(void)syncfs(fd);
 }
 #endif
 
 #if defined(HAVE_FDATASYNC)
 static void stress_fd_fdatasync(int fd)
 {
-	(void)shim_fdatasync(fd);
+	static double t = 0.0;
+
+	if (stress_fd_now(&t, 31.0))
+		(void)shim_fdatasync(fd);
 }
 #endif
 
 static void stress_fd_fsync(int fd)
 {
-	(void)shim_fsync(fd);
+	static double t = 0.0;
+
+	if (stress_fd_now(&t, 37.0))
+		(void)shim_fsync(fd);
 }
 
 static void stress_fd_fchdir(int fd)
@@ -1057,10 +1080,13 @@ static void stress_fd_fchdir(int fd)
 static void stress_fd_chmod(int fd)
 {
 	struct stat statbuf;
+	static double t = 0.0;
 
-	if (fstat(fd, &statbuf) < 0)
-		return;
-	(void)fchmod(fd, statbuf.st_mode);
+	if (stress_fd_now(&t, 1.0)) {
+		if (fstat(fd, &statbuf) < 0)
+			return;
+		(void)fchmod(fd, statbuf.st_mode);
+	}
 }
 
 #if defined(HAVE_SYS_STATVFS_H)
@@ -1075,8 +1101,12 @@ static void stress_fd_fstatfs(int fd)
 #if defined(HAVE_FUTIMENS)
 static void stress_fd_futimens(int fd)
 {
-	/* time time to now */
-	(void)futimens(fd, NULL);
+	static double t = 0.0;
+
+	if (stress_fd_now(&t, 1.0)) {
+		/* set time to now */
+		(void)futimens(fd, NULL);
+	}
 }
 #endif
 
@@ -1085,9 +1115,13 @@ static void stress_fd_futimens(int fd)
     defined(LOCK_UN)
 static void stress_fd_flock(int fd)
 {
-	if (flock(fd, LOCK_EX) < 0)
-		return;
-	(void)flock(fd, LOCK_UN);
+	static double t = 0.0;
+
+	if (stress_fd_now(&t, 11.0)) {
+		if (flock(fd, LOCK_EX) < 0)
+			return;
+		(void)flock(fd, LOCK_UN);
+	}
 }
 #endif
 
@@ -1233,9 +1267,13 @@ static void stress_fd_setns(int fd)
     defined(F_UNLOCK)
 static void stress_fd_lockf(int fd)
 {
-	if (lockf(fd, F_TLOCK, 0) < 0)
-		return;
-	(void)lockf(fd, F_UNLOCK);
+	static double t = 0.0;
+
+	if (stress_fd_now(&t, 13.0)) {
+		if (lockf(fd, F_TLOCK, 0) < 0)
+			return;
+		(void)lockf(fd, F_UNLOCK);
+	}
 }
 #endif
 
