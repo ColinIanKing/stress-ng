@@ -1464,7 +1464,7 @@ static void bad_preadv(stress_bad_addr_t *ba, volatile uint64_t *counter)
 		fd = open("/dev/zero", O_RDONLY);
 		if (fd > -1) {
 			(*counter)++;
-			VOID_RET(ssize_t, readv(fd, (struct iovec *)ba->addr, 1));
+			VOID_RET(ssize_t, preadv(fd, (struct iovec *)ba->addr, 1, 0));
 			VOID_RET(int, close(fd));
 		}
 	}
@@ -1652,7 +1652,7 @@ static void bad_readlink3(stress_bad_addr_t *ba, volatile uint64_t *counter)
 	}
 }
 
-#if defined(HAVE_SYS_UIO_H)
+#if defined(HAVE_READV)
 static void bad_readv(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unwriteable) {
@@ -2054,7 +2054,7 @@ static void bad_write(stress_bad_addr_t *ba, volatile uint64_t *counter)
 	}
 }
 
-#if defined(HAVE_SYS_UIO_H)
+#if defined(HAVE_WRITEV)
 static void bad_writev(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unreadable) {
@@ -2310,7 +2310,7 @@ static stress_bad_syscall_t bad_syscalls[] = {
 	bad_readlink1,
 	bad_readlink2,
 	bad_readlink3,
-#if defined(HAVE_SYS_UIO_H)
+#if defined(HAVE_READV)
 	bad_readv,
 #endif
 #if defined(HAVE_REMOVEXATTR) &&	\
@@ -2371,7 +2371,7 @@ static stress_bad_syscall_t bad_syscalls[] = {
 	bad_waitid,
 #endif
 	bad_write,
-#if defined(HAVE_SYS_UIO_H)
+#if defined(HAVE_WRITEV)
 	bad_writev,
 #endif
 };
