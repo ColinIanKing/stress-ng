@@ -1946,8 +1946,10 @@ static int stress_fd_abuse(stress_args_t *args)
 {
 	int rc = EXIT_SUCCESS;
 
+#if defined(SIGIO)
 	if (stress_sighandler(args->name, SIGIO, stress_fd_sig_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
+#endif
 	if (stress_sighandler(args->name, SIGPIPE, stress_fd_sig_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 
