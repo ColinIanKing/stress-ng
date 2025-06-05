@@ -248,6 +248,7 @@ static ssize_t stress_hdd_write(
 			}
 			break;
 #endif
+#if defined(HAVE_WRITEV)
 		default:
 			t = stress_time_now();
 			if (lseek(fd, offset, SEEK_SET) < 0) {
@@ -260,6 +261,7 @@ static ssize_t stress_hdd_write(
 				}
 			}
 			break;
+#endif
 		}
 #else
 		t = stress_time_now();
@@ -366,6 +368,7 @@ static ssize_t stress_hdd_read(
 			}
 			return ret;
 #endif
+#if defined(HAVE_READV)
 		default:
 			t = stress_time_now();
 			if (lseek(fd, offset, SEEK_SET) < 0)
@@ -376,6 +379,7 @@ static ssize_t stress_hdd_read(
 				(*hdd_read_bytes) += (double)ret;
 			}
 			return ret;
+#endif
 		}
 #else
 		t = stress_time_now();
@@ -448,7 +452,8 @@ static void stress_hdd_invalid_read(const int fd, uint8_t *buf)
 	UNEXPECTED
 #endif
 
-#if defined(HAVE_SYS_UIO_H)
+#if defined(HAVE_SYS_UIO_H) &&	\
+    defined(HAVE_READV)
 	/* invalid readv fd */
 	VOID_RET(ssize_t, readv(-1, iov, HDD_IO_VEC_MAX));
 #endif
@@ -505,7 +510,8 @@ static void stress_hdd_invalid_write(const int fd, uint8_t *buf)
 	UNEXPECTED
 #endif
 
-#if defined(HAVE_SYS_UIO_H)
+#if defined(HAVE_SYS_UIO_H) &&	\
+    defined(HAVE_WRITEV)
 	/* invalid writev fd */
 	VOID_RET(ssize_t, writev(-1, iov, HDD_IO_VEC_MAX));
 #else
