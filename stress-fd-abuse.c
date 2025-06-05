@@ -78,6 +78,8 @@
 
 #define FD_FLAG_READ	(0x0001)
 #define FD_FLAG_WRITE	(0x0002)
+#define FD_FLAG_RECV	(0x0004)
+#define FD_FLAG_SEND	(0x0008)
 
 typedef struct {
 	int fd;		/* file descriptor */
@@ -364,7 +366,7 @@ static void stress_fd_open_memfd_secret(stress_fd_t *fd)
 static void stress_fd_open_sock_inet_stream(stress_fd_t *fd)
 {
 	fd->fd = socket(AF_INET, SOCK_STREAM, 0);
-	fd->flags = 0;
+	fd->flags = FD_FLAG_RECV | FD_FLAG_SEND;
 }
 #endif
 
@@ -373,7 +375,7 @@ static void stress_fd_open_sock_inet_stream(stress_fd_t *fd)
 static void stress_fd_open_sock_inet6_stream(stress_fd_t *fd)
 {
 	fd->fd = socket(AF_INET6, SOCK_STREAM, 0);
-	fd->flags = 0;
+	fd->flags = FD_FLAG_RECV | FD_FLAG_SEND;
 }
 #endif
 
@@ -382,7 +384,7 @@ static void stress_fd_open_sock_inet6_stream(stress_fd_t *fd)
 static void stress_fd_open_sock_inet_dgram(stress_fd_t *fd)
 {
 	fd->fd = socket(AF_INET, SOCK_DGRAM, 0);
-	fd->flags = 0;
+	fd->flags = FD_FLAG_RECV | FD_FLAG_SEND;
 }
 #endif
 
@@ -391,7 +393,7 @@ static void stress_fd_open_sock_inet_dgram(stress_fd_t *fd)
 static void stress_fd_open_sock_inet6_dgram(stress_fd_t *fd)
 {
 	fd->fd = socket(AF_INET6, SOCK_DGRAM, 0);
-	fd->flags = 0;
+	fd->flags = FD_FLAG_RECV | FD_FLAG_SEND;
 }
 #endif
 
@@ -400,7 +402,7 @@ static void stress_fd_open_sock_inet6_dgram(stress_fd_t *fd)
 static void stress_fd_open_sock_af_unix_stream(stress_fd_t *fd)
 {
 	fd->fd = socket(AF_UNIX, SOCK_STREAM, 0);
-	fd->flags = 0;
+	fd->flags = FD_FLAG_RECV | FD_FLAG_SEND;
 }
 #endif
 
@@ -409,7 +411,7 @@ static void stress_fd_open_sock_af_unix_stream(stress_fd_t *fd)
 static void stress_fd_open_sock_af_unix_dgram(stress_fd_t *fd)
 {
 	fd->fd = socket(AF_UNIX, SOCK_DGRAM, 0);
-	fd->flags = 0;
+	fd->flags = FD_FLAG_RECV | FD_FLAG_SEND;
 }
 #endif
 
@@ -418,7 +420,7 @@ static void stress_fd_open_sock_af_unix_dgram(stress_fd_t *fd)
 static void stress_fd_open_sock_af_alg_seqpacket(stress_fd_t *fd)
 {
 	fd->fd = socket(AF_ALG, SOCK_SEQPACKET, 0);
-	fd->flags = 0;
+	fd->flags = FD_FLAG_RECV | FD_FLAG_SEND;
 }
 #endif
 
@@ -428,7 +430,7 @@ static void stress_fd_open_sock_af_alg_seqpacket(stress_fd_t *fd)
 static void stress_fd_open_sock_af_inet_dgram_icmp(stress_fd_t *fd)
 {
 	fd->fd = socket(AF_INET, SOCK_DGRAM, IPPROTO_ICMP);
-	fd->flags = 0;
+	fd->flags = FD_FLAG_RECV | FD_FLAG_SEND;
 }
 #endif
 
@@ -437,7 +439,7 @@ static void stress_fd_open_sock_af_inet_dgram_icmp(stress_fd_t *fd)
 static void stress_fd_open_sock_af_ax25(stress_fd_t *fd)
 {
 	fd->fd = socket(AF_AX25, SOCK_DGRAM, 0);
-	fd->flags = 0;
+	fd->flags = FD_FLAG_RECV | FD_FLAG_SEND;
 }
 #endif
 
@@ -446,7 +448,7 @@ static void stress_fd_open_sock_af_ax25(stress_fd_t *fd)
 static void stress_fd_open_sock_af_x25(stress_fd_t *fd)
 {
 	fd->fd = socket(AF_X25, SOCK_SEQPACKET, 0);
-	fd->flags = 0;
+	fd->flags = FD_FLAG_RECV | FD_FLAG_SEND;
 }
 #endif
 
@@ -455,7 +457,7 @@ static void stress_fd_open_sock_af_x25(stress_fd_t *fd)
 static void stress_fd_open_sock_af_ipx(stress_fd_t *fd)
 {
 	fd->fd = socket(AF_IPX, SOCK_SEQPACKET, 0);
-	fd->flags = 0;
+	fd->flags = FD_FLAG_RECV | FD_FLAG_SEND;
 }
 #endif
 
@@ -464,7 +466,7 @@ static void stress_fd_open_sock_af_ipx(stress_fd_t *fd)
 static void stress_fd_open_sock_af_appletalk(stress_fd_t *fd)
 {
 	fd->fd = socket(AF_APPLETALK, SOCK_DGRAM, 0);
-	fd->flags = 0;
+	fd->flags = FD_FLAG_RECV | FD_FLAG_SEND;
 }
 #endif
 #if defined(AF_PACKET) &&	\
@@ -473,7 +475,7 @@ static void stress_fd_open_sock_af_appletalk(stress_fd_t *fd)
 static void stress_fd_open_sock_af_packet(stress_fd_t *fd)
 {
 	fd->fd = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
-	fd->flags = 0;
+	fd->flags = FD_FLAG_RECV | FD_FLAG_SEND;
 }
 #endif
 
@@ -482,7 +484,7 @@ static void stress_fd_open_sock_af_packet(stress_fd_t *fd)
 static void stress_fd_open_sock_af_key(stress_fd_t *fd)
 {
 	fd->fd = socket(AF_KEY, SOCK_RAW, 0);
-	fd->flags = 0;
+	fd->flags = FD_FLAG_RECV | FD_FLAG_SEND;
 }
 #endif
 
@@ -492,7 +494,7 @@ static void stress_fd_open_sock_af_key(stress_fd_t *fd)
 static void stress_fd_open_sock_af_netlink(stress_fd_t *fd)
 {
 	fd->fd = socket(AF_NETLINK, SOCK_DGRAM, NETLINK_CONNECTOR);
-	fd->flags = 0;
+	fd->flags = FD_FLAG_RECV | FD_FLAG_SEND;
 }
 #endif
 
@@ -501,7 +503,7 @@ static void stress_fd_open_sock_af_netlink(stress_fd_t *fd)
 static void stress_fd_open_sock_af_rds(stress_fd_t *fd)
 {
 	fd->fd = socket(AF_RDS, SOCK_SEQPACKET, 0);
-	fd->flags = 0;
+	fd->flags = FD_FLAG_RECV | FD_FLAG_SEND;
 }
 #endif
 
@@ -510,7 +512,7 @@ static void stress_fd_open_sock_af_rds(stress_fd_t *fd)
 static void stress_fd_open_sock_af_ppox(stress_fd_t *fd)
 {
 	fd->fd = socket(AF_PPPOX, SOCK_DGRAM, 0);
-	fd->flags = 0;
+	fd->flags = FD_FLAG_RECV | FD_FLAG_SEND;
 }
 #endif
 
@@ -519,7 +521,7 @@ static void stress_fd_open_sock_af_ppox(stress_fd_t *fd)
 static void stress_fd_open_sock_af_llc(stress_fd_t *fd)
 {
 	fd->fd = socket(AF_LLC, SOCK_STREAM, 0);
-	fd->flags = 0;
+	fd->flags = FD_FLAG_RECV | FD_FLAG_SEND;
 }
 #endif
 
@@ -528,7 +530,7 @@ static void stress_fd_open_sock_af_llc(stress_fd_t *fd)
 static void stress_fd_open_sock_af_can(stress_fd_t *fd)
 {
 	fd->fd = socket(AF_CAN, SOCK_RAW, 1);
-	fd->flags = 0;
+	fd->flags = FD_FLAG_RECV | FD_FLAG_SEND;
 }
 #endif
 
@@ -537,7 +539,7 @@ static void stress_fd_open_sock_af_can(stress_fd_t *fd)
 static void stress_fd_open_sock_af_tipc(stress_fd_t *fd)
 {
 	fd->fd = socket(AF_TIPC, SOCK_SEQPACKET, 0);
-	fd->flags = 0;
+	fd->flags = FD_FLAG_RECV | FD_FLAG_SEND;
 }
 #endif
 
@@ -546,7 +548,7 @@ static void stress_fd_open_sock_af_tipc(stress_fd_t *fd)
 static void stress_fd_open_sock_af_bluetooth(stress_fd_t *fd)
 {
 	fd->fd = socket(AF_BLUETOOTH, SOCK_SEQPACKET, 0);
-	fd->flags = 0;
+	fd->flags = FD_FLAG_RECV | FD_FLAG_SEND;
 }
 #endif
 
@@ -555,7 +557,7 @@ static void stress_fd_open_sock_af_bluetooth(stress_fd_t *fd)
 static void stress_fd_open_sock_af_kcm(stress_fd_t *fd)
 {
 	fd->fd = socket(AF_KCM, SOCK_SEQPACKET, 0);
-	fd->flags = 0;
+	fd->flags = FD_FLAG_RECV | FD_FLAG_SEND;
 }
 #endif
 
@@ -564,7 +566,7 @@ static void stress_fd_open_sock_af_kcm(stress_fd_t *fd)
 static void stress_fd_open_sock_af_xdp(stress_fd_t *fd)
 {
 	fd->fd = socket(AF_XDP, SOCK_RAW, 0);
-	fd->flags = 0;
+	fd->flags = FD_FLAG_RECV | FD_FLAG_SEND;
 }
 #endif
 
@@ -580,7 +582,7 @@ static void stress_fd_open_socketpair(stress_fd_t *fd)
 
 	(void)close(sv[1]);
 	fd->fd = sv[0];
-	fd->flags = 0;
+	fd->flags = FD_FLAG_RECV | FD_FLAG_SEND;
 
 }
 
@@ -1403,7 +1405,6 @@ static void stress_fd_vmslice(stress_fd_t *fd)
 
 static void stress_fd_read(stress_fd_t *fd)
 {
-
 	if (fd->flags & FD_FLAG_READ) {
 		const off_t offset = (off_t)stress_mwc32();
 
@@ -1432,7 +1433,6 @@ static void stress_fd_write(stress_fd_t *fd)
 #if defined(HAVE_PREAD)
 static void stress_fd_pread(stress_fd_t *fd)
 {
-
 	if (fd->flags & FD_FLAG_READ) {
 		const off_t offset = (off_t)stress_mwc32();
 		char data[16];
@@ -1496,7 +1496,6 @@ static void stress_fd_writev(stress_fd_t *fd)
 #if defined(HAVE_PREADV)
 static void stress_fd_preadv(stress_fd_t *fd)
 {
-
 	if (fd->flags & FD_FLAG_READ) {
 		struct iovec iov[1];
 		const off_t offset = (off_t)stress_mwc32();
@@ -1551,7 +1550,6 @@ static const int rwf_flags[] = {
 #if defined(HAVE_PREADV2)
 static void stress_fd_preadv2(stress_fd_t *fd)
 {
-
 	if (fd->flags & FD_FLAG_READ) {
 		struct iovec iov[1];
 		const off_t offset = (off_t)stress_mwc32();
@@ -1579,6 +1577,104 @@ static void stress_fd_pwritev2(stress_fd_t *fd)
 		iov[0].iov_len = sizeof(data);
 		stress_rndbuf(data, sizeof(data));
 		VOID_RET(ssize_t, pwritev2(fd->fd, iov, 1, offset, flag));
+	}
+}
+#endif
+
+#if defined(MSG_DONTWAIT)
+static void stress_fd_recv(stress_fd_t *fd)
+{
+	if (fd->flags & (FD_FLAG_RECV | FD_FLAG_READ)) {
+		char buf[16];
+
+		VOID_RET(ssize_t, recv(fd->fd, buf, sizeof(buf), MSG_DONTWAIT));
+	}
+}
+#endif
+
+#if defined(MSG_DONTWAIT)
+static void stress_fd_send(stress_fd_t *fd)
+{
+	if (fd->flags & (FD_FLAG_SEND | FD_FLAG_WRITE)) {
+		char buf[1];
+
+		buf[0] = stress_mwc8();
+
+		VOID_RET(ssize_t, send(fd->fd, buf, 0, MSG_DONTWAIT));
+	}
+}
+#endif
+
+#if defined(MSG_DONTWAIT)
+static void stress_fd_recvfrom(stress_fd_t *fd)
+{
+	if (fd->flags & (FD_FLAG_RECV | FD_FLAG_READ)) {
+		char buf[16];
+
+		VOID_RET(ssize_t, recvfrom(fd->fd, buf, sizeof(buf), MSG_DONTWAIT, NULL, 0));
+	}
+}
+#endif
+
+#if defined(MSG_DONTWAIT)
+static void stress_fd_sendto(stress_fd_t *fd)
+{
+	if (fd->flags & (FD_FLAG_SEND | FD_FLAG_WRITE)) {
+		char buf[1];
+
+		buf[0] = stress_mwc8();
+
+		VOID_RET(ssize_t, sendto(fd->fd, buf, 0, MSG_DONTWAIT, NULL, 0));
+	}
+}
+#endif
+
+#if defined(MSG_DONTWAIT)
+static void stress_fd_recvmsg(stress_fd_t *fd)
+{
+	if (fd->flags & (FD_FLAG_RECV | FD_FLAG_READ)) {
+		struct iovec iov[1];
+		struct msghdr m;
+		char buf[16];
+
+		iov[0].iov_base = buf;
+		iov[0].iov_len = sizeof(buf);
+
+		m.msg_name = NULL;
+		m.msg_namelen = 0;
+		m.msg_iov = iov;
+		m.msg_iovlen = 1;
+		m.msg_control = NULL;
+		m.msg_controllen = 0;
+		m.msg_flags = 0;
+
+		VOID_RET(ssize_t, recvmsg(fd->fd, &m, MSG_DONTWAIT));
+	}
+}
+#endif
+
+#if defined(MSG_DONTWAIT)
+static void stress_fd_sendmsg(stress_fd_t *fd)
+{
+	if (fd->flags & (FD_FLAG_SEND | FD_FLAG_WRITE)) {
+		struct iovec iov[1];
+		struct msghdr m;
+		char buf[1];
+
+		buf[0] = stress_mwc8();
+		iov[0].iov_base = buf;
+		iov[0].iov_len = 0;
+
+		m.msg_name = NULL;
+		m.msg_namelen = 0;
+		m.msg_iov = iov;
+		m.msg_iovlen = 1;
+		m.msg_control = NULL;
+		m.msg_controllen = 0;
+		m.msg_flags = 0;
+
+		/* intentionally bogus sendmsg call */
+		VOID_RET(ssize_t, sendmsg(fd->fd, &m, MSG_DONTWAIT));
 	}
 }
 #endif
@@ -1726,6 +1822,24 @@ static fd_func_t fd_funcs[] = {
 #endif
 #if defined(HAVE_PWRITEV2)
 	stress_fd_pwritev2,
+#endif
+#if defined(MSG_DONTWAIT)
+	stress_fd_recv,
+#endif
+#if defined(MSG_DONTWAIT)
+	stress_fd_send,
+#endif
+#if defined(MSG_DONTWAIT)
+	stress_fd_recvfrom,
+#endif
+#if defined(MSG_DONTWAIT)
+	stress_fd_sendto,
+#endif
+#if defined(MSG_DONTWAIT)
+	stress_fd_recvmsg,
+#endif
+#if defined(MSG_DONTWAIT)
+	stress_fd_sendmsg,
 #endif
 };
 
