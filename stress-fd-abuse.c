@@ -76,8 +76,16 @@
 #error cannot have both HAVE_SYS_XATTR_H and HAVE_ATTR_XATTR_H
 #endif
 
-typedef int (*open_func_t)(void);
-typedef void (*fd_func_t)(int fd);
+#define FD_FLAG_READ	(0x0001)
+#define FD_FLAG_WRITE	(0x0002)
+
+typedef struct {
+	int fd;		/* file descriptor */
+	int flags;	/* rw flags */
+} stress_fd_t;
+
+typedef void (*open_func_t)(stress_fd_t *fd);
+typedef void (*fd_func_t)(stress_fd_t *fd);
 
 char stress_fd_filename[PATH_MAX];
 
@@ -98,136 +106,179 @@ static bool stress_fd_now(double *t, const double next)
 	return false;
 }
 
-static int stress_fd_open_null(void)
+static void stress_fd_bad_fd(stress_fd_t *fd)
 {
-	return open("/dev/null", O_RDWR);
+	fd->fd = stress_get_bad_fd();
+	fd->flags = FD_FLAG_READ | FD_FLAG_WRITE;
 }
 
-static int stress_fd_open_zero(void)
+static void stress_fd_open_null(stress_fd_t *fd)
 {
-	return open("/dev/zero", O_RDWR);
+	fd->fd = open("/dev/null", O_RDWR);
+	fd->flags = FD_FLAG_WRITE;
 }
 
-static int stress_fd_creat_file(void)
+static void stress_fd_open_zero(stress_fd_t *fd)
 {
-	if (*stress_fd_filename)
-		return creat(stress_fd_filename, S_IRUSR | S_IWUSR);
-	return -1;
+	fd->fd = open("/dev/zero", O_RDWR);
+	fd->flags = FD_FLAG_READ;
 }
 
-static int stress_fd_open_file_ro(void)
+static void stress_fd_creat_file(stress_fd_t *fd)
 {
-	return open(stress_fd_filename, O_RDONLY);
+	if (*stress_fd_filename) {
+		fd->fd = creat(stress_fd_filename, S_IRUSR | S_IWUSR);
+		fd->flags = FD_FLAG_READ | FD_FLAG_WRITE;
+	} else {
+		fd->fd = -1;
+		fd->flags = 0;
+	}
 }
 
-static int stress_fd_open_file_wo(void)
+static void stress_fd_open_file_ro(stress_fd_t *fd)
 {
-	return open(stress_fd_filename, O_WRONLY | O_APPEND, S_IRUSR | S_IWUSR);
+	fd->fd = open(stress_fd_filename, O_RDONLY);
+	/* try to do writes on RDONLY file for EINVAL writes */
+	fd->flags = FD_FLAG_READ | FD_FLAG_WRITE;
 }
 
-static int stress_fd_open_file_rw(void)
+static void stress_fd_open_file_wo(stress_fd_t *fd)
 {
-	return open(stress_fd_filename, O_RDWR | O_APPEND, S_IRUSR | S_IWUSR);
+	fd->fd = open(stress_fd_filename, O_WRONLY | O_APPEND, S_IRUSR | S_IWUSR);
+	/* try to do reads on WRONLY file for EINVAL reads */
+	fd->flags = FD_FLAG_READ | FD_FLAG_WRITE;
 }
 
-static int stress_fd_open_file_noaccess(void)
+static void stress_fd_open_file_rw(stress_fd_t *fd)
+{
+	fd->fd = open(stress_fd_filename, O_RDWR | O_APPEND, S_IRUSR | S_IWUSR);
+	fd->flags = FD_FLAG_READ | FD_FLAG_WRITE;
+}
+
+static void stress_fd_open_file_noaccess(stress_fd_t *fd)
 {
 	/* Linux allows this for ioctls, O_NOACCESS */
-	return open(stress_fd_filename, O_WRONLY | O_RDWR | O_APPEND, S_IRUSR | S_IWUSR);
+	fd->fd = open(stress_fd_filename, O_WRONLY | O_RDWR | O_APPEND, S_IRUSR | S_IWUSR);
+	fd->flags = FD_FLAG_READ | FD_FLAG_WRITE;
 }
 
 #if defined(O_ASYNC)
-static int stress_fd_open_file_rw_async(void)
+static void stress_fd_open_file_rw_async(stress_fd_t *fd)
 {
-	return open(stress_fd_filename, O_RDWR | O_APPEND | O_ASYNC, S_IRUSR | S_IWUSR);
+	fd->fd = open(stress_fd_filename, O_RDWR | O_APPEND | O_ASYNC, S_IRUSR | S_IWUSR);
+	fd->flags = FD_FLAG_READ | FD_FLAG_WRITE;
 }
 #endif
 
 #if defined(O_DIRECT)
-static int stress_fd_open_file_rw_direct(void)
+static void stress_fd_open_file_rw_direct(stress_fd_t *fd)
 {
-	return open(stress_fd_filename, O_RDWR | O_APPEND | O_DIRECT, S_IRUSR | S_IWUSR);
+	fd->fd = open(stress_fd_filename, O_RDWR | O_APPEND | O_DIRECT, S_IRUSR | S_IWUSR);
+	fd->flags = FD_FLAG_READ | FD_FLAG_WRITE;
 }
 #endif
 
 #if defined(O_NONBLOCK) &&	\
     defined(O_DIRECTORY)
-static int stress_fd_open_temp_path(void)
+static void stress_fd_open_temp_path(stress_fd_t *fd)
 {
 	const char *tmp = stress_get_temp_path();
 
-	if (tmp)
-		return openat(AT_FDCWD, tmp, O_RDONLY | O_NONBLOCK | O_DIRECTORY);
-	return -1;
+	if (tmp) {
+		fd->fd = openat(AT_FDCWD, tmp, O_RDWR | O_NONBLOCK | O_DIRECTORY);
+		fd->flags = FD_FLAG_READ | FD_FLAG_WRITE;
+	} else {
+		fd->fd = -1;
+		fd->flags = 0;
+	}
 }
 #endif
 
 #if defined(O_DSYNC)
-static int stress_fd_open_file_rw_dsync(void)
+static void stress_fd_open_file_rw_dsync(stress_fd_t *fd)
 {
-	return open(stress_fd_filename, O_RDWR | O_APPEND | O_DSYNC, S_IRUSR | S_IWUSR);
+	fd->fd = open(stress_fd_filename, O_RDWR | O_APPEND | O_DSYNC, S_IRUSR | S_IWUSR);
+	fd->flags = FD_FLAG_READ | FD_FLAG_WRITE;
 }
 #endif
 
 #if defined(O_LARGEFILE)
-static int stress_fd_open_file_rw_largefile(void)
+static void stress_fd_open_file_rw_largefile(stress_fd_t *fd)
 {
-	if (O_LARGEFILE)
-		return open(stress_fd_filename, O_RDWR | O_APPEND | O_LARGEFILE, S_IRUSR | S_IWUSR);
-	return -1;
+	if (O_LARGEFILE) {
+		fd->fd = open(stress_fd_filename, O_RDWR | O_APPEND | O_LARGEFILE, S_IRUSR | S_IWUSR);
+		fd->flags = FD_FLAG_READ | FD_FLAG_WRITE;
+	} else {
+		fd->fd = -1;
+		fd->flags = 0;
+	}
+
 }
 #endif
 
 #if defined(O_NOATIME)
-static int stress_fd_open_file_rw_noatime(void)
+static void stress_fd_open_file_rw_noatime(stress_fd_t *fd)
 {
-	return open(stress_fd_filename, O_RDWR | O_APPEND | O_NOATIME, S_IRUSR | S_IWUSR);
+	fd->fd = open(stress_fd_filename, O_RDWR | O_APPEND | O_NOATIME, S_IRUSR | S_IWUSR);
+	fd->flags = FD_FLAG_READ | FD_FLAG_WRITE;
 }
 #endif
 
 #if defined(O_NONBLOCK)
-static int stress_fd_open_file_rw_nonblock(void)
+static void stress_fd_open_file_rw_nonblock(stress_fd_t *fd)
 {
-	return open(stress_fd_filename, O_RDWR | O_APPEND | O_NONBLOCK, S_IRUSR | S_IWUSR);
+	fd->fd = open(stress_fd_filename, O_RDWR | O_APPEND | O_NONBLOCK, S_IRUSR | S_IWUSR);
+	fd->flags = FD_FLAG_READ | FD_FLAG_WRITE;
 }
 #endif
 
 #if defined(O_PATH)
-static int stress_fd_open_file_path(void)
+static void stress_fd_open_file_path(stress_fd_t *fd)
 {
 	const char *tmp = stress_get_temp_path();
 
-	if (tmp)
-		return open(tmp, O_PATH);
-	return -1;
+	if (tmp) {
+		fd->fd = open(tmp, O_PATH);
+		fd->flags = FD_FLAG_READ;
+	} else {
+		fd->fd = -1;
+		fd->flags = 0;
+	}
 }
 #endif
 
 #if defined(O_SYNC)
-static int stress_fd_open_file_rw_sync(void)
+static void stress_fd_open_file_rw_sync(stress_fd_t *fd)
 {
-	return open(stress_fd_filename, O_RDWR | O_APPEND | O_SYNC, S_IRUSR | S_IWUSR);
+	fd->fd = open(stress_fd_filename, O_RDWR | O_APPEND | O_SYNC, S_IRUSR | S_IWUSR);
+	fd->flags = FD_FLAG_READ | FD_FLAG_WRITE;
 }
 #endif
 
-static int stress_fd_open_pipe_rd_end(void)
+static void stress_fd_open_pipe_rd_end(stress_fd_t *fd)
 {
 	int fds[2];
 
-	if (pipe(fds) < 0)
-		return -1;
+	fd->flags = 0;
+	if (pipe(fds) < 0) {
+		fd->fd = -1;
+		return;
+	}
 	(void)close(fds[1]);
-	return fds[0];
+	fd->fd = fds[0];
 }
 
-static int stress_fd_open_pipe_wr_end(void)
+static void stress_fd_open_pipe_wr_end(stress_fd_t *fd)
 {
 	int fds[2];
 
-	if (pipe(fds) < 0)
-		return -1;
+	fd->flags = 0;
+	if (pipe(fds) < 0) {
+		fd->fd = -1;
+		return;
+	}
 	(void)close(fds[0]);
-	return fds[1];
+	fd->fd = fds[1];
 }
 
 #if defined(HAVE_PIPE2)
@@ -249,280 +300,319 @@ static const int pipe2_flags[] = {
 #endif
 
 #if defined(HAVE_PIPE2)
-static int stress_fd_open_pipe2_rd_end(void)
+static void stress_fd_open_pipe2_rd_end(stress_fd_t *fd)
 {
 	int fds[2];
 	const int flag = pipe2_flags[stress_mwc8modn(SIZEOF_ARRAY(pipe2_flags))];
 
-	if (pipe2(fds, flag) < 0)
-		return -1;
+	fd->flags = 0;
+	if (pipe2(fds, flag) < 0) {
+		fd->fd = -1;
+		return;
+	}
 	(void)close(fds[1]);
-	return fds[0];
+	fd->fd = fds[0];
 }
 #endif
 
 #if defined(HAVE_PIPE2)
-static int stress_fd_open_pipe2_wr_end(void)
+static void stress_fd_open_pipe2_wr_end(stress_fd_t *fd)
 {
 	int fds[2];
 	const int flag = pipe2_flags[stress_mwc8modn(SIZEOF_ARRAY(pipe2_flags))];
 
-	if (pipe2(fds, flag) < 0)
-		return -1;
+	fd->flags = 0;
+	if (pipe2(fds, flag) < 0) {
+		fd->fd = -1;
+	}
 	(void)close(fds[0]);
-	return fds[1];
+	fd->fd = fds[1];
 }
 #endif
 
 #if defined(HAVE_EVENTFD) &&	\
     defined(HAVE_SYS_EVENTFD_H)
-static int stress_fd_open_eventfd(void)
+static void stress_fd_open_eventfd(stress_fd_t *fd)
 {
-	return eventfd(0, 0);
+	fd->fd = eventfd(0, 0);
+	fd->flags = 0;
 }
 #endif
 
 #if defined(HAVE_MEMFD_CREATE)
-static int stress_fd_open_memfd(void)
+static void stress_fd_open_memfd(stress_fd_t *fd)
 {
 	char name[64];
 
 	(void)snprintf(name, sizeof(name), "memfd-%" PRIdMAX "-%" PRIu32,
 		(intmax_t)getpid(), stress_mwc32());
-	return shim_memfd_create(name, 0);
+	fd->fd = shim_memfd_create(name, 0);
+	fd->flags = 0;
 }
 #endif
 
 #if defined(__NR_memfd_secret)
-static int stress_fd_open_memfd_secret(void)
+static void stress_fd_open_memfd_secret(stress_fd_t *fd)
 {
-	return shim_memfd_secret(0);
+	fd->fd = shim_memfd_secret(0);
+	fd->flags = 0;
 }
 #endif
 
 #if defined(AF_INET) &&	\
     defined(SOCK_STREAM)
-static int stress_fd_open_sock_inet_stream(void)
+static void stress_fd_open_sock_inet_stream(stress_fd_t *fd)
 {
-	return socket(AF_INET, SOCK_STREAM, 0);
+	fd->fd = socket(AF_INET, SOCK_STREAM, 0);
+	fd->flags = 0;
 }
 #endif
 
 #if defined(AF_INET6) &&	\
     defined(SOCK_STREAM)
-static int stress_fd_open_sock_inet6_stream(void)
+static void stress_fd_open_sock_inet6_stream(stress_fd_t *fd)
 {
-	return socket(AF_INET6, SOCK_STREAM, 0);
+	fd->fd = socket(AF_INET6, SOCK_STREAM, 0);
+	fd->flags = 0;
 }
 #endif
 
 #if defined(AF_INET) &&	\
     defined(SOCK_DGRAM)
-static int stress_fd_open_sock_inet_dgram(void)
+static void stress_fd_open_sock_inet_dgram(stress_fd_t *fd)
 {
-	return socket(AF_INET, SOCK_DGRAM, 0);
+	fd->fd = socket(AF_INET, SOCK_DGRAM, 0);
+	fd->flags = 0;
 }
 #endif
 
 #if defined(AF_INET6) &&	\
     defined(SOCK_DGRAM)
-static int stress_fd_open_sock_inet6_dgram(void)
+static void stress_fd_open_sock_inet6_dgram(stress_fd_t *fd)
 {
-	return socket(AF_INET6, SOCK_DGRAM, 0);
+	fd->fd = socket(AF_INET6, SOCK_DGRAM, 0);
+	fd->flags = 0;
 }
 #endif
 
 #if defined(AF_UNIX) &&	\
     defined(SOCK_STREAM)
-static int stress_fd_open_sock_af_unix_stream(void)
+static void stress_fd_open_sock_af_unix_stream(stress_fd_t *fd)
 {
-	return socket(AF_UNIX, SOCK_STREAM, 0);
+	fd->fd = socket(AF_UNIX, SOCK_STREAM, 0);
+	fd->flags = 0;
 }
 #endif
 
 #if defined(AF_UNIX) &&	\
     defined(SOCK_DGRAM)
-static int stress_fd_open_sock_af_unix_dgram(void)
+static void stress_fd_open_sock_af_unix_dgram(stress_fd_t *fd)
 {
-	return socket(AF_UNIX, SOCK_DGRAM, 0);
+	fd->fd = socket(AF_UNIX, SOCK_DGRAM, 0);
+	fd->flags = 0;
 }
 #endif
 
 #if defined(AF_ALG) &&	\
     defined(SOCK_SEQPACKET)
-static int stress_fd_open_sock_af_alg_seqpacket(void)
+static void stress_fd_open_sock_af_alg_seqpacket(stress_fd_t *fd)
 {
-	return socket(AF_ALG, SOCK_SEQPACKET, 0);
+	fd->fd = socket(AF_ALG, SOCK_SEQPACKET, 0);
+	fd->flags = 0;
 }
 #endif
 
 #if defined(AF_INET) &&		\
     defined(SOCK_DGRAM) &&	\
     defined(IPPROTO_ICMP)
-static int stress_fd_open_sock_af_inet_dgram_icmp(void)
+static void stress_fd_open_sock_af_inet_dgram_icmp(stress_fd_t *fd)
 {
-	return socket(AF_INET, SOCK_DGRAM, IPPROTO_ICMP);
+	fd->fd = socket(AF_INET, SOCK_DGRAM, IPPROTO_ICMP);
+	fd->flags = 0;
 }
 #endif
 
 #if defined(AF_AX25) &&		\
     defined(SOCK_DGRAM)
-static int stress_fd_open_sock_af_ax25(void)
+static void stress_fd_open_sock_af_ax25(stress_fd_t *fd)
 {
-	return socket(AF_AX25, SOCK_DGRAM, 0);
+	fd->fd = socket(AF_AX25, SOCK_DGRAM, 0);
+	fd->flags = 0;
 }
 #endif
 
 #if defined(AF_X25) &&		\
     defined(SOCK_SEQPACKET)
-static int stress_fd_open_sock_af_x25(void)
+static void stress_fd_open_sock_af_x25(stress_fd_t *fd)
 {
-	return socket(AF_X25, SOCK_SEQPACKET, 0);
+	fd->fd = socket(AF_X25, SOCK_SEQPACKET, 0);
+	fd->flags = 0;
 }
 #endif
 
 #if defined(AF_IPX) &&		\
     defined(SOCK_SEQPACKET)
-static int stress_fd_open_sock_af_ipx(void)
+static void stress_fd_open_sock_af_ipx(stress_fd_t *fd)
 {
-	return socket(AF_IPX, SOCK_SEQPACKET, 0);
+	fd->fd = socket(AF_IPX, SOCK_SEQPACKET, 0);
+	fd->flags = 0;
 }
 #endif
 
 #if defined(AF_APPLETALK) &&	\
     defined(SOCK_DGRAM)
-static int stress_fd_open_sock_af_appletalk(void)
+static void stress_fd_open_sock_af_appletalk(stress_fd_t *fd)
 {
-	return socket(AF_APPLETALK, SOCK_DGRAM, 0);
+	fd->fd = socket(AF_APPLETALK, SOCK_DGRAM, 0);
+	fd->flags = 0;
 }
 #endif
 #if defined(AF_PACKET) &&	\
     defined(SOCK_RAW) &&	\
     defined(ETH_P_ALL)
-static int stress_fd_open_sock_af_packet(void)
+static void stress_fd_open_sock_af_packet(stress_fd_t *fd)
 {
-	return socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
+	fd->fd = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
+	fd->flags = 0;
 }
 #endif
 
 #if defined(AF_KEY) &&	\
     defined(SOCK_RAW)
-static int stress_fd_open_sock_af_key(void)
+static void stress_fd_open_sock_af_key(stress_fd_t *fd)
 {
-	return socket(AF_KEY, SOCK_RAW, 0);
+	fd->fd = socket(AF_KEY, SOCK_RAW, 0);
+	fd->flags = 0;
 }
 #endif
 
 #if defined(AF_NETLINK) &&	\
     defined(SOCK_DGRAM) &&	\
     defined(NETLINK_CONNECTOR)
-static int stress_fd_open_sock_af_netlink(void)
+static void stress_fd_open_sock_af_netlink(stress_fd_t *fd)
 {
-	return socket(AF_NETLINK, SOCK_DGRAM, NETLINK_CONNECTOR);
+	fd->fd = socket(AF_NETLINK, SOCK_DGRAM, NETLINK_CONNECTOR);
+	fd->flags = 0;
 }
 #endif
 
 #if defined(AF_RDS) &&	\
     defined(SOCK_SEQPACKET)
-static int stress_fd_open_sock_af_rds(void)
+static void stress_fd_open_sock_af_rds(stress_fd_t *fd)
 {
-	return socket(AF_RDS, SOCK_SEQPACKET, 0);
+	fd->fd = socket(AF_RDS, SOCK_SEQPACKET, 0);
+	fd->flags = 0;
 }
 #endif
 
 #if defined(AF_PPPOX) &&	\
     defined(SOCK_DGRAM)
-static int stress_fd_open_sock_af_ppox(void)
+static void stress_fd_open_sock_af_ppox(stress_fd_t *fd)
 {
-	return socket(AF_PPPOX, SOCK_DGRAM, 0);
+	fd->fd = socket(AF_PPPOX, SOCK_DGRAM, 0);
+	fd->flags = 0;
 }
 #endif
 
 #if defined(AF_LLC) &&	\
     defined(SOCK_STREAM)
-static int stress_fd_open_sock_af_llc(void)
+static void stress_fd_open_sock_af_llc(stress_fd_t *fd)
 {
-	return socket(AF_LLC, SOCK_STREAM, 0);
+	fd->fd = socket(AF_LLC, SOCK_STREAM, 0);
+	fd->flags = 0;
 }
 #endif
 
 #if defined(AF_CAN) &&	\
     defined(SOCK_RAW)
-static int stress_fd_open_sock_af_can(void)
+static void stress_fd_open_sock_af_can(stress_fd_t *fd)
 {
-	return socket(AF_CAN, SOCK_RAW, 1);
+	fd->fd = socket(AF_CAN, SOCK_RAW, 1);
+	fd->flags = 0;
 }
 #endif
 
 #if defined(AF_TIPC) &&	\
     defined(SOCK_SEQPACKET)
-static int stress_fd_open_sock_af_tipc(void)
+static void stress_fd_open_sock_af_tipc(stress_fd_t *fd)
 {
-	return socket(AF_TIPC, SOCK_SEQPACKET, 0);
+	fd->fd = socket(AF_TIPC, SOCK_SEQPACKET, 0);
+	fd->flags = 0;
 }
 #endif
 
 #if defined(AF_BLUETOOTH) &&	\
     defined(SOCK_SEQPACKET)
-static int stress_fd_open_sock_af_bluetooth(void)
+static void stress_fd_open_sock_af_bluetooth(stress_fd_t *fd)
 {
-	return socket(AF_BLUETOOTH, SOCK_SEQPACKET, 0);
+	fd->fd = socket(AF_BLUETOOTH, SOCK_SEQPACKET, 0);
+	fd->flags = 0;
 }
 #endif
 
 #if defined(AF_KCM) &&	\
     defined(SOCK_SEQPACKET)
-static int stress_fd_open_sock_af_kcm(void)
+static void stress_fd_open_sock_af_kcm(stress_fd_t *fd)
 {
-	return socket(AF_KCM, SOCK_SEQPACKET, 0);
+	fd->fd = socket(AF_KCM, SOCK_SEQPACKET, 0);
+	fd->flags = 0;
 }
 #endif
 
 #if defined(AF_XDP) &&	\
     defined(SOCK_RAW)
-static int stress_fd_open_sock_af_xdp(void)
+static void stress_fd_open_sock_af_xdp(stress_fd_t *fd)
 {
-	return socket(AF_XDP, SOCK_RAW, 0);
+	fd->fd = socket(AF_XDP, SOCK_RAW, 0);
+	fd->flags = 0;
 }
 #endif
 
-static int stress_fd_open_socketpair(void)
+static void stress_fd_open_socketpair(stress_fd_t *fd)
 {
 	int sv[2];
 
-	if (socketpair(AF_UNIX, SOCK_STREAM, 0, sv) < 0)
-		return -1;
+	if (socketpair(AF_UNIX, SOCK_STREAM, 0, sv) < 0) {
+		fd->fd = -1;
+		fd->flags = 0;
+		return;
+	}
 
 	(void)close(sv[1]);
-	return sv[0];
+	fd->fd = sv[0];
+	fd->flags = 0;
 
 }
 
 #if defined(O_TMPFILE)
-static int stress_fd_open_tmpfile(void)
+static void stress_fd_open_tmpfile(stress_fd_t *fd)
 {
-	return open("/tmp", O_TMPFILE | O_RDWR, S_IRUSR | S_IWUSR);
+	fd->fd = open("/tmp", O_TMPFILE | O_RDWR, S_IRUSR | S_IWUSR);
+	fd->flags = FD_FLAG_READ | FD_FLAG_WRITE;
 }
 #endif
 
 #if defined(HAVE_USERFAULTFD)
-static int stress_fd_open_userfaultfd(void)
+static void stress_fd_open_userfaultfd(stress_fd_t *fd)
 {
-	return shim_userfaultfd(0);
+	fd->fd = shim_userfaultfd(0);
+	fd->flags = 0;
 }
 #endif
 
 #if defined(HAVE_SYS_INOTIFY_H)
-static int stress_fd_open_inotify_init(void)
+static void stress_fd_open_inotify_init(stress_fd_t *fd)
 {
-	return inotify_init();
+	fd->fd = inotify_init();
+	fd->flags = 0;
 }
 #endif
 
 #if defined(HAVE_PTSNAME)
-static int stress_fd_open_ptxm(void)
+static void stress_fd_open_ptxm(stress_fd_t *fd)
 {
-	return open("/dev/ptmx", O_RDWR);
+	fd->fd = open("/dev/ptmx", O_RDWR);
+	fd->flags = 0;
 }
 #endif
 
@@ -531,29 +621,32 @@ static int stress_fd_open_ptxm(void)
     defined(HAVE_TIMERFD_GETTIME) &&	\
     defined(HAVE_TIMERFD_SETTIME) &&	\
     defined(CLOCK_REALTIME)
-static int stress_fd_open_timerfd(void)
+static void stress_fd_open_timerfd(stress_fd_t *fd)
 {
-	return timerfd_create(CLOCK_REALTIME, 0);
+	fd->fd = timerfd_create(CLOCK_REALTIME, 0);
+	fd->flags = 0;
 }
 #endif
 
 #if defined(HAVE_PIDFD_OPEN)
-static int stress_fd_open_pidfd(void)
+static void stress_fd_open_pidfd(stress_fd_t *fd)
 {
-	return shim_pidfd_open(getpid(), 0);
+	fd->fd = shim_pidfd_open(getpid(), 0);
+	fd->flags = 0;
 }
 #endif
 
 #if defined(HAVE_SYS_EPOLL_H) &&	\
     defined(HAVE_EPOLL_CREATE)
-static int stress_fd_open_epoll_create(void)
+static void stress_fd_open_epoll_create(stress_fd_t *fd)
 {
-	return epoll_create(1);
+	fd->fd = epoll_create(1);
+	fd->flags = 0;
 }
 #endif
 
 static open_func_t open_funcs[] = {
-	stress_get_bad_fd,
+	stress_fd_bad_fd,
 	stress_fd_open_null,
 	stress_fd_open_zero,
 	stress_fd_creat_file,
@@ -731,54 +824,54 @@ static open_func_t open_funcs[] = {
 #endif
 };
 
-static void stress_fd_sockopt_reuseaddr(int fd)
+static void stress_fd_sockopt_reuseaddr(stress_fd_t *fd)
 {
 	int so_reuseaddr = 1;
 
-	(void)setsockopt(fd, SOL_SOCKET, SO_REUSEADDR,
+	(void)setsockopt(fd->fd, SOL_SOCKET, SO_REUSEADDR,
                 &so_reuseaddr, sizeof(so_reuseaddr));
 }
 
-static void stress_fd_lseek(int fd)
+static void stress_fd_lseek(stress_fd_t *fd)
 {
-	VOID_RET(off_t, lseek(fd, 0, SEEK_SET));
-	VOID_RET(off_t, lseek(fd, 0, SEEK_END));
-	VOID_RET(off_t, lseek(fd, 0, SEEK_CUR));
-	VOID_RET(off_t, lseek(fd, 999, SEEK_SET));
-	VOID_RET(off_t, lseek(fd, 999, SEEK_END));
-	VOID_RET(off_t, lseek(fd, 999, SEEK_CUR));
+	VOID_RET(off_t, lseek(fd->fd, 0, SEEK_SET));
+	VOID_RET(off_t, lseek(fd->fd, 0, SEEK_END));
+	VOID_RET(off_t, lseek(fd->fd, 0, SEEK_CUR));
+	VOID_RET(off_t, lseek(fd->fd, 999, SEEK_SET));
+	VOID_RET(off_t, lseek(fd->fd, 999, SEEK_END));
+	VOID_RET(off_t, lseek(fd->fd, 999, SEEK_CUR));
 }
 
-static void stress_fd_dup(int fd)
+static void stress_fd_dup(stress_fd_t *fd)
 {
 	int fd2;
 
-	fd2 = dup(fd);
+	fd2 = dup(fd->fd);
 	if (fd2 >= 0)
 		(void)close(fd2);
 }
 
-static void stress_fd_dup2(int fd)
+static void stress_fd_dup2(stress_fd_t *fd)
 {
 	int fd2;
 
-	fd2 = dup2(fd, stress_mwc16() + 100);
+	fd2 = dup2(fd->fd, stress_mwc16() + 100);
 	if (fd2 >= 0)
 		(void)close(fd2);
 }
 
 #if defined(O_CLOEXEC)
-static void stress_fd_dup3(int fd)
+static void stress_fd_dup3(stress_fd_t *fd)
 {
 	int fd2;
 
-	fd2 = shim_dup3(fd, stress_mwc16() + 100, O_CLOEXEC);
+	fd2 = shim_dup3(fd->fd, stress_mwc16() + 100, O_CLOEXEC);
 	if (fd2 >= 0)
 		(void)close(fd2);
 }
 #endif
 
-static void stress_fd_bind_af_inet(int fd)
+static void stress_fd_bind_af_inet(stress_fd_t *fd)
 {
 	struct sockaddr_in addr;
 	int newfd;
@@ -787,15 +880,15 @@ static void stress_fd_bind_af_inet(int fd)
 	addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
 	addr.sin_family = (sa_family_t)AF_INET;
 	addr.sin_port = htons(40000);
-	newfd = bind(fd, (const struct sockaddr *)&addr, (socklen_t)sizeof(addr));
+	newfd = bind(fd->fd, (const struct sockaddr *)&addr, (socklen_t)sizeof(addr));
 	if (newfd >= 0) {
 		(void)close(newfd);
-		(void)shutdown(fd, SHUT_RDWR);
+		(void)shutdown(fd->fd, SHUT_RDWR);
 	}
-	(void)shutdown(fd, SHUT_RDWR);
+	(void)shutdown(fd->fd, SHUT_RDWR);
 }
 
-static void stress_fd_bind_af_inet6(int fd)
+static void stress_fd_bind_af_inet6(stress_fd_t *fd)
 {
 	struct sockaddr_in6 addr;
 	int newfd;
@@ -808,68 +901,68 @@ static void stress_fd_bind_af_inet6(int fd)
 	addr.sin6_addr = in6addr_loopback;
 	addr.sin6_family = (sa_family_t)AF_INET6;
 	addr.sin6_port = htons(40000);
-	newfd = bind(fd, (const struct sockaddr *)&addr, (socklen_t)sizeof(addr));
+	newfd = bind(fd->fd, (const struct sockaddr *)&addr, (socklen_t)sizeof(addr));
 	if (newfd >= 0) {
 		(void)shutdown(newfd, SHUT_RDWR);
 		(void)close(newfd);
 	}
-	(void)shutdown(fd, SHUT_RDWR);
+	(void)shutdown(fd->fd, SHUT_RDWR);
 }
 
-static void stress_fd_select_rd(int fd)
+static void stress_fd_select_rd(stress_fd_t *fd)
 {
-	if ((fd >= 0) && (fd < FD_SETSIZE)) {
+	if ((fd->fd >= 0) && (fd->fd < FD_SETSIZE)) {
 		fd_set rfds;
 		struct timeval timeout;
 
 		timeout.tv_sec = 0;
 		timeout.tv_usec = 0;
 		FD_ZERO(&rfds);
-		FD_SET(fd, &rfds);
+		FD_SET(fd->fd, &rfds);
 
-		(void)select(fd + 1, &rfds, NULL, NULL, &timeout);
+		(void)select(fd->fd + 1, &rfds, NULL, NULL, &timeout);
 	}
 }
 
-static void stress_fd_select_wr(int fd)
+static void stress_fd_select_wr(stress_fd_t *fd)
 {
-	if ((fd >= 0) && (fd < FD_SETSIZE)) {
+	if ((fd->fd >= 0) && (fd->fd < FD_SETSIZE)) {
 		fd_set wfds;
 		struct timeval timeout;
 
 		timeout.tv_sec = 0;
 		timeout.tv_usec = 0;
 		FD_ZERO(&wfds);
-		FD_SET(fd, &wfds);
+		FD_SET(fd->fd, &wfds);
 
-		(void)select(fd + 1, NULL, &wfds, NULL, &timeout);
+		(void)select(fd->fd + 1, NULL, &wfds, NULL, &timeout);
 	}
 }
 
 #if defined(HAVE_PSELECT)
-static void stress_fd_pselect_rdwr(int fd)
+static void stress_fd_pselect_rdwr(stress_fd_t *fd)
 {
-	if ((fd >= 0) && (fd < FD_SETSIZE)) {
+	if ((fd->fd >= 0) && (fd->fd < FD_SETSIZE)) {
 		struct timespec tv;
 		fd_set rfds, wfds;
 
 		tv.tv_sec = 0;
 		tv.tv_nsec = 0;
 		FD_ZERO(&rfds);
-		FD_SET(fd, &rfds);
+		FD_SET(fd->fd, &rfds);
 		FD_ZERO(&wfds);
-		FD_SET(fd, &wfds);
+		FD_SET(fd->fd, &wfds);
 
-		(void)pselect(fd + 1, &rfds, &wfds, NULL, &tv, NULL);
+		(void)pselect(fd->fd + 1, &rfds, &wfds, NULL, &tv, NULL);
 	}
 }
 #endif
 
-static void stress_fd_poll_rdwr(int fd)
+static void stress_fd_poll_rdwr(stress_fd_t *fd)
 {
 	struct pollfd fds[1];
 
-	fds[0].fd = fd;
+	fds[0].fd = fd->fd;
 	fds[0].events = POLLIN | POLLOUT;
 	fds[0].revents = 0;
 
@@ -877,14 +970,14 @@ static void stress_fd_poll_rdwr(int fd)
 }
 
 #if defined(HAVE_PPOLL)
-static void stress_fd_ppoll_rdwr(int fd)
+static void stress_fd_ppoll_rdwr(stress_fd_t *fd)
 {
 	struct timespec tv;
 	struct pollfd fds[1];
 
 	tv.tv_sec = 0;
 	tv.tv_nsec = 0;
-	fds[0].fd = fd;
+	fds[0].fd = fd->fd;
 	fds[0].events = POLLIN | POLLOUT;
 	fds[0].revents = 0;
 
@@ -892,33 +985,33 @@ static void stress_fd_ppoll_rdwr(int fd)
 }
 #endif
 
-static void stress_fd_mmap_rd(int fd)
+static void stress_fd_mmap_rd(stress_fd_t *fd)
 {
 	void *ptr;
 
-	ptr = mmap(NULL, 4096, PROT_READ, MAP_SHARED, fd, 0);
+	ptr = mmap(NULL, 4096, PROT_READ, MAP_SHARED, fd->fd, 0);
 	if (ptr != MAP_FAILED)
 		(void)munmap(ptr, 4096);
 }
 
-static void stress_fd_mmap_wr(int fd)
+static void stress_fd_mmap_wr(stress_fd_t *fd)
 {
 	void *ptr;
 
-	ptr = mmap(NULL, 4096, PROT_WRITE, MAP_SHARED, fd, 0);
+	ptr = mmap(NULL, 4096, PROT_WRITE, MAP_SHARED, fd->fd, 0);
 	if (ptr != MAP_FAILED)
 		(void)munmap(ptr, 4096);
 }
 
 #if defined(IN_MASK_CREATE) &&  \
     defined(IN_MASK_ADD)
-static void stress_fd_inotify_add_watch(int fd)
+static void stress_fd_inotify_add_watch(stress_fd_t *fd)
 {
 	int wd;
 
-	wd = inotify_add_watch(fd, "inotify_file", IN_MASK_CREATE | IN_MASK_ADD);
+	wd = inotify_add_watch(fd->fd, "inotify_file", IN_MASK_CREATE | IN_MASK_ADD);
 	if (wd >= 0)
-		(void)inotify_rm_watch(fd, wd);
+		(void)inotify_rm_watch(fd->fd, wd);
 }
 #endif
 
@@ -927,84 +1020,84 @@ static void stress_fd_inotify_add_watch(int fd)
     defined(HAVE_TIMERFD_GETTIME) &&	\
     defined(HAVE_TIMERFD_SETTIME) &&	\
     defined(CLOCK_REALTIME)
-static void stress_fd_timerfd_gettime(int fd)
+static void stress_fd_timerfd_gettime(stress_fd_t *fd)
 {
 	struct itimerspec value;
 
-	(void)timerfd_gettime(fd, &value);
+	(void)timerfd_gettime(fd->fd, &value);
 }
 #endif
 
-static void stress_fd_pidfd_send_signal(int fd)
+static void stress_fd_pidfd_send_signal(stress_fd_t *fd)
 {
-	(void)shim_pidfd_send_signal(fd, 0, NULL, 0);
+	(void)shim_pidfd_send_signal(fd->fd, 0, NULL, 0);
 }
 
 #if defined(FIOQSIZE)
-static void stress_fd_ioctl_fioqsize(int fd)
+static void stress_fd_ioctl_fioqsize(stress_fd_t *fd)
 {
 	shim_loff_t sz;
 
-	VOID_RET(int, ioctl(fd, FIOQSIZE, &sz));
+	VOID_RET(int, ioctl(fd->fd, FIOQSIZE, &sz));
 }
 #endif
 
 
 #if defined(__NR_getdents)
-static void stress_fd_getdents(int fd)
+static void stress_fd_getdents(stress_fd_t *fd)
 {
 	char buffer[8192];
 
-	(void)syscall(__NR_getdents, fd, buffer, sizeof(buffer));
+	(void)syscall(__NR_getdents, fd->fd, buffer, sizeof(buffer));
 }
 #endif
 
-static void stress_fd_fstat(int fd)
+static void stress_fd_fstat(stress_fd_t *fd)
 {
 	struct stat statbuf;
 
-	(void)fstat(fd, &statbuf);
+	(void)fstat(fd->fd, &statbuf);
 }
 
 #if defined(F_GETFL)
-static void stress_fd_fcntl_f_getfl(int fd)
+static void stress_fd_fcntl_f_getfl(stress_fd_t *fd)
 {
-	(void)fcntl(fd, F_GETFL);
+	(void)fcntl(fd->fd, F_GETFL);
 }
 #endif
 
-static void stress_fd_ftruncate(int fd)
+static void stress_fd_ftruncate(stress_fd_t *fd)
 {
 	static double t = 0.0;
 
 	if (stress_fd_now(&t, 10.0))
-		VOID_RET(int, ftruncate(fd, 0));
+		VOID_RET(int, ftruncate(fd->fd, 0));
 }
 
 #if defined(POSIX_FADV_RANDOM) ||	\
     defined(HAVE_POSIX_FADVISE)
-static void stress_fd_posix_fadvise(int fd)
+static void stress_fd_posix_fadvise(stress_fd_t *fd)
 {
-	(void)posix_fadvise(fd, 0, 0, POSIX_FADV_RANDOM);
-	(void)posix_fadvise(fd, 0, 1024, POSIX_FADV_RANDOM);
-	(void)posix_fadvise(fd, 1024, 0, POSIX_FADV_RANDOM);
+	(void)posix_fadvise(fd->fd, 0, 0, POSIX_FADV_RANDOM);
+	(void)posix_fadvise(fd->fd, 0, 1024, POSIX_FADV_RANDOM);
+	(void)posix_fadvise(fd->fd, 1024, 0, POSIX_FADV_RANDOM);
 }
 #endif
 
-static void stress_fd_listen(int fd)
+static void stress_fd_listen(stress_fd_t *fd)
 {
-	(void)listen(fd, 0);
-	(void)shutdown(fd, SHUT_RDWR);
+	(void)listen(fd->fd, 0);
+	(void)shutdown(fd->fd, SHUT_RDWR);
 }
 
-static void stress_fd_accept(int fd)
+static void stress_fd_accept(stress_fd_t *fd)
 {
 	struct sockaddr addr;
 	socklen_t addrlen = sizeof(addr);	/* invalid */
 
 	struct stat statbuf;
 
-	if (fstat(fd, &statbuf) < 0)
+	if (fstat(fd->fd, &statbuf) < 0)
 		return;
 
 	/* don't accept on sockets! */
@@ -1012,100 +1105,100 @@ static void stress_fd_accept(int fd)
 		return;
 
 	(void)shim_memset(&addr, 0x00, sizeof(addr));
-	(void)accept(fd, &addr, &addrlen);
+	(void)accept(fd->fd, &addr, &addrlen);
 }
 
-static void stress_fd_shutdown(int fd)
+static void stress_fd_shutdown(stress_fd_t *fd)
 {
-	(void)shutdown(fd, SHUT_RDWR);
+	(void)shutdown(fd->fd, SHUT_RDWR);
 }
 
-static void stress_fd_getsockname(int fd)
-{
-	struct sockaddr addr;
-	socklen_t addrlen = sizeof(addr);
-
-	(void)shim_memset(&addr, 0, sizeof(addr));
-	(void)getsockname(fd, &addr, &addrlen);
-}
-
-static void stress_fd_getpeername(int fd)
+static void stress_fd_getsockname(stress_fd_t *fd)
 {
 	struct sockaddr addr;
 	socklen_t addrlen = sizeof(addr);
 
 	(void)shim_memset(&addr, 0, sizeof(addr));
-	(void)getpeername(fd, &addr, &addrlen);
+	(void)getsockname(fd->fd, &addr, &addrlen);
+}
+
+static void stress_fd_getpeername(stress_fd_t *fd)
+{
+	struct sockaddr addr;
+	socklen_t addrlen = sizeof(addr);
+
+	(void)shim_memset(&addr, 0, sizeof(addr));
+	(void)getpeername(fd->fd, &addr, &addrlen);
 }
 
 #if defined(HAVE_SYNCFS)
-static void stress_fd_syncfs(int fd)
+static void stress_fd_syncfs(stress_fd_t *fd)
 {
 	static double t = 0.0;
 
 	if (stress_fd_now(&t, 29.0))
-		(void)syncfs(fd);
+		(void)syncfs(fd->fd);
 }
 #endif
 
 #if defined(HAVE_FDATASYNC)
-static void stress_fd_fdatasync(int fd)
+static void stress_fd_fdatasync(stress_fd_t *fd)
 {
 	static double t = 0.0;
 
 	if (stress_fd_now(&t, 31.0))
-		(void)shim_fdatasync(fd);
+		(void)shim_fdatasync(fd->fd);
 }
 #endif
 
-static void stress_fd_fsync(int fd)
+static void stress_fd_fsync(stress_fd_t *fd)
 {
 	static double t = 0.0;
 
 	if (stress_fd_now(&t, 37.0))
-		(void)shim_fsync(fd);
+		(void)shim_fsync(fd->fd);
 }
 
-static void stress_fd_fchdir(int fd)
+static void stress_fd_fchdir(stress_fd_t *fd)
 {
 	char mycwd[PATH_MAX];
 
 	if (!getcwd(mycwd, sizeof(mycwd)))
 		return;
-	if (fchdir(fd) < 0)
+	if (fchdir(fd->fd) < 0)
 		return;
 	VOID_RET(int, chdir(mycwd));
 }
 
-static void stress_fd_chmod(int fd)
+static void stress_fd_chmod(stress_fd_t *fd)
 {
 	struct stat statbuf;
 	static double t = 0.0;
 
 	if (stress_fd_now(&t, 1.0)) {
-		if (fstat(fd, &statbuf) < 0)
+		if (fstat(fd->fd, &statbuf) < 0)
 			return;
-		(void)fchmod(fd, statbuf.st_mode);
+		(void)fchmod(fd->fd, statbuf.st_mode);
 	}
 }
 
 #if defined(HAVE_SYS_STATVFS_H)
-static void stress_fd_fstatfs(int fd)
+static void stress_fd_fstatfs(stress_fd_t *fd)
 {
 	struct statvfs buf;
 
-	(void)fstatvfs(fd, &buf);
+	(void)fstatvfs(fd->fd, &buf);
 }
 #endif
 
 #if defined(HAVE_FUTIMENS)
-static void stress_fd_futimens(int fd)
+static void stress_fd_futimens(stress_fd_t *fd)
 {
 	static double t = 0.0;
 
 	if (stress_fd_now(&t, 1.0)) {
 		/* set time to now */
-		(void)futimens(fd, NULL);
+		(void)futimens(fd->fd, NULL);
 	}
 }
 #endif
@@ -1113,24 +1206,24 @@ static void stress_fd_futimens(int fd)
 #if defined(HAVE_FLOCK) &&      \
     defined(LOCK_EX) &&         \
     defined(LOCK_UN)
-static void stress_fd_flock(int fd)
+static void stress_fd_flock(stress_fd_t *fd)
 {
 	static double t = 0.0;
 
 	if (stress_fd_now(&t, 11.0)) {
-		if (flock(fd, LOCK_EX) < 0)
+		if (flock(fd->fd, LOCK_EX) < 0)
 			return;
-		(void)flock(fd, LOCK_UN);
+		(void)flock(fd->fd, LOCK_UN);
 	}
 }
 #endif
 
 #if defined(F_DUPFD)
-static void stress_fd_fcntl_f_dupfd(int fd)
+static void stress_fd_fcntl_f_dupfd(stress_fd_t *fd)
 {
 	int fd2;
 
-	fd2 = fcntl(fd, F_DUPFD, stress_mwc16() + 100);
+	fd2 = fcntl(fd->fd, F_DUPFD, stress_mwc16() + 100);
 	if (fd2 >= 0)
 		(void)close(fd2);
 }
@@ -1138,15 +1231,15 @@ static void stress_fd_fcntl_f_dupfd(int fd)
 
 #if defined(F_NOTIFY) &&	\
     defined(DN_ACCESS)
-static void stress_fd_fnctl_f_notify(int fd)
+static void stress_fd_fnctl_f_notify(stress_fd_t *fd)
 {
-	(void)fcntl(fd, F_NOTIFY, DN_ACCESS);
-	(void)fcntl(fd, F_NOTIFY, 0);
+	(void)fcntl(fd->fd, F_NOTIFY, DN_ACCESS);
+	(void)fcntl(fd->fd, F_NOTIFY, 0);
 }
 #endif
 
 #if defined(F_SETFL)
-static void stress_fd_fcntl_f_setfl(int fd)
+static void stress_fd_fcntl_f_setfl(stress_fd_t *fd)
 {
 	static const int flags[] = {
 		0,
@@ -1176,32 +1269,32 @@ static void stress_fd_fcntl_f_setfl(int fd)
 	const int new_flag = flags[stress_mwc8modn(SIZEOF_ARRAY(flags))];
 	int old_flag;
 
-	old_flag = fcntl(fd, F_GETFL);
+	old_flag = fcntl(fd->fd, F_GETFL);
 	if (old_flag < 0)
 		return;
-	(void)fcntl(fd, F_SETFL, old_flag | new_flag);
-	(void)fcntl(fd, F_SETFL, old_flag & ~new_flag);
-	(void)fcntl(fd, F_SETFL, old_flag);
+	(void)fcntl(fd->fd, F_SETFL, old_flag | new_flag);
+	(void)fcntl(fd->fd, F_SETFL, old_flag & ~new_flag);
+	(void)fcntl(fd->fd, F_SETFL, old_flag);
 }
 #endif
 
 #if defined(F_GETOWN)
-static void stress_fd_fcntl_f_getown(int fd)
+static void stress_fd_fcntl_f_getown(stress_fd_t *fd)
 {
-	(void)fcntl(fd, F_GETOWN);
+	(void)fcntl(fd->fd, F_GETOWN);
 }
 #endif
 
 #if defined(F_SETPIPE_SZ)
-static void stress_fd_fctnl_f_setpipe_sz(int fd)
+static void stress_fd_fctnl_f_setpipe_sz(stress_fd_t *fd)
 {
-	(void)fcntl(fd, F_SETPIPE_SZ, 1024);	/* Illegal */
-	(void)fcntl(fd, F_SETPIPE_SZ, 4096);
+	(void)fcntl(fd->fd, F_SETPIPE_SZ, 1024);	/* Illegal */
+	(void)fcntl(fd->fd, F_SETPIPE_SZ, 4096);
 }
 #endif
 
 #if defined(F_SET_RW_HINT)
-static void stress_fd_fcntl_f_set_rw_hint(int fd)
+static void stress_fd_fcntl_f_set_rw_hint(stress_fd_t *fd)
 {
 	static const uint64_t hints[] = {
 		0,
@@ -1227,9 +1320,9 @@ static void stress_fd_fcntl_f_set_rw_hint(int fd)
 	uint64_t hint;
 
 	hint = hints[stress_mwc8modn(SIZEOF_ARRAY(hints))];
-	(void)fcntl(fd, F_SET_RW_HINT, &hint);
+	(void)fcntl(fd->fd, F_SET_RW_HINT, &hint);
 	hint = hints[stress_mwc8modn(SIZEOF_ARRAY(hints))];
-	(void)fcntl(fd, F_SET_FILE_RW_HINT, &hint);
+	(void)fcntl(fd->fd, F_SET_FILE_RW_HINT, &hint);
 }
 #endif
 
@@ -1237,42 +1330,42 @@ static void stress_fd_fcntl_f_set_rw_hint(int fd)
     defined(F_RDLCK) &&		\
     defined(F_WRLCK) &&		\
     defined(F_UNLCK)
-static void stress_fd_fcntl_f_setlease(int fd)
+static void stress_fd_fcntl_f_setlease(stress_fd_t *fd)
 {
-	if (fcntl(fd, F_SETLEASE, stress_mwc1() ? F_RDLCK : F_WRLCK) < 0)
+	if (fcntl(fd->fd, F_SETLEASE, stress_mwc1() ? F_RDLCK : F_WRLCK) < 0)
 		return;
-	(void)fcntl(fd, F_SETLEASE, F_UNLCK);
+	(void)fcntl(fd->fd, F_SETLEASE, F_UNLCK);
 }
 #endif
 
 #if defined(HAVE_WAITID)
-static void stress_fd_waitid(int fd)
+static void stress_fd_waitid(stress_fd_t *fd)
 {
 	siginfo_t info;
 
 	(void)shim_memset(&info, 0, sizeof(info));
-	(void)waitid(P_PIDFD, (id_t)fd, &info, WNOHANG);
+	(void)waitid(P_PIDFD, (id_t)fd->fd, &info, WNOHANG);
 }
 #endif
 
 #if defined(HAVE_SETNS)
-static void stress_fd_setns(int fd)
+static void stress_fd_setns(stress_fd_t *fd)
 {
-	(void)setns(fd, 0);
+	(void)setns(fd->fd, 0);
 }
 #endif
 
 #if defined(HAVE_LOCKF) &&	\
     defined(F_TLOCK) &&		\
     defined(F_UNLOCK)
-static void stress_fd_lockf(int fd)
+static void stress_fd_lockf(stress_fd_t *fd)
 {
 	static double t = 0.0;
 
 	if (stress_fd_now(&t, 13.0)) {
-		if (lockf(fd, F_TLOCK, 0) < 0)
+		if (lockf(fd->fd, F_TLOCK, 0) < 0)
 			return;
-		(void)lockf(fd, F_UNLOCK);
+		(void)lockf(fd->fd, F_UNLOCK);
 	}
 }
 #endif
@@ -1280,17 +1373,17 @@ static void stress_fd_lockf(int fd)
 #if (defined(HAVE_SYS_XATTR_H) ||	\
      defined(HAVE_ATTR_XATTR_H)) &&	\
     defined(HAVE_FLISTXATTR)
-static void stress_fd_flistxattr(int fd)
+static void stress_fd_flistxattr(stress_fd_t *fd)
 {
 	char buffer[4096];
 
-	(void)flistxattr(fd, buffer, sizeof(buffer));
+	(void)flistxattr(fd->fd, buffer, sizeof(buffer));
 }
 #endif
 
 #if defined(HAVE_VMSPLICE) &&	\
     defined(SPLICE_F_NONBLOCK)
-static void stress_fd_vmslice(int fd)
+static void stress_fd_vmslice(stress_fd_t *fd)
 {
 	struct iovec iov[1];
 	const size_t sz = 4096;
@@ -1303,9 +1396,186 @@ static void stress_fd_vmslice(int fd)
 	iov[0].iov_base = ptr;
 	iov[0].iov_len = sz;
 
-	(void)vmsplice(fd, iov, 1, SPLICE_F_NONBLOCK);
-
+	(void)vmsplice(fd->fd, iov, 1, SPLICE_F_NONBLOCK);
 	(void)munmap(ptr, sz);
+}
+#endif
+
+static void stress_fd_read(stress_fd_t *fd)
+{
+
+	if (fd->flags & FD_FLAG_READ) {
+		const off_t offset = (off_t)stress_mwc32();
+
+		if (offset == lseek(fd->fd, offset, SEEK_SET)) {
+			char data[16];
+
+			VOID_RET(ssize_t, read(fd->fd, data, sizeof(data)));
+		}
+	}
+}
+
+static void stress_fd_write(stress_fd_t *fd)
+{
+	if (fd->flags & FD_FLAG_WRITE) {
+		const off_t offset = (off_t)stress_mwc16();
+
+		if (offset == lseek(fd->fd, offset, SEEK_SET)) {
+			char data[16];
+
+			stress_rndbuf(data, sizeof(data));
+			VOID_RET(ssize_t, write(fd->fd, data, sizeof(data)));
+		}
+	}
+}
+
+#if defined(HAVE_PREAD)
+static void stress_fd_pread(stress_fd_t *fd)
+{
+
+	if (fd->flags & FD_FLAG_READ) {
+		const off_t offset = (off_t)stress_mwc32();
+		char data[16];
+
+		VOID_RET(ssize_t, pread(fd->fd, data, sizeof(data), offset));
+	}
+}
+#endif
+
+#if defined(HAVE_PWRITE)
+static void stress_fd_pwrite(stress_fd_t *fd)
+{
+	if (fd->flags & FD_FLAG_WRITE) {
+		const off_t offset = (off_t)stress_mwc16();
+		char data[16];
+
+		stress_rndbuf(data, sizeof(data));
+		VOID_RET(ssize_t, pwrite(fd->fd, data, sizeof(data), offset));
+	}
+}
+#endif
+
+static void stress_fd_readv(stress_fd_t *fd)
+{
+	if (fd->flags & FD_FLAG_READ) {
+		const off_t offset = (off_t)stress_mwc32();
+
+		if (offset == lseek(fd->fd, offset, SEEK_SET)) {
+			struct iovec iov[1];
+			char data[16];
+
+			iov[0].iov_base = data;
+			iov[0].iov_len = sizeof(data);
+
+			VOID_RET(ssize_t, readv(fd->fd, iov, 1));
+		}
+	}
+}
+
+static void stress_fd_writev(stress_fd_t *fd)
+{
+	if (fd->flags & FD_FLAG_WRITE) {
+		const off_t offset = (off_t)stress_mwc16();
+
+		if (offset == lseek(fd->fd, offset, SEEK_SET)) {
+			struct iovec iov[1];
+			char data[16];
+
+			iov[0].iov_base = data;
+			iov[0].iov_len = sizeof(data);
+			stress_rndbuf(data, sizeof(data));
+			VOID_RET(ssize_t, writev(fd->fd, iov, 1));
+		}
+	}
+}
+
+#if defined(HAVE_PREADV)
+static void stress_fd_preadv(stress_fd_t *fd)
+{
+
+	if (fd->flags & FD_FLAG_READ) {
+		struct iovec iov[1];
+		const off_t offset = (off_t)stress_mwc32();
+		char data[16];
+
+		iov[0].iov_base = data;
+		iov[0].iov_len = sizeof(data);
+
+		VOID_RET(ssize_t, preadv(fd->fd, iov, 1, offset));
+	}
+}
+#endif
+
+#if defined(HAVE_PWRITEV)
+static void stress_fd_pwritev(stress_fd_t *fd)
+{
+	if (fd->flags & FD_FLAG_WRITE) {
+		struct iovec iov[1];
+		const off_t offset = (off_t)stress_mwc16();
+		char data[16];
+
+		iov[0].iov_base = data;
+		iov[0].iov_len = sizeof(data);
+		stress_rndbuf(data, sizeof(data));
+		VOID_RET(ssize_t, pwritev(fd->fd, iov, 1, offset));
+	}
+}
+#endif
+
+#if defined(HAVE_PREADV2) ||	\
+    defined(HAVE_PWRITEV2)
+static const int rwf_flags[] = {
+	0,
+#if defined(RWF_DSYNC)
+	RWF_DSYNC,
+#endif
+#if defined(RWF_HIPRI)
+	RWF_HIPRI,
+#endif
+#if defined(RWF_SYNC)
+	RWF_SYNC,
+#endif
+#if defined(RWF_NOWAIT)
+	RWF_NOWAIT,
+#endif
+#if defined(RWF_APPEND)
+	RWF_APPEND,
+#endif
+};
+#endif
+
+#if defined(HAVE_PREADV2)
+static void stress_fd_preadv2(stress_fd_t *fd)
+{
+
+	if (fd->flags & FD_FLAG_READ) {
+		struct iovec iov[1];
+		const off_t offset = (off_t)stress_mwc32();
+		const int flag = rwf_flags[stress_mwc8modn(SIZEOF_ARRAY(rwf_flags))];
+		char data[16];
+
+		iov[0].iov_base = data;
+		iov[0].iov_len = sizeof(data);
+
+		VOID_RET(ssize_t, preadv2(fd->fd, iov, 1, offset, flag));
+	}
+}
+#endif
+
+#if defined(HAVE_PWRITEV2)
+static void stress_fd_pwritev2(stress_fd_t *fd)
+{
+	if (fd->flags & FD_FLAG_WRITE) {
+		struct iovec iov[1];
+		const off_t offset = (off_t)stress_mwc16();
+		const int flag = rwf_flags[stress_mwc8modn(SIZEOF_ARRAY(rwf_flags))];
+		char data[16];
+
+		iov[0].iov_base = data;
+		iov[0].iov_len = sizeof(data);
+		stress_rndbuf(data, sizeof(data));
+		VOID_RET(ssize_t, pwritev2(fd->fd, iov, 1, offset, flag));
+	}
 }
 #endif
 
@@ -1427,6 +1697,28 @@ static fd_func_t fd_funcs[] = {
     defined(SPLICE_F_NONBLOCK)
 	stress_fd_vmslice,
 #endif
+	stress_fd_read,
+	stress_fd_write,
+#if defined(HAVE_PREAD)
+	stress_fd_pread,
+#endif
+#if defined(HAVE_PWRITE)
+	stress_fd_pwrite,
+#endif
+	stress_fd_readv,
+	stress_fd_writev,
+#if defined(HAVE_PREADV)
+	stress_fd_preadv,
+#endif
+#if defined(HAVE_PWRITEV)
+	stress_fd_pwritev,
+#endif
+#if defined(HAVE_PREADV2)
+	stress_fd_preadv2,
+#endif
+#if defined(HAVE_PWRITEV2)
+	stress_fd_pwritev2,
+#endif
 };
 
 /*
@@ -1441,16 +1733,16 @@ static int stress_fd_abuse_process(stress_args_t *args, void *context)
 {
 	size_t i, n;
 	pid_t pid;
-	int fds[SIZEOF_ARRAY(open_funcs)];
+	stress_fd_t fds[SIZEOF_ARRAY(open_funcs)];
 
 	(void)context;
 
 	for (i = 0, n = 0; i < SIZEOF_ARRAY(fds); i++) {
-		const int fd = open_funcs[i]();
+		open_funcs[i](&fds[i]);
 
-		if (fd < 0)
+		if (fds[i].fd < 0)
 			continue;
-		fds[n++] = fd;
+		n++;
 	}
 
 	/*
@@ -1463,7 +1755,7 @@ static int stress_fd_abuse_process(stress_args_t *args, void *context)
 
 		for (i = 0; stress_continue(args) && (i < n); i++) {
 			for (j = 0; stress_continue(args) && (j < SIZEOF_ARRAY(fd_funcs)); j++) {
-				fd_funcs[j](fds[i]);
+				fd_funcs[j](&fds[i]);
 				if (pid > -1)
 					stress_bogo_inc(args);
 			}
@@ -1473,7 +1765,7 @@ static int stress_fd_abuse_process(stress_args_t *args, void *context)
 			register const size_t func_idx = stress_mwc8modn(SIZEOF_ARRAY(fd_funcs));
 			register const size_t fd_idx = stress_mwc8modn(n);
 
-			fd_funcs[func_idx](fd_idx);
+			fd_funcs[func_idx](&fds[fd_idx]);
 			if (pid > -1)
 				stress_bogo_inc(args);
 		}
@@ -1490,7 +1782,7 @@ static int stress_fd_abuse_process(stress_args_t *args, void *context)
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	for (i = 0; i < n; i++)
-		(void)close(fds[i]);
+		(void)close(fds[i].fd);
 
 	if (*stress_fd_filename) {
 		(void)shim_unlink(stress_fd_filename);
