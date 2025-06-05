@@ -879,24 +879,18 @@ static void stress_fd_dup3(stress_fd_t *fd)
 static void stress_fd_bind_af_inet(stress_fd_t *fd)
 {
 	struct sockaddr_in addr;
-	int newfd;
 
 	(void)shim_memset(&addr, 0, sizeof(addr));
 	addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
 	addr.sin_family = (sa_family_t)AF_INET;
 	addr.sin_port = htons(40000);
-	newfd = bind(fd->fd, (const struct sockaddr *)&addr, (socklen_t)sizeof(addr));
-	if (newfd >= 0) {
-		(void)close(newfd);
+	if (bind(fd->fd, (const struct sockaddr *)&addr, (socklen_t)sizeof(addr)) == 0)
 		(void)shutdown(fd->fd, SHUT_RDWR);
-	}
-	(void)shutdown(fd->fd, SHUT_RDWR);
 }
 
 static void stress_fd_bind_af_inet6(stress_fd_t *fd)
 {
 	struct sockaddr_in6 addr;
-	int newfd;
 #if defined(__minix__)
 	struct in6_addr in6addr_any = IN6ADDR_ANY_INIT;
 	struct in6_addr in6addr_loopback = IN6ADDR_LOOPBACK_INIT;
@@ -906,12 +900,8 @@ static void stress_fd_bind_af_inet6(stress_fd_t *fd)
 	addr.sin6_addr = in6addr_loopback;
 	addr.sin6_family = (sa_family_t)AF_INET6;
 	addr.sin6_port = htons(40000);
-	newfd = bind(fd->fd, (const struct sockaddr *)&addr, (socklen_t)sizeof(addr));
-	if (newfd >= 0) {
-		(void)shutdown(newfd, SHUT_RDWR);
-		(void)close(newfd);
-	}
-	(void)shutdown(fd->fd, SHUT_RDWR);
+	if (bind(fd->fd, (const struct sockaddr *)&addr, (socklen_t)sizeof(addr)) == 0)
+		(void)shutdown(fd->fd, SHUT_RDWR);
 }
 
 static void stress_fd_select_rd(stress_fd_t *fd)
@@ -1700,6 +1690,25 @@ static void stress_fd_sendfile(stress_fd_t *fd)
 }
 #endif
 
+#if defined(HAVE_COPY_FILE_RANGE)
+static void stress_fd_copy_file_range(stress_fd_t *fd)
+{
+	if (fd->flags & FD_FLAG_WRITE) {
+		int fd_in;
+
+		fd_in = open(stress_fd_filename, O_RDONLY);
+		if (fd_in >= 0) {
+			off_t off_in, off_out;
+
+			off_in = 0;
+			off_out = 4096;
+			VOID_RET(ssize_t, shim_copy_file_range(fd_in, &off_in, fd->fd, &off_out, 4096, 0));
+			(void)close(fd_in);
+		}
+	}
+}
+#endif
+
 static fd_func_t fd_funcs[] = {
 	stress_fd_sockopt_reuseaddr,
 	stress_fd_lseek,
@@ -1865,6 +1874,9 @@ static fd_func_t fd_funcs[] = {
 #if defined(HAVE_SYS_SENDFILE_H) &&	\
     defined(HAVE_SENDFILE)
 	stress_fd_sendfile,
+#endif
+#if defined(HAVE_COPY_FILE_RANGE)
+	stress_fd_copy_file_range,
 #endif
 };
 
