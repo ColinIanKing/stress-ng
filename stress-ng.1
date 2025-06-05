@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "3 June 2025"
+.TH STRESS-NG 1 "5 June 2025"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -250,7 +250,8 @@ output messages without these fields to produce a less verbose output.
 .TP
 .B \-\-log\-file filename
 write messages to the specified log file, this does not replace the output
-from stdout, but creates a logged copy of it in the specified file.
+from stdout, but creates a logged copy of it in the specified file. Lines of
+output are automatically fsync'd to the log file to try to reduce data loss.
 .TP
 .B \-\-log\-lockless
 log messages use a lock to avoid intermingling of blocks of stressor messages,
