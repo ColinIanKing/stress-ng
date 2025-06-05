@@ -1455,6 +1455,7 @@ static void stress_fd_pwrite(stress_fd_t *fd)
 }
 #endif
 
+#if defined(HAVE_READV)
 static void stress_fd_readv(stress_fd_t *fd)
 {
 	if (fd->flags & FD_FLAG_READ) {
@@ -1471,7 +1472,9 @@ static void stress_fd_readv(stress_fd_t *fd)
 		}
 	}
 }
+#endif
 
+#if defined(HAVE_WRITEV)
 static void stress_fd_writev(stress_fd_t *fd)
 {
 	if (fd->flags & FD_FLAG_WRITE) {
@@ -1488,6 +1491,7 @@ static void stress_fd_writev(stress_fd_t *fd)
 		}
 	}
 }
+#endif
 
 #if defined(HAVE_PREADV)
 static void stress_fd_preadv(stress_fd_t *fd)
@@ -1705,8 +1709,12 @@ static fd_func_t fd_funcs[] = {
 #if defined(HAVE_PWRITE)
 	stress_fd_pwrite,
 #endif
+#if defined(HAVE_READV)
 	stress_fd_readv,
+#endif
+#if defined(HAVE_WRITEV)
 	stress_fd_writev,
+#endif
 #if defined(HAVE_PREADV)
 	stress_fd_preadv,
 #endif
