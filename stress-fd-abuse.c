@@ -75,6 +75,9 @@
     defined(HAVE_ATTR_XATTR_H)
 #error cannot have both HAVE_SYS_XATTR_H and HAVE_ATTR_XATTR_H
 #endif
+#if defined(HAVE_SYS_SENDFILE_H)
+#include <sys/sendfile.h>
+#endif
 
 #define FD_FLAG_READ	(0x0001)
 #define FD_FLAG_WRITE	(0x0002)
@@ -1679,6 +1682,24 @@ static void stress_fd_sendmsg(stress_fd_t *fd)
 }
 #endif
 
+#if defined(HAVE_SYS_SENDFILE_H) &&	\
+    defined(HAVE_SENDFILE)
+static void stress_fd_sendfile(stress_fd_t *fd)
+{
+	if (fd->flags & FD_FLAG_WRITE) {
+		int fd_in;
+
+		fd_in = open("/dev/zero", O_RDONLY);
+		if (fd_in >= 0) {
+			off_t offset = 0;
+
+			VOID_RET(ssize_t, sendfile(fd->fd, fd_in, &offset, 16));
+			(void)close(fd_in);
+		}
+	}
+}
+#endif
+
 static fd_func_t fd_funcs[] = {
 	stress_fd_sockopt_reuseaddr,
 	stress_fd_lseek,
@@ -1840,6 +1861,10 @@ static fd_func_t fd_funcs[] = {
 #endif
 #if defined(MSG_DONTWAIT)
 	stress_fd_sendmsg,
+#endif
+#if defined(HAVE_SYS_SENDFILE_H) &&	\
+    defined(HAVE_SENDFILE)
+	stress_fd_sendfile,
 #endif
 };
 
