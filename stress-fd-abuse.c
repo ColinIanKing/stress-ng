@@ -92,7 +92,7 @@ typedef struct {
 typedef void (*open_func_t)(stress_fd_t *fd);
 typedef void (*fd_func_t)(stress_fd_t *fd);
 
-char stress_fd_filename[PATH_MAX];
+static char stress_fd_filename[PATH_MAX];
 
 static const stress_help_t help[] = {
 	{ NULL,	"fd-abuse N",	"start N workers abusing file descriptors" },
@@ -1709,6 +1709,26 @@ static void stress_fd_copy_file_range(stress_fd_t *fd)
 }
 #endif
 
+#if defined(HAVE_SPLICE)
+static void stress_fd_splice(stress_fd_t *fd)
+{
+	if (fd->flags & FD_FLAG_WRITE) {
+		int fd_in;
+
+		fd_in = open("/dev/zero", O_RDONLY);
+		if (fd_in >= 0) {
+			off_t off_in, off_out;
+
+			off_in = 0;
+			off_out = 0;
+			/* Exercise -ESPIPE errors */
+			VOID_RET(ssize_t, splice(fd_in, &off_in, fd->fd, &off_out, 4096, 0));
+			(void)close(fd_in);
+		}
+	}
+}
+#endif
+
 static fd_func_t fd_funcs[] = {
 	stress_fd_sockopt_reuseaddr,
 	stress_fd_lseek,
@@ -1877,6 +1897,9 @@ static fd_func_t fd_funcs[] = {
 #endif
 #if defined(HAVE_COPY_FILE_RANGE)
 	stress_fd_copy_file_range,
+#endif
+#if defined(HAVE_SPLICE)
+	stress_fd_splice,
 #endif
 };
 
