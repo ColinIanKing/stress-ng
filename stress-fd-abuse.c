@@ -93,6 +93,7 @@ typedef void (*open_func_t)(stress_fd_t *fd);
 typedef void (*fd_func_t)(stress_fd_t *fd);
 
 static char stress_fd_filename[PATH_MAX];
+static double t_now;
 
 static const stress_help_t help[] = {
 	{ NULL,	"fd-abuse N",	"start N workers abusing file descriptors" },
@@ -102,8 +103,6 @@ static const stress_help_t help[] = {
 
 static bool stress_fd_now(double *t, const double next)
 {
-	const double t_now = stress_time_now();
-
 	if (*t < t_now) {
 		*t = t_now + next;
 		return true;
@@ -1936,6 +1935,7 @@ static int stress_fd_abuse_process(stress_args_t *args, void *context)
 		size_t j;
 
 		for (i = 0; stress_continue(args) && (i < n); i++) {
+			t_now = stress_time_now();
 			for (j = 0; stress_continue(args) && (j < SIZEOF_ARRAY(fd_funcs)); j++) {
 				fd_funcs[j](&fds[i]);
 				if (pid > -1)
@@ -1943,6 +1943,7 @@ static int stress_fd_abuse_process(stress_args_t *args, void *context)
 			}
 		}
 
+		t_now = stress_time_now();
 		for (i = 0 ; stress_continue(args) && (i < 20); i++) {
 			register const size_t func_idx = stress_mwc8modn(SIZEOF_ARRAY(fd_funcs));
 			register const size_t fd_idx = stress_mwc8modn(n);
