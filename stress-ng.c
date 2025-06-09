@@ -85,9 +85,10 @@
 
 typedef void (*stress_sighandler_t)(int signum);
 
+/* Map signals to handlers */
 typedef struct stress_signal_map {
-	int signum;
-	stress_sighandler_t handler;
+	int signum;			/* signal number */
+	stress_sighandler_t handler;	/* signal handler */
 } stress_signal_map_t;
 
 /* Stress test classes */
@@ -913,8 +914,8 @@ static inline void stress_stressor_finished(pid_t *pid)
 static const char * PURE stress_exit_status_to_string(const int status)
 {
 	typedef struct {
-		const int status;
-		const char *description;
+		const int status;		/* exit status */
+		const char *description;	/* exit description */
 	} stress_exit_status_map_t;
 
 	static const stress_exit_status_map_t stress_exit_status_map[] = {
@@ -954,6 +955,7 @@ static void stress_wait_pid(
 	bool do_abort = false;
 	const char *name = ss->stressor->name;
 
+	/* already reaped, don't bother waiting */
 	if (stats->s_pid.reaped)
 		return;
 redo:
