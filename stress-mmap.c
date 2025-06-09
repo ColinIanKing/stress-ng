@@ -160,7 +160,8 @@ static const int mmap_flags[] = {
 #if defined(MAP_NORESERVE)
 	MAP_NORESERVE,
 #endif
-#if defined(MAP_STACK)
+#if defined(MAP_STACK) &&	\
+    !defined(__FreeBSD__)
 	MAP_STACK,
 #endif
 #if defined(MAP_EXECUTABLE)
