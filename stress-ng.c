@@ -102,8 +102,13 @@ typedef struct {
 	const uint64_t opt_flag;	/* global options flag bit setting */
 } stress_opt_flag_t;
 
-/* Per stressor information */
-static stress_stressor_t *stressors_head, *stressors_tail;
+/* Per stressor linked list */
+typedef struct {
+	stress_stressor_t *head;
+	stress_stressor_t *tail;
+} stress_stressor_list_t;
+
+static stress_stressor_list_t stress_stressor_list;
 
 /* Various option settings and flags */
 static volatile bool wait_flag = true;		/* false = exit run wait loop */
@@ -513,7 +518,7 @@ static int stress_exclude(void)
 			(void)fprintf(stderr, "exclude option specifies unknown stressor: '%s'\n", token);
 			return -1;
 		}
-		for (ss = stressors_head; ss; ss = ss->next) {
+		for (ss = stress_stressor_list.head; ss; ss = ss->next) {
 			if (!stress_strcmp_munged(token, ss->stressor->name)) {
 				stress_ignore_stressor(ss, STRESS_STRESSOR_EXCLUDED);
 				break;
@@ -532,7 +537,7 @@ void stress_zero_bogo_max_ops(void)
 {
 	stress_stressor_t *ss;
 
-	for (ss = stressors_head; ss; ss = ss->next) {
+	for (ss = stress_stressor_list.head; ss; ss = ss->next) {
 		int32_t i;
 
 		if (!ss->ignore.run) {
@@ -562,7 +567,7 @@ static void stress_kill_stressors(const int sig, const bool force_sigkill)
 		}
 	}
 
-	for (ss = stressors_head; ss; ss = ss->next) {
+	for (ss = stress_stressor_list.head; ss; ss = ss->next) {
 		int32_t i;
 
 		if (ss->ignore.run)
@@ -1236,7 +1241,7 @@ static void MLOCKED_TEXT stress_handle_terminate(int signum)
  */
 static stress_stressor_t *stress_get_nth_stressor(const uint32_t n)
 {
-	stress_stressor_t *ss = stressors_head;
+	stress_stressor_t *ss = stress_stressor_list.head;
 	uint32_t i = 0;
 
 	while (ss && (i < n)) {
@@ -1256,7 +1261,7 @@ static inline uint32_t stress_get_num_stressors(void)
 	uint32_t n = 0;
 	stress_stressor_t *ss;
 
-	for (ss = stressors_head; ss; ss = ss->next)
+	for (ss = stress_stressor_list.head; ss; ss = ss->next)
 		if (!ss->ignore.run)
 			n++;
 
@@ -1269,7 +1274,7 @@ static inline uint32_t stress_get_num_stressors(void)
  */
 static void stress_stressors_free(void)
 {
-	stress_stressor_t *ss = stressors_head;
+	stress_stressor_t *ss = stress_stressor_list.head;
 
 	while (ss) {
 		stress_stressor_t *next = ss->next;
@@ -1279,8 +1284,8 @@ static void stress_stressors_free(void)
 		ss = next;
 	}
 
-	stressors_head = NULL;
-	stressors_tail = NULL;
+	stress_stressor_list.head = NULL;
+	stress_stressor_list.tail = NULL;
 }
 
 /*
@@ -1812,7 +1817,7 @@ static int stress_show_stressors(void)
 	bool previous = false;
 	stress_stressor_t *ss;
 
-	for (ss = stressors_head; ss; ss = ss->next) {
+	for (ss = stress_stressor_list.head; ss; ss = ss->next) {
 		int32_t n;
 
 		if (ss->ignore.run)
@@ -1862,7 +1867,7 @@ static void stress_exit_status_type(const char *name, const size_t type)
 		return;
 	*str = '\0';
 
-	for (ss = stressors_head; ss; ss = ss->next) {
+	for (ss = stress_stressor_list.head; ss; ss = ss->next) {
 		uint32_t count = ss->status[type];
 
 		if ((ss->ignore.run) && (type == STRESS_STRESSOR_STATUS_SKIPPED)) {
@@ -1921,7 +1926,7 @@ static void stress_metrics_check(bool *success)
 	uint32_t instances = 0;
 	double min_run_time = DBL_MAX;
 
-	for (ss = stressors_head; ss; ss = ss->next) {
+	for (ss = stress_stressor_list.head; ss; ss = ss->next) {
 		int32_t j;
 
 		if (ss->ignore.run)
@@ -2067,7 +2072,7 @@ static void stress_metrics_dump(FILE *yaml)
 	}
 	pr_yaml(yaml, "metrics:\n");
 
-	for (ss = stressors_head; ss; ss = ss->next) {
+	for (ss = stress_stressor_list.head; ss; ss = ss->next) {
 		uint64_t c_total = 0;
 		double   r_total = 0.0, u_total = 0.0, s_total = 0.0;
 		long int maxrss = 0;
@@ -2221,7 +2226,7 @@ static void stress_metrics_dump(FILE *yaml)
 
 	if (misc_metrics && !(g_opt_flags & OPT_FLAGS_METRICS_BRIEF)) {
 		pr_metrics("miscellaneous metrics:\n");
-		for (ss = stressors_head; ss; ss = ss->next) {
+		for (ss = stress_stressor_list.head; ss; ss = ss->next) {
 			size_t i;
 			int32_t j;
 			const char *name;
@@ -2732,7 +2737,7 @@ static inline void stress_exclude_unsupported(bool *unsupported)
 		if (stressor->info->supported) {
 			stress_stressor_t *ss;
 
-			for (ss = stressors_head; ss; ss = ss->next) {
+			for (ss = stress_stressor_list.head; ss; ss = ss->next) {
 				if (ss->ignore.run)
 					continue;
 
@@ -2746,7 +2751,7 @@ static inline void stress_exclude_unsupported(bool *unsupported)
 		if (stressor->info->stressor == stress_unimplemented) {
 			stress_stressor_t *ss;
 
-			for (ss = stressors_head; ss; ss = ss->next) {
+			for (ss = stress_stressor_list.head; ss; ss = ss->next) {
 				if (ss->ignore.run)
 					continue;
 
@@ -2773,7 +2778,7 @@ static void stress_set_proc_limits(void)
 	if (getrlimit(RLIMIT_NPROC, &limit) < 0)
 		return;
 
-	for (ss = stressors_head; ss; ss = ss->next) {
+	for (ss = stress_stressor_list.head; ss; ss = ss->next) {
 		const stressor_info_t *info;
 
 		if (ss->ignore.run)
@@ -2794,12 +2799,12 @@ static inline void stress_append_stressor(stress_stressor_t *ss)
 	ss->next = NULL;
 
 	/* Add to end of procs list */
-	if (stressors_tail)
-		stressors_tail->next = ss;
+	if (stress_stressor_list.tail)
+		stress_stressor_list.tail->next = ss;
 	else
-		stressors_head = ss;
-	ss->prev = stressors_tail;
-	stressors_tail = ss;
+		stress_stressor_list.head = ss;
+	ss->prev = stress_stressor_list.tail;
+	stress_stressor_list.tail = ss;
 }
 
 /*
@@ -2839,7 +2844,7 @@ static void stress_stressors_init(void)
 {
 	stress_stressor_t *ss;
 
-	for (ss = stressors_head; ss; ss = ss->next) {
+	for (ss = stress_stressor_list.head; ss; ss = ss->next) {
 		const stressor_info_t *info;
 
 		if (ss->ignore.run)
@@ -2859,7 +2864,7 @@ static void stress_stressors_deinit(void)
 {
 	stress_stressor_t *ss;
 
-	for (ss = stressors_head; ss; ss = ss->next) {
+	for (ss = stress_stressor_list.head; ss; ss = ss->next) {
 		const stressor_info_t *info;
 
 		if (ss->ignore.run)
@@ -2894,7 +2899,7 @@ static inline void stressor_set_defaults(void)
 static inline void stress_exclude_pathological(void)
 {
 	if (!(g_opt_flags & OPT_FLAGS_PATHOLOGICAL)) {
-		stress_stressor_t *ss = stressors_head;
+		stress_stressor_t *ss = stress_stressor_list.head;
 
 		while (ss) {
 			stress_stressor_t *next = ss->next;
@@ -2924,7 +2929,7 @@ static inline void stress_setup_stats_buffers(void)
 	stress_stressor_t *ss;
 	stress_stats_t *stats = g_shared->stats;
 
-	for (ss = stressors_head; ss; ss = ss->next) {
+	for (ss = stress_stressor_list.head; ss; ss = ss->next) {
 		int32_t i;
 
 		if (ss->ignore.run)
@@ -3426,7 +3431,7 @@ static void stress_setup_sequential(const uint32_t class, const int32_t instance
 
 	stress_set_default_timeout(60);
 
-	for (ss = stressors_head; ss; ss = ss->next) {
+	for (ss = stress_stressor_list.head; ss; ss = ss->next) {
 		if (ss->stressor->info->class & class)
 			ss->instances = instances;
 		if (!ss->ignore.run)
@@ -3444,7 +3449,7 @@ static void stress_setup_parallel(const uint32_t class, const int32_t instances)
 
 	stress_set_default_timeout(DEFAULT_TIMEOUT);
 
-	for (ss = stressors_head; ss; ss = ss->next) {
+	for (ss = stress_stressor_list.head; ss; ss = ss->next) {
 		if (ss->stressor->info->class & class)
 			ss->instances = instances;
 		if (ss->ignore.run)
@@ -3478,7 +3483,7 @@ static inline void stress_run_sequential(
 	const bool progress = !!(g_opt_flags & OPT_FLAGS_PROGRESS);
 
 	if (progress) {
-		for (ss = stressors_head; ss; ss = ss->next) {
+		for (ss = stress_stressor_list.head; ss; ss = ss->next) {
 			if (!ss->ignore.run)
 				total_run++;
 		}
@@ -3487,7 +3492,7 @@ static inline void stress_run_sequential(
 	/*
 	 *  Step through each stressor one by one
 	 */
-	for (ss = stressors_head; ss && stress_continue_flag(); ss = ss->next) {
+	for (ss = stress_stressor_list.head; ss && stress_continue_flag(); ss = ss->next) {
 		stress_stressor_t *next;
 
 		if (ss->ignore.run)
@@ -3539,7 +3544,7 @@ static inline void stress_run_parallel(
 	/*
 	 *  Run all stressors in parallel
 	 */
-	stress_run(ticks_per_sec, stressors_head, duration, success, resource_success,
+	stress_run(ticks_per_sec, stress_stressor_list.head, duration, success, resource_success,
 			metrics_success, &checksum);
 	stress_metrics_check(success);
 }
@@ -3560,7 +3565,7 @@ static inline void stress_run_permute(
 	const size_t max_perms = STRESS_MAX_PERMUTATIONS;
 	char str[4096];
 
-	for (perms = 0, ss = stressors_head; ss; ss = ss->next) {
+	for (perms = 0, ss = stress_stressor_list.head; ss; ss = ss->next) {
 		ss->ignore.permute = true;
 		if (!ss->ignore.run)
 			perms++;
@@ -3588,7 +3593,7 @@ static inline void stress_run_permute(
 			*finish = '\0';
 
 		*str = '\0';
-		for (j = 0, ss = stressors_head; (j < max_perms) && ss; ss = ss->next) {
+		for (j = 0, ss = stress_stressor_list.head; (j < max_perms) && ss; ss = ss->next) {
 			ss->ignore.permute = true;
 
 			if (ss->ignore.run)
@@ -3610,7 +3615,7 @@ static inline void stress_run_permute(
 			finish);
 		stress_run_parallel(ticks_per_sec, duration, success, resource_success, metrics_success);
 	}
-	for (ss = stressors_head; ss; ss = ss->next) {
+	for (ss = stress_stressor_list.head; ss; ss = ss->next) {
 		ss->ignore.permute = false;
 	}
 }
@@ -3759,8 +3764,8 @@ int main(int argc, char **argv, char **envp)
 		goto exit_temp_path_free;
 	}
 
-	stressors_head = NULL;
-	stressors_tail = NULL;
+	stress_stressor_list.head = NULL;
+	stress_stressor_list.tail = NULL;
 	stress_mwc_reseed();
 
 	(void)stress_get_page_size();
@@ -3970,7 +3975,7 @@ int main(int argc, char **argv, char **envp)
 
 	stress_set_proc_limits();
 
-	if (!stressors_head) {
+	if (!stress_stressor_list.head) {
 		pr_err("no stress workers invoked%s\n",
 			unsupported ? " (one or more were unsupported)" : "");
 		/*
@@ -3986,7 +3991,7 @@ int main(int argc, char **argv, char **envp)
 	 *  Allocate shared memory segment for shared data
 	 *  across all the child stressors
 	 */
-	stress_shared_map(stress_get_total_instances(stressors_head));
+	stress_shared_map(stress_get_total_instances(stress_stressor_list.head));
 
 	if (stress_lock_mem_map() < 0) {
 		pr_err("failed to create shared heap\n");
@@ -4087,7 +4092,7 @@ int main(int argc, char **argv, char **envp)
 		stress_metrics_dump(yaml);
 
 	if (g_opt_flags & OPT_FLAGS_INTERRUPTS)
-		stress_interrupts_dump(yaml, stressors_head);
+		stress_interrupts_dump(yaml, stress_stressor_list.head);
 
 #if defined(STRESS_PERF_STATS) &&	\
     defined(HAVE_LINUX_PERF_EVENT_H)
@@ -4095,7 +4100,7 @@ int main(int argc, char **argv, char **envp)
 	 *  Dump perf statistics
 	 */
 	if (g_opt_flags & OPT_FLAGS_PERF_STATS)
-		stress_perf_stat_dump(yaml, stressors_head, duration);
+		stress_perf_stat_dump(yaml, stress_stressor_list.head, duration);
 #endif
 
 #if defined(STRESS_THERMAL_ZONES)
@@ -4103,16 +4108,16 @@ int main(int argc, char **argv, char **envp)
 	 *  Dump thermal zone measurements
 	 */
 	if (g_opt_flags & OPT_FLAGS_THERMAL_ZONES)
-		stress_tz_dump(yaml, stressors_head);
+		stress_tz_dump(yaml, stress_stressor_list.head);
 	if (g_opt_flags & OPT_FLAGS_TZ_INFO)
 		stress_tz_free(&g_shared->tz_info);
 #endif
 	if (g_opt_flags & OPT_FLAGS_C_STATES)
-		stress_cpuidle_dump(yaml, stressors_head);
+		stress_cpuidle_dump(yaml, stress_stressor_list.head);
 
 #if defined(STRESS_RAPL)
 	if (g_opt_flags & OPT_FLAGS_RAPL)
-		stress_rapl_dump(yaml, stressors_head, g_shared->rapl_domains);
+		stress_rapl_dump(yaml, stress_stressor_list.head, g_shared->rapl_domains);
 	if (g_opt_flags & OPT_FLAGS_RAPL_REQUIRED)
 		stress_rapl_free_domains(g_shared->rapl_domains);
 #endif
