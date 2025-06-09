@@ -1632,13 +1632,9 @@ static void stress_fd_recvmsg(stress_fd_t *fd)
 		iov[0].iov_base = buf;
 		iov[0].iov_len = sizeof(buf);
 
-		m.msg_name = NULL;
-		m.msg_namelen = 0;
+		(void)shim_memset(&m, 0, sizeof(m));
 		m.msg_iov = iov;
 		m.msg_iovlen = 1;
-		m.msg_control = NULL;
-		m.msg_controllen = 0;
-		m.msg_flags = 0;
 
 		VOID_RET(ssize_t, recvmsg(fd->fd, &m, MSG_DONTWAIT));
 	}
@@ -1657,13 +1653,9 @@ static void stress_fd_sendmsg(stress_fd_t *fd)
 		iov[0].iov_base = buf;
 		iov[0].iov_len = 0;
 
-		m.msg_name = NULL;
-		m.msg_namelen = 0;
+		(void)shim_memset(&m, 0, sizeof(m));
 		m.msg_iov = iov;
 		m.msg_iovlen = 1;
-		m.msg_control = NULL;
-		m.msg_controllen = 0;
-		m.msg_flags = 0;
 
 		/* intentionally bogus sendmsg call */
 		VOID_RET(ssize_t, sendmsg(fd->fd, &m, MSG_DONTWAIT));
