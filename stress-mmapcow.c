@@ -39,8 +39,39 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,             NULL }
 };
 
-static void OPTIMIZE3 stress_mmapcow_cow_unmap(
+/*
+ *   stress_mmapcow_force_unmap()
+ *	a single page munmap() failed, this can occur because
+ * 	there is no memory available to break vma and free a
+ *	page, but there is hope, we can MADV_FREE the mapping
+ *	and then ummap the entire buffer, this normally allows
+ *	the unmapping
+ */
+static void stress_mmapcow_force_unmap(
 	stress_args_t *args,
+	uint8_t *buf,
+	const size_t buf_size,
+	const size_t page_size)
+{
+#if defined(MADV_FREE)
+	(void)madvise((void *)buf, buf_size, MADV_FREE);
+#endif
+	if (munmap(buf, buf_size) < 0) {
+		pr_fail("%s: munmap of %zd pages failed, errno=%d (%s)\n",
+			args->name, buf_size / page_size, errno, strerror(errno));
+		return;
+	}
+}
+
+/*
+ *  stress_mmapcow_modify_unmap()
+ *	modify page, unmap it. If unmap fails, force
+ *	unmap of entire buffer
+ */
+static int OPTIMIZE3 stress_mmapcow_modify_unmap(
+	stress_args_t *args,
+	uint8_t *buf,
+	const size_t buf_size,
 	uint8_t *page,
 	const size_t page_size,
 	const int flags)
@@ -61,58 +92,59 @@ static void OPTIMIZE3 stress_mmapcow_cow_unmap(
 #endif
 
 	if (UNLIKELY(munmap((void *)page, page_size) < 0)) {
-		switch (errno) {
-		case ENOMEM:
-			break;
-		default:
-			pr_fail("%s: munmap of page at %p failed, errno=%d (%s)\n",
-				args->name, page, errno, strerror(errno));
-			break;
+		if (errno == ENOMEM) {
+			stress_mmapcow_force_unmap(args, buf, buf_size, page_size);
+			return -1;
 		}
+		stress_mmapcow_force_unmap(args, buf, buf_size, page_size);
+		pr_fail("%s: munmap of page at %p failed, errno=%d (%s)\n",
+			args->name, page, errno, strerror(errno));
+		return -1;
 	}
 	stress_bogo_inc(args);
+	return 0;
 }
 
 static int stress_mmapcow_child(stress_args_t *args, void *ctxt)
 {
-	size_t mmap_size, max_mmap_size = 0;
+	size_t buf_size, max_buf_size = 0;
 	const size_t page_size = args->page_size;
 	const size_t page_size2 = page_size + page_size;
 	char tmp[32];
 	const int flags = *(int *)ctxt;
 
-	mmap_size = page_size;
+	buf_size = page_size;
 	do {
 		uint8_t *buf = NULL, *buf_end, *ptr;
 		uint8_t rnd;
 		size_t stride, n_pages, i, offset;
 
-		n_pages = mmap_size / page_size;
+		n_pages = buf_size / page_size;
 
-		buf = (uint8_t *)mmap(NULL, mmap_size, PROT_READ | PROT_WRITE,
+		buf = (uint8_t *)mmap(NULL, buf_size, PROT_READ | PROT_WRITE,
 				MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 		if (buf == MAP_FAILED) {
-			if (mmap_size == page_size) {
+			if (buf_size == page_size) {
 				pr_inf("%s: failed to mmap %zd bytes, errno=%d (%s), terminating early\n",
-					args->name, mmap_size, errno, strerror(errno));
+					args->name, buf_size, errno, strerror(errno));
 				return EXIT_NO_RESOURCE;
 			}
-			mmap_size = page_size;
+			buf_size = page_size;
 			continue;
 		}
 
 		/* Low memory? Start again.. */
 		if (stress_low_memory(64 * page_size)) {
-			(void)munmap((void *)buf, mmap_size);
-			mmap_size = page_size;
+			(void)munmap((void *)buf, buf_size);
+			buf_size = page_size;
 			continue;
 		}
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 		if ((flags & MMAPCOW_NUMA) && numa_mask && numa_nodes)
-			stress_numa_randomize_pages(args, numa_nodes, numa_mask, buf, mmap_size, page_size);
+			stress_numa_randomize_pages(args, numa_nodes, numa_mask, buf, buf_size, page_size);
 #endif
-		stress_set_vma_anon_name(buf, mmap_size, "mmapcow-pages");
-		buf_end = buf + mmap_size;
+		stress_set_vma_anon_name(buf, buf_size, "mmapcow-pages");
+		buf_end = buf + buf_size;
 
 		rnd = stress_mwc8() % 6;
 
@@ -120,41 +152,48 @@ static int stress_mmapcow_child(stress_args_t *args, void *ctxt)
 		case 0:
 			/* Forward */
 			for (ptr = buf; stress_continue(args) && (ptr < buf_end); ptr += page_size) {
-				stress_mmapcow_cow_unmap(args, ptr, page_size, flags);
+				if (UNLIKELY(stress_mmapcow_modify_unmap(args, buf, buf_size, ptr, page_size, flags) < 0))
+					goto next;
 			}
 			break;
 		case 1:
 			/* Foward stride even pages then odd pages */
 			for (ptr = buf; stress_continue(args) && (ptr < buf_end); ptr += page_size2) {
-				stress_mmapcow_cow_unmap(args, ptr, page_size, flags);
+				if (UNLIKELY(stress_mmapcow_modify_unmap(args, buf, buf_size, ptr, page_size, flags) < 0))
+					goto next;
 			}
 			for (ptr = buf + page_size; stress_continue(args) && (ptr < buf_end); ptr += page_size2) {
-				stress_mmapcow_cow_unmap(args, ptr, page_size, flags);
+				if (UNLIKELY(stress_mmapcow_modify_unmap(args, buf, buf_size, ptr, page_size, flags) < 0))
+					goto next;
 			}
 			break;
 		case 2:
 			/* Forward prime stride */
 			stride = stress_get_prime64(n_pages) * page_size;
 			for (i = 0, offset = 0; stress_continue(args) && i < n_pages; i++) {
-				stress_mmapcow_cow_unmap(args, buf + offset, page_size, flags);
+				if (UNLIKELY(stress_mmapcow_modify_unmap(args, buf, buf_size, buf + offset, page_size, flags) < 0))
+					goto next;
 
 				offset += stride;
-				offset %= mmap_size;
+				offset %= buf_size;
 			}
 			break;
 		case 3:
 			/* Reverse */
-			for (ptr = buf + mmap_size - page_size; stress_continue(args) && (ptr >= buf); ptr -= page_size) {
-				stress_mmapcow_cow_unmap(args, ptr, page_size, flags);
+			for (ptr = buf + buf_size - page_size; stress_continue(args) && (ptr >= buf); ptr -= page_size) {
+				if (UNLIKELY(stress_mmapcow_modify_unmap(args, buf, buf_size, ptr, page_size, flags) < 0))
+					goto next;
 			}
 			break;
 		case 4:
 			/* Reverse stride even pages then odd pages */
-			for (ptr = buf + mmap_size - page_size; stress_continue(args) && (ptr >= buf); ptr -= page_size2) {
-				stress_mmapcow_cow_unmap(args, ptr, page_size, flags);
+			for (ptr = buf + buf_size - page_size; stress_continue(args) && (ptr >= buf); ptr -= page_size2) {
+				if (UNLIKELY(stress_mmapcow_modify_unmap(args, buf, buf_size, ptr, page_size, flags) < 0))
+					goto next;
 			}
-			for (ptr = buf + mmap_size - page_size2; stress_continue(args) && (ptr >= buf); ptr -= page_size2) {
-				stress_mmapcow_cow_unmap(args, ptr, page_size, flags);
+			for (ptr = buf + buf_size - page_size2; stress_continue(args) && (ptr >= buf); ptr -= page_size2) {
+				if (UNLIKELY(stress_mmapcow_modify_unmap(args, buf, buf_size, ptr, page_size, flags) < 0))
+					goto next;
 			}
 			break;
 		case 5:
@@ -165,25 +204,27 @@ static int stress_mmapcow_child(stress_args_t *args, void *ctxt)
 			if (flags & MMAPCOW_FREE)
 				(void)madvise((void *)(buf + offset), page_size, MADV_FREE);
 #endif
-			(void)munmap((void *)buf, mmap_size);
+			(void)munmap((void *)buf, buf_size);
 			stress_bogo_inc(args);
 			break;
 		default:
 			break;
 		}
-		if (mmap_size > max_mmap_size)
-			max_mmap_size = mmap_size;
 
-		mmap_size = mmap_size + mmap_size;
+next:
+		if (buf_size > max_buf_size)
+			max_buf_size = buf_size;
+
+		buf_size = buf_size + buf_size;
 
 		/* Handle unlikely wrap */
-		if (UNLIKELY(mmap_size < page_size))
-			mmap_size = page_size;
+		if (UNLIKELY(buf_size < page_size))
+			buf_size = page_size;
 	} while (stress_continue(args));
 
-	stress_uint64_to_str(tmp, sizeof(tmp), max_mmap_size, 0, true);
+	stress_uint64_to_str(tmp, sizeof(tmp), max_buf_size, 0, true);
 	pr_dbg("%s: max mmap size: %zd x %zdK pages (%s)\n", args->name,
-		max_mmap_size / page_size, page_size >> 10, tmp);
+		max_buf_size / page_size, page_size >> 10, tmp);
 
 	return EXIT_SUCCESS;
 }
@@ -201,13 +242,15 @@ static int stress_mmapcow(stress_args_t *args)
 	(void)stress_get_setting("mmapcow-free", &mmapcow_free);
 	(void)stress_get_setting("mmapcow-numa", &mmapcow_numa);
 
+	if (mmapcow_free) {
 #if defined(MADV_FREE)
-	flags |= mmapcow_free ? MMAPCOW_FREE : 0;
+		flags |= MMAPCOW_FREE;
 #else
-	if (args->instance == 0)
-		pr_inf("%s: --mmapcow-free selected but madvise(MADV_FREE) not available, disabling option\n",
-			args->name);
+		if (args->instance == 0)
+			pr_inf("%s: --mmapcow-free selected but madvise(MADV_FREE) not available, disabling option\n",
+				args->name);
 #endif
+	}
 
 	if (mmapcow_numa) {
 #if defined(HAVE_LINUX_MEMPOLICY_H)
