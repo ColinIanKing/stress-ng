@@ -57,7 +57,7 @@ static void stress_mmapcow_force_unmap(
 	(void)madvise((void *)buf, buf_size, MADV_FREE);
 #endif
 	if (munmap(buf, buf_size) < 0) {
-		pr_fail("%s: munmap of %zd pages failed, errno=%d (%s)\n",
+		pr_fail("%s: munmap of %zu pages failed, errno=%d (%s)\n",
 			args->name, buf_size / page_size, errno, strerror(errno));
 		return;
 	}
@@ -107,13 +107,16 @@ static int OPTIMIZE3 stress_mmapcow_modify_unmap(
 
 static int stress_mmapcow_child(stress_args_t *args, void *ctxt)
 {
-	size_t buf_size, max_buf_size = 0;
+	size_t buf_size, max_buf_size = 0, failed_size;
+	int failed_count = 0;
 	const size_t page_size = args->page_size;
 	const size_t page_size2 = page_size + page_size;
 	char tmp[32];
 	const int flags = *(int *)ctxt;
 
 	buf_size = page_size;
+	failed_size = ~(size_t)0;
+
 	do {
 		uint8_t *buf = NULL, *buf_end, *ptr;
 		uint8_t rnd;
@@ -121,15 +124,18 @@ static int stress_mmapcow_child(stress_args_t *args, void *ctxt)
 
 		n_pages = buf_size / page_size;
 
+
 		buf = (uint8_t *)mmap(NULL, buf_size, PROT_READ | PROT_WRITE,
 				MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 		if (buf == MAP_FAILED) {
 			if (buf_size == page_size) {
-				pr_inf("%s: failed to mmap %zd bytes, errno=%d (%s), terminating early\n",
+				pr_inf("%s: failed to mmap %zu bytes, errno=%d (%s), terminating early\n",
 					args->name, buf_size, errno, strerror(errno));
 				return EXIT_NO_RESOURCE;
 			}
+			failed_size = buf_size;
 			buf_size = page_size;
+			failed_count = 0;
 			continue;
 		}
 
@@ -220,6 +226,19 @@ next:
 			max_buf_size = buf_size;
 
 		buf_size = buf_size + buf_size;
+		if (buf_size >= failed_size) {
+			failed_count++;
+			/*
+			 *  After avoiding the failed mmap size 16
+			 *  times, try pushing the threshold up again
+			 */
+			if (failed_count < 16) {
+				buf_size = page_size;
+			} else {
+				failed_size = ~(size_t)0;
+				failed_count = 0;
+			}
+		}
 
 		/* Handle unlikely wrap */
 		if (UNLIKELY(buf_size < page_size))
@@ -227,7 +246,7 @@ next:
 	} while (stress_continue(args));
 
 	stress_uint64_to_str(tmp, sizeof(tmp), max_buf_size, 0, true);
-	pr_dbg("%s: max mmap size: %zd x %zdK pages (%s)\n", args->name,
+	pr_dbg("%s: max mmap size: %zu x %zuK pages (%s)\n", args->name,
 		max_buf_size / page_size, page_size >> 10, tmp);
 
 	return EXIT_SUCCESS;
