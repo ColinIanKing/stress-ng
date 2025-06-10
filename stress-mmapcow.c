@@ -132,7 +132,6 @@ static int stress_mmapcow_child(stress_args_t *args, void *ctxt)
 			continue;
 		}
 #if defined(HAVE_LINUX_MEMPOLICY_H)
-		pr_inf("HERE %d %p %p\n", mmapcow_numa, numa_nodes, numa_mask);
 		if (mmapcow_numa && numa_mask && numa_nodes)
 			stress_numa_randomize_pages(args, numa_nodes, numa_mask, buf, mmap_size, page_size);
 #endif
