@@ -49,10 +49,10 @@ static void OPTIMIZE3 stress_mmapcow_cow_unmap(
 
 #if defined(MADV_FREE)
 	if (flags & MMAPCOW_FREE)
-		(void)madvise(page, page_size, MADV_FREE);
+		(void)madvise((void *)page, page_size, MADV_FREE);
 #endif
 
-	if (UNLIKELY(munmap(page, page_size) < 0)) {
+	if (UNLIKELY(munmap((void *)page, page_size) < 0)) {
 		switch (errno) {
 		case ENOMEM:
 			break;
@@ -107,7 +107,7 @@ static int stress_mmapcow_child(stress_args_t *args, void *ctxt)
 
 		/* Low memory? Start again.. */
 		if (stress_low_memory(64 * page_size)) {
-			(void)munmap(buf, mmap_size);
+			(void)munmap((void *)buf, mmap_size);
 			mmap_size = page_size;
 			continue;
 		}
@@ -163,9 +163,9 @@ static int stress_mmapcow_child(stress_args_t *args, void *ctxt)
 			(void)shim_memset(buf + offset, 0xff, page_size);
 #if defined(MADV_FREE)
 			if (flags & MMAPCOW_FREE)
-				(void)madvise(buf + offset, page_size, MADV_FREE);
+				(void)madvise((void *)(buf + offset), page_size, MADV_FREE);
 #endif
-			(void)munmap(buf, mmap_size);
+			(void)munmap((void *)buf, mmap_size);
 			stress_bogo_inc(args);
 			break;
 		default:
