@@ -192,6 +192,7 @@
 	MACRO(mlockmany)	\
 	MACRO(mmap)		\
 	MACRO(mmapaddr)		\
+	MACRO(mmapcow)		\
 	MACRO(mmapfiles)	\
 	MACRO(mmapfixed)	\
 	MACRO(mmapfork)		\

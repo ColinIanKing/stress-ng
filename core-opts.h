@@ -902,6 +902,10 @@ typedef enum {
 	OPT_mmapaddr_mlock,
 	OPT_mmapaddr_ops,
 
+	OPT_mmapcow,
+	OPT_mmapcow_free,
+	OPT_mmapcow_ops,
+
 	OPT_mmapfiles,
 	OPT_mmapfiles_numa,
 	OPT_mmapfiles_ops,

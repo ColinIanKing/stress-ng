@@ -530,6 +530,7 @@ STRESS_SRC = \
 	stress-mlockmany.c \
 	stress-mmap.c \
 	stress-mmapaddr.c \
+	stress-mmapcow.c \
 	stress-mmapfiles.c \
 	stress-mmapfixed.c \
 	stress-mmapfork.c \

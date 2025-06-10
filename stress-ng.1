@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "5 June 2025"
+.TH STRESS-NG 1 "10 June 2025"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -5245,6 +5245,34 @@ preventing pages from swapped out.
 .TP
 .B \-\-mmapaddr\-ops N
 stop after N random address mmap bogo operations.
+.RE
+.TP
+.B Memory map Copy-on-Write and unmap stressor
+.RS 5
+.TQ
+.B \-\-mmapcow N
+start N workers that exercise page allocation, modification (forcing copy-on-write)
+and page unmapping. Regions of memory from 1 page to the maximum mappable size
+are allocated. Each page in the regions are then modified, cache flushed (where
+possible) and unmapped. For each region mapped there are 6 different randomized strategies taken
+to exercise each page:
+.sp
+.TS
+lx.
+Sequential page modify and unmap
+Sequential page modify and unmap (even pages, then odd pages)
+Prime size page strides, page modify and unmap
+Reverse sequential page modify and unmap
+Reverse sequential page modify and unmap (even pages, then odd pages)
+Single random page modify and unmap all pages
+.TE
+.TP
+.B \-\-mmapcow\-free
+after each page is modified and before each page is unmapped use madvise MADV_FREE
+(if it is available) to indicate the page is free
+.TP
+.B \-\-mmapcow\-ops N
+stop after N pages are modified  and unmapped
 .RE
 .TP
 .B Forked memory map stressor
