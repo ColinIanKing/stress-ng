@@ -24,6 +24,12 @@
 #include "core-out-of-memory.h"
 
 #define MMAPCOW_FREE	(0x0001)
+#define MMAPCOW_NUMA	(0x0002)
+
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+	stress_numa_mask_t *numa_mask = NULL;
+	stress_numa_mask_t *numa_nodes = NULL;
+#endif
 
 static const stress_help_t help[] = {
 	{ NULL,	"mmapcow N",      "start N workers stressing copy-on-write and munmaps" },
@@ -73,37 +79,7 @@ static int stress_mmapcow_child(stress_args_t *args, void *ctxt)
 	const size_t page_size = args->page_size;
 	const size_t page_size2 = page_size + page_size;
 	char tmp[32];
-	bool mmapcow_free = false;
-	bool mmapcow_numa = false;
-	int flags = 0;
-#if defined(HAVE_LINUX_MEMPOLICY_H)
-	stress_numa_mask_t *numa_mask = NULL;
-	stress_numa_mask_t *numa_nodes = NULL;
-#endif
-
-	(void)ctxt;
-
-	(void)stress_get_setting("mmapcow-free", &mmapcow_free);
-	(void)stress_get_setting("mmapcow-numa", &mmapcow_numa);
-
-#if defined(MADV_FREE)
-	flags |= mmapcow_free ? MMAPCOW_FREE : 0;
-#else
-	if (args->instance == 0)
-		pr_inf("%s: --mmapcow-free selected but madvise(MADV_FREE) not available, disabling option",
-			args->name);
-#endif
-
-	if (mmapcow_numa) {
-#if defined(HAVE_LINUX_MEMPOLICY_H)
-		stress_numa_mask_and_node_alloc(args, &numa_nodes, &numa_mask, "--mmapcow-numa", &mmapcow_numa);
-#else
-		if (args->instance == 0)
-			pr_inf("%s: --mmapcow-numa selected but not supported by this system, disabling option\n",
-				args->name);
-		mmapcow_numa = false;
-#endif
-	}
+	const int flags = *(int *)ctxt;
 
 	mmap_size = page_size;
 	do {
@@ -132,7 +108,7 @@ static int stress_mmapcow_child(stress_args_t *args, void *ctxt)
 			continue;
 		}
 #if defined(HAVE_LINUX_MEMPOLICY_H)
-		if (mmapcow_numa && numa_mask && numa_nodes)
+		if ((flags & MMAPCOW_NUMA) && numa_mask && numa_nodes)
 			stress_numa_randomize_pages(args, numa_nodes, numa_mask, buf, mmap_size, page_size);
 #endif
 		stress_set_vma_anon_name(buf, mmap_size, "mmapcow-pages");
@@ -209,14 +185,6 @@ static int stress_mmapcow_child(stress_args_t *args, void *ctxt)
 	pr_dbg("%s: max mmap size: %zd x %zdK pages (%s)\n", args->name,
 		max_mmap_size / page_size, page_size >> 10, tmp);
 
-#if defined(HAVE_LINUX_MEMPOLICY_H)
-	if (numa_mask)
-		stress_numa_mask_free(numa_mask);
-	if (numa_nodes)
-		stress_numa_mask_free(numa_nodes);
-#endif
-
-
 	return EXIT_SUCCESS;
 }
 
@@ -226,15 +194,46 @@ static int stress_mmapcow_child(stress_args_t *args, void *ctxt)
  */
 static int stress_mmapcow(stress_args_t *args)
 {
-	int ret;
+	int ret, flags = 0;
+	bool mmapcow_free = false;
+	bool mmapcow_numa = false;
+
+	(void)stress_get_setting("mmapcow-free", &mmapcow_free);
+	(void)stress_get_setting("mmapcow-numa", &mmapcow_numa);
+
+#if defined(MADV_FREE)
+	flags |= mmapcow_free ? MMAPCOW_FREE : 0;
+#else
+	if (args->instance == 0)
+		pr_inf("%s: --mmapcow-free selected but madvise(MADV_FREE) not available, disabling option",
+			args->name);
+#endif
+
+	if (mmapcow_numa) {
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+		stress_numa_mask_and_node_alloc(args, &numa_nodes, &numa_mask, "--mmapcow-numa", &mmapcow_numa);
+		flags |= mmapcow_numa ? MMAPCOW_NUMA : 0;
+#else
+		if (args->instance == 0)
+			pr_inf("%s: --mmapcow-numa selected but not supported by this system, disabling option\n",
+				args->name);
+#endif
+	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
-	ret = stress_oomable_child(args, NULL, stress_mmapcow_child, STRESS_OOMABLE_NORMAL);
+	ret = stress_oomable_child(args, &flags, stress_mmapcow_child, STRESS_OOMABLE_NORMAL);
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+	if (numa_mask)
+		stress_numa_mask_free(numa_mask);
+	if (numa_nodes)
+		stress_numa_mask_free(numa_nodes);
+#endif
 
 	return ret;
 }
