@@ -459,7 +459,7 @@ static int stress_llc_affinity(stress_args_t *args)
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 	if (llc_affinity_numa && numa_mask && numa_nodes) {
 		if (stress_numa_mask_nodes_get(numa_nodes) > 0)
-			stress_numa_randomize_pages(args, numa_nodes, numa_mask, buf, page_size, mmap_sz);
+			stress_numa_randomize_pages(args, numa_nodes, numa_mask, buf, mmap_sz, page_size);
 		stress_numa_mask_free(numa_mask);
 		stress_numa_mask_free(numa_nodes);
 	}

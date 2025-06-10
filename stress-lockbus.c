@@ -308,7 +308,7 @@ misaligned_done:
 		numa_nodes = stress_numa_mask_alloc();
 		if (numa_nodes) {
 			if (stress_numa_mask_nodes_get(numa_nodes) > 0)
-				stress_numa_randomize_pages(args, numa_nodes, numa_mask, buffer, args->page_size, BUFFER_SIZE);
+				stress_numa_randomize_pages(args, numa_nodes, numa_mask, buffer, BUFFER_SIZE, args->page_size);
 			stress_numa_mask_free(numa_nodes);
 		}
 		stress_numa_mask_free(numa_mask);

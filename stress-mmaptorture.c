@@ -596,7 +596,7 @@ mapped_ok:
 			}
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 			if (numa_mask && numa_nodes && stress_mwc1())
-				stress_numa_randomize_pages(args, numa_nodes, numa_mask, (void *)ptr, page_size, mmap_size);
+				stress_numa_randomize_pages(args, numa_nodes, numa_mask, (void *)ptr, mmap_size, page_size);
 
 #if defined(HAVE_MSYNC) &&	\
     defined(MS_SYNC) &&		\

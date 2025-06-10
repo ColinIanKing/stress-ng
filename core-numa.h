@@ -100,5 +100,5 @@ extern void stress_numa_mask_and_node_alloc(stress_args_t *args,
 extern void stress_numa_mask_free(stress_numa_mask_t *mask);
 extern void stress_numa_randomize_pages(stress_args_t *args,
 	stress_numa_mask_t *numa_nodes, stress_numa_mask_t *numa_mask,
-	void *buffer, const size_t page_size, const size_t buffer_size);
+	void *buffer, const size_t buffer_size, const size_t page_size);
 #endif

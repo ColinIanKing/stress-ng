@@ -264,7 +264,7 @@ static int stress_mremap_child(stress_args_t *args, void *context)
 		}
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 		if (mremap_numa)
-			stress_numa_randomize_pages(args, numa_nodes, numa_mask, buf, page_size, sz);
+			stress_numa_randomize_pages(args, numa_nodes, numa_mask, buf, sz, page_size);
 #endif
 		(void)stress_madvise_random(buf, new_sz);
 		(void)stress_madvise_mergeable(buf, new_sz);

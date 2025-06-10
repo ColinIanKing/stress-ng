@@ -1265,7 +1265,7 @@ static int stress_misaligned(stress_args_t *args)
 				stress_numa_mask_free(numa_mask);
 				numa_mask = NULL;
 			} else {
-				stress_numa_randomize_pages(args, numa_nodes, numa_mask, buffer, page_size, buffer_size);
+				stress_numa_randomize_pages(args, numa_nodes, numa_mask, buffer, buffer_size, page_size);
 			}
 		}
 	}
@@ -1334,7 +1334,7 @@ static int stress_misaligned(stress_args_t *args)
 			numa_loop++;
 			if (numa_loop > 1024) {
 				numa_loop = 0;
-				stress_numa_randomize_pages(args, numa_nodes, numa_mask, buffer, page_size, buffer_size);
+				stress_numa_randomize_pages(args, numa_nodes, numa_mask, buffer, buffer_size, page_size);
 			}
 		}
 #endif

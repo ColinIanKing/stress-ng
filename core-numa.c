@@ -266,8 +266,8 @@ void stress_numa_randomize_pages(
 	stress_numa_mask_t *numa_nodes,	/* bit map of NUMA nodes available */
 	stress_numa_mask_t *numa_mask,	/* mask for temp NUMA actions */
 	void *buffer,
-	const size_t page_size,
-	const size_t buffer_size)
+	const size_t buffer_size,
+	const size_t page_size)
 {
 	uint8_t *ptr, *prev_ptr, *ptr_end;
 	unsigned long int node, prev_node;
