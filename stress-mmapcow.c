@@ -122,7 +122,7 @@ static int stress_mmapcow_child(stress_args_t *args, void *ctxt)
 		n_pages = buf_size / page_size;
 
 		buf = (uint8_t *)mmap(NULL, buf_size, PROT_READ | PROT_WRITE,
-				MAP_ANONYMOUS | MAP_SHARED, -1, 0);
+				MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 		if (buf == MAP_FAILED) {
 			if (buf_size == page_size) {
 				pr_inf("%s: failed to mmap %zd bytes, errno=%d (%s), terminating early\n",
@@ -132,6 +132,10 @@ static int stress_mmapcow_child(stress_args_t *args, void *ctxt)
 			buf_size = page_size;
 			continue;
 		}
+
+#if defined(MADV_COLLAPSE)
+		(void)madvise(buf, buf_size, MADV_COLLAPSE);
+#endif
 
 		/* Low memory? Start again.. */
 		if (stress_low_memory(64 * page_size)) {
