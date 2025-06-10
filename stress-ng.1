@@ -5271,6 +5271,10 @@ Single random page modify and unmap all pages
 after each page is modified and before each page is unmapped use madvise MADV_FREE
 (if it is available) to indicate the page is free
 .TP
+.B \-\-mmapcow\-numa
+assign memory mapped pages to randomly selected NUMA nodes. This is disabled
+for systems that do not support NUMA or have less than 2 NUMA nodes.
+.TP
 .B \-\-mmapcow\-ops N
 stop after N pages are modified  and unmapped
 .RE

@@ -904,6 +904,7 @@ typedef enum {
 
 	OPT_mmapcow,
 	OPT_mmapcow_free,
+	OPT_mmapcow_numa,
 	OPT_mmapcow_ops,
 
 	OPT_mmapfiles,
