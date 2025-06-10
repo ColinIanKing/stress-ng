@@ -93,8 +93,8 @@ static int stress_mmapcow_child(stress_args_t *args, void *ctxt)
 				MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 		if (buf == MAP_FAILED) {
 			if (mmap_size == page_size) {
-				pr_inf("%s: failed to mmap %zd bytes, terminating early\n",
-					args->name, mmap_size);
+				pr_inf("%s: failed to mmap %zd bytes, errno=%d (%s), terminating early\n",
+					args->name, mmap_size, errno, strerror(errno));
 				return EXIT_NO_RESOURCE;
 			}
 			mmap_size = page_size;
@@ -205,7 +205,7 @@ static int stress_mmapcow(stress_args_t *args)
 	flags |= mmapcow_free ? MMAPCOW_FREE : 0;
 #else
 	if (args->instance == 0)
-		pr_inf("%s: --mmapcow-free selected but madvise(MADV_FREE) not available, disabling option",
+		pr_inf("%s: --mmapcow-free selected but madvise(MADV_FREE) not available, disabling option\n",
 			args->name);
 #endif
 
