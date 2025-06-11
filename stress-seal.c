@@ -166,8 +166,8 @@ static int stress_seal(stress_args_t *args)
 		if (UNLIKELY(ptr == MAP_FAILED)) {
 			if (errno == ENOMEM)
 				goto next;
-			pr_fail("%s: mmap of %zd bytes failed%s, errno=%d (%s)\n",
-				args->name, sz,
+			pr_fail("%s: mmap of %jd bytes failed%s, errno=%d (%s)\n",
+				args->name, (intmax_t)sz,
 				stress_get_memfree_str(), errno, strerror(errno));
 			(void)close(fd);
 			goto err;
