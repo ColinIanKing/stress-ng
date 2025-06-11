@@ -101,6 +101,8 @@ static int stress_pagemove_child(stress_args_t *args, void *context)
 		pagemove_bytes = page_size;
 
 	sz = pagemove_bytes & ~(page_size - 1);
+	if (sz > (MAX_32 - page_size))
+		sz = MAX_32 - page_size;
 	pages = sz / page_size;
 
 	buf = (uint8_t *)stress_mmap_populate(NULL, sz + page_size,
