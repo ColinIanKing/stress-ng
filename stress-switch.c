@@ -165,8 +165,9 @@ static int stress_switch_pipe(
 			PROT_READ | PROT_WRITE,
 			MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (UNLIKELY(buf == MAP_FAILED)) {
-		pr_fail("%s: pipe read/write buffer allocation failed\n",
-			args->name);
+		pr_fail("%s: failed to mmap %zu byte pipe read/write buffer%s, errno=%d (%s)\n",
+			args->name, buf_size,
+			stress_get_memfree_str(), errno, strerror(errno));
 		(void)close(pipefds[0]);
 		(void)close(pipefds[1]);
 		return EXIT_FAILURE;

@@ -119,7 +119,8 @@ static int stress_readahead(stress_args_t *args)
 	ret = posix_memalign((void **)&buf, BUF_ALIGNMENT, BUF_SIZE);
 	if (ret || !buf) {
 		rc = stress_exit_status(errno);
-		pr_err("%s: cannot allocate buffer\n", args->name);
+		pr_err("%s: cannot allocate %d byte buffer%s\n",
+			args->name, BUF_SIZE, stress_get_memfree_str());
 		(void)stress_temp_dir_rm_args(args);
 		return rc;
 	}

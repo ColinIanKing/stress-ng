@@ -124,8 +124,9 @@ static int stress_netdev(stress_args_t *args)
 		/* Allocate buffer for the addresses */
 		ifc.ifc_buf = (char *)malloc((size_t)ifc.ifc_len);
 		if (UNLIKELY(!ifc.ifc_buf)) {
-			pr_fail("%s: out of memory allocating interface buffer\n",
-				args->name);
+			pr_fail("%s: failed to allocated %zu byte interface buffer%s\n",
+				args->name, (size_t)ifc.ifc_len,
+				stress_get_memfree_str());
 			rc = EXIT_NO_RESOURCE;
 		}
 

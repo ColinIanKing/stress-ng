@@ -266,9 +266,10 @@ static int stress_signest(stress_args_t *args)
 			PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (altstack == MAP_FAILED) {
-		pr_inf_skip("%s: cannot allocate alternative signal stack, "
+		pr_inf_skip("%s: failed to mmap %zu byte alternative signal stack%s, "
 			"errno=%d (%s), skipping stressor\n",
-			args->name, errno, strerror(errno));
+			args->name, altstack_size, 
+			stress_get_memfree_str(), errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
 	stress_set_vma_anon_name(altstack, altstack_size, "altstack");

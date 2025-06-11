@@ -240,9 +240,11 @@ static int stress_mmapfiles(stress_args_t *args)
 				MAP_SHARED | MAP_ANONYMOUS,
 				-1, 0);
 	if (mmapfile_info == MAP_FAILED) {
-		pr_inf("%s: cannot mmap mmap file information, "
+		pr_inf("%s: cannot mmap %zu byte mmap file information%s, "
 			"errno=%d (%s), skipping stressor\n",
-			args->name, errno, strerror(errno));
+			args->name, sizeof(*mmapfile_info),
+			stress_get_memfree_str(),
+			errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
 	stress_set_vma_anon_name(mmapfile_info, sizeof(*mmapfile_info), "mmapfile-info");

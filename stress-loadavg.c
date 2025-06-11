@@ -194,8 +194,8 @@ static int stress_loadavg(stress_args_t *args)
 
 	pthreads = (stress_loadavg_info_t *)calloc((size_t)pthread_max, sizeof(*pthreads));
 	if (!pthreads) {
-		pr_inf_skip("%s: out of memory allocating pthreads array, skipping stressor\n",
-			args->name);
+		pr_inf_skip("%s: out of memory allocating pthreads array%s, skipping stressor\n",
+			args->name, stress_get_memfree_str());
 		return EXIT_NO_RESOURCE;
 	}
 

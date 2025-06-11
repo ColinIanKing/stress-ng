@@ -305,9 +305,10 @@ static int stress_memcpy(stress_args_t *args)
 	buf = (uint8_t *)stress_mmap_populate(NULL, 3 * MEMCPY_MEMSIZE,
 				PROT_READ | PROT_WRITE,
 				MAP_ANONYMOUS | MAP_PRIVATE, -1 , 0);
-
 	if (buf == MAP_FAILED) {
-		pr_inf("%s: cannot allocate %d sized buffer\n", args->name, MEMCPY_MEMSIZE * 3);
+		pr_inf("%s: mmap of %d bytes failed%s, errno=%d (%s)\n",
+			args->name, MEMCPY_MEMSIZE * 3,
+			stress_get_memfree_str(), errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
 	stress_set_vma_anon_name(buf, 3 * MEMCPY_MEMSIZE, "memcpy-buffer");

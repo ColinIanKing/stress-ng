@@ -175,7 +175,8 @@ static int stress_mprotect(stress_args_t *args)
 
 	s_pids = stress_sync_s_pids_mmap(MPROTECT_MAX);
 	if (s_pids == MAP_FAILED) {
-		pr_inf_skip("%s: failed to mmap %d PIDs, skipping stressor\n", args->name, MPROTECT_MAX);
+		pr_inf_skip("%s: failed to mmap %d PIDs%s, skipping stressor\n",
+			args->name, MPROTECT_MAX, stress_get_memfree_str());
 		return EXIT_NO_RESOURCE;
 	}
 
@@ -212,8 +213,10 @@ static int stress_mprotect(stress_args_t *args)
 	mem = (uint8_t *)mmap(NULL, mem_size, PROT_READ | PROT_WRITE,
 				MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (mem == MAP_FAILED) {
-		pr_inf_skip("%s: cannot allocate %zd pages, skipping stressor\n",
-			args->name, mem_pages);
+		pr_inf_skip("%s: cannot allocate %zu pages%s, "
+			"errno=%d (%s), skipping stressor\n",
+			args->name, mem_pages,
+			stress_get_memfree_str(), errno, strerror(errno));
 		free(prot_flags);
 		return EXIT_NO_RESOURCE;
 	}

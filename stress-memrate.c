@@ -941,8 +941,9 @@ static inline void *stress_memrate_mmap(stress_args_t *args, uint64_t sz)
 		MAP_ANONYMOUS, -1, 0);
 	/* Coverity Scan believes NULL can be returned, doh */
 	if (!ptr || (ptr == MAP_FAILED)) {
-		pr_err("%s: cannot allocate %" PRIu64 " K\n",
-			args->name, sz / 1024);
+		pr_err("%s: failed to mmap %" PRIu64 " K%s, errno=%d (%s)\n",
+			args->name, sz / 1024, stress_get_memfree_str(),
+			errno, strerror(errno));
 		ptr = MAP_FAILED;
 	} else {
 #if defined(HAVE_MADVISE) &&	\
@@ -1077,8 +1078,10 @@ static int stress_memrate(stress_args_t *args)
 	context.stats = (stress_memrate_stats_t *)stress_mmap_populate(NULL, stats_size,
 		PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (context.stats == MAP_FAILED) {
-		pr_inf_skip("%s: failed to mmap %zd byte statistics buffer, skipping stressor\n",
-			args->name, stats_size);
+		pr_inf_skip("%s: failed to mmap %zu byte statistics buffer%s, "
+			"errno=%d (%s), skipping stressor\n",
+			args->name, stats_size, stress_get_memfree_str(),
+			errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
 	for (i = 0; i < memrate_items; i++) {

@@ -602,8 +602,8 @@ static int stress_clone(stress_args_t *args)
 	shared = mmap(NULL, sizeof(*shared), PROT_READ | PROT_WRITE,
 			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (shared == MAP_FAILED) {
-		pr_inf_skip("%s: failed to memory map %zd bytes, skipping stressor\n",
-			args->name, sizeof(*shared));
+		pr_inf_skip("%s: failed to memory map %zu bytes%s, skipping stressor\n",
+			args->name, sizeof(*shared), stress_get_memfree_str());
 		return EXIT_NO_RESOURCE;
 	}
 	stress_set_vma_anon_name(shared, sizeof(*shared), "clone-state");

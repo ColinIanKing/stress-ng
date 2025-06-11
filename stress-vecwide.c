@@ -172,8 +172,10 @@ static int stress_vecwide(stress_args_t *args)
 					PROT_READ | PROT_WRITE,
 					MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (vec_args == MAP_FAILED) {
-		pr_inf_skip("%s: skipping stressor, failed to allocate vectors, errno=%d (%s)\n",
-			args->name, errno, strerror(errno));
+		pr_inf_skip("%s: failed to mmap %zu byte vector%s "
+			"errno=%d (%s), skipping stressor\n",
+			args->name, vec_args_size,
+			stress_get_memfree_str(), errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
 	stress_set_vma_anon_name(vec_args, vec_args_size, "vec-args");

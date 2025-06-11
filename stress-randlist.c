@@ -173,8 +173,8 @@ static int stress_randlist(stress_args_t *args)
 
 	ptrs = (stress_randlist_item_t **)calloc(randlist_items, sizeof(stress_randlist_item_t *));
 	if (!ptrs) {
-		pr_inf_skip("%s: cannot allocate %zd temporary pointers, skipping stressor\n",
-			args->name, randlist_items);
+		pr_inf_skip("%s: cannot allocate %zu temporary pointers%s, skipping stressor\n",
+			args->name, randlist_items, stress_get_memfree_str());
 		return EXIT_NO_RESOURCE;
 	}
 

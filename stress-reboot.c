@@ -99,8 +99,9 @@ static int stress_reboot(stress_args_t *args)
 
 	stack = (char *)malloc(CLONE_STACK_SIZE);
 	if (!stack) {
-		pr_inf_skip("%s: out of memory allocating %zd byte stack, skipping stressor\n",
-			args->name, (size_t)CLONE_STACK_SIZE);
+		pr_inf_skip("%s: cannot allocate %zu byte stack%s, skipping stressor\n",
+			args->name, (size_t)CLONE_STACK_SIZE,
+			stress_get_memfree_str());
 		return EXIT_NO_RESOURCE;
 	}
 #endif

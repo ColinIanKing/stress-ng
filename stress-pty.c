@@ -77,11 +77,12 @@ static int stress_pty(stress_args_t *args)
 			pty_max = MIN_PTYS;
 	}
 
-	ptys = (stress_pty_info_t *)calloc(pty_max, sizeof(*ptys));
+	ptys = (stress_pty_info_t *)calloc((size_t)pty_max, sizeof(*ptys));
 	if (!ptys) {
-		pr_inf_skip("%s: allocation of pty array failed, errno=%d (%s) "
+		pr_inf_skip("%s: allocation of %zu pty array failed%s, "
 			"skipping stressor\n",
-			args->name, errno, strerror(errno));
+			args->name, (size_t)pty_max,
+			stress_get_memfree_str());
 		return EXIT_NO_RESOURCE;
 	}
 

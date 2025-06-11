@@ -492,9 +492,10 @@ static int stress_efivar(stress_args_t *args)
 	efi_ignore = (bool *)mmap(NULL, sz, PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (efi_ignore == MAP_FAILED) {
-		pr_inf_skip("%s: cannot mmap %zd bytes of shared memory: "
+		pr_inf_skip("%s: cannot mmap %zu bytes of shared memory%s, "
 			"errno=%d (%s), skipping stressor\n",
-			args->name, sz, errno, strerror(errno));
+			args->name, sz, stress_get_memfree_str(),
+			errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
 	stress_set_vma_anon_name(efi_ignore, sz, "efi-ignore-state");

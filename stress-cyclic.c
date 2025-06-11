@@ -661,8 +661,9 @@ static int stress_cyclic(stress_args_t *args)
 						PROT_READ | PROT_WRITE,
 						MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (rt_stats == MAP_FAILED) {
-		pr_inf_skip("%s: mmap of shared statistics data failed, errno=%d (%s)\n",
-			args->name, errno, strerror(errno));
+		pr_inf_skip("%s: mmap of shared statistics data failed%s, errno=%d (%s)\n",
+			args->name, stress_get_memfree_str(),
+			errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
 	stress_set_vma_anon_name(rt_stats, size, "rt-statistics");
@@ -673,8 +674,9 @@ static int stress_cyclic(stress_args_t *args)
 						PROT_READ | PROT_WRITE,
 						MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (rt_stats->latencies == MAP_FAILED) {
-		pr_inf_skip("%s: mmap of %zd samples failed, errno=%d (%s)\n",
-			args->name, cyclic_samples, errno, strerror(errno));
+		pr_inf_skip("%s: mmap of %zu samples failed%s, errno=%d (%s)\n",
+			args->name, cyclic_samples, stress_get_memfree_str(),
+			errno, strerror(errno));
 		(void)munmap((void *)rt_stats, size);
 		return EXIT_NO_RESOURCE;
 	}

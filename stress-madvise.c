@@ -527,8 +527,9 @@ static int stress_madvise(stress_args_t *args)
 	page = (char *)stress_mmap_populate(NULL, page_size, PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (page == MAP_FAILED) {
-		pr_inf_skip("%s: cannot allocate %zd byte page, skipping stressor\n",
-			args->name, page_size);
+		pr_inf_skip("%s: failed to mmap %zu byte page%s, errno=%d (%s), skipping stressor\n",
+			args->name, page_size, stress_get_memfree_str(),
+			errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
 	stress_set_vma_anon_name(page, page_size, "data-page");

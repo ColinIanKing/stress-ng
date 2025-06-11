@@ -282,9 +282,10 @@ static int stress_sigsegv(stress_args_t *args)
 	ro_ptr = (uint8_t *)mmap(NULL, args->page_size, PROT_READ,
 		MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (ro_ptr == MAP_FAILED) {
-		pr_inf_skip("%s: mmap of read only page failed, "
+		pr_inf_skip("%s: failed to mmap %zu byte read only page%s, "
 			"errno=%d (%s), skipping stressor\n",
-			args->name, errno, strerror(errno));
+			args->name, args->page_size,
+			stress_get_memfree_str(), errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
 	stress_set_vma_anon_name(ro_ptr, args->page_size, "ro-page");
@@ -293,9 +294,10 @@ static int stress_sigsegv(stress_args_t *args)
 	none_ptr = (uint8_t *)mmap(NULL, args->page_size, PROT_NONE,
 		MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (none_ptr == MAP_FAILED) {
-		pr_inf_skip("%s: mmap of write only page failed, "
+		pr_inf_skip("%s: failed to mmap %zu byte write only page%s, "
 			"errno=%d (%s), skipping stressor\n",
-			args->name, errno, strerror(errno));
+			args->name, args->page_size,
+			stress_get_memfree_str(), errno, strerror(errno));
 		(void)munmap((void *)ro_ptr, args->page_size);
 		return EXIT_NO_RESOURCE;
 	}
@@ -307,9 +309,10 @@ static int stress_sigsegv(stress_args_t *args)
 	guard_ptr = (uint8_t *)mmap(NULL, args->page_size, PROT_READ | PROT_WRITE,
 		MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (guard_ptr == MAP_FAILED) {
-		pr_inf_skip("%s: mmap of guard page failed, "
+		pr_inf_skip("%s: failed to mmap %zu byte guard page%s, "
 			"errno=%d (%s), skipping stressor\n",
-			args->name, errno, strerror(errno));
+			args->name, args->page_size,
+			stress_get_memfree_str(), errno, strerror(errno));
 		(void)munmap((void *)none_ptr, args->page_size);
 		(void)munmap((void *)ro_ptr, args->page_size);
 		return EXIT_NO_RESOURCE;

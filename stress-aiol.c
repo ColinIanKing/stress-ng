@@ -354,8 +354,8 @@ free_cb:
 free_buffer:
 	free(info->buffer);
 err_msg:
-	pr_inf_skip("%s: out of memory allocating buffers, skipping stressors\n",
-		args->name);
+	pr_inf_skip("%s: out of memory allocating buffers%s, skipping stressors\n",
+		args->name, stress_get_memfree_str());
 
 	(void)shim_memset(info, 0, sizeof(*info));
 	return -1;

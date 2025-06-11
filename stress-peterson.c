@@ -200,8 +200,10 @@ static int stress_peterson(stress_args_t *args)
 			PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (peterson == MAP_FAILED) {
-		pr_inf_skip("%s: cannot mmap %zd bytes for peterson shared struct, skipping stressor\n",
-			args->name, sz);
+		pr_inf_skip("%s: cannot mmap %zu bytes for peterson shared struct%s, "
+			"errno=%d (%s), skipping stressor\n",
+			args->name, sz, stress_get_memfree_str(),
+			errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
 	stress_set_vma_anon_name(peterson, sz, "peterson-lock");

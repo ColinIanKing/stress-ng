@@ -195,7 +195,10 @@ static int stress_oom_pipe(stress_args_t *args)
 	buffer = stress_mmap_populate(NULL, buffer_size, PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (buffer == MAP_FAILED) {
-		pr_inf_skip("%s: cannot allocate pipe write buffer, skipping stressor\n", args->name);
+		pr_inf_skip("%s: failed to mmap %zu byte pipe write buffer%s, "
+			"errno=%d (%s), skipping stressor\n",
+			args->name, buffer_size, stress_get_memfree_str(),
+			errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
 	stress_set_vma_anon_name(buffer, buffer_size, "rw-pipe-buffer");
@@ -211,8 +214,9 @@ static int stress_oom_pipe(stress_args_t *args)
 		context.max_fd = 1024 * 1024;
 		context.fds = (int *)calloc(context.max_fd, sizeof(*context.fds));
 		if (!context.fds) {
-			pr_inf_skip("%s: cannot allocate %zd file descriptors, skipping stressor\n",
-				args->name, context.max_fd);
+			pr_inf_skip("%s: cannot allocate %zu file descriptors%s, skipping stressor\n",
+				args->name, context.max_fd,
+				stress_get_memfree_str());
 			(void)munmap(buffer, buffer_size);
 			return EXIT_NO_RESOURCE;
 		}

@@ -664,7 +664,8 @@ static int stress_apparmor(stress_args_t *args)
 
 	s_pids = stress_sync_s_pids_mmap(MAX_APPARMOR_FUNCS);
 	if (s_pids == MAP_FAILED) {
-		pr_inf_skip("%s: failed to mmap %zu PIDs, skipping stressor\n", args->name, MAX_APPARMOR_FUNCS);
+		pr_inf_skip("%s: failed to mmap %zu PIDs%s, skipping stressor\n",
+			args->name, MAX_APPARMOR_FUNCS, stress_get_memfree_str());
                 return EXIT_NO_RESOURCE;
 	}
 
@@ -673,18 +674,21 @@ static int stress_apparmor(stress_args_t *args)
 			PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (stress_apparmor_shared_info == MAP_FAILED) {
-		pr_inf_skip("%s: failed to allocated shared memory, skipping stressor\n", args->name);
+		pr_inf_skip("%s: failed to allocated shared memory%s, skipping stressor\n",
+			args->name, stress_get_memfree_str());
 		goto err_free_s_pids;
 	}
 	stress_set_vma_anon_name(stress_apparmor_shared_info, sizeof(*stress_apparmor_shared_info), "lock-counter");
 	data_copy = (char *)malloc(g_apparmor_data_len);
 	if (!data_copy) {
-		pr_inf_skip("%s: failed to allocate apparmor data copy buffer, skipping stressor\n", args->name);
+		pr_inf_skip("%s: failed to allocate apparmor data copy buffer%s, skipping stressor\n",
+			args->name, stress_get_memfree_str());
 		goto err_free_shared_info;
 	}
 	data_prev = (char *)malloc(g_apparmor_data_len);
 	if (!data_prev) {
-		pr_inf_skip("%s: failed to allocate apparmor data prev buffer, skipping stressor\n", args->name);
+		pr_inf_skip("%s: failed to allocate apparmor data prev buffer%s, skipping stressor\n",
+			args->name, stress_get_memfree_str());
 		goto err_free_data_copy;
 	}
 	stress_apparmor_shared_info->counter_lock = stress_lock_create("counter");

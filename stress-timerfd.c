@@ -163,8 +163,9 @@ static int stress_timerfd(stress_args_t *args)
 
 	timerfds = (int *)calloc((size_t)timerfd_fds, sizeof(*timerfds));
 	if (!timerfds) {
-		pr_inf_skip("%s: cannot allocate %" PRIu32 " timerfd file descriptors, "
-			"skipping stressor\n", args->name, timerfd_fds);
+		pr_inf_skip("%s: failed to allocate %" PRIu32 " timerfd file descriptors%s, "
+			"skipping stressor\n", args->name,
+			timerfd_fds, stress_get_memfree_str());
 		rc = EXIT_NO_RESOURCE;
 		goto close_file_fd;
 	}
@@ -174,8 +175,9 @@ static int stress_timerfd(stress_args_t *args)
 #if defined(USE_POLL)
 	pollfds = (struct pollfd *)calloc((size_t)timerfd_fds, sizeof(*pollfds));
 	if (!pollfds) {
-		pr_inf_skip("%s: cannot allocate %" PRIu32 " pollfd file descriptors, "
-			"skipping stressor\n", args->name, timerfd_fds);
+		pr_inf_skip("%s: failed to allocate %" PRIu32 " pollfd file descriptors%s, "
+			"skipping stressor\n", args->name,
+			timerfd_fds, stress_get_memfree_str());
 		rc = EXIT_NO_RESOURCE;
 		goto free_timerfds;
 	}

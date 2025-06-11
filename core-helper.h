@@ -56,6 +56,7 @@ extern WARN_UNUSED int32_t stress_get_processors_configured(void);
 extern WARN_UNUSED int32_t stress_get_ticks_per_second(void);
 extern void stress_get_memlimits(size_t *shmall, size_t *freemem,
 	size_t *totalmem, size_t *freeswap, size_t *totalswap);
+extern WARN_UNUSED char *stress_get_memfree_str(void);
 extern void stress_get_gpu_freq_mhz(double *gpu_freq);
 extern void stress_ksm_memory_merge(const int flag);
 extern WARN_UNUSED bool stress_low_memory(const size_t requested);

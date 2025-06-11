@@ -81,13 +81,13 @@ static int stress_env_child(stress_args_t *args, void *context)
 		value = (char *)mmap(NULL, arg_max, PROT_READ | PROT_WRITE,
 			MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 		if (value == MAP_FAILED) {
-			pr_inf_skip("%s: could not allocate %zd bytes for environment variable value, "
+			pr_inf_skip("%s: could not allocate %zu bytes for environment variable value%s, "
 				"errno=%d (%s), skipping stressor\n",
-				args->name, arg_max,
+				args->name, arg_max, stress_get_memfree_str(),
 				errno, strerror(errno));
 			return EXIT_NO_RESOURCE;
 		}
-		pr_inf("%s: falling back to %zd byte sized environment variable value size\n",
+		pr_inf("%s: falling back to %zu byte sized environment variable value size\n",
 			args->name, arg_max);
 	}
 	stress_set_vma_anon_name(value, arg_max, "env-variable-value");

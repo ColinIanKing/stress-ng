@@ -51,15 +51,17 @@ static int stress_sigrt(stress_args_t *args)
 			PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (stress_sigrt_metrics == MAP_FAILED) {
-		pr_inf("%s: failed to mmap %zu bytes, skipping stressor\n",
-			args->name, stress_sigrt_metrics_size);
+		pr_inf("%s: failed to mmap %zu bytes%s, errno=%d (%s), "
+			"skipping stressor\n",
+			args->name, stress_sigrt_metrics_size,
+			stress_get_memfree_str(), errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
 	stress_set_vma_anon_name(stress_sigrt_metrics, stress_sigrt_metrics_size, "metrics");
 	pids = (pid_t *)calloc((size_t)MAX_RTPIDS, sizeof(*pids));
 	if (!pids) {
-		pr_inf_skip("%s: cannot allocate array of %zd pids, skipping stressor\n",
-			args->name, (size_t)MAX_RTPIDS);
+		pr_inf_skip("%s: failed to allocate array of %zu pids%s, skipping stressor\n",
+			args->name, (size_t)MAX_RTPIDS, stress_get_memfree_str());
 		(void)munmap((void *)stress_sigrt_metrics, stress_sigrt_metrics_size);
 		return EXIT_NO_RESOURCE;
 	}

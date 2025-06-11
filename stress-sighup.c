@@ -223,9 +223,10 @@ static int stress_sighup(stress_args_t *args)
 				MAP_SHARED | MAP_ANONYMOUS,
 				-1, 0);
 	if (sighup_info == MAP_FAILED) {
-		pr_inf_skip("%s: failed to mmap sighup information, "
+		pr_inf_skip("%s: failed to mmap %zu byte sighup information%s, "
 			"errno=%d (%s), skipping stressor\n",
-			args->name, errno, strerror(errno));
+			args->name, sizeof(*sighup_info),
+			stress_get_memfree_str(), errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
 	stress_set_vma_anon_name((void *)sighup_info, sizeof(*sighup_info), "state");

@@ -340,8 +340,10 @@ static int stress_prio_inv(stress_args_t *args)
 				PROT_READ | PROT_WRITE,
 				MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (prio_inv_info == MAP_FAILED) {
-		pr_inf_skip("%s: cannot mmap prio_inv_info structure, errno=%d (%s), skipping stressor\n",
-			args->name, errno, strerror(errno));
+		pr_inf_skip("%s: cannot mmap %zu byte prio_inv_info structure%s, "
+			"errno=%d (%s), skipping stressor\n",
+			args->name, sizeof(*prio_inv_info),
+			stress_get_memfree_str(), errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
 	stress_set_vma_anon_name(prio_inv_info, sizeof(*prio_inv_info), "state");

@@ -821,7 +821,8 @@ static void NORETURN epoll_server(
 	}
 	events = (struct epoll_event *)calloc(MAX_EPOLL_EVENTS, sizeof(*events));
 	if (!events) {
-		pr_fail("%s: calloc failed, out of memory\n", args->name);
+		pr_fail("%s: calloc of %d events failed%s, out of memory\n",
+			args->name, MAX_EPOLL_EVENTS, stress_get_memfree_str());
 		rc = EXIT_FAILURE;
 		goto die_close;
 	}
@@ -992,7 +993,8 @@ static int stress_epoll(stress_args_t *args)
 
 	s_pids = stress_sync_s_pids_mmap(MAX_SERVERS);
 	if (s_pids == MAP_FAILED) {
-		pr_inf_skip("%s: failed to mmap %d PIDs, skipping stressor\n", args->name, MAX_SERVERS);
+		pr_inf_skip("%s: failed to mmap %d PIDs%s, skipping stressor\n",
+			args->name, MAX_SERVERS, stress_get_memfree_str());
 		return EXIT_NO_RESOURCE;
 	}
 

@@ -154,8 +154,9 @@ static int OPTIMIZE3 stress_bsearch(stress_args_t *args)
 				data_size, PROT_READ | PROT_WRITE,
 				MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (data == MAP_FAILED) {
-		pr_inf_skip("%s: mmap of %zu bytes failed, errno=%d (%s), skipping stressor\n",
-			args->name, data_size, errno, strerror(errno));
+		pr_inf_skip("%s: mmap of %zu bytes failed%s, errno=%d (%s), skipping stressor\n",
+			args->name, data_size, stress_get_memfree_str(),
+			errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
 	stress_set_vma_anon_name(data, data_size, "bsearch-data");

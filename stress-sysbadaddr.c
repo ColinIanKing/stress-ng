@@ -2517,9 +2517,10 @@ static int stress_sysbadaddr(stress_args_t *args)
 		sizeof(*state), PROT_READ | PROT_WRITE,
 		MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (state == MAP_FAILED) {
-		pr_inf_skip("%s: cannot mmap anonymous state structure: "
+		pr_inf_skip("%s: failed to mmap %zu byte anonymous state structure%s, "
 		       "errno=%d (%s), skipping stressor\n",
-			args->name, errno, strerror(errno));
+			args->name, sizeof(*state),
+			stress_get_memfree_str(), errno, strerror(errno));
 		ret = EXIT_NO_RESOURCE;
 		goto cleanup;
 	}
@@ -2528,9 +2529,10 @@ static int stress_sysbadaddr(stress_args_t *args)
 	ro_page = stress_mmap_populate(NULL, page_size,
 		PROT_READ, MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (ro_page == MAP_FAILED) {
-		pr_inf_skip("%s: cannot mmap anonymous read-only page: "
+		pr_inf_skip("%s: failed to mmap %zu byte anonymous read-only page%s, "
 		       "errno=%d (%s), skipping stressor\n",
-			args->name, errno, strerror(errno));
+			args->name, page_size,
+			stress_get_memfree_str(), errno, strerror(errno));
 		ret = EXIT_NO_RESOURCE;
 		goto cleanup;
 	}
@@ -2541,9 +2543,10 @@ static int stress_sysbadaddr(stress_args_t *args)
 		PROT_READ | PROT_WRITE,
 		MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (rw_page == MAP_FAILED) {
-		pr_inf_skip("%s: cannot mmap anonymous read-write page: "
+		pr_inf_skip("%s: failed to mmap %zu byte anonymous read-write page%s, "
 		       "errno=%d (%s), skipping stressor\n",
-			args->name, errno, strerror(errno));
+			args->name, page_size << 1,
+			stress_get_memfree_str(), errno, strerror(errno));
 		ret = EXIT_NO_RESOURCE;
 		goto cleanup;
 	}
@@ -2554,9 +2557,10 @@ static int stress_sysbadaddr(stress_args_t *args)
 		PROT_EXEC | PROT_READ,
 		MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (rx_page == MAP_FAILED) {
-		pr_inf_skip("%s: cannot mmap anonymous execute-only page: "
+		pr_inf_skip("%s: failed to mmap %zu byte anonymous execute-only page%s, "
 		       "errno=%d (%s), skipping stressor\n",
-			args->name, errno, strerror(errno));
+			args->name, page_size,
+			stress_get_memfree_str(), errno, strerror(errno));
 		ret = EXIT_NO_RESOURCE;
 		goto cleanup;
 	}
@@ -2566,9 +2570,10 @@ static int stress_sysbadaddr(stress_args_t *args)
 	no_page = stress_mmap_populate(NULL, page_size,
 		PROT_NONE, MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (no_page == MAP_FAILED) {
-		pr_inf_skip("%s: cannot mmap anonymous prot-none page: "
+		pr_inf_skip("%s: failed to mmap %zu anonymous prot-none page%s, "
 		       "errno=%d (%s), skipping stressor\n",
-			args->name, errno, strerror(errno));
+			args->name, page_size,
+			stress_get_memfree_str(), errno, strerror(errno));
 		ret = EXIT_NO_RESOURCE;
 		goto cleanup;
 	}
@@ -2577,9 +2582,10 @@ static int stress_sysbadaddr(stress_args_t *args)
 	wo_page = stress_mmap_populate(NULL, page_size,
 		PROT_WRITE, MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (wo_page == MAP_FAILED) {
-		pr_inf_skip("%s: cannot mmap anonymous write-only page: "
+		pr_inf_skip("%s: failed to mmap %zu byte anonymous write-only page%s, "
 		       "errno=%d (%s), skipping stressor\n",
-			args->name, errno, strerror(errno));
+			args->name, page_size,
+			stress_get_memfree_str(), errno, strerror(errno));
 		ret = EXIT_NO_RESOURCE;
 		goto cleanup;
 	}

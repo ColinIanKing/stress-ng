@@ -742,7 +742,9 @@ static int stress_hdd(stress_args_t *args)
 	ret = posix_memalign((void **)&alloc_buf, BUF_ALIGNMENT, (size_t)hdd_write_size);
 	if (ret || !alloc_buf) {
 		rc = stress_exit_status(errno);
-		pr_err("%s: cannot allocate buffer\n", args->name);
+		pr_err("%s: cannot allocate %zu byte buffer%s\n",
+			args->name, (size_t)hdd_write_size,
+			stress_get_memfree_str());
 		(void)stress_temp_dir_rm_args(args);
 		return rc;
 	}
@@ -751,7 +753,9 @@ static int stress_hdd(stress_args_t *args)
 	/* Work around lack of posix_memalign */
 	alloc_buf = malloc((size_t)hdd_write_size + BUF_ALIGNMENT);
 	if (!alloc_buf) {
-		pr_err("%s: cannot allocate buffer\n", args->name);
+		pr_err("%s: cannot allocate %zu byte buffer%s\n",
+			args->name, (size_t)hdd_write_size + BUF_ALIGNMENT,
+			stress_get_memfree_str());
 		(void)stress_temp_dir_rm_args(args);
 		return rc;
 	}

@@ -227,7 +227,8 @@ static int stress_flipflop(stress_args_t *args)
 
 	dist = calloc(2 * flipflop_bits, sizeof(uint64_t));
 	if (!dist) {
-		pr_inf_skip("%s: failed to allocate dist array, skipping stressor\n", args->name);
+		pr_inf_skip("%s: failed to allocate dist array%s, skipping stressor\n",
+			args->name, stress_get_memfree_str());
 		return EXIT_NO_RESOURCE;
 	}
 
@@ -251,8 +252,8 @@ static int stress_flipflop(stress_args_t *args)
 	bits_size = ((flipflop_bits + 63) / 64) * 8;
 	bits = calloc(bits_size, 1);
 	if (!bits) {
-		pr_inf("%s: failed to allocate %zu bytes, skipping stressor\n",
-			args->name, bits_size);
+		pr_inf_skip("%s: failed to allocate %zu bytes%s, skipping stressor\n",
+			args->name, bits_size, stress_get_memfree_str());
 		rc = EXIT_NO_RESOURCE;
 		goto free_dist;
 	}
@@ -260,8 +261,8 @@ static int stress_flipflop(stress_args_t *args)
 	max_ops = (args->bogo.max_ops * BOGO_SCALE) / (2 * flipflop_bits);
 	workers = (stress_flipflop_worker_t *)calloc(2 * flipflop_bits, sizeof(stress_flipflop_worker_t));
 	if (!workers) {
-		pr_inf("%s: failed to allocate workers array, skipping stressor\n",
-			args->name);
+		pr_inf_skip("%s: failed to allocate workers array%s, skipping stressor\n",
+			args->name, stress_get_memfree_str());
 		rc = EXIT_NO_RESOURCE;
 		goto free_bits;
 	}

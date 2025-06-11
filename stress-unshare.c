@@ -166,8 +166,10 @@ static int stress_unshare(stress_args_t *args)
 				PROT_READ | PROT_WRITE,
 				MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (unshare_info == MAP_FAILED) {
-		pr_inf("%s: could not mmap %zu bytes for unshare metrics, skipping stressor\n",
-			args->name, unshare_info_size);
+		pr_inf("%s: failed to mmap %zu bytes for unshare metrics%s, "
+			"errno=%d (%s), skipping stressor\n",
+			args->name, unshare_info_size,
+			stress_get_memfree_str(), errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
 	stress_set_vma_anon_name(unshare_info, unshare_info_size, "unshare-metrics");

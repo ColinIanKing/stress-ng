@@ -309,7 +309,8 @@ static int stress_fpunch(stress_args_t *args)
 
 	s_pids = stress_sync_s_pids_mmap(STRESS_PUNCH_PIDS);
 	if (s_pids == MAP_FAILED) {
-                pr_inf_skip("%s: failed to mmap %d PIDs, skipping stressor\n", args->name, STRESS_PUNCH_PIDS);
+                pr_inf_skip("%s: failed to mmap %d PIDs%s, skipping stressor\n",
+			args->name, STRESS_PUNCH_PIDS, stress_get_memfree_str());
 		return EXIT_NO_RESOURCE;
         }
 
@@ -317,8 +318,9 @@ static int stress_fpunch(stress_args_t *args)
 			PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (buf == MAP_FAILED) {
-		pr_inf("%s: failed to mmap %zd sized buffer, errno=%d (%s), skipping stressor\n",
-			args->name, sizeof(*buf), errno, strerror(errno));
+		pr_inf("%s: failed to mmap %zu sized buffer%s, errno=%d (%s), skipping stressor\n",
+			args->name, sizeof(*buf), stress_get_memfree_str(),
+			errno, strerror(errno));
 		rc = EXIT_NO_RESOURCE;
 		goto tidy_s_pids;
 	}

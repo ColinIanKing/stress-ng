@@ -873,6 +873,32 @@ void stress_get_memlimits(
 }
 
 /*
+ *  stress_get_memfree_str()
+ *	get size of memory that's free in a string, non-reentrant
+ *	note the ' ' space is prefixed before valid strings so the
+ *	output can be used in messages such as:
+ *	   pr_fail("out of memory%s\n", stress_uint64_to_str());
+ */
+char *stress_get_memfree_str(void)
+{
+        size_t freemem = 0, totalmem = 0, freeswap = 0, totalswap = 0;
+	char freemem_str[32], freeswap_str[32];
+	static char buf[96];
+
+	(void)shim_memset(buf, 0, sizeof(buf));
+	if (stress_get_meminfo(&freemem, &totalmem, &freeswap, &totalswap) < 0)
+		return buf;
+
+	if ((freemem == 0) && (totalmem == 0) && (freeswap == 0) && (totalswap == 0))
+		return buf;
+
+	(void)stress_uint64_to_str(freemem_str, sizeof(freemem_str), (uint64_t)freemem, 0, true);
+	(void)stress_uint64_to_str(freeswap_str, sizeof(freeswap_str), (uint64_t)freeswap, 0, true);
+	(void)snprintf(buf, sizeof(buf), " (%s mem free, %s swap free)", freemem_str, freeswap_str);
+	return buf;
+}
+
+/*
  *  stress_get_gpu_freq_mhz()
  *	get GPU frequency in MHz, set to 0.0 if not readable
  */

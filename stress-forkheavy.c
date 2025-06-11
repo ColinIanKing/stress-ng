@@ -258,7 +258,7 @@ static int stress_forkheavy(stress_args_t *args)
 	forkheavy_args.num_resources = DEFAULT_FORKHEAVY_ALLOCS;
 	forkheavy_args.resources = (stress_resources_t *)malloc(forkheavy_args.num_resources * sizeof(*forkheavy_args.resources));
 	if (!forkheavy_args.resources) {
-		pr_inf_skip("%s: cannot allocate %zd resource structures, skipping stressor\n",
+		pr_inf_skip("%s: cannot allocate %zu resource structures, skipping stressor\n",
 			args->name, forkheavy_args.num_resources);
 		return EXIT_NO_RESOURCE;
 	}
@@ -268,8 +268,8 @@ static int stress_forkheavy(stress_args_t *args)
 			PROT_READ | PROT_WRITE,
 			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (metrics == MAP_FAILED) {
-		pr_inf_skip("%s: failed to memory map %zd bytes, skipping stressor\n",
-			args->name, sizeof(*metrics));
+		pr_inf_skip("%s: failed to memory map %zu bytes%s, skipping stressor\n",
+			args->name, sizeof(*metrics), stress_get_memfree_str());
 		free(forkheavy_args.resources);
 		return EXIT_NO_RESOURCE;
 	}

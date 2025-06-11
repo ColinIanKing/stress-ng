@@ -845,7 +845,9 @@ static inline int stress_matrix_3d_exercise(
 	a = (matrix_3d_ptr_t)stress_mmap_populate(NULL, matrix_3d_mmap_size,
 		PROT_READ | PROT_WRITE, flags, -1, 0);
 	if (a == MAP_FAILED) {
-		pr_fail("%s: matrix allocation failed, out of memory\n", args->name);
+		pr_fail("%s: matrix allocation failed, out of memory%s, errno=%d (%s)\n",
+			args->name, stress_get_memfree_str(),
+			errno, strerror(errno));
 		goto tidy_ret;
 	}
 	(void)stress_madvise_collapse(a, matrix_3d_mmap_size);
@@ -854,7 +856,9 @@ static inline int stress_matrix_3d_exercise(
 	b = (matrix_3d_ptr_t)stress_mmap_populate(NULL, matrix_3d_mmap_size,
 		PROT_READ | PROT_WRITE, flags, -1, 0);
 	if (b == MAP_FAILED) {
-		pr_fail("%s: matrix allocation failed, out of memory\n", args->name);
+		pr_fail("%s: matrix allocation failed, out of memory%s, errno=%d (%s)\n",
+			args->name, stress_get_memfree_str(),
+			errno, strerror(errno));
 		goto tidy_a;
 	}
 	(void)stress_madvise_collapse(b, matrix_3d_mmap_size);
@@ -863,7 +867,9 @@ static inline int stress_matrix_3d_exercise(
 	r = (matrix_3d_ptr_t)stress_mmap_populate(NULL, matrix_3d_mmap_size,
 		PROT_READ | PROT_WRITE, flags, -1, 0);
 	if (r == MAP_FAILED) {
-		pr_fail("%s: matrix allocation failed, out of memory\n", args->name);
+		pr_fail("%s: matrix allocation failed, out of memory%s, errno=%d (%s)\n",
+			args->name, stress_get_memfree_str(),
+			errno, strerror(errno));
 		goto tidy_b;
 	}
 	(void)stress_madvise_collapse(r, matrix_3d_mmap_size);
@@ -873,7 +879,9 @@ static inline int stress_matrix_3d_exercise(
 		s = (matrix_3d_ptr_t)stress_mmap_populate(NULL, matrix_3d_mmap_size,
 			PROT_READ | PROT_WRITE, flags, -1, 0);
 		if (s == MAP_FAILED) {
-			pr_fail("%s: matrix allocation failed, out of memory\n", args->name);
+			pr_fail("%s: matrix allocation failed, out of memory%s, errno=%d (%s)\n",
+				args->name, stress_get_memfree_str(),
+				errno, strerror(errno));
 			goto tidy_r;
 		}
 		(void)stress_madvise_collapse(s, matrix_3d_mmap_size);

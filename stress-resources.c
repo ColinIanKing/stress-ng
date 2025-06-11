@@ -67,14 +67,15 @@ static int stress_resources(stress_args_t *args)
 
 	s_pids = stress_sync_s_pids_mmap(num_pids);
 	if (s_pids == MAP_FAILED) {
-		pr_inf_skip("%s: failed to mmap %zu PIDs, skipping stressor\n", args->name, num_pids);
+		pr_inf_skip("%s: failed to mmap %zu PIDs%s, skipping stressor\n",
+			args->name, num_pids, stress_get_memfree_str());
 		return EXIT_NO_RESOURCE;
 	}
 
 	resources = (stress_resources_t *)malloc(num_resources * sizeof(*resources));
 	if (!resources) {
-		pr_inf_skip("%s: cannot allocate %zd resource structures, skipping stressor\n",
-			args->name, num_resources);
+		pr_inf_skip("%s: cannot allocate %zu resource structures%s, skipping stressor\n",
+			args->name, num_resources, stress_get_memfree_str());
 		(void)stress_sync_s_pids_munmap(s_pids, num_pids);
 		return EXIT_NO_RESOURCE;
 	}

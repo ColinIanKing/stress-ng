@@ -236,7 +236,8 @@ static int stress_affinity(stress_args_t *args)
 
 	s_pids = stress_sync_s_pids_mmap(STRESS_AFFINITY_PROCS);
 	if (s_pids == MAP_FAILED) {
-		pr_inf_skip("%s: failed to mmap %d PIDs, skipping stressor\n", args->name, STRESS_AFFINITY_PROCS);
+		pr_inf_skip("%s: failed to mmap %d PIDs%s, skipping stressor\n",
+			args->name, STRESS_AFFINITY_PROCS, stress_get_memfree_str());
 		return EXIT_NO_RESOURCE;
 	}
 
@@ -251,8 +252,8 @@ static int stress_affinity(stress_args_t *args)
 			info_sz, PROT_READ | PROT_WRITE,
 			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (info == MAP_FAILED) {
-		pr_inf_skip("%s: cannot mmap %zd bytes for shared counters, skipping stressor\n",
-			args->name, info_sz);
+		pr_inf_skip("%s: cannot mmap %zu bytes for shared counters%s, skipping stressor\n",
+			args->name, info_sz, stress_get_memfree_str());
 		(void)stress_lock_destroy(counter_lock);
 		(void)stress_sync_s_pids_munmap(s_pids, STRESS_AFFINITY_PROCS);
 		return EXIT_NO_RESOURCE;

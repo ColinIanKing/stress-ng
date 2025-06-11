@@ -329,9 +329,10 @@ static int stress_bad_altstack(stress_args_t *args)
 			PROT_READ | PROT_WRITE,
 			MAP_PRIVATE | MAP_ANONYMOUS | map_stackflags, -1, 0);
 	if (stack == MAP_FAILED) {
-		pr_inf_skip("%s: cannot mmap %zu byte signal handler stack, "
+		pr_inf_skip("%s: cannot mmap %zu byte signal handler stack%s, "
 			    "errno=%d (%s), skipping stressor\n",
-			args->name, (size_t)stress_minsigstksz, errno, strerror(errno));
+			args->name, (size_t)stress_minsigstksz,
+			stress_get_memfree_str(), errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
 	stress_set_vma_anon_name(stack, stress_minsigstksz, "altstack");

@@ -108,8 +108,9 @@ static int stress_pagemove_child(stress_args_t *args, void *context)
 		MAP_PRIVATE | MAP_ANONYMOUS,
 		-1, 0);
 	if (buf == MAP_FAILED) {
-		pr_inf_skip("%s: failed to mmap %zu bytes (errno=%d) %s, skipping stressor\n",
-			args->name, sz + page_size, errno, strerror(errno));
+		pr_inf_skip("%s: failed to mmap %zu bytes%s, errno=%d (%s), skipping stressor\n",
+			args->name, sz + page_size, stress_get_memfree_str(),
+			errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
 	if (pagemove_mlock)

@@ -422,13 +422,16 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 
 	data = malloc(page_size);
 	if (UNLIKELY(!data)) {
-		pr_fail("%s: malloc failed, out of memory\n", args->name);
+		pr_fail("%s: malloc of %zu bytes failed%s, out of memory\n",
+			args->name, page_size, stress_get_memfree_str());
 		return EXIT_NO_RESOURCE;
 	}
 
 	mappings = (mmap_info_t *)calloc((size_t)MMAP_MAPPINGS_MAX, sizeof(*mappings));
 	if (UNLIKELY(!mappings)) {
-		pr_fail("%s: calloc failed, out of memory\n", args->name);
+		pr_fail("%s: calloc of %zu bytes failed%s, out of memory\n",
+			args->name, (size_t)MMAP_MAPPINGS_MAX * sizeof(*mappings),
+			stress_get_memfree_str());
 		free(data);
 		return EXIT_NO_RESOURCE;
 	}
@@ -547,7 +550,7 @@ retry:
 				int shm_fd;
 				char shm_name[128];
 
-				(void)snprintf(shm_name, sizeof(shm_name), "%s-%" PRIdMAX "-%zd",
+				(void)snprintf(shm_name, sizeof(shm_name), "%s-%" PRIdMAX "-%zu",
 						args->name, (intmax_t)mypid, n);
 				shm_fd = shm_open(shm_name, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
 				if (shm_fd < 0)
@@ -858,7 +861,10 @@ static int stress_mmaptorture(stress_args_t *args)
 					PROT_READ | PROT_WRITE,
 					MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (mmap_stats == MAP_FAILED) {
-		pr_inf_skip("%s: cannot mmap stats shared page, skipping stressor\n", args->name);
+		pr_inf_skip("%s: cannot mmap %zu bytes stats shared page%s, "
+			"errno=%d (%s), skipping stressor\n", args->name,
+			sizeof(*mmap_stats), stress_get_memfree_str(),
+			errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
 

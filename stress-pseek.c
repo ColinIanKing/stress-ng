@@ -373,9 +373,10 @@ static int stress_pseek(stress_args_t *args)
 	procs = stress_mmap_populate(NULL, procs_size, PROT_READ | PROT_WRITE,
 					MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (procs == MAP_FAILED) {
-		pr_inf_skip("%s: failed to mmap procs array, errno=%d (%s), "
-			"skipping stressor\n",
-			args->name, errno, strerror(errno));
+		pr_inf_skip("%s: failed to mmap %zu byte procs array%s, "
+			"errno=%d (%s), skipping stressor\n",
+			args->name, procs_size,
+			stress_get_memfree_str(), errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
 	stress_set_vma_anon_name(procs, procs_size, "process-state");
@@ -418,10 +419,10 @@ static int stress_pseek(stress_args_t *args)
 		if (procs[i].buf == MAP_FAILED) {
 			size_t j;
 
-			pr_inf_skip("%s: cannot mmap buffer of %zu bytes, "
+			pr_inf_skip("%s: failed to mmap buffer of %zu bytes%s, "
 				"errno=%d (%s), skipping stressor\n",
 				args->name, info.pseek_io_size,
-				errno, strerror(errno));
+				stress_get_memfree_str(), errno, strerror(errno));
 			for (j = 0; j < i; j++) {
 				(void)munmap((void *)procs[j].buf, info.pseek_io_size);
 			}

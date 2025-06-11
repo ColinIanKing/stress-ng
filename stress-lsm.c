@@ -99,7 +99,10 @@ static int stress_lsm(stress_args_t *args)
 
 	buf = stress_mmap_populate(NULL, buf_size, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (buf == MAP_FAILED) {
-		pr_inf_skip("%s: cannot mmap %zu byte sized buffer, skipping stressor\n", args->name, buf_size);
+		pr_inf_skip("%s: cannot mmap %zu byte sized buffer%s, errno=%d (%s),"
+			"skipping stressor\n",
+			args->name, buf_size, stress_get_memfree_str(),
+			errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
 	stress_set_vma_anon_name(buf, buf_size, "lsm-data");

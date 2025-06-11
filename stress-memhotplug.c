@@ -279,8 +279,8 @@ static int stress_memhotplug(stress_args_t *args)
 
 	mem_info = (stress_mem_info_t *)calloc(n, sizeof(*mem_info));
 	if (!mem_info) {
-		pr_inf_skip("%s: failed to allocate %zd mem_info structs, skipping stressor\n",
-			args->name, n);
+		pr_inf_skip("%s: failed to allocate %zu mem_info structs%s, skipping stressor\n",
+			args->name, n, stress_get_memfree_str());
 		(void)closedir(dir);
 		return EXIT_NO_RESOURCE;
 	}
@@ -296,7 +296,7 @@ static int stress_memhotplug(stress_args_t *args)
 	}
 	(void)closedir(dir);
 
-	pr_dbg("%s: found %zd removable hotplug memory regions\n",
+	pr_dbg("%s: found %zu removable hotplug memory regions\n",
 		args->name, max);
 
 	metrics.offline_duration = 0.0;

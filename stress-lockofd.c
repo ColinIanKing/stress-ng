@@ -196,7 +196,8 @@ static int stress_lockofd_contention(
 
 		lockofd_info = stress_lockofd_info_new();
 		if (!lockofd_info) {
-			pr_err("%s: calloc failed, out of memory\n", args->name);
+			pr_err("%s: calloc failed, out of memory%s\n",
+				args->name, stress_get_memfree_str());
 			return -1;
 		}
 		lockofd_info->offset = offset;

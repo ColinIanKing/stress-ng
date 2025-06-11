@@ -701,7 +701,8 @@ static int stress_exec(stress_args_t *args)
 		mmap(NULL, cache_max, PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (stress_pid_cache == MAP_FAILED) {
-		pr_inf_skip("%s: failed to allocate PID hash cache, skipping stressor\n", args->name);
+		pr_inf_skip("%s: failed to allocate %zu byte PID hash cache%s, skipping stressor\n",
+			args->name, cache_max, stress_get_memfree_str());
 		return EXIT_NO_RESOURCE;
 	}
 	stress_set_vma_anon_name(stress_pid_cache, cache_max, "pid-cache");

@@ -138,7 +138,8 @@ static GLuint compile_shader(
 
 			infoLog = (char *)malloc((size_t)infoLen);
 			if (!infoLog) {
-				pr_inf_skip("%s: failed to allocate infoLog, skipping stressor\n", args->name);
+				pr_inf_skip("%s: failed to allocate infoLog%s, skipping stressor\n",
+					args->name, stress_get_memfree_str());
 				glDeleteShader(shader);
 				return 0;
 			}
@@ -193,7 +194,8 @@ static int load_shaders(stress_args_t *args)
 
 			infoLog = (char *)malloc((size_t)infoLen);
 			if (!infoLog) {
-				pr_inf_skip("%s: failed to allocate infoLog, skipping stressor\n", name);
+				pr_inf_skip("%s: failed to allocate infoLog%s, skipping stressor\n",
+					name, stress_get_memfree_str());
 				glDeleteProgram(program);
 				return EXIT_NO_RESOURCE;
 			}
@@ -289,7 +291,8 @@ static int gles2_init(
 		bytesPerImage = texsize * texsize * 4;
 		teximage = (GLubyte *)malloc((size_t)bytesPerImage);
 		if (!teximage) {
-			pr_inf_skip("%s: failed to allocate teximage, skipping stressor\n", args->name);
+			pr_inf_skip("%s: failed to allocate teximage%s, skipping stressor\n",
+				args->name, stress_get_memfree_str());
 			return EXIT_NO_RESOURCE;
 		}
 	}
@@ -334,7 +337,8 @@ static int get_config(stress_args_t *args, EGLConfig *config)
 	/* Use calloc to avoid multiplication overflow */
 	configs = (EGLConfig *)calloc((size_t)num_configs, sizeof(EGLConfig));
 	if (!configs) {
-		pr_inf_skip("%s: EGL: EGL allocation failed, skipping stressor\n", args->name);
+		pr_inf_skip("%s: EGL: EGL allocation failed%s, skipping stressor\n",
+			args->name, stress_get_memfree_str());
 		return EXIT_NO_RESOURCE;
 	}
 	if ((eglChooseConfig(display, egl_config_attribs,
@@ -427,7 +431,8 @@ static int egl_init(
 
 	surface = eglCreatePlatformWindowSurface(display, config, gs, NULL);
 	if (surface == EGL_NO_SURFACE) {
-		pr_inf("%s: EGL: Failed to allocate surface\n", args->name);
+		pr_inf("%s: EGL: Failed to allocate surface%s\n",
+			args->name, stress_get_memfree_str());
 		return EXIT_NO_RESOURCE;
 	}
 

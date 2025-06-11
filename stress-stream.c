@@ -669,8 +669,9 @@ static inline void *stress_stream_mmap(
 		MAP_ANONYMOUS, -1, 0);
 	/* Coverity Scan believes NULL can be returned, doh */
 	if (!ptr || (ptr == MAP_FAILED)) {
-		pr_err("%s: cannot allocate %" PRIu64 " bytes\n",
-			args->name, sz);
+		pr_err("%s: failed to mmap %" PRIu64 " bytes%s, errno=%d (%s)\n",
+			args->name, sz,
+			stress_get_memfree_str(), errno, strerror(errno));
 		ptr = MAP_FAILED;
 	} else {
 		stress_set_vma_anon_name(ptr, sz, "stream-buffer");

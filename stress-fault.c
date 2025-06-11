@@ -177,8 +177,9 @@ redo:
 				(void)close(fd);
 				goto next;
 			}
-			pr_err("%s: mmap failed, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
+			pr_err("%s: mmap of 1 byte failed%s, errno=%d (%s)\n",
+				args->name, stress_get_memfree_str(),
+				errno, strerror(errno));
 			(void)close(fd);
 			break;
 

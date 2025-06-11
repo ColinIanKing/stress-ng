@@ -267,7 +267,8 @@ static int stress_access(stress_args_t *args)
 
 	s_pids = stress_sync_s_pids_mmap(STRESS_ACCESS_PROCS);
 	if (s_pids == MAP_FAILED) {
-		pr_inf_skip("%s: failed to mmap %d PIDs, skipping stressor\n", args->name, STRESS_ACCESS_PROCS);
+		pr_inf_skip("%s: failed to mmap %d PIDs%s, skipping stressor\n",
+			args->name, STRESS_ACCESS_PROCS, stress_get_memfree_str());
 		return EXIT_NO_RESOURCE;
 	}
 
@@ -314,8 +315,8 @@ static int stress_access(stress_args_t *args)
 			metrics_size, PROT_READ | PROT_WRITE,
 			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (metrics == MAP_FAILED) {
-		pr_inf_skip("%s: cannot mmap %zd bytes for metrics, skipping stressor\n",
-			args->name, metrics_size);
+		pr_inf_skip("%s: cannot mmap %zu bytes for metrics%s, skipping stressor\n",
+			args->name, metrics_size, stress_get_memfree_str());
 		rc = EXIT_NO_RESOURCE;
 		goto tidy;
 	}

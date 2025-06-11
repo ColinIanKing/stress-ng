@@ -76,8 +76,9 @@ static int stress_xattr(stress_args_t *args)
 #if defined(XATTR_SIZE_MAX)
 	large_tmp = (char *)calloc(XATTR_SIZE_MAX + 2, sizeof(*large_tmp));
 	if (!large_tmp) {
-		pr_inf_skip("%s: failed to allocate large xattr buffer, skipping stressor\n",
-			args->name);
+		pr_inf_skip("%s: failed to allocate large %zu byte xattr buffer%s, skipping stressor\n",
+			args->name, (size_t)(XATTR_SIZE_MAX + 2) * sizeof(*large_tmp),
+			stress_get_memfree_str());
 		return EXIT_NO_RESOURCE;
 	}
 #endif

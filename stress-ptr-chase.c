@@ -73,8 +73,9 @@ static int stress_ptr_chase(stress_args_t *args)
 
 	ptrs_heap = (stress_ptrs_t *)calloc(1, alloc_size);
 	if (!ptrs_heap) {
-		pr_inf("%s: heap allocation of %zu bytes failed, skipping stressor\n",
-			args->name, alloc_size);
+		pr_inf("%s: failed to allocation heap of %zu bytes failed%s, "
+			"skipping stressor\n",
+			args->name, alloc_size, stress_get_memfree_str());
 		return EXIT_NO_RESOURCE;
 	}
 	ptrs_mmap = (stress_ptrs_t *)stress_mmap_populate(NULL, alloc_size,
@@ -82,9 +83,10 @@ static int stress_ptr_chase(stress_args_t *args)
 					MAP_ANONYMOUS | MAP_PRIVATE,
 					-1, 0);
 	if (ptrs_mmap == MAP_FAILED) {
-		pr_inf_skip("%s: mmap allocating of %zu bytes failed, "
+		pr_inf_skip("%s: failed to mmap %zu bytes%s, "
 			"errno=%d (%s), skipping stressor\n",
-			args->name, n, errno, strerror(errno));
+			args->name, n,
+			stress_get_memfree_str(), errno, strerror(errno));
 		goto tidy_ptrs_heap;
 	}
 	stress_set_vma_anon_name(ptrs_mmap, alloc_size, "pointer-nodes");
@@ -95,9 +97,10 @@ static int stress_ptr_chase(stress_args_t *args)
 					MAP_ANONYMOUS | MAP_PRIVATE,
 					-1, 0);
 	if (ptrs == MAP_FAILED) {
-		pr_inf_skip("%s: mmap allocation of %zu pointer entries, "
+		pr_inf_skip("%s: failed to mmap %zu pointer entries%s, "
 			"errno=%d (%s), skipping stressor\n",
-			args->name, n, errno, strerror(errno));
+			args->name, n,
+			stress_get_memfree_str(), errno, strerror(errno));
 		goto tidy_ptrs_mmap;
 	}
 	stress_set_vma_anon_name(ptrs, ptrs_size, "pointers");

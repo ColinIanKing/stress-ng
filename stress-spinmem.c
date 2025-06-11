@@ -166,9 +166,10 @@ static int stress_spinmem(stress_args_t *args)
 			args->page_size, PROT_READ | PROT_WRITE,
 			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (mapping == MAP_FAILED) {
-		pr_inf_skip("%s: could not mmap a page of "
-			"%zu bytes, skipping stressor\n",
-			args->name, args->page_size);
+		pr_inf_skip("%s: failed to mmap a page of "
+			"%zu bytes%s, errno=%d (%s), skipping stressor\n",
+			args->name, args->page_size,
+			stress_get_memfree_str(), errno, strerror(errno));
 		rc = EXIT_NO_RESOURCE;
 		goto tidy_cpus;
 	}

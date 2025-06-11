@@ -364,7 +364,8 @@ static int stress_lockmix_contention(
 
 		lockmix_info = stress_lockmix_info_new();
 		if (UNLIKELY(!lockmix_info)) {
-			pr_err("%s: calloc failed, out of memory\n", args->name);
+			pr_err("%s: calloc failed, out of memory%s\n",
+				args->name, stress_get_memfree_str());
 			return -1;
 		}
 		lockmix_info->type = type;

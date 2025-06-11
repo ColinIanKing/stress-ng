@@ -225,9 +225,10 @@ static int stress_stack_child(stress_args_t *args, void *context)
 		PROT_READ | PROT_WRITE,
 		MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (altstack == MAP_FAILED) {
-		pr_inf_skip("%s: cannot allocate %zd byte signal stack: "
+		pr_inf_skip("%s: failed to mmap %zd byte signal stack%s, "
 			"errno=%d (%s), skipping stressor\n",
-			args->name, (size_t)STRESS_SIGSTKSZ, errno, strerror(errno));
+			args->name, (size_t)STRESS_SIGSTKSZ,
+			stress_get_memfree_str(), errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
 	stress_set_vma_anon_name(altstack, STRESS_SIGSTKSZ, "altstack");

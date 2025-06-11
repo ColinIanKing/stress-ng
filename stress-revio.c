@@ -330,7 +330,9 @@ static int stress_revio(stress_args_t *args)
 	ret = posix_memalign((void **)&alloc_buf, BUF_ALIGNMENT, (size_t)DEFAULT_REVIO_WRITE_SIZE);
 	if (ret || !alloc_buf) {
 		rc = stress_exit_status(errno);
-		pr_err("%s: cannot allocate buffer\n", args->name);
+		pr_err("%s: failed to allocate %zu byte buffer%s\n",
+			args->name, (size_t)DEFAULT_REVIO_WRITE_SIZE,
+			stress_get_memfree_str());
 		(void)stress_temp_dir_rm_args(args);
 		return rc;
 	}
@@ -339,7 +341,9 @@ static int stress_revio(stress_args_t *args)
 	/* Work around lack of posix_memalign */
 	alloc_buf = malloc((size_t)DEFAULT_REVIO_WRITE_SIZE + BUF_ALIGNMENT);
 	if (!alloc_buf) {
-		pr_err("%s: cannot allocate buffer\n", args->name);
+		pr_err("%s: failed to allocate %zu buffer%s\n",
+			args->name, (size_t)DEFAULT_REVIO_WRITE_SIZE + BUF_ALIGNEMENT,
+			stress_get_memfree_str());
 		(void)stress_temp_dir_rm_args(args);
 		return rc;
 	}

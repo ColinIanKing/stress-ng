@@ -423,8 +423,10 @@ static int stress_prefetch(stress_args_t *args)
 #endif
 		MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (l3_data == MAP_FAILED) {
-		pr_inf_skip("%s: cannot allocate %zu bytes, skipping stressor\n",
-			args->name, l3_data_mmap_size);
+		pr_inf_skip("%s: cannot mmap %zu bytes%s, errno=%d (%s), "
+			"skipping stressor\n",
+			args->name, l3_data_mmap_size,
+			stress_get_memfree_str(), errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
 	stress_set_vma_anon_name(l3_data, l3_data_mmap_size, "l3data");

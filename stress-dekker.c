@@ -210,8 +210,8 @@ static int stress_dekker(stress_args_t *args)
 			PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (dekker == MAP_FAILED) {
-		pr_inf_skip("%s: cannot mmap %zd bytes for bekker shared struct, skipping stressor\n",
-			args->name, sz);
+		pr_inf_skip("%s: cannot mmap %zu bytes for bekker shared struct%s, skipping stressor\n",
+			args->name, sz, stress_get_memfree_str());
 		return EXIT_NO_RESOURCE;
 	}
 

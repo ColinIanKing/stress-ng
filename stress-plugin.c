@@ -213,7 +213,8 @@ static void stress_plugin_so(const char *opt_name, const char *opt_arg, stress_t
 
 	stress_plugin_methods = (stress_plugin_method_info_t *)calloc(n_funcs + 1, sizeof(*stress_plugin_methods));
 	if (!stress_plugin_methods) {
-		fprintf(stderr, "plugin-so: cannot allocate %zu plugin methods\n", n_funcs);
+		fprintf(stderr, "plugin-so: cannot allocate %zu plugin methods%s\n",
+			n_funcs, stress_get_memfree_str());
 		longjmp(g_error_env, 1);
 	}
 
@@ -280,8 +281,9 @@ static int stress_plugin(stress_args_t *args)
 		PROT_READ | PROT_WRITE,
 		MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (sig_count == MAP_FAILED) {
-		pr_fail("%s: mmap failed, errno=%d (%s)\n",
-			args->name, errno, strerror(errno));
+		pr_fail("%s: failed to mmap %zu bytes%s, errno=%d (%s)\n",
+			args->name, sig_count_size,
+			stress_get_memfree_str(), errno, strerror(errno));
 		(void)dlclose(stress_plugin_so_dl);
 		return EXIT_NO_RESOURCE;
 	}

@@ -128,9 +128,10 @@ static int stress_sigbus(stress_args_t *args)
 		PROT_READ | PROT_WRITE,
 		MAP_SHARED, fd, 0);
 	if (ptr == MAP_FAILED) {
-		pr_inf_skip("%s: mmap of read only page failed, "
+		pr_inf_skip("%s: failed to mmap %zu byte read only pages%s, "
 			"errno=%d (%s), skipping stressor\n",
-			args->name, errno, strerror(errno));
+			args->name, page_size * 2,
+			stress_get_memfree_str(), errno, strerror(errno));
 		rc = EXIT_NO_RESOURCE;
 		goto tidy_close;
 	}

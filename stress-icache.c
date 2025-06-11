@@ -158,8 +158,9 @@ static int stress_icache(stress_args_t *args)
 			PROT_READ | PROT_WRITE | PROT_EXEC,
 			MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (page == MAP_FAILED) {
-		pr_inf_skip("%s: could not mmap %zd sized page, skipping stressor\n",
-			args->name, page_size);
+		pr_inf_skip("%s: could not mmap %zu sized page%s, errno=%d (%s), skipping stressor\n",
+			args->name, page_size, stress_get_memfree_str(),
+			errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
 	stress_set_vma_anon_name(page, page_size, "opcodes");

@@ -184,13 +184,14 @@ static int OPTIMIZE3 stress_hsearch(stress_args_t *args)
 
 	/* Make hash table with 25% slack */
 	if (!hcreate_func(max + (max / 4))) {
-		pr_fail("%s: hcreate of size %zd failed\n", args->name, max + (max / 4));
+		pr_fail("%s: hcreate of size %zu failed\n", args->name, max + (max / 4));
 		return EXIT_FAILURE;
 	}
 
 	keys = (char **)calloc(max, sizeof(*keys));
 	if (!keys) {
-		pr_err("%s: cannot allocate keys\n", args->name);
+		pr_err("%s: cannot allocate %zu keys%s\n",
+			args->name, max, stress_get_memfree_str());
 		goto free_hash;
 	}
 
@@ -202,7 +203,9 @@ static int OPTIMIZE3 stress_hsearch(stress_args_t *args)
 		(void)snprintf(buffer, sizeof(buffer), "%zu", i);
 		keys[i] = strdup(buffer);
 		if (!keys[i]) {
-			pr_err("%s: cannot allocate key\n", args->name);
+			pr_err("%s: cannot allocate %zu byte key%s\n",
+				args->name, strlen(buffer),
+				stress_get_memfree_str());
 			goto free_all;
 		}
 
@@ -210,7 +213,8 @@ static int OPTIMIZE3 stress_hsearch(stress_args_t *args)
 		e.data = (void *)i;
 
 		if (hsearch_func(e, ENTER) == NULL) {
-			pr_err("%s: cannot allocate new hash item\n", args->name);
+			pr_err("%s: cannot allocate new hash item%s\n",
+				args->name, stress_get_memfree_str());
 			goto free_all;
 		}
 	}

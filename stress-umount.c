@@ -262,7 +262,8 @@ static int stress_umount(stress_args_t *args)
 
 	s_pids = stress_sync_s_pids_mmap(STRESS_UMOUNT_PROCS);
 	if (s_pids == MAP_FAILED) {
-		pr_inf_skip("%s: failed to mmap %d PIDs, skipping stressor\n", args->name, STRESS_UMOUNT_PROCS);
+		pr_inf_skip("%s: failed to mmap %d PIDs%s, skipping stressor\n",
+			args->name, STRESS_UMOUNT_PROCS, stress_get_memfree_str());
 		return EXIT_NO_RESOURCE;
 	}
 

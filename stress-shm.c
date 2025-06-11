@@ -189,8 +189,9 @@ static int stress_shm_posix_child(
 			}
 			if (UNLIKELY(addr == MAP_FAILED)) {
 				ok = false;
-				pr_fail("%s: mmap failed, errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
+				pr_fail("%s: failed to mmap %zu bytes%s, errno=%d (%s)\n",
+					args->name, sz, stress_get_memfree_str(),
+					errno, strerror(errno));
 				rc = EXIT_FAILURE;
 				(void)close(shm_fd);
 				goto reap;
@@ -430,7 +431,9 @@ again:
 
 			shm_names = (char *)calloc(shm_posix_objects, SHM_NAME_LEN);
 			if (!shm_names) {
-				pr_fail("%s: calloc failed, out of memory\n", args->name);
+				pr_fail("%s: failed to allocate %zu bytes%s, out of memory\n",
+					args->name, shm_posix_objects * SHM_NAME_LEN,
+					stress_get_memfree_str());
 				(void)close(pipefds[0]);
 				(void)close(pipefds[1]);
 				rc = EXIT_NO_RESOURCE;

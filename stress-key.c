@@ -121,8 +121,9 @@ static int stress_key(stress_args_t *args)
 
 	huge_description = (char *)malloc(key_huge_desc_size);
 	if (!huge_description) {
-		pr_inf_skip("%s: cannot allocate %zd byte description string, skipping stressor\n",
-			args->name, key_huge_desc_size);
+		pr_inf_skip("%s: cannot allocate %zu byte description string%s, skipping stressor\n",
+			args->name, key_huge_desc_size,
+			stress_get_memfree_str());
 		return EXIT_NO_RESOURCE;
 	}
 	stress_rndstr(huge_description, key_huge_desc_size);

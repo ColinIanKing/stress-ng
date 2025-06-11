@@ -211,10 +211,10 @@ static int stress_lockbus(stress_args_t *args)
 	buffer = (uint32_t*)stress_mmap_populate(NULL, BUFFER_SIZE,
 			PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (buffer == MAP_FAILED) {
-		rc = stress_exit_status(errno);
-
-		pr_err("%s: mmap failed\n", args->name);
-		return rc;
+		pr_inf_skip("%s: failed to mmap %zu bytes%s, errno=%d (%s), skipping stressor\n",
+			args->name, (size_t)BUFFER_SIZE,
+			stress_get_memfree_str(), errno, strerror(errno));
+		return EXIT_NO_RESOURCE;
 	}
 	stress_set_vma_anon_name(buffer, BUFFER_SIZE, "lockbus-data");
 

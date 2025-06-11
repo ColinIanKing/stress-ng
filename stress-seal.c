@@ -72,8 +72,10 @@ static int stress_seal(stress_args_t *args)
 			PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (buf == MAP_FAILED) {
-		pr_inf_skip("%s: failed to allocate %zd sized buffer, skipping stressor\n",
-			args->name, page_size);
+		pr_inf_skip("%s: failed to allocate %zu byte buffer%s, "
+			"errno=%d (%s), skipping stressor\n",
+			args->name, page_size,
+			stress_get_memfree_str(), errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
 	stress_set_vma_anon_name(buf, page_size, "write-buffer");
@@ -164,8 +166,9 @@ static int stress_seal(stress_args_t *args)
 		if (UNLIKELY(ptr == MAP_FAILED)) {
 			if (errno == ENOMEM)
 				goto next;
-			pr_fail("%s: mmap failed, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
+			pr_fail("%s: mmap of %zd bytes failed%s, errno=%d (%s)\n",
+				args->name, sz,
+				stress_get_memfree_str(), errno, strerror(errno));
 			(void)close(fd);
 			goto err;
 		}

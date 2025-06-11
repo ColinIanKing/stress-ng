@@ -431,9 +431,10 @@ static int stress_opcode(stress_args_t *args)
 			PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (state == MAP_FAILED) {
-		pr_inf_skip("%s: mmap of %zu bytes failed, errno=%d (%s) "
+		pr_inf_skip("%s: mmap of %zu bytes failed%s, errno=%d (%s) "
 			"skipping stressor\n",
-			args->name, args->page_size, errno, strerror(errno));
+			args->name, args->page_size, stress_get_memfree_str(),
+			errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
 	stress_set_vma_anon_name(state, sizeof(*state), "state");
@@ -443,8 +444,9 @@ static int stress_opcode(stress_args_t *args)
 				PROT_READ | PROT_WRITE,
 				MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (opcodes == MAP_FAILED) {
-		pr_fail("%s: mmap failed, errno=%d (%s)\n",
-			args->name, errno, strerror(errno));
+		pr_fail("%s: mmap of %zu bytes failed%s, errno=%d (%s)\n",
+			args->name, page_size * (PAGES + 2),
+			stress_get_memfree_str(), errno, strerror(errno));
 		(void)munmap((void *)state, sizeof(*state));
 		return EXIT_NO_RESOURCE;
 	}

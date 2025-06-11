@@ -100,7 +100,9 @@ static int stress_secretmem_child(stress_args_t *args, void *context)
 
 	mappings = (uint8_t **)calloc(MMAP_MAX, sizeof(*mappings));
 	if (UNLIKELY(!mappings)) {
-		pr_fail("%s: calloc failed, out of memory\n", args->name);
+		pr_inf_skip("%s: failed to allocate %zu bytes%s, skipping stressor\n",
+			args->name, (size_t)MMAP_MAX * sizeof(*mappings),
+			stress_get_memfree_str());
 		return EXIT_NO_RESOURCE;
 	}
 

@@ -511,8 +511,9 @@ static int stress_mcontend(stress_args_t *args)
 	data[0] = stress_mmap_populate(NULL, page_size, PROT_READ | PROT_WRITE,
 			MAP_PRIVATE, fd, 0);
 	if (data[0] == MAP_FAILED) {
-		pr_inf("%s: mmap failed, errno=%d (%s)\n",
-			args->name, errno, strerror(errno));
+		pr_inf("%s: mmap of %zu bytes failed%s, errno=%d (%s)\n",
+			args->name, page_size, stress_get_memfree_str(),
+			errno, strerror(errno));
 		(void)close(fd);
 		(void)stress_temp_dir_rm_args(args);
 #if defined(HAVE_SCHED_SETAFFINITY)
@@ -523,8 +524,9 @@ static int stress_mcontend(stress_args_t *args)
 	data[1] = stress_mmap_populate(NULL, page_size , PROT_READ | PROT_WRITE,
 			MAP_PRIVATE, fd, 0);
 	if (data[1] == MAP_FAILED) {
-		pr_inf("%s: mmap failed, errno=%d (%s)\n",
-			args->name, errno, strerror(errno));
+		pr_inf("%s: mmap of %zu bytes failed%s, errno=%d (%s)\n",
+			args->name, page_size, stress_get_memfree_str(),
+			errno, strerror(errno));
 		(void)munmap(data[0], page_size);
 		(void)close(fd);
 		(void)stress_temp_dir_rm_args(args);

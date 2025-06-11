@@ -287,7 +287,8 @@ static int stress_softlockup(stress_args_t *args)
 
 	s_pids = stress_sync_s_pids_mmap((size_t)cpus_online);
 	if (s_pids == MAP_FAILED) {
-		pr_inf_skip("%s: failed to mmap %zu PIDs, skipping stressor\n", args->name, (size_t)cpus_online);
+		pr_inf_skip("%s: failed to mmap %zu PIDs%s, skipping stressor\n", 
+			args->name, (size_t)cpus_online, stress_get_memfree_str());
 		return EXIT_NO_RESOURCE;
 	}
 

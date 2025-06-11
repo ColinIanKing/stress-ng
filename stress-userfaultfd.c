@@ -45,7 +45,7 @@ UNEXPECTED
 
 static const stress_help_t help[] = {
 	{ NULL,	"userfaultfd N",	"start N page faulting workers with userspace handling" },
-	{ NULL, "userfualtfd-bytes N",	"size of mmap'd region to fault on" },
+	{ NULL, "userfaultfd-bytes N",	"size of mmap'd region to fault on" },
 	{ NULL,	"userfaultfd-ops N",	"stop after N page faults have been handled" },
 	{ NULL,	NULL,			NULL }
 };
@@ -280,7 +280,8 @@ static int stress_userfaultfd_child(stress_args_t *args, void *context)
 	sz = userfaultfd_bytes & ~(page_size - 1);
 
 	if (posix_memalign(&zero_page, page_size, page_size)) {
-		pr_err("%s: zero page allocation failed\n", args->name);
+		pr_err("%s: failed to alloce %zu byte zero page%s\n",
+			args->name, page_size, stress_get_memfree_str());
 		return EXIT_NO_RESOURCE;
 	}
 
@@ -288,7 +289,9 @@ static int stress_userfaultfd_child(stress_args_t *args, void *context)
 		MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (data == MAP_FAILED) {
 		rc = EXIT_NO_RESOURCE;
-		pr_err("%s: mmap failed\n", args->name);
+		pr_err("%s: failed to mmap %zu byte buffer%s, errno=%d (%s)\n",
+			args->name, sz, stress_get_memfree_str(),
+			errno, strerror(errno));
 		goto free_zeropage;
 	}
 	stress_set_vma_anon_name(data, sz, "userfaultfd-data");

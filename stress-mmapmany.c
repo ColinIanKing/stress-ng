@@ -71,7 +71,9 @@ static int stress_mmapmany_child(stress_args_t *args, void *context)
 
 	mappings = (uint64_t **)calloc((size_t)max, sizeof(*mappings));
 	if (UNLIKELY(!mappings)) {
-		pr_fail("%s: malloc failed, out of memory\n", args->name);
+		pr_fail("%s: malloc of %zu bytes failed%s, out of memory\n",
+			args->name, (size_t)max * sizeof(*mappings),
+			stress_get_memfree_str());
 		return EXIT_NO_RESOURCE;
 	}
 
@@ -134,14 +136,14 @@ static int stress_mmapmany_child(stress_args_t *args, void *context)
 			ptr = (uint64_t *)mappings[i];
 			val = (uint64_t)i ^ pattern0;
 			if (UNLIKELY(*ptr != val)) {
-				pr_fail("%s: failed: mapping %zd at %p was %" PRIx64 " and not %" PRIx64 "\n",
+				pr_fail("%s: failed: mapping %zu at %p was %" PRIx64 " and not %" PRIx64 "\n",
 					args->name, i, (void *)ptr, *ptr, val);
 				rc = EXIT_FAILURE;
 			}
 			ptr += offset2pages;
 			val = (uint64_t)i ^ pattern1;
 			if (UNLIKELY(*ptr != val)) {
-				pr_fail("%s: failed: mapping %zd at %p was %" PRIx64 " and not %" PRIx64 "\n",
+				pr_fail("%s: failed: mapping %zu at %p was %" PRIx64 " and not %" PRIx64 "\n",
 					args->name, i, (void *)ptr, *ptr, val);
 				rc = EXIT_FAILURE;
 			}

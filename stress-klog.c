@@ -98,7 +98,8 @@ static int stress_klog(stress_args_t *args)
 	}
 	buffer = (char *)malloc((size_t)len);
 	if (!buffer) {
-		pr_err("%s: cannot allocate syslog buffer\n", args->name);
+		pr_err("%s: cannot allocate %zu byte syslog buffer%s\n",
+			args->name, (size_t)len, stress_get_memfree_str());
 		return EXIT_NO_RESOURCE;
 	}
 

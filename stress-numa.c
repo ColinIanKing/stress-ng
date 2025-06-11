@@ -258,8 +258,10 @@ static int stress_numa(stress_args_t *args)
 					PROT_READ | PROT_WRITE,
 					MAP_ANONYMOUS | MAP_SHARED, 0, 0);
 	if (status == MAP_FAILED) {
-		pr_inf_skip("%s: cannot mmap status array of %zu elements, skipping stressor\n",
-			args->name, num_pages);
+		pr_inf_skip("%s: failed to mmap status array of %zu elements%s, "
+			"errno=%d (%s), skipping stressor\n",
+			args->name, num_pages,
+			stress_get_memfree_str(), errno, strerror(errno));
 		rc = EXIT_NO_RESOURCE;
 		goto old_numa_mask_free;
 	}
@@ -270,8 +272,10 @@ static int stress_numa(stress_args_t *args)
 					PROT_READ | PROT_WRITE,
 					MAP_ANONYMOUS | MAP_SHARED, 0, 0);
 	if (dest_nodes == MAP_FAILED) {
-		pr_inf("%s: cannot mmap dest_nodes array of %zu elements, skipping stressor\n",
-			args->name, num_pages);
+		pr_inf("%s: failed to mmap dest_nodes array of %zu elements%s, "
+			"errno=%d (%s), skipping stressor\n",
+			args->name, num_pages,
+			stress_get_memfree_str(), errno, strerror(errno));
 		rc = EXIT_NO_RESOURCE;
 		goto status_free;
 	}
@@ -282,8 +286,10 @@ static int stress_numa(stress_args_t *args)
 					PROT_READ | PROT_WRITE,
 					MAP_ANONYMOUS | MAP_SHARED, 0, 0);
 	if (pages == MAP_FAILED) {
-		pr_inf_skip("%s: cannot mmap pages array of %zu elements, skipping stressor\n",
-			args->name, num_pages);
+		pr_inf_skip("%s: failed to mmap pages array of %zu elements%s, "
+			"errno=%d (%s), skipping stressor\n",
+			args->name, num_pages,
+			stress_get_memfree_str(), errno, strerror(errno));
 		rc = EXIT_NO_RESOURCE;
 		goto dest_nodes_free;
 	}
@@ -296,9 +302,11 @@ static int stress_numa(stress_args_t *args)
 		PROT_READ | PROT_WRITE,
 		MAP_ANONYMOUS | MAP_SHARED, 0, 0);
 	if (buf == MAP_FAILED) {
-		rc = stress_exit_status(errno);
-		pr_fail("%s: mmap'd region of %zu bytes failed\n",
-			args->name, numa_bytes);
+		pr_inf_skip("%s: failed to mmap a region of %zu bytes%s, "
+			"errno=%d (%s), skipping stressor\n",
+			args->name, numa_bytes,
+			stress_get_memfree_str(), errno, strerror(errno));
+		rc = EXIT_NO_RESOURCE;
 		goto pages_free;
 	}
 	stress_set_vma_anon_name(buf, numa_bytes, "numa-shared-data");

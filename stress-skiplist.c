@@ -243,8 +243,8 @@ static int OPTIMIZE3 stress_skiplist(stress_args_t *args)
 		skip_list_t list;
 
 		if (!skip_list_init(&list, ln2n)) {
-			pr_inf("%s: out of memory initializing the skip list\n",
-				args->name);
+			pr_inf("%s: out of memory initializing the skip list%s\n",
+				args->name, stress_get_memfree_str());
 			return EXIT_NO_RESOURCE;
 		}
 
@@ -252,8 +252,8 @@ static int OPTIMIZE3 stress_skiplist(stress_args_t *args)
 			const unsigned long int v = (i >> 1) ^ i;
 
 			if (UNLIKELY(!skip_list_insert(&list, v))) {
-				pr_inf("%s: out of memory initializing the skip list\n",
-					args->name);
+				pr_inf("%s: out of memory initializing the skip list%s\n",
+					args->name, stress_get_memfree_str());
 				skip_list_free(&list);
 				return EXIT_NO_RESOURCE;
 			}

@@ -275,8 +275,10 @@ static int stress_mergesort(stress_args_t *args)
 			MAP_ANONYMOUS | MAP_PRIVATE,
 			-1, 0);
 	if (data == MAP_FAILED) {
-		pr_inf_skip("%s: mmap failed, allocating %zd integers, skipping stressor\n",
-			args->name, n);
+		pr_inf_skip("%s: mmap failed allocating %zu integers%s, "
+			"errno=%d (%s), skipping stressor\n",
+			args->name, n, stress_get_memfree_str(),
+			errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
 	(void)stress_madvise_collapse(data, data_size);

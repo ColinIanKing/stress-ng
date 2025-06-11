@@ -181,8 +181,9 @@ static int stress_splice(stress_args_t *args)
 			PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (buffer == MAP_FAILED) {
-		pr_inf("%s: cannot allocate write buffer, errno=%d (%s)\n",
-			args->name, errno, strerror(errno));
+		pr_inf("%s: failed to mmap %zu byte write buffer%s, errno=%d (%s)\n",
+			args->name, (size_t)buffer_len,
+			stress_get_memfree_str(), errno, strerror(errno));
 		goto close_done;
 	}
 	stress_set_vma_anon_name(buffer, buffer_len, "write-buffer");

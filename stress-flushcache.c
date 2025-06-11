@@ -278,8 +278,8 @@ static int stress_flushcache_child(stress_args_t *args, void *ctxt)
 			PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (context->d_addr == MAP_FAILED) {
-		pr_inf_skip("%s: failed to mmap %zd bytes, skipping stressor\n",
-			args->name, context->d_size);
+		pr_inf_skip("%s: failed to mmap %zu bytes%s, skipping stressor\n",
+			args->name, context->d_size, stress_get_memfree_str());
 		return EXIT_NO_RESOURCE;
 	}
 	stress_set_vma_anon_name(context->d_addr, context->d_size, "d-cache");
@@ -329,8 +329,8 @@ static int stress_flushcache(stress_args_t *args)
 				PROT_READ | PROT_WRITE | PROT_EXEC,
 				MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (context.i_addr == MAP_FAILED) {
-		pr_inf_skip("%s: could not mmap %zd sized page, skipping stressor\n",
-			args->name, page_size);
+		pr_inf_skip("%s: could not mmap %zu sized page%s, skipping stressor\n",
+			args->name, page_size, stress_get_memfree_str());
 		return EXIT_NO_RESOURCE;
 	}
 	stress_set_vma_anon_name(context.i_addr, page_size, "i-cache");
@@ -347,7 +347,7 @@ static int stress_flushcache(stress_args_t *args)
 
 	context.d_size *= numa_nodes;
 	if ((args->instance == 0) && (numa_nodes > 1))
-		pr_inf("%s: scaling cache size by number of numa nodes %d to %zdK\n",
+		pr_inf("%s: scaling cache size by number of numa nodes %d to %zuK\n",
 			args->name, numa_nodes, context.d_size / 1024);
 	ret = stress_oomable_child(args, (void *)&context, stress_flushcache_child, STRESS_OOMABLE_NORMAL);
 

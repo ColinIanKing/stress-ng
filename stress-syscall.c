@@ -8789,7 +8789,9 @@ static int stress_syscall(stress_args_t *args)
 	syscall_2_pages = mmap(NULL, args->page_size * 2, PROT_READ | PROT_WRITE,
 				MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (syscall_2_pages == MAP_FAILED) {
-		pr_inf_skip("%s: failed to allocate 2 pages, skipping stressor\n", args->name);
+		pr_inf_skip("%s: failed to mmap %zu bytes%s, errno=%d (%s), "
+			"skipping stressor\n", args->name, args->page_size * 2,
+			stress_get_memfree_str(), errno, strerror(errno));
 		goto err_rmdir;
 	}
 	stress_uint8rnd4(syscall_2_pages, syscall_2_pages_size);
@@ -8799,7 +8801,9 @@ static int stress_syscall(stress_args_t *args)
 				PROT_READ | PROT_WRITE,
 				MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (syscall_shared_info == MAP_FAILED) {
-		pr_inf_skip("%s: failed to allocate single page, skipping stressor\n", args->name);
+		pr_inf_skip("%s: failed to mmap %zu bytes%s, errno=%d (%s), "
+			"skipping stressor\n", args->name, sizeof(*syscall_shared_info),
+			stress_get_memfree_str(), errno, strerror(errno));
 		goto err_unmap_syscall_page;
 	}
 

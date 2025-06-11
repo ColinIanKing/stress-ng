@@ -205,8 +205,9 @@ static void *stress_tlb_shootdown_mmap(
 		}
 	} while (retry > 0);
 
-	pr_inf_skip("%s: mmap failed, errno=%d (%s), skipping stressor\n",
-		args->name, errno, strerror(errno));
+	pr_inf_skip("%s: failed to mmap %zu bytes%s, errno=%d (%s), skipping stressor\n",
+		args->name, length, stress_get_memfree_str(),
+		errno, strerror(errno));
 	return mem;
 }
 
@@ -242,7 +243,8 @@ static int stress_tlb_shootdown(stress_args_t *args)
 
 	s_pids = stress_sync_s_pids_mmap(MAX_TLB_PROCS);
 	if (s_pids == MAP_FAILED) {
-		pr_inf_skip("%s: failed to mmap %d PIDs, skipping stressor\n", args->name, MAX_TLB_PROCS);
+		pr_inf_skip("%s: failed to mmap %d PIDs%s, skipping stressor\n",
+			args->name, MAX_TLB_PROCS, stress_get_memfree_str());
 		rc = EXIT_NO_RESOURCE;
 		goto err_free_cpus;
 	}

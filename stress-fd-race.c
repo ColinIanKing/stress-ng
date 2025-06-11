@@ -848,8 +848,8 @@ static int stress_fd_race(stress_args_t *args)
 	context.fds_size = sizeof(*context.fds) * (size_t)context.max_fd;
 	context.fds = (int *)malloc(context.fds_size);
 	if (!context.fds) {
-		pr_inf_skip("%s: cannot allocate %zd file descriptors, skipping stressor\n",
-			args->name, context.max_fd);
+		pr_inf_skip("%s: cannot allocate %zd file descriptors%s, skipping stressor\n",
+			args->name, context.max_fd, stress_get_memfree_str());
 		rc = EXIT_NO_RESOURCE;
 		goto tidy_file;
 	}

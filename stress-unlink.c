@@ -203,8 +203,10 @@ static int stress_unlink(stress_args_t *args)
 					PROT_READ | PROT_WRITE,
 					MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (metrics == MAP_FAILED) {
-		pr_inf_skip("%s: cannot mmap %zu bytes for metrics, skipping stressor\n",
-			args->name, metrics_sz);
+		pr_inf_skip("%s: failed to mmap %zu bytes for metrics%s, "
+			"errno=%d (%s), skipping stressor\n",
+			args->name, metrics_sz,
+			stress_get_memfree_str(), errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
 	stress_set_vma_anon_name(metrics, metrics_sz, "metrics");
@@ -230,8 +232,9 @@ static int stress_unlink(stress_args_t *args)
 
 		filenames[i] = strdup(filename);
 		if (!filenames[i]) {
-			pr_inf_skip("%s: failed to allocate filenames, "
-				"skipping stressor\n", args->name);
+			pr_inf_skip("%s: failed to allocate filenames%s, "
+				"skipping stressor\n", args->name,
+				stress_get_memfree_str());
 			goto filenames_free;
 		}
 	}

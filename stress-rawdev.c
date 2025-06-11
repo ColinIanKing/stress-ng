@@ -382,8 +382,10 @@ static int stress_rawdev(stress_args_t *args)
 
 	metrics = (stress_metrics_t *)calloc(SIZEOF_ARRAY(rawdev_methods), sizeof(*metrics));
 	if (!metrics) {
-		pr_inf_skip("%s: cannot allocate metrics table, skipping stressor\n",
-			args->name);
+		pr_inf_skip("%s: cannot allocate %zu byte metrics table%s, "
+			"skipping stressor\n",
+			args->name, SIZEOF_ARRAY(rawdev_methods),
+			stress_get_memfree_str());
 		return EXIT_NO_RESOURCE;
 	}
 
@@ -440,8 +442,8 @@ static int stress_rawdev(stress_args_t *args)
 			PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (buffer == MAP_FAILED) {
-		pr_inf("%s: cannot allocate buffer of %zd bytes with %zd allocation\n",
-			args->name, blksz, mmapsz);
+		pr_inf("%s: failed to mmap buffer of %zu bytes with %zu allocations%s\n",
+			args->name, blksz, mmapsz, stress_get_memfree_str());
 		(void)close(fd);
 		free(metrics);
 		return EXIT_NO_RESOURCE;

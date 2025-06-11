@@ -611,8 +611,10 @@ static int stress_pipe(stress_args_t *args)
 				PROT_READ | PROT_WRITE,
 				MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (buf_rd == MAP_FAILED) {
-		pr_inf_skip("%s: failed to mmap %zu byte read buffer, skipping stressor\n",
-			args->name, buf_rd_size);
+		pr_inf_skip("%s: failed to mmap %zu byte read buffer%s, "
+			"errno=%d (%s), skipping stressor\n",
+			args->name, buf_rd_size,
+			stress_get_memfree_str(), errno, strerror(errno));
 		(void)close(pipefds[0]);
 		(void)close(pipefds[1]);
 		return EXIT_NO_RESOURCE;
@@ -625,8 +627,10 @@ static int stress_pipe(stress_args_t *args)
 				PROT_READ | PROT_WRITE,
 				MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (buf_wr == MAP_FAILED) {
-		pr_inf_skip("%s: failed to mmap %zu byte write buffer, skipping stressor\n",
-			args->name, buf_wr_size);
+		pr_inf_skip("%s: failed to mmap %zu byte write buffer%s, "
+			"errno=%d (%s), skipping stressor\n",
+			args->name, buf_wr_size,
+			stress_get_memfree_str(), errno, strerror(errno));
 		(void)munmap((void *)buf_rd, buf_rd_size);
 		(void)close(pipefds[0]);
 		(void)close(pipefds[1]);

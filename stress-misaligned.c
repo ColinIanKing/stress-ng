@@ -1243,9 +1243,10 @@ static int stress_misaligned(stress_args_t *args)
 				PROT_READ | PROT_WRITE,
 				MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (buffer == MAP_FAILED) {
-		pr_inf_skip("%s: cannot allocate 1 page buffer, "
+		pr_inf_skip("%s: cannot allocate 1 page buffer%s, "
 			"errno=%d (%s), skipping stressor\n",
-			args->name, errno, strerror(errno));
+			args->name, stress_get_memfree_str(),
+			errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
 	stress_set_vma_anon_name(buffer, buffer_size, "misaligned-data");

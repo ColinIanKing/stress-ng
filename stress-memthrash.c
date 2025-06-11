@@ -876,8 +876,8 @@ static int stress_memthrash_child(stress_args_t *args, void *ctxt)
 
 	pthread_info = (stress_pthread_info_t *)calloc(max_threads, sizeof(*pthread_info));
 	if (!pthread_info) {
-		pr_inf_skip("%s: failed to allocate pthread information array, skipping stressor\n",
-			args->name);
+		pr_inf_skip("%s: failed to allocate pthread information array%s, skipping stressor\n",
+			args->name, stress_get_memfree_str());
 		return EXIT_NO_RESOURCE;
 	}
 
@@ -889,8 +889,10 @@ mmap_retry:
 			MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (mem == MAP_FAILED) {
 		if (UNLIKELY(!stress_continue_flag())) {
-			pr_dbg("%s: mmap failed, errno=%d %s\n",
-				args->name, errno, strerror(errno));
+			pr_dbg("%s: mmap of %zu bytes failed%s, errno=%d (%s)\n",
+				args->name, (size_t)MEM_SIZE,
+				stress_get_memfree_str(),
+				errno, strerror(errno));
 			free(pthread_info);
 			return EXIT_NO_RESOURCE;
 		}

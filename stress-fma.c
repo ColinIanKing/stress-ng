@@ -527,8 +527,8 @@ static int stress_fma(stress_args_t *args)
 				PROT_READ | PROT_WRITE,
 				MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (pfma == MAP_FAILED) {
-		pr_inf("%s: failed to mmap %zd bytes for FMA data\n",
-			args->name, sizeof(*pfma));
+		pr_inf_skip("%s: failed to mmap %zu bytes for FMA data%s, skipping stressor\n",
+			args->name, sizeof(*pfma), stress_get_memfree_str());
 		return EXIT_NO_RESOURCE;
 	}
 	stress_set_vma_anon_name(pfma, sizeof(*pfma), "fma-data");

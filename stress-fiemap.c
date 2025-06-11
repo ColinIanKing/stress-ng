@@ -142,7 +142,8 @@ static void stress_fiemap_ioctl(
 
 		fiemap = (struct fiemap *)calloc(1, sizeof(*fiemap));
 		if (UNLIKELY(!fiemap)) {
-			pr_err("out of memory allocating fiemap\n");
+			pr_err("%s: out of memory allocating fiemap%s\n",
+				args->name, stress_get_memfree_str());
 			break;
 		}
 		fiemap->fm_length = ~0UL;
@@ -175,8 +176,9 @@ static void stress_fiemap_ioctl(
 		tmp = (struct fiemap *)realloc(fiemap,
 			sizeof(*fiemap) + extents_size);
 		if (UNLIKELY(!tmp)) {
-			pr_fail("%s: ioctl FS_IOC_FIEMAP failed, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
+			pr_fail("%s: realloc failed%s, errno=%d (%s)\n",
+				args->name, stress_get_memfree_str(),
+				errno, strerror(errno));
 			free(fiemap);
 			break;
 		}

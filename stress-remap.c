@@ -169,9 +169,10 @@ static int stress_remap(stress_args_t *args)
 			PROT_READ | PROT_WRITE,
 			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (data == MAP_FAILED) {
-		pr_inf_skip("%s: mmap failed to allocate %zu bytes "
-			"(%zu pages), errno=%d (%s), skipping stressor\n",
+		pr_inf_skip("%s: failed to mmap %zu bytes "
+			"(%zu pages)%s, errno=%d (%s), skipping stressor\n",
 			args->name, data_size, remap_pages,
+			stress_get_memfree_str(),
 			errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
@@ -184,9 +185,9 @@ static int stress_remap(stress_args_t *args)
 			PROT_READ | PROT_WRITE,
 			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (order == MAP_FAILED) {
-		pr_inf_skip("%s: mmap failed to allocate %zu bytes, errno=%d (%s), "
+		pr_inf_skip("%s: failed to mmap %zu bytes%s, errno=%d (%s), "
 			"skipping stressor\n", args->name, order_size,
-			errno, strerror(errno));
+			stress_get_memfree_str(), errno, strerror(errno));
 		(void)munmap((void *)data, data_size);
 		return EXIT_NO_RESOURCE;
 	}

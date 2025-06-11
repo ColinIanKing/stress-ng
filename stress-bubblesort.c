@@ -185,8 +185,9 @@ static int stress_bubblesort(stress_args_t *args)
 				PROT_READ | PROT_WRITE,
 				MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (data == MAP_FAILED) {
-		pr_inf_skip("%s: mmap failed allocating %zu 32 bit integers, "
-				"skipping stressor\n", args->name, n);
+		pr_inf_skip("%s: mmap failed allocating %zu 32 bit integers%s, "
+				"skipping stressor\n", args->name, n,
+				stress_get_memfree_str());
 		return EXIT_NO_RESOURCE;
 	}
 	(void)stress_madvise_collapse(data, data_size);

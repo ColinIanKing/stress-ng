@@ -410,8 +410,10 @@ static int stress_vecfp(stress_args_t *args)
 			mmap_size, PROT_READ | PROT_WRITE,
 			MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (vecfp_init == MAP_FAILED) {
-		pr_inf_skip("%s: failed to allocate %zd initializing elements, skipping stressor\n",
-			args->name, max_elements);
+		pr_inf_skip("%s: failed to mmap %zu initializing elements%s, "
+			"errno=%d (%s), skipping stressor\n",
+			args->name, max_elements,
+			stress_get_memfree_str(), errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
 	stress_set_vma_anon_name(vecfp_init, sizeof(*vecfp_init), "vecfp-init-data");

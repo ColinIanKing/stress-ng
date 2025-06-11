@@ -1767,8 +1767,10 @@ static int stress_zlib(stress_args_t *args)
 			PROT_READ | PROT_WRITE,
 			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (shared_checksums == MAP_FAILED) {
-		pr_inf("%s: failed to mmap %zd bytes, skipping stressor\n",
-			args->name, sizeof(*shared_checksums));
+		pr_inf("%s: failed to mmap %zu bytes%s, "
+			"errno=%d (%s), skipping stressor\n",
+			args->name, sizeof(*shared_checksums),
+			stress_get_memfree_str(), errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
 	stress_set_vma_anon_name(shared_checksums, sizeof(*shared_checksums), "zlib-checksums");
