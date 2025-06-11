@@ -271,14 +271,16 @@ void stress_numa_randomize_pages(
 {
 	uint8_t *ptr, *prev_ptr, *ptr_end;
 	unsigned long int node, prev_node;
-	const size_t buffer_pages = buffer_size / page_size;
-	size_t chunks, size, chunk_size, parts, max_chunks;
+	size_t buffer_pages, chunks, size, chunk_size, parts, max_chunks;
 
+	if (UNLIKELY(page_size == 0))
+		return;
 	if (UNLIKELY(!numa_mask))
 		return;
 	if (UNLIKELY(!buffer))
 		return;
 
+	buffer_pages = buffer_size / page_size;
 	parts = (size_t)numa_mask->nodes * (size_t)args->instances;
 	max_chunks = (parts > 0) ? (256 * 1024) / parts : 65536;
 
