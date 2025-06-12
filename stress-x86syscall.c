@@ -176,7 +176,7 @@ static inline long int OPTIMIZE3 x86_64_syscall3(long int number, long int arg1,
  *  wrap_getuid()
  *	invoke getuid()
  */
-static long int wrap_getuid(void)
+static long int OPTIMIZE3 wrap_getuid(void)
 {
 	return x86_64_syscall0(__NR_getuid);
 }
@@ -187,7 +187,7 @@ static long int wrap_getuid(void)
  *  wrap_geteuid()
  *	invoke geteuid()
  */
-static long int wrap_geteuid(void)
+static long int OPTIMIZE3 wrap_geteuid(void)
 {
 	return x86_64_syscall0(__NR_geteuid);
 }
@@ -198,7 +198,7 @@ static long int wrap_geteuid(void)
  *  wrap_getgid()
  *	invoke getgid()
  */
-static long int wrap_getgid(void)
+static long int OPTIMIZE3 wrap_getgid(void)
 {
 	return x86_64_syscall0(__NR_getgid);
 }
@@ -209,7 +209,7 @@ static long int wrap_getgid(void)
  *  wrap_getpid()
  *	invoke getpid()
  */
-static long int wrap_getpid(void)
+static long int OPTIMIZE3 wrap_getpid(void)
 {
 	return x86_64_syscall0(__NR_getpid);
 }
