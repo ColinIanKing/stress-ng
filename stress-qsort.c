@@ -69,14 +69,14 @@ static inline size_t qsort_bm_minimum(const size_t x, const size_t y)
 	return x <= y ? x : y;
 }
 
-static uint8_t OPTIMIZE3 *qsort_bm_med3(uint8_t *a, uint8_t *b, uint8_t *c, comp_func_t cmp)
+static inline uint8_t ALWAYS_INLINE *qsort_bm_med3(uint8_t *a, uint8_t *b, uint8_t *c, comp_func_t cmp)
 {
 	return (cmp(a, b) < 0) ?
 		((cmp(b, c) < 0) ? b : (cmp(a, c) < 0) ? c : a) :
 		((cmp(b, c) > 0) ? b : (cmp(a, c) > 0) ? c : a);
 }
 
-static inline void OPTIMIZE3 qsort_bm_swapfunc(uint8_t *a, uint8_t *b, size_t n, int swaptype)
+static inline void ALWAYS_INLINE qsort_bm_swapfunc(uint8_t *a, uint8_t *b, size_t n, int swaptype)
 {
 	if (swaptype <= 1) {
 		register qsort_swap_type_t * RESTRICT pi = (qsort_swap_type_t *)a;
@@ -105,7 +105,7 @@ PRAGMA_UNROLL_N(4)
 	}
 }
 
-static inline void OPTIMIZE3 qsort_bm_swap(uint8_t *a, uint8_t *b, const size_t es, const int swaptype)
+static inline void ALWAYS_INLINE qsort_bm_swap(uint8_t *a, uint8_t *b, const size_t es, const int swaptype)
 {
 	if (swaptype == 0) {
 		register qsort_swap_type_t tmp;
