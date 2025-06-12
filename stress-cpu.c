@@ -1572,7 +1572,7 @@ static inline long double complex PURE OPTIMIZE3 OPTIMIZE_FAST_MATH zeta(
  * stress_cpu_zeta()
  *	stress test Zeta(2.0)..Zeta(10.0)
  */
-static int stress_cpu_zeta(const char *name)
+static int OPTIMIZE3 OPTIMIZE_FAST_MATH stress_cpu_zeta(const char *name)
 {
 	long double precision = 0.00000001L;
 	int i;
