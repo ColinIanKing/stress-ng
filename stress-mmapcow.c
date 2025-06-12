@@ -28,8 +28,8 @@
 #define MMAPCOW_NUMA	(0x0002)
 
 #if defined(HAVE_LINUX_MEMPOLICY_H)
-	stress_numa_mask_t *numa_mask = NULL;
-	stress_numa_mask_t *numa_nodes = NULL;
+static stress_numa_mask_t *numa_mask = NULL;
+static stress_numa_mask_t *numa_nodes = NULL;
 #endif
 
 static const stress_help_t help[] = {
