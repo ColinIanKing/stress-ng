@@ -107,6 +107,7 @@ void stress_config_check(void)
 		static const char autogroup_path[] = "/proc/sys/kernel/sched_autogroup_enabled";
 		static const char cpu_path[] = "/sys/devices/system/cpu";
 		static const char boost_path[] = "/sys/devices/system/cpu/cpufreq/boost";
+		static const char turbo_path[] = "/sys/devices/system/cpu/intel_pstate/no_turbo";
 		uint64_t value;
 		struct dirent **namelist = NULL;
 		int n, i;
@@ -131,8 +132,15 @@ void stress_config_check(void)
 		if ((stress_config_read(boost_path, &value) != -1) && (value == 0)) {
 			pr_inf("note: boost is disabled and this may impact "
 				"top performance; setting %s to 1 may improve "
-				"performance.", boost_path);
+				"performance.\n", boost_path);
 		}
+
+		if ((stress_config_read(turbo_path, &value) != -1) && (value == 1)) {
+			pr_inf("note: turbo is disabled and this may impact "
+				"top performance; setting %s to 0 may improve "
+				"performance.\n", turbo_path);
+		}
+
 
 		n = scandir(cpu_path, &namelist, stress_config_check_cpu_filter, alphasort);
 		for (i = 0; i < n; i++) {
