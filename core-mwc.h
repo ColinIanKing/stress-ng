@@ -54,7 +54,7 @@ extern void stress_rndstr(char *str, const size_t len);
  *	return 8 bit non-modulo biased value 1..max (inclusive)
  *	where max is most probably not a power of 2
  */
-static inline uint8_t OPTIMIZE3 stress_mwc8modn(const uint8_t max)
+static inline uint8_t stress_mwc8modn(const uint8_t max)
 {
 	return (uint8_t)(((uint16_t)stress_mwc8() * (uint16_t)max) >> 8);
 }
@@ -64,7 +64,7 @@ static inline uint8_t OPTIMIZE3 stress_mwc8modn(const uint8_t max)
  *	see https://lemire.me/blog/2016/06/27/a-fast-alternative-to-the-modulo-reduction
  *	return 16 bit non-modulo biased value 1..max (inclusive)
  */
-static inline uint16_t OPTIMIZE3 stress_mwc16modn(const uint16_t max)
+static inline uint16_t stress_mwc16modn(const uint16_t max)
 {
 	return (uint16_t)(((uint32_t)stress_mwc16() * (uint32_t)max) >> 16);
 }
@@ -74,7 +74,7 @@ static inline uint16_t OPTIMIZE3 stress_mwc16modn(const uint16_t max)
  *	see https://lemire.me/blog/2016/06/27/a-fast-alternative-to-the-modulo-reduction
  *	return 32 bit non-modulo biased value 1..max (inclusive)
  */
-static inline uint32_t OPTIMIZE3 stress_mwc32modn(const uint32_t max)
+static inline uint32_t stress_mwc32modn(const uint32_t max)
 {
 	return (uint32_t)(((uint64_t)stress_mwc32() * (uint64_t)max) >> 32);
 }
@@ -93,7 +93,7 @@ extern uint32_t stress_mwc32modn(const uint32_t max);
  *	see https://lemire.me/blog/2016/06/27/a-fast-alternative-to-the-modulo-reduction
  *	return 64 bit non-modulo biased value 1..max (inclusive)
  */
-static inline uint64_t OPTIMIZE3 stress_mwc64modn(const uint64_t max)
+static inline uint64_t stress_mwc64modn(const uint64_t max)
 {
 	return (uint64_t)(((__uint128_t)stress_mwc64() * (__uint128_t)max) >> 64);
 }
