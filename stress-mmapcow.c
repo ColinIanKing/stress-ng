@@ -22,6 +22,7 @@
 #include "core-cpu-cache.h"
 #include "core-numa.h"
 #include "core-out-of-memory.h"
+#include "core-pragma.h"
 
 #define MMAPCOW_FREE	(0x0001)
 #define MMAPCOW_NUMA	(0x0002)
@@ -76,11 +77,13 @@ static int OPTIMIZE3 stress_mmapcow_modify_unmap(
 	const size_t page_size,
 	const int flags)
 {
-	uint8_t *ptr, *ptr_end = page + page_size;
+	volatile uint8_t *ptr;
+	const uint8_t *ptr_end = page + page_size;
 	uint64_t val = stress_mwc64() | 0x1248124812481248ULL;	/* random, and never zero */
 
 	(void)flags;
 
+PRAGMA_UNROLL_N(8)
 	for (ptr = page; ptr < ptr_end; ptr += 64) {
 		*(uint64_t *)ptr = val;
 	}
@@ -126,7 +129,7 @@ static int stress_mmapcow_child(stress_args_t *args, void *ctxt)
 
 
 		buf = (uint8_t *)mmap(NULL, buf_size, PROT_READ | PROT_WRITE,
-				MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+				MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 		if (buf == MAP_FAILED) {
 			if (buf_size == page_size) {
 				pr_inf("%s: failed to mmap %zu bytes, errno=%d (%s), terminating early\n",
