@@ -38,7 +38,7 @@
     defined(HAVE_BUILTIN_SUPPORTS) &&			\
     defined(HAVE_BUILTIN_NONTEMPORAL_STORE)
 /* Clang non-temporal stores */
-static inline void ALWAYS_INLINE OPTIMIZE3 stress_nt_store128(__uint128_t *addr, register __uint128_t value)
+static inline void ALWAYS_INLINE stress_nt_store128(__uint128_t *addr, register __uint128_t value)
 {
 	__builtin_nontemporal_store(value, addr);
 }
@@ -51,7 +51,7 @@ static inline void ALWAYS_INLINE OPTIMIZE3 stress_nt_store128(__uint128_t *addr,
     defined(HAVE_BUILTIN_SUPPORTS) &&			\
     defined(HAVE_BUILTIN_IA32_MOVNTDQ)
 /* gcc x86 non-temporal stores */
-static inline void ALWAYS_INLINE OPTIMIZE3 stress_nt_store128(__uint128_t *addr, register __uint128_t value)
+static inline void ALWAYS_INLINE stress_nt_store128(__uint128_t *addr, register __uint128_t value)
 {
 	__builtin_ia32_movntdq((__v2di *)addr, (__v2di)value);
 }
@@ -61,7 +61,7 @@ static inline void ALWAYS_INLINE OPTIMIZE3 stress_nt_store128(__uint128_t *addr,
     defined(STRESS_ARCH_X86_64) &&			\
     defined(HAVE_MM_STREAM_SI128)
 /* icc x86 non-temportal stores */
-static inline void ALWAYS_INLINE OPTIMIZE3 stress_nt_store128(__uint128_t *addr, register __uint128_t value)
+static inline void ALWAYS_INLINE stress_nt_store128(__uint128_t *addr, register __uint128_t value)
 {
 	_mm_stream_si128((__m128i *)addr, (__m128i)value);
 }
@@ -75,7 +75,7 @@ static inline void ALWAYS_INLINE OPTIMIZE3 stress_nt_store128(__uint128_t *addr,
 #if defined(HAVE_BUILTIN_SUPPORTS) &&	\
     defined(HAVE_BUILTIN_NONTEMPORAL_STORE)
 /* Clang non-temporal stores */
-static inline void ALWAYS_INLINE OPTIMIZE3 stress_nt_store64(uint64_t *addr, register uint64_t value)
+static inline void ALWAYS_INLINE stress_nt_store64(uint64_t *addr, register uint64_t value)
 {
 	__builtin_nontemporal_store(value, addr);
 }
@@ -86,7 +86,7 @@ static inline void ALWAYS_INLINE OPTIMIZE3 stress_nt_store64(uint64_t *addr, reg
     defined(HAVE_BUILTIN_SUPPORTS) &&			\
     defined(HAVE_BUILTIN_IA32_MOVNTI64)
 /* gcc x86 non-temporal stores */
-static inline void ALWAYS_INLINE OPTIMIZE3 stress_nt_store64(uint64_t *addr, register uint64_t value)
+static inline void ALWAYS_INLINE stress_nt_store64(uint64_t *addr, register uint64_t value)
 {
 	__builtin_ia32_movnti64((long long int *)addr, (long long int)value);
 }
@@ -95,7 +95,7 @@ static inline void ALWAYS_INLINE OPTIMIZE3 stress_nt_store64(uint64_t *addr, reg
     defined(STRESS_ARCH_X86_64)	&&			\
     defined(HAVE_MM_STREAM_SI64)
 /* icc x86 non-temportal stores */
-static inline void ALWAYS_INLINE OPTIMIZE3 stress_nt_store64(uint64_t *addr, register uint64_t value)
+static inline void ALWAYS_INLINE stress_nt_store64(uint64_t *addr, register uint64_t value)
 {
 	_mm_stream_si64((__int64 *)addr, (__int64)value);
 }
@@ -108,7 +108,7 @@ static inline void ALWAYS_INLINE OPTIMIZE3 stress_nt_store64(uint64_t *addr, reg
 #if defined(HAVE_BUILTIN_SUPPORTS) &&			\
     defined(HAVE_BUILTIN_NONTEMPORAL_STORE)
 /* Clang non-temporal stores */
-static inline void ALWAYS_INLINE OPTIMIZE3 stress_nt_store32(uint32_t *addr, register uint32_t value)
+static inline void ALWAYS_INLINE stress_nt_store32(uint32_t *addr, register uint32_t value)
 {
 	__builtin_nontemporal_store(value, addr);
 }
@@ -119,7 +119,7 @@ static inline void ALWAYS_INLINE OPTIMIZE3 stress_nt_store32(uint32_t *addr, reg
     defined(HAVE_BUILTIN_SUPPORTS) &&			\
     defined(HAVE_BUILTIN_IA32_MOVNTI)
 /* gcc x86 non-temporal stores */
-static inline void ALWAYS_INLINE OPTIMIZE3 stress_nt_store32(uint32_t *addr, register uint32_t value)
+static inline void ALWAYS_INLINE stress_nt_store32(uint32_t *addr, register uint32_t value)
 {
 	__builtin_ia32_movnti((int *)addr, value);
 }
@@ -128,7 +128,7 @@ static inline void ALWAYS_INLINE OPTIMIZE3 stress_nt_store32(uint32_t *addr, reg
     defined(STRESS_ARCH_X86_64) &&			\
     defined(HAVE_MM_STREAM_SI64)
 /* icc x86 non-temportal stores */
-static inline void ALWAYS_INLINE OPTIMIZE3 stress_nt_store32(uint32_t *addr, register uint32_t value)
+static inline void ALWAYS_INLINE stress_nt_store32(uint32_t *addr, register uint32_t value)
 {
 	_mm_stream_si32((int *)addr, (int)value);
 }
@@ -141,7 +141,7 @@ static inline void ALWAYS_INLINE OPTIMIZE3 stress_nt_store32(uint32_t *addr, reg
 #if defined(HAVE_BUILTIN_SUPPORTS) &&			\
     defined(HAVE_BUILTIN_NONTEMPORAL_STORE)
 /* Clang non-temporal stores */
-static inline void ALWAYS_INLINE OPTIMIZE3 stress_nt_store_double(double *addr, register double value)
+static inline void ALWAYS_INLINE stress_nt_store_double(double *addr, register double value)
 {
 	__builtin_nontemporal_store(value, addr);
 }
@@ -152,7 +152,7 @@ static inline void ALWAYS_INLINE OPTIMIZE3 stress_nt_store_double(double *addr, 
     defined(HAVE_BUILTIN_SUPPORTS) &&			\
     defined(HAVE_BUILTIN_IA32_MOVNTI64)
 /* gcc x86 non-temporal stores */
-static inline void ALWAYS_INLINE OPTIMIZE3 stress_nt_store_double(double *addr, double value)
+static inline void ALWAYS_INLINE stress_nt_store_double(double *addr, double value)
 {
 	if (sizeof(double) == sizeof(long long int)) {
 		register void *vptr = (void *)&value;	/* avoid type punning warnings */
