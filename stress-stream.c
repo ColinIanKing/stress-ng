@@ -874,6 +874,8 @@ static int stress_stream(stress_args_t *args)
 	bool stream_mlock = false;
 #if defined(HAVE_NT_STORE_DOUBLE)
 	const bool has_sse2 = stress_cpu_x86_has_sse2();
+#else
+	const bool has_sse2 = false;
 #endif
 	double rd_bytes = 0.0, wr_bytes = 0.0;
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
