@@ -108,7 +108,7 @@ static uint64_t stress_tlb_interrupts(void)
  *  stress_tlb_shootdown_read_mem()
  *	read from every cache line in mem
  */
-static inline void OPTIMIZE3 stress_tlb_shootdown_read_mem(
+static inline void ALWAYS_INLINE stress_tlb_shootdown_read_mem(
 	const uint8_t *mem,
 	const size_t size,
 	const size_t page_size)
@@ -143,7 +143,7 @@ static inline void OPTIMIZE3 stress_tlb_shootdown_read_mem(
  *  stress_tlb_shootdown_read_mem()
  *	write to every cache line in mem
  */
-static inline void OPTIMIZE3 stress_tlb_shootdown_write_mem(
+static inline void ALWAYS_INLINE stress_tlb_shootdown_write_mem(
 	uint8_t *mem,
 	const size_t size,
 	const size_t page_size)
@@ -211,6 +211,105 @@ static void *stress_tlb_shootdown_mmap(
 	return mem;
 }
 
+static void OPTIMIZE3 stress_tlb_shootdown_child(
+	stress_args_t *args,
+	const uint32_t n_cpus,
+	const uint32_t i,
+	const size_t stride,
+	const size_t mmap_size,
+	const size_t mmap_mask,
+	const size_t page_size,
+	const size_t page_mask,
+#if defined(HAVE_MADVISE) &&	\
+    defined(MADV_DONTNEED)
+	const size_t mmapfd_size,
+	const size_t mmapfd_mask,
+	uint8_t *memfd,
+#endif
+	stress_pid_t *s_pids,
+	uint8_t *mem,
+	uint32_t *cpus)
+{
+	cpu_set_t mask;
+	double t_start, t_next;
+	uint32_t cpu_idx = 0;
+	size_t offset;
+	const size_t cache_lines = mmap_size >> STRESS_CACHE_LINE_SHIFT;
+
+	s_pids[i].pid = getpid();
+
+	stress_parent_died_alarm();
+	(void)sched_settings_apply(true);
+
+	/* Make sure this is killable by OOM killer */
+	stress_set_oom_adjustment(args, true);
+
+	stress_sync_start_wait_s_pid(&s_pids[i]);
+
+	if (LIKELY(n_cpus > 0)) {
+		CPU_ZERO(&mask);
+		CPU_SET((int)cpus[cpu_idx], &mask);
+		(void)sched_setaffinity(args->pid, sizeof(mask), &mask);
+	}
+
+	t_start = stress_time_now();
+	t_next = t_start + 1.0;
+
+	do {
+		size_t l;
+		size_t k = stress_mwc32() & mmap_mask;
+		const uint8_t rnd8 = stress_mwc8();
+		volatile uint8_t *vmem;
+
+		offset = (stress_mwc32() & mmap_mask) & page_mask;
+		(void)mprotect(mem + offset, page_size, PROT_READ);
+		stress_tlb_shootdown_read_mem(mem + offset, page_size, page_size);
+
+		(void)mprotect(mem + offset, page_size, PROT_WRITE);
+		stress_tlb_shootdown_write_mem(mem + offset, page_size, page_size);
+
+		vmem = mem;
+		(void)mprotect(mem, mmap_size, PROT_READ);
+PRAGMA_UNROLL_N(8)
+		for (l = 0; l < cache_lines; l++) {
+			(void)vmem[k];
+			k = (k + stride) & mmap_mask;
+		}
+		(void)mprotect(mem, mmap_size, PROT_WRITE);
+PRAGMA_UNROLL_N(8)
+		for (l = 0; l < cache_lines; l++) {
+			vmem[k] = (uint8_t)(k + rnd8);
+			k = (k + stride) & mmap_mask;
+		}
+		(void)mprotect(mem, mmap_size, PROT_READ | PROT_WRITE);
+#if defined(HAVE_MADVISE) &&	\
+    defined(SHIM_MADV_DONTNEED)
+		offset = (stress_mwc32() & mmapfd_mask) & mmap_mask;
+
+		(void)shim_madvise(mem + offset, page_size, SHIM_MADV_DONTNEED);
+		stress_tlb_shootdown_read_mem(mem + offset, page_size, page_size);
+
+		(void)shim_madvise(memfd + offset, page_size, SHIM_MADV_DONTNEED);
+		stress_tlb_shootdown_write_mem(memfd, page_size, page_size);
+		shim_msync(memfd, mmapfd_size, MS_ASYNC);
+#endif
+		stress_bogo_inc(args);
+
+		/*
+		 *  periodically change cpu affinity
+		 */
+		if (UNLIKELY((stress_time_now() >= t_next) && (n_cpus > 0))) {
+			cpu_idx++;
+			cpu_idx = (cpu_idx >= n_cpus) ? 0 : cpu_idx;
+
+			CPU_ZERO(&mask);
+			CPU_SET(cpus[cpu_idx], &mask);
+			(void)sched_setaffinity(args->pid, sizeof(mask), &mask);
+			t_next += 1.0;
+		}
+	} while (stress_continue(args));
+}
+
 /*
  *  stress_tlb_shootdown()
  *	stress out TLB shootdowns
@@ -224,7 +323,6 @@ static int stress_tlb_shootdown(stress_args_t *args)
 	const size_t mmap_size = page_size * MMAP_PAGES;
 	const size_t mmap_mask = mmap_size - 1;
 	const size_t cache_lines = mmap_size >> STRESS_CACHE_LINE_SHIFT;
-	size_t offset;
 	uint32_t *cpus;
 	const uint32_t n_cpus = stress_get_usable_cpus(&cpus, true);
 	stress_pid_t *s_pids, *s_pids_head = NULL;
@@ -309,87 +407,20 @@ static int stress_tlb_shootdown(stress_args_t *args)
 		stress_sync_start_init(&s_pids[i]);
 
 	for (i = 0; i < tlb_procs; i++) {
-		uint32_t cpu_idx = 0;
 		const size_t stride = (137 + (size_t)stress_get_next_prime64((uint64_t)cache_lines)) << STRESS_CACHE_LINE_SHIFT;
 
 		s_pids[i].pid = fork();
 		if (s_pids[i].pid < 0) {
 			continue;
 		} else if (s_pids[i].pid == 0) {
-			cpu_set_t mask;
-			double t_start, t_next;
-
-			s_pids[i].pid = getpid();
-
-			stress_parent_died_alarm();
-			(void)sched_settings_apply(true);
-
-			/* Make sure this is killable by OOM killer */
-			stress_set_oom_adjustment(args, true);
-
-                        stress_sync_start_wait_s_pid(&s_pids[i]);
-
-			if (LIKELY(n_cpus > 0)) {
-				CPU_ZERO(&mask);
-				CPU_SET((int)cpus[cpu_idx], &mask);
-				(void)sched_setaffinity(args->pid, sizeof(mask), &mask);
-			}
-
-			t_start = stress_time_now();
-			t_next = t_start + 1.0;
-
-			do {
-				size_t l;
-				size_t k = stress_mwc32() & mmap_mask;
-				const uint8_t rnd8 = stress_mwc8();
-				volatile uint8_t *vmem;
-
-				offset = (stress_mwc32() & mmap_mask) & page_mask;
-				(void)mprotect(mem + offset, page_size, PROT_READ);
-				stress_tlb_shootdown_read_mem(mem + offset, page_size, page_size);
-
-				(void)mprotect(mem + offset, page_size, PROT_WRITE);
-				stress_tlb_shootdown_write_mem(mem + offset, page_size, page_size);
-
-				vmem = mem;
-				(void)mprotect(mem, mmap_size, PROT_READ);
-PRAGMA_UNROLL_N(8)
-				for (l = 0; l < cache_lines; l++) {
-					(void)vmem[k];
-					k = (k + stride) & mmap_mask;
-				}
-				(void)mprotect(mem, mmap_size, PROT_WRITE);
-PRAGMA_UNROLL_N(8)
-				for (l = 0; l < cache_lines; l++) {
-					vmem[k] = (uint8_t)(k + rnd8);
-					k = (k + stride) & mmap_mask;
-				}
-				(void)mprotect(mem, mmap_size, PROT_READ | PROT_WRITE);
-#if defined(SHIM_MADV_DONTNEED)
-				offset = (stress_mwc32() & mmapfd_mask) & mmap_mask;
-
-				(void)shim_madvise(mem + offset, page_size, SHIM_MADV_DONTNEED);
-				stress_tlb_shootdown_read_mem(mem + offset, page_size, page_size);
-
-				(void)shim_madvise(memfd + offset, page_size, SHIM_MADV_DONTNEED);
-				stress_tlb_shootdown_write_mem(memfd, page_size, page_size);
-				shim_msync(memfd, mmapfd_size, MS_ASYNC);
+			stress_tlb_shootdown_child(args, n_cpus, i, stride,
+					mmap_size, mmap_mask,
+					page_size, page_mask,
+#if defined(HAVE_MADVISE) &&	\
+    defined(MADV_DONTNEED)
+					mmapfd_size, mmapfd_mask, memfd,
 #endif
-				stress_bogo_inc(args);
-
-				/*
-				 *  periodically change cpu affinity
-				 */
-				if (UNLIKELY((stress_time_now() >= t_next) && (n_cpus > 0))) {
-					cpu_idx++;
-					cpu_idx = (cpu_idx >= n_cpus) ? 0 : cpu_idx;
-
-					CPU_ZERO(&mask);
-					CPU_SET(cpus[cpu_idx], &mask);
-					(void)sched_setaffinity(args->pid, sizeof(mask), &mask);
-					t_next += 1.0;
-				}
-			} while (stress_continue(args));
+					s_pids, mem, cpus);
 
 			(void)shim_kill(pid, SIGALRM);
 			_exit(0);
@@ -404,7 +435,10 @@ PRAGMA_UNROLL_N(8)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-#if defined(SHIM_MADV_DONTNEED)
+#if defined(HAVE_MADVISE) &&	\
+    defined(SHIM_MADV_DONTNEED)
+		size_t offset;
+
 		offset = (stress_mwc32() & mmapfd_mask) & page_mask;
 		(void)shim_madvise(memfd + offset, page_size, SHIM_MADV_DONTNEED);
 		stress_tlb_shootdown_write_mem(memfd, page_size, page_size);
@@ -432,7 +466,8 @@ PRAGMA_UNROLL_N(8)
 				VOID_RET(ssize_t, stress_system_write(flush_ceiling, buf, rd_ret));
 		}
 #endif
-#if defined(MADV_NOHUGEPAGE) && 	\
+#if defined(HAVE_MADVISE) &&	\
+    defined(MADV_NOHUGEPAGE) && 	\
     defined(MADV_COLLAPSE)
 		(void)shim_madvise(mem, mmap_size, MADV_COLLAPSE);
 		(void)shim_madvise(mem, mmap_size, MADV_NOHUGEPAGE);
