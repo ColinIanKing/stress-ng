@@ -54,6 +54,9 @@ static void stress_mmapcow_force_unmap(
 	const size_t buf_size,
 	const size_t page_size)
 {
+#if defined(MADV_DONTNEED)
+	(void)madvise((void *)buf, buf_size, MADV_DONTNEED);
+#endif
 #if defined(MADV_FREE)
 	(void)madvise((void *)buf, buf_size, MADV_FREE);
 #endif
@@ -137,6 +140,7 @@ static int stress_mmapcow_child(stress_args_t *args, void *ctxt)
 		uint8_t *buf = NULL, *buf_end, *ptr;
 		uint8_t rnd;
 		size_t stride, n_pages, i, offset;
+		unsigned char vec[1];
 
 		n_pages = buf_size / page_size;
 		buf = (uint8_t *)mmap(NULL, buf_size, PROT_READ | PROT_WRITE,
@@ -154,7 +158,10 @@ static int stress_mmapcow_child(stress_args_t *args, void *ctxt)
 		}
 
 #if defined(MADV_COLLAPSE)
-		(void)madvise(buf, buf_size, MADV_COLLAPSE);
+		(void)madvise((void *)buf, buf_size, MADV_COLLAPSE);
+#endif
+#if defined(MADV_DONTNEED)
+		(void)madvise((void *)buf, buf_size, MADV_DONTNEED);
 #endif
 
 		/* Low memory? Start again.. */
@@ -170,7 +177,7 @@ static int stress_mmapcow_child(stress_args_t *args, void *ctxt)
 		stress_set_vma_anon_name(buf, buf_size, "mmapcow-pages");
 		buf_end = buf + buf_size;
 
-		rnd = stress_mwc8() % 6;
+		rnd = stress_mwc8() % 7;
 
 		switch (rnd) {
 		case 0:
@@ -201,7 +208,6 @@ static int stress_mmapcow_child(stress_args_t *args, void *ctxt)
 				if (UNLIKELY(stress_mmapcow_modify_unmap(args, buf, buf_size,
 						buf + offset, page_size, flags, &duration, &count) < 0))
 					goto next;
-
 				offset += stride;
 				offset %= buf_size;
 			}
@@ -228,6 +234,23 @@ static int stress_mmapcow_child(stress_args_t *args, void *ctxt)
 			}
 			break;
 		case 5:
+			/* Randomly chosen pages, check if mincore works on buf */
+			if (shim_mincore(buf, 1, vec) == 0) {
+				for (i = 0, offset = 0; stress_continue(args) && i < n_pages; i++) {
+					offset = stress_mwc64modn((uint64_t)n_pages) * page_size;
+
+					/* is randomly chosen page mmapd? */
+					if (shim_mincore(buf + offset, 1, vec) == 0) {
+						if (UNLIKELY(stress_mmapcow_modify_unmap(args, buf, buf_size,
+								buf + offset, page_size, flags, &duration, &count) < 0)) {
+							goto next;
+						}
+					}
+				}
+			}
+			stress_mmapcow_force_unmap(args, buf, buf_size, page_size);
+			break;
+		case 6:
 			/* Populate 1 random page, unmap all */
 			offset = stress_mwc64modn(n_pages) * page_size;
 			(void)shim_memset(buf + offset, 0xff, page_size);
@@ -241,11 +264,9 @@ static int stress_mmapcow_child(stress_args_t *args, void *ctxt)
 		default:
 			break;
 		}
-
 next:
 		if (buf_size > max_buf_size)
 			max_buf_size = buf_size;
-
 		buf_size = buf_size + buf_size;
 		if (buf_size >= failed_size) {
 			failed_count++;
