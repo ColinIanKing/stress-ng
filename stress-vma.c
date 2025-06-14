@@ -659,8 +659,7 @@ static void stress_vma_loop(
 
 		(void)sleep(10);
 		stress_vma_continue_flag = false;
-		VOID_RET(int, kill(pid, SIGKILL));
-		VOID_RET(pid_t, shim_waitpid(pid, &status, 0));
+		stress_kill_pid_wait(pid, &status);
 	} while (stress_vma_continue(args));
 }
 
