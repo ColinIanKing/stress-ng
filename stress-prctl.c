@@ -132,6 +132,7 @@ static const stress_help_t help[] = {
     defined(PR_SET_SHADOW_STACK_STATUS) ||	/* 75 */ \
     defined(PR_LOCK_SHADOW_STACK_STATUS) ||	/* 76 */ \
     defined(PR_TIMER_CREATE_RESTORE_IDS) ||	/* 77 */ \
+    defined(PR_FUTEX_HASH) ||			/* 78 */ \
     defined(PR_GET_AUXV) ||			/* 0x41555856 */ \
     defined(PR_SET_VMA) ||			/* 0x53564d41 */ \
     defined(PR_SET_PTRACER)			/* 0x59616d61 */
@@ -1120,6 +1121,13 @@ static int stress_prctl_child(
 			VOID_RET(int, prctl(PR_TIMER_CREATE_RESTORE_IDS, PR_TIMER_CREATE_RESTORE_IDS_GET, 0, 0, 0));
 			VOID_RET(int, prctl(PR_TIMER_CREATE_RESTORE_IDS, PR_TIMER_CREATE_RESTORE_IDS_OFF, 0, 0, 0));
 		}
+	}
+#endif
+
+#if defined(PR_FUTEX_HASH) &&		\
+    defined(PR_FUTEX_HASH_GET_SLOTS)
+	{
+		VOID_RET(int, prctl(PR_FUTEX_HASH, PR_FUTEX_HASH_GET_SLOTS, 0, 0, 0));
 	}
 #endif
 	stress_arch_prctl();
