@@ -101,6 +101,10 @@
 #include <sys/sysctl.h>
 #endif
 
+#if defined(HAVE_SYS_SYSMACROS_H)
+#include <sys/sysmacros.h>
+#endif
+
 #if defined(HAVE_SYS_UTSNAME_H)
 #include <sys/utsname.h>
 #endif
@@ -4054,6 +4058,96 @@ static const char *stress_fs_magic_to_name(const unsigned long int fs_magic)
 }
 #endif
 
+#if defined(HAVE_SYS_SYSMACROS_H) &&	\
+    defined(__linux__)
+/*
+ *  stress_find_partition_dev()
+ *	find major device name of device with major/minor number
+ *	via the partition info
+ */
+static bool stress_find_partition_dev(
+	const unsigned int devmajor,
+	const unsigned int devminor,
+	char *name,
+	const size_t name_len)
+{
+	char buf[1024];
+	FILE *fp;
+	bool found = false;
+
+	if (!name)
+		return false;
+	if (name_len < 1)
+		return false;
+
+	*name = '\0';
+	fp = fopen("/proc/partitions", "r");
+	if (!fp)
+		return false;
+
+	while (fgets(buf, sizeof(buf), fp) != NULL) {
+		uint64_t blocks;
+		char devname[name_len + 1];
+		unsigned int pmajor, pminor;
+
+		if (sscanf(buf, "%u %u %" SCNu64 " %128s", &pmajor, &pminor, &blocks, devname) == 4) {
+			if ((devmajor == pmajor) && (devminor == pminor)) {
+				(void)shim_strscpy(name, devname, name_len);
+				found = true;
+				break;
+			}
+		}
+	}
+	(void)fclose(fp);
+	return found;
+}
+
+#endif
+
+/*
+ *  stress_get_fs_dev_model()
+ *	file model name of device that the file is on
+ */
+static const char *stress_get_fs_dev_model(const char *filename)
+{
+#if defined(HAVE_SYS_SYSMACROS_H) &&	\
+    defined(__linux__)
+	struct stat statbuf;
+	static char buf[256];
+	char path[PATH_MAX];
+
+	if (UNLIKELY(!filename))
+		return NULL;
+	if (UNLIKELY(shim_stat(filename, &statbuf) < 0))
+		return NULL;
+
+	if (!stress_find_partition_dev(major(statbuf.st_dev), 0, buf, sizeof(buf)))
+		return NULL;
+
+	(void)snprintf(path, sizeof(path), "/sys/block/%s/device/model", buf);
+	if (stress_system_read(path, buf, sizeof(buf)) > 0) {
+		char *ptr;
+
+		for (ptr = buf; *ptr; ptr++) {
+			if (*ptr == '\n') {
+				*ptr = '\0';
+				ptr--;
+				break;
+			}
+		}
+		while (ptr >= buf && *ptr == ' ') {
+			*ptr = '\0';
+			ptr--;
+		}
+		return buf;
+	}
+	return NULL;
+#else
+	(void)filename;
+	return NULL;
+#endif
+}
+
 /*
  *  stress_get_fs_info()
  *	for a given filename, determine the filesystem it is stored
@@ -4101,12 +4195,15 @@ const char *stress_get_fs_type(const char *filename)
 {
 	uintmax_t blocks;
 	const char *fs_name = stress_get_fs_info(filename, &blocks);
+	const char *model = stress_get_fs_dev_model(filename);
 
 	if (fs_name) {
 		static char tmp[256];
 
-		(void)snprintf(tmp, sizeof(tmp), ", filesystem type: %s (%" PRIuMAX" blocks available)",
-			fs_name, blocks);
+		(void)snprintf(tmp, sizeof(tmp), ", filesystem type: %s (%" PRIuMAX" blocks available%s%s)",
+			fs_name, blocks,
+			model ? ", " : "",
+			model ? model : "");
 		return tmp;
 	}
 	return "";
