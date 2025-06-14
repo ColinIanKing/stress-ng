@@ -695,7 +695,7 @@ int32_t stress_get_processors_online(void)
 
 #if defined(_SC_NPROCESSORS_ONLN)
 	processors_online = (int32_t)sysconf(_SC_NPROCESSORS_ONLN);
-	if (processors_online < 0)
+	if (UNLIKELY(processors_online < 0))
 		processors_online = 1;
 #else
 	processors_online = 1;
@@ -717,7 +717,7 @@ int32_t stress_get_processors_configured(void)
 
 #if defined(_SC_NPROCESSORS_CONF)
 	processors_configured = (int32_t)sysconf(_SC_NPROCESSORS_CONF);
-	if (processors_configured < 0)
+	if (UNLIKELY(processors_configured < 0))
 		processors_configured = stress_get_processors_online();
 #else
 	processors_configured = 1;
@@ -1436,7 +1436,7 @@ size_t stress_munge_underscore(char *dst, const char *src, size_t len)
 	register const char *s = src;
 	register size_t n = len;
 
-	if (n) {
+	if (LIKELY(n)) {
 		while (--n) {
 			register char c = *s++;
 
@@ -1997,7 +1997,7 @@ void stress_yaml_runinfo(FILE *yaml)
 
 	pr_yaml(yaml, "      stress-ng-version: " VERSION "\n");
 	pr_yaml(yaml, "      run-by: %s\n", user ? user : "unknown");
-	if (tm) {
+	if (LIKELY(tm != NULL)) {
 		pr_yaml(yaml, "      date-yyyy-mm-dd: %4.4d:%2.2d:%2.2d\n",
 			tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday);
 		pr_yaml(yaml, "      time-hh-mm-ss: %2.2d:%2.2d:%2.2d\n",
@@ -2015,7 +2015,7 @@ void stress_yaml_runinfo(FILE *yaml)
 
 #if defined(HAVE_UNAME) &&	\
     defined(HAVE_SYS_UTSNAME_H)
-	if (uname(&uts) >= 0) {
+	if (LIKELY(uname(&uts) >= 0)) {
 		pr_yaml(yaml, "      sysname: %s\n", uts.sysname);
 		pr_yaml(yaml, "      nodename: %s\n", uts.nodename);
 		pr_yaml(yaml, "      release: %s\n", uts.release);
@@ -2028,7 +2028,7 @@ void stress_yaml_runinfo(FILE *yaml)
 #if defined(HAVE_SYS_SYSINFO_H) &&	\
     defined(HAVE_SYSINFO)
 	(void)shim_memset(&info, 0, sizeof(info));
-	if (sysinfo(&info) == 0) {
+	if (LIKELY(sysinfo(&info) == 0)) {
 		pr_yaml(yaml, "      uptime: %ld\n", info.uptime);
 		pr_yaml(yaml, "      totalram: %lu\n", info.totalram);
 		pr_yaml(yaml, "      freeram: %lu\n", info.freeram);
@@ -2276,7 +2276,7 @@ bool PURE stress_is_prime64(const uint64_t n)
 	register uint64_t i, max;
 	double max_d;
 
-	if (n <= 3)
+	if (UNLIKELY(n <= 3))
 		return n >= 2;
 	if ((n % 2 == 0) || (n % 3 == 0))
 		return false;
@@ -2302,7 +2302,7 @@ uint64_t stress_get_next_prime64(const uint64_t n)
 	const uint64_t odd_n = (n & 0x0ffffffffffffffeUL) + 1;
 	int i;
 
-	if (p < odd_n)
+	if (LIKELY(p < odd_n))
 		p = odd_n;
 
 	/* Search for next prime.. */
@@ -2329,7 +2329,7 @@ uint64_t stress_get_prime64(const uint64_t n)
 	const uint64_t odd_n = (n & 0x0ffffffffffffffeUL) + 1;
 	int i;
 
-	if (p < odd_n)
+	if (LIKELY(p < odd_n))
 		p = odd_n;
 
 	/* Search for next prime.. */
@@ -2608,7 +2608,7 @@ int stress_sighandler(
 	 *  defer SIGALRM from being called until the handler has
 	 *  completed. This only applies to non-SIGALRM handlers.
 	 */
-	if (signum != SIGALRM)
+	if (LIKELY(signum != SIGALRM))
 		sigaddset(&new_action.sa_mask, SIGALRM);
 	new_action.sa_flags = SA_NOCLDSTOP;
 #if defined(HAVE_SIGALTSTACK)
@@ -2691,7 +2691,7 @@ int stress_sigrestore(
 	const int signum,
 	struct sigaction *orig_action)
 {
-	if (sigaction(signum, orig_action, NULL) < 0) {
+	if (UNLIKELY(sigaction(signum, orig_action, NULL) < 0)) {
 		pr_fail("%s: sigaction %s restore, errno=%d (%s)\n",
 			name, stress_strsignal(signum), errno, strerror(errno));
 		return -1;
@@ -3181,7 +3181,7 @@ char *stress_const_optdup(const char *opt)
 		return NULL;
 
 	str = strdup(opt);
-	if (!str)
+	if (UNLIKELY(!str))
 		(void)fprintf(stderr, "out of memory duplicating option '%s'\n", opt);
 
 	return str;
@@ -4009,7 +4009,7 @@ size_t stress_flag_permutation(const int flags, int **permutations)
 
 	n_flags = 1U << n_bits;
 	perms = (int *)calloc((size_t)n_flags, sizeof(*perms));
-	if (!perms)
+	if (UNLIKELY(!perms))
 		return 0;
 
 	/*
@@ -4753,7 +4753,7 @@ static void stress_dbg(const char *fmt, ...)
 	int n, sz;
 	static char buf[256];
 	n = snprintf(buf, sizeof(buf), "stress-ng: debug: [%" PRIdMAX"] ", (intmax_t)getpid());
-	if (n < 0)
+	if (UNLIKELY(n < 0))
 		return;
 	sz = n;
 	va_start(ap, fmt);
