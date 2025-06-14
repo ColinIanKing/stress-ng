@@ -516,8 +516,7 @@ again:
 
 		if (shim_waitpid(pid, &status, 0) < 0) {
 			/* apply hammer */
-			(void)kill(pid, SIGKILL);
-			(void)waitpid(pid, &status, 0);
+			(void)stress_kill_pid_wait(pid, &status);
 		}
 	}
 err:
@@ -646,8 +645,7 @@ again:
 
 		if (shim_waitpid(pid, &status, 0) < 0) {
 			/* apply hammer */
-			(void)kill(pid, SIGKILL);
-			(void)waitpid(pid, &status, 0);
+			(void)stress_kill_pid_wait(pid, &status);
 		}
 #if defined(HAVE_TIMER_CLOCK_REALTIME)
 		stress_cpu_sched_hrtimer_set(TIMER_NS);
