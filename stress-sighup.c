@@ -161,13 +161,13 @@ again:
 			if (write(fds_snd[1], &msg, 1) < 1) {
 				stress_sighup_closefds(fds_snd);
 				stress_sighup_closefds(fds_rcv);
-				kill(pid2, SIGKILL);
+				(void)kill(pid2, SIGKILL);
 				_exit(0);
 			}
 			if (read(fds_rcv[0], &msg, 1) < 1) {
 				stress_sighup_closefds(fds_snd);
 				stress_sighup_closefds(fds_rcv);
-				kill(pid2, SIGKILL);
+				(void)kill(pid2, SIGKILL);
 				_exit(0);
 			}
 			sighup_info->t_start = stress_time_now();
