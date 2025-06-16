@@ -275,61 +275,61 @@ typedef struct {
 	const char *name;
 	const stress_vecfp_func_t vecfp_func;
 	const size_t elements;
-	double duration;
-	double ops;
 } stress_vecfp_funcs_t;
 
-static stress_vecfp_funcs_t stress_vecfp_funcs[] = {
-	{ "all",		stress_vecfp_all, 0, 0.0, 0.0 },
+static const stress_vecfp_funcs_t stress_vecfp_funcs[] = {
+	{ "all",		stress_vecfp_all,             0  },
 
-	{ "floatv128add",	stress_vecfp_float_add_128, 128, 0.0, 0.0 },
-	{ "floatv64add",	stress_vecfp_float_add_64, 64, 0.0, 0.0 },
-	{ "floatv32add",	stress_vecfp_float_add_32, 32, 0.0, 0.0 },
-	{ "floatv16add",	stress_vecfp_float_add_16, 16, 0.0, 0.0 },
-	{ "floatv8add",		stress_vecfp_float_add_8, 8, 0.0, 0.0 },
+	{ "floatv128add",	stress_vecfp_float_add_128,  128 },
+	{ "floatv64add",	stress_vecfp_float_add_64,    64 },
+	{ "floatv32add",	stress_vecfp_float_add_32,    32 },
+	{ "floatv16add",	stress_vecfp_float_add_16,    16 },
+	{ "floatv8add",		stress_vecfp_float_add_8,      8 },
 
-	{ "floatv128mul",	stress_vecfp_float_mul_128, 128, 0.0, 0.0 },
-	{ "floatv64mul",	stress_vecfp_float_mul_64, 64, 0.0, 0.0 },
-	{ "floatv32mul",	stress_vecfp_float_mul_32, 32, 0.0, 0.0 },
-	{ "floatv16mul",	stress_vecfp_float_mul_16, 16, 0.0, 0.0 },
-	{ "floatv8mul",		stress_vecfp_float_mul_8, 8, 0.0, 0.0 },
+	{ "floatv128mul",	stress_vecfp_float_mul_128,  128 },
+	{ "floatv64mul",	stress_vecfp_float_mul_64,    64 },
+	{ "floatv32mul",	stress_vecfp_float_mul_32,    32 },
+	{ "floatv16mul",	stress_vecfp_float_mul_16,    16 },
+	{ "floatv8mul",		stress_vecfp_float_mul_8,      8 },
 
-	{ "floatv128div",	stress_vecfp_float_div_128, 128, 0.0, 0.0 },
-	{ "floatv64div",	stress_vecfp_float_div_64, 64, 0.0, 0.0 },
-	{ "floatv32div",	stress_vecfp_float_div_32, 32, 0.0, 0.0 },
-	{ "floatv16div",	stress_vecfp_float_div_16, 16, 0.0, 0.0 },
-	{ "floatv8div",		stress_vecfp_float_div_8, 8, 0.0, 0.0 },
+	{ "floatv128div",	stress_vecfp_float_div_128,  128 },
+	{ "floatv64div",	stress_vecfp_float_div_64,    64 },
+	{ "floatv32div",	stress_vecfp_float_div_32,    32 },
+	{ "floatv16div",	stress_vecfp_float_div_16,    16 },
+	{ "floatv8div",		stress_vecfp_float_div_8,      8 },
 
-	{ "floatv128neg",	stress_vecfp_float_neg_128, 128, 0.0, 0.0 },
-	{ "floatv64neg",	stress_vecfp_float_neg_64, 64, 0.0, 0.0 },
-	{ "floatv32neg",	stress_vecfp_float_neg_32, 32, 0.0, 0.0 },
-	{ "floatv16neg",	stress_vecfp_float_neg_16, 16, 0.0, 0.0 },
-	{ "floatv8neg",		stress_vecfp_float_neg_8, 8, 0.0, 0.0 },
+	{ "floatv128neg",	stress_vecfp_float_neg_128,  128 },
+	{ "floatv64neg",	stress_vecfp_float_neg_64,    64 },
+	{ "floatv32neg",	stress_vecfp_float_neg_32,    32 },
+	{ "floatv16neg",	stress_vecfp_float_neg_16,    16 },
+	{ "floatv8neg",		stress_vecfp_float_neg_8,      8 },
 
-	{ "doublev128add",	stress_vecfp_double_add_128, 128, 0.0, 0.0 },
-	{ "doublev64add",	stress_vecfp_double_add_64, 64, 0.0, 0.0 },
-	{ "doublev32add",	stress_vecfp_double_add_32, 32, 0.0, 0.0 },
-	{ "doublev16add",	stress_vecfp_double_add_16, 16, 0.0, 0.0 },
-	{ "doublev8add",	stress_vecfp_double_add_8, 8, 0.0, 0.0 },
+	{ "doublev128add",	stress_vecfp_double_add_128, 128 },
+	{ "doublev64add",	stress_vecfp_double_add_64,   64 },
+	{ "doublev32add",	stress_vecfp_double_add_32,   32 },
+	{ "doublev16add",	stress_vecfp_double_add_16,   16 },
+	{ "doublev8add",	stress_vecfp_double_add_8,     8 },
 
-	{ "doublev128mul",	stress_vecfp_double_mul_128, 128, 0.0, 0.0 },
-	{ "doublev64mul",	stress_vecfp_double_mul_64, 64, 0.0, 0.0 },
-	{ "doublev32mul",	stress_vecfp_double_mul_32, 32, 0.0, 0.0 },
-	{ "doublev16mul",	stress_vecfp_double_mul_16, 16, 0.0, 0.0 },
-	{ "doublev8mul",	stress_vecfp_double_mul_8, 8, 0.0, 0.0 },
+	{ "doublev128mul",	stress_vecfp_double_mul_128, 128 },
+	{ "doublev64mul",	stress_vecfp_double_mul_64,   64 },
+	{ "doublev32mul",	stress_vecfp_double_mul_32,   32 },
+	{ "doublev16mul",	stress_vecfp_double_mul_16,   16 },
+	{ "doublev8mul",	stress_vecfp_double_mul_8,     8 },
 
-	{ "doublev128div",	stress_vecfp_double_div_128, 128, 0.0, 0.0 },
-	{ "doublev64div",	stress_vecfp_double_div_64, 64, 0.0, 0.0 },
-	{ "doublev32div",	stress_vecfp_double_div_32, 32, 0.0, 0.0 },
-	{ "doublev16div",	stress_vecfp_double_div_16, 16, 0.0, 0.0 },
-	{ "doublev8div",	stress_vecfp_double_div_8, 8, 0.0, 0.0 },
+	{ "doublev128div",	stress_vecfp_double_div_128, 128 },
+	{ "doublev64div",	stress_vecfp_double_div_64,   64 },
+	{ "doublev32div",	stress_vecfp_double_div_32,   32 },
+	{ "doublev16div",	stress_vecfp_double_div_16,   16 },
+	{ "doublev8div",	stress_vecfp_double_div_8,     8 },
 
-	{ "doublev128neg",	stress_vecfp_double_neg_128, 128, 0.0, 0.0 },
-	{ "doublev64neg",	stress_vecfp_double_neg_64, 64, 0.0, 0.0 },
-	{ "doublev32neg",	stress_vecfp_double_neg_32, 32, 0.0, 0.0 },
-	{ "doublev16neg",	stress_vecfp_double_neg_16, 16, 0.0, 0.0 },
-	{ "doublev8neg",	stress_vecfp_double_neg_8, 8, 0.0, 0.0 },
+	{ "doublev128neg",	stress_vecfp_double_neg_128, 128 },
+	{ "doublev64neg",	stress_vecfp_double_neg_64,   64 },
+	{ "doublev32neg",	stress_vecfp_double_neg_32,   32 },
+	{ "doublev16neg",	stress_vecfp_double_neg_16,   16 },
+	{ "doublev8neg",	stress_vecfp_double_neg_8,     8 },
 };
+
+stress_metrics_t stress_vecfp_metrics[SIZEOF_ARRAY(stress_vecfp_funcs)] ALIGN64;
 
 static void OPTIMIZE3 stress_vecfp_call_method(
 	stress_args_t *args,
@@ -337,7 +337,8 @@ static void OPTIMIZE3 stress_vecfp_call_method(
 	const size_t method,
 	bool *success)
 {
-	stress_vecfp_funcs_t *const func = &stress_vecfp_funcs[method];
+	const stress_vecfp_funcs_t *const func = &stress_vecfp_funcs[method];
+	stress_metrics_t *metrics = &stress_vecfp_metrics[method];
 	const double ops = (double)(LOOPS_PER_CALL * func->elements);
 	size_t i;
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
@@ -346,16 +347,16 @@ static void OPTIMIZE3 stress_vecfp_call_method(
 		vecfp_init[i].d.r = &vecfp_init[i].d.r1;
 		vecfp_init[i].f.r = &vecfp_init[i].f.r1;
 	}
-	func->duration += func->vecfp_func(args, vecfp_init, success);
-	func->ops += ops;
+	metrics->duration += func->vecfp_func(args, vecfp_init, success);
+	metrics->count += ops;
 
 	if (verify) {
 		for (i = 0; i < func->elements; i++) {
 			vecfp_init[i].d.r = &vecfp_init[i].d.r2;
 			vecfp_init[i].f.r = &vecfp_init[i].f.r2;
 		}
-		func->duration += func->vecfp_func(args, vecfp_init, success);
-		func->ops += ops;
+		metrics->duration += func->vecfp_func(args, vecfp_init, success);
+		metrics->count += ops;
 
 		for (i = 0; i < func->elements; i++) {
 			if (fabs(vecfp_init[i].d.r1 - vecfp_init[i].d.r2) > (double)0.0001) {
@@ -400,6 +401,9 @@ static int stress_vecfp(stress_args_t *args)
 
 	for (i = 0; i < SIZEOF_ARRAY(stress_vecfp_funcs); i++) {
 		const size_t elements = stress_vecfp_funcs[i].elements;
+
+		stress_vecfp_metrics[i].duration = 0.0;
+		stress_vecfp_metrics[i].count = 0.0;
 
 		if (max_elements < elements)
 			max_elements = elements;
@@ -457,8 +461,9 @@ static int stress_vecfp(stress_args_t *args)
 	} while (success && stress_continue(args));
 
 	for (i = 1, j = 0; i < SIZEOF_ARRAY(stress_vecfp_funcs); i++) {
-		const double rate = (stress_vecfp_funcs[i].ops / stress_vecfp_funcs[i].duration) / 1000000.0;
-
+		const double rate = 
+			stress_vecfp_metrics[i].duration > 0.0 ? 
+				(stress_vecfp_metrics[i].count / stress_vecfp_metrics[i].duration) / 1000000.0 : 0.0;
 		if (rate > 0.0) {
 			char buffer[64];
 
