@@ -1720,7 +1720,7 @@ static void stress_fd_splice(stress_fd_t *fd)
 }
 #endif
 
-static fd_func_t fd_funcs[] = {
+static const fd_func_t fd_funcs[] = {
 	stress_fd_sockopt_reuseaddr,
 	stress_fd_lseek,
 	stress_fd_dup,
