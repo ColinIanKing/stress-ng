@@ -2072,7 +2072,7 @@ static void bad_writev(stress_bad_addr_t *ba, volatile uint64_t *counter)
 UNEXPECTED
 #endif
 
-static stress_bad_syscall_t bad_syscalls[] = {
+static const stress_bad_syscall_t bad_syscalls[] = {
 	bad_access,
 /*
 	bad_acct,
