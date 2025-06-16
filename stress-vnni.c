@@ -80,7 +80,7 @@ typedef void (*stress_vnni_func_t)(stress_args_t *args);
 typedef bool (*stress_vnni_capable_func_t)(void);
 
 typedef struct {
-	char 				*name;			/* method name */
+	const char 			*name;			/* method name */
 	const stress_vnni_func_t	 vnni_func;		/* method function */
 	const stress_vnni_capable_func_t vnni_capable_func;	/* capability check */
 	const uint32_t			 vnni_checksum_le;	/* little endian */
