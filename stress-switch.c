@@ -476,7 +476,7 @@ finish:
 }
 #endif
 
-static stress_switch_method_t stress_switch_methods[] = {
+static const stress_switch_method_t stress_switch_methods[] = {
 #if defined(HAVE_MQUEUE_H) &&   \
     defined(HAVE_LIB_RT) &&     \
     defined(HAVE_MQ_POSIX)
