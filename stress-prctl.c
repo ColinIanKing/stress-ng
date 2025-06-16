@@ -421,9 +421,8 @@ static int stress_prctl_child(
 		(void)ret;
 
 #if defined(PR_SET_DUMPABLE)
-		if (ret >= 0) {
+		if (ret >= 0)
 			VOID_RET(int, prctl(PR_SET_DUMPABLE, ret));
-		}
 #endif
 	}
 #endif
@@ -437,9 +436,8 @@ static int stress_prctl_child(
 		(void)ret;
 
 #if defined(PR_SET_ENDIAN)
-		if (ret == 0) {
+		if (ret == 0)
 			VOID_RET(int, prctl(PR_SET_ENDIAN, endian));
-		}
 #endif
 	}
 #endif
@@ -453,9 +451,8 @@ static int stress_prctl_child(
 		(void)mode;
 
 #if defined(PR_SET_FP_MODE)
-		if (mode >= 0) {
+		if (mode >= 0)
 			VOID_RET(int, prctl(PR_SET_FP_MODE, mode));
-		}
 #endif
 	}
 #endif
@@ -469,9 +466,8 @@ static int stress_prctl_child(
 		(void)vl;
 
 #if defined(PR_SVE_SET_VL)
-		if (vl >= 0) {
+		if (vl >= 0)
 			VOID_RET(int, prctl(PR_SVE_SET_VL, vl));
-		}
 #endif
 	}
 #endif
@@ -512,9 +508,8 @@ static int stress_prctl_child(
 		(void)ret;
 
 #if defined(PR_SET_FPEMU)
-		if (ret == 0) {
+		if (ret == 0)
 			VOID_RET(int, prctl(PR_SET_FPEMU, control));
-		}
 #endif
 	}
 #endif
@@ -528,9 +523,8 @@ static int stress_prctl_child(
 		(void)ret;
 
 #if defined(PR_SET_FPEXC)
-		if (ret == 0) {
+		if (ret == 0)
 			VOID_RET(int, prctl(PR_SET_FPEXC, mode));
-		}
 #endif
 	}
 #endif
@@ -621,9 +615,8 @@ static int stress_prctl_child(
 	{
 		void *auxv = getauxv_addr();
 
-		if (auxv) {
+		if (auxv)
 			VOID_RET(int, prctl(PR_SET_MM, PR_SET_MM_AUXV, auxv, 0, 0));
-		}
 	}
 #endif
 
@@ -648,9 +641,8 @@ static int stress_prctl_child(
 		(void)ret;
 
 #if defined(PR_SET_NAME)
-		if (ret == 0) {
+		if (ret == 0)
 			VOID_RET(int, prctl(PR_SET_NAME, name));
-		}
 #endif
 	}
 #endif
@@ -730,9 +722,8 @@ static int stress_prctl_child(
 		(void)ret;
 
 #if defined(PR_SET_SECUREBITS)
-		if (ret >= 0) {
+		if (ret >= 0)
 			VOID_RET(int, prctl(PR_SET_SECUREBITS, ret, 0, 0, 0));
-		}
 #endif
 	}
 #endif
@@ -801,9 +792,8 @@ static int stress_prctl_child(
 		(void)ret;
 
 #if defined(PR_SET_TIMING)
-		if (ret >= 0) {
+		if (ret >= 0)
 			VOID_RET(int, prctl(PR_SET_TIMING, ret, 0, 0, 0));
-		}
 #endif
 	}
 #endif
@@ -817,9 +807,8 @@ static int stress_prctl_child(
 		(void)ret;
 
 #if defined(PR_SET_TSC)
-		if (ret == 0) {
+		if (ret == 0)
 			VOID_RET(int, prctl(PR_SET_TSC, state, 0, 0, 0));
-		}
 #endif
 	}
 #endif
@@ -834,9 +823,8 @@ static int stress_prctl_child(
 		(void)ret;
 
 #if defined(PR_SET_UNALIGN)
-		if (ret == 0) {
+		if (ret == 0)
 			VOID_RET(int, prctl(PR_SET_UNALIGN, control, 0, 0, 0));
-		}
 #endif
 	}
 #endif
