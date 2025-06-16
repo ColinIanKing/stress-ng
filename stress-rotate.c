@@ -146,7 +146,7 @@ typedef struct {
 	const stress_rotate_func_t	rotate_func;
 } stress_rotate_funcs_t;
 
-static stress_rotate_funcs_t stress_rotate_funcs[] = {
+static const stress_rotate_funcs_t stress_rotate_funcs[] = {
 	{ "all",	stress_rotate_all, },
 	{ "rol8",	stress_rol8 },
 	{ "ror8",	stress_ror8 },
