@@ -42,7 +42,7 @@ static const stress_help_t help[] = {
 static size_t open_count;
 static int *open_perms;
 
-static int open_flags[] = {
+static const int open_flags[] = {
 #if defined(O_APPEND)
 	O_APPEND,
 #endif
