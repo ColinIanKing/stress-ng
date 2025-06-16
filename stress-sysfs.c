@@ -90,7 +90,7 @@ static void stress_sysfs_sys_power_disk(const char *path)
 	(void)stress_system_write(path, "test_resume", 11);
 }
 
-static stress_sysfs_wr_func_t stress_sysfs_wr_funcs[] = {
+static const stress_sysfs_wr_func_t stress_sysfs_wr_funcs[] = {
 #if defined(__linux__)
 	{ "/sys/power/disk",	stress_sysfs_sys_power_disk },
 #endif
