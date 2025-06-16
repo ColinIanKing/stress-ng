@@ -491,10 +491,15 @@ static void stress_thrash_move_pages(stress_numa_mask_t *numa_nodes)
 	NOCLOBBER FILE *fpmap = NULL;
 	const size_t page_size = stress_get_page_size();
 	unsigned long int node = 0;
+	uint16_t i;
 
 	fpmap = fopen("/proc/self/maps", "r");
 	if (!fpmap)
 		return;
+
+	/* start on a random node */
+	for (i = 0; i < stress_mwc16modn((uint16_t)numa_nodes->nodes); i++)
+		node = stress_numa_next_node(node, numa_nodes);
 
 	stress_thrash_state("movepages");
 	/*
