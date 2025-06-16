@@ -28,9 +28,9 @@ static cpu_cstate_t *cpu_cstate_list;
 static size_t cpu_cstate_list_len;
 
 #if defined(STRESS_ARCH_X86)
-static char *busy_state = "C0";
+static const char * const busy_state = "C0";
 #else
-static char *busy_state = "BUSY";
+static const char * const busy_state = "BUSY";
 #endif
 
 /*
