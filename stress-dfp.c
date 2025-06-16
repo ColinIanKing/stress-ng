@@ -229,42 +229,42 @@ typedef struct {
 	const char *description;
 	const stress_dfp_func_t	dfp_func;
 	const int dfp_type;
-	double duration;
-	double ops;
 } stress_dfp_funcs_t;
 
-static stress_dfp_funcs_t stress_dfp_funcs[] = {
-	{ "all",		"all fp methods",	stress_dfp_all,		STRESS_DFP_TYPE_ALL,		0.0, 0.0 },
+static const stress_dfp_funcs_t stress_dfp_funcs[] = {
+	{ "all",	"all fp methods",	stress_dfp_all,		STRESS_DFP_TYPE_ALL },
 #if defined(HAVE_Decimal32)
-	{ "df32add",	"_Decimal32 add",		stress_dfp_d32_add,	STRESS_DFP_TYPE_DECIMAL32,	0.0, 0.0 },
+	{ "df32add",	"_Decimal32 add",	stress_dfp_d32_add,	STRESS_DFP_TYPE_DECIMAL32 },
 #endif
 #if defined(HAVE_Decimal64)
-	{ "df64add",	"_Decimal64 add",		stress_dfp_d64_add,	STRESS_DFP_TYPE_DECIMAL64,	0.0, 0.0 },
+	{ "df64add",	"_Decimal64 add",	stress_dfp_d64_add,	STRESS_DFP_TYPE_DECIMAL64 },
 #endif
 #if defined(HAVE_Decimal128)
-	{ "df128add",	"_Decimal128 add",		stress_dfp_d128_add,	STRESS_DFP_TYPE_DECIMAL128,	0.0, 0.0 },
+	{ "df128add",	"_Decimal128 add",	stress_dfp_d128_add,	STRESS_DFP_TYPE_DECIMAL128 },
 #endif
 #if defined(HAVE_Decimal32)
-	{ "df32mul",	"_Decimal32 mul",		stress_dfp_d32_mul,	STRESS_DFP_TYPE_DECIMAL32,	0.0, 0.0 },
+	{ "df32mul",	"_Decimal32 mul",	stress_dfp_d32_mul,	STRESS_DFP_TYPE_DECIMAL32 },
 #endif
 #if defined(HAVE_Decimal64)
-	{ "df64mul",	"_Decimal64 mul",		stress_dfp_d64_mul,	STRESS_DFP_TYPE_DECIMAL64,	0.0, 0.0 },
+	{ "df64mul",	"_Decimal64 mul",	stress_dfp_d64_mul,	STRESS_DFP_TYPE_DECIMAL64 },
 #endif
 #if defined(HAVE_Decimal128)
-	{ "df128mul",	"_Decimal128 mul",		stress_dfp_d128_mul,	STRESS_DFP_TYPE_DECIMAL128,	0.0, 0.0 },
+	{ "df128mul",	"_Decimal128 mul",	stress_dfp_d128_mul,	STRESS_DFP_TYPE_DECIMAL128 },
 #endif
 #if defined(HAVE_Decimal32)
-	{ "df32div",	"_Decimal32 div",		stress_dfp_d32_div,	STRESS_DFP_TYPE_DECIMAL32,	0.0, 0.0 },
+	{ "df32div",	"_Decimal32 div",	stress_dfp_d32_div,	STRESS_DFP_TYPE_DECIMAL32 },
 #endif
 #if defined(HAVE_Decimal64)
-	{ "df64div",	"_Decimal64 div",		stress_dfp_d64_div,	STRESS_DFP_TYPE_DECIMAL64,	0.0, 0.0 },
+	{ "df64div",	"_Decimal64 div",	stress_dfp_d64_div,	STRESS_DFP_TYPE_DECIMAL64 },
 #endif
 #if defined(HAVE_Decimal128)
-	{ "df128div",	"_Decimal128 div",		stress_dfp_d128_div,	STRESS_DFP_TYPE_DECIMAL128,	0.0, 0.0 },
+	{ "df128div",	"_Decimal128 div",	stress_dfp_d128_div,	STRESS_DFP_TYPE_DECIMAL128 },
 #endif
 };
 
 #define STRESS_NUM_DFP_FUNCS	(SIZEOF_ARRAY(stress_dfp_funcs))
+
+static stress_metrics_t stress_dfp_metrics[SIZEOF_ARRAY(stress_dfp_funcs)];
 
 typedef struct {
 	const int dfp_type;
@@ -296,11 +296,12 @@ static int stress_dfp_call_method(
 	const bool verify)
 {
 	double dt;
-	stress_dfp_funcs_t *func = &stress_dfp_funcs[method];
+	stress_dfp_funcs_t const *func = &stress_dfp_funcs[method];
+	stress_metrics_t *metrics = &stress_dfp_metrics[method];
 
 	dt = func->dfp_func(args, dfp_data, 0);
-	func->duration += dt;
-	func->ops += (DFP_ELEMENTS * LOOPS_PER_CALL);
+	metrics->duration += dt;
+	metrics->count += (DFP_ELEMENTS * LOOPS_PER_CALL);
 
 	if ((method > 0) && (method < STRESS_NUM_DFP_FUNCS && verify)) {
 		register size_t i;
@@ -311,8 +312,8 @@ static int stress_dfp_call_method(
 		dt = func->dfp_func(args, dfp_data, 1);
 		if (UNLIKELY(dt < 0.0))
 			return EXIT_FAILURE;
-		func->duration += dt;
-		func->ops += (DFP_ELEMENTS * LOOPS_PER_CALL);
+		metrics->duration += dt;
+		metrics->count += (DFP_ELEMENTS * LOOPS_PER_CALL);
 
 		/*
 		 *  a SIGALRM during 2nd computation pre-verification can
@@ -391,6 +392,11 @@ static int stress_dfp(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
+	for (i = 0; i < SIZEOF_ARRAY(stress_dfp_metrics); i++) {
+		stress_dfp_metrics[i].duration = 0.0;
+		stress_dfp_metrics[i].count = 0.0;
+	}
 
 	for (i = 0; i < DFP_ELEMENTS; i++) {
 		uint32_t r;
@@ -487,11 +493,11 @@ static int stress_dfp(stress_args_t *args)
 	} while (stress_continue(args));
 
 	for (i = 1; i < STRESS_NUM_DFP_FUNCS; i++) {
-		const double ops = stress_dfp_funcs[i].ops;
-		const double duration = stress_dfp_funcs[i].duration;
-		if ((duration > 0.0) && (ops > 0.0)) {
+		const double count = stress_dfp_metrics[i].count;
+		const double duration = stress_dfp_metrics[i].duration;
+		if ((duration > 0.0) && (count > 0.0)) {
 			char msg[64];
-			const double rate = stress_dfp_funcs[i].ops / stress_dfp_funcs[i].duration;
+			const double rate = count / duration;
 
 			(void)snprintf(msg, sizeof(msg), "Mdfp-ops per sec, %-20s", stress_dfp_funcs[i].description);
 			stress_metrics_set(args, i - 1, msg,
