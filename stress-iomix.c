@@ -1050,7 +1050,7 @@ static void stress_iomix_readahead(
 }
 #endif
 
-static stress_iomix_func iomix_funcs[] = {
+static const stress_iomix_func iomix_funcs[] = {
 	stress_iomix_wr_seq_bursts,
 	stress_iomix_wr_rnd_bursts,
 	stress_iomix_wr_seq_slow,
