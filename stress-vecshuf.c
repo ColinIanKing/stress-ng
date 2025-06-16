@@ -209,21 +209,25 @@ typedef struct {
 	const char *name;
 	const stress_vecshuf_func_t vecshuf_func;
 	const size_t elements;
-	double duration;
-	double ops;
-	double bytes;
 } stress_vecshuf_funcs_t;
 
-static stress_vecshuf_funcs_t stress_vecshuf_funcs[] = {
-	{ "all",	stress_vecshuf_all,     0, 0.0, 0.0, 0.0 },
-	{ "u8x64",	stress_vecshuf_u8_64,  64, 0.0, 0.0, 0.0 },
-	{ "u16x32",	stress_vecshuf_u16_32, 32, 0.0, 0.0, 0.0 },
-	{ "u32x16",	stress_vecshuf_u32_16, 16, 0.0, 0.0, 0.0 },
-	{ "u64x8",	stress_vecshuf_u64_8,   8, 0.0, 0.0, 0.0 },
+typedef struct {
+	stress_metrics_t metrics;
+	double bytes;
+} stress_vecshuf_data_t;
+
+static const stress_vecshuf_funcs_t stress_vecshuf_funcs[] = {
+	{ "all",	stress_vecshuf_all,     0 },
+	{ "u8x64",	stress_vecshuf_u8_64,  64 },
+	{ "u16x32",	stress_vecshuf_u16_32, 32 },
+	{ "u32x16",	stress_vecshuf_u32_16, 16 },
+	{ "u64x8",	stress_vecshuf_u64_8,   8 },
 #if defined(HAVE_INT128_T)
-	{ "u128x4",	stress_vecshuf_u128_4,  4, 0.0, 0.0, 0.0 },
+	{ "u128x4",	stress_vecshuf_u128_4,  4 },
 #endif
 };
+
+static stress_vecshuf_data_t stress_vecshuf_data[SIZEOF_ARRAY(stress_vecshuf_funcs)];
 
 static void stress_vecshuf_call_method(
 	stress_args_t *args,
@@ -231,16 +235,17 @@ static void stress_vecshuf_call_method(
 	const size_t method)
 {
 	double dt, ops, bytes;
-	stress_vecshuf_funcs_t *const func = &stress_vecshuf_funcs[method];
+	const stress_vecshuf_funcs_t *const func = &stress_vecshuf_funcs[method];
+	stress_vecshuf_data_t *vecshuf_data = &stress_vecshuf_data[method];
 
 	dt = func->vecshuf_func(args, data);
-	func->duration += dt;
+	vecshuf_data->metrics.duration += dt;
 
 	ops = (double)(LOOPS_PER_CALL * func->elements) * SHUFFLES_PER_LOOP;
-	func->ops += ops;
+	vecshuf_data->metrics.count += ops;
 
 	bytes = (double)(LOOPS_PER_CALL * VECTOR_SIZE_BYTES) * SHUFFLES_PER_LOOP;
-	func->bytes += bytes;
+	vecshuf_data->bytes += bytes;
 }
 
 static double stress_vecshuf_all(
@@ -371,10 +376,10 @@ static int stress_vecshuf(stress_args_t *args)
 	}
 	stress_set_vma_anon_name(data, sizeof(*data), "vecshuf-data");
 
-	for (i = 1; i < SIZEOF_ARRAY(stress_vecshuf_funcs); i++) {
-		stress_vecshuf_funcs[i].duration = 0.0;
-		stress_vecshuf_funcs[i].ops = 0.0;
-		stress_vecshuf_funcs[i].bytes = 0.0;
+	for (i = 1; i < SIZEOF_ARRAY(stress_vecshuf_data); i++) {
+		stress_vecshuf_data[i].metrics.duration = 0.0;
+		stress_vecshuf_data[i].metrics.count = 0.0;
+		stress_vecshuf_data[i].bytes = 0.0;
 	}
 
 	(void)stress_get_setting("vecshuf-method", &vecshuf_method);
@@ -406,13 +411,13 @@ static int stress_vecshuf(stress_args_t *args)
 			args->name, "Method", "MB/sec", "Mshuffles/sec", "% exec time");
 
 		for (i = 1; i < SIZEOF_ARRAY(stress_vecshuf_funcs); i++) {
-			total_duration += stress_vecshuf_funcs[i].duration;
+			total_duration += stress_vecshuf_data[i].metrics.duration;
 		}
 
 		for (i = 1; i < SIZEOF_ARRAY(stress_vecshuf_funcs); i++) {
-			const double ops = stress_vecshuf_funcs[i].ops;
-			const double bytes = stress_vecshuf_funcs[i].bytes;
-			const double duration = stress_vecshuf_funcs[i].duration;
+			const double ops = stress_vecshuf_data[i].metrics.count;
+			const double duration = stress_vecshuf_data[i].metrics.duration;
+			const double bytes = stress_vecshuf_data[i].bytes;
 
 			if ((duration > 0.0) && (ops > 0.0) &&
 			    (bytes > 0.0) && (total_duration > 0.0)) {
