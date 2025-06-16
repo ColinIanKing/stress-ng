@@ -955,7 +955,7 @@ static int open_modes(
 }
 #endif
 
-static stress_open_func_t open_funcs[] = {
+static const stress_open_func_t open_funcs[] = {
 #if defined(O_CREAT)
 	open_flag_perm,
 #endif
