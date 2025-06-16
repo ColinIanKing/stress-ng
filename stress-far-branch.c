@@ -45,7 +45,7 @@ static const stress_opt_t opts[] = {
 #if defined(HAVE_MPROTECT) &&	\
     !defined(__NetBSD__)
 
-static int sigs[] = {
+static const int sigs[] = {
 #if defined(SIGILL)
 	SIGILL,
 #endif
