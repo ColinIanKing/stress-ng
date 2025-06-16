@@ -705,7 +705,7 @@ static void stress_ipsec_all(
 	const size_t data_len,
 	const int jobs);
 
-static stress_ipsec_funcs_t stress_ipsec_funcs[] = {
+static const stress_ipsec_funcs_t stress_ipsec_funcs[] = {
 	{ stress_ipsec_all,		"all",		},
 	{ stress_ipsec_cmac,		"cmac",		},
 	{ stress_ipsec_ctr,		"ctr",		},
