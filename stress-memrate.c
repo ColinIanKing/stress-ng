@@ -854,7 +854,7 @@ STRESS_MEMRATE_WRITE_RATE(16, uint16_t)
 STRESS_MEMRATE_WRITE(8, uint8_t)
 STRESS_MEMRATE_WRITE_RATE(8, uint8_t)
 
-static stress_memrate_info_t memrate_info[] = {
+static const stress_memrate_info_t memrate_info[] = {
 	{ "all",	MR_RW,  NULL,				NULL },
 #if defined(HAVE_ASM_X86_REP_STOSQ) &&	\
     !defined(__ILP32__)
