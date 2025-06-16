@@ -483,22 +483,26 @@ void stress_numa_mask_and_node_alloc(
 #endif
 	*numa_mask = stress_numa_mask_alloc();
 	if (!*numa_mask) {
-		pr_inf("%s: cannot allocate NUMA mask, disabling %s\n",
-			args->name, numa_option);
+		if (args)
+			pr_inf("%s: cannot allocate NUMA mask, disabling %s\n",
+				args->name, numa_option);
 		goto err;
 	}
 	*numa_nodes = stress_numa_mask_alloc();
 	if (!*numa_nodes) {
-		pr_inf("%s: cannot allocate NUMA nodes, disabling %s\n",
-			args->name, numa_option);
+		if (args)
+			pr_inf("%s: cannot allocate NUMA nodes, disabling %s\n",
+				args->name, numa_option);
 		stress_numa_mask_free(*numa_mask);
 		goto err;
 	}
 	if (stress_numa_mask_nodes_get(*numa_nodes) < 1) {
-		pr_inf("%s: cannot get NUMA nodes, disabling %s\n",
-			args->name, numa_option);
-			stress_numa_mask_free(*numa_nodes);
-			stress_numa_mask_free(*numa_mask);
+		if (args)
+			pr_inf("%s: cannot get NUMA nodes, disabling %s\n",
+				args->name, numa_option);
+		stress_numa_mask_free(*numa_nodes);
+		stress_numa_mask_free(*numa_mask);
+		goto err;
 	}
 	return;
 err:

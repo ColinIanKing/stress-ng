@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-attribute.h"
 #include "core-killpid.h"
+#include "core-numa.h"
 #include "core-thrash.h"
 
 #include <ctype.h>
@@ -104,9 +105,8 @@ int stress_pagein_self(const char *name)
 		char prot[6];
 
 		if (sscanf(buffer, "%" SCNx64 "-%" SCNx64
-		           " %5s %*x %*x:%*x %*d %1023s", &begin, &end, prot, tmppath) != 4) {
+		           " %5s %*x %*x:%*x %*d %1023s", &begin, &end, prot, tmppath) != 4)
 			continue;
-		}
 
 		/* Avoid VDSO etc.. */
 		if (strncmp("[v", tmppath, 2) == 0)
@@ -484,12 +484,79 @@ static int stress_pagein_all_procs(void)
 	return 0;
 }
 
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+static void stress_thrash_move_pages(stress_numa_mask_t *numa_nodes)
+{
+	char buffer[4096];
+	NOCLOBBER FILE *fpmap = NULL;
+	const size_t page_size = stress_get_page_size();
+	unsigned long int node = 0;
+
+	fpmap = fopen("/proc/self/maps", "r");
+	if (!fpmap)
+		return;
+
+	stress_thrash_state("movepages");
+	/*
+	 * Look for field 0060b000-0060c000 r--p 0000b000 08:01 1901726
+	 */
+	while (fgets(buffer, sizeof(buffer), fpmap)) {
+		uintmax_t begin, end, len;
+		uintptr_t off;
+		char tmppath[1024];
+		char prot[6];
+
+		if (sscanf(buffer, "%" SCNx64 "-%" SCNx64
+		           " %5s %*x %*x:%*x %*d %1023s", &begin, &end, prot, tmppath) != 4)
+			continue;
+
+		/* Avoid VDSO etc.. */
+		if (strncmp("[v", tmppath, 2) == 0)
+			continue;
+
+		len = end - begin;
+
+		/* Ignore bad range */
+		if ((begin >= end) || (len == 0) || (begin == 0))
+			continue;
+		/* Skip huge ranges more than 2GB */
+		if (len > 0x80000000UL)
+			continue;
+
+		for (off = begin; off < end; off += page_size) {
+			void *pages[1];
+			int nodes[1];
+			int states[1];
+			int flag = stress_mwc1() ? MPOL_MF_MOVE : MPOL_MF_MOVE_ALL;
+
+			node = stress_numa_next_node(node, numa_nodes);
+			pages[0] = (void *)off;
+			nodes[0] = node;
+			states[0] = 0;
+
+			if (shim_move_pages(parent_pid, 1, pages, nodes, states, flag) < 0) {
+				if (errno == ENOSYS)
+					goto err;
+			}
+		}
+	}
+err:
+	(void)fclose(fpmap);
+}
+#endif
+
 /*
  *  stress_thrash_start()
  *	start paging in thrash process
  */
 int stress_thrash_start(void)
 {
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+        stress_numa_mask_t *numa_mask;
+        stress_numa_mask_t *numa_nodes;
+	bool thrash_numa = true;
+#endif
+
 	if (geteuid() != 0) {
 		pr_inf("not running as root, ignoring --thrash option\n");
 		return -1;
@@ -498,6 +565,7 @@ int stress_thrash_start(void)
 		pr_err("thrash background process already started\n");
 		return -1;
 	}
+
 	parent_pid = getpid();
 	thrash_run = true;
 	thrash_pid = fork();
@@ -514,6 +582,10 @@ int stress_thrash_start(void)
 		if (stress_sighandler("main", SIGALRM, stress_thrash_handler, NULL) < 0)
 			_exit(0);
 
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+		stress_numa_mask_and_node_alloc(NULL, &numa_nodes, &numa_mask,
+						"NUMA thrashing", &thrash_numa);
+#endif
 		while (thrash_run) {
 			if ((stress_mwc8() & 0x3) == 0) {
 				stress_slab_shrink();
@@ -534,10 +606,22 @@ int stress_thrash_start(void)
 
 			stress_sys_memory();
 
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+			stress_thrash_move_pages(numa_nodes);
+#endif
 			stress_thrash_state("sleep");
+
 			(void)sleep(1);
 		}
 		thrash_run = false;
+
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+		if (numa_mask)
+			stress_numa_mask_free(numa_mask);
+		if (numa_nodes)
+			stress_numa_mask_free(numa_nodes);
+#endif
+
 		stress_thrash_state("exit");
 		_exit(0);
 	}

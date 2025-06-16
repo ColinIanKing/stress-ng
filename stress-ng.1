@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "13 June 2025"
+.TH STRESS-NG 1 "16 June 2025"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -603,10 +603,11 @@ Centigrade.
 .B \-\-thrash
 This can only be used when running on Linux and with root privilege. This
 option starts a background thrasher process that works through all the
-processes on a system and tries to page as many pages in the processes
+processes on a system and tries to page-in as many pages in the processes
 as possible. It also periodically drops the page cache, frees reclaimable
-slab objects and pagecache. This will cause considerable amount of
-thrashing of swap on an over-committed system.
+slab objects and pagecache as well as assign pages to different NUMA nodes.
+This will cause considerable amount of thrashing of swap on an
+over-committed system.
 .TP
 .B \-t N, \-\-timeout T
 run each stress test for at least T seconds. One can also specify the units
