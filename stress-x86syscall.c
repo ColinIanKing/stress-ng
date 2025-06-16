@@ -39,15 +39,14 @@ static const stress_opt_t opts[] = {
     !defined(HAVE_COMPILER_PCC) &&	\
     defined(STRESS_ARCH_X86_64)
 
-typedef long int (*stress_wfunc_t)(void);
+typedef long int (*stress_wrapper_func_t)(void);
 
 /*
  *  syscall symbol mapping name to address and wrapper function
  */
 typedef struct stress_x86syscall {
-	const stress_wfunc_t func;	/* Wrapper function */
-	const char *name;		/* Function name */
-	bool exercise;			/* True = exercise the syscall */
+	const stress_wrapper_func_t func;	/* Wrapper function */
+	const char *name;			/* Function name */
 } stress_x86syscall_t;
 
 /*
@@ -266,29 +265,31 @@ static long int wrap_dummy(void)
 /*
  *  mapping of wrappers to function symbol name
  */
-static stress_x86syscall_t x86syscalls[] = {
+static const stress_x86syscall_t x86syscalls[] = {
 #if defined(__NR_getcpu)
-	{ wrap_getcpu,		"getcpu",		true },
+	{ wrap_getcpu,		"getcpu" },
 #endif
 #if defined(__NR_geteuid)
-	{ wrap_geteuid,		"geteuid",		true },
+	{ wrap_geteuid,		"geteuid" },
 #endif
 #if defined(__NR_getgid)
-	{ wrap_getgid,		"getgid",		true },
+	{ wrap_getgid,		"getgid" },
 #endif
 #if defined(__NR_getpid)
-	{ wrap_getpid,		"getpid",		true },
+	{ wrap_getpid,		"getpid" },
 #endif
 #if defined(__NR_gettimeofday)
-	{ wrap_gettimeofday,	"gettimeofday",		true },
+	{ wrap_gettimeofday,	"gettimeofday" },
 #endif
 #if defined(__NR_getuid)
-	{ wrap_getuid,		"getuid",		true },
+	{ wrap_getuid,		"getuid" },
 #endif
 #if defined(__NR_time)
-	{ wrap_time,		"time",			true },
+	{ wrap_time,		"time" },
 #endif
 };
+
+static bool x86syscalls_exercise[SIZEOF_ARRAY(x86syscalls)];
 
 /*
  *  x86syscall_list_str()
@@ -300,7 +301,7 @@ static char *x86syscall_list_str(void)
 	size_t i, len = 0;
 
 	for (i = 0; i < SIZEOF_ARRAY(x86syscalls); i++) {
-		if (x86syscalls[i].exercise) {
+		if (x86syscalls_exercise[i]) {
 			char *tmp;
 
 			len += (strlen(x86syscalls[i].name) + 2);
@@ -339,7 +340,7 @@ static int x86syscall_check_x86syscall_func(void)
 		const bool match = !strcmp(x86syscalls[i].name, name);
 
 		exercise |= match;
-		x86syscalls[i].exercise = match;
+		x86syscalls_exercise[i] = match;
 	}
 
 	if (!exercise) {
@@ -360,9 +361,12 @@ static int stress_x86syscall(stress_args_t *args)
 {
 	double t1, t2, t3, t4, dt, overhead_ns;
 	uint64_t counter;
-	stress_wfunc_t x86syscall_funcs[SIZEOF_ARRAY(x86syscalls)] ALIGN64;
+	stress_wrapper_func_t x86syscall_funcs[SIZEOF_ARRAY(x86syscalls)] ALIGN64;
 	register size_t i, n;
 	int rc = EXIT_SUCCESS;
+
+	for (i = 0; i < SIZEOF_ARRAY(x86syscalls); i++)
+		x86syscalls_exercise[i] = true;
 
 	if (x86syscall_check_x86syscall_func() < 0)
 		return EXIT_FAILURE;
@@ -378,7 +382,7 @@ static int stress_x86syscall(stress_args_t *args)
 	}
 
 	for (i = 0, n = 0; i < SIZEOF_ARRAY(x86syscalls); i++) {
-		if (x86syscalls[i].exercise)
+		if (x86syscalls_exercise[i])
 			x86syscall_funcs[n++] = x86syscalls[i].func;
 	}
 
