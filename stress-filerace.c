@@ -1117,7 +1117,7 @@ static void stress_filerace_name_to_handle_at(const int fd, const char *filename
 }
 #endif
 
-static stress_filerace_fops_t stress_filerace_fops[] = {
+static const stress_filerace_fops_t stress_filerace_fops[] = {
 	stress_filerace_fstat,
 	stress_filerace_lseek_set,
 	stress_filerace_lseek_end,
