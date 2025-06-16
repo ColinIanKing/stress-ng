@@ -249,7 +249,7 @@ static void stress_proc_pci(stress_args_t *args, const int fd)
 
 #endif
 
-static stress_proc_info_t stress_proc_info[] = {
+static const stress_proc_info_t stress_proc_info[] = {
 	{ "/proc/self/mem",		stress_proc_self_mem },
 #if defined(HAVE_ASM_MTRR_H) &&		\
     defined(HAVE_MTRR_GENTRY) &&	\
