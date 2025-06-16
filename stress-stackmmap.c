@@ -67,7 +67,7 @@ static void stress_stackmmap_push_msync(stress_stack_check_t *prev_check)
 	stress_stack_check_t check;
 	register stress_stack_check_t *ptr;
 	register int i;
-	static char name[] = "stackmmap";
+	static const char name[] = "stackmmap";
 
 	check.prev = prev_check;
 	check.self_addr = &check;
