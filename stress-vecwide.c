@@ -81,9 +81,8 @@ typedef void (*stress_vecwide_func_t)(vec_args_t *vec_args);
 typedef struct {
 	const stress_vecwide_func_t vecwide_func;
 	const size_t byte_size;
-	double duration;
-	double count;
 } stress_vecwide_funcs_t;
+
 
 #define STRESS_VECWIDE(name, type)				\
 static void TARGET_CLONES OPTIMIZE3 name (vec_args_t *vec_args) \
@@ -139,22 +138,24 @@ STRESS_VECWIDE(stress_vecwide_32, stress_vint8w32_t)
 STRESS_VECWIDE(stress_vecwide_16, stress_vint8w16_t)
 #endif
 
-static stress_vecwide_funcs_t stress_vecwide_funcs[] = {
+static const stress_vecwide_funcs_t stress_vecwide_funcs[] = {
 #if VERY_WIDE
-	{ stress_vecwide_8192, sizeof(stress_vint8w8192_t), 0.0, 0.0 },
-	{ stress_vecwide_4096, sizeof(stress_vint8w4096_t), 0.0, 0.0 },
+	{ stress_vecwide_8192, sizeof(stress_vint8w8192_t) },
+	{ stress_vecwide_4096, sizeof(stress_vint8w4096_t) },
 #endif
-	{ stress_vecwide_2048, sizeof(stress_vint8w2048_t), 0.0, 0.0 },
-	{ stress_vecwide_1024, sizeof(stress_vint8w1024_t), 0.0, 0.0 },
-	{ stress_vecwide_512,  sizeof(stress_vint8w512_t),  0.0, 0.0 },
-	{ stress_vecwide_256,  sizeof(stress_vint8w256_t),  0.0, 0.0 },
-	{ stress_vecwide_128,  sizeof(stress_vint8w128_t),  0.0, 0.0 },
-	{ stress_vecwide_64,   sizeof(stress_vint8w64_t),   0.0, 0.0 },
-	{ stress_vecwide_32,   sizeof(stress_vint8w32_t),   0.0, 0.0 },
+	{ stress_vecwide_2048, sizeof(stress_vint8w2048_t) },
+	{ stress_vecwide_1024, sizeof(stress_vint8w1024_t) },
+	{ stress_vecwide_512,  sizeof(stress_vint8w512_t)  },
+	{ stress_vecwide_256,  sizeof(stress_vint8w256_t)  },
+	{ stress_vecwide_128,  sizeof(stress_vint8w128_t)  },
+	{ stress_vecwide_64,   sizeof(stress_vint8w64_t)   },
+	{ stress_vecwide_32,   sizeof(stress_vint8w32_t)   },
 #if VERY_SMALL
-	{ stress_vecwide_16,   sizeof(stress_vint8w16_t),   0.0, 0.0 },
+	{ stress_vecwide_16,   sizeof(stress_vint8w16_t)   },
 #endif
 };
+
+static stress_metrics_t stress_vecwide_metrics[SIZEOF_ARRAY(stress_vecwide_funcs)];
 
 static int stress_vecwide(stress_args_t *args)
 {
@@ -181,8 +182,8 @@ static int stress_vecwide(stress_args_t *args)
 	stress_set_vma_anon_name(vec_args, vec_args_size, "vec-args");
 
 	for (i = 0; i < SIZEOF_ARRAY(stress_vecwide_funcs); i++) {
-		stress_vecwide_funcs[i].duration = 0.0;
-		stress_vecwide_funcs[i].count = 0.0;
+		stress_vecwide_metrics[i].duration = 0.0;
+		stress_vecwide_metrics[i].count = 0.0;
 	}
 
 	for (i = 0; i < SIZEOF_ARRAY(vec_args->a); i++) {
@@ -210,8 +211,8 @@ static int stress_vecwide(stress_args_t *args)
 			dt = (t2 - t1);
 
 			total_duration += dt;
-			stress_vecwide_funcs[i].duration += dt;
-			stress_vecwide_funcs[i].count += 1.0;
+			stress_vecwide_metrics[i].duration += dt;
+			stress_vecwide_metrics[i].count += 1.0;
 			stress_bogo_inc(args);
 
 			if (verify) {
@@ -222,8 +223,8 @@ static int stress_vecwide(stress_args_t *args)
 				dt = (t2 - t1);
 
 				total_duration += dt;
-				stress_vecwide_funcs[i].duration += dt;
-				stress_vecwide_funcs[i].count += 1.0;
+				stress_vecwide_metrics[i].duration += dt;
+				stress_vecwide_metrics[i].count += 1.0;
 				stress_bogo_inc(args);
 
 				if (shim_memcmp(vec_args->res1, vec_args->res2, sizeof(vec_args->res1))) {
@@ -245,7 +246,7 @@ static int stress_vecwide(stress_args_t *args)
 		for (i = 0; i < SIZEOF_ARRAY(stress_vecwide_funcs); i++) {
 			double dur_pc, exp_pc, win;
 
-			dur_pc = stress_vecwide_funcs[i].duration / total_duration * 100.0;
+			dur_pc = stress_vecwide_metrics[i].duration / total_duration * 100.0;
 			exp_pc = (double)stress_vecwide_funcs[i].byte_size / (double)total_bytes * 100.0;
 			win    = exp_pc / dur_pc;
 
@@ -260,8 +261,8 @@ static int stress_vecwide(stress_args_t *args)
 
 	for (i = 0; i < SIZEOF_ARRAY(stress_vecwide_funcs); i++) {
 		char str[64];
-		const double rate = (stress_vecwide_funcs[i].duration > 0) ?
-				stress_vecwide_funcs[i].count / stress_vecwide_funcs[i].duration : 0.0;
+		const double rate = (stress_vecwide_metrics[i].duration > 0) ?
+				stress_vecwide_metrics[i].count / stress_vecwide_metrics[i].duration : 0.0;
 
 		(void)snprintf(str, sizeof(str), "vecwide%zd ops per sec", stress_vecwide_funcs[i].byte_size * 8);
 		stress_metrics_set(args, i, str,
