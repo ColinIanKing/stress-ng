@@ -67,42 +67,6 @@ void stress_config_check(void)
 	size_t shmall = 0, freemem = 0, totalmem = 0, freeswap = 0, totalswap = 0, freetotal;
 
 #if defined(__linux__)
-	{
-		char path[PATH_MAX];
-		const char *str;
-		bool is_snap = false;
-
-		str = getenv("SNAP_NAME");
-		if (str) {
-			char *lowstr = strdup(str);
-
-			if (lowstr) {
-				char *ptr;
-
-				for (ptr = lowstr; *ptr; ptr++)
-					*ptr = (char)tolower((int)*ptr);
-
-				if (strstr(lowstr, "stress"))
-					is_snap = true;
-				free(lowstr);
-			}
-		}
-		str = stress_get_proc_self_exe(path, sizeof(path));
-		if (str) {
-			if (strncmp("/snap/", path, 6) == 0)
-				is_snap = true;
-		}
-		if (is_snap) {
-			bool oom_avoid = true;
-
-			pr_warn("WARNING: stress-ng appears to be a snap and may not "
-				"run correctly inside this unsupported environment\n");
-			pr_warn("NO support will be provided for the snap based stress-ng\n");
-			pr_inf("note: forcibly enabling --oom-avoid for this environment\n");
-			stress_set_setting_global("oom-avoid", TYPE_ID_BOOL, &oom_avoid);
-		}
-	}
-
 	if (g_opt_flags & OPT_FLAGS_METRICS) {
 		static const char autogroup_path[] = "/proc/sys/kernel/sched_autogroup_enabled";
 		static const char cpu_path[] = "/sys/devices/system/cpu";
