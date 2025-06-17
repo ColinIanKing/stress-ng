@@ -179,6 +179,7 @@
  */
 #define STRESS_MISC_METRICS_MAX			(96)
 
+/* Process tracking info via pid */
 typedef struct stress_pid {
 	struct stress_pid *next;	/* next stress_pid in list, or NULL */
 	pid_t pid;			/* PID of process */
@@ -187,6 +188,7 @@ typedef struct stress_pid {
 	bool reaped;			/* successfully waited for */
 } stress_pid_t;
 
+/* Bogo-op counter state */
 typedef struct {
 	uint64_t counter;		/* bogo-op counter */
 	bool counter_ready;		/* ready flag */
@@ -195,24 +197,27 @@ typedef struct {
 	bool padding;			/* padding */
 } stress_counter_info_t;
 
+/* Shared mmap'd pages */
 typedef struct {
 	void *page_none;		/* mmap'd PROT_NONE page */
 	void *page_ro;			/* mmap'd PROT_RO page */
 	void *page_wo;			/* mmap'd PROT_WO page */
 } stress_mapped_t;
 
+/* Individual metric */
 typedef struct {
 	char *description;		/* description of metric */
 	double value;			/* value of metric */
 	int mean_type;			/* type of metric, geometric or harmonic mean */
 } stress_metrics_item_t;
 
+/* Per stressor metrics */
 typedef struct {
 	size_t max_metrics;
 	stress_metrics_item_t items[STRESS_MISC_METRICS_MAX];
 } stress_metrics_data_t;
 
-/* stressor args */
+/* Run-time stressor args */
 typedef struct {
 	struct {
 		uint64_t max_ops;		/* max number of bogo ops */
@@ -231,6 +236,7 @@ typedef struct {
 	const struct stressor_info *info; /* stressor info */
 } stress_args_t;
 
+/* Run-time stressor descriptor list */
 typedef struct stress_stressor_info {
 	struct stress_stressor_info *next; /* next proc info struct in list */
 	struct stress_stressor_info *prev; /* prev proc info struct in list */
@@ -441,7 +447,7 @@ typedef enum {
 	VERIFY_ALWAYS   = 0x02,		/* verification always enabled */
 } stress_verify_t;
 
-/* stressor information */
+/* Per stressor information, as defined in every stressor source */
 typedef struct stressor_info {
 	int (*stressor)(stress_args_t *args);	/* stressor function */
 	int (*supported)(const char *name);	/* return 0 = supported, -1, not */
@@ -544,13 +550,15 @@ extern const char stress_config[];
 
 #define SIZEOF_ARRAY(a)		(sizeof(a) / sizeof(a[0]))
 
+/* Per interrupt stat counters */
 typedef struct {
-	uint64_t count_start;
-	uint64_t count_stop;
+	uint64_t count_start;		/* interrupt count at start */
+	uint64_t count_stop;		/* interrupt count at end */
 } stress_interrupts_t;
 
+/* C-state stats */
 typedef struct {
-	bool   valid;
+	bool   valid;			/* C state is valid? */
 	double time[STRESS_CSTATES_MAX];
 	double residency[STRESS_CSTATES_MAX];
 } stress_cstate_stats_t;
@@ -586,6 +594,7 @@ typedef struct stress_stats {
 	long int rusage_maxrss;		/* rusage max RSS, 0 = unused */
 } stress_stats_t;
 
+/* Shared heap info */
 typedef struct shared_heap {
 	void *str_list_head;		/* list of heap strings */
 	void *lock;			/* heap global lock */
@@ -644,7 +653,7 @@ typedef struct {
 	struct {
 		void *lock;
 		int64_t row;
-	} fractal;
+	} fractal;			/* Fractal stressor row state */
 	struct {
 		/* futexes must be aligned to avoid -EINVAL */
 		uint32_t futex[STRESS_PROCS_MAX] ALIGNED(4);/* Shared futexes */
