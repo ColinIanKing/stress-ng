@@ -26,6 +26,8 @@
 #define MAX_TIMER_FREQ		(100000000)
 #define DEFAULT_TIMER_FREQ	(1000000)
 
+static stress_args_t *s_args;
+
 static const stress_help_t help[] = {
 	{ "T N", "timer N",	"start N workers producing timer events" },
 	{ NULL, "timer-freq F",	"run timer(s) at F Hz, range 1 to 1000000000" },
@@ -39,10 +41,8 @@ static const stress_help_t help[] = {
     defined(HAVE_TIMER_DELETE) &&	\
     defined(HAVE_TIMER_GETOVERRUN) &&	\
     defined(HAVE_TIMER_SETTIME)
-static volatile uint64_t timer_counter;
 static volatile uint64_t timer_settime_failure;
 static uint64_t timer_overruns;
-static uint64_t max_ops;
 static timer_t timerid;
 static double rate_ns;
 static double time_end;
@@ -88,16 +88,6 @@ static void OPTIMIZE3 stress_timer_set(struct itimerspec *timer)
 }
 
 /*
- *  stress_timer_stress_continue(args)
- *      returns true if we can keep on running a stressor
- */
-static bool OPTIMIZE3 stress_timer_stress_continue(void)
-{
-	return (LIKELY(stress_continue_flag()) &&
-		LIKELY(!max_ops || (timer_counter < max_ops)));
-}
-
-/*
  *  stress_proc_self_timer_read()
  *	exercise read of /proc/self/timers, Linux only
  */
@@ -116,32 +106,30 @@ static void MLOCKED_TEXT OPTIMIZE3 stress_timer_handler(int sig)
 {
 	struct itimerspec timer;
 	sigset_t mask;
+	int ret;
 
 	(void)sig;
 
-	if (UNLIKELY(!stress_timer_stress_continue()))
+	if (UNLIKELY(!stress_continue(s_args)))
 		goto cancel;
-	timer_counter++;
 
 	if (sigpending(&mask) == 0)
 		if (sigismember(&mask, SIGINT))
 			goto cancel;
 	/* High freq timer, check periodically for timeout */
-	if (UNLIKELY((timer_counter & 65535) == 0)) {
+	stress_bogo_inc(s_args);
+	if (UNLIKELY((stress_bogo_get(s_args) & 65535) == 0)) {
 		if (stress_time_now() > time_end)
 			goto cancel;
 		stress_proc_self_timer_read();
 	}
-	if (LIKELY(stress_continue_flag())) {
-		const int ret = timer_getoverrun(timerid);
-
-		if (ret > 0)
-			timer_overruns += (uint64_t)ret;
-		stress_timer_set(&timer);
-		if (timer_settime(timerid, 0, &timer, NULL) < 0)
-			timer_settime_failure++;
-		return;
-	}
+	ret = timer_getoverrun(timerid);
+	if (ret > 0)
+		timer_overruns += (uint64_t)ret;
+	stress_timer_set(&timer);
+	if (timer_settime(timerid, 0, &timer, NULL) < 0)
+		timer_settime_failure++;
+	return;
 
 cancel:
 	stress_continue_set_flag(false);
@@ -163,16 +151,15 @@ static int stress_timer(stress_args_t *args)
 	uint64_t timer_freq = DEFAULT_TIMER_FREQ;
 	int n = 0, rc = EXIT_SUCCESS;
 
+	s_args = args;
+
 	time_end = args->time_end;
-	timer_counter = 0;
 	timer_settime_failure = 0;
 	timer_overruns = 0;
 
 	(void)sigemptyset(&mask);
 	(void)sigaddset(&mask, SIGINT);
 	(void)sigprocmask(SIG_SETMASK, &mask, NULL);
-
-	max_ops = args->bogo.max_ops;
 
 	timer_rand = false;
 	(void)stress_get_setting("timer-rand", &timer_rand);
@@ -234,7 +221,6 @@ static int stress_timer(stress_args_t *args)
 		req.tv_sec = 0;
 		req.tv_nsec = 10000000;
 		(void)nanosleep(&req, NULL);
-		stress_bogo_set(args, timer_counter);
 	} while (stress_continue(args));
 
 	/* stop timer */
