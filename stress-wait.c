@@ -137,7 +137,7 @@ static void NORETURN killer(
  *  stress_wait_continued()
  *	check WIFCONTINUED
  */
-static void stress_wait_continued(stress_args_t *args, int status)
+static inline void stress_wait_continued(stress_args_t *args, int status)
 {
 #if defined(WIFCONTINUED)
 	if (WIFCONTINUED(status))
@@ -224,7 +224,7 @@ static int stress_wait(stress_args_t *args)
 			break;
 		}
 		stress_wait_continued(args, status);
-		if (UNLIKELY(!stress_continue_flag()))
+		if (UNLIKELY(!stress_continue(args)))
 			break;
 
 		/*
@@ -238,7 +238,7 @@ static int stress_wait(stress_args_t *args)
 			break;
 		}
 		stress_wait_continued(args, status);
-		if (UNLIKELY(!stress_continue_flag()))
+		if (UNLIKELY(!stress_continue(args)))
 			break;
 #if defined(HAVE_WAIT3)
 		/*
@@ -252,7 +252,7 @@ static int stress_wait(stress_args_t *args)
 			break;
 		}
 		stress_wait_continued(args, status);
-		if (UNLIKELY(!stress_continue_flag()))
+		if (UNLIKELY(!stress_continue(args)))
 			break;
 #endif
 
@@ -268,7 +268,7 @@ static int stress_wait(stress_args_t *args)
 			break;
 		}
 		stress_wait_continued(args, status);
-		if (UNLIKELY(!stress_continue_flag()))
+		if (UNLIKELY(!stress_continue(args)))
 			break;
 
 		/*
@@ -282,7 +282,7 @@ static int stress_wait(stress_args_t *args)
 			break;
 		}
 		stress_wait_continued(args, status);
-		if (UNLIKELY(!stress_continue_flag()))
+		if (UNLIKELY(!stress_continue(args)))
 			break;
 
 		/*
@@ -296,7 +296,7 @@ static int stress_wait(stress_args_t *args)
 			break;
 		}
 		stress_wait_continued(args, status);
-		if (UNLIKELY(!stress_continue_flag()))
+		if (UNLIKELY(!stress_continue(args)))
 			break;
 
 		/*
@@ -310,7 +310,7 @@ static int stress_wait(stress_args_t *args)
 			break;
 		}
 		stress_wait_continued(args, status);
-		if (UNLIKELY(!stress_continue_flag()))
+		if (UNLIKELY(!stress_continue(args)))
 			break;
 
 		/*
@@ -378,7 +378,7 @@ static int stress_wait(stress_args_t *args)
 			stress_wait_continued(args, status);
 		}
 #endif
-	} while (stress_continue_flag() && (!args->bogo.max_ops || (stress_bogo_get(args) < args->bogo.max_ops)));
+	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)stress_kill_pid_wait(pid_k, NULL);
