@@ -1014,7 +1014,7 @@ static char *dup_field(const char *buffer)
 	if (eol)
 		*eol = '\0';
 
-	return strdup(ptr + 2);
+	return shim_strdup(ptr + 2);
 }
 
 /*

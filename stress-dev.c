@@ -4357,7 +4357,7 @@ static void stress_dev_info_add(const char *path, dev_info_t **list, size_t *lis
 	if (!new_dev)
 		return;
 
-	new_dev->path = strdup(path);
+	new_dev->path = shim_strdup(path);
 	if (!new_dev->path) {
 		free(new_dev);
 		return;
@@ -4597,7 +4597,7 @@ static void stress_sys_dev_infos_get(
 			if (!sys_dev_info)
 				break;
 			sys_dev_info->next = *list;
-			sys_dev_info->sysdevpath = strdup(tmp);
+			sys_dev_info->sysdevpath = shim_strdup(tmp);
 			if (!sys_dev_info->sysdevpath) {
 				free(sys_dev_info);
 				break;

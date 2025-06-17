@@ -53,6 +53,12 @@
 #define	shim_memcmp(dst, src, n)	memcmp((dst), (src), (n))
 #endif
 
+#if defined(HAVE_BUILTIN_STRDUP)
+#define	shim_strdup(str)		__builtin_strdup((str))
+#else
+#define	shim_strdup(str)		strdup((str))
+#endif
+
 #if defined(HAVE_BUILTIN_CABS)
 #define shim_cabs(x)		__builtin_cabs((x))
 #else

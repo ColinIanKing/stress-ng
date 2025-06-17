@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-log.h"
 #include "core-syslog.h"
 
@@ -100,7 +101,7 @@ static void pr_log_write(const char *buf, const size_t buf_len)
 
 	if (buffer_messages && (pr_msg_buf.pid == getpid())) {
 		if (!pr_msg_buf.buf) {
-			pr_msg_buf.buf = strdup(buf);
+			pr_msg_buf.buf = shim_strdup(buf);
 			if (!pr_msg_buf.buf) {
 				pr_log_write_buf(buf, buf_len);
 				return;

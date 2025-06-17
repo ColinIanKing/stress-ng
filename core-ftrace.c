@@ -202,7 +202,7 @@ static int stress_ftrace_parse_trace_stat_file(const char *path, const bool star
 			tn = (struct rb_node *)malloc(sizeof(*tn));
 			if (UNLIKELY(!tn))
 				goto memory_fail;
-			tn->func_name = strdup(func_name);
+			tn->func_name = shim_strdup(func_name);
 			if (UNLIKELY(!tn->func_name)) {
 				free(tn);
 				goto memory_fail;

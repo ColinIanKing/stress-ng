@@ -427,7 +427,7 @@ static void stress_smart_read_devs(void)
 				/* Allocate, silently ignore alloc failure */
 				dev = (stress_smart_dev_t *)calloc(1, sizeof(*dev));
 				if (dev) {
-					dev->dev_name = strdup(path);
+					dev->dev_name = shim_strdup(path);
 					dev->data_begin = data;
 					dev->data_end = NULL;
 					dev->next = smart_devs.dev;

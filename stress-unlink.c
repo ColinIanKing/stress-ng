@@ -230,7 +230,7 @@ static int stress_unlink(stress_args_t *args)
 			'a' + stress_mwc8modn(26),
 			'a' + stress_mwc8modn(26), i);
 
-		filenames[i] = strdup(filename);
+		filenames[i] = shim_strdup(filename);
 		if (!filenames[i]) {
 			pr_inf_skip("%s: failed to allocate filenames%s, "
 				"skipping stressor\n", args->name,

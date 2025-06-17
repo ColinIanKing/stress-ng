@@ -92,7 +92,7 @@ static int get_mount_info(stress_args_t *args)
 		if (nread != 2)
 			continue;
 
-		mount_info[mounts].mount_path = strdup(mount_path);
+		mount_info[mounts].mount_path = shim_strdup(mount_path);
 		if (mount_info[mounts].mount_path == NULL) {
 			pr_dbg("%s: cannot allocate mountinfo mount path%s\n",
 				args->name, stress_get_memfree_str());

@@ -111,7 +111,7 @@ static int stress_chdir(stress_args_t *args)
 #endif
 		(void)stress_temp_filename_args(args,
 			path, sizeof(path), rnd | gray_code);
-		chdir_info[i].path = strdup(path);
+		chdir_info[i].path = shim_strdup(path);
 		if (chdir_info[i].path == NULL)
 			goto abort;
 		rc = mkdir(path, S_IRUSR | S_IWUSR | S_IXUSR);

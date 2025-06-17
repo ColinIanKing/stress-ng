@@ -322,7 +322,7 @@ static int stress_fstat(stress_args_t *args)
 			(void)closedir(dp);
 			goto free_cache;
 		}
-		if ((si->path = strdup(path)) == NULL) {
+		if ((si->path = shim_strdup(path)) == NULL) {
 			pr_err("%s: out of memory allocating %zu bytes%s\n",
 				args->name, strlen(path),
 				stress_get_memfree_str());

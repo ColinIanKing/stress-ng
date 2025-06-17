@@ -289,7 +289,7 @@ static int stress_memhotplug(stress_args_t *args)
 	while ((max < n) && ((d = readdir(dir)) != NULL)) {
 		if ((strncmp(d->d_name, "memory", 6) == 0) &&
 		     stress_memhotplug_removable(d->d_name)) {
-			mem_info[max].name = strdup(d->d_name);
+			mem_info[max].name = shim_strdup(d->d_name);
 			mem_info[max].timeout = false;
 			max++;
 		}

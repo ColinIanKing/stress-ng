@@ -3184,7 +3184,7 @@ char *stress_const_optdup(const char *opt)
 	if (UNLIKELY(!opt))
 		return NULL;
 
-	str = strdup(opt);
+	str = shim_strdup(opt);
 	if (UNLIKELY(!str))
 		(void)fprintf(stderr, "out of memory duplicating option '%s'\n", opt);
 

@@ -82,7 +82,7 @@ static void stress_cpuidle_cstate_add_unique(
 	new_cc = (cpu_cstate_t *)malloc(sizeof(*new_cc));
 	if (UNLIKELY(!new_cc))
 		return;
-	new_cc->cstate = strdup(cstate);
+	new_cc->cstate = shim_strdup(cstate);
 	if (UNLIKELY(!new_cc->cstate)) {
 		free(new_cc);
 		return;

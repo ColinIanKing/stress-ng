@@ -646,7 +646,7 @@ static stress_fd_race_filename_t *stress_fd_race_filename_add(
 	if (!entry)
 		return NULL;
 
-	entry->filename = strdup(filename);
+	entry->filename = shim_strdup(filename);
 	if (!entry->filename) {
 		free(entry);
 		return NULL;

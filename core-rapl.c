@@ -17,6 +17,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-capabilities.h"
 #include "core-rapl.h"
 
@@ -130,7 +131,7 @@ int stress_rapl_get_domains(stress_rapl_domain_t **rapl_domains)
 			(void)closedir(dir);
 			return -1;
 		}
-		if ((rapl_domain->name = strdup(entry->d_name)) == NULL) {
+		if ((rapl_domain->name = shim_strdup(entry->d_name)) == NULL) {
 			pr_inf("cannot allocate RAPL name information\n");
 			(void)closedir(dir);
 			free(rapl_domain);
@@ -172,7 +173,7 @@ int stress_rapl_get_domains(stress_rapl_domain_t **rapl_domains)
 					(void)strncpy(domain_name, buf, sizeof(domain_name));
 				}
 				if (stress_rapl_domain_unique(*rapl_domains, domain_name))
-					rapl_domain->domain_name = strdup(domain_name);
+					rapl_domain->domain_name = shim_strdup(domain_name);
 			}
 			(void)fclose(fp);
 		}

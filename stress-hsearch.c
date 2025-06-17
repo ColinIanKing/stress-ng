@@ -201,7 +201,7 @@ static int OPTIMIZE3 stress_hsearch(stress_args_t *args)
 		ENTRY e;
 
 		(void)snprintf(buffer, sizeof(buffer), "%zu", i);
-		keys[i] = strdup(buffer);
+		keys[i] = shim_strdup(buffer);
 		if (!keys[i]) {
 			pr_err("%s: cannot allocate %zu byte key%s\n",
 				args->name, strlen(buffer),

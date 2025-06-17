@@ -115,7 +115,7 @@ static dev_ioctl_info_t *stress_bad_ioctl_dev_new(
 	node = (dev_ioctl_info_t *)calloc(1, sizeof(*node));
 	if (!node)
 		return NULL;
-	node->dev_path = strdup(dev_path);
+	node->dev_path = shim_strdup(dev_path);
 	if (!node->dev_path) {
 		free(node);
 		return NULL;

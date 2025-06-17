@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-attribute.h"
+#include "core-builtin.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"pci N",	 "start N workers that read and mmap PCI regions" },
@@ -114,12 +115,12 @@ static void stress_pci_info_get_by_name(stress_pci_info_t **pci_info_list, const
 
 		(void)snprintf(pci_path, sizeof(pci_path),
 			"%s/%s", sys_pci_devices, name);
-		pci_info->path = strdup(pci_path);
+		pci_info->path = shim_strdup(pci_path);
 		if (UNLIKELY(!pci_info->path)) {
 			free(pci_info);
 			return;
 		}
-		pci_info->name = strdup(name);
+		pci_info->name = shim_strdup(name);
 		if (UNLIKELY(!pci_info->name)) {
 			free(pci_info->path);
 			free(pci_info);

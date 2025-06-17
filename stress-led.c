@@ -151,11 +151,11 @@ static stress_led_info_t *stress_led_info_get(void)
 
 			(void)snprintf(led_path, sizeof(led_path),
 				"%s/%s", sys_devices, led_list[i]->d_name);
-			led_info->path = strdup(led_path);
+			led_info->path = shim_strdup(led_path);
 			if (!led_info->path)
 				goto led_free_info;
 
-			led_info->name = strdup(led_list[i]->d_name);
+			led_info->name = shim_strdup(led_list[i]->d_name);
 			if (!led_info->name)
 				goto led_free_path;
 
@@ -169,7 +169,7 @@ static stress_led_info_t *stress_led_info_get(void)
 			(void)close(fd);
 			if (len < 0)
 				goto led_free_name;
-			led_info->trigger = strdup(buf);
+			led_info->trigger = shim_strdup(buf);
 			if (!led_info->trigger)
 				goto led_free_name;
 

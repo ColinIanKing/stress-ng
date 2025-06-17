@@ -368,7 +368,7 @@ static int stress_quota(stress_args_t *args)
 			if (devs[i].valid &&
 			    !devs[i].name &&
 			    (buf.st_rdev == devs[i].st_dev)) {
-				devs[i].name = strdup(path);
+				devs[i].name = shim_strdup(path);
 				devs[i].mount = mnts[i];
 				if (!devs[i].name) {
 					pr_err("%s: out of memory\n",
