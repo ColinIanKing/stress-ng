@@ -30,8 +30,7 @@ static const stress_help_t help[] = {
     defined(ITIMER_VIRTUAL) &&	\
     defined(SIGVTALRM)
 
-static volatile uint64_t itimer_counter = 0;
-static uint64_t max_ops;
+static stress_args_t *s_args;
 
 /*
  *  stress_sigvtalrm_set()
@@ -46,29 +45,17 @@ static void stress_sigvtalrm_set(struct itimerval *timer)
 }
 
 /*
- *  stress_sigvtalrm_stress_continue(args)
- *      returns true if we can keep on running a stressor
- */
-static inline ALWAYS_INLINE bool OPTIMIZE3 stress_sigvtalrm_stress_continue(void)
-{
-	return (LIKELY(stress_continue_flag()) &&
-		LIKELY(!max_ops || (itimer_counter < max_ops)));
-}
-
-/*
  *  stress_sigvtalrm_handler()
  *	catch itimer signal and cancel if no more runs flagged
  */
-static void stress_sigvtalrm_handler(int sig)
+static void MLOCKED_TEXT OPTIMIZE3 stress_sigvtalrm_handler(int sig)
 {
 	(void)sig;
 
-	itimer_counter++;
-
-	if (!stress_sigvtalrm_stress_continue()) {
+	stress_bogo_inc(s_args);
+	if (UNLIKELY(!stress_continue(s_args))) {
 		struct itimerval timer;
 
-		stress_continue_set_flag(false);
 		/* Cancel timer if we detect no more runs */
 		(void)shim_memset(&timer, 0, sizeof(timer));
 		(void)setitimer(ITIMER_VIRTUAL, &timer, NULL);
@@ -83,7 +70,7 @@ static int stress_sigvtalrm(stress_args_t *args)
 {
 	struct itimerval timer;
 
-	max_ops = args->bogo.max_ops;
+	s_args = args;
 
 	if (stress_sighandler(args->name, SIGVTALRM, stress_sigvtalrm_handler, NULL) < 0)
 		return EXIT_FAILURE;
@@ -114,7 +101,7 @@ static int stress_sigvtalrm(stress_args_t *args)
 		struct itimerval t;
 
 		(void)getitimer(ITIMER_VIRTUAL, &t);
-	} while (stress_sigvtalrm_stress_continue());
+	} while (stress_continue(args));
 
 #if defined(HAVE_GETRUSAGE) &&	\
     defined(RUSAGE_SELF)
@@ -125,13 +112,11 @@ static int stress_sigvtalrm(stress_args_t *args)
 			const double duration = (double)usage.ru_utime.tv_sec +
 						((double)usage.ru_utime.tv_usec) / STRESS_DBL_MICROSECOND;
 
-			if ((duration > 1.0) && (itimer_counter == 0))
+			if ((duration > 1.0) && (stress_bogo_get(args) == 0))
 				pr_fail("%s: did not handle any itimer SIGVTALRM signals\n", args->name);
 		}
 	}
 #endif
-	stress_bogo_set(args, itimer_counter);
-
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)shim_memset(&timer, 0, sizeof(timer));
 	(void)setitimer(ITIMER_VIRTUAL, &timer, NULL);
