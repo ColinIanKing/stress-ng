@@ -1338,7 +1338,7 @@ static void stress_fd_waitid(stress_fd_t *fd)
 	siginfo_t info;
 
 	(void)shim_memset(&info, 0, sizeof(info));
-	(void)waitid(P_PIDFD, (id_t)fd->fd, &info, WNOHANG);
+	(void)waitid((idtype_t)P_PIDFD, (id_t)fd->fd, &info, WNOHANG);
 }
 #endif
 
