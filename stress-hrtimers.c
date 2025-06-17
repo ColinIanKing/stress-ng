@@ -41,8 +41,7 @@ static const stress_opt_t opts[] = {
     defined(HAVE_TIMER_CREATE) &&	\
     defined(HAVE_TIMER_DELETE) &&	\
     defined(HAVE_TIMER_SETTIME)
-static uint64_t timer_counter;
-static uint64_t max_ops;
+stress_args_t *s_args;
 static timer_t timerid;
 static double time_end;
 static long int ns_delay;
@@ -64,16 +63,6 @@ static void stress_hrtimers_set(struct itimerspec *timer)
 }
 
 /*
- *  stress_hrtimers_stress_continue(args)
- *      returns true if we can keep on running a stressor
- */
-static bool OPTIMIZE3 stress_hrtimers_stress_continue(void)
-{
-	return (LIKELY(stress_continue_flag()) &&
-		LIKELY(!max_ops || ((timer_counter) < max_ops)));
-}
-
-/*
  *  stress_hrtimers_handler()
  *	catch timer signal and cancel if no more runs flagged
  */
@@ -81,14 +70,19 @@ static void MLOCKED_TEXT OPTIMIZE3 stress_hrtimers_handler(int sig)
 {
 	struct itimerspec timer;
 	sigset_t mask;
+	register uint64_t bogo_counter;
+	static uint64_t counter;
 
 	(void)sig;
 
-	timer_counter++;
-	if (UNLIKELY(!stress_hrtimers_stress_continue()))
-		goto cancel;
-
-	if (UNLIKELY((timer_counter & 4095) == 0)) {
+	counter++;
+	if (UNLIKELY(counter >= PROCS_MAX)) {
+		stress_bogo_inc_lock(s_args, lock, 1);
+		if (UNLIKELY(!stress_continue(s_args)))
+			goto cancel;
+	}
+	bogo_counter = stress_bogo_get(s_args);
+	if (UNLIKELY((bogo_counter & 4095) == 0)) {
 		if (ns_delay >= 0) {
 			const long int ns_adjust = ns_delay >> 2;
 
@@ -102,7 +96,7 @@ static void MLOCKED_TEXT OPTIMIZE3 stress_hrtimers_handler(int sig)
 		(void)timer_settime(timerid, 0, &timer, NULL);
 
 		/* check periodically for timeout */
-		if ((timer_counter & 65535) == 0) {
+		if ((bogo_counter & 65535) == 0) {
 			if ((sigpending(&mask) == 0) && (sigismember(&mask, SIGINT)))
 				goto cancel;
 			if (stress_time_now() > time_end)
@@ -173,9 +167,7 @@ static int stress_hrtimer_process(stress_args_t *args)
 
 	do {
 		(void)shim_usleep(100000);
-	} while (stress_hrtimers_stress_continue());
-
-	stress_bogo_add_lock(args, lock, timer_counter);
+	} while (stress_continue(args));
 
 	if (timer_delete(timerid) < 0) {
 		pr_fail("%s: timer_delete failed, errno=%d (%s)\n",
@@ -193,6 +185,8 @@ static int stress_hrtimers(stress_args_t *args)
 	double start_time = -1.0, end_time;
 	sigset_t mask;
 	int rc = EXIT_SUCCESS;
+
+	s_args = args;
 
 	if (stress_sigchld_set_handler(args) < 0)
 		return EXIT_NO_RESOURCE;
@@ -214,7 +208,6 @@ static int stress_hrtimers(stress_args_t *args)
         (void)stress_get_setting("hrtimers-adjust", &hrtimers_adjust);
 	overrun = 0;
 	ns_delay = hrtimers_adjust ? 10000 : -1;
-	max_ops = args->bogo.max_ops / PROCS_MAX;
 
 	for (i = 0; i < PROCS_MAX; i++) {
 		stress_sync_start_init(&s_pids[i]);
