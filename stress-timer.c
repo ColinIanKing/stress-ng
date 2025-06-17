@@ -110,13 +110,12 @@ static void MLOCKED_TEXT OPTIMIZE3 stress_timer_handler(int sig)
 
 	(void)sig;
 
-	if (UNLIKELY(!stress_continue(s_args)))
-		goto cancel;
-
 	if (sigpending(&mask) == 0)
 		if (sigismember(&mask, SIGINT))
 			goto cancel;
 	/* High freq timer, check periodically for timeout */
+	if (UNLIKELY(!stress_continue(s_args)))
+		goto cancel;
 	stress_bogo_inc(s_args);
 	if (UNLIKELY((stress_bogo_get(s_args) & 65535) == 0)) {
 		if (stress_time_now() > time_end)
