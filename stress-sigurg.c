@@ -70,9 +70,8 @@ static const stress_help_t help[] = {
     defined(SOCK_STREAM) &&	\
     defined(IPPROTO_TCP)
 
+static stress_args_t *s_args;
 static int sockfd = -1;
-static uint64_t sigurg_counter = 0;
-static uint64_t max_ops = 0;
 
 static void stress_sigurg_handler(int signum)
 {
@@ -80,8 +79,9 @@ static void stress_sigurg_handler(int signum)
 
 	(void)signum;
 
-	if (LIKELY(recv(sockfd, buf, sizeof(buf), MSG_OOB) > 0))
-		sigurg_counter++;
+	if (LIKELY(stress_continue(s_args) &&
+		  (recv(sockfd, buf, sizeof(buf), MSG_OOB) > 0)))
+		stress_bogo_inc(s_args);
 }
 
 /*
@@ -173,7 +173,6 @@ retry:
 			}
 			n = recv(sockfd, buf, sizeof(buf), 0);
 			(void)n;
-			stress_bogo_set(args, sigurg_counter);
 		} while (stress_continue(args));
 
 		(void)shutdown(sockfd, SHUT_RDWR);
@@ -293,7 +292,7 @@ static int stress_sigurg(stress_args_t *args)
 	int sock_port = DEFAULT_SOCKET_PORT;
 	int rc = EXIT_SUCCESS, reserved_port, parent_cpu;
 
-	max_ops = args->bogo.max_ops;
+	s_args = args;
 
 	if (stress_sigchld_set_handler(args) < 0)
 		return EXIT_NO_RESOURCE;
@@ -340,10 +339,6 @@ again:
 		rc = stress_sigurg_server(args, pid, mypid, sock_port);
 	}
 finish:
-
-	/* re-sync bogo-counter flag if child is killed while updating it */
-	stress_bogo_add(args, 0);
-
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	stress_net_release_ports(sock_port, sock_port);
 
