@@ -1455,6 +1455,7 @@ static int MLOCKED_TEXT stress_run_child(
 	int rc = EXIT_SUCCESS;
 	bool ok;
 	double finish = 0.0, run_duration;
+	stress_args_t *args;
 
 	sigalarmed = &stats->sigalarmed;
 
@@ -1505,27 +1506,29 @@ static int MLOCKED_TEXT stress_run_child(
 	stats->start = stress_time_now();
 	if (g_opt_timeout)
 		(void)alarm((unsigned int)g_opt_timeout);
+	args = &stats->args;
 	if (stress_continue_flag() && !(g_opt_flags & OPT_FLAGS_DRY_RUN)) {
 		const struct stressor_info *info = g_stressor_current->stressor->info;
 
-		stats->args.stats = stats;
-		stats->args.name = name;
-		stats->args.instance = (uint32_t)instance;
-		stats->args.instances = (uint32_t)g_stressor_current->instances;
-		stats->args.pid = child_pid;
-		stats->args.page_size = page_size;
-		stats->args.time_end = stress_time_now() + (double)g_opt_timeout;
-		stats->args.mapped = &g_shared->mapped;
-		stats->args.metrics = &stats->metrics;
-		stats->args.info = info;
-		stats->args.bogo.max_ops = g_stressor_current->bogo_max_ops ?
+		/* note: set args in same order as stress_args_t */
+		args->bogo.max_ops = g_stressor_current->bogo_max_ops ?
 			g_stressor_current->bogo_max_ops : NEVER_END_OPS;
-		stats->args.bogo.ci.counter = 0;
-		stats->args.bogo.possibly_oom_killed = false;
+		args->bogo.ci.counter = 0;
+		args->bogo.possibly_oom_killed = false;
+		args->name = name;
+		args->instance = (uint32_t)instance;
+		args->instances = (uint32_t)g_stressor_current->instances;
+		args->pid = child_pid;
+		args->page_size = page_size;
+		args->time_end = stress_time_now() + (double)g_opt_timeout;
+		args->mapped = &g_shared->mapped;
+		args->metrics = &stats->metrics;
+		args->stats = stats;
+		args->info = info;
 
 		if (instance == 0)
-			stress_settings_dbg(&stats->args);
-		stress_set_oom_adjustment(&stats->args, false);
+			stress_settings_dbg(args);
+		stress_set_oom_adjustment(args, false);
 
 		(void)shim_memset(*checksum, 0, sizeof(**checksum));
 		stats->start = stress_time_now();
@@ -1535,7 +1538,7 @@ static int MLOCKED_TEXT stress_run_child(
 #endif
 		if (g_opt_flags & OPT_FLAGS_STRESSOR_TIME)
 			stress_log_time(name, stats->start, "start");
-		rc = info->stressor(&stats->args);
+		rc = info->stressor(args);
 		stress_sync_state_store(&stats->s_pid, STRESS_SYNC_START_FLAG_FINISHED);
 		stress_block_signals();
 		(void)alarm(0);
@@ -1572,7 +1575,7 @@ static int MLOCKED_TEXT stress_run_child(
 #endif
 		stats->completed = true;
 		ok = (rc == EXIT_SUCCESS);
-		stats->args.bogo.ci.run_ok = ok;
+		args->bogo.ci.run_ok = ok;
 		(*checksum)->data.ci.run_ok = ok;
 		/* Ensure reserved padding is zero to not confuse checksum */
 		(void)shim_memset((*checksum)->data.pad, 0, sizeof((*checksum)->data.pad));
@@ -1583,14 +1586,14 @@ static int MLOCKED_TEXT stress_run_child(
 		 *  if not then flag up that the counter may
 		 *  be untrustyworthy
 		 */
-		if ((!stats->args.bogo.ci.counter_ready) && (!stats->args.bogo.ci.force_killed)) {
+		if ((!args->bogo.ci.counter_ready) && (!args->bogo.ci.force_killed)) {
 			pr_warn("%s: WARNING: bogo-ops counter in non-ready state, "
 				"metrics are untrustworthy (process may have been "
 				"terminated prematurely)\n",
 				name);
 			rc = EXIT_METRICS_UNTRUSTWORTHY;
 		}
-		(*checksum)->data.ci.counter = stats->args.bogo.ci.counter;
+		(*checksum)->data.ci.counter = args->bogo.ci.counter;
 		stress_hash_checksum(*checksum);
 		finish = stress_time_now();
 		if (g_opt_flags & OPT_FLAGS_STRESSOR_TIME)
@@ -1608,7 +1611,7 @@ static int MLOCKED_TEXT stress_run_child(
 		(void)stress_tz_get_temperatures(&g_shared->tz_info, &stats->tz);
 #endif
 	stats->duration = finish - stats->start;
-	stats->counter_total += stats->args.bogo.ci.counter;
+	stats->counter_total += args->bogo.ci.counter;
 	stats->duration_total += stats->duration;
 
 	stress_get_usage_stats(ticks_per_sec, stats);
@@ -1622,10 +1625,10 @@ static int MLOCKED_TEXT stress_run_child(
 	 * Apparently succeeded but terminated early?
 	 * Could be a bug, so report a warning
 	 */
-	if (stats->args.bogo.ci.run_ok &&
+	if (args->bogo.ci.run_ok &&
 	    (g_shared && !g_shared->caught_sigint) &&
 	    (run_duration < (double)g_opt_timeout) &&
-	    (!(g_stressor_current->bogo_max_ops && stats->args.bogo.ci.counter >= g_stressor_current->bogo_max_ops))) {
+	    (!(g_stressor_current->bogo_max_ops && args->bogo.ci.counter >= g_stressor_current->bogo_max_ops))) {
 		pr_warn("%s: WARNING: finished prematurely after just %s\n",
 			name, stress_duration_to_str(run_duration, true, true));
 	}
