@@ -95,11 +95,11 @@ static int OPTIMIZE3 stress_mmapcow_modify_unmap(
 #endif
 	/* Time duration of page touch + page fault */
 	t1 = stress_time_now();
-	*(uint64_t *)ptr = val;
+	*(volatile uint64_t *)ptr = val;
 	t2 = stress_time_now();
 PRAGMA_UNROLL_N(8)
 	for (; ptr < ptr_end; ptr += 64) {
-		*(uint64_t *)ptr = val;
+		*(volatile uint64_t *)ptr = val;
 	}
 	stress_cpu_data_cache_flush(page, page_size);
 	(*duration) += (t2 - t1);
