@@ -24,6 +24,8 @@
 #define MAX_ITIMER_FREQ		(100000000)
 #define DEFAULT_ITIMER_FREQ	(1000000)
 
+static stress_args_t *s_args;
+
 static const stress_help_t help[] = {
 	{ NULL,	"itimer N",	"start N workers exercising interval timers" },
 	{ NULL,	"itimer-freq F","set the itimer frequency, limited by jiffy clock rate" },
@@ -41,7 +43,6 @@ static const stress_opt_t opts[] = {
 #if defined(HAVE_GETITIMER) &&	\
     defined(HAVE_SETITIMER)
 
-static volatile uint64_t itimer_counter = 0;
 static double rate_us;
 static double time_end;
 
@@ -90,29 +91,25 @@ static void stress_itimer_set(struct itimerval *timer)
  *  stress_itimer_handler()
  *	catch itimer signal and cancel if no more runs flagged
  */
-static void stress_itimer_handler(int sig)
+static void OPTIMIZE3 stress_itimer_handler(int sig)
 {
 	struct itimerval timer;
 	sigset_t mask;
 
 	(void)sig;
 
-	if (LIKELY(!stress_continue_flag()))
-		goto cancel;
-	itimer_counter++;
-
 	if (sigpending(&mask) == 0)
 		if (sigismember(&mask, SIGINT))
 			goto cancel;
+
+	if (LIKELY(!stress_continue(s_args)))
+		goto cancel;
+	stress_bogo_inc(s_args);
 	/* High freq timer, check periodically for timeout */
-	if ((itimer_counter & 65535) == 0)
+	if ((stress_bogo_get(s_args) & 65535) == 0)
 		if (stress_time_now() > time_end)
 			goto cancel;
-	if (LIKELY(stress_continue_flag())) {
-		stress_itimer_set(&timer);
-		return;
-	}
-
+	return;
 cancel:
 	stress_continue_set_flag(false);
 	/* Cancel timer if we detect no more runs */
@@ -130,6 +127,7 @@ static int stress_itimer(stress_args_t *args)
 	sigset_t mask;
 	uint64_t itimer_freq = DEFAULT_ITIMER_FREQ;
 
+	s_args = args;
 	time_end = args->time_end;
 
 	(void)sigemptyset(&mask);
@@ -174,11 +172,9 @@ static int stress_itimer(stress_args_t *args)
 		for (i = 0; i < SIZEOF_ARRAY(stress_itimers); i++) {
 			(void)getitimer(stress_itimers[i], &t);
 		}
-
-		stress_bogo_set(args, itimer_counter);
 	} while (stress_continue(args));
 
-	if (itimer_counter == 0) {
+	if (stress_bogo_get(args) == 0) {
 		pr_fail("%s: did not handle any itimer SIGPROF signals\n",
 			args->name);
 	}
