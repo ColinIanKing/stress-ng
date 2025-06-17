@@ -22,8 +22,7 @@
 
 #include <sched.h>
 
-uint64_t sigpipe_max_count;
-volatile uint64_t sigpipe_count;
+static stress_args_t *s_args;
 
 static const stress_help_t help[] = {
 	{ NULL,	"sigpipe N",	 "start N workers exercising SIGPIPE" },
@@ -34,15 +33,13 @@ static const stress_help_t help[] = {
 static void stress_sigpipe_handler(int signum)
 {
 	if (LIKELY(signum == SIGPIPE))
-		sigpipe_count++;
+		stress_bogo_inc(s_args);
 }
 
 static void stress_sigpipe_handler_count_check(int signum)
 {
 	if (LIKELY(signum == SIGPIPE))
-		sigpipe_count++;
-	if (sigpipe_count >= sigpipe_max_count)
-		stress_continue_set_flag(false);
+		stress_bogo_inc(s_args);
 }
 
 /*
@@ -55,8 +52,8 @@ static int stress_sigpipe(stress_args_t *args)
 	uint64_t epipe_count = 0;
 	int rc = EXIT_SUCCESS;
 	int pipefds[2];
-	sigpipe_count = 0;
-	sigpipe_max_count = args->bogo.max_ops;
+
+	s_args = args;
 
 	if (stress_sighandler(args->name, SIGPIPE,
 		(args->bogo.max_ops == 0) ? stress_sigpipe_handler :
@@ -83,13 +80,12 @@ static int stress_sigpipe(stress_args_t *args)
 			if (errno == EPIPE)
 				epipe_count++;
 		}
-	} while (stress_continue_flag());
+	} while (stress_continue(args));
 
-	stress_bogo_set(args, sigpipe_count);
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	/* simple sanity check */
-	if ((epipe_count > 0) && (sigpipe_count < 1)) {
+	if ((epipe_count > 0) && (stress_bogo_get(args) < 1)) {
 		pr_fail("%s: %" PRIu64 " writes occurred but got 0 SIGPIPE signals\n",
 			args->name, epipe_count);
 		rc = EXIT_FAILURE;
