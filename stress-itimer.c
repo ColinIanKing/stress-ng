@@ -24,8 +24,6 @@
 #define MAX_ITIMER_FREQ		(100000000)
 #define DEFAULT_ITIMER_FREQ	(1000000)
 
-static stress_args_t *s_args;
-
 static const stress_help_t help[] = {
 	{ NULL,	"itimer N",	"start N workers exercising interval timers" },
 	{ NULL,	"itimer-freq F","set the itimer frequency, limited by jiffy clock rate" },
@@ -43,6 +41,7 @@ static const stress_opt_t opts[] = {
 #if defined(HAVE_GETITIMER) &&	\
     defined(HAVE_SETITIMER)
 
+static stress_args_t *s_args;
 static double rate_us;
 static double time_end;
 
@@ -185,7 +184,6 @@ static int stress_itimer(stress_args_t *args)
 	(void)setitimer(ITIMER_PROF, &timer, NULL);
 	return EXIT_SUCCESS;
 }
-
 
 const stressor_info_t stress_itimer_info = {
 	.stressor = stress_itimer,
