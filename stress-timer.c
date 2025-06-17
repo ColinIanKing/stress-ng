@@ -26,8 +26,6 @@
 #define MAX_TIMER_FREQ		(100000000)
 #define DEFAULT_TIMER_FREQ	(1000000)
 
-static stress_args_t *s_args;
-
 static const stress_help_t help[] = {
 	{ "T N", "timer N",	"start N workers producing timer events" },
 	{ NULL, "timer-freq F",	"run timer(s) at F Hz, range 1 to 1000000000" },
@@ -41,6 +39,7 @@ static const stress_help_t help[] = {
     defined(HAVE_TIMER_DELETE) &&	\
     defined(HAVE_TIMER_GETOVERRUN) &&	\
     defined(HAVE_TIMER_SETTIME)
+static stress_args_t *s_args;
 static volatile uint64_t timer_settime_failure;
 static uint64_t timer_overruns;
 static timer_t timerid;
