@@ -42,7 +42,6 @@ static const stress_opt_t opts[] = {
     defined(HAVE_SETITIMER)
 
 static volatile uint64_t itimer_counter = 0;
-static uint64_t max_ops;
 static double rate_us;
 static double time_end;
 
@@ -88,16 +87,6 @@ static void stress_itimer_set(struct itimerval *timer)
 }
 
 /*
- *  stress_itimer_stress_continue(args)
- *      returns true if we can keep on running a stressor
- */
-static bool OPTIMIZE3 stress_itimer_stress_continue(void)
-{
-	return (LIKELY(stress_continue_flag()) &&
-		LIKELY(!max_ops || (itimer_counter < max_ops)));
-}
-
-/*
  *  stress_itimer_handler()
  *	catch itimer signal and cancel if no more runs flagged
  */
@@ -108,7 +97,7 @@ static void stress_itimer_handler(int sig)
 
 	(void)sig;
 
-	if (!stress_itimer_stress_continue())
+	if (LIKELY(!stress_continue_flag()))
 		goto cancel;
 	itimer_counter++;
 
@@ -146,8 +135,6 @@ static int stress_itimer(stress_args_t *args)
 	(void)sigemptyset(&mask);
 	(void)sigaddset(&mask, SIGINT);
 	(void)sigprocmask(SIG_SETMASK, &mask, NULL);
-
-	max_ops = args->bogo.max_ops;
 
 	if (!stress_get_setting("itimer-freq", &itimer_freq)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
