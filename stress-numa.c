@@ -177,7 +177,8 @@ static void stress_numa_check_maps(
 static int stress_numa(stress_args_t *args)
 {
 	const size_t page_size = args->page_size;
-	size_t num_pages, numa_bytes = 0;
+	size_t num_pages, numa_bytes, numa_bytes_total = DEFAULT_NUMA_MMAP_BYTES;
+
 	uint8_t *buf;
 	int rc = EXIT_FAILURE;
 	const bool cap_sys_nice = stress_check_capability(SHIM_CAP_SYS_NICE);
@@ -193,11 +194,11 @@ static int stress_numa(stress_args_t *args)
 	stress_numa_mask_t *numa_mask, *old_numa_mask, *numa_nodes;
 	unsigned long int node;
 
-	if (!stress_get_setting("numa-bytes", &numa_bytes)) {
+	if (!stress_get_setting("numa-bytes", &numa_bytes_total)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			numa_bytes = MAX_32;
+			numa_bytes_total = MAX_32;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			numa_bytes = MIN_NUMA_MMAP_BYTES;
+			numa_bytes_total = MIN_NUMA_MMAP_BYTES;
 	}
 	if (!stress_get_setting("numa-shuffle-addr", &numa_shuffle_addr)) {
 		if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
@@ -208,16 +209,12 @@ static int stress_numa(stress_args_t *args)
 			numa_shuffle_node = true;
 	}
 
-	if (numa_bytes == 0) {
-		numa_bytes = DEFAULT_NUMA_MMAP_BYTES;
-	} else {
-		if (args->instances > 0) {
-			numa_bytes /= args->instances;
-			numa_bytes &= ~(page_size - 1);
-		}
-		if (numa_bytes < MIN_NUMA_MMAP_BYTES)
-			numa_bytes = MIN_NUMA_MMAP_BYTES;
-	}
+	numa_bytes = numa_bytes_total / args->instances;
+	numa_bytes &= ~(page_size - 1);
+	if (numa_bytes < MIN_NUMA_MMAP_BYTES)
+		numa_bytes = MIN_NUMA_MMAP_BYTES;
+	if (args->instance == 0)
+		stress_usage_bytes(args, numa_bytes, numa_bytes_total);
 
 	num_pages = numa_bytes / page_size;
 
