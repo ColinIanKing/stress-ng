@@ -48,24 +48,26 @@ static int stress_vm_splice(stress_args_t *args)
 	int fd, fds[2], rc = EXIT_SUCCESS;
 	uint8_t *buf;
 	const size_t page_size = args->page_size;
-	size_t sz, vm_splice_bytes = DEFAULT_VM_SPLICE_BYTES;
+	size_t sz, vm_splice_bytes, vm_splice_bytes_total = DEFAULT_VM_SPLICE_BYTES;
 	char *data;
 	double duration = 0.0, bytes = 0.0, vm_splices = 0.0, rate;
 	int metrics_counter = 0;
 	uint64_t checkval = stress_mwc64();
 	uint64_t prime;
 
-	if (!stress_get_setting("vm-splice-bytes", &vm_splice_bytes)) {
+	if (!stress_get_setting("vm-splice-bytes", &vm_splice_bytes_total)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			vm_splice_bytes = MAX_VM_SPLICE_BYTES;
+			vm_splice_bytes_total = MAX_VM_SPLICE_BYTES;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			vm_splice_bytes = MIN_VM_SPLICE_BYTES;
+			vm_splice_bytes_total = MIN_VM_SPLICE_BYTES;
 	}
-	vm_splice_bytes /= args->instances;
+	vm_splice_bytes = vm_splice_bytes_total / args->instances;
 	if (vm_splice_bytes < MIN_VM_SPLICE_BYTES)
 		vm_splice_bytes = MIN_VM_SPLICE_BYTES;
 	if (vm_splice_bytes < page_size)
 		vm_splice_bytes = page_size;
+	if (args->instance == 0)
+		stress_usage_bytes(args, vm_splice_bytes, vm_splice_bytes * args->instances);
 	sz = vm_splice_bytes & ~(page_size - 1);
 
 	buf = stress_mmap_populate(NULL, sz, PROT_READ | PROT_WRITE,
