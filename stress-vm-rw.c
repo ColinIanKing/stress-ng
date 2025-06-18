@@ -366,20 +366,22 @@ static int stress_vm_rw(stress_args_t *args)
 	stress_context_t ctxt;
 	uint8_t stack[64*1024];
 	uint8_t *stack_top = (uint8_t *)stress_get_stack_top((void *)stack, STACK_SIZE);
-	size_t vm_rw_bytes = DEFAULT_VM_RW_BYTES;
+	size_t vm_rw_bytes, vm_rw_bytes_total = DEFAULT_VM_RW_BYTES;
 	int rc;
 
-	if (!stress_get_setting("vm-rw-bytes", &vm_rw_bytes)) {
+	if (!stress_get_setting("vm-rw-bytes", &vm_rw_bytes_total)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			vm_rw_bytes = MAX_32;
+			vm_rw_bytes_total = MAX_32;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			vm_rw_bytes = MIN_VM_RW_BYTES;
+			vm_rw_bytes_total = MIN_VM_RW_BYTES;
 	}
-	vm_rw_bytes /= args->instances;
+	vm_rw_bytes = vm_rw_bytes_total / args->instances;
 	if (vm_rw_bytes < MIN_VM_RW_BYTES)
 		vm_rw_bytes = MIN_VM_RW_BYTES;
 	if (vm_rw_bytes < args->page_size)
 		vm_rw_bytes = args->page_size;
+	if (args->instance == 0)
+		stress_usage_bytes(args, vm_rw_bytes, vm_rw_bytes * args->instances);
 	ctxt.args = args;
 	ctxt.sz = vm_rw_bytes & ~(args->page_size - 1);
 	ctxt.iov_count = (ctxt.sz + CHUNK_SIZE - 1) / CHUNK_SIZE;
