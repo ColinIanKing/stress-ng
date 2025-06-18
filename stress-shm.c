@@ -357,7 +357,7 @@ static int stress_shm(stress_args_t *args)
 	bool retry = true;
 	bool shm_mlock = false;
 	uint32_t restarts = 0;
-	size_t shm_posix_bytes = DEFAULT_SHM_POSIX_BYTES;
+	size_t shm_posix_bytes, shm_posix_bytes_total = DEFAULT_SHM_POSIX_BYTES;
 	size_t shm_posix_objects = DEFAULT_SHM_POSIX_OBJECTS;
 
 	if (!stress_get_setting("shm-mlock", &shm_mlock)) {
@@ -365,17 +365,19 @@ static int stress_shm(stress_args_t *args)
 			shm_mlock = true;
 	}
 
-	if (!stress_get_setting("shm-bytes", &shm_posix_bytes)) {
+	if (!stress_get_setting("shm-bytes", &shm_posix_bytes_total)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			shm_posix_bytes = MAX_SHM_POSIX_BYTES;
+			shm_posix_bytes_total = MAX_SHM_POSIX_BYTES;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			shm_posix_bytes = MIN_SHM_POSIX_BYTES;
+			shm_posix_bytes_total = MIN_SHM_POSIX_BYTES;
 	}
-	shm_posix_bytes /= args->instances;
+	shm_posix_bytes = shm_posix_bytes_total / args->instances;
 	if (shm_posix_bytes < MIN_SHM_POSIX_BYTES)
 		shm_posix_bytes = MIN_SHM_POSIX_BYTES;
 	if (shm_posix_bytes < page_size)
 		shm_posix_bytes = page_size;
+	if (args->instance == 0)
+		stress_usage_bytes(args, shm_posix_bytes, shm_posix_bytes * args->instances);
 
 	if (!stress_get_setting("shm-objs", &shm_posix_objects)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
