@@ -101,7 +101,7 @@ static int stress_msync(stress_args_t *args)
 	uint8_t *data = NULL;
 	const size_t page_size = args->page_size;
 	const size_t min_size = 2 * page_size;
-	size_t msync_bytes = DEFAULT_MSYNC_BYTES;
+	size_t msync_bytes, msync_bytes_total = DEFAULT_MSYNC_BYTES;
 	NOCLOBBER size_t sz;
 	ssize_t ret;
 	NOCLOBBER ssize_t rc = EXIT_SUCCESS;
@@ -116,17 +116,19 @@ static int stress_msync(stress_args_t *args)
 	if (stress_sighandler(args->name, SIGBUS, stress_sigbus_handler, NULL) < 0)
 		return EXIT_FAILURE;
 
-	if (!stress_get_setting("msync-bytes", &msync_bytes)) {
+	if (!stress_get_setting("msync-bytes", &msync_bytes_total)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			msync_bytes = MAXIMIZED_FILE_SIZE;
+			msync_bytes_total = MAXIMIZED_FILE_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			msync_bytes = MIN_MSYNC_BYTES;
+			msync_bytes_total = MIN_MSYNC_BYTES;
 	}
-	msync_bytes /= args->instances;
+	msync_bytes = msync_bytes_total / args->instances;
 	if (msync_bytes < MIN_MSYNC_BYTES)
 		msync_bytes = MIN_MSYNC_BYTES;
 	if (msync_bytes < page_size)
 		msync_bytes = page_size;
+	if (args->instance == 0)
+		stress_usage_bytes(args, msync_bytes, msync_bytes_total);
 	sz = msync_bytes & ~(page_size - 1);
 	if (sz < min_size)
 		sz = min_size;
