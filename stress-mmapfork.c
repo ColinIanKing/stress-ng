@@ -120,6 +120,7 @@ static int stress_mmapfork(stress_args_t *args)
 	const size_t wipe_size = args->page_size;
 	bool wipe_ok = false;
 #endif
+	bool report_size = (args->instance == 0);
 
 #if defined(MADV_WIPEONFORK)
 	/*
@@ -134,6 +135,7 @@ static int stress_mmapfork(stress_args_t *args)
 			wipe_ok = true;
 	}
 #endif
+
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
@@ -156,6 +158,7 @@ static int stress_mmapfork(stress_args_t *args)
 			if (s_pids[i].pid == 0) {
 				/* Child */
 				const pid_t ppid = getppid();
+				size_t len_total;
 
 				stress_parent_died_alarm();
 				(void)sched_settings_apply(true);
@@ -170,8 +173,6 @@ static int stress_mmapfork(stress_args_t *args)
 					_exit(MMAPFORK_FAILURE);
 				}
 
-				len = ((size_t)info.freeram / (args->instances * MAX_PIDS)) / 2;
-
 #if defined(MADV_WIPEONFORK)
 				if (wipe_ok && (wipe_ptr != MAP_FAILED) &&
 				    stress_memory_is_not_zero(wipe_ptr, wipe_size)) {
@@ -180,16 +181,24 @@ static int stress_mmapfork(stress_args_t *args)
 					_exit(MMAPFORK_FAILURE);
 				}
 #endif
-
-				if (!stress_get_setting("mmapfork-bytes", &len)) {
+				len_total = (size_t)info.freeram;
+				if (!stress_get_setting("mmapfork-bytes", &len_total)) {
 					if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-						len = MIN_MMAPFORK_BYTES;
+						len_total = MIN_MMAPFORK_BYTES;
 					if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-						len = MAX_32;
+						len_total = MAX_32;
 				}
+				if (len_total < MIN_MMAPFORK_BYTES)
+					len_total = MIN_MMAPFORK_BYTES;
+				if (len_total < args->page_size)
+					len_total = args->page_size;
 
-				if (len < MIN_MMAPFORK_BYTES)
-					len = MIN_MMAPFORK_BYTES;
+				len = (len_total / (args->instances * MAX_PIDS)) / 2;
+				if (len < args->page_size)
+					len = args->page_size;
+				if ((i == 0) && report_size) {
+					stress_usage_bytes(args, len, len_total);
+				}
 
 				segv_ret = MMAPFORK_SEGV_MMAP;
 				ptr = stress_mmap_populate(NULL, len, PROT_READ | PROT_WRITE,
@@ -220,6 +229,7 @@ static int stress_mmapfork(stress_args_t *args)
 				}
 				_exit(EXIT_SUCCESS);
 			}
+			report_size = false;
 		}
 
 		/*
