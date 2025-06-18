@@ -936,7 +936,7 @@ static int stress_shm_sysv(stress_args_t *args)
 	bool retry = true;
 	bool shm_sysv_mlock = false;
 	uint32_t restarts = 0;
-	size_t shm_sysv_bytes = DEFAULT_SHM_SYSV_BYTES;
+	size_t shm_sysv_bytes, shm_sysv_bytes_total = DEFAULT_SHM_SYSV_BYTES;
 	size_t shm_sysv_segments = DEFAULT_SHM_SYSV_SEGMENTS;
 
 	if (!stress_get_setting("shm-sysv-mlock", &shm_sysv_mlock)) {
@@ -944,12 +944,13 @@ static int stress_shm_sysv(stress_args_t *args)
 			shm_sysv_mlock = true;
 	}
 
-	if (!stress_get_setting("shm-sysv-bytes", &shm_sysv_bytes)) {
+	if (!stress_get_setting("shm-sysv-bytes", &shm_sysv_bytes_total)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			shm_sysv_bytes = MAX_SHM_SYSV_BYTES;
+			shm_sysv_bytes_total = MAX_SHM_SYSV_BYTES;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			shm_sysv_bytes = MIN_SHM_SYSV_BYTES;
+			shm_sysv_bytes_total = MIN_SHM_SYSV_BYTES;
 	}
+	shm_sysv_bytes = shm_sysv_bytes_total / args->instances;
 	if (shm_sysv_bytes < page_size)
 		shm_sysv_bytes = page_size;
 	if (args->instance == 0)
