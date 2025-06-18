@@ -1123,6 +1123,26 @@ uint64_t stress_get_filesystem_available_inodes(void)
 }
 
 /*
+ *  stress_usage_bytes()
+ *	report how much memory is used per instance
+ *	and in total compared to physical memory available
+ */
+void stress_usage_bytes(
+	stress_args_t *args,
+	const size_t vm_per_instance,
+	const size_t vm_total)
+{
+	const uint64_t total_phys_mem = stress_get_phys_mem_size();
+	char s1[32], s2[32], s3[32];
+
+	pr_inf("%s: using %s per stressor instance (total %s of %s physical memory)\n",
+		args->name,
+		stress_uint64_to_str(s1, sizeof(s1), (uint64_t)vm_per_instance, 2, true),
+		stress_uint64_to_str(s2, sizeof(s2), (uint64_t)vm_total, 2, true),
+		stress_uint64_to_str(s3, sizeof(s3), total_phys_mem, 2, true));
+}
+
+/*
  *  stress_set_nonblock()
  *	try to make fd non-blocking
  */

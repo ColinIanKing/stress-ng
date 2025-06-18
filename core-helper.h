@@ -63,6 +63,8 @@ extern WARN_UNUSED bool stress_low_memory(const size_t requested);
 extern WARN_UNUSED uint64_t stress_get_phys_mem_size(void);
 extern WARN_UNUSED uint64_t stress_get_filesystem_size(void);
 extern WARN_UNUSED uint64_t stress_get_filesystem_available_inodes(void);
+extern void stress_usage_bytes(stress_args_t *args,
+	const size_t vm_per_instance, const size_t vm_total);
 extern WARN_UNUSED int stress_set_nonblock(const int fd);
 extern WARN_UNUSED int stress_get_load_avg(double *min1, double *min5, double *min15);
 extern void stress_parent_died_alarm(void);
