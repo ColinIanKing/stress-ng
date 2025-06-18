@@ -437,7 +437,7 @@ static int stress_userfaultfd_child(stress_args_t *args, void *context)
 do_read:
 		ret = read(fd, &msg, sizeof(msg));
 		if (UNLIKELY(ret < 0)) {
-			if (errno == EINTR)
+			if ((errno == EINTR) || (errno == EAGAIN))
 				continue;
 			pr_fail("%s: read failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
