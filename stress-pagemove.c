@@ -64,7 +64,7 @@ static void stress_pagemove_remap_fail(
 
 static int stress_pagemove_child(stress_args_t *args, void *context)
 {
-	size_t sz, pages, pagemove_bytes = DEFAULT_PAGE_MOVE_BYTES;
+	size_t sz, pages, pagemove_bytes, pagemove_bytes_total = DEFAULT_PAGE_MOVE_BYTES;
 	const size_t page_size = args->page_size;
 	size_t page_num;
 	uint8_t *buf, *buf_end, *unmapped_page = NULL, *ptr;
@@ -88,17 +88,20 @@ static int stress_pagemove_child(stress_args_t *args, void *context)
 		if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
 			pagemove_numa = true;
 	}
-	if (!stress_get_setting("pagemove-bytes", &pagemove_bytes)) {
+	if (!stress_get_setting("pagemove-bytes", &pagemove_bytes_total)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			pagemove_bytes = MAX_32;
+			pagemove_bytes_total = MAX_32;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			pagemove_bytes = MIN_PAGE_MOVE_BYTES;
+			pagemove_bytes_total = MIN_PAGE_MOVE_BYTES;
 	}
-	pagemove_bytes /= args->instances;
+	pagemove_bytes = pagemove_bytes_total / args->instances;
 	if (pagemove_bytes < MIN_PAGE_MOVE_BYTES)
 		pagemove_bytes = MIN_PAGE_MOVE_BYTES;
 	if (pagemove_bytes < page_size)
 		pagemove_bytes = page_size;
+	pagemove_bytes_total = pagemove_bytes * args->instances;
+	if (args->instance == 0)
+		stress_usage_bytes(args, pagemove_bytes, pagemove_bytes_total);
 
 	sz = pagemove_bytes & ~(page_size - 1);
 	if (sz > (MAX_32 - page_size))
