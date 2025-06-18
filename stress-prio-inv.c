@@ -171,9 +171,16 @@ static void stress_prio_inv_getrusage(stress_prio_inv_child_info_t *child_info)
 
 	child_info->usage =
 		(double)usage.ru_utime.tv_sec +
-		((double)usage.ru_utime.tv_usec / 1000000.0) +
-		(double)usage.ru_stime.tv_sec +
-		((double)usage.ru_stime.tv_usec / 1000000.0);
+		((double)usage.ru_utime.tv_usec / 1000000.0);
+	/*
+	 * https://github.com/ColinIanKing/stress-ng/issues/534
+	 * - don't include system time usage as this can be
+	 *   overly high overhead on slower systems. We really
+	 *   are caring about the comparison of user times
+	 *
+	 *      + (double)usage.ru_stime.tv_sec
+	 *	+ ((double)usage.ru_stime.tv_usec / 1000000.0);
+	 */
 }
 
 static void cpu_exercise(const size_t instance, stress_prio_inv_info_t *prio_inv_info)
