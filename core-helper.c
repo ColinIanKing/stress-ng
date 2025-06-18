@@ -1026,15 +1026,15 @@ update:
 	return low_memory;
 }
 
-#if defined(_SC_PHYS_PAGES)
-#define STRESS_SC_PAGES	_SC_PHYS_PAGES
-#elif defined(_SC_AVPHYS_PAGES)
+#if defined(_SC_AVPHYS_PAGES)
 #define STRESS_SC_PAGES	_SC_AVPHYS_PAGES
+#elif defined(_SC_PHYS_PAGES)
+#define STRESS_SC_PAGES	_SC_PHYS_PAGES
 #endif
 
 /*
  *  stress_get_phys_mem_size()
- *	get size of physical memory, 0 if failed
+ *	get size of physical memory still available, 0 if failed
  */
 uint64_t stress_get_phys_mem_size(void)
 {
