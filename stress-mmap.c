@@ -919,7 +919,7 @@ static int stress_mmap(stress_args_t *args)
 	bool mmap_mmap2 = false;
 	int ret, all_flags;
 	stress_mmap_context_t context;
-	size_t i;
+	size_t i, mmap_total;
 
 	jmp_env_set = false;
 
@@ -980,18 +980,24 @@ static int stress_mmap(stress_args_t *args)
 #endif
 	}
 
-	if (!stress_get_setting("mmap-bytes", &context.mmap_bytes)) {
+	mmap_total = DEFAULT_MMAP_BYTES;
+	if (!stress_get_setting("mmap-bytes", &mmap_total)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			context.mmap_bytes = MAX_32;
+			mmap_total = MAX_32;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			context.mmap_bytes = MIN_MMAP_BYTES;
+			mmap_total = MIN_MMAP_BYTES;
 	}
-	context.mmap_bytes /= args->instances;
-	if (context.mmap_bytes < MIN_MMAP_BYTES)
+	context.mmap_bytes = mmap_total / args->instances;
+	if (context.mmap_bytes < MIN_MMAP_BYTES) {
 		context.mmap_bytes = MIN_MMAP_BYTES;
-	if (context.mmap_bytes < page_size)
+		mmap_total = context.mmap_bytes * args->instances;
+	}
+	if (context.mmap_bytes < page_size) {
 		context.mmap_bytes = page_size;
+		mmap_total = context.mmap_bytes * args->instances;
+	}
 	context.sz = context.mmap_bytes & ~(page_size - 1);
+	stress_usage_bytes(args, context.mmap_bytes, mmap_total);
 
 	if (context.mmap_file) {
 		int file_flags = O_CREAT | O_RDWR;
