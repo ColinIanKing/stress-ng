@@ -156,7 +156,7 @@ static void stress_splice_looped_pipe(
 static int stress_splice(stress_args_t *args)
 {
 	int fd_in, fd_out, fds1[2], fds2[2], fds3[2], fds4[2];
-	size_t splice_bytes = DEFAULT_SPLICE_BYTES;
+	size_t splice_bytes, splice_bytes_total = DEFAULT_SPLICE_BYTES;
 	int rc = EXIT_FAILURE;
 	int metrics_count = 0;
 	bool use_splice = true;
@@ -165,15 +165,17 @@ static int stress_splice(stress_args_t *args)
 	ssize_t buffer_len;
 	double duration = 0.0, bytes = 0.0, rate;
 
-	if (!stress_get_setting("splice-bytes", &splice_bytes)) {
+	if (!stress_get_setting("splice-bytes", &splice_bytes_total)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			splice_bytes = MAX_SPLICE_BYTES;
+			splice_bytes_total = MAX_SPLICE_BYTES;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			splice_bytes = MIN_SPLICE_BYTES;
+			splice_bytes_total = MIN_SPLICE_BYTES;
 	}
-	splice_bytes /= args->instances;
+	splice_bytes = splice_bytes_total / args->instances;
 	if (splice_bytes < MIN_SPLICE_BYTES)
 		splice_bytes = MIN_SPLICE_BYTES;
+	if (args->instance == 0)
+		stress_usage_bytes(args, splice_bytes, splice_bytes * args->instances);
 
 	buffer_len = (ssize_t)(splice_bytes > SPLICE_BUFFER_LEN ?
 				SPLICE_BUFFER_LEN : splice_bytes);
