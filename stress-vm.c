@@ -73,6 +73,7 @@ typedef struct {
 	stress_numa_mask_t *numa_mask;
 	stress_numa_mask_t *numa_nodes;
 #endif
+	size_t vm_bytes;
 	bool vm_numa;
 } stress_vm_context_t;
 
@@ -3357,20 +3358,19 @@ static void stress_vm_flags(const char *opt, int *vm_flags, const int bitmask)
 
 static int stress_vm_child(stress_args_t *args, void *ctxt)
 {
-	int no_mem_retries = 0;
+	stress_vm_context_t *context = (stress_vm_context_t *)ctxt;
+	const stress_vm_func func = context->vm_method->func;
+	const size_t page_size = args->page_size;
+	const size_t buf_sz = context->vm_bytes & ~(page_size - 1);
 	const uint64_t max_ops = args->bogo.max_ops << VM_BOGO_SHIFT;
 	uint64_t vm_hang = DEFAULT_VM_HANG;
 	void *buf = NULL, *buf_end = NULL;
+	int no_mem_retries = 0;
 	int vm_flags = 0;                      /* VM mmap flags */
 	size_t vm_madvise = 0;
 	int advice = -1;
 	int rc = EXIT_SUCCESS;
-	size_t buf_sz;
-	size_t vm_bytes = DEFAULT_VM_BYTES;
-	const size_t page_size = args->page_size;
 	bool vm_keep = false;
-	stress_vm_context_t *context = (stress_vm_context_t *)ctxt;
-	const stress_vm_func func = context->vm_method->func;
 
 	stress_catch_sigill();
 
@@ -3382,19 +3382,7 @@ static int stress_vm_child(stress_args_t *args, void *ctxt)
 #if defined(MAP_POPULATE)
 	stress_vm_flags("vm-mmap-populate", &vm_flags, MAP_POPULATE);
 #endif
-
 	(void)stress_get_setting("vm-flags", &vm_flags);
-
-	if (!stress_get_setting("vm-bytes", &vm_bytes)) {
-		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			vm_bytes = MAX_32;
-		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			vm_bytes = MIN_VM_BYTES;
-	}
-	vm_bytes /= args->instances;
-	if (vm_bytes < MIN_VM_BYTES)
-		vm_bytes = MIN_VM_BYTES;
-	buf_sz = vm_bytes & ~(page_size - 1);
 	if (stress_get_setting("vm-madvise", &vm_madvise))
 		advice = vm_madvise_info[vm_madvise].advice;
 
@@ -3530,6 +3518,7 @@ static int stress_vm(stress_args_t *args)
 	size_t retries;
 	int err = 0, ret = EXIT_SUCCESS;
 	size_t vm_method = 0;
+	size_t vm_total = DEFAULT_VM_BYTES;
 	stress_vm_context_t context;
 
 	(void)shim_memset(&context, 0, sizeof(context));
@@ -3553,8 +3542,22 @@ static int stress_vm(stress_args_t *args)
 	(void)stress_get_setting("vm-method", &vm_method);
 	context.vm_method = &vm_methods[vm_method];
 
-	if (args->instance == 0)
+	if (!stress_get_setting("vm-bytes", &vm_total)) {
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
+			vm_total = MAX_32;
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
+			vm_total = MIN_VM_BYTES;
+	}
+	context.vm_bytes = vm_total / args->instances;
+	if (context.vm_bytes < MIN_VM_BYTES) {
+		context.vm_bytes = MIN_VM_BYTES;
+		vm_total = context.vm_bytes * args->instances;
+	}
+
+	if (args->instance == 0) {
 		pr_dbg("%s: using method '%s'\n", args->name, context.vm_method->name);
+		stress_usage_bytes(args, context.vm_bytes, vm_total);
+	}
 
 	for (retries = 0; LIKELY((retries < 100) && stress_continue_flag()); retries++) {
 		context.bit_error_count = (uint64_t *)
