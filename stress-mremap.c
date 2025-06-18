@@ -197,7 +197,7 @@ static int try_remap(
 
 static int stress_mremap_child(stress_args_t *args, void *context)
 {
-	size_t new_sz, sz, mremap_bytes = DEFAULT_MREMAP_BYTES;
+	size_t new_sz, sz, mremap_bytes, mremap_bytes_total = DEFAULT_MREMAP_BYTES;
 	int flags = MAP_PRIVATE | MAP_ANONYMOUS;
 	const size_t page_size = args->page_size;
 	bool mremap_mlock = false;
@@ -214,17 +214,21 @@ static int stress_mremap_child(stress_args_t *args, void *context)
 #endif
 	(void)context;
 
-	if (!stress_get_setting("mremap-bytes", &mremap_bytes)) {
+	if (!stress_get_setting("mremap-bytes", &mremap_bytes_total)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			mremap_bytes = MAX_32;
+			mremap_bytes_total = MAX_32;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			mremap_bytes = MIN_MREMAP_BYTES;
+			mremap_bytes_total = MIN_MREMAP_BYTES;
 	}
-	mremap_bytes /= args->instances;
+	mremap_bytes = mremap_bytes_total / args->instances;
 	if (mremap_bytes < MIN_MREMAP_BYTES)
 		mremap_bytes = MIN_MREMAP_BYTES;
 	if (mremap_bytes < page_size)
 		mremap_bytes = page_size;
+	mremap_bytes_total = args->instances * mremap_bytes;
+	if (args->instance == 0)
+		stress_usage_bytes(args, mremap_bytes, mremap_bytes_total);
+
 	new_sz = sz = mremap_bytes & ~(page_size - 1);
 
 	(void)stress_get_setting("mremap-mlock", &mremap_mlock);
