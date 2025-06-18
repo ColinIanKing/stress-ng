@@ -71,13 +71,15 @@ static bool OPTIMIZE3 TARGET_CLONES stress_powmath_cpow(stress_args_t *args)
 	register int i;
 	static complex double result = -1.0;
 	static bool first_run = true;
+	register const double scale = 1.0 / (double)STRESS_POWMATH_LOOPS;
+	register double di = scale;
 
 PRAGMA_UNROLL_N(8)
 	for (i = 0; i < STRESS_POWMATH_LOOPS; i++) {
-		register const double df = (double)(i + 1) / (double)STRESS_POWMATH_LOOPS;
-		register const double complex dci = df + (df * I);
+		register const double complex dci = di + (di * I);
 
 		sum += shim_cpow((double complex)(i + (i * I)), dci);
+		di += scale;
 	}
 	stress_bogo_inc(args);
 
@@ -96,13 +98,15 @@ static bool OPTIMIZE3 TARGET_CLONES stress_powmath_cpowf(stress_args_t *args)
 	register int i;
 	static complex double result = -1.0;
 	static bool first_run = true;
+	register const float scale = 1.0 / (float)STRESS_POWMATH_LOOPS;
+	register float fi = scale;
 
 PRAGMA_UNROLL_N(8)
 	for (i = 0; i < STRESS_POWMATH_LOOPS; i++) {
-		register const float fi = (float)(i + 1) / (float)STRESS_POWMATH_LOOPS;
 		register const float complex fci = fi + (fi * I);
 
 		sum += (complex double)shim_cpowf((double complex)(i + (i * I)), fci);
+		fi += scale;
 	}
 	stress_bogo_inc(args);
 
@@ -121,13 +125,15 @@ static bool OPTIMIZE3 TARGET_CLONES stress_powmath_cpowl(stress_args_t *args)
 	register int i;
 	static long complex double result = -1.0;
 	static bool first_run = true;
+	register const long double scale = 1.0 / (long double)STRESS_POWMATH_LOOPS;
+	register long double ldi = scale;
 
 PRAGMA_UNROLL_N(8)
 	for (i = 0; i < STRESS_POWMATH_LOOPS; i++) {
-		register const long double ldi = (long double)(i + 1) / (long double)STRESS_POWMATH_LOOPS;
 		register const long double complex ldci = ldi + (ldi * I);
 
 		sum += shim_cpowl((long double complex)(i + (i * I)), ldci);
+		ldi += scale;
 	}
 	stress_bogo_inc(args);
 
@@ -146,13 +152,15 @@ static bool OPTIMIZE3 TARGET_CLONES stress_powmath_csqrt(stress_args_t *args)
 	register int i;
 	static complex double result = -1.0;
 	static bool first_run = true;
+	register const double scale = 1.0 / (double)STRESS_POWMATH_LOOPS;
+	register double di = 0.0;
 
 PRAGMA_UNROLL_N(8)
 	for (i = 0; i < STRESS_POWMATH_LOOPS; i++) {
-		register const double df = (double)i / (double)STRESS_POWMATH_LOOPS;
-		register const double complex dci = df + (df * I);
+		register const double complex dci = di + (di * I);
 
 		sum += shim_csqrt(dci);
+		di += scale;
 	}
 	stress_bogo_inc(args);
 
@@ -171,13 +179,15 @@ static bool OPTIMIZE3 TARGET_CLONES stress_powmath_csqrtf(stress_args_t *args)
 	register int i;
 	static complex double result = -1.0;
 	static bool first_run = true;
+	register const float scale = 1.0 / (float)STRESS_POWMATH_LOOPS;
+	register float fi = 0.0;
 
 PRAGMA_UNROLL_N(8)
 	for (i = 0; i < STRESS_POWMATH_LOOPS; i++) {
-		register const float fi = (float)i / (float)STRESS_POWMATH_LOOPS;
 		register const float complex fci = fi + (fi * I);
 
 		sum += (complex double)shim_csqrtf(fci);
+		fi += scale;
 	}
 	stress_bogo_inc(args);
 
@@ -196,13 +206,15 @@ static bool OPTIMIZE3 TARGET_CLONES stress_powmath_csqrtl(stress_args_t *args)
 	register int i;
 	static long complex double result = -1.0;
 	static bool first_run = true;
+	register const long double scale = 1.0 / (long double)STRESS_POWMATH_LOOPS;
+	register long double ldi = 0.0;
 
 PRAGMA_UNROLL_N(8)
 	for (i = 0; i < STRESS_POWMATH_LOOPS; i++) {
-		register const long double ldi = (long double)i / (long double)STRESS_POWMATH_LOOPS;
 		register const long double complex ldci = ldi + (ldi * I);
 
 		sum += shim_csqrtl(ldci);
+		ldi += scale;
 	}
 	stress_bogo_inc(args);
 
@@ -223,12 +235,13 @@ static bool OPTIMIZE3 TARGET_CLONES stress_powmath_cbrt(stress_args_t *args)
 	register int i;
 	static double result = -1.0;
 	static bool first_run = true;
+	register const double scale = 1.0 / (double)STRESS_POWMATH_LOOPS;
+	register double di = 0.0;
 
 PRAGMA_UNROLL_N(8)
 	for (i = 0; i < STRESS_POWMATH_LOOPS; i++) {
-		register const double di = (double)i / (double)STRESS_POWMATH_LOOPS;
-
 		sum += shim_cbrt(di);
+		di += scale;
 	}
 	stress_bogo_inc(args);
 
@@ -247,12 +260,13 @@ static bool OPTIMIZE3 TARGET_CLONES stress_powmath_cbrtf(stress_args_t *args)
 	register int i;
 	static double result = -1.0;
 	static bool first_run = true;
+	register const float scale = 1.0 / (float)STRESS_POWMATH_LOOPS;
+	register float fi = 0.0;
 
 PRAGMA_UNROLL_N(8)
 	for (i = 0; i < STRESS_POWMATH_LOOPS; i++) {
-		register const float fi = (float)i / (float)STRESS_POWMATH_LOOPS;
-
 		sum += (double)shim_cbrtf(fi);
+		fi += scale;
 	}
 	stress_bogo_inc(args);
 
@@ -271,12 +285,13 @@ static bool OPTIMIZE3 TARGET_CLONES stress_powmath_cbrtl(stress_args_t *args)
 	register int i;
 	static long double result = -1.0;
 	static bool first_run = true;
+	register const long double scale = 1.0 / (long double)STRESS_POWMATH_LOOPS;
+	register long double ldi = 0.0;
 
 PRAGMA_UNROLL_N(8)
 	for (i = 0; i < STRESS_POWMATH_LOOPS; i++) {
-		register const long double ldi = (long double)i / (long double)STRESS_POWMATH_LOOPS;
-
 		sum += shim_cbrtl(ldi);
+		ldi += scale;
 	}
 	stress_bogo_inc(args);
 
@@ -367,12 +382,13 @@ static bool OPTIMIZE3 TARGET_CLONES stress_powmath_pow(stress_args_t *args)
 	register int i;
 	static double result = -1.0;
 	static bool first_run = true;
+	register const double scale = 1.0 / (double)STRESS_POWMATH_LOOPS;
+	register double di = 0.0;
 
 PRAGMA_UNROLL_N(8)
 	for (i = 0; i < STRESS_POWMATH_LOOPS; i++) {
-		register const double di = (double)i / (double)STRESS_POWMATH_LOOPS;
-
 		sum += shim_pow((double)i, di);
+		di += scale;
 	}
 	stress_bogo_inc(args);
 
@@ -391,12 +407,13 @@ static bool OPTIMIZE3 TARGET_CLONES stress_powmath_powf(stress_args_t *args)
 	register int i;
 	static double result = -1.0;
 	static bool first_run = true;
+	register const float scale = 1.0 / (float)STRESS_POWMATH_LOOPS;
+	register float fi = 0.0;
 
 PRAGMA_UNROLL_N(8)
 	for (i = 0; i < STRESS_POWMATH_LOOPS; i++) {
-		register const float fi = (float)i / (float)STRESS_POWMATH_LOOPS;
-
 		sum += (double)shim_powf((float)i, fi);
+		fi += scale;
 	}
 	stress_bogo_inc(args);
 
@@ -415,12 +432,13 @@ static bool OPTIMIZE3 TARGET_CLONES stress_powmath_powl(stress_args_t *args)
 	register int i;
 	static long double result = -1.0;
 	static bool first_run = true;
+	register const long double scale = 1.0 / (long double)STRESS_POWMATH_LOOPS;
+	register long double ldi = 0.0;
 
 PRAGMA_UNROLL_N(8)
 	for (i = 0; i < STRESS_POWMATH_LOOPS; i++) {
-		register const long double ldi = (long double)i / (long double)STRESS_POWMATH_LOOPS;
-
 		sum += shim_powl((long double)i, ldi);
+		ldi += scale;
 	}
 	stress_bogo_inc(args);
 
@@ -439,12 +457,13 @@ static bool OPTIMIZE3 TARGET_CLONES stress_powmath_sqrt(stress_args_t *args)
 	register int i;
 	static double result = -1.0;
 	static bool first_run = true;
+	register const double scale = 1.0 / (double)STRESS_POWMATH_LOOPS;
+	register double di = 0.0;
 
 PRAGMA_UNROLL_N(8)
 	for (i = 0; i < STRESS_POWMATH_LOOPS; i++) {
-		register const double di = (double)i / (double)STRESS_POWMATH_LOOPS;
-
 		sum += shim_sqrt(di);
+		di += scale;
 	}
 	stress_bogo_inc(args);
 
@@ -463,12 +482,13 @@ static bool OPTIMIZE3 TARGET_CLONES stress_powmath_sqrtf(stress_args_t *args)
 	register int i;
 	static double result = -1.0;
 	static bool first_run = true;
+	register const float scale = 1.0 / (float)STRESS_POWMATH_LOOPS;
+	register float fi = 0.0;
 
 PRAGMA_UNROLL_N(8)
 	for (i = 0; i < STRESS_POWMATH_LOOPS; i++) {
-		register const float fi = (float)i / (float)STRESS_POWMATH_LOOPS;
-
 		sum += (double)shim_sqrtf(fi);
+		fi += scale;
 	}
 	stress_bogo_inc(args);
 
@@ -487,12 +507,13 @@ static bool OPTIMIZE3 TARGET_CLONES stress_powmath_sqrtl(stress_args_t *args)
 	register int i;
 	static long double result = -1.0;
 	static bool first_run = true;
+	register const long double scale = 1.0 / (long double)STRESS_POWMATH_LOOPS;
+	register long double ldi = 0.0;
 
 PRAGMA_UNROLL_N(8)
 	for (i = 0; i < STRESS_POWMATH_LOOPS; i++) {
-		register const long double ldi = (long double)i / (long double)STRESS_POWMATH_LOOPS;
-
 		sum += shim_sqrtl(ldi);
+		ldi += scale;
 	}
 	stress_bogo_inc(args);
 
