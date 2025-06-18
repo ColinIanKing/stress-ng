@@ -1092,14 +1092,12 @@ static int stress_memrate(stress_args_t *args)
 
 	context.memrate_bytes = (context.memrate_bytes + 1023) & ~(1023ULL);
 	if (args->instance == 0) {
-		pr_inf("%s: using buffer size of %" PRIu64 "K, cache flushing %s\n", args->name,
-			context.memrate_bytes >> 10,
-			context.memrate_flush ? "enabled" : "disabled");
-		if ((context.memrate_bytes > MB) && (context.memrate_bytes & MB)) {
+		stress_usage_bytes(args, context.memrate_bytes, context.memrate_bytes);
+		pr_inf("%s: cache flushing %s\n", args->name,
+			context.memrate_flush ? "enabled" :
+			"disabled, cache flushing can be enabled with --memrate-flush option");
+		if ((context.memrate_bytes > MB) && (context.memrate_bytes & MB))
 			pr_inf("%s: for optimal speed, use multiples of 1 MB for --memrate-bytes\n", args->name);
-		}
-		if (!context.memrate_flush)
-			pr_inf("%s: cache flushing can be enabled with --memrate-flush option\n", args->name);
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
