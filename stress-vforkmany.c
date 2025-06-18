@@ -82,16 +82,14 @@ static int stress_vforkmany(stress_args_t *args)
 	static uint8_t *stack_sig;
 	static bool vforkmany_vm = false;
 	static vforkmany_shared_t *vforkmany_shared;
-	static size_t vforkmany_vm_bytes = 0;
+	static size_t vforkmany_vm_bytes = DEFAULT_VFORKMANY_VM_BYTES;
 	static int rc = EXIT_SUCCESS;
 
 	(void)stress_get_setting("vforkmany-vm", &vforkmany_vm);
-	(void)stress_get_setting("vforkmany-vm-bytes", &vforkmany_vm_bytes);
-	if (vforkmany_vm_bytes != 0) {
-		/* vm bytes supplied so enable vforkmany_vm */
+	if (stress_get_setting("vforkmany-vm-bytes", &vforkmany_vm_bytes)) {
 		vforkmany_vm = true;
-	} else {
-		vforkmany_vm_bytes = DEFAULT_VFORKMANY_VM_BYTES;
+		if (args->instance == 0)
+			stress_usage_bytes(args, vforkmany_vm_bytes, vforkmany_vm_bytes * args->instances);
 	}
 
 	stress_ksm_memory_merge(1);
