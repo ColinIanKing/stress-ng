@@ -1135,7 +1135,7 @@ void stress_usage_bytes(
 	const uint64_t total_phys_mem = stress_get_phys_mem_size();
 	char s1[32], s2[32], s3[32];
 
-	pr_inf("%s: using %s per stressor instance (total %s of %s physical memory)\n",
+	pr_inf("%s: using %s per stressor instance (total %s of %s available memory)\n",
 		args->name,
 		stress_uint64_to_str(s1, sizeof(s1), (uint64_t)vm_per_instance, 2, true),
 		stress_uint64_to_str(s2, sizeof(s2), (uint64_t)vm_total, 2, true),
