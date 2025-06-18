@@ -868,15 +868,9 @@ static int stress_mmaptorture(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
-	if (args->instance == 0) {
-		char str1[64], str2[64];
+	if (args->instance == 0)
+		stress_usage_bytes(args, mmap_bytes, mmap_bytes * args->instances);
 
-		stress_uint64_to_str(str1, sizeof(str1), (uint64_t)mmap_bytes, 1, true);
-		stress_uint64_to_str(str2, sizeof(str2), (uint64_t)mmap_bytes * args->instances, 1, true);
-
-		pr_inf("%s: using %smmap'd size %s per stressor (total %s)\n", args->name,
-			mmap_bytes_adjusted ? "adjusted " : "", str1, str2);
-	}
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
