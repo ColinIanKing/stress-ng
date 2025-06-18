@@ -3553,6 +3553,10 @@ static int stress_vm(stress_args_t *args)
 		context.vm_bytes = MIN_VM_BYTES;
 		vm_total = context.vm_bytes * args->instances;
 	}
+	if (context.vm_bytes < page_size) {
+		context.vm_bytes = MIN_VM_BYTES;
+		vm_total = context.vm_bytes * args->instances;
+	}
 
 	if (args->instance == 0) {
 		pr_dbg("%s: using method '%s'\n", args->name, context.vm_method->name);
