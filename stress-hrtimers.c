@@ -77,7 +77,7 @@ static void MLOCKED_TEXT OPTIMIZE3 stress_hrtimers_handler(int sig)
 
 	counter++;
 	if (UNLIKELY(counter >= PROCS_MAX)) {
-		stress_bogo_inc_lock(s_args, lock, 1);
+		VOID_RET(bool, stress_bogo_inc_lock(s_args, lock, 1));
 		if (UNLIKELY(!stress_continue(s_args)))
 			goto cancel;
 	}
