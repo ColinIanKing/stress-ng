@@ -20,6 +20,8 @@
 #include "stress-ng.h"
 #include "core-pragma.h"
 
+#include <time.h>
+
 #if defined(HAVE_UTIME_H)
 #include <utime.h>
 #else
@@ -55,6 +57,12 @@ static inline int shim_utime(const char *filename, const struct utimbuf *times)
 #endif
 }
 #endif
+
+static char *stress_utime_str(char *str, const size_t len, const time_t val)
+{
+	(void)strftime(str, len, "%d/%m/%Y %H:%M:%S", localtime(&val));
+	return str;
+}
 
 /*
  *  stress_utime()
@@ -426,14 +434,22 @@ STRESS_PRAGMA_POP
 
 				if (shim_stat(filename, &statbuf) == 0) {
 					if (statbuf.st_atime < tv.tv_sec) {
-						pr_fail("%s: utime failed, access time is less than expected time\n",
-							args->name);
+						char t1[64], t2[64];
+
+						pr_fail("%s: utime failed, access time %s is less than expected time %s\n",
+							args->name,
+							stress_utime_str(t1, sizeof(t1), statbuf.st_atime),
+							stress_utime_str(t2, sizeof(t2), tv.tv_sec));
 						rc = EXIT_FAILURE;
 						break;
 					}
 					if (statbuf.st_mtime < tv.tv_sec) {
-						pr_fail("%s: utime failed, modified time is less than expected time\n",
-							args->name);
+						char t1[64], t2[64];
+
+						pr_fail("%s: utime failed, modified time %s is less than expected time %s\n",
+							args->name,
+							stress_utime_str(t1, sizeof(t1), statbuf.st_mtime),
+							stress_utime_str(t2, sizeof(t2), tv.tv_sec));
 						rc = EXIT_FAILURE;
 						break;
 					}
