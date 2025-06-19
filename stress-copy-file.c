@@ -152,22 +152,24 @@ static int stress_copy_file(stress_args_t *args)
 	int fd_in, fd_out, rc = EXIT_FAILURE, ret;
 	const int fd_bad = stress_get_bad_fd();
 	char filename[PATH_MAX - 5], tmp[PATH_MAX];
-	uint64_t copy_file_bytes = DEFAULT_COPY_FILE_BYTES;
+	uint64_t copy_file_bytes, copy_file_bytes_total = DEFAULT_COPY_FILE_BYTES;
 	double duration = 0.0, bytes = 0.0, rate;
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 
-	if (!stress_get_setting("copy-file-bytes", &copy_file_bytes)) {
+	if (!stress_get_setting("copy-file-bytes", &copy_file_bytes_total)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			copy_file_bytes = MAX_COPY_FILE_BYTES;
+			copy_file_bytes_total = MAX_COPY_FILE_BYTES;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			copy_file_bytes = MIN_COPY_FILE_BYTES;
+			copy_file_bytes_total = MIN_COPY_FILE_BYTES;
 	}
 
-	copy_file_bytes /= args->instances;
+	copy_file_bytes = copy_file_bytes_total / args->instances;
 	if (copy_file_bytes < DEFAULT_COPY_FILE_SIZE)
 		copy_file_bytes = DEFAULT_COPY_FILE_SIZE * 2;
 	if (copy_file_bytes < MIN_COPY_FILE_BYTES)
 		copy_file_bytes = MIN_COPY_FILE_BYTES;
+	if (args->instance == 0)
+		stress_fs_usage_bytes(args, copy_file_bytes, copy_file_bytes_total);
 
         ret = stress_temp_dir_mk_args(args);
         if (ret < 0)
