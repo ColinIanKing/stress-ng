@@ -103,19 +103,23 @@ static int stress_sync_file(stress_args_t *args)
 {
 	int fd, ret, rc = EXIT_SUCCESS;
 	const int bad_fd = stress_get_bad_fd();
-	off_t sync_file_bytes = DEFAULT_SYNC_FILE_BYTES;
+	off_t sync_file_bytes, sync_file_bytes_total = DEFAULT_SYNC_FILE_BYTES;
 	char filename[PATH_MAX];
 	const char *fs_type;
 
-	if (!stress_get_setting("sync_file-bytes", &sync_file_bytes)) {
+	if (!stress_get_setting("sync_file-bytes", &sync_file_bytes_total)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			sync_file_bytes = MAXIMIZED_FILE_SIZE;
+			sync_file_bytes_total = MAXIMIZED_FILE_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			sync_file_bytes = MIN_SYNC_FILE_BYTES;
+			sync_file_bytes_total = MIN_SYNC_FILE_BYTES;
 	}
-	sync_file_bytes /= args->instances;
-	if (sync_file_bytes < (off_t)MIN_SYNC_FILE_BYTES)
+	sync_file_bytes = sync_file_bytes_total / args->instances;
+	if (sync_file_bytes < (off_t)MIN_SYNC_FILE_BYTES) {
 		sync_file_bytes = (off_t)MIN_SYNC_FILE_BYTES;
+		sync_file_bytes_total = sync_file_bytes * args->instances;
+	}
+	if (args->instance == 0)
+		stress_fs_usage_bytes(args, sync_file_bytes, sync_file_bytes_total);
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
