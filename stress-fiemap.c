@@ -246,7 +246,7 @@ static int stress_fiemap(stress_args_t *args)
 	int ret, fd, rc = EXIT_FAILURE;
 	char filename[PATH_MAX];
 	size_t n;
-	uint64_t fiemap_bytes = DEFAULT_FIEMAP_SIZE;
+	uint64_t fiemap_bytes, fiemap_bytes_total = DEFAULT_FIEMAP_SIZE;
 	struct fiemap fiemap;
 	const char *fs_type;
 #if defined(O_SYNC)
@@ -268,15 +268,19 @@ static int stress_fiemap(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
-	if (!stress_get_setting("fiemap-bytes", &fiemap_bytes)) {
+	if (!stress_get_setting("fiemap-bytes", &fiemap_bytes_total)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			fiemap_bytes = MAXIMIZED_FILE_SIZE;
+			fiemap_bytes_total = MAXIMIZED_FILE_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			fiemap_bytes = MIN_FIEMAP_SIZE;
+			fiemap_bytes_total = MIN_FIEMAP_SIZE;
 	}
-	fiemap_bytes /= args->instances;
-	if (fiemap_bytes < MIN_FIEMAP_SIZE)
+	fiemap_bytes = fiemap_bytes_total / args->instances;
+	if (fiemap_bytes < MIN_FIEMAP_SIZE) {
 		fiemap_bytes = MIN_FIEMAP_SIZE;
+		fiemap_bytes_total = fiemap_bytes * args->instance;
+	}
+	if (args->instance == 0)
+		stress_fs_usage_bytes(args, fiemap_bytes, fiemap_bytes_total);
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0) {
