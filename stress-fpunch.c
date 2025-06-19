@@ -297,14 +297,17 @@ static int stress_fpunch(stress_args_t *args)
 	size_t i, extents, n;
 	const size_t stride = (size_t)BUF_SIZE << 1;
 	stress_punch_buf_t *buf;
-	uint64_t punches, fpunch_bytes = DEFAULT_FPUNCH_BYTES, max_punches;
+	uint64_t punches, fpunch_bytes, fpunch_bytes_total = DEFAULT_FPUNCH_BYTES, max_punches;
 
-	if (!stress_get_setting("fpunch-bytes", &fpunch_bytes)) {
+	if (!stress_get_setting("fpunch-bytes", &fpunch_bytes_total)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			fpunch_bytes = MAX_FPUNCH_BYTES;
+			fpunch_bytes_total = MAX_FPUNCH_BYTES;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			fpunch_bytes = MIN_FPUNCH_BYTES;
+			fpunch_bytes_total = MIN_FPUNCH_BYTES;
 	}
+	fpunch_bytes = fpunch_bytes_total / args->instances;
+	if (args->instance == 0)
+		stress_fs_usage_bytes(args, fpunch_bytes, fpunch_bytes_total);
 	max_punches = (off_t)(fpunch_bytes / (off_t)stride);
 
 	s_pids = stress_sync_s_pids_mmap(STRESS_PUNCH_PIDS);
