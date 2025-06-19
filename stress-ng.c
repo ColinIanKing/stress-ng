@@ -562,8 +562,12 @@ static void stress_kill_stressors(const int sig, const bool force_sigkill)
 		/* multiple calls will always fallback to SIGKILL */
 		count++;
 		if (count > 5) {
-			pr_dbg("killing processes with SIGKILL\n");
+			static int kill_count = 0;
+
+			pr_dbg("killing processes with SIGKILL%s\n",
+				(kill_count > 0) ? "... be patient" : "");
 			signum = SIGKILL;
+			kill_count++;
 		}
 	}
 
