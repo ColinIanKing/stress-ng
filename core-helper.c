@@ -1143,6 +1143,29 @@ void stress_usage_bytes(
 }
 
 /*
+ *  stress_fs_usage_bytes()
+ *	report how much file sysytem is used per instance
+ *	and in total compared to file system space available
+ */
+void stress_fs_usage_bytes(
+	stress_args_t *args,
+	const off_t fs_size_per_instance,
+	const off_t fs_size_total)
+{
+	const off_t total_fs_size = (off_t)stress_get_filesystem_size();
+	char s1[32], s2[32], s3[32];
+
+	if (total_fs_size > 0) {
+		pr_inf("%s: using %s file system space per stressor instance (total %s of %s available file system space)\n",
+			args->name,
+			stress_uint64_to_str(s1, sizeof(s1), (uint64_t)fs_size_per_instance, 2, true),
+			stress_uint64_to_str(s2, sizeof(s2), (uint64_t)fs_size_total, 2, true),
+			stress_uint64_to_str(s3, sizeof(s3), total_fs_size, 2, true));
+	}
+}
+
+
+/*
  *  stress_set_nonblock()
  *	try to make fd non-blocking
  */
