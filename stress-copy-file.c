@@ -164,10 +164,14 @@ static int stress_copy_file(stress_args_t *args)
 	}
 
 	copy_file_bytes = copy_file_bytes_total / args->instances;
-	if (copy_file_bytes < DEFAULT_COPY_FILE_SIZE)
+	if (copy_file_bytes < DEFAULT_COPY_FILE_SIZE) {
 		copy_file_bytes = DEFAULT_COPY_FILE_SIZE * 2;
-	if (copy_file_bytes < MIN_COPY_FILE_BYTES)
+		copy_file_bytes_total = copy_file_bytes * args->instances;
+	}
+	if (copy_file_bytes < MIN_COPY_FILE_BYTES) {
 		copy_file_bytes = MIN_COPY_FILE_BYTES;
+		copy_file_bytes_total = copy_file_bytes * args->instances;
+	}
 	if (args->instance == 0)
 		stress_fs_usage_bytes(args, copy_file_bytes, copy_file_bytes_total);
 
