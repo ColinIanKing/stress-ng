@@ -660,7 +660,7 @@ static int stress_hdd(stress_args_t *args)
 	ssize_t ret;
 	char filename[PATH_MAX];
 	size_t opt_index = 0;
-	uint64_t hdd_bytes = DEFAULT_HDD_BYTES;
+	uint64_t hdd_bytes, hdd_bytes_total = DEFAULT_HDD_BYTES;
 	uint64_t hdd_write_size = DEFAULT_HDD_WRITE_SIZE;
 	const uint32_t instance = args->instance;
 	int hdd_flags = 0, hdd_oflags = 0;
@@ -678,16 +678,20 @@ static int stress_hdd(stress_args_t *args)
 	flags = O_CREAT | O_RDWR | O_TRUNC | hdd_oflags;
 	fadvise_flags = hdd_flags & HDD_OPT_FADV_MASK;
 
-	if (!stress_get_setting("hdd-bytes", &hdd_bytes)) {
+	if (!stress_get_setting("hdd-bytes", &hdd_bytes_total)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			hdd_bytes = MAXIMIZED_FILE_SIZE;
+			hdd_bytes_total = MAXIMIZED_FILE_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			hdd_bytes = MIN_HDD_BYTES;
+			hdd_bytes_total = MIN_HDD_BYTES;
 	}
 
-	hdd_bytes /= args->instances;
-	if (hdd_bytes < MIN_HDD_WRITE_SIZE)
+	hdd_bytes = hdd_bytes_total / args->instances;
+	if (hdd_bytes < MIN_HDD_WRITE_SIZE) {
 		hdd_bytes = MIN_HDD_WRITE_SIZE;
+		hdd_bytes_total = hdd_bytes * args->instances;
+	}
+	if (args->instance == 0)
+		stress_fs_usage_bytes(args, hdd_bytes, hdd_bytes_total);
 
 	if (!stress_get_setting("hdd-write-size", &hdd_write_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
