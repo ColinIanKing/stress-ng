@@ -289,7 +289,7 @@ static int stress_revio(stress_args_t *args)
 	ssize_t ret;
 	char filename[PATH_MAX];
 	size_t opt_index = 0;
-	uint64_t revio_bytes = DEFAULT_REVIO_BYTES;
+	uint64_t revio_bytes, revio_bytes_total = DEFAULT_REVIO_BYTES;
 	uint32_t iterations = 0;
 	int revio_flags = 0, revio_oflags = 0;
 	int flags, fadvise_flags;
@@ -305,22 +305,21 @@ static int stress_revio(stress_args_t *args)
 	flags = O_CREAT | O_RDWR | O_TRUNC | revio_oflags;
 	fadvise_flags = revio_flags & REVIO_OPT_FADV_MASK;
 
-	if (!stress_get_setting("revio-bytes", &revio_bytes)) {
+	if (!stress_get_setting("revio-bytes", &revio_bytes_total)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			revio_bytes = MAXIMIZED_FILE_SIZE;
+			revio_bytes_total = MAXIMIZED_FILE_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			revio_bytes = MIN_REVIO_BYTES;
+			revio_bytes_total = MIN_REVIO_BYTES;
 	}
 
-	revio_bytes /= args->instances;
-
+	revio_bytes = revio_bytes_total / args->instances;
 	/* Ensure complete file size is not less than the I/O size */
 	if (revio_bytes < DEFAULT_REVIO_WRITE_SIZE) {
 		revio_bytes = DEFAULT_REVIO_WRITE_SIZE;
-		pr_inf("%s: increasing file size to write size of %"
-			PRIu64 " bytes\n",
-			args->name, revio_bytes);
+		revio_bytes_total = revio_bytes * args->instance;
 	}
+	if (args->instance == 0)
+		stress_fs_usage_bytes(args, revio_bytes, revio_bytes_total);
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
