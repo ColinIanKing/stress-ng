@@ -1099,7 +1099,7 @@ static int stress_iomix(stress_args_t *args)
 {
 	int fd, ret;
 	char filename[PATH_MAX];
-	off_t iomix_bytes = DEFAULT_IOMIX_BYTES;
+	off_t iomix_bytes, iomix_bytes_total = DEFAULT_IOMIX_BYTES;
 	const size_t page_size = args->page_size;
 	size_t i;
 	stress_pid_t *s_pids, *s_pids_head = NULL;
@@ -1128,17 +1128,23 @@ static int stress_iomix(stress_args_t *args)
 		goto tidy_s_pids;
 	}
 
-	if (!stress_get_setting("iomix-bytes", &iomix_bytes)) {
+	if (!stress_get_setting("iomix-bytes", &iomix_bytes_total)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			iomix_bytes = MAXIMIZED_FILE_SIZE;
+			iomix_bytes_total = MAXIMIZED_FILE_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			iomix_bytes = MIN_IOMIX_BYTES;
+			iomix_bytes_total = MIN_IOMIX_BYTES;
 	}
-	iomix_bytes /= args->instances;
-	if (iomix_bytes < (off_t)MIN_IOMIX_BYTES)
+	iomix_bytes = iomix_bytes_total / args->instances;
+	if (iomix_bytes < (off_t)MIN_IOMIX_BYTES) {
 		iomix_bytes = (off_t)MIN_IOMIX_BYTES;
-	if (iomix_bytes < (off_t)page_size)
+		iomix_bytes_total = iomix_bytes * args->instance;
+	}
+	if (iomix_bytes < (off_t)page_size) {
 		iomix_bytes = (off_t)page_size;
+		iomix_bytes_total = iomix_bytes * args->instance;
+	}
+	if (args->instance == 0)
+		stress_fs_usage_bytes(args, iomix_bytes, iomix_bytes_total);
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0) {
