@@ -60,7 +60,14 @@ static inline int shim_utime(const char *filename, const struct utimbuf *times)
 
 static char *stress_utime_str(char *str, const size_t len, const time_t val)
 {
-	(void)strftime(str, len, "%d/%m/%Y %H:%M:%S", localtime(&val));
+	struct tm *tm = localtime(&val);
+
+	if (!tm) {
+		/* Just return time in secs since EPOCH */
+		(void)snprintf(str, len, "%jd", (intmax_t)val);
+		return str;
+	}
+	(void)strftime(str, len, "%d/%m/%Y %H:%M:%S", tm);
 	return str;
 }
 
