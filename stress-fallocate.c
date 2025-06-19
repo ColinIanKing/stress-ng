@@ -96,7 +96,7 @@ static int stress_fallocate(stress_args_t *args)
 	const int bad_fd = stress_get_bad_fd();
 	char filename[PATH_MAX];
 	uint64_t ftrunc_errs = 0;
-	off_t fallocate_bytes = DEFAULT_FALLOCATE_BYTES;
+	off_t fallocate_bytes, fallocate_bytes_total = DEFAULT_FALLOCATE_BYTES;
 	int *mode_perms = NULL, all_modes;
 	size_t i, mode_count;
 	const char *fs_type;
@@ -106,16 +106,18 @@ static int stress_fallocate(stress_args_t *args)
 		all_modes |= modes[i];
 	mode_count = stress_flag_permutation(all_modes, &mode_perms);
 
-	if (!stress_get_setting("fallocate-bytes", &fallocate_bytes)) {
+	if (!stress_get_setting("fallocate-bytes", &fallocate_bytes_total)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			fallocate_bytes = MAXIMIZED_FILE_SIZE;
+			fallocate_bytes_total = MAXIMIZED_FILE_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			fallocate_bytes = MIN_FALLOCATE_BYTES;
+			fallocate_bytes_total = MIN_FALLOCATE_BYTES;
 	}
 
-	fallocate_bytes /= args->instances;
+	fallocate_bytes = fallocate_bytes_total / args->instances;
 	if (fallocate_bytes < (off_t)MIN_FALLOCATE_BYTES)
 		fallocate_bytes = (off_t)MIN_FALLOCATE_BYTES;
+	if (args->instance == 0)
+		stress_fs_usage_bytes(args, fallocate_bytes, fallocate_bytes_total);
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0) {
 		free(mode_perms);
