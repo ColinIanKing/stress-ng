@@ -540,6 +540,7 @@ stress-ng has found various Kernel, QEMU bugs/regressions, and libc bugs; approp
 
 2025:
 * [select: do_pollfd: add unlikely branch hint return path](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=5730609ffd7e558e1e3305d0c6839044e8f6591b)
+* [select: core_sys_select add unlikely branch hint on return path](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=6b24a702ecf167ab61456276bb72133d84ccca45)
 
 I appreciate information concerning kernel bugs or performance regressions found with stress-ng.
 
