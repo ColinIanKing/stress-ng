@@ -89,7 +89,7 @@ static int stress_readahead(stress_args_t *args)
 {
 	buffer_t *buf = NULL;
 	uint64_t rounded_readahead_bytes, i;
-	uint64_t readahead_bytes = DEFAULT_READAHEAD_BYTES;
+	uint64_t readahead_bytes, readahead_bytes_total = DEFAULT_READAHEAD_BYTES;
 	uint64_t misreads = 0;
 	uint64_t baddata = 0;
 	int ret, rc = EXIT_FAILURE;
@@ -102,15 +102,19 @@ static int stress_readahead(stress_args_t *args)
 	int generate_offsets = 0;
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 
-	if (!stress_get_setting("readahead-bytes", &readahead_bytes)) {
+	if (!stress_get_setting("readahead-bytes", &readahead_bytes_total)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			readahead_bytes = MAX_32;
+			readahead_bytes_total = MAX_32;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			readahead_bytes = MIN_READAHEAD_BYTES;
+			readahead_bytes_total = MIN_READAHEAD_BYTES;
 	}
-	readahead_bytes /= args->instances;
-	if (readahead_bytes < MIN_READAHEAD_BYTES)
+	readahead_bytes = readahead_bytes_total / args->instances;
+	if (readahead_bytes < MIN_READAHEAD_BYTES) {
 		readahead_bytes = MIN_READAHEAD_BYTES;
+		readahead_bytes_total = readahead_bytes * args->instances;
+	}
+	if (args->instance == 0)
+		stress_fs_usage_bytes(args, readahead_bytes, readahead_bytes_total);
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
