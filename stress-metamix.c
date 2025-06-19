@@ -317,7 +317,7 @@ err_unlink:
 static int stress_metamix(stress_args_t *args)
 {
 	int ret;
-	off_t metamix_bytes = DEFAULT_METAMIX_BYTES;
+	off_t metamix_bytes, metamix_bytes_total = DEFAULT_METAMIX_BYTES;
 	size_t i;
 	stress_pid_t *s_pids, *s_pids_head = NULL;
 	uint32_t w, z;
@@ -341,7 +341,14 @@ static int stress_metamix(stress_args_t *args)
 		goto tidy_s_pids;
 	}
 
-	(void)stress_get_setting("metamix-bytes", &metamix_bytes);
+	(void)stress_get_setting("metamix-bytes", &metamix_bytes_total);
+	metamix_bytes = metamix_bytes_total / args->instances;
+	if (metamix_bytes < MIN_METAMIX_BYTES) {
+		metamix_bytes = MIN_METAMIX_BYTES;
+		metamix_bytes_total = metamix_bytes * args->instances;
+	}
+	if (args->instance == 0)
+		stress_fs_usage_bytes(args, metamix_bytes, metamix_bytes_total);
 
 	stress_temp_dir_args(args, temp_dir, sizeof(temp_dir));
 	ret = stress_temp_dir_mk_args(args);
