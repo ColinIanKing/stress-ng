@@ -25,7 +25,8 @@
 #include "core-pragma.h"
 
 #define MMAPCOW_FREE	(0x0001)
-#define MMAPCOW_NUMA	(0x0002)
+#define MMAPCOW_MLOCK	(0x0002)
+#define MMAPCOW_NUMA	(0x0004)
 
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 static stress_numa_mask_t *numa_mask = NULL;
@@ -34,7 +35,8 @@ static stress_numa_mask_t *numa_nodes = NULL;
 
 static const stress_help_t help[] = {
 	{ NULL,	"mmapcow N",      "start N workers stressing copy-on-write and munmaps" },
-	{ NULL,	"mmapcow-free",	  "use madvise(MADV_FREE) on each page before munmapping" },
+	{ NULL,	"mmapcow-free",	  "use madvise(MADV_FREE) on each page before unmapping" },
+	{ NULL,	"mmapcow-mlock",  "lock copy-on-write page into memory before unmapping" },
 	{ NULL,	"mmapcow-numa",	  "bind memory mappings to randomly selected NUMA nodes" },
 	{ NULL,	"mmapcow-ops N",  "stop after N mmapcow bogo operations" },
 	{ NULL,	NULL,             NULL }
@@ -130,7 +132,7 @@ static int stress_mmapcow_child(stress_args_t *args, void *ctxt)
 	const size_t page_size = args->page_size;
 	const size_t page_size2 = page_size + page_size;
 	char tmp[32];
-	const int flags = *(int *)ctxt;
+	int flags = *(int *)ctxt;
 	double duration = 0.0, count = 0.0, rate;
 
 	buf_size = page_size;
@@ -156,7 +158,15 @@ static int stress_mmapcow_child(stress_args_t *args, void *ctxt)
 			failed_count = 0;
 			continue;
 		}
-
+#if defined(MCL_ONFAULT) &&	\
+    defined(MCL_FUTURE)
+		if (flags & MMAPCOW_MLOCK) {
+			if (mlock2(buf, buf_size, MCL_ONFAULT | MCL_FUTURE) < 0) {
+				if (errno == ENOSYS)
+					flags &= ~flags & MMAPCOW_MLOCK;
+			}
+		}
+#endif
 #if defined(MADV_COLLAPSE)
 		(void)madvise((void *)buf, buf_size, MADV_COLLAPSE);
 #endif
@@ -305,9 +315,11 @@ static int stress_mmapcow(stress_args_t *args)
 {
 	int ret, flags = 0;
 	bool mmapcow_free = false;
+	bool mmapcow_mlock = false;
 	bool mmapcow_numa = false;
 
 	(void)stress_get_setting("mmapcow-free", &mmapcow_free);
+	(void)stress_get_setting("mmapcow-mlock", &mmapcow_mlock);
 	(void)stress_get_setting("mmapcow-numa", &mmapcow_numa);
 
 	if (mmapcow_free) {
@@ -317,6 +329,18 @@ static int stress_mmapcow(stress_args_t *args)
 		if (args->instance == 0)
 			pr_inf("%s: --mmapcow-free selected but madvise(MADV_FREE) not available, disabling option\n",
 				args->name);
+#endif
+	}
+	if (mmapcow_mlock) {
+#if defined(MCL_ONFAULT) &&	\
+    defined(MCL_FUTURE)
+		flags |= MMAPCOW_MLOCK;
+#else
+		if (args->instance == 0) {
+			pr_inf("%s: --mmapcow-mlock selected but mlock with MCL_ONFAULT and "
+					"MCL_FUTURE not available, disabling option\n",
+				args->name);
+		}
 #endif
 	}
 
@@ -350,6 +374,7 @@ static int stress_mmapcow(stress_args_t *args)
 
 static const stress_opt_t opts[] = {
 	{ OPT_mmapcow_free, "mmapcow-free", TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_mmapcow_mlock, "mmapcow-mlock", TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_mmapcow_numa, "mmapcow-numa", TYPE_ID_BOOL, 0, 1, NULL },
 	END_OPT
 };

@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "16 June 2025"
+.TH STRESS-NG 1 "20 June 2025"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -5274,6 +5274,10 @@ Randomly selected page modify and modify
 .B \-\-mmapcow\-free
 after each page is modified and before each page is unmapped use madvise MADV_FREE
 (if it is available) to indicate the page is free
+.TP
+.B \-\-mmapcow\-mlock
+attempt to mlock each modified page, this can increase the number of page
+faults. Only available with the mlock2 system call.
 .TP
 .B \-\-mmapcow\-numa
 assign memory mapped pages to randomly selected NUMA nodes. This is disabled
