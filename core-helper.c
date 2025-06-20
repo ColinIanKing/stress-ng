@@ -2613,6 +2613,35 @@ void stress_sigaltstack_disable(void)
 }
 
 /*
+ * stress_mask_longjump_signals()
+ *	mask all signals which may have handlers which use siglongjmp()
+ */
+void stress_mask_longjump_signals(sigset_t *set)
+{
+#if defined(SIGBUS)
+	sigaddset(set, SIGBUS);
+#endif
+#if defined(SIGFPE)
+	sigaddset(set, SIGFPE);
+#endif
+#if defined(SIGILL)
+	sigaddset(set, SIGILL);
+#endif
+#if defined(SIGSEGV)
+	sigaddset(set, SIGSEGV);
+#endif
+#if defined(SIGXFSZ)
+	sigaddset(set, SIGXFSZ);
+#endif
+#if defined(SIGXCPU)
+	sigaddset(set, SIGXCPU);
+#endif
+#if defined(SIGRTMIN)
+	sigaddset(set, SIGRTMIN);
+#endif
+}
+
+/*
  *  stress_sighandler()
  *	set signal handler in generic way
  */
@@ -2649,14 +2678,12 @@ int stress_sighandler(
 	new_action.sa_handler = handler;
 	(void)sigemptyset(&new_action.sa_mask);
 	/*
-	 *  Prevent signal handlers interrupting the SIGALRM handler
-	 *  since these handlers my siglongjmp out of the context and
-	 *  the rest of the SIGALRM handler is not executed. Basically
-	 *  defer SIGALRM from being called until the handler has
-	 *  completed. This only applies to non-SIGALRM handlers.
+	 *  Signals intended to stop stress-ng should never be interrupted
+	 *  by a signal with a handler which may not return to the caller.
 	 */
-	if (LIKELY(signum != SIGALRM))
-		sigaddset(&new_action.sa_mask, SIGALRM);
+	if ((signum == SIGALRM) || (signum == SIGINT) || (signum == SIGHUP)
+		|| (signum == SIGTERM))
+		stress_mask_longjump_signals(&new_action.sa_mask);
 	new_action.sa_flags = SA_NOCLDSTOP;
 #if defined(HAVE_SIGALTSTACK)
 	new_action.sa_flags |= SA_ONSTACK;

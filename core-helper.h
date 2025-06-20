@@ -122,6 +122,7 @@ extern WARN_UNUSED int stress_get_bad_fd(void);
 extern WARN_UNUSED int stress_sigaltstack_no_check(void *stack, const size_t size);
 extern WARN_UNUSED int stress_sigaltstack(void *stack, const size_t size);
 extern void stress_sigaltstack_disable(void);
+extern void stress_mask_longjump_signals(sigset_t *set);
 extern WARN_UNUSED int stress_sighandler(const char *name, const int signum,
 	void (*handler)(int), struct sigaction *orig_action);
 extern WARN_UNUSED int stress_sigchld_set_handler(stress_args_t *args);
