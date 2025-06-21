@@ -1283,7 +1283,7 @@ static void stress_fd_fcntl_f_getown(stress_fd_t *fd)
 static void stress_fd_fctnl_f_setpipe_sz(stress_fd_t *fd)
 {
 	(void)fcntl(fd->fd, F_SETPIPE_SZ, 1024);	/* Illegal */
-	(void)fcntl(fd->fd, F_SETPIPE_SZ, 4096);
+	(void)fcntl(fd->fd, F_SETPIPE_SZ, 4096 * (stress_mwc8() & 31));
 }
 #endif
 
