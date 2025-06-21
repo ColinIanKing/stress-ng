@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "20 June 2025"
+.TH STRESS-NG 1 "21 June 2025"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -4190,7 +4190,7 @@ swapped out.
 .TP
 .B \-\-llc\-affinity\-numa
 assign memory mapped pages to randomly selected NUMA nodes. This is disabled
-for systems that do not support NUMA or have less than 2 NUMA nodes.
+for systems that do not support NUMA.
 .TP
 .B \-\-llc\-affinity\-ops N
 stop after N rounds of LLC read/writes.
@@ -4674,7 +4674,7 @@ randomly change CPU affinity to exercise CPU and memory migration stress.
 .TP
 .B \-\-mcontend\-numa
 assign memory mapped pages to randomly selected NUMA nodes. This is disabled
-for systems that do not support NUMA or have less than 2 NUMA nodes.
+for systems that do not support NUMA.
 .TP
 .B \-\-mcontend\-ops N
 stop mcontend stressors after N bogo read/write operations.
@@ -4767,7 +4767,7 @@ preventing pages from swapped out.
 .TP
 .B \-\-memfd\-numa
 assign memory mapped pages to randomly selected NUMA nodes. This is disabled
-for systems that do not support NUMA or have less than 2 NUMA nodes.
+for systems that do not support NUMA.
 .TP
 .B \-\-memfd\-ops N
 stop after N memfd-create(2) bogo operations.
@@ -5202,7 +5202,7 @@ read-only, write-only, exec-only, and read-write.
 .TP
 .B \-\-mmap\-numa
 assign memory mapped pages to randomly selected NUMA nodes. This is disabled
-for systems that do not support NUMA or have less than 2 NUMA nodes.
+for systems that do not support NUMA.
 .TP
 .B \-\-mmap\-odirect
 enable file based memory mapping and use O_DIRECT direct I/O.
@@ -5281,7 +5281,7 @@ faults. Only available with the mlock2 system call.
 .TP
 .B \-\-mmapcow\-numa
 assign memory mapped pages to randomly selected NUMA nodes. This is disabled
-for systems that do not support NUMA or have less than 2 NUMA nodes.
+for systems that do not support NUMA.
 .TP
 .B \-\-mmapcow\-ops N
 stop after N pages are modified  and unmapped
@@ -5318,7 +5318,7 @@ access to files on these file systems.
 .TP
 .B \-\-mmapfiles\-numa
 assign memory mapped pages to randomly selected NUMA nodes. This is disabled
-for systems that do not support NUMA or have less than 2 NUMA nodes.
+for systems that do not support NUMA.
 .TP
 .B \-\-mmapfiles\-ops N
 stop after N memory map/unmap operations.
@@ -5353,7 +5353,7 @@ preventing pages from swapped out.
 .TP
 .B \-\-mmapfixed\-numa
 assign memory mapped pages to randomly selected NUMA nodes. This is disabled
-for systems that do not support NUMA or have less than 2 NUMA nodes.
+for systems that do not support NUMA.
 .TP
 .B \-\-mmapfixed\-ops N
 stop after N mmapfixed memory mapping bogo operations.
@@ -5385,7 +5385,7 @@ default is 8192 mappings.
 .TP
 .B \-\-mmaphuge\-numa
 assign memory mapped pages to randomly selected NUMA nodes. This is disabled
-for systems that do not support NUMA or have less than 2 NUMA nodes.
+for systems that do not support NUMA.
 .TP
 .B \-\-mmaphuge\-ops N
 stop after N mmaphuge bogo operations
@@ -5406,7 +5406,7 @@ preventing pages from swapped out.
 .TP
 .B \-\-mmapmany\-numa
 assign memory mapped pages to randomly selected NUMA nodes. This is disabled
-for systems that do not support NUMA or have less than 2 NUMA nodes.
+for systems that do not support NUMA.
 .TP
 .B \-\-mmapmany\-ops N
 stop after N mmapmany bogo operations
@@ -5659,7 +5659,7 @@ preventing pages from swapped out.
 .TP
 .B \-\-mreamp\-numa
 assign memory mapped pages to randomly selected NUMA nodes. This is disabled
-for systems that do not support NUMA or have less than 2 NUMA nodes.
+for systems that do not support NUMA.
 .TP
 .B \-\-mremap\-ops N
 stop mremap stress workers after N bogo operations.
@@ -5922,8 +5922,8 @@ start N workers that migrate stressors and a 4 MB memory mapped buffer around
 all the available NUMA nodes.  This uses migrate_pages(2) to move the stressors
 and mbind(2) and move_pages(2) to move the pages of the mapped buffer. After
 each move, the buffer is written to force activity over the bus which results
-cache misses.  This test will only run on hardware with NUMA enabled and more
-than 1 NUMA node.
+cache misses.  This test will only run on hardware with NUMA enabled.
+
 .TP
 .B \-\-numa\-bytes N
 specify the total number bytes to be exercised by all the workers, the given
@@ -6038,7 +6038,7 @@ preventing pages from swapped out.
 .TP
 .B \-\-pagemove\-numa
 assign memory mapped pages to randomly selected NUMA nodes. This is disabled
-for systems that do not support NUMA or have less than 2 NUMA nodes.
+for systems that do not support NUMA.
 .TP
 .B \-\-pagemove\-ops N
 stop after N pagemove shuffling operations, where suffling all the pages in
@@ -8055,12 +8055,16 @@ CPUs in a system. By default 32 bit write/reads are used.
 .B \-\-spinmem\-affinity
 move spinmem stressor processes to randomly selected CPUs every million spinmem transactions.
 .TP
+.B \-\-spinmem\-method [ 8bit | 16bit | 32bit | 64bit ]
+select the size of the memory write/reads, the default is 32 bit.
+.TP
+.B \-\-spinmem\-numa
+assign shared memory page to randomly selected NUMA nodes. This is disabled
+for systems that do not support NUMA.
+.TP
 .B \-\-spinmem\-ops N
 stop after N spinmem bogo operations. A bogo operation is 1000 transactions betewen
 the two spinmem processes.
-.TP
-.B \-\-spinmem\-method [ 8bit | 16bit | 32bit | 64bit ]
-select the size of the memory write/reads, the default is 32 bit.
 .RE
 .TP
 .B Splice stressor (Linux)
@@ -9452,7 +9456,7 @@ T}
 .TP
 .B \-\-vm\-numa
 assign memory mapped pages to randomly selected NUMA nodes. This is disabled
-for systems that do not support NUMA or have less than 2 NUMA nodes.
+for systems that do not support NUMA.
 .TP
 .B \-\-vm\-ops N
 stop vm workers after N bogo operations.
@@ -9544,7 +9548,7 @@ preventing pages from swapped out.
 .TP
 .B \-\-vm\-addr\-numa
 assign memory mapped pages to randomly selected NUMA nodes. This is disabled
-for systems that do not support NUMA or have less than 2 NUMA nodes.
+for systems that do not support NUMA.
 .TP
 .B \-\-vm\-addr\-ops N
 stop N workers after N bogo addressing passes.

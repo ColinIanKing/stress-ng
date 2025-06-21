@@ -18,23 +18,51 @@
  */
 #include "stress-ng.h"
 #include "core-affinity.h"
+#include "core-asm-arm.h"
+#include "core-asm-generic.h"
+#include "core-cpu-cache.h"
 #include "core-killpid.h"
+#include "core-numa.h"
 
 #include <sched.h>
 
 static const stress_help_t help[] = {
 	{ NULL,	"spinmem",	    "start N workers exercising shared memory spin write/read operations" },
 	{ NULL, "spinmem-affinity", "use CPU affinity (specific CPUS can be defined by --taskset option)" },
-	{ NULL, "spinmem-ops",	    "stop after N bogo shared memory spin write/read operations" },
 	{ NULL, "spinmem-method",   "select method of write/reads, default is 32bit" },
+	{ NULL, "spinmem-numa",     "move processes to randomly chosen NUMA nodes" },
+	{ NULL, "spinmem-ops",	    "stop after N bogo shared memory spin write/read operations" },
 	{ NULL, NULL,		NULL }
 };
 
 #define SPINMEM_LOOPS	(1000)
 #define SPINMEM_OFFSET	(1)
+#define SPINMEM_SPINS	(1000)
 
 static volatile bool do_jmp = true;
 static sigjmp_buf jmp_env;
+
+static inline void ALWAYS_INLINE stress_spinmem_mfence(void)
+{
+	shim_mfence();
+}
+
+static inline void ALWAYS_INLINE stress_spinmem_mbarrier(void)
+{
+#if defined(HAVE_ASM_ARM_DMB_SY)
+	stress_asm_arm_dmb_sy();
+#endif
+}
+
+#define SPINMEM_MB()			\
+do {					\
+	stress_asm_mb();		\
+	stress_spinmem_mfence();	\
+	stress_spinmem_mbarrier();	\
+} while (0)				\
+
+#define SPINMEM_FLUSH(ptr)		\
+	stress_cpu_data_cache_flush((void *)ptr, 64)
 
 /*
  *  stress_spinmem_handler()
@@ -55,12 +83,17 @@ static void OPTIMIZE3 name(uint8_t *data)	\
 {						\
 	volatile type *uptr = (type *)data;	\
 	register type val = (type)0;		\
+	register int i;				\
 						\
-	for (;;) {				\
+	for (i = 0; i < SPINMEM_LOOPS; i++) {	\
 		register type newval;		\
+		register int spins = 0;		\
 						\
 		do {				\
 			newval = uptr[0];	\
+			SPINMEM_MB();		\
+			if (spins++ > SPINMEM_SPINS) \
+				break;		\
 		} while (newval == val);	\
 						\
 		uptr[SPINMEM_OFFSET] = newval;	\
@@ -77,11 +110,20 @@ static void OPTIMIZE3 name(uint8_t *data)	\
 	register int i;				\
 						\
 	for (i = 0; i < SPINMEM_LOOPS; i++) {	\
-		v++;				\
-		uptr[0] = v;			\
+		register int spins = 0;		\
 						\
-		while (uptr[SPINMEM_OFFSET] != v) \
-			;			\
+		v++;				\
+		SPINMEM_FLUSH(uptr);		\
+		SPINMEM_MB();			\
+		uptr[0] = v;			\
+		SPINMEM_FLUSH(uptr);		\
+		SPINMEM_MB();			\
+						\
+		while (uptr[SPINMEM_OFFSET] != v) { \
+			if (spins++ > SPINMEM_SPINS) \
+				break;		\
+			SPINMEM_MB();		\
+		}				\
 	}					\
 }
 
@@ -130,6 +172,31 @@ static inline void stress_spinmem_change_affinity(const uint32_t n_cpus, const u
 }
 #endif
 
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+static void stress_spinmem_numa(
+	stress_args_t *args,
+	const int max,
+	uint8_t *mapping,
+	const size_t mapping_size,
+	const bool spinmem_numa,
+        stress_numa_mask_t *numa_mask,
+        stress_numa_mask_t *numa_nodes)
+{
+	static int numa_count = 0;
+
+	if (spinmem_numa && numa_mask && numa_nodes) {
+		numa_count++;
+		if (numa_count > max) {
+			stress_numa_randomize_pages(args, numa_nodes,
+						numa_mask, mapping,
+						mapping_size, mapping_size);
+			numa_count = 0;
+		}
+	}
+}
+#endif
+
+
 /*
  *  stress_spinmem()
  *      stress spin write/reads on shared memory
@@ -146,13 +213,20 @@ static int stress_spinmem(stress_args_t *args)
 	size_t spinmem_method = 2; /* 32bit default */
 	spinmem_func_t spinmem_reader, spinmem_writer;
 	bool spinmem_affinity = false;
+	bool spinmem_numa = false;
 #if defined(HAVE_SCHED_SETAFFINITY)
 	uint32_t *cpus = NULL;
 	uint32_t n_cpus = stress_get_usable_cpus(&cpus, true);
 #endif
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+        stress_numa_mask_t *numa_mask = NULL;
+        stress_numa_mask_t *numa_nodes = NULL;
+	const size_t page_size = args->page_size;
+#endif
 
 	(void)stress_get_setting("spinmem-affinity", &spinmem_affinity);
 	(void)stress_get_setting("spinmem-method", &spinmem_method);
+	(void)stress_get_setting("spinmem-numa", &spinmem_numa);
 
 #if !defined(HAVE_SCHED_SETAFFINITY)
 	if ((spinmem_affinity) && (args->instance == 0)) {
@@ -161,6 +235,16 @@ static int stress_spinmem(stress_args_t *args)
 		spinmem_affinity = false;
 	}
 #endif
+	if (spinmem_numa) {
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+		stress_numa_mask_and_node_alloc(args, &numa_nodes, &numa_mask, "--spinmem-numa", &spinmem_numa);
+#else
+		if (args->instance == 0)
+			pr_inf("%s: --spinmem-numa selected but not supported by this system, disabling option\n",
+				args->name);
+		spinmem_numa = false;
+#endif
+	}
 
 	mapping = (uint8_t *)stress_mmap_populate(NULL,
 			args->page_size, PROT_READ | PROT_WRITE,
@@ -210,6 +294,11 @@ static int stress_spinmem(stress_args_t *args)
 				for (i = 0; i < 1000; i++) {
 					spinmem_reader(mapping);
 					stress_spinmem_change_affinity(n_cpus, cpus);
+
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+					stress_spinmem_numa(args, 200, mapping, page_size,
+							spinmem_numa, numa_mask, numa_nodes);
+#endif
 				}
 			} while (stress_continue(args));
 			_exit(0);
@@ -217,6 +306,10 @@ static int stress_spinmem(stress_args_t *args)
 #endif
 		do {
 			spinmem_reader(mapping);
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+			stress_spinmem_numa(args, 2000, mapping, page_size,
+				spinmem_numa, numa_mask, numa_nodes);
+#endif
 		} while (stress_continue(args));
 		_exit(0);
 	} else {
@@ -225,14 +318,19 @@ static int stress_spinmem(stress_args_t *args)
 			do {
 				register int i;
 
-				for (i = 0; i < 1000; i++) {
+				for (i = 0; i < 100; i++) {
 					double t = stress_time_now();
+
 					spinmem_writer(mapping);
 					duration += stress_time_now() - t;
 					count += SPINMEM_LOOPS;
 					stress_bogo_inc(args);
 				}
 				stress_spinmem_change_affinity(n_cpus, cpus);
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+				stress_spinmem_numa(args, 1, mapping, page_size,
+							spinmem_numa, numa_mask, numa_nodes);
+#endif
 			} while (stress_continue(args));
 			goto completed;
 		}
@@ -243,6 +341,10 @@ static int stress_spinmem(stress_args_t *args)
 			duration += stress_time_now() - t;
 			count += SPINMEM_LOOPS;
 			stress_bogo_inc(args);
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+			stress_spinmem_numa(args, 2000, mapping, page_size,
+				spinmem_numa, numa_mask, numa_nodes);
+#endif
 		} while (stress_continue(args));
 	}
 
@@ -261,6 +363,12 @@ tidy:
 
 	(void)munmap((void *)mapping, args->page_size);
 tidy_cpus:
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+	if (numa_mask)
+		stress_numa_mask_free(numa_mask);
+	if (numa_nodes)
+		stress_numa_mask_free(numa_nodes);
+#endif
 #if defined(HAVE_SCHED_SETAFFINITY)
 	stress_free_usable_cpus(&cpus);
 #endif
@@ -276,6 +384,7 @@ static const char *stress_spinmem_method(const size_t i)
 static const stress_opt_t opts[] = {
 	{ OPT_spinmem_affinity, "spinmem-affinity", TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_spinmem_method,   "spinmem-method",   TYPE_ID_SIZE_T_METHOD, 0, 0, stress_spinmem_method },
+	{ OPT_spinmem_numa,     "spinmem-numa",     TYPE_ID_BOOL, 0, 1, NULL },
 	END_OPT,
 };
 
