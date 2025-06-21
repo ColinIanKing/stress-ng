@@ -39,7 +39,8 @@ static const stress_opt_t opts[] = {
 
 #if defined(HAVE_LIB_ACL) &&		\
     defined(HAVE_ACL_LIBACL_H) &&	\
-    defined(HAVE_SYS_ACL_H)
+    defined(HAVE_SYS_ACL_H) &&		\
+    !defined(BUILD_STATIC)
 static const acl_tag_t stress_acl_tags[] = {
 	ACL_USER_OBJ,
 	ACL_GROUP_OBJ,
