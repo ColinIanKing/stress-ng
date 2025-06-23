@@ -57,7 +57,7 @@ static const stress_posix_regex_t stress_posix_regex[] = {
 	{ "^([0-9][0-9][0-9][0-9])/(0[1-9]|1[0-2])/(0[1-9]|[12][0-9]|3[0-1])", "YYYY/MM/DD" },
 };
 
-static const char *stress_regex_text[] = {
+static const char * const stress_regex_text[] = {
 	"28742",
 	"1984",
 	"-1984",
