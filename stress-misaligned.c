@@ -19,7 +19,9 @@
  */
 #include "stress-ng.h"
 #include "core-arch.h"
+#include "core-asm-x86.h"
 #include "core-builtin.h"
+#include "core-cpu.h"
 #include "core-madvise.h"
 #include "core-target-clones.h"
 #include "core-numa.h"
@@ -107,6 +109,12 @@ typedef struct {
 } stress_misaligned_method_info_t;
 
 static stress_misaligned_method_info_t *current_method;
+
+static inline ALWAYS_INLINE void stress_misligned_disable(void)
+{
+	if (current_method)
+		current_method->disabled = true;
+}
 
 #if defined(__SSE__) &&         \
     defined(STRESS_ARCH_X86) && \
@@ -568,6 +576,13 @@ static void stress_misaligned_int32wrnt(
 	uint32_t *ptr8 = (uint32_t *)(buffer + page_size - 13);
 	uint32_t *ptr9 = (uint32_t *)(buffer + 63);
 
+	if (!stress_cpu_x86_has_sse2()) {
+		if (args->instance == 0)
+			pr_inf("%s: int32wrnt disabled, 32 bit non-temporal store not available\n", args->name);
+		stress_misligned_disable();
+		return;
+	}
+
 	while (LIKELY(stress_continue_flag() && --i)) {
 		register uint32_t ui32 = (uint32_t)i;
 
@@ -794,6 +809,13 @@ static void stress_misaligned_int64wrnt(
 	uint64_t *ptr4 = (uint64_t *)(buffer + page_size - 9);
 	uint64_t *ptr5 = (uint64_t *)(buffer + 63);
 
+	if (!stress_cpu_x86_has_sse2()) {
+		if (args->instance == 0)
+			pr_inf("%s: int64wrnt disabled, 64 bit non-temporal store not available\n", args->name);
+		stress_misligned_disable();
+		return;
+	}
+
 	while (LIKELY(stress_continue_flag() && --i)) {
 		register uint64_t ui64 = (uint64_t)i;
 
@@ -802,6 +824,55 @@ static void stress_misaligned_int64wrnt(
 		stress_nt_store64(ptr3, ui64);
 		stress_nt_store64(ptr4, ui64);
 		stress_nt_store64(ptr5, ui64);
+
+		if (UNLIKELY(*ptr1 != ui64))
+			goto fail;
+		if (UNLIKELY(*ptr2 != ui64))
+			goto fail;
+		if (UNLIKELY(*ptr3 != ui64))
+			goto fail;
+		if (UNLIKELY(*ptr4 != ui64))
+			goto fail;
+		if (UNLIKELY(*ptr5 != ui64))
+			goto fail;
+	}
+	return;
+
+fail:
+	pr_inf("%s: int64wrt: difference between 64 bit value written and value read back\n", args->name);
+	*succeeded = false;
+}
+#endif
+
+#if defined(HAVE_ASM_X86_MOVDIRI)
+static void stress_misaligned_int64wrds(
+	stress_args_t *args,
+	uintptr_t buffer,
+	const size_t page_size,
+	bool *succeeded)
+{
+	register int i = MISALIGN_LOOPS;
+	uint64_t *ptr1 = (uint64_t *)(buffer + 1);
+	uint64_t *ptr2 = (uint64_t *)(buffer + 9);
+	uint64_t *ptr3 = (uint64_t *)(buffer + page_size - 1);
+	uint64_t *ptr4 = (uint64_t *)(buffer + page_size - 9);
+	uint64_t *ptr5 = (uint64_t *)(buffer + 63);
+
+	if (!stress_cpu_x86_has_movdiri()) {
+		if (args->instance == 0)
+			pr_inf("%s: int64wrds disabled, 64 bit direct store not available\n", args->name);
+		stress_misligned_disable();
+		return;
+	}
+
+	while (LIKELY(stress_continue_flag() && --i)) {
+		register uint64_t ui64 = (uint64_t)i;
+
+		stress_ds_store64(ptr1, ui64);
+		stress_ds_store64(ptr2, ui64);
+		stress_ds_store64(ptr3, ui64);
+		stress_ds_store64(ptr4, ui64);
+		stress_ds_store64(ptr5, ui64);
 
 		if (UNLIKELY(*ptr1 != ui64))
 			goto fail;
@@ -975,6 +1046,13 @@ static void stress_misaligned_int128wrnt(
 	__uint128_t *ptr2 = (__uint128_t *)(buffer + page_size - 1);
 	__uint128_t *ptr3 = (__uint128_t *)(buffer + 63);
 
+	if (!stress_cpu_x86_has_sse2()) {
+		if (args->instance == 0)
+			pr_inf("%s: int128wrnt disabled, 128 bit non-temporal store not available\n", args->name);
+		stress_misligned_disable();
+		return;
+	}
+
 	while (LIKELY(stress_continue_flag() && --i)) {
 		stress_nt_store128(ptr1, (__uint128_t)i);
 		stress_nt_store128(ptr2, (__uint128_t)i);
@@ -1069,6 +1147,9 @@ static stress_misaligned_method_info_t stress_misaligned_methods[] = {
 #if defined(HAVE_NT_STORE64)
 	{ "int64wrnt",	stress_misaligned_int64wrnt,	false,	false },
 #endif
+#if defined(HAVE_ASM_X86_MOVDIRI)
+	{ "int64wrds",	stress_misaligned_int64wrds,	false,  false },
+#endif
 	{ "int64inc",	stress_misaligned_int64inc,	false,	false },
 #if defined(HAVE_ATOMIC) &&		\
     defined(SHIM_ATOMIC_FETCH_ADD_8) &&	\
@@ -1106,8 +1187,10 @@ static void stress_misaligned_all(
 			continue;
 		current_method = info;
 		info->func(args, buffer, page_size, succeeded);
-		info->exercised = true;
-		exercised = true;
+		if (!info->disabled) {
+			info->exercised = true;
+			exercised = true;
+		}
 	}
 
 	if (UNLIKELY(!exercised))
@@ -1117,10 +1200,7 @@ static void stress_misaligned_all(
 static MLOCKED_TEXT NORETURN void stress_misaligned_handler(int signum)
 {
 	handled_signum = signum;
-
-	if (current_method)
-		current_method->disabled = true;
-
+	stress_misligned_disable();
 	siglongjmp(jmp_env, STRESS_MISALIGNED_ERROR);
 }
 
@@ -1172,7 +1252,7 @@ static void stress_misaligned_exercised(stress_args_t *args)
 	for (i = 0; i < SIZEOF_ARRAY(stress_misaligned_methods); i++) {
 		const stress_misaligned_method_info_t *info = &stress_misaligned_methods[i];
 
-		if (info->exercised) {
+		if (info->exercised && !info->disabled) {
 			char *tmp;
 			const size_t name_len = strlen(info->name);
 
@@ -1194,7 +1274,7 @@ static void stress_misaligned_exercised(stress_args_t *args)
 	if (str)
 		pr_inf("%s: exercised %s\n", args->name, str);
 	else
-		pr_inf("%s: nothing exercised due to misalignment faults\n", args->name);
+		pr_inf("%s: nothing exercised due to misalignment faults or disabled misaligned methods\n", args->name);
 
 	free(str);
 }
