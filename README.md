@@ -552,6 +552,8 @@ stress-ng has found various Kernel, QEMU bugs/regressions, and libc bugs; approp
 * [mm: optimize the redundant loop of mm_update_owner_next()](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=76ba6acfcce871db13ad51c6dc8f56fec2e92853)
 
 2025:
+* [sched: Add unlikey branch hints to several system calls](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=1a5d3492f8e14719184945893c610e0802c05533)
+* [mm/mincore: improve performance by adding an unlikely hint](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=9fa26fb554baaf71826814804749f5cff130c4d6)
 * [select: do_pollfd: add unlikely branch hint return path](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=5730609ffd7e558e1e3305d0c6839044e8f6591b)
 * [select: core_sys_select add unlikely branch hint on return path](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=6b24a702ecf167ab61456276bb72133d84ccca45)
 
