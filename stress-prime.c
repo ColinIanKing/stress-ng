@@ -42,7 +42,7 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		 	NULL }
 };
 
-static const char *stress_prime_methods[] = {
+static const char * const stress_prime_methods[] = {
 	"factorial",	/* STRESS_PRIME_METHOD_FACTORIAL */
 	"inc",		/* STRESS_PRIME_METHOD_INC */
 	"pwr2",		/* STRESS_PRIME_METHOD_PWR2 */
