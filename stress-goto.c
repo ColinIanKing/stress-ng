@@ -29,7 +29,7 @@ static const stress_help_t help[] = {
 #define STRESS_GOTO_BACKWARD	(1)
 #define STRESS_GOTO_RANDOM	(2)
 
-static const char *stress_goto_directions[] = {
+static const char * const stress_goto_directions[] = {
 	"forward",	/* STRESS_GOTO_FORWARD */
 	"backward",	/* STRESS_GOTO_BACKWARD */
 	"random",	/* STRESS_GOTO_RANDOM */
