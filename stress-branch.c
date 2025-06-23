@@ -55,7 +55,7 @@ static int OPTIMIZE3 stress_branch(stress_args_t *args)
 	uint64_t lo, hi, bogo_counter, bogo_thresh;
 	int rc = EXIT_SUCCESS;
 
-	static const void ALIGN64 *labels[] = {
+	static const void ALIGN64 * const labels[] = {
 		&&L0x000, &&L0x001, &&L0x002, &&L0x003, &&L0x004, &&L0x005, &&L0x006, &&L0x007,
 		&&L0x008, &&L0x009, &&L0x00a, &&L0x00b, &&L0x00c, &&L0x00d, &&L0x00e, &&L0x00f,
 		&&L0x010, &&L0x011, &&L0x012, &&L0x013, &&L0x014, &&L0x015, &&L0x016, &&L0x017,
