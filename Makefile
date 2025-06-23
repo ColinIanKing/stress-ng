@@ -167,6 +167,7 @@ ifeq ($(COMPILER),icx)
 override CFLAGS += -vec -ax
 endif
 
+
 #
 # Enable Link Time Optimization
 #
@@ -185,6 +186,14 @@ ifneq ($(VERBOSE),)
 GC_SECTIONS_FLAGS := -Wl,--print-gc-sections
 override CFLAGS += $(foreach flag,$(GC_SECTIONS_FLAGS),$(cc_supports_flag))
 endif
+endif
+
+ifneq ($(SOURCE_DATE_EPOCH),)
+override CFLAGS += -DHAVE_SOURCE_DATE_EPOCH=$(SOURCE_DATE_EPOCH)
+endif
+
+ifneq ($(EXTRA_BUILDINFO),)
+override CFLAGS += -DHAVE_EXTRA_BUILDINFO
 endif
 
 #

@@ -233,6 +233,19 @@ Build option: UNEXPECTED=1, warn of unexpected #ifdef'd out code:
     UNEXPECTED=1 make
 ```
 
+Build option: SOURCE_DATE_EPOCH=seconds since epoch, add build date
+```
+    make clean
+    SOURCE_DATE_EPOCH=1750685870 make
+```
+
+Build option: EXTRA_BUILDINFO=1, add CFLAGS, CXXFLAGS and LDFLAGS to --buildinfo option
+NOTE: This can lead build information and is not recommended for any distro releases.
+```
+    make clean
+    EXTRA_BUILDINFO=1 make -j 10
+```
+
 ## Contributing to stress-ng:
 
 Send patches to colin.i.king@gmail.com or merge requests at

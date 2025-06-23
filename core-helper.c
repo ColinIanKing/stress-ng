@@ -1900,10 +1900,10 @@ void stress_buildinfo(void)
 {
 	if (g_opt_flags & OPT_FLAGS_BUILDINFO) {
 		pr_inf("compiler: %s\n", stress_get_compiler());
-#if defined(__DATE__) &&	\
-    defined(__TIME__)
-		pr_inf("build date: " __DATE__ " " __TIME__ "\n");
+#if defined(HAVE_SOURCE_DATE_EPOCH)
+		pr_inf("SOURCE_DATE_EPOCH: " XSTR(HAVE_SOURCE_DATE_EPOCH) "\n");
 #endif
+#if defined(HAVE_EXTRA_BUILDINFO)
 #if defined(HAVE_CFLAGS)
 		pr_inf("CFLAGS: " HAVE_CFLAGS "\n");
 #endif
@@ -1912,6 +1912,7 @@ void stress_buildinfo(void)
 #endif
 #if defined(HAVE_LDFLAGS)
 		pr_inf("LDFLAGS: " HAVE_LDFLAGS "\n");
+#endif
 #endif
 #if defined(__STDC_VERSION__)
 		pr_inf("STDC Version: " XSTR(__STDC_VERSION__) "\n");
