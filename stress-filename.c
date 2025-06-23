@@ -31,7 +31,7 @@
 #define STRESS_FILENAME_EXT	(2)	/* EXT* filesystems */
 
 /* mapping of opts text to STRESS_FILE_NAME_* values */
-static const char *filename_opts[] = {
+static const char * const filename_opts[] = {
 	"probe",	/* STRESS_FILENAME_PROBE */
 	"posix",	/* STRESS_FILENAME_POSIX */
 	"ext",		/* STRESS_FILENAME_EXT */
