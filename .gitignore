@@ -1,6 +1,11 @@
 config
-perf-event.h
+config.h
+configs/
+core-config.c
+core-perf-event.h
 personality.h
+io-uring.h
 git-commit-id.h
 stress-ng
+stress-ng.exe
 *.o
