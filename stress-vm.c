@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-asm-generic.h"
+#include "core-asm-x86.h"
 #include "core-attribute.h"
 #include "core-builtin.h"
 #include "core-cpu-cache.h"
@@ -2169,6 +2170,90 @@ static size_t OPTIMIZE3 TARGET_CLONES stress_vm_write64(
 	return 0;
 }
 
+#if defined(HAVE_ASM_X86_MOVDIRI)
+/*
+ *  stress_vm_write_64ds()
+ *	64 bit direct store write, no read check
+ */
+static size_t OPTIMIZE3 stress_vm_write64ds(
+	void *buf,
+	void *buf_end,
+	const size_t sz,
+	stress_args_t *args,
+	const uint64_t max_ops)
+{
+	static bool movdiri = true;
+
+	if (stress_cpu_x86_has_movdiri()) {
+		static uint64_t val;
+		register uint64_t *ptr = (uint64_t *)buf;
+		register const uint64_t v = val;
+		register size_t i = 0;
+		register const size_t n = sz / (sizeof(*ptr) * 32);
+
+		while (i < n) {
+			stress_ds_store64(&ptr[0x00], v);
+			stress_ds_store64(&ptr[0x01], v);
+			stress_ds_store64(&ptr[0x02], v);
+			stress_ds_store64(&ptr[0x03], v);
+			stress_ds_store64(&ptr[0x04], v);
+			stress_ds_store64(&ptr[0x05], v);
+			stress_ds_store64(&ptr[0x06], v);
+			stress_ds_store64(&ptr[0x07], v);
+			ptr += 8;
+
+			stress_ds_store64(&ptr[0x00], v);
+			stress_ds_store64(&ptr[0x01], v);
+			stress_ds_store64(&ptr[0x02], v);
+			stress_ds_store64(&ptr[0x03], v);
+			stress_ds_store64(&ptr[0x04], v);
+			stress_ds_store64(&ptr[0x05], v);
+			stress_ds_store64(&ptr[0x06], v);
+			stress_ds_store64(&ptr[0x07], v);
+			ptr += 8;
+
+			stress_ds_store64(&ptr[0x00], v);
+			stress_ds_store64(&ptr[0x01], v);
+			stress_ds_store64(&ptr[0x02], v);
+			stress_ds_store64(&ptr[0x03], v);
+			stress_ds_store64(&ptr[0x04], v);
+			stress_ds_store64(&ptr[0x05], v);
+			stress_ds_store64(&ptr[0x06], v);
+			stress_ds_store64(&ptr[0x07], v);
+			ptr += 8;
+
+			stress_ds_store64(&ptr[0x00], v);
+			stress_ds_store64(&ptr[0x01], v);
+			stress_ds_store64(&ptr[0x02], v);
+			stress_ds_store64(&ptr[0x03], v);
+			stress_ds_store64(&ptr[0x04], v);
+			stress_ds_store64(&ptr[0x05], v);
+			stress_ds_store64(&ptr[0x06], v);
+			stress_ds_store64(&ptr[0x07], v);
+			ptr += 8;
+
+			i++;
+			if (UNLIKELY(!stress_continue_flag() || (max_ops && (i >= max_ops))))
+				break;
+		}
+		stress_bogo_add(args, i);
+		val++;
+		if (vm_flush)
+			stress_cpu_data_cache_flush(buf, sz);
+		return 0;
+	}
+
+	if (movdiri && (args->instance == 0)) {
+		movdiri = false;
+
+		pr_inf("%s: x86 movdiri instruction not supported, "
+			"dropping back to plain 64 bit writes\n", args->name);
+	}
+
+	return stress_vm_write64(buf, buf_end, sz, args, max_ops);
+}
+#endif
+
 #if defined(HAVE_NT_STORE64)
 /*
  *  stress_vm_write_64nt()
@@ -2181,14 +2266,14 @@ static size_t TARGET_CLONES stress_vm_write64nt(
 	stress_args_t *args,
 	const uint64_t max_ops)
 {
+	static bool nt_store = true;
+
 	if (stress_cpu_x86_has_sse2()) {
 		static uint64_t val;
 		register uint64_t *ptr = (uint64_t *)buf;
 		register const uint64_t v = val;
 		register size_t i = 0;
 		register const size_t n = sz / (sizeof(*ptr) * 32);
-
-		(void)buf_end;
 
 		while (i < n) {
 			stress_nt_store64(&ptr[0x00], v);
@@ -2199,33 +2284,37 @@ static size_t TARGET_CLONES stress_vm_write64nt(
 			stress_nt_store64(&ptr[0x05], v);
 			stress_nt_store64(&ptr[0x06], v);
 			stress_nt_store64(&ptr[0x07], v);
+			ptr += 8;
 
-			stress_nt_store64(&ptr[0x08], v);
-			stress_nt_store64(&ptr[0x09], v);
-			stress_nt_store64(&ptr[0x0a], v);
-			stress_nt_store64(&ptr[0x0b], v);
-			stress_nt_store64(&ptr[0x0c], v);
-			stress_nt_store64(&ptr[0x0d], v);
-			stress_nt_store64(&ptr[0x0e], v);
-			stress_nt_store64(&ptr[0x0f], v);
+			stress_nt_store64(&ptr[0x00], v);
+			stress_nt_store64(&ptr[0x01], v);
+			stress_nt_store64(&ptr[0x02], v);
+			stress_nt_store64(&ptr[0x03], v);
+			stress_nt_store64(&ptr[0x04], v);
+			stress_nt_store64(&ptr[0x05], v);
+			stress_nt_store64(&ptr[0x06], v);
+			stress_nt_store64(&ptr[0x07], v);
+			ptr += 8;
 
-			stress_nt_store64(&ptr[0x10], v);
-			stress_nt_store64(&ptr[0x11], v);
-			stress_nt_store64(&ptr[0x12], v);
-			stress_nt_store64(&ptr[0x13], v);
-			stress_nt_store64(&ptr[0x14], v);
-			stress_nt_store64(&ptr[0x15], v);
-			stress_nt_store64(&ptr[0x16], v);
-			stress_nt_store64(&ptr[0x17], v);
+			stress_nt_store64(&ptr[0x00], v);
+			stress_nt_store64(&ptr[0x01], v);
+			stress_nt_store64(&ptr[0x02], v);
+			stress_nt_store64(&ptr[0x03], v);
+			stress_nt_store64(&ptr[0x04], v);
+			stress_nt_store64(&ptr[0x05], v);
+			stress_nt_store64(&ptr[0x06], v);
+			stress_nt_store64(&ptr[0x07], v);
+			ptr += 8;
 
-			stress_nt_store64(&ptr[0x18], v);
-			stress_nt_store64(&ptr[0x19], v);
-			stress_nt_store64(&ptr[0x1a], v);
-			stress_nt_store64(&ptr[0x1b], v);
-			stress_nt_store64(&ptr[0x1c], v);
-			stress_nt_store64(&ptr[0x1d], v);
-			stress_nt_store64(&ptr[0x1e], v);
-			stress_nt_store64(&ptr[0x1f], v);
+			stress_nt_store64(&ptr[0x00], v);
+			stress_nt_store64(&ptr[0x01], v);
+			stress_nt_store64(&ptr[0x02], v);
+			stress_nt_store64(&ptr[0x03], v);
+			stress_nt_store64(&ptr[0x04], v);
+			stress_nt_store64(&ptr[0x05], v);
+			stress_nt_store64(&ptr[0x06], v);
+			stress_nt_store64(&ptr[0x07], v);
+			ptr += 8;
 
 			i++;
 			if (UNLIKELY(!stress_continue_flag() || (max_ops && (i >= max_ops))))
@@ -2237,6 +2326,13 @@ static size_t TARGET_CLONES stress_vm_write64nt(
 			stress_cpu_data_cache_flush(buf, sz);
 		return 0;
 	}
+	if (nt_store && (args->instance == 0)) {
+		nt_store = false;
+
+		pr_inf("%s: x86 movnti instruction not supported, "
+			"dropping back to plain 64 bit writes\n", args->name);
+	}
+
 	return stress_vm_write64(buf, buf_end, sz, args, max_ops);
 }
 #endif
@@ -3315,6 +3411,9 @@ static const stress_vm_method_info_t vm_methods[] = {
 	{ "walk-1a",		stress_vm_walking_one_addr },
 	{ "walk-flush",		stress_vm_walking_flush_data },
 	{ "write64",		stress_vm_write64 },
+#if defined(HAVE_ASM_X86_MOVDIRI)
+	{ "write64ds",		stress_vm_write64ds },
+#endif
 #if defined(HAVE_NT_STORE64)
 	{ "write64nt",		stress_vm_write64nt },
 #endif

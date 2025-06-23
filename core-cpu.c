@@ -758,3 +758,24 @@ void stress_cpu_enable_fp_subnormals(void)
 		_mm_setcsr(_mm_getcsr() & ~(X86_FP_DAZ | X86_FP_FTZ));
 #endif
 }
+
+/*
+ *  stress_cpu_x86_has_movdiri()
+ *	does x86 cpu support movdiri
+ */
+bool stress_cpu_x86_has_movdiri(void)
+{
+#if defined(STRESS_ARCH_X86)
+	uint32_t eax = 0x7, ebx = 0, ecx = 0, edx = 0;
+
+	if (!stress_cpu_is_x86())
+		return false;
+
+	stress_asm_x86_cpuid(eax, ebx, ecx, edx);
+
+	return !!(ecx & CPUID_movdiri_ECX);
+#else
+	return false;
+#endif
+}
+

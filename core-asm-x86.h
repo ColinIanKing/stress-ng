@@ -364,5 +364,13 @@ static inline void ALWAYS_INLINE stress_asm_x86_umonitor(void *addr)
 }
 #endif
 
+#if defined(HAVE_ASM_X86_MOVDIRI)
+static inline void ALWAYS_INLINE stress_ds_store64(void *ptr, const uint64_t val)
+{
+        __asm__ __volatile__("movdiri %0, (%1)\n"
+                        : :  "r" (val), "r" (ptr));
+}
+#endif
+
 /* #ifndef CORE_ASM_X86_H */
 #endif
