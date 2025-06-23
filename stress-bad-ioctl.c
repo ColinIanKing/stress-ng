@@ -42,7 +42,7 @@ static const stress_help_t help[] = {
 #define STRESS_BAD_IOCTL_CMD_RANDOM_INC	(2)
 #define STRESS_BAD_IOCTL_CMD_STRIDE	(3)
 
-static const char *stress_bad_ioctl_methods[] = {
+static const char * const stress_bad_ioctl_methods[] = {
 	"inc",
 	"random",
 	"random-inc",
