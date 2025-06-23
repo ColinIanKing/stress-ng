@@ -240,7 +240,7 @@ Build option: SOURCE_DATE_EPOCH=seconds since epoch, add build date
 ```
 
 Build option: EXTRA_BUILDINFO=1, add CFLAGS, CXXFLAGS and LDFLAGS to --buildinfo option
-NOTE: This can lead build information and is not recommended for any distro releases.
+NOTE: This can lead to build information being leaked and is not recommended for any distro releases.
 ```
     make clean
     EXTRA_BUILDINFO=1 make -j 10
