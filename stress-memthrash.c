@@ -992,6 +992,9 @@ static int stress_memthrash(stress_args_t *args)
 
 	(void)sigfillset(&set);
 
+	if (args->instance == 0)
+		stress_usage_bytes(args, MEM_SIZE, MEM_SIZE * args->instances);
+
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
