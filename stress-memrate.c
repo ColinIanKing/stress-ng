@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-asm-x86.h"
 #include "core-builtin.h"
 #include "core-cpu-cache.h"
 #include "core-madvise.h"
@@ -689,14 +690,8 @@ static uint64_t TARGET_CLONES OPTIMIZE3 stress_memrate_write_rate##size(	\
 	return ((uintptr_t)ptr - (uintptr_t)start) / KB;	\
 }
 
-/*
- *
- * See https://akkadia.org/drepper/cpumemory.pdf - section 6.1
- *  non-temporal writes using movntdq. Data is not going to be
- *  read, so no need to cache. Write directly to memory.
- */
-#define STRESS_MEMRATE_WRITE_NT(size, type, op)			\
-static uint64_t OPTIMIZE3 stress_memrate_write_nt##size(	\
+#define STRESS_MEMRATE_WRITE_OP(size, type, op, write_op, check)	\
+static uint64_t OPTIMIZE3 stress_memrate_write_ ## write_op ## size (	\
 	const stress_memrate_context_t *context,		\
 	bool *valid)						\
 {								\
@@ -704,7 +699,7 @@ static uint64_t OPTIMIZE3 stress_memrate_write_nt##size(	\
 	const type *end ALIGNED(4096) = (type *)context->end;	\
 	register type v, *ptr;					\
 								\
-	if (!stress_cpu_x86_has_sse2()) {			\
+	if (!check()) {						\
 		*valid = false;					\
 		return 0;					\
 	}							\
@@ -741,8 +736,8 @@ static uint64_t OPTIMIZE3 stress_memrate_write_nt##size(	\
 	return ((uintptr_t)ptr - (uintptr_t)start) / KB;	\
 }
 
-#define STRESS_MEMRATE_WRITE_NT_RATE(size, type, op)		\
-static uint64_t OPTIMIZE3 stress_memrate_write_nt_rate##size(	\
+#define STRESS_MEMRATE_WRITE_OP_RATE(size, type, op, write_op, check)	\
+static uint64_t OPTIMIZE3 stress_memrate_write_ ## write_op ## _rate ## size( \
 	const stress_memrate_context_t *context,		\
 	bool *valid)						\
 {								\
@@ -757,7 +752,7 @@ static uint64_t OPTIMIZE3 stress_memrate_write_nt_rate##size(	\
 		(MB * (double)context->memrate_wr_mbs);		\
 	register type v, *ptr;					\
 								\
-	if (!stress_cpu_x86_has_sse2()) {			\
+	if (!check()) {						\
 		*valid = false;					\
 		return 0;					\
 	}							\
@@ -816,19 +811,29 @@ static uint64_t OPTIMIZE3 stress_memrate_write_nt_rate##size(	\
 	return ((uintptr_t)ptr - (uintptr_t)start) / KB;	\
 }
 
+/*
+ * See https://akkadia.org/drepper/cpumemory.pdf - section 6.1
+ *  non-temporal writes using movntdq. Data is not going to be
+ *  read, so no need to cache. Write directly to memory.
+ */
 #if defined(HAVE_NT_STORE128)
-STRESS_MEMRATE_WRITE_NT(128, __uint128_t, stress_nt_store128)
-STRESS_MEMRATE_WRITE_NT_RATE(128, __uint128_t, stress_nt_store128)
+STRESS_MEMRATE_WRITE_OP(128, __uint128_t, stress_nt_store128, nt, stress_cpu_x86_has_sse2)
+STRESS_MEMRATE_WRITE_OP_RATE(128, __uint128_t, stress_nt_store128, nt, stress_cpu_x86_has_sse2)
 #endif
 
 #if defined(HAVE_NT_STORE64)
-STRESS_MEMRATE_WRITE_NT(64, uint64_t, stress_nt_store64)
-STRESS_MEMRATE_WRITE_NT_RATE(64, uint64_t, stress_nt_store64)
+STRESS_MEMRATE_WRITE_OP(64, uint64_t, stress_nt_store64, nt, stress_cpu_x86_has_sse2)
+STRESS_MEMRATE_WRITE_OP_RATE(64, uint64_t, stress_nt_store64, nt, stress_cpu_x86_has_sse2)
 #endif
 
 #if defined(HAVE_NT_STORE32)
-STRESS_MEMRATE_WRITE_NT(32, uint32_t, stress_nt_store32)
-STRESS_MEMRATE_WRITE_NT_RATE(32, uint32_t, stress_nt_store32)
+STRESS_MEMRATE_WRITE_OP(32, uint32_t, stress_nt_store32, nt, stress_cpu_x86_has_sse2)
+STRESS_MEMRATE_WRITE_OP_RATE(32, uint32_t, stress_nt_store32, nt, stress_cpu_x86_has_sse2)
+#endif
+
+#if defined(HAVE_ASM_X86_MOVDIRI)
+STRESS_MEMRATE_WRITE_OP(64, uint64_t, stress_ds_store64, ds, stress_cpu_x86_has_movdiri)
+STRESS_MEMRATE_WRITE_OP_RATE(64, uint64_t, stress_ds_store64, ds, stress_cpu_x86_has_movdiri)
 #endif
 
 #if defined(HAVE_VECMATH)
@@ -871,6 +876,9 @@ static const stress_memrate_info_t memrate_info[] = {
 #if defined(HAVE_ASM_X86_REP_STOSB) &&	\
     !defined(__ILP32__)
 	{ "write8stob",	MR_WR,	stress_memrate_write_stos8,	stress_memrate_write_stos_rate8 },
+#endif
+#if defined(HAVE_ASM_X86_MOVDIRI)
+	{ "write64ds",	MR_WR, stress_memrate_write_ds64,	stress_memrate_write_ds_rate64 },
 #endif
 #if defined(HAVE_NT_STORE128)
 	{ "write128nt",	MR_WR, stress_memrate_write_nt128,	stress_memrate_write_nt_rate128 },
