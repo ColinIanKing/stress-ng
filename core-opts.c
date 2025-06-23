@@ -1219,6 +1219,7 @@ const struct option stress_long_options[] = {
 	{ "vforkmany-vm-bytes", 1,	0,	OPT_vforkmany_vm_bytes },
 	{ "vm",			1,	0,	OPT_vm },
 	{ "vm-bytes",		1,	0,	OPT_vm_bytes },
+	{ "vm-flush",		0,	0,	OPT_vm_flush },
 	{ "vm-hang",		1,	0,	OPT_vm_hang },
 	{ "vm-keep",		0,	0,	OPT_vm_keep },
 #if defined(MAP_LOCKED)

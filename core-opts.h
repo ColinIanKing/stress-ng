@@ -1703,6 +1703,7 @@ typedef enum {
 	OPT_vforkmany_vm_bytes,
 
 	OPT_vm_bytes,
+	OPT_vm_flush,
 	OPT_vm_hang,
 	OPT_vm_keep,
 	OPT_vm_populate,

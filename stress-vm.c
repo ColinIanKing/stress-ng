@@ -49,6 +49,7 @@
 #define NO_MEM_RETRIES_MAX	(100)
 
 static size_t stress_vm_cache_line_size;
+static bool vm_flush;
 
 /*
  *  the VM stress test has different methods of vm stressor
@@ -80,6 +81,7 @@ typedef struct {
 static const stress_help_t help[] = {
 	{ "m N", "vm N",	 "start N workers spinning on anonymous mmap" },
 	{ NULL,	 "vm-bytes N",	 "allocate N bytes per vm worker (default 256MB)" },
+	{ NULL,  "vm-flush",	 "cache flush data after write" },
 	{ NULL,	 "vm-hang N",	 "sleep N seconds before freeing memory" },
 	{ NULL,	 "vm-keep",	 "redirty memory instead of reallocating" },
 #if defined(MAP_LOCKED)
@@ -333,7 +335,7 @@ static size_t TARGET_CLONES stress_vm_moving_inversion(
 	if (UNLIKELY(!stress_continue_flag()))
 		goto ret;
 
-	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+	if (vm_flush)
 		stress_cpu_data_cache_flush(buf, sz);
 	(void)stress_mincore_touch_pages(buf, sz);
 
@@ -361,7 +363,7 @@ static size_t TARGET_CLONES stress_vm_moving_inversion(
 
 	inject_random_bit_errors(buf, sz);
 
-	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+	if (vm_flush)
 		stress_cpu_data_cache_flush(buf, sz);
 	(void)stress_mincore_touch_pages(buf, sz);
 	stress_mwc_set_seed(w, z);
@@ -460,7 +462,7 @@ static size_t TARGET_CLONES stress_vm_modulo_x(
 
 	if (UNLIKELY(max_ops && (c >= max_ops)))
 		c = max_ops;
-	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+	if (vm_flush)
 		stress_cpu_data_cache_flush(buf, sz);
 	stress_vm_check("modulo X", bit_errors);
 ret:
@@ -509,7 +511,7 @@ static size_t TARGET_CLONES stress_vm_walking_one_data(
 		if (UNLIKELY(!stress_continue_flag()))
 			break;
 	}
-	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+	if (vm_flush)
 		stress_cpu_data_cache_flush(buf, sz);
 	stress_vm_check("walking one (data)", bit_errors);
 	stress_bogo_set(args, c);
@@ -557,7 +559,7 @@ static size_t TARGET_CLONES stress_vm_walking_zero_data(
 		if (UNLIKELY(!stress_continue_flag()))
 			break;
 	}
-	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+	if (vm_flush)
 		stress_cpu_data_cache_flush(buf, sz);
 	stress_vm_check("walking zero (data)", bit_errors);
 	stress_bogo_set(args, c);
@@ -606,7 +608,7 @@ static size_t TARGET_CLONES stress_vm_walking_one_addr(
 		if (UNLIKELY(!stress_continue_flag()))
 			break;
 	}
-	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+	if (vm_flush)
 		stress_cpu_data_cache_flush(buf, sz);
 	stress_vm_check("walking one (address)", bit_errors);
 	stress_bogo_set(args, c);
@@ -661,7 +663,7 @@ static size_t TARGET_CLONES stress_vm_walking_zero_addr(
 		if (UNLIKELY(!stress_continue_flag()))
 			break;
 	}
-	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+	if (vm_flush)
 		stress_cpu_data_cache_flush(buf, sz);
 	stress_vm_check("walking zero (address)", bit_errors);
 	stress_bogo_set(args, c);
@@ -735,7 +737,7 @@ static size_t TARGET_CLONES stress_vm_walking_flush_data(
 		if (UNLIKELY(!stress_continue_flag()))
 			break;
 	}
-	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+	if (vm_flush)
 		stress_cpu_data_cache_flush(buf, sz);
 	stress_vm_check("walking flush (data)", bit_errors);
 	stress_bogo_set(args, c);
@@ -822,7 +824,7 @@ static size_t TARGET_CLONES OPTIMIZE3 stress_vm_gray(
 	}
 	val++;
 
-	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+	if (vm_flush)
 		stress_cpu_data_cache_flush(buf, sz);
 	stress_vm_check("gray code", bit_errors);
 	stress_bogo_set(args, c);
@@ -898,7 +900,7 @@ static size_t TARGET_CLONES stress_vm_grayflip(
 	}
 	val++;
 
-	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+	if (vm_flush)
 		stress_cpu_data_cache_flush(buf, sz);
 	stress_vm_check("gray code (flip)", bit_errors);
 	stress_bogo_set(args, c);
@@ -948,7 +950,7 @@ static size_t TARGET_CLONES stress_vm_incdec(
 			bit_errors++;
 	}
 
-	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+	if (vm_flush)
 		stress_cpu_data_cache_flush(buf, sz);
 	stress_vm_check("incdec code", bit_errors);
 	stress_bogo_set(args, c);
@@ -1013,7 +1015,7 @@ static size_t TARGET_CLONES stress_vm_prime_incdec(
 			bit_errors++;
 	}
 
-	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+	if (vm_flush)
 		stress_cpu_data_cache_flush(buf, sz);
 	stress_vm_check("prime-incdec", bit_errors);
 	stress_bogo_set(args, c);
@@ -1081,7 +1083,7 @@ static size_t TARGET_CLONES stress_vm_swap(
 		if (UNLIKELY(!stress_continue_flag()))
 			goto abort;
 	}
-	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+	if (vm_flush)
 		stress_cpu_data_cache_flush(buf, sz);
 	/* Reverse swaps */
 	for (i = chunks - 1, ptr = (uint8_t *)buf_end - chunk_sz; ptr >= (uint8_t *)buf; ptr -= chunk_sz, i--) {
@@ -1105,7 +1107,7 @@ static size_t TARGET_CLONES stress_vm_swap(
 			goto abort;
 	}
 
-	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+	if (vm_flush)
 		stress_cpu_data_cache_flush(buf, sz);
 	(void)stress_mincore_touch_pages(buf, sz);
 	inject_random_bit_errors(buf, sz);
@@ -1124,7 +1126,7 @@ static size_t TARGET_CLONES stress_vm_swap(
 		if (UNLIKELY(!stress_continue_flag()))
 			break;
 	}
-	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+	if (vm_flush)
 		stress_cpu_data_cache_flush(buf, sz);
 	stress_vm_check("swap bytes", bit_errors);
 abort:
@@ -1182,7 +1184,7 @@ static size_t TARGET_CLONES stress_vm_rand_set(
 			goto abort;
 	}
 
-	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+	if (vm_flush)
 		stress_cpu_data_cache_flush(buf, sz);
 	(void)stress_mincore_touch_pages(buf, sz);
 	inject_random_bit_errors(buf, sz);
@@ -1202,7 +1204,7 @@ static size_t TARGET_CLONES stress_vm_rand_set(
 		if (UNLIKELY(!stress_continue_flag()))
 			break;
 	}
-	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+	if (vm_flush)
 		stress_cpu_data_cache_flush(buf, sz);
 	stress_vm_check("rand-set", bit_errors);
 abort:
@@ -1260,7 +1262,7 @@ static size_t TARGET_CLONES stress_vm_ror(
 		if (UNLIKELY(!stress_continue_flag()))
 			goto abort;
 	}
-	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+	if (vm_flush)
 		stress_cpu_data_cache_flush(buf, sz);
 	(void)stress_mincore_touch_pages(buf, sz);
 
@@ -1286,7 +1288,7 @@ static size_t TARGET_CLONES stress_vm_ror(
 		if (UNLIKELY(!stress_continue_flag()))
 			goto abort;
 	}
-	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+	if (vm_flush)
 		stress_cpu_data_cache_flush(buf, sz);
 	(void)stress_mincore_touch_pages(buf, sz);
 
@@ -1308,7 +1310,7 @@ static size_t TARGET_CLONES stress_vm_ror(
 		if (UNLIKELY(!stress_continue_flag()))
 			break;
 	}
-	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+	if (vm_flush)
 		stress_cpu_data_cache_flush(buf, sz);
 	stress_vm_check("ror", bit_errors);
 abort:
@@ -1374,7 +1376,7 @@ static size_t TARGET_CLONES stress_vm_flip(
 		if (UNLIKELY(!stress_continue_flag()))
 			goto abort;
 	}
-	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+	if (vm_flush)
 		stress_cpu_data_cache_flush(buf, sz);
 	(void)stress_mincore_touch_pages(buf, sz);
 
@@ -1406,7 +1408,7 @@ static size_t TARGET_CLONES stress_vm_flip(
 		(void)stress_mincore_touch_pages(buf, sz);
 	}
 
-	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+	if (vm_flush)
 		stress_cpu_data_cache_flush(buf, sz);
 	inject_random_bit_errors(buf, sz);
 
@@ -1433,7 +1435,7 @@ static size_t TARGET_CLONES stress_vm_flip(
 			break;
 	}
 
-	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+	if (vm_flush)
 		stress_cpu_data_cache_flush(buf, sz);
 	stress_vm_check("flip", bit_errors);
 abort:
@@ -1480,7 +1482,7 @@ static size_t TARGET_CLONES stress_vm_zero_one(
 	}
 
 	(void)shim_memset(buf, 0xff, sz);
-	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+	if (vm_flush)
 		stress_cpu_data_cache_flush(buf, sz);
 	(void)stress_mincore_touch_pages(buf, sz);
 	inject_random_bit_errors(buf, sz);
@@ -1499,7 +1501,7 @@ static size_t TARGET_CLONES stress_vm_zero_one(
 		if (UNLIKELY(!stress_continue_flag()))
 			break;
 	}
-	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+	if (vm_flush)
 		stress_cpu_data_cache_flush(buf, sz);
 	stress_vm_check("zero-one", bit_errors);
 abort:
@@ -1543,7 +1545,7 @@ static size_t TARGET_CLONES stress_vm_galpat_zero(
 			}
 		}
 	}
-	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+	if (vm_flush)
 		stress_cpu_data_cache_flush(buf, sz);
 	(void)stress_mincore_touch_pages(buf, sz);
 	inject_random_bit_errors(buf, sz);
@@ -1565,7 +1567,7 @@ static size_t TARGET_CLONES stress_vm_galpat_zero(
 	if (bits_set != bits_bad)
 		bit_errors += UNSIGNED_ABS(bits_set, bits_bad);
 
-	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+	if (vm_flush)
 		stress_cpu_data_cache_flush(buf, sz);
 	stress_vm_check("galpat-zero", bit_errors);
 ret:
@@ -1611,7 +1613,7 @@ static size_t TARGET_CLONES stress_vm_galpat_one(
 			}
 		}
 	}
-	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+	if (vm_flush)
 		stress_cpu_data_cache_flush(buf, sz);
 	(void)stress_mincore_touch_pages(buf, sz);
 	inject_random_bit_errors(buf, sz);
@@ -1633,7 +1635,7 @@ static size_t TARGET_CLONES stress_vm_galpat_one(
 	if (bits_set != bits_bad)
 		bit_errors += UNSIGNED_ABS(bits_set, bits_bad);
 
-	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+	if (vm_flush)
 		stress_cpu_data_cache_flush(buf, sz);
 	stress_vm_check("galpat-one", bit_errors);
 ret:
@@ -1711,7 +1713,7 @@ static size_t TARGET_CLONES stress_vm_inc_nybble(
 		if (UNLIKELY(!stress_continue_flag()))
 			goto abort;
 	}
-	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+	if (vm_flush)
 		stress_cpu_data_cache_flush(buf, sz);
 	(void)stress_mincore_touch_pages(buf, sz);
 	inject_random_bit_errors(buf, sz);
@@ -1729,7 +1731,7 @@ static size_t TARGET_CLONES stress_vm_inc_nybble(
 			break;
 	}
 
-	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+	if (vm_flush)
 		stress_cpu_data_cache_flush(buf, sz);
 	stress_vm_check("inc-nybble", bit_errors);
 abort:
@@ -1786,7 +1788,7 @@ static size_t TARGET_CLONES stress_vm_rand_sum(
 			goto abort;
 	}
 
-	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+	if (vm_flush)
 		stress_cpu_data_cache_flush(buf, sz);
 	(void)stress_mincore_touch_pages(buf, sz);
 	inject_random_bit_errors(buf, sz);
@@ -1804,7 +1806,7 @@ static size_t TARGET_CLONES stress_vm_rand_sum(
 		if (UNLIKELY(!stress_continue_flag()))
 			break;
 	}
-	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+	if (vm_flush)
 		stress_cpu_data_cache_flush(buf, sz);
 	stress_vm_check("rand-sum", bit_errors);
 abort:
@@ -1858,7 +1860,7 @@ static size_t TARGET_CLONES stress_vm_prime_zero(
 		if (UNLIKELY(!stress_continue_flag()))
 			goto abort;
 	}
-	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+	if (vm_flush)
 		stress_cpu_data_cache_flush(buf, sz);
 	(void)stress_mincore_touch_pages(buf, sz);
 	inject_random_bit_errors(buf, sz);
@@ -1866,7 +1868,7 @@ static size_t TARGET_CLONES stress_vm_prime_zero(
 	for (ptr = (uint8_t *)buf + offset; ptr < (uint8_t *)buf_end; ptr += prime)
 		bit_errors += stress_vm_count_bits8(*ptr);
 
-	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+	if (vm_flush)
 		stress_cpu_data_cache_flush(buf, sz);
 	stress_vm_check("prime-zero", bit_errors);
 abort:
@@ -1922,7 +1924,7 @@ static size_t TARGET_CLONES stress_vm_prime_one(
 		if (UNLIKELY(!stress_continue_flag()))
 			goto abort;
 	}
-	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+	if (vm_flush)
 		stress_cpu_data_cache_flush(buf, sz);
 	(void)stress_mincore_touch_pages(buf, sz);
 	inject_random_bit_errors(buf, sz);
@@ -1930,7 +1932,7 @@ static size_t TARGET_CLONES stress_vm_prime_one(
 	for (ptr = (uint8_t *)buf + offset; ptr < (uint8_t *)buf_end; ptr += prime)
 		bit_errors += 8 - stress_vm_count_bits8(*ptr);
 
-	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+	if (vm_flush)
 		stress_cpu_data_cache_flush(buf, sz);
 	stress_vm_check("prime-one", bit_errors);
 abort:
@@ -1986,7 +1988,7 @@ static size_t TARGET_CLONES stress_vm_prime_gray_zero(
 		if (UNLIKELY(!stress_continue_flag()))
 			goto abort;
 	}
-	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+	if (vm_flush)
 		stress_cpu_data_cache_flush(buf, sz);
 	(void)stress_mincore_touch_pages(buf, sz);
 	inject_random_bit_errors(buf, sz);
@@ -1994,7 +1996,7 @@ static size_t TARGET_CLONES stress_vm_prime_gray_zero(
 	for (ptr = (uint8_t *)buf + offset; ptr < (uint8_t *)buf_end; ptr += prime)
 		bit_errors += stress_vm_count_bits8(*ptr);
 
-	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+	if (vm_flush)
 		stress_cpu_data_cache_flush(buf, sz);
 	stress_vm_check("prime-gray-zero", bit_errors);
 abort:
@@ -2050,7 +2052,7 @@ static size_t TARGET_CLONES stress_vm_prime_gray_one(
 		if (UNLIKELY(!stress_continue_flag()))
 			goto abort;
 	}
-	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+	if (vm_flush)
 		stress_cpu_data_cache_flush(buf, sz);
 	(void)stress_mincore_touch_pages(buf, sz);
 	inject_random_bit_errors(buf, sz);
@@ -2058,7 +2060,7 @@ static size_t TARGET_CLONES stress_vm_prime_gray_one(
 	for (ptr = (uint8_t *)buf + offset; ptr < (uint8_t *)buf_end; ptr += prime)
 		bit_errors += 8 - stress_vm_count_bits8(*ptr);
 
-	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+	if (vm_flush)
 		stress_cpu_data_cache_flush(buf, sz);
 	stress_vm_check("prime-gray-one", bit_errors);
 abort:
@@ -2159,7 +2161,7 @@ static size_t OPTIMIZE3 TARGET_CLONES stress_vm_write64(
 		if (UNLIKELY(!stress_continue_flag() || (max_ops && (i >= max_ops))))
 			break;
 	}
-	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+	if (vm_flush)
 		stress_cpu_data_cache_flush(buf, sz);
 	stress_bogo_add(args, i);
 	val++;
@@ -2231,7 +2233,7 @@ static size_t TARGET_CLONES stress_vm_write64nt(
 		}
 		stress_bogo_add(args, i);
 		val++;
-		if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+		if (vm_flush)
 			stress_cpu_data_cache_flush(buf, sz);
 		return 0;
 	}
@@ -2303,7 +2305,7 @@ static size_t OPTIMIZE3 TARGET_CLONES stress_vm_read64(
 			break;
 	}
 	stress_bogo_add(args, i);
-	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+	if (vm_flush)
 		stress_cpu_data_cache_flush(buf, sz);
 
 	return 0;
@@ -2362,7 +2364,7 @@ static size_t TARGET_CLONES stress_vm_write1024v(
 	}
 	stress_bogo_add(args, i);
 	val++;
-	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+	if (vm_flush)
 		stress_cpu_data_cache_flush(buf, sz);
 
 	return 0;
@@ -2461,7 +2463,7 @@ static size_t TARGET_CLONES stress_vm_rowhammer(
 	stress_bogo_add(args, VM_ROWHAMMER_LOOPS);
 	val = (val >> 31) | (val << 1);
 
-	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+	if (vm_flush)
 		stress_cpu_data_cache_flush(buf, sz);
 	stress_vm_check("rowhammer", bit_errors);
 
@@ -2543,7 +2545,7 @@ static size_t TARGET_CLONES stress_vm_mscan(
 	}
 
 abort:
-	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+	if (vm_flush)
 		stress_cpu_data_cache_flush(buf, sz);
 	stress_vm_check("mscan", bit_errors);
 	stress_bogo_set(args, c);
@@ -2702,7 +2704,7 @@ static size_t TARGET_CLONES stress_vm_cache_stripe(
 		if (UNLIKELY(!stress_continue_flag()))
 			goto abort;
 	}
-	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+	if (vm_flush)
 		stress_cpu_data_cache_flush(buf, sz);
 
 	for (ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr += 64) {
@@ -2772,7 +2774,7 @@ static size_t TARGET_CLONES stress_vm_cache_stripe(
 		bit_errors += (ptr[0x20] != 0x30);
 	}
 
-	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+	if (vm_flush)
 		stress_cpu_data_cache_flush(buf, sz);
 	(void)stress_mincore_touch_pages(buf, sz);
 	inject_random_bit_errors(buf, sz);
@@ -2805,7 +2807,7 @@ static size_t TARGET_CLONES stress_vm_cache_lines(
 		*ptr = i++;
 		stress_asm_mb();
 	}
-	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+	if (vm_flush)
 		stress_cpu_data_cache_flush(buf, sz);
 	c += sz / stress_vm_cache_line_size;
 	if (UNLIKELY(max_ops && (c >= max_ops)))
@@ -2818,7 +2820,7 @@ static size_t TARGET_CLONES stress_vm_cache_lines(
 	}
 	(void)stress_mincore_touch_pages(buf, sz);
 	inject_random_bit_errors(buf, sz);
-	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+	if (vm_flush)
 		stress_cpu_data_cache_flush(buf, sz);
 	stress_vm_check("cache-lines", bit_errors);
 abort:
@@ -2897,7 +2899,7 @@ static size_t TARGET_CLONES stress_vm_wrrd128nt(
 		val++;
 		c++;
 	}
-	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+	if (vm_flush)
 		stress_cpu_data_cache_flush(buf, sz);
 	if (UNLIKELY(max_ops && (c >= max_ops)))
 		goto abort;
@@ -2944,7 +2946,7 @@ static size_t TARGET_CLONES stress_vm_wrrd128nt(
 		bit_errors += (tmp != (val + 3));
 		val++;
 	}
-	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+	if (vm_flush)
 		stress_cpu_data_cache_flush(buf, sz);
 	inject_random_bit_errors(buf, sz);
 	stress_vm_check("wrrd128nt", bit_errors);
@@ -3014,7 +3016,7 @@ static size_t TARGET_CLONES stress_vm_fwdrev(
 		if (UNLIKELY(!stress_continue_flag()))
 			goto abort;
 	}
-	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+	if (vm_flush)
 		stress_cpu_data_cache_flush(buf, sz);
 
 	for (fwdptr = (uint8_t *)buf, revptr = (uint8_t *)buf_end; fwdptr < (uint8_t *)buf_end; ) {
@@ -3059,7 +3061,7 @@ static size_t TARGET_CLONES stress_vm_fwdrev(
 			goto abort;
 	}
 
-	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+	if (vm_flush)
 		stress_cpu_data_cache_flush(buf, sz);
 	stress_vm_check("fwdrev", bit_errors);
 abort:
@@ -3120,7 +3122,7 @@ static size_t stress_vm_lfsr32(
 			goto abort;
 	}
 
-	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+	if (vm_flush)
 		stress_cpu_data_cache_flush(buf, sz);
 	(void)stress_mincore_touch_pages(buf, sz);
 	inject_random_bit_errors(buf, sz);
@@ -3145,7 +3147,7 @@ static size_t stress_vm_lfsr32(
 		if (UNLIKELY(!stress_continue_flag()))
 			break;
 	}
-	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+	if (vm_flush)
 		stress_cpu_data_cache_flush(buf, sz);
 	stress_vm_check("lfsr32", bit_errors);
 abort:
@@ -3240,7 +3242,7 @@ static size_t TARGET_CLONES stress_vm_checkerboard(
 		stress_asm_mb();
 		STRESS_VM_CHECKERBOARD_SWAP(ptr + 6, ptr + 7);
 	}
-	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+	if (vm_flush)
 		stress_cpu_data_cache_flush(buf, sz);
 	(void)stress_mincore_touch_pages(buf, sz);
 	inject_random_bit_errors(buf, sz);
@@ -3261,7 +3263,7 @@ static size_t TARGET_CLONES stress_vm_checkerboard(
 			break;
 	}
 
-	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+	if (vm_flush)
 		stress_cpu_data_cache_flush(buf, sz);
 	stress_vm_check("checkerboard", bit_errors);
 	stress_bogo_set(args, c);
@@ -3374,13 +3376,16 @@ static int stress_vm_child(stress_args_t *args, void *ctxt)
 
 	stress_catch_sigill();
 
+	(void)stress_get_setting("vm-flush", &vm_flush);
+	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+		vm_flush = true;
 	(void)stress_get_setting("vm-hang", &vm_hang);
 	(void)stress_get_setting("vm-keep", &vm_keep);
 #if defined(MAP_LOCKED)
-	stress_vm_flags("vm-mmap-locked", &vm_flags, MAP_LOCKED);
+	stress_vm_flags("vm-locked", &vm_flags, MAP_LOCKED);
 #endif
 #if defined(MAP_POPULATE)
-	stress_vm_flags("vm-mmap-populate", &vm_flags, MAP_POPULATE);
+	stress_vm_flags("vm-populate", &vm_flags, MAP_POPULATE);
 #endif
 	(void)stress_get_setting("vm-flags", &vm_flags);
 	if (stress_get_setting("vm-madvise", &vm_madvise))
@@ -3634,6 +3639,7 @@ static const char *stress_vm_method(const size_t i)
 
 static const stress_opt_t opts[] = {
 	{ OPT_vm_bytes,    "vm-bytes",    TYPE_ID_SIZE_T_BYTES_VM, MIN_VM_BYTES, MAX_VM_BYTES, NULL },
+	{ OPT_vm_flush,	   "vm-flush",	  TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_vm_hang,     "vm-hang",     TYPE_ID_UINT64, MIN_VM_HANG, MAX_VM_HANG, NULL },
 	{ OPT_vm_keep,     "vm-keep",     TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_vm_locked,   "vm-locked",   TYPE_ID_BOOL, 0, 1, NULL },

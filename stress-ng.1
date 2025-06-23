@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "21 June 2025"
+.TH STRESS-NG 1 "23 June 2025"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -9216,6 +9216,10 @@ available.
 mmap N bytes in total, this is shared by each vm worker, the default is 256 MB.
 One can specify the size as % of total available memory or in units of Bytes,
 KBytes, MBytes and GBytes using the suffix b, k, m or g.
+.TP
+.B \-\-vm\-flush
+cache flush mapped memory after each memory region has been completely
+written to.
 .TP
 .B \-\-vm\-hang N
 sleep N seconds before unmapping memory, the default is zero seconds.
