@@ -92,7 +92,7 @@ extern void stress_cpu_data_cache_flush(void *addr, const size_t len);
 typedef void (*shim_clflush_func_t)(volatile void *ptr);
 
 static inline void ALWAYS_INLINE shim_clflush_select(volatile void *ptr);
-static shim_clflush_func_t shim_clflush_func =  shim_clflush_select;
+static shim_clflush_func_t shim_clflush_func = shim_clflush_select;
 
 static inline void ALWAYS_INLINE shim_clflush_op(volatile void *ptr)
 {
