@@ -1939,12 +1939,10 @@ void stress_yaml_buildinfo(FILE *yaml)
 
 	pr_yaml(yaml, "build-info:\n");
 	pr_yaml(yaml, "      compiler: '%s'\n", stress_get_compiler());
-#if defined(__DATE__)
-	pr_yaml(yaml, "      build-date: '" __DATE__ "'\n");
+#if defined(HAVE_SOURCE_DATE_EPOCH)
+	pr_yaml(yaml, "source-date-epoch: " XSTR(HAVE_SOURCE_DATE_EPOCH) "\n");
 #endif
-#if defined(__TIME__)
-	pr_yaml(yaml, "      build-time: '" __TIME__ "'\n");
-#endif
+#if defined(HAVE_EXTRA_BUILDINFO)
 #if defined(HAVE_CFLAGS)
 	pr_yaml(yaml, "      cflags: '" HAVE_CFLAGS "'\n");
 #endif
@@ -1953,6 +1951,7 @@ void stress_yaml_buildinfo(FILE *yaml)
 #endif
 #if defined(HAVE_LDFLAGS)
 	pr_yaml(yaml, "      ldflags: '" HAVE_LDFLAGS "'\n");
+#endif
 #endif
 #if defined(__STDC_VERSION__)
 	pr_yaml(yaml, "      stdc-version: '" XSTR(__STDC_VERSION__) "'\n");
