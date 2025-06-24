@@ -5273,6 +5273,10 @@ Single random page modify and unmap all pages
 Randomly selected page modify and modify
 .TE
 .TP
+.B \-\-mmapcow\-fork
+fork child process to exercise pages in parallel with parent to exercice page
+handling harder.
+.TP
 .B \-\-mmapcow\-free
 after each page is modified and before each page is unmapped use madvise MADV_FREE
 (if it is available) to indicate the page is free

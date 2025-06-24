@@ -903,6 +903,7 @@ typedef enum {
 	OPT_mmapaddr_ops,
 
 	OPT_mmapcow,
+	OPT_mmapcow_fork,
 	OPT_mmapcow_free,
 	OPT_mmapcow_mlock,
 	OPT_mmapcow_numa,

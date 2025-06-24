@@ -609,6 +609,7 @@ const struct option stress_long_options[] = {
 	{ "mmapaddr-mlock",	0,	0,	OPT_mmapaddr_mlock },
 	{ "mmapaddr-ops",	1,	0,	OPT_mmapaddr_ops },
 	{ "mmapcow",		1,	0,	OPT_mmapcow },
+	{ "mmapcow-fork",	0,	0,	OPT_mmapcow_fork },
 	{ "mmapcow-free",	0,	0,	OPT_mmapcow_free },
 	{ "mmapcow-mlock",	0,	0,	OPT_mmapcow_mlock },
 	{ "mmapcow-numa",	0,	0,	OPT_mmapcow_numa },
