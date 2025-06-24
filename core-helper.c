@@ -2003,7 +2003,8 @@ void stress_runinfo(void)
 			stress_endian_str());
 	}
 #else
-	pr_dbg("system: %s, %s, %s\n",
+	pr_dbg("system: %s, %s, %s, %s\n",
+		stress_get_arch(),
 		stress_get_compiler(),
 		stress_get_libc_version(),
 		stress_endian_str());
@@ -2074,6 +2075,8 @@ void stress_yaml_runinfo(FILE *yaml)
 		pr_yaml(yaml, "      version: '%s'\n", uts.version);
 		pr_yaml(yaml, "      machine: '%s'\n", uts.machine);
 	}
+#else
+	pr_yaml(yaml, "      machine: '%s'\n", stress_get_arch());
 #endif
 	pr_yaml(yaml, "      compiler: '%s'\n", stress_get_compiler());
 	pr_yaml(yaml, "      libc: '%s'\n", stress_get_libc_version());

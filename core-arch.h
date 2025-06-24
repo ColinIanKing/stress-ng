@@ -19,6 +19,10 @@
 #ifndef CORE_ARCH_H
 #define CORE_ARCH_H
 
+#include "stress-ng.h"
+
+extern WARN_UNUSED const char *stress_get_arch(void);
+
 #if defined(__BYTE_ORDER__) &&  \
     defined(__ORDER_LITTLE_ENDIAN__)
 #if __BYTE_ORDER__  == __ORDER_LITTLE_ENDIAN__

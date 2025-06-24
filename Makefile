@@ -748,6 +748,7 @@ CORE_SRC_GEN = \
 #
 CORE_SRC = \
 	core-affinity.c \
+	core-arch.c \
 	core-asm-ret.c \
 	core-cpu.c \
 	core-cpu-cache.c \
