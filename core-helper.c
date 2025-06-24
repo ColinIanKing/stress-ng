@@ -2047,32 +2047,32 @@ void stress_yaml_runinfo(FILE *yaml)
 	if (time(&t) != ((time_t)-1))
 		tm = localtime(&t);
 
-	pr_yaml(yaml, "      stress-ng-version: " VERSION "\n");
-	pr_yaml(yaml, "      run-by: %s\n", user ? user : "unknown");
+	pr_yaml(yaml, "      stress-ng-version: '" VERSION "'\n");
+	pr_yaml(yaml, "      run-by: '%s'\n", user ? user : "unknown");
 	if (LIKELY(tm != NULL)) {
-		pr_yaml(yaml, "      date-yyyy-mm-dd: %4.4d:%2.2d:%2.2d\n",
+		pr_yaml(yaml, "      date-yyyy-mm-dd: '%4.4d:%2.2d:%2.2d'\n",
 			tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday);
-		pr_yaml(yaml, "      time-hh-mm-ss: %2.2d:%2.2d:%2.2d\n",
+		pr_yaml(yaml, "      time-hh-mm-ss: '%2.2d:%2.2d:%2.2d'\n",
 			tm->tm_hour, tm->tm_min, tm->tm_sec);
 		pr_yaml(yaml, "      epoch-secs: %ld\n", (long int)t);
 	}
 
 	hostname = (char *)malloc(hostname_len + 1);
 	if (hostname && !gethostname(hostname, hostname_len)) {
-		pr_yaml(yaml, "      hostname: %s\n", hostname);
+		pr_yaml(yaml, "      hostname: '%s'\n", hostname);
 	} else {
-		pr_yaml(yaml, "      hostname: %s\n", "unknown");
+		pr_yaml(yaml, "      hostname: '%s'\n", "unknown");
 	}
 	free(hostname);
 
 #if defined(HAVE_UNAME) &&	\
     defined(HAVE_SYS_UTSNAME_H)
 	if (LIKELY(uname(&uts) >= 0)) {
-		pr_yaml(yaml, "      sysname: %s\n", uts.sysname);
-		pr_yaml(yaml, "      nodename: %s\n", uts.nodename);
-		pr_yaml(yaml, "      release: %s\n", uts.release);
+		pr_yaml(yaml, "      sysname: '%s'\n", uts.sysname);
+		pr_yaml(yaml, "      nodename: '%s'\n", uts.nodename);
+		pr_yaml(yaml, "      release: '%s'\n", uts.release);
 		pr_yaml(yaml, "      version: '%s'\n", uts.version);
-		pr_yaml(yaml, "      machine: %s\n", uts.machine);
+		pr_yaml(yaml, "      machine: '%s'\n", uts.machine);
 	}
 #endif
 	pr_yaml(yaml, "      compiler: '%s'\n", stress_get_compiler());
