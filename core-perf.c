@@ -349,6 +349,7 @@ static stress_perf_info_t perf_info[STRESS_PERF_MAX] = {
 
 	PERF_INFO_TP("msr/read_msr",			"MSR read"),
 	PERF_INFO_TP("msr/write_msr",			"MSR write"),
+	PERF_INFO_TP("msr/rdpmc",			"PMC read"),
 
 	PERF_INFO_TP("iommu/io_page_fault",		"IOMMU IO Page Fault"),
 	PERF_INFO_TP("iommu/map",			"IOMMU Map"),
