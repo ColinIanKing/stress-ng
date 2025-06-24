@@ -127,13 +127,17 @@ PRAGMA_UNROLL_N(8)
 	return 0;
 }
 
+/*
+ *  stress_mmapcow_exercise()
+ *	exercise mmap copy-on-write pages
+ */
 static int stress_mmapcow_exercise(
 	stress_args_t *args,
 	int *flags,
 	double *duration,
 	double *count,
-	size_t buf_size,
-	size_t max_buf_size,
+	size_t *buf_size,
+	size_t *max_buf_size,
 	size_t *failed_size,
 	int *failed_count)
 {
@@ -145,17 +149,17 @@ static int stress_mmapcow_exercise(
 	const size_t page_size2 = page_size + page_size;
 	unsigned char vec[1];
 
-	n_pages = buf_size / page_size;
-	buf = (uint8_t *)mmap(NULL, buf_size, PROT_READ | PROT_WRITE,
+	n_pages = *buf_size / page_size;
+	buf = (uint8_t *)mmap(NULL, *buf_size, PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (buf == MAP_FAILED) {
-		if (buf_size == page_size) {
+		if (*buf_size == page_size) {
 			pr_inf("%s: failed to mmap %zu bytes, errno=%d (%s), terminating early\n",
-				args->name, buf_size, errno, strerror(errno));
+				args->name, *buf_size, errno, strerror(errno));
 			return EXIT_NO_RESOURCE;
 		}
-		*failed_size = buf_size;
-		buf_size = page_size;
+		*failed_size = *buf_size;
+		*buf_size = page_size;
 		*failed_count = 0;
 		return EXIT_SUCCESS;
 	}
@@ -163,43 +167,46 @@ static int stress_mmapcow_exercise(
 #if defined(MCL_ONFAULT) &&	\
     defined(MCL_FUTURE)
 	if (*flags & MMAPCOW_MLOCK) {
-		if (mlock2(buf, buf_size, MCL_ONFAULT | MCL_FUTURE) < 0) {
+		if (mlock2(buf, *buf_size, MCL_ONFAULT | MCL_FUTURE) < 0) {
 			if (errno == ENOSYS)
 				*flags &= ~(*flags) & MMAPCOW_MLOCK;
 		}
 	}
 #endif
 #if defined(MADV_COLLAPSE)
-	(void)madvise((void *)buf, buf_size, MADV_COLLAPSE);
+	(void)madvise((void *)buf, *buf_size, MADV_COLLAPSE);
 #endif
 #if defined(MADV_DONTNEED)
-	(void)madvise((void *)buf, buf_size, MADV_DONTNEED);
+	(void)madvise((void *)buf, *buf_size, MADV_DONTNEED);
+#endif
+#if defined(MADV_MERGEABLE)
+	(void)madvise((void *)buf, *buf_size, MADV_MERGEABLE);
 #endif
 
 	/* Low memory? Start again.. */
 	if (stress_low_memory(64 * page_size)) {
-		(void)munmap((void *)buf, buf_size);
-		buf_size = page_size;
+		(void)munmap((void *)buf, *buf_size);
+		*buf_size = page_size;
 		return EXIT_SUCCESS;
 	}
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 	if ((*flags & MMAPCOW_NUMA) && numa_mask && numa_nodes)
-		stress_numa_randomize_pages(args, numa_nodes, numa_mask, buf, buf_size, page_size);
+		stress_numa_randomize_pages(args, numa_nodes, numa_mask, buf, *buf_size, page_size);
 #endif
-	stress_set_vma_anon_name(buf, buf_size, "mmapcow-pages");
-	buf_end = buf + buf_size;
-	rnd = stress_mwc8() % 7;
+	stress_set_vma_anon_name(buf, *buf_size, "mmapcow-pages");
+	buf_end = buf + *buf_size;
+	rnd = stress_mwc8() & 7;
 
 	if (*flags & MMAPCOW_FORK) {
 		pid = fork();
 
 		/* force child to have different rnd from parent */
 		if (pid == 0) {
-			rnd = stress_mwc8() % 7;
+			rnd = stress_mwc8() & 7;
 
 			/* don't exercise child on low memory scenarios */
 			if (stress_low_memory(64 * page_size)) {
-				(void)munmap((void *)buf, buf_size);
+				(void)munmap((void *)buf, *buf_size);
 				_exit(EXIT_SUCCESS);
 			}
 		}
@@ -209,7 +216,7 @@ static int stress_mmapcow_exercise(
 	case 0:
 		/* Forward */
 		for (ptr = buf; stress_continue(args) && (ptr < buf_end); ptr += page_size) {
-			if (UNLIKELY(stress_mmapcow_modify_unmap(args, buf, buf_size,
+			if (UNLIKELY(stress_mmapcow_modify_unmap(args, buf, *buf_size,
 					ptr, page_size, *flags, duration, count) < 0))
 				goto next;
 		}
@@ -217,12 +224,12 @@ static int stress_mmapcow_exercise(
 	case 1:
 		/* Foward stride even pages then odd pages */
 		for (ptr = buf; stress_continue(args) && (ptr < buf_end); ptr += page_size2) {
-			if (UNLIKELY(stress_mmapcow_modify_unmap(args, buf, buf_size,
+			if (UNLIKELY(stress_mmapcow_modify_unmap(args, buf, *buf_size,
 					ptr, page_size, *flags, duration, count) < 0))
 				goto next;
 		}
 		for (ptr = buf + page_size; stress_continue(args) && (ptr < buf_end); ptr += page_size2) {
-			if (UNLIKELY(stress_mmapcow_modify_unmap(args, buf, buf_size,
+			if (UNLIKELY(stress_mmapcow_modify_unmap(args, buf, *buf_size,
 					ptr, page_size, *flags, duration, count) < 0))
 				goto next;
 		}
@@ -231,30 +238,30 @@ static int stress_mmapcow_exercise(
 		/* Forward prime stride */
 		stride = stress_get_prime64(n_pages) * page_size;
 		for (i = 0, offset = 0; stress_continue(args) && i < n_pages; i++) {
-			if (UNLIKELY(stress_mmapcow_modify_unmap(args, buf, buf_size,
+			if (UNLIKELY(stress_mmapcow_modify_unmap(args, buf, *buf_size,
 					buf + offset, page_size, *flags, duration, count) < 0))
 				goto next;
 			offset += stride;
-			offset %= buf_size;
+			offset %= *buf_size;
 		}
 		break;
 	case 3:
 		/* Reverse */
-		for (ptr = buf + buf_size - page_size; stress_continue(args) && (ptr >= buf); ptr -= page_size) {
-			if (UNLIKELY(stress_mmapcow_modify_unmap(args, buf, buf_size,
+		for (ptr = buf + *buf_size - page_size; stress_continue(args) && (ptr >= buf); ptr -= page_size) {
+			if (UNLIKELY(stress_mmapcow_modify_unmap(args, buf, *buf_size,
 					ptr, page_size, *flags, duration, count) < 0))
 				goto next;
 		}
 		break;
 	case 4:
 		/* Reverse stride even pages then odd pages */
-		for (ptr = buf + buf_size - page_size; stress_continue(args) && (ptr >= buf); ptr -= page_size2) {
-			if (UNLIKELY(stress_mmapcow_modify_unmap(args, buf, buf_size,
+		for (ptr = buf + *buf_size - page_size; stress_continue(args) && (ptr >= buf); ptr -= page_size2) {
+			if (UNLIKELY(stress_mmapcow_modify_unmap(args, buf, *buf_size,
 					ptr, page_size, *flags, duration, count) < 0))
 				goto next;
 		}
-		for (ptr = buf + buf_size - page_size2; stress_continue(args) && (ptr >= buf); ptr -= page_size2) {
-			if (UNLIKELY(stress_mmapcow_modify_unmap(args, buf, buf_size,
+		for (ptr = buf + *buf_size - page_size2; stress_continue(args) && (ptr >= buf); ptr -= page_size2) {
+			if (UNLIKELY(stress_mmapcow_modify_unmap(args, buf, *buf_size,
 					ptr, page_size, *flags, duration, count) < 0))
 				goto next;
 		}
@@ -262,19 +269,19 @@ static int stress_mmapcow_exercise(
 	case 5:
 		/* Randomly chosen pages, check if mincore works on buf */
 		if (shim_mincore(buf, 1, vec) == 0) {
-			for (i = 0, offset = 0; stress_continue(args) && i < n_pages; i++) {
+			for (i = 0; stress_continue(args) && i < n_pages; i++) {
 				offset = stress_mwc64modn((uint64_t)n_pages) * page_size;
 
 				/* is randomly chosen page mmapd? */
 				if (shim_mincore(buf + offset, 1, vec) == 0) {
-					if (UNLIKELY(stress_mmapcow_modify_unmap(args, buf, buf_size,
+					if (UNLIKELY(stress_mmapcow_modify_unmap(args, buf, *buf_size,
 							buf + offset, page_size, *flags, duration, count) < 0)) {
 						goto next;
 					}
 				}
 			}
 		}
-		stress_mmapcow_force_unmap(args, buf, buf_size, page_size);
+		stress_mmapcow_force_unmap(args, buf, *buf_size, page_size);
 		break;
 	case 6:
 		/* Populate 1 random page, unmap all */
@@ -284,24 +291,39 @@ static int stress_mmapcow_exercise(
 		if (*flags & MMAPCOW_FREE)
 			(void)madvise((void *)(buf + offset), page_size, MADV_FREE);
 #endif
-		(void)munmap((void *)buf, buf_size);
+		(void)munmap((void *)buf, *buf_size);
 		stress_bogo_inc(args);
+		break;
+	case 7:
+		for (i = 0, ptr = buf; stress_continue(args) && i < n_pages; i++, ptr += page_size) {
+			offset = stress_mwc64modn((uint64_t)n_pages) * page_size;
+#if defined(MADV_MERGEABLE) &&	\
+    defined(MADV_UNMERGEABLE)
+			/* Random mergeable advice */
+			(void)madvise((void *)buf + offset, page_size,
+					stress_mwc1() ? MADV_MERGEABLE : MADV_UNMERGEABLE);
+#endif
+			/* Sequential page unmapping */
+			if (UNLIKELY(stress_mmapcow_modify_unmap(args, buf, *buf_size,
+					ptr, page_size, *flags, duration, count) < 0))
+				goto next;
+		}
 		break;
 	default:
 		break;
 	}
 next:
-	if (buf_size > max_buf_size)
-		max_buf_size = buf_size;
-	buf_size = buf_size + buf_size;
-	if (buf_size >= *failed_size) {
+	if (*buf_size > *max_buf_size)
+		*max_buf_size = *buf_size;
+	*buf_size = *buf_size + *buf_size;
+	if (*buf_size >= *failed_size) {
 		(*failed_count)++;
 		/*
 		 *  After avoiding the failed mmap size 16
 		 *  times, try pushing the threshold up again
 		 */
 		if (*failed_count < 16) {
-			buf_size = page_size;
+			*buf_size = page_size;
 		} else {
 			*failed_size = ~(size_t)0;
 			*failed_count = 0;
@@ -309,8 +331,8 @@ next:
 	}
 
 	/* Handle unlikely wrap */
-	if (UNLIKELY(buf_size < page_size))
-		buf_size = page_size;
+	if (UNLIKELY(*buf_size < page_size))
+		*buf_size = page_size;
 
 	if (*flags & MMAPCOW_FORK) {
 		if (pid == 0)
@@ -339,7 +361,7 @@ static int stress_mmapcow_child(stress_args_t *args, void *ctxt)
 
 	do {
 		ret = stress_mmapcow_exercise(args, &flags, &duration, &count,
-			buf_size, max_buf_size, &failed_size, &failed_count);
+			&buf_size, &max_buf_size, &failed_size, &failed_count);
 	} while ((ret == EXIT_SUCCESS) && stress_continue(args));
 
 	rate = (count > 0) ? STRESS_DBL_NANOSECOND * (duration / count) : 0.0;
