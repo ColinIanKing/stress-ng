@@ -89,7 +89,14 @@ static int stress_filename_probe_length(
 			return -1;
 		}
 		(void)close(fd);
-		(void)shim_unlink(filename);
+		if (shim_unlink(filename)) {
+			pr_err("%s: unlink() failed when probing "
+				"for filename length, "
+				"errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
+			*sz_max = 0;
+			return -1;
+		}
 		max = i;
 	}
 	*sz_max = max + 1;
@@ -153,7 +160,14 @@ static int stress_filename_probe(
 			}
 		} else {
 			(void)close(fd);
-			(void)shim_unlink(filename);
+			if (shim_unlink(filename)) {
+				pr_err("%s: unlink() failed when probing "
+					"for allowed filename characters, "
+					"errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
+				*chars_allowed = 0;
+				return -errno;
+			}
 			allowed[j] = (char)i;
 			j++;
 		}
@@ -204,7 +218,11 @@ static void stress_filename_generate(
  *  stress_filename_tidy()
  *	clean up residual files
  */
-static void stress_filename_tidy(const char *path)
+static void stress_filename_tidy(
+	stress_args_t *args,
+	const char *path,
+	int *rc
+)
 {
 	DIR *dir;
 
@@ -219,7 +237,12 @@ static void stress_filename_tidy(const char *path)
 				continue;
 			(void)stress_mk_filename(filename, sizeof(filename),
 				path, d->d_name);
-			(void)shim_unlink(filename);
+			if (shim_unlink(filename)) {
+				pr_fail("%s: unlink() failed when tidying, "
+					"errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
+				*rc = EXIT_FAILURE;
+			}
 		}
 		(void)closedir(dir);
 	}
@@ -291,7 +314,13 @@ static void stress_filename_test(
 		/* exercise dcache lookup of existent filename */
 		VOID_RET(int, shim_stat(filename, &buf));
 
-		(void)shim_unlink(filename);
+		if (shim_unlink(filename)) {
+			pr_fail("%s: unlink() failed on file of length "
+				"%zu bytes, errno=%d (%s)\n",
+				args->name, sz_max, errno, strerror(errno));
+			*rc = EXIT_FAILURE;
+			return;
+		}
 	}
 
 	/* exercise dcache lookup of non-existent filename */
@@ -564,7 +593,7 @@ again:
 
 tidy_dir:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
-	(void)stress_filename_tidy(pathname);
+	stress_filename_tidy(args, pathname, &rc);
 
 	return rc;
 }
