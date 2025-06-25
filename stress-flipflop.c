@@ -42,8 +42,8 @@ static const stress_opt_t opts[] = {
 static const stress_help_t help[] = {
 	{ NULL,	"flipflop N",           "start N workers exercising flipflop" },
 	{ NULL,	"flipflop-bits N",      "number of bits to be exercised by 2 x N x pthreads" },
-	{ NULL, "pingping-taskset1 S1", "list of CPUs to pin N ping threads to" },
-	{ NULL, "pingping-taskset2 S2", "list of CPUs to pin N pong threads to" },
+	{ NULL, "flipflop-taskset1 S1", "list of CPUs to pin N ping threads to" },
+	{ NULL, "flipflop-taskset2 S2", "list of CPUs to pin N pong threads to" },
 	{ NULL,	"flipflop-ops N",       "stop after N flipflop bogo operations" },
 	{ NULL,	NULL,		        NULL }
 };
