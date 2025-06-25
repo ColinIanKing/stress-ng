@@ -103,6 +103,7 @@ const struct option stress_long_options[] = {
 	{ "cache-level",	1,	0,	OPT_cache_level },
 	{ "cache-no-affinity",	0,	0,	OPT_cache_no_affinity },
 	{ "cache-ops",		1,	0,	OPT_cache_ops },
+	{ "cache-permute",	0,	0,	OPT_cache_permute },
 	{ "cache-prefetch",	0,	0,	OPT_cache_prefetch },
 	{ "cache-prefetchw",	0,	0,	OPT_cache_prefetchw },
 	{ "cache-sfence",	0,	0,	OPT_cache_sfence },

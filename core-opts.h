@@ -252,6 +252,7 @@ typedef enum {
 	OPT_cache_level,
 	OPT_cache_sfence,
 	OPT_cache_no_affinity,
+	OPT_cache_permute,
 	OPT_cache_prefetch,
 	OPT_cache_prefetchw,
 	OPT_cache_ways,
