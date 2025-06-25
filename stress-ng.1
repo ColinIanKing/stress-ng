@@ -1576,7 +1576,7 @@ iterate over all the below cpu stress methods
 T}
 ackermann	T{
 Ackermann function: compute A(3, 7), where:
- A(m, n) = n + 1 if m = 0;
+ A(m, n) = n \(pl 1 if m = 0;
  A(m \(mi 1, 1) if m > 0 and n = 0;
  A(m \(mi 1, A(m, n \(mi 1)) if m > 0 and n > 0
 .br
@@ -1603,7 +1603,7 @@ clongdouble	T{
 T}
 collatz	T{
 compute the 1348 steps in the collatz sequence starting from number 989345275647.
-Where f(n) = n / 2 (for even n) and f(n) = 3n + 1 (for odd n).
+Where f(n) = n / 2 (for even n) and f(n) = 3n \(pl 1 (for odd n).
 T}
 correlate	T{
 perform a 8192 \(mu 512 correlation of random doubles
@@ -1644,7 +1644,7 @@ double	T{
 1000 iterations of a mix of double precision floating point operations
 T}
 euler	T{
-compute e using n \[eq] (1 + (1 \[di] n)) \[ua] n
+compute e using n \[eq] (1 \(pl (1 \[di] n)) \[ua] n
 T}
 explog	T{
 iterate on n \[eq] exp(log(n) \[di] 1.00002)
@@ -1685,7 +1685,7 @@ float, double and long double floating point variables.
 T}
 gamma	T{
 calculate the Euler\-Mascheroni constant \(*g using the limiting difference
-between the harmonic series (1 + 1/2 + 1/3 + 1/4 + 1/5 ... + 1/n) and the
+between the harmonic series (1 \(pl 1/2 \(pl 1/3 \(pl 1/4 \(pl 1/5 ... \(pl 1/n) and the
 natural logarithm ln(n), for n = 80000.
 T}
 gcd	T{
@@ -1699,17 +1699,17 @@ hamming	T{
 compute Hamming H(8,4) codes on 262144 lots of 4 bit data. This turns 4 bit
 data into 8 bit Hamming code containing 4 parity bits. For data bits d1..d4,
 parity bits are computed as:
-  p1 = d2 + d3 + d4
-  p2 = d1 + d3 + d4
-  p3 = d1 + d2 + d4
-  p4 = d1 + d2 + d3
+  p1 = d2 \(pl d3 \(pl d4
+  p2 = d1 \(pl d3 \(pl d4
+  p3 = d1 \(pl d2 \(pl d4
+  p4 = d1 \(pl d2 \(pl d3
 T}
 hanoi	T{
 solve a 21 disc Towers of Hanoi stack using the recursive solution. For
 other recursive methods, refer to the ackermann cpu stress method.
 T}
 hyperbolic	T{
-compute sinh(\(*h) \(mu cosh(\(*h) + sinh(2\(*h) + cosh(3\(*h) for float,
+compute sinh(\(*h) \(mu cosh(\(*h) \(pl sinh(2\(*h) \(pl cosh(3\(*h) for float,
 double and long double hyperbolic sine and cosine functions where \(*h = 0
 to 2\(*p in 1500 steps
 T}
@@ -1789,12 +1789,12 @@ Simple unoptimised compare >, <, == and jmp branching.
 T}
 lfsr32	T{
 16384 iterations of a 32 bit Galois linear feedback shift register using
-the polynomial x\[ua]32 + x\[ua]31 + x\[ua]29 + x + 1. This generates a
+the polynomial x\[ua]32 \(pl x\[ua]31 \(pl x\[ua]29 \(pl x \(pl 1. This generates a
 ring of 2\[ua]32 \(mi 1 unique values (all 32 bit values except for 0).
 T}
 ln2	T{
 compute ln(2) based on series:
- 1 \(mi 1/2 + 1/3 \(mi 1/4 + 1/5 \(mi 1/6 ...
+ 1 \(mi 1/2 \(pl 1/3 \(mi 1/4 \(pl 1/5 \(mi 1/6 ...
 T}
 logmap	T{
 16384 iterations computing chaotic double precision values using the logistic map
@@ -1817,7 +1817,7 @@ compute sqrt() of long doubles using Newton-Raphson.
 T}
 omega	T{
 compute the omega constant defined by \(*We\[ua]\(*W = 1 using efficient
-iteration of \(*Wn+1 = (1 + \(*Wn) / (1 + e\[ua]\(*Wn).
+iteration of \(*Wn\(pl1 = (1 \(pl \(*Wn) / (1 \(pl e\[ua]\(*Wn).
 T}
 parity	T{
 compute parity using various methods from the Standford Bit Twiddling Hacks.
@@ -1847,8 +1847,8 @@ rand	T{
 random number generator.
 The MWC random function concatenates two 16 bit multiply\-with\-carry
 generators:
- x(n) = 36969 \(mu x(n \(mi 1) + carry,
- y(n) = 18000 \(mu y(n \(mi 1) + carry mod 2 \[ua] 16
+ x(n) = 36969 \(mu x(n \(mi 1) \(pl carry,
+ y(n) = 18000 \(mu y(n \(mi 1) \(pl carry mod 2 \[ua] 16
 .sp 1
 and has period of around 2 \[ua] 60.
 T}
@@ -1870,7 +1870,7 @@ sqrt	T{
 compute sqrt(rand()), where rand is the MWC pseudo random number generator.
 T}
 trig	T{
-compute sin(\(*h) \(mu cos(\(*h) + sin(2\(*h) + cos(3\(*h) for float, double
+compute sin(\(*h) \(mu cos(\(*h) \(pl sin(2\(*h) \(pl cos(3\(*h) for float, double
 and long double sine and cosine functions where \(*h = 0 to 2\(*p in 1500 steps.
 T}
 union	T{
@@ -2398,7 +2398,7 @@ a wide range of system call numbers to see if it can break a system where these
 are not wired up correctly.  It also keeps track of system calls that exist
 (ones that don't return ENOSYS) so that it can focus on purely finding and
 exercising non-functional system calls. This stressor exercises system calls
-from 0 to __NR_syscalls + 1024, random system calls within constrained in the
+from 0 to __NR_syscalls \(pl 1024, random system calls within constrained in the
 ranges of 0 to 2\[ua]8, 2\[ua]16, 2\[ua]24, 2\[ua]32, 2\[ua]40, 2\[ua]48,
 2\[ua]56 and 2\[ua]64 bits, high system call numbers and various other bit
 patterns to try to get wide coverage. To keep the environment clean, each
@@ -4908,7 +4908,7 @@ chunkpage	T{
 memset page size chunks of random data into random locations
 T}
 copy128	T{
-copy 128 byte chunks from chunk N + 1 to chunk N with streaming
+copy 128 byte chunks from chunk N \(pl 1 to chunk N with streaming
 reads and writes with 128 bit memory accesses where possible.
 T}
 flip	T{
@@ -5511,10 +5511,10 @@ sin	T{
 integrate sin(x) for x = 0..\(*p
 T}
 sqrt	T{
-integrate sqrt(1 + x \[ua] 4) for x = 0..1
+integrate sqrt(1 \(pl x \[ua] 4) for x = 0..1
 T}
 squircle	T{
-area of a unit squircle x \[ua] 4 + y \[ua] 4 = 1
+area of a unit squircle x \[ua] 4 \(pl y \[ua] 4 = 1
 T}
 .TE
 .TP
@@ -5580,7 +5580,7 @@ cosine	T{
 compute cos(\(*h) for \(*h = 0 to 2\(*p in 100 steps.
 T}
 euler	T{
-compute e using n \[eq] (1 + (1 \[di] n)) \[ua] n.
+compute e using n \[eq] (1 \(pl (1 \[di] n)) \[ua] n.
 T}
 exp	T{
 compute 1000 exponentials.
@@ -5590,7 +5590,7 @@ computer 1000 natural logarithms.
 T}
 omega	T{
 compute the omega constant defined by \(*We\[ua]\(*W = 1 using efficient
-iteration of \(*Wn+1 = (1 + \(*Wn) / (1 + e\[ua]\(*Wn).
+iteration of \(*Wn\(pl1 = (1 \(pl \(*Wn) / (1 \(pl e\[ua]\(*Wn).
 T}
 phi	T{
 compute the Golden Ratio \(*f using series.
@@ -6765,7 +6765,7 @@ rand	T{
 move a process to any randomly chosen CPU.
 T}
 randinc	T{
-move a process to the current CPU + a randomly chosen value 1..4, modulo
+move a process to the current CPU \(pl a randomly chosen value 1..4, modulo
 the number of CPUs.
 T}
 syncnext	T{
@@ -8183,10 +8183,10 @@ scale	T{
 b[i] = scalar \(mu c[i]
 T}
 add	T{
-c[i] = a[i] + b[i]
+c[i] = a[i] \(pl b[i]
 T}
 triad	T{
-a[i] = b[i] + (c[i] \(mu scalar)
+a[i] = b[i] \(pl (c[i] \(mu scalar)
 T}
 .TE
 .RS
@@ -9337,7 +9337,7 @@ stressor) and then sequentially work through each byte incrementing the bottom
 T}
 lfsr32	T{
 fill memory with values generated from a 32 bit Galois linear feedback shift
-register using the polynomial  x\[ua]32 + x\[ua]31 + x\[ua]29 + x + 1. This
+register using the polynomial  x\[ua]32 \(pl x\[ua]31 \(pl x\[ua]29 \(pl x \(pl 1. This
 generates a ring of  2\[ua]32 \(mi 1 unique values (all 32 bit values except
 for 0).
 T}
@@ -10065,7 +10065,7 @@ Fast random values generated using Lehmer's generator using a
 T}
 lfsr32	T{
 Values generated from a 32 bit Galois linear feedback shift register using
-the polynomial  x\[ua]32 + x\[ua]31 + x\[ua]29 + x + 1. This generates a
+the polynomial  x\[ua]32 \(pl x\[ua]31 \(pl x\[ua]29 \(pl x \(pl 1. This generates a
 ring of  2\[ua]32 \(mi 1 unique values (all 32 bit values except for 0).
 T}
 logmap	T{
