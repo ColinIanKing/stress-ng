@@ -289,14 +289,14 @@ PRAGMA_UNROLL_N(8)
 
 const stressor_info_t stress_veccmp_info = {
 	.stressor = stress_veccmp,
-	.class = CLASS_CPU | CLASS_INTEGER | CLASS_COMPUTE | CLASS_VECTOR,
+	.classifier = CLASS_CPU | CLASS_INTEGER | CLASS_COMPUTE | CLASS_VECTOR,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else
 const stressor_info_t stress_veccmp_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_CPU | CLASS_INTEGER | CLASS_COMPUTE | CLASS_VECTOR,
+	.classifier = CLASS_CPU | CLASS_INTEGER | CLASS_COMPUTE | CLASS_VECTOR,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };

@@ -347,7 +347,7 @@ finish:
 
 const stressor_info_t stress_sigurg_info = {
 	.stressor = stress_sigurg,
-	.class = CLASS_SIGNAL | CLASS_NETWORK | CLASS_OS,
+	.classifier = CLASS_SIGNAL | CLASS_NETWORK | CLASS_OS,
 	.verify = VERIFY_NONE,
 	.help = help
 };
@@ -356,7 +356,7 @@ const stressor_info_t stress_sigurg_info = {
 
 const stressor_info_t stress_sigurg_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_SIGNAL | CLASS_NETWORK | CLASS_OS,
+	.classifier = CLASS_SIGNAL | CLASS_NETWORK | CLASS_OS,
 	.verify = VERIFY_NONE,
 	.help = help,
 	.unimplemented_reason = "built without SIOCATMARK, AF_INET, SOCK_STREAM or IPPROTO_TCP socket support",

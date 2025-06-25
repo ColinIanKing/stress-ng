@@ -297,7 +297,7 @@ metrics_free:
 
 const stressor_info_t stress_unlink_info = {
 	.stressor = stress_unlink,
-	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.classifier = CLASS_FILESYSTEM | CLASS_OS,
 	.verify = VERIFY_NONE,
 	.help = help
 };

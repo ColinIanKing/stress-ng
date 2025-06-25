@@ -429,7 +429,7 @@ static const stress_opt_t opts[] = {
 
 const stressor_info_t stress_sockabuse_info = {
 	.stressor = stress_sockabuse,
-	.class = CLASS_NETWORK | CLASS_OS,
+	.classifier = CLASS_NETWORK | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help

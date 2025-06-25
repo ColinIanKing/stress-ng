@@ -198,14 +198,14 @@ static int stress_secretmem(stress_args_t *args)
 
 const stressor_info_t stress_secretmem_info = {
 	.stressor = stress_secretmem,
-	.class = CLASS_CPU,
+	.classifier = CLASS_CPU,
 	.help = help,
 	.supported = stress_secretmem_supported
 };
 #else
 const stressor_info_t stress_secretmem_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_CPU,
+	.classifier = CLASS_CPU,
 	.help = help,
 	.unimplemented_reason = "built with headers that did not define memfd_secret() system call"
 };

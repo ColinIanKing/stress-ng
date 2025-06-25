@@ -357,7 +357,7 @@ static int stress_sockpair(stress_args_t *args)
 
 const stressor_info_t stress_sockpair_info = {
 	.stressor = stress_sockpair,
-	.class = CLASS_NETWORK | CLASS_OS,
+	.classifier = CLASS_NETWORK | CLASS_OS,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };

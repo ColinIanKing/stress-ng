@@ -2005,7 +2005,7 @@ static int stress_fd_abuse(stress_args_t *args)
 
 const stressor_info_t stress_fd_abuse_info = {
 	.stressor = stress_fd_abuse,
-	.class = CLASS_OS,
+	.classifier = CLASS_OS,
 	.verify = VERIFY_NONE,
 	.help = help
 };

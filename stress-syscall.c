@@ -8910,7 +8910,7 @@ static const stress_opt_t opts[] = {
 
 const stressor_info_t stress_syscall_info = {
 	.stressor = stress_syscall,
-	.class = CLASS_OS,
+	.classifier = CLASS_OS,
 	.opts = opts,
 	.help = help
 };

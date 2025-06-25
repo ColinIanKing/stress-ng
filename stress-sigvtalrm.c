@@ -125,7 +125,7 @@ static int stress_sigvtalrm(stress_args_t *args)
 
 const stressor_info_t stress_sigvtalrm_info = {
 	.stressor = stress_sigvtalrm,
-	.class = CLASS_SIGNAL | CLASS_OS,
+	.classifier = CLASS_SIGNAL | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
@@ -134,7 +134,7 @@ const stressor_info_t stress_sigvtalrm_info = {
 
 const stressor_info_t stress_sigvtalrm_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_SIGNAL | CLASS_OS,
+	.classifier = CLASS_SIGNAL | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without SIGVTALRM, getitimer() or setitimer() support"

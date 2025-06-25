@@ -98,7 +98,7 @@ static int stress_sigtrap(stress_args_t *args)
 
 const stressor_info_t stress_sigtrap_info = {
 	.stressor = stress_sigtrap,
-	.class = CLASS_SIGNAL | CLASS_OS,
+	.classifier = CLASS_SIGNAL | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
@@ -114,7 +114,7 @@ static int stress_sigtrap_supported(const char *name)
 const stressor_info_t stress_sigtrap_info = {
         .stressor = stress_unimplemented,
         .supported = stress_sigtrap_supported,
-	.class = CLASS_SIGNAL | CLASS_OS,
+	.classifier = CLASS_SIGNAL | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
         .help = help,
 	.unimplemented_reason = "built without SIGTRAP signal number defined"

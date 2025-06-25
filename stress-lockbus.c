@@ -393,14 +393,14 @@ done:
 
 const stressor_info_t stress_lockbus_info = {
 	.stressor = stress_lockbus,
-	.class = CLASS_CPU_CACHE | CLASS_MEMORY,
+	.classifier = CLASS_CPU_CACHE | CLASS_MEMORY,
 	.opts = opts,
 	.help = help
 };
 #else
 const stressor_info_t stress_lockbus_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_CPU_CACHE | CLASS_MEMORY,
+	.classifier = CLASS_CPU_CACHE | CLASS_MEMORY,
 	.opts = opts,
 	.help = help,
 	.unimplemented_reason = "built without gcc __atomic* lock builtins"

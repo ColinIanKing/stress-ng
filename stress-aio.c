@@ -373,7 +373,7 @@ finish:
 
 const stressor_info_t stress_aio_info = {
 	.stressor = stress_aio,
-	.class = CLASS_IO | CLASS_INTERRUPT | CLASS_OS,
+	.classifier = CLASS_IO | CLASS_INTERRUPT | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
@@ -381,7 +381,7 @@ const stressor_info_t stress_aio_info = {
 #else
 const stressor_info_t stress_aio_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_IO | CLASS_INTERRUPT | CLASS_OS,
+	.classifier = CLASS_IO | CLASS_INTERRUPT | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,

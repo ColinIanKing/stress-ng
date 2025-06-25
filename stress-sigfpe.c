@@ -389,14 +389,14 @@ static int stress_sigfpe(stress_args_t *args)
 
 const stressor_info_t stress_sigfpe_info = {
 	.stressor = stress_sigfpe,
-	.class = CLASS_SIGNAL | CLASS_OS,
+	.classifier = CLASS_SIGNAL | CLASS_OS,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };
 #else
 const stressor_info_t stress_sigfpe_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_SIGNAL | CLASS_OS,
+	.classifier = CLASS_SIGNAL | CLASS_OS,
 	.verify = VERIFY_OPTIONAL,
 	.help = help,
 	.unimplemented_reason = "built using uclibc or without fenv.h or float.h"

@@ -400,14 +400,14 @@ L0x000:
 
 const stressor_info_t stress_branch_info = {
 	.stressor = stress_branch,
-	.class = CLASS_CPU,
+	.classifier = CLASS_CPU,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else
 const stressor_info_t stress_branch_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_CPU,
+	.classifier = CLASS_CPU,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without compiler support gcc style 'labels as values' feature"

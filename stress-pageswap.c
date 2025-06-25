@@ -177,7 +177,7 @@ static int stress_pageswap(stress_args_t *args)
 const stressor_info_t stress_pageswap_info = {
 	.stressor = stress_pageswap,
 	.supported = stress_pageswap_supported,
-	.class = CLASS_OS | CLASS_VM,
+	.classifier = CLASS_OS | CLASS_VM,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };
@@ -187,7 +187,7 @@ const stressor_info_t stress_pageswap_info = {
 const stressor_info_t stress_pageswap_info = {
 	.stressor = stress_unimplemented,
 	.supported = stress_pageswap_supported,
-	.class = CLASS_OS | CLASS_VM,
+	.classifier = CLASS_OS | CLASS_VM,
 	.verify = VERIFY_OPTIONAL,
 	.help = help,
 	.unimplemented_reason = "built without madvise() MADV_PAGEOUT defined"

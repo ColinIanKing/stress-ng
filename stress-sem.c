@@ -309,7 +309,7 @@ static int stress_sem(stress_args_t *args)
 
 const stressor_info_t stress_sem_info = {
 	.stressor = stress_sem,
-	.class = CLASS_OS | CLASS_SCHEDULER | CLASS_IPC,
+	.classifier = CLASS_OS | CLASS_SCHEDULER | CLASS_IPC,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.init = stress_sem_init,
@@ -319,7 +319,7 @@ const stressor_info_t stress_sem_info = {
 #else
 const stressor_info_t stress_sem_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_OS | CLASS_SCHEDULER | CLASS_IPC,
+	.classifier = CLASS_OS | CLASS_SCHEDULER | CLASS_IPC,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,

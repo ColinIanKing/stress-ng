@@ -391,14 +391,14 @@ close_done:
 
 const stressor_info_t stress_splice_info = {
 	.stressor = stress_splice,
-	.class = CLASS_PIPE_IO | CLASS_OS,
+	.classifier = CLASS_PIPE_IO | CLASS_OS,
 	.opts = opts,
 	.help = help
 };
 #else
 const stressor_info_t stress_splice_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_PIPE_IO | CLASS_OS,
+	.classifier = CLASS_PIPE_IO | CLASS_OS,
 	.opts = opts,
 	.help = help,
 	.unimplemented_reason = "built without splice() system call"

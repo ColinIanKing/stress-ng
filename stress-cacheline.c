@@ -778,7 +778,7 @@ static const stress_opt_t opts[] = {
 
 const stressor_info_t stress_cacheline_info = {
 	.stressor = stress_cacheline,
-	.class = CLASS_CPU_CACHE,
+	.classifier = CLASS_CPU_CACHE,
 	.verify = VERIFY_ALWAYS,
 	.opts = opts,
 	.init = stress_cacheline_init,

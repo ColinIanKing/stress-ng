@@ -271,7 +271,7 @@ tidy_s_pids:
 
 const stressor_info_t stress_hrtimers_info = {
 	.stressor = stress_hrtimers,
-	.class = CLASS_SCHEDULER,
+	.classifier = CLASS_SCHEDULER,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
@@ -279,7 +279,7 @@ const stressor_info_t stress_hrtimers_info = {
 #else
 const stressor_info_t stress_hrtimers_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_SCHEDULER,
+	.classifier = CLASS_SCHEDULER,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,

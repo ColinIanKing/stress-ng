@@ -179,7 +179,7 @@ abort:
 
 const stressor_info_t stress_judy_info = {
 	.stressor = stress_judy,
-	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY,
+	.classifier = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY,
 	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
@@ -187,7 +187,7 @@ const stressor_info_t stress_judy_info = {
 #else
 const stressor_info_t stress_judy_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY,
+	.classifier = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY,
 	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help,

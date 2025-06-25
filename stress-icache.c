@@ -178,14 +178,14 @@ static int stress_icache(stress_args_t *args)
 
 const stressor_info_t stress_icache_info = {
 	.stressor = stress_icache,
-	.class = CLASS_CPU_CACHE,
+	.classifier = CLASS_CPU_CACHE,
 	.supported = stress_asm_ret_supported,
 	.help = help
 };
 #else
 const stressor_info_t stress_icache_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_CPU_CACHE,
+	.classifier = CLASS_CPU_CACHE,
 	.supported = stress_asm_ret_supported,
 	.help = help,
 	.unimplemented_reason = "built without mprotect() or userspace instruction cache flushing support"

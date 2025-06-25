@@ -239,7 +239,7 @@ finish:
 
 const stressor_info_t stress_pidfd_info = {
 	.stressor = stress_pidfd,
-	.class = CLASS_INTERRUPT | CLASS_OS,
+	.classifier = CLASS_INTERRUPT | CLASS_OS,
 	.supported = stress_pidfd_supported,
 	.verify = VERIFY_ALWAYS,
 	.help = help
@@ -254,7 +254,7 @@ static int stress_pidfd_supported(const char *name)
 
 const stressor_info_t stress_pidfd_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_INTERRUPT | CLASS_OS,
+	.classifier = CLASS_INTERRUPT | CLASS_OS,
 	.supported = stress_pidfd_supported,
 	.verify = VERIFY_ALWAYS,
 	.help = help,

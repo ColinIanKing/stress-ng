@@ -476,7 +476,7 @@ tidy:
 }
 const stressor_info_t stress_dnotify_info = {
 	.stressor = stress_dnotify,
-	.class = CLASS_FILESYSTEM | CLASS_SCHEDULER | CLASS_OS,
+	.classifier = CLASS_FILESYSTEM | CLASS_SCHEDULER | CLASS_OS,
 	.supported = stress_dnotify_supported,
 	.verify = VERIFY_ALWAYS,
 	.help = help
@@ -484,7 +484,7 @@ const stressor_info_t stress_dnotify_info = {
 #else
 const stressor_info_t stress_dnotify_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_FILESYSTEM | CLASS_SCHEDULER | CLASS_OS,
+	.classifier = CLASS_FILESYSTEM | CLASS_SCHEDULER | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without dnotify support or sys/select.h"

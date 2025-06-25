@@ -405,7 +405,7 @@ tidy:
 const stressor_info_t stress_loop_info = {
 	.stressor = stress_loop,
 	.supported = stress_loop_supported,
-	.class = CLASS_OS | CLASS_DEV,
+	.classifier = CLASS_OS | CLASS_DEV,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
@@ -420,7 +420,7 @@ static int stress_loop_supported(const char *name)
 const stressor_info_t stress_loop_info = {
 	.stressor = stress_unimplemented,
 	.supported = stress_loop_supported,
-	.class = CLASS_OS | CLASS_DEV,
+	.classifier = CLASS_OS | CLASS_DEV,
 	.help = help,
 	.unimplemented_reason = "built without linux/loop.h or loop ioctl() commands"
 };

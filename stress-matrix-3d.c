@@ -1013,7 +1013,7 @@ static const stress_opt_t opts[] = {
 
 const stressor_info_t stress_matrix_3d_info = {
 	.stressor = stress_matrix_3d,
-	.class = CLASS_CPU | CLASS_FP | CLASS_CPU_CACHE | CLASS_MEMORY | CLASS_COMPUTE,
+	.classifier = CLASS_CPU | CLASS_FP | CLASS_CPU_CACHE | CLASS_MEMORY | CLASS_COMPUTE,
 	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
@@ -1029,7 +1029,7 @@ static const stress_opt_t opts[] = {
 
 const stressor_info_t stress_matrix_3d_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_CPU | CLASS_FP | CLASS_CPU_CACHE | CLASS_MEMORY | CLASS_COMPUTE,
+	.classifier = CLASS_CPU | CLASS_FP | CLASS_CPU_CACHE | CLASS_MEMORY | CLASS_COMPUTE,
 	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help,

@@ -353,7 +353,7 @@ clean:
 
 const stressor_info_t stress_fiemap_info = {
 	.stressor = stress_fiemap,
-	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.classifier = CLASS_FILESYSTEM | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
@@ -361,7 +361,7 @@ const stressor_info_t stress_fiemap_info = {
 #else
 const stressor_info_t stress_fiemap_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.classifier = CLASS_FILESYSTEM | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,

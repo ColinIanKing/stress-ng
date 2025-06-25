@@ -251,7 +251,7 @@ PRAGMA_UNROLL_N(8)
 
 const stressor_info_t stress_x86cpuid_info = {
 	.stressor = stress_x86cpuid,
-	.class = CLASS_CPU,
+	.classifier = CLASS_CPU,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
@@ -259,7 +259,7 @@ const stressor_info_t stress_x86cpuid_info = {
 
 const stressor_info_t stress_x86cpuid_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_CPU,
+	.classifier = CLASS_CPU,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without x86 cpuid instruction support"

@@ -386,7 +386,7 @@ restart:
 
 const stressor_info_t stress_rename_info = {
 	.stressor = stress_rename,
-	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.classifier = CLASS_FILESYSTEM | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };

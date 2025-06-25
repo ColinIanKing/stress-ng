@@ -274,7 +274,7 @@ static int stress_mlockmany(stress_args_t *args)
 
 const stressor_info_t stress_mlockmany_info = {
 	.stressor = stress_mlockmany,
-	.class = CLASS_VM | CLASS_OS | CLASS_PATHOLOGICAL,
+	.classifier = CLASS_VM | CLASS_OS | CLASS_PATHOLOGICAL,
 	.opts = opts,
 	.help = help
 };
@@ -283,7 +283,7 @@ const stressor_info_t stress_mlockmany_info = {
 
 const stressor_info_t stress_mlockmany_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_VM | CLASS_OS | CLASS_PATHOLOGICAL,
+	.classifier = CLASS_VM | CLASS_OS | CLASS_PATHOLOGICAL,
 	.opts = opts,
 	.help = help,
 	.unimplemented_reason = "built without mlock() support"

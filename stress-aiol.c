@@ -852,7 +852,7 @@ free_memory:
 
 const stressor_info_t stress_aiol_info = {
 	.stressor = stress_aiol,
-	.class = CLASS_IO | CLASS_INTERRUPT | CLASS_OS,
+	.classifier = CLASS_IO | CLASS_INTERRUPT | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
@@ -860,7 +860,7 @@ const stressor_info_t stress_aiol_info = {
 #else
 const stressor_info_t stress_aiol_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_IO | CLASS_INTERRUPT | CLASS_OS,
+	.classifier = CLASS_IO | CLASS_INTERRUPT | CLASS_OS,
 	.opts = opts,
 	.help = help,
 	.verify = VERIFY_ALWAYS,

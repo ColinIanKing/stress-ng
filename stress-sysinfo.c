@@ -286,7 +286,7 @@ static int stress_sysinfo(stress_args_t *args)
 
 const stressor_info_t stress_sysinfo_info = {
 	.stressor = stress_sysinfo,
-	.class = CLASS_OS,
+	.classifier = CLASS_OS,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };

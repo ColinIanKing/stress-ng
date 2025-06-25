@@ -362,7 +362,7 @@ finish:
 
 const stressor_info_t stress_memhotplug_info = {
 	.stressor = stress_memhotplug,
-	.class = CLASS_OS,
+	.classifier = CLASS_OS,
 	.opts = opts,
 	.supported = stress_memhotplug_supported,
 	.help = help
@@ -370,7 +370,7 @@ const stressor_info_t stress_memhotplug_info = {
 #else
 const stressor_info_t stress_memhotplug_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_OS,
+	.classifier = CLASS_OS,
 	.opts = opts,
 	.help = help,
 	.unimplemented_reason = "only supported on Linux"

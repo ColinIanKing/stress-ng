@@ -386,14 +386,14 @@ static int stress_pci(stress_args_t *args)
 
 const stressor_info_t stress_pci_info = {
 	.stressor = stress_pci,
-	.class = CLASS_OS,
+	.classifier = CLASS_OS,
 	.opts = opts,
 	.help = help
 };
 #else
 const stressor_info_t stress_pci_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_OS,
+	.classifier = CLASS_OS,
 	.opts = opts,
 	.help = help,
 	.unimplemented_reason = "only supported on Linux"

@@ -167,7 +167,7 @@ static const stress_opt_t opts[] = {
 
 const stressor_info_t stress_fibsearch_info = {
 	.stressor = stress_fibsearch,
-	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY | CLASS_SEARCH,
+	.classifier = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY | CLASS_SEARCH,
 	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help

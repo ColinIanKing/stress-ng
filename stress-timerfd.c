@@ -404,7 +404,7 @@ dir_rm:
 
 const stressor_info_t stress_timerfd_info = {
 	.stressor = stress_timerfd,
-	.class = CLASS_INTERRUPT | CLASS_OS,
+	.classifier = CLASS_INTERRUPT | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
 	.opts = opts,
 	.help = help
@@ -412,7 +412,7 @@ const stressor_info_t stress_timerfd_info = {
 #else
 const stressor_info_t stress_timerfd_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_INTERRUPT | CLASS_OS,
+	.classifier = CLASS_INTERRUPT | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,

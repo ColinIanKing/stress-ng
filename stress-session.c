@@ -244,7 +244,7 @@ static int stress_session(stress_args_t *args)
 
 const stressor_info_t stress_session_info = {
 	.stressor = stress_session,
-	.class = CLASS_SCHEDULER | CLASS_OS,
+	.classifier = CLASS_SCHEDULER | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
 	.help = session_help
 };

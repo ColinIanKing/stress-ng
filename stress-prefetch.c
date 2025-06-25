@@ -521,7 +521,7 @@ static const stress_opt_t opts[] = {
 
 const stressor_info_t stress_prefetch_info = {
 	.stressor = stress_prefetch,
-	.class = CLASS_CPU | CLASS_CPU_CACHE | CLASS_MEMORY,
+	.classifier = CLASS_CPU | CLASS_CPU_CACHE | CLASS_MEMORY,
 	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help

@@ -1322,7 +1322,7 @@ tidy_cpus:
 
 const stressor_info_t stress_cache_info = {
 	.stressor = stress_cache,
-	.class = CLASS_CPU_CACHE,
+	.classifier = CLASS_CPU_CACHE,
 	.opts = opts,
 	.help = help
 };

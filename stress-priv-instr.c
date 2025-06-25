@@ -578,7 +578,7 @@ finish:
 
 const stressor_info_t stress_priv_instr_info = {
 	.stressor = stress_priv_instr,
-	.class = CLASS_CPU,
+	.classifier = CLASS_CPU,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
@@ -587,7 +587,7 @@ const stressor_info_t stress_priv_instr_info = {
 
 const stressor_info_t stress_priv_instr_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_CPU,
+	.classifier = CLASS_CPU,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "no privileged op-code test for this architecture"

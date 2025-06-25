@@ -120,7 +120,7 @@ fail:
 
 const stressor_info_t stress_umask_info = {
 	.stressor = stress_umask,
-	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.classifier = CLASS_FILESYSTEM | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };

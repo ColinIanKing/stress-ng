@@ -287,14 +287,14 @@ static int stress_loadavg(stress_args_t *args)
 
 const stressor_info_t stress_loadavg_info = {
 	.stressor = stress_loadavg,
-	.class = CLASS_SCHEDULER | CLASS_OS,
+	.classifier = CLASS_SCHEDULER | CLASS_OS,
 	.opts = opts,
 	.help = help
 };
 #else
 const stressor_info_t stress_loadavg_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_SCHEDULER | CLASS_OS,
+	.classifier = CLASS_SCHEDULER | CLASS_OS,
 	.opts = opts,
 	.help = help,
 	.unimplemented_reason = "built without pthread support"

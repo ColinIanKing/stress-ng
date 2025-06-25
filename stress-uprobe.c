@@ -288,14 +288,14 @@ terminate:
 
 const stressor_info_t stress_uprobe_info = {
 	.stressor = stress_uprobe,
-	.class = CLASS_CPU,
+	.classifier = CLASS_CPU,
 	.supported = stress_uprobe_supported,
 	.help = help
 };
 #else
 const stressor_info_t stress_uprobe_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_CPU,
+	.classifier = CLASS_CPU,
 	.supported = stress_uprobe_supported,
 	.help = help,
 	.unimplemented_reason = "only supported on Linux"

@@ -479,7 +479,7 @@ static const stress_opt_t opts[] = {
 
 const stressor_info_t stress_expmath_info = {
 	.stressor = stress_expmath,
-	.class = CLASS_CPU | CLASS_FP | CLASS_COMPUTE,
+	.classifier = CLASS_CPU | CLASS_FP | CLASS_COMPUTE,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
@@ -501,7 +501,7 @@ static const stress_opt_t opts[] = {
 
 const stressor_info_t stress_expmath_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_CPU | CLASS_FP | CLASS_COMPUTE,
+	.classifier = CLASS_CPU | CLASS_FP | CLASS_COMPUTE,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help

@@ -195,14 +195,14 @@ finish:
 
 const stressor_info_t stress_sigfd_info = {
 	.stressor = stress_sigfd,
-	.class = CLASS_SIGNAL | CLASS_OS,
+	.classifier = CLASS_SIGNAL | CLASS_OS,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };
 #else
 const stressor_info_t stress_sigfd_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_SIGNAL | CLASS_OS,
+	.classifier = CLASS_SIGNAL | CLASS_OS,
 	.verify = VERIFY_OPTIONAL,
 	.help = help,
 	.unimplemented_reason = "built without sys/signalfd.h, signalfd() or sigqueue() system calls"

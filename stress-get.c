@@ -1053,7 +1053,7 @@ static const stress_opt_t opts[] = {
 
 const stressor_info_t stress_get_info = {
 	.stressor = stress_get,
-	.class = CLASS_OS,
+	.classifier = CLASS_OS,
 	.verify = VERIFY_OPTIONAL,
 	.opts = opts,
 	.help = help

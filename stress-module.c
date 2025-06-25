@@ -447,7 +447,7 @@ out:
 
 const stressor_info_t stress_module_info = {
 	.stressor = stress_module,
-	.class = CLASS_OS,
+	.classifier = CLASS_OS,
 	.opts = opts,
 	.supported = stress_module_supported,
 	.help = help
@@ -456,7 +456,7 @@ const stressor_info_t stress_module_info = {
 #else
 const stressor_info_t stress_module_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_OS,
+	.classifier = CLASS_OS,
 	.opts = opts,
 	.supported = stress_module_supported,
 	.help = help

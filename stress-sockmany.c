@@ -382,7 +382,7 @@ finish:
 
 const stressor_info_t stress_sockmany_info = {
 	.stressor = stress_sockmany,
-	.class = CLASS_NETWORK | CLASS_OS,
+	.classifier = CLASS_NETWORK | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help

@@ -207,14 +207,14 @@ static int stress_regex(stress_args_t *args)
 
 const stressor_info_t stress_regex_info = {
 	.stressor = stress_regex,
-	.class = CLASS_CPU,
+	.classifier = CLASS_CPU,
 	.help = help
 };
 #else
 
 const stressor_info_t stress_regex_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_CPU,
+	.classifier = CLASS_CPU,
 	.help = help,
 	.unimplemented_reason = "no POSIX regex support"
 };

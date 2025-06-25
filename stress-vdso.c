@@ -560,14 +560,14 @@ static int stress_vdso(stress_args_t *args)
 const stressor_info_t stress_vdso_info = {
 	.stressor = stress_vdso,
 	.supported = stress_vdso_supported,
-	.class = CLASS_OS,
+	.classifier = CLASS_OS,
 	.opts = opts,
 	.help = help
 };
 #else
 const stressor_info_t stress_vdso_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_OS,
+	.classifier = CLASS_OS,
 	.opts = opts,
 	.help = help,
 	.unimplemented_reason = "built without sys/auxv.h, link.h, getauxval() or AT_SYSINFO_EHDR defined"

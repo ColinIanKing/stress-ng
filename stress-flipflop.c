@@ -361,7 +361,7 @@ free_dist:
 
 const stressor_info_t stress_flipflop_info = {
 	.stressor = stress_flipflop,
-	.class = CLASS_SCHEDULER | CLASS_OS,
+	.classifier = CLASS_SCHEDULER | CLASS_OS,
 	.verify = VERIFY_NONE,
 	.opts = opts,
 	.help = help
@@ -371,7 +371,7 @@ const stressor_info_t stress_flipflop_info = {
 
 const stressor_info_t stress_flipflop_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_SCHEDULER | CLASS_OS,
+	.classifier = CLASS_SCHEDULER | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_NONE,
 	.help = help,

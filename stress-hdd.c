@@ -1104,7 +1104,7 @@ static const stress_opt_t opts[] = {
 
 const stressor_info_t stress_hdd_info = {
 	.stressor = stress_hdd,
-	.class = CLASS_IO | CLASS_FILESYSTEM | CLASS_OS,
+	.classifier = CLASS_IO | CLASS_FILESYSTEM | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help

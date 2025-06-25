@@ -340,14 +340,14 @@ tidy_fd:
 
 const stressor_info_t stress_tee_info = {
 	.stressor = stress_tee,
-	.class = CLASS_PIPE_IO | CLASS_OS | CLASS_SCHEDULER,
+	.classifier = CLASS_PIPE_IO | CLASS_OS | CLASS_SCHEDULER,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else
 const stressor_info_t stress_tee_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_PIPE_IO | CLASS_OS | CLASS_SCHEDULER,
+	.classifier = CLASS_PIPE_IO | CLASS_OS | CLASS_SCHEDULER,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without tee() system call or undefined SPLICE_F_NONBLOCK"

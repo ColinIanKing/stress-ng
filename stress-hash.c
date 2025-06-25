@@ -741,7 +741,7 @@ static const stress_opt_t opts[] = {
 
 const stressor_info_t stress_hash_info = {
 	.stressor = stress_hash,
-	.class = CLASS_CPU | CLASS_INTEGER | CLASS_COMPUTE | CLASS_SEARCH,
+	.classifier = CLASS_CPU | CLASS_INTEGER | CLASS_COMPUTE | CLASS_SEARCH,
 	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help

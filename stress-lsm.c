@@ -244,13 +244,13 @@ err:
 
 const stressor_info_t stress_lsm_info = {
 	.stressor = stress_lsm,
-	.class = CLASS_OS | CLASS_SECURITY,
+	.classifier = CLASS_OS | CLASS_SECURITY,
 	.help = help
 };
 #else
 const stressor_info_t stress_lsm_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_OS | CLASS_SECURITY,
+	.classifier = CLASS_OS | CLASS_SECURITY,
 	.help = help,
 	.unimplemented_reason = "built without linux/lsm.h or lsm_list_modules or lsm_get_self_attr system calls"
 };

@@ -182,7 +182,7 @@ static int stress_klog(stress_args_t *args)
 
 const stressor_info_t stress_klog_info = {
 	.stressor = stress_klog,
-	.class = CLASS_OS,
+	.classifier = CLASS_OS,
 	.help = help,
 	.verify = VERIFY_ALWAYS,
 	.supported = stress_klog_supported
@@ -190,7 +190,7 @@ const stressor_info_t stress_klog_info = {
 #else
 const stressor_info_t stress_klog_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_OS,
+	.classifier = CLASS_OS,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without syslog() system call or klogctl()"

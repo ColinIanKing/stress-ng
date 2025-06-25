@@ -340,7 +340,7 @@ static int stress_yield(stress_args_t *args)
 
 const stressor_info_t stress_yield_info = {
 	.stressor = stress_yield,
-	.class = CLASS_SCHEDULER | CLASS_OS,
+	.classifier = CLASS_SCHEDULER | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
@@ -348,7 +348,7 @@ const stressor_info_t stress_yield_info = {
 #else
 const stressor_info_t stress_yield_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_SCHEDULER | CLASS_OS,
+	.classifier = CLASS_SCHEDULER | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help,

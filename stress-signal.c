@@ -135,7 +135,7 @@ static int stress_signal(stress_args_t *args)
 
 const stressor_info_t stress_signal_info = {
 	.stressor = stress_signal,
-	.class = CLASS_SIGNAL | CLASS_OS,
+	.classifier = CLASS_SIGNAL | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };

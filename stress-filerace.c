@@ -1608,7 +1608,7 @@ tidy_dir:
 
 const stressor_info_t stress_filerace_info = {
 	.stressor = stress_filerace,
-	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.classifier = CLASS_FILESYSTEM | CLASS_OS,
 	.verify = VERIFY_NONE,
 	.help = help
 };

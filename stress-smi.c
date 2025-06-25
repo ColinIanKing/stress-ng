@@ -275,7 +275,7 @@ static int stress_smi(stress_args_t *args)
 
 const stressor_info_t stress_smi_info = {
 	.stressor = stress_smi,
-	.class = CLASS_CPU | CLASS_PATHOLOGICAL,
+	.classifier = CLASS_CPU | CLASS_PATHOLOGICAL,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.supported = stress_smi_supported
@@ -283,7 +283,7 @@ const stressor_info_t stress_smi_info = {
 #else
 const stressor_info_t stress_smi_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_CPU | CLASS_PATHOLOGICAL,
+	.classifier = CLASS_CPU | CLASS_PATHOLOGICAL,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built for non-x86 target without sys/io.h or ioperm() or out op-code"

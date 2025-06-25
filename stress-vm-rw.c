@@ -427,7 +427,7 @@ again:
 
 const stressor_info_t stress_vm_rw_info = {
 	.stressor = stress_vm_rw,
-	.class = CLASS_VM | CLASS_MEMORY | CLASS_OS,
+	.classifier = CLASS_VM | CLASS_MEMORY | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
@@ -435,7 +435,7 @@ const stressor_info_t stress_vm_rw_info = {
 #else
 const stressor_info_t stress_vm_rw_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_VM | CLASS_MEMORY | CLASS_OS,
+	.classifier = CLASS_VM | CLASS_MEMORY | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help,

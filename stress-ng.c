@@ -93,7 +93,7 @@ typedef struct stress_signal_map {
 
 /* Stress test classes */
 typedef struct {
-	const stress_class_t class;	/* Class type bit mask */
+	const stress_class_t classifier;/* Class type bit mask */
 	const char *name;		/* Name of class */
 } stress_class_info_t;
 
@@ -434,7 +434,7 @@ static uint32_t PURE stress_get_class_id(const char *const str)
 
 	for (i = 0; i < SIZEOF_ARRAY(stress_classes); i++) {
 		if (!strcmp(stress_classes[i].name, str))
-			return stress_classes[i].class;
+			return stress_classes[i].classifier;
 	}
 	return 0;
 }
@@ -466,7 +466,7 @@ static int stress_get_class(char *const class_str, uint32_t *class)
 					(void)printf("class '%s' stressors:",
 						token);
 					for (j = 0; j < SIZEOF_ARRAY(stressors); j++) {
-						if (stressors[j].info->class & cl)
+						if (stressors[j].info->classifier & cl)
 							(void)printf(" %s", stressors[j].name);
 					}
 					(void)printf("\n");
@@ -2922,7 +2922,7 @@ static inline void stress_exclude_pathological(void)
 		while (ss) {
 			stress_stressor_t *next = ss->next;
 
-			if ((!ss->ignore.run) && (ss->stressor->info->class & CLASS_PATHOLOGICAL)) {
+			if ((!ss->ignore.run) && (ss->stressor->info->classifier & CLASS_PATHOLOGICAL)) {
 				if (ss->instances > 0) {
 					const char* name = ss->stressor->name;
 
@@ -3072,18 +3072,18 @@ static void stress_enable_all_stressors(const int32_t instances)
  *  stress_enable_classes()
  *	enable stressors based on class
  */
-static void stress_enable_classes(const uint32_t class)
+static void stress_enable_classes(const uint32_t classifier)
 {
 	size_t i;
 
-	if (!class)
+	if (!classifier)
 		return;
 
 	/* This indicates some stressors are set */
 	g_opt_flags |= OPT_FLAGS_SET;
 
 	for (i = 0; i < SIZEOF_ARRAY(stressors); i++) {
-		if (stressors[i].info->class & class) {
+		if (stressors[i].info->classifier & classifier) {
 			stress_stressor_t *ss = stress_find_proc_info(&stressors[i]);
 
 			if (g_opt_flags & OPT_FLAGS_SEQUENTIAL)
@@ -3446,14 +3446,14 @@ static void stress_set_default_timeout(const uint64_t timeout)
  *  stress_setup_sequential()
  *	setup for sequential --seq mode stressors
  */
-static void stress_setup_sequential(const uint32_t class, const int32_t instances)
+static void stress_setup_sequential(const uint32_t classifier, const int32_t instances)
 {
 	stress_stressor_t *ss;
 
 	stress_set_default_timeout(60);
 
 	for (ss = stress_stressor_list.head; ss; ss = ss->next) {
-		if (ss->stressor->info->class & class)
+		if (ss->stressor->info->classifier & classifier)
 			ss->instances = instances;
 		if (!ss->ignore.run)
 			stress_alloc_proc_resources(&ss->stats, ss->instances);
@@ -3464,14 +3464,14 @@ static void stress_setup_sequential(const uint32_t class, const int32_t instance
  *  stress_setup_parallel()
  *	setup for parallel mode stressors
  */
-static void stress_setup_parallel(const uint32_t class, const int32_t instances)
+static void stress_setup_parallel(const uint32_t classifier, const int32_t instances)
 {
 	stress_stressor_t *ss;
 
 	stress_set_default_timeout(DEFAULT_TIMEOUT);
 
 	for (ss = stress_stressor_list.head; ss; ss = ss->next) {
-		if (ss->stressor->info->class & class)
+		if (ss->stressor->info->classifier & classifier)
 			ss->instances = instances;
 		if (ss->ignore.run)
 			continue;

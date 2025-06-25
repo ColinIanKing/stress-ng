@@ -194,13 +194,13 @@ tidy:
 }
 const stressor_info_t stress_dynlib_info = {
 	.stressor = stress_dynlib,
-	.class = CLASS_OS,
+	.classifier = CLASS_OS,
 	.help = help
 };
 #else
 const stressor_info_t stress_dynlib_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_OS,
+	.classifier = CLASS_OS,
 	.help = help,
 	.unimplemented_reason = "built without dynamic library libdl support"
 };

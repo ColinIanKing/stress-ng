@@ -329,7 +329,7 @@ tidy_kvm_fd:
 
 const stressor_info_t stress_kvm_info = {
 	.stressor = stress_kvm,
-	.class = CLASS_DEV | CLASS_OS,
+	.classifier = CLASS_DEV | CLASS_OS,
 	.supported = stress_kvm_supported,
 	.verify = VERIFY_ALWAYS,
 	.help = help
@@ -337,7 +337,7 @@ const stressor_info_t stress_kvm_info = {
 #else
 const stressor_info_t stress_kvm_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_DEV | CLASS_OS,
+	.classifier = CLASS_DEV | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built on non-x86-64 without linux/kvm.h"

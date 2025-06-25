@@ -355,7 +355,7 @@ tidy_pids:
 
 const stressor_info_t stress_fifo_info = {
 	.stressor = stress_fifo,
-	.class = CLASS_PIPE_IO | CLASS_OS | CLASS_SCHEDULER | CLASS_IPC,
+	.classifier = CLASS_PIPE_IO | CLASS_OS | CLASS_SCHEDULER | CLASS_IPC,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
@@ -363,7 +363,7 @@ const stressor_info_t stress_fifo_info = {
 #else
 const stressor_info_t stress_fifo_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_PIPE_IO | CLASS_OS | CLASS_SCHEDULER | CLASS_IPC,
+	.classifier = CLASS_PIPE_IO | CLASS_OS | CLASS_SCHEDULER | CLASS_IPC,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,

@@ -889,7 +889,7 @@ const stressor_info_t stress_ipsec_mb_info = {
 	.stressor = stress_ipsec_mb,
 	.supported = stress_ipsec_mb_supported,
 	.opts = opts,
-	.class = CLASS_CPU | CLASS_INTEGER | CLASS_COMPUTE,
+	.classifier = CLASS_CPU | CLASS_INTEGER | CLASS_COMPUTE,
 	.help = help
 };
 #else
@@ -913,7 +913,7 @@ const stressor_info_t stress_ipsec_mb_info = {
 	.stressor = stress_unimplemented,
 	.supported = stress_ipsec_mb_supported,
 	.opts = opts,
-	.class = CLASS_CPU | CLASS_INTEGER | CLASS_COMPUTE,
+	.classifier = CLASS_CPU | CLASS_INTEGER | CLASS_COMPUTE,
 	.help = help,
 	.unimplemented_reason = "built on non-x86-64 without IPSec MB library"
 };

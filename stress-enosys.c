@@ -4172,13 +4172,13 @@ deinit:
 }
 const stressor_info_t stress_enosys_info = {
 	.stressor = stress_enosys,
-	.class = CLASS_OS,
+	.classifier = CLASS_OS,
 	.help = help
 };
 #else
 const stressor_info_t stress_enosys_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_OS,
+	.classifier = CLASS_OS,
 	.help = help,
 	.unimplemented_reason = "built without sys/syscall.h or syscall support"
 };

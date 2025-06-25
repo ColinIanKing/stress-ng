@@ -206,7 +206,7 @@ dir_out:
 
 const stressor_info_t stress_sendfile_info = {
 	.stressor = stress_sendfile,
-	.class = CLASS_PIPE_IO | CLASS_OS,
+	.classifier = CLASS_PIPE_IO | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
@@ -214,7 +214,7 @@ const stressor_info_t stress_sendfile_info = {
 #else
 const stressor_info_t stress_sendfile_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_PIPE_IO | CLASS_OS,
+	.classifier = CLASS_PIPE_IO | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,

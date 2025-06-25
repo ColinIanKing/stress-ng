@@ -408,14 +408,14 @@ err:
 
 const stressor_info_t stress_easy_opcode_info = {
 	.stressor = stress_easy_opcode,
-	.class = CLASS_CPU,
+	.classifier = CLASS_CPU,
 	.help = help
 };
 #else
 
 const stressor_info_t stress_easy_opcode_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_CPU,
+	.classifier = CLASS_CPU,
 	.help = help,
 	.unimplemented_reason = "built without mprotect()"
 };

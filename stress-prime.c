@@ -248,7 +248,7 @@ finish:
 
 const stressor_info_t stress_prime_info = {
 	.stressor = stress_prime,
-	.class = CLASS_CPU | CLASS_INTEGER | CLASS_COMPUTE,
+	.classifier = CLASS_CPU | CLASS_INTEGER | CLASS_COMPUTE,
 	.opts = opts,
 	.verify = VERIFY_NONE,
 	.help = help
@@ -258,7 +258,7 @@ const stressor_info_t stress_prime_info = {
 
 const stressor_info_t stress_prime_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_CPU | CLASS_INTEGER | CLASS_COMPUTE,
+	.classifier = CLASS_CPU | CLASS_INTEGER | CLASS_COMPUTE,
 	.opts = opts,
 	.verify = VERIFY_NONE,
 	.help = help,

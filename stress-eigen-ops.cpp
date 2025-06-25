@@ -19,11 +19,7 @@
 extern "C" {
 #include "config.h"
 #include "stress-eigen-ops.h"
-
-/* Class is reserved C++ keyword, so work around this */
-#define class dummy_class
 #include "core-target-clones.h"
-#undef class
 
 extern double stress_time_now(void);
 }

@@ -367,7 +367,7 @@ static int stress_touch(stress_args_t *args)
 
 const stressor_info_t stress_touch_info = {
 	.stressor = stress_touch,
-	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.classifier = CLASS_FILESYSTEM | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help

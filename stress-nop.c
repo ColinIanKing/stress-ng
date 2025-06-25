@@ -386,7 +386,7 @@ static const stress_opt_t opts[] = {
 
 const stressor_info_t stress_nop_info = {
 	.stressor = stress_nop,
-	.class = CLASS_CPU,
+	.classifier = CLASS_CPU,
 	.opts = opts,
 	.help = help
 };
@@ -399,7 +399,7 @@ static const stress_opt_t opts[] = {
 
 const stressor_info_t stress_nop_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_CPU,
+	.classifier = CLASS_CPU,
 	.opts = opts,
 	.help = help,
 	.unimplemented_reason = "no nop assembler op-code(s) for this architecture"

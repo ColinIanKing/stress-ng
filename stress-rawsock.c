@@ -343,7 +343,7 @@ static int stress_rawsock(stress_args_t *args)
 
 const stressor_info_t stress_rawsock_info = {
 	.stressor = stress_rawsock,
-	.class = CLASS_NETWORK | CLASS_OS,
+	.classifier = CLASS_NETWORK | CLASS_OS,
 	.opts = opts,
 	.supported = stress_rawsock_supported,
 	.verify = VERIFY_ALWAYS,
@@ -354,7 +354,7 @@ const stressor_info_t stress_rawsock_info = {
 #else
 const stressor_info_t stress_rawsock_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_NETWORK | CLASS_OS,
+	.classifier = CLASS_NETWORK | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,

@@ -441,7 +441,7 @@ L0x000:
 
 const stressor_info_t stress_goto_info = {
 	.stressor = stress_goto,
-	.class = CLASS_CPU,
+	.classifier = CLASS_CPU,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
@@ -449,7 +449,7 @@ const stressor_info_t stress_goto_info = {
 #else
 const stressor_info_t stress_goto_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_CPU,
+	.classifier = CLASS_CPU,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,

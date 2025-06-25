@@ -273,14 +273,14 @@ static int stress_handle(stress_args_t *args)
 
 const stressor_info_t stress_handle_info = {
 	.stressor = stress_handle,
-	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.classifier = CLASS_FILESYSTEM | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else
 const stressor_info_t stress_handle_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.classifier = CLASS_FILESYSTEM | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without name_to_handle_at(), open_by_handle_at() or AT_FDCWD"

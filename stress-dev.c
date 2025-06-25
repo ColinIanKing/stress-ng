@@ -4852,14 +4852,14 @@ deinit:
 }
 const stressor_info_t stress_dev_info = {
 	.stressor = stress_dev,
-	.class = CLASS_DEV | CLASS_OS,
+	.classifier = CLASS_DEV | CLASS_OS,
 	.opts = opts,
 	.help = help
 };
 #else
 const stressor_info_t stress_dev_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_DEV | CLASS_OS,
+	.classifier = CLASS_DEV | CLASS_OS,
 	.opts = opts,
 	.help = help,
 	.unimplemented_reason = "built without pthread support or poll.h"

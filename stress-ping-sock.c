@@ -135,14 +135,14 @@ static int stress_ping_sock(stress_args_t *args)
 
 const stressor_info_t stress_ping_sock_info = {
 	.stressor = stress_ping_sock,
-	.class = CLASS_NETWORK | CLASS_OS,
+	.classifier = CLASS_NETWORK | CLASS_OS,
 	.supported = stress_rawsock_supported,
 	.help = help
 };
 #else
 const stressor_info_t stress_ping_sock_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_NETWORK | CLASS_OS,
+	.classifier = CLASS_NETWORK | CLASS_OS,
 	.help = help,
 	.unimplemented_reason = "built without netinet/ip_icmp.h, SOCK_DGRAM, IPPROTO_ICMP or struct icmphdr"
 };

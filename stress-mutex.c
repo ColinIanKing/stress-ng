@@ -275,7 +275,7 @@ static int stress_mutex(stress_args_t *args)
 
 const stressor_info_t stress_mutex_info = {
 	.stressor = stress_mutex,
-	.class = CLASS_OS | CLASS_SCHEDULER,
+	.classifier = CLASS_OS | CLASS_SCHEDULER,
 	.verify = VERIFY_ALWAYS,
 	.opts = opts,
 	.help = help
@@ -283,7 +283,7 @@ const stressor_info_t stress_mutex_info = {
 #else
 const stressor_info_t stress_mutex_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_OS | CLASS_SCHEDULER,
+	.classifier = CLASS_OS | CLASS_SCHEDULER,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,

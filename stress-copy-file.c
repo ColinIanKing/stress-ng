@@ -327,7 +327,7 @@ tidy_dir:
 
 const stressor_info_t stress_copy_file_info = {
 	.stressor = stress_copy_file,
-	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.classifier = CLASS_FILESYSTEM | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
@@ -335,7 +335,7 @@ const stressor_info_t stress_copy_file_info = {
 #else
 const stressor_info_t stress_copy_file_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.classifier = CLASS_FILESYSTEM | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help,

@@ -211,7 +211,7 @@ static int stress_nice(stress_args_t *args)
 
 const stressor_info_t stress_nice_info = {
 	.stressor = stress_nice,
-	.class = CLASS_SCHEDULER | CLASS_OS,
+	.classifier = CLASS_SCHEDULER | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
@@ -219,7 +219,7 @@ const stressor_info_t stress_nice_info = {
 #else
 const stressor_info_t stress_nice_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_SCHEDULER | CLASS_OS,
+	.classifier = CLASS_SCHEDULER | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without nice() or setpriority() system call support"

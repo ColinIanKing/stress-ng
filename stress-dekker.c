@@ -269,7 +269,7 @@ static int stress_dekker(stress_args_t *args)
 
 const stressor_info_t stress_dekker_info = {
 	.stressor = stress_dekker,
-	.class = CLASS_CPU_CACHE | CLASS_IPC,
+	.classifier = CLASS_CPU_CACHE | CLASS_IPC,
 	.verify = VERIFY_ALWAYS,
 	.supported = stress_dekker_supported,
 	.help = help
@@ -279,7 +279,7 @@ const stressor_info_t stress_dekker_info = {
 
 const stressor_info_t stress_dekker_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_CPU | CLASS_IPC,
+	.classifier = CLASS_CPU | CLASS_IPC,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without user space memory fencing"

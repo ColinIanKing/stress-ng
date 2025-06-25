@@ -601,7 +601,7 @@ static const stress_opt_t opts[] = {
 
 const stressor_info_t stress_vnni_info = {
 	.stressor = stress_vnni,
-	.class = CLASS_CPU | CLASS_INTEGER | CLASS_COMPUTE | CLASS_VECTOR,
+	.classifier = CLASS_CPU | CLASS_INTEGER | CLASS_COMPUTE | CLASS_VECTOR,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help

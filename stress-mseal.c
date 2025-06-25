@@ -357,7 +357,7 @@ static int stress_mseal(stress_args_t *args)
 const stressor_info_t stress_mseal_info = {
 	.stressor = stress_mseal,
 	.supported = stress_mseal_supported,
-	.class = CLASS_VM | CLASS_OS,
+	.classifier = CLASS_VM | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };

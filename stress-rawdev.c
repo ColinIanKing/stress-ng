@@ -501,7 +501,7 @@ static int stress_rawdev(stress_args_t *args)
 const stressor_info_t stress_rawdev_info = {
 	.stressor = stress_rawdev,
 	.supported = stress_rawdev_supported,
-	.class = CLASS_IO,
+	.classifier = CLASS_IO,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
@@ -509,7 +509,7 @@ const stressor_info_t stress_rawdev_info = {
 #else
 const stressor_info_t stress_rawdev_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_IO,
+	.classifier = CLASS_IO,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,

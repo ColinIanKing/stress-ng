@@ -492,7 +492,7 @@ static int stress_jpeg(stress_args_t *args)
 
 const stressor_info_t stress_jpeg_info = {
 	.stressor = stress_jpeg,
-	.class = CLASS_CPU | CLASS_COMPUTE,
+	.classifier = CLASS_CPU | CLASS_COMPUTE,
 	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
@@ -500,7 +500,7 @@ const stressor_info_t stress_jpeg_info = {
 #else
 const stressor_info_t stress_jpeg_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_CPU | CLASS_COMPUTE,
+	.classifier = CLASS_CPU | CLASS_COMPUTE,
 	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help,

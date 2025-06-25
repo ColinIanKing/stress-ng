@@ -310,7 +310,7 @@ done:
 const stressor_info_t stress_physmmap_info = {
 	.stressor = stress_physmmap,
 	.supported = stress_physmmap_supported,
-	.class = CLASS_VM,
+	.classifier = CLASS_VM,
 	.verify = VERIFY_NONE,
 	.opts = opts,
 	.help = help
@@ -318,7 +318,7 @@ const stressor_info_t stress_physmmap_info = {
 #else
 const stressor_info_t stress_physmmap_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_VM,
+	.classifier = CLASS_VM,
 	.verify = VERIFY_NONE,
 	.opts = opts,
 	.help = help,

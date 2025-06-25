@@ -911,7 +911,7 @@ static const stress_opt_t opts[] = {
 
 const stressor_info_t stress_mmaptorture_info = {
 	.stressor = stress_mmaptorture,
-	.class = CLASS_VM | CLASS_OS,
+	.classifier = CLASS_VM | CLASS_OS,
 	.verify = VERIFY_NONE,
 	.init = stress_mmaptorture_init,
 	.deinit = stress_mmaptorture_deinit,

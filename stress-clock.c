@@ -571,14 +571,14 @@ static int stress_clock(stress_args_t *args)
 
 const stressor_info_t stress_clock_info = {
 	.stressor = stress_clock,
-	.class = CLASS_INTERRUPT | CLASS_OS,
+	.classifier = CLASS_INTERRUPT | CLASS_OS,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };
 #else
 const stressor_info_t stress_clock_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_INTERRUPT | CLASS_OS,
+	.classifier = CLASS_INTERRUPT | CLASS_OS,
 	.verify = VERIFY_OPTIONAL,
 	.help = help,
 	.unimplemented_reason = "built without librt or clock_gettime()/clock_settime() support"

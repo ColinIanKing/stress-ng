@@ -567,7 +567,7 @@ finish:
 const stressor_info_t stress_efivar_info = {
 	.stressor = stress_efivar,
 	.supported = stress_efivar_supported,
-	.class = CLASS_OS,
+	.classifier = CLASS_OS,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
@@ -582,7 +582,7 @@ static int stress_efivar_supported(const char *name)
 const stressor_info_t stress_efivar_info = {
 	.stressor = stress_unimplemented,
 	.supported = stress_efivar_supported,
-	.class = CLASS_OS,
+	.classifier = CLASS_OS,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "only supported on Linux with EFI variable filesystem"

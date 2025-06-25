@@ -417,7 +417,7 @@ static const stress_opt_t opts[] = {
 
 const stressor_info_t stress_metamix_info = {
 	.stressor = stress_metamix,
-	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.classifier = CLASS_FILESYSTEM | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help

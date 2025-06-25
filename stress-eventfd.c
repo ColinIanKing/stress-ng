@@ -248,7 +248,7 @@ exit_parent:
 
 const stressor_info_t stress_eventfd_info = {
 	.stressor = stress_eventfd,
-	.class = CLASS_FILESYSTEM | CLASS_SCHEDULER | CLASS_OS,
+	.classifier = CLASS_FILESYSTEM | CLASS_SCHEDULER | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
@@ -256,7 +256,7 @@ const stressor_info_t stress_eventfd_info = {
 #else
 const stressor_info_t stress_eventfd_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_FILESYSTEM | CLASS_SCHEDULER | CLASS_OS,
+	.classifier = CLASS_FILESYSTEM | CLASS_SCHEDULER | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,

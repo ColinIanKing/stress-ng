@@ -702,7 +702,7 @@ finish:
 
 const stressor_info_t stress_sctp_info = {
 	.stressor = stress_sctp,
-	.class = CLASS_NETWORK,
+	.classifier = CLASS_NETWORK,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
@@ -710,7 +710,7 @@ const stressor_info_t stress_sctp_info = {
 #else
 const stressor_info_t stress_sctp_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_NETWORK,
+	.classifier = CLASS_NETWORK,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,

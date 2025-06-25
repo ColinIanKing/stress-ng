@@ -768,13 +768,13 @@ static int stress_vma(stress_args_t *args)
 
 const stressor_info_t stress_vma_info = {
 	.stressor = stress_vma,
-	.class = CLASS_VM,
+	.classifier = CLASS_VM,
 	.help = help
 };
 #else
 const stressor_info_t stress_vma_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_VM,
+	.classifier = CLASS_VM,
 	.help = help,
 	.unimplemented_reason = "built without pthread support"
 };

@@ -1148,7 +1148,7 @@ static const stress_opt_t opts[] = {
 
 const stressor_info_t stress_bitops_info = {
 	.stressor = stress_bitops,
-	.class = CLASS_CPU | CLASS_INTEGER | CLASS_COMPUTE,
+	.classifier = CLASS_CPU | CLASS_INTEGER | CLASS_COMPUTE,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help

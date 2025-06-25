@@ -307,7 +307,7 @@ static int stress_mmapfiles(stress_args_t *args)
 
 const stressor_info_t stress_mmapfiles_info = {
 	.stressor = stress_mmapfiles,
-	.class = CLASS_VM | CLASS_OS,
+	.classifier = CLASS_VM | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
 	.opts = opts,
 	.help = help

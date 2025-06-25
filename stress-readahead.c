@@ -322,7 +322,7 @@ finish:
 
 const stressor_info_t stress_readahead_info = {
 	.stressor = stress_readahead,
-	.class = CLASS_IO | CLASS_OS,
+	.classifier = CLASS_IO | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
@@ -330,7 +330,7 @@ const stressor_info_t stress_readahead_info = {
 #else
 const stressor_info_t stress_readahead_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_IO | CLASS_OS,
+	.classifier = CLASS_IO | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help,

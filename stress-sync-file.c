@@ -266,7 +266,7 @@ err:
 
 const stressor_info_t stress_sync_file_info = {
 	.stressor = stress_sync_file,
-	.class = CLASS_IO | CLASS_FILESYSTEM | CLASS_OS,
+	.classifier = CLASS_IO | CLASS_FILESYSTEM | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
@@ -274,7 +274,7 @@ const stressor_info_t stress_sync_file_info = {
 #else
 const stressor_info_t stress_sync_file_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_IO | CLASS_FILESYSTEM | CLASS_OS,
+	.classifier = CLASS_IO | CLASS_FILESYSTEM | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,

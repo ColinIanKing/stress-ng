@@ -645,7 +645,7 @@ static int stress_monte_carlo(stress_args_t *args)
 const stressor_info_t stress_monte_carlo_info = {
 	.stressor = stress_monte_carlo,
 	.opts = opts,
-	.class = CLASS_CPU | CLASS_COMPUTE,
+	.classifier = CLASS_CPU | CLASS_COMPUTE,
 	.verify = VERIFY_NONE,
 	.help = help
 };

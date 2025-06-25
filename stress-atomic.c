@@ -521,7 +521,7 @@ static int stress_atomic(stress_args_t *args)
 
 const stressor_info_t stress_atomic_info = {
 	.stressor = stress_atomic,
-	.class = CLASS_CPU | CLASS_MEMORY,
+	.classifier = CLASS_CPU | CLASS_MEMORY,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
@@ -529,7 +529,7 @@ const stressor_info_t stress_atomic_info = {
 #else
 const stressor_info_t stress_atomic_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_CPU | CLASS_MEMORY,
+	.classifier = CLASS_CPU | CLASS_MEMORY,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without gcc __atomic builtin functions"

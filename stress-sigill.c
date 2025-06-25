@@ -292,7 +292,7 @@ static int stress_sigill(stress_args_t *args)
 
 const stressor_info_t stress_sigill_info = {
 	.stressor = stress_sigill,
-	.class = CLASS_SIGNAL | CLASS_OS,
+	.classifier = CLASS_SIGNAL | CLASS_OS,
 #if defined(SA_SIGINFO)
 	.verify = VERIFY_OPTIONAL,
 #endif
@@ -303,7 +303,7 @@ const stressor_info_t stress_sigill_info = {
 
 const stressor_info_t stress_sigill_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_SIGNAL | CLASS_OS,
+	.classifier = CLASS_SIGNAL | CLASS_OS,
 	.unimplemented_reason = "built without SIGILL support or illegal opcode function not implemented",
 	.help = help
 };

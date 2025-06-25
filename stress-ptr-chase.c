@@ -181,7 +181,7 @@ tidy_ptrs_heap:
 
 const stressor_info_t stress_ptr_chase_info = {
 	.stressor = stress_ptr_chase,
-	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY | CLASS_SEARCH,
+	.classifier = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY | CLASS_SEARCH,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help

@@ -178,7 +178,7 @@ static int stress_mtx(stress_args_t *args)
 
 const stressor_info_t stress_mtx_info = {
 	.stressor = stress_mtx,
-	.class = CLASS_OS | CLASS_SCHEDULER,
+	.classifier = CLASS_OS | CLASS_SCHEDULER,
 	.verify = VERIFY_ALWAYS,
 	.opts = opts,
 	.help = help
@@ -186,7 +186,7 @@ const stressor_info_t stress_mtx_info = {
 #else
 const stressor_info_t stress_mtx_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_OS | CLASS_SCHEDULER,
+	.classifier = CLASS_OS | CLASS_SCHEDULER,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,

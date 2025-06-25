@@ -400,7 +400,7 @@ clean_up:
 
 const stressor_info_t stress_tun_info = {
 	.stressor = stress_tun,
-	.class = CLASS_NETWORK | CLASS_OS,
+	.classifier = CLASS_NETWORK | CLASS_OS,
 	.opts = opts,
 	.supported = stress_tun_supported,
 	.verify = VERIFY_ALWAYS,
@@ -409,7 +409,7 @@ const stressor_info_t stress_tun_info = {
 #else
 const stressor_info_t stress_tun_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_NETWORK | CLASS_OS,
+	.classifier = CLASS_NETWORK | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,

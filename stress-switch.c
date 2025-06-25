@@ -527,7 +527,7 @@ static const stress_opt_t opts[] = {
 
 const stressor_info_t stress_switch_info = {
 	.stressor = stress_switch,
-	.class = CLASS_SCHEDULER | CLASS_OS,
+	.classifier = CLASS_SCHEDULER | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help

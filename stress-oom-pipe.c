@@ -242,14 +242,14 @@ static int stress_oom_pipe(stress_args_t *args)
 
 const stressor_info_t stress_oom_pipe_info = {
 	.stressor = stress_oom_pipe,
-	.class = CLASS_MEMORY | CLASS_OS | CLASS_PATHOLOGICAL,
+	.classifier = CLASS_MEMORY | CLASS_OS | CLASS_PATHOLOGICAL,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else
 const stressor_info_t stress_oom_pipe_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_MEMORY | CLASS_OS | CLASS_PATHOLOGICAL,
+	.classifier = CLASS_MEMORY | CLASS_OS | CLASS_PATHOLOGICAL,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without F_SETFL, F_SETPIPE_SZ or O_NONBLOCK fcntl() commands"

@@ -454,7 +454,7 @@ static const stress_opt_t opts[] = {
 
 const stressor_info_t stress_mmapcow_info = {
 	.stressor = stress_mmapcow,
-	.class = CLASS_VM | CLASS_OS,
+	.classifier = CLASS_VM | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_NONE,
 	.help = help

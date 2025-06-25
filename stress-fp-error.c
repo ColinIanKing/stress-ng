@@ -216,14 +216,14 @@ static int stress_fp_error(stress_args_t *args)
 
 const stressor_info_t stress_fp_error_info = {
 	.stressor = stress_fp_error,
-	.class = CLASS_CPU | CLASS_FP,
+	.classifier = CLASS_CPU | CLASS_FP,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else
 const stressor_info_t stress_fp_error_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_CPU | CLASS_FP,
+	.classifier = CLASS_CPU | CLASS_FP,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without fully functional floating point error support"

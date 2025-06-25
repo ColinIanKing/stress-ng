@@ -255,7 +255,7 @@ clean:
 const stressor_info_t stress_binderfs_info = {
 	.stressor = stress_binderfs,
 	.supported = stress_binderfs_supported,
-	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.classifier = CLASS_FILESYSTEM | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
@@ -263,7 +263,7 @@ const stressor_info_t stress_binderfs_info = {
 const stressor_info_t stress_binderfs_info = {
 	.stressor = stress_unimplemented,
 	.supported = stress_binderfs_supported,
-	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.classifier = CLASS_FILESYSTEM | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without android linux/android/binder.h or linux/android/binderfs.h"

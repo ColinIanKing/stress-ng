@@ -590,7 +590,7 @@ static int stress_llc_affinity(stress_args_t *args)
 
 const stressor_info_t stress_llc_affinity_info = {
 	.stressor = stress_llc_affinity,
-	.class = CLASS_CPU_CACHE,
+	.classifier = CLASS_CPU_CACHE,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
@@ -600,7 +600,7 @@ const stressor_info_t stress_llc_affinity_info = {
 
 const stressor_info_t stress_llc_affinity_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_CPU_CACHE,
+	.classifier = CLASS_CPU_CACHE,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,

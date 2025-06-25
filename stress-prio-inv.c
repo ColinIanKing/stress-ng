@@ -522,7 +522,7 @@ unmap_prio_inv_info:
 
 const stressor_info_t stress_prio_inv_info = {
 	.stressor = stress_prio_inv,
-	.class = CLASS_OS | CLASS_SCHEDULER,
+	.classifier = CLASS_OS | CLASS_SCHEDULER,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
@@ -530,7 +530,7 @@ const stressor_info_t stress_prio_inv_info = {
 #else
 const stressor_info_t stress_prio_inv_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_OS | CLASS_SCHEDULER,
+	.classifier = CLASS_OS | CLASS_SCHEDULER,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,

@@ -196,7 +196,7 @@ err:
 const stressor_info_t stress_icmp_flood_info = {
 	.stressor = stress_icmp_flood,
 	.supported = stress_icmp_flood_supported,
-	.class = CLASS_OS | CLASS_NETWORK,
+	.classifier = CLASS_OS | CLASS_NETWORK,
 	.verify = VERIFY_ALWAYS,
 	.opts = opts,
 	.help = help
@@ -204,7 +204,7 @@ const stressor_info_t stress_icmp_flood_info = {
 #else
 const stressor_info_t stress_icmp_flood_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_OS | CLASS_NETWORK,
+	.classifier = CLASS_OS | CLASS_NETWORK,
 	.verify = VERIFY_ALWAYS,
 	.opts = opts,
 	.help = help,

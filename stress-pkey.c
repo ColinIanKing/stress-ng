@@ -157,13 +157,13 @@ static int stress_pkey(stress_args_t *args)
 
 const stressor_info_t stress_pkey_info = {
 	.stressor = stress_pkey,
-	.class = CLASS_OS,
+	.classifier = CLASS_OS,
 	.help = help
 };
 #else
 const stressor_info_t stress_pkey_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_OS,
+	.classifier = CLASS_OS,
 	.help = help,
 	.unimplemented_reason = "built without pkey_mprotect() system call"
 };

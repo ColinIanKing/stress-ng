@@ -322,7 +322,7 @@ finish:
 
 const stressor_info_t stress_rawudp_info = {
 	.stressor = stress_rawudp,
-	.class = CLASS_NETWORK | CLASS_OS,
+	.classifier = CLASS_NETWORK | CLASS_OS,
 	.opts = opts,
 	.supported = stress_rawudp_supported,
 	.verify = VERIFY_ALWAYS,
@@ -331,7 +331,7 @@ const stressor_info_t stress_rawudp_info = {
 #else
 const stressor_info_t stress_rawudp_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_NETWORK | CLASS_OS,
+	.classifier = CLASS_NETWORK | CLASS_OS,
 	.opts = opts,
 	.supported = stress_rawudp_supported,
 	.verify = VERIFY_ALWAYS,

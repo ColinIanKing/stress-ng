@@ -743,14 +743,14 @@ madv_free_out:
 
 const stressor_info_t stress_madvise_info = {
 	.stressor = stress_madvise,
-	.class = CLASS_VM | CLASS_OS,
+	.classifier = CLASS_VM | CLASS_OS,
 	.opts = opts,
 	.help = help
 };
 #else
 const stressor_info_t stress_madvise_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_VM | CLASS_OS,
+	.classifier = CLASS_VM | CLASS_OS,
 	.opts = opts,
 	.help = help
 };

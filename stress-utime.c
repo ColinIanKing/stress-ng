@@ -536,7 +536,7 @@ STRESS_PRAGMA_POP
 
 const stressor_info_t stress_utime_info = {
 	.stressor = stress_utime,
-	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.classifier = CLASS_FILESYSTEM | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
@@ -546,7 +546,7 @@ const stressor_info_t stress_utime_info = {
 
 const stressor_info_t stress_utime_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.classifier = CLASS_FILESYSTEM | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help,

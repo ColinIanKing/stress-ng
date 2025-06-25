@@ -418,7 +418,7 @@ case_sched_fifo:
 
 const stressor_info_t stress_schedpolicy_info = {
 	.stressor = stress_schedpolicy,
-	.class = CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS,
+	.classifier = CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
@@ -426,7 +426,7 @@ const stressor_info_t stress_schedpolicy_info = {
 #else
 const stressor_info_t stress_schedpolicy_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS,
+	.classifier = CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,

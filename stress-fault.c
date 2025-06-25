@@ -292,6 +292,6 @@ next:
 
 const stressor_info_t stress_fault_info = {
 	.stressor = stress_fault,
-	.class = CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS,
+	.classifier = CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS,
 	.help = help
 };

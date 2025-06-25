@@ -143,7 +143,7 @@ finish:
 
 const stressor_info_t stress_sigchld_info = {
 	.stressor = stress_sigchld,
-	.class = CLASS_SIGNAL | CLASS_OS,
+	.classifier = CLASS_SIGNAL | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };

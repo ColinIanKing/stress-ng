@@ -519,7 +519,7 @@ clean:
 
 const stressor_info_t stress_pty_info = {
 	.stressor = stress_pty,
-	.class = CLASS_OS,
+	.classifier = CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
@@ -527,7 +527,7 @@ const stressor_info_t stress_pty_info = {
 #else
 const stressor_info_t stress_pty_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_OS,
+	.classifier = CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,

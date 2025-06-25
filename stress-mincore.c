@@ -305,7 +305,7 @@ err:
 
 const stressor_info_t stress_mincore_info = {
 	.stressor = stress_mincore,
-	.class = CLASS_OS | CLASS_MEMORY,
+	.classifier = CLASS_OS | CLASS_MEMORY,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
@@ -313,7 +313,7 @@ const stressor_info_t stress_mincore_info = {
 #else
 const stressor_info_t stress_mincore_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_OS | CLASS_MEMORY,
+	.classifier = CLASS_OS | CLASS_MEMORY,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,

@@ -543,7 +543,7 @@ finish:
 
 const stressor_info_t stress_rawpkt_info = {
 	.stressor = stress_rawpkt,
-	.class = CLASS_NETWORK | CLASS_OS,
+	.classifier = CLASS_NETWORK | CLASS_OS,
 	.opts = opts,
 	.supported = stress_rawpkt_supported,
 	.verify = VERIFY_ALWAYS,
@@ -552,7 +552,7 @@ const stressor_info_t stress_rawpkt_info = {
 #else
 const stressor_info_t stress_rawpkt_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_NETWORK | CLASS_OS,
+	.classifier = CLASS_NETWORK | CLASS_OS,
 	.opts = opts,
 	.supported = stress_rawpkt_supported,
 	.verify = VERIFY_ALWAYS,

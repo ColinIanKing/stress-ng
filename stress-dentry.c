@@ -485,7 +485,7 @@ static const stress_opt_t opts[] = {
 
 const stressor_info_t stress_dentry_info = {
 	.stressor = stress_dentry,
-	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.classifier = CLASS_FILESYSTEM | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help

@@ -316,7 +316,7 @@ static int stress_ioport(stress_args_t *args)
 const stressor_info_t stress_ioport_info = {
 	.stressor = stress_ioport,
 	.supported = stress_ioport_supported,
-	.class = CLASS_CPU,
+	.classifier = CLASS_CPU,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
@@ -324,7 +324,7 @@ const stressor_info_t stress_ioport_info = {
 #else
 const stressor_info_t stress_ioport_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_CPU,
+	.classifier = CLASS_CPU,
 	.opts = opts,
 	.help = help,
 	.verify = VERIFY_ALWAYS,

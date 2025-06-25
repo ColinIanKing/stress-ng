@@ -472,7 +472,7 @@ cleanup:
 
 const stressor_info_t stress_msg_info = {
 	.stressor = stress_msg,
-	.class = CLASS_SCHEDULER | CLASS_OS | CLASS_IPC,
+	.classifier = CLASS_SCHEDULER | CLASS_OS | CLASS_IPC,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
@@ -480,7 +480,7 @@ const stressor_info_t stress_msg_info = {
 #else
 const stressor_info_t stress_msg_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_SCHEDULER | CLASS_OS | CLASS_IPC,
+	.classifier = CLASS_SCHEDULER | CLASS_OS | CLASS_IPC,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,

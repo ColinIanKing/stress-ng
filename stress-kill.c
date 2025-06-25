@@ -178,7 +178,7 @@ static int stress_kill(stress_args_t *args)
 
 const stressor_info_t stress_kill_info = {
 	.stressor = stress_kill,
-	.class = CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS,
+	.classifier = CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };

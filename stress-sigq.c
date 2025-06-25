@@ -225,14 +225,14 @@ finish:
 
 const stressor_info_t stress_sigq_info = {
 	.stressor = stress_sigq,
-	.class = CLASS_SIGNAL | CLASS_OS | CLASS_IPC,
+	.classifier = CLASS_SIGNAL | CLASS_OS | CLASS_IPC,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else
 const stressor_info_t stress_sigq_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_SIGNAL | CLASS_OS | CLASS_IPC,
+	.classifier = CLASS_SIGNAL | CLASS_OS | CLASS_IPC,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without sigqueue() or sigwaitinfo() or defined SA_SIGINFO"

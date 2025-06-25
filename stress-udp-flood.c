@@ -187,7 +187,7 @@ static int OPTIMIZE3 stress_udp_flood(stress_args_t *args)
 
 const stressor_info_t stress_udp_flood_info = {
 	.stressor = stress_udp_flood,
-	.class = CLASS_NETWORK | CLASS_OS,
+	.classifier = CLASS_NETWORK | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
@@ -195,7 +195,7 @@ const stressor_info_t stress_udp_flood_info = {
 #else
 const stressor_info_t stress_udp_flood_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_NETWORK | CLASS_OS,
+	.classifier = CLASS_NETWORK | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,

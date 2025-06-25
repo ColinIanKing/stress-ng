@@ -457,7 +457,7 @@ typedef struct stressor_info {
 	void (*set_limit)(uint64_t max);/* set limits */
 	const stress_opt_t *opts;	/* new option settings */
 	const stress_help_t *help;	/* stressor help options */
-	const stress_class_t class;	/* stressor class */
+	const stress_class_t classifier;/* stressor class */
 	const stress_verify_t verify;	/* verification mode */
 	const char *unimplemented_reason;	/* unsupported reason message */
 } stressor_info_t;

@@ -134,14 +134,14 @@ tidy_dir:
 
 const stressor_info_t stress_sigxfsz_info = {
 	.stressor = stress_sigxfsz,
-	.class = CLASS_SIGNAL | CLASS_OS,
+	.classifier = CLASS_SIGNAL | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else
 const stressor_info_t stress_sigxfsz_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_SIGNAL | CLASS_OS,
+	.classifier = CLASS_SIGNAL | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without SIGXFSZ or RLIMIT_FSIZE"

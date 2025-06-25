@@ -455,7 +455,7 @@ cleanup:
 
 const stressor_info_t stress_far_branch_info = {
 	.stressor = stress_far_branch,
-	.class = CLASS_CPU_CACHE,
+	.classifier = CLASS_CPU_CACHE,
 	.verify = VERIFY_ALWAYS,
 	.supported = stress_asm_ret_supported,
 	.opts = opts,
@@ -464,7 +464,7 @@ const stressor_info_t stress_far_branch_info = {
 #else
 const stressor_info_t stress_far_branch_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_CPU_CACHE,
+	.classifier = CLASS_CPU_CACHE,
 	.verify = VERIFY_ALWAYS,
 	.supported = stress_asm_ret_supported,
 	.opts = opts,

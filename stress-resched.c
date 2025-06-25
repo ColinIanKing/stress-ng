@@ -267,7 +267,7 @@ tidy_s_pids:
 
 const stressor_info_t stress_resched_info = {
 	.stressor = stress_resched,
-	.class = CLASS_SCHEDULER | CLASS_OS,
+	.classifier = CLASS_SCHEDULER | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
@@ -275,7 +275,7 @@ const stressor_info_t stress_resched_info = {
 #else
 const stressor_info_t stress_resched_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_SCHEDULER | CLASS_OS,
+	.classifier = CLASS_SCHEDULER | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without Linux scheduling support"

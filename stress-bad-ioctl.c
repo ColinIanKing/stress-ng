@@ -658,14 +658,14 @@ again:
 }
 const stressor_info_t stress_bad_ioctl_info = {
 	.stressor = stress_bad_ioctl,
-	.class = CLASS_DEV | CLASS_OS | CLASS_PATHOLOGICAL,
+	.classifier = CLASS_DEV | CLASS_OS | CLASS_PATHOLOGICAL,
 	.opts = opts,
 	.help = help
 };
 #else
 const stressor_info_t stress_bad_ioctl_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_DEV | CLASS_OS | CLASS_PATHOLOGICAL,
+	.classifier = CLASS_DEV | CLASS_OS | CLASS_PATHOLOGICAL,
 	.opts = opts,
 	.help = help,
 	.unimplemented_reason = "built without pthread and/or ioctl() _IOR macro or is not Linux"

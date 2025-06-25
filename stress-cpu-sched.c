@@ -905,7 +905,7 @@ static int stress_cpu_sched(stress_args_t *args)
 
 const stressor_info_t stress_cpu_sched_info = {
 	.stressor = stress_cpu_sched,
-	.class = CLASS_SCHEDULER | CLASS_OS,
+	.classifier = CLASS_SCHEDULER | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
@@ -914,7 +914,7 @@ const stressor_info_t stress_cpu_sched_info = {
 
 const stressor_info_t stress_cpu_sched_info = {
         .stressor = stress_unimplemented,
-	.class = CLASS_SCHEDULER | CLASS_OS,
+	.classifier = CLASS_SCHEDULER | CLASS_OS,
 	.help = help,
 	.verify = VERIFY_ALWAYS,
 	.unimplemented_reason = "built without Linux scheduling or sched_setscheduler() system call"

@@ -558,7 +558,7 @@ err:
 
 const stressor_info_t stress_landlock_info = {
 	.stressor = stress_landlock,
-	.class = CLASS_OS,
+	.classifier = CLASS_OS,
 	.supported = stress_landlock_supported,
 	.verify = VERIFY_ALWAYS,
 	.help = help
@@ -566,7 +566,7 @@ const stressor_info_t stress_landlock_info = {
 #else
 const stressor_info_t stress_landlock_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_OS,
+	.classifier = CLASS_OS,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "linux/landlock.h or __NR_landlock* syscall macros"

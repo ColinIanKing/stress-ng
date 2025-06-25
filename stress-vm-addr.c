@@ -629,7 +629,7 @@ static const stress_opt_t opts[] = {
 
 const stressor_info_t stress_vm_addr_info = {
 	.stressor = stress_vm_addr,
-	.class = CLASS_VM | CLASS_MEMORY | CLASS_OS,
+	.classifier = CLASS_VM | CLASS_MEMORY | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help

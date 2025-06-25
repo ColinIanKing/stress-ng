@@ -414,14 +414,14 @@ tidy:
 
 const stressor_info_t stress_key_info = {
 	.stressor = stress_key,
-	.class = CLASS_OS,
+	.classifier = CLASS_OS,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else
 const stressor_info_t stress_key_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_OS,
+	.classifier = CLASS_OS,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without keyutils.h, add_key(), keyctl() or syscall() support"

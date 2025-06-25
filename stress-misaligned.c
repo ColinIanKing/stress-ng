@@ -1464,7 +1464,7 @@ static const stress_opt_t opts[] = {
 
 const stressor_info_t stress_misaligned_info = {
 	.stressor = stress_misaligned,
-	.class = CLASS_CPU_CACHE | CLASS_MEMORY,
+	.classifier = CLASS_CPU_CACHE | CLASS_MEMORY,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help

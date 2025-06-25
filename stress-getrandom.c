@@ -180,14 +180,14 @@ static int stress_getrandom(stress_args_t *args)
 const stressor_info_t stress_getrandom_info = {
 	.stressor = stress_getrandom,
 	.supported = stress_getrandom_supported,
-	.class = CLASS_OS | CLASS_CPU,
+	.classifier = CLASS_OS | CLASS_CPU,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else
 const stressor_info_t stress_getrandom_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_OS | CLASS_CPU,
+	.classifier = CLASS_OS | CLASS_CPU,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without getrandom() support"

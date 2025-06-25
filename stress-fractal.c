@@ -401,7 +401,7 @@ static int stress_fractal(stress_args_t *args)
 
 const stressor_info_t stress_fractal_info = {
 	.stressor = stress_fractal,
-	.class = CLASS_CPU | CLASS_FP | CLASS_COMPUTE,
+	.classifier = CLASS_CPU | CLASS_FP | CLASS_COMPUTE,
 	.init = stress_fractal_init,
 	.deinit = stress_fractal_deinit,
 	.verify = VERIFY_NONE,

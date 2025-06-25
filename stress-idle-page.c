@@ -131,14 +131,14 @@ next:
 const stressor_info_t stress_idle_page_info = {
 	.stressor = stress_idle_page,
 	.supported = stress_idle_page_supported,
-	.class = CLASS_OS,
+	.classifier = CLASS_OS,
 	.help = help
 };
 #else
 const stressor_info_t stress_idle_page_info = {
 	.stressor = stress_unimplemented,
 	.supported = stress_idle_page_supported,
-	.class = CLASS_OS,
+	.classifier = CLASS_OS,
 	.help = help,
 	.unimplemented_reason = "only supported on Linux"
 };

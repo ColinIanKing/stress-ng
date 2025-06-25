@@ -911,14 +911,14 @@ exit_no_sysfs_entries:
 
 const stressor_info_t stress_sysfs_info = {
 	.stressor = stress_sysfs,
-	.class = CLASS_OS,
+	.classifier = CLASS_OS,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };
 #else
 const stressor_info_t stress_sysfs_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_OS,
+	.classifier = CLASS_OS,
 	.verify = VERIFY_OPTIONAL,
 	.help = help,
 	.unimplemented_reason = "not Linux or built without pthread support"

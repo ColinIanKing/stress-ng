@@ -290,7 +290,7 @@ tidy_fds:
 
 const stressor_info_t stress_fd_fork_info = {
 	.stressor = stress_fd_fork,
-	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.classifier = CLASS_FILESYSTEM | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help

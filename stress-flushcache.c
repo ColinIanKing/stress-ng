@@ -357,14 +357,14 @@ static int stress_flushcache(stress_args_t *args)
 
 const stressor_info_t stress_flushcache_info = {
 	.stressor = stress_flushcache,
-	.class = CLASS_CPU_CACHE,
+	.classifier = CLASS_CPU_CACHE,
 	.supported = stress_asm_ret_supported,
 	.help = help
 };
 #else
 const stressor_info_t stress_flushcache_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_CPU_CACHE,
+	.classifier = CLASS_CPU_CACHE,
 	.supported = stress_asm_ret_supported,
 	.help = help,
 	.unimplemented_reason = "built without cache flush support"

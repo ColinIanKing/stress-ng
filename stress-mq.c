@@ -528,7 +528,7 @@ finish:
 
 const stressor_info_t stress_mq_info = {
 	.stressor = stress_mq,
-	.class = CLASS_SCHEDULER | CLASS_OS | CLASS_IPC,
+	.classifier = CLASS_SCHEDULER | CLASS_OS | CLASS_IPC,
 	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
@@ -536,7 +536,7 @@ const stressor_info_t stress_mq_info = {
 #else
 const stressor_info_t stress_mq_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_SCHEDULER | CLASS_OS | CLASS_IPC,
+	.classifier = CLASS_SCHEDULER | CLASS_OS | CLASS_IPC,
 	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help,

@@ -322,7 +322,7 @@ const stressor_info_t stress_physpage_info = {
 	.stressor = stress_physpage,
 	.supported = stress_physpage_supported,
 	.opts = opts,
-	.class = CLASS_VM,
+	.classifier = CLASS_VM,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
@@ -330,7 +330,7 @@ const stressor_info_t stress_physpage_info = {
 const stressor_info_t stress_physpage_info = {
 	.stressor = stress_unimplemented,
 	.opts = opts,
-	.class = CLASS_VM,
+	.classifier = CLASS_VM,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "only supported on Linux"

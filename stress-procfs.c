@@ -924,13 +924,13 @@ static int stress_procfs(stress_args_t *args)
 
 const stressor_info_t stress_procfs_info = {
 	.stressor = stress_procfs,
-	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.classifier = CLASS_FILESYSTEM | CLASS_OS,
 	.help = help
 };
 #else
 const stressor_info_t stress_procfs_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.classifier = CLASS_FILESYSTEM | CLASS_OS,
 	.help = help,
 	.unimplemented_reason = "built without librt or only supported on Linux"
 };

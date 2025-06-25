@@ -438,7 +438,7 @@ static int stress_mpfr(stress_args_t *args)
 
 const stressor_info_t stress_mpfr_info = {
 	.stressor = stress_mpfr,
-	.class = CLASS_CPU | CLASS_FP | CLASS_COMPUTE,
+	.classifier = CLASS_CPU | CLASS_FP | CLASS_COMPUTE,
 	.verify = VERIFY_ALWAYS,
 	.opts = opts,
 	.help = help
@@ -448,7 +448,7 @@ const stressor_info_t stress_mpfr_info = {
 
 const stressor_info_t stress_mpfr_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_CPU | CLASS_FP | CLASS_COMPUTE,
+	.classifier = CLASS_CPU | CLASS_FP | CLASS_COMPUTE,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,

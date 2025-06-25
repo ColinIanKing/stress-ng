@@ -250,14 +250,14 @@ static int stress_bind_mount(stress_args_t *args)
 
 const stressor_info_t stress_bind_mount_info = {
 	.stressor = stress_bind_mount,
-	.class = CLASS_FILESYSTEM | CLASS_OS | CLASS_PATHOLOGICAL,
+	.classifier = CLASS_FILESYSTEM | CLASS_OS | CLASS_PATHOLOGICAL,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else
 const stressor_info_t stress_bind_mount_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_FILESYSTEM | CLASS_OS | CLASS_PATHOLOGICAL,
+	.classifier = CLASS_FILESYSTEM | CLASS_OS | CLASS_PATHOLOGICAL,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without Linux bind-mount options MS_BIND"

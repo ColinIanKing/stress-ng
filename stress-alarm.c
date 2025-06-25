@@ -188,7 +188,7 @@ again:
 
 const stressor_info_t stress_alarm_info = {
 	.stressor = stress_alarm,
-	.class = CLASS_SIGNAL | CLASS_INTERRUPT | CLASS_OS,
+	.classifier = CLASS_SIGNAL | CLASS_INTERRUPT | CLASS_OS,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };
