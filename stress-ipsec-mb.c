@@ -767,7 +767,7 @@ static const char *stress_ipsec_mb_method(const size_t i)
 
 /*
  *  stress_ipsec_mb()
- *      stress Intel ipsec_mb instruction
+ *      stress Intel ipsec_mb library functionality
  */
 static int stress_ipsec_mb(stress_args_t *args)
 {
