@@ -167,7 +167,7 @@ static int stress_mmapcow_exercise(
 #if defined(MCL_ONFAULT) &&	\
     defined(MCL_FUTURE)
 	if (*flags & MMAPCOW_MLOCK) {
-		if (mlock2(buf, *buf_size, MCL_ONFAULT | MCL_FUTURE) < 0) {
+		if (shim_mlock2(buf, *buf_size, MCL_ONFAULT | MCL_FUTURE) < 0) {
 			if (errno == ENOSYS)
 				*flags &= ~(*flags) & MMAPCOW_MLOCK;
 		}
