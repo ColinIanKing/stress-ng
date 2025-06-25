@@ -45,20 +45,6 @@ static const stress_opt_t opts[] = {
 
 #if defined(HAVE_UTIME_H)
 
-#if defined(HAVE_UTIME) &&	\
-    defined(HAVE_UTIMBUF)
-static inline int shim_utime(const char *filename, const struct utimbuf *times)
-{
-#if defined(__NR_utime) &&	\
-    defined(HAVE_SYSCALL) &&	\
-    !defined(STRESS_ARCH_M68K)
-	return (int)syscall(__NR_utime, filename, times);
-#else
-	return utime(filename, times);
-#endif
-}
-#endif
-
 static char *stress_utime_str(char *str, const size_t len, const time_t val)
 {
 	struct tm *tm = localtime(&val);
@@ -417,7 +403,7 @@ STRESS_PRAGMA_POP
 			utbuf.modtime = utbuf.actime;
 
 			if (LIKELY(metrics_count > 0)) {
-				if (UNLIKELY(shim_utime(filename, &utbuf) < 0)) {
+				if (UNLIKELY(utime(filename, &utbuf) < 0)) {
 					pr_fail("%s: utime failed, errno=%d (%s)%s\n",
 						args->name, errno, strerror(errno),
 						stress_get_fs_type(filename));
@@ -426,7 +412,7 @@ STRESS_PRAGMA_POP
 				}
 			} else {
 				t = stress_time_now();
-				if (UNLIKELY(shim_utime(filename, &utbuf) < 0)) {
+				if (UNLIKELY(utime(filename, &utbuf) < 0)) {
 					pr_fail("%s: utime failed, errno=%d (%s)%s\n",
 						args->name, errno, strerror(errno),
 						stress_get_fs_type(filename));
@@ -464,7 +450,7 @@ STRESS_PRAGMA_POP
 				}
 			}
 			if (LIKELY(metrics_count > 0)) {
-				if (UNLIKELY(shim_utime(filename, NULL) < 0)) {
+				if (UNLIKELY(utime(filename, NULL) < 0)) {
 					pr_fail("%s: utime failed, errno=%d (%s)%s\n",
 						args->name, errno, strerror(errno),
 						stress_get_fs_type(filename));
@@ -473,7 +459,7 @@ STRESS_PRAGMA_POP
 				}
 			} else {
 				t = stress_time_now();
-				if (UNLIKELY(shim_utime(filename, NULL) < 0)) {
+				if (UNLIKELY(utime(filename, NULL) < 0)) {
 					pr_fail("%s: utime failed, errno=%d (%s)%s\n",
 						args->name, errno, strerror(errno),
 						stress_get_fs_type(filename));
@@ -485,24 +471,24 @@ STRESS_PRAGMA_POP
 			}
 
 			/* Exercise invalid timename, ENOENT */
-			VOID_RET(int, shim_utime("", &utbuf));
+			VOID_RET(int, utime("", &utbuf));
 
 			/* Exercise huge filename, ENAMETOOLONG */
-			VOID_RET(int, shim_utime(hugename, &utbuf));
+			VOID_RET(int, utime(hugename, &utbuf));
 
 			/* Exercise ranges of +ve times */
 			utbuf.actime = (1ULL << ((sizeof(time_t) * 8) - 1)) - 1;
 			utbuf.modtime = utbuf.actime;
-			shim_utime(filename, &utbuf);
+			VOID_RET(int, utime(filename, &utbuf));
 			for (i = 0; utbuf.actime && (i < 64); i++) {
 				utbuf.actime >>= 1;
 				utbuf.modtime = utbuf.actime;
-				shim_utime(filename, &utbuf);
+				VOID_RET(int, utime(filename, &utbuf));
 			}
 
 			utbuf.actime = ~(time_t)0;
 			utbuf.modtime = utbuf.actime;
-			shim_utime(filename, &utbuf);
+			VOID_RET(int, utime(filename, &utbuf));
 		}
 		/* forces metadata writeback */
 		if (utime_fsync) {
