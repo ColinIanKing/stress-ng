@@ -195,15 +195,15 @@ example is as follows:
 \f[CR]
 run sequential   # run stressors sequentially
 verbose          # verbose output
-metrics-brief    # show metrics at end of run
+metrics\-brief    # show metrics at end of run
 timeout 60s      # stop each stressor after 60 seconds
 #
 # vm stressor options:
 #
 vm 2             # 2 vm stressors
-vm-bytes 128M    # 128 MB available memory shared by 2 vm stressors
-vm-keep          # keep vm mapping
-vm-populate      # populate memory
+vm\-bytes 128M    # 128 MB available memory shared by 2 vm stressors
+vm\-keep          # keep vm mapping
+vm\-populate      # populate memory
 #
 # memcpy stressor options:
 #
@@ -623,7 +623,7 @@ show the cumulative user and system times of all the child processes at the
 end of the stress run.  The percentage of utilisation of available CPU time is
 also calculated from the number of on-line CPUs in the system.
 .TP
-.B \--timestamp
+.B \-\-timestamp
 add a timestamp in hours, minutes, seconds and hundredths of a second to the
 log output.
 .TP
@@ -632,7 +632,7 @@ adjust the per process timer slack to N nanoseconds (Linux only). Increasing
 the timer slack allows the kernel to coalesce timer events by adding some
 fuzziness to timer expiration times and hence reduce wakeups.  Conversely,
 decreasing the timer slack will increase wakeups.  A value of 0 for the
-timer-slack will set the system default of 50,000 nanoseconds.
+timer\-slack will set the system default of 50,000 nanoseconds.
 .TP
 .B \-\-tz
 collect temperatures from the available thermal zones on the machine (Linux
@@ -880,11 +880,11 @@ start N workers that perform a range of illegal bad read ioctls (using _IOR) and
 write ioctls (using _IOR with PROT_NONE mapped pages) across the device drivers. This
 exercises page size, 64 bit, 32 bit, 16 bit and 8 bit reads as well as NULL addresses,
 non-readable pages and PROT_NONE mapped pages. Currently only for Linux and requires
-the --pathological option.
+the \-\-pathological option.
 .TP
 .B \-\-bad\-ioctl\-method [ inc | random | random\-inc | stride ]
 select the method of changing the ioctl command (number, type) tuple per iteration, the
-default is random-inc.  Available bad-ioctl methods are described as follows:
+default is random\-inc.  Available bad-ioctl methods are described as follows:
 .sp
 .TS
 lB2 lB
@@ -899,7 +899,7 @@ T}
 random\-inc	T{
 increment ioctl command by a random value
 T}
-random-stride	T{
+random\-stride	T{
 increment ioctl command number by 1 and decrement command type by 3
 T}
 .TE
@@ -2322,49 +2322,49 @@ Method	Description
 all	T{
 iterate over all the Eigen 2D matrix operations
 T}
-add-longdouble	T{
+add\-longdouble	T{
 addition of two matrices of long double floating point values
 T}
-add-double	T{
+add\-double	T{
 addition of two matrices of double floating point values
 T}
-add-float	T{
+add\-float	T{
 addition of two matrices of floating point values
 T}
-determinant-longdouble	T{
+determinant\-longdouble	T{
 determinant of matrix of long double floating point values
 T}
-determinant-double	T{
+determinant\-double	T{
 determinant of matrix of double floating point values
 T}
-determinant-float	T{
+determinant\-float	T{
 determinant of matrix of floating point values
 T}
-inverse-longdouble	T{
+inverse\-longdouble	T{
 inverse of matrix of long double floating point values
 T}
-inverse-double	T{
+inverse\-double	T{
 inverse of matrix of double floating point values
 T}
-inverse-float	T{
+inverse\-float	T{
 inverse of matrix of floating point values
 T}
-multiply-longdouble	T{
+multiply\-longdouble	T{
 multiplication of two matrices of long double floating point values
 T}
-multiply-doublee	T{
+multiply\-doublee	T{
 multiplication of two matrices of double floating point values
 T}
-multiply-float	T{
+multiply\-float	T{
 multiplication of two matrices of floating point values
 T}
-transpose-longdouble	T{
+transpose\-longdouble	T{
 transpose of matrix of long double floating point values
 T}
-transpose-double	T{
+transpose\-double	T{
 transpose of matrix of double floating point values
 T}
-transpose-float	T{
+transpose\-float	T{
 transpose of matrix of floating point values
 T}
 .TE
@@ -6263,7 +6263,7 @@ and compile the source into a shared library as, for example:
 .PP
 .in +10n
 .EX
-gcc -fpic -shared -o example.so example.c
+gcc \-fpic \-shared \-o example.so example.c
 .EE
 .in
 .RS
@@ -6274,7 +6274,7 @@ and run as using:
 .PP
 .in +10n
 .EX
-stress\-ng --plugin 1 --plugin-so ./example.so
+stress\-ng \-\-plugin 1 \-\-plugin-so ./example.so
 .EE
 .in
 .TP
@@ -7804,7 +7804,7 @@ stop after N sleep bogo operations.
 .B \-\-smi N
 start N workers that attempt to generate system management interrupts (SMIs)
 into the x86 ring -2 system management mode (SMM) by exercising the advanced
-power management (APM) port 0xb2. This requires the --pathological option and
+power management (APM) port 0xb2. This requires the \-\-pathological option and
 root privilege and is only implemented on x86 Linux platforms. This probably
 does not work in a virtualized environment.  The stressor will attempt to
 determine the time stolen by SMIs with some na\[:i]ve benchmarking.
@@ -9386,12 +9386,12 @@ prime\-incdec	T{
 step through memory in large prime steps incrementing bytes and then re-do
 again decrementing bytes.
 T}
-rand-set	T{
+rand\-set	T{
 sequentially work through memory in 64 bit chunks setting bytes in the chunk
 to the same 8 bit random value.  The random value changes on each chunk.
 Check that the values have not changed.
 T}
-rand-sum	T{
+rand\-sum	T{
 sequentially set all memory to random values and then summate the number of
 bits that have changed from the original set values.
 T}
@@ -9415,29 +9415,29 @@ with a randomly chosen chunk. Finally, reverse the swap to put the chunks back
 to their original place and check if the data is correct. This exercises
 adjacent and random memory load/stores.
 T}
-walk-0a	T{
+walk\-0a	T{
 in the given memory mapping, work through a range of specially chosen addresses
 working through address lines to see if any address lines are stuck low. This
 works best with physical memory addressing, however, exercising these virtual
 addresses has some value too.
 T}
-walk-0d	T{
+walk\-0d	T{
 for each byte in memory, walk through each data line setting them to low (and
 the others are set high) and check that the written value is as expected. This
 checks if any data lines are stuck.
 T}
-walk-1a	T{
+walk\-1a	T{
 in the given memory mapping, work through a range of specially chosen addresses
 working through address lines to see if any address lines are stuck high. This
 works best with physical memory addressing, however, exercising these virtual
 addresses has some value too.
 T}
-walk-1d	T{
+walk\-1d	T{
 for each byte in memory, walk through each data line setting them to high (and
 the others are set low) and check that the written value is as expected. This
 checks if any data lines are stuck.
 T}
-walk-flush	T{
+walk\-flush	T{
 walk through memory a byte at a time writing/flushing/reading 8 bytes of
 incrementing 8 bit data. For architectures that support user space cache flushing
 this will cause high data cache miss rates.
@@ -10219,12 +10219,12 @@ runs 2 instances of the mixed I/O stressors using a total of 10% of the
 available file system space for 10 minutes. Each stressor will use 5% of the
 available file system space.
 .LP
-\f[CR]stress\-ng --with cpu,matrix,vecmath,fp --seq 8 -t 1m
+\f[CR]stress\-ng \-\-with cpu,matrix,vecmath,fp \-\-seq 8 \-t 1m
 .IP
 run 8 instances of cpu, matrix, vecmath and fp stressors sequentially one
 after another, for 1 minute per stressor.
 .LP
-\f[CR]stress\-ng --with cpu,matrix,vecmath,fp --permute 5 -t 10s
+\f[CR]stress\-ng \-\-with cpu,matrix,vecmath,fp \-\-permute 5 \-t 10s
 .IP
 run permutations of 5 instances of cpu, matrix, vecmath and fp stressors sequentially one
 after another, for 10 seconds per permutation mix.
