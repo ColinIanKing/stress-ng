@@ -97,7 +97,7 @@ static void OPTIMIZE3 name(uint8_t *data)	\
 		} while (newval == val);	\
 						\
 		uptr[SPINMEM_OFFSET] = newval;	\
-		SPINMEM_FLUSH(uptr);		\
+		SPINMEM_FLUSH(data);		\
 		SPINMEM_MB();			\
 		val = newval;			\
 	}					\
@@ -115,10 +115,10 @@ static void OPTIMIZE3 name(uint8_t *data)	\
 		register int spins = 0;		\
 						\
 		v++;				\
-		SPINMEM_FLUSH(uptr);		\
+		SPINMEM_FLUSH(data);		\
 		SPINMEM_MB();			\
 		uptr[0] = v;			\
-		SPINMEM_FLUSH(uptr);		\
+		SPINMEM_FLUSH(data);		\
 		SPINMEM_MB();			\
 						\
 		while (uptr[SPINMEM_OFFSET] != v) { \
