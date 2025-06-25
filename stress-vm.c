@@ -1446,6 +1446,72 @@ abort:
 }
 
 /*
+ *  stress_vm_one_zone()
+ *	set all memory to one and see if any bits are stuck at zero and
+ *	set all memory to zero and see if any bits are stuck at one
+ */
+static size_t TARGET_CLONES stress_vm_one_zero(
+	void *buf,
+	void *buf_end,
+	const size_t sz,
+	stress_args_t *args,
+	const uint64_t max_ops)
+{
+	register uint64_t *ptr;
+	register uint64_t c = stress_bogo_get(args);
+	size_t bit_errors = 0;
+
+	(void)max_ops;
+
+	(void)shim_memset(buf, 0xff, sz);
+	(void)stress_mincore_touch_pages(buf, sz);
+	inject_random_bit_errors(buf, sz);
+	c += sz / 8;
+
+	for (ptr = (uint64_t *)buf; ptr < (uint64_t *)buf_end; ptr += 8) {
+		bit_errors += stress_vm_count_bits(~*(ptr + 0));
+		bit_errors += stress_vm_count_bits(~*(ptr + 1));
+		bit_errors += stress_vm_count_bits(~*(ptr + 2));
+		bit_errors += stress_vm_count_bits(~*(ptr + 3));
+		bit_errors += stress_vm_count_bits(~*(ptr + 4));
+		bit_errors += stress_vm_count_bits(~*(ptr + 5));
+		bit_errors += stress_vm_count_bits(~*(ptr + 6));
+		bit_errors += stress_vm_count_bits(~*(ptr + 7));
+
+		if (UNLIKELY(!stress_continue_flag()))
+			goto abort;
+	}
+
+	(void)shim_memset(buf, 0x00, sz);
+	if (vm_flush)
+		stress_cpu_data_cache_flush(buf, sz);
+	(void)stress_mincore_touch_pages(buf, sz);
+	inject_random_bit_errors(buf, sz);
+	c += sz / 8;
+
+	for (ptr = (uint64_t *)buf; ptr < (uint64_t *)buf_end; ptr += 8) {
+		bit_errors += stress_vm_count_bits(*(ptr + 0));
+		bit_errors += stress_vm_count_bits(*(ptr + 1));
+		bit_errors += stress_vm_count_bits(*(ptr + 2));
+		bit_errors += stress_vm_count_bits(*(ptr + 3));
+		bit_errors += stress_vm_count_bits(*(ptr + 4));
+		bit_errors += stress_vm_count_bits(*(ptr + 5));
+		bit_errors += stress_vm_count_bits(*(ptr + 6));
+		bit_errors += stress_vm_count_bits(*(ptr + 7));
+
+		if (UNLIKELY(!stress_continue_flag()))
+			break;
+	}
+	if (vm_flush)
+		stress_cpu_data_cache_flush(buf, sz);
+	stress_vm_check("one-zero", bit_errors);
+abort:
+	stress_bogo_set(args, c);
+
+	return bit_errors;
+}
+
+/*
  *  stress_vm_zero_one()
  *	set all memory to zero and see if any bits are stuck at one and
  *	set all memory to one and see if any bits are stuck at zero
@@ -3391,6 +3457,7 @@ static const stress_vm_method_info_t vm_methods[] = {
 	{ "modulo-x",		stress_vm_modulo_x },
 	{ "move-inv",		stress_vm_moving_inversion },
 	{ "mscan",		stress_vm_mscan },
+	{ "one-zero",		stress_vm_one_zero },
 	{ "prime-0",		stress_vm_prime_zero },
 	{ "prime-1",		stress_vm_prime_one },
 	{ "prime-gray-0",	stress_vm_prime_gray_zero },
