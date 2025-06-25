@@ -24,9 +24,9 @@
 #endif
 
 static const stress_help_t help[] = {
-	{ NULL,	"mount N",	"start N workers exercising statmount and listmount" },
-	{ NULL,	"mount-ops N", 	"stop after N bogo statmount and listmount operations" },
-	{ NULL,	NULL,		NULL }
+	{ NULL,	"statmount N",	   "start N workers exercising statmount and listmount" },
+	{ NULL,	"statmount-ops N", "stop after N bogo statmount and listmount operations" },
+	{ NULL,	NULL,		   NULL }
 };
 
 #if defined(__linux__) &&		\
