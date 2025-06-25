@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "23 June 2025"
+.TH STRESS-NG 1 "25 June 2025"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -9282,12 +9282,12 @@ Method	Description
 all	T{
 iterate over all the vm stress methods as listed below.
 T}
-cache-lines	T{
+cache\-lines	T{
 work through memory in 64 byte cache sized steps writing a single byte
 per cache line. Once the write is complete, the memory is read to verify
 the values are written correctly.
 T}
-cache-stripe	T{
+cache\-stripe	T{
 work through memory in 64 byte cache sized chunks, writing in ascending
 address order on even offsets and descending address order on odd offsets.
 T}
@@ -9305,12 +9305,12 @@ write to even addressed bytes in a forward direction and odd addressed bytes
 in reverse direction. rhe contents are sanity checked once all the addresses
 have been written to.
 T}
-galpat-0	T{
+galpat\-0	T{
 galloping pattern zeros. This sets all bits to 0 and flips just 1 in 4096 bits
 to 1. It then checks to see if the 1s are pulled down to 0 by their neighbours
 or of the neighbours have been pulled up to 1.
 T}
-galpat-1	T{
+galpat\-1	T{
 galloping pattern ones. This sets all bits to 1 and flips just 1 in 4096 bits
 to 0. It then checks to see if the 0s are pulled up to 1 by their neighbours
 or of the neighbours have been pulled down to 0.
@@ -9330,7 +9330,7 @@ a specific value and the second pass decrements each byte back to the original
 start value. The increment/decrement value changes on each invocation of the
 stressor.
 T}
-inc-nybble	T{
+inc\-nybble	T{
 initialise memory to a set value (that changes on each invocation of the
 stressor) and then sequentially work through each byte incrementing the bottom
 4 bits by 1 and the top 4 bits by 15.
@@ -9340,6 +9340,47 @@ fill memory with values generated from a 32 bit Galois linear feedback shift
 register using the polynomial  x\[ua]32 + x\[ua]31 + x\[ua]29 + x + 1. This
 generates a ring of  2\[ua]32 - 1 unique values (all 32 bit values except
 for 0).
+T}
+modulo\-x	T{
+fill memory over 23 iterations. Each iteration starts one byte further along
+from the start of the memory and steps along in 23 byte strides. In each
+stride, the first byte is set to a random pattern and all other bytes are set
+to the inverse.  Then it checks see if the first byte contains the expected
+random pattern. This exercises cache store/reads as well as seeing if
+neighbouring cells influence each other.
+T}
+move\-inv	T{
+sequentially fill memory 64 bits of memory at a time with random values, and
+then check if the memory is set correctly.  Next, sequentially invert each 64
+bit pattern and again check if the memory is set as expected.
+T}
+mscan	T{
+fill each bit in each byte with 1s then check these are set, fill each bit
+in each byte with 0s and check these are clear.
+T}
+prime\-0	T{
+iterate 8 times by stepping through memory in very large prime strides clearing
+just on bit at a time in every byte. Then check to see if all bits are set to
+zero.
+T}
+prime\-1	T{
+iterate 8 times by stepping through memory in very large prime strides setting
+just on bit at a time in every byte. Then check to see if all bits are set to
+one.
+T}
+prime\-gray\-0	T{
+first step through memory in very large prime strides clearing just on bit
+(based on a gray code) in every byte. Next, repeat this but clear the other
+7 bits. Then check to see if all bits are set to zero.
+T}
+prime\-gray\-1	T{
+first step through memory in very large prime strides setting just on bit
+(based on a gray code) in every byte. Next, repeat this but set the other 7
+bits. Then check to see if all bits are set to one.
+T}
+prime\-incdec	T{
+step through memory in large prime steps incrementing bytes and then re-do
+again decrementing bytes.
 T}
 rand-set	T{
 sequentially work through memory in 64 bit chunks setting bytes in the chunk
@@ -9358,64 +9399,17 @@ ror	T{
 fill memory with a random pattern and then sequentially rotate 64 bits of
 memory right by one bit, then check the final load/rotate/stored values.
 T}
-swap	T{
-fill memory in 64 byte chunks with random patterns. Then swap each 64 chunk
-with a randomly chosen chunk. Finally, reverse the swap to put the chunks back
-to their original place and check if the data is correct. This exercises
-adjacent and random memory load/stores.
-T}
-move-inv	T{
-sequentially fill memory 64 bits of memory at a time with random values, and
-then check if the memory is set correctly.  Next, sequentially invert each 64
-bit pattern and again check if the memory is set as expected.
-T}
-modulo-x	T{
-fill memory over 23 iterations. Each iteration starts one byte further along
-from the start of the memory and steps along in 23 byte strides. In each
-stride, the first byte is set to a random pattern and all other bytes are set
-to the inverse.  Then it checks see if the first byte contains the expected
-random pattern. This exercises cache store/reads as well as seeing if
-neighbouring cells influence each other.
-T}
-mscan	T{
-fill each bit in each byte with 1s then check these are set, fill each bit
-in each byte with 0s and check these are clear.
-T}
-prime-0	T{
-iterate 8 times by stepping through memory in very large prime strides clearing
-just on bit at a time in every byte. Then check to see if all bits are set to
-zero.
-T}
-prime-1	T{
-iterate 8 times by stepping through memory in very large prime strides setting
-just on bit at a time in every byte. Then check to see if all bits are set to
-one.
-T}
-prime-gray-0	T{
-first step through memory in very large prime strides clearing just on bit
-(based on a gray code) in every byte. Next, repeat this but clear the other
-7 bits. Then check to see if all bits are set to zero.
-T}
-prime-gray-1	T{
-first step through memory in very large prime strides setting just on bit
-(based on a gray code) in every byte. Next, repeat this but set the other 7
-bits. Then check to see if all bits are set to one.
-T}
 rowhammer	T{
 try to force memory corruption using the rowhammer memory stressor. This
 fetches two 32 bit integers from memory and forces a cache flush on the two
 addresses multiple times. This has been known to force bit flipping on some
 hardware, especially with lower frequency memory refresh cycles.
 T}
-walk-0d	T{
-for each byte in memory, walk through each data line setting them to low (and
-the others are set high) and check that the written value is as expected. This
-checks if any data lines are stuck.
-T}
-walk-1d	T{
-for each byte in memory, walk through each data line setting them to high (and
-the others are set low) and check that the written value is as expected. This
-checks if any data lines are stuck.
+swap	T{
+fill memory in 64 byte chunks with random patterns. Then swap each 64 chunk
+with a randomly chosen chunk. Finally, reverse the swap to put the chunks back
+to their original place and check if the data is correct. This exercises
+adjacent and random memory load/stores.
 T}
 walk-0a	T{
 in the given memory mapping, work through a range of specially chosen addresses
@@ -9423,11 +9417,21 @@ working through address lines to see if any address lines are stuck low. This
 works best with physical memory addressing, however, exercising these virtual
 addresses has some value too.
 T}
+walk-0d	T{
+for each byte in memory, walk through each data line setting them to low (and
+the others are set high) and check that the written value is as expected. This
+checks if any data lines are stuck.
+T}
 walk-1a	T{
 in the given memory mapping, work through a range of specially chosen addresses
 working through address lines to see if any address lines are stuck high. This
 works best with physical memory addressing, however, exercising these virtual
 addresses has some value too.
+T}
+walk-1d	T{
+for each byte in memory, walk through each data line setting them to high (and
+the others are set low) and check that the written value is as expected. This
+checks if any data lines are stuck.
 T}
 walk-flush	T{
 walk through memory a byte at a time writing/flushing/reading 8 bytes of

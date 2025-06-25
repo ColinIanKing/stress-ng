@@ -3385,30 +3385,27 @@ static const stress_vm_method_info_t vm_methods[] = {
 	{ "galpat-1",		stress_vm_galpat_one },
 	{ "gray",		stress_vm_gray },
 	{ "grayflip",		stress_vm_grayflip },
-	{ "rowhammer",		stress_vm_rowhammer },
 	{ "incdec",		stress_vm_incdec },
 	{ "inc-nybble",		stress_vm_inc_nybble },
 	{ "lfsr32",		stress_vm_lfsr32 },
-	{ "rand-set",		stress_vm_rand_set },
-	{ "rand-sum",		stress_vm_rand_sum },
-	{ "read64",		stress_vm_read64 },
-	{ "ror",		stress_vm_ror },
-	{ "swap",		stress_vm_swap },
-	{ "move-inv",		stress_vm_moving_inversion },
 	{ "modulo-x",		stress_vm_modulo_x },
+	{ "move-inv",		stress_vm_moving_inversion },
 	{ "mscan",		stress_vm_mscan },
-#if defined(HAVE_NT_STORE128)
-	{ "wrrd128nt",		stress_vm_wrrd128nt },
-#endif
 	{ "prime-0",		stress_vm_prime_zero },
 	{ "prime-1",		stress_vm_prime_one },
 	{ "prime-gray-0",	stress_vm_prime_gray_zero },
 	{ "prime-gray-1",	stress_vm_prime_gray_one },
 	{ "prime-incdec",	stress_vm_prime_incdec },
-	{ "walk-0d",		stress_vm_walking_zero_data },
-	{ "walk-1d",		stress_vm_walking_one_data },
+	{ "rand-set",		stress_vm_rand_set },
+	{ "rand-sum",		stress_vm_rand_sum },
+	{ "read64",		stress_vm_read64 },
+	{ "ror",		stress_vm_ror },
+	{ "rowhammer",		stress_vm_rowhammer },
+	{ "swap",		stress_vm_swap },
 	{ "walk-0a",		stress_vm_walking_zero_addr },
+	{ "walk-0d",		stress_vm_walking_zero_data },
 	{ "walk-1a",		stress_vm_walking_one_addr },
+	{ "walk-1d",		stress_vm_walking_one_data },
 	{ "walk-flush",		stress_vm_walking_flush_data },
 	{ "write64",		stress_vm_write64 },
 #if defined(HAVE_ASM_X86_MOVDIRI)
@@ -3419,6 +3416,9 @@ static const stress_vm_method_info_t vm_methods[] = {
 #endif
 #if defined(HAVE_VECMATH)
 	{ "write1024v",		stress_vm_write1024v },
+#endif
+#if defined(HAVE_NT_STORE128)
+	{ "wrrd128nt",		stress_vm_wrrd128nt },
 #endif
 	{ "zero-one",		stress_vm_zero_one },
 };
