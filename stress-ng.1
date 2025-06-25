@@ -936,7 +936,7 @@ j1	T{
 double precision Bessel function of the first kind of order 1
 T}
 jn	T{
-double precision Bessel function of the first kind of order n (where n = 5 for this test)
+double precision Bessel function of the first kind of order n (where n \(eq 5 for this test)
 T}
 j0f	T{
 float precision Bessel function of the first kind of order 0
@@ -945,7 +945,7 @@ j1f	T{
 float precision Bessel function of the first kind of order 1
 T}
 jnf	T{
-float precision Bessel function of the first kind of order n (where n = 5 for this test)
+float precision Bessel function of the first kind of order n (where n \(eq 5 for this test)
 T}
 j0l	T{
 long double precision Bessel function of the first kind of order 0
@@ -954,7 +954,7 @@ j1l	T{
 long double precision Bessel function of the first kind of order 1
 T}
 jnl	T{
-long double precision Bessel function of the first kind of order n (where n = 5 for this test)
+long double precision Bessel function of the first kind of order n (where n (\eq 5 for this test)
 T}
 y0	T{
 double precision Bessel function of the second kind of order 0
@@ -963,7 +963,7 @@ y1	T{
 youble precision Bessel function of the second kind of order 1
 T}
 yn	T{
-double precision Bessel function of the second kind of order n (where n = 5 for this test)
+double precision Bessel function of the second kind of order n (where n \(eq 5 for this test)
 T}
 y0f	T{
 float precision Bessel function of the second kind of order 0
@@ -972,7 +972,7 @@ y1f	T{
 float precision Bessel function of the second kind of order 1
 T}
 ynf	T{
-float precision Bessel function of the second kind of order n (where n = 5 for this test)
+float precision Bessel function of the second kind of order n (where n \(eq 5 for this test)
 T}
 y0l	T{
 long double precision Bessel function of the second kind of order 0
@@ -981,7 +981,7 @@ y1l	T{
 long double precision Bessel function of the second kind of order 1
 T}
 ynl	T{
-long double precision Bessel function of the second kind of order n (where n = 5 for this test)
+long double precision Bessel function of the second kind of order n (where n \(eq 5 for this test)
 T}
 .TE
 .RE
@@ -1239,7 +1239,7 @@ force flush cache on each store operation (x86 only). This is a no-op for
 non-x86 architectures.
 .TP
 .B \-\-cache\-level N
-specify level of cache to exercise (1=L1 cache, 2=L2 cache, 3=L3/LLC cache (the default)).
+specify level of cache to exercise (1 \(eq L1 cache, 2 \(eq L2 cache, 3 \(eq L3/LLC cache (the default)).
 If the cache hierarchy cannot be determined, built-in defaults will apply.
 .TP
 .B \-\-cache\-no\-affinity
@@ -1581,8 +1581,8 @@ iterate over all the below cpu stress methods
 T}
 ackermann	T{
 Ackermann function: compute A(3, 7), where:
- A(m, n) = n \(pl 1 if m = 0;
- A(m \(mi 1, 1) if m > 0 and n = 0;
+ A(m, n) \(eq n \(pl 1 if m \(eq 0;
+ A(m \(mi 1, 1) if m > 0 and n \(eq 0;
  A(m \(mi 1, A(m, n \(mi 1)) if m > 0 and n > 0
 .br
 For other recursive methods, refer to the hanoi cpu stress method.
@@ -1608,7 +1608,7 @@ clongdouble	T{
 T}
 collatz	T{
 compute the 1348 steps in the collatz sequence starting from number 989345275647.
-Where f(n) = n / 2 (for even n) and f(n) = 3n \(pl 1 (for odd n).
+Where f(n) \(eq n / 2 (for even n) and f(n) \(eq 3n \(pl 1 (for odd n).
 T}
 correlate	T{
 perform a 8192 \(mu 512 correlation of random doubles
@@ -1691,7 +1691,7 @@ T}
 gamma	T{
 calculate the Euler\-Mascheroni constant \(*g using the limiting difference
 between the harmonic series (1 \(pl 1/2 \(pl 1/3 \(pl 1/4 \(pl 1/5 ... \(pl 1/n) and the
-natural logarithm ln(n), for n = 80000.
+natural logarithm ln(n), for n \(eq 80000.
 T}
 gcd	T{
 compute GCD of integers
@@ -1704,10 +1704,10 @@ hamming	T{
 compute Hamming H(8,4) codes on 262144 lots of 4 bit data. This turns 4 bit
 data into 8 bit Hamming code containing 4 parity bits. For data bits d1..d4,
 parity bits are computed as:
-  p1 = d2 \(pl d3 \(pl d4
-  p2 = d1 \(pl d3 \(pl d4
-  p3 = d1 \(pl d2 \(pl d4
-  p4 = d1 \(pl d2 \(pl d3
+  p1 \(eq d2 \(pl d3 \(pl d4
+  p2 \(eq d1 \(pl d3 \(pl d4
+  p3 \(eq d1 \(pl d2 \(pl d4
+  p4 \(eq d1 \(pl d2 \(pl d3
 T}
 hanoi	T{
 solve a 21 disc Towers of Hanoi stack using the recursive solution. For
@@ -1715,7 +1715,7 @@ other recursive methods, refer to the ackermann cpu stress method.
 T}
 hyperbolic	T{
 compute sinh(\(*h) \(mu cosh(\(*h) \(pl sinh(2\(*h) \(pl cosh(3\(*h) for float,
-double and long double hyperbolic sine and cosine functions where \(*h = 0
+double and long double hyperbolic sine and cosine functions where \(*h \(eq 0
 to 2\(*p in 1500 steps
 T}
 idct	T{
@@ -1803,7 +1803,7 @@ compute ln(2) based on series:
 T}
 logmap	T{
 16384 iterations computing chaotic double precision values using the logistic map
-\[*X]\dn\(pl1\u = r \(mu  \[*X]n \(mu (1 \(mi \[*X]n) where r > \(ap 3.56994567
+\[*X]\dn\(pl1\u \(eq r \(mu  \[*X]n \(mu (1 \(mi \[*X]n) where r > \(ap 3.56994567
 T}
 longdouble	T{
 1000 iterations of a mix of long double precision floating point operations.
@@ -1821,8 +1821,8 @@ nsqrt	T{
 compute sqrt() of long doubles using Newton-Raphson.
 T}
 omega	T{
-compute the omega constant defined by \(*We\[ua]\(*W = 1 using efficient
-iteration of \(*W\dn\(pl1\u = (1 \(pl \(*Wn) / (1 \(pl e\[ua]\(*Wn).
+compute the omega constant defined by \(*We\[ua]\(*W \(eq 1 using efficient
+iteration of \(*W\dn\(pl1\u \(eq (1 \(pl \(*Wn) / (1 \(pl e\[ua]\(*Wn).
 T}
 parity	T{
 compute parity using various methods from the Standford Bit Twiddling Hacks.
@@ -1852,8 +1852,8 @@ rand	T{
 random number generator.
 The MWC random function concatenates two 16 bit multiply\-with\-carry
 generators:
- x(n) = 36969 \(mu x(n \(mi 1) \(pl carry,
- y(n) = 18000 \(mu y(n \(mi 1) \(pl carry mod 2 \[ua] 16
+ x(n) \(eq 36969 \(mu x(n \(mi 1) \(pl carry,
+ y(n) \(eq 18000 \(mu y(n \(mi 1) \(pl carry mod 2 \[ua] 16
 .sp 1
 and has period of around 2 \[ua] 60.
 T}
@@ -1876,14 +1876,14 @@ compute sqrt(rand()), where rand is the MWC pseudo random number generator.
 T}
 trig	T{
 compute sin(\(*h) \(mu cos(\(*h) \(pl sin(2\(*h) \(pl cos(3\(*h) for float, double
-and long double sine and cosine functions where \(*h = 0 to 2\(*p in 1500 steps.
+and long double sine and cosine functions where \(*h \(eq 0 to 2\(*p in 1500 steps.
 T}
 union	T{
 perform integer arithmetic on a mix of bit fields in a C union.  This exercises
 how well the compiler and CPU can perform integer bit field loads and stores.
 T}
 zeta	T{
-compute the Riemann Zeta function \[*z](s) for s = 2.0..10.0
+compute the Riemann Zeta function \[*z](s) for s \(eq 2.0..10.0
 T}
 .TE
 .RS
@@ -5507,19 +5507,19 @@ e	T{
 compute Euler's constant e
 T}
 exp	T{
-integrate exp(x \[ua] 2) for x = 0..1
+integrate exp(x \[ua] 2) for x \(eq 0..1
 T}
 pi	T{
 compute \(*p from the area of a circle
 T}
 sin	T{
-integrate sin(x) for x = 0..\(*p
+integrate sin(x) for x \(eq 0..\(*p
 T}
 sqrt	T{
-integrate sqrt(1 \(pl x \[ua] 4) for x = 0..1
+integrate sqrt(1 \(pl x \[ua] 4) for x \(eq 0..1
 T}
 squircle	T{
-area of a unit squircle x \[ua] 4 \(pl y \[ua] 4 = 1
+area of a unit squircle x \[ua] 4 \(pl y \[ua] 4 \(eq 1
 T}
 .TE
 .TP
@@ -5582,7 +5582,7 @@ apery	T{
 calculate Apery's constant \[*z](3); the sum of 1/(n \[ua] 3).
 T}
 cosine	T{
-compute cos(\(*h) for \(*h = 0 to 2\(*p in 100 steps.
+compute cos(\(*h) for \(*h \(eq 0 to 2\(*p in 100 steps.
 T}
 euler	T{
 compute e using n \[eq] (1 \(pl (1 \[di] n)) \[ua] n.
@@ -5594,14 +5594,14 @@ log	T{
 computer 1000 natural logarithms.
 T}
 omega	T{
-compute the omega constant defined by \(*We\[ua]\(*W = 1 using efficient
-iteration of \(*W\dn\(pl1\u = (1 \(pl \(*Wn) / (1 \(pl e\[ua]\(*Wn).
+compute the omega constant defined by \(*We\[ua]\(*W \(eq 1 using efficient
+iteration of \(*W\dn\(pl1\u \(eq (1 \(pl \(*Wn) / (1 \(pl e\[ua]\(*Wn).
 T}
 phi	T{
 compute the Golden Ratio \(*f using series.
 T}
 sine	T{
-compute sin(\(*h) for \(*h = 0 to 2\(*p in 100 steps.
+compute sin(\(*h) for \(*h \(eq 0 to 2\(*p in 100 steps.
 T}
 nsqrt	T{
 compute square root using Newton-Raphson.
@@ -6963,7 +6963,7 @@ This uses the rdrand instruction on Intel x86 processors or the darn instruction
 on Power9 processors.
 .TP
 .B \-\-rdrand\-ops N
-stop rdrand stress workers after N bogo rdrand operations (1 bogo op = 2048
+stop rdrand stress workers after N bogo rdrand operations (1 bogo op \(eq 2048
 random bits successfully read).
 .TP
 .B \-\-rdrand\-seed
@@ -8182,16 +8182,16 @@ lB2 lB
 l lx.
 Operation	Description
 copy	T{
-c[i] = a[i]
+c[i] \(eq a[i]
 T}
 scale	T{
-b[i] = scalar \(mu c[i]
+b[i] \(eq scalar \(mu c[i]
 T}
 add	T{
-c[i] = a[i] \(pl b[i]
+c[i] \(eq a[i] \(pl b[i]
 T}
 triad	T{
-a[i] = b[i] \(pl (c[i] \(mu scalar)
+a[i] \(eq b[i] \(pl (c[i] \(mu scalar)
 T}
 .TE
 .RS
@@ -10002,8 +10002,8 @@ another process that decompresses the data. This stressor exercises CPU,
 cache and memory.
 .TP
 .B \-\-zlib\-level L
-specify the compression level (0..9), where 0 = no compression, 1 = fastest
-compression and 9 = best compression.
+specify the compression level (0..9), where 0 \(eq no compression, 1 \(eq fastest
+compression and 9 \(eq best compression.
 .TP
 .B \-\-zlib\-mem\-level L
 specify the reserved compression state memory for zlib.  Default is 8.
@@ -10075,7 +10075,7 @@ ring of  2\[ua]32 \(mi 1 unique values (all 32 bit values except for 0).
 T}
 logmap	T{
 Values generated from a logistical map of the equation
-\[*X]\dn+1\u = r \(mu  \[*X]n \(mu (1 \(mi \[*X]n) where r > \(ap 3.56994567
+\[*X]\dn+1\u \(eq r \(mu  \[*X]n \(mu (1 \(mi \[*X]n) where r > \(ap 3.56994567
 to produce chaotic data. The values are scaled by a large arbitrary
 value and the lower 8 bits of this value are compressed.
 T}
@@ -10165,7 +10165,7 @@ n	creates an stream of n bytes over and over again.
 .TP
 .B \-\-zlib\-window\-bits W
 specify the window bits used to specify the history buffer size. The value is
-specified as the base two logarithm of the buffer size (e.g. value 9 is 2\[ua]9 =
+specified as the base two logarithm of the buffer size (e.g. value 9 is 2\[ua]9 \(eq
 512 bytes). Default is 15.
 .sp
 .TS
