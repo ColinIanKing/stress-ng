@@ -369,6 +369,67 @@ HEADERS_GEN = \
 	personality.h
 
 #
+# Stress core
+#
+CORE_SRC = \
+	core-affinity.c \
+	core-arch.c \
+	core-asm-ret.c \
+	core-cpu.c \
+	core-cpu-cache.c \
+	core-cpuidle.c \
+	core-clocksource.c \
+	core-config-check.c \
+	core-hash.c \
+	core-helper.c \
+	core-ignite-cpu.c \
+	core-interrupts.c \
+	core-io-uring.c \
+	core-io-priority.c \
+	core-job.c \
+	core-killpid.c \
+	core-klog.c \
+	core-limit.c \
+	core-lock.c \
+	core-log.c \
+	core-madvise.c \
+	core-mincore.c \
+	core-mlock.c \
+	core-mmap.c \
+	core-module.c \
+	core-mounts.c \
+	core-mwc.c \
+	core-net.c \
+	core-numa.c \
+	core-opts.c \
+	core-out-of-memory.c \
+	core-parse-opts.c \
+	core-perf.c \
+	core-processes.c \
+	core-rapl.c \
+	core-resources.c \
+	core-sched.c \
+	core-setting.c \
+	core-shared-heap.c \
+	core-shim.c \
+	core-smart.c \
+	core-sort.c \
+	core-sync.c \
+	core-thermal-zone.c \
+	core-time.c \
+	core-thrash.c \
+	core-ftrace.c \
+	core-try-open.c \
+	core-vmstat.c \
+	stress-ng.c
+
+#
+#  Build time core source files
+#
+CORE_SRC_GEN = \
+	core-config.c
+
+#
 #  Stressors
 #
 STRESS_SRC = \
@@ -737,74 +798,12 @@ STRESS_SRC = \
 	stress-zlib.c \
 	stress-zombie.c \
 
-#
-#  Build time core source files
-#
-CORE_SRC_GEN = \
-	core-config.c
-
-#
-# Stress core
-#
-CORE_SRC = \
-	core-affinity.c \
-	core-arch.c \
-	core-asm-ret.c \
-	core-cpu.c \
-	core-cpu-cache.c \
-	core-cpuidle.c \
-	core-clocksource.c \
-	core-config-check.c \
-	core-hash.c \
-	core-helper.c \
-	core-ignite-cpu.c \
-	core-interrupts.c \
-	core-io-uring.c \
-	core-io-priority.c \
-	core-job.c \
-	core-killpid.c \
-	core-klog.c \
-	core-limit.c \
-	core-lock.c \
-	core-log.c \
-	core-madvise.c \
-	core-mincore.c \
-	core-mlock.c \
-	core-mmap.c \
-	core-module.c \
-	core-mounts.c \
-	core-mwc.c \
-	core-net.c \
-	core-numa.c \
-	core-opts.c \
-	core-out-of-memory.c \
-	core-parse-opts.c \
-	core-perf.c \
-	core-processes.c \
-	core-rapl.c \
-	core-resources.c \
-	core-sched.c \
-	core-setting.c \
-	core-shared-heap.c \
-	core-shim.c \
-	core-smart.c \
-	core-sort.c \
-	core-sync.c \
-	core-thermal-zone.c \
-	core-time.c \
-	core-thrash.c \
-	core-ftrace.c \
-	core-try-open.c \
-	core-vmstat.c \
-	stress-ng.c
-
 SRC = $(CORE_SRC) $(CORE_SRC_GEN) $(STRESS_SRC)
 OBJS = apparmor-data.o
 OBJS += stress-eigen-ops.o
 OBJS += $(SRC:.c=.o)
 
 APPARMOR_PARSER=/sbin/apparmor_parser
-
 
 all: config.h stress-ng
 
