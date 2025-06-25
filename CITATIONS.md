@@ -165,7 +165,6 @@
  * [A measurement-based approach to analyze the power consumption of the softwarized 5G core](https://arxiv.org/pdf/2502.13879)
  * [When Radiation Meets Linux: Analyzing Soft Errors in Linux on COTS SoCs under Proton Irradiation](https://arxiv.org/html/2503.03722v1)
  * [CINERGY: Reasoning over the Worst Case Power Consumption of Cloud Virtual Machines](https://hal.science/hal-04981001/document)
- * [KernelSnitch: Side-Channel Attacks on Kernel Data Structures](https://www.ndss-symposium.org/wp-content/uploads/2025-223-paper.pdf)
  * [xPUE: Extending Power Usage Effectiveness Metrics for Cloud Infrastructures](https://arxiv.org/pdf/2503.07124)
  * [FALCON: A Framework for Fault Prediction in Open RAN Using Multi-Level Telemetry](https://arxiv.org/pdf/2503.06197)
  * [Profiling with trust: system monitoring from trusted execution environments](https://www.researchgate.net/publication/378265673_Profiling_with_trust_system_monitoring_from_trusted_execution_environments)
