@@ -19,7 +19,6 @@
 extern "C" {
 #include "config.h"
 #include "stress-eigen-ops.h"
-#include "core-target-clones.h"
 
 extern double stress_time_now(void);
 }
@@ -180,77 +179,77 @@ template <typename T> static int eigen_determinant(const size_t size, double *du
 
 extern "C" {
 
-int TARGET_CLONES eigen_add_long_double(const size_t size, double *duration, double *count)
+int eigen_add_long_double(const size_t size, double *duration, double *count)
 {
 	return eigen_add<long double>(size, duration, count);
 }
 
-int TARGET_CLONES eigen_add_double(const size_t size, double *duration, double *count)
+int eigen_add_double(const size_t size, double *duration, double *count)
 {
 	return eigen_add<double>(size, duration, count);
 }
 
-int TARGET_CLONES eigen_add_float(const size_t size, double *duration, double *count)
+int eigen_add_float(const size_t size, double *duration, double *count)
 {
 	return eigen_add<float>(size, duration, count);
 }
 
-int TARGET_CLONES eigen_multiply_long_double(const size_t size, double *duration, double *count)
+int eigen_multiply_long_double(const size_t size, double *duration, double *count)
 {
 	return eigen_multiply<long double>(size, duration, count);
 }
 
-int TARGET_CLONES eigen_multiply_double(const size_t size, double *duration, double *count)
+int eigen_multiply_double(const size_t size, double *duration, double *count)
 {
 	return eigen_multiply<double>(size, duration, count);
 }
 
-int TARGET_CLONES eigen_multiply_float(const size_t size, double *duration, double *count)
+int eigen_multiply_float(const size_t size, double *duration, double *count)
 {
 	return eigen_multiply<float>(size, duration, count);
 }
 
-int TARGET_CLONES eigen_transpose_long_double(const size_t size, double *duration, double *count)
+int eigen_transpose_long_double(const size_t size, double *duration, double *count)
 {
 	return eigen_transpose<long double>(size, duration, count);
 }
 
-int TARGET_CLONES eigen_transpose_double(const size_t size, double *duration, double *count)
+int eigen_transpose_double(const size_t size, double *duration, double *count)
 {
 	return eigen_transpose<double>(size, duration, count);
 }
 
-int TARGET_CLONES eigen_transpose_float(const size_t size, double *duration, double *count)
+int eigen_transpose_float(const size_t size, double *duration, double *count)
 {
 	return eigen_transpose<float>(size, duration, count);
 }
 
-int TARGET_CLONES eigen_inverse_long_double(const size_t size, double *duration, double *count)
+int eigen_inverse_long_double(const size_t size, double *duration, double *count)
 {
 	return eigen_inverse<long double>(size, duration, count);
 }
 
-int TARGET_CLONES eigen_inverse_double(const size_t size, double *duration, double *count)
+int eigen_inverse_double(const size_t size, double *duration, double *count)
 {
 	return eigen_inverse<double>(size, duration, count);
 }
 
-int TARGET_CLONES eigen_inverse_float(const size_t size, double *duration, double *count)
+int eigen_inverse_float(const size_t size, double *duration, double *count)
 {
 	return eigen_inverse<float>(size, duration, count);
 }
 
-int TARGET_CLONES eigen_determinant_long_double(const size_t size, double *duration, double *count)
+int eigen_determinant_long_double(const size_t size, double *duration, double *count)
 {
 	return eigen_determinant<long double>(size, duration, count);
 }
 
-int TARGET_CLONES eigen_determinant_double(const size_t size, double *duration, double *count)
+int eigen_determinant_double(const size_t size, double *duration, double *count)
 {
 	return eigen_determinant<double>(size, duration, count);
 }
 
-int TARGET_CLONES eigen_determinant_float(const size_t size, double *duration, double *count)
+int eigen_determinant_float(const size_t size, double *duration, double *count)
 {
 	return eigen_determinant<float>(size, duration, count);
 }
