@@ -97,6 +97,8 @@ static void OPTIMIZE3 name(uint8_t *data)	\
 		} while (newval == val);	\
 						\
 		uptr[SPINMEM_OFFSET] = newval;	\
+		SPINMEM_FLUSH(uptr);		\
+		SPINMEM_MB();			\
 		val = newval;			\
 	}					\
 }
