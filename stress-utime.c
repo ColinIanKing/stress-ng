@@ -50,7 +50,8 @@ static const stress_opt_t opts[] = {
 static inline int shim_utime(const char *filename, const struct utimbuf *times)
 {
 #if defined(__NR_utime) &&	\
-    defined(HAVE_SYSCALL)
+    defined(HAVE_SYSCALL) &&	\
+    !defined(STRESS_ARCH_M68K)
 	return (int)syscall(__NR_utime, filename, times);
 #else
 	return utime(filename, times);
