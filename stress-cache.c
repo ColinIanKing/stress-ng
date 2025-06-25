@@ -35,6 +35,8 @@
 #define CACHE_FLAGS_CLDEMOTE	(0x0020U)
 #define CACHE_FLAGS_CLWB	(0x0040U)
 #define CACHE_FLAGS_PREFETCHW	(0x0080U)
+
+#define CACHE_FLAGS_PERMUTE	(0x4000U)
 #define CACHE_FLAGS_NOAFF	(0x8000U)
 
 #define STRESS_CACHE_MIXED_OPS	(0)
@@ -95,6 +97,7 @@ static const stress_help_t help[] = {
 	{ NULL,	"cache-level N",	"only exercise specified cache" },
 	{ NULL, "cache-no-affinity",	"do not change CPU affinity" },
 	{ NULL,	"cache-ops N",	 	"stop after N cache bogo operations" },
+	{ NULL,	"cache-permute",	"permute (mix) cache operations" },
 	{ NULL,	"cache-prefetch",	"prefetch for memory reads/writes" },
 #if defined(HAVE_ASM_X86_PREFETCHW)
 	{ NULL,	"cache-prefetchw",	"prefetch for memory write" },
@@ -114,6 +117,7 @@ static const stress_opt_t opts[] = {
 	{ OPT_cache_fence,       "cache-fence",       TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_cache_flush,	 "cache-flush",       TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_cache_no_affinity, "cache-no-affinity", TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_cache_permute,	 "cache-permute",     TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_cache_prefetch,    "cache-prefetch",    TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_cache_prefetchw,   "cache-prefetchw",   TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_cache_sfence,      "cache-sfence",      TYPE_ID_BOOL, 0, 1, NULL },
@@ -997,7 +1001,9 @@ static int stress_cache(stress_args_t *args)
 	NOCLOBBER uint32_t cache_flags_mask = CACHE_FLAGS_MASK;
 	NOCLOBBER uint32_t ignored_flags = 0;
 	NOCLOBBER uint32_t total = 0;
+	NOCLOBBER size_t n_flags, idx_flags = 0;
 	int ret = EXIT_SUCCESS;
+	int *flag_permutations = NULL;
 	uint8_t *const buffer = g_shared->mem_cache.buffer;
 	const uint64_t buffer_size = g_shared->mem_cache.size;
 	uint64_t i = stress_mwc64modn(buffer_size);
@@ -1056,6 +1062,7 @@ static int stress_cache(stress_args_t *args)
 	(void)stress_get_cache_flags("cache-sfence", &cache_flags, CACHE_FLAGS_SFENCE);
 	(void)stress_get_cache_flags("cache-clb", &cache_flags, CACHE_FLAGS_CLWB);
 	(void)stress_get_cache_flags("cache-prefetchw", &cache_flags, CACHE_FLAGS_PREFETCHW);
+	(void)stress_get_cache_flags("cache-permute", &cache_flags, CACHE_FLAGS_PERMUTE);
 
 	if (args->instance == 0)
 		pr_dbg("%s: using cache buffer size of %" PRIu64 "K\n",
@@ -1167,6 +1174,13 @@ static int stress_cache(stress_args_t *args)
 	stress_sync_start_wait(args);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
+	if (masked_flags) {
+		n_flags = stress_flag_permutation(masked_flags, &flag_permutations);
+		if ((n_flags > 0) && (args->instance == 0))
+			pr_inf("%s: %zu permutations of cache flags being exercised\n",
+				args->name, n_flags);
+	}
+
 	do {
 		int jmpret;
 		uint32_t flags;
@@ -1183,8 +1197,16 @@ static int stress_cache(stress_args_t *args)
 		}
 		switch (r) {
 		case STRESS_CACHE_MIXED_OPS:
-			flags = masked_flags ? masked_flags : ((stress_mwc32() & CACHE_FLAGS_MASK) & masked_flags);
-			cache_mixed_ops_funcs[flags](args, inc, r, &i, &k, &metrics[STRESS_CACHE_MIXED_OPS]);
+			if ((masked_flags) && (n_flags > 0)) {
+				cache_mixed_ops_funcs[flag_permutations[idx_flags]](args, inc, r, &i, &k, &metrics[STRESS_CACHE_MIXED_OPS]);
+				idx_flags++;
+				if (idx_flags >= n_flags)
+					idx_flags = 0;
+
+			} else {
+				flags = masked_flags ? masked_flags : ((stress_mwc32() & CACHE_FLAGS_MASK) & masked_flags);
+				cache_mixed_ops_funcs[flags](args, inc, r, &i, &k, &metrics[STRESS_CACHE_MIXED_OPS]);
+			}
 			break;
 		case STRESS_CACHE_READ:
 			stress_cache_read(args, buffer, buffer_size, inc, &i, &k, &metrics[STRESS_CACHE_READ]);
@@ -1311,6 +1333,8 @@ next:
 			rate, STRESS_METRIC_HARMONIC_MEAN);
 	}
 tidy_cpus:
+	if (flag_permutations)
+		free(flag_permutations);
 #if defined(HAVE_SCHED_GETAFFINITY) &&	\
     defined(HAVE_SCHED_SETAFFINITY) &&	\
     defined(HAVE_SCHED_GETCPU)

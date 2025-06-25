@@ -1250,6 +1250,11 @@ is in effect.
 .B \-\-cache\-ops N
 stop cache thrash workers after N bogo cache thrash operations.
 .TP
+.B \-\-cache\-permute
+permute the selected cache flags when exercising cache for an improved mix
+of cache operations. Recommend also using \-\-cache\-enable\-all with this
+option.
+.TP
 .B \-\-cache\-prefetch
 force read prefetch on read address on architectures that support
 prefetching.
