@@ -100,9 +100,9 @@ specify the class of stressors to run. Stressors are classified into one or
 more of the following classes: compute, cpu, cpu\-cache, device, fp, gpu, interrupt,
 integer, ipc, io, filesystem, memory, network, os, pipe, scheduler, search, signal,
 sort, vector and vm.
-Some stressors fall into just one class. For example the 'get' stressor is
-just in the 'os' class. Other stressors fall into more than one class, for example,
-the 'lsearch' stressor falls into the 'cpu', 'cpu\-cache', 'memory' and 'search'
+Some stressors fall into just one class. For example the `get' stressor is
+just in the `os' class. Other stressors fall into more than one class, for example,
+the `lsearch' stressor falls into the `cpu', `cpu\-cache', `memory' and `search'
 classes as it exercises all these four.  Selecting a specific class
 will run all the stressors that fall into that class only when run with
 the \-\-sequential option.
@@ -220,7 +220,7 @@ run sequential \- run stressors sequentially
 .br
 run parallel \- run stressors together in parallel
 .PP
-Note that 'run parallel' is the default.
+Note that `run parallel' is the default.
 .RE
 .TP
 .B \-\-keep\-files
@@ -280,7 +280,7 @@ page allocations will come from the node with sufficient free memory closest
 to the specified node(s) where the allocation takes place. This uses the
 Linux set_mempolicy(2) call using the MPOL_BIND mode.  The NUMA nodes to be
 used are specified by a comma separated list of node (0 to N-1). One can
-specify a range of NUMA nodes using '-', for example: \-\-mbind 0,2-3,6,7-11
+specify a range of NUMA nodes using `-', for example: \-\-mbind 0,2-3,6,7-11
 .TP
 .B \-M, \-\-metrics
 output number of bogo operations in total performed by the stress processes.
@@ -551,7 +551,7 @@ log output (except for verbose \-v messages) to the syslog.
 set CPU affinity based on the list of CPUs provided; stress\-ng is bound to
 just use these CPUs (for systems that provide sched_setaffinity()). The CPUs
 to be used are specified by a comma separated list of CPU (0 to N-1). One
-can specify a range of CPUs using '-', for example: \-\-taskset 0,2-3,6,7-11
+can specify a range of CPUs using `-', for example: \-\-taskset 0,2-3,6,7-11
 or the following keywords:
 .sp
 .TS
@@ -686,7 +686,7 @@ numa and search stressors:
 stress\-ng \-\-class cpu \-\-all 1 \-x numa,bsearch,hsearch,lsearch
 .TP
 .B \-Y, \-\-yaml filename
-output gathered statistics to a YAML formatted file named 'filename'.
+output gathered statistics to a YAML formatted file named `filename'.
 .br
 .sp 2
 .PP
@@ -1956,7 +1956,7 @@ SunMD5 and yescrypt encryption methods.
 .TP
 .B \-\-crypt\-method method
 select the encryption method, may be one of: all, MD5, NT, SHA-1, SHA-256,
-SHA-512, scrypt, SunMD5 or yescrypt. The 'all' method selects all the methods
+SHA-512, scrypt, SunMD5 or yescrypt. The `all' method selects all the methods
 and is the default.
 .TP
 .B \-\-crypt\-ops N
@@ -2826,7 +2826,7 @@ various filename lengths between 1 and the maximum allowed by the file system.
 stop filename workers after N bogo filename tests.
 .TP
 .B \-\-filename\-opts opt
-use characters in the filename based on option 'opt'. Valid options are:
+use characters in the filename based on option `opt'. Valid options are:
 .sp
 .TS
 lB lB
@@ -4166,7 +4166,7 @@ various list operations.
 .TP
 .B \-\-list\-method [ all | circleq | list | slist | stailq | tailq ]
 specify the list to be used. By default, all the list methods are
-used (the 'all' option).
+used (the `all' option).
 .TP
 .B \-\-list\-ops N
 stop list stressors after N bogo ops. A bogo op covers the addition,
@@ -4951,7 +4951,7 @@ prefetch	T{
 prefetch data at random memory locations
 T}
 random	T{
-randomly run any of the memthrash methods except for 'random' and 'all'
+randomly run any of the memthrash methods except for `random' and `all'
 T}
 reverse	T{
 swap 8 bit values from start to end and work towards the middle
@@ -7179,7 +7179,7 @@ variables.  The default will rotate four 8, 16, 32, 64 (and if supported 128) bi
 values 10000 times in a loop per bogo-op.
 .TP
 .B \-\-rotate\-method method
-specify the method of rotation to use. The 'all' method uses all the methods
+specify the method of rotation to use. The `all' method uses all the methods
 and is the default.
 .sp
 .TS
@@ -7986,7 +7986,7 @@ of elements in the sparse matrix than N will be capped to create at 100%
 full sparse matrix.
 .TP
 .B \-\-sparsematrix\-method [ all | hash | hashjudy | judy | list | mmap | qhash | rb ]
-specify the type of sparse matrix implementation to use. The 'all' method
+specify the type of sparse matrix implementation to use. The `all' method
 uses all the methods and is the default.
 .sp
 .TS
@@ -8160,7 +8160,7 @@ start N workers that exercise various libc string functions on random strings.
 select a specific libc string function to stress. Available string functions to
 stress are: all, index, rindex, strcasecmp, strcat, strchr, strcoll, strcmp,
 strcpy, strlen, strncasecmp, strncat, strncmp, strrchr and strxfrm.  See
-string(3) for more information on these string functions.  The 'all' method is
+string(3) for more information on these string functions.  The `all' method is
 the default and will exercise all the string methods.
 .TP
 .B \-\-str\-ops N
@@ -8228,8 +8228,8 @@ swapped out.
 .TP
 .B \-\-stream\-madvise [ collapse | hugepage | nohugepage | normal ]
 Specify the madvise options used on the memory mapped buffer used in the
-stream stressor. Non-linux systems will only have the 'normal' madvise
-advice. The default is 'normal'.
+stream stressor. Non-linux systems will only have the `normal' madvise
+advice. The default is `normal'.
 .TP
 .B \-\-stream\-ops N
 stop after N stream bogo operations, where a bogo operation is one round
@@ -8611,7 +8611,7 @@ operations.
 .TP
 .B \-\-tree\-method [ all | avl | binary | btree | rb | splay ]
 specify the tree to be used. By default, all the trees are
-used (the 'all' option).
+used (the `all' option).
 .TP
 .B \-\-tree\-ops N
 stop tree stressors after N bogo ops. A bogo op covers the addition,
@@ -9244,11 +9244,11 @@ Lock the pages of the mapped region into memory using mmap MAP_LOCKED (since
 Linux 2.5.37).  This is similar to locking memory as described in mlock(2).
 .TP
 .B \-\-vm\-madvise advice
-Specify the madvise 'advice' option used on the memory mapped regions used in
-the vm stressor. Non-linux systems will only have the 'normal' madvise
-advice, linux systems support 'collapse', 'dontneed', 'hugepage', 'mergeable'
-, 'nohugepage', 'normal', 'random', 'sequential', 'unmergeable'
-and 'willneed' advice. If this option is not used then the default is to pick
+Specify the madvise `advice' option used on the memory mapped regions used in
+the vm stressor. Non-linux systems will only have the `normal' madvise
+advice, linux systems support `collapse', `dontneed', `hugepage', `mergeable'
+, `nohugepage', `normal', `random', `sequential', `unmergeable'
+and `willneed' advice. If this option is not used then the default is to pick
 random madvise advice for each mmap call. See madvise(2) for more details.
 .TP
 .B \-\-vm\-method method
@@ -9265,7 +9265,7 @@ alter memory sequentially, some use small or large strides to step along memory.
 3. Checked. The modified memory is checked to see if it matches the expected
 result.
 .PP
-The vm methods containing 'prime' in their name have a stride of the largest
+The vm methods containing `prime' in their name have a stride of the largest
 prime less than 2\[ua]64, allowing to them to thoroughly step through memory and
 touch all locations just once while also doing without touching memory cells
 next to each other. This strategy exercises the cache and page non-locality.
@@ -9776,7 +9776,7 @@ random strings.
 select a specific libc wide character string function to stress. Available
 string functions to stress are: all, wcscasecmp, wcscat, wcschr, wcscoll,
 wcscmp, wcscpy, wcslen, wcsncasecmp, wcsncat, wcsncmp, wcsrchr and wcsxfrm.
-The 'all' method is the default and will exercise all the string methods.
+The `all' method is the default and will exercise all the string methods.
 .TP
 .B \-\-wcs\-ops N
 stop after N bogo wide character string operations.
