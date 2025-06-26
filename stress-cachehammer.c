@@ -1658,10 +1658,10 @@ static int OPTIMIZE3 stress_cachehammer(stress_args_t *args)
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 	NOCLOBBER stress_numa_mask_t *numa_mask;
 	NOCLOBBER stress_numa_mask_t *numa_nodes;
-#endif
 
 	numa_mask = NULL;
 	numa_nodes = NULL;
+#endif
 
 	(void)shim_memset(numa_count, 0, sizeof(numa_count));
 	(void)stress_get_setting("cachehammer-numa", &cachehammer_numa);
