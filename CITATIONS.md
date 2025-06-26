@@ -174,6 +174,8 @@
  * [Benchmarking of CPU-intensive Stream Data Processing in The Edge Computing Systems](https://arxiv.org/html/2505.07755v1)
  * [Anomaly-Based Intrusion Detection for IoMT Networks: Design, Implementation, Dataset Generation, and ML Algorithms Evaluation](https://gala.gre.ac.uk/id/eprint/50712/1/50712%20MANTAS_Anomaly-Based_Intrusion_Detection_For_IoMT_Networks_Design_Implementation_Dataset%20Generation_And_ML_Algorithms_Evaluations_%28OA%29_2025.pdf)
  * [Research on AutoTune: A Lightweight Feedback-Driven Kernel Parameter Tuning System for High-Concurrency VMware Environments](https://www.jetir.org/papers/JETIR2505703.pdf)
+ * [Non-Intrusive MLOps-Driven Performance Intelligence in Software Data Planes](https://arxiv.org/pdf/2506.17658)
+ * [ROS 2 Agnocast: Supporting Unsized Message Types for True Zero-Copy Publish/Subscribe IPC](https://www.arxiv.org/pdf/2506.16882)
 
 I am keen to add to the stress-ng project page any citations to research or
 projects that use stress-ng.
