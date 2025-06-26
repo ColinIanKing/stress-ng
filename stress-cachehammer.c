@@ -38,10 +38,13 @@
 #define HAVE_RISCV_CBO_ZERO
 #endif
 
+typedef void (*hammer_func_t)(stress_args_t *args, void *addr1, void *addr2,
+		       const bool is_bad_addr, const bool verify);
+
 typedef struct {
 	char *name;
 	bool (*valid)(void);
-	void (*hammer)(void *addr1, void *addr2, const bool is_bad_addr);
+	hammer_func_t hammer;
 } stress_cachehammer_func_t;
 
 static sigjmp_buf jmp_env;
@@ -136,9 +139,17 @@ static void stress_cachehammer_deinit(void)
  *  hammer_read()
  *	read 64 bit value from cache/memory
  */
-static void OPTIMIZE3 hammer_read(void *addr1, void *addr2, const bool is_bad_addr)
+static void OPTIMIZE3 hammer_read(
+	stress_args_t *args,
+	void *addr1,
+	void *addr2,
+	const bool is_bad_addr,
+	const bool verify)
 {
 	volatile const uint64_t *vptr;
+
+	(void)args;
+	(void)verify;
 
 	if (UNLIKELY(is_bad_addr))
 		return;
@@ -155,9 +166,17 @@ static void OPTIMIZE3 hammer_read(void *addr1, void *addr2, const bool is_bad_ad
  *  hammer_read()
  *	read 64 bytes values from cache/memory
  */
-static void OPTIMIZE3 hammer_read64(void *addr1, void *addr2, const bool is_bad_addr)
+static void OPTIMIZE3 hammer_read64(
+	stress_args_t *args,
+	void *addr1,
+	void *addr2,
+	const bool is_bad_addr,
+	const bool verify)
 {
 	volatile uint64_t *vptr1, *vptr2;
+
+	(void)args;
+	(void)verify;
 
 	if (UNLIKELY(is_bad_addr))
 		return;
@@ -187,27 +206,58 @@ static void OPTIMIZE3 hammer_read64(void *addr1, void *addr2, const bool is_bad_
  *  hammer_write()
  *	write 64 bit value to cache/memory
  */
-static void OPTIMIZE3 hammer_write(void *addr1, void *addr2, const bool is_bad_addr)
+static void OPTIMIZE3 hammer_write(
+	stress_args_t *args,
+	void *addr1,
+	void *addr2,
+	const bool is_bad_addr,
+	const bool verify)
 {
 	volatile uint64_t *vptr;
+	const uint64_t pattern = (uint64_t)0x55aa5aa5aa55a55aULL;
 
 	if (UNLIKELY(is_bad_addr))
 		return;
 
 	vptr = (volatile uint64_t *)addr1;
-	*vptr = 0;
+	*vptr = pattern;
 	stress_asm_mb();
 	vptr = (volatile uint64_t *)addr2;
-	*vptr = 0;
+	*vptr = pattern;
+
+	if (UNLIKELY(verify)) {
+		uint64_t val;
+
+		vptr = (volatile uint64_t *)addr1;
+		val = *vptr;
+		if (UNLIKELY(val != pattern)) {
+			pr_fail("%s: write: read back of stored value at address "
+				"%p not %" PRIx64 ", got %" PRIx64 " instead\n",
+				args->name, vptr, pattern, val);
+		}
+		vptr = (volatile uint64_t *)addr2;
+		val = *vptr;
+		if (UNLIKELY(val != pattern)) {
+			pr_fail("%s: write: read back of stored value at address "
+				"%p not %" PRIx64 ", got %" PRIx64 " instead\n",
+				args->name, vptr, pattern, val);
+		}
+	}
 }
 
 /*
  *  hammer_write()
  *	write 64 bytes value to cache/memory
  */
-static void OPTIMIZE3 hammer_write64(void *addr1, void *addr2, const bool is_bad_addr)
+static void OPTIMIZE3 hammer_write64(
+	stress_args_t *args,
+	void *addr1,
+	void *addr2,
+	const bool is_bad_addr,
+	const bool verify)
 {
 	volatile uint64_t *vptr1, *vptr2;
+	const uint64_t pattern = (uint64_t)0xaa55a55a55aa5aa5ULL;
 
 	if (UNLIKELY(is_bad_addr))
 		return;
@@ -215,54 +265,101 @@ static void OPTIMIZE3 hammer_write64(void *addr1, void *addr2, const bool is_bad
 	vptr1 = (volatile uint64_t *)addr1;
 	vptr2 = (volatile uint64_t *)addr2;
 
-	*(vptr1 + 0) = 0;
+	*(vptr1 + 0) = pattern;
 	stress_asm_mb();
-	*(vptr2 + 1) = 0;
+	*(vptr2 + 1) = pattern;
 	stress_asm_mb();
-	*(vptr1 + 2) = 0;
+	*(vptr1 + 2) = pattern;
 	stress_asm_mb();
-	*(vptr2 + 3) = 0;
+	*(vptr2 + 3) = pattern;
 	stress_asm_mb();
-	*(vptr1 + 4) = 0;
+	*(vptr1 + 4) = pattern;
 	stress_asm_mb();
-	*(vptr2 + 5) = 0;
+	*(vptr2 + 5) = pattern;
 	stress_asm_mb();
-	*(vptr1 + 6) = 0;
+	*(vptr1 + 6) = pattern;
 	stress_asm_mb();
-	*(vptr2 + 7) = 0;
+	*(vptr2 + 7) = pattern;
 	stress_asm_mb();
+
+	if (UNLIKELY(verify)) {
+		size_t i;
+
+		for (i = 0; i < 8; i++) {
+			volatile uint64_t *vptr = (i & 1) ? (vptr2 + i) : (vptr1 + i);
+			const uint64_t val = *vptr;
+
+			if (UNLIKELY(val != pattern)) {
+				pr_fail("%s: write64: read back of stored value at address "
+					"%p not %" PRIx64 ", got %" PRIx64 " instead\n",
+					args->name, vptr, pattern, val);
+			}
+		}
+	}
 }
 
 /*
  *  hammer_read()
- *	read 64 bit value from cache/memory, write it back to cache/memory
+ *	read 64 bit value from cache/memory, write new value back to cache/memory
  */
-static void OPTIMIZE3 hammer_readwrite(void *addr1, void *addr2, const bool is_bad_addr)
+static void OPTIMIZE3 hammer_readwrite(
+	stress_args_t *args,
+	void *addr1,
+	void *addr2,
+	const bool is_bad_addr,
+	const bool verify)
 {
 	volatile uint64_t *vptr;
+	const uint64_t pattern = (uint64_t)0x5aa555aaa555aaa5ULL;
 
 	if (UNLIKELY(is_bad_addr))
 		return;
 
 	vptr = (volatile uint64_t *)addr1;
 	(void)(*vptr);
-	*vptr = 1;
+	*vptr = pattern;
 	stress_asm_mb();
 
 	vptr = (volatile uint64_t *)addr2;
 	(void)(*vptr);
-	*vptr = 1;
+	*vptr = pattern;
 	stress_asm_mb();
 
+	if (UNLIKELY(verify)) {
+		uint64_t val;
+
+		vptr = (volatile uint64_t *)addr1;
+		val = *vptr;
+		if (UNLIKELY(val != pattern)) {
+			pr_fail("%s: readwrite: read back of stored value at address "
+				"%p not %" PRIx64 ", got %" PRIx64 " instead\n",
+				args->name, vptr, pattern, val);
+		}
+		vptr = (volatile uint64_t *)addr2;
+		val = *vptr;
+		if (UNLIKELY(val != pattern)) {
+			pr_fail("%s: readwrite: read back of stored value at address "
+				"%p not %" PRIx64 ", got %" PRIx64 " instead\n",
+				args->name, vptr, pattern, val);
+		}
+	}
 }
 
 /*
  *  hammer_read()
- *	read 64 byte value from cache/memory, write it back to cache/memory
+ *	read 64 byte value from cache/memory, write new value back to cache/memory
  */
-static void OPTIMIZE3 hammer_readwrite64(void *addr1, void *addr2, const bool is_bad_addr)
+static void OPTIMIZE3 hammer_readwrite64(
+	stress_args_t *args,
+	void *addr1,
+	void *addr2,
+	const bool is_bad_addr,
+	const bool verify)
 {
 	volatile uint64_t *vptr1, *vptr2;
+
+	(void)args;
+	(void)verify;
 
 	if (UNLIKELY(is_bad_addr))
 		return;
@@ -292,31 +389,62 @@ static void OPTIMIZE3 hammer_readwrite64(void *addr1, void *addr2, const bool is
  *  hammer_writeread()
  *	write 64 bit value to cache/memory, read it back from cache/memory
  */
-static void OPTIMIZE3 hammer_writeread(void *addr1, void *addr2, const bool is_bad_addr)
+static void OPTIMIZE3 hammer_writeread(
+	stress_args_t *args,
+	void *addr1,
+	void *addr2,
+	const bool is_bad_addr,
+	const bool verify)
 {
 	volatile uint64_t *vptr;
+	const uint64_t pattern = (uint64_t)0x5a5aa5a5aaaa5555ULL;
 
 	if (UNLIKELY(is_bad_addr))
 		return;
 
 	vptr = (volatile uint64_t *)addr1;
-	*vptr = 0;
+	*vptr = pattern;
 	(void)*vptr;
 	stress_asm_mb();
 
 	vptr = (volatile uint64_t *)addr2;
-	*vptr = 0;
+	*vptr = pattern;
 	(void)*vptr;
 	stress_asm_mb();
+
+	if (UNLIKELY(verify)) {
+		uint64_t val;
+
+		vptr = (volatile uint64_t *)addr1;
+		val = *vptr;
+		if (UNLIKELY(val != pattern)) {
+			pr_fail("%s: writeread: read back of stored value at address "
+				"%p not %" PRIx64 ", got %" PRIx64 " instead\n",
+				args->name, vptr, pattern, val);
+		}
+		vptr = (volatile uint64_t *)addr2;
+		val = *vptr;
+		if (UNLIKELY(val != pattern)) {
+			pr_fail("%s: writeread: read back of stored value at address "
+				"%p not %" PRIx64 ", got %" PRIx64 " instead\n",
+				args->name, vptr, pattern, val);
+		}
+	}
 }
 
 /*
  *  hammer_writeread()
  *	write 64 byte value to cache/memory, read it back from cache/memory
  */
-static void OPTIMIZE3 hammer_writeread64(void *addr1, void *addr2, const bool is_bad_addr)
+static void OPTIMIZE3 hammer_writeread64(
+	stress_args_t *args,
+	void *addr1,
+	void *addr2,
+	const bool is_bad_addr,
+	const bool verify)
 {
 	volatile uint64_t *vptr1, *vptr2;
+	const uint64_t pattern = (uint64_t)0xa5a55a5a5555aaaaULL;
 
 	if (UNLIKELY(is_bad_addr))
 		return;
@@ -324,22 +452,37 @@ static void OPTIMIZE3 hammer_writeread64(void *addr1, void *addr2, const bool is
 	vptr1 = (volatile uint64_t *)addr1;
 	vptr2 = (volatile uint64_t *)addr2;
 
-	*(vptr1 + 0) = 0;
+	*(vptr1 + 0) = pattern;
 	stress_asm_mb();
 	*(vptr1 + 1);
 	stress_asm_mb();
-	*(vptr2 + 2) = 0;
+	*(vptr2 + 2) = pattern;
 	stress_asm_mb();
 	*(vptr2 + 3);
 	stress_asm_mb();
-	*(vptr1 + 4) = 0;
+	*(vptr1 + 4) = pattern;
 	stress_asm_mb();
 	*(vptr1 + 5);
 	stress_asm_mb();
-	*(vptr2 + 6) = 0;
+	*(vptr2 + 6) = pattern;
 	stress_asm_mb();
 	*(vptr2 + 7);
 	stress_asm_mb();
+
+	if (UNLIKELY(verify)) {
+		size_t i;
+
+		for (i = 0; i < 8; i += 2) {
+			volatile uint64_t *vptr = (i & 2) ? (vptr2 + i) : (vptr1 + i);
+			const uint64_t val = *vptr;
+
+			if (UNLIKELY(val != pattern)) {
+				pr_fail("%s: writeread64: read back of stored value at address "
+					"%p not %" PRIx64 ", got %" PRIx64 " instead\n",
+					args->name, vptr1, pattern, val);
+			}
+		}
+	}
 }
 
 #if defined(HAVE_RISCV_CBO_ZERO)
@@ -368,9 +511,16 @@ static bool OPTIMIZE3 hammer_cbo_zero_valid(void)
  *  hammer_cbo_zero
  *	RISC-V cache-based bzero
  */
-static void OPTIMIZE3 hammer_cbo_zero(void *addr1, void *addr2, const bool is_bad_addr)
+static void OPTIMIZE3 hammer_cbo_zero(
+	stress_args_t *args,
+	void *addr1,
+	void *addr2,
+	const bool is_bad_addr,
+	const bool verify)
 {
+	(void)args;
 	(void)is_bad_addr;
+	(void)verify;
 
 	(void)stress_asm_riscv_cbo_zero((char *)addr1);
 	stress_asm_mb();
@@ -384,9 +534,16 @@ static void OPTIMIZE3 hammer_cbo_zero(void *addr1, void *addr2, const bool is_ba
  *  cache-based bzero
  *	generic gcc clear cache, clear a 64 byte cache line
  */
-static void OPTIMIZE3 hammer_clearcache(void *addr1, void *addr2, const bool is_bad_addr)
+static void OPTIMIZE3 hammer_clearcache(
+	stress_args_t *args,
+	void *addr1,
+	void *addr2,
+	const bool is_bad_addr,
+	const bool verify)
 {
+	(void)args;
 	(void)is_bad_addr;
+	(void)verify;
 
 	__builtin___clear_cache((void *)addr1, (void *)((char *)addr1 + 64));
 	stress_asm_mb();
@@ -401,7 +558,12 @@ static void OPTIMIZE3 hammer_clearcache(void *addr1, void *addr2, const bool is_
  *  hammer_ppc64_dcbst()
  *	powerpc64 Data Cache Block Store
  */
-static void OPTIMIZE3 hammer_ppc64_dcbst(void *addr1, void *addr2, const bool is_bad_addr)
+static void OPTIMIZE3 hammer_ppc64_dcbst(
+	stress_args_t *args,
+	void *addr1,
+	void *addr2,
+	const bool is_bad_addr,
+	const bool verify)
 {
 	if (UNLIKELY(is_bad_addr)) {
 		stress_asm_ppc64_dcbst(addr1);
@@ -409,18 +571,39 @@ static void OPTIMIZE3 hammer_ppc64_dcbst(void *addr1, void *addr2, const bool is
 		stress_asm_ppc64_dcbst(addr2);
 		stress_asm_mb();
 	} else {
-		volatile uint64_t *vptr = (volatile uint64_t *)addr1;
+		const uint64_t pattern = (uint64_t)0xaaaaa5a555555a5aULL;
+		volatile uint64_t *vptr;
 
-		*vptr = ~0ULL;
+		vptr = (volatile uint64_t *)addr1;
+		*vptr = pattern;
 		stress_asm_mb();
 		stress_asm_ppc64_dcbst(addr1);
 		stress_asm_mb();
 
 		vptr = (volatile uint64_t *)addr2;
-		*vptr = ~0ULL;
+		*vptr = pattern;
 		stress_asm_mb();
 		stress_asm_ppc64_dcbst(addr2);
 		stress_asm_mb();
+
+		if (UNLIKELY(verify)) {
+			uint64_t val;
+
+			vptr = (volatile uint64_t *)addr1;
+			val = *vptr;
+			if (UNLIKELY(val != pattern)) {
+				pr_fail("%s: dcbst: read back of stored value at address "
+					"%p not %" PRIx64 ", got %" PRIx64 " instead\n",
+					args->name, vptr, pattern, val);
+			}
+			vptr = (volatile uint64_t *)addr2;
+			val = *vptr;
+			if (UNLIKELY(val != pattern)) {
+				pr_fail("%s: dcbst: read back of stored value at address "
+					"%p not %" PRIx64 ", got %" PRIx64 " instead\n",
+					args->name, vptr, pattern, val);
+			}
+		}
 	}
 }
 #endif
@@ -431,7 +614,12 @@ static void OPTIMIZE3 hammer_ppc64_dcbst(void *addr1, void *addr2, const bool is
  *  hammer_ppc_dcbst()
  *	powerpc Data Cache Block Store
  */
-static void OPTIMIZE3 hammer_ppc_dcbst(void *addr1, void *addr2, const bool is_bad_addr)
+static void OPTIMIZE3 hammer_ppc_dcbst(
+	stress_args_t *args,
+	void *addr1,
+	void *addr2,
+	const bool is_bad_addr,
+	const bool verify)
 {
 	if (UNLIKELY(is_bad_addr)) {
 		stress_asm_ppc_dcbst(addr1);
@@ -439,18 +627,39 @@ static void OPTIMIZE3 hammer_ppc_dcbst(void *addr1, void *addr2, const bool is_b
 		stress_asm_ppc_dcbst(addr2);
 		stress_asm_mb();
 	} else {
-		volatile uint64_t *vptr = (volatile uint64_t *)addr1;
+		const uint64_t pattern = (uint64_t)0x55555a5aaaaaa5a5ULL;
+		volatile uint64_t *vptr;
 
-		*vptr = ~0ULL;
+		vptr = (volatile uint64_t *)addr1;
+		*vptr = pattern;
 		stress_asm_mb();
 		stress_asm_ppc_dcbst(addr1);
 		stress_asm_mb();
 
 		vptr = (volatile uint64_t *)addr2;
-		*vptr = ~0ULL;
+		*vptr = pattern;
 		stress_asm_mb();
 		stress_asm_ppc_dcbst(addr2);
 		stress_asm_mb();
+
+		if (UNLIKELY(verify)) {
+			uint64_t val;
+
+			vptr = (volatile uint64_t *)addr1;
+			val = *vptr;
+			if (UNLIKELY(val != pattern)) {
+				pr_fail("%s: dcbst: read back of stored value at address "
+					"%p not %" PRIx64 ", got %" PRIx64 " instead\n",
+					args->name, vptr, pattern, val);
+			}
+			vptr = (volatile uint64_t *)addr2;
+			val = *vptr;
+			if (UNLIKELY(val != pattern)) {
+				pr_fail("%s: dcbst: read back of stored value at address "
+					"%p not %" PRIx64 ", got %" PRIx64 " instead\n",
+					args->name, vptr, pattern, val);
+			}
+		}
 	}
 }
 #endif
@@ -461,8 +670,16 @@ static void OPTIMIZE3 hammer_ppc_dcbst(void *addr1, void *addr2, const bool is_b
  *  hammer_ppc64_dcbt()
  *	powerpc64 Data Cache Block Touch
  */
-static void OPTIMIZE3 hammer_ppc64_dcbt(void *addr1, void *addr2, const bool is_bad_addr)
+static void OPTIMIZE3 hammer_ppc64_dcbt(
+	stress_args_t *args,
+	void *addr1,
+	void *addr2,
+	const bool is_bad_addr,
+	const bool verify)
 {
+	(void)args;
+	(void)verify;
+
 	if (UNLIKELY(is_bad_addr)) {
 		stress_asm_ppc64_dcbt(addr1);
 		stress_asm_mb();
@@ -492,8 +709,16 @@ static void OPTIMIZE3 hammer_ppc64_dcbt(void *addr1, void *addr2, const bool is_
  *  hammer_ppc_dcbt()
  *	powerpc Data Cache Block Touch
  */
-static void OPTIMIZE3 hammer_ppc_dcbt(void *addr1, void *addr2, const bool is_bad_addr)
+static void OPTIMIZE3 hammer_ppc_dcbt(
+	stress_args_t *args,
+	void *addr1,
+	void *addr2,
+	const bool is_bad_addr,
+	const bool verify)
 {
+	(void)args;
+	(void)verify;
+
 	if (UNLIKELY(is_bad_addr)) {
 		stress_asm_ppc_dcbt(addr1);
 		stress_asm_mb();
@@ -523,7 +748,12 @@ static void OPTIMIZE3 hammer_ppc_dcbt(void *addr1, void *addr2, const bool is_ba
  *  hammer_ppc64_dcbtst()
  *	powerpc64 Data Cache Block Touch for Store
  */
-static void OPTIMIZE3 hammer_ppc64_dcbtst(void *addr1, void *addr2, const bool is_bad_addr)
+static void OPTIMIZE3 hammer_ppc64_dcbtst(
+	stress_args_t *args,
+	void *addr1,
+	void *addr2,
+	const bool is_bad_addr,
+	const bool verify)
 {
 	if (UNLIKELY(is_bad_addr)) {
 		stress_asm_ppc64_dcbtst(addr1);
@@ -531,19 +761,39 @@ static void OPTIMIZE3 hammer_ppc64_dcbtst(void *addr1, void *addr2, const bool i
 		stress_asm_ppc64_dcbtst(addr2);
 		stress_asm_mb();
 	} else {
+		const uint64_t pattern = (uint64_t)0x5aa5aa55a55a55aaULL;
 		volatile uint64_t *vptr;
 
 		vptr = (volatile uint64_t *)addr1;
 		stress_asm_ppc64_dcbtst(addr1);
 		stress_asm_mb();
-		*vptr = ~0ULL;
+		*vptr = pattern;
 		stress_asm_mb();
 
 		vptr = (volatile uint64_t *)addr2;
 		stress_asm_ppc64_dcbtst(addr2);
 		stress_asm_mb();
-		*vptr = ~0ULL;
+		*vptr = pattern;
 		stress_asm_mb();
+
+		if (UNLIKELY(verify)) {
+			uint64_t val;
+
+			vptr = (volatile uint64_t *)addr1;
+			val = *vptr;
+			if (UNLIKELY(val != pattern)) {
+				pr_fail("%s: dcbtst: read back of stored value at address "
+					"%p not %" PRIx64 ", got %" PRIx64 " instead\n",
+					args->name, vptr, pattern, val);
+			}
+			vptr = (volatile uint64_t *)addr2;
+			val = *vptr;
+			if (UNLIKELY(val != pattern)) {
+				pr_fail("%s: dcbtst: read back of stored value at address "
+					"%p not %" PRIx64 ", got %" PRIx64 " instead\n",
+					args->name, vptr, pattern, val);
+			}
+		}
 	}
 }
 #endif
@@ -554,7 +804,12 @@ static void OPTIMIZE3 hammer_ppc64_dcbtst(void *addr1, void *addr2, const bool i
  *  hammer_ppc_dcbtst()
  *	powerpc Data Cache Block Touch for Store
  */
-static void OPTIMIZE3 hammer_ppc_dcbtst(void *addr1, void *addr2, const bool is_bad_addr)
+static void OPTIMIZE3 hammer_ppc_dcbtst(
+	stress_args_t *args,
+	void *addr1,
+	void *addr2,
+	const bool is_bad_addr,
+	const bool verify)
 {
 	if (UNLIKELY(is_bad_addr)) {
 		stress_asm_ppc_dcbtst(addr1);
@@ -562,19 +817,39 @@ static void OPTIMIZE3 hammer_ppc_dcbtst(void *addr1, void *addr2, const bool is_
 		stress_asm_ppc_dcbtst(addr2);
 		stress_asm_mb();
 	} else {
+		const uint64_t pattern = (uint64_t)0x5aa5aa55a55a55aaULL;
 		volatile uint64_t *vptr;
 
 		vptr = (volatile uint64_t *)addr1;
 		stress_asm_ppc_dcbtst(addr1);
 		stress_asm_mb();
-		*vptr = ~0ULL;
+		*vptr = pattern;
 		stress_asm_mb();
 
 		vptr = (volatile uint64_t *)addr2;
 		stress_asm_ppc_dcbtst(addr2);
 		stress_asm_mb();
-		*vptr = ~0ULL;
+		*vptr = pattern;
 		stress_asm_mb();
+
+		if (UNLIKELY(verify)) {
+			uint64_t val;
+
+			vptr = (volatile uint64_t *)addr1;
+			val = *vptr;
+			if (UNLIKELY(val != pattern)) {
+				pr_fail("%s: dcbtst: read back of stored value at address "
+					"%p not %" PRIx64 ", got %" PRIx64 " instead\n",
+					args->name, vptr, pattern, val);
+			}
+			vptr = (volatile uint64_t *)addr2;
+			val = *vptr;
+			if (UNLIKELY(val != pattern)) {
+				pr_fail("%s: dcbtst: read back of stored value at address "
+					"%p not %" PRIx64 ", got %" PRIx64 " instead\n",
+					args->name, vptr, pattern, val);
+			}
+		}
 	}
 }
 #endif
@@ -585,8 +860,16 @@ static void OPTIMIZE3 hammer_ppc_dcbtst(void *addr1, void *addr2, const bool is_
  *  hammer_ppc64_msync()
  *	msync to memory
  */
-static void OPTIMIZE3 hammer_ppc64_msync(void *addr1, void *addr2, const bool is_bad_addr)
+static void OPTIMIZE3 hammer_ppc64_msync(
+	stress_args_t *args,
+	void *addr1,
+	void *addr2,
+	const bool is_bad_addr,
+	const bool verify)
 {
+	(void)args;
+	(void)verify;
+
 	if (UNLIKELY(is_bad_addr)) {
 		stress_asm_ppc64_msync();
 		stress_asm_mb();
@@ -614,26 +897,75 @@ static void OPTIMIZE3 hammer_ppc64_msync(void *addr1, void *addr2, const bool is
  *  hammer_prefetch()
  *	exercise gcc builtin prefetch, read/write and 4 levels of cache locality
  */
-static void OPTIMIZE3 hammer_prefetch(void *addr1, void *addr2, const bool is_bad_addr)
+static void OPTIMIZE3 hammer_prefetch(
+	stress_args_t *args,
+	void *addr1,
+	void *addr2,
+	const bool is_bad_addr,
+	const bool verify)
 {
-	(void)is_bad_addr;
+	(void)args;
+	(void)verify;
 
-	shim_builtin_prefetch(addr1, 0, 0);
-	stress_asm_mb();
-	shim_builtin_prefetch(addr2, 1, 0);
-	stress_asm_mb();
-	shim_builtin_prefetch(addr2, 0, 1);
-	stress_asm_mb();
-	shim_builtin_prefetch(addr1, 1, 1);
-	stress_asm_mb();
-	shim_builtin_prefetch(addr1, 0, 2);
-	stress_asm_mb();
-	shim_builtin_prefetch(addr2, 1, 2);
-	stress_asm_mb();
-	shim_builtin_prefetch(addr2, 0, 3);
-	stress_asm_mb();
-	shim_builtin_prefetch(addr1, 1, 3);
-	stress_asm_mb();
+	if (UNLIKELY(is_bad_addr)) {
+		shim_builtin_prefetch(addr1, 0, 0);
+		stress_asm_mb();
+		shim_builtin_prefetch(addr2, 1, 0);
+		stress_asm_mb();
+		shim_builtin_prefetch(addr2, 0, 1);
+		stress_asm_mb();
+		shim_builtin_prefetch(addr1, 1, 1);
+		stress_asm_mb();
+		shim_builtin_prefetch(addr1, 0, 2);
+		stress_asm_mb();
+		shim_builtin_prefetch(addr2, 1, 2);
+		stress_asm_mb();
+		shim_builtin_prefetch(addr2, 0, 3);
+		stress_asm_mb();
+		shim_builtin_prefetch(addr1, 1, 3);
+		stress_asm_mb();
+	} else {
+		/* issuing prefetch and then load close afterwards is suboptimal */
+		shim_builtin_prefetch(addr1, 0, 0);
+		stress_asm_mb();
+		shim_builtin_prefetch(addr2, 1, 0);
+		stress_asm_mb();
+
+		*(volatile uint64_t *)addr1;
+		stress_asm_mb();
+		*(volatile uint64_t *)addr2;
+		stress_asm_mb();
+
+		shim_builtin_prefetch(addr2, 0, 1);
+		stress_asm_mb();
+		shim_builtin_prefetch(addr1, 1, 1);
+		stress_asm_mb();
+
+		*(volatile uint64_t *)addr2;
+		stress_asm_mb();
+		*(volatile uint64_t *)addr1;
+		stress_asm_mb();
+
+		shim_builtin_prefetch(addr1, 0, 2);
+		stress_asm_mb();
+		shim_builtin_prefetch(addr2, 1, 2);
+		stress_asm_mb();
+
+		*(volatile uint64_t *)addr1;
+		stress_asm_mb();
+		*(volatile uint64_t *)addr2;
+		stress_asm_mb();
+
+		shim_builtin_prefetch(addr2, 0, 3);
+		stress_asm_mb();
+		shim_builtin_prefetch(addr1, 1, 3);
+		stress_asm_mb();
+
+		*(volatile uint64_t *)addr2;
+		stress_asm_mb();
+		*(volatile uint64_t *)addr1;
+		stress_asm_mb();
+	}
 }
 
 #if defined(HAVE_ASM_X86_PREFETCHNTA)
@@ -642,14 +974,34 @@ static void OPTIMIZE3 hammer_prefetch(void *addr1, void *addr2, const bool is_ba
  *	prefetch data into non-temporal cache structure and into a location
  *	close to the processor, minimizing cache pollution
  */
-static void OPTIMIZE3 hammer_prefetchnta(void *addr1, void *addr2, const bool is_bad_addr)
+static void OPTIMIZE3 hammer_prefetchnta(
+	stress_args_t *args,
+	void *addr1,
+	void *addr2,
+	const bool is_bad_addr,
+	const bool verify)
 {
+	(void)args;
 	(void)is_bad_addr;
+	(void)verify;
 
-	stress_asm_x86_prefetchnta(addr1);
-	stress_asm_mb();
-	stress_asm_x86_prefetchnta(addr2);
-	stress_asm_mb();
+	if (UNLIKELY(is_bad_addr)) {
+		stress_asm_x86_prefetchnta(addr1);
+		stress_asm_mb();
+		stress_asm_x86_prefetchnta(addr2);
+		stress_asm_mb();
+	} else {
+		/* issuing prefetch and then load close afterwards is suboptimal */
+		stress_asm_x86_prefetchnta(addr1);
+		stress_asm_mb();
+		stress_asm_x86_prefetchnta(addr2);
+		stress_asm_mb();
+
+		*(volatile uint64_t *)addr1;
+		stress_asm_mb();
+		*(volatile uint64_t *)addr2;
+		stress_asm_mb();
+	}
 }
 #endif
 
@@ -658,14 +1010,34 @@ static void OPTIMIZE3 hammer_prefetchnta(void *addr1, void *addr2, const bool is
  *  hammer_prefetcht0()
  *	prefetch data into all levels of the cache hierarchy
  */
-static void OPTIMIZE3 hammer_prefetcht0(void *addr1, void *addr2, const bool is_bad_addr)
+static void OPTIMIZE3 hammer_prefetcht0(
+	stress_args_t *args,
+	void *addr1,
+	void *addr2,
+	const bool is_bad_addr,
+	const bool verify)
 {
+	(void)args;
 	(void)is_bad_addr;
+	(void)verify;
 
-	stress_asm_x86_prefetcht0(addr1);
-	stress_asm_mb();
-	stress_asm_x86_prefetcht0(addr2);
-	stress_asm_mb();
+	if (UNLIKELY(is_bad_addr)) {
+		stress_asm_x86_prefetcht0(addr1);
+		stress_asm_mb();
+		stress_asm_x86_prefetcht0(addr2);
+		stress_asm_mb();
+	} else {
+		/* issuing prefetch and then load close afterwards is suboptimal */
+		stress_asm_x86_prefetcht0(addr1);
+		stress_asm_mb();
+		stress_asm_x86_prefetcht0(addr2);
+		stress_asm_mb();
+
+		*(volatile uint64_t *)addr1;
+		stress_asm_mb();
+		*(volatile uint64_t *)addr2;
+		stress_asm_mb();
+	}
 }
 #endif
 
@@ -674,14 +1046,34 @@ static void OPTIMIZE3 hammer_prefetcht0(void *addr1, void *addr2, const bool is_
  *  hammer_prefetcht1()
  *	prefetch data into level 2 cache and higher
  */
-static void OPTIMIZE3 hammer_prefetcht1(void *addr1, void *addr2, const bool is_bad_addr)
+static void OPTIMIZE3 hammer_prefetcht1(
+	stress_args_t *args,
+	void *addr1,
+	void *addr2,
+	const bool is_bad_addr,
+	const bool verify)
 {
+	(void)args;
 	(void)is_bad_addr;
+	(void)verify;
 
-	stress_asm_x86_prefetcht1(addr1);
-	stress_asm_mb();
-	stress_asm_x86_prefetcht1(addr2);
-	stress_asm_mb();
+	if (UNLIKELY(is_bad_addr)) {
+		stress_asm_x86_prefetcht1(addr1);
+		stress_asm_mb();
+		stress_asm_x86_prefetcht1(addr2);
+		stress_asm_mb();
+	} else {
+		/* issuing prefetch and then load close afterwards is suboptimal */
+		stress_asm_x86_prefetcht1(addr1);
+		stress_asm_mb();
+		stress_asm_x86_prefetcht1(addr2);
+		stress_asm_mb();
+
+		*(volatile uint64_t *)addr1;
+		stress_asm_mb();
+		*(volatile uint64_t *)addr2;
+		stress_asm_mb();
+	}
 }
 #endif
 
@@ -690,14 +1082,34 @@ static void OPTIMIZE3 hammer_prefetcht1(void *addr1, void *addr2, const bool is_
  *  hammer_prefetcht2()
  *	refetch data into level 3 cache and higher, or an implementation-specific choice
  */
-static void OPTIMIZE3 hammer_prefetcht2(void *addr1, void *addr2, const bool is_bad_addr)
+static void OPTIMIZE3 hammer_prefetcht2(
+	stress_args_t *args,
+	void *addr1,
+	void *addr2,
+	const bool is_bad_addr,
+	const bool verify)
 {
+	(void)args;
 	(void)is_bad_addr;
+	(void)verify;
 
-	stress_asm_x86_prefetcht2(addr1);
-	stress_asm_mb();
-	stress_asm_x86_prefetcht2(addr2);
-	stress_asm_mb();
+	if (UNLIKELY(is_bad_addr)) {
+		stress_asm_x86_prefetcht2(addr1);
+		stress_asm_mb();
+		stress_asm_x86_prefetcht2(addr2);
+		stress_asm_mb();
+	} else {
+		/* issuing prefetch and then load close afterwards is suboptimal */
+		stress_asm_x86_prefetcht2(addr1);
+		stress_asm_mb();
+		stress_asm_x86_prefetcht2(addr2);
+		stress_asm_mb();
+
+		*(volatile uint64_t *)addr1;
+		stress_asm_mb();
+		*(volatile uint64_t *)addr2;
+		stress_asm_mb();
+	}
 }
 #endif
 
@@ -705,26 +1117,31 @@ static void OPTIMIZE3 hammer_prefetcht2(void *addr1, void *addr2, const bool is_
  *  hammer_prefetch_read()
  *	prefetch for reading, then do stores
  */
-static void OPTIMIZE3 hammer_prefetch_read(void *addr1, void *addr2, const bool is_bad_addr)
+static void OPTIMIZE3 hammer_prefetch_read(
+	stress_args_t *args,
+	void *addr1,
+	void *addr2,
+	const bool is_bad_addr,
+	const bool verify)
 {
+	(void)args;
+	(void)verify;
+
 	if (UNLIKELY(is_bad_addr)) {
 		shim_builtin_prefetch(addr1, 0, 0);
 		stress_asm_mb();
 		shim_builtin_prefetch(addr2, 0, 0);
 		stress_asm_mb();
 	} else {
-		volatile const uint64_t *vptr;
-
+		/* issuing prefetch and then load close afterwards is suboptimal */
 		shim_builtin_prefetch(addr1, 0, 0);
 		stress_asm_mb();
 		shim_builtin_prefetch(addr2, 0, 0);
 		stress_asm_mb();
 
-		vptr = (volatile uint64_t *)addr1;
-		(void)*vptr;
+		*(volatile uint64_t *)addr1;
 		stress_asm_mb();
-		vptr = (volatile uint64_t *)addr2;
-		(void)*vptr;
+		*(volatile uint64_t *)addr2;
 		stress_asm_mb();
 	}
 }
@@ -734,14 +1151,37 @@ static void OPTIMIZE3 hammer_prefetch_read(void *addr1, void *addr2, const bool 
  *  hammer_cldemote()
  *	x86 cache line demote
  */
-static void OPTIMIZE3 hammer_cldemote(void *addr1, void *addr2, const bool is_bad_addr)
+static void OPTIMIZE3 hammer_cldemote(
+	stress_args_t *args,
+	void *addr1,
+	void *addr2,
+	const bool is_bad_addr,
+	const bool verify)
 {
+	(void)args;
 	(void)is_bad_addr;
+	(void)verify;
 
-	stress_asm_x86_cldemote(addr1);
-	stress_asm_mb();
-	stress_asm_x86_cldemote(addr2);
-	stress_asm_mb();
+	if (UNLIKELY(is_bad_addr)) {
+		stress_asm_x86_cldemote(addr1);
+		stress_asm_mb();
+		stress_asm_x86_cldemote(addr2);
+		stress_asm_mb();
+	} else {
+		stress_asm_x86_cldemote(addr1);
+		stress_asm_mb();
+		stress_asm_x86_cldemote(addr2);
+		stress_asm_mb();
+
+		*(volatile uint64_t *)addr1;
+		stress_asm_mb();
+		*(volatile uint64_t *)addr2;
+		stress_asm_mb();
+		*(volatile uint64_t *)addr1 = 0;
+		stress_asm_mb();
+		*(volatile uint64_t *)addr2 = 0;
+		stress_asm_mb();
+	}
 }
 #endif
 
@@ -750,14 +1190,37 @@ static void OPTIMIZE3 hammer_cldemote(void *addr1, void *addr2, const bool is_ba
  *  hammer_clflush()
  *	x86 cache line flush
  */
-static void OPTIMIZE3 hammer_clflush(void *addr1, void *addr2, const bool is_bad_addr)
+static void OPTIMIZE3 hammer_clflush(
+	stress_args_t *args,
+	void *addr1,
+	void *addr2,
+	const bool is_bad_addr,
+	const bool verify)
 {
+	(void)args;
 	(void)is_bad_addr;
+	(void)verify;
 
-	stress_asm_x86_clflush(addr1);
-	stress_asm_mb();
-	stress_asm_x86_clflush(addr2);
-	stress_asm_mb();
+	if (UNLIKELY(is_bad_addr)) {
+		stress_asm_x86_clflush(addr1);
+		stress_asm_mb();
+		stress_asm_x86_clflush(addr2);
+		stress_asm_mb();
+	} else {
+		stress_asm_x86_clflush(addr1);
+		stress_asm_mb();
+		stress_asm_x86_clflush(addr2);
+		stress_asm_mb();
+
+		*(volatile uint64_t *)addr1;
+		stress_asm_mb();
+		*(volatile uint64_t *)addr2;
+		stress_asm_mb();
+		*(volatile uint64_t *)addr1 = 0;
+		stress_asm_mb();
+		*(volatile uint64_t *)addr2 = 0;
+		stress_asm_mb();
+	}
 }
 #endif
 
@@ -766,9 +1229,13 @@ static void OPTIMIZE3 hammer_clflush(void *addr1, void *addr2, const bool is_bad
  *  hammer_write_clflush
  *	x86 write followed by cache line flush
  */
-static void OPTIMIZE3 hammer_write_clflush(void *addr1, void *addr2, const bool is_bad_addr)
+static void OPTIMIZE3 hammer_write_clflush(
+	stress_args_t *args,
+	void *addr1,
+	void *addr2,
+	const bool is_bad_addr,
+	const bool verify)
 {
-
 	if (UNLIKELY(is_bad_addr)) {
 		stress_asm_x86_clflush(addr1);
 		stress_asm_mb();
@@ -776,17 +1243,37 @@ static void OPTIMIZE3 hammer_write_clflush(void *addr1, void *addr2, const bool 
 		stress_asm_mb();
 	} else {
 		volatile uint64_t *vptr;
+		const uint64_t pattern = (uint64_t)0xaaaaa5a555555a5aULL;
 
 		vptr = (volatile uint64_t *)addr1;
-		*vptr = 0;
+		*vptr = pattern;
 		stress_asm_mb();
 		stress_asm_x86_clflush(addr1);
 		stress_asm_mb();
 		vptr = (volatile uint64_t *)addr2;
-		*vptr = 0;
+		*vptr = pattern;
 		stress_asm_mb();
 		stress_asm_x86_clflush(addr2);
 		stress_asm_mb();
+
+		if (UNLIKELY(verify)) {
+			uint64_t val;
+
+			vptr = (volatile uint64_t *)addr1;
+			val = *vptr;
+			if (UNLIKELY(val != pattern)) {
+				pr_fail("%s: write-clflush: read back of stored value at address "
+					"%p not %" PRIx64 ", got %" PRIx64 " instead\n",
+					args->name, vptr, pattern, val);
+			}
+			vptr = (volatile uint64_t *)addr2;
+			val = *vptr;
+			if (UNLIKELY(val != pattern)) {
+				pr_fail("%s: write-clflush: read back of stored value at address "
+					"%p not %" PRIx64 ", got %" PRIx64 " instead\n",
+					args->name, vptr, pattern, val);
+			}
+		}
 	}
 }
 #endif
@@ -796,7 +1283,12 @@ static void OPTIMIZE3 hammer_write_clflush(void *addr1, void *addr2, const bool 
  *  hammer_write_clflush
  *	x86 write followed by optimized cache line flush
  */
-static void OPTIMIZE3 hammer_write_clflushopt(void *addr1, void *addr2, const bool is_bad_addr)
+static void OPTIMIZE3 hammer_write_clflushopt(
+	stress_args_t *args,
+	void *addr1,
+	void *addr2,
+	const bool is_bad_addr,
+	const bool verify)
 {
 	if (UNLIKELY(is_bad_addr)) {
 		stress_asm_x86_clflushopt(addr1);
@@ -805,17 +1297,37 @@ static void OPTIMIZE3 hammer_write_clflushopt(void *addr1, void *addr2, const bo
 		stress_asm_mb();
 	} else {
 		volatile uint64_t *vptr;
+		const uint64_t pattern = (uint64_t)0x55555a5aaaaaa5a5ULL;
 
 		vptr = (volatile uint64_t *)addr1;
-		*vptr = 0;
+		*vptr = pattern;
 		stress_asm_mb();
 		stress_asm_x86_clflushopt(addr1);
 		stress_asm_mb();
 		vptr = (volatile uint64_t *)addr2;
-		*vptr = 0;
+		*vptr = pattern;
 		stress_asm_mb();
 		stress_asm_x86_clflushopt(addr2);
 		stress_asm_mb();
+
+		if (UNLIKELY(verify)) {
+			uint64_t val;
+
+			vptr = (volatile uint64_t *)addr1;
+			val = *vptr;
+			if (UNLIKELY(val != pattern)) {
+				pr_fail("%s: write-clflushopt: read back of stored value at address "
+					"%p not %" PRIx64 ", got %" PRIx64 " instead\n",
+					args->name, vptr, pattern, val);
+			}
+			vptr = (volatile uint64_t *)addr2;
+			val = *vptr;
+			if (UNLIKELY(val != pattern)) {
+				pr_fail("%s: write-clflushopt: read back of stored value at address "
+					"%p not %" PRIx64 ", got %" PRIx64 " instead\n",
+					args->name, vptr, pattern, val);
+			}
+		}
 	}
 }
 #endif
@@ -826,9 +1338,16 @@ static void OPTIMIZE3 hammer_write_clflushopt(void *addr1, void *addr2, const bo
  *  hammer_clflush()
  *	x86 cache line flush
  */
-static void OPTIMIZE3 hammer_clflushopt(void *addr1, void *addr2, const bool is_bad_addr)
+static void OPTIMIZE3 hammer_clflushopt(
+	stress_args_t *args,
+	void *addr1,
+	void *addr2,
+	const bool is_bad_addr,
+	const bool verify)
 {
+	(void)args;
 	(void)is_bad_addr;
+	(void)verify;
 
 	stress_asm_x86_clflushopt(addr1);
 	stress_asm_mb();
@@ -842,7 +1361,12 @@ static void OPTIMIZE3 hammer_clflushopt(void *addr1, void *addr2, const bool is_
  *  hammer_clwb()
  *	x86 cache line write-back, dirty cache line and write back
  */
-static void OPTIMIZE3 hammer_clwb(void *addr1, void *addr2, const bool is_bad_addr)
+static void OPTIMIZE3 hammer_clwb(
+	stress_args_t *args,
+	void *addr1,
+	void *addr2,
+	const bool is_bad_addr,
+	const bool verify)
 {
 	(void)is_bad_addr;
 
@@ -853,18 +1377,38 @@ static void OPTIMIZE3 hammer_clwb(void *addr1, void *addr2, const bool is_bad_ad
 		stress_asm_mb();
 	} else {
 		volatile uint64_t *vptr;
+		const uint64_t pattern = (uint64_t)0x55aa5aa5aa55a5a5ULL;
 
 		vptr = (volatile uint64_t *)addr1;
-		*vptr = ~0ULL;
+		*vptr = pattern;
 		stress_asm_mb();
 		vptr = (volatile uint64_t *)addr2;
-		*vptr = ~0ULL;
+		*vptr = pattern;
 		stress_asm_mb();
 
 		stress_asm_x86_clwb(addr1);
 		stress_asm_mb();
 		stress_asm_x86_clwb(addr2);
 		stress_asm_mb();
+
+		if (UNLIKELY(verify)) {
+			uint64_t val;
+
+			vptr = (volatile uint64_t *)addr1;
+			val = *vptr;
+			if (UNLIKELY(val != pattern)) {
+				pr_fail("%s: write-clwb: read back of stored value at address "
+					"%p not %" PRIx64 ", got %" PRIx64 " instead\n",
+					args->name, vptr, pattern, val);
+			}
+			vptr = (volatile uint64_t *)addr2;
+			val = *vptr;
+			if (UNLIKELY(val != pattern)) {
+				pr_fail("%s: write-clwb: read back of stored value at address "
+					"%p not %" PRIx64 ", got %" PRIx64 " instead\n",
+					args->name, vptr, pattern, val);
+			}
+		}
 	}
 }
 #endif
@@ -874,14 +1418,34 @@ static void OPTIMIZE3 hammer_clwb(void *addr1, void *addr2, const bool is_bad_ad
  *  hammer_prefetchw()
  *	x86 prefetch with anticipation of following write
  */
-static void OPTIMIZE3 hammer_prefetchw(void *addr1, void *addr2, const bool is_bad_addr)
+static void OPTIMIZE3 hammer_prefetchw(
+	stress_args_t *args,
+	void *addr1,
+	void *addr2,
+	const bool is_bad_addr,
+	const bool verify)
 {
+	(void)args;
 	(void)is_bad_addr;
+	(void)verify;
 
-	stress_asm_x86_prefetchw(addr1);
-	stress_asm_mb();
-	stress_asm_x86_prefetchw(addr2);
-	stress_asm_mb();
+	if (UNLIKELY(is_bad_addr)) {
+		stress_asm_x86_prefetchw(addr1);
+		stress_asm_mb();
+		stress_asm_x86_prefetchw(addr2);
+		stress_asm_mb();
+	} else {
+		/* issuing prefetch and then load close afterwards is suboptimal */
+		stress_asm_x86_prefetchw(addr1);
+		stress_asm_mb();
+		stress_asm_x86_prefetchw(addr2);
+		stress_asm_mb();
+
+		*(volatile uint64_t *)addr1;
+		stress_asm_mb();
+		*(volatile uint64_t *)addr2;
+		stress_asm_mb();
+	}
 }
 #endif
 
@@ -890,14 +1454,34 @@ static void OPTIMIZE3 hammer_prefetchw(void *addr1, void *addr2, const bool is_b
  *  hammer_prefetchw()
  *	x86 prefetch vector data into cache with intent to write and T1 Hint
  */
-static void OPTIMIZE3 hammer_prefetchwt1(void *addr1, void *addr2, const bool is_bad_addr)
+static void OPTIMIZE3 hammer_prefetchwt1(
+	stress_args_t *args,
+	void *addr1,
+	void *addr2,
+	const bool is_bad_addr,
+	const bool verify)
 {
+	(void)args;
 	(void)is_bad_addr;
+	(void)verify;
 
-	stress_asm_x86_prefetchwt1(addr1);
-	stress_asm_mb();
-	stress_asm_x86_prefetchwt1(addr2);
-	stress_asm_mb();
+	if (UNLIKELY(is_bad_addr)) {
+		stress_asm_x86_prefetchwt1(addr1);
+		stress_asm_mb();
+		stress_asm_x86_prefetchwt1(addr2);
+		stress_asm_mb();
+	} else {
+		/* issuing prefetch and then load close afterwards is suboptimal */
+		stress_asm_x86_prefetchwt1(addr1);
+		stress_asm_mb();
+		stress_asm_x86_prefetchwt1(addr2);
+		stress_asm_mb();
+
+		*(volatile uint64_t *)addr1;
+		stress_asm_mb();
+		*(volatile uint64_t *)addr2;
+		stress_asm_mb();
+	}
 }
 #endif
 
@@ -1072,9 +1656,12 @@ static int OPTIMIZE3 stress_cachehammer(stress_args_t *args)
 	NOCLOBBER bool cachehammer_numa = false;
 	static int numa_count[5];
 #if defined(HAVE_LINUX_MEMPOLICY_H)
-	NOCLOBBER stress_numa_mask_t *numa_mask = NULL;
-	NOCLOBBER stress_numa_mask_t *numa_nodes = NULL;
+	NOCLOBBER stress_numa_mask_t *numa_mask;
+	NOCLOBBER stress_numa_mask_t *numa_nodes;
 #endif
+
+	numa_mask = NULL;
+	numa_nodes = NULL;
 
 	(void)shim_memset(numa_count, 0, sizeof(numa_count));
 	(void)stress_get_setting("cachehammer-numa", &cachehammer_numa);
@@ -1198,8 +1785,7 @@ static int OPTIMIZE3 stress_cachehammer(stress_args_t *args)
 			const uint16_t rnd16 = stress_mwc16();
 			const size_t loops = 8 + ((rnd16 >> 1) & 0x3f);
 			const uint8_t which = (rnd16 == 0x0008) ? 4 : rnd16 & 3;
-			register void (*hammer)(void *addr1, void *addr2, const bool is_bad_addr) =
-				stress_cachehammer_funcs[func_index].hammer;
+			register hammer_func_t hammer = stress_cachehammer_funcs[func_index].hammer;
 
 			uint32_t offset;
 			register uint8_t *addr1, *addr2;
@@ -1218,9 +1804,9 @@ static int OPTIMIZE3 stress_cachehammer(stress_args_t *args)
 					(void)msync((void *)file_page, page_size, flag);
 				}
 #endif
-				stress_cachehammer_numa(args, 50, &numa_count[0], file_page, 
+				stress_cachehammer_numa(args, 50, &numa_count[0], file_page,
 							cachehammer_numa, numa_mask, numa_nodes);
-				hammer(file_page, file_page + 64, false);
+				hammer(args, file_page, file_page + 64, false, false);
 				break;
 			case 1:
 			default:
@@ -1234,8 +1820,8 @@ static int OPTIMIZE3 stress_cachehammer(stress_args_t *args)
 					addr2 += 64;
 					if (UNLIKELY(addr2 >= buffer + buffer_size))
 						addr2 = buffer;
-					hammer(addr1, addr2, false);
-					hammer(addr2, addr1, false);
+					hammer(args, addr1, addr2, false, false);
+					hammer(args, addr2, addr1, false, false);
 				}
 				break;
 			case 2:
@@ -1249,8 +1835,8 @@ static int OPTIMIZE3 stress_cachehammer(stress_args_t *args)
 					addr2 += 64;
 					if (UNLIKELY(addr2 >= local_buffer + local_buffer_size))
 						addr2 = local_buffer;
-					hammer(addr1, addr2, false);
-					hammer(addr2, addr1, false);
+					hammer(args, addr1, addr2, false, true);
+					hammer(args, addr2, addr1, false, true);
 				}
 				break;
 			case 3:
@@ -1264,8 +1850,8 @@ static int OPTIMIZE3 stress_cachehammer(stress_args_t *args)
 					addr2 += 64;
 					if (UNLIKELY(addr2 >= local_page + page_size))
 						addr2 = local_page;
-					hammer(addr1, addr2, false);
-					hammer(addr2, addr1, false);
+					hammer(args, addr1, addr2, false, true);
+					hammer(args, addr2, addr1, false, true);
 				}
 				break;
 			case 4:
@@ -1276,7 +1862,7 @@ static int OPTIMIZE3 stress_cachehammer(stress_args_t *args)
 
 				stress_cachehammer_numa(args, 50, &numa_count[3], addr1,
 							cachehammer_numa, numa_mask, numa_nodes);
-				hammer(addr1, addr2, true);
+				hammer(args, addr1, addr2, true, false);
 				break;
 			}
 			tries = 0;
@@ -1332,7 +1918,7 @@ const stressor_info_t stress_cachehammer_info = {
 	.init = stress_cachehammer_init,
 	.deinit = stress_cachehammer_deinit,
 	.classifier = CLASS_CPU_CACHE,
-	.verify = VERIFY_NONE,
+	.verify = VERIFY_ALWAYS,
 	.opts = opts,
 	.help = help
 };
