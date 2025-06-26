@@ -203,6 +203,11 @@ To perform a cross-compile for qnx, for example, a aarch64 qnx cross build:
     CC=aarch64-unknown-nto-qnx7.1.0-gcc CXX=aarch64-unknown-nto-qnx7.1.0-g++ STATIC=1 make
 ```
 
+To generate a PDF version of the manual (requires ps2pdf to be installed)
+```
+    make pdf
+```
+
 Build option: DEBUG, build with debug (-g) enabled:
 ```
     make clean
