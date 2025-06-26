@@ -30,7 +30,7 @@ static const stress_help_t help[] = {
 	{ NULL,	"spinmem",	    "start N workers exercising shared memory spin write/read operations" },
 	{ NULL, "spinmem-affinity", "use CPU affinity (specific CPUS can be defined by --taskset option)" },
 	{ NULL, "spinmem-method",   "select method of write/reads, default is 32bit" },
-	{ NULL, "spinmem-numa",     "move processes to randomly chosen NUMA nodes" },
+	{ NULL, "spinmem-numa",     "move pages to randomly chosen NUMA nodes" },
 	{ NULL, "spinmem-ops",	    "stop after N bogo shared memory spin write/read operations" },
 	{ NULL, NULL,		NULL }
 };
