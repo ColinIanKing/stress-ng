@@ -1371,7 +1371,7 @@ static void stress_fd_flistxattr(stress_fd_t *fd)
 {
 	char buffer[4096];
 
-	(void)flistxattr(fd->fd, buffer, sizeof(buffer));
+	(void)shim_flistxattr(fd->fd, buffer, sizeof(buffer));
 }
 #endif
 
