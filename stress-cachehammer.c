@@ -48,6 +48,7 @@ static sigjmp_buf jmp_env;
 
 static const stress_help_t help[] = {
 	{ NULL,	"cachehammer N",	"start N CPU cache thrashing workers" },
+	{ NULL,	"cachehammer-numa",	"move pages to randomly chosen NUMA nodes" },
 	{ NULL,	"cachehammer-ops N",	"stop after N cache bogo operations" },
 	{ NULL,	NULL,			NULL }
 };
@@ -1024,6 +1025,31 @@ static void stress_cache_hammer_flags_to_str(
 	*ptr = '\0';
 }
 
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+static inline void stress_cachehammer_numa(
+	stress_args_t *args,
+	const int max,
+	int *numa_count,
+	void *addr,
+	const bool cachehammer_numa,
+        stress_numa_mask_t *numa_mask,
+        stress_numa_mask_t *numa_nodes)
+{
+	if (cachehammer_numa && numa_mask && numa_nodes) {
+		(*numa_count)++;
+		if (*numa_count > max) {
+			const size_t page_size = args->page_size;
+
+			/* page align addr */
+			addr = (void *)((uintptr_t)addr & ~(page_size - 1));
+			stress_numa_randomize_pages(args, numa_nodes,
+					numa_mask, addr, page_size, page_size);
+			*numa_count = 0;
+		}
+	}
+}
+#endif
+
 /*
  *  stress_cachehammer
  *	stress cache by psuedo-random memory read/writes and
@@ -1043,6 +1069,15 @@ static int OPTIMIZE3 stress_cachehammer(stress_args_t *args)
 	size_t i;
 	NOCLOBBER size_t tries = 0;
 	char buf[1024];
+	NOCLOBBER bool cachehammer_numa = false;
+	static int numa_count[5];
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+	NOCLOBBER stress_numa_mask_t *numa_mask = NULL;
+	NOCLOBBER stress_numa_mask_t *numa_nodes = NULL;
+#endif
+
+	(void)shim_memset(numa_count, 0, sizeof(numa_count));
+	(void)stress_get_setting("cachehammer-numa", &cachehammer_numa);
 
 	if (!*cachehammer_filename) {
 		pr_inf_skip("%s: shared file not created, skipping stressor\n",
@@ -1128,29 +1163,33 @@ static int OPTIMIZE3 stress_cachehammer(stress_args_t *args)
 		goto close_fd;
 	}
 
+	if (cachehammer_numa) {
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+		stress_numa_mask_and_node_alloc(args, &numa_nodes, &numa_mask, "--cachehammer-numa", &cachehammer_numa);
+#else
+		if (args->instance == 0)
+			pr_inf("%s: --cachehammer numa selected but not supported by this system, disabling option\n",
+				args->name);
+		cachehammer_numa = false;
+#endif
+	}
+
 	(void)shim_memset(buffer, 0, buffer_size);
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
+	if (cachehammer_numa) {
 #if defined(HAVE_LINUX_MEMPOLICY_H)
-	{
-		stress_numa_mask_t *numa_mask = stress_numa_mask_alloc();
-
-		if (numa_mask) {
-			stress_numa_mask_t *numa_nodes = stress_numa_mask_alloc();
-
-			if (numa_nodes) {
-				if (stress_numa_mask_nodes_get(numa_nodes) > 0) {
-					stress_numa_randomize_pages(args, numa_nodes, numa_mask, local_buffer, local_buffer_size, page_size);
-					stress_numa_randomize_pages(args, numa_nodes, numa_mask, local_page, page_size, page_size);
-				}
-				stress_numa_mask_free(numa_nodes);
-			}
-			stress_numa_mask_free(numa_mask);
-		}
-	}
+		stress_numa_mask_and_node_alloc(args, &numa_nodes, &numa_mask,
+						"--cachehammer-numa", &cachehammer_numa);
+#else
+		if (args->instance == 0)
+			pr_inf("%s: --cachehammer-numa selected but not supported by this system, disabling option\n",
+				args->name);
+		cachehammer_numa = false;
 #endif
+	}
 
 	(void)sigsetjmp(jmp_env, 1);
 	func_index = stress_mwc32modn((uint32_t)N_FUNCS);
@@ -1179,6 +1218,8 @@ static int OPTIMIZE3 stress_cachehammer(stress_args_t *args)
 					(void)msync((void *)file_page, page_size, flag);
 				}
 #endif
+				stress_cachehammer_numa(args, 50, &numa_count[0], file_page, 
+							cachehammer_numa, numa_mask, numa_nodes);
 				hammer(file_page, file_page + 64, false);
 				break;
 			case 1:
@@ -1187,6 +1228,8 @@ static int OPTIMIZE3 stress_cachehammer(stress_args_t *args)
 				addr1 = buffer + (offset & mask);
 				addr2 = addr1;
 
+				stress_cachehammer_numa(args, 20, &numa_count[1], addr1,
+							cachehammer_numa, numa_mask, numa_nodes);
 				for (i = 0; i < loops; i++) {
 					addr2 += 64;
 					if (UNLIKELY(addr2 >= buffer + buffer_size))
@@ -1200,6 +1243,8 @@ static int OPTIMIZE3 stress_cachehammer(stress_args_t *args)
 				addr1 = local_buffer + (offset & mask);
 				addr2 = addr1;
 
+				stress_cachehammer_numa(args, 20, &numa_count[2], addr1,
+							cachehammer_numa, numa_mask, numa_nodes);
 				for (i = 0; i < loops; i++) {
 					addr2 += 64;
 					if (UNLIKELY(addr2 >= local_buffer + local_buffer_size))
@@ -1213,6 +1258,8 @@ static int OPTIMIZE3 stress_cachehammer(stress_args_t *args)
 				addr1 = local_page + (offset & page_mask);
 				addr2 = addr1;
 
+				stress_cachehammer_numa(args, 20, &numa_count[3], addr1,
+							cachehammer_numa, numa_mask, numa_nodes);
 				for (i = 0; i < loops; i++) {
 					addr2 += 64;
 					if (UNLIKELY(addr2 >= local_page + page_size))
@@ -1227,6 +1274,8 @@ static int OPTIMIZE3 stress_cachehammer(stress_args_t *args)
 				offset += 64;
 				addr2 = bad_page + (offset & page_mask);
 
+				stress_cachehammer_numa(args, 50, &numa_count[3], addr1,
+							cachehammer_numa, numa_mask, numa_nodes);
 				hammer(addr1, addr2, true);
 				break;
 			}
@@ -1257,6 +1306,12 @@ static int OPTIMIZE3 stress_cachehammer(stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+        if (numa_mask)
+                stress_numa_mask_free(numa_mask);
+        if (numa_nodes)
+                stress_numa_mask_free(numa_nodes);
+#endif
 	(void)munmap((void *)file_page, page_size);
 close_fd:
 	(void)close(fd);
@@ -1267,11 +1322,17 @@ unmap_local_buffer:
 	return ret;
 }
 
+static const stress_opt_t opts[] = {
+	{ OPT_cachehammer_numa, "cachehammer-numa",  TYPE_ID_BOOL, 0, 1, NULL },
+	END_OPT,
+};
+
 const stressor_info_t stress_cachehammer_info = {
 	.stressor = stress_cachehammer,
 	.init = stress_cachehammer_init,
 	.deinit = stress_cachehammer_deinit,
 	.classifier = CLASS_CPU_CACHE,
 	.verify = VERIFY_NONE,
+	.opts = opts,
 	.help = help
 };

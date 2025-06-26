@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "25 June 2025"
+.TH STRESS-NG 1 "26 June 2025"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -1286,6 +1286,10 @@ random addresses in three memory mapped regions, one of which is shared
 among all the cache stressors and is the size of the L3 cache, one is
 local to each instance and is 4 times the L3 cache size and one is a single
 page mapping that cannot be read or written.
+.TP
+.B \-\-cachehammer\-numa
+periodically assign exercised pages to randomly selected NUMA nodes. This is disabled
+for systems that do not support NUMA.
 .TP
 .B \-\-cachehammer\-ops N
 stop after N cache hammer operations.
