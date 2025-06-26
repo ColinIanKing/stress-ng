@@ -337,7 +337,7 @@ static int stress_module(stress_args_t *args)
 		}
 	}
 	if (ret < 0) {
-		if (args->instance == 0) {
+		if (stress_instance_zero(args)) {
 			if (module_name_cli) {
 				pr_inf_skip("%s: could not find a module path for "
 					"the specified module '%s', ensure it "
@@ -384,7 +384,7 @@ static int stress_module(stress_args_t *args)
 	 *  time-of-use) race
 	 */
 	if (shim_fstat(fd, &statbuf) < 0) {
-		if (args->instance == 0) {
+		if (stress_instance_zero(args)) {
 			if (module_name_cli) {
 				pr_inf_skip("%s: could not get fstat() on "
 					"the specified module '%s', "
@@ -401,7 +401,7 @@ static int stress_module(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 	if (!S_ISREG(statbuf.st_mode)) {
-		if (args->instance == 0) {
+		if (stress_instance_zero(args)) {
 			pr_inf_skip("%s: module passed is not a regular file "
 				"'%s', skipping stressor\n",
 				args->name, global_module_path);
@@ -418,7 +418,7 @@ static int stress_module(stress_args_t *args)
 	if (!module_no_unload)
 		(void)shim_delete_module(module_name, 0);
 
-	if (args->instance == 0)
+	if (stress_instance_zero(args))
 		pr_inf("%s: exercising module '%s'\n", args->name, module_name);
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);

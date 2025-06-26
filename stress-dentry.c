@@ -451,7 +451,7 @@ static int stress_dentry(stress_args_t *args)
 abort:
 	stress_dentry_state(&nr_dentry2);
 	nr_dentries = nr_dentry2 - nr_dentry1;
-	if ((args->instance == 0) && (nr_dentries > 0)) {
+	if (stress_instance_zero(args) && (nr_dentries > 0)) {
 		pr_inf("%s: %" PRId64 " dentries allocated\n",
 			args->name, nr_dentries);
 	}

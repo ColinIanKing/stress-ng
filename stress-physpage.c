@@ -272,7 +272,7 @@ static int stress_physpage(stress_args_t *args)
 	 */
 	fd_pc = open("/proc/kpagecount", O_RDONLY);
 	if (fd_pc < 0) {
-		if (args->instance == 0)
+		if (stress_instance_zero(args))
 			pr_dbg("%s: cannot open /proc/kpagecount, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 		fd_pc = -1;

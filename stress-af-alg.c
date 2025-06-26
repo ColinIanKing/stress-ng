@@ -193,7 +193,7 @@ static void stress_af_alg_ignore(
 	stress_crypto_info_t *info,
 	const char *systemcall)
 {
-	if ((args->instance == 0) && (!info->ignore)) {
+	if ((stress_instance_zero(args)) && (!info->ignore)) {
 		pr_dbg_skip("%s: %s using %s (%s), failed with EINVAL, skipping this crypto engine\n",
 			args->name, systemcall, info->name, info->type);
 	}
@@ -880,7 +880,7 @@ static int stress_af_alg(stress_args_t *args)
 
 	(void)stress_get_setting("af-alg-dump", &af_alg_dump);
 
-	if (af_alg_dump && (args->instance == 0)) {
+	if (af_alg_dump && stress_instance_zero(args)) {
 		pr_inf("%s: dumping cryptographic algorithms found in /proc/crypto to stdout\n",
 			args->name);
 		stress_af_alg_sort_crypto();
@@ -891,7 +891,7 @@ static int stress_af_alg(stress_args_t *args)
 	stress_af_alg_sort_crypto();
 	stress_af_alg_count_crypto(&count, &internal);
 
-	if (args->instance == 0) {
+	if (stress_instance_zero(args)) {
 		pr_block_begin();
 		pr_inf("%s: %zd cryptographic algorithms found in /proc/crypto\n",
 			args->name, proc_count);

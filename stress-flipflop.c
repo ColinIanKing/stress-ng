@@ -321,7 +321,7 @@ static int stress_flipflop(stress_args_t *args)
 		dist[i] = w->nr_successes;
 	}
 
-	if (args->instance == 0) {
+	if (stress_instance_zero(args)) {
 		qsort(dist, 2 * flipflop_bits, sizeof(uint64_t), stress_flipflop_uint64_cmp);
 
 		pr_inf("%s: ran for %.2lfs loops/tries/successes = %" PRIu64 " / %" PRIu64

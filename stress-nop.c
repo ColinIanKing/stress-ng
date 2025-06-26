@@ -286,7 +286,7 @@ static inline void stress_nop_callfunc(
 	if (UNLIKELY(instr->supported_check == false)) {
 		instr->supported_check = true;
 		if (instr->supported && !instr->supported()) {
-			if (args->instance == 0)
+			if (stress_instance_zero(args))
 				pr_inf("%s: '%s' instruction is not supported, ignoring, defaulting to nop\n",
 					args->name, instr->name);
 			instr->ignore = true;

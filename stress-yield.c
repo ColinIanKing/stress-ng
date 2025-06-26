@@ -85,7 +85,7 @@ static void stress_yield_sched_policy(stress_args_t *args, const size_t yield_sc
 		/*
 		 *  Only have 1 RT deadline instance running
 		 */
-		if (args->instance == 0) {
+		if (stress_instance_zero(args)) {
 			struct shim_sched_attr attr;
 
 			(void)shim_memset(&attr, 0, sizeof(attr));

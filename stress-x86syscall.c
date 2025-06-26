@@ -371,7 +371,7 @@ static int stress_x86syscall(stress_args_t *args)
 	if (x86syscall_check_x86syscall_func() < 0)
 		return EXIT_FAILURE;
 
-	if (args->instance == 0) {
+	if (stress_instance_zero(args)) {
 		char *str = x86syscall_list_str();
 
 		if (str) {

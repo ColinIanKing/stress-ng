@@ -974,7 +974,7 @@ static int stress_mmap(stress_args_t *args)
     defined(__NR_mmap2)
 		context.mmap = (mmap_func_t)mmap2_try;
 #else
-		if (args->instance == 0)
+		if (stress_instance_zero(args))
 			pr_inf("%s: using mmap instead of mmap2 as it is not available\n",
 				args->name);
 #endif
@@ -997,7 +997,7 @@ static int stress_mmap(stress_args_t *args)
 		mmap_total = context.mmap_bytes * args->instances;
 	}
 	context.sz = context.mmap_bytes & ~(page_size - 1);
-	if (args->instance == 0)
+	if (stress_instance_zero(args))
 		stress_usage_bytes(args, context.mmap_bytes, mmap_total);
 
 	if (context.mmap_file) {
@@ -1077,7 +1077,7 @@ redo:
 						&context.numa_mask, "--mmap-numa",
 						&context.mmap_numa);
 #else
-		if (args->instance == 0)
+		if (stress_instance_zero(args))
 			pr_inf("%s: --mmap-numa selected but not supported by this system, disabling option\n",
 				args->name);
 		context.mmap_numa = false;

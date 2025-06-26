@@ -177,7 +177,7 @@ static int stress_cpu_online(stress_args_t *args)
 	(void)stress_get_setting("cpu-online-all", &cpu_online_all);
 
 	if (geteuid() != 0) {
-		if (args->instance == 0)
+		if (stress_instance_zero(args))
 			pr_inf("%s: need root privilege to run "
 				"this stressor\n", args->name);
 		/* Not strictly a test failure */
@@ -226,7 +226,7 @@ static int stress_cpu_online(stress_args_t *args)
 		return EXIT_FAILURE;
 	}
 	if ((args->instances > 1) && cpu_online_all) {
-		if (args->instance == 0) {
+		if (stress_instance_zero(args)) {
 			pr_inf("%s: disabling --cpu-online-all option because "
 			       "more than 1 %s stressor is being invoked\n",
 				args->name, args->name);
@@ -234,7 +234,7 @@ static int stress_cpu_online(stress_args_t *args)
 		cpu_online_all = false;
 	}
 
-	if ((args->instance == 0) && cpu_online_all) {
+	if (stress_instance_zero(args) && cpu_online_all) {
 		pr_inf("%s: exercising all %" PRId32 " cpus\n",
 			args->name, cpu_online_count + 1);
 	}

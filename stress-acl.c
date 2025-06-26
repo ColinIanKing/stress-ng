@@ -487,7 +487,7 @@ static int stress_acl(stress_args_t *args)
 			acl_tested_count++;
 	}
 
-	if (args->instance == 0)
+	if (stress_instance_zero(args))
 		pr_inf("%s: %zu of %zu (%.2f%%) unique ACLs tested\n", args->name,
 			acl_tested_count, acl_count,
 			(acl_tested_count > 0) ?

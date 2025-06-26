@@ -262,7 +262,7 @@ static int stress_softlockup(stress_args_t *args)
 	size_t policy = 0;
 	int max_prio = 0, parent_cpu;
 	bool good_policy = false;
-	const bool first_instance = (args->instance == 0);
+	const bool first_instance = (stress_instance_zero(args));
 	const uint32_t cpus_online = (uint32_t)stress_get_processors_online();
 	uint32_t i;
 	struct sched_param param;
@@ -330,7 +330,7 @@ static int stress_softlockup(stress_args_t *args)
 		return EXIT_NOT_IMPLEMENTED;
 	}
 
-	if ((max_prio < 1) && (args->instance == 0)) {
+	if ((max_prio < 1) && (stress_instance_zero(args))) {
 		pr_inf("%s: running with a low maximum priority of %d\n",
 			args->name, max_prio);
 	}

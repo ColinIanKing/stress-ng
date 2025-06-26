@@ -306,7 +306,7 @@ static int stress_fpunch(stress_args_t *args)
 			fpunch_bytes_total = MIN_FPUNCH_BYTES;
 	}
 	fpunch_bytes = fpunch_bytes_total / args->instances;
-	if (args->instance == 0)
+	if (stress_instance_zero(args))
 		stress_fs_usage_bytes(args, fpunch_bytes, fpunch_bytes_total);
 	max_punches = (off_t)(fpunch_bytes / (off_t)stride);
 

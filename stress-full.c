@@ -93,7 +93,7 @@ static int stress_full(stress_args_t *args)
 
 		if ((fd = open("/dev/full", O_RDWR)) < 0) {
 			if (errno == ENOENT) {
-				if (args->instance == 0)
+				if (stress_instance_zero(args))
 					pr_inf_skip("%s: /dev/full not available, skipping stress test\n",
 						args->name);
 				rc = EXIT_NOT_IMPLEMENTED;

@@ -231,7 +231,7 @@ static int stress_spinmem(stress_args_t *args)
 	(void)stress_get_setting("spinmem-numa", &spinmem_numa);
 
 #if !defined(HAVE_SCHED_SETAFFINITY)
-	if ((spinmem_affinity) && (args->instance == 0)) {
+	if ((spinmem_affinity) && (stress_instance_zero(args))) {
 		pr_inf("%s: disabling spinmem_affinity option, "
 			"CPU affinity not supported\n", args->name);
 		spinmem_affinity = false;
@@ -241,7 +241,7 @@ static int stress_spinmem(stress_args_t *args)
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 		stress_numa_mask_and_node_alloc(args, &numa_nodes, &numa_mask, "--spinmem-numa", &spinmem_numa);
 #else
-		if (args->instance == 0)
+		if (stress_instance_zero(args))
 			pr_inf("%s: --spinmem-numa selected but not supported by this system, disabling option\n",
 				args->name);
 		spinmem_numa = false;

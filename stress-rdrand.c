@@ -387,7 +387,7 @@ static int stress_rdrand(stress_args_t *args)
 		}
 		if (out_of_range) {
 			pr_fail("%s: poor distribution of random values\n", args->name);
-			if (args->instance == 0) {
+			if (stress_instance_zero(args)) {
 				uint64_t i;
 				const uint64_t shift = 1ULL << 60;
 

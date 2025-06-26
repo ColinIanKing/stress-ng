@@ -67,7 +67,7 @@ static int stress_l1cache_info_check(
 	const uint64_t sz = size ? size :
 		(uint64_t)ways * (uint64_t)sets * (uint64_t)line_size;
 
-	if (args->instance == 0) {
+	if (stress_instance_zero(args)) {
 		char szstr[64];
 
 		stress_uint64_to_str(szstr, sizeof(szstr), sz, 0, true);

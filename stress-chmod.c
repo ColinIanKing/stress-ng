@@ -275,7 +275,7 @@ static int stress_chmod(stress_args_t *args)
 	(void)shim_strscpy(tmp, filename, sizeof(tmp));
 	filebase = basename(tmp);
 
-	if (args->instance == 0) {
+	if (stress_instance_zero(args)) {
 		if ((fd = creat(filename, S_IRUSR | S_IWUSR)) < 0) {
 			rc = stress_exit_status(errno);
 			pr_fail("%s: create %s failed, errno=%d (%s)\n",

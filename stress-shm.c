@@ -376,7 +376,7 @@ static int stress_shm(stress_args_t *args)
 		shm_posix_bytes = MIN_SHM_POSIX_BYTES;
 	if (shm_posix_bytes < page_size)
 		shm_posix_bytes = page_size;
-	if (args->instance == 0)
+	if (stress_instance_zero(args))
 		stress_usage_bytes(args, shm_posix_bytes, shm_posix_bytes * args->instances);
 
 	if (!stress_get_setting("shm-objs", &shm_posix_objects)) {

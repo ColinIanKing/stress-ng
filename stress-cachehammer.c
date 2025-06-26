@@ -1677,7 +1677,7 @@ static int OPTIMIZE3 stress_cachehammer(stress_args_t *args)
 		trapped[i] = false;
 	}
 
-	if (args->instance == 0) {
+	if (stress_instance_zero(args)) {
 		pr_dbg("%s: using cache buffer size of %zuK\n",
 			args->name, buffer_size / 1024);
 		stress_cache_hammer_flags_to_str(buf, sizeof(buf), valid);
@@ -1754,7 +1754,7 @@ static int OPTIMIZE3 stress_cachehammer(stress_args_t *args)
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 		stress_numa_mask_and_node_alloc(args, &numa_nodes, &numa_mask, "--cachehammer-numa", &cachehammer_numa);
 #else
-		if (args->instance == 0)
+		if (stress_instance_zero(args))
 			pr_inf("%s: --cachehammer numa selected but not supported by this system, disabling option\n",
 				args->name);
 		cachehammer_numa = false;
@@ -1771,7 +1771,7 @@ static int OPTIMIZE3 stress_cachehammer(stress_args_t *args)
 		stress_numa_mask_and_node_alloc(args, &numa_nodes, &numa_mask,
 						"--cachehammer-numa", &cachehammer_numa);
 #else
-		if (args->instance == 0)
+		if (stress_instance_zero(args))
 			pr_inf("%s: --cachehammer-numa selected but not supported by this system, disabling option\n",
 				args->name);
 		cachehammer_numa = false;
@@ -1884,7 +1884,7 @@ static int OPTIMIZE3 stress_cachehammer(stress_args_t *args)
 	/*
 	 *  Hit an illegal instruction? report the disabled flags
 	 */
-	if (args->instance == 0) {
+	if (stress_instance_zero(args)) {
 		stress_cache_hammer_flags_to_str(buf, sizeof(buf), trapped);
 		if (*buf)
 			pr_inf("%s: disabled%s due to SIGBUS/SEGV/SIGILL\n", args->name, buf);

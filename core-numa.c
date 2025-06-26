@@ -299,7 +299,7 @@ void stress_numa_randomize_pages(
 	chunk_size = (chunk_size < page_size) ? page_size : chunk_size;
 
 #if 0
-	if (args->instance == 0)
+	if (stress_instance_zero(args))
 		pr_dbg("%s: randomizing %zu page%s to %ld NUMA node%s in %zu page size chunks\n",
 			args->name,
 			buffer_pages, (buffer_pages == 1) ? "" : "s",
@@ -475,7 +475,7 @@ void stress_numa_mask_and_node_alloc(
 {
 #if 0
 	if (stress_numa_nodes() <= 1) {
-		if (args->instance == 0)
+		if (stress_instance_zero(args))
 			pr_inf("%s: only 1 NUMA node available, disabling %s\n",
 				args->name, numa_option);
 		goto err;

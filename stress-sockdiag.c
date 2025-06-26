@@ -295,7 +295,7 @@ static int stress_sockdiag(stress_args_t *args)
 		fd = socket(AF_NETLINK, SOCK_RAW, NETLINK_SOCK_DIAG);
 		if (UNLIKELY(fd < 0)) {
 			if (errno == EPROTONOSUPPORT) {
-				if (args->instance == 0)
+				if (stress_instance_zero(args))
 					pr_inf_skip("%s: NETLINK_SOCK_DIAG not supported, skipping stressor\n",
 						args->name);
 				rc  = EXIT_NOT_IMPLEMENTED;

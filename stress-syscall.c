@@ -8737,7 +8737,7 @@ static int stress_syscall(stress_args_t *args)
 
 	(void)stress_get_setting("syscall-method", &syscall_method);
 
-	if (args->instance == 0) {
+	if (stress_instance_zero(args)) {
 		for (i = 0; i < SIZEOF_ARRAY(syscall_methods); i++) {
 			if (syscall_method == syscall_methods[i].method) {
 				pr_inf("%s: using method '%s'\n", args->name, syscall_methods[i].opt);
@@ -8865,7 +8865,7 @@ static int stress_syscall(stress_args_t *args)
 			exercised++;
 	}
 
-	if (args->instance == 0) {
+	if (stress_instance_zero(args)) {
 		pr_inf("%s: %zd system call tests, %zd (%.1f%%) fastest non-failing tests fully exercised\n",
 			args->name, STRESS_SYSCALLS_MAX, exercised,
 			(double)exercised * 100.0 / (double)STRESS_SYSCALLS_MAX);

@@ -123,7 +123,7 @@ static int stress_zero(stress_args_t *args)
 		double t;
 		ssize_t ret = 0;
 
-		if (args->instance == 0)
+		if (stress_instance_zero(args))
 			pr_inf("%s: exercising /dev/zero with just reads\n", args->name);
 
 		t = stress_time_now();
@@ -155,7 +155,7 @@ static int stress_zero(stress_args_t *args)
 		size_t mmap_index = 0;
 #endif
 
-		if (args->instance == 0)
+		if (stress_instance_zero(args))
 			pr_inf("%s: exercising /dev/zero with reads, mmap, lseek, and ioctl; for just read benchmarking use --zero-read\n",
 				args->name);
 		do {

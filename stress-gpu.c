@@ -244,7 +244,7 @@ static int gles2_init(
 	GLint ufrag_n;
 	GLuint apos, acolor;
 
-	if (args->instance == 0) {
+	if (stress_instance_zero(args)) {
 		pr_inf("%s: GL_VENDOR: %s\n", args->name, (const char *)glGetString(GL_VENDOR));
 		pr_inf("%s: GL_VERSION: %s\n", args->name, (const char *)glGetString(GL_VERSION));
 		pr_inf("%s: GL_RENDERER: %s\n", args->name, (const char *)glGetString(GL_RENDERER));

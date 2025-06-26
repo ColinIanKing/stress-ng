@@ -537,7 +537,7 @@ retry:
 				if (setsockopt(fd, SOL_SOCKET, SO_ZEROCOPY, &so_zerocopy, sizeof(so_zerocopy)) == 0) {
 					recvflag |= MSG_ZEROCOPY;
 				} else {
-					if (args->instance == 0) {
+					if (stress_instance_zero(args)) {
 						warned = true;
 						pr_inf("%s: cannot enable zerocopy on data being received\n", args->name);
 					}
@@ -952,7 +952,7 @@ static int OPTIMIZE3 stress_sock_server(
 			if (setsockopt(fd, SOL_SOCKET, SO_ZEROCOPY, &so_zerocopy, sizeof(so_zerocopy)) == 0) {
 				sendflag |= MSG_ZEROCOPY;
 			} else {
-				if (args->instance == 0) {
+				if (stress_instance_zero(args)) {
 					pr_inf("%s: cannot enable zerocopy on data being sent\n", args->name);
 					warned = true;
 				}

@@ -346,7 +346,7 @@ static int stress_flushcache(stress_args_t *args)
 		context.cl_size = 64;
 
 	context.d_size *= numa_nodes;
-	if ((args->instance == 0) && (numa_nodes > 1))
+	if (stress_instance_zero(args) && (numa_nodes > 1))
 		pr_inf("%s: scaling cache size by number of numa nodes %d to %zuK\n",
 			args->name, numa_nodes, context.d_size / 1024);
 	ret = stress_oomable_child(args, (void *)&context, stress_flushcache_child, STRESS_OOMABLE_NORMAL);

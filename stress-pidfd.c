@@ -197,7 +197,7 @@ again:
 			ret = shim_pidfd_send_signal(pidfd, 0, NULL, 0);
 			if (UNLIKELY(ret != 0)) {
 				if (errno == ENOSYS) {
-					if (args->instance == 0)
+					if (stress_instance_zero(args))
 						pr_inf_skip("%s: skipping stress test, system call is not implemented\n",
 							args->name);
 					stress_pidfd_reap(pid, pidfd);

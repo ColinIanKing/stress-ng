@@ -429,7 +429,7 @@ static int stress_malloc_child(stress_args_t *args, void *context)
 			stress_malloc_loop, (void *)&malloc_args[j + 1]);
 	}
 #else
-	if ((args->instance == 0) && (malloc_pthreads > 0))
+	if (stress_instance_zero(args) && (malloc_pthreads > 0))
 		pr_inf("%s: pthreads not supported, ignoring the "
 			"--malloc-pthreads option\n", args->name);
 #endif

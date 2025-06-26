@@ -209,7 +209,7 @@ static int stress_stack_child(stress_args_t *args, void *context)
 	}
 
 #if !defined(MADV_PAGEOUT)
-	if (stack_pageout && (args->instance == 0)) {
+	if (stack_pageout && (stress_instance_zero(args))) {
 		pr_inf("%s: stack-pageout not supported on this system\n", args->name);
 		stack_pageout = false;
 	}

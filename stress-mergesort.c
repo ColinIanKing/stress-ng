@@ -257,7 +257,7 @@ static int stress_mergesort(stress_args_t *args)
 	(void)stress_get_setting("mergesort-method", &mergesort_method);
 
 	mergesort_func = stress_mergesort_methods[mergesort_method].mergesort_func;
-	if (args->instance == 0)
+	if (stress_instance_zero(args))
 		pr_inf("%s: using method '%s'\n",
 			args->name, stress_mergesort_methods[mergesort_method].name);
 

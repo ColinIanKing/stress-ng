@@ -200,7 +200,7 @@ static int stress_memfd_child(stress_args_t *args, void *context)
 
 #if !defined(HAVE_MADVISE)
 	if (memfd_madvise) {
-		if (args->instance == 0) {
+		if (stress_instance_zero(args)) {
 			pr_inf("%s: disabling --memfd-madvise, madvise() "
 				"not supported\n", args->name);
 		}
@@ -211,7 +211,7 @@ static int stress_memfd_child(stress_args_t *args, void *context)
 #if !defined(HAVE_MADVISE) ||	\
     !defined(MADV_PAGEOUT)
 	if (memfd_zap_pte) {
-		if (args->instance == 0) {
+		if (stress_instance_zero(args)) {
 			pr_inf("%s: disabling --memfd-zap-pte, madvise() "
 				"with MADV_PAGEOUT not supported\n", args->name);
 		}
@@ -253,7 +253,7 @@ static int stress_memfd_child(stress_args_t *args, void *context)
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 		stress_numa_mask_and_node_alloc(args, &numa_nodes, &numa_mask, "--memfd-numa", &memfd_numa);
 #else
-		if (args->instance == 0)
+		if (stress_instance_zero(args))
 			pr_inf("%s: --memfd-numa selected but not supported by this system, disabling option\n",
 				args->name);
 		memfd_numa = false;

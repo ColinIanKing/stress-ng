@@ -3301,7 +3301,7 @@ static void stress_dev_parport_linux(
 	 */
 #if defined(PPCLAIM) &&	\
     defined(PPRELEASE)
-	if (args->instance == 0) {
+	if (stress_instance_zero(args)) {
 		int ret;
 
 		ret = shim_pthread_spin_lock(&parport_lock);
@@ -3406,7 +3406,7 @@ static void stress_dev_parport_linux(
 
 #if defined(PPCLAIM) &&	\
     defined(PPRELEASE)
-	if ((args->instance == 0) && claimed) {
+	if (stress_instance_zero(args) && claimed) {
 		VOID_RET(int, ioctl(fd, PPRELEASE));
 		VOID_RET(int, shim_pthread_spin_unlock(&parport_lock));
 	}
@@ -4823,7 +4823,7 @@ again:
 		}
 	} while (stress_continue(args));
 
-	if (args->instance == 0) {
+	if (stress_instance_zero(args)) {
 		const size_t opened = stress_dev_infos_opened(dev_info_list);
 		const bool is_root = stress_check_capability(SHIM_CAP_IS_ROOT);
 

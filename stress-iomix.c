@@ -1143,7 +1143,7 @@ static int stress_iomix(stress_args_t *args)
 		iomix_bytes = (off_t)page_size;
 		iomix_bytes_total = iomix_bytes * args->instance;
 	}
-	if (args->instance == 0)
+	if (stress_instance_zero(args))
 		stress_fs_usage_bytes(args, iomix_bytes, iomix_bytes_total);
 
 	ret = stress_temp_dir_mk_args(args);

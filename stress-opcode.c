@@ -623,7 +623,7 @@ finish:
 
 	if ((duration > 0.0) &&
 	    (vstate->ops_attempted > 0.0) &&
-	    (args->instance == 0) &&
+	    stress_instance_zero(args) &&
 	    (args->instances > 0)) {
 		const double secs_in_tropical_year = 365.2422 * 24.0 * 60.0 * 60.0;
 		double estimated_duration = (duration * num_opcodes / vstate->ops_attempted) / args->instances;

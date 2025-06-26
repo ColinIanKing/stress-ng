@@ -318,7 +318,7 @@ static int stress_touch(stress_args_t *args)
 
 	touch_method_type = touch_methods[touch_method].method_type;
 
-	if ((args->instance == 0) &&
+	if (stress_instance_zero(args) &&
 	    (touch_method_type == TOUCH_CREAT) &&
 	    (open_flags != 0))
 		pr_inf("%s: note: touch-opts are not used for creat touch method\n", args->name);

@@ -868,7 +868,7 @@ static int stress_mmaptorture(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
-	if (args->instance == 0)
+	if (stress_instance_zero(args))
 		stress_usage_bytes(args, mmap_bytes, mmap_bytes * args->instances);
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);

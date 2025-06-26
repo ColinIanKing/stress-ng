@@ -273,7 +273,7 @@ static int stress_mmapfiles(stress_args_t *args)
 						&mmapfile_info->numa_mask, "--mmapfiles-numa",
 						&mmapfile_info->mmapfiles_numa);
 #else
-		if (args->instance == 0)
+		if (stress_instance_zero(args))
 			pr_inf("%s: --mmapfiles-numa selected but not supported by this system, disabling option\n",
 				args->name);
 		mmapfile_info->mmapfiles_numa = false;

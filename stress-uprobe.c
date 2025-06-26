@@ -135,7 +135,7 @@ static int stress_uprobe(stress_args_t *args)
 
 	libc_addr = stress_uprobe_libc_start(pid, libc_path);
 	if (!libc_addr) {
-		if (args->instance == 0)
+		if (stress_instance_zero(args))
 			pr_inf_skip("%s: cannot find start of libc text section, skipping stressor\n",
 				args->name);
 		return EXIT_NO_RESOURCE;

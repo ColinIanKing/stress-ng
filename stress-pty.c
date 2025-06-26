@@ -455,7 +455,7 @@ static int stress_pty(stress_args_t *args)
 #if defined(TIOCSETD) &&	\
     defined(TIOCGETD) &&	\
     defined(TCXONC)
-		if ((args->instance == 0) && (fcntl(ptys[i].follower, F_SETFL, O_NONBLOCK) == 0)) {
+		if (stress_instance_zero(args) && (fcntl(ptys[i].follower, F_SETFL, O_NONBLOCK) == 0)) {
 #if defined(NR_LDISCS)
 			const int max_ldisc = NR_LDISCS;
 #else

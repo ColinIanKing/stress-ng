@@ -80,7 +80,7 @@ static int stress_spawn(stress_args_t *args)
 	 */
 	path = stress_get_proc_self_exe(exec_path, sizeof(exec_path));
 	if (!path) {
-		if (args->instance == 0)
+		if (stress_instance_zero(args))
 			pr_inf_skip("%s: skipping stressor, can't determine stress-ng "
 				"executable name\n", args->name);
 		return EXIT_NOT_IMPLEMENTED;

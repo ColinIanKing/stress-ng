@@ -153,7 +153,7 @@ static uint64_t stress_ipsec_mb_features(stress_args_t *args, const IMB_MGR *p_m
 {
 	const uint64_t features = p_mgr->features;
 
-	if (args->instance == 0) {
+	if (stress_instance_zero(args)) {
 		char str[256] = "";
 		size_t i;
 
@@ -789,7 +789,7 @@ static int stress_ipsec_mb(stress_args_t *args)
 	(void)stress_get_setting("ipsec-mb-method", &ipsec_mb_method);
 
 	if (imb_get_version() < IMB_VERSION(0, 51, 0)) {
-		if (args->instance == 0)
+		if (stress_instance_zero(args))
 			pr_inf_skip("%s: version %s of Intel IPSec MB library is too low, skipping\n",
 				args->name, imb_get_version_str());
 		return EXIT_NOT_IMPLEMENTED;
@@ -797,7 +797,7 @@ static int stress_ipsec_mb(stress_args_t *args)
 
 	mb_mgr = alloc_mb_mgr(0);
 	if (!mb_mgr) {
-		if (args->instance == 0)
+		if (stress_instance_zero(args))
 			pr_inf_skip("%s: failed to setup Intel IPSec MB library, skipping\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
@@ -812,7 +812,7 @@ static int stress_ipsec_mb(stress_args_t *args)
 		mb_features[i].stats.duration = 0.0;
 	}
 	if (!got_features) {
-		if (args->instance == 0)
+		if (stress_instance_zero(args))
 			pr_inf_skip("%s: not enough CPU features to support Intel IPSec MB library, skipping\n", args->name);
 		free_mb_mgr(mb_mgr);
 		return EXIT_NOT_IMPLEMENTED;
@@ -822,7 +822,7 @@ static int stress_ipsec_mb(stress_args_t *args)
 		const char *feature_name = mb_features[ipsec_mb_feature].name;
 
 		if (!mb_features[ipsec_mb_feature].supported) {
-			if (args->instance == 0) {
+			if (stress_instance_zero(args)) {
 
 				pr_inf_skip("%s: requested ipsec-mb-feature feature '%s' is not supported, skipping\n",
 					args->name, feature_name);
@@ -833,7 +833,7 @@ static int stress_ipsec_mb(stress_args_t *args)
 		for (i = 0; i < SIZEOF_ARRAY(mb_features); i++) {
 			mb_features[i].supported = (i == ipsec_mb_feature);
 		}
-		if (args->instance == 0)
+		if (stress_instance_zero(args))
 			pr_inf("%s: using just feature '%s'\n", args->name, feature_name);
 	}
 

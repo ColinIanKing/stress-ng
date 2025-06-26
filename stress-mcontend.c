@@ -542,7 +542,7 @@ static int stress_mcontend(stress_args_t *args)
 		stress_numa_mask_and_node_alloc(args, &numa_nodes, &numa_mask,
 						"--mcontend-numa", &mcontend_numa);
 #else
-		if (args->instance == 0)
+		if (stress_instance_zero(args))
 			pr_inf("%s: --mcontend-numa selected but not supported by this system, disabling option\n",
 				args->name);
 		mcontend_numa = false;

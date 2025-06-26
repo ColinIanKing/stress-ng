@@ -550,7 +550,7 @@ static int stress_vm_addr(stress_args_t *args)
 	context.numa_nodes = NULL;
 #endif
 
-	if (args->instance == 0)
+	if (stress_instance_zero(args))
 		pr_dbg("%s: using method '%s'\n", args->name, context.vm_addr_method->name);
 
 	for (retries = 0; LIKELY((retries < 100) && stress_continue_flag()); retries++) {
@@ -581,7 +581,7 @@ static int stress_vm_addr(stress_args_t *args)
 						&context.numa_mask, "--vm-addr-numa",
 						&context.vm_addr_numa);
 #else
-		if (args->instance == 0)
+		if (stress_instance_zero(args))
 			pr_inf("%s: --vm-addr-uma selected but not supported by this system, disabling option\n",
 				args->name);
 		context.vm_addr_numa = false;

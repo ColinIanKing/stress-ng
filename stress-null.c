@@ -75,7 +75,7 @@ static int stress_null(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	if (null_write) {
-		if (args->instance == 0)
+		if (stress_instance_zero(args))
 			pr_inf("%s: exercising /dev/null with just writes\n", args->name);
 
 		t = stress_time_now();
@@ -98,7 +98,7 @@ static int stress_null(stress_args_t *args)
 		} while (stress_continue(args));
 		duration += stress_time_now() - t;
 	} else {
-		if (args->instance == 0)
+		if (stress_instance_zero(args))
                         pr_inf("%s: exercising /dev/null with writes, lseek, "
 				"ioctl, fcntl, fallocate, fdatasync and mmap; for "
 				"just write benchmarking use --null-write\n",

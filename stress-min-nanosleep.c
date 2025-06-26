@@ -125,7 +125,7 @@ static void stress_min_nanosleep_sched(stress_args_t *args, const size_t min_nan
 		/*
 		 *  Only have 1 RT deadline instance running
 		 */
-		if (args->instance == 0) {
+		if (stress_instance_zero(args)) {
 			struct shim_sched_attr attr;
 
 			(void)shim_memset(&attr, 0, sizeof(attr));
@@ -232,7 +232,7 @@ static void stress_min_nanosleep_sched(stress_args_t *args, const size_t min_nan
 {
 	(void)min_nanosleep_sched;
 
-	if (args->instance == 0) {
+	if (stress_instance_zero(args)) {
 		pr_inf("%s: scheduler setting not available, "
 			"ignoring --min-nanosleep-sched option\n", args->name);
 	}
@@ -385,7 +385,7 @@ err:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	delays[args->instance].finished = true;
 
-	if (args->instance == 0) {
+	if (stress_instance_zero(args)) {
 		uint32_t count;
 		uint32_t underflow = 0;
 		uint32_t min_ns_requested = NANOSLEEP_MAX;

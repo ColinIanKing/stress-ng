@@ -205,7 +205,7 @@ static int stress_physmmap(stress_args_t *args)
 	stress_sync_start_wait(args);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
-	if (args->instance == 0) {
+	if (stress_instance_zero(args)) {
 		for (physmmap = physmmap_head; physmmap; physmmap = physmmap->next)
 			total_pages += physmmap->pages;
 		pr_inf("%s: attempting mmap/munap %zu pages\n", args->name, total_pages);
@@ -278,7 +278,7 @@ static int stress_physmmap(stress_args_t *args)
 done:
 	if (!mappable)
 		pr_inf("%s: unable to mmap any pages from /dev/mem\n", args->name);
-	if ((args->instance == 0) && (t2 > 0.0)) {
+	if (stress_instance_zero(args) && (t2 > 0.0)) {
 		register size_t mappable_pages = 0;
 
 		mappable_pages = 0;

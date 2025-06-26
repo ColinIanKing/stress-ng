@@ -1385,14 +1385,14 @@ static int stress_sparsematrix(stress_args_t *args)
 	if (sparsematrix_items > capacity) {
 		uint64_t new_items = capacity;
 
-		if (args->instance == 0) {
+		if (stress_instance_zero(args)) {
 			pr_inf("%s: %" PRIu64 " items in sparsematrix is too large, using %" PRIu64 " instead\n",
 				args->name, sparsematrix_items, new_items);
 		}
 		sparsematrix_items = new_items;
 	}
 	percent_full = 100.0 * (double)sparsematrix_items / (double)capacity;
-	if (args->instance == 0) {
+	if (stress_instance_zero(args)) {
 		pr_inf("%s: %" PRIu64 " items in %" PRIu32 " x %" PRIu32 " sparse matrix (%.2f%% full)\n",
 			args->name, sparsematrix_items,
 			sparsematrix_size, sparsematrix_size,

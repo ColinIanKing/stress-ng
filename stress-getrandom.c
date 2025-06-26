@@ -139,7 +139,7 @@ static int stress_getrandom(stress_args_t *args)
 					continue;
 				if (errno == ENOSYS) {
 					/* Should not happen.. */
-					if (args->instance == 0)
+					if (stress_instance_zero(args))
 						pr_inf_skip("%s: stressor will be skipped, "
 							"getrandom() not supported\n",
 							args->name);

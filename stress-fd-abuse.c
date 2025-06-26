@@ -1988,7 +1988,7 @@ static int stress_fd_abuse(stress_args_t *args)
 			sizeof(stress_fd_filename), stress_mwc32());
 	}
 
-	if (args->instance == 0)
+	if (stress_instance_zero(args))
 		pr_dbg("%s: %zd fd opening operations, %zd fd exercising operations\n",
 			args->name, SIZEOF_ARRAY(open_funcs), SIZEOF_ARRAY(fd_funcs));
 

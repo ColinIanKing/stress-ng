@@ -398,7 +398,7 @@ static int stress_mmapcow(stress_args_t *args)
 #if defined(MADV_FREE)
 		flags |= MMAPCOW_FREE;
 #else
-		if (args->instance == 0)
+		if (stress_instance_zero(args))
 			pr_inf("%s: --mmapcow-free selected but madvise(MADV_FREE) not available, disabling option\n",
 				args->name);
 #endif
@@ -408,7 +408,7 @@ static int stress_mmapcow(stress_args_t *args)
     defined(MCL_FUTURE)
 		flags |= MMAPCOW_MLOCK;
 #else
-		if (args->instance == 0) {
+		if (stress_instance_zero(args)) {
 			pr_inf("%s: --mmapcow-mlock selected but mlock with MCL_ONFAULT and "
 					"MCL_FUTURE not available, disabling option\n",
 				args->name);
@@ -421,7 +421,7 @@ static int stress_mmapcow(stress_args_t *args)
 		stress_numa_mask_and_node_alloc(args, &numa_nodes, &numa_mask, "--mmapcow-numa", &mmapcow_numa);
 		flags |= mmapcow_numa ? MMAPCOW_NUMA : 0;
 #else
-		if (args->instance == 0)
+		if (stress_instance_zero(args))
 			pr_inf("%s: --mmapcow-numa selected but not supported by this system, disabling option\n",
 				args->name);
 #endif

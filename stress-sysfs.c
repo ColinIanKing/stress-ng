@@ -903,7 +903,7 @@ exit_free:
 	return rc;
 
 exit_no_sysfs_entries:
-	if (args->instance == 0)
+	if (stress_instance_zero(args))
 		pr_inf_skip("%s: no /sys entries found, skipping stressor\n", args->name);
 	rc = EXIT_NO_RESOURCE;
 	goto exit_free;

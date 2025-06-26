@@ -88,7 +88,7 @@ static int stress_vforkmany(stress_args_t *args)
 	(void)stress_get_setting("vforkmany-vm", &vforkmany_vm);
 	if (stress_get_setting("vforkmany-vm-bytes", &vforkmany_vm_bytes)) {
 		vforkmany_vm = true;
-		if (args->instance == 0)
+		if (stress_instance_zero(args))
 			stress_usage_bytes(args, vforkmany_vm_bytes, vforkmany_vm_bytes * args->instances);
 	}
 

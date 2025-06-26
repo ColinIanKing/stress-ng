@@ -83,7 +83,7 @@ static int stress_mmapmany_child(stress_args_t *args, void *context)
 						&numa_mask, "--mmapmany-numa",
 						&mmapmany_numa);
 #else
-		if (args->instance == 0)
+		if (stress_instance_zero(args))
 			pr_inf("%s: --mmapmany-numa selected but not supported by this system, disabling option\n",
 				args->name);
 		mmapmany_numa = false;

@@ -486,7 +486,7 @@ static int stress_vdso(stress_args_t *args)
 
 	if (!vdso_sym_list) {
 		/* Should not fail, but worth checking to avoid breakage */
-		if (args->instance == 0)
+		if (stress_instance_zero(args))
 			pr_inf_skip("%s: could not find any vDSO functions, skipping\n",
 				args->name);
 		return EXIT_NOT_IMPLEMENTED;
@@ -496,7 +496,7 @@ static int stress_vdso(stress_args_t *args)
 		return EXIT_FAILURE;
 	}
 
-	if (args->instance == 0) {
+	if (stress_instance_zero(args)) {
 		char *str;
 
 		str = vdso_sym_list_str();

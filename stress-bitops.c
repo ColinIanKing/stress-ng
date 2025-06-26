@@ -1111,7 +1111,7 @@ static int stress_bitops(stress_args_t *args)
 
 	(void)stress_get_setting("bitops-method", &bitops_method);
 
-	if (args->instance == 0)
+	if (stress_instance_zero(args))
 		pr_dbg("%s: using method '%s'\n", args->name, bitops_methods[bitops_method].name);
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);

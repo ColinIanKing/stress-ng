@@ -331,7 +331,7 @@ static int stress_mmaphuge(stress_args_t *args)
 						&context.numa_mask, "--mmaphuge-numa",
 						&context.mmaphuge_numa);
 #else
-		if (args->instance == 0)
+		if (stress_instance_zero(args))
 			pr_inf("%s: --mmaphuge-numa selected but not supported by this system, disabling option\n",
 				args->name);
 		context.mmaphuge_numa = false;

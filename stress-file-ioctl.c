@@ -722,7 +722,7 @@ static int stress_file_ioctl(stress_args_t *args)
 #endif
 
 		if (!exercised) {	/* cppcheck-suppress knownConditionTrueFalse */
-			if (args->instance == 0)
+			if (stress_instance_zero(args))
 				pr_inf("%s: no available file ioctls to exercise\n",
 					args->name);
 			rc = EXIT_NOT_IMPLEMENTED;

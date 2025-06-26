@@ -281,7 +281,7 @@ misaligned_done:
 		rc = EXIT_NO_RESOURCE;
 		goto done;
 	}
-	if (args->instance == 0)
+	if (stress_instance_zero(args))
 		pr_dbg("%s: misaligned splitlocks %s\n", args->name,
 			do_misaligned ? "enabled" : "disabled");
 
@@ -293,7 +293,7 @@ misaligned_done:
 	/* Split lock on a cache boundary */
 	splitlock_ptr2 = (uint32_t *)(uintptr_t)(((uint8_t *)buffer) + 64 - (sizeof(*splitlock_ptr2) >> 1));
 	do_splitlock = !lockbus_nosplit;
-	if (args->instance == 0)
+	if (stress_instance_zero(args))
 		pr_dbg("%s: splitlocks %s\n", args->name,
 			do_splitlock ? "enabled" : "disabled");
 	if (sigsetjmp(jmp_env, 1) && !stress_continue(args))

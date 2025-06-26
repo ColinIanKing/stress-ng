@@ -67,7 +67,7 @@ static int stress_schedpolicy(stress_args_t *args)
 	(void)stress_get_setting("schedpolicy-rand", &schedpolicy_rand);
 
 	if (stress_sched_types_length == (0)) {
-		if (args->instance == 0) {
+		if (stress_instance_zero(args)) {
 			pr_inf_skip("%s: no scheduling policies "
 				"available, skipping test\n",
 				args->name);
@@ -121,7 +121,7 @@ static int stress_schedpolicy(stress_args_t *args)
 			/*
 			 *  Only have 1 RT deadline instance running
 			 */
-			if (args->instance == 0) {
+			if (stress_instance_zero(args)) {
 				(void)shim_memset(&attr, 0, sizeof(attr));
 				attr.size = sizeof(attr);
 				attr.sched_flags = 0;

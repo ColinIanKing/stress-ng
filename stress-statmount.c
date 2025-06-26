@@ -199,7 +199,7 @@ static int stress_statmount(stress_args_t *args)
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
 
-	if (args->instance == 0)
+	if (stress_instance_zero(args))
 		pr_inf("%s: %d mount points exercised by statmount\n", args->name, max_mounts);
 
 	rate = (duration > 0.0) ? count / duration  : 0.0;

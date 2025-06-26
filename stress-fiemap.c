@@ -151,7 +151,7 @@ static void stress_fiemap_ioctl(
 		/* Find out how many extents there are */
 		if (UNLIKELY(ioctl(fd, FS_IOC_FIEMAP, fiemap) < 0)) {
 			if (errno == EOPNOTSUPP) {
-				if (args->instance == 0)
+				if (stress_instance_zero(args))
 					pr_inf_skip("%s: ioctl FS_IOC_FIEMAP not supported on the file system, skipping stressor\n",
 						args->name);
 				free(fiemap);
@@ -279,7 +279,7 @@ static int stress_fiemap(stress_args_t *args)
 		fiemap_bytes = MIN_FIEMAP_SIZE;
 		fiemap_bytes_total = fiemap_bytes * args->instance;
 	}
-	if (args->instance == 0)
+	if (stress_instance_zero(args))
 		stress_fs_usage_bytes(args, fiemap_bytes, fiemap_bytes_total);
 
 	ret = stress_temp_dir_mk_args(args);
@@ -304,7 +304,7 @@ static int stress_fiemap(stress_args_t *args)
 	if (ioctl(fd, FS_IOC_FIEMAP, &fiemap) < 0) {
 		errno = EOPNOTSUPP;
 		if (errno == EOPNOTSUPP) {
-			if (args->instance == 0)
+			if (stress_instance_zero(args))
 				pr_inf_skip("%s: ioctl FS_IOC_FIEMAP not supported on the file system, skipping stressor%s\n",
 					args->name, fs_type);
 			rc = EXIT_NOT_IMPLEMENTED;

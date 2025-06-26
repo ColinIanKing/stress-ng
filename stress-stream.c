@@ -733,7 +733,7 @@ static inline uint64_t get_stream_L3_size(stress_args_t *args)
 
 report_size:
 	cache_size *= numa_nodes;
-	if ((args->instance == 0) && (numa_nodes > 1))
+	if (stress_instance_zero(args) && (numa_nodes > 1))
 		pr_inf("%s: scaling L3 cache size by number of numa nodes %d to %" PRIu64 "K\n",
 			args->name, numa_nodes, cache_size / 1024);
 	return cache_size;
@@ -897,7 +897,7 @@ static int stress_stream(stress_args_t *args)
 		L3 = (uint64_t)stress_get_processors_configured() * DEFAULT_STREAM_L3_SIZE;
 	}
 
-	if (args->instance == 0) {
+	if (stress_instance_zero(args)) {
 		pr_inf("%s: stressor loosely based on a variant of the "
 			"STREAM benchmark code\n", args->name);
 		pr_inf("%s: do NOT submit any of these results "
@@ -1012,7 +1012,7 @@ case_stream_index_1:
 		stress_metrics_set(args, 2, "Mflop per sec (double precision) compute rate",
 			fp_rate, STRESS_METRIC_HARMONIC_MEAN);
 	} else {
-		if (args->instance == 0)
+		if (stress_instance_zero(args))
 			pr_inf("%s: run duration too short to reliably determine memory rate\n", args->name);
 	}
 

@@ -169,7 +169,7 @@ static int stress_loadavg(stress_args_t *args)
 
 	if (loadavg_max > threads_max) {
 		loadavg_max = threads_max;
-		if (args->instance == 0) {
+		if (stress_instance_zero(args)) {
 			pr_inf("%s: not enough pthreads, reducing loadavg-max, system limit is %" PRIu64 "\n",
 				args->name, threads_max);
 		}
@@ -186,7 +186,7 @@ static int stress_loadavg(stress_args_t *args)
 	if (pthread_max * instances > loadavg_max)
 		pthread_max = loadavg_max / instances;
 
-	if (args->instance == 0) {
+	if (stress_instance_zero(args)) {
 		pr_inf("%s: attempting to create %" PRIu64 " pthreads per "
 			"worker (%" PRIu64 " in total)\n",
 			args->name, pthread_max, pthread_max * instances);

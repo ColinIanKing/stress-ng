@@ -224,11 +224,11 @@ static int stress_nanosleep(stress_args_t *args)
 	(void)stress_get_setting("stress-nanosleep-method", &mask);
 	if (mask & STRESS_NANOSLEEP_CSTATE) {
 		if (cstate_list == NULL) {
-			if (args->instance == 0)
+			if (stress_instance_zero(args))
 				pr_inf("%s: no C states found, using random nanosleeps instead\n", args->name);
 			mask = STRESS_NANOSLEEP_RANDOM;
 		} else {
-			if ((args->instance == 0) &&
+			if (stress_instance_zero(args) &&
 			    ((mask & ~STRESS_NANOSLEEP_CSTATE) == 0) &&
 			    (nanosleep_threads > 1)) {
 				pr_inf("%s: nanosleep-method cstate exercises C "

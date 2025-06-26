@@ -118,7 +118,7 @@ static int stress_sync_file(stress_args_t *args)
 		sync_file_bytes = (off_t)MIN_SYNC_FILE_BYTES;
 		sync_file_bytes_total = sync_file_bytes * args->instances;
 	}
-	if (args->instance == 0)
+	if (stress_instance_zero(args))
 		stress_fs_usage_bytes(args, sync_file_bytes, sync_file_bytes_total);
 
 	ret = stress_temp_dir_mk_args(args);

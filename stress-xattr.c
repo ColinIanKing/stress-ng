@@ -133,7 +133,7 @@ static int stress_xattr(stress_args_t *args)
 			ret = shim_fsetxattr(fd, attrname, value, strlen(value), XATTR_CREATE);
 			if (UNLIKELY(ret < 0)) {
 				if ((errno == ENOTSUP) || (errno == ENOSYS)) {
-					if (args->instance == 0)
+					if (stress_instance_zero(args))
 						pr_inf_skip("%s stressor will be "
 							"skipped, filesystem does not "
 							"support xattr%s\n", args->name, fs_type);

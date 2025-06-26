@@ -174,7 +174,7 @@ static int stress_heapsort(stress_args_t *args)
 	(void)stress_get_setting("heapsort-method", &heapsort_method);
 
 	heapsort_func = stress_heapsort_methods[heapsort_method].heapsort_func;
-	if (args->instance == 0)
+	if (stress_instance_zero(args))
 		pr_inf("%s: using method '%s'\n",
 			args->name, stress_heapsort_methods[heapsort_method].name);
 

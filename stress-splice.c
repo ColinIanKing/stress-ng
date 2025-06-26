@@ -174,7 +174,7 @@ static int stress_splice(stress_args_t *args)
 	splice_bytes = splice_bytes_total / args->instances;
 	if (splice_bytes < MIN_SPLICE_BYTES)
 		splice_bytes = MIN_SPLICE_BYTES;
-	if (args->instance == 0)
+	if (stress_instance_zero(args))
 		stress_usage_bytes(args, splice_bytes, splice_bytes * args->instances);
 
 	buffer_len = (ssize_t)(splice_bytes > SPLICE_BUFFER_LEN ?
@@ -267,7 +267,7 @@ static int stress_splice(stress_args_t *args)
 				splice_bytes, stress_splice_flag());
 			if (UNLIKELY(ret < 0)) {
 				if (errno == EINVAL) {
-					if (args->instance == 0) {
+					if (stress_instance_zero(args)) {
 						pr_inf("%s: using direct write to pipe and not splicing "
 							"from /dev/zero as this is not supported in "
 							"this kernel\n", args->name);

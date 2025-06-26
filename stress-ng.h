@@ -868,6 +868,15 @@ static inline bool stress_bogo_inc_lock(stress_args_t *args, void *lock, const b
 	return ret;
 }
 
+/*
+ *  stress_instance_zero()
+ *	return true if stressor is the 0th instance of N stressor instances
+ */
+static inline bool ALWAYS_INLINE stress_instance_zero(stress_args_t *args)
+{
+	return args->instance == 0;
+}
+
 #include "core-helper.h"
 
 #define STRESS_METRIC_GEOMETRIC_MEAN	(0x1)

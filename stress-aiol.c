@@ -427,7 +427,7 @@ static int stress_aiol(stress_args_t *args)
 		aio_max_nr = 1;
 	if (aiol_requests > aio_max_nr) {
 		aiol_requests = aio_max_nr;
-		if (args->instance == 0)
+		if (stress_instance_zero(args))
 			pr_inf("%s: Limiting AIO requests to "
 				"%" PRIu32 " per stressor (avoids running out of resources)\n",
 				args->name, aiol_requests);

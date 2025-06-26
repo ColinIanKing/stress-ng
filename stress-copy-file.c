@@ -172,7 +172,7 @@ static int stress_copy_file(stress_args_t *args)
 		copy_file_bytes = MIN_COPY_FILE_BYTES;
 		copy_file_bytes_total = copy_file_bytes * args->instances;
 	}
-	if (args->instance == 0)
+	if (stress_instance_zero(args))
 		stress_fs_usage_bytes(args, copy_file_bytes, copy_file_bytes_total);
 
         ret = stress_temp_dir_mk_args(args);

@@ -207,12 +207,12 @@ static int stress_dev_shm(stress_args_t *args)
 	 */
 	if (access("/dev/shm", R_OK | W_OK) < 0) {
 		if (errno == ENOENT) {
-			if (args->instance == 0)
+			if (stress_instance_zero(args))
 				pr_inf_skip("%s: /dev/shm does not exist, skipping test\n",
 					args->name);
 			return EXIT_NO_RESOURCE;
 		} else {
-			if (args->instance == 0)
+			if (stress_instance_zero(args))
 				pr_inf_skip("%s: cannot access /dev/shm, errno=%d (%s), skipping test\n",
 					args->name, errno, strerror(errno));
 			return EXIT_NO_RESOURCE;

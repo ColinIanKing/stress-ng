@@ -120,7 +120,7 @@ static int stress_mmapfork(stress_args_t *args)
 	const size_t wipe_size = args->page_size;
 	bool wipe_ok = false;
 #endif
-	bool report_size = (args->instance == 0);
+	bool report_size = (stress_instance_zero(args));
 
 #if defined(MADV_WIPEONFORK)
 	/*

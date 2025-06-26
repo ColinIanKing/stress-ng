@@ -355,7 +355,7 @@ static void stress_dir_tidy(
 	 * If recursive deletion is taking more than 1 second then
 	 * inform the user
 	 */
-	if ((args->instance == 0) && !tidy_info &&
+	if (stress_instance_zero(args) && !tidy_info &&
 	    (stress_time_now() > start_time + 1.0)) {
 		tidy_info = true;
 		pr_tidy("%s: removing directories\n", args->name);
@@ -421,12 +421,12 @@ static int stress_dirdeep(stress_args_t *args)
 	if (inodes_start) {
 		if (dirdeep_inodes > inodes_start)
 			dirdeep_inodes = inodes_start;
-		if (args->instance == 0) {
+		if (stress_instance_zero(args)) {
 			pr_dbg("%s: %" PRIu64 " inodes available, exercising up to %" PRIu64 " inodes\n",
 				args->name, inodes_start, dirdeep_inodes);
 		}
 	} else {
-		if (args->instance == 0) {
+		if (stress_instance_zero(args)) {
 			if (dirdeep_inodes == ~0ULL) {
 				pr_dbg("%s: unknown inodes available, exercising potentially millions of inodes\n",
 					args->name);
@@ -439,7 +439,7 @@ static int stress_dirdeep(stress_args_t *args)
 
 	if ((dirdeep_bytes > 0) && (dirdeep_files == 0)) {
 		dirdeep_files = 5;
-		if (args->instance == 0) {
+		if (stress_instance_zero(args)) {
 			pr_dbg("%s: file size was specified, defaulting to %" PRIu32 " files per directory\n",
 				args->name, dirdeep_files);
 		}
@@ -473,7 +473,7 @@ static int stress_dirdeep(stress_args_t *args)
 		args->name, inodes_exercised,
 		(inodes_start == 0) ? " (estimated)" : "");
 
-	if ((args->instance == 0) && (inodes_exercised < dirdeep_inodes))
+	if (stress_instance_zero(args) && (inodes_exercised < dirdeep_inodes))
 		pr_inf("%s: note: specifying a larger --dirdeep or --dirdeep-dirs settings or "
 			"running the stressor for longer will use more "
 			"inodes\n", args->name);

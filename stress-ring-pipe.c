@@ -182,14 +182,14 @@ static int stress_ring_pipe(stress_args_t *args)
 	}
 
 #if !defined(HAVE_SPLICE)
-	if ((args->instance == 0) && ring_pipe_splice) {
+	if (stress_instance_zero(args) && ring_pipe_splice) {
 		pr_inf("%s: note: falling back to using read + writes as "
 			"splice is not available\n", args->name);
 		ring_pipe_splice = false;
 	}
 #endif
 
-	if (args->instance == 0) {
+	if (stress_instance_zero(args)) {
 		pr_inf("%s: using %zd pipes with %zd byte data, %s\n",
 			args->name, n_pipes, ring_pipe_size,
 			ring_pipe_splice ? "using splice" : "using read+write");

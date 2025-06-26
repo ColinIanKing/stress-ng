@@ -168,7 +168,7 @@ static int stress_bubblesort(stress_args_t *args)
 	(void)stress_get_setting("bubblesort-method", &bubblesort_method);
 
 	bubblesort_func = stress_bubblesort_methods[bubblesort_method].bubblesort_func;
-	if (args->instance == 0)
+	if (stress_instance_zero(args))
 		pr_inf("%s: using method '%s'\n",
 			args->name, stress_bubblesort_methods[bubblesort_method].name);
 

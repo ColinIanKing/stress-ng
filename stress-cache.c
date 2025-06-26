@@ -1064,7 +1064,7 @@ static int stress_cache(stress_args_t *args)
 	(void)stress_get_cache_flags("cache-prefetchw", &cache_flags, CACHE_FLAGS_PREFETCHW);
 	(void)stress_get_cache_flags("cache-permute", &cache_flags, CACHE_FLAGS_PERMUTE);
 
-	if (args->instance == 0)
+	if (stress_instance_zero(args))
 		pr_dbg("%s: using cache buffer size of %" PRIu64 "K\n",
 			args->name, buffer_size / 1024);
 
@@ -1164,7 +1164,7 @@ static int stress_cache(stress_args_t *args)
 		(void)munmap(bad_addr, args->page_size);
 
 	masked_flags = cache_flags & CACHE_FLAGS_MASK;
-	if (args->instance == 0) {
+	if (stress_instance_zero(args)) {
 		stress_cache_show_flags(args, masked_flags, ignored_flags);
 		if (masked_flags == 0)
 			pr_inf("%s: use --cache-enable-all to enable all cache flags for heavier cache stressing\n", args->name);
@@ -1176,7 +1176,7 @@ static int stress_cache(stress_args_t *args)
 
 	if (masked_flags) {
 		n_flags = stress_flag_permutation(masked_flags, &flag_permutations);
-		if ((n_flags > 0) && (args->instance == 0))
+		if ((n_flags > 0) && (stress_instance_zero(args)))
 			pr_inf("%s: %zu permutations of cache flags being exercised\n",
 				args->name, n_flags);
 	}
@@ -1299,7 +1299,7 @@ next:
 	/*
 	 *  Hit an illegal instruction, report the disabled flags
 	 */
-	if ((args->instance == 0) && (disabled_flags)) {
+	if (stress_instance_zero(args) && (disabled_flags)) {
 		char buf[1024], *ptr = buf;
 		size_t buf_len = sizeof(buf);
 

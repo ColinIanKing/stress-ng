@@ -333,7 +333,7 @@ static int stress_far_branch(stress_args_t *args)
 		goto cleanup;
 	}
 
-	if (args->instance == 0)
+	if (stress_instance_zero(args))
 		pr_dbg("%s: using assembler '%s' as function return code\n", args->name, stress_ret_opcode.assembler);
 
 	(void)shim_memset(&sa, 0, sizeof(sa));
@@ -383,7 +383,7 @@ static int stress_far_branch(stress_args_t *args)
 
 	total_funcs &= ~((size_t)15);
 
-	if (args->instance == 0)
+	if (stress_instance_zero(args))
 		pr_inf("%s: %zu functions over %zu x %zuK pages\n",
 			args->name, total_funcs, n_pages, page_size >> 10);
 

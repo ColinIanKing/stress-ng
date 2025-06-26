@@ -460,7 +460,7 @@ static int stress_rawdev(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
-	if (args->instance == 0)
+	if (stress_instance_zero(args))
 		pr_dbg("%s: exercising %s (%zd blocks of size %zd bytes)\n",
 			args->name, devpath, blks, blksz);
 

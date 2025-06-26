@@ -364,7 +364,7 @@ static int stress_pci(stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	if (args->instance == 0) {
+	if (stress_instance_zero(args)) {
 		pr_block_begin();
 		pr_inf("%s: PCI space read rates in MB per sec for stressor instance 0:\n", args->name);
 		pr_inf("%s: PCI Device     Config Resource\n", args->name);

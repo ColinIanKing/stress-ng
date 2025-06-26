@@ -73,7 +73,7 @@ static int stress_idle_page(stress_args_t *args)
 
 	fd = open(bitmap_file, O_RDWR);
 	if (fd < 0) {
-		if (args->instance == 0)
+		if (stress_instance_zero(args))
 			pr_inf_skip("idle_page stressor will be skipped, "
 				"cannot access file %s\n", bitmap_file);
 		return EXIT_NO_RESOURCE;

@@ -237,7 +237,7 @@ static int stress_rseq(stress_args_t *args)
 	stress_set_vma_anon_name(rseq_info, sizeof(*rseq_info), "state");
 
 	rseq_area = stress_rseq_get_area();
-	if (args->instance == 0)
+	if (stress_instance_zero(args))
 		pr_dbg("libc rseq_area @ %p\n", rseq_area);
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);

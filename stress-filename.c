@@ -425,7 +425,7 @@ static int stress_filename(stress_args_t *args)
 		break;
 	}
 
-	if (args->instance == 0)
+	if (stress_instance_zero(args))
 		pr_dbg("%s: filesystem allows %zu unique "
 			"characters in a %zu character long filename\n",
 			args->name, chars_allowed, sz_max);

@@ -72,7 +72,7 @@ static int stress_sysinfo(stress_args_t *args)
 		pr_err("%s: failed to get mount points\n", args->name);
 		return EXIT_FAILURE;
 	}
-	if (args->instance == 0)
+	if (stress_instance_zero(args))
 		pr_dbg("%s: found %d mount points\n",
 			args->name, n_mounts);
 

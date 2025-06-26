@@ -275,7 +275,7 @@ tidy:
 			free(chdir_info[i].path);
 		}
 		/* ..taking a while?, inform user */
-		if ((args->instance == 0) && !tidy_info &&
+		if (stress_instance_zero(args) && !tidy_info &&
 		    (stress_time_now() > start_time + 0.5)) {
 			tidy_info = true;
 			pr_tidy("%s: removing %" PRIu32 " directories\n", args->name, chdir_dirs);

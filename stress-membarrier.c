@@ -159,7 +159,7 @@ static int stress_membarrier(stress_args_t *args)
 	ret = shim_membarrier(MEMBARRIER_CMD_QUERY, 0, 0);
 	if (UNLIKELY(ret < 0)) {
 		if (errno == ENOSYS) {
-			if (args->instance == 0)
+			if (stress_instance_zero(args))
 				pr_inf_skip("%s: stressor will be skipped, "
 					"membarrier not supported\n",
 					args->name);

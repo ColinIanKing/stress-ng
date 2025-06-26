@@ -574,7 +574,7 @@ static int stress_pipe(stress_args_t *args)
 	}
 	if (pipe_vmsplice) {
 		pipe_vmsplice = false;
-		if (args->instance == 0)
+		if (stress_instance_zero(args))
 			pr_inf("%s: no pipe packet mode with O_DIRECT, disabled pipe vmsplicing\n", args->name);
 	}
 #endif
@@ -600,7 +600,7 @@ static int stress_pipe(stress_args_t *args)
 	pipe_rd_size = pipe_get_size(pipefds[0]);
 	pipe_wr_size = pipe_get_size(pipefds[1]);
 
-	if (args->instance == 0) {
+	if (stress_instance_zero(args)) {
 		pr_dbg("%s: pipe read size %zuK, pipe write size %zuK\n",
 			args->name, pipe_rd_size >> 10, pipe_wr_size >> 10);
 	}

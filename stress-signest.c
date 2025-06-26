@@ -327,7 +327,7 @@ finish:
 		}
 	}
 
-	if (args->instance == 0) {
+	if (stress_instance_zero(args)) {
 		buf = (char *)calloc(sz, sizeof(*buf));
 		if (buf) {
 			for (ptr = buf, i = 0; i < max_signals; i++) {

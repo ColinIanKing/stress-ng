@@ -297,7 +297,7 @@ static void stress_prio_inv_check_policy(
 {
 	if (!stress_check_capability(SHIM_CAP_IS_ROOT)) {
 		if (*sched_policy == policy) {
-			if (args->instance == 0) {
+			if (stress_instance_zero(args)) {
 				pr_inf("%s: cannot set prio-inv policy '%s' as non-root user, "
 					"defaulting to 'other'\n",
 					args->name, policy_name);
@@ -365,14 +365,14 @@ static int stress_prio_inv(stress_args_t *args)
 
 	if (sched_policy < 0) {
 #if defined(SCHED_OTHER)
-		if (args->instance == 0) {
+		if (stress_instance_zero(args)) {
 			pr_inf("%s: scheduling policy '%s' is not supported, "
 				"defaulting to 'other'\n",
 				args->name, policy_name);
 			sched_policy = SCHED_OTHER;
 		}
 #else
-		if (args->instance == 0) {
+		if (stress_instance_zero(args)) {
 			pr_inf_skip("%s: scheduling policy '%s' is not supported, "
 				"no default 'other' either, skipping stressor\n",
 				args->name, policy_name);

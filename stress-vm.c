@@ -2309,7 +2309,7 @@ static size_t OPTIMIZE3 stress_vm_write64ds(
 		return 0;
 	}
 
-	if (movdiri && (args->instance == 0)) {
+	if (movdiri && (stress_instance_zero(args))) {
 		movdiri = false;
 
 		pr_inf("%s: x86 movdiri instruction not supported, "
@@ -2392,7 +2392,7 @@ static size_t TARGET_CLONES stress_vm_write64nt(
 			stress_cpu_data_cache_flush(buf, sz);
 		return 0;
 	}
-	if (nt_store && (args->instance == 0)) {
+	if (nt_store && (stress_instance_zero(args))) {
 		nt_store = false;
 
 		pr_inf("%s: x86 movnti instruction not supported, "
@@ -3702,7 +3702,7 @@ static int stress_vm(stress_args_t *args)
 						&context.numa_mask, "--vm-numa",
 						&context.vm_numa);
 #else
-		if (args->instance == 0)
+		if (stress_instance_zero(args))
 			pr_inf("%s: --vm-numa selected but not supported by this system, disabling option\n",
 				args->name);
 		context.vm_numa = false;
@@ -3729,7 +3729,7 @@ static int stress_vm(stress_args_t *args)
 		vm_total = context.vm_bytes * args->instances;
 	}
 
-	if (args->instance == 0) {
+	if (stress_instance_zero(args)) {
 		pr_dbg("%s: using method '%s'\n", args->name, context.vm_method->name);
 		stress_usage_bytes(args, context.vm_bytes, vm_total);
 	}

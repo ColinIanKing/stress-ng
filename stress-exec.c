@@ -681,7 +681,7 @@ static int stress_exec(stress_args_t *args)
 	 */
 	exec_prog = stress_get_proc_self_exe(exec_path, sizeof(exec_path));
 	if (!exec_prog) {
-		if (args->instance == 0)
+		if (stress_instance_zero(args))
 			pr_inf_skip("%s: skipping stressor, can't determine stress-ng "
 				"executable name\n", args->name);
 		return EXIT_NOT_IMPLEMENTED;
@@ -691,7 +691,7 @@ static int stress_exec(stress_args_t *args)
 	/* Remind folk that vfork can only do execve in this stressor */
 	if ((exec_fork_method == EXEC_FORK_METHOD_VFORK) &&
 	    (exec_method != EXEC_METHOD_EXECVE) &&
-	    (args->instance == 0)) {
+	    (stress_instance_zero(args))) {
 		pr_inf("%s: limiting vfork to only use execve()\n", args->name);
 	}
 #endif
@@ -720,7 +720,7 @@ static int stress_exec(stress_args_t *args)
 	}
 
 #if !defined(HAVE_EXECVEAT)
-	if (args->instance == 0 &&
+	if (stress_instance_zero(args) &&
 	    ((exec_method == EXEC_METHOD_ALL) ||
 	     (exec_method == EXEC_METHOD_EXECVEAT))) {
 		pr_inf("%s: execveat not available, just using execve\n", args->name);

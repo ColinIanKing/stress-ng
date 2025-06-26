@@ -115,7 +115,7 @@ static int stress_netdev(stress_args_t *args)
 		/* Do we have any? We should normally have at least lo */
 		n = ifc.ifc_len / (int)sizeof(struct ifreq);
 		if (UNLIKELY(!n)) {
-			if (args->instance == 0)
+			if (stress_instance_zero(args))
 				pr_dbg_skip("%s: no network interfaces found, skipping.\n",
 					args->name);
 			break;

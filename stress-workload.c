@@ -285,7 +285,7 @@ case_sched_fifo:
 
 	if (ret < 0) {
 		if (errno == EPERM) {
-			if (args->instance == 0)
+			if (stress_instance_zero(args))
 				pr_inf("%s: insufficient privilege to set scheduler to '%s'\n",
 					args->name, policy_name);
 			return 0;
@@ -301,7 +301,7 @@ case_sched_fifo:
 			args->name, errno, strerror(errno),
 			policy_name);
 	} else {
-		if (args->instance == 0)
+		if (stress_instance_zero(args))
 			pr_inf("%s: using '%s' scheduler\n",
 				args->name, policy_name);
 	}
@@ -883,7 +883,7 @@ static int stress_workload(stress_args_t *args)
 	workload_method = workload_methods[workload_method_idx].method;
 	workload_dist = workload_dists[workload_dist_idx].type;
 
-	if (args->instance == 0) {
+	if (stress_instance_zero(args)) {
 		uint32_t timer_slack_ns;
 
 		if (!stress_get_setting("timer-slack", &timer_slack_ns))
@@ -956,7 +956,7 @@ static int stress_workload(stress_args_t *args)
 			goto exit_free_threads;
 		}
 #else
-		if (args->instance == 0) {
+		if (stress_instance_zero(args)) {
 			pr_inf("%s: %" PRIu32 " workload threads were requested but "
 				"system does not have pthread or POSIX message queue "
 				"support, dropping back to single process workload "
@@ -965,7 +965,7 @@ static int stress_workload(stress_args_t *args)
 		workload_threads = 0;
 #endif
 	}
-	if (args->instance == 0)
+	if (stress_instance_zero(args))
 		pr_inf("%s: running with %" PRIu32 " threads per stressor instance\n",
 			args->name, workload_threads);
 
@@ -1027,7 +1027,7 @@ static int stress_workload(stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	if (args->instance == 0)
+	if (stress_instance_zero(args))
 		stress_workload_bucket_report(&slice_offset_bucket);
 
 	free(workload);

@@ -395,7 +395,7 @@ static int stress_lockmix(stress_args_t *args)
 	ssize_t rc;
 	size_t i, lock_types_max = 0, n;
 
-	if (args->instance == 0) {
+	if (stress_instance_zero(args)) {
 		(void)shim_memset(buffer, 0, sizeof(buffer));
 		for (i = 0; i < SIZEOF_ARRAY(stress_lock_types); i++) {
 			shim_strlcat(buffer, " ", sizeof(buffer));

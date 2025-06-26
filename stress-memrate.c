@@ -1099,7 +1099,7 @@ static int stress_memrate(stress_args_t *args)
 	}
 
 	context.memrate_bytes = (context.memrate_bytes + 1023) & ~(1023ULL);
-	if (args->instance == 0) {
+	if (stress_instance_zero(args)) {
 		stress_usage_bytes(args, context.memrate_bytes, context.memrate_bytes);
 		pr_inf("%s: cache flushing %s\n", args->name,
 			context.memrate_flush ? "enabled" :

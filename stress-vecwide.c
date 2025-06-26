@@ -240,7 +240,7 @@ static int stress_vecwide(stress_args_t *args)
 		total_bytes += stress_vecwide_funcs[i].byte_size;
 	}
 
-	if (args->instance == 0) {
+	if (stress_instance_zero(args)) {
 		pr_block_begin();
 		pr_dbg("%s: Bits  %% Dur  %% Exp (x Win) (> 1.0 is better than expected)\n", args->name);
 		for (i = 0; i < SIZEOF_ARRAY(stress_vecwide_funcs); i++) {

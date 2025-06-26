@@ -977,7 +977,7 @@ static int stress_matrix_3d(stress_args_t *args)
 	(void)stress_get_setting("matrix-3d-method", &matrix_3d_method);
 	(void)stress_get_setting("matrix-3d-zyx", &matrix_3d_zyx);
 
-	if (args->instance == 0)
+	if (stress_instance_zero(args))
 		pr_dbg("%s: using method '%s' (%s)\n", args->name, matrix_3d_methods[matrix_3d_method].name,
 			matrix_3d_zyx ? "z by y by x" : "x by y by z");
 

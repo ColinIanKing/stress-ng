@@ -164,7 +164,7 @@ static int stress_mq(stress_args_t *args)
 			return EXIT_NO_RESOURCE;
 		}
 		if (errno == ENOSYS) {
-			if (args->instance == 0)
+			if (stress_instance_zero(args))
 				pr_inf_skip("%s: POSIX message queues not implemented, skipping stressor\n",
 					args->name);
 			return EXIT_NOT_IMPLEMENTED;

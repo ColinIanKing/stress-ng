@@ -179,7 +179,7 @@ static int stress_dirmany(stress_args_t *args)
 			dirmany_bytes = MIN_DIRMANY_BYTES;
 	}
 
-	if (args->instance == 0) {
+	if (stress_instance_zero(args)) {
 		char sz[32];
 
 		pr_dbg("%s: %s byte file size\n", args->name,

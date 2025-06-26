@@ -380,7 +380,7 @@ static int stress_vm_rw(stress_args_t *args)
 		vm_rw_bytes = MIN_VM_RW_BYTES;
 	if (vm_rw_bytes < args->page_size)
 		vm_rw_bytes = args->page_size;
-	if (args->instance == 0)
+	if (stress_instance_zero(args))
 		stress_usage_bytes(args, vm_rw_bytes, vm_rw_bytes * args->instances);
 	ctxt.args = args;
 	ctxt.sz = vm_rw_bytes & ~(args->page_size - 1);

@@ -166,7 +166,7 @@ static int stress_sockpair_oomable(stress_args_t *args, void *context)
 
 		switch (errno) {
 		case EAFNOSUPPORT:
-			if (args->instance == 0)
+			if (stress_instance_zero(args))
 				pr_inf_skip("%s: socketpair: address family not supported, "
 					"skipping stressor\n", args->name);
 			rc = EXIT_NO_RESOURCE;
@@ -178,13 +178,13 @@ static int stress_sockpair_oomable(stress_args_t *args, void *context)
 			rc = EXIT_NO_RESOURCE;
 			break;
 		case EPROTONOSUPPORT:
-			if (args->instance == 0)
+			if (stress_instance_zero(args))
 				pr_inf_skip("%s: socketpair: protocol not supported, "
 					"skipping stressor\n", args->name);
 			rc = EXIT_NO_RESOURCE;
 			break;
 		case EOPNOTSUPP:
-			if (args->instance == 0)
+			if (stress_instance_zero(args))
 				pr_inf_skip("%s: socketpair: protocol does not support "
 					"socket pairs, skipping stressor\n", args->name);
 			rc = EXIT_NO_RESOURCE;

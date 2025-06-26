@@ -623,7 +623,7 @@ static int stress_monte_carlo(stress_args_t *args)
 		}
 	}
 
-	if (args->instance == 0) {
+	if (stress_instance_zero(args)) {
 		pr_block_begin();
 		for (i = 1; i < METHODS_MAX; i++) {
 			for (j = 1; j < RANDS_MAX; j++) {

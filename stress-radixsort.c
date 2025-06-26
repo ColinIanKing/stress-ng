@@ -204,7 +204,7 @@ static int stress_radixsort(stress_args_t *args)
 	(void)stress_get_setting("radixsort-method", &radixsort_method);
 
 	radixsort_func = stress_radixsort_methods[radixsort_method].radixsort_func;
-	if (args->instance == 0)
+	if (stress_instance_zero(args))
 		pr_inf("%s: using method '%s'\n",
 			args->name, stress_radixsort_methods[radixsort_method].name);
 

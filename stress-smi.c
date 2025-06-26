@@ -180,7 +180,7 @@ static int stress_smi(stress_args_t *args)
 	 *  Module load failure is not a problem, it just means
 	 *  we can't get the SMI count
 	 */
-	if (load_module && (args->instance == 0)) {
+	if (load_module && (stress_instance_zero(args))) {
 		VOID_RET(int, stress_module_load(args->name, "msr", NULL, &already_loaded));
 	}
 
@@ -194,7 +194,7 @@ static int stress_smi(stress_args_t *args)
 	stress_sync_start_wait(args);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
-	if (args->instance == 0) {
+	if (stress_instance_zero(args)) {
 		d1 = stress_time_now();
 		if (stress_smi_count(cpus, &s1) < 0)
 			read_msr_ok = false;
@@ -240,7 +240,7 @@ static int stress_smi(stress_args_t *args)
 
 	VOID_RET(int, ioperm(APM_PORT, 2, 0));
 
-	if (args->instance == 0) {
+	if (stress_instance_zero(args)) {
 		uint64_t s2;
 		const double d2 = stress_time_now();
 

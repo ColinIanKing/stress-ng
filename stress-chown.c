@@ -190,7 +190,7 @@ static int stress_chown(stress_args_t *args)
 	(void)stress_temp_filename(filename, sizeof(filename),
 		args->name, ppid, 0, 0);
 
-	if (args->instance == 0) {
+	if (stress_instance_zero(args)) {
 		if ((fd = creat(filename, S_IRUSR | S_IWUSR)) < 0) {
 			rc = stress_exit_status(errno);
 			pr_fail("%s: creat %s failed, errno=%d (%s)\n",

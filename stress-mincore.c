@@ -159,7 +159,7 @@ redo: 			errno = 0;
 						goto redo;
 					break;
 				case ENOSYS:
-					if (UNLIKELY(args->instance == 0))
+					if (UNLIKELY(stress_instance_zero(args)))
 						pr_inf_skip("%s: mincore no not implemented, skipping stressor\n",
 							args->name);
 					rc = EXIT_NOT_IMPLEMENTED;

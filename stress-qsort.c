@@ -329,7 +329,7 @@ static int OPTIMIZE3 stress_qsort(stress_args_t *args)
 	stress_sort_data_int32_init(data, n);
 
 	qsort_func = stress_qsort_methods[qsort_method].qsort_func;
-	if (args->instance == 0)
+	if (stress_instance_zero(args))
 		pr_inf("%s: using method '%s'\n",
 			args->name, stress_qsort_methods[qsort_method].name);
 

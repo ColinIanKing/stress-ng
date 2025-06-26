@@ -730,7 +730,7 @@ static int stress_cacheline(stress_args_t *args)
 	(void)stress_get_setting("cacheline-affinity", &cacheline_affinity);
 	(void)stress_get_setting("cacheline-method", &cacheline_method);
 
-	if (args->instance == 0) {
+	if (stress_instance_zero(args)) {
 		pr_dbg("%s: using method '%s'\n", args->name, cacheline_methods[cacheline_method].name);
 		pr_dbg("%s: L1 cache line size %zd bytes\n", args->name, l1_cacheline_size);
 

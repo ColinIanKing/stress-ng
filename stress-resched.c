@@ -232,7 +232,7 @@ static int stress_resched(stress_args_t *args)
 	/*
 	 *  Dump stats for just instance 0 to reduce output
 	 */
-	if (args->instance == 0) {
+	if (stress_instance_zero(args)) {
 		uint64_t total_yields = 0;
 
 		for (i = 0; i < s_pids_max; i++)

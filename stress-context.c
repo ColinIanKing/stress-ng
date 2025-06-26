@@ -186,7 +186,7 @@ static int stress_context(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 	stress_set_vma_anon_name(context, context_size, "context-data");
-	if (args->instance == 0) {
+	if (stress_instance_zero(args)) {
 		pr_dbg("%s: context mapped at %p..%p\n", args->name,
 			(void *)context,
 			(void *)((uintptr_t)context + context_size));

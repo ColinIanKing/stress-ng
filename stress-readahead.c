@@ -113,7 +113,7 @@ static int stress_readahead(stress_args_t *args)
 		readahead_bytes = MIN_READAHEAD_BYTES;
 		readahead_bytes_total = readahead_bytes * args->instances;
 	}
-	if (args->instance == 0)
+	if (stress_instance_zero(args))
 		stress_fs_usage_bytes(args, readahead_bytes, readahead_bytes_total);
 
 	ret = stress_temp_dir_mk_args(args);

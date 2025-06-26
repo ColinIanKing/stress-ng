@@ -106,7 +106,7 @@ static int stress_urandom(stress_args_t *args)
 #endif
 
 	if ((fd_urnd < 0) && (fd_rnd < 0)) {
-		if (args->instance == 0)
+		if (stress_instance_zero(args))
 			pr_inf_skip("%s: random device(s) do not exist, skipping stressor\n",
 				args->name);
 #if defined(__linux__)

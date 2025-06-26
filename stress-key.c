@@ -194,7 +194,7 @@ static int stress_key(stress_args_t *args)
 				KEY_SPEC_PROCESS_KEYRING);
 			if (UNLIKELY(keys[n] < 0)) {
 				if (errno == EPERM) {
-					if (args->instance == 0) {
+					if (stress_instance_zero(args)) {
 						pr_inf_skip("%s: skipping stressor, no permission for add_key\n",
 							args->name);
 					}
@@ -202,7 +202,7 @@ static int stress_key(stress_args_t *args)
 					rc = EXIT_NOT_IMPLEMENTED;
 					goto tidy;
 				} else if (errno == ENOSYS) {
-					if (args->instance == 0) {
+					if (stress_instance_zero(args)) {
 						pr_inf_skip("%s: skipping stressor, add_key not implemented\n",
 							args->name);
 					}

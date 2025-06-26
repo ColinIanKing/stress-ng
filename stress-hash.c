@@ -692,7 +692,7 @@ static int OPTIMIZE3 stress_hash(stress_args_t *args)
 		hash_stats[i].chi_squared = 0.0;
 	}
 
-	if (args->instance == 0)
+	if (stress_instance_zero(args))
 		pr_dbg("%s: using method '%s'\n", args->name, hm->name);
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
@@ -707,7 +707,7 @@ static int OPTIMIZE3 stress_hash(stress_args_t *args)
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
 
-	if (args->instance == 0) {
+	if (stress_instance_zero(args)) {
 		pr_block_begin();
 		pr_inf("%s: %12.12s %15s %10s\n", args->name, "hash", "hashes/sec", "chi squared");
 		for (i = 1; i < NUM_HASH_METHODS; i++) {

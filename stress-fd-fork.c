@@ -126,7 +126,7 @@ static int stress_fd_fork(stress_args_t *args)
 	(void)stress_get_setting("fd-fork-file", &fd_fork_file);
 
 	if (fd_fork_fds > max_fd) {
-		if (args->instance == 0)
+		if (stress_instance_zero(args))
 			pr_inf("%s: limited to system maximum of %zu file descriptors\n",
 				args->name, max_fd);
 		fd_fork_fds = max_fd;
@@ -262,7 +262,7 @@ tidy_fds:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	stress_fd_close(fds, fd_fork_fds, info);
 
-	if (args->instance == 0) {
+	if (stress_instance_zero(args)) {
 		pr_inf("%s: used %s() to close ~%d file descriptors on %s\n",
 			args->name,
 			info->use_close_range ? "close_range" : "close",

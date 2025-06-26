@@ -357,7 +357,7 @@ static int stress_schedmix_child(stress_args_t *args)
 			/*
 			 *  Only have 1 RT deadline instance running
 			 */
-			if (args->instance == 0) {
+			if (stress_instance_zero(args)) {
 				uint64_t rndtime = (uint64_t)stress_mwc8modn(64) + 32;
 
 				(void)shim_memset(&attr, 0, sizeof(attr));
@@ -481,7 +481,7 @@ static int stress_schedmix(stress_args_t *args)
 	const int parent_cpu = stress_get_cpu();
 
 	if (stress_sched_types_length == (0)) {
-		if (args->instance == 0) {
+		if (stress_instance_zero(args)) {
 			pr_inf_skip("%s: no scheduling policies "
 				"available, skipping test\n",
 				args->name);

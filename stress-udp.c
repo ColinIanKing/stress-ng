@@ -429,7 +429,7 @@ static int stress_udp(stress_args_t *args)
 	if ((udp_proto == IPPROTO_UDPLITE) &&
 	    (udp_domain == AF_UNIX)) {
 		udp_proto = 0;
-		if (args->instance == 0) {
+		if (stress_instance_zero(args)) {
 			pr_inf("%s: disabling UDP-Lite as it is not "
 				"available for UNIX domain UDP\n",
 				args->name);

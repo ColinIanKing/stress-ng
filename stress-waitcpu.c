@@ -304,12 +304,12 @@ static int stress_waitcpu(stress_args_t *args)
 		stress_waitcpu_method[i].count = 0.0;
 	}
 	if (!supported) {
-		if (args->instance == 0)
+		if (stress_instance_zero(args))
 			pr_inf("%s: no CPU wait/pause instructions available, skipping stressor\n",
 				args->name);
 		return EXIT_NO_RESOURCE;
 	}
-	if (args->instance == 0)
+	if (stress_instance_zero(args))
 		pr_inf("%s: exercising instruction%s:%s\n", args->name,
 			SIZEOF_ARRAY(stress_waitcpu_method) > 1 ? "s" : "",
 			str);

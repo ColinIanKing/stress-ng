@@ -404,7 +404,7 @@ static int stress_sockfd(stress_args_t *args)
 	(void)stress_get_setting("sockfd-reuse", &socket_fd_reuse);
 
 #if !defined(HAVE_SELECT)
-	if ((socket_fd_reuse) && (args->instance == 0))
+	if ((socket_fd_reuse) && (stress_instance_zero(args)))
 		pr_inf("%s: select() is not supported, sockfd-reuse option is disabled\n", args->name);
 #endif
 

@@ -82,7 +82,7 @@ static int stress_sigvtalrm(stress_args_t *args)
 	stress_sigvtalrm_set(&timer);
 	if (setitimer(ITIMER_VIRTUAL, &timer, NULL) < 0) {
 		if (errno == EINVAL) {
-			if (args->instance == 0)
+			if (stress_instance_zero(args))
 				pr_inf_skip("%s: skipping stressor, setitimer with "
 					"ITIMER_VIRTUAL is not implemented\n",
 					args->name);

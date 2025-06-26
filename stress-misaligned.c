@@ -577,7 +577,7 @@ static void stress_misaligned_int32wrnt(
 	uint32_t *ptr9 = (uint32_t *)(buffer + 63);
 
 	if (!stress_cpu_x86_has_sse2()) {
-		if (args->instance == 0)
+		if (stress_instance_zero(args))
 			pr_inf("%s: int32wrnt disabled, 32 bit non-temporal store not available\n", args->name);
 		stress_misligned_disable();
 		return;
@@ -810,7 +810,7 @@ static void stress_misaligned_int64wrnt(
 	uint64_t *ptr5 = (uint64_t *)(buffer + 63);
 
 	if (!stress_cpu_x86_has_sse2()) {
-		if (args->instance == 0)
+		if (stress_instance_zero(args))
 			pr_inf("%s: int64wrnt disabled, 64 bit non-temporal store not available\n", args->name);
 		stress_misligned_disable();
 		return;
@@ -859,7 +859,7 @@ static void stress_misaligned_int64wrds(
 	uint64_t *ptr5 = (uint64_t *)(buffer + 63);
 
 	if (!stress_cpu_x86_has_movdiri()) {
-		if (args->instance == 0)
+		if (stress_instance_zero(args))
 			pr_inf("%s: int64wrds disabled, 64 bit direct store not available\n", args->name);
 		stress_misligned_disable();
 		return;
@@ -1047,7 +1047,7 @@ static void stress_misaligned_int128wrnt(
 	__uint128_t *ptr3 = (__uint128_t *)(buffer + 63);
 
 	if (!stress_cpu_x86_has_sse2()) {
-		if (args->instance == 0)
+		if (stress_instance_zero(args))
 			pr_inf("%s: int128wrnt disabled, 128 bit non-temporal store not available\n", args->name);
 		stress_misligned_disable();
 		return;
@@ -1371,7 +1371,7 @@ static int stress_misaligned(stress_args_t *args)
 	method = &stress_misaligned_methods[misaligned_method];
 	current_method = method;
 	ret = sigsetjmp(jmp_env, 1);
-	if (args->instance == 0) {
+	if (stress_instance_zero(args)) {
 		switch (ret) {
 		case STRESS_MISALIGNED_ERROR:
 			pr_inf_skip("%s: skipping method %s, misaligned operations tripped %s\n",

@@ -283,7 +283,7 @@ static int stress_mmapfixed(stress_args_t *args)
 						&info.numa_mask, "--mmapfixed-numa",
 						&info.mmapfixed_numa);
 #else
-		if (args->instance == 0)
+		if (stress_instance_zero(args))
 			pr_inf("%s: --mmapfixed-numa selected but not supported by this system, disabling option\n",
 				args->name);
 		info.mmapfixed_numa = false;

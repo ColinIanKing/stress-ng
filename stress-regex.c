@@ -152,7 +152,7 @@ static int stress_regex(stress_args_t *args)
 			t = stress_time_now();
 			ret = regcomp(&regex, stress_posix_regex[i].regex, REG_EXTENDED);
 			if (UNLIKELY(ret != 0)) {
-				if ((args->instance == 0) && (!failed[i])) {
+				if (stress_instance_zero(args) && (!failed[i])) {
 					char errbuf[256];
 
 					failed[i] = true;

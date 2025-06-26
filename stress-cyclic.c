@@ -652,7 +652,7 @@ static int stress_cyclic(stress_args_t *args)
 			"be %" PRIu64 " seconds\n", args->name, timeout);
 	}
 
-	if ((instances > 1) && (args->instance == 0)) {
+	if ((instances > 1) && (stress_instance_zero(args))) {
 		pr_inf("%s: for best results, run just 1 instance of "
 			"this stressor\n", args->name);
 	}
@@ -702,7 +702,7 @@ static int stress_cyclic(stress_args_t *args)
 		}
 	}
 
-	if (args->instance == 0)
+	if (stress_instance_zero(args))
 		pr_dbg("%s: using method '%s'\n", args->name, cyclic_methods[cyclic_method].name);
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
@@ -836,7 +836,7 @@ tidy:
 
 	stress_rt_stats(rt_stats);
 
-	if (args->instance == 0) {
+	if (stress_instance_zero(args)) {
 		if (rt_stats->index) {
 			size_t i;
 

@@ -399,7 +399,7 @@ static int stress_vecshuf(stress_args_t *args)
 		}
 	} while (stress_continue(args));
 
-	if (args->instance == 0) {
+	if (stress_instance_zero(args)) {
 		double total_duration = 0.0;
 		double inverse_sum_ops = 0.0;
 		double inverse_sum_bytes = 0.0;

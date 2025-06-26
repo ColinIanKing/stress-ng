@@ -100,7 +100,7 @@ static int stress_pagemove_child(stress_args_t *args, void *context)
 	if (pagemove_bytes < page_size)
 		pagemove_bytes = page_size;
 	pagemove_bytes_total = pagemove_bytes * args->instances;
-	if (args->instance == 0)
+	if (stress_instance_zero(args))
 		stress_usage_bytes(args, pagemove_bytes, pagemove_bytes_total);
 
 	sz = pagemove_bytes & ~(page_size - 1);
@@ -129,7 +129,7 @@ static int stress_pagemove_child(stress_args_t *args, void *context)
 		stress_numa_mask_and_node_alloc(args, &numa_nodes, &numa_mask,
 						"--pagemove-numa", &pagemove_numa);
 #else
-		if (args->instance == 0)
+		if (stress_instance_zero(args))
 			pr_inf("%s: --pagemove-numa selected but not supported by this system, disabling option\n",
 				args->name);
 		pagemove_numa = false;

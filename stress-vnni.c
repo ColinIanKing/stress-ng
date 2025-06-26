@@ -535,7 +535,7 @@ static int stress_vnni(stress_args_t *args)
 	}
 
 	if (!stress_vnni_data[vnni_method].vnni_capable) {
-		if (args->instance == 0) {
+		if (stress_instance_zero(args)) {
 			pr_inf_skip("%s: vnni method '%s' not available for this processor model, "
 				"skipping stressor\n",
 				args->name, stress_vnni_methods[vnni_method].name);
@@ -552,7 +552,7 @@ static int stress_vnni(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
-	if ((!avx_capable) && (args->instance == 0)) {
+	if ((!avx_capable) && (stress_instance_zero(args))) {
 		pr_inf("%s: no vector neural network instructions available, using generic optimized versions\n",
 			args->name);
 	}

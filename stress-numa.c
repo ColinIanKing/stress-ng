@@ -213,7 +213,7 @@ static int stress_numa(stress_args_t *args)
 	numa_bytes &= ~(page_size - 1);
 	if (numa_bytes < MIN_NUMA_MMAP_BYTES)
 		numa_bytes = MIN_NUMA_MMAP_BYTES;
-	if (args->instance == 0)
+	if (stress_instance_zero(args))
 		stress_usage_bytes(args, numa_bytes, numa_bytes_total);
 
 	num_pages = numa_bytes / page_size;

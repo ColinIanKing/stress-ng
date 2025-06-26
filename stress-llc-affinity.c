@@ -452,7 +452,7 @@ static int stress_llc_affinity(stress_args_t *args)
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 		stress_numa_mask_and_node_alloc(args, &numa_nodes, &numa_mask, "--llc-affinity-numa", &llc_affinity_numa);
 #else
-		if (args->instance == 0)
+		if (stress_instance_zero(args))
 			pr_inf("%s: --llc-affinity-numa selected but not supported by this system, disabling option\n",
 				args->name);
 		llc_affinity_numa = false;
@@ -539,7 +539,7 @@ static int stress_llc_affinity(stress_args_t *args)
 		read_func = stress_llc_read_cache_line_n;
 	}
 
-	if (clflush_op && (args->instance == 0))
+	if (clflush_op && (stress_instance_zero(args)))
 		pr_inf("%s: using %s cache flushing op-code\n", args->name, clflush_op);
 
 	t_start = stress_time_now();

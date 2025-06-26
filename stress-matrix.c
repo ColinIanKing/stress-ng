@@ -997,7 +997,7 @@ static int stress_matrix(stress_args_t *args)
 	(void)stress_get_setting("matrix-method", &matrix_method);
 	(void)stress_get_setting("matrix-yx", &matrix_yx);
 
-	if (args->instance == 0)
+	if (stress_instance_zero(args))
 		pr_dbg("%s: using method '%s' (%s)\n", args->name, matrix_methods[matrix_method].name,
 			matrix_yx ? "y by x" : "x by y");
 

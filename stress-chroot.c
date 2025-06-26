@@ -486,7 +486,7 @@ again:
 			i = 0;
 	} while (stress_continue(args));
 
-	if (args->instance == 0)
+	if (stress_instance_zero(args))
 		stress_chroot_report_escapes(args, data);
 	rate = (data->metrics.duration > 0.0) ? data->metrics.count / data->metrics.duration : 0.0;
 	stress_metrics_set(args, 0, "chroot calls per sec",

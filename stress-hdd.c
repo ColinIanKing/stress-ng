@@ -690,7 +690,7 @@ static int stress_hdd(stress_args_t *args)
 		hdd_bytes = MIN_HDD_WRITE_SIZE;
 		hdd_bytes_total = hdd_bytes * args->instances;
 	}
-	if (args->instance == 0)
+	if (stress_instance_zero(args))
 		stress_fs_usage_bytes(args, hdd_bytes, hdd_bytes_total);
 
 	if (!stress_get_setting("hdd-write-size", &hdd_write_size)) {

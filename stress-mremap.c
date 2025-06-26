@@ -226,7 +226,7 @@ static int stress_mremap_child(stress_args_t *args, void *context)
 	if (mremap_bytes < page_size)
 		mremap_bytes = page_size;
 	mremap_bytes_total = args->instances * mremap_bytes;
-	if (args->instance == 0)
+	if (stress_instance_zero(args))
 		stress_usage_bytes(args, mremap_bytes, mremap_bytes_total);
 
 	new_sz = sz = mremap_bytes & ~(page_size - 1);
@@ -240,7 +240,7 @@ static int stress_mremap_child(stress_args_t *args, void *context)
 						&numa_mask, "--mremap-numa",
 						&mremap_numa);
 #else
-		if (args->instance == 0)
+		if (stress_instance_zero(args))
 			pr_inf("%s: --mremap-numa selected but not supported by this system, disabling option\n",
 				args->name);
 		mremap_numa = false;

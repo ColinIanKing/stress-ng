@@ -99,7 +99,7 @@ static int stress_pkey(stress_args_t *args)
 		ret = shim_pkey_mprotect(page, page_size, PROT_NONE, pkey);
 		if (UNLIKELY(ret < 0)) {
 			if (errno == ENOSYS) {
-				if (args->instance == 0) {
+				if (stress_instance_zero(args)) {
 					pr_inf_skip("%s: pkey system calls not implemented, skipping\n",
 						args->name);
 				}

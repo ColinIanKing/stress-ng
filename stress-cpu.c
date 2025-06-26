@@ -3070,7 +3070,7 @@ static int OPTIMIZE3 stress_cpu(stress_args_t *args)
 			stress_cpu_counter_scale[i] = 1484.50 / stress_cpu_methods[i].bogo_op_rate;
 	}
 
-	if (args->instance == 0)
+	if (stress_instance_zero(args))
 		pr_dbg("%s: using method '%s'\n", args->name, stress_cpu_methods[cpu_method].name);
 
 	/*
@@ -3189,7 +3189,7 @@ static int OPTIMIZE3 stress_cpu(stress_args_t *args)
 	} while ((rc == EXIT_SUCCESS) && stress_continue(args));
 	stress_cpu_enable_fp_subnormals();
 
-	if (stress_is_affinity_set() && (args->instance == 0)) {
+	if (stress_is_affinity_set() && (stress_instance_zero(args))) {
 		pr_inf("%s: CPU affinity probably set, this can affect CPU loading\n",
 			args->name);
 	}

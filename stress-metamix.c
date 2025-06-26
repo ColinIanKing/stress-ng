@@ -347,7 +347,7 @@ static int stress_metamix(stress_args_t *args)
 		metamix_bytes = MIN_METAMIX_BYTES;
 		metamix_bytes_total = metamix_bytes * args->instances;
 	}
-	if (args->instance == 0)
+	if (stress_instance_zero(args))
 		stress_fs_usage_bytes(args, metamix_bytes, metamix_bytes_total);
 
 	stress_temp_dir_args(args, temp_dir, sizeof(temp_dir));

@@ -967,7 +967,7 @@ static int stress_memthrash(stress_args_t *args)
 	{
 		context.numa_mask = stress_numa_mask_alloc();
 		if (!context.numa_mask) {
-			if (args->instance == 0)
+			if (stress_instance_zero(args))
 				pr_inf("%s: no NUMA nodes or maximum NUMA nodes, ignoring numa memthrash method\n", args->name);
 		}
 	}
@@ -976,7 +976,7 @@ static int stress_memthrash(stress_args_t *args)
 	(void)stress_get_setting("memthrash-method", &memthrash_method);
 	context.memthrash_method = &memthrash_methods[memthrash_method];
 
-	if (args->instance == 0) {
+	if (stress_instance_zero(args)) {
 		pr_dbg("%s: using method '%s'\n", args->name, context.memthrash_method->name);
 		pr_inf("%s: starting %" PRIu32 " thread%s on each of the %"
 			PRIu32 " stressors on a %" PRIu32 " CPU system\n",
@@ -992,7 +992,7 @@ static int stress_memthrash(stress_args_t *args)
 
 	(void)sigfillset(&set);
 
-	if (args->instance == 0)
+	if (stress_instance_zero(args))
 		stress_usage_bytes(args, MEM_SIZE, MEM_SIZE * args->instances);
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);

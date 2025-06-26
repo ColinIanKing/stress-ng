@@ -953,7 +953,7 @@ static int stress_shm_sysv(stress_args_t *args)
 	shm_sysv_bytes = shm_sysv_bytes_total / args->instances;
 	if (shm_sysv_bytes < page_size)
 		shm_sysv_bytes = page_size;
-	if (args->instance == 0)
+	if (stress_instance_zero(args))
 		stress_usage_bytes(args, shm_sysv_bytes, shm_sysv_bytes * args->instances);
 
 	if (!stress_get_setting("shm-sysv-segs", &shm_sysv_segments)) {

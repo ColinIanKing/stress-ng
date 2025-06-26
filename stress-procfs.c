@@ -816,7 +816,7 @@ static char *stress_random_pid(void)
  */
 static int stress_procfs_no_entries(stress_args_t *args)
 {
-	if (args->instance == 0)
+	if (stress_instance_zero(args))
 		pr_inf_skip("%s: no /proc entries found, skipping stressor\n", args->name);
 	return EXIT_NO_RESOURCE;
 }
