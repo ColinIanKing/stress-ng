@@ -179,6 +179,22 @@ static void stress_filerace_lseek_end(const int fd, const char *filename)
 	VOID_RET(off_t, lseek(fd, 0, SEEK_END));
 }
 
+#if defined(SEEK_DATA)
+static void stress_filerace_lseek_data(const int fd, const char *filename)
+{
+	(void)filename;
+	VOID_RET(off_t, lseek(fd, (off_t)stress_mwc32(), SEEK_DATA));
+}
+#endif
+
+#if defined(SEEK_HOLE)
+static void stress_filerace_lseek_hole(const int fd, const char *filename)
+{
+	(void)filename;
+	VOID_RET(off_t, lseek(fd, (off_t)stress_mwc32(), SEEK_HOLE));
+}
+#endif
+
 static void stress_filerace_fchmod(const int fd, const char *filename)
 {
 	(void)filename;
@@ -1121,6 +1137,12 @@ static const stress_filerace_fops_t stress_filerace_fops[] = {
 	stress_filerace_fstat,
 	stress_filerace_lseek_set,
 	stress_filerace_lseek_end,
+#if defined(SEEK_DATA)
+	stress_filerace_lseek_data,
+#endif
+#if defined(SEEK_HOLE)
+	stress_filerace_lseek_hole,
+#endif
 	stress_filerace_fchmod,
 	stress_filerace_fchown,
 #if defined(F_GETFL)
