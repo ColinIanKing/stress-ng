@@ -272,6 +272,46 @@ static void stress_filename_generate_random(
 }
 
 /*
+ *  stress_filename_generate_random_utf8()
+ *	generate a utf8 filename, may be legal or not
+ *	for the filename charset being supported
+ */
+static void stress_filename_generate_random_utf8(
+	char *filename,
+	const size_t sz_max)
+{
+	size_t i = 0;
+
+	while (i < sz_max) {
+		const size_t residual = STRESS_MINIMUM(sz_max - i, 4);
+		const size_t len = stress_mwc8modn(residual) + 1;
+
+		switch (len) {
+		default:
+		case 1:
+			filename[i++] = stress_mwc8modn(127) + 1;
+			break;
+		case 2:
+			filename[i++] = 0xc0 | (stress_mwc8() & 0x1f);
+			filename[i++] = 0x80 | (stress_mwc8() & 0x3f);
+			break;
+		case 3:
+			filename[i++] = 0xe0 | (stress_mwc8() & 0x0f);
+			filename[i++] = 0x80 | (stress_mwc8() & 0x3f);
+			filename[i++] = 0x80 | (stress_mwc8() & 0x3f);
+			break;
+		case 4:
+			filename[i++] = 0xe0 | (stress_mwc8() & 0x0f);
+			filename[i++] = 0x80 | (stress_mwc8() & 0x3f);
+			filename[i++] = 0x80 | (stress_mwc8() & 0x3f);
+			filename[i++] = 0x80 | (stress_mwc8() & 0x3f);
+			break;
+		}
+	}
+	filename[i] = '\0';
+}
+
+/*
  *  stress_filename_test()
  *	create a file, and check if it fails.
  *	should_pass = true - create must pass
@@ -321,6 +361,50 @@ static void stress_filename_test(
 			*rc = EXIT_FAILURE;
 			return;
 		}
+	}
+
+	/* exercise dcache lookup of non-existent filename */
+	ret = shim_stat(filename, &buf);
+	if (ret == 0) {
+		pr_fail("%s: stat succeeded on non-existent unlinked file\n",
+			args->name);
+		*rc = EXIT_FAILURE;
+	}
+}
+
+/*
+ *  stress_filename_test_utf8()
+ *      exercise utf8 filename, may or may not fail
+ */
+static void stress_filename_test_utf8(
+	stress_args_t *args,
+	const char *filename,
+	const size_t sz_max,
+	const pid_t pid,
+	int *rc)
+{
+	int fd;
+	int ret;
+	struct stat buf;
+
+	/* exercise dcache lookup of non-existent filename */
+	VOID_RET(int, shim_stat(filename, &buf));
+
+	if ((fd = creat(filename, S_IRUSR | S_IWUSR)) < 0)
+		return;
+
+	stress_read_fdinfo(pid, fd);
+	(void)close(fd);
+
+	/* exercise dcache lookup of existent filename */
+	VOID_RET(int, shim_stat(filename, &buf));
+
+	if (shim_unlink(filename)) {
+		pr_fail("%s: unlink() failed on file of length "
+			"%zu bytes, errno=%d (%s)\n",
+			args->name, sz_max, errno, strerror(errno));
+		*rc = EXIT_FAILURE;
+		return;
 	}
 
 	/* exercise dcache lookup of non-existent filename */
@@ -568,6 +652,16 @@ again:
 				break;
 			stress_filename_generate_random(ptr, rnd_sz, chars_allowed);
 			stress_filename_test(args, filename, rnd_sz, true, mypid, &rc);
+			if (UNLIKELY(!stress_continue(args)))
+				break;
+
+			/* May succeed or fail */
+			stress_filename_generate_random_utf8(ptr, sz_max - 1);
+			stress_filename_test_utf8(args, filename, sz_max - 1, pid, &rc);
+			if (UNLIKELY(!stress_continue(args)))
+				break;
+			stress_filename_generate_random_utf8(ptr, rnd_sz);
+			stress_filename_test_utf8(args, filename, rnd_sz, pid, &rc);
 			if (UNLIKELY(!stress_continue(args)))
 				break;
 
