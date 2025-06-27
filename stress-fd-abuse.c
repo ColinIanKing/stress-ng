@@ -838,12 +838,25 @@ static void stress_fd_sockopt_reuseaddr(stress_fd_t *fd)
 
 static void stress_fd_lseek(stress_fd_t *fd)
 {
-	VOID_RET(off_t, lseek(fd->fd, 0, SEEK_SET));
-	VOID_RET(off_t, lseek(fd->fd, 0, SEEK_END));
-	VOID_RET(off_t, lseek(fd->fd, 0, SEEK_CUR));
-	VOID_RET(off_t, lseek(fd->fd, 999, SEEK_SET));
-	VOID_RET(off_t, lseek(fd->fd, 999, SEEK_END));
-	VOID_RET(off_t, lseek(fd->fd, 999, SEEK_CUR));
+	static const int whence[] = {
+		SEEK_SET,
+		SEEK_END,
+		SEEK_CUR,
+#if defined(SEEK_DATA)
+		SEEK_DATA,
+#endif
+#if defined(SEEK_HOLE)
+		SEEK_HOLE,
+#endif
+	};
+	size_t i;
+
+	for (i = 0; i < SIZEOF_ARRAY(whence); i++) {
+		VOID_RET(off_t, lseek(fd->fd, 0, whence[i]));
+		VOID_RET(off_t, lseek(fd->fd, 1024, whence[i]));
+		VOID_RET(off_t, lseek(fd->fd, (off_t)stress_mwc32(), whence[i]));
+		VOID_RET(off_t, lseek(fd->fd, 1, whence[i]));
+	}
 }
 
 static void stress_fd_dup(stress_fd_t *fd)
