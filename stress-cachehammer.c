@@ -1804,8 +1804,10 @@ static int OPTIMIZE3 stress_cachehammer(stress_args_t *args)
 					(void)msync((void *)file_page, page_size, flag);
 				}
 #endif
+#if defined(HAVE_LINUX_MEMPOLICY_H)
 				stress_cachehammer_numa(args, 50, &numa_count[0], file_page,
 							cachehammer_numa, numa_mask, numa_nodes);
+#endif
 				hammer(args, file_page, file_page + 64, false, false);
 				break;
 			case 1:
@@ -1814,8 +1816,10 @@ static int OPTIMIZE3 stress_cachehammer(stress_args_t *args)
 				addr1 = buffer + (offset & mask);
 				addr2 = addr1;
 
+#if defined(HAVE_LINUX_MEMPOLICY_H)
 				stress_cachehammer_numa(args, 20, &numa_count[1], addr1,
 							cachehammer_numa, numa_mask, numa_nodes);
+#endif
 				for (i = 0; i < loops; i++) {
 					addr2 += 64;
 					if (UNLIKELY(addr2 >= buffer + buffer_size))
@@ -1829,8 +1833,10 @@ static int OPTIMIZE3 stress_cachehammer(stress_args_t *args)
 				addr1 = local_buffer + (offset & mask);
 				addr2 = addr1;
 
+#if defined(HAVE_LINUX_MEMPOLICY_H)
 				stress_cachehammer_numa(args, 20, &numa_count[2], addr1,
 							cachehammer_numa, numa_mask, numa_nodes);
+#endif
 				for (i = 0; i < loops; i++) {
 					addr2 += 64;
 					if (UNLIKELY(addr2 >= local_buffer + local_buffer_size))
@@ -1844,8 +1850,10 @@ static int OPTIMIZE3 stress_cachehammer(stress_args_t *args)
 				addr1 = local_page + (offset & page_mask);
 				addr2 = addr1;
 
+#if defined(HAVE_LINUX_MEMPOLICY_H)
 				stress_cachehammer_numa(args, 20, &numa_count[3], addr1,
 							cachehammer_numa, numa_mask, numa_nodes);
+#endif
 				for (i = 0; i < loops; i++) {
 					addr2 += 64;
 					if (UNLIKELY(addr2 >= local_page + page_size))
@@ -1860,8 +1868,10 @@ static int OPTIMIZE3 stress_cachehammer(stress_args_t *args)
 				offset += 64;
 				addr2 = bad_page + (offset & page_mask);
 
+#if defined(HAVE_LINUX_MEMPOLICY_H)
 				stress_cachehammer_numa(args, 50, &numa_count[3], addr1,
 							cachehammer_numa, numa_mask, numa_nodes);
+#endif
 				hammer(args, addr1, addr2, true, false);
 				break;
 			}
