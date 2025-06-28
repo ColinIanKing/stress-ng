@@ -280,7 +280,7 @@ static void stress_filename_generate_random_utf8(
 	char *filename,
 	const size_t sz_max)
 {
-	size_t i = 0;
+	size_t i = 0, j = 0;
 
 	while (i < sz_max) {
 		const size_t residual = STRESS_MINIMUM(sz_max - i, 4);
@@ -293,22 +293,33 @@ static void stress_filename_generate_random_utf8(
 			break;
 		case 2:
 			filename[i++] = 0xc0 | (stress_mwc8() & 0x1f);
+			j = i;
 			filename[i++] = 0x80 | (stress_mwc8() & 0x3f);
 			break;
 		case 3:
 			filename[i++] = 0xe0 | (stress_mwc8() & 0x0f);
 			filename[i++] = 0x80 | (stress_mwc8() & 0x3f);
+			j = i;
 			filename[i++] = 0x80 | (stress_mwc8() & 0x3f);
 			break;
 		case 4:
 			filename[i++] = 0xe0 | (stress_mwc8() & 0x0f);
 			filename[i++] = 0x80 | (stress_mwc8() & 0x3f);
 			filename[i++] = 0x80 | (stress_mwc8() & 0x3f);
+			j = i;
 			filename[i++] = 0x80 | (stress_mwc8() & 0x3f);
 			break;
 		}
 	}
 	filename[i] = '\0';
+	/*
+	 *  occassionally truncate valid utf8 filename to create
+	 *  invalid utf8 strings, c.f.:
+	 *  https://sourceware.org/pipermail/cygwin/2024-September/256451.html
+	 */
+	if (j && stress_mwc8() < 16)
+		filename[j] = '\0';
+
 }
 
 /*
