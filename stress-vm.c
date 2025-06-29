@@ -3586,7 +3586,7 @@ static int stress_vm_child(stress_args_t *args, void *ctxt)
 				if (no_mem_retries >= NO_MEM_RETRIES_MAX) {
 					char str[32];
 
-					/* shrink a bit and retry /
+					/* shrink a bit and retry */
 					buf_sz = ((buf_sz / 16) * 15) & ~(page_size - 1);
 					no_mem_retries = 0;
 					if (buf_sz < page_size) {
