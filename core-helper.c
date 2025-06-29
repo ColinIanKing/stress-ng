@@ -995,7 +995,7 @@ bool stress_low_memory(const size_t requested)
 			}
 			/* swap shrinking quickly? */
 			delta = (ssize_t)prev_freeswap - (ssize_t)freeswap;
-			if (delta > 0) {
+			if (delta > (ssize_t)freeswap / 8) {
 				low_memory = true;
 				goto update;
 			}
@@ -1005,8 +1005,8 @@ bool stress_low_memory(const size_t requested)
 			low_memory = true;
 			goto update;
 		}
-		/* Less than 3% left? */
-		if (((double)freemem * 100.0 / (double)(totalmem - requested)) < threshold) {
+		/* Less than threshold left? */
+		if (((double)(freemem - requested) * 100.0 / (double)totalmem) < threshold) {
 			low_memory = true;
 			goto update;
 		}

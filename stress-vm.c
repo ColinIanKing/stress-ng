@@ -47,7 +47,7 @@
 #define VM_BOGO_SHIFT		(12)
 #define VM_ROWHAMMER_LOOPS	(1000000)
 
-#define NO_MEM_RETRIES_MAX	(100)
+#define NO_MEM_RETRIES_MAX	(32)
 
 static size_t stress_vm_cache_line_size;
 static bool vm_flush;
@@ -3529,7 +3529,7 @@ static int stress_vm_child(stress_args_t *args, void *ctxt)
 	stress_vm_context_t *context = (stress_vm_context_t *)ctxt;
 	const stress_vm_func func = context->vm_method->func;
 	const size_t page_size = args->page_size;
-	const size_t buf_sz = context->vm_bytes & ~(page_size - 1);
+	size_t buf_sz = context->vm_bytes & ~(page_size - 1);
 	const uint64_t max_ops = args->bogo.max_ops << VM_BOGO_SHIFT;
 	uint64_t vm_hang = DEFAULT_VM_HANG;
 	void *buf = NULL, *buf_end = NULL;
@@ -3586,15 +3586,19 @@ static int stress_vm_child(stress_args_t *args, void *ctxt)
 				if (no_mem_retries >= NO_MEM_RETRIES_MAX) {
 					char str[32];
 
-					(void)stress_uint64_to_str(str, sizeof(str), (uint64_t)buf_sz, 1, true);
-					pr_inf_skip("%s: gave up trying to mmap %s after %d attempts, "
-						"errno=%d (%s), skipping stressor\n",
-						args->name, str, NO_MEM_RETRIES_MAX,
-						errno, strerror(errno));
-					rc = EXIT_NO_RESOURCE;
-					break;
+					/* shrink a bit and retry /
+					buf_sz = ((buf_sz / 16) * 15) & ~(page_size - 1);
+					no_mem_retries = 0;
+					if (buf_sz < page_size) {
+						(void)stress_uint64_to_str(str, sizeof(str), (uint64_t)buf_sz, 1, true);
+						pr_inf_skip("%s: gave up trying to mmap %s after many attempts, "
+							"errno=%d (%s), skipping stressor\n",
+							args->name, str, errno, strerror(errno));
+						rc = EXIT_NO_RESOURCE;
+						break;
+					}
 				}
-				(void)shim_usleep(100000);
+				(void)shim_usleep(10000);
 				continue;	/* Try again */
 			}
 			buf_end = (void *)((uint8_t *)buf + buf_sz);
