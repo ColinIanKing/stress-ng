@@ -297,6 +297,12 @@ retry:
 			return EXIT_NO_RESOURCE;
 
 		if (UNLIKELY((fd = socket(AF_UNIX, SOCK_STREAM, 0)) < 0)) {
+			if ((errno == ENFILE) ||
+			    (errno == ENOBUFS) ||
+			    (errno == ENOMEM)) {
+				stress_random_small_sleep();
+				goto retry;
+			}
 			pr_fail("%s: socket failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			return EXIT_FAILURE;
@@ -501,7 +507,17 @@ static int OPTIMIZE3 stress_race_fd_server(
 		rc = EXIT_FAILURE;
 		goto die;
 	}
+
+retry:
+	if (UNLIKELY(!stress_continue_flag()))
+		goto die;
 	if ((fd = socket(AF_UNIX, SOCK_STREAM, 0)) < 0) {
+		if ((errno == ENFILE) ||
+		    (errno == ENOBUFS) ||
+		    (errno == ENOMEM)) {
+			stress_random_small_sleep();
+			goto retry;
+		}
 		rc = stress_exit_status(errno);
 		pr_fail("%s: socket failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
