@@ -64,7 +64,7 @@ static void stress_mmapcow_force_unmap(
 #if defined(MADV_FREE)
 	(void)madvise((void *)buf, buf_size, MADV_FREE);
 #endif
-	if (munmap(buf, buf_size) < 0) {
+	if (munmap((void *)buf, buf_size) < 0) {
 		pr_fail("%s: munmap of %zu pages failed, errno=%d (%s)\n",
 			args->name, buf_size / page_size, errno, strerror(errno));
 		return;
