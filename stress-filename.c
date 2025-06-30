@@ -671,10 +671,13 @@ again:
 			stress_filename_test_utf8(args, filename, sz_max - 1, pid, &rc);
 			if (UNLIKELY(!stress_continue(args)))
 				break;
-			stress_filename_generate_random_utf8(ptr, rnd_sz);
-			stress_filename_test_utf8(args, filename, rnd_sz, pid, &rc);
-			if (UNLIKELY(!stress_continue(args)))
-				break;
+
+			if (filename_opt == STRESS_FILENAME_EXT) {
+				stress_filename_generate_random_utf8(ptr, rnd_sz);
+				stress_filename_test_utf8(args, filename, rnd_sz, pid, &rc);
+				if (UNLIKELY(!stress_continue(args)))
+					break;
+			}
 
 #if defined(HAVE_PATHCONF)
 #if defined(_PC_NAME_MAX)
