@@ -831,7 +831,8 @@ STRESS_MEMRATE_WRITE_OP(32, uint32_t, stress_nt_store32, nt, stress_cpu_x86_has_
 STRESS_MEMRATE_WRITE_OP_RATE(32, uint32_t, stress_nt_store32, nt, stress_cpu_x86_has_sse2)
 #endif
 
-#if defined(HAVE_ASM_X86_MOVDIRI)
+#if defined(HAVE_ASM_X86_MOVDIRI) &&	\
+    defined(STRESS_ARCH_X86_64)
 STRESS_MEMRATE_WRITE_OP(64, uint64_t, stress_ds_store64, ds, stress_cpu_x86_has_movdiri)
 STRESS_MEMRATE_WRITE_OP_RATE(64, uint64_t, stress_ds_store64, ds, stress_cpu_x86_has_movdiri)
 #endif
@@ -877,7 +878,8 @@ static const stress_memrate_info_t memrate_info[] = {
     !defined(__ILP32__)
 	{ "write8stob",	MR_WR,	stress_memrate_write_stos8,	stress_memrate_write_stos_rate8 },
 #endif
-#if defined(HAVE_ASM_X86_MOVDIRI)
+#if defined(HAVE_ASM_X86_MOVDIRI) && 	\
+    defined(STRESS_ARCH_X86_64)
 	{ "write64ds",	MR_WR, stress_memrate_write_ds64,	stress_memrate_write_ds_rate64 },
 #endif
 #if defined(HAVE_NT_STORE128)
