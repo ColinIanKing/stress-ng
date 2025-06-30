@@ -300,7 +300,7 @@ static int stress_mmapcow_exercise(
 #if defined(MADV_MERGEABLE) &&	\
     defined(MADV_UNMERGEABLE)
 			/* Random mergeable advice */
-			(void)madvise((void *)buf + offset, page_size,
+			(void)madvise((void *)(buf + offset), page_size,
 					stress_mwc1() ? MADV_MERGEABLE : MADV_UNMERGEABLE);
 #endif
 			/* Sequential page unmapping */
