@@ -303,7 +303,7 @@ static void stress_filename_generate_random_utf8(
 			filename[i++] = 0x80 | (stress_mwc8() & 0x3f);
 			break;
 		case 4:
-			filename[i++] = 0xe0 | (stress_mwc8() & 0x0f);
+			filename[i++] = 0xf0 | (stress_mwc8() & 0x07);
 			filename[i++] = 0x80 | (stress_mwc8() & 0x3f);
 			filename[i++] = 0x80 | (stress_mwc8() & 0x3f);
 			j = i;
