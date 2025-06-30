@@ -2236,7 +2236,8 @@ static size_t OPTIMIZE3 TARGET_CLONES stress_vm_write64(
 	return 0;
 }
 
-#if defined(HAVE_ASM_X86_MOVDIRI)
+#if defined(HAVE_ASM_X86_MOVDIRI) &&	\
+    defined(STRESS_ARCH_X86_64)
 /*
  *  stress_vm_write_64ds()
  *	64 bit direct store write, no read check
@@ -3475,7 +3476,8 @@ static const stress_vm_method_info_t vm_methods[] = {
 	{ "walk-1d",		stress_vm_walking_one_data },
 	{ "walk-flush",		stress_vm_walking_flush_data },
 	{ "write64",		stress_vm_write64 },
-#if defined(HAVE_ASM_X86_MOVDIRI)
+#if defined(HAVE_ASM_X86_MOVDIRI) &&	\
+    defined(STRESS_ARCH_X86_64)
 	{ "write64ds",		stress_vm_write64ds },
 #endif
 #if defined(HAVE_NT_STORE64)
