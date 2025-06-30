@@ -844,7 +844,8 @@ fail:
 }
 #endif
 
-#if defined(HAVE_ASM_X86_MOVDIRI)
+#if defined(HAVE_ASM_X86_MOVDIRI) &&	\
+    defined(STRESS_ARCH_X86_64)
 static void stress_misaligned_int64wrds(
 	stress_args_t *args,
 	uintptr_t buffer,
@@ -1147,7 +1148,8 @@ static stress_misaligned_method_info_t stress_misaligned_methods[] = {
 #if defined(HAVE_NT_STORE64)
 	{ "int64wrnt",	stress_misaligned_int64wrnt,	false,	false },
 #endif
-#if defined(HAVE_ASM_X86_MOVDIRI)
+#if defined(HAVE_ASM_X86_MOVDIRI) &&	\
+    defined(STRESS_ARCH_X86_64)
 	{ "int64wrds",	stress_misaligned_int64wrds,	false,  false },
 #endif
 	{ "int64inc",	stress_misaligned_int64inc,	false,	false },
