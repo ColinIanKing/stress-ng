@@ -2075,7 +2075,7 @@ static int syscall_futimes(void)
 }
 #endif
 
-#if defined(HAVE_FUTIMESAT)
+#if defined(HAVE_FUTIMESAT_DEPRECATED)
 #define HAVE_SYSCALL_FUTIMESAT
 static int syscall_futimesat(void)
 {

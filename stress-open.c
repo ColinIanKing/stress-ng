@@ -212,7 +212,7 @@ static int obsolete_futimesat(
 	if (LIKELY((ret == 0) || (errno != ENOSYS)))
 		return ret;
 #endif
-#if defined(HAVE_FUTIMESAT)
+#if defined(HAVE_FUTIMESAT_DEPRECATED)
 	/* Try libc variant next */
 	ret = (int)futimesat(dir_fd, pathname, tv);
 	if (LIKELY((ret == 0) || (errno != ENOSYS)))
