@@ -18,9 +18,9 @@
 #
 
 #
-# Codename "crunchy chocolate cookie"
+# Codename "manic memory mangler"
 #
-VERSION=0.19.01
+VERSION=0.19.02
 
 #
 # Determine supported toolchains
