@@ -264,6 +264,19 @@ static inline void stress_far_branch_shuffle(stress_ret_func_t *funcs, const siz
 	}
 }
 
+static void stress_far_branch_pageout(void *addr, const size_t page_size)
+{
+	(void)addr;
+	(void)page_size;
+
+#if defined(MADV_SOFT_OFFLINE)
+	VOID_RET(int, madvise(addr, page_size, MADV_SOFT_OFFLINE));
+#endif
+#if defined(MADV_PAGEOUT)
+	VOID_RET(int, madvise(addr, page_size, MADV_PAGEOUT));
+#endif
+}
+
 /*
  *  stress_far_branch()
  *	exercise a broad randomized set of branches to functions
@@ -403,6 +416,9 @@ static int stress_far_branch(stress_args_t *args)
 
 	t_start = stress_time_now();
 	do {
+#if defined(HAVE_LABEL_AS_VALUE)
+l1:
+#endif
 		for (i = 0; i < total_funcs; i += 16) {
 			funcs[i + 0x0]();
 			funcs[i + 0x1]();
@@ -428,22 +444,32 @@ static int stress_far_branch(stress_args_t *args)
 			for (i = 0; i < n_pages; i++)
 				stress_far_branch_page_flush(pages[i], page_size);
 		}
+
 #if defined(MADV_SOFT_OFFLINE) ||	\
     defined(MADV_PAGEOUT)
 		if (UNLIKELY(far_branch_pageout)) {
+#if defined(HAVE_LABEL_AS_VALUE)
+l2:
+			uintptr_t addr1, addr2;;
+#endif
 			const size_t n = stress_mwc32modn((uint32_t)(n_pages >> 4)) + 1;
 
 			for (i = 0; i < n; i++) {
 				const size_t page = stress_mwc32modn((uint32_t)n_pages);
-#if defined(MADV_SOFT_OFFLINE)
-				VOID_RET(int, madvise(pages[page], page_size, MADV_SOFT_OFFLINE));
-#endif
-#if defined(MADV_PAGEOUT)
-				VOID_RET(int, madvise(pages[page], page_size, MADV_PAGEOUT));
-#endif
-#endif
+
+				stress_far_branch_pageout(pages[page], page_size);
 			}
+
+#if defined(HAVE_LABEL_AS_VALUE)
+			addr1 = ((uintptr_t)&&l1) & ~(page_size - 1);
+			addr2 = ((uintptr_t)&&l2) & ~(page_size - 1);
+
+			stress_far_branch_pageout((void *)addr1, page_size);
+			if (addr1 != addr2)
+				stress_far_branch_pageout((void *)addr2, page_size);
+#endif
 		}
+#endif
 	} while (stress_continue(args));
 	duration = stress_time_now() - t_start;
 
