@@ -156,6 +156,8 @@
 * [A Comparison of Real-Time Linux-Based Architectures for Embedded Musical Applications](https://www.researchgate.net/publication/358135895_A_Comparison_of_Real-Time_Linux-Based_Architectures_for_Embedded_Musical_Applications)
 * [Nona: Accurate Power Prediction Model Using Neural Networks](https://dl.acm.org/doi/pdf/10.1145/3649329.3655668)
 * [Interference-free Operating System: A 6 Years’ Experience in Mitigating Cross-Core Interference in Linux](https://arxiv.org/pdf/2412.18104)
+* [Enhancing the PSI framework in Linux Kernel for predictive and accurate workload analysis](https://lpc.events/event/18/contributions/1884/attachments/1439/3069/LPC2024_PIntu_PSI.pdf)
+ *
 
 2025:
  * [SPY-PMU: Side-Channel Profiling of Your Performance Monitoring Unit to Leak Remote User Activity](https://eprint.iacr.org/2025/014)
@@ -176,6 +178,8 @@
  * [Research on AutoTune: A Lightweight Feedback-Driven Kernel Parameter Tuning System for High-Concurrency VMware Environments](https://www.jetir.org/papers/JETIR2505703.pdf)
  * [Non-Intrusive MLOps-Driven Performance Intelligence in Software Data Planes](https://arxiv.org/pdf/2506.17658)
  * [ROS 2 Agnocast: Supporting Unsized Message Types for True Zero-Copy Publish/Subscribe IPC](https://www.arxiv.org/pdf/2506.16882)
+ * [Data Center Model for Transient Stability Analysis of Power Systems](https://arxiv.org/pdf/2505.16575)
+ * [Rubicon: Precise Microarchitectural Attacks with Page-Granular Massaging](https://comsec-files.ethz.ch/papers/rubicon_eurosp25.pdf)
 
 I am keen to add to the stress-ng project page any citations to research or
 projects that use stress-ng.
