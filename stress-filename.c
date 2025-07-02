@@ -323,6 +323,111 @@ static void stress_filename_generate_random_utf8(
 }
 
 /*
+ *  stress_filename_readdir()
+ *	the test directory should only contain files ., .. and the
+ *	test file. Hence we can sanity check the test file from what
+ *	readdir returns, the stat should be the same and the there
+ *	should be just one regular file in the test directory
+ */
+static int stress_filename_readdir(
+	stress_args_t *args,
+	const char *pathname,
+	const char *filename)
+{
+	DIR *dir;
+	struct dirent *d;
+	static int count = 0;
+	struct stat sb_file;
+	int readdir_count = 0, rc = 0;
+	static bool filename_differs = false;
+
+	/*
+	 *  Only perform expensive readdir test occasionally
+	 */
+	if (count <= 0) {
+		count = stress_mwc8() + 128;
+	} else {
+		count--;
+		return 0;
+	}
+
+	(void)shim_memset(&sb_file, 0, sizeof(sb_file));
+	if (stat(filename, &sb_file) < 0) {
+		pr_fail("%s: failed: cannot stat file, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
+		return -1;
+	}
+
+	dir = opendir(pathname);
+	if (!dir) {
+		pr_fail("%s: failed: cannot opendir directory '%s'\n",
+			args->name, pathname);
+		return -1;
+	}
+
+	while ((d = readdir(dir)) != NULL) {
+		char fullname[PATH_MAX];
+		struct stat sb_readdir_file;
+		int name_cmp;
+
+		/* ignore dot files */
+		if (stress_is_dot_filename(d->d_name))
+			continue;
+
+		readdir_count++;
+
+		(void)snprintf(fullname, sizeof(fullname), "%s/%s", pathname, d->d_name);
+		name_cmp = strcmp(fullname, filename);
+
+		/*
+		 *  if the name differs, stat fails or stat'd files
+		 *  differ (not the same file) then fail
+		 */
+		(void)shim_memset(&sb_readdir_file, 0, sizeof(sb_readdir_file));
+		if (name_cmp) {
+			if (stat(fullname, &sb_readdir_file) < 0) {
+				pr_fail("%s: failed: cannot stat readdir'd file, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
+				rc = -1;
+				continue;
+			}
+			/* stat'd files differ? */
+			if (memcmp(&sb_file, &sb_readdir_file, sizeof(sb_file))) {
+				pr_fail("%s: failed: difference between stat'd file and readdir'd file, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
+				rc = -1;
+				continue;
+			}
+			/*
+			 * stat'd files the same but name is different, report once,
+			 * this is not an error per-se, because bijective en/decoding between
+			 * API and filesystem is not always possible. This is in particular
+			 * the case on Cygwin due to a non-trivial conversion between current
+			 * codepage and UTF-16.
+			 */
+			if (!filename_differs) {
+				filename_differs = true;
+				pr_inf("%s: note: created filename different from one read by readdir()\n",
+					args->name);
+			}
+		}
+	}
+	/*
+	 *  excluding . and .. there should be just one test file in
+	 *  the directory, so check this
+	 */
+	if (readdir_count != 1) {
+		pr_fail("%s: failed: found %d files in test directory, expecting 1\n",
+			args->name, readdir_count);
+		rc = -1;
+	}
+	(void)closedir(dir);
+
+	return rc;
+}
+
+
+/*
  *  stress_filename_test()
  *	create a file, and check if it fails.
  *	should_pass = true - create must pass
@@ -330,6 +435,7 @@ static void stress_filename_generate_random_utf8(
  */
 static void stress_filename_test(
 	stress_args_t *args,
+	const char *pathname,
 	const char *filename,
 	const size_t sz_max,
 	const bool should_pass,
@@ -364,6 +470,10 @@ static void stress_filename_test(
 
 		/* exercise dcache lookup of existent filename */
 		VOID_RET(int, shim_stat(filename, &buf));
+
+		if (should_pass)
+			if (stress_filename_readdir(args, pathname, filename) < 0)
+				*rc = EXIT_FAILURE;
 
 		if (shim_unlink(filename)) {
 			pr_fail("%s: unlink() failed on file of length "
@@ -608,61 +718,61 @@ again:
 
 			/* Should succeed */
 			stress_filename_generate(ptr, 1, ch);
-			stress_filename_test(args, filename, 1, true, mypid, &rc);
+			stress_filename_test(args, pathname, filename, 1, true, mypid, &rc);
 			if (UNLIKELY(!stress_continue(args)))
 				break;
 			stress_filename_generate_random(ptr, 1, chars_allowed);
-			stress_filename_test(args, filename, 1, true, mypid, &rc);
+			stress_filename_test(args, pathname, filename, 1, true, mypid, &rc);
 			if (UNLIKELY(!stress_continue(args)))
 				break;
 
 			/* Should succeed */
 			stress_filename_generate(ptr, sz_max, ch);
-			stress_filename_test(args, filename, sz_max, true, mypid, &rc);
+			stress_filename_test(args, pathname, filename, sz_max, true, mypid, &rc);
 			if (UNLIKELY(!stress_continue(args)))
 				break;
 			stress_filename_generate_random(ptr, sz_max, chars_allowed);
-			stress_filename_test(args, filename, sz_max, true, mypid, &rc);
+			stress_filename_test(args, pathname, filename, sz_max, true, mypid, &rc);
 			if (UNLIKELY(!stress_continue(args)))
 				break;
 
 			/* Should succeed */
 			stress_filename_generate(ptr, sz_max - 1, ch);
-			stress_filename_test(args, filename, sz_max - 1, true, mypid, &rc);
+			stress_filename_test(args, pathname, filename, sz_max - 1, true, mypid, &rc);
 			if (UNLIKELY(!stress_continue(args)))
 				break;
 			stress_filename_generate_random(ptr, sz_max - 1, chars_allowed);
-			stress_filename_test(args, filename, sz_max - 1, true, mypid, &rc);
+			stress_filename_test(args, pathname, filename, sz_max - 1, true, mypid, &rc);
 			if (UNLIKELY(!stress_continue(args)))
 				break;
 
 			/* Should fail */
 			stress_filename_generate(ptr, sz_max + 1, ch);
-			stress_filename_test(args, filename, sz_max + 1, false, mypid, &rc);
+			stress_filename_test(args, pathname, filename, sz_max + 1, false, mypid, &rc);
 			if (UNLIKELY(!stress_continue(args)))
 				break;
 			stress_filename_generate_random(ptr, sz_max + 1, chars_allowed);
-			stress_filename_test(args, filename, sz_max + 1, false, mypid, &rc);
+			stress_filename_test(args, pathname, filename, sz_max + 1, false, mypid, &rc);
 			if (UNLIKELY(!stress_continue(args)))
 				break;
 
 			/* Should succeed */
 			stress_filename_generate(ptr, sz, ch);
-			stress_filename_test(args, filename, sz, true, mypid, &rc);
+			stress_filename_test(args, pathname, filename, sz, true, mypid, &rc);
 			if (UNLIKELY(!stress_continue(args)))
 				break;
 			stress_filename_generate_random(ptr, sz, chars_allowed);
-			stress_filename_test(args, filename, sz, true, mypid, &rc);
+			stress_filename_test(args, pathname, filename, sz, true, mypid, &rc);
 			if (UNLIKELY(!stress_continue(args)))
 				break;
 
 			/* Should succeed */
 			stress_filename_generate(ptr, rnd_sz, ch);
-			stress_filename_test(args, filename, rnd_sz, true, mypid, &rc);
+			stress_filename_test(args, pathname, filename, rnd_sz, true, mypid, &rc);
 			if (UNLIKELY(!stress_continue(args)))
 				break;
 			stress_filename_generate_random(ptr, rnd_sz, chars_allowed);
-			stress_filename_test(args, filename, rnd_sz, true, mypid, &rc);
+			stress_filename_test(args, pathname, filename, rnd_sz, true, mypid, &rc);
 			if (UNLIKELY(!stress_continue(args)))
 				break;
 
