@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "26 June 2025"
+.TH STRESS-NG 1 "2 July 2025"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -2649,6 +2649,11 @@ cache misses.
 .B \-\-far\-branch\-ops N
 stop after N far branch bogo-ops. One full cycle of calling all
 the tens of thousands of functions equates to one bogo-op.
+.TP
+.B \-\-far\-branch\-pageout
+where possible pageout and soft-offline randomly selected pages
+that contain the far branch functions. This uses madvise MADV_PAGEOUT
+and MADV_SOFT_OFFLINE to perform these actions.
 .TP
 .B \-\-far\-branch\-pages N
 specify the number of pages to allocate for far branch functions. The

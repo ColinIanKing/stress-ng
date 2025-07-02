@@ -30,12 +30,14 @@ static const stress_help_t help[] = {
 	{ NULL,	"far-branch N",		"start N far branching workers" },
 	{ NULL, "far-branch-flush",	"periodically flush instruction cache" },
 	{ NULL,	"far-branch-ops N",	"stop after N far branching bogo operations" },
+	{ NULL, "far-branch-pageout",	"soft offline and/or pageout object code pages" },
 	{ NULL, "far-branch-pages N",	"number of pages to populate with functions" },
 	{ NULL,	NULL,			NULL }
 };
 
 static const stress_opt_t opts[] = {
 	{ OPT_far_branch_flush, "far-branch-flush", TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_far_branch_pageout, "far-branch-pageout", TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_far_branch_pages, "far-branch-pages", TYPE_ID_SIZE_T, MIN_FAR_BRANCH_PAGES, MAX_FAR_BRANCH_PAGES, NULL },
 	END_OPT,
 };
@@ -285,8 +287,10 @@ static int stress_far_branch(stress_args_t *args)
 	NOCLOBBER size_t total_funcs = 0;
 	NOCLOBBER double calls = 0.0;
 	NOCLOBBER bool far_branch_flush = false;
+	NOCLOBBER bool far_branch_pageout = false;
 
 	(void)stress_get_setting("far-branch-flush", &far_branch_flush);
+	(void)stress_get_setting("far-branch-pageout", &far_branch_pageout);
 	if (!stress_get_setting("far-branch-pages", &n_pages)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			n_pages = MAX_FAR_BRANCH_PAGES;
@@ -423,6 +427,22 @@ static int stress_far_branch(stress_args_t *args)
 		if (UNLIKELY(far_branch_flush)) {
 			for (i = 0; i < n_pages; i++)
 				stress_far_branch_page_flush(pages[i], page_size);
+		}
+#if defined(MADV_SOFT_OFFLINE) ||	\
+    defined(MADV_PAGEOUT)
+		if (UNLIKELY(far_branch_pageout)) {
+			const size_t n = stress_mwc32modn((uint32_t)(n_pages >> 4)) + 1;
+
+			for (i = 0; i < n; i++) {
+				const size_t page = stress_mwc32modn((uint32_t)n_pages);
+#if defined(MADV_SOFT_OFFLINE)
+				VOID_RET(int, madvise(pages[page], page_size, MADV_SOFT_OFFLINE));
+#endif
+#if defined(MADV_PAGEOUT)
+				VOID_RET(int, madvise(pages[page], page_size, MADV_PAGEOUT));
+#endif
+#endif
+			}
 		}
 	} while (stress_continue(args));
 	duration = stress_time_now() - t_start;

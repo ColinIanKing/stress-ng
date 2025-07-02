@@ -253,6 +253,7 @@ const struct option stress_long_options[] = {
 	{ "far-branch",		1,	0,	OPT_far_branch },
 	{ "far-branch-flush",	0,	0,	OPT_far_branch_flush },
 	{ "far-branch-ops",	1,	0,	OPT_far_branch_ops },
+	{ "far-branch-pageout",	0,	0,	OPT_far_branch_pageout },
 	{ "far-branch-pages",	1,	0,	OPT_far_branch_pages },
 	{ "fault",		1,	0,	OPT_fault },
 	{ "fault-ops",		1,	0,	OPT_fault_ops },
