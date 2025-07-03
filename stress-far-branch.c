@@ -111,21 +111,27 @@ static void *stress_far_mmap_try32(
 	int fd,
 	off_t offset)
 {
+	void *ptr;
+
 #if defined(STRESS_ARCH_X86_64) &&	\
     defined(MAP_32BIT)
-		/*
-		 *  x86-64, offset in 32 bit address space, then try
-		 *  MAP_32BIT first
-		 */
-		if (((uintptr_t)addr >> 32U) == 0) {
-			void *ptr;
-
-			ptr = stress_mmap_populate(addr, length, prot, flags | MAP_32BIT, fd, offset);
-			if (ptr != MAP_FAILED)
-				return ptr;
-		}
+	/*
+	 *  x86-64, offset in 32 bit address space, then try
+	 *  MAP_32BIT first
+	 */
+	if (((uintptr_t)addr >> 32U) == 0)
+		ptr = stress_mmap_populate(addr, length, prot, flags | MAP_32BIT, fd, offset);
+	else
+		ptr = stress_mmap_populate(addr, length, prot, flags, fd, offset);
+#else
+	ptr = stress_mmap_populate(addr, length, prot, flags, fd, offset);
 #endif
-	return stress_mmap_populate(addr, length, prot, flags, fd, offset);
+	/* If mapped to a file, add random and willneed read hints */
+	if ((ptr != MAP_FAILED) && (fd != -1)) {
+		(void)stress_madvise_random(ptr, length);
+		(void)stress_madvise_willneed(ptr, length);
+	}
+	return ptr;
 }
 #endif
 
@@ -141,6 +147,11 @@ static void *stress_far_try_mmap(void *addr, size_t length, const int fd, const 
 			anon | MAP_SHARED | MAP_FIXED_NOREPLACE, fd, offset);
 		if (ptr != MAP_FAILED) {
 			(void)stress_madvise_mergeable(ptr, length);
+			/* If mapped to a file, add random and willneed read hints */
+			if (fd != -1) {
+				(void)stress_madvise_random(ptr, length);
+				(void)stress_madvise_willneed(ptr, length);
+			}
 			return ptr;
 		}
 	}
@@ -155,6 +166,11 @@ static void *stress_far_try_mmap(void *addr, size_t length, const int fd, const 
 			anon | MAP_SHARED | MAP_FIXED, fd, offset);
 		if (ptr != MAP_FAILED) {
 			(void)stress_madvise_mergeable(ptr, length);
+			/* If mapped to a file, add random and willneed read hints */
+			if (fd != -1) {
+				(void)stress_madvise_random(ptr, length);
+				(void)stress_madvise_willneed(ptr, length);
+			}
 			return ptr;
 		}
 	}
