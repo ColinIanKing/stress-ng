@@ -199,6 +199,7 @@ static void *stress_far_mmap(
 	uint8_t *ptr = MAP_FAILED;
 	uintptr_t addr = (uintptr_t)NULL;
 	size_t i, n;
+	static size_t count = 0;
 
 	/*
 	 *  Have several attempts to mmap to a chosen location,
@@ -260,7 +261,7 @@ use_page:
 	 *  mmap'd page is written to file and then unmapped. It is then re-mapped
 	 *  back from the file backed data.
 	 */
-	if (stress_mwc8() < 16) {
+	if ((count++ & 0xf) == 0xf) {
 		ssize_t ret;
 		off_t offset;
 
