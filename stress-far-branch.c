@@ -79,7 +79,7 @@ static void MLOCKED_TEXT stress_sig_handler(
 	siglongjmp(jmp_env, 1);
 }
 
-static void stress_far_branch_page_flush(void *page, const size_t page_size)
+static inline void stress_far_branch_page_flush(void *page, const size_t page_size)
 {
 	if (mprotect(page, page_size, PROT_READ | PROT_WRITE | PROT_EXEC) == 0) {
 		size_t i;
@@ -337,7 +337,7 @@ static inline void stress_far_branch_shuffle(
 	}
 }
 
-static void stress_far_branch_pageout(void *addr, const size_t page_size)
+static inline void stress_far_branch_pageout(void *addr, const size_t page_size)
 {
 	(void)addr;
 	(void)page_size;
@@ -356,7 +356,7 @@ static void stress_far_branch_pageout(void *addr, const size_t page_size)
  *	that are spread around the entire address space; try to
  *	exercise branches that are relatively far from the stressor
  */
-static int stress_far_branch(stress_args_t *args)
+static int OPTIMIZE3 stress_far_branch(stress_args_t *args)
 {
 	size_t i, j, k;
 	size_t bits = sizeof(void *) * 8;
@@ -509,23 +509,39 @@ static int stress_far_branch(stress_args_t *args)
 #if defined(HAVE_LABEL_AS_VALUE)
 l1:
 #endif
-		for (i = 0; LIKELY(i < (total_funcs)) && UNLIKELY(stress_continue_flag()); i += 16) {
-			funcs[i + 0x0]();
-			funcs[i + 0x1]();
-			funcs[i + 0x2]();
-			funcs[i + 0x3]();
-			funcs[i + 0x4]();
-			funcs[i + 0x5]();
-			funcs[i + 0x6]();
-			funcs[i + 0x7]();
-			funcs[i + 0x8]();
-			funcs[i + 0x9]();
-			funcs[i + 0xa]();
-			funcs[i + 0xb]();
-			funcs[i + 0xc]();
-			funcs[i + 0xd]();
-			funcs[i + 0xe]();
-			funcs[i + 0xf]();
+		for (i = 0; LIKELY(i < (total_funcs)) && UNLIKELY(stress_continue_flag()); i += 32) {
+			funcs[i + 0x00]();
+			funcs[i + 0x01]();
+			funcs[i + 0x02]();
+			funcs[i + 0x03]();
+			funcs[i + 0x04]();
+			funcs[i + 0x05]();
+			funcs[i + 0x06]();
+			funcs[i + 0x07]();
+			funcs[i + 0x08]();
+			funcs[i + 0x09]();
+			funcs[i + 0x0a]();
+			funcs[i + 0x0b]();
+			funcs[i + 0x0c]();
+			funcs[i + 0x0d]();
+			funcs[i + 0x0e]();
+			funcs[i + 0x0f]();
+			funcs[i + 0x10]();
+			funcs[i + 0x11]();
+			funcs[i + 0x12]();
+			funcs[i + 0x13]();
+			funcs[i + 0x14]();
+			funcs[i + 0x15]();
+			funcs[i + 0x16]();
+			funcs[i + 0x17]();
+			funcs[i + 0x18]();
+			funcs[i + 0x19]();
+			funcs[i + 0x1a]();
+			funcs[i + 0x1b]();
+			funcs[i + 0x1c]();
+			funcs[i + 0x1d]();
+			funcs[i + 0x1e]();
+			funcs[i + 0x1f]();
 		}
 		stress_bogo_inc(args);
 		calls += (double)total_funcs;
