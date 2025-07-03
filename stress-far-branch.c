@@ -253,7 +253,7 @@ use_page:
 	stress_set_vma_anon_name(ptr, page_size, "far-branch-returns");
 	for (i = 0, n = 0; i < page_size; i += stress_ret_opcode.stride, n++) {
 		(void)shim_memcpy((ptr + i), stress_ret_opcode.opcodes, stress_ret_opcode.len);
-		funcs[*total_funcs + i] = (stress_ret_func_t)(ptr + i);
+		funcs[*total_funcs + n] = (stress_ret_func_t)(ptr + i);
 	}
 
 	/*
