@@ -317,11 +317,14 @@ static void stress_far_branch_check(void)
  *	random spread of address ranges to branch to
  *	on function call/returns
  */
-static inline void stress_far_branch_shuffle(stress_ret_func_t *funcs, const size_t total_funcs)
+static inline void stress_far_branch_shuffle(
+	stress_ret_func_t *funcs,
+	const size_t total_funcs,
+	const size_t stride)
 {
 	register size_t i;
 
-	for (i = 0; i < total_funcs; i += 2) {
+	for (i = 0; i < total_funcs; i += stride) {
 		register const size_t k = stress_mwc32modn(total_funcs);
 		register stress_ret_func_t tmp;
 
@@ -359,7 +362,7 @@ static int stress_far_branch(stress_args_t *args)
 	const size_t page_size = args->page_size;
 	uintptr_t base = 0;
 	size_t max_funcs;
-	double t_start, duration, rate;
+	double t_start, t_next, duration, rate;
 	struct sigaction sa;
 	int ret, fd;
 	NOCLOBBER stress_ret_func_t *funcs = NULL;
@@ -489,7 +492,7 @@ static int stress_far_branch(stress_args_t *args)
 
 	funcs[0] = stress_far_branch_check;
 
-	stress_far_branch_shuffle(funcs, total_funcs);
+	stress_far_branch_shuffle(funcs, total_funcs, 2);
 
 	check_flag = false;
 
@@ -498,11 +501,12 @@ static int stress_far_branch(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	t_start = stress_time_now();
+	t_next = t_start + 3.0;
 	do {
 #if defined(HAVE_LABEL_AS_VALUE)
 l1:
 #endif
-		for (i = 0; i < total_funcs; i += 16) {
+		for (i = 0; LIKELY(i < (total_funcs)) && UNLIKELY(stress_continue_flag()); i += 16) {
 			funcs[i + 0x0]();
 			funcs[i + 0x1]();
 			funcs[i + 0x2]();
@@ -553,6 +557,12 @@ l2:
 #endif
 		}
 #endif
+		/* Periodic branch address shuffle */
+		if (stress_time_now() > t_next) {
+			stress_far_branch_shuffle(funcs, total_funcs, ((stress_mwc8() & 0x1f) + 7));
+			t_next = stress_time_now() + 3.0;
+		}
+
 	} while (stress_continue(args));
 	duration = stress_time_now() - t_start;
 
