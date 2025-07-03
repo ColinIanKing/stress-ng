@@ -492,7 +492,7 @@ static int OPTIMIZE3 stress_far_branch(stress_args_t *args)
 	total_funcs &= ~((size_t)15);
 
 	if (stress_instance_zero(args))
-		pr_inf("%s: %zu x %zu byte functions over %zu x %zuK pages (%zu file mapped functions)\n",
+		pr_inf("%s: %zu x %zu byte functions over %zu x %zuK pages (using %zu file mapped functions)\n",
 			args->name, total_funcs, stress_ret_opcode.stride,
 			n_pages, page_size >> 10,
 			total_file_mapped_funcs);
