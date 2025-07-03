@@ -205,17 +205,19 @@ static void *stress_far_mmap(
 	 *  and shift and change offset if mapping failed (e.g.
 	 *  due to clash or unmapped fixed location
 	 */
-	for (i = 0; offset && (i < 10); i++) {
-		size_t j;
+	if (stress_mwc1()) {
+		for (i = 0; offset && (i < 10); i++) {
+			size_t j;
 
-		for (j = 0; j < 10; j++) {
-			offset += (stress_mwc8() * 4096);
-			addr = base + offset;
+			for (j = 0; j < 10; j++) {
+				offset += (stress_mwc8() * 4096);
+				addr = base + offset;
 
-			ptr = (uint8_t *)stress_far_try_mmap((void *)addr, page_size, -1, 0);
-			if (ptr != MAP_FAILED)
-				goto use_page;
-			offset <<= 1;
+				ptr = (uint8_t *)stress_far_try_mmap((void *)addr, page_size, -1, 0);
+				if (ptr != MAP_FAILED)
+					goto use_page;
+				offset <<= 1;
+			}
 		}
 	}
 
