@@ -93,6 +93,7 @@ static inline void stress_far_branch_page_flush(void *page, const size_t page_si
 	}
 
 	shim_flush_icache((char *)page, (char *)page + page_size);
+	(void)shim_cacheflush((char *)page, page_size, SHIM_ICACHE);
 	(void)mprotect(page, page_size, PROT_READ | PROT_EXEC);
 }
 
