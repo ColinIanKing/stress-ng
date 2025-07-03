@@ -20,6 +20,7 @@
 #include "core-arch.h"
 #include "core-asm-ret.h"
 #include "core-builtin.h"
+#include "core-cpu-cache.h"
 #include "core-madvise.h"
 #include "core-pragma.h"
 
@@ -305,6 +306,7 @@ use_page:
 
 do_prot:
 	(void)mprotect((void *)ptr, page_size, PROT_READ | PROT_EXEC);
+	(void)shim_cacheflush((char *)ptr, page_size, SHIM_ICACHE);
 	(*total_funcs) += n;
 	return ptr;
 }
