@@ -96,10 +96,10 @@ static const int madvise_options[] = {
 #endif
 
 /*
- *  stress_madvise_random()
+ *  stress_madvise_randomize()
  *	apply random madvise setting to a memory region
  */
-int stress_madvise_random(void *addr, const size_t length)
+int stress_madvise_randomize(void *addr, const size_t length)
 {
 #if defined(HAVE_MADVISE)
 	if (g_opt_flags & OPT_FLAGS_MMAP_MADVISE) {

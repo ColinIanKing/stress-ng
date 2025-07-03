@@ -171,7 +171,7 @@ static int stress_mmapfixed_child(stress_args_t *args, void *context)
 #endif
 		if (info->mmapfixed_mlock)
 			(void)shim_mlock(buf, sz);
-		(void)stress_madvise_random(buf, sz);
+		(void)stress_madvise_randomize(buf, sz);
 #if defined(HAVE_MREMAP) &&	\
     NEED_GLIBC(2,4,0) && 	\
     defined(MREMAP_FIXED) &&	\
@@ -202,7 +202,7 @@ static int stress_mmapfixed_child(stress_args_t *args, void *context)
 #endif
 			if (info->mmapfixed_mlock)
 				(void)shim_mlock(buf, sz);
-			(void)stress_madvise_random(buf, sz);
+			(void)stress_madvise_randomize(buf, sz);
 
 			for (mask = ~(uintptr_t)0; mask > page_size; mask >>= 1) {
 				const uintptr_t rndaddr = rndaddr_base & mask;
@@ -239,7 +239,7 @@ static int stress_mmapfixed_child(stress_args_t *args, void *context)
 #endif
 					if (info->mmapfixed_mlock)
 						(void)shim_mlock(buf, sz);
-					(void)stress_madvise_random(buf, sz);
+					(void)stress_madvise_randomize(buf, sz);
 				}
 			}
 		}

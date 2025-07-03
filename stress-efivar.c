@@ -165,7 +165,7 @@ static void stress_efi_sysfs_fd(
 		ptr = mmap(NULL, len, PROT_READ | PROT_WRITE,
 			MAP_PRIVATE | MAP_ANONYMOUS, fd, 0);
 		if (ptr != MAP_FAILED) {
-			stress_madvise_random(ptr, len);
+			stress_madvise_randomize(ptr, len);
 			stress_madvise_mergeable(ptr, len);
 			(void)munmap(ptr, len);
 		}

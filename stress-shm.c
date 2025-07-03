@@ -225,7 +225,7 @@ static int stress_shm_posix_child(
 			/* Expand the mapping */
 			(void)shim_fallocate(shm_fd, 0, 0, (off_t)(sz + page_size));
 
-			(void)stress_madvise_random(addr, sz);
+			(void)stress_madvise_randomize(addr, sz);
 			(void)shim_msync(addr, sz, stress_mwc1() ? MS_ASYNC : MS_SYNC);
 			(void)shim_fsync(shm_fd);
 			VOID_RET(off_t, lseek(shm_fd, (off_t)0, SEEK_SET));

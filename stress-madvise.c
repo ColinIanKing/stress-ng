@@ -620,7 +620,7 @@ static int stress_madvise(stress_args_t *args)
 		}
 
 		(void)shim_memset(buf, 0xff, sz);
-		(void)stress_madvise_random(buf, sz);
+		(void)stress_madvise_randomize(buf, sz);
 		(void)stress_mincore_touch_pages(buf, sz);
 		stress_process_madvise(pid, buf, sz);
 

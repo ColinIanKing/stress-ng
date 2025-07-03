@@ -3614,7 +3614,7 @@ static int stress_vm_child(stress_args_t *args, void *ctxt)
 #endif
 
 			if (advice < 0)
-				(void)stress_madvise_random(buf, buf_sz);
+				(void)stress_madvise_randomize(buf, buf_sz);
 			else
 				(void)shim_madvise(buf, buf_sz, advice);
 #if defined(HAVE_LINUX_MEMPOLICY_H)
@@ -3636,7 +3636,7 @@ static int stress_vm_child(stress_args_t *args, void *ctxt)
 		}
 
 		if (!vm_keep) {
-			(void)stress_madvise_random(buf, buf_sz);
+			(void)stress_madvise_randomize(buf, buf_sz);
 #if defined(HAVE_MPROTECT) &&	\
     defined(PROT_NONE)
 			(void)stress_munmap_retry_enomem(buf, buf_sz + page_size);

@@ -363,7 +363,7 @@ static int stress_memfd_child(stress_args_t *args, void *context)
 #endif
 			stress_memfd_fill_pages_generic(stress_mwc64(), maps[i], size);
 			if (memfd_madvise) {
-				(void)stress_madvise_random(maps[i], size);
+				(void)stress_madvise_randomize(maps[i], size);
 				(void)stress_madvise_mergeable(maps[i], size);
 			}
 

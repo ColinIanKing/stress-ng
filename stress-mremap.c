@@ -270,7 +270,7 @@ static int stress_mremap_child(stress_args_t *args, void *context)
 		if (mremap_numa)
 			stress_numa_randomize_pages(args, numa_nodes, numa_mask, buf, sz, page_size);
 #endif
-		(void)stress_madvise_random(buf, new_sz);
+		(void)stress_madvise_randomize(buf, new_sz);
 		(void)stress_madvise_mergeable(buf, new_sz);
 		(void)stress_mincore_touch_pages(buf, mremap_bytes);
 
@@ -301,7 +301,7 @@ static int stress_mremap_child(stress_args_t *args, void *context)
 			if (mremap_numa)
 				stress_numa_randomize_pages(args, numa_nodes, numa_mask, buf, page_size, new_sz);
 #endif
-			(void)stress_madvise_random(buf, new_sz);
+			(void)stress_madvise_randomize(buf, new_sz);
 			if (g_opt_flags & OPT_FLAGS_VERIFY) {
 				if (UNLIKELY(stress_mmap_check(buf, new_sz, page_size) < 0)) {
 					pr_fail("%s: mremap'd region "
@@ -330,7 +330,7 @@ static int stress_mremap_child(stress_args_t *args, void *context)
 			if (mremap_numa)
 				stress_numa_randomize_pages(args, numa_nodes, numa_mask, buf, page_size, new_sz);
 #endif
-			(void)stress_madvise_random(buf, new_sz);
+			(void)stress_madvise_randomize(buf, new_sz);
 			old_sz = new_sz;
 			new_sz <<= 1;
 		}

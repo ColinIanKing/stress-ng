@@ -341,7 +341,7 @@ size_t stress_resources_allocate(
 				const size_t locked = STRESS_MINIMUM(mlock_size, resources[i].m_mmap_size);
 
 				stress_set_vma_anon_name(resources[i].m_mmap, resources[i].m_mmap_size, "resources-mmap");
-				(void)stress_madvise_random(resources[i].m_mmap, resources[i].m_mmap_size);
+				(void)stress_madvise_randomize(resources[i].m_mmap, resources[i].m_mmap_size);
 				(void)stress_mincore_touch_pages_interruptible(resources[i].m_mmap, resources[i].m_mmap_size);
 				if (locked > 0) {
 					shim_mlock(resources[i].m_mmap, locked);

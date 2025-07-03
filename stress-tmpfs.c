@@ -304,7 +304,7 @@ static int stress_tmpfs_child(stress_args_t *args, void *ctxt)
 			(void)shim_memset(buf, 0xff, sz);
 			(void)shim_msync((void *)buf, sz, ms_flags);
 		}
-		(void)stress_madvise_random(buf, sz);
+		(void)stress_madvise_randomize(buf, sz);
 		(void)stress_mincore_touch_pages(buf, sz);
 		for (n = 0; n < pages; n++) {
 			mappings[n].state = PAGE_MAPPED;
@@ -335,7 +335,7 @@ static int stress_tmpfs_child(stress_args_t *args, void *ctxt)
 
 				if (mappings[page].state == PAGE_MAPPED) {
 					mappings[page].state = 0;
-					(void)stress_madvise_random(mappings[page].addr, page_size);
+					(void)stress_madvise_randomize(mappings[page].addr, page_size);
 					(void)stress_munmap_retry_enomem((void *)mappings[page].addr, page_size);
 					n--;
 					break;
@@ -370,7 +370,7 @@ static int stress_tmpfs_child(stress_args_t *args, void *ctxt)
 						mappings[page].addr = NULL;
 					} else {
 						(void)stress_mincore_touch_pages(mappings[page].addr, page_size);
-						(void)stress_madvise_random(mappings[page].addr, page_size);
+						(void)stress_madvise_randomize(mappings[page].addr, page_size);
 						mappings[page].state = PAGE_MAPPED;
 						/* Ensure we can write to the mapped page */
 						stress_mmap_set(mappings[page].addr, page_size, page_size);
@@ -399,7 +399,7 @@ cleanup:
 		 */
 		for (n = 0; n < pages; n++) {
 			if (mappings[n].state & PAGE_MAPPED) {
-				(void)stress_madvise_random(mappings[n].addr, page_size);
+				(void)stress_madvise_randomize(mappings[n].addr, page_size);
 				(void)stress_munmap_retry_enomem((void *)mappings[n].addr, page_size);
 			}
 		}

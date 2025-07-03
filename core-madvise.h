@@ -19,7 +19,7 @@
 #ifndef CORE_MADVISE_H
 #define CORE_MADVISE_H
 
-extern int stress_madvise_random(void *addr, const size_t length);
+extern int stress_madvise_randomize(void *addr, const size_t length);
 extern int stress_madvise_mergeable(void *addr, const size_t length);
 extern int stress_madvise_collapse(void *addr, size_t length);
 extern int stress_madvise_nohugepage(void *addr, const size_t length);

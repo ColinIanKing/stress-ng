@@ -741,7 +741,7 @@ static int stress_shm_sysv_child(
 
 			if (UNLIKELY(!stress_continue(args)))
 				goto reap;
-			(void)stress_madvise_random(addr, sz);
+			(void)stress_madvise_randomize(addr, sz);
 
 			if (UNLIKELY(!stress_continue(args)))
 				goto reap;

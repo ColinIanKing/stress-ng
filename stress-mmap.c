@@ -601,7 +601,7 @@ retry:
 			(void)shim_msync((void *)buf, sz, ms_flags);
 		}
 		if (context->mmap_madvise)
-			(void)stress_madvise_random(buf, sz);
+			(void)stress_madvise_randomize(buf, sz);
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 		if (context->mmap_numa)
 			stress_numa_randomize_pages(args, context->numa_nodes, context->numa_mask, buf, sz, page_size);
@@ -665,7 +665,7 @@ retry:
 				}
 #endif
 				if (context->mmap_madvise)
-					(void)stress_madvise_random(mappings[page], page_size);
+					(void)stress_madvise_randomize(mappings[page], page_size);
 				stress_mmap_mprotect(args->name, mappings[page],
 					page_size, page_size, context->mmap_mprotect);
 			}
@@ -715,7 +715,7 @@ retry:
 						(void)shim_mlock(mappings[page], page_size);
 					(void)stress_mincore_touch_pages(mappings[page], page_size);
 					if (context->mmap_madvise)
-						(void)stress_madvise_random(mappings[page], page_size);
+						(void)stress_madvise_randomize(mappings[page], page_size);
 					if (context->mmap_mergeable)
 						(void)stress_madvise_mergeable(mappings[page], page_size);
 					stress_mmap_mprotect(args->name, mappings[page],

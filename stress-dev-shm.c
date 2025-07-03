@@ -95,7 +95,7 @@ static inline int stress_dev_shm_child(
 				const uint32_t rnd = stress_mwc32();
 
 				stress_set_vma_anon_name(addr, (size_t)sz, "mmapped-dev-shm");
-				(void)stress_madvise_random(addr, (size_t)sz);
+				(void)stress_madvise_randomize(addr, (size_t)sz);
 				(void)stress_madvise_mergeable(addr, (size_t)sz);
 
 				/* Touch all pages with data */
