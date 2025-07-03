@@ -116,6 +116,22 @@ int stress_madvise_randomize(void *addr, const size_t length)
 }
 
 /*
+ *  stress_madvise_random()
+ *	apply MADV_RANDOM for page read order hint
+ */
+int stress_madvise_random(void *addr, const size_t length)
+{
+#if defined(HAVE_MADVISE) &&	\
+    defined(MADV_RANDOM)
+	return madvise(addr, length, MADV_RANDOM);
+#else
+	(void)addr;
+	(void)length;
+	return 0;
+#endif
+}
+
+/*
  *  stress_madvise_mergeable()
  *	apply MADV_MERGEABLE for kernel same page merging
  */
