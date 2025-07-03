@@ -36,6 +36,7 @@ UNEXPECTED
 #define EXEC_METHOD_ALL		(0x00)
 #define EXEC_METHOD_EXECVE	(0x01)
 #define EXEC_METHOD_EXECVEAT	(0x02)
+#define EXEC_METHOD_FEXECVE	(0x03)
 
 #if defined(HAVE_CLONE)
 #define EXEC_FORK_METHOD_CLONE	(0x10)
@@ -68,7 +69,8 @@ typedef struct {
 	char *str;			/* huge argv and env string */
 	char *argv[4];			/* executable argv[] */
 	char *env[2];			/* executable env[] */
-#if defined(HAVE_EXECVEAT) &&	\
+#if (defined(HAVE_EXECVEAT) ||	\
+     defined(HAVE_FEXECVE)) &&	\
     defined(O_PATH)
 	int fdexec;			/* fd of program to exec */
 #endif
@@ -101,6 +103,7 @@ static const stress_exec_method_t stress_exec_methods[] = {
 	{ "all",	EXEC_METHOD_ALL },
 	{ "execve",	EXEC_METHOD_EXECVE },
 	{ "execveat",	EXEC_METHOD_EXECVEAT },
+	{ "fexecve",	EXEC_METHOD_FEXECVE },
 };
 
 static const stress_exec_method_t stress_exec_fork_methods[] = {
@@ -346,6 +349,12 @@ static int stress_call_exec_method(const stress_exec_context_t *context)
 			ret = shim_execveat(context->fdexec, "", context->argv, context->env, AT_EMPTY_PATH);
 		break;
 #endif
+#if defined(HAVE_FEXECVE) &&	\
+    defined(O_PATH)
+	case EXEC_METHOD_FEXECVE:
+		ret = fexecve(context->fdexec, context->argv, context->env);
+		break;
+#endif
 	default:
 		ret = execve(context->exec_prog, context->argv, context->env);
 		break;
@@ -453,14 +462,27 @@ static int stress_exec_child(void *arg)
 	int method = argp->exec_method;
 	const bool big_env = ((argp->rnd8 >= 128 + 64) && (argp->rnd8 < 128 + 80));
 	const bool big_arg = ((argp->rnd8 >= 128 + 80) && (argp->rnd8 < 128 + 96));
-#if defined(HAVE_EXECVEAT) &&	\
+#if (defined(HAVE_EXECVEAT) ||	\
+     defined(HAVE_FEXECVE)) &&	\
     defined(O_PATH)
 	bool exec_garbage = ((argp->rnd8 >= 128) && (argp->rnd8 < 128 + 64));
 #else
 	bool exec_garbage = false;
 #endif
-	if (method == EXEC_METHOD_ALL)
-		method = stress_mwc1() ? EXEC_METHOD_EXECVE : EXEC_METHOD_EXECVEAT;
+	if (method == EXEC_METHOD_ALL) {
+		switch (stress_mwc8modn(3)) {
+		default:
+		case 0:
+			method = EXEC_METHOD_EXECVE;
+			break;
+		case 1:
+			method = EXEC_METHOD_EXECVEAT;
+			break;
+		case 2:
+			method = EXEC_METHOD_FEXECVE;
+			break;
+		}
+	}
 
 	stress_parent_died_alarm();
 	(void)sched_settings_apply(true);
@@ -486,7 +508,8 @@ static int stress_exec_child(void *arg)
 	/*
 	 *  Create a garbage executable
 	 */
-#if defined(HAVE_EXECVEAT) &&	\
+#if (defined(HAVE_EXECVEAT) ||	\
+     defined(HAVE_FEXECVE)) &&	\
     defined(O_PATH)
 	if (exec_garbage) {
 		char buffer[1024];
@@ -532,7 +555,8 @@ do_exec:
 		argp->env[0] = argp->str;
 	if (big_arg)
 		argp->argv[2] = argp->str;
-#if defined(HAVE_EXECVEAT) &&	\
+#if (defined(HAVE_EXECVEAT) ||	\
+     defined(HAVE_FEXECVE)) &&	\
     defined(O_PATH)
 	context.fdexec = exec_garbage ? fd : argp->fdexec;
 #endif
@@ -648,7 +672,8 @@ static int stress_exec(stress_args_t *args)
 	char exec_path[PATH_MAX];
 	char garbage_prog[PATH_MAX];
 	int ret, rc = EXIT_FAILURE;
-#if defined(HAVE_EXECVEAT) &&	\
+#if (defined(HAVE_EXECVEAT) ||	\
+     defined(HAVE_FEXECVE)) &&	\
     defined(O_PATH)
 	int fdexec;
 #endif
@@ -691,8 +716,9 @@ static int stress_exec(stress_args_t *args)
 	/* Remind folk that vfork can only do execve in this stressor */
 	if ((exec_fork_method == EXEC_FORK_METHOD_VFORK) &&
 	    (exec_method != EXEC_METHOD_EXECVE) &&
+	    (exec_method != EXEC_METHOD_FEXECVE) &&
 	    (stress_instance_zero(args))) {
-		pr_inf("%s: limiting vfork to only use execve()\n", args->name);
+		pr_inf("%s: limiting vfork to only use execve() or fexecve()\n", args->name);
 	}
 #endif
 
@@ -723,8 +749,16 @@ static int stress_exec(stress_args_t *args)
 	if (stress_instance_zero(args) &&
 	    ((exec_method == EXEC_METHOD_ALL) ||
 	     (exec_method == EXEC_METHOD_EXECVEAT))) {
-		pr_inf("%s: execveat not available, just using execve\n", args->name);
-		exec_method = EXEC_METHOD_EXECVE;
+		pr_inf("%s: execveat not available, defaulting to all\n", args->name);
+		exec_method = EXEC_METHOD_ALL;
+	}
+#endif
+#if !defined(HAVE_FEXECVE)
+	if (stress_instance_zero(args) &&
+	    ((exec_method == EXEC_METHOD_ALL) ||
+	     (exec_method == EXEC_METHOD_FEXECVE))) {
+		pr_inf("%s: fexecve not available, defauting to all\n", args->name);
+		exec_method = EXEC_METHOD_ALL;
 	}
 #endif
 	ret = stress_temp_dir_mk_args(args);
@@ -733,7 +767,8 @@ static int stress_exec(stress_args_t *args)
 	(void)stress_temp_filename_args(args,
 		garbage_prog, sizeof(garbage_prog), stress_mwc32());
 
-#if defined(HAVE_EXECVEAT) &&	\
+#if (defined(HAVE_EXECVEAT) ||	\
+     defined(HAVE_FEXECVE)) &&	\
     defined(O_PATH)
 	fdexec = open(exec_prog, O_PATH);
 	if (fdexec < 0) {
@@ -774,7 +809,8 @@ static int stress_exec(stress_args_t *args)
 			sph->arg.no_pthread = exec_no_pthread;
 			sph->arg.str = str;
 			sph->arg.args = args;
-#if defined(HAVE_EXECVEAT) &&	\
+#if (defined(HAVE_EXECVEAT) ||	\
+     defined(HAVE_EXECVEAT)) &&	\
     defined(O_PATH)
 			sph->arg.fdexec = fdexec;
 #endif
@@ -888,7 +924,8 @@ static int stress_exec(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 
-#if defined(HAVE_EXECVEAT) &&	\
+#if (defined(HAVE_EXECVEAT) ||	\
+     defined(HAVE_FEXECVE)) &&	\
     defined(O_PATH)
 	(void)close(fdexec);
 #endif
@@ -899,7 +936,8 @@ static int stress_exec(stress_args_t *args)
 	}
 
 	rc = EXIT_SUCCESS;
-#if defined(HAVE_EXECVEAT) &&	\
+#if (defined(HAVE_EXECVEAT) ||	\
+     defined(HAVE_FEXECVE)) &&	\
     defined(O_PATH)
 err:
 #endif

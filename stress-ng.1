@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "2 July 2025"
+.TH STRESS-NG 1 "3 July 2025"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -2498,10 +2498,10 @@ iteration. The default is 4096; higher values may create many temporary
 zombie processes that are waiting to be reaped. One can potentially fill up the
 process table using high values for \-\-exec\-max and \-\-exec.
 .TP
-.B \-\-exec\-method [ all | execve | execveat ]
+.B \-\-exec\-method [ all | execve | execveat | fexecve ]
 select the exec system call to use; all will perform a random choice between
-execve(2) and execveat(2), execve will use execve(2) and execveat will use
-execveat(2) if it is available.
+execve(2), execveat(2) and fexecve(3), execve will use execve(2), execveat will use
+execveat(2) (if available) and fexecve will use fexecve(3) (if available).
 .TP
 .B \-\-exec\-no\-pthread
 do not use pthread_create(3).
