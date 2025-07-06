@@ -304,6 +304,7 @@ HEADERS = \
 	core-config-check.h \
 	core-cpu.h \
 	core-cpu-cache.h \
+	core-cpu-freq.h \
 	core-cpuidle.h \
 	core-ftrace.h \
 	core-hash.h \
@@ -377,6 +378,7 @@ CORE_SRC = \
 	core-asm-ret.c \
 	core-cpu.c \
 	core-cpu-cache.c \
+	core-cpu-freq.c \
 	core-cpuidle.c \
 	core-clocksource.c \
 	core-config-check.c \

@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-builtin.h"
+#include "core-cpu-freq.h"
 #include "core-killpid.h"
 #include "core-pragma.h"
 #include "core-rapl.h"
@@ -977,148 +978,6 @@ static double stress_get_tz_info(const stress_tz_info_t *tz_info)
 #endif
 
 /*
- *  stress_zero_cpu_ghz()
- *	zero CPU clock freq stats
- */
-static inline void stress_zero_cpu_ghz(
-	double *avg_ghz,
-	double *min_ghz,
-	double *max_ghz)
-{
-	*avg_ghz = 0.0;
-	*min_ghz = 0.0;
-	*max_ghz = 0.0;
-}
-
-#if defined(__linux__)
-/*
- *  stress_get_cpu_ghz()
- *	get CPU frequencies in GHz
- */
-static void stress_get_cpu_ghz(
-	double *avg_ghz,
-	double *min_ghz,
-	double *max_ghz)
-{
-	struct dirent **cpu_list = NULL;
-	int i, n_cpus, n = 0;
-	double total_freq = 0.0;
-
-	*min_ghz = DBL_MAX;
-	*max_ghz = 0.0;
-
-	n_cpus = scandir("/sys/devices/system/cpu", &cpu_list, NULL, alphasort);
-	for (i = 0; i < n_cpus; i++) {
-		const char *name = cpu_list[i]->d_name;
-
-		if (!strncmp(name, "cpu", 3) && isdigit((unsigned char)name[3])) {
-			char path[PATH_MAX];
-			double freq;
-			FILE *fp;
-
-			(void)snprintf(path, sizeof(path),
-				"/sys/devices/system/cpu/%s/cpufreq/scaling_cur_freq",
-				name);
-			if ((fp = fopen(path, "r")) != NULL) {
-				if (fscanf(fp, "%lf", &freq) == 1) {
-					if (freq >= 0.0) {
-						total_freq += freq;
-						if (*min_ghz > freq)
-							*min_ghz = freq;
-						if (*max_ghz < freq)
-							*max_ghz = freq;
-						n++;
-					}
-				}
-				(void)fclose(fp);
-			}
-		}
-		free(cpu_list[i]);
-	}
-	if (n_cpus > -1)
-		free(cpu_list);
-
-	if (n == 0) {
-		stress_zero_cpu_ghz(avg_ghz, min_ghz, max_ghz);
-	} else {
-		*avg_ghz = (total_freq / n) * ONE_MILLIONTH;
-		*min_ghz *= ONE_MILLIONTH;
-		*max_ghz *= ONE_MILLIONTH;
-	}
-}
-#elif defined(__FreeBSD__) ||	\
-      defined(__APPLE__)
-static void stress_get_cpu_ghz(
-	double *avg_ghz,
-	double *min_ghz,
-	double *max_ghz)
-{
-	const int32_t ncpus = stress_get_processors_configured();
-	int32_t i;
-	double total_freq = 0.0;
-	int n = 0;
-
-	*min_ghz = DBL_MAX;
-	*max_ghz = 0.0;
-
-	for (i = 0; i < ncpus; i++) {
-		double freq;
-#if defined(__FreeBSD__)
-		{
-			char name[32];
-
-			(void)snprintf(name, sizeof(name), "dev.cpu.%" PRIi32 ".freq", i);
-			freq = (double)stress_bsd_getsysctl_uint(name) * ONE_THOUSANDTH;
-		}
-#elif defined(__APPLE__)
-		freq = (double)stress_bsd_getsysctl_uint64("hw.cpufrequency") * ONE_BILLIONTH;
-#endif
-		if (freq >= 0.0) {
-			total_freq += freq;
-			if (*min_ghz > freq)
-				*min_ghz = freq;
-			if (*max_ghz < freq)
-				*max_ghz = freq;
-			n++;
-		}
-	}
-	if (n == 0) {
-		stress_zero_cpu_ghz(avg_ghz, min_ghz, max_ghz);
-	} else {
-		*avg_ghz = (total_freq / n);
-	}
-}
-#elif defined(__OpenBSD__)
-static void stress_get_cpu_ghz(
-	double *avg_ghz,
-	double *min_ghz,
-	double *max_ghz)
-{
-	int mib[2], speed_mhz;
-	size_t size;
-
-	mib[0] = CTL_HW;
-	mib[1] = HW_CPUSPEED;
-	size = sizeof(speed_mhz);
-	if (sysctl(mib, 2, &speed_mhz, &size, NULL, 0) == 0) {
-		*avg_ghz = (double)speed_mhz / 1000.0;
-		*min_ghz = *avg_ghz;
-		*max_ghz = *avg_ghz;
-	} else {
-		stress_zero_cpu_ghz(avg_ghz, min_ghz, max_ghz);
-	}
-}
-#else
-static void stress_get_cpu_ghz(
-	double *avg_ghz,
-	double *min_ghz,
-	double *max_ghz)
-{
-	stress_zero_cpu_ghz(avg_ghz, min_ghz, max_ghz);
-}
-#endif
-
-/*
  *  stress_vmstat_start()
  *	start vmstat statistics (1 per second)
  */
@@ -1302,7 +1161,7 @@ void stress_vmstat_start(void)
 				}
 #endif
 
-				stress_get_cpu_ghz(&avg_ghz, &min_ghz, &max_ghz);
+				stress_get_cpu_freq(&avg_ghz, &min_ghz, &max_ghz);
 				if (avg_ghz > 0.0)
 					(void)snprintf(cpuspeed, sizeof(cpuspeed), "%5.2f %5.2f %5.2f",
 						avg_ghz, min_ghz, max_ghz);
