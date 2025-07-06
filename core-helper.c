@@ -704,30 +704,6 @@ int32_t stress_get_ticks_per_second(void)
 }
 
 /*
- *  stress_get_gpu_freq_mhz()
- *	get GPU frequency in MHz, set to 0.0 if not readable
- */
-void stress_get_gpu_freq_mhz(double *gpu_freq)
-{
-	if (UNLIKELY(!gpu_freq))
-		return;
-#if defined(__linux__)
-	{
-		char buf[64];
-
-		if (stress_system_read("/sys/class/drm/card0/gt_cur_freq_mhz", buf, sizeof(buf)) > 0) {
-			if (sscanf(buf, "%lf", gpu_freq) == 1)
-				return;
-		} else if (stress_system_read("/sys/class/drm/card0/gt_cur_freq_mhz", buf, sizeof(buf)) > 0) {
-			if (sscanf(buf, "%lf", gpu_freq) == 1)
-				return;
-		}
-	}
-#endif
-	*gpu_freq = 0.0;
-}
-
-/*
  *  stress_get_filesystem_size()
  *	get size of free space still available on the
  *	file system where stress temporary path is located,

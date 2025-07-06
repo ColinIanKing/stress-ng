@@ -77,7 +77,32 @@ static struct gbm_device *gbm;
 static struct gbm_surface *gs;
 
 static const char default_gpu_devnode[] = "/dev/dri/renderD128";
+static int gpu_card = 0;
 static GLubyte *teximage = NULL;
+
+/*
+ *  stress_get_gpu_freq_mhz()
+ *	get GPU frequency in MHz, set to 0.0 if not readable
+ */
+void stress_get_gpu_freq_mhz(double *gpu_freq)
+{
+	if (UNLIKELY(!gpu_freq))
+		return;
+#if defined(__linux__)
+	{
+		char buf[64];
+		char filename[128];
+		snprintf(filename, sizeof(filename), "/sys/class/drm/card%d/gt_cur_freq_mhz", gpu_card);
+
+		if (stress_system_read(filename, buf, sizeof(buf)) > 0) {
+			if (sscanf(buf, "%lf", gpu_freq) == 1)
+				return;
+		}
+	}
+#endif
+	*gpu_freq = 0.0;
+}
+
 
 static void stress_gpu_trim_newline(char *str)
 {
@@ -494,6 +519,19 @@ static void *stress_gpu_pthread(void *arg)
 }
 #endif
 
+static int stress_gpu_card(const char *gpu_devnode)
+{
+	int renderer;
+
+	if (sscanf(gpu_devnode, "/dev/dri/renderD%u", &renderer) != 1)
+		return -1;
+	renderer -= 128;
+	if (renderer < 0)
+		return -1;
+
+	return renderer;
+}
+
 static int stress_gpu_child(stress_args_t *args, void *context)
 {
 	int frag_n = 0;
@@ -533,6 +571,8 @@ static int stress_gpu_child(stress_args_t *args, void *context)
 	(void)stress_get_setting("gpu-ysize", &size_y);
 	(void)stress_get_setting("gpu-tex-size", &texsize);
 	(void)stress_get_setting("gpu-upload", &uploads);
+
+	gpu_card = stress_gpu_card(gpu_devnode);
 
 	ret = egl_init(args, gpu_devnode, size_x, size_y);
 	if (ret != EXIT_SUCCESS)
