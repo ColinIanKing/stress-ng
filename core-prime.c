@@ -20,6 +20,8 @@
 #include "stress-ng.h"
 #include "core-builtin.h"
 
+#include <math.h>
+
 /*
  *  stress_is_prime64()
  *      return true if 64 bit value n is prime
