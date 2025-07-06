@@ -535,7 +535,7 @@ static int stress_gpu_card(const char *gpu_devnode)
 static int stress_gpu_child(stress_args_t *args, void *context)
 {
 	int frag_n = 0;
-	int ret;
+	int ret, fd;
 	uint32_t size_x = 256;
 	uint32_t size_y = 256;
 	GLsizei texsize = 4096;
@@ -559,6 +559,11 @@ static int stress_gpu_child(stress_args_t *args, void *context)
 	(void)sigemptyset(&set);
 	(void)sigaddset(&set, SIGALRM);
 	(void)sigprocmask(SIG_BLOCK, &set, NULL);
+
+	/* save and close stderr */
+	fd = dup(STDERR_FILENO);
+	if (fd >= 0)
+		(void)close(STDERR_FILENO);
 
 	(void)context;
 
@@ -615,6 +620,12 @@ deinit:
 		free(teximage);
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
+	if (fd >= 0) {
+		/* and re-connect stderr */
+		(void)dup2(fd, STDERR_FILENO);
+		(void)close(fd);
+	}
 
 	return ret;
 }
