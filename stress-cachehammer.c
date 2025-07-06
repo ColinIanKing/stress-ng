@@ -1869,7 +1869,7 @@ static int OPTIMIZE3 stress_cachehammer(stress_args_t *args)
 				addr2 = bad_page + (offset & page_mask);
 
 #if defined(HAVE_LINUX_MEMPOLICY_H)
-				stress_cachehammer_numa(args, 50, &numa_count[3], addr1,
+				stress_cachehammer_numa(args, 50, &numa_count[4], addr1,
 							cachehammer_numa, numa_mask, numa_nodes);
 #endif
 				hammer(args, addr1, addr2, true, false);
