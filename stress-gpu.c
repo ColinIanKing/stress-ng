@@ -525,6 +525,7 @@ static int stress_gpu_child(stress_args_t *args, void *context)
 	(void)context;
 
 	(void)setenv("MESA_SHADER_CACHE_DISABLE", "true", 1);
+	(void)setenv("MESA_LOG_FILE", "/dev/null", 1);
 
 	(void)stress_get_setting("gpu-devnode", &gpu_devnode);
 	(void)stress_get_setting("gpu-frag", &frag_n);
