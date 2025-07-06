@@ -19,6 +19,8 @@
  */
 #include "stress-ng.h"
 #include "core-attribute.h"
+#include "core-bitops.h"
+#include "core-builtin.h"
 #include "core-cpu-cache.h"
 #include "core-helper.h"
 #include "core-mwc.h"
@@ -464,4 +466,26 @@ OPTIMIZE3 void stress_rndstr(char *str, const size_t len)
 			r = stress_mwc32() | mask;
 	}
 	*ptr = '\0';
+}
+
+/*
+ *  stress_uint8rnd4()
+ *	fill a uint8_t buffer full of random data
+ *	buffer *must* be multiple of 4 bytes in size
+ */
+OPTIMIZE3 void stress_uint8rnd4(uint8_t *data, const size_t len)
+{
+	register uint32_t *ptr32 = (uint32_t *)shim_assume_aligned(data, 4);
+	register const uint32_t *ptr32end = (uint32_t *)(data + len);
+
+	if (UNLIKELY(!data || (len < 4)))
+		return;
+
+	if (stress_little_endian()) {
+		while (ptr32 < ptr32end)
+			*ptr32++ = stress_mwc32();
+	} else {
+		while (ptr32 < ptr32end)
+			*ptr32++ = stress_swap32(stress_mwc32());
+	}
 }

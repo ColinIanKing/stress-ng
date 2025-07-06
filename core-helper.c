@@ -1440,28 +1440,6 @@ static const char * PURE stress_endian_str(void)
 }
 
 /*
- *  stress_uint8rnd4()
- *	fill a uint8_t buffer full of random data
- *	buffer *must* be multiple of 4 bytes in size
- */
-OPTIMIZE3 void stress_uint8rnd4(uint8_t *data, const size_t len)
-{
-	register uint32_t *ptr32 = (uint32_t *)shim_assume_aligned(data, 4);
-	register const uint32_t *ptr32end = (uint32_t *)(data + len);
-
-	if (UNLIKELY(!data || (len < 4)))
-		return;
-
-	if (stress_little_endian()) {
-		while (ptr32 < ptr32end)
-			*ptr32++ = stress_mwc32();
-	} else {
-		while (ptr32 < ptr32end)
-			*ptr32++ = stress_swap32(stress_mwc32());
-	}
-}
-
-/*
  *  stress_get_libc_version()
  *	return human readable libc version (where possible)
  */
