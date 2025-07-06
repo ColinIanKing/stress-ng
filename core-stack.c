@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-stack.h"
 
 #include <ctype.h>
 
