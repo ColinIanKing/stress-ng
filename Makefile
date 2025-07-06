@@ -319,6 +319,7 @@ HEADERS = \
 	core-lock.h \
 	core-log.h \
 	core-madvise.h \
+	core-memory.h \
 	core-mlock.h \
 	core-mmap.h \
 	core-mincore.h \
@@ -396,6 +397,7 @@ CORE_SRC = \
 	core-lock.c \
 	core-log.c \
 	core-madvise.c \
+	core-memory.c \
 	core-mincore.c \
 	core-mlock.c \
 	core-mmap.c \

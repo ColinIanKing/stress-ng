@@ -26,6 +26,7 @@
 #include "core-cpu-cache.h"
 #include "core-hash.h"
 #include "core-lock.h"
+#include "core-memory.h"
 #include "core-numa.h"
 #include "core-pthread.h"
 #include "core-pragma.h"
@@ -639,45 +640,6 @@ size_t stress_mk_filename(
 }
 
 /*
- *  stress_get_page_size()
- *	get page_size
- */
-size_t stress_get_page_size(void)
-{
-	static size_t page_size = 0;
-
-	/* Use cached size */
-	if (LIKELY(page_size > 0))
-		return page_size;
-
-#if defined(_SC_PAGESIZE)
-	{
-		/* Use modern sysconf */
-		const long int sz = sysconf(_SC_PAGESIZE);
-		if (sz > 0) {
-			page_size = (size_t)sz;
-			return page_size;
-		}
-	}
-#else
-	UNEXPECTED
-#endif
-#if defined(HAVE_GETPAGESIZE)
-	{
-		/* Use deprecated getpagesize */
-		const long int sz = getpagesize();
-		if (sz > 0) {
-			page_size = (size_t)sz;
-			return page_size;
-		}
-	}
-#endif
-	/* Guess */
-	page_size = PAGE_4K;
-	return page_size;
-}
-
-/*
  *  stress_get_processors_online()
  *	get number of processors that are online
  */
@@ -742,158 +704,6 @@ int32_t stress_get_ticks_per_second(void)
 }
 
 /*
- *  stress_get_meminfo()
- *	wrapper for linux sysinfo
- */
-static int stress_get_meminfo(
-	size_t *freemem,
-	size_t *totalmem,
-	size_t *freeswap,
-	size_t *totalswap)
-{
-	if (UNLIKELY(!freemem || !totalmem || !freeswap || !totalswap))
-		return -1;
-#if defined(HAVE_SYS_SYSINFO_H) &&	\
-    defined(HAVE_SYSINFO)
-	{
-		struct sysinfo info;
-
-		(void)shim_memset(&info, 0, sizeof(info));
-
-		if (LIKELY(sysinfo(&info) == 0)) {
-			*freemem = info.freeram * info.mem_unit;
-			*totalmem = info.totalram * info.mem_unit;
-			*freeswap = info.freeswap * info.mem_unit;
-			*totalswap = info.totalswap * info.mem_unit;
-			return 0;
-		}
-	}
-#endif
-#if defined(__FreeBSD__)
-	{
-		const size_t page_size = (size_t)stress_bsd_getsysctl_uint("vm.stats.vm.v_page_size");
-#if 0
-		/*
-		 *  Enable total swap only when we can determine free swap
-		 */
-		const size_t max_size_t = (size_t)-1;
-		const uint64_t vm_swap_total = stress_bsd_getsysctl_uint64("vm.swap_total");
-
-		*totalswap = (vm_swap_total >= max_size_t) ? max_size_t : (size_t)vm_swap_total;
-#endif
-		*freemem = page_size * stress_bsd_getsysctl_uint32("vm.stats.vm.v_free_count");
-		*totalmem = page_size *
-			(stress_bsd_getsysctl_uint32("vm.stats.vm.v_active_count") +
-			 stress_bsd_getsysctl_uint32("vm.stats.vm.v_inactive_count") +
-			 stress_bsd_getsysctl_uint32("vm.stats.vm.v_laundry_count") +
-			 stress_bsd_getsysctl_uint32("vm.stats.vm.v_wire_count") +
-			 stress_bsd_getsysctl_uint32("vm.stats.vm.v_free_count"));
-		*freeswap = 0;
-		*totalswap = 0;
-		return 0;
-	}
-#endif
-#if defined(__NetBSD__) &&	\
-    defined(HAVE_UVM_UVM_EXTERN_H)
-	{
-		struct uvmexp_sysctl u;
-
-		if (stress_bsd_getsysctl("vm.uvmexp2", &u, sizeof(u)) == 0) {
-			*freemem = (size_t)u.free * u.pagesize;
-			*totalmem = (size_t)u.npages * u.pagesize;
-			*totalswap = (size_t)u.swpages * u.pagesize;
-			*freeswap = *totalswap - (size_t)u.swpginuse * u.pagesize;
-			return 0;
-		}
-	}
-#endif
-#if defined(__APPLE__) &&		\
-    defined(HAVE_MACH_MACH_H) &&	\
-    defined(HAVE_MACH_VM_STATISTICS_H)
-	{
-		vm_statistics64_data_t vm_stat;
-		mach_port_t host = mach_host_self();
-		natural_t count = HOST_VM_INFO64_COUNT;
-		size_t page_size = stress_get_page_size();
-		int ret;
-
-		/* zero vm_stat, keep cppcheck silent */
-		(void)shim_memset(&vm_stat, 0, sizeof(vm_stat));
-		ret = host_statistics64(host, HOST_VM_INFO64, (host_info64_t)&vm_stat, &count);
-		if (ret >= 0) {
-			*freemem = page_size * vm_stat.free_count;
-			*totalmem = page_size * (vm_stat.active_count +
-						 vm_stat.inactive_count +
-						 vm_stat.wire_count +
-						 vm_stat.zero_fill_count);
-			return 0;
-		}
-
-	}
-#endif
-	*freemem = 0;
-	*totalmem = 0;
-	*freeswap = 0;
-	*totalswap = 0;
-
-	return -1;
-}
-
-/*
- *  stress_get_memlimits()
- *	get SHMALL and memory in system
- *	these are set to zero on failure
- */
-void stress_get_memlimits(
-	size_t *shmall,
-	size_t *freemem,
-	size_t *totalmem,
-	size_t *freeswap,
-	size_t *totalswap)
-{
-#if defined(__linux__)
-	char buf[64];
-#endif
-	if (UNLIKELY(!shmall || !freemem || !totalmem || !freeswap || !totalswap))
-		return;
-
-	(void)stress_get_meminfo(freemem, totalmem, freeswap, totalswap);
-#if defined(__linux__)
-	if (LIKELY(stress_system_read("/proc/sys/kernel/shmall", buf, sizeof(buf)) > 0)) {
-		if (sscanf(buf, "%zu", shmall) == 1)
-			return;
-	}
-#endif
-	*shmall = 0;
-}
-
-/*
- *  stress_get_memfree_str()
- *	get size of memory that's free in a string, non-reentrant
- *	note the ' ' space is prefixed before valid strings so the
- *	output can be used in messages such as:
- *	   pr_fail("out of memory%s\n", stress_uint64_to_str());
- */
-char *stress_get_memfree_str(void)
-{
-        size_t freemem = 0, totalmem = 0, freeswap = 0, totalswap = 0;
-	char freemem_str[32], freeswap_str[32];
-	static char buf[96];
-
-	(void)shim_memset(buf, 0, sizeof(buf));
-	if (stress_get_meminfo(&freemem, &totalmem, &freeswap, &totalswap) < 0)
-		return buf;
-
-	if ((freemem == 0) && (totalmem == 0) && (freeswap == 0) && (totalswap == 0))
-		return buf;
-
-	(void)stress_uint64_to_str(freemem_str, sizeof(freemem_str), (uint64_t)freemem, 0, true);
-	(void)stress_uint64_to_str(freeswap_str, sizeof(freeswap_str), (uint64_t)freeswap, 0, true);
-	(void)snprintf(buf, sizeof(buf), " (%s mem free, %s swap free)", freemem_str, freeswap_str);
-	return buf;
-}
-
-/*
  *  stress_get_gpu_freq_mhz()
  *	get GPU frequency in MHz, set to 0.0 if not readable
  */
@@ -915,140 +725,6 @@ void stress_get_gpu_freq_mhz(double *gpu_freq)
 	}
 #endif
 	*gpu_freq = 0.0;
-}
-
-#if !defined(PR_SET_MEMORY_MERGE)
-#define PR_SET_MEMORY_MERGE	(67)
-#endif
-
-/*
- *  stress_ksm_memory_merge()
- *	set kernel samepage merging flag (linux only)
- */
-void stress_ksm_memory_merge(const int flag)
-{
-#if defined(__linux__) &&		\
-    defined(PR_SET_MEMORY_MERGE) &&	\
-    defined(HAVE_SYS_PRCTL_H)
-	if ((flag >= 0) && (flag <= 1)) {
-		static int prev_flag = -1;
-
-		if (flag != prev_flag) {
-			VOID_RET(int, prctl(PR_SET_MEMORY_MERGE, flag));
-			prev_flag = flag;
-		}
-		(void)stress_system_write("/sys/kernel/mm/ksm/run", "1\n", 2);
-	}
-#else
-	(void)flag;
-#endif
-}
-
-/*
- *  stress_low_memory()
- *	return true if running low on memory
- */
-bool stress_low_memory(const size_t requested)
-{
-	static size_t prev_freemem = 0;
-	static size_t prev_freeswap = 0;
-	size_t freemem, totalmem, freeswap, totalswap;
-	static double threshold = -1.0;
-	bool low_memory = false;
-
-	if (stress_get_meminfo(&freemem, &totalmem, &freeswap, &totalswap) == 0) {
-		/*
-		 *  Threshold not set, then get
-		 */
-		if (threshold < 0.0) {
-			size_t bytes = 0;
-
-			if (stress_get_setting("oom-avoid-bytes", &bytes)) {
-				threshold = 100.0 * (double)bytes / (double)freemem;
-			} else {
-				/* Not specified, then default to 2.5% */
-				threshold = 2.5;
-			}
-		}
-		/*
-		 *  Stats from previous call valid, then check for memory
-		 *  changes
-		 */
-		if ((prev_freemem + prev_freeswap) > 0) {
-			ssize_t delta;
-
-			delta = (ssize_t)prev_freemem - (ssize_t)freemem;
-			delta = (delta * 2) + requested;
-			/* memory shrinking quickly? */
-			if (delta  > (ssize_t)freemem) {
-				low_memory = true;
-				goto update;
-			}
-			/* swap shrinking quickly? */
-			delta = (ssize_t)prev_freeswap - (ssize_t)freeswap;
-			if (delta > (ssize_t)freeswap / 8) {
-				low_memory = true;
-				goto update;
-			}
-		}
-		/* Not enough for allocation and slop? */
-		if (freemem < ((4 * MB) + requested)) {
-			low_memory = true;
-			goto update;
-		}
-		/* Less than threshold left? */
-		if (((double)(freemem - requested) * 100.0 / (double)totalmem) < threshold) {
-			low_memory = true;
-			goto update;
-		}
-		/* Any swap enabled with free memory we are too low? */
-		if ((totalswap > 0) && (freeswap + freemem < (requested + (2 * MB)))) {
-			low_memory = true;
-			goto update;
-		}
-update:
-		prev_freemem = freemem;
-		prev_freeswap = freeswap;
-
-		/* low memory? automatically enable ksm memory merging */
-		if (low_memory)
-			stress_ksm_memory_merge(1);
-	}
-	return low_memory;
-}
-
-#if defined(_SC_AVPHYS_PAGES)
-#define STRESS_SC_PAGES	_SC_AVPHYS_PAGES
-#elif defined(_SC_PHYS_PAGES)
-#define STRESS_SC_PAGES	_SC_PHYS_PAGES
-#endif
-
-/*
- *  stress_get_phys_mem_size()
- *	get size of physical memory still available, 0 if failed
- */
-uint64_t stress_get_phys_mem_size(void)
-{
-#if defined(STRESS_SC_PAGES)
-	uint64_t phys_pages;
-	const size_t page_size = stress_get_page_size();
-	const uint64_t max_pages = ~0ULL / page_size;
-	long int ret;
-
-	errno = 0;
-	ret = sysconf(STRESS_SC_PAGES);
-	if (UNLIKELY((ret < 0) && (errno != 0)))
-		return 0ULL;
-
-	phys_pages = (uint64_t)ret;
-	/* Avoid overflow */
-	if (UNLIKELY(phys_pages > max_pages))
-		phys_pages = max_pages;
-	return phys_pages * page_size;
-#else
-	UNEXPECTED
-	return 0ULL;
-#endif
 }
 
 /*
@@ -1111,26 +787,6 @@ uint64_t stress_get_filesystem_available_inodes(void)
 	UNEXPECTED
 	return 0ULL;
 #endif
-}
-
-/*
- *  stress_usage_bytes()
- *	report how much memory is used per instance
- *	and in total compared to physical memory available
- */
-void stress_usage_bytes(
-	stress_args_t *args,
-	const size_t vm_per_instance,
-	const size_t vm_total)
-{
-	const uint64_t total_phys_mem = stress_get_phys_mem_size();
-	char s1[32], s2[32], s3[32];
-
-	pr_inf("%s: using %s per stressor instance (total %s of %s available memory)\n",
-		args->name,
-		stress_uint64_to_str(s1, sizeof(s1), (uint64_t)vm_per_instance, 2, true),
-		stress_uint64_to_str(s2, sizeof(s2), (uint64_t)vm_total, 2, true),
-		stress_uint64_to_str(s3, sizeof(s3), total_phys_mem, 2, true));
 }
 
 /*
@@ -2861,18 +2517,6 @@ ret:
 }
 
 /*
- *  stress_align_address
- *	align address to alignment, alignment MUST be a power of 2
- */
-void PURE *stress_align_address(const void *addr, const size_t alignment)
-{
-	const uintptr_t uintptr =
-		((uintptr_t)addr + alignment) & ~(alignment - 1);
-
-	return (void *)uintptr;
-}
-
-/*
  *  stress_sigalrm_pending()
  *	return true if SIGALRM is pending
  */
@@ -4281,27 +3925,6 @@ void stress_file_rw_hint_short(const int fd)
 }
 
 /*
- *  stress_set_vma_anon_name()
- *	set a name to an anonymously mapped vma
- */
-void stress_set_vma_anon_name(const void *addr, const size_t size, const char *name)
-{
-#if defined(HAVE_SYS_PRCTL_H) &&	\
-    defined(HAVE_PRCTL) &&		\
-    defined(PR_SET_VMA) &&		\
-    defined(PR_SET_VMA_ANON_NAME)
-	VOID_RET(int, prctl(PR_SET_VMA, PR_SET_VMA_ANON_NAME,
-			(unsigned long int)addr,
-			(unsigned long int)size,
-			(unsigned long int)name));
-#else
-	(void)addr;
-	(void)size;
-	(void)name;
-#endif
-}
-
-/*
  *  stress_x86_readmsr()
  *	64 bit read an MSR on a specified x86 CPU
  */
@@ -4367,66 +3990,6 @@ void stress_unset_chattr_flags(const char *pathname)
 
 #else
 	(void)pathname;
-#endif
-}
-
-/*
- *  stress_munmap_retry_enomem()
- *	retry munmap on ENOMEM errors as these can be due
- *	to low memory not allowing memory to be released
- */
-int stress_munmap_retry_enomem(void *addr, size_t length)
-{
-	int ret, i;
-
-	for (i = 1; i <= 10; i++) {
-		int saved_errno;
-
-		ret = munmap(addr, length);
-		if (LIKELY(ret == 0))
-			break;
-		if (errno != ENOMEM)
-			break;
-		saved_errno = errno;
-		(void)shim_usleep(10000 * i);
-		errno = saved_errno;
-	}
-	return ret;
-}
-
-/*
- *  stress_swapoff()
- *	swapoff and retry if EINTR occurs
- */
-int stress_swapoff(const char *path)
-{
-#if defined(HAVE_SYS_SWAP_H) && \
-    defined(HAVE_SWAP)
-	int i;
-
-	if (UNLIKELY(!path)) {
-		errno = EINVAL;
-		return -1;
-	}
-
-	for (i = 0; i < 25; i++) {
-		int ret;
-
-		errno = 0;
-		ret = swapoff(path);
-		if (ret == 0)
-			return ret;
-		if ((ret < 0) && (errno != EINTR))
-			break;
-	}
-	return -1;
-#else
-	if (!path) {
-		errno = EINVAL;
-		return -1;
-	}
-	errno = ENOSYS;
-	return -1;
 #endif
 }
 
@@ -4657,27 +4220,6 @@ static void stress_dbg(const char *fmt, ...)
 	sz += n;
 
 	VOID_RET(ssize_t, write(fileno(stdout), buf, (size_t)sz));
-}
-
-/*
- *  stress_addr_readable()
- *	portable way to check if memory addr[0]..addr[len - 1] is readable,
- *	create pipe, see if write of the memory range works, failure (with
- *	EFAULT) will be used to indicate address range is not readable.
- */
-bool stress_addr_readable(const void *addr, const size_t len)
-{
-	int fds[2];
-	bool ret = false;
-
-	if (UNLIKELY(pipe(fds) < 0))
-		return ret;
-	if (write(fds[1], addr, len) == (ssize_t)len)
-		ret = true;
-	(void)close(fds[0]);
-	(void)close(fds[1]);
-
-	return ret;
 }
 
 /*
@@ -5036,34 +4578,6 @@ void stress_process_info(stress_args_t *args, const pid_t pid)
 	(void)args;
 	(void)pid;
 #endif
-}
-
-/*
- *  stress_mmap_populate()
- *	try mmap with MAP_POPULATE option, if it fails
- *	retry without MAP_POPULATE. This prefaults pages
- *	into memory to avoid faulting during stressor
- *	execution. Useful for mappings that get accessed
- *	immediately after being mmap'd.
- */
-void *stress_mmap_populate(
-	void *addr,
-	size_t length,
-	int prot,
-	int flags,
-	int fd,
-	off_t offset)
-{
-#if defined(MAP_POPULATE)
-	void *ret;
-
-	flags |= MAP_POPULATE;
-	ret = mmap(addr, length, prot, flags, fd, offset);
-	if (ret != MAP_FAILED)
-		return ret;
-	flags &= ~MAP_POPULATE;
-#endif
-	return mmap(addr, length, prot, flags, fd, offset);
 }
 
 /*

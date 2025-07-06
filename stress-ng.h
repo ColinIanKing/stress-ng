@@ -263,6 +263,7 @@ typedef struct stress_stressor_info {
 #include "core-stack.h"
 #include "core-log.h"
 #include "core-lock.h"
+#include "core-memory.h"
 #include "core-mwc.h"
 #include "core-rapl.h"
 #include "core-sched.h"
