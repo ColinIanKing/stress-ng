@@ -23,6 +23,7 @@
 #include "core-hash.h"
 #include "core-killpid.h"
 #include "core-pthread.h"
+#include "core-prime.h"
 #include "core-put.h"
 #include "core-try-open.h"
 

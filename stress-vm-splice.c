@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-builtin.h"
+#include "core-prime.h"
 
 #define MIN_VM_SPLICE_BYTES	(4 * KB)
 #define MAX_VM_SPLICE_BYTES	(64 * MB)

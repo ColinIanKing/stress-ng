@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-attribute.h"
 #include "core-out-of-memory.h"
+#include "core-prime.h"
 
 #include <ctype.h>
 

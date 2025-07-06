@@ -24,6 +24,7 @@
 #include "core-killpid.h"
 #include "core-out-of-memory.h"
 #include "core-pragma.h"
+#include "core-prime.h"
 
 #include <ctype.h>
 #include <sched.h>

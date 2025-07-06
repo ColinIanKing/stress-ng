@@ -23,6 +23,7 @@
 #include "core-numa.h"
 #include "core-out-of-memory.h"
 #include "core-pragma.h"
+#include "core-prime.h"
 
 #define MMAPCOW_FORK	(0x0001)
 #define MMAPCOW_FREE	(0x0002)

@@ -29,6 +29,7 @@
 #include "core-out-of-memory.h"
 #include "core-pthread.h"
 #include "core-pragma.h"
+#include "core-prime.h"
 #include "core-target-clones.h"
 
 #if defined(HAVE_LINUX_MEMPOLICY_H) &&	\

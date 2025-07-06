@@ -31,6 +31,7 @@
 #include "core-numa.h"
 #include "core-out-of-memory.h"
 #include "core-pragma.h"
+#include "core-prime.h"
 #include "core-vecmath.h"
 
 #define MIN_VM_BYTES		(4 * KB)

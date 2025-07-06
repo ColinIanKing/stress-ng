@@ -335,6 +335,7 @@ HEADERS = \
 	core-parse-opts.h \
 	core-perf.h \
 	core-pragma.h \
+	core-prime.h \
 	core-processes.h \
 	core-pthread.h \
 	core-put.h \
@@ -410,6 +411,7 @@ CORE_SRC = \
 	core-out-of-memory.c \
 	core-parse-opts.c \
 	core-perf.c \
+	core-prime.c \
 	core-processes.c \
 	core-rapl.c \
 	core-resources.c \

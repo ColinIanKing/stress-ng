@@ -19,6 +19,7 @@
 #include "stress-ng.h"
 #include "core-builtin.h"
 #include "core-pragma.h"
+#include "core-prime.h"
 
 #if defined(HAVE_SYS_TREE_H)
 #include <sys/tree.h>
