@@ -125,7 +125,6 @@ extern WARN_UNUSED bool stress_is_dev_tty(const int fd);
 extern void stress_dirent_list_free(struct dirent **dlist, const int n);
 extern WARN_UNUSED int stress_dirent_list_prune(struct dirent **dlist, const int n);
 extern WARN_UNUSED bool stress_warn_once_hash(const char *filename, const int line);
-extern WARN_UNUSED uint16_t stress_ipv4_checksum(uint16_t *ptr, const size_t sz);
 extern WARN_UNUSED int stress_get_unused_uid(uid_t *uid);
 extern ssize_t stress_read_discard(const int fd);
 extern WARN_UNUSED ssize_t stress_read_buffer(const int fd, void* buffer,

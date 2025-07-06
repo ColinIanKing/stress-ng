@@ -23,6 +23,7 @@
 #include "core-bitops.h"
 #include "core-builtin.h"
 #include "core-cpu.h"
+#include "core-net.h"
 #include "core-pragma.h"
 #include "core-put.h"
 #include "core-target-clones.h"

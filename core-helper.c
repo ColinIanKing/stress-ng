@@ -2691,31 +2691,6 @@ unlock:
 }
 
 /*
- *  stress_ipv4_checksum()
- *	ipv4 data checksum
- */
-uint16_t PURE OPTIMIZE3 stress_ipv4_checksum(uint16_t *ptr, const size_t sz)
-{
-	register uint32_t sum = 0;
-	register size_t n = sz;
-
-	if (UNLIKELY(!ptr))
-		return 0;
-
-	while (n > 1) {
-		sum += *ptr++;
-		n -= 2;
-	}
-
-	if (n)
-		sum += *(uint8_t*)ptr;
-	sum = (sum >> 16) + (sum & 0xffff);
-	sum += (sum >> 16);
-
-	return (uint16_t)~sum;
-}
-
-/*
  *  stress_uid_comp()
  *	uid comparison for sorting
  */

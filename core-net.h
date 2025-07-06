@@ -55,5 +55,6 @@ extern WARN_UNUSED const char *stress_net_domain(const int domain);
 
 extern WARN_UNUSED int stress_net_reserve_ports(const int start_port, const int end_port);
 extern void stress_net_release_ports(const int start_port, const int end_port);
+extern WARN_UNUSED uint16_t stress_ipv4_checksum(uint16_t *ptr, const size_t sz);
 
 #endif

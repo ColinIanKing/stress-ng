@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-builtin.h"
 #include "core-capabilities.h"
+#include "core-net.h"
 
 #if defined(HAVE_NETINET_IP_H)
 #include <netinet/ip.h>
