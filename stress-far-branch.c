@@ -558,12 +558,13 @@ l1:
 #if defined(MADV_SOFT_OFFLINE) ||	\
     defined(MADV_PAGEOUT)
 		if (UNLIKELY(far_branch_pageout)) {
-#if defined(HAVE_LABEL_AS_VALUE)
-l2:
-			uintptr_t addr1, addr2;;
-#endif
+			uintptr_t addr1, addr2;
+
 			const size_t n = stress_mwc32modn((uint32_t)(n_pages >> 4)) + 1;
 
+#if defined(HAVE_LABEL_AS_VALUE)
+l2:
+#endif
 			for (i = 0; i < n; i++) {
 				const size_t page = stress_mwc32modn((uint32_t)n_pages);
 
