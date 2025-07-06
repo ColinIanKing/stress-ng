@@ -17,6 +17,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-capabilities.h"
 #include "core-killpid.h"
 
 #if defined(HAVE_LINK_H)

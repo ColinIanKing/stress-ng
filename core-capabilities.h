@@ -19,6 +19,8 @@
 #ifndef CORE_CAPABILITIES_H
 #define CORE_CAPABILITIES_H
 
+#include "stress-ng.h"
+
 #define SHIM_CAP_IS_ROOT		(-1)
 
 /* POSIX-draft defined capabilities */
@@ -262,5 +264,9 @@
 #else
 #define SHIM_CAP_BPF			SHIM_CAP_IS_ROOT
 #endif
+
+void stress_getset_capability(void);
+WARN_UNUSED bool stress_check_capability(const int capability);
+WARN_UNUSED int stress_drop_capabilities(const char *name);
 
 #endif

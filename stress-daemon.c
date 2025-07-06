@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-capabilities.h"
 
 #if defined(NSIG)
 #define MAX_SIGNUM      NSIG

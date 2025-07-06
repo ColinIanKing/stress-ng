@@ -21,6 +21,7 @@
 #include "core-arch.h"
 #include "core-builtin.h"
 #include "core-bitops.h"
+#include "core-capabilities.h"
 #include "core-killpid.h"
 #include "core-pragma.h"
 

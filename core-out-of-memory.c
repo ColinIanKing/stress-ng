@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-attribute.h"
+#include "core-capabilities.h"
 #include "core-killpid.h"
 #include "core-out-of-memory.h"
 

@@ -379,6 +379,7 @@ CORE_SRC = \
 	core-affinity.c \
 	core-arch.c \
 	core-asm-ret.c \
+	core-capabilities.c \
 	core-cpu.c \
 	core-cpu-cache.c \
 	core-cpu-freq.c \
