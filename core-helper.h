@@ -21,25 +21,12 @@
 
 #include "stress-ng.h"
 
-#define STRESS_SIGSTKSZ		(stress_get_sig_stack_size())
-#define STRESS_MINSIGSTKSZ	(stress_get_min_sig_stack_size())
-
 /*
  *  stress_warn_once hashes the current filename and line where
  *  the macro is used and returns true if it's never been called
  *  there before across all threads and child processes
  */
 #define stress_warn_once()	stress_warn_once_hash(__FILE__, __LINE__)
-
-/*
- *  Stack aligning for clone() system calls
- *	align to nearest 16 bytes for aarch64 et al,
- *	assumes we have enough slop to do this
- */
-static inline WARN_UNUSED ALWAYS_INLINE void *stress_align_stack(void *stack_top)
-{
-	return (void *)((uintptr_t)stack_top & ~(uintptr_t)0xf);
-}
 
 extern const char ALIGN64 NONSTRING stress_ascii64[64];
 extern const char ALIGN64 NONSTRING stress_ascii32[32];
@@ -79,8 +66,6 @@ extern void stress_set_proc_state_str(const char *name, const char *str);
 extern void stress_set_proc_state(const char *name, const int state);
 extern size_t stress_munge_underscore(char *dst, const char *src, size_t len);
 extern WARN_UNUSED int stress_strcmp_munged(const char *s1, const char *s2);
-extern WARN_UNUSED ssize_t stress_get_stack_direction(void);
-extern WARN_UNUSED void *stress_get_stack_top(void *start, size_t size);
 extern WARN_UNUSED uint64_t stress_get_uint64_zero(void);
 extern WARN_UNUSED void *stress_get_null(void);
 extern int stress_temp_filename(char *path, const size_t len, const char *name,
@@ -119,9 +104,6 @@ extern WARN_UNUSED uint64_t stress_get_prime64(const uint64_t n);
 extern WARN_UNUSED size_t stress_get_max_file_limit(void);
 extern WARN_UNUSED size_t stress_get_file_limit(void);
 extern WARN_UNUSED int stress_get_bad_fd(void);
-extern WARN_UNUSED int stress_sigaltstack_no_check(void *stack, const size_t size);
-extern WARN_UNUSED int stress_sigaltstack(void *stack, const size_t size);
-extern void stress_sigaltstack_disable(void);
 extern void stress_mask_longjump_signals(sigset_t *set);
 extern WARN_UNUSED int stress_sighandler(const char *name, const int signum,
 	void (*handler)(int), struct sigaction *orig_action);
@@ -163,11 +145,7 @@ extern WARN_UNUSED int stress_get_kernel_release(void);
 extern WARN_UNUSED pid_t stress_get_unused_pid_racy(const bool fork_test);
 extern int stress_read_fdinfo(const pid_t pid, const int fd);
 extern WARN_UNUSED size_t stress_get_hostname_length(void);
-extern WARN_UNUSED size_t stress_get_sig_stack_size(void);
-extern WARN_UNUSED size_t stress_get_min_sig_stack_size(void);
-extern WARN_UNUSED size_t stress_get_min_pthread_stack_size(void);
 extern NORETURN MLOCKED_TEXT void stress_sig_handler_exit(int signum);
-extern void stress_set_stack_smash_check_flag(const bool flag);
 extern WARN_UNUSED int stress_get_tty_width(void);
 extern WARN_UNUSED size_t stress_get_extents(const int fd);
 extern WARN_UNUSED bool stress_redo_fork(stress_args_t *args, const int err);
@@ -204,7 +182,6 @@ extern void *stress_mmap_populate(void *addr, size_t length, int prot,
 extern bool stress_addr_readable(const void *addr, const size_t len);
 extern uint64_t stress_get_machine_id(void);
 extern void stress_zero_metrics(stress_metrics_t *metrics, const size_t n);
-extern void stress_backtrace(void);
 extern bool OPTIMIZE3 stress_data_is_not_zero(uint64_t *buffer, const size_t len);
 
 #endif

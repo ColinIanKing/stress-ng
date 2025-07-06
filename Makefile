@@ -345,6 +345,7 @@ HEADERS = \
 	core-shim.h \
 	core-smart.h \
 	core-sort.h \
+	core-stack.h \
 	core-stressors.h \
 	core-sync.h \
 	core-syslog.h \
@@ -416,6 +417,7 @@ CORE_SRC = \
 	core-shim.c \
 	core-smart.c \
 	core-sort.c \
+	core-stack.c \
 	core-sync.c \
 	core-thermal-zone.c \
 	core-time.c \
