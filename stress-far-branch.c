@@ -340,6 +340,8 @@ static inline void stress_far_branch_shuffle(
 	}
 }
 
+#if defined(MADV_SOFT_OFFLINE) ||	\
+    defined(MADV_PAGEOUT)
 static inline void stress_far_branch_pageout(void *addr, const size_t page_size)
 {
 	(void)addr;
@@ -352,6 +354,7 @@ static inline void stress_far_branch_pageout(void *addr, const size_t page_size)
 	VOID_RET(int, madvise(addr, page_size, MADV_PAGEOUT));
 #endif
 }
+#endif
 
 /*
  *  stress_far_branch()
