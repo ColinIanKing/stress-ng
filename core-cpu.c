@@ -234,6 +234,8 @@ bool stress_cpu_is_x86(void)
 		"AMDisbetter!",		/* early engineering samples of AMD K5 processor */
 		"AuthenticAMD",		/* AMD */
 		"CentaurHauls",		/* IDT WinChip/Centaur (Including some VIA and Zhaoxin CPUs) */
+		"Compaq FX!32",		/* Compaq FX!32 */
+		"ConnectixCPU",		/* Connectix Virtual PC (version 6 and lower) */
 		"CyrixInstead",		/* Cyrix/early STMicroelectronics and IBM */
 		"E2K MACHINE\0",	/* MCST Elbrus */
 		"Genuine  RDC",		/* RDC Semiconductor Co. Ltd. */
@@ -243,38 +245,47 @@ bool stress_cpu_is_x86(void)
 		"GenuineTMx86",		/* Transmeta */
 		"Geode by NSC",		/* National Semiconductor */
 		"HygonGenuine",		/* Hygon */
+		"Insignia 586",		/* Insignia RealPC and SoftWindows 98 */
 		"MicrosoftXTA",		/* Microsoft x86-to-ARM */
 		"MiSTer AO486",		/* ao486 CPU */
+		"Neko Project",		/* Neko Project II (PC-98 emulator) */
 		"NexGenDriven",		/* NexGen */
+		"PowerVM Lx86",		/* PowerVM Lx86 (x86 emulator for IBM POWER5/POWER6) */
 		"RiseRiseRise",		/* Rise */
 		"SiS SiS SiS ",		/* SiS */
 		"TransmetaCPU",		/* Transmeta */
 		"UMC UMC UMC ",		/* UMC */
 		"VIA VIA VIA ",		/* VIA */
 		"VirtualApple",		/* Newer versions of Apple Rosetta 2 */
+		"Virtual CPU ",		/* Microsoft Virtual PC 7 */
 		"Vortex86 SoC",		/* DM&P Vortex86 */
 		"  Shanghai  ",		/* Zhaoxin */
 	};
 
+	/* Virtual CPUs */
 	static const char * const x86_virt_id_str[] = {
+		"___ NVMM ___",		/* NetBSD NVMM */
 		" lrpepyh  vr",		/* Parallels */
 		" QNXQVMBSQG ",		/* QNX Hypervisor */
 		"ACRNACRNACRN",		/* Project ACRN */
 		"bhyve bhyve ",		/* bhyve VM */
 		"BHyVE BHyVE",		/* bhyve VM */
 		"EVMMEVMMEVMM",		/* Intel KGT (Trusty) */
+		"FEXIFEXIEMU\0",	/* FEX-Emu */
 		"HAXMHAXMHAXM",		/* Intel HAXM */
 		"Jailhouse\0\0\0",	/* Jailhouse */
-		"Microsoft Hv",		/* Microsoft Hyper-V or Windows Virtual PC */
 		"KVMKVMKVM\0\0\0",	/* Linux KVM */
 		"Linux KVM Hv",		/* Linux KVM Hyper-V emulation */
+		"Microsoft Hv",		/* Microsoft Hyper-V or Windows Virtual PC */
+		"Napocahv    ",		/* Bitdefender Napoca */
 		"OpenBSDVMM58",		/* OpenBSD VMM */
-		"XenVMMXenVMM",		/* XEN HVM */
+		"prl hyperv  ",		/* Parallels */
 		"SRESRESRESRE",		/* Lockheed Martin LMHS */
 		"TCGTCGTCGTCG",		/* QEMU */
 		"UnisysSpar64",		/* Unisys s-Par */
+		"VBoxVBoxVBox",		/* VirtualBox */
 		"VMwareVMware",		/* VMWare */
-		"___ NVMM ___",		/* NetBSD NVMM */
+		"XenVMMXenVMM",		/* XEN HVM */
 	};
 
 	uint32_t eax, ebx, ecx, edx;
