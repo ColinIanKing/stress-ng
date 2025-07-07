@@ -316,8 +316,8 @@ static int stress_module_open(stress_args_t *args, int mod_type)
 	uint8_t buf_in[1024];
 	uint8_t buf_out[1024];
 	char modname[PATH_MAX];
-#endif
 	int fd_in, fd_out;
+#endif
 
 	(void)args;
 
