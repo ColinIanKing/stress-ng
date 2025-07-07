@@ -1,6 +1,6 @@
 # stress-ng Citations
 
-* [Linux kernel performance test tool](https://cdrdv2-public.intel.com/723902/lkp-tests.pdf)
+* [Linux kernel performance test tool](https://github.com/intel/lkp-tests/commit/df80a984c3aab82972733114bac3ae19963cff1e)
 
 2015:
 * [Enhancing Cloud energy models for optimizing datacenters efficiency](https://cs.gmu.edu/~menasce/cs788/papers/ICCAC2015-Outin.pdf)
