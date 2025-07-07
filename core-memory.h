@@ -38,7 +38,5 @@ extern void stress_set_vma_anon_name(const void *addr, const size_t size,
 extern int stress_munmap_retry_enomem(void *addr, size_t length);
 extern int stress_swapoff(const char *path);
 extern bool stress_addr_readable(const void *addr, const size_t len);
-extern void *stress_mmap_populate(void *addr, size_t length, int prot,
-	int flags, int fd, off_t offset);
 
 #endif

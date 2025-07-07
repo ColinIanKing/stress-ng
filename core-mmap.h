@@ -23,5 +23,7 @@ extern void stress_mmap_set(uint8_t *buf, const size_t sz, const size_t page_siz
 extern int stress_mmap_check(uint8_t *buf, const size_t sz, const size_t page_size);
 extern void stress_mmap_set_light(uint8_t *buf, const size_t sz, const size_t page_size);
 extern int stress_mmap_check_light(uint8_t *buf, const size_t sz, const size_t page_size);
+extern WARN_UNUSED void *stress_mmap_populate(void *addr, size_t length, int prot,
+	int flags, int fd, off_t offset);
 
 #endif

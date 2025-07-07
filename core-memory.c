@@ -507,31 +507,3 @@ bool stress_addr_readable(const void *addr, const size_t len)
 
 	return ret;
 }
-
-/*
- *  stress_mmap_populate()
- *	try mmap with MAP_POPULATE option, if it fails
- *	retry without MAP_POPULATE. This prefaults pages
- *	into memory to avoid faulting during stressor
- *	execution. Useful for mappings that get accessed
- *	immediately after being mmap'd.
- */
-void *stress_mmap_populate(
-	void *addr,
-	size_t length,
-	int prot,
-	int flags,
-	int fd,
-	off_t offset)
-{
-#if defined(MAP_POPULATE)
-	void *ret;
-
-	flags |= MAP_POPULATE;
-	ret = mmap(addr, length, prot, flags, fd, offset);
-	if (ret != MAP_FAILED)
-		return ret;
-	flags &= ~MAP_POPULATE;
-#endif
-	return mmap(addr, length, prot, flags, fd, offset);
-}
