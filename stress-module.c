@@ -41,6 +41,10 @@ UNEXPECTED
 UNEXPECTED
 #endif
 
+#if defined(HAVE_LZMA_H)
+#include <lzma.h>
+#endif
+
 #ifndef MODULE_INIT_IGNORE_MODVERSIONS
 #define MODULE_INIT_IGNORE_MODVERSIONS 1
 #endif
@@ -48,6 +52,9 @@ UNEXPECTED
 #ifndef MODULE_INIT_IGNORE_VERMAGIC
 #define MODULE_INIT_IGNORE_VERMAGIC 2
 #endif
+
+#define MODULE_KO	(1)
+#define MODULE_KO_XZ	(2)
 
 static const stress_help_t help[] = {
 	{ NULL,	"module N",	    "start N workers performing module requests" },
@@ -259,9 +266,13 @@ static int get_modpath_name(
 			/* Check for .ko end, can't decompress .zst, .xz etc yet */
 			ret = -1 ;
 			len = strlen(module_path);
+			if (len > 6) {
+				if (strncmp(module_path + len - 6, ".ko.xz", 6) == 0)
+					ret = MODULE_KO_XZ;
+			}
 			if (len > 3) {
 				if (strncmp(module_path + len - 3, ".ko", 3) == 0)
-					ret = 0;
+					ret = MODULE_KO;
 			}
 			goto out_close;
 		case PARSE_INVALID:
@@ -291,6 +302,130 @@ out_close:
 }
 
 /*
+ *  stress_module_open()
+ *	either open .ko directly or decompress a .ko.xz and return
+ *	a fd to the temp file containing a decompressed .ko
+ */
+static int stress_module_open(stress_args_t *args, int mod_type)
+{
+#if defined(HAVE_LZMA_H) &&	\
+    defined(HAVE_LIB_LZMA)
+	lzma_stream strm = LZMA_STREAM_INIT;
+	lzma_action action = LZMA_RUN;
+	lzma_ret ret;
+	uint8_t buf_in[1024];
+	uint8_t buf_out[1024];
+	char modname[PATH_MAX];
+#endif
+	int fd_in, fd_out;
+
+	(void)args;
+
+	/* Simple case, a ko, open directly */
+	if (mod_type == MODULE_KO)
+		return open(global_module_path, O_RDONLY | O_CLOEXEC);
+
+	/* Not a ko.xz, fail! */
+	if (mod_type != MODULE_KO_XZ)
+		return -1;
+
+#if defined(HAVE_LZMA_H) &&	\
+    defined(HAVE_LIB_LZMA)
+	/*
+	 *  Decompress..
+	 */
+	ret = lzma_stream_decoder(&strm, UINT64_MAX, LZMA_CONCATENATED);
+	if (ret != LZMA_OK) {
+		pr_inf("%s: lzma_stream_decoder failed, ret=%d\n", args->name, ret);
+		return -1;
+	}
+	(void)stress_temp_filename_args(args,
+		modname, sizeof(modname), stress_mwc32());
+	(void)strlcat(modname, ".ko", sizeof(modname));
+	fd_in = open(global_module_path, O_RDONLY);
+	if (fd_in < 0)
+		return -1;
+	fd_out = open(modname, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
+	if (fd_out < 0) {
+		(void)close(fd_in);
+		return -1;
+	}
+	strm.next_in = NULL;
+	strm.avail_in = 0;
+	strm.next_out = buf_out;
+	strm.avail_out = sizeof(buf_out);
+
+	for (;;) {
+		if (strm.avail_in == 0) {
+			ssize_t rd;
+
+			rd = read(fd_in, buf_in, sizeof(buf_in));
+			if (rd < 0) {
+				pr_inf("%s: decompress read failure on '%s', errno=%d (%s)\n",
+					args->name, global_module_path,
+					errno, strerror(errno));
+				(void)unlink(modname);
+				(void)close(fd_out);
+				(void)close(fd_in);
+				return -1;
+			}
+			strm.next_in = buf_in;
+			strm.avail_in = rd;
+
+			if (rd == 0)
+				action = LZMA_FINISH;
+		}
+		ret = lzma_code(&strm, action);
+
+		if ((strm.avail_out == 0) || (ret == LZMA_STREAM_END)) {
+			size_t n = sizeof(buf_out) - strm.avail_out;
+			ssize_t wr;
+
+			wr = write(fd_out, buf_out, n);
+			if (wr < 0) {
+				pr_inf("%s: decompress write failure, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
+				(void)unlink(modname);
+				(void)close(fd_out);
+				(void)close(fd_in);
+				return -1;
+			}
+			strm.next_out = buf_out;
+			strm.avail_out = wr;
+		}
+
+		if (ret != LZMA_OK) {
+			if (ret == LZMA_STREAM_END)
+				break;
+			pr_inf("%s: decompress error %d\n", args->name, ret);
+			(void)unlink(modname);
+			(void)close(fd_out);
+			(void)close(fd_in);
+			return -1;
+		}
+	}
+
+	if (lseek(fd_out, (off_t)0, SEEK_SET) < 0) {
+		pr_inf("%s: lseek failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
+		(void)unlink(modname);
+		(void)close(fd_out);
+		(void)close(fd_in);
+		return -1;
+	}
+
+	(void)close(fd_in);
+	(void)close(fd_out);
+	fd_in = open(modname, O_RDONLY | O_CLOEXEC);
+	(void)unlink(modname);
+
+	return fd_in;
+#else
+	return -1;
+#endif
+}
+
+/*
  *  stress_module
  *	stress by heavy module ops
  */
@@ -304,14 +439,18 @@ static int stress_module(stress_args_t *args)
 	const char *finit_args1 = "";
 	unsigned int kernel_flags = 0;
 	struct stat statbuf;
-	int fd, ret = EXIT_SUCCESS;
+	int fd = -1, ret;
 	static const char * const default_modules[] = {
-		"test_module",
 		"test_user_copy",
-		"test_static_key_base",
 		"test_bpf",
+		"test_module",
+		"test_static_key_base",
 		"test_firmware"
 	};
+
+	ret = stress_temp_dir_mk_args(args);
+        if (ret < 0)
+                return stress_exit_status((int)-ret);
 
 	(void)stress_get_setting("module-name", &module_name_cli);
 	(void)stress_get_setting("module-no-vermag", &module_no_vermag);
@@ -332,7 +471,7 @@ static int stress_module(stress_args_t *args)
 		for (i = 0; i < SIZEOF_ARRAY(default_modules); i++) {
 			module_name = default_modules[i];
 			ret = get_modpath_name(args, module_name, global_module_path, sizeof(global_module_path));
-			if (ret == 0)
+			if (ret > 0)
 				break;
 		}
 	}
@@ -362,14 +501,15 @@ static int stress_module(stress_args_t *args)
 					args->name, buf);
 			}
 		}
-		return EXIT_NO_RESOURCE;
+		ret = EXIT_NO_RESOURCE;
+		goto out;
 	}
 
 	/*
 	 *  We're exercising modules, so if the open fails chalk this
 	 *  up as a resource failure rather than a module test failure.
 	 */
-	fd = open(global_module_path, O_RDONLY | O_CLOEXEC);
+	fd = stress_module_open(args, ret);
 	if (fd < 0) {
 		pr_inf_skip("%s: cannot open the module file %s, "
 			"errno=%d (%s), skipping stressor\n",
@@ -397,8 +537,8 @@ static int stress_module(stress_args_t *args)
 					args->name, global_module_path);
 			}
 		}
-		(void)close(fd);
-		return EXIT_NO_RESOURCE;
+		ret = EXIT_NO_RESOURCE;
+		goto out;
 	}
 	if (!S_ISREG(statbuf.st_mode)) {
 		if (stress_instance_zero(args)) {
@@ -406,8 +546,8 @@ static int stress_module(stress_args_t *args)
 				"'%s', skipping stressor\n",
 				args->name, global_module_path);
 		}
-		(void)close(fd);
-		return EXIT_NO_RESOURCE;
+		ret = EXIT_NO_RESOURCE;
+		goto out;
 	}
 
 	/*
@@ -425,6 +565,7 @@ static int stress_module(stress_args_t *args)
 	stress_sync_start_wait(args);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
+	ret = EXIT_SUCCESS;
 	do {
 		if (UNLIKELY(!stress_continue(args)))
 			break;
@@ -442,6 +583,7 @@ out:
 	if (fd >= 0)
 		(void)close(fd);
 
+	(void)stress_temp_dir_rm_args(args);
 	return ret;
 }
 
