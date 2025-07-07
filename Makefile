@@ -344,6 +344,7 @@ HEADERS = \
 	core-resources.h \
 	core-sched.h \
 	core-setting.h \
+	core-shared-cache.h \
 	core-shared-heap.h \
 	core-shim.h \
 	core-signal.h \
@@ -421,6 +422,7 @@ CORE_SRC = \
 	core-resources.c \
 	core-sched.c \
 	core-setting.c \
+	core-shared-cache.c \
 	core-shared-heap.c \
 	core-shim.c \
 	core-signal.c \

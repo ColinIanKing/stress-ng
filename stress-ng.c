@@ -40,6 +40,7 @@
 #include "core-perf.h"
 #include "core-pragma.h"
 #include "core-rapl.h"
+#include "core-shared-cache.h"
 #include "core-shared-heap.h"
 #include "core-smart.h"
 #include "core-stressors.h"
