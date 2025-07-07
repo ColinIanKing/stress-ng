@@ -19,58 +19,19 @@
  */
 #include "stress-ng.h"
 #include "git-commit-id.h"
-#include "core-bitops.h"
 #include "core-builtin.h"
-#include "core-attribute.h"
 #include "core-capabilities.h"
 #include "core-cpu-cache.h"
-#include "core-filesystem.h"
 #include "core-hash.h"
-#include "core-lock.h"
-#include "core-memory.h"
 #include "core-numa.h"
-#include "core-pthread.h"
 #include "core-pragma.h"
-#include "core-sort.h"
-#include "core-stack.h"
-#include "core-target-clones.h"
 
-#include <ctype.h>
-#include <math.h>
-#include <sched.h>
-#include <stdarg.h>
 #include <pwd.h>
 #include <sys/ioctl.h>
 #include <time.h>
 
-#if defined(HAVE_LINUX_FIEMAP_H)
-#include <linux/fiemap.h>
-#endif
-
-#if defined(HAVE_SYS_AUXV_H)
-#include <sys/auxv.h>
-#endif
-
-#if defined(HAVE_SYS_CAPABILITY_H)
-#include <sys/capability.h>
-#endif
-
 #if defined(HAVE_SYS_LOADAVG_H)
 #include <sys/loadavg.h>
-#endif
-
-#if defined(HAVE_MACH_MACH_H)
-#include <mach/mach.h>
-#endif
-
-#if defined(HAVE_MACH_VM_STATISTICS_H)
-#include <mach/vm_statistics.h>
-#endif
-
-#if (defined(__FreeBSD__) || 	\
-     defined(__OpenBSD__)) &&	\
-     defined(HAVE_SYS_MOUNT_H)
-#include <sys/mount.h>
 #endif
 
 #if defined(__FreeBSD__) &&	\
@@ -86,42 +47,8 @@
 #include <sys/procctl.h>
 #endif
 
-#if defined(HAVE_SYS_STATVFS_H)
-#include <sys/statvfs.h>
-#endif
-
-#if defined(HAVE_SYS_SWAP_H) &&	\
-    !defined(__sun__)
-#include <sys/swap.h>
-#endif
-
-#if defined(HAVE_SYS_SYSCTL_H) &&	\
-    !defined(__linux__)
-#include <sys/sysctl.h>
-#endif
-
-#if defined(HAVE_SYS_SYSMACROS_H)
-#include <sys/sysmacros.h>
-#endif
-
 #if defined(HAVE_SYS_UTSNAME_H)
 #include <sys/utsname.h>
-#endif
-
-#if defined(HAVE_LINUX_FS_H)
-#include <linux/fs.h>
-#endif
-
-#if defined(HAVE_SYS_VFS_H)
-#include <sys/vfs.h>
-#endif
-
-#if defined(HAVE_LINUX_MAGIC_H)
-#include <linux/magic.h>
-#endif
-
-#if defined(HAVE_UVM_UVM_EXTERN_H)
-#include <uvm/uvm_extern.h>
 #endif
 
 /* prctl(2) timer slack support */
