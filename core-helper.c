@@ -47,6 +47,11 @@
 #include <sys/procctl.h>
 #endif
 
+#if defined(HAVE_SYS_SYSCTL_H) &&	\
+    !defined(__linux__)
+#include <sys/sysctl.h>
+#endif
+
 #if defined(HAVE_SYS_UTSNAME_H)
 #include <sys/utsname.h>
 #endif
