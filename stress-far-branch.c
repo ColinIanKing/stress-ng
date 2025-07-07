@@ -510,8 +510,11 @@ static int OPTIMIZE3 stress_far_branch(stress_args_t *args)
 	t_start = stress_time_now();
 	t_next = t_start + 3.0;
 	do {
+#if defined(MADV_SOFT_OFFLINE) ||	\
+    defined(MADV_PAGEOUT)
 #if defined(HAVE_LABEL_AS_VALUE)
 l1:
+#endif
 #endif
 		for (i = 0; LIKELY(i < (total_funcs)) && UNLIKELY(stress_continue_flag()); i += 32) {
 			funcs[i + 0x00]();
