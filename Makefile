@@ -346,6 +346,7 @@ HEADERS = \
 	core-setting.h \
 	core-shared-heap.h \
 	core-shim.h \
+	core-signal.h \
 	core-smart.h \
 	core-sort.h \
 	core-stack.h \
@@ -422,6 +423,7 @@ CORE_SRC = \
 	core-setting.c \
 	core-shared-heap.c \
 	core-shim.c \
+	core-signal.c \
 	core-smart.c \
 	core-sort.c \
 	core-stack.c \

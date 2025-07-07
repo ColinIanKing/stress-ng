@@ -260,6 +260,7 @@ typedef struct stress_stressor_info {
 #include "core-parse-opts.h"
 #include "core-perf.h"
 #include "core-setting.h"
+#include "core-signal.h"
 #include "core-stack.h"
 #include "core-log.h"
 #include "core-lock.h"

@@ -55,8 +55,6 @@ extern size_t stress_munge_underscore(char *dst, const char *src, size_t len);
 extern WARN_UNUSED int stress_strcmp_munged(const char *s1, const char *s2);
 extern WARN_UNUSED uint64_t stress_get_uint64_zero(void);
 extern WARN_UNUSED void *stress_get_null(void);
-extern const char *stress_get_signal_name(const int signum);
-extern const char *stress_strsignal(const int signum) RETURNS_NONNULL;
 extern WARN_UNUSED bool stress_little_endian(void);
 extern void stress_buildinfo(void);
 extern void stress_yaml_buildinfo(FILE *yaml);
@@ -64,22 +62,12 @@ extern void stress_runinfo(void);
 extern void stress_yaml_runinfo(FILE *yaml);
 extern WARN_UNUSED int stress_cache_alloc(const char *name);
 extern void stress_cache_free(void);
-extern void stress_mask_longjump_signals(sigset_t *set);
-extern WARN_UNUSED int stress_sighandler(const char *name, const int signum,
-	void (*handler)(int), struct sigaction *orig_action);
-extern WARN_UNUSED int stress_sigchld_set_handler(stress_args_t *args);
-extern int stress_sighandler_default(const int signum);
-extern void stress_handle_stop_stressing(const int signum);
-extern WARN_UNUSED int stress_sig_stop_stressing(const char *name, const int sig);
-extern int stress_sigrestore(const char *name, const int signum,
-	struct sigaction *orig_action);
 extern WARN_UNUSED unsigned int stress_get_cpu(void);
 extern WARN_UNUSED const char *stress_get_compiler(void) RETURNS_NONNULL;
 extern WARN_UNUSED const char *stress_get_uname_info(void) RETURNS_NONNULL;
 extern WARN_UNUSED int stress_unimplemented(stress_args_t *args);
 extern WARN_UNUSED size_t stress_probe_max_pipe_size(void);
 extern WARN_UNUSED void *stress_align_address(const void *addr, const size_t alignment);
-extern WARN_UNUSED bool stress_sigalrm_pending(void);
 extern char *stress_uint64_to_str(char *str, size_t len, const uint64_t val,
 	const int precisionm, const bool no_zero);
 extern WARN_UNUSED char *stress_const_optdup(const char *opt);
@@ -92,10 +80,8 @@ extern WARN_UNUSED int stress_kernel_release(const int major, const int minor,
 extern WARN_UNUSED int stress_get_kernel_release(void);
 extern WARN_UNUSED pid_t stress_get_unused_pid_racy(const bool fork_test);
 extern WARN_UNUSED size_t stress_get_hostname_length(void);
-extern NORETURN MLOCKED_TEXT void stress_sig_handler_exit(int signum);
 extern WARN_UNUSED int stress_get_tty_width(void);
 extern WARN_UNUSED bool stress_redo_fork(stress_args_t *args, const int err);
-extern void stress_sighandler_nop(int sig);
 extern void stress_clear_warn_once(void);
 extern WARN_UNUSED size_t stress_flag_permutation(const int flags, int **permutations);
 extern WARN_UNUSED int stress_exit_status(const int err);
@@ -114,8 +100,6 @@ extern int stress_munmap_retry_enomem(void *addr, size_t length);
 extern int stress_swapoff(const char *path);
 extern void stress_random_small_sleep(void);
 extern void stress_yield_sleep_ms(void);
-extern void stress_catch_sigill(void);
-extern void stress_catch_sigsegv(void);
 extern void stress_process_info(stress_args_t *args, const pid_t pid);
 extern void *stress_mmap_populate(void *addr, size_t length, int prot,
 	int flags, int fd, off_t offset);
