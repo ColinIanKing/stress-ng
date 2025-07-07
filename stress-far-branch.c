@@ -285,7 +285,7 @@ use_page:
 
 		/* Sync data and unmap */
 		(void)shim_fsync(fd);
-		if (munmap(ptr, page_size) < 0)
+		if (munmap((void *)ptr, page_size) < 0)
 			goto do_prot;
 
 		/* Now map file data back as file backed mapping */
