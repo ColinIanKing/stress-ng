@@ -22,6 +22,11 @@
 #include <ctype.h>
 #include <float.h>
 
+#if defined(HAVE_SYS_SYSCTL_H) &&	\
+    !defined(__linux__)
+#include <sys/sysctl.h>
+#endif
+
 /*
  *  stress_zero_cpu_ghz()
  *	zero CPU clock freq stats
