@@ -306,6 +306,7 @@ HEADERS = \
 	core-cpu-cache.h \
 	core-cpu-freq.h \
 	core-cpuidle.h \
+	core-filesystem.h \
 	core-ftrace.h \
 	core-hash.h \
 	core-ignite-cpu.h \
@@ -386,6 +387,7 @@ CORE_SRC = \
 	core-cpuidle.c \
 	core-clocksource.c \
 	core-config-check.c \
+	core-filesystem.c \
 	core-hash.c \
 	core-helper.c \
 	core-ignite-cpu.c \

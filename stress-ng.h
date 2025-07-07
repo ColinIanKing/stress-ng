@@ -880,6 +880,7 @@ static inline bool ALWAYS_INLINE stress_instance_zero(stress_args_t *args)
 }
 
 #include "core-helper.h"
+#include "core-filesystem.h"
 
 #define STRESS_METRIC_GEOMETRIC_MEAN	(0x1)
 #define STRESS_METRIC_HARMONIC_MEAN	(0x2)
