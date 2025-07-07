@@ -386,7 +386,7 @@ int stress_set_temp_path(const char *path)
  *  stress_get_temp_path()
  *	get temporary file path, return "." if null
  */
-const char *stress_get_temp_path(void)
+inline const char *stress_get_temp_path(void)
 {
 	if (!stress_temp_path)
 		return ".";
@@ -538,7 +538,7 @@ int stress_set_nonblock(const int fd)
  *	encode 64 bit hash of filename into a unique base 36
  *	filename of up to 13 chars long + 1 char eos
  */
-static void stress_base36_encode_uint64(char dst[14], uint64_t val)
+static inline void OPTIMIZE3 stress_base36_encode_uint64(char dst[14], uint64_t val)
 {
 	static const char b36[] = "abcdefghijklmnopqrstuvwxyz0123456789";
 	const int b = 36;
@@ -1050,21 +1050,6 @@ ret:
 }
 
 /*
- *  stress_is_dot_filename()
- *	is filename "." or ".."
- */
-bool PURE stress_is_dot_filename(const char *name)
-{
-	if (UNLIKELY(!name))
-		return false;
-	if (!strcmp(name, "."))
-		return true;
-	if (!strcmp(name, ".."))
-		return true;
-	return false;
-}
-
-/*
  *  stress_dirent_list_free()
  *	free dirent list
  */
@@ -1484,17 +1469,36 @@ void stress_unset_chattr_flags(const char *pathname)
 }
 
 /*
- *  Filter out dot files . and ..
+ *  stress_dot_dirent_filter()
+ *  	filter out dot files . and .. for scandir(), dirent and
+ *  	d->d_name are valid
  */
-static int PURE stress_dot_filter(const struct dirent *d)
+static int PURE OPTIMIZE3 stress_dot_dirent_filter(const struct dirent *d)
 {
 	if (d->d_name[0] == '.') {
 		if (d->d_name[1] == '\0')
 			return 0;
-		if ((d->d_name[1] == '.') && (d->d_name[2] == '\0'))
+		if ((d->d_name[1] == '.') && LIKELY((d->d_name[2] == '\0')))
 			return 0;
 	}
 	return 1;
+}
+
+/*
+ *  stress_is_dot_filename()
+ *	is filename "." or "..", name maybe null
+ */
+bool PURE OPTIMIZE3 stress_is_dot_filename(const char *name)
+{
+	if (UNLIKELY(!name))
+		return false;
+	if (name[0] == '.') {
+		if (name[1] == '\0')
+			return true;
+		if ((name[1] == '.') && LIKELY((name[2] == '\0')))
+			return true;
+	}
+	return false;
 }
 
 /*
@@ -1557,7 +1561,7 @@ static void stress_clean_dir_files(
 	if (strncmp(path, temp_path, temp_path_len))
 		return;
 
-	n = scandir(path, &names, stress_dot_filter, alphasort);
+	n = scandir(path, &names, stress_dot_dirent_filter, alphasort);
 	if (n < 0) {
 		(void)shim_rmdir(path);
 		return;
