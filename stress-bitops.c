@@ -181,13 +181,34 @@ static int OPTIMIZE3 TARGET_CLONES stress_bitops_countbits(const char *name, uin
 			return EXIT_FAILURE;
 		}
 #endif
+
+		/* #6 Count bits triple mask method */
+		{
+			const uint32_t ones = ~(uint32_t)0;
+			const uint32_t mask1 = (ones / 3) << 1;
+			const uint32_t mask2 = ones / 5;
+			const uint32_t mask4 = ones / 17;
+
+			c2 = v - ((mask1 & v) >> 1);
+			c2 = (c2 & mask2) + ((c2 >> 2) & mask2);
+			c2 = (c2 + (c2 >> 4)) & mask4;
+			c2 += c2 >> 8;
+			c2 += c2 >> 16;
+			c2 &=  0xff;
+
+			if (UNLIKELY(c1 != c2)) {
+				pr_fail("%s: countbits triple mask failure, value 0x%" PRIx32 ", c1 = 0x%" PRIx32 ", c2 = 0x%" PRIx32 "\n",
+					name, v, c1, c2);
+				return EXIT_FAILURE;
+			}
+		}
 		v += dv;
 	}
 	stress_uint32_put(sum);
 #if defined(HAVE_BUILTIN_POPCOUNT)
-	*count += 5 * i;
+	*count += 6 * i;
 #else
-	*count += 4 * i;
+	*count += 5 * i;
 #endif
 	return EXIT_SUCCESS;
 }
