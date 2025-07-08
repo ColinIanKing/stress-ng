@@ -461,7 +461,7 @@ PRAGMA_UNROLL
 		stress_asm_mb();
 
 #if defined(HAVE_INT128_T)
-		/* 116 byte reads from same location */
+		/* 16 byte reads from same location */
 		(void)*(data128);
 		stress_asm_mb();
 #endif
