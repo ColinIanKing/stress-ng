@@ -8243,6 +8243,13 @@ advice. The default is `normal'.
 .B \-\-stream\-ops N
 stop after N stream bogo operations, where a bogo operation is one round
 of copy, scale, add and triad operations.
+.TP
+.B \-\-stream\-prefetch
+compilers such as gcc have optimization options to insert prefetching
+into memory fetch loops that may improve read performance. This option
+enables this optimization, however, it may lead to degraded performance
+if the compiler does not insert the prefetching in the correct places.
+Best to enable this for the default \-\-stream\-index 0 setting.
 .RE
 .TP
 .B Swap partitions stressor (Linux)

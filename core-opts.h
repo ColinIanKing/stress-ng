@@ -1522,6 +1522,7 @@ typedef enum {
 	OPT_stream_madvise,
 	OPT_stream_mlock,
 	OPT_stream_ops,
+	OPT_stream_prefetch,
 
 	OPT_stressor_time,
 

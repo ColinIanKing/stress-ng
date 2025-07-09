@@ -1077,6 +1077,7 @@ const struct option stress_long_options[] = {
 	{ "stream-madvise",	1,	0,	OPT_stream_madvise },
 	{ "stream-mlock",	0,	0,	OPT_stream_mlock },
 	{ "stream-ops",		1,	0,	OPT_stream_ops },
+	{ "stream-prefetch",	0,	0,	OPT_stream_prefetch },
 	{ "stressor-time",	0,	0,	OPT_stressor_time },
 	{ "stressors",		0,	0,	OPT_stressors },
 	{ "swap",		1,	0,	OPT_swap },

@@ -59,6 +59,7 @@ static const stress_help_t help[] = {
 	{ NULL,	"stream-l3-size N",	"specify the L3 cache size of the CPU" },
 	{ NULL,	"stream-madvise M",	"specify mmap'd stream buffer madvise advice" },
 	{ NULL,	"stream-mlock",		"attempt to mlock pages into memory" },
+	{ NULL, "stream-prefetch",	"use prefetching (where available)" },
 	{ NULL,	"stream-ops N",		"stop after N bogo stream operations" },
 	{ NULL,	NULL,                   NULL }
 };
@@ -99,502 +100,706 @@ static void stress_stream_checksum_to_hexstr(char *str, const size_t len, const 
 	str[j] = '\0';
 }
 
-static inline void ALWAYS_INLINE stress_stream_copy_index0(
-	double *const RESTRICT c,
-	const double *const RESTRICT a,
-	const uint64_t n,
-	double *const RESTRICT rd_bytes,
-	double *const RESTRICT wr_bytes,
-	double *const RESTRICT fp_ops)
-{
-	register uint64_t i;
-	register double volatile *RESTRICT cv = c;
-
-PRAGMA_UNROLL_N(8)
-	for (i = 0; i < n; i += 4) {
-		STORE(cv[i + 0], a[i + 0]);
-		STORE(cv[i + 1], a[i + 1]);
-		STORE(cv[i + 2], a[i + 2]);
-		STORE(cv[i + 3], a[i + 3]);
-	}
-
-	*rd_bytes += (double)n * (double)(sizeof(*a));
-	*wr_bytes += (double)n * (double)(sizeof(*c));
-	*fp_ops += 0.0;
+#define STRESS_STREAM_COPY_INDEX0(x)				\
+static inline void ALWAYS_INLINE x (				\
+	double *const RESTRICT c,				\
+	const double *const RESTRICT a,				\
+	const uint64_t n,					\
+	double *const RESTRICT rd_bytes,			\
+	double *const RESTRICT wr_bytes,			\
+	double *const RESTRICT fp_ops)				\
+{								\
+	register uint64_t i;					\
+	register double volatile *RESTRICT cv = c;		\
+								\
+PRAGMA_UNROLL_N(8)						\
+	for (i = 0; i < n; i += 4) {				\
+		STORE(cv[i + 0], a[i + 0]);			\
+		STORE(cv[i + 1], a[i + 1]);			\
+		STORE(cv[i + 2], a[i + 2]);			\
+		STORE(cv[i + 3], a[i + 3]);			\
+	}							\
+								\
+	*rd_bytes += (double)n * (double)(sizeof(*a));		\
+	*wr_bytes += (double)n * (double)(sizeof(*c));		\
+	*fp_ops += 0.0;						\
 }
 
-#if defined(HAVE_NT_STORE_DOUBLE)
-static inline void ALWAYS_INLINE stress_stream_copy_index0_nt(
-	double *const RESTRICT c,
-	const double *const RESTRICT a,
-	const uint64_t n,
-	double *const RESTRICT rd_bytes,
-	double *const RESTRICT wr_bytes,
-	double *const RESTRICT fp_ops)
-{
-	register uint64_t i;
-
-PRAGMA_UNROLL_N(8)
-	for (i = 0; i < n; i += 4) {
-		NT_STORE(c[i + 0], a[i + 0]);
-		NT_STORE(c[i + 1], a[i + 1]);
-		NT_STORE(c[i + 2], a[i + 2]);
-		NT_STORE(c[i + 3], a[i + 3]);
-	}
-
-	*rd_bytes += (double)n * (double)(sizeof(*a));
-	*wr_bytes += (double)n * (double)(sizeof(*c));
-	*fp_ops += 0.0;
-}
+#if defined(HAVE_PRAGMA_PREFETCH)
+STRESS_PRAGMA_PREFETCH
+STRESS_STREAM_COPY_INDEX0(stress_stream_copy_index0_prefetch)
+STRESS_PRAGMA_NOPREFETCH
+STRESS_STREAM_COPY_INDEX0(stress_stream_copy_index0)
+#else
+STRESS_STREAM_COPY_INDEX0(stress_stream_copy_index0)
 #endif
 
-static inline void ALWAYS_INLINE stress_stream_copy_index1(
-	double *const RESTRICT c,
-	const double *const RESTRICT a,
-	const size_t *const RESTRICT idx1,
-	const uint64_t n,
-	double *const RESTRICT rd_bytes,
-	double *const RESTRICT wr_bytes,
-	double *const RESTRICT fp_ops)
-{
-	register uint64_t i;
-	register double volatile *RESTRICT cv = c;
-
-PRAGMA_UNROLL_N(8)
-	for (i = 0; i < n; i++) {
-		const size_t idx = idx1[i];
-
-		STORE(cv[idx], a[idx]);
-	}
-
-	*rd_bytes += (double)n * (double)(sizeof(*a) + sizeof(*idx1));
-	*wr_bytes += (double)n * (double)(sizeof(*c));
-	*fp_ops += 0.0;
-}
-
-static inline void ALWAYS_INLINE stress_stream_copy_index2(
-	double *const RESTRICT c,
-	const double *const RESTRICT a,
-	const size_t *const RESTRICT idx1,
-	const size_t *const RESTRICT idx2,
-	const uint64_t n,
-	double *rd_bytes,
-	double *wr_bytes,
-	double *fp_ops)
-{
-	register uint64_t i;
-	register double volatile *RESTRICT cv = c;
-
-PRAGMA_UNROLL_N(8)
-	for (i = 0; i < n; i++)
-		STORE(cv[idx1[i]], a[idx2[i]]);
-
-	*rd_bytes += (double)n * (double)(sizeof(*a) + sizeof(*idx1) + sizeof(*idx2));
-	*wr_bytes += (double)n * (double)(sizeof(*c));
-	*fp_ops += 0.0;
-}
-
-static inline void ALWAYS_INLINE stress_stream_copy_index3(
-	double *const RESTRICT c,
-	const double *const RESTRICT a,
-	const size_t *const RESTRICT idx1,
-	const size_t *const RESTRICT idx2,
-	const size_t *const RESTRICT idx3,
-	const uint64_t n,
-	double *const RESTRICT rd_bytes,
-	double *const RESTRICT wr_bytes,
-	double *const RESTRICT fp_ops)
-{
-	register uint64_t i;
-	register double volatile *RESTRICT cv = c;
-
-PRAGMA_UNROLL_N(8)
-	for (i = 0; i < n; i++)
-		STORE(cv[idx3[idx1[i]]], a[idx2[i]]);
-
-	*rd_bytes += (double)n * (double)(sizeof(*a) + sizeof(*idx1) + sizeof(*idx2) + sizeof(*idx3));
-	*wr_bytes += (double)n * (double)(sizeof(*c));
-	*fp_ops += 0.0;
-}
-
-static inline void ALWAYS_INLINE stress_stream_scale_index0(
-	double *const RESTRICT b,
-	const double *const RESTRICT c,
-	const double q,
-	const uint64_t n,
-	double *const RESTRICT rd_bytes,
-	double *const RESTRICT wr_bytes,
-	double *const RESTRICT fp_ops)
-{
-	register uint64_t i;
-	register double volatile *RESTRICT bv = b;
-
-PRAGMA_UNROLL_N(8)
-	for (i = 0; i < n; i += 4) {
-		STORE(bv[i + 0], q * c[i + 0]);
-		STORE(bv[i + 1], q * c[i + 1]);
-		STORE(bv[i + 2], q * c[i + 2]);
-		STORE(bv[i + 3], q * c[i + 3]);
-	}
-
-	*rd_bytes += (double)n * (double)(sizeof(*c));
-	*wr_bytes += (double)n * (double)(sizeof(*b));
-	*fp_ops += (double)n;
-}
-
 #if defined(HAVE_NT_STORE_DOUBLE)
-static inline void ALWAYS_INLINE stress_stream_scale_index0_nt(
-	double *const RESTRICT b,
-	const double *const RESTRICT c,
-	const double q,
-	const uint64_t n,
-	double *const RESTRICT rd_bytes,
-	double *const RESTRICT wr_bytes,
-	double *const RESTRICT fp_ops)
-{
-	register uint64_t i;
-
-PRAGMA_UNROLL_N(8)
-	for (i = 0; i < n; i += 4) {
-		NT_STORE(b[i + 0], q * c[i + 0]);
-		NT_STORE(b[i + 1], q * c[i + 1]);
-		NT_STORE(b[i + 2], q * c[i + 2]);
-		NT_STORE(b[i + 3], q * c[i + 3]);
-	}
-
-	*rd_bytes += (double)n * (double)(sizeof(*c));
-	*wr_bytes += (double)n * (double)(sizeof(*b));
-	*fp_ops += (double)n;
+#define STRESS_STREAM_COPY_INDEX0_NT(x)				\
+static inline void ALWAYS_INLINE x (				\
+	double *const RESTRICT c,				\
+	const double *const RESTRICT a,				\
+	const uint64_t n,					\
+	double *const RESTRICT rd_bytes,			\
+	double *const RESTRICT wr_bytes,			\
+	double *const RESTRICT fp_ops)				\
+{								\
+	register uint64_t i;					\
+								\
+PRAGMA_UNROLL_N(8)						\
+	for (i = 0; i < n; i += 4) {				\
+		NT_STORE(c[i + 0], a[i + 0]);			\
+		NT_STORE(c[i + 1], a[i + 1]);			\
+		NT_STORE(c[i + 2], a[i + 2]);			\
+		NT_STORE(c[i + 3], a[i + 3]);			\
+	}							\
+								\
+	*rd_bytes += (double)n * (double)(sizeof(*a));		\
+	*wr_bytes += (double)n * (double)(sizeof(*c));		\
+	*fp_ops += 0.0;						\
 }
+
+#if defined(HAVE_PRAGMA_PREFETCH)
+STRESS_PRAGMA_PREFETCH
+STRESS_STREAM_COPY_INDEX0_NT(stress_stream_copy_index0_nt_prefetch)
+STRESS_PRAGMA_NOPREFETCH
+STRESS_STREAM_COPY_INDEX0_NT(stress_stream_copy_index0_nt)
+#else
+STRESS_STREAM_COPY_INDEX0_NT(stress_stream_copy_index0_nt)
 #endif
 
-static inline void ALWAYS_INLINE stress_stream_scale_index1(
-	double *const RESTRICT b,
-	const double *const RESTRICT c,
-	const double q,
-	const size_t *const RESTRICT idx1,
-	const uint64_t n,
-	double *const RESTRICT rd_bytes,
-	double *const RESTRICT wr_bytes,
-	double *const RESTRICT fp_ops)
-{
-	register uint64_t i;
-	register double volatile *RESTRICT bv = b;
-
-PRAGMA_UNROLL_N(8)
-	for (i = 0; i < n; i++) {
-		const size_t idx = idx1[i];
-
-		STORE(bv[idx], q * c[idx]);
-	}
-
-	*rd_bytes += (double)n * (double)(sizeof(*c) + sizeof(*idx1));
-	*wr_bytes += (double)n * (double)(sizeof(*b));
-	*fp_ops += (double)n;
-}
-
-static inline void ALWAYS_INLINE stress_stream_scale_index2(
-	double *const RESTRICT b,
-	const double *const RESTRICT c,
-	const double q,
-	const size_t *const RESTRICT idx1,
-	const size_t *const RESTRICT idx2,
-	const uint64_t n,
-	double *const RESTRICT rd_bytes,
-	double *const RESTRICT wr_bytes,
-	double *const RESTRICT fp_ops)
-{
-	register uint64_t i;
-	register double volatile *RESTRICT bv = b;
-
-PRAGMA_UNROLL_N(8)
-	for (i = 0; i < n; i++)
-		STORE(bv[idx1[i]], q * c[idx2[i]]);
-
-	*rd_bytes += (double)n * (double)(sizeof(*c) + sizeof(*idx1) + sizeof(*idx2));
-	*wr_bytes += (double)n * (double)(sizeof(*b));
-	*fp_ops += (double)n;
-}
-
-static inline void ALWAYS_INLINE stress_stream_scale_index3(
-	double *const RESTRICT b,
-	const double *const RESTRICT c,
-	const double q,
-	const size_t *const RESTRICT idx1,
-	const size_t *const RESTRICT idx2,
-	const size_t *const RESTRICT idx3,
-	const uint64_t n,
-	double *const RESTRICT rd_bytes,
-	double *const RESTRICT wr_bytes,
-	double *const RESTRICT fp_ops)
-{
-	register uint64_t i;
-	register double volatile *RESTRICT bv = b;
-
-PRAGMA_UNROLL_N(8)
-	for (i = 0; i < n; i++)
-		STORE(bv[idx3[idx1[i]]], q * c[idx2[i]]);
-
-	*rd_bytes += (double)n * (double)(sizeof(*c) + sizeof(*idx1) + sizeof(*idx2) + sizeof(*idx3));
-	*wr_bytes += (double)n * (double)(sizeof(*b));
-	*fp_ops += (double)n;
-}
-
-static inline void ALWAYS_INLINE stress_stream_add_index0(
-	const double *const RESTRICT a,
-	const double *const RESTRICT b,
-	double *const RESTRICT c,
-	const uint64_t n,
-	double *const RESTRICT rd_bytes,
-	double *const RESTRICT wr_bytes,
-	double *const RESTRICT fp_ops)
-{
-	register uint64_t i;
-	register double volatile *RESTRICT cv = c;
-
-PRAGMA_UNROLL_N(8)
-	for (i = 0; i < n; i += 4) {
-		STORE(cv[i + 0], a[i + 0] + b[i + 0]);
-		STORE(cv[i + 1], a[i + 1] + b[i + 1]);
-		STORE(cv[i + 2], a[i + 2] + b[i + 2]);
-		STORE(cv[i + 3], a[i + 3] + b[i + 3]);
-	}
-
-	*rd_bytes += (double)n * (double)(sizeof(*a) + sizeof(*b));
-	*wr_bytes += (double)n * (double)(sizeof(*c));
-	*fp_ops += (double)n;
-}
-
-#if defined(HAVE_NT_STORE_DOUBLE)
-static inline void ALWAYS_INLINE stress_stream_add_index0_nt(
-	const double *const RESTRICT a,
-	const double *const RESTRICT b,
-	double *const RESTRICT c,
-	const uint64_t n,
-	double *const RESTRICT rd_bytes,
-	double *const RESTRICT wr_bytes,
-	double *const RESTRICT fp_ops)
-{
-	register uint64_t i;
-
-PRAGMA_UNROLL_N(8)
-	for (i = 0; i < n; i += 4) {
-		NT_STORE(c[i + 0], a[i + 0] + b[i + 0]);
-		NT_STORE(c[i + 1], a[i + 1] + b[i + 1]);
-		NT_STORE(c[i + 2], a[i + 2] + b[i + 2]);
-		NT_STORE(c[i + 3], a[i + 3] + b[i + 3]);
-	}
-
-	*rd_bytes += (double)n * (double)(sizeof(*a) + sizeof(*b));
-	*wr_bytes += (double)n * (double)(sizeof(*c));
-	*fp_ops += (double)n;
-}
 #endif
 
-static inline void ALWAYS_INLINE stress_stream_add_index1(
-	const double *const RESTRICT a,
-	const double *const RESTRICT b,
-	double *const RESTRICT c,
-	const size_t *const RESTRICT idx1,
-	const uint64_t n,
-	double *const RESTRICT rd_bytes,
-	double *const RESTRICT wr_bytes,
-	double *const RESTRICT fp_ops)
-{
-	register uint64_t i;
-	register double volatile *RESTRICT cv = c;
-
-PRAGMA_UNROLL_N(8)
-	for (i = 0; i < n; i++) {
-		const size_t idx = idx1[i];
-
-		STORE(cv[idx], a[idx] + b[idx]);
-	}
-
-	*rd_bytes += (double)n * (double)(sizeof(*a) + sizeof(*b) + sizeof(*idx1));
-	*wr_bytes += (double)n * (double)(sizeof(*c));
-	*fp_ops += (double)n;
+#define STRESS_STREAM_COPY_INDEX1(x)				\
+static inline void ALWAYS_INLINE x (				\
+	double *const RESTRICT c,				\
+	const double *const RESTRICT a,				\
+	const size_t *const RESTRICT idx1,			\
+	const uint64_t n,					\
+	double *const RESTRICT rd_bytes,			\
+	double *const RESTRICT wr_bytes,			\
+	double *const RESTRICT fp_ops)				\
+{								\
+	register uint64_t i;					\
+	register double volatile *RESTRICT cv = c;		\
+								\
+PRAGMA_UNROLL_N(8)						\
+	for (i = 0; i < n; i++) {				\
+		const size_t idx = idx1[i];			\
+								\
+		STORE(cv[idx], a[idx]);				\
+	}							\
+								\
+	*rd_bytes += (double)n * (double)(sizeof(*a) + sizeof(*idx1));	\
+	*wr_bytes += (double)n * (double)(sizeof(*c));		\
+	*fp_ops += 0.0;						\
 }
 
-static inline void ALWAYS_INLINE stress_stream_add_index2(
-	const double *const RESTRICT a,
-	const double *const RESTRICT b,
-	double *const RESTRICT c,
-	const size_t *const RESTRICT idx1,
-	const size_t *const RESTRICT idx2,
-	const uint64_t n,
-	double *const RESTRICT rd_bytes,
-	double *const RESTRICT wr_bytes,
-	double *const RESTRICT fp_ops)
-{
-	register uint64_t i;
-	register double volatile *RESTRICT cv = c;
+#if defined(HAVE_PRAGMA_PREFETCH)
+STRESS_PRAGMA_PREFETCH
+STRESS_STREAM_COPY_INDEX1(stress_stream_copy_index1_prefetch)
 
-PRAGMA_UNROLL_N(8)
-	for (i = 0; i < n; i++) {
-		const size_t idx = idx1[i];
-
-		STORE(cv[idx], a[idx2[i]] + b[idx]);
-	}
-
-	*rd_bytes += (double)n * (double)(sizeof(*a) + sizeof(*b) + sizeof(*idx1) + sizeof(*idx2));
-	*wr_bytes += (double)n * (double)(sizeof(*c));
-	*fp_ops += (double)n;
-}
-
-static inline void ALWAYS_INLINE stress_stream_add_index3(
-	const double *const RESTRICT a,
-	const double *const RESTRICT b,
-	double *const RESTRICT c,
-	const size_t *const RESTRICT idx1,
-	const size_t *const RESTRICT idx2,
-	const size_t *const RESTRICT idx3,
-	const uint64_t n,
-	double *const RESTRICT rd_bytes,
-	double *const RESTRICT wr_bytes,
-	double *const RESTRICT fp_ops)
-{
-	register uint64_t i;
-	register double volatile *RESTRICT cv = c;
-
-PRAGMA_UNROLL_N(8)
-	for (i = 0; i < n; i++)
-		STORE(cv[idx1[i]], a[idx2[i]] + b[idx3[i]]);
-
-	*rd_bytes += (double)n * (double)(sizeof(*a) + sizeof(*b) + sizeof(*idx1) + sizeof(*idx2) + sizeof(*idx3));
-	*wr_bytes += (double)n * (double)(sizeof(*c));
-	*fp_ops += (double)n;
-}
-
-static inline void ALWAYS_INLINE stress_stream_triad_index0(
-	double *const RESTRICT a,
-	const double *const RESTRICT b,
-	const double *const RESTRICT c,
-	const double q,
-	const uint64_t n,
-	double *const RESTRICT rd_bytes,
-	double *const RESTRICT wr_bytes,
-	double *const RESTRICT fp_ops)
-{
-	register uint64_t i;
-	register double volatile *RESTRICT av = a;
-
-PRAGMA_UNROLL_N(8)
-	for (i = 0; i < n; i += 4) {
-		STORE(av[i + 0], b[i + 0] + (c[i + 0] * q));
-		STORE(av[i + 1], b[i + 1] + (c[i + 1] * q));
-		STORE(av[i + 2], b[i + 2] + (c[i + 2] * q));
-		STORE(av[i + 3], b[i + 3] + (c[i + 3] * q));
-	}
-
-	*rd_bytes += (double)n * (double)(sizeof(*b) + sizeof(*c));
-	*wr_bytes += (double)n * (double)(sizeof(*a));
-	*fp_ops += (double)n * 2.0;
-}
-
-#if defined(HAVE_NT_STORE_DOUBLE)
-static inline void ALWAYS_INLINE stress_stream_triad_index0_nt(
-	double *const RESTRICT a,
-	const double *const RESTRICT b,
-	const double *const RESTRICT c,
-	const double q,
-	const uint64_t n,
-	double *const RESTRICT rd_bytes,
-	double *const RESTRICT wr_bytes,
-	double *const RESTRICT fp_ops)
-{
-	register uint64_t i;
-
-PRAGMA_UNROLL_N(8)
-	for (i = 0; i < n; i += 4) {
-		NT_STORE(a[i + 0], b[i + 0] + (c[i + 0] * q));
-		NT_STORE(a[i + 1], b[i + 1] + (c[i + 1] * q));
-		NT_STORE(a[i + 2], b[i + 2] + (c[i + 2] * q));
-		NT_STORE(a[i + 3], b[i + 3] + (c[i + 3] * q));
-	}
-
-	*rd_bytes += (double)n * (double)(sizeof(*b) + sizeof(*c));
-	*wr_bytes += (double)n * (double)(sizeof(*a));
-	*fp_ops += (double)n * 2.0;
-}
+STRESS_PRAGMA_NOPREFETCH
+STRESS_STREAM_COPY_INDEX1(stress_stream_copy_index1)
+#else
+STRESS_STREAM_COPY_INDEX1(stress_stream_copy_index1)
 #endif
 
-static inline void ALWAYS_INLINE stress_stream_triad_index1(
-	double *const RESTRICT a,
-	const double *const RESTRICT b,
-	const double *const RESTRICT c,
-	const double q,
-	const size_t *const RESTRICT idx1,
-	const uint64_t n,
-	double *const RESTRICT rd_bytes,
-	double *const RESTRICT wr_bytes,
-	double *const RESTRICT fp_ops)
-{
-	register uint64_t i;
-	register double volatile *RESTRICT av = a;
-
-PRAGMA_UNROLL_N(8)
-	for (i = 0; i < n; i++) {
-		size_t idx = idx1[i];
-
-		STORE(av[idx], b[idx] + (c[idx] * q));
-	}
-	*rd_bytes += (double)n * (double)(sizeof(*b) + sizeof(*c) + sizeof(*idx1));
-	*wr_bytes += (double)n * (double)(sizeof(*a));
-	*fp_ops += (double)n * 2.0;
+#define STRESS_STREAM_COPY_INDEX2(x)				\
+static inline void ALWAYS_INLINE x(				\
+	double *const RESTRICT c,				\
+	const double *const RESTRICT a,				\
+	const size_t *const RESTRICT idx1,			\
+	const size_t *const RESTRICT idx2,			\
+	const uint64_t n,					\
+	double *rd_bytes,					\
+	double *wr_bytes,					\
+	double *fp_ops)						\
+{								\
+	register uint64_t i;					\
+	register double volatile *RESTRICT cv = c;		\
+								\
+PRAGMA_UNROLL_N(8)						\
+	for (i = 0; i < n; i++)					\
+		STORE(cv[idx1[i]], a[idx2[i]]);			\
+								\
+	*rd_bytes += (double)n * (double)(sizeof(*a) + sizeof(*idx1) + sizeof(*idx2));	\
+	*wr_bytes += (double)n * (double)(sizeof(*c));		\
+	*fp_ops += 0.0;						\
 }
 
-static inline void ALWAYS_INLINE stress_stream_triad_index2(
-	double *const RESTRICT a,
-	const double *const RESTRICT b,
-	const double *const RESTRICT c,
-	const double q,
-	const size_t *const RESTRICT idx1,
-	const size_t *const RESTRICT idx2,
-	const uint64_t n,
-	double *const RESTRICT rd_bytes,
-	double *const RESTRICT wr_bytes,
-	double *const RESTRICT fp_ops)
-{
-	register uint64_t i;
-	register double volatile *RESTRICT av = a;
+#if defined(HAVE_PRAGMA_PREFETCH)
+STRESS_PRAGMA_PREFETCH
+STRESS_STREAM_COPY_INDEX2(stress_stream_copy_index2_prefetch)
+STRESS_PRAGMA_NOPREFETCH
+STRESS_STREAM_COPY_INDEX2(stress_stream_copy_index2)
+#else
+STRESS_STREAM_COPY_INDEX2(stress_stream_copy_index2)
+#endif
 
-PRAGMA_UNROLL_N(8)
-	for (i = 0; i < n; i++) {
-		const size_t idx = idx1[i];
-
-		STORE(av[idx], b[idx2[i]] + (c[idx] * q));
-	}
-
-	*rd_bytes += (double)n * (double)(sizeof(*b) + sizeof(*c) + sizeof(*idx1) + sizeof(*idx2));
-	*wr_bytes += (double)n * (double)(sizeof(*a));
-	*fp_ops += (double)n * 2.0;
+#define STRESS_STREAM_COPY_INDEX3(x)				\
+static inline void ALWAYS_INLINE x(				\
+	double *const RESTRICT c,				\
+	const double *const RESTRICT a,				\
+	const size_t *const RESTRICT idx1,			\
+	const size_t *const RESTRICT idx2,			\
+	const size_t *const RESTRICT idx3,			\
+	const uint64_t n,					\
+	double *const RESTRICT rd_bytes,			\
+	double *const RESTRICT wr_bytes,			\
+	double *const RESTRICT fp_ops)				\
+{								\
+	register uint64_t i;					\
+	register double volatile *RESTRICT cv = c;		\
+								\
+PRAGMA_UNROLL_N(8)						\
+	for (i = 0; i < n; i++)					\
+		STORE(cv[idx3[idx1[i]]], a[idx2[i]]);		\
+								\
+	*rd_bytes += (double)n * (double)(sizeof(*a) + sizeof(*idx1) + sizeof(*idx2) + sizeof(*idx3));	\
+	*wr_bytes += (double)n * (double)(sizeof(*c));		\
+	*fp_ops += 0.0;						\
 }
 
-static inline void ALWAYS_INLINE stress_stream_triad_index3(
-	double *const RESTRICT a,
-	const double *const RESTRICT b,
-	const double *const RESTRICT c,
-	const double q,
-	const size_t *const RESTRICT idx1,
-	const size_t *const RESTRICT idx2,
-	const size_t *const RESTRICT idx3,
-	const uint64_t n,
-	double *const RESTRICT rd_bytes,
-	double *const RESTRICT wr_bytes,
-	double *const RESTRICT fp_ops)
-{
-	register uint64_t i;
-	register double volatile *RESTRICT av = a;
+#if defined(HAVE_PRAGMA_PREFETCH)
+STRESS_PRAGMA_PREFETCH
+STRESS_STREAM_COPY_INDEX3(stress_stream_copy_index3_prefetch)
+STRESS_PRAGMA_NOPREFETCH
+STRESS_STREAM_COPY_INDEX3(stress_stream_copy_index3)
+#else
+STRESS_STREAM_COPY_INDEX3(stress_stream_copy_index3)
+#endif
 
-PRAGMA_UNROLL_N(8)
-	for (i = 0; i < n; i++)
-		STORE(av[idx1[i]], b[idx2[i]] + (c[idx3[i]] * q));
-
-	*rd_bytes += (double)n * (double)(sizeof(*b) + sizeof(*c) + sizeof(*idx1) + sizeof(*idx2) + sizeof(*idx3));
-	*wr_bytes += (double)n * (double)(sizeof(*a));
-	*fp_ops += (double)n * 2.0;
+#define STRESS_STREAM_SCALE_INDEX0(x)				\
+static inline void ALWAYS_INLINE x(				\
+	double *const RESTRICT b,				\
+	const double *const RESTRICT c,				\
+	const double q,						\
+	const uint64_t n,					\
+	double *const RESTRICT rd_bytes,			\
+	double *const RESTRICT wr_bytes,			\
+	double *const RESTRICT fp_ops)				\
+{								\
+	register uint64_t i;					\
+	register double volatile *RESTRICT bv = b;		\
+								\
+PRAGMA_UNROLL_N(8)						\
+	for (i = 0; i < n; i += 4) {				\
+		STORE(bv[i + 0], q * c[i + 0]);			\
+		STORE(bv[i + 1], q * c[i + 1]);			\
+		STORE(bv[i + 2], q * c[i + 2]);			\
+		STORE(bv[i + 3], q * c[i + 3]);			\
+	}							\
+								\
+	*rd_bytes += (double)n * (double)(sizeof(*c));		\
+	*wr_bytes += (double)n * (double)(sizeof(*b));		\
+	*fp_ops += (double)n;					\
 }
+
+#if defined(HAVE_PRAGMA_PREFETCH)
+STRESS_PRAGMA_PREFETCH
+STRESS_STREAM_SCALE_INDEX0(stress_stream_scale_index0_prefetch)
+STRESS_PRAGMA_NOPREFETCH
+STRESS_STREAM_SCALE_INDEX0(stress_stream_scale_index0)
+#else
+STRESS_STREAM_SCALE_INDEX0(stress_stream_scale_index0)
+#endif
+
+#if defined(HAVE_NT_STORE_DOUBLE)
+#define STRESS_STREAM_SCALE_INDEX0_NT(x)			\
+static inline void ALWAYS_INLINE x(				\
+	double *const RESTRICT b,				\
+	const double *const RESTRICT c,				\
+	const double q,						\
+	const uint64_t n,					\
+	double *const RESTRICT rd_bytes,			\
+	double *const RESTRICT wr_bytes,			\
+	double *const RESTRICT fp_ops)				\
+{								\
+	register uint64_t i;					\
+								\
+PRAGMA_UNROLL_N(8)						\
+	for (i = 0; i < n; i += 4) {				\
+		NT_STORE(b[i + 0], q * c[i + 0]);		\
+		NT_STORE(b[i + 1], q * c[i + 1]);		\
+		NT_STORE(b[i + 2], q * c[i + 2]);		\
+		NT_STORE(b[i + 3], q * c[i + 3]);		\
+	}							\
+								\
+	*rd_bytes += (double)n * (double)(sizeof(*c));		\
+	*wr_bytes += (double)n * (double)(sizeof(*b));		\
+	*fp_ops += (double)n;					\
+}
+
+#if defined(HAVE_PRAGMA_PREFETCH)
+STRESS_PRAGMA_PREFETCH
+STRESS_STREAM_SCALE_INDEX0_NT(stress_stream_scale_index0_nt_prefetch)
+STRESS_PRAGMA_NOPREFETCH
+STRESS_STREAM_SCALE_INDEX0_NT(stress_stream_scale_index0_nt)
+#else
+STRESS_STREAM_SCALE_INDEX0_NT(stress_stream_scale_index0_nt)
+#endif
+
+#endif
+
+#define STRESS_STREAM_SCALE_INDEX1(x)				\
+static inline void ALWAYS_INLINE x(				\
+	double *const RESTRICT b,				\
+	const double *const RESTRICT c,				\
+	const double q,						\
+	const size_t *const RESTRICT idx1,			\
+	const uint64_t n,					\
+	double *const RESTRICT rd_bytes,			\
+	double *const RESTRICT wr_bytes,			\
+	double *const RESTRICT fp_ops)				\
+{								\
+	register uint64_t i;					\
+	register double volatile *RESTRICT bv = b;		\
+								\
+PRAGMA_UNROLL_N(8)						\
+	for (i = 0; i < n; i++) {				\
+		const size_t idx = idx1[i];			\
+								\
+		STORE(bv[idx], q * c[idx]);			\
+	}							\
+								\
+	*rd_bytes += (double)n * (double)(sizeof(*c) + sizeof(*idx1));	\
+	*wr_bytes += (double)n * (double)(sizeof(*b));		\
+	*fp_ops += (double)n;					\
+}
+
+#if defined(HAVE_PRAGMA_PREFETCH)
+STRESS_PRAGMA_PREFETCH
+STRESS_STREAM_SCALE_INDEX1(stress_stream_scale_index1_prefetch)
+STRESS_PRAGMA_NOPREFETCH
+STRESS_STREAM_SCALE_INDEX1(stress_stream_scale_index1)
+#else
+STRESS_STREAM_SCALE_INDEX1(stress_stream_scale_index1)
+#endif
+
+#define STRESS_STREAM_SCALE_INDEX2(x)				\
+static inline void ALWAYS_INLINE x(				\
+	double *const RESTRICT b,				\
+	const double *const RESTRICT c,				\
+	const double q,						\
+	const size_t *const RESTRICT idx1,			\
+	const size_t *const RESTRICT idx2,			\
+	const uint64_t n,					\
+	double *const RESTRICT rd_bytes,			\
+	double *const RESTRICT wr_bytes,			\
+	double *const RESTRICT fp_ops)				\
+{								\
+	register uint64_t i;					\
+	register double volatile *RESTRICT bv = b;		\
+								\
+PRAGMA_UNROLL_N(8)						\
+	for (i = 0; i < n; i++)					\
+		STORE(bv[idx1[i]], q * c[idx2[i]]);		\
+								\
+	*rd_bytes += (double)n * (double)(sizeof(*c) + sizeof(*idx1) + sizeof(*idx2));	\
+	*wr_bytes += (double)n * (double)(sizeof(*b));		\
+	*fp_ops += (double)n;					\
+}
+
+#if defined(HAVE_PRAGMA_PREFETCH)
+STRESS_PRAGMA_PREFETCH
+STRESS_STREAM_SCALE_INDEX2(stress_stream_scale_index2_prefetch)
+STRESS_PRAGMA_NOPREFETCH
+STRESS_STREAM_SCALE_INDEX2(stress_stream_scale_index2)
+#else
+STRESS_STREAM_SCALE_INDEX2(stress_stream_scale_index2)
+#endif
+
+#define STRESS_STREAM_SCALE_INDEX3(x)				\
+static inline void ALWAYS_INLINE x(				\
+	double *const RESTRICT b,				\
+	const double *const RESTRICT c,				\
+	const double q,						\
+	const size_t *const RESTRICT idx1,			\
+	const size_t *const RESTRICT idx2,			\
+	const size_t *const RESTRICT idx3,			\
+	const uint64_t n,					\
+	double *const RESTRICT rd_bytes,			\
+	double *const RESTRICT wr_bytes,			\
+	double *const RESTRICT fp_ops)				\
+{								\
+	register uint64_t i;					\
+	register double volatile *RESTRICT bv = b;		\
+								\
+PRAGMA_UNROLL_N(8)						\
+	for (i = 0; i < n; i++)					\
+		STORE(bv[idx3[idx1[i]]], q * c[idx2[i]]);	\
+								\
+	*rd_bytes += (double)n * (double)(sizeof(*c) + sizeof(*idx1) + sizeof(*idx2) + sizeof(*idx3));	\
+	*wr_bytes += (double)n * (double)(sizeof(*b));		\
+	*fp_ops += (double)n;					\
+}
+
+#if defined(HAVE_PRAGMA_PREFETCH)
+STRESS_PRAGMA_PREFETCH
+STRESS_STREAM_SCALE_INDEX3(stress_stream_scale_index3_prefetch)
+STRESS_PRAGMA_NOPREFETCH
+STRESS_STREAM_SCALE_INDEX3(stress_stream_scale_index3)
+#else
+STRESS_STREAM_SCALE_INDEX3(stress_stream_scale_index3)
+#endif
+
+#define STRESS_STREAM_ADD_INDEX0(x)				\
+static inline void ALWAYS_INLINE x(				\
+	const double *const RESTRICT a,				\
+	const double *const RESTRICT b,				\
+	double *const RESTRICT c,				\
+	const uint64_t n,					\
+	double *const RESTRICT rd_bytes,			\
+	double *const RESTRICT wr_bytes,			\
+	double *const RESTRICT fp_ops)				\
+{								\
+	register uint64_t i;					\
+	register double volatile *RESTRICT cv = c;		\
+								\
+PRAGMA_UNROLL_N(8)						\
+	for (i = 0; i < n; i += 4) {				\
+		STORE(cv[i + 0], a[i + 0] + b[i + 0]);		\
+		STORE(cv[i + 1], a[i + 1] + b[i + 1]);		\
+		STORE(cv[i + 2], a[i + 2] + b[i + 2]);		\
+		STORE(cv[i + 3], a[i + 3] + b[i + 3]);		\
+	}							\
+								\
+	*rd_bytes += (double)n * (double)(sizeof(*a) + sizeof(*b));	\
+	*wr_bytes += (double)n * (double)(sizeof(*c));		\
+	*fp_ops += (double)n;					\
+}
+
+#if defined(HAVE_PRAGMA_PREFETCH)
+STRESS_PRAGMA_PREFETCH
+STRESS_STREAM_ADD_INDEX0(stress_stream_add_index0_prefetch)
+STRESS_PRAGMA_NOPREFETCH
+STRESS_STREAM_ADD_INDEX0(stress_stream_add_index0)
+#else
+STRESS_STREAM_ADD_INDEX0(stress_stream_add_index0)
+#endif
+
+#if defined(HAVE_NT_STORE_DOUBLE)
+#define STRESS_STREAM_ADD_INDEX0_NT(x)				\
+static inline void ALWAYS_INLINE x(				\
+	const double *const RESTRICT a,				\
+	const double *const RESTRICT b,				\
+	double *const RESTRICT c,				\
+	const uint64_t n,					\
+	double *const RESTRICT rd_bytes,			\
+	double *const RESTRICT wr_bytes,			\
+	double *const RESTRICT fp_ops)				\
+{								\
+	register uint64_t i;					\
+								\
+PRAGMA_UNROLL_N(8)						\
+	for (i = 0; i < n; i += 4) {				\
+		NT_STORE(c[i + 0], a[i + 0] + b[i + 0]);	\
+		NT_STORE(c[i + 1], a[i + 1] + b[i + 1]);	\
+		NT_STORE(c[i + 2], a[i + 2] + b[i + 2]);	\
+		NT_STORE(c[i + 3], a[i + 3] + b[i + 3]);	\
+	}							\
+								\
+	*rd_bytes += (double)n * (double)(sizeof(*a) + sizeof(*b));	\
+	*wr_bytes += (double)n * (double)(sizeof(*c));		\
+	*fp_ops += (double)n;					\
+}
+
+#if defined(HAVE_PRAGMA_PREFETCH)
+STRESS_PRAGMA_PREFETCH
+STRESS_STREAM_ADD_INDEX0_NT(stress_stream_add_index0_nt_prefetch)
+STRESS_PRAGMA_NOPREFETCH
+STRESS_STREAM_ADD_INDEX0_NT(stress_stream_add_index0_nt)
+#else
+STRESS_STREAM_ADD_INDEX0_NT(stress_stream_add_index0_nt)
+#endif
+
+#endif
+
+#define STRESS_STREAM_ADD_INDEX1(x)				\
+static inline void ALWAYS_INLINE x(				\
+	const double *const RESTRICT a,				\
+	const double *const RESTRICT b,				\
+	double *const RESTRICT c,				\
+	const size_t *const RESTRICT idx1,			\
+	const uint64_t n,					\
+	double *const RESTRICT rd_bytes,			\
+	double *const RESTRICT wr_bytes,			\
+	double *const RESTRICT fp_ops)				\
+{								\
+	register uint64_t i;					\
+	register double volatile *RESTRICT cv = c;		\
+								\
+PRAGMA_UNROLL_N(8)						\
+	for (i = 0; i < n; i++) {				\
+		const size_t idx = idx1[i];			\
+								\
+		STORE(cv[idx], a[idx] + b[idx]);		\
+	}							\
+								\
+	*rd_bytes += (double)n * (double)(sizeof(*a) + sizeof(*b) + sizeof(*idx1));	\
+	*wr_bytes += (double)n * (double)(sizeof(*c));		\
+	*fp_ops += (double)n;					\
+}
+
+#if defined(HAVE_PRAGMA_PREFETCH)
+STRESS_PRAGMA_PREFETCH
+STRESS_STREAM_ADD_INDEX1(stress_stream_add_index1_prefetch)
+STRESS_PRAGMA_NOPREFETCH
+STRESS_STREAM_ADD_INDEX1(stress_stream_add_index1)
+#else
+STRESS_STREAM_ADD_INDEX1(stress_stream_add_index1)
+#endif
+
+#define STRESS_STREAM_ADD_INDEX2(x)				\
+static inline void ALWAYS_INLINE x(				\
+	const double *const RESTRICT a,				\
+	const double *const RESTRICT b,				\
+	double *const RESTRICT c,				\
+	const size_t *const RESTRICT idx1,			\
+	const size_t *const RESTRICT idx2,			\
+	const uint64_t n,					\
+	double *const RESTRICT rd_bytes,			\
+	double *const RESTRICT wr_bytes,			\
+	double *const RESTRICT fp_ops)				\
+{								\
+	register uint64_t i;					\
+	register double volatile *RESTRICT cv = c;		\
+								\
+PRAGMA_UNROLL_N(8)						\
+	for (i = 0; i < n; i++) {				\
+		const size_t idx = idx1[i];			\
+								\
+		STORE(cv[idx], a[idx2[i]] + b[idx]);		\
+	}							\
+								\
+	*rd_bytes += (double)n * (double)(sizeof(*a) + sizeof(*b) + sizeof(*idx1) + sizeof(*idx2));	\
+	*wr_bytes += (double)n * (double)(sizeof(*c));		\
+	*fp_ops += (double)n;					\
+}
+
+#if defined(HAVE_PRAGMA_PREFETCH)
+STRESS_PRAGMA_PREFETCH
+STRESS_STREAM_ADD_INDEX2(stress_stream_add_index2_prefetch)
+STRESS_PRAGMA_NOPREFETCH
+STRESS_STREAM_ADD_INDEX2(stress_stream_add_index2)
+#else
+STRESS_STREAM_ADD_INDEX2(stress_stream_add_index2)
+#endif
+
+#define STRESS_STREAM_ADD_INDEX3(x)				\
+static inline void ALWAYS_INLINE x(				\
+	const double *const RESTRICT a,				\
+	const double *const RESTRICT b,				\
+	double *const RESTRICT c,				\
+	const size_t *const RESTRICT idx1,			\
+	const size_t *const RESTRICT idx2,			\
+	const size_t *const RESTRICT idx3,			\
+	const uint64_t n,					\
+	double *const RESTRICT rd_bytes,			\
+	double *const RESTRICT wr_bytes,			\
+	double *const RESTRICT fp_ops)				\
+{								\
+	register uint64_t i;					\
+	register double volatile *RESTRICT cv = c;		\
+								\
+PRAGMA_UNROLL_N(8)						\
+	for (i = 0; i < n; i++)					\
+		STORE(cv[idx1[i]], a[idx2[i]] + b[idx3[i]]);	\
+								\
+	*rd_bytes += (double)n * (double)(sizeof(*a) + sizeof(*b) + sizeof(*idx1) + sizeof(*idx2) + sizeof(*idx3));	\
+	*wr_bytes += (double)n * (double)(sizeof(*c));		\
+	*fp_ops += (double)n;					\
+}
+
+#if defined(HAVE_PRAGMA_PREFETCH)
+STRESS_PRAGMA_PREFETCH
+STRESS_STREAM_ADD_INDEX3(stress_stream_add_index3_prefetch)
+STRESS_PRAGMA_NOPREFETCH
+STRESS_STREAM_ADD_INDEX3(stress_stream_add_index3)
+#else
+STRESS_STREAM_ADD_INDEX3(stress_stream_add_index3)
+#endif
+
+#define STRESS_STREAM_TRIAD_INDEX0(x)				\
+static inline void ALWAYS_INLINE x(				\
+	double *const RESTRICT a,				\
+	const double *const RESTRICT b,				\
+	const double *const RESTRICT c,				\
+	const double q,						\
+	const uint64_t n,					\
+	double *const RESTRICT rd_bytes,			\
+	double *const RESTRICT wr_bytes,			\
+	double *const RESTRICT fp_ops)				\
+{								\
+	register uint64_t i;					\
+	register double volatile *RESTRICT av = a;		\
+								\
+PRAGMA_UNROLL_N(8)						\
+	for (i = 0; i < n; i += 4) {				\
+		STORE(av[i + 0], b[i + 0] + (c[i + 0] * q));	\
+		STORE(av[i + 1], b[i + 1] + (c[i + 1] * q));	\
+		STORE(av[i + 2], b[i + 2] + (c[i + 2] * q));	\
+		STORE(av[i + 3], b[i + 3] + (c[i + 3] * q));	\
+	}							\
+								\
+	*rd_bytes += (double)n * (double)(sizeof(*b) + sizeof(*c));	\
+	*wr_bytes += (double)n * (double)(sizeof(*a));		\
+	*fp_ops += (double)n * 2.0;				\
+}
+
+#if defined(HAVE_PRAGMA_PREFETCH)
+STRESS_PRAGMA_PREFETCH
+STRESS_STREAM_TRIAD_INDEX0(stress_stream_triad_index0_prefetch)
+STRESS_PRAGMA_NOPREFETCH
+STRESS_STREAM_TRIAD_INDEX0(stress_stream_triad_index0)
+#else
+STRESS_STREAM_TRIAD_INDEX0(stress_stream_triad_index0)
+#endif
+
+#if defined(HAVE_NT_STORE_DOUBLE)
+#define STRESS_STREAM_TRIAD_INDEX0_NT(x)			\
+static inline void ALWAYS_INLINE x(				\
+	double *const RESTRICT a,				\
+	const double *const RESTRICT b,				\
+	const double *const RESTRICT c,				\
+	const double q,						\
+	const uint64_t n,					\
+	double *const RESTRICT rd_bytes,			\
+	double *const RESTRICT wr_bytes,			\
+	double *const RESTRICT fp_ops)				\
+{								\
+	register uint64_t i;					\
+								\
+PRAGMA_UNROLL_N(8)						\
+	for (i = 0; i < n; i += 4) {				\
+		NT_STORE(a[i + 0], b[i + 0] + (c[i + 0] * q));	\
+		NT_STORE(a[i + 1], b[i + 1] + (c[i + 1] * q));	\
+		NT_STORE(a[i + 2], b[i + 2] + (c[i + 2] * q));	\
+		NT_STORE(a[i + 3], b[i + 3] + (c[i + 3] * q));	\
+	}							\
+								\
+	*rd_bytes += (double)n * (double)(sizeof(*b) + sizeof(*c));	\
+	*wr_bytes += (double)n * (double)(sizeof(*a));		\
+	*fp_ops += (double)n * 2.0;				\
+}
+#if defined(HAVE_PRAGMA_PREFETCH)
+STRESS_PRAGMA_PREFETCH
+STRESS_STREAM_TRIAD_INDEX0_NT(stress_stream_triad_index0_nt_prefetch)
+STRESS_PRAGMA_NOPREFETCH
+STRESS_STREAM_TRIAD_INDEX0_NT(stress_stream_triad_index0_nt)
+#else
+STRESS_STREAM_TRIAD_INDEX0_NT(stress_stream_triad_index0_nt)
+#endif
+
+#endif
+
+#define STRESS_STREAM_TRIAD_INDEX1(x)				\
+static inline void ALWAYS_INLINE x(				\
+	double *const RESTRICT a,				\
+	const double *const RESTRICT b,				\
+	const double *const RESTRICT c,				\
+	const double q,						\
+	const size_t *const RESTRICT idx1,			\
+	const uint64_t n,					\
+	double *const RESTRICT rd_bytes,			\
+	double *const RESTRICT wr_bytes,			\
+	double *const RESTRICT fp_ops)				\
+{								\
+	register uint64_t i;					\
+	register double volatile *RESTRICT av = a;		\
+								\
+PRAGMA_UNROLL_N(8)						\
+	for (i = 0; i < n; i++) {				\
+		size_t idx = idx1[i];				\
+								\
+		STORE(av[idx], b[idx] + (c[idx] * q));		\
+	}							\
+	*rd_bytes += (double)n * (double)(sizeof(*b) + sizeof(*c) + sizeof(*idx1));	\
+	*wr_bytes += (double)n * (double)(sizeof(*a));		\
+	*fp_ops += (double)n * 2.0;				\
+}
+
+#if defined(HAVE_PRAGMA_PREFETCH)
+STRESS_PRAGMA_PREFETCH
+STRESS_STREAM_TRIAD_INDEX1(stress_stream_triad_index1_prefetch)
+STRESS_PRAGMA_NOPREFETCH
+STRESS_STREAM_TRIAD_INDEX1(stress_stream_triad_index1)
+#else
+STRESS_STREAM_TRIAD_INDEX1(stress_stream_triad_index1)
+#endif
+
+#define STRESS_STREAM_TRIAD_INDEX2(x)				\
+static inline void ALWAYS_INLINE x(				\
+	double *const RESTRICT a,				\
+	const double *const RESTRICT b,				\
+	const double *const RESTRICT c,				\
+	const double q,						\
+	const size_t *const RESTRICT idx1,			\
+	const size_t *const RESTRICT idx2,			\
+	const uint64_t n,					\
+	double *const RESTRICT rd_bytes,			\
+	double *const RESTRICT wr_bytes,			\
+	double *const RESTRICT fp_ops)				\
+{								\
+	register uint64_t i;					\
+	register double volatile *RESTRICT av = a;		\
+								\
+PRAGMA_UNROLL_N(8)						\
+	for (i = 0; i < n; i++) {				\
+		const size_t idx = idx1[i];			\
+								\
+		STORE(av[idx], b[idx2[i]] + (c[idx] * q));	\
+	}							\
+								\
+	*rd_bytes += (double)n * (double)(sizeof(*b) + sizeof(*c) + sizeof(*idx1) + sizeof(*idx2));	\
+	*wr_bytes += (double)n * (double)(sizeof(*a));		\
+	*fp_ops += (double)n * 2.0;				\
+}
+
+#if defined(HAVE_PRAGMA_PREFETCH)
+STRESS_PRAGMA_PREFETCH
+STRESS_STREAM_TRIAD_INDEX2(stress_stream_triad_index2_prefetch)
+STRESS_PRAGMA_NOPREFETCH
+STRESS_STREAM_TRIAD_INDEX2(stress_stream_triad_index2)
+#else
+STRESS_STREAM_TRIAD_INDEX2(stress_stream_triad_index2)
+#endif
+
+#define STRESS_STREAM_TRIAD_INDEX3(x)				\
+static inline void ALWAYS_INLINE x(				\
+	double *const RESTRICT a,				\
+	const double *const RESTRICT b,				\
+	const double *const RESTRICT c,				\
+	const double q,						\
+	const size_t *const RESTRICT idx1,			\
+	const size_t *const RESTRICT idx2,			\
+	const size_t *const RESTRICT idx3,			\
+	const uint64_t n,					\
+	double *const RESTRICT rd_bytes,			\
+	double *const RESTRICT wr_bytes,			\
+	double *const RESTRICT fp_ops)				\
+{								\
+	register uint64_t i;					\
+	register double volatile *RESTRICT av = a;		\
+								\
+PRAGMA_UNROLL_N(8)						\
+	for (i = 0; i < n; i++)					\
+		STORE(av[idx1[i]], b[idx2[i]] + (c[idx3[i]] * q));	\
+								\
+	*rd_bytes += (double)n * (double)(sizeof(*b) + sizeof(*c) + sizeof(*idx1) + sizeof(*idx2) + sizeof(*idx3));	\
+	*wr_bytes += (double)n * (double)(sizeof(*a));		\
+	*fp_ops += (double)n * 2.0;				\
+}
+
+#if defined(HAVE_PRAGMA_PREFETCH)
+STRESS_PRAGMA_PREFETCH
+STRESS_STREAM_TRIAD_INDEX3(stress_stream_triad_index3_prefetch)
+STRESS_PRAGMA_NOPREFETCH
+STRESS_STREAM_TRIAD_INDEX3(stress_stream_triad_index3)
+#else
+STRESS_STREAM_TRIAD_INDEX3(stress_stream_triad_index3)
+#endif
 
 static inline ALWAYS_INLINE void stress_stream_init_data(
 	double *const RESTRICT a,
@@ -771,12 +976,28 @@ static void OPTIMIZE3 TARGET_CLONES stress_stream_exercise(
 	const double q,
 	const uint64_t n,
 	const uint32_t stream_index,
-	const bool has_sse2)
+	const bool has_sse2,
+	const bool stream_prefetch)
 {
 	double t1, t2;
 
+#if !defined(HAVE_PRAGMA_PREFETCH)
+	(void)stream_prefetch;
+#endif
+
 	switch (stream_index) {
 	case 3:
+#if defined(HAVE_PRAGMA_PREFETCH)
+		if (stream_prefetch) {
+			t1 = stress_time_now();
+			stress_stream_copy_index3_prefetch(c, a, idx1, idx2, idx3, n, rd_bytes, wr_bytes, fp_ops);
+			stress_stream_scale_index3_prefetch(b, c, q, idx1, idx2, idx3, n, rd_bytes, wr_bytes, fp_ops);
+			stress_stream_add_index3_prefetch(c, b, a, idx1, idx2, idx3, n, rd_bytes, wr_bytes, fp_ops);
+			stress_stream_triad_index3_prefetch(a, b, c, q, idx1, idx2, idx3, n, rd_bytes, wr_bytes, fp_ops);
+			t2 = stress_time_now();
+			break;
+		}
+#endif
 		t1 = stress_time_now();
 		stress_stream_copy_index3(c, a, idx1, idx2, idx3, n, rd_bytes, wr_bytes, fp_ops);
 		stress_stream_scale_index3(b, c, q, idx1, idx2, idx3, n, rd_bytes, wr_bytes, fp_ops);
@@ -785,6 +1006,17 @@ static void OPTIMIZE3 TARGET_CLONES stress_stream_exercise(
 		t2 = stress_time_now();
 		break;
 	case 2:
+#if defined(HAVE_PRAGMA_PREFETCH)
+		if (stream_prefetch) {
+			t1 = stress_time_now();
+			stress_stream_copy_index2_prefetch(c, a, idx1, idx2, n, rd_bytes, wr_bytes, fp_ops);
+			stress_stream_scale_index2_prefetch(b, c, q, idx1, idx2, n, rd_bytes, wr_bytes, fp_ops);
+			stress_stream_add_index2_prefetch(c, b, a, idx1, idx2, n, rd_bytes, wr_bytes, fp_ops);
+			stress_stream_triad_index2_prefetch(a, b, c, q, idx1, idx2, n, rd_bytes, wr_bytes, fp_ops);
+			t2 = stress_time_now();
+			break;
+		}
+#endif
 		t1 = stress_time_now();
 		stress_stream_copy_index2(c, a, idx1, idx2, n, rd_bytes, wr_bytes, fp_ops);
 		stress_stream_scale_index2(b, c, q, idx1, idx2, n, rd_bytes, wr_bytes, fp_ops);
@@ -793,6 +1025,17 @@ static void OPTIMIZE3 TARGET_CLONES stress_stream_exercise(
 		t2 = stress_time_now();
 		break;
 	case 1:
+#if defined(HAVE_PRAGMA_PREFETCH)
+		if (stream_prefetch) {
+			t1 = stress_time_now();
+			stress_stream_copy_index1_prefetch(c, a, idx1, n, rd_bytes, wr_bytes, fp_ops);
+			stress_stream_scale_index1_prefetch(b, c, q, idx1, n, rd_bytes, wr_bytes, fp_ops);
+			stress_stream_add_index1_prefetch(c, b, a, idx1, n, rd_bytes, wr_bytes, fp_ops);
+			stress_stream_triad_index1_prefetch(a, b, c, q, idx1, n, rd_bytes, wr_bytes, fp_ops);
+			t2 = stress_time_now();
+			break;
+		}
+#endif
 		t1 = stress_time_now();
 		stress_stream_copy_index1(c, a, idx1, n, rd_bytes, wr_bytes, fp_ops);
 		stress_stream_scale_index1(b, c, q, idx1, n, rd_bytes, wr_bytes, fp_ops);
@@ -804,6 +1047,17 @@ static void OPTIMIZE3 TARGET_CLONES stress_stream_exercise(
 	default:
 #if defined(HAVE_NT_STORE_DOUBLE)
 		if (has_sse2) {
+#if defined(HAVE_PRAGMA_PREFETCH)
+			if (stream_prefetch) {
+				t1 = stress_time_now();
+				stress_stream_copy_index0_nt_prefetch(c, a, n, rd_bytes, wr_bytes, fp_ops);
+				stress_stream_scale_index0_nt_prefetch(b, c, q, n, rd_bytes, wr_bytes, fp_ops);
+				stress_stream_add_index0_nt_prefetch(c, b, a, n,  rd_bytes, wr_bytes, fp_ops);
+				stress_stream_triad_index0_nt_prefetch(a, b, c, q, n, rd_bytes, wr_bytes, fp_ops);
+				t2 = stress_time_now();
+				break;
+			}
+#endif
 			t1 = stress_time_now();
 			stress_stream_copy_index0_nt(c, a, n, rd_bytes, wr_bytes, fp_ops);
 			stress_stream_scale_index0_nt(b, c, q, n, rd_bytes, wr_bytes, fp_ops);
@@ -815,12 +1069,23 @@ static void OPTIMIZE3 TARGET_CLONES stress_stream_exercise(
 #else
 		(void)has_sse2;
 #endif
-		t1 = stress_time_now();
-		stress_stream_copy_index0(c, a, n, rd_bytes, wr_bytes, fp_ops);
-		stress_stream_scale_index0(b, c, q, n, rd_bytes, wr_bytes, fp_ops);
-		stress_stream_add_index0(c, b, a, n, rd_bytes, wr_bytes, fp_ops);
-		stress_stream_triad_index0(a, b, c, q, n, rd_bytes, wr_bytes, fp_ops);
-		t2 = stress_time_now();
+		if (stream_prefetch) {
+			t1 = stress_time_now();
+#if defined(HAVE_PRAGMA_PREFETCH)
+			stress_stream_copy_index0_prefetch(c, a, n, rd_bytes, wr_bytes, fp_ops);
+			stress_stream_scale_index0_prefetch(b, c, q, n, rd_bytes, wr_bytes, fp_ops);
+			stress_stream_add_index0_prefetch(c, b, a, n, rd_bytes, wr_bytes, fp_ops);
+			stress_stream_triad_index0_prefetch(a, b, c, q, n, rd_bytes, wr_bytes, fp_ops);
+#endif
+			t2 = stress_time_now();
+		} else {
+			t1 = stress_time_now();
+			stress_stream_copy_index0(c, a, n, rd_bytes, wr_bytes, fp_ops);
+			stress_stream_scale_index0(b, c, q, n, rd_bytes, wr_bytes, fp_ops);
+			stress_stream_add_index0(c, b, a, n, rd_bytes, wr_bytes, fp_ops);
+			stress_stream_triad_index0(a, b, c, q, n, rd_bytes, wr_bytes, fp_ops);
+			t2 = stress_time_now();
+		}
 		break;
 	}
 	(*dt) += (t2 - t1);
@@ -872,6 +1137,7 @@ static int stress_stream(stress_args_t *args)
 	uint32_t init_counter, init_counter_max;
 	bool guess = false;
 	bool stream_mlock = false;
+	bool stream_prefetch = false;
 #if defined(HAVE_NT_STORE_DOUBLE)
 	const bool has_sse2 = stress_cpu_x86_has_sse2();
 #else
@@ -883,6 +1149,14 @@ static int stress_stream(stress_args_t *args)
 	stress_catch_sigill();
 
 	(void)stress_get_setting("stream-mlock", &stream_mlock);
+	(void)stress_get_setting("stream-prefetch", &stream_prefetch);
+
+#if !defined(HAVE_PRAGMA_PREFETCH)
+	if (stream_prefetch) {
+		pr_inf("%s: prefetch not available, disabling option --stream-prefetch\n", args->name);
+		stream_prefetch = false;
+	}
+#endif
 
 	if (stress_get_setting("stream-l3-size", &stream_L3_size))
 		L3 = stream_L3_size;
@@ -988,7 +1262,7 @@ case_stream_index_1:
 
 		stress_stream_exercise(&dt, a, b, c, idx1, idx2, idx3,
 				       &rd_bytes, &wr_bytes, &fp_ops,
-				       q, n, stream_index, has_sse2);
+				       q, n, stream_index, has_sse2, stream_prefetch);
 		if (verify) {
 			rc = stress_stream_verify(args, &old_checksum, a, b, c, n);
 			if (rc != EXIT_SUCCESS)
@@ -1039,10 +1313,11 @@ static const char *stress_stream_madvise(const size_t i)
 }
 
 static const stress_opt_t opts[] = {
-	{ OPT_stream_index,   "stream-index",   TYPE_ID_UINT32, 0, 3, NULL },
-	{ OPT_stream_l3_size, "stream-l3-size", TYPE_ID_UINT64_BYTES_VM, MIN_STREAM_L3_SIZE, MAX_STREAM_L3_SIZE, NULL },
-	{ OPT_stream_madvise, "stream-madvise", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_stream_madvise },
-	{ OPT_stream_mlock,   "stream-mlock",   TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_stream_index,    "stream-index",    TYPE_ID_UINT32, 0, 3, NULL },
+	{ OPT_stream_l3_size,  "stream-l3-size",  TYPE_ID_UINT64_BYTES_VM, MIN_STREAM_L3_SIZE, MAX_STREAM_L3_SIZE, NULL },
+	{ OPT_stream_madvise,  "stream-madvise",  TYPE_ID_SIZE_T_METHOD, 0, 0, stress_stream_madvise },
+	{ OPT_stream_mlock,    "stream-mlock",    TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_stream_prefetch, "stream-prefetch", TYPE_ID_BOOL, 0, 1, NULL },
 	END_OPT,
 };
 
