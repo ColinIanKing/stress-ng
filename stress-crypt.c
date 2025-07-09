@@ -39,12 +39,16 @@ typedef struct {
 
 static const crypt_method_t crypt_methods[] = {
 	{ NULL,		0,	"all" },
+	{ "$2b$",	4,	"bcrypt" },
+	{ "_",		1,	"bsdicrypt" },
+	{ "",		0,	"descrypt" },
+	{ "$gy$",	4,	"gost-yescrypt" },
 	{ "$1$",	3,	"MD5" },
 	{ "$3$",	3,	"NT" },
+	{ "$7$",	3,	"scrypt" },
 	{ "$sha1",	5,	"SHA-1" },
 	{ "$5$",	3,	"SHA-256" },
 	{ "$6$",	3,	"SHA-512" },
-	{ "$7$",	3,	"scrypt" },
 	{ "$md5",	4,	"SunMD5" },
 	{ "$y$",	3,	"yescrypt" },
 };
