@@ -101,7 +101,7 @@ static void stress_stream_checksum_to_hexstr(char *str, const size_t len, const 
 }
 
 #define STRESS_STREAM_COPY_INDEX0(x)				\
-static inline void ALWAYS_INLINE x (				\
+static inline void x (						\
 	double *const RESTRICT c,				\
 	const double *const RESTRICT a,				\
 	const uint64_t n,					\
@@ -136,7 +136,7 @@ STRESS_STREAM_COPY_INDEX0(stress_stream_copy_index0)
 
 #if defined(HAVE_NT_STORE_DOUBLE)
 #define STRESS_STREAM_COPY_INDEX0_NT(x)				\
-static inline void ALWAYS_INLINE x (				\
+static inline void 		x (				\
 	double *const RESTRICT c,				\
 	const double *const RESTRICT a,				\
 	const uint64_t n,					\
@@ -171,7 +171,7 @@ STRESS_STREAM_COPY_INDEX0_NT(stress_stream_copy_index0_nt)
 #endif
 
 #define STRESS_STREAM_COPY_INDEX1(x)				\
-static inline void ALWAYS_INLINE x (				\
+static inline void x (						\
 	double *const RESTRICT c,				\
 	const double *const RESTRICT a,				\
 	const size_t *const RESTRICT idx1,			\
@@ -206,7 +206,7 @@ STRESS_STREAM_COPY_INDEX1(stress_stream_copy_index1)
 #endif
 
 #define STRESS_STREAM_COPY_INDEX2(x)				\
-static inline void ALWAYS_INLINE x(				\
+static inline void x(						\
 	double *const RESTRICT c,				\
 	const double *const RESTRICT a,				\
 	const size_t *const RESTRICT idx1,			\
@@ -238,7 +238,7 @@ STRESS_STREAM_COPY_INDEX2(stress_stream_copy_index2)
 #endif
 
 #define STRESS_STREAM_COPY_INDEX3(x)				\
-static inline void ALWAYS_INLINE x(				\
+static inline void x(						\
 	double *const RESTRICT c,				\
 	const double *const RESTRICT a,				\
 	const size_t *const RESTRICT idx1,			\
@@ -271,7 +271,7 @@ STRESS_STREAM_COPY_INDEX3(stress_stream_copy_index3)
 #endif
 
 #define STRESS_STREAM_SCALE_INDEX0(x)				\
-static inline void ALWAYS_INLINE x(				\
+static inline void x(						\
 	double *const RESTRICT b,				\
 	const double *const RESTRICT c,				\
 	const double q,						\
@@ -307,7 +307,7 @@ STRESS_STREAM_SCALE_INDEX0(stress_stream_scale_index0)
 
 #if defined(HAVE_NT_STORE_DOUBLE)
 #define STRESS_STREAM_SCALE_INDEX0_NT(x)			\
-static inline void ALWAYS_INLINE x(				\
+static inline void x(						\
 	double *const RESTRICT b,				\
 	const double *const RESTRICT c,				\
 	const double q,						\
@@ -343,7 +343,7 @@ STRESS_STREAM_SCALE_INDEX0_NT(stress_stream_scale_index0_nt)
 #endif
 
 #define STRESS_STREAM_SCALE_INDEX1(x)				\
-static inline void ALWAYS_INLINE x(				\
+static inline void x(						\
 	double *const RESTRICT b,				\
 	const double *const RESTRICT c,				\
 	const double q,						\
@@ -378,7 +378,7 @@ STRESS_STREAM_SCALE_INDEX1(stress_stream_scale_index1)
 #endif
 
 #define STRESS_STREAM_SCALE_INDEX2(x)				\
-static inline void ALWAYS_INLINE x(				\
+static inline void x(						\
 	double *const RESTRICT b,				\
 	const double *const RESTRICT c,				\
 	const double q,						\
@@ -411,7 +411,7 @@ STRESS_STREAM_SCALE_INDEX2(stress_stream_scale_index2)
 #endif
 
 #define STRESS_STREAM_SCALE_INDEX3(x)				\
-static inline void ALWAYS_INLINE x(				\
+static inline void x(						\
 	double *const RESTRICT b,				\
 	const double *const RESTRICT c,				\
 	const double q,						\
@@ -445,7 +445,7 @@ STRESS_STREAM_SCALE_INDEX3(stress_stream_scale_index3)
 #endif
 
 #define STRESS_STREAM_ADD_INDEX0(x)				\
-static inline void ALWAYS_INLINE x(				\
+static inline void x(						\
 	const double *const RESTRICT a,				\
 	const double *const RESTRICT b,				\
 	double *const RESTRICT c,				\
@@ -481,7 +481,7 @@ STRESS_STREAM_ADD_INDEX0(stress_stream_add_index0)
 
 #if defined(HAVE_NT_STORE_DOUBLE)
 #define STRESS_STREAM_ADD_INDEX0_NT(x)				\
-static inline void ALWAYS_INLINE x(				\
+static inline void x(						\
 	const double *const RESTRICT a,				\
 	const double *const RESTRICT b,				\
 	double *const RESTRICT c,				\
@@ -517,7 +517,7 @@ STRESS_STREAM_ADD_INDEX0_NT(stress_stream_add_index0_nt)
 #endif
 
 #define STRESS_STREAM_ADD_INDEX1(x)				\
-static inline void ALWAYS_INLINE x(				\
+static inline void x(						\
 	const double *const RESTRICT a,				\
 	const double *const RESTRICT b,				\
 	double *const RESTRICT c,				\
@@ -552,7 +552,7 @@ STRESS_STREAM_ADD_INDEX1(stress_stream_add_index1)
 #endif
 
 #define STRESS_STREAM_ADD_INDEX2(x)				\
-static inline void ALWAYS_INLINE x(				\
+static inline void x(						\
 	const double *const RESTRICT a,				\
 	const double *const RESTRICT b,				\
 	double *const RESTRICT c,				\
@@ -588,7 +588,7 @@ STRESS_STREAM_ADD_INDEX2(stress_stream_add_index2)
 #endif
 
 #define STRESS_STREAM_ADD_INDEX3(x)				\
-static inline void ALWAYS_INLINE x(				\
+static inline void x(						\
 	const double *const RESTRICT a,				\
 	const double *const RESTRICT b,				\
 	double *const RESTRICT c,				\
@@ -622,7 +622,7 @@ STRESS_STREAM_ADD_INDEX3(stress_stream_add_index3)
 #endif
 
 #define STRESS_STREAM_TRIAD_INDEX0(x)				\
-static inline void ALWAYS_INLINE x(				\
+static inline void x(						\
 	double *const RESTRICT a,				\
 	const double *const RESTRICT b,				\
 	const double *const RESTRICT c,				\
@@ -659,7 +659,7 @@ STRESS_STREAM_TRIAD_INDEX0(stress_stream_triad_index0)
 
 #if defined(HAVE_NT_STORE_DOUBLE)
 #define STRESS_STREAM_TRIAD_INDEX0_NT(x)			\
-static inline void ALWAYS_INLINE x(				\
+static inline void x(						\
 	double *const RESTRICT a,				\
 	const double *const RESTRICT b,				\
 	const double *const RESTRICT c,				\
@@ -695,7 +695,7 @@ STRESS_STREAM_TRIAD_INDEX0_NT(stress_stream_triad_index0_nt)
 #endif
 
 #define STRESS_STREAM_TRIAD_INDEX1(x)				\
-static inline void ALWAYS_INLINE x(				\
+static inline void x(						\
 	double *const RESTRICT a,				\
 	const double *const RESTRICT b,				\
 	const double *const RESTRICT c,				\
@@ -730,7 +730,7 @@ STRESS_STREAM_TRIAD_INDEX1(stress_stream_triad_index1)
 #endif
 
 #define STRESS_STREAM_TRIAD_INDEX2(x)				\
-static inline void ALWAYS_INLINE x(				\
+static inline void x(						\
 	double *const RESTRICT a,				\
 	const double *const RESTRICT b,				\
 	const double *const RESTRICT c,				\
@@ -767,7 +767,7 @@ STRESS_STREAM_TRIAD_INDEX2(stress_stream_triad_index2)
 #endif
 
 #define STRESS_STREAM_TRIAD_INDEX3(x)				\
-static inline void ALWAYS_INLINE x(				\
+static inline void x(						\
 	double *const RESTRICT a,				\
 	const double *const RESTRICT b,				\
 	const double *const RESTRICT c,				\
