@@ -712,7 +712,7 @@ static int stress_cacheline(stress_args_t *args)
 	stress_cacheline_func func;
 	bool cacheline_affinity = false;
 	size_t n_pids, i;
-	stress_pid_t *s_pids = NULL;
+	stress_pid_t *s_pids = NULL, *s_pids_head = NULL;
 
 	if (stress_sigchld_set_handler(args) < 0)
 		return EXIT_NO_RESOURCE;
@@ -759,9 +759,6 @@ static int stress_cacheline(stress_args_t *args)
 
 	func = cacheline_methods[cacheline_method].func;
 
-	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
-	stress_sync_start_wait(args);
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 	for (i = 0; i < n_pids; i++) {
 		int child_idx;
 
@@ -790,8 +787,14 @@ again:
 			stress_parent_died_alarm();
 			rc = stress_cacheline_child(args, child_idx, false, l1_cacheline_size, func, cacheline_affinity);
 			_exit(rc);
+		} else {
+			stress_sync_start_s_pid_list_add(&s_pids_head, &s_pids[i]);
 		}
 	}
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
+	stress_sync_start_wait(args);
+	stress_sync_start_cont_list(s_pids_head);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	stress_cacheline_child(args, idx, true, l1_cacheline_size, func, cacheline_affinity);
 finish:
