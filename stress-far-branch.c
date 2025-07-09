@@ -247,7 +247,7 @@ static void *stress_far_mmap(
 		ptr = (uint8_t *)mmap(NULL, page_size, PROT_READ | PROT_WRITE,
 					MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 		if (ptr == MAP_FAILED)
-			return NULL;	/* Give up */
+			return ptr;	/* Give up */
 		(void)stress_madvise_mergeable(ptr, page_size);
 	}
 
@@ -289,18 +289,15 @@ use_page:
 			goto do_prot;
 
 		/* Now map file data back as file backed mapping */
-		ptr = (uint8_t *)stress_far_try_mmap((void *)addr, page_size, fd, offset);
-		if (ptr == MAP_FAILED) {
-			ptr = (uint8_t *)mmap(NULL, page_size, PROT_READ | PROT_WRITE,
-						MAP_ANONYMOUS | MAP_SHARED, -1, 0);
-			if (ptr == MAP_FAILED)
-				return NULL;	/* Give up */
-		}
+		ptr = (uint8_t *)mmap(NULL, page_size, PROT_READ | PROT_WRITE,
+						MAP_SHARED, fd, offset);
+		if (ptr == MAP_FAILED)
+			return MAP_FAILED;	/* Give up */
 		(void)stress_madvise_mergeable(ptr, page_size);
 
 		/* re-do func refs since mapping may be at new address */
 		for (i = 0, n = 0; i < page_size; i += stress_ret_opcode.stride, n++)
-			funcs[*total_funcs + i] = (stress_ret_func_t)(ptr + i);
+			funcs[*total_funcs + n] = (stress_ret_func_t)(ptr + i);
 
 		(*total_file_mapped_funcs) += n;
 	}
@@ -377,6 +374,7 @@ static int OPTIMIZE3 stress_far_branch(stress_args_t *args)
 	NOCLOBBER stress_ret_func_t *funcs = NULL;
 	NOCLOBBER void **pages = NULL;
 	NOCLOBBER size_t total_funcs = 0, total_file_mapped_funcs = 0;
+	NOCLOBBER size_t n_pages_failed, n_pages_mapped = 0;
 	NOCLOBBER double calls = 0.0;
 	NOCLOBBER bool far_branch_flush = false;
 	NOCLOBBER bool far_branch_pageout = false;
@@ -482,17 +480,43 @@ static int OPTIMIZE3 stress_far_branch(stress_args_t *args)
 	 */
 	for (k = 0, i = 0; i < PAGE_MULTIPLES; i++) {
 		for (j = 0; k < n_pages; j++, k++) {
-			const size_t shift = (16 + j) & 0x1f;
-			size_t offset = ((uintptr_t)1 << shift) + (4 * page_size * i);
+			const size_t shift = (16 + j) & 0xf;
+			size_t offset = ((uintptr_t)1 << shift) + (4 * page_size * (i + 4));
 
 			pages[k] = stress_far_mmap(fd, page_size, base, offset,
 						funcs, &total_funcs, &total_file_mapped_funcs);
-			if (pages[k] != MAP_FAILED)
+			if (pages[k] != MAP_FAILED) {
 				stress_set_vma_anon_name(pages[k], page_size, "functions-page");
+				n_pages_mapped++;
+			} else {
+				n_pages_failed++;
+			}
 		}
 	}
 
-	total_funcs &= ~((size_t)15);
+	if (n_pages_mapped == 0) {
+		pr_inf("%s: failed to mmap pages%s, skipping stressor\n",
+			args->name, stress_get_memfree_str());
+	}
+	if (n_pages_failed > 0) {
+		pr_inf("fixing failed mappings\n");
+		for (i = 0; i < n_pages; i++) {
+			if (pages[i] != MAP_FAILED)
+				continue;
+			k = stress_mwc32modn((uint32_t)n_pages);
+			for (j = 0; j < n_pages; j++)  {
+				if (pages[k] != MAP_FAILED) {
+					pages[i] = pages[j];
+					break;
+				}
+				k++;
+				if (k >= n_pages)
+					k = 0;
+			}
+		}
+	}
+
+	total_funcs &= ~((size_t)0x1f);
 
 	if (stress_instance_zero(args))
 		pr_inf("%s: %zu x %zu byte functions over %zu x %zuK pages (using %zu file mapped functions)\n",
