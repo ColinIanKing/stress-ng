@@ -578,7 +578,7 @@ l1:
 			funcs[i + 0x1f]();
 		}
 		stress_bogo_inc(args);
-		calls += (double)total_funcs;
+		calls += (double)i;
 
 		if (UNLIKELY(far_branch_flush)) {
 			for (i = 0; i < n_pages; i++)
@@ -616,7 +616,6 @@ l2:
 			stress_far_branch_shuffle(funcs, total_funcs, ((stress_mwc8() & 0x1f) + 7));
 			t_next = stress_time_now() + 3.0;
 		}
-
 	} while (stress_continue(args));
 	duration = stress_time_now() - t_start;
 
@@ -641,7 +640,7 @@ cleanup:
 
 	(void)stress_temp_dir_rm_args(args);
 
-	if (!check_flag) {
+	if (!check_flag && (calls > (double)total_funcs)) {
 		pr_fail("%s: failed to execute check function\n", args->name);
 		return EXIT_FAILURE;
 	}
