@@ -1009,6 +1009,8 @@ redo:
 					name, (intmax_t)ret);
 			} else if (wterm_signal != SIGALRM) {
 				*success = false;
+				/* force EXIT_SIGNALED */
+				wexit_status = EXIT_SIGNALED;
 			}
 		}
 		switch (wexit_status) {
