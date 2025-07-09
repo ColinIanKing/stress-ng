@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "3 July 2025"
+.TH STRESS-NG 1 "9 July 2025"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -1300,11 +1300,11 @@ stop after N cache hammer operations.
 .TQ
 .B \-\-cacheline N
 start N workers that exercise reading and writing individual bytes
-in a shared buffer that is the size of a cache line. Each stressor has
-2 running processes that exercise just two bytes that are next to each other.
-The intent is to try and trigger cacheline corruption, stalls and misses
-with shared memory accesses. For an N byte sized cacheline, it is recommended
-to run N / 2 stressor instances.
+in a shared buffer that is the size of a cache line. Each stressor will run
+1 or more processes to exercise bytes that are next to each other. The number
+of per stressor processes run will be scaled so that at least all N bytes of
+a N byte cache line are exercised.  The intent is to try and trigger
+cacheline corruption, stalls and misses with shared memory accesses.
 .TP
 .B \-\-cacheline\-affinity
 frequently change CPU affinity, spread cacheline processes evenly across all

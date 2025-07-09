@@ -707,11 +707,12 @@ static int stress_cacheline(stress_args_t *args)
 {
 	size_t l1_cacheline_size = (size_t)get_L1_line_size(args);
 	int idx;
-	pid_t pid;
 	int rc = EXIT_SUCCESS;
 	size_t cacheline_method = 0;
 	stress_cacheline_func func;
 	bool cacheline_affinity = false;
+	size_t n_pids, i;
+	stress_pid_t *s_pids = NULL;
 
 	if (stress_sigchld_set_handler(args) < 0)
 		return EXIT_NO_RESOURCE;
@@ -727,17 +728,33 @@ static int stress_cacheline(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
+	if (l1_cacheline_size > args->instances) {
+		n_pids = (l1_cacheline_size - args->instances) / args->instances;
+		if (((n_pids * args->instances) + args->instances) < l1_cacheline_size)
+			n_pids++;
+	} else {
+		n_pids = 0;
+	}
+
+	if (stress_instance_zero(args))
+		pr_inf("%s: running %zu processes per stressor instance (%zu cacheline processes in total)\n",
+			args->name, (n_pids + 1), (n_pids + 1) * args->instances);
+
+	if (n_pids > 1) {
+		s_pids = stress_sync_s_pids_mmap(n_pids);
+		if (s_pids == MAP_FAILED) {
+			pr_inf_skip("%s: failed to mmap %zu PIDs%s, skipping stressor\n",
+				args->name, n_pids, stress_get_memfree_str());
+			return EXIT_NO_RESOURCE;
+		}
+	}
+
 	(void)stress_get_setting("cacheline-affinity", &cacheline_affinity);
 	(void)stress_get_setting("cacheline-method", &cacheline_method);
 
 	if (stress_instance_zero(args)) {
 		pr_dbg("%s: using method '%s'\n", args->name, cacheline_methods[cacheline_method].name);
 		pr_dbg("%s: L1 cache line size %zd bytes\n", args->name, l1_cacheline_size);
-
-		if ((args->instances * 2) < l1_cacheline_size) {
-			pr_inf("%s: to fully exercise a %zd byte cache line, %zd instances are required\n",
-				args->name, l1_cacheline_size, l1_cacheline_size / 2);
-		}
 	}
 
 	func = cacheline_methods[cacheline_method].func;
@@ -745,27 +762,45 @@ static int stress_cacheline(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
-again:
-	pid = fork();
-	if (pid < 0) {
-		if (stress_redo_fork(args, errno))
-			goto again;
-		if (UNLIKELY(!stress_continue(args)))
+	for (i = 0; i < n_pids; i++) {
+		int child_idx;
+
+		stress_sync_start_init(&s_pids[i]);
+
+		child_idx = stress_cacheline_next_idx();
+		if (child_idx < 0) {
+			pr_inf("%s: failed to get cacheline idx, skipping stressor\n", args->name);
+			rc = EXIT_NO_RESOURCE;
 			goto finish;
-		pr_err("%s: fork failed, errno=%d: (%s)\n",
-			args->name, errno, strerror(errno));
-		return EXIT_NO_RESOURCE;
-	} else if (pid == 0) {
-		rc = stress_cacheline_child(args, idx + 1, false, l1_cacheline_size, func, cacheline_affinity);
-		_exit(rc);
-	} else {
-		stress_cacheline_child(args, idx, true, l1_cacheline_size, func, cacheline_affinity);
-		if (stress_kill_and_wait(args, pid, SIGALRM, false) != EXIT_SUCCESS)
-			rc = EXIT_FAILURE;
+		}
+again:
+		s_pids[i].pid = fork();
+		if (s_pids[i].pid < 0) {
+			if (stress_redo_fork(args, errno))
+				goto again;
+			if (UNLIKELY(!stress_continue(args)))
+				goto finish;
+			pr_err("%s: fork failed, errno=%d: (%s)\n",
+				args->name, errno, strerror(errno));
+			goto finish;
+		} else if (s_pids[i].pid == 0) {
+			s_pids[i].pid = getpid();
+
+			stress_sync_start_wait_s_pid(&s_pids[i]);
+			stress_parent_died_alarm();
+			rc = stress_cacheline_child(args, child_idx, false, l1_cacheline_size, func, cacheline_affinity);
+			_exit(rc);
+		}
 	}
 
+	stress_cacheline_child(args, idx, true, l1_cacheline_size, func, cacheline_affinity);
 finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
+	if (n_pids > 1) {
+		stress_kill_and_wait_many(args, s_pids, n_pids, SIGALRM, true);
+		(void)stress_sync_s_pids_munmap(s_pids, n_pids);
+	}
 
 	return rc;
 }
