@@ -190,7 +190,8 @@ PRAGMA_UNROLL_N(8)						\
 		STORE(cv[idx], a[idx]);				\
 	}							\
 								\
-	*rd_bytes += (double)n * (double)(sizeof(*a) + sizeof(*idx1));	\
+	*rd_bytes += (double)n * (double)(sizeof(*a) +		\
+			sizeof(*idx1));				\
 	*wr_bytes += (double)n * (double)(sizeof(*c));		\
 	*fp_ops += 0.0;						\
 }
@@ -223,7 +224,8 @@ PRAGMA_UNROLL_N(8)						\
 	for (i = 0; i < n; i++)					\
 		STORE(cv[idx1[i]], a[idx2[i]]);			\
 								\
-	*rd_bytes += (double)n * (double)(sizeof(*a) + sizeof(*idx1) + sizeof(*idx2));	\
+	*rd_bytes += (double)n * (double)(sizeof(*a) +		\
+			sizeof(*idx1) + sizeof(*idx2));		\
 	*wr_bytes += (double)n * (double)(sizeof(*c));		\
 	*fp_ops += 0.0;						\
 }
@@ -256,7 +258,9 @@ PRAGMA_UNROLL_N(8)						\
 	for (i = 0; i < n; i++)					\
 		STORE(cv[idx3[idx1[i]]], a[idx2[i]]);		\
 								\
-	*rd_bytes += (double)n * (double)(sizeof(*a) + sizeof(*idx1) + sizeof(*idx2) + sizeof(*idx3));	\
+	*rd_bytes += (double)n * (double)(sizeof(*a) +		\
+			sizeof(*idx1) + sizeof(*idx2) +		\
+			sizeof(*idx3));				\
 	*wr_bytes += (double)n * (double)(sizeof(*c));		\
 	*fp_ops += 0.0;						\
 }
@@ -363,7 +367,8 @@ PRAGMA_UNROLL_N(8)						\
 		STORE(bv[idx], q * c[idx]);			\
 	}							\
 								\
-	*rd_bytes += (double)n * (double)(sizeof(*c) + sizeof(*idx1));	\
+	*rd_bytes += (double)n * (double)(sizeof(*c) +		\
+			sizeof(*idx1));				\
 	*wr_bytes += (double)n * (double)(sizeof(*b));		\
 	*fp_ops += (double)n;					\
 }
@@ -396,7 +401,8 @@ PRAGMA_UNROLL_N(8)						\
 	for (i = 0; i < n; i++)					\
 		STORE(bv[idx1[i]], q * c[idx2[i]]);		\
 								\
-	*rd_bytes += (double)n * (double)(sizeof(*c) + sizeof(*idx1) + sizeof(*idx2));	\
+	*rd_bytes += (double)n * (double)(sizeof(*c) +		\
+			sizeof(*idx1) + sizeof(*idx2));		\
 	*wr_bytes += (double)n * (double)(sizeof(*b));		\
 	*fp_ops += (double)n;					\
 }
@@ -430,7 +436,9 @@ PRAGMA_UNROLL_N(8)						\
 	for (i = 0; i < n; i++)					\
 		STORE(bv[idx3[idx1[i]]], q * c[idx2[i]]);	\
 								\
-	*rd_bytes += (double)n * (double)(sizeof(*c) + sizeof(*idx1) + sizeof(*idx2) + sizeof(*idx3));	\
+	*rd_bytes += (double)n * (double)(sizeof(*c) +		\
+			sizeof(*idx1) + sizeof(*idx2) +		\
+			sizeof(*idx3));				\
 	*wr_bytes += (double)n * (double)(sizeof(*b));		\
 	*fp_ops += (double)n;					\
 }
@@ -465,7 +473,8 @@ PRAGMA_UNROLL_N(8)						\
 		STORE(cv[i + 3], a[i + 3] + b[i + 3]);		\
 	}							\
 								\
-	*rd_bytes += (double)n * (double)(sizeof(*a) + sizeof(*b));	\
+	*rd_bytes += (double)n * (double)(sizeof(*a) +		\
+			sizeof(*b));				\
 	*wr_bytes += (double)n * (double)(sizeof(*c));		\
 	*fp_ops += (double)n;					\
 }
@@ -500,7 +509,8 @@ PRAGMA_UNROLL_N(8)						\
 		NT_STORE(c[i + 3], a[i + 3] + b[i + 3]);	\
 	}							\
 								\
-	*rd_bytes += (double)n * (double)(sizeof(*a) + sizeof(*b));	\
+	*rd_bytes += (double)n * (double)(sizeof(*a) +		\
+			sizeof(*b));				\
 	*wr_bytes += (double)n * (double)(sizeof(*c));		\
 	*fp_ops += (double)n;					\
 }
@@ -537,7 +547,8 @@ PRAGMA_UNROLL_N(8)						\
 		STORE(cv[idx], a[idx] + b[idx]);		\
 	}							\
 								\
-	*rd_bytes += (double)n * (double)(sizeof(*a) + sizeof(*b) + sizeof(*idx1));	\
+	*rd_bytes += (double)n * (double)(sizeof(*a) +		\
+			sizeof(*b) + sizeof(*idx1));		\
 	*wr_bytes += (double)n * (double)(sizeof(*c));		\
 	*fp_ops += (double)n;					\
 }
@@ -573,7 +584,9 @@ PRAGMA_UNROLL_N(8)						\
 		STORE(cv[idx], a[idx2[i]] + b[idx]);		\
 	}							\
 								\
-	*rd_bytes += (double)n * (double)(sizeof(*a) + sizeof(*b) + sizeof(*idx1) + sizeof(*idx2));	\
+	*rd_bytes += (double)n * (double)(sizeof(*a) +		\
+			sizeof(*b) + sizeof(*idx1) +		\
+			sizeof(*idx2));				\
 	*wr_bytes += (double)n * (double)(sizeof(*c));		\
 	*fp_ops += (double)n;					\
 }
@@ -607,7 +620,9 @@ PRAGMA_UNROLL_N(8)						\
 	for (i = 0; i < n; i++)					\
 		STORE(cv[idx1[i]], a[idx2[i]] + b[idx3[i]]);	\
 								\
-	*rd_bytes += (double)n * (double)(sizeof(*a) + sizeof(*b) + sizeof(*idx1) + sizeof(*idx2) + sizeof(*idx3));	\
+	*rd_bytes += (double)n * (double)(sizeof(*a) +		\
+			sizeof(*b) + sizeof(*idx1) + 		\
+			sizeof(*idx2) + sizeof(*idx3));		\
 	*wr_bytes += (double)n * (double)(sizeof(*c));		\
 	*fp_ops += (double)n;					\
 }
@@ -643,7 +658,8 @@ PRAGMA_UNROLL_N(8)						\
 		STORE(av[i + 3], b[i + 3] + (c[i + 3] * q));	\
 	}							\
 								\
-	*rd_bytes += (double)n * (double)(sizeof(*b) + sizeof(*c));	\
+	*rd_bytes += (double)n * (double)(sizeof(*b) +		\
+			sizeof(*c));				\
 	*wr_bytes += (double)n * (double)(sizeof(*a));		\
 	*fp_ops += (double)n * 2.0;				\
 }
@@ -679,7 +695,8 @@ PRAGMA_UNROLL_N(8)						\
 		NT_STORE(a[i + 3], b[i + 3] + (c[i + 3] * q));	\
 	}							\
 								\
-	*rd_bytes += (double)n * (double)(sizeof(*b) + sizeof(*c));	\
+	*rd_bytes += (double)n * (double)(sizeof(*b) +		\
+			sizeof(*c));				\
 	*wr_bytes += (double)n * (double)(sizeof(*a));		\
 	*fp_ops += (double)n * 2.0;				\
 }
@@ -715,7 +732,8 @@ PRAGMA_UNROLL_N(8)						\
 								\
 		STORE(av[idx], b[idx] + (c[idx] * q));		\
 	}							\
-	*rd_bytes += (double)n * (double)(sizeof(*b) + sizeof(*c) + sizeof(*idx1));	\
+	*rd_bytes += (double)n * (double)(sizeof(*b) +		\
+			sizeof(*c) + sizeof(*idx1));		\
 	*wr_bytes += (double)n * (double)(sizeof(*a));		\
 	*fp_ops += (double)n * 2.0;				\
 }
@@ -752,7 +770,9 @@ PRAGMA_UNROLL_N(8)						\
 		STORE(av[idx], b[idx2[i]] + (c[idx] * q));	\
 	}							\
 								\
-	*rd_bytes += (double)n * (double)(sizeof(*b) + sizeof(*c) + sizeof(*idx1) + sizeof(*idx2));	\
+	*rd_bytes += (double)n * (double)(sizeof(*b) +		\
+			sizeof(*c) + sizeof(*idx1) +		\
+			sizeof(*idx2));				\
 	*wr_bytes += (double)n * (double)(sizeof(*a));		\
 	*fp_ops += (double)n * 2.0;				\
 }
@@ -785,9 +805,12 @@ static inline void x(						\
 								\
 PRAGMA_UNROLL_N(8)						\
 	for (i = 0; i < n; i++)					\
-		STORE(av[idx1[i]], b[idx2[i]] + (c[idx3[i]] * q));	\
+		STORE(av[idx1[i]], b[idx2[i]] +			\
+			(c[idx3[i]] * q));			\
 								\
-	*rd_bytes += (double)n * (double)(sizeof(*b) + sizeof(*c) + sizeof(*idx1) + sizeof(*idx2) + sizeof(*idx3));	\
+	*rd_bytes += (double)n * (double)(sizeof(*b) +		\
+			sizeof(*c) + sizeof(*idx1) +		\
+			sizeof(*idx2) + sizeof(*idx3));		\
 	*wr_bytes += (double)n * (double)(sizeof(*a));		\
 	*fp_ops += (double)n * 2.0;				\
 }
