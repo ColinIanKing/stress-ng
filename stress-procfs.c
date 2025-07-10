@@ -297,11 +297,20 @@ static inline void stress_proc_rw(
 redo:
 		if (UNLIKELY(!*path || !stress_continue_flag()))
 			break;
-
 		if (!strncmp(path, "/proc/self", 10))
 			procfs_flag &= ~PROCFS_FLAG_WRITE;
 		if (!strncmp(path, "/proc/", 6) && isdigit((unsigned char)path[6]))
 			procfs_flag &= ~PROCFS_FLAG_WRITE;
+#if defined(__CYGWIN__)
+		/*
+		 *  Concurrent access on /proc/$PID/maps and /proc/$PID/ctty
+		 *  on Cygwin causes issues (Jul 2025), so skip these
+		 */
+		if ((!strncmp(path, "/proc/", 6) && isdigit((unsigned char)path[6]))) {
+			if (strstr(path, "maps") || strstr(path, "ctty"))
+				return;
+		}
+#endif
 
 		t_start = stress_time_now();
 		if ((fd = open(path, O_RDONLY | O_NONBLOCK)) < 0)
