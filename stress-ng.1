@@ -7219,7 +7219,7 @@ stop after N bogo rotate operations.
 start N workers that exercise restartable sequences via the rseq(2) system
 call.  This loops over a long duration critical section that is likely to
 be interrupted.  A rseq abort handler keeps count of the number of
-interruptions and a SIGSEV handler also tracks any failed rseq aborts that
+interruptions and a SIGSEGV handler also tracks any failed rseq aborts that
 can occur if there is a mismatch in a rseq check signature. Linux only.
 .TP
 .B \-\-rseq\-ops N
@@ -7696,7 +7696,7 @@ other child processes also via sigqueue(2).
 stop sigrt stress workers after N bogo sigqueue signal send operations.
 .RE
 .TP
-.B SIGSEV stressor
+.B SIGSEGV stressor
 .RS 5
 .TQ
 .B \-\-sigsegv N
