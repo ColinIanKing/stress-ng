@@ -62,6 +62,8 @@ UNEXPECTED
 #define MAX_SHM_SYSV_SEGMENTS	(128)
 #define DEFAULT_SHM_SYSV_SEGMENTS (8)
 
+#define MAX_SHM_KEYS		(1U << 16)
+
 static const stress_help_t help[] = {
 	{ NULL,	"shm-sysv N",		"start N workers that exercise System V shared memory" },
 	{ NULL,	"shm-sysv-bytes N",	"allocate and free N bytes of shared memory per loop" },
@@ -588,10 +590,18 @@ static int stress_shm_sysv_child(
 	double shmget_duration = 0.0, shmget_count = 0.0;
 	double shmat_duration = 0.0, shmat_count = 0.0;
 	double shmdt_duration = 0.0, shmdt_count = 0.0;
+	uint32_t seg_space = args->instances * shm_sysv_segments;
+	uint32_t max_keys = (uint32_t)MAX_SHM_KEYS / seg_space;
+
+	max_keys = (max_keys < 1) ? 1 : max_keys;
+
+	if (stress_instance_zero(args))
+		pr_dbg("%s: %" PRIu32 " shm-sysv keys per stressor segment (%zu segments)\n",
+			args->name, max_keys, shm_sysv_segments);
 
 	buffer = (uint64_t *)calloc(buffer_size, sizeof(*buffer));
 	if (!buffer) {
-		pr_inf_skip("%s: faild to allocate %zu byte buffer%s, skipping stressor\n",
+		pr_inf_skip("%s: failed to allocate %zu byte buffer%s, skipping stressor\n",
 			args->name, buffer_size, stress_get_memfree_str());
 		return EXIT_NO_RESOURCE;
 	}
@@ -638,7 +648,7 @@ static int stress_shm_sysv_child(
 				bool unique;
 				const int rnd = stress_mwc32modn(SIZEOF_ARRAY(shm_flags));
 				const int rnd_flag = shm_flags[rnd] & mask;
-
+retry:
 				if (sz < page_size)
 					goto reap;
 
@@ -646,12 +656,20 @@ static int stress_shm_sysv_child(
 				do {
 					size_t j;
 					unique = true;
+					const uint32_t keys_per_instance = MAX_SHM_KEYS / args->instances;
+					const uint32_t keys_per_segment = keys_per_instance / shm_sysv_segments;
+					uint32_t offset;
 
 					if (UNLIKELY(!stress_continue_flag()))
 						goto reap;
 
 					/* Get a unique random key */
-					key = (key_t)stress_mwc16();
+					offset = args->instance * keys_per_instance;
+					offset += i * keys_per_segment;
+					offset += stress_mwc32modn(keys_per_segment);
+					/* Key should never exceed MAX_SHM_KEYS */
+					key = offset & (MAX_SHM_KEYS - 1);
+
 					for (j = 0; j < i; j++) {
 						if (key == keys[j]) {
 							unique = false;
@@ -676,6 +694,7 @@ static int stress_shm_sysv_child(
 				if (errno == EPERM) {
 					/* ignore using the flag again */
 					mask &= ~rnd_flag;
+					goto retry;
 				}
 				if ((errno == EINVAL) || (errno == ENOMEM)) {
 					/*
@@ -711,15 +730,22 @@ static int stress_shm_sysv_child(
 			msg.index = (int)i;
 			msg.shm_id = shm_id;
 			if (UNLIKELY(write(fd, &msg, sizeof(msg)) < 0)) {
-				pr_err("%s: write failed, errno=%d: (%s)\n",
-					args->name, errno, strerror(errno));
-				rc = EXIT_FAILURE;
+				if (errno != EINTR) {
+					pr_err("%s: write failed, errno=%d: (%s)\n",
+						args->name, errno, strerror(errno));
+					rc = EXIT_FAILURE;
+				}
 				goto reap;
 			}
 
 			t = stress_time_now();
 			addr = shmat(shm_id, NULL, 0);
 			if (UNLIKELY(addr == (char *)-1)) {
+				if (errno == EINVAL) {
+					pr_inf("%s: shmat  id %d, (key=%d, size=%zd), EINVAL?\n",
+							args->name, shm_id, (int)key, sz);
+					goto reap;
+				}
 				ok = false;
 				pr_fail("%s: shmat on NULL address failed on id %d, (key=%d, size=%zd), errno=%d (%s)\n",
 					args->name, shm_id, (int)key, sz, errno, strerror(errno));
@@ -888,9 +914,11 @@ reap:
 			msg.index = (int)i;
 			msg.shm_id = -1;
 			if (UNLIKELY(write(fd, &msg, sizeof(msg)) < 0)) {
-				pr_dbg("%s: write failed, errno=%d: (%s)\n",
-					args->name, errno, strerror(errno));
-				ok = false;
+				if (errno != EINTR) {
+					pr_dbg("%s: write failed, errno=%d: (%s)\n",
+						args->name, errno, strerror(errno));
+					ok = false;
+				}
 			}
 			addrs[i] = NULL;
 			shm_ids[i] = -1;
@@ -908,9 +936,11 @@ reap:
 	msg.index = -1;
 	msg.shm_id = -1;
 	if (write(fd, &msg, sizeof(msg)) < 0) {
-		pr_err("%s: write failed, errno=%d: (%s)\n",
-			args->name, errno, strerror(errno));
-		rc = EXIT_FAILURE;
+		if (errno != EINTR) {
+			pr_err("%s: write failed, errno=%d: (%s)\n",
+				args->name, errno, strerror(errno));
+			rc = EXIT_FAILURE;
+		}
 	}
 	free(buffer);
 
