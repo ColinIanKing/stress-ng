@@ -2993,3 +2993,38 @@ int shim_ppoll(
 #endif
 }
 
+/*
+ * shim_file_getattr()
+ *	shim wrapper for Linux 6.16 file_getattr
+ */
+int shim_file_getattr(
+	int dfd,
+	const char *filename,
+	struct shim_file_attr *ufattr,
+	size_t usize,
+	unsigned int at_flags)
+{
+#if defined(__NR_file_getattr)
+	return (int)syscall(__NR_file_getattr, dfd, filename, ufattr, usize, at_flags);
+#else
+	return shim_enosys(0, dfd, filename, ufattr, usize, at_flags);
+#endif
+}
+
+/*
+ * shim_file_setattr()
+ *	shim wrapper for Linux 6.16 file_setattr
+ */
+int shim_file_setattr(
+	int dfd,
+	const char *filename,
+	struct shim_file_attr *ufattr,
+	size_t usize,
+	unsigned int at_flags)
+{
+#if defined(__NR_file_getattr)
+	return (int)syscall(__NR_file_setattr, dfd, filename, ufattr, usize, at_flags);
+#else
+	return shim_enosys(0, dfd, filename, ufattr, usize, at_flags);
+#endif
+}

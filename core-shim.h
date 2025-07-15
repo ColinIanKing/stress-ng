@@ -513,6 +513,14 @@ typedef struct shim_xattr_args {
         uint32_t flags;
 } shim_xattr_args;
 
+typedef struct shim_file_attr {
+	uint64_t fa_xflags;
+	uint32_t fa_extsize;
+	uint32_t fa_nextents;
+	uint32_t fa_projid;
+	uint32_t fa_cowextsize;
+} shim_file_attr_t;
+
 /*
  *  shim_unconstify_ptr()
  *      some older system calls require non-const void *
