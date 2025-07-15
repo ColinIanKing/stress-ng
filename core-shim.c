@@ -357,6 +357,10 @@ int shim_fallocate(int fd, int mode, off_t offset, off_t len)
 		if (mode & FALLOC_FL_COLLAPSE_RANGE)
 			return ret;
 #endif
+#if defined(FALLOC_FL_WRITE_ZEROES)
+		if (mode & FALLOC_FL_COLLAPSE_RANGE)
+			return ret;
+#endif
 #if defined(__NR_fallocate) &&	\
     defined(HAVE_SYSCALL)
 		ret = (int)syscall(__NR_fallocate, fd, 0, offset, len);
@@ -385,6 +389,10 @@ int shim_fallocate(int fd, int mode, off_t offset, off_t len)
 		if (mode & FALLOC_FL_COLLAPSE_RANGE)
 			return ret;
 #endif
+#if defined(FALLOC_FL_WRITE_ZEROES)
+		if (mode & FALLOC_FL_WRITE_ZEROES)
+			return ret;
+#endif
 		ret = syscall(__NR_fallocate, fd, 0, offset, len);
 		/* fallocate failed, try emulation mode */
 		if ((ret < 0) && (errno == EOPNOTSUPP)) {
@@ -410,7 +418,10 @@ int shim_fallocate(int fd, int mode, off_t offset, off_t len)
 	if (mode & FALLOC_FL_COLLAPSE_RANGE)
 		return 0;
 #endif
-
+#if defined(FALLOC_FL_WRITE_ZEROES)
+	if (mode & FALLOC_FL_WRITE_ZEROES)
+		return 0;
+#endif
 	/*
 	 *  posix_fallocate returns 0 for success, > 0 as errno
 	 */
@@ -429,6 +440,10 @@ int shim_fallocate(int fd, int mode, off_t offset, off_t len)
 #endif
 #if defined(FALLOC_FL_COLLAPSE_RANGE)
 	if (mode & FALLOC_FL_COLLAPSE_RANGE)
+		return 0;
+#endif
+#if defined(FALLOC_FL_WRITE_ZEROES)
+	if (mode & FALLOC_FL_WRITE_ZEROES)
 		return 0;
 #endif
 	return shim_emulate_fallocate(fd, offset, len);
