@@ -3692,9 +3692,10 @@ stop after N bogo idle page operations.
 .TQ
 .B \-\-inode\-flags N
 start N workers that exercise inode flags using the FS_IOC_GETFLAGS and
-FS_IOC_SETFLAGS ioctl(2). This attempts to apply all the available inode
+FS_IOC_SETFLAGS ioctl(2) and inode attributes using file_getattr(2) and
+file_getatt(2).  This attempts to apply all the available inode
 flags onto a directory and file even if the underlying file system may not
-support these flags (errors are just ignored).  Each worker runs 4 threads
+support these flags (errors are just ignored). Each worker runs 4 threads
 that exercise the flags on the same directory and file to try to force
 races. This is a Linux only stressor, see ioctl_iflags(2) for more details.
 .TP

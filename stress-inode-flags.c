@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-builtin.h"
 #include "core-pthread.h"
+#include "core-shim.h"
 
 #include <sys/ioctl.h>
 
@@ -49,6 +50,7 @@ static const stress_help_t help[] = {
 typedef struct {
 	int dir_fd;
 	int file_fd;
+	char *file_name;
 } stress_data_t;
 
 static void *inode_flags_counter_lock;
@@ -159,9 +161,21 @@ static int stress_inode_flags_stressor(
 	const stress_data_t *data)
 {
 	size_t idx = 0;
+	char *file_name;
+#if defined(AT_EMPTY_PATH)
+	char *two_pages;
+
+	two_pages = calloc(2, args->page_size);
+#endif
+
+	/* Find basename */
+	file_name = strrchr(data->file_name, '/');
+	if (file_name)
+		file_name++;
 
 	while (LIKELY(keep_running && stress_continue(args))) {
 		size_t i;
+		struct shim_file_attr ufattr;
 
 		/* Work through all inode flag permutations */
 		stress_inode_flags_ioctl(args, data->dir_fd, inode_flag_perms[idx]);
@@ -183,7 +197,32 @@ static int stress_inode_flags_stressor(
 		stress_inode_flags_ioctl_sane(data->file_fd);
 		shim_fsync(data->file_fd);
 		VOID_RET(bool, stress_bogo_inc_lock(args, inode_flags_counter_lock, 1));
+
+#if defined(AT_EMPTY_PATH)
+		if (shim_file_getattr(data->dir_fd, NULL, &ufattr, sizeof(ufattr), AT_EMPTY_PATH) == 0)
+			VOID_RET(int, shim_file_setattr(data->dir_fd, NULL, &ufattr, sizeof(ufattr), AT_EMPTY_PATH));
+#endif
+		if (file_name) {
+			/* Valid filename, exercise file_{get|set}attr() */
+			if (shim_file_getattr(data->dir_fd, file_name, &ufattr, sizeof(ufattr), 0) == 0)
+				VOID_RET(int, shim_file_setattr(data->dir_fd, file_name, &ufattr, sizeof(ufattr), 0));
+
+			/* Invalid size */
+			VOID_RET(int, shim_file_getattr(data->dir_fd, file_name, &ufattr, sizeof(ufattr) >> 1, 0));
+		}
+		/* Invalid filename */
+		VOID_RET(int, shim_file_getattr(data->dir_fd, "", &ufattr, sizeof(ufattr), 0));
+
+#if defined(AT_EMPTY_PATH)
+		/* Invalid size, E2BIG */
+		VOID_RET(int, shim_file_getattr(data->dir_fd, NULL, (struct shim_file_attr *)two_pages,
+			args->page_size * 2, AT_EMPTY_PATH));
+#endif
 	}
+#if defined(AT_EMPTY_PATH)
+	if (two_pages)
+		free(two_pages);
+#endif
 
 	return 0;
 }
@@ -250,6 +289,8 @@ static int stress_inode_flags(stress_args_t *args)
 
 	(void)shim_strscpy(tmp, file_name, sizeof(tmp));
 	dir_name = dirname(tmp);
+
+	data.file_name = file_name;
 
 	data.dir_fd = open(dir_name, O_RDONLY | O_DIRECTORY);
 	if (data.dir_fd < 0) {
