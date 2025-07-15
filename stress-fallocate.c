@@ -55,6 +55,9 @@ static const int modes[] = {
 #if defined(FALLOC_FL_INSERT_RANGE)
 	FALLOC_FL_INSERT_RANGE,
 #endif
+#if defined(FALLOC_FL_WRITE_ZEROES)
+	FALLOC_FL_WRITE_ZEROES,
+#endif
 };
 
 /*
