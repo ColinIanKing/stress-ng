@@ -27,6 +27,9 @@
 
 #include <sched.h>
 
+#define MIN_LLC_SIZE	(4 * KB)
+#define MAX_LLC_SIZE	(4 * GB)
+
 static const stress_help_t help[] = {
 	{ NULL,	"llc-affinity N",	"start N workers exercising low level cache over all CPUs" },
 	{ NULL,	"llc-affinity-mlock",	"attempt to mlock pages into memory" },
@@ -39,6 +42,7 @@ static const stress_opt_t opts[] = {
 	{ OPT_llc_affinity_clflush, "llc-affinity-clflush", TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_llc_affinity_mlock,   "llc-affinity-mlock",   TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_llc_affinity_numa,    "llc-affinity-numa",    TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_llc_affinity_size,    "llc-affinity-size",    TYPE_ID_SIZE_T_BYTES_VM, MIN_LLC_SIZE, MAX_LLC_SIZE, NULL },
 	END_OPT,
 };
 
@@ -393,7 +397,7 @@ static int stress_llc_affinity(stress_args_t *args)
 	const uint32_t n_cpus = stress_get_usable_cpus(&cpus, true);
 	const size_t page_size = args->page_size;
 	uint32_t cpu_idx = args->instance;
-	size_t llc_size, cache_line_size, mmap_sz;
+	size_t llc_affinity_size = 0, cache_line_size = 64, mmap_sz;
 	uint64_t *buf, *buf_end;
 	uint64_t affinity_changes = 0;
 	double write_duration, read_duration, rate, writes, reads, t_start, duration;
@@ -413,26 +417,31 @@ static int stress_llc_affinity(stress_args_t *args)
 	(void)stress_get_setting("llc-affinity-clflush", &llc_affinity_clflush);
 	(void)stress_get_setting("llc-affinity-mlock", &llc_affinity_mlock);
 	(void)stress_get_setting("llc-affinity-numa", &llc_affinity_numa);
+	(void)stress_get_setting("llc-affinity-size", &llc_affinity_size);
 
-	stress_cpu_cache_get_llc_size(&llc_size, &cache_line_size);
-	if (llc_size == 0) {
-		pr_inf_skip("%s: cannot determine cache details, skipping stressor\n",
-			args->name);
-		stress_free_usable_cpus(&cpus);
-		return EXIT_NO_RESOURCE;
+	if (llc_affinity_size == 0) {
+		stress_cpu_cache_get_llc_size(&llc_affinity_size, &cache_line_size);
+		if (llc_affinity_size == 0) {
+			pr_inf_skip("%s: cannot determine cache details, skipping stressor\n",
+				args->name);
+			pr_inf("%s: alternatively use --llc-affinity-size to specify LLC cache size\n",
+				args->name);
+			stress_free_usable_cpus(&cpus);
+			return EXIT_NO_RESOURCE;
+		}
 	}
-        llc_size *= n_numa_nodes;
+        llc_affinity_size *= n_numa_nodes;
         if (!args->instance) {
 		if (n_numa_nodes > 1)  {
 			pr_inf("%s: scaling lower level cache size by number of numa nodes %d to %zdK\n",
-				args->name, n_numa_nodes, llc_size / 1024);
+				args->name, n_numa_nodes, llc_affinity_size / 1024);
 		} else  {
 			pr_inf("%s: using lower level cache size of %zuK\n",
-				args->name, llc_size / 1024);
+				args->name, llc_affinity_size / 1024);
 		}
 	}
 
-	mmap_sz = STRESS_MAXIMUM(n_cpus * page_size, llc_size);
+	mmap_sz = STRESS_MAXIMUM(n_cpus * page_size, llc_affinity_size);
 
 	/*
 	 *  Allocate a LLC sized buffer to exercise

@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "9 July 2025"
+.TH STRESS-NG 1 "16 July 2025"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -4209,6 +4209,10 @@ for systems that do not support NUMA.
 .TP
 .B \-\-llc\-affinity\-ops N
 stop after N rounds of LLC read/writes.
+.TP
+.B \-\-llc\-affinity\-size N
+override the default LLC cache size setting to N bytes. One can specify the
+in units of Bytes, KBytes, MBytes and GBytes using the suffix b, k, m or g.
 .RE
 .TP
 .B Load average (loadavg) stressor
