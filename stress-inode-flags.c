@@ -108,6 +108,30 @@ static const int inode_flags[] = {
 #endif
 };
 
+static const int attr_flags[] = {
+#if defined(FS_SYNC_FL)
+	FS_SYNC_FL,
+#endif
+#if defined(FS_IMMUTABLE_FL)
+	FS_IMMUTABLE_FL,
+#endif
+#if defined(FS_APPEND_FL)
+	FS_APPEND_FL,
+#endif
+#if defined(FS_NODUMP_FL)
+	FS_NODUMP_FL,
+#endif
+#if defined(FS_NOATIME_FL)
+	FS_NOATIME_FL,
+#endif
+#if defined(FS_DAX_FL)
+	FS_DAX_FL,
+#endif
+#if defined(FS_PROJINHERIT_FL)
+	FS_PROJINHERIT_FL,
+#endif
+};
+
 /*
  *  stress_inode_flags_ioctl()
  *	try and toggle an inode flag on/off
@@ -206,6 +230,31 @@ static int stress_inode_flags_stressor(
 			/* Valid filename, exercise file_{get|set}attr() */
 			if (shim_file_getattr(data->dir_fd, file_name, &ufattr, sizeof(ufattr), 0) == 0)
 				VOID_RET(int, shim_file_setattr(data->dir_fd, file_name, &ufattr, sizeof(ufattr), 0));
+
+			if (shim_file_getattr(data->dir_fd, file_name, &ufattr, sizeof(ufattr), 0) == 0) {
+				struct shim_file_attr ufattr_save;
+
+				for (i = 0; LIKELY(stress_continue(args) && (i < SIZEOF_ARRAY(attr_flags))); i++) {
+					(void)shim_memcpy(&ufattr_save, &ufattr, sizeof(ufattr_save));
+
+					ufattr.fa_xflags |= attr_flags[i];
+					VOID_RET(int, shim_file_setattr(data->dir_fd, file_name, &ufattr, sizeof(ufattr), 0));
+
+					(void)shim_memcpy(&ufattr, &ufattr_save, sizeof(ufattr_save));
+					VOID_RET(int, shim_file_setattr(data->dir_fd, file_name, &ufattr, sizeof(ufattr), 0));
+				}
+				for (i = 0; LIKELY(stress_continue(args) && (i < SIZEOF_ARRAY(attr_flags))); i++) {
+					(void)shim_memcpy(&ufattr_save, &ufattr, sizeof(ufattr_save));
+
+					if (ufattr.fa_xflags & attr_flags[i]) {
+						ufattr.fa_xflags &= ~attr_flags[i];
+						VOID_RET(int, shim_file_setattr(data->dir_fd, file_name, &ufattr, sizeof(ufattr), 0));
+
+						(void)shim_memcpy(&ufattr, &ufattr_save, sizeof(ufattr_save));
+						VOID_RET(int, shim_file_setattr(data->dir_fd, file_name, &ufattr, sizeof(ufattr), 0));
+					}
+				}
+			}
 
 			/* Invalid size */
 			VOID_RET(int, shim_file_getattr(data->dir_fd, file_name, &ufattr, sizeof(ufattr) >> 1, 0));
