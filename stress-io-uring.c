@@ -72,7 +72,8 @@ static const stress_opt_t opts[] = {
      defined(HAVE_IORING_OP_STATX) || 	\
      defined(HAVE_IORING_OP_SETXATTR) || \
      defined(HAVE_IORING_OP_GETXATTR) || \
-     defined(HAVE_IORING_OP_SYNC_FILE_RANGE))
+     defined(HAVE_IORING_OP_SYNC_FILE_RANGE) ||	\
+     defined(HAVE_IORING_OP_FTRUNCATE))
 
 /*
  *  io uring file info
@@ -748,7 +749,7 @@ static void stress_io_uring_fallocate_setup(
 
 #if defined(HAVE_IORING_OP_FADVISE)
 /*
- *  stress_io_uring_fadvise_setup ()
+ *  stress_io_uring_fadvise_setup()
  *	setup fadvise submit over io_uring
  */
 static void stress_io_uring_fadvise_setup(
@@ -787,7 +788,7 @@ static void stress_io_uring_fadvise_setup(
 
 #if defined(HAVE_IORING_OP_CLOSE)
 /*
- *  stress_io_uring_close_setup ()
+ *  stress_io_uring_close_setup()
  *	setup close submit over io_uring
  */
 static void stress_io_uring_close_setup(
@@ -1007,6 +1008,27 @@ static void stress_io_uring_getxattr_setup(
 #endif
 
 
+#if defined(HAVE_IORING_OP_FTRUNCATE)
+/*
+ *  stress_io_uring_ftruncate_setup ()
+ *	setup ftruncate submit over io_uring
+ */
+static void OPTIMIZE3 stress_io_uring_ftruncate_setup(
+	const stress_io_uring_file_t *io_uring_file,
+	struct io_uring_sqe *sqe,
+	const void *extra_info)
+{
+	(void)io_uring_file;
+	(void)extra_info;
+
+	(void)shim_memset(sqe, 0, sizeof(*sqe));
+	/* don't worry about bad fd if dup fails */
+	sqe->fd = io_uring_file->fd;
+	sqe->opcode = IORING_OP_FTRUNCATE;
+	sqe->off = stress_mwc16() & ~511UL;
+}
+#endif
+
 /*
  *  We have some duplications here because we want to perform more than
  *  one of these io-urion ops per round before we do a completion so we
@@ -1056,6 +1078,9 @@ static const stress_io_uring_setup_info_t stress_io_uring_setups[] = {
 #if defined(HAVE_IORING_OP_GETXATTR) && \
     defined(XATTR_CREATE)
 	{ IORING_OP_GETXATTR,	"IORING_OP_GETXATTR",	stress_io_uring_getxattr_setup },
+#endif
+#if defined(HAVE_IORING_OP_FTRUNCATE)
+	{ IORING_OP_FTRUNCATE,	"IORING_OP_FTRUNCATE",	stress_io_uring_ftruncate_setup },
 #endif
 };
 
