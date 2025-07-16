@@ -479,6 +479,7 @@ const struct option stress_long_options[] = {
 	{ "llc-affinity-mlock",	0,	0,	OPT_llc_affinity_mlock },
 	{ "llc-affinity-numa",	0,	0,	OPT_llc_affinity_numa },
 	{ "llc-affinity-ops",	1,	0,	OPT_llc_affinity_ops },
+	{ "llc-affinity-size",	1,	0,	OPT_llc_affinity_size },
 	{ "loadavg",		1,	0,	OPT_loadavg },
 	{ "loadavg-ops",	1,	0,	OPT_loadavg_ops },
 	{ "loadavg-max",	1,	0,	OPT_loadavg_max },

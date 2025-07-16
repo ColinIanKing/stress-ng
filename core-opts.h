@@ -736,6 +736,7 @@ typedef enum {
 	OPT_llc_affinity_mlock,
 	OPT_llc_affinity_numa,
 	OPT_llc_affinity_ops,
+	OPT_llc_affinity_size,
 
 	OPT_loadavg,
 	OPT_loadavg_ops,
