@@ -279,6 +279,105 @@ static int stress_cpu_cache_get_alpha(
 }
 #endif
 
+#if defined(__linux__) &&	\
+    defined(STRESS_ARCH_RISCV)
+/*
+ *  stress_cpu_cache_get_riscv()
+ *	find cache information as provided by the device tree
+ */
+static int stress_cpu_cache_get_riscv(
+	stress_cpu_cache_cpu_t *cpu,
+	const char *cpu_path)
+{
+	typedef struct {
+		const char *filename;			/* device-tree filename */
+		const stress_cpu_cache_type_t type;	/* cache type */
+		const uint16_t level;			/* cache level 1, 2 */
+		const cache_size_type_t size_type;	/* cache size field */
+		const size_t idx;			/* map to cpu->cache array index */
+	} cache_info_t;
+
+	static const cache_info_t cache_info[] = {
+		{ "d-cache-block-size",		CACHE_TYPE_DATA,	1, STRESS_CACHE_LINE_SIZE,	0 },
+		{ "d-cache-size",		CACHE_TYPE_DATA,	1, STRESS_CACHE_SIZE,		0 },
+		{ "i-cache-block-size",		CACHE_TYPE_INSTRUCTION,	1, STRESS_CACHE_LINE_SIZE,	1 },
+		{ "d-cache-size",		CACHE_TYPE_INSTRUCTION,	1, STRESS_CACHE_SIZE,		1 },
+	};
+
+	char *base;
+	const size_t count = 2;
+	size_t i;
+	bool valid = false;
+	int cpu_num;
+
+	/* Parse CPU number */
+	base = strrchr(cpu_path, '/');
+	if (!base)
+		return 0;
+	base++;
+	if (!*base)
+		return 0;
+	if (strlen(base) < 4)
+		return 0;
+	if (sscanf(base + 3, "%d", &cpu_num) != 1)
+		return 0;
+
+	cpu->caches = (stress_cpu_cache_t *)calloc(count, sizeof(*(cpu->caches)));
+	if (UNLIKELY(!cpu->caches)) {
+		pr_err("failed to allocate %zu bytes for cpu caches\n",
+			count * sizeof(*(cpu->caches)));
+		return 0;
+	}
+
+	for (i = 0; i < SIZEOF_ARRAY(cache_info); i++) {
+		char path[PATH_MAX];
+		const size_t idx = cache_info[i].idx;
+		uint32_t value = 0;
+		int fd;
+
+		(void)snprintf(path, sizeof(path), "/proc/device-tree/cpus/cpu@%d/%s", cpu_num, cache_info[i].filename);
+		fd = open(path, O_RDONLY);
+		if (fd) {
+			uint8_t buf[4];
+
+			/* Device tree data is big-endian */
+			if (read(fd, buf, sizeof(buf)) == sizeof(buf))
+				value = ((uint32_t)buf[0] << 24) |
+					((uint32_t)buf[1] << 16) |
+					((uint32_t)buf[2] << 8) |
+					((uint32_t)buf[3]);
+			(void)close(fd);
+		}
+
+		cpu->caches[idx].type = cache_info[i].type;
+		cpu->caches[idx].level = cache_info[i].level;
+		switch (cache_info[i].size_type) {
+		case STRESS_CACHE_SIZE:
+			cpu->caches[idx].size = value;
+			valid = true;
+			break;
+		case STRESS_CACHE_LINE_SIZE:
+			cpu->caches[idx].line_size = (uint32_t)value;
+			valid = true;
+			break;
+		default:
+			break;
+		}
+	}
+
+	if (!valid) {
+		free(cpu->caches);
+		cpu->caches = NULL;
+		cpu->cache_count = 0;
+
+		return 0;
+	}
+	cpu->cache_count = count;
+
+	return count;
+}
+#endif
+
 #if defined(__APPLE__)
 /*
  *  stress_cpu_cache_get_apple()
@@ -1055,10 +1154,17 @@ static void stress_cpu_cache_get_details(stress_cpu_cache_cpu_t *cpu, const char
 		return;
 #endif
 
+#if defined(__linux__) &&	\
+    defined(STRESS_ARCH_RISCV)
+	if (stress_cpu_cache_get_riscv(cpu, cpu_path))
+		return;
+#endif
+
 #if defined(__APPLE__)
 	if (stress_cpu_cache_get_apple(cpu) > 0)
 		return;
 #endif
+
 	return;
 }
 #endif
