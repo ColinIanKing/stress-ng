@@ -3954,16 +3954,8 @@ int main(int argc, char **argv, char **envp)
 	stress_process_dumpable(false);
 	stress_set_oom_adjustment(NULL, false);
 
-	/*
-	 *  Get various user defined settings
-	 */
-	if (sched_settings_apply(false) < 0) {
-		ret = EXIT_FAILURE;
-		goto exit_logging_close;
-	}
 	(void)stress_get_setting("ionice-class", &ionice_class);
 	(void)stress_get_setting("ionice-level", &ionice_level);
-	stress_set_iopriority(ionice_class, ionice_level);
 	(void)stress_get_setting("yaml", &yaml_filename);
 
 	stress_mlock_executable();
