@@ -454,6 +454,7 @@ static int OPTIMIZE3 stress_far_branch(stress_args_t *args)
 		if (sigaction(sigs[i], &sa, NULL) < 0) {
 			pr_err("%s: cannot install signal handler, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
+			(void)close(fd);
 			return EXIT_FAILURE;
 		}
 	}
@@ -463,6 +464,7 @@ static int OPTIMIZE3 stress_far_branch(stress_args_t *args)
 		pr_inf_skip("%s: cannot allocate %zu function "
 			"pointers%s, skipping stressor\n",
 			args->name, max_funcs, stress_get_memfree_str());
+		(void)close(fd);
 		return EXIT_NO_RESOURCE;
 	}
 	pages = (void **)calloc(n_pages, sizeof(*pages));
@@ -471,6 +473,7 @@ static int OPTIMIZE3 stress_far_branch(stress_args_t *args)
 			"pointers%s, skipping stressor\n",
 			args->name, n_pages, stress_get_memfree_str());
 		free(funcs);
+		(void)close(fd);
 		return EXIT_NO_RESOURCE;
 	}
 
@@ -637,6 +640,7 @@ cleanup:
 		free(pages);
 	}
 	free(funcs);
+	(void)close(fd);
 
 	(void)stress_temp_dir_rm_args(args);
 
