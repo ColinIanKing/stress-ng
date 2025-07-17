@@ -1962,9 +1962,9 @@ int shim_setxattrat(int dfd, const char *path, unsigned int at_flags,
 	return setxattr(dfd, path, name, at_flags, name, args, size);
 #elif defined(__NR_setxattrat) &&	\
       defined(HAVE_SYSCALL)
-	return (int)syscall(__NR_setxattrat, dfd, path, name, at_flags, name, args, size);
+	return (int)syscall(__NR_setxattrat, dfd, path, at_flags, name, args, size);
 #else
-	return (int)shim_enosys(0, dfd, path, name, at_flags, name, args, size);
+	return (int)shim_enosys(0, dfd, path, at_flags, name, args, size);
 #endif
 }
 

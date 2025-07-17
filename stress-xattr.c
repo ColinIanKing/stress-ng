@@ -327,7 +327,7 @@ static int stress_xattr(stress_args_t *args)
 		}
 
 		for (j = 0; j < i; j++) {
-			if (STRESS_GETBIT(set_xattr_ok, i) == 0)
+			if (STRESS_GETBIT(set_xattr_ok, j) == 0)
 				continue;
 
 			(void)snprintf(attrname, sizeof(attrname), "user.var_%d", j);
@@ -355,6 +355,26 @@ static int stress_xattr(stress_args_t *args)
 					goto out_close;
 				}
 			}
+#if defined(HAVE_SETXATTRAT) &&	\
+    defined(AT_FDCWD)
+			{
+				shim_xattr_args arg;
+
+				arg.value = (uint64_t)value;
+				arg.size = strlen(value);
+				arg.flags = 0;
+
+				ret = shim_setxattrat(AT_FDCWD, filename, 0, attrname, &arg, sizeof(arg));
+				if (ret < 0) {
+					STRESS_CLRBIT(set_xattr_ok, i);
+					if (UNLIKELY((errno != ENOSYS) && (errno != ENOSPC) && (errno != EDQUOT) && (errno != E2BIG))) {
+						pr_fail("%s: setxattrat failed, errno=%d (%s)%s\n",
+							args->name, errno, strerror(errno), fs_type);
+						goto out_close;
+					}
+				}
+			}
+#endif
 
 #if defined(HAVE_LSETXATTR)
 			/* Although not a link, it's good to exercise this call */
@@ -451,13 +471,25 @@ static int stress_xattr(stress_args_t *args)
 		if (LIKELY(buffer != NULL)) {
 			/* ...and fetch */
 			sret = shim_listxattr(filename, buffer, (size_t)sret);
-			free(buffer);
 
 			if (UNLIKELY(sret < 0)) {
 				pr_fail("%s: listxattr failed, errno=%d (%s)%s\n",
 					args->name, errno, strerror(errno), fs_type);
+				free(buffer);
 				goto out_close;
 			}
+
+#if defined(HAVE_LISTXATTRAT) &&	\
+    defined(AT_FDCWD)
+			sret = shim_listxattrat(AT_FDCWD, filename, 0, buffer, (size_t)sret);
+			if (UNLIKELY(sret < 0) && (errno != ENOSYS)) {
+				pr_fail("%s: listxattr failed, errno=%d (%s)%s\n",
+					args->name, errno, strerror(errno), fs_type);
+				free(buffer);
+				goto out_close;
+			}
+#endif
+			free(buffer);
 		}
 
 		/*
@@ -469,6 +501,10 @@ static int stress_xattr(stress_args_t *args)
 		 *  Exercise invalid path, ENOENT
 		 */
 		VOID_RET(ssize_t, shim_listxattr(bad_filename, NULL, 0));
+#if defined(HAVE_LISTXATTRAT) &&	\
+    defined(AT_FDCWD)
+		VOID_RET(ssize_t, shim_listxattrat(AT_FDCWD, bad_filename, 0, NULL, 0));
+#endif
 #if defined(HAVE_LLISTXATTR)
 		VOID_RET(ssize_t, shim_llistxattr(bad_filename, NULL, 0));
 #endif
@@ -478,7 +514,7 @@ static int stress_xattr(stress_args_t *args)
 
 			(void)snprintf(attrname, sizeof(attrname), "user.var_%d", j);
 
-			switch (j % 3) {
+			switch (j % 4) {
 			case 0:
 				ret = shim_fremovexattr(fd, attrname);
 				errmsg = "fremovexattr";
@@ -489,6 +525,13 @@ static int stress_xattr(stress_args_t *args)
 				errmsg = "lremovexattr";
 				break;
 #endif
+#if defined(HAVE_REMOVEXATTRAT) &&	\
+    defined(AT_FDCWD)
+			case 2:
+				ret = shim_removexattrat(AT_FDCWD, filename, 0, attrname);
+				errmsg = "removexattrat";
+				break;
+#endif
 			default:
 				ret = shim_removexattr(filename, attrname);
 				errmsg = "removexattr";
@@ -496,10 +539,10 @@ static int stress_xattr(stress_args_t *args)
 			}
 			if (UNLIKELY(ret < 0)) {
 #if defined(ENODATA)
-				if ((errno != ENODATA) && (errno != ENOSPC)) {
+				if ((errno != ENODATA) && (errno != ENOSPC) && (errno != ENOSYS)) {
 #else
 				/* NetBSD does not have ENODATA */
-				if (errno != ENOSPC) {
+				if ((errno != ENOSPC) && (errno != ENOSYS)) {
 #endif
 					pr_fail("%s: %s failed, errno=%d (%s)\n",
 						args->name, errmsg, errno, strerror(errno));
@@ -543,7 +586,7 @@ static int stress_xattr(stress_args_t *args)
 		{
 			/*
 			 *  Try to reproduce issue fixed in Linux commit
-		         *  dd7db149bcd9 ("ubifs: ubifs_jnl_change_xattr: 
+		         *  dd7db149bcd9 ("ubifs: ubifs_jnl_change_xattr:
 			 *  Remove assertion 'nlink > 0' for host inode")
 			 */
 			int tmp_fd;
