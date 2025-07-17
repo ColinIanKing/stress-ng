@@ -759,48 +759,51 @@ static int stress_cacheline(stress_args_t *args)
 
 	func = cacheline_methods[cacheline_method].func;
 
-	for (i = 0; i < n_pids; i++) {
-		int child_idx;
+	if (s_pids) {
+		for (i = 0; i < n_pids; i++) {
+			int child_idx;
 
-		stress_sync_start_init(&s_pids[i]);
+			stress_sync_start_init(&s_pids[i]);
 
-		child_idx = stress_cacheline_next_idx();
-		if (child_idx < 0) {
-			pr_inf("%s: failed to get cacheline idx, skipping stressor\n", args->name);
-			rc = EXIT_NO_RESOURCE;
-			goto finish;
-		}
-again:
-		s_pids[i].pid = fork();
-		if (s_pids[i].pid < 0) {
-			if (stress_redo_fork(args, errno))
-				goto again;
-			if (UNLIKELY(!stress_continue(args)))
+			child_idx = stress_cacheline_next_idx();
+			if (child_idx < 0) {
+				pr_inf("%s: failed to get cacheline idx, skipping stressor\n", args->name);
+				rc = EXIT_NO_RESOURCE;
 				goto finish;
-			pr_err("%s: fork failed, errno=%d: (%s)\n",
-				args->name, errno, strerror(errno));
-			goto finish;
-		} else if (s_pids[i].pid == 0) {
-			s_pids[i].pid = getpid();
-
-			stress_sync_start_wait_s_pid(&s_pids[i]);
-			stress_parent_died_alarm();
-			rc = stress_cacheline_child(args, child_idx, false, l1_cacheline_size, func, cacheline_affinity);
-			_exit(rc);
-		} else {
-			stress_sync_start_s_pid_list_add(&s_pids_head, &s_pids[i]);
+			}
+again:
+			s_pids[i].pid = fork();
+			if (s_pids[i].pid < 0) {
+				if (stress_redo_fork(args, errno))
+					goto again;
+				if (UNLIKELY(!stress_continue(args)))
+					goto finish;
+				pr_err("%s: fork failed, errno=%d: (%s)\n",
+					args->name, errno, strerror(errno));
+				goto finish;
+			} else if (s_pids[i].pid == 0) {
+				s_pids[i].pid = getpid();
+	
+				stress_sync_start_wait_s_pid(&s_pids[i]);
+				stress_parent_died_alarm();
+				rc = stress_cacheline_child(args, child_idx, false, l1_cacheline_size, func, cacheline_affinity);
+				_exit(rc);
+			} else {
+				stress_sync_start_s_pid_list_add(&s_pids_head, &s_pids[i]);
+			}
 		}
 	}
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
-	stress_sync_start_cont_list(s_pids_head);
+	if (s_pids)
+		stress_sync_start_cont_list(s_pids_head);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	stress_cacheline_child(args, idx, true, l1_cacheline_size, func, cacheline_affinity);
 finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	if (n_pids > 1) {
+	if (s_pids && (n_pids > 1)) {
 		stress_kill_and_wait_many(args, s_pids, n_pids, SIGALRM, true);
 		(void)stress_sync_s_pids_munmap(s_pids, n_pids);
 	}
