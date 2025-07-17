@@ -592,7 +592,7 @@ static int stress_xattr(stress_args_t *args)
 			int tmp_fd;
 
 			tmp_fd = open(dirname, O_TMPFILE | O_RDWR, S_IRUSR | S_IWUSR);
-			if (LIKELY(tmp_fd)) {
+			if (LIKELY(tmp_fd != -1)) {
 				fsetxattr(tmp_fd, "user.var_1", "somevalue", 9, XATTR_CREATE);
 				fsetxattr(tmp_fd, "user.var_1", "somevalue", 9, XATTR_REPLACE);
 				fsetxattr(tmp_fd, "user.var_1", "anothervalue", 12, XATTR_REPLACE);
