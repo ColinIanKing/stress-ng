@@ -320,16 +320,12 @@ static int get_bad_shmid(stress_args_t *args)
  *  exercise_shmctl()
  *	exercise shmctl syscall with all possible values of arguments
  */
-static void exercise_shmctl(const size_t sz, stress_args_t *args)
+static void exercise_shmctl(const key_t key, const size_t sz, stress_args_t *args)
 {
-	key_t key;
 	int shm_id;
 #if !defined(STRESS_ARCH_M68K)
 	const int bad_shmid = get_bad_shmid(args);
 #endif
-
-	/* Get a unique random key */
-	key = (key_t)stress_mwc16();
 
 	shm_id = shmget(key, sz, IPC_CREAT);
 	if (shm_id < 0)
@@ -370,13 +366,9 @@ static void exercise_shmctl(const size_t sz, stress_args_t *args)
  *  exercise_shmget()
  *	exercise shmget syscall with all possible values of arguments
  */
-static void exercise_shmget(const size_t sz, const char *name)
+static void exercise_shmget(const key_t key, const size_t sz, const char *name)
 {
-	key_t key;
 	int shm_id;
-
-	/* Get a unique random key */
-	key = (key_t)stress_mwc16();
 
 	/* Exercise invalid flags */
 	shm_id = shmget(key, sz, ~0);
@@ -561,6 +553,56 @@ static void stress_shm_sysv_linux_proc_map(const void *addr, const size_t sz)
 	}
 }
 #endif
+
+/*
+ *  stress_shm_sysv_get_key()
+ *	find a 'random' unused key
+ */
+static int stress_shm_sysv_get_key(
+	stress_args_t *args,
+	const size_t segment,
+	const uint32_t keys_per_instance,
+	const uint32_t keys_per_segment,
+	key_t *key,
+	key_t keys[MAX_SHM_SYSV_SEGMENTS])
+{
+	*key = 0;
+
+	for (;;) {
+		key_t new_key;
+		size_t i;
+		uint32_t offset;
+
+retry:
+		if (!stress_continue(args))
+			break;
+
+		/* Get a unique random key */
+		offset = (args->instance * keys_per_instance) +
+		         (segment * keys_per_segment) +
+		         stress_mwc32modn(keys_per_segment);
+		/* Key should never exceed MAX_SHM_KEYS */
+		new_key = offset & (MAX_SHM_KEYS - 1);
+		if (!new_key)
+			goto retry;
+
+		/* Is it already used in our local cache? */
+		for (i = 0; i < MAX_SHM_SYSV_SEGMENTS; i++) {
+			if (new_key == keys[i])
+				goto retry;
+		}
+		/* Is it already used in the entire system? */
+		if (shmget(new_key, args->page_size, 0) < 0) {
+			if (errno == ENOENT) {
+				*key = new_key;
+				return 0;
+			}
+		}
+		goto retry;
+	}
+	return -1;
+}
+
 /*
  *  stress_shm_sysv_child()
  * 	stress out the shm allocations. This can be killed by
@@ -592,6 +634,8 @@ static int stress_shm_sysv_child(
 	double shmdt_duration = 0.0, shmdt_count = 0.0;
 	uint32_t seg_space = args->instances * shm_sysv_segments;
 	uint32_t max_keys = (uint32_t)MAX_SHM_KEYS / seg_space;
+	const uint32_t keys_per_instance = MAX_SHM_KEYS / args->instances;
+	const uint32_t keys_per_segment = keys_per_instance / shm_sysv_segments;
 
 	max_keys = (max_keys < 1) ? 1 : max_keys;
 
@@ -622,14 +666,20 @@ static int stress_shm_sysv_child(
 	do {
 		size_t sz = max_sz;
 		pid_t pid = -1;
+		key_t key;
 
-		exercise_shmget(sz, args->name);
-		exercise_shmctl(sz, args);
+		/* find key without an identifier associated with it */
+		if (stress_shm_sysv_get_key(args, i,
+					keys_per_instance,
+					keys_per_segment,
+					&key, keys) == 0) {
+			exercise_shmget(key, sz, args->name);
+			exercise_shmctl(key, sz, args);
+		}
 
 		for (i = 0; i < shm_sysv_segments; i++) {
 			int shm_id = -1, count = 0;
 			void *addr;
-			key_t key = 0;
 			size_t shmall, freemem, totalmem, freeswap, totalswap;
 			double t;
 
@@ -645,42 +695,23 @@ static int stress_shm_sysv_child(
 				goto reap;
 
 			for (count = 0; count < KEY_GET_RETRIES; count++) {
-				bool unique;
-				const int rnd = stress_mwc32modn(SIZEOF_ARRAY(shm_flags));
-				const int rnd_flag = shm_flags[rnd] & mask;
+				int rnd, rnd_flag;
 retry:
+				rnd = stress_mwc32modn(SIZEOF_ARRAY(shm_flags));
+				rnd_flag = shm_flags[rnd] & mask;
+
 				if (sz < page_size)
 					goto reap;
 
-				/* Get a unique key */
-				do {
-					size_t j;
-					unique = true;
-					const uint32_t keys_per_instance = MAX_SHM_KEYS / args->instances;
-					const uint32_t keys_per_segment = keys_per_instance / shm_sysv_segments;
-					uint32_t offset;
-
-					if (UNLIKELY(!stress_continue_flag()))
-						goto reap;
-
-					/* Get a unique random key */
-					offset = args->instance * keys_per_instance;
-					offset += i * keys_per_segment;
-					offset += stress_mwc32modn(keys_per_segment);
-					/* Key should never exceed MAX_SHM_KEYS */
-					key = offset & (MAX_SHM_KEYS - 1);
-
-					for (j = 0; j < i; j++) {
-						if (key == keys[j]) {
-							unique = false;
-							break;
-						}
-					}
-					if (UNLIKELY(!stress_continue_flag()))
-						goto reap;
-				} while (!unique);
+				/* find key without an identifier associated with it */
+				if (stress_shm_sysv_get_key(args, i,
+						keys_per_instance,
+						keys_per_segment,
+						&key, keys) < 0)
+					goto reap;
 
 				t = stress_time_now();
+errno = 0;
 				shm_id = shmget(key, sz,
 					IPC_CREAT | IPC_EXCL |
 					S_IRUSR | S_IWUSR | rnd_flag);
@@ -741,11 +772,8 @@ retry:
 			t = stress_time_now();
 			addr = shmat(shm_id, NULL, 0);
 			if (UNLIKELY(addr == (char *)-1)) {
-				if (errno == EINVAL) {
-					pr_inf("%s: shmat  id %d, (key=%d, size=%zd), EINVAL?\n",
-							args->name, shm_id, (int)key, sz);
+				if ((errno == EINVAL) || (errno == EIDRM))
 					goto reap;
-				}
 				ok = false;
 				pr_fail("%s: shmat on NULL address failed on id %d, (key=%d, size=%zd), errno=%d (%s)\n",
 					args->name, shm_id, (int)key, sz, errno, strerror(errno));
