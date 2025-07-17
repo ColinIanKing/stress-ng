@@ -598,7 +598,6 @@ retry:
 				return 0;
 			}
 		}
-		goto retry;
 	}
 	return -1;
 }
