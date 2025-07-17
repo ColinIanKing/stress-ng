@@ -535,7 +535,7 @@ static int stress_gpu_card(const char *gpu_devnode)
 static int stress_gpu_child(stress_args_t *args, void *context)
 {
 	int frag_n = 0;
-	int ret, fd;
+	int ret = EXIT_SUCCESS, fd;
 	uint32_t size_x = 256;
 	uint32_t size_y = 256;
 	GLsizei texsize = 4096;
@@ -616,7 +616,6 @@ static int stress_gpu_child(stress_args_t *args, void *context)
 	}
 #endif
 
-	ret = EXIT_SUCCESS;
 deinit:
 	if (teximage)
 		free(teximage);
