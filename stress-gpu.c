@@ -597,8 +597,10 @@ static int stress_gpu_child(stress_args_t *args, void *context)
 
 	do {
 		stress_gpu_run(texsize, uploads);
-		if (glGetError() != GL_NO_ERROR)
-			return EXIT_NO_RESOURCE;
+		if (glGetError() != GL_NO_ERROR) {
+			ret = EXIT_NO_RESOURCE;
+			break;
+		}
 		stress_bogo_inc(args);
 	} while (!stress_sigalrm_pending() && stress_continue(args));
 
