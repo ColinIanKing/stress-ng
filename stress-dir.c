@@ -270,7 +270,7 @@ static int stress_mkdir(const int dir_fd, const char *path, const int mode)
  *  stress_invalid_mkdir()
  *	exercise invalid mkdir path
  */
-static void stress_invalid_mkdir(const char *path)
+static inline void stress_invalid_mkdir(const char *path)
 {
 	int ret;
 	char filename[PATH_MAX + 16];
@@ -289,7 +289,7 @@ static void stress_invalid_mkdir(const char *path)
  *  stress_invalid_mkdirat()
  *	exercise invalid mkdirat fd
  */
-static void stress_invalid_mkdirat(const int bad_fd)
+static inline void stress_invalid_mkdirat(const int bad_fd)
 {
 #if defined(HAVE_MKDIRAT)
 	VOID_RET(int, mkdirat(bad_fd, "bad", S_IRUSR | S_IWUSR));
@@ -302,7 +302,7 @@ static void stress_invalid_mkdirat(const int bad_fd)
  *  stress_invalid_rmdir()
  *	exercise invalid rmdir paths
  */
-static void stress_invalid_rmdir(const char *path)
+static inline void stress_invalid_rmdir(const char *path)
 {
 	char filename[PATH_MAX + 16];
 
@@ -325,7 +325,7 @@ static void stress_invalid_rmdir(const char *path)
  *	file activity to exercise kernel locking on
  *	the directory
  */
-static void stress_dir_read_concurrent(
+static inline void stress_dir_read_concurrent(
 	stress_args_t *args,
 	const char *pathname)
 {
