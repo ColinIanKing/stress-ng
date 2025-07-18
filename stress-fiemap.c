@@ -312,7 +312,6 @@ static int stress_fiemap(stress_args_t *args)
 		}
 	}
 
-
 	for (n = 0; n < MAX_FIEMAP_PROCS; n++) {
 		stress_sync_start_init(&s_pids[n]);
 
