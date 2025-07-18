@@ -50,7 +50,7 @@ static void *counter_lock;
  *  stress_iomix_rnd_offset()
  *	generate a random offset between 0..max-1
  */
-static off_t stress_iomix_rnd_offset(const off_t max)
+static inline off_t stress_iomix_rnd_offset(const off_t max)
 {
 	return (off_t)stress_mwc64modn((uint64_t)max);
 }
