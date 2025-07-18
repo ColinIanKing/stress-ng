@@ -57,7 +57,7 @@ typedef struct {
 	const char *value;
 } stress_cgroup_values_t;
 
-static void stress_cgroup_remove_nl(char *str)
+static inline void stress_cgroup_remove_nl(char *str)
 {
 	char *ptr;
 
