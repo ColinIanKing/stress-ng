@@ -148,9 +148,12 @@ int stress_mincore_touch_pages(void *buf, const size_t buf_len)
 
 	if (!(g_opt_flags & OPT_FLAGS_MMAP_MINCORE))
 		return 0;
-	ret = madvise(buf, buf_len, MADV_POPULATE_READ | MADV_POPULATE_WRITE);
-	if (ret == 0)
-		return 0;
+	ret = madvise(buf, buf_len, MADV_POPULATE_READ);
+	if (ret == 0) {
+		ret = madvise(buf, buf_len, MADV_POPULATE_WRITE);
+		if (ret == 0)
+			return 0;
+	}
 #endif
 	return stress_mincore_touch_pages_generic(buf, buf_len, false);
 }
