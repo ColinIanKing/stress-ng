@@ -55,7 +55,7 @@ static inline void stop_running(void)
  * 	to tell pthreads and main pthread stressor
  *	to stop. Returns false if we need to stop.
  */
-static bool keep_running(void)
+static inline bool keep_running(void)
 {
 	if (stress_sigalrm_pending())
 		stop_running();
