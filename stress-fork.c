@@ -327,52 +327,79 @@ static int stress_fork_fn(
 					stress_fork_shim_exit(0);
 
 				if (mode & STRESS_MODE_FORK_VM) {
-					int flags = 0;
+					int advice[6];
+					size_t n_advice = 0;
+
+					(void)shim_memset(advice, 0, sizeof(advice));
 
 					switch (j++ & 7) {
 					case 0:
 #if defined(MADV_MERGEABLE)
-						flags |= MADV_MERGEABLE;
+						advice[n_advice++] = MADV_MERGEABLE;
+#endif
+#if defined(MADV_UNMERGEABLE)
+						advice[n_advice++] = MADV_UNMERGEABLE;
 #endif
 #if defined(MADV_WILLNEED)
-						flags |= MADV_WILLNEED;
+						advice[n_advice++] = MADV_WILLNEED;
+#endif
+#if defined(MADV_NOHUGEPAGE)
+						advice[n_advice++] = MADV_NOHUGEPAGE;
 #endif
 #if defined(MADV_HUGEPAGE)
-						flags |= MADV_HUGEPAGE;
+						advice[n_advice++] = MADV_HUGEPAGE;
 #endif
 #if defined(MADV_RANDOM)
-						flags |= MADV_RANDOM;
+						advice[n_advice++] = MADV_RANDOM;
 #endif
 						break;
 					case 1:
 #if defined(MADV_COLD)
-						flags |= MADV_COLD;
+						advice[n_advice++] = MADV_COLD;
 #endif
 						break;
 					case 2:
 #if defined(MADV_PAGEOUT)
-						flags |= MADV_PAGEOUT;
+						advice[n_advice++] = MADV_PAGEOUT;
+#endif
+#if defined(MADV_POPULATE_READ)
+						advice[n_advice++] = MADV_POPULATE_READ;
 #endif
 						break;
 					case 3:
 #if defined(MADV_WILLNEED)
-						flags |= MADV_WILLNEED;
+						advice[n_advice++] = MADV_WILLNEED;
+#endif
+#if defined(MADV_SOFT_OFFLINE)
+						advice[n_advice++] = MADV_SOFT_OFFLINE;
 #endif
 						break;
 					case 4:
 #if defined(MADV_NOHUGEPAGE)
-						flags |= MADV_NOHUGEPAGE;
+						advice[n_advice++] = MADV_NOHUGEPAGE;
+#endif
+#if defined(MADV_HUGEPAGE)
+						advice[n_advice++] = MADV_HUGEPAGE;
 #endif
 						break;
 					case 5:
+#if defined(MADV_MERGEABLE)
+						advice[n_advice++] = MADV_MERGEABLE;
+#endif
+#if defined(MADV_UNMERGEABLE)
+						advice[n_advice++] = MADV_UNMERGEABLE;
+#endif
+						break;
+
+					case 6:
 						stress_ksm_memory_merge(1);
 						break;
-					/* cases 6..7 */
+					/* cases 7 */
 					default:
 						break;
 					}
-					if (flags) {
-						stress_madvise_pid_all_pages(getpid(), flags);
+					if (n_advice) {
+						stress_madvise_pid_all_pages(getpid(), advice, n_advice);
 						stress_pagein_self(args->name);
 					}
 				}

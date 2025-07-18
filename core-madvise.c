@@ -199,7 +199,10 @@ int stress_madvise_nohugepage(void *addr, const size_t length)
  *  stress_madvise_pid_all_pages()
  *	apply madvise advise to all pages in a progress
  */
-void stress_madvise_pid_all_pages(const pid_t pid, const int advise)
+void stress_madvise_pid_all_pages(
+	const pid_t pid,
+	const int *advice,
+	const size_t n_advice)
 {
 #if defined(HAVE_MADVISE) &&	\
     defined(__linux__)
@@ -213,10 +216,11 @@ void stress_madvise_pid_all_pages(const pid_t pid, const int advise)
 	if (!fp)
 		return;
 	while (fgets(buf, sizeof(buf), fp)) {
-		void *start, *end, *offset;
+		void *start, *end, *offset, *ptr;
 		int n;
 		unsigned int major, minor;
 		uint64_t inode;
+		const size_t page_size = stress_get_page_size();
 		char prot[5];
 
 		n = sscanf(buf, "%p-%p %4s %p %x:%x %" PRIu64 " %4095s\n",
@@ -227,19 +231,26 @@ void stress_madvise_pid_all_pages(const pid_t pid, const int advise)
 		if (start >= end)
 			continue;	/* invalid address range */
 
-		VOID_RET(int, madvise(start, (size_t)((uint8_t *)end - (uint8_t *)start), advise));
+		if (n_advice == 1) {
+			VOID_RET(int, madvise(start, (size_t)((uint8_t *)end - (uint8_t *)start), advice[0]));
+		} else {
+			for (ptr = start; ptr < end; ptr += page_size) {
+				size_t idx = stress_mwc8modn((uint8_t)n_advice);
+				const int new_advice = advice[idx];
+
+				VOID_RET(int, madvise(ptr, page_size, new_advice));
+			}
+		}
 
 		/*
 		 *  Readable protection? read pages
 		 */
 		if ((prot[0] == 'r') && (path[0] != '[')) {
-			const size_t page_size = stress_get_page_size();
+			volatile uint8_t *vptr = (volatile uint8_t *)start;
 
-			volatile uint8_t *ptr = (volatile uint8_t *)start;
-
-			while (ptr < (uint8_t *)end) {
-				(*ptr);
-				ptr += page_size;
+			while (vptr < (uint8_t *)end) {
+				(*vptr);
+				vptr += page_size;
 			}
 		}
 	}

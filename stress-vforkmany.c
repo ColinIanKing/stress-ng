@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-killpid.h"
 #include "core-madvise.h"
 #include "core-mincore.h"
@@ -188,19 +189,21 @@ fork_again:
 			_exit(0);
 
 		if (vforkmany_vm) {
-			int flags = 0;
+			int advice[3];
+			size_t n_advice = 0;
 
+			(void)shim_memset(advice, 0, sizeof(advice));
 #if defined(MADV_NORMAL)
-			flags |= MADV_NORMAL;
+			advice[n_advice++] = MADV_NORMAL;
 #endif
 #if defined(MADV_HUGEPAGE)
-			flags |= MADV_HUGEPAGE;
+			advice[n_advice++] = MADV_HUGEPAGE;
 #endif
 #if defined(MADV_SEQUENTIAL)
-			flags |= MADV_SEQUENTIAL;
+			advice[n_advice++] = MADV_SEQUENTIAL;
 #endif
-			if (flags)
-				stress_madvise_pid_all_pages(getpid(), flags);
+			if (n_advice)
+				stress_madvise_pid_all_pages(getpid(), advice, n_advice);
 		}
 
 		do {
@@ -250,22 +253,25 @@ vfork_again:
 				}
 
 				if (vforkmany_vm) {
-					int flags = 0;
+					int advice[4];
+					size_t n_advice = 0;
+
+					(void)shim_memset(advice, 0, sizeof(advice));
 
 #if defined(MADV_MERGEABLE)
-					flags |= MADV_MERGEABLE;
+					advice[n_advice++] = MADV_MERGEABLE;
 #endif
 #if defined(MADV_WILLNEED)
-					flags |= MADV_WILLNEED;
+					advice[n_advice++] = MADV_WILLNEED;
 #endif
 #if defined(MADV_HUGEPAGE)
-					flags |= MADV_HUGEPAGE;
+					advice[n_advice++] = MADV_HUGEPAGE;
 #endif
 #if defined(MADV_RANDOM)
-					flags |= MADV_RANDOM;
+					advice[n_advice++] = MADV_RANDOM;
 #endif
-					if (flags)
-						stress_madvise_pid_all_pages(getpid(), flags);
+					if (n_advice)
+						stress_madvise_pid_all_pages(getpid(), advice, n_advice);
 				}
 				if (waste != MAP_FAILED)
 					(void)stress_mincore_touch_pages_interruptible(waste, waste_size);
