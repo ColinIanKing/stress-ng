@@ -4176,6 +4176,7 @@ static int syscall_nanosleep(void)
 static int syscall_nice(void)
 {
 	t1 = syscall_time_now();
+	errno = 0;
 	VOID_RET(int, nice(0));
 	t2 = syscall_time_now();
 
