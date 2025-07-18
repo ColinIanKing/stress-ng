@@ -22,6 +22,7 @@
 #include "core-asm-riscv.h"
 #include "core-asm-ppc64.h"
 #include "core-affinity.h"
+#include "core-attribute.h"
 #include "core-builtin.h"
 #include "core-cpu-cache.h"
 #include "core-numa.h"
@@ -76,7 +77,7 @@ static int msync_flags[] = {
 static char cachehammer_filename[PATH_MAX];
 static char cachehammer_path[PATH_MAX];
 
-static bool hammer_valid(void)
+static bool PURE hammer_valid(void)
 {
 	return true;
 }
