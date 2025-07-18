@@ -369,7 +369,6 @@ retry:
 	UNEXPECTED
 #endif
 	return EXIT_SUCCESS;
-
 }
 
 /*
@@ -530,7 +529,6 @@ retry:
 		rc = EXIT_FAILURE;
 		goto die_close;
 	}
-
 	if (stress_set_sockaddr(args->name, args->instance, context->pid,
 			AF_UNIX, context->socket_fd_port,
 			&addr, &addr_len, NET_ADDR_ANY) < 0) {
