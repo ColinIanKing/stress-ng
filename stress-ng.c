@@ -1221,6 +1221,7 @@ static void MLOCKED_TEXT stress_handle_terminate(int signum)
 {
 	static char buf[128];
 	const int fd = fileno(stderr);
+
 	stress_continue_set_flag(false);
 
 	switch (signum) {
