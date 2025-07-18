@@ -45,7 +45,7 @@ static const stress_help_t help[] = {
 static const stress_opt_t opts[] = {
 	{ OPT_numa_bytes,        "numa-bytes",        TYPE_ID_SIZE_T_BYTES_VM, MIN_NUMA_MMAP_BYTES, MAX_NUMA_MMAP_BYTES, NULL },
 	{ OPT_numa_shuffle_addr, "numa-shuffle-addr", TYPE_ID_BOOL, 0, 1, NULL },
-	{ OPT_numa_shuffle_node, "numa-shiffle-node", TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_numa_shuffle_node, "numa-shuffle-node", TYPE_ID_BOOL, 0, 1, NULL },
 	END_OPT,
 };
 
