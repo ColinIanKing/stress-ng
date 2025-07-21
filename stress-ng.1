@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "16 July 2025"
+.TH STRESS-NG 1 "21 July 2025"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -3853,6 +3853,10 @@ stop the ioport stressors after N bogo I/O operations
 .B \-\-ioport\-opts [ in | out | inout ]
 specify the io operation to be performed.  The default is both in and out.
 specify if port reads in, port read writes out or reads and writes are
+.TP
+.B \-\-ioport\-port [ post | vga-dac-r | bochs-debug ]
+select x86 I/O port to use, post (Power-On-Self-Test port 0x80), vga-dac-r (VGA DAC Red port 0x3c8)
+or bochs-debug (Bochs debug port 0xe9)
 .RE
 .TP
 .B IO scheduling class and priority stressor

@@ -412,6 +412,7 @@ const struct option stress_long_options[] = {
 	{ "ioport",		1,	0,	OPT_ioport },
 	{ "ioport-ops",		1,	0,	OPT_ioport_ops },
 	{ "ioport-opts",	1,	0,	OPT_ioport_opts },
+	{ "ioport-port",	1,	0,	OPT_ioport_port },
 	{ "ioprio",		1,	0,	OPT_ioprio },
 	{ "ioprio-ops",		1,	0,	OPT_ioprio_ops },
 	{ "iostat",		1,	0,	OPT_iostat },

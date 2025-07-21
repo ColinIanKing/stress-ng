@@ -24,15 +24,24 @@
 #include <sys/io.h>
 #endif
 
-#define IO_PORT		0x80
+#define IO_PORT_POST		(0x80)
+#define IO_PORT_VGA_DAC_RED	(0x3c8)
+#define IO_PORT_BOCHS_DEBUG	(0xe9)
 
-#define IOPORT_OPT_IN	0x00000001
-#define IOPORT_OPT_OUT	0x00000002
+#define IOPORT_OPT_IN		(0x00000001)
+#define IOPORT_OPT_OUT		(0x00000002)
+
+#define S
 
 typedef struct {
 	const char 	*opt;
 	const uint32_t	flag;
 } stress_ioport_opts_t;
+
+typedef struct {
+	const char 	*name;
+	const int 	port;
+} stress_ioport_port_t;
 
 static const stress_ioport_opts_t ioport_opts[] = {
 	{ "in",		IOPORT_OPT_IN },
@@ -40,10 +49,17 @@ static const stress_ioport_opts_t ioport_opts[] = {
 	{ "inout",	IOPORT_OPT_IN | IOPORT_OPT_OUT },
 };
 
+static const stress_ioport_port_t ioport_ports[] = {
+	{ "post",	IO_PORT_POST },
+	{ "vga-dac-r",	IO_PORT_VGA_DAC_RED },
+	{ "bochs-debug",IO_PORT_BOCHS_DEBUG },
+};
+
 static const stress_help_t help[] = {
 	{ NULL,	"ioport N",      "start N workers exercising port I/O" },
 	{ NULL,	"ioport-ops N",  "stop ioport workers after N port bogo operations" },
 	{ NULL, "ioport-opts O", "option to select ioport access [ in | out | inout ]" },
+	{ NULL, "ioport-port",   "post | vga-dac-r | bochs-debug" },
 	{ NULL,	NULL,		 NULL }
 };
 
@@ -52,8 +68,14 @@ static const char *stress_ioport_opts(const size_t i)
 	return (i < SIZEOF_ARRAY(ioport_opts)) ? ioport_opts[i].opt : NULL;
 }
 
+static const char *stress_ioport_port(const size_t i)
+{
+	return (i < SIZEOF_ARRAY(ioport_ports)) ? ioport_ports[i].name : NULL;
+}
+
 static const stress_opt_t opts[] = {
 	{ OPT_ioport_opts, "ioport-opts", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_ioport_opts },
+	{ OPT_ioport_port, "ioport-port", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_ioport_port },
 	END_OPT,
 };
 
@@ -65,7 +87,7 @@ static int stress_ioport_supported(const char *name)
 {
 	int ret;
 
-	ret = ioperm(IO_PORT, 1, 1);
+	ret = ioperm(IO_PORT_POST, 1, 1);
 	if (ret < 0) {
 		switch (errno) {
 		case ENOMEM:
@@ -78,11 +100,11 @@ static int stress_ioport_supported(const char *name)
 		case EIO:
 		default:
 			pr_inf_skip("%s cannot access port 0x%x, not skipping stressor\n",
-				name, IO_PORT);
+				name, IO_PORT_POST);
 			return -1;
 		}
 	}
-	(void)ioperm(IO_PORT, 1, 0);
+	(void)ioperm(IO_PORT_POST, 1, 0);
 	return 0;
 }
 
@@ -110,8 +132,8 @@ static int stress_ioport_ioperm(
  */
 static int stress_ioport(stress_args_t *args)
 {
-	int ret, fd, rc = EXIT_SUCCESS;
-	size_t ioport_opt = 2;
+	int ret, fd, rc = EXIT_SUCCESS, port;
+	size_t ioport_opt = 2, ioport_idx = 0;
 	uint32_t flag = 0;
 	unsigned char v;
 	double duration_in = 0.0, count_in = 0.0;
@@ -124,16 +146,19 @@ static int stress_ioport(stress_args_t *args)
 	if (!flag)
 		flag = IOPORT_OPT_IN | IOPORT_OPT_OUT;
 
-	ret = ioperm(IO_PORT, 1, 1);
+	(void)stress_get_setting("ioport-port", &ioport_idx);
+	port = ioport_ports[ioport_idx].port;
+
+	ret = ioperm(port, 1, 1);
 	if (ret < 0) {
 		pr_err("%s: cannot access port 0x%x, errno=%d (%s)\n",
-			args->name, IO_PORT, errno, strerror(errno));
+			args->name, port, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
 
 	fd = open("/dev/port", O_RDWR);
 
-	v = inb(IO_PORT);
+	v = inb(port);
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
@@ -144,81 +169,81 @@ static int stress_ioport(stress_args_t *args)
 
 		if (flag & IOPORT_OPT_IN) {
 			t = stress_time_now();
-			(void)inb(IO_PORT);
-			(void)inb(IO_PORT);
-			(void)inb(IO_PORT);
-			(void)inb(IO_PORT);
-			(void)inb(IO_PORT);
-			(void)inb(IO_PORT);
-			(void)inb(IO_PORT);
-			(void)inb(IO_PORT);
-			(void)inb(IO_PORT);
-			(void)inb(IO_PORT);
-			(void)inb(IO_PORT);
-			(void)inb(IO_PORT);
-			(void)inb(IO_PORT);
-			(void)inb(IO_PORT);
-			(void)inb(IO_PORT);
-			(void)inb(IO_PORT);
-			(void)inb(IO_PORT);
-			(void)inb(IO_PORT);
-			(void)inb(IO_PORT);
-			(void)inb(IO_PORT);
-			(void)inb(IO_PORT);
-			(void)inb(IO_PORT);
-			(void)inb(IO_PORT);
-			(void)inb(IO_PORT);
-			(void)inb(IO_PORT);
-			(void)inb(IO_PORT);
-			(void)inb(IO_PORT);
-			(void)inb(IO_PORT);
-			(void)inb(IO_PORT);
-			(void)inb(IO_PORT);
-			(void)inb(IO_PORT);
-			(void)inb(IO_PORT);
+			(void)inb(port);
+			(void)inb(port);
+			(void)inb(port);
+			(void)inb(port);
+			(void)inb(port);
+			(void)inb(port);
+			(void)inb(port);
+			(void)inb(port);
+			(void)inb(port);
+			(void)inb(port);
+			(void)inb(port);
+			(void)inb(port);
+			(void)inb(port);
+			(void)inb(port);
+			(void)inb(port);
+			(void)inb(port);
+			(void)inb(port);
+			(void)inb(port);
+			(void)inb(port);
+			(void)inb(port);
+			(void)inb(port);
+			(void)inb(port);
+			(void)inb(port);
+			(void)inb(port);
+			(void)inb(port);
+			(void)inb(port);
+			(void)inb(port);
+			(void)inb(port);
+			(void)inb(port);
+			(void)inb(port);
+			(void)inb(port);
+			(void)inb(port);
 			duration_in += stress_time_now() - t;
 			count_in += 32.0;
 		}
 		if (flag & IOPORT_OPT_OUT) {
 			t = stress_time_now();
-			outb(v, IO_PORT);
-			outb(v, IO_PORT);
-			outb(v, IO_PORT);
-			outb(v, IO_PORT);
-			outb(v, IO_PORT);
-			outb(v, IO_PORT);
-			outb(v, IO_PORT);
-			outb(v, IO_PORT);
-			outb(v, IO_PORT);
-			outb(v, IO_PORT);
-			outb(v, IO_PORT);
-			outb(v, IO_PORT);
-			outb(v, IO_PORT);
-			outb(v, IO_PORT);
-			outb(v, IO_PORT);
-			outb(v, IO_PORT);
-			outb(v, IO_PORT);
-			outb(v, IO_PORT);
-			outb(v, IO_PORT);
-			outb(v, IO_PORT);
-			outb(v, IO_PORT);
-			outb(v, IO_PORT);
-			outb(v, IO_PORT);
-			outb(v, IO_PORT);
-			outb(v, IO_PORT);
-			outb(v, IO_PORT);
-			outb(v, IO_PORT);
-			outb(v, IO_PORT);
-			outb(v, IO_PORT);
-			outb(v, IO_PORT);
-			outb(v, IO_PORT);
-			outb(v, IO_PORT);
+			outb(v, port);
+			outb(v, port);
+			outb(v, port);
+			outb(v, port);
+			outb(v, port);
+			outb(v, port);
+			outb(v, port);
+			outb(v, port);
+			outb(v, port);
+			outb(v, port);
+			outb(v, port);
+			outb(v, port);
+			outb(v, port);
+			outb(v, port);
+			outb(v, port);
+			outb(v, port);
+			outb(v, port);
+			outb(v, port);
+			outb(v, port);
+			outb(v, port);
+			outb(v, port);
+			outb(v, port);
+			outb(v, port);
+			outb(v, port);
+			outb(v, port);
+			outb(v, port);
+			outb(v, port);
+			outb(v, port);
+			outb(v, port);
+			outb(v, port);
+			outb(v, port);
+			outb(v, port);
 			duration_out += stress_time_now() - t;
 			count_out += 32;
 		}
 
 		if (fd >= 0) {
-			const off_t offset = IO_PORT;
+			const off_t offset = port;
 			off_t offret;
 
 			offret = lseek(fd, offset, SEEK_SET);
@@ -246,7 +271,7 @@ static int stress_ioport(stress_args_t *args)
 		/*
 		 *  Exercise invalid ioperm settings
 		 */
-		if (stress_ioport_ioperm(args, IO_PORT, 0, 1) < 0) {
+		if (stress_ioport_ioperm(args, port, 0, 1) < 0) {
 			rc = EXIT_FAILURE;
 			break;
 		}
@@ -254,7 +279,7 @@ static int stress_ioport(stress_args_t *args)
 			rc = EXIT_FAILURE;
 			break;
 		}
-		if (stress_ioport_ioperm(args, IO_PORT, ~0UL, 1) < 0) {
+		if (stress_ioport_ioperm(args, port, ~0UL, 1) < 0) {
 			rc = EXIT_FAILURE;
 			break;
 		}
@@ -296,19 +321,19 @@ static int stress_ioport(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	rate = count_in > 0.0 ? duration_in / count_in : 0.0;
-	(void)snprintf(msg, sizeof(msg), "nanosecs per inb(0x%x) op", IO_PORT);
+	(void)snprintf(msg, sizeof(msg), "nanosecs per inb(0x%x) op", port);
 	stress_metrics_set(args, 0, msg,
 		rate * STRESS_DBL_NANOSECOND, STRESS_METRIC_HARMONIC_MEAN);
 
 	rate = count_out > 0.0 ? duration_out / count_out : 0.0;
-	(void)snprintf(msg, sizeof(msg), "nanosecs per outb(0x%x) op", IO_PORT);
+	(void)snprintf(msg, sizeof(msg), "nanosecs per outb(0x%x) op", port);
 	stress_metrics_set(args, 1, msg,
 		rate * STRESS_DBL_NANOSECOND, STRESS_METRIC_HARMONIC_MEAN);
 
 	if (fd >= 0)
 		(void)close(fd);
 
-	(void)ioperm(IO_PORT, 1, 0);
+	(void)ioperm(port, 1, 0);
 
 	return rc;
 }

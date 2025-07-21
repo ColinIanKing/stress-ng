@@ -646,6 +646,7 @@ typedef enum {
 	OPT_ioport,
 	OPT_ioport_ops,
 	OPT_ioport_opts,
+	OPT_ioport_port,
 
 	OPT_ionice_class,
 	OPT_ionice_level,
