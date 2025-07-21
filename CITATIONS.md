@@ -73,6 +73,7 @@
 * [Low Energy Consumption on Post-Moore Platforms for HPC Research](https://revistas.usfq.edu.ec/index.php/avances/article/download/2108/2919/18081)
 * [Managing Latency in Edge-Cloud Environment](https://s2group.cs.vu.nl/files/pubs/2020-JSS-IG-Edge_Cloud.pdf)
 * [Demystifying the Real-Time Linux Scheduling Latency](https://bristot.me/files/research/papers/ecrts2020/deOliveira2020Demystifying.pdf)
+* [Latency-aware Resource Management in Data Centres](https://ntnuopen.ntnu.no/ntnu-xmlui/bitstream/handle/11250/2777859/no.ntnu%3Ainspera%3A57320302%3A34511143.pdf)
 
 2021:
 * [Streamline: A Fast, Flushless Cache Covert-Channel Attack by Enabling Asynchronous Collusion](https://dl.acm.org/doi/pdf/10.1145/3445814.3446742)
