@@ -880,7 +880,6 @@ static void NORETURN stress_usage(void)
 		"Note: sizes can be suffixed with B, K, M, G and times with "
 		"s, m, h, d, y\n", g_app_name);
 	stress_settings_free();
-	stress_temp_path_free();
 	exit(EXIT_SUCCESS);
 }
 
@@ -3341,8 +3340,7 @@ next_opt:
 				exit(EXIT_FAILURE);
 			break;
 		case OPT_temp_path:
-			if (stress_set_temp_path(optarg) < 0)
-				exit(EXIT_FAILURE);
+			stress_set_setting_global("temp-path", TYPE_ID_STR, optarg);
 			break;
 		case OPT_timeout:
 			g_opt_timeout = stress_get_uint64_time(optarg);
@@ -3772,13 +3770,11 @@ int main(int argc, char **argv, char **envp)
 
 	stress_fixup_stressor_names();
 
-	if (stress_set_temp_path(".") < 0)
-		exit(EXIT_FAILURE);
 	stress_set_proc_name_init(argc, argv, envp);
 
 	if (setjmp(g_error_env) == 1) {
 		ret = EXIT_FAILURE;
-		goto exit_temp_path_free;
+		goto exit_ret;
 	}
 
 	yaml = NULL;
@@ -3786,7 +3782,7 @@ int main(int argc, char **argv, char **envp)
 	/* --exec stressor uses this to exec itself and then exit early */
 	if ((argc == 2) && !strcmp(argv[1], "--exec-exit")) {
 		ret = EXIT_SUCCESS;
-		goto exit_temp_path_free;
+		goto exit_ret;
 	}
 
 	stress_stressor_list.head = NULL;
@@ -4166,7 +4162,6 @@ int main(int argc, char **argv, char **envp)
 	stress_cache_free();
 	stress_shared_unmap();
 	stress_settings_free();
-	stress_temp_path_free();
 
 	/*
 	 *  Close logs
@@ -4205,7 +4200,6 @@ exit_stressors_free:
 exit_settings_free:
 	stress_settings_free();
 
-exit_temp_path_free:
-	stress_temp_path_free();
+exit_ret:
 	exit(ret);
 }

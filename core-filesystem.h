@@ -21,8 +21,6 @@
 
 #include "stress-ng.h"
 
-extern void stress_temp_path_free(void);
-extern WARN_UNUSED int stress_set_temp_path(const char *path);
 extern WARN_UNUSED const char *stress_get_temp_path(void);
 extern WARN_UNUSED int stress_check_temp_path(void);
 extern size_t stress_mk_filename(char *fullname, const size_t fullname_len,

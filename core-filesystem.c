@@ -345,52 +345,17 @@ static const stress_fs_name_t stress_fs_names[] = {
 };
 #endif
 
-static char *stress_temp_path;
-
-/*
- *  stress_temp_path_free()
- *	free and NULLify temporary file path
- */
-void stress_temp_path_free(void)
-{
-	if (stress_temp_path)
-		free(stress_temp_path);
-
-	stress_temp_path = NULL;
-}
-
-/*
- *  stress_set_temp_path()
- *	set temporary file path, default
- *	is . - current dir
- */
-int stress_set_temp_path(const char *path)
-{
-	static const char *func = "stress_set_temp_path";
-	stress_temp_path_free();
-
-	if (!path) {
-		(void)fprintf(stderr, "%s: invalid NULL path\n", func);
-		return -1;
-	}
-
-	stress_temp_path = stress_const_optdup(path);
-	if (!stress_temp_path) {
-		(void)fprintf(stderr, "%s: aborting: cannot allocate memory for '%s'\n", func, path);
-		return -1;
-	}
-	return 0;
-}
-
 /*
  *  stress_get_temp_path()
  *	get temporary file path, return "." if null
  */
 inline const char *stress_get_temp_path(void)
 {
-	if (!stress_temp_path)
+	char *path;
+
+	if (!stress_get_setting("temp-path", &path))
 		return ".";
-	return stress_temp_path;
+	return path;
 }
 
 /*
