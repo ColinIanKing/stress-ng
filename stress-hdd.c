@@ -659,7 +659,7 @@ static int stress_hdd(stress_args_t *args)
 	int rc = EXIT_FAILURE;
 	ssize_t ret;
 	char filename[PATH_MAX];
-	size_t opt_index = 0;
+	size_t opt_index = 0, max_extents = 0;
 	uint64_t hdd_bytes, hdd_bytes_total = DEFAULT_HDD_BYTES;
 	uint64_t hdd_write_size = DEFAULT_HDD_WRITE_SIZE;
 	const uint32_t instance = args->instance;
@@ -778,6 +778,7 @@ static int stress_hdd(stress_args_t *args)
 		struct stat statbuf;
 		uint64_t hdd_bytes_max = 0;
 		const char *fs_type;
+		size_t extents;
 
 		/*
 		 * aggressive option with no other option enables
@@ -1067,6 +1068,9 @@ rnd_rd_retry:
 				pr_fail("%s: incorrect data found %" PRIu64 " times\n",
 					args->name, baddata);
 		}
+		extents = stress_get_extents(fd);
+		if (extents > max_extents)
+			max_extents = extents;
 
 		(void)close(fd);
 	} while (stress_continue(args));
@@ -1089,6 +1093,9 @@ finish:
 	rate = (hdd_rdwr_duration > 0.0) ? hdd_rdwr_bytes / hdd_rdwr_duration : 0.0;
 	stress_metrics_set(args, 2, "MB/sec read/write combined rate",
 		rate / (double)MB, STRESS_METRIC_HARMONIC_MEAN);
+
+	stress_metrics_set(args, 3, "max extents per file",
+		(double)max_extents, STRESS_METRIC_GEOMETRIC_MEAN);
 
 	free(alloc_buf);
 	(void)stress_temp_dir_rm_args(args);
