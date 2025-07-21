@@ -131,17 +131,17 @@ static const stress_fs_name_t stress_fs_names[] = {
 #if defined(EROFS_SUPER_MAGIC_V1)
 	{ EROFS_SUPER_MAGIC_V1,	"erofs" },
 #endif
-#if defined(EXT2_SUPER_MAGIC)
-	{ EXT2_SUPER_MAGIC,	"ext2" },
+#if defined(EXT4_SUPER_MAGIC)
+	{ EXT4_SUPER_MAGIC,	"ext4" },
 #endif
 #if defined(EXT3_SUPER_MAGIC)
 	{ EXT3_SUPER_MAGIC,	"ext3" },
 #endif
+#if defined(EXT2_SUPER_MAGIC)
+	{ EXT2_SUPER_MAGIC,	"ext2" },
+#endif
 #if defined(XENFS_SUPER_MAGIC)
 	{ XENFS_SUPER_MAGIC,	"xenfs" },
-#endif
-#if defined(EXT4_SUPER_MAGIC)
-	{ EXT4_SUPER_MAGIC,	"ext4" },
 #endif
 #if defined(BTRFS_SUPER_MAGIC)
 	{ BTRFS_SUPER_MAGIC,	"btrfs" },
@@ -1294,7 +1294,8 @@ static const char *stress_get_fs_dev_model(const char *filename)
 #if defined(HAVE_SYS_SYSMACROS_H) &&	\
     defined(__linux__)
 	struct stat statbuf;
-	static char buf[256];
+	char dev[1024];
+	static char buf[1024];
 	char path[PATH_MAX];
 
 	if (UNLIKELY(!filename))
@@ -1302,10 +1303,10 @@ static const char *stress_get_fs_dev_model(const char *filename)
 	if (UNLIKELY(shim_stat(filename, &statbuf) < 0))
 		return NULL;
 
-	if (!stress_find_partition_dev(major(statbuf.st_dev), 0, buf, sizeof(buf)))
+	if (!stress_find_partition_dev(major(statbuf.st_dev), 0, dev, sizeof(dev)))
 		return NULL;
 
-	(void)snprintf(path, sizeof(path), "/sys/block/%s/device/model", buf);
+	(void)snprintf(path, sizeof(path), "/sys/block/%s/device/model", dev);
 	if (stress_system_read(path, buf, sizeof(buf)) > 0) {
 		char *ptr;
 
@@ -1320,9 +1321,13 @@ static const char *stress_get_fs_dev_model(const char *filename)
 			*ptr = '\0';
 			ptr--;
 		}
+		/* resolved to device model */
 		return buf;
 	}
-	return NULL;
+	/* can't resolve, return device */
+	(void)snprintf(buf, sizeof(buf), "/dev/%s", dev);
+	(void)strlcpy(dev, buf, sizeof(dev));
+	return buf;
 #else
 	(void)filename;
 	return NULL;
