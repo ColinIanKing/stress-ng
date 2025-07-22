@@ -29,6 +29,6 @@ typedef struct {
 typedef void (*stress_ret_func_t)(void);
 
 extern const stress_ret_opcode_t stress_ret_opcode;
-extern int stress_asm_ret_supported(const char *name);
+extern WARN_UNUSED int stress_asm_ret_supported(const char *name);
 
 #endif
