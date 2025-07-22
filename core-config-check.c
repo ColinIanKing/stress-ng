@@ -17,12 +17,57 @@
  *
  */
 #include "stress-ng.h"
+#include "core-arch.h"
+#include "core-asm-x86.h"
 #include "core-config-check.h"
+#include "core-cpu.h"
+#include "core-put.h"
+#include "core-signal.h"
 
 #include <ctype.h>
 
 #if defined(HAVE_TERMIO_H)
 #include <termio.h>
+#endif
+
+#if defined(STRESS_ARCH_X86) &&		\
+    defined(HAVE_ASM_X86_LAHF)
+
+static volatile bool stress_config_sigill_trapped;
+
+static void stress_config_sigill_handler(int sig)
+{
+	(void)sig;
+
+	stress_config_sigill_trapped = true;
+}
+
+/*
+ *  stress_config_check_lahf_lm()
+ *	check if x86-64 has lahf_lm CPU flag set and if so check
+ *	if lahf opcode works without triggering a SIGILL as can
+ *	occur on the Apple Rosetta 2 emulator of x86-64
+ */
+static void stress_config_check_lahf_lm(void)
+{
+	if (stress_cpu_x86_has_lahf_lm()) {
+		uint8_t value;
+		struct sigaction old_action;
+
+		stress_config_sigill_trapped = false;
+
+		if (stress_sighandler(__func__, SIGILL, stress_config_sigill_handler, &old_action) < 0)
+			return;
+
+		value = stress_asm_lahf();
+		stress_uint8_put(value);
+
+		(void)sigaction(SIGILL, &old_action, NULL);
+
+		if (stress_config_sigill_trapped)
+			pr_warn("note: x86 processor CPUID lahf_lm bit set but the lahf opcode causes an illegal opcode trap\n");
+	}
+}
 #endif
 
 #if defined(__linux__)
@@ -134,4 +179,11 @@ void stress_config_check(void)
 		pr_inf("note: system has only %zu MB of free memory and swap, "
 			"recommend using --oom-avoid\n", freetotal / (size_t)MB);
 	}
+
+	/* Now CPU specific functional checks */
+#if defined(STRESS_ARCH_X86_64) &&	\
+    defined(HAVE_ASM_X86_LAHF)
+	stress_config_check_lahf_lm();
+#endif
+
 }

@@ -372,5 +372,20 @@ static inline void ALWAYS_INLINE stress_ds_store64(void *ptr, const uint64_t val
 }
 #endif
 
+#if defined(STRESS_ARCH_X86) &&	\
+    defined(HAVE_ASM_X86_LAHF)
+static inline uint8_t ALWAYS_INLINE stress_asm_lahf(void)
+{
+	uint8_t value;
+
+	__asm__ __volatile__("lahf;\n"
+			     "mov %%ah, %0;\n"
+			     : "=r" (value)
+			     :
+			     : "ah");
+	return value;
+}
+#endif
+
 /* #ifndef CORE_ASM_X86_H */
 #endif
