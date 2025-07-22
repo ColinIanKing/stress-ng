@@ -305,6 +305,19 @@ static int stress_fpunch(stress_args_t *args)
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			fpunch_bytes_total = MIN_FPUNCH_BYTES;
 	}
+	if (fpunch_bytes_total < MIN_FPUNCH_BYTES) {
+		fpunch_bytes_total = MIN_FPUNCH_BYTES;
+		if (stress_instance_zero(args))
+			pr_inf("%s: --fpunch-bytes too small, using %" PRIu64 " instead\n",
+				args->name, fpunch_bytes_total);
+	}
+	if (fpunch_bytes_total > MAX_FPUNCH_BYTES) {
+		fpunch_bytes_total = MAX_FPUNCH_BYTES;
+		if (stress_instance_zero(args))
+			pr_inf("%s: --fpunch-bytes too large, using %" PRIu64 " instead\n",
+				args->name, fpunch_bytes_total);
+	}
+
 	fpunch_bytes = fpunch_bytes_total / args->instances;
 	if (stress_instance_zero(args))
 		stress_fs_usage_bytes(args, fpunch_bytes, fpunch_bytes_total);

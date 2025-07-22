@@ -396,6 +396,18 @@ static int stress_pseek(stress_args_t *args)
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			info.pseek_io_size = MIN_PSEEKIO_IO_SIZE;
 	}
+	if (info.pseek_io_size < MIN_PSEEKIO_IO_SIZE) {
+		info.pseek_io_size = MIN_PSEEKIO_IO_SIZE;
+		if (stress_instance_zero(args))
+			pr_inf("%s: --pseek-io-size too small, using %" PRIu64 " instead\n",
+				args->name, info.pseek_io_size);
+	}
+	if (info.pseek_io_size > MAX_PSEEKIO_IO_SIZE) {
+		info.pseek_io_size = MAX_PSEEKIO_IO_SIZE;
+		if (stress_instance_zero(args))
+			pr_inf("%s: --pseek-io-size too large, using %" PRIu64 " instead\n",
+				args->name, info.pseek_io_size);
+	}
 
 	for (i = 0; i < pseek_procs; i++) {
 		procs[i].args = args;

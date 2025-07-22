@@ -100,6 +100,19 @@ static int stress_seek(stress_args_t *args)
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			seek_size = MIN_SEEK_SIZE;
 	}
+	if (seek_size < MIN_SEEK_SIZE) {
+		seek_size = MIN_SEEK_SIZE;
+		if (stress_instance_zero(args))
+			pr_inf("%s: --seek-size too small, using %" PRIu64 " instead\n",
+				args->name, seek_size);
+	}
+	if (seek_size > MAX_SEEK_SIZE) {
+		seek_size = MAX_SEEK_SIZE;
+		if (stress_instance_zero(args))
+			pr_inf("%s: --seek-size too large, using %" PRIu64 " instead\n",
+				args->name, seek_size);
+	}
+
 	len = seek_size - sizeof(buf);
 
 	ret = stress_temp_dir_mk_args(args);

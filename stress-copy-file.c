@@ -162,6 +162,18 @@ static int stress_copy_file(stress_args_t *args)
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			copy_file_bytes_total = MIN_COPY_FILE_BYTES;
 	}
+	if (copy_file_bytes_total < MIN_COPY_FILE_BYTES) {
+		copy_file_bytes_total = MIN_COPY_FILE_BYTES;
+		if (stress_instance_zero(args))
+			pr_inf("%s: --copy-file-bytes too small, using %" PRIu64 " instead\n",
+				args->name, copy_file_bytes_total);
+	}
+	if (copy_file_bytes_total > MAX_COPY_FILE_BYTES) {
+		copy_file_bytes_total = MAX_COPY_FILE_BYTES;
+		if (stress_instance_zero(args))
+			pr_inf("%s: --copy-file-bytes too large, using %" PRIu64 " instead\n",
+				args->name, copy_file_bytes_total);
+	}
 
 	copy_file_bytes = copy_file_bytes_total / args->instances;
 	if (copy_file_bytes < DEFAULT_COPY_FILE_SIZE) {

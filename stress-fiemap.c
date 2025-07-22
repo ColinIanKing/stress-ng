@@ -274,6 +274,19 @@ static int stress_fiemap(stress_args_t *args)
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			fiemap_bytes_total = MIN_FIEMAP_SIZE;
 	}
+	if (fiemap_bytes_total < MIN_FIEMAP_SIZE) {
+		fiemap_bytes_total = MIN_FIEMAP_SIZE;
+		if (stress_instance_zero(args))
+			pr_inf("%s: --fiemap-bytes too small, using %" PRIu64 " instead\n",
+				args->name, fiemap_bytes_total);
+	}
+	if (fiemap_bytes_total > MAX_FIEMAP_SIZE) {
+		fiemap_bytes_total = MAX_FIEMAP_SIZE;
+		if (stress_instance_zero(args))
+			pr_inf("%s: --fiemap-bytes too large, using %" PRIu64 " instead\n",
+				args->name, fiemap_bytes_total);
+	}
+
 	fiemap_bytes = fiemap_bytes_total / args->instances;
 	if (fiemap_bytes < MIN_FIEMAP_SIZE) {
 		fiemap_bytes = MIN_FIEMAP_SIZE;

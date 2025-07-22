@@ -684,6 +684,18 @@ static int stress_hdd(stress_args_t *args)
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			hdd_bytes_total = MIN_HDD_BYTES;
 	}
+	if (hdd_bytes_total < MIN_HDD_BYTES) {
+		hdd_bytes_total = MIN_HDD_BYTES;
+		if (stress_instance_zero(args))
+			pr_inf("%s: --hdd-bytes too small, using %" PRIu64 " instead\n",
+				args->name, hdd_bytes_total);
+	}
+	if (hdd_bytes_total > MAX_HDD_BYTES) {
+		hdd_bytes_total = MAX_HDD_BYTES;
+		if (stress_instance_zero(args))
+			pr_inf("%s: --hdd-bytes too large, using %" PRIu64 " instead\n",
+				args->name, hdd_bytes_total);
+	}
 
 	hdd_bytes = hdd_bytes_total / args->instances;
 	if (hdd_bytes < MIN_HDD_WRITE_SIZE) {

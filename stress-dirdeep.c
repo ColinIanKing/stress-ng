@@ -53,7 +53,7 @@ static void stress_dirdeep_inodes(const char *opt_name, const char *opt_arg, str
 		pr_inf("%s: cannot determine number of available free inodes, defaulting to maximum allowed%s\n", opt_name, type);
 		*dirdeep_inodes = ~0ULL;
 	} else {
-		*dirdeep_inodes = stress_get_uint64_percent(opt_arg, 1, inodes,
+		*dirdeep_inodes = stress_get_uint64_percent(opt_arg, 1, inodes, NULL,
 			"cannot determine number of available free inodes");
 	}
 }

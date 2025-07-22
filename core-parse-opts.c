@@ -486,6 +486,7 @@ uint64_t stress_get_uint64_percent(
 	const char *const str,
 	const uint32_t instances,
 	const uint64_t max,
+	bool *percentage,
 	const char *const errmsg)
 {
 	const size_t len = strlen(str);
@@ -510,12 +511,20 @@ uint64_t stress_get_uint64_percent(
 			longjmp(g_error_env, 1);
 		}
 		if (val < 0.0) {
-			(void)fprintf(stderr, "Invalid percentage %s\n", str);
+			(void)fprintf(stderr, "Invalid negative percentage %s\n", str);
 			longjmp(g_error_env, 1);
 		}
 		percent = ((double)max * (double)val) / (100.0 * (double)instances);
+		if (percentage)
+			*percentage = true;
+		if (percent > UINT64_MAX) {
+			(void)fprintf(stderr, "Invalid too large percentage %s\n", str);
+			longjmp(g_error_env, 1);
+		}
 		return (uint64_t)percent;
 	}
+	if (percentage)
+		*percentage = false;
 	return stress_get_uint64_byte(str);
 }
 
@@ -543,6 +552,10 @@ int32_t stress_get_int32_instance_percent(const char *const str)
 			val = (double)cpus * val / 100.0;
 			if (val < 1.0)
 				return 1;
+			if (val > INT32_MAX) {
+				(void)fprintf(stderr, "Invalid too large percentage %s\n", str);
+				longjmp(g_error_env, 1);
+			}
 			return (int32_t)val;
 		} else {
 			return 0;
@@ -563,8 +576,9 @@ uint64_t stress_get_uint64_byte_memory(
 	const uint32_t instances)
 {
 	const uint64_t phys_mem = stress_get_phys_mem_size();
+	bool percentage;
 
-	return stress_get_uint64_percent(str, instances, phys_mem,
+	return stress_get_uint64_percent(str, instances, phys_mem, &percentage,
 		"Cannot determine physical memory size");
 }
 
@@ -575,13 +589,12 @@ uint64_t stress_get_uint64_byte_memory(
  *	file system space scaled by that percentage divided
  *	by the number of stressor instances
  */
-uint64_t stress_get_uint64_byte_filesystem(
+static uint64_t stress_get_uint64_byte_filesystem(
 	const char *const str,
-	const uint32_t instances)
+	const uint32_t instances,
+	bool *percentage)
 {
-	const uint64_t bytes = stress_get_filesystem_size();
-
-	return stress_get_uint64_percent(str, instances, bytes,
+	return stress_get_uint64_percent(str, instances, 100, percentage,
 		"Cannot determine available space on file system");
 }
 
@@ -615,6 +628,7 @@ int stress_parse_opt(const char *stressor_name, const char *opt_arg, const stres
 	stress_type_id_t type_id;
 	const char *str;
 	size_t i;
+	bool percentage = false;
 
 	(void)shim_memset(&setting, 0, sizeof(setting));
 
@@ -649,7 +663,9 @@ int stress_parse_opt(const char *stressor_name, const char *opt_arg, const stres
 		return stress_set_setting(stressor_name, opt_name, TYPE_ID_UINT64, &setting.u.uint64);
 	case TYPE_ID_UINT64_BYTES_FS:
 		/* uint64 in bytes units */
-		setting.u.uint64 = stress_get_uint64_byte_filesystem(opt_arg, 1);
+		setting.u.uint64 = stress_get_uint64_byte_filesystem(opt_arg, 1, &percentage);
+		if (percentage)
+			return stress_set_setting(stressor_name, opt_name, TYPE_ID_UINT64_BYTES_FS_PERCENT, &setting.u.uint64);
 		stress_check_range_bytes(opt_name, (uint64_t)setting.u.uint64, min, max);
 		return stress_set_setting(stressor_name, opt_name, TYPE_ID_UINT64_BYTES_FS, &setting.u.uint64);
 	case TYPE_ID_UINT64_BYTES_VM:
@@ -667,7 +683,9 @@ int stress_parse_opt(const char *stressor_name, const char *opt_arg, const stres
 		return stress_set_setting(stressor_name, opt_name, TYPE_ID_SIZE_T, &setting.u.size);
 	case TYPE_ID_SIZE_T_BYTES_FS:
 		/* size_t in bytes units */
-		setting.u.size = (size_t)stress_get_uint64_byte_filesystem(opt_arg, 1);
+		setting.u.size = (size_t)stress_get_uint64_byte_filesystem(opt_arg, 1, &percentage);
+		if (percentage)
+			return stress_set_setting(stressor_name, opt_name, TYPE_ID_SIZE_T_BYTES_FS_PERCENT, &setting.u.size);
 		stress_check_range(opt_name, (uint64_t)setting.u.size, min, max);
 		return stress_set_setting(stressor_name, opt_name, TYPE_ID_SIZE_T_BYTES_FS, &setting.u.size);
 	case TYPE_ID_SIZE_T_BYTES_VM:
@@ -716,7 +734,7 @@ int stress_parse_opt(const char *stressor_name, const char *opt_arg, const stres
 		return stress_set_setting(stressor_name, opt_name, TYPE_ID_INT, &setting.u.sint);
 	case TYPE_ID_OFF_T:
 		/* off_t always in bytes units */
-		setting.u.off = (off_t)stress_get_uint64_byte_filesystem(opt_arg, 1);
+		setting.u.off = (off_t)stress_get_uint64_byte_filesystem(opt_arg, 1, &percentage);
 		stress_check_range_bytes(opt_name, (uint64_t)setting.u.off, min, max);
 		return stress_set_setting(stressor_name, opt_name, TYPE_ID_OFF_T, &setting.u.off);
 	case TYPE_ID_STR:

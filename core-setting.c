@@ -81,6 +81,11 @@ static void stress_settings_show_setting(
 		pr_func(" %-20.20s %" PRIu64 "%s\n", setting->name,
 			setting->u.uint64, show_type ? " (uint64_t)" : "");
 		break;
+	case TYPE_ID_UINT64_BYTES_FS_PERCENT:
+		pr_func(" %-20.20s %s%% %s\n", setting->name,
+			stress_uint64_to_str(tmp, sizeof(tmp), setting->u.uint64, 1, false),
+			show_type ? " (uint64_t)" : "");
+		break;
 	case TYPE_ID_UINT64_BYTES_FS:
 	case TYPE_ID_UINT64_BYTES_VM:
 		pr_func(" %-20.20s %s %s\n", setting->name,
@@ -95,6 +100,11 @@ static void stress_settings_show_setting(
 	case TYPE_ID_SIZE_T_METHOD:
 		pr_func(" %-20.20s %zu %s\n", setting->name,
 			setting->u.size, show_type ? " (size_t)" : "");
+		break;
+	case TYPE_ID_SIZE_T_BYTES_FS_PERCENT:
+		pr_func(" %-20.20s %s%% %s\n", setting->name,
+			stress_uint64_to_str(tmp, sizeof(tmp), (uint64_t)setting->u.size, 1, false),
+			show_type ? " (size_t)" : "");
 		break;
 	case TYPE_ID_SIZE_T_BYTES_FS:
 	case TYPE_ID_SIZE_T_BYTES_VM:
@@ -253,6 +263,7 @@ static int stress_set_setting_generic(
 	case TYPE_ID_INT32:
 		setting->u.int32 = *(const int32_t *)value;
 		break;
+	case TYPE_ID_UINT64_BYTES_FS_PERCENT:
 	case TYPE_ID_UINT64:
 	case TYPE_ID_UINT64_BYTES_FS:
 	case TYPE_ID_UINT64_BYTES_VM:
@@ -263,6 +274,7 @@ static int stress_set_setting_generic(
 		break;
 	case TYPE_ID_SIZE_T:
 	case TYPE_ID_SIZE_T_BYTES_FS:
+	case TYPE_ID_SIZE_T_BYTES_FS_PERCENT:
 	case TYPE_ID_SIZE_T_BYTES_VM:
 	case TYPE_ID_SIZE_T_METHOD:
 		setting->u.size = *(const size_t *)value;
@@ -386,6 +398,10 @@ bool stress_get_setting(const char *name, void *value)
 				set = true;
 				*(uint64_t *)value = setting->u.uint64;
 				break;
+			case TYPE_ID_UINT64_BYTES_FS_PERCENT:
+				set = true;
+				*(uint64_t *)value = setting->u.uint64 * (stress_get_filesystem_size() / 100);
+				break;
 			case TYPE_ID_INT64:
 				set = true;
 				*(int64_t *)value = setting->u.int64;
@@ -396,6 +412,10 @@ bool stress_get_setting(const char *name, void *value)
 			case TYPE_ID_SIZE_T_METHOD:
 				set = true;
 				*(size_t *)value = setting->u.size;
+				break;
+			case TYPE_ID_SIZE_T_BYTES_FS_PERCENT:
+				set = true;
+				*(size_t *)value = setting->u.size * (stress_get_filesystem_size() / 100);
 				break;
 			case TYPE_ID_SSIZE_T:
 				set = true;

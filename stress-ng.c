@@ -3239,7 +3239,7 @@ next_opt:
 			break;
 		case OPT_max_fd:
 			max_fds = (uint64_t)stress_get_file_limit();
-			u64 = stress_get_uint64_percent(optarg, 1, max_fds,
+			u64 = stress_get_uint64_percent(optarg, 1, max_fds, NULL,
 				"cannot determine maximum file descriptor limit");
 			stress_check_range(optarg, u64, 8, max_fds);
 			stress_set_setting_global("max-fd", TYPE_ID_UINT64, &u64);

@@ -108,6 +108,19 @@ static int stress_readahead(stress_args_t *args)
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			readahead_bytes_total = MIN_READAHEAD_BYTES;
 	}
+	if (readahead_bytes_total < MIN_READAHEAD_BYTES) {
+		readahead_bytes_total = MIN_READAHEAD_BYTES;
+		if (stress_instance_zero(args))
+			pr_inf("%s: --readahead bytes too small, using %" PRIu64 " instead\n",
+				args->name, readahead_bytes_total);
+	}
+	if (readahead_bytes_total > MAX_READAHEAD_BYTES) {
+		readahead_bytes_total = MAX_READAHEAD_BYTES;
+		if (stress_instance_zero(args))
+			pr_inf("%s: --readahead-bytes too large, using %" PRIu64 " instead\n",
+				args->name, readahead_bytes_total);
+	}
+
 	readahead_bytes = readahead_bytes_total / args->instances;
 	if (readahead_bytes < MIN_READAHEAD_BYTES) {
 		readahead_bytes = MIN_READAHEAD_BYTES;

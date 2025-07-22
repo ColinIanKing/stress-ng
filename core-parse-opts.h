@@ -68,10 +68,8 @@ extern WARN_UNUSED uint64_t stress_get_uint64_byte_scale(const char *const str);
 
 extern WARN_UNUSED uint64_t stress_get_uint64_byte(const char *const str);
 extern WARN_UNUSED uint64_t stress_get_uint64_percent(const char *const str,
-	const uint32_t instances, const uint64_t max, const char *const errmsg);
+	const uint32_t instances, const uint64_t max, bool *percentage, const char *const errmsg);
 extern WARN_UNUSED uint64_t stress_get_uint64_byte_memory(const char *const str,
-	const uint32_t instances);
-extern WARN_UNUSED uint64_t stress_get_uint64_byte_filesystem(const char *const str,
 	const uint32_t instances);
 extern WARN_UNUSED uint64_t stress_get_uint64_time(const char *const str);
 extern WARN_UNUSED int stress_parse_opt(const char *stressor_name, const char *optarg, const stress_opt_t *opt);

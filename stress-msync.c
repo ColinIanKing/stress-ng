@@ -122,6 +122,19 @@ static int stress_msync(stress_args_t *args)
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			msync_bytes_total = MIN_MSYNC_BYTES;
 	}
+	if (msync_bytes_total < MIN_MSYNC_BYTES) {
+		msync_bytes_total = MIN_MSYNC_BYTES;
+		if (stress_instance_zero(args))
+			pr_inf("%s: --msync-bytes too small, using %" PRIu64 " instead\n",
+				args->name, msync_bytes_total);
+	}
+	if (msync_bytes_total > MAX_MSYNC_BYTES) {
+		msync_bytes_total = MAX_MSYNC_BYTES;
+		if (stress_instance_zero(args))
+			pr_inf("%s: --msync-bytes too large, using %" PRIu64 " instead\n",
+				args->name, msync_bytes_total);
+	}
+
 	msync_bytes = msync_bytes_total / args->instances;
 	if (msync_bytes < MIN_MSYNC_BYTES)
 		msync_bytes = MIN_MSYNC_BYTES;
