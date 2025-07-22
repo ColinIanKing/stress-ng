@@ -3938,7 +3938,7 @@ int main(int argc, char **argv, char **envp)
 	 */
 	stress_set_random_stressors();
 
-	(void)stress_ftrace_start();
+	stress_ftrace_start();
 #if defined(STRESS_PERF_STATS) &&	\
     defined(HAVE_LINUX_PERF_EVENT_H)
 	if (g_opt_flags & OPT_FLAGS_PERF_STATS)

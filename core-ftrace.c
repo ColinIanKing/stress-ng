@@ -299,32 +299,32 @@ void stress_ftrace_add_pid(const pid_t pid)
  *  stress_ftrace_start()
  *	start ftracing function calls
  */
-int stress_ftrace_start(void)
+void stress_ftrace_start(void)
 {
 	const char *path;
 	char filename[PATH_MAX];
 
 	if (!(g_opt_flags & OPT_FLAGS_FTRACE))
-		return 0;
+		return;
 
 	RB_INIT(&rb_root);
 
 	if (!stress_check_capability(SHIM_CAP_SYS_ADMIN)) {
 		pr_inf("ftrace: requires CAP_SYS_ADMIN capability for tracing\n");
-		return -1;
+		return;
 	}
 
 	path = stress_ftrace_get_debugfs_path();
 	if (!path) {
 		pr_inf("ftrace: cannot find a mounted debugfs\n");
-		return -1;
+		return;
 	}
 
 	(void)snprintf(filename, sizeof(filename), "%s/tracing/function_profile_enabled", path);
 	if (stress_system_write(filename, "0", 1) < 0) {
 		pr_inf("ftrace: cannot enable function profiling, cannot write to '%s', errno=%d (%s)\n",
 			filename, errno, strerror(errno));
-		return -1;
+		return;
 	}
 	stress_ftrace_add_pid(-1);
 	stress_ftrace_add_pid(getpid());
@@ -332,14 +332,12 @@ int stress_ftrace_start(void)
 	if (stress_system_write(filename, "1", 1) < 0) {
 		pr_inf("ftrace: cannot enable function profiling, cannot write to '%s', errno=%d (%s)\n",
 			filename, errno, strerror(errno));
-		return -1;
+		return;
 	}
 	if (stress_ftrace_parse_stat_files(path, true) < 0)
-		return -1;
+		return;
 
 	tracing_enabled = true;
-
-	return 0;
 }
 
 /*
@@ -358,8 +356,8 @@ static inline bool PURE strace_ftrace_is_syscall(const char *func_name)
 }
 
 /*
- *  stress_ftrace_start()
- *	start ftracing function calls
+ *  stress_ftrace_analyze()
+ *	dump ftrace analysis
  */
 static void stress_ftrace_analyze(void)
 {
@@ -389,7 +387,7 @@ static void stress_ftrace_analyze(void)
 }
 
 /*
- *  stress_ftrace_start()
+ *  stress_ftrace_stop()
  *	stop ftracing function calls and analyze the collected
  *	stats
  */
@@ -432,14 +430,12 @@ void stress_ftrace_free(void)
 {
 }
 
-int stress_ftrace_start(void)
+void stress_ftrace_start(void)
 {
 	if (!(g_opt_flags & OPT_FLAGS_FTRACE))
-		return 0;
+		return;
 	pr_inf("ftrace: this option is not implemented on this system: %s %s\n",
 		stress_get_uname_info(), stress_get_compiler());
-
-	return 0;
 }
 
 void stress_ftrace_stop(void)
