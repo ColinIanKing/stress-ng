@@ -216,8 +216,66 @@
 #define CPUID_bhi_ctrl_EDX	(1U << 4)	/* EAX=0x7, ECX=0x2, -> EDX */
 #define CPUID_mcdt_no_EDX	(1U << 5)	/* EAX=0x7, ECX=0x2, -> EDX */
 
-#define CPUID_syscall_EDX	(1U << 11)	/* EAX=0x80000001 -> EDX */
-#define CPUID_rdtscp		(1U << 27)	/* EAX=0x80000001 -> EDX */
+#define CPUID_amd_fpu_EDX	(1U << 0)	/* EAX=0800000001 -> EDX */
+#define CPUID_amd_vme_EDX	(1U << 1)	/* EAX=0800000001 -> EDX */
+#define CPUID_amd_de_EDX	(1U << 2)	/* EAX=0800000001 -> EDX */
+#define CPUID_amd_pse_EDX	(1U << 3)	/* EAX=0800000001 -> EDX */
+#define CPUID_amd_tsc_EDX	(1U << 4)	/* EAX=0800000001 -> EDX */
+#define CPUID_amd_msr_EDX	(1U << 5)	/* EAX=0800000001 -> EDX */
+#define CPUID_amd_pae_EDX	(1U << 6)	/* EAX=0800000001 -> EDX */
+#define CPUID_amd_mce_EDX	(1U << 7)	/* EAX=0800000001 -> EDX */
+#define CPUID_amd_cx8_EDX	(1U << 8)	/* EAX=0800000001 -> EDX */
+#define CPUID_amd_apic_EDX	(1U << 9)	/* EAX=0800000001 -> EDX */
+#define CPUID_amd_syscall_k6_EDX (1U << 10)	/* EAX=0800000001 -> EDX */
+#define CPUID_amd_syscall_EDX	(1U << 11)	/* EAX=0x80000001 -> EDX */
+#define CPUID_amd_mtrr_EDX	(1U << 12)	/* EAX=0800000001 -> EDX */
+#define CPUID_amd_pge_EDX	(1U << 13)	/* EAX=0800000001 -> EDX */
+#define CPUID_amd_mca_EDX	(1U << 14)	/* EAX=0800000001 -> EDX */
+#define CPUID_amd_cmov_EDX	(1U << 15)	/* EAX=0800000001 -> EDX */
+#define CPUID_amd_pat_EDX	(1U << 16)	/* EAX=0800000001 -> EDX */
+#define CPUID_amd_pse36_EDX	(1U << 17)	/* EAX=0800000001 -> EDX */
+#define CPUID_amd_ecc_EDX	(1U << 19)	/* EAX=0800000001 -> EDX */
+#define CPUID_amd_nx_EDX	(1U << 20)	/* EAX=0800000001 -> EDX */
+#define CPUID_amd_mmxext_EDX	(1U << 22)	/* EAX=0800000001 -> EDX */
+#define CPUID_amd_mmx_EDX	(1U << 23)	/* EAX=0800000001 -> EDX */
+#define CPUID_amd_fxsr_EDX	(1U << 24)	/* EAX=0800000001 -> EDX */
+#define CPUID_amd_fxsr_opt_EDX	(1U << 25)	/* EAX=0800000001 -> EDX */
+#define CPUID_amd_pdpe1ge_EDX	(1U << 26)	/* EAX=0800000001 -> EDX */
+#define CPUID_amd_rdtscp_EDX	(1U << 27)	/* EAX=0800000001 -> EDX */
+#define CPUID_amd_lm_EDX	(1U << 29)	/* EAX=0800000001 -> EDX */
+#define CPUID_amd_3dnowext_EDX	(1U << 30)	/* EAX=0800000001 -> EDX */
+#define CPUID_amd_3dnow_EDX	(1U << 31)	/* EAX=0800000001 -> EDX */
+
+#define CPUID_amd_lahf_lm_ECX	(1U << 0)	/* EAX=0800000001 -> ECX */
+#define CPUID_amd_cmp_legacy_ECX (1U << 1)	/* EAX=0800000001 -> ECX */
+#define CPUID_amd_svm_ECX	(1U << 2)	/* EAX=0800000001 -> ECX */
+#define CPUID_amd_extapic_ECX	(1U << 3)	/* EAX=0800000001 -> ECX */
+#define CPUID_amd_cr8_legacy_ECX (1U << 4)	/* EAX=0800000001 -> ECX */
+#define CPUID_amd_abm_lzcnt_ECX	(1U << 5)	/* EAX=0800000001 -> ECX */
+#define CPUID_amd_sse4a_ECX	(1U << 6)	/* EAX=0800000001 -> ECX */
+#define CPUID_amd_misalignsse_ECX (1U << 7)	/* EAX=0800000001 -> ECX */
+#define CPUID_amd_3dnowprefetch_ECX (1U << 8)	/* EAX=0800000001 -> ECX */
+#define CPUID_amd_osvw_ECX	(1U << 9)	/* EAX=0800000001 -> ECX */
+#define CPUID_amd_ibs_ECX	(1U << 10)	/* EAX=0800000001 -> ECX */
+#define CPUID_amd_xop_ECX	(1U << 11)	/* EAX=0800000001 -> ECX */
+#define CPUID_amd_skinit_ECX	(1U << 12)	/* EAX=0800000001 -> ECX */
+#define CPUID_amd_wdt_ECX	(1U << 13)	/* EAX=0800000001 -> ECX */
+#define CPUID_amd_lwp_ECX	(1U << 15)	/* EAX=0800000001 -> ECX */
+
+#define CPUID_amd_fma4_ECX	(1U << 16)	/* EAX=0800000001 -> ECX */
+#define CPUID_amd_tce_ECX	(1U << 17)	/* EAX=0800000001 -> ECX */
+#define CPUID_amd_nodeid_msr_ECX (1U << 19)	/* EAX=0800000001 -> ECX */
+#define CPUID_amd_tbm_ECX	(1U << 21)	/* EAX=0800000001 -> ECX */
+#define CPUID_amd_topoext_ECX	(1U << 22)	/* EAX=0800000001 -> ECX */
+#define CPUID_amd_perfctr_core_ECX (1U << 23)	/* EAX=0800000001 -> ECX */
+
+#define CPUID_amd_perfctr_nb_ECX (1U << 24)	/* EAX=0800000001 -> ECX */
+#define CPUID_amd_streamperfmon_ECX (1U << 25)	/* EAX=0800000001 -> ECX */
+#define CPUID_amd_dbx_ECX	(1U << 26)	/* EAX=0800000001 -> ECX */
+#define CPUID_amd_perftsc_ECX	(1U << 27)	/* EAX=0800000001 -> ECX */
+#define CPUID_amd_pcxl2i_ECX	(1U << 28)	/* EAX=0800000001 -> ECX */
+#define CPUID_amd_monitorx_ECX	(1U << 29)	/* EAX=0800000001 -> ECX */
+#define CPUID_amd_addr_mask_ext_ECX (1U << 30)	/* EAX=0800000001 -> ECX */
 
 /*
  *  stress_cpu_is_x86()
@@ -468,11 +526,32 @@ bool stress_cpu_x86_has_syscall(void)
 
 	stress_asm_x86_cpuid(eax, ebx, ecx, edx);
 
-	return !!(edx & CPUID_syscall_EDX);
+	return !!(edx & CPUID_amd_syscall_EDX);
 #else
 	return false;
 #endif
 }
+
+/*
+ *  stress_cpu_x86_has_lahf_lm()
+ *	does x86 cpu support LAHFSAHF in long mode?
+ */
+bool stress_cpu_x86_has_lahf_lm(void)
+{
+#if defined(STRESS_ARCH_X86)
+	uint32_t eax = 0x80000001, ebx = 0, ecx = 0, edx = 0;
+
+	if (!stress_cpu_is_x86())
+		return false;
+
+	stress_asm_x86_cpuid(eax, ebx, ecx, edx);
+
+	return !!(ecx & CPUID_amd_lahf_lm_ECX);
+#else
+	return false;
+#endif
+}
+
 
 /*
  *  stress_cpu_x86_has_rdrand()
@@ -528,7 +607,7 @@ bool stress_cpu_x86_has_rdtscp(void)
 
 	stress_asm_x86_cpuid(eax, ebx, ecx, edx);
 
-	return !!(edx & CPUID_rdtscp);
+	return !!(edx & CPUID_amd_rdtscp_EDX);
 #else
 	return false;
 #endif

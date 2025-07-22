@@ -31,6 +31,7 @@ extern WARN_UNUSED bool stress_cpu_x86_has_clflushopt(void);
 extern WARN_UNUSED bool stress_cpu_x86_has_clwb(void);
 extern WARN_UNUSED bool stress_cpu_x86_has_cldemote(void);
 extern WARN_UNUSED bool stress_cpu_x86_has_clfsh(void);
+extern WARN_UNUSED bool stress_cpu_x86_has_lahf_lm(void);
 extern WARN_UNUSED bool stress_cpu_x86_has_mmx(void);
 extern WARN_UNUSED bool stress_cpu_x86_has_msr(void);
 extern WARN_UNUSED bool stress_cpu_x86_has_prefetchwt1(void);
