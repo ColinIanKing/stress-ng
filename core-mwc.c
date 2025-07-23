@@ -131,6 +131,10 @@ void stress_mwc_reseed(void)
 		struct timeval tv;
 		struct rusage r;
 		double m1, m5, m15;
+		union {
+			double d_now;
+			uint64_t u64_now;
+		} u;
 		int i, n;
 		const uint64_t aux_rnd = stress_aux_random_seed();
 		const uint64_t id = stress_get_machine_id();
@@ -142,7 +146,7 @@ void stress_mwc_reseed(void)
 		if (gettimeofday(&tv, NULL) == 0)
 			mwc.z ^= (uint64_t)tv.tv_sec ^ (uint64_t)tv.tv_usec;
 		mwc.z += ~(p1 - p2);
-		mwc.w += (uint64_t)getpid() ^ (uint64_t)getppid() << 12;
+		mwc.w += shim_rol64n((uint64_t)getpid(), 3) ^ shim_rol64n((uint64_t)getppid(), 1);
 		if (stress_get_load_avg(&m1, &m5, &m15) == 0) {
 			mwc.z += (uint64_t)(128.0 * (m1 + m15));
 			mwc.w += (uint64_t)(256.0 * (m5));
@@ -151,16 +155,32 @@ void stress_mwc_reseed(void)
 			mwc.z += r.ru_utime.tv_usec;
 			mwc.w += r.ru_utime.tv_sec;
 		}
-		mwc.z ^= stress_get_cpu();
-		mwc.w ^= stress_get_phys_mem_size();
+
+		/*
+		 *  Mix in some initial system values
+		 */
+		mwc.z = shim_rol32n(mwc.z, stress_get_cpu() & 0x1f);
+		mwc.w ^= shim_rol32n(mwc.w, stress_get_phys_mem_size() >> 22);
+		mwc.z ^= stress_get_filesystem_size();
+		mwc.z ^= stress_get_kernel_release();
+		mwc.w ^= shim_rol32n(stress_get_ticks_per_second(), 3);
+		mwc.z ^= shim_ror32n(stress_get_processors_online(), 17);
 
 		mwc.z ^= (uint32_t)(id & 0xffffffffULL);
 		mwc.w ^= (uint32_t)((id >> 32) & 0xffffffffULL);
+
+		u.d_now = stress_time_now();
+		mwc.z = shim_ror32n(mwc.z, ((u.u64_now >> 4) & 0xf));
+		mwc.w = shim_rol32n(mwc.w, (u.u64_now & 0xf));
 
 		n = (int)mwc.z % 1733;
 		for (i = 0; i < n; i++) {
 			(void)stress_mwc32();
 		}
+
+		u.d_now = stress_time_now();
+		mwc.z = shim_rol32n(mwc.z, (u.u64_now & 0x7));
+		mwc.w = shim_ror32n(mwc.w, ((u.u64_now >> 3) & 0x7));
 	}
 	mwc_flush();
 }
