@@ -1499,8 +1499,8 @@ static int MLOCKED_TEXT stress_run_child(
 	stress_set_iopriority(ionice_class, ionice_level);
 	(void)umask(0077);
 
-	pr_dbg("%s: [%d] started (instance %" PRIu32 " on CPU %u)\n",
-		name, (int)child_pid, instance, stress_get_cpu());
+	pr_dbg("%s: [%" PRIdMAX "] started (instance %" PRIu32 " on CPU %u)\n",
+		name, (intmax_t)child_pid, instance, stress_get_cpu());
 
 	if (g_opt_flags & OPT_FLAGS_INTERRUPTS)
 		stress_interrupts_start(stats->interrupts);
@@ -1628,8 +1628,8 @@ static int MLOCKED_TEXT stress_run_child(
 	stats->duration_total += stats->duration;
 
 	stress_get_usage_stats(ticks_per_sec, stats);
-	pr_dbg("%s: [%d] exited (instance %" PRIu32 " on CPU %d)\n",
-		name, (int)child_pid, instance, stress_get_cpu());
+	pr_dbg("%s: [%" PRIdMAX "] exited (instance %" PRIu32 " on CPU %d)\n",
+		name, (intmax_t)child_pid, instance, stress_get_cpu());
 
 	/* Allow for some slops of ~0.5 secs */
 	run_duration = (finish - fork_time_start) + 0.5;
