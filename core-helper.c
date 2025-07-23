@@ -128,7 +128,9 @@ int32_t stress_get_processors_configured(void)
  */
 int32_t stress_get_ticks_per_second(void)
 {
-#if defined(_SC_CLK_TCK)
+#if defined(__fiwix)
+	return 100;	/* Workaround */
+#elif defined(_SC_CLK_TCK)
 	static int32_t ticks_per_second = 0;
 
 	if (LIKELY(ticks_per_second > 0))
