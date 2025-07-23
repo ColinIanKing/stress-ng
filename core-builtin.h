@@ -795,6 +795,12 @@
 #define shim_ynl(n, x)		ynl((n), (x))
 #endif
 
+#if defined(HAVE_BUILTIN_ROUND)
+#define shim_round(x)		__builtin_round((x))
+#else
+#define shim_round(x)		round((x))
+#endif
+
 #if defined(HAVE_BUILTIN_ROUNDL)
 #define shim_roundl(x)		__builtin_roundl((x))
 #else
