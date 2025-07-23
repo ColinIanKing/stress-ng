@@ -1054,6 +1054,7 @@ const struct option stress_long_options[] = {
 	{ "spinmem-method",	1,	0,	OPT_spinmem_method },
 	{ "spinmem-numa",	0,	0,	OPT_spinmem_numa },
 	{ "spinmem-ops",	1,	0,	OPT_spinmem_ops },
+	{ "spinmem-yield",	0,	0,	OPT_spinmem_yield },
 	{ "splice",		1,	0,	OPT_splice },
 	{ "splice-bytes",	1,	0,	OPT_splice_bytes },
 	{ "splice-ops",		1,	0,	OPT_splice_ops },

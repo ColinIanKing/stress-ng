@@ -1491,6 +1491,7 @@ typedef enum {
 	OPT_spinmem_method,
 	OPT_spinmem_numa,
 	OPT_spinmem_ops,
+	OPT_spinmem_yield,
 
 	OPT_splice,
 	OPT_splice_ops,

@@ -32,6 +32,7 @@ static const stress_help_t help[] = {
 	{ NULL, "spinmem-method",   "select method of write/reads, default is 32bit" },
 	{ NULL, "spinmem-numa",     "move pages to randomly chosen NUMA nodes" },
 	{ NULL, "spinmem-ops",	    "stop after N bogo shared memory spin write/read operations" },
+	{ NULL, "spinmem-yield",    "force scheduling yeilds after each spin write/read operation" },
 	{ NULL, NULL,		    NULL }
 };
 
@@ -79,7 +80,7 @@ static void MLOCKED_TEXT stress_spinmem_handler(int signum)
 }
 
 #define SPINMEM_READER(name, type)		\
-static void OPTIMIZE3 name(uint8_t *data)	\
+static void OPTIMIZE3 name(uint8_t *data, const bool spinmem_yield)	\
 {						\
 	volatile type *uptr = (type *)data;	\
 	register type val = (type)0;		\
@@ -100,12 +101,14 @@ static void OPTIMIZE3 name(uint8_t *data)	\
 		SPINMEM_FLUSH(data);		\
 		SPINMEM_MB();			\
 		val = newval;			\
+		if (spinmem_yield)		\
+			shim_sched_yield();	\
 	}					\
 }
 
 
 #define SPINMEM_WRITER(name, type)		\
-static void OPTIMIZE3 name(uint8_t *data)	\
+static void OPTIMIZE3 name(uint8_t *data, const bool spinmem_yield)	\
 {						\
 	volatile type *uptr = (type *)data;	\
 	register type v = *data;		\
@@ -126,6 +129,8 @@ static void OPTIMIZE3 name(uint8_t *data)	\
 				break;		\
 			SPINMEM_MB();		\
 		}				\
+		if (spinmem_yield)		\
+			shim_sched_yield();	\
 	}					\
 }
 
@@ -146,7 +151,7 @@ SPINMEM_READER(stress_spinmem_reader128, __uint128_t)
 SPINMEM_WRITER(stress_spinmem_writer128, __uint128_t)
 #endif
 
-typedef void (*spinmem_func_t)(uint8_t *data);
+typedef void (*spinmem_func_t)(uint8_t *data, const bool spinmem_yield);
 
 typedef struct {
 	const char *name;
@@ -225,6 +230,7 @@ static int stress_spinmem(stress_args_t *args)
 	spinmem_func_t spinmem_reader, spinmem_writer;
 	bool spinmem_affinity = false;
 	bool spinmem_numa = false;
+	bool spinmem_yield = false;
 #if defined(HAVE_SCHED_SETAFFINITY)
 	uint32_t *cpus = NULL;
 	uint32_t n_cpus = stress_get_usable_cpus(&cpus, true);
@@ -238,6 +244,7 @@ static int stress_spinmem(stress_args_t *args)
 	(void)stress_get_setting("spinmem-affinity", &spinmem_affinity);
 	(void)stress_get_setting("spinmem-method", &spinmem_method);
 	(void)stress_get_setting("spinmem-numa", &spinmem_numa);
+	(void)stress_get_setting("spinmem-yield", &spinmem_yield);
 
 #if !defined(HAVE_SCHED_SETAFFINITY)
 	if ((spinmem_affinity) && (stress_instance_zero(args))) {
@@ -303,7 +310,7 @@ static int stress_spinmem(stress_args_t *args)
 				register int i;
 
 				for (i = 0; i < 1000; i++) {
-					spinmem_reader(mapping);
+					spinmem_reader(mapping, spinmem_yield);
 					stress_spinmem_change_affinity(n_cpus, cpus);
 
 #if defined(HAVE_LINUX_MEMPOLICY_H)
@@ -316,7 +323,7 @@ static int stress_spinmem(stress_args_t *args)
 		}
 #endif
 		do {
-			spinmem_reader(mapping);
+			spinmem_reader(mapping, spinmem_yield);
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 			stress_spinmem_numa(args, 2000, mapping, page_size,
 				spinmem_numa, numa_mask, numa_nodes);
@@ -332,7 +339,7 @@ static int stress_spinmem(stress_args_t *args)
 				for (i = 0; i < 100; i++) {
 					double t = stress_time_now();
 
-					spinmem_writer(mapping);
+					spinmem_writer(mapping, spinmem_yield);
 					duration += stress_time_now() - t;
 					count += SPINMEM_LOOPS;
 					stress_bogo_inc(args);
@@ -348,7 +355,8 @@ static int stress_spinmem(stress_args_t *args)
 #endif
 		do {
 			double t = stress_time_now();
-			spinmem_writer(mapping);
+
+			spinmem_writer(mapping, spinmem_yield);
 			duration += stress_time_now() - t;
 			count += SPINMEM_LOOPS;
 			stress_bogo_inc(args);
@@ -396,6 +404,7 @@ static const stress_opt_t opts[] = {
 	{ OPT_spinmem_affinity, "spinmem-affinity", TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_spinmem_method,   "spinmem-method",   TYPE_ID_SIZE_T_METHOD, 0, 0, stress_spinmem_method },
 	{ OPT_spinmem_numa,     "spinmem-numa",     TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_spinmem_yield,    "spinmem-yield",    TYPE_ID_BOOL, 0, 1, NULL },
 	END_OPT,
 };
 

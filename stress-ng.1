@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "21 July 2025"
+.TH STRESS-NG 1 "23 July 2025"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -8095,6 +8095,9 @@ for systems that do not support NUMA.
 .B \-\-spinmem\-ops N
 stop after N spinmem bogo operations. A bogo operation is 1000 transactions betewen
 the two spinmem processes.
+.TP
+.B \-\-spinmem\-yield
+force scheduling yields after each spinmem read/write operation
 .RE
 .TP
 .B Splice stressor (Linux)
