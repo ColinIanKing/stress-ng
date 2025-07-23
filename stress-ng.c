@@ -559,14 +559,18 @@ static void stress_kill_stressors(const int sig, const bool force_sigkill)
 
 	if (force_sigkill) {
 		static int count = 0;
+		static int kill_count = 0;
 
 		/* multiple calls will always fallback to SIGKILL */
 		count++;
-		if (count > 5) {
-			static int kill_count = 0;
+		if (getpid() == main_pid) {
+			pr_inf("terminating %" PRIu32 " of %" PRIu32 " stressors%s\n",
+				g_shared->instance_count.started,
+				g_shared->instance_count.started + g_shared->instance_count.exited,
+				(count > 5) ? ", please be patient" : "");
+		}
 
-			pr_dbg("killing processes with SIGKILL%s\n",
-				(kill_count > 0) ? "... be patient" : "");
+		if (count > 5) {
 			signum = SIGKILL;
 			kill_count++;
 		}
