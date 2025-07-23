@@ -183,7 +183,8 @@ static void stress_fd_open_file_rw_direct(stress_fd_t *fd)
 #endif
 
 #if defined(O_NONBLOCK) &&	\
-    defined(O_DIRECTORY)
+    defined(O_DIRECTORY) &&	\
+    defined(HAVE_OPENAT)
 static void stress_fd_open_temp_path(stress_fd_t *fd)
 {
 	const char *tmp = stress_get_temp_path();
@@ -683,7 +684,8 @@ static open_func_t open_funcs[] = {
 	stress_fd_open_file_rw_sync,
 #endif
 #if defined(O_NONBLOCK) &&	\
-    defined(O_DIRECTORY)
+    defined(O_DIRECTORY) &&	\
+    defined(HAVE_OPENAT)
 	stress_fd_open_temp_path,
 #endif
 	stress_fd_open_pipe_rd_end,
@@ -828,6 +830,7 @@ static open_func_t open_funcs[] = {
 #endif
 };
 
+#if defined(SOL_SOCKET)
 static void stress_fd_sockopt_reuseaddr(stress_fd_t *fd)
 {
 	int so_reuseaddr = 1;
@@ -835,6 +838,7 @@ static void stress_fd_sockopt_reuseaddr(stress_fd_t *fd)
 	(void)setsockopt(fd->fd, SOL_SOCKET, SO_REUSEADDR,
                 &so_reuseaddr, sizeof(so_reuseaddr));
 }
+#endif
 
 static void stress_fd_lseek(stress_fd_t *fd)
 {
@@ -900,6 +904,7 @@ static void stress_fd_bind_af_inet(stress_fd_t *fd)
 		(void)shutdown(fd->fd, SHUT_RDWR);
 }
 
+#if defined(AF_INET6)
 static void stress_fd_bind_af_inet6(stress_fd_t *fd)
 {
 	struct sockaddr_in6 addr;
@@ -915,6 +920,7 @@ static void stress_fd_bind_af_inet6(stress_fd_t *fd)
 	if (bind(fd->fd, (const struct sockaddr *)&addr, (socklen_t)sizeof(addr)) == 0)
 		(void)shutdown(fd->fd, SHUT_RDWR);
 }
+#endif
 
 static void stress_fd_select_rd(stress_fd_t *fd)
 {
@@ -965,6 +971,8 @@ static void stress_fd_pselect_rdwr(stress_fd_t *fd)
 }
 #endif
 
+#if defined(POLLIN) &&	\
+    defined(POLLOUT)
 static void stress_fd_poll_rdwr(stress_fd_t *fd)
 {
 	struct pollfd fds[1];
@@ -975,8 +983,11 @@ static void stress_fd_poll_rdwr(stress_fd_t *fd)
 
 	(void)poll(fds, 1, 0);
 }
+#endif
 
-#if defined(HAVE_PPOLL)
+#if defined(HAVE_PPOLL) &&	\
+    defined(POLLIN) &&		\
+    defined(POLLOUT)
 static void stress_fd_ppoll_rdwr(stress_fd_t *fd)
 {
 	struct timespec tv;
@@ -1734,7 +1745,9 @@ static void stress_fd_splice(stress_fd_t *fd)
 #endif
 
 static const fd_func_t fd_funcs[] = {
+#if defined(SOL_SOCKET)
 	stress_fd_sockopt_reuseaddr,
+#endif
 	stress_fd_lseek,
 	stress_fd_dup,
 	stress_fd_dup2,
@@ -1742,14 +1755,21 @@ static const fd_func_t fd_funcs[] = {
 	stress_fd_dup3,
 #endif
 	stress_fd_bind_af_inet,
+#if defined(AF_INET6)
 	stress_fd_bind_af_inet6,
+#endif
 	stress_fd_select_rd,
 	stress_fd_select_wr,
 #if defined(HAVE_PSELECT)
 	stress_fd_pselect_rdwr,
 #endif
+#if defined(POLLIN) &&	\
+    defined(POLLOUT)
 	stress_fd_poll_rdwr,
-#if defined(HAVE_PPOLL)
+#endif
+#if defined(HAVE_PPOLL) &&	\
+    defined(POLLIN) &&		\
+    defined(POLLOUT)
 	stress_fd_ppoll_rdwr,
 #endif
 	stress_fd_mmap_rd,
