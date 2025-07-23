@@ -33,7 +33,8 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
-#if defined(HAVE_ASM_NOP)
+#if defined(HAVE_ASM_NOP) &&	\
+    defined(HAVE_SIGLONGJMP)
 
 static sigjmp_buf jmpbuf;
 
@@ -402,6 +403,6 @@ const stressor_info_t stress_nop_info = {
 	.classifier = CLASS_CPU,
 	.opts = opts,
 	.help = help,
-	.unimplemented_reason = "no nop assembler op-code(s) for this architecture"
+	.unimplemented_reason = "no nop assembler op-code(s) for this architecture or no support for siglongjmp"
 };
 #endif
