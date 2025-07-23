@@ -54,6 +54,15 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
+static const stress_opt_t opts[] = {
+	{ OPT_bigheap_bytes,  "bigheap-bytes",  TYPE_ID_SIZE_T_BYTES_VM, MIN_BIGHEAP_BYTES,  MAX_BIGHEAP_BYTES,  NULL },
+	{ OPT_bigheap_growth, "bigheap-growth", TYPE_ID_UINT64,          MIN_BIGHEAP_GROWTH, MAX_BIGHEAP_GROWTH, NULL },
+	{ OPT_bigheap_mlock,  "bigheap-mlock",  TYPE_ID_BOOL,            0,                  1,                  NULL },
+	END_OPT,
+};
+
+#if defined(HAVE_SIGLONGJMP)
+
 static sigjmp_buf jmp_env;
 static volatile int phase;
 static volatile void *fault_addr;
@@ -329,13 +338,6 @@ static int stress_bigheap(stress_args_t *args)
 	return stress_oomable_child(args, NULL, stress_bigheap_child, STRESS_OOMABLE_NORMAL);
 }
 
-static const stress_opt_t opts[] = {
-	{ OPT_bigheap_bytes,  "bigheap-bytes",  TYPE_ID_SIZE_T_BYTES_VM, MIN_BIGHEAP_BYTES,  MAX_BIGHEAP_BYTES,  NULL },
-	{ OPT_bigheap_growth, "bigheap-growth", TYPE_ID_UINT64,          MIN_BIGHEAP_GROWTH, MAX_BIGHEAP_GROWTH, NULL },
-	{ OPT_bigheap_mlock,  "bigheap-mlock",  TYPE_ID_BOOL,            0,                  1,                  NULL },
-	END_OPT,
-};
-
 const stressor_info_t stress_bigheap_info = {
 	.stressor = stress_bigheap,
 	.classifier = CLASS_OS | CLASS_VM,
@@ -343,3 +345,16 @@ const stressor_info_t stress_bigheap_info = {
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };
+
+#else
+
+const stressor_info_t stress_bigheap_info = {
+	.stressor = stress_unimplemented,
+	.classifier = CLASS_OS | CLASS_VM,
+	.opts = opts,
+	.verify = VERIFY_OPTIONAL,
+	.help = help,
+	.unimplemented_reason = "built without siglongjmp support",
+};
+
+#endif
