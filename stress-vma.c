@@ -502,7 +502,7 @@ static void *stress_vma_msync(void *ptr)
 		const size_t offset = page_size * stress_mwc8modn(STRESS_VMA_PAGES);
 		const size_t len = page_size * stress_mwc8modn(STRESS_VMA_PAGES);
 
-		if (LIKELY(msync((void *)(data + offset), len, flags[i]) == 0))
+		if (LIKELY(shim_msync((void *)(data + offset), len, flags[i]) == 0))
 			stress_vma_metrics->s.metrics[STRESS_VMA_MSYNC]++;
 	}
 	return NULL;
