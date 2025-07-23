@@ -168,7 +168,12 @@ size_t stress_resources_allocate(
 	const pid_t ppid = getppid();
 #endif
 	const size_t page_size = args->page_size;
-	static const int domains[] = { AF_INET, AF_INET6 };
+	static const int domains[] = {
+		AF_INET,
+#if defined(AF_INET6)
+		AF_INET6,
+#endif
+	};
 	static const int types[] = { SOCK_STREAM, SOCK_DGRAM };
 
 	stress_resources_init(resources, num_resources);
