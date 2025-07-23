@@ -59,6 +59,42 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		     NULL }
 };
 
+static void stress_mmap_stressful(const char *opt_name, const char *opt_arg, stress_type_id_t *type_id, void *value)
+{
+	(void)opt_name;
+	*type_id = TYPE_ID_SIZE_T;
+	*(size_t *)value = 0;
+
+	(void)stress_set_setting_true("mmap", "mmap-mergeable", opt_arg);
+	(void)stress_set_setting_true("mmap", "mmap-mprotect", opt_arg);
+	(void)stress_set_setting_true("mmap", "mmap-file", opt_arg);
+	(void)stress_set_setting_true("mmap", "mmap-odirect", opt_arg);
+	(void)stress_set_setting_true("mmap", "mmap-madvise", opt_arg);
+	(void)stress_set_setting_true("mmap", "mmap-mlock", opt_arg);
+	(void)stress_set_setting_true("mmap", "mmap-numa", opt_arg);
+	(void)stress_set_setting_true("mmap", "mmap-slow-munmap", opt_arg);
+}
+
+static const stress_opt_t opts[] = {
+	{ OPT_mmap_async,       "mmap-async",       TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_mmap_bytes,       "mmap-bytes",       TYPE_ID_SIZE_T_BYTES_VM, MIN_MMAP_BYTES, MAX_MMAP_BYTES, NULL },
+	{ OPT_mmap_file,        "mmap-file",        TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_mmap_madvise,     "mmap-madvise",     TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_mmap_mergeable,   "mmap-mergeable",   TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_mmap_mlock,       "mmap-mlock",       TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_mmap_mmap2,       "mmap-mmap2",       TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_mmap_mprotect,    "mmap-mprotect",    TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_mmap_numa,	"mmap-numa",	    TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_mmap_odirect,     "mmap-odirect",     TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_mmap_osync,       "mmap-osync",       TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_mmap_slow_munmap,	"mmap-slow-munmap", TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_mmap_stressful,   "mmap-stressful",   TYPE_ID_CALLBACK, 0, 0, stress_mmap_stressful },
+	{ OPT_mmap_write_check, "mmap-write-check", TYPE_ID_BOOL, 0, 1, NULL },
+	END_OPT,
+};
+
+#if defined(HAVE_SIGLONGJMP)
+
 typedef void * (*mmap_func_t)(void *addr, size_t length, int prot, int flags, int fd, off_t offset);
 
 typedef struct {
@@ -1110,40 +1146,6 @@ redo:
 	return ret;
 }
 
-static void stress_mmap_stressful(const char *opt_name, const char *opt_arg, stress_type_id_t *type_id, void *value)
-{
-	(void)opt_name;
-	*type_id = TYPE_ID_SIZE_T;
-	*(size_t *)value = 0;
-
-	(void)stress_set_setting_true("mmap", "mmap-mergeable", opt_arg);
-	(void)stress_set_setting_true("mmap", "mmap-mprotect", opt_arg);
-	(void)stress_set_setting_true("mmap", "mmap-file", opt_arg);
-	(void)stress_set_setting_true("mmap", "mmap-odirect", opt_arg);
-	(void)stress_set_setting_true("mmap", "mmap-madvise", opt_arg);
-	(void)stress_set_setting_true("mmap", "mmap-mlock", opt_arg);
-	(void)stress_set_setting_true("mmap", "mmap-numa", opt_arg);
-	(void)stress_set_setting_true("mmap", "mmap-slow-munmap", opt_arg);
-}
-
-static const stress_opt_t opts[] = {
-	{ OPT_mmap_async,       "mmap-async",       TYPE_ID_BOOL, 0, 1, NULL },
-	{ OPT_mmap_bytes,       "mmap-bytes",       TYPE_ID_SIZE_T_BYTES_VM, MIN_MMAP_BYTES, MAX_MMAP_BYTES, NULL },
-	{ OPT_mmap_file,        "mmap-file",        TYPE_ID_BOOL, 0, 1, NULL },
-	{ OPT_mmap_madvise,     "mmap-madvise",     TYPE_ID_BOOL, 0, 1, NULL },
-	{ OPT_mmap_mergeable,   "mmap-mergeable",   TYPE_ID_BOOL, 0, 1, NULL },
-	{ OPT_mmap_mlock,       "mmap-mlock",       TYPE_ID_BOOL, 0, 1, NULL },
-	{ OPT_mmap_mmap2,       "mmap-mmap2",       TYPE_ID_BOOL, 0, 1, NULL },
-	{ OPT_mmap_mprotect,    "mmap-mprotect",    TYPE_ID_BOOL, 0, 1, NULL },
-	{ OPT_mmap_numa,	"mmap-numa",	    TYPE_ID_BOOL, 0, 1, NULL },
-	{ OPT_mmap_odirect,     "mmap-odirect",     TYPE_ID_BOOL, 0, 1, NULL },
-	{ OPT_mmap_osync,       "mmap-osync",       TYPE_ID_BOOL, 0, 1, NULL },
-	{ OPT_mmap_slow_munmap,	"mmap-slow-munmap", TYPE_ID_BOOL, 0, 1, NULL },
-	{ OPT_mmap_stressful,   "mmap-stressful",   TYPE_ID_CALLBACK, 0, 0, stress_mmap_stressful },
-	{ OPT_mmap_write_check, "mmap-write-check", TYPE_ID_BOOL, 0, 1, NULL },
-	END_OPT,
-};
-
 const stressor_info_t stress_mmap_info = {
 	.stressor = stress_mmap,
 	.classifier = CLASS_VM | CLASS_OS,
@@ -1151,3 +1153,16 @@ const stressor_info_t stress_mmap_info = {
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };
+
+#else
+
+const stressor_info_t stress_mmap_info = {
+	.stressor = stress_unimplemented,
+	.classifier = CLASS_VM | CLASS_OS,
+	.opts = opts,
+	.verify = VERIFY_OPTIONAL,
+	.help = help,
+	.unimplemented_reason = "built without siglongjmp support"
+};
+
+#endif
