@@ -1428,6 +1428,17 @@ size_t shim_strlcat(char *dst, const char *src, size_t len)
 }
 
 /*
+ *  shim_sync
+ *	wrapper of sync
+ */
+void shim_sync(void)
+{
+#if defined(HAVE_SYNC)
+	sync();
+#endif
+}
+
+/*
  *  shim_fsync
  *	wrapper for fsync
  */
