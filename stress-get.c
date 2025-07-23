@@ -67,6 +67,20 @@ typedef struct {
 	const bool verify;	/* check for valid rusage return */
 } stress_rusage_t;
 
+static const stress_help_t help[] = {
+	{ NULL,	"get N",		"start N workers exercising the get*() system calls" },
+	{ NULL,	"get-ops N",		"stop after N get bogo operations" },
+	{ NULL,	"get-slow-sync",	"synchronize get*() system amongst N workers" },
+	{ NULL, NULL,			NULL }
+};
+
+static const stress_opt_t opts[] = {
+	{ OPT_get_slow_sync, "get-slow-sync", TYPE_ID_BOOL, 0, 1, NULL },
+	END_OPT,
+};
+
+#if defined(HAVE_SIGLONGJMP)
+
 static pid_t mypid;
 static bool verify;
 #if defined(HAVE_SYS_TIMEX_H) &&	\
@@ -75,13 +89,6 @@ static bool cap_sys_time;
 #endif
 static int mounts_max;
 static char *mnts[MOUNTS_MAX];
-
-static const stress_help_t help[] = {
-	{ NULL,	"get N",		"start N workers exercising the get*() system calls" },
-	{ NULL,	"get-ops N",		"stop after N get bogo operations" },
-	{ NULL,	"get-slow-sync",	"synchronize get*() system amongst N workers" },
-	{ NULL, NULL,			NULL }
-};
 
 static const stress_rusage_t rusages[] = {
 #if defined(RUSAGE_SELF)
@@ -1046,11 +1053,6 @@ static int stress_get(stress_args_t *args)
 	return rc;
 }
 
-static const stress_opt_t opts[] = {
-	{ OPT_get_slow_sync, "get-slow-sync", TYPE_ID_BOOL, 0, 1, NULL },
-	END_OPT,
-};
-
 const stressor_info_t stress_get_info = {
 	.stressor = stress_get,
 	.classifier = CLASS_OS,
@@ -1058,3 +1060,16 @@ const stressor_info_t stress_get_info = {
 	.opts = opts,
 	.help = help
 };
+
+#else
+
+const stressor_info_t stress_get_info = {
+	.stressor = stress_unimplemented,
+	.classifier = CLASS_OS,
+	.verify = VERIFY_OPTIONAL,
+	.opts = opts,
+	.help = help,
+	.unimplemented_reason = "built without siglongjmp support"
+};
+
+#endif
