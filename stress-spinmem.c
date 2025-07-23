@@ -32,7 +32,7 @@ static const stress_help_t help[] = {
 	{ NULL, "spinmem-method",   "select method of write/reads, default is 32bit" },
 	{ NULL, "spinmem-numa",     "move pages to randomly chosen NUMA nodes" },
 	{ NULL, "spinmem-ops",	    "stop after N bogo shared memory spin write/read operations" },
-	{ NULL, NULL,		NULL }
+	{ NULL, NULL,		    NULL }
 };
 
 #define SPINMEM_LOOPS	(1000)
@@ -147,6 +147,7 @@ SPINMEM_WRITER(stress_spinmem_writer128, __uint128_t)
 #endif
 
 typedef void (*spinmem_func_t)(uint8_t *data);
+
 typedef struct {
 	const char *name;
 	const spinmem_func_t reader;
