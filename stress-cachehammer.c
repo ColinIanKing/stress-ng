@@ -48,14 +48,21 @@ typedef struct {
 	hammer_func_t hammer;
 } stress_cachehammer_func_t;
 
-static sigjmp_buf jmp_env;
-
 static const stress_help_t help[] = {
 	{ NULL,	"cachehammer N",	"start N CPU cache thrashing workers" },
 	{ NULL,	"cachehammer-numa",	"move pages to randomly chosen NUMA nodes" },
 	{ NULL,	"cachehammer-ops N",	"stop after N cache bogo operations" },
 	{ NULL,	NULL,			NULL }
 };
+
+static const stress_opt_t opts[] = {
+	{ OPT_cachehammer_numa, "cachehammer-numa",  TYPE_ID_BOOL, 0, 1, NULL },
+	END_OPT,
+};
+
+#if defined(HAVE_SIGLONGJMP)
+
+static sigjmp_buf jmp_env;
 
 #if defined(HAVE_MSYNC)
 static int msync_flags[] = {
@@ -1919,11 +1926,6 @@ unmap_local_buffer:
 	return ret;
 }
 
-static const stress_opt_t opts[] = {
-	{ OPT_cachehammer_numa, "cachehammer-numa",  TYPE_ID_BOOL, 0, 1, NULL },
-	END_OPT,
-};
-
 const stressor_info_t stress_cachehammer_info = {
 	.stressor = stress_cachehammer,
 	.init = stress_cachehammer_init,
@@ -1933,3 +1935,16 @@ const stressor_info_t stress_cachehammer_info = {
 	.opts = opts,
 	.help = help
 };
+
+#else
+
+const stressor_info_t stress_cachehammer_info = {
+	.stressor = stress_unimplemented,
+	.classifier = CLASS_CPU_CACHE,
+	.verify = VERIFY_ALWAYS,
+	.opts = opts,
+	.help = help,
+	.unimplemented_reason = "built without siglongjmp support"
+};
+
+#endif
