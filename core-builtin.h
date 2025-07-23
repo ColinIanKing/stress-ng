@@ -610,7 +610,11 @@
 #if defined(HAVE_BUILTIN_TANL)
 #define shim_tanl(x)		__builtin_tanl((x))
 #else
+#if defined(HAVE_TANL)
 #define shim_tanl(x)		tanl((x))
+#else
+#define shim_tanl(x)		((long double)shim_tan((double)(x)))
+#endif
 #endif
 
 #if defined(HAVE_BUILTIN_TANHF)
