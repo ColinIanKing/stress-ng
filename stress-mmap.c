@@ -494,7 +494,10 @@ static int stress_mmap_child(stress_args_t *args, void *ctxt)
 	const int fd = context->fd;
 	NOCLOBBER int no_mem_retries = 0;
 	const int bad_fd = stress_get_bad_fd();
+#if defined(MS_ASYNC) &&	\
+    defined(MS_SYNC)
 	const int ms_flags = context->mmap_async ? MS_ASYNC : MS_SYNC;
+#endif
 	uint8_t *mapped, **mappings;
 	size_t *idx;
 	void *hint;
@@ -634,7 +637,10 @@ retry:
 		no_mem_retries = 0;
 		if (mmap_file) {
 			(void)shim_memset(buf, 0xff, sz);
+#if defined(MS_ASYNC) &&	\
+    defined(MS_SYNC)
 			(void)shim_msync((void *)buf, sz, ms_flags);
+#endif
 		}
 		if (context->mmap_madvise)
 			(void)stress_madvise_randomize(buf, sz);
@@ -768,7 +774,10 @@ retry:
 					}
 					if (mmap_file) {
 						(void)shim_memset(mappings[page], (int)n, page_size);
+#if defined(MS_ASYNC) &&	\
+    defined(MS_SYNC)
 						(void)shim_msync((void *)mappings[page], page_size, ms_flags);
+#endif
 #if defined(FALLOC_FL_KEEP_SIZE) &&	\
     defined(FALLOC_FL_PUNCH_HOLE)
 						(void)shim_fallocate(fd, FALLOC_FL_PUNCH_HOLE | FALLOC_FL_KEEP_SIZE,
