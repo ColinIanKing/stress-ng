@@ -1179,7 +1179,7 @@ static int stress_open(stress_args_t *args)
 			stress_read_fdinfo(mypid, fds[i]);
 
 			if (UNLIKELY((i & 8191) == 8191))
-				sync();
+				shim_sync();
 
 			stress_bogo_inc(args);
 		}
@@ -1190,7 +1190,7 @@ close_all:
 		 *  try fast close of a range, fall back to
 		 *  normal close if ENOSYS
 		 */
-		sync();
+		shim_sync();
 		errno = 0;
 		ret = shim_close_range(min_fd, max_fd, 0);
 		if (ret < 0) {
