@@ -258,6 +258,7 @@ void stress_madvise_pid_all_pages(
 	(void)fclose(fp);
 #else
 	(void)pid;
-	(void)advise;
+	(void)advice;
+	(void)n_advice;
 #endif
 }
