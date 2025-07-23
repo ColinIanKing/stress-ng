@@ -58,8 +58,10 @@ typedef uint64_t stress_uint32w256_t	__attribute__ ((vector_size(256 / 8)));
 typedef uint64_t stress_uint32w128_t	__attribute__ ((vector_size(128 / 8)));
 #endif
 
+#if defined(HAVE_SIGLONGJMP)
 static volatile bool do_jmp = true;
 static sigjmp_buf jmpbuf;
+#endif
 
 typedef struct {
 	double		duration;
@@ -87,6 +89,7 @@ typedef struct {
 	const stress_memrate_func_t	func_rate;
 } stress_memrate_info_t;
 
+#if defined(HAVE_SIGLONGJMP)
 static void stress_memrate_alarm_handler(int signum)
 {
         (void)signum;
@@ -96,6 +99,7 @@ static void stress_memrate_alarm_handler(int signum)
 	        siglongjmp(jmpbuf, 1);
 	}
 }
+#endif
 
 static uint64_t stress_memrate_loops(
 	const stress_memrate_context_t *context,
@@ -1020,11 +1024,12 @@ static int stress_memrate_child(stress_args_t *args, void *ctxt)
 	context->start = buffer;
 	context->end = buffer_end;
 
+#if defined(HAVE_SIGLONGJMP)
 	if (sigsetjmp(jmpbuf, 1) != 0)
 		goto tidy;
-
 	if (stress_sighandler(args->name, SIGALRM, stress_memrate_alarm_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
+#endif
 
 	do {
 		if (context->memrate_method == 0) {
@@ -1041,8 +1046,10 @@ static int stress_memrate_child(stress_args_t *args, void *ctxt)
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
 
+#if defined(HAVE_SIGLONGJMP)
 tidy:
 	do_jmp = false;
+#endif
 	(void)munmap((void *)buffer, context->memrate_bytes);
 	return EXIT_SUCCESS;
 }
