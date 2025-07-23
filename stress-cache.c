@@ -64,22 +64,6 @@ typedef struct {
 	const char *name;	/* human readable form */
 } mask_flag_info_t;
 
-static const mask_flag_info_t mask_flag_info[] = {
-	{ CACHE_FLAGS_PREFETCH,		"prefetch" },
-	{ CACHE_FLAGS_CLFLUSH,		"flush" },
-	{ CACHE_FLAGS_FENCE,		"fence" },
-	{ CACHE_FLAGS_SFENCE,		"sfence" },
-	{ CACHE_FLAGS_CLFLUSHOPT,	"clflushopt" },
-	{ CACHE_FLAGS_CLDEMOTE,		"cldemote" },
-	{ CACHE_FLAGS_CLWB,		"clwb" },
-	{ CACHE_FLAGS_PREFETCHW,	"prefetchw" },
-};
-
-static sigjmp_buf jmp_env;
-static volatile int caught_signum;
-static volatile uint32_t masked_flags;
-static uint64_t disabled_flags;
-
 static const stress_help_t help[] = {
 	{ "C N","cache N",	 	"start N CPU cache thrashing workers" },
 	{ NULL,	"cache-size N",		"override the default cache size setting to N bytes" },
@@ -124,6 +108,24 @@ static const stress_opt_t opts[] = {
 	{ OPT_cache_clwb,        "cache-clb",         TYPE_ID_BOOL, 0, 1, NULL },
 	END_OPT,
 };
+
+#if defined(HAVE_SIGLONGJMP)
+
+static const mask_flag_info_t mask_flag_info[] = {
+	{ CACHE_FLAGS_PREFETCH,		"prefetch" },
+	{ CACHE_FLAGS_CLFLUSH,		"flush" },
+	{ CACHE_FLAGS_FENCE,		"fence" },
+	{ CACHE_FLAGS_SFENCE,		"sfence" },
+	{ CACHE_FLAGS_CLFLUSHOPT,	"clflushopt" },
+	{ CACHE_FLAGS_CLDEMOTE,		"cldemote" },
+	{ CACHE_FLAGS_CLWB,		"clwb" },
+	{ CACHE_FLAGS_PREFETCHW,	"prefetchw" },
+};
+
+static sigjmp_buf jmp_env;
+static volatile int caught_signum;
+static volatile uint32_t masked_flags;
+static uint64_t disabled_flags;
 
 #if defined(HAVE_BUILTIN_SFENCE)
 #define SHIM_SFENCE()		__builtin_ia32_sfence()
@@ -1350,3 +1352,15 @@ const stressor_info_t stress_cache_info = {
 	.opts = opts,
 	.help = help
 };
+
+#else
+
+const stressor_info_t stress_cache_info = {
+	.stressor = stress_unimplemented,
+	.classifier = CLASS_CPU_CACHE,
+	.opts = opts,
+	.help = help,
+	.unimplemented_reason = "built without siglongjmp support"
+};
+
+#endif
