@@ -96,6 +96,10 @@ UNEXPECTED
 #include <sys/random.h>
 #endif
 
+#if defined(HAVE_SYS_SELECT_H)
+#include <sys/select.h>
+#endif
+
 #if defined(HAVE_SYS_XATTR_H)
 #include <sys/xattr.h>
 #undef HAVE_ATTR_XATTR_H
@@ -3048,7 +3052,8 @@ int shim_pause(void)
 {
 #if defined(HAVE_PAUSE)
 	return pause();
-#elif defined(HAVE_SELECT)
+#elif defined(HAVE_SYS_SELECT_H) &&	\
+      defined(HAVE_SELECT)
 	while (select(0, NULL, NULL, NULL, NULL) == 0)
 		;
 	errno = EINTR;
