@@ -10250,12 +10250,18 @@ runs 2 instances of the mixed I/O stressors using a total of 10% of the
 available file system space for 10 minutes. Each stressor will use 5% of the
 available file system space.
 .LP
-\f[CR]stress\-ng \-\-with cpu,matrix,vecmath,fp \-\-seq 8 \-t 1m
+\f[CR]stress\-ng \-\-with cpu,matrix,vecmath,fp \-\-seq 8 \-t 1m\f[]
 .IP
 run 8 instances of cpu, matrix, vecmath and fp stressors sequentially one
 after another, for 1 minute per stressor.
 .LP
-\f[CR]stress\-ng \-\-with cpu,matrix,vecmath,fp \-\-permute 5 \-t 10s
+\f[CR]stress-ng --trig 25% --fp 50% --fma 25% -t 5m --verify\f[]
+.IP
+run trigonometric function stressor on 25% of the online cpus, floating point
+stressor on 50% of the online cpus and fused\-multiple\-add stressor on 25% of
+the online cpus for 5 minutes and enable verification of results.
+.LP
+\f[CR]stress\-ng \-\-with cpu,matrix,vecmath,fp \-\-permute 5 \-t 10s\f[]
 .IP
 run permutations of 5 instances of cpu, matrix, vecmath and fp stressors sequentially one
 after another, for 10 seconds per permutation mix.
