@@ -2608,7 +2608,11 @@ static inline void stress_shared_map(const int32_t num_procs)
 	 */
 STRESS_PRAGMA_PUSH
 STRESS_PRAGMA_WARN_OFF
+#if defined(HAVE_VFORK)
 	g_shared->vfork = vfork;
+#else
+	g_shared->vfork = fork;
+#endif
 STRESS_PRAGMA_POP
 
 #if defined(HAVE_MPROTECT)
