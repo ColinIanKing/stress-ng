@@ -30,7 +30,8 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
-#if defined(HAVE_SHIM_MFENCE)
+#if defined(HAVE_SHIM_MFENCE) &&	\
+    defined(HAVE_SIGLONGJMP)
 
 typedef struct {
 	volatile int	turn;
@@ -275,7 +276,7 @@ const stressor_info_t stress_peterson_info = {
 	.classifier = CLASS_CPU | CLASS_IPC,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
-	.unimplemented_reason = "built without user space memory fencing"
+	.unimplemented_reason = "built without user space memory fencing or support for siglongjmp"
 };
 
 #endif
