@@ -3044,14 +3044,19 @@ int shim_file_setattr(
  * shim_pause()
  *	shim wrapper for pause()
  */
-void shim_pause(void)
+int shim_pause(void)
 {
 #if defined(HAVE_PAUSE)
-	pause();
+	return pause();
 #elif defined(HAVE_SELECT)
-	(void)select(0, NULL, NULL, NULL, NULL);
+	while (select(0, NULL, NULL, NULL, NULL) == 0)
+		;
+	errno = EINTR;
+	return -1;
 #else
 	while (sleep(~(unsigned int)0) == 0)
 		;
+	errno = EINTR;
+	return -1;
 #endif
 }
