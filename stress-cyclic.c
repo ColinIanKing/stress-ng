@@ -383,6 +383,7 @@ static int stress_cyclic_usleep(
 	UNEXPECTED
 #endif
 
+#if defined(HAVE_SIGLONGJMP)
 static sigjmp_buf jmp_env;
 
 /*
@@ -396,6 +397,7 @@ static void NORETURN MLOCKED_TEXT stress_rlimit_handler(int signum)
 	stress_continue_set_flag(false);
 	siglongjmp(jmp_env, 1);
 }
+#endif
 
 /*
  *  stress_cyclic_cmp()
@@ -586,7 +588,9 @@ static int stress_cyclic_supported(const char *name)
 static int stress_cyclic(stress_args_t *args)
 {
 	const uint32_t instances = args->instances;
+#if defined(HAVE_SIGLONGJMP)
 	struct sigaction old_action_xcpu;
+#endif
 	struct rlimit rlim;
 	pid_t pid;
 	NOCLOBBER uint64_t timeout;
@@ -745,12 +749,13 @@ again:
 		(void)setrlimit(RLIMIT_RTTIME, &rlim);
 #endif
 
+#if defined(HAVE_SIGLONGJMP)
 		ret = sigsetjmp(jmp_env, 1);
 		if (ret)
 			goto tidy_ok;
-
 		if (stress_sighandler(args->name, SIGXCPU, stress_rlimit_handler, &old_action_xcpu) < 0)
 			goto tidy;
+#endif
 
 #if defined(HAVE_SCHED_GET_PRIORITY_MIN) &&	\
     defined(HAVE_SCHED_GET_PRIORITY_MAX)
@@ -819,7 +824,9 @@ redo_policy:
 				break;
 		} while (stress_continue(args));
 
+#if defined(HAVE_SIGLONGJMP)
 tidy_ok:
+#endif
 		ncrc = EXIT_SUCCESS;
 tidy:
 		(void)fflush(stdout);
