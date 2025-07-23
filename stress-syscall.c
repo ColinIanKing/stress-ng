@@ -6579,6 +6579,7 @@ static int syscall_symlinkat(void)
 }
 #endif
 
+#if defined(HAVE_SYNC)
 #define HAVE_SYSCALL_SYNC
 static int syscall_sync(void)
 {
@@ -6587,6 +6588,7 @@ static int syscall_sync(void)
 	t2 = syscall_time_now();
 	return 0;
 }
+#endif
 
 #if defined(HAVE_SYNC_FILE_RANGE)
 #define HAVE_SYSCALL_SYNC_FILE_RANGE
