@@ -798,7 +798,11 @@
 #if defined(HAVE_BUILTIN_ROUNDL)
 #define shim_roundl(x)		__builtin_roundl((x))
 #else
+#if defined(HAVE_ROUNDL)
 #define shim_roundl(x)		roundl((x))
+#else
+#define shim_roundl(x)		((long double)shim_round((double)(x)))
+#endif
 #endif
 
 #if defined(HAVE_BUILTIN_STDC_ROTATE_LEFT)
