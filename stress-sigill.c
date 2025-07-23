@@ -25,7 +25,8 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
-#if defined(STRESS_ARCH_ARM)
+#if defined(STRESS_ARCH_ARM) &&	\
+    defined(HAVE_SIGLONGJMP)
 #define HAVE_ILLEGAL_OP
 static void stress_illegal_op(void)
 {
@@ -34,7 +35,8 @@ static void stress_illegal_op(void)
 }
 #endif
 
-#if defined(STRESS_ARCH_ALPHA)
+#if defined(STRESS_ARCH_ALPHA) && \
+    defined(HAVE_SIGLONGJMP)
 #define HAVE_ILLEGAL_OP
 static void stress_illegal_op(void)
 {
@@ -42,7 +44,8 @@ static void stress_illegal_op(void)
 }
 #endif
 
-#if defined(STRESS_ARCH_HPPA)
+#if defined(STRESS_ARCH_HPPA) && \
+    defined(HAVE_SIGLONGJMP)
 #define HAVE_ILLEGAL_OP
 static void stress_illegal_op(void)
 {
@@ -50,7 +53,8 @@ static void stress_illegal_op(void)
 }
 #endif
 
-#if defined(STRESS_ARCH_LOONG64)
+#if defined(STRESS_ARCH_LOONG64) && \
+    defined(HAVE_SIGLONGJMP)
 #define HAVE_ILLEGAL_OP
 static void stress_illegal_op(void)
 {
@@ -59,7 +63,8 @@ static void stress_illegal_op(void)
 }
 #endif
 
-#if defined(STRESS_ARCH_M68K)
+#if defined(STRESS_ARCH_M68K) && \
+    defined(HAVE_SIGLONGJMP)
 #define HAVE_ILLEGAL_OP
 static void stress_illegal_op(void)
 {
@@ -67,7 +72,8 @@ static void stress_illegal_op(void)
 }
 #endif
 
-#if defined(STRESS_ARCH_MIPS)
+#if defined(STRESS_ARCH_MIPS) && \
+    defined(HAVE_SIGLONGJMP)
 #if defined(__MIPSEB__) || defined(__MIPSEB) || defined(_MIPSEB) || defined(MIPSEB)
 #define HAVE_ILLEGAL_OP
 static void stress_illegal_op(void)
@@ -75,7 +81,8 @@ static void stress_illegal_op(void)
 	__asm__ __volatile__(".byte 0x00,0x00,0x00,0x3b\n");
 }
 #endif
-#if defined(__MIPSEL__) || defined(__MIPSEL) || defined(_MIPSEL) || defined(MIPSEL)
+#if (defined(__MIPSEL__) || defined(__MIPSEL) || defined(_MIPSEL) || defined(MIPSEL)) && \
+    defined(HAVE_SIGLONGJMP)
 #define HAVE_ILLEGAL_OP
 static void stress_illegal_op(void)
 {
@@ -84,7 +91,8 @@ static void stress_illegal_op(void)
 #endif
 #endif
 
-#if defined(STRESS_ARCH_PPC64)
+#if defined(STRESS_ARCH_PPC64) && \
+    defined(HAVE_SIGLONGJMP)
 #define HAVE_ILLEGAL_OP
 static void stress_illegal_op(void)
 {
@@ -92,7 +100,8 @@ static void stress_illegal_op(void)
 }
 #endif
 
-#if defined(STRESS_ARCH_PPC)
+#if defined(STRESS_ARCH_PPC) &&	\
+    defined(HAVE_SIGLONGJMP)
 #define HAVE_ILLEGAL_OP
 static void stress_illegal_op(void)
 {
@@ -100,7 +109,8 @@ static void stress_illegal_op(void)
 }
 #endif
 
-#if defined(STRESS_ARCH_RISCV)
+#if defined(STRESS_ARCH_RISCV) && \
+    defined(HAVE_SIGLONGJMP)
 #define HAVE_ILLEGAL_OP
 static void stress_illegal_op(void)
 {
@@ -108,7 +118,8 @@ static void stress_illegal_op(void)
 }
 #endif
 
-#if defined(STRESS_ARCH_S390)
+#if defined(STRESS_ARCH_S390) && \
+    defined(HAVE_SIGLONGJMP)
 #define HAVE_ILLEGAL_OP
 static void stress_illegal_op(void)
 {
@@ -116,7 +127,8 @@ static void stress_illegal_op(void)
 }
 #endif
 
-#if defined(STRESS_ARCH_SH4)
+#if defined(STRESS_ARCH_SH4) && \
+    defined(HAVE_SIGLONGJMP)
 #define HAVE_ILLEGAL_OP
 static void stress_illegal_op(void)
 {
@@ -124,7 +136,8 @@ static void stress_illegal_op(void)
 }
 #endif
 
-#if defined(STRESS_ARCH_SPARC)
+#if defined(STRESS_ARCH_SPARC) && \
+    defined(HAVE_SIGLONGJMP)
 #define HAVE_ILLEGAL_OP
 static void stress_illegal_op(void)
 {
@@ -132,7 +145,8 @@ static void stress_illegal_op(void)
 }
 #endif
 
-#if defined(STRESS_ARCH_X86)
+#if defined(STRESS_ARCH_X86) && \
+    defined(HAVE_SIGLONGJMP)
 #define HAVE_ILLEGAL_OP
 static void stress_illegal_op(void)
 {
@@ -142,6 +156,7 @@ static void stress_illegal_op(void)
 #endif
 
 #if defined(HAVE_ILLEGAL_OP) &&	\
+    defined(HAVE_SIGLONGJMP) && \
     defined(SIGILL)
 
 static sigjmp_buf jmp_env;
@@ -304,7 +319,7 @@ const stressor_info_t stress_sigill_info = {
 const stressor_info_t stress_sigill_info = {
 	.stressor = stress_unimplemented,
 	.classifier = CLASS_SIGNAL | CLASS_OS,
-	.unimplemented_reason = "built without SIGILL support or illegal opcode function not implemented",
+	.unimplemented_reason = "built without SIGILL support or illegal opcode function not implemented or siglongjmp not supported",
 	.help = help
 };
 
