@@ -20,15 +20,17 @@
 #include "stress-ng.h"
 #include "core-put.h"
 
-static sigjmp_buf jmp_env;
-static volatile bool do_jmp = true;
-static volatile int die_signum = -1;
-
 static const stress_help_t help[] = {
 	{ NULL,	"fault N",	"start N workers producing page faults" },
 	{ NULL,	"fault-ops N",	"stop after N page fault bogo operations" },
 	{ NULL,	NULL,		NULL }
 };
+
+#if defined(HAVE_SIGLONGJMP)
+
+static sigjmp_buf jmp_env;
+static volatile bool do_jmp = true;
+static volatile int die_signum = -1;
 
 /*
  *  stress_segvhandler()
@@ -295,3 +297,14 @@ const stressor_info_t stress_fault_info = {
 	.classifier = CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS,
 	.help = help
 };
+
+#else
+
+const stressor_info_t stress_fault_info = {
+	.stressor = stress_unimplemented,
+	.classifier = CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS,
+	.help = help,
+	.unimplemented_reason = "built without siglongjmp sort"
+};
+
+#endif
