@@ -36,8 +36,10 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		 NULL }
 };
 
+#if defined(HAVE_SIGLONGJMP)
 static volatile bool do_jmp = true;
 static sigjmp_buf jmp_env;
+#endif
 
 /*
  *  Check if macros are defined from sys/queue.h
@@ -138,6 +140,7 @@ typedef struct {
 
 static const stress_list_method_info_t list_methods[];
 
+#if defined(HAVE_SIGLONGJMP)
 /*
  *  stress_list_handler()
  *	SIGALRM generic handler
@@ -151,6 +154,7 @@ static void MLOCKED_TEXT stress_list_handler(int signum)
 		siglongjmp(jmp_env, 1);		/* Ugly, bounce back */
 	}
 }
+#endif
 
 static int OPTIMIZE3 stress_list_slistt(
 	stress_args_t *args,
@@ -518,11 +522,13 @@ static int stress_list(stress_args_t *args)
 	uint64_t v, list_size = DEFAULT_LIST_SIZE;
 	list_entry_t *entries, *entry, *entries_end;
 	size_t n, i, j, bit, list_method = 0;
-	struct sigaction old_action;
-	int ret;
 	NOCLOBBER int rc = EXIT_SUCCESS;
 	stress_metrics_t *metrics, list_metrics[SIZEOF_ARRAY(list_methods)];
 	stress_list_func func;
+#if defined(HAVE_SIGLONGJMP)
+	struct sigaction old_action;
+	int ret;
+#endif
 
 	stress_zero_metrics(list_metrics, SIZEOF_ARRAY(list_metrics));
 
@@ -547,6 +553,7 @@ static int stress_list(stress_args_t *args)
 	}
 	entries_end = entries + n;
 
+#if defined(HAVE_SIGLONGJMP)
 	ret = sigsetjmp(jmp_env, 1);
 	if (ret) {
 		/*
@@ -559,6 +566,7 @@ static int stress_list(stress_args_t *args)
 		free(entries);
 		return EXIT_FAILURE;
 	}
+#endif
 
 	v = 0;
 	for (entry = entries, bit = 0; entry < entries_end; entry++) {
@@ -595,9 +603,11 @@ static int stress_list(stress_args_t *args)
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
 
+#if defined(HAVE_SIGLONGJMP)
 	do_jmp = false;
 	(void)stress_sigrestore(args->name, SIGALRM, &old_action);
 tidy:
+#endif
 	for (i = 0, j = 0; i < SIZEOF_ARRAY(list_metrics); i++) {
 		if ((list_metrics[i].duration > 0.0) && (list_metrics[i].count > 0.0)) {
 			char msg[64];
