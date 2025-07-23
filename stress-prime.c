@@ -62,7 +62,8 @@ static const stress_opt_t opts[] = {
 };
 
 #if defined(HAVE_GMP_H) &&	\
-    defined(HAVE_LIB_GMP)
+    defined(HAVE_LIB_GMP) &&	\
+    defined(HAVE_SIGLONGJMP)
 
 static sigjmp_buf jmpbuf;
 static bool jumped;
@@ -262,7 +263,7 @@ const stressor_info_t stress_prime_info = {
 	.opts = opts,
 	.verify = VERIFY_NONE,
 	.help = help,
-	.unimplemented_reason = "built without gmp.h, or libgmp"
+	.unimplemented_reason = "built without gmp.h or libgmp or support for siglongjmp"
 };
 
 #endif
