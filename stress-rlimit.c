@@ -21,14 +21,16 @@
 #include "core-mincore.h"
 #include "core-out-of-memory.h"
 
-static volatile bool do_jmp = true;
-static sigjmp_buf jmp_env;
-
 static const stress_help_t help[] = {
 	{ NULL,	"rmap N",	"start N workers that stress reverse mappings" },
 	{ NULL,	"rmap-ops N",	"stop after N rmap bogo operations" },
 	{ NULL,	NULL,		NULL }
 };
+
+#if defined(HAVE_SIGLONGJMP)
+
+static volatile bool do_jmp = true;
+static sigjmp_buf jmp_env;
 
 typedef struct {
 	int fd;
@@ -326,3 +328,15 @@ const stressor_info_t stress_rlimit_info = {
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
+
+#else
+
+const stressor_info_t stress_rlimit_info = {
+	.stressor = stress_unimplemented,
+	.classifier = CLASS_OS,
+	.verify = VERIFY_ALWAYS,
+	.help = help,
+	.unimplemented_reason = "built without siglongjmp support"
+};
+
+#endif
