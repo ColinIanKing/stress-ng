@@ -94,7 +94,7 @@ static int OPTIMIZE3 wrap_getcpu(void *vdso_func)
  */
 static int OPTIMIZE3 wrap_gettimeofday(void *vdso_func)
 {
-	int (*vdso_gettimeofday)(struct timeval *tv, struct timezone *tz);
+	int (*vdso_gettimeofday)(struct timeval *tv, shim_timezone_t *tz);
 	struct timeval tv;
 
 	*(void **)(&vdso_gettimeofday) = vdso_func;

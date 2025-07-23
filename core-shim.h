@@ -286,6 +286,16 @@ typedef int64_t		shim_off64_t;
 #define SHIM_POSIX_MADV_DONTNEED POSIX_MADV_DONTNEED
 #endif
 
+/* timezone shim */
+#if defined(HAVE_TIMEZONE)
+typedef struct timezone shim_timezone_t;
+#else
+typedef struct shim_timezone {
+	int tz_minuteswest;	/* minute West of GMT */
+	int tz_dsttime;		/* DST correction */
+} shim_timezone_t;
+#endif
+
 /* clone3 clone args */
 struct shim_clone_args {
 	uint64_t flags;		/* Flags bit mask */
@@ -662,7 +672,7 @@ extern int shim_clock_gettime(clockid_t clk_id, struct timespec *tp);
 extern int shim_clock_settime(clockid_t clk_id, struct timespec *tp);
 extern int shim_nice(int inc);
 extern time_t shim_time(time_t *tloc);
-extern int shim_gettimeofday(struct timeval *tv, struct timezone *tz);
+extern int shim_gettimeofday(struct timeval *tv, shim_timezone_t *tz);
 extern int shim_close_range(unsigned int fd, unsigned int max_fd,
 	unsigned int flags);
 extern int shim_lookup_dcookie(uint64_t cookie, char *buffer, size_t len);

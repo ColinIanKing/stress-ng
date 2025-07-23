@@ -210,10 +210,11 @@ static int stress_set(stress_args_t *args)
 		UNEXPECTED
 #endif
 
-#if defined(HAVE_SETTIMEOFDAY)
+#if defined(HAVE_SETTIMEOFDAY) &&	\
+    defined(HAVE_GETTIMEOFDAY)
 		if (!stress_check_capability(SHIM_CAP_SYS_TIME)) {
 			struct timeval tv;
-			struct timezone tz;
+			shim_timezone_t tz;
 
 			/* We should not be able to set the time of day */
 			ret = gettimeofday(&tv, &tz);

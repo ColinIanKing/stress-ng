@@ -693,8 +693,9 @@ static int stress_gettimeofday(stress_args_t *args)
 {
 	int ret;
 	struct timeval tv;
-	struct timezone tz;
+	shim_timezone_t tz;
 
+#if defined(HAVE_GETTIMEOFDAY)
 	/*
 	 *  The following gettimeofday calls probably use the VDSO
 	 *  on Linux
@@ -711,13 +712,14 @@ static int stress_gettimeofday(stress_args_t *args)
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
+#endif
 #if 0
 	/*
 	 * gettimeofday with NULL args works fine on x86-64
 	 * linux, but on s390 will segfault. Disable this
 	 * for now.
 	 */
-	ret = gettimeofday(NULL, NULL);
+	ret = shim_gettimeofday(NULL, NULL);
 	if ((ret < 0) && (errno != ENOSYS)) {
 		pr_fail("%s: gettimeofday failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));

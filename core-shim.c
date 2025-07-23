@@ -2332,7 +2332,7 @@ time_t shim_time(time_t *tloc)
  *	avoid libc calling gettimeofday via
  *	the VDSO and force the time system call
  */
-int shim_gettimeofday(struct timeval *tv, struct timezone *tz)
+int shim_gettimeofday(struct timeval *tv, shim_timezone_t *tz)
 {
 #if defined(__NR_gettimeofday) &&	\
     defined(HAVE_SYSCALL) &&		\
