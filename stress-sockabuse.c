@@ -256,6 +256,7 @@ static int stress_sockabuse_server(
 				args->name, errno, strerror(errno));
 			continue;
 		}
+#if defined(SOL_SOCKET)
 		if (UNLIKELY(setsockopt(fd, SOL_SOCKET, SO_REUSEADDR,
 			&so_reuseaddr, sizeof(so_reuseaddr)) < 0)) {
 			rc = stress_exit_status(errno);
@@ -264,6 +265,7 @@ static int stress_sockabuse_server(
 			(void)close(fd);
 			continue;
 		}
+#endif
 
 		if (UNLIKELY(stress_set_sockaddr(args->name, args->instance, mypid,
 				AF_INET, sockabuse_port,
@@ -311,12 +313,15 @@ static int stress_sockabuse_server(
 					break;
 				}
 				len = sizeof(sndbuf);
+#if defined(SOL_SOCKET) &&	\
+    defined(SO_SNDBUF)
 				if (UNLIKELY(getsockopt(fd, SOL_SOCKET, SO_SNDBUF, &sndbuf, &len) < 0)) {
 					pr_fail("%s: getsockopt failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 					(void)close(sfd);
 					break;
 				}
+#endif
 				(void)shim_memset(buf, stress_ascii64[stress_bogo_get(args) & 63], sizeof(buf));
 
 				n = send(sfd, buf, sizeof(buf), 0);
