@@ -242,8 +242,7 @@ static bool stress_dirdeep_make(
 		 */
 		(void)shim_fsync(dir_fd);
 		(void)close(dir_fd);
-
-		(void)sync();
+		shim_sync();
 	}
 #endif
 	return false;
@@ -312,7 +311,7 @@ static int stress_dir_exercise(
 #if defined(HAVE_SYNCFS)
 					(void)syncfs(fd);
 #else
-					(void)sync();
+					shim_sync();
 #endif
 				} else if (rnd > 0xff40) {
 					(void)shim_fsync(fd);
