@@ -134,7 +134,7 @@ static int stress_verity(stress_args_t *args)
 		}
 		(void)shim_fsync(fd);
 		(void)close(fd);
-		(void)sync();
+		shim_sync();
 
 		fd = open(filename, O_RDONLY);
 		if (fd < 0) {
