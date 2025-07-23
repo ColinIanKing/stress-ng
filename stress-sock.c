@@ -817,6 +817,7 @@ retry:
 			case SOCKET_OPT_RECV:
 				n = recv(fd, buf, MMAP_IO_SIZE, recvflag);
 				break;
+#if defined(HAVE_RECVMSG)
 			case SOCKET_OPT_RECVMSG:
 				for (j = 0, i = 16; i < MMAP_IO_SIZE; i += 16, j++) {
 					vec[j].iov_base = buf;
@@ -827,6 +828,7 @@ retry:
 				msg.msg_iovlen = j;
 				n = recvmsg(fd, &msg, recvflag);
 				break;
+#endif
 #if defined(HAVE_RECVMMSG)
 			case SOCKET_OPT_RECVMMSG:
 				(void)shim_memset(msgvec, 0, sizeof(msgvec));
