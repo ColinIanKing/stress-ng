@@ -48,7 +48,8 @@ static const stress_help_t help[] = {
 #if !defined(__UCLIBC__) &&		\
     !defined(STRESS_ARCH_ARC64) &&	\
     defined(HAVE_FENV_H) &&     	\
-    defined(HAVE_FLOAT_H)
+    defined(HAVE_FLOAT_H) &&		\
+    defined(HAVE_SIGLONGJMP)
 
 #define SNG_INTDIV	(0x40000000)
 #define SNG_FLTDIV	(0x80000000)
