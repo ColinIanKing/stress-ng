@@ -2428,7 +2428,8 @@ static int syscall_getsockname(void)
 #endif
 
 #if defined(HAVE_SYS_UN_H) &&	\
-    defined(AF_UNIX)
+    defined(AF_UNIX) &&		\
+    defined(SOL_SOCKET)
 #define HAVE_SYSCALL_GETSOCKOPT
 static int syscall_getsockopt(void)
 {
@@ -6058,7 +6059,8 @@ static int syscall_setsid(void)
 #endif
 
 #if defined(HAVE_SYS_UN_H) &&	\
-    defined(AF_UNIX)
+    defined(AF_UNIX) &&		\
+    defined(SOL_SOCKET)
 #define HAVE_SYSCALL_SETSOCKOPT
 static int syscall_setsockopt(void)
 {
