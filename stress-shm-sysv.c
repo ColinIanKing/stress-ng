@@ -1130,7 +1130,7 @@ fork_again:
 			 * doubles the OOM score
 			 */
 			errno = 0;
-			VOID_RET(int, nice(5));
+			VOID_RET(int, shim_nice(5));
 			if (errno != 0)
 				pr_dbg("%s: nice of child failed, errno=%d (%s) "
 					"(instance %d)\n", args->name,
