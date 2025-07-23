@@ -42,8 +42,10 @@ typedef struct {
 
 #define STR_SIZE	(8)
 
+#if defined(HAVE_SIGLONGJMP)
 static volatile bool do_jmp = true;
 static sigjmp_buf jmp_env;
+#endif
 
 #define IDX(base, i, k) 	(1U + base[(i)][(k)])
 #define IDX_T(base, i, k)	(1U + table[base[(i)][(k)]])
@@ -158,6 +160,7 @@ static const stress_radixsort_method_t stress_radixsort_methods[] = {
 	{ "radixsort-nonlibc",	radixsort_nonlibc },
 };
 
+#if defined(HAVE_SIGLONGJMP)
 /*
  *  stress_radixsort_handler()
  *	SIGALRM generic handler
@@ -171,6 +174,7 @@ static void MLOCKED_TEXT stress_radixsort_handler(int signum)
 		siglongjmp(jmp_env, 1);		/* Ugly, bounce back */
 	}
 }
+#endif
 
 static const char *stress_radixsort_method(const size_t i)
 {
@@ -193,11 +197,13 @@ static int stress_radixsort(stress_args_t *args)
 	const unsigned char **data;
 	unsigned char *text, *ptr;
 	int n, i;
-	struct sigaction old_action;
-	int ret;
 	unsigned char revtable[256];
 	size_t radixsort_method = 0;
 	NOCLOBBER int rc = EXIT_SUCCESS;
+#if defined(HAVE_SIGLONGJMP)
+	struct sigaction old_action;
+	int ret;
+#endif
 
 	radixsort_func_t radixsort_func;
 
@@ -232,6 +238,7 @@ static int stress_radixsort(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
+#if defined(HAVE_SIGLONGJMP)
 	ret = sigsetjmp(jmp_env, 1);
 	if (ret) {
 		/*
@@ -240,12 +247,12 @@ static int stress_radixsort(stress_args_t *args)
 		(void)stress_sigrestore(args->name, SIGALRM, &old_action);
 		goto tidy;
 	}
-
 	if (stress_sighandler(args->name, SIGALRM, stress_radixsort_handler, &old_action) < 0) {
 		free(data);
 		free(text);
 		return EXIT_FAILURE;
 	}
+#endif
 
 	for (i = 0; i < 256; i++)
 		revtable[i] = (unsigned char)(255 - i);
@@ -300,9 +307,11 @@ static int stress_radixsort(stress_args_t *args)
 		stress_bogo_inc(args);
 	} while ((rc == EXIT_SUCCESS) && stress_continue(args));
 
+#if defined(HAVE_SIGLONGJMP)
 	do_jmp = false;
 	(void)stress_sigrestore(args->name, SIGALRM, &old_action);
 tidy:
+#endif
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	free(data);
