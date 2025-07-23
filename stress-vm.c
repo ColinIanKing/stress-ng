@@ -3777,7 +3777,9 @@ static int stress_vm(stress_args_t *args)
 
 	ret = stress_oomable_child(args, &context, stress_vm_child, STRESS_OOMABLE_NORMAL);
 
+#if defined(MS_SYNC)
 	(void)shim_msync(context.bit_error_count, page_size, MS_SYNC);
+#endif
 	if (*context.bit_error_count > 0) {
 		pr_fail("%s: detected %" PRIu64 " bit errors while "
 			"stressing memory\n",
