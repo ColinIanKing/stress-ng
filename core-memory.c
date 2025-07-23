@@ -101,7 +101,8 @@ int stress_get_meminfo(
 	if (UNLIKELY(!freemem || !totalmem || !freeswap || !totalswap))
 		return -1;
 #if defined(HAVE_SYS_SYSINFO_H) &&	\
-    defined(HAVE_SYSINFO)
+    defined(HAVE_SYSINFO) &&		\
+    !defined(__fiwix)
 	{
 		struct sysinfo info;
 
