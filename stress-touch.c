@@ -164,7 +164,7 @@ static void stress_touch_dir_clean(stress_args_t *args)
 	DIR *dir;
 	const struct dirent *d;
 
-	sync();
+	shim_sync();
 	stress_temp_dir(tmp, sizeof(tmp), args->name,
 		args->pid, args->instance);
 	dir = opendir(tmp);
