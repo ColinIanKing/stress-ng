@@ -55,7 +55,7 @@ static int stress_io(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		sync();
+		shim_sync();
 #if defined(HAVE_SYNCFS)
 		if (UNLIKELY((fd != -1) && (syncfs(fd) < 0))) {
 			pr_fail("%s: syncfs failed, errno=%d (%s)\n",
