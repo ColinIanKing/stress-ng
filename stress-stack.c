@@ -35,8 +35,6 @@ typedef struct stress_stack_check {
 	struct stress_stack_check *self_addr;	/* Address of this struct to check */
 } stress_stack_check_t;
 
-static sigjmp_buf jmp_env;
-
 static const stress_help_t help[] = {
 	{ NULL,	"stack N",	"start N workers generating stack overflows" },
 	{ NULL,	"stack-fill",	"fill stack, touches all new pages " },
@@ -54,6 +52,10 @@ static const stress_opt_t opts[] = {
 	{ OPT_stack_unmap,   "stack-unmap",   TYPE_ID_BOOL, 0, 1, NULL },
 	END_OPT,
 };
+
+#if defined(HAVE_SIGLONGJMP)
+
+static sigjmp_buf jmp_env;
 
 /*
  *  stress_segvhandler()
@@ -329,3 +331,16 @@ const stressor_info_t stress_stack_info = {
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
+
+#else
+
+const stressor_info_t stress_stack_info = {
+	.stressor = stress_unimplemented,
+	.classifier = CLASS_VM | CLASS_MEMORY,
+	.opts = opts,
+	.verify = VERIFY_ALWAYS,
+	.help = help,
+	.unimplemented_reason = "built without siglongjmp support"
+};
+
+#endif
