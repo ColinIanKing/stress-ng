@@ -388,7 +388,7 @@ static int stress_dentry(stress_args_t *args)
 		}
 
 		stress_dentry_misc(dir_path);
-		sync();
+		shim_sync();
 
 		/*
 		 *  Now look up some bogus names to exercise
