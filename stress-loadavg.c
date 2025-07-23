@@ -165,6 +165,9 @@ static int stress_loadavg(stress_args_t *args)
 	stress_pthread_args_t pargs = { args, NULL, 0 };
 	sigset_t set;
 
+	if (g_opt_flags & OPT_FLAGS_MINIMIZE)
+		loadavg_max = 4;	/* Really low */
+
 	(void)stress_get_setting("loadavg-max", &loadavg_max);
 
 	if (loadavg_max > threads_max) {
