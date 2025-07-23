@@ -89,6 +89,7 @@ static void socket_pair_close(
  */
 static void socket_pair_try_leak(void)
 {
+#if defined(MSG_OOB)
 	int fds[2];
 
 	if (UNLIKELY(socketpair(AF_UNIX, SOCK_STREAM, 0, fds) < 0))
@@ -99,6 +100,7 @@ static void socket_pair_try_leak(void)
 
 	(void)close(fds[0]);
 	(void)close(fds[1]);
+#endif
 }
 
 /*
