@@ -632,7 +632,7 @@ adjust the per process timer slack to N nanoseconds (Linux only). Increasing
 the timer slack allows the kernel to coalesce timer events by adding some
 fuzziness to timer expiration times and hence reduce wakeups.  Conversely,
 decreasing the timer slack will increase wakeups.  A value of 0 for the
-timer\-slack will set the system default of 50,000 nanoseconds.
+timer\-slack will set the system default of 50000 nanoseconds.
 .TP
 .B \-\-tz
 collect temperatures from the available thermal zones on the machine (Linux
@@ -1635,19 +1635,19 @@ Floyd-Steinberg dithering of a 1024 \(mu 768 random image from 8 bits down to
 1 bit of depth
 T}
 div8	T{
-50,000 8 bit unsigned integer divisions
+50000 8 bit unsigned integer divisions
 T}
 div16	T{
-50,000 16 bit unsigned integer divisions
+50000 16 bit unsigned integer divisions
 T}
 div32	T{
-50,000 32 bit unsigned integer divisions
+50000 32 bit unsigned integer divisions
 T}
 div64	T{
-50,000 64 bit unsigned integer divisions
+50000 64 bit unsigned integer divisions
 T}
 div128	T{
-50,000 128 bit unsigned integer divisions
+50000 128 bit unsigned integer divisions
 T}
 double	T{
 1000 iterations of a mix of double precision floating point operations
@@ -2897,7 +2897,7 @@ list of CPUs to affine the flop threads to. Refer to the \-\-taskset option desc
 for the syntax of the list argument.
 .TP
 .B \-\-flipflop\-ops N
-stop after N bogo-ops, in this case a bogo-op is 100,000 flip-flop operations.
+stop after N bogo-ops, in this case a bogo-op is 100000 flip-flop operations.
 .RE
 .TP
 .B BSD File locking (flock) stressor
@@ -3603,7 +3603,7 @@ be from 1 K to 4 M.
 .B \-\-hyperbolic N
 start N workers that exercise sinh, cosh, and tanh hyperbolic
 functions using float, double and long double floating point
-variants. Each function is exercised 10,000 times per bogo-operation.
+variants. Each function is exercised 10000 times per bogo-operation.
 .TP
 .B \-\-hyperbolic\-method function
 specify a hyperbolic stress function. By default, all the functions are exercised
@@ -4171,7 +4171,7 @@ sync dirty data and metadata to disk.
 .TQ
 .B \-\-list N
 start N workers that exercise list data structures. The default is
-to add, find and remove 5,000 64 bit integers into circleq (doubly
+to add, find and remove 5000 64 bit integers into circleq (doubly
 linked circle queue), list (doubly linked list), slist (singly
 linked list), slistt (singly linked list using tail), stailq (singly
 linked tail queue) and tailq (doubly linked tail queue) lists. The
@@ -6264,7 +6264,7 @@ loop, but a specific stressor can be selected using the \-\-plugin\-method optio
 The stressor function takes no parameters and returns 0 for success and non-zero
 for failure (and will terminate the plugin stressor). Each time a stressor function
 is executed the bogo-op counter is incremented by one. The following example
-performs 10,000 nop instructions per bogo-op:
+performs 10000 nop instructions per bogo-op:
 .PP
 .in +10n
 .EX
@@ -6908,7 +6908,7 @@ for all the list objects. This removes the overhead of the heap keeping track of
 each list object, hence uses less memory.
 .TP
 .B \-\-randlist\-items N
-Allocate N items on the list. By default, 100,000 items are allocated.
+Allocate N items on the list. By default, 100000 items are allocated.
 .TP
 .B \-\-randlist\-ops N
 stop randlist workers after N list traversals
@@ -8633,7 +8633,7 @@ T}
 .TQ
 .B \-\-tree N
 start N workers that exercise tree data structures. The default is
-to add, find and remove 250,000 64 bit integers into AVL (avl),
+to add, find and remove 250000 64 bit integers into AVL (avl),
 Red-Black (rb), Splay (splay), btree and binary trees.  The intention of
 this stressor is to exercise memory and cache with the various tree
 operations.
@@ -8657,7 +8657,7 @@ to be added into the tree.
 .B \-\-trig N
 start N workers that exercise sin, cos, sincos (where available) and tan
 trigonometric functions using float, double and long double floating point
-variants. Each function is exercised 10,000 times per bogo-operation.
+variants. Each function is exercised 10000 times per bogo-operation.
 .TP
 .B \-\-trig\-method function
 specify a trigonometric stress function. By default, all the functions are exercised
@@ -9814,7 +9814,7 @@ stop after N bogo wide character string operations.
 .B \-\-workload N
 start N workers that exercise the scheduler with items of work that
 are started at random times with random sleep delays between work items. By
-default a 100,000 microsecond slice of time has 100 work items
+default a 100000 microsecond slice of time has 100 work items
 that start at random times during the slice. The work items by default run
 for a quanta of 1000 microseconds scaled by the percentage work load (default of 30%).
 For a slice of S microseconds and a work item quanta duration of Q microseconds,
@@ -9895,7 +9895,7 @@ select scheduling policy. Note that deadline, fifo and rr require root privilege
 .TP
 .B \-\-workload\-slice\-us S
 specify the duration of each scheduling slice in microseconds. The default is
-100,000 microseconds (0.1 seconds).
+100000 microseconds (0.1 seconds).
 .TP
 .B \-\-workload\-quanta\-us Q
 specify the duration of each work item in microseconds. The default is 1000
@@ -10270,7 +10270,7 @@ after another, for 10 seconds per permutation mix.
 .IP
 measures real time scheduling latencies created by the hdd stressor. This
 uses the high resolution nanosecond clock to measure latencies during
-sleeps of 10,000 nanoseconds. At the end of 1 minute of stressing, the
+sleeps of 10000 nanoseconds. At the end of 1 minute of stressing, the
 latency distribution with 2500 ns intervals will be displayed. NOTE: this
 must be run with the CAP_SYS_NICE capability to enable the real time scheduling
 to get accurate measurements.
