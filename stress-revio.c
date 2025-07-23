@@ -341,7 +341,7 @@ static int stress_revio(stress_args_t *args)
 	alloc_buf = malloc((size_t)DEFAULT_REVIO_WRITE_SIZE + BUF_ALIGNMENT);
 	if (!alloc_buf) {
 		pr_err("%s: failed to allocate %zu buffer%s\n",
-			args->name, (size_t)DEFAULT_REVIO_WRITE_SIZE + BUF_ALIGNEMENT,
+			args->name, (size_t)DEFAULT_REVIO_WRITE_SIZE + BUF_ALIGNMENT,
 			stress_get_memfree_str());
 		(void)stress_temp_dir_rm_args(args);
 		return rc;
