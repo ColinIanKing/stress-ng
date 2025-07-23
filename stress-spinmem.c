@@ -40,8 +40,10 @@ static const stress_help_t help[] = {
 #define SPINMEM_OFFSET	(1)
 #define SPINMEM_SPINS	(1000000)
 
+#if defined(HAVE_SIGLONGJMP)
 static volatile bool do_jmp = true;
 static sigjmp_buf jmp_env;
+#endif
 
 static inline void ALWAYS_INLINE stress_spinmem_mfence(void)
 {
@@ -65,6 +67,7 @@ do {					\
 #define SPINMEM_FLUSH(ptr)		\
 	stress_cpu_data_cache_flush((void *)ptr, 64)
 
+#if defined(HAVE_SIGLONGJMP)
 /*
  *  stress_spinmem_handler()
  *      SIGALRM generic handler
@@ -78,6 +81,7 @@ static void MLOCKED_TEXT stress_spinmem_handler(int signum)
 		siglongjmp(jmp_env, 1);         /* Ugly, bounce back */
 	}
 }
+#endif
 
 #define SPINMEM_READER(name, type)		\
 static void OPTIMIZE3 name(uint8_t *data, const bool spinmem_yield)	\
@@ -219,12 +223,10 @@ static void stress_spinmem_numa(
  */
 static int stress_spinmem(stress_args_t *args)
 {
-	int ret;
 	NOCLOBBER int rc = EXIT_SUCCESS;
 	NOCLOBBER pid_t pid;
 	NOCLOBBER double duration = 0.0, count = 0.0;
 	uint8_t *mapping;
-	struct sigaction old_action;
 	double rate;
 	size_t spinmem_method = 2; /* 32bit default */
 	spinmem_func_t spinmem_reader, spinmem_writer;
@@ -239,6 +241,10 @@ static int stress_spinmem(stress_args_t *args)
         stress_numa_mask_t *numa_mask = NULL;
         stress_numa_mask_t *numa_nodes = NULL;
 	const size_t page_size = args->page_size;
+#endif
+#if defined(HAVE_SIGLONGJMP)
+	struct sigaction old_action;
+	int ret;
 #endif
 
 	(void)stress_get_setting("spinmem-affinity", &spinmem_affinity);
@@ -277,6 +283,7 @@ static int stress_spinmem(stress_args_t *args)
 	}
 	stress_set_vma_anon_name(mapping, args->page_size, "spinmem-data");
 
+#if defined(HAVE_SIGLONGJMP)
 	ret = sigsetjmp(jmp_env, 1);
 	if (ret) {
 		/*
@@ -289,6 +296,7 @@ static int stress_spinmem(stress_args_t *args)
 		rc = EXIT_FAILURE;
 		goto tidy;
 	}
+#endif
 
 	spinmem_reader = spinmem_funcs[spinmem_method].reader;
 	spinmem_writer = spinmem_funcs[spinmem_method].writer;
@@ -370,8 +378,10 @@ static int stress_spinmem(stress_args_t *args)
 #if defined(HAVE_SCHED_SETAFFINITY)
 completed:
 #endif
+#if defined(HAVE_SIGLONGJMP)
 	do_jmp = false;
 	(void)stress_sigrestore(args->name, SIGALRM, &old_action);
+#endif
 tidy:
 	stress_kill_and_wait(args, pid, SIGKILL, false);
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
