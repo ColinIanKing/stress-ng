@@ -40,14 +40,6 @@
 #include <sys/auxv.h>
 #endif
 
-static sigjmp_buf jmp_env;
-#if defined(SA_SIGINFO)
-static volatile uint8_t *fault_addr;
-static volatile uint8_t *expected_addr;
-static volatile int signo;
-static volatile int code;
-#endif
-
 #define BAD_ADDR	((void *)(0x10))
 
 static const stress_help_t help[] = {
@@ -55,6 +47,16 @@ static const stress_help_t help[] = {
 	{ NULL,	"sigsegv-ops N", "stop after N bogo segmentation faults" },
 	{ NULL,	NULL,		 NULL }
 };
+
+#if defined(HAVE_SIGLONGJMP)
+
+static sigjmp_buf jmp_env;
+#if defined(SA_SIGINFO)
+static volatile uint8_t *fault_addr;
+static volatile uint8_t *expected_addr;
+static volatile int signo;
+static volatile int code;
+#endif
 
 /*
  *  stress_segvhandler()
@@ -548,3 +550,14 @@ const stressor_info_t stress_sigsegv_info = {
 #endif
 	.help = help
 };
+
+#else
+
+const stressor_info_t stress_sigsegv_info = {
+	.stressor = stress_unimplemented,
+	.classifier = CLASS_SIGNAL | CLASS_OS,
+	.help = help,
+	.unimplemented_reason = "built without siglongjmp support"
+};
+
+#endif
