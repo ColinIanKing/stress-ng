@@ -29,8 +29,10 @@
 #define MAX_QSORT_SIZE		(4 * MB)
 #define DEFAULT_QSORT_SIZE	(256 * KB)
 
+#if defined(HAVE_SIGLONGJMP)
 static volatile bool do_jmp = true;
 static sigjmp_buf jmp_env;
+#endif
 
 typedef int (*comp_func_t)(const void *v1, const void *v2);
 typedef void (*qsort_func_t)(void *base, size_t nmemb, size_t size, comp_func_t cmp);
@@ -48,6 +50,7 @@ typedef struct {
 	const qsort_func_t qsort_func;
 } stress_qsort_method_t;
 
+#if defined(HAVE_SIGLONGJMP)
 /*
  *  stress_qsort_handler()
  *	SIGALRM generic handler
@@ -61,6 +64,7 @@ static void MLOCKED_TEXT stress_qsort_handler(int signum)
 		siglongjmp(jmp_env, 1);		/* Ugly, bounce back */
 	}
 }
+#endif
 
 typedef uint32_t qsort_swap_type_t;
 
@@ -280,12 +284,14 @@ static int OPTIMIZE3 stress_qsort(stress_args_t *args)
 	uint64_t qsort_size = DEFAULT_QSORT_SIZE;
 	int32_t *data;
 	size_t n, data_size, qsort_method = 0;
-	struct sigaction old_action;
-	int ret;
 	double rate;
 	NOCLOBBER double duration = 0.0, count = 0.0, sorted = 0.0;
 	NOCLOBBER int rc = EXIT_SUCCESS;
 	qsort_func_t qsort_func;
+#if defined(HAVE_SIGLONGJMP)
+	struct sigaction old_action;
+	int ret;
+#endif
 
 	stress_catch_sigill();
 
@@ -311,6 +317,7 @@ static int OPTIMIZE3 stress_qsort(stress_args_t *args)
 	(void)stress_madvise_collapse(data, data_size);
 	stress_set_vma_anon_name(data, data_size, "qsort-data");
 
+#if defined(HAVE_SIGLONGJMP)
 	ret = sigsetjmp(jmp_env, 1);
 	if (ret) {
 		/*
@@ -319,12 +326,11 @@ static int OPTIMIZE3 stress_qsort(stress_args_t *args)
 		(void)stress_sigrestore(args->name, SIGALRM, &old_action);
 		goto tidy;
 	}
-
 	if (stress_sighandler(args->name, SIGALRM, stress_qsort_handler, &old_action) < 0) {
 		free(data);
 		return EXIT_FAILURE;
 	}
-
+#endif
 
 	stress_sort_data_int32_init(data, n);
 
@@ -392,9 +398,11 @@ static int OPTIMIZE3 stress_qsort(stress_args_t *args)
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
 
+#if defined(HAVE_SIGLONGJMP)
 	do_jmp = false;
 	(void)stress_sigrestore(args->name, SIGALRM, &old_action);
 tidy:
+#endif
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	rate = (duration > 0.0) ? count / duration : 0.0;
 	stress_metrics_set(args, 0, "qsort comparisons per sec",
