@@ -91,6 +91,8 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
+#if defined(HAVE_SIGLONGJMP)
+
 static sigjmp_buf jmp_env;
 static int handled_signum = -1;
 #if defined(HAVE_TIMER_FUNCTIONALITY)
@@ -1471,3 +1473,28 @@ const stressor_info_t stress_misaligned_info = {
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
+
+#else
+
+static const char *stress_misaligned_method(const size_t i)
+{
+	(void)i;
+
+	return NULL;
+}
+
+static const stress_opt_t opts[] = {
+	{ OPT_misaligned_method, "misaligned-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_misaligned_method },
+	END_OPT,
+};
+
+const stressor_info_t stress_misaligned_info = {
+	.stressor = stress_unimplemented,
+	.classifier = CLASS_CPU_CACHE | CLASS_MEMORY,
+	.opts = opts,
+	.verify = VERIFY_ALWAYS,
+	.help = help,
+	.unimplemented_reason = "built without siglongjmp support"
+};
+
+#endif
