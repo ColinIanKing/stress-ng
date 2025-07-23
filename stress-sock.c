@@ -949,7 +949,9 @@ static int OPTIMIZE3 stress_sock_server(
 		goto die;
 	}
 
-#if defined(MSG_ZEROCOPY) && defined(SO_ZEROCOPY)
+#if defined(MSG_ZEROCOPY) &&	\
+    defined(SO_ZEROCOPY) &&	\
+    defined(SOL_SOCKET)
 	if (sock_zerocopy) {
 		int so_zerocopy = 1;
 		static bool warned = false;
@@ -968,6 +970,7 @@ static int OPTIMIZE3 stress_sock_server(
 #else
 	(void)sock_zerocopy;
 #endif
+#if defined(SOL_SOCKET)
 	if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR,
 		&so_reuseaddr, sizeof(so_reuseaddr)) < 0) {
 		pr_fail("%s: setsockopt failed, errno=%d (%s)\n",
@@ -982,11 +985,11 @@ static int OPTIMIZE3 stress_sock_server(
 	/* exercise invalid setsockopt fd */
 	(void)setsockopt(-1, SOL_SOCKET, SO_REUSEADDR, &so_reuseaddr, sizeof(so_reuseaddr));
 
-	/* exercise invalid level */
-	(void)setsockopt(fd, -1, SO_REUSEADDR, &so_reuseaddr, sizeof(so_reuseaddr));
-
 	/* exercise invalid optname */
 	(void)setsockopt(fd, SOL_SOCKET, -1, &so_reuseaddr, sizeof(so_reuseaddr));
+#endif
+	/* exercise invalid level */
+	(void)setsockopt(fd, -1, SO_REUSEADDR, &so_reuseaddr, sizeof(so_reuseaddr));
 
 	if (stress_set_sockaddr_if(args->name, args->instance, ppid,
 			sock_domain, sock_port, sock_if,
