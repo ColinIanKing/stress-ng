@@ -748,7 +748,7 @@ tidy:
 		(void)stress_kill_pid_wait(pid, NULL);
 	(void)shim_unlink(filename);
 	(void)shim_unlink(filename2);
-	(void)sync();
+	shim_sync();
 	(void)stress_temp_dir_rm_args(args);
 	stress_mount_free(mnts, n_mnts);
 
