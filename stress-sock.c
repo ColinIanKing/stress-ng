@@ -613,12 +613,15 @@ retry:
 				&tos, &optlen);
 		}
 #endif
+
+#if defined(SOL_SOCKET)
 		for (i = 0; i < SIZEOF_ARRAY(sol_socket_so_opts); i++) {
 			int val = 0;
 			socklen_t optlen = sizeof(val);
 
 			VOID_RET(int, getsockopt(fd, SOL_SOCKET, sol_socket_so_opts[i], &val, &optlen));
 		}
+#endif
 #if defined(AF_INET6)
 		if ((sock_domain == AF_INET) || (sock_domain == AF_INET6)) {
 #else
