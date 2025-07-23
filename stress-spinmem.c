@@ -37,7 +37,7 @@ static const stress_help_t help[] = {
 
 #define SPINMEM_LOOPS	(1000)
 #define SPINMEM_OFFSET	(1)
-#define SPINMEM_SPINS	(1000)
+#define SPINMEM_SPINS	(1000000)
 
 static volatile bool do_jmp = true;
 static sigjmp_buf jmp_env;
@@ -141,6 +141,11 @@ SPINMEM_WRITER(stress_spinmem_writer32, uint32_t)
 SPINMEM_READER(stress_spinmem_reader64, uint64_t)
 SPINMEM_WRITER(stress_spinmem_writer64, uint64_t)
 
+#if defined(HAVE_INT128_T)
+SPINMEM_READER(stress_spinmem_reader128, __uint128_t)
+SPINMEM_WRITER(stress_spinmem_writer128, __uint128_t)
+#endif
+
 typedef void (*spinmem_func_t)(uint8_t *data);
 typedef struct {
 	const char *name;
@@ -153,6 +158,9 @@ static const spinmem_funcs_t spinmem_funcs[] = {
 	{ "16bit", stress_spinmem_reader16, stress_spinmem_writer16 },
 	{ "32bit", stress_spinmem_reader32, stress_spinmem_writer32 },
 	{ "64bit", stress_spinmem_reader64, stress_spinmem_writer64 },
+#if defined(HAVE_INT128_T)
+	{ "128bit", stress_spinmem_reader128, stress_spinmem_writer128 },
+#endif
 };
 
 #if defined(HAVE_SCHED_SETAFFINITY)

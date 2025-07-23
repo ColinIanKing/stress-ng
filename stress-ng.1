@@ -8084,8 +8084,9 @@ CPUs in a system. By default 32 bit write/reads are used.
 .B \-\-spinmem\-affinity
 move spinmem stressor processes to randomly selected CPUs every million spinmem transactions.
 .TP
-.B \-\-spinmem\-method [ 8bit | 16bit | 32bit | 64bit ]
-select the size of the memory write/reads, the default is 32 bit.
+.B \-\-spinmem\-method [ 8bit | 16bit | 32bit | 64bit | 128bit ]
+select the size of the memory write/reads, the default is 32 bit. 128 bit read/writes
+may not be supported by some toolchains.
 .TP
 .B \-\-spinmem\-numa
 assign shared memory page to randomly selected NUMA nodes. This is disabled
