@@ -594,7 +594,12 @@ static int syscall_socket_measure(const int measure)
 	pid_t pid;
 	char buffer[64];
 	struct sockaddr_un addr;
+#if defined(HAVE_RECVMMSG) ||	\
+    defined(HAVE_RECVMSG) ||	\
+    defined(HAVE_SENDMMSG) ||	\
+    defined(HAVE_SENDMSG)
 	struct iovec vec[1];
+#endif
 	struct msghdr msg;
 #if defined(HAVE_RECVMMSG) || 	\
     defined(HAVE_SENDMMSG)
@@ -670,6 +675,7 @@ static int syscall_socket_measure(const int measure)
 				syscall_shared_error((int)sret);
 			break;
 #endif
+#if defined(HAVE_SENDMSG)
 		case SOCK_MEASURE_SENDMSG:
 			vec[0].iov_base = buffer;
 			vec[0].iov_len = sizeof(buffer);
@@ -682,6 +688,7 @@ static int syscall_socket_measure(const int measure)
 			if (sret < 0)
 				syscall_shared_error((int)sret);
 			break;
+#endif
 		default:
 			VOID_RET(ssize_t, send(sfd, buffer, strlen(buffer), 0));
 			break;
@@ -767,6 +774,7 @@ close_sfd_child:
 			if (sret < 0)
 				syscall_shared_error((int)sret);
 			break;
+#if defined(HAVE_RECVMSG)
 		case SOCK_MEASURE_RECVMSG:
 			vec[0].iov_base = buffer;
 			vec[0].iov_len = sizeof(buffer);
@@ -779,6 +787,7 @@ close_sfd_child:
 			if (sret < 0)
 				syscall_shared_error((int)sret);
 			break;
+#endif
 #if defined(HAVE_RECVMMSG)
 		case SOCK_MEASURE_RECVMMSG:
 			(void)shim_memset(msgvec, 0, sizeof(msgvec));
@@ -5780,6 +5789,7 @@ static int syscall_sendmmsg(void)
 #endif
 
 #if defined(HAVE_SYS_UN_H) &&	\
+    defined(HAVE_SENDMSG) &&	\
     defined(AF_UNIX)
 #define HAVE_SYSCALL_SENDMSG
 static int syscall_sendmsg(void)
