@@ -109,7 +109,9 @@ static const stress_help_t help[] = {
 static const stress_sock_options_t sock_options_opts[] = {
 	{ "random",	SOCKET_OPT_RANDOM },
 	{ "send",	SOCKET_OPT_SEND },
+#if defined(HAVE_SENDMSG)
 	{ "sendmsg",	SOCKET_OPT_SENDMSG },
+#endif
 #if defined(HAVE_SENDMMSG)
 	{ "sendmmsg",	SOCKET_OPT_SENDMMSG },
 #else
@@ -324,6 +326,7 @@ static void stress_sock_invalid_recv(const int fd, const int opt)
 		/* exercise invalid fd */
 		VOID_RET(ssize_t, recv(~0, buf, sizeof(buf), 0));
 		break;
+#if defined(HAVE_RECVMSG)
 	case SOCKET_OPT_RECVMSG:
 		vec[0].iov_base = buf;
 		vec[0].iov_len = sizeof(buf);
@@ -337,6 +340,7 @@ static void stress_sock_invalid_recv(const int fd, const int opt)
 		/* exercise invalid fd */
 		VOID_RET(ssize_t, recvmsg(~0, &msg, 0));
 		break;
+#endif
 #if defined(HAVE_RECVMMSG)
 	case SOCKET_OPT_RECVMMSG:
 		(void)shim_memset(msgvec, 0, sizeof(msgvec));
@@ -1164,6 +1168,7 @@ retry_send:
 						}
 					}
 					break;
+#if defined(HAVE_SENDMSG)
 				case SOCKET_OPT_SENDMSG:
 					for (j = 0, i = 16; i < MMAP_IO_SIZE; i += 16, j++) {
 						vec[j].iov_base = buf;
@@ -1186,6 +1191,7 @@ retry_sendmsg:
 						msgs += j;
 					}
 					break;
+#endif
 #if defined(HAVE_SENDMMSG)
 				case SOCKET_OPT_SENDMMSG:
 					(void)shim_memset(msgvec, 0, sizeof(msgvec));
