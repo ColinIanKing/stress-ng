@@ -25,8 +25,10 @@
 #define MAX_BITONICSORT_SIZE		(4 * MB)
 #define DEFAULT_BITONICSORT_SIZE	(256 * KB)
 
+#if defined(HAVE_SIGLONGJMP)
 static volatile bool do_jmp = true;
 static sigjmp_buf jmp_env;
+#endif
 static uint64_t bitonic_count;
 
 static const stress_help_t help[] = {
@@ -41,6 +43,7 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
+#if defined(HAVE_SIGLONGJMP)
 /*
  *  stress_bitonicsort_handler()
  *	SIGALRM generic handler
@@ -54,6 +57,7 @@ static void MLOCKED_TEXT stress_bitonicsort_handler(int signum)
 		siglongjmp(jmp_env, 1);		/* Ugly, bounce back */
 	}
 }
+#endif
 
 static inline void OPTIMIZE3 bitonicsort32_fwd(void *base, const size_t nmemb)
 {
@@ -124,12 +128,14 @@ static int OPTIMIZE3 stress_bitonicsort(stress_args_t *args)
 	uint64_t bitonicsort_size = DEFAULT_BITONICSORT_SIZE;
 	int32_t *data, *ptr;
 	size_t n, data_size;
-	struct sigaction old_action;
-	int ret;
 	NOCLOBBER int rc = EXIT_SUCCESS;
 	double rate;
 	NOCLOBBER double duration = 0.0, count = 0.0, sorted = 0.0;
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
+#if defined(HAVE_SIGLONGJMP)
+	struct sigaction old_action;
+	int ret;
+#endif
 
 	if (!stress_get_setting("bitonicsort-size", &bitonicsort_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -152,6 +158,7 @@ static int OPTIMIZE3 stress_bitonicsort(stress_args_t *args)
 	(void)stress_madvise_collapse(data, data_size);
 	stress_set_vma_anon_name(data, data_size, "bitonicsort-data");
 
+#if defined(HAVE_SIGLONGJMP)
 	ret = sigsetjmp(jmp_env, 1);
 	if (ret) {
 		/*
@@ -164,6 +171,7 @@ static int OPTIMIZE3 stress_bitonicsort(stress_args_t *args)
 		free(data);
 		return EXIT_FAILURE;
 	}
+#endif
 
 	stress_sort_data_int32_init(data, n);
 
@@ -256,9 +264,11 @@ PRAGMA_UNROLL_N(4)
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
 
+#if defined(HAVE_SIGLONGJMP)
 	do_jmp = false;
 	(void)stress_sigrestore(args->name, SIGALRM, &old_action);
 tidy:
+#endif
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	rate = (duration > 0.0) ? count / duration : 0.0;
 	stress_metrics_set(args, 0, "bitonicsort comparisons per sec",
