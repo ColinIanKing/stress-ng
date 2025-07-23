@@ -283,7 +283,7 @@ const stressor_info_t stress_dekker_info = {
 	.classifier = CLASS_CPU | CLASS_IPC,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
-	.unimplemented_reason = "built without user space memory fencing or siglongjmp sort"
+	.unimplemented_reason = "built without user space memory fencing or siglongjmp support"
 };
 
 #endif
