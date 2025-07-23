@@ -723,4 +723,5 @@ extern int shim_file_getattr(int dfd, const char *filename,
 	struct shim_file_attr *ufattr, size_t usize, unsigned int at_flags);
 extern int shim_file_setattr(int dfd, const char *filename,
 	struct shim_file_attr *ufattr, size_t usize, unsigned int at_flags);
+extern void shim_pause(void);
 #endif

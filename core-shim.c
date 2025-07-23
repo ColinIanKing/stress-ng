@@ -3039,3 +3039,19 @@ int shim_file_setattr(
 	return shim_enosys(0, dfd, filename, ufattr, usize, at_flags);
 #endif
 }
+
+/*
+ * shim_pause()
+ *	shim wrapper for pause()
+ */
+void shim_pause(void)
+{
+#if defined(HAVE_PAUSE)
+	pause();
+#elif defined(HAVE_SELECT)
+	(void)select(0, NULL, NULL, NULL, NULL);
+#else
+	while (sleep(~(unsigned int)0) == 0)
+		;
+#endif
+}
