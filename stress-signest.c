@@ -25,6 +25,8 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		 NULL }
 };
 
+#if defined(HAVE_SIGLONGJMP)
+
 #define MAX_SIGNALS	(64)	/* Note: must NOT be larger than 8 * sizeof(signal_info.signalled) */
 
 static bool jmp_env_ok;
@@ -381,3 +383,15 @@ const stressor_info_t stress_signest_info = {
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
+
+#else
+
+const stressor_info_t stress_signest_info = {
+	.stressor = stress_unimplemented,
+	.classifier = CLASS_SIGNAL | CLASS_OS,
+	.verify = VERIFY_ALWAYS,
+	.help = help,
+	.unimplemented_reason = "built without siglongjmp support"
+};
+
+#endif
