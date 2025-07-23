@@ -274,7 +274,7 @@ static int stress_mknod(stress_args_t *args)
 		stress_mknod_tidy(args, i);
 		if (UNLIKELY(!stress_continue_flag()))
 			break;
-		(void)sync();
+		shim_sync();
 	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
