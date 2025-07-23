@@ -187,6 +187,7 @@ static int OPTIMIZE3 stress_sockmany_server(
 			args->name, errno, strerror(errno));
 		goto die;
 	}
+#if defined(SOL_SOCKET)
 	if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR,
 		&so_reuseaddr, sizeof(so_reuseaddr)) < 0) {
 		pr_fail("%s: setsockopt failed, errno=%d (%s)\n",
@@ -194,6 +195,7 @@ static int OPTIMIZE3 stress_sockmany_server(
 		rc = EXIT_FAILURE;
 		goto die_close;
 	}
+#endif
 
 	if (stress_set_sockaddr_if(args->name, args->instance, mypid,
 			AF_INET, sockmany_port, sockmany_if,
@@ -235,12 +237,15 @@ static int OPTIMIZE3 stress_sockmany_server(
 				break;
 			}
 			len = sizeof(sndbuf);
+#if defined(SOL_SOCKET) &&	\
+    defined(SO_SNDBUF)
 			if (UNLIKELY(getsockopt(fd, SOL_SOCKET, SO_SNDBUF, &sndbuf, &len)) < 0) {
 				pr_fail("%s: getsockopt failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				(void)close(sfd);
 				break;
 			}
+#endif
 #if defined(SOL_TCP) &&	\
     defined(TCP_QUICKACK)
 			{
