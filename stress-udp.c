@@ -308,7 +308,8 @@ static int OPTIMIZE3 stress_udp_server(
 		}
 	}
 #endif
-#if !defined(__minix__)
+#if !defined(__minix__) &&	\
+    defined(SOL_SOCKET)
 	if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &so_reuseaddr, sizeof(so_reuseaddr)) < 0) {
 		/*
 		 *  Some systems don't support SO_REUSEADDR
