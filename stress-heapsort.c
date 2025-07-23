@@ -25,8 +25,10 @@
 #define MAX_HEAPSORT_SIZE	(4 * MB)
 #define DEFAULT_HEAPSORT_SIZE	(256 * KB)
 
+#if defined(HAVE_SIGLONGJMP)
 static volatile bool do_jmp = true;
 static sigjmp_buf jmp_env;
+#endif
 
 static const stress_help_t help[] = {
 	{ NULL,	"heapsort N",	   	"start N workers heap sorting 32 bit random integers" },
@@ -141,6 +143,7 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
+#if defined(HAVE_SIGLONGJMP)
 /*
  *  stress_heapsort_handler()
  *	SIGALRM generic handler
@@ -154,6 +157,7 @@ static void MLOCKED_TEXT stress_heapsort_handler(int signum)
 		siglongjmp(jmp_env, 1);		/* Ugly, bounce back */
 	}
 }
+#endif
 
 /*
  *  stress_heapsort()
@@ -164,12 +168,14 @@ static int stress_heapsort(stress_args_t *args)
 	uint64_t heapsort_size = DEFAULT_HEAPSORT_SIZE;
 	int32_t *data, *ptr;
 	size_t n, i, data_size, heapsort_method = 0;
-	struct sigaction old_action;
-	int ret;
 	double rate;
 	NOCLOBBER int rc = EXIT_SUCCESS;
 	NOCLOBBER double duration = 0.0, count = 0.0, sorted = 0.0;
 	heapsort_func_t heapsort_func;
+#if defined(HAVE_SIGLONGJMP)
+	struct sigaction old_action;
+	int ret;
+#endif
 
 	(void)stress_get_setting("heapsort-method", &heapsort_method);
 
@@ -199,6 +205,7 @@ static int stress_heapsort(stress_args_t *args)
 	(void)stress_madvise_collapse(data, data_size);
 	stress_set_vma_anon_name(data, data_size, "heapsort-data");
 
+#if defined(HAVE_SIGLONGJMP)
 	ret = sigsetjmp(jmp_env, 1);
 	if (ret) {
 		/*
@@ -207,11 +214,11 @@ static int stress_heapsort(stress_args_t *args)
 		(void)stress_sigrestore(args->name, SIGALRM, &old_action);
 		goto tidy;
 	}
-
 	if (stress_sighandler(args->name, SIGALRM, stress_heapsort_handler, &old_action) < 0) {
 		free(data);
 		return EXIT_FAILURE;
 	}
+#endif
 
 	stress_sort_data_int32_init(data, n);
 
@@ -308,9 +315,11 @@ static int stress_heapsort(stress_args_t *args)
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
 
+#if defined(HAVE_SIGLONGJMP)
 	do_jmp = false;
 	(void)stress_sigrestore(args->name, SIGALRM, &old_action);
 tidy:
+#endif
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	rate = (duration > 0.0) ? count / duration : 0.0;
 	stress_metrics_set(args, 0, "heapsort comparisons per sec",
