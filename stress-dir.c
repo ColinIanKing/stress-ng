@@ -529,7 +529,7 @@ static int stress_dir(stress_args_t *args)
 			ret = EXIT_FAILURE;
 		stress_dir_tidy(args, i);
 		stress_dir_sync(dir_fd);
-		(void)sync();
+		shim_sync();
 
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
