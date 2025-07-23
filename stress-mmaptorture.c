@@ -23,26 +23,11 @@
 #include "core-numa.h"
 #include "core-out-of-memory.h"
 
-static const stress_help_t help[] = {
-	{ NULL,	"mmaptorture N",	"start N workers torturing page mappings" },
-	{ NULL, "mmaptorture-bytes N",	"size of file backed region to be memory mapped" },
-	{ NULL, "mmaptorture-msync N",	"percentage of pages to be msync'd (default 10%)" },
-	{ NULL,	"mmaptorture-ops N",	"stop after N mmaptorture bogo operations" },
-	{ NULL,	NULL,			NULL }
-};
+#define MMAP_MAPPINGS_MAX		(128)
+#define MMAP_SIZE_MAP			(512)	/* in pages */
 
-typedef struct {
-	uint8_t *addr;
-	size_t	size;
-	off_t	offset;
-} mmap_info_t;
-
-#define MMAP_MAPPINGS_MAX	(128)
-#define MMAP_SIZE_MAP		(512)	/* in pages */
-
-#define PAGE_WR_FLAG		(0x01)
-#define PAGE_RD_FLAG		(0x02)
-
+#define PAGE_WR_FLAG			(0x01)
+#define PAGE_RD_FLAG			(0x02)
 
 #define MIN_MMAPTORTURE_BYTES		(16 * MB)
 #define MAX_MMAPTORTURE_BYTES   	(MAX_MEM_LIMIT)
@@ -51,6 +36,29 @@ typedef struct {
 #define MIN_MMAPTORTURE_MSYNC		(0)
 #define MAX_MMAPTORTURE_MSYNC		(100)
 #define DEFAULT_MMAPTORTURE_MSYNC	(10)
+
+
+static const stress_help_t help[] = {
+	{ NULL,	"mmaptorture N",	"start N workers torturing page mappings" },
+	{ NULL, "mmaptorture-bytes N",	"size of file backed region to be memory mapped" },
+	{ NULL, "mmaptorture-msync N",	"percentage of pages to be msync'd (default 10%)" },
+	{ NULL,	"mmaptorture-ops N",	"stop after N mmaptorture bogo operations" },
+	{ NULL,	NULL,			NULL }
+};
+
+static const stress_opt_t opts[] = {
+        { OPT_mmaptorture_bytes, "mmaptorture-bytes", TYPE_ID_SIZE_T_BYTES_VM, MIN_MMAPTORTURE_BYTES, MAX_MMAPTORTURE_BYTES, NULL },
+	{ OPT_mmaptorture_msync, "mmaptorture-msync", TYPE_ID_UINT32, MIN_MMAPTORTURE_MSYNC, MAX_MMAPTORTURE_MSYNC, NULL },
+	END_OPT
+};
+
+#if defined(HAVE_SIGLONGJMP)
+
+typedef struct {
+	uint8_t *addr;
+	size_t	size;
+	off_t	offset;
+} mmap_info_t;
 
 typedef struct {
 	uint64_t	mmap_pages;
@@ -903,12 +911,6 @@ static int stress_mmaptorture(stress_args_t *args)
 	return ret;
 }
 
-static const stress_opt_t opts[] = {
-        { OPT_mmaptorture_bytes, "mmaptorture-bytes", TYPE_ID_SIZE_T_BYTES_VM, MIN_MMAPTORTURE_BYTES, MAX_MMAPTORTURE_BYTES, NULL },
-	{ OPT_mmaptorture_msync, "mmaptorture-msync", TYPE_ID_UINT32, MIN_MMAPTORTURE_MSYNC, MAX_MMAPTORTURE_MSYNC, NULL },
-	END_OPT
-};
-
 const stressor_info_t stress_mmaptorture_info = {
 	.stressor = stress_mmaptorture,
 	.classifier = CLASS_VM | CLASS_OS,
@@ -918,3 +920,16 @@ const stressor_info_t stress_mmaptorture_info = {
 	.opts = opts,
 	.help = help
 };
+
+#else
+
+const stressor_info_t stress_mmaptorture_info = {
+	.stressor = stress_unimplemented,
+	.classifier = CLASS_VM | CLASS_OS,
+	.verify = VERIFY_NONE,
+	.opts = opts,
+	.help = help,
+	.unimplemented_reason = "built without siglongjmp support",
+};
+
+#endif
