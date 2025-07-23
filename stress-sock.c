@@ -528,7 +528,9 @@ retry:
 				args->name, errno, strerror(errno));
 			goto free_controls;
 		}
-#if defined(MSG_ZEROCOPY) && defined(SO_ZEROCOPY)
+#if defined(MSG_ZEROCOPY) &&	\
+    defined(SO_ZEROCOPY) &&	\
+    defined(SOL_SOCKET)
 		if (sock_zerocopy) {
 			int so_zerocopy = 1;
 			static bool warned = false;
@@ -617,7 +619,11 @@ retry:
 
 			VOID_RET(int, getsockopt(fd, SOL_SOCKET, sol_socket_so_opts[i], &val, &optlen));
 		}
+#if defined(AF_INET6)
 		if ((sock_domain == AF_INET) || (sock_domain == AF_INET6)) {
+#else
+		if (sock_domain == AF_INET) {
+#endif
 
 #if defined(TCP_NODELAY)
 			{
@@ -1079,12 +1085,15 @@ static int OPTIMIZE3 stress_sock_server(
 			}
 
 			len = sizeof(sndbuf);
+#if defined(SOL_SOCKET) &&	\
+    defined(SO_SNDBUF)
 			if (UNLIKELY(getsockopt(fd, SOL_SOCKET, SO_SNDBUF, &sndbuf, &len) < 0)) {
 				pr_fail("%s: getsockopt failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				(void)close(sfd);
 				break;
 			}
+#endif
 #if defined(SO_RESERVE_MEM)
 			{
 				const int mem = 4 * 1024 * 1024;
