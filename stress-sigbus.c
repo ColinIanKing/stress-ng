@@ -20,14 +20,6 @@
 #include "stress-ng.h"
 #include "core-builtin.h"
 
-static sigjmp_buf jmp_env;
-#if defined(SA_SIGINFO)
-static volatile void *fault_addr;
-static volatile void *expected_addr;
-static volatile int signo;
-static volatile int code;
-#endif
-
 /*
  *  currently disabled
 #define SET_AC_EFLAGS
@@ -38,6 +30,17 @@ static const stress_help_t help[] = {
 	{ NULL,	"sigbus-ops N",	"stop after N bogo bus faults" },
 	{ NULL,	NULL,		NULL }
 };
+
+#if defined(HAVE_SIGLONGJMP)
+
+static sigjmp_buf jmp_env;
+#if defined(SA_SIGINFO)
+static volatile void *fault_addr;
+static volatile void *expected_addr;
+static volatile int signo;
+static volatile int code;
+#endif
+
 
 /*
  *  stress_bushandler()
@@ -297,3 +300,14 @@ const stressor_info_t stress_sigbus_info = {
 #endif
 	.help = help
 };
+
+#else
+
+const stressor_info_t stress_sigbus_info = {
+	.stressor = stress_unimplemented,
+	.classifier = CLASS_SIGNAL | CLASS_OS,
+	.help = help,
+	.unimplemented_reason = "built without siglongjmp support"
+};
+
+#endif
