@@ -72,7 +72,7 @@ static int page_write_sync(const int fd, const size_t page_size)
 			return (int)rc;
 		n += (size_t)rc;
 	}
-	(void)sync();
+	shim_sync();
 
 	return 0;
 }
