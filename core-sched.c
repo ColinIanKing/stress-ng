@@ -258,7 +258,7 @@ int stress_set_sched(
 int PURE stress_set_sched(
 	const pid_t pid,
 	const int sched,
-	const int32_t sched_priority,
+	const int sched_priority,
 	const bool quiet)
 {
 	(void)pid;
