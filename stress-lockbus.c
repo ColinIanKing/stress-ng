@@ -48,7 +48,8 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
-#if (((defined(HAVE_COMPILER_GCC_OR_MUSL) ||		\
+#if (defined(HAVE_SIGLONGJMP) &&			\
+     ((defined(HAVE_COMPILER_GCC_OR_MUSL) ||		\
        defined(HAVE_COMPILER_CLANG) ||			\
        defined(HAVE_COMPILER_ICC) ||			\
        defined(HAVE_COMPILER_ICX) ||			\
@@ -403,6 +404,6 @@ const stressor_info_t stress_lockbus_info = {
 	.classifier = CLASS_CPU_CACHE | CLASS_MEMORY,
 	.opts = opts,
 	.help = help,
-	.unimplemented_reason = "built without gcc __atomic* lock builtins"
+	.unimplemented_reason = "built without gcc __atomic* lock builtins or siglongjmp support"
 };
 #endif
