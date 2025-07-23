@@ -339,7 +339,7 @@ static void *stress_vma_munlock(void *ptr)
 		const size_t offset = page_size * stress_mwc8modn(STRESS_VMA_PAGES);
 		const size_t len = page_size * stress_mwc8modn(STRESS_VMA_PAGES);
 
-		if (LIKELY(munlock((void *)(data + offset), len) == 0))
+		if (LIKELY(shim_munlock((void *)(data + offset), len) == 0))
 			stress_vma_metrics->s.metrics[STRESS_VMA_MUNLOCK]++;
 	}
 	return NULL;
