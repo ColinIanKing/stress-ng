@@ -35,8 +35,12 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
+#if !defined(__OpenBSD__) &&	\
+    !defined(__NetBSD__) &&	\
+    defined(HAVE_SIGLONGJMP)
 static volatile bool do_jmp = true;
 static sigjmp_buf jmp_env;
+#endif
 
 typedef int (*mergesort_func_t)(void *base, size_t nmemb, size_t size, int (*compar)(const void *, const void *));
 
@@ -222,7 +226,8 @@ static const stress_opt_t opts[] = {
 };
 
 #if !defined(__OpenBSD__) &&	\
-    !defined(__NetBSD__)
+    !defined(__NetBSD__) &&	\
+    defined(HAVE_SIGLONGJMP)
 /*
  *  stress_mergesort_handler()
  *	SIGALRM generic handler
@@ -247,12 +252,16 @@ static int stress_mergesort(stress_args_t *args)
 	uint64_t mergesort_size = DEFAULT_MERGESORT_SIZE;
 	int32_t *data, *ptr;
 	size_t n, i, mergesort_method = 0, data_size;
-	struct sigaction old_action;
-	int ret;
 	NOCLOBBER int rc = EXIT_SUCCESS;
 	double rate;
 	NOCLOBBER double duration = 0.0, count = 0.0, sorted = 0.0;
 	mergesort_func_t mergesort_func;
+#if !defined(__OpenBSD__) &&	\
+    !defined(__NetBSD__) &&	\
+    defined(HAVE_SIGLONGJMP)
+	struct sigaction old_action;
+	int ret;
+#endif
 
 	(void)stress_get_setting("mergesort-method", &mergesort_method);
 
@@ -284,6 +293,9 @@ static int stress_mergesort(stress_args_t *args)
 	(void)stress_madvise_collapse(data, data_size);
 	stress_set_vma_anon_name(data, data_size, "mergesort-data");
 
+#if !defined(__OpenBSD__) &&	\
+    !defined(__NetBSD__) &&	\
+    defined(HAVE_SIGLONGJMP)
 	ret = sigsetjmp(jmp_env, 1);
 	if (ret) {
 		/*
@@ -292,9 +304,6 @@ static int stress_mergesort(stress_args_t *args)
 		(void)stress_sigrestore(args->name, SIGALRM, &old_action);
 		goto tidy;
 	}
-
-#if !defined(__OpenBSD__) &&	\
-    !defined(__NetBSD__)
 	if (stress_sighandler(args->name, SIGALRM, stress_mergesort_handler, &old_action) < 0) {
 		free(data);
 		return EXIT_FAILURE;
@@ -401,9 +410,13 @@ static int stress_mergesort(stress_args_t *args)
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
 
+#if !defined(__OpenBSD__) &&	\
+    !defined(__NetBSD__) &&	\
+    defined(HAVE_SIGLONGJMP)
 	do_jmp = false;
 	(void)stress_sigrestore(args->name, SIGALRM, &old_action);
 tidy:
+#endif
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	rate = (duration > 0.0) ? count / duration : 0.0;
 	stress_metrics_set(args, 0, "mergesort comparisons per sec",
