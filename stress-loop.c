@@ -287,7 +287,7 @@ static int stress_loop(stress_args_t *args)
 		 *  Sync is required to avoid loop_set_block_size
 		 *  warning messages
 		 */
-		(void)sync();
+		shim_sync();
 
 #if defined(LOOP_SET_BLOCK_SIZE)
 		/*
