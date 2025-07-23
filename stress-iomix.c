@@ -118,7 +118,7 @@ static void stress_iomix_fsync_min_1Hz(const int fd)
 			(void)shim_fdatasync(fd);
 			break;
 		case 2:
-			(void)sync();
+			shim_sync();
 			break;
 		}
 	}
@@ -854,19 +854,19 @@ static void stress_iomix_drop_caches(
 	(void)iomix_bytes;
 
 	do {
-		(void)sync();
+		shim_sync();
 		if (stress_system_write("/proc/sys/vm/drop_caches", "1", 1) < 0)
 			(void)pause();
 		(void)sleep(5);
 		if (UNLIKELY(!stress_continue(args)))
 			return;
-		(void)sync();
+		shim_sync();
 		if (stress_system_write("/proc/sys/vm/drop_caches", "2", 1) < 0)
 			(void)pause();
 		(void)sleep(5);
 		if (UNLIKELY(!stress_continue(args)))
 			return;
-		(void)sync();
+		shim_sync();
 		if (stress_system_write("/proc/sys/vm/drop_caches", "3", 1) < 0)
 			(void)pause();
 		(void)sleep(5);
