@@ -1645,7 +1645,8 @@ static void stress_fd_sendto(stress_fd_t *fd)
 }
 #endif
 
-#if defined(MSG_DONTWAIT)
+#if defined(MSG_DONTWAIT) &&	\
+    defined(HAVE_RECVMSG)
 static void stress_fd_recvmsg(stress_fd_t *fd)
 {
 	if (fd->flags & (FD_FLAG_RECV | FD_FLAG_READ)) {
@@ -1665,7 +1666,8 @@ static void stress_fd_recvmsg(stress_fd_t *fd)
 }
 #endif
 
-#if defined(MSG_DONTWAIT)
+#if defined(MSG_DONTWAIT) &&	\
+    defined(HAVE_SENDMSG)
 static void stress_fd_sendmsg(stress_fd_t *fd)
 {
 	if (fd->flags & (FD_FLAG_SEND | FD_FLAG_WRITE)) {
@@ -1909,10 +1911,12 @@ static const fd_func_t fd_funcs[] = {
 #if defined(MSG_DONTWAIT)
 	stress_fd_sendto,
 #endif
-#if defined(MSG_DONTWAIT)
+#if defined(MSG_DONTWAIT) &&	\
+    defined(HAVE_RECVMSG)
 	stress_fd_recvmsg,
 #endif
-#if defined(MSG_DONTWAIT)
+#if defined(MSG_DONTWAIT) &&	\
+    defined(HAVE_SENDMSG)
 	stress_fd_sendmsg,
 #endif
 #if defined(HAVE_SYS_SENDFILE_H) &&	\
