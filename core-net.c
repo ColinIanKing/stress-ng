@@ -46,7 +46,9 @@ typedef struct {
 
 static const stress_domain_t domains[] = {
 	{ "ipv4",	AF_INET,	DOMAIN_INET },
+#if defined(AF_INET6)
 	{ "ipv6",	AF_INET6,	DOMAIN_INET6 },
+#endif
 	{ "unix",	AF_UNIX,	DOMAIN_UNIX },
 };
 
