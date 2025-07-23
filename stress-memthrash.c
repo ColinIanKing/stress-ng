@@ -925,7 +925,7 @@ mmap_retry:
 			goto reap;
 	}
 	/* Wait for SIGALRM or SIGINT/SIGHUP etc */
-	(void)pause();
+	(void)shim_pause();
 
 reap:
 	thread_terminate = true;

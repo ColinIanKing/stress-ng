@@ -49,7 +49,7 @@ static int stress_kill(stress_args_t *args)
 		while (stress_continue(args)) {
 			if (kill(ppid, 0) < 0)
 				break;
-			pause();
+			(void)shim_pause();
 		}
 		stress_set_proc_state(args->name, STRESS_STATE_WAIT);
 		_exit(0);

@@ -716,7 +716,7 @@ static int stress_apparmor(stress_args_t *args)
 #if defined(HAVE_SELECT)
 		(void)select(0, NULL, NULL, NULL, NULL);
 #else
-		(void)pause();
+		(void)shim_pause();
 #endif
 	}
 

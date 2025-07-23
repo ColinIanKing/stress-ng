@@ -138,7 +138,7 @@ again:
 				args->name, errno, strerror(errno));
 			return EXIT_FAILURE;
 		} else if (pid == 0) {
-			(void)pause();
+			(void)shim_pause();
 			_exit(0);
 		} else {
 			/* Parent */

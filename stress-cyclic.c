@@ -326,7 +326,7 @@ static int stress_cyclic_itimer(
 	if (timer_settime(timerid, 0, &timer, NULL) < 0)
 		goto restore;
 
-	(void)pause();
+	(void)shim_pause();
 	if ((itimer_time.tv_sec == 0) &&
 	    (itimer_time.tv_nsec == 0))
 		goto tidy;
@@ -836,7 +836,7 @@ tidy:
 	} else {
 		VOID_RET(int, stress_set_sched(args->pid, policy, rt_stats->max_prio, true));
 
-		(void)pause();
+		(void)shim_pause();
 		stress_force_killed_bogo(args);
 		(void)stress_kill_pid_wait(pid, NULL);
 	}

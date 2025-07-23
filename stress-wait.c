@@ -78,7 +78,7 @@ static void NORETURN runner(
 	pr_dbg("%s: runner started [%d]\n", args->name, (int)getpid());
 
 	do {
-		(void)pause();
+		(void)shim_pause();
 	} while (stress_continue(args));
 
 	(void)shim_kill(getppid(), SIGALRM);

@@ -368,7 +368,7 @@ again:
 
 	softlockup_start = true;
 
-	(void)pause();
+	(void)shim_pause();
 	rc = stress_kill_and_wait_many(args, s_pids, (size_t)cpus_online, SIGALRM, false);
 finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);

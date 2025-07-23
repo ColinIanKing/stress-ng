@@ -306,7 +306,7 @@ static int stress_umount(stress_args_t *args)
 
 	/* Wait for SIGALARMs */
 	do {
-		pause();
+		(void)shim_pause();
 	} while (stress_continue(args));
 
 	ret = EXIT_SUCCESS;

@@ -542,7 +542,7 @@ static int stress_schedmix(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		pause();
+		(void)shim_pause();
 	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);

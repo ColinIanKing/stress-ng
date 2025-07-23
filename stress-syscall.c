@@ -2958,7 +2958,7 @@ static int syscall_kill(void)
 	if (pid < 0)
 		return -1;
 	if (pid == 0) {
-		pause();
+		(void)shim_pause();
 		_exit(0);
 	} else {
 		int status;
@@ -4316,7 +4316,7 @@ static int syscall_pause(void)
 		return -1;
 	} else if (pid == 0) {
 		syscall_shared_info->t1 = syscall_time_now();
-		pause();
+		(void)shim_pause();
 		syscall_shared_info->t2 = syscall_time_now();
 		_exit(0);
 	} else {

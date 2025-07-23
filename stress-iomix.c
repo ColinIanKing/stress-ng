@@ -856,19 +856,19 @@ static void stress_iomix_drop_caches(
 	do {
 		shim_sync();
 		if (stress_system_write("/proc/sys/vm/drop_caches", "1", 1) < 0)
-			(void)pause();
+			(void)shim_pause();
 		(void)sleep(5);
 		if (UNLIKELY(!stress_continue(args)))
 			return;
 		shim_sync();
 		if (stress_system_write("/proc/sys/vm/drop_caches", "2", 1) < 0)
-			(void)pause();
+			(void)shim_pause();
 		(void)sleep(5);
 		if (UNLIKELY(!stress_continue(args)))
 			return;
 		shim_sync();
 		if (stress_system_write("/proc/sys/vm/drop_caches", "3", 1) < 0)
-			(void)pause();
+			(void)shim_pause();
 		(void)sleep(5);
 	} while (stress_bogo_inc_lock(args, counter_lock, true));
 }
@@ -1223,7 +1223,7 @@ static int stress_iomix(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		pause();
+		(void)shim_pause();
 	} while (stress_bogo_inc_lock(args, counter_lock, false));
 
 	ret = EXIT_SUCCESS;

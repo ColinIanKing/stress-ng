@@ -248,7 +248,7 @@ static int stress_mutex(stress_args_t *args)
 
 	/* Wait for termination */
 	while (stress_continue(args))
-		pause();
+		(void)shim_pause();
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

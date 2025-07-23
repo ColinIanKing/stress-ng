@@ -597,7 +597,7 @@ static int stress_sem_sysv(stress_args_t *args)
 
 	/* Wait for termination */
 	while (stress_continue(args))
-		pause();
+		(void)shim_pause();
 reap:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	stress_kill_and_wait_many(args, s_pids, semaphore_sysv_procs, SIGALRM, true);

@@ -288,7 +288,7 @@ static int stress_flipflop(stress_args_t *args)
 		bogo_ops = 0;
 
 		/* wait for SIGALRM or SIGUSR1 */
-		pause();
+		shim_pause();
 
 		for (i = 0; i < 2 * flipflop_bits; i++) {
 			bogo_ops += workers[i].nr_loops;

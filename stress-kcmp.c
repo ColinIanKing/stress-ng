@@ -228,7 +228,7 @@ again:
 
 		/* Child */
 		while (stress_continue_flag())
-			(void)pause();
+			(void)shim_pause();
 
 		/* will never get here */
 		(void)close(fd1);

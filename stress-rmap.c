@@ -304,7 +304,7 @@ static int stress_rmap(stress_args_t *args)
 	 *  Wait for SIGINT or SIGALRM
 	 */
 	while (stress_bogo_inc_lock(args, counter_lock, false)) {
-		pause();
+		(void)shim_pause();
 	}
 
 cleanup:
