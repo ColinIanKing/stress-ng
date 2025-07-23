@@ -41,7 +41,8 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
-#if defined(HAVE_LIB_Z)
+#if defined(HAVE_LIB_Z) &&	\
+    defined(HAVE_SIGLONGJMP)
 
 #include "zlib.h"
 
@@ -1882,6 +1883,6 @@ const stressor_info_t stress_zlib_info = {
 	.classifier = CLASS_CPU | CLASS_CPU_CACHE | CLASS_MEMORY | CLASS_COMPUTE,
 	.verify = VERIFY_OPTIONAL,
 	.help = help,
-	.unimplemented_reason = "built without zlib library support"
+	.unimplemented_reason = "built without zlib library support or siglongjmp support"
 };
 #endif
