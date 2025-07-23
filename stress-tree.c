@@ -97,8 +97,10 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		 NULL }
 };
 
+#if defined(HAVE_SIGLONGJMP)
 static volatile bool do_jmp = true;
 static sigjmp_buf jmp_env;
+#endif
 
 struct binary_node {
 	struct tree_node *left;
@@ -160,6 +162,7 @@ struct tree_node {
 
 STRESS_PRAGMA_POP
 
+#if defined(HAVE_SIGLONGJMP)
 /*
  *  stress_tree_handler()
  *	SIGALRM generic handler
@@ -173,6 +176,7 @@ static void MLOCKED_TEXT stress_tree_handler(int signum)
 		siglongjmp(jmp_env, 1);		/* Ugly, bounce back */
 	}
 }
+#endif
 
 #if defined(HAVE_RB_TREE) ||	\
     defined(HAVE_SPLAY_TREE)
@@ -961,10 +965,13 @@ static int stress_tree(stress_args_t *args)
 	uint64_t tree_size = DEFAULT_TREE_SIZE;
 	struct tree_node *nodes;
 	size_t n, i, j, tree_method = 0;
-	struct sigaction old_action;
-	int ret, rc = EXIT_SUCCESS;
+	int rc = EXIT_SUCCESS;
 	stress_tree_func func;
 	stress_tree_metrics_t *metrics;
+#if defined(HAVE_SIGLONGJMP)
+	struct sigaction old_action;
+	int ret;
+#endif
 
 	stress_catch_sigill();
 
@@ -994,6 +1001,7 @@ static int stress_tree(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
+#if defined(HAVE_SIGLONGJMP)
 	ret = sigsetjmp(jmp_env, 1);
 	if (ret) {
 		/*
@@ -1006,7 +1014,7 @@ static int stress_tree(stress_args_t *args)
 		free(nodes);
 		return EXIT_FAILURE;
 	}
-
+#endif
 
 	for (i = 0; i < n; i++)
 		nodes[i].value = (uint32_t)i;
@@ -1023,10 +1031,12 @@ static int stress_tree(stress_args_t *args)
 		stress_bogo_inc(args);
 	} while ((rc == EXIT_SUCCESS) && stress_continue(args));
 
+#if defined(HAVE_SIGLONGJMP)
 	do_jmp = false;
 	(void)stress_sigrestore(args->name, SIGALRM, &old_action);
 
 tidy:
+#endif
 	for (i = 0, j = 0; i < SIZEOF_ARRAY(stress_tree_metrics); i++) {
 		double duration = stress_tree_metrics[i].insert +
 				  stress_tree_metrics[i].find +
