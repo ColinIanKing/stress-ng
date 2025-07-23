@@ -37,7 +37,8 @@ typedef struct {
 	bool trapped;
 } op_info_t;
 
-#if defined(STRESS_ARCH_ARM) &&	\
+#if defined(STRESS_ARCH_ARM) &&		\
+    defined(HAVE_SIGLONGJMP) &&		\
     defined(HAVE_ASM_ARM_TLBI)
 #define HAVE_PRIV_INSTR
 static void stress_arm_tlbi(void)
@@ -52,6 +53,7 @@ static op_info_t op_info[] =
 #endif
 
 #if defined(STRESS_ARCH_ALPHA) &&	\
+    defined(HAVE_SIGLONGJMP) &&		\
     (defined(HAVE_ASM_ALPHA_DRAINA) ||	\
      defined(HAVE_ASM_ALPHA_HALT))
 #define HAVE_PRIV_INSTR
@@ -85,6 +87,7 @@ static op_info_t op_info[] =
 #endif
 
 #if defined(STRESS_ARCH_HPPA) &&	\
+    defined(HAVE_SIGLONGJMP) &&		\
     (defined(HAVE_ASM_HPPA_DIAG) || 	\
      defined(HAVE_ASM_HPPA_RFI))
 #define HAVE_PRIV_INSTR
@@ -114,7 +117,8 @@ static op_info_t op_info[] =
 };
 #endif
 
-#if defined(STRESS_ARCH_LOONG64)
+#if defined(STRESS_ARCH_LOONG64) &&	\
+    defined(HAVE_SIGLONGJMP)
 #define HAVE_PRIV_INSTR
 
 
@@ -145,6 +149,7 @@ static op_info_t op_info[] =
 #endif
 
 #if defined(STRESS_ARCH_M68K) &&	\
+    defined(HAVE_SIGLONGJMP) &&		\
     defined(HAVE_ASM_M68K_EORI_SR)
 #define HAVE_PRIV_INSTR
 
@@ -160,6 +165,7 @@ static op_info_t op_info[] =
 #endif
 
 #if defined(STRESS_ARCH_MIPS) &&	\
+    defined(HAVE_SIGLONGJMP) &&		\
     defined(HAVE_ASM_MIPS_WAIT)
 #define HAVE_PRIV_INSTR
 static void stress_mips_wait(void)
@@ -174,6 +180,7 @@ static op_info_t op_info[] =
 #endif
 
 #if defined(STRESS_ARCH_PPC64) &&	\
+    defined(HAVE_SIGLONGJMP) &&		\
     defined(HAVE_ASM_PPC64_TLBIE)
 #define HAVE_PRIV_INSTR
 #define HAVE_PRIV_PAGE
@@ -194,6 +201,7 @@ static op_info_t op_info[] =
 #endif
 
 #if defined(STRESS_ARCH_RISCV) &&	\
+    defined(HAVE_SIGLONGJMP) &&		\
     defined(HAVE_ASM_RISCV_SFENCE_VMA)
 #define HAVE_PRIV_INSTR
 static void stress_riscv_sfence_vma(void)
@@ -208,6 +216,7 @@ static op_info_t op_info[] =
 #endif
 
 #if defined(STRESS_ARCH_S390) &&	\
+    defined(HAVE_SIGLONGJMP) &&		\
     defined(HAVE_ASM_S390_PTLB)
 #define HAVE_PRIV_INSTR
 static void stress_s390_ptlb(void)
@@ -222,6 +231,7 @@ static op_info_t op_info[] =
 #endif
 
 #if defined(STRESS_ARCH_SH4) &&		\
+    defined(HAVE_SIGLONGJMP) &&		\
     (defined(HAVE_ASM_SH4_RTE) ||	\
      defined(HAVE_ASM_SH4_SLEEP))
 #define HAVE_PRIV_INSTR
@@ -252,6 +262,7 @@ static op_info_t op_info[] =
 #endif
 
 #if defined(STRESS_ARCH_SPARC) &&	\
+    defined(HAVE_SIGLONGJMP) &&		\
     defined(HAVE_ASM_SPARC_RDPR)
 #define HAVE_PRIV_INSTR
 static void stress_sparc_rdpr(void)
@@ -268,6 +279,7 @@ static op_info_t op_info[] =
 #endif
 
 #if defined(STRESS_ARCH_X86) &&		\
+    defined(HAVE_SIGLONGJMP) &&		\
     (defined(HAVE_ASM_X86_CLTS) ||	\
      defined(HAVE_ASM_X86_HLT) ||	\
      defined(HAVE_ASM_X86_INVD) || 	\
