@@ -174,7 +174,8 @@ int stress_get_load_avg(
 	return 0;
 fail:
 #elif defined(HAVE_SYS_SYSINFO_H) &&	\
-      defined(HAVE_SYSINFO)
+      defined(HAVE_SYSINFO) &&		\
+      defined(SI_LOAD_SHIFT)
 	struct sysinfo info;
 	const double scale = 1.0 / (double)(1 << SI_LOAD_SHIFT);
 
