@@ -6506,7 +6506,8 @@ static int syscall_stat(void)
 
 #if defined(HAVE_SYS_SYSINFO_H) &&      \
     defined(HAVE_SYSINFO) &&            \
-    defined(HAVE_SYS_STATFS_H)
+    defined(HAVE_SYS_STATFS_H) &&	\
+    defined(HAVE_STATFS)
 #define HAVE_SYSCALL_STATFS
 static int syscall_statfs(void)
 {

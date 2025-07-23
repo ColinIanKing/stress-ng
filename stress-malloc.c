@@ -51,22 +51,6 @@ typedef struct {
 	size_t len;			/* Allocation length */
 } stress_malloc_info_t;
 
-static bool malloc_mlock;		/* True = mlock all future allocs */
-static bool malloc_touch;		/* True = will touch allocate pages */
-static bool malloc_trim_opt;		/* True = periodically trim malloc arena */
-static size_t malloc_max;		/* Maximum number of allocations */
-static size_t malloc_bytes;		/* Maximum per-allocation size */
-static void *counter_lock;		/* Counter lock */
-static const char *alloc_action = NULL;
-static size_t alloc_size = 0;
-static volatile bool do_jmp = true;	/* SIGSEGV jmp handler, longjmp back if true */
-static sigjmp_buf jmp_env;		/* SIGSEGV jmp environment */
-#if defined(HAVE_LIB_PTHREAD)
-static volatile bool keep_thread_running_flag;	/* False to stop pthreads */
-#endif
-
-static void (*free_func)(void *ptr, size_t len);
-
 #if defined(HAVE_LIB_PTHREAD)
 /* per pthread data */
 typedef struct {
@@ -94,6 +78,36 @@ static const stress_help_t help[] = {
 	{ NULL, "malloc-trim",		"enable malloc trimming" },
 	{ NULL,	NULL,			NULL }
 };
+
+static const stress_opt_t opts[] = {
+	{ OPT_malloc_bytes,	"malloc-bytes",     TYPE_ID_SIZE_T_BYTES_VM, MIN_MALLOC_BYTES, MAX_MALLOC_BYTES, NULL },
+	{ OPT_malloc_max,	"malloc-max",       TYPE_ID_SIZE_T_BYTES_VM, MIN_MALLOC_MAX, MAX_MALLOC_MAX, NULL },
+	{ OPT_malloc_mlock,	"malloc-mlock",     TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_malloc_pthreads,	"malloc-pthreads",  TYPE_ID_SIZE_T, MIN_MALLOC_PTHREADS, MAX_MALLOC_PTHREADS, NULL },
+	{ OPT_malloc_threshold,	"malloc-thresh",    TYPE_ID_SIZE_T_BYTES_VM, MIN_MALLOC_THRESHOLD, MAX_MALLOC_THRESHOLD, NULL },
+	{ OPT_malloc_touch,	"malloc-touch",     TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_malloc_trim,	"malloc-trim",      TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_malloc_zerofree,	"malloc-zerofree",  TYPE_ID_BOOL, 0, 1, NULL },
+	END_OPT,
+};
+
+#if defined(HAVE_SIGLONGJMP)
+
+static bool malloc_mlock;		/* True = mlock all future allocs */
+static bool malloc_touch;		/* True = will touch allocate pages */
+static bool malloc_trim_opt;		/* True = periodically trim malloc arena */
+static size_t malloc_max;		/* Maximum number of allocations */
+static size_t malloc_bytes;		/* Maximum per-allocation size */
+static void *counter_lock;		/* Counter lock */
+static const char *alloc_action = NULL;
+static size_t alloc_size = 0;
+static volatile bool do_jmp = true;	/* SIGSEGV jmp handler, longjmp back if true */
+static sigjmp_buf jmp_env;		/* SIGSEGV jmp environment */
+#if defined(HAVE_LIB_PTHREAD)
+static volatile bool keep_thread_running_flag;	/* False to stop pthreads */
+#endif
+
+static void (*free_func)(void *ptr, size_t len);
 
 static inline ALWAYS_INLINE void stress_alloc_action(const char *str, const size_t size)
 {
@@ -522,18 +536,6 @@ static int stress_malloc(stress_args_t *args)
 	return ret;
 }
 
-static const stress_opt_t opts[] = {
-	{ OPT_malloc_bytes,	"malloc-bytes",     TYPE_ID_SIZE_T_BYTES_VM, MIN_MALLOC_BYTES, MAX_MALLOC_BYTES, NULL },
-	{ OPT_malloc_max,	"malloc-max",       TYPE_ID_SIZE_T_BYTES_VM, MIN_MALLOC_MAX, MAX_MALLOC_MAX, NULL },
-	{ OPT_malloc_mlock,	"malloc-mlock",     TYPE_ID_BOOL, 0, 1, NULL },
-	{ OPT_malloc_pthreads,	"malloc-pthreads",  TYPE_ID_SIZE_T, MIN_MALLOC_PTHREADS, MAX_MALLOC_PTHREADS, NULL },
-	{ OPT_malloc_threshold,	"malloc-thresh",    TYPE_ID_SIZE_T_BYTES_VM, MIN_MALLOC_THRESHOLD, MAX_MALLOC_THRESHOLD, NULL },
-	{ OPT_malloc_touch,	"malloc-touch",     TYPE_ID_BOOL, 0, 1, NULL },
-	{ OPT_malloc_trim,	"malloc-trim",      TYPE_ID_BOOL, 0, 1, NULL },
-	{ OPT_malloc_zerofree,	"malloc-zerofree",  TYPE_ID_BOOL, 0, 1, NULL },
-	END_OPT,
-};
-
 const stressor_info_t stress_malloc_info = {
 	.stressor = stress_malloc,
 	.classifier = CLASS_CPU_CACHE | CLASS_MEMORY | CLASS_VM | CLASS_OS,
@@ -541,3 +543,16 @@ const stressor_info_t stress_malloc_info = {
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };
+
+#else
+
+const stressor_info_t stress_malloc_info = {
+	.stressor = stress_unimplemented,
+	.classifier = CLASS_CPU_CACHE | CLASS_MEMORY | CLASS_VM | CLASS_OS,
+	.opts = opts,
+	.verify = VERIFY_OPTIONAL,
+	.help = help,
+	.unimplemented_reason = "built without siglongjmp support"
+};
+
+#endif
