@@ -22,6 +22,7 @@
 #include "core-capabilities.h"
 #include "core-hash.h"
 #include "core-killpid.h"
+#include "core-mmap.h"
 #include "core-pthread.h"
 #include "core-prime.h"
 #include "core-put.h"
