@@ -98,7 +98,7 @@ static void stress_fractal_deinit(void)
  */
 static inline ALWAYS_INLINE int32_t stress_fractal_get_row(stress_args_t *args, int32_t max_rows)
 {
-#if defined(HAVE_ATOMIC_FETCH_ADD_8) &&	\
+#if defined(HAVE_ATOMIC_FETCH_ADD_4) &&	\
     defined(__ATOMIC_ACQUIRE)
 	/*
 	 *  Fast method, inc and modulo. There is an issue where
@@ -106,7 +106,7 @@ static inline ALWAYS_INLINE int32_t stress_fractal_get_row(stress_args_t *args, 
 	 *  if max_rows does not divide exactly into row. However, since
 	 *  this is just a compute benchmark, this is a minor issue.
 	 */
-	register int32_t row = __atomic_fetch_add_8(&g_shared->fractal.row, 1, __ATOMIC_ACQUIRE) % max_rows;
+	register int32_t row = __atomic_fetch_add_4(&g_shared->fractal.row, 1, __ATOMIC_ACQUIRE) % max_rows;
 
 	if (UNLIKELY(row == 0))
 		stress_bogo_inc(args);
