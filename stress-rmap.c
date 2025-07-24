@@ -105,7 +105,10 @@ static void NORETURN stress_rmap_child(
 	do {
 		register ssize_t i;
 		const uint8_t rnd8 = stress_mwc8();
+#if defined(MS_ASYNC) &&	\
+    defined(MS_SYNC)
 		const int sync_flag = (rnd8 & 0x80) ? MS_ASYNC : MS_SYNC;
+#endif
 
 		switch (rnd8 & 3) {
 		case 0:
@@ -117,7 +120,10 @@ static void NORETURN stress_rmap_child(
 						rc = EXIT_FAILURE;
 						goto fail;
 					}
+#if defined(MS_ASYNC) &&	\
+    defined(MS_SYNC)
 					(void)shim_msync(mappings[i], sz, sync_flag);
+#endif
 				}
 			}
 			break;
@@ -130,7 +136,10 @@ static void NORETURN stress_rmap_child(
 						rc = EXIT_FAILURE;
 						goto fail;
 					}
+#if defined(MS_ASYNC) &&	\
+    defined(MS_SYNC)
 					(void)shim_msync(mappings[i], sz, sync_flag);
+#endif
 				}
 			}
 			break;
@@ -145,7 +154,10 @@ static void NORETURN stress_rmap_child(
 						rc = EXIT_FAILURE;
 						goto fail;
 					}
+#if defined(MS_ASYNC) &&	\
+    defined(MS_SYNC)
 					(void)shim_msync(mappings[j], sz, sync_flag);
+#endif
 				}
 			}
 			break;
@@ -158,7 +170,10 @@ static void NORETURN stress_rmap_child(
 						rc = EXIT_FAILURE;
 						goto fail;
 					}
+#if defined(MS_ASYNC) &&	\
+    defined(MS_SYNC)
 					(void)shim_msync(mappings[i], sz, sync_flag);
+#endif
 				}
 			}
 			break;
