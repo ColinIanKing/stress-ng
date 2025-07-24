@@ -1066,12 +1066,21 @@ static int OPTIMIZE3 stress_sock_server(
 		sfd = accept(fd, (struct sockaddr *)NULL, NULL);
 #endif
 		if (LIKELY(sfd >= 0)) {
-			size_t i, j, k;
+			size_t i, k;
+#if defined(HAVE_SENDMSG) ||	\
+    defined(HAVE_SENDMMSG)
+			size_t j;
+#endif
 			struct sockaddr saddr;
 			socklen_t len;
 			int sndbuf, opt;
-			struct msghdr ALIGN64 msg;
+#if defined(HAVE_SENDMSG) ||	\
+    defined(HAVE_SENDMMSG)
 			struct iovec ALIGN64 vec[MMAP_IO_SIZE / 16];
+#endif
+#if defined(HAVE_SENDMSG)
+			struct msghdr ALIGN64 msg;
+#endif
 #if defined(HAVE_SENDMMSG)
 			struct mmsghdr ALIGN64 msgvec[MSGVEC_SIZE];
 #endif
