@@ -561,8 +561,11 @@ static void stress_iomix_rd_wr_mmap(
 				stress_uint8_put(buffer[0]);
 
 				stress_rndbuf(mmaps[i], page_size);
+#if defined(MS_ASYNC) &&	\
+    defined(MS_SYNC)
 				(void)shim_msync(mmaps[i], page_size,
 					stress_mwc1() ? MS_ASYNC : MS_SYNC);
+#endif
 			}
 		}
 		(void)shim_usleep(100000);
