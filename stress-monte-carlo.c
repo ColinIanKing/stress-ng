@@ -153,12 +153,14 @@ static double OPTIMIZE3 stress_mc_random_rand(void)
 }
 #endif
 
+#if defined(HAVE_SRANDOM)
 static void stress_mc_random_seed(void)
 {
 	unsigned int seed = (shim_time(NULL) + getpid());
 
 	srandom(seed);
 }
+#endif
 
 #if defined(HAVE_DRAND48)
 static double stress_mc_drand48_rand(void)
@@ -292,7 +294,8 @@ static const stress_monte_carlo_rand_info_t rand_info[] = {
 	{ "pcg32",	stress_mc_pcg32_rand,		stress_mc_pcg32_seed,		stress_mc_supported },
 	{ "mwc32",	stress_mc_mwc32_rand,		stress_mc_mwc_seed,		stress_mc_supported },
 	{ "mwc64",	stress_mc_mwc64_rand,		stress_mc_mwc_seed,		stress_mc_supported },
-#if defined(HAVE_RANDOM)
+#if defined(HAVE_RANDOM) &&	\
+    defined(HAVE_SRANDOM)
 	{ "random",	stress_mc_random_rand,		stress_mc_random_seed,		stress_mc_supported },
 #endif
 #if defined(STRESS_ARCH_X86) &&	\
