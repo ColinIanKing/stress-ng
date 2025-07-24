@@ -181,7 +181,7 @@ static int stress_msync(stress_args_t *args)
 	buf = (uint8_t *)stress_mmap_populate(NULL, sz,
 		PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
 	if (buf == MAP_FAILED) {
-		pr_err("%s: failed to mmap memory of size %zu bytes%s, errno=%d (%s)\n",
+		pr_err("%s: failed to mmap memory of size %" PRIu64 " bytes%s, errno=%d (%s)\n",
 			args->name, sz,
 			stress_get_memfree_str(), errno, strerror(errno));
 		rc = EXIT_NO_RESOURCE;
