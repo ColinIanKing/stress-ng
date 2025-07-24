@@ -2492,10 +2492,10 @@ static void stress_log_args(int argc, char **argv)
 	}
 	if (user) {
 		shim_syslog(LOG_INFO, "invoked with '%s' by user %" PRIdMAX " '%s'\n", buf, (intmax_t)uid, user);
-		pr_dbg("invoked with '%s' by user %d '%s'\n", buf, uid, user);
+		pr_dbg("invoked with '%s' by user %" PRIdMAX " '%s'\n", buf, (intmax_t)uid, user);
 	} else {
 		shim_syslog(LOG_INFO, "invoked with '%s' by user %" PRIdMAX "\n", buf, (intmax_t)uid);
-		pr_dbg("invoked with '%s' by user %d\n", buf, uid);
+		pr_dbg("invoked with '%s' by user % "PRIdMAX "\n", buf, (intmax_t)uid);
 	}
 	free(buf);
 	free(arglen);
