@@ -632,7 +632,11 @@
 #if defined(HAVE_BUILTIN_TANHL)
 #define shim_tanhl(x)		__builtin_tanhl((x))
 #else
+#if defined(HAVE_TANHL)
 #define shim_tanhl(x)		tanhl((x))
+#else
+#define	shom_tanhl(x)		((long double)shim_tanh((double)(x)))
+#endif
 #endif
 
 #if defined(HAVE_BUILTIN_SQRT)
