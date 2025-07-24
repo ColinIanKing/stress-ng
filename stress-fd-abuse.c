@@ -31,6 +31,9 @@
 #if defined(HAVE_SYS_FILE_H)
 #include <sys/file.h>
 #endif
+#if defined(HAVE_SYS_SELECT_H)
+#include <sys/select.h>
+#endif
 #include <sys/socket.h>
 #if defined(HAVE_SYS_UN_H)
 #include <sys/un.h>
