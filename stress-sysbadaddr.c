@@ -35,6 +35,12 @@
 #include <termios.h>
 #endif
 
+#if defined(HAVE_SYS_SELECT_H)
+#include <sys/select.h>
+#else
+UNEXPECTED
+#endif
+
 #if defined(HAVE_SYS_STATFS_H)
 #include <sys/statfs.h>
 #else
