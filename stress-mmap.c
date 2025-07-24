@@ -232,6 +232,10 @@ static const int mmap_flags[] = {
 #if defined(MAP_PREFAULT_READ)
 	MAP_PREFAULT_READ,
 #endif
+/* FreeBSD */
+#if defined(MAP_ALIGNED_SUPER)
+	MAP_ALIGNED_SUPER,
+#endif
 /* NetBSD */
 #if defined(MAP_WIRED)
 	MAP_WIRED,
