@@ -24,8 +24,10 @@
 /* The following functions from libpthread are used by stress-ng */
 
 static void *pthread_funcs[] = {
+	(void *)pthread_cancel,
 	(void *)pthread_create,
 	(void *)pthread_join,
+	(void *)pthread_kill,
 	(void *)pthread_mutex_lock,
 	(void *)pthread_mutex_unlock,
 	(void *)pthread_cond_wait,
