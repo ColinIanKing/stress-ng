@@ -38,10 +38,6 @@
 #define MAX_FIFO_DATA_SIZE	(4096)
 #define DEFAULT_FIFO_DATA_SIZE	(MIN_FIFO_DATA_SIZE)
 
-#if defined(HAVE_SYS_SELECT_H)
-static const uint64_t wrap_mask = 0xffff000000000000ULL;
-#endif
-
 static const stress_help_t help[] = {
 	{ NULL,	"fifo N",		"start N workers exercising fifo I/O" },
 	{ NULL,	"fifo-data-size N",	"set fifo read/write size in bytes (default 8)" },
@@ -58,6 +54,9 @@ static const stress_opt_t opts[] = {
 
 #if defined(HAVE_SYS_SELECT_H) &&	\
     defined(HAVE_MKFIFO)
+
+static const uint64_t wrap_mask = 0xffff000000000000ULL;
+
 /*
  *  fifo_spawn()
  *	spawn a process
