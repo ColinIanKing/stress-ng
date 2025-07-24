@@ -7213,6 +7213,7 @@ static int syscall_utimensat(void)
 }
 #endif
 
+#if defined(HAVE_UTIMES)
 #define HAVE_SYSCALL_UTIMES
 static int syscall_utimes(void)
 {
@@ -7227,6 +7228,7 @@ static int syscall_utimes(void)
 	t2 = syscall_time_now();
 	return ret;
 }
+#endif
 
 #define HAVE_SYSCALL_VFORK
 static int syscall_vfork(void)
