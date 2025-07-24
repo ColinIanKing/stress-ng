@@ -21,7 +21,9 @@
 #include "core-builtin.h"
 #include "core-killpid.h"
 
+#if defined(HAVE_SYS_FILE_H)
 #include <sys/file.h>
+#endif
 
 static const stress_help_t help[] = {
 	{ NULL,	"flock N",	"start N workers locking a single file" },

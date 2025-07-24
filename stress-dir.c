@@ -21,7 +21,10 @@
 #include "core-killpid.h"
 
 #include <ctype.h>
+
+#if defined(HAVE_SYS_FILE_H)
 #include <sys/file.h>
+#endif
 
 #if defined(HAVE_LIBGEN_H)
 #include <libgen.h>

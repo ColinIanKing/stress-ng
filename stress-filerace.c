@@ -22,11 +22,13 @@
 #include "core-out-of-memory.h"
 
 #include <sys/types.h>
-#include <sys/file.h>
 #include <sys/ioctl.h>
 #include <dirent.h>
 #include <time.h>
 
+#if defined(HAVE_SYS_FILE_H)
+#include <sys/file.h>
+#endif
 #if defined(HAVE_LINUX_FS_H)
 #include <linux/fs.h>
 #endif

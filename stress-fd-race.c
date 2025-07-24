@@ -22,9 +22,12 @@
 #include "core-out-of-memory.h"
 #include "core-pthread.h"
 
-#include <sys/file.h>
 #include <sys/ioctl.h>
 #include <ctype.h>
+
+#if defined(HAVE_SYS_FILE_H)
+#include <sys/file.h>
+#endif
 
 #if defined(HAVE_SYS_SELECT_H)
 #include <sys/select.h>

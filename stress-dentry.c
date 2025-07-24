@@ -21,7 +21,9 @@
 #include "core-builtin.h"
 #include "core-prime.h"
 
+#if defined(HAVE_SYS_FILE_H)
 #include <sys/file.h>
+#endif
 
 #if defined(HAVE_SYS_SELECT_H)
 #include <sys/select.h>

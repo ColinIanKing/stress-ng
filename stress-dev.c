@@ -29,8 +29,11 @@
 #include "core-try-open.h"
 
 #include <ctype.h>
-#include <sys/file.h>
 #include <sys/ioctl.h>
+
+#if defined(HAVE_SYS_FILE_H)
+#include <sys/file.h>
+#endif
 
 #if defined(HAVE_TERMIOS_H)
 #include <termios.h>

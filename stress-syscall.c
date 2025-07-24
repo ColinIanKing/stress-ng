@@ -25,7 +25,9 @@
 #include <math.h>
 #include <sched.h>
 #include <time.h>
+#if defined(HAVE_SYS_FILE_H)
 #include <sys/file.h>
+#endif
 #include <sys/times.h>
 
 #define SYSCALL_METHOD_ALL	(0)

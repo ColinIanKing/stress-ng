@@ -26,9 +26,11 @@
 #endif
 
 #include <sys/ioctl.h>
-#include <sys/file.h>
 #include <sched.h>
 
+#if defined(HAVE_SYS_FILE_H)
+#include <sys/file.h>
+#endif
 #include <sys/socket.h>
 #if defined(HAVE_SYS_UN_H)
 #include <sys/un.h>

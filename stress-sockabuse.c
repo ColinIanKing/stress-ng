@@ -24,7 +24,10 @@
 #include "core-net.h"
 
 #include <sys/ioctl.h>
+
+#if defined(HAVE_SYS_FILE_H)
 #include <sys/file.h>
+#endif
 
 #if defined(HAVE_SYS_XATTR_H)
 #include <sys/xattr.h>
