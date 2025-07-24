@@ -28,7 +28,6 @@
 UNEXPECTED
 #endif
 
-
 #define FAT_EPOCH_MAX	4354819200
 
 static const stress_help_t help[] = {
@@ -122,7 +121,9 @@ static int OPTIMIZE3 stress_utime(stress_args_t *args)
 
 	do {
 		double t;
+#if defined(HAVE_UTIMES)
 		struct timeval timevals[2];
+#endif
 #if (defined(HAVE_FUTIMENS) || defined(HAVE_UTIMENSAT)) && \
     (defined(UTIME_NOW) || defined(UTIME_OMIT))
 		struct timespec ts[2];
