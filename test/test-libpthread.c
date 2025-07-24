@@ -20,6 +20,7 @@
 #include <stdio.h>
 #include <semaphore.h>
 #include <pthread.h>
+#include <signal.h>
 
 /* The following functions from libpthread are used by stress-ng */
 
