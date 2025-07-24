@@ -268,17 +268,17 @@ use_page:
 	 */
 	if ((count++ & 0xf) == 0xf) {
 		ssize_t ret;
-		off_t offset;
+		off_t seek_offset;
 
 		/* Get current file position */
-		offset = lseek(fd, 0, SEEK_CUR);
-		if (offset == (off_t) -1)
+		seek_offset = lseek(fd, 0, SEEK_CUR);
+		if (seek_offset == (off_t) -1)
 			goto do_prot;
 
 		/* Seek to page boundary */
-		offset &= ~(page_size - 1);
-		offset = lseek(fd, offset, SEEK_SET);
-		if (offset == (off_t) -1)
+		seek_offset &= ~(page_size - 1);
+		seek_offset = lseek(fd, seek_offset, SEEK_SET);
+		if (seek_offset == (off_t) -1)
 			goto do_prot;
 
 		/* Write page instructions to file */
@@ -293,7 +293,7 @@ use_page:
 
 		/* Now map file data back as file backed mapping */
 		ptr = (uint8_t *)mmap(NULL, page_size, PROT_READ | PROT_WRITE,
-						MAP_SHARED, fd, offset);
+						MAP_SHARED, fd, seek_offset);
 		if (ptr == MAP_FAILED)
 			return MAP_FAILED;	/* Give up */
 		(void)stress_madvise_mergeable(ptr, page_size);
@@ -365,9 +365,8 @@ static inline void stress_far_branch_pageout(void *addr, const size_t page_size)
 static int OPTIMIZE3 stress_far_branch(stress_args_t *args)
 {
 	size_t i, j, k;
-	size_t bits = sizeof(void *) * 8;
-	size_t n = (bits - 16);
-	size_t n_pages = n * PAGE_MULTIPLES;
+	const size_t bits = sizeof(void *) * 8;
+	size_t n_pages = (bits - 16) * PAGE_MULTIPLES;
 	const size_t page_size = args->page_size;
 	uintptr_t base = 0;
 	size_t max_funcs;
