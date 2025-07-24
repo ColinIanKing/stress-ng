@@ -39,7 +39,7 @@ static const stress_help_t help[] = {
 };
 
 static const stress_opt_t opts[] = {
-	{ OPT_msync_bytes, "msync-bytes", TYPE_ID_SIZE_T_BYTES_FS, MIN_MSYNC_BYTES, MAX_MSYNC_BYTES, NULL },
+	{ OPT_msync_bytes, "msync-bytes", TYPE_ID_UINT64_BYTES_FS, MIN_MSYNC_BYTES, MAX_MSYNC_BYTES, NULL },
 	END_OPT,
 };
 
@@ -103,8 +103,8 @@ static int stress_msync(stress_args_t *args)
 	uint8_t *data = NULL;
 	const size_t page_size = args->page_size;
 	const size_t min_size = 2 * page_size;
-	size_t msync_bytes, msync_bytes_total = DEFAULT_MSYNC_BYTES;
-	NOCLOBBER size_t sz;
+	uint64_t msync_bytes, msync_bytes_total = DEFAULT_MSYNC_BYTES;
+	NOCLOBBER uint64_t sz;
 	ssize_t ret;
 	NOCLOBBER ssize_t rc = EXIT_SUCCESS;
 	NOCLOBBER int fd = -1;
@@ -145,8 +145,8 @@ static int stress_msync(stress_args_t *args)
 	if (stress_instance_zero(args))
 		stress_usage_bytes(args, msync_bytes, msync_bytes_total);
 	sz = msync_bytes & ~(page_size - 1);
-	if (sz < min_size)
-		sz = min_size;
+	if (sz < (uint64_t)min_size)
+		sz = (uint64_t)min_size;
 
 	/* Make sure this is killable by OOM killer */
 	stress_set_oom_adjustment(args, true);
