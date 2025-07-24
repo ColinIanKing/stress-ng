@@ -2208,6 +2208,7 @@ static int syscall_getpid(void)
 	return 0;
 }
 
+#if defined(HAVE_GETGROUPS)
 #define HAVE_SYSCALL_GETGROUPS
 static int syscall_getgroups(void)
 {
@@ -2219,6 +2220,7 @@ static int syscall_getgroups(void)
 	t2 = syscall_time_now();
 	return ret;
 }
+#endif
 
 #if defined(HAVE_GETITIMER)
 #define HAVE_SYSCALL_GETITIMER
