@@ -21,6 +21,7 @@
 #include "core-builtin.h"
 #include "core-capabilities.h"
 #include "core-killpid.h"
+#include "core-mmap.h"
 #include "core-prime.h"
 #include "core-sched.h"
 
