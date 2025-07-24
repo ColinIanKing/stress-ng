@@ -370,6 +370,7 @@ static void stress_filerace_ftruncate_filename(const int fd, const char *filenam
 	}
 }
 
+#if defined(HAVE_UTIMES)
 static void stress_filerace_utimes(const int fd, const char *filename)
 {
 	struct timeval tv[2];
@@ -383,6 +384,7 @@ static void stress_filerace_utimes(const int fd, const char *filename)
 	errno = 0;
 	VOID_RET(int, utimes(filename, tv));
 }
+#endif
 
 #if defined(HAVE_FUTIMES)
 static void stress_filerace_futimes(const int fd, const char *filename)
@@ -1184,7 +1186,9 @@ static const stress_filerace_fops_t stress_filerace_fops[] = {
 #endif
 	stress_filerace_ftruncate,
 	stress_filerace_ftruncate_filename,
+#if defined(HAVE_UTIMES)
 	stress_filerace_utimes,
+#endif
 #if defined(HAVE_FUTIMES)
 	stress_filerace_futimes,
 #endif

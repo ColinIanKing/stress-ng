@@ -128,6 +128,7 @@ static int OPTIMIZE3 stress_utime(stress_args_t *args)
 		struct timespec ts[2];
 #endif
 
+#if defined(HAVE_UTIMES)
 		(void)gettimeofday(&timevals[0], NULL);
 		timevals[1] = timevals[0];
 		if (LIKELY(metrics_count > 0)) {
@@ -167,19 +168,26 @@ static int OPTIMIZE3 stress_utime(stress_args_t *args)
 			duration += stress_time_now() - t;
 			count += 1.0;
 		}
+#endif
 
+#if defined(HAVE_UTIMES)
 		/* Exercise with invalid filename, ENOENT */
 		VOID_RET(int, utimes("", timevals));
+#endif
 
+#if defined(HAVE_UTIMES)
 		/* Exercise huge filename, ENAMETOOLONG */
 		VOID_RET(int, utimes(hugename, timevals));
+#endif
 
+#if defined(HAVE_UTIMES)
 		/* Exercise with time outside FAT time range */
 		timevals[0].tv_sec = (time_t)283996800;	/* Monday, 1 January 1979 00:00:00 */
 		timevals[0].tv_usec = 0;
 		timevals[1].tv_sec = (time_t)283996800;
 		timevals[1].tv_usec = 0;
 		VOID_RET(int, utimes(filename, timevals));
+#endif
 
 #if defined(LONG_MAX) && (LONG_MAX > 4354819200)
 		/* Exercise with time outside FAT time range */
@@ -190,21 +198,27 @@ static int OPTIMIZE3 stress_utime(stress_args_t *args)
 		VOID_RET(int, utimes(filename, timevals));
 #endif
 
+#if defined(HAVE_UTIMES)
 		/* Exercise with time outside of UNIX EPOCH  */
 		timevals[0].tv_sec = (time_t)2147558400; /* Wednesday 20 January 2038 */
 		timevals[0].tv_usec = 0;
 		timevals[1].tv_sec = (time_t)2147558400;
 		timevals[1].tv_usec = 0;
 		VOID_RET(int, utimes(filename, timevals));
+#endif
 
+#if defined(HAVE_UTIMES)
 		/* Exercise with time before of UNIX EPOCH  */
 		timevals[0].tv_sec = (time_t)0x7fffffff;
 		timevals[0].tv_usec = 0;
 		timevals[1].tv_sec = (time_t)0x7fffffff;
 		timevals[1].tv_usec = 0;
 		VOID_RET(int, utimes(filename, timevals));
+#endif
 
+#if defined(HAVE_UTIMES)
 		VOID_RET(int, utimes(filename, NULL));
+#endif
 
 #if defined(HAVE_FUTIMENS)
 		if (LIKELY(metrics_count > 0)) {

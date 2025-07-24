@@ -1997,6 +1997,7 @@ static void bad_utime(stress_bad_addr_t *ba, volatile uint64_t *counter)
 }
 #endif
 
+#if defined(HAVE_UTIMES)
 static void bad_utimes1(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unreadable) {
@@ -2004,7 +2005,9 @@ static void bad_utimes1(stress_bad_addr_t *ba, volatile uint64_t *counter)
 		VOID_RET(int, utimes(ba->addr, (const struct timeval *)inc_addr(ba->addr, 1)));
 	}
 }
+#endif
 
+#if defined(HAVE_UTIMES)
 static void bad_utimes2(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unreadable) {
@@ -2012,7 +2015,9 @@ static void bad_utimes2(stress_bad_addr_t *ba, volatile uint64_t *counter)
 		VOID_RET(int, utimes(stress_get_temp_path(), (const struct timeval *)ba->addr));
 	}
 }
+#endif
 
+#if defined(HAVE_UTIMES)
 static void bad_utimes3(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unreadable) {
@@ -2020,6 +2025,7 @@ static void bad_utimes3(stress_bad_addr_t *ba, volatile uint64_t *counter)
 		VOID_RET(int, utimes(ba->addr, NULL));
 	}
 }
+#endif
 
 static void bad_wait(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
@@ -2373,9 +2379,15 @@ static const stress_bad_syscall_t bad_syscalls[] = {
 #if defined(HAVE_UTIME_H)
 	bad_utime,
 #endif
+#if defined(HAVE_UTIMES)
 	bad_utimes1,
+#endif
+#if defined(HAVE_UTIMES)
 	bad_utimes2,
+#endif
+#if defined(HAVE_UTIMES)
 	bad_utimes3,
+#endif
 	bad_wait,
 	bad_waitpid,
 #if defined(HAVE_WAITID)
