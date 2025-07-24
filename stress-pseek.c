@@ -50,7 +50,7 @@ typedef struct {
 	const char *fs_type;		/* file system type */
 	int fd;				/* file descriptor */
 	bool pseek_rand;		/* random seek option */
-	size_t pseek_io_size;		/* write/read I/O size */
+	uint64_t pseek_io_size;		/* write/read I/O size */
 	pid_t parent_pid;		/* stressor ped */
 } stress_peekio_info_t;
 
@@ -426,24 +426,24 @@ static int stress_pseek(stress_args_t *args)
 	}
 
 	for (i = 0; i < pseek_procs; i++) {
-		procs[i].buf = (uint8_t *)stress_mmap_populate(NULL, info.pseek_io_size,
+		procs[i].buf = (uint8_t *)stress_mmap_populate(NULL, (size_t)info.pseek_io_size,
 						PROT_READ | PROT_WRITE,
 						MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 		if (procs[i].buf == MAP_FAILED) {
 			size_t j;
 
-			pr_inf_skip("%s: failed to mmap buffer of %zu bytes%s, "
+			pr_inf_skip("%s: failed to mmap buffer of %" PRIu64 " bytes%s, "
 				"errno=%d (%s), skipping stressor\n",
 				args->name, info.pseek_io_size,
 				stress_get_memfree_str(), errno, strerror(errno));
 			for (j = 0; j < i; j++) {
-				(void)munmap((void *)procs[j].buf, info.pseek_io_size);
+				(void)munmap((void *)procs[j].buf, (size_t)info.pseek_io_size);
 			}
 			rc = EXIT_NO_RESOURCE;
 			goto tidy_munmap_procs;
 		}
-		stress_set_vma_anon_name(procs[i].buf, info.pseek_io_size, "pseek-buffer");
-		(void)shim_memset(procs[i].buf, stress_mwc8(), info.pseek_io_size);
+		stress_set_vma_anon_name(procs[i].buf, (size_t)info.pseek_io_size, "pseek-buffer");
+		(void)shim_memset(procs[i].buf, stress_mwc8(), (size_t)info.pseek_io_size);
 	}
 
 	ret = stress_temp_dir_mk_args(args);
@@ -519,7 +519,7 @@ tidy_unlink:
 	(void)stress_temp_dir_rm_args(args);
 tidy_munmap_bufs:
 	for (i = 0; i < pseek_procs; i++)
-		(void)munmap((void *)procs[i].buf, info.pseek_io_size);
+		(void)munmap((void *)procs[i].buf, (size_t)info.pseek_io_size);
 tidy_munmap_procs:
 	(void)munmap((void *)procs, procs_size);
 
@@ -528,7 +528,7 @@ tidy_munmap_procs:
 
 static const stress_opt_t opts[] = {
 	{ OPT_pseek_rand,    "pseek-seek-rand",  TYPE_ID_BOOL, 0, 1, NULL },
-	{ OPT_pseek_io_size, "pseek-io-size",    TYPE_ID_SIZE_T_BYTES_FS, MIN_PSEEKIO_IO_SIZE, MAX_PSEEKIO_IO_SIZE, NULL },
+	{ OPT_pseek_io_size, "pseek-io-size",    TYPE_ID_UINT64_BYTES_FS, MIN_PSEEKIO_IO_SIZE, MAX_PSEEKIO_IO_SIZE, NULL },
 	END_OPT,
 };
 
