@@ -80,11 +80,12 @@ static const char default_gpu_devnode[] = "/dev/dri/renderD128";
 static int gpu_card = 0;
 static GLubyte *teximage = NULL;
 
+#if defined(HAVE_LIB_PTHREAD)
 /*
  *  stress_get_gpu_freq_mhz()
  *	get GPU frequency in MHz, set to 0.0 if not readable
  */
-void stress_get_gpu_freq_mhz(double *gpu_freq)
+static void stress_get_gpu_freq_mhz(double *gpu_freq)
 {
 	if (UNLIKELY(!gpu_freq))
 		return;
@@ -102,7 +103,7 @@ void stress_get_gpu_freq_mhz(double *gpu_freq)
 #endif
 	*gpu_freq = 0.0;
 }
-
+#endif
 
 static void stress_gpu_trim_newline(char *str)
 {
