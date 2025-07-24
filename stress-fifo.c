@@ -56,7 +56,8 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
-#if defined(HAVE_SYS_SELECT_H)
+#if defined(HAVE_SYS_SELECT_H) &&	\
+    defined(HAVE_MKFIFO)
 /*
  *  fifo_spawn()
  *	spawn a process

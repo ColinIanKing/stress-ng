@@ -33,6 +33,7 @@ static const stress_help_t help[] = {
 
 #if defined(__linux__) &&	\
     defined(HAVE_CLONE) &&	\
+    defined(HAVE_MKFIFO) &&	\
     defined(CLONE_VM) &&	\
     defined(CLONE_FILES)
 #define STRESS_DUP2_RACE	(1)
@@ -175,6 +176,7 @@ static int static_dup2_child(info_t *info)
 static int stress_dup2_race(info_t *info)
 {
 	pid_t pid;
+
 	if (UNLIKELY(mkfifo(info->fifoname, S_IRUSR | S_IWUSR)))
 		return -1;
 
