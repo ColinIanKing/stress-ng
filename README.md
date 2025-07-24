@@ -70,7 +70,7 @@ build: (note libattr is not required for more recent disto releases).
 
 Debian, Ubuntu:
 
-  * gcc g++ libacl1-dev libaio-dev libapparmor-dev libatomic1 libattr1-dev libbsd-dev libcap-dev libeigen3-dev libgbm-dev libcrypt-dev libglvnd-dev libipsec-mb-dev libjpeg-dev libjudy-dev libkeyutils-dev libkmod-dev libmd-dev libmpfr-dev libsctp-dev libxxhash-dev liblzma-dev zlib1g-dev
+  * gcc g++ libacl1-dev libaio-dev libapparmor-dev libatomic1 libattr1-dev libbsd-dev libcap-dev libeigen3-dev libgbm-dev libcrypt-dev libglvnd-dev libipsec-mb-dev libjpeg-dev libjudy-dev libkeyutils-dev libkmod-dev libmd-dev libmount-dev libmpfr-dev libsctp-dev libxxhash-dev liblzma-dev zlib1g-dev
 
 RHEL, Fedora, Centos:
 
