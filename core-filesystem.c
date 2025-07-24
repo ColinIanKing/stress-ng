@@ -1260,7 +1260,7 @@ static const char *stress_get_fs_dev_model(const char *filename)
     defined(__linux__)
 	struct stat statbuf;
 	char dev[1024];
-	static char buf[1024];
+	static char buf[1024 + 16];
 	char path[PATH_MAX];
 
 	if (UNLIKELY(!filename))
