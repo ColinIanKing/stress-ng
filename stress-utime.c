@@ -189,7 +189,9 @@ static int OPTIMIZE3 stress_utime(stress_args_t *args)
 		VOID_RET(int, utimes(filename, timevals));
 #endif
 
-#if defined(LONG_MAX) && (LONG_MAX > 4354819200)
+#if defined(HAVE_UTIMES) &&	\
+    defined(LONG_MAX) &&	\
+    (LONG_MAX > 4354819200)
 		/* Exercise with time outside FAT time range */
 		timevals[0].tv_sec = (time_t)4354819200; /* Monday, 1 January 2108 00:00:00 */
 		timevals[0].tv_usec = 0;
