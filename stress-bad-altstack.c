@@ -109,6 +109,7 @@ static void NORETURN MLOCKED_TEXT stress_signal_handler(int signum)
 	 *  signal handler, so jmp back and re-try
 	 */
 	siglongjmp(jmpbuf, 1);
+	stress_no_return();
 }
 
 static int stress_bad_altstack_child(stress_args_t *args)

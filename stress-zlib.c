@@ -193,6 +193,7 @@ static void NORETURN MLOCKED_TEXT stress_bad_read_handler(int signum)
 	(void)signum;
 
 	siglongjmp(jmpbuf, 1);
+	stress_no_return();
 }
 
 /*

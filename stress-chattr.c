@@ -82,8 +82,10 @@ static void MLOCKED_TEXT stress_chattr_fault_handler(int signum)
 {
 	(void)signum;
 
-	if (do_jmp)
+	if (do_jmp) {
 		siglongjmp(jmp_env, 1);		/* Ugly, bounce back */
+		stress_no_return();
+	}
 }
 
 static char *stress_chattr_flags_str(const unsigned long int flags, char *str, const size_t str_len)

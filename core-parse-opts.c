@@ -41,6 +41,7 @@ void stress_check_max_stressors(
 		(void)fprintf(stderr, "Number of %s stressors must be between "
 			"0 and %d\n", msg, STRESS_PROCS_MAX);
 		longjmp(g_error_env, 1);
+		stress_no_return();
 	}
 }
 
@@ -59,6 +60,7 @@ void stress_check_signed_range(
 			" allowed: %" PRId64 " .. %" PRId64 "\n",
 			val, opt, lo, hi);
 		longjmp(g_error_env, 1);
+		stress_no_return();
 	}
 }
 
@@ -77,6 +79,7 @@ void stress_check_range(
 			" allowed: %" PRIu64 " .. %" PRIu64 "\n",
 			val, opt, lo, hi);
 		longjmp(g_error_env, 1);
+		stress_no_return();
 	}
 }
 
@@ -100,6 +103,7 @@ void stress_check_range_bytes(
 			stress_uint64_to_str(strlo, sizeof(strlo), lo, 1, false),
 			stress_uint64_to_str(strhi, sizeof(strhi), hi, 1, false));
 		longjmp(g_error_env, 1);
+		stress_no_return();
 	}
 }
 
@@ -123,6 +127,7 @@ static void stress_ensure_numeric(const char *const str)
 	(void)fprintf(stderr, "Value %s contains non-numeric: '%s'\n",
 		str, ptr);
 	longjmp(g_error_env, 1);
+	stress_no_return();
 }
 
 /*
@@ -146,6 +151,7 @@ static void stress_ensure_positive(const char *const str)
 
 			(void)fprintf(stderr, "Invalid negative number %s\n", str);
 			longjmp(g_error_env, 1);
+			stress_no_return();
 		}
 	}
 }
@@ -163,10 +169,12 @@ uint8_t stress_get_uint8(const char *const str)
 	if (sscanf(str, "%" SCNu64, &val) != 1) {
 		(void)fprintf(stderr, "Invalid number %s\n", str);
 		longjmp(g_error_env, 1);
+		stress_no_return();
 	}
 	if (val > UINT8_MAX) {
 		(void)fprintf(stderr, "Invalid number %s too large (> %d)\n", str, (int)UINT8_MAX);
 		longjmp(g_error_env, 1);
+		stress_no_return();
 	}
 	return (uint8_t)val;
 }
@@ -183,14 +191,17 @@ int8_t stress_get_int8(const char *const str)
 	if (sscanf(str, "%" SCNd64, &val) != 1) {
 		(void)fprintf(stderr, "Invalid number %s\n", str);
 		longjmp(g_error_env, 1);
+		stress_no_return();
 	}
 	if (val > INT8_MAX) {
 		(void)fprintf(stderr, "Invalid number %s too large (> %ld)\n", str, (long)INT8_MAX);
 		longjmp(g_error_env, 1);
+		stress_no_return();
 	}
 	if (val < INT8_MIN) {
 		(void)fprintf(stderr, "Invalid number %s too small (< %ld)\n", str, (long)INT8_MIN);
 		longjmp(g_error_env, 1);
+		stress_no_return();
 	}
 	return (int8_t)val;
 }
@@ -208,10 +219,12 @@ uint16_t stress_get_uint16(const char *const str)
 	if (sscanf(str, "%" SCNu64, &val) != 1) {
 		(void)fprintf(stderr, "Invalid number %s\n", str);
 		longjmp(g_error_env, 1);
+		stress_no_return();
 	}
 	if (val > UINT16_MAX) {
 		(void)fprintf(stderr, "Invalid number %s too large (> %d)\n", str, (int)UINT16_MAX);
 		longjmp(g_error_env, 1);
+		stress_no_return();
 	}
 	return (uint16_t)val;
 }
@@ -228,14 +241,17 @@ int16_t stress_get_int16(const char *const str)
 	if (sscanf(str, "%" SCNd64, &val) != 1) {
 		(void)fprintf(stderr, "Invalid number %s\n", str);
 		longjmp(g_error_env, 1);
+		stress_no_return();
 	}
 	if (val > INT16_MAX) {
 		(void)fprintf(stderr, "Invalid number %s too large (> %ld)\n", str, (long)INT16_MAX);
 		longjmp(g_error_env, 1);
+		stress_no_return();
 	}
 	if (val < INT16_MIN) {
 		(void)fprintf(stderr, "Invalid number %s too small (< %ld)\n", str, (long)INT16_MIN);
 		longjmp(g_error_env, 1);
+		stress_no_return();
 	}
 	return (int16_t)val;
 }
@@ -253,10 +269,12 @@ uint32_t stress_get_uint32(const char *const str)
 	if (sscanf(str, "%" SCNu64, &val) != 1) {
 		(void)fprintf(stderr, "Invalid number %s\n", str);
 		longjmp(g_error_env, 1);
+		stress_no_return();
 	}
 	if (val > UINT32_MAX) {
 		(void)fprintf(stderr, "Invalid number %s too large (> %u)\n", str, (unsigned int)UINT32_MAX);
 		longjmp(g_error_env, 1);
+		stress_no_return();
 	}
 	return (uint32_t)val;
 }
@@ -273,14 +291,17 @@ int32_t stress_get_int32(const char *const str)
 	if (sscanf(str, "%" SCNd64, &val) != 1) {
 		(void)fprintf(stderr, "Invalid number %s\n", str);
 		longjmp(g_error_env, 1);
+		stress_no_return();
 	}
 	if (val > INT32_MAX) {
 		(void)fprintf(stderr, "Invalid number %s too large (> %ld)\n", str, (long)INT32_MAX);
 		longjmp(g_error_env, 1);
+		stress_no_return();
 	}
 	if (val < INT32_MIN) {
 		(void)fprintf(stderr, "Invalid number %s too small (< %ld)\n", str, (long)INT32_MIN);
 		longjmp(g_error_env, 1);
+		stress_no_return();
 	}
 	return (int32_t)val;
 }
@@ -298,6 +319,7 @@ uint64_t stress_get_uint64(const char *const str)
 	if (sscanf(str, "%" SCNu64, &val) != 1) {
 		(void)fprintf(stderr, "Invalid number %s\n", str);
 		longjmp(g_error_env, 1);
+		stress_no_return();
 	}
 	return val;
 }
@@ -314,6 +336,7 @@ int64_t stress_get_int64(const char *const str)
 	if (sscanf(str, "%" SCNd64, &val) != 1) {
 		(void)fprintf(stderr, "Invalid number %s\n", str);
 		longjmp(g_error_env, 1);
+		stress_no_return();
 	}
 	return val;
 }
@@ -331,10 +354,12 @@ unsigned int stress_get_uint(const char *const str)
 	if (sscanf(str, "%" SCNu64, &val) != 1) {
 		(void)fprintf(stderr, "Invalid number %s\n", str);
 		longjmp(g_error_env, 1);
+		stress_no_return();
 	}
 	if (val > UINT_MAX) {
 		(void)fprintf(stderr, "Invalid number %s too large (> %u)\n", str, (unsigned int)UINT_MAX);
 		longjmp(g_error_env, 1);
+		stress_no_return();
 	}
 	return (unsigned int)val;
 }
@@ -351,14 +376,17 @@ int stress_get_int(const char *const str)
 	if (sscanf(str, "%" SCNd64, &val) != 1) {
 		(void)fprintf(stderr, "Invalid number %s\n", str);
 		longjmp(g_error_env, 1);
+		stress_no_return();
 	}
 	if (val > INT_MAX) {
 		(void)fprintf(stderr, "Invalid number %s too large (> %ld)\n", str, (long)INT_MAX);
 		longjmp(g_error_env, 1);
+		stress_no_return();
 	}
 	if (val < INT_MIN) {
 		(void)fprintf(stderr, "Invalid number %s too small (< %ld)\n", str, (long)INT_MIN);
 		longjmp(g_error_env, 1);
+		stress_no_return();
 	}
 	return (int)val;
 }
@@ -402,6 +430,7 @@ uint64_t stress_get_uint64_scale(
 	(void)fprintf(stderr, "Illegal %s specifier %c\n", msg, str[len]);
 err:
 	longjmp(g_error_env, 1);
+	stress_no_return();
 	/* should never get here */
 	return 0;
 }
@@ -443,6 +472,7 @@ err:
 	}
 	fprintf(stderr, "\n");
 	longjmp(g_error_env, 1);
+	stress_no_return();
 	/* should never get here */
 	return 0;
 }
@@ -467,6 +497,7 @@ uint64_t stress_get_uint64_byte(const char *const str)
 		if ((cache_level < 0) || (cache_level > 5)) {
 			(void)fprintf(stderr, "Illegal cache size '%s'\n", str);
 			longjmp(g_error_env, 1);
+			stress_no_return();
 		}
 		stress_cpu_cache_get_level_size((uint16_t)cache_level, &llc_size, &cache_line_size);
 	}
@@ -474,6 +505,7 @@ uint64_t stress_get_uint64_byte(const char *const str)
 	if (llc_size == 0) {
 		(void)fprintf(stderr, "Cannot determine %s cache size\n", str);
 		longjmp(g_error_env, 1);
+		stress_no_return();
 	}
 	return (uint64_t)llc_size;
 }
@@ -499,20 +531,24 @@ uint64_t stress_get_uint64_percent(
 		if (max == 0) {
 			(void)fprintf(stderr, "%s\n", errmsg);
 			longjmp(g_error_env, 1);
+			stress_no_return();
 		}
 
 		/* Should NEVER happen */
 		if (instances < 1) {
 			(void)fprintf(stderr, "Invalid number of instances\n");
 			longjmp(g_error_env, 1);
+			stress_no_return();
 		}
 		if (sscanf(str, "%lf", &val) != 1) {
 			(void)fprintf(stderr, "Invalid percentage %s\n", str);
 			longjmp(g_error_env, 1);
+			stress_no_return();
 		}
 		if (val < 0.0) {
 			(void)fprintf(stderr, "Invalid negative percentage %s\n", str);
 			longjmp(g_error_env, 1);
+			stress_no_return();
 		}
 		percent = ((double)max * (double)val) / (100.0 * (double)instances);
 		if (percentage)
@@ -520,6 +556,7 @@ uint64_t stress_get_uint64_percent(
 		if (percent > UINT64_MAX) {
 			(void)fprintf(stderr, "Invalid too large percentage %s\n", str);
 			longjmp(g_error_env, 1);
+			stress_no_return();
 		}
 		return (uint64_t)percent;
 	}
@@ -543,6 +580,7 @@ int32_t stress_get_int32_instance_percent(const char *const str)
 		if (sscanf(str, "%lf", &val) != 1) {
 			(void)fprintf(stderr, "Invalid percentage %s\n", str);
 			longjmp(g_error_env, 1);
+			stress_no_return();
 		}
 		if (val < 0.0) {
 			return -1;
@@ -555,6 +593,7 @@ int32_t stress_get_int32_instance_percent(const char *const str)
 			if (val > INT32_MAX) {
 				(void)fprintf(stderr, "Invalid too large percentage %s\n", str);
 				longjmp(g_error_env, 1);
+				stress_no_return();
 			}
 			return (int32_t)val;
 		} else {
@@ -698,6 +737,7 @@ int stress_parse_opt(const char *stressor_name, const char *opt_arg, const stres
 		if (!method_func) {
 			fprintf(stderr, "%s: no method function provided for option\n", opt_name);
 			longjmp(g_error_env, 1);
+			stress_no_return();
 		}
 		for (i = 0; (str = method_func(i)) != NULL ; i++) {
 			if (strcmp(str, opt_arg) == 0)
@@ -712,6 +752,8 @@ int stress_parse_opt(const char *stressor_name, const char *opt_arg, const stres
 			(void)fprintf(stderr, "\n");
 		}
 		longjmp(g_error_env, 1);
+		stress_no_return();
+		break;
 	case TYPE_ID_SSIZE_T:
 		setting.u.ssize = (ssize_t)stress_get_int64(opt_arg);
 		stress_check_signed_range(opt_name, (int64_t)setting.u.ssize, (int64_t)min, (int64_t)max);
@@ -726,8 +768,10 @@ int stress_parse_opt(const char *stressor_name, const char *opt_arg, const stres
 		return stress_set_setting(stressor_name, opt_name, TYPE_ID_INT, &setting.u.sint);
 	case TYPE_ID_INT_DOMAIN:
 		domain_mask = (opt->data == NULL) ? 0 : *(int *)opt->data;
-		if (stress_set_net_domain(domain_mask, opt_name, opt_arg, &setting.u.sint) < 0)
+		if (stress_set_net_domain(domain_mask, opt_name, opt_arg, &setting.u.sint) < 0) {
 			longjmp(g_error_env, 1);
+			stress_no_return();
+		}
 		return stress_set_setting(stressor_name, opt_name, TYPE_ID_UINT, &setting.u.sint);
 	case TYPE_ID_INT_PORT:
 		stress_set_net_port(opt_name, opt_arg, (int)min, (int)max, &setting.u.sint);
@@ -750,6 +794,7 @@ int stress_parse_opt(const char *stressor_name, const char *opt_arg, const stres
 		if (!callback_func) {
 			fprintf(stderr, "%s: no callback function provided for option\n", opt_name);
 			longjmp(g_error_env, 1);
+			stress_no_return();
 		}
 		type_id = TYPE_ID_UNDEFINED;
 		callback_func(opt_name, opt_arg, &type_id, &setting.u);

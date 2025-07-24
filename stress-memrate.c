@@ -97,6 +97,7 @@ static void stress_memrate_alarm_handler(int signum)
 	if (do_jmp) {
 		do_jmp = false;
 	        siglongjmp(jmpbuf, 1);
+		stress_no_return();
 	}
 }
 #endif

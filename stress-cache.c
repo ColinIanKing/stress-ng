@@ -781,6 +781,7 @@ static void NORETURN MLOCKED_TEXT stress_cache_sighandler(int signum)
 	caught_signum = signum;
 
 	siglongjmp(jmp_env, 1);         /* Ugly, bounce back */
+	stress_no_return();
 }
 
 static void NORETURN MLOCKED_TEXT stress_cache_sigillhandler(int signum)
@@ -807,6 +808,7 @@ static void NORETURN MLOCKED_TEXT stress_cache_sigillhandler(int signum)
 	}
 
 	siglongjmp(jmp_env, 1);         /* Ugly, bounce back */
+	stress_no_return();
 }
 
 /*

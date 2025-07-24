@@ -74,6 +74,7 @@ static void NORETURN MLOCKED_TEXT stress_fpehandler(int num, siginfo_t *info, vo
 	siginfo = *info;
 
 	siglongjmp(jmp_env, 1);		/* Ugly, bounce back */
+	stress_no_return();
 }
 #else
 static void NORETURN MLOCKED_TEXT stress_fpehandler(int num)
@@ -82,6 +83,7 @@ static void NORETURN MLOCKED_TEXT stress_fpehandler(int num)
 	(void)feclearexcept(FE_ALL_EXCEPT);
 
 	siglongjmp(jmp_env, 1);		/* Ugly, bounce back */
+	stress_no_return();
 }
 #endif
 

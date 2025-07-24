@@ -284,6 +284,7 @@ static void NORETURN MLOCKED_TEXT stress_pci_handler(int signum)
 	(void)signum;
 
 	siglongjmp(jmp_env, 1);
+	stress_no_return();
 }
 
 static void stress_pci_rate(const stress_metrics_t *metrics, char *str, const size_t len)

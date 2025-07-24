@@ -338,6 +338,7 @@ static void NORETURN MLOCKED_TEXT stress_mmaptorture_sighandler(int signum)
 		break;
 	}
 	siglongjmp(jmp_env, 1);	/* Ugly, bounce back */
+	stress_no_return();
 }
 
 static void stress_mmaptorture_msync(

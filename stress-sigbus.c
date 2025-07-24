@@ -68,6 +68,7 @@ static void NORETURN MLOCKED_TEXT stress_bushandler(
 		code = info->si_code;
 	}
 	siglongjmp(jmp_env, 1);		/* Ugly, bounce back */
+	stress_no_return();
 }
 #else
 static void NORETURN MLOCKED_TEXT stress_bushandler(int signum)
@@ -82,6 +83,7 @@ static void NORETURN MLOCKED_TEXT stress_bushandler(int signum)
 			     "popf;\n");
 #endif
 	siglongjmp(jmp_env, 1);		/* Ugly, bounce back */
+	stress_no_return();
 }
 #endif
 

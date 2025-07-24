@@ -71,6 +71,7 @@ static void stress_peterson_sigill_handler(int signum)
 	(void)signum;
 
 	siglongjmp(jmp_env, 1);
+	stress_no_return();
 }
 
 static int stress_peterson_supported(const char *name)

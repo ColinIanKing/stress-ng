@@ -70,6 +70,7 @@ static void stress_decker_sigill_handler(int signum)
 	(void)signum;
 
 	siglongjmp(jmp_env, 1);
+	stress_no_return();
 }
 
 static int stress_dekker_supported(const char *name)

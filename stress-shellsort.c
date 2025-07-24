@@ -54,6 +54,7 @@ static void MLOCKED_TEXT stress_shellsort_handler(int signum)
 	if (do_jmp) {
 		do_jmp = false;
 		siglongjmp(jmp_env, 1);		/* Ugly, bounce back */
+		stress_no_return();
 	}
 }
 #endif

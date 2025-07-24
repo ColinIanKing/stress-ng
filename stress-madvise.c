@@ -206,6 +206,7 @@ static void NORETURN MLOCKED_TEXT stress_sigbus_handler(int signum)
 	sigbus_count++;
 
 	siglongjmp(jmp_env, 1);
+	stress_no_return();
 }
 
 #if defined(MADV_FREE)

@@ -121,6 +121,7 @@ static void stress_touch_opts(const char *opt_name, const char *opt_arg, stress_
 		(void)fprintf(stderr, "%s option: cannot dup string '%s'\n",
 			opt_name, opt_arg);
 		longjmp(g_error_env, 1);
+		stress_no_return();
 	}
 
 	for (ptr = str; (token = strtok(ptr, ",")) != NULL; ptr = NULL) {
@@ -140,6 +141,7 @@ static void stress_touch_opts(const char *opt_name, const char *opt_arg, stress_
 			(void)fprintf(stderr, "\n");
 			free(str);
 			longjmp(g_error_env, 1);
+			stress_no_return();
 		}
 	}
 	*type_id = TYPE_ID_INT;

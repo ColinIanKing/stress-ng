@@ -76,6 +76,7 @@ static void NORETURN MLOCKED_TEXT stress_segvhandler(
 	code = info->si_code;
 
 	siglongjmp(jmp_env, 1);		/* Ugly, bounce back */
+	stress_no_return();
 }
 #else
 static void NORETURN MLOCKED_TEXT stress_segvhandler(int signum)
@@ -83,6 +84,7 @@ static void NORETURN MLOCKED_TEXT stress_segvhandler(int signum)
 	(void)signum;
 
 	siglongjmp(jmp_env, 1);		/* Ugly, bounce back */
+	stress_no_return();
 }
 #endif
 

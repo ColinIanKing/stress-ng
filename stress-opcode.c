@@ -189,8 +189,10 @@ static void MLOCKED_TEXT stress_opcode_child_sighandler(int signum)
 	 *  try to continue for less significant signals
 	 *  such as SIGFPE and SIGTRAP
 	 */
-	if (jmp_env_set)
+	if (jmp_env_set) {
 		siglongjmp(jmp_env, 1);
+		stress_no_return();
+	}
 #else
 	_exit(1);
 #endif

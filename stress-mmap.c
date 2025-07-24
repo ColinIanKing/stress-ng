@@ -263,8 +263,10 @@ static void MLOCKED_TEXT stress_mmap_sighandler(int signum)
 {
 	(void)signum;
 
-	if (jmp_env_set)
+	if (jmp_env_set) {
 		siglongjmp(jmp_env, 1);
+		stress_no_return();
+	}
 }
 
 /*

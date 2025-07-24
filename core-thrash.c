@@ -56,8 +56,10 @@ static void MLOCKED_TEXT stress_pagein_handler(int signum)
 {
 	(void)signum;
 
-	if (jmp_env_set)
+	if (jmp_env_set) {
 		siglongjmp(jmp_env, 1);
+		stress_no_return();
+	}
 }
 
 /*

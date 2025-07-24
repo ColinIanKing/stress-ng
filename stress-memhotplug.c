@@ -227,8 +227,10 @@ static void stress_segv_handler(int signum)
 
 	segv_count++;
 
-	if (do_jmp)
+	if (do_jmp) {
 		siglongjmp(jmp_env, 1);         /* Ugly, bounce back */
+		stress_no_return();
+	}
 }
 
 /*

@@ -470,6 +470,7 @@ static inline void stress_sigsegv_handler(int signum)
 	idx++;
 
 	siglongjmp(jmp_env, 1);
+	stress_no_return();
 }
 
 #if defined(SIGILL) ||	\

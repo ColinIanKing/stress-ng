@@ -1206,6 +1206,7 @@ static MLOCKED_TEXT NORETURN void stress_misaligned_handler(int signum)
 	handled_signum = signum;
 	stress_misligned_disable();
 	siglongjmp(jmp_env, STRESS_MISALIGNED_ERROR);
+	stress_no_return();
 }
 
 #if defined(HAVE_TIMER_FUNCTIONALITY)
@@ -1227,6 +1228,7 @@ static MLOCKED_TEXT void stress_misaligned_timer_handler(int signum)
 
 	stress_misaligned_reset_timer();
 	siglongjmp(jmp_env, STRESS_MISALIGNED_TIMED_OUT);
+	stress_no_return();
 }
 #endif
 

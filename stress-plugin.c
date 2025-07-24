@@ -166,6 +166,7 @@ static void stress_plugin_so(const char *opt_name, const char *opt_arg, stress_t
 		fprintf(stderr, "option %s: cannot load shared object file %s "
 			"(please specify full path to .so file)\n", opt_name, opt_arg);
 		longjmp(g_error_env, 1);
+		stress_no_return();
 	}
 
 	dlinfo(stress_plugin_so_dl, RTLD_DI_LINKMAP, &map);
@@ -187,14 +188,17 @@ static void stress_plugin_so(const char *opt_name, const char *opt_arg, stress_t
 	if (!symtab) {
 		fprintf(stderr, "plugin-so: cannot find symbol table in file %s\n", opt_arg);
 		longjmp(g_error_env, 1);
+		stress_no_return();
 	}
 	if (!strtab) {
 		fprintf(stderr, "plugin-so: cannot find string table in file %s\n", opt_arg);
 		longjmp(g_error_env, 1);
+		stress_no_return();
 	}
 	if (!symentries) {
 		fprintf(stderr, "plugin-so: cannot find symbol table entry count in file %s\n", opt_arg);
 		longjmp(g_error_env, 1);
+		stress_no_return();
 	}
 	size = (size_t)(strtab - (char *)symtab);
 
@@ -210,6 +214,7 @@ static void stress_plugin_so(const char *opt_name, const char *opt_arg, stress_t
 	if (!n_funcs) {
 		fprintf(stderr, "plugin-so: cannot find any function symbols in file %s\n", opt_arg);
 		longjmp(g_error_env, 1);
+		stress_no_return();
 	}
 
 	stress_plugin_methods = (stress_plugin_method_info_t *)calloc(n_funcs + 1, sizeof(*stress_plugin_methods));
@@ -217,6 +222,7 @@ static void stress_plugin_so(const char *opt_name, const char *opt_arg, stress_t
 		fprintf(stderr, "plugin-so: cannot allocate %zu plugin methods%s\n",
 			n_funcs, stress_get_memfree_str());
 		longjmp(g_error_env, 1);
+		stress_no_return();
 	}
 
 	n_funcs = 0;
@@ -235,6 +241,7 @@ static void stress_plugin_so(const char *opt_name, const char *opt_arg, stress_t
 				if (!stress_plugin_methods[n_funcs].func) {
 					fprintf(stderr, "plugin-so: cannot get address of function %s()\n", str);
 					longjmp(g_error_env, 1);
+					stress_no_return();
 				}
 				n_funcs++;
 			}

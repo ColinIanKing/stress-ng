@@ -86,6 +86,7 @@ static void stress_sigill_handler(int signum)
 	(void)signum;
 
 	siglongjmp(jmpbuf, 1);
+	stress_no_return();
 }
 
 /*

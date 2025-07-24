@@ -2408,6 +2408,7 @@ static void MLOCKED_TEXT stress_syscall_itimer_handler(int sig)
 		do_jmp = false;
 		current_context->type = SYSCALL_TIMED_OUT;
 		siglongjmp(jmpbuf, 1);
+		stress_no_return();
 	}
 }
 

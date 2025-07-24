@@ -138,8 +138,10 @@ static void MLOCKED_TEXT stress_rlimit_handler(int signum)
 {
 	(void)signum;
 
-	if (do_jmp)
+	if (do_jmp) {
 		siglongjmp(jmp_env, 1);
+		stress_no_return();
+	}
 }
 
 

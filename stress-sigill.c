@@ -184,6 +184,7 @@ static void NORETURN MLOCKED_TEXT stress_sigill_handler(
 	code = info->si_code;
 
 	siglongjmp(jmp_env, 1);		/* Ugly, bounce back */
+	stress_no_return();
 }
 #else
 static void NORETURN MLOCKED_TEXT stress_sigill_handler(int signum)
@@ -191,6 +192,7 @@ static void NORETURN MLOCKED_TEXT stress_sigill_handler(int signum)
 	(void)signum;
 
 	siglongjmp(jmp_env, 1);		/* Ugly, bounce back */
+	stress_no_return();
 }
 #endif
 

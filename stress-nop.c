@@ -323,6 +323,7 @@ static void NORETURN stress_sigill_nop_handler(int signum)
 	current_instr->ignore = true;
 
 	siglongjmp(jmpbuf, 1);
+	stress_no_return();
 }
 
 /*

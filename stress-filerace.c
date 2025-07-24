@@ -845,6 +845,7 @@ static void NORETURN MLOCKED_TEXT stress_filerace_mmap_sigbus_handler(int sig)
 	(void)sig;
 
 	siglongjmp(mmap_jmpbuf, 1);
+	stress_no_return();
 }
 
 static void stress_filerace_mmap(const int fd, const char *filename)

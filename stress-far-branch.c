@@ -78,6 +78,7 @@ static void MLOCKED_TEXT stress_sig_handler(
 	stress_continue_set_flag(false);
 
 	siglongjmp(jmp_env, 1);
+	stress_no_return();
 }
 
 static inline void stress_far_branch_page_flush(void *page, const size_t page_size)

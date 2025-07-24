@@ -89,6 +89,7 @@ static void MLOCKED_TEXT NORETURN stress_sigbus_handler(int signum)
 	sigbus_count++;
 
 	siglongjmp(jmp_env, 1); /* bounce back */
+	stress_no_return();
 }
 
 /*

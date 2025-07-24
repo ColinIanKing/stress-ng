@@ -1900,3 +1900,12 @@ PRAGMA_UNROLL_N(8)
 	}
 	return false;
 }
+
+/*
+ *  stress_no_return
+ *	function that does not return
+ */
+void stress_no_return(void)
+{
+	_exit(EXIT_FAILURE);
+}

@@ -140,6 +140,7 @@ static void MLOCKED_TEXT stress_af_alg_alarm_handler(int signum)
 	if (UNLIKELY(do_jmp && count++ > 5)) {
 		do_jmp = false;
 		siglongjmp(jmpbuf, 1);
+		stress_no_return();
 	}
 }
 
