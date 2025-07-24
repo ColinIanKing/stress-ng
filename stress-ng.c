@@ -1593,14 +1593,14 @@ static int MLOCKED_TEXT stress_run_child(
 			const struct tm *tm = localtime(&t);
 
 			if (tm) {
-				pr_dbg("%s: terminated by SIGALRM externally at %2.2d:%2.2d:%2.2d.%2.2ld by user %d\n",
+				pr_dbg("%s: terminated by SIGALRM externally at %2.2d:%2.2d:%2.2d.%2.2ld by user %" PRIdMAX "\n",
 					name,
 					tm->tm_hour, tm->tm_min, tm->tm_sec,
 					(long int)sigalrm_info.when.tv_usec / 10000,
-					sigalrm_info.uid);
+					(intmax_t)sigalrm_info.uid);
 			} else {
-				pr_dbg("%s: terminated by SIGALRM externally by user %d\n",
-					name, sigalrm_info.uid);
+				pr_dbg("%s: terminated by SIGALRM externally by user %" PRIdMAX "\n",
+					name, (intmax_t)sigalrm_info.uid);
 			}
 		}
 #endif
@@ -2491,10 +2491,10 @@ static void stress_log_args(int argc, char **argv)
 		len += arglen[i];
 	}
 	if (user) {
-		shim_syslog(LOG_INFO, "invoked with '%s' by user %d '%s'\n", buf, uid, user);
+		shim_syslog(LOG_INFO, "invoked with '%s' by user %" PRIdMAX " '%s'\n", buf, (intmax_t)uid, user);
 		pr_dbg("invoked with '%s' by user %d '%s'\n", buf, uid, user);
 	} else {
-		shim_syslog(LOG_INFO, "invoked with '%s' by user %d\n", buf, uid);
+		shim_syslog(LOG_INFO, "invoked with '%s' by user %" PRIdMAX "\n", buf, (intmax_t)uid);
 		pr_dbg("invoked with '%s' by user %d\n", buf, uid);
 	}
 	free(buf);
