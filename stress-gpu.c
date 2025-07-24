@@ -524,7 +524,7 @@ static int stress_gpu_card(const char *gpu_devnode)
 {
 	int renderer;
 
-	if (sscanf(gpu_devnode, "/dev/dri/renderD%u", &renderer) != 1)
+	if (sscanf(gpu_devnode, "/dev/dri/renderD%d", &renderer) != 1)
 		return -1;
 	renderer -= 128;
 	if (renderer < 0)
