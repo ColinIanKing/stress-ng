@@ -22,6 +22,7 @@
 #include "core-cpu-cache.h"
 #include "core-mmap.h"
 #include "core-numa.h"
+#include "core-shared-cache.h"
 
 #define MEM_CACHE_SIZE	(2 * MB)
 
