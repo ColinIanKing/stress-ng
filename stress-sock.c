@@ -311,8 +311,13 @@ static void stress_sock_ioctl(
 static void stress_sock_invalid_recv(const int fd, const int opt)
 {
 	char ALIGN64 buf[16];
+#if defined(HAVE_RECVMSG) ||	\
+    defined(HAVE_RECVMMSG)
 	struct iovec ALIGN64 vec[1];
+#endif
+#if defined(HAVE_RECVMSG)
 	struct msghdr msg;
+#endif
 #if defined(HAVE_RECVMMSG)
 	struct mmsghdr ALIGN64 msgvec[MSGVEC_SIZE];
 	struct timespec ts;
@@ -768,9 +773,14 @@ retry:
 
 		do {
 			ssize_t n = 0;
+#if defined(HAVE_RECVMSG) ||	\
+    defined(HAVE_RECVMMSG)
 			size_t j;
-			struct msghdr ALIGN64 msg;
 			struct iovec ALIGN64 vec[MMAP_IO_SIZE / 16];
+#endif
+#if defined(HAVE_RECVMSG)
+			struct msghdr ALIGN64 msg;
+#endif
 #if defined(HAVE_RECVMMSG)
 			struct mmsghdr ALIGN64 msgvec[MSGVEC_SIZE];
 			const int max_opt = 3;
