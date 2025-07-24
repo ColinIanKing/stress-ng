@@ -929,7 +929,7 @@ static void bad_getsockname3(stress_bad_addr_t *ba, volatile uint64_t *counter)
 
 static void bad_gettimeofday1(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
-	shim_timezone_t *tz = (struct timezone *)inc_addr(ba->addr, 1);
+	shim_timezone_t *tz = (shim_timezone_t *)inc_addr(ba->addr, 1);
 
 	(*counter)++;
 	VOID_RET(int, shim_gettimeofday((struct timeval *)ba->addr, tz));
@@ -940,7 +940,7 @@ static void bad_gettimeofday2(stress_bad_addr_t *ba, volatile uint64_t *counter)
 	struct timeval tv;
 
 	(*counter)++;
-	VOID_RET(int, shim_gettimeofday(&tv, (struct timezone *)ba->addr));
+	VOID_RET(int, shim_gettimeofday(&tv, (shim_timezone_t *)ba->addr));
 }
 
 static void bad_gettimeofday3(stress_bad_addr_t *ba, volatile uint64_t *counter)
