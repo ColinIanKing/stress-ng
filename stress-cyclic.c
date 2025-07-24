@@ -27,6 +27,10 @@
 #include <sched.h>
 #include <time.h>
 
+#if defined(HAVE_SYS_SELECT_H)
+#include <sys/select.h>
+#endif
+
 #define DEFAULT_DELAY_NS	(100000)
 #define MAX_SAMPLES		(100000000)
 #define DEFAULT_SAMPLES		(10000)
