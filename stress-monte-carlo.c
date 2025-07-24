@@ -144,12 +144,14 @@ static double OPTIMIZE3 stress_mc_mwc64_rand(void)
 	return scale_u64 * (double)stress_mwc64();
 }
 
+#if defined(HAVE_RANDOM)
 static double OPTIMIZE3 stress_mc_random_rand(void)
 {
 	register const double scale_u32 = 1.0 / (double)0x7fffffff;
 
 	return scale_u32 * (double)random();
 }
+#endif
 
 static void stress_mc_random_seed(void)
 {
@@ -290,7 +292,9 @@ static const stress_monte_carlo_rand_info_t rand_info[] = {
 	{ "pcg32",	stress_mc_pcg32_rand,		stress_mc_pcg32_seed,		stress_mc_supported },
 	{ "mwc32",	stress_mc_mwc32_rand,		stress_mc_mwc_seed,		stress_mc_supported },
 	{ "mwc64",	stress_mc_mwc64_rand,		stress_mc_mwc_seed,		stress_mc_supported },
+#if defined(HAVE_RANDOM)
 	{ "random",	stress_mc_random_rand,		stress_mc_random_seed,		stress_mc_supported },
+#endif
 #if defined(STRESS_ARCH_X86) &&	\
     defined(HAVE_ASM_X86_RDRAND)
 	{ "rdrand",	stress_mc_rdrand_rand,		stress_mc_no_seed,		stress_mc_rdrand_supported },
