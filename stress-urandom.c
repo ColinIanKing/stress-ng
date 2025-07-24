@@ -22,6 +22,9 @@
 
 #include <sys/ioctl.h>
 
+#if defined(HAVE_SYS_SELECT_H)
+#include <sys/select.h>
+#endif
 #if defined(HAVE_LINUX_RANDOM_H)
 #include <linux/random.h>
 #else
