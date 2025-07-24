@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-builtin.h"
 #include "core-madvise.h"
+#include "core-mmap.h"
 
 #define MIN_SPLICE_BYTES	(1 * KB)
 #define MAX_SPLICE_BYTES	(64 * MB)

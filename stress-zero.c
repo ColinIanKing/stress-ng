@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-helper.h"
 #include "core-madvise.h"
+#include "core-mmap.h"
 #include "core-pragma.h"
 
 #include <sys/ioctl.h>

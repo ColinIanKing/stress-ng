@@ -18,6 +18,7 @@
  */
 #include "stress-ng.h"
 #include "core-builtin.h"
+#include "core-mmap.h"
 
 #if defined(HAVE_POLL_H)
 #include <poll.h>

@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-madvise.h"
+#include "core-mmap.h"
 #include "core-pragma.h"
 #include "core-sort.h"
 #include "core-target-clones.h"

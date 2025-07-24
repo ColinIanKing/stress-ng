@@ -17,6 +17,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-mmap.h"
 
 #if defined(HAVE_SYS_ACL_H)
 #include <sys/acl.h>

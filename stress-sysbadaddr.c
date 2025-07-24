@@ -23,6 +23,7 @@
 #include "core-cpu-cache.h"
 #include "core-killpid.h"
 #include "core-madvise.h"
+#include "core-mmap.h"
 #include "core-out-of-memory.h"
 
 #include <sys/ioctl.h>

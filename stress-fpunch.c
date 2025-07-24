@@ -21,6 +21,7 @@
 #include "core-builtin.h"
 #include "core-killpid.h"
 #include "core-madvise.h"
+#include "core-mmap.h"
 
 #define MIN_FPUNCH_BYTES	(1 * MB)
 #define MAX_FPUNCH_BYTES	(2 * GB)

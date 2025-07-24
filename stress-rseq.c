@@ -20,6 +20,7 @@
 #include "core-arch.h"
 #include "core-builtin.h"
 #include "core-helper.h"
+#include "core-mmap.h"
 #include "core-out-of-memory.h"
 #include "core-pragma.h"
 

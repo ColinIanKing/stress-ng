@@ -22,6 +22,7 @@
 #include "core-builtin.h"
 #include "core-helper.h"
 #include "core-madvise.h"
+#include "core-mmap.h"
 #include "core-put.h"
 #include "core-target-clones.h"
 #include "core-pragma.h"

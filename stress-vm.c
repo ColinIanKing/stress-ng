@@ -26,6 +26,7 @@
 #include "core-target-clones.h"
 #include "core-madvise.h"
 #include "core-mincore.h"
+#include "core-mmap.h"
 #include "core-nt-load.h"
 #include "core-nt-store.h"
 #include "core-numa.h"

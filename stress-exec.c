@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-builtin.h"
 #include "core-capabilities.h"
+#include "core-mmap.h"
 #include "core-pthread.h"
 
 #if defined(HAVE_SPAWN_H)

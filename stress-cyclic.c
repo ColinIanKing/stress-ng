@@ -22,6 +22,7 @@
 #include "core-capabilities.h"
 #include "core-killpid.h"
 #include "core-lock.h"
+#include "core-mmap.h"
 
 #include <math.h>
 #include <sched.h>

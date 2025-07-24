@@ -22,6 +22,7 @@
 #include "core-builtin.h"
 #include "core-cpu-cache.h"
 #include "core-killpid.h"
+#include "core-mmap.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"dekker N",		"start N workers that exercise the Dekker algorithm" },

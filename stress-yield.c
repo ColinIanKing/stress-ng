@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-builtin.h"
 #include "core-killpid.h"
+#include "core-mmap.h"
 #include "core-sched.h"
 
 #include <sched.h>

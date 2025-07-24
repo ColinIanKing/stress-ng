@@ -19,6 +19,7 @@
 #include "stress-ng.h"
 #include "core-builtin.h"
 #include "core-killpid.h"
+#include "core-mmap.h"
 
 #define UNLINK_PROCS		(3)
 #define UNLINK_FILES		(1024)	/* must be power of 2 and less than 65536 */

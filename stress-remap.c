@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-arch.h"
+#include "core-mmap.h"
 #include "core-pragma.h"
 
 #define MIN_REMAP_PAGES		(1)

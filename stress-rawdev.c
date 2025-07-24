@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-mmap.h"
 #include "core-vmstat.h"
 
 #if defined(HAVE_SYS_SYSMACROS_H)

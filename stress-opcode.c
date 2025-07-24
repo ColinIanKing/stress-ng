@@ -23,6 +23,7 @@
 #include "core-bitops.h"
 #include "core-capabilities.h"
 #include "core-killpid.h"
+#include "core-mmap.h"
 #include "core-pragma.h"
 
 #include <math.h>

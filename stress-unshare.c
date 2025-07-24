@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-killpid.h"
+#include "core-mmap.h"
 #include "core-out-of-memory.h"
 
 #include <sched.h>

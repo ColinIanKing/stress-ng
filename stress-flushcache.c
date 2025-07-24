@@ -23,6 +23,7 @@
 #include "core-asm-ret.h"
 #include "core-builtin.h"
 #include "core-cpu-cache.h"
+#include "core-mmap.h"
 #include "core-numa.h"
 #include "core-out-of-memory.h"
 

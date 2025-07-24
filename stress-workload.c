@@ -26,6 +26,7 @@
 #include "core-cpu-cache.h"
 #include "core-builtin.h"
 #include "core-madvise.h"
+#include "core-mmap.h"
 #include "core-pthread.h"
 #include "core-put.h"
 #include "core-sched.h"

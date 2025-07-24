@@ -18,6 +18,7 @@
  */
 #include "stress-ng.h"
 #include "core-madvise.h"
+#include "core-mmap.h"
 #include "core-sort.h"
 
 #define MIN_INSERTIONSORT_SIZE		(1 * KB)

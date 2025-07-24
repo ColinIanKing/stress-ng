@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-mmap.h"
 #include "core-shim.h"
 #include "core-sort.h"
 

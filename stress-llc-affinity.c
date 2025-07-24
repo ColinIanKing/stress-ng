@@ -22,6 +22,7 @@
 #include "core-capabilities.h"
 #include "core-cpu.h"
 #include "core-cpu-cache.h"
+#include "core-mmap.h"
 #include "core-numa.h"
 #include "core-target-clones.h"
 

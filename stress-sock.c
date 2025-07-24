@@ -23,6 +23,7 @@
 #include "core-builtin.h"
 #include "core-killpid.h"
 #include "core-madvise.h"
+#include "core-mmap.h"
 #include "core-net.h"
 
 #include <sys/ioctl.h>

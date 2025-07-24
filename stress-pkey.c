@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-mmap.h"
 
 #define PAGES_TO_EXERCISE	(8)
 

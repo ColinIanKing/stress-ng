@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-arch.h"
 #include "core-builtin.h"
+#include "core-mmap.h"
 
 #if defined(HAVE_ASM_PRCTL_H)
 #include <asm/prctl.h>

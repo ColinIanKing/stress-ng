@@ -21,6 +21,7 @@
 #include "core-affinity.h"
 #include "core-builtin.h"
 #include "core-killpid.h"
+#include "core-mmap.h"
 
 #if defined(HAVE_MQUEUE_H)
 #include <mqueue.h>

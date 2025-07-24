@@ -19,6 +19,7 @@
 #include "stress-ng.h"
 #include "core-builtin.h"
 #include "core-cpuidle.h"
+#include "core-mmap.h"
 
 #include <time.h>
 

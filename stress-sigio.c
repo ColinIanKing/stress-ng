@@ -21,6 +21,7 @@
 #include "core-affinity.h"
 #include "core-builtin.h"
 #include "core-killpid.h"
+#include "core-mmap.h"
 #include "core-out-of-memory.h"
 
 #if defined(HAVE_SYS_SELECT_H)

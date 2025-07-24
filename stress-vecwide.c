@@ -19,6 +19,7 @@
 #include "stress-ng.h"
 #include "core-arch.h"
 #include "core-builtin.h"
+#include "core-mmap.h"
 #include "core-pragma.h"
 #include "core-put.h"
 #include "core-target-clones.h"

@@ -17,6 +17,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-mmap.h"
 #include "core-numa.h"
 #include "core-out-of-memory.h"
 #include "core-put.h"

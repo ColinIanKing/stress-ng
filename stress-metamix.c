@@ -20,6 +20,7 @@
 #include "core-builtin.h"
 #include "core-hash.h"
 #include "core-killpid.h"
+#include "core-mmap.h"
 
 #define MIN_METAMIX_BYTES		(512)
 #define MAX_METAMIX_BYTES		(MAX_FILE_LIMIT)

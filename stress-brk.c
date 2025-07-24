@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-attribute.h"
+#include "core-mmap.h"
 #include "core-nt-load.h"
 #include "core-out-of-memory.h"
 

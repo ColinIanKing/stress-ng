@@ -24,6 +24,7 @@
 #include "core-builtin.h"
 #include "core-cpu.h"
 #include "core-killpid.h"
+#include "core-mmap.h"
 #include "core-target-clones.h"
 
 #include <ctype.h>

@@ -19,6 +19,7 @@
 #include "stress-ng.h"
 #include "core-lock.h"
 #include "core-madvise.h"
+#include "core-mmap.h"
 #include "core-stressors.h"
 #include "core-shared-heap.h"
 

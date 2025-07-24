@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-capabilities.h"
+#include "core-mmap.h"
 #include "core-out-of-memory.h"
 
 static const stress_help_t help[] = {

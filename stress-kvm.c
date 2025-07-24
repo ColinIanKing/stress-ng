@@ -21,6 +21,7 @@
 #include "core-builtin.h"
 #include "core-capabilities.h"
 #include "core-madvise.h"
+#include "core-mmap.h"
 
 #include <sys/ioctl.h>
 

@@ -21,6 +21,7 @@
 #include "core-attribute.h"
 #include "core-cpu-cache.h"
 #include "core-madvise.h"
+#include "core-mmap.h"
 #include "core-pragma.h"
 
 #define DEBUG_TAG_INFO		(0)

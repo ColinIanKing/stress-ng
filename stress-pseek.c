@@ -19,6 +19,7 @@
 #include "stress-ng.h"
 #include "core-builtin.h"
 #include "core-killpid.h"
+#include "core-mmap.h"
 #include "core-pragma.h"
 #include "core-pthread.h"
 #include "core-target-clones.h"

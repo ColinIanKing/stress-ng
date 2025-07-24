@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-mmap.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"signest N",	 "start N workers generating nested signals" },

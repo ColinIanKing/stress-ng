@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-builtin.h"
+#include "core-mmap.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"sigrt N",	"start N workers sending real time signals" },

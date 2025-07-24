@@ -23,9 +23,10 @@
 #include "core-builtin.h"
 #include "core-cpu.h"
 #include "core-madvise.h"
-#include "core-target-clones.h"
-#include "core-numa.h"
+#include "core-mmap.h"
 #include "core-nt-store.h"
+#include "core-numa.h"
+#include "core-target-clones.h"
 
 #include <time.h>
 

@@ -22,6 +22,7 @@
 #include "core-asm-generic.h"
 #include "core-cpu-cache.h"
 #include "core-killpid.h"
+#include "core-mmap.h"
 #include "core-numa.h"
 
 #include <sched.h>

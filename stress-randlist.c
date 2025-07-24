@@ -19,6 +19,7 @@
 #include "stress-ng.h"
 #include "core-builtin.h"
 #include "core-cpu-cache.h"
+#include "core-mmap.h"
 #include "core-pragma.h"
 #include "core-put.h"
 

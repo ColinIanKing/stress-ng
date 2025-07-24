@@ -21,6 +21,7 @@
 #include "core-asm-ret.h"
 #include "core-builtin.h"
 #include "core-killpid.h"
+#include "core-mmap.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"easy-opcode N",	"start N workers exercising random easy opcodes" },

@@ -31,6 +31,7 @@
 #include "stress-ng.h"
 #include "core-cpu.h"
 #include "core-cpu-cache.h"
+#include "core-mmap.h"
 #include "core-nt-store.h"
 #include "core-numa.h"
 #include "core-pragma.h"

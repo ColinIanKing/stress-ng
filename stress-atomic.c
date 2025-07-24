@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-killpid.h"
+#include "core-mmap.h"
 
 /* Current disable 128 bit support, some toolchains don't support it */
 #undef HAVE_INT128_T

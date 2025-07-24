@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-builtin.h"
+#include "core-mmap.h"
 #include "core-out-of-memory.h"
 
 #define MIN_MSYNC_BYTES		(1 * MB)  /* MUST NOT BE page size or less! */

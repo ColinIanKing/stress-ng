@@ -21,6 +21,7 @@
 #include "core-attribute.h"
 #include "core-builtin.h"
 #include "core-madvise.h"
+#include "core-mmap.h"
 #include "core-put.h"
 #include "core-target-clones.h"
 

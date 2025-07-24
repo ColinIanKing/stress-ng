@@ -21,6 +21,7 @@
 #include "core-bitops.h"
 #include "core-cpu-cache.h"
 #include "core-madvise.h"
+#include "core-mmap.h"
 #include "core-numa.h"
 #include "core-out-of-memory.h"
 #include "core-pragma.h"

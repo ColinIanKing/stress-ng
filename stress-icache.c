@@ -22,6 +22,7 @@
 #include "core-asm-ret.h"
 #include "core-builtin.h"
 #include "core-cpu-cache.h"
+#include "core-mmap.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"icache N",	"start N CPU instruction cache thrashing workers" },

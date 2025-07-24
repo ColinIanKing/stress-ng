@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-builtin.h"
+#include "core-mmap.h"
 #include "core-target-clones.h"
 
 #define ALIGN_SIZE	(64)

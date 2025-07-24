@@ -17,7 +17,7 @@
  *
  */
 #include "stress-ng.h"
-
+#include "core-mmap.h"
 #include "core-target-clones.h"
 
 #define MIN_FRACTAL_ITERATIONS	(1)

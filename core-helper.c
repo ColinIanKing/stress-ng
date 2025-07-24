@@ -1713,27 +1713,6 @@ void stress_yield_sleep_ms(void)
 	} while (stress_continue_flag());
 }
 
-/*
- *  stress_dbg()
- *	simple debug, messages must be less than 256 bytes
- */
-void stress_dbg(const char *fmt, ...)
-{
-	va_list ap;
-	int n, sz;
-	static char buf[256];
-	n = snprintf(buf, sizeof(buf), "stress-ng: debug: [%" PRIdMAX"] ", (intmax_t)getpid());
-	if (UNLIKELY(n < 0))
-		return;
-	sz = n;
-	va_start(ap, fmt);
-	n = vsnprintf(buf + sz, sizeof(buf) - sz, fmt, ap);
-	va_end(ap);
-	sz += n;
-
-	VOID_RET(ssize_t, write(fileno(stdout), buf, (size_t)sz));
-}
-
 #if defined(__linux__)
 /*
  *  stress_process_info_dump()

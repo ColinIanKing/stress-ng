@@ -22,6 +22,7 @@
 #include "core-builtin.h"
 #include "core-lock.h"
 #include "core-mincore.h"
+#include "core-mmap.h"
 #include "core-out-of-memory.h"
 
 #include <sched.h>

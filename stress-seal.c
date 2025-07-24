@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-builtin.h"
 #include "core-madvise.h"
+#include "core-mmap.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"seal N",	"start N workers performing fcntl SEAL commands" },

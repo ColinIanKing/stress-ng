@@ -18,6 +18,7 @@
  */
 #include "stress-ng.h"
 #include "core-builtin.h"
+#include "core-mmap.h"
 
 #define MIN_NEXT_PTRS_4K_PAGES		(64)
 #define MAX_NEXT_PTRS_4K_PAGES		(256 * 1024)
