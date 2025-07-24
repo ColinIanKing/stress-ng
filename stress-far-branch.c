@@ -180,6 +180,7 @@ static void *stress_far_try_mmap(void *addr, size_t length, const int fd, const 
 	(void)anon;
 	(void)addr;
 	(void)length;
+	(void)offset;
 
 	return MAP_FAILED;
 }
