@@ -307,6 +307,7 @@ static int stress_geteuid(stress_args_t *args)
 
 static int stress_getgroups(stress_args_t *args)
 {
+#if defined(HAVE_GETGROUPS)
 	int ret;
 	gid_t gids[GIDS_MAX];
 
@@ -339,6 +340,8 @@ static int stress_getgroups(stress_args_t *args)
 	(void)shim_memset(gids, 0, sizeof(gids));
 	VOID_RET(long int, syscall(__NR_getgroups, -1, gids));
 #endif
+#endif
+	(void)args;
 
 	return EXIT_SUCCESS;
 }

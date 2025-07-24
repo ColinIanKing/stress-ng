@@ -264,7 +264,9 @@ static int stress_set(stress_args_t *args)
 		if (UNLIKELY(!stress_continue(args)))
 			break;
 
-#if defined(HAVE_GRP_H)
+#if defined(HAVE_GRP_H) &&	\
+    defined(HAVE_GETGROUPS) &&	\
+    defined(HAVE_SETGROUPS)
 		ret = getgroups(0, NULL);
 		if (ret > 0) {
 			gid_t groups[GIDS_MAX];

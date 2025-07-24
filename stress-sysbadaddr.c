@@ -707,6 +707,7 @@ static void bad_getdomainname(stress_bad_addr_t *ba, volatile uint64_t *counter)
 }
 #endif
 
+#if defined(HAVE_GETGROUPS)
 static void bad_getgroups(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unwriteable) {
@@ -714,6 +715,7 @@ static void bad_getgroups(stress_bad_addr_t *ba, volatile uint64_t *counter)
 		VOID_RET(int, getgroups(8192, (gid_t *)ba->addr));
 	}
 }
+#endif
 
 #if defined(HAVE_GETHOSTNAME)
 static void bad_gethostname(stress_bad_addr_t *ba, volatile uint64_t *counter)
@@ -2151,7 +2153,9 @@ static const stress_bad_syscall_t bad_syscalls[] = {
 #if defined(HAVE_GETDOMAINNAME)
 	bad_getdomainname,
 #endif
+#if defined(HAVE_GETGROUPS)
 	bad_getgroups,
+#endif
 	bad_get_mempolicy1,
 	bad_get_mempolicy2,
 	bad_get_mempolicy3,

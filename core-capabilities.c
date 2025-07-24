@@ -38,7 +38,8 @@ static inline bool stress_check_root(void)
 	if (geteuid() == 0)
 		return true;
 
-#if defined(__CYGWIN__)
+#if defined(__CYGWIN__) &&	\
+    defined(HAVE_GETGROUPS)
 	{
 		/*
 		 * Cygwin would only return uid 0 if the Windows user is mapped
