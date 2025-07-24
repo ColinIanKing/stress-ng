@@ -167,7 +167,7 @@ retry:
 	case ENOSPC:
 		return 0;
 	case 0:
-		pr_fail("%s: write of %zu bytes only wrote %zd bytes\n",
+		pr_fail("%s: write of %" PRIu64 " bytes only wrote %zd bytes\n",
 			args->name, info->pseek_io_size, ret);
 		return -1;
 	}
@@ -247,7 +247,7 @@ PRAGMA_UNROLL_N(4)
 	case ENOSPC: /* e.g. on vfat */
 		return 0;
 	case 0:
-		pr_fail("%s: read of %zu bytes only read %zd bytes\n",
+		pr_fail("%s: read of %" PRIu64 " bytes only read %zd bytes\n",
 			args->name, info->pseek_io_size, ret);
 		return -1;
 	}
