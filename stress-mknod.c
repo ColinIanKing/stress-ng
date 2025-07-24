@@ -32,7 +32,8 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
-#if defined(__linux__)
+#if defined(__linux__) &&	\
+    defined(HAVE_MKNOD)
 
 typedef struct {
 	const mode_t	mode;

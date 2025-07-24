@@ -3389,6 +3389,7 @@ static int syscall_mkdirat(void)
 }
 #endif
 
+#if defined(HAVE_MKNOD)
 #define HAVE_SYSCALL_MKNOD
 static int syscall_mknod(void)
 {
@@ -3415,6 +3416,7 @@ static int syscall_mknod(void)
 	(void)shim_unlink(syscall_tmp_filename);
 	return ret;
 }
+#endif
 
 #if defined(HAVE_MKNODAT) &&	\
     !defined(__APPLE__)
