@@ -559,7 +559,6 @@ static void stress_kill_stressors(const int sig, const bool force_sigkill)
 
 	if (force_sigkill) {
 		static int count = 0;
-		static int kill_count = 0;
 		static double kill_last = 0.0;
 
 		/* multiple calls will always fallback to SIGKILL */
@@ -584,10 +583,8 @@ static void stress_kill_stressors(const int sig, const bool force_sigkill)
 				}
 			}
 		}
-		if (count++ > 5) {
+		if (count++ > 5)
 			signum = SIGKILL;
-			kill_count++;
-		}
 	}
 
 	for (ss = stress_stressor_list.head; ss; ss = ss->next) {
