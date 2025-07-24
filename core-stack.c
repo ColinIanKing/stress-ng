@@ -22,6 +22,9 @@
 
 #include <ctype.h>
 
+#if defined(HAVE_SYS_AUXV_H)
+#include <sys/auxv.h>
+#endif
 #if defined(HAVE_EXECINFO_H)
 #include <execinfo.h>
 #endif
