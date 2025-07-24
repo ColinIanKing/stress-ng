@@ -2745,6 +2745,7 @@ int shim_setgroups(int size, const gid_t *list)
 	/* POSIX variant, as used by BSD etc */
 	return setgroups(size, list);
 #endif
+#else
 	return (int)shim_enosys(size, list);
 #endif
 }
