@@ -2737,14 +2737,14 @@ int shim_setdomainname(const char *name, size_t len)
 int shim_setgroups(int size, const gid_t *list)
 {
 #if defined(HAVE_GRP_H)
-#if defined(__linux__)
+#if defined(__linux__) &&	\
+    defined(HAVE_SETGROUPS)
 	/* Linux passes size as size_t */
 	return setgroups((size_t)size, list);
-#else
+#elif defined(HAVE_SETGROUPS)
 	/* POSIX variant, as used by BSD etc */
 	return setgroups(size, list);
 #endif
-#else
 	return (int)shim_enosys(size, list);
 #endif
 }
