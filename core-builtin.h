@@ -635,7 +635,7 @@
 #if defined(HAVE_TANHL)
 #define shim_tanhl(x)		tanhl((x))
 #else
-#define	shom_tanhl(x)		((long double)shim_tanh((double)(x)))
+#define	shim_tanhl(x)		((long double)shim_tanh((double)(x)))
 #endif
 #endif
 
