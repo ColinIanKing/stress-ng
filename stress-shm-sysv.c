@@ -352,6 +352,7 @@ static void exercise_shmctl(const key_t key, const size_t sz, stress_args_t *arg
 		struct shmid_ds buf;
 		int ret;
 
+		errno = 0;
 		ret = shmctl(shm_id, IPC_STAT, &buf);
 		if (UNLIKELY((ret >= 0) && (errno == 0)))
 			pr_fail("%s: shmctl IPC_STAT unexpectedly succeeded on non-existent shared "
@@ -382,6 +383,7 @@ static void exercise_shmget(const key_t key, const size_t sz, const char *name)
 		 * Exercise invalid shmget by creating an already
 		 * existing shared memory segment and IPC_EXCL flag
 		 */
+		errno = 0;
 		shm_id2 = shmget(key, sz, IPC_CREAT | IPC_EXCL);
 		if (UNLIKELY((shm_id2 >= 0) && (errno == 0))) {
 			pr_fail("%s: shmget IPC_CREAT unexpectedly succeeded and re-created "
@@ -394,6 +396,7 @@ static void exercise_shmget(const key_t key, const size_t sz, const char *name)
 		 * Exercise invalid shmget by creating an already
 		 * existing shared memory segment but of greater size
 		 */
+		errno = 0;
 		shm_id2 = shmget(key, sz + (1024 * 1024), IPC_CREAT);
 		if (UNLIKELY((shm_id2 >= 0) && (errno == 0))) {
 			pr_fail("%s: shmget IPC_CREAT unexpectedly succeeded and again "
@@ -407,6 +410,7 @@ static void exercise_shmget(const key_t key, const size_t sz, const char *name)
 
     /* Exercise shmget on invalid sizes argument*/
 #if defined(SHMMIN)
+	errno = 0;
 	shm_id = shmget(key, SHMMIN - 1, IPC_CREAT);
 	if (UNLIKELY((SHMMIN > 0) && (shm_id >= 0))) {
 		pr_fail("%s: shmget IPC_CREAT unexpectedly succeeded on invalid value of"
@@ -418,6 +422,7 @@ static void exercise_shmget(const key_t key, const size_t sz, const char *name)
 #endif
 
 #if defined(SHMMAX)
+	errno = 0;
 	shm_id = shmget(key, SHMMAX + 1, IPC_CREAT);
 	if (UNLIKELY((SHMMAX < ~(size_t)0) && (shm_id >= 0))) {
 		pr_fail("%s: shmget IPC_CREAT unexpectedly succeeded on invalid value of"
@@ -435,6 +440,7 @@ static void exercise_shmget(const key_t key, const size_t sz, const char *name)
 			if (sscanf(buf, "%zu", &shmmax) == 1) {
 				shmmax++;
 				if (shmmax > 0) {
+					errno = 0;
 					shm_id = shmget(key, shmmax, IPC_CREAT);
 					if (UNLIKELY(shm_id >= 0)) {
 						pr_fail("%s: shmget IPC_CREAT unexpectedly succeeded on "
@@ -463,6 +469,7 @@ static void exercise_shmget(const key_t key, const size_t sz, const char *name)
 	UNEXPECTED
 #endif
 
+	errno = 0;
 	shm_id = shmget(key, sz, IPC_EXCL);
 	if (UNLIKELY((shm_id >= 0) && (errno == 0))) {
 		pr_fail("%s: shmget IPC_RMID unexpectedly succeeded on non-existent shared "
