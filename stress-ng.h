@@ -908,6 +908,9 @@ extern void stress_metrics_set_const_check(stress_args_t *args,
 int unlink(const char *pathname) __attribute__((deprecated("use shim_unlink")));
 int unlinkat(int dirfd, const char *pathname, int flags) __attribute__((deprecated("use shim_unlinkat")));
 int rmdir(const char *pathname) __attribute__((deprecated("use shim_rmdir")));
+size_t strlcpy(char *dst, const char *src, size_t size) __attribute__((deprecated("shim_strscpy")));
+size_t strlcat(char *dst, const char *src, size_t size) __attribute__((deprecated("shim_strlcat")));
+
 #endif
 
 #endif
