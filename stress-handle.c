@@ -131,7 +131,7 @@ static int stress_handle_child(stress_args_t *args, void *context)
 		fhp->handle_bytes = 0;
 		if (UNLIKELY((name_to_handle_at(AT_FDCWD, FILENAME, fhp, &mount_id, 0) != -1) &&
 		             (errno != EOVERFLOW))) {
-			/* first call, if ENOSYS bail out early */
+			/* if ENOSYS bail out early */
 			if (errno == ENOSYS) {
 				pr_inf_skip("%s: name_to_handle_at system call not implemented, skipping stressor\n",
 					args->name);
@@ -152,6 +152,14 @@ static int stress_handle_child(stress_args_t *args, void *context)
 		}
 		fhp = tmp;
 		if (UNLIKELY(name_to_handle_at(AT_FDCWD, FILENAME, fhp, &mount_id, 0) < 0)) {
+			/* if ENOSYS bail out early */
+			if (errno == ENOSYS) {
+				pr_inf_skip("%s: name_to_handle_at system call not implemented, skipping stressor\n",
+					args->name);
+				rc = EXIT_NO_RESOURCE;
+				free(fhp);
+				break;
+			}
 			pr_fail("%s: name_to_handle_at failed to get file handle, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			rc = EXIT_FAILURE;
