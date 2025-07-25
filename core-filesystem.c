@@ -1291,7 +1291,7 @@ static const char *stress_get_fs_dev_model(const char *filename)
 	}
 	/* can't resolve, return device */
 	(void)snprintf(buf, sizeof(buf), "/dev/%s", dev);
-	(void)strlcpy(dev, buf, sizeof(dev));
+	(void)shim_strscpy(dev, buf, sizeof(dev));
 	return buf;
 #else
 	(void)filename;
