@@ -150,8 +150,8 @@ retry:
 #endif
 		ret = fcntl(sockfd, F_SETOWN, getpid());
 		if (UNLIKELY(ret < 0)) {
-			pr_fail("fcntl F_SETOWN, failed, errno=%d (%s)\n",
-				errno, strerror(errno));
+			pr_fail("%s: fcntl F_SETOWN, failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			(void)close(sockfd);
 			return EXIT_FAILURE;
 		}
@@ -163,8 +163,8 @@ retry:
 
 			ret = ioctl(sockfd, SIOCATMARK, &atmark);
 			if (UNLIKELY(ret < 0)) {
-				pr_fail("ioctl failed, errno=%d (%s)\n",
-					errno, strerror(errno));
+				pr_fail("%s: ioctl SIOCATMARK failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 				(void)close(sockfd);
 				return EXIT_FAILURE;
 			} else {
