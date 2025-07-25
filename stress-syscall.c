@@ -602,7 +602,10 @@ static int syscall_socket_measure(const int measure)
     defined(HAVE_SENDMSG)
 	struct iovec vec[1];
 #endif
+#if defined(HAVE_RECVMSG) || 	\
+    defined(HAVE_SENDMSG)
 	struct msghdr msg;
+#endif
 #if defined(HAVE_RECVMMSG) || 	\
     defined(HAVE_SENDMMSG)
 	struct mmsghdr msgvec[1];
