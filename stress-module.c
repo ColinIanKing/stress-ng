@@ -341,7 +341,7 @@ static int stress_module_open(stress_args_t *args, int mod_type)
 	}
 	(void)stress_temp_filename_args(args,
 		modname, sizeof(modname), stress_mwc32());
-	(void)strlcat(modname, ".ko", sizeof(modname));
+	(void)shim_strlcat(modname, ".ko", sizeof(modname));
 	fd_in = open(global_module_path, O_RDONLY);
 	if (fd_in < 0)
 		return -1;
