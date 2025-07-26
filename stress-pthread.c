@@ -114,6 +114,7 @@ static inline void stop_running(void)
 {
 	keep_running_flag = false;
 	keep_thread_running_flag = false;
+	stress_continue_set_flag(false);
 }
 
 /*
