@@ -175,7 +175,7 @@ static void stress_fork_maps_reduce(const size_t page_size, const int reduce_mod
 		if (tmppath[0] == '\0')
 			continue;
 
-		/* Avoid VDSO */
+		/* Avoid vdso and vvar */
 		if (strncmp("[v", tmppath, 2) == 0)
 			continue;
 
