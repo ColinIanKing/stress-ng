@@ -150,7 +150,7 @@ static void stress_swap_self(const size_t page_size)
 		if (tmppath[0] == '\0')
 			continue;
 #endif
-		/* Avoid VDSO */
+		/* Avoid vdso and vvar */
 		if (strncmp("[v", tmppath, 2) == 0)
 			continue;
 
