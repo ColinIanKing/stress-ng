@@ -110,7 +110,7 @@ int stress_pagein_self(const char *name)
 		           " %5s %*x %*x:%*x %*d %1023s", &begin, &end, prot, tmppath) != 4)
 			continue;
 
-		/* Avoid VDSO etc.. */
+		/* Avoid vdso and vvar.. */
 		if (strncmp("[v", tmppath, 2) == 0)
 			continue;
 
