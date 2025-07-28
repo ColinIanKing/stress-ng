@@ -159,7 +159,7 @@ retry:
 		do {
 			char buf[1];
 			ssize_t n;
-			int atmark;
+			int atmark = 0;	/* silence valgrind warnings */
 
 			ret = ioctl(sockfd, SIOCATMARK, &atmark);
 			if (UNLIKELY(ret < 0)) {
