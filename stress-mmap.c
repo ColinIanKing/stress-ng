@@ -984,6 +984,8 @@ static int stress_mmap(stress_args_t *args)
 	context.mmap_mlock = false;
 	context.mmap_mprotect = false;
 	context.mmap_numa = false;
+	context.mmap_slow_munmap = false;
+	context.mmap_write_check = false;
 	context.flags = MAP_PRIVATE | MAP_ANONYMOUS;
 #if defined(MAP_POPULATE)
 	context.flags |= MAP_POPULATE;
