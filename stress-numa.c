@@ -367,7 +367,7 @@ static int stress_numa(stress_args_t *args)
 		if (UNLIKELY(!stress_continue_flag()))
 			break;
 
-		ret = shim_set_mempolicy(MPOL_PREFERRED, NULL, numa_mask->max_nodes);
+		ret = shim_set_mempolicy(MPOL_PREFERRED, NULL, 0);
 		if (UNLIKELY(ret < 0)) {
 			if (errno != ENOSYS) {
 				pr_fail("%s: set_mempolicy failed, errno=%d (%s)\n",
