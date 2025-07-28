@@ -378,7 +378,7 @@ static void stress_filerace_utimes(const int fd, const char *filename)
 	(void)fd;
 	tv[0].tv_sec = (time_t)stress_mwc64() & 0x3ffffffffULL;
 	tv[0].tv_usec = stress_mwc32modn(1000000);
-	tv[0].tv_sec = (time_t)stress_mwc64() & 0x3ffffffffULL;
+	tv[1].tv_sec = (time_t)stress_mwc64() & 0x3ffffffffULL;
 	tv[1].tv_usec = stress_mwc32modn(1000000);
 
 	errno = 0;
