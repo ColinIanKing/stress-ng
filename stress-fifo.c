@@ -207,7 +207,7 @@ redo_select:
 			/* Exercise mmap -> ENODEV */
 			ptr = mmap(NULL, args->page_size, PROT_READ,
 				MAP_PRIVATE, fd, 0);
-			if (ptr)
+			if (ptr != MAP_FAILED)
 				(void)munmap(ptr, args->page_size);
 		}
 		count++;
