@@ -259,22 +259,27 @@ redo:
 #if defined(HAVE_SYS_SELECT_H) &&       \
     defined(HAVE_SELECT)
 	case 25:
-		FD_ZERO(&rfds);
-		FD_SET(fdstdin, &rfds);
-		tv.tv_sec = 0;
-		tv.tv_usec = 100;
-		(void)select(fdstdin + 1, &rfds, NULL, NULL, &tv);
+		if (fdstdin < FD_SETSIZE) {
+			FD_ZERO(&rfds);
+			FD_SET(fdstdin, &rfds);
+			tv.tv_sec = 0;
+			tv.tv_usec = 100;
+			(void)select(fdstdin + 1, &rfds, NULL, NULL, &tv);
+		}
 		break;
 #endif
 #if defined(HAVE_SYS_SELECT_H) &&       \
-    defined(HAVE_PSELECT)
+    defined(HAVE_PSELECT) &&		\
+    defined(FD_SETSIZE)
 	case 26:
-		FD_ZERO(&rfds);
-		FD_SET(fdstdin, &rfds);
-		ts.tv_sec = 0;
-		ts.tv_nsec = 100000;
-		(void)sigemptyset(&sigmask);
-		(void)pselect(fdstdin + 1, &rfds, NULL, NULL, &ts, &sigmask);
+		if (fdstdin < FD_SETSIZE) {
+			FD_ZERO(&rfds);
+			FD_SET(fdstdin, &rfds);
+			ts.tv_sec = 0;
+			ts.tv_nsec = 100000;
+			(void)sigemptyset(&sigmask);
+			(void)pselect(fdstdin + 1, &rfds, NULL, NULL, &ts, &sigmask);
+		}
 		break;
 #endif
 	default:
