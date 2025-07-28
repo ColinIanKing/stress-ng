@@ -419,7 +419,7 @@ retry:
 #endif
 
 		do {
-			int flags;
+			int flags = 0;
 			struct sctp_sndrcvinfo sndrcvinfo;
 			ssize_t n;
 
