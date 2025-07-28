@@ -236,6 +236,7 @@ static void stress_mpfr_apery(const mpfr_prec_t precision, mpfr_t *result)
 	mpfr_clear(apery);
 	mpfr_clear(n3);
 	mpfr_clear(tmp);
+	mpfr_clear(zero);
 	mpfr_free_cache();
 }
 
