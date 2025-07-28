@@ -4945,9 +4945,10 @@ static int syscall_pwritev(void)
 static int syscall_quotactl(void)
 {
 	int ret;
+	char buf[4096];
 
 	t1 = syscall_time_now();
-	ret = quotactl(QCMD(Q_SYNC, USRQUOTA), NULL, 0, NULL);
+	ret = quotactl(QCMD(Q_SYNC, USRQUOTA), "", 0, (caddr_t)buf);
 	t2 = syscall_time_now();
 	return ret;
 }
