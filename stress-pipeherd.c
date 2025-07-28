@@ -116,6 +116,7 @@ static int stress_pipeherd(stress_args_t *args)
 	}
 #endif
 
+	(void)shim_memset(&data, 0, sizeof(data));	/* stop valgrind complaining */
 	data.counter = 0;
 	data.check = check;
 	sz = write(fd[1], &data, sizeof(data));
