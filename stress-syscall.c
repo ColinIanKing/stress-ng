@@ -4637,7 +4637,7 @@ static int syscall_prctl(void)
 			int reaper = 0;
 
 			t1 = syscall_time_now();
-			ret = prctl(PR_GET_CHILD_SUBREAPER, &reaper);
+			ret = prctl(PR_GET_CHILD_SUBREAPER, &reaper, 0, 0, 0);
 			t2 = syscall_time_now();
 		}
 		break;
@@ -4645,7 +4645,7 @@ static int syscall_prctl(void)
 #if defined(PR_GET_DUMPABLE)
 	case PR_GET_DUMPABLE:
 		t1 = syscall_time_now();
-		ret = prctl(PR_GET_DUMPABLE);
+		ret = prctl(PR_GET_DUMPABLE, 0, 0, 0, 0);
 		t2 = syscall_time_now();
 		break;
 #endif
@@ -4655,7 +4655,7 @@ static int syscall_prctl(void)
 			int flag = 0;
 
 			t1 = syscall_time_now();
-			ret = prctl(PR_GET_KEEPCAPS, &flag);
+			ret = prctl(PR_GET_KEEPCAPS, &flag, 0, 0, 0);
 			t2 = syscall_time_now();
 		}
 		break;
@@ -4667,7 +4667,7 @@ static int syscall_prctl(void)
 
 			(void)shim_memset(name, 0, sizeof name);
 			t1 = syscall_time_now();
-			ret = prctl(PR_GET_NAME, name);
+			ret = prctl(PR_GET_NAME, name, 0, 0, 0);
 			t2 = syscall_time_now();
 		}
 		break;
@@ -4682,10 +4682,10 @@ static int syscall_prctl(void)
 #if defined(PR_GET_PDEATHSIG)
 	case PR_GET_PDEATHSIG:
 		{
-			int sig;
+			int sig = 0;
 
 			t1 = syscall_time_now();
-			ret = prctl(PR_GET_PDEATHSIG, &sig);
+			ret = prctl(PR_GET_PDEATHSIG, &sig, 0, 0, 0);
 			t2 = syscall_time_now();
 		}
 		break;
