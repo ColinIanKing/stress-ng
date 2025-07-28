@@ -185,7 +185,7 @@ static void OPTIMIZE3 stress_mc_drand48_seed(void)
     !defined(__sun__)
 static double OPTIMIZE3 stress_mc_getrandom_rand(void)
 {
-	uint64_t buf[16384 / sizeof(uint64_t)];
+	static uint64_t buf[16384 / sizeof(uint64_t)];
 	static size_t idx = 0;
 	register const double scale_u64 = 1.0 / (double)0xffffffffffffffffULL;
 	double r;
