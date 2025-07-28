@@ -518,6 +518,7 @@ stress-ng has found various Kernel, QEMU bugs/regressions, and libc bugs; approp
 * [Cygwin: strace: infinite exception c0000005 loop on segmentation fault](https://cygwin.com/pipermail/cygwin/2025-May/258144.html)
 * [Cygwin: Hang or crash after multiple SIGILL or SIGSEGV and siglongjmp](https://sourceware.org/pipermail/cygwin/2025-March/257726.html)
 * [binder: fix use-after-free in binderfs_evict_inode()](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=8c0a559825281764061a127632e5ad273f0466ad)
+* [MultiVM - L2 guest(s) running stress-ng getting stuck at booting after triggering crash](https://bugs.launchpad.net/ubuntu/+source/linux/+bug/2077722)
 
 ## Kernel improvements that used stress-ng
 
