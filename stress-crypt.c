@@ -168,30 +168,31 @@ static int stress_crypt(stress_args_t *args)
 #endif
 		char orig_setting[12];
 		char orig_phrase[16];
-		uint64_t seed[2];
 		const crypt_method_t *cm = crypt_methods;
 		size_t failed = 0;
 		int ret;
-
-		seed[0] = stress_mwc64();
-		seed[1] = stress_mwc64();
+		size_t n = cm->prefix_len + 8;
 
 		setting[0] = '$';
 		setting[1] = 'x';
 		setting[2] = '$';
 
-		for (i = 0; i < 8; i++)
-			orig_setting[i + 3] = seedchars[(seed[i / 5] >> (i % 5) * 6) & 0x3f];
-		orig_setting[i] = '\0';
+		n = (n > sizeof(orig_setting)) ? sizeof(orig_setting) : n;
+
+		for (i = 0; i < n; i++)
+			orig_setting[i] = seedchars[stress_mwc8() & 0x3f];
+		orig_setting[n - 1] = '\0';
+
 		for (i = 0; i < sizeof(orig_phrase) - 1; i++)
-			orig_phrase[i] = seedchars[stress_mwc32() & 0x3f];
+			orig_phrase[i] = seedchars[stress_mwc8() & 0x3f];
 		orig_phrase[i] = '\0';
 
 		if (crypt_method == 0) {
 			for (i = 1; LIKELY(stress_continue(args) && (i < SIZEOF_ARRAY(crypt_methods))); i++, cm++) {
-				(void)shim_memcpy(setting + 3, orig_setting, sizeof(orig_setting) - 3);
+				(void)shim_memcpy(setting + cm->prefix_len, orig_setting, n);
 				(void)shim_memcpy(setting, cm->prefix, cm->prefix_len);
 				(void)shim_memcpy(phrase, orig_phrase, sizeof(orig_phrase));
+
 #if defined (HAVE_CRYPT_R)
 				data.initialized = 0;
 #endif
