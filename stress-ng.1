@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "23 July 2025"
+.TH STRESS-NG 1 "29 July 2025"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -3935,7 +3935,7 @@ stop itimer stress workers after N bogo itimer SIGPROF signals.
 .TP
 .B \-\-itimer\-rand
 select an interval timer frequency based around the interval timer
-frequency +/- 12.5% random jitter. This tries to force more variability in
+frequency \(+-12.5% random jitter. This tries to force more variability in
 the timer interval to make the scheduling less predictable.
 .RE
 .TP
@@ -8358,7 +8358,7 @@ stop sync\-file workers after N bogo sync operations.
 start N workers that produce sporadic short lived loads synchronized across N
 stressor processes. By default repeated cycles of 125ms busy load followed by 62.5ms sleep
 occur across all the workers in step to create bursts of load to exercise C state
-transitions and CPU frequency scaling. The busy load and sleeps have +/-10% jitter
+transitions and CPU frequency scaling. The busy load and sleeps have \(+-10% jitter
 added to try exercising scheduling patterns.
 .TP
 .B \-\-syncload\-msbusy M
@@ -8502,7 +8502,7 @@ high frequencies to stop the kernel from coalescing timer events.
 stop timer stress workers after N bogo timer events (Linux only).
 .TP
 .B \-\-timer\-rand
-select a timer frequency based around the timer frequency +/- 12.5% random
+select a timer frequency based around the timer frequency \(+-12.5% random
 jitter. This tries to force more variability in the timer interval to make the
 scheduling less predictable.
 .RE
@@ -8528,7 +8528,7 @@ interrupts per second.
 stop timerfd stress workers after N bogo timerfd events (Linux only).
 .TP
 .B \-\-timerfd\-rand
-select a timerfd frequency based around the timer frequency +/- 12.5% random
+select a timerfd frequency based around the timer frequency \(+-12.5% random
 jitter. This tries to force more variability in the timer interval to make the
 scheduling less predictable.
 .RE
