@@ -549,7 +549,7 @@ log output (except for verbose \-v messages) to the syslog.
 .TP
 .B \-\-taskset list
 set CPU affinity based on the list of CPUs provided; stress\-ng is bound to
-just use these CPUs (for systems that provide sched_setaffinity()). The CPUs
+just use these CPUs (for systems that provide sched_setaffinity(2)). The CPUs
 to be used are specified by a comma separated list of CPU (0 to N-1). One
 can specify a range of CPUs using `-', for example: \-\-taskset 0,2-3,6,7-11
 or the following keywords:
@@ -724,7 +724,7 @@ stop acl workers after N bogo acl settings have been set.
 .TQ
 .B \-\-affinity N
 start N workers that run 16 processes that rapidly change CPU affinity
-(for systems that provide sched_setaffinity()). Rapidly switching CPU
+(for systems that provide sched_setaffinity(2)). Rapidly switching CPU
 affinity can contribute to poor cache behaviour and high context switch rate.
 .TP
 .B \-\-affinity\-delay N
@@ -876,7 +876,7 @@ stop the bad alternative stack stressors after N SIGSEGV bogo operations.
 .RS 5
 .TQ
 .B \-\-bad\-ioctl N
-start N workers that perform a range of illegal bad read ioctls (using _IOR) and
+start N workers that perform a range of illegal bad read ioctl(2) calls (using _IOR) and
 write ioctls (using _IOR with PROT_NONE mapped pages) across the device drivers. This
 exercises page size, 64 bit, 32 bit, 16 bit and 8 bit reads as well as NULL addresses,
 non-readable pages and PROT_NONE mapped pages. Currently only for Linux and requires
@@ -1006,7 +1006,7 @@ specify amount of memory to grow heap by per iteration. Size can be from 4 K to
 64 MB. Default is 64 K.
 .TP
 .B \-\-bigheap\-mlock
-attempt to mlock future allocated pages into memory causing more memory pressure. If
+attempt to mlock(2) future allocated pages into memory causing more memory pressure. If
 mlock(MCL_FUTURE) is implemented then this will stop newly allocated pages from being
 swapped out.
 .TP
@@ -1019,7 +1019,7 @@ stop the big heap workers after N bogo allocation operations are completed.
 .TQ
 .B \-\-binderfs N
 start N workers that mount, exercise and unmount binderfs. The binder control
-device is exercised with 256 sequential BINDER_CTL_ADD ioctl calls per loop.
+device is exercised with 256 sequential BINDER_CTL_ADD ioctl(2) calls per loop.
 .TP
 .B \-\-binderfs\-ops N
 stop after N binderfs cycles.
@@ -1153,7 +1153,7 @@ as % of total available memory or in units of Bytes, KBytes, MBytes and GBytes
 using the suffix b, k, m or g.
 .TP
 .B \-\-brk\-mlock
-attempt to mlock future brk pages into memory causing more memory pressure. If
+attempt to mlock(2) future brk pages into memory causing more memory pressure. If
 mlock(MCL_FUTURE) is implemented then this will stop new brk pages from being
 swapped out.
 .TP
@@ -1397,7 +1397,7 @@ stop after N cgroup bogo operations.
 .TQ
 .B \-\-chattr N
 start N workers that attempt to exercise file attributes via the
-EXT2_IOC_SETFLAGS ioctl. This is intended to be intentionally racy and
+EXT2_IOC_SETFLAGS ioctl(2). This is intended to be intentionally racy and
 exercise a range of chattr attributes by enabling and disabling them on
 a file shared amongst the N chattr stressor processes. (Linux only).
 .TP
@@ -1471,7 +1471,7 @@ stop clock stress workers after N bogo operations.
 .RS 5
 .TQ
 .B \-\-clone N
-start N workers that create clones (via the clone(2) and clone3() system calls).
+start N workers that create clones (via the clone(2) and clone3(2) system calls).
 This will rapidly try to create a default of 8192 clones that immediately die
 and wait in a zombie state until they are reaped.  Once the maximum number of
 clones is reached (or clone fails because one has reached the maximum allowed)
@@ -1832,7 +1832,7 @@ parity	T{
 compute parity using various methods from the Standford Bit Twiddling Hacks.
 Methods employed are: the na\[:i]ve way, the na\[:i]ve way with the Brian
 Kernigan bit counting optimisation, the multiply way, the parallel way,
-the lookup table ways (2 variations) and using the __builtin_parity function.
+the lookup table ways (2 variations) and using the __builtin_parity(3) function.
 T}
 phi	T{
 compute the Golden Ratio \(*f using series.
@@ -2194,8 +2194,8 @@ stop after N decimal floating point bogo ops.
 .RS 5
 .TQ
 .B \-\-dir N
-start N workers that create, rename and remove directories using mkdir,
-rename and rmdir.
+start N workers that create, rename and remove directories using mkdir(2),
+rename(2) and rmdir(2).
 .TP
 .B \-\-dir\-dirs N
 exercise dir on N directories. The default is 8192 directories, this allows
@@ -2268,7 +2268,7 @@ files/directories, renaming files, etc. to stress exercise the various dnotify
 events (Linux only).
 .TP
 .B \-\-dnotify\-ops N
-stop inotify stress workers after N dnotify bogo operations.
+stop dnotify stress workers after N dnotify bogo operations.
 .RE
 .TP
 .B Dup stressor
@@ -2652,7 +2652,7 @@ the tens of thousands of functions equates to one bogo-op.
 .TP
 .B \-\-far\-branch\-pageout
 where possible pageout and soft-offline randomly selected pages
-that contain the far branch functions. This uses madvise MADV_PAGEOUT
+that contain the far branch functions. This uses madvise(2) MADV_PAGEOUT
 and MADV_SOFT_OFFLINE to perform these actions.
 .TP
 .B \-\-far\-branch\-pages N
@@ -2693,10 +2693,10 @@ stop the fcntl workers after N bogo fcntl operations.
 .RS 5
 .TQ
 .B \-\-fd\-abuse N
-start N workers that open file descriptors using various ways (file, dup, socket,
-pipe, timerfd, pidfd, userfaultfd, etc.) and perform valid and invalid file
-operations on these descriptors. This exercises a mix of successful and failed
-file operations on a wide range of file descriptor types.
+start N workers that open file descriptors using various ways (file, dup,
+socket, pipe, timerfd, pidfd, userfaultfd, etc.) and perform valid
+and invalid file operations on these descriptors. This exercises a mix of
+successful and failed file operations on a wide range of file descriptor types.
 .TP
 .B \-\-fd\-abuse\-ops N
 stop after N file abuse file operation bogo-ops.
@@ -2978,9 +2978,9 @@ to try and reduced anonymous vma copying. This is an ugly hack for
 benchmarking reduced vma copying and not guaranteed to work. Linux only.
 .TP
 .B \-\-fork\-vm
-enable detrimental performance virtual memory advice using madvise on
+enable detrimental performance virtual memory advice using madvise(2) on
 all pages of the forked process. Where possible this will try to set
-every page in the new process with using madvise MADV_MERGEABLE,
+every page in the new process with using madvise(2) MADV_MERGEABLE,
 MADV_WILLNEED, MADV_HUGEPAGE and MADV_RANDOM flags. Linux only.
 .RE
 .TP
@@ -3001,7 +3001,7 @@ message queues and temporary files. These create heavyweight processes that
 are more time expensive to fork from. Default is 16384.
 .TP
 .B \-\-forkheavy\-mlock
-attempt to mlock future allocated pages into memory causing more memory pressure. If
+attempt to mlock(2) future allocated pages into memory causing more memory pressure. If
 mlock(MCL_FUTURE) is implemented then this will stop new brk pages from being
 swapped out.
 .TP
@@ -3134,7 +3134,7 @@ set the maximum height of the fractal, default is 1024 points.
 .RS 5
 .TQ
 .B \-\-fsize N
-start N workers that exercise file size limits (via setrlimit RLIMIT_FSIZE)
+start N workers that exercise file size limits (via setrlimit(2) RLIMIT_FSIZE)
 with file sizes that are fixed, random and powers of 2. The files are
 truncated and allocated to trigger SIGXFSZ signals.
 .TP
@@ -3228,10 +3228,11 @@ stop futex workers after N bogo successful futex wait operations.
 .TQ
 .B \-\-get N
 start N workers that call system calls that fetch data from the kernel,
-currently these are: getpid, getppid, getcwd, getgid, getegid, getuid,
-getgroups, getpgrp, getpgid, getpriority, getresgid, getresuid, getrlimit,
-prlimit, getrusage, getsid, gettid, getcpu, gettimeofday, uname, adjtimex,
-sysfs. Some of these system calls are OS specific.
+currently these are: getpid(2), getppid(2), getcwd(3), getgid(2),
+getegid(2), getuid(2), getgroups(2), getpgrp(2), getpgid(2), getpriority(2),
+getresgid(2), getresuid(2), getrlimit(2), prlimit(2), getrusage(2), getsid(2),
+gettid(2), getcpu(2), gettimeofday(2), uname(2), adjtimex(2), sysfs(2). Some
+of these system calls are OS specific.
 .TP
 .B \-\-get\-ops N
 stop get workers after N bogo get operations.
@@ -3249,7 +3250,7 @@ all the system calls.
 .TQ
 .B \-\-getdent N
 start N workers that recursively read directories /proc, /dev/, /tmp, /sys
-and /run using getdents and getdents64 (Linux only).
+and /run using getdents(2) and getdents64(2) (Linux only).
 .TP
 .B \-\-getdent\-ops N
 stop getdent workers after N bogo getdent bogo operations.
@@ -3601,7 +3602,7 @@ be from 1 K to 4 M.
 .RS 5
 .TQ
 .B \-\-hyperbolic N
-start N workers that exercise sinh, cosh, and tanh hyperbolic
+start N workers that exercise sinh, cosh, and tanh libm hyperbolic
 functions using float, double and long double floating point
 variants. Each function is exercised 10000 times per bogo-operation.
 .TP
@@ -4038,7 +4039,7 @@ stop key workers after N bogo key operations.
 .RS 5
 .TQ
 .B \-\-kill N
-start N workers sending SIGUSR1 kill signals to a SIG_IGN signal handler
+start N workers sending SIGUSR1 kill(2) signals to a SIG_IGN signal handler
 in the stressor and SIGUSR1 kill signal to a child stressor with a SIGUSR1
 handler. Most of the process time will end up in kernel space.
 .TP
@@ -4090,7 +4091,7 @@ select the method of exercising a l1cache sized buffer. The default is a
 forward scan, random picks random bytes to exercise, reverse scans in reverse.
 .TP
 .B \-\-l1cache\-mlock
-attempt to mlock the l1cache size buffer into memory to prevent it from being
+attempt to mlock(2) the l1cache size buffer into memory to prevent it from being
 swapped out.
 .TP
 .B \-\-l1cache\-ops N
@@ -4111,7 +4112,7 @@ specify the number of level 1 cache ways
 .TQ
 .B \-\-landlock N
 start N workers that exercise Linux 5.13 landlocking. A range of
-landlock_create_ruleset flags are exercised with a read only file rule
+landlock_create_ruleset(2) flags are exercised with a read only file rule
 to see if a directory can be accessed and a read-write file create can
 be blocked. Each ruleset attempt is exercised in a new child context and
 this is the limiting factor on the speed of the stressor.
@@ -4204,7 +4205,7 @@ LLC read/write misses.
 where possible, flush cachelines after each cacheline write, x86 and ppc64 only.
 .TP
 .B \-\-llc\-affinity\-mlock
-attempt to mlock the LLC sized buffer into memory to prevent it from being
+attempt to mlock(2) the LLC sized buffer into memory to prevent it from being
 swapped out.
 .TP
 .B \-\-llc\-affinity\-numa
@@ -4293,7 +4294,7 @@ stop lockf workers after N bogo lockf operations.
 .TQ
 .B \-\-lockmix N
 start N workers that randomly lock and unlock regions of a file using the
-BSD flock, locka (advisory), POSIX lockf and Linux open file lock (lockofd) locking
+BSD flock(2), locka (advisory), POSIX lockf(3) and Linux open file lock (lockofd) locking
 mechanisms.  Each worker creates a 1024 KB file and attempts to hold a
 maximum of 1024 concurrent locks with a child process that also tries to
 hold 1024 concurrent locks. Old locks are unlocked in a first-in,
@@ -4321,7 +4322,7 @@ stop lockofd workers after N bogo lockofd operations.
 .RS 5
 .TQ
 .B \-\-logmath N
-start N workers that exercise various logarithmic functions with input values 1 to 10000.
+start N workers that exercise various libm logarithmic functions with input values 1 to 10000.
 Results are sanity checked to ensure no variation occurs after each round of 10000 computations.
 .TP
 .B \-\-logmath\-ops N
@@ -4437,9 +4438,10 @@ be from 1 K to 4 M.
 .RS 5
 .TQ
 .B \-\-lsm N
-start N workers that exercise the LSM system calls lsm_list_modules and lsm_get_self_attr, (Linux only).
-Each bogo\-op loop fetches a list of available security modules and fetching LSM attributes as
-well as some invalid LSM system calls to exercise error handling.
+start N workers that exercise the LSM system calls lsm_list_modules(2) and
+lsm_get_self_attr(2), (Linux only).  Each bogo\-op loop fetches a list of
+available security modules and fetching LSM attributes as well as some
+invalid LSM system calls to exercise error handling.
 .TP
 .B \-\-lsm\-ops N
 stop after N loops of fetching security modules lists and fetching LSM attributes.
@@ -4490,7 +4492,7 @@ allocation and freeing, typically half of the allocation slots are in use at
 any one time.
 .TP
 .B \-\-malloc\-mlock
-attempt to mlock the allocations into memory to prevent them from being
+attempt to mlock(2) the allocations into memory to prevent them from being
 swapped out.
 .TP
 .B \-\-malloc\-ops N
@@ -4707,7 +4709,7 @@ stop mcontend stressors after N bogo read/write operations.
 .RS 5
 .TQ
 .B \-\-membarrier N
-start N workers that exercise the membarrier system call (Linux only).
+start N workers that exercise the membarrier(2) system call (Linux only).
 .TP
 .B \-\-membarrier\-ops N
 stop membarrier stress workers after N bogo membarrier operations.
@@ -4785,7 +4787,7 @@ enable random madvise page advice on memfd memory mapped regions to add
 a little more VM exercising.
 .TP
 .B \-\-memfd\-mlock
-attempt to mlock mmap'd pages into memory causing more memory pressure by
+attempt to mlock(2) mmap'd pages into memory causing more memory pressure by
 preventing pages from swapped out.
 .TP
 .B \-\-memfd\-numa
@@ -5005,7 +5007,7 @@ stop after N memthrash bogo operations.
 .RS 5
 .TQ
 .B -\-mergesort N
-start N workers that sort 32 bit integers using the BSD mergesort.
+start N workers that sort 32 bit integers using the BSD mergesort(3).
 .TP
 .B \-\-mergesort\-method [ mergesort\-libc | mergesort\-nonlibc ]
 select either the libc implementation of mergesort or an unoptimized
@@ -5130,7 +5132,7 @@ to 65536 \(mu 128 bit reads or writes.
 .TQ
 .B \-\-mknod N
 start N workers that create and remove fifos, empty files and named sockets
-using mknod and unlink.
+using mknod(2) and unlink(2).
 .TP
 .B \-\-mknod\-ops N
 stop directory thrash workers after N bogo mknod operations.
@@ -5157,7 +5159,7 @@ stop after N mlock bogo operations.
 .TQ
 .B \-\-mlockmany N
 start N workers that fork off a default of 1024 child processes in total;
-each child will attempt to anonymously mmap and mlock the maximum allowed
+each child will attempt to anonymously mmap(2) and mlock(2) the maximum allowed
 mlockable memory size.  The stress test attempts to avoid swapping by
 tracking low memory and swap allocations (but some swapping may occur). Once
 either the maximum number of child process is reached or all mlockable in-core
@@ -5213,11 +5215,11 @@ enable randomized madvise(2) settings on pages.
 mark pages as mergeable via madvise(2) where possible.
 .TP
 .B \-\-mmap\-mlock
-attempt to mlock mmap'd pages into memory causing more memory pressure by
+attempt to mlock(2) mmap'd pages into memory causing more memory pressure by
 preventing pages from swapped out.
 .TP
 .B \-\-mmap\-mmap2
-use mmap2 for 4 K page aligned offsets if mmap2 is available, otherwise fall back
+use mmap2(2) for 4 K page aligned offsets if mmap2 is available, otherwise fall back
 to mmap.
 .TP
 .B \-\-mmap\-mprotect
@@ -5268,7 +5270,7 @@ memory mapped from the first mapped address. The stressor exercises
 mmap/munmap, mincore and segfault handling.
 .TP
 .B \-\-mmapaddr\-mlock
-attempt to mlock mmap'd pages into memory causing more memory pressure by
+attempt to mlock(2) mmap'd pages into memory causing more memory pressure by
 preventing pages from swapped out.
 .TP
 .B \-\-mmapaddr\-ops N
@@ -5301,11 +5303,11 @@ fork child process to exercise pages in parallel with parent to exercice page
 handling harder.
 .TP
 .B \-\-mmapcow\-free
-after each page is modified and before each page is unmapped use madvise MADV_FREE
+after each page is modified and before each page is unmapped use madvise(2) MADV_FREE
 (if it is available) to indicate the page is free
 .TP
 .B \-\-mmapcow\-mlock
-attempt to mlock each modified page, this can increase the number of page
+attempt to mlock(2) each modified page, this can increase the number of page
 faults. Only available with the mlock2 system call.
 .TP
 .B \-\-mmapcow\-numa
@@ -5377,7 +5379,7 @@ and remappings are madvised with random madvise options to further exercise
 the mappings.
 .TP
 .B \-\-mmapfixed\-mlock
-attempt to mlock mmap'd pages into memory causing more memory pressure by
+attempt to mlock(2) mmap'd pages into memory causing more memory pressure by
 preventing pages from swapped out.
 .TP
 .B \-\-mmapfixed\-numa
@@ -5405,7 +5407,7 @@ attempt to mmap on a 16 MB temporary file and random 4 K offsets. If this fails,
 anonymous mappings are used instead.
 .TP
 .B \-\-mmaphuge\-mlock
-attempt to mlock mmap'd huge pages into memory causing more memory pressure by
+attempt to mlock(2) mmap'd huge pages into memory causing more memory pressure by
 preventing pages from swapped out.
 .TP
 .B \-\-mmaphuge\-mmaps N
@@ -5430,7 +5432,7 @@ middle page hence splitting the mapping into two. This is then repeated until
 the maximum allowed mappings or a maximum of 262144 mappings are made.
 .TP
 .B \-\-mmapmany\-mlock
-attempt to mlock mmap'd huge pages into memory causing more memory pressure by
+attempt to mlock(2) mmap'd huge pages into memory causing more memory pressure by
 preventing pages from swapped out.
 .TP
 .B \-\-mmapmany\-numa
@@ -5446,12 +5448,12 @@ stop after N mmapmany bogo operations
 .TQ
 .B \-\-mmaptorture N
 start N workers that exercise memory mapping operations on a shared file.
-Mappings of various random sizes are tortured with calls to madvise, mremap,
-mprotect, msync, mlock, munlock, mseal and mincore while the underlying file
-is modified by writes, truncation and hole punching. Mapped data is read and
-written and sync'd back to file. For NUMA systems, pages are randomly placed
-across NUMA nodes. All this activity causes cache misses, exercises the TLB
-and causes IPI interrupts between CPUs.
+Mappings of various random sizes are tortured with calls to madvise(2),
+mremap(2), mprotect(2), msync(2), mlock(2), munlock(2), mseal(2) and
+mincore(2) while the underlying file is modified by writes, truncation and
+hole punching. Mapped data is read and written and sync'd back to file. For
+NUMA systems, pages are randomly placed across NUMA nodes. All this activity
+causes cache misses, exercises the TLB and causes IPI interrupts between CPUs.
 .TP
 .B \-\-mmaptorture\-bytes N
 allocate N bytes in total for all the mmaptorture stressor instances, the default is
@@ -5683,7 +5685,7 @@ can specify the size in units of Bytes, KBytes, MBytes and GBytes using the
 suffix b, k, m or g.
 .TP
 .B \-\-mremap\-mlock
-attempt to mlock remap'd pages into memory causing more memory pressure by
+attempt to mlock(2) remap'd pages into memory causing more memory pressure by
 preventing pages from swapped out.
 .TP
 .B \-\-mreamp\-numa
@@ -5698,8 +5700,8 @@ stop mremap stress workers after N bogo operations.
 .RS 5
 .TQ
 .B \-\-mseal N
-start N memory sealing stressors that exercise madvise, mremap, mprotect
-and mseal operations on two pages of of memory mapped anonymous private
+start N memory sealing stressors that exercise madvise(2), mremap(2), mprotect(2)
+and mseal(2) operations on two pages of of memory mapped anonymous private
 memory. Linux 6.10+ kernels only.
 .TP
 .B \-\-mseal\-ops N
@@ -5812,7 +5814,7 @@ allows the default to be changed to 2 to 64 concurrent threads.
 .RS 5
 .TQ
 .B \-\-nanosleep N
-start N workers that each run pthreads that call nanosleep with random
+start N workers that each run pthreads that call nanosleep(2) with random
 delays from 1 to 2\[ua]18 nanoseconds. This should exercise the high resolution
 timers and scheduler.
 .TP
@@ -5858,7 +5860,7 @@ and the allowed range is 1 to 1024.
 .RS 5
 .TQ
 .B \-\-netdev N
-start N workers that exercise various netdevice ioctl commands across
+start N workers that exercise various netdevice ioctl(2) commands across
 all the available network devices. The ioctls exercised by this stressor
 are as follows: SIOCGIFCONF, SIOCGIFINDEX, SIOCGIFNAME, SIOCGIFFLAGS,
 SIOCGIFADDR, SIOCGIFNETMASK, SIOCGIFMETRIC, SIOCGIFMTU, SIOCGIFHWADDR,
@@ -5932,9 +5934,9 @@ equivalent to 256 loops of 256 no-op instructions.
 .RS 5
 .TQ
 .B \-\-null N
-start N workers that exercise /dev/null with writes, lseek, ioctl, fcntl,
-fallocate and fdatasync. For just /dev/null write benchmarking use the
-\-\-null\-write option.
+start N workers that exercise /dev/null with write(2), lseek(2), ioctl(2),
+fcntl(2), fallocate(2) and fdatasync(2) calls. For just /dev/null write
+benchmarking use the \-\-null\-write option.
 .TP
 .B \-\-null\-ops N
 stop null stress workers after N /dev/null bogo operations.
@@ -6062,7 +6064,7 @@ specify the size as % of total available memory or in units of Bytes, KBytes,
 MBytes and GBytes using the suffix b, k, m or g.
 .TP
 .B \-\-pagemove\-mlock
-attempt to mlock mmap'd and mremap'd pages into memory causing more memory pressure by
+attempt to mlock(2) mmap'd and mremap'd pages into memory causing more memory pressure by
 preventing pages from swapped out.
 .TP
 .B \-\-pagemove\-numa
@@ -6079,7 +6081,7 @@ the mmap'd region is equivalent to 1 bogo-operation.
 .TQ
 .B \-\-pageswap N
 start N workers that exercise page swap in and swap out. Pages are allocated
-and paged out using madvise MADV_PAGEOUT. One the maximum per process number
+and paged out using madvise(2) MADV_PAGEOUT. One the maximum per process number
 of mmaps are reached or 65536 pages are allocated the pages are read to
 page them back in and unmapped in reverse mapping order.
 .TP
@@ -6170,9 +6172,9 @@ perform 64 bit reads of all the data in each mmap'd page.
 .RS 5
 .TQ
 .B \-\-pidfd N
-start N workers that exercise signal sending via the pidfd_send_signal system call.
+start N workers that exercise signal sending via the pidfd_send_signal(2) system call.
 This stressor creates child processes and checks if they exist and can be
-stopped, restarted and killed using the pidfd_send_signal system call.
+stopped, restarted and killed using the pidfd_send_signal(2) system call.
 .TP
 .B \-\-pidfd\-ops N
 stop pidfd stress workers after N child processes have been created, tested
@@ -6241,8 +6243,8 @@ switch rate.
 .RS 5
 .TQ
 .B \-\-pkey N
-start N workers that change memory protection using a protection key (pkey) and
-the pkey_mprotect call (Linux only). This will try to allocate a pkey and
+start N workers that change memory protection using a protection key pkey(2) and
+the pkey_mprotect(2) call (Linux only). This will try to allocate a pkey and
 use this for the page protection, however, if this fails then the special
 pkey -1 will be used (and the kernel will use the normal mprotect mechanism
 instead).  Various page protection mixes of read/write/exec/none will
@@ -6337,8 +6339,9 @@ of the default of 20000 microseconds.
 .RS 5
 .TQ
 .B \-\-powmath N
-start N workers that exercise various power functions with input values 0 to 1 in steps of 0.001;
-the results are sanity checked to ensure no variation occurs after each round of 10000 computations.
+start N workers that exercise various libm power functions with input values 0
+to 1 in steps of 0.001; the results are sanity checked to ensure no variation
+occurs after each round of 10000 computations.
 .TP
 .B \-\-powmath\-ops N
 stop after N power function bogo-operation loops.
@@ -6643,15 +6646,15 @@ misleading.
 .RS 5
 .TQ
 .B \-\-pseek N
-start N workers that exercise pwrite() and pread() with lseek() positioning tests.
-Each worker has 4 sub-processes that perform repeated pwrite() and pread()
+start N workers that exercise pwrite(2) and pread(2) with lseek(2) positioning tests.
+Each worker has 4 sub-processes that perform repeated pwrite and pread
 operations using the same shared file descriptor. Two of the processes
 are started using pthreads (if available), another two processes are started
-with fork(). Using pwrite() and pread() should perform I/O without
+with fork(2). Using pwrite and pread should perform I/O without
 altering the shared file descriptor file offset. The main worker process
-performs I/O using lseek()/write() and lseek()/read() calls that change the
-file offset; lseeks are sanity checked to see if they are being altered by pwrite()
-and pread() calls.
+performs I/O using lseek(2)/write(2) and lseek(2)/read(2) calls that change the
+file offset; lseeks are sanity checked to see if they are being altered by pwrite
+and pread calls.
 .TP
 .B \-\-pseek\-io\-size N
 specify size of each write/read I/O operation in bytes. Size can be from 1 byte to 1 MB.
@@ -6717,7 +6720,7 @@ select number of pages to allocate for the nodes.
 .TQ
 .B \-\-pty N
 start N workers that repeatedly attempt to open pseudoterminals and
-perform various pty ioctls upon the ptys before closing them.
+perform various pty ioctl(2) calls upon the ptys before closing them.
 .TP
 .B \-\-pty\-max N
 try to open a maximum of N pseudoterminals, the default is 65536. The allowed
@@ -6731,7 +6734,7 @@ stop pty workers after N pty bogo operations.
 .RS 5
 .TQ
 .B \-Q, \-\-qsort N
-start N workers that sort 32 bit integers using qsort.
+start N workers that sort 32 bit integers using qsort(3).
 .TP
 .B \-\-qsort\-method [ qsort\-libc | qsort\-bm ]
 select either the libc implementation of qsort or the J. L. Bentley and M. D. McIlroy
@@ -6809,7 +6812,7 @@ stop after N process creation bogo-operations.
 .RS 5
 .TQ
 .B \-\-radixsort N
-start N workers that sort random 8 byte strings using radixsort.
+start N workers that sort random 8 byte strings using radixsort(3)
 .TP
 .B \-\-radixsort\-method [ radixsort\-libc | radixsort\-nonlibc ]
 select either the libc implementation of radixsort or an optimized
@@ -6978,7 +6981,7 @@ are used. The default starting port is port 13000.
 .B \-\-rdrand N
 start N workers that read a random number from an on-chip random number generator
 This uses the rdrand instruction on Intel x86 processors or the darn instruction
-on Power9 processors.
+on PowerPC processors.
 .TP
 .B \-\-rdrand\-ops N
 stop rdrand stress workers after N bogo rdrand operations (1 bogo op \(eq 2048
@@ -6993,7 +6996,7 @@ use rdseed instead of rdrand (x86 only).
 .TQ
 .B \-\-readahead N
 start N workers that randomly seek and perform 4096 byte read/write I/O
-operations on a file with readahead. The default file size is 64 MB.  Readaheads
+operations on a file with readahead(2). The default file size is 64 MB.  Readaheads
 and reads are batched into 16 readaheads and then 16 reads.
 .TP
 .B \-\-readahead\-bytes N
@@ -7054,7 +7057,7 @@ deprecated system call remap_file_pages(2). Several page re-orderings are
 exercised: forward, reverse, random and many pages to 1 page.
 .TP
 .B \-\-remap\-mlock
-attempt to mlock mmap'd huge pages into memory causing more memory pressure by
+attempt to mlock(2) mmap'd huge pages into memory causing more memory pressure by
 preventing pages from swapped out.
 .TP
 .B \-\-remap\-ops N
@@ -7082,7 +7085,7 @@ start N workers that exercise process rescheduling. Each stressor spawns
 a child process for each of the positive nice levels and iterates over the
 nice levels from 0 to the lowest priority level (highest nice value). For
 each of the nice levels 1024 iterations over 3 non-real time scheduling
-polices SCHED_OTHER, SCHED_BATCH and SCHED_IDLE are set and a sched_yield
+polices SCHED_OTHER, SCHED_BATCH and SCHED_IDLE are set and a sched_yield(2)
 occurs to force heavy rescheduling activity.  When the -v verbose option
 is used the distribution of the number of yields across the nice levels is
 printed for the first stressor out of the N stressors.
@@ -7101,7 +7104,7 @@ stack, temporary files and various file descriptors (eventfds, memoryfds,
 userfaultfds, pipes and sockets).
 .TP
 .B \-\-resources\-mlock
-attempt to mlock mmap'd pages into memory causing more memory pressure by
+attempt to mlock(2) mmap'd pages into memory causing more memory pressure by
 preventing pages from swapped out.
 .TP
 .B \-\-resources\-ops N
@@ -7346,7 +7349,7 @@ stop seccomp stress workers after N seccomp filter tests.
 .RS 5
 .TQ
 .B \-\-secretmem N
-start N workers that mmap pages using file mapping off a memfd_secret file
+start N workers that mmap pages using file mapping off a memfd_secret(2) file
 descriptor. Each stress loop iteration will expand the mappable region by 3
 pages using ftruncate and mmap and touches the pages. The pages are then
 fragmented by unmapping the middle page and then umapping the first and
@@ -7430,9 +7433,9 @@ and is an opt-in option as it will affect the semaphore being exercised.
 .RS 5
 .TQ
 .B \-\-sendfile N
-start N workers that send an empty file to /dev/null. This operation spends
-nearly all the time in the kernel.  The default sendfile size is 4 MB.  The
-sendfile options are for Linux only.
+start N workers that send an empty file to /dev/null using the sendfile(2)
+call. This operation spends nearly all the time in the kernel.  The default
+sendfile size is 4 MB.  The sendfile options are for Linux only.
 .TP
 .B \-\-sendfile\-ops N
 stop sendfile workers after N sendfile bogo operations.
@@ -7460,9 +7463,9 @@ stop session workers after N child processes are spawned and reaped.
 .TQ
 .B \-\-set N
 start N workers that call system calls that try to set data in the kernel,
-currently these are: setgid, sethostname, setpgid, setpgrp, setuid,
-setgroups, setreuid, setregid, setresuid, setresgid and setrlimit.
-Some of these system calls are OS specific.
+currently these are: setgid(2), sethostname(2), setpgid(2), setpgrp(2),
+setuid(2), setgroups(2), setreuid(2), setregid(2), setresuid(2), setresgid(2)
+and setrlimit(2).  Some of these system calls are OS specific.
 .TP
 .B \-\-set\-ops N
 stop set workers after N bogo set operations.
@@ -7472,7 +7475,7 @@ stop set workers after N bogo set operations.
 .RS 5
 .TQ
 .B \-\-shellsort N
-start N workers that sort 32 bit integers using shellsort.
+start N workers that sort 32 bit integers using shellsort(3).
 .TP
 .B \-\-shellsort\-ops N
 stop shellsort stress workers after N bogo shellsorts.
@@ -7495,7 +7498,7 @@ specify the size as % of total available memory or in units of Bytes, KBytes,
 MBytes and GBytes using the suffix b, k, m or g.
 .TP
 .B \-\-shm\-mlock
-attempt to mlock shared memory objects into memory causing more memory pressure by
+attempt to mlock(2) shared memory objects into memory causing more memory pressure by
 preventing pages from swapped out.
 .TP
 .B \-\-shm\-objs N
@@ -7521,7 +7524,7 @@ the size as % of total available memory or in units of Bytes, KBytes, MBytes
 and GBytes using the suffix b, k, m or g.
 .TP
 .B \-\-shm\-sysv\-mlock
-attempt to mlock shared memory segment into memory causing more memory pressure by
+attempt to mlock(2) shared memory segment into memory causing more memory pressure by
 preventing pages from swapped out.
 .TP
 .B \-\-shm\-sysv\-ops N
@@ -7770,7 +7773,7 @@ stop sigvtalrm stress workers after N SIGVTALRM signals have been handled.
 .TQ
 .B \-\-sigxcpu N
 start N workers that exercise the SIGXCPU stressor. A busy loop generates
-SIGXCPU signals by setting a 0 second run time limit followed by a sched_yield
+SIGXCPU signals by setting a 0 second run time limit followed by a sched_yield(2)
 call.
 .TP
 .B \-\-sigxcpu\-ops N
@@ -8133,7 +8136,7 @@ option touches all the pages by filling the new stack allocation with zeros
 which forces physical pages to be allocated and hence is more aggressive.
 .TP
 .B \-\-stack\-mlock
-attempt to mlock stack pages into memory causing more memory pressure by
+attempt to mlock(2) stack pages into memory causing more memory pressure by
 preventing pages from swapped out.
 .TP
 .B \-\-stack\-ops N
@@ -8245,11 +8248,11 @@ If the L3 cache size is not provided, then stress\-ng will attempt to
 determine the cache size, and failing this, will default the size to 4 MB.
 .TP
 .B \-\-stream\-mlock
-attempt to mlock the stream buffers into memory to prevent them from being
+attempt to mlock(2) the stream buffers into memory to prevent them from being
 swapped out.
 .TP
 .B \-\-stream\-madvise [ collapse | hugepage | nohugepage | normal ]
-Specify the madvise options used on the memory mapped buffer used in the
+Specify the madvise(2) options used on the memory mapped buffer used in the
 stream stressor. Non-linux systems will only have the `normal' madvise
 advice. The default is `normal'.
 .TP
@@ -8656,7 +8659,7 @@ to be added into the tree.
 .TQ
 .B \-\-trig N
 start N workers that exercise sin, cos, sincos (where available) and tan
-trigonometric functions using float, double and long double floating point
+libm trigonometric functions using float, double and long double floating point
 variants. Each function is exercised 10000 times per bogo-operation.
 .TP
 .B \-\-trig\-method function
@@ -8870,7 +8873,7 @@ stop after N bogo unshare operations.
 .RS 5
 .TQ
 .B \-\-uprobe N
-start N workers that trace the entry to libc function getpid() using the
+start N workers that trace the entry to libc function getpid(2) using the
 Linux uprobe kernel tracing mechanism. This requires CAP_SYS_ADMIN
 capabilities and a modern Linux uprobe capable kernel.
 .TP
@@ -8895,7 +8898,7 @@ stop urandom stress workers after N urandom bogo read operations (Linux only).
 .B \-\-userfaultfd N
 start N workers that generate write page faults on a small anonymously mapped
 memory region and handle these faults using the user space fault handling via
-the userfaultfd mechanism.  This will generate a large quantity of major page
+the userfaultfd(2) mechanism.  This will generate a large quantity of major page
 faults and also context switches during the handling of the page faults.
 (Linux only).
 .TP
@@ -8949,8 +8952,8 @@ performing an expensive system call.
 .TP
 .B \-\-vdso\-func F
 Instead of calling all the vDSO functions, just call the vDSO function F. The
-functions depend on the kernel being used, but are typically clock_gettime,
-getcpu, gettimeofday and time.
+functions depend on the kernel being used, but are typically clock_gettime(2),
+getcpu(2), gettimeofday(2) and time(2).
 .TP
 .B \-\-vdso\-ops N
 stop after N vDSO functions calls.
@@ -9228,9 +9231,9 @@ rapidly fills up the process table.
 stop vforkmany stressors after N vforks have been made.
 .TP
 .B \-\-vforkmany\-vm
-enable detrimental performance virtual memory advice using madvise on
+enable detrimental performance virtual memory advice using madvise(2) on
 all pages of the vforked process. Where possible this will try to set
-every page in the new process with using madvise MADV_MERGEABLE,
+every page in the new process with using madvise(2) MADV_MERGEABLE,
 MADV_WILLNEED, MADV_HUGEPAGE and MADV_RANDOM flags. Linux only.
 .TP
 .B \-\-vforkmany\-vm\-bytes N
@@ -9599,7 +9602,7 @@ T}
 .RE
 .TP
 .B \-\-vm\-addr\-mlock
-attempt to mlock pages into memory causing more memory pressure by
+attempt to mlock(2) pages into memory causing more memory pressure by
 preventing pages from swapped out.
 .TP
 .B \-\-vm\-addr\-numa
@@ -9660,10 +9663,11 @@ stop after N bogo vm\-splice operations.
 .RS 5
 .TQ
 .B \-\-vma N
-start M workers that create pthreads to mmap, munmap, mlock, munlock, madvise,
-msync, mprotect, mincore and access 32 pages in a randomly selected virtual
-memory address space. This is designed to trip races on VMA page modifications.
-Every 15 seconds a different virtual address space is randomly chosen.
+start M workers that create pthreads to mmap(2), munmap(2), mlock(2),
+munlock(2), madvise(2), msync(2), mprotect(2), mincore(2) and access
+32 pages in a randomly selected virtual memory address space. This is
+designed to trip races on VMA page modifications.  Every 15 seconds a
+different virtual address space is randomly chosen.
 .TP
 .B \-\-vma\-ops N
 stop the vma stressors after N successful memory mappings.
@@ -10008,8 +10012,8 @@ select scheduling policy. Note that deadline, fifo and rr require root privilege
 .RS 5
 .TQ
 .B \-\-zero N
-start N workers that exercise /dev/zero with reads, lseeks, ioctls and mmaps. For
-just /dev/zero read benchmarking use the \-\-zero\-read option.
+start N workers that exercise /dev/zero with read(2), lseek(2), ioctl(2) and mmap(2)
+calls. For just /dev/zero read benchmarking use the \-\-zero\-read option.
 .TP
 .B \-\-zero\-ops N
 stop zero stress workers after N /dev/zero bogo read operations.
