@@ -111,7 +111,7 @@ Specifying a name followed by an escaped question mark (for example \-\-class vm
 print out all the stressors in that specific class.
 .TP
 .B \-\-config
-print out the configuration used to build stress-ng.
+print out the configuration used to build stress\-ng.
 .TP
 .B \-n, \-\-dry\-run
 parse options, but do not run stress tests. A no-op.
@@ -5188,7 +5188,7 @@ support this.  By default, anonymous mappings are used, however, the
 mappings if desired.
 .RS
 .PP
-Note that since stress-ng 0.17.05 the \-\-mmap\-madvise, \-\-mmap\-mergeable,
+Note that since stress\-ng 0.17.05 the \-\-mmap\-madvise, \-\-mmap\-mergeable,
 \-\-mmap\-mprotect, \-\-mmap\-slow\-munmap and \-\-mmap\-write\-check options
 should be used to enable the pre-0.17.05 mmap stressor behaviour.
 .RE
@@ -5570,7 +5570,7 @@ pcg32	T{
 use a 32 bit O'Neill Permuted Congruential Generator.
 T}
 mwc64	T{
-use the 64 bit stress-ng Multiply With Carry random number generator.
+use the 64 bit stress\-ng Multiply With Carry random number generator.
 T}
 random	T{
 use the libc random(3) Non-linear Additive Feedback random number generator.
@@ -10255,7 +10255,7 @@ available file system space.
 run 8 instances of cpu, matrix, vecmath and fp stressors sequentially one
 after another, for 1 minute per stressor.
 .LP
-\f[CR]stress-ng --trig 25% --fp 50% --fma 25% -t 5m --verify\f[]
+\f[CR]stress\-ng --trig 25% --fp 50% --fma 25% -t 5m --verify\f[]
 .IP
 run trigonometric function stressor on 25% of the online cpus, floating point
 stressor on 50% of the online cpus and fused\-multiple\-add stressor on 25% of
@@ -10334,11 +10334,11 @@ run all the stressors (1 instance of each per online CPU) simultaneously, maximi
 the settings (memory sizes, file allocations, etc.) and select the most
 demanding/aggressive options.
 .LP
-\f[CR]stress-ng \-\-all 8 \-\-with cpu,hash,nop,vm \-\-timeout 1m\f[]
+\f[CR]stress\-ng \-\-all 8 \-\-with cpu,hash,nop,vm \-\-timeout 1m\f[]
 .IP
 run 8 instances of cpu, hash, nop and vm stressors altogether for 1 minute.
 .LP
-\f[CR]stress-ng \-\-seq 8 \-\-with cpu,hash,nop,vm \-\-timeout 1m \-\-progress\f[]
+\f[CR]stress\-ng \-\-seq 8 \-\-with cpu,hash,nop,vm \-\-timeout 1m \-\-progress\f[]
 .IP
 run 8 instances of cpu, hash, nop and vm stressors one after another for 1 minute
 each and show the run progress.
@@ -10399,7 +10399,7 @@ T}
 .TE
 .SH BUGS
 File bug reports at: https://github.com/ColinIanKing/stress-ng/issues - please
-note that no support will be provided if stress-ng is packaged without this
+note that no support will be provided if stress\-ng is packaged without this
 manual.
 .SH SEE ALSO
 .BR cpuburn (1),
