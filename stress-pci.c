@@ -292,7 +292,7 @@ static void stress_pci_rate(const stress_metrics_t *metrics, char *str, const si
 	if (metrics->duration > 0.0)
 		(void)snprintf(str, len, "%8.2f", (metrics->count / metrics->duration) / MB);
 	else
-		(void)snprintf(str, len, "%8s", " unknown");
+		(void)snprintf(str, len, "%8s", "untested");
 }
 
 /*
