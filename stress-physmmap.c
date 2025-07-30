@@ -183,6 +183,7 @@ static int stress_physmmap(stress_args_t *args)
 	uint64_t mmaps_succeed = 0, mmaps_failed = 0;
 	double t1, t2;
 	size_t total_pages = 0;
+	size_t max_pages_mapped = 0;
 	bool mappable = false;
 	bool physmmap_read = false;
 
@@ -214,6 +215,8 @@ static int stress_physmmap(stress_args_t *args)
 	t2 = -1.0;
 	t1 = stress_time_now();
 	do {
+		size_t pages_mapped = 0;
+
 		mappable = false;
 		for (physmmap = physmmap_head; physmmap; physmmap = physmmap->next) {
 			register size_t i;
@@ -252,6 +255,7 @@ static int stress_physmmap(stress_args_t *args)
 					if (physmmap_read)
 						stress_physmmap_read(ptr, page_size);
 					mmaps_succeed++;
+					pages_mapped++;
 					mappable = true;
 					physmmap_mappable = true;
 					(void)munmap(ptr, page_size);
@@ -263,6 +267,7 @@ static int stress_physmmap(stress_args_t *args)
 			}
 			if (ptr_all != MAP_FAILED) {
 				stress_physmmap_read(ptr_all, physmmap->region_size);
+				pages_mapped += physmmap->region_size / page_size;
 				mmaps_succeed++;
 				mappable = true;
 				physmmap_mappable = true;
@@ -274,6 +279,9 @@ static int stress_physmmap(stress_args_t *args)
 		}
 		if (t2 < 0.0)
 			t2 = stress_time_now();
+
+		if (pages_mapped > max_pages_mapped)
+			max_pages_mapped = pages_mapped;
 	} while (mappable && stress_continue(args));
 done:
 	if (!mappable)
@@ -297,7 +305,8 @@ done:
 	}
 
 	stress_metrics_set(args, 0, "/dev/kmem mmaps succeed", (double)mmaps_succeed, STRESS_METRIC_TOTAL);
-	stress_metrics_set(args, 1, "/dev/kmem mmaps failed", (double)mmaps_failed , STRESS_METRIC_TOTAL);
+	stress_metrics_set(args, 1, "/dev/kmem mmaps failed", (double)mmaps_failed, STRESS_METRIC_TOTAL);
+	stress_metrics_set(args, 2, "/dev/kmem pages mapped", (double)max_pages_mapped, STRESS_METRIC_TOTAL);
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
