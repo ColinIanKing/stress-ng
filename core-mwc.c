@@ -496,10 +496,12 @@ OPTIMIZE3 void stress_rndstr(char *str, const size_t len)
 OPTIMIZE3 void stress_uint8rnd4(uint8_t *data, const size_t len)
 {
 	register uint32_t *ptr32 = (uint32_t *)shim_assume_aligned(data, 4);
-	register const uint32_t *ptr32end = (uint32_t *)(data + len);
+	register uint32_t *ptr32end;
 
 	if (UNLIKELY(!data || (len < 4)))
 		return;
+
+	ptr32end = (uint32_t *)(data + len);
 
 	if (stress_little_endian()) {
 		while (ptr32 < ptr32end)
