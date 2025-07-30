@@ -107,7 +107,7 @@ int stress_cache_alloc(const char *name)
 		if ((cache_size > 0) && (cache_line_size > 0)) {
 			char tmp[64];
 
-			(void)snprintf(tmp, sizeof(tmp), "%sL%" PRIu16 ": %zdK",
+			(void)snprintf(tmp, sizeof(tmp), "%sL%" PRIu16 ": %zuK",
 				(level > 1) ? ", " : "", level, cache_size >> 10);
 			shim_strlcat(cache_info, tmp, sizeof(cache_info));
 		}
