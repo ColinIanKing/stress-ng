@@ -1506,8 +1506,7 @@ static void stress_clean_dir_files(
 	const size_t path_posn)
 {
 	struct stat statbuf;
-	char *ptr = path + path_posn;
-	const char *end = path + PATH_MAX;
+	char *ptr, *end;
 	int n;
 	struct dirent **names = NULL;
 
@@ -1536,6 +1535,9 @@ static void stress_clean_dir_files(
 		(void)shim_rmdir(path);
 		return;
 	}
+
+	ptr = path + path_posn;
+	end = path + PATH_MAX;
 
 	while (n--) {
 		size_t name_len = strlen(names[n]->d_name) + 1;
