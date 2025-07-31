@@ -115,7 +115,7 @@ To build on OS X systems, just use:
     make -j
 ```
 
-To build on MINIX, gmake and clang are required:
+To build on MINIX, gmake, binutils and clang are required:
 ```
     CC=clang gmake clean
     CC=clang gmake
