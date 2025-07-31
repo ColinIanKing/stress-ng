@@ -2744,6 +2744,8 @@ int shim_setgroups(int size, const gid_t *list)
 #elif defined(HAVE_SETGROUPS)
 	/* POSIX variant, as used by BSD etc */
 	return setgroups(size, list);
+#elif
+	return (int)shim_enosys(size, list);
 #endif
 #else
 	return (int)shim_enosys(size, list);
