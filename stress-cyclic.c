@@ -836,7 +836,11 @@ redo_policy:
 tidy_ok:
 #endif
 		ncrc = EXIT_SUCCESS;
+#if defined(HAVE_SIGLONGJMP) ||	\
+    (defined(HAVE_SCHED_GET_PRIORITY_MIN) &&	\
+     defined(HAVE_SCHED_GET_PRIORITY_MAX))
 tidy:
+#endif
 		(void)fflush(stdout);
 		(void)munmap((void *)rt_stats->latencies, rt_stats->latencies_size);
 		(void)munmap((void *)rt_stats, size);
