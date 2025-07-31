@@ -182,6 +182,4 @@
  * [Data Center Model for Transient Stability Analysis of Power Systems](https://arxiv.org/pdf/2505.16575)
  * [Rubicon: Precise Microarchitectural Attacks with Page-Granular Massaging](https://comsec-files.ethz.ch/papers/rubicon_eurosp25.pdf)
  * [On Fault Tolerance of Data Storage Systems: A Holistic Perspective](https://arxiv.org/pdf/2507.03849v1)
-
-I am keen to add to the stress-ng project page any citations to research or
-projects that use stress-ng.
+ * [Ecoscape: Fault Tolerance Benchmark for Adaptive Remediation Strategies in Real-Time Edge ML](https://arxiv.org/html/2507.22702v1)
