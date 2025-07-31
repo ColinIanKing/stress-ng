@@ -120,7 +120,6 @@ static int OPTIMIZE3 stress_utime(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		double t;
 #if defined(HAVE_UTIMES)
 		struct timeval timevals[2];
 #endif
@@ -140,7 +139,8 @@ static int OPTIMIZE3 stress_utime(stress_args_t *args)
 				break;
 			}
 		} else {
-			t = stress_time_now();
+			const double t = stress_time_now();
+
 			if (UNLIKELY(utimes(filename, timevals) < 0)) {
 				pr_dbg("%s: utimes failed, errno=%d (%s)%s\n",
 					args->name, errno, strerror(errno),
@@ -159,7 +159,8 @@ static int OPTIMIZE3 stress_utime(stress_args_t *args)
 				break;
 			}
 		} else {
-			t = stress_time_now();
+			const double t = stress_time_now();
+
 			if (UNLIKELY(utimes(filename, NULL) < 0)) {
 				pr_dbg("%s: utimes failed, errno=%d (%s)%s\n",
 					args->name, errno, strerror(errno),
@@ -232,7 +233,8 @@ static int OPTIMIZE3 stress_utime(stress_args_t *args)
 				break;
 			}
 		} else {
-			t = stress_time_now();
+			const double t = stress_time_now();
+
 			if (UNLIKELY(futimens(fd, NULL) < 0)) {
 				pr_dbg("%s: futimens failed, errno=%d (%s)%s\n",
 					args->name, errno, strerror(errno),
@@ -263,7 +265,8 @@ static int OPTIMIZE3 stress_utime(stress_args_t *args)
 				break;
 			}
 		} else {
-			t = stress_time_now();
+			const double t = stress_time_now();
+
 			if (UNLIKELY(futimens(fd, ts) < 0)) {
 				pr_dbg("%s: futimens failed, errno=%d (%s)%s\n",
 					args->name, errno, strerror(errno),
@@ -318,7 +321,8 @@ static int OPTIMIZE3 stress_utime(stress_args_t *args)
 				break;
 			}
 		} else {
-			t = stress_time_now();
+			const double t = stress_time_now();
+
 			if (UNLIKELY(futimens(fd, ts) < 0)) {
 				pr_dbg("%s: futimens failed, errno=%d (%s)%s\n",
 					args->name, errno, strerror(errno),
@@ -345,7 +349,8 @@ static int OPTIMIZE3 stress_utime(stress_args_t *args)
 		if (LIKELY(metrics_count > 0)) {
 			VOID_RET(int, utimensat(AT_FDCWD, filename, ts, 0));
 		} else {
-			t = stress_time_now();
+			const double t = stress_time_now();
+
 			VOID_RET(int, utimensat(AT_FDCWD, filename, ts, 0));
 			duration += stress_time_now() - t;
 			count += 1.0;
@@ -428,7 +433,8 @@ STRESS_PRAGMA_POP
 					break;
 				}
 			} else {
-				t = stress_time_now();
+				const double t = stress_time_now();
+
 				if (UNLIKELY(utime(filename, &utbuf) < 0)) {
 					pr_fail("%s: utime failed, errno=%d (%s)%s\n",
 						args->name, errno, strerror(errno),
@@ -475,7 +481,8 @@ STRESS_PRAGMA_POP
 					break;
 				}
 			} else {
-				t = stress_time_now();
+				const double t = stress_time_now();
+
 				if (UNLIKELY(utime(filename, NULL) < 0)) {
 					pr_fail("%s: utime failed, errno=%d (%s)%s\n",
 						args->name, errno, strerror(errno),
