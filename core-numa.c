@@ -517,8 +517,8 @@ void stress_numa_randomize_pages(
 	stress_numa_mask_t *numa_nodes,
 	stress_numa_mask_t *numa_mask,
 	void *buffer,
-	const size_t page_size,
-	const size_t buffer_size)
+	const size_t buffer_size,
+	const size_t page_size)
 {
 	(void)args;
 	(void)numa_nodes;
