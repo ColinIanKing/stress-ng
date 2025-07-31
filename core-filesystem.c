@@ -1621,11 +1621,12 @@ void stress_clean_dir(
 	const pid_t pid,
 	const uint32_t instance)
 {
-	char path[PATH_MAX];
 	const char *temp_path = stress_get_temp_path();
 	const size_t temp_path_len = strlen(temp_path);
 
 	if (LIKELY(name != NULL)) {
+		char path[PATH_MAX];
+
 		(void)stress_temp_dir(path, sizeof(path), name, pid, instance);
 		if (access(path, F_OK) == 0) {
 			pr_dbg("%s: removing temporary files in %s\n", name, path);
