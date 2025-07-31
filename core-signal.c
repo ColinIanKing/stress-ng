@@ -186,12 +186,11 @@ static void stress_dump_data(
 	const uint8_t *fault_addr,
 	const size_t len)
 {
-	char buf[128];
-
 	if (stress_addr_readable(addr, len)) {
 		size_t i;
 		bool show_opcode = false;
 		int n, sz = 0;
+		char buf[128];
 
 		n = snprintf(buf + sz, sizeof(buf) - sz, "stress-ng: info: 0x%16.16" PRIxPTR ":", (uintptr_t)addr);
 		if (n < 0)
