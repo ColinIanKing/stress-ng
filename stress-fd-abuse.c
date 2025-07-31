@@ -1096,7 +1096,7 @@ static void stress_fd_ftruncate(stress_fd_t *fd)
 		VOID_RET(int, ftruncate(fd->fd, 0));
 }
 
-#if defined(POSIX_FADV_RANDOM) ||	\
+#if defined(POSIX_FADV_RANDOM) &&	\
     defined(HAVE_POSIX_FADVISE)
 static void stress_fd_posix_fadvise(stress_fd_t *fd)
 {
@@ -1803,7 +1803,7 @@ static const fd_func_t fd_funcs[] = {
 	stress_fd_fcntl_f_getfl,
 #endif
 	stress_fd_ftruncate,
-#if defined(POSIX_FADV_RANDOM) ||	\
+#if defined(POSIX_FADV_RANDOM) &&	\
     defined(HAVE_POSIX_FADVISE)
 	stress_fd_posix_fadvise,
 #endif
