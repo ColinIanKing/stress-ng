@@ -161,8 +161,8 @@ static int stress_fallocate(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		const bool use_sync = (fd_sync != -1) && ((count++ & 15) == 15);
 #if defined(O_SYNC)
+		const bool use_sync = (fd_sync != -1) && ((count++ & 15) == 15);
 		const int fd = use_sync ? fd_sync : fd_async;
 #else
 		const int fd = fd_async;
