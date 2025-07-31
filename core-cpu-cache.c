@@ -1439,8 +1439,12 @@ free_cpu_caches:
  */
 void OPTIMIZE3 stress_cpu_data_cache_flush(void *addr, const size_t len)
 {
+#if defined(HAVE_ASM_X86_CLFLUSHOPT) ||	\
+    defined(HAVE_ASM_X86_CLFLUSH) ||	\
+    defined(HAVE_BUILTIN___CLEAR_CACHE)
 	register uint8_t *ptr = (uint8_t *)addr;
 	register uint8_t *ptr_end = ptr + len;
+#endif
 
 #if defined(HAVE_ASM_X86_CLFLUSHOPT)
 	if (stress_cpu_x86_has_clflushopt()) {
@@ -1452,11 +1456,15 @@ void OPTIMIZE3 stress_cpu_data_cache_flush(void *addr, const size_t len)
 	}
 #endif
 #if defined(HAVE_ASM_X86_CLFLUSH)
-	while (ptr < ptr_end) {
-		stress_asm_x86_clflush((void *)ptr);
-		ptr += 64;
+	if (stress_cpu_x86_has_clfsh()) {
+		while (ptr < ptr_end) {
+			stress_asm_x86_clflush((void *)ptr);
+			ptr += 64;
+		}
+		return;
 	}
-#elif defined(HAVE_BUILTIN___CLEAR_CACHE)
+#endif
+#if defined(HAVE_BUILTIN___CLEAR_CACHE)
 	__builtin___clear_cache(addr, (void *)ptr_end);
 #else
 	shim_cacheflush(addr, len, SHIM_DCACHE);
