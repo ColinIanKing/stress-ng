@@ -34,7 +34,8 @@ typedef struct stress_easy_opcode {
 	const uint8_t opcodes[4];	/* max 4 opcodes */
 } stress_easy_opcode_t;
 
-#if defined(STRESS_ARCH_ALPHA)
+#if defined(STRESS_ARCH_ALPHA) &&	\
+    defined(HAVE_MPROTECT)
 #define HAVE_EASY_OPCODES
 static const stress_easy_opcode_t easy_opcodes[] = {
 	{ 4, { 0x1f, 0x04, 0xff, 0x47 } }, /* nop */
@@ -47,7 +48,9 @@ static const stress_easy_opcode_t easy_opcodes[] = {
 	{ 4, { 0x07, 0x04, 0xe7, 0x47 } }, /* mov $7,$7 */
 	{ 4, { 0x08, 0x04, 0xe8, 0x47 } }, /* mov $8,$8 */
 };
-#elif defined(STRESS_ARCH_ARM) && defined(__aarch64__)
+#elif defined(STRESS_ARCH_ARM) && 	\
+      defined(__aarch64__) &&		\
+      defined(HAVE_MPROTECT)
 #define HAVE_EASY_OPCODES
 static const stress_easy_opcode_t easy_opcodes[] = {
 	{ 4, { 0x1f, 0x20, 0x03, 0xd5 } }, /* nop */
@@ -60,7 +63,8 @@ static const stress_easy_opcode_t easy_opcodes[] = {
 	{ 4, { 0xdf, 0x00, 0x06, 0xeb } }, /* cmp x6,x6 */
 	{ 4, { 0xff, 0x00, 0x07, 0xeb } }, /* cmp x7,x7 */
 };
-#elif defined(STRESS_ARCH_HPPA)
+#elif defined(STRESS_ARCH_HPPA) &&	\
+      defined(HAVE_MPROTECT)
 #define HAVE_EASY_OPCODES
 static const stress_easy_opcode_t easy_opcodes[] = {
 	{ 4, { 0x08, 0x00, 0x02, 0x40 } }, /* nop */
@@ -73,7 +77,9 @@ static const stress_easy_opcode_t easy_opcodes[] = {
 	{ 4, { 0x08, 0x0e, 0x02, 0x4e } }, /* copy r8,r8 */
 	{ 4, { 0x08, 0x0f, 0x02, 0x4f } }, /* copy r8,r8 */
 };
-#elif defined(STRESS_ARCH_LOONG64) && defined(STRESS_ARCH_LE)
+#elif defined(STRESS_ARCH_LOONG64) &&	\
+      defined(STRESS_ARCH_LE) &&	\
+      defined(HAVE_MPROTECT)
 #define HAVE_EASY_OPCODES
 static const stress_easy_opcode_t easy_opcodes[] = {
 	{ 4, { 0x00, 0x00, 0x40, 0x03 } }, /* nop */
@@ -86,7 +92,9 @@ static const stress_easy_opcode_t easy_opcodes[] = {
 	{ 4, { 0x52, 0x02, 0x15, 0x00 } }, /* move $t6,$t6 */
 	{ 4, { 0x73, 0x02, 0x15, 0x00 } }, /* move $t7,$t7 */
 };
-#elif defined(STRESS_ARCH_LOONG64) && defined(STRESS_ARCH_BE)
+#elif defined(STRESS_ARCH_LOONG64) &&	\
+      defined(STRESS_ARCH_BE) &&	\
+      defined(HAVE_MPROTECT)
 #define HAVE_EASY_OPCODES
 static const stress_easy_opcode_t easy_opcodes[] = {
 	{ 4, { 0x03, 0x40, 0x00, 0x00 } }, /* nop */
@@ -99,7 +107,8 @@ static const stress_easy_opcode_t easy_opcodes[] = {
 	{ 4, { 0x00, 0x15, 0x02, 0x52 } }, /* move $t4,$t4 */
 	{ 4, { 0x00, 0x15, 0x02, 0x73 } }, /* move $t4,$t4 */
 };
-#elif defined(STRESS_ARCH_M68K)
+#elif defined(STRESS_ARCH_M68K) &&	\
+      defined(HAVE_MPROTECT)
 #define HAVE_EASY_OPCODES
 static const stress_easy_opcode_t easy_opcodes[] = {
 	{ 2, { 0x4e, 0x71 } }, /* nop */
@@ -129,7 +138,8 @@ static const stress_easy_opcode_t easy_opcodes[] = {
         { 2, { 0x5f, 0xc0 } }, /* sle %d0 */
 };
 #elif defined(STRESS_ARCH_MIPS) &&	\
-      defined(STRESS_ARCH_LE)
+      defined(STRESS_ARCH_LE) &&	\
+      defined(HAVE_MPROTECT)
 #define HAVE_EASY_OPCODES
 static const stress_easy_opcode_t easy_opcodes[] = {
 	{ 4, { 0x00, 0x00, 0x00, 0x00 } }, /* nop */
@@ -143,7 +153,8 @@ static const stress_easy_opcode_t easy_opcodes[] = {
 	{ 4, { 0x25, 0x78, 0xe0, 0x01 } }, /* move $15,$15 */
 };
 #elif defined(STRESS_ARCH_MIPS) &&	\
-      defined(STRESS_ARC_BE)
+      defined(STRESS_ARC_BE) &&		\
+      defined(HAVE_MPROTECT)
 #define HAVE_EASY_OPCODES
 static const stress_easy_opcode_t easy_opcodes[] = {
 	{ 4, { 0x00, 0x00, 0x00, 0x00 } }, /* nop */
@@ -156,7 +167,9 @@ static const stress_easy_opcode_t easy_opcodes[] = {
 	{ 4, { 0x01, 0xc0, 0x70, 0x25 } }, /* move $14,$14 */
 	{ 4, { 0x01, 0xe0, 0x78, 0x25 } }, /* move $15,$15 */
 };
-#elif defined(STRESS_ARCH_PPC64) && defined(STRESS_ARCH_LE)
+#elif defined(STRESS_ARCH_PPC64) &&	\
+      defined(STRESS_ARCH_LE) &&	\
+      defined(HAVE_MPROTECT)
 #define HAVE_EASY_OPCODES
 static const stress_easy_opcode_t easy_opcodes[] = {
 	{ 4, { 0x00, 0x00, 0x00, 0x60  } }, /* nop */
@@ -169,7 +182,8 @@ static const stress_easy_opcode_t easy_opcodes[] = {
 	{ 4, { 0x78, 0x4b, 0x29, 0x07d } }, /* mr %r9,%r9 */
 	{ 4, { 0x78, 0x53, 0x4a, 0x07d } }, /* mr %r10,%r10 */
 };
-#elif defined(STRESS_ARCH_RISCV)
+#elif defined(STRESS_ARCH_RISCV) &&	\
+      defined(HAVE_MPROTECT)
 #define HAVE_EASY_OPCODES
 static const stress_easy_opcode_t easy_opcodes[] = {
 	{ 2, { 0x01, 0x00 } }, /* addi x0,x0,0 aka nop */
@@ -181,7 +195,8 @@ static const stress_easy_opcode_t easy_opcodes[] = {
 	{ 2, { 0x1a, 0x83 } }, /* addi x6,x6,0 */
 	{ 2, { 0x9e, 0x83 } }, /* addi x7,x7,0 */
 };
-#elif defined(STRESS_ARCH_S390)
+#elif defined(STRESS_ARCH_S390) &&	\
+      defined(HAVE_MPROTECT)
 #define HAVE_EASY_OPCODES
 static const stress_easy_opcode_t easy_opcodes[] = {
 	{ 4, { 0x47, 0x00, 0x00, 0x00 } }, /* nop */
@@ -194,7 +209,8 @@ static const stress_easy_opcode_t easy_opcodes[] = {
 	{ 4, { 0xb9, 0x04, 0x00, 0x88 } }, /* lgr %r8, %r8 */
 	{ 4, { 0xb9, 0x04, 0x00, 0x99 } }, /* lgr %r9, %r9 */
 };
-#elif defined(STRESS_ARCH_SH4)
+#elif defined(STRESS_ARCH_SH4) &&	\
+      defined(HAVE_MPROTECT)
 #define HAVE_EASY_OPCODES
 static const stress_easy_opcode_t easy_opcodes[] = {
 	{ 2, { 0x09, 0x00 } }, /* nop */
@@ -207,7 +223,8 @@ static const stress_easy_opcode_t easy_opcodes[] = {
 	{ 2, { 0xe3, 0x6e } }, /* mov r14,r14 */
 	{ 2, { 0xf3, 0x6f } }, /* mov r15,r15 */
 };
-#elif defined(STRESS_ARCH_SPARC)
+#elif defined(STRESS_ARCH_SPARC) &&	\
+      defined(HAVE_MPROTECT)
 #define HAVE_EASY_OPCODES
 static const stress_easy_opcode_t easy_opcodes[] = {
 	{ 4, { 0x01, 0x00, 0x00, 0x00 } }, /* nop */
@@ -220,7 +237,8 @@ static const stress_easy_opcode_t easy_opcodes[] = {
 	{ 4, { 0xac, 0x10, 0x00, 0x16 } }, /* mov %l6, %l6 */
 	{ 4, { 0xae, 0x10, 0x00, 0x17 } }, /* mov %l7, %l7 */
 };
-#elif defined(STRESS_ARCH_X86)
+#elif defined(STRESS_ARCH_X86) &&	\
+      defined(HAVE_MPROTECT)
 #define HAVE_EASY_OPCODES
 static const stress_easy_opcode_t easy_opcodes[] = {
 	{ 1, { 0x90 } }, /* nop */
