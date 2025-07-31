@@ -151,7 +151,7 @@ static enum parse_line_type parse_get_line_type(
 	if (iscomment(line, line_len))
 		return PARSE_COMMENT;
 
-	(void)snprintf(fmt, sizeof(fmt), "%%%zd[^:]:", module_len - 1);
+	(void)snprintf(fmt, sizeof(fmt), "%%%zu[^:]:", module_len - 1);
 
 	/* should be a "kernel/foo/path.ko: .* */
 	ret = sscanf(line, fmt, module);
