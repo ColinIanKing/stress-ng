@@ -30,11 +30,6 @@
 #define MMAPCOW_MLOCK	(0x0004)
 #define MMAPCOW_NUMA	(0x0008)
 
-#if defined(HAVE_LINUX_MEMPOLICY_H)
-static stress_numa_mask_t *numa_mask = NULL;
-static stress_numa_mask_t *numa_nodes = NULL;
-#endif
-
 static const stress_help_t help[] = {
 	{ NULL,	"mmapcow N",      "start N workers stressing copy-on-write and munmaps" },
 	{ NULL, "mmapcow-fork",   "force more page copying by reguler process forking" },
@@ -44,6 +39,21 @@ static const stress_help_t help[] = {
 	{ NULL,	"mmapcow-ops N",  "stop after N mmapcow bogo operations" },
 	{ NULL,	NULL,             NULL }
 };
+
+static const stress_opt_t opts[] = {
+	{ OPT_mmapcow_fork,  "mmapcow-fork",  TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_mmapcow_free,  "mmapcow-free",  TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_mmapcow_mlock, "mmapcow-mlock", TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_mmapcow_numa,  "mmapcow-numa",  TYPE_ID_BOOL, 0, 1, NULL },
+	END_OPT
+};
+
+#if defined(HAVE_MADVISE)
+
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+static stress_numa_mask_t *numa_mask = NULL;
+static stress_numa_mask_t *numa_nodes = NULL;
+#endif
 
 /*
  *   stress_mmapcow_force_unmap()
@@ -445,14 +455,6 @@ static int stress_mmapcow(stress_args_t *args)
 	return ret;
 }
 
-static const stress_opt_t opts[] = {
-	{ OPT_mmapcow_fork,  "mmapcow-fork",  TYPE_ID_BOOL, 0, 1, NULL },
-	{ OPT_mmapcow_free,  "mmapcow-free",  TYPE_ID_BOOL, 0, 1, NULL },
-	{ OPT_mmapcow_mlock, "mmapcow-mlock", TYPE_ID_BOOL, 0, 1, NULL },
-	{ OPT_mmapcow_numa,  "mmapcow-numa",  TYPE_ID_BOOL, 0, 1, NULL },
-	END_OPT
-};
-
 const stressor_info_t stress_mmapcow_info = {
 	.stressor = stress_mmapcow,
 	.classifier = CLASS_VM | CLASS_OS,
@@ -460,3 +462,16 @@ const stressor_info_t stress_mmapcow_info = {
 	.verify = VERIFY_NONE,
 	.help = help
 };
+
+#else
+
+const stressor_info_t stress_mmapcow_info = {
+	.stressor = stress_unimplemented,
+	.classifier = CLASS_VM | CLASS_OS,
+	.opts = opts,
+	.verify = VERIFY_NONE,
+	.help = help,
+	.unimplemented_reason = "built without madvise support"
+};
+
+#endif
