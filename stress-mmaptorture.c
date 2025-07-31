@@ -382,7 +382,7 @@ static void stress_mmaptorture_vm_name(
 {
 	char vma_name[32];
 	size_t i, j;
-	char hex[] = "0123456789ABCDEF";
+	static const char hex[] = "0123456789ABCDEF";
 
 	for (i = 0, j = 0; i < size; i += page_size, j++) {
 		(void)stress_rndstr(vma_name, sizeof(vma_name));
