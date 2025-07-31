@@ -133,7 +133,7 @@ static int stress_mmaphuge_child(stress_args_t *args, void *v_context)
 				bufs[i].sz = sz;
 				/* If we're mapping onto a file, try it first */
 				if (context->mmaphuge_file) {
-					const off_t offset = 4096 * stress_mwc8modn(16);
+					const off_t offset = (off_t)4096 * stress_mwc8modn(16);
 
 					if (sz + offset < context->sz) {
 						buf = (uint8_t *)mmap(NULL, sz,
