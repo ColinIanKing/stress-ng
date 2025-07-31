@@ -51,7 +51,7 @@ static char *stress_utime_str(char *str, const size_t len, const time_t val)
 
 	if (!tm) {
 		/* Just return time in secs since EPOCH */
-		(void)snprintf(str, len, "%jd", (intmax_t)val);
+		(void)snprintf(str, len, "%" PRIdMAX, (intmax_t)val);
 		return str;
 	}
 	(void)strftime(str, len, "%d/%m/%Y %H:%M:%S", tm);
