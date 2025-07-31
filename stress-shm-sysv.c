@@ -524,7 +524,7 @@ static void stress_shm_sysv_linux_proc_map(const void *addr, const size_t sz)
 	const int len = (int)sizeof(void *);
 	const intptr_t start = (intptr_t)addr, end = start + (intptr_t)sz;
 
-	(void)snprintf(path, sizeof(path), "/proc/%d/map_files/%*.*tx-%*.*tx",
+	(void)snprintf(path, sizeof(path), "/proc/%d/map_files/%*.*" PRIxPTR "-%*.*" PRIxPTR,
 		getpid(), len, len, start, len, len, end);
 
 	/*
