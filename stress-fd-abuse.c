@@ -914,7 +914,6 @@ static void stress_fd_bind_af_inet6(stress_fd_t *fd)
 {
 	struct sockaddr_in6 addr;
 #if defined(__minix__)
-	struct in6_addr in6addr_any = IN6ADDR_ANY_INIT;
 	struct in6_addr in6addr_loopback = IN6ADDR_LOOPBACK_INIT;
 #endif
 
