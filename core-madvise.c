@@ -216,7 +216,7 @@ void stress_madvise_pid_all_pages(
 	if (!fp)
 		return;
 	while (fgets(buf, sizeof(buf), fp)) {
-		void *start, *end, *offset, *ptr;
+		void *start, *end, *offset;
 		int n;
 		unsigned int major, minor;
 		uint64_t inode;
@@ -234,11 +234,13 @@ void stress_madvise_pid_all_pages(
 		if (n_advice == 1) {
 			VOID_RET(int, madvise(start, (size_t)((uint8_t *)end - (uint8_t *)start), advice[0]));
 		} else {
-			for (ptr = start; ptr < end; ptr = (void *)((uintptr_t)ptr + page_size)) {
+			register uint8_t *ptr;
+
+			for (ptr = start; ptr < (uint8_t *)end; ptr += page_size) {
 				size_t idx = stress_mwc8modn((uint8_t)n_advice);
 				const int new_advice = advice[idx];
 
-				VOID_RET(int, madvise(ptr, page_size, new_advice));
+				VOID_RET(int, madvise((void *)ptr, page_size, new_advice));
 			}
 		}
 
@@ -246,7 +248,7 @@ void stress_madvise_pid_all_pages(
 		 *  Readable protection? read pages
 		 */
 		if ((prot[0] == 'r') && (path[0] != '[')) {
-			volatile uint8_t *vptr = (volatile uint8_t *)start;
+			register volatile uint8_t *vptr = (volatile uint8_t *)start;
 
 			while (vptr < (uint8_t *)end) {
 				(*vptr);
