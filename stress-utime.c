@@ -42,8 +42,9 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
-#if defined(HAVE_UTIME_H)
-
+#if defined(HAVE_UTIME_H) &&	\
+    defined(HAVE_UTIME) &&	\
+    defined(HAVE_UTIMBUF)
 static char *stress_utime_str(char *str, const size_t len, const time_t val)
 {
 	struct tm *tm = localtime(&val);
