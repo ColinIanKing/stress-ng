@@ -447,8 +447,8 @@ static int stress_file_ioctl(stress_args_t *args)
 #if defined(FICLONERANGE)
 		{
 			struct file_clone_range fcr;
-			const off_t sz = 4096 * (stress_mwc8() & 0x3);
-			const off_t offset = (stress_mwc8() * 4096) & (file_sz - 1);
+			const off_t sz = (off_t)4096 * (stress_mwc8() & 0x3);
+			const off_t offset = ((off_t)4096 * stress_mwc8()) & (file_sz - 1);
 
 			(void)shim_memset(&fcr, 0, sizeof(fcr));
 			fcr.src_fd = fd;
