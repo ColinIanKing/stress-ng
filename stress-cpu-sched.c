@@ -420,7 +420,6 @@ static void stress_cpu_sched_set_handler(void)
 {
 #if defined(HAVE_TIMER_CLOCK_REALTIME)
 	struct sigaction action;
-	int timer_ret = -1;
 
 	timerid = (timer_t)-1;
 
@@ -429,6 +428,7 @@ static void stress_cpu_sched_set_handler(void)
 	(void)sigemptyset(&action.sa_mask);
 	if (LIKELY(sigaction(SIGRTMIN, &action, NULL) == 0)) {
 		struct sigevent sev;
+		int timer_ret = -1;
 
 		(void)shim_memset(&sev, 0, sizeof(sev));
 		sev.sigev_notify = SIGEV_SIGNAL;
