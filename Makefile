@@ -18,9 +18,9 @@
 #
 
 #
-# Codename "manic memory mangler"
+# Codename "savvy system smasher"
 #
-VERSION=0.19.02
+VERSION=0.19.03
 
 #
 # Determine supported toolchains
