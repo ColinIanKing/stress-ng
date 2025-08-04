@@ -941,6 +941,10 @@ typedef enum {
 	OPT_mmapmany_numa,
 	OPT_mmapmany_ops,
 
+	OPT_mmaprandom,
+	OPT_mmaprandom_ops,
+	OPT_mmaprandom_mappings,
+
 	OPT_mmaptorture,
 	OPT_mmaptorture_bytes,
 	OPT_mmaptorture_msync,
