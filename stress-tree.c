@@ -31,8 +31,6 @@
 #include <bsd/sys/tree.h>
 #endif
 
-#if defined(HAVE_LIB_BSD) &&	\
-    !defined(__APPLE__)
 /* BSD red-black tree */
 #if defined(RB_HEAD) &&		\
     defined(RB_PROTOTYPE) &&	\
@@ -60,7 +58,6 @@
     defined(SPLAY_NEXT) &&	\
     defined(SPLAY_REMOVE)
 #define HAVE_SPLAY_TREE
-#endif
 #endif
 
 #define MIN_TREE_SIZE		(1000)
