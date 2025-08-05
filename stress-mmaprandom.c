@@ -74,6 +74,7 @@ static const stress_opt_t opts[] = {
 #if defined(HAVE_RB_TREE)
 
 typedef struct mr_node {
+	RB_ENTRY(mr_node) rb;	/* rb tree node */
 	void *mmap_addr;	/* mapping start addr */
 	size_t mmap_size;	/* mapping size in bytes */
 	size_t mmap_page_size;	/* page size (maybe a hugepage) */
@@ -82,7 +83,6 @@ typedef struct mr_node {
 	off_t mmap_offset;	/* file based mmap offset into file */
 	int mmap_fd;		/* file_fd or mem_fd that was mmap'd to */
 	bool used;		/* true = mapping is used */
-	RB_ENTRY(mr_node) rb;	/* rb tree node */
 } mr_node_t;
 
 typedef struct {
@@ -1139,6 +1139,8 @@ static int stress_mmaprandom(stress_args_t *args)
 	size_t count_size = SIZEOF_ARRAY(mr_funcs) * sizeof(*ctxt->count);
 	int ret;
 	char filename[PATH_MAX];
+
+	pr_inf("sizeof: %zd\n", sizeof(mr_node_t));
 
 	ctxt = (mr_ctxt_t *)mmap(NULL, sizeof(*ctxt), PROT_READ | PROT_WRITE,
 		MAP_SHARED | MAP_ANONYMOUS, -1, 0);
