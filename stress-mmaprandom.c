@@ -1136,11 +1136,11 @@ static int stress_mmaprandom(stress_args_t *args)
 	mr_ctxt_t *ctxt;
 	double t, duration;
 	size_t i;
-	size_t count_size = SIZEOF_ARRAY(mr_funcs) * sizeof(*ctxt->count);
+	const size_t count_size = SIZEOF_ARRAY(mr_funcs) * sizeof(*ctxt->count);
+	size_t mras_size;
 	int ret;
 	char filename[PATH_MAX];
-
-	pr_inf("sizeof: %zd\n", sizeof(mr_node_t));
+	int rc = EXIT_SUCCESS;
 
 	ctxt = (mr_ctxt_t *)mmap(NULL, sizeof(*ctxt), PROT_READ | PROT_WRITE,
 		MAP_SHARED | MAP_ANONYMOUS, -1, 0);
@@ -1156,23 +1156,26 @@ static int stress_mmaprandom(stress_args_t *args)
 	if (ctxt->page == MAP_FAILED) {
 		pr_inf_skip("%s: skipping stressor, cannot mmap page buffer, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
-		(void)munmap((void *)ctxt, sizeof(*ctxt));
-		return EXIT_NO_RESOURCE;
+		rc = EXIT_NO_RESOURCE;
+		goto unmap_ctxt;
 	}
+	stress_set_vma_anon_name(ctxt->page, args->page_size, "io-page");
 
 	ctxt->count = (double *)mmap(NULL, count_size, PROT_READ | PROT_WRITE,
 		MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (ctxt->count == MAP_FAILED) {
 		pr_inf_skip("%s: skipping stressor, cannot mmap metrics, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
-		(void)munmap((void *)ctxt->page, args->page_size);
-		(void)munmap((void *)ctxt, sizeof(*ctxt));
-		return EXIT_NO_RESOURCE;
+		rc = EXIT_NO_RESOURCE;
+		goto unmap_ctxt_page;
 	}
+	stress_set_vma_anon_name(ctxt->count, count_size, "counters");
 
 	ret = stress_temp_dir_mk_args(args);
-        if (ret < 0)
-		return stress_exit_status((int)-ret);
+        if (ret < 0) {
+		rc = stress_exit_status((int)-ret);
+		goto tidy_dir;
+	}
 	(void)stress_temp_filename_args(args,
 		filename, sizeof(filename), stress_mwc32());
 #if defined(O_NOATIME)
@@ -1183,11 +1186,8 @@ static int stress_mmaprandom(stress_args_t *args)
 	if (ctxt->file_fd < 0) {
 		pr_inf_skip("%s: skipping stressor, cannot create file '%s', errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
-		(void)stress_temp_dir_rm_args(args);
-		(void)munmap((void *)ctxt->count, count_size);
-		(void)munmap((void *)ctxt->page, args->page_size);
-		(void)munmap((void *)ctxt, sizeof(*ctxt));
-		return EXIT_NO_RESOURCE;
+		rc = EXIT_NO_RESOURCE;
+		goto tidy_dir;
 	}
 	(void)shim_unlink(filename);
 
@@ -1197,22 +1197,18 @@ static int stress_mmaprandom(stress_args_t *args)
 
 	ctxt->page_size = args->page_size;
 	ctxt->n_mras = MMAP_RANDOM_DEFAULT_MMAPPINGS;
-
 	(void)stress_get_setting("mmaprandom_mappings", &ctxt->n_mras);
 
-	ctxt->mras = (mr_node_t *)calloc(ctxt->n_mras, sizeof(*ctxt->mras));
-	if (ctxt->mras == NULL) {
-		pr_inf_skip("%s: skipping stressor, failed to allocate %zu mmap page structures\n",
+	mras_size = ctxt->n_mras * sizeof(*ctxt->mras);
+	ctxt->mras = (mr_node_t *)mmap(NULL, mras_size, PROT_READ | PROT_WRITE,
+		MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+	if (ctxt->mras == MAP_FAILED) {
+		pr_inf_skip("%s: skipping stressor, cannot mmap %zu page structures\n",
 			args->name, ctxt->n_mras);
-		if (ctxt->mem_fd != -1)
-			(void)close(ctxt->mem_fd);
-		(void)close(ctxt->file_fd);
-		(void)stress_temp_dir_rm_args(args);
-		(void)munmap((void *)ctxt->count, count_size);
-		(void)munmap((void *)ctxt->page, args->page_size);
-		(void)munmap((void *)ctxt, sizeof(*ctxt));
-		return EXIT_NO_RESOURCE;
+		rc = EXIT_NO_RESOURCE;
+		goto tidy_fds;
 	}
+	stress_set_vma_anon_name(ctxt->mras, mras_size, "page-structs");
 
 	for (i = 0; i < ctxt->n_mras; i++) {
 		ctxt->mras[i].used = false;
@@ -1250,16 +1246,20 @@ static int stress_mmaprandom(stress_args_t *args)
 		stress_metrics_set(args, i, buf, rate, STRESS_METRIC_HARMONIC_MEAN);
 	}
 
-	free(ctxt->mras);
+	(void)munmap((void *)ctxt->mras, mras_size);
+tidy_fds:
 	(void)close(ctxt->file_fd);
 	if (ctxt->mem_fd != -1)
 		(void)close(ctxt->mem_fd);
-	(void)stress_temp_dir_rm_args(args);
 	(void)munmap((void *)ctxt->count, count_size);
+tidy_dir:
+	(void)stress_temp_dir_rm_args(args);
+unmap_ctxt_page:
 	(void)munmap((void *)ctxt->page, args->page_size);
+unmap_ctxt:
 	(void)munmap((void *)ctxt, sizeof(*ctxt));
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 const stressor_info_t stress_mmaprandom_info = {
