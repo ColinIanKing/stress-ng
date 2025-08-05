@@ -868,7 +868,7 @@ static void stress_mmaprandom_mincore(mr_ctxt_t *ctxt, const int idx)
 
 #if defined(HAVE_MSYNC)
 /*
- *  stress_mmaprandom_mincore()
+ *  stress_mmaprandom_msync()
  *	msync a mapping
  */
 static void stress_mmaprandom_msync(mr_ctxt_t *ctxt, const int idx)
@@ -945,6 +945,10 @@ static void stress_mmaprandom_mprotect(mr_ctxt_t *ctxt, const int idx)
 }
 #endif
 
+/*
+ *  stress_mmaprandom_unmap_first_page()
+ *	unmap first page of a multi-page mapping
+ */
 static void stress_mmaprandom_unmap_first_page(mr_ctxt_t *ctxt, const int idx)
 {
 	mr_node_t *mr_node = stress_mmaprandom_get_random_used(ctxt);
@@ -972,6 +976,10 @@ static void stress_mmaprandom_unmap_first_page(mr_ctxt_t *ctxt, const int idx)
 	}
 }
 
+/*
+ *  stress_mmaprandom_unmap_last_page()
+ *	unmap last page of a multi-page mapping
+ */
 static void stress_mmaprandom_unmap_last_page(mr_ctxt_t *ctxt, const int idx)
 {
 	mr_node_t *mr_node = stress_mmaprandom_get_random_used(ctxt);
