@@ -22,6 +22,7 @@
 #include "core-cpu-cache.h"
 #include "core-out-of-memory.h"
 #include "core-put.h"
+#include "core-target-clones.h"
 
 #if defined(HAVE_SYS_TREE_H)
 #include <sys/tree.h>
@@ -118,16 +119,15 @@ static int OPTIMIZE3 mra_page_cmp(mr_node_t *mra1, mr_node_t *mra2)
 
 /*
  * mra_node_cmp
- *	treee compare to sort by node addresses, for free'd mras
+ *	tree compare to sort by node addresses, for free'd mras
  */
 static int OPTIMIZE3 mra_node_cmp(mr_node_t *mra1, mr_node_t *mra2)
 {
-        if (mra1 == mra2)
-                return 0;
-        if (mra1 > mra2)
-                return 1;
-        else
-                return -1;
+	if (mra1 > mra2)
+		return 1;
+	if (mra1 < mra2)
+		return -1;
+	return 0;
 }
 
 /* Used nodes are ordered by mmap addr */
@@ -669,7 +669,7 @@ static void stress_mmaprandom_unmmap_lo_hi_addr(mr_ctxt_t *ctxt, const int idx)
  *  stress_mmaprandom_read()
  *	read from mapping
  */
-static void stress_mmaprandom_read(mr_ctxt_t *ctxt, const int idx)
+static void OPTIMIZE3 TARGET_CLONES stress_mmaprandom_read(mr_ctxt_t *ctxt, const int idx)
 {
 	mr_node_t *mra = stress_mmaprandom_get_random_used(ctxt);
 
@@ -680,8 +680,15 @@ static void stress_mmaprandom_read(mr_ctxt_t *ctxt, const int idx)
 		const uint64_t *end = (uint64_t *)((intptr_t)ptr + mra->mmap_size);
 
 		while (ptr < end) {
-			(void )*ptr;
-			ptr++;
+			(void)ptr[0];
+			(void)ptr[1];
+			(void)ptr[2];
+			(void)ptr[3];
+			(void)ptr[4];
+			(void)ptr[5];
+			(void)ptr[6];
+			(void)ptr[7];
+			ptr += 8;
 		}
 		ctxt->count[idx] += 1.0;
 	}
@@ -691,21 +698,14 @@ static void stress_mmaprandom_read(mr_ctxt_t *ctxt, const int idx)
  *  stress_mmaprandom_read()
  *	write to a mapping
  */
-static void stress_mmaprandom_write(mr_ctxt_t *ctxt, const int idx)
+static void OPTIMIZE3 stress_mmaprandom_write(mr_ctxt_t *ctxt, const int idx)
 {
 	mr_node_t *mra = stress_mmaprandom_get_random_used(ctxt);
 
 	if (mra &&
 	    (mra->mmap_prot & PROT_WRITE) &&
 	    !(mra->mmap_flags & MAP_NORESERVE)) {
-		uint64_t *volatile ptr = mra->mmap_addr;
-		const uint64_t *end = (uint64_t *)((intptr_t)ptr + mra->mmap_size);
-		uint64_t v = stress_mwc64();
-
-		while (ptr < end) {
-			*ptr = v;
-			ptr++;
-		}
+		__builtin_memset(mra->mmap_addr, stress_mwc8(), mra->mmap_size);
 		ctxt->count[idx] += 1.0;
 	}
 }
