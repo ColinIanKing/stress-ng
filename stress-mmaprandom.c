@@ -492,7 +492,7 @@ static int stress_mmaprandom_mmap_file_write(mr_ctxt_t *ctxt, const int fd, cons
 	if (lseek(fd, offset, SEEK_SET) == (off_t) -1)
 		return -1;
 	for (i = 0; i < pages; i++) {
-		stress_uint8rnd4(ctxt->page, ctxt->page_size);
+		(void)shim_memset(ctxt->page, stress_mwc8(), ctxt->page_size);
 		if (write(fd, ctxt->page, ctxt->page_size) != (ssize_t)ctxt->page_size)
 			return -1;
 	}
