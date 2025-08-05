@@ -962,10 +962,63 @@ static void stress_mmaprandom_unmap_last_page(mr_ctxt_t *ctxt, const int idx)
 
 /*
  *  stress_mmaprandom_split()
- *	break a mapping into two mappings, unmap a page between them
+ *	break a mapping into two adjacent mappings
  *
  */
 static void stress_mmaprandom_split(mr_ctxt_t *ctxt, const int idx)
+{
+	mr_node_t *mra = stress_mmaprandom_get_random_used(ctxt);
+	size_t page_size;
+
+	if (!mra)
+		return;
+
+	page_size = mra->mmap_page_size;
+	if (mra->mmap_size >= (2 * page_size)) {
+		uint8_t *ptr = (uint8_t *)mra->mmap_addr;
+		mr_node_t *new_mra;
+#if defined(HAVE_MPROTECT)
+		int prot_flag;
+#endif
+
+		new_mra = RB_MIN(sm_free_node_tree, &sm_free_node_tree_root);
+		if (!new_mra)
+			return;
+
+		ptr += page_size;
+
+		RB_REMOVE(sm_free_node_tree, &sm_free_node_tree_root, new_mra);
+		sm_free_nodes--;
+		new_mra->mmap_addr = (void *)ptr;
+		new_mra->mmap_size = mra->mmap_size - (page_size);
+		new_mra->mmap_page_size = mra->mmap_page_size;
+#if defined(HAVE_MPROTECT)
+		/* Switch to new mmap protection flags */
+		prot_flag = prot_flags[stress_mwc8modn(SIZEOF_ARRAY(prot_flags))];
+		if (mprotect(new_mra->mmap_addr, new_mra->mmap_size, prot_flag) == 0)
+			new_mra->mmap_prot = prot_flag;
+#else
+		/* Keep same protection as original */
+		new_mra->mmap_prot = mra->mmap_prot;
+#endif
+		new_mra->mmap_flags = mra->mmap_flags;
+		new_mra->mmap_offset = mra->mmap_offset + page_size;
+		new_mra->mmap_fd = mra->mmap_fd;
+		new_mra->used = true;
+		RB_INSERT(sm_used_node_tree, &sm_used_node_tree_root, new_mra);
+		sm_used_nodes++;
+
+		mra->mmap_size = page_size;
+		ctxt->count[idx] += 1.0;
+	}
+}
+
+/*
+ *  stress_mmaprandom_split_hole()
+ *	break a mapping into two mappings, unmap a page between them
+ *
+ */
+static void stress_mmaprandom_split_hole(mr_ctxt_t *ctxt, const int idx)
 {
 	mr_node_t *mra = stress_mmaprandom_get_random_used(ctxt);
 	size_t page_size;
@@ -1087,6 +1140,7 @@ static const mr_funcs_t mr_funcs[] = {
 	{ stress_mmaprandom_unmap_first_page,	"munmap first page" },
 	{ stress_mmaprandom_unmap_last_page,	"munmap last page" },
 	{ stress_mmaprandom_split,		"map splitting" },
+	{ stress_mmaprandom_split_hole,		"map hole splitting" },
 	{ stress_mmaprandom_join,		"mmap joining" },
 };
 
