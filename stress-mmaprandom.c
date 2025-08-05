@@ -68,7 +68,7 @@ static const stress_help_t help[] = {
 };
 
 static const stress_opt_t opts[] = {
-        { OPT_mmaprandom_mappings, "mmaprandom_mappings", TYPE_ID_SIZE_T, MMAP_RANDOM_MIN_MAPPINGS, MMAP_RANDOM_MAX_MAPPINGS, NULL },
+	{ OPT_mmaprandom_mappings, "mmaprandom_mappings", TYPE_ID_SIZE_T, MMAP_RANDOM_MIN_MAPPINGS, MMAP_RANDOM_MAX_MAPPINGS, NULL },
 	END_OPT,
 };
 
@@ -390,18 +390,18 @@ static const int posix_madvise_options[] = {
 #if defined(HAVE_MSYNC)
 static const int msync_flags[] = {
 #if defined(MS_ASYNC)
-       MS_ASYNC,
+	MS_ASYNC,
 #endif
 #if defined(MS_SYNC)
-       MS_SYNC,
+	MS_SYNC,
 #endif
 #if defined(MS_ASYNC) && 	\
     defined(MS_INVALIDATE)
-       MS_ASYNC | MS_INVALIDATE,
+	MS_ASYNC | MS_INVALIDATE,
 #endif
 #if defined(MS_SYNC) &&		\
     defined(MS_INVALIDATE)
-       MS_SYNC | MS_INVALIDATE,
+	MS_SYNC | MS_INVALIDATE,
 #endif
 };
 #endif
@@ -1167,12 +1167,11 @@ static int stress_mmaprandom_child(stress_args_t *args, void *context)
 	} while (stress_continue(args));
 
 	for (mra = RB_MIN(sm_used_node_tree, &sm_used_node_tree_root); mra; mra = next) {
-                next = RB_NEXT(sm_used_node_tree, &sm_used_node_tree_root, mra);
+		next = RB_NEXT(sm_used_node_tree, &sm_used_node_tree_root, mra);
 		(void)munmap(mra->mmap_addr, mra->mmap_size);
 		stress_mmaprandom_zap_mra(mra);
-                RB_REMOVE(sm_used_node_tree, &sm_used_node_tree_root, mra);
-        }
-
+		RB_REMOVE(sm_used_node_tree, &sm_used_node_tree_root, mra);
+	}
 	return rc;
 }
 
@@ -1221,7 +1220,7 @@ static int stress_mmaprandom(stress_args_t *args)
 	stress_set_vma_anon_name(ctxt->count, count_size, "counters");
 
 	ret = stress_temp_dir_mk_args(args);
-        if (ret < 0) {
+	if (ret < 0) {
 		rc = stress_exit_status((int)-ret);
 		goto tidy_dir;
 	}
@@ -1325,7 +1324,7 @@ const stressor_info_t stress_mmaprandom_info = {
 	.classifier = CLASS_VM | CLASS_OS,
 	.verify = VERIFY_NONE,
 	.opts = opts,
-        .help = help,
+	.help = help,
 	.unimplemented_reason = "not inmplemented, requires BSD red_black tree support"
 };
 #endif
