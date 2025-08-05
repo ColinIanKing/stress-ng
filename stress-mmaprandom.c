@@ -996,15 +996,15 @@ static void stress_mmaprandom_split(mr_ctxt_t *ctxt, const int idx)
  */
 static void OPTIMIZE3 stress_mmaprandom_join(mr_ctxt_t *ctxt, const int idx)
 {
-	mr_node_t *mra, *next;
+	size_t i;
 
-	for (mra = RB_MIN(sm_used_node_tree, &sm_used_node_tree_root); mra; mra = next) {
+	for (i = 0; i < ((ctxt->n_mras >> 8) + 1); i++) {
+		mr_node_t *mra = stress_mmaprandom_get_random_used(ctxt);
+
 		uint8_t *ptr = mra->mmap_addr;
-		mr_node_t find_mra, *found_mra;
 		const size_t page_size = mra->mmap_page_size;
 		const size_t max_size = page_size * MAX_PAGES_PER_MAPPING;
-
-                next = RB_NEXT(sm_used_node_tree, &sm_used_node_tree_root, mra);
+		mr_node_t find_mra, *found_mra;
 
 		/* mappings right next to each other */
 		find_mra.mmap_addr = (void *)(ptr + mra->mmap_size);
