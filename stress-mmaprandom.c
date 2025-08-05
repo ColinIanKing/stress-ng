@@ -449,7 +449,7 @@ static void stress_mmaprandom_mmap_anon(mr_ctxt_t *ctxt, const int idx)
 #if defined(MAP_HUGETLB)
 		if (new_flags & MAP_HUGETLB) {
 			/* periodically allow a huge page */
-			if (count++ > 32) {
+			if (UNLIKELY(count++ > 32)) {
 				count = 0;
 				page_size = 1U << ((new_flags >> MAP_HUGE_SHIFT) & 0x3f);
 				size = page_size;
@@ -476,7 +476,7 @@ static void stress_mmaprandom_mmap_anon(mr_ctxt_t *ctxt, const int idx)
 			old_flags = extra_flags;
 			extra_flags &= ~mmap_extra_flags[j];
 			j++;
-			if (j >= SIZEOF_ARRAY(mmap_extra_flags))
+			if (UNLIKELY(j >= SIZEOF_ARRAY(mmap_extra_flags)))
 				j = 0;
 		} while (extra_flags && (old_flags == extra_flags));
 	}
@@ -505,11 +505,11 @@ static int stress_mmaprandom_mmap_file_write(mr_ctxt_t *ctxt, const int fd, cons
 	if (fd < 0)
 		return -1;
 
-	if (lseek(fd, offset, SEEK_SET) == (off_t) -1)
+	if (UNLIKELY(lseek(fd, offset, SEEK_SET) == (off_t) -1))
 		return -1;
 	for (i = 0; i < pages; i++) {
 		(void)shim_memset(ctxt->page, stress_mwc8(), ctxt->page_size);
-		if (write(fd, ctxt->page, ctxt->page_size) != (ssize_t)ctxt->page_size)
+		if (UNLIKELY(write(fd, ctxt->page, ctxt->page_size) != (ssize_t)ctxt->page_size))
 			return -1;
 	}
 	return 0;
@@ -542,7 +542,7 @@ static void stress_mmaprandom_mmap_file(mr_ctxt_t *ctxt, const int idx)
 	if (!mr_node)
 		return;
 
-	if (stress_mmaprandom_mmap_file_write(ctxt, fd, offset, pages) < 0)
+	if (UNLIKELY(stress_mmaprandom_mmap_file_write(ctxt, fd, offset, pages) < 0))
 		return;
 
 	for (i = 0; i < SIZEOF_ARRAY(mmap_extra_flags); i++)
@@ -635,7 +635,7 @@ static void stress_mmaprandom_unmmap(mr_ctxt_t *ctxt, const int idx)
 	if (stress_mwc1()) {
 		/* unmap entire mapping in one go */
 
-		if (munmap((void *)mr_node->mmap_addr, mr_node->mmap_size) == 0) {
+		if (LIKELY(munmap((void *)mr_node->mmap_addr, mr_node->mmap_size) == 0)) {
 			ctxt->count[idx] += 1.0;
 			stress_mmaprandom_zap_mr_node(mr_node);
 			RB_REMOVE(sm_used_node_tree, &sm_used_node_tree_root, mr_node);
@@ -652,7 +652,7 @@ static void stress_mmaprandom_unmmap(mr_ctxt_t *ctxt, const int idx)
 		bool failed = false;
 
 		while (ptr < ptr_end) {
-			if (stress_munmap_retry_enomem((void *)ptr, page_size) < 0)
+			if (UNLIKELY(stress_munmap_retry_enomem((void *)ptr, page_size) < 0))
 				failed = true;
 			ptr += page_size;
 		}
@@ -660,7 +660,7 @@ static void stress_mmaprandom_unmmap(mr_ctxt_t *ctxt, const int idx)
 		 * force entire mapping to be unmapped if page by
 		 * page unmaps failed
 		 */
-		if (failed)
+		if (UNLIKELY(failed))
 			(void)munmap(mr_node->mmap_addr, mr_node->mmap_size);
 
 		ctxt->count[idx] += 1.0;
@@ -687,7 +687,7 @@ static void stress_mmaprandom_unmmap_lo_hi_addr(mr_ctxt_t *ctxt, const int idx)
 	if (!mr_node)
 		return;
 
-	if (munmap((void *)mr_node->mmap_addr, mr_node->mmap_size) == 0) {
+	if (LIKELY(munmap((void *)mr_node->mmap_addr, mr_node->mmap_size) == 0)) {
 		ctxt->count[idx] += 1.0;
 
 		stress_mmaprandom_zap_mr_node(mr_node);
@@ -820,7 +820,7 @@ static void stress_mmaprandom_madvise(mr_ctxt_t *ctxt, const int idx)
 		return;
 
 	advice = madvise_options[stress_mwc8modn(SIZEOF_ARRAY(madvise_options))];
-	if (madvise(mr_node->mmap_addr, mr_node->mmap_size, advice) == 0)
+	if (LIKELY(madvise(mr_node->mmap_addr, mr_node->mmap_size, advice) == 0))
 		ctxt->count[idx] += 1.0;
 }
 #endif
@@ -839,7 +839,7 @@ static void stress_mmaprandom_posix_madvise(mr_ctxt_t *ctxt, const int idx)
 		return;
 
 	advice = posix_madvise_options[stress_mwc8modn(SIZEOF_ARRAY(posix_madvise_options))];
-	if (posix_madvise(mr_node->mmap_addr, mr_node->mmap_size, advice) == 0)
+	if (LIKELY(posix_madvise(mr_node->mmap_addr, mr_node->mmap_size, advice) == 0))
 		ctxt->count[idx] += 1.0;
 }
 #endif
@@ -861,7 +861,7 @@ static void stress_mmaprandom_mincore(mr_ctxt_t *ctxt, const int idx)
 	/* max size must be based on smallest system page size */
 	max_size = MAX_PAGES_PER_MAPPING * ctxt->page_size;
 	size = mr_node->mmap_size > max_size ? max_size : mr_node->mmap_size;
-	if (mincore(mr_node->mmap_addr, size, vec) == 0)
+	if (LIKELY(mincore(mr_node->mmap_addr, size, vec) == 0))
 		ctxt->count[idx] += 1.0;
 }
 #endif
@@ -938,7 +938,7 @@ static void stress_mmaprandom_mprotect(mr_ctxt_t *ctxt, const int idx)
 		return;
 
 	prot_flag = prot_flags[stress_mwc8modn(SIZEOF_ARRAY(prot_flags))];
-	if (mprotect(mr_node->mmap_addr, mr_node->mmap_size, prot_flag) == 0) {
+	if (LIKELY(mprotect(mr_node->mmap_addr, mr_node->mmap_size, prot_flag) == 0)) {
 		mr_node->mmap_prot = prot_flag;
 		ctxt->count[idx] += 1.0;
 	}
@@ -961,7 +961,7 @@ static void stress_mmaprandom_unmap_first_page(mr_ctxt_t *ctxt, const int idx)
 	if (mr_node->mmap_size >= (2 * page_size)) {
 		uint8_t *ptr = mr_node->mmap_addr;
 
-		if (munmap(ptr, page_size) < 0)
+		if (UNLIKELY(munmap(ptr, page_size) < 0))
 			return;
 		RB_REMOVE(sm_used_node_tree, &sm_used_node_tree_root, mr_node);
 
@@ -993,7 +993,7 @@ static void stress_mmaprandom_unmap_last_page(mr_ctxt_t *ctxt, const int idx)
 		uint8_t *ptr = mr_node->mmap_addr;
 
 		ptr += (mr_node->mmap_size - page_size);
-		if (munmap(ptr, page_size) < 0)
+		if (UNLIKELY(munmap(ptr, page_size) < 0))
 			return;
 		mr_node->mmap_size -= page_size;
 		ctxt->count[idx] += 1.0;
