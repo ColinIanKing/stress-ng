@@ -36,8 +36,6 @@
 #include <bsd/sys/tree.h>
 #endif
 
-#if defined(HAVE_LIB_BSD) &&	\
-    !defined(__APPLE__)
 /* BSD red-black tree */
 #if defined(RB_HEAD) &&		\
     defined(RB_PROTOTYPE) &&	\
@@ -51,7 +49,6 @@
     defined(RB_REMOVE) &&	\
     !defined(__CYGWIN__)
 #define HAVE_RB_TREE
-#endif
 #endif
 
 #define MMAP_RANDOM_MIN_MAPPINGS	(1)
