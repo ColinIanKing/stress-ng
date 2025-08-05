@@ -419,6 +419,95 @@ static inline void stress_mmaprandom_zap_mr_node(mr_node_t *mr_node)
 	mr_node->used = false;
 }
 
+#if defined(MAP_FIXED_NOREPLACE)
+static const uint32_t masks_32bit[] = {
+	0x000fffffUL,
+	0x001fffffUL,
+	0x003fffffUL,
+	0x007fffffUL,
+	0x00ffffffUL,
+	0x01ffffffUL,
+	0x03ffffffUL,
+	0x07ffffffUL,
+	0x0fffffffUL,
+};
+
+static const uint64_t masks_64bit[] = {
+	0x00000000007fffffULL,
+	0x0000000000ffffffULL,
+	0x0000000001ffffffULL,
+	0x0000000003ffffffULL,
+	0x0000000007ffffffULL,
+	0x000000000fffffffULL,
+	0x000000001fffffffULL,
+	0x000000003fffffffULL,
+	0x000000007fffffffULL,
+	0x00000000ffffffffULL,
+	0x00000001ffffffffULL,
+	0x00000003ffffffffULL,
+	0x00000007ffffffffULL,
+	0x0000000fffffffffULL,
+	0x0000001fffffffffULL,
+	0x0000003fffffffffULL,
+	0x0000007fffffffffULL,
+	0x000000ffffffffffULL,
+	0x000001ffffffffffULL,
+	0x000002ffffffffffULL,
+	0x000003ffffffffffULL,
+};
+#endif
+
+/*
+ *  stress_mmaprandom_fixed_addr()
+ *	generate a random mmap hint address
+ */
+static inline void * stress_mmaprandom_fixed_addr(const size_t page_size)
+{
+	void *addr;
+
+	if (sizeof(void *) > 4) {
+		uint64_t mask_addr = masks_64bit[stress_mwc8modn(SIZEOF_ARRAY(masks_64bit))];
+		uint64_t fixed_addr = stress_mwc64() & mask_addr & ~(uint64_t)(page_size - 1);
+
+		addr = (void *)(uintptr_t)fixed_addr;
+	} else {
+		uint32_t mask_addr = masks_32bit[stress_mwc8modn(SIZEOF_ARRAY(masks_32bit))];
+		uint32_t fixed_addr = stress_mwc32() & mask_addr & ~(uint32_t)(page_size - 1);
+
+		addr = (void *)(uintptr_t)fixed_addr;
+	}
+	return addr;
+}
+
+/*
+ *  stress_mmaprandom_mmap()
+ *	perform mmap, if MAP_FIXED_NOREPLACE is available then 50%
+ *	of the time try to perform a randomly chosen mmap on a fixed
+ *	address to try and spread the address space about
+ */
+static void * stress_mmaprandom_mmap(
+	void *hint,
+	size_t length,
+	int prot,
+	int flags,
+	int fd,
+	off_t offset,
+	size_t page_size)
+{
+#if defined(MAP_FIXED_NOREPLACE)
+	if (stress_mwc1()) {
+		void *fixed_addr = stress_mmaprandom_fixed_addr(page_size);
+		void *addr;
+
+		addr = mmap(fixed_addr, length, prot,
+				MAP_FIXED_NOREPLACE | flags, fd, offset);
+		if (addr != MAP_FAILED)
+			return addr;
+	}
+#endif
+	return mmap(hint, length, prot, flags, fd, offset);
+}
+
 /*
  *  stress_mmaprandom_mmap_anon()
  *  	perform anonymous mmap
@@ -463,7 +552,8 @@ static void stress_mmaprandom_mmap_anon(mr_ctxt_t *ctxt, const int idx)
 	for (;;) {
 		int old_flags;
 
-		addr = (uint8_t *)mmap(NULL, size, prot_flag, mmap_flag | extra_flags, -1, 0);
+		addr = (uint8_t *)stress_mmaprandom_mmap(NULL, size, prot_flag,
+				mmap_flag | extra_flags, -1, 0, page_size);
 		if (addr != MAP_FAILED) {
 			ctxt->count[idx] += 1.0;
 			break;
@@ -552,7 +642,8 @@ static void stress_mmaprandom_mmap_file(mr_ctxt_t *ctxt, const int idx)
 	for (;;) {
 		int old_flags;
 
-		addr = (uint8_t *)mmap(NULL, size, prot_flag, mmap_flag | extra_flags, fd, offset);
+		addr = (uint8_t *)stress_mmaprandom_mmap(NULL, size, prot_flag,
+				mmap_flag | extra_flags, fd, offset, page_size);
 		if (addr != MAP_FAILED) {
 			ctxt->count[idx] += 1.0;
 			break;
