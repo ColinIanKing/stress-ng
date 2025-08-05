@@ -431,7 +431,6 @@ static void stress_mmaprandom_mmap_anon(mr_ctxt_t *ctxt, const int idx)
 	uint8_t *addr;
 	int prot_flag, mmap_flag, extra_flags = 0;
 	mr_node_t *mr_node;
-	static int count = 0;
 
 	prot_flag = prot_flags[stress_mwc8modn(SIZEOF_ARRAY(prot_flags))];
 	mmap_flag = mmap_anon_flags[stress_mwc8modn(SIZEOF_ARRAY(mmap_anon_flags))];
@@ -445,6 +444,8 @@ static void stress_mmaprandom_mmap_anon(mr_ctxt_t *ctxt, const int idx)
 
 #if defined(MAP_HUGETLB)
 		if (new_flags & MAP_HUGETLB) {
+			static int count = 0;
+
 			/* periodically allow a huge page */
 			if (UNLIKELY(count++ > 32)) {
 				count = 0;
