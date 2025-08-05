@@ -870,7 +870,7 @@ static void stress_mmaprandom_mincore(mr_ctxt_t *ctxt, const int idx)
 	/* max size must be based on smallest system page size */
 	max_size = MAX_PAGES_PER_MAPPING * ctxt->page_size;
 	size = mr_node->mmap_size > max_size ? max_size : mr_node->mmap_size;
-	if (LIKELY(mincore(mr_node->mmap_addr, size, vec) == 0))
+	if (LIKELY(shim_mincore(mr_node->mmap_addr, size, vec) == 0))
 		ctxt->count[idx] += 1.0;
 }
 #endif
