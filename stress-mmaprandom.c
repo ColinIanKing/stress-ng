@@ -110,10 +110,10 @@ typedef struct {
  */
 static int OPTIMIZE3 mra_page_cmp(mr_node_t *mra1, mr_node_t *mra2)
 {
-        if (mra1->mmap_addr > mra2->mmap_addr)
-                return 1;
-        if (mra1->mmap_addr < mra2->mmap_addr)
-                return -1;
+	if (mra1->mmap_addr > mra2->mmap_addr)
+		return 1;
+	else if (mra1->mmap_addr < mra2->mmap_addr)
+		return -1;
 	return 0;
 }
 
@@ -125,7 +125,7 @@ static int OPTIMIZE3 mra_node_cmp(mr_node_t *mra1, mr_node_t *mra2)
 {
 	if (mra1 > mra2)
 		return 1;
-	if (mra1 < mra2)
+	else if (mra1 < mra2)
 		return -1;
 	return 0;
 }
@@ -407,6 +407,22 @@ static const int msync_flags[] = {
 #endif
 
 /*
+ *  stress_mmaprandom_zap_mra()
+ *	reset mra
+ */
+static inline void stress_mmaprandom_zap_mra(mr_node_t *mra)
+{
+	mra->mmap_addr = NULL;
+	mra->mmap_size = 0;
+	mra->mmap_page_size = 0;
+	mra->mmap_prot = 0;
+	mra->mmap_flags = 0;
+	mra->mmap_offset = 0;
+	mra->mmap_fd = -1;
+	mra->used = false;
+}
+
+/*
  *  stress_mmaprandom_mmap_anon()
  *  	perform anonymous mmap
  */
@@ -613,23 +629,17 @@ static void stress_mmaprandom_unmmap(mr_ctxt_t *ctxt, const int idx)
 {
 	mr_node_t *mra = stress_mmaprandom_get_random_used(ctxt);
 
-	if (mra) {
-		if (munmap((void *)mra->mmap_addr, mra->mmap_size) == 0) {
-			ctxt->count[idx] += 1.0;
+	if (!mra)
+		return;
 
-			mra->mmap_addr = NULL;
-			mra->mmap_size = 0;
-			mra->mmap_page_size = 0;
-			mra->mmap_prot = 0;
-			mra->mmap_flags = 0;
-			mra->mmap_offset = 0;
-			mra->mmap_fd = -1;
-			mra->used = false;
-			RB_REMOVE(sm_used_node_tree, &sm_used_node_tree_root, mra);
-			sm_used_nodes--;
-			RB_INSERT(sm_free_node_tree, &sm_free_node_tree_root, mra);
-			sm_free_nodes++;
-		}
+	if (munmap((void *)mra->mmap_addr, mra->mmap_size) == 0) {
+		ctxt->count[idx] += 1.0;
+
+		stress_mmaprandom_zap_mra(mra);
+		RB_REMOVE(sm_used_node_tree, &sm_used_node_tree_root, mra);
+		sm_used_nodes--;
+		RB_INSERT(sm_free_node_tree, &sm_free_node_tree_root, mra);
+		sm_free_nodes++;
 	}
 }
 
@@ -645,23 +655,17 @@ static void stress_mmaprandom_unmmap_lo_hi_addr(mr_ctxt_t *ctxt, const int idx)
 
 	(void)ctxt;
 
-	if (mra) {
-		if (munmap((void *)mra->mmap_addr, mra->mmap_size) == 0) {
-			ctxt->count[idx] += 1.0;
+	if (!mra)
+		return;
 
-			mra->mmap_addr = NULL;
-			mra->mmap_size = 0;
-			mra->mmap_page_size = 0;
-			mra->mmap_prot = 0;
-			mra->mmap_flags = 0;
-			mra->mmap_offset = 0;
-			mra->mmap_fd = -1;
-			mra->used = false;
-			RB_REMOVE(sm_used_node_tree, &sm_used_node_tree_root, mra);
-			sm_used_nodes--;
-			RB_INSERT(sm_free_node_tree, &sm_free_node_tree_root, mra);
-			sm_free_nodes++;
-		}
+	if (munmap((void *)mra->mmap_addr, mra->mmap_size) == 0) {
+		ctxt->count[idx] += 1.0;
+
+		stress_mmaprandom_zap_mra(mra);
+		RB_REMOVE(sm_used_node_tree, &sm_used_node_tree_root, mra);
+		sm_used_nodes--;
+		RB_INSERT(sm_free_node_tree, &sm_free_node_tree_root, mra);
+		sm_free_nodes++;
 	}
 }
 
@@ -673,9 +677,10 @@ static void OPTIMIZE3 TARGET_CLONES stress_mmaprandom_read(mr_ctxt_t *ctxt, cons
 {
 	mr_node_t *mra = stress_mmaprandom_get_random_used(ctxt);
 
-	if (mra &&
-	    (mra->mmap_prot & PROT_READ) &&
-	    !(mra->mmap_flags & MAP_NORESERVE)) {
+	if (!mra)
+		return;
+
+	if ((mra->mmap_prot & PROT_READ) && !(mra->mmap_flags & MAP_NORESERVE)) {
 		uint64_t *volatile ptr = mra->mmap_addr;
 		const uint64_t *end = (uint64_t *)((intptr_t)ptr + mra->mmap_size);
 
@@ -702,9 +707,10 @@ static void OPTIMIZE3 stress_mmaprandom_write(mr_ctxt_t *ctxt, const int idx)
 {
 	mr_node_t *mra = stress_mmaprandom_get_random_used(ctxt);
 
-	if (mra &&
-	    (mra->mmap_prot & PROT_WRITE) &&
-	    !(mra->mmap_flags & MAP_NORESERVE)) {
+	if (!mra)
+		return;
+
+	if ((mra->mmap_prot & PROT_WRITE) && !(mra->mmap_flags & MAP_NORESERVE)) {
 		__builtin_memset(mra->mmap_addr, stress_mwc8(), mra->mmap_size);
 		ctxt->count[idx] += 1.0;
 	}
@@ -718,9 +724,10 @@ static void stress_mmaprandom_cache_flush(mr_ctxt_t *ctxt, const int idx)
 {
 	mr_node_t *mra = stress_mmaprandom_get_random_used(ctxt);
 
-	if (mra &&
-	    (mra->mmap_prot & PROT_WRITE) &&
-	    !(mra->mmap_flags & MAP_NORESERVE)) {
+	if (!mra)
+		return;
+
+	if ((mra->mmap_prot & PROT_WRITE) && !(mra->mmap_flags & MAP_NORESERVE)) {
 		stress_cpu_data_cache_flush(mra->mmap_addr, mra->mmap_size);
 		ctxt->count[idx] += 1.0;
 	}
@@ -734,36 +741,38 @@ static void stress_mmaprandom_cache_flush(mr_ctxt_t *ctxt, const int idx)
 static void stress_mmaprandom_mremap(mr_ctxt_t *ctxt, const int idx)
 {
 	mr_node_t *mra = stress_mmaprandom_get_random_used(ctxt);
+	size_t pages, new_size;
+	void *new_addr;
 
-	if (mra) {
-		size_t pages = stress_mwc8modn(MAX_PAGES_PER_MAPPING) + 1;
-		size_t new_size = mra->mmap_page_size * pages;
-		void *new_addr;
+	if (!mra)
+		return;
 
-		if (new_size > mra->mmap_size) {
-			/*
-			 * Cannot expand anonymous mappings as there no
-			 * backing to expand into
-			 */
-			if (mra->mmap_flags & MAP_ANONYMOUS)
+	pages = stress_mwc8modn(MAX_PAGES_PER_MAPPING) + 1;
+	new_size = mra->mmap_page_size * pages;
+
+	if (new_size > mra->mmap_size) {
+		/*
+		 * Cannot expand anonymous mappings as there no
+		 * backing to expand into
+		 */
+		if (mra->mmap_flags & MAP_ANONYMOUS)
+			return;
+
+		/*
+		 * File mapped? Then ensure we have backing
+		 * written to the file
+		 */
+		if (mra->mmap_fd != -1)
+			if (stress_mmaprandom_mmap_file_write(ctxt, mra->mmap_fd, mra->mmap_offset, pages) < 0)
 				return;
+	}
 
-			/*
-			 * File mapped? Then ensure we have backing
-			 * written to the file
-			 */
-			if (mra->mmap_fd != -1)
-				if (stress_mmaprandom_mmap_file_write(ctxt, mra->mmap_fd, mra->mmap_offset, pages) < 0)
-					return;
-		}
+	new_addr = mremap(mra->mmap_addr, mra->mmap_size, new_size, MREMAP_MAYMOVE);
+	if (new_addr != MAP_FAILED) {
+		ctxt->count[idx] += 1.0;
 
-		new_addr = mremap(mra->mmap_addr, mra->mmap_size, new_size, MREMAP_MAYMOVE);
-		if (new_addr != MAP_FAILED) {
-			ctxt->count[idx] += 1.0;
-
-			mra->mmap_addr = new_addr;
-			mra->mmap_size = new_size;
-		}
+		mra->mmap_addr = new_addr;
+		mra->mmap_size = new_size;
 	}
 }
 #endif
@@ -776,13 +785,14 @@ static void stress_mmaprandom_mremap(mr_ctxt_t *ctxt, const int idx)
 static void stress_mmaprandom_madvise(mr_ctxt_t *ctxt, const int idx)
 {
 	mr_node_t *mra = stress_mmaprandom_get_random_used(ctxt);
+	int advice;
 
-	if (mra) {
-		const int advice = madvise_options[stress_mwc8modn(SIZEOF_ARRAY(madvise_options))];
+	if (!mra)
+		return;
 
-		if (madvise(mra->mmap_addr, mra->mmap_size, advice) == 0)
-			ctxt->count[idx] += 1.0;
-	}
+	advice = madvise_options[stress_mwc8modn(SIZEOF_ARRAY(madvise_options))];
+	if (madvise(mra->mmap_addr, mra->mmap_size, advice) == 0)
+		ctxt->count[idx] += 1.0;
 }
 #endif
 
@@ -794,13 +804,14 @@ static void stress_mmaprandom_madvise(mr_ctxt_t *ctxt, const int idx)
 static void stress_mmaprandom_posix_madvise(mr_ctxt_t *ctxt, const int idx)
 {
 	mr_node_t *mra = stress_mmaprandom_get_random_used(ctxt);
+	int advice;
 
-	if (mra) {
-		const int advice = posix_madvise_options[stress_mwc8modn(SIZEOF_ARRAY(posix_madvise_options))];
+	if (!mra)
+		return;
 
-		if (posix_madvise(mra->mmap_addr, mra->mmap_size, advice) == 0)
-			ctxt->count[idx] += 1.0;
-	}
+	advice = posix_madvise_options[stress_mwc8modn(SIZEOF_ARRAY(posix_madvise_options))];
+	if (posix_madvise(mra->mmap_addr, mra->mmap_size, advice) == 0)
+		ctxt->count[idx] += 1.0;
 }
 #endif
 
@@ -813,15 +824,16 @@ static void stress_mmaprandom_mincore(mr_ctxt_t *ctxt, const int idx)
 {
 	mr_node_t *mra = stress_mmaprandom_get_random_used(ctxt);
 	unsigned char vec[MAX_PAGES_PER_MAPPING];
+	size_t max_size, size;
 
-	if (mra) {
-		/* max size must be based on smallest system page size */
-		const size_t max_size = MAX_PAGES_PER_MAPPING * ctxt->page_size;
-		size_t size = mra->mmap_size > max_size ? max_size : mra->mmap_size;
+	if (!mra)
+		return;
 
-		if (mincore(mra->mmap_addr, size, vec) == 0)
-			ctxt->count[idx] += 1.0;
-	}
+	/* max size must be based on smallest system page size */
+	max_size = MAX_PAGES_PER_MAPPING * ctxt->page_size;
+	size = mra->mmap_size > max_size ? max_size : mra->mmap_size;
+	if (mincore(mra->mmap_addr, size, vec) == 0)
+		ctxt->count[idx] += 1.0;
 }
 #endif
 
@@ -833,14 +845,16 @@ static void stress_mmaprandom_mincore(mr_ctxt_t *ctxt, const int idx)
 static void stress_mmaprandom_msync(mr_ctxt_t *ctxt, const int idx)
 {
 	mr_node_t *mra = stress_mmaprandom_get_random_used(ctxt);
+	size_t size;
+	int flags;
 
-	if (mra) {
-		size_t size = stress_mmaprandom_get_random_size(mra->mmap_size, mra->mmap_page_size);
-		int flags = msync_flags[stress_mwc8modn(SIZEOF_ARRAY(msync_flags))];
+	if (!mra)
+		return;
 
-		if (msync(mra->mmap_addr, size, flags) == 0)
-			ctxt->count[idx] += 1.0;
-	}
+	size = stress_mmaprandom_get_random_size(mra->mmap_size, mra->mmap_page_size);
+	flags = msync_flags[stress_mwc8modn(SIZEOF_ARRAY(msync_flags))];
+	if (msync(mra->mmap_addr, size, flags) == 0)
+		ctxt->count[idx] += 1.0;
 }
 #endif
 
@@ -853,10 +867,11 @@ static void stress_mmaprandom_mlock(mr_ctxt_t *ctxt, const int idx)
 {
 	mr_node_t *mra = stress_mmaprandom_get_random_used(ctxt);
 
-	if (mra) {
-		if (mlock(mra->mmap_addr, mra->mmap_size) == 0)
-			ctxt->count[idx] += 1.0;
-	}
+	if (!mra)
+		return;
+
+	if (mlock(mra->mmap_addr, mra->mmap_size) == 0)
+		ctxt->count[idx] += 1.0;
 }
 #endif
 
@@ -869,10 +884,11 @@ static void stress_mmaprandom_munlock(mr_ctxt_t *ctxt, const int idx)
 {
 	mr_node_t *mra = stress_mmaprandom_get_random_used(ctxt);
 
-	if (mra) {
-		if (munlock(mra->mmap_addr, mra->mmap_size) == 0)
-			ctxt->count[idx] += 1.0;
-	}
+	if (!mra)
+		return;
+
+	if (munlock(mra->mmap_addr, mra->mmap_size) == 0)
+		ctxt->count[idx] += 1.0;
 }
 #endif
 
@@ -884,14 +900,15 @@ static void stress_mmaprandom_munlock(mr_ctxt_t *ctxt, const int idx)
 static void stress_mmaprandom_mprotect(mr_ctxt_t *ctxt, const int idx)
 {
 	mr_node_t *mra = stress_mmaprandom_get_random_used(ctxt);
+	int prot_flag;
 
-	if (mra) {
-		const int prot_flag = prot_flags[stress_mwc8modn(SIZEOF_ARRAY(prot_flags))];
+	if (!mra)
+		return;
 
-		if (mprotect(mra->mmap_addr, mra->mmap_size, prot_flag) == 0) {
-			mra->mmap_prot = prot_flag;
-			ctxt->count[idx] += 1.0;
-		}
+	prot_flag = prot_flags[stress_mwc8modn(SIZEOF_ARRAY(prot_flags))];
+	if (mprotect(mra->mmap_addr, mra->mmap_size, prot_flag) == 0) {
+		mra->mmap_prot = prot_flag;
+		ctxt->count[idx] += 1.0;
 	}
 }
 #endif
@@ -1000,62 +1017,37 @@ static void OPTIMIZE3 stress_mmaprandom_join(mr_ctxt_t *ctxt, const int idx)
 
 	for (i = 0; i < ((ctxt->n_mras >> 8) + 1); i++) {
 		mr_node_t *mra = stress_mmaprandom_get_random_used(ctxt);
+		mr_node_t find_mra, *found_mra;
+		uint8_t *ptr;
+		size_t page_size, max_size;
 
-		if (mra) {
-			uint8_t *ptr = mra->mmap_addr;
-			const size_t page_size = mra->mmap_page_size;
-			const size_t max_size = page_size * MAX_PAGES_PER_MAPPING;
-			mr_node_t find_mra, *found_mra;
+		if (!mra)
+			continue;
 
-			/* mappings right next to each other */
-			find_mra.mmap_addr = (void *)(ptr + mra->mmap_size);
+		ptr = mra->mmap_addr;
+		page_size = mra->mmap_page_size;
+		max_size = page_size * MAX_PAGES_PER_MAPPING;
 
-			found_mra = RB_FIND(sm_used_node_tree, &sm_used_node_tree_root, &find_mra);
-			if (found_mra &&
-			    (found_mra->mmap_fd == mra->mmap_fd) &&
-			    (found_mra->mmap_prot == mra->mmap_prot) &&
-			    (found_mra->mmap_flags == mra->mmap_flags) &&
-			    (found_mra->mmap_page_size == mra->mmap_page_size) &&
-			    (found_mra->mmap_size + mra->mmap_size <= max_size)) {
-				mra->mmap_size += found_mra->mmap_size;
+		/* mappings right next to each other */
+		find_mra.mmap_addr = (void *)(ptr + mra->mmap_size);
 
-				RB_REMOVE(sm_used_node_tree, &sm_used_node_tree_root, found_mra);
-				sm_used_nodes--;
-				found_mra->used = false;
-				RB_INSERT(sm_free_node_tree, &sm_free_node_tree_root, found_mra);
-				sm_free_nodes++;
+		found_mra = RB_FIND(sm_used_node_tree, &sm_used_node_tree_root, &find_mra);
+		if (found_mra &&
+		    (found_mra->mmap_fd == mra->mmap_fd) &&
+		    (found_mra->mmap_prot == mra->mmap_prot) &&
+		    (found_mra->mmap_flags == mra->mmap_flags) &&
+		    (found_mra->mmap_page_size == mra->mmap_page_size) &&
+		    (found_mra->mmap_size + mra->mmap_size <= max_size)) {
+			mra->mmap_size += found_mra->mmap_size;
 
-				ctxt->count[idx] += 1.0;
-				return;
-			}
-#if defined(MAP_FIXED)
-			/* anonymous mappings with a page hole between each other */
-			find_mra.mmap_addr = (void *)(ptr + mra->mmap_size + page_size);
+			RB_REMOVE(sm_used_node_tree, &sm_used_node_tree_root, found_mra);
+			sm_used_nodes--;
+			found_mra->used = false;
+			RB_INSERT(sm_free_node_tree, &sm_free_node_tree_root, found_mra);
+			sm_free_nodes++;
 
-			found_mra = RB_FIND(sm_used_node_tree, &sm_used_node_tree_root, &find_mra);
-			if (found_mra &&
-			    (found_mra->mmap_fd == -1) && (mra->mmap_fd == -1) &&
-			    (found_mra->mmap_prot == mra->mmap_prot) &&
-			    (found_mra->mmap_flags == mra->mmap_flags) &&
-			    (found_mra->mmap_page_size == mra->mmap_page_size) &&
-			    (found_mra->mmap_size + mra->mmap_size <= max_size)) {
-				void *addr = ptr + mra->mmap_size;
-
-				addr = mmap(addr, page_size, mra->mmap_prot, MAP_FIXED | mra->mmap_flags, -1, 0);
-				if (addr != MAP_FAILED) {
-					mra->mmap_size += found_mra->mmap_size + page_size;
-
-					RB_REMOVE(sm_used_node_tree, &sm_used_node_tree_root, found_mra);
-					sm_used_nodes--;
-					found_mra->used = false;
-					RB_INSERT(sm_free_node_tree, &sm_free_node_tree_root, found_mra);
-					sm_free_nodes++;
-
-					ctxt->count[idx] += 1.0;
-					return;
-				}
-			}
-#endif
+			ctxt->count[idx] += 1.0;
+			return;
 		}
 	}
 }
@@ -1123,6 +1115,7 @@ static int stress_mmaprandom_child(stress_args_t *args, void *context)
 	for (mra = RB_MIN(sm_used_node_tree, &sm_used_node_tree_root); mra; mra = next) {
                 next = RB_NEXT(sm_used_node_tree, &sm_used_node_tree_root, mra);
 		(void)munmap(mra->mmap_addr, mra->mmap_size);
+		stress_mmaprandom_zap_mra(mra);
                 RB_REMOVE(sm_used_node_tree, &sm_used_node_tree_root, mra);
         }
 
@@ -1267,7 +1260,7 @@ unmap_ctxt:
 const stressor_info_t stress_mmaprandom_info = {
 	.stressor = stress_mmaprandom,
 	.classifier = CLASS_VM | CLASS_OS,
-	.verify = VERIFY_ALWAYS,
+	.verify = VERIFY_NONE,
 	.opts = opts,
 	.help = help
 };
@@ -1276,7 +1269,7 @@ const stressor_info_t stress_mmaprandom_info = {
 const stressor_info_t stress_mmaprandom_info = {
 	.stressor = stress_unimplemented,
 	.classifier = CLASS_VM | CLASS_OS,
-	.verify = VERIFY_ALWAYS,
+	.verify = VERIFY_NONE,
 	.opts = opts,
         .help = help,
 	.unimplemented_reason = "not inmplemented, requires BSD red_black tree support"
