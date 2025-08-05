@@ -706,7 +706,11 @@ static void OPTIMIZE3 TARGET_CLONES stress_mmaprandom_read(mr_ctxt_t *ctxt, cons
 	if (!mr_node)
 		return;
 
+#if defined(MAP_NORESERVE)
 	if ((mr_node->mmap_prot & PROT_READ) && !(mr_node->mmap_flags & MAP_NORESERVE)) {
+#else
+	if (mr_node->mmap_prot & PROT_READ) {
+#endif
 		uint64_t *volatile ptr = mr_node->mmap_addr;
 		const uint64_t *end = (uint64_t *)((intptr_t)ptr + mr_node->mmap_size);
 
@@ -736,7 +740,11 @@ static void OPTIMIZE3 stress_mmaprandom_write(mr_ctxt_t *ctxt, const int idx)
 	if (!mr_node)
 		return;
 
+#if defined(MAP_NORESERVE)
 	if ((mr_node->mmap_prot & PROT_WRITE) && !(mr_node->mmap_flags & MAP_NORESERVE)) {
+#else
+	if (mr_node->mmap_prot & PROT_WRITE) {
+#endif
 		__builtin_memset(mr_node->mmap_addr, stress_mwc8(), mr_node->mmap_size);
 		ctxt->count[idx] += 1.0;
 	}
@@ -753,7 +761,11 @@ static void stress_mmaprandom_cache_flush(mr_ctxt_t *ctxt, const int idx)
 	if (!mr_node)
 		return;
 
+#if defined(MAP_NORESERVE)
 	if ((mr_node->mmap_prot & PROT_WRITE) && !(mr_node->mmap_flags & MAP_NORESERVE)) {
+#else
+	if (mr_node->mmap_prot & PROT_WRITE) {
+#endif
 		stress_cpu_data_cache_flush(mr_node->mmap_addr, mr_node->mmap_size);
 		ctxt->count[idx] += 1.0;
 	}
