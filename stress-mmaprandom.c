@@ -20,8 +20,8 @@
 #include "core-attribute.h"
 #include "core-builtin.h"
 #include "core-cpu-cache.h"
+#include "core-memory.h"
 #include "core-out-of-memory.h"
-#include "core-put.h"
 #include "core-target-clones.h"
 
 #if defined(HAVE_SYS_TREE_H)
@@ -632,9 +632,38 @@ static void stress_mmaprandom_unmmap(mr_ctxt_t *ctxt, const int idx)
 	if (!mr_node)
 		return;
 
-	if (munmap((void *)mr_node->mmap_addr, mr_node->mmap_size) == 0) {
-		ctxt->count[idx] += 1.0;
+	if (stress_mwc1()) {
+		/* unmap entire mapping in one go */
 
+		if (munmap((void *)mr_node->mmap_addr, mr_node->mmap_size) == 0) {
+			ctxt->count[idx] += 1.0;
+			stress_mmaprandom_zap_mr_node(mr_node);
+			RB_REMOVE(sm_used_node_tree, &sm_used_node_tree_root, mr_node);
+			sm_used_nodes--;
+			RB_INSERT(sm_free_node_tree, &sm_free_node_tree_root, mr_node);
+			sm_free_nodes++;
+		}
+	} else {
+		/* unmap mapping in pages from start to end */
+
+		uint8_t *ptr = (uint8_t *)mr_node->mmap_addr;
+		uint8_t *ptr_end = ptr + mr_node->mmap_size;
+		ssize_t page_size = mr_node->mmap_page_size;
+		bool failed = false;
+
+		while (ptr < ptr_end) {
+			if (stress_munmap_retry_enomem((void *)ptr, page_size) < 0)
+				failed = true;
+			ptr += page_size;
+		}
+		/*
+		 * force entire mapping to be unmapped if page by
+		 * page unmaps failed
+		 */
+		if (failed)
+			(void)munmap(mr_node->mmap_addr, mr_node->mmap_size);
+
+		ctxt->count[idx] += 1.0;
 		stress_mmaprandom_zap_mr_node(mr_node);
 		RB_REMOVE(sm_used_node_tree, &sm_used_node_tree_root, mr_node);
 		sm_used_nodes--;
