@@ -1001,48 +1001,23 @@ static void OPTIMIZE3 stress_mmaprandom_join(mr_ctxt_t *ctxt, const int idx)
 	for (i = 0; i < ((ctxt->n_mras >> 8) + 1); i++) {
 		mr_node_t *mra = stress_mmaprandom_get_random_used(ctxt);
 
-		uint8_t *ptr = mra->mmap_addr;
-		const size_t page_size = mra->mmap_page_size;
-		const size_t max_size = page_size * MAX_PAGES_PER_MAPPING;
-		mr_node_t find_mra, *found_mra;
+		if (mra) {
+			uint8_t *ptr = mra->mmap_addr;
+			const size_t page_size = mra->mmap_page_size;
+			const size_t max_size = page_size * MAX_PAGES_PER_MAPPING;
+			mr_node_t find_mra, *found_mra;
 
-		/* mappings right next to each other */
-		find_mra.mmap_addr = (void *)(ptr + mra->mmap_size);
+			/* mappings right next to each other */
+			find_mra.mmap_addr = (void *)(ptr + mra->mmap_size);
 
-		found_mra = RB_FIND(sm_used_node_tree, &sm_used_node_tree_root, &find_mra);
-		if (found_mra &&
-		    (found_mra->mmap_fd == mra->mmap_fd) &&
-		    (found_mra->mmap_prot == mra->mmap_prot) &&
-		    (found_mra->mmap_flags == mra->mmap_flags) &&
-		    (found_mra->mmap_page_size == mra->mmap_page_size) &&
-		    (found_mra->mmap_size + mra->mmap_size <= max_size)) {
-			mra->mmap_size += found_mra->mmap_size;
-
-			RB_REMOVE(sm_used_node_tree, &sm_used_node_tree_root, found_mra);
-			sm_used_nodes--;
-			found_mra->used = false;
-			RB_INSERT(sm_free_node_tree, &sm_free_node_tree_root, found_mra);
-			sm_free_nodes++;
-
-			ctxt->count[idx] += 1.0;
-			return;
-		}
-#if defined(MAP_FIXED)
-		/* anonymous mappings with a page hole between each other */
-		find_mra.mmap_addr = (void *)(ptr + mra->mmap_size + page_size);
-
-		found_mra = RB_FIND(sm_used_node_tree, &sm_used_node_tree_root, &find_mra);
-		if (found_mra &&
-		    (found_mra->mmap_fd == -1) && (mra->mmap_fd == -1) &&
-		    (found_mra->mmap_prot == mra->mmap_prot) &&
-		    (found_mra->mmap_flags == mra->mmap_flags) &&
-		    (found_mra->mmap_page_size == mra->mmap_page_size) &&
-		    (found_mra->mmap_size + mra->mmap_size <= max_size)) {
-			void *addr = ptr + mra->mmap_size;
-
-			addr = mmap(addr, page_size, mra->mmap_prot, MAP_FIXED | mra->mmap_flags, -1, 0);
-			if (addr != MAP_FAILED) {
-				mra->mmap_size += found_mra->mmap_size + page_size;
+			found_mra = RB_FIND(sm_used_node_tree, &sm_used_node_tree_root, &find_mra);
+			if (found_mra &&
+			    (found_mra->mmap_fd == mra->mmap_fd) &&
+			    (found_mra->mmap_prot == mra->mmap_prot) &&
+			    (found_mra->mmap_flags == mra->mmap_flags) &&
+			    (found_mra->mmap_page_size == mra->mmap_page_size) &&
+			    (found_mra->mmap_size + mra->mmap_size <= max_size)) {
+				mra->mmap_size += found_mra->mmap_size;
 
 				RB_REMOVE(sm_used_node_tree, &sm_used_node_tree_root, found_mra);
 				sm_used_nodes--;
@@ -1053,8 +1028,35 @@ static void OPTIMIZE3 stress_mmaprandom_join(mr_ctxt_t *ctxt, const int idx)
 				ctxt->count[idx] += 1.0;
 				return;
 			}
-		}
+#if defined(MAP_FIXED)
+			/* anonymous mappings with a page hole between each other */
+			find_mra.mmap_addr = (void *)(ptr + mra->mmap_size + page_size);
+
+			found_mra = RB_FIND(sm_used_node_tree, &sm_used_node_tree_root, &find_mra);
+			if (found_mra &&
+			    (found_mra->mmap_fd == -1) && (mra->mmap_fd == -1) &&
+			    (found_mra->mmap_prot == mra->mmap_prot) &&
+			    (found_mra->mmap_flags == mra->mmap_flags) &&
+			    (found_mra->mmap_page_size == mra->mmap_page_size) &&
+			    (found_mra->mmap_size + mra->mmap_size <= max_size)) {
+				void *addr = ptr + mra->mmap_size;
+
+				addr = mmap(addr, page_size, mra->mmap_prot, MAP_FIXED | mra->mmap_flags, -1, 0);
+				if (addr != MAP_FAILED) {
+					mra->mmap_size += found_mra->mmap_size + page_size;
+
+					RB_REMOVE(sm_used_node_tree, &sm_used_node_tree_root, found_mra);
+					sm_used_nodes--;
+					found_mra->used = false;
+					RB_INSERT(sm_free_node_tree, &sm_free_node_tree_root, found_mra);
+					sm_free_nodes++;
+
+					ctxt->count[idx] += 1.0;
+					return;
+				}
+			}
 #endif
+		}
 	}
 }
 
