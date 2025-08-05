@@ -851,6 +851,9 @@ static void stress_mmaprandom_msync(mr_ctxt_t *ctxt, const int idx)
 	if (!mr_node)
 		return;
 
+	if (mr_node->mmap_prot == PROT_NONE)
+		return;
+
 	size = stress_mmaprandom_get_random_size(mr_node->mmap_size, mr_node->mmap_page_size);
 	flags = msync_flags[stress_mwc8modn(SIZEOF_ARRAY(msync_flags))];
 	if (msync(mr_node->mmap_addr, size, flags) == 0)
