@@ -1204,7 +1204,7 @@ static int stress_mmaprandom_child(stress_args_t *args, void *context)
 {
 	mr_ctxt_t *ctxt = (mr_ctxt_t *)context;
 	int rc = EXIT_SUCCESS;
-	mr_node_t *mr_node, *next;
+	mr_node_t *mr_node;
 
 	VOID_RET(int, stress_sighandler(args->name, SIGSEGV, stress_mmaprandom_sig_handler, NULL));
 	VOID_RET(int, stress_sighandler(args->name, SIGBUS, stress_mmaprandom_sig_handler, NULL));
@@ -1216,11 +1216,8 @@ static int stress_mmaprandom_child(stress_args_t *args, void *context)
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
 
-	for (mr_node = RB_MIN(sm_used_node_tree, &sm_used_node_tree_root); mr_node; mr_node = next) {
-		next = RB_NEXT(sm_used_node_tree, &sm_used_node_tree_root, mr_node);
+	RB_FOREACH(mr_node, sm_used_node_tree, &sm_used_node_tree_root) {
 		(void)munmap(mr_node->mmap_addr, mr_node->mmap_size);
-		stress_mmaprandom_zap_mr_node(mr_node);
-		RB_REMOVE(sm_used_node_tree, &sm_used_node_tree_root, mr_node);
 	}
 	return rc;
 }
