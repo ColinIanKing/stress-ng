@@ -1135,7 +1135,11 @@ static int stress_mmaprandom(stress_args_t *args)
 		return stress_exit_status((int)-ret);
 	(void)stress_temp_filename_args(args,
 		filename, sizeof(filename), stress_mwc32());
+#if defined(O_NOATIME)
+	ctxt->file_fd = open(filename, O_CREAT | O_RDWR | O_NOATIME, S_IRUSR | S_IWUSR);
+#else
 	ctxt->file_fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
+#endif
 	if (ctxt->file_fd < 0) {
 		pr_inf_skip("%s: skipping stressor, cannot create file '%s', errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
