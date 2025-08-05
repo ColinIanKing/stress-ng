@@ -88,8 +88,8 @@ typedef struct mr_node {
 
 typedef struct {
 	stress_args_t *args;	/* stress-ng arguments */
-	mr_node_t *mras;	/* array of all mr_nodes */
-	size_t n_mras;		/* size of mras array */
+	mr_node_t *mr_nodes;	/* array of all mr_nodes */
+	size_t n_mr_nodes;	/* size of mr_nodes array */
 	size_t page_size;	/* page size in bytes */
 	int file_fd;		/* file mmap file descriptor */
 	int mem_fd;		/* memfd mmap file descriptor */
@@ -105,41 +105,41 @@ typedef struct {
 } mr_funcs_t;
 
 /*
- *  mra_page_cmp()
+ *  mr_node_page_cmp()
  *	tree compare to sort by mapping address, for allocated mappings
  */
-static int OPTIMIZE3 mra_page_cmp(mr_node_t *mra1, mr_node_t *mra2)
+static int OPTIMIZE3 mr_node_page_cmp(mr_node_t *mr_node1, mr_node_t *mr_node2)
 {
-	if (mra1->mmap_addr > mra2->mmap_addr)
+	if (mr_node1->mmap_addr > mr_node2->mmap_addr)
 		return 1;
-	else if (mra1->mmap_addr < mra2->mmap_addr)
+	else if (mr_node1->mmap_addr < mr_node2->mmap_addr)
 		return -1;
 	return 0;
 }
 
 /*
- * mra_node_cmp
- *	tree compare to sort by node addresses, for free'd mras
+ * mr_node_node_cmp
+ *	tree compare to sort by node addresses, for free'd mr_nodes
  */
-static int OPTIMIZE3 mra_node_cmp(mr_node_t *mra1, mr_node_t *mra2)
+static int OPTIMIZE3 mr_node_node_cmp(mr_node_t *mr_node1, mr_node_t *mr_node2)
 {
-	if (mra1 > mra2)
+	if (mr_node1 > mr_node2)
 		return 1;
-	else if (mra1 < mra2)
+	else if (mr_node1 < mr_node2)
 		return -1;
 	return 0;
 }
 
 /* Used nodes are ordered by mmap addr */
 static RB_HEAD(sm_used_node_tree, mr_node) sm_used_node_tree_root;
-RB_PROTOTYPE(sm_used_node_tree, mr_node, rb, mra_page_cmp);
-RB_GENERATE(sm_used_node_tree, mr_node, rb, mra_page_cmp);
+RB_PROTOTYPE(sm_used_node_tree, mr_node, rb, mr_node_page_cmp);
+RB_GENERATE(sm_used_node_tree, mr_node, rb, mr_node_page_cmp);
 static size_t sm_used_nodes;
 
 /* Free nodes are ordered by the node's own addr */
 static RB_HEAD(sm_free_node_tree, mr_node) sm_free_node_tree_root;
-RB_PROTOTYPE(sm_free_node_tree, mr_node, rb, mra_node_cmp);
-RB_GENERATE(sm_free_node_tree, mr_node, rb, mra_node_cmp);
+RB_PROTOTYPE(sm_free_node_tree, mr_node, rb, mr_node_node_cmp);
+RB_GENERATE(sm_free_node_tree, mr_node, rb, mr_node_node_cmp);
 static size_t sm_free_nodes;
 
 /*
@@ -407,19 +407,19 @@ static const int msync_flags[] = {
 #endif
 
 /*
- *  stress_mmaprandom_zap_mra()
- *	reset mra
+ *  stress_mmaprandom_zap_mr_node()
+ *	reset mr_node
  */
-static inline void stress_mmaprandom_zap_mra(mr_node_t *mra)
+static inline void stress_mmaprandom_zap_mr_node(mr_node_t *mr_node)
 {
-	mra->mmap_addr = NULL;
-	mra->mmap_size = 0;
-	mra->mmap_page_size = 0;
-	mra->mmap_prot = 0;
-	mra->mmap_flags = 0;
-	mra->mmap_offset = 0;
-	mra->mmap_fd = -1;
-	mra->used = false;
+	mr_node->mmap_addr = NULL;
+	mr_node->mmap_size = 0;
+	mr_node->mmap_page_size = 0;
+	mr_node->mmap_prot = 0;
+	mr_node->mmap_flags = 0;
+	mr_node->mmap_offset = 0;
+	mr_node->mmap_fd = -1;
+	mr_node->used = false;
 }
 
 /*
@@ -433,14 +433,14 @@ static void stress_mmaprandom_mmap_anon(mr_ctxt_t *ctxt, const int idx)
 	size_t size = page_size * pages, i, j;
 	uint8_t *addr;
 	int prot_flag, mmap_flag, extra_flags = 0;
-	mr_node_t *mra;
+	mr_node_t *mr_node;
 	static int count = 0;
 
 	prot_flag = prot_flags[stress_mwc8modn(SIZEOF_ARRAY(prot_flags))];
 	mmap_flag = mmap_anon_flags[stress_mwc8modn(SIZEOF_ARRAY(mmap_anon_flags))];
 
-	mra = RB_MIN(sm_free_node_tree, &sm_free_node_tree_root);
-	if (!mra)
+	mr_node = RB_MIN(sm_free_node_tree, &sm_free_node_tree_root);
+	if (!mr_node)
 		return;
 
 	for (i = 0; i < SIZEOF_ARRAY(mmap_extra_flags); i++) {
@@ -484,17 +484,17 @@ static void stress_mmaprandom_mmap_anon(mr_ctxt_t *ctxt, const int idx)
 	if (UNLIKELY(addr == MAP_FAILED))
 		return;
 
-	RB_REMOVE(sm_free_node_tree, &sm_free_node_tree_root, mra);
+	RB_REMOVE(sm_free_node_tree, &sm_free_node_tree_root, mr_node);
 	sm_free_nodes--;
-	mra->mmap_addr = addr;
-	mra->mmap_size = size;
-	mra->mmap_page_size = page_size;
-	mra->mmap_prot = prot_flag;
-	mra->mmap_flags = mmap_flag | extra_flags;
-	mra->mmap_offset = 0;
-	mra->mmap_fd = -1;
-	mra->used = true;
-	RB_INSERT(sm_used_node_tree, &sm_used_node_tree_root, mra);
+	mr_node->mmap_addr = addr;
+	mr_node->mmap_size = size;
+	mr_node->mmap_page_size = page_size;
+	mr_node->mmap_prot = prot_flag;
+	mr_node->mmap_flags = mmap_flag | extra_flags;
+	mr_node->mmap_offset = 0;
+	mr_node->mmap_fd = -1;
+	mr_node->used = true;
+	RB_INSERT(sm_used_node_tree, &sm_used_node_tree_root, mr_node);
 	sm_used_nodes++;
 }
 
@@ -528,7 +528,7 @@ static void stress_mmaprandom_mmap_file(mr_ctxt_t *ctxt, const int idx)
 	const size_t size = page_size * pages;
 	uint8_t *addr;
 	int prot_flag, mmap_flag, extra_flags = 0;
-	mr_node_t *mra;
+	mr_node_t *mr_node;
 	int fd;
 
 	mmap_flag = mmap_file_flags[stress_mwc8modn(SIZEOF_ARRAY(mmap_file_flags))];
@@ -538,8 +538,8 @@ static void stress_mmaprandom_mmap_file(mr_ctxt_t *ctxt, const int idx)
 	else
 		fd = stress_mwc1() ? ctxt->file_fd : ctxt->mem_fd;
 
-	mra = RB_MIN(sm_free_node_tree, &sm_free_node_tree_root);
-	if (!mra)
+	mr_node = RB_MIN(sm_free_node_tree, &sm_free_node_tree_root);
+	if (!mr_node)
 		return;
 
 	if (stress_mmaprandom_mmap_file_write(ctxt, fd, offset, pages) < 0)
@@ -573,38 +573,38 @@ static void stress_mmaprandom_mmap_file(mr_ctxt_t *ctxt, const int idx)
 	if (UNLIKELY(addr == MAP_FAILED))
 		return;
 
-	RB_REMOVE(sm_free_node_tree, &sm_free_node_tree_root, mra);
+	RB_REMOVE(sm_free_node_tree, &sm_free_node_tree_root, mr_node);
 	sm_free_nodes--;
-	mra->mmap_addr = addr;
-	mra->mmap_size = size;
-	mra->mmap_page_size = page_size;
-	mra->mmap_prot = prot_flag;
-	mra->mmap_flags = mmap_flag | extra_flags;
-	mra->mmap_fd = fd;
-	mra->mmap_offset = offset;
-	mra->used = true;
-	RB_INSERT(sm_used_node_tree, &sm_used_node_tree_root, mra);
+	mr_node->mmap_addr = addr;
+	mr_node->mmap_size = size;
+	mr_node->mmap_page_size = page_size;
+	mr_node->mmap_prot = prot_flag;
+	mr_node->mmap_flags = mmap_flag | extra_flags;
+	mr_node->mmap_fd = fd;
+	mr_node->mmap_offset = offset;
+	mr_node->used = true;
+	RB_INSERT(sm_used_node_tree, &sm_used_node_tree_root, mr_node);
 	sm_used_nodes++;
 }
 
 /*
  *  stress_mmaprandom_get_random_used()
- *	get an randomly selected used mra, suboptimial linear scan,
+ *	get an randomly selected used mr_node, suboptimial linear scan,
  *	needs improving.
  */
 static mr_node_t *stress_mmaprandom_get_random_used(mr_ctxt_t *ctxt)
 {
 	size_t i, n;
 
-	n = stress_mwc32modn((uint32_t)ctxt->n_mras);
+	n = stress_mwc32modn((uint32_t)ctxt->n_mr_nodes);
 
-	for (i = 0; i < ctxt->n_mras; i++) {
-		mr_node_t *mra = &ctxt->mras[n];
+	for (i = 0; i < ctxt->n_mr_nodes; i++) {
+		mr_node_t *mr_node = &ctxt->mr_nodes[n];
 
-		if (mra->used)
-			return mra;
+		if (mr_node->used)
+			return mr_node;
 		n++;
-		if (n >= ctxt->n_mras)
+		if (n >= ctxt->n_mr_nodes)
 			n = 0;
 	}
 	return NULL;
@@ -612,7 +612,7 @@ static mr_node_t *stress_mmaprandom_get_random_used(mr_ctxt_t *ctxt)
 
 /*
  *  stress_mmaprandom_get_random_size()
- *	get an randomly selected used mra
+ *	get an randomly selected used mr_node
  */
 static size_t stress_mmaprandom_get_random_size(const size_t mmap_size, const size_t page_size)
 {
@@ -627,18 +627,18 @@ static size_t stress_mmaprandom_get_random_size(const size_t mmap_size, const si
  */
 static void stress_mmaprandom_unmmap(mr_ctxt_t *ctxt, const int idx)
 {
-	mr_node_t *mra = stress_mmaprandom_get_random_used(ctxt);
+	mr_node_t *mr_node = stress_mmaprandom_get_random_used(ctxt);
 
-	if (!mra)
+	if (!mr_node)
 		return;
 
-	if (munmap((void *)mra->mmap_addr, mra->mmap_size) == 0) {
+	if (munmap((void *)mr_node->mmap_addr, mr_node->mmap_size) == 0) {
 		ctxt->count[idx] += 1.0;
 
-		stress_mmaprandom_zap_mra(mra);
-		RB_REMOVE(sm_used_node_tree, &sm_used_node_tree_root, mra);
+		stress_mmaprandom_zap_mr_node(mr_node);
+		RB_REMOVE(sm_used_node_tree, &sm_used_node_tree_root, mr_node);
 		sm_used_nodes--;
-		RB_INSERT(sm_free_node_tree, &sm_free_node_tree_root, mra);
+		RB_INSERT(sm_free_node_tree, &sm_free_node_tree_root, mr_node);
 		sm_free_nodes++;
 	}
 }
@@ -649,22 +649,22 @@ static void stress_mmaprandom_unmmap(mr_ctxt_t *ctxt, const int idx)
  */
 static void stress_mmaprandom_unmmap_lo_hi_addr(mr_ctxt_t *ctxt, const int idx)
 {
-	mr_node_t *mra = stress_mwc1() ?
+	mr_node_t *mr_node = stress_mwc1() ?
 		RB_MIN(sm_used_node_tree, &sm_used_node_tree_root) :
 		RB_MAX(sm_used_node_tree, &sm_used_node_tree_root);
 
 	(void)ctxt;
 
-	if (!mra)
+	if (!mr_node)
 		return;
 
-	if (munmap((void *)mra->mmap_addr, mra->mmap_size) == 0) {
+	if (munmap((void *)mr_node->mmap_addr, mr_node->mmap_size) == 0) {
 		ctxt->count[idx] += 1.0;
 
-		stress_mmaprandom_zap_mra(mra);
-		RB_REMOVE(sm_used_node_tree, &sm_used_node_tree_root, mra);
+		stress_mmaprandom_zap_mr_node(mr_node);
+		RB_REMOVE(sm_used_node_tree, &sm_used_node_tree_root, mr_node);
 		sm_used_nodes--;
-		RB_INSERT(sm_free_node_tree, &sm_free_node_tree_root, mra);
+		RB_INSERT(sm_free_node_tree, &sm_free_node_tree_root, mr_node);
 		sm_free_nodes++;
 	}
 }
@@ -675,14 +675,14 @@ static void stress_mmaprandom_unmmap_lo_hi_addr(mr_ctxt_t *ctxt, const int idx)
  */
 static void OPTIMIZE3 TARGET_CLONES stress_mmaprandom_read(mr_ctxt_t *ctxt, const int idx)
 {
-	mr_node_t *mra = stress_mmaprandom_get_random_used(ctxt);
+	mr_node_t *mr_node = stress_mmaprandom_get_random_used(ctxt);
 
-	if (!mra)
+	if (!mr_node)
 		return;
 
-	if ((mra->mmap_prot & PROT_READ) && !(mra->mmap_flags & MAP_NORESERVE)) {
-		uint64_t *volatile ptr = mra->mmap_addr;
-		const uint64_t *end = (uint64_t *)((intptr_t)ptr + mra->mmap_size);
+	if ((mr_node->mmap_prot & PROT_READ) && !(mr_node->mmap_flags & MAP_NORESERVE)) {
+		uint64_t *volatile ptr = mr_node->mmap_addr;
+		const uint64_t *end = (uint64_t *)((intptr_t)ptr + mr_node->mmap_size);
 
 		while (ptr < end) {
 			(void)ptr[0];
@@ -705,13 +705,13 @@ static void OPTIMIZE3 TARGET_CLONES stress_mmaprandom_read(mr_ctxt_t *ctxt, cons
  */
 static void OPTIMIZE3 stress_mmaprandom_write(mr_ctxt_t *ctxt, const int idx)
 {
-	mr_node_t *mra = stress_mmaprandom_get_random_used(ctxt);
+	mr_node_t *mr_node = stress_mmaprandom_get_random_used(ctxt);
 
-	if (!mra)
+	if (!mr_node)
 		return;
 
-	if ((mra->mmap_prot & PROT_WRITE) && !(mra->mmap_flags & MAP_NORESERVE)) {
-		__builtin_memset(mra->mmap_addr, stress_mwc8(), mra->mmap_size);
+	if ((mr_node->mmap_prot & PROT_WRITE) && !(mr_node->mmap_flags & MAP_NORESERVE)) {
+		__builtin_memset(mr_node->mmap_addr, stress_mwc8(), mr_node->mmap_size);
 		ctxt->count[idx] += 1.0;
 	}
 }
@@ -722,13 +722,13 @@ static void OPTIMIZE3 stress_mmaprandom_write(mr_ctxt_t *ctxt, const int idx)
  */
 static void stress_mmaprandom_cache_flush(mr_ctxt_t *ctxt, const int idx)
 {
-	mr_node_t *mra = stress_mmaprandom_get_random_used(ctxt);
+	mr_node_t *mr_node = stress_mmaprandom_get_random_used(ctxt);
 
-	if (!mra)
+	if (!mr_node)
 		return;
 
-	if ((mra->mmap_prot & PROT_WRITE) && !(mra->mmap_flags & MAP_NORESERVE)) {
-		stress_cpu_data_cache_flush(mra->mmap_addr, mra->mmap_size);
+	if ((mr_node->mmap_prot & PROT_WRITE) && !(mr_node->mmap_flags & MAP_NORESERVE)) {
+		stress_cpu_data_cache_flush(mr_node->mmap_addr, mr_node->mmap_size);
 		ctxt->count[idx] += 1.0;
 	}
 }
@@ -740,39 +740,39 @@ static void stress_mmaprandom_cache_flush(mr_ctxt_t *ctxt, const int idx)
  */
 static void stress_mmaprandom_mremap(mr_ctxt_t *ctxt, const int idx)
 {
-	mr_node_t *mra = stress_mmaprandom_get_random_used(ctxt);
+	mr_node_t *mr_node = stress_mmaprandom_get_random_used(ctxt);
 	size_t pages, new_size;
 	void *new_addr;
 
-	if (!mra)
+	if (!mr_node)
 		return;
 
 	pages = stress_mwc8modn(MAX_PAGES_PER_MAPPING) + 1;
-	new_size = mra->mmap_page_size * pages;
+	new_size = mr_node->mmap_page_size * pages;
 
-	if (new_size > mra->mmap_size) {
+	if (new_size > mr_node->mmap_size) {
 		/*
 		 * Cannot expand anonymous mappings as there no
 		 * backing to expand into
 		 */
-		if (mra->mmap_flags & MAP_ANONYMOUS)
+		if (mr_node->mmap_flags & MAP_ANONYMOUS)
 			return;
 
 		/*
 		 * File mapped? Then ensure we have backing
 		 * written to the file
 		 */
-		if (mra->mmap_fd != -1)
-			if (stress_mmaprandom_mmap_file_write(ctxt, mra->mmap_fd, mra->mmap_offset, pages) < 0)
+		if (mr_node->mmap_fd != -1)
+			if (stress_mmaprandom_mmap_file_write(ctxt, mr_node->mmap_fd, mr_node->mmap_offset, pages) < 0)
 				return;
 	}
 
-	new_addr = mremap(mra->mmap_addr, mra->mmap_size, new_size, MREMAP_MAYMOVE);
+	new_addr = mremap(mr_node->mmap_addr, mr_node->mmap_size, new_size, MREMAP_MAYMOVE);
 	if (new_addr != MAP_FAILED) {
 		ctxt->count[idx] += 1.0;
 
-		mra->mmap_addr = new_addr;
-		mra->mmap_size = new_size;
+		mr_node->mmap_addr = new_addr;
+		mr_node->mmap_size = new_size;
 	}
 }
 #endif
@@ -784,14 +784,14 @@ static void stress_mmaprandom_mremap(mr_ctxt_t *ctxt, const int idx)
  */
 static void stress_mmaprandom_madvise(mr_ctxt_t *ctxt, const int idx)
 {
-	mr_node_t *mra = stress_mmaprandom_get_random_used(ctxt);
+	mr_node_t *mr_node = stress_mmaprandom_get_random_used(ctxt);
 	int advice;
 
-	if (!mra)
+	if (!mr_node)
 		return;
 
 	advice = madvise_options[stress_mwc8modn(SIZEOF_ARRAY(madvise_options))];
-	if (madvise(mra->mmap_addr, mra->mmap_size, advice) == 0)
+	if (madvise(mr_node->mmap_addr, mr_node->mmap_size, advice) == 0)
 		ctxt->count[idx] += 1.0;
 }
 #endif
@@ -803,14 +803,14 @@ static void stress_mmaprandom_madvise(mr_ctxt_t *ctxt, const int idx)
  */
 static void stress_mmaprandom_posix_madvise(mr_ctxt_t *ctxt, const int idx)
 {
-	mr_node_t *mra = stress_mmaprandom_get_random_used(ctxt);
+	mr_node_t *mr_node = stress_mmaprandom_get_random_used(ctxt);
 	int advice;
 
-	if (!mra)
+	if (!mr_node)
 		return;
 
 	advice = posix_madvise_options[stress_mwc8modn(SIZEOF_ARRAY(posix_madvise_options))];
-	if (posix_madvise(mra->mmap_addr, mra->mmap_size, advice) == 0)
+	if (posix_madvise(mr_node->mmap_addr, mr_node->mmap_size, advice) == 0)
 		ctxt->count[idx] += 1.0;
 }
 #endif
@@ -822,17 +822,17 @@ static void stress_mmaprandom_posix_madvise(mr_ctxt_t *ctxt, const int idx)
  */
 static void stress_mmaprandom_mincore(mr_ctxt_t *ctxt, const int idx)
 {
-	mr_node_t *mra = stress_mmaprandom_get_random_used(ctxt);
+	mr_node_t *mr_node = stress_mmaprandom_get_random_used(ctxt);
 	unsigned char vec[MAX_PAGES_PER_MAPPING];
 	size_t max_size, size;
 
-	if (!mra)
+	if (!mr_node)
 		return;
 
 	/* max size must be based on smallest system page size */
 	max_size = MAX_PAGES_PER_MAPPING * ctxt->page_size;
-	size = mra->mmap_size > max_size ? max_size : mra->mmap_size;
-	if (mincore(mra->mmap_addr, size, vec) == 0)
+	size = mr_node->mmap_size > max_size ? max_size : mr_node->mmap_size;
+	if (mincore(mr_node->mmap_addr, size, vec) == 0)
 		ctxt->count[idx] += 1.0;
 }
 #endif
@@ -844,16 +844,16 @@ static void stress_mmaprandom_mincore(mr_ctxt_t *ctxt, const int idx)
  */
 static void stress_mmaprandom_msync(mr_ctxt_t *ctxt, const int idx)
 {
-	mr_node_t *mra = stress_mmaprandom_get_random_used(ctxt);
+	mr_node_t *mr_node = stress_mmaprandom_get_random_used(ctxt);
 	size_t size;
 	int flags;
 
-	if (!mra)
+	if (!mr_node)
 		return;
 
-	size = stress_mmaprandom_get_random_size(mra->mmap_size, mra->mmap_page_size);
+	size = stress_mmaprandom_get_random_size(mr_node->mmap_size, mr_node->mmap_page_size);
 	flags = msync_flags[stress_mwc8modn(SIZEOF_ARRAY(msync_flags))];
-	if (msync(mra->mmap_addr, size, flags) == 0)
+	if (msync(mr_node->mmap_addr, size, flags) == 0)
 		ctxt->count[idx] += 1.0;
 }
 #endif
@@ -865,12 +865,12 @@ static void stress_mmaprandom_msync(mr_ctxt_t *ctxt, const int idx)
  */
 static void stress_mmaprandom_mlock(mr_ctxt_t *ctxt, const int idx)
 {
-	mr_node_t *mra = stress_mmaprandom_get_random_used(ctxt);
+	mr_node_t *mr_node = stress_mmaprandom_get_random_used(ctxt);
 
-	if (!mra)
+	if (!mr_node)
 		return;
 
-	if (mlock(mra->mmap_addr, mra->mmap_size) == 0)
+	if (mlock(mr_node->mmap_addr, mr_node->mmap_size) == 0)
 		ctxt->count[idx] += 1.0;
 }
 #endif
@@ -882,12 +882,12 @@ static void stress_mmaprandom_mlock(mr_ctxt_t *ctxt, const int idx)
  */
 static void stress_mmaprandom_munlock(mr_ctxt_t *ctxt, const int idx)
 {
-	mr_node_t *mra = stress_mmaprandom_get_random_used(ctxt);
+	mr_node_t *mr_node = stress_mmaprandom_get_random_used(ctxt);
 
-	if (!mra)
+	if (!mr_node)
 		return;
 
-	if (munlock(mra->mmap_addr, mra->mmap_size) == 0)
+	if (munlock(mr_node->mmap_addr, mr_node->mmap_size) == 0)
 		ctxt->count[idx] += 1.0;
 }
 #endif
@@ -899,15 +899,15 @@ static void stress_mmaprandom_munlock(mr_ctxt_t *ctxt, const int idx)
  */
 static void stress_mmaprandom_mprotect(mr_ctxt_t *ctxt, const int idx)
 {
-	mr_node_t *mra = stress_mmaprandom_get_random_used(ctxt);
+	mr_node_t *mr_node = stress_mmaprandom_get_random_used(ctxt);
 	int prot_flag;
 
-	if (!mra)
+	if (!mr_node)
 		return;
 
 	prot_flag = prot_flags[stress_mwc8modn(SIZEOF_ARRAY(prot_flags))];
-	if (mprotect(mra->mmap_addr, mra->mmap_size, prot_flag) == 0) {
-		mra->mmap_prot = prot_flag;
+	if (mprotect(mr_node->mmap_addr, mr_node->mmap_size, prot_flag) == 0) {
+		mr_node->mmap_prot = prot_flag;
 		ctxt->count[idx] += 1.0;
 	}
 }
@@ -915,26 +915,26 @@ static void stress_mmaprandom_mprotect(mr_ctxt_t *ctxt, const int idx)
 
 static void stress_mmaprandom_unmap_first_page(mr_ctxt_t *ctxt, const int idx)
 {
-	mr_node_t *mra = stress_mmaprandom_get_random_used(ctxt);
+	mr_node_t *mr_node = stress_mmaprandom_get_random_used(ctxt);
 	size_t page_size;
 
-	if (!mra)
+	if (!mr_node)
 		return;
 
-	page_size = mra->mmap_page_size;
-	if (mra->mmap_size >= (2 * page_size)) {
-		uint8_t *ptr = mra->mmap_addr;
+	page_size = mr_node->mmap_page_size;
+	if (mr_node->mmap_size >= (2 * page_size)) {
+		uint8_t *ptr = mr_node->mmap_addr;
 
 		if (munmap(ptr, page_size) < 0)
 			return;
-		RB_REMOVE(sm_used_node_tree, &sm_used_node_tree_root, mra);
+		RB_REMOVE(sm_used_node_tree, &sm_used_node_tree_root, mr_node);
 
 		ptr += page_size;
-		mra->mmap_addr = ptr;
-		mra->mmap_size -= page_size;
-		mra->mmap_offset += page_size;
+		mr_node->mmap_addr = ptr;
+		mr_node->mmap_size -= page_size;
+		mr_node->mmap_offset += page_size;
 
-		RB_INSERT(sm_used_node_tree, &sm_used_node_tree_root, mra);
+		RB_INSERT(sm_used_node_tree, &sm_used_node_tree_root, mr_node);
 
 		ctxt->count[idx] += 1.0;
 	}
@@ -942,20 +942,20 @@ static void stress_mmaprandom_unmap_first_page(mr_ctxt_t *ctxt, const int idx)
 
 static void stress_mmaprandom_unmap_last_page(mr_ctxt_t *ctxt, const int idx)
 {
-	mr_node_t *mra = stress_mmaprandom_get_random_used(ctxt);
+	mr_node_t *mr_node = stress_mmaprandom_get_random_used(ctxt);
 	size_t page_size;
 
-	if (!mra)
+	if (!mr_node)
 		return;
 
-	page_size = mra->mmap_page_size;
-	if (mra->mmap_size >= (2 * page_size)) {
-		uint8_t *ptr = mra->mmap_addr;
+	page_size = mr_node->mmap_page_size;
+	if (mr_node->mmap_size >= (2 * page_size)) {
+		uint8_t *ptr = mr_node->mmap_addr;
 
-		ptr += (mra->mmap_size - page_size);
+		ptr += (mr_node->mmap_size - page_size);
 		if (munmap(ptr, page_size) < 0)
 			return;
-		mra->mmap_size -= page_size;
+		mr_node->mmap_size -= page_size;
 		ctxt->count[idx] += 1.0;
 	}
 }
@@ -967,48 +967,48 @@ static void stress_mmaprandom_unmap_last_page(mr_ctxt_t *ctxt, const int idx)
  */
 static void stress_mmaprandom_split(mr_ctxt_t *ctxt, const int idx)
 {
-	mr_node_t *mra = stress_mmaprandom_get_random_used(ctxt);
+	mr_node_t *mr_node = stress_mmaprandom_get_random_used(ctxt);
 	size_t page_size;
 
-	if (!mra)
+	if (!mr_node)
 		return;
 
-	page_size = mra->mmap_page_size;
-	if (mra->mmap_size >= (2 * page_size)) {
-		uint8_t *ptr = (uint8_t *)mra->mmap_addr;
-		mr_node_t *new_mra;
+	page_size = mr_node->mmap_page_size;
+	if (mr_node->mmap_size >= (2 * page_size)) {
+		uint8_t *ptr = (uint8_t *)mr_node->mmap_addr;
+		mr_node_t *new_mr_node;
 #if defined(HAVE_MPROTECT)
 		int prot_flag;
 #endif
 
-		new_mra = RB_MIN(sm_free_node_tree, &sm_free_node_tree_root);
-		if (!new_mra)
+		new_mr_node = RB_MIN(sm_free_node_tree, &sm_free_node_tree_root);
+		if (!new_mr_node)
 			return;
 
 		ptr += page_size;
 
-		RB_REMOVE(sm_free_node_tree, &sm_free_node_tree_root, new_mra);
+		RB_REMOVE(sm_free_node_tree, &sm_free_node_tree_root, new_mr_node);
 		sm_free_nodes--;
-		new_mra->mmap_addr = (void *)ptr;
-		new_mra->mmap_size = mra->mmap_size - (page_size);
-		new_mra->mmap_page_size = mra->mmap_page_size;
+		new_mr_node->mmap_addr = (void *)ptr;
+		new_mr_node->mmap_size = mr_node->mmap_size - (page_size);
+		new_mr_node->mmap_page_size = mr_node->mmap_page_size;
 #if defined(HAVE_MPROTECT)
 		/* Switch to new mmap protection flags */
 		prot_flag = prot_flags[stress_mwc8modn(SIZEOF_ARRAY(prot_flags))];
-		if (mprotect(new_mra->mmap_addr, new_mra->mmap_size, prot_flag) == 0)
-			new_mra->mmap_prot = prot_flag;
+		if (mprotect(new_mr_node->mmap_addr, new_mr_node->mmap_size, prot_flag) == 0)
+			new_mr_node->mmap_prot = prot_flag;
 #else
 		/* Keep same protection as original */
-		new_mra->mmap_prot = mra->mmap_prot;
+		new_mr_node->mmap_prot = mr_node->mmap_prot;
 #endif
-		new_mra->mmap_flags = mra->mmap_flags;
-		new_mra->mmap_offset = mra->mmap_offset + page_size;
-		new_mra->mmap_fd = mra->mmap_fd;
-		new_mra->used = true;
-		RB_INSERT(sm_used_node_tree, &sm_used_node_tree_root, new_mra);
+		new_mr_node->mmap_flags = mr_node->mmap_flags;
+		new_mr_node->mmap_offset = mr_node->mmap_offset + page_size;
+		new_mr_node->mmap_fd = mr_node->mmap_fd;
+		new_mr_node->used = true;
+		RB_INSERT(sm_used_node_tree, &sm_used_node_tree_root, new_mr_node);
 		sm_used_nodes++;
 
-		mra->mmap_size = page_size;
+		mr_node->mmap_size = page_size;
 		ctxt->count[idx] += 1.0;
 	}
 }
@@ -1020,19 +1020,19 @@ static void stress_mmaprandom_split(mr_ctxt_t *ctxt, const int idx)
  */
 static void stress_mmaprandom_split_hole(mr_ctxt_t *ctxt, const int idx)
 {
-	mr_node_t *mra = stress_mmaprandom_get_random_used(ctxt);
+	mr_node_t *mr_node = stress_mmaprandom_get_random_used(ctxt);
 	size_t page_size;
 
-	if (!mra)
+	if (!mr_node)
 		return;
 
-	page_size = mra->mmap_page_size;
-	if (mra->mmap_size >= (3 * page_size)) {
-		uint8_t *ptr = mra->mmap_addr;
-		mr_node_t *new_mra;
+	page_size = mr_node->mmap_page_size;
+	if (mr_node->mmap_size >= (3 * page_size)) {
+		uint8_t *ptr = mr_node->mmap_addr;
+		mr_node_t *new_mr_node;
 
-		new_mra = RB_MIN(sm_free_node_tree, &sm_free_node_tree_root);
-		if (!new_mra)
+		new_mr_node = RB_MIN(sm_free_node_tree, &sm_free_node_tree_root);
+		if (!new_mr_node)
 			return;
 
 		ptr += page_size;
@@ -1041,20 +1041,20 @@ static void stress_mmaprandom_split_hole(mr_ctxt_t *ctxt, const int idx)
 
 		ptr += page_size;
 
-		RB_REMOVE(sm_free_node_tree, &sm_free_node_tree_root, new_mra);
+		RB_REMOVE(sm_free_node_tree, &sm_free_node_tree_root, new_mr_node);
 		sm_free_nodes--;
-		new_mra->mmap_addr = (void *)ptr;
-		new_mra->mmap_size = mra->mmap_size - (2 * page_size);
-		new_mra->mmap_page_size = mra->mmap_page_size;
-		new_mra->mmap_prot = mra->mmap_prot;
-		new_mra->mmap_flags = mra->mmap_flags;
-		new_mra->mmap_offset = mra->mmap_offset + (2 * page_size);
-		new_mra->mmap_fd = mra->mmap_fd;
-		new_mra->used = true;
-		RB_INSERT(sm_used_node_tree, &sm_used_node_tree_root, new_mra);
+		new_mr_node->mmap_addr = (void *)ptr;
+		new_mr_node->mmap_size = mr_node->mmap_size - (2 * page_size);
+		new_mr_node->mmap_page_size = mr_node->mmap_page_size;
+		new_mr_node->mmap_prot = mr_node->mmap_prot;
+		new_mr_node->mmap_flags = mr_node->mmap_flags;
+		new_mr_node->mmap_offset = mr_node->mmap_offset + (2 * page_size);
+		new_mr_node->mmap_fd = mr_node->mmap_fd;
+		new_mr_node->used = true;
+		RB_INSERT(sm_used_node_tree, &sm_used_node_tree_root, new_mr_node);
 		sm_used_nodes++;
 
-		mra->mmap_size = page_size;
+		mr_node->mmap_size = page_size;
 		ctxt->count[idx] += 1.0;
 	}
 }
@@ -1062,41 +1062,41 @@ static void stress_mmaprandom_split_hole(mr_ctxt_t *ctxt, const int idx)
 /*
  *  stress_mmaprandom_join()
  *	join to matching mmap'd regions together if they are
- *	next to each other, free's up a used mra.
+ *	next to each other, free's up a used mr_node.
  */
 static void OPTIMIZE3 stress_mmaprandom_join(mr_ctxt_t *ctxt, const int idx)
 {
 	size_t i;
 
-	for (i = 0; i < ((ctxt->n_mras >> 8) + 1); i++) {
-		mr_node_t *mra = stress_mmaprandom_get_random_used(ctxt);
-		mr_node_t find_mra, *found_mra;
+	for (i = 0; i < ((ctxt->n_mr_nodes >> 8) + 1); i++) {
+		mr_node_t *mr_node = stress_mmaprandom_get_random_used(ctxt);
+		mr_node_t find_mr_node, *found_mr_node;
 		uint8_t *ptr;
 		size_t page_size, max_size;
 
-		if (!mra)
+		if (!mr_node)
 			continue;
 
-		ptr = mra->mmap_addr;
-		page_size = mra->mmap_page_size;
+		ptr = mr_node->mmap_addr;
+		page_size = mr_node->mmap_page_size;
 		max_size = page_size * MAX_PAGES_PER_MAPPING;
 
 		/* mappings right next to each other */
-		find_mra.mmap_addr = (void *)(ptr + mra->mmap_size);
+		find_mr_node.mmap_addr = (void *)(ptr + mr_node->mmap_size);
 
-		found_mra = RB_FIND(sm_used_node_tree, &sm_used_node_tree_root, &find_mra);
-		if (found_mra &&
-		    (found_mra->mmap_fd == mra->mmap_fd) &&
-		    (found_mra->mmap_prot == mra->mmap_prot) &&
-		    (found_mra->mmap_flags == mra->mmap_flags) &&
-		    (found_mra->mmap_page_size == mra->mmap_page_size) &&
-		    (found_mra->mmap_size + mra->mmap_size <= max_size)) {
-			mra->mmap_size += found_mra->mmap_size;
+		found_mr_node = RB_FIND(sm_used_node_tree, &sm_used_node_tree_root, &find_mr_node);
+		if (found_mr_node &&
+		    (found_mr_node->mmap_fd == mr_node->mmap_fd) &&
+		    (found_mr_node->mmap_prot == mr_node->mmap_prot) &&
+		    (found_mr_node->mmap_flags == mr_node->mmap_flags) &&
+		    (found_mr_node->mmap_page_size == mr_node->mmap_page_size) &&
+		    (found_mr_node->mmap_size + mr_node->mmap_size <= max_size)) {
+			mr_node->mmap_size += found_mr_node->mmap_size;
 
-			RB_REMOVE(sm_used_node_tree, &sm_used_node_tree_root, found_mra);
+			RB_REMOVE(sm_used_node_tree, &sm_used_node_tree_root, found_mr_node);
 			sm_used_nodes--;
-			found_mra->used = false;
-			RB_INSERT(sm_free_node_tree, &sm_free_node_tree_root, found_mra);
+			found_mr_node->used = false;
+			RB_INSERT(sm_free_node_tree, &sm_free_node_tree_root, found_mr_node);
 			sm_free_nodes++;
 
 			ctxt->count[idx] += 1.0;
@@ -1154,7 +1154,7 @@ static int stress_mmaprandom_child(stress_args_t *args, void *context)
 {
 	mr_ctxt_t *ctxt = (mr_ctxt_t *)context;
 	int rc = EXIT_SUCCESS;
-	mr_node_t *mra, *next;
+	mr_node_t *mr_node, *next;
 
 	VOID_RET(int, stress_sighandler(args->name, SIGSEGV, stress_mmaprandom_sig_handler, NULL));
 	VOID_RET(int, stress_sighandler(args->name, SIGBUS, stress_mmaprandom_sig_handler, NULL));
@@ -1166,11 +1166,11 @@ static int stress_mmaprandom_child(stress_args_t *args, void *context)
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
 
-	for (mra = RB_MIN(sm_used_node_tree, &sm_used_node_tree_root); mra; mra = next) {
-		next = RB_NEXT(sm_used_node_tree, &sm_used_node_tree_root, mra);
-		(void)munmap(mra->mmap_addr, mra->mmap_size);
-		stress_mmaprandom_zap_mra(mra);
-		RB_REMOVE(sm_used_node_tree, &sm_used_node_tree_root, mra);
+	for (mr_node = RB_MIN(sm_used_node_tree, &sm_used_node_tree_root); mr_node; mr_node = next) {
+		next = RB_NEXT(sm_used_node_tree, &sm_used_node_tree_root, mr_node);
+		(void)munmap(mr_node->mmap_addr, mr_node->mmap_size);
+		stress_mmaprandom_zap_mr_node(mr_node);
+		RB_REMOVE(sm_used_node_tree, &sm_used_node_tree_root, mr_node);
 	}
 	return rc;
 }
@@ -1185,7 +1185,7 @@ static int stress_mmaprandom(stress_args_t *args)
 	double t, duration;
 	size_t i;
 	const size_t count_size = SIZEOF_ARRAY(mr_funcs) * sizeof(*ctxt->count);
-	size_t mras_size;
+	size_t mr_nodes_size;
 	int ret;
 	char filename[PATH_MAX];
 	int rc = EXIT_SUCCESS;
@@ -1244,23 +1244,23 @@ static int stress_mmaprandom(stress_args_t *args)
 	ctxt->mem_fd = shim_memfd_create(filename, 0);
 
 	ctxt->page_size = args->page_size;
-	ctxt->n_mras = MMAP_RANDOM_DEFAULT_MMAPPINGS;
-	(void)stress_get_setting("mmaprandom_mappings", &ctxt->n_mras);
+	ctxt->n_mr_nodes = MMAP_RANDOM_DEFAULT_MMAPPINGS;
+	(void)stress_get_setting("mmaprandom_mappings", &ctxt->n_mr_nodes);
 
-	mras_size = ctxt->n_mras * sizeof(*ctxt->mras);
-	ctxt->mras = (mr_node_t *)mmap(NULL, mras_size, PROT_READ | PROT_WRITE,
+	mr_nodes_size = ctxt->n_mr_nodes * sizeof(*ctxt->mr_nodes);
+	ctxt->mr_nodes = (mr_node_t *)mmap(NULL, mr_nodes_size, PROT_READ | PROT_WRITE,
 		MAP_SHARED | MAP_ANONYMOUS, -1, 0);
-	if (ctxt->mras == MAP_FAILED) {
+	if (ctxt->mr_nodes == MAP_FAILED) {
 		pr_inf_skip("%s: skipping stressor, cannot mmap %zu page structures\n",
-			args->name, ctxt->n_mras);
+			args->name, ctxt->n_mr_nodes);
 		rc = EXIT_NO_RESOURCE;
 		goto tidy_fds;
 	}
-	stress_set_vma_anon_name(ctxt->mras, mras_size, "page-structs");
+	stress_set_vma_anon_name(ctxt->mr_nodes, mr_nodes_size, "page-structs");
 
-	for (i = 0; i < ctxt->n_mras; i++) {
-		ctxt->mras[i].used = false;
-		RB_INSERT(sm_free_node_tree, &sm_free_node_tree_root, &ctxt->mras[i]);
+	for (i = 0; i < ctxt->n_mr_nodes; i++) {
+		ctxt->mr_nodes[i].used = false;
+		RB_INSERT(sm_free_node_tree, &sm_free_node_tree_root, &ctxt->mr_nodes[i]);
 		sm_free_nodes++;
 	}
 	for (i = 0; i < SIZEOF_ARRAY(mr_funcs); i++) {
@@ -1294,7 +1294,7 @@ static int stress_mmaprandom(stress_args_t *args)
 		stress_metrics_set(args, i, buf, rate, STRESS_METRIC_HARMONIC_MEAN);
 	}
 
-	(void)munmap((void *)ctxt->mras, mras_size);
+	(void)munmap((void *)ctxt->mr_nodes, mr_nodes_size);
 tidy_fds:
 	(void)close(ctxt->file_fd);
 	if (ctxt->mem_fd != -1)
