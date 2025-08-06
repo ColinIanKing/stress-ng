@@ -600,6 +600,7 @@ static void stress_mmaprandom_mmap_anon(mr_ctxt_t *ctxt, const int idx)
 	uint8_t *addr;
 	int prot_flag, mmap_flag, extra_flags = 0;
 	mr_node_t *mr_node;
+	char name[80];
 
 	prot_flag = prot_flags[stress_mwc8modn(SIZEOF_ARRAY(prot_flags))];
 	mmap_flag = mmap_anon_flags[stress_mwc8modn(SIZEOF_ARRAY(mmap_anon_flags))];
@@ -651,6 +652,9 @@ static void stress_mmaprandom_mmap_anon(mr_ctxt_t *ctxt, const int idx)
 
 	if (UNLIKELY(addr == MAP_FAILED))
 		return;
+
+	snprintf(name, sizeof(name), "mmaprandom-anon-%p", addr);
+	stress_set_vma_anon_name(addr, size, name);
 
 	RB_REMOVE(sm_free_node_tree, &sm_free_node_tree_root, mr_node);
 	sm_free_nodes--;
