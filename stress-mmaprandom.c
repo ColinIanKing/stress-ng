@@ -73,6 +73,10 @@ static const stress_opt_t opts[] = {
 
 #if defined(HAVE_RB_TREE)
 
+/*
+ *  mr_node_t memory random node keeps track of per memory mapping
+ *  information
+ */
 typedef struct mr_node {
 	RB_ENTRY(mr_node) rb;	/* rb tree node */
 	void *mmap_addr;	/* mapping start addr */
@@ -85,6 +89,9 @@ typedef struct mr_node {
 	bool used;		/* true = mapping is used */
 } mr_node_t;
 
+/*
+ *  mr_ctxt_t keeps trace of general mapping context
+ */
 typedef struct {
 	stress_args_t *args;	/* stress-ng arguments */
 	mr_node_t *mr_nodes;	/* array of all mr_nodes */
@@ -441,6 +448,9 @@ static inline void stress_mmaprandom_zap_mr_node(mr_node_t *mr_node)
 }
 
 #if defined(MAP_FIXED_NOREPLACE)
+/*
+ *  32 bit address space address masks
+ */
 static const uint32_t masks_32bit[] = {
 	0x000fffffUL,
 	0x001fffffUL,
@@ -453,6 +463,9 @@ static const uint32_t masks_32bit[] = {
 	0x0fffffffUL,
 };
 
+/*
+ *  64 bit address space addess masks
+ */
 static const uint64_t masks_64bit[] = {
 	0x00000000007fffffULL,
 	0x0000000000ffffffULL,
@@ -674,7 +687,11 @@ static void OPTIMIZE3 stress_mmaprandom_mmap_anon(mr_ctxt_t *ctxt, const int idx
 	sm_used_nodes++;
 }
 
-static int stress_mmaprandom_mmap_file_allocate(mr_ctxt_t *ctxt, const int fd, const off_t offset, const size_t pages)
+static int stress_mmaprandom_fallocate(
+	mr_ctxt_t *ctxt,
+	const int fd,
+	const off_t offset,
+	const size_t pages)
 {
 	size_t i;
 
@@ -722,7 +739,7 @@ static void OPTIMIZE3 stress_mmaprandom_mmap_file(mr_ctxt_t *ctxt, const int idx
 	if (!mr_node)
 		return;
 
-	if (UNLIKELY(stress_mmaprandom_mmap_file_allocate(ctxt, fd, offset, pages) < 0))
+	if (UNLIKELY(stress_mmaprandom_fallocate(ctxt, fd, offset, pages) < 0))
 		return;
 
 	for (i = 0; i < SIZEOF_ARRAY(mmap_extra_flags); i++)
@@ -794,7 +811,9 @@ static OPTIMIZE3 mr_node_t *stress_mmaprandom_get_random_used(mr_ctxt_t *ctxt)
  *  stress_mmaprandom_get_random_size()
  *	get an randomly selected used mr_node
  */
-static size_t stress_mmaprandom_get_random_size(const size_t mmap_size, const size_t page_size)
+static size_t stress_mmaprandom_get_random_size(
+	const size_t mmap_size,
+	const size_t page_size)
 {
 	size_t n = mmap_size / page_size;
 
@@ -1018,7 +1037,7 @@ static void stress_mmaprandom_mremap(mr_ctxt_t *ctxt, const int idx)
 		 * written to the file
 		 */
 		if (mr_node->mmap_fd != -1)
-			if (stress_mmaprandom_mmap_file_allocate(ctxt, mr_node->mmap_fd, mr_node->mmap_offset, pages) < 0)
+			if (stress_mmaprandom_fallocate(ctxt, mr_node->mmap_fd, mr_node->mmap_offset, pages) < 0)
 				return;
 	}
 
