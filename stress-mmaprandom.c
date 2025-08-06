@@ -1592,6 +1592,6 @@ const stressor_info_t stress_mmaprandom_info = {
 	.verify = VERIFY_NONE,
 	.opts = opts,
 	.help = help,
-	.unimplemented_reason = "not inmplemented, requires BSD red_black tree support"
+	.unimplemented_reason = "not implemented, requires BSD red_black tree support"
 };
 #endif
