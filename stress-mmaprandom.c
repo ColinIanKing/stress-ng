@@ -592,7 +592,7 @@ static int stress_mmaprandom_munmap(
  *  stress_mmaprandom_mmap_anon()
  *  	perform anonymous mmap
  */
-static void stress_mmaprandom_mmap_anon(mr_ctxt_t *ctxt, const int idx)
+static void OPTIMIZE3 stress_mmaprandom_mmap_anon(mr_ctxt_t *ctxt, const int idx)
 {
 	size_t page_size = ctxt->page_size;
 	size_t pages = stress_mwc8modn(MAX_PAGES_PER_MAPPING) + 1;
@@ -691,7 +691,7 @@ static int stress_mmaprandom_mmap_file_write(mr_ctxt_t *ctxt, const int fd, cons
  *  stress_mmaprandom_mmap_file()
  *  	perform file based mmap
  */
-static void stress_mmaprandom_mmap_file(mr_ctxt_t *ctxt, const int idx)
+static void OPTIMIZE3 stress_mmaprandom_mmap_file(mr_ctxt_t *ctxt, const int idx)
 {
 	const size_t page_size = ctxt->page_size;
 	size_t i, j;
@@ -797,7 +797,7 @@ static size_t stress_mmaprandom_get_random_size(const size_t mmap_size, const si
  *  stress_mmaprandom_unmmap()
  *	unmap pages
  */
-static void stress_mmaprandom_unmmap(mr_ctxt_t *ctxt, const int idx)
+static void OPTIMIZE3 stress_mmaprandom_unmmap(mr_ctxt_t *ctxt, const int idx)
 {
 	mr_node_t *mr_node = stress_mmaprandom_get_random_used(ctxt);
 
@@ -849,7 +849,7 @@ static void stress_mmaprandom_unmmap(mr_ctxt_t *ctxt, const int idx)
  *  stress_mmaprandom_unmmap_lo_hi_addr()
  *	unmap lowest or highest mapped address
  */
-static void stress_mmaprandom_unmmap_lo_hi_addr(mr_ctxt_t *ctxt, const int idx)
+static void OPTIMIZE3 stress_mmaprandom_unmmap_lo_hi_addr(mr_ctxt_t *ctxt, const int idx)
 {
 	mr_node_t *mr_node = stress_mwc1() ?
 		RB_MIN(sm_used_node_tree, &sm_used_node_tree_root) :
@@ -1167,7 +1167,7 @@ static void stress_mmaprandom_mprotect(mr_ctxt_t *ctxt, const int idx)
  *  stress_mmaprandom_unmap_first_page()
  *	unmap first page of a multi-page mapping
  */
-static void stress_mmaprandom_unmap_first_page(mr_ctxt_t *ctxt, const int idx)
+static void OPTIMIZE3 stress_mmaprandom_unmap_first_page(mr_ctxt_t *ctxt, const int idx)
 {
 	mr_node_t *mr_node = stress_mmaprandom_get_random_used(ctxt);
 	size_t page_size;
@@ -1223,7 +1223,7 @@ static void stress_mmaprandom_unmap_last_page(mr_ctxt_t *ctxt, const int idx)
  *	break a mapping into two adjacent mappings
  *
  */
-static void stress_mmaprandom_split(mr_ctxt_t *ctxt, const int idx)
+static void OPTIMIZE3 stress_mmaprandom_split(mr_ctxt_t *ctxt, const int idx)
 {
 	mr_node_t *mr_node = stress_mmaprandom_get_random_used(ctxt);
 	size_t page_size;
@@ -1276,7 +1276,7 @@ static void stress_mmaprandom_split(mr_ctxt_t *ctxt, const int idx)
  *	break a mapping into two mappings, unmap a page between them
  *
  */
-static void stress_mmaprandom_split_hole(mr_ctxt_t *ctxt, const int idx)
+static void OPTIMIZE3 stress_mmaprandom_split_hole(mr_ctxt_t *ctxt, const int idx)
 {
 	mr_node_t *mr_node = stress_mmaprandom_get_random_used(ctxt);
 	size_t page_size;
