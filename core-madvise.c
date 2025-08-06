@@ -20,8 +20,156 @@
 #include "stress-ng.h"
 #include "core-madvise.h"
 
+/*
+ * madvise options
+ */
 #if defined(HAVE_MADVISE)
-static const int madvise_options[] = {
+const int madvise_options[] = {
+#if defined(MADV_NORMAL)
+	MADV_NORMAL,
+#else
+	0,
+#endif
+#if defined(MADV_RANDOM)
+	MADV_RANDOM,
+#endif
+#if defined(MADV_SEQUENTIAL)
+	MADV_SEQUENTIAL,
+#endif
+#if defined(MADV_WILLNEED)
+	MADV_WILLNEED,
+#endif
+#if defined(MADV_DONTNEED)
+	MADV_DONTNEED,
+#endif
+#if defined(MADV_REMOVE)
+	MADV_REMOVE,
+#endif
+#if defined(MADV_DONTFORK)
+	MADV_DONTFORK,
+#endif
+#if defined(MADV_DOFORK)
+	MADV_DOFORK,
+#endif
+#if defined(MADV_MERGEABLE)
+	MADV_MERGEABLE,
+#endif
+#if defined(MADV_UNMERGEABLE)
+	MADV_UNMERGEABLE,
+#endif
+#if defined(MADV_SOFT_OFFLINE)
+	MADV_SOFT_OFFLINE,
+#endif
+#if defined(MADV_HUGEPAGE)
+	MADV_HUGEPAGE,
+#endif
+#if defined(MADV_NOHUGEPAGE)
+	MADV_NOHUGEPAGE,
+#endif
+#if defined(MADV_DONTDUMP)
+	MADV_DONTDUMP,
+#endif
+#if defined(MADV_DODUMP)
+	MADV_DODUMP,
+#endif
+#if defined(MADV_FREE)
+	MADV_FREE,
+#endif
+#if defined(MADV_HWPOISON)
+	MADV_HWPOISON,
+#endif
+#if defined(MADV_WIPEONFORK)
+	MADV_WIPEONFORK,
+#endif
+#if defined(MADV_KEEPONFORK)
+	MADV_KEEPONFORK,
+#endif
+#if defined(MADV_INHERIT_ZERO)
+	MADV_INHERIT_ZERO,
+#endif
+#if defined(MADV_COLD)
+	MADV_COLD,
+#endif
+#if defined(MADV_PAGEOUT)
+	MADV_PAGEOUT,
+#endif
+#if defined(MADV_POPULATE_READ)
+	MADV_POPULATE_READ,
+#endif
+#if defined(MADV_POPULATE_WRITE)
+	MADV_POPULATE_WRITE,
+#endif
+#if defined(MADV_DONTNEED_LOCKED)
+	MADV_DONTNEED_LOCKED,
+#endif
+/* Linux 6.0 */
+#if defined(MADV_COLLAPSE)
+	MADV_COLLAPSE,
+#endif
+/* FreeBSD */
+#if defined(MADV_AUTOSYNC)
+	MADV_AUTOSYNC,
+#endif
+/* FreeBSD and DragonFlyBSD */
+#if defined(MADV_CORE)
+	MADV_CORE,
+#endif
+/* FreeBSD */
+#if defined(MADV_PROTECT)
+	MADV_PROTECT,
+#endif
+/* Linux 5.14 */
+#if defined(MADV_POPULATE_READ)
+	MADV_POPULATE_READ,
+#endif
+/* Linux 5.14 */
+#if defined(MADV_POPULATE_WRITE)
+	MADV_POPULATE_WRITE,
+#endif
+/* Linux 6.12 */
+#if defined(MADV_GUARD_INSTALL) &&	\
+    defined(MADV_NORMAL)
+	MADV_GUARD_INSTALL,
+#endif
+#if defined(MADV_GUARD_REMOVE)
+	MADV_GUARD_REMOVE,
+#endif
+/* OpenBSD */
+#if defined(MADV_SPACEAVAIL)
+	MADV_SPACEAVAIL,
+#endif
+/* OS X */
+#if defined(MADV_ZERO_WIRED_PAGES)
+	MADV_ZERO_WIRED_PAGES,
+#endif
+/* Solaris */
+#if defined(MADV_ACCESS_DEFAULT)
+	MADV_ACCESS_DEFAULT,
+#endif
+/* Solaris */
+#if defined(MADV_ACCESS_LWP)
+	MADV_ACCESS_LWP,
+#endif
+/* Solaris */
+#if defined(MADV_ACCESS_MANY)
+	MADV_ACCESS_MANY,
+#endif
+/* DragonFlyBSD */
+#if defined(MADV_INVAL)
+	MADV_INVAL,
+#endif
+/* DragonFlyBSD */
+#if defined(MADV_NOCORE)
+	MADV_NOCORE,
+#endif
+};
+
+const size_t madvise_options_elements = SIZEOF_ARRAY(madvise_options);
+
+#endif
+
+#if defined(HAVE_MADVISE)
+static const int madvise_random_options[] = {
 #if defined(MADV_NORMAL)
 	MADV_NORMAL,
 #endif
@@ -103,9 +251,9 @@ int stress_madvise_randomize(void *addr, const size_t length)
 {
 #if defined(HAVE_MADVISE)
 	if (g_opt_flags & OPT_FLAGS_MMAP_MADVISE) {
-		const int i = stress_mwc32modn((uint32_t)SIZEOF_ARRAY(madvise_options));
+		const int i = stress_mwc32modn((uint32_t)SIZEOF_ARRAY(madvise_random_options));
 
-		return madvise(addr, length, madvise_options[i]);
+		return madvise(addr, length, madvise_random_options[i]);
 	}
 #else
 	UNEXPECTED
