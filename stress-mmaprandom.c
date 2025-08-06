@@ -22,6 +22,7 @@
 #include "core-cpu-cache.h"
 #include "core-madvise.h"
 #include "core-memory.h"
+#include "core-numa.h"
 #include "core-out-of-memory.h"
 #include "core-target-clones.h"
 
@@ -64,11 +65,13 @@ static const stress_help_t help[] = {
 	{ NULL,	"mmaprandom N",	 	 "start N workers stressing random memory mapping operations" },
 	{ NULL,	"mmaprandom-ops N",	 "stop after N mmaprandom bogo operations" },
 	{ NULL, "mmaprandom-mappings N", "maximum number of mappings to be made" },
+	{ NULL,	"mmaprandom-numa",	 "move processes to randomly chosen NUMA nodes" },
 	{ NULL,	NULL,		 	 NULL }
 };
 
 static const stress_opt_t opts[] = {
-	{ OPT_mmaprandom_mappings, "mmaprandom_mappings", TYPE_ID_SIZE_T, MMAP_RANDOM_MIN_MAPPINGS, MMAP_RANDOM_MAX_MAPPINGS, NULL },
+	{ OPT_mmaprandom_mappings, "mmaprandom-mappings", TYPE_ID_SIZE_T, MMAP_RANDOM_MIN_MAPPINGS, MMAP_RANDOM_MAX_MAPPINGS, NULL },
+	{ OPT_mmaprandom_numa,     "mmaprandom-numa",     TYPE_ID_BOOL, 0, 1, NULL },
 	END_OPT,
 };
 
@@ -102,6 +105,11 @@ typedef struct {
 	int mem_fd;		/* memfd mmap file descriptor */
 	uint8_t *page;		/* page mapping for writes */
 	double *count;		/* array of usage counters for each mr_func_t */
+	bool numa;		/* move to random NUMA nodes */
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+	stress_numa_mask_t *numa_mask;	/* NUMA mask */
+	stress_numa_mask_t *numa_nodes;	/* NUMA nodes available */
+#endif
 } mr_ctxt_t;
 
 typedef void (*mr_func_t)(mr_ctxt_t *ctxt, const int idx);
@@ -1293,6 +1301,29 @@ static void OPTIMIZE3 stress_mmaprandom_join(mr_ctxt_t *ctxt, const int idx)
 	}
 }
 
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+/*
+ *  stress_mmaprandom_numa_move()
+ *	move pages to different NUMA nodes
+ */
+static void stress_mmaprandom_numa_move(mr_ctxt_t *ctxt, const int idx)
+{
+	mr_node_t *mr_node;
+
+	if (!ctxt->numa)
+		return;
+
+	mr_node = stress_mmaprandom_get_random_used(ctxt);
+	if (!mr_node)
+		return;
+
+	stress_numa_randomize_pages(ctxt->args, ctxt->numa_nodes,
+				    ctxt->numa_mask, mr_node->mmap_addr,
+				    mr_node->mmap_size, mr_node->mmap_page_size);
+	ctxt->count[idx] += 1.0;
+}
+#endif
+
 static const mr_funcs_t mr_funcs[] = {
 	{ stress_mmaprandom_mmap_anon,		"mmap anon" },
 	{ stress_mmaprandom_mmap_file,		"mmap file" },
@@ -1334,6 +1365,9 @@ static const mr_funcs_t mr_funcs[] = {
 	{ stress_mmaprandom_split_hole,		"map hole splitting" },
 	{ stress_mmaprandom_join,		"mmap joining" },
 	{ stress_mmaprandom_fork,		"fork" },
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+	{ stress_mmaprandom_numa_move,		"NUMA mapping move" },
+#endif
 };
 
 /*
@@ -1388,6 +1422,23 @@ static int stress_mmaprandom(stress_args_t *args)
 	}
 	stress_set_vma_anon_name(ctxt, sizeof(*ctxt), "context");
 
+	ctxt->n_mr_nodes = MMAP_RANDOM_DEFAULT_MMAPPINGS;
+	ctxt->numa = false;
+
+	(void)stress_get_setting("mmaprandom-mappings", &ctxt->n_mr_nodes);
+	(void)stress_get_setting("mmaprandom-numa", &ctxt->numa);
+
+	if (ctxt->numa) {
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+		stress_numa_mask_and_node_alloc(args, &ctxt->numa_nodes, &ctxt->numa_mask, "--mmaprandom-numa", &ctxt->numa);
+#else
+		if (args->instance == 0)
+			pr_inf("%s: --mmaprandom-numa selected but not supported by this system, disabling option\n",
+				args->name);
+		ctxt->numa = false;
+#endif
+	}
+
 	ctxt->page = mmap(NULL, args->page_size, PROT_READ | PROT_WRITE,
 		MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (ctxt->page == MAP_FAILED) {
@@ -1431,10 +1482,7 @@ static int stress_mmaprandom(stress_args_t *args)
 	(void)snprintf(filename, sizeof(filename), "mmaprandom-%" PRIdMAX "-%" PRIu32,
 		(intmax_t)args->pid, args->instance);
 	ctxt->mem_fd = shim_memfd_create(filename, 0);
-
 	ctxt->page_size = args->page_size;
-	ctxt->n_mr_nodes = MMAP_RANDOM_DEFAULT_MMAPPINGS;
-	(void)stress_get_setting("mmaprandom_mappings", &ctxt->n_mr_nodes);
 
 	mr_nodes_size = ctxt->n_mr_nodes * sizeof(*ctxt->mr_nodes);
 	ctxt->mr_nodes = (mr_node_t *)mmap(NULL, mr_nodes_size, PROT_READ | PROT_WRITE,
@@ -1494,6 +1542,12 @@ tidy_dir:
 unmap_ctxt_page:
 	(void)munmap((void *)ctxt->page, args->page_size);
 unmap_ctxt:
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+	if (ctxt->numa_mask)
+		stress_numa_mask_free(ctxt->numa_mask);
+	if (ctxt->numa_nodes)
+		stress_numa_mask_free(ctxt->numa_nodes);
+#endif
 	(void)munmap((void *)ctxt, sizeof(*ctxt));
 
 	return rc;
