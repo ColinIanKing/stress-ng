@@ -949,6 +949,38 @@ static void stress_mmaprandom_cache_flush(mr_ctxt_t *ctxt, const int idx)
 	}
 }
 
+#if defined(HAVE_BUILTIN_PREFETCH)
+/*
+ *  stress_mmaprandom_cache_prefetch()
+ *	cache prefetch a mapping
+ */
+static void OPTIMIZE3 stress_mmaprandom_cache_prefetch(mr_ctxt_t *ctxt, const int idx)
+{
+	mr_node_t *mr_node = stress_mmaprandom_get_random_used(ctxt);
+
+	if (!mr_node)
+		return;
+
+#if defined(MAP_NORESERVE)
+	if ((mr_node->mmap_prot & PROT_READ) && !(mr_node->mmap_flags & MAP_NORESERVE)) {
+#else
+	if (mr_node->mmap_prot & PROT_READ) {
+#endif
+		uint8_t *ptr = (uint8_t *)mr_node->mmap_addr;
+		uint8_t *ptr_end = ptr + mr_node->mmap_size;
+
+		while (ptr < ptr_end) {
+			shim_builtin_prefetch((void *)(ptr + 0x00), 0, 1);
+			shim_builtin_prefetch((void *)(ptr + 0x40), 0, 1);
+			shim_builtin_prefetch((void *)(ptr + 0x80), 0, 1);
+			shim_builtin_prefetch((void *)(ptr + 0xc0), 0, 1);
+			ptr += 256;
+		}
+		ctxt->count[idx] += 1.0;
+	}
+}
+#endif
+
 #if defined(HAVE_MREMAP)
 /*
  *  stress_mmaprandom_mremap
@@ -1386,6 +1418,9 @@ static const mr_funcs_t mr_funcs[] = {
 	{ stress_mmaprandom_read,		"mem read" },
 	{ stress_mmaprandom_write,		"mem write" },
 	{ stress_mmaprandom_cache_flush,	"cache flush" },
+#if defined(HAVE_BUILTIN_PREFETCH)
+	{ stress_mmaprandom_cache_prefetch,	"cache prefetch" },
+#endif
 #if defined(HAVE_MREMAP)
 	{ stress_mmaprandom_mremap,		"mremap" },
 #endif
