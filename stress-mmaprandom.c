@@ -57,6 +57,8 @@
 
 #define MAX_PAGES_PER_MAPPING		(8)
 
+#define MWC_RND_ELEMENT(array)		array[stress_mwc8modn(SIZEOF_ARRAY(array))]
+
 static const stress_help_t help[] = {
 	{ NULL,	"mmaprandom N",	 	 "start N workers stressing random memory mapping operations" },
 	{ NULL,	"mmaprandom-ops N",	 "stop after N mmaprandom bogo operations" },
@@ -138,6 +140,7 @@ static RB_HEAD(sm_free_node_tree, mr_node) sm_free_node_tree_root;
 RB_PROTOTYPE(sm_free_node_tree, mr_node, rb, mr_node_node_cmp);
 RB_GENERATE(sm_free_node_tree, mr_node, rb, mr_node_node_cmp);
 static size_t sm_free_nodes;
+
 
 /*
  *  stress_mmaprandom_sig_handler()
@@ -483,12 +486,12 @@ static inline void * stress_mmaprandom_fixed_addr(const size_t page_size)
 	void *addr;
 
 	if (sizeof(void *) > 4) {
-		uint64_t mask_addr = masks_64bit[stress_mwc8modn(SIZEOF_ARRAY(masks_64bit))];
+		uint64_t mask_addr = MWC_RND_ELEMENT(masks_64bit);
 		uint64_t fixed_addr = stress_mwc64() & mask_addr & ~(uint64_t)(page_size - 1);
 
 		addr = (void *)(uintptr_t)fixed_addr;
 	} else {
-		uint32_t mask_addr = masks_32bit[stress_mwc8modn(SIZEOF_ARRAY(masks_32bit))];
+		uint32_t mask_addr = MWC_RND_ELEMENT(masks_32bit);
 		uint32_t fixed_addr = stress_mwc32() & mask_addr & ~(uint32_t)(page_size - 1);
 
 		addr = (void *)(uintptr_t)fixed_addr;
@@ -580,7 +583,7 @@ static int stress_mmaprandom_munmap(
 {
 
 #if defined(MADV_FREE)
-	const int advise = madvise_unmap_options[stress_mwc8modn(SIZEOF_ARRAY(madvise_unmap_options))];
+	const int advise = MWC_RND_ELEMENT(madvise_unmap_options);
 
 	(void)stress_mmaprandom_madvise_pages(addr, length, advise, page_size);
 #endif
@@ -602,15 +605,15 @@ static void OPTIMIZE3 stress_mmaprandom_mmap_anon(mr_ctxt_t *ctxt, const int idx
 	mr_node_t *mr_node;
 	char name[80];
 
-	prot_flag = prot_flags[stress_mwc8modn(SIZEOF_ARRAY(prot_flags))];
-	mmap_flag = mmap_anon_flags[stress_mwc8modn(SIZEOF_ARRAY(mmap_anon_flags))];
+	prot_flag = MWC_RND_ELEMENT(prot_flags);
+	mmap_flag = MWC_RND_ELEMENT(mmap_anon_flags);
 
 	mr_node = RB_MIN(sm_free_node_tree, &sm_free_node_tree_root);
 	if (!mr_node)
 		return;
 
 	for (i = 0; i < SIZEOF_ARRAY(mmap_extra_flags); i++) {
-		int new_flags = mmap_extra_flags[stress_mwc8modn(SIZEOF_ARRAY(mmap_extra_flags))];
+		int new_flags = MWC_RND_ELEMENT(mmap_extra_flags);
 
 #if defined(MAP_HUGETLB)
 		if (new_flags & MAP_HUGETLB) {
@@ -703,7 +706,7 @@ static void OPTIMIZE3 stress_mmaprandom_mmap_file(mr_ctxt_t *ctxt, const int idx
 	mr_node_t *mr_node;
 	int fd;
 
-	mmap_flag = mmap_file_flags[stress_mwc8modn(SIZEOF_ARRAY(mmap_file_flags))];
+	mmap_flag = MWC_RND_ELEMENT(mmap_file_flags);
 
 	if (ctxt->mem_fd < 0)
 		fd = ctxt->file_fd;
@@ -718,9 +721,9 @@ static void OPTIMIZE3 stress_mmaprandom_mmap_file(mr_ctxt_t *ctxt, const int idx
 		return;
 
 	for (i = 0; i < SIZEOF_ARRAY(mmap_extra_flags); i++)
-		extra_flags |= mmap_extra_flags[stress_mwc8modn(SIZEOF_ARRAY(mmap_extra_flags))];
+		extra_flags |= MWC_RND_ELEMENT(mmap_extra_flags);
 
-	prot_flag = prot_flags[stress_mwc8modn(SIZEOF_ARRAY(prot_flags))];
+	prot_flag = MWC_RND_ELEMENT(prot_flags);
 	j = stress_mwc8modn(SIZEOF_ARRAY(mmap_extra_flags));
 
 	for (;;) {
@@ -1037,7 +1040,7 @@ static void stress_mmaprandom_madvise(mr_ctxt_t *ctxt, const int idx)
 	if (!mr_node)
 		return;
 
-	advice = madvise_options[stress_mwc8modn(SIZEOF_ARRAY(madvise_options))];
+	advice = MWC_RND_ELEMENT(madvise_options);
 	if (LIKELY(madvise(mr_node->mmap_addr, mr_node->mmap_size, advice) == 0))
 		ctxt->count[idx] += 1.0;
 }
@@ -1056,7 +1059,7 @@ static void stress_mmaprandom_posix_madvise(mr_ctxt_t *ctxt, const int idx)
 	if (!mr_node)
 		return;
 
-	advice = posix_madvise_options[stress_mwc8modn(SIZEOF_ARRAY(posix_madvise_options))];
+	advice = MWC_RND_ELEMENT(posix_madvise_options);
 	if (LIKELY(posix_madvise(mr_node->mmap_addr, mr_node->mmap_size, advice) == 0))
 		ctxt->count[idx] += 1.0;
 }
@@ -1102,7 +1105,7 @@ static void stress_mmaprandom_msync(mr_ctxt_t *ctxt, const int idx)
 		return;
 
 	size = stress_mmaprandom_get_random_size(mr_node->mmap_size, mr_node->mmap_page_size);
-	flags = msync_flags[stress_mwc8modn(SIZEOF_ARRAY(msync_flags))];
+	flags = MWC_RND_ELEMENT(msync_flags);
 	if (msync(mr_node->mmap_addr, size, flags) == 0)
 		ctxt->count[idx] += 1.0;
 }
@@ -1155,7 +1158,7 @@ static void stress_mmaprandom_mprotect(mr_ctxt_t *ctxt, const int idx)
 	if (!mr_node)
 		return;
 
-	prot_flag = prot_flags[stress_mwc8modn(SIZEOF_ARRAY(prot_flags))];
+	prot_flag = MWC_RND_ELEMENT(prot_flags);
 	if (LIKELY(mprotect(mr_node->mmap_addr, mr_node->mmap_size, prot_flag) == 0)) {
 		mr_node->mmap_prot = prot_flag;
 		ctxt->count[idx] += 1.0;
@@ -1252,7 +1255,7 @@ static void OPTIMIZE3 stress_mmaprandom_split(mr_ctxt_t *ctxt, const int idx)
 		new_mr_node->mmap_page_size = mr_node->mmap_page_size;
 #if defined(HAVE_MPROTECT)
 		/* Switch to new mmap protection flags */
-		prot_flag = prot_flags[stress_mwc8modn(SIZEOF_ARRAY(prot_flags))];
+		prot_flag = MWC_RND_ELEMENT(prot_flags);
 		if (mprotect(new_mr_node->mmap_addr, new_mr_node->mmap_size, prot_flag) == 0)
 			new_mr_node->mmap_prot = prot_flag;
 #else
