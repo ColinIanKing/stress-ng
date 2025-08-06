@@ -527,6 +527,12 @@ int stress_get_pid_memory_usage(
 
 	(void)snprintf(path, sizeof(path), "/proc/%" PRIdMAX "/statm", (intmax_t)pid);
 	fp = fopen(path, "r");
+	if (!fp) {
+		*total = 0;
+		*resident = 0;
+		*shared = 0;
+		return -1;
+	}
 	if (fscanf(fp, "%zu %zu %zu", total, resident, shared) != 3) {
 		(void)fclose(fp);
 		return -1;
