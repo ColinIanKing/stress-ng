@@ -673,17 +673,21 @@ static void OPTIMIZE3 stress_mmaprandom_mmap_anon(mr_ctxt_t *ctxt, const int idx
 	sm_used_nodes++;
 }
 
-static int stress_mmaprandom_mmap_file_write(mr_ctxt_t *ctxt, const int fd, const off_t offset, const size_t pages)
+static int stress_mmaprandom_mmap_file_allocate(mr_ctxt_t *ctxt, const int fd, const off_t offset, const size_t pages)
 {
 	size_t i;
 
 	if (fd < 0)
 		return -1;
 
+	if (LIKELY(shim_fallocate(fd, 0, offset, pages * ctxt->page_size) == 0))
+		return 0;
+
+	/* fall back to writes */
 	if (UNLIKELY(lseek(fd, offset, SEEK_SET) == (off_t) -1))
 		return -1;
+	(void)shim_memset(ctxt->page, 0, ctxt->page_size);
 	for (i = 0; i < pages; i++) {
-		(void)shim_memset(ctxt->page, stress_mwc8(), ctxt->page_size);
 		if (UNLIKELY(write(fd, ctxt->page, ctxt->page_size) != (ssize_t)ctxt->page_size))
 			return -1;
 	}
@@ -717,7 +721,7 @@ static void OPTIMIZE3 stress_mmaprandom_mmap_file(mr_ctxt_t *ctxt, const int idx
 	if (!mr_node)
 		return;
 
-	if (UNLIKELY(stress_mmaprandom_mmap_file_write(ctxt, fd, offset, pages) < 0))
+	if (UNLIKELY(stress_mmaprandom_mmap_file_allocate(ctxt, fd, offset, pages) < 0))
 		return;
 
 	for (i = 0; i < SIZEOF_ARRAY(mmap_extra_flags); i++)
@@ -1013,7 +1017,7 @@ static void stress_mmaprandom_mremap(mr_ctxt_t *ctxt, const int idx)
 		 * written to the file
 		 */
 		if (mr_node->mmap_fd != -1)
-			if (stress_mmaprandom_mmap_file_write(ctxt, mr_node->mmap_fd, mr_node->mmap_offset, pages) < 0)
+			if (stress_mmaprandom_mmap_file_allocate(ctxt, mr_node->mmap_fd, mr_node->mmap_offset, pages) < 0)
 				return;
 	}
 
