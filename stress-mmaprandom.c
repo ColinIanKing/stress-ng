@@ -1287,6 +1287,43 @@ static void stress_mmaprandom_split_hole(mr_ctxt_t *ctxt, const int idx)
 }
 
 /*
+ *  stress_mmaprandom_fork()
+ *	fork to duplicate mappings every ~1 second
+ */
+static void stress_mmaprandom_fork(mr_ctxt_t *ctxt, const int idx)
+{
+	pid_t pid;
+	static double next_time = 0.0;
+	double now;
+
+	now = stress_time_now();
+	if (now < next_time)
+		return;
+
+	next_time = now + 1.0;
+
+	pid = fork();
+	if (pid < 0) {
+		return;
+	} if (pid == 0) {
+		/* Either unmap mappings in child or let _exit(2) do it */
+		if (stress_mwc1()) {
+			mr_node_t *mr_node;
+
+			RB_FOREACH(mr_node, sm_used_node_tree, &sm_used_node_tree_root) {
+				(void)munmap(mr_node->mmap_addr, mr_node->mmap_size);
+			}
+		}
+		_exit(0);
+	} else {
+		int status;
+
+		(void)waitpid(pid, &status, 0);
+		ctxt->count[idx] += 1.0;
+	}
+}
+
+/*
  *  stress_mmaprandom_join()
  *	join to matching mmap'd regions together if they are
  *	next to each other, free's up a used mr_node.
@@ -1369,6 +1406,7 @@ static const mr_funcs_t mr_funcs[] = {
 	{ stress_mmaprandom_split,		"map splitting" },
 	{ stress_mmaprandom_split_hole,		"map hole splitting" },
 	{ stress_mmaprandom_join,		"mmap joining" },
+	{ stress_mmaprandom_fork,		"fork" },
 };
 
 /*
