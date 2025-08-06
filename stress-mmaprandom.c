@@ -765,20 +765,19 @@ static void stress_mmaprandom_mmap_file(mr_ctxt_t *ctxt, const int idx)
  *	get an randomly selected used mr_node, suboptimial linear scan,
  *	needs improving.
  */
-static mr_node_t *stress_mmaprandom_get_random_used(mr_ctxt_t *ctxt)
+static OPTIMIZE3 mr_node_t *stress_mmaprandom_get_random_used(mr_ctxt_t *ctxt)
 {
-	size_t i, n;
+	const size_t n = stress_mwc32modn((uint32_t)ctxt->n_mr_nodes);
+	register mr_node_t *mr_node = &ctxt->mr_nodes[n];
+	register mr_node_t *mr_node_end = &ctxt->mr_nodes[ctxt->n_mr_nodes];
+	register size_t i;
 
-	n = stress_mwc32modn((uint32_t)ctxt->n_mr_nodes);
-
-	for (i = 0; i < ctxt->n_mr_nodes; i++) {
-		mr_node_t *mr_node = &ctxt->mr_nodes[n];
-
-		if (mr_node->used)
+	for (i = 0; LIKELY(i < ctxt->n_mr_nodes); i++) {
+		if (UNLIKELY(mr_node->used))
 			return mr_node;
-		n++;
-		if (n >= ctxt->n_mr_nodes)
-			n = 0;
+		mr_node++;
+		if (UNLIKELY(mr_node >= mr_node_end))
+			mr_node = ctxt->mr_nodes;
 	}
 	return NULL;
 }
