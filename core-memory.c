@@ -546,6 +546,8 @@ int stress_get_pid_memory_usage(
 
 	return 0;
 #else
+	(void)pid;
+
 	*total = 0;
 	*resident = 0;
 	*shared = 0;
