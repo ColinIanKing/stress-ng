@@ -923,7 +923,7 @@ static void OPTIMIZE3 stress_mmaprandom_write(mr_ctxt_t *ctxt, const int idx)
 #else
 	if (mr_node->mmap_prot & PROT_WRITE) {
 #endif
-		__builtin_memset(mr_node->mmap_addr, stress_mwc8(), mr_node->mmap_size);
+		shim_memset(mr_node->mmap_addr, stress_mwc8(), mr_node->mmap_size);
 		ctxt->count[idx] += 1.0;
 	}
 }
