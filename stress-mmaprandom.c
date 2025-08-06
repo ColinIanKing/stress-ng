@@ -355,7 +355,6 @@ static const uint64_t masks_64bit[] = {
 	0x000002ffffffffffULL,
 	0x000003ffffffffffULL,
 };
-#endif
 
 /*
  *  stress_mmaprandom_fixed_addr()
@@ -378,6 +377,7 @@ static inline void * stress_mmaprandom_fixed_addr(const size_t page_size)
 	}
 	return addr;
 }
+#endif
 
 /*
  *  stress_mmaprandom_mmap()
