@@ -405,6 +405,7 @@ static void * stress_mmaprandom_mmap(
 			return addr;
 	}
 #endif
+	(void)page_size;
 	return mmap(hint, length, prot, flags, fd, offset);
 }
 
