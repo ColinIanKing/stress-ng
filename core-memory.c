@@ -508,3 +508,41 @@ bool stress_addr_readable(const void *addr, const size_t len)
 
 	return ret;
 }
+
+/*
+ *  stress_get_pid_memory_usage()
+ *	get total, resident and shared memory (in bytes)
+ *	used by process with PID pid
+ */
+int stress_get_pid_memory_usage(
+	const pid_t pid,
+	size_t *total,
+	size_t *resident,
+	size_t *shared)
+{
+#if defined(__linux__)
+	FILE *fp;
+	char path[PATH_MAX];
+	size_t page_size;
+
+	(void)snprintf(path, sizeof(path), "/proc/%" PRIdMAX "/statm", (intmax_t)pid);
+	fp = fopen(path, "r");
+	if (fscanf(fp, "%zu %zu %zu", total, resident, shared) != 3) {
+		(void)fclose(fp);
+		return -1;
+	}
+	(void)fclose(fp);
+
+	page_size = stress_get_page_size();
+	*total *= page_size;
+	*resident *= page_size;
+	*shared *= page_size;
+
+	return 0;
+#else
+	*total = 0;
+	*resident = 0;
+	*shared = 0;
+	return -1;
+#endif
+}

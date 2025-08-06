@@ -105,6 +105,7 @@ typedef struct {
 	int mem_fd;		/* memfd mmap file descriptor */
 	uint8_t *page;		/* page mapping for writes */
 	double *count;		/* array of usage counters for each mr_func_t */
+	bool oom_avoid;		/* low memory avoid flag */
 	bool numa;		/* move to random NUMA nodes */
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 	stress_numa_mask_t *numa_mask;	/* NUMA mask */
@@ -515,6 +516,11 @@ static void OPTIMIZE3 stress_mmaprandom_mmap_anon(mr_ctxt_t *ctxt, const int idx
 	for (;;) {
 		int old_flags;
 
+		if (ctxt->oom_avoid && stress_low_memory(size * 2)) {
+			addr = MAP_FAILED;
+			break;
+		}
+
 		addr = (uint8_t *)stress_mmaprandom_mmap(NULL, size, prot_flag,
 				mmap_flag | extra_flags, -1, 0, page_size);
 		if (addr != MAP_FAILED) {
@@ -615,6 +621,11 @@ static void OPTIMIZE3 stress_mmaprandom_mmap_file(mr_ctxt_t *ctxt, const int idx
 
 	for (;;) {
 		int old_flags;
+
+		if (ctxt->oom_avoid && stress_low_memory(size * 2)) {
+			addr = MAP_FAILED;
+			break;
+		}
 
 		addr = (uint8_t *)stress_mmaprandom_mmap(NULL, size, prot_flag,
 				mmap_flag | extra_flags, fd, offset, page_size);
@@ -1223,6 +1234,17 @@ static void stress_mmaprandom_fork(mr_ctxt_t *ctxt, const int idx)
 	if (now < next_time)
 		return;
 
+	if (ctxt->oom_avoid) {
+		size_t total, resident, shared;
+
+		if (stress_get_pid_memory_usage(getpid(), &total, &resident, &shared) < 0) {
+			/* Can't get memory, random guess at 128MB */
+			total = 128 * MB;
+		}
+		if (stress_low_memory(total))
+			return;
+	}
+
 	next_time = now + 1.0;
 
 	pid = fork();
@@ -1422,6 +1444,7 @@ static int stress_mmaprandom(stress_args_t *args)
 	}
 	stress_set_vma_anon_name(ctxt, sizeof(*ctxt), "context");
 
+	ctxt->oom_avoid = !!(g_opt_flags & OPT_FLAGS_OOM_AVOID);
 	ctxt->n_mr_nodes = MMAP_RANDOM_DEFAULT_MMAPPINGS;
 	ctxt->numa = false;
 
