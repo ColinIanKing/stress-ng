@@ -1257,8 +1257,8 @@ static void stress_mmaprandom_fork(mr_ctxt_t *ctxt, const int idx)
 			mr_node_t *mr_node;
 
 			RB_FOREACH(mr_node, sm_used_node_tree, &sm_used_node_tree_root) {
-#if defined(MAP_NORESERVE)
 				if (stress_mwc1()) {
+#if defined(MAP_NORESERVE)
 					if ((mr_node->mmap_prot & PROT_WRITE) && !(mr_node->mmap_flags & MAP_NORESERVE)) {
 #else
 					if (mr_node->mmap_prot & PROT_WRITE) {
