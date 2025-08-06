@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "4 August 2025"
+.TH STRESS-NG 1 "6 August 2025"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -5463,6 +5463,10 @@ one memory related system call (except for read/write/cache operations).
 .B \-\-mmaprandom\-mappings N
 select maximum number of memory mappings, the default is 1024,
 range 1 to 1048576.
+.TP
+.B \-\-mmaprandom\-numa
+assign randomly chosen memory mapped pages to randomly selected NUMA nodes.
+This is disabled for systems that do not support NUMA.
 .RE
 .TP
 .B Memory map torture stressor
