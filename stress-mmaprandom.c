@@ -362,6 +362,7 @@ static const int madvise_options[] = {
 
 #if defined(HAVE_MADVISE)
 static const int madvise_unmap_options[] = {
+	0,
 #if defined(MADV_DONTNEED)
 	MADV_DONTNEED,
 #endif
