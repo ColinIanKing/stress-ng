@@ -357,6 +357,23 @@ static const int madvise_options[] = {
 };
 #endif
 
+#if defined(HAVE_MADVISE)
+static const int madvise_unmap_options[] = {
+#if defined(MADV_DONTNEED)
+	MADV_DONTNEED,
+#endif
+#if defined(MADV_SOFT_OFFLINE)
+	MADV_SOFT_OFFLINE,
+#endif
+#if defined(MADV_FREE)
+	MADV_FREE,
+#endif
+#if defined(MADV_COLD)
+	MADV_COLD,
+#endif
+};
+#endif
+
 /*
  * POSIX madvise options
  */
@@ -506,6 +523,69 @@ static void * stress_mmaprandom_mmap(
 	}
 #endif
 	return mmap(hint, length, prot, flags, fd, offset);
+}
+
+/*
+ *  stress_mmaprandom_madvise_pages()
+ *	apply madvise to a region, either over the entire
+ *	region in one go or in random page chunks
+ */
+static int stress_mmaprandom_madvise_pages(
+	void *addr,
+	size_t length,
+	int advise,
+	size_t page_size)
+{
+	uint8_t *ptr = (uint8_t *)addr;
+	uint8_t *ptr_end = ptr + length;
+
+	if (stress_mwc1()) {
+#if defined(MADV_NORMAL)
+		if (shim_madvise(addr, length, advise) < 0)
+			return shim_madvise(addr, length, MADV_NORMAL);
+
+#else
+		return shim_madvise(addr, length, advise);
+#endif
+	}
+
+	while (ptr < ptr_end) {
+		if (stress_mwc1()) {
+#if defined(MADV_NORMAL)
+			if (shim_madvise(ptr, page_size, advise) < 0)
+				(void)shim_madvise(ptr, page_size, MADV_NORMAL);
+#else
+			(void)shim_madvise(ptr, page_size, advise);
+#endif
+			ptr += page_size;
+		} else {
+#if defined(MADV_NORMAL)
+			(void)shim_madvise(ptr, page_size, MADV_NORMAL);
+#endif
+			ptr += page_size;
+		}
+
+	}
+	return 0;
+}
+
+/*
+ *  stress_mmaprandom_munmap()
+ *	unmap a region, apply random unmapping friendly madvise
+ */
+static int stress_mmaprandom_munmap(
+	void *addr,
+	size_t length,
+	size_t page_size)
+{
+
+#if defined(MADV_FREE)
+	const int advise = madvise_unmap_options[stress_mwc8modn(SIZEOF_ARRAY(madvise_unmap_options))];
+
+	(void)stress_mmaprandom_madvise_pages(addr, length, advise, page_size);
+#endif
+	return munmap(addr, length);
+
 }
 
 /*
@@ -724,7 +804,8 @@ static void stress_mmaprandom_unmmap(mr_ctxt_t *ctxt, const int idx)
 	if (stress_mwc1()) {
 		/* unmap entire mapping in one go */
 
-		if (LIKELY(munmap((void *)mr_node->mmap_addr, mr_node->mmap_size) == 0)) {
+		if (LIKELY(stress_mmaprandom_munmap((void *)mr_node->mmap_addr,
+				mr_node->mmap_size, mr_node->mmap_page_size) == 0)) {
 			ctxt->count[idx] += 1.0;
 			stress_mmaprandom_zap_mr_node(mr_node);
 			RB_REMOVE(sm_used_node_tree, &sm_used_node_tree_root, mr_node);
@@ -750,7 +831,7 @@ static void stress_mmaprandom_unmmap(mr_ctxt_t *ctxt, const int idx)
 		 * page unmaps failed
 		 */
 		if (UNLIKELY(failed))
-			(void)munmap(mr_node->mmap_addr, mr_node->mmap_size);
+			(void)stress_mmaprandom_munmap(mr_node->mmap_addr, mr_node->mmap_size, page_size);
 
 		ctxt->count[idx] += 1.0;
 		stress_mmaprandom_zap_mr_node(mr_node);
@@ -776,7 +857,8 @@ static void stress_mmaprandom_unmmap_lo_hi_addr(mr_ctxt_t *ctxt, const int idx)
 	if (!mr_node)
 		return;
 
-	if (LIKELY(munmap((void *)mr_node->mmap_addr, mr_node->mmap_size) == 0)) {
+	if (LIKELY(stress_mmaprandom_munmap((void *)mr_node->mmap_addr,
+			mr_node->mmap_size, mr_node->mmap_page_size) == 0)) {
 		ctxt->count[idx] += 1.0;
 
 		stress_mmaprandom_zap_mr_node(mr_node);
@@ -1062,7 +1144,7 @@ static void stress_mmaprandom_unmap_first_page(mr_ctxt_t *ctxt, const int idx)
 	if (mr_node->mmap_size >= (2 * page_size)) {
 		uint8_t *ptr = mr_node->mmap_addr;
 
-		if (UNLIKELY(munmap(ptr, page_size) < 0))
+		if (UNLIKELY(stress_mmaprandom_munmap(ptr, page_size, page_size) < 0))
 			return;
 		RB_REMOVE(sm_used_node_tree, &sm_used_node_tree_root, mr_node);
 
@@ -1094,7 +1176,7 @@ static void stress_mmaprandom_unmap_last_page(mr_ctxt_t *ctxt, const int idx)
 		uint8_t *ptr = mr_node->mmap_addr;
 
 		ptr += (mr_node->mmap_size - page_size);
-		if (UNLIKELY(munmap(ptr, page_size) < 0))
+		if (UNLIKELY(stress_mmaprandom_munmap(ptr, page_size, page_size) < 0))
 			return;
 		mr_node->mmap_size -= page_size;
 		ctxt->count[idx] += 1.0;
@@ -1177,7 +1259,7 @@ static void stress_mmaprandom_split_hole(mr_ctxt_t *ctxt, const int idx)
 			return;
 
 		ptr += page_size;
-		if (munmap((void *)ptr, page_size) < 0)
+		if (stress_mmaprandom_munmap((void *)ptr, page_size, page_size) < 0)
 			return;
 
 		ptr += page_size;
