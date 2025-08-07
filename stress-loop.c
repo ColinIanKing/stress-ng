@@ -255,7 +255,7 @@ static int stress_loop(stress_args_t *args)
 #if defined(MS_ASYNC)
 			(void)shim_msync(ptr, backing_size, MS_ASYNC);
 #endif
-			(void)stress_munmap_retry_enomem(ptr, backing_size);
+			(void)stress_munmap_force(ptr, backing_size);
 			(void)shim_fsync(loop_dev);
 		}
 

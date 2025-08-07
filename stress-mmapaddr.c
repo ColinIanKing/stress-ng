@@ -178,7 +178,7 @@ static int stress_mmapaddr_child(stress_args_t *args, void *context)
 		if (mmapaddr_mlock)
 			(void)shim_mlock(remap_addr, page_size);
 		(void)stress_mmapaddr_check(args, remap_addr);
-		(void)stress_munmap_retry_enomem((void *)remap_addr, page_size);
+		(void)stress_munmap_force((void *)remap_addr, page_size);
 
 #if defined(HAVE_MREMAP) &&	\
     NEED_GLIBC(2,4,0) &&	\
@@ -212,11 +212,11 @@ static int stress_mmapaddr_child(stress_args_t *args, void *context)
 			 * it got mapped
 			 */
 			if (noreplace_addr != MAP_FAILED)
-				(void)stress_munmap_retry_enomem(noreplace_addr, page_size);
+				(void)stress_munmap_force(noreplace_addr, page_size);
 		}
 #endif
 unmap:
-		(void)stress_munmap_retry_enomem((void *)map_addr, page_size);
+		(void)stress_munmap_force((void *)map_addr, page_size);
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
 

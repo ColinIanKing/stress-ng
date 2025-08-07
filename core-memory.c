@@ -428,24 +428,124 @@ void stress_set_vma_anon_name(const void *addr, const size_t size, const char *n
 #endif
 }
 
+#if defined(MAP_HUGETLB) &&	\
+    (defined(MAP_HUGE_2MB) ||	\
+     defined(MAP_HUGE_1GB))
 /*
- *  stress_munmap_retry_enomem()
- *	retry munmap on ENOMEM errors as these can be due
- *	to low memory not allowing memory to be released
+ *  stress_mapping_hugetlb_size()
+ *	check if a mapping starting at address addr is a 2MB or 1GB
+ *	HUGETLB mapped region
  */
-int stress_munmap_retry_enomem(void *addr, size_t length)
+static size_t stress_mapping_hugetlb_size(void *addr)
+{
+#if defined(__linux__)
+	FILE *fp;
+	const pid_t pid = getpid();
+	char path[PATH_MAX];
+	char buf[4096];
+	size_t hugetlb_size = 0;
+	bool addr_match = false;
+	uintptr_t addr_begin = 0, addr_end = 0;
+
+	(void)snprintf(path, sizeof(path), "/proc/%" PRIdMAX "/smaps", (intmax_t)pid);
+	fp = fopen(path, "r");
+	if (!fp) {
+		/* can't open, can't assume it's huge */
+		return false;
+	}
+	while (fgets(buf, sizeof(buf), fp) != NULL) {
+		if (addr_match) {
+			/* VmFlags has ht if is HUGETLB mapped region */
+			if (!strncmp(buf, "VmFlags:", 7) &&
+			    strstr(buf + 8, " ht")) {
+				hugetlb_size = (size_t)(addr_end - addr_begin);
+				break;
+			}
+		} else {
+			/* Scan for a matching start address */
+			if ((sscanf(buf, "%" SCNxPTR "-%" SCNxPTR "%*s", &addr_begin, &addr_end) != 2) &&
+			    (addr_begin == (uintptr_t)addr) &&
+			    (addr_begin < addr_end))
+				addr_match = true;
+		}
+	}
+
+	(void)fclose(fp);
+
+	return hugetlb_size;
+#else
+	(void)addr;
+
+	return 0;
+#endif
+}
+#endif
+
+/*
+ *  stress_munmap_force()
+ *	force retry munmap on ENOMEM or EINVAL errors as these can be due
+ *	to low memory not allowing memory to be released
+ *
+ *	this is not a munmap shim, it's a forceful munmap to cope
+ *	with unexpected low memory or hugetlb umapping errors
+ */
+int stress_munmap_force(void *addr, size_t length)
 {
 	int ret, i;
+#if defined(MAP_HUGETLB) && defined(MAP_HUGE_2MB)
+	const uintptr_t size2MB = (1ULL << 21);
+#endif
+#if defined(MAP_HUGETLB) && defined(MAP_HUGE_1GB)
+	const uintptr_t size1GB = (1ULL << 30);
+#endif
 
 	for (i = 1; i <= 10; i++) {
 		int saved_errno;
+#if defined(MAP_HUGETLB)
+		size_t hugetlb_size;
+#endif
 
 		ret = munmap(addr, length);
 		if (LIKELY(ret == 0))
 			break;
-		if (errno != ENOMEM)
-			break;
 		saved_errno = errno;
+		/*
+		 *  EINVAL on munmap can occur if a huge page has
+		 *  been mapped with a size less than the huge page.
+		 *  In these cases, check the alignment and if
+		 *  huge page aligned then redo the munmap with the
+		 *  huge page sizes to unmap them.
+		 */
+#if defined(MAP_HUGETLB)
+		if (saved_errno == EINVAL) {
+			hugetlb_size = stress_mapping_hugetlb_size(addr);
+
+#if (MAP_HUGE_1GB)
+			if ((length < size1GB) &&
+			    (((uintptr_t)addr & (size1GB - 1)) == 0) &&
+			    ((hugetlb_size & (size1GB - 1)) == 0)) {
+				ret = munmap(addr, hugetlb_size);
+				pr_inf("unmap 1GB HTLB: %zd %d\n", hugetlb_size, ret);
+				if (ret == 0)
+					break;
+				saved_errno = errno;
+			}
+#endif
+#if defined(MAP_HUGE_2MB)
+			if ((length < size2MB) &&
+			    (((uintptr_t)addr & (size2MB - 1)) == 0) &&
+			    ((hugetlb_size & (size2MB - 1)) == 0)) {
+				ret = munmap(addr, hugetlb_size);
+				pr_inf("unmap 2MB HTLB: %zd %d\n", hugetlb_size, ret);
+				if (ret == 0)
+					break;
+				saved_errno = errno;
+			}
+#endif
+		}
+#endif
+		if (saved_errno != ENOMEM)
+			break;
 		(void)shim_usleep(10000 * i);
 		errno = saved_errno;
 	}

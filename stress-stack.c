@@ -150,7 +150,7 @@ static bool OPTIMIZE3 stress_stack_alloc(
 		const uintptr_t page_mask = ~(uintptr_t)(page_size - 1);
 		const uintptr_t unmap_ptr = ((uintptr_t)&data[0] + (sizeof(data) >> 1)) & page_mask;
 
-		(void)stress_munmap_retry_enomem((void *)unmap_ptr, page_size);
+		(void)stress_munmap_force((void *)unmap_ptr, page_size);
 	}
 
 	/* traverse back down the stack to touch 128 pages on the stack */

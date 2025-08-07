@@ -54,7 +54,7 @@ static inline void *stress_get_umapped_addr(const size_t sz)
 	if (addr == MAP_FAILED)
 		return NULL;
 
-	(void)stress_munmap_retry_enomem(addr, sz);
+	(void)stress_munmap_force(addr, sz);
 	return addr;
 }
 

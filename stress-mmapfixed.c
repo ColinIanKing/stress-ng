@@ -245,7 +245,7 @@ static int stress_mmapfixed_child(stress_args_t *args, void *context)
 		}
 unmap:
 #endif
-		(void)stress_munmap_retry_enomem((void *)buf, sz);
+		(void)stress_munmap_force((void *)buf, sz);
 		stress_bogo_inc(args);
 next:
 		addr >>= 1;

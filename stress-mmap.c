@@ -375,7 +375,7 @@ static void stress_mmap_invalid(
 
 	ptr = mmap(addr, length, prot, flags, fd, offset);
 	if (UNLIKELY(ptr != MAP_FAILED))
-		(void)stress_munmap_retry_enomem(ptr, length);
+		(void)stress_munmap_force(ptr, length);
 
 #if defined(__NR_mmap) &&	\
     defined(HAVE_SYSCALL)
@@ -385,12 +385,12 @@ static void stress_mmap_invalid(
 	 */
 	ptr = (void *)(uintptr_t)syscall(__NR_mmap, addr, length, prot, flags, fd, offset + 1);
 	if (UNLIKELY(ptr != MAP_FAILED))
-		(void)stress_munmap_retry_enomem(ptr, length);
+		(void)stress_munmap_force(ptr, length);
 #endif
 	/* Do the above via libc */
 	ptr = mmap(addr, length, prot, flags, fd, offset + 1);
 	if (UNLIKELY(ptr != MAP_FAILED))
-		(void)stress_munmap_retry_enomem(ptr, length);
+		(void)stress_munmap_force(ptr, length);
 }
 
 /*
@@ -460,14 +460,14 @@ static void stress_mmap_fast_munmap(
 			if (mappings[i] == munmap_start + munmap_size) {
 				munmap_size += page_size;
 			} else {
-				(void)stress_munmap_retry_enomem((void *)munmap_start, munmap_size);
+				(void)stress_munmap_force((void *)munmap_start, munmap_size);
 				munmap_start = mappings[i];
 				munmap_size = page_size;
 			}
 		}
 	}
 	if (munmap_start && (munmap_size > 0))
-		(void)stress_munmap_retry_enomem((void *)munmap_start, munmap_size);
+		(void)stress_munmap_force((void *)munmap_start, munmap_size);
 	(void)shim_memset(mapped, 0, pages);
 }
 
@@ -485,7 +485,7 @@ static void stress_mmap_slow_munmap(
 
 	for (i = 0; i < pages; i++) {
 		if (mapped[i] == PAGE_MAPPED)
-			(void)stress_munmap_retry_enomem((void *)mappings[i], page_size);
+			(void)stress_munmap_force((void *)mappings[i], page_size);
 	}
 	(void)shim_memset(mapped, 0, pages);
 }
@@ -599,6 +599,7 @@ retry:
 		hint = stress_mwc1() ? NULL : (void *)~(uintptr_t)0;
 		buf = (uint8_t *)context->mmap(hint, sz,
 			PROT_READ | PROT_WRITE, (context->flags | rnd_flag) & mask, fd, 0);
+
 		if (buf == MAP_FAILED) {
 #if defined(MAP_POPULATE)
 			/* Force MAP_POPULATE off, just in case */
@@ -606,14 +607,6 @@ retry:
 				context->flags &= ~MAP_POPULATE;
 				no_mem_retries++;
 				continue;
-			}
-#endif
-#if defined(MAP_HUGETLB)
-			/* Force MAP_HUGETLB off, just in case */
-			if (rnd_flag & MAP_HUGETLB) {
-				mask &= ~MAP_HUGETLB;
-				no_mem_retries++;
-				goto retry;
 			}
 #endif
 #if defined(MAP_UNINITIALIZED)
@@ -728,7 +721,7 @@ retry:
 		else
 			stress_mmap_fast_munmap(mappings, mapped, pages, page_size);
 
-		(void)stress_munmap_retry_enomem((void *)buf, sz);
+		(void)stress_munmap_force((void *)buf, sz);
 #if defined(MAP_FIXED)
 
 		/*
@@ -812,8 +805,8 @@ cleanup:
 		 */
 		for (n = 0; n < pages; n++) {
 			if (mapped[n] & PAGE_MAPPED) {
-				(void)stress_munmap_retry_enomem((void *)mappings[n], 0);
-				(void)stress_munmap_retry_enomem((void *)mappings[n], page_size);
+				(void)stress_munmap_force((void *)mappings[n], 0);
+				(void)stress_munmap_force((void *)mappings[n], page_size);
 				break;
 			}
 		}
@@ -856,7 +849,7 @@ cleanup:
 			if (buf != MAP_FAILED) {
 				if (context->mmap_mlock)
 					(void)shim_mlock(buf, rnd_sz);
-				(void)stress_munmap_retry_enomem((void *)buf, rnd_sz);
+				(void)stress_munmap_force((void *)buf, rnd_sz);
 			}
 		}
 
@@ -878,7 +871,7 @@ cleanup:
 				if (context->mmap_mlock)
 					(void)shim_mlock(buf, page_size);
 				stress_set_vma_anon_name((void *)buf, page_size, mmap_name);
-				(void)stress_munmap_retry_enomem((void *)buf, page_size);
+				(void)stress_munmap_force((void *)buf, page_size);
 			}
 			if (tmpfd >= 0)
 				(void)close(tmpfd);
@@ -918,7 +911,7 @@ cleanup:
 					rc = EXIT_FAILURE;
 				}
 			}
-			(void)stress_munmap_retry_enomem((void *)buf64, page_size);
+			(void)stress_munmap_force((void *)buf64, page_size);
 		}
 #endif
 #if defined(HAVE_MPROTECT)
@@ -942,7 +935,7 @@ cleanup:
 					rc = EXIT_FAILURE;
 				}
 			}
-			(void)stress_munmap_retry_enomem((void *)buf64, page_size);
+			(void)stress_munmap_force((void *)buf64, page_size);
 		}
 #endif
 		stress_bogo_inc(args);

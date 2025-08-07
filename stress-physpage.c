@@ -209,7 +209,7 @@ static int stress_virt_to_phys(
 				MAP_SHARED, fd_mem, (off_t)phys_addr);
 			if (ptr != MAP_FAILED) {
 				stress_set_vma_anon_name(ptr, page_size, "ro-dev-mem");
-				(void)stress_munmap_retry_enomem((void *)ptr, page_size);
+				(void)stress_munmap_force((void *)ptr, page_size);
 			}
 			if (writable) {
 				ptr = (uint8_t *)mmap(NULL, page_size, PROT_READ | PROT_WRITE,
@@ -219,7 +219,7 @@ static int stress_virt_to_phys(
 
 					stress_set_vma_anon_name(ptr, page_size, "rw-dev-mem");
 					*(volatile uint8_t *)ptr = val;
-					(void)stress_munmap_retry_enomem((void *)ptr, page_size);
+					(void)stress_munmap_force((void *)ptr, page_size);
 				}
 			}
 		}
@@ -299,7 +299,7 @@ static int stress_physpage(stress_args_t *args)
 			stress_set_vma_anon_name(nptr, page_size, "rw-page");
 			(void)stress_virt_to_phys(args, page_size, fd_pm, fd_pc, fd_mem,
 				(uintptr_t)nptr, physpage_mtrr, true, &success);
-			(void)stress_munmap_retry_enomem(nptr, page_size);
+			(void)stress_munmap_force(nptr, page_size);
 			(void)stress_virt_to_phys(args, page_size, fd_pm, fd_pc, fd_mem,
 				(uintptr_t)g_shared->stats, physpage_mtrr, false, &success);
 

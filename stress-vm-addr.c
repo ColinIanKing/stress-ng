@@ -512,7 +512,7 @@ static int stress_vm_addr_child(stress_args_t *args, void *ctxt)
 
 			no_mem_retries = 0;
 			*(context->bit_error_count) += func(buf, buf_sz);
-			(void)stress_munmap_retry_enomem((void *)buf, buf_sz);
+			(void)stress_munmap_force((void *)buf, buf_sz);
 			stress_bogo_inc(args);
 			if (!stress_continue_vm(args))
 				break;

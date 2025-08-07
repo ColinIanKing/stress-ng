@@ -119,7 +119,7 @@ static int stress_mmapmany_child(stress_args_t *args, void *context)
 			ptr += offset2pages;
 			*ptr = pattern1 ^ (uint64_t)n;
 
-			if (UNLIKELY(stress_munmap_retry_enomem((void *)(((uintptr_t)mappings[n]) + page_size), page_size) < 0))
+			if (UNLIKELY(stress_munmap_force((void *)(((uintptr_t)mappings[n]) + page_size), page_size) < 0))
 				break;
 			stress_bogo_inc(args);
 		}
@@ -148,9 +148,9 @@ static int stress_mmapmany_child(stress_args_t *args, void *context)
 				rc = EXIT_FAILURE;
 			}
 
-			(void)stress_munmap_retry_enomem((void *)mappings[i], page_size);
-			(void)stress_munmap_retry_enomem((void *)(((uintptr_t)mappings[i]) + page_size), page_size);
-			(void)stress_munmap_retry_enomem((void *)(((uintptr_t)mappings[i]) + page_size + page_size), page_size);
+			(void)stress_munmap_force((void *)mappings[i], page_size);
+			(void)stress_munmap_force((void *)(((uintptr_t)mappings[i]) + page_size), page_size);
+			(void)stress_munmap_force((void *)(((uintptr_t)mappings[i]) + page_size + page_size), page_size);
 		}
 	} while ((rc == EXIT_SUCCESS) && stress_continue(args));
 

@@ -468,7 +468,7 @@ static int stress_mmaprandom_munmap(
 
 	(void)stress_mmaprandom_madvise_pages(addr, length, advise, page_size);
 #endif
-	return munmap(addr, length);
+	return stress_munmap_force(addr, length);
 
 }
 
@@ -729,7 +729,7 @@ static void OPTIMIZE3 stress_mmaprandom_unmmap(mr_ctxt_t *ctxt, const int idx)
 		bool failed = false;
 
 		while (ptr < ptr_end) {
-			if (UNLIKELY(stress_munmap_retry_enomem((void *)ptr, page_size) < 0))
+			if (UNLIKELY(stress_munmap_force((void *)ptr, page_size) < 0))
 				failed = true;
 			ptr += page_size;
 		}
@@ -1266,7 +1266,7 @@ static void stress_mmaprandom_fork(mr_ctxt_t *ctxt, const int idx)
 						shim_memset(mr_node->mmap_addr, stress_mwc8(), mr_node->mmap_size);
 					}
 				}
-				(void)munmap(mr_node->mmap_addr, mr_node->mmap_size);
+				(void)stress_munmap_force(mr_node->mmap_addr, mr_node->mmap_size);
 			}
 		}
 		_exit(0);
@@ -1416,7 +1416,7 @@ static int stress_mmaprandom_child(stress_args_t *args, void *context)
 	} while (stress_continue(args));
 
 	RB_FOREACH(mr_node, sm_used_node_tree, &sm_used_node_tree_root) {
-		(void)munmap(mr_node->mmap_addr, mr_node->mmap_size);
+		(void)stress_munmap_force(mr_node->mmap_addr, mr_node->mmap_size);
 	}
 	return rc;
 }

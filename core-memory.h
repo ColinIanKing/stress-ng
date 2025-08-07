@@ -35,7 +35,7 @@ extern void stress_usage_bytes(stress_args_t *args,
 extern WARN_UNUSED void *stress_align_address(const void *addr, const size_t alignment);
 extern void stress_set_vma_anon_name(const void *addr, const size_t size,
 	const char *name);
-extern int stress_munmap_retry_enomem(void *addr, size_t length);
+extern int stress_munmap_force(void *addr, size_t length);
 extern int stress_swapoff(const char *path);
 extern bool stress_addr_readable(const void *addr, const size_t len);
 extern WARN_UNUSED int stress_get_pid_memory_usage(const pid_t pid,

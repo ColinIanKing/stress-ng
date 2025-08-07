@@ -3641,9 +3641,9 @@ static int stress_vm_child(stress_args_t *args, void *ctxt)
 			(void)stress_madvise_randomize(buf, buf_sz);
 #if defined(HAVE_MPROTECT) &&	\
     defined(PROT_NONE)
-			(void)stress_munmap_retry_enomem(buf, buf_sz + page_size);
+			(void)stress_munmap_force(buf, buf_sz + page_size);
 #else
-			(void)stress_munmap_retry_enomem(buf, buf_sz);
+			(void)stress_munmap_force(buf, buf_sz);
 #endif
 		}
 	} while (stress_continue_vm(args));
@@ -3651,9 +3651,9 @@ static int stress_vm_child(stress_args_t *args, void *ctxt)
 	if (vm_keep && (buf != NULL)) {
 #if defined(HAVE_MPROTECT) && 	\
     defined(PROT_NONE)
-		(void)stress_munmap_retry_enomem(buf, buf_sz + page_size);
+		(void)stress_munmap_force(buf, buf_sz + page_size);
 #else
-		(void)stress_munmap_retry_enomem(buf, buf_sz);
+		(void)stress_munmap_force(buf, buf_sz);
 #endif
 	}
 

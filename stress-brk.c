@@ -269,7 +269,7 @@ static int OPTIMIZE3 stress_brk_child(stress_args_t *args, void *context)
 			i = 0;
 			/* remove a page from brk region */
 			if (unmap_ptr) {
-				(void)stress_munmap_retry_enomem((void *)unmap_ptr, page_size);
+				(void)stress_munmap_force((void *)unmap_ptr, page_size);
 				unmap_ptr = NULL;
 			}
 			continue;

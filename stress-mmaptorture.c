@@ -677,7 +677,7 @@ mapped_ok:
 			if (stress_mwc1()) {
 				int ret;
 
-				ret = stress_munmap_retry_enomem((void *)ptr, mmap_size);
+				ret = stress_munmap_force((void *)ptr, mmap_size);
 				if (ret == 0) {
 #if defined(MAP_FIXED)
 					if (stress_mwc1()) {
@@ -727,7 +727,7 @@ mapped_ok:
 
 					if (stress_mwc1()) {
 						if ((ptr != MAP_FAILED) && (mmap_size > 0)) {
-							(void)stress_munmap_retry_enomem((void *)(ptr + i), page_size);
+							(void)stress_munmap_force((void *)(ptr + i), page_size);
 							mappings[i].addr = MAP_FAILED;
 							mappings[i].size = 0;
 						}
@@ -750,7 +750,7 @@ mapped_ok:
 					mmap_size = mappings[i].size;
 
 					if ((ptr != MAP_FAILED) && (mmap_size > 0)) {
-						(void)stress_munmap_retry_enomem((void *)ptr, mmap_size);
+						(void)stress_munmap_force((void *)ptr, mmap_size);
 						mappings[i].addr = MAP_FAILED;
 						mappings[i].size = 0;
 					}
@@ -810,7 +810,7 @@ mappings_unmap:
 								mmap_stats->madvise_pages += 1;
 #endif
 						}
-						(void)stress_munmap_retry_enomem((void *)(ptr + j), page_size);
+						(void)stress_munmap_force((void *)(ptr + j), page_size);
 					}
 				}
 #endif

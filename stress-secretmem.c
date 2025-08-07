@@ -73,8 +73,8 @@ static bool stress_secretmem_unmap(
 
 	for (i = 0; i < n; i++) {
 		if (mappings[i]) {
-			if (LIKELY((stress_munmap_retry_enomem((void *)mappings[i], page_size) == 0) &&
-				   (stress_munmap_retry_enomem((void *)(mappings[i] + page_size2), page_size) == 0))) {
+			if (LIKELY((stress_munmap_force((void *)mappings[i], page_size) == 0) &&
+				   (stress_munmap_force((void *)(mappings[i] + page_size2), page_size) == 0))) {
 				mappings[i] = NULL;
 			} else {
 				/* munmap failed, e.g. ENOMEM, so flag it */
@@ -155,7 +155,7 @@ static int stress_secretmem_child(stress_args_t *args, void *context)
 			/*
 			 *  Make an hole in the 3 page mapping on middle page
 			 */
-			if (UNLIKELY(stress_munmap_retry_enomem((void *)(mappings[n] + page_size), page_size) < 0)) {
+			if (UNLIKELY(stress_munmap_force((void *)(mappings[n] + page_size), page_size) < 0)) {
 				/* Failed?, remember to retry later */
 				redo_unmapping = mappings[n];
 				break;
@@ -175,7 +175,7 @@ static int stress_secretmem_child(stress_args_t *args, void *context)
 		 *  ..and now redo an unmapping that failed earlier
 		 */
 		if (redo_unmapping)
-			(void)stress_munmap_retry_enomem(redo_unmapping, page_size3);
+			(void)stress_munmap_force(redo_unmapping, page_size3);
 
 	} while (stress_continue(args));
 

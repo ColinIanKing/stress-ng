@@ -309,7 +309,7 @@ static void *stress_madvise_pages(void *arg)
 		unmapped = mmap(NULL, page_size, PROT_READ | PROT_WRITE,
 				MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 		if (unmapped != MAP_FAILED) {
-			(void)stress_munmap_retry_enomem(unmapped, page_size);
+			(void)stress_munmap_force(unmapped, page_size);
 			(void)shim_madvise(unmapped, page_size, MADV_NORMAL);
 		}
 	}
