@@ -525,7 +525,6 @@ int stress_munmap_force(void *addr, size_t length)
 			    (((uintptr_t)addr & (size1GB - 1)) == 0) &&
 			    ((hugetlb_size & (size1GB - 1)) == 0)) {
 				ret = munmap(addr, hugetlb_size);
-				pr_inf("unmap 1GB HTLB: %zd %d\n", hugetlb_size, ret);
 				if (ret == 0)
 					break;
 				saved_errno = errno;
@@ -536,7 +535,6 @@ int stress_munmap_force(void *addr, size_t length)
 			    (((uintptr_t)addr & (size2MB - 1)) == 0) &&
 			    ((hugetlb_size & (size2MB - 1)) == 0)) {
 				ret = munmap(addr, hugetlb_size);
-				pr_inf("unmap 2MB HTLB: %zd %d\n", hugetlb_size, ret);
 				if (ret == 0)
 					break;
 				saved_errno = errno;
