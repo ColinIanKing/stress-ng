@@ -501,9 +501,6 @@ int stress_munmap_force(void *addr, size_t length)
 
 	for (i = 1; i <= 10; i++) {
 		int saved_errno;
-#if defined(MAP_HUGETLB)
-		size_t hugetlb_size;
-#endif
 
 		ret = munmap(addr, length);
 		if (LIKELY(ret == 0))
@@ -518,7 +515,10 @@ int stress_munmap_force(void *addr, size_t length)
 		 */
 #if defined(MAP_HUGETLB)
 		if (saved_errno == EINVAL) {
-			hugetlb_size = stress_mapping_hugetlb_size(addr);
+#if defined(MAP_HUGE_1GB) ||	\
+    defined(MAP_HUGE_2MB)
+			size_t hugetlb_size = stress_mapping_hugetlb_size(addr);
+#endif
 
 #if (MAP_HUGE_1GB)
 			if ((length < size1GB) &&
