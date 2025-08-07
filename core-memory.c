@@ -451,7 +451,7 @@ static size_t stress_mapping_hugetlb_size(void *addr)
 	fp = fopen(path, "r");
 	if (!fp) {
 		/* can't open, can't assume it's huge */
-		return false;
+		return 0;
 	}
 	while (fgets(buf, sizeof(buf), fp) != NULL) {
 		if (addr_match) {
