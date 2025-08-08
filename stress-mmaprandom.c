@@ -231,6 +231,9 @@ static const int mmap_extra_flags[] = {
 #if defined(MAP_HUGETLB) && defined(MAP_HUGE_SHIFT)
 	MAP_HUGETLB | (21 << MAP_HUGE_SHIFT),
 #endif
+#if defined(MAP_DROPPABLE)
+	MAP_DROPPABLE,
+#endif
 };
 
 #if defined(HAVE_MADVISE)
