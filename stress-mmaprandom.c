@@ -417,7 +417,7 @@ static void * stress_mmaprandom_mmap(
 static int stress_mmaprandom_madvise_pages(
 	void *addr,
 	size_t length,
-	int advise,
+	int advice,
 	size_t page_size)
 {
 	uint8_t *ptr = (uint8_t *)addr;
@@ -425,27 +425,27 @@ static int stress_mmaprandom_madvise_pages(
 
 #if defined(MADV_HWPOISON)
 	/* We really don't want to do this */
-        if (advise == MADV_HWPOISON)
+        if (advice == MADV_HWPOISON)
 		return 0;
 #endif
 
 	if (stress_mwc1()) {
 #if defined(MADV_NORMAL)
-		if (shim_madvise(addr, length, advise) < 0)
+		if (shim_madvise(addr, length, advice) < 0)
 			return shim_madvise(addr, length, MADV_NORMAL);
 
 #else
-		return shim_madvise(addr, length, advise);
+		return shim_madvise(addr, length, advice);
 #endif
 	}
 
 	while (ptr < ptr_end) {
 		if (stress_mwc1()) {
 #if defined(MADV_NORMAL)
-			if (shim_madvise(ptr, page_size, advise) < 0)
+			if (shim_madvise(ptr, page_size, advice) < 0)
 				(void)shim_madvise(ptr, page_size, MADV_NORMAL);
 #else
-			(void)shim_madvise(ptr, page_size, advise);
+			(void)shim_madvise(ptr, page_size, advice);
 #endif
 			ptr += page_size;
 		} else {
