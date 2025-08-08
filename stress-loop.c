@@ -106,6 +106,7 @@ static int stress_loop(stress_args_t *args)
 	char backing_file[PATH_MAX];
 	size_t backing_size = 2 * MB;
 	const int bad_fd = stress_get_bad_fd();
+	uint8_t blk[4096] ALIGNED(8);
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
@@ -225,6 +226,15 @@ static int stress_loop(stress_args_t *args)
 		if (ret < 0)
 			goto clr_loop;
 
+		/* fill loop device with data */
+		stress_uint8rnd4(blk, sizeof(blk));
+		for (i = 0; i < backing_size; i += sizeof(blk)) {
+			shim_memcpy(blk, &i, sizeof(i));
+			if (write(loop_dev, (void *)blk, sizeof(blk)) != (ssize_t)sizeof(blk))
+				break;
+		}
+		shim_fsync(loop_dev);
+
 		/*
 		 *  Try to set some flags
 		 */
@@ -339,6 +349,26 @@ static int stress_loop(stress_args_t *args)
 			VOID_RET(int, ioctl(loop_dev, LOOP_CONFIGURE, NULL));
 		}
 #endif
+		/* read loop back */
+		if (lseek(loop_dev, 0, SEEK_SET) != (off_t)-1) {
+			for (i = 0; i < backing_size; i += sizeof(blk)) {
+				if (read(loop_dev, (void *)blk, sizeof(blk)) != (ssize_t)sizeof(blk))
+					break;
+			}
+		}
+
+		/* try various illegal and allowed fallocate ops */
+#if defined(HAVE_FALLOCATE)
+		(void)shim_fallocate(loop_dev, 0, 0, 4096);
+#if defined(FALLOC_FL_PUNCH_HOLE)
+		(void)shim_fallocate(loop_dev, FALLOC_FL_PUNCH_HOLE, 0, 4096);
+#endif
+#if defined(FALLOC_FL_ZERO_RANGE)
+		(void)shim_fallocate(loop_dev, FALLOC_FL_ZERO_RANGE, 0, backing_size);
+#endif
+#endif
+		VOID_RET(int, ftruncate(loop_dev, 0));
+		VOID_RET(int, ftruncate(loop_dev, backing_size));
 
 #if defined(LOOP_GET_STATUS)
 clr_loop:
