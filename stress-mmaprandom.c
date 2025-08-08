@@ -423,6 +423,12 @@ static int stress_mmaprandom_madvise_pages(
 	uint8_t *ptr = (uint8_t *)addr;
 	uint8_t *ptr_end = ptr + length;
 
+#if defined(MADV_HWPOISON)
+	/* We really don't want to do this */
+        if (advise == MADV_HWPOISON)
+		return 0;
+#endif
+
 	if (stress_mwc1()) {
 #if defined(MADV_NORMAL)
 		if (shim_madvise(addr, length, advise) < 0)
