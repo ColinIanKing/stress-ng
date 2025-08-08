@@ -948,6 +948,11 @@ static void stress_mmaprandom_madvise(mr_ctxt_t *ctxt, const int idx)
 		return;
 
 	advice = madvise_options[stress_mwc8modn(madvise_options_elements)];
+#if defined(MADV_HWPOISON)
+	/* We really don't want to do this */
+        if (advice == MADV_HWPOISON)
+		return;
+#endif
 	if (LIKELY(madvise(mr_node->mmap_addr, mr_node->mmap_size, advice) == 0))
 		ctxt->count[idx] += 1.0;
 }
