@@ -519,6 +519,7 @@ stress-ng has found various Kernel, QEMU bugs/regressions, and libc bugs; approp
 * [Cygwin: Hang or crash after multiple SIGILL or SIGSEGV and siglongjmp](https://sourceware.org/pipermail/cygwin/2025-March/257726.html)
 * [binder: fix use-after-free in binderfs_evict_inode()](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=8c0a559825281764061a127632e5ad273f0466ad)
 * [MultiVM - L2 guest(s) running stress-ng getting stuck at booting after triggering crash](https://bugs.launchpad.net/ubuntu/+source/linux/+bug/2077722)
+ *[cifs: Fix null-ptr-deref by static initializing global lock](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=b0b73329ebeeb727913f07b5b6bb85e66e03d156)
 
 ## Kernel improvements that used stress-ng
 
