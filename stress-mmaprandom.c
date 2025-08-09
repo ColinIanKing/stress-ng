@@ -580,19 +580,33 @@ static int stress_mmaprandom_fallocate(
 	const size_t pages)
 {
 	size_t i;
+	const size_t page_size = ctxt->page_size;
 
 	if (fd < 0)
 		return -1;
 
-	if (LIKELY(shim_fallocate(fd, 0, offset, pages * ctxt->page_size) == 0))
-		return 0;
+	if (stress_mwc1() || (pages > 1)) {
+		/* multiple pages, to one fallocate over the entire allocation */
+		if (LIKELY(shim_fallocate(fd, 0, offset, pages * page_size) == 0))
+			return 0;
+	} else {
+		if (page_size == 4096) {
+			/* 1 4K page, 1 byte, will get expanded automatically on page map write */
+			if (shim_fallocate(fd, 0, offset, 1) == 0)
+				return 0;
+		} else {
+			/* 1 x non-4K page, do whole page */
+			if (shim_fallocate(fd, 0, offset, page_size) == 0)
+				return 0;
+		}
+	}
 
 	/* fall back to writes */
 	if (UNLIKELY(lseek(fd, offset, SEEK_SET) == (off_t) -1))
 		return -1;
-	(void)shim_memset(ctxt->page, 0, ctxt->page_size);
+	(void)shim_memset(ctxt->page, 0, page_size);
 	for (i = 0; i < pages; i++) {
-		if (UNLIKELY(write(fd, ctxt->page, ctxt->page_size) != (ssize_t)ctxt->page_size))
+		if (UNLIKELY(write(fd, ctxt->page, page_size) != (ssize_t)page_size))
 			return -1;
 	}
 	return 0;
