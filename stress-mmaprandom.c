@@ -305,8 +305,47 @@ static const int msync_flags[] = {
 #endif
 
 /*
+ *  stress_mmaprandom_twiddle_rw_hint()
+ *	attempt twiddle randomly selected file rw hint flags on/off
+ */
+static void stress_mmaprandom_twiddle_rw_hint(const int fd)
+{
+#if defined(F_SET_RW_HINT)
+	static const uint64_t file_rw_hints[] = {
+#if defined(RWH_WRITE_LIFE_NOT_SET)
+		RWH_WRITE_LIFE_NOT_SET,
+#endif
+#if defined(RWH_WRITE_LIFE_NONE)
+		RWH_WRITE_LIFE_NONE,
+#endif
+#if defined(RWH_WRITE_LIFE_SHORT)
+		RWH_WRITE_LIFE_SHORT,
+#endif
+#if defined(RWH_WRITE_LIFE_MEDIUM)
+		RWH_WRITE_LIFE_MEDIUM,
+#endif
+#if defined(RWH_WRITE_LIFE_LONG)
+		RWH_WRITE_LIFE_LONG,
+#endif
+#if defined(RWH_WRITE_LIFE_EXTREME)
+		RWH_WRITE_LIFE_EXTREME,
+#endif
+	};
+	uint64_t rnd_rw_hint;
+
+	if (SIZEOF_ARRAY(file_rw_hints) == 0)
+		return;
+
+	rnd_rw_hint = MWC_RND_ELEMENT(file_rw_hints);
+	VOID_RET(int, fcntl(fd, F_SET_RW_HINT, &rnd_rw_hint));
+#else
+	(void)fd;
+#endif
+}
+
+/*
  *  stress_mmaprandom_twiddle_file_flags()
- *	attempt twiddle randomly selectedfile flags on/off
+ *	attempt twiddle randomly selected file flags on/off
  */
 static void stress_mmaprandom_twiddle_file_flags(const int fd)
 {
@@ -694,6 +733,7 @@ static void OPTIMIZE3 stress_mmaprandom_mmap_file(mr_ctxt_t *ctxt, const int idx
 		}
 
 		stress_mmaprandom_twiddle_file_flags(fd);
+		stress_mmaprandom_twiddle_rw_hint(fd);
 		addr = (uint8_t *)stress_mmaprandom_mmap(NULL, size, prot_flag,
 				mmap_flag | extra_flags, fd, offset, page_size);
 		if (addr != MAP_FAILED) {
