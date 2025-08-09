@@ -886,7 +886,7 @@ static void OPTIMIZE3 stress_mmaprandom_unmmap_lo_hi_addr(mr_ctxt_t *ctxt, const
  *  stress_mmaprandom_read()
  *	read from mapping
  */
-static void OPTIMIZE3 TARGET_CLONES stress_mmaprandom_read(mr_ctxt_t *ctxt, const int idx)
+static void OPTIMIZE3 stress_mmaprandom_read(mr_ctxt_t *ctxt, const int idx)
 {
 	mr_node_t *mr_node = stress_mmaprandom_get_random_used(ctxt);
 
