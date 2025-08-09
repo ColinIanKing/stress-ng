@@ -38,6 +38,10 @@
 #include <bsd/sys/tree.h>
 #endif
 
+#if defined(HAVE_SYS_UIO_H)
+#include <sys/uio.h>
+#endif
+
 /* BSD red-black tree */
 #if defined(RB_HEAD) &&		\
     defined(RB_PROTOTYPE) &&	\
@@ -107,6 +111,7 @@ typedef struct {
 	double *count;		/* array of usage counters for each mr_func_t */
 	bool oom_avoid;		/* low memory avoid flag */
 	bool numa;		/* move to random NUMA nodes */
+	int pidfd;		/* process' pid file descriptor */
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 	stress_numa_mask_t *numa_mask;	/* NUMA mask */
 	stress_numa_mask_t *numa_nodes;	/* NUMA nodes available */
@@ -1361,6 +1366,47 @@ static void stress_mmaprandom_numa_move(mr_ctxt_t *ctxt, const int idx)
 }
 #endif
 
+#if defined(__NR_process_madvise) &&	\
+    defined(HAVE_SYSCALL) &&		\
+    defined(HAVE_SYS_UIO_H)
+/*
+ *  stress_mmaprandom_process_madvise()
+ *	madvise a mmap'd region using process_madvise
+ */
+static void stress_mmaprandom_process_madvise(mr_ctxt_t *ctxt, const int idx)
+{
+	static const int proc_advice[] = {
+#if defined(MADV_COLD)
+		MADV_COLD,
+#endif
+#if defined(MADV_COLLAPSE)
+		MADV_COLLAPSE,
+#endif
+#if defined(MADV_PAGEOUT)
+		MADV_PAGEOUT,
+#endif
+#if defined(MADV_WILLNEED)
+		MADV_WILLNEED,
+#endif
+		0,
+	};
+	const int advice = MWC_RND_ELEMENT(proc_advice);
+	mr_node_t *mr_node = stress_mmaprandom_get_random_used(ctxt);
+	struct iovec iov[1];
+
+	if (!mr_node)
+		return;
+	if (ctxt->pidfd == -1)
+		return;
+
+	iov[0].iov_base = mr_node->mmap_addr;
+	iov[0].iov_len = mr_node->mmap_size;
+
+	if (shim_process_madvise(ctxt->pidfd, iov, 1, advice, 0) != -1)
+		ctxt->count[idx] += 1.0;
+}
+#endif
+
 static const mr_funcs_t mr_funcs[] = {
 	{ stress_mmaprandom_mmap_anon,		"mmap anon" },
 	{ stress_mmaprandom_mmap_file,		"mmap file" },
@@ -1405,6 +1451,11 @@ static const mr_funcs_t mr_funcs[] = {
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 	{ stress_mmaprandom_numa_move,		"NUMA mapping move" },
 #endif
+#if defined(__NR_process_madvise) &&	\
+    defined(HAVE_SYSCALL) &&		\
+    defined(HAVE_SYS_UIO_H)
+	{ stress_mmaprandom_process_madvise,	"process madvise" },
+#endif
 };
 
 /*
@@ -1422,6 +1473,8 @@ static int stress_mmaprandom_child(stress_args_t *args, void *context)
 	VOID_RET(int, stress_sighandler(args->name, SIGSEGV, stress_mmaprandom_sig_handler, NULL));
 	VOID_RET(int, stress_sighandler(args->name, SIGBUS, stress_mmaprandom_sig_handler, NULL));
 
+	ctxt->pidfd = shim_pidfd_open(getpid(), 0);
+
 	do {
 		const size_t i = stress_mwc8modn(SIZEOF_ARRAY(mr_funcs));
 
@@ -1432,6 +1485,9 @@ static int stress_mmaprandom_child(stress_args_t *args, void *context)
 	RB_FOREACH(mr_node, sm_used_node_tree, &sm_used_node_tree_root) {
 		(void)stress_munmap_force(mr_node->mmap_addr, mr_node->mmap_size);
 	}
+
+	if (ctxt->pidfd != -1)
+		(void)close(ctxt->pidfd);
 	return rc;
 }
 
