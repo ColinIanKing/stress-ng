@@ -163,7 +163,6 @@ RB_PROTOTYPE(sm_free_node_tree, mr_node, rb, mr_node_node_cmp);
 RB_GENERATE(sm_free_node_tree, mr_node, rb, mr_node_node_cmp);
 static size_t sm_free_nodes;
 
-
 /*
  *  stress_mmaprandom_sig_handler()
  *	signal handler to immediately terminates
@@ -476,14 +475,12 @@ static int stress_mmaprandom_munmap(
 	size_t length,
 	size_t page_size)
 {
-
 #if defined(MADV_FREE)
 	const int advise = MWC_RND_ELEMENT(madvise_unmap_options);
 
 	(void)stress_mmaprandom_madvise_pages(addr, length, advise, page_size);
 #endif
 	return stress_munmap_force(addr, length);
-
 }
 
 /*
