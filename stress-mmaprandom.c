@@ -305,6 +305,46 @@ static const int msync_flags[] = {
 #endif
 
 /*
+ *  stress_mmaprandom_twiddle_file_flags()
+ *	attempt twiddle randomly selectedfile flags on/off
+ */
+static void stress_mmaprandom_twiddle_file_flags(const int fd)
+{
+#if defined(F_SETFL) &&	\
+    defined(F_GETFL)
+	static const int file_flags[] = {
+#if defined(O_ASYNC)
+		O_ASYNC,
+#endif
+#if defined(O_DIRECT)
+		O_DIRECT,
+#endif
+#if defined(O_NOATIME)
+		O_NOATIME,
+#endif
+#if defined(O_NONBLOCK)
+		O_NONBLOCK,
+#endif
+	};
+	int flags, rnd_flag;
+
+	if (SIZEOF_ARRAY(file_flags) == 0)
+		return;
+
+	rnd_flag = MWC_RND_ELEMENT(file_flags);
+
+	flags = fcntl(fd, F_GETFL, NULL);
+	if (flags < 0)
+		return;
+
+	flags ^= rnd_flag;
+	VOID_RET(int, fcntl(fd, F_SETFL, flags));
+#else
+	(void)fd;
+#endif
+}
+
+/*
  *  stress_mmaprandom_zap_mr_node()
  *	reset mr_node
  */
@@ -653,6 +693,7 @@ static void OPTIMIZE3 stress_mmaprandom_mmap_file(mr_ctxt_t *ctxt, const int idx
 			break;
 		}
 
+		stress_mmaprandom_twiddle_file_flags(fd);
 		addr = (uint8_t *)stress_mmaprandom_mmap(NULL, size, prot_flag,
 				mmap_flag | extra_flags, fd, offset, page_size);
 		if (addr != MAP_FAILED) {
