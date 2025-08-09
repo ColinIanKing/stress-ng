@@ -932,6 +932,11 @@ static void OPTIMIZE3 stress_mmaprandom_write(mr_ctxt_t *ctxt, const int idx)
 #else
 	if (mr_node->mmap_prot & PROT_WRITE) {
 #endif
+#if defined(HAVE_ATOMIC_STORE) &&	\
+    defined(__ATOMIC_ACQUIRE)
+		if (mr_node->mmap_prot & PROT_READ)
+			__atomic_add_fetch((uint8_t *)mr_node->mmap_addr, 1, __ATOMIC_SEQ_CST);
+#endif
 		shim_memset(mr_node->mmap_addr, stress_mwc8(), mr_node->mmap_size);
 		ctxt->count[idx] += 1.0;
 	}
@@ -1373,6 +1378,11 @@ static void stress_mmaprandom_fork(mr_ctxt_t *ctxt, const int idx)
 					if ((mr_node->mmap_prot & PROT_WRITE) && !(mr_node->mmap_flags & MAP_NORESERVE)) {
 #else
 					if (mr_node->mmap_prot & PROT_WRITE) {
+#endif
+#if defined(HAVE_ATOMIC_STORE) &&	\
+    defined(__ATOMIC_ACQUIRE)
+						if (mr_node->mmap_prot & PROT_READ)
+							__atomic_add_fetch((uint8_t *)mr_node->mmap_addr, 1, __ATOMIC_SEQ_CST);
 #endif
 						shim_memset(mr_node->mmap_addr, stress_mwc8(), mr_node->mmap_size);
 					}
