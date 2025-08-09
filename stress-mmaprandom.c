@@ -794,7 +794,7 @@ static OPTIMIZE3 mr_node_t *stress_mmaprandom_get_random_used(mr_ctxt_t *ctxt)
  *  stress_mmaprandom_get_random_size()
  *	get an randomly selected used mr_node
  */
-static size_t stress_mmaprandom_get_random_size(
+static inline size_t stress_mmaprandom_get_random_size(
 	const size_t mmap_size,
 	const size_t page_size)
 {
