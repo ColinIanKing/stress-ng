@@ -61,8 +61,11 @@
 #define MMAP_RANDOM_MAX_MAPPINGS	(1024 * 1024)
 #define MMAP_RANDOM_DEFAULT_MMAPPINGS	(1024)
 
+#define MMAP_RANDOM_MAX_PAGES_SHIFT	(10)
+#define MMAP_RANDOM_MAX_PAGES_MASK	((uint32_t)((1U << MMAP_RANDOM_MAX_PAGES_SHIFT) - 1))
+
 #define MMAP_RANDOM_MIN_MAXPAGES	(2)
-#define MMAP_RANDOM_MAX_MAXPAGES	(1024)
+#define MMAP_RANDOM_MAX_MAXPAGES	(1U << MMAP_RANDOM_MAX_PAGES_SHIFT)
 #define MMAP_RANDOM_DEFAULT_MAX_PAGES	(8)
 
 #define MWC_RND_ELEMENT(array)		array[stress_mwc8modn(SIZEOF_ARRAY(array))]
@@ -100,6 +103,7 @@ typedef struct {
  */
 typedef struct mr_node {
 	RB_ENTRY(mr_node) rb;	/* rb tree node */
+	RB_ENTRY(mr_node) rb_rand; /* rb rand tree node */
 	void *mmap_addr;	/* mapping start addr */
 	size_t mmap_size;	/* mapping size in bytes */
 	size_t mmap_page_size;	/* page size (maybe a hugepage) */
@@ -107,6 +111,7 @@ typedef struct mr_node {
 	int mmap_flags;		/* mapping flags */
 	off_t mmap_offset;	/* file based mmap offset into file */
 	int mmap_fd;		/* file_fd or mem_fd that was mmap'd to */
+	uint32_t rand_id;	/* randomized id */
 	bool used;		/* true = mapping is used */
 } mr_node_t;
 
@@ -152,6 +157,19 @@ static int OPTIMIZE3 mr_node_page_cmp(mr_node_t *mr_node1, mr_node_t *mr_node2)
 }
 
 /*
+ *  mr_node_page_cmp()
+ *	tree compare to sort by mapping address, for allocated mappings
+ */
+static int OPTIMIZE3 mr_node_rand_cmp(mr_node_t *mr_node1, mr_node_t *mr_node2)
+{
+	if (mr_node1->rand_id > mr_node2->rand_id)
+		return 1;
+	else if (mr_node1->rand_id < mr_node2->rand_id)
+		return -1;
+	return 0;
+}
+
+/*
  * mr_node_node_cmp
  *	tree compare to sort by node addresses, for free'd mr_nodes
  */
@@ -169,6 +187,10 @@ static RB_HEAD(sm_used_node_tree, mr_node) sm_used_node_tree_root;
 RB_PROTOTYPE(sm_used_node_tree, mr_node, rb, mr_node_page_cmp);
 RB_GENERATE(sm_used_node_tree, mr_node, rb, mr_node_page_cmp);
 static size_t sm_used_nodes;
+
+static RB_HEAD(sm_rand_node_tree, mr_node) sm_rand_node_tree_root;
+RB_PROTOTYPE(sm_rand_node_tree, mr_node, rb_rand, mr_node_rand_cmp);
+RB_GENERATE(sm_rand_node_tree, mr_node, rb_rand, mr_node_rand_cmp);
 
 /* Free nodes are ordered by the node's own addr */
 static RB_HEAD(sm_free_node_tree, mr_node) sm_free_node_tree_root;
@@ -354,6 +376,29 @@ static void stress_mmaprandom_twiddle_rw_hint(const int fd)
 #else
 	(void)fd;
 #endif
+}
+
+/*
+ *  stress_mmapradom_rand_id()
+ *	generate a unique random id, lower bits are a unique index of the
+ *	mr_node in the mr_nodes array, the upper bits are a random value
+ */
+static uint32_t stress_mmapradom_rand_id(mr_ctxt_t *ctxt, mr_node_t *mr_node)
+{
+	const uint32_t idx = (mr_node - ctxt->mr_nodes) & ~MMAP_RANDOM_MAX_PAGES_MASK;
+	const uint32_t rnd = (stress_mwc32() & ~MMAP_RANDOM_MAX_PAGES_MASK) | idx;
+
+	return rnd;
+}
+
+/*
+ *  stress_mmaprandom_get_random_used()
+ *	get an randomly selected used mr_node, suboptimial linear scan,
+ *	needs improving.
+ */
+static inline mr_node_t *stress_mmaprandom_get_random_used(void)
+{
+	return RB_ROOT(&sm_rand_node_tree_root);
 }
 
 /*
@@ -658,7 +703,9 @@ static void OPTIMIZE3 stress_mmaprandom_mmap_anon(mr_ctxt_t *ctxt, const int idx
 	mr_node->mmap_offset = 0;
 	mr_node->mmap_fd = -1;
 	mr_node->used = true;
+	mr_node->rand_id = stress_mmapradom_rand_id(ctxt, mr_node);
 	RB_INSERT(sm_used_node_tree, &sm_used_node_tree_root, mr_node);
+	RB_INSERT(sm_rand_node_tree, &sm_rand_node_tree_root, mr_node);
 	sm_used_nodes++;
 }
 
@@ -781,30 +828,10 @@ static void OPTIMIZE3 stress_mmaprandom_mmap_file(mr_ctxt_t *ctxt, const int idx
 	mr_node->mmap_fd = fd;
 	mr_node->mmap_offset = offset;
 	mr_node->used = true;
+	mr_node->rand_id = stress_mmapradom_rand_id(ctxt, mr_node);
 	RB_INSERT(sm_used_node_tree, &sm_used_node_tree_root, mr_node);
+	RB_INSERT(sm_rand_node_tree, &sm_rand_node_tree_root, mr_node);
 	sm_used_nodes++;
-}
-
-/*
- *  stress_mmaprandom_get_random_used()
- *	get an randomly selected used mr_node, suboptimial linear scan,
- *	needs improving.
- */
-static OPTIMIZE3 mr_node_t *stress_mmaprandom_get_random_used(mr_ctxt_t *ctxt)
-{
-	const size_t n = stress_mwc32modn((uint32_t)ctxt->n_mr_nodes);
-	register mr_node_t *mr_node = &ctxt->mr_nodes[n];
-	register mr_node_t *mr_node_end = &ctxt->mr_nodes[ctxt->n_mr_nodes];
-	register size_t i;
-
-	for (i = 0; LIKELY(i < ctxt->n_mr_nodes); i++) {
-		if (UNLIKELY(mr_node->used))
-			return mr_node;
-		mr_node++;
-		if (UNLIKELY(mr_node >= mr_node_end))
-			mr_node = ctxt->mr_nodes;
-	}
-	return NULL;
 }
 
 /*
@@ -826,7 +853,7 @@ static inline size_t stress_mmaprandom_get_random_size(
  */
 static void OPTIMIZE3 stress_mmaprandom_unmmap(mr_ctxt_t *ctxt, const int idx)
 {
-	mr_node_t *mr_node = stress_mmaprandom_get_random_used(ctxt);
+	mr_node_t *mr_node = stress_mmaprandom_get_random_used();
 
 	if (!mr_node)
 		return;
@@ -839,6 +866,7 @@ static void OPTIMIZE3 stress_mmaprandom_unmmap(mr_ctxt_t *ctxt, const int idx)
 			ctxt->count[idx] += 1.0;
 			stress_mmaprandom_zap_mr_node(mr_node);
 			RB_REMOVE(sm_used_node_tree, &sm_used_node_tree_root, mr_node);
+			RB_REMOVE(sm_rand_node_tree, &sm_rand_node_tree_root, mr_node);
 			sm_used_nodes--;
 			RB_INSERT(sm_free_node_tree, &sm_free_node_tree_root, mr_node);
 			sm_free_nodes++;
@@ -866,6 +894,7 @@ static void OPTIMIZE3 stress_mmaprandom_unmmap(mr_ctxt_t *ctxt, const int idx)
 		ctxt->count[idx] += 1.0;
 		stress_mmaprandom_zap_mr_node(mr_node);
 		RB_REMOVE(sm_used_node_tree, &sm_used_node_tree_root, mr_node);
+		RB_REMOVE(sm_rand_node_tree, &sm_rand_node_tree_root, mr_node);
 		sm_used_nodes--;
 		RB_INSERT(sm_free_node_tree, &sm_free_node_tree_root, mr_node);
 		sm_free_nodes++;
@@ -893,6 +922,7 @@ static void OPTIMIZE3 stress_mmaprandom_unmmap_lo_hi_addr(mr_ctxt_t *ctxt, const
 
 		stress_mmaprandom_zap_mr_node(mr_node);
 		RB_REMOVE(sm_used_node_tree, &sm_used_node_tree_root, mr_node);
+		RB_REMOVE(sm_rand_node_tree, &sm_rand_node_tree_root, mr_node);
 		sm_used_nodes--;
 		RB_INSERT(sm_free_node_tree, &sm_free_node_tree_root, mr_node);
 		sm_free_nodes++;
@@ -905,7 +935,7 @@ static void OPTIMIZE3 stress_mmaprandom_unmmap_lo_hi_addr(mr_ctxt_t *ctxt, const
  */
 static void OPTIMIZE3 stress_mmaprandom_read(mr_ctxt_t *ctxt, const int idx)
 {
-	mr_node_t *mr_node = stress_mmaprandom_get_random_used(ctxt);
+	mr_node_t *mr_node = stress_mmaprandom_get_random_used();
 
 	if (!mr_node)
 		return;
@@ -939,7 +969,7 @@ static void OPTIMIZE3 stress_mmaprandom_read(mr_ctxt_t *ctxt, const int idx)
  */
 static void OPTIMIZE3 stress_mmaprandom_write(mr_ctxt_t *ctxt, const int idx)
 {
-	mr_node_t *mr_node = stress_mmaprandom_get_random_used(ctxt);
+	mr_node_t *mr_node = stress_mmaprandom_get_random_used();
 
 	if (!mr_node)
 		return;
@@ -965,7 +995,7 @@ static void OPTIMIZE3 stress_mmaprandom_write(mr_ctxt_t *ctxt, const int idx)
  */
 static void stress_mmaprandom_cache_flush(mr_ctxt_t *ctxt, const int idx)
 {
-	mr_node_t *mr_node = stress_mmaprandom_get_random_used(ctxt);
+	mr_node_t *mr_node = stress_mmaprandom_get_random_used();
 
 	if (!mr_node)
 		return;
@@ -987,7 +1017,7 @@ static void stress_mmaprandom_cache_flush(mr_ctxt_t *ctxt, const int idx)
  */
 static void OPTIMIZE3 stress_mmaprandom_cache_prefetch(mr_ctxt_t *ctxt, const int idx)
 {
-	mr_node_t *mr_node = stress_mmaprandom_get_random_used(ctxt);
+	mr_node_t *mr_node = stress_mmaprandom_get_random_used();
 
 	if (!mr_node)
 		return;
@@ -1019,7 +1049,7 @@ static void OPTIMIZE3 stress_mmaprandom_cache_prefetch(mr_ctxt_t *ctxt, const in
  */
 static void stress_mmaprandom_mremap(mr_ctxt_t *ctxt, const int idx)
 {
-	mr_node_t *mr_node = stress_mmaprandom_get_random_used(ctxt);
+	mr_node_t *mr_node = stress_mmaprandom_get_random_used();
 	size_t pages, new_size;
 	void *new_addr;
 
@@ -1063,7 +1093,7 @@ static void stress_mmaprandom_mremap(mr_ctxt_t *ctxt, const int idx)
  */
 static void stress_mmaprandom_madvise(mr_ctxt_t *ctxt, const int idx)
 {
-	mr_node_t *mr_node = stress_mmaprandom_get_random_used(ctxt);
+	mr_node_t *mr_node = stress_mmaprandom_get_random_used();
 	int advice;
 
 	if (!mr_node)
@@ -1087,7 +1117,7 @@ static void stress_mmaprandom_madvise(mr_ctxt_t *ctxt, const int idx)
  */
 static void stress_mmaprandom_posix_madvise(mr_ctxt_t *ctxt, const int idx)
 {
-	mr_node_t *mr_node = stress_mmaprandom_get_random_used(ctxt);
+	mr_node_t *mr_node = stress_mmaprandom_get_random_used();
 	int advice;
 
 	if (!mr_node)
@@ -1106,7 +1136,7 @@ static void stress_mmaprandom_posix_madvise(mr_ctxt_t *ctxt, const int idx)
  */
 static void stress_mmaprandom_mincore(mr_ctxt_t *ctxt, const int idx)
 {
-	mr_node_t *mr_node = stress_mmaprandom_get_random_used(ctxt);
+	mr_node_t *mr_node = stress_mmaprandom_get_random_used();
 	unsigned char *vec;
 	size_t max_size, size;
 
@@ -1133,7 +1163,7 @@ static void stress_mmaprandom_mincore(mr_ctxt_t *ctxt, const int idx)
  */
 static void stress_mmaprandom_msync(mr_ctxt_t *ctxt, const int idx)
 {
-	mr_node_t *mr_node = stress_mmaprandom_get_random_used(ctxt);
+	mr_node_t *mr_node = stress_mmaprandom_get_random_used();
 	size_t size;
 	int flags;
 
@@ -1157,7 +1187,7 @@ static void stress_mmaprandom_msync(mr_ctxt_t *ctxt, const int idx)
  */
 static void stress_mmaprandom_mlock(mr_ctxt_t *ctxt, const int idx)
 {
-	mr_node_t *mr_node = stress_mmaprandom_get_random_used(ctxt);
+	mr_node_t *mr_node = stress_mmaprandom_get_random_used();
 
 	if (!mr_node)
 		return;
@@ -1174,7 +1204,7 @@ static void stress_mmaprandom_mlock(mr_ctxt_t *ctxt, const int idx)
  */
 static void stress_mmaprandom_munlock(mr_ctxt_t *ctxt, const int idx)
 {
-	mr_node_t *mr_node = stress_mmaprandom_get_random_used(ctxt);
+	mr_node_t *mr_node = stress_mmaprandom_get_random_used();
 
 	if (!mr_node)
 		return;
@@ -1191,7 +1221,7 @@ static void stress_mmaprandom_munlock(mr_ctxt_t *ctxt, const int idx)
  */
 static void stress_mmaprandom_mprotect(mr_ctxt_t *ctxt, const int idx)
 {
-	mr_node_t *mr_node = stress_mmaprandom_get_random_used(ctxt);
+	mr_node_t *mr_node = stress_mmaprandom_get_random_used();
 	int prot_flag;
 
 	if (!mr_node)
@@ -1211,7 +1241,7 @@ static void stress_mmaprandom_mprotect(mr_ctxt_t *ctxt, const int idx)
  */
 static void OPTIMIZE3 stress_mmaprandom_unmap_first_page(mr_ctxt_t *ctxt, const int idx)
 {
-	mr_node_t *mr_node = stress_mmaprandom_get_random_used(ctxt);
+	mr_node_t *mr_node = stress_mmaprandom_get_random_used();
 	size_t page_size;
 
 	if (!mr_node)
@@ -1224,13 +1254,15 @@ static void OPTIMIZE3 stress_mmaprandom_unmap_first_page(mr_ctxt_t *ctxt, const 
 		if (UNLIKELY(stress_mmaprandom_munmap(ptr, page_size, page_size) < 0))
 			return;
 		RB_REMOVE(sm_used_node_tree, &sm_used_node_tree_root, mr_node);
+		RB_REMOVE(sm_rand_node_tree, &sm_rand_node_tree_root, mr_node);
 
 		ptr += page_size;
 		mr_node->mmap_addr = ptr;
 		mr_node->mmap_size -= page_size;
 		mr_node->mmap_offset += page_size;
-
+		mr_node->rand_id = stress_mmapradom_rand_id(ctxt, mr_node);
 		RB_INSERT(sm_used_node_tree, &sm_used_node_tree_root, mr_node);
+		RB_INSERT(sm_rand_node_tree, &sm_rand_node_tree_root, mr_node);
 
 		ctxt->count[idx] += 1.0;
 	}
@@ -1242,7 +1274,7 @@ static void OPTIMIZE3 stress_mmaprandom_unmap_first_page(mr_ctxt_t *ctxt, const 
  */
 static void stress_mmaprandom_unmap_last_page(mr_ctxt_t *ctxt, const int idx)
 {
-	mr_node_t *mr_node = stress_mmaprandom_get_random_used(ctxt);
+	mr_node_t *mr_node = stress_mmaprandom_get_random_used();
 	size_t page_size;
 
 	if (!mr_node)
@@ -1267,7 +1299,7 @@ static void stress_mmaprandom_unmap_last_page(mr_ctxt_t *ctxt, const int idx)
  */
 static void OPTIMIZE3 stress_mmaprandom_split(mr_ctxt_t *ctxt, const int idx)
 {
-	mr_node_t *mr_node = stress_mmaprandom_get_random_used(ctxt);
+	mr_node_t *mr_node = stress_mmaprandom_get_random_used();
 	size_t page_size;
 
 	if (!mr_node)
@@ -1305,7 +1337,9 @@ static void OPTIMIZE3 stress_mmaprandom_split(mr_ctxt_t *ctxt, const int idx)
 		new_mr_node->mmap_offset = mr_node->mmap_offset + page_size;
 		new_mr_node->mmap_fd = mr_node->mmap_fd;
 		new_mr_node->used = true;
+		new_mr_node->rand_id = stress_mmapradom_rand_id(ctxt, new_mr_node);
 		RB_INSERT(sm_used_node_tree, &sm_used_node_tree_root, new_mr_node);
+		RB_INSERT(sm_rand_node_tree, &sm_rand_node_tree_root, new_mr_node);
 		sm_used_nodes++;
 
 		mr_node->mmap_size = page_size;
@@ -1320,7 +1354,7 @@ static void OPTIMIZE3 stress_mmaprandom_split(mr_ctxt_t *ctxt, const int idx)
  */
 static void OPTIMIZE3 stress_mmaprandom_split_hole(mr_ctxt_t *ctxt, const int idx)
 {
-	mr_node_t *mr_node = stress_mmaprandom_get_random_used(ctxt);
+	mr_node_t *mr_node = stress_mmaprandom_get_random_used();
 	size_t page_size;
 
 	if (!mr_node)
@@ -1351,7 +1385,9 @@ static void OPTIMIZE3 stress_mmaprandom_split_hole(mr_ctxt_t *ctxt, const int id
 		new_mr_node->mmap_offset = mr_node->mmap_offset + (2 * page_size);
 		new_mr_node->mmap_fd = mr_node->mmap_fd;
 		new_mr_node->used = true;
+		new_mr_node->rand_id = stress_mmapradom_rand_id(ctxt, new_mr_node);
 		RB_INSERT(sm_used_node_tree, &sm_used_node_tree_root, new_mr_node);
+		RB_INSERT(sm_rand_node_tree, &sm_rand_node_tree_root, new_mr_node);
 		sm_used_nodes++;
 
 		mr_node->mmap_size = page_size;
@@ -1431,7 +1467,7 @@ static void OPTIMIZE3 stress_mmaprandom_join(mr_ctxt_t *ctxt, const int idx)
 	size_t i;
 
 	for (i = 0; i < ((ctxt->n_mr_nodes >> 8) + 1); i++) {
-		mr_node_t *mr_node = stress_mmaprandom_get_random_used(ctxt);
+		mr_node_t *mr_node = stress_mmaprandom_get_random_used();
 		mr_node_t find_mr_node, *found_mr_node;
 		uint8_t *ptr;
 		size_t page_size, max_size;
@@ -1456,6 +1492,7 @@ static void OPTIMIZE3 stress_mmaprandom_join(mr_ctxt_t *ctxt, const int idx)
 			mr_node->mmap_size += found_mr_node->mmap_size;
 
 			RB_REMOVE(sm_used_node_tree, &sm_used_node_tree_root, found_mr_node);
+			RB_REMOVE(sm_rand_node_tree, &sm_rand_node_tree_root, found_mr_node);
 			sm_used_nodes--;
 			found_mr_node->used = false;
 			RB_INSERT(sm_free_node_tree, &sm_free_node_tree_root, found_mr_node);
@@ -1479,7 +1516,7 @@ static void stress_mmaprandom_numa_move(mr_ctxt_t *ctxt, const int idx)
 	if (!ctxt->numa)
 		return;
 
-	mr_node = stress_mmaprandom_get_random_used(ctxt);
+	mr_node = stress_mmaprandom_get_random_used();
 	if (!mr_node)
 		return;
 
@@ -1515,7 +1552,7 @@ static void stress_mmaprandom_process_madvise(mr_ctxt_t *ctxt, const int idx)
 		0,
 	};
 	const int advice = MWC_RND_ELEMENT(proc_advice);
-	mr_node_t *mr_node = stress_mmaprandom_get_random_used(ctxt);
+	mr_node_t *mr_node = stress_mmaprandom_get_random_used();
 	struct iovec iov[1];
 
 	if (!mr_node)
