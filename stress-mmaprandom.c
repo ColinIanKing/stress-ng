@@ -57,15 +57,15 @@
 #define HAVE_RB_TREE
 #endif
 
+#define MMAP_RANDOM_MAX_MAPPINGS_SHIFT	(16)
+#define MMAP_RANDOM_MAX_MAPPINGS_MASK	((uint32_t)((1U << MMAP_RANDOM_MAX_MAPPINGS_SHIFT) - 1))
+
 #define MMAP_RANDOM_MIN_MAPPINGS	(1)
-#define MMAP_RANDOM_MAX_MAPPINGS	(1024 * 1024)
+#define MMAP_RANDOM_MAX_MAPPINGS	(1U << MMAP_RANDOM_MAX_MAPPINGS_SHIFT)
 #define MMAP_RANDOM_DEFAULT_MMAPPINGS	(1024)
 
-#define MMAP_RANDOM_MAX_PAGES_SHIFT	(10)
-#define MMAP_RANDOM_MAX_PAGES_MASK	((uint32_t)((1U << MMAP_RANDOM_MAX_PAGES_SHIFT) - 1))
-
 #define MMAP_RANDOM_MIN_MAXPAGES	(2)
-#define MMAP_RANDOM_MAX_MAXPAGES	(1U << MMAP_RANDOM_MAX_PAGES_SHIFT)
+#define MMAP_RANDOM_MAX_MAXPAGES	(1024)
 #define MMAP_RANDOM_DEFAULT_MAX_PAGES	(8)
 
 #define MWC_RND_ELEMENT(array)		array[stress_mwc8modn(SIZEOF_ARRAY(array))]
@@ -385,8 +385,8 @@ static void stress_mmaprandom_twiddle_rw_hint(const int fd)
  */
 static uint32_t stress_mmapradom_rand_id(mr_ctxt_t *ctxt, mr_node_t *mr_node)
 {
-	const uint32_t idx = (mr_node - ctxt->mr_nodes) & ~MMAP_RANDOM_MAX_PAGES_MASK;
-	const uint32_t rnd = (stress_mwc32() & ~MMAP_RANDOM_MAX_PAGES_MASK) | idx;
+	const uint32_t idx = (mr_node - ctxt->mr_nodes) & MMAP_RANDOM_MAX_MAPPINGS_MASK;
+	const uint32_t rnd = (stress_mwc32() & ~MMAP_RANDOM_MAX_MAPPINGS_MASK) | idx;
 
 	return rnd;
 }
