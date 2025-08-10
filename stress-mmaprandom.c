@@ -65,6 +65,11 @@
 
 #define MWC_RND_ELEMENT(array)		array[stress_mwc8modn(SIZEOF_ARRAY(array))]
 
+#define FD_FILE				(0)
+#define FD_MEMFD			(1)
+#define FD_DEV_ZERO			(2)
+#define MAX_FDS				(3)
+
 static const stress_help_t help[] = {
 	{ NULL,	"mmaprandom N",	 	 "start N workers stressing random memory mapping operations" },
 	{ NULL,	"mmaprandom-ops N",	 "stop after N mmaprandom bogo operations" },
@@ -78,6 +83,11 @@ static const stress_opt_t opts[] = {
 	{ OPT_mmaprandom_numa,     "mmaprandom-numa",     TYPE_ID_BOOL, 0, 1, NULL },
 	END_OPT,
 };
+
+typedef struct {
+	int fd;
+	int mode;
+} fd_info_t;
 
 #if defined(HAVE_RB_TREE)
 
@@ -105,8 +115,7 @@ typedef struct {
 	mr_node_t *mr_nodes;	/* array of all mr_nodes */
 	size_t n_mr_nodes;	/* size of mr_nodes array */
 	size_t page_size;	/* page size in bytes */
-	int file_fd;		/* file mmap file descriptor */
-	int mem_fd;		/* memfd mmap file descriptor */
+	fd_info_t fds[MAX_FDS];	/* file descriptors */
 	uint8_t *page;		/* page mapping for writes */
 	double *count;		/* array of usage counters for each mr_func_t */
 	bool oom_avoid;		/* low memory avoid flag */
@@ -702,14 +711,15 @@ static void OPTIMIZE3 stress_mmaprandom_mmap_file(mr_ctxt_t *ctxt, const int idx
 	uint8_t *addr;
 	int prot_flag, mmap_flag, extra_flags = 0;
 	mr_node_t *mr_node;
-	int fd;
+	int fd, mode;
 
 	mmap_flag = MWC_RND_ELEMENT(mmap_file_flags);
 
-	if (ctxt->mem_fd < 0)
-		fd = ctxt->file_fd;
-	else
-		fd = stress_mwc1() ? ctxt->file_fd : ctxt->mem_fd;
+	do {
+		i = stress_mwc8modn(SIZEOF_ARRAY(ctxt->fds));
+		fd = ctxt->fds[i].fd;
+		mode = ctxt->fds[i].mode;
+	} while (fd == -1);
 
 	mr_node = RB_MIN(sm_free_node_tree, &sm_free_node_tree_root);
 	if (!mr_node)
@@ -731,6 +741,9 @@ static void OPTIMIZE3 stress_mmaprandom_mmap_file(mr_ctxt_t *ctxt, const int idx
 			addr = MAP_FAILED;
 			break;
 		}
+
+		if (mode == O_RDONLY)
+			prot_flag &= ~PROT_WRITE;
 
 		stress_mmaprandom_twiddle_file_flags(fd);
 		stress_mmaprandom_twiddle_rw_hint(fd);
@@ -1663,11 +1676,13 @@ static int stress_mmaprandom(stress_args_t *args)
 	(void)stress_temp_filename_args(args,
 		filename, sizeof(filename), stress_mwc32());
 #if defined(O_NOATIME)
-	ctxt->file_fd = open(filename, O_CREAT | O_RDWR | O_NOATIME, S_IRUSR | S_IWUSR);
+	ctxt->fds[FD_FILE].fd = open(filename, O_CREAT | O_RDWR | O_NOATIME, S_IRUSR | S_IWUSR);
 #else
-	ctxt->file_fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
+	ctxt->fds[FD_FILE].fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
 #endif
-	if (ctxt->file_fd < 0) {
+	ctxt->fds[FD_FILE].mode = O_RDWR;
+
+	if (ctxt->fds[FD_FILE].fd < 0) {
 		pr_inf_skip("%s: skipping stressor, cannot create file '%s', errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
 		rc = EXIT_NO_RESOURCE;
@@ -1677,8 +1692,12 @@ static int stress_mmaprandom(stress_args_t *args)
 
 	(void)snprintf(filename, sizeof(filename), "mmaprandom-%" PRIdMAX "-%" PRIu32,
 		(intmax_t)args->pid, args->instance);
-	ctxt->mem_fd = shim_memfd_create(filename, 0);
+	ctxt->fds[FD_MEMFD].fd = shim_memfd_create(filename, 0);
+	ctxt->fds[FD_FILE].mode = O_RDWR;
 	ctxt->page_size = args->page_size;
+
+	ctxt->fds[FD_DEV_ZERO].fd = open("/dev/zero", O_RDONLY);
+	ctxt->fds[FD_FILE].mode = O_RDONLY;
 
 	mr_nodes_size = ctxt->n_mr_nodes * sizeof(*ctxt->mr_nodes);
 	ctxt->mr_nodes = (mr_node_t *)mmap(NULL, mr_nodes_size, PROT_READ | PROT_WRITE,
@@ -1729,9 +1748,10 @@ static int stress_mmaprandom(stress_args_t *args)
 
 	(void)munmap((void *)ctxt->mr_nodes, mr_nodes_size);
 tidy_fds:
-	(void)close(ctxt->file_fd);
-	if (ctxt->mem_fd != -1)
-		(void)close(ctxt->mem_fd);
+	for (i = 0; i < MAX_FDS; i++) {
+		if (ctxt->fds[i].fd != -1)
+			(void)close(ctxt->fds[i].fd);
+	}
 	(void)munmap((void *)ctxt->count, count_size);
 tidy_dir:
 	(void)stress_temp_dir_rm_args(args);
