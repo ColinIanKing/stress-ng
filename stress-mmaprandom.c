@@ -1746,7 +1746,7 @@ static int stress_mmaprandom(stress_args_t *args)
 
 	ctxt->oom_avoid = !!(g_opt_flags & OPT_FLAGS_OOM_AVOID);
 	ctxt->n_mr_nodes = MMAP_RANDOM_DEFAULT_MMAPPINGS;
-	ctxt->maxpages = MMAP_RANDOM_DEFAULT_MMAPPINGS;
+	ctxt->maxpages = MMAP_RANDOM_DEFAULT_MAX_PAGES;
 	ctxt->numa = false;
 
 	(void)stress_get_setting("mmaprandom-mappings", &ctxt->n_mr_nodes);
