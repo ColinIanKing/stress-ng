@@ -644,6 +644,7 @@ const struct option stress_long_options[] = {
 	{ "mmaprandom",		1,	0,	OPT_mmaprandom },
 	{ "mmaprandom-ops",	1,	0,	OPT_mmaprandom_ops },
 	{ "mmaprandom-mappings",1,	0,	OPT_mmaprandom_mappings },
+	{ "mmaprandom-maxpages",1,	0,	OPT_mmaprandom_maxpages },
 	{ "mmaprandom-numa",	0,	0,	OPT_mmaprandom_numa },
 	{ "mmaptorture",	1,	0,	OPT_mmaptorture },
 	{ "mmaptorture-bytes",	1,	0,	OPT_mmaptorture_bytes },

@@ -944,6 +944,7 @@ typedef enum {
 	OPT_mmaprandom,
 	OPT_mmaprandom_ops,
 	OPT_mmaprandom_mappings,
+	OPT_mmaprandom_maxpages,
 	OPT_mmaprandom_numa,
 
 	OPT_mmaptorture,
