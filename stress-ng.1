@@ -280,7 +280,7 @@ page allocations will come from the node with sufficient free memory closest
 to the specified node(s) where the allocation takes place. This uses the
 Linux set_mempolicy(2) call using the MPOL_BIND mode.  The NUMA nodes to be
 used are specified by a comma separated list of node (0 to N-1). One can
-specify a range of NUMA nodes using `-', for example: \-\-mbind 0,2-3,6,7-11
+specify a range of NUMA nodes using `-', for example: \f[CR]\-\-mbind 0,2\-3,6,7\-11\f[]
 .TP
 .B \-M, \-\-metrics
 output number of bogo operations in total performed by the stress processes.
@@ -551,7 +551,7 @@ log output (except for verbose \-v messages) to the syslog.
 set CPU affinity based on the list of CPUs provided; stress\-ng is bound to
 just use these CPUs (for systems that provide sched_setaffinity(2)). The CPUs
 to be used are specified by a comma separated list of CPU (0 to N-1). One
-can specify a range of CPUs using `-', for example: \-\-taskset 0,2-3,6,7-11
+can specify a range of CPUs using `-', for example: \f[CR]\-\-taskset 0,2\-3,6,7\-11\f[]
 or the following keywords:
 .sp
 .TS
@@ -682,8 +682,13 @@ This is useful to exclude specific stressors when one selects many stressors
 to run using the \-\-class option, \-\-sequential, \-\-all and \-\-random
 options. Example, run the cpu class stressors concurrently and exclude the
 numa and search stressors:
-.IP
-stress\-ng \-\-class cpu \-\-all 1 \-x numa,bsearch,hsearch,lsearch
+.PP
+.in +10n
+.EX
+\f[CR]stress\-ng \-\-class cpu \-\-all 1 \-x numa,bsearch,hsearch,lsearch\f[]
+.EE
+.in -10n
+.PP
 .TP
 .B \-Y, \-\-yaml filename
 output gathered statistics to a YAML formatted file named `filename'.
