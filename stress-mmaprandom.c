@@ -70,6 +70,8 @@
 
 #define MWC_RND_ELEMENT(array)		array[stress_mwc8modn(SIZEOF_ARRAY(array))]
 
+#define CLONE_STACK_SIZE		(8 * KB)
+
 #define FD_FILE				(0)
 #define FD_MEMFD			(1)
 #define FD_DEV_ZERO			(2)
@@ -1396,6 +1398,88 @@ static void OPTIMIZE3 stress_mmaprandom_split_hole(mr_ctxt_t *ctxt, const int id
 }
 
 /*
+ *  stress_mmaprandom_unmap_child()
+ *	unmap randomly selected mmap'd mappings
+ */
+static void stress_mmaprandom_unmap_child(void)
+{
+	mr_node_t *mr_node;
+
+	/* Either unmap mappings in child or let _exit(2) do it */
+	RB_FOREACH(mr_node, sm_used_node_tree, &sm_used_node_tree_root) {
+		if (stress_mwc1()) {
+#if defined(MAP_NORESERVE)
+			if ((mr_node->mmap_prot & PROT_WRITE) && !(mr_node->mmap_flags & MAP_NORESERVE)) {
+#else
+			if (mr_node->mmap_prot & PROT_WRITE) {
+#endif
+#if defined(HAVE_ATOMIC_STORE) &&	\
+    defined(__ATOMIC_ACQUIRE)
+				if (mr_node->mmap_prot & PROT_READ)
+					__atomic_add_fetch((uint8_t *)mr_node->mmap_addr, 1, __ATOMIC_SEQ_CST);
+#endif
+				shim_memset(mr_node->mmap_addr, stress_mwc8(), mr_node->mmap_size);
+			}
+		}
+		(void)stress_munmap_force(mr_node->mmap_addr, mr_node->mmap_size);
+	}
+}
+
+#if defined(HAVE_CLONE)
+
+/*
+ *  stress_mmaprandom_clone_func()
+ *	clone child, ummap pages
+ */
+static int stress_mmaprandom_clone_func(void *context)
+{
+	(void)context;
+
+	stress_mmaprandom_unmap_child();
+	return 0;
+}
+
+/*
+ *  stress_mmaprandom_clone()
+ *	clone to duplicate mappings every ~1 second
+ */
+static void stress_mmaprandom_clone(mr_ctxt_t *ctxt, const int idx)
+{
+	pid_t pid;
+	static double next_time = 0.0;
+	double now;
+	uint64_t stack[CLONE_STACK_SIZE / sizeof(uint64_t)];
+	char *stack_top = (char *)stress_get_stack_top((char *)stack, CLONE_STACK_SIZE);
+
+	now = stress_time_now();
+	if (now < next_time)
+		return;
+
+	if (ctxt->oom_avoid) {
+		size_t total, resident, shared;
+
+		if (stress_get_pid_memory_usage(getpid(), &total, &resident, &shared) < 0) {
+			/* Can't get memory, random guess at 128MB */
+			total = 128 * MB;
+		}
+		if (stress_low_memory(total))
+			return;
+	}
+
+	next_time = now + 1.0;
+
+	pid = clone(stress_mmaprandom_clone_func, stress_align_stack(stack_top), 
+		CLONE_FILES | CLONE_FS, NULL);
+	if (pid != -1) {
+		int status;
+
+		(void)waitpid(pid, &status, (int)__WCLONE);
+		ctxt->count[idx] += 1.0;
+	}
+}
+#endif
+
+/*
  *  stress_mmaprandom_fork()
  *	fork to duplicate mappings every ~1 second
  */
@@ -1427,27 +1511,8 @@ static void stress_mmaprandom_fork(mr_ctxt_t *ctxt, const int idx)
 		return;
 	} if (pid == 0) {
 		/* Either unmap mappings in child or let _exit(2) do it */
-		if (stress_mwc1()) {
-			mr_node_t *mr_node;
-
-			RB_FOREACH(mr_node, sm_used_node_tree, &sm_used_node_tree_root) {
-				if (stress_mwc1()) {
-#if defined(MAP_NORESERVE)
-					if ((mr_node->mmap_prot & PROT_WRITE) && !(mr_node->mmap_flags & MAP_NORESERVE)) {
-#else
-					if (mr_node->mmap_prot & PROT_WRITE) {
-#endif
-#if defined(HAVE_ATOMIC_STORE) &&	\
-    defined(__ATOMIC_ACQUIRE)
-						if (mr_node->mmap_prot & PROT_READ)
-							__atomic_add_fetch((uint8_t *)mr_node->mmap_addr, 1, __ATOMIC_SEQ_CST);
-#endif
-						shim_memset(mr_node->mmap_addr, stress_mwc8(), mr_node->mmap_size);
-					}
-				}
-				(void)stress_munmap_force(mr_node->mmap_addr, mr_node->mmap_size);
-			}
-		}
+		if (stress_mwc1())
+			stress_mmaprandom_unmap_child();
 		_exit(0);
 	} else {
 		int status;
@@ -1608,6 +1673,9 @@ static const mr_funcs_t mr_funcs[] = {
 	{ stress_mmaprandom_split,		"map splitting" },
 	{ stress_mmaprandom_split_hole,		"map hole splitting" },
 	{ stress_mmaprandom_join,		"mmap joining" },
+#if defined(HAVE_CLONE)
+	{ stress_mmaprandom_clone,		"clone" },
+#endif
 	{ stress_mmaprandom_fork,		"fork" },
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 	{ stress_mmaprandom_numa_move,		"NUMA mapping move" },
