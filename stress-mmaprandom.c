@@ -921,7 +921,6 @@ static void OPTIMIZE3 stress_mmaprandom_unmmap_lo_hi_addr(mr_ctxt_t *ctxt, const
 	if (LIKELY(stress_mmaprandom_munmap((void *)mr_node->mmap_addr,
 			mr_node->mmap_size, mr_node->mmap_page_size) == 0)) {
 		ctxt->count[idx] += 1.0;
-
 		stress_mmaprandom_zap_mr_node(mr_node);
 		RB_REMOVE(sm_used_node_tree, &sm_used_node_tree_root, mr_node);
 		RB_REMOVE(sm_rand_node_tree, &sm_rand_node_tree_root, mr_node);
@@ -1081,7 +1080,6 @@ static void stress_mmaprandom_mremap(mr_ctxt_t *ctxt, const int idx)
 	new_addr = mremap(mr_node->mmap_addr, mr_node->mmap_size, new_size, MREMAP_MAYMOVE);
 	if (new_addr != MAP_FAILED) {
 		ctxt->count[idx] += 1.0;
-
 		mr_node->mmap_addr = new_addr;
 		mr_node->mmap_size = new_size;
 	}
@@ -1265,7 +1263,6 @@ static void OPTIMIZE3 stress_mmaprandom_unmap_first_page(mr_ctxt_t *ctxt, const 
 		mr_node->rand_id = stress_mmapradom_rand_id(ctxt, mr_node);
 		RB_INSERT(sm_used_node_tree, &sm_used_node_tree_root, mr_node);
 		RB_INSERT(sm_rand_node_tree, &sm_rand_node_tree_root, mr_node);
-
 		ctxt->count[idx] += 1.0;
 	}
 }
@@ -1343,7 +1340,6 @@ static void OPTIMIZE3 stress_mmaprandom_split(mr_ctxt_t *ctxt, const int idx)
 		RB_INSERT(sm_used_node_tree, &sm_used_node_tree_root, new_mr_node);
 		RB_INSERT(sm_rand_node_tree, &sm_rand_node_tree_root, new_mr_node);
 		sm_used_nodes++;
-
 		mr_node->mmap_size = page_size;
 		ctxt->count[idx] += 1.0;
 	}
@@ -1391,7 +1387,6 @@ static void OPTIMIZE3 stress_mmaprandom_split_hole(mr_ctxt_t *ctxt, const int id
 		RB_INSERT(sm_used_node_tree, &sm_used_node_tree_root, new_mr_node);
 		RB_INSERT(sm_rand_node_tree, &sm_rand_node_tree_root, new_mr_node);
 		sm_used_nodes++;
-
 		mr_node->mmap_size = page_size;
 		ctxt->count[idx] += 1.0;
 	}
@@ -1467,8 +1462,7 @@ static void stress_mmaprandom_clone(mr_ctxt_t *ctxt, const int idx)
 	}
 
 	next_time = now + 1.0;
-
-	pid = clone(stress_mmaprandom_clone_func, stress_align_stack(stack_top), 
+	pid = clone(stress_mmaprandom_clone_func, stress_align_stack(stack_top),
 		CLONE_FILES | CLONE_FS, NULL);
 	if (pid != -1) {
 		int status;
@@ -1505,7 +1499,6 @@ static void stress_mmaprandom_fork(mr_ctxt_t *ctxt, const int idx)
 	}
 
 	next_time = now + 1.0;
-
 	pid = fork();
 	if (pid < 0) {
 		return;
@@ -1562,7 +1555,6 @@ static void OPTIMIZE3 stress_mmaprandom_join(mr_ctxt_t *ctxt, const int idx)
 			found_mr_node->used = false;
 			RB_INSERT(sm_free_node_tree, &sm_free_node_tree_root, found_mr_node);
 			sm_free_nodes++;
-
 			ctxt->count[idx] += 1.0;
 			return;
 		}
