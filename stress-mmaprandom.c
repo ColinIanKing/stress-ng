@@ -61,7 +61,9 @@
 #define MMAP_RANDOM_MAX_MAPPINGS	(1024 * 1024)
 #define MMAP_RANDOM_DEFAULT_MMAPPINGS	(1024)
 
-#define MAX_PAGES_PER_MAPPING		(8)
+#define MMAP_RANDOM_MIN_MAXPAGES	(2)
+#define MMAP_RANDOM_MAX_MAXPAGES	(1024)
+#define MMAP_RANDOM_DEFAULT_MAX_PAGES	(8)
 
 #define MWC_RND_ELEMENT(array)		array[stress_mwc8modn(SIZEOF_ARRAY(array))]
 
@@ -80,6 +82,7 @@ static const stress_help_t help[] = {
 
 static const stress_opt_t opts[] = {
 	{ OPT_mmaprandom_mappings, "mmaprandom-mappings", TYPE_ID_SIZE_T, MMAP_RANDOM_MIN_MAPPINGS, MMAP_RANDOM_MAX_MAPPINGS, NULL },
+	{ OPT_mmaprandom_maxpages, "mmaprandom-maxpages", TYPE_ID_INT32, MMAP_RANDOM_MIN_MAXPAGES, MMAP_RANDOM_MAX_MAXPAGES, NULL },
 	{ OPT_mmaprandom_numa,     "mmaprandom-numa",     TYPE_ID_BOOL, 0, 1, NULL },
 	END_OPT,
 };
@@ -121,6 +124,7 @@ typedef struct {
 	bool oom_avoid;		/* low memory avoid flag */
 	bool numa;		/* move to random NUMA nodes */
 	int pidfd;		/* process' pid file descriptor */
+	int maxpages;		/* max number of pages to mmap */
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 	stress_numa_mask_t *numa_mask;	/* NUMA mask */
 	stress_numa_mask_t *numa_nodes;	/* NUMA nodes available */
@@ -578,7 +582,7 @@ static int stress_mmaprandom_munmap(
 static void OPTIMIZE3 stress_mmaprandom_mmap_anon(mr_ctxt_t *ctxt, const int idx)
 {
 	size_t page_size = ctxt->page_size;
-	size_t pages = stress_mwc8modn(MAX_PAGES_PER_MAPPING) + 1;
+	size_t pages = stress_mwc32modn(ctxt->maxpages) + 1;
 	size_t size = page_size * pages, i, j;
 	uint8_t *addr;
 	int prot_flag, mmap_flag, extra_flags = 0;
@@ -705,8 +709,8 @@ static void OPTIMIZE3 stress_mmaprandom_mmap_file(mr_ctxt_t *ctxt, const int idx
 {
 	const size_t page_size = ctxt->page_size;
 	size_t i, j;
-	const size_t pages = stress_mwc8modn(MAX_PAGES_PER_MAPPING) + 1;
-	const off_t offset = stress_mwc8modn(MAX_PAGES_PER_MAPPING) * page_size;
+	const size_t pages = stress_mwc32modn(ctxt->maxpages) + 1;
+	const off_t offset = stress_mwc32modn(ctxt->maxpages) * page_size;
 	const size_t size = page_size * pages;
 	uint8_t *addr;
 	int prot_flag, mmap_flag, extra_flags = 0;
@@ -1022,7 +1026,7 @@ static void stress_mmaprandom_mremap(mr_ctxt_t *ctxt, const int idx)
 	if (!mr_node)
 		return;
 
-	pages = stress_mwc8modn(MAX_PAGES_PER_MAPPING) + 1;
+	pages = stress_mwc32modn(ctxt->maxpages) + 1;
 	new_size = mr_node->mmap_page_size * pages;
 
 	if (new_size > mr_node->mmap_size) {
@@ -1103,17 +1107,22 @@ static void stress_mmaprandom_posix_madvise(mr_ctxt_t *ctxt, const int idx)
 static void stress_mmaprandom_mincore(mr_ctxt_t *ctxt, const int idx)
 {
 	mr_node_t *mr_node = stress_mmaprandom_get_random_used(ctxt);
-	unsigned char vec[MAX_PAGES_PER_MAPPING];
+	unsigned char *vec;
 	size_t max_size, size;
 
 	if (!mr_node)
 		return;
 
+	vec = calloc(ctxt->maxpages, sizeof(*vec));
+	if (!vec)
+		return;
+
 	/* max size must be based on smallest system page size */
-	max_size = MAX_PAGES_PER_MAPPING * ctxt->page_size;
+	max_size = ctxt->maxpages * ctxt->page_size;
 	size = mr_node->mmap_size > max_size ? max_size : mr_node->mmap_size;
 	if (LIKELY(shim_mincore(mr_node->mmap_addr, size, vec) == 0))
 		ctxt->count[idx] += 1.0;
+	free(vec);
 }
 #endif
 
@@ -1432,7 +1441,7 @@ static void OPTIMIZE3 stress_mmaprandom_join(mr_ctxt_t *ctxt, const int idx)
 
 		ptr = mr_node->mmap_addr;
 		page_size = mr_node->mmap_page_size;
-		max_size = page_size * MAX_PAGES_PER_MAPPING;
+		max_size = page_size * ctxt->maxpages;
 
 		/* mappings right next to each other */
 		find_mr_node.mmap_addr = (void *)(ptr + mr_node->mmap_size);
@@ -1632,9 +1641,11 @@ static int stress_mmaprandom(stress_args_t *args)
 
 	ctxt->oom_avoid = !!(g_opt_flags & OPT_FLAGS_OOM_AVOID);
 	ctxt->n_mr_nodes = MMAP_RANDOM_DEFAULT_MMAPPINGS;
+	ctxt->maxpages = MMAP_RANDOM_DEFAULT_MMAPPINGS;
 	ctxt->numa = false;
 
 	(void)stress_get_setting("mmaprandom-mappings", &ctxt->n_mr_nodes);
+	(void)stress_get_setting("mmaprandom-maxpages", &ctxt->maxpages);
 	(void)stress_get_setting("mmaprandom-numa", &ctxt->numa);
 
 	if (ctxt->numa) {

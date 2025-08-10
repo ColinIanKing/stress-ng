@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "6 August 2025"
+.TH STRESS-NG 1 "10 August 2025"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -5448,7 +5448,7 @@ stop after N mmapmany bogo operations
 .TQ
 .B \-\-mmaprandom N
 start N workers that exercise a random mix of memory map related system
-calls on randonmly sized mappings of 1 to 8 pages. The mappings are either
+calls on randonmly sized mappings. The mappings are either
 anonymous mapped or file mapped (on a small file or on a memfd file where
 available). This exercises mmap(2) (random options and flags), munmap(2),
 mlock(2), munlock(2), madvise(2), posix_madvise(3), mincore(2), mremap(2),
@@ -5463,6 +5463,10 @@ one memory related system call (except for read/write/cache operations).
 .B \-\-mmaprandom\-mappings N
 select maximum number of memory mappings, the default is 1024,
 range 1 to 1048576.
+.TP
+.B \-\-mmaprandom\-maxpages N
+select maxiumum number of pages to be memory mapped, the default is 8, range
+2 to 1024. The pages mapped are randomly chosen from 1 to maxpages.
 .TP
 .B \-\-mmaprandom\-numa
 assign randomly chosen memory mapped pages to randomly selected NUMA nodes.
