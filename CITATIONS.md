@@ -183,3 +183,4 @@
  * [Rubicon: Precise Microarchitectural Attacks with Page-Granular Massaging](https://comsec-files.ethz.ch/papers/rubicon_eurosp25.pdf)
  * [On Fault Tolerance of Data Storage Systems: A Holistic Perspective](https://arxiv.org/pdf/2507.03849v1)
  * [Ecoscape: Fault Tolerance Benchmark for Adaptive Remediation Strategies in Real-Time Edge ML](https://arxiv.org/html/2507.22702v1)
+ * [When Things Heat Up: Detecting Malicious Activity Using CPU Thermal Sensors](https://www.mdpi.com/2624-800X/5/3/56)
