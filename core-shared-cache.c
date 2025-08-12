@@ -79,7 +79,7 @@ int stress_cache_alloc(const char *name)
 		if (g_shared->mem_cache.ways > cache->ways) {
 			if (stress_warn_once())
 				pr_inf("%s: cache way value too high - "
-					"defaulting to %d (the maximum)\n",
+					"defaulting to %" PRIu32 " (the maximum)\n",
 					name, cache->ways);
 			g_shared->mem_cache.ways = cache->ways;
 		}
