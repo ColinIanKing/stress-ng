@@ -749,13 +749,13 @@ void stress_yaml_runinfo(FILE *yaml)
     defined(HAVE_SYSINFO)
 	(void)shim_memset(&info, 0, sizeof(info));
 	if (LIKELY(sysinfo(&info) == 0)) {
-		pr_yaml(yaml, "      uptime: %ld\n", info.uptime);
-		pr_yaml(yaml, "      totalram: %lu\n", info.totalram);
-		pr_yaml(yaml, "      freeram: %lu\n", info.freeram);
-		pr_yaml(yaml, "      sharedram: %lu\n", info.sharedram);
-		pr_yaml(yaml, "      bufferram: %lu\n", info.bufferram);
-		pr_yaml(yaml, "      totalswap: %lu\n", info.totalswap);
-		pr_yaml(yaml, "      freeswap: %lu\n", info.freeswap);
+		pr_yaml(yaml, "      uptime: %ld\n", (long int)info.uptime);
+		pr_yaml(yaml, "      totalram: %lu\n", (long unsigned int)info.totalram);
+		pr_yaml(yaml, "      freeram: %lu\n", (long unsigned int)info.freeram);
+		pr_yaml(yaml, "      sharedram: %lu\n", (long unsigned int)info.sharedram);
+		pr_yaml(yaml, "      bufferram: %lu\n", (long unsigned int)info.bufferram);
+		pr_yaml(yaml, "      totalswap: %lu\n", (long unsigned int)info.totalswap);
+		pr_yaml(yaml, "      freeswap: %lu\n", (long unsigned int)info.freeswap);
 	}
 #endif
 	pr_yaml(yaml, "      pagesize: %zd\n", stress_get_page_size());
