@@ -1981,7 +1981,7 @@ static void stress_metrics_check(bool *success)
 				min_run_time = stats->duration;
 
 			if (checksum == NULL) {
-				pr_fail("%s instance %d unexpected null checksum data\n",
+				pr_fail("%s instance %" PRId32 " unexpected null checksum data\n",
 					ss->stressor->name, j);
 				ok = false;
 				continue;
@@ -1996,7 +1996,7 @@ static void stress_metrics_check(bool *success)
 				" (possibly terminated by out-of-memory killer)" : "";
 
 			if (stats->args.bogo.ci.counter != checksum->data.ci.counter) {
-				pr_fail("%s instance %d corrupted bogo-ops counter, %" PRIu64 " vs %" PRIu64 "%s\n",
+				pr_fail("%s instance %" PRId32 " corrupted bogo-ops counter, %" PRIu64 " vs %" PRIu64 "%s\n",
 					ss->stressor->name, j,
 					stats->args.bogo.ci.counter, checksum->data.ci.counter,
 					oom_message);
@@ -2004,7 +2004,7 @@ static void stress_metrics_check(bool *success)
 				ok = false;
 			}
 			if (stats->args.bogo.ci.run_ok != checksum->data.ci.run_ok) {
-				pr_fail("%s instance %d corrupted run flag, %d vs %d%s\n",
+				pr_fail("%s instance % " PRId32 " corrupted run flag, %d vs %d%s\n",
 					ss->stressor->name, j,
 					stats->args.bogo.ci.run_ok, checksum->data.ci.run_ok,
 					oom_message);
@@ -2012,7 +2012,7 @@ static void stress_metrics_check(bool *success)
 				ok = false;
 			}
 			if (stats_checksum.hash != checksum->hash) {
-				pr_fail("%s instance %d hash error in bogo-ops counter and run flag, %" PRIu32 " vs %" PRIu32 "%s\n",
+				pr_fail("%s instance %" PRId32 " hash error in bogo-ops counter and run flag, %" PRIu32 " vs %" PRIu32 "%s\n",
 					ss->stressor->name, j,
 					stats_checksum.hash, checksum->hash,
 					oom_message);
