@@ -237,7 +237,6 @@ static int stress_sockabuse_server(
 {
 	char buf[SOCKET_BUF];
 	int fd;
-	int so_reuseaddr = 1;
 	socklen_t addr_len = 0;
 	struct sockaddr *addr = NULL;
 	uint64_t msgs = 0;
@@ -260,13 +259,17 @@ static int stress_sockabuse_server(
 			continue;
 		}
 #if defined(SOL_SOCKET)
-		if (UNLIKELY(setsockopt(fd, SOL_SOCKET, SO_REUSEADDR,
-			&so_reuseaddr, sizeof(so_reuseaddr)) < 0)) {
-			rc = stress_exit_status(errno);
-			pr_fail("%s: setsockopt failed, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
-			(void)close(fd);
-			continue;
+		{
+			int so_reuseaddr = 1;
+
+			if (UNLIKELY(setsockopt(fd, SOL_SOCKET, SO_REUSEADDR,
+				     &so_reuseaddr, sizeof(so_reuseaddr)) < 0)) {
+				rc = stress_exit_status(errno);
+				pr_fail("%s: setsockopt failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
+				(void)close(fd);
+				continue;
+			}
 		}
 #endif
 
