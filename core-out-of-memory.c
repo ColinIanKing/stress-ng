@@ -319,7 +319,7 @@ rewait:
 		} else if (WIFSIGNALED(status)) {
 			stress_set_proc_state(args->name, STRESS_STATE_RUN);
 			if (not_quiet)
-				pr_dbg("%s: child died: %s (instance %d)\n",
+				pr_dbg("%s: child died: %s (instance %" PRIu32 ")\n",
 					args->name, stress_strsignal(WTERMSIG(status)),
 					args->instance);
 			/* Bus error death? retry */
@@ -346,7 +346,7 @@ rewait:
 					if (not_quiet)
 						pr_dbg("%s: %sPID %" PRIdMAX " killed by OOM "
 							"killer, bailing out "
-							"(instance %d)\n",
+							"(instance %" PRIu32 ")\n",
 							args->name,
 							oomed ? "" : "assuming ",
 							(intmax_t)pid,
@@ -358,7 +358,7 @@ rewait:
 					if (not_quiet)
 						pr_dbg("%s: %sPID %" PRIdMAX " killed by OOM "
 							"killer, restarting again "
-							"(instance %d)\n",
+							"(instance %" PRIu32 ")\n",
 							args->name,
 							oomed ? "" : "assuming ",
 							(intmax_t)pid,
@@ -372,7 +372,7 @@ rewait:
 				if (not_quiet)
 					pr_dbg("%s: PID %" PRIdMAX " killed by SIGSEGV, "
 						"restarting again "
-						"(instance %d)\n",
+						"(instance %" PRIu32 ")\n",
 						args->name,
 						(intmax_t)pid,
 						args->instance);
