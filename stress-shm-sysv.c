@@ -1108,7 +1108,7 @@ fork_again:
 				    (WTERMSIG(status) == SIGBUS)) {
 					stress_log_system_mem_info();
 					pr_dbg("%s: assuming PID %" PRIdMAX " killed by OOM killer, "
-						"restarting again (instance %d)\n",
+						"restarting again (instance %" PRIu32 ")\n",
 						args->name, (intmax_t)pid, args->instance);
 					restarts++;
 				}
@@ -1140,7 +1140,7 @@ fork_again:
 			VOID_RET(int, shim_nice(5));
 			if (errno != 0)
 				pr_dbg("%s: nice of child failed, errno=%d (%s) "
-					"(instance %d)\n", args->name,
+					"(instance %" PRIu32 ")\n", args->name,
 					errno, strerror(errno),
 					args->instance);
 
