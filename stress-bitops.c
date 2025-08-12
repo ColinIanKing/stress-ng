@@ -535,7 +535,7 @@ static int OPTIMIZE3 stress_bitops_parity(const char *name, uint32_t *count)
 		p2 = __builtin_parity((unsigned int)v);
 		sum += p2;
 		if (UNLIKELY(p1 != p2)) {
-			pr_fail("%s: parity builtin_parity method failure, value 0x%" PRIx32 ", p1 = 0x%" PRIx32 ", p2 = 0x%" PRIx32 "\n",
+			pr_fail("%s: parity builtin_parity method failure, value 0x%" PRIx32 ", p1 = 0x%x, p2 = 0x%x\n",
 				name, v, p1, p2);
 			return EXIT_FAILURE;
 		}
@@ -574,7 +574,8 @@ static int OPTIMIZE3 stress_bitops_min(const char *name, uint32_t *count)
 		sum += min2;
 
 		if (UNLIKELY(min1 != min2)) {
-			pr_fail("%s: min method failure, values %d %d, min1 = %d, min2 = %d\n",
+			pr_fail("%s: min method failure, values %" PRId32 " %" PRId32
+				", min1 = %" PRId32 ", min2 = %" PRId32 "\n",
 				name, x, y, min1, min2);
 			return EXIT_FAILURE;
 		}
