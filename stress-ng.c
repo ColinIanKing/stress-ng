@@ -1818,7 +1818,7 @@ again:
 #if defined(STRESS_TERMINATE_PREMATURELY)
 abort:
 #endif
-	pr_dbg("%d stressor%s started\n", started_instances,
+	pr_dbg("%" PRId32 " stressor%s started\n", started_instances,
 		 started_instances == 1 ? "" : "s");
 
 wait_for_stressors:
