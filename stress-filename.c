@@ -672,7 +672,7 @@ again:
 			stress_force_killed_bogo(args);
 			(void)stress_kill_pid_wait(pid, NULL);
 		} else if (WIFSIGNALED(status)) {
-			pr_dbg("%s: child died: %s (instance %d)\n",
+			pr_dbg("%s: child died: %s (instance %" PRIu32 ")\n",
 				args->name, stress_strsignal(WTERMSIG(status)),
 				args->instance);
 			/* If we got killed by OOM killer, re-start */
@@ -681,14 +681,14 @@ again:
 					stress_log_system_mem_info();
 					pr_dbg("%s: assuming killed by OOM "
 						"killer, bailing out "
-						"(instance %d)\n",
+						"(instance %" PRIu32 ")\n",
 						args->name, args->instance);
 					_exit(0);
 				} else {
 					stress_log_system_mem_info();
 					pr_dbg("%s: assuming killed by OOM "
 						"killer, restarting again "
-						"(instance %d)\n",
+						"(instance %" PRIu32 ")\n",
 						args->name, args->instance);
 					goto again;
 				}
