@@ -278,9 +278,6 @@ static int OPTIMIZE3 stress_udp_server(
 {
 	char ALIGN64 buf[UDP_BUF];
 	int fd;
-#if !defined(__minix__)
-	int so_reuseaddr = 1;
-#endif
 	socklen_t addr_len = 0;
 	struct sockaddr *addr = NULL;
 	int rc = EXIT_FAILURE;
@@ -310,14 +307,16 @@ static int OPTIMIZE3 stress_udp_server(
 #endif
 #if !defined(__minix__) &&	\
     defined(SOL_SOCKET)
-	if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &so_reuseaddr, sizeof(so_reuseaddr)) < 0) {
-		/*
-		 *  Some systems don't support SO_REUSEADDR
-		 */
-		if (errno != EINVAL) {
-			pr_fail("%s: setsockopt failed, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
-			goto die_close;
+	{
+		int so_reuseaddr = 1;
+
+		if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR,
+			       &so_reuseaddr, sizeof(so_reuseaddr)) < 0) {
+			if (errno != EINVAL) {
+				pr_fail("%s: setsockopt failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
+				goto die_close;
+			}
 		}
 	}
 #endif
