@@ -73,7 +73,8 @@ static int OPTIMIZE3 stress_bitops_sign(const char *name, uint32_t *count)
 		sum += sign2;
 
 		if (UNLIKELY(sign1 != sign2)) {
-			pr_fail("%s: sign method failure, value %d, sign1 = %d, sign2 = %d\n",
+			pr_fail("%s: sign method failure, value %" PRId32
+				", sign1 = %" PRId32 ", sign2 = %" PRId32 "\n",
 				name, v, sign1, sign2);
 			return EXIT_FAILURE;
 		}
@@ -109,7 +110,8 @@ static int OPTIMIZE3 stress_bitops_abs(const char *name, uint32_t *count)
 		sum += abs2;
 
 		if (UNLIKELY(abs1 != abs2)) {
-			pr_fail("%s: abs method failure, value %d, abs1 = %d, abs2 = %d\n",
+			pr_fail("%s: abs method failure, value %" PRId32
+				", abs1 = %" PRId32 ", abs2 = %" PRId32 "\n",
 				name, v, abs1, abs2);
 			return EXIT_FAILURE;
 		}
@@ -498,7 +500,7 @@ static int OPTIMIZE3 stress_bitops_parity(const char *name, uint32_t *count)
 			p2 = !p2;
 		sum += p2;
 		if (UNLIKELY(p1 != p2)) {
-			pr_fail("%s: parity naive method failure, value 0x%" PRIx32 ", p1 = 0x%" PRIx32 ", p2 = 0x%" PRIx32 "\n",
+			pr_fail("%s: parity naive method failure, value 0x%" PRIx32 ", p1 = 0x%x, p2 = 0x%x\n",
 				name, v, p1, p2);
 			return EXIT_FAILURE;
 		}
@@ -510,7 +512,7 @@ static int OPTIMIZE3 stress_bitops_parity(const char *name, uint32_t *count)
 		p2 = (tmp >> 28) & 1;
 		sum += p2;
 		if (p1 != p2)  {
-			pr_fail("%s: parity 32 bit multiply method failure, value 0x%" PRIx32 ", p1 = 0x%" PRIx32 ", p2 = 0x%" PRIx32 "\n",
+			pr_fail("%s: parity 32 bit multiply method failure, value 0x%" PRIx32 ", p1 = 0x%x, p2 = 0x%x\n",
 				name, v, p1, p2);
 			return EXIT_FAILURE;
 		}
@@ -523,7 +525,7 @@ static int OPTIMIZE3 stress_bitops_parity(const char *name, uint32_t *count)
 		p2 = (0x6996 >> tmp) & 1;
 		sum += p2;
 		if (UNLIKELY(p1 != p2)) {
-			pr_fail("%s: parity parallel method failure, value 0x%" PRIx32 ", p1 = 0x%" PRIx32 ", p2 = 0x%" PRIx32 "\n",
+			pr_fail("%s: parity parallel method failure, value 0x%" PRIx32 ", p1 = 0x%x, p2 = 0x%x\n",
 				name, v, p1, p2);
 			return EXIT_FAILURE;
 		}
@@ -607,7 +609,8 @@ static int OPTIMIZE3 stress_bitops_max(const char *name, uint32_t *count)
 		sum += max2;
 
 		if (UNLIKELY(max1 != max2)) {
-			pr_fail("%s: max method failure, values %d %d, max1 = %d, max2 = %d\n",
+			pr_fail("%s: max method failure, values %" PRId32 " %" PRId32
+				", max1 = %" PRId32 ", max2 = %" PRId32 "\n",
 				name, x, y, max1, max2);
 			return EXIT_FAILURE;
 		}
@@ -842,7 +845,7 @@ static int OPTIMIZE3 stress_bitops_pwr2(const char *name, uint32_t *count)
 #endif
 		result = (j > 0) & ((j & (j - 1)) == 0);
 		if (result != is_pwr2) {
-			pr_fail("%s: pwr2 failure, value 0x%" PRIx32 ", r1 = 0x%" PRIx32 ", r2 = 0x%" PRIx32 "\n",
+			pr_fail("%s: pwr2 failure, value 0x%" PRIx32 ", r1 = 0x%x, r2 = 0x%x\n",
 				name, i, is_pwr2, result);
 			return EXIT_FAILURE;
 		}
@@ -1008,7 +1011,8 @@ static int OPTIMIZE3 stress_bitops_swap(const char *name, uint32_t *count)
 		sx = sy - sx;
 		sum += sx + sy;
 		if (UNLIKELY((sx != y) && (sy != x))) {
-			pr_fail("%s: swap add/sub method failure, values %d %d, sapped %d %d\n",
+			pr_fail("%s: swap add/sub method failure, values %" PRIu32 " %" PRIu32
+				", swapped %" PRIu32 " %" PRIu32 "\n",
 				name, x, y, sx, sy);
 			return EXIT_FAILURE;
 		}
@@ -1020,7 +1024,8 @@ static int OPTIMIZE3 stress_bitops_swap(const char *name, uint32_t *count)
 		sx ^= sy;
 		sum += sx + sy;
 		if (UNLIKELY((sx != y) && (sy != x))) {
-			pr_fail("%s: swap xor method failure, values %d %d, sapped %d %d\n",
+			pr_fail("%s: swap xor method failure, values %" PRIu32 " %" PRIu32
+				", swapped %" PRIu32 " %" PRIu32 "\n",
 				name, x, y, sx, sy);
 			return EXIT_FAILURE;
 		}
@@ -1050,7 +1055,7 @@ static int OPTIMIZE3 stress_bitops_zerobyte(const char *name, uint32_t *count)
 				  ((j & 0xff000000U) == 0)) > 0);
 		result = (((j - 0x01010101U) & (~j) & 0x80808080U) > 0);
 		if (result != has_zero_byte) {
-			pr_fail("%s: zerobyte failure, value 0x%" PRIx32 ", r1 = 0x%" PRIx32 ", r2 = 0x%" PRIx32 "\n",
+			pr_fail("%s: zerobyte failure, value 0x%" PRIx32 ", r1 = 0x%x, r2 = 0x%x\n",
 				name, i, has_zero_byte, result);
 			return EXIT_FAILURE;
 		}
