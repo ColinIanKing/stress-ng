@@ -507,7 +507,6 @@ static int OPTIMIZE3 stress_sock_client(
 	ctrls = stress_get_congestion_controls(sock_domain, &n_ctrls);
 
 	do {
-		size_t i;
 		int fd;
 		int retries = 0;
 		socklen_t addr_len = 0;
@@ -625,11 +624,15 @@ retry:
 #endif
 
 #if defined(SOL_SOCKET)
-		for (i = 0; i < SIZEOF_ARRAY(sol_socket_so_opts); i++) {
-			int val = 0;
-			socklen_t optlen = sizeof(val);
+		{
+			size_t i;
 
-			VOID_RET(int, getsockopt(fd, SOL_SOCKET, sol_socket_so_opts[i], &val, &optlen));
+			for (i = 0; i < SIZEOF_ARRAY(sol_socket_so_opts); i++) {
+				int val = 0;
+				socklen_t optlen = sizeof(val);
+
+				VOID_RET(int, getsockopt(fd, SOL_SOCKET, sol_socket_so_opts[i], &val, &optlen));
+			}
 		}
 #endif
 #if defined(AF_INET6)
@@ -776,7 +779,7 @@ retry:
 			ssize_t n = 0;
 #if defined(HAVE_RECVMSG) ||	\
     defined(HAVE_RECVMMSG)
-			size_t j;
+			size_t i, j;
 			struct iovec ALIGN64 vec[MMAP_IO_SIZE / 16];
 #endif
 #if defined(HAVE_RECVMSG)
