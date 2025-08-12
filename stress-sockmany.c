@@ -172,7 +172,6 @@ static int OPTIMIZE3 stress_sockmany_server(
 {
 	char ALIGN64 buf[SOCKET_MANY_BUF];
 	int fd;
-	int so_reuseaddr = 1;
 	socklen_t addr_len = 0;
 	struct sockaddr *addr = NULL;
 	uint64_t msgs = 0;
@@ -189,12 +188,16 @@ static int OPTIMIZE3 stress_sockmany_server(
 		goto die;
 	}
 #if defined(SOL_SOCKET)
-	if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR,
-		&so_reuseaddr, sizeof(so_reuseaddr)) < 0) {
-		pr_fail("%s: setsockopt failed, errno=%d (%s)\n",
-			args->name, errno, strerror(errno));
-		rc = EXIT_FAILURE;
-		goto die_close;
+	{
+		int so_reuseaddr = 1;
+
+		if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR,
+			       &so_reuseaddr, sizeof(so_reuseaddr)) < 0) {
+			pr_fail("%s: setsockopt failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
+			rc = EXIT_FAILURE;
+			goto die_close;
+		}
 	}
 #endif
 
