@@ -420,17 +420,49 @@ static void OPTIMIZE3 stress_memthrash_prefetch(
 {
 	uint32_t i;
 	const uint32_t max = stress_mwc16();
+	int locality = stress_mwc8modn(3) + 1;
 
 	(void)context;
 
-	for (i = 0; !thread_terminate && (i < max); i++) {
-		size_t offset = stress_mwc32modn(mem_size);
-		uint8_t *const ptr = ((uint8_t *)mem) + offset;
-		volatile uint8_t *const vptr = ptr;
+	/*
+	 *  prefetch locality is a constant, so we have to resort
+	 *  to using 3 same loops using deferent prefetch calls
+	 */
+	switch (locality) {
+	case 1:
+		for (i = 0; !thread_terminate && (i < max); i++) {
+			size_t offset = stress_mwc32modn(mem_size);
+			uint8_t *const ptr = ((uint8_t *)mem) + offset;
+			volatile uint8_t *const vptr = ptr;
 
-		/* Force prefetch and then modify to thrash cache */
-		shim_builtin_prefetch(ptr, 1, 1);
-		*vptr = i & 0xff;
+			/* Force prefetch and then modify to thrash cache */
+			shim_builtin_prefetch(ptr, 1, 1);
+			*vptr = i & 0xff;
+		}
+		break;
+	case 2:
+		for (i = 0; !thread_terminate && (i < max); i++) {
+			size_t offset = stress_mwc32modn(mem_size);
+			uint8_t *const ptr = ((uint8_t *)mem) + offset;
+			volatile uint8_t *const vptr = ptr;
+
+			/* Force prefetch and then modify to thrash cache */
+			shim_builtin_prefetch(ptr, 1, 2);
+			*vptr = i & 0xff;
+		}
+		break;
+	case 3:
+	default:
+		for (i = 0; !thread_terminate && (i < max); i++) {
+			size_t offset = stress_mwc32modn(mem_size);
+			uint8_t *const ptr = ((uint8_t *)mem) + offset;
+			volatile uint8_t *const vptr = ptr;
+
+			/* Force prefetch and then modify to thrash cache */
+			shim_builtin_prefetch(ptr, 1, 3);
+			*vptr = i & 0xff;
+		}
+		break;
 	}
 }
 
