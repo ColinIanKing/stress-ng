@@ -623,6 +623,70 @@ static int stress_mmaprandom_munmap(
 }
 
 /*
+ *  stress_mmaprandom_mmap_invalid()
+ *	make an invalid mmap call
+ */
+static void OPTIMIZE3 stress_mmaprandom_mmap_invalid(mr_ctxt_t *ctxt, const int idx)
+{
+	static uint32_t state = 0;
+	void *hint, *ptr;
+	size_t len, offset;
+	int prot, flags, fd;
+	int mask;
+
+	hint = (state &  0x0001) ? MAP_FAILED : 0;
+	len = (state & 0x0002) ? 0 : ~(size_t)0;
+	prot = (state & 0x0004) ? 0 : PROT_READ;
+	prot |= (state & 0x0008) ? 0 : PROT_WRITE;
+	prot |= (state & 0x0010) ? 0 : PROT_EXEC;
+	offset = (state & 0x0020) ? 0 : ~(size_t)0;
+	flags = (state & 0x0040) ? MAP_SHARED : MAP_PRIVATE;
+	flags |= (state & 0x0080) ? MAP_ANONYMOUS : 0;
+	mask = 0x100;
+#if defined(MAP_NORESERVE)
+	flags |= (state & mask) ? MAP_NORESERVE : 0;
+	mask <<= 1;
+#endif
+#if defined(MAP_32BIT)
+	flags |= (state & mask) ? MAP_NORESERVE : 0;
+	mask <<= 1;
+#endif
+#if defined(MAP_GROWSDOWN)
+	flags |= (state & mask) ? MAP_GROWSDOWN : 0;
+	mask <<= 1;
+#endif
+#if defined(MAP_LOCKED)
+	flags |= (state & mask) ? MAP_LOCKED: 0;
+	mask <<= 1;
+#endif
+#if defined(MAP_POPULATE)
+	flags |= (state & mask) ? MAP_POPULATE: 0;
+	mask <<= 1;
+#endif
+#if defined(MAP_STACK)
+	flags |= (state & mask) ? MAP_STACK: 0;
+	mask <<= 1;
+#endif
+#if defined(MAP_SYNC)
+	flags |= (state & mask) ? MAP_SYNC: 0;
+	mask <<= 1;
+#endif
+#if defined(MAP_UNINITIALIZED)
+	flags |= (state & mask) ? MAP_UNINITIALIZED : 0;
+	mask <<= 1;
+#endif
+	state++;
+
+	/* intentially wrong fd */
+	fd = (flags & MAP_ANONYMOUS) ? ctxt->fds[FD_FILE].fd : -1;
+	ptr = mmap(hint, len, prot, flags, fd, offset);
+	if (UNLIKELY(ptr != MAP_FAILED))
+		(void)munmap(ptr, len);
+	else
+		ctxt->count[idx] += 1.0;
+}
+
+/*
  *  stress_mmaprandom_mmap_anon()
  *  	perform anonymous mmap
  */
@@ -1628,6 +1692,7 @@ static void stress_mmaprandom_process_madvise(mr_ctxt_t *ctxt, const int idx)
 static const mr_funcs_t mr_funcs[] = {
 	{ stress_mmaprandom_mmap_anon,		"mmap anon" },
 	{ stress_mmaprandom_mmap_file,		"mmap file" },
+	{ stress_mmaprandom_mmap_invalid,	"mmap invalid" },
 	{ stress_mmaprandom_unmmap,		"munmap" },
 	{ stress_mmaprandom_unmmap_lo_hi_addr,	"munmap lo/hi addr" },
 	{ stress_mmaprandom_read,		"mem read" },
