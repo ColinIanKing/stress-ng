@@ -26,15 +26,19 @@
 #include <sys/statvfs.h>
 #endif
 
-#define	STRESS_FILENAME_PROBE	(0)	/* Default */
-#define STRESS_FILENAME_POSIX	(1)	/* POSIX 2008.1 */
-#define STRESS_FILENAME_EXT	(2)	/* EXT* filesystems */
+#define STRESS_FILENAME_PROBE		(0)	/* Default */
+#define STRESS_FILENAME_POSIX		(1)	/* POSIX 2008.1 */
+#define STRESS_FILENAME_EXT		(2)	/* EXT* filesystems */
+#define STRESS_FILENAME_UTF8		(3)	/* Strict UTF-8 filenames */
+#define STRESS_FILENAME_UTF8_LIKE	(4)	/* UTF-8 like filenames */
 
 /* mapping of opts text to STRESS_FILE_NAME_* values */
 static const char * const filename_opts[] = {
 	"probe",	/* STRESS_FILENAME_PROBE */
 	"posix",	/* STRESS_FILENAME_POSIX */
 	"ext",		/* STRESS_FILENAME_EXT */
+	"utf8",		/* STRESS_FILENAME_UTF8 */
+	"utf8-like",	/* STRESS_FILENAME_UTF8_LIKE */
 };
 
 static const stress_help_t help[] = {
@@ -195,10 +199,10 @@ static void stress_filename_ext(size_t *chars_allowed)
 }
 
 /*
- *  stress_filename_generate()
+ *  stress_filename_generate_normal()
  *	generate a filename of length sz_max
  */
-static void stress_filename_generate(
+static void stress_filename_generate_normal(
 	char *filename,
 	const size_t sz_max,
 	const char ch)
@@ -215,14 +219,59 @@ static void stress_filename_generate(
 }
 
 /*
+ *  stress_filename_generate_utf8()
+ *	generate a filename of length sz_max
+ */
+static void stress_filename_generate_utf8(
+	char *filename,
+	const size_t sz_max,
+	const uint32_t ch)
+{
+	ssize_t n = (ssize_t)sz_max;
+	uint8_t *ptr = (uint8_t *)filename;
+
+	do {
+		if ((n > 1) && (ch < 0x80)) {
+			/* U+0000 .. U+007f */
+			*(ptr++) = ch & 0x7f;
+			n--;
+		} else if ((n > 2) && (ch < 0x800)) {
+			/* U+0080 .. U+07ff */
+			*(ptr++) = 0xc0 | ((ch >> 6) & 0x1f);
+			*(ptr++) = 0x80 | (ch & 0x3f);
+			n -= 2;
+		} else if ((n > 3) && (ch < 0x10000)) {
+			/* U+0800 .. U+ffff */
+			*(ptr++) = 0xe0 | ((ch >> 12) & 0xf);
+			*(ptr++) = 0x80 | ((ch >> 6) & 0x3f);
+			*(ptr++) = 0x80 | ((ch >> 0) & 0x3f);
+			n -= 3;
+		} else if ((n > 4) && (ch < 110000)) {
+			/* U+10000 .. U+110000 */
+			*(ptr++) = 0xe8 | ((ch >> 18) & 0x7);
+			*(ptr++) = 0x80 | ((ch >> 12) & 0x3f);
+			*(ptr++) = 0x80 | ((ch >> 6) & 0x3f);
+			*(ptr++) = 0x80 | ((ch >> 9) & 0x3f);
+			n -= 4;
+		} else {
+			break;
+		}
+	} while (n > 1);
+
+	while (n > 0) {
+		*(ptr++) = '\0';
+		n--;
+	}
+}
+
+/*
  *  stress_filename_tidy()
  *	clean up residual files
  */
 static void stress_filename_tidy(
 	stress_args_t *args,
 	const char *path,
-	int *rc
-)
+	int *rc)
 {
 	DIR *dir;
 
@@ -250,11 +299,11 @@ static void stress_filename_tidy(
 }
 
 /*
- *  stress_filename_generate_random()
+ *  stress_filename_generate_random_normal()
  *	generate a filename of length sz_max with
  *	random selection from possible char set
  */
-static void stress_filename_generate_random(
+static void stress_filename_generate_random_normal(
 	char *filename,
 	const size_t sz_max,
 	const size_t chars_allowed)
@@ -273,10 +322,63 @@ static void stress_filename_generate_random(
 
 /*
  *  stress_filename_generate_random_utf8()
- *	generate a utf8 filename, may be legal or not
- *	for the filename charset being supported
+ *	generate a utf8 filename, legal utf8
  */
 static void stress_filename_generate_random_utf8(
+	char *filename,
+	const size_t sz_max)
+{
+	ssize_t n = (ssize_t)sz_max;
+	uint8_t *ptr = (uint8_t *)filename;
+
+	do {
+		uint32_t ch;
+
+		for (;;) {
+			ch = stress_mwc32modn(0x10fffe) + 1;
+			if ((ch > 0) && (ch < 0xd800))
+				break;
+			if ((ch > 0xdfff) && (ch < 0x11000))
+				break;
+		}
+		if ((n > 1) && (ch < 0x80)) {
+			/* U+0000 .. U+007f */
+			*(ptr++) = ch & 0x7f;
+			n--;
+		} else if ((n > 2) && (ch < 0x800)) {
+			/* U+0080 .. U+07ff */
+			*(ptr++) = 0xc0 | ((ch >> 6) & 0x1f);
+			*(ptr++) = 0x80 | (ch & 0x3f);
+			n -= 2;
+		} else if ((n > 3) && (ch < 0x10000)) {
+			/* U+0800 .. U+ffff */
+			*(ptr++) = 0xe0 | ((ch >> 12) & 0xf);
+			*(ptr++) = 0x80 | ((ch >> 6) & 0x3f);
+			*(ptr++) = 0x80 | ((ch >> 0) & 0x3f);
+			n -= 3;
+		} else if ((n > 4) && (ch < 110000)) {
+			/* U+10000 .. U+110000 */
+			*(ptr++) = 0xe8 | ((ch >> 18) & 0x7);
+			*(ptr++) = 0x80 | ((ch >> 12) & 0x3f);
+			*(ptr++) = 0x80 | ((ch >> 6) & 0x3f);
+			*(ptr++) = 0x80 | ((ch >> 9) & 0x3f);
+			n -= 4;
+		} else {
+			break;
+		}
+	} while (n > 1);
+
+	while (n > 0) {
+		*(ptr++) = '\0';
+		n--;
+	}
+}
+
+/*
+ *  stress_filename_generate_random_utf8_like()
+ *	generate a utf8 filename, legal and illegal utf8
+ */
+static void stress_filename_generate_random_utf8_like(
 	char *filename,
 	const size_t sz_max)
 {
@@ -320,6 +422,48 @@ static void stress_filename_generate_random_utf8(
 	if (j && stress_mwc8() < 16)
 		filename[j] = '\0';
 
+}
+
+static void stress_filename_generate(
+	const uint8_t filename_opt,
+	char *filename,
+	const size_t sz_max,
+	const uint32_t ch)
+{
+	switch (filename_opt) {
+	case STRESS_FILENAME_PROBE:
+	case STRESS_FILENAME_POSIX:
+	case STRESS_FILENAME_EXT:
+	default:
+		stress_filename_generate_normal(filename, sz_max, (char)ch & 0xff);
+		break;
+	case STRESS_FILENAME_UTF8:
+	case STRESS_FILENAME_UTF8_LIKE:
+		stress_filename_generate_utf8(filename, sz_max, ch);
+		break;
+	}
+}
+
+static void stress_filename_generate_random(
+	const uint8_t filename_opt,
+	char *filename,
+	const size_t sz_max,
+	const size_t chars_allowed)
+{
+	switch (filename_opt) {
+	case STRESS_FILENAME_PROBE:
+	case STRESS_FILENAME_POSIX:
+	case STRESS_FILENAME_EXT:
+	default:
+		stress_filename_generate_random_normal(filename, sz_max, chars_allowed);
+		break;
+	case STRESS_FILENAME_UTF8:
+		stress_filename_generate_random_utf8(filename, sz_max);
+		break;
+	case STRESS_FILENAME_UTF8_LIKE:
+		stress_filename_generate_random_utf8_like(filename, sz_max);
+		break;
+	}
 }
 
 /*
@@ -428,12 +572,12 @@ static int stress_filename_readdir(
 
 
 /*
- *  stress_filename_test()
+ *  stress_filename_test_normal()
  *	create a file, and check if it fails.
  *	should_pass = true - create must pass
  *	should_pass = false - expect it to fail (name too long)
  */
-static void stress_filename_test(
+static void stress_filename_test_normal(
 	stress_args_t *args,
 	const char *pathname,
 	const char *filename,
@@ -537,12 +681,38 @@ static void stress_filename_test_utf8(
 	}
 }
 
+static void stress_filename_test(
+	const uint8_t filename_opt,
+	stress_args_t *args,
+	const char *pathname,
+	const char *filename,
+	const size_t sz_max,
+	const bool should_pass,
+	const pid_t pid,
+	int *rc)
+{
+	switch (filename_opt) {
+	case STRESS_FILENAME_PROBE:
+	case STRESS_FILENAME_POSIX:
+	case STRESS_FILENAME_EXT:
+	default:
+		stress_filename_test_normal(args, pathname, filename, sz_max, should_pass, pid, rc);
+		break;
+
+	case STRESS_FILENAME_UTF8:
+	case STRESS_FILENAME_UTF8_LIKE:
+		stress_filename_test_utf8(args, filename, sz_max, pid, rc);
+		break;
+	}
+}
+
 /*
  *  stress_filename()
  *	stress filename sizes etc
  */
 static int stress_filename(stress_args_t *args)
 {
+	uint32_t utf8ch = 1;
 	int ret, rc = EXIT_SUCCESS;
 	size_t sz_left, sz_max;
 	char pathname[PATH_MAX - 256];
@@ -697,7 +867,6 @@ again:
 			rc = WEXITSTATUS(status);
 		}
 	} else {
-		/* Child, wrapped to catch OOMs */
 		const pid_t mypid = getpid();
 
 		stress_parent_died_alarm();
@@ -709,85 +878,93 @@ again:
 		i = 0;
 		sz = 1;
 		do {
-			const char ch = allowed[i];
 			const size_t rnd_sz = 1 + stress_mwc32modn((uint32_t)sz_max);
+			uint32_t ch = 0;
+
+			switch (filename_opt) {
+			case STRESS_FILENAME_PROBE:
+			case STRESS_FILENAME_POSIX:
+			case STRESS_FILENAME_EXT:
+			default:
+				ch = (uint32_t)allowed[i];
+				i++;
+				if (i >= chars_allowed)
+					i = 0;
+				break;
+			case STRESS_FILENAME_UTF8:
+			case STRESS_FILENAME_UTF8_LIKE:
+				ch = utf8ch;
+				utf8ch++;
+				if ((utf8ch >= 0xd800) && (utf8ch <= 0xdfff))
+					utf8ch = 0xe000;
+				if (utf8ch > 0x10ffff)
+					utf8ch = 1;
+				break;
+			}
 
 			i++;
 			if (i >= chars_allowed)
 				i = 0;
 
 			/* Should succeed */
-			stress_filename_generate(ptr, 1, ch);
-			stress_filename_test(args, pathname, filename, 1, true, mypid, &rc);
+			stress_filename_generate(filename_opt, ptr, 1, ch);
+			stress_filename_test(filename_opt, args, pathname, filename, 1, true, mypid, &rc);
 			if (UNLIKELY(!stress_continue(args)))
 				break;
-			stress_filename_generate_random(ptr, 1, chars_allowed);
-			stress_filename_test(args, pathname, filename, 1, true, mypid, &rc);
-			if (UNLIKELY(!stress_continue(args)))
-				break;
-
-			/* Should succeed */
-			stress_filename_generate(ptr, sz_max, ch);
-			stress_filename_test(args, pathname, filename, sz_max, true, mypid, &rc);
-			if (UNLIKELY(!stress_continue(args)))
-				break;
-			stress_filename_generate_random(ptr, sz_max, chars_allowed);
-			stress_filename_test(args, pathname, filename, sz_max, true, mypid, &rc);
+			stress_filename_generate_random(filename_opt, ptr, 1, chars_allowed);
+			stress_filename_test(filename_opt, args, pathname, filename, 1, true, mypid, &rc);
 			if (UNLIKELY(!stress_continue(args)))
 				break;
 
 			/* Should succeed */
-			stress_filename_generate(ptr, sz_max - 1, ch);
-			stress_filename_test(args, pathname, filename, sz_max - 1, true, mypid, &rc);
+			stress_filename_generate(filename_opt, ptr, sz_max, ch);
+			stress_filename_test(filename_opt, args, pathname, filename, sz_max, true, mypid, &rc);
 			if (UNLIKELY(!stress_continue(args)))
 				break;
-			stress_filename_generate_random(ptr, sz_max - 1, chars_allowed);
-			stress_filename_test(args, pathname, filename, sz_max - 1, true, mypid, &rc);
+			stress_filename_generate_random(filename_opt, ptr, sz_max, chars_allowed);
+			stress_filename_test(filename_opt, args, pathname, filename, sz_max, true, mypid, &rc);
+			if (UNLIKELY(!stress_continue(args)))
+				break;
+
+			/* Should succeed */
+			stress_filename_generate(filename_opt, ptr, sz_max - 1, ch);
+			stress_filename_test(filename_opt, args, pathname, filename, sz_max - 1, true, mypid, &rc);
+			if (UNLIKELY(!stress_continue(args)))
+				break;
+			stress_filename_generate_random(filename_opt, ptr, sz_max - 1, chars_allowed);
+			stress_filename_test(filename_opt, args, pathname, filename, sz_max - 1, true, mypid, &rc);
 			if (UNLIKELY(!stress_continue(args)))
 				break;
 
 			/* Should fail */
-			stress_filename_generate(ptr, sz_max + 1, ch);
-			stress_filename_test(args, pathname, filename, sz_max + 1, false, mypid, &rc);
+			stress_filename_generate(filename_opt, ptr, sz_max + 1, ch);
+			stress_filename_test(filename_opt, args, pathname, filename, sz_max + 1, false, mypid, &rc);
 			if (UNLIKELY(!stress_continue(args)))
 				break;
-			stress_filename_generate_random(ptr, sz_max + 1, chars_allowed);
-			stress_filename_test(args, pathname, filename, sz_max + 1, false, mypid, &rc);
-			if (UNLIKELY(!stress_continue(args)))
-				break;
-
-			/* Should succeed */
-			stress_filename_generate(ptr, sz, ch);
-			stress_filename_test(args, pathname, filename, sz, true, mypid, &rc);
-			if (UNLIKELY(!stress_continue(args)))
-				break;
-			stress_filename_generate_random(ptr, sz, chars_allowed);
-			stress_filename_test(args, pathname, filename, sz, true, mypid, &rc);
+			stress_filename_generate_random(filename_opt, ptr, sz_max + 1, chars_allowed);
+			stress_filename_test(filename_opt, args, pathname, filename, sz_max + 1, false, mypid, &rc);
 			if (UNLIKELY(!stress_continue(args)))
 				break;
 
 			/* Should succeed */
-			stress_filename_generate(ptr, rnd_sz, ch);
-			stress_filename_test(args, pathname, filename, rnd_sz, true, mypid, &rc);
+			stress_filename_generate(filename_opt, ptr, sz, ch);
+			stress_filename_test(filename_opt, args, pathname, filename, sz, true, mypid, &rc);
 			if (UNLIKELY(!stress_continue(args)))
 				break;
-			stress_filename_generate_random(ptr, rnd_sz, chars_allowed);
-			stress_filename_test(args, pathname, filename, rnd_sz, true, mypid, &rc);
-			if (UNLIKELY(!stress_continue(args)))
-				break;
-
-			/* May succeed or fail */
-			stress_filename_generate_random_utf8(ptr, sz_max - 1);
-			stress_filename_test_utf8(args, filename, sz_max - 1, pid, &rc);
+			stress_filename_generate_random(filename_opt, ptr, sz, chars_allowed);
+			stress_filename_test(filename_opt, args, pathname, filename, sz, true, mypid, &rc);
 			if (UNLIKELY(!stress_continue(args)))
 				break;
 
-			if (filename_opt == STRESS_FILENAME_EXT) {
-				stress_filename_generate_random_utf8(ptr, rnd_sz);
-				stress_filename_test_utf8(args, filename, rnd_sz, pid, &rc);
-				if (UNLIKELY(!stress_continue(args)))
-					break;
-			}
+			/* Should succeed */
+			stress_filename_generate(filename_opt, ptr, rnd_sz, ch);
+			stress_filename_test(filename_opt, args, pathname, filename, rnd_sz, true, mypid, &rc);
+			if (UNLIKELY(!stress_continue(args)))
+				break;
+			stress_filename_generate_random(filename_opt, ptr, rnd_sz, chars_allowed);
+			stress_filename_test(filename_opt, args, pathname, filename, rnd_sz, true, mypid, &rc);
+			if (UNLIKELY(!stress_continue(args)))
+				break;
 
 #if defined(HAVE_PATHCONF)
 #if defined(_PC_NAME_MAX)

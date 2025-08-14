@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "10 August 2025"
+.TH STRESS-NG 1 "14 August 2025"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -2857,6 +2857,13 @@ T}
 ext	T{
 use characters allowed by the ext2, ext3, ext4 file systems, namely any 8
 bit character apart from NUL and /
+T}
+utf8	T{
+use struct utf8 characters in filename
+T}
+urf8-like	T{
+use utf8 like characters with illegal utf8 encodings when generating random
+filenames
 T}
 .TE
 .RE
