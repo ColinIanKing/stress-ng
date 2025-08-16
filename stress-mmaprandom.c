@@ -1689,6 +1689,33 @@ static void stress_mmaprandom_process_madvise(mr_ctxt_t *ctxt, const int idx)
 }
 #endif
 
+/*
+ *  stress_mmaprandom_proc_info()
+ *  	read various memory map related proc files
+ */
+#if defined(__linux__)
+static void stress_mmaprandom_proc_info(mr_ctxt_t *ctxt, const int idx)
+{
+	static const char * const filenames[] = {
+		"/proc/meminfo",
+		"/proc/pressure/memory",
+		"/proc/self/maps",
+		"/proc/self/numa_maps",
+		"/proc/self/smaps",
+		"/proc/self/smaps_rollup",
+	};
+	const char *filename = MWC_RND_ELEMENT(filenames);
+	int fd;
+
+	fd = open(filename, O_RDONLY);
+	if (fd < 0)
+		return;
+	if (stress_read_discard(fd) > 0)
+		ctxt->count[idx] += 1.0;
+	(void)close(fd);
+}
+#endif
+
 static const mr_funcs_t mr_funcs[] = {
 	{ stress_mmaprandom_mmap_anon,		"mmap anon" },
 	{ stress_mmaprandom_mmap_file,		"mmap file" },
@@ -1741,6 +1768,9 @@ static const mr_funcs_t mr_funcs[] = {
     defined(HAVE_SYSCALL) &&		\
     defined(HAVE_SYS_UIO_H)
 	{ stress_mmaprandom_process_madvise,	"process madvise" },
+#endif
+#if defined(__linux__)
+	{ stress_mmaprandom_proc_info,		"/proc memory info" },
 #endif
 };
 
