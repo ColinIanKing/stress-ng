@@ -2675,7 +2675,7 @@ STRESS_PRAGMA_POP
 		goto err_unmap_page_none;
 	stress_set_vma_anon_name(g_shared->mapped.page_ro, page_size, "mapped-ro");
 
-	g_shared->mapped.page_wo = stress_map_page(PROT_READ, "PROT_WRITE", page_size);
+	g_shared->mapped.page_wo = stress_map_page(PROT_WRITE, "PROT_WRITE", page_size);
 	if (g_shared->mapped.page_wo == MAP_FAILED)
 		goto err_unmap_page_ro;
 	stress_set_vma_anon_name(g_shared->mapped.page_ro, page_size, "mapped-wo");
