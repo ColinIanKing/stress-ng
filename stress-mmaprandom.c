@@ -1706,6 +1706,14 @@ static void stress_mmaprandom_proc_info(mr_ctxt_t *ctxt, const int idx)
 	};
 	const char *filename = MWC_RND_ELEMENT(filenames);
 	int fd;
+	static double next_time = 0.0;
+	double now;
+
+	now = stress_time_now();
+	if (now < next_time)
+		return;
+
+	next_time = now + 0.10;
 
 	fd = open(filename, O_RDONLY);
 	if (fd < 0)
