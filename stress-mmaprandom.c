@@ -1150,6 +1150,35 @@ static void stress_mmaprandom_mremap(mr_ctxt_t *ctxt, const int idx)
 }
 #endif
 
+#if defined(HAVE_REMAP_FILE_PAGES) &&   \
+    !defined(STRESS_ARCH_SPARC)
+/*
+ *  stress_mmaprandom_remap_file_pages()
+ *	remap pages onto a different file mapping
+ */
+static void stress_mmaprandom_remap_file_pages(mr_ctxt_t *ctxt, const int idx)
+{
+	mr_node_t *mr_node = stress_mmaprandom_get_random_used();
+	size_t size, pages, pgoff;
+	off_t offset;
+
+	if (!mr_node)
+		return;
+
+	if (mr_node->mmap_flags & MAP_HUGETLB)
+		return;
+
+	size = mr_node->mmap_size;
+	pages = size / mr_node->mmap_page_size;
+	pgoff = stress_mwc32modn(ctxt->maxpages);
+	offset = (off_t)pgoff * ctxt->page_size;
+
+	stress_mmaprandom_fallocate(ctxt, mr_node->mmap_fd, offset, pages);
+	if (remap_file_pages(mr_node->mmap_addr, size, mr_node->mmap_prot, pgoff, mr_node->mmap_flags) == 0)
+		ctxt->count[idx] += 1.0;
+}
+#endif
+
 #if defined(HAVE_MADVISE)
 /*
  *  stress_mmaprandom_madvise()
@@ -1465,23 +1494,8 @@ static void stress_mmaprandom_unmap_child(void)
 	mr_node_t *mr_node;
 
 	/* Either unmap mappings in child or let _exit(2) do it */
-	RB_FOREACH(mr_node, sm_used_node_tree, &sm_used_node_tree_root) {
-		if (stress_mwc1()) {
-#if defined(MAP_NORESERVE)
-			if ((mr_node->mmap_prot & PROT_WRITE) && !(mr_node->mmap_flags & MAP_NORESERVE)) {
-#else
-			if (mr_node->mmap_prot & PROT_WRITE) {
-#endif
-#if defined(HAVE_ATOMIC_STORE) &&	\
-    defined(__ATOMIC_ACQUIRE)
-				if (mr_node->mmap_prot & PROT_READ)
-					__atomic_add_fetch((uint8_t *)mr_node->mmap_addr, 1, __ATOMIC_SEQ_CST);
-#endif
-				shim_memset(mr_node->mmap_addr, stress_mwc8(), mr_node->mmap_size);
-			}
-		}
+	RB_FOREACH(mr_node, sm_used_node_tree, &sm_used_node_tree_root)
 		(void)stress_munmap_force(mr_node->mmap_addr, mr_node->mmap_size);
-	}
 }
 
 #if defined(HAVE_CLONE)
@@ -1509,6 +1523,8 @@ static void stress_mmaprandom_clone(mr_ctxt_t *ctxt, const int idx)
 	double now;
 	uint64_t stack[CLONE_STACK_SIZE / sizeof(uint64_t)];
 	char *stack_top = (char *)stress_get_stack_top((char *)stack, CLONE_STACK_SIZE);
+
+	return;
 
 	now = stress_time_now();
 	if (now < next_time)
@@ -1739,6 +1755,10 @@ static const mr_funcs_t mr_funcs[] = {
 #if defined(HAVE_MREMAP)
 	{ stress_mmaprandom_mremap,		"mremap" },
 #endif
+#if defined(HAVE_REMAP_FILE_PAGES) &&   \
+    !defined(STRESS_ARCH_SPARC)
+	{ stress_mmaprandom_remap_file_pages,	"remap file pages" },
+#endif
 #if defined(HAVE_MADVISE)
 	{ stress_mmaprandom_madvise,		"madvise" },
 #endif
@@ -1780,6 +1800,7 @@ static const mr_funcs_t mr_funcs[] = {
 #if defined(__linux__)
 	{ stress_mmaprandom_proc_info,		"/proc memory info" },
 #endif
+
 };
 
 /*
