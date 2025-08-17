@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "14 August 2025"
+.TH STRESS-NG 1 "17 August 2025"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -5464,9 +5464,10 @@ calls on randonmly sized mappings. The mappings are either
 anonymous mapped or file mapped (on a small file or on a memfd file where
 available). This exercises mmap(2) (random options and flags), munmap(2),
 mlock(2), munlock(2), madvise(2), posix_madvise(3), mincore(2), mremap(2),
-msync(2), mprotect(2), memory read, memory write and cache flushing. Where
-possible, randomized options are used to generate a mix of mostly valid
-(and some invalid) memory mapping operations.
+msync(2), mprotect(2), remap_file_pages(2), memory read, memory write and
+cache flushing. Where possible, randomized options are used to generate a
+mix of mostly valid (and some invalid) memory mapping operations. Metrics
+are reported for all successfull system calls and memory operations.
 .TP
 .B \-\-mmaprandom\-ops N
 stop after N random memory mapping bogo-operations. Generally, 1 bogo-op is
