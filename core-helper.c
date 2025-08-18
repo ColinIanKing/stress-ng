@@ -605,7 +605,7 @@ void stress_yaml_buildinfo(FILE *yaml)
 	pr_yaml(yaml, "build-info:\n");
 	pr_yaml(yaml, "      compiler: '%s'\n", stress_get_compiler());
 #if defined(HAVE_SOURCE_DATE_EPOCH)
-	pr_yaml(yaml, "source-date-epoch: " XSTR(HAVE_SOURCE_DATE_EPOCH) "\n");
+	pr_yaml(yaml, "      source-date-epoch: " XSTR(HAVE_SOURCE_DATE_EPOCH) "\n");
 #endif
 #if defined(HAVE_EXTRA_BUILDINFO)
 #if defined(HAVE_CFLAGS)
