@@ -1113,11 +1113,11 @@ static void OPTIMIZE3 stress_mmaprandom_shm_posix(mr_ctxt_t *ctxt, const int idx
 	size_t pages = stress_mwc32modn(ctxt->maxpages) + 1;
 	size_t size = page_size * pages;
 	uint8_t *addr;
-	int prot_flag = 0;
+	int prot_flag = PROT_READ;
 	mr_node_t *mr_node;
 	char name[256];
 	int fd, shmflag;
-	mode_t mode = 0;
+	mode_t mode = S_IRUSR;
 
 	mr_node = RB_MIN(sm_free_node_tree, &sm_free_node_tree_root);
 	if (!mr_node)
@@ -1125,12 +1125,8 @@ static void OPTIMIZE3 stress_mmaprandom_shm_posix(mr_ctxt_t *ctxt, const int idx
 
 	shmflag = MWC_RND_ELEMENT(shm_posix_flags);
 	if (shmflag & O_RDWR) {
-		prot_flag |= (PROT_READ | PROT_WRITE);
-		mode |= S_IRUSR | S_IWUSR;
-	}
-	if (shmflag & O_RDONLY) {
-		prot_flag |= PROT_READ;
-		mode |= S_IRUSR;
+		prot_flag |= PROT_WRITE;
+		mode |= S_IWUSR;
 	}
 
 	snprintf(name, sizeof(name), "/%jd-%p", (intmax_t)getpid(), ctxt);
@@ -1643,7 +1639,7 @@ static void OPTIMIZE3 stress_mmaprandom_split(mr_ctxt_t *ctxt, const int idx)
 		new_mr_node->mmap_flags = mr_node->mmap_flags;
 		new_mr_node->mmap_offset = mr_node->mmap_offset + page_size;
 		new_mr_node->mmap_fd = mr_node->mmap_fd;
-		new_mr_node->flags = MR_NODE_FLAG_USED | MR_NODE_FLAGS_HAVE_BACKING;
+		new_mr_node->flags = mr_node->flags;
 		new_mr_node->rand_id = stress_mmapradom_rand_id(ctxt, new_mr_node);
 		RB_INSERT(sm_used_node_tree, &sm_used_node_tree_root, new_mr_node);
 		RB_INSERT(sm_rand_node_tree, &sm_rand_node_tree_root, new_mr_node);
