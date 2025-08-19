@@ -1971,7 +1971,7 @@ static const mr_funcs_t mr_funcs[] = {
 	{ stress_mmaprandom_shm_posix,		"POSIX shared memory allocate" },
 #endif
 #if defined(HAVE_SYS_SHM_H)
-	{ stress_mmaprandom_shm_sysv,		"SysV shared memory allocate" },
+	{ stress_mmaprandom_shm_sysv,		"System V shared memory allocate" },
 #endif
 	{ stress_mmaprandom_read,		"mem read" },
 	{ stress_mmaprandom_write,		"mem write" },
@@ -2050,7 +2050,6 @@ static int stress_mmaprandom_child(stress_args_t *args, void *context)
 	do {
 		const size_t i = stress_mwc8modn(SIZEOF_ARRAY(mr_funcs));
 
-		printf("%s\n", mr_funcs[i].name); fflush(stdout);
 		mr_funcs[i].func(ctxt, i);
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
