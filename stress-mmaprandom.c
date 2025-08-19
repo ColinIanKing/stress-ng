@@ -83,6 +83,9 @@
 
 #define MR_NODE_FLAG_USED		(0x01)
 #define MR_NODE_FLAG_SYSV_SHM		(0x02)
+#define MR_NODE_FLAG_POSIX_SHM		(0x04)
+#define MR_NODE_FLAG_SHM		(MR_NODE_FLAG_SYSV_SHM | MR_NODE_FLAG_POSIX_SHM)
+#define MR_NODE_FLAGS_HAVE_BACKING	(0x08)
 
 static const stress_help_t help[] = {
 	{ NULL,	"mmaprandom N",	 	 "start N workers stressing random memory mapping operations" },
@@ -350,11 +353,20 @@ static const int msync_flags[] = {
 
 #if defined(HAVE_SYS_SHM_H)
 /* System V shared memory flags */
-static const int shmflags[] = {
+static const int shm_sysv_flags[] = {
 	IPC_CREAT | IPC_EXCL | S_IRUSR | S_IRGRP,
 	IPC_CREAT | IPC_EXCL | S_IRUSR | S_IWUSR,
 	IPC_CREAT | IPC_EXCL | S_IRUSR | S_IRGRP,
 	IPC_CREAT | IPC_EXCL | S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP,
+};
+#endif
+
+#if defined(HAVE_LIB_RT) &&     \
+    defined(HAVE_SHM_OPEN) &&   \
+    defined(HAVE_SHM_UNLINK)
+static const int shm_posix_flags[] = {
+	O_CREAT | O_EXCL | O_RDONLY,
+	O_CREAT | O_EXCL | O_RDWR,
 };
 #endif
 
@@ -1014,10 +1026,8 @@ static void OPTIMIZE3 stress_mmaprandom_munmap_lo_hi_addr(mr_ctxt_t *ctxt, const
 	if (!mr_node)
 		return;
 
-#if defined(HAVE_SYS_SHM_H)
-	if (mr_node->flags & MR_NODE_FLAG_SYSV_SHM)
+	if (mr_node->flags & MR_NODE_FLAG_SHM)
 		return;
-#endif
 
 	if (LIKELY(stress_mmaprandom_munmap_force((void *)mr_node->mmap_addr,
 			mr_node->mmap_size, mr_node->mmap_page_size) == 0)) {
@@ -1051,7 +1061,7 @@ static void OPTIMIZE3 stress_mmaprandom_shm_sysv(mr_ctxt_t *ctxt, const int idx)
 	if (!mr_node)
 		return;
 
-	shmflag = MWC_RND_ELEMENT(shmflags);
+	shmflag = MWC_RND_ELEMENT(shm_sysv_flags);
 	if (shmflag & S_IRUSR)
 		prot_flag |= PROT_READ;
 	if (shmflag & S_IWUSR)
@@ -1082,6 +1092,80 @@ static void OPTIMIZE3 stress_mmaprandom_shm_sysv(mr_ctxt_t *ctxt, const int idx)
 	mr_node->mmap_offset = 0;
 	mr_node->mmap_fd = -1;
 	mr_node->flags = MR_NODE_FLAG_USED | MR_NODE_FLAG_SYSV_SHM;
+	mr_node->rand_id = stress_mmapradom_rand_id(ctxt, mr_node);
+	RB_INSERT(sm_used_node_tree, &sm_used_node_tree_root, mr_node);
+	RB_INSERT(sm_rand_node_tree, &sm_rand_node_tree_root, mr_node);
+	sm_used_nodes++;
+	ctxt->count[idx] += 1.0;
+}
+#endif
+
+#if defined(HAVE_LIB_RT) &&     \
+    defined(HAVE_SHM_OPEN) &&   \
+    defined(HAVE_SHM_UNLINK)
+/*
+ *  stress_mmaprandom_shm_posix()
+ *  	perform shared memory allocation using POSIX interface
+ */
+static void OPTIMIZE3 stress_mmaprandom_shm_posix(mr_ctxt_t *ctxt, const int idx)
+{
+	size_t page_size = ctxt->page_size;
+	size_t pages = stress_mwc32modn(ctxt->maxpages) + 1;
+	size_t size = page_size * pages;
+	uint8_t *addr;
+	int prot_flag = 0;
+	mr_node_t *mr_node;
+	char name[256];
+	int fd, shmflag;
+	mode_t mode = 0;
+
+	mr_node = RB_MIN(sm_free_node_tree, &sm_free_node_tree_root);
+	if (!mr_node)
+		return;
+
+	shmflag = MWC_RND_ELEMENT(shm_posix_flags);
+	if (shmflag & O_RDWR) {
+		prot_flag |= (PROT_READ | PROT_WRITE);
+		mode |= S_IRUSR | S_IWUSR;
+	}
+	if (shmflag & O_RDONLY) {
+		prot_flag |= PROT_READ;
+		mode |= S_IRUSR;
+	}
+
+	snprintf(name, sizeof(name), "/%jd-%p", (intmax_t)getpid(), ctxt);
+	fd = shm_open(name, shmflag, mode);
+	if (fd < 0)
+		return;
+	if (UNLIKELY(shim_fallocate(fd, 0, 0, size) < 0)) {
+		VOID_RET(int, shm_unlink(name));
+		(void)close(fd);
+		return;
+	}
+
+	stress_mmaprandom_twiddle_file_flags(fd);
+	stress_mmaprandom_twiddle_rw_hint(fd);
+	addr = (uint8_t *)stress_mmaprandom_mmap(NULL, size, prot_flag,
+			MAP_SHARED, fd, 0, page_size);
+	VOID_RET(int, shm_unlink(name));
+
+	if (addr == MAP_FAILED)
+		return;
+	ctxt->count[idx] += 1.0;
+
+	snprintf(name, sizeof(name), "mmaprandom-anon-%p", addr);
+	stress_set_vma_anon_name(addr, size, name);
+
+	RB_REMOVE(sm_free_node_tree, &sm_free_node_tree_root, mr_node);
+	sm_free_nodes--;
+	mr_node->mmap_addr = addr;
+	mr_node->mmap_size = size;
+	mr_node->mmap_page_size = page_size;
+	mr_node->mmap_prot = prot_flag;
+	mr_node->mmap_flags = MAP_SHARED;
+	mr_node->mmap_offset = 0;
+	mr_node->mmap_fd = fd;
+	mr_node->flags = MR_NODE_FLAG_USED | MR_NODE_FLAG_POSIX_SHM;
 	mr_node->rand_id = stress_mmapradom_rand_id(ctxt, mr_node);
 	RB_INSERT(sm_used_node_tree, &sm_used_node_tree_root, mr_node);
 	RB_INSERT(sm_rand_node_tree, &sm_rand_node_tree_root, mr_node);
@@ -1217,10 +1301,8 @@ static void stress_mmaprandom_mremap(mr_ctxt_t *ctxt, const int idx)
 	if (!mr_node)
 		return;
 
-#if defined(HAVE_SYS_SHM_H)
-	if (mr_node->flags & MR_NODE_FLAG_SYSV_SHM)
+	if (mr_node->flags & MR_NODE_FLAG_SHM)
 		return;
-#endif
 
 	pages = stress_mwc32modn(ctxt->maxpages) + 1;
 	new_size = mr_node->mmap_page_size * pages;
@@ -1232,14 +1314,15 @@ static void stress_mmaprandom_mremap(mr_ctxt_t *ctxt, const int idx)
 		 */
 		if (mr_node->mmap_flags & MAP_ANONYMOUS)
 			return;
-
 		/*
 		 * File mapped? Then ensure we have backing
 		 * written to the file
 		 */
-		if (mr_node->mmap_fd != -1)
-			if (stress_mmaprandom_fallocate(ctxt, mr_node->mmap_fd, mr_node->mmap_offset, pages) < 0)
-				return;
+		if (!(mr_node->flags & MR_NODE_FLAGS_HAVE_BACKING))
+			return;
+
+		if (stress_mmaprandom_fallocate(ctxt, mr_node->mmap_fd, mr_node->mmap_offset, pages) < 0)
+			return;
 	}
 
 	new_addr = mremap(mr_node->mmap_addr, mr_node->mmap_size, new_size, MREMAP_MAYMOVE);
@@ -1266,16 +1349,14 @@ static void stress_mmaprandom_remap_file_pages(mr_ctxt_t *ctxt, const int idx)
 	if (!mr_node)
 		return;
 
-	if (mr_node->mmap_fd == -1)
+	if (!(mr_node->flags & MR_NODE_FLAGS_HAVE_BACKING))
 		return;
 
 	if (mr_node->mmap_flags & MAP_HUGETLB)
 		return;
 
-#if defined(HAVE_SYS_SHM_H)
-	if (mr_node->flags & MR_NODE_FLAG_SYSV_SHM)
+	if (mr_node->flags & MR_NODE_FLAG_SHM)
 		return;
-#endif
 
 	size = mr_node->mmap_size;
 	pages = size / mr_node->mmap_page_size;
@@ -1394,10 +1475,8 @@ static void stress_mmaprandom_mlock(mr_ctxt_t *ctxt, const int idx)
 	if (!mr_node)
 		return;
 
-#if defined(HAVE_SYS_SHM_H)
-	if (mr_node->flags & MR_NODE_FLAG_SYSV_SHM)
+	if (mr_node->flags & MR_NODE_FLAG_SHM)
 		return;
-#endif
 
 	if (mlock(mr_node->mmap_addr, mr_node->mmap_size) == 0)
 		ctxt->count[idx] += 1.0;
@@ -1416,10 +1495,8 @@ static void stress_mmaprandom_munlock(mr_ctxt_t *ctxt, const int idx)
 	if (!mr_node)
 		return;
 
-#if defined(HAVE_SYS_SHM_H)
-	if (mr_node->flags & MR_NODE_FLAG_SYSV_SHM)
+	if (mr_node->flags & MR_NODE_FLAG_SHM)
 		return;
-#endif
 
 	if (munlock(mr_node->mmap_addr, mr_node->mmap_size) == 0)
 		ctxt->count[idx] += 1.0;
@@ -1440,12 +1517,11 @@ static void stress_mmaprandom_mprotect(mr_ctxt_t *ctxt, const int idx)
 	if (!mr_node)
 		return;
 
-#if defined(HAVE_SYS_SHM_H)
-	if (mr_node->flags & MR_NODE_FLAG_SYSV_SHM)
+	if (mr_node->flags & MR_NODE_FLAG_SHM)
 		return;
-#endif
+
 	prot_flag = MWC_RND_ELEMENT(prot_flags);
-	if ((mr_node->mmap_fd != -1) && ((prot_flag & mask) != 0)) {
+	if ((mr_node->flags & MR_NODE_FLAGS_HAVE_BACKING) && ((prot_flag & mask) != 0)) {
 		if (shim_fallocate(mr_node->mmap_fd, 0, mr_node->mmap_offset, mr_node->mmap_size) < 0)
 			return;
 	}
@@ -1470,10 +1546,8 @@ static void OPTIMIZE3 stress_mmaprandom_unmap_first_page(mr_ctxt_t *ctxt, const 
 	if (!mr_node)
 		return;
 
-#if defined(HAVE_SYS_SHM_H)
-	if (mr_node->flags & MR_NODE_FLAG_SYSV_SHM)
+	if (mr_node->flags & MR_NODE_FLAG_SHM)
 		return;
-#endif
 
 	page_size = mr_node->mmap_page_size;
 	if (mr_node->mmap_size >= (2 * page_size)) {
@@ -1507,10 +1581,8 @@ static void stress_mmaprandom_unmap_last_page(mr_ctxt_t *ctxt, const int idx)
 	if (!mr_node)
 		return;
 
-#if defined(HAVE_SYS_SHM_H)
-	if (mr_node->flags & MR_NODE_FLAG_SYSV_SHM)
+	if (mr_node->flags & MR_NODE_FLAG_SHM)
 		return;
-#endif
 
 	page_size = mr_node->mmap_page_size;
 	if (mr_node->mmap_size >= (2 * page_size)) {
@@ -1537,10 +1609,8 @@ static void OPTIMIZE3 stress_mmaprandom_split(mr_ctxt_t *ctxt, const int idx)
 	if (!mr_node)
 		return;
 
-#if defined(HAVE_SYS_SHM_H)
-	if (mr_node->flags & MR_NODE_FLAG_SYSV_SHM)
+	if (mr_node->flags & MR_NODE_FLAG_SHM)
 		return;
-#endif
 
 	page_size = mr_node->mmap_page_size;
 	if (mr_node->mmap_size >= (2 * page_size)) {
@@ -1573,7 +1643,7 @@ static void OPTIMIZE3 stress_mmaprandom_split(mr_ctxt_t *ctxt, const int idx)
 		new_mr_node->mmap_flags = mr_node->mmap_flags;
 		new_mr_node->mmap_offset = mr_node->mmap_offset + page_size;
 		new_mr_node->mmap_fd = mr_node->mmap_fd;
-		new_mr_node->flags = MR_NODE_FLAG_USED;
+		new_mr_node->flags = MR_NODE_FLAG_USED | MR_NODE_FLAGS_HAVE_BACKING;
 		new_mr_node->rand_id = stress_mmapradom_rand_id(ctxt, new_mr_node);
 		RB_INSERT(sm_used_node_tree, &sm_used_node_tree_root, new_mr_node);
 		RB_INSERT(sm_rand_node_tree, &sm_rand_node_tree_root, new_mr_node);
@@ -1596,10 +1666,8 @@ static void OPTIMIZE3 stress_mmaprandom_split_hole(mr_ctxt_t *ctxt, const int id
 	if (!mr_node)
 		return;
 
-#if defined(HAVE_SYS_SHM_H)
-	if (mr_node->flags & MR_NODE_FLAG_SYSV_SHM)
+	if (mr_node->flags & MR_NODE_FLAG_SHM)
 		return;
-#endif
 
 	page_size = mr_node->mmap_page_size;
 	if (mr_node->mmap_size >= (3 * page_size)) {
@@ -1624,7 +1692,7 @@ static void OPTIMIZE3 stress_mmaprandom_split_hole(mr_ctxt_t *ctxt, const int id
 		new_mr_node->mmap_prot = mr_node->mmap_prot;
 		new_mr_node->mmap_flags = mr_node->mmap_flags;
 		new_mr_node->mmap_offset = mr_node->mmap_offset + (2 * page_size);
-		new_mr_node->mmap_fd = mr_node->mmap_fd;
+		new_mr_node->mmap_fd = mr_node->mmap_fd | MR_NODE_FLAGS_HAVE_BACKING;
 		new_mr_node->flags = MR_NODE_FLAG_USED;
 		new_mr_node->rand_id = stress_mmapradom_rand_id(ctxt, new_mr_node);
 		RB_INSERT(sm_used_node_tree, &sm_used_node_tree_root, new_mr_node);
@@ -1761,10 +1829,8 @@ static void OPTIMIZE3 stress_mmaprandom_join(mr_ctxt_t *ctxt, const int idx)
 		if (!mr_node)
 			continue;
 
-#if defined(HAVE_SYS_SHM_H)
-		if (mr_node->flags & MR_NODE_FLAG_SYSV_SHM)
+		if (mr_node->flags & MR_NODE_FLAG_SHM)
 			return;
-#endif
 
 		ptr = mr_node->mmap_addr;
 		page_size = mr_node->mmap_page_size;
@@ -1899,6 +1965,11 @@ static const mr_funcs_t mr_funcs[] = {
 	{ stress_mmaprandom_mmap_invalid,	"mmap invalid" },
 	{ stress_mmaprandom_munmap,		"munmap" },
 	{ stress_mmaprandom_munmap_lo_hi_addr,	"munmap lo/hi addr" },
+#if defined(HAVE_LIB_RT) &&     \
+    defined(HAVE_SHM_OPEN) &&   \
+    defined(HAVE_SHM_UNLINK)
+	{ stress_mmaprandom_shm_posix,		"POSIX shared memory allocate" },
+#endif
 #if defined(HAVE_SYS_SHM_H)
 	{ stress_mmaprandom_shm_sysv,		"SysV shared memory allocate" },
 #endif
@@ -1979,6 +2050,7 @@ static int stress_mmaprandom_child(stress_args_t *args, void *context)
 	do {
 		const size_t i = stress_mwc8modn(SIZEOF_ARRAY(mr_funcs));
 
+		printf("%s\n", mr_funcs[i].name); fflush(stdout);
 		mr_funcs[i].func(ctxt, i);
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
