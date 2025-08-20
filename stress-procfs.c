@@ -219,13 +219,66 @@ static void stress_proc_self_mem(stress_args_t *args, const int fd)
 static void stress_proc_mtrr(stress_args_t *args, const int fd)
 {
 	struct mtrr_gentry gentry;
+#if defined(HAVE_MTRR_SENTRY)
+	struct mtrr_sentry sentry;
+#endif
+#if defined(HAVE_MTRR_SENTRY)
+	const uint32_t base = stress_mwc32() & ~(4095U);
+	bool base_unique = true;
+#endif
 
 	(void)args;
 
 	(void)shim_memset(&gentry, 0, sizeof(gentry));
 	while (ioctl(fd, MTRRIOC_GET_ENTRY, &gentry) == 0) {
+#if defined(HAVE_MTRR_SENTRY)
+		if (base == gentry.base)
+			base_unique = false;
+#endif
 		gentry.regnum++;
+
+#if defined(HAVE_MTRR_SENTRY) &&	\
+    defined(MTRRIOC_SET_ENTRY)
+		(void)memset(&sentry, 0, sizeof(sentry));
+		sentry.base = gentry.base;
+		sentry.size = 0;
+		sentry.type = gentry.type;
+		VOID_RET(int, ioctl(fd, MTRRIOC_SET_ENTRY, &sentry));
+
+		(void)memset(&sentry, 0, sizeof(sentry));
+		sentry.base = gentry.base;
+		sentry.size = gentry.size;
+		sentry.type = ~0;
+		VOID_RET(int, ioctl(fd, MTRRIOC_SET_ENTRY, &sentry));
+
+		(void)memset(&sentry, 0, sizeof(sentry));
+		sentry.base = gentry.base;
+		sentry.size = ~4095;
+		sentry.type = gentry.type;
+		VOID_RET(int, ioctl(fd, MTRRIOC_SET_ENTRY, &sentry));
+#endif
 	}
+
+#if defined(HAVE_MTRR_SENTRY)
+	if (!base_unique)
+		return;
+
+#if defined(MTRRIOC_DEL_ENTRY)
+	/* delete non-existent mtrr, will fail */
+	sentry.base = base;
+	sentry.size = 4096;
+	sentry.type = 1;
+	VOID_RET(int, ioctl(fd, MTRRIOC_DEL_ENTRY, &sentry));
+#endif
+
+#if defined(MTRRIOC_KILL_ENTRY)
+	/* kill non-existent mtrr, will fail */
+	sentry.base = base;
+	sentry.size = 4096;
+	sentry.type = 1;
+	VOID_RET(int, ioctl(fd, MTRRIOC_KILL_ENTRY, &sentry));
+#endif
+#endif
 }
 #endif
 
