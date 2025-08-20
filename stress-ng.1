@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "17 August 2025"
+.TH STRESS-NG 1 "20 August 2025"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -67,7 +67,8 @@ this option will force all running stressors to abort (terminate) if any
 other stressor terminates prematurely because of a failure.
 .TP
 .B \-\-aggressive
-enables more file, cache and memory aggressive options. This may slow tests
+enables more file, cache and memory aggressive options as well as forcing
+processes to change CPU affinity very frequently. This will slow tests
 down, increase latencies and reduce the number of bogo ops as well as changing
 the balance of user time vs system time used depending on the type of stressor
 being used.
