@@ -1116,7 +1116,7 @@ static void stress_wait_aggressive(
 	stress_stressor_t *ss;
 	cpu_set_t proc_mask;
 	const useconds_t usec_sleep =
-		ticks_per_sec ? 1000000 / ((useconds_t)5 * ticks_per_sec) : 1000000 / 250;
+		ticks_per_sec ? 1000000 / ((useconds_t)ticks_per_sec) : 1000000 / 1000;
 
 	pr_dbg("changing stressor cpu affinity every %lu usecs\n", (unsigned long int)usec_sleep);
 
