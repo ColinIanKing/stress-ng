@@ -474,6 +474,8 @@ do_stress --brk -1 --thrash
 
 do_stress --cacheline 32 --cacheline-affinity
 
+do_stress --cachehammer -1 --cachehammer-numa
+
 do_stress --cpu -1 --sched batch --thermalstat 1
 do_stress --cpu -1 --taskset 0,2 --ignite-cpu
 do_stress --cpu -1 --taskset 1,2,3
@@ -595,7 +597,14 @@ do_stress --mmap -1 --thrash
 
 do_stress --mmapaddr -1 --mmapaddr-mlock
 
+do_stress --mmapcow -1 --mmapcow-fork
+do_stress --mmapcow -1 --mmapcow-free
+do_stress --mmapcow -1 --mmapcow-mlock
+do_stress --mmapcow -1 --mmapcow-numa
+
 do_stress --mmapfiles -1 --mmapfiles-numa
+do_stress --mmapfiles -1 --mmapfiles-populate
+do_stress --mmapfiles -1 --mmapfiles-shared
 
 do_stress --mmapfixed -1 --mmapfixed-mlock
 do_stress --mmapfixed -1 --mmapfixed-numa
@@ -607,6 +616,10 @@ do_stress --mmaphuge -1 --mmaphuge-mmaps 32768
 
 do_stress --mmapmany -1 --mmapmany-mlock
 do_stress --mmapmany -1 --mmapmany-numa
+
+do_stress --mmaprandom -1 --mmaprandom-numa
+do_stress --mmaprandom -1 --mmaprandom-mappings 512
+do_stress --mmaprandom -1 --mmaprandom-maxpages 128
 
 do_stress --mmaptorture -1 --mmaptorture-bytes 30%
 do_stress --mmaptorture -1 --mmaptorture-msync 95
@@ -629,6 +642,8 @@ do_stress --nanosleep -1 --nanosleep-method random
 do_stress --nanosleep -1 --nanosleep-method ns
 do_stress --nanosleep -1 --nanosleep-method us
 do_stress --nanosleep -1 --nanosleep-method ms
+
+do_stress --null -1 --null-write
 
 do_stress --numa -1 --numa-shuffle-addr
 do_stress --numa -1 --numa-shuffle-node
@@ -658,8 +673,25 @@ do_stress --physmmap -1 --physmmap-read
 
 do_stress --physpage -1 --physpage-mtrr
 
+do_stress --pipe -1 --pipe-vmsplice
 
 do_stress --pipeherd -1 --pipeherd-yield
+
+do_stress --poll -1 --poll-random-us
+
+do_stress --prio-inv -1 --prio-inv-type inherit
+do_stress --prio-inv -1 --prio-inv-type none
+do_stress --prio-inv -1 --prio-inv-type protect
+do_stress --prio-inv -1 --prio-inv-policy batch
+do_stress --prio-inv -1 --prio-inv-policy idle
+do_stress --prio-inv -1 --prio-inv-policy fifo
+do_stress --prio-inv -1 --prio-inv-policy other
+do_stress --prio-inv -1 --prio-inv-policy rr
+
+do_stress --pseek -1 --pseek-io-size 1M
+do_stress --pseek -1 --pseek-rand
+
+do_stress --ptr-chase -1 --ptr-chase-pages 8192
 
 do_stress --race-sched -1 --race-sched-method next
 do_stress --race-sched -1 --race-sched-method prev
@@ -671,7 +703,6 @@ do_stress --randlist -1 --randist-compact
 
 do_stress --ramfs -1 --ramfs-fill
 do_stress --ramfs -1 --ramfs-size 16M
-
 
 do_stress --rawpkt -1 --rawpkt-rxring 2
 do_stress --rawpkt -1 --rawpkt-rxring 16
@@ -707,6 +738,13 @@ do_stress --seek -1 --seek-punch
 do_stress --sem -1 --sem-procs 64
 do_stress --sem -1 --sem-shared
 
+do_stress --sem-sysv -1 --sem-sysv-procs 64
+do_stress --sem-sysv -1 --sem-sysv-setall
+
+do_stress --shm -1 --shm-mlock
+
+do_stress --shm-sysv -1 --shm-sysv-mlock
+
 do_stress --sleep -1 --sleep-max 4096
 
 do_stress --sock -1 --sock-nodelay
@@ -722,6 +760,8 @@ do_stress --sock -1 --sock-opts send --sock-zerocopy
 do_stress --sockfd -1 --sockfd-reuse
 
 do_stress --spinmem -1 --spinmem-affinity
+do_stress --spinmem -1 --spinmem-numa
+do_stress --spinmem -1 --spinmem-yield
 
 do_stress --splice -1 --splice-bytes 4K
 
@@ -736,10 +776,11 @@ do_stress --stream -1 --stream-madvise hugepage
 do_stress --stream -1 --stream-madvise nohugepage
 do_stress --stream -1 --stream-madvise normal
 do_stress --stream -1 --stream-index 3
+do_stress --stream -1 --stream-prefetch
 
 do_stress --swap -1 --swap-self
 
-do_stress --switch -1 --switch-freq 1000000 
+do_stress --switch -1 --switch-freq 1000000
 do_stress --switch -1 --switch-method mq
 do_stress --switch -1 --switch-method pipe
 do_stress --switch -1 --switch-method sem-sysv
@@ -780,6 +821,7 @@ do_stress --vfork 1 --vfork-max 64
 
 do_stress --vforkmany 1 --vforkmany-vm
 
+do_stress --vm -1 --vm-flush
 do_stress --vm -1 --vm-keep
 do_stress --vm -1 --vm-hang 1
 do_stress --vm -1 --vm-locked
@@ -805,13 +847,21 @@ do_stress --workload -1 --workload-sched other --workload-load 90
 do_stress --workload -1 --workload-sched batch --workload-load 90
 do_stress --workload -1 --workload-sched deadline --workload-load 90
 do_stress --workload -1 --workload-threads 8
+do_stress --workload -1 --workload-dist cluster
+do_stress --workload -1 --workload-dist even
+do_stress --workload -1 --workload-dist poisson
+do_stress --workload -1 --workload-dist random1
+do_stress --workload -1 --workload-dist random2
+do_stress --workload -1 --workload-dist random3
 
 do_stress --yield -1 --yield-sched deadline
 do_stress --yield -1 --yield-sched idle
 do_stress --yield -1 --yield-sched fifo
 do_stress --yield -1 --yield-sched other
 do_stress --yield -1 --yield-sched rr
-    
+
+do_stress --zero -1 --zero-read
+
 do_stress --zombie 1 --zombie-max 1000000
 
 #
