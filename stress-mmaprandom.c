@@ -68,7 +68,7 @@
 #define MMAP_RANDOM_MAX_MAPPINGS	(1U << MMAP_RANDOM_MAX_MAPPINGS_SHIFT)
 #define MMAP_RANDOM_DEFAULT_MMAPPINGS	(1024)
 
-#define MMAP_RANDOM_MIN_MAXPAGES	(2)
+#define MMAP_RANDOM_MIN_MAXPAGES	(1)
 #define MMAP_RANDOM_MAX_MAXPAGES	(1024)
 #define MMAP_RANDOM_DEFAULT_MAX_PAGES	(8)
 
@@ -86,6 +86,8 @@
 #define MR_NODE_FLAG_POSIX_SHM		(0x04)
 #define MR_NODE_FLAG_SHM		(MR_NODE_FLAG_SYSV_SHM | MR_NODE_FLAG_POSIX_SHM)
 #define MR_NODE_FLAGS_HAVE_BACKING	(0x08)
+#define MR_NODE_FLAGS_MSEALABLE		(0x10)
+#define MR_NODE_FLAGS_MSEALED		(0x20)
 
 static const stress_help_t help[] = {
 	{ NULL,	"mmaprandom N",	 	 "start N workers stressing random memory mapping operations" },
@@ -785,7 +787,7 @@ static void OPTIMIZE3 stress_mmaprandom_mmap_anon(mr_ctxt_t *ctxt, const int idx
 	if (UNLIKELY(addr == MAP_FAILED))
 		return;
 
-	snprintf(name, sizeof(name), "mmaprandom-anon-%p", addr);
+	(void)snprintf(name, sizeof(name), "mmaprandom-anon-%p", addr);
 	stress_set_vma_anon_name(addr, size, name);
 
 	RB_REMOVE(sm_free_node_tree, &sm_free_node_tree_root, mr_node);
@@ -797,7 +799,7 @@ static void OPTIMIZE3 stress_mmaprandom_mmap_anon(mr_ctxt_t *ctxt, const int idx
 	mr_node->mmap_flags = mmap_flag | extra_flags;
 	mr_node->mmap_offset = 0;
 	mr_node->mmap_fd = -1;
-	mr_node->flags = MR_NODE_FLAG_USED;
+	mr_node->flags = MR_NODE_FLAG_USED | ((mr_node->mmap_flags & MAP_PRIVATE) ? MR_NODE_FLAGS_MSEALABLE : 0);
 	mr_node->rand_id = stress_mmapradom_rand_id(ctxt, mr_node);
 	RB_INSERT(sm_used_node_tree, &sm_used_node_tree_root, mr_node);
 	RB_INSERT(sm_rand_node_tree, &sm_rand_node_tree_root, mr_node);
@@ -922,7 +924,7 @@ static void OPTIMIZE3 stress_mmaprandom_mmap_file(mr_ctxt_t *ctxt, const int idx
 	mr_node->mmap_flags = mmap_flag | extra_flags;
 	mr_node->mmap_fd = fd;
 	mr_node->mmap_offset = offset;
-	mr_node->flags = MR_NODE_FLAG_USED;
+	mr_node->flags = MR_NODE_FLAG_USED | ((mr_node->mmap_flags & MAP_PRIVATE) ? MR_NODE_FLAGS_MSEALABLE : 0);
 	mr_node->rand_id = stress_mmapradom_rand_id(ctxt, mr_node);
 	RB_INSERT(sm_used_node_tree, &sm_used_node_tree_root, mr_node);
 	RB_INSERT(sm_rand_node_tree, &sm_rand_node_tree_root, mr_node);
@@ -1054,8 +1056,8 @@ static void OPTIMIZE3 stress_mmaprandom_shm_sysv(mr_ctxt_t *ctxt, const int idx)
 	uint8_t *addr;
 	int prot_flag = 0;
 	mr_node_t *mr_node;
-	char name[80];
 	int shmid, shmflag;
+	char name[80];
 
 	mr_node = RB_MIN(sm_free_node_tree, &sm_free_node_tree_root);
 	if (!mr_node)
@@ -1079,7 +1081,7 @@ static void OPTIMIZE3 stress_mmaprandom_shm_sysv(mr_ctxt_t *ctxt, const int idx)
 	if (UNLIKELY(addr == (void *)-1))
 		return;
 
-	snprintf(name, sizeof(name), "mmaprandom-anon-%p", addr);
+	(void)snprintf(name, sizeof(name), "mmaprandom-anon-%p", addr);
 	stress_set_vma_anon_name(addr, size, name);
 
 	RB_REMOVE(sm_free_node_tree, &sm_free_node_tree_root, mr_node);
@@ -1129,7 +1131,7 @@ static void OPTIMIZE3 stress_mmaprandom_shm_posix(mr_ctxt_t *ctxt, const int idx
 		mode |= S_IWUSR;
 	}
 
-	snprintf(name, sizeof(name), "/%jd-%p", (intmax_t)getpid(), ctxt);
+	(void)snprintf(name, sizeof(name), "/%jd-%p", (intmax_t)getpid(), ctxt);
 	fd = shm_open(name, shmflag, mode);
 	if (fd < 0)
 		return;
@@ -1149,7 +1151,7 @@ static void OPTIMIZE3 stress_mmaprandom_shm_posix(mr_ctxt_t *ctxt, const int idx
 		return;
 	ctxt->count[idx] += 1.0;
 
-	snprintf(name, sizeof(name), "mmaprandom-anon-%p", addr);
+	(void)snprintf(name, sizeof(name), "mmaprandom-anon-%p", addr);
 	stress_set_vma_anon_name(addr, size, name);
 
 	RB_REMOVE(sm_free_node_tree, &sm_free_node_tree_root, mr_node);
@@ -1514,7 +1516,8 @@ static void stress_mmaprandom_mprotect(mr_ctxt_t *ctxt, const int idx)
 		return;
 
 	prot_flag = MWC_RND_ELEMENT(prot_flags);
-	if ((mr_node->flags & MR_NODE_FLAGS_HAVE_BACKING) && ((prot_flag & mask) != 0)) {
+	if (!(mr_node->flags & MR_NODE_FLAGS_HAVE_BACKING) ||
+	    ((mr_node->flags & MR_NODE_FLAGS_HAVE_BACKING) && ((prot_flag & mask) != 0))) {
 		if (shim_fallocate(mr_node->mmap_fd, 0, mr_node->mmap_offset, mr_node->mmap_size) < 0)
 			return;
 	}
@@ -1609,9 +1612,6 @@ static void OPTIMIZE3 stress_mmaprandom_split(mr_ctxt_t *ctxt, const int idx)
 	if (mr_node->mmap_size >= (2 * page_size)) {
 		uint8_t *ptr = (uint8_t *)mr_node->mmap_addr;
 		mr_node_t *new_mr_node;
-#if defined(HAVE_MPROTECT)
-		int prot_flag;
-#endif
 
 		new_mr_node = RB_MIN(sm_free_node_tree, &sm_free_node_tree_root);
 		if (!new_mr_node)
@@ -1624,15 +1624,7 @@ static void OPTIMIZE3 stress_mmaprandom_split(mr_ctxt_t *ctxt, const int idx)
 		new_mr_node->mmap_addr = (void *)ptr;
 		new_mr_node->mmap_size = mr_node->mmap_size - (page_size);
 		new_mr_node->mmap_page_size = mr_node->mmap_page_size;
-#if defined(HAVE_MPROTECT)
-		/* Switch to new mmap protection flags */
-		prot_flag = MWC_RND_ELEMENT(prot_flags);
-		if (mprotect(new_mr_node->mmap_addr, new_mr_node->mmap_size, prot_flag) == 0)
-			new_mr_node->mmap_prot = prot_flag;
-#else
-		/* Keep same protection as original */
 		new_mr_node->mmap_prot = mr_node->mmap_prot;
-#endif
 		new_mr_node->mmap_flags = mr_node->mmap_flags;
 		new_mr_node->mmap_offset = mr_node->mmap_offset + page_size;
 		new_mr_node->mmap_fd = mr_node->mmap_fd;
@@ -1686,7 +1678,7 @@ static void OPTIMIZE3 stress_mmaprandom_split_hole(mr_ctxt_t *ctxt, const int id
 		new_mr_node->mmap_flags = mr_node->mmap_flags;
 		new_mr_node->mmap_offset = mr_node->mmap_offset + (2 * page_size);
 		new_mr_node->mmap_fd = mr_node->mmap_fd | MR_NODE_FLAGS_HAVE_BACKING;
-		new_mr_node->flags = MR_NODE_FLAG_USED;
+		new_mr_node->flags = mr_node->flags;
 		new_mr_node->rand_id = stress_mmapradom_rand_id(ctxt, new_mr_node);
 		RB_INSERT(sm_used_node_tree, &sm_used_node_tree_root, new_mr_node);
 		RB_INSERT(sm_rand_node_tree, &sm_rand_node_tree_root, new_mr_node);
@@ -1697,16 +1689,35 @@ static void OPTIMIZE3 stress_mmaprandom_split_hole(mr_ctxt_t *ctxt, const int id
 }
 
 /*
+ *  stress_mmaprandom_mseal_child()
+ *	mseal private msealable mappings
+ */
+static void stress_mmaprandom_mseal_child(void)
+{
+	mr_node_t *mr_node;
+
+	RB_FOREACH(mr_node, sm_used_node_tree, &sm_used_node_tree_root) {
+		if (mr_node->flags & MR_NODE_FLAGS_MSEALABLE) {
+			if (shim_mseal(mr_node->mmap_addr, mr_node->mmap_size, 0) == 0)
+				mr_node->flags |= MR_NODE_FLAGS_MSEALED;
+		}
+	}
+}
+
+/*
  *  stress_mmaprandom_unmap_child()
- *	unmap randomly selected mmap'd mappings
+ *	unmap mmap'd mappings
  */
 static void stress_mmaprandom_unmap_child(void)
 {
 	mr_node_t *mr_node;
 
 	/* Either unmap mappings in child or let _exit(2) do it */
-	RB_FOREACH(mr_node, sm_used_node_tree, &sm_used_node_tree_root)
-		(void)stress_munmap_force(mr_node->mmap_addr, mr_node->mmap_size);
+	RB_FOREACH(mr_node, sm_used_node_tree, &sm_used_node_tree_root) {
+		if (!(mr_node->flags & MR_NODE_FLAGS_MSEALED)) {
+			(void)stress_munmap_force(mr_node->mmap_addr, mr_node->mmap_size);
+		}
+	}
 }
 
 #if defined(HAVE_CLONE)
@@ -1793,8 +1804,10 @@ static void stress_mmaprandom_fork(mr_ctxt_t *ctxt, const int idx)
 		return;
 	} if (pid == 0) {
 		/* Either unmap mappings in child or let _exit(2) do it */
-		if (stress_mwc1())
+		if (stress_mwc1()) {
+			stress_mmaprandom_mseal_child();
 			stress_mmaprandom_unmap_child();
+		}
 		_exit(0);
 	} else {
 		int status;
@@ -2194,7 +2207,7 @@ static int stress_mmaprandom(stress_args_t *args)
 		char buf[64];
 		const double rate = duration > 0.0 ? ctxt->count[i] / duration: 0.0;
 
-		snprintf(buf, sizeof(buf), "%s ops/sec", mr_funcs[i].name);
+		(void)snprintf(buf, sizeof(buf), "%s ops/sec", mr_funcs[i].name);
 		stress_metrics_set(args, i, buf, rate, STRESS_METRIC_HARMONIC_MEAN);
 	}
 
