@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "20 August 2025"
+.TH STRESS-NG 1 "21 August 2025"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -243,6 +243,23 @@ the kernel log.
 .B \-\-ksm
 enable kernel samepage merging (Linux only). This is a memory-saving de-duplication
 feature for merging anonymous (private) pages.
+.TP
+.B \-\-limit\-as
+set stressor process's maximum size of the virtual memory
+(address space), see rlimit(2) RLIMIT_AS. The parameter can be specified
+as an absolute number of bytes (e.g. 1G for 1 GB) or a percentage of
+the current free memory, e.g. 20%
+.TP
+.B \-\-limit\-data
+set stressor process's maximum size of the data segment (initialized data,
+uninitialized data, and heap), see rlimit(2) RLIMIT_DATA. The parameter can
+be specified as an absolute number of bytes (e.g. 128M for 128 MB) or a
+percentage of the current free memory, e.g. 5%
+.TP
+.B \-\-limit\-stack
+set stressor process's maximum size of the stack, see rlimit(2)
+RLIMIT_STACK. The parameter can be specified as an absolute number of
+bytes (e.g. 2M for 2 MB) or a percentage of the current free memory, e.g. 1%
 .TP
 .B \-\-log\-brief
 by default stress\-ng will report the name of the program, the message type

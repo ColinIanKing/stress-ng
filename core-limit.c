@@ -20,53 +20,90 @@
 #include "stress-ng.h"
 #include "core-limit.h"
 
-static const shim_rlimit_resource_t limits[] = {
+typedef struct {
+	const shim_rlimit_resource_t resource;
+	const char *opt;
+} stress_rlimit_t;
+
+static const stress_rlimit_t limits[] = {
 #if defined(RLIMIT_AS)
-	RLIMIT_AS,
+	{ RLIMIT_AS,		"limit-as" },
 #endif
 #if defined(RLIMIT_CPU)
-	RLIMIT_CPU,
+	{ RLIMIT_CPU,		NULL },
 #endif
 #if defined(RLIMIT_DATA)
-	RLIMIT_DATA,
+	{ RLIMIT_DATA,		"limit-data" },
 #endif
 #if defined(RLIMIT_FSIZE)
-	RLIMIT_FSIZE,
+	{ RLIMIT_FSIZE,		NULL },
 #endif
 #if defined(RLIMIT_LOCKS)
-	RLIMIT_LOCKS,
+	{ RLIMIT_LOCKS,		NULL },
 #endif
 #if defined(RLIMIT_MEMLOCK)
-	RLIMIT_MEMLOCK,
+	{ RLIMIT_MEMLOCK,	NULL },
 #endif
 #if defined(RLIMIT_MSGQUEUE)
-	RLIMIT_MSGQUEUE,
+	{ RLIMIT_MSGQUEUE,	NULL },
 #endif
 #if defined(RLIMIT_NICE)
-	RLIMIT_NICE,
+	{ RLIMIT_NICE,		NULL },
 #endif
 #if defined(RLIMIT_NOFILE)
-	RLIMIT_NOFILE,
+	{ RLIMIT_NOFILE,	NULL },
 #endif
 #if defined(RLIMIT_NPROC)
-	RLIMIT_NPROC,
+	{ RLIMIT_NPROC,		NULL },
 #endif
 #if defined(RLIMIT_RSS)
-	RLIMIT_RSS,
+	{ RLIMIT_RSS,		NULL },
 #endif
 #if defined(RLIMIT_RTPRIO)
-	RLIMIT_RTPRIO,
+	{ RLIMIT_RTPRIO,	NULL },
 #endif
 #if defined(RLIMIT_RTTIME)
-	RLIMIT_RTTIME,
+	{ RLIMIT_RTTIME,	NULL },
 #endif
 #if defined(RLIMIT_SIGPENDING)
-	RLIMIT_SIGPENDING,
+	{ RLIMIT_SIGPENDING,	NULL },
 #endif
 #if defined(RLIMIT_STACK)
-	RLIMIT_STACK
+	{ RLIMIT_STACK,		"limit-stack" },
 #endif
 };
+
+/*
+#if defined(RLIMIT_AS)
+				stress_run_set_limit(RLIMIT_AS, "limit-as");
+#endif
+#if defined(RLIMIT_DATA)
+				stress_run_set_limit(RLIMIT_DATA, "limit-data");
+#endif
+#if defined(RLIMIT_STACK)
+				stress_run_set_limit(RLIMIT_AS, "limit-stack");
+#endif
+*/
+
+static void stress_set_limit(int resource, const char *opt)
+{
+	struct rlimit rlim;
+	uint64_t val = 0;
+
+	/* User optional override for a specific limit? */
+	if (opt && stress_get_setting(opt, &val) && (val > 0)) {
+		rlim.rlim_cur = (rlim_t)val;
+		rlim.rlim_max = (rlim_t)val;
+		(void)setrlimit(resource, &rlim);
+		return;
+	}
+
+	if (UNLIKELY(getrlimit(resource, &rlim) < 0))
+		return;
+
+	rlim.rlim_cur = rlim.rlim_max;
+	(void)setrlimit(resource, &rlim);
+}
 
 /*
  *  stress_set_max_limits()
@@ -79,12 +116,8 @@ void stress_set_max_limits(void)
 	size_t i;
 	struct rlimit rlim;
 
-	for (i = 0; i < SIZEOF_ARRAY(limits); i++) {
-		if (UNLIKELY(getrlimit(limits[i], &rlim) < 0))
-			continue;
-		rlim.rlim_cur = rlim.rlim_max;
-		(void)setrlimit(limits[i], &rlim);
-	}
+	for (i = 0; i < SIZEOF_ARRAY(limits); i++)
+		stress_set_limit(limits[i].resource, limits[i].opt);
 
 #if defined(RLIMIT_NOFILE)
 	{

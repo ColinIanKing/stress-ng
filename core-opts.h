@@ -723,6 +723,10 @@ typedef enum {
 	OPT_led,
 	OPT_led_ops,
 
+	OPT_limit_as,
+	OPT_limit_data,
+	OPT_limit_stack,
+
 	OPT_link,
 	OPT_link_ops,
 	OPT_link_sync,
