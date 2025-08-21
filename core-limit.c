@@ -21,8 +21,8 @@
 #include "core-limit.h"
 
 typedef struct {
-	const shim_rlimit_resource_t resource;
-	const char *opt;
+	const shim_rlimit_resource_t resource;	/* RLIMIT_* resource */
+	const char *opt;	/* stress-ng option to control resource */
 } stress_rlimit_t;
 
 static const stress_rlimit_t limits[] = {
