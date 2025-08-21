@@ -367,6 +367,8 @@ static const int shm_sysv_flags[] = {
     defined(HAVE_SHM_OPEN) &&   \
     defined(HAVE_SHM_UNLINK)
 static const int shm_posix_flags[] = {
+	O_CREAT | O_RDONLY,
+	O_CREAT | O_RDWR,
 	O_CREAT | O_EXCL | O_RDONLY,
 	O_CREAT | O_EXCL | O_RDWR,
 };
