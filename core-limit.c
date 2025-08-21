@@ -73,18 +73,6 @@ static const stress_rlimit_t limits[] = {
 #endif
 };
 
-/*
-#if defined(RLIMIT_AS)
-				stress_run_set_limit(RLIMIT_AS, "limit-as");
-#endif
-#if defined(RLIMIT_DATA)
-				stress_run_set_limit(RLIMIT_DATA, "limit-data");
-#endif
-#if defined(RLIMIT_STACK)
-				stress_run_set_limit(RLIMIT_AS, "limit-stack");
-#endif
-*/
-
 static void stress_set_limit(int resource, const char *opt)
 {
 	struct rlimit rlim;
