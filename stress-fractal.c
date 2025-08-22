@@ -99,7 +99,8 @@ static void stress_fractal_deinit(void)
 static inline ALWAYS_INLINE int32_t stress_fractal_get_row(stress_args_t *args, int32_t max_rows)
 {
 #if defined(HAVE_ATOMIC_FETCH_ADD_4) &&	\
-    defined(__ATOMIC_ACQUIRE)
+    defined(__ATOMIC_ACQUIRE) &&	\
+    !defined(__fiwix__)
 	/*
 	 *  Fast method, inc and modulo. There is an issue where
 	 *  the row eventualy wraps and the next row will be incorrect
