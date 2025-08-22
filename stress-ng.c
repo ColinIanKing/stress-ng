@@ -34,6 +34,7 @@
 #include "core-klog.h"
 #include "core-limit.h"
 #include "core-mlock.h"
+#include "core-mmap.h"
 #include "core-numa.h"
 #include "core-opts.h"
 #include "core-out-of-memory.h"
@@ -2553,8 +2554,7 @@ static void *stress_map_page(int prot, char *prot_str, size_t page_size)
 {
 	void *ptr;
 
-	ptr = mmap(NULL, page_size, prot,
-		MAP_PRIVATE | MAP_ANON, -1, 0);
+	ptr = stress_mmap_anon_shared(page_size, prot);
 	if (ptr == MAP_FAILED) {
 		pr_err("cannot mmap %s %zu byte shared page%s, errno=%d (%s)\n",
 			prot_str, page_size, stress_get_memfree_str(),
@@ -2579,8 +2579,7 @@ static inline void stress_shared_map(const int32_t num_procs)
 	void *last_page;
 #endif
 
-	g_shared = (stress_shared_t *)mmap(NULL, sz, PROT_READ | PROT_WRITE,
-		MAP_SHARED | MAP_ANON, -1, 0);
+	g_shared = (stress_shared_t *)stress_mmap_anon_shared(sz,  PROT_READ | PROT_WRITE);
 	if (g_shared == MAP_FAILED) {
 		pr_err("cannot mmap %zu byte shared memory region%s, errno=%d (%s)\n",
 			sz, stress_get_memfree_str(), errno, strerror(errno));
@@ -2647,8 +2646,7 @@ STRESS_PRAGMA_POP
 	 */
 	len = sizeof(stress_checksum_t) * (size_t)num_procs;
 	sz = (len + page_size) & ~(page_size - 1);
-	g_shared->checksum.checksums = (stress_checksum_t *)mmap(NULL, sz,
-		PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANON, -1, 0);
+	g_shared->checksum.checksums = (stress_checksum_t *)stress_mmap_anon_shared(sz, PROT_READ | PROT_WRITE);
 	if (g_shared->checksum.checksums == MAP_FAILED) {
 		pr_err("cannot mmap %zu byte checksums%s, errno=%d (%s)\n",
 			sz, stress_get_memfree_str(),
@@ -2683,13 +2681,13 @@ STRESS_PRAGMA_POP
 	return;
 
 err_unmap_page_ro:
-	(void)munmap((void *)g_shared->mapped.page_ro, page_size);
+	(void)stress_munmap_anon_shared((void *)g_shared->mapped.page_ro, page_size);
 err_unmap_page_none:
-	(void)munmap((void *)g_shared->mapped.page_none, page_size);
+	(void)stress_munmap_anon_shared((void *)g_shared->mapped.page_none, page_size);
 err_unmap_checksums:
-	(void)munmap((void *)g_shared->checksum.checksums, g_shared->checksum.length);
+	(void)stress_munmap_anon_shared((void *)g_shared->checksum.checksums, g_shared->checksum.length);
 err_unmap_shared:
-	(void)munmap((void *)g_shared, g_shared->length);
+	(void)stress_munmap_anon_shared((void *)g_shared, g_shared->length);
 	stress_stressors_free();
 	exit(EXIT_FAILURE);
 }
@@ -2714,11 +2712,11 @@ void stress_shared_unmap(void)
 {
 	const size_t page_size = stress_get_page_size();
 
-	(void)munmap((void *)g_shared->mapped.page_wo, page_size);
-	(void)munmap((void *)g_shared->mapped.page_ro, page_size);
-	(void)munmap((void *)g_shared->mapped.page_none, page_size);
-	(void)munmap((void *)g_shared->checksum.checksums, g_shared->checksum.length);
-	(void)munmap((void *)g_shared, g_shared->length);
+	(void)stress_munmap_anon_shared((void *)g_shared->mapped.page_wo, page_size);
+	(void)stress_munmap_anon_shared((void *)g_shared->mapped.page_ro, page_size);
+	(void)stress_munmap_anon_shared((void *)g_shared->mapped.page_none, page_size);
+	(void)stress_munmap_anon_shared((void *)g_shared->checksum.checksums, g_shared->checksum.length);
+	(void)stress_munmap_anon_shared((void *)g_shared, g_shared->length);
 }
 
 /*
@@ -4209,6 +4207,7 @@ int main(int argc, char **argv, char **envp)
 	stress_cache_free();
 	stress_shared_unmap();
 	stress_settings_free();
+	stress_lock_mem_unmap();
 
 	/*
 	 *  Close logs

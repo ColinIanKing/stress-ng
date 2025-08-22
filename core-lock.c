@@ -27,6 +27,7 @@
 #include "core-builtin.h"
 #include "core-pthread.h"
 #include "core-lock.h"
+#include "core-mmap.h"
 
 #if defined(HAVE_LINUX_FUTEX_H)
 #include <linux/futex.h>
@@ -744,10 +745,7 @@ int stress_lock_mem_map(void)
 	char name[64];
 
 	mmap_size = STRESS_LOCK_MAX * sizeof(*stress_locks);
-	stress_locks = (stress_lock_t *)mmap(NULL, mmap_size,
-						PROT_READ | PROT_WRITE,
-						MAP_ANONYMOUS | MAP_SHARED,
-						-1, 0);
+	stress_locks = (stress_lock_t *)stress_mmap_anon_shared(mmap_size, PROT_READ | PROT_WRITE);
 	if (UNLIKELY(stress_locks == MAP_FAILED))
 		return -1;
 
@@ -769,7 +767,7 @@ void stress_lock_mem_unmap(void)
 {
 	const size_t mmap_size = STRESS_LOCK_MAX * sizeof(*stress_locks);
 
-	(void)munmap((void *)stress_locks, mmap_size);
+	(void)stress_munmap_anon_shared((void *)stress_locks, mmap_size);
 	stress_locks = NULL;
 	stress_lock_big_lock = NULL;
 }

@@ -22,6 +22,11 @@
 #include "core-cpu-cache.h"
 #include "core-mmap.h"
 
+#if defined(HAVE_SYS_SHM_H)
+#include <sys/shm.h>
+#endif
+
+
 #if defined(HAVE_ASM_X86_REP_STOSQ) &&  \
     !defined(__ILP32__)
 #define USE_ASM_X86_REP_STOSQ
@@ -225,4 +230,57 @@ void *stress_mmap_populate(
 	flags &= ~MAP_POPULATE;
 #endif
 	return mmap(addr, length, prot, flags, fd, offset);
+}
+
+/*
+ *  stress_mmap_anon_shared()
+ *	simplified anonymous shared mmap, use SYSV shm for
+ *	systems that don't support this feature
+ */
+void *stress_mmap_anon_shared(size_t length, int prot)
+{
+#if defined(HAVE_SYS_SHM_H) &&	\
+    defined(__fiwix__)
+	int shmid;
+	void *addr;
+	int shm_flag = IPC_CREAT | IPC_EXCL | S_IRUSR | S_IWUSR;
+	const int prot_flag = prot & (PROT_READ | PROT_WRITE | PROT_EXEC);
+	int saved_errno;
+
+	shmid = shmget(IPC_PRIVATE, length, shm_flag);
+        addr = shmat(shmid, NULL, 0);
+        if (shmctl(shmid, IPC_RMID, NULL) < 0) {
+		if (addr != (void *)-1)
+			(void)shmdt(addr);
+		return NULL;
+	}
+	if (addr == (void *)-1)
+		return MAP_FAILED;
+
+	saved_errno = errno;
+	(void)mprotect(addr, length, prot_flag);
+	errno = saved_errno;
+	return addr;
+#else
+	const int prot_flag = prot & (PROT_READ | PROT_WRITE | PROT_EXEC);
+
+	return mmap(NULL, length, prot_flag, MAP_ANONYMOUS | MAP_SHARED, -1, 0);
+#endif
+}
+
+/*
+ *  stress_munmap_anon_shared()
+ *	unmap for stress_mmap_anon_shared, use SYSV shm for
+ *	systems that don't support this feature
+ */
+int stress_munmap_anon_shared(void *addr, size_t length)
+{
+#if defined(HAVE_SYS_SHM_H) &&	\
+    defined(__fiwix__)
+	(void)length;
+
+	return shmdt(addr);
+#else
+	return munmap(addr, length);
+#endif
 }

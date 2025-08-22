@@ -61,9 +61,7 @@ void *stress_shared_heap_init(void)
 	g_shared->shared_heap.out_of_memory = false;
 	g_shared->shared_heap.heap_size = (size + page_size - 1) & ~(page_size - 1);
 	g_shared->shared_heap.str_list_head = NULL;
-	g_shared->shared_heap.heap = stress_mmap_populate(NULL, size,
-					PROT_READ | PROT_WRITE,
-					MAP_ANONYMOUS | MAP_SHARED, -1, 0);
+	g_shared->shared_heap.heap = stress_mmap_anon_shared(size, PROT_READ | PROT_WRITE);
 	if (UNLIKELY(g_shared->shared_heap.heap == MAP_FAILED)) {
 		g_shared->shared_heap.lock = NULL;
 		return NULL;
@@ -72,7 +70,7 @@ void *stress_shared_heap_init(void)
 	(void)stress_madvise_mergeable(g_shared->shared_heap.heap, size);
 	g_shared->shared_heap.lock = stress_lock_create("shared-heap");
 	if (UNLIKELY(!g_shared->shared_heap.lock)) {
-		(void)munmap((void *)g_shared->shared_heap.heap, g_shared->shared_heap.heap_size);
+		(void)stress_munmap_anon_shared((void *)g_shared->shared_heap.heap, g_shared->shared_heap.heap_size);
 		g_shared->shared_heap.heap = NULL;
 		return NULL;
 	}
@@ -94,7 +92,7 @@ void stress_shared_heap_free(void)
 	}
 #endif
 	if (g_shared->shared_heap.heap) {
-		(void)munmap((void *)g_shared->shared_heap.heap, g_shared->shared_heap.heap_size);
+		(void)stress_munmap_anon_shared((void *)g_shared->shared_heap.heap, g_shared->shared_heap.heap_size);
 		g_shared->shared_heap.heap = NULL;
 	}
 	if (g_shared->shared_heap.lock) {
