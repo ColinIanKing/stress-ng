@@ -117,9 +117,7 @@ init_done:
 
 	stress_free_cpu_caches(cpu_caches);
 	g_shared->mem_cache.buffer =
-		(uint8_t *)stress_mmap_populate(NULL, g_shared->mem_cache.size,
-				PROT_READ | PROT_WRITE,
-				MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+		(uint8_t *)stress_mmap_anon_shared(g_shared->mem_cache.size, PROT_READ | PROT_WRITE);
 	if (g_shared->mem_cache.buffer == MAP_FAILED) {
 		g_shared->mem_cache.buffer = NULL;
 		pr_err("%s: failed to mmap shared cache buffer, errno=%d (%s)\n",
@@ -130,9 +128,7 @@ init_done:
 
 	g_shared->cacheline.size = (size_t)STRESS_PROCS_MAX * sizeof(uint8_t) * 2;
 	g_shared->cacheline.buffer =
-		(uint8_t *)stress_mmap_populate(NULL, g_shared->cacheline.size,
-				PROT_READ | PROT_WRITE,
-				MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+		(uint8_t *)stress_mmap_anon_shared(g_shared->cacheline.size, PROT_READ | PROT_WRITE);
 	if (g_shared->cacheline.buffer == MAP_FAILED) {
 		g_shared->cacheline.buffer = NULL;
 		pr_err("%s: failed to mmap cacheline buffer, errno=%d (%s)\n",
@@ -160,7 +156,7 @@ init_done:
 void stress_cache_free(void)
 {
 	if (g_shared->mem_cache.buffer)
-		(void)munmap((void *)g_shared->mem_cache.buffer, g_shared->mem_cache.size);
+		(void)stress_munmap_anon_shared((void *)g_shared->mem_cache.buffer, g_shared->mem_cache.size);
 	if (g_shared->cacheline.buffer)
-		(void)munmap((void *)g_shared->cacheline.buffer, g_shared->cacheline.size);
+		(void)stress_munmap_anon_shared((void *)g_shared->cacheline.buffer, g_shared->cacheline.size);
 }
