@@ -369,7 +369,12 @@ static int stress_schedmix_child(stress_args_t *args)
 
 				(void)shim_memset(&attr, 0, sizeof(attr));
 				attr.size = sizeof(attr);
+#if defined(SCHED_FLAG_DL_OVERRUN) &&	\
+    defined(SIGXCPU)
 				attr.sched_flags = SCHED_FLAG_DL_OVERRUN;
+#else
+				attr.sched_flags = 0;
+#endif
 				attr.sched_nice = 0;
 				attr.sched_priority = 0;
 				attr.sched_policy = SCHED_DEADLINE;
@@ -496,8 +501,11 @@ static int stress_schedmix(stress_args_t *args)
 		return EXIT_NOT_IMPLEMENTED;
 	}
 
+#if defined(SCHED_FLAG_DL_OVERRUN) &&	\
+    defined(SIGXCPU)
 	if (stress_sighandler(args->name, SIGXCPU, stress_sighandler_nop, NULL) < 0)
 		return EXIT_FAILURE;
+#endif
 
 	s_pids = stress_sync_s_pids_mmap(MAX_SCHEDMIX_PROCS);
 	if (s_pids == MAP_FAILED) {
