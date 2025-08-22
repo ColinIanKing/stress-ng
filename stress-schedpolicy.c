@@ -64,6 +64,9 @@ static int stress_schedpolicy(stress_args_t *args)
 	int n = 0;
 #endif
 
+	if (stress_sighandler(args->name, SIGXCPU, stress_sighandler_nop, NULL) < 0)
+		return EXIT_NO_RESOURCE;
+
 	(void)stress_get_setting("schedpolicy-rand", &schedpolicy_rand);
 
 	if (stress_sched_types_length == (0)) {
@@ -124,7 +127,7 @@ static int stress_schedpolicy(stress_args_t *args)
 			if (stress_instance_zero(args)) {
 				(void)shim_memset(&attr, 0, sizeof(attr));
 				attr.size = sizeof(attr);
-				attr.sched_flags = 0;
+				attr.sched_flags = SCHED_FLAG_DL_OVERRUN;
 				attr.sched_nice = 0;
 				attr.sched_priority = 0;
 				attr.sched_policy = SCHED_DEADLINE;
