@@ -26,6 +26,8 @@
 #include "core-out-of-memory.h"
 #include "core-target-clones.h"
 
+#include <sys/ioctl.h>
+
 #if defined(HAVE_SYS_SHM_H)
 #include <sys/shm.h>
 #endif
@@ -44,6 +46,10 @@
 
 #if defined(HAVE_SYS_UIO_H)
 #include <sys/uio.h>
+#endif
+
+#if defined(HAVE_LINUX_FS_H)
+#include <linux/fs.h>
 #endif
 
 /* BSD red-black tree */
@@ -1964,6 +1970,27 @@ static void stress_mmaprandom_proc_info(mr_ctxt_t *ctxt, const int idx)
 	if (stress_read_discard(fd) > 0)
 		ctxt->count[idx] += 1.0;
 	(void)close(fd);
+
+#if defined(HAVE_LINUX_FS_H) &&		\
+    defined(HAVE_PROCMAP_QUERY) &&	\
+    defined(PROCMAP_QUERY)
+	fd = open("/proc/self/maps", O_RDONLY);
+	if (fd >= 0) {
+		mr_node_t *mr_node = stress_mmaprandom_get_random_used();
+		struct procmap_query query;
+		char buf[1024];
+
+		(void)memset(&query, 0, sizeof(query));
+		(void)memset(buf, 0, sizeof(buf));
+		query.size = (uint64_t)sizeof(query);
+		query.query_flags = PROCMAP_QUERY_VMA_READABLE | PROCMAP_QUERY_VMA_SHARED;
+		query.query_addr = mr_node ? (uint64_t)mr_node->mmap_addr : (uint64_t)g_shared;
+		query.vma_name_addr = (uint64_t)buf;
+		query.vma_name_size = (uint64_t)sizeof(buf);
+		VOID_RET(int, ioctl(fd, PROCMAP_QUERY, &query));
+		(void)close(fd);
+	}
+#endif
 }
 #endif
 
