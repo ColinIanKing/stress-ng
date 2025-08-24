@@ -240,6 +240,24 @@ done:
 }
 
 /*
+ *  stress_signest_shuffle()
+ *	randomly shuffle order of signals array
+ */
+static inline void stress_signest_shuffle(void)
+{
+	register size_t i;
+	
+	for (i = 0; i < max_signals; i++) {
+		register size_t j = (size_t)stress_mwc32modn((uint32_t)max_signals);
+		register int tmp;
+
+		tmp = signals[i];
+		signals[i] = signals[j];
+		signals[j] = tmp;
+	}
+}
+
+/*
  *  stress_signest
  *	stress by raising next signal
  */
@@ -321,6 +339,8 @@ static int stress_signest(stress_args_t *args)
 		signal_index = 0;
 		(void)shim_raise(signals[signal_index]);
 		raised++;
+		if (UNLIKELY((raised & 0x3f) == 0))
+			stress_signest_shuffle();
 	} while (stress_continue(args));
 
 finish:
