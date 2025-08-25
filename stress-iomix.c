@@ -1102,7 +1102,8 @@ static int stress_iomix(stress_args_t *args)
 {
 	int fd, ret;
 	char filename[PATH_MAX];
-	off_t iomix_bytes, iomix_bytes_total = DEFAULT_IOMIX_BYTES;
+	off_t iomix_bytes, iomix_bytes_total;
+	uint64_t iomix_bytes_u64 = DEFAULT_IOMIX_BYTES;
 	const size_t page_size = args->page_size;
 	size_t i;
 	stress_pid_t *s_pids, *s_pids_head = NULL;
@@ -1131,12 +1132,13 @@ static int stress_iomix(stress_args_t *args)
 		goto tidy_s_pids;
 	}
 
-	if (!stress_get_setting("iomix-bytes", &iomix_bytes_total)) {
+	if (!stress_get_setting("iomix-bytes", &iomix_bytes_u64)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			iomix_bytes_total = MAXIMIZED_FILE_SIZE;
+			iomix_bytes_u64 = MAXIMIZED_FILE_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			iomix_bytes_total = MIN_IOMIX_BYTES;
+			iomix_bytes_u64 = MIN_IOMIX_BYTES;
 	}
+	iomix_bytes_total = (off_t)iomix_bytes_u64;
 	iomix_bytes = iomix_bytes_total / args->instances;
 	if (iomix_bytes < (off_t)MIN_IOMIX_BYTES) {
 		iomix_bytes = (off_t)MIN_IOMIX_BYTES;
@@ -1246,7 +1248,7 @@ tidy_s_pids:
 }
 
 static const stress_opt_t opts[] = {
-	{ OPT_iomix_bytes, "iomix-bytes", TYPE_ID_OFF_T, MIN_IOMIX_BYTES, MAX_IOMIX_BYTES, NULL },
+	{ OPT_iomix_bytes, "iomix-bytes", TYPE_ID_UINT64_BYTES_FS, MIN_IOMIX_BYTES, MAX_IOMIX_BYTES, NULL },
 	END_OPT,
 };
 
