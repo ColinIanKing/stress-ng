@@ -124,9 +124,7 @@ static void MLOCKED_TEXT OPTIMIZE3 stress_timer_handler(int sig)
 	ret = timer_getoverrun(timerid);
 	if (ret > 0)
 		timer_overruns += (uint64_t)ret;
-	stress_timer_set(&timer);
-	if (timer_settime(timerid, 0, &timer, NULL) < 0)
-		timer_settime_failure++;
+
 	return;
 
 cancel:
@@ -214,6 +212,15 @@ static int stress_timer(stress_args_t *args)
 			(void)shim_memset(&req, 0, sizeof(req));
 			req.tv_nsec = STRESS_NANOSECOND;
 			VOID_RET(int, nanosleep(&req, NULL));
+
+			if (UNLIKELY(timer_rand)) {
+				(void)shim_memset(&timer, 0, sizeof(timer));
+				if (UNLIKELY(timer_settime(timerid, 0, &timer, NULL) < 0))
+					timer_settime_failure++;
+				stress_timer_set(&timer);
+				if (UNLIKELY(timer_settime(timerid, 0, &timer, NULL) < 0))
+					timer_settime_failure++;
+			}
 		}
 
 		req.tv_sec = 0;
