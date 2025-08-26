@@ -56,8 +56,10 @@ void *lock;
  */
 static void stress_hrtimers_set(struct itimerspec *timer)
 {
-	timer->it_value.tv_nsec = (ns_delay < 0) ? stress_mwc16() + 1 : ns_delay;
+	if (ns_delay > 999999999)
+		ns_delay = 999999999;
 	timer->it_value.tv_sec = 0;
+	timer->it_value.tv_nsec = (ns_delay < 0) ? stress_mwc16() + 1 : ns_delay;
 	timer->it_interval.tv_sec = timer->it_value.tv_sec;
 	timer->it_interval.tv_nsec = timer->it_value.tv_nsec;
 }
@@ -71,37 +73,20 @@ static void MLOCKED_TEXT OPTIMIZE3 stress_hrtimers_handler(int sig)
 	struct itimerspec timer;
 	sigset_t mask;
 	register uint64_t bogo_counter;
-	static uint64_t counter;
 
 	(void)sig;
 
-	counter++;
-	if (UNLIKELY(counter >= PROCS_MAX)) {
-		VOID_RET(bool, stress_bogo_inc_lock(s_args, lock, 1));
-		if (UNLIKELY(!stress_continue(s_args)))
-			goto cancel;
-	}
+	VOID_RET(bool, stress_bogo_inc_lock(s_args, lock, 1));
+	if (UNLIKELY(!stress_continue(s_args)))
+		goto cancel;
 	bogo_counter = stress_bogo_get(s_args);
-	if (UNLIKELY((bogo_counter & 4095) == 0)) {
-		if (ns_delay >= 0) {
-			const long int ns_adjust = ns_delay >> 2;
 
-			if (timer_getoverrun(timerid)) {
-				ns_delay += ns_adjust;
-			} else {
-				ns_delay -= ns_adjust;
-			}
-		}
-		stress_hrtimers_set(&timer);
-		(void)timer_settime(timerid, 0, &timer, NULL);
-
-		/* check periodically for timeout */
-		if ((bogo_counter & 65535) == 0) {
-			if ((sigpending(&mask) == 0) && (sigismember(&mask, SIGINT)))
-				goto cancel;
-			if (stress_time_now() > time_end)
-				goto cancel;
-		}
+	/* check periodically for timeout */
+	if ((bogo_counter & 65535) == 0) {
+		if ((sigpending(&mask) == 0) && (sigismember(&mask, SIGINT)))
+			goto cancel;
+		if (stress_time_now() > time_end)
+			goto cancel;
 	}
 	return;
 
@@ -165,9 +150,20 @@ static int stress_hrtimer_process(stress_args_t *args)
 		return EXIT_FAILURE;
 	}
 
-	do {
-		(void)shim_usleep(100000);
-	} while (stress_continue(args));
+	for (;;) {
+		(void)shim_usleep(10000);
+		if (!stress_continue(args))
+			break;
+		if (ns_delay >= 0) {
+			const long int ns_adjust = ns_delay >> 2;
+
+			ns_delay += timer_getoverrun(timerid) ? ns_adjust : -ns_adjust;
+			(void)shim_memset(&timer, 0, sizeof(timer));
+			(void)timer_settime(timerid, 0, &timer, NULL);
+			stress_hrtimers_set(&timer);
+			(void)timer_settime(timerid, 0, &timer, NULL);
+		}
+	}
 
 	if (timer_delete(timerid) < 0) {
 		pr_fail("%s: timer_delete failed, errno=%d (%s)\n",
@@ -207,7 +203,7 @@ static int stress_hrtimers(stress_args_t *args)
 
         (void)stress_get_setting("hrtimers-adjust", &hrtimers_adjust);
 	overrun = 0;
-	ns_delay = hrtimers_adjust ? 10000 : -1;
+	ns_delay = hrtimers_adjust ? 1000 : -1;
 
 	for (i = 0; i < PROCS_MAX; i++) {
 		stress_sync_start_init(&s_pids[i]);
