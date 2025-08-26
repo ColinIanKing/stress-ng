@@ -399,7 +399,7 @@ const stressor_info_t stress_ctrig_info = {
 	.classifier = CLASS_CPU | CLASS_FP | CLASS_COMPUTE,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
 	.unimplemented_reason = "built without complex.h support"
 };
 
