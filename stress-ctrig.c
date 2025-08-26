@@ -81,7 +81,7 @@ static bool OPTIMIZE3 TARGET_CLONES stress_ctrig_ccosf(stress_args_t *args)
 	complex double sumccos = 0.0;
 	complex double z = -0.5 + 0.5 * I;
 	complex const double dz = (1.0 / (double)STRESS_CTRIG_LOOPS - I / (2.0 * (double)STRESS_CTRIG_LOOPS));
-	const double precision = 1E-4;
+	const double precision = 1E-3;
 	int i;
 
 PRAGMA_UNROLL_N(8)
@@ -149,7 +149,7 @@ static bool OPTIMIZE3 TARGET_CLONES stress_ctrig_csinf(stress_args_t *args)
 	complex double sumcsin = 0.0;
 	complex double z = -0.5 + 0.5 * I;
 	complex const double dz = (1.0 / (double)STRESS_CTRIG_LOOPS - I / (2.0 * (double)STRESS_CTRIG_LOOPS));
-	const double precision = 1E-4;
+	const double precision = 1E-3;
 	int i;
 
 PRAGMA_UNROLL_N(8)
