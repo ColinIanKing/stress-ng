@@ -326,6 +326,10 @@ typedef enum {
 	OPT_crypt_method,
 	OPT_crypt_ops,
 
+	OPT_ctrig,
+	OPT_ctrig_method,
+	OPT_ctrig_ops,
+
 	OPT_cyclic,
 	OPT_cyclic_ops,
 	OPT_cyclic_dist,

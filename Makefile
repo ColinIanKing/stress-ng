@@ -488,6 +488,7 @@ STRESS_SRC = \
 	stress-cpu-online.c \
 	stress-cpu-sched.c \
 	stress-crypt.c \
+	stress-ctrig.c \
 	stress-cyclic.c \
 	stress-daemon.c \
 	stress-dccp.c \

@@ -65,6 +65,7 @@
 	MACRO(cpu_online)	\
 	MACRO(cpu_sched)	\
 	MACRO(crypt)		\
+	MACRO(ctrig)		\
 	MACRO(cyclic)		\
 	MACRO(daemon)		\
 	MACRO(dccp)		\

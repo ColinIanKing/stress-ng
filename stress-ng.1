@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "21 August 2025"
+.TH STRESS-NG 1 "26 August 2025"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -1989,6 +1989,56 @@ The `all' method selects all the methods and is the default.
 .B \-\-crypt\-ops N
 stop after N bogo encryption operations.
 .RE
+.TP
+.B Complex trigonometric functions stressor
+.RS 5
+.TQ
+.B \-\-ctrig N
+start N workers that exercise complex sin, complex cos and complex tan
+libm trigonometric functions using complex float, complex double and
+complex long double floating point variants. Each function is exercised
+10000 times per bogo-operation.
+.TP
+.B \-\-ctrig\-method function
+specify a trigonometric stress function. By default, all the functions are exercised
+sequentially, however one can specify just one function to be used if required.
+Available options are as follows:
+.sp
+.TS
+lB2 lB
+l lx.
+Method	Description
+all	T{
+iterate through all of the following complex trigonometric functions
+T}
+ccos	T{
+complex cosine (complex double precision)
+T}
+ccosf	T{
+complex cosine (complex float precision)
+T}
+ccosl	T{
+complex cosine (complex long double precision)
+T}
+csin	T{
+complex sine (complex double precision)
+T}
+csinf	T{
+complex sine (complex float precision)
+T}
+csinl	T{
+complex sine (complex long double precision)
+T}
+ctan	T{
+complex tangent (complex double precision)
+T}
+ctanf	T{
+complex tangent (complex float precision)
+T}
+ctanl 	T{
+complex tangent (complex long double precision)
+T}
+.TE
 .TP
 .B Cyclic stressor
 .RS 5

@@ -639,6 +639,28 @@
 #endif
 #endif
 
+#if defined(HAVE_BUILTIN_CTANF)
+#define shim_ctanf(x)		__builtin_ctanf((x))
+#else
+#define shim_ctanf(x)		ctanf((x))
+#endif
+
+#if defined(HAVE_BUILTIN_CTAN)
+#define shim_ctan(x)		__builtin_ctan((x))
+#else
+#define shim_ctan(x)		ctan((x))
+#endif
+
+#if defined(HAVE_BUILTIN_CTANL)
+#define shim_ctanl(x)		__builtin_ctanl((x))
+#else
+#if defined(HAVE_CTANL)
+#define shim_ctanl(x)		ctanl((x))
+#else
+#define shim_ctanl(x)		((long double)shim_ctan((double)(x)))
+#endif
+#endif
+
 #if defined(HAVE_BUILTIN_SQRT)
 #define shim_sqrt(x)		__builtin_sqrt((x))
 #else
