@@ -46,9 +46,13 @@ cpu_cstate_t *stress_cpuidle_cstate_list_head(void)
 
 static PURE int stress_cpuidle_value(const char *cstate)
 {
+	int val;
+
 	while (isalpha((unsigned char)*cstate))
 		cstate++;
-	return atoi(cstate);
+	if (sscanf(cstate , "%d", &val) == 1)
+		return val;
+	return 0;
 }
 
 /*
@@ -136,8 +140,10 @@ void stress_cpuidle_init(void)
 			if (strncmp(cpuidle_d->d_name, "state", 5))
 				continue;
 			(void)snprintf(path, sizeof(path), "%s/%s/residency", cpuidle_path, cpuidle_d->d_name);
-			if (stress_system_read(path, data, sizeof(data)) > 0)
-				residency = (uint32_t)atoi(data);
+			if (stress_system_read(path, data, sizeof(data)) > 0) {
+				if (sscanf(data, "%" SCNu32, &residency) != 1)
+					continue;
+			}
 			(void)snprintf(path, sizeof(path), "%s/%s/name", cpuidle_path, cpuidle_d->d_name);
 			if (stress_system_read(path, data, sizeof(data)) < 1)
 				continue;
