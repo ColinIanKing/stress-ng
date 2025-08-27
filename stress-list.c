@@ -605,8 +605,8 @@ static int stress_list(stress_args_t *args)
 	} while (stress_continue(args));
 
 #if defined(HAVE_SIGLONGJMP)
-	do_jmp = false;
 	(void)stress_sigrestore(args->name, SIGALRM, &old_action);
+	do_jmp = false;
 tidy:
 #endif
 	for (i = 0, j = 0; i < SIZEOF_ARRAY(list_metrics); i++) {
