@@ -1264,8 +1264,12 @@ pid_t stress_get_unused_pid_racy(const bool fork_test)
 	}
 
 	(void)shim_memset(buf, 0, sizeof(buf));
-	if (stress_system_read("/proc/sys/kernel/pid_max", buf, sizeof(buf) - 1) > 0)
-		max_pid = STRESS_MAXIMUM(atoi(buf), 1024);
+	if (stress_system_read("/proc/sys/kernel/pid_max", buf, sizeof(buf) - 1) > 0) {
+		long val;
+
+		if (sscanf(buf, "%ld", &val) == 1)
+			max_pid = (pid_t)val;
+	}
 
 	n = (uint32_t)max_pid - 1023;
 	for (i = 0; i < 10; i++) {
