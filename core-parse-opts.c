@@ -492,7 +492,10 @@ uint64_t stress_get_uint64_byte(const char *const str)
 	if (strcasecmp(str, "LLC")  == 0) {
 		stress_cpu_cache_get_llc_size(&llc_size, &cache_line_size);
 	} else {
-		const int cache_level = atoi(str + 1);
+		int cache_level;
+
+		if (sscanf(str + 1, "%d", &cache_level) != 1)
+			cache_level = 0;
 
 		if ((cache_level < 0) || (cache_level > 5)) {
 			(void)fprintf(stderr, "Illegal cache size '%s'\n", str);
