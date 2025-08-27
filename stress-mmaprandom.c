@@ -1355,8 +1355,10 @@ static void stress_mmaprandom_remap_file_pages(mr_ctxt_t *ctxt, const int idx)
 	if (!mr_node)
 		return;
 
+#if defined(MAP_HUGETLB)
 	if (mr_node->mmap_flags & MAP_HUGETLB)
 		return;
+#endif
 
 	if (mr_node->flags & MR_NODE_FLAG_SHM)
 		return;
