@@ -908,7 +908,7 @@ static int stress_add_cpu_cache_detail(stress_cpu_cache_t *cache, const char *in
 	(void)stress_mk_filename(path, sizeof(path), index_path, "coherency_line_size");
 	if (stress_get_string_from_file(path, tmp, sizeof(tmp)) < 0)
 		goto out;
-	cache->line_size = (uint32_t)atoi(tmp);
+	cache->line_size = (uint32_t)atol(tmp);
 
 	(void)stress_mk_filename(path, sizeof(path), index_path, "ways_of_associativity");
 	if (stress_get_string_from_file(path, tmp, sizeof(tmp)) < 0) {
