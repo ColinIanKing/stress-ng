@@ -716,6 +716,7 @@ static void stress_fd_race_filename_dir(const char *dirname, stress_fd_race_file
 	while ((de = readdir(dir)) != NULL) {
 		struct stat statbuf;
 		ssize_t len;
+		int val;
 
 		/* ignore special dirs */
 		if ((de->d_name[0] == '\0') || (de->d_name[0] == '.'))
@@ -725,10 +726,10 @@ static void stress_fd_race_filename_dir(const char *dirname, stress_fd_race_file
 			if (!isdigit((unsigned char)de->d_name[len]))
 				break;
 		}
-		/* ignore numbered files such as /dev/tty1 upwards */
-		if (atoi(&de->d_name[len + 1]) > 0)
-			continue;
-
+		/* allow /dev/tty, /dev/tty0 ignore numbered files such as /dev/tty1 upwards */
+		if (sscanf(&de->d_name[len + 1], "%d", &val) == 1)
+			if (val > 0)
+				continue;
 		if (fstatat(dir_fd, de->d_name, &statbuf, 0) < 0)
 			continue;
 
