@@ -480,14 +480,20 @@ static void stress_hdd_invalid_read(const int fd, uint8_t *buf)
  */
 static void stress_hdd_invalid_write(const int fd, uint8_t *buf)
 {
-#if defined(HAVE_SYS_UIO_H)
+#if defined(HAVE_SYS_UIO_H) &&	\
+    (defined(HAVE_PWRITEV2) ||	\
+     defined(HAVE_PWRITEV) ||	\
+     defined(HAVE_WRITEV))
 	struct iovec iov[HDD_IO_VEC_MAX];
 	size_t i;
 	uint8_t *data = buf;
 #endif
 	(void)fd;
 
-#if defined(HAVE_SYS_UIO_H)
+#if defined(HAVE_SYS_UIO_H) &&	\
+    (defined(HAVE_PWRITEV2) ||	\
+     defined(HAVE_PWRITEV) ||	\
+     defined(HAVE_WRITEV))
 	for (i = 0; i < HDD_IO_VEC_MAX; i++) {
 		iov[i].iov_base = (void *)data;
 		iov[i].iov_len = (size_t)1;
