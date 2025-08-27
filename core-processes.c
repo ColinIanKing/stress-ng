@@ -66,6 +66,7 @@ void stress_dump_processes(void)
 		char *p_name;
 		pid_t pid, ppid;
 		ssize_t ret;
+		long val;
 
 		(void)shim_memset(cmd, 0, sizeof(cmd));
 		(void)snprintf(path, sizeof(path), "/proc/%s/cmdline", namelist[i]->d_name);
@@ -87,7 +88,10 @@ void stress_dump_processes(void)
 		if (strstr(cmd, "stress-ng") == NULL)
 			continue;
 
-		pid = (pid_t)atoi(namelist[i]->d_name);
+		if (sscanf(namelist[i]->d_name, "%ld", &val) != 1)
+			continue;
+
+		pid = (pid_t)val;
 		ppid = 0;
 		p_name = "?";
 		(void)shim_strscpy(state, "?", sizeof(state));
