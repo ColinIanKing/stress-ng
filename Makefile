@@ -479,6 +479,7 @@ STRESS_SRC = \
 	stress-chmod.c \
 	stress-chown.c \
 	stress-chroot.c \
+	stress-chyperbolic.c \
 	stress-clock.c \
 	stress-clone.c \
 	stress-close.c \

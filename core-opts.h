@@ -290,6 +290,10 @@ typedef enum {
 	OPT_chroot,
 	OPT_chroot_ops,
 
+	OPT_chyperbolic,
+	OPT_chyperbolic_method,
+	OPT_chyperbolic_ops,
+
 	OPT_clock,
 	OPT_clock_ops,
 

@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "26 August 2025"
+.TH STRESS-NG 1 "27 August 2025"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -1475,6 +1475,60 @@ capability.
 .TP
 .B \-\-chroot\-ops N
 stop the chroot workers after N bogo chroot(2) operations.
+.RE
+.TP
+.B Complex hyperbolic functions stressor
+.RS 5
+.TQ
+.B \-\-chyperbolic N
+start N workers that exercise complex sinh, cosh, and tanh libm complex
+hyperbolic functions using complex float, complex double and complex long
+double floating point variants. Each function is exercised 10000 times per
+bogo-operation.
+.TP
+.B \-\-chyperbolic\-method function
+specify a complex hyperbolic stress function. By default, all the functions
+are exercised sequentially, however one can specify just one function to be
+used if required.  Available options are as follows:
+.sp
+.TS
+lB2 lB
+l lx.
+Method	Description
+all	T{
+iterate through all of the following complex hyperbolic functions
+T}
+ccosh	T{
+complex hyperbolic cosine (complex double precision)
+T}
+ccoshf	T{
+complex hyperbolic cosine (complex float precision)
+T}
+ccoshl	T{
+complex hyperbolic cosine (complex long double precision)
+T}
+csinh	T{
+complex hyperbolic sine (complex double precision)
+T}
+csinhf	T{
+complex hyperbolic sine (complex float precision)
+T}
+csinhl	T{
+complex hyperbolic sine (complex long double precision)
+T}
+ctanh	T{
+complex hyperbolic tangent (complex double precision)
+T}
+ctanhf	T{
+complex hyperbolic tangent (complex float precision)
+T}
+ctanhl 	T{
+complex hyperbolic tangent (complex long double precision)
+T}
+.TE
+.TP
+.B \-\-chyperbolic\-ops N
+stop after N bogo-operations.
 .RE
 .TP
 .B Clock stressor

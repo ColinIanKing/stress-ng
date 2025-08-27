@@ -56,6 +56,7 @@
 	MACRO(chmod)		\
 	MACRO(chown)		\
 	MACRO(chroot)		\
+	MACRO(chyperbolic)	\
 	MACRO(clock)		\
 	MACRO(clone)		\
 	MACRO(close)		\

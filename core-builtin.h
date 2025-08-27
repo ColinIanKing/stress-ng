@@ -451,6 +451,28 @@
 #endif
 #endif
 
+#if defined(HAVE_BUILTIN_CCOSHF)
+#define shim_ccoshf(x)		__builtin_ccoshf((x))
+#else
+#define shim_ccoshf(x)		ccoshf((x))
+#endif
+
+#if defined(HAVE_BUILTIN_CCOSH)
+#define shim_ccosh(x)		__builtin_ccosh((x))
+#else
+#define shim_ccosh(x)		ccosh((x))
+#endif
+
+#if defined(HAVE_BUILTIN_COSHL)
+#define shim_ccoshl(x)		__builtin_ccoshl((x))
+#else
+#if defined(HAVE_CCOSHL)
+#define shim_ccoshl(x)		ccoshl((x))
+#else
+#define shim_ccoshl(x)		((complex long double)ccosh((complex double)(x)))
+#endif
+#endif
+
 #if defined(HAVE_BUILTIN_CCOS)
 #define shim_ccos(x)		__builtin_ccos((x))
 #else
@@ -565,6 +587,28 @@
 #endif
 #endif
 
+#if defined(HAVE_BUILTIN_CSINHF)
+#define shim_csinhf(x)		__builtin_csinhf((x))
+#else
+#define shim_csinhf(x)		csinhf((x))
+#endif
+
+#if defined(HAVE_BUILTIN_CSINH)
+#define shim_csinh(x)		__builtin_csinh((x))
+#else
+#define shim_csinh(x)		csinh((x))
+#endif
+
+#if defined(HAVE_BUILTIN_CSINHL)
+#define shim_csinhl(x)		__builtin_csinhl((x))
+#else
+#if defined(HAVE_CSINHL)
+#define shim_csinhl(x)		csinhl((x))
+#else
+#define shim_csinhl(x)		((complex long double)csinh((complex double)(x)))
+#endif
+#endif
+
 #if defined(HAVE_BUILTIN_CSIN)
 #define shim_csin(x)		__builtin_csin((x))
 #else
@@ -658,6 +702,28 @@
 #define shim_ctanl(x)		ctanl((x))
 #else
 #define shim_ctanl(x)		((long double)shim_ctan((double)(x)))
+#endif
+#endif
+
+#if defined(HAVE_BUILTIN_CTANHF)
+#define shim_ctanhf(x)		__builtin_ctanhf((x))
+#else
+#define shim_ctanhf(x)		ctanhf((x))
+#endif
+
+#if defined(HAVE_BUILTIN_CTANH)
+#define shim_ctanh(x)		__builtin_ctanh((x))
+#else
+#define shim_ctanh(x)		ctanh((x))
+#endif
+
+#if defined(HAVE_BUILTIN_CTANHL)
+#define shim_ctanhl(x)		__builtin_ctanhl((x))
+#else
+#if defined(HAVE_CTANHL)
+#define shim_ctanhl(x)		ctanhl((x))
+#else
+#define shim_ctanhl(x)		((complex long double)shim_ctanh((complex double)(x)))
 #endif
 #endif
 
