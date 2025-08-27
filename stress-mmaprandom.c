@@ -594,6 +594,7 @@ static void * stress_mmaprandom_mmap(
 	return mmap(hint, length, prot, flags, fd, offset);
 }
 
+#if defined(MADV_FREE)
 /*
  *  stress_mmaprandom_madvise_pages()
  *	apply madvise to a region, either over the entire
@@ -643,6 +644,7 @@ static int stress_mmaprandom_madvise_pages(
 	}
 	return 0;
 }
+#endif
 
 /*
  *  stress_mmaprandom_munmap_force()
