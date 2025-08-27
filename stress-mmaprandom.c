@@ -1984,11 +1984,11 @@ static void stress_mmaprandom_proc_info(mr_ctxt_t *ctxt, const int idx)
 
 		(void)memset(&query, 0, sizeof(query));
 		(void)memset(buf, 0, sizeof(buf));
-		query.size = (uint64_t)sizeof(query);
+		query.size = sizeof(query);
 		query.query_flags = PROCMAP_QUERY_VMA_READABLE | PROCMAP_QUERY_VMA_SHARED;
-		query.query_addr = mr_node ? (uint64_t)mr_node->mmap_addr : (uint64_t)g_shared;
-		query.vma_name_addr = (uint64_t)buf;
-		query.vma_name_size = (uint64_t)sizeof(buf);
+		query.query_addr = mr_node ? (uintptr_t)mr_node->mmap_addr : (uintptr_t)g_shared;
+		query.vma_name_addr = (uintptr_t)buf;
+		query.vma_name_size = sizeof(buf);
 		VOID_RET(int, ioctl(fd, PROCMAP_QUERY, &query));
 		(void)close(fd);
 	}
