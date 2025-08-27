@@ -158,7 +158,7 @@
 * [Nona: Accurate Power Prediction Model Using Neural Networks](https://dl.acm.org/doi/pdf/10.1145/3649329.3655668)
 * [Interference-free Operating System: A 6 Years’ Experience in Mitigating Cross-Core Interference in Linux](https://arxiv.org/pdf/2412.18104)
 * [Enhancing the PSI framework in Linux Kernel for predictive and accurate workload analysis](https://lpc.events/event/18/contributions/1884/attachments/1439/3069/LPC2024_PIntu_PSI.pdf)
- *
+* [Virtualization vs. Containerization, a Comparative Approach for Application Deployment in the Computing Continuum Focused on the Edge](https://www.researchgate.net/publication/385953515_Virtualization_vs_Containerization_a_Comparative_Approach_for_Application_Deployment_in_the_Computing_Continuum_Focused_on_the_Edge)
 
 2025:
  * [SPY-PMU: Side-Channel Profiling of Your Performance Monitoring Unit to Leak Remote User Activity](https://eprint.iacr.org/2025/014)
@@ -184,3 +184,4 @@
  * [On Fault Tolerance of Data Storage Systems: A Holistic Perspective](https://arxiv.org/pdf/2507.03849v1)
  * [Ecoscape: Fault Tolerance Benchmark for Adaptive Remediation Strategies in Real-Time Edge ML](https://arxiv.org/html/2507.22702v1)
  * [When Things Heat Up: Detecting Malicious Activity Using CPU Thermal Sensors](https://www.mdpi.com/2624-800X/5/3/56)
+ * [SkyForge Core: A Triple Modular Redundant Computing Architecture for Small Satellites](https://pillars.taylor.edu/cgi/viewcontent.cgi?article=1000&context=physics-engineering-student-papers)
