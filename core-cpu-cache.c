@@ -882,6 +882,8 @@ static int stress_add_cpu_cache_detail(stress_cpu_cache_t *cache, const char *in
 	int ret = EXIT_FAILURE;
 	char tmp[2048];
 	char path[PATH_MAX];
+	uint16_t val16;
+	uint32_t val32;
 
 	(void)shim_memset(path, 0, sizeof(path));
 	if (UNLIKELY(!cache))
@@ -903,12 +905,15 @@ static int stress_add_cpu_cache_detail(stress_cpu_cache_t *cache, const char *in
 	(void)stress_mk_filename(path, sizeof(path), index_path, "level");
 	if (stress_get_string_from_file(path, tmp, sizeof(tmp)) < 0)
 		goto out;
-	cache->level = (uint16_t)atoi(tmp);
-
+	if (sscanf(tmp, "%" SCNu16, &val16) != 1)
+		goto out;
+	cache->level = val16;
 	(void)stress_mk_filename(path, sizeof(path), index_path, "coherency_line_size");
 	if (stress_get_string_from_file(path, tmp, sizeof(tmp)) < 0)
 		goto out;
-	cache->line_size = (uint32_t)atol(tmp);
+	if (sscanf(tmp, "%" SCNu32, &val32) != 1)
+		goto out;
+	cache->line_size = val32;
 
 	(void)stress_mk_filename(path, sizeof(path), index_path, "ways_of_associativity");
 	if (stress_get_string_from_file(path, tmp, sizeof(tmp)) < 0) {
@@ -1231,7 +1236,7 @@ stress_cpu_cache_cpus_t *stress_cpu_cache_get_all_details(void)
 		cpu->num = (uint32_t)i;
 		if (cpu->num == 0) {
 			/* 1st CPU cannot be taken offline */
-			cpu->online = 1;
+			cpu->online = true;
 		} else {
 			char onlinepath[PATH_MAX + 8];
 			char tmp[2048];
@@ -1240,9 +1245,12 @@ stress_cpu_cache_cpus_t *stress_cpu_cache_get_all_details(void)
 			(void)snprintf(onlinepath, sizeof(onlinepath), "%s/%s/online", stress_sys_cpu_prefix, name);
 			if (stress_get_string_from_file(onlinepath, tmp, sizeof(tmp)) < 0) {
 				/* Assume it is online, it is the best we can do */
-				cpu->online = 1;
+				cpu->online = true;
 			} else {
-				cpu->online = atol(tmp);
+				int online;
+
+				if (sscanf(tmp, "%d", &online) == 1)
+					cpu->online = (bool)online;
 			}
 		}
 		if (cpu->online)
