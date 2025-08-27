@@ -191,7 +191,8 @@ static void stress_bad_ioctl_dev_dir(
 			while ((ptr > d->d_name) && isdigit((unsigned char)*ptr))
 				ptr--;
 			ptr++;
-			dev_n = atoi(ptr);
+			if (sscanf(ptr, "%d", &dev_n) != 1)
+				continue;
 			if (dev_n > 1)
 				continue;
 		}
