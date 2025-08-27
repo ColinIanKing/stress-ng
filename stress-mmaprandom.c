@@ -687,7 +687,7 @@ static void OPTIMIZE3 stress_mmaprandom_mmap_invalid(mr_ctxt_t *ctxt, const int 
 	mask <<= 1;
 #endif
 #if defined(MAP_32BIT)
-	flags |= (state & mask) ? MAP_NORESERVE : 0;
+	flags |= (state & mask) ? MAP_32BIT : 0;
 	mask <<= 1;
 #endif
 #if defined(MAP_GROWSDOWN)
