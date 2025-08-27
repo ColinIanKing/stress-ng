@@ -1034,7 +1034,7 @@ redo:
 			break;
 		case EXIT_NO_RESOURCE:
 			ss->status[STRESS_STRESSOR_STATUS_SKIPPED]++;
-			pr_warn_skip("%s: [%" PRIdMAX "] aborted early, out of system resources\n",
+			pr_warn_skip("%s: [%" PRIdMAX "] aborted early, no system resources\n",
 				name, (intmax_t)ret);
 			*resource_success = false;
 			do_abort = true;
