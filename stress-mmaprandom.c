@@ -657,6 +657,8 @@ static int stress_mmaprandom_munmap_force(
 	const int advise = MWC_RND_ELEMENT(madvise_unmap_options);
 
 	(void)stress_mmaprandom_madvise_pages(addr, length, advise, page_size);
+#else
+	(void)page_size;
 #endif
 	return stress_munmap_force(addr, length);
 }
