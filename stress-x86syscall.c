@@ -313,9 +313,9 @@ static char *x86syscall_list_str(void)
 			if (!str) {
 				*tmp = '\0';
 			} else {
-				(void)strcat(tmp, " ");
+				(void)shim_strlcat(tmp, " ", len);
 			}
-			(void)strcat(tmp, x86syscalls[i].name);
+			(void)shim_strlcat(tmp, x86syscalls[i].name, len);
 			str = tmp;
 		}
 	}
