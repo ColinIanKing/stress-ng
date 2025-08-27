@@ -1242,7 +1242,7 @@ stress_cpu_cache_cpus_t *stress_cpu_cache_get_all_details(void)
 				/* Assume it is online, it is the best we can do */
 				cpu->online = 1;
 			} else {
-				cpu->online = atoi(tmp);
+				cpu->online = atol(tmp);
 			}
 		}
 		if (cpu->online)
