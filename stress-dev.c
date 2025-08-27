@@ -4435,7 +4435,8 @@ static void stress_dev_infos_get(
 			while ((ptr > d->d_name) && isdigit((unsigned char)*ptr))
 				ptr--;
 			ptr++;
-			dev_n = atoi(ptr);
+			if (sscanf(ptr, "%d", &dev_n) != 1)
+				continue;
 			if (dev_n > 2)
 				continue;
 		}
