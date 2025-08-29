@@ -1893,10 +1893,16 @@ loop	T{
 simple empty loop.
 T}
 matrixprod	T{
-matrix product of two 128 \(mu 128 matrices of double floats. Testing on 64
+matrix product of two 128 \(mu 128 matrices of long double floats. Testing on 64
 bit x86 hardware shows that this is provides a good mix of memory, cache and
 floating point operations and is probably the best CPU method to use to make
-a CPU run hot.
+a CPU run hot, relying of x87 80-bits extended precision float arithmetic.
+T}
+matrixprod64	T{
+matrix product of two 256 \(mu 256 matrices of double floats. Testing on 64
+bit hardware shows that this is provides a good mix of memory, cache and
+floating point operations and is probably the best CPU method to use to make
+a CPU run hot, with fp64 arithmetic.
 T}
 nsqrt	T{
 compute sqrt() of long doubles using Newton-Raphson.
