@@ -174,6 +174,46 @@
 #define TARGET_CLONE_LUNARLAKE
 #endif
 
+#if defined(HAVE_TARGET_CLONES_ZNVER1) &&		\
+    defined(HAVE_COMPILER_GCC_OR_MUSL)
+#define TARGET_CLONE_ZNVER1 "arch=znver1",
+#define TARGET_CLONE_USE
+#else
+#define TARGET_CLONE_ZNVER1
+#endif
+
+#if defined(HAVE_TARGET_CLONES_ZNVER2) &&		\
+    defined(HAVE_COMPILER_GCC_OR_MUSL)
+#define TARGET_CLONE_ZNVER2 "arch=znver2",
+#define TARGET_CLONE_USE
+#else
+#define TARGET_CLONE_ZNVER2
+#endif
+
+#if defined(HAVE_TARGET_CLONES_ZNVER3) &&		\
+    defined(HAVE_COMPILER_GCC_OR_MUSL)
+#define TARGET_CLONE_ZNVER3 "arch=znver3",
+#define TARGET_CLONE_USE
+#else
+#define TARGET_CLONE_ZNVER3
+#endif
+
+#if defined(HAVE_TARGET_CLONES_ZNVER4) &&		\
+    defined(HAVE_COMPILER_GCC_OR_MUSL)
+#define TARGET_CLONE_ZNVER4 "arch=znver4",
+#define TARGET_CLONE_USE
+#else
+#define TARGET_CLONE_ZNVER4
+#endif
+
+#if defined(HAVE_TARGET_CLONES_ZNVER5) &&		\
+    defined(HAVE_COMPILER_GCC_OR_MUSL)
+#define TARGET_CLONE_ZNVER5 "arch=znver5",
+#define TARGET_CLONE_USE
+#else
+#define TARGET_CLONE_ZNVER5
+#endif
+
 #define TARGET_CLONES_ALL		\
 	TARGET_CLONE_AVX		\
 	TARGET_CLONE_AVX2 		\
@@ -195,6 +235,11 @@
 	TARGET_CLONE_LUNARLAKE		\
 	TARGET_CLONE_PANTHERLAKE	\
 	TARGET_CLONE_DIAMONDRAPIDS	\
+	TARGET_CLONE_ZNVER1		\
+	TARGET_CLONE_ZNVER2		\
+	TARGET_CLONE_ZNVER3		\
+	TARGET_CLONE_ZNVER4		\
+	TARGET_CLONE_ZNVER5		\
 	"default"
 
 #if defined(TARGET_CLONE_USE)
