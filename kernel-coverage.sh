@@ -909,6 +909,6 @@ sudo lcov -c --branch-coverage -o kernel.info --keep-going >& /dev/null
 #
 sudo genhtml --ignore-errors inconsistent -o html kernel.info
 #
-#  Covert to ascii for machine parsing
+#  Convert to ascii for machine parsing
 #
 sudo find html -print -name "*.html" -exec html2text -ascii -o {}.txt {} \;
