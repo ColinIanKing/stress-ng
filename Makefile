@@ -18,9 +18,9 @@
 #
 
 #
-# Codename "savvy system smasher"
+# Codename "rapid ram rattler"
 #
-VERSION=0.19.03
+VERSION=0.19.04
 
 #
 # Determine supported toolchains
