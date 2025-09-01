@@ -132,7 +132,7 @@ void *stress_shared_heap_malloc(const size_t size)
 /*
  *  stress_shared_heap_dup_const()
  *	Do a strdup of string using the shared heap. String must never be
- *	modified as this dup operation re-used existing identical strings
+ *	modified as this dup operation reused existing identical strings
  *	allocated on the shared heap. This is designed for storing metric
  *	descriptions that get allocated per stressor and we want to reduce
  *	duplicated allocations where possible.
@@ -169,7 +169,7 @@ char *stress_shared_heap_dup_const(const char *str)
 		return heap_str->str;
 
 	/*
-	 *  Save a copy so it can be re-used
+	 *  Save a copy so it can be reused
 	 */
 	heap_str->next = (stress_shared_heap_str_t *)g_shared->shared_heap.str_list_head;
 	g_shared->shared_heap.str_list_head = (void *)heap_str;

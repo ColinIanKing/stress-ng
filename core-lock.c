@@ -713,7 +713,7 @@ static stress_lock_t *stress_lock_get(void)
 
 /*
  *  stress_lock_put()
- *	mark a lock as new free to be re-used
+ *	mark a lock as new free to be reused
  */
 static int stress_lock_put(stress_lock_t *lock)
 {
