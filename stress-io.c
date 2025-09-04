@@ -58,6 +58,8 @@ static int stress_io(stress_args_t *args)
 		shim_sync();
 #if defined(HAVE_SYNCFS)
 		if (UNLIKELY((fd != -1) && (syncfs(fd) < 0))) {
+			if (UNLIKELY(errno == ENOSYS))
+				goto bogo_inc;
 			pr_fail("%s: syncfs failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			rc = EXIT_FAILURE;
@@ -69,6 +71,8 @@ static int stress_io(stress_args_t *args)
 			if (fds[i] < 0)
 				continue;
 			if (UNLIKELY(syncfs(fds[i]) < 0)) {
+				if (UNLIKELY(errno == ENOSYS))
+					goto bogo_inc;
 				if ((errno != ENOSPC) &&
 				    (errno != EDQUOT) &&
 				    (errno != EINTR)) {
@@ -84,11 +88,14 @@ static int stress_io(stress_args_t *args)
 		 *  exercise with an invalid fd
 		 */
 		if (UNLIKELY(syncfs(bad_fd) == 0)) {
+			if (UNLIKELY(errno == ENOSYS))
+				goto bogo_inc;
 			pr_fail("%s: syncfs on invalid fd %d succeed\n",
 				args->name, bad_fd);
 			rc = EXIT_FAILURE;
 			goto tidy;
 		}
+bogo_inc:
 #else
 		UNEXPECTED
 #endif
