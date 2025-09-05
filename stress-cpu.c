@@ -60,6 +60,7 @@
 #define STRESS_CPU_DITHER_X	(1024)
 #define STRESS_CPU_DITHER_Y	(768)
 #define MATRIX_PROD_SIZE 	(128)
+#define MATRIX_PROD64_SIZE 	(256)
 #define CORRELATE_DATA_LEN	(8192)
 #define CORRELATE_LEN		(CORRELATE_DATA_LEN / 16)
 #define SIEVE_SIZE              (104730)
@@ -1239,6 +1240,49 @@ PRAGMA_UNROLL_N(8)
 		for (j = 0; j < MATRIX_PROD_SIZE; j++)
 			sum += r[i][j];
 	stress_long_double_put(sum);
+	return EXIT_SUCCESS;
+}
+
+/*
+ *  stress_cpu_matrix_prod(void)
+ *	matrix product
+ */
+static int OPTIMIZE3 TARGET_CLONES stress_cpu_matrix_prod64(const char *name)
+{
+	int i, j, k;
+
+	static double a[MATRIX_PROD64_SIZE][MATRIX_PROD64_SIZE] ALIGN64,
+			   b[MATRIX_PROD64_SIZE][MATRIX_PROD64_SIZE] ALIGN64,
+			   r[MATRIX_PROD64_SIZE][MATRIX_PROD64_SIZE] ALIGN64;
+	const double v = 1 / (double)((uint32_t)~0);
+	double sum = 0.0L;
+
+	(void)name;
+
+	for (i = 0; i < MATRIX_PROD64_SIZE; i++) {
+		for (j = 0; j < MATRIX_PROD64_SIZE; j++) {
+			const uint32_t r1 = stress_mwc32();
+			const uint32_t r2 = stress_mwc32();
+
+			a[i][j] = (double)r1 * v;
+			b[i][j] = (double)r2 * v;
+			r[i][j] = 0.0L;
+		}
+	}
+
+	for (i = 0; i < MATRIX_PROD64_SIZE; i++) {
+		for (j = 0; j < MATRIX_PROD64_SIZE; j++) {
+			for (k = 0; k < MATRIX_PROD64_SIZE; k++) {
+				r[i][j] += a[i][k] * b[k][j];
+			}
+		}
+	}
+
+	for (i = 0; i < MATRIX_PROD64_SIZE; i++)
+PRAGMA_UNROLL_N(8)
+		for (j = 0; j < MATRIX_PROD64_SIZE; j++)
+			sum += r[i][j];
+	stress_double_put(sum);
 	return EXIT_SUCCESS;
 }
 
@@ -2956,6 +3000,7 @@ static const stress_cpu_method_info_t stress_cpu_methods[] = {
 	{ "longdouble",		stress_cpu_longdouble,		1801.60 },
 	{ "loop",		stress_cpu_loop,		31424.67 },
 	{ "matrixprod",		stress_cpu_matrix_prod,		263.84 },
+	{ "matrixprod64",	stress_cpu_matrix_prod64,	143.92 },
 	{ "nsqrt",		stress_cpu_nsqrt,		32783.07 },
 	{ "omega",		stress_cpu_omega,		4038977.72 },
 	{ "parity",		stress_cpu_parity,		30013.93 },
