@@ -809,6 +809,7 @@ static void OPTIMIZE3 stress_io_uring_sync_file_range_setup(
 #endif
 
 #if defined(HAVE_IORING_OP_SETXATTR) &&	\
+    defined(HAVE_IO_URING_SQE_ADDR3) &&	\
     defined(XATTR_CREATE)
 /*
  *  stress_io_uring_setxattr_setup()
@@ -836,6 +837,7 @@ static void OPTIMIZE3 stress_io_uring_setxattr_setup(
 
 
 #if defined(HAVE_IORING_OP_GETXATTR) &&	\
+    defined(HAVE_IO_URING_SQE_ADDR3) &&	\
     defined(XATTR_CREATE)
 /*
  *  stress_io_uring_getxattr_setup()
@@ -925,10 +927,12 @@ static const stress_io_uring_setup_info_t stress_io_uring_setups[] = {
 	{ IORING_OP_SYNC_FILE_RANGE, "IORING_OP_SYNC_FILE_RANGE", stress_io_uring_sync_file_range_setup },
 #endif
 #if defined(HAVE_IORING_OP_SETXATTR) &&	\
+    defined(HAVE_IO_URING_SQE_ADDR3) &&	\
     defined(XATTR_CREATE)
 	{ IORING_OP_SETXATTR,	"IORING_OP_SETXATTR",	stress_io_uring_setxattr_setup },
 #endif
 #if defined(HAVE_IORING_OP_GETXATTR) && \
+    defined(HAVE_IO_URING_SQE_ADDR3) &&	\
     defined(XATTR_CREATE)
 	{ IORING_OP_GETXATTR,	"IORING_OP_GETXATTR",	stress_io_uring_getxattr_setup },
 #endif
