@@ -24,7 +24,7 @@
 #define STRESS_SIGSTKSZ		(stress_get_sig_stack_size())
 #define STRESS_MINSIGSTKSZ	(stress_get_min_sig_stack_size())
 
-static inline WARN_UNUSED ALWAYS_INLINE void *stress_align_stack(void *stack_top)
+static inline WARN_UNUSED CONST ALWAYS_INLINE void *stress_align_stack(void *stack_top)
 {
 	return (void *)((uintptr_t)stack_top & ~(uintptr_t)0xf);
 }

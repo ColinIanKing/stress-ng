@@ -536,7 +536,7 @@ typedef struct shim_file_attr {
  *      some older system calls require non-const void *
  *      or caddr_t args, so we need to unconstify them
  */
-static inline void *shim_unconstify_ptr(const void *ptr)
+static inline ALWAYS_INLINE CONST void *shim_unconstify_ptr(const void *ptr)
 {
 	union stress_unconstify {
 		const void *cptr;

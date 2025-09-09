@@ -35,14 +35,14 @@ extern uint64_t stress_sort_compares ALIGN64;
 extern sort_swap_func_t sort_swap_func(const size_t size);
 extern sort_copy_func_t sort_copy_func(const size_t size);
 
-static inline int stress_sort_cmp_str(const void *p1, const void *p2)
+static inline ALWAYS_INLINE CONST int stress_sort_cmp_str(const void *p1, const void *p2)
 {
 	return strcmp(*(const char * const *)p1, *(const char * const *)p2);
 }
 
 #if 1
 #define STRESS_SORT_CMP_FWD(name, type)				\
-static inline int OPTIMIZE3 stress_sort_cmp_fwd_ ## name(const void *p1, const void *p2) \
+static inline int CONST OPTIMIZE3 stress_sort_cmp_fwd_ ## name(const void *p1, const void *p2) \
 {								\
 	register const type v1 = *(const type *)p1;		\
 	register const type v2 = *(const type *)p2;		\
@@ -57,7 +57,7 @@ static inline int OPTIMIZE3 stress_sort_cmp_fwd_ ## name(const void *p1, const v
 }
 #else
 #define STRESS_SORT_CMP_FWD(name, type)				\
-static inline int OPTIMIZE3 stress_sort_cmp_fwd_ ## name(const void *p1, const void *p2) \
+static inline int CONST OPTIMIZE3 stress_sort_cmp_fwd_ ## name(const void *p1, const void *p2) \
 {								\
 	register const type v1 = *(const type *)p1;		\
 	register const type v2 = *(const type *)p2;		\
@@ -69,7 +69,7 @@ static inline int OPTIMIZE3 stress_sort_cmp_fwd_ ## name(const void *p1, const v
 
 #if 1
 #define STRESS_SORT_CMP_REV(name, type)				\
-static inline int OPTIMIZE3 stress_sort_cmp_rev_ ## name(const void *p1, const void *p2)\
+static inline int CONST OPTIMIZE3 stress_sort_cmp_rev_ ## name(const void *p1, const void *p2)\
 {								\
 	register const type v1 = *(const type *)p1;		\
 	register const type v2 = *(const type *)p2;		\
@@ -84,7 +84,7 @@ static inline int OPTIMIZE3 stress_sort_cmp_rev_ ## name(const void *p1, const v
 }
 #else
 #define STRESS_SORT_CMP_REV(name, type)				\
-static inline int OPTIMIZE3 stress_sort_cmp_rev_ ## name(const void *p1, const void *p2)\
+static inline int CONST OPTIMIZE3 stress_sort_cmp_rev_ ## name(const void *p1, const void *p2)\
 {								\
 	register const type v1 = *(const type *)p1;		\
 	register const type v2 = *(const type *)p2;		\
