@@ -384,8 +384,10 @@ static inline int stress_io_uring_complete(
 				case EINVAL:
 					goto next_head;
 				case ENOENT:
+#if defined(HAVE_IORING_OP_ASYNC_CANCEL)
 					if (user_data->opcode == IORING_OP_ASYNC_CANCEL)
 						goto next_head;
+#endif
 					break;
 #if defined(HAVE_IORING_OP_GETXATTR) &&	\
     defined(XATTR_CREATE)
@@ -470,8 +472,13 @@ retry:
 			goto retry;
 		}
 		/* Silently ignore ENOSPC or cancel opcode failures */
+#if defined(HAVE_IORING_OP_ASYNC_CANCEL)
 		if ((errno == ENOSPC) || (sqe->opcode == IORING_OP_ASYNC_CANCEL))
 			return EXIT_SUCCESS;
+#else
+		if (errno == ENOSPC)
+			return EXIT_SUCCESS;
+#endif
 		pr_fail("%s: io_uring_enter failed, opcode=%d (%s), errno=%d (%s)\n",
 			args->name, sqe->opcode,
 			stress_io_uring_opcode_name(sqe->opcode),
