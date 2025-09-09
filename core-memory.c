@@ -399,7 +399,7 @@ void stress_usage_bytes(
  *  stress_align_address
  *	align address to alignment, alignment MUST be a power of 2
  */
-void PURE *stress_align_address(const void *addr, const size_t alignment)
+void CONST *stress_align_address(const void *addr, const size_t alignment)
 {
 	const uintptr_t uintptr =
 		((uintptr_t)addr + alignment) & ~(alignment - 1);

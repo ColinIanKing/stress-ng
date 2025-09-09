@@ -520,7 +520,7 @@ void stress_sighandler_nop(int sig)
  *  stress_catch_sig_si_code()
  *	convert signal and si_code into human readable form
  */
-static const PURE char *stress_catch_sig_si_code(const int sig, const int sig_code)
+static const CONST char *stress_catch_sig_si_code(const int sig, const int sig_code)
 {
 	static const char unknown[] = "UNKNOWN";
 

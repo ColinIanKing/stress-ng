@@ -32,7 +32,7 @@
  *  stress_timeval_to_double()
  *      convert timeval to seconds as a double
  */
-double PURE OPTIMIZE3 stress_timeval_to_double(const struct timeval *tv)
+double CONST OPTIMIZE3 stress_timeval_to_double(const struct timeval *tv)
 {
 	return (double)tv->tv_sec + ((double)tv->tv_usec * ONE_MILLIONTH);
 }

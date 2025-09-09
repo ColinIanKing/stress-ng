@@ -181,7 +181,7 @@ static int OPTIMIZE3 stress_hash_method_murmur3_32(
 	return stress_hash_generic(name, hmi, stats, bucket, stress_hash_murmur3_32_wrapper, 0x54b572fa, 0xc250b788);
 }
 
-static uint32_t PURE stress_hash_pjw_wrapper(const char *str, const size_t len)
+static uint32_t CONST stress_hash_pjw_wrapper(const char *str, const size_t len)
 {
 	(void)len;
 
@@ -201,7 +201,7 @@ static int OPTIMIZE3 stress_hash_method_pjw(
 	return stress_hash_generic(name, hmi, stats,bucket, stress_hash_pjw_wrapper, 0xa89a91c0, 0xa89a91c0);
 }
 
-static uint32_t PURE stress_hash_djb2a_wrapper(const char *str, const size_t len)
+static uint32_t CONST stress_hash_djb2a_wrapper(const char *str, const size_t len)
 {
 	(void)len;
 
@@ -221,7 +221,7 @@ static int OPTIMIZE3 stress_hash_method_djb2a(
 	return stress_hash_generic(name, hmi, stats, bucket, stress_hash_djb2a_wrapper, 0x6a60cb5a, 0x6a60cb5a);
 }
 
-static uint32_t PURE stress_hash_fnv1a_wrapper(const char *str, const size_t len)
+static uint32_t CONST stress_hash_fnv1a_wrapper(const char *str, const size_t len)
 {
 	(void)len;
 
@@ -241,7 +241,7 @@ static int OPTIMIZE3 stress_hash_method_fnv1a(
 	return stress_hash_generic(name, hmi, stats, bucket, stress_hash_fnv1a_wrapper, 0x8ef17e80, 0x8ef17e80);
 }
 
-static uint32_t PURE stress_hash_sdbm_wrapper(const char *str, const size_t len)
+static uint32_t CONST stress_hash_sdbm_wrapper(const char *str, const size_t len)
 {
 	(void)len;
 
@@ -261,7 +261,7 @@ static int OPTIMIZE3 stress_hash_method_sdbm(
 	return stress_hash_generic(name, hmi, stats, bucket, stress_hash_sdbm_wrapper, 0x46357819, 0x46357819);
 }
 
-static uint32_t PURE stress_hash_nhash_wrapper(const char *str, const size_t len)
+static uint32_t CONST stress_hash_nhash_wrapper(const char *str, const size_t len)
 {
 	(void)len;
 
@@ -281,7 +281,7 @@ static int OPTIMIZE3 stress_hash_method_nhash(
 	return stress_hash_generic(name, hmi, stats, bucket, stress_hash_nhash_wrapper, 0x1cc86e3, 0x1cc86e3);
 }
 
-static uint32_t PURE stress_hash_crc32c_wrapper(const char *str, const size_t len)
+static uint32_t CONST stress_hash_crc32c_wrapper(const char *str, const size_t len)
 {
 	(void)len;
 
@@ -301,7 +301,7 @@ static int OPTIMIZE3 stress_hash_method_crc32c(
 	return stress_hash_generic(name, hmi, stats, bucket, stress_hash_crc32c_wrapper, 0x923ab2b3, 0x923ab2b3);
 }
 
-static uint32_t PURE OPTIMIZE3 stress_hash_xor(const char *str, const size_t len)
+static uint32_t CONST OPTIMIZE3 stress_hash_xor(const char *str, const size_t len)
 {
 	register uint32_t sum = 0;
 
@@ -356,7 +356,7 @@ static int OPTIMIZE3 stress_hash_method_muladd64(
 	return stress_hash_generic(name, hmi, stats, bucket, stress_hash_muladd64, 0x99109f5c, 0x99109f5c);
 }
 
-static uint32_t PURE stress_hash_kandr_wrapper(const char *str, const size_t len)
+static uint32_t CONST stress_hash_kandr_wrapper(const char *str, const size_t len)
 {
 	(void)len;
 
@@ -376,7 +376,7 @@ static int OPTIMIZE3 stress_hash_method_kandr(
 	return stress_hash_generic(name, hmi, stats, bucket, stress_hash_kandr_wrapper, 0x1e197d9, 0x1e197d9);
 }
 
-static uint32_t PURE stress_hash_coffin_wrapper(const char *str, const size_t len)
+static uint32_t CONST stress_hash_coffin_wrapper(const char *str, const size_t len)
 {
 	(void)len;
 
@@ -396,14 +396,14 @@ static int OPTIMIZE3 stress_hash_method_coffin(
 	return stress_hash_generic(name, hmi, stats, bucket, stress_hash_coffin_wrapper, 0xdc02e07b, 0xdc02e07b);
 }
 
-static uint32_t PURE stress_hash_coffin32_wrapper_le(const char *str, const size_t len)
+static uint32_t CONST stress_hash_coffin32_wrapper_le(const char *str, const size_t len)
 {
 	(void)len;
 
 	return stress_hash_coffin32_le(str, len);	/* Little Endian */
 }
 
-static uint32_t PURE stress_hash_coffin32_wrapper_be(const char *str, const size_t len)
+static uint32_t CONST stress_hash_coffin32_wrapper_be(const char *str, const size_t len)
 {
 	(void)len;
 
@@ -427,7 +427,7 @@ static int OPTIMIZE3 stress_hash_method_coffin32(
 	return stress_hash_generic(name, hmi, stats, bucket, wrapper, 0xdc02e07b, 0xdc02e07b);
 }
 
-static uint32_t PURE stress_hash_x17_wrapper(const char *str, const size_t len)
+static uint32_t CONST stress_hash_x17_wrapper(const char *str, const size_t len)
 {
 	(void)len;
 
@@ -449,7 +449,7 @@ static int OPTIMIZE3 stress_hash_method_x17(
 
 #if defined(HAVE_XXHASH_H) &&	\
     defined(HAVE_LIB_XXHASH)
-static uint32_t PURE stress_hash_xxh64_wrapper(const char *str, const size_t len)
+static uint32_t CONST stress_hash_xxh64_wrapper(const char *str, const size_t len)
 {
 	return (uint32_t)XXH64(str, len, 0xf261eab7);
 }
@@ -468,7 +468,7 @@ static int OPTIMIZE3 stress_hash_method_xxh64(
 }
 #endif
 
-static uint32_t PURE stress_hash_loselose_wrapper(const char *str, const size_t len)
+static uint32_t CONST stress_hash_loselose_wrapper(const char *str, const size_t len)
 {
 	(void)len;
 
@@ -566,7 +566,7 @@ static int OPTIMIZE3 stress_hash_method_xorror32(
 	return stress_hash_generic(name, hmi, stats, bucket, stress_hash_xorror32, 0x4fddf545, 0x5be5cd40);
 }
 
-static uint32_t PURE stress_hash_sedgwick_wrapper(const char *str, const size_t len)
+static uint32_t CONST stress_hash_sedgwick_wrapper(const char *str, const size_t len)
 {
 	(void)len;
 
@@ -582,7 +582,7 @@ static int OPTIMIZE3 stress_hash_method_sedgwick(
 	return stress_hash_generic(name, hmi, stats, bucket, stress_hash_sedgwick_wrapper, 0x266c1ca9, 0x266c1ca9);
 }
 
-static uint32_t PURE stress_hash_sobel_wrapper(const char *str, const size_t len)
+static uint32_t CONST stress_hash_sobel_wrapper(const char *str, const size_t len)
 {
 	(void)len;
 

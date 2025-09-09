@@ -817,7 +817,7 @@ int stress_parse_opt(const char *stressor_name, const char *opt_arg, const stres
  *	method handler for methods that are unimplemented
  *	(e.g. stressor not supported)
  */
-const char * PURE stress_unimplemented_method(const size_t i)
+const char * CONST stress_unimplemented_method(const size_t i)
 {
 	(void)i;
 

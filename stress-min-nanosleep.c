@@ -240,7 +240,7 @@ static void stress_min_nanosleep_sched(stress_args_t *args, const size_t min_nan
 }
 #endif
 
-static inline size_t PURE stress_min_nanosleep_log2plus1(size_t n)
+static inline size_t CONST stress_min_nanosleep_log2plus1(size_t n)
 {
 #if defined(HAVE_BUILTIN_CLZLL)
 	long long int lln = (long long int)n;

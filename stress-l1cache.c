@@ -43,7 +43,7 @@ static const stress_help_t help[] = {
  *  stress_l1cache_ln2()
  *	calculate log base 2
  */
-static uint32_t PURE stress_l1cache_ln2(const uint32_t val)
+static uint32_t CONST stress_l1cache_ln2(const uint32_t val)
 {
 	int ln2 = 0;
 

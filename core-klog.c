@@ -50,7 +50,7 @@ static const char * const err_exceptions[] = {
  *	false if a match is found, and hence can be ignored
  *	as an error.
  */
-static bool PURE stress_klog_err_no_exceptions(const char *str)
+static bool CONST stress_klog_err_no_exceptions(const char *str)
 {
 	size_t i;
 

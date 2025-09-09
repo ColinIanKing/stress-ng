@@ -659,7 +659,7 @@ void stress_thrash_stop(void)
 }
 
 #else
-int PURE stress_thrash_start(void)
+int CONST stress_thrash_start(void)
 {
 	return 0;
 }
@@ -668,7 +668,7 @@ void stress_thrash_stop(void)
 {
 }
 
-int PURE stress_pagein_self(const char *name)
+int CONST stress_pagein_self(const char *name)
 {
 	(void)name;
 

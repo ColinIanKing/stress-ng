@@ -64,7 +64,7 @@ static int efi_mode = STRESS_EFI_UNKNOWN;
  *  efi_var_ignore()
  *	check for filenames that are not efi vars
  */
-static inline bool PURE efi_var_ignore(char *d_name)
+static inline bool CONST efi_var_ignore(char *d_name)
 {
 	static const char * const ignore[] = {
 		".",

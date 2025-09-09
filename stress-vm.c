@@ -217,7 +217,7 @@ static inline void inject_random_bit_errors(uint8_t *buf, const size_t sz)
  *  need to do a - b once and occasionally just twice. Use repeated
  *  subtraction since this is faster than %
  */
-static inline ALWAYS_INLINE PURE OPTIMIZE3 uint64_t stress_vm_mod(register uint64_t a, register const size_t b)
+static inline ALWAYS_INLINE CONST OPTIMIZE3 uint64_t stress_vm_mod(register uint64_t a, register const size_t b)
 {
 	if (LIKELY(a >= b))
 		a -= b;
@@ -246,7 +246,7 @@ static void stress_vm_check(const char *name, const size_t bit_errors)
  *  stress_vm_count_bits8()
  *	count number of bits set (K and R)
  */
-static inline PURE size_t stress_vm_count_bits8(uint8_t v)
+static inline CONST size_t stress_vm_count_bits8(uint8_t v)
 {
 #if defined(HAVE_BUILTIN_POPCOUNT)
 	return (size_t)__builtin_popcount((unsigned int)v);
@@ -263,7 +263,7 @@ static inline PURE size_t stress_vm_count_bits8(uint8_t v)
  *  stress_vm_count_bits()
  *	count number of bits set (K and R)
  */
-static inline size_t PURE stress_vm_count_bits(uint64_t v)
+static inline size_t CONST stress_vm_count_bits(uint64_t v)
 {
 #if defined(HAVE_BUILTIN_POPCOUNTLL)
 	if (sizeof(unsigned long long int) == sizeof(uint64_t)) {

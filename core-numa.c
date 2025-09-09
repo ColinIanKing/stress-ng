@@ -530,7 +530,7 @@ void stress_numa_randomize_pages(
 	(void)shim_memset(numa_mask->mask, 0, numa_mask->mask_size);
 }
 
-unsigned long int PURE stress_numa_nodes(void)
+unsigned long int CONST stress_numa_nodes(void)
 {
 	return 1;
 }

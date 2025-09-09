@@ -120,7 +120,7 @@ static const stress_sock_options_t sock_options_opts[] = {
 #endif
 };
 
-static const char * PURE stress_recv_func_str(const int sock_opts)
+static const char * CONST stress_recv_func_str(const int sock_opts)
 {
 	switch (sock_opts) {
 	case SOCKET_OPT_SEND:
@@ -911,7 +911,7 @@ free_controls:
 	return rc;
 }
 
-static bool PURE stress_send_error(const int err)
+static bool CONST stress_send_error(const int err)
 {
 	return ((err != EINTR) &&
 		(err != EPIPE) &&

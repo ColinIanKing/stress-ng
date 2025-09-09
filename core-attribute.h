@@ -154,6 +154,12 @@
 #define SECTION(s)
 #endif
 
+#if defined(HAVE_ATTRIBUTE_CONST)
+#define CONST	__attribute__((const))
+#else
+#define CONST
+#endif
+
 #if defined(HAVE_ATTRIBUTE_PURE)
 #define PURE	__attribute__((pure))
 #else

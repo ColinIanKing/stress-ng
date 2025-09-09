@@ -1443,7 +1443,7 @@ void stress_unset_chattr_flags(const char *pathname)
  *  	filter out dot files . and .. for scandir(), dirent and
  *  	d->d_name are valid
  */
-static int PURE OPTIMIZE3 stress_dot_dirent_filter(const struct dirent *d)
+static int CONST OPTIMIZE3 stress_dot_dirent_filter(const struct dirent *d)
 {
 	if (d->d_name[0] == '.') {
 		if (d->d_name[1] == '\0')
@@ -1458,7 +1458,7 @@ static int PURE OPTIMIZE3 stress_dot_dirent_filter(const struct dirent *d)
  *  stress_is_dot_filename()
  *	is filename "." or "..", name maybe null
  */
-bool PURE OPTIMIZE3 stress_is_dot_filename(const char *name)
+bool CONST OPTIMIZE3 stress_is_dot_filename(const char *name)
 {
 	if (UNLIKELY(!name))
 		return false;

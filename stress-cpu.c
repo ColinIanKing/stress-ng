@@ -1442,7 +1442,7 @@ static int OPTIMIZE0 stress_cpu_jmp(const char *name)
  *  ccitt_crc16()
  *	perform naive CCITT CRC16
  */
-static uint16_t PURE OPTIMIZE3 ccitt_crc16(const uint8_t *data, size_t n)
+static uint16_t CONST OPTIMIZE3 ccitt_crc16(const uint8_t *data, size_t n)
 {
 	/*
 	 *  The CCITT CRC16 polynomial is
@@ -1498,7 +1498,7 @@ static int stress_cpu_crc16(const char *name)
  *  fletcher16
  *	naive implementation of fletcher16 checksum
  */
-static uint16_t PURE OPTIMIZE3 fletcher16(const uint8_t *data, const size_t len)
+static uint16_t CONST fletcher16(const uint8_t *data, const size_t len)
 {
 	register uint16_t sum1 = 0, sum2 = 0;
 	register size_t i;
@@ -1552,7 +1552,7 @@ static int stress_cpu_ipv4checksum(const char *name)
  *  zeta()
  *	Riemann zeta function
  */
-static inline long double complex PURE OPTIMIZE3 OPTIMIZE_FAST_MATH zeta(
+static inline long double complex CONST OPTIMIZE3 OPTIMIZE_FAST_MATH zeta(
 	const long double complex s,
 	long double precision)
 {
@@ -1698,7 +1698,7 @@ PRAGMA_UNROLL_N(8)
  *	return true if n is prime
  *	http://en.wikipedia.org/wiki/Primality_test
  */
-static inline PURE OPTIMIZE3 ALWAYS_INLINE uint32_t is_prime(uint32_t n)
+static inline CONST OPTIMIZE3 ALWAYS_INLINE uint32_t is_prime(uint32_t n)
 {
 	register uint32_t i, max;
 	double dsqrt;
@@ -1962,7 +1962,7 @@ static int stress_cpu_intconversion(const char *name)
  *  factorial()
  *	compute n!
  */
-static inline long double PURE OPTIMIZE3 factorial(int n)
+static inline long double CONST OPTIMIZE3 factorial(int n)
 {
 	static const long double factorials[] = {
 		1.0L,
@@ -2103,7 +2103,7 @@ do {							\
  *  hamming84()
  *	compute Hamming (8,4) codes
  */
-static uint8_t PURE OPTIMIZE3 hamming84(const uint8_t nybble)
+static uint8_t CONST OPTIMIZE3 hamming84(const uint8_t nybble)
 {
 	/*
 	 * Hamming (8,4) Generator matrix

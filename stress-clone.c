@@ -284,7 +284,7 @@ static void clone_stress_force_bind(void)
 	(void)shim_unshare(0);
 }
 
-static inline PURE uint64_t uint64_ptr(const void *ptr)
+static inline CONST uint64_t uint64_ptr(const void *ptr)
 {
 	return (uint64_t)(uintptr_t)ptr;
 }

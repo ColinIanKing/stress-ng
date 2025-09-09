@@ -363,7 +363,7 @@ static void stress_smart_data_diff(stress_smart_dev_t *dev)
  *  stress_smart_dev_filter()
  * 	discard entries that don't look like device names
  */
-static int PURE stress_smart_dev_filter(const struct dirent *d)
+static int CONST stress_smart_dev_filter(const struct dirent *d)
 {
 	size_t len;
 
@@ -382,7 +382,7 @@ static int PURE stress_smart_dev_filter(const struct dirent *d)
  *  stress_smart_dev_sort()
  *	sort on dirent filenames
  */
-static int PURE stress_smart_dev_sort(const struct dirent **d1, const struct dirent **d2)
+static int CONST stress_smart_dev_sort(const struct dirent **d1, const struct dirent **d2)
 {
 	int cmp;
 

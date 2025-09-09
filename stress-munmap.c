@@ -43,7 +43,7 @@ static const stress_help_t help[] = {
  *  stress_munmap_log2()
  *	slow but simple log to the base 2 of n
  */
-static inline size_t PURE stress_munmap_log2(size_t n)
+static inline size_t CONST stress_munmap_log2(size_t n)
 {
 #if defined(HAVE_BUILTIN_CLZLL)
 	long long int lln = (long long int)n;

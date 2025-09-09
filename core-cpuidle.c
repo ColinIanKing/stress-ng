@@ -44,7 +44,7 @@ cpu_cstate_t *stress_cpuidle_cstate_list_head(void)
 
 #if defined(__linux__)
 
-static PURE int stress_cpuidle_value(const char *cstate)
+static CONST int stress_cpuidle_value(const char *cstate)
 {
 	int val;
 

@@ -114,7 +114,7 @@ static inline void OPTIMIZE3 stress_brk_page_resident(
 #endif
 }
 
-static inline size_t PURE stress_brk_abs(const uint8_t *ptr1, const uint8_t *ptr2)
+static inline size_t CONST stress_brk_abs(const uint8_t *ptr1, const uint8_t *ptr2)
 {
 	return (size_t)((ptr1 > ptr2) ? ptr1 - ptr2 : ptr2 - ptr1);
 }

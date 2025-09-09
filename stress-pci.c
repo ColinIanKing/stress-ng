@@ -54,7 +54,7 @@ typedef struct stress_pci_info {
  *  stress_pci_dev_filter()
  *	scandir filter on /sys/devicex/pci[0-9]/xxxx:xx:xx.x where x is a hex
  */
-static int PURE stress_pci_dev_filter(const struct dirent *d)
+static int CONST stress_pci_dev_filter(const struct dirent *d)
 {
 	unsigned int dummy[4];
 
@@ -69,7 +69,7 @@ static int PURE stress_pci_dev_filter(const struct dirent *d)
  *  stress_pci_dot_filter()
  *	scandir filter out dot filenames
  */
-static int PURE stress_pci_dot_filter(const struct dirent *d)
+static int CONST stress_pci_dot_filter(const struct dirent *d)
 {
 	if (d->d_name[0] == '.')
 		return 0;

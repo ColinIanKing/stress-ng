@@ -344,7 +344,7 @@ void stress_ftrace_start(void)
  *  strace_ftrace_is_syscall()
  *	return true if function name looks like a system call
  */
-static inline bool PURE strace_ftrace_is_syscall(const char *func_name)
+static inline bool CONST strace_ftrace_is_syscall(const char *func_name)
 {
 	if (*func_name == '_' &&
 	    strstr(func_name, "_sys_") &&

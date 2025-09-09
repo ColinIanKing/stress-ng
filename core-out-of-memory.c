@@ -209,7 +209,7 @@ void stress_set_oom_adjustment(stress_args_t *args, const bool killable)
 	(void)procctl(P_PID, 0, PROC_SPROTECT, &flag);
 }
 
-bool PURE stress_process_oomed(const pid_t pid)
+bool CONST stress_process_oomed(const pid_t pid)
 {
 	(void)pid;
 
@@ -221,7 +221,7 @@ void stress_set_oom_adjustment(stress_args_t *args, const bool killable)
 	(void)args;
 	(void)killable;
 }
-bool PURE stress_process_oomed(const pid_t pid)
+bool CONST stress_process_oomed(const pid_t pid)
 {
 	(void)pid;
 

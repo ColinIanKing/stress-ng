@@ -39,7 +39,7 @@ typedef struct {
 	int	err;		/* copy of errno */
 } session_error_t;
 
-static char * PURE stress_session_error(const int err)
+static char * CONST stress_session_error(const int err)
 {
 	switch (err) {
 	case STRESS_SESSION_SUCCESS:

@@ -205,7 +205,7 @@ PRAGMA_UNROLL_N(2)
  *  stress_aiol_check_buffer()
  *	check buffer contains some known pattern
  */
-static inline PURE OPTIMIZE3 bool stress_aiol_check_buffer(
+static inline CONST OPTIMIZE3 bool stress_aiol_check_buffer(
 	const uint8_t pattern,
 	const uint8_t *const buffer,
 	const size_t size)

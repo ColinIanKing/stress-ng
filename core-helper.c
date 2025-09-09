@@ -429,7 +429,7 @@ void stress_set_proc_state(const char *name, const int state)
  *  stress_chr_munge()
  *	convert ch _ to -, otherwise don't change it
  */
-static inline char PURE stress_chr_munge(const char ch)
+static inline char CONST stress_chr_munge(const char ch)
 {
 	return (ch == '_') ? '-' : ch;
 }
@@ -504,7 +504,7 @@ void *stress_get_null(void)
  *  stress_little_endian()
  *	returns true if CPU is little endian
  */
-bool PURE stress_little_endian(void)
+bool CONST stress_little_endian(void)
 {
 	const uint32_t x = 0x12345678;
 	const uint8_t *y = (const uint8_t *)&x;
@@ -516,7 +516,7 @@ bool PURE stress_little_endian(void)
  *  stress_endian_str()
  *	return endianness as a string
  */
-static const char * PURE stress_endian_str(void)
+static const char * CONST stress_endian_str(void)
 {
 	return stress_little_endian() ? "little endian" : "big endian";
 }
@@ -801,7 +801,7 @@ unsigned int stress_get_cpu(void)
  *  stress_get_compiler()
  *	return compiler info
  */
-const char PURE *stress_get_compiler(void)
+const char *stress_get_compiler(void)
 {
 #if   defined(HAVE_COMPILER_ICC) &&	\
       defined(__INTEL_COMPILER) &&	\
@@ -881,7 +881,7 @@ const char *stress_get_uname_info(void)
  *	report that a stressor is not implemented
  *	on a particular arch or kernel
  */
-int PURE stress_unimplemented(stress_args_t *args)
+int CONST stress_unimplemented(stress_args_t *args)
 {
 	(void)args;
 
@@ -1076,7 +1076,7 @@ unlock:
     defined(HAVE_GETPWENT) &&	\
     defined(HAVE_ENDPWENT) &&	\
     !defined(BUILD_STATIC)
-static PURE int stress_uid_comp(const void *p1, const void *p2)
+static CONST int stress_uid_comp(const void *p1, const void *p2)
 {
 	const uid_t *uid1 = (const uid_t *)p1;
 	const uid_t *uid2 = (const uid_t *)p2;
@@ -1179,7 +1179,7 @@ int stress_get_unused_uid(uid_t *uid)
  *  stress_kernel_release()
  *	turn release major.minor.patchlevel triplet into base 100 value
  */
-int PURE stress_kernel_release(const int major, const int minor, const int patchlevel)
+int CONST stress_kernel_release(const int major, const int minor, const int patchlevel)
 {
 	return (major * 10000) + (minor * 100) + patchlevel;
 }
@@ -1427,7 +1427,7 @@ size_t stress_flag_permutation(const int flags, int **permutations)
  *  rather than a failure of the tests during execution.
  *  err is the errno of the failure.
  */
-int PURE stress_exit_status(const int err)
+int CONST stress_exit_status(const int err)
 {
 	switch (err) {
 	case ENOMEM:
@@ -1611,7 +1611,7 @@ int stress_bsd_getsysctl_int(const char *name)
 }
 #else
 
-int PURE stress_bsd_getsysctl(const char *name, void *ptr, size_t size)
+int CONST stress_bsd_getsysctl(const char *name, void *ptr, size_t size)
 {
 	(void)name;
 	(void)ptr;
@@ -1620,28 +1620,28 @@ int PURE stress_bsd_getsysctl(const char *name, void *ptr, size_t size)
 	return 0;
 }
 
-uint64_t PURE stress_bsd_getsysctl_uint64(const char *name)
+uint64_t CONST stress_bsd_getsysctl_uint64(const char *name)
 {
 	(void)name;
 
 	return 0ULL;
 }
 
-uint32_t PURE stress_bsd_getsysctl_uint32(const char *name)
+uint32_t CONST stress_bsd_getsysctl_uint32(const char *name)
 {
 	(void)name;
 
 	return 0UL;
 }
 
-unsigned int PURE stress_bsd_getsysctl_uint(const char *name)
+unsigned int CONST stress_bsd_getsysctl_uint(const char *name)
 {
 	(void)name;
 
 	return 0;
 }
 
-int PURE stress_bsd_getsysctl_int(const char *name)
+int CONST stress_bsd_getsysctl_int(const char *name)
 {
 	(void)name;
 

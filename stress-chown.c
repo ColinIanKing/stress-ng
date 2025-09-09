@@ -26,7 +26,7 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
-static int PURE OPTIMIZE3 stress_chown_check(const int ret)
+static int CONST OPTIMIZE3 stress_chown_check(const int ret)
 {
 	static const int ignore_errors[] = {
 #if defined(ENOENT)

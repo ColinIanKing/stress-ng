@@ -86,7 +86,7 @@ static const stress_help_t help[] = {
  *  data_value()
  *	generate 8 bit data value for offsets and instance # into a test file
  */
-static inline ALWAYS_INLINE uint8_t PURE OPTIMIZE3 data_value(
+static inline ALWAYS_INLINE uint8_t CONST OPTIMIZE3 data_value(
 	const size_t i,
 	const size_t j,
 	const int proc_num)

@@ -84,7 +84,7 @@ static int msync_flags[] = {
 static char cachehammer_filename[PATH_MAX];
 static char cachehammer_path[PATH_MAX];
 
-static bool PURE hammer_valid(void)
+static bool CONST hammer_valid(void)
 {
 	return true;
 }

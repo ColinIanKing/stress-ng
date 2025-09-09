@@ -776,7 +776,7 @@ static void stress_af_alg_count_crypto(size_t *count, size_t *internal)
  *  stress_af_alg_cmp_crypto()
  *	qsort comparison on type then name
  */
-static int PURE stress_af_alg_cmp_crypto(const void *p1, const void *p2)
+static int CONST stress_af_alg_cmp_crypto(const void *p1, const void *p2)
 {
 	int n;
 	const stress_crypto_info_t * const *ci1 = (const stress_crypto_info_t * const *)p1;
@@ -1022,7 +1022,7 @@ static char *dup_field(const char *buffer)
  *  int_field()
  *	parse an integer from a numeric field
  */
-static int PURE int_field(const char *buffer)
+static int CONST int_field(const char *buffer)
 {
 	const char *ptr = strchr(buffer, ':');
 
@@ -1036,7 +1036,7 @@ static int PURE int_field(const char *buffer)
  *	parse a boolean from a string field
  *	error/default is false.
  */
-static bool PURE bool_field(const char *buffer)
+static bool CONST bool_field(const char *buffer)
 {
 	const char *ptr = strchr(buffer, ':');
 

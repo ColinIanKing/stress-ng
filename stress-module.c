@@ -100,7 +100,7 @@ static char global_module_path[PATH_MAX];
 
 #if defined(HAVE_UNAME) &&      \
     defined(HAVE_SYS_UTSNAME_H)
-static bool PURE isempty(const char *line, const size_t line_len)
+static bool CONST isempty(const char *line, const size_t line_len)
 {
 	size_t i = 0;
 
@@ -115,7 +115,7 @@ static bool PURE isempty(const char *line, const size_t line_len)
 	return true;
 }
 
-static bool PURE iscomment(const char *line, const size_t line_len)
+static bool CONST iscomment(const char *line, const size_t line_len)
 {
 	size_t i = 0;
 

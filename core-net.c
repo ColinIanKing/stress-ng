@@ -116,7 +116,7 @@ void stress_set_net_port(
  *  stress_net_domain()
  *	return human readable domain name from domain number
  */
-const char PURE *stress_net_domain(const int domain)
+const char CONST *stress_net_domain(const int domain)
 {
 	size_t i;
 
@@ -312,7 +312,7 @@ void stress_set_sockaddr_port(
  *  stress_net_port_range_ok()
  *	port range sanity check, returns true if OK
  */
-static bool PURE stress_net_port_range_ok(const int start_port, const int end_port)
+static bool CONST stress_net_port_range_ok(const int start_port, const int end_port)
 {
 	if (UNLIKELY((start_port > end_port)))
 		return false;
@@ -392,7 +392,7 @@ void stress_net_release_ports(const int start_port, const int end_port)
  *  stress_ipv4_checksum()
  *	ipv4 data checksum
  */
-uint16_t PURE OPTIMIZE3 stress_ipv4_checksum(uint16_t *ptr, const size_t sz)
+uint16_t CONST OPTIMIZE3 stress_ipv4_checksum(uint16_t *ptr, const size_t sz)
 {
 	register uint32_t sum = 0;
 	register size_t n = sz;

@@ -647,7 +647,7 @@ static int stress_hdd_advise(stress_args_t *args, const int fd, const int flags)
  *  data_value()
  *	generate 8 bit data value for offsets and instance # into a test file
  */
-static inline ALWAYS_INLINE uint8_t PURE OPTIMIZE3 data_value(
+static inline ALWAYS_INLINE uint8_t CONST OPTIMIZE3 data_value(
 	const uint64_t i,
 	uint64_t j,
 	const uint32_t instance)

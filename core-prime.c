@@ -28,7 +28,7 @@
  *      return true if 64 bit value n is prime
  *      http://en.wikipedia.org/wiki/Primality_test
  */
-bool PURE stress_is_prime64(const uint64_t n)
+bool CONST stress_is_prime64(const uint64_t n)
 {
 	register uint64_t i, max;
 	double max_d;
