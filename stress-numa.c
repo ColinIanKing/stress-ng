@@ -220,24 +220,24 @@ static int stress_numa(stress_args_t *args)
 
 	numa_nodes = stress_numa_mask_alloc();
 	if (!numa_nodes) {
-		pr_inf_skip("%s: no NUMA nodes found, skipping test\n", args->name);
+		pr_inf_skip("%s: no NUMA nodes found, skipping stressor\n", args->name);
 		rc = EXIT_NO_RESOURCE;
 		goto deinit;
 	}
 	if (stress_numa_mask_nodes_get(numa_nodes) < 1) {
-		pr_inf_skip("%s: no NUMA nodes found, skipping test\n", args->name);
+		pr_inf_skip("%s: no NUMA nodes found, skipping stressor\n", args->name);
 		rc = EXIT_NO_RESOURCE;
 		goto numa_nodes_free;
 	}
 	numa_mask = stress_numa_mask_alloc();
 	if (!numa_mask) {
-		pr_inf_skip("%s: no NUMA nodes found, skipping test\n", args->name);
+		pr_inf_skip("%s: no NUMA nodes found, skipping stressor\n", args->name);
 		rc = EXIT_NO_RESOURCE;
 		goto numa_nodes_free;
 	}
 	old_numa_mask = stress_numa_mask_alloc();
 	if (!old_numa_mask) {
-		pr_inf_skip("%s: no NUMA nodes found, skipping test\n", args->name);
+		pr_inf_skip("%s: no NUMA nodes found, skipping stressor\n", args->name);
 		rc = EXIT_NO_RESOURCE;
 		goto numa_mask_free;
 	}

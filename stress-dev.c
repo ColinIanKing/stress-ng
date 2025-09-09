@@ -4743,7 +4743,7 @@ static int stress_dev(stress_args_t *args)
 			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (mmap_dev_states == MAP_FAILED) {
 		pr_inf_skip("%s: cannot allocate shared memory for device state data, "
-			"errno=%d (%s), slipping stressor\n",
+			"errno=%d (%s), skipping stressor\n",
 			args->name, errno, strerror(errno));
 		rc = EXIT_NO_RESOURCE;
 		goto deinit;

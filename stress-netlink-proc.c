@@ -245,7 +245,7 @@ static int stress_netlink_proc(stress_args_t *args)
 
 	if (writev(sock, iov, 3) < 0) {
 		if (errno == ECONNREFUSED) {
-			pr_inf_skip("%s: net link write failed, errno=%d (%s), skipping stress test\n",
+			pr_inf_skip("%s: net link write failed, errno=%d (%s), skipping stressor\n",
 				args->name, errno, strerror(errno));
 			(void)close(sock);
 			return EXIT_NO_RESOURCE;

@@ -47,7 +47,7 @@ static const unsigned long int personalities[] ALIGN64 = {
 static int stress_personality_supported(const char *name)
 {
 	if (SIZEOF_ARRAY(personalities) <= 1) {
-		pr_inf_skip("%s: stressor will be skipped, no personalities to stress test\n", name);
+		pr_inf_skip("%s: stressor will be skipped, no personalities to stress\n", name);
 		return -1;
 	}
 	return 0;

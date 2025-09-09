@@ -625,7 +625,7 @@ static int stress_cyclic(stress_args_t *args)
 	if (NUM_CYCLIC_POLICIES == 0) {
 		if (!args->instance) {
 			pr_inf_skip("%s: no scheduling policies "
-				"available, skipping test\n",
+				"available, skipping stressor\n",
 				args->name);
 		}
 		return EXIT_NOT_IMPLEMENTED;
@@ -640,7 +640,7 @@ static int stress_cyclic(stress_args_t *args)
 	if (NUM_CYCLIC_METHODS == 0) {
 		if (!args->instance) {
 			pr_inf_skip("%s: no cyclic methods"
-				"available, skipping test\n",
+				"available, skipping stressor\n",
 				args->name);
 		}
 		return EXIT_NOT_IMPLEMENTED;

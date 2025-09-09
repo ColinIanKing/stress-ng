@@ -167,7 +167,7 @@ static int stress_verity(stress_args_t *args)
 			case ENOSYS:
 				if (stress_instance_zero(args))
 					pr_inf_skip("%s: verity is not supported on the "
-						"file system or by the kernel, skipping stress test\n",
+						"file system or by the kernel, skipping stressor\n",
 						args->name);
 				ret = EXIT_NOT_IMPLEMENTED;
 				break;

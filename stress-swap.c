@@ -444,12 +444,12 @@ static int stress_swap_child(stress_args_t *args, void *context)
 					(void)shim_usleep(100000);
 					continue;
 				}
-				pr_inf_skip("%s: cannot enable swap%s, skipping test\n",
+				pr_inf_skip("%s: cannot enable swap%s, skipping stressor\n",
 					args->name, stress_get_fs_type(filename));
 				ret = EXIT_NO_RESOURCE;
 				break;
 			case EINVAL:
-				pr_inf_skip("%s: cannot enable swap%s, skipping test\n",
+				pr_inf_skip("%s: cannot enable swap%s, skipping stressor\n",
 					args->name, stress_get_fs_type(filename));
 				ret = EXIT_NO_RESOURCE;
 				break;

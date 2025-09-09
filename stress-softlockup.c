@@ -324,7 +324,7 @@ static int stress_softlockup(stress_args_t *args)
 	if (!good_policy) {
 		if (first_instance) {
 			pr_inf_skip("%s: cannot get valid maximum priorities for the "
-				"scheduling policies, skipping test\n",
+				"scheduling policies, skipping stressor\n",
 					args->name);
 		}
 		(void)stress_sync_s_pids_munmap(s_pids, (size_t)cpus_online);

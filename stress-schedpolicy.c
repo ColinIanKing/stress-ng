@@ -75,7 +75,7 @@ static int stress_schedpolicy(stress_args_t *args)
 	if (stress_sched_types_length == (0)) {
 		if (stress_instance_zero(args)) {
 			pr_inf_skip("%s: no scheduling policies "
-				"available, skipping test\n",
+				"available, skipping stressor\n",
 				args->name);
 		}
 		return EXIT_NOT_IMPLEMENTED;

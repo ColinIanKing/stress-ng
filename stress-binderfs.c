@@ -177,7 +177,7 @@ static int stress_binderfs(stress_args_t *args)
 		if (ret < 0) {
 			if (errno == ENODEV) {
 				/* ENODEV indicates it's not available on this kernel */
-				pr_inf_skip("%s: binderfs not supported, errno=%d (%s), skipping stress test\n",
+				pr_inf_skip("%s: binderfs not supported, errno=%d (%s), skipping stressor\n",
 					args->name, errno, strerror(errno));
 				rc = EXIT_NO_RESOURCE;
 				goto clean;
@@ -185,7 +185,7 @@ static int stress_binderfs(stress_args_t *args)
 				   (errno == ENOMEM) ||
 				   (errno == EPERM)) {
 				/* ..ran out of resources, skip */
-				pr_inf_skip("%s: mount failed on binderfs at %s, errno=%d (%s), skipping stress test\n",
+				pr_inf_skip("%s: mount failed on binderfs at %s, errno=%d (%s), skipping stressor\n",
 					args->name, pathname, errno, strerror(errno));
 				rc = EXIT_NO_RESOURCE;
 				goto clean;
