@@ -3917,9 +3917,8 @@ static inline int stress_do_syscall(
 	int rc = 0;
 
 	/* Check if this is a known non-ENOSYS syscall */
-	if (syscall_find(number)) {
+	if (syscall_find(number))
 		return rc;
-	}
 	if (UNLIKELY(!stress_continue(args)))
 		return 0;
 	pid = fork();
@@ -4078,6 +4077,7 @@ again:
 		const unsigned long int mask56 = 0xffffffffffffffUL;
 #endif
 		const unsigned long int mask64 = ULONG_MAX;
+		unsigned long int syscall_seq = 0UL;
 
 		ssize_t j;
 
@@ -4104,6 +4104,10 @@ again:
 				if (UNLIKELY(!stress_continue(args)))
 					goto finish;
 				stress_do_syscall(args, number, false);
+
+				/* Sequentially incrementing syscall number */
+				stress_do_syscall(args, syscall_seq, true);
+				syscall_seq++;
 			}
 
 			/* Random syscalls */
@@ -4134,6 +4138,10 @@ again:
 					goto finish;
 				stress_do_syscall(args, (long int)(stress_mwc64() & mask64), true);
 #endif
+
+				/* Sequentially incrementing syscall number */
+				stress_do_syscall(args, syscall_seq, true);
+				syscall_seq++;
 			}
 
 			/* Various bit masks */
@@ -4150,6 +4158,10 @@ again:
 				if (UNLIKELY(!stress_continue(args)))
 					goto finish;
 				stress_do_syscall(args, ~number, false);
+
+				/* Sequentially incrementing syscall number */
+				stress_do_syscall(args, syscall_seq, true);
+				syscall_seq++;
 			}
 
 			/* Various high syscalls */
@@ -4161,6 +4173,10 @@ again:
 						goto finish;
 					stress_do_syscall(args, n + number, false);
 				}
+
+				/* Sequentially incrementing syscall number */
+				stress_do_syscall(args, syscall_seq, true);
+				syscall_seq++;
 			}
 		} while (stress_continue(args));
 finish:
