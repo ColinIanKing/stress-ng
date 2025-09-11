@@ -104,7 +104,7 @@ typedef struct {
 static stress_smart_devs_t smart_devs;
 /*
  *  S.M.A.R.T. ID Descriptions, see:
- *  https://en.wikipedia.org/wiki/S.M.A.R.T.#Known_ATA_S.M.A.R.T._attributes
+ *  https://en.wikipedia.org/wiki/Self-Monitoring,_Analysis_and_Reporting_Technology
  */
 static const char * const id_str[256] = {
 	[0x01] = "Read Error Rate",
@@ -121,6 +121,8 @@ static const char * const id_str[256] = {
 	[0x0c] = "Power Cycle Count",
 	[0x0d] = "Soft Read Error Rate",
 	[0x16] = "Current Helium Level",
+	[0x17] = "Helium Condition Lower",
+	[0x18] = "Helium Condition Upper",
 	[0xaa] = "Available Reserved Space",
 	[0xab] = "SSD Program Fail Count",
 	[0xac] = "SSD Erase Fail Count",
