@@ -99,14 +99,14 @@ typedef struct stress_crypto_info {
 	stress_crypto_source_t	source;
 	char 	*type;
 	char 	*name;
-	int 	block_size;
-	int	max_key_size;
-	int	max_auth_size;
-	int	iv_size;
-	int	digest_size;
-	bool	internal;		/* true if accessible to userspace */
-	bool	ignore;
-	bool	selftest;		/* true if passed */
+	int8_t	block_size;
+	int8_t	max_key_size;
+	int8_t	max_auth_size;
+	int8_t	iv_size;
+	int8_t	digest_size;
+	uint8_t	internal:1;		/* true if accessible to userspace */
+	uint8_t	ignore:1;
+	uint8_t	selftest:1;		/* true if passed */
 	stress_metrics_t metrics;	/* performance metrics */
 	struct stress_crypto_info *next;
 } stress_crypto_info_t;
