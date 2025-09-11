@@ -92,7 +92,7 @@ typedef struct stress_pid_hash {
 static size_t stress_pid_cache_index = 0;
 static size_t stress_pid_cache_items = 0;
 static stress_pid_hash_t *stress_pid_cache;
-static stress_pid_hash_t *stress_pid_hash_table[HASH_EXECS];
+static stress_pid_hash_t **stress_pid_hash_table;
 static stress_pid_hash_t *free_list;
 
 typedef struct {
@@ -685,7 +685,7 @@ static int stress_exec(stress_args_t *args)
 	int exec_method = EXEC_METHOD_ALL;
 	int exec_fork_method = EXEC_FORK_METHOD_FORK;
 	bool exec_no_pthread = false;
-	size_t arg_max, cache_max;
+	size_t arg_max, cache_max, stress_pid_hash_table_size;
 	char *str;
 
 	if (!stress_get_setting("exec-max", &exec_max)) {
@@ -723,13 +723,25 @@ static int stress_exec(stress_args_t *args)
 	}
 #endif
 
+	stress_pid_hash_table_size = sizeof(*stress_pid_hash_table) * HASH_EXECS;
+	stress_pid_hash_table = (stress_pid_hash_t **)
+		stress_mmap_populate(NULL, stress_pid_hash_table_size, PROT_READ | PROT_WRITE,
+			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+	if (stress_pid_hash_table == MAP_FAILED) {
+		pr_inf_skip("%s: failed to allocate %zu byte PID hash table%s, skipping stressor\n",
+			args->name, stress_pid_hash_table_size, stress_get_memfree_str());
+		return EXIT_NO_RESOURCE;
+	}
+	stress_set_vma_anon_name(stress_pid_hash_table, stress_pid_hash_table_size, "pid-hash");
+
 	cache_max = sizeof(*stress_pid_cache) * exec_max;
 	stress_pid_cache = (stress_pid_hash_t*)
-		mmap(NULL, cache_max, PROT_READ | PROT_WRITE,
+		stress_mmap_populate(NULL, cache_max, PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (stress_pid_cache == MAP_FAILED) {
 		pr_inf_skip("%s: failed to allocate %zu byte PID hash cache%s, skipping stressor\n",
 			args->name, cache_max, stress_get_memfree_str());
+		(void)munmap((void *)stress_pid_hash_table, stress_pid_hash_table_size);
 		return EXIT_NO_RESOURCE;
 	}
 	stress_set_vma_anon_name(stress_pid_cache, cache_max, "pid-cache");
@@ -944,8 +956,13 @@ err:
 #endif
 	stress_exec_free_pid();
 
+
 	if (str)
 		(void)munmap((void *)str, arg_max);
+
+	(void)munmap((void *)stress_pid_hash_table, stress_pid_hash_table_size);
+	(void)munmap((void *)stress_pid_cache, cache_max);
+
 	(void)shim_unlink(garbage_prog);
 	(void)stress_temp_dir_rm_args(args);
 
