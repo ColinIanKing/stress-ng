@@ -317,6 +317,7 @@ static void stress_cgroup_new_group(const char *realpathname)
 
 		static const stress_cgroup_values_t values[] = {
 			{ "cpu.stat",			NULL },
+			{ "cpu.stat.local",		NULL },
 			{ "cpu.weight",			"90" },
 			{ "cpu.weight.nice",		"-4" },
 			{ "cpu.max",			NULL },
