@@ -460,6 +460,33 @@ static void stress_fd_open_sock_af_x25(stress_fd_t *fd)
 }
 #endif
 
+#if defined(AF_ROSE) &&		\
+    defined(SOCK_DGRAM)
+static void stress_fd_open_sock_af_rose(stress_fd_t *fd)
+{
+	fd->fd = socket(AF_ROSE, SOCK_SEQPACKET, 0);
+	fd->flags = FD_FLAG_RECV | FD_FLAG_SEND;
+}
+#endif
+
+#if defined(AF_IRDA) &&	\
+    defined(SOCK_DGRAM)
+static void stress_fd_open_sock_af_irda(stress_fd_t *fd)
+{
+	fd->fd = socket(AF_IRDA, SOCK_SEQPACKET, 0);
+	fd->flags = FD_FLAG_RECV | FD_FLAG_SEND;
+}
+#endif
+
+#if defined(AF_WANPIPE) &&	\
+    defined(SOCK_DGRAM)
+static void stress_fd_open_sock_af_wanpipe(stress_fd_t *fd)
+{
+	fd->fd = socket(AF_WANPIPE, SOCK_RAW, 0);
+	fd->flags = FD_FLAG_RECV | FD_FLAG_SEND;
+}
+#endif
+
 #if defined(AF_IPX) &&		\
     defined(SOCK_SEQPACKET)
 static void stress_fd_open_sock_af_ipx(stress_fd_t *fd)
@@ -506,11 +533,74 @@ static void stress_fd_open_sock_af_netlink(stress_fd_t *fd)
 }
 #endif
 
+#if defined(AF_NETROM) &&	\
+    defined(SOCK_SEQPACKET)
+static void stress_fd_open_sock_af_netrom(stress_fd_t *fd)
+{
+	fd->fd = socket(AF_NETROM, SOCK_SEQPACKET, 0);
+	fd->flags = FD_FLAG_RECV | FD_FLAG_SEND;
+}
+#endif
+
+#if defined(AF_ATMPVC) &&	\
+    defined(SOCK_SEQPACKET)
+static void stress_fd_open_sock_af_atmpvc(stress_fd_t *fd)
+{
+	fd->fd = socket(AF_ATMPVC, SOCK_SEQPACKET, 0);
+	fd->flags = FD_FLAG_RECV | FD_FLAG_SEND;
+}
+#endif
+
 #if defined(AF_RDS) &&	\
     defined(SOCK_SEQPACKET)
 static void stress_fd_open_sock_af_rds(stress_fd_t *fd)
 {
 	fd->fd = socket(AF_RDS, SOCK_SEQPACKET, 0);
+	fd->flags = FD_FLAG_RECV | FD_FLAG_SEND;
+}
+#endif
+
+#if defined(AF_IUCV) &&	\
+    defined(SOCK_SEQPACKET)
+static void stress_fd_open_sock_af_iucv(stress_fd_t *fd)
+{
+	fd->fd = socket(AF_IUCV, SOCK_SEQPACKET, 0);
+	fd->flags = FD_FLAG_RECV | FD_FLAG_SEND;
+}
+#endif
+
+#if defined(AF_PHONET) &&	\
+    defined(SOCK_DGRAM)
+static void stress_fd_open_sock_af_phonet(stress_fd_t *fd)
+{
+	fd->fd = socket(AF_PHONET, SOCK_DGRAM, 0);
+	fd->flags = FD_FLAG_RECV | FD_FLAG_SEND;
+}
+#endif
+
+#if defined(AF_IEEE802154) &&	\
+    defined(SOCK_DGRAM)
+static void stress_fd_open_sock_af_ieee802154(stress_fd_t *fd)
+{
+	fd->fd = socket(AF_IEEE802154, SOCK_DGRAM, 0);
+	fd->flags = FD_FLAG_RECV | FD_FLAG_SEND;
+}
+#endif
+
+#if defined(AF_NFC) &&		\
+    defined(SOCK_STREAM)
+static void stress_fd_open_sock_af_nfc(stress_fd_t *fd)
+{
+	fd->fd = socket(AF_NFC, SOCK_STREAM, 1);
+	fd->flags = FD_FLAG_RECV | FD_FLAG_SEND;
+}
+#endif
+
+#if defined(AF_SMC) &&		\
+    defined(SOCK_STREAM)
+static void stress_fd_open_sock_af_smc(stress_fd_t *fd)
+{
+	fd->fd = socket(AF_SMC, SOCK_STREAM, 0);
 	fd->flags = FD_FLAG_RECV | FD_FLAG_SEND;
 }
 #endif
@@ -752,6 +842,18 @@ static open_func_t open_funcs[] = {
     defined(SOCK_SEQPACKET)
 	stress_fd_open_sock_af_x25,
 #endif
+#if defined(AF_ROSE) &&		\
+    defined(SOCK_DGRAM)
+	stress_fd_open_sock_af_rose,
+#endif
+#if defined(AF_IRDA) &&	\
+    defined(SOCK_DGRAM)
+	stress_fd_open_sock_af_irda,
+#endif
+#if defined(AF_WANPIPE) &&	\
+    defined(SOCK_DGRAM)
+	stress_fd_open_sock_af_wanpipe,
+#endif
 #if defined(AF_IPX) &&		\
     defined(SOCK_SEQPACKET)
 	stress_fd_open_sock_af_ipx,
@@ -774,9 +876,37 @@ static open_func_t open_funcs[] = {
     defined(NETLINK_CONNECTOR)
 	stress_fd_open_sock_af_netlink,
 #endif
+#if defined(AF_NETROM) &&	\
+    defined(SOCK_SEQPACKET)
+	stress_fd_open_sock_af_netrom,
+#endif
+#if defined(AF_ATMPVC) &&	\
+    defined(SOCK_SEQPACKET)
+	stress_fd_open_sock_af_atmpvc,
+#endif
 #if defined(AF_RDS) &&	\
     defined(SOCK_SEQPACKET)
 	stress_fd_open_sock_af_rds,
+#endif
+#if defined(AF_IUCV) &&	\
+    defined(SOCK_SEQPACKET)
+	stress_fd_open_sock_af_iucv,
+#endif
+#if defined(AF_PHONET) &&	\
+    defined(SOCK_DGRAM)
+	stress_fd_open_sock_af_phonet,
+#endif
+#if defined(AF_IEEE802154) &&	\
+    defined(SOCK_DGRAM)
+	stress_fd_open_sock_af_ieee802154,
+#endif
+#if defined(AF_NFC) &&		\
+    defined(SOCK_STREAM)
+	stress_fd_open_sock_af_nfc,
+#endif
+#if defined(AF_SMC) &&		\
+    defined(SOCK_STREAM)
+	stress_fd_open_sock_af_smc,
 #endif
 #if defined(AF_PPPOX) &&	\
     defined(SOCK_DGRAM)
