@@ -49,23 +49,22 @@ static const stress_help_t help[] = {
 #define STRESS_EXERCISE_X86_SYSCALL
 #endif
 
-#if defined(__linux__) &&       \
-    defined(STRESS_ARCH_X86) &&	\
-    (NEED_GNUC(9, 3, 0) || NEED_CLANG(9, 0, 0))
-#define STRESS_EXERCISE_X86_0X80
-#endif
-
 #define CALL_UNDEFINED		(0)
 #define CALL_BY_SYSCALL		(1)	/* syscall() call */
 #define CALL_BY_X86_SYSCALL	(2)	/* x86 syscall opcode */
-#if defined(STRESS_EXERCISE_X86_0X80)
-#define CALL_BY_X86_INT80	(3)	/* x86 int $80 */
-#endif
 
 typedef struct hash_syscall {
 	struct hash_syscall *next;
 	long int number;
 } stress_hash_syscall_t;
+
+typedef union {
+	long int syscall_num;		/* syscall number */
+	struct {
+		int rc;			/* errno return */
+		unsigned int count;	/* syscall count*/
+	} ret;
+} stress_enosys_rpc_t;
 
 static stress_hash_syscall_t *hash_syscall_table[HASH_SYSCALL_SIZE];
 
@@ -80,8 +79,13 @@ static bool stress_x86syscall_available;
  *      syscall 6 arg wrapper
  */
 static inline long int x86_64_syscall6(
-	long int number, long int arg1, long int arg2,
-	long int arg3, long int arg4, long int arg5, long int arg6)
+	long int number,
+	long int arg1,
+	long int arg2,
+	long int arg3,
+	long int arg4,
+	long int arg5,
+	long int arg6)
 {
 	long int ret;
 
@@ -116,45 +120,6 @@ static inline long int x86_64_syscall6(
 }
 #endif
 
-#if defined(STRESS_EXERCISE_X86_0X80)
-static inline int x86_0x80_syscall6(
-	long int number, long int arg1, long int arg2,
-	long int arg3, long int arg4, int long arg5,
-	long int arg6)
-{
-	int ret;
-
-	stress_call_type = CALL_BY_X86_INT80;
-
-	__asm__ __volatile__(
-	     "movl %6, %%eax\n"
-	     "movl %%eax, %%ebp\n"
-	     "movl %0, %%eax\n"
-	     "movl %1, %%ebx\n"
-	     "movl %2, %%ecx\n"
-	     "movl %3, %%edx\n"
-	     "movl %4, %%esi\n"
-	     "movl %5, %%edi\n"
-             "int $0x80\n"
-	     ""
-	      : [ret] "=rm" (ret)
-	      : "m" (number),
-	        "m" (arg1),
-	        "m" (arg2),
-	        "m" (arg3),
-	        "m" (arg4),
-	        "m" (arg5),
-	        "m" (arg6)
-	      : "memory");
-
-	if (ret < 0) {
-		errno = -ret;
-		ret = -1;
-	}
-	return ret;
-}
-#endif
-
 STRESS_PRAGMA_PUSH
 STRESS_PRAGMA_WARN_OFF
 static inline long int syscall7(long int number, long int arg1, long int arg2,
@@ -167,7 +132,7 @@ static inline long int syscall7(long int number, long int arg1, long int arg2,
 }
 STRESS_PRAGMA_POP
 
-static void exit_if_child(const pid_t pid)
+static inline void exit_if_child(const pid_t pid)
 {
 	if (getpid() != pid) {
 		/* Somehow we forked/cloned ourselves, so exit */
@@ -175,7 +140,7 @@ static void exit_if_child(const pid_t pid)
 	}
 }
 
-static void itimer_set(stress_args_t *args)
+static inline void itimer_set(stress_args_t *args)
 {
 	struct itimerval it;
 
@@ -193,75 +158,68 @@ static void itimer_set(stress_args_t *args)
 	}
 }
 
-static void exercise_syscall(
-	stress_args_t *args,
-	long int number, long int arg1, long int arg2,
-	long int arg3, long int arg4, long int arg5,
-	long int arg6, long int arg7)
+static inline void itimer_stop(stress_args_t *args)
+{
+	struct itimerval it;
+
+	/*
+	 * Force abort if we take too long
+	 */
+	it.it_interval.tv_sec = 0;
+	it.it_interval.tv_usec = 0;
+	it.it_value.tv_sec = 0;
+	it.it_value.tv_usec = 0;
+	if (setitimer(ITIMER_REAL, &it, NULL) < 0) {
+		pr_dbg("%s setitimer failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
+		_exit(EXIT_NO_RESOURCE);
+	}
+}
+
+static int stress_enosys_syscall(
+	const pid_t pid,
+	stress_enosys_rpc_t *rpc)
 {
 	int ret;
-	NOCLOBBER bool enosys = false;
-	const pid_t pid = getpid();
+	static int errno_enosys = 0;
 
-	if (UNLIKELY(!stress_continue(args)))
-		_exit(EXIT_SUCCESS);
-
-	itimer_set(args);
 	ret = sigsetjmp(jmp_env, 1);
 	if (ret)
 		goto try_x86_syscall;
-	ret = (int)syscall7(number, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+	errno = 0;
+	ret = (int)syscall7(rpc->syscall_num, -1, -1, -1, -1, -1, -1, -1);
+	rpc->ret.count++;
 	exit_if_child(pid);
-	if ((ret < 0) && (errno != ENOSYS))
-		enosys = true;
-
-	if (getpid() != pid) {
-		/* Somehow we forked/cloned ourselves, so exit */
-		_exit(0);
-	}
+	if ((ret < 0) && (errno == ENOSYS))
+		errno_enosys = errno;
+	else
+		return errno;
 
 try_x86_syscall:
 #if defined(STRESS_EXERCISE_X86_SYSCALL)
 	{
 		static bool x86_syscall_ok = true;
 
-		itimer_set(args);
 		ret = sigsetjmp(jmp_env, 1);
 		if (ret) {
 			x86_syscall_ok = false;
-			goto try_x86_0x80;
+			goto finish;
 		}
 		if (stress_x86syscall_available && x86_syscall_ok) {
-			ret = (int)x86_64_syscall6(number, arg1, arg2, arg3, arg4, arg5, arg6);
+			errno = 0;
+			ret = (int)x86_64_syscall6(rpc->syscall_num, -1, -1, -1, -1, -1, -1);
+			rpc->ret.count++;
 			exit_if_child(pid);
-			if ((ret < 0) && (errno != ENOSYS))
-				enosys = true;
+			if ((ret < 0) && (errno == ENOSYS))
+				errno_enosys = errno;
+			else
+				return errno;
 		}
 	}
-try_x86_0x80:
+finish:
 #endif
 
-#if defined(STRESS_EXERCISE_X86_0X80)
-	{
-		static bool x86_0x80_ok = true;
-
-		itimer_set(args);
-		ret = sigsetjmp(jmp_env, 1);
-		if (ret) {
-			x86_0x80_ok = false;
-			goto try_no_more;
-		}
-		if (x86_0x80_ok) {
-			ret = x86_0x80_syscall6(number, arg1, arg2, arg3, arg4, arg5, arg6);
-			exit_if_child(pid);
-			if ((ret < 0) && (errno != ENOSYS))
-				enosys = true;
-		}
-	}
-try_no_more:
-#endif
-	if (enosys)
-		_exit(errno);
+	return errno_enosys;
 }
 
 /* Dodgy hack */
@@ -461,6 +419,18 @@ static const long int skip_syscalls[] = {
 #if defined(SYS_brk)
 	SYS_brk,
 #endif
+#if defined(SYS_cachectl)
+	SYS_cachectl,
+#endif
+#if defined(SYS_cacheflush)
+	SYS_cacheflush,
+#endif
+#if defined(SYS_cachestat)
+	SYS_cachestat,
+#endif
+#if defined(SYS_cache_sync)
+	SYS_cache_sync,
+#endif
 #if defined(SYS_capget)
 	SYS_capget,
 #endif
@@ -623,6 +593,12 @@ static const long int skip_syscalls[] = {
 #if defined(SYS_fgetxattr)
 	SYS_fgetxattr,
 #endif
+#if defined(SYS_file_getattr)
+	SYS_file_getattr,
+#endif
+#if defined(SYS_file_setattr)
+	SYS_file_setattr,
+#endif
 #if defined(SYS_finit_module)
 	SYS_finit_module,
 #endif
@@ -682,6 +658,15 @@ static const long int skip_syscalls[] = {
 #endif
 #if defined(SYS_futex)
 	SYS_futex,
+#endif
+#if defined(SYS_futexrequeue)
+	SYS_futexrequeue,
+#endif
+#if defined(SYS_futexwake)
+	SYS_futexwake,
+#endif
+#if defined(SYS_futexwait)
+	SYS_futexwait,
 #endif
 #if defined(SYS_futimesat)
 	SYS_futimesat,
@@ -803,6 +788,9 @@ static const long int skip_syscalls[] = {
 #if defined(SYS_getxattr)
 	SYS_getxattr,
 #endif
+#if defined(SYS_getxattrat)
+	SYS_getxattrat,
+#endif
 #if defined(SYS_gtty)
 	SYS_gtty,
 #endif
@@ -902,8 +890,14 @@ static const long int skip_syscalls[] = {
 #if defined(SYS_listen)
 	SYS_listen,
 #endif
+#if defined(SYS_listmount)
+	SYS_listmount,
+#endif
 #if defined(SYS_listxattr)
 	SYS_listxattr,
+#endif
+#if defined(SYS_listxattrat)
+	SYS_listxattrat,
 #endif
 #if defined(SYS_llistxattr)
 	SYS_llistxattr,
@@ -937,6 +931,9 @@ static const long int skip_syscalls[] = {
 #endif
 #if defined(SYS_lsm_list_modules)
 	SYS_lsm_list_modules,
+#endif
+#if defined(SYS_lsm_set_self_attr)
+	SYS_lsm_set_self_attr,
 #endif
 #if defined(SYS_madvise)
 	SYS_madvise,
@@ -1100,6 +1097,9 @@ static const long int skip_syscalls[] = {
 #if defined(SYS_open_tree)
 	SYS_open_tree,
 #endif
+#if defined(SYS_open_tree_attr)
+	SYS_open_tree_attr,
+#endif
 #if defined(SYS_pause)
 	SYS_pause,
 #endif
@@ -1175,6 +1175,9 @@ static const long int skip_syscalls[] = {
 #if defined(SYS_pselect6)
 	SYS_pselect6,
 #endif
+#if defined(SYS_pselect6_time64)
+	SYS_pselect6_time64,
+#endif
 #if defined(SYS_ptrace)
 	SYS_ptrace,
 #endif
@@ -1234,6 +1237,9 @@ static const long int skip_syscalls[] = {
 #endif
 #if defined(SYS_removexattr)
 	SYS_removexattr,
+#endif
+#if defined(SYS_removexattrat)
+	SYS_removexattrat,
 #endif
 #if defined(SYS_rename)
 	SYS_rename,
@@ -1451,6 +1457,9 @@ static const long int skip_syscalls[] = {
 #if defined(SYS_setxattr)
 	SYS_setxattr,
 #endif
+#if defined(SYS_setxattrat)
+	SYS_setxattrat,
+#endif
 #if defined(SYS_sgetmask)
 	SYS_sgetmask,
 #endif
@@ -1522,6 +1531,9 @@ static const long int skip_syscalls[] = {
 #endif
 #if defined(SYS_statfs64)
 	SYS_statfs64,
+#endif
+#if defined(SYS_statmount)
+	SYS_statmount,
 #endif
 #if defined(SYS_statx)
 	SYS_statx,
@@ -1639,6 +1651,9 @@ static const long int skip_syscalls[] = {
 #endif
 #if defined(SYS_unshare)
 	SYS_unshare,
+#endif
+#if defined(SYS_uretprobe)
+	SYS_uretprobe,
 #endif
 #if defined(SYS_uselib)
 	SYS_uselib,
@@ -1791,6 +1806,9 @@ static const long int skip_syscalls[] = {
 #endif
 #if defined(__NR_cacheflush)
 	__NR_cacheflush,
+#endif
+#if defined(__NR_cachestat)
+	__NR_cachestat,
 #endif
 #if defined(__NR_cache_sync)
 	__NR_cache_sync,
@@ -2032,6 +2050,12 @@ static const long int skip_syscalls[] = {
 #if defined(__NR_fgetxattr)
 	__NR_fgetxattr,
 #endif
+#if defined(__NR_file_getattr)
+	__NR_file_getattr,
+#endif
+#if defined(__NR_file_setattr)
+	__NR_file_setattr,
+#endif
 #if defined(__NR_finit_module)
 	__NR_finit_module,
 #endif
@@ -2097,6 +2121,15 @@ static const long int skip_syscalls[] = {
 #endif
 #if defined(__NR_futex)
 	__NR_futex,
+#endif
+#if defined(__NR_futexrequeue)
+	__NR_futexrequeue,
+#endif
+#if defined(__NR_futexwake)
+	__NR_futexwake,
+#endif
+#if defined(__NR_futexwait)
+	__NR_futexwait,
 #endif
 #if defined(__NR_futex_time64)
 	__NR_futex_time64,
@@ -2248,6 +2281,9 @@ static const long int skip_syscalls[] = {
 #if defined(__NR_getxattr)
 	__NR_getxattr,
 #endif
+#if defined(__NR_getxattrat)
+	__NR_getxattrat,
+#endif
 #if defined(__NR_getxgid)
 	__NR_getxgid,
 #endif
@@ -2377,8 +2413,14 @@ static const long int skip_syscalls[] = {
 #if defined(__NR_listen)
 	__NR_listen,
 #endif
+#if defined(__NR_listmount)
+	__NR_listmount,
+#endif
 #if defined(__NR_listxattr)
 	__NR_listxattr,
+#endif
+#if defined(__NR_listxattrat)
+	__NR_listxattrat,
 #endif
 #if defined(__NR_llistxattr)
 	__NR_llistxattr,
@@ -2415,6 +2457,9 @@ static const long int skip_syscalls[] = {
 #endif
 #if defined(__NR_lsm_list_modules)
 	__NR_lsm_list_modules,
+#endif
+#if defined(__NR_lsm_set_self_attr)
+	__NR_lsm_set_self_attr,
 #endif
 #if defined(__NR_lws_entries)
 	__NR_lws_entries,
@@ -2661,6 +2706,9 @@ static const long int skip_syscalls[] = {
 #endif
 #if defined(__NR_open_tree)
 	__NR_open_tree,
+#endif
+#if defined(__NR_open_tree_attr)
+	__NR_open_tree_attr,
 #endif
 #if defined(__NR_openat)
 	__NR_openat,
@@ -3181,6 +3229,9 @@ static const long int skip_syscalls[] = {
 #if defined(__NR_removexattr)
 	__NR_removexattr,
 #endif
+#if defined(__NR_removexattrat)
+	__NR_removexattrat,
+#endif
 #if defined(__NR_rename)
 	__NR_rename,
 #endif
@@ -3496,6 +3547,9 @@ static const long int skip_syscalls[] = {
 #if defined(__NR_setxattr)
 	__NR_setxattr,
 #endif
+#if defined(__NR_setxattrat)
+	__NR_setxattr,
+#endif
 #if defined(__NR_sgetmask)
 	__NR_sgetmask,
 #endif
@@ -3588,6 +3642,9 @@ static const long int skip_syscalls[] = {
 #endif
 #if defined(__NR_statfs64)
 	__NR_statfs64,
+#endif
+#if defined(__NR_statmount)
+	__NR_statmount,
 #endif
 #if defined(__NR_statx)
 	__NR_statx,
@@ -3772,6 +3829,9 @@ static const long int skip_syscalls[] = {
 #if defined(__NR_unshare)
 	__NR_unshare,
 #endif
+#if defined(__NR_uretprobe)
+	__NR_uretprobe,
+#endif
 #if defined(__NR_unused109)
 	__NR_unused109,
 #endif
@@ -3886,12 +3946,6 @@ static void limit_procs(const unsigned long int procs)
 #endif
 }
 
-static void NORETURN MLOCKED_TEXT stress_exit_handler(int signum)
-{
-	(void)signum;
-	_exit(1);
-}
-
 static void NORETURN MLOCKED_TEXT stress_sig_handler(int signum)
 {
 	(void)signum;
@@ -3905,102 +3959,186 @@ static void NORETURN MLOCKED_TEXT stress_sig_handler(int signum)
 }
 
 /*
- *  Call a system call in a child context so we don't clobber
- *  the parent
+ *  stress_enosys_push_syscall()
+ *
  */
-static inline int stress_do_syscall(
+static int stress_enosys_push_syscall(
 	stress_args_t *args,
+	const int rd_fd,
+	const int wr_fd,
 	const long int number,
-	const bool do_random)
+	const bool do_random,
+	uint64_t *syscalls)
 {
-	pid_t pid;
-	int rc = 0;
+	ssize_t sret;
+	stress_enosys_rpc_t rpc;
 
 	/* Check if this is a known non-ENOSYS syscall */
 	if (syscall_find(number))
-		return rc;
-	if (UNLIKELY(!stress_continue(args)))
 		return 0;
-	pid = fork();
-	if (pid < 0) {
-		_exit(EXIT_NO_RESOURCE);
-	} else if (pid == 0) {
-		size_t i;
-		long int arg;
-		char buffer[1024];
 
-		/* Try to limit child from spawning */
-		limit_procs(2);
+	rpc.syscall_num = number;
 
-		/* We don't want bad ops clobbering this region */
-		stress_shared_readonly();
-
-		/* Drop all capabilities */
-		if (stress_drop_capabilities(args->name) < 0) {
-			_exit(EXIT_NO_RESOURCE);
-		}
-		for (i = 0; i < SIZEOF_ARRAY(exit_sigs); i++) {
-			if (stress_sighandler(args->name, exit_sigs[i], stress_exit_handler, NULL) < 0)
-				_exit(EXIT_FAILURE);
-		}
-		for (i = 0; i < SIZEOF_ARRAY(sigs); i++) {
-			if (stress_sighandler(args->name, sigs[i], stress_sig_handler, NULL) < 0)
-				_exit(EXIT_FAILURE);
-		}
-
-		stress_parent_died_alarm();
-		(void)sched_settings_apply(true);
-
-		/*
-		 *  Try various ENOSYS calls
-		 */
-		exercise_syscall(args, number, -1, -1, -1, -1, -1, -1, -1);
-		exercise_syscall(args, number, 0, 0, 0, 0, 0, 0, 0);
-		exercise_syscall(args, number, 1, 1, 1, 1, 1, 1, 1);
-
-		for (arg = 2; arg;) {
-			exercise_syscall(args, number, arg, arg, arg,
-				      arg, arg, arg, arg);
-			arg <<= 1;
-			exercise_syscall(args, number, arg - 1, arg - 1, arg - 1,
-				      arg - 1, arg - 1, arg - 1, arg - 1);
-		}
-
-		exercise_syscall(args, number,
-			(long int)stress_mwc64(), (long int)stress_mwc64(),
-			(long int)stress_mwc64(), (long int)stress_mwc64(),
-			(long int)stress_mwc64(), (long int)stress_mwc64(),
-			(long int)stress_mwc64());
-
-		exercise_syscall(args, number,
-			(long int)buffer, (long int)buffer,
-			(long int)buffer, (long int)buffer,
-			(long int)buffer, (long int)buffer,
-			(long int)buffer);
-		_exit(0);
-	} else {
-		pid_t ret;
-		int status;
-
-		/*
-		 * Don't use shim_waitpid here, we want to force
-		 * kill the child no matter what happens at this point
-		 */
-		ret = waitpid(pid, &status, 0);
-		if (ret < 0) {
-			(void)stress_kill_pid(pid);
-			(void)shim_waitpid(pid, &status, 0);
-		}
-		rc = WEXITSTATUS(status);
-
-		/* Add to known syscalls that don't return ENOSYS */
-		if (rc != ENOSYS) {
-			if ((!do_random) || (number < 65536))
-				syscall_add(number);
-		}
-		stress_bogo_inc(args);
+	sret = write(wr_fd, &rpc, sizeof(rpc));
+	if (sret != (ssize_t)sizeof(rpc))
+		return -1;
+	errno = 0;
+	sret = read(rd_fd, &rpc, sizeof(rpc));
+	if (sret != (ssize_t)sizeof(rpc)) {
+		if (errno < 0)
+			syscall_add(number);
+		return -1;
 	}
-	return rc;
+	*syscalls += rpc.ret.count;
+	if (rpc.ret.rc != ENOSYS) {
+		if ((!do_random) || (number < 65536))
+			syscall_add(number);
+	}
+	stress_bogo_inc(args);
+	return 0;
+}
+
+/*
+ *  stress_enosys_child()
+ *	child process reads syscall number, performs
+ *	syscall and writes return errno and number of
+ *	calls made
+ */
+static inline int stress_enosys_child(
+	stress_args_t *args,
+	const int rd_fd,
+	const int wr_fd,
+	const pid_t pid)
+{
+	ssize_t sret;
+	stress_enosys_rpc_t rpc;
+
+	sret = read(rd_fd, &rpc, sizeof(rpc));
+	if (sret != (ssize_t)sizeof(rpc))
+		return -1;
+	rpc.ret.count = 0;
+
+	itimer_set(args);
+	rpc.ret.rc = stress_enosys_syscall(pid, &rpc);
+	itimer_stop(args);
+
+	sret = write(wr_fd, &rpc, sizeof(rpc));
+	if (sret != (ssize_t)sizeof(rpc))
+		return -1;
+
+	return 0;
+}
+
+/*
+ *  stress_enosys_parent()
+ *	parent writes syscalls to pipe for child
+ *	to read and execute in it's own context
+ */
+static inline int stress_enosys_parent(
+	stress_args_t *args,
+	const int rd_fd,
+	const int wr_fd,
+	uint64_t *syscalls)
+{
+	const unsigned long int mask24 = 0xffffffUL;
+#if ULONG_MAX > 0xffffffff
+	const unsigned long int mask40 = 0xffffffffffUL;
+	const unsigned long int mask48 = 0xffffffffffffUL;
+	const unsigned long int mask56 = 0xffffffffffffffUL;
+#else
+	const unsigned long int mask28 = 0xfffffffUL;
+#endif
+	static unsigned long int syscall_seq = 0UL;
+	unsigned long int number;
+
+	ssize_t j;
+
+	switch (stress_mwc8modn(5)) {
+	case 0:
+		/* Low sequential syscalls */
+		for (number = 0; number < MAX_SYSCALL + 1024; number++) {
+			if (UNLIKELY(!stress_continue(args)))
+				return 0;
+			if (stress_enosys_push_syscall(args, rd_fd, wr_fd, number, false, syscalls) < 0)
+				return -1;
+			if (stress_enosys_push_syscall(args, rd_fd, wr_fd, ++syscall_seq, true, syscalls) < 0)
+				return -1;
+		}
+		break;
+	case 1:
+		/* Various high syscalls */
+		for (number = 0xff; number; number <<= 1) {
+			long int n;
+
+			for (n = 0; n < 0xff; n++) {
+				if (UNLIKELY(!stress_continue(args)))
+					return 0;
+				if (stress_enosys_push_syscall(args, rd_fd, wr_fd, n + number, false, syscalls) < 0)
+					return -1;
+			}
+		}
+		break;
+	case 2:
+		/* Random syscalls */
+		for (j = 0; j < 1024; j++) {
+			if (UNLIKELY(!stress_continue(args)))
+				return 0;
+			if (stress_enosys_push_syscall(args, rd_fd, wr_fd, (long int)stress_mwc8(), true, syscalls) < 0)
+				return -1;
+			if (stress_enosys_push_syscall(args, rd_fd, wr_fd, (long int)stress_mwc16(), true, syscalls) < 0)
+				return -1;
+			if (stress_enosys_push_syscall(args, rd_fd, wr_fd, (long int)stress_mwc32() & mask24, true, syscalls) < 0)
+				return -1;
+			if (stress_enosys_push_syscall(args, rd_fd, wr_fd, (long int)stress_mwc32(), true, syscalls) < 0)
+				return -1;
+#if ULONG_MAX > 0xffffffff
+			if (stress_enosys_push_syscall(args, rd_fd, wr_fd, (long int)stress_mwc64(), true, syscalls) < 0)
+				return -1;
+#endif
+		}
+		break;
+	case 3:
+		if (UNLIKELY(!stress_continue(args)))
+			return 0;
+#if ULONG_MAX > 0xffffffff
+		if (stress_enosys_push_syscall(args, rd_fd, wr_fd, (long int)(stress_mwc64() & mask40), true, syscalls) < 0)
+			return -1;
+		if (stress_enosys_push_syscall(args, rd_fd, wr_fd, (long int)(stress_mwc64() & mask48), true, syscalls) < 0)
+			return -1;
+		if (stress_enosys_push_syscall(args, rd_fd, wr_fd, (long int)(stress_mwc64() & mask56), true, syscalls) < 0)
+			return -1;
+		if (stress_enosys_push_syscall(args, rd_fd, wr_fd, (long int)stress_mwc64(), true, syscalls) < 0)
+			return -1;
+#else
+		if (stress_enosys_push_syscall(args, rd_fd, wr_fd, (long int)(stress_mwc32() & mask24), true, syscalls) < 0)
+			return -1;
+		if (stress_enosys_push_syscall(args, rd_fd, wr_fd, (long int)(stress_mwc32() & mask28), true, syscalls) < 0)
+			return -1;
+		if (stress_enosys_push_syscall(args, rd_fd, wr_fd, (long int)stress_mwc32(), true, syscalls) < 0)
+			return -1;
+
+#endif
+		break;
+	case 4:
+		/* Various bit masks */
+		for (number = 0x400; number; number <<= 1) {
+			if (UNLIKELY(!stress_continue(args)))
+				return 0;
+			if (stress_enosys_push_syscall(args, rd_fd, wr_fd, number, false, syscalls) < 0)
+				return -1;
+			if (stress_enosys_push_syscall(args, rd_fd, wr_fd, number, false, syscalls) < 0)
+				return -1;
+			if (stress_enosys_push_syscall(args, rd_fd, wr_fd, number | 1, false, syscalls) < 0)
+				return -1;
+			if (stress_enosys_push_syscall(args, rd_fd, wr_fd, number | (number << 1U), false, syscalls) < 0)
+				return -1;
+			if (stress_enosys_push_syscall(args, rd_fd, wr_fd, ~number, false, syscalls) < 0)
+				return -1;
+		}
+		break;
+	}
+
+	return 0;
 }
 
 /*
@@ -4010,6 +4148,10 @@ static inline int stress_do_syscall(
 static int stress_enosys(stress_args_t *args)
 {
 	pid_t pid;
+	int rd_fds[2], wr_fds[2];
+	size_t i;
+	uint64_t syscalls = 0;
+	double t_start, duration, rate;
 
 #if defined(STRESS_EXERCISE_X86_SYSCALL)
 	stress_x86syscall_available = stress_cpu_x86_has_syscall();
@@ -4017,173 +4159,108 @@ static int stress_enosys(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
-again:
-	if (UNLIKELY(!stress_continue(args)))
-		return EXIT_SUCCESS;
-	pid = fork();
-	if (pid < 0) {
-		if (stress_redo_fork(args, errno))
-			goto again;
-		if (UNLIKELY(!stress_continue(args)))
-			goto deinit;
-		pr_err("%s: fork failed, errno=%d: (%s)\n",
-			args->name, errno, strerror(errno));
-	} else if (pid > 0) {
-		pid_t ret;
-		int status;
 
-		/* Parent, wait for child */
-		ret = shim_waitpid(pid, &status, 0);
-		if (ret < 0) {
-			if (errno != EINTR)
-				pr_dbg("%s: waitpid() on PID %" PRIdMAX " failed, errno=%d (%s)\n",
-					args->name, (intmax_t)pid, errno, strerror(errno));
-			(void)shim_kill(pid, SIGALRM);
+	for (i = 0; i < (ssize_t)SIZEOF_ARRAY(skip_syscalls) - 1; i++)
+		syscall_add(skip_syscalls[i]);
 
-			/* Still alive, kill it */
-			if (shim_kill(pid, 0) == 0) {
-				stress_force_killed_bogo(args);
-				(void)stress_kill_pid(pid);
-			}
-			(void)shim_waitpid(pid, &status, 0);
-		} else if (WIFSIGNALED(status)) {
-			pr_dbg("%s: child died: %s (instance %d)\n",
-				args->name, stress_strsignal(WTERMSIG(status)),
-				args->instance);
-			/* If we got killed by OOM killer, re-start */
-			if (WTERMSIG(status) == SIGKILL) {
-				if (g_opt_flags & OPT_FLAGS_OOMABLE) {
-					stress_log_system_mem_info();
-					pr_dbg("%s: assuming killed by OOM "
-						"killer, bailing out "
-						"(instance %d)\n",
-						args->name, args->instance);
-					_exit(0);
-				} else {
-					stress_log_system_mem_info();
-					pr_dbg("%s: assuming killed by OOM "
-						"killer, restarting again "
-						"(instance %d)\n",
-						args->name, args->instance);
-					goto again;
-				}
-			}
+	if (stress_sighandler(args->name, SIGPIPE, stress_sighandler_nop, NULL) < 0)
+		return EXIT_FAILURE;
+
+	t_start = stress_time_now();
+	do {
+		if (pipe(rd_fds) < 0) {
+			pr_inf_skip("%s: pipe failed, errno=%d (%s), skipping stressor\n",
+				args->name, errno, strerror(errno));
+			return EXIT_NO_RESOURCE;
 		}
-	} else {
-		const unsigned long int mask24 = 0xffffffUL;
-#if ULONG_MAX > 0xffffffff
-		const unsigned long int mask40 = 0xffffffffffUL;
-		const unsigned long int mask48 = 0xffffffffffffUL;
-		const unsigned long int mask56 = 0xffffffffffffffUL;
-#endif
-		const unsigned long int mask64 = ULONG_MAX;
-		unsigned long int syscall_seq = 0UL;
-
-		ssize_t j;
-
-		/* Child, wrapped to catch OOMs */
+		if (pipe(wr_fds) < 0) {
+			pr_inf_skip("%s: pipe failed, errno=%d (%s), skipping stressor\n",
+				args->name, errno, strerror(errno));
+			(void)close(rd_fds[0]);
+			(void)close(rd_fds[1]);
+			return EXIT_NO_RESOURCE;
+		}
+again:
 		if (UNLIKELY(!stress_continue(args)))
-			_exit(0);
+			return EXIT_SUCCESS;
+		pid = fork();
+		if (pid < 0) {
+			if (stress_redo_fork(args, errno))
+				goto again;
+			if (UNLIKELY(!stress_continue(args)))
+				goto deinit;
+			pr_err("%s: fork failed, errno=%d: (%s)\n",
+				args->name, errno, strerror(errno));
+			(void)close(rd_fds[0]);
+			(void)close(rd_fds[1]);
+			(void)close(wr_fds[0]);
+			(void)close(wr_fds[1]);
+			goto deinit;
+		} else if (pid == 0) {
+			size_t i;
+			const pid_t mypid = getpid();
 
-		stress_parent_died_alarm();
-		(void)sched_settings_apply(true);
+			(void)close(rd_fds[1]);
+			(void)close(wr_fds[0]);
 
-		/* Make sure this is killable by OOM killer */
-		stress_set_oom_adjustment(args, true);
+			/* Try to limit child from spawning */
+			limit_procs(2);
 
-		//limit_procs(2);
+			/* We don't want bad ops clobbering this region */
+			stress_shared_readonly();
 
-		for (j = 0; j < (ssize_t)SIZEOF_ARRAY(skip_syscalls) - 1; j++)
-			syscall_add(skip_syscalls[j]);
-
-		do {
-			unsigned long int number;
-
-			/* Low sequential syscalls */
-			for (number = 0; number < MAX_SYSCALL + 1024; number++) {
-				if (UNLIKELY(!stress_continue(args)))
-					goto finish;
-				stress_do_syscall(args, number, false);
-
-				/* Sequentially incrementing syscall number */
-				stress_do_syscall(args, syscall_seq, true);
-				syscall_seq++;
+			/* Drop all capabilities */
+			if (stress_drop_capabilities(args->name) < 0)
+				_exit(EXIT_NO_RESOURCE);
+			for (i = 0; i < SIZEOF_ARRAY(exit_sigs); i++) {
+				if (stress_sighandler(args->name, exit_sigs[i], stress_sig_handler_exit, NULL) < 0)
+					_exit(EXIT_FAILURE);
+			}
+			for (i = 0; i < SIZEOF_ARRAY(sigs); i++) {
+				if (stress_sighandler(args->name, sigs[i], stress_sig_handler, NULL) < 0)
+					_exit(EXIT_FAILURE);
 			}
 
-			/* Random syscalls */
-			for (j = 0; j < 1024; j++) {
-				if (UNLIKELY(!stress_continue(args)))
-					goto finish;
-				stress_do_syscall(args, (long int)stress_mwc8() & mask64, true);
-				if (UNLIKELY(!stress_continue(args)))
-					goto finish;
-				stress_do_syscall(args, (long int)stress_mwc16() & mask64, true);
-				if (UNLIKELY(!stress_continue(args)))
-					goto finish;
-				stress_do_syscall(args, (long int)stress_mwc32() & mask24, true);
-				if (UNLIKELY(!stress_continue(args)))
-					goto finish;
-				stress_do_syscall(args, (long int)stress_mwc32() & mask64, true);
-				if (UNLIKELY(!stress_continue(args)))
-					goto finish;
-#if ULONG_MAX > 0xffffffff
-				stress_do_syscall(args, (long int)(stress_mwc64() & mask40), true);
-				if (UNLIKELY(!stress_continue(args)))
-					goto finish;
-				stress_do_syscall(args, (long int)(stress_mwc64() & mask48), true);
-				if (UNLIKELY(!stress_continue(args)))
-					goto finish;
-				stress_do_syscall(args, (long int)(stress_mwc64() & mask56), true);
-				if (UNLIKELY(!stress_continue(args)))
-					goto finish;
-				stress_do_syscall(args, (long int)(stress_mwc64() & mask64), true);
-#endif
+			stress_parent_died_alarm();
+			(void)sched_settings_apply(true);
 
-				/* Sequentially incrementing syscall number */
-				stress_do_syscall(args, syscall_seq, true);
-				syscall_seq++;
-			}
+			do {
+				if (stress_enosys_child(args, rd_fds[0], wr_fds[1], mypid) < 0)
+					break;
+			} while (stress_continue(args));
 
-			/* Various bit masks */
-			for (number = 1; number; number <<= 1) {
-				if (UNLIKELY(!stress_continue(args)))
-					goto finish;
-				stress_do_syscall(args, number, false);
-				if (UNLIKELY(!stress_continue(args)))
-					goto finish;
-				stress_do_syscall(args, number | 1, false);
-				if (UNLIKELY(!stress_continue(args)))
-					goto finish;
-				stress_do_syscall(args, number | (number << 1U), false);
-				if (UNLIKELY(!stress_continue(args)))
-					goto finish;
-				stress_do_syscall(args, ~number, false);
+			(void)close(rd_fds[0]);
+			(void)close(wr_fds[1]);
 
-				/* Sequentially incrementing syscall number */
-				stress_do_syscall(args, syscall_seq, true);
-				syscall_seq++;
-			}
+			_exit(EXIT_SUCCESS);
+		} else if (pid > 0) {
+			(void)close(rd_fds[0]);
+			(void)close(wr_fds[1]);
 
-			/* Various high syscalls */
-			for (number = 0xff; number; number <<= 8) {
-				long int n;
+			rd_fds[0] = -1;
+			wr_fds[1] = -1;
 
-				for (n = 0; n < 0x100; n++) {
-					if (UNLIKELY(!stress_continue(args)))
-						goto finish;
-					stress_do_syscall(args, n + number, false);
-				}
+			do {
+				if (stress_enosys_parent(args, wr_fds[0], rd_fds[1], &syscalls) < 0)
+					break;
+			} while (stress_continue(args));
 
-				/* Sequentially incrementing syscall number */
-				stress_do_syscall(args, syscall_seq, true);
-				syscall_seq++;
-			}
-		} while (stress_continue(args));
-finish:
-		syscall_free();
-		_exit(EXIT_SUCCESS);
-	}
+			/* Parent, wait for child */
+			(void)stress_kill_and_wait(args, pid, SIGKILL, false);
+			(void)close(rd_fds[1]);
+			(void)close(wr_fds[0]);
+
+			rd_fds[1] = -1;
+			wr_fds[0] = -1;
+		}
+	} while (stress_continue(args));
+
 deinit:
+	duration = stress_time_now() - t_start;
+	rate = (duration > 0.0) ? (double)syscalls / duration : 0.0;
+	stress_metrics_set(args, 0, "syscalls per second", rate, STRESS_METRIC_GEOMETRIC_MEAN);
+
+	syscall_free();
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	return EXIT_SUCCESS;
