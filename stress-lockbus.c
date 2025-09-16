@@ -92,8 +92,9 @@ do {							\
 } while (0)
 #endif
 
-#define BUFFER_SIZE	(1024 * 1024 * 16)
-#define CHUNK_SIZE	(64 * 4)
+#define BUFFER_SIZE		(1024 * 1024 * 8)
+#define SHARED_BUFFER_SIZE	(1024 * 1024 * 8)
+#define CHUNK_SIZE		(64 * 4)
 
 #if defined(HAVE_SYNC_BOOL_COMPARE_AND_SWAP)
 /* basically locked cmpxchg */
@@ -147,6 +148,25 @@ static bool do_misaligned;
 static bool do_splitlock;
 #endif
 static bool do_sigill;
+static uint32_t *shared_buffer = MAP_FAILED;
+
+static void stress_lockbus_init(const uint32_t instances)
+{
+	(void)instances;
+
+	shared_buffer = (uint32_t *)stress_mmap_populate(NULL, SHARED_BUFFER_SIZE,
+		PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_SHARED, -1, 0);
+	if (shared_buffer != MAP_FAILED)
+		stress_set_vma_anon_name(shared_buffer, BUFFER_SIZE, "lockbus-shared-data");
+}
+
+static void stress_lockbus_deinit(void)
+{
+	if (shared_buffer != MAP_FAILED) {
+		(void)munmap((void *)shared_buffer, SHARED_BUFFER_SIZE);
+		shared_buffer = MAP_FAILED;
+	}
+}
 
 static void NORETURN MLOCKED_TEXT stress_sigill_handler(int signum)
 {
@@ -213,7 +233,14 @@ static int stress_lockbus(stress_args_t *args)
 	NOCLOBBER stress_numa_mask_t *numa_mask;
 #endif
 
-	buffer = (uint32_t*)stress_mmap_populate(NULL, BUFFER_SIZE,
+	if (shared_buffer == MAP_FAILED) {
+		pr_inf_skip("%s: failed to mmap %zu shared bytes%s, errno=%d (%s), skipping stressor\n",
+			args->name, (size_t)SHARED_BUFFER_SIZE,
+			stress_get_memfree_str(), errno, strerror(errno));
+		return EXIT_NO_RESOURCE;
+	}
+
+	buffer = (uint32_t *)stress_mmap_populate(NULL, BUFFER_SIZE,
 			PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (buffer == MAP_FAILED) {
 		pr_inf_skip("%s: failed to mmap %zu bytes%s, errno=%d (%s), skipping stressor\n",
@@ -312,8 +339,10 @@ misaligned_done:
 
 		numa_nodes = stress_numa_mask_alloc();
 		if (numa_nodes) {
-			if (stress_numa_mask_nodes_get(numa_nodes) > 0)
+			if (stress_numa_mask_nodes_get(numa_nodes) > 0) {
 				stress_numa_randomize_pages(args, numa_nodes, numa_mask, buffer, BUFFER_SIZE, args->page_size);
+				stress_numa_randomize_pages(args, numa_nodes, numa_mask, shared_buffer, SHARED_BUFFER_SIZE, args->page_size);
+			}
 			stress_numa_mask_free(numa_nodes);
 		}
 		stress_numa_mask_free(numa_mask);
@@ -327,7 +356,9 @@ misaligned_done:
 	duration = 0;
 	count = 0;
 	do {
-		uint32_t *ptr0 = buffer + (stress_mwc32modn(BUFFER_SIZE - CHUNK_SIZE) >> 2);
+		uint32_t *ptr0 = stress_mwc1() ?
+			buffer + (stress_mwc32modn(BUFFER_SIZE - CHUNK_SIZE) >> 2) :
+			shared_buffer + (stress_mwc32modn(SHARED_BUFFER_SIZE - CHUNK_SIZE) >> 2);
 #if defined(STRESS_ARCH_X86)
 		uint32_t *ptr1 = do_splitlock ? splitlock_ptr1 : ptr0;
 		uint32_t *ptr2 = do_splitlock ? splitlock_ptr2 : ptr0;
@@ -400,7 +431,9 @@ const stressor_info_t stress_lockbus_info = {
 	.stressor = stress_lockbus,
 	.classifier = CLASS_CPU_CACHE | CLASS_MEMORY,
 	.opts = opts,
-	.help = help
+	.help = help,
+	.init = stress_lockbus_init,
+	.deinit = stress_lockbus_deinit
 };
 #else
 const stressor_info_t stress_lockbus_info = {
