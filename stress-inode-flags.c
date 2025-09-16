@@ -106,6 +106,27 @@ static const int inode_flags[] = {
 #if defined(FS_UNRM_FL)
 	FS_UNRM_FL,
 #endif
+#if defined(FS_ENCRYPT_FL)
+	FS_ENCRYPT_FL,
+#endif
+#if defined(EXT2_BTREE_FL)
+	EXT2_BTREE_FL,
+#endif
+#if defined(FS_VERITY_FL)
+	FS_VERITY_FL,
+#endif
+#if defined(FS_INLINE_DATA_FL)
+	FS_INLINE_DATA_FL,
+#endif
+#if defined(FS_CASEFOLD_FL)
+	FS_CASEFOLD_FL,
+#endif
+#if defined(FS_FL_USER_VISIBLE)
+	FS_FL_USER_VISIBLE,
+#endif
+#if defined(FS_FL_USER_MODIFIABLE)
+	FS_FL_USER_MODIFIABLE,
+#endif
 };
 
 static const int attr_flags[] = {
