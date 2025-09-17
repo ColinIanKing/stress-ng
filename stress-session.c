@@ -29,7 +29,7 @@
 #define STRESS_SESSION_WAITPID_FAILED	(0x14)
 
 static const stress_help_t session_help[] = {
-	{ "f N","session N",	 "start N workers that exercise new sessions" },
+	{ NULL, "session N",	 "start N workers that exercise new sessions" },
 	{ NULL,	"session-ops N", "stop after N session bogo operations" },
 	{ NULL,	NULL,		NULL }
 };
