@@ -113,6 +113,7 @@ static int stress_icache_func(stress_args_t *args, void *page, const size_t page
 			 */
 			val = *vaddr;
 			*vaddr ^= ~0;
+
 			/*
 			 * ARM CPUs need us to clear the I$ between
 			 * each modification of the object code.
