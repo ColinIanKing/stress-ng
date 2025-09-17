@@ -61,9 +61,6 @@ static void OPTIMIZE3 NORETURN stress_resched_child(
 	 *  "Normal" non-realtime scheduling policies
 	 */
 	static const int normal_policies[] = {
-#if defined(SCHED_OTHER)
-		SCHED_OTHER,
-#endif
 #if defined(SCHED_BATCH)
 		SCHED_BATCH,
 #endif
@@ -72,6 +69,9 @@ static void OPTIMIZE3 NORETURN stress_resched_child(
 #endif
 #if defined(SCHED_IDLE)
 		SCHED_IDLE,
+#endif
+#if defined(SCHED_OTHER)
+		SCHED_OTHER,
 #endif
 	};
 #endif

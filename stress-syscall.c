@@ -411,23 +411,26 @@ static const shim_rlimit_resource_t limits[] = {
      !defined(__HAIKU__) &&						\
      !defined(__serenity__)
 static const int sched_policies[] = {
+#if defined(SCHED_BATCH)
+	SCHED_BATCH,
+#endif
 #if defined(SCHED_DEADLINE)
 	SCHED_DEADLINE,
 #endif
+#if defined(SCHED_EXT)
+	SCHED_EXT,
+#endif
+#if defined(SCHED_FIFO)
+	SCHED_FIFO,
+#endif
 #if defined(SCHED_IDLE)
 	SCHED_IDLE,
-#endif
-#if defined(SCHED_BATCH)
-	SCHED_BATCH,
 #endif
 #if defined(SCHED_OTHER)
 	SCHED_OTHER,
 #endif
 #if defined(SCHED_RR)
 	SCHED_RR,
-#endif
-#if defined(SCHED_FIFO)
-	SCHED_FIFO,
 #endif
 };
 #endif

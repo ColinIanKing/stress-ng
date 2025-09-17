@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "27 August 2025"
+.TH STRESS-NG 1 "17 September 2025"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -5209,7 +5209,7 @@ set the maximum nanosleep delay to use. If this is not a power of two then the
 previous power of two nanosecond delay time is used, e.g. specifying 10000 will
 select 8192 nanoseconds.
 .TP
-.B \-\-min\-nanosleep\-sched [ batch | deadline | fifo | idle | other | rr ]
+.B \-\-min\-nanosleep\-sched [ batch | deadline | ext | fifo | idle | other | rr ]
 select scheduling policy. Note that deadline, fifo and rr require root privilege.
 .RE
 .TP
@@ -6774,8 +6774,8 @@ during the lock ownership.
 T}
 .TE
 .TP
-.B \-\-prio\-inv\-policy [ batch | idle | fifo | other | rr ]
-select the scheduling policy. "Normal" policies (batch, idle and other)
+.B \-\-prio\-inv\-policy [ batch | ext | idle | fifo | other | rr ]
+select the scheduling policy. "Normal" policies (batch, ext, idle and other)
 can be selected as an unprivileged user, however "Real Time" policies
 (fifo and rr) can only be selected with the appropriate privilege.
 By default "fifo" is selected but it will fall back to "other" for
@@ -10060,7 +10060,7 @@ values.
 T}
 .TE
 .TP
-.B \-\-workload\-sched [ batch | deadline | fifo | idle | other | rr ]
+.B \-\-workload\-sched [ batch | deadline | ext | fifo | idle | other | rr ]
 select scheduling policy. Note that deadline, fifo and rr require root privilege.
 .TP
 .B \-\-workload\-slice\-us S
@@ -10170,7 +10170,7 @@ stop yield stress workers after N sched_yield(2) bogo operations.
 specify the number of child processes to run per stressor instance. The
 default is 2, range 1 to 65536.
 .TP
-.B \-\-yield\-sched [ batch | deadline | fifo | idle | other | rr ]
+.B \-\-yield\-sched [ batch | deadline | ext | fifo | idle | other | rr ]
 select scheduling policy. Note that deadline, fifo and rr require root privilege.
 .RE
 .TP

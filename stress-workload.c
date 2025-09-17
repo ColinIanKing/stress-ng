@@ -116,11 +116,11 @@ typedef struct {
 
 static const stress_help_t help[] = {
 	{ NULL,	"workload N",		"start N workers that exercise a mix of scheduling loads" },
-	{ NULL,	"workload-dist type",	"workload distribution type [random1, random2, random3, cluster]" },
+	{ NULL,	"workload-dist type",	"workload distribution type [random1 | random2 | random3 | cluster]" },
 	{ NULL, "workload-load P",	"percentage load P per workload time slice" },
 	{ NULL,	"workload-ops N",	"stop after N workload bogo operations" },
 	{ NULL,	"workload-quanta-us N",	"max duration of each quanta work item in microseconds" },
-	{ NULL, "workload-sched P",	"select scheduler policy [idle, fifo, rr, other, batch, deadline]" },
+	{ NULL, "workload-sched P",	"select scheduler policy [batch | deadline | ext | | idle | fifo | rr | other | batch | deadline]" },
 	{ NULL, "workload-slice-us N",	"duration of workload time load in microseconds" },
 	{ NULL,	"workload-threads N",	"number of workload threads workers to use, default is 0 (disabled)" },
 	{ NULL, "workload-method M",	"select a workload method, default is all" },
@@ -229,11 +229,14 @@ static int stress_workload_set_sched(
 		ret = shim_sched_setattr(0, &attr, 0);
 		break;
 #endif
-#if defined(SCHED_IDLE)
-	case SCHED_IDLE:
+#if defined(SCHED_EXT)
+	case SCHED_EXT:
 #endif
 #if defined(SCHED_BATCH)
 	case SCHED_BATCH:
+#endif
+#if defined(SCHED_IDLE)
+	case SCHED_IDLE:
 #endif
 #if defined(SCHED_OTHER)
 	case SCHED_OTHER:

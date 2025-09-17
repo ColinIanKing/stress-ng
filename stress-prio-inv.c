@@ -81,10 +81,16 @@
 #define STRESS_PRIO_INV_POLICY_RR	(-6)
 #endif
 
+#if defined(SCHED_EXT)
+#define STRESS_PRIO_INV_POLICY_EXT	(SCHED_EXT)
+#else
+#define STRESS_PRIO_INV_POLICY_EXT	(-7)
+#endif
+
 static const stress_help_t help[] = {
 	{ NULL,	"prio-inv",		"start N workers exercising priority inversion lock operations" },
 	{ NULL,	"prio-inv-ops N",	"stop after N priority inversion lock bogo operations" },
-	{ NULL, "prio-inv-policy P",	"select scheduler policy [ batch, idle, fifo, other, rr ]" },
+	{ NULL, "prio-inv-policy P",	"select scheduler policy [ batch | ext | idle | fifo | other | rr ]" },
 	{ NULL,	"prio-inv-type T",	"pthread priority type [ inherit | none | protect ]" },
 	{ NULL,	NULL,			NULL }
 };
@@ -109,6 +115,7 @@ static const stress_prio_inv_options_t stress_prio_inv_types[] = {
 
 static const stress_prio_inv_options_t stress_prio_inv_policies[] = {
 	{ "batch",	STRESS_PRIO_INV_POLICY_BATCH },
+	{ "ext",	STRESS_PRIO_INV_POLICY_EXT },
 	{ "idle",	STRESS_PRIO_INV_POLICY_IDLE },
 	{ "fifo",	STRESS_PRIO_INV_POLICY_FIFO },
 	{ "other",	STRESS_PRIO_INV_POLICY_OTHER },
@@ -146,11 +153,12 @@ static const stress_opt_t opts[] = {
     defined(HAVE_SCHED_SETSCHEDULER) &&			\
     defined(HAVE_SCHED_GET_PRIORITY_MIN) &&		\
     defined(HAVE_SCHED_GET_PRIORITY_MAX) &&		\
-    (defined(SCHED_FIFO) ||				\
-     defined(SCHED_RR) ||				\
+    (defined(SCHED_BATCH) ||				\
+     defined(SCHED_EXT) ||				\
+     defined(SCHED_FIFO) ||				\
+     defined(SCHED_IDLE) |				\
      defined(SCHED_OTHER) ||				\
-     defined(SCHED_BATCH) ||				\
-     defined(SCHED_IDLE))
+     defined(SCHED_RR))
 
 static double t_end = 0.0;
 
@@ -161,7 +169,6 @@ typedef struct {
 } stress_prio_inv_info_t;
 
 typedef void (*stress_prio_inv_func_t)(const size_t instance, stress_prio_inv_info_t *info);
-
 
 static void stress_prio_inv_getrusage(stress_prio_inv_child_info_t *child_info)
 {

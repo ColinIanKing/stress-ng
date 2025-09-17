@@ -50,13 +50,14 @@
 #if defined(HAVE_SCHED_SETAFFINITY) &&		\
     (defined(_POSIX_PRIORITY_SCHEDULING) ||	\
      defined(__linux__)) &&			\
-    (defined(SCHED_OTHER) ||			\
-     defined(SCHED_BATCH) ||			\
-     defined(SCHED_IDLE) ||			\
+    (defined(SCHED_BATCH) ||			\
+     defined(SCHED_DEADLINE) ||			\
      defined(SCHED_EXT) ||			\
+     defined(SCHED_IDLE) ||			\
      defined(SCHED_FIFO) ||			\
+     defined(SCHED_OTHER) ||			\
      defined(SCHED_RR) ||			\
-     defined(SCHED_DEADLINE)) &&		\
+     defined(SCHED_EXT)) && 			\
     !defined(__OpenBSD__) &&			\
     !defined(__minix__) &&			\
     !defined(__APPLE__)
@@ -118,12 +119,16 @@ static const int policies[] = {
 #if defined(SCHED_BATCH)
 	SCHED_BATCH,
 #endif
-#if defined(SCHED_EXT)
-	SCHED_EXT,
-#endif
 #if defined(SCHED_BATCH) &&	\
     defined(SCHED_RESET_ON_FORK)
 	SCHED_BATCH | SCHED_RESET_ON_FORK,
+#endif
+#if defined(SCHED_EXT)
+	SCHED_EXT,
+#endif
+#if defined(SCHED_EXT) &&	\
+    defined(SCHED_RESET_ON_FORK)
+	SCHED_EXT | SCHED_RESET_ON_FORK,
 #endif
 #if defined(SCHED_IDLE)
 	SCHED_IDLE,

@@ -53,7 +53,7 @@ const stress_sched_types_t stress_sched_types[] = {
 	{ SCHED_OTHER,		"other" },
 #endif
 #if defined(SCHED_EXT)
-	{ SCHED_EXT,		"sched_ext" },
+	{ SCHED_EXT,		"ext" },
 #endif
 #if defined(SCHED_RR)
 	{ SCHED_RR,		"rr" },

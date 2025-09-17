@@ -115,7 +115,6 @@ static const int normal_policies[] = {
 
 static uint32_t stress_call_race_sched_method_idx(const uint32_t cpu_idx, size_t method_index)
 {
-
 	static size_t method_all_index = 1;
 	uint32_t new_cpu_idx = cpu_idx;
 

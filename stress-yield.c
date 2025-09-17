@@ -52,6 +52,7 @@ static const stress_opt_t opts[] = {
      defined(__linux__)) &&			\
     (defined(SCHED_BATCH) ||			\
      defined(SCHED_DEADLINE) ||			\
+     defined(SCHED_EXT) ||			\
      defined(SCHED_IDLE) ||			\
      defined(SCHED_FIFO) ||			\
      defined(SCHED_OTHER) ||			\
@@ -105,12 +106,16 @@ static void stress_yield_sched_policy(stress_args_t *args, const size_t yield_sc
 		}
 		goto case_sched_other;
 #endif
-#if defined(SCHED_IDLE)
-	case SCHED_IDLE:
-		goto case_sched_other;
-#endif
 #if defined(SCHED_BATCH)
 	case SCHED_BATCH:
+		goto case_sched_other;
+#endif
+#if defined(SCHED_EXT)
+	case SCHED_EXT:
+		goto case_sched_other;
+#endif
+#if defined(SCHED_IDLE)
+	case SCHED_IDLE:
 		goto case_sched_other;
 #endif
 #if defined(SCHED_OTHER)
@@ -119,8 +124,10 @@ static void stress_yield_sched_policy(stress_args_t *args, const size_t yield_sc
 #if (defined(SCHED_DEADLINE) &&		\
      defined(HAVE_SCHED_GETATTR) &&	\
      defined(HAVE_SCHED_SETATTR)) ||	\
+     defined(SCHED_BATCH) ||		\
+     defined(SCHED_EXT) ||		\
      defined(SCHED_IDLE) ||		\
-     defined(SCHED_BATCH)
+     defined(SCHED_OTHER)
 case_sched_other:
 #endif
 		param.sched_priority = 0;
