@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "17 September 2025"
+.TH STRESS-NG 1 "18 September 2025"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -10497,6 +10497,12 @@ utilisation statistics at the end of the run.
 \f[CR]stress\-ng \-\-class io\\?\f[]
 .IP
 show all the stressors in the io class
+.LP
+\f[CR]sudo stress-ng \-\-class scheduler \-\-seq 0 \-t 1m \-\-taskset-random \-\-progress \-\-klog-check\f[]
+.IP
+run all the scheduler exercising stressors sequentually on all online CPUs
+for 1 minute per stressor type, frequently changing the CPUs that the
+processes are running on, show progress and report any detected kernel issues.
 .LP
 \f[CR]stress\-ng \-\-all -1 \-\-maximize \-\-aggressive\f[]
 .IP
