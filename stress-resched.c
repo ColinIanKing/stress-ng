@@ -116,7 +116,7 @@ static void OPTIMIZE3 NORETURN stress_resched_child(
 #endif
 		}
 
-		VOID_RET(int, nice(1));
+		VOID_RET(int, shim_nice(1));
 
 		if (UNLIKELY(!stress_continue(args)))
 			break;

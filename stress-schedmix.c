@@ -145,12 +145,12 @@ redo:
 		break;
 	case 8:
 		for (i = 0; LIKELY(stress_continue(args) && (i < 1000)); i++)
-			VOID_RET(int, nice(0));
+			VOID_RET(int, shim_nice(0));
 		break;
 	case 9:
 		n = stress_mwc16modn(1000);
 		for (i = 0; LIKELY(stress_continue(args) && (i < n)); i++)
-			VOID_RET(int, nice(0));
+			VOID_RET(int, shim_nice(0));
 		break;
 	case 10:
 		for (i = 0; LIKELY(stress_continue(args) && (i < 10)); i++)
@@ -544,7 +544,7 @@ static int stress_schedmix(stress_args_t *args)
 			s_pids[i].pid = getpid();
 			stress_sync_start_wait_s_pid(&s_pids[i]);
 
-			VOID_RET(int, nice(stress_mwc8modn(7)));
+			VOID_RET(int, shim_nice(stress_mwc8modn(7)));
 			stress_parent_died_alarm();
 			(void)stress_change_cpu(args, parent_cpu);
 			_exit(stress_schedmix_child(args));

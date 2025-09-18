@@ -2261,6 +2261,37 @@ int shim_clock_settime(clockid_t clk_id, struct timespec *tp)
 #endif
 }
 
+static int shim_nice_autogroup(int niceness)
+{
+#if defined(__linux__)
+	if ((g_opt_flags & OPT_FLAGS_AUTOGROUP) && (errno == 0)) {
+		int fd, saved_err = errno;
+		int retries = 0;
+
+		fd = open("/proc/self/autogroup", O_WRONLY);
+		if (fd != -1) {
+			char buf[32];
+			ssize_t ret;
+
+			(void)snprintf(buf, sizeof(buf), "%d\n", niceness);
+retry:
+			ret = write(fd, buf, strlen(buf));
+			if (ret < 0)
+				if (errno == EAGAIN) {
+					stress_random_small_sleep();
+					lseek(fd, 0, SEEK_SET);
+					retries++;
+					if ((retries < 30) && stress_continue_flag())
+						goto retry;
+				}
+			(void)close(fd);
+		}
+		errno = saved_err;
+	}
+#endif
+	return niceness;
+}
+
 /*
  *  shim_nice
  *	wrapper for nice.  Some C libraries may use setpriority
@@ -2277,12 +2308,13 @@ int shim_nice(int inc)
     defined(HAVE_SYSCALL)
 	int ret;
 
+	errno = 0;
 	ret = (int)syscall(__NR_nice, inc);
 	if ((ret < 0) && (errno == ENOSYS)) {
 		errno = 0;
-		return nice(inc);
+		return shim_nice_autogroup(nice(inc));
 	}
-	return ret;
+	return shim_nice_autogroup(ret);
 #elif defined(HAVE_GETPRIORITY) &&	\
       defined(HAVE_SETPRIORITY) &&	\
       defined(PRIO_PROCESS)
@@ -2293,9 +2325,11 @@ int shim_nice(int inc)
 		if (errno != 0) {
 #if defined(HAVE_NICE)
 			/* fall back to nice */
-			return nice(inc);
+			errno = 0;
+			return shim_nice_autogroup(nice(inc));
 #else
 			/* ok, give up */
+			errno = EPERM;
 			return -1;
 #endif
 		}
@@ -2307,11 +2341,12 @@ int shim_nice(int inc)
 		return -1;
 	}
 	saved_err = errno;
-	ret = getpriority(PRIO_PROCESS, 0);
+	ret = shim_nice_autogroup(getpriority(PRIO_PROCESS, 0));
 	errno = saved_err;
 	return ret;
 #elif defined(HAVE_NICE)
-	return nice(inc);
+	errno = 0;
+	return shim_nice_autogroup(nice(inc));
 #else
 	(void)inc;
 

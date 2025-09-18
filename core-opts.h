@@ -89,6 +89,7 @@
 #define OPT_FLAGS_STRESSOR_TIME	 STRESS_BIT_ULL(58)	/* --stressor-time */
 #define OPT_FLAGS_TASKSET_RANDOM STRESS_BIT_ULL(59)	/* --taskset-random */
 #define OPT_FLAGS_BUILDINFO	 STRESS_BIT_ULL(60)	/* --buildinfo */
+#define OPT_FLAGS_AUTOGROUP	 STRESS_BIT_ULL(61)	/* --autogroup */
 
 #define OPT_FLAGS_MINMAX_MASK		\
 	(OPT_FLAGS_MINIMIZE | OPT_FLAGS_MAXIMIZE)
@@ -185,6 +186,8 @@ typedef enum {
 
 	OPT_atomic,
 	OPT_atomic_ops,
+
+	OPT_autogroup,
 
 	OPT_bad_altstack,
 	OPT_bad_altstack_ops,

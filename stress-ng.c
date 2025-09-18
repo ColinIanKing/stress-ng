@@ -152,6 +152,7 @@ static stress_sigalrm_info_t sigalrm_info;
 static const stress_opt_flag_t opt_flags[] = {
 	{ OPT_abort,		OPT_FLAGS_ABORT },
 	{ OPT_aggressive,	OPT_FLAGS_AGGRESSIVE_MASK },
+	{ OPT_autogroup,	OPT_FLAGS_AUTOGROUP },
 	{ OPT_buildinfo,	OPT_FLAGS_BUILDINFO },
 	{ OPT_c_states,		OPT_FLAGS_C_STATES },
 	{ OPT_change_cpu,	OPT_FLAGS_CHANGE_CPU },

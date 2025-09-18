@@ -161,7 +161,7 @@ static int OPTIMIZE3 stress_rawsock_client(stress_args_t *args, const int rawsoc
 		if (UNLIKELY(sret < 0)) {
 			if (errno == ENOBUFS) {
 				/* Throttle */
-				VOID_RET(int, nice(1));
+				VOID_RET(int, shim_nice(1));
 				(void)shim_usleep(250000);
 				continue;
 			}

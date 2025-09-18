@@ -51,6 +51,7 @@ const struct option stress_long_options[] = {
 	{ "apparmor-ops",	1,	0,	OPT_apparmor_ops },
 	{ "atomic",		1,	0,	OPT_atomic },
 	{ "atomic-ops",		1,	0,	OPT_atomic_ops },
+	{ "autogroup",		0,	0,	OPT_autogroup },
 	{ "bad-altstack",	1,	0,	OPT_bad_altstack },
 	{ "bad-altstack-ops",	1,	0,	OPT_bad_altstack_ops },
 	{ "bad-ioctl",		1,	0,	OPT_bad_ioctl },

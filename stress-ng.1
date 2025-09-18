@@ -78,6 +78,13 @@ start N instances of all stressors in parallel. If N is less than zero, then
 the number of CPUs online is used for the number of instances.  If N is zero,
 then the number of configured CPUs in the system is used.
 .TP
+.B \-\-autogroup
+with this option any successful nice(2) call will attempt to also set the
+/proc/self/autogroup setting to the niceness level of the calling process. This
+is a Linux only option for the CFS scheduler when CONFIG_SCHED_AUTOGROUP is
+enabled, see sched(7) for more details on how this affects interactive scheduling
+behaviour.
+.TP
 .B \-b N, \-\-backoff N
 wait N microseconds between the start of each stress worker process. This
 allows one to ramp up the stress tests over time.

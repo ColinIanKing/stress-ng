@@ -167,7 +167,7 @@ static void drop_niceness(void)
 	errno = EPERM;
 	for (i = -40; (i < 0) && errno; i++) {
 		errno = 0;
-		VOID_RET(int, nice(i));
+		VOID_RET(int, shim_nice(i));
 	}
 }
 
