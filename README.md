@@ -520,6 +520,7 @@ stress-ng has found various Kernel, QEMU bugs/regressions, and libc bugs; approp
 * [binder: fix use-after-free in binderfs_evict_inode()](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=8c0a559825281764061a127632e5ad273f0466ad)
 * [MultiVM - L2 guest(s) running stress-ng getting stuck at booting after triggering crash](https://bugs.launchpad.net/ubuntu/+source/linux/+bug/2077722)
 * [cifs: Fix null-ptr-deref by static initializing global lock](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=b0b73329ebeeb727913f07b5b6bb85e66e03d156)
+* [Revert "sched_ext: Skip per-CPU tasks in scx_bpf_reenqueue_local()"](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=0b47b6c3543efd65f2e620e359b05f4938314fbd)
 
 ## Kernel improvements that used stress-ng
 
