@@ -227,6 +227,13 @@ again:
 #if defined(PIDFD_SELF_THREAD_GROUP)
 			(void)shim_pidfd_send_signal(PIDFD_SELF_THREAD_GROUP, 0, NULL, 0);
 #endif
+#if defined(FD_PIDFS_ROOT)
+			(void)shim_pidfd_send_signal(FD_PIDFS_ROOT, 0, NULL, 0);
+#endif
+#if defined(FD_INVALID)
+			/* should return EBADF */
+			(void)shim_pidfd_send_signal(FD_INVALID, 0, NULL, 0);
+#endif
 			stress_pidfd_reap(pid, pidfd);
 		}
 		stress_bogo_inc(args);
