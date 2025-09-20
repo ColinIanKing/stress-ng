@@ -142,6 +142,9 @@ static const stress_time_warp_info_t clocks[] = {
 #if defined(CLOCK_TAI)
 	TIME_CLOCK(shim_clock_gettime, CLOCK_TAI, false),
 #endif
+#if defined(CLOCK_AUX)
+	TIME_CLOCK(shim_clock_gettime, CLOCK_AUX, false),
+#endif
 #endif
 #if defined(HAVE_GETTIMEOFDAY)
 	TIME_MISC(stress_time_warp_gettimeofday, getitimeofday, false),
