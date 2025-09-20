@@ -59,6 +59,11 @@ static const stress_help_t help[] = {
 #define PR_SCHED_CORE_SCOPE_PROCESS_GROUP	(2)
 #endif
 
+#if defined(__linux__) && 	\
+     !defined(PR_THP_DISABLE_EXCEPT_ADVISED)
+#define PR_THP_DISABLE_EXCEPT_ADVISED		(1 << 1)
+#endif
+
 #if defined(PR_SET_PDEATHSIG) ||		/* 1 */ \
     defined(PR_GET_PDEATHSIG) ||		/* 2 */	\
     defined(PR_GET_DUMPABLE) ||			/* 3 */ \
@@ -744,6 +749,12 @@ static int stress_prctl_child(
 					"unexpectedly succeeded\n", args->name);
 				rc = EXIT_FAILURE;
 			}
+
+
+
+#if defined(PR_THP_DISABLE_EXCEPT_ADVISED)
+			VOID_RET(int, prctl(PR_SET_THP_DISABLE, 1, PR_THP_DISABLE_EXCEPT_ADVISED, 0, 0));
+#endif
 			/* now exercise what is expected */
 			VOID_RET(int, prctl(PR_SET_THP_DISABLE, 0, 0, 0, 0));
 		}
