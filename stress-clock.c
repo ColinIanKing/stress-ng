@@ -80,6 +80,9 @@ static const stress_clock_info_t clocks[] = {
 #if defined(CLOCK_TAI)
 	CLOCK_INFO(CLOCK_TAI)
 #endif
+#if defined(CLOCK_AUX)
+	CLOCK_INFO(CLOCK_AUX)
+#endif
 };
 
 #if defined(HAVE_CLOCK_NANOSLEEP)
