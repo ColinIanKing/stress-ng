@@ -301,6 +301,9 @@ static const int clocks[] = {
 #if defined(CLOCK_TAI)
 	CLOCK_TAI,
 #endif
+#if defined(CLOCK_AUX)
+	CLOCK_AUX,
+#endif
 };
 #endif
 
