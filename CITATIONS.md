@@ -186,4 +186,5 @@
  * [When Things Heat Up: Detecting Malicious Activity Using CPU Thermal Sensors](https://www.mdpi.com/2624-800X/5/3/56)
  * [SkyForge Core: A Triple Modular Redundant Computing Architecture for Small Satellites](https://pillars.taylor.edu/cgi/viewcontent.cgi?article=1000&context=physics-engineering-student-papers)
  * [Systematic Analysis of Kernel Security Performance and Energy Costs](https://dl.acm.org/doi/pdf/10.1145/3708821.3736197)
- 
+ * [Efficient Fault Localization in a Cloud Stack Using End-to-End Application Service Topology](https://arxiv.org/html/2509.05511v1)
+
