@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "18 September 2025"
+.TH STRESS-NG 1 "22 September 2025"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -8774,7 +8774,7 @@ using open(2) with the O_CREAT open flag, or with creat(2).
 .B \-\-touch\-ops N
 stop the touch workers after N file touches.
 .TP
-.B \-\-touch\-opts all, direct, dsync, excl, noatime, sync
+.B \-\-touch\-opts [ all | direct | dsync | excl | noatime | sync ]
 specify various file open options as a comma separated list. Options are as
 follows:
 .sp
