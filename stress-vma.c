@@ -27,8 +27,14 @@
 #include "core-pthread.h"
 #include "core-put.h"
 
+#include <sys/ioctl.h>
+
 #if defined(HAVE_SYS_PRCTL_H)
 #include <sys/prctl.h>
+#endif
+
+#if defined(HAVE_LINUX_FS_H)
+#include <linux/fs.h>
 #endif
 
 #define STRESS_VMA_PROCS	(2)
@@ -67,7 +73,8 @@ typedef struct {
 #define STRESS_VMA_PROC_MAPS	(9)
 #define STRESS_VMA_SIGSEGV	(10)
 #define STRESS_VMA_SIGBUS	(11)
-#define STRESS_VMA_MAX		(12)
+#define STRESS_VMA_PAGEMAP_SCAN	(12)
+#define STRESS_VMA_MAX		(13)
 
 typedef struct {
 	struct {
@@ -89,6 +96,7 @@ static const char * const stress_vma_metrics_name[] = {
 	"proc-maps",	/* STRESS_VMA_PROC_MAPS */
 	"SIGSEGVs",	/* STRESS_VMA_SIGSEGV */
 	"SIGBUSes",	/* STRESS_VMA_SIGBUS */
+	"pagemap-scans",/* STRESS_VMA_PAGEMAP_SCAN */
 };
 
 static stress_vma_metrics_t *stress_vma_metrics;
@@ -561,6 +569,73 @@ static void *stress_vma_access(void *ptr)
 	return NULL;
 }
 
+#if defined(__linux__) &&		\
+    defined(PAGEMAP_SCAN) &&		\
+    defined(PAGE_IS_WRITTEN) &&		\
+    defined(HAVE_PM_SCAN_ARG) &&	\
+    defined(HAVE_PAGE_REGION)
+/*
+ *  stress_vma_pagemap()
+ *	read pagemap
+ */
+static void *stress_vma_pagemap(void *ptr)
+{
+	stress_vma_context_t *ctxt = (stress_vma_context_t *)ptr;
+	stress_args_t *args = (stress_args_t *)ctxt->args;
+	int fd;
+
+        fd = open("/proc/self/pagemap", O_RDONLY);
+        if (fd < 0)
+		return NULL;
+
+	while (stress_vma_continue_flag && stress_vma_continue(args)) {
+		struct pm_scan_arg arg;
+		struct page_region vec[1];
+		uintptr_t ptr;
+
+		switch (stress_mwc8modn(6)) {
+		case 0:
+			ptr = (uintptr_t)g_shared->mapped.page_none;
+			break;
+		case 1:
+			ptr = (uintptr_t)g_shared->mapped.page_ro;
+			break;
+		case 2:
+			ptr = (uintptr_t)g_shared->mapped.page_wo;
+			break;
+		case 3:
+			ptr = (uintptr_t)g_shared;
+			break;
+		case 4:
+			ptr = (uintptr_t)g_shared->mem_cache.buffer;
+			break;
+		default:
+			ptr = (uintptr_t)ctxt->data;
+			break;
+		}
+
+		(void)shim_memset(&arg, 0, sizeof(arg));
+		(void)shim_memset(vec, 0, sizeof(vec));
+
+		arg.size = sizeof(arg);
+		arg.flags = 0;
+		arg.max_pages = 1;
+		arg.start = (uint64_t)ptr;
+		arg.end = (uint64_t)(ptr + args->page_size);
+		arg.vec = (uint64_t)vec;
+		arg.vec_len = 1;
+		arg.category_mask = PAGE_IS_WRITTEN;
+		arg.return_mask = PAGE_IS_WRITTEN;
+
+		if (ioctl(fd, PAGEMAP_SCAN, &arg) >= 0)
+			stress_vma_metrics->s.metrics[STRESS_VMA_PAGEMAP_SCAN]++;
+        }
+	(void)close(fd);
+
+	return NULL;
+}
+#endif
+
 static const stress_thread_info_t vma_funcs[] = {
 	{ stress_vma_mmap,	2 },
 	{ stress_vma_munmap,	1 },
@@ -578,6 +653,13 @@ static const stress_thread_info_t vma_funcs[] = {
 	{ stress_vma_maps,	1 },
 #endif
 	{ stress_vma_access,	20 },
+#if defined(__linux__) &&		\
+    defined(PAGEMAP_SCAN) &&		\
+    defined(PAGE_IS_WRITTEN) &&		\
+    defined(HAVE_PM_SCAN_ARG) &&	\
+    defined(HAVE_PAGE_REGION)
+	{ stress_vma_pagemap,	1 },
+#endif
 };
 
 /*
