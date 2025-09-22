@@ -333,7 +333,7 @@ static const stress_help_t help_generic[] = {
 	{ NULL,		"interrupts",		"check for error interrupts" },
 	{ NULL,		"ionice-class C",	"specify ionice class (idle, besteffort, realtime)" },
 	{ NULL,		"ionice-level L",	"specify ionice level (0 max, 7 min)" },
-	{ NULL,		"iostat S",		"show I/O statistics every S seconds" },
+	{ "I",		"iostat S",		"show I/O statistics every S seconds" },
 	{ "j",		"job jobfile",		"run the named jobfile" },
 	{ NULL,		"keep-files",		"do not remove files or directories" },
 	{ "k",		"keep-name",		"keep stress worker names to be 'stress-ng'" },
@@ -3155,7 +3155,7 @@ int stress_parse_opts(int argc, char **argv, const bool jobmode)
 
 		opterr = (!jobmode) ? opterr : 0;
 next_opt:
-		if ((c = getopt_long(argc, argv, "?kKhMVvqnt:b:c:i:j:m:d:f:s:l:p:P:C:S:a:y:F:D:T:u:o:r:B:R:w:x:Y:",
+		if ((c = getopt_long(argc, argv, "?kKhMVvqnt:b:c:i:I:j:m:d:f:s:l:p:P:C:S:a:y:F:D:T:u:o:r:B:R:w:x:Y:",
 			stress_long_options, &option_index)) == -1) {
 			break;
 		}

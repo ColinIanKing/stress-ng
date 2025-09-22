@@ -119,6 +119,7 @@ typedef enum {
 	OPT_fallocate = 'F',
 	OPT_help = 'h',
 	OPT_io = 'i',
+	OPT_iostat = 'I',
 	OPT_job = 'j',
 	OPT_keep_name = 'k',
 	OPT_klog_check = 'K',
@@ -664,8 +665,6 @@ typedef enum {
 
 	OPT_ioprio,
 	OPT_ioprio_ops,
-
-	OPT_iostat,
 
 	OPT_io_ops,
 
