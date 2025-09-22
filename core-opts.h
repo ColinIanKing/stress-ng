@@ -124,6 +124,7 @@ typedef enum {
 	OPT_keep_name = 'k',
 	OPT_klog_check = 'K',
 	OPT_cpu_load = 'l',
+	OPT_log_file = 'L',
 	OPT_vm = 'm',
 	OPT_metrics = 'M',
 	OPT_dry_run = 'n',
@@ -775,7 +776,6 @@ typedef enum {
 	OPT_lockofd_ops,
 
 	OPT_log_brief,
-	OPT_log_file,
 	OPT_log_lockless,
 
 	OPT_logmath,
