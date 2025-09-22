@@ -488,6 +488,8 @@ do_stress --cpu -1 --c-state
 do_stress --cpu-online -1 --cpu-online-all --vmstat 1 --tz --pathological
 do_stress --cpu-online -1 --cpu-online-affinity --pathological
 
+do_stress --cpu-sched -1 --autogroup
+
 do_stress --cyclic -1 --cyclic-policy deadline
 do_stress --cyclic -1 --cyclic-policy fifo
 do_stress --cyclic -1 --cyclic-policy rr
@@ -651,6 +653,8 @@ do_stress --nanosleep -1 --nanosleep-method ns
 do_stress --nanosleep -1 --nanosleep-method us
 do_stress --nanosleep -1 --nanosleep-method ms
 
+do_stress --nice -1 --autogroup
+
 do_stress --null -1 --null-write
 
 do_stress --numa -1 --numa-shuffle-addr
@@ -719,6 +723,8 @@ do_stress --rawpkt -1 --rawpkt-rxring 16
 do_stress --remap -1 --remap-mlock
 do_stress --remap -1 --remap-pages 64
 
+do_stress --resched -1 --autogroup
+
 do_stress --resources -1 --resources-mlock
 
 do_stress --revio -1 --revio-write-size 17
@@ -734,6 +740,9 @@ do_stress --sctp -1 --sctp-domain ipv4 --sctp-sched prio
 do_stress --sctp -1 --sctp-domain ipv4 --sctp-sched rr
 
 do_stress --schedmix -1 --schedmix-procs 64
+do_stress --schedmix -1 --autogroup
+
+do_stress --schedpolicy -1 --autogroup
 
 do_stress --shm -1 --shm-objs 100000
 do_stress --shm -1 --shm-mlock
