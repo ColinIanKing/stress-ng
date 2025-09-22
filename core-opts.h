@@ -130,6 +130,7 @@ typedef enum {
 	OPT_metrics = 'M',
 	OPT_dry_run = 'n',
 	OPT_open = 'o',
+	OPT_oomable = 'O',
 	OPT_pipe = 'p',
 	OPT_poll = 'P',
 	OPT_quiet = 'q',
@@ -1057,7 +1058,6 @@ typedef enum {
 	OPT_numa_shuffle_addr,
 	OPT_numa_shuffle_node,
 
-	OPT_oomable,
 	OPT_oom_avoid,
 	OPT_oom_avoid_bytes,
 
