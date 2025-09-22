@@ -108,6 +108,7 @@ typedef enum {
 	OPT_undefined = 0,
 	/* Short options */
 	OPT_query = '?',
+	OPT_aggressive = 'A',
 	OPT_all = 'a',
 	OPT_backoff = 'b',
 	OPT_bigheap = 'B',
@@ -169,8 +170,6 @@ typedef enum {
 	OPT_af_alg,
 	OPT_af_alg_ops,
 	OPT_af_alg_dump,
-
-	OPT_aggressive,
 
 	OPT_aio,
 	OPT_aio_ops,
