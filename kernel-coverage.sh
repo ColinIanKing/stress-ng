@@ -580,6 +580,14 @@ do_stress --memrate -1 --memrate-flush
 
 do_stress --mincore -1 --mincore-random
 
+do_stress --min-nanosleep -1 --min-nanosleep-sched batch
+do_stress --min-nanosleep -1 --min-nanosleep-sched deadline
+do_stress --min-nanosleep -1 --min-nanosleep-sched ext
+do_stress --min-nanosleep -1 --min-nanosleep-sched fifo
+do_stress --min-nanosleep -1 --min-nanosleep-sched idle
+do_stress --min-nanosleep -1 --min-nanosleep-sched other
+do_stress --min-nanosleep -1 --min-nanosleep-sched rr
+
 do_stress --mmap -1 --mmap-async
 do_stress --mmap -1 --mmap-file
 do_stress --mmap -1 --mmap-madvise
@@ -683,8 +691,9 @@ do_stress --prio-inv -1 --prio-inv-type inherit
 do_stress --prio-inv -1 --prio-inv-type none
 do_stress --prio-inv -1 --prio-inv-type protect
 do_stress --prio-inv -1 --prio-inv-policy batch
-do_stress --prio-inv -1 --prio-inv-policy idle
+do_stress --prio-inv -1 --prio-inv-policy ext
 do_stress --prio-inv -1 --prio-inv-policy fifo
+do_stress --prio-inv -1 --prio-inv-policy idle
 do_stress --prio-inv -1 --prio-inv-policy other
 do_stress --prio-inv -1 --prio-inv-policy rr
 
@@ -842,10 +851,11 @@ do_stress --vm -1 --vm-populate --ksm
 do_stress --vm-addr -1 --vm-addr-mlock
 do_stress --vm-addr -1 --vm-addr-numa
 
-do_stress --workload -1 --workload-sched idle --workload-load 90
-do_stress --workload -1 --workload-sched other --workload-load 90
 do_stress --workload -1 --workload-sched batch --workload-load 90
 do_stress --workload -1 --workload-sched deadline --workload-load 90
+do_stress --workload -1 --workload-sched ext --workload-load 90
+do_stress --workload -1 --workload-sched idle --workload-load 90
+do_stress --workload -1 --workload-sched other --workload-load 90
 do_stress --workload -1 --workload-threads 8
 do_stress --workload -1 --workload-dist cluster
 do_stress --workload -1 --workload-dist even
@@ -855,6 +865,7 @@ do_stress --workload -1 --workload-dist random2
 do_stress --workload -1 --workload-dist random3
 
 do_stress --yield -1 --yield-sched deadline
+do_stress --yield -1 --yield-sched ext
 do_stress --yield -1 --yield-sched idle
 do_stress --yield -1 --yield-sched fifo
 do_stress --yield -1 --yield-sched other
