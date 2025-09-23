@@ -1550,7 +1550,7 @@ static int MLOCKED_TEXT stress_run_child(
 		args->instances = (uint32_t)g_stressor_current->instances;
 		args->pid = child_pid;
 		args->page_size = page_size;
-		args->time_end = stress_time_now() + (double)g_opt_timeout;
+		args->time_end = g_opt_timeout ? stress_time_now() + (double)g_opt_timeout : DBL_MAX;
 		args->mapped = &g_shared->mapped;
 		args->metrics = &stats->metrics;
 		args->stats = stats;
@@ -1640,7 +1640,7 @@ static int MLOCKED_TEXT stress_run_child(
 	if (g_opt_flags & OPT_FLAGS_THERMAL_ZONES)
 		(void)stress_tz_get_temperatures(&g_shared->tz_info, &stats->tz);
 #endif
-	stats->duration = finish - stats->start;
+	stats->duration = (finish > 0.0) ? finish - stats->start : 0.0;
 	stats->counter_total += args->bogo.ci.counter;
 	stats->duration_total += stats->duration;
 
