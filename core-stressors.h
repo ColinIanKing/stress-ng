@@ -346,6 +346,7 @@
 	MACRO(tee)		\
 	MACRO(timer)		\
 	MACRO(timerfd)		\
+	MACRO(timermix)		\
 	MACRO(time_warp)	\
 	MACRO(tlb_shootdown)	\
 	MACRO(tmpfs)		\

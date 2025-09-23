@@ -1610,6 +1610,9 @@ typedef enum {
 	OPT_timerfd_freq,
 	OPT_timerfd_rand,
 
+	OPT_timermix,
+	OPT_timermix_ops,
+
 	OPT_times,
 
 	OPT_timestamp,

@@ -1146,6 +1146,8 @@ const struct option stress_long_options[] = {
 	{ "timerfd-freq",	1,	0,	OPT_timerfd_freq },
 	{ "timerfd-ops",	1,	0,	OPT_timerfd_ops },
 	{ "timerfd-rand",	0,	0,	OPT_timerfd_rand },
+	{ "timermix",		1,	0,	OPT_timermix },
+	{ "timermix-ops",	1,	0,	OPT_timermix_ops },
 	{ "timer-slack"	,	1,	0,	OPT_timer_slack },
 	{ "time-warp",		1,	0,	OPT_time_warp },
 	{ "time-warp-ops",	1,	0,	OPT_time_warp_ops },

@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "22 September 2025"
+.TH STRESS-NG 1 "23 September 2025"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -8707,6 +8707,24 @@ stop timerfd stress workers after N bogo timerfd events (Linux only).
 select a timerfd frequency based around the timer frequency \(+-12.5% random
 jitter. This tries to force more variability in the timer interval to make the
 scheduling less predictable.
+.RE
+.TP
+.B Timer Mix stressor
+.RS 5
+.TQ
+.B \-\-timermix N
+start N workers creating timer and itimer signals at a high rate, this can
+create a many thousands of timer clock interrupts per second. Each signal
+that gets handled is counted as a bogo-operation. For timers, the following
+clocks types (where available) are used: CLOCK_REALTIME, CLOCK_MONOTONIC,
+CLOCK_PROCESS_CPUTIME_ID, CLOCK_THREAD_CPUTIME_ID, CLOCK_BOOTTIME and
+CLOCK_TAI. For itimers, the following interval timer types are
+used: ITIMER_REAL, ITIMER_VIRTUAL and ITIMER_PROF. Some systems may support
+none or a subset of these timer or itimer types. The freqeuency of the
+itimers is auto-adjusted to try and maximize the timer interrupt rate.
+.TP
+.B \-\-timermix\-ops N
+stop after N signals from timers and itimers.
 .RE
 .TP
 .B Time warp stressor
