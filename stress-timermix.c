@@ -275,7 +275,6 @@ static int stress_timermix(stress_args_t *args)
 	struct itimerval itimer;
 #endif
 
-	sigset_t mask;
 	int rc = EXIT_SUCCESS;
 	size_t i, j;
 	bool timer_created = false;
@@ -284,10 +283,6 @@ static int stress_timermix(stress_args_t *args)
 	s_args = args;
 
 	time_end = args->time_end;
-
-	(void)sigemptyset(&mask);
-	(void)sigaddset(&mask, SIGINT);
-	(void)sigprocmask(SIG_SETMASK, &mask, NULL);
 
 #if defined(EXERCISE_TIMER)
 	rate_ns = (double)STRESS_NANOSECOND / DEFAULT_TIMER_FREQ;
