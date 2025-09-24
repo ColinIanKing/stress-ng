@@ -104,31 +104,21 @@ static void stress_yield_sched_policy(stress_args_t *args, const size_t yield_sc
 			ret = shim_sched_setattr(0, &attr, 0);
 			break;
 		}
-		goto case_sched_other;
+		param.sched_priority = 0;
+		ret = sched_setscheduler(0, policy, &param);
+		break;
 #endif
 #if defined(SCHED_BATCH)
 	case SCHED_BATCH:
-		goto case_sched_other;
 #endif
 #if defined(SCHED_EXT)
 	case SCHED_EXT:
-		goto case_sched_other;
 #endif
 #if defined(SCHED_IDLE)
 	case SCHED_IDLE:
-		goto case_sched_other;
 #endif
 #if defined(SCHED_OTHER)
 	case SCHED_OTHER:
-#endif
-#if (defined(SCHED_DEADLINE) &&		\
-     defined(HAVE_SCHED_GETATTR) &&	\
-     defined(HAVE_SCHED_SETATTR)) ||	\
-     defined(SCHED_BATCH) ||		\
-     defined(SCHED_EXT) ||		\
-     defined(SCHED_IDLE) ||		\
-     defined(SCHED_OTHER)
-case_sched_other:
 #endif
 		param.sched_priority = 0;
 		ret = sched_setscheduler(0, policy, &param);
