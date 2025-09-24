@@ -252,7 +252,7 @@ static void MLOCKED_TEXT OPTIMIZE3 stress_timermix_itimer_action(int sig, siginf
 	}
 
 	stress_bogo_inc(s_args);
-	if (UNLIKELY((stress_bogo_get(s_args) & 65535) == 0))
+	if (UNLIKELY((stress_bogo_get(s_args) & 31) == 0))
 		if (UNLIKELY(stress_time_now() > time_end))
 			goto cancel;
 	return;
