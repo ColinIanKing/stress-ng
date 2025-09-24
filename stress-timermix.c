@@ -145,11 +145,19 @@ static void MLOCKED_TEXT OPTIMIZE3 stress_timermix_timer_action(int sig, siginfo
 	if (UNLIKELY(!stress_continue(s_args)))
 		goto cancel;
 
+#if defined(__NetBSD__)
+	if (LIKELY(siginfo && siginfo->si_value.sival_ptr)) {
+		stress_timer_info_t *info = (stress_timer_info_t *)siginfo->si_value.sival_ptr;
+		info->count++;
+	}
+#else
+
 	if (LIKELY(siginfo && siginfo->si_ptr)) {
 		stress_timer_info_t *info = (stress_timer_info_t *)siginfo->si_ptr;
 
 		info->count++;
 	}
+#endif
 
 	stress_bogo_inc(s_args);
 	if (UNLIKELY((stress_bogo_get(s_args) & 8191) == 0)) {
