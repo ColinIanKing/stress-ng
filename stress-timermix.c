@@ -146,7 +146,8 @@ static void MLOCKED_TEXT OPTIMIZE3 stress_timermix_timer_action(int sig, siginfo
 		goto cancel;
 
 #if defined(__NetBSD__) ||	\
-    defined(__FreeBSD__)
+    defined(__FreeBSD__) || 	\
+    defined(__sun__)
 	if (LIKELY(siginfo && siginfo->si_value.sival_ptr)) {
 		stress_timer_info_t *info = (stress_timer_info_t *)siginfo->si_value.sival_ptr;
 		info->count++;
