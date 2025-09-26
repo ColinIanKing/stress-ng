@@ -614,9 +614,8 @@ static void *stress_vma_pagemap(void *ptr)
 			break;
 		}
 
-		(void)shim_memset(&arg, 0, sizeof(arg));
 		(void)shim_memset(vec, 0, sizeof(vec));
-
+		(void)shim_memset(&arg, 0, sizeof(arg));
 		arg.size = sizeof(arg);
 		arg.flags = 0;
 		arg.max_pages = 1;
@@ -624,6 +623,21 @@ static void *stress_vma_pagemap(void *ptr)
 		arg.end = (uint64_t)(ptr + args->page_size);
 		arg.vec = (uint64_t)vec;
 		arg.vec_len = 1;
+		arg.category_mask = PAGE_IS_WRITTEN;
+		arg.return_mask = PAGE_IS_WRITTEN;
+
+		if (ioctl(fd, PAGEMAP_SCAN, &arg) >= 0)
+			stress_vma_metrics->s.metrics[STRESS_VMA_PAGEMAP_SCAN]++;
+
+		(void)shim_memset(vec, 0, sizeof(vec));
+		(void)shim_memset(&arg, 0, sizeof(arg));
+		arg.size = sizeof(arg);
+		arg.flags = 0;
+		arg.max_pages = 1;
+		arg.start = (uint64_t)ptr;
+		arg.end = (uint64_t)(ptr + args->page_size);
+		arg.vec = (uint64_t)vec;
+		arg.vec_len = 0;
 		arg.category_mask = PAGE_IS_WRITTEN;
 		arg.return_mask = PAGE_IS_WRITTEN;
 
