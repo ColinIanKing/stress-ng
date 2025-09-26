@@ -632,11 +632,9 @@ static void MLOCKED_TEXT stress_sigalrm_handler(int signum)
 {
 	if (g_shared) {
 		g_shared->caught_sigint = true;
-		if (sigalarmed) {
-			if (!*sigalarmed) {
-				g_shared->instance_count.alarmed++;
-				*sigalarmed = true;
-			}
+		if ((sigalarmed) && (!*sigalarmed)) {
+			g_shared->instance_count.alarmed++;
+			*sigalarmed = true;
 		}
 	}
 	stress_zero_bogo_max_ops();
