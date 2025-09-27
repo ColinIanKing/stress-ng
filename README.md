@@ -405,14 +405,15 @@ stress-ng: info:  [6998] metrics untrustworthy: 0
 stress-ng: info:  [6998] successful run completed in 1 min
 ```
 
-Run all scheduler stressors with 64 instances per stressor, show progress and enable test verification:
+Run all scheduler stressors with 64 instances per stressor for 5 minutes per stressor, show progress and enable test verification:
 ```
-stress-ng --seq 64 --class scheduler --progress --verify
+stress-ng --seq 64 --class scheduler -t 5m --progress --verify
 ```
 
-Run permutations of all the vector stressors, 8 insteaces of each, 5 seconds per permutation, show progress and enable test verification:
+Run permutations of all the vector stressors, 8 instances of each, 5 seconds per permutation, show progress and enable test verification
+and enable verbose mode for output:
 ```
-stress-ng --class vector --permute 8 -t 5 --verify --progress
+stress-ng --class vector --permute 8 -t 5 --progress --verify -v
 ```
 
 Run as root two instances of the virtual memory stressor, use 95% of available memory, log results to example.log, check kernel log for errors,
