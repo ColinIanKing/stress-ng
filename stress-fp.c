@@ -211,6 +211,46 @@ static double TARGET_CLONES OPTIMIZE3 name(				\
 	return t2 - t1;							\
 }
 
+#define STRESS_FP_SUB(field, name, do_bogo_ops)				\
+static double TARGET_CLONES OPTIMIZE3 name(				\
+	stress_args_t *args,						\
+	fp_data_t *fp_data,						\
+	const int idx)							\
+{									\
+	register int i;							\
+	const int loops = LOOPS_PER_CALL >> 1;				\
+	double t1, t2;							\
+									\
+	for (i = 0; i < FP_ELEMENTS; i++) {				\
+		fp_data[i].field.r[idx] = fp_data[i].field.r_init;	\
+	}								\
+									\
+	t1 = stress_time_now();						\
+	for (i = 0; i < loops ; i++) {					\
+		fp_data[0].field.r[idx] -= fp_data[0].field.add;	\
+		fp_data[0].field.r[idx] -= fp_data[0].field.add_rev;	\
+		fp_data[1].field.r[idx] -= fp_data[1].field.add;	\
+		fp_data[1].field.r[idx] -= fp_data[1].field.add_rev;	\
+		fp_data[2].field.r[idx] -= fp_data[2].field.add;	\
+		fp_data[2].field.r[idx] -= fp_data[2].field.add_rev;	\
+		fp_data[3].field.r[idx] -= fp_data[3].field.add;	\
+		fp_data[3].field.r[idx] -= fp_data[3].field.add_rev;	\
+		fp_data[4].field.r[idx] -= fp_data[4].field.add;	\
+		fp_data[4].field.r[idx] -= fp_data[4].field.add_rev;	\
+		fp_data[5].field.r[idx] -= fp_data[5].field.add;	\
+		fp_data[5].field.r[idx] -= fp_data[5].field.add_rev;	\
+		fp_data[6].field.r[idx] -= fp_data[6].field.add;	\
+		fp_data[6].field.r[idx] -= fp_data[6].field.add_rev;	\
+		fp_data[7].field.r[idx] -= fp_data[7].field.add;	\
+		fp_data[7].field.r[idx] -= fp_data[7].field.add_rev;	\
+	}								\
+	t2 = stress_time_now();						\
+									\
+	if (do_bogo_ops)						\
+		stress_bogo_inc(args);					\
+	return t2 - t1;							\
+}
+
 #define STRESS_FP_MUL(field, name, do_bogo_ops)				\
 static double TARGET_CLONES OPTIMIZE3 name(				\
 	stress_args_t *args,						\
@@ -292,43 +332,51 @@ static double TARGET_CLONES OPTIMIZE3 name(				\
 }
 
 STRESS_FP_ADD(ld, stress_fp_ldouble_add, true)
+STRESS_FP_ADD(ld, stress_fp_ldouble_sub, true)
 STRESS_FP_MUL(ld, stress_fp_ldouble_mul, true)
 STRESS_FP_DIV(ld, stress_fp_ldouble_div, true)
 
 STRESS_FP_ADD(d, stress_fp_double_add, true)
+STRESS_FP_ADD(d, stress_fp_double_sub, true)
 STRESS_FP_MUL(d, stress_fp_double_mul, true)
 STRESS_FP_DIV(d, stress_fp_double_div, true)
 
 STRESS_FP_ADD(f, stress_fp_float_add, true)
+STRESS_FP_ADD(f, stress_fp_float_sub, true)
 STRESS_FP_MUL(f, stress_fp_float_mul, true)
 STRESS_FP_DIV(f, stress_fp_float_div, true)
 
 #if defined(HAVE__bf16)
 STRESS_FP_ADD(bf16, stress_fp_bf16_add, false)
+STRESS_FP_ADD(bf16, stress_fp_bf16_sub, false)
 STRESS_FP_MUL(bf16, stress_fp_bf16_mul, false)
 STRESS_FP_DIV(bf16, stress_fp_bf16_div, false)
 #endif
 
 #if defined(HAVE_Float16)
 STRESS_FP_ADD(f16, stress_fp_float16_add, false)
+STRESS_FP_ADD(f16, stress_fp_float16_sub, false)
 STRESS_FP_MUL(f16, stress_fp_float16_mul, false)
 STRESS_FP_DIV(f16, stress_fp_float16_div, false)
 #endif
 
 #if defined(HAVE_Float32)
 STRESS_FP_ADD(f32, stress_fp_float32_add, false)
+STRESS_FP_ADD(f32, stress_fp_float32_sub, false)
 STRESS_FP_MUL(f32, stress_fp_float32_mul, false)
 STRESS_FP_DIV(f32, stress_fp_float32_div, false)
 #endif
 
 #if defined(HAVE_Float64)
 STRESS_FP_ADD(f64, stress_fp_float64_add, false)
+STRESS_FP_ADD(f64, stress_fp_float64_sub, false)
 STRESS_FP_MUL(f64, stress_fp_float64_mul, false)
 STRESS_FP_DIV(f64, stress_fp_float64_div, false)
 #endif
 
 #if defined(HAVE__float80)
 STRESS_FP_ADD(f80, stress_fp_float80_add, false)
+STRESS_FP_ADD(f80, stress_fp_float80_sub, false)
 STRESS_FP_MUL(f80, stress_fp_float80_mul, false)
 STRESS_FP_DIV(f80, stress_fp_float80_div, false)
 #endif
@@ -336,12 +384,14 @@ STRESS_FP_DIV(f80, stress_fp_float80_div, false)
 #if defined(HAVE__float128) || 	\
     defined(HAVE_Float128)
 STRESS_FP_ADD(f128, stress_fp_float128_add, false)
+STRESS_FP_ADD(f128, stress_fp_float128_sub, false)
 STRESS_FP_MUL(f128, stress_fp_float128_mul, false)
 STRESS_FP_DIV(f128, stress_fp_float128_div, false)
 #endif
 
 #if defined(HAVE__ibm128)
 STRESS_FP_ADD(ibm128, stress_fp_ibm128_add, false)
+STRESS_FP_ADD(ibm128, stress_fp_ibm128_sub, false)
 STRESS_FP_MUL(ibm128, stress_fp_ibm128_mul, false)
 STRESS_FP_DIV(ibm128, stress_fp_ibm128_div, false)
 #endif
@@ -381,6 +431,32 @@ static const stress_fp_funcs_t stress_fp_funcs[] = {
 	{ "floatadd",		"float add",		stress_fp_float_add,	STRESS_FP_TYPE_FLOAT },
 	{ "doubleadd",		"double add",		stress_fp_double_add,	STRESS_FP_TYPE_DOUBLE },
 	{ "ldoubleadd",		"long double add",	stress_fp_ldouble_add,	STRESS_FP_TYPE_LONG_DOUBLE },
+
+#if defined(HAVE__float128) ||	\
+    defined(HAVE_Float128)
+	{ "float128sub",	"float128 subtract",	stress_fp_float128_sub,	STRESS_FP_TYPE_FLOAT128 },
+#endif
+#if defined(HAVE__ibm128)
+	{ "ibm128sub",		"ibm128 subtract",	stress_fp_ibm128_sub,	STRESS_FP_TYPE_IBM128 },
+#endif
+#if defined(HAVE__float80)
+	{ "float80sub",		"float80 subtract",	stress_fp_float80_sub,	STRESS_FP_TYPE_FLOAT80 },
+#endif
+#if defined(HAVE_Float64)
+	{ "float64sub",		"float64 subtract",	stress_fp_float64_sub,	STRESS_FP_TYPE_FLOAT64 },
+#endif
+#if defined(HAVE_Float32)
+	{ "float32sub",		"float32 subtract",	stress_fp_float32_sub,	STRESS_FP_TYPE_FLOAT32 },
+#endif
+#if defined(HAVE__bf16)
+	{ "bf16sub",		"bf16 subtract",	stress_fp_bf16_sub,	STRESS_FP_TYPE_BF16 },
+#endif
+#if defined(HAVE_Float16)
+	{ "float16sub",		"float16 subtract",	stress_fp_float16_sub,	STRESS_FP_TYPE_FLOAT16 },
+#endif
+	{ "floatsub",		"float subtract",	stress_fp_float_sub,	STRESS_FP_TYPE_FLOAT },
+	{ "doublesub",		"double subtract",	stress_fp_double_sub,	STRESS_FP_TYPE_DOUBLE },
+	{ "ldoublesub",		"long double subtract",	stress_fp_ldouble_sub,	STRESS_FP_TYPE_LONG_DOUBLE },
 
 #if defined(HAVE__float128) ||	\
     defined(HAVE_Float128)
