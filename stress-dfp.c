@@ -87,7 +87,7 @@ static double stress_dfp_all(
 	dfp_data_t *dfp_data,
 	const int idx);
 
-#define STRESS_DFP_ADD(field, name, do_bogo_ops)				\
+#define STRESS_DFP_ADD(field, name, do_bogo_ops)			\
 static double TARGET_CLONES OPTIMIZE3 name(				\
 	stress_args_t *args,						\
 	dfp_data_t *dfp_data,						\
@@ -127,7 +127,47 @@ static double TARGET_CLONES OPTIMIZE3 name(				\
 	return t2 - t1;							\
 }
 
-#define STRESS_DFP_MUL(field, name, do_bogo_ops)				\
+#define STRESS_DFP_SUB(field, name, do_bogo_ops)			\
+static double TARGET_CLONES OPTIMIZE3 name(				\
+	stress_args_t *args,						\
+	dfp_data_t *dfp_data,						\
+	const int idx)							\
+{									\
+	register int i;							\
+	const int loops = LOOPS_PER_CALL >> 1;				\
+	double t1, t2;							\
+									\
+	for (i = 0; i < DFP_ELEMENTS; i++) {				\
+		dfp_data[i].field.r[idx] = dfp_data[i].field.r_init;	\
+	}								\
+									\
+	t1 = stress_time_now();						\
+	for (i = 0; i < loops ; i++) {					\
+		dfp_data[0].field.r[idx] -= dfp_data[0].field.add;	\
+		dfp_data[0].field.r[idx] -= dfp_data[0].field.add_rev;	\
+		dfp_data[1].field.r[idx] -= dfp_data[1].field.add;	\
+		dfp_data[1].field.r[idx] -= dfp_data[1].field.add_rev;	\
+		dfp_data[2].field.r[idx] -= dfp_data[2].field.add;	\
+		dfp_data[2].field.r[idx] -= dfp_data[2].field.add_rev;	\
+		dfp_data[3].field.r[idx] -= dfp_data[3].field.add;	\
+		dfp_data[3].field.r[idx] -= dfp_data[3].field.add_rev;	\
+		dfp_data[4].field.r[idx] -= dfp_data[4].field.add;	\
+		dfp_data[4].field.r[idx] -= dfp_data[4].field.add_rev;	\
+		dfp_data[5].field.r[idx] -= dfp_data[5].field.add;	\
+		dfp_data[5].field.r[idx] -= dfp_data[5].field.add_rev;	\
+		dfp_data[6].field.r[idx] -= dfp_data[6].field.add;	\
+		dfp_data[6].field.r[idx] -= dfp_data[6].field.add_rev;	\
+		dfp_data[7].field.r[idx] -= dfp_data[7].field.add;	\
+		dfp_data[7].field.r[idx] -= dfp_data[7].field.add_rev;	\
+	}								\
+	t2 = stress_time_now();						\
+									\
+	if (do_bogo_ops)						\
+		stress_bogo_inc(args);					\
+	return t2 - t1;							\
+}
+
+#define STRESS_DFP_MUL(field, name, do_bogo_ops)			\
 static double TARGET_CLONES OPTIMIZE3 name(				\
 	stress_args_t *args,						\
 	dfp_data_t *dfp_data,						\
@@ -167,7 +207,7 @@ static double TARGET_CLONES OPTIMIZE3 name(				\
 	return t2 - t1;							\
 }
 
-#define STRESS_DFP_DIV(field, name, do_bogo_ops)				\
+#define STRESS_DFP_DIV(field, name, do_bogo_ops)			\
 static double TARGET_CLONES OPTIMIZE3 name(				\
 	stress_args_t *args,						\
 	dfp_data_t *dfp_data,						\
@@ -209,18 +249,21 @@ static double TARGET_CLONES OPTIMIZE3 name(				\
 
 #if defined(HAVE_Decimal32)
 STRESS_DFP_ADD(d32, stress_dfp_d32_add, true)
+STRESS_DFP_ADD(d32, stress_dfp_d32_sub, true)
 STRESS_DFP_MUL(d32, stress_dfp_d32_mul, true)
 STRESS_DFP_DIV(d32, stress_dfp_d32_div, true)
 #endif
 
 #if defined(HAVE_Decimal64)
 STRESS_DFP_ADD(d64, stress_dfp_d64_add, true)
+STRESS_DFP_ADD(d64, stress_dfp_d64_sub, true)
 STRESS_DFP_MUL(d64, stress_dfp_d64_mul, true)
 STRESS_DFP_DIV(d64, stress_dfp_d64_div, true)
 #endif
 
 #if defined(HAVE_Decimal128)
 STRESS_DFP_ADD(d128, stress_dfp_d128_add, true)
+STRESS_DFP_ADD(d128, stress_dfp_d128_sub, true)
 STRESS_DFP_MUL(d128, stress_dfp_d128_mul, true)
 STRESS_DFP_DIV(d128, stress_dfp_d128_div, true)
 #endif
@@ -233,33 +276,44 @@ typedef struct {
 } stress_dfp_funcs_t;
 
 static const stress_dfp_funcs_t stress_dfp_funcs[] = {
-	{ "all",	"all fp methods",	stress_dfp_all,		STRESS_DFP_TYPE_ALL },
+	{ "all",	"all fp methods",		stress_dfp_all,		STRESS_DFP_TYPE_ALL },
 #if defined(HAVE_Decimal32)
-	{ "df32add",	"_Decimal32 add",	stress_dfp_d32_add,	STRESS_DFP_TYPE_DECIMAL32 },
+	{ "df32add",	"_Decimal32 addition",		stress_dfp_d32_add,	STRESS_DFP_TYPE_DECIMAL32 },
 #endif
 #if defined(HAVE_Decimal64)
-	{ "df64add",	"_Decimal64 add",	stress_dfp_d64_add,	STRESS_DFP_TYPE_DECIMAL64 },
+	{ "df64add",	"_Decimal64 addition",		stress_dfp_d64_add,	STRESS_DFP_TYPE_DECIMAL64 },
 #endif
 #if defined(HAVE_Decimal128)
-	{ "df128add",	"_Decimal128 add",	stress_dfp_d128_add,	STRESS_DFP_TYPE_DECIMAL128 },
+	{ "df128add",	"_Decimal128 addition",		stress_dfp_d128_add,	STRESS_DFP_TYPE_DECIMAL128 },
 #endif
+
 #if defined(HAVE_Decimal32)
-	{ "df32mul",	"_Decimal32 mul",	stress_dfp_d32_mul,	STRESS_DFP_TYPE_DECIMAL32 },
+	{ "df32sub",	"_Decimal32 subtraction",	stress_dfp_d32_sub,	STRESS_DFP_TYPE_DECIMAL32 },
 #endif
 #if defined(HAVE_Decimal64)
-	{ "df64mul",	"_Decimal64 mul",	stress_dfp_d64_mul,	STRESS_DFP_TYPE_DECIMAL64 },
+	{ "df64sub",	"_Decimal64 subtraction",	stress_dfp_d64_sub,	STRESS_DFP_TYPE_DECIMAL64 },
 #endif
 #if defined(HAVE_Decimal128)
-	{ "df128mul",	"_Decimal128 mul",	stress_dfp_d128_mul,	STRESS_DFP_TYPE_DECIMAL128 },
+	{ "df128sub",	"_Decimal128 subtraction",	stress_dfp_d128_sub,	STRESS_DFP_TYPE_DECIMAL128 },
 #endif
+
 #if defined(HAVE_Decimal32)
-	{ "df32div",	"_Decimal32 div",	stress_dfp_d32_div,	STRESS_DFP_TYPE_DECIMAL32 },
+	{ "df32mul",	"_Decimal32 multiplication",	stress_dfp_d32_mul,	STRESS_DFP_TYPE_DECIMAL32 },
 #endif
 #if defined(HAVE_Decimal64)
-	{ "df64div",	"_Decimal64 div",	stress_dfp_d64_div,	STRESS_DFP_TYPE_DECIMAL64 },
+	{ "df64mul",	"_Decimal64 multiplication",	stress_dfp_d64_mul,	STRESS_DFP_TYPE_DECIMAL64 },
 #endif
 #if defined(HAVE_Decimal128)
-	{ "df128div",	"_Decimal128 div",	stress_dfp_d128_div,	STRESS_DFP_TYPE_DECIMAL128 },
+	{ "df128mul",	"_Decimal128 multiplication",	stress_dfp_d128_mul,	STRESS_DFP_TYPE_DECIMAL128 },
+#endif
+#if defined(HAVE_Decimal32)
+	{ "df32div",	"_Decimal32 division",		stress_dfp_d32_div,	STRESS_DFP_TYPE_DECIMAL32 },
+#endif
+#if defined(HAVE_Decimal64)
+	{ "df64div",	"_Decimal64 division",		stress_dfp_d64_div,	STRESS_DFP_TYPE_DECIMAL64 },
+#endif
+#if defined(HAVE_Decimal128)
+	{ "df128div",	"_Decimal128 division",		stress_dfp_d128_div,	STRESS_DFP_TYPE_DECIMAL128 },
 #endif
 };
 
