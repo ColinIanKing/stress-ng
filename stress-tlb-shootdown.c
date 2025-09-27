@@ -486,7 +486,7 @@ static int stress_tlb_shootdown(stress_args_t *args)
 	duration = stress_time_now() - t_begin;
 
 	rate = (duration > 0.0) ? (double)(tlb_end - tlb_begin) / duration : 0.0;
-	if (rate > 0)
+	if (rate > 0.0)
 		stress_metrics_set(args, 0, "TLB shootdowns/sec", rate, STRESS_METRIC_GEOMETRIC_MEAN);
 
 	stress_kill_and_wait_many(args, s_pids, tlb_procs, SIGALRM, true);
