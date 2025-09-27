@@ -262,6 +262,53 @@ contains a brief overview and worked examples.
 
 ## Examples
 
+Run 8 CPU stressors for 60 seconds:
+```
+stress-ng --cpu 8 --timeout 60
+stress-ng: info:  [184401] setting to a 1 min run per stressor
+stress-ng: info:  [184401] dispatching hogs: 8 cpu
+stress-ng: info:  [184401] skipped: 0
+stress-ng: info:  [184401] passed: 8: cpu (8)
+stress-ng: info:  [184401] failed: 0
+stress-ng: info:  [184401] metrics untrustworthy: 0
+stress-ng: info:  [184401] successful run completed in 1 min
+```
+
+Run 8 CPU stressors for 2 minutes, just using the square root CPU stressor method and show compute metrics:
+```
+stress-ng --cpu 8 --timeout 2m --cpu-method sqrt --metrics
+stress-ng: info:  [184135] setting to a 2 mins run per stressor
+stress-ng: info:  [184135] dispatching hogs: 8 cpu
+stress-ng: metrc: [184135] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s CPU used per       RSS Max
+stress-ng: metrc: [184135]                           (secs)    (secs)    (secs)   (real time) (usr+sys time) instance (%)          (KB)
+stress-ng: metrc: [184135] cpu             1531429    120.00    916.87      0.28     12762.02        1669.78        95.54          3148
+stress-ng: info:  [184135] skipped: 0
+stress-ng: info:  [184135] passed: 8: cpu (8)
+stress-ng: info:  [184135] failed: 0
+stress-ng: info:  [184135] metrics untrustworthy: 0
+stress-ng: info:  [184135] successful run completed in 2 mins
+```
+
+Run 8 CPU stressors for 60 seconds and report thermal zone temperatures
+```
+stress-ng --cpu 8 --timeout 60 --tz
+stress-ng: info:  [184291] setting to a 1 min run per stressor
+stress-ng: info:  [184291] dispatching hogs: 8 cpu
+stress-ng: info:  [184291] cpu:
+stress-ng: info:  [184291]  B0D4                   96.05 C (369.20 K)
+stress-ng: info:  [184291]  INT3400_Thermal        20.00 C (293.15 K)
+stress-ng: info:  [184291]  SEN1                   41.05 C (314.20 K)
+stress-ng: info:  [184291]  acpitz                 96.00 C (369.15 K)
+stress-ng: info:  [184291]  iwlwifi_1              28.00 C (301.15 K)
+stress-ng: info:  [184291]  pch_skylake            62.50 C (335.65 K)
+stress-ng: info:  [184291]  x86_pkg_temp           73.25 C (346.40 K)
+stress-ng: info:  [184291] skipped: 0
+stress-ng: info:  [184291] passed: 8: cpu (8)
+stress-ng: info:  [184291] failed: 0
+stress-ng: info:  [184291] metrics untrustworthy: 0
+stress-ng: info:  [184291] successful run completed in 1 min
+```
+
 Run 4 CPU, 2 virtual memory, 1 disk and 8 fork stressors for 2 minutes and print measurements:
 ```
 stress-ng --cpu 4 --vm 2 --hdd 1 --fork 8 --timeout 2m --metrics
@@ -274,19 +321,6 @@ stress-ng: info:  [573366] cpu              515396    120.00    453.02      0.18
 stress-ng: info:  [573366] vm              2261023    120.01    223.80      1.80     18840.15       10022.27        93.99
 stress-ng: info:  [573366] hdd              367558    123.78     10.63     11.67      2969.49       16482.42        18.02
 stress-ng: info:  [573366] fork             598058    120.00     68.24     65.88      4983.80        4459.13        13.97
-```
-
-Run matrix stressor on all online CPUs for 60 seconds and measure temperature:
-```
-stress-ng --matrix -1 --tz -t 60
-stress-ng: info:  [1171459] setting to a 60 second run per stressor
-stress-ng: info:  [1171459] dispatching hogs: 8 matrix
-stress-ng: info:  [1171459] successful run completed in 60.01s (1 min, 0.01 secs)
-stress-ng: info:  [1171459] matrix:
-stress-ng: info:  [1171459]               acpitz0   75.00 C (348.15 K)
-stress-ng: info:  [1171459]               acpitz1   75.00 C (348.15 K)
-stress-ng: info:  [1171459]          pch_skylake   60.17 C (333.32 K)
-stress-ng: info:  [1171459]         x86_pkg_temp   62.72 C (335.87 K)
 ```
 
 Run a mix of 4 I/O stressors and check for changes in disk S.M.A.R.T. metadata:
@@ -351,7 +385,6 @@ stress-ng: info:  [4563] successful run completed in 11.38 secs
 ```
 
 Measure C-state residency:
-
 ```
 stress-ng --intmath 0 -t 1m --c-states
 stress-ng: info:  [6998] setting to a 1 min run per stressor
@@ -370,6 +403,11 @@ stress-ng: info:  [6998] passed: 8: intmath (8)
 stress-ng: info:  [6998] failed: 0
 stress-ng: info:  [6998] metrics untrustworthy: 0
 stress-ng: info:  [6998] successful run completed in 1 min
+```
+
+```
+Run all scheduler stressors with 64 instances per stressor, show progress and enable test verification:
+stress-ng --seq 64 --class scheduler --progress --verify
 ```
 
 ## Bugs and regressions found with stress-ng
