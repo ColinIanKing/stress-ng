@@ -4197,7 +4197,6 @@ again:
 			(void)close(wr_fds[1]);
 			goto deinit;
 		} else if (pid == 0) {
-			size_t i;
 			const pid_t mypid = getpid();
 
 			(void)close(rd_fds[1]);
