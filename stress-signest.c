@@ -141,12 +141,16 @@ static const int defined_signals[] = {
 #endif
 };
 
-static int signals[MAX_SIGNALS] ALIGN64;
+typedef struct {
+	int signum;		/* signal number */
+	bool signalled;		/* true = signal handled */
+} stress_signal_t;
+
+static stress_signal_t signals[MAX_SIGNALS] ALIGN64;
 static size_t max_signals;
 
 typedef struct {
 	stress_args_t *args;
-	uint64_t signalled;	/* bitmap of index into signals[] handled */
 	bool stop;		/* true to stop further nested signalling */
 	intptr_t altstack;	/* alternative stack push start */
 	intptr_t altstack_start;/* alternative start mmap start */
@@ -167,7 +171,7 @@ static void stress_signest_ignore(void)
 	size_t i;
 
 	for (i = 0; i < max_signals; i++)
-		VOID_RET(int, stress_sighandler("signest", signals[i], SIG_IGN, NULL));
+		VOID_RET(int, stress_sighandler("signest", signals[i].signum, SIG_IGN, NULL));
 }
 
 static void MLOCKED_TEXT stress_signest_handler(int signum)
@@ -221,7 +225,7 @@ static void MLOCKED_TEXT stress_signest_handler(int signum)
 		}
 	}
 
-	signal_info.signalled |= STRESS_BIT_ULL(signal_index);
+	signals[signal_index].signalled = true;
 	signal_index++;
 	if (UNLIKELY(signal_index >= max_signals))
 		goto done;
@@ -232,7 +236,7 @@ static void MLOCKED_TEXT stress_signest_handler(int signum)
 			stress_no_return();
 		}
 	}
-	(void)shim_raise(signals[signal_index]);
+	(void)shim_raise(signals[signal_index].signum);
 	raised++;
 done:
 	--signal_info.depth;
@@ -249,12 +253,20 @@ static inline void stress_signest_shuffle(void)
 	
 	for (i = 0; i < max_signals; i++) {
 		register size_t j = (size_t)stress_mwc32modn((uint32_t)max_signals);
-		register int tmp;
+		stress_signal_t tmp;
 
 		tmp = signals[i];
 		signals[i] = signals[j];
 		signals[j] = tmp;
 	}
+}
+
+static int stress_signest_cmp(const void *p1, const void *p2)
+{
+	const stress_signal_t *s1 = (const stress_signal_t *)p1;
+	const stress_signal_t *s2 = (const stress_signal_t *)p2;
+
+	return s1->signum - s2->signum;
 }
 
 /*
@@ -276,20 +288,34 @@ static int stress_signest(stress_args_t *args)
 	jmp_env_ok = false;
 
 	for (i = 0; i < SIZEOF_ARRAY(defined_signals); i++) {
-		signals[i] = defined_signals[i];
+		signals[i].signum = defined_signals[i];
+		signals[i].signalled = false;
 	}
 	max_signals = i;
 #if defined(SIGRTMIN) && 	\
     defined(SIGRTMAX)
 	{
-		int j;
+		int signum;
 
-		for (j = SIGRTMIN; (j <= SIGRTMAX) && (i < MAX_SIGNALS); i++, j++) {
-			signals[i] = j;
+		for (signum = SIGRTMIN; (signum <= SIGRTMAX) && (i < MAX_SIGNALS); i++, signum++) {
+			signals[i].signum = signum;
+			signals[i].signalled = false;
 		}
 		max_signals = i;
 	}
 #endif
+
+	/* Remove any duplicate signals */
+	qsort(signals, max_signals, sizeof(stress_signal_t), stress_signest_cmp);
+	for (i = 0; i < max_signals - 1; i++) {
+		if (signals[i].signum == signals[i + 1].signum) {
+			size_t j;
+
+			for (j = i; j < max_signals - 1; j++)
+				signals[j] = signals[j + 1];
+			max_signals--;
+		}
+	}
 
 	altstack = (uint8_t*)stress_mmap_populate(NULL, altstack_size,
 			PROT_READ | PROT_WRITE,
@@ -324,7 +350,7 @@ static int stress_signest(stress_args_t *args)
 	}
 
 	for (i = 0; i < max_signals; i++) {
-		if (stress_sighandler(args->name, signals[i], stress_signest_handler, NULL) < 0)
+		if (stress_sighandler(args->name, signals[i].signum, stress_signest_handler, NULL) < 0)
 			return EXIT_NO_RESOURCE;
 	}
 
@@ -337,7 +363,7 @@ static int stress_signest(stress_args_t *args)
 	t = stress_time_now();
 	do {
 		signal_index = 0;
-		(void)shim_raise(signals[signal_index]);
+		(void)shim_raise(signals[signal_index].signum);
 		raised++;
 		if (UNLIKELY((raised & 0x3f) == 0))
 			stress_signest_shuffle();
@@ -350,27 +376,28 @@ finish:
 	stress_signest_ignore();
 
 	for (sz = 1, n = 0, i = 0; i < max_signals; i++) {
-		if (signal_info.signalled & STRESS_BIT_ULL(i)) {
-			const char *name = stress_get_signal_name(signals[i]);
+		if (signals[i].signalled) {
+			const char *name = stress_get_signal_name(signals[i].signum);
 
 			n++;
 			sz += name ? (strlen(name) + 1) : 32;
 		}
 	}
 
+	qsort(signals, n, sizeof(stress_signal_t), stress_signest_cmp);
 	if (stress_instance_zero(args)) {
 		buf = (char *)calloc(sz, sizeof(*buf));
 		if (buf) {
 			for (ptr = buf, i = 0; i < max_signals; i++) {
-				if (signal_info.signalled & STRESS_BIT_ULL(i)) {
-					const char *name = stress_get_signal_name(signals[i]);
+				if (signals[i].signalled) {
+					const char *name = stress_get_signal_name(signals[i].signum);
 
 					if (name) {
 						if (strncmp(name, "SIG", 3) == 0)
 							name += 3;
 						ptr += snprintf(ptr, (buf + sz - ptr), " %s", name);
 					} else {
-						ptr += snprintf(ptr, (buf + sz - ptr), " SIG%d", signals[i]);
+						ptr += snprintf(ptr, (buf + sz - ptr), " SIG%d", signals[i].signum);
 					}
 				}
 			}
