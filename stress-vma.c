@@ -591,26 +591,26 @@ static void *stress_vma_pagemap(void *ptr)
 	while (stress_vma_continue_flag && stress_vma_continue(args)) {
 		struct pm_scan_arg arg;
 		struct page_region vec[1];
-		uintptr_t ptr;
+		uintptr_t tmpptr;
 
 		switch (stress_mwc8modn(6)) {
 		case 0:
-			ptr = (uintptr_t)g_shared->mapped.page_none;
+			tmpptr = (uintptr_t)g_shared->mapped.page_none;
 			break;
 		case 1:
-			ptr = (uintptr_t)g_shared->mapped.page_ro;
+			tmpptr = (uintptr_t)g_shared->mapped.page_ro;
 			break;
 		case 2:
-			ptr = (uintptr_t)g_shared->mapped.page_wo;
+			tmpptr = (uintptr_t)g_shared->mapped.page_wo;
 			break;
 		case 3:
-			ptr = (uintptr_t)g_shared;
+			tmpptr = (uintptr_t)g_shared;
 			break;
 		case 4:
-			ptr = (uintptr_t)g_shared->mem_cache.buffer;
+			tmpptr = (uintptr_t)g_shared->mem_cache.buffer;
 			break;
 		default:
-			ptr = (uintptr_t)ctxt->data;
+			tmpptr = (uintptr_t)ctxt->data;
 			break;
 		}
 
@@ -619,8 +619,8 @@ static void *stress_vma_pagemap(void *ptr)
 		arg.size = sizeof(arg);
 		arg.flags = 0;
 		arg.max_pages = 1;
-		arg.start = (uint64_t)ptr;
-		arg.end = (uint64_t)(ptr + args->page_size);
+		arg.start = (uint64_t)tmpptr;
+		arg.end = (uint64_t)(tmpptr + args->page_size);
 		arg.vec = (uint64_t)vec;
 		arg.vec_len = 1;
 		arg.category_mask = PAGE_IS_WRITTEN;
@@ -634,8 +634,8 @@ static void *stress_vma_pagemap(void *ptr)
 		arg.size = sizeof(arg);
 		arg.flags = 0;
 		arg.max_pages = 1;
-		arg.start = (uint64_t)ptr;
-		arg.end = (uint64_t)(ptr + args->page_size);
+		arg.start = (uint64_t)tmpptr;
+		arg.end = (uint64_t)(tmpptr + args->page_size);
 		arg.vec = (uint64_t)vec;
 		arg.vec_len = 0;
 		arg.category_mask = PAGE_IS_WRITTEN;
