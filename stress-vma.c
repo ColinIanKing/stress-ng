@@ -619,9 +619,9 @@ static void *stress_vma_pagemap(void *ptr)
 		arg.size = sizeof(arg);
 		arg.flags = 0;
 		arg.max_pages = 1;
-		arg.start = (uint64_t)tmpptr;
-		arg.end = (uint64_t)(tmpptr + args->page_size);
-		arg.vec = (uint64_t)vec;
+		arg.start = (uint64_t)(uintptr_t)tmpptr;
+		arg.end = (uint64_t)(uintptr_t)(tmpptr + args->page_size);
+		arg.vec = (uint64_t)(uintptr_t)vec;
 		arg.vec_len = 1;
 		arg.category_mask = PAGE_IS_WRITTEN;
 		arg.return_mask = PAGE_IS_WRITTEN;
@@ -634,9 +634,9 @@ static void *stress_vma_pagemap(void *ptr)
 		arg.size = sizeof(arg);
 		arg.flags = 0;
 		arg.max_pages = 1;
-		arg.start = (uint64_t)tmpptr;
-		arg.end = (uint64_t)(tmpptr + args->page_size);
-		arg.vec = (uint64_t)vec;
+		arg.start = (uint64_t)(uintptr_t)tmpptr;
+		arg.end = (uint64_t)(uintptr_t)(tmpptr + args->page_size);
+		arg.vec = (uint64_t)(uintptr_t)vec;
 		arg.vec_len = 0;
 		arg.category_mask = PAGE_IS_WRITTEN;
 		arg.return_mask = PAGE_IS_WRITTEN;
