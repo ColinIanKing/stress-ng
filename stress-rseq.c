@@ -25,11 +25,12 @@
 #include "core-pragma.h"
 
 #if defined(HAVE_LINUX_RSEQ_H)
-#include <linux/rseq.h>
-#endif
-#if defined(HAVE_SYS_RSEQ_H)
-#include <sys/rseq.h>
-#endif
+#  include <linux/rseq.h>
+#else /* HAVE_LINUX_RSEQ_H undefined */
+#  if defined(HAVE_SYS_RSEQ_H)
+#    include <sys/rseq.h>
+#  endif /* HAVE_SYS_RSEQ_H undefined */
+#endif /* HAVE_LINUX_RSEQ_H undefined */
 
 static const stress_help_t help[] = {
 	{ NULL,	"rseq N",	"start N workers that exercise restartable sequences" },
