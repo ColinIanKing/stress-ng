@@ -18,9 +18,9 @@
 #
 
 #
-# Codename "rapid ram rattler"
+# Codename "tricky timer tester"
 #
-VERSION=0.19.04
+VERSION=0.19.05
 
 #
 # Determine supported toolchains
