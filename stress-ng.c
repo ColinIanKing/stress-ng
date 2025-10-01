@@ -3119,10 +3119,10 @@ static void stress_enable_classes(const uint32_t classifier)
  *  stress_parse_limit()
  *	parse rlimit resource values
  */
-static void stress_parse_limit(const char *optarg, const char *option)
+static void stress_parse_limit(const char *opt, const char *option)
 {
 	const size_t page_size = stress_get_page_size();
-	uint64_t u64 = stress_get_uint64_byte(optarg);
+	uint64_t u64 = stress_get_uint64_byte(opt);
 
 	/* round down to page boundary */
 	u64 &= ~(uint64_t)(page_size - 1);
