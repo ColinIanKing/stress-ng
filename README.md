@@ -571,6 +571,7 @@ stress-ng has found various Kernel, QEMU bugs/regressions, and libc bugs; approp
 * [MultiVM - L2 guest(s) running stress-ng getting stuck at booting after triggering crash](https://bugs.launchpad.net/ubuntu/+source/linux/+bug/2077722)
 * [cifs: Fix null-ptr-deref by static initializing global lock](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=b0b73329ebeeb727913f07b5b6bb85e66e03d156)
 * [Revert "sched_ext: Skip per-CPU tasks in scx_bpf_reenqueue_local()"](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=0b47b6c3543efd65f2e620e359b05f4938314fbd)
+* [mm/mremap: avoid expensive folio lookup on mremap folio pte batch](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=0b5be138ce00f421bd7cc5a226061bd62c4ab850)
 
 ## Kernel improvements that used stress-ng
 
