@@ -64,6 +64,7 @@ static sem_t *sem;
 static int sem_global_errno;
 
 static stress_sem_pthread_t sem_pthreads[MAX_SEM_POSIX_PROCS] ALIGN64;
+static stress_pthread_args_t sem_pthread_args[MAX_SEM_POSIX_PROCS] ALIGN64;
 
 static void stress_sem_init(const uint32_t instances)
 {
@@ -207,7 +208,6 @@ static int stress_sem(stress_args_t *args)
 	uint64_t i;
 	bool created = false;
 	bool sem_shared = false;
-	stress_pthread_args_t p_args;
 	double wait_count = 0;
 	double trywait_count = 0;
 	double timedwait_count = 0;
@@ -254,10 +254,12 @@ static int stress_sem(stress_args_t *args)
 		sem_pthreads[i].timedwait_count = 0.0;
 		sem_pthreads[i].wait_count = 0.0;
 
-		p_args.args = args;
-		p_args.data = &sem_pthreads[i];
+		sem_pthread_args[i].args = args;
+		sem_pthread_args[i].data = &sem_pthreads[i];
+		sem_pthread_args[i].pthread_ret = 0;
+
 		sem_pthreads[i].ret = pthread_create(&sem_pthreads[i].pthread, NULL,
-                                stress_sem_thrash, (void *)&p_args);
+                                stress_sem_thrash, (void *)&sem_pthread_args[i]);
 		if ((sem_pthreads[i].ret) && (sem_pthreads[i].ret != EAGAIN)) {
 			pr_fail("%s: pthread create failed, errno=%d (%s)\n",
 				args->name, sem_pthreads[i].ret, strerror(sem_pthreads[i].ret));

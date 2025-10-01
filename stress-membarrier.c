@@ -152,8 +152,8 @@ static int stress_membarrier(stress_args_t *args)
 	int ret, rc = EXIT_SUCCESS;
 	/* We have MAX_MEMBARRIER_THREADS plus the stressor process */
 	membarrier_info_t info[MAX_MEMBARRIER_THREADS + 1];
+	stress_pthread_args_t pargs[MAX_MEMBARRIER_THREADS + 1];
 	size_t i;
-	stress_pthread_args_t pargs = { args, NULL, 0 };
 	double duration = 0.0, count = 0.0, rate;
 
 	ret = shim_membarrier(MEMBARRIER_CMD_QUERY, 0, 0);
@@ -186,10 +186,12 @@ static int stress_membarrier(stress_args_t *args)
 	keep_running = true;
 
 	for (i = 0; i < MAX_MEMBARRIER_THREADS; i++) {
-		pargs.data = &info[i];
+		pargs[i].args = args;
+		pargs[i].data = &info[i];
+		pargs[i].pthread_ret = 0;
 		info[i].pthread_ret =
 			pthread_create(&info[i].pthread, NULL,
-				stress_membarrier_thread, (void *)&pargs);
+				stress_membarrier_thread, (void *)&pargs[i]);
 	}
 
 	stress_proc_state_set(args->name, STRESS_STATE_SYNC_WAIT);
