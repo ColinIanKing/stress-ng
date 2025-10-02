@@ -97,9 +97,16 @@ again:
 			secs_left = alarm((unsigned int)INT_MAX);
 			if (secs_left != 0)
 				err_mask |= STRESS_ALARM_INTMAX;
+			stress_alarm_stress_bogo_inc(args);
+			if (UNLIKELY(!stress_continue(args)))
+				break;
+
 			secs_left = alarm((unsigned int)INT_MAX);
 			if (secs_left == 0)
 				err_mask |= STRESS_ALARM_INTMAX;
+			stress_alarm_stress_bogo_inc(args);
+			if (UNLIKELY(!stress_continue(args)))
+				break;
 
 			secs_left = sleep((unsigned int)INT_MAX);
 			if (secs_left == 0)
@@ -113,11 +120,12 @@ again:
 			secs_left = alarm(0);
 			if (secs_left != 0)
 				err_mask |= STRESS_ALARM_ZERO;
+			if (UNLIKELY(!stress_continue(args)))
+				break;
 
 			secs_left = sleep(0);
 			if (secs_left != 0)
 				err_mask |= STRESS_SLEEP_ZERO;
-			stress_alarm_stress_bogo_inc(args);
 			if (UNLIKELY(!stress_continue(args)))
 				break;
 
@@ -127,6 +135,9 @@ again:
 			secs_left = alarm(secs_left);
 			if (secs_left != 0)
 				err_mask |= STRESS_ALARM_RANDOM;
+			if (UNLIKELY(!stress_continue(args)))
+				break;
+
 			secs_left = sleep(secs_left);
 			if (secs_left > secs_sleep)
 				err_mask |= STRESS_SLEEP_RANDOM;
