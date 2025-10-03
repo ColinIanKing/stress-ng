@@ -412,10 +412,9 @@ static const stress_help_t help_generic[] = {
  *  stress_hash_checksum()
  *	generate a hash of the checksum data
  */
-static inline void stress_hash_checksum(stress_checksum_t *checksum)
+static inline uint32_t stress_hash_checksum(stress_counter_info_t *ci)
 {
-	checksum->hash = stress_hash_jenkin((uint8_t *)&checksum->data,
-				sizeof(checksum->data));
+	return stress_hash_jenkin((uint8_t *)ci, sizeof(*ci));
 }
 
 /*
@@ -1622,7 +1621,7 @@ static int MLOCKED_TEXT stress_run_child(
 			rc = EXIT_METRICS_UNTRUSTWORTHY;
 		}
 		(*checksum)->data.ci.counter = args->bogo.ci.counter;
-		stress_hash_checksum(*checksum);
+		(*checksum)->hash = stress_hash_checksum(&((*checksum)->data.ci));
 		finish = stress_time_now();
 		if (g_opt_flags & OPT_FLAGS_STRESSOR_TIME)
 			stress_log_time(name, finish, "finish");
@@ -1990,7 +1989,7 @@ static void stress_metrics_check(bool *success)
 			(void)shim_memset(&stats_checksum, 0, sizeof(stats_checksum));
 			stats_checksum.data.ci.counter = stats->args.bogo.ci.counter;
 			stats_checksum.data.ci.run_ok = stats->args.bogo.ci.run_ok;
-			stress_hash_checksum(&stats_checksum);
+			stats_checksum.hash = stress_hash_checksum(&stats_checksum.data.ci);
 
 			oom_message = stats->args.bogo.possibly_oom_killed ?
 				" (possibly terminated by out-of-memory killer)" : "";
