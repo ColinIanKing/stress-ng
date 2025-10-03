@@ -184,7 +184,6 @@ void stress_interrupts_check_failure(const char *name, stress_interrupts_t *coun
 			}
 		}
 	}
-
 }
 
 /*
