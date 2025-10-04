@@ -1579,6 +1579,7 @@ static int stress_zlib_deflate(
 	stress_zlib_args_t zlib_args;
 	double t1, duration, rate, ratio;
 	const stress_zlib_method_t *method;
+	bool stream_def_zero = false;
 
 	(void)stress_zlib_get_args(&zlib_args);
 	method = &zlib_rand_data_methods[zlib_args.method];
@@ -1590,6 +1591,7 @@ static int stress_zlib_deflate(
 	zlib_checksum->interrupted = false;
 
 	(void)shim_memset(&stream_def, 0, sizeof(stream_def));
+	stream_def_zero = true;
 	stream_def.zalloc = Z_NULL;
 	stream_def.zfree = Z_NULL;
 	stream_def.opaque = Z_NULL;
@@ -1613,10 +1615,12 @@ static int stress_zlib_deflate(
 			pr_fail("%s: zlib deflateInit error, %s\n",
 				args->name, stress_zlib_err(ret));
 			zlib_checksum->error = true;
-			(void)deflateEnd(&stream_def);
+			if (!stream_def_zero)
+				(void)deflateEnd(&stream_def);
 			stream_def.zalloc = Z_NULL;
 			stream_def.zfree = Z_NULL;
 			stream_def.opaque = Z_NULL;
+			stream_def_zero = true;
 			ret = EXIT_FAILURE;
 			goto zlib_checksum_error;
 		}
@@ -1725,6 +1729,7 @@ static int stress_zlib_deflate(
 		stream_def.zalloc = Z_NULL;
 		stream_def.zfree = Z_NULL;
 		stream_def.opaque = Z_NULL;
+		stream_def_zero = true;
 	} while (stress_continue(args));
 
 finish:
