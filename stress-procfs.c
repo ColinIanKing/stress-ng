@@ -23,6 +23,7 @@
 #include "core-builtin.h"
 #include "core-capabilities.h"
 #include "core-hash.h"
+#include "core-mmap.h"
 #include "core-pthread.h"
 #include "core-put.h"
 
@@ -573,12 +574,8 @@ mmap_test:
 			/*
 			 *  mmap it
 			 */
-			ptr = (uint8_t *)mmap(NULL, page_size, PROT_READ,
-#if defined(MAP_POPULATE)
-				MAP_POPULATE |
-#endif
-				MAP_SHARED | MAP_ANONYMOUS,
-				fd, 0);
+			ptr = (uint8_t *)stress_mmap_populate(NULL, page_size, PROT_READ,
+				MAP_SHARED | MAP_ANONYMOUS, fd, 0);
 			if (ptr != MAP_FAILED) {
 				stress_uint8_put(*ptr);
 				(void)munmap((void *)ptr, page_size);
