@@ -718,7 +718,7 @@ static int stress_cacheline(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 
 	if (!g_shared->cacheline.lock) {
-		pr_inf("%s: failed to initialized cacheline lock, skipping stressor\n", args->name);
+		pr_inf("%s: failed to initialize cacheline lock, skipping stressor\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
 
