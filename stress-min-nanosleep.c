@@ -24,7 +24,7 @@
 #include <time.h>
 
 #define NANOSLEEP_MAX_SHIFT	(20)
-#define NANOSLEEP_MAX_NS	(1U << NANOSLEEP_MAX_SHIFT)
+#define NANOSLEEP_MAX_NS	((1U << NANOSLEEP_MAX_SHIFT) - 1)
 #define NANOSLEEP_LOOPS		(16)
 #define NANOSLEEP_DELAYS_MAX	(NANOSLEEP_MAX_SHIFT + 2)
 #define NANOSLEEP_MAX		(0xffffffff)
@@ -309,6 +309,8 @@ static int stress_min_nanosleep(stress_args_t *args)
 	(void)stress_get_setting("min-nanosleep-sched", &min_nanosleep_sched);
 
 	max_delay = stress_min_nanosleep_log2plus1(min_nanosleep_max);
+	if (max_delay > NANOSLEEP_MAX_SHIFT)
+		max_delay = NANOSLEEP_MAX_SHIFT;
 	stress_min_nanosleep_sched(args, min_nanosleep_sched);
 
 	if (delays == MAP_FAILED) {
