@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-builtin.h"
 #include "core-killpid.h"
+#include "core-mmap.h"
 #include "core-put.h"
 
 #include <sys/ioctl.h>
@@ -539,19 +540,15 @@ static void stress_iomix_rd_wr_mmap(
 	void *mmaps[128];
 	size_t i;
 	const size_t page_size = args->page_size;
-	int flags = MAP_SHARED | MAP_ANONYMOUS;
 
-#if defined(MAP_POPULATE)
-	flags |= MAP_POPULATE;
-#endif
 	(void)fs_type;
 
 	do {
 		for (i = 0; i < SIZEOF_ARRAY(mmaps); i++) {
 			const off_t posn = stress_iomix_rnd_offset(iomix_bytes) & ~((off_t)page_size - 1);
 
-			mmaps[i] = mmap(NULL, page_size,
-					PROT_READ | PROT_WRITE, flags, fd, posn);
+			mmaps[i] = stress_mmap_populate(NULL, page_size, PROT_READ | PROT_WRITE,
+					MAP_SHARED | MAP_ANONYMOUS, fd, posn);
 		}
 		for (i = 0; i < SIZEOF_ARRAY(mmaps); i++) {
 			if (LIKELY(mmaps[i] != MAP_FAILED)) {
