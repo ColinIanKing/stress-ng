@@ -259,8 +259,7 @@ static int stress_setup_io_uring(
 	}
 
 	submit->sq_mmap = stress_mmap_populate(NULL, submit->sq_size,
-		PROT_READ | PROT_WRITE,
-		MAP_SHARED | MAP_POPULATE,
+		PROT_READ | PROT_WRITE, MAP_SHARED ,
 		submit->io_uring_fd, IORING_OFF_SQ_RING);
 	if (submit->sq_mmap == MAP_FAILED) {
 		pr_inf_skip("%s: could not mmap submission queue buffer%s, "
@@ -275,8 +274,7 @@ static int stress_setup_io_uring(
 	} else {
 		submit->cq_mmap = stress_mmap_populate(NULL, submit->cq_size,
 				PROT_READ | PROT_WRITE,
-				MAP_SHARED | MAP_POPULATE,
-				submit->io_uring_fd, IORING_OFF_CQ_RING);
+				MAP_SHARED, submit->io_uring_fd, IORING_OFF_CQ_RING);
 		if (submit->cq_mmap == MAP_FAILED) {
 			pr_inf_skip("%s: could not mmap completion queue buffer%s, "
 				"errno=%d (%s), skipping stressor\n",
@@ -297,7 +295,7 @@ static int stress_setup_io_uring(
 	submit->sqes_entries = p.sq_entries;
 	submit->sqes_size = p.sq_entries * sizeof(struct io_uring_sqe);
 	submit->sqes_mmap = stress_mmap_populate(NULL, submit->sqes_size,
-			PROT_READ | PROT_WRITE, MAP_SHARED | MAP_POPULATE,
+			PROT_READ | PROT_WRITE, MAP_SHARED,
 			submit->io_uring_fd, IORING_OFF_SQES);
 	if (submit->sqes_mmap == MAP_FAILED) {
 		pr_inf_skip("%s: count not mmap submission queue buffer%s, "
@@ -1007,9 +1005,9 @@ static int stress_io_uring_child(stress_args_t *args, void *context)
 	io_uring_file.block_size = block_size;
 	io_uring_file.iovecs_sz = blocks * sizeof(*io_uring_file.iovecs);
 	io_uring_file.iovecs =
-		mmap(NULL, io_uring_file.iovecs_sz,
+		stress_mmap_populate(NULL, io_uring_file.iovecs_sz,
 			PROT_READ | PROT_WRITE,
-			MAP_SHARED | MAP_POPULATE | MAP_ANONYMOUS, -1, 0);
+			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (io_uring_file.iovecs == MAP_FAILED) {
 		io_uring_file.iovecs = NULL;
 		pr_inf_skip("%s: cannot mmap iovecs, errno=%d (%s), "
@@ -1024,8 +1022,8 @@ static int stress_io_uring_child(stress_args_t *args, void *context)
 
 		io_uring_file.iovecs[i].iov_len = iov_length;
 		io_uring_file.iovecs[i].iov_base =
-			mmap(NULL, block_size, PROT_READ | PROT_WRITE,
-				MAP_SHARED | MAP_POPULATE | MAP_ANONYMOUS, -1, 0);
+			stress_mmap_populate(NULL, block_size, PROT_READ | PROT_WRITE,
+				MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 		if (io_uring_file.iovecs[i].iov_base == MAP_FAILED) {
 			io_uring_file.iovecs[i].iov_base = NULL;
 			pr_inf_skip("%s: cannot mmap allocate iovec iov_base%s, errno=%d (%s), "
