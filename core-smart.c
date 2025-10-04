@@ -404,11 +404,11 @@ static int CONST stress_smart_dev_sort(const struct dirent **d1, const struct di
 static void stress_smart_read_devs(void)
 {
 	struct dirent **devs = NULL;
-	size_t i, n;
+	int i, n;
 
 	smart_devs.dev = NULL;
 
-	n = (size_t)scandir("/dev", &devs, stress_smart_dev_filter, stress_smart_dev_sort);
+	n = scandir("/dev", &devs, stress_smart_dev_filter, stress_smart_dev_sort);
 	if (n < 1)
 		return;
 
