@@ -855,10 +855,6 @@ static inline int stress_matrix_exercise(
 	matrix_ptr_t a, b = NULL, r = NULL, s = NULL;
 	register size_t i, j;
 	const stress_matrix_type_t v = 65535 / (stress_matrix_type_t)((uint64_t)~0);
-	int flags = MAP_PRIVATE | MAP_ANONYMOUS;
-#if defined(MAP_POPULATE)
-	flags |= MAP_POPULATE;
-#endif
 	method_all_index = 1;
 
 	current_method = matrix_methods[matrix_method].name;
@@ -866,7 +862,7 @@ static inline int stress_matrix_exercise(
 	stress_zero_metrics(matrix_metrics, num_matrix_methods);
 
 	a = (matrix_ptr_t)stress_mmap_populate(NULL, matrix_mmap_size,
-		PROT_READ | PROT_WRITE, flags, -1, 0);
+		PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (a == MAP_FAILED) {
 		pr_fail("%s: matrix allocation failed, out of memory%s, errno=%d (%s)\n",
 			args->name, stress_get_memfree_str(),
@@ -877,7 +873,7 @@ static inline int stress_matrix_exercise(
 	stress_set_vma_anon_name(a, matrix_mmap_size, "matrix-a");
 
 	b = (matrix_ptr_t)stress_mmap_populate(NULL, matrix_mmap_size,
-		PROT_READ | PROT_WRITE, flags, -1, 0);
+		PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (b == MAP_FAILED) {
 		pr_fail("%s: matrix allocation failed, out of memory%s, errno=%d (%s)\n",
 			args->name, stress_get_memfree_str(),
@@ -888,7 +884,7 @@ static inline int stress_matrix_exercise(
 	stress_set_vma_anon_name(b, matrix_mmap_size, "matrix-b");
 
 	r = (matrix_ptr_t)stress_mmap_populate(NULL, matrix_mmap_size,
-		PROT_READ | PROT_WRITE, flags, -1, 0);
+		PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (r == MAP_FAILED) {
 		pr_fail("%s: matrix allocation failed, out of memory%s, errno=%d (%s)\n",
 			args->name, stress_get_memfree_str(),
@@ -900,7 +896,7 @@ static inline int stress_matrix_exercise(
 
 	if (verify) {
 		s = (matrix_ptr_t)stress_mmap_populate(NULL, matrix_mmap_size,
-			PROT_READ | PROT_WRITE, flags, -1, 0);
+			PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 		if (s == MAP_FAILED) {
 			pr_fail("%s: matrix allocation failed, out of memory%s, errno=%d (%s)\n",
 				args->name, stress_get_memfree_str(),
