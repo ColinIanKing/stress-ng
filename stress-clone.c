@@ -472,11 +472,6 @@ static int stress_clone_child(stress_args_t *args, void *context)
 	bool use_clone3 = true;
 	const size_t mmap_size = args->page_size * 32768;
 	void *ptr;
-#if defined(MAP_POPULATE)
-	const int mflags = MAP_ANONYMOUS | MAP_PRIVATE | MAP_POPULATE;
-#else
-	const int mflags = MAP_ANONYMOUS | MAP_PRIVATE;
-#endif
 	stress_clone_shared_t *shared = (stress_clone_shared_t *)context;
 
 	if (!stress_get_setting("clone-max", &clone_max)) {
@@ -490,7 +485,8 @@ static int stress_clone_child(stress_args_t *args, void *context)
 	 * Make child larger than parent to make it more of
 	 * a candidate for a OOMable process
 	 */
-	ptr = mmap(NULL, mmap_size, PROT_READ | PROT_WRITE, mflags, -1, 0);
+	ptr = stress_mmap_populate(NULL, mmap_size, PROT_READ | PROT_WRITE, 
+			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (ptr != MAP_FAILED) {
 		stress_set_vma_anon_name(ptr, mmap_size, "oom-allocation");
 		(void)stress_mincore_touch_pages(ptr, mmap_size);
