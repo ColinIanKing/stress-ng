@@ -2015,7 +2015,6 @@ static void stress_metrics_check(bool *success)
 					ss->stressor->name, j,
 					stats_checksum.hash, checksum->hash,
 					oom_message);
-				oom_message = "";
 				ok = false;
 			}
 		}
