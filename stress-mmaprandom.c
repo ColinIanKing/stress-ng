@@ -718,6 +718,7 @@ static void OPTIMIZE3 stress_mmaprandom_mmap_invalid(mr_ctxt_t *ctxt, const int 
 	flags |= (state & mask) ? MAP_UNINITIALIZED : 0;
 	mask <<= 1;
 #endif
+	(void)mask;
 	state++;
 
 	/* intentially wrong fd */
