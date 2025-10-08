@@ -2106,7 +2106,7 @@ T}
 .RS 5
 .TQ
 .B \-\-cyclic N
-start N workers that exercise the real time FIFO or Round Robin schedulers
+start N workers that exercise schedulers
 with cyclic nanosecond sleeps. Normally one would just use 1 worker instance
 with this stressor to get reliable statistics. By default this stressor measures the
 first 10 thousand latencies and calculates the mean, mode, minimum, maximum
@@ -2153,9 +2153,9 @@ T}
 .B \-\-cyclic\-ops N
 stop after N sleeps.
 .TP
-.B \-\-cyclic\-policy [ deadline | fifo | rr ]
-specify the desired real time scheduling policy, deadline, fifo (first\-in, first\-out)
-or rr (round\-robin).
+.B \-\-cyclic\-policy [ batch | deadline | ext | fifo | idle| other | rr ]
+specify the desired scheduling policy;  batch, deadline, ext, fifo (first\-in, first\-out)
+idle, other or rr (round\-robin).
 .TP
 .B \-\-cyclic\-prio P
 specify the scheduling priority P. Range from 1 (lowest) to 100 (highest).

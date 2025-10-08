@@ -46,6 +46,7 @@ typedef struct {
 	const int	policy;		/* scheduler policy */
 	const char	*name;		/* name of scheduler policy */
 	const char	*opt_name;	/* option name */
+	const bool	cap_sys_nice;	/* need cap sys nice to run? */
 } stress_policy_t;
 
 typedef struct {
@@ -86,14 +87,26 @@ static const stress_help_t help[] = {
 static stress_cyclic_state_t *stress_cyclic_state = MAP_FAILED;
 
 static const stress_policy_t cyclic_policies[] = {
+#if defined(SCHED_BATCH)
+	{ SCHED_BATCH,    "SCHED_BATCH",     "batch",    false },
+#endif
 #if defined(SCHED_DEADLINE)
-	{ SCHED_DEADLINE, "SCHED_DEADLINE",  "deadline" },
+	{ SCHED_DEADLINE, "SCHED_DEADLINE",  "deadline", true },
+#endif
+#if defined(SCHED_EXT)
+	{ SCHED_EXT,      "SCHED_EXT",       "ext",      false },
 #endif
 #if defined(SCHED_FIFO)
-	{ SCHED_FIFO,     "SCHED_FIFO",      "fifo" },
+	{ SCHED_FIFO,     "SCHED_FIFO",      "fifo",     true },
+#endif
+#if defined(SCHED_IDLE)
+	{ SCHED_IDLE,     "SCHED_IDLE",      "idle",     false },
+#endif
+#if defined(SCHED_OTHER)
+	{ SCHED_OTHER,    "SCHED_OTHER",     "other",    false },
 #endif
 #if defined(SCHED_RR)
-	{ SCHED_RR,       "SCHED_RR",        "rr" },
+	{ SCHED_RR,       "SCHED_RR",        "rr",       true },
 #endif
 };
 
@@ -576,21 +589,6 @@ static void stress_rt_dist(
 	free(dist);
 }
 
-/*
- *  stress_cyclic_supported()
- *      check if we can run this as root
- */
-static int stress_cyclic_supported(const char *name)
-{
-	if (!stress_check_capability(SHIM_CAP_SYS_NICE)) {
-		pr_inf_skip("%s stressor needs to be run with CAP_SYS_NICE "
-			"set SCHED_RR, SCHED_FIFO or SCHED_DEADLINE priorities, "
-			"skipping this stressor\n", name);
-		return -1;
-	}
-	return 0;
-}
-
 static int stress_cyclic(stress_args_t *args)
 {
 	const uint32_t instances = args->instances;
@@ -606,7 +604,7 @@ static int stress_cyclic(stress_args_t *args)
 	size_t cyclic_samples = DEFAULT_SAMPLES;
 	NOCLOBBER int policy;
 	int rc = EXIT_SUCCESS;
-	size_t cyclic_policy = 0;
+	size_t cyclic_policy = 3;	/* FIFO */
 	size_t cyclic_method = 0;
 	const double start = stress_time_now();
 	stress_rt_stats_t *rt_stats;
@@ -655,6 +653,14 @@ static int stress_cyclic(stress_args_t *args)
 
 	func = cyclic_methods[cyclic_method].func;
 	policy = cyclic_policies[cyclic_policy].policy;
+
+	if (cyclic_policies[cyclic_policy].cap_sys_nice &&
+	    !stress_check_capability(SHIM_CAP_SYS_NICE)) {
+		pr_inf_skip("%s stressor needs to be run with CAP_SYS_NICE "
+			"set for SCHED_RR, SCHED_FIFO or SCHED_DEADLINE policies, "
+			"skipping stressor\n", args->name);
+		return EXIT_NO_RESOURCE;
+	}
 
 	if (g_opt_timeout == TIMEOUT_NOT_SET) {
 		timeout = 60;
@@ -772,6 +778,8 @@ redo_policy:
 #endif
 		ret = stress_set_sched(mypid, policy, rt_stats->max_prio, true);
 		if (ret < 0) {
+			const int saved_errno = errno;
+
 #if defined(SCHED_DEADLINE)
 			/*
 			 *  The following occurs if we use an older kernel
@@ -780,7 +788,7 @@ redo_policy:
 			 *  SCHED_DEADLINE; fall back to the next scheduling policy
 			 *  which users the older and smaller attr structure.
 			 */
-			if ((errno == E2BIG) &&
+			if ((saved_errno == E2BIG) &&
 			    (cyclic_policies[cyclic_policy].policy == SCHED_DEADLINE)) {
 				cyclic_policy = 1;
 				if ((ssize_t)cyclic_policy >= (ssize_t)NUM_CYCLIC_POLICIES) {
@@ -800,9 +808,10 @@ redo_policy:
 				goto redo_policy;
 			}
 #endif
-			if (errno != EPERM) {
+			if (saved_errno != EPERM) {
 				uint32_t count = 0;
-				const char *msg = (errno == EBUSY) ?
+
+				const char *msg = (saved_errno == EBUSY) ?
 					", (recommend setting --sched-runtime to less than 90000 or run one instance of cyclic stressor)" : "";
 
 				if (stress_cyclic_state != MAP_FAILED) {
@@ -812,13 +821,18 @@ redo_policy:
 					(void)stress_lock_release(stress_cyclic_state->lock);
 				}
 
-				if (count == 0)
+				if (count == 0) {
 					pr_fail("%s: sched_setscheduler "
 						"failed, errno=%d (%s) "
 						"for scheduler policy %s%s\n",
-						args->name, errno, strerror(errno),
+						args->name, saved_errno, strerror(saved_errno),
 						cyclic_policies[cyclic_policy].name,
 						msg);
+					if (saved_errno == EINVAL) {
+						kill(getppid(), SIGALRM);
+						goto tidy;
+					}
+				}
 			}
 			goto tidy;
 		}
@@ -902,7 +916,7 @@ tidy:
 					args->name, rt_stats->index_reqd);
 			pr_block_end();
 		} else {
-			pr_inf("%s: %10s: no latency information available\n",
+			pr_inf("%s: %s: no latency information available\n",
 				args->name,
 				cyclic_policies[cyclic_policy].name);
 		}
@@ -941,7 +955,6 @@ static const stress_opt_t opts[] = {
 
 const stressor_info_t stress_cyclic_info = {
 	.stressor = stress_cyclic,
-	.supported = stress_cyclic_supported,
 	.classifier = CLASS_SCHEDULER | CLASS_OS,
 	.opts = opts,
 	.init = stress_cyclic_init,
