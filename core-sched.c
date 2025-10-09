@@ -220,7 +220,7 @@ int stress_set_sched(
 			rc = -errno;
 			if (!quiet)
 				pr_inf("%s: cannot set scheduler '%s', errno=%d (%s)\n",
-					prefix, stress_get_sched_name(sched),
+					prefix, sched_name,
 					errno, strerror(errno));
 			return rc;
 		}
@@ -242,9 +242,7 @@ int stress_set_sched(
 		rc = -errno;
 		if (!quiet)
 			pr_inf("%s: cannot set scheduler '%s', errno=%d (%s)\n",
-				prefix,
-				stress_get_sched_name(sched),
-				errno, strerror(errno));
+				prefix, sched_name, errno, strerror(errno));
 		return rc;
 	}
 	return 0;
@@ -313,4 +311,44 @@ int sched_settings_apply(const bool quiet)
 	(void)stress_get_setting("sched-prio", &sched_prio);
 
         return stress_set_sched(getpid(), (int)sched, sched_prio, quiet);
+}
+
+/*
+ *  sched_get_sched_ext_ops()
+ *	read sched_ext ops field (contains sched_ext scheduler name)
+ *	return -1 if unreadable/invalid, or length of read string
+ */
+ssize_t sched_get_sched_ext_ops(char *buf, const size_t len)
+{
+	ssize_t ret = -1;
+
+	if (!buf)
+		return ret;
+	if (len < 1)
+		return ret;
+#if defined(__linux__)
+	ret = stress_system_read("/sys/kernel/sched_ext/root/ops", buf, len);
+	if (ret < 1) {
+		*buf = '\0';
+	} else {
+		char *ptr;
+		int ul_count;
+
+		for (ul_count = 0, ptr = buf; *ptr; ptr++) {
+			if (*ptr == '\n') {
+				*ptr = '\0';
+				break;
+			} else if ((*ptr == '_') || (*ptr == '-')) {
+				if (++ul_count >= 2) {
+					*ptr = '\0';
+					break;
+				}
+			}
+		}
+	}
+	return ret;
+#else
+	*buf = '\0';
+	return 0;
+#endif
 }
