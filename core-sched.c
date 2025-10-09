@@ -321,16 +321,25 @@ int sched_settings_apply(const bool quiet)
 ssize_t sched_get_sched_ext_ops(char *buf, const size_t len)
 {
 	ssize_t ret = -1;
+	char state[16];
 
 	if (!buf)
 		return ret;
 	if (len < 1)
 		return ret;
+
+	(void)shim_strscpy(buf, "unknown", len);
+	/* check if disabled */
+	ret = stress_system_read("/sys/kernel/sched_ext/state", state, sizeof(state));
+	if (ret < 0) {
+		return 0;
+	} else if (strncmp(state, "disabled", 8) == 0) {
+		return 0;
+	}
 #if defined(__linux__)
+	/* and get ops */
 	ret = stress_system_read("/sys/kernel/sched_ext/root/ops", buf, len);
-	if (ret < 1) {
-		*buf = '\0';
-	} else {
+	if (ret > 0) {
 		char *ptr;
 		int ul_count;
 
@@ -346,9 +355,8 @@ ssize_t sched_get_sched_ext_ops(char *buf, const size_t len)
 			}
 		}
 	}
-	return ret;
+	return 0;
 #else
-	*buf = '\0';
 	return 0;
 #endif
 }
