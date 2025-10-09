@@ -611,6 +611,7 @@ static int stress_cyclic(stress_args_t *args)
 	const size_t page_size = args->page_size;
 	const size_t size = (sizeof(*rt_stats) + page_size - 1) & (~(page_size - 1));
 	stress_cyclic_func func;
+	char sched_ext_op[128];
 
 	timeout  = g_opt_timeout;
 	(void)stress_get_setting("cyclic-dist", &cyclic_dist);
@@ -661,6 +662,10 @@ static int stress_cyclic(stress_args_t *args)
 			"skipping stressor\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
+
+	*sched_ext_op = '\0';
+	if (policy == SCHED_EXT)
+		(void)sched_get_sched_ext_ops(sched_ext_op, sizeof(sched_ext_op));
 
 	if (g_opt_timeout == TIMEOUT_NOT_SET) {
 		timeout = 60;
@@ -886,9 +891,12 @@ tidy:
 			};
 
 			pr_block_begin();
-			pr_inf("%s: sched %s: %" PRIu64 " ns delay, %zd samples\n",
+			pr_inf("%s: sched %s%s%s%s: %" PRIu64 " ns delay, %zd samples\n",
 				args->name,
 				cyclic_policies[cyclic_policy].name,
+				(*sched_ext_op) ? " (" : "",
+				sched_ext_op,
+				(*sched_ext_op) ? ")" : "",
 				cyclic_sleep,
 				rt_stats->index);
 			pr_inf( "%s:   mean: %.2f ns, mode: %" PRId64 " ns\n",
