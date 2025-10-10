@@ -171,6 +171,7 @@ static int stress_chown(stress_args_t *args)
 	const uid_t uid = getuid();
 	const gid_t gid = getgid();
 	bool cap_chown = false;
+	int fsync_counter = 0;
 
 	if (geteuid() == 0)
 		cap_chown = true;
@@ -265,7 +266,10 @@ static int stress_chown(stress_args_t *args)
 			rc = EXIT_FAILURE;
 			break;
 		}
-		(void)shim_fsync(fd);
+		if (fsync_counter++ >= 128) {
+			fsync_counter = 0;
+			(void)shim_fsync(fd);
+		}
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
 
