@@ -45,7 +45,7 @@ typedef struct {
 
 pr_msg_buf_t pr_msg_buf;
 
-static inline int pr_fd(void)
+int pr_fd(void)
 {
 	return (g_opt_flags & OPT_FLAGS_STDERR) ? fileno(stderr) : fileno(stdout);
 }

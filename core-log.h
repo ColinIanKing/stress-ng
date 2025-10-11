@@ -21,6 +21,7 @@
 
 #include "core-attribute.h"
 
+extern WARN_UNUSED int pr_fd(void);
 extern void pr_block_begin(void);
 extern void pr_block_end(void);
 extern void pr_fail_check(int *const rc);
