@@ -23,6 +23,7 @@
 
 extern double stress_timeval_to_double(const struct timeval *tv);
 extern double stress_time_now(void);
-extern const char *stress_duration_to_str(const double duration, const bool int_secs, const bool report_secs) RETURNS_NONNULL;
+extern const char *stress_duration_to_str(const double duration,
+	const bool int_secs, const bool report_secs) RETURNS_NONNULL;
 
 #endif
