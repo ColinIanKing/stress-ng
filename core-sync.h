@@ -42,7 +42,8 @@ extern void stress_sync_start_cont_list(stress_pid_t *s_pids_head);
  */
 static inline ALWAYS_INLINE void stress_sync_state_store(stress_pid_t *s_pid, uint8_t state)
 {
-#if defined(HAVE_ATOMIC_STORE)
+#if defined(HAVE_ATOMIC_STORE) && 	\
+    defined(__ATOMIC_SEQ_CST)
 	__atomic_store(&s_pid->state, &state, __ATOMIC_SEQ_CST);
 #else
 	/* racy alternative */
@@ -56,7 +57,8 @@ static inline ALWAYS_INLINE void stress_sync_state_store(stress_pid_t *s_pid, ui
  */
 static inline ALWAYS_INLINE void stress_sync_state_load(stress_pid_t *s_pid, uint8_t *state)
 {
-#if defined(HAVE_ATOMIC_LOAD)
+#if defined(HAVE_ATOMIC_LOAD) &&	\
+    defined(__ATOMIC_SEQ_CST)
 	__atomic_load(&s_pid->state, state, __ATOMIC_SEQ_CST);
 #else
 	/* racy alternative */
