@@ -3479,7 +3479,7 @@ next_opt:
 
 /*
  *  stress_alloc_proc_resources()
- *	allocate array of pids based on n pids required
+ *	allocate array of stressor stats based on n stats required
  */
 static void stress_alloc_proc_resources(
 	stress_stats_t ***stats,
