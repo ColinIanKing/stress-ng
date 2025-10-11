@@ -686,36 +686,63 @@ static void MLOCKED_TEXT stress_sigalrm_action_handler(
 #if defined(SIGUSR2)
 /*
  *  stress_stats_handler()
- *	dump current system stats
+ *	dump current system stats to stdout
  */
 static void MLOCKED_TEXT stress_stats_handler(int signum)
 {
 	static char buffer[80];
-	char *ptr = buffer;
+	char *hdr = buffer;
 	double min1, min5, min15;
 	size_t shmall, freemem, totalmem, freeswap, totalswap;
+	const int fd = pr_fd();
+	int len = 0, ret;
+#if defined(HAVE_ATOMIC_ADD_FETCH) &&	\
+    defined(__ATOMIC_RELAXED)
+	static int counter = 0;
+#endif
 
 	(void)signum;
 
-	*ptr = '\0';
-
+	if (fd < 0)
+		return;
+#if defined(HAVE_ATOMIC_ADD_FETCH) &&	\
+    defined(__ATOMIC_RELAXED)
+	if (__atomic_add_fetch(&counter, 1, __ATOMIC_RELAXED) > 1)
+		return;
+#endif
+	*hdr = '\0';
+	ret = snprintf(buffer, sizeof(buffer), "%s: info:  [%" PRIdMAX "] ",
+		g_app_name, (intmax_t)getpid());
+	if (ret > 0) {
+		hdr += ret;
+		len += ret;
+	}
 	if (stress_get_load_avg(&min1, &min5, &min15) == 0) {
-		int ret;
-
-		ret = snprintf(ptr, sizeof(buffer),
-			"Load Avg: %.2f %.2f %.2f, ",
+		ret = snprintf(hdr, sizeof(buffer) - len,
+			"Load Average: %.2f %.2f %.2f\n",
 			min1, min5, min15);
 		if (ret > 0)
-			ptr += ret;
+			VOID_RET(ssize_t, write(fd, buffer, len + ret));
 	}
 	stress_get_memlimits(&shmall, &freemem, &totalmem, &freeswap, &totalswap);
-
-	(void)snprintf(ptr, (size_t)(buffer - ptr),
-		"MemFree: %zu MB, MemTotal: %zu MB",
-		freemem / (size_t)MB, totalmem / (size_t)MB);
-	/* Really shouldn't do this in a signal handler */
-	(void)fprintf(stdout, "%s\n", buffer);
-	(void)fflush(stdout);
+	if ((totalmem > 0) || (freeswap > 0)) {
+		ret = snprintf(hdr, sizeof(buffer) - len,
+			"Mem Free: %zu MB, Mem Total: %zu MB\n",
+			freemem / (size_t)MB, totalmem / (size_t)MB);
+		if (ret > 0)
+			VOID_RET(ssize_t, write(fd, buffer, len + ret));
+	}
+	if ((freeswap > 0) || (totalswap > 0)) {
+		ret = snprintf(hdr, sizeof(buffer) - len,
+			"Swap Free: %zu MB, Swap Total: %zu MB\n",
+			freeswap / (size_t)MB, totalswap / (size_t)MB);
+		if (ret > 0)
+			VOID_RET(ssize_t, write(fd, buffer, len + ret));
+	}
+#if defined(HAVE_ATOMIC_ADD_FETCH) &&	\
+    defined(__ATOMIC_RELAXED)
+	(void)__atomic_sub_fetch(&counter, 1, __ATOMIC_RELAXED);
+#endif
 }
 #endif
 
