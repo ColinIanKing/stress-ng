@@ -193,6 +193,9 @@ static const stress_fs_name_t stress_fs_names[] = {
 #if defined(MINIX2_SUPER_MAGIC)
 	{ MINIX2_SUPER_MAGIC,	"minix2" },
 #endif
+#if defined(MINIX2_SUPER_MAGIC2)
+	{ MINIX2_SUPER_MAGIC2,	"minix2" },
+#endif
 #if defined(MINIX3_SUPER_MAGIC)
 	{ MINIX3_SUPER_MAGIC,	"minix3" },
 #endif
