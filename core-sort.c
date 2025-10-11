@@ -117,7 +117,7 @@ PRAGMA_UNROLL_N(8)
 	}
 }
 
-static void OPTIMIZE3 sort_swap8(void *p1, void *p2, register size_t size)
+static void OPTIMIZE3 sort_swap8(void *p1, void *p2, register const size_t size)
 {
 	register uint64_t tmp64;
 
@@ -128,7 +128,7 @@ static void OPTIMIZE3 sort_swap8(void *p1, void *p2, register size_t size)
 	*(uint64_t *)p2 = tmp64;
 }
 
-static void OPTIMIZE3 sort_swap4(void *p1, void *p2, register size_t size)
+static void OPTIMIZE3 sort_swap4(void *p1, void *p2, register const size_t size)
 {
 	register uint32_t tmp32;
 
@@ -139,7 +139,7 @@ static void OPTIMIZE3 sort_swap4(void *p1, void *p2, register size_t size)
 	*(uint32_t *)p2 = tmp32;
 }
 
-static void OPTIMIZE3 sort_swap2(void *p1, void *p2, register size_t size)
+static void OPTIMIZE3 sort_swap2(void *p1, void *p2, register const size_t size)
 {
 	register uint16_t tmp16;
 
@@ -150,7 +150,7 @@ static void OPTIMIZE3 sort_swap2(void *p1, void *p2, register size_t size)
 	*(uint16_t *)p2 = tmp16;
 }
 
-static void OPTIMIZE3 sort_swap1(void *p1, void *p2, register size_t size)
+static void OPTIMIZE3 sort_swap1(void *p1, void *p2, register const size_t size)
 {
 	register uint8_t tmp8;
 
@@ -175,28 +175,28 @@ static void OPTIMIZE3 sort_swap(void *p1, void *p2, register size_t size)
 	} while (--size);
 }
 
-static void OPTIMIZE3 sort_copy8(void *p1, void *p2, register size_t size)
+static void OPTIMIZE3 sort_copy8(void *p1, void *p2, register const size_t size)
 {
 	(void)size;
 
 	*(uint64_t *)p1 = *(uint64_t *)p2;
 }
 
-static void OPTIMIZE3 sort_copy4(void *p1, void *p2, register size_t size)
+static void OPTIMIZE3 sort_copy4(void *p1, void *p2, register const size_t size)
 {
 	(void)size;
 
 	*(uint32_t *)p1 = *(uint32_t *)p2;
 }
 
-static void OPTIMIZE3 sort_copy2(void *p1, void *p2, register size_t size)
+static void OPTIMIZE3 sort_copy2(void *p1, void *p2, register const size_t size)
 {
 	(void)size;
 
 	*(uint16_t *)p1 = *(uint16_t *)p2;
 }
 
-static void OPTIMIZE3 sort_copy1(void *p1, void *p2, register size_t size)
+static void OPTIMIZE3 sort_copy1(void *p1, void *p2, register const size_t size)
 {
 	(void)size;
 
