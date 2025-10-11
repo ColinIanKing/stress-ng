@@ -343,7 +343,7 @@ static int OPTIMIZE3 stress_cpu_rand(const char *name)
 	uint32_t i_sum = 0;
 	const uint32_t sum = 0xc253698c;
 
-	stress_mwc_seed();
+	stress_mwc_default_seed();
 PRAGMA_UNROLL_N(8)
 	for (i = 0; LIKELY(i < 16384); i++)
 		i_sum += stress_mwc32();
@@ -816,7 +816,7 @@ static int OPTIMIZE3 TARGET_CLONES stress_cpu_int ## sz(const char *name)\
 	register type a, b;					\
 	int i;							\
 								\
-	stress_mwc_seed();					\
+	stress_mwc_default_seed();				\
 	a = (type)stress_mwc32();				\
 	b = (type)stress_mwc32();				\
 								\
@@ -1078,7 +1078,7 @@ static int OPTIMIZE3 TARGET_CLONES stress_cpu_int ## sz ## _ ## fp_name(const ch
 	      flt_d = (ftype)0.0,				\
 	      flt_r;						\
 								\
-	stress_mwc_seed();					\
+	stress_mwc_default_seed();				\
 	a = stress_mwc32();					\
 	b = stress_mwc32();					\
 								\

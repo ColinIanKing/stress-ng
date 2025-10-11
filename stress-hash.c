@@ -81,7 +81,7 @@ static int OPTIMIZE3 stress_hash_generic(
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 
 	if (verify)
-		stress_mwc_seed();
+		stress_mwc_default_seed();
 
 	(void)shim_memset(bucket->buckets, 0, sizeof(bucket->buckets));
 

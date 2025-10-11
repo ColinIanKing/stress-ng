@@ -35,7 +35,7 @@
 extern void stress_mwc_reseed(void);
 extern void stress_mwc_set_seed(const uint32_t w, const uint32_t z);
 extern void stress_mwc_get_seed(uint32_t *w, uint32_t *z);
-extern void stress_mwc_seed(void);
+extern void stress_mwc_default_seed(void);
 
 extern uint8_t stress_mwc1(void);
 extern uint8_t stress_mwc8(void);
