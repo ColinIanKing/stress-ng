@@ -4352,13 +4352,66 @@ static void stress_dev_infos_free(dev_info_t **list)
 }
 
 /*
+ *  stress_dev_avoid()
+ *	check if filename should be avoided
+ */
+static bool stress_dev_avoid(char *filename)
+{
+	char tmp[PATH_MAX], *name;
+
+	(void)shim_strscpy(tmp, filename, sizeof(tmp));
+	name = basename(tmp);
+
+	if (name == NULL)
+		return true;
+	if (stress_is_dot_filename(name))
+		return true;
+	/*
+	 *  Avoid https://bugs.xenserver.org/browse/XSO-809
+	 *  see: LP#1741409, so avoid opening /dev/hpet
+	 */
+	if (!strcmp(name, "hpet") && linux_xen_guest())
+		return true;
+	if (!strncmp(name, "ttyS", 4))
+		return true;
+	/*
+	 *  Closing watchdog files will cause
+	 *  systems to be rebooted, so avoid these!
+	 */
+	if (!strncmp(name, "watchdog", 8))
+		return true;
+	return false;
+}
+
+/*
  *  stress_dev_info_add()
  *	add new device path to device info list, silently drop devs
  *	that can't be added
  */
-static void stress_dev_info_add(const char *path, dev_info_t **list, size_t *list_len)
+static void stress_dev_info_add(
+	stress_args_t *args,
+	char *path,
+	dev_info_t **list,
+	size_t *list_len,
+	const bool warn)
 {
 	dev_info_t *new_dev;
+	char linkpath[PATH_MAX];
+
+	if (stress_dev_avoid(path)) {
+		if (warn)
+			pr_inf("%s: avoiding use of %s\n", args->name, path);
+		return;
+	}
+	if (readlink(path, linkpath, sizeof(linkpath)) > 0) {
+		char *name = basename(linkpath);
+
+		if (name && stress_dev_avoid(name)) {
+			if (warn)
+				pr_inf("%s: avoiding use of %s\n", args->name, path);
+			return;
+		}
+	}
 
 	new_dev = (dev_info_t *)calloc(1, sizeof(*new_dev));
 	if (!new_dev)
@@ -4411,15 +4464,8 @@ static void stress_dev_infos_get(
 
 		if (UNLIKELY(!stress_continue(args)))
 			break;
-		if (stress_is_dot_filename(d->d_name))
-			continue;
-		/*
-		 *  Avoid https://bugs.xenserver.org/browse/XSO-809
-		 *  see: LP#1741409, so avoid opening /dev/hpet
-		 */
-		if (!strcmp(d->d_name, "hpet") && linux_xen_guest())
-			continue;
-		if (!strncmp(d->d_name, "ttyS", 4))
+
+		if (stress_dev_avoid(d->d_name))
 			continue;
 
 		len = strlen(d->d_name);
@@ -4458,9 +4504,7 @@ static void stress_dev_infos_get(
 			break;
 		case SHIM_DT_BLK:
 		case SHIM_DT_CHR:
-			if (strstr(tmp, "watchdog"))
-				continue;
-			stress_dev_info_add(tmp, list, list_len);
+			stress_dev_info_add(args, tmp, list, list_len, false);
 			break;
 		default:
 			break;
@@ -4719,7 +4763,7 @@ static int stress_dev(stress_args_t *args)
 			return EXIT_FAILURE;
 		}
 
-		stress_dev_info_add(dev_file, &dev_info_list, &dev_info_list_len);
+		stress_dev_info_add(args, dev_file, &dev_info_list, &dev_info_list_len, true);
 	} else {
 		stress_dev_infos_get(args, "/dev", tty_name, &dev_info_list, &dev_info_list_len);
 		stress_sys_dev_infos_get(args, "/sys/dev", &sys_dev_info_list, &sys_dev_info_list_end, 0);
