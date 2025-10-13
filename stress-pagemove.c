@@ -113,6 +113,7 @@ static int stress_pagemove_child(stress_args_t *args, void *context)
 	if (pages < MIN_PAGES) {
 		pagemove_bytes = page_size * MIN_PAGES;
 		sz = pagemove_bytes;
+		pages = sz / page_size;
 	}
 
 	buf = (uint8_t *)stress_mmap_populate(NULL, sz + page_size,
@@ -283,9 +284,10 @@ static int stress_pagemove_child(stress_args_t *args, void *context)
 		}
 		for (page_num = 0, ptr = buf; ptr < buf_end; ptr += page_size, page_num++) {
 			register const page_info_t *p = (page_info_t *)ptr;
+			register const size_t expected = (page_num + 1) % pages;
 
-			if (UNLIKELY(((p->page_num + pages - 1) % pages) != page_num))
-				pr_fail("%s: page shuffle failed for page %zu, mismatch on contents\n", args->name, page_num);
+			if (UNLIKELY(expected != p->page_num))
+				pr_fail("%s: page shuffle failed for page %zu, mismatch on contents, %zu vs %zu\n", args->name, page_num, expected, p->page_num);
 			if (UNLIKELY(p->virt_addr == ptr))
 				pr_fail("%s: page shuffle failed for page %zu, virtual address didn't change\n", args->name, page_num);
 		}
