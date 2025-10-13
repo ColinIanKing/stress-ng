@@ -21,6 +21,7 @@
 #include "core-numa.h"
 #include "core-out-of-memory.h"
 
+#define MIN_PAGES			(3)	/* Min number to move */
 #define DEFAULT_PAGE_MOVE_BYTES		(4 * MB)
 #define MIN_PAGE_MOVE_BYTES		(64 * KB)
 #define MAX_PAGE_MOVE_BYTES		(MAX_MEM_LIMIT)
@@ -108,6 +109,11 @@ static int stress_pagemove_child(stress_args_t *args, void *context)
 	if (sz > (MAX_32 - page_size))
 		sz = MAX_32 - page_size;
 	pages = sz / page_size;
+	/* need a few pages to move! */
+	if (pages < MIN_PAGES) {
+		pagemove_bytes = page_size * MIN_PAGES;
+		sz = pagemove_bytes;
+	}
 
 	buf = (uint8_t *)stress_mmap_populate(NULL, sz + page_size,
 		PROT_READ | PROT_WRITE,
