@@ -106,8 +106,10 @@ static int stress_pagemove_child(stress_args_t *args, void *context)
 		stress_usage_bytes(args, pagemove_bytes, pagemove_bytes_total);
 
 	sz = pagemove_bytes & ~(page_size - 1);
-	if (sz > (MAX_32 - page_size))
-		sz = MAX_32 - page_size;
+	if (sz > (MAX_32 - page_size)) {
+		pagemove_bytes = (MAX_32 - page_size) & ~(page_size - 1);
+		sz = pagemove_bytes;
+	}
 	pages = sz / page_size;
 	/* need a few pages to move! */
 	if (pages < MIN_PAGES) {
