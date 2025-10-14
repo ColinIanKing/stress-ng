@@ -144,8 +144,7 @@
 * [Experimental and numerical analysis of the thermal behaviour of a single-phase immersion-cooled data centre](https://www.sciencedirect.com/science/article/pii/S1359431123012899)
 
 2024:
-* [IdleLeak: Exploiting Idle State Side Effects for Information Leakage](https://www.sicheroder.net/files/idleleak.pdf)
-* [Profiling with trust: system monitoring from trusted execution environments](https://www.researchgate.net/publication/378265673_Profiling_with_trust_system_monitoring_from_trusted_execution_environments)
+* [IdleLeak: Exploiting Idle State Side Effects for Information Leakage](https://www.sicheroder.net/files/idleleak.pdf) * [Profiling with trust: system monitoring from trusted execution environments](https://www.researchgate.net/publication/378265673_Profiling_with_trust_system_monitoring_from_trusted_execution_environments)
 * [Exemplary Determination of Cgroups-Based QoS Isolation for a Database Workload](https://dl.acm.org/doi/pdf/10.1145/3629527.3652267)
 * [BARO: Robust Root Cause Analysis for Microservices via Multivariate Bayesian Online Change Point Detection](https://arxiv.org/pdf/2405.09330)
 * [Disambiguating Performance Anomalies from Workload Changes in Cloud-Native Applications](https://dl.acm.org/doi/pdf/10.1145/3629526.3645046)
@@ -187,4 +186,5 @@
  * [SkyForge Core: A Triple Modular Redundant Computing Architecture for Small Satellites](https://pillars.taylor.edu/cgi/viewcontent.cgi?article=1000&context=physics-engineering-student-papers)
  * [Systematic Analysis of Kernel Security Performance and Energy Costs](https://dl.acm.org/doi/pdf/10.1145/3708821.3736197)
  * [Efficient Fault Localization in a Cloud Stack Using End-to-End Application Service Topology](https://arxiv.org/html/2509.05511v1)
+ * [ASTREA: Introducing Agentic Intelligence for Orbital Themral Autonomy](https://arxiv.org/pdf/2509.13380v2A)
 
