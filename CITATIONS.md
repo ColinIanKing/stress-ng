@@ -186,5 +186,4 @@
  * [SkyForge Core: A Triple Modular Redundant Computing Architecture for Small Satellites](https://pillars.taylor.edu/cgi/viewcontent.cgi?article=1000&context=physics-engineering-student-papers)
  * [Systematic Analysis of Kernel Security Performance and Energy Costs](https://dl.acm.org/doi/pdf/10.1145/3708821.3736197)
  * [Efficient Fault Localization in a Cloud Stack Using End-to-End Application Service Topology](https://arxiv.org/html/2509.05511v1)
- * [ASTREA: Introducing Agentic Intelligence for Orbital Themral Autonomy](https://arxiv.org/pdf/2509.13380v2A)
-
+ * [ASTREA: Introducing Agentic Intelligence for Orbital Themral Autonomy](https://arxiv.org/html/2509.13380v2)
