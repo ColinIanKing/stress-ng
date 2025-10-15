@@ -124,6 +124,7 @@ static void stress_affinity_child(
 	uint32_t cpu = args->instance, last_cpu = cpu;
 	cpu_set_t mask0;
 	bool stress_continue_affinity = true;
+	const bool taskset_random = g_opt_flags & OPT_FLAGS_TASKSET_RANDOM;
 
 	CPU_ZERO(&mask0);
 
@@ -173,6 +174,7 @@ static void stress_affinity_child(
 			CPU_SET(cpu, &mask);
 			if (sched_getaffinity(0, sizeof(mask), &mask) == 0) {
 				if ((g_opt_flags & OPT_FLAGS_VERIFY) &&
+				    (!taskset_random) &&
 				    (!CPU_ISSET(cpu, &mask)))
 					pr_fail("%s: failed to move " "to CPU %" PRIu32 "\n",
 						args->name, cpu);
