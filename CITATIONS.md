@@ -187,3 +187,5 @@
  * [Systematic Analysis of Kernel Security Performance and Energy Costs](https://dl.acm.org/doi/pdf/10.1145/3708821.3736197)
  * [Efficient Fault Localization in a Cloud Stack Using End-to-End Application Service Topology](https://arxiv.org/html/2509.05511v1)
  * [ASTREA: Introducing Agentic Intelligence for Orbital Themral Autonomy](https://arxiv.org/html/2509.13380v2)
+ * [Towards Accurate RISC-V Full System Simulation via Component-level Calibration](https://arodes.hes-so.ch/record/16139/files/Zapater_2025_Towards_accurate_RISC-V_full_system_simulation.pdf)
+
