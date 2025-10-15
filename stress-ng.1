@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "23 September 2025"
+.TH STRESS-NG 1 "15 October 2025"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -54,10 +54,10 @@ used with care.
 One can specify the number of processes to invoke per type of stress test;
 specifying a zero value will select the number of processors
 available as defined by sysconf(_SC_NPROCESSORS_CONF), if that can't be
-determined then the number of online CPUs is used.  If the value is less
+determined then the number of online CPUs is used. If the value is less
 than zero then the number of online CPUs is used. Specifying the number as
-a percentage will select the percentage of configured CPUs (truncated down to
-nearest whole number).
+a percentage will select the percentage of configured CPUs (truncated
+down to nearest whole number).
 .SH OPTIONS
 .PP
 .B General stress\-ng control options:
@@ -76,7 +76,10 @@ being used.
 .B \-a N, \-\-all N, \-\-parallel N
 start N instances of all stressors in parallel. If N is less than zero, then
 the number of CPUs online is used for the number of instances.  If N is zero,
-then the number of configured CPUs in the system is used.
+then the number of configured CPUs in the system is used. Specifying N as a
+percentage will select the percentage of configured CPUs (truncated down to
+nearest whole number).
+.SH OPTIONS
 .TP
 .B \-\-autogroup
 with this option any successful nice(2) call will attempt to also set the
@@ -462,8 +465,10 @@ option to work, or adjust  /proc/sys/kernel/perf_event_paranoid to below
 run all permutations of the selected stressors with N instances of the
 permutated stressors per run.  If N is less than zero, then the number
 of CPUs online is used for the number of instances. If N is zero, then
-the number of configured CPUs in the system is used.  This will perform
-multiple runs with all the permutations of the stressors up to 2\[ua]20
+the number of configured CPUs in the system is used.  Specifying N
+as a percentage will select the percentage of configured CPUs
+(truncated down to nearest whole number).  This will perform multiple
+runs with all the permutations of the stressors up to 2\[ua]20
 permumtations. Use this in conjunction with the \-\-with or \-\-class
 option to specify the stressors to permute.
 .TP
@@ -523,6 +528,9 @@ sequentially run all the stressors one by one for a default of 60 seconds. The
 number of instances of each of the individual stressors to be started is N.  If
 N is less than zero, then the number of CPUs online is used for the number
 of instances.  If N is zero, then the number of CPUs in the system is used.
+Specifying N as a percentage will select the percentage of configured
+CPUs (truncated down to nearest whole number).
+.SH OPTIONS
 Use the \-\-timeout option to specify the duration to run each stressor.
 .TP
 .B \-\-skip\-silent

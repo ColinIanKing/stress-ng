@@ -3232,7 +3232,7 @@ next_opt:
 		switch (c) {
 		case OPT_all:
 			g_opt_flags |= OPT_FLAGS_ALL;
-			g_opt_parallel = stress_get_int32(optarg);
+			g_opt_parallel= stress_get_int32_instance_percent(optarg);
 			stress_get_processors(&g_opt_parallel);
 			stress_check_max_stressors("all", g_opt_parallel);
 			break;
@@ -3386,14 +3386,14 @@ next_opt:
 			break;
 		case OPT_sequential:
 			g_opt_flags |= OPT_FLAGS_SEQUENTIAL;
-			g_opt_sequential = stress_get_int32(optarg);
+			g_opt_sequential = stress_get_int32_instance_percent(optarg);
 			stress_get_processors(&g_opt_sequential);
 			stress_check_range("sequential", (uint64_t)g_opt_sequential,
 				MIN_SEQUENTIAL, MAX_SEQUENTIAL);
 			break;
 		case OPT_permute:
 			g_opt_flags |= OPT_FLAGS_PERMUTE;
-			g_opt_permute = stress_get_int32(optarg);
+			g_opt_permute = stress_get_int32_instance_percent(optarg);
 			stress_get_processors(&g_opt_permute);
 			stress_check_max_stressors("permute", g_opt_permute);
 			break;
