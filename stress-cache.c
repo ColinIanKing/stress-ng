@@ -1090,6 +1090,13 @@ static int stress_cache(stress_args_t *args)
 	UNEXPECTED
 #endif
 
+#if !defined(HAVE_SHIM_MFENCE)
+	if (cache_flags & CACHE_FLAGS_FENCE)
+		ignored_flags |= CACHE_FLAGS_FENCE;
+	cache_flags &= ~CACHE_FLAGS_FENCE;
+	cache_flags_mask &= ~CACHE_FLAGS_FENCE;
+#endif
+
 #if !defined(HAVE_BUILTIN_SFENCE)
 	if (cache_flags & CACHE_FLAGS_SFENCE)
 		ignored_flags |= CACHE_FLAGS_SFENCE;
