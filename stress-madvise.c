@@ -37,6 +37,8 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
+#undef MADV_FREE
+
 #if defined(HAVE_MADVISE)
 
 #define NUM_MEM_RETRIES_MAX	(256)
@@ -49,7 +51,8 @@ static const stress_opt_t opts[] = {
 typedef struct madvise_ctxt {
 	stress_args_t *args;
 	void *buf;
-	char *smaps;
+	char smaps[PATH_MAX];
+	char maps[PATH_MAX];
 	size_t sz;
 	bool  is_thread;
 	bool  hwpoison;
@@ -72,28 +75,47 @@ static void NORETURN MLOCKED_TEXT stress_sigbus_handler(int signum)
 	stress_no_return();
 }
 
-#if defined(MADV_FREE)
 /*
- *  stress_read_proc_smaps()
+ *  stress_read_proc_file()
  *	read smaps file for extra kernel exercising
  */
-static void stress_read_proc_smaps(const char *smaps)
+static void stress_read_proc_file(const char *filename, bool *ignore)
 {
-	static bool ignore = false;
 	int fd;
 
-	if (ignore)
+	if (*ignore)
 		return;
 
-	fd = open(smaps, O_RDONLY);
+	fd = open(filename, O_RDONLY);
 	if (fd < 0) {
-		ignore = true;
+		*ignore = true;
 		return;
 	}
 	(void)stress_read_discard(fd);
 	(void)close(fd);
 }
-#endif
+
+/*
+ *  stress_read_proc_smaps()
+ *	read smaps file for extra kernel exercising
+ */
+static inline void stress_read_proc_smaps(const char *smaps)
+{
+	static bool ignore = false;
+
+	stress_read_proc_file(smaps, &ignore);
+}
+
+/*
+ *  stress_read_proc_maps()
+ *	read maps file for extra kernel exercising
+ */
+static inline void stress_read_proc_maps(const char *maps)
+{
+	static bool ignore = false;
+
+	stress_read_proc_file(maps, &ignore);
+}
 
 /*
  *  stress_random_advise()
@@ -226,10 +248,10 @@ static void *stress_madvise_pages(void *arg)
 		const int advise = stress_random_advise(args, ptr, page_size, ctxt->hwpoison);
 
 		(void)shim_madvise(ptr, page_size, advise);
-#if defined(MADV_FREE)
-		if (advise == MADV_FREE)
+		if (stress_mwc8() < 16)
 			stress_read_proc_smaps(ctxt->smaps);
-#endif
+		if (stress_mwc8() < 16)
+			stress_read_proc_maps(ctxt->maps);
 #if defined(MADV_GUARD_INSTALL) && defined(MADV_NORMAL)
 		/* avoid segfaults by setting back to normal */
 		if (advise == MADV_GUARD_INSTALL)
@@ -364,7 +386,6 @@ static int stress_madvise(stress_args_t *args)
 	NOCLOBBER int ret;
 	NOCLOBBER int num_mem_retries;
 	char filename[PATH_MAX];
-	char smaps[PATH_MAX];
 	char *page;
 	size_t n;
 	madvise_ctxt_t ctxt;
@@ -394,7 +415,9 @@ static int stress_madvise(stress_args_t *args)
 	}
 	stress_set_vma_anon_name(page, page_size, "data-page");
 
-	(void)snprintf(smaps, sizeof(smaps), "/proc/%" PRIdMAX "/smaps", (intmax_t)pid);
+	/* Don't use /proc/self/, use more direct /proc/$PID/ */
+	(void)snprintf(ctxt.smaps, sizeof(ctxt.smaps), "/proc/%" PRIdMAX "/smaps", (intmax_t)pid);
+	(void)snprintf(ctxt.maps, sizeof(ctxt.maps), "/proc/%" PRIdMAX "/maps", (intmax_t)pid);
 
 	ret = sigsetjmp(jmp_env, 1);
 	if (ret) {
@@ -487,7 +510,6 @@ static int stress_madvise(stress_args_t *args)
 		ctxt.args = args;
 		ctxt.buf = buf;
 		ctxt.sz = sz;
-		ctxt.smaps = smaps;
 
 #if defined(HAVE_LIB_PTHREAD)
 		{
