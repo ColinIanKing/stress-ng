@@ -1156,6 +1156,15 @@ static int stress_cache(stress_args_t *args)
 		ignored_flags |= CACHE_FLAGS_CLWB;
 	}
 #endif
+
+/* Note that x86 without prefetchw implemented is a no-op */
+#if !defined(HAVE_ASM_X86_PREFETCHW)
+	if (cache_flags & CACHE_FLAGS_PREFETCHW)
+		ignored_flags |= CACHE_FLAGS_PREFETCHW;
+	cache_flags &= ~CACHE_FLAGS_PREFETCHW;
+	cache_flags_mask &= ~CACHE_FLAGS_PREFETCHW;
+#endif
+
 	/*
 	 *  map a page then unmap it, then we have an address
 	 *  that is known to be not available. If the mapping
