@@ -55,6 +55,10 @@ static const stress_opt_t opts[] = {
 #define MAP_HUGE_1GB    (30 << MAP_HUGE_SHIFT)
 #endif
 
+#if !defined(MAP_HUGE_512MB) && defined(MAP_HUGE_SHIFT)
+#define MAP_HUGE_512MB	(29 << MAP_HUGE_SHIFT)
+#endif
+
 typedef struct {
 	uint8_t	*buf;		/* mapping start */
 	size_t	sz;		/* mapping size */
@@ -86,6 +90,9 @@ static const stress_mmaphuge_setting_t stress_mmap_settings[] =
 #endif
 #if defined(MAP_HUGE_1GB)
 	{ MAP_HUGETLB | MAP_HUGE_1GB,	1 * GB },
+#endif
+#if defined(MAP_HUGE_512MB)
+	{ MAP_HUGETLB | MAP_HUGE_512MB,	512 * MB },
 #endif
 	{ MAP_HUGETLB, 1 * GB },
 	{ MAP_HUGETLB, 16 * MB },	/* ppc64 */
