@@ -80,8 +80,6 @@ static void NORETURN MLOCKED_TEXT stress_sigbus_handler(int signum)
 static void stress_read_proc_smaps(const char *smaps)
 {
 	static bool ignore = false;
-	ssize_t ret;
-	char buffer[4096];
 	int fd;
 
 	if (ignore)
@@ -92,9 +90,7 @@ static void stress_read_proc_smaps(const char *smaps)
 		ignore = true;
 		return;
 	}
-	do {
-		ret = read(fd, buffer, sizeof(buffer));
-	} while (ret == (ssize_t)sizeof(buffer));
+	(void)stress_read_discard(fd);
 	(void)close(fd);
 }
 #endif
