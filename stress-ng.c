@@ -488,18 +488,19 @@ static int stress_get_class(char *const class_str, uint32_t *class)
 }
 
 /*
- *  stress_is_stressor_name()
- *	return true if name is valid stressor name
+ *  stress_stressor_find()
+ *	return address of stressor that matches
+ *	the given stressor name, return NULL.
  */
-static bool stress_is_stressor_name(const char *name)
+const stress_t *stress_stressor_find(const char *name)
 {
 	size_t i;
 
 	for (i = 0; i < SIZEOF_ARRAY(stressors); i++) {
 		if (!stress_strcmp_munged(name, stressors[i].name))
-			return true;
+			return &stressors[i];
 	}
-	return false;
+	return NULL;
 }
 
 /*
@@ -516,7 +517,7 @@ static int stress_exclude(void)
 	for (str = opt_exclude; (token = strtok(str, ",")) != NULL; str = NULL) {
 		stress_stressor_t *ss;
 
-		if (!stress_is_stressor_name(token)) {
+		if (!stress_stressor_find(token)) {
 			(void)fprintf(stderr, "exclude option specifies unknown stressor: '%s'\n", token);
 			return -1;
 		}
@@ -3058,15 +3059,8 @@ static void stress_with(const int32_t instances)
 
 	for (str = opt_with; (token = strtok(str, ",")) != NULL; str = NULL) {
 		stress_stressor_t *ss;
-		const stress_t *stressor = NULL;
-		size_t i;
+		const stress_t *stressor = stress_stressor_find(token);
 
-		for (i = 0; i < SIZEOF_ARRAY(stressors); i++) {
-			if (!stress_strcmp_munged(token, stressors[i].name)) {
-				stressor = &stressors[i];
-				break;
-			}
-		}
 		if (!stressor) {
 			(void)fprintf(stderr, "Unknown stressor: '%s', "
 				"invalid --with option\n", token);

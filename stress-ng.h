@@ -894,6 +894,7 @@ extern void stress_shared_unmap(void);
 extern void stress_log_system_mem_info(void);
 extern void stress_metrics_set_const_check(stress_args_t *args,
 	const size_t idx, char *description, const bool const_description, const double value, const int mean_type);
+extern WARN_UNUSED const stress_t *stress_stressor_find(const char *name);
 #if defined(HAVE_BUILTIN_CONSTANT_P)
 #define stress_metrics_set(args, idx, description, value, mean_type)	\
 	stress_metrics_set_const_check(args, idx, description, __builtin_constant_p(description), value, mean_type)
