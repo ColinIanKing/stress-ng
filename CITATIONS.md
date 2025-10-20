@@ -106,6 +106,7 @@
 * [Hertzbleed: Turning Power Side-Channel Attacks Into Remote Timing Attacks on x86](https://www.hertzbleed.com/hertzbleed.pdf)
 * [Don’t Mesh Around: Side-Channel Attacks and Mitigations on Mesh Interconnects](https://www.cs.cmu.edu/~rpaccagn/papers/dont-mesh-around-usenix2022.pdf)
 * [Performance Implications for Multi-Core RISC-V Systems with Dedicated Security Hardware](https://papers.academic-conferences.org/index.php/iccws/article/download/56/55/96)
+* [Machine Learning based Interference Modelling in Cloud-Native Applications](https://research.spec.org/icpe_proceedings/2022/proceedings/p125.pdf)
 
 2023:
 * [Fight Hardware with Hardware: System-wide Detection and Mitigation of Side-Channel Attacks using Performance Counters](https://dl.acm.org/doi/10.1145/3519601)
@@ -142,6 +143,7 @@
 * [Lightweight Implementation of Per-packet Service Protection in eBPF/XDP](https://arxiv.org/pdf/2312.07152.pdf)
 * [ROS2 Real-time Performance Optimization and Evaluation](https://cjme.springeropen.com/articles/10.1186/s10033-023-00976-5)
 * [Experimental and numerical analysis of the thermal behaviour of a single-phase immersion-cooled data centre](https://www.sciencedirect.com/science/article/pii/S1359431123012899)
+* [Enhancing Empirical Software Performance Engineering Research with Kernel-Level Events: A Comprehensive System Tracing Approach](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4556983)
 
 2024:
 * [IdleLeak: Exploiting Idle State Side Effects for Information Leakage](https://www.sicheroder.net/files/idleleak.pdf) * [Profiling with trust: system monitoring from trusted execution environments](https://www.researchgate.net/publication/378265673_Profiling_with_trust_system_monitoring_from_trusted_execution_environments)
@@ -158,6 +160,7 @@
 * [Interference-free Operating System: A 6 Years’ Experience in Mitigating Cross-Core Interference in Linux](https://arxiv.org/pdf/2412.18104)
 * [Enhancing the PSI framework in Linux Kernel for predictive and accurate workload analysis](https://lpc.events/event/18/contributions/1884/attachments/1439/3069/LPC2024_PIntu_PSI.pdf)
 * [Virtualization vs. Containerization, a Comparative Approach for Application Deployment in the Computing Continuum Focused on the Edge](https://www.researchgate.net/publication/385953515_Virtualization_vs_Containerization_a_Comparative_Approach_for_Application_Deployment_in_the_Computing_Continuum_Focused_on_the_Edge)
+* [Performance Analysis of Intel Total Memory Encryption Multi-Key](https://scholar.afit.edu/cgi/viewcontent.cgi?article=8692&context=etd)
 
 2025:
  * [SPY-PMU: Side-Channel Profiling of Your Performance Monitoring Unit to Leak Remote User Activity](https://eprint.iacr.org/2025/014)
