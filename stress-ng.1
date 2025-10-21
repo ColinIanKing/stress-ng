@@ -544,6 +544,10 @@ The 3 stream stressor instances are run where stream stressor instances 0 to 1 u
 \f[CR]sudo stress-ng --resctrl p1=1:l3:7:10,p2=1:ff8:90,\\
 stream=0-1@p1,stream=2@p2 --stream 3\f[]
 .EE
+.PP
+Note that invalid resctrl parameters applied to the resctrl sysfs will
+generate EINVAL errors. They are not sanity checked during option parsing
+as these can only be determined at the time they are applied.
 .RE
 .TP
 .B \-\-sched scheduler
