@@ -25,6 +25,8 @@
 #include "core-put.h"
 #include "core-target-clones.h"
 
+#include <math.h>
+
 #define MIN_MATRIX_SIZE		(16)
 #define MAX_MATRIX_SIZE		(8192)
 #define DEFAULT_MATRIX_SIZE	(128)
@@ -851,6 +853,8 @@ static inline int stress_matrix_exercise(
 	const size_t num_matrix_methods = SIZEOF_ARRAY(matrix_methods);
 	const stress_matrix_func_t func = matrix_methods[matrix_method].func[matrix_yx];
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
+	double mantissa;
+	int64_t exponent;
 
 	matrix_ptr_t a, b = NULL, r = NULL, s = NULL;
 	register size_t i, j;
@@ -952,17 +956,33 @@ static inline int stress_matrix_exercise(
 		}
 	} while (stress_continue(args));
 
+	mantissa = 1.0;
+	exponent = 0;
+
 	/* Dump metrics except for 'all' method */
 	for (i = 1, j = 0; i < num_matrix_methods; i++) {
 		if (matrix_metrics[i].duration > 0.0) {
 			char msg[64];
+			int e;
 			const double rate = matrix_metrics[i].count / matrix_metrics[i].duration;
+			const double f = frexp((double)rate, &e);
+
+			mantissa *= f;
+			exponent += e;
 
 			(void)snprintf(msg, sizeof(msg), "%s matrix ops per sec", matrix_methods[i].name);
 			stress_metrics_set(args, j, msg,
 				rate, STRESS_METRIC_HARMONIC_MEAN);
 			j++;
 		}
+	}
+
+	if (j > 0) {
+		double inverse_n = 1.0 / (double)j;
+		double geomean = pow(mantissa, inverse_n) *
+				 pow(2.0, (double)exponent * inverse_n);
+		pr_dbg("%s: %.2f matrix ops per second (geometric mean of per stressor bogo-op rates)\n",
+			args->name, geomean);
 	}
 
 
