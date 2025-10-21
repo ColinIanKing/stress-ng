@@ -29,6 +29,7 @@
 #include "core-vecmath.h"
 
 #include <time.h>
+#include <math.h>
 
 #define MR_RD			(0x0001)
 #define MR_WR			(0x0002)
@@ -1065,6 +1066,8 @@ static int stress_memrate(stress_args_t *args)
 	int rc;
 	size_t i, stats_size;
 	stress_memrate_context_t context;
+	double inverse_n, geomean, rd_mantissa, rd_n, wr_mantissa, wr_n;
+	int64_t rd_exponent, wr_exponent;
 
 	context.memrate_bytes = DEFAULT_MEMRATE_BYTES;
 	context.memrate_rd_mbs = ~0ULL;
@@ -1127,21 +1130,63 @@ static int stress_memrate(stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	pr_block_begin();
+	rd_mantissa = 1.0;
+	rd_exponent = 0;
+	rd_n = 0.0;
+	wr_mantissa = 1.0;
+	wr_exponent = 0;
+	wr_n = 0.0;
+
 	for (i = 1; i < memrate_items; i++) {
 		if (!context.stats[i].valid)
 			continue;
 		if (context.stats[i].duration > 0.0) {
 			char tmp[32];
 			const double rate = context.stats[i].kbytes / (context.stats[i].duration * KB);
+			int e;
+			double f;
+
+			switch (memrate_info[i].rdwr) {
+			case MR_RD:
+				f = frexp((double)rate, &e);
+				rd_mantissa *= f;
+				rd_exponent += e;
+				rd_n += 1.0;
+				break;
+			case MR_WR:
+				f = frexp((double)rate, &e);
+				wr_mantissa *= f;
+				wr_exponent += e;
+				wr_n += 1.0;
+				break;
+			default:
+				break;
+			}
 
 			(void)snprintf(tmp, sizeof(tmp), "%s MB per sec", memrate_info[i].name);
 			stress_metrics_set(args, i, tmp,
 				rate, STRESS_METRIC_HARMONIC_MEAN);
+
 		} else {
 			pr_inf("%s: %10.10s: interrupted early\n",
 				args->name, memrate_info[i].name);
 		}
+	}
+
+	pr_block_begin();
+	if (rd_n > 0.0) {
+		inverse_n = 1.0 / rd_n;
+		geomean = pow(rd_mantissa, inverse_n) *
+			  pow(2.0, (double)rd_exponent * inverse_n);
+		pr_inf("%s: read rate %.2f MB per sec (geometric mean of per stressor read rates)\n",
+			args->name, geomean);
+	}
+	if (wr_n > 0.0) {
+		inverse_n = 1.0 / wr_n;
+		geomean = pow(wr_mantissa, inverse_n) *
+			  pow(2.0, (double)wr_exponent * inverse_n);
+		pr_inf("%s: write rate %.2f MB per sec (geometric mean of per stressor write rates)\n",
+			args->name, geomean);
 	}
 	pr_block_end();
 
