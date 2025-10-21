@@ -191,4 +191,6 @@
  * [Efficient Fault Localization in a Cloud Stack Using End-to-End Application Service Topology](https://arxiv.org/html/2509.05511v1)
  * [ASTREA: Introducing Agentic Intelligence for Orbital Themral Autonomy](https://arxiv.org/html/2509.13380v2)
  * [Towards Accurate RISC-V Full System Simulation via Component-level Calibration](https://arodes.hes-so.ch/record/16139/files/Zapater_2025_Towards_accurate_RISC-V_full_system_simulation.pdf)
+ * [SPAM: Streamlined Prefetcher-Aware Multi-Threaded Cache Covert-Channel Attack](https://www.cse.iitb.ac.in/~biswa/CAL25.pdf)
+ *
 
