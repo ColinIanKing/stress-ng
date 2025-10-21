@@ -341,6 +341,7 @@ HEADERS = \
 	core-pthread.h \
 	core-put.h \
 	core-rapl.h \
+	core-resctrl.h \
 	core-resources.h \
 	core-sched.h \
 	core-setting.h \
@@ -419,6 +420,7 @@ CORE_SRC = \
 	core-prime.c \
 	core-processes.c \
 	core-rapl.c \
+	core-resctrl.c \
 	core-resources.c \
 	core-sched.c \
 	core-setting.c \

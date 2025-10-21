@@ -894,6 +894,7 @@ const struct option stress_long_options[] = {
 	{ "rename-ops",		1,	0,	OPT_rename_ops },
 	{ "resched",		1,	0,	OPT_resched },
 	{ "resched-ops",	1,	0,	OPT_resched_ops },
+	{ "resctrl",		1,	0,	OPT_resctrl },
 	{ "resources",		1,	0,	OPT_resources },
 	{ "resources-mlock",	0,	0,	OPT_resources_mlock },
 	{ "resources-ops",	1,	0,	OPT_resources_ops },

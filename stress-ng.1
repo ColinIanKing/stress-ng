@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "15 October 2025"
+.TH STRESS-NG 1 "21 October 2025"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -492,6 +492,59 @@ may vary between devices.
 .B \-\-raplstat S
 every S seconds show RAPL energy measurements. Currently Linux and x86 only,
 requires root access rights to read RAPL kernel interfaces.
+.TP
+.B \-\-resctrl p1[,p2,..,pn],s1[,s2..,sm]
+specify resource control cache partitions and apply to stressor instances (ARM MPAM only)
+.IP
+p1..pn are a list of 1 to n cache partitioning definitions, where p1..pn are of
+the form:
+.IP
+pN=node[:cachelevel]:hexbitmask:bandwidth
+.IP
+where:
+.RS
+\(bu pN is the partition definition name where N is a number, e.g. p1
+.br
+\(bu node specifies cluster node of CPUs to use
+.br
+\(bu cachelevel specifies the cache level to use (optional, the default is the MPAM default L3 level)
+.br
+\(bu hexbitmask is a hexadecimal bitmask specifying cache portions to use
+.br
+\(bu bandwidth is the bandwidth to use, for MPAM this is % utilization 1..100
+.RE
+.IP
+for example: \f[CR]p1=1:L3:fff:50\f[]
+.IP
+s1..sm are a list of 1 to m of stressor instances that apply these cache partitioning
+settings of the form:
+.IP
+stressor-name=stressor-instances@pN
+.IP
+where:
+.RS
+\(bu stressor-name is the name of a stressor
+.br
+\(bu stressor-instances is a list of instances where cache partitioning setting pN is applied.
+.br
+\(bu pN specifies the cache partition pN
+.RE
+.IP
+the following example applies resctrl partition p1 to the matrix stressor on instances 0, 1, 5, 8, 12, 13 and 14:
+.IP
+\f[CR]matrix=0-1,5,8,12-14@p1\f[]
+.IP
+The following example specifies two resctrl partitions, p1 uses cluster node 1, L3 cache,
+uses the first 3 cache portions and sets this to 10% utilisation. p2 uses cluaser 1,
+the default L3 cache, all cache portions except the first 32 and sets this to 90% utilisation.
+The 3 stream stressor instances are run where stream stressor instances 0 to 1 use p1, and instance 2 uses p2.
+.RS
+.sp 1
+.EX
+\f[CR]sudo stress-ng --resctrl p1=1:l3:7:10,p2=1:ff8:90,\\
+stream=0-1@p1,stream=2@p2 --stream 3\f[]
+.EE
+.RE
 .TP
 .B \-\-sched scheduler
 select the named scheduler (only on Linux). To see the list of available
@@ -5461,7 +5514,7 @@ Randomly selected page modify and modify
 .TE
 .TP
 .B \-\-mmapcow\-fork
-fork child process to exercise pages in parallel with parent to exercice page
+fork child process to exercise pages in parallel with parent to exercise page
 handling harder.
 .TP
 .B \-\-mmapcow\-free
@@ -5617,7 +5670,7 @@ mlock(2), munlock(2), madvise(2), posix_madvise(3), mincore(2), mremap(2),
 msync(2), mprotect(2), remap_file_pages(2), memory read, memory write and
 cache flushing. Where possible, randomized options are used to generate a
 mix of mostly valid (and some invalid) memory mapping operations. Metrics
-are reported for all successfull system calls and memory operations.
+are reported for all successful system calls and memory operations.
 .TP
 .B \-\-mmaprandom\-ops N
 stop after N random memory mapping bogo-operations. Generally, 1 bogo-op is
@@ -5628,7 +5681,7 @@ select maximum number of memory mappings, the default is 1024,
 range 1 to 65536.
 .TP
 .B \-\-mmaprandom\-maxpages N
-select maxiumum number of pages to be memory mapped, the default is 8, range
+select maximum number of pages to be memory mapped, the default is 8, range
 2 to 1024. The pages mapped are randomly chosen from 1 to maxpages.
 .TP
 .B \-\-mmaprandom\-numa

@@ -1264,6 +1264,8 @@ typedef enum {
 	OPT_resched,
 	OPT_resched_ops,
 
+	OPT_resctrl,
+
 	OPT_resources,
 	OPT_resources_mlock,
 	OPT_resources_ops,

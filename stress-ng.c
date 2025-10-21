@@ -41,6 +41,7 @@
 #include "core-perf.h"
 #include "core-pragma.h"
 #include "core-rapl.h"
+#include "core-resctrl.h"
 #include "core-shared-cache.h"
 #include "core-shared-heap.h"
 #include "core-smart.h"
@@ -489,18 +490,18 @@ static int stress_get_class(char *const class_str, uint32_t *class)
 
 /*
  *  stress_stressor_find()
- *	return address of stressor that matches
- *	the given stressor name, return NULL.
+ *	return of stressor that matches
+ *	the given stressor name, return -1;
  */
-const stress_t *stress_stressor_find(const char *name)
+ssize_t stress_stressor_find(const char *name)
 {
 	size_t i;
 
 	for (i = 0; i < SIZEOF_ARRAY(stressors); i++) {
 		if (!stress_strcmp_munged(name, stressors[i].name))
-			return &stressors[i];
+			return (ssize_t)i;
 	}
-	return NULL;
+	return (ssize_t)-1;
 }
 
 /*
@@ -517,7 +518,7 @@ static int stress_exclude(void)
 	for (str = opt_exclude; (token = strtok(str, ",")) != NULL; str = NULL) {
 		stress_stressor_t *ss;
 
-		if (!stress_stressor_find(token)) {
+		if (stress_stressor_find(token) < 0) {
 			(void)fprintf(stderr, "exclude option specifies unknown stressor: '%s'\n", token);
 			return -1;
 		}
@@ -1593,6 +1594,9 @@ static int MLOCKED_TEXT stress_run_child(
 #endif
 		if (g_opt_flags & OPT_FLAGS_STRESSOR_TIME)
 			stress_log_time(name, stats->start, "start");
+
+		(void)stress_resctrl_set(name, instance, child_pid);
+
 		rc = info->stressor(args);
 		stress_sync_state_store(&stats->s_pid, STRESS_SYNC_START_FLAG_FINISHED);
 		stress_block_signals();
@@ -3059,14 +3063,14 @@ static void stress_with(const int32_t instances)
 
 	for (str = opt_with; (token = strtok(str, ",")) != NULL; str = NULL) {
 		stress_stressor_t *ss;
-		const stress_t *stressor = stress_stressor_find(token);
+		ssize_t i = stress_stressor_find(token);
 
-		if (!stressor) {
+		if (i < 0) {
 			(void)fprintf(stderr, "Unknown stressor: '%s', "
 				"invalid --with option\n", token);
 			exit(EXIT_FAILURE);
 		}
-		ss = stress_find_proc_info(stressor);
+		ss = stress_find_proc_info(&stressors[i]);
 		if (!ss) {
 			(void)fprintf(stderr, "cannot %zu byte allocate stressor state info%s\n",
 				sizeof(*ss), stress_get_memfree_str());
@@ -3349,6 +3353,11 @@ next_opt:
 			stress_get_processors(&i32);
 			stress_check_max_stressors("random", i32);
 			stress_set_setting_global("random", TYPE_ID_INT32, &i32);
+			break;
+		case OPT_resctrl:
+			if (stress_resctrl_parse(optarg) < 0)
+				return EXIT_FAILURE;
+			stress_set_setting_global("resctrl", TYPE_ID_STR, optarg);
 			break;
 		case OPT_sched:
 			i32 = stress_get_opt_sched(optarg);
@@ -4141,6 +4150,7 @@ int main(int argc, char **argv, char **envp)
 	stress_klog_start();
 	stress_clocksource_check();
 	stress_config_check();
+	stress_resctrl_init();
 
 	if (g_opt_flags & OPT_FLAGS_SEQUENTIAL) {
 		stress_run_sequential(ticks_per_sec, &duration, &success, &resource_success, &metrics_success);
@@ -4203,6 +4213,7 @@ int main(int argc, char **argv, char **envp)
 	stress_times_dump(yaml, ticks_per_sec, duration);
 	stress_exit_status_summary();
 
+	stress_resctrl_deinit();
 	stress_klog_stop(&success);
 	stress_smart_stop();
 	stress_vmstat_stop();
