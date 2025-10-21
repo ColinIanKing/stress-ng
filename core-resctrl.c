@@ -610,7 +610,7 @@ static int stress_resctrl_set_pid(const char *name, const pid_t pid, stress_part
 	ret = stress_system_write(path, buf, strlen(buf));
 	if (ret < 0) {
 		ptr = strstr(buf, "\n");
-		if (*ptr)
+		if (ptr)
 			*ptr = '\0';
 		pr_warn("%s: failed to set schemata '%s' for resctrl partition '%s', errno=%d (%s)\n",
 			name, buf, partition->name, errno, strerror(errno));
@@ -621,7 +621,7 @@ static int stress_resctrl_set_pid(const char *name, const pid_t pid, stress_part
 	ret = stress_system_write(path, buf, strlen(buf));
 	if (ret < 0) {
 		ptr = strstr(buf, "\n");
-		if (*ptr)
+		if (ptr)
 			*ptr = '\0';
 		pr_warn("%s: failed to set schemata '%s' for resctrl partition '%s', errno=%d (%s)\n",
 			name, buf, partition->name, errno, strerror(errno));
@@ -632,7 +632,7 @@ static int stress_resctrl_set_pid(const char *name, const pid_t pid, stress_part
 	ret = stress_system_write(path, buf, strlen(buf));
 	if (ret < 0) {
 		ptr = strstr(buf, "\n");
-		if (*ptr)
+		if (ptr)
 			*ptr = '\0';
 		pr_warn("%s: failed to add pid %" PRIdMAX " to resctrl partition '%s', errno=%d (%s)\n",
 			name, (intmax_t)pid, partition->name, errno, strerror(errno));
