@@ -24,9 +24,8 @@
 #include <search.h>
 #endif
 
-#define TSEARCH_SIZE_SHIFT	(22)
 #define MIN_TSEARCH_SIZE	(1 * KB)
-#define MAX_TSEARCH_SIZE	(1U << TSEARCH_SIZE_SHIFT)	/* 4 MB */
+#define MAX_TSEARCH_SIZE	(64 * MB)
 #define DEFAULT_TSEARCH_SIZE	(64 * KB)
 
 static const stress_help_t help[] = {
