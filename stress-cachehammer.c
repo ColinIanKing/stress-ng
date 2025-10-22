@@ -28,6 +28,7 @@
 #include "core-numa.h"
 #include "core-put.h"
 
+#include <math.h>
 #include <sched.h>
 
 #define N_FUNCS (SIZEOF_ARRAY(stress_cachehammer_funcs))
@@ -1576,6 +1577,7 @@ static const stress_cachehammer_func_t stress_cachehammer_funcs[] = {
 	{ "write-read64", hammer_valid,			hammer_writeread64 },
 };
 
+static stress_metrics_t cachehammer_metrics[N_FUNCS];
 static bool valid[N_FUNCS];
 static bool trapped[N_FUNCS];
 static size_t func_index;
@@ -1659,11 +1661,13 @@ static int OPTIMIZE3 stress_cachehammer(stress_args_t *args)
 	const size_t local_buffer_size = buffer_size * 4;
 	const uint32_t mask = ~0x3f;
 	const uint32_t page_mask = (page_size - 1) & ~0x3f;
-	size_t i;
+	size_t i, j;
 	NOCLOBBER size_t tries = 0;
 	char buf[1024];
 	NOCLOBBER bool cachehammer_numa = false;
 	static int numa_count[5];
+	double mantissa;
+	uint64_t exponent;
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 	NOCLOBBER stress_numa_mask_t *numa_mask;
 	NOCLOBBER stress_numa_mask_t *numa_nodes;
@@ -1681,9 +1685,11 @@ static int OPTIMIZE3 stress_cachehammer(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 	func_index = 0;
-	for (i = 0; i < SIZEOF_ARRAY(stress_cachehammer_funcs); i++) {
+	for (i = 0; i < N_FUNCS; i++) {
 		valid[i] = stress_cachehammer_funcs[i].valid();
 		trapped[i] = false;
+		cachehammer_metrics[i].duration = 0.0;
+		cachehammer_metrics[i].count = 0.0;
 	}
 
 	if (stress_instance_zero(args)) {
@@ -1791,6 +1797,7 @@ static int OPTIMIZE3 stress_cachehammer(stress_args_t *args)
 	func_index = stress_mwc32modn((uint32_t)N_FUNCS);
 	while (stress_continue(args)) {
 		if (valid[func_index] && !trapped[func_index]) {
+			double t_start;
 			const uint16_t rnd16 = stress_mwc16();
 			const size_t loops = 8 + ((rnd16 >> 1) & 0x3f);
 			const uint8_t which = (rnd16 == 0x0008) ? 4 : rnd16 & 3;
@@ -1799,6 +1806,7 @@ static int OPTIMIZE3 stress_cachehammer(stress_args_t *args)
 			uint32_t offset;
 			register uint8_t *addr1, *addr2;
 
+			t_start = stress_time_now();
 			switch (which) {
 			case 0:
 				(*file_page)++;
@@ -1884,6 +1892,8 @@ static int OPTIMIZE3 stress_cachehammer(stress_args_t *args)
 				hammer(args, addr1, addr2, true, false);
 				break;
 			}
+			cachehammer_metrics[func_index].duration += stress_time_now() - t_start;
+			cachehammer_metrics[func_index].count += 1.0;
 			tries = 0;
 			stress_bogo_inc(args);
 			func_index = stress_mwc32modn((uint32_t)N_FUNCS);
@@ -1910,6 +1920,35 @@ static int OPTIMIZE3 stress_cachehammer(stress_args_t *args)
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
+	mantissa = 1.0;
+	exponent = 0;
+
+	for (i = 0, j = 0; i < N_FUNCS; i++) {
+		if (cachehammer_metrics[i].duration > 0.0) {
+			char msg[64];
+			int e;
+			const double rate = cachehammer_metrics[i].count / cachehammer_metrics[i].duration;
+			const double f = frexp(rate, &e);
+
+			mantissa *= f;
+			exponent += e;
+
+			(void)snprintf(msg, sizeof(msg), "%s cache bogo-ops/sec",
+				 stress_cachehammer_funcs[i].name);
+			stress_metrics_set(args, j, msg, rate, STRESS_METRIC_HARMONIC_MEAN);
+			j++;
+		}
+	}
+
+	if (j > 0) {
+		double inverse_n = 1.0 / (double)j;
+		double geomean = pow(mantissa, inverse_n) *
+				 pow(2.0, (double)exponent * inverse_n);
+
+		pr_dbg("%s: %.2f cachehammer ops per second (geometric mean of per stressor bogo-op rates)\n",
+			args->name, geomean);
+	}
 
 #if defined(HAVE_LINUX_MEMPOLICY_H)
         if (numa_mask)
