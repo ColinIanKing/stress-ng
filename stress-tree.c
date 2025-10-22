@@ -22,6 +22,7 @@
 #include "core-builtin.h"
 #include "core-pragma.h"
 #include "core-target-clones.h"
+#include "math.h"
 
 #if defined(HAVE_SYS_TREE_H)
 #include <sys/tree.h>
@@ -966,6 +967,8 @@ static int stress_tree(stress_args_t *args)
 	int rc = EXIT_SUCCESS;
 	stress_tree_func func;
 	stress_tree_metrics_t *metrics;
+	double mantissa;
+	uint64_t exponent;
 #if defined(HAVE_SIGLONGJMP)
 	struct sigaction old_action;
 	int ret;
@@ -1035,6 +1038,9 @@ static int stress_tree(stress_args_t *args)
 
 tidy:
 #endif
+	mantissa = 1.0;
+	exponent = 0;
+
 	for (i = 0, j = 0; i < SIZEOF_ARRAY(stress_tree_metrics); i++) {
 		double duration = stress_tree_metrics[i].insert +
 				  stress_tree_metrics[i].find +
@@ -1043,12 +1049,27 @@ tidy:
 		if ((duration > 0.0) && (stress_tree_metrics[i].count > 0.0)) {
 			double rate = stress_tree_metrics[i].count / duration;
 			char msg[64];
+			double f;
+			int e;
 
 			(void)snprintf(msg, sizeof(msg), "%s tree operations per sec", stress_tree_methods[i].name);
 			stress_metrics_set(args, j, msg,
 				rate, STRESS_METRIC_HARMONIC_MEAN);
+
+			f = frexp(rate, &e);
+			mantissa *= f;
+			exponent += e;
 			j++;
 		}
+	}
+
+	if (j > 0) {
+		double geomean, inverse_n = 1.0 / j;
+
+		geomean = pow(mantissa, inverse_n) *
+			  pow(2.0, (double)exponent * inverse_n);
+		pr_dbg("%s: %.2f tree ops per second (goemetric mean of per stressor tree op rates)\n",
+			args->name, geomean);
 	}
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	free(nodes);
