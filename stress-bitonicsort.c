@@ -278,6 +278,8 @@ tidy:
 	stress_metrics_set(args, 1, "bitonicsort comparisons per item",
 		count / sorted, STRESS_METRIC_HARMONIC_MEAN);
 
+	pr_dbg("%s: %.2f bitonicsort comparisons per sec\n", args->name, rate);
+
 	(void)munmap((void *)data, data_size);
 
 	return rc;
