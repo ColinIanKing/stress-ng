@@ -329,6 +329,8 @@ tidy:
 	stress_metrics_set(args, 1, "heapsort comparisons per item",
 		count / sorted, STRESS_METRIC_HARMONIC_MEAN);
 
+	pr_dbg("%s: %.2f heapsort comparisons per sec\n", args->name, rate);
+
 	(void)munmap((void *)data, data_size);
 
 	return rc;
