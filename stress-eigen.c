@@ -18,11 +18,11 @@
  */
 #include "stress-ng.h"
 #include "stress-eigen-ops.h"
+#include <math.h>
 
 #define MIN_MATRIX_SIZE		(2)
 #define MAX_MATRIX_SIZE		(1024)
 #define DEFAULT_MATRIX_SIZE	(32)
-
 
 static const stress_help_t help[] = {
 	{ NULL,	"eigen N",	  "start N workers exercising eigen operations" },
@@ -116,6 +116,8 @@ static inline int stress_eigen_exercise(
 	int rc = EXIT_SUCCESS;
 	const stress_eigen_func_t func = eigen_methods[eigen_method].func;
 	const char *name = eigen_methods[eigen_method].name;
+	double mantissa;
+	uint64_t exponent;
 
 	register size_t i, j;
 	method_all_index = 1;
@@ -149,17 +151,34 @@ static inline int stress_eigen_exercise(
 		}
 	} while (stress_continue(args));
 
+	mantissa = 1.0;
+	exponent = 0;
+
 	/* Dump metrics except for 'all' method */
 	for (i = 1, j = 0; i < NUM_EIGEN_METHODS; i++) {
 		if (eigen_metrics[i].duration > 0.0) {
 			char msg[64];
+			int e;
 			const double rate = eigen_metrics[i].count / eigen_metrics[i].duration;
+			const double f = frexp(rate, &e);
+
+			mantissa *= f;
+			exponent += e;
 
 			(void)snprintf(msg, sizeof(msg), "%s matrix %zu x %zu ops per sec",
 				eigen_methods[i].name, eigen_size, eigen_size);
 			stress_metrics_set(args, j, msg, rate, STRESS_METRIC_HARMONIC_MEAN);
 			j++;
 		}
+	}
+
+	if (j > 0) {
+		double inverse_n = 1.0 / (double)j;
+		double geomean = pow(mantissa, inverse_n) *
+				 pow(2.0, (double)exponent * inverse_n);
+
+		pr_dbg("%s: %.2f eigen ops per second (geometric mean of per stressor bogo-op rates)\n",
+			args->name, geomean);
 	}
 
 	return rc;
