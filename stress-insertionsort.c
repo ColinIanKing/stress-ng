@@ -239,6 +239,8 @@ tidy:
 	stress_metrics_set(args, 1, "insertionsort comparisons per item",
 		count / sorted, STRESS_METRIC_HARMONIC_MEAN);
 
+	pr_dbg("%s: %.2f insertionsort comparisons per sec\n", args->name, rate);
+
 	(void)munmap((void *)data, data_size);
 
 	return rc;
