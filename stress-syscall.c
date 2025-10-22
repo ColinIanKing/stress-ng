@@ -4198,7 +4198,7 @@ static int syscall_nanosleep(void)
 #endif
 
 #if defined(HAVE_NICE)
-#define HAVE_SYSCALL_NICE 
+#define HAVE_SYSCALL_NICE
 static int syscall_nice(void)
 {
 	t1 = syscall_time_now();

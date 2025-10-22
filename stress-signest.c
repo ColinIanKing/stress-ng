@@ -323,7 +323,7 @@ static int stress_signest(stress_args_t *args)
 	if (altstack == MAP_FAILED) {
 		pr_inf_skip("%s: failed to mmap %zu byte alternative signal stack%s, "
 			"errno=%d (%s), skipping stressor\n",
-			args->name, altstack_size, 
+			args->name, altstack_size,
 			stress_get_memfree_str(), errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}

@@ -124,7 +124,7 @@ reap:
 			(void)stress_kill_pid_wait(pid[i], NULL);
 		} else {
 			if (shim_waitpid(pid[i], &status, 0) == 0) {
-				pr_inf("%s: PID %" PRIdMAX " died prematurely\n", 
+				pr_inf("%s: PID %" PRIdMAX " died prematurely\n",
 					args->name, (intmax_t)pid[i]);
 			}
 		}

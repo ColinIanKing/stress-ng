@@ -345,7 +345,7 @@ static int stress_pagemove(stress_args_t *args)
 
 			stress_uint64_to_str(buf, sizeof(buf), (uint64_t)pagemove_bytes, 2, true);
 			pr_inf("%s: adjusted pagemove-bytes to a per stressor instance %s of %s (%zu x %zuK pages)\n",
-				args->name, 
+				args->name,
 				adjusted_min ? "minimum" : "maximum",
 				buf,
 				info.pages, page_size >> 10);

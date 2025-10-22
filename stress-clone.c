@@ -485,7 +485,7 @@ static int stress_clone_child(stress_args_t *args, void *context)
 	 * Make child larger than parent to make it more of
 	 * a candidate for a OOMable process
 	 */
-	ptr = stress_mmap_populate(NULL, mmap_size, PROT_READ | PROT_WRITE, 
+	ptr = stress_mmap_populate(NULL, mmap_size, PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (ptr != MAP_FAILED) {
 		stress_set_vma_anon_name(ptr, mmap_size, "oom-allocation");

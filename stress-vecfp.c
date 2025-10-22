@@ -462,8 +462,8 @@ static int stress_vecfp(stress_args_t *args)
 	} while (success && stress_continue(args));
 
 	for (i = 1, j = 0; i < SIZEOF_ARRAY(stress_vecfp_funcs); i++) {
-		const double rate = 
-			stress_vecfp_metrics[i].duration > 0.0 ? 
+		const double rate =
+			stress_vecfp_metrics[i].duration > 0.0 ?
 				(stress_vecfp_metrics[i].count / stress_vecfp_metrics[i].duration) / 1000000.0 : 0.0;
 		if (rate > 0.0) {
 			char buffer[64];

@@ -269,7 +269,7 @@ PRAGMA_UNROLL_N(8)
 					if (UNLIKELY(buf[j] != v)) {
 						if (baddata == 0) {
 							pr_inf("%s: first data error at offset 0x%" PRIxMAX
-								", got 0x%" PRIx64 ", expecting 0x%" PRIx64 "\n", 
+								", got 0x%" PRIx64 ", expecting 0x%" PRIx64 "\n",
 								args->name, (intmax_t)(offsets[i] + (j * sizeof(*buf))), buf[j], v);
 						}
 						baddata++;
