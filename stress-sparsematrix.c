@@ -21,6 +21,7 @@
 #include "core-mmap.h"
 #include "core-pragma.h"
 #include "core-prime.h"
+#include "math.h"
 
 #if defined(HAVE_SYS_TREE_H)
 #include <sys/tree.h>
@@ -1351,7 +1352,9 @@ static int stress_sparsematrix(stress_args_t *args)
 	uint32_t sparsematrix_size = DEFAULT_SPARSEMATRIX_SIZE;
 	uint64_t sparsematrix_items = DEFAULT_SPARSEMATRIX_ITEMS;
 	uint64_t capacity;
-	double percent_full;
+	double percent_full, count;
+	double puts_mantissa, gets_mantissa;
+	uint64_t puts_exponent, gets_exponent;
 	int rc = EXIT_NO_RESOURCE;
 	test_info_t test_info[SIZEOF_ARRAY(sparsematrix_methods)];
 	size_t i, begin, end;
@@ -1441,21 +1444,50 @@ static int stress_sparsematrix(stress_args_t *args)
 	if (end > SIZEOF_ARRAY(sparsematrix_methods))
 		end = SIZEOF_ARRAY(sparsematrix_methods);
 
+	puts_mantissa = 1.0;
+	puts_exponent = 0;
+	gets_mantissa = 1.0;
+	gets_exponent = 0;
+	count = 0.0;
+
 	for (i = begin; (i < end); i++) {
 		if (!test_info[i].skip_no_mem) {
 			char tmp[32];
-			double rate;
+			double rate, f;
+			int e;
 
 			(void)snprintf(tmp, sizeof(tmp), "%s gets per sec", sparsematrix_methods[i].name);
 			rate = test_info[i].get_duration > 0.0 ? (double)test_info[i].get_ops / test_info[i].get_duration : 0.0;
 			stress_metrics_set(args, (i * 2) + 0, tmp,
 				rate, STRESS_METRIC_HARMONIC_MEAN);
 
+			f = frexp((double)rate, &e);
+			puts_mantissa *= f;
+			puts_exponent += e;
+
 			(void)snprintf(tmp, sizeof(tmp), "%s puts per sec", sparsematrix_methods[i].name);
 			rate = test_info[i].put_duration > 0.0 ? (double)test_info[i].put_ops / test_info[i].put_duration : 0.0;
 			stress_metrics_set(args, (i * 2) + 1, tmp,
 				rate, STRESS_METRIC_HARMONIC_MEAN);
+
+			f = frexp((double)rate, &e);
+			gets_mantissa *= f;
+			gets_exponent += e;
+
+			count += 1.0;
 		}
+	}
+	if (count > 0.0) {
+		double geomean, inverse_n = 1.0 / count;
+
+		geomean = pow(puts_mantissa, inverse_n) *
+			  pow(2.0, (double)puts_exponent * inverse_n);
+		pr_dbg("%s: %.2f put ops per second (geometric mean of per stressor put rates)\n",
+			args->name, geomean);
+		geomean = pow(gets_mantissa, inverse_n) *
+			  pow(2.0, (double)gets_exponent * inverse_n);
+		pr_dbg("%s: %.2f get ops per second (geometric mean of per stressor put rates)\n",
+			args->name, geomean);
 	}
 
 	rc = EXIT_SUCCESS;
