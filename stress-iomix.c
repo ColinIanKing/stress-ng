@@ -1207,8 +1207,10 @@ static int stress_iomix(stress_args_t *args)
 		if (s_pids[i].pid < 0) {
 			goto reap;
 		} else if (s_pids[i].pid == 0) {
+			stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 			s_pids[i].pid = getpid();
 			stress_sync_start_wait_s_pid(&s_pids[i]);
+			stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 			/* Child */
 			(void)sched_settings_apply(true);

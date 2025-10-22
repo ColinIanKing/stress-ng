@@ -4202,6 +4202,8 @@ again:
 			(void)close(rd_fds[1]);
 			(void)close(wr_fds[0]);
 
+			stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 			/* Try to limit child from spawning */
 			limit_procs(2);
 

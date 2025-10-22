@@ -158,6 +158,7 @@ kill_child:
 			const size_t page_size = args->page_size;
 			const int msg = MSG_CHILD_STARTED;
 
+			stress_set_proc_state(args->name, STRESS_STATE_RUN);
 			stress_set_oom_adjustment(args, true);
 			stress_process_dumpable(false);
 			(void)sched_settings_apply(true);

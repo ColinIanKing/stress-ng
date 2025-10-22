@@ -461,7 +461,9 @@ static int stress_atomic(stress_args_t *args)
 
 		pid = fork();
 		if (pid == 0) {
+			stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 			stress_sync_start_wait_s_pid(&atomic_info[i].s_pid);
+			stress_set_proc_state(args->name, STRESS_STATE_RUN);
 			if (stress_atomic_exercise(args, &atomic_info[i], arch_bits) < 0)
 				_exit(EXIT_FAILURE);
 			_exit(EXIT_SUCCESS);

@@ -537,6 +537,7 @@ again:
 		const pid_t mypid = getpid();
 		double rate;
 
+		stress_set_proc_state(args->name, STRESS_STATE_RUN);
 		stress_parent_died_alarm();
 		stress_set_oom_adjustment(args, true);
 		(void)sched_settings_apply(true);

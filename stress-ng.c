@@ -182,6 +182,7 @@ static const stress_opt_flag_t opt_flags[] = {
 	{ OPT_perf_stats,	OPT_FLAGS_PERF_STATS },
 #endif
 	{ OPT_progress,		OPT_FLAGS_PROGRESS },
+	{ OPT_randprocname,	OPT_FLAGS_RANDPROCNAME },
 	{ OPT_rapl,		OPT_FLAGS_RAPL | OPT_FLAGS_RAPL_REQUIRED },
 	{ OPT_settings,		OPT_FLAGS_SETTINGS },
 	{ OPT_skip_silent,	OPT_FLAGS_SKIP_SILENT },
@@ -1806,6 +1807,7 @@ again:
 				goto wait_for_stressors;
 			case 0:
 				/* Child */
+				stress_set_proc_state(g_stressor_current->stressor->name, STRESS_STATE_INIT);
 				child_pid = getpid();
 				stats->s_pid.reaped = false;
 				stats->s_pid.pid = child_pid;

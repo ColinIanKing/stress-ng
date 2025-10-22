@@ -750,6 +750,8 @@ again:
 		int ret;
 		NOCLOBBER int ncrc = EXIT_FAILURE;
 
+		stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 		/*
 		 * We run the stressor as a child so that
 		 * if we the hard time timits the child is

@@ -451,6 +451,8 @@ static int stress_prio_inv(stress_args_t *args)
 			rc = EXIT_NO_RESOURCE;
 			goto reap;
 		} else if (pid == 0) {
+			stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 			if (stress_sighandler(args->name, SIGALRM, stress_prio_inv_alarm_handler, NULL) < 0)
 				pr_inf("%s: cannot set SIGALRM signal handler, process termination may not work\n", args->name);
 

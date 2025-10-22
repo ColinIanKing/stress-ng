@@ -457,6 +457,7 @@ again:
 			if (stress_redo_fork(args, errno))
 				goto again;
 		} else if (pid == 0) {
+			stress_set_proc_state(args->name, STRESS_STATE_RUN);
 			stress_set_oom_adjustment(args, true);
 			(void)sched_settings_apply(true);
 

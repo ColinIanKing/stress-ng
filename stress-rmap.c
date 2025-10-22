@@ -291,8 +291,10 @@ static int stress_rmap(stress_args_t *args)
 				args->name, errno, strerror(errno));
 			goto cleanup;
 		} else if (s_pids[i].pid == 0) {
+			stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 			s_pids[i].pid = getpid();
 			stress_sync_start_wait_s_pid(&s_pids[i]);
+			stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 			if (stress_sighandler(args->name, SIGALRM,
 			    stress_rmap_handler, NULL) < 0)

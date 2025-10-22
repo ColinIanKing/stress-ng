@@ -228,6 +228,7 @@ static int stress_peterson(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	} else if (pid == 0) {
 		/* Child */
+		stress_set_proc_state(args->name, STRESS_STATE_RUN);
 		(void)stress_change_cpu(args, parent_cpu);
 		while (stress_continue(args)) {
 			rc = stress_peterson_p0(args);

@@ -85,6 +85,8 @@ again:
 	} else if (pid == 0) {
 		int err_mask = 0;
 
+		stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 		if (stress_sighandler(args->name, SIGUSR1, stress_alarm_sigusr1_handler, NULL) < 0)
 			_exit(EXIT_FAILURE);
 

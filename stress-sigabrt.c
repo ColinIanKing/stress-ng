@@ -100,6 +100,8 @@ again:
 				args->name, errno, strerror(errno));
 			return EXIT_FAILURE;
 		} else if (pid == 0) {
+			stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 			/* Randomly select death by abort or SIGABRT */
 			if (sigabrt_info->handler_enabled) {
 				VOID_RET(int, stress_sighandler(args->name, SIGABRT, stress_sigabrt_handler, NULL));

@@ -533,6 +533,7 @@ static int stress_fanotify(stress_args_t *args)
 	} else if (pid == 0) {
 		/* Child */
 
+		stress_set_proc_state(args->name, STRESS_STATE_RUN);
 		(void)sched_settings_apply(true);
 
 		do {

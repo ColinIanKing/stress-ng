@@ -252,8 +252,10 @@ again:
 	} else if (s_pid->pid == 0) {
 		int ret = EXIT_SUCCESS;
 
+		stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 		s_pid->pid = getpid();
 		stress_sync_start_wait_s_pid(s_pid);
+		stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 		if (!stress_apparmor_stress_continue_inc(args, false))
 			goto abort;

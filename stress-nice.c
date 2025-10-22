@@ -92,6 +92,8 @@ static int stress_nice(stress_args_t *args)
 #endif
 			int i;
 
+			stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 			/*
 			 *  Test if calling process has CAP_SYS_NICE
 			 *  capability then only it can increase

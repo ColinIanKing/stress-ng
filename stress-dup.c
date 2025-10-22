@@ -174,7 +174,7 @@ static int static_dup2_child(info_t *info)
  *  to avoid any potential breaking of the parent fd
  *  table (avoid any weird issues).
  */
-static int stress_dup2_race(info_t *info)
+static int stress_dup2_race(stress_args_t *args, info_t *info)
 {
 	pid_t pid;
 
@@ -185,6 +185,7 @@ static int stress_dup2_race(info_t *info)
 	if (pid < 0) {
 		return -1;
 	} else if (pid == 0) {
+		stress_set_proc_state(args->name, STRESS_STATE_RUN);
 		static_dup2_child(info);
 		_exit(0);
 	} else {
@@ -388,7 +389,7 @@ static int stress_dup(stress_args_t *args)
 
 #if defined(STRESS_DUP2_RACE)
 			if (info != MAP_FAILED)
-				stress_dup2_race(info);
+				stress_dup2_race(args, info);
 #endif
 			stress_bogo_inc(args);
 		}

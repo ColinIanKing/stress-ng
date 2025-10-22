@@ -221,6 +221,7 @@ static inline pid_t stress_fiemap_spawn(
 	if (s_pid->pid < 0) {
 		return -1;
 	} else if (s_pid->pid == 0) {
+		stress_set_proc_state(args->name, STRESS_STATE_RUN);
 		s_pid->pid = getpid();
 
 		stress_sync_start_wait_s_pid(s_pid);

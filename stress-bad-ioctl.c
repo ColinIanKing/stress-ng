@@ -599,6 +599,7 @@ again:
 			int r, ssjret;
 			uint32_t offset;
 
+			stress_set_proc_state(args->name, STRESS_STATE_RUN);
 			ssjret = sigsetjmp(jmp_env, 1);
 			if (ssjret != 0) {
 				pr_fail("%s: caught an unexpected segmentation fault\n", args->name);

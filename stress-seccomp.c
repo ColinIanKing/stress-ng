@@ -399,6 +399,8 @@ static int stress_seccomp(stress_args_t *args)
 			break;
 		}
 		if (pid == 0) {
+			stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 			/*
 			 *  The child has a seccomp filter applied and
 			 *  1 in 50 chance that write() is not allowed

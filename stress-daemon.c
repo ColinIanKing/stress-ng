@@ -129,6 +129,7 @@ static int stress_make_daemon(
 				goto err_close_fds2;
 			(void)umask(0);
 			VOID_RET(int, stress_drop_capabilities(args->name));
+			stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 			sz = write(fd, &rc, sizeof(rc));
 			if (sz != sizeof(rc))

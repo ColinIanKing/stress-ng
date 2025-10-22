@@ -477,6 +477,7 @@ again:
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
+		stress_set_proc_state(args->name, STRESS_STATE_RUN);
 		(void)stress_change_cpu(args, parent_cpu);
 		rc = stress_udp_client(args, mypid, udp_domain, udp_proto, udp_port, udp_gro, udp_if);
 		_exit(rc);

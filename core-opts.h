@@ -90,6 +90,7 @@
 #define OPT_FLAGS_TASKSET_RANDOM STRESS_BIT_ULL(59)	/* --taskset-random */
 #define OPT_FLAGS_BUILDINFO	 STRESS_BIT_ULL(60)	/* --buildinfo */
 #define OPT_FLAGS_AUTOGROUP	 STRESS_BIT_ULL(61)	/* --autogroup */
+#define OPT_FLAGS_RANDPROCNAME	 STRESS_BIT_ULL(62)	/* --randprocname */
 
 #define OPT_FLAGS_MINMAX_MASK		\
 	(OPT_FLAGS_MINIMIZE | OPT_FLAGS_MAXIMIZE)
@@ -1210,6 +1211,8 @@ typedef enum {
 	OPT_randlist_compact,
 	OPT_randlist_items,
 	OPT_randlist_size,
+
+	OPT_randprocname,
 
 	OPT_rapl,
 	OPT_raplstat,

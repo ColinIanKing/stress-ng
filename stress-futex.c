@@ -117,6 +117,8 @@ again:
 	if (pid > 0) {
 		int status;
 
+		stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 		do {
 			int ret;
 

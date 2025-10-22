@@ -169,8 +169,10 @@ static pid_t stress_access_spawn(
 		/* Concurrent stressor */
 		size_t j = 0;
 
+		stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 		s_pid->pid = getpid();
 		stress_sync_start_wait_s_pid(s_pid);
+		stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 		stress_mwc_reseed();
 		(void)shim_nice(1);

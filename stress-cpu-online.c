@@ -264,6 +264,7 @@ static int stress_cpu_online(stress_args_t *args)
 		} else if (pid == 0) {
 			cpu = 0;
 
+			stress_set_proc_state(args->name, STRESS_STATE_RUN);
 			/*
 			 *  Try to pin child process to that of the
 			 *  offline'd CPU. This runs at 20Hz trying

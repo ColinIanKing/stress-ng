@@ -331,6 +331,7 @@ again:
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
+		stress_set_proc_state(args->name, STRESS_STATE_RUN);
 		(void)stress_change_cpu(args, parent_cpu);
 
 		rc = stress_sigurg_client(args, mypid, sock_port);

@@ -66,6 +66,7 @@ again:
 			args->name, errno, strerror(errno));
 		return -1;
 	} else if (pid == 0) {
+		stress_set_proc_state(args->name, STRESS_STATE_RUN);
 		VOID_RET(int, stress_sighandler(args->name, SIGHUP, stress_sighup_handler, NULL));
 
 		/* Raising SIGHUP without an handler will abort */
@@ -120,6 +121,8 @@ again:
 		pid_t pid2;
 		int fds_snd[2];
 		int fds_rcv[2];
+
+		stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 		if (pipe(fds_snd) < 0)
 			_exit(0);

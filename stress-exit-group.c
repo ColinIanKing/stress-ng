@@ -209,6 +209,7 @@ again:
 			(void)pthread_mutex_destroy(&mutex);
 			break;
 		} else if (pid == 0) {
+			stress_set_proc_state(args->name, STRESS_STATE_RUN);
 			stress_exit_group_child(args);
 		} else {
 			int status;

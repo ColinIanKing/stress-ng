@@ -97,6 +97,7 @@ again:
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
+		stress_set_proc_state(args->name, STRESS_STATE_RUN);
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
 

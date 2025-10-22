@@ -177,6 +177,8 @@ static int stress_mlockmany_child(stress_args_t *args, void *context)
 				void *ptr = MAP_FAILED;
 				size_t mmap_size = mlock_size;
 
+				stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 				/* In case we've missed SIGALRM */
 				if (UNLIKELY(stress_time_now() > args->time_end))
 					_exit(0);

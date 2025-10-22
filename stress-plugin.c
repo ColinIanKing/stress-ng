@@ -322,6 +322,7 @@ again:
 			goto err;
 		}
 		if (pid == 0) {
+			stress_set_proc_state(args->name, STRESS_STATE_RUN);
 			(void)sched_settings_apply(true);
 
 			/* We don't want core dumps either */

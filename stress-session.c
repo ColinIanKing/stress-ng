@@ -135,6 +135,7 @@ static int stress_session_child(stress_args_t *args, const int fd)
 			args->name, errno, strerror(errno));
 		return STRESS_SESSION_FORK_FAILED;
 	} else if (pid == 0) {
+		stress_set_proc_state(args->name, STRESS_STATE_RUN);
 		stress_session_set_and_get(args, fd);
 		(void)shim_vhangup();
 		stress_session_return_status(fd, 0, STRESS_SESSION_SUCCESS);
@@ -204,6 +205,7 @@ static int stress_session(stress_args_t *args)
 			/* Child */
 			int ret;
 
+			stress_set_proc_state(args->name, STRESS_STATE_RUN);
 			(void)close(fds[0]);
 			ret = stress_session_child(args, fds[1]);
 			(void)close(fds[1]);

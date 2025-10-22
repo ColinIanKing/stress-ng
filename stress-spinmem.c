@@ -314,6 +314,8 @@ static int stress_spinmem(stress_args_t *args)
 		rc = EXIT_NO_RESOURCE;
 		goto tidy;
 	} else if (pid == 0) {
+		stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 #if defined(HAVE_SCHED_SETAFFINITY)
 		if (spinmem_affinity) {
 			do {

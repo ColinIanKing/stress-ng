@@ -439,6 +439,7 @@ again:
 				}
 			}
 		} else {
+			stress_set_proc_state(args->name, STRESS_STATE_RUN);
 			_exit(stress_bad_altstack_child(args));
 		}
 	} while (stress_continue(args));

@@ -2094,6 +2094,7 @@ static int stress_fd_abuse_process(stress_args_t *args, void *context)
 	 *  fds for more of a stress mix.
 	 */
 	pid = fork();
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 	do {
 		size_t j;
 

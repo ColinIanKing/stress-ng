@@ -153,6 +153,7 @@ fork_again:
 		static uint8_t *waste;
 		static size_t waste_size;
 
+		stress_set_proc_state(args->name, STRESS_STATE_RUN);
 		/*
 		 *  We want the children to be OOM'd if we
 		 *  eat up too much memory

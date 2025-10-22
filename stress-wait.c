@@ -56,6 +56,7 @@ again:
 		return -1;
 	}
 	if (pid == 0) {
+		stress_set_proc_state(args->name, STRESS_STATE_RUN);
 		stress_parent_died_alarm();
 
 		func(args, pid_arg);

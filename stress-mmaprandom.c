@@ -1818,6 +1818,8 @@ static void stress_mmaprandom_fork(mr_ctxt_t *ctxt, const int idx)
 	if (pid < 0) {
 		return;
 	} if (pid == 0) {
+		stress_set_proc_state(ctxt->args->name, STRESS_STATE_RUN);
+
 		/* Either unmap mappings in child or let _exit(2) do it */
 		if (stress_mwc1()) {
 			stress_mmaprandom_mseal_child();

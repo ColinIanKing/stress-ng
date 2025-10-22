@@ -291,13 +291,14 @@ static void stress_cgroup_del_pid(const char *realpathname, const pid_t pid)
 	stress_system_write(filename, cmd, len);
 }
 
-static void stress_cgroup_new_group(const char *realpathname)
+static void stress_cgroup_new_group(stress_args_t *args, const char *realpathname)
 {
 	pid_t pid;
 
 	pid = fork();
 	if (pid == 0) {
 		/* Child, perform some activity */
+		stress_set_proc_state(args->name, STRESS_STATE_RUN);
 		do {
 			void *ptr;
 			const size_t sz = MB;
@@ -489,7 +490,7 @@ static int stress_cgroup_child(stress_args_t *args)
 
 		stress_cgroup_controllers(realpathname);
 		stress_cgroup_read_files(realpathname);
-		stress_cgroup_new_group(realpathname);
+		stress_cgroup_new_group(args, realpathname);
 		stress_cgroup_umount(args, realpathname, &umount_retry);
 		stress_bogo_inc(args);
 	} while (stress_continue(args));

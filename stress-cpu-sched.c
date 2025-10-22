@@ -494,6 +494,7 @@ again:
 		const pid_t child_pid = getpid();
 		int cpu_idx;
 
+		stress_set_proc_state(args->name, STRESS_STATE_RUN);
 #if defined(HAVE_TIMER_CLOCK_REALTIME)
 		if (timerid != (timer_t)-1) {
 			(void)timer_delete(timerid);
@@ -625,6 +626,7 @@ again:
 		const int cpu_idx = stress_cpu_sched_rand_cpu_idx();
 		const pid_t mypid = getpid();
 
+		stress_set_proc_state(args->name, STRESS_STATE_RUN);
 #if defined(HAVE_TIMER_CLOCK_REALTIME)
 		if (timerid != (timer_t)-1) {
 			(void)timer_delete(timerid);
@@ -704,6 +706,7 @@ again:
 			int mode;
 #endif
 
+			stress_set_proc_state(args->name, STRESS_STATE_RUN);
 			stress_parent_died_alarm();
 
 			stress_cpu_sched_set_handler();

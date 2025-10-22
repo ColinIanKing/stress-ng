@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "21 October 2025"
+.TH STRESS-NG 1 "22 October 2025"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -482,6 +482,11 @@ do not show any output.
 .B \-r N, \-\-random N
 start N random stress workers. If N is 0, then the number of configured
 processors is used for N.
+.TP
+.B \-\-randprocname
+enable random stressor process name generation. This scrambles the
+stressor process names to try to confuse process monitoring and potential smart
+process scheduling that uses process names to make system tuning changes.
 .TP
 .B \-\-rapl
 Report the Running Average Power Limit (RAPL) energy measurements of

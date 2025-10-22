@@ -349,8 +349,10 @@ again:
 				args->name, errno, strerror(errno));
 			goto finish;
 		} else if (s_pids[i].pid == 0) {
+			stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 			s_pids[i].pid = getpid();
 			stress_sync_start_wait_s_pid(&s_pids[i]);
+			stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 			(void)stress_change_cpu(args, parent_cpu);
 			stress_softlockup_child(args, &param, start, timeout, loop_count);

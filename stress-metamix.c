@@ -372,8 +372,10 @@ static int stress_metamix(stress_args_t *args)
 			goto reap;
 		} else if (s_pids[i].pid == 0) {
 			/* Child */
+			stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 			s_pids[i].pid = getpid();
 			stress_sync_start_wait_s_pid(&s_pids[i]);
+			stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 			(void)sched_settings_apply(true);
 

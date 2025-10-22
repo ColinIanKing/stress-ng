@@ -435,6 +435,7 @@ again:
 			goto again;
 		return;
 	} else if (pid == 0) {
+		stress_set_proc_state(args->name, STRESS_STATE_RUN);
 		_exit(func(args, ctxt));
 	} else {
 		if (shim_waitpid(pid, &status, 0) < 0) {
@@ -506,6 +507,7 @@ again:
 		if (stress_redo_fork(args, errno))
 			goto again;
 	} else if (pid_many == 0) {
+		stress_set_proc_state(args->name, STRESS_STATE_RUN);
 		do {
 			stress_landlock_many(args, &ctxt, "/", 0);
 		} while (stress_continue(args));

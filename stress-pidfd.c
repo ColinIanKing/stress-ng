@@ -138,6 +138,7 @@ again:
 				args->name, errno, strerror(errno));
 			return EXIT_FAILURE;
 		} else if (pid == 0) {
+			stress_set_proc_state(args->name, STRESS_STATE_RUN);
 			(void)shim_pause();
 			_exit(0);
 		} else {

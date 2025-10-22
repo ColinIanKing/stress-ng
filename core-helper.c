@@ -341,6 +341,117 @@ void stress_set_proc_name_init(int argc, char *argv[], char *envp[])
 }
 
 /*
+ *  stress_set_proc_name_raw()
+ *	set process name as given, no special formatting
+ */
+void stress_set_proc_name_raw(const char *name)
+{
+	if (UNLIKELY(!name))
+		return;
+	if (g_opt_flags & OPT_FLAGS_KEEP_NAME)
+		return;
+#if defined(HAVE_SETPROCTITLE)
+	/* Sets argv[0] */
+	setproctitle("-%s", name);
+#endif
+#if defined(HAVE_PRCTL) &&		\
+    defined(HAVE_SYS_PRCTL_H) &&	\
+    defined(PR_SET_NAME)
+	/* Sets the comm field */
+	(void)prctl(PR_SET_NAME, name);
+#endif
+}
+
+/*
+ *  stress_set_proc_name_scramble()
+ *	turn pid and time now into a scrambled process name
+ *	to fool any schedulers (e.g. sched_ext) that try to
+ *	infer process scheduling policy from a process name
+ *
+ *	MUST NOT use mwc() functions as this is used in a
+ *	signal context and we need to avoid changing the
+ *	mwc state.
+ */
+static void stress_set_proc_name_scramble(void)
+{
+	char name[65];
+	char *ptr;
+	int i;
+	pid_t pid;
+	uint32_t a, b, c, d;
+	uint64_t rnd1, rnd2, rnd3, rnd4;
+	double now;
+
+	if (g_opt_flags & OPT_FLAGS_KEEP_NAME)
+		return;
+
+	pid = getpid();
+	now = stress_time_now();
+
+	rnd1 = (uint64_t)((double)pid * now);
+	rnd1 = shim_ror64n(rnd1, pid & 0x63);
+
+	/* generate scrambled bit patterns via hashing */
+	a = stress_hash_murmur3_32((uint8_t *)&now, sizeof(now), (uint32_t)rnd1);
+	b = stress_hash_mulxror64((char *)&pid, sizeof(pid)) ^ ~pid;
+	c = stress_hash_coffin32_be((char *)&now, sizeof(now)) ^ stress_get_cpu();
+	d = stress_hash_coffin32_le((char *)&pid, sizeof(pid));
+
+	rnd1 = ((uint64_t)a << 32) | (uint64_t)b;
+	rnd2 = ((uint64_t)c << 32) | (uint64_t)d;
+	rnd3 = ((uint64_t)a << 32) | (uint64_t)c;
+	rnd4 = ((uint64_t)b << 32) | (uint64_t)d;
+
+	/* scramble part 1 */
+	for (i = 0; i < (int)(a & 0x3); i++) {
+		rnd1 = shim_rol64n(rnd1, 3) ^ rnd3;
+		rnd2 = shim_ror64n(rnd2, 1) ^ rnd4;
+		rnd3 = shim_rol64n(rnd3, 7);
+		rnd4 = shim_ror64n(rnd3, 11);
+	}
+
+	/* generate 64 char name */
+	for (ptr = name, i = 0; i < 16; i++) {
+		rnd1 = shim_rol64n(rnd1, 3) ^ rnd3;
+		rnd2 = shim_ror64n(rnd2, 1) ^ rnd4;
+		rnd3 = shim_rol64n(rnd3, 7);
+		rnd4 = shim_ror64n(rnd3, 11);
+
+		*ptr++ = stress_ascii64[rnd1 & 0x3f];
+		*ptr++ = stress_ascii64[rnd2 & 0x3f];
+		*ptr++ = stress_ascii32[rnd3 & 0x1f];	/* intentional */
+		*ptr++ = stress_ascii64[rnd4 & 0x3f];
+	}
+
+	/* and punch in some unusual charset chars */
+	for (i = 1; i < 64;) {
+		const uint8_t v = (rnd1 & 1) | (rnd2 & 2) | (rnd3 & 4) | (rnd4 & 8);
+
+		switch (v) {
+		case 3:
+			name[i] = '-';
+			break;
+		case 11:
+			name[i] = ' ';
+			break;
+		case 13:
+			name[i] = '.';
+			break;
+		case 15:
+			name[i] = '/';
+		}
+		rnd1 = shim_rol64(rnd1);
+		rnd2 = shim_rol64(rnd2);
+		rnd3 = shim_rol64(rnd3);
+		rnd4 = shim_rol64(rnd4);
+
+		i += v & 3;
+	}
+	*ptr = '\0';
+	stress_set_proc_name_raw(name);
+}
+
+/*
  *  stress_set_proc_name()
  *	Set process name, we don't care if it fails
  */
@@ -348,24 +459,15 @@ void stress_set_proc_name(const char *name)
 {
 	char long_name[64];
 
-	if (UNLIKELY(!name))
+	if (g_opt_flags & OPT_FLAGS_RANDPROCNAME) {
+		stress_set_proc_name_scramble();
 		return;
-
-	if (g_opt_flags & OPT_FLAGS_KEEP_NAME)
+	}
+	if (UNLIKELY(!name))
 		return;
 	(void)snprintf(long_name, sizeof(long_name), "%s-%s",
 			g_app_name, name);
-
-#if defined(HAVE_SETPROCTITLE)
-	/* Sets argv[0] */
-	setproctitle("-%s", long_name);
-#endif
-#if defined(HAVE_PRCTL) &&		\
-    defined(HAVE_SYS_PRCTL_H) &&	\
-    defined(PR_SET_NAME)
-	/* Sets the comm field */
-	(void)prctl(PR_SET_NAME, long_name);
-#endif
+	stress_set_proc_name_raw(long_name);
 }
 
 /*
@@ -377,25 +479,16 @@ void stress_set_proc_state_str(const char *name, const char *str)
 {
 	char long_name[64];
 
-	if (UNLIKELY(!name || !str))
-		return;
-
 	(void)str;
-	if (g_opt_flags & OPT_FLAGS_KEEP_NAME)
+	if (g_opt_flags & OPT_FLAGS_RANDPROCNAME) {
+		stress_set_proc_name_scramble();
+		return;
+	}
+	if (UNLIKELY(!name))
 		return;
 	(void)snprintf(long_name, sizeof(long_name), "%s-%s",
 			g_app_name, name);
-
-#if defined(HAVE_BSD_UNISTD_H) &&	\
-    defined(HAVE_SETPROCTITLE)
-	setproctitle("-%s [%s]", long_name, str);
-#endif
-#if defined(HAVE_PRCTL) &&		\
-    defined(HAVE_SYS_PRCTL_H) &&	\
-    defined(PR_SET_NAME)
-	/* Sets the comm field */
-	(void)prctl(PR_SET_NAME, long_name);
-#endif
+	stress_set_proc_name_raw(long_name);
 }
 
 /*

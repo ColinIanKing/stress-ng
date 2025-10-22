@@ -1539,6 +1539,8 @@ static void stress_filerace_child(stress_args_t *args, const char *pathname, con
 			if (stress_continue(args))
 				pid = fork();
 
+			stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 			for (i = 0; i < SIZEOF_ARRAY(fds); i++) {
 				if (fds[i] != -1) {
 					if (stress_continue(args))

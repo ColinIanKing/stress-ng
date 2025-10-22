@@ -124,6 +124,7 @@ again:
 		int val = 0;
 		union sigval s ALIGN64;
 
+		stress_set_proc_state(args->name, STRESS_STATE_RUN);
 		(void)stress_change_cpu(args, parent_cpu);
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);

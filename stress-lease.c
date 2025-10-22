@@ -86,9 +86,9 @@ again:
 		return -1;
 	}
 	if (pid == 0) {
+		stress_set_proc_state(args->name, STRESS_STATE_RUN);
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
-		stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 		do {
 			int fd;

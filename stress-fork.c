@@ -320,6 +320,8 @@ static int stress_fork_fn(
 			}
 
 			if (pid == 0) {
+				stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 				/*
 				 *  50% of forks are very short lived exiting processes
 				 */

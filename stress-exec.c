@@ -839,6 +839,7 @@ static int stress_exec(stress_args_t *args)
 			case EXEC_FORK_METHOD_FORK:
 				pid = fork();
 				if (pid == 0) {
+					stress_set_proc_state(args->name, STRESS_STATE_RUN);
 					_exit(stress_exec_child(&sph->arg));
 				}
 				break;
@@ -848,6 +849,7 @@ static int stress_exec(stress_args_t *args)
 			case EXEC_FORK_METHOD_RFORK:
 				pid = rfork(RFPROC | RFFDG);
 				if (pid == 0) {
+					stress_set_proc_state(args->name, STRESS_STATE_RUN);
 					_exit(stress_exec_child(&sph->arg));
 				}
 				break;
@@ -868,12 +870,14 @@ static int stress_exec(stress_args_t *args)
 			case EXEC_FORK_METHOD_CLONE:
 				stack_top = (char *)stress_get_stack_top(sph->stack, CLONE_STACK_SIZE);
 				stack_top = stress_align_stack(stack_top);
+				stress_set_proc_state(args->name, STRESS_STATE_RUN);
 				pid = clone(stress_exec_child, stack_top, CLONE_VM | SIGCHLD, &sph->arg);
 				break;
 #endif
 #if defined(HAVE_SPAWN_H) &&	\
     defined(HAVE_POSIX_SPAWN)
 			case EXEC_FORK_METHOD_SPAWN:
+				stress_set_proc_state(args->name, STRESS_STATE_RUN);
 				if (posix_spawn(&pid, exec_prog, NULL, NULL, sph->arg.argv, sph->arg.env) != 0)
 					pid = -1;
 				break;

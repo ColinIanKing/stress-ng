@@ -40,6 +40,7 @@ extern int stress_process_dumpable(const bool dumpable);
 extern int stress_set_timer_slack_ns(const char *opt);
 extern void stress_set_timer_slack(void);
 extern void stress_set_proc_name_init(int argc, char *argv[], char *envp[]);
+extern void stress_set_proc_name_raw(const char *name);
 extern void stress_set_proc_name(const char *name);
 extern void stress_set_proc_state_str(const char *name, const char *str);
 extern void stress_set_proc_state(const char *name, const int state);

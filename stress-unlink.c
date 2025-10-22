@@ -248,6 +248,7 @@ static int stress_unlink(stress_args_t *args)
 		pids[i] = fork();
 
 		if (pids[i] == 0) {
+			stress_set_proc_state(args->name, STRESS_STATE_RUN);
 			stress_unlink_exercise(args, false, &metrics[i], filenames);
 			_exit(EXIT_SUCCESS);
 		}

@@ -530,8 +530,10 @@ again:
 			goto again;
 		return -1;
 	} else if (s_pid->pid == 0) {
+		stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 		s_pid->pid = getpid();
 		stress_sync_start_wait_s_pid(s_pid);
+		stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);

@@ -730,6 +730,7 @@ static void stress_vma_loop(
 			int pthreads_ret[n];
 			size_t j;
 
+			stress_set_proc_state(args->name, STRESS_STATE_RUN);
 			stress_parent_died_alarm();
 			(void)sched_settings_apply(true);
 

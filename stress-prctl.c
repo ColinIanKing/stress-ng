@@ -1183,6 +1183,7 @@ again:
 			int rc;
 			pid_t mypid = getpid();
 
+			stress_set_proc_state(args->name, STRESS_STATE_RUN);
 			(void)sched_settings_apply(true);
 
 			rc = stress_prctl_child(args, mypid, page_anon, args->page_size);

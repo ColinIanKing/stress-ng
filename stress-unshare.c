@@ -225,6 +225,7 @@ static int stress_unshare(stress_args_t *args)
 				double *count = &unshare_info[i].count;
 
 				/* Child */
+				stress_set_proc_state(args->name, STRESS_STATE_RUN);
 				stress_parent_died_alarm();
 				(void)sched_settings_apply(true);
 
