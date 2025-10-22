@@ -37,9 +37,8 @@ typedef struct {
 	const lsearch_func_t lsearch_func;
 } stress_lsearch_method_t;
 
-#define LSEARCH_SIZE_SHIFT	(20)
 #define MIN_LSEARCH_SIZE	(1 * KB)
-#define MAX_LSEARCH_SIZE	(1U << LSEARCH_SIZE_SHIFT)	/* 1 MB */
+#define MAX_LSEARCH_SIZE	(64 * MB)
 #define DEFAULT_LSEARCH_SIZE	(8 * KB)
 
 static const stress_help_t help[] = {
