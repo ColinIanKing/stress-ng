@@ -35,7 +35,7 @@ typedef struct {
 } stress_bsearch_method_t;
 
 #define MIN_BSEARCH_SIZE	(1 * KB)
-#define MAX_BSEARCH_SIZE	(4 * MB)
+#define MAX_BSEARCH_SIZE	(64 * MB)
 #define DEFAULT_BSEARCH_SIZE	(64 * KB)
 
 static const stress_help_t help[] = {
