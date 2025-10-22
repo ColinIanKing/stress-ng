@@ -1351,6 +1351,9 @@ next:
 
 		stress_metrics_set(args, j, metrics_description[j],
 			rate, STRESS_METRIC_HARMONIC_MEAN);
+
+		if (j == 0)
+			pr_dbg("%s: %.2f %s\n", args->name, rate, metrics_description[j]);
 	}
 tidy_cpus:
 	if (flag_permutations)
