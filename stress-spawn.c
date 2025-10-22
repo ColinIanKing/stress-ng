@@ -61,9 +61,11 @@ static int stress_spawn(stress_args_t *args)
 	int rc = EXIT_SUCCESS;
 	char *path;
 	char exec_path[PATH_MAX];
+	char *ld_library_path = NULL;
+	char *parent_ld_path;
 	uint64_t spawn_fails = 0, spawn_calls = 0;
 	static char *argv_new[] = { NULL, "--exec-exit", NULL };
-	static char *env_new[] = { NULL };
+	static char *env_new[] = { NULL, NULL };
 
 	/*
 	 *  Don't want to run this when running as root as
@@ -73,6 +75,18 @@ static int stress_spawn(stress_args_t *args)
 	if (geteuid() == 0) {
 		pr_inf("%s: running as root, won't run test.\n", args->name);
 		return EXIT_FAILURE;
+	}
+
+	/*
+	 * Determine if ld_library_path is set and must be preserved to self-launch
+	 */
+	parent_ld_path = getenv("LD_LIBRARY_PATH");
+	if (parent_ld_path) {
+		ld_library_path = malloc(strlen(parent_ld_path) + 16);
+		if (ld_library_path) {
+			(void)snprintf(ld_library_path, strlen(parent_ld_path) + 16, "LD_LIBRARY_PATH=%s", parent_ld_path);
+			env_new[0] = ld_library_path;
+		}
 	}
 
 	/*
@@ -112,6 +126,9 @@ static int stress_spawn(stress_args_t *args)
 				spawn_fails++;
 		}
 	} while (stress_continue(args));
+
+	if (ld_library_path)
+		free(ld_library_path);
 
 	if ((spawn_fails > 0) && (g_opt_flags & OPT_FLAGS_VERIFY)) {
 		pr_fail("%s: %" PRIu64 " spawns failed (%.2f%%)\n",
