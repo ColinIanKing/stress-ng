@@ -75,7 +75,7 @@ static void NORETURN runner(
 {
 	(void)pid;
 
-	pr_dbg("%s: runner started [%d]\n", args->name, (int)getpid());
+	pr_dbg("%s: runner started [%" PRIdMAX "]\n", args->name, (intmax_t)getpid());
 
 	do {
 		(void)shim_pause();
@@ -97,7 +97,7 @@ static void NORETURN killer(
 	uint64_t last_counter = stress_bogo_get(args);
 	pid_t ppid = getppid();
 
-	pr_dbg("%s: killer started [%d]\n", args->name, (int)getpid());
+	pr_dbg("%s: killer started [%" PRIdMAX "]\n", args->name, (intmax_t)getpid());
 
 	do {
 		(void)shim_kill(pid, SIGSTOP);
