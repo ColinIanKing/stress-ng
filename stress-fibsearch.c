@@ -22,7 +22,7 @@
 #include "core-sort.h"
 
 #define MIN_FIBSEARCH_SIZE	(1 * KB)
-#define MAX_FIBSEARCH_SIZE	(4 * MB)
+#define MAX_FIBSEARCH_SIZE	(64 * MB)
 #define DEFAULT_FIBSEARCH_SIZE	(64 * KB)
 
 static const stress_help_t help[] = {
