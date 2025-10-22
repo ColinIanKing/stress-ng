@@ -246,6 +246,8 @@ static int stress_lsearch(stress_args_t *args)
 	stress_metrics_set(args, 1, "lsearch comparisons per item",
 		count / sorted, STRESS_METRIC_HARMONIC_MEAN);
 
+	pr_dbg("%s: %.2f lsearch comparisons per sec\n", args->name, rate);
+
 	free(root);
 	free(data);
 	return rc;
