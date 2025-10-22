@@ -157,6 +157,8 @@ static int OPTIMIZE3 stress_fibsearch(stress_args_t *args)
 	stress_metrics_set(args, 1, "fibsearch comparisons per item",
 		count / sorted, STRESS_METRIC_HARMONIC_MEAN);
 
+	pr_dbg("%s: %.2f fibsearch comparisons per sec\n", args->name, rate);
+
 	(void)munmap((void *)data, data_size);
 	return rc;
 }
