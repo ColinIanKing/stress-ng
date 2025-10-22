@@ -142,6 +142,8 @@ abort:
 	rate = (duration > 0.0) ? count / duration : 0.0;
 	stress_metrics_set(args, 0, "tsearch comparisons per sec",
 		rate, STRESS_METRIC_HARMONIC_MEAN);
+	pr_dbg("%s: %.2f tsearch comparisons per sec\n", args->name, rate);
+
 	rate = (sorted > 0.0) ? count / sorted : 0.0;
 	stress_metrics_set(args, 1, "tsearch comparisons per item",
 		rate, STRESS_METRIC_HARMONIC_MEAN);
