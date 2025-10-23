@@ -28,6 +28,8 @@
 #include <sched.h>
 #include <time.h>
 
+#undef SCHED_EXT
+
 #if defined(HAVE_SYS_SELECT_H)
 #include <sys/select.h>
 #endif
@@ -111,6 +113,22 @@ static const stress_policy_t cyclic_policies[] = {
 };
 
 #define NUM_CYCLIC_POLICIES	(SIZEOF_ARRAY(cyclic_policies))
+
+/*
+ *  stress_cyclic_find_policy()
+ *	try to find given policy, if it does not exist, return
+ *	default first policy
+ */
+static inline size_t stress_cyclic_find_policy(const int policy)
+{
+	size_t i;
+
+	for (i = 0; i < SIZEOF_ARRAY(cyclic_policies); i++)
+		if (cyclic_policies[i].policy == policy)
+			return i;
+
+	return 0;
+}
 
 static void stress_cyclic_init(const uint32_t instances)
 {
@@ -604,7 +622,11 @@ static int stress_cyclic(stress_args_t *args)
 	size_t cyclic_samples = DEFAULT_SAMPLES;
 	NOCLOBBER int policy;
 	int rc = EXIT_SUCCESS;
-	size_t cyclic_policy = 3;	/* FIFO */
+#if defined(SCHED_FIFO)
+	size_t cyclic_policy = stress_cyclic_find_policy(SCHED_FIFO);
+#else
+	size_t cyclic_policy = 0;
+#endif
 	size_t cyclic_method = 0;
 	const double start = stress_time_now();
 	stress_rt_stats_t *rt_stats;
@@ -658,8 +680,8 @@ static int stress_cyclic(stress_args_t *args)
 	if (cyclic_policies[cyclic_policy].cap_sys_nice &&
 	    !stress_check_capability(SHIM_CAP_SYS_NICE)) {
 		pr_inf_skip("%s stressor needs to be run with CAP_SYS_NICE "
-			"set for SCHED_RR, SCHED_FIFO or SCHED_DEADLINE policies, "
-			"skipping stressor\n", args->name);
+			"set for %s policy, skipping stressor\n",
+			args->name, cyclic_policies[cyclic_policy].name);
 		return EXIT_NO_RESOURCE;
 	}
 
