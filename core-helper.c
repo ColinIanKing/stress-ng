@@ -377,7 +377,6 @@ void stress_set_proc_name_scramble(void)
 	char name[65];
 	char *ptr;
 	int i;
-	pid_t pid;
 	uint32_t a, b, c, d;
 	uint64_t rnd1, rnd2, rnd3, rnd4;
 	double now;
@@ -385,17 +384,17 @@ void stress_set_proc_name_scramble(void)
 	if (g_opt_flags & OPT_FLAGS_KEEP_NAME)
 		return;
 
-	pid = getpid();
 	now = stress_time_now();
 
-	rnd1 = (uint64_t)((double)pid * now);
-	rnd1 = shim_ror64n(rnd1, pid & 0x63);
+	rnd1 = (uint64_t)getpid();
+	rnd2 = (uint64_t)((double)rnd1 * now);
+	rnd2 = shim_ror64n(rnd1, rnd1 & 0x63);
 
 	/* generate scrambled bit patterns via hashing */
-	a = stress_hash_murmur3_32((uint8_t *)&now, sizeof(now), (uint32_t)rnd1);
-	b = stress_hash_mulxror64((char *)&pid, sizeof(pid)) ^ ~pid;
+	a = stress_hash_murmur3_32((uint8_t *)&now, sizeof(now), (uint32_t)rnd2);
+	b = stress_hash_mulxror64((char *)&rnd1, sizeof(rnd2)) ^ ~rnd1;
 	c = stress_hash_coffin32_be((char *)&now, sizeof(now)) ^ stress_get_cpu();
-	d = stress_hash_coffin32_le((char *)&pid, sizeof(pid));
+	d = stress_hash_coffin32_le((char *)&rnd1, sizeof(rnd1));
 
 	rnd1 = ((uint64_t)a << 32) | (uint64_t)b;
 	rnd2 = ((uint64_t)c << 32) | (uint64_t)d;
