@@ -380,7 +380,7 @@
 #if defined(HAVE_BUILTIN_CBRTL)
 #define shim_cbrtl(x)		__builtin_cbrtl((x))
 #else
-#if defined(HAVE_SQRTL)
+#if defined(HAVE_CSQRTL)
 #define shim_cbrtl(x)		cbrtl((x))
 #else
 #define shim_cbrtl(x)		((long double)shim_cbrt((double)(x)))
