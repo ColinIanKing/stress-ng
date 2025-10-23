@@ -55,7 +55,7 @@ static stress_cpu_setting_t *cpu_settings; /* Array of cpu settings */
 static pid_t pid;			/* PID of ignite process */
 static bool enabled;			/* true if ignite process running */
 static int32_t max_cpus;		/* max cpus configured */
-static int latency_fd;			/* /dev/cpu_dma_latency fd */
+static int latency_fd = -1;		/* /dev/cpu_dma_latency fd */
 
 #define SETTING(path, default_setting)	\
 	{ path, default_setting, 0, NULL, 0, false }
