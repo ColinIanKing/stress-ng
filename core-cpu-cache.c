@@ -337,7 +337,7 @@ static int stress_cpu_cache_get_riscv(
 
 		(void)snprintf(path, sizeof(path), "/proc/device-tree/cpus/cpu@%d/%s", cpu_num, cache_info[i].filename);
 		fd = open(path, O_RDONLY);
-		if (fd) {
+		if (fd >= 0) {
 			uint8_t buf[4];
 
 			/* Device tree data is big-endian */
