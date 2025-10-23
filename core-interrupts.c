@@ -64,6 +64,8 @@ static void stress_interrupts_counter_set(
 {
 	if (UNLIKELY(i >= SIZEOF_ARRAY(info)))
 		return;
+	if (!counters)
+		return;
 	if (which == COUNTERS_START)
 		counters[i].count_start = value;
 
@@ -80,6 +82,9 @@ static void stress_interrupts_count(stress_interrupts_t *counters, const int whi
 	char buffer[4096];
 	uint64_t count;
 	size_t i;
+
+	if (!counters)
+		return;
 
 #if defined(STRESS_ARCH_X86)
 	/*
@@ -170,6 +175,9 @@ void stress_interrupts_stop(stress_interrupts_t *counters)
 void stress_interrupts_check_failure(const char *name, stress_interrupts_t *counters, uint32_t instance, int *rc)
 {
 	size_t i;
+
+	if (!counters)
+		return;
 
 	for (i = 0; i < SIZEOF_ARRAY(info); i++) {
 		if (info[i].check_failure) {
