@@ -280,7 +280,7 @@ int stress_parse_cpu_affinity(const char *arg, cpu_set_t *set, int *setbits)
 			if (hi < lo) {
 				(void)fprintf(stderr, "%s: invalid range in '%s' "
 					"(end value must be larger than "
-					"start value\n", option, token);
+					"start value)\n", option, token);
 				free(str);
 				_exit(EXIT_FAILURE);
 			}
