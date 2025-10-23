@@ -1236,7 +1236,7 @@ static bool stress_find_partition_dev(
 
 	while (fgets(buf, sizeof(buf), fp) != NULL) {
 		uint64_t blocks;
-		char devname[name_len + 1];
+		char devname[129];
 		unsigned int pmajor, pminor;
 
 		if (sscanf(buf, "%u %u %" SCNu64 " %128s", &pmajor, &pminor, &blocks, devname) == 4) {
