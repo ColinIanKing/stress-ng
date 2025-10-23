@@ -154,7 +154,7 @@ void stress_interrupts_start(stress_interrupts_t *counters)
 }
 
 /*
- *  stress_interrupts_start()
+ *  stress_interrupts_stop()
  *	count interrupts at stop of run
  */
 void stress_interrupts_stop(stress_interrupts_t *counters)
