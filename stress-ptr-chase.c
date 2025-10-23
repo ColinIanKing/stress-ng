@@ -107,8 +107,8 @@ static int stress_ptr_chase(stress_args_t *args)
 	stress_set_vma_anon_name(ptrs, ptrs_size, "pointers");
 
 	if (stress_instance_zero(args))
-		pr_dbg("%s using %zu pages, %zu pointers\n",
-			args->name, n, n * PTRS_PER_4K_PAGE);
+		pr_dbg("%s using %zu x %zuK pages, %zu pointers\n",
+			args->name, n, args->page_size >> 10, n * PTRS_PER_4K_PAGE);
 
 	for (i = 0; i < n; i++) {
 		register size_t j = i >> 1;
