@@ -57,6 +57,10 @@ typedef struct {
 	const char *value;
 } stress_cgroup_values_t;
 
+/*
+ *  stress_cgroup_remove_nl()
+ *	remove newline at end of string
+ */
 static inline void stress_cgroup_remove_nl(char *str)
 {
 	char *ptr;
@@ -116,6 +120,10 @@ static int stress_cgroup_mounted_state(const char *path)
 	return ret;
 }
 
+/*
+ *  stress_group_sleep()
+ *	small delay
+ */
 static void stress_group_sleep(uint64_t *counter)
 {
 	const uint64_t ns = stress_mwc64modn(100000000) + 50000000;
@@ -185,6 +193,10 @@ static void stress_cgroup_umount(
 	}
 }
 
+/*
+ *  stress_cgroup_read()
+ *	read/seek exercise of group file
+ */
 static void stress_cgroup_read(const char *path)
 {
 	int fd, i;
@@ -243,6 +255,10 @@ static void stress_cgroup_controllers(const char *realpathname)
 	}
 }
 
+/*
+ *  stress_cgroup_read_files()
+ *	read cgroup files
+ */
 static void stress_cgroup_read_files(const char *realpathname)
 {
 	static const char * const filenames[] = {
@@ -271,6 +287,10 @@ static void stress_cgroup_read_files(const char *realpathname)
 	}
 }
 
+/*
+ *  stress_cgroup_add_pid()
+ *	add a PID to a process group
+ */
 static void stress_cgroup_add_pid(const char *realpathname, const pid_t pid)
 {
 	char filename[PATH_MAX + 64], cmd[64];
@@ -281,6 +301,10 @@ static void stress_cgroup_add_pid(const char *realpathname, const pid_t pid)
 	stress_system_write(filename, cmd, len);
 }
 
+/*
+ *  stress_cgroup_del_pid()
+ *	delete a PID from a process group
+ */
 static void stress_cgroup_del_pid(const char *realpathname, const pid_t pid)
 {
 	char filename[PATH_MAX + 64], cmd[64];
@@ -291,6 +315,10 @@ static void stress_cgroup_del_pid(const char *realpathname, const pid_t pid)
 	stress_system_write(filename, cmd, len);
 }
 
+/*
+ *  stress_cgroup_new_group()
+ *	add a new groip
+ */
 static void stress_cgroup_new_group(stress_args_t *args, const char *realpathname)
 {
 	pid_t pid;
