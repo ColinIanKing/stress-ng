@@ -61,7 +61,6 @@
 #define CPUID_avx_ECX		(1U << 28)	/* EAX=0x1 -> ECX */
 #define CPUID_f16c_ECX		(1U << 29)	/* EAX=0x1 -> ECX */
 #define CPUID_rdrnd_ECX		(1U << 30)	/* EAX=0x1 -> ECX */
-#define CPUID_hypervisor_ECX	(1U << 26)	/* EAX=0x1 -> ECX */
 
 #define CPUID_fpu_EDX		(1U << 0)	/* EAX=0x1 -> EDX */
 #define CPUID_vme_EDX		(1U << 1)	/* EAX=0x1 -> EDX */
