@@ -44,7 +44,7 @@ const char *stress_get_arch(void)
 	return "RISC-V";
 #elif defined(STRESS_ARCH_S390)
 	return "S390X";
-#elif defined(SH4)
+#elif defined(STRESS_ARCH_SH4)
 	return "SH";
 #elif defined(STRESS_ARCH_SPARC)
 	return "SPARC";
