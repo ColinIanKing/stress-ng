@@ -406,7 +406,7 @@ void stress_set_proc_name_scramble(void)
 		rnd1 = shim_rol64n(rnd1, 3) ^ rnd3;
 		rnd2 = shim_ror64n(rnd2, 1) ^ rnd4;
 		rnd3 = shim_rol64n(rnd3, 7);
-		rnd4 = shim_ror64n(rnd3, 11);
+		rnd4 = shim_ror64n(rnd4, 11);
 	}
 
 	/* generate 64 char name */
@@ -414,7 +414,7 @@ void stress_set_proc_name_scramble(void)
 		rnd1 = shim_rol64n(rnd1, 3) ^ rnd3;
 		rnd2 = shim_ror64n(rnd2, 1) ^ rnd4;
 		rnd3 = shim_rol64n(rnd3, 7);
-		rnd4 = shim_ror64n(rnd3, 11);
+		rnd4 = shim_ror64n(rnd4, 11);
 
 		*ptr++ = stress_ascii64[rnd1 & 0x3f];
 		*ptr++ = stress_ascii64[rnd2 & 0x3f];
