@@ -143,6 +143,9 @@ static void stress_get_topology_set(
 
 			if (sscanf(token, "%d", &i) != 1)
 				continue;
+			if (i >= CPU_SETSIZE)
+				i = CPU_SETSIZE - 1;
+
 			lo = hi = i;
 			if (tmpptr) {
 				tmpptr++;
