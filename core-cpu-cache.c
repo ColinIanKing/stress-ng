@@ -510,7 +510,7 @@ static int stress_cpu_cache_get_sparc64(
 			valid = true;
 			break;
 		case STRESS_CACHE_WAYS:
-			cpu->caches[idx].size = (uint32_t)value;
+			cpu->caches[idx].ways = (uint32_t)value;
 			valid = true;
 			break;
 		default:
