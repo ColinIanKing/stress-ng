@@ -313,8 +313,11 @@ void stress_ignite_cpu_start(void)
 		n++;
 	}
 
-	if (n == 0)
+	if (n == 0) {
+		free(cpu_settings);
+		cpu_settings = NULL;
 		return;
+	}
 
 	enabled = true;
 
