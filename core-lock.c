@@ -404,7 +404,7 @@ static int stress_mtx_init(stress_lock_t *lock)
 	if (LIKELY(mtx_init(&lock->u.mtx, mtx_plain) == thrd_success))
 		return 0;
 
-	errno = -ENOSYS;
+	errno = ENOSYS;
 	return -1;
 }
 
@@ -420,7 +420,7 @@ static int stress_mtx_acquire(stress_lock_t *lock)
 	if (LIKELY(mtx_lock(&lock->u.mtx) == thrd_success))
 		return 0;
 
-	errno = -ENOSYS;
+	errno = ENOSYS;
 	return -1;
 }
 
@@ -429,7 +429,7 @@ static int stress_mtx_release(stress_lock_t *lock)
 	if (LIKELY(mtx_unlock(&lock->u.mtx) == thrd_success))
 		return 0;
 
-	errno = -ENOSYS;
+	errno = ENOSYS;
 	return -1;
 }
 
