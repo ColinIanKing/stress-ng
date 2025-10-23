@@ -426,6 +426,12 @@ This option implicitly enables \-\-oom\-avoid.  The option allows the system
 to have enough free memory to try to avoid the out-of-memory killer terminating
 processes.
 .TP
+.B \-\-oom\-no\-child
+Disable running stressor as a child process with a parent that checks for
+Out-of-Memory (OOM) issues. This  reduces additional child process overhead but
+indirectly also disables respawning of OOM'd stressors, OOM detection and
+may lead to bogo-op verification errors.
+.TP
 .B \-O, \-\-oomable
 Do not respawn a stressor if it gets killed by the Out-of-Memory (OOM) killer.
 The default behaviour is to restart a new instance of a stressor if the kernel

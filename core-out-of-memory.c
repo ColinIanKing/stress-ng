@@ -261,6 +261,10 @@ int stress_oomable_child(
 		SIGKILL
 	};
 
+	/* No child wrapper, just run the stressor */
+	if (g_opt_flags & OPT_FLAGS_OOM_NO_CHILD) 
+		return func(args, context);
+
 again:
 	if (UNLIKELY(!stress_continue(args)))
 		return EXIT_SUCCESS;

@@ -91,6 +91,7 @@
 #define OPT_FLAGS_BUILDINFO	 STRESS_BIT_ULL(60)	/* --buildinfo */
 #define OPT_FLAGS_AUTOGROUP	 STRESS_BIT_ULL(61)	/* --autogroup */
 #define OPT_FLAGS_RANDPROCNAME	 STRESS_BIT_ULL(62)	/* --randprocname */
+#define OPT_FLAGS_OOM_NO_CHILD	 STRESS_BIT_ULL(63)	/* --oom-no-child */
 
 #define OPT_FLAGS_MINMAX_MASK		\
 	(OPT_FLAGS_MINIMIZE | OPT_FLAGS_MAXIMIZE)
@@ -1059,6 +1060,7 @@ typedef enum {
 	OPT_numa_shuffle_addr,
 	OPT_numa_shuffle_node,
 
+	OPT_oom_no_child,
 	OPT_oom_avoid,
 	OPT_oom_avoid_bytes,
 

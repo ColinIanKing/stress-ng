@@ -174,6 +174,7 @@ static const stress_opt_flag_t opt_flags[] = {
 	{ OPT_no_oom_adjust,	OPT_FLAGS_NO_OOM_ADJUST },
 	{ OPT_no_rand_seed,	OPT_FLAGS_NO_RAND_SEED },
 	{ OPT_oomable,		OPT_FLAGS_OOMABLE },
+	{ OPT_oom_no_child,	OPT_FLAGS_OOM_NO_CHILD },
 	{ OPT_oom_avoid,	OPT_FLAGS_OOM_AVOID },
 	{ OPT_page_in,		OPT_FLAGS_MMAP_MINCORE },
 	{ OPT_pathological,	OPT_FLAGS_PATHOLOGICAL },
