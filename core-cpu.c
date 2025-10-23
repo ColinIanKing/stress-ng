@@ -34,7 +34,7 @@
 #define CPUID_sse3_ECX		(1U << 0)	/* EAX=0x1 -> ECX */
 #define CPUID_pclmulqdq_ECX	(1U << 1)	/* EAX=0x1 -> ECX */
 #define CPUID_dtes64_ECX	(1U << 2)	/* EAX=0x1 -> ECX */
-#define CPUID_monitor_EC	(1U << 3)	/* EAX=0x1 -> ECX */
+#define CPUID_monitor_ECX	(1U << 3)	/* EAX=0x1 -> ECX */
 #define CPUID_ds_cpl_ECX	(1U << 4)	/* EAX=0x1 -> ECX */
 #define CPUID_vmx_ECX		(1U << 5)	/* EAX=0x1 -> ECX */
 #define CPUID_smx_ECX		(1U << 6)	/* EAX=0x1 -> ECX */
