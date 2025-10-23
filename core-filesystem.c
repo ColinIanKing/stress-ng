@@ -461,7 +461,7 @@ uint64_t stress_get_filesystem_available_inodes(void)
 
 /*
  *  stress_fs_usage_bytes()
- *	report how much file sysytem is used per instance
+ *	report how much file system is used per instance
  *	and in total compared to file system space available
  */
 void stress_fs_usage_bytes(
@@ -1060,7 +1060,7 @@ int stress_dirent_list_prune(struct dirent **dlist, const int n)
 }
 
 /*
- *  stress_read_discard(cont int fd)
+ *  stress_read_discard()
  *	read and discard contents of file fd
  */
 ssize_t stress_read_discard(const int fd)
@@ -1411,7 +1411,7 @@ void stress_file_rw_hint_short(const int fd)
 
 /*
  *  stress_unset_chattr_flags()
- *	disable all chattr flags including the immutable flas
+ *	disable all chattr flags including the immutable flags
  */
 void stress_unset_chattr_flags(const char *pathname)
 {
