@@ -96,7 +96,7 @@ static const stress_fs_name_t stress_fs_names[] = {
 	{ CRAMFS_MAGIC,		"cramfs" },
 #endif
 #if defined(CRAMFS_MAGIC_WEND)
-	{ CRAMFS_MAGIC,		"cramfs" },
+	{ CRAMFS_MAGIC_WEND,	"cramfs" },
 #endif
 #if defined(DEBUGFS_MAGIC)
 	{ DEBUGFS_MAGIC,	"debugfs" },
@@ -182,7 +182,7 @@ static const stress_fs_name_t stress_fs_names[] = {
 #if defined(BCACHEFS_STATFS_MAGIC)
 	{ BCACHEFS_STATFS_MAGIC, "bcachefs" },
 #else
-	{ 0xca451a4e,		"bacachefs" },
+	{ 0xca451a4e,		"bcachefs" },
 #endif
 #if defined(MINIX_SUPER_MAGIC)
 	{ MINIX_SUPER_MAGIC,	"minix" },
