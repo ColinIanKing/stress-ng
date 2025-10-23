@@ -109,7 +109,7 @@
 #if defined(HAVE_CPOWF)
 #define shim_cpowf(x, z)	cpowf((x), (z))
 #else
-#define shim_cpowf(x, z)	(shim_cexpf(z) * shim_clogf((x))))
+#define shim_cpowf(x, z)	(shim_cexpf(z) * shim_clogf((x)))
 #endif
 #endif
 
