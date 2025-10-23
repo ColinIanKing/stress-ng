@@ -465,7 +465,7 @@ static int stress_resctrl_parse_partition(const char *name, char **str)
 
 /*
  *  stress_resctrl_parse()
- *	parse resctrl option 
+ *	parse resctrl option
  */
 int stress_resctrl_parse(char *opt_resctrl)
 {
