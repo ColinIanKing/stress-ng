@@ -291,7 +291,7 @@ void stress_ftrace_add_pid(const pid_t pid)
 	if (pid == -1) {
 		strcpy(buffer, " ");
 	} else {
-		(void)snprintf(buffer, sizeof(buffer), "%" PRIdMAX , (intmax_t)pid);
+		(void)snprintf(buffer, sizeof(buffer), "%" PRIdMAX, (intmax_t)pid);
 	}
 	VOID_RET(ssize_t, write(fd, buffer, strlen(buffer)));
 	(void)close(fd);
@@ -377,7 +377,7 @@ static void stress_ftrace_analyze(void)
 				double time_us = tn->end_time_us -
 						 tn->start_time_us;
 
-				pr_inf("ftrace: %-30.30s %15" PRIu64 " %20.2f\n", tn->func_name, count, time_us);
+				pr_inf("ftrace: %-30.30s %15" PRId64 " %20.2f\n", tn->func_name, count, time_us);
 				sys_calls++;
 			}
 		}
