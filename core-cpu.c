@@ -96,10 +96,6 @@
 #define CPUID_fsgsbase_EBX	(1U << 0)	/* EAX=0x7, EXC=0x0 -> EBX */
 #define CPUID_sgx_EBX 		(1U << 2)	/* EAX=0x7, EXC=0x0 -> EBX */
 #define CPUID_bmi1_EBX		(1U << 3)	/* EAX=0x7, EXC=0x0 -> EBX */
-
-#define CPUID_fsgsbase_EBX	(1U << 0)	/* EAX=0x7, EXC=0x0 -> EBX */
-#define CPUID_sgx_EBX 		(1U << 2)	/* EAX=0x7, EXC=0x0 -> EBX */
-#define CPUID_bmi1_EBX		(1U << 3)	/* EAX=0x7, EXC=0x0 -> EBX */
 #define CPUID_hle_EBX 		(1U << 4)	/* EAX=0x7, EXC=0x0 -> EBX */
 #define CPUID_avx2_EBX		(1U << 5)	/* EAX=0x7, EXC=0x0 -> EBX */
 #define CPUID_smep_EBX 		(1U << 7)	/* EAX=0x7, EXC=0x0 -> EBX */
