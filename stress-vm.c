@@ -3536,6 +3536,7 @@ static int stress_vm_child(stress_args_t *args, void *ctxt)
 	size_t buf_sz = context->vm_bytes & ~(page_size - 1);
 	const uint64_t max_ops = args->bogo.max_ops << VM_BOGO_SHIFT;
 	uint64_t vm_hang = DEFAULT_VM_HANG;
+	double t_start, duration, rate;
 	void *buf = NULL, *buf_end = NULL;
 	int no_mem_retries = 0;
 	int vm_flags = 0;                      /* VM mmap flags */
@@ -3561,6 +3562,7 @@ static int stress_vm_child(stress_args_t *args, void *ctxt)
 	if (stress_get_setting("vm-madvise", &vm_madvise))
 		advice = vm_madvise_info[vm_madvise].advice;
 
+	t_start = stress_time_now();
 	do {
 		if (!vm_keep || (buf == NULL)) {
 			if (UNLIKELY(!stress_continue_flag()))
@@ -3648,6 +3650,8 @@ static int stress_vm_child(stress_args_t *args, void *ctxt)
 		}
 	} while (stress_continue_vm(args));
 
+	duration = stress_time_now() - t_start;
+
 	if (vm_keep && (buf != NULL)) {
 #if defined(HAVE_MPROTECT) && 	\
     defined(PROT_NONE)
@@ -3656,6 +3660,9 @@ static int stress_vm_child(stress_args_t *args, void *ctxt)
 		(void)stress_munmap_force(buf, buf_sz);
 #endif
 	}
+
+	rate = (duration > 0.0) ? (stress_bogo_get(args) >> VM_BOGO_SHIFT) / duration : 0.0;
+	pr_dbg("%s: %.2f bogo-ops per sec\n", args->name, rate);
 
 	return rc;
 }
