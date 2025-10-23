@@ -372,7 +372,7 @@ void stress_set_proc_name_raw(const char *name)
  *	signal context in the future and we need to avoid
  *	changing the mwc state.
  */
-static void stress_set_proc_name_scramble(void)
+void stress_set_proc_name_scramble(void)
 {
 	char name[65];
 	char *ptr;
