@@ -1313,7 +1313,7 @@ const char *stress_get_fs_info(const char *filename, uintmax_t *blocks)
     defined(HAVE_SYS_STATFS_H)
 	struct statfs buf;
 
-	*blocks = (intmax_t)0;
+	*blocks = (uintmax_t)0;
 	if (UNLIKELY(!filename))
 		return NULL;
 	if (UNLIKELY(statfs(filename, &buf) != 0))
@@ -1328,7 +1328,7 @@ const char *stress_get_fs_info(const char *filename, uintmax_t *blocks)
 	struct statfs buf;
 	static char tmp[80];
 
-	*blocks = (intmax_t)0;
+	*blocks = (uintmax_t)0;
 	if (statfs(filename, &buf) != 0)
 		return NULL;
 	*blocks = (uintmax_t)buf.f_bavail;
@@ -1336,7 +1336,7 @@ const char *stress_get_fs_info(const char *filename, uintmax_t *blocks)
 	return tmp;
 #else
 	(void)filename;
-	*blocks = (intmax_t)0;
+	*blocks = (uintmax_t)0;
 	return NULL;
 #endif
 }
