@@ -301,7 +301,7 @@ static int stress_cpu_cache_get_riscv(
 		{ "d-cache-block-size",		CACHE_TYPE_DATA,	1, STRESS_CACHE_LINE_SIZE,	0 },
 		{ "d-cache-size",		CACHE_TYPE_DATA,	1, STRESS_CACHE_SIZE,		0 },
 		{ "i-cache-block-size",		CACHE_TYPE_INSTRUCTION,	1, STRESS_CACHE_LINE_SIZE,	1 },
-		{ "d-cache-size",		CACHE_TYPE_INSTRUCTION,	1, STRESS_CACHE_SIZE,		1 },
+		{ "i-cache-size",		CACHE_TYPE_INSTRUCTION,	1, STRESS_CACHE_SIZE,		1 },
 	};
 
 	char *base;
