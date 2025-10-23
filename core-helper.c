@@ -368,9 +368,9 @@ void stress_set_proc_name_raw(const char *name)
  *	to fool any schedulers (e.g. sched_ext) that try to
  *	infer process scheduling policy from a process name
  *
- *	MUST NOT use mwc() functions as this is used in a
- *	signal context and we need to avoid changing the
- *	mwc state.
+ *	MUST NOT use mwc() functions as this maybe used in a
+ *	signal context in the future and we need to avoid
+ *	changing the mwc state.
  */
 static void stress_set_proc_name_scramble(void)
 {
