@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "22 October 2025"
+.TH STRESS-NG 1 "23 October 2025"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -10154,6 +10154,9 @@ waste cycles using no-op instructions.
 T}
 pause	T{
 stop execution using CPU pause/yield or memory barrier instructions where available.
+T}
+procname	T{
+where possible, change the stressor process name.
 T}
 random	T{
 a random mix of all the workload methods, changing the workload method on every spin-loop.

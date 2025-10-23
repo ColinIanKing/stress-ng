@@ -86,10 +86,11 @@ typedef struct {
 #define STRESS_WORKLOAD_METHOD_GETPID	(8)
 #define STRESS_WORKLOAD_METHOD_MEMREAD	(9)
 #define STRESS_WORKLOAD_METHOD_PAUSE	(10)
-#define STRESS_WORKLOAD_METHOD_FMA	(11)
-#define STRESS_WORKLOAD_METHOD_RANDOM	(12)
-#define STRESS_WORKLOAD_METHOD_VECFP	(13)
-#define STRESS_WORKLOAD_METHOD_MAX	STRESS_WORKLOAD_METHOD_RANDOM
+#define STRESS_WORKLOAD_METHOD_PROCNAME	(11)
+#define STRESS_WORKLOAD_METHOD_FMA	(12)
+#define STRESS_WORKLOAD_METHOD_RANDOM	(13)
+#define STRESS_WORKLOAD_METHOD_VECFP	(14)
+#define STRESS_WORKLOAD_METHOD_MAX	STRESS_WORKLOAD_METHOD_VECFP
 
 #define SCHED_UNDEFINED	(-1)
 
@@ -148,6 +149,7 @@ static const stress_workload_method_t workload_methods[] = {
 	{ "mwc64",	STRESS_WORKLOAD_METHOD_MWC64 },
 	{ "nop",	STRESS_WORKLOAD_METHOD_NOP },
 	{ "pause",	STRESS_WORKLOAD_METHOD_PAUSE },
+	{ "procname",	STRESS_WORKLOAD_METHOD_PROCNAME },
 	{ "random",	STRESS_WORKLOAD_METHOD_RANDOM },
 	{ "sqrt",	STRESS_WORKLOAD_METHOD_SQRT },
 	{ "vecfp",	STRESS_WORKLOAD_METHOD_VECFP },
@@ -513,6 +515,16 @@ static void TARGET_CLONES stress_workload_vecfp(void)
 #endif
 }
 
+static void stress_workload_procname(void)
+{
+	char procname[64];
+
+	(void)snprintf(procname, sizeof(procname),
+		"workload-%" PRIx64 "%" PRIx64 "%" PRIx64,
+		stress_mwc64(), stress_mwc64(), stress_mwc64());
+	stress_set_proc_name(procname);
+}
+
 static inline void stress_workload_waste_time(
 	const int workload_method,
 	const double run_duration_sec,
@@ -574,6 +586,10 @@ static inline void stress_workload_waste_time(
 		while (stress_time_now() < t_end)
 			stress_workload_vecfp();
 		break;
+	case STRESS_WORKLOAD_METHOD_PROCNAME:
+		while (stress_time_now() < t_end)
+			stress_workload_procname();
+		break;
 	case STRESS_WORKLOAD_METHOD_RANDOM:
 	default:
 		while ((t = stress_time_now()) < t_end) {
@@ -612,9 +628,12 @@ static inline void stress_workload_waste_time(
 			case STRESS_WORKLOAD_METHOD_FMA:
 				stress_workload_fma();
 				break;
-			default:
 			case STRESS_WORKLOAD_METHOD_VECFP:
 				stress_workload_vecfp();
+				break;
+			default:
+			case STRESS_WORKLOAD_METHOD_PROCNAME:
+				stress_workload_procname();
 				break;
 			}
 		}
