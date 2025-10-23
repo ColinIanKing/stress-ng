@@ -131,7 +131,7 @@ bool stress_check_capability(const int capability)
 	idx = (size_t)CAP_TO_INDEX(capability);
 	mask = CAP_TO_MASK(capability);
 
-	return (ucd[idx].permitted &= mask) ? true : false;
+	return (ucd[idx].permitted & mask) ? true : false;
 }
 #else
 bool stress_check_capability(const int capability)
