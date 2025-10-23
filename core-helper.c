@@ -582,7 +582,7 @@ uint64_t stress_get_uint64_zero(void)
 }
 
 /*
- *  stress_get_uint64_zero()
+ *  stress_get_null()
  *	return null in way that force less smart
  *	static analysers to realise we are doing this
  *	to force a division by zero. I'd like to have
