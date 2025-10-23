@@ -395,6 +395,7 @@ void stress_ignite_cpu_stop(void)
 				&cpu_settings[cpu].setting_flag);
 		}
 		free(cpu_settings);
+		cpu_settings = NULL;
 	}
 
 	for (i = 0; settings[i].path; i++) {
