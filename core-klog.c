@@ -76,9 +76,10 @@ static void stress_klog_kernel_cmdline(void)
 	if (already_dumped)
 		return;
 
-	ret = stress_system_read("/proc/cmdline", buffer, sizeof(buffer));
+	ret = stress_system_read("/proc/cmdline", buffer, sizeof(buffer) - 1);
 	if (ret < 0)
 		return;
+	buffer[ret] = '\0';
 
 	for (ptr = buffer; *ptr && (ptr < (buffer + ret)); ptr++) {
 		if (*ptr == '\n') {
