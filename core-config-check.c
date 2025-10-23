@@ -96,7 +96,7 @@ static int stress_config_read(const char *path, uint64_t *value)
 		return -1;
 	if (UNLIKELY(!*buffer))
 		return -1;
-	if (UNLIKELY(sscanf(buffer, "%" SCNu64, value) < 0))
+	if (UNLIKELY(sscanf(buffer, "%" SCNu64, value) < 1))
 		return -1;
 	return 0;
 }
