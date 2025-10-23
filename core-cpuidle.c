@@ -50,7 +50,7 @@ static CONST int stress_cpuidle_value(const char *cstate)
 
 	while (isalpha((unsigned char)*cstate))
 		cstate++;
-	if (sscanf(cstate , "%d", &val) == 1)
+	if (sscanf(cstate, "%d", &val) == 1)
 		return val;
 	return 0;
 }
