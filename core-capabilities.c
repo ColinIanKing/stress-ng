@@ -197,8 +197,8 @@ int stress_drop_capabilities(const char *name)
 			pr_inf("%s: prctl PR_SET_NO_NEW_PRIVS on PID %" PRIdMAX " failed: "
 				"errno=%d (%s)\n",
 				name, (intmax_t)uch.pid, errno, strerror(errno));
+			return -1;
 		}
-		return -1;
 	}
 #endif
 	return 0;
