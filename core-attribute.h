@@ -168,7 +168,7 @@
 
 #if defined(HAVE_ATTRIBUTE_NONSTRING) &&				\
     ((defined(HAVE_COMPILER_GCC_OR_MUSL) && NEED_GNUC(15, 0, 0)) ||	\
-     (defined(HAVE_COMPILER_CLANG) && NEED_CLANG(19, 0, 0)))
+     (defined(HAVE_COMPILER_CLANG) && NEED_CLANG(20, 0, 0)))
 #define NONSTRING __attribute__((nonstring))
 #else
 #define NONSTRING
