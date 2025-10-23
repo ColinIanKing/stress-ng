@@ -261,7 +261,7 @@ int stress_parse_cpu_affinity(const char *arg, cpu_set_t *set, int *setbits)
 		} else if (!strncmp(token, "die", 3)) {
 			stress_get_topology_set("die_cpus_list", "die", token, set, setbits);
 			continue;
-		} else if (!strncmp(token, "core", 3)) {
+		} else if (!strncmp(token, "core", 4)) {
 			stress_get_topology_set("core_cpus_list", "core", token, set, setbits);
 			continue;
 		}
