@@ -1076,7 +1076,7 @@ static int stress_cpu_cache_get_auxval(stress_cpu_cache_cpu_t *cpu)
 			cpu->caches[idx].line_size = (uint32_t)value;
 			break;
 		case STRESS_CACHE_WAYS:
-			cpu->caches[idx].size = (uint32_t)value;
+			cpu->caches[idx].ways = (uint32_t)value;
 			break;
 		default:
 			break;
