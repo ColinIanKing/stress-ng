@@ -112,8 +112,9 @@ int stress_parse_jobfile(
 	char txt[sizeof(buf)];
 	int ret;
 	uint32_t flag;
-	static uint32_t lineno;
+	NOCLOBBER uint32_t lineno;
 
+	lineno = 0;
 	(void)shim_memset(txt, 0, sizeof(txt));
 
 	if (!jobfile) {
