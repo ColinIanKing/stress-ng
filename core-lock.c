@@ -353,9 +353,13 @@ static int stress_pthread_mutex_init(stress_lock_t *lock)
 
 static int CONST stress_pthread_mutex_deinit(stress_lock_t *lock)
 {
-	(void)lock;
+	int ret;
 
-	return 0;
+	ret = pthrrad_mutex_destroy(&lock->u.pthread_mutex);
+	if (LIKELY(ret == 0)
+		return 0;
+	errno = ret;
+	return -1;
 }
 
 static int stress_pthread_mutex_acquire(stress_lock_t *lock)
@@ -486,9 +490,7 @@ static int stress_sem_posix_init(stress_lock_t *lock)
 
 static int CONST stress_sem_posix_deinit(stress_lock_t *lock)
 {
-	(void)lock;
-
-	return 0;
+	return sem_destroy(&lock->u.sem_posix);
 }
 
 static int stress_sem_posix_acquire(stress_lock_t *lock)
