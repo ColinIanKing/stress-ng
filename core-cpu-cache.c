@@ -431,7 +431,7 @@ static int stress_cpu_cache_get_apple(stress_cpu_cache_cpu_t *cpu)
 			valid = true;
 			break;
 		case STRESS_CACHE_WAYS:
-			cpu->caches[idx].size = (uint32_t)value;
+			cpu->caches[idx].ways = (uint32_t)value;
 			valid = true;
 			break;
 		default:
