@@ -204,7 +204,8 @@ int stress_parse_jobfile(
 			tmp = (char *)malloc(len);
 			if (!tmp) {
 				(void)fprintf(stderr, "Out of memory parsing '%s'\n", jobfile);
-				return -1;
+				ret = -1;
+				goto err;
 			}
 
 			/* prepend -- to command to make them into stress-ng options */
