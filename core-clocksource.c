@@ -63,8 +63,9 @@ void stress_clocksource_check(void)
 			continue;
 
 		(void)snprintf(path, sizeof(path), "%s/%s/current_clocksource", dirname, entry->d_name);
-		ret = stress_system_read(path, buf, sizeof(buf));
+		ret = stress_system_read(path, buf, sizeof(buf) - 1);
 		if (ret > 0) {
+			buf[ret] = '\0';
 			stress_clocksource_tolower(buf);
 			if (strncmp(buf, "hpet", 4) == 0) {
 				pr_warn("WARNING! using HPET clocksource (refer to %s/%s), this may impact "
