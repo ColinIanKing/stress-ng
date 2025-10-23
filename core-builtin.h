@@ -465,7 +465,7 @@
 #define shim_ccosh(x)		ccosh((x))
 #endif
 
-#if defined(HAVE_BUILTIN_COSHL)
+#if defined(HAVE_BUILTIN_CCOSHL)
 #define shim_ccoshl(x)		__builtin_ccoshl((x))
 #else
 #if defined(HAVE_CCOSHL)
