@@ -402,12 +402,12 @@ uint32_t PURE OPTIMIZE3 stress_hash_coffin32_le(const char *str, const size_t le
 		tmp = val & 0xff;
 		n -= 4;
 		result = shim_rol32n(result ^ tmp, 5);
-		tmp = val >> 8 & 0xff;
+		tmp = (val >> 8) & 0xff;
 		ptr32++;
 		result = shim_rol32n(result ^ tmp, 5);
-		tmp = val >> 16 & 0xff;
+		tmp = (val >> 16) & 0xff;
 		result = shim_rol32n(result ^ tmp, 5);
-		tmp = val >> 24 & 0xff;
+		tmp = (val >> 24) & 0xff;
 		val = *ptr32;
 		result = shim_rol32n(result ^ tmp, 5);
 	}
@@ -437,13 +437,13 @@ uint32_t PURE OPTIMIZE3 stress_hash_coffin32_be(const char *str, const size_t le
 	while (n > 4) {
 		register uint32_t tmp;
 
-		tmp = val >> 24 & 0xff;
+		tmp = (val >> 24) & 0xff;
 		n -= 4;
 		result = shim_rol32n(result ^ tmp, 5);
-		tmp = val >> 16 & 0xff;
+		tmp = (val >> 16) & 0xff;
 		ptr32++;
 		result = shim_rol32n(result ^ tmp, 5);
-		tmp = val >> 8 & 0xff;
+		tmp = (val >> 8) & 0xff;
 		result = shim_rol32n(result ^ tmp, 5);
 		tmp = val & 0xff;
 		val = *ptr32;
