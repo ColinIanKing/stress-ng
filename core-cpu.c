@@ -179,7 +179,7 @@
 #define CPUID_avx512_bf16_EAX	(1U << 5)	/* EAX=0x7, ECX=0x1, -> EAX */
 #define CPUID_lass_EAX		(1U << 6)	/* EAX=0x7, ECX=0x1, -> EAX */
 #define CPUID_compccxadd_EAX	(1U << 7)	/* EAX=0x7, ECX=0x1, -> EAX */
-#define CPUID_archperfmonext_EAX (0U << 8)	/* EAX=0x7, ECX=0x1, -> EAX */
+#define CPUID_archperfmonext_EAX (1U << 8)	/* EAX=0x7, ECX=0x1, -> EAX */
 #define CPUID_fast_zero_rep_movsb_EAX (1U << 10) /* EAX=0x7, ECX=0x1, -> EAX */
 #define CPUID_fast_short_rep_stosb_EAX (1U << 11) /* EAX=0x7, ECX=0x1, -> EAX */
 #define CPUID_fast_short_rep_cmpsb_scasb_EAX (1U << 12)	/* EAX=0x7, ECX=0x1, -> EAX */
