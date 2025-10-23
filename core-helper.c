@@ -438,6 +438,7 @@ void stress_set_proc_name_scramble(void)
 			break;
 		case 15:
 			name[i] = '/';
+			break;
 		}
 		rnd1 = shim_rol64(rnd1);
 		rnd2 = shim_rol64(rnd2);
