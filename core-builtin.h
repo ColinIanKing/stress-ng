@@ -119,7 +119,7 @@
 #if defined(HAVE_CPOWL)
 #define shim_cpowl(x, z)	cpowl((x), (z))
 #else
-#define shim_cpowl(x, z)	(shim_cexpl((z) * shim_clogl((l))))
+#define shim_cpowl(x, z)	(shim_cexpl((z) * shim_clogl((x))))
 #endif
 #endif
 
