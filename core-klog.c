@@ -194,11 +194,6 @@ void stress_klog_start(void)
 				dump_procs = true;
 				goto log_err;
 			}
-			if (strstr(buf, "watchdog") && strstr(buf, "hard LOCKUP")) {
-				msg = "hard lockup";
-				dump_procs = true;
-				goto log_err;
-			}
 			if (strstr(buf, "Out of memory")) {
 				msg = "out of memory";
 				goto log_info;
