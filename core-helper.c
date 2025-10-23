@@ -392,7 +392,7 @@ void stress_set_proc_name_scramble(void)
 
 	/* generate scrambled bit patterns via hashing */
 	a = stress_hash_murmur3_32((uint8_t *)&now, sizeof(now), (uint32_t)rnd2);
-	b = stress_hash_mulxror64((char *)&rnd1, sizeof(rnd2)) ^ ~rnd1;
+	b = stress_hash_mulxror64((char *)&rnd1, sizeof(rnd1)) ^ ~rnd1;
 	c = stress_hash_coffin32_be((char *)&now, sizeof(now)) ^ stress_get_cpu();
 	d = stress_hash_coffin32_le((char *)&rnd1, sizeof(rnd1));
 
