@@ -664,8 +664,10 @@ static int stress_cyclic(stress_args_t *args)
 	}
 
 	*sched_ext_op = '\0';
+#if defined(SCHED_EXT)
 	if (policy == SCHED_EXT)
 		(void)sched_get_sched_ext_ops(sched_ext_op, sizeof(sched_ext_op));
+#endif
 
 	if (g_opt_timeout == TIMEOUT_NOT_SET) {
 		timeout = 60;
