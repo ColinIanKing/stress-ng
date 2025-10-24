@@ -391,7 +391,7 @@ static int CONST stress_smart_dev_sort(const struct dirent **d1, const struct di
 	cmp = strcmp((*d1)->d_name, (*d2)->d_name);
 	if (cmp < 0)
 		return -1;
-	if (cmp > 1)
+	if (cmp > 0)
 		return 1;
 	return 0;
 }
