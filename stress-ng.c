@@ -2665,7 +2665,7 @@ STRESS_PRAGMA_POP
 				MAP_SHARED | MAP_ANON | MAP_FIXED, -1, 0);
 		/* Can't remap, bump length down a page */
 		if (new_last_page == MAP_FAILED)
-			g_shared->length -= sz;
+			g_shared->length -= page_size;
 		if (new_last_page != MAP_FAILED)
 			stress_set_vma_anon_name(last_page, page_size,  "g_shared_guard");
 	}
