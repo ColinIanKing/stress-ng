@@ -1880,12 +1880,12 @@ ssize_t shim_getxattrat(int dfd, const char *path, unsigned int at_flags,
 		    size_t size)
 {
 #if defined(HAVE_GETXATTRAT)
-	return (ssize_t)getxattrat(dfd, path, name, at_flags, name, args, size);
+	return (ssize_t)getxattrat(dfd, path, at_flags, name, args, size);
 #elif defined(__NR_getxattrat) &&	\
       defined(HAVE_SYSCALL)
-	return (ssize_t)syscall(__NR_getxattrat, dfd, path, name, at_flags, name, args, size);
+	return (ssize_t)syscall(__NR_getxattrat, dfd, path, at_flags, name, args, size);
 #else
-	return (ssize_t)shim_enosys(0, dfd, path, name, at_flags, name, args, size);
+	return (ssize_t)shim_enosys(0, dfd, path, at_flags, name, args, size);
 #endif
 }
 
@@ -1974,7 +1974,7 @@ int shim_setxattrat(int dfd, const char *path, unsigned int at_flags,
 		size_t size)
 {
 #if defined(HAVE_SETXATTRAT)
-	return setxattr(dfd, path, name, at_flags, name, args, size);
+	return setxattr(dfd, path, at_flags, name, args, size);
 #elif defined(__NR_setxattrat) &&	\
       defined(HAVE_SYSCALL)
 	return (int)syscall(__NR_setxattrat, dfd, path, at_flags, name, args, size);
