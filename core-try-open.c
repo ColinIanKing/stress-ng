@@ -87,6 +87,7 @@ int stress_try_open(
 				_exit(STRESS_TRY_AGAIN);
 			_exit(STRESS_TRY_OPEN_FAIL);
 		}
+		(void)close(fd);
 		_exit(STRESS_TRY_OPEN_OK);
 	}
 
