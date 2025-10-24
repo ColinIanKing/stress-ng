@@ -150,13 +150,13 @@ static void MLOCKED_TEXT stress_af_alg_alarm_handler(int signum)
  */
 static stress_crypto_type_t name_to_type(const char *buffer)
 {
-	const char *end, *ptr = strchr(buffer, ':');
+	const char *end = buffer + strlen(buffer);
+	const char *ptr = strchr(buffer, ':');
 	size_t i;
 
-	if (!ptr)
+	if (UNLIKELY(!ptr))
 		return CRYPTO_UNKNOWN;
 
-	end = ptr + strlen(buffer);
 	ptr += 2;
 	if (ptr >= end)
 		return CRYPTO_UNKNOWN;
