@@ -145,7 +145,6 @@ int stress_module_unload(
 
 	kmod_list_foreach(l, list) {
 		struct kmod_module *mod = kmod_module_get_module(l);
-		const char *module_name = kmod_module_get_name(mod);
 
 		if (!mod)
 			continue;
@@ -156,6 +155,8 @@ int stress_module_unload(
 			continue;
 		ret = kmod_module_get_refcnt(mod);
 		if (ret > 0) {
+	       		const char *module_name = kmod_module_get_name(mod);
+
 			pr_dbg("%s: cannot unload %s, it is in use\n",
 				name, module_name);
 		}
