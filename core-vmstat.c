@@ -143,8 +143,10 @@ static void freebsd_get_cpu_time(
 	if (UNLIKELY(!vals))
 		return;
 
-	if (stress_bsd_getsysctl("kern.cp_times", vals, cpus * 5 * sizeof(*vals)) < 0)
+	if (stress_bsd_getsysctl("kern.cp_times", vals, cpus * 5 * sizeof(*vals)) < 0) {
+		free(vals);
 		return;
+	}
 	for (i = 0; i < cpus * 5; i += 5) {
 		*user_time += vals[i];
 		*system_time += vals[i + 2];
