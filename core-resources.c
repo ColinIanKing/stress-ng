@@ -730,7 +730,8 @@ void stress_resources_free(
 			resources[i].fd_memfd = -1;
 		}
 		if (resources[i].ptr_memfd != MAP_FAILED) {
-			(void)stress_munmap_force(resources[i].ptr_memfd, page_size);
+			(void)stress_munmap_force(resources[i].ptr_memfd,
+						  resources[i].ptr_memfd_size);
 			resources[i].ptr_memfd = MAP_FAILED;
 		}
 #endif
@@ -740,7 +741,8 @@ void stress_resources_free(
 			resources[i].fd_memfd_secret = -1;
 		}
 		if (resources[i].ptr_memfd_secret != MAP_FAILED) {
-			(void)stress_munmap_force(resources[i].ptr_memfd_secret, page_size);
+			(void)stress_munmap_force(resources[i].ptr_memfd_secret,
+						  resources[i].ptr_memfd_secret_size);
 			resources[i].ptr_memfd_secret = MAP_FAILED;
 		}
 #endif
