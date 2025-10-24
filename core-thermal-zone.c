@@ -51,7 +51,7 @@ static uint32_t stress_tz_type_instance(
  *  stress_tz_type_fix()
  *	fix up type name, replace non-alpha/digits with _
  */
-static void stress_tz_type_fix(char *type)
+static inline void stress_tz_type_fix(char *type)
 {
 	char *ptr;
 
