@@ -85,7 +85,7 @@ void stress_sync_start_wait_s_pid(stress_pid_t *s_pid)
 
 	stress_sync_state_store(s_pid, STRESS_SYNC_START_FLAG_WAITING);
 	if (kill(pid, SIGSTOP) < 0) {
-		pr_inf("cannot stop stressor on for --sync-start, errno=%d (%s)",
+		pr_inf("cannot stop stressor on --sync-start, errno=%d (%s)",
 			errno, strerror(errno));
 	}
 	stress_sync_state_store(s_pid, STRESS_SYNC_START_FLAG_RUNNING);
