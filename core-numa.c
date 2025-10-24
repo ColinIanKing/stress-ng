@@ -531,6 +531,8 @@ void stress_numa_randomize_pages(
 	(void)page_size;
 	(void)buffer_size;
 
+	if (UNLIKELY(!numa_mask))
+		return;
 	(void)shim_memset(numa_mask->mask, 0, numa_mask->mask_size);
 }
 
