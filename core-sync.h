@@ -25,7 +25,7 @@
 #define STRESS_SYNC_START_FLAG_RUNNING		(2)
 #define STRESS_SYNC_START_FLAG_FINISHED		(3)
 
-extern stress_pid_t *stress_sync_s_pids_mmap(const size_t num);
+extern WARN_UNUSED stress_pid_t *stress_sync_s_pids_mmap(const size_t num);
 extern int stress_sync_s_pids_munmap(stress_pid_t *s_pids, const size_t num);
 extern void stress_sync_start_init(stress_pid_t *s_pid);
 extern void stress_sync_start_wait_s_pid(stress_pid_t *s_pid);
