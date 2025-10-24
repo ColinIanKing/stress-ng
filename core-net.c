@@ -406,7 +406,7 @@ uint16_t CONST OPTIMIZE3 stress_ipv4_checksum(uint16_t *ptr, const size_t sz)
 	}
 
 	if (n)
-		sum += *(uint8_t*)ptr;
+		sum += *(uint8_t *)ptr;
 	sum = (sum >> 16) + (sum & 0xffff);
 	sum += (sum >> 16);
 
