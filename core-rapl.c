@@ -92,7 +92,7 @@ static void stress_rapl_add_list(stress_rapl_domain_t **rapl_domains, stress_rap
 int stress_rapl_get_domains(stress_rapl_domain_t **rapl_domains)
 {
 	DIR *dir;
-        const struct dirent *entry;
+	const struct dirent *entry;
 	int n = 0;
 	bool unreadable_energy_uj = true;
 
@@ -241,7 +241,7 @@ static int stress_rapl_get_power(stress_rapl_domain_t *rapl_domains, const int w
 
 				/* Wrapped around since previous time? */
 				if (ujoules - rapl_domain->data[which].energy_uj < 0.0) {
-				rapl_domain->data[which].energy_uj = ujoules;
+					rapl_domain->data[which].energy_uj = ujoules;
 					ujoules += rapl_domain->max_energy_uj;
 				} else {
 					rapl_domain->data[which].energy_uj = ujoules;
@@ -336,7 +336,7 @@ void stress_rapl_dump(FILE *yaml, stress_stressor_t *stressors_list, stress_rapl
 			if (harmonic_total > 0.0) {
 				const double harmonic_mean = (double)count / harmonic_total;
 
-                                if (!dumped_heading) {
+				if (!dumped_heading) {
 					dumped_heading = true;
 
 					pr_inf("%s:\n", ss->stressor->name);
