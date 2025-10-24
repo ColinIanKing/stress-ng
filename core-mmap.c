@@ -248,6 +248,8 @@ void *stress_mmap_anon_shared(size_t length, int prot)
 	int saved_errno;
 
 	shmid = shmget(IPC_PRIVATE, length, shm_flag);
+	if (shmid < 0)
+		return NULL;
         addr = shmat(shmid, NULL, 0);
         if (shmctl(shmid, IPC_RMID, NULL) < 0) {
 		if (addr != (void *)-1)
