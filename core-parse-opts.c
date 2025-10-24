@@ -464,7 +464,7 @@ uint64_t stress_get_uint64_byte_scale(const char *const str)
 	}
 
 illegal:
-	(void)fprintf(stderr, "Illegal specifier '%s', allower specifiers: ", str);
+	(void)fprintf(stderr, "Illegal specifier '%s', allowed specifiers: ", str);
 err:
 
 	for (i = 1; size_scales[i].ch; i++) {
