@@ -157,7 +157,8 @@ static void stress_dbg(const char *fmt, ...) FORMAT(printf, 1, 2);
 
 /*
  *  stress_dbg()
- *	simple debug, messages must be less than 256 bytes
+ *	simple debug, messages must be less than 256 bytes,
+ *	bail out if printf calls fail
  */
 static void stress_dbg(const char *fmt, ...)
 {
@@ -170,6 +171,8 @@ static void stress_dbg(const char *fmt, ...)
 	sz = n;
 	va_start(ap, fmt);
 	n = vsnprintf(buf + sz, sizeof(buf) - sz, fmt, ap);
+	if (UNLIKELY(n < 0))
+		return;
 	va_end(ap);
 	sz += n;
 
