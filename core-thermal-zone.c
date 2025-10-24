@@ -218,8 +218,13 @@ static int stress_tz_compare(const void *p1, const void *p2)
 	int ret;
 
 	ret = strcmp((*tz1)->type, (*tz2)->type);
-	if (ret == 0)
-		return (int)(*tz1)->type_instance - (int)(*tz2)->type_instance;
+	if (ret == 0) {
+		if ((int)(*tz1)->type_instance < (int)(*tz2)->type_instance)
+			return -1;
+	 	else if ((int)(*tz1)->type_instance > (int)(*tz2)->type_instance)
+			return 1;
+		else return 0;
+	}
 
 	return ret;
 }
