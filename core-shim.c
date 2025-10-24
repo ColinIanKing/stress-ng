@@ -3075,7 +3075,7 @@ int shim_file_setattr(
 	size_t usize,
 	unsigned int at_flags)
 {
-#if defined(__NR_file_getattr)
+#if defined(__NR_file_setattr)
 	return (int)syscall(__NR_file_setattr, dfd, filename, ufattr, usize, at_flags);
 #else
 	return shim_enosys(0, dfd, filename, ufattr, usize, at_flags);
