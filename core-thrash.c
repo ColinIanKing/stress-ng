@@ -162,12 +162,12 @@ static int stress_pagein_proc(const pid_t pid)
 	if ((pid == parent_pid) || (pid == getpid()))
 		return 0;
 
-	(void)snprintf(path, sizeof(path), "/proc/%" PRIdMAX" /mem", (intmax_t)pid);
+	(void)snprintf(path, sizeof(path), "/proc/%" PRIdMAX "/mem", (intmax_t)pid);
 	fdmem = open(path, O_RDONLY);
 	if (fdmem < 0)
 		return -errno;
 
-	(void)snprintf(path, sizeof(path), "/proc/%" PRIdMAX" /maps", (intmax_t)pid);
+	(void)snprintf(path, sizeof(path), "/proc/%" PRIdMAX "/maps", (intmax_t)pid);
 	fpmap = fopen(path, "r");
 	if (!fpmap) {
 		rc = -errno;
