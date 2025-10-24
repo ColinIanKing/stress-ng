@@ -93,9 +93,11 @@ const int madvise_options[] = {
 #if defined(MADV_PAGEOUT)
 	MADV_PAGEOUT,
 #endif
+/* Linux 5.14 */
 #if defined(MADV_POPULATE_READ)
 	MADV_POPULATE_READ,
 #endif
+/* Linux 5.14 */
 #if defined(MADV_POPULATE_WRITE)
 	MADV_POPULATE_WRITE,
 #endif
@@ -117,14 +119,6 @@ const int madvise_options[] = {
 /* FreeBSD */
 #if defined(MADV_PROTECT)
 	MADV_PROTECT,
-#endif
-/* Linux 5.14 */
-#if defined(MADV_POPULATE_READ)
-	MADV_POPULATE_READ,
-#endif
-/* Linux 5.14 */
-#if defined(MADV_POPULATE_WRITE)
-	MADV_POPULATE_WRITE,
 #endif
 /* Linux 6.12 */
 #if defined(MADV_GUARD_INSTALL) &&	\
