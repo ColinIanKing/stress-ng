@@ -120,8 +120,11 @@ void stress_dump_processes(void)
 
 			ptr = strstr(buf, "\nPPid:");
 			if (ptr) {
-				if (sscanf(ptr, "\nPPid:%d", &ppid) != 1)
-					ppid = 0;
+				intmax_t val;
+
+				if (sscanf(ptr, "\nPPid:%" SCNdMAX, &val) != 1)
+					val = 0;
+				ppid = (pid_t)val;
 			}
 			(void)shim_strscpy(state, "?", sizeof(state));
 			ptr = strstr(buf, "\nState:");
@@ -130,7 +133,8 @@ void stress_dump_processes(void)
 					(void)shim_strscpy(state, "?", sizeof(state));
 			}
 		}
-		pr_inf("proc: %-8.8s %*d %*d %c %s\n", p_name, pid_width, pid, pid_width, ppid, state[0], cmd);
+		pr_inf("proc: %-8.8s %*" PRIdMAX " %*" PRIdMAX " %c %s\n", p_name,
+				pid_width, (intmax_t)pid, pid_width, (intmax_t)ppid, state[0], cmd);
 	}
 	stress_dirent_list_free(namelist, n);
 }
