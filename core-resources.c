@@ -60,11 +60,11 @@ static void stress_resources_init(stress_resources_t *resources, const size_t nu
 #endif
 #if defined(HAVE_MEMFD_CREATE)
 		resources[i].fd_memfd = -1;
-		resources[i].ptr_memfd = NULL;
+		resources[i].ptr_memfd = MAP_FAILED;
 #endif
 #if defined(__NR_memfd_secret)
 		resources[i].fd_memfd_secret = -1;
-		resources[i].ptr_memfd_secret = NULL;
+		resources[i].ptr_memfd_secret = MAP_FAILED;
 #endif
 #if defined(HAVE_USERFAULTFD)
 		resources[i].fd_uf = -1;
@@ -228,12 +228,12 @@ size_t stress_resources_allocate(
 #endif
 #if defined(HAVE_MEMFD_CREATE)
 		resources[i].fd_memfd = -1;
-		resources[i].ptr_memfd = NULL;
+		resources[i].ptr_memfd = MAP_FAILED;
 		resources[i].ptr_memfd_size = 0;
 #endif
 #if defined(__NR_memfd_secret)
 		resources[i].fd_memfd_secret = -1;
-		resources[i].ptr_memfd_secret = NULL;
+		resources[i].ptr_memfd_secret = MAP_FAILED;
 		resources[i].ptr_memfd_secret_size = 0;
 #endif
 #if defined(HAVE_USERFAULTFD)
@@ -394,9 +394,7 @@ size_t stress_resources_allocate(
 				resources[i].ptr_memfd = mmap(NULL, page_size,
 					PROT_READ | PROT_WRITE, MAP_SHARED,
 					resources[i].fd_memfd, 0);
-				if (resources[i].ptr_memfd == MAP_FAILED)
-					resources[i].ptr_memfd = NULL;
-				else {
+				if (resources[i].ptr_memfd != MAP_FAILED) {
 					resources[i].ptr_memfd_size = page_size;
 					stress_set_vma_anon_name(resources[i].ptr_memfd, page_size, "resources-memfd");
 					(void)stress_mincore_touch_pages_interruptible(resources[i].ptr_memfd, page_size);
@@ -418,9 +416,7 @@ size_t stress_resources_allocate(
 					page_size,
 					PROT_READ | PROT_WRITE, MAP_SHARED,
 					resources[i].fd_memfd_secret, 0);
-				if (resources[i].ptr_memfd_secret == MAP_FAILED)
-					resources[i].ptr_memfd_secret = NULL;
-				else {
+				if (resources[i].ptr_memfd_secret != MAP_FAILED) {
 					resources[i].ptr_memfd_secret_size = page_size;
 					stress_set_vma_anon_name(resources[i].ptr_memfd_secret, page_size, "resources-memfd-secret");
 					(void)stress_mincore_touch_pages_interruptible(resources[i].ptr_memfd_secret, page_size);
@@ -733,7 +729,7 @@ void stress_resources_free(
 			(void)close(resources[i].fd_memfd);
 			resources[i].fd_memfd = -1;
 		}
-		if (resources[i].ptr_memfd) {
+		if (resources[i].ptr_memfd != MAP_FAILED) {
 			(void)stress_munmap_force(resources[i].ptr_memfd, page_size);
 			resources[i].ptr_memfd = MAP_FAILED;
 		}
@@ -743,9 +739,9 @@ void stress_resources_free(
 			(void)close(resources[i].fd_memfd_secret);
 			resources[i].fd_memfd_secret = -1;
 		}
-		if (resources[i].ptr_memfd_secret) {
+		if (resources[i].ptr_memfd_secret != MAP_FAILED) {
 			(void)stress_munmap_force(resources[i].ptr_memfd_secret, page_size);
-			resources[i].ptr_memfd_secret = NULL;
+			resources[i].ptr_memfd_secret = MAP_FAILED;
 		}
 #endif
 		if (resources[i].fd_sock != -1) {
