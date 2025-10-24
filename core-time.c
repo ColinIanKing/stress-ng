@@ -53,7 +53,7 @@ static OPTIMIZE3 int stress_time_now_timeval(double *dnow)
 }
 
 /*
- *  stress_time_now_timeval()
+ *  stress_time_now_timespec()
  *	get time as double accurate to nanoseconds
  */
 static OPTIMIZE3 int stress_time_now_timespec(double *dnow)
