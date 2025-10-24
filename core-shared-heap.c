@@ -30,7 +30,7 @@
  *   a shared memory heap.
  */
 #if defined(HAVE_BUILTIN_CONSTANT_P)
-#define STRESS_MAX_SHARED_HEAP_SIZE		(64 * KB)
+#define STRESS_MAX_SHARED_HEAP_SIZE		(64 * KB) + 675
 #else
 #define STRESS_MAX_SHARED_HEAP_SIZE		(256 * KB)
 #endif
@@ -57,9 +57,12 @@ void *stress_shared_heap_init(void)
 	/* Allocate enough heap for all stressor descriptions with 100% metrics allocated */
 	size_t size = (STRESS_MISC_METRICS_MAX * (32 + sizeof(void *)) * STRESS_MAX);
 
+	/* ensure size isn't stupidly large */
 	size = STRESS_MINIMUM(size, STRESS_MAX_SHARED_HEAP_SIZE);
+	/* and round up to multiple of pages */
+	size = (size + page_size - 1) & ~(page_size - 1);
 	g_shared->shared_heap.out_of_memory = false;
-	g_shared->shared_heap.heap_size = (size + page_size - 1) & ~(page_size - 1);
+	g_shared->shared_heap.heap_size = size;
 	g_shared->shared_heap.str_list_head = NULL;
 	g_shared->shared_heap.heap = stress_mmap_anon_shared(size, PROT_READ | PROT_WRITE);
 	if (UNLIKELY(g_shared->shared_heap.heap == MAP_FAILED)) {
