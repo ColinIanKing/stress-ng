@@ -310,7 +310,7 @@ int sched_settings_apply(const bool quiet)
 	(void)stress_get_setting("sched", &sched);
 	(void)stress_get_setting("sched-prio", &sched_prio);
 
-        return stress_set_sched(getpid(), (int)sched, sched_prio, quiet);
+	return stress_set_sched(getpid(), (int)sched, sched_prio, quiet);
 }
 
 /*
