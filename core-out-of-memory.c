@@ -262,7 +262,7 @@ int stress_oomable_child(
 	};
 
 	/* No child wrapper, just run the stressor */
-	if (g_opt_flags & OPT_FLAGS_OOM_NO_CHILD) 
+	if (g_opt_flags & OPT_FLAGS_OOM_NO_CHILD)
 		return func(args, context);
 
 again:
