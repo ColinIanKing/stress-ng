@@ -217,7 +217,7 @@ int shim_cacheflush(char *addr, int nbytes, int cache)
 #if defined(STRESS_ARCH_M68K)
 	return (int)syscall(__NR_cacheflush, addr, 1 /* cacheline */, cache, nbytes);
 #elif defined(STRESS_ARCH_SH4)
-	return (int)syscall(__NR_cacheflush, addr, nbytes, (cache == ICACHE) ? 0x4 : 0x3);
+	return (int)syscall(__NR_cacheflush, addr, nbytes, (cache == SHIM_ICACHE) ? 0x4 : 0x3);
 #else
 	return (int)syscall(__NR_cacheflush, addr, nbytes, cache);
 #endif
