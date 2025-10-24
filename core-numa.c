@@ -417,6 +417,7 @@ int stress_set_mbind(const char *arg)
 	str = stress_const_optdup(arg);
 	if (!str) {
 		(void)fprintf(stderr, "out of memory duplicating argument '%s'\n", arg);
+		free(nodemask);
 		_exit(EXIT_FAILURE);
 	}
 
@@ -433,6 +434,7 @@ int stress_set_mbind(const char *arg)
 				(void)fprintf(stderr, "%s: expecting number following "
 					"'-' in '%s'\n", option, token);
 				free(str);
+				free(nodemask);
 				_exit(EXIT_FAILURE);
 			}
 			if (hi <= lo) {
@@ -440,6 +442,7 @@ int stress_set_mbind(const char *arg)
 					"(end value must be larger than "
 					"start value\n", option, token);
 				free(str);
+				free(nodemask);
 				_exit(EXIT_FAILURE);
 			}
 		}
@@ -452,13 +455,14 @@ int stress_set_mbind(const char *arg)
 				(void)fprintf(stderr, "%s: could not set NUMA memory policy for node %lu, errno=%d (%s)\n",
 					option, i, errno, strerror(errno));
 				free(str);
+				free(nodemask);
 				_exit(EXIT_FAILURE);
 			}
 		}
 	}
 
-	free(nodemask);
 	free(str);
+	free(nodemask);
 	return 0;
 }
 
