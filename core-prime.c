@@ -39,7 +39,7 @@ bool CONST stress_is_prime64(const uint64_t n)
 		return false;
 	max_d = 1.0 + shim_sqrt((double)n);
 	max = (uint64_t)max_d;
-	for (i = 5; i < max; i += 6)
+	for (i = 5; i <= max; i += 6)
 		if ((n % i == 0) || (n % (i + 2) == 0))
 			return false;
 	return true;
