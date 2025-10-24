@@ -340,10 +340,13 @@ static int stress_acl_exercise(
 			const double t2 = stress_time_now();
 			acl_t acl;
 
+			/* measure acl_set_file */
+			metrics[0].duration += (t2 - t1);
 			metrics[0].count += 1.0;
 
 			acl = acl_get_file(filename, type);
 			if (acl) {
+				/* measure acl_get_file */
 				metrics[1].duration += (stress_time_now() - t2);
 				metrics[1].count += 1.0;
 
@@ -362,8 +365,6 @@ static int stress_acl_exercise(
 				acl_free(acl);
 			}
 
-			metrics[0].duration += (t2 - t1);
-			metrics[0].count += 1.0;
 
 			stress_bogo_inc(args);
 		} else {
