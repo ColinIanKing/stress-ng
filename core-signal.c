@@ -451,7 +451,7 @@ void stress_handle_stop_stressing(const int signum)
 
 	stress_continue_set_flag(false);
 	/*
-	 * Trigger another SIGARLM until stressor gets the message
+	 * Trigger another SIGALRM until stressor gets the message
 	 * that it needs to terminate
 	 */
 	(void)alarm(1);
