@@ -362,7 +362,7 @@ int shim_fallocate(int fd, int mode, off_t offset, off_t len)
 			return ret;
 #endif
 #if defined(FALLOC_FL_WRITE_ZEROES)
-		if (mode & FALLOC_FL_WRITE_ZEROS)
+		if (mode & FALLOC_FL_WRITE_ZEROES)
 			return ret;
 #endif
 #if defined(__NR_fallocate) &&	\
