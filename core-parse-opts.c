@@ -468,7 +468,7 @@ illegal:
 err:
 
 	for (i = 1; size_scales[i].ch; i++) {
-		fprintf(stderr, "%s%c", ((i == 0) ? "" : ", "), size_scales[i].ch);
+		fprintf(stderr, "%s%c", ((i == 1) ? "" : ", "), size_scales[i].ch);
 	}
 	fprintf(stderr, "\n");
 	longjmp(g_error_env, 1);
