@@ -31,13 +31,12 @@ static const char option[] = "option --mbind";
  *  stress_numa_count_mem_nodes()
  *	determine the number of NUMA memory nodes
  */
-unsigned long int stress_numa_count_mem_nodes(unsigned long int *max_node)
+long int stress_numa_count_mem_nodes(long int *max_node)
 {
 	FILE *fp;
-	unsigned long int node_id = 0;
+	long int node_id = 0, n = 0;
 	char buffer[8192];
 	const char *str = NULL, *ptr;
-	long int n = 0;
 
 	*max_node = 0;
 
@@ -95,10 +94,10 @@ unsigned long int stress_numa_count_mem_nodes(unsigned long int *max_node)
  *  stress_numa_mask_nodes_get()
  *	set numa_mask bits with the NUMA nodes available
  */
-unsigned long int stress_numa_mask_nodes_get(stress_numa_mask_t *numa_mask)
+long int stress_numa_mask_nodes_get(stress_numa_mask_t *numa_mask)
 {
 	FILE *fp;
-	unsigned long int node_id = 0;
+	long int node_id = 0;
 	char buffer[8192];
 	const char *str = NULL, *ptr;
 	long int n = 0;
@@ -161,12 +160,12 @@ unsigned long int stress_numa_mask_nodes_get(stress_numa_mask_t *numa_mask)
  *  stress_numa_next_node()
  *	find next node after node in numa_nodes mask
  */
-unsigned long stress_numa_next_node(
-	const unsigned long int node,
+long int stress_numa_next_node(
+	const long int node,
 	stress_numa_mask_t *numa_nodes)
 {
-	unsigned long int i;
-	unsigned long int new_node = node;
+	long int i;
+	long int new_node = node;
 
 	/* Avoid overflow */
 	if (new_node > numa_nodes->max_nodes)
@@ -241,8 +240,8 @@ void stress_numa_mask_free(stress_numa_mask_t *numa_mask)
  * @node: node number to check
  */
 static void stress_check_numa_range(
-	const unsigned long int max_node,
-	const unsigned long int node)
+	const long int max_node,
+	const long int node)
 {
 	if (node >= max_node) {
 		if (max_node > 1) {
@@ -270,7 +269,7 @@ void stress_numa_randomize_pages(
 	const size_t page_size)
 {
 	uint8_t *ptr, *prev_ptr, *ptr_end;
-	unsigned long int node, prev_node;
+	long int node, prev_node;
 	size_t buffer_pages, chunks, size, chunk_size, parts, max_chunks;
 
 	if (UNLIKELY(page_size == 0))
@@ -358,10 +357,10 @@ void stress_numa_randomize_pages(
  *	always returns at least 1 if no nodes found,
  *	useful for cache size scaling by node count
  */
-unsigned long int stress_numa_nodes(void)
+long int stress_numa_nodes(void)
 {
-	unsigned long int max_node = 0;
-	static int nodes = -1;	/* used as a cached copy */
+	long int max_node = 0;
+	static long int nodes = -1;	/* used as a cached copy */
 
 	if (nodes == -1) {
 		nodes = stress_numa_count_mem_nodes(&max_node);
@@ -377,11 +376,11 @@ unsigned long int stress_numa_nodes(void)
  *
  * Returns: NUMA node number, or exits the program on invalid number in str
  */
-static unsigned long int stress_parse_node(const char *const str)
+static long int stress_parse_node(const char *const str)
 {
-	unsigned long int val;
+	long int val;
 
-	if (sscanf(str, "%lu", &val) != 1) {
+	if (sscanf(str, "%ld", &val) != 1) {
 		(void)fprintf(stderr, "%s: invalid number '%s'\n", option, str);
 		_exit(EXIT_FAILURE);
 	}
@@ -397,7 +396,7 @@ static unsigned long int stress_parse_node(const char *const str)
 int stress_set_mbind(const char *arg)
 {
 	char *str, *ptr, *token;
-	unsigned long int max_node;
+	long int max_node;
 	unsigned long int *nodemask;
 	const size_t nodemask_bits = sizeof(*nodemask) * 8;
 	size_t nodemask_sz;
@@ -536,7 +535,7 @@ void stress_numa_randomize_pages(
 	(void)shim_memset(numa_mask->mask, 0, numa_mask->mask_size);
 }
 
-unsigned long int CONST stress_numa_nodes(void)
+long int CONST stress_numa_nodes(void)
 {
 	return 1;
 }

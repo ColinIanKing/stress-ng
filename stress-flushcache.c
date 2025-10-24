@@ -320,9 +320,12 @@ static int stress_flushcache_child(stress_args_t *args, void *ctxt)
 static int stress_flushcache(stress_args_t *args)
 {
 	const size_t page_size = args->page_size;
-	const int numa_nodes = stress_numa_nodes();
+	long int numa_nodes = stress_numa_nodes();
 	stress_flushcache_context_t context;
 	int ret;
+
+	if (UNLIKELY(numa_nodes < 1))
+		numa_nodes = 1;
 
 	context.x86_clfsh = stress_cpu_x86_has_clfsh();
 	context.x86_demote = stress_cpu_x86_has_cldemote();
@@ -348,7 +351,7 @@ static int stress_flushcache(stress_args_t *args)
 
 	context.d_size *= numa_nodes;
 	if (stress_instance_zero(args) && (numa_nodes > 1))
-		pr_inf("%s: scaling cache size by number of numa nodes %d to %zuK\n",
+		pr_inf("%s: scaling cache size by number of numa nodes %ld to %zuK\n",
 			args->name, numa_nodes, context.d_size / 1024);
 	ret = stress_oomable_child(args, (void *)&context, stress_flushcache_child, STRESS_OOMABLE_NORMAL);
 

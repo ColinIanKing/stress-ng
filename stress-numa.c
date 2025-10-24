@@ -192,7 +192,7 @@ static int stress_numa(stress_args_t *args)
 	double t, duration, metric;
 	uint64_t correct_nodes = 0, total_nodes = 0;
 	stress_numa_mask_t *numa_mask, *old_numa_mask, *numa_nodes;
-	unsigned long int node;
+	long int node;
 
 	if (!stress_get_setting("numa-bytes", &numa_bytes_total)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -317,6 +317,8 @@ static int stress_numa(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	node = stress_numa_next_node(0, numa_nodes);
+	if (node < 0)
+		node = 0;
 
 	k = 0;
 	t = stress_time_now();
@@ -562,6 +564,8 @@ static int stress_numa(stress_args_t *args)
 
 		/* Move to next node */
 		node = stress_numa_next_node(node, numa_nodes);
+		if (node < 0)
+			node = 0;
 
 		/*
 		 *  Migrate all this processes pages to the current new node

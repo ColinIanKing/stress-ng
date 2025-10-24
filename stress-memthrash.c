@@ -714,7 +714,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_memthrash_numa(
 	const uint8_t *end = (uint8_t *)((uintptr_t)mem + mem_size);
 	const size_t page_size = context->args->page_size;
 	stress_numa_mask_t *numa_mask = context->numa_mask;
-	unsigned long int node;
+	long int node;
 
 	if (!numa_mask)
 		return;

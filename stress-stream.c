@@ -927,7 +927,10 @@ static inline uint64_t get_stream_L3_size(stress_args_t *args)
 	stress_cpu_cache_cpus_t *cpu_caches;
 	stress_cpu_cache_t *cache = NULL;
 	uint16_t max_cache_level;
-	const int numa_nodes = stress_numa_nodes();
+	long int numa_nodes = stress_numa_nodes();
+
+	if (UNLIKELY(numa_nodes < 1))
+		numa_nodes = 1;
 
 	cpu_caches = stress_cpu_cache_get_all_details();
 	if (!cpu_caches) {
@@ -963,7 +966,7 @@ static inline uint64_t get_stream_L3_size(stress_args_t *args)
 report_size:
 	cache_size *= numa_nodes;
 	if (stress_instance_zero(args) && (numa_nodes > 1))
-		pr_inf("%s: scaling L3 cache size by number of numa nodes %d to %" PRIu64 "K\n",
+		pr_inf("%s: scaling L3 cache size by number of numa nodes %ld to %" PRIu64 "K\n",
 			args->name, numa_nodes, cache_size / 1024);
 	return cache_size;
 }

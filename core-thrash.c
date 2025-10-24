@@ -492,7 +492,7 @@ static void stress_thrash_move_pages(stress_numa_mask_t *numa_nodes)
 	char buffer[4096];
 	NOCLOBBER FILE *fpmap = NULL;
 	const size_t page_size = stress_get_page_size();
-	unsigned long int node = 0;
+	long int node = 0;
 	uint16_t i;
 
 	fpmap = fopen("/proc/self/maps", "r");
@@ -537,13 +537,15 @@ static void stress_thrash_move_pages(stress_numa_mask_t *numa_nodes)
 			int flag = stress_mwc1() ? MPOL_MF_MOVE : MPOL_MF_MOVE_ALL;
 
 			node = stress_numa_next_node(node, numa_nodes);
-			pages[0] = (void *)off;
-			nodes[0] = node;
-			states[0] = 0;
+			if (LIKELY(node < INT_MAX)) {
+				pages[0] = (void *)off;
+				nodes[0] = node;
+				states[0] = 0;
 
-			if (shim_move_pages(parent_pid, 1, pages, nodes, states, flag) < 0) {
-				if (errno == ENOSYS)
-					goto err;
+				if (shim_move_pages(parent_pid, 1, pages, nodes, states, flag) < 0) {
+					if (errno == ENOSYS)
+						goto err;
+				}
 			}
 		}
 	}

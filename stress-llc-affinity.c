@@ -407,11 +407,14 @@ static int stress_llc_affinity(stress_args_t *args)
 	bool llc_affinity_clflush = false;
 	bool llc_affinity_numa = false;
 	char *clflush_op = NULL;
-	const int n_numa_nodes = stress_numa_nodes();
+	long int n_numa_nodes = stress_numa_nodes();
 #if defined(HAVE_LINUX_MEMPOLICY_H)
         stress_numa_mask_t *numa_mask = NULL;
         stress_numa_mask_t *numa_nodes = NULL;
 #endif
+
+	if (UNLIKELY(n_numa_nodes < 1))
+		n_numa_nodes = 1;
 
 	stress_catch_sigill();
 
@@ -434,7 +437,7 @@ static int stress_llc_affinity(stress_args_t *args)
         llc_affinity_size *= n_numa_nodes;
         if (!args->instance) {
 		if (n_numa_nodes > 1)  {
-			pr_inf("%s: scaling lower level cache size by number of numa nodes %d to %zdK\n",
+			pr_inf("%s: scaling lower level cache size by number of numa nodes %ld to %zdK\n",
 				args->name, n_numa_nodes, llc_affinity_size / 1024);
 		} else  {
 			pr_inf("%s: using lower level cache size of %zuK\n",
