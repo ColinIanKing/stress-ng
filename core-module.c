@@ -106,8 +106,8 @@ static int stress_module_unload_mod_and_deps(struct kmod_module *mod)
 		if (kmod_module_get_refcnt(dep_mod) == 0)
 			stress_module_unload_mod_and_deps(dep_mod);
 
-		kmod_module_unref_list(deps);
 	}
+	kmod_module_unref_list(deps);
 	return ret;
 
 }
