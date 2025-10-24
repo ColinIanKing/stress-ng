@@ -170,7 +170,7 @@ int stress_rapl_get_domains(stress_rapl_domain_t **rapl_domains)
 					char buf[sizeof(domain_name)];
 
 					(void)snprintf(buf, sizeof(buf), "pkg-%s", domain_name + 8);
-					(void)strncpy(domain_name, buf, sizeof(domain_name));
+					(void)shim_strscpy(domain_name, buf, sizeof(domain_name));
 				}
 				if (stress_rapl_domain_unique(*rapl_domains, domain_name))
 					rapl_domain->domain_name = shim_strdup(domain_name);
