@@ -76,7 +76,7 @@ int stress_cache_alloc(const char *name)
 		goto init_done;
 	}
 
-	if (g_shared->mem_cache.ways > 0) {
+	if ((g_shared->mem_cache.ways > 0) && (cache->ways > 0)) {
 		uint64_t way_size;
 
 		if (g_shared->mem_cache.ways > cache->ways) {
