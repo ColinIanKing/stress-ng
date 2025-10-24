@@ -84,7 +84,7 @@ void stress_check_range(
 }
 
 /*
- *  stress_check_range()
+ *  stress_check_range_bytes()
  *	Sanity check val against a lo - hi range
  */
 void stress_check_range_bytes(
