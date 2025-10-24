@@ -78,7 +78,7 @@ static int stress_mincore_touch_pages_generic(
 	unsigned char *vec;
 	volatile char *buffer;
 	size_t i;
-	const uintptr_t uintptr = (uintptr_t)buf & (page_size - 1);
+	const uintptr_t uintptr = (uintptr_t)buf & ~(page_size - 1);
 
 	if (!(g_opt_flags & OPT_FLAGS_MMAP_MINCORE))
 		return 0;
