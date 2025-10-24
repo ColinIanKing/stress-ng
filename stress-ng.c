@@ -2038,7 +2038,7 @@ static void stress_metrics_check(bool *success)
 				ok = false;
 			}
 			if (stats->args.bogo.ci.run_ok != checksum->data.ci.run_ok) {
-				pr_fail("%s instance % " PRId32 " corrupted run flag, %d vs %d%s\n",
+				pr_fail("%s instance %" PRId32 " corrupted run flag, %d vs %d%s\n",
 					ss->stressor->name, j,
 					stats->args.bogo.ci.run_ok, checksum->data.ci.run_ok,
 					oom_message);
@@ -2525,7 +2525,7 @@ static void stress_log_args(int argc, char **argv)
 		pr_dbg("invoked with '%s' by user %" PRIdMAX " '%s'\n", buf, (intmax_t)uid, user);
 	} else {
 		shim_syslog(LOG_INFO, "invoked with '%s' by user %" PRIdMAX "\n", buf, (intmax_t)uid);
-		pr_dbg("invoked with '%s' by user % "PRIdMAX "\n", buf, (intmax_t)uid);
+		pr_dbg("invoked with '%s' by user %" PRIdMAX "\n", buf, (intmax_t)uid);
 	}
 	free(buf);
 	free(arglen);
