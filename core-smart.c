@@ -430,10 +430,15 @@ static void stress_smart_read_devs(void)
 				dev = (stress_smart_dev_t *)calloc(1, sizeof(*dev));
 				if (dev) {
 					dev->dev_name = shim_strdup(path);
-					dev->data_begin = data;
-					dev->data_end = NULL;
-					dev->next = smart_devs.dev;
-					smart_devs.dev = dev;
+					if (!dev->dev_name) {
+						free(dev);
+						stress_smart_data_free(&data);
+					} else {
+						dev->data_begin = data;
+						dev->data_end = NULL;
+						dev->next = smart_devs.dev;
+						smart_devs.dev = dev;
+					}
 				} else {
 					stress_smart_data_free(&data);
 				}
