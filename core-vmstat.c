@@ -1062,7 +1062,7 @@ void stress_vmstat_start(void)
 		if (status_delay > 0)
 			sleep_delay = STRESS_MINIMUM(status_delay, sleep_delay);
 		if (raplstat_delay > 0)
-			sleep_delay = STRESS_MINIMUM(raplstat_delay, raplstat_delay);
+			sleep_delay = STRESS_MINIMUM(raplstat_delay, sleep_delay);
 		t1 += sleep_delay;
 		t2 = stress_time_now();
 
@@ -1074,9 +1074,10 @@ void stress_vmstat_start(void)
 		}
 
 		vmstat_sleep -= sleep_delay;
-		thermalstat_sleep -= sleep_delay;
 		iostat_sleep -= sleep_delay;
 		status_sleep -= sleep_delay;
+		raplstat_sleep -= sleep_delay;
+		thermalstat_sleep -= sleep_delay;
 
 		if ((vmstat_delay > 0) && (vmstat_sleep <= 0))
 			vmstat_sleep = vmstat_delay;
