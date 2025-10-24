@@ -159,7 +159,7 @@ int stress_mincore_touch_pages(void *buf, const size_t buf_len)
 }
 
 /*
- *  stress_mincore_touch_pages()
+ *  stress_mincore_touch_pages_interruptible()
  *	touch a range of pages, ensure they are all in memory, interruptible
  */
 int stress_mincore_touch_pages_interruptible(void *buf, const size_t buf_len)
