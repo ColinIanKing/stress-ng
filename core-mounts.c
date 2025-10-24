@@ -92,7 +92,7 @@ int stress_mount_get(char *mnts[], const int max)
 	for (i = 0; i < ret; i++) {
 		stress_mount_add(mnts, max, &n, statbufs[i].f_mntonname);
 	}
-	return ret;
+	return n;
 }
 #elif defined(HAVE_GETMNTENT) &&	\
       defined(HAVE_MNTENT_H)
