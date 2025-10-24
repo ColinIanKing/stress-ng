@@ -375,7 +375,7 @@ int stress_net_reserve_ports(const int start_port, const int end_port)
 }
 
 /*
- *   stress_net_reserve_ports()
+ *   stress_net_release_ports()
  *	release allocated ports
  */
 void stress_net_release_ports(const int start_port, const int end_port)
