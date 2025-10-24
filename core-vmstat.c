@@ -220,6 +220,8 @@ int stress_set_vmstat(const char *const opt)
 void stress_set_vmstat_units(const char *const opt)
 {
 	vmstat_units_kb = stress_get_uint64_byte_scale(opt) / 1024;
+	if (UNLIKELY(!vmstat_units_kb))
+		vmstat_units_kb = 1;
 }
 
 /*
