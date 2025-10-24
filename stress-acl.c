@@ -268,6 +268,7 @@ static int stress_acl_setup(
 					if (acl_get_permset(entry, &permset) != 0) {
 						pr_fail("%s: failed to get permset, errno=%d (%s)\n",
 							args->name, errno, strerror(errno));
+						acl_free(acl);
 						return EXIT_FAILURE;
 					}
 					if (acl_clear_perms(permset) != 0)
@@ -281,6 +282,7 @@ static int stress_acl_setup(
 					if (acl_set_permset(entry, permset) != 0) {
 						pr_fail("%s: failed to set permissions, errno=%d (%s)\n",
 							args->name, errno, strerror(errno));
+						acl_free(acl);
 						return EXIT_FAILURE;
 					}
 					acl_calc_mask(&acl);
