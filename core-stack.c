@@ -220,7 +220,7 @@ size_t stress_get_min_sig_stack_size(void)
 #endif
 
 	/* return cached copy */
-	if (sz > 0)
+	if (LIKELY(sz > 0))
 		return (size_t)sz;
 
 	min = stress_get_min_aux_sig_stack_size();
