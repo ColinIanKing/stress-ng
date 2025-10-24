@@ -520,7 +520,7 @@ int stress_munmap_force(void *addr, size_t length)
 			size_t hugetlb_size = stress_mapping_hugetlb_size(addr);
 #endif
 
-#if (MAP_HUGE_1GB)
+#if defined(MAP_HUGE_1GB)
 			if ((length < size1GB) &&
 			    (((uintptr_t)addr & (size1GB - 1)) == 0) &&
 			    ((hugetlb_size & (size1GB - 1)) == 0)) {
