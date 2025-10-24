@@ -556,7 +556,7 @@ uint64_t stress_get_uint64_percent(
 		percent = ((double)max * (double)val) / (100.0 * (double)instances);
 		if (percentage)
 			*percentage = true;
-		if ((uint64_t)percent > UINT64_MAX) {
+		if (percent > (double)UINT64_MAX) {
 			(void)fprintf(stderr, "Invalid too large percentage %s\n", str);
 			longjmp(g_error_env, 1);
 			stress_no_return();
