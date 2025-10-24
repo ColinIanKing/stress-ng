@@ -184,19 +184,21 @@ static pid_t stress_access_spawn(
 			int ret;
 
 			ret = chmod(filename, modes[i].chmod_mode);
-			switch (ret) {
-			case EACCES:
-			case EFAULT:
-			case EIO:
-			case ELOOP:
-			case ENAMETOOLONG:
-			case ENOENT:
-			case ENOTDIR:
-			case EPERM:
-			case EROFS:
-				_exit(0);
-			default:
-				break;
+			if (ret < 0) {
+				switch (errno) {
+				case EACCES:
+				case EFAULT:
+				case EIO:
+				case ELOOP:
+				case ENAMETOOLONG:
+				case ENOENT:
+				case ENOTDIR:
+				case EPERM:
+				case EROFS:
+					_exit(0);
+				default:
+					break;
+				}
 			}
 
 			t = stress_time_now();
