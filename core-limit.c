@@ -113,8 +113,8 @@ void stress_set_max_limits(void)
 
 		(void)stress_get_setting("max-fd", &max_fd);
 		if (max_fd != 0) {
-			rlim.rlim_cur = (rlim_t)max_fd + 1;
-			rlim.rlim_max = (rlim_t)max_fd + 1;
+			rlim.rlim_cur = (rlim_t)(max_fd + 1);
+			rlim.rlim_max = (rlim_t)(max_fd + 1);
 			(void)setrlimit(RLIMIT_NOFILE, &rlim);
 		}
 	}
