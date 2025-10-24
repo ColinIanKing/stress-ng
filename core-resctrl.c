@@ -69,9 +69,11 @@ static stress_resctrl_info_t *stress_resctrls[] = {
 	STRESSORS(STRESSOR_RESCTRL)
 };
 
+#define RESCTRL_MAX	((PATH_MAX < 256) ? 256 : PATH_MAX)
+
 static uint32_t stress_resctrls_added;		/* > 0 if resctrls have been added */
 #if defined(HAVE_RESCTRL)
-static char resctrl_mnt[PATH_MAX];		/* resctrl mount point */
+static char resctrl_mnt[RESCTRL_MAX];		/* resctrl mount point */
 static bool resctrl_cleanup;			/* set true if resctrl needs cleaning up */
 static bool resctrl_enabled;			/* set true if resctrl is enabled */
 #endif
@@ -703,7 +705,7 @@ void stress_resctrl_init(void)
 	while (fgets(buf, sizeof(buf), fp) != NULL) {
 		if (strncmp(buf, "resctrl", 7))
 			continue;
-		if (sscanf(buf + 8, "%256s", resctrl_mnt) < 1)
+		if (sscanf(buf + 8, "%255s", resctrl_mnt) < 1)
 			break;
 	}
 	(void)fclose(fp);
