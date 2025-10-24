@@ -203,7 +203,7 @@ int stress_set_sched(
 		}
 		pr_dbg("%s: setting scheduler class '%s' (period=%" PRIu64
 			", runtime=%" PRIu64 ", deadline=%" PRIu64 ")\n",
-			"deadline", prefix, attr.sched_period,
+			prefix, "deadline", attr.sched_period,
 			attr.sched_runtime, attr.sched_deadline);
 
 		rc = shim_sched_setattr(pid, &attr, 0);
