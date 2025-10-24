@@ -103,7 +103,7 @@ int stress_try_open(
 			/*
 			 * EINTR or something else, treat as failed anyhow
 			 * and forcibly kill child and re-wait. The child
-			 * may be zombified by will get reaped by init
+			 * may be zombified but will get reaped by init
 			 */
 			stress_try_kill(args, pid, path);
 
