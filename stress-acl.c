@@ -494,8 +494,8 @@ static int stress_acl(stress_args_t *args)
 	if (stress_instance_zero(args))
 		pr_inf("%s: %zu of %zu (%.2f%%) unique ACLs tested\n", args->name,
 			acl_tested_count, acl_count,
-			(acl_tested_count > 0) ?
-			(double)acl_count * 100.0 / (double)acl_tested_count : 0.0);
+			(acl_count > 0) ?
+			(double)acl_tested_count * 100.0 / (double)acl_count : 0.0);
 
 	for (i = 0; i < SIZEOF_ARRAY(metrics); i++) {
 		const double rate = (metrics[i].count > 0.0) ?
