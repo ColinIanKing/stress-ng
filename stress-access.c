@@ -70,10 +70,10 @@ static const stress_access_t modes[] = {
     defined(X_OK)
 	{ S_IRUSR | S_IXUSR, R_OK | X_OK },
 #endif
-#if defined(S_IWUSR) &&	\
-    defined(W_OK) &&	\
-    defined(S_IXUSR) &&	\
-    defined(X_OK)
+#if defined(S_IRUSR) &&	\
+    defined(R_OK) &&	\
+    defined(S_IWUSR) &&	\
+    defined(W_OK)
 	{ S_IRUSR | S_IWUSR, R_OK | W_OK },
 #endif
 
@@ -87,9 +87,9 @@ static const stress_access_t modes[] = {
     defined(S_IXUSR)
 	{ S_IRUSR | S_IXUSR, F_OK },
 #endif
-#if defined(S_IWUSR) &&	\
+#if defined(S_IRUSR) &&	\
     defined(F_OK) &&	\
-    defined(S_IXUSR)
+    defined(S_IWUSR)
 	{ S_IRUSR | S_IWUSR, F_OK },
 #endif
 };
