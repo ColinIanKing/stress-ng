@@ -171,6 +171,7 @@ void stress_tz_free(stress_tz_info_t **tz_info_list)
 		free(tz_info);
 		tz_info = next;
 	}
+	*tz_info_list = NULL;
 }
 
 /*
