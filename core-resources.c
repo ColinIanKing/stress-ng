@@ -355,8 +355,6 @@ size_t stress_resources_allocate(
 				(void)stress_madvise_mergeable(resources[i].m_mmap, resources[i].m_mmap_size);
 			}
 		}
-		if (resources[i].m_mmap)
-
 		resources[i].pipe_ret = pipe(resources[i].fd_pipe);
 #if defined(F_SETPIPE_SZ)
 		if (resources[i].pipe_ret == 0) {
