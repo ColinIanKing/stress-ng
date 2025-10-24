@@ -33,7 +33,7 @@
 /*
  *  sudo stress-ng --resctrl p1=1:l3:1:10,p2=1:ffe:100,stream=0-1@p1,stream=2@p2 --stream 3 --stream-l3-size 16M -t 10 --metrics -v
  *
- *   defines: resctrl p1 to be node 1, L3 cache, bitmask 1, bandwith 10
+ *   defines: resctrl p1 to be node 1, L3 cache, bitmask 1, bandwidth 10
  *            resctrl p2 to be node 1, no cache specified (defaults to L3), bitmask ffe, bandwidth 100
  *            stream instances 0 to 1 use profile p1
  *            stream instance 2 use profile p2
@@ -357,7 +357,7 @@ static int stress_resctrl_parse_partition(const char *name, char **str)
 		return -1;
 	}
 	if (val < 0) {
-		fprintf(stderr, "resctrl: invalue negative partition value in '%s'\n", name);
+		fprintf(stderr, "resctrl: invalid negative partition value in '%s'\n", name);
 		return -1;
 	}
 	partnum = (uint32_t)val;
@@ -378,7 +378,7 @@ static int stress_resctrl_parse_partition(const char *name, char **str)
 	}
 	*ptr++ = '\0';
 	if (sscanf(tmp, "%" SCNd32, &val) != 1) {
-		fprintf(stderr, "resctrl: invalid cache node '%s' for paritition '%s'\n", tmp, name);
+		fprintf(stderr, "resctrl: invalid cache node '%s' for partition '%s'\n", tmp, name);
 		return -1;
 	}
 	if (val < 0) {
@@ -396,20 +396,20 @@ static int stress_resctrl_parse_partition(const char *name, char **str)
 		while (*ptr && isdigit((int)*ptr))
 			ptr++;
 		if (*ptr != ':') {
-			fprintf(stderr, "resctrl: missing ':' after cache level for partition '%s\n", name);
+			fprintf(stderr, "resctrl: missing ':' after cache level for partition '%s'\n", name);
 			return -1;
 		}
 		*ptr = '\0';
 		if (*tmp == '\0') {
-			fprintf(stderr, "resctrl: invalid cache level for partition '%s\n", name);
+			fprintf(stderr, "resctrl: invalid cache level for partition '%s'\n", name);
 			return -1;
 		}
 		if (sscanf(tmp, "%" PRId32, &val) != 1) {
-			fprintf(stderr, "resctrl: invalid cachelevel '%s' for paritition '%s'\n", tmp, name);
+			fprintf(stderr, "resctrl: invalid cachelevel '%s' for partition '%s'\n", tmp, name);
 			return -1;
 		}
 		if ((val < 0) || (val > 3)) {
-			fprintf(stderr, "resctrl: invalid cachelevel '%s' for paritition '%s' (expected L1..L3)\n", tmp, name);
+			fprintf(stderr, "resctrl: invalid cachelevel '%s' for partition '%s' (expected L1..L3)\n", tmp, name);
 			return -1;
 		}
 		cachelevel = (uint32_t)val;
@@ -423,7 +423,7 @@ static int stress_resctrl_parse_partition(const char *name, char **str)
 	while (*ptr && isxdigit((int )*ptr))
 		ptr++;
 	if (*ptr != ':') {
-		fprintf(stderr, "resctrl: missing ':' after hex bitmask for partition '%s\n", name);
+		fprintf(stderr, "resctrl: missing ':' after hex bitmask for partition '%s'\n", name);
 		return -1;
 	}
 	*ptr = '\0';
@@ -433,7 +433,7 @@ static int stress_resctrl_parse_partition(const char *name, char **str)
 	}
 	ptr++;
 	if (sscanf(tmp, "%" PRIx64 , &bitmask) != 1) {
-		fprintf(stderr, "resctrl: invalid cache hex bitmask '%s' for paritition '%s'\n", tmp, name);
+		fprintf(stderr, "resctrl: invalid cache hex bitmask '%s' for partition '%s'\n", tmp, name);
 		return -1;
 	}
 
@@ -444,11 +444,11 @@ static int stress_resctrl_parse_partition(const char *name, char **str)
 	while (*ptr && isdigit((int)*ptr))
 		ptr++;
 	if (*ptr != ',') {
-		fprintf(stderr, "resctrl: expecting ',' after bandwdith for partition '%s'\n", name);
+		fprintf(stderr, "resctrl: expecting ',' after bandwidth for partition '%s'\n", name);
 		return -1;
 	}
 	if (sscanf(tmp, "%" PRId32, &val) != 1) {
-		fprintf(stderr, "resctrl: invalid bandwidth '%s' for paritition '%s'\n", tmp, name);
+		fprintf(stderr, "resctrl: invalid bandwidth '%s' for partition '%s'\n", tmp, name);
 		return -1;
 	}
 	if (val < 1) {
@@ -533,7 +533,7 @@ int stress_resctrl_parse(char *opt_resctrl)
 
 		/* scan for partition name */
 		if (*ptr != 'p') {
-			fprintf(stderr, "resctrl: missing partition name after '@' delimimiter\n");
+			fprintf(stderr, "resctrl: missing partition name after '@' delimiter\n");
 			free(str);
 			return -1;
 		}
@@ -695,7 +695,7 @@ void stress_resctrl_init(void)
 	/* try and found existing resctrl mount point */
 	fp = fopen("/proc/mounts", "r");
 	if (!fp) {
-		pr_warn("resctl: cannot open /proc/mounts, errno=%d (%s), disabling resctrl\n", errno, strerror(errno));
+		pr_warn("resctrl: cannot open /proc/mounts, errno=%d (%s), disabling resctrl\n", errno, strerror(errno));
 		resctrl_enabled = false;
 		return;
 	}
@@ -722,7 +722,7 @@ void stress_resctrl_init(void)
 
 		/* sudo mount -t resctrl resctrl /sys/fs/resctrl */
 		if (mount("resctrl", resctrl_mnt, "resctrl", 0, NULL) < 0) {
-			pr_warn("resctl: cannot mount resctl, errno=%d (%s), disabling resctrl\n", errno, strerror(errno));
+			pr_warn("resctrl: cannot mount resctl, errno=%d (%s), disabling resctrl\n", errno, strerror(errno));
 			(void)rmdir(resctrl_mnt);
 			resctrl_enabled = false;
 			return;
@@ -735,11 +735,11 @@ void stress_resctrl_init(void)
 	 */
 	for (partition = stress_partition_head; partition; partition = partition->next) {
 		char path[PATH_MAX + 64];
-		int fd;
+		int ret;
 
 		(void)snprintf(path, sizeof(path), "%s/stress-ng-%s", resctrl_mnt, partition->name);
-		fd = mkdir(path, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
-		if (fd < 0) {
+		ret = mkdir(path, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+		if (ret < 0) {
 			if (errno == EEXIST)
 				continue;
 			pr_inf("resctrl: cannot create resctrl for %s, errno=%d (%s), disabling resctrl\n",
