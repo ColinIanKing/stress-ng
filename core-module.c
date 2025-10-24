@@ -66,6 +66,7 @@ int stress_module_load(
 		if (ret < 0) {
 			if (errno == EEXIST) {
 				*already_loaded = true;
+				kmod_module_unref_list(list);
 				kmod_unref(ctx);
 				return 0;
 			}
