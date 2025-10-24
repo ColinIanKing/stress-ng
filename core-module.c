@@ -64,7 +64,7 @@ int stress_module_load(
 		ret = kmod_module_probe_insert_module(mod, flags, options,
 			NULL, NULL, show_func);
 		if (ret < 0) {
-			if (errno == -EEXIST) {
+			if (errno == EEXIST) {
 				*already_loaded = true;
 				kmod_unref(ctx);
 				return 0;
