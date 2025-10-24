@@ -355,7 +355,7 @@ ssize_t sched_get_sched_ext_ops(char *buf, const size_t len)
 			}
 		}
 	}
-	return 0;
+	return ret;
 #else
 	return 0;
 #endif
