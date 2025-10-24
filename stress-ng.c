@@ -2607,7 +2607,8 @@ static inline void stress_shared_map(const int32_t num_procs)
 	size_t len = sizeof(stress_shared_t) +
 		     (sizeof(stress_stats_t) * (size_t)num_procs);
 	size_t sz = (len + (page_size << 1)) & ~(page_size - 1);
-#if defined(HAVE_MPROTECT)
+#if defined(HAVE_MPROTECT) ||	\
+    (defined(HAVE_MREMAP) && defined(MAP_FIXED))
 	void *last_page;
 #endif
 
@@ -2643,9 +2644,12 @@ STRESS_PRAGMA_WARN_OFF
 #endif
 STRESS_PRAGMA_POP
 
-#if defined(HAVE_MPROTECT)
+#if defined(HAVE_MPROTECT) ||	\
+    (defined(HAVE_MREMAP) && defined(MAP_FIXED))
 	last_page = ((uint8_t *)g_shared) + sz - page_size;
+#endif
 
+#if defined(HAVE_MPROTECT)
 	/* Make last page trigger a segfault if it is accessed */
 	(void)mprotect(last_page, page_size, PROT_NONE);
 	stress_set_vma_anon_name(last_page, page_size,  "g_shared_guard");
