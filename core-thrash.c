@@ -114,7 +114,7 @@ int stress_pagein_self(const char *name)
 		if (strncmp("[v", tmppath, 2) == 0)
 			continue;
 
-		/* ignore non-readable or non-private mappings */
+		/* ignore non-readable mappings */
 		if (prot[0] != 'r')
 			continue;
 		len = end - begin;
@@ -201,7 +201,7 @@ static int stress_pagein_proc(const pid_t pid)
 			end = (off_t)end64;
 		}
 
-		/* ignore non-readable or non-private mappings */
+		/* ignore non-readable and non-private mappings */
 		if ((prot[0] != 'r') && (prot[3] != 'p'))
 			continue;
 
