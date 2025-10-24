@@ -189,7 +189,7 @@ void stress_set_oom_adjustment(stress_args_t *args, const bool killable)
       defined(__FreeBSD__) &&		\
       defined(PROC_SPROTECT) &&		\
       (defined(PPROT_CLEAR) || 		\
-       defined(PPORT_SET))
+       defined(PPROT_SET))
 void stress_set_oom_adjustment(stress_args_t *args, const bool killable)
 {
 	bool make_killable = killable;
