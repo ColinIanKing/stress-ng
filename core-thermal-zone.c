@@ -186,6 +186,10 @@ int stress_tz_get_temperatures(stress_tz_info_t **tz_info_list, stress_tz_t *tz)
 		FILE *fp;
 		const size_t i = tz_info->index;
 
+		/* avoid ts_stat[i] overflow */
+		if (i >= STRESS_THERMAL_ZONES_MAX)
+			continue;
+
 		(void)snprintf(path, sizeof(path),
 			"/sys/class/thermal/%s/temp",
 			tz_info->path);
