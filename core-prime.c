@@ -47,7 +47,7 @@ bool CONST stress_is_prime64(const uint64_t n)
 
 /*
  *  stress_get_next_prime64()
- *	find a prime that is not a multiple of n,
+ *	find a prime that is not a divisor of n,
  *	used for file name striding. Minimum is 1009,
  *	max is unbounded. Return a prime > n, each
  *	call will return the next prime to keep the
