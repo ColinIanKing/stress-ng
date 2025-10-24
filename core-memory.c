@@ -577,7 +577,7 @@ int stress_swapoff(const char *path)
 	}
 	return -1;
 #else
-	if (!path) {
+	if (UNLIKELY(!path)) {
 		errno = EINVAL;
 		return -1;
 	}
