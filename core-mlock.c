@@ -34,8 +34,12 @@ int stress_mlock_region(const void *addr_start, const void *addr_end)
 	const void *m_addr_end =
 		(void *)(((uintptr_t)addr_end + page_size - 1) &
 		~(page_size - 1));
-	const size_t len = (uintptr_t)m_addr_end - (uintptr_t)m_addr_start;
+	size_t len;
 
+	if (m_addr_end <= m_addr_start)
+		return 0;
+
+	len = (uintptr_t)m_addr_end - (uintptr_t)m_addr_start;
 	return shim_mlock((const void *)m_addr_start, len);
 #else
 	UNEXPECTED
