@@ -989,8 +989,7 @@ deinit:
 			const double rate = info->metrics.count / info->metrics.duration;
 			char str[64];
 
-			(void)snprintf(str, sizeof(str), "%s (%s) ops/sec", info->name, info->type),
-
+			(void)snprintf(str, sizeof(str), "%s (%s) ops/sec", info->name, info->type);
 			stress_metrics_set(args, idx, str, rate, STRESS_METRIC_HARMONIC_MEAN);
 			idx++;
 		}
