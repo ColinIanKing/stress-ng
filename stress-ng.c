@@ -2620,7 +2620,7 @@ static inline void stress_shared_map(const int32_t num_procs)
 	}
 	stress_set_vma_anon_name(g_shared, sz, "g_shared");
 
-	/* Paraniod */
+	/* Paranoid */
 	(void)shim_memset(g_shared, 0, sz);
 	g_shared->length = sz;
 	g_shared->instance_count.started = 0;
@@ -3484,8 +3484,8 @@ next_opt:
 }
 
 /*
- *  stress_alloc_proc_stas()
- *	allocate array of stressor stats based on n stats required
+ *  stress_alloc_proc_stats()
+ *	allocate array of process stats based on n stats required
  */
 static void stress_alloc_proc_stats(
 	stress_stats_t ***stats,
