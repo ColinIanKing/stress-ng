@@ -1974,7 +1974,7 @@ int shim_setxattrat(int dfd, const char *path, unsigned int at_flags,
 		size_t size)
 {
 #if defined(HAVE_SETXATTRAT)
-	return setxattr(dfd, path, at_flags, name, args, size);
+	return setxattrat(dfd, path, at_flags, name, args, size);
 #elif defined(__NR_setxattrat) &&	\
       defined(HAVE_SYSCALL)
 	return (int)syscall(__NR_setxattrat, dfd, path, at_flags, name, args, size);
