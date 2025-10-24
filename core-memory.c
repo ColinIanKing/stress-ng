@@ -463,7 +463,7 @@ static size_t stress_mapping_hugetlb_size(void *addr)
 			}
 		} else {
 			/* Scan for a matching start address */
-			if ((sscanf(buf, "%" SCNxPTR "-%" SCNxPTR "%*s", &addr_begin, &addr_end) != 2) &&
+			if ((sscanf(buf, "%" SCNxPTR "-%" SCNxPTR "%*s", &addr_begin, &addr_end) == 2) &&
 			    (addr_begin == (uintptr_t)addr) &&
 			    (addr_begin < addr_end))
 				addr_match = true;
