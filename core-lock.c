@@ -356,7 +356,7 @@ static int CONST stress_pthread_mutex_deinit(stress_lock_t *lock)
 	int ret;
 
 	ret = pthread_mutex_destroy(&lock->u.pthread_mutex);
-	if (LIKELY(ret == 0)
+	if (LIKELY(ret == 0))
 		return 0;
 	errno = ret;
 	return -1;
