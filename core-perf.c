@@ -193,7 +193,7 @@ static stress_perf_info_t perf_info[STRESS_PERF_MAX] = {
 	PERF_INFO_HW_C(ITLB, WRITE, ACCESS,	"Cache ITLB Write"),
 	PERF_INFO_HW_C(ITLB, WRITE, MISS,	"Cache ITLB Write Miss"),
 	PERF_INFO_HW_C(ITLB, PREFETCH, ACCESS,	"Cache ITLB Prefetch"),
-	PERF_INFO_HW_C(ITLB, PREFETCH, MISS,	"Cache IILB Prefetch Miss"),
+	PERF_INFO_HW_C(ITLB, PREFETCH, MISS,	"Cache ITLB Prefetch Miss"),
 #endif
 
 #if STRESS_PERF_DEFINED(HW_CACHE_BPU)
@@ -202,7 +202,7 @@ static stress_perf_info_t perf_info[STRESS_PERF_MAX] = {
 	PERF_INFO_HW_C(BPU, WRITE, ACCESS,	"Cache BPU Write"),
 	PERF_INFO_HW_C(BPU, WRITE, MISS,	"Cache BPU Write Miss"),
 	PERF_INFO_HW_C(BPU, PREFETCH, ACCESS,	"Cache BPU Prefetch"),
-	PERF_INFO_HW_C(BPU, PREFETCH, MISS,	"Cache DILB Prefetch Miss"),
+	PERF_INFO_HW_C(BPU, PREFETCH, MISS,	"Cache DTLB Prefetch Miss"),
 #endif
 
 #if STRESS_PERF_DEFINED(HW_CACHE_NODE)
@@ -211,7 +211,7 @@ static stress_perf_info_t perf_info[STRESS_PERF_MAX] = {
 	PERF_INFO_HW_C(NODE, WRITE, ACCESS,	"Cache NODE Write"),
 	PERF_INFO_HW_C(NODE, WRITE, MISS,	"Cache NODE Write Miss"),
 	PERF_INFO_HW_C(NODE, PREFETCH, ACCESS,	"Cache NODE Prefetch"),
-	PERF_INFO_HW_C(NODE, PREFETCH, MISS,	"Cache DILB Prefetch Miss"),
+	PERF_INFO_HW_C(NODE, PREFETCH, MISS,	"Cache DTLB Prefetch Miss"),
 #endif
 
 	/*
