@@ -700,7 +700,7 @@ static int stress_apparmor(stress_args_t *args)
 		goto err_free_data_prev;
 	}
 	stress_apparmor_shared_info->failure_lock = stress_lock_create("failure");
-	if (!stress_apparmor_shared_info->counter_lock) {
+	if (!stress_apparmor_shared_info->failure_lock) {
 		pr_inf_skip("%s: failed to create failure counter lock. skipping stressor\n", args->name);
 		goto err_free_counter_lock;
 	}
