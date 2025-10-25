@@ -587,7 +587,7 @@ static void stress_dev_dm_linux(
 			iov.iov_base = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 			if (iov.iov_base != MAP_FAILED) {
 				iov.iov_len = size;
-				VOID_RET(ssize_t, preadv2(fd, &iov, 1, 0, RWF_NOWAIT));
+				VOID_RET(ssize_t, preadv2(fd2, &iov, 1, 0, RWF_NOWAIT));
 				(void)munmap(iov.iov_base, size);
 			}
 			(void)close(fd2);
