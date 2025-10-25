@@ -355,7 +355,7 @@ static int stress_chroot_test9(chroot_shared_data_t *data)
 		return rc;
 	if (chroot(".") < 0)
 		return rc;
-	if (fchdir(data->cwd_fd) < 0)
+	if ((data->cwd_fd != -1) && (fchdir(data->cwd_fd) < 0))
 		return rc;
 	if (chroot_up() < 0)
 		return rc;
