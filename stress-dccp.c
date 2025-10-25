@@ -409,7 +409,7 @@ static int stress_dccp(stress_args_t *args)
 	if (stress_sigchld_set_handler(args) < 0)
 		return EXIT_NO_RESOURCE;
 
-	(void)stress_get_setting("dcpp-if", &dccp_if);
+	(void)stress_get_setting("dccp-if", &dccp_if);
 	(void)stress_get_setting("dccp-port", &dccp_port);
 	(void)stress_get_setting("dccp-domain", &dccp_domain);
 	(void)stress_get_setting("dccp-opts", &dccp_opts);
