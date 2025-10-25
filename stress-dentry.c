@@ -433,6 +433,7 @@ static int stress_dentry(stress_args_t *args)
 			}
 
 			/* The following should fail */
+			t = stress_time_now();
 			if (shim_unlink(path) < 0) {
 				bogus_unlink_duration += stress_time_now() - t;
 				bogus_unlink_count += 1.0;
