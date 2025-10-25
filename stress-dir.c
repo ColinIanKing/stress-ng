@@ -262,7 +262,7 @@ static int stress_mkdir(const int dir_fd, const char *path, const int mode)
 		ret = mkdir(path, (shim_mode_t)mode);
 	}
 #else
-	ret = mkdir(path, mode);
+	ret = mkdir(path, (shim_mode_t)mode);
 #endif
 	(void)dir_fd;
 
