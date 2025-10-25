@@ -3985,7 +3985,7 @@ static int stress_enosys_push_syscall(
 	errno = 0;
 	sret = read(rd_fd, &rpc, sizeof(rpc));
 	if (sret != (ssize_t)sizeof(rpc)) {
-		if (errno < 0)
+		if (errno != 0)
 			syscall_add(number);
 		return -1;
 	}
