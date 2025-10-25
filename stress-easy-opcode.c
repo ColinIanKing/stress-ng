@@ -153,7 +153,7 @@ static const stress_easy_opcode_t easy_opcodes[] = {
 	{ 4, { 0x25, 0x78, 0xe0, 0x01 } }, /* move $15,$15 */
 };
 #elif defined(STRESS_ARCH_MIPS) &&	\
-      defined(STRESS_ARC_BE) &&		\
+      defined(STRESS_ARCH_BE) &&	\
       defined(HAVE_MPROTECT)
 #define HAVE_EASY_OPCODES
 static const stress_easy_opcode_t easy_opcodes[] = {
