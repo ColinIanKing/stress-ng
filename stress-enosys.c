@@ -3548,7 +3548,7 @@ static const long int skip_syscalls[] = {
 	__NR_setxattr,
 #endif
 #if defined(__NR_setxattrat)
-	__NR_setxattr,
+	__NR_setxattrat,
 #endif
 #if defined(__NR_sgetmask)
 	__NR_sgetmask,
