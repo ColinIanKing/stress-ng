@@ -214,7 +214,7 @@ static int stress_cpu_online(stress_args_t *args)
 
 		(void)snprintf(filename, sizeof(filename),
 			"/sys/devices/system/cpu/cpu%" PRId32 "/online", i);
-		ret = access(filename, O_RDWR);
+		ret = access(filename, R_OK | W_OK);
 		if (ret == 0) {
 			cpu_online[i] = true;
 			cpu_online_count++;
