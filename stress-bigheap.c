@@ -264,7 +264,7 @@ static int stress_bigheap_child(stress_args_t *args, void *context)
 			phase = STRESS_BIGHEAP_OUT_OF_MEMORY;
 			pr_dbg("%s: out of memory at %" PRIu64
 				" MB (instance %d)\n",
-				args->name, (uint64_t)(4096ULL * size) >> 20,
+				args->name, ((uint64_t)size) >> 20,
 				args->instance);
 			if (old_ptr)
 				free(old_ptr);
