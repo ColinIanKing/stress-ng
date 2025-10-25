@@ -304,7 +304,7 @@ static int stress_cyclic_pselect(
 	t.tv_sec = cyclic_sleep / STRESS_NANOSECOND;
 	t.tv_nsec = cyclic_sleep % STRESS_NANOSECOND;
 	(void)clock_gettime(CLOCK_REALTIME, &t1);
-	ret = pselect(0, NULL, NULL,NULL, &t, NULL);
+	ret = pselect(0, NULL, NULL, NULL, &t, NULL);
 	(void)clock_gettime(CLOCK_REALTIME, &t2);
 	if (LIKELY(ret == 0))
 		stress_cyclic_stats(rt_stats, cyclic_sleep, &t1, &t2);
