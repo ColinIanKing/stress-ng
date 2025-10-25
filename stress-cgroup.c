@@ -317,7 +317,7 @@ static void stress_cgroup_del_pid(const char *realpathname, const pid_t pid)
 
 /*
  *  stress_cgroup_new_group()
- *	add a new groip
+ *	add a new group
  */
 static void stress_cgroup_new_group(stress_args_t *args, const char *realpathname)
 {
