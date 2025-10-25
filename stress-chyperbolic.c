@@ -99,7 +99,7 @@ static bool OPTIMIZE3 TARGET_CLONES stress_chyperbolic_ccoshl(stress_args_t *arg
 {
 	complex long double sumccosh = 0.0L;
 	complex long double x = -1.0L;
-	complex const long double dx = (1.0 / (double)STRESS_CHYPERBOLIC_LOOPS - I / (2.0 * (double)STRESS_CHYPERBOLIC_LOOPS));
+	complex const long double dx = (1.0 / (long double)STRESS_CHYPERBOLIC_LOOPS - I / (2.0 * (long double)STRESS_CHYPERBOLIC_LOOPS));
 	long double precision;
 	int i;
 
@@ -119,7 +119,7 @@ PRAGMA_UNROLL_N(8)
 		x += dx;
 	}
 	stress_bogo_inc(args);
-	return cabsl(sumccosh - (complex double)CCOSHL_SUM) > precision;
+	return cabsl(sumccosh - (complex long double)CCOSHL_SUM) > precision;
 }
 #endif
 
@@ -166,7 +166,7 @@ static bool OPTIMIZE3 TARGET_CLONES stress_chyperbolic_csinhl(stress_args_t *arg
 {
 	complex long double sumcsinh = 0.0L;
 	complex long double x = -1.0L;
-	complex long const double dx = (1.0 / (double)STRESS_CHYPERBOLIC_LOOPS - I / (2.0 * (double)STRESS_CHYPERBOLIC_LOOPS));
+	complex long const double dx = (1.0 / (long double)STRESS_CHYPERBOLIC_LOOPS - I / (2.0 * (long double)STRESS_CHYPERBOLIC_LOOPS));
 	long double precision;
 	int i;
 
@@ -186,7 +186,7 @@ PRAGMA_UNROLL_N(8)
 		x += dx;
 	}
 	stress_bogo_inc(args);
-	return cabsl(sumcsinh - (complex double)CSINHL_SUM) > precision;
+	return cabsl(sumcsinh - (complex long double)CSINHL_SUM) > precision;
 }
 #endif
 
@@ -233,7 +233,7 @@ static bool OPTIMIZE3 TARGET_CLONES stress_chyperbolic_ctanhl(stress_args_t *arg
 {
 	complex long double sumctanh = 0.0;
 	complex long double x = -1.0;
-	complex long const double dx = (1.0 / (double)STRESS_CHYPERBOLIC_LOOPS - I / (2.0 * (double)STRESS_CHYPERBOLIC_LOOPS));
+	complex long const double dx = (1.0 / (long double)STRESS_CHYPERBOLIC_LOOPS - I / (2.0 * (long double)STRESS_CHYPERBOLIC_LOOPS));
 	const long double precision = 1E-7;
 	int i;
 
@@ -243,7 +243,7 @@ PRAGMA_UNROLL_N(8)
 		x += dx;
 	}
 	stress_bogo_inc(args);
-	return cabsl(sumctanh - (complex double)CTANHL_SUM) > precision;
+	return cabsl(sumctanh - (complex long double)CTANHL_SUM) > precision;
 }
 #endif
 
