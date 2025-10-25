@@ -358,7 +358,7 @@ static int stress_dfp_call_method(
 	metrics->duration += dt;
 	metrics->count += (DFP_ELEMENTS * LOOPS_PER_CALL);
 
-	if ((method > 0) && (method < STRESS_NUM_DFP_FUNCS && verify)) {
+	if ((method > 0) && (method < STRESS_NUM_DFP_FUNCS) && verify) {
 		register size_t i;
 		const int dfp_type = stress_dfp_funcs[method].dfp_type;
 		const char *method_name = stress_dfp_funcs[method].name;
