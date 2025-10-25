@@ -409,10 +409,10 @@ static int OPTIMIZE3 TARGET_CLONES stress_bitops_ctz(const char *name, uint32_t 
 		v += dv;
 	}
 	stress_uint32_put(sum);
-#if defined(HAVE_BUILTIN_CLZ) &&	\
+#if defined(HAVE_BUILTIN_CTZ) &&	\
     defined(HAVE_BUILTIN_POPCOUNT)
 	*count += 5 * i;
-#elif defined(HAVE_BUILTIN_CLZ)
+#elif defined(HAVE_BUILTIN_CTZ)
 	*count += 4 * i;
 #elif defined(HAVE_BUILTIN_POPCOUNT)
 	*count += 4 * i;
@@ -898,7 +898,7 @@ static int OPTIMIZE3 stress_bitops_rnddnpwr2(const char *name, uint32_t *count)
 			return EXIT_FAILURE;
 		}
 
-#if defined(HAVE_BUILTIN_CTZ)
+#if defined(HAVE_BUILTIN_CLZ)
 		/*  #3, rnddnpwr2 ctz */
 		c2 = (v == 0) ? 0 : 0x80000000 >> BITOPS_CLZ(v);
 		sum += c2;
@@ -911,7 +911,7 @@ static int OPTIMIZE3 stress_bitops_rnddnpwr2(const char *name, uint32_t *count)
 		v += dv;
 	}
 	stress_uint32_put(sum);
-#if defined(HAVE_BUILTIN_CTZ)
+#if defined(HAVE_BUILTIN_CLZ)
 	*count += 3 * i;
 #else
 	*count += 2 * i;
@@ -967,8 +967,8 @@ static int OPTIMIZE3 stress_bitops_rnduppwr2(const char *name, uint32_t *count)
 			return EXIT_FAILURE;
 		}
 
-#if defined(HAVE_BUILTIN_CTZ)
-		/*  #3, rnduppwr2 ctz */
+#if defined(HAVE_BUILTIN_CLZ)
+		/*  #3, rnduppwr2 clz */
 		c2 = (v == 0) ? 0 : 0x80000000 >> (BITOPS_CLZ(v - 1) - 1);
 		sum += c2;
 		if (UNLIKELY(c1 != c2)) {
@@ -981,7 +981,7 @@ static int OPTIMIZE3 stress_bitops_rnduppwr2(const char *name, uint32_t *count)
 		v += dv;
 	}
 	stress_uint32_put(sum);
-#if defined(HAVE_BUILTIN_CTZ)
+#if defined(HAVE_BUILTIN_CLZ)
 	*count += 3 * i;
 #else
 	*count += 2 * i;
