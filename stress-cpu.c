@@ -844,7 +844,7 @@ stress_cpu_int(__uint128_t, 128,
 #endif
 
 stress_cpu_int(uint64_t, 64, \
-	0x013f7f6dc1d79197cULL, 0x01863d2c6969a51ceULL,
+	0x13f7f6dc1d79197cULL, 0x1863d2c6969a51ceULL,
 	C1, C2, C3)
 
 stress_cpu_int(uint32_t, 32, \
