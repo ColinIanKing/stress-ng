@@ -66,7 +66,7 @@ static inline void ALWAYS_INLINE dekker_mbarrier(void)
 #endif
 }
 
-static void stress_decker_sigill_handler(int signum)
+static void stress_dekker_sigill_handler(int signum)
 {
 	(void)signum;
 
@@ -89,7 +89,7 @@ static int stress_dekker_supported(const char *name)
 		return -1;
 	}
 
-	act.sa_handler = stress_decker_sigill_handler;
+	act.sa_handler = stress_dekker_sigill_handler;
         (void)sigemptyset(&act.sa_mask);
         act.sa_flags = SA_NOCLDSTOP;
 	if (sigaction(SIGILL, &act, &oldact) < 0) {
@@ -213,7 +213,7 @@ static int stress_dekker(stress_args_t *args)
 			PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (dekker == MAP_FAILED) {
-		pr_inf_skip("%s: cannot mmap %zu bytes for bekker shared struct%s, skipping stressor\n",
+		pr_inf_skip("%s: cannot mmap %zu bytes for dekker shared struct%s, skipping stressor\n",
 			args->name, sz, stress_get_memfree_str());
 		return EXIT_NO_RESOURCE;
 	}
