@@ -230,7 +230,8 @@ static int stress_aio(stress_args_t *args)
 	stress_io_req_t *io_reqs;
 	struct sigaction sa, sa_old;
 	char filename[PATH_MAX];
-	uint32_t total = 0, i, opt_aio_requests = DEFAULT_AIO_REQUESTS;
+	uint32_t i, opt_aio_requests = DEFAULT_AIO_REQUESTS;
+	uint64_t total = 0;
 	double t1 = 0.0, t2 = 0.0, dt, rate;
 	const char *fs_type;
 
