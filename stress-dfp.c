@@ -424,7 +424,7 @@ static int stress_dfp(stress_args_t *args)
 {
 	size_t i, mmap_size;
 	dfp_data_t *dfp_data;
-	size_t fp_method = 0;	/* "all" */
+	size_t dfp_method = 0;	/* "all" */
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 	int rc = EXIT_SUCCESS;
 
@@ -442,7 +442,7 @@ static int stress_dfp(stress_args_t *args)
 	stress_set_vma_anon_name(dfp_data, mmap_size, "dfp-data");
 	(void)stress_madvise_mergeable(dfp_data, mmap_size);
 
-	(void)stress_get_setting("fp-method", &fp_method);
+	(void)stress_get_setting("dfp-method", &dfp_method);
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
@@ -541,7 +541,7 @@ static int stress_dfp(stress_args_t *args)
 	}
 
 	do {
-		if (UNLIKELY(stress_dfp_call_method(args, dfp_data, fp_method, verify) == EXIT_FAILURE)) {
+		if (UNLIKELY(stress_dfp_call_method(args, dfp_data, dfp_method, verify) == EXIT_FAILURE)) {
 			rc = EXIT_FAILURE;
 			break;
 		}
