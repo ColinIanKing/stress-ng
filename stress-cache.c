@@ -977,7 +977,7 @@ static void stress_cache_bzero(uint8_t *buffer, const uint64_t buffer_size)
 
 static void stress_get_cache_flags(const char *opt, uint32_t *cache_flags, uint32_t bitmask)
 {
-	bool flag = 0;
+	bool flag = false;
 
 	(void)stress_get_setting(opt, &flag);
 	if (flag)
