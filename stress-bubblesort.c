@@ -22,9 +22,9 @@
 #include "core-sort.h"
 #include "core-pragma.h"
 
-#define MIN_HEAPSORT_SIZE	(1 * KB)
-#define MAX_HEAPSORT_SIZE	(4 * MB)
-#define DEFAULT_HEAPSORT_SIZE	(16384)
+#define MIN_BUBBLESORT_SIZE	(1 * KB)
+#define MAX_BUBBLESORT_SIZE	(4 * MB)
+#define DEFAULT_BUBBLESORT_SIZE	(16384)
 
 #if defined(HAVE_SIGLONGJMP)
 static volatile bool do_jmp = true;
@@ -32,11 +32,11 @@ static sigjmp_buf jmp_env;
 #endif
 
 static const stress_help_t help[] = {
-	{ NULL,	"bubblesort N",	   	"start N workers heap sorting 32 bit random integers" },
-	{ NULL, "bubblesort-method M",	"select sort method [ bubblesort-libc | bubblesort-nonlibc" },
-	{ NULL,	"bubblesort-ops N",	"stop after N heap sort bogo operations" },
+	{ NULL,	"bubblesort N",	   	"start N workers bubble sorting 32 bit random integers" },
+	{ NULL, "bubblesort-method M",	"select sort method [ bubblesort-fast | bubblesort-naive " },
+	{ NULL,	"bubblesort-ops N",	"stop after N bubblesort bogo operations" },
 	{ NULL,	"bubblesort-size N",	"number of 32 bit integers to sort" },
-	{ NULL,	NULL,		   NULL }
+	{ NULL,	NULL,			NULL }
 };
 
 typedef int (*bubblesort_func_t)(void *base, size_t nmemb, size_t size, int (*compar)(const void *, const void *));
@@ -133,7 +133,7 @@ static const char *stress_bubblesort_method(const size_t i)
 }
 
 static const stress_opt_t opts[] = {
-	{ OPT_bubblesort_size,   "bubblesort-size",   TYPE_ID_UINT64, MIN_HEAPSORT_SIZE, MAX_HEAPSORT_SIZE, NULL },
+	{ OPT_bubblesort_size,   "bubblesort-size",   TYPE_ID_UINT64, MIN_BUBBLESORT_SIZE, MAX_BUBBLESORT_SIZE, NULL },
 	{ OPT_bubblesort_method, "bubblesort-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_bubblesort_method },
 	END_OPT,
 };
@@ -161,7 +161,7 @@ static void MLOCKED_TEXT stress_bubblesort_handler(int signum)
  */
 static int stress_bubblesort(stress_args_t *args)
 {
-	uint64_t bubblesort_size = DEFAULT_HEAPSORT_SIZE;
+	uint64_t bubblesort_size = DEFAULT_BUBBLESORT_SIZE;
 	int32_t *data, *ptr;
 	size_t n, i, data_size, bubblesort_method = 0;
 	double rate;
@@ -182,9 +182,9 @@ static int stress_bubblesort(stress_args_t *args)
 
 	if (!stress_get_setting("bubblesort-size", &bubblesort_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			bubblesort_size = MAX_HEAPSORT_SIZE;
+			bubblesort_size = MAX_BUBBLESORT_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			bubblesort_size = MIN_HEAPSORT_SIZE;
+			bubblesort_size = MIN_BUBBLESORT_SIZE;
 	}
 	n = (size_t)bubblesort_size;
 	data_size = n * sizeof(*data);
