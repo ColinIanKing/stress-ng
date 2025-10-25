@@ -327,10 +327,10 @@ static bool stress_ctrig_all(stress_args_t *args)
 static int stress_ctrig(stress_args_t *args)
 {
 	size_t i, j;
-	size_t trig_method = 0;
+	size_t ctrig_method = 0;
 	int rc = EXIT_SUCCESS;
 
-	(void)stress_get_setting("trig-method", &trig_method);
+	(void)stress_get_setting("ctrig-method", &ctrig_method);
 
 	stress_zero_metrics(stress_ctrig_metrics, SIZEOF_ARRAY(stress_ctrig_metrics));
 
@@ -339,7 +339,7 @@ static int stress_ctrig(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		if (stress_ctrig_exercise(args, trig_method)) {
+		if (stress_ctrig_exercise(args, ctrig_method)) {
 			rc = EXIT_FAILURE;
 			break;
 		}
