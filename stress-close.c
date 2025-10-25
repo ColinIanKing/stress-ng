@@ -192,7 +192,8 @@ static void *stress_close_func(void *arg)
 		 */
 		flag = close_range_flags[stress_mwc8modn(SIZEOF_ARRAY(close_range_flags))];
 		ret = shim_close_range(FDS_START, FDS_START + FDS_TO_DUP, flag);
-		if ((ret < 0) || (errno == ENOSYS)) {
+		if (ret < 0) {
+			/* failed for some reason, redo close to ensure all fds are closed */
 			for (i = 0; i < FDS_TO_DUP; i++)
 				(void)close(fds[i]);
 		}
