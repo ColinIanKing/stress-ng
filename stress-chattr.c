@@ -181,7 +181,7 @@ static int do_chattr(
 						rc = EXIT_FAILURE;
 						goto tidy_fd;
 					}
-					/* failed, so re-eable the bit */
+					/* failed, so re-enable the bit */
 					tmp |= bitmask;
 				} else {
 					(*chattr_count)++;
