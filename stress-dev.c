@@ -4072,7 +4072,7 @@ static inline void stress_dev_rw(
 			pr_fail("%s: stat failed on %s, errno=%d (%s)\n",
 				args->name, path, errno, strerror(errno));
 		} else {
-			if ((S_ISBLK(statbuf.st_mode) | (S_ISCHR(statbuf.st_mode))) == 0) {
+			if (!(S_ISBLK(statbuf.st_mode) || S_ISCHR(statbuf.st_mode))) {
 				stress_dev_close_unlock(path, fd);
 				goto next;
 			}
