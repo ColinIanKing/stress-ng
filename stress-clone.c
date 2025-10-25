@@ -109,9 +109,6 @@ static const unsigned int all_flags =
 #if defined(CLONE_FILES)
 	CLONE_FILES |
 #endif
-#if defined(CLONE_SYSVSEM)
-	CLONE_SYSVSEM |
-#endif
 	0;
 
 
