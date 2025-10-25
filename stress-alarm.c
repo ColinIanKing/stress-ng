@@ -134,7 +134,7 @@ again:
 			/* random duration interrupted sleep */
 			secs_sleep = stress_mwc32() + 100;
 			(void)alarm(0); /* Cancel pending alarms */
-			secs_left = alarm(secs_left);
+			secs_left = alarm(secs_sleep);
 			if (secs_left != 0)
 				err_mask |= STRESS_ALARM_RANDOM;
 			if (UNLIKELY(!stress_continue(args)))
