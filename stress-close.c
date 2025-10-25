@@ -261,16 +261,19 @@ static int stress_close(stress_args_t *args)
 		}
 	}
 
-#if defined(HAVE_FACCESSAT)
+#if defined(HAVE_FACCESSAT) || 1
 	{
 		ret = stress_temp_dir_mk_args(args);
-		if (ret < 0)
-			return stress_exit_status(-ret);
+		if (ret < 0) {
+			rc = stress_exit_status(-ret);
+			goto tidy;
+		}
 		(void)stress_temp_filename_args(args, filename, sizeof(filename), stress_mwc32());
 		file_fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
 		if (file_fd < 0) {
 			pr_err("%s: cannot create %s\n", args->name, filename);
-			return stress_exit_status(errno);
+			rc = stress_exit_status(errno);
+			goto tidy;
 		}
 		(void)shim_unlink(filename);
 	}
