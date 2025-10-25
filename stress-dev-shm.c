@@ -167,7 +167,7 @@ again:
 			}
 			if (WIFSIGNALED(status)) {
 				if ((WTERMSIG(status) == SIGKILL) ||
-				    (WTERMSIG(status) == SIGKILL)) {
+				    (WTERMSIG(status) == SIGBUS)) {
 					stress_log_system_mem_info();
 					pr_dbg("%s: assuming killed by OOM killer, "
 						"restarting again (instance %d)\n",
