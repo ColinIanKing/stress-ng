@@ -146,7 +146,7 @@ static int static_dup2_child(info_t *info)
 	 *  Cancel timer
 	 */
 	(void)shim_memset(&timer, 0, sizeof(timer));
-	(void)setitimer(ITIMER_PROF, &timer, NULL);
+	(void)setitimer(ITIMER_REAL, &timer, NULL);
 
 	/*
 	 *  Unlikely to be open, but close it to be a good citizen
