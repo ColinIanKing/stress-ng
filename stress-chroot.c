@@ -427,6 +427,7 @@ static int stress_chroot(stress_args_t *args)
 	stress_zero_metrics(&data->metrics, 1);
 	data->args = args;
 	data->rootpath_inode = chroot_inode("/");
+	data->cwd_fd = -1;
 
 	stress_rndstr(longpath, sizeof(longpath));
 	(void)stress_temp_dir(badpath, sizeof(badpath), "badpath", args->pid, 0xbad);
