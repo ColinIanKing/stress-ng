@@ -68,13 +68,13 @@ static int do_fchown(
 {
 	int tmp, ret;
 
-	if (stress_chown_check(fchown(fd, uid, gid) < 0))
+	if (stress_chown_check(fchown(fd, uid, gid)) < 0)
 		return -errno;
-	if (stress_chown_check(fchown(fd, (uid_t)-1, gid) < 0))
+	if (stress_chown_check(fchown(fd, (uid_t)-1, gid)) < 0)
 		return -errno;
-	if (stress_chown_check(fchown(fd, uid, (gid_t)-1) < 0))
+	if (stress_chown_check(fchown(fd, uid, (gid_t)-1)) < 0)
 		return -errno;
-	if (stress_chown_check(fchown(fd, (uid_t)-1, (gid_t)-1) < 0))
+	if (stress_chown_check(fchown(fd, (uid_t)-1, (gid_t)-1)) < 0)
 		return -errno;
 
 	if (cap_chown)
