@@ -307,8 +307,8 @@ static int OPTIMIZE_FAST_MATH stress_cpu_hyperbolic(const char *name)
 			const float thetaf = (float)theta;
 
 			d_sum += (shim_coshl(theta) * shim_sinhl(theta));
-			d_sum += ((long double)cosh(thetad) * (long double)shim_sinh(thetad));
-			d_sum += ((long double)coshf(thetaf) * (long double)shim_sinhf(thetaf));
+			d_sum += ((long double)shim_cosh(thetad) * (long double)shim_sinh(thetad));
+			d_sum += ((long double)shim_coshf(thetaf) * (long double)shim_sinhf(thetaf));
 		}
 		{
 			const long double thetal = theta * 2.0L;
