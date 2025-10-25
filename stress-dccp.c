@@ -238,6 +238,7 @@ static int stress_dccp_server(
 	if (stress_set_sockaddr_if(args->name, args->instance, mypid,
 		dccp_domain, dccp_port, dccp_if,
 		&addr, &addr_len, NET_ADDR_ANY) < 0) {
+		rc = EXIT_FAILURE;
 		goto die_close;
 	}
 	if (bind(fd, addr, addr_len) < 0) {
