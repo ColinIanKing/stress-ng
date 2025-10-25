@@ -778,8 +778,8 @@ again:
 
 		/*
 		 * We run the stressor as a child so that
-		 * if we the hard time timits the child is
-		 * terminated with a SIGKILL and we can
+		 * if we reach the hard time limits the child
+		 * si terminated with a SIGKILL and we can
 		 * catch that with the parent
 		 */
 		rlim.rlim_cur = timeout;
