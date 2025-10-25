@@ -560,7 +560,7 @@ static int stress_cpu_sched_next_cpu_idx(const int instance, const int last_cpu_
 		return cpu_idx < 0 ? (int)n_cpus - 1 : cpu_idx;
 	case 3:
 		/* based on seconds past EPOCH */
-		return (int)(now.tv_sec % (int)n_cpus);
+		return (int)(now.tv_sec % (time_t)n_cpus);
 	case 4:
 		/* instance and seconds past EPOCH */
 		return (instance + (now.tv_sec / 12)) % n_cpus;
