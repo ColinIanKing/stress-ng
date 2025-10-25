@@ -360,7 +360,7 @@ static int stress_cyclic_itimer(
 	(void)shim_memset(&itimer_time, 0, sizeof(itimer_time));
 	(void)clock_gettime(CLOCK_REALTIME, &t1);
 	if (timer_settime(timerid, 0, &timer, NULL) < 0)
-		goto restore;
+		goto tidy;
 
 	(void)shim_pause();
 	if ((itimer_time.tv_sec == 0) &&
@@ -384,6 +384,7 @@ tidy:
 	/* And cancel timer */
 	(void)shim_memset(&timer, 0, sizeof(timer));
 	(void)timer_settime(timerid, 0, &timer, NULL);
+	(void)timer_delete(timerid);
 restore:
 	stress_sigrestore(args->name, SIGRTMIN, &old_action);
 	return ret;
