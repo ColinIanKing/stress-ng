@@ -46,7 +46,7 @@ static void stress_dirmany_filename(
 		*ptr++ = '/';
 		(void)shim_memset(ptr, 'x', filename_len);
 		ptr += filename_len;
-		(void)snprintf(ptr, sizeof(filename) + (size_t)(ptr - filename), "%16.16" PRIx64, n);
+		(void)snprintf(ptr, filename_sz - (size_t)(ptr - filename), "%16.16" PRIx64, n);
 	} else {
 		(void)snprintf(filename, filename_sz, "%16.16" PRIx64, n);
 	}
