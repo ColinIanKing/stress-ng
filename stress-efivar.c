@@ -485,7 +485,7 @@ static int stress_efivar(stress_args_t *args)
 		}
 	}
 
-	sz = (((size_t)dir_count * sizeof(*efi_ignore)) + args->page_size) & (args->page_size - 1);
+	sz = (((size_t)dir_count * sizeof(*efi_ignore)) + args->page_size) & ~(args->page_size - 1);
 	efi_ignore = (bool *)mmap(NULL, sz, PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (efi_ignore == MAP_FAILED) {
