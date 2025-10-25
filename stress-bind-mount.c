@@ -217,9 +217,11 @@ static int stress_bind_mount(stress_args_t *args)
 			case ENOMEM:
 			case ENOSPC:
 			case EPERM:
-				return EXIT_NO_RESOURCE;
+				rc = EXIT_NO_RESOURCE;
+				goto err;
 			case ENOSYS:
-				return EXIT_NOT_IMPLEMENTED;
+				rc = EXIT_NOT_IMPLEMENTED;
+				goto err;
 			default:
 				break;
 			}
@@ -241,6 +243,7 @@ static int stress_bind_mount(stress_args_t *args)
 		}
 	} while (stress_continue(args));
 
+err:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	(void)shim_rmdir(path);
