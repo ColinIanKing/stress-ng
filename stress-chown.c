@@ -180,7 +180,7 @@ static int stress_chown(stress_args_t *args)
 	 *  Allow for multiple workers to chown the *same* file
 	 */
 	stress_temp_dir(pathname, sizeof(pathname), args->name, ppid, 0);
-	if (mkdir(pathname, S_IRUSR | S_IRWXU) < 0) {
+	if (mkdir(pathname, S_IRWXU) < 0) {
 		if (errno != EEXIST) {
 			rc = stress_exit_status(errno);
 			pr_fail("%s: mkdir %s failed, errno=%d (%s)\n",
