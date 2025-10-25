@@ -112,8 +112,8 @@ static int stress_crypt_id(
 #endif
 #if defined(EOPNOTSUPP)
 		case EOPNOTSUPP:
-#endif
 			break;
+#endif
 		default:
 			pr_fail("%s: cannot encrypt with %s, errno=%d (%s)\n",
 				args->name, crypt_methods[i].method, errno, strerror(errno));
