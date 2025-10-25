@@ -1004,7 +1004,7 @@ deinit:
  *  dup_field()
  * 	duplicate a text string field
  */
-static char *dup_field(const char *buffer)
+static char *dup_field(char *buffer)
 {
 	const char *ptr = strchr(buffer, ':');
 	char *eol = strchr(buffer, '\n');
