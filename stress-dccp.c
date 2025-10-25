@@ -76,7 +76,7 @@ static const stress_dccp_opts_t dccp_options[] = {
 
 static const char *stress_dccp_options(const size_t i)
 {
-	return (i < SIZEOF_ARRAY(dccp_options)) ? dccp_options[i].optname: NULL;
+	return (i < SIZEOF_ARRAY(dccp_options)) ? dccp_options[i].optname : NULL;
 }
 
 static int dccp_domain_mask = DOMAIN_INET | DOMAIN_INET6;
