@@ -99,7 +99,7 @@ static bool OPTIMIZE3 TARGET_CLONES stress_ctrig_ccosl(stress_args_t *args)
 {
 	complex long double sumccos = 0.0L;
 	complex long double z = -0.5 + 0.5 * I;
-	complex long const double dz = (1.0 / (double)STRESS_CTRIG_LOOPS - I / (2.0 * (double)STRESS_CTRIG_LOOPS));
+	const complex long double dz = (1.0 / (double)STRESS_CTRIG_LOOPS - I / (2.0 * (double)STRESS_CTRIG_LOOPS));
 	long double precision;
 	int i;
 
@@ -128,7 +128,7 @@ static bool OPTIMIZE3 TARGET_CLONES stress_ctrig_csin(stress_args_t *args)
 {
 	complex double sumcsin = 0.0;
 	complex double z = -0.5 + 0.5 * I;
-	complex const double dz = (1.0 / (double)STRESS_CTRIG_LOOPS - I / (2.0 * (double)STRESS_CTRIG_LOOPS));
+	const complex double dz = (1.0 / (double)STRESS_CTRIG_LOOPS - I / (2.0 * (double)STRESS_CTRIG_LOOPS));
 	const double precision = 1E-7;
 	int i;
 
@@ -148,7 +148,7 @@ static bool OPTIMIZE3 TARGET_CLONES stress_ctrig_csinf(stress_args_t *args)
 {
 	complex double sumcsin = 0.0;
 	complex double z = -0.5 + 0.5 * I;
-	complex const double dz = (1.0 / (double)STRESS_CTRIG_LOOPS - I / (2.0 * (double)STRESS_CTRIG_LOOPS));
+	const complex double dz = (1.0 / (double)STRESS_CTRIG_LOOPS - I / (2.0 * (double)STRESS_CTRIG_LOOPS));
 	const double precision = 1E-3;
 	int i;
 
@@ -167,7 +167,7 @@ static bool OPTIMIZE3 TARGET_CLONES stress_ctrig_csinl(stress_args_t *args)
 {
 	complex long double sumcsin = 0.0L;
 	complex long double z = -0.5 + 0.5 * I;
-	complex long const double dz = (1.0 / (double)STRESS_CTRIG_LOOPS - I / (2.0 * (double)STRESS_CTRIG_LOOPS));
+	const complex long double dz = (1.0 / (double)STRESS_CTRIG_LOOPS - I / (2.0 * (double)STRESS_CTRIG_LOOPS));
 	long double precision;
 	int i;
 
@@ -196,7 +196,7 @@ static bool OPTIMIZE3 TARGET_CLONES stress_ctrig_ctan(stress_args_t *args)
 {
 	complex double sumctan = 0.0;
 	complex double z = -0.5 + 0.5 * I;
-	complex const double dz = (1.0 / (double)STRESS_CTRIG_LOOPS - I / (2.0 * (double)STRESS_CTRIG_LOOPS));
+	const complex double dz = (1.0 / (double)STRESS_CTRIG_LOOPS - I / (2.0 * (double)STRESS_CTRIG_LOOPS));
 	const double precision = 1E-7;
 	int i;
 
@@ -215,7 +215,7 @@ static bool OPTIMIZE3 TARGET_CLONES stress_ctrig_ctanf(stress_args_t *args)
 {
 	complex double sumctan = 0.0;
 	complex double z = -0.5 + 0.5 * I;
-	complex const double dz = (1.0 / (double)STRESS_CTRIG_LOOPS - I / (2.0 * (double)STRESS_CTRIG_LOOPS));
+	const complex double dz = (1.0 / (double)STRESS_CTRIG_LOOPS - I / (2.0 * (double)STRESS_CTRIG_LOOPS));
 	const double precision = 1E-4;
 	int i;
 
@@ -234,7 +234,7 @@ static bool OPTIMIZE3 TARGET_CLONES stress_ctrig_ctanl(stress_args_t *args)
 {
 	complex long double sumctan = 0.0L;
 	complex long double z = -0.5 + 0.5 * I;
-	complex long const double dz = (1.0 / (double)STRESS_CTRIG_LOOPS - I / (2.0 * (double)STRESS_CTRIG_LOOPS));
+	const complex long double dz = (1.0 / (double)STRESS_CTRIG_LOOPS - I / (2.0 * (double)STRESS_CTRIG_LOOPS));
 	long double precision;
 	int i;
 
