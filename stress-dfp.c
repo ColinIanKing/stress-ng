@@ -249,21 +249,21 @@ static double TARGET_CLONES OPTIMIZE3 name(				\
 
 #if defined(HAVE_Decimal32)
 STRESS_DFP_ADD(d32, stress_dfp_d32_add, true)
-STRESS_DFP_ADD(d32, stress_dfp_d32_sub, true)
+STRESS_DFP_SUB(d32, stress_dfp_d32_sub, true)
 STRESS_DFP_MUL(d32, stress_dfp_d32_mul, true)
 STRESS_DFP_DIV(d32, stress_dfp_d32_div, true)
 #endif
 
 #if defined(HAVE_Decimal64)
 STRESS_DFP_ADD(d64, stress_dfp_d64_add, true)
-STRESS_DFP_ADD(d64, stress_dfp_d64_sub, true)
+STRESS_DFP_SUB(d64, stress_dfp_d64_sub, true)
 STRESS_DFP_MUL(d64, stress_dfp_d64_mul, true)
 STRESS_DFP_DIV(d64, stress_dfp_d64_div, true)
 #endif
 
 #if defined(HAVE_Decimal128)
 STRESS_DFP_ADD(d128, stress_dfp_d128_add, true)
-STRESS_DFP_ADD(d128, stress_dfp_d128_sub, true)
+STRESS_DFP_SUB(d128, stress_dfp_d128_sub, true)
 STRESS_DFP_MUL(d128, stress_dfp_d128_mul, true)
 STRESS_DFP_DIV(d128, stress_dfp_d128_div, true)
 #endif
