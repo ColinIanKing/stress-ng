@@ -458,9 +458,6 @@ static int stress_efivar_supported(const char *name)
 	return -1;
 }
 
-#define STRESS_EFI_UNKNOWN	(0)
-#define STRESS_EFI_VARS		(1)
-#define STRESS_EFI_EFIVARS	(2)
 /*
  *  stress_efivar()
  *	stress that exercises the efi variables
