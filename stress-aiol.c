@@ -408,7 +408,7 @@ static int stress_aiol(stress_args_t *args)
 	}
 	if ((aiol_requests < MIN_AIO_LINUX_REQUESTS) ||
 	    (aiol_requests > MAX_AIO_LINUX_REQUESTS)) {
-		pr_fail("%s: iol_requests out of range", args->name);
+		pr_fail("%s: aiol_requests out of range", args->name);
 		return EXIT_FAILURE;
 	}
 
