@@ -350,7 +350,6 @@ static int stress_brk(stress_args_t *args)
 	stress_metrics_set(args, 1, "nanosecs per sbrk page shrink",
 		rate * STRESS_DBL_NANOSECOND, STRESS_METRIC_HARMONIC_MEAN);
 
-
 	(void)munmap((void *)brk_context, sizeof(*brk_context));
 
 	return rc;
