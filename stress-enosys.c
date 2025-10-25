@@ -4148,7 +4148,7 @@ static inline int stress_enosys_parent(
 static int stress_enosys(stress_args_t *args)
 {
 	pid_t pid;
-	int rd_fds[2], wr_fds[2];
+	int rd_fds[2], wr_fds[2], rc = EXIT_SUCCESS;
 	size_t i;
 	uint64_t syscalls = 0;
 	double t_start, duration, rate;
@@ -4181,24 +4181,20 @@ static int stress_enosys(stress_args_t *args)
 			return EXIT_NO_RESOURCE;
 		}
 again:
-		if (UNLIKELY(!stress_continue(args))) {
-			(void)close(rd_fds[0]);
-			(void)close(rd_fds[1]);
-			return EXIT_SUCCESS;
-		}
 		pid = fork();
 		if (pid < 0) {
 			if (stress_redo_fork(args, errno))
 				goto again;
-			if (UNLIKELY(!stress_continue(args)))
-				goto deinit;
-			pr_err("%s: fork failed, errno=%d: (%s)\n",
-				args->name, errno, strerror(errno));
+			if (stress_continue(args)) {
+				pr_err("%s: fork failed, errno=%d: (%s)\n",
+					args->name, errno, strerror(errno));
+				rc = EXIT_FAILURE;
+			}
 			(void)close(rd_fds[0]);
 			(void)close(rd_fds[1]);
 			(void)close(wr_fds[0]);
 			(void)close(wr_fds[1]);
-			goto deinit;
+			goto deinit_free;
 		} else if (pid == 0) {
 			const pid_t mypid = getpid();
 
@@ -4259,15 +4255,15 @@ again:
 		}
 	} while (stress_continue(args));
 
-deinit:
 	duration = stress_time_now() - t_start;
 	rate = (duration > 0.0) ? (double)syscalls / duration : 0.0;
 	stress_metrics_set(args, 0, "syscalls per second", rate, STRESS_METRIC_GEOMETRIC_MEAN);
 
-	syscall_free();
+deinit_free:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+	syscall_free();
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 const stressor_info_t stress_enosys_info = {
 	.stressor = stress_enosys,
