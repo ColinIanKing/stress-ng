@@ -821,7 +821,7 @@ redo_policy:
 			 */
 			if ((saved_errno == E2BIG) &&
 			    (cyclic_policies[cyclic_policy].policy == SCHED_DEADLINE)) {
-				cyclic_policy = 1;
+				cyclic_policy++;
 				if ((ssize_t)cyclic_policy >= (ssize_t)NUM_CYCLIC_POLICIES) {
 					pr_inf("%s: DEADLINE not supported by kernel, no other policies "
 						"available. skipping stressor\n", args->name);
