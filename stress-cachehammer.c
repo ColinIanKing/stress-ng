@@ -1767,7 +1767,8 @@ static int OPTIMIZE3 stress_cachehammer(stress_args_t *args)
 
 	if (cachehammer_numa) {
 #if defined(HAVE_LINUX_MEMPOLICY_H)
-		stress_numa_mask_and_node_alloc(args, &numa_nodes, &numa_mask, "--cachehammer-numa", &cachehammer_numa);
+		stress_numa_mask_and_node_alloc(args, &numa_nodes, &numa_mask,
+						"--cachehammer-numa", &cachehammer_numa);
 #else
 		if (stress_instance_zero(args))
 			pr_inf("%s: --cachehammer numa selected but not supported by this system, disabling option\n",
@@ -1780,18 +1781,6 @@ static int OPTIMIZE3 stress_cachehammer(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
-
-	if (cachehammer_numa) {
-#if defined(HAVE_LINUX_MEMPOLICY_H)
-		stress_numa_mask_and_node_alloc(args, &numa_nodes, &numa_mask,
-						"--cachehammer-numa", &cachehammer_numa);
-#else
-		if (stress_instance_zero(args))
-			pr_inf("%s: --cachehammer-numa selected but not supported by this system, disabling option\n",
-				args->name);
-		cachehammer_numa = false;
-#endif
-	}
 
 	(void)sigsetjmp(jmp_env, 1);
 	func_index = stress_mwc32modn((uint32_t)N_FUNCS);
