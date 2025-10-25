@@ -140,7 +140,7 @@ static int stress_chdir(stress_args_t *args)
 	}
 
 	if (!got_statbuf && *path) {
-		pr_fail("%s: fstat on %s failed, errno=%d (%s)%s\n",
+		pr_fail("%s: stat on %s failed, errno=%d (%s)%s\n",
 			args->name, path, errno, strerror(errno),
 			stress_get_fs_type(path));
 		goto abort;
