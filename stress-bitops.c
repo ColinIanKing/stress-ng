@@ -1011,7 +1011,7 @@ static int OPTIMIZE3 stress_bitops_swap(const char *name, uint32_t *count)
 		sy += sx;
 		sx = sy - sx;
 		sum += sx + sy;
-		if (UNLIKELY((sx != y) && (sy != x))) {
+		if (UNLIKELY((sx != y) || (sy != x))) {
 			pr_fail("%s: swap add/sub method failure, values %" PRIu32 " %" PRIu32
 				", swapped %" PRIu32 " %" PRIu32 "\n",
 				name, x, y, sx, sy);
@@ -1024,7 +1024,7 @@ static int OPTIMIZE3 stress_bitops_swap(const char *name, uint32_t *count)
 		sy ^= sx;
 		sx ^= sy;
 		sum += sx + sy;
-		if (UNLIKELY((sx != y) && (sy != x))) {
+		if (UNLIKELY((sx != y) || (sy != x))) {
 			pr_fail("%s: swap xor method failure, values %" PRIu32 " %" PRIu32
 				", swapped %" PRIu32 " %" PRIu32 "\n",
 				name, x, y, sx, sy);
