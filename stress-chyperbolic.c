@@ -224,7 +224,7 @@ PRAGMA_UNROLL_N(8)
 		x += dx;
 	}
 	stress_bogo_inc(args);
-	return cabs(sumctanh - (complex double)CTANHD_SUM) > precision;
+	return cabs(sumctanh - (complex double)CTANHF_SUM) > precision;
 }
 #endif
 
