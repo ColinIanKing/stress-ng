@@ -320,7 +320,8 @@ static int get_variable_sysfs_efi_vars(
 	const size_t data_len,
 	const char *varname,
 	double *duration,
-	double *count)
+	double *count,
+	bool *ignore)
 {
 	size_t i;
 	stress_efi_var_t var;
@@ -356,7 +357,7 @@ static int get_variable_sysfs_efi_vars(
 
 		(void)guid_str;
 	} else {
-		efi_ignore[i] = true;
+		*ignore = true;
 	}
 	return 0;
 }
@@ -372,11 +373,17 @@ static int get_variable_sysfs_efi_efivars(
 	const size_t data_len,
 	const char *varname,
 	double *duration,
-	double *count)
+	double *count,
+	bool *ignore)
 {
-	return efi_read_variable(args, data, data_len, pid,
+	int ret;
+
+	ret = efi_read_variable(args, data, data_len, pid,
 				 sysfs_efi_efivars, varname,
 				 duration, count);
+	if (ret < 0)
+		*ignore = true;
+	return ret;
 }
 
 /*
@@ -409,10 +416,12 @@ static int efi_vars_get(
 
 		switch (efi_mode) {
 		case STRESS_EFI_VARS:
-			ret = get_variable_sysfs_efi_vars(args, pid, data, sizeof(data), d_name, duration, count);
+			ret = get_variable_sysfs_efi_vars(args, pid, data, sizeof(data),
+					d_name, duration, count, &efi_ignore[i]);
 			break;
 		case STRESS_EFI_EFIVARS:
-			ret = get_variable_sysfs_efi_efivars(args, pid, data, sizeof(data), d_name, duration, count);
+			ret = get_variable_sysfs_efi_efivars(args, pid, data, sizeof(data),
+					d_name, duration, count, &efi_ignore[i]);
 			break;
 		default:
 			efi_ignore[i] = true;
