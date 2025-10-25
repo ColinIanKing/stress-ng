@@ -275,7 +275,7 @@ static int stress_clock(stress_args_t *args)
 				if (UNLIKELY((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY) &&
 					     (errno != EINVAL) &&
 					     (errno != ENOSYS))) {
-					pr_fail("%s: clock_getres failed for timer '%s', errno=%d (%s)\n",
+					pr_fail("%s: clock_gettime failed for timer '%s', errno=%d (%s)\n",
 						args->name, clocks[i].name, errno, strerror(errno));
 					rc = EXIT_FAILURE;
 				}
