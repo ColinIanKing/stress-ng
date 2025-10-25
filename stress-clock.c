@@ -74,9 +74,6 @@ static const stress_clock_info_t clocks[] = {
 #if defined(CLOCK_THREAD_CPUTIME_ID)
 	CLOCK_INFO(CLOCK_THREAD_CPUTIME_ID),
 #endif
-#if defined(CLOCK_MONOTONIC_ACTIVE)
-	CLOCK_INFO(CLOCK_MONOTONIC_ACTIVE),
-#endif
 #if defined(CLOCK_TAI)
 	CLOCK_INFO(CLOCK_TAI)
 #endif
