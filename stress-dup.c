@@ -85,6 +85,11 @@ static int stress_dup2_race_clone(void *arg)
 	fd_dup = dup2(fd, info->fd);
 	if ((fd_dup < 0) && (errno == EBUSY))
 		info->race_count++;
+
+	/*
+	 *  Intentionally close fd here and let _exit()
+	 *  close the dup2'd fd_dup
+	 */
 	(void)close(fd);
 
 	_exit(0);
