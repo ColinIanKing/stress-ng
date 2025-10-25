@@ -429,11 +429,11 @@ static int stress_cacheline_rdints(
 	register int i;
 	volatile uint8_t *buffer = (volatile uint8_t *)g_shared->cacheline.buffer;
 	volatile uint8_t *data8 = buffer + idx;
-	volatile uint16_t *data16 = (uint16_t *)(((uintptr_t)data8) & ~(uintptr_t)1);
-	volatile uint32_t *data32 = (uint32_t *)(((uintptr_t)data8) & ~(uintptr_t)3);
-	volatile uint64_t *data64 = (uint64_t *)(((uintptr_t)data8) & ~(uintptr_t)7);
+	volatile uint16_t *data16 = (volatile uint16_t *)(((uintptr_t)data8) & ~(uintptr_t)1);
+	volatile uint32_t *data32 = (volatile uint32_t *)(((uintptr_t)data8) & ~(uintptr_t)3);
+	volatile uint64_t *data64 = (volatile uint64_t *)(((uintptr_t)data8) & ~(uintptr_t)7);
 #if defined(HAVE_INT128_T)
-        volatile __uint128_t *data128 = (__uint128_t *)(((uintptr_t)data8) & ~(uintptr_t)15);
+        volatile __uint128_t *data128 = (volatile __uint128_t *)(((uintptr_t)data8) & ~(uintptr_t)15);
 #endif
 
 	(void)parent;
