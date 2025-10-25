@@ -169,7 +169,7 @@ template <typename T> static int eigen_determinant(const size_t size, double *du
 		*duration += stress_time_now() - t;
 		*count += 1.0;
 
-		if ((result_check - result) > 0.0001)
+		if (std::abs(result_check - result) > static_cast<T>THRESHOLD)
 			return EXIT_FAILURE;
 	} catch (...) {
 		return -1;
