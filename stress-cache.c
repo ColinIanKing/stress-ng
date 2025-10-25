@@ -96,7 +96,7 @@ static const stress_help_t help[] = {
 
 static const stress_opt_t opts[] = {
 	{ OPT_cache_cldemote,    "cache-cldemote",    TYPE_ID_BOOL, 0, 1, NULL },
-	{ OPT_cache_clflushopt,  "cache-cflushopt",   TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_cache_clflushopt,  "cache-clflushopt",  TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_cache_enable_all,  "cache-enable-all",  TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_cache_fence,       "cache-fence",       TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_cache_flush,	 "cache-flush",       TYPE_ID_BOOL, 0, 1, NULL },
@@ -105,7 +105,7 @@ static const stress_opt_t opts[] = {
 	{ OPT_cache_prefetch,    "cache-prefetch",    TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_cache_prefetchw,   "cache-prefetchw",   TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_cache_sfence,      "cache-sfence",      TYPE_ID_BOOL, 0, 1, NULL },
-	{ OPT_cache_clwb,        "cache-clb",         TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_cache_clwb,        "cache-clwb",         TYPE_ID_BOOL, 0, 1, NULL },
 	END_OPT,
 };
 
@@ -1057,14 +1057,14 @@ static int stress_cache(stress_args_t *args)
 	}
 
 	(void)stress_get_cache_flags("cache-cldemote", &cache_flags, CACHE_FLAGS_CLDEMOTE);
-	(void)stress_get_cache_flags("cache-cflushopt", &cache_flags, CACHE_FLAGS_CLFLUSHOPT);
+	(void)stress_get_cache_flags("cache-clflushopt", &cache_flags, CACHE_FLAGS_CLFLUSHOPT);
 	(void)stress_get_cache_flags("cache-enable-all", &cache_flags, CACHE_FLAGS_MASK);
 	(void)stress_get_cache_flags("cache-fence", &cache_flags, CACHE_FLAGS_FENCE);
 	(void)stress_get_cache_flags("cache-flush", &cache_flags, CACHE_FLAGS_CLFLUSH);
 	(void)stress_get_cache_flags("cache-no-affinity", &cache_flags, CACHE_FLAGS_NOAFF);
 	(void)stress_get_cache_flags("cache-prefetch", &cache_flags, CACHE_FLAGS_PREFETCH);
 	(void)stress_get_cache_flags("cache-sfence", &cache_flags, CACHE_FLAGS_SFENCE);
-	(void)stress_get_cache_flags("cache-clb", &cache_flags, CACHE_FLAGS_CLWB);
+	(void)stress_get_cache_flags("cache-clwb", &cache_flags, CACHE_FLAGS_CLWB);
 	(void)stress_get_cache_flags("cache-prefetchw", &cache_flags, CACHE_FLAGS_PREFETCHW);
 	(void)stress_get_cache_flags("cache-permute", &cache_flags, CACHE_FLAGS_PERMUTE);
 
