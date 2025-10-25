@@ -217,7 +217,7 @@ static int stress_dirmany(stress_args_t *args)
 
 		stress_metrics_set(args, 0, "% of time creating files",
 			create_time / total_time * 100.0, STRESS_METRIC_GEOMETRIC_MEAN);
-		stress_metrics_set(args, 1, "% of time removing file",
+		stress_metrics_set(args, 1, "% of time removing files",
 			remove_time / total_time * 100.0, STRESS_METRIC_GEOMETRIC_MEAN);
 
 		rate = (create_time > 0.0) ? (double)total_created / create_time : 0.0;
