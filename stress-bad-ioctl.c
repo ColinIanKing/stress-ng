@@ -290,7 +290,7 @@ static inline void stress_bad_ioctl_rw(
 
 		ret = stress_lock_acquire(lock);
 		if (ret)
-			return;
+			break;
 		node = dev_ioctl_node;
 		(void)stress_lock_release(lock);
 
@@ -442,7 +442,7 @@ static inline void stress_bad_ioctl_rw(
 		if ((thread_index >= 0) && (thread_index < MAX_DEV_THREADS)) {
 			ret = stress_lock_acquire(lock);
 			if (ret)
-				return;
+				break;
 			node->exercised[thread_index] = true;
 			(void)stress_lock_release(lock);
 		}
