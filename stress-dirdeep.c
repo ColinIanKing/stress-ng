@@ -168,9 +168,9 @@ static bool stress_dirdeep_make(
 						(void)close(fd);
 						break;
 					}
-					(*inodes_estimate)++;
 				}
 				(void)close(fd);
+				(*inodes_estimate)++;
 			}
 		}
 		if (finish)
