@@ -63,7 +63,7 @@ static const mode_t modes[] = {
 #if defined(S_IWOTH)
 	S_IWOTH,
 #endif
-#if defined( S_IXOTH)
+#if defined(S_IXOTH)
 	S_IXOTH,
 #endif
 	0
@@ -285,7 +285,7 @@ static int stress_chmod(stress_args_t *args)
 	} else {
 		/* Other instances must try to open the file */
 		for (;;) {
-			if ((fd = open(filename, O_RDWR)) > - 1)
+			if ((fd = open(filename, O_RDWR)) > -1)
 				break;
 
 #if defined(__NetBSD__)
