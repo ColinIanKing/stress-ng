@@ -295,7 +295,7 @@ static int stress_chroot_test7(chroot_shared_data_t *data)
 	int ret1, ret2, errno1, errno2;
 	char *path;
 
-	/* Don't throw a failure of we can't allocate large path */
+	/* Don't throw a failure if we can't allocate large path */
 	path = (char *)malloc(path_len);
 	if (!path)
 		return EXIT_SUCCESS;
