@@ -608,6 +608,9 @@ retry_open:
 				continue;
 
 			bufptr = obj->u.c.buf;
+			/* check for bufptr overflow */
+			if (bufptr >= info.buffer + BUFFER_SZ)
+				continue;
 
 			/* map returned buffer to index */
 			idx = (bufptr - info.buffer) / BUFFER_SZ;
