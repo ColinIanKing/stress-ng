@@ -372,7 +372,7 @@ static int stress_cpu_online(stress_args_t *args)
 			if (rc == EXIT_SUCCESS) {
 				rc = stress_cpu_online_get(cpu, &setting);
 				if ((rc == EXIT_SUCCESS) && (args->instances == 0) && (setting != 1)) {
-					pr_inf("%s: set cpu %" PRIu32 " offline, expecting setting to be 1, got %d instead\n",
+					pr_inf("%s: set cpu %" PRIu32 " online, expecting setting to be 1, got %d instead\n",
 						args->name, cpu, setting);
 				} else {
 					online_duration += stress_time_now() - t;
