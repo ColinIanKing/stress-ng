@@ -208,7 +208,8 @@ static void stress_dentry_misc(const char *path)
 	(void)utime(path, &utim);
 #endif
 
-	VOID_RET(int, shim_fstat(fd, &statbuf));
+	if (shim_fstat(fd, &statbuf) < 0)
+		statbuf.st_size = 0;
 
 	/* Not really legal */
 	VOID_RET(off_t, lseek(fd, 0, SEEK_END));
