@@ -297,11 +297,7 @@ static void stress_dentry_misc(const char *path)
 #endif
 
 #if defined(F_GETFL)
-	{
-		int flag;
-
-		VOID_RET(int, fcntl(fd, F_GETFL, &flag));
-	}
+	VOID_RET(int, fcntl(fd, F_GETFL));
 #endif
 	(void)close(fd);
 
