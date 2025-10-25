@@ -340,7 +340,7 @@ static int stress_brk(stress_args_t *args)
 
 	pr_dbg("%s: %" PRIu64 " occurrences of sbrk out of memory\n",
 		args->name, brk_context->out_of_memory);
-	pr_dbg("%s: %" PRIu64 " successful sbrk expands, %" PRIu64 " succussful sbrk shinks\n",
+	pr_dbg("%s: %" PRIu64 " successful sbrk expands, %" PRIu64 " successful sbrk shinks\n",
 		args->name, brk_context->sbrk_expands, brk_context->sbrk_shrinks);
 
 	rate = (brk_context->sbrk_exp_count > 0.0) ? (double)brk_context->sbrk_exp_duration / brk_context->sbrk_exp_count : 0.0;
