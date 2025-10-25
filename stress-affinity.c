@@ -177,7 +177,7 @@ static void stress_affinity_child(
 				if ((g_opt_flags & OPT_FLAGS_VERIFY) &&
 				    (!taskset_random) &&
 				    (!CPU_ISSET(cpu, &getmask)))
-					pr_fail("%s: failed to move " "to CPU %" PRIu32 "\n",
+					pr_fail("%s: failed to move to CPU %" PRIu32 "\n",
 						args->name, cpu);
 			}
 		}
