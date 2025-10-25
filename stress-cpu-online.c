@@ -167,7 +167,7 @@ static int stress_cpu_online(stress_args_t *args)
 	bool cpu_online_all = false;
 	bool child_affinity = true;
 	int rc = EXIT_SUCCESS;
-	int fds[2];
+	int fds[2] = { -1, -1 };
 	pid_t pid;
 	double offline_duration = 0.0, offline_count = 0.0;
 	double online_duration  = 0.0, online_count = 0.0;
