@@ -82,8 +82,9 @@ static int stress_copy_file_fill(
 
 	while (sz > 0) {
 		ssize_t n;
+		ssize_t wr_size = sz > (ssize_t)sizeof(buf) ? (ssize_t)sizeof(buf) : sz;
 
-		n = write(fd, buf, sizeof(buf));
+		n = write(fd, buf, wr_size);
 		if (n < 0)
 			return -1;
 		sz -= n;
