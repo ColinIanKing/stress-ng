@@ -129,7 +129,7 @@ static int stress_copy_file_range_verify(
 		bytes_out = read(fd_out, buf_out, sz);
 		if (bytes_out == 0)
 			return 0;
-		if (bytes_out <= 0)
+		if (bytes_out < 0)
 			break;
 
 		n = STRESS_MINIMUM(bytes_in, bytes_out);
