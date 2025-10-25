@@ -352,6 +352,6 @@ const stressor_info_t stress_copy_file_info = {
 	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help,
-	.unimplemented_reason = "built without clone() system call"
+	.unimplemented_reason = "built without copy_file_range() system call"
 };
 #endif
