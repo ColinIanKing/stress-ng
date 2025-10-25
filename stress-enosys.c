@@ -4181,8 +4181,11 @@ static int stress_enosys(stress_args_t *args)
 			return EXIT_NO_RESOURCE;
 		}
 again:
-		if (UNLIKELY(!stress_continue(args)))
+		if (UNLIKELY(!stress_continue(args))) {
+			(void)close(rd_fds[0]);
+			(void)close(rd_fds[1]);
 			return EXIT_SUCCESS;
+		}
 		pid = fork();
 		if (pid < 0) {
 			if (stress_redo_fork(args, errno))
