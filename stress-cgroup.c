@@ -324,7 +324,9 @@ static void stress_cgroup_new_group(stress_args_t *args, const char *realpathnam
 	pid_t pid;
 
 	pid = fork();
-	if (pid == 0) {
+	if (pid < 0) {
+		return;
+	} else if (pid == 0) {
 		/* Child, perform some activity */
 		stress_set_proc_state(args->name, STRESS_STATE_RUN);
 		do {
