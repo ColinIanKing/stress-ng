@@ -185,7 +185,7 @@ retry:
  */
 static int stress_dccp_server(
 	stress_args_t *args,
-	const int mypid,
+	const pid_t mypid,
 	const int dccp_port,
 	const int dccp_domain,
 	const char *dccp_if,
