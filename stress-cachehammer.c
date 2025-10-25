@@ -488,7 +488,7 @@ static void OPTIMIZE3 hammer_writeread64(
 			if (UNLIKELY(val != pattern)) {
 				pr_fail("%s: writeread64: read back of stored value at address "
 					"%p not %" PRIx64 ", got %" PRIx64 " instead\n",
-					args->name, vptr1, pattern, val);
+					args->name, vptr, pattern, val);
 			}
 		}
 	}
