@@ -128,7 +128,7 @@ static int TARGET_CLONES stress_cpu_sqrt(const char *name)
 		r_ld = shim_rintl(r_ld);
 		tmp = (uint64_t)r_ld;
 		if (UNLIKELY((g_opt_flags & OPT_FLAGS_VERIFY) && (tmp != rnd))) {
-			pr_fail("%s: sqrtf error detected on "
+			pr_fail("%s: sqrtl error detected on "
 				"sqrt(%" PRIu64 ")\n", name, rnd);
 			return EXIT_FAILURE;
 		}
