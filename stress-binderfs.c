@@ -78,7 +78,7 @@ static int stress_binderfs_supported(const char *name)
 	} else {
 		pr_inf_skip("%s stressor will be skipped, binderfs cannot be mounted\n", name);
 	}
-	/* umount just in case it got mounted and mount way lying */
+	/* umount just in case it got mounted and mount was lying */
 	(void)umount(path);
 	(void)rmdir(path);
 	return -1;
@@ -129,10 +129,10 @@ static int stress_binderfs_umount(
 		(void)shim_usleep_interruptible(100000);
 	}
 
-	/* Exercise mount on already umounted path */
+	/* Exercise umount again */
 	VOID_RET(int, umount(pathname));
 
-	/* Exercise mount on invalid path */
+	/* Exercise umount on invalid path */
 	VOID_RET(int, umount(""));
 
 	return EXIT_SUCCESS;
