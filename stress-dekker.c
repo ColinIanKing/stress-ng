@@ -263,8 +263,6 @@ static int stress_dekker(stress_args_t *args)
 	stress_metrics_set(args, 0, "nanosecs per mutex",
 		rate * STRESS_DBL_NANOSECOND, STRESS_METRIC_HARMONIC_MEAN);
 
-	(void)munmap((void *)dekker, 4096);
-
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)munmap((void *)dekker, sz);
 
