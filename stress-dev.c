@@ -4671,7 +4671,7 @@ static void stress_sys_dev_infos_get(
 
 /*
  *  stress_sys_dev_infos_free()
- *	free circular sys_dev_info_t list
+ *	free sys_dev_info_t list
  */
 static void stress_sys_dev_infos_free(sys_dev_info_t **list)
 {
