@@ -623,7 +623,7 @@ static int apparmor_stress_corruption(stress_args_t *args)
 		ret = aa_kernel_interface_replace_policy(kern_if,
 			data_copy, g_apparmor_data_len);
 		if (ret < 0) {
-			j--;
+			j++;
 			if ((errno != EPROTO) &&
 			    (errno != EPROTONOSUPPORT) &&
 			     errno != ENOENT) {
