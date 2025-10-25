@@ -177,7 +177,7 @@ static int stress_chdir(stress_args_t *args)
 					pr_fail("%s: fchdir failed, errno=%d (%s)%s\n",
 						args->name,
 						errno, strerror(errno),
-						stress_get_fs_type(chdir_info[i].path));
+						stress_get_fs_type(chdir_info[j].path));
 					goto abort;
 				}
 			}
