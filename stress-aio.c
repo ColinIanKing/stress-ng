@@ -124,6 +124,7 @@ static void aio_issue_cancel(const char *name, stress_io_req_t *io_req)
 						name, io_req->request,
 						errno, strerror(errno));
 				}
+				break;
 			}
 			/* Wait a bit and retry */
 			(void)shim_usleep_interruptible(250000);
