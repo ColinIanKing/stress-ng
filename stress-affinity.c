@@ -169,13 +169,14 @@ static void stress_affinity_child(
 				args->name, cpu, errno, strerror(errno));
 			(void)shim_sched_yield();
 		} else {
+			cpu_set_t getmask;
+
 			/* Now get and check */
 			CPU_ZERO(&mask);
-			CPU_SET(cpu, &mask);
-			if (sched_getaffinity(0, sizeof(mask), &mask) == 0) {
+			if (sched_getaffinity(0, sizeof(getmask), &getmask) == 0) {
 				if ((g_opt_flags & OPT_FLAGS_VERIFY) &&
 				    (!taskset_random) &&
-				    (!CPU_ISSET(cpu, &mask)))
+				    (!CPU_ISSET(cpu, &getmask)))
 					pr_fail("%s: failed to move " "to CPU %" PRIu32 "\n",
 						args->name, cpu);
 			}
