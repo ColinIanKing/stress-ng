@@ -390,6 +390,20 @@ static int stress_dfp_call_method(
 				r1 = (long double)dfp_data[i].d32.r[1];
 				break;
 #endif
+#if defined(HAVE_Decimal64)
+			case STRESS_DFP_TYPE_DECIMAL64:
+				ret = shim_memcmp(&dfp_data[i].d64.r[0], &dfp_data[i].d64.r[1], sizeof(dfp_data[i].d64.r[0]));
+				r0 = (long double)dfp_data[i].d64.r[0];
+				r1 = (long double)dfp_data[i].d64.r[1];
+				break;
+#endif
+#if defined(HAVE_Decimal128)
+			case STRESS_DFP_TYPE_DECIMAL128:
+				ret = shim_memcmp(&dfp_data[i].d128.r[0], &dfp_data[i].d128.r[1], sizeof(dfp_data[i].d128.r[0]));
+				r0 = (long double)dfp_data[i].d128.r[0];
+				r1 = (long double)dfp_data[i].d128.r[1];
+				break;
+#endif
 			default:
 				/* Should never happen! */
 				return EXIT_SUCCESS;
