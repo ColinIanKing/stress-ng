@@ -56,8 +56,7 @@
      defined(SCHED_IDLE) ||			\
      defined(SCHED_FIFO) ||			\
      defined(SCHED_OTHER) ||			\
-     defined(SCHED_RR) ||			\
-     defined(SCHED_EXT)) && 			\
+     defined(SCHED_RR)) &&			\
     !defined(__OpenBSD__) &&			\
     !defined(__minix__) &&			\
     !defined(__APPLE__)
