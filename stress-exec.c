@@ -823,7 +823,7 @@ static int stress_exec(stress_args_t *args)
 			sph->arg.str = str;
 			sph->arg.args = args;
 #if (defined(HAVE_EXECVEAT) ||	\
-     defined(HAVE_EXECVEAT)) &&	\
+     defined(HAVE_FEXECVE)) &&	\
     defined(O_PATH)
 			sph->arg.fdexec = fdexec;
 #endif
