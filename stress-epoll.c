@@ -880,7 +880,7 @@ static void NORETURN epoll_server(
 				 *  -EFAULT.
 				 */
 				n = stress_epoll_pwait(efd, args->mapped->page_none, 1, 100, &sigmask);
-				if (UNLIKELY(n > 1)) {
+				if (UNLIKELY(n > 0)) {
 					pr_fail("%s: epoll_pwait unexpectedly succeeded, "
 						"expected -EFAULT, instead got errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
