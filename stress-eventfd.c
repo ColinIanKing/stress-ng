@@ -28,7 +28,7 @@
 
 static const stress_help_t help[] = {
 	{ NULL,	"eventfd N",		"start N workers stressing eventfd read/writes" },
-	{ NULL, "eventfs-nonblock",	"poll with non-blocking I/O on eventfd fd" },
+	{ NULL, "eventfd-nonblock",	"poll with non-blocking I/O on eventfd fd" },
 	{ NULL,	"eventfd-ops N",	"stop eventfd workers after N bogo operations" },
 	{ NULL,	NULL,			NULL }
 };
