@@ -532,11 +532,11 @@ static int epoll_client(
 #endif
 		int ret;
 		const int port = epoll_port + port_counter +
-				(max_servers * (int)args->instance);
+				 (max_servers * (int)args->instance);
 		socklen_t addr_len = 0;
 
 		/* Cycle through the servers */
-		port_counter = 0;
+		port_counter++;
 		if (port_counter >= max_servers)
 			port_counter = 0;
 retry:
@@ -677,7 +677,7 @@ static void NORETURN epoll_server(
 {
 	NOCLOBBER int efd = -1, efd2 = -1, sfd = -1, rc = EXIT_SUCCESS;
 	int so_reuseaddr = 1;
-	int port = epoll_port + child + (max_servers * (int)args->instance);
+	const int port = epoll_port + child + (max_servers * (int)args->instance);
 	NOCLOBBER struct epoll_event *events = NULL;
 	struct sockaddr *addr = NULL;
 	socklen_t addr_len = 0;
@@ -1069,7 +1069,8 @@ static int stress_epoll(stress_args_t *args)
 	 */
 	for (i = 0; i < max_servers; i++) {
 		stress_sync_start_init(&s_pids[i]);
-		if (epoll_spawn(args, epoll_server, &s_pids_head, &s_pids[i], i, mypid, epoll_port, epoll_domain, epoll_sockets, max_servers) < 0) {
+		if (epoll_spawn(args, epoll_server, &s_pids_head, &s_pids[i], i, mypid,
+				epoll_port, epoll_domain, epoll_sockets, max_servers) < 0) {
 			pr_fail("%s: fork failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			goto reap;
