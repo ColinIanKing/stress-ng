@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-builtin.h"
+#include "core-mmap.h"
 #include "core-pthread.h"
 
 #define STRESS_PTHREAD_EXIT_GROUP_MAX	(16)
@@ -40,7 +41,7 @@ typedef struct {
 
 static pthread_mutex_t mutex;
 static volatile bool keep_running_flag;
-static volatile uint64_t exit_group_failed;
+static volatile uint64_t *exit_group_failed;
 static uint64_t pthread_count;
 static stress_exit_group_info_t pthreads[STRESS_PTHREAD_EXIT_GROUP_MAX];
 
@@ -93,7 +94,7 @@ static void *stress_exit_group_func(void *arg)
 	shim_exit_group(0);
 
 	/* should never get here */
-	exit_group_failed++;
+	(*exit_group_failed)++;
 	return &g_nowt;
 }
 
@@ -123,7 +124,7 @@ static void NORETURN stress_exit_group_child(stress_args_t *args)
 	if (ret) {
 		stop_running();
 		shim_exit_group(0);
-		exit_group_failed++;
+		(*exit_group_failed)++;
 	}
 	pthread_count = 0;
 	for (i = 0; i < STRESS_PTHREAD_EXIT_GROUP_MAX; i++)
@@ -142,7 +143,7 @@ static void NORETURN stress_exit_group_child(stress_args_t *args)
 			pr_fail("%s: pthread_create failed, errno=%d (%s)\n",
 				args->name, pthreads[i].ret, strerror(pthreads[i].ret));
 			shim_exit_group(0);
-			exit_group_failed++;
+			(*exit_group_failed)++;
 			_exit(0);
 		}
 		if (UNLIKELY(!(keep_running() && stress_continue(args))))
@@ -152,7 +153,7 @@ static void NORETURN stress_exit_group_child(stress_args_t *args)
 	if (ret) {
 		stop_running();
 		shim_exit_group(0);
-		exit_group_failed++;
+		(*exit_group_failed)++;
 	}
 
 	/*
@@ -176,7 +177,7 @@ static void NORETURN stress_exit_group_child(stress_args_t *args)
 	}
 	shim_exit_group(0);
 	/* Should never get here */
-	exit_group_failed++;
+	(*exit_group_failed)++;
 	_exit(0);
 }
 
@@ -186,6 +187,11 @@ static void NORETURN stress_exit_group_child(stress_args_t *args)
  */
 static int stress_exit_group(stress_args_t *args)
 {
+
+	int rc = EXIT_SUCCESS;
+
+	exit_group_failed = stress_mmap_anon_shared(sizeof(*exit_group_failed), PROT_READ | PROT_WRITE);
+
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
         stress_set_proc_state(args->name, STRESS_STATE_RUN);
@@ -226,12 +232,16 @@ again:
 
         stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	if (exit_group_failed > 0) {
-		pr_fail("%s: at least %" PRIu64 " exit_group() calls failed to exit\n",
-			args->name, exit_group_failed);
-		return EXIT_FAILURE;
+	if (exit_group_failed != MAP_FAILED) {
+		if (*exit_group_failed > 0) {
+			pr_fail("%s: at least %" PRIu64 " exit_group() calls failed to exit\n",
+				args->name, *exit_group_failed);
+			rc = EXIT_FAILURE;
+		}
+		(void)stress_munmap_anon_shared((void *)exit_group_failed, sizeof(*exit_group_failed));
 	}
-	return EXIT_SUCCESS;
+
+	return rc;
 }
 
 const stressor_info_t stress_exit_group_info = {
