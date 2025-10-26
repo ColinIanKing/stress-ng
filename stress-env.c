@@ -151,7 +151,7 @@ static int stress_env_child(stress_args_t *args, void *context)
 				}
 				ret = unsetenv(name);
 				if (ret < 0) {
-					pr_fail("%s: unsentenv on variable %s failed, errno=%d (%s)\n",
+					pr_fail("%s: unsetenv on variable %s failed, errno=%d (%s)\n",
 						args->name, name, errno, strerror(errno));
 					rc = EXIT_FAILURE;
 				}
