@@ -1,0 +1,173 @@
+name: Build stress-ng on various platforms
+# Build recipes partly borrowed from 'smartmontools/smartmontools'.
+# Docker image borrowed from 'smartmontools/docker-build'.
+
+on:
+  workflow_dispatch:
+    inputs:
+      platforms:
+        description: Build platforms (defaults to all)
+        required: false
+        default: ubuntu-x86_64 ubuntu-x86_64-clang ubuntu-arm64 freebsd-14 macos cygwin
+      libs-ubuntu:
+        description: "Additional libraries for Ubuntu or 'none'"
+        required: false
+        default: >-
+          libacl1-dev libaio-dev libbsd-dev libegl-dev libeigen3-dev libgbm-dev
+          libjpeg-dev libjudy-dev libkmod-dev libmd-dev libmpfr-dev libsctp-dev
+          libxxhash-dev liblzma-dev
+        # libipsec-mb-dev # unavailable for arm64
+        # libcrypt-dev libgmp-dev zlib1g-dev # already installed
+      libs-cygwin:
+        description: "Additional libraries for Cygwin or 'none' (defaults to all available)"
+        required: false
+        default: >-
+          cygwin-devel eigen3 libbsd-devel libcrypt-devel libgmp-devel libjpeg-devel
+          libmpfr-devel zlib-devel
+      make-options:
+        description: "'make' options"
+        required: false
+        default: '--jobs=6'
+      check-options:
+        description: "'./stress-ng' options for a quick check"
+        required: false
+        default: '--buildinfo --cpu 2 --metrics --timeout 1 --verbose --verify'
+
+jobs:
+  build-ubuntu-x86_64:
+    if: ${{ contains(github.event.inputs.platforms, 'ubuntu-x86_64') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install additional libraries
+        if: ${{ github.event.inputs.libs-ubuntu != 'none' }}
+        run: |
+          sudo apt-get update &&
+          sudo apt-get install -y ${{ github.event.inputs.libs-ubuntu }}
+      - uses: actions/checkout@v4
+      - run: make ${{ github.event.inputs.make-options }}
+      - run: ./stress-ng --version
+      - run: |
+          ./stress-ng ${{ github.event.inputs.check-options }} ||
+          echo '::error:: ./stress-ng ${{ github.event.inputs.check-options }} failed'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: stress-ng-ubuntu-x86_64
+          path: stress-ng
+          retention-days: 30
+
+  build-ubuntu-x86_64-clang:
+    if: ${{ contains(github.event.inputs.platforms, 'ubuntu-x86_64-clang') }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: sudo apt-get update && sudo apt-get install -y clang-tools
+      - name: Install additional libraries
+        if: ${{ github.event.inputs.libs-ubuntu != 'none' }}
+        run: |
+          sudo apt-get install -y ${{ github.event.inputs.libs-ubuntu }}
+      - uses: actions/checkout@v4
+      - run: |
+          scan-build --use-cc="clang" --use-c++="clang++" -o "clang-report" \
+            -analyzer-config "stable-report-filename=true" \
+            make ${{ github.event.inputs.make-options }}
+          ! ls -d clang-report/*/index.html >/dev/null 2>&1 ||
+          echo "::warning:: Issue(s) found by Clang Static Analyzer"
+      - run: ./stress-ng --version
+      - run: |
+          ./stress-ng ${{ github.event.inputs.check-options }} ||
+          echo '::error:: ./stress-ng ${{ github.event.inputs.check-options }} failed'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: stress-ng-ubuntu-x86_64-clang
+          path: stress-ng
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
+        with:
+          name: stress-ng-ubuntu-x86_64-clang-report
+          path: clang-report/*
+          retention-days: 30
+
+  build-ubuntu-arm64:
+    if: ${{ contains(github.event.inputs.platforms, 'ubuntu-arm64') }}
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - name: Install additional libraries
+        if: ${{ github.event.inputs.libs-ubuntu != 'none' }}
+        run: |
+          sudo apt-get update &&
+          sudo apt-get install -y ${{ github.event.inputs.libs-ubuntu }}
+      - uses: actions/checkout@v4
+      - run: make ${{ github.event.inputs.make-options }}
+      - run: ./stress-ng --version
+      - run: |
+          ./stress-ng ${{ github.event.inputs.check-options }} ||
+          echo '::error:: ./stress-ng ${{ github.event.inputs.check-options }} failed'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: stress-ng-ubuntu-arm64
+          path: stress-ng
+          retention-days: 30
+
+  build-freebsd-14:
+    if: ${{ contains(github.event.inputs.platforms, 'freebsd-14') }}
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/smartmontools/docker-build:master
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build
+        run: |
+          target="-target x86_64-unknown-freebsd14 --sysroot=/opt/cross-freebsd-14/" &&
+          make ${{ github.event.inputs.make-options }} \
+            CC="clang $target" CXX="clang++ $target" \
+            CPPFLAGS="-isystem /opt/cross-freebsd-14/usr/include/c++/v1"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: stress-ng-freebsd-14
+          path: stress-ng
+          retention-days: 30
+
+  build-macos:
+    if: ${{ contains(github.event.inputs.platforms, 'macos') }}
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          make CFLAGS="-arch arm64 -arch x86_64" CXXFLAGS="-arch arm64 -arch x86_64" \
+            ${{ github.event.inputs.make-options }}
+      - run: ./stress-ng --version
+      - run: |
+          ./stress-ng ${{ github.event.inputs.check-options }} ||
+          echo '::error:: ./stress-ng ${{ github.event.inputs.check-options }} failed'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: stress-ng-macos
+          path: stress-ng
+          retention-days: 30
+
+  build-cygwin:
+    if: ${{ contains(github.event.inputs.platforms, 'cygwin') }}
+    runs-on: windows-latest
+    steps:
+      - uses: cygwin/cygwin-install-action@master
+        with:
+          platform: x86_64
+          packages: gcc-g++ git make ${{ github.event.inputs.libs-cygwin }}
+        # 'actions/checkout@v4' now uses Cygwin git instead of Windows git.
+      - run: git config --global --add safe.directory /cygdrive/d/a/stress-ng/stress-ng
+      - uses: actions/checkout@v4
+        with:
+          # Done above as the builtin would use a path for Windows git.
+          set-safe-directory: false
+      - run: >-
+          PATH="/usr/bin:$(cygpath "$SYSTEMROOT")/system32"
+          make ${{ github.event.inputs.make-options }}
+        shell: bash --noprofile --norc -e -o igncr '{0}'
+      - run: ./stress-ng --version
+      - run: |
+          ./stress-ng ${{ github.event.inputs.check-options }} ||
+          echo '::error:: ./stress-ng ${{ github.event.inputs.check-options }} failed'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: stress-ng-cygwin
+          path: stress-ng.exe
+          retention-days: 30
