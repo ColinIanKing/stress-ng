@@ -98,14 +98,14 @@ static int stress_epoll_pwait(
 	int epfd,
 	struct epoll_event *events,
 	int maxevents,
-	int timeout,
+	int timeout_ms,
 	const sigset_t *sigmask)
 {
 #if defined(__NR_epoll_pwait2) &&	\
     defined(HAVE_SYSCALL)
 	if (stress_mwc1()) {
 		struct timespec timeout_ts;
-		const int64_t timeout_ns = (int64_t)timeout * 1000;
+		const int64_t timeout_ns = (int64_t)timeout_ms * 1000000;
 		int ret;
 
 		timeout_ts.tv_sec = timeout_ns / STRESS_NANOSECOND;
@@ -121,7 +121,7 @@ static int stress_epoll_pwait(
 #endif
 STRESS_PRAGMA_PUSH
 STRESS_PRAGMA_WARN_OFF
-	return epoll_pwait(epfd, events, maxevents, timeout, sigmask);
+	return epoll_pwait(epfd, events, maxevents, timeout_ms, sigmask);
 STRESS_PRAGMA_POP
 }
 
