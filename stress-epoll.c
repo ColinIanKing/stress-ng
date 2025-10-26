@@ -258,6 +258,7 @@ static int epoll_ctl_mod(const int efd, const int fd, const uint32_t events)
 	struct epoll_event event;
 
 	(void)shim_memset(&event, 0, sizeof(event));
+	event.data.fd = fd;
 	event.events = events;
 	if (UNLIKELY(epoll_ctl(efd, EPOLL_CTL_MOD, fd, &event) < 0))
 		return -1;
