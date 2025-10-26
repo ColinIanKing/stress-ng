@@ -428,7 +428,7 @@ static inline int stress_do_exec(stress_exec_context_t *context)
 
 			ret = pthread_join(pthread_exec, (void *)&exec_ret);
 			if (ret == 0) {
-				if (ret_dummy)
+				if (ret_dummy == 0)
 					(void)pthread_kill(pthread_dummy, SIGKILL);
 				return *exec_ret;
 			}
