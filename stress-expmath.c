@@ -338,7 +338,7 @@ static bool OPTIMIZE3 TARGET_CLONES stress_expmath_exp2l(stress_args_t *args)
 PRAGMA_UNROLL_N(8)
 	for (i = 0; i < STRESS_EXPMATH_LOOPS; i++) {
 		register const long double ldi = (long double)i / (long double)STRESS_EXPMATH_LOOPS;
-		sum += shim_exp2f(ldi);
+		sum += shim_exp2l(ldi);
 	}
 	stress_bogo_inc(args);
 
