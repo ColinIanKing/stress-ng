@@ -903,10 +903,6 @@ again:
 				break;
 			}
 
-			i++;
-			if (i >= chars_allowed)
-				i = 0;
-
 			/* Should succeed */
 			stress_filename_generate(filename_opt, ptr, 1, ch);
 			stress_filename_test(filename_opt, args, pathname, filename, 1, true, mypid, &rc);
