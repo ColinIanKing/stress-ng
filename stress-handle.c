@@ -121,7 +121,7 @@ static int stress_handle_child(stress_args_t *args, void *context)
 
 	do {
 		struct file_handle *fhp, *tmp;
-		int mount_id, mount_fd, fd, i;
+		int mount_id, mount_fd, fd, i, ret;
 		char *ptr;
 
 		fhp = (struct file_handle *)malloc(sizeof(*fhp));
@@ -129,8 +129,8 @@ static int stress_handle_child(stress_args_t *args, void *context)
 			continue;
 
 		fhp->handle_bytes = 0;
-		if (UNLIKELY((name_to_handle_at(AT_FDCWD, FILENAME, fhp, &mount_id, 0) != -1) &&
-		             (errno != EOVERFLOW))) {
+		ret = name_to_handle_at(AT_FDCWD, FILENAME, fhp, &mount_id, 0);
+		if (UNLIKELY((ret != -1) || ((ret == -1) && (errno != EOVERFLOW)))) {
 			/* if ENOSYS bail out early */
 			if (errno == ENOSYS) {
 				pr_inf_skip("%s: name_to_handle_at system call not implemented, skipping stressor\n",
