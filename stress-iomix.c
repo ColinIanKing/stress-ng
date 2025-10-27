@@ -1139,11 +1139,11 @@ static int stress_iomix(stress_args_t *args)
 	iomix_bytes = iomix_bytes_total / args->instances;
 	if (iomix_bytes < (off_t)MIN_IOMIX_BYTES) {
 		iomix_bytes = (off_t)MIN_IOMIX_BYTES;
-		iomix_bytes_total = iomix_bytes * args->instance;
+		iomix_bytes_total = iomix_bytes * args->instances;
 	}
 	if (iomix_bytes < (off_t)page_size) {
 		iomix_bytes = (off_t)page_size;
-		iomix_bytes_total = iomix_bytes * args->instance;
+		iomix_bytes_total = iomix_bytes * args->instances;
 	}
 	if (stress_instance_zero(args))
 		stress_fs_usage_bytes(args, iomix_bytes, iomix_bytes_total);
