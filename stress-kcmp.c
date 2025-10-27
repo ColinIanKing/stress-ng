@@ -109,7 +109,7 @@ do {									\
 		} else {						\
 			pr_fail( "%s: kcmp " # type			\
 			" returned %d, expected: %d\n",			\
-			args->name, rc, ret);				\
+			args->name, rc, res);				\
 		}							\
 	}								\
 	if (UNLIKELY(!stress_continue_flag()))				\
