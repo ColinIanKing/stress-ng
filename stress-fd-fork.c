@@ -257,6 +257,7 @@ static int stress_fd_fork(stress_args_t *args)
 		if (max_pids == 0) {
 			pr_inf("%s: could not fork child processes, exiting early\n",
 				args->name);
+			break;
 		}
 	} while (stress_continue(args));
 
