@@ -93,9 +93,6 @@ static const int inode_flags[] = {
 #if defined(FS_NOTAIL_FL)
 	FS_NOTAIL_FL,
 #endif
-#if defined(FS_PROJINHERIT_FL)
-	FS_PROJINHERIT_FL,
-#endif
 #if defined(FS_SECRM_FL)
 	FS_SECRM_FL,
 #endif
