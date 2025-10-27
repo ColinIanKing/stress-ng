@@ -197,7 +197,7 @@ const stressor_info_t stress_itimer_info = {
 
 const stressor_info_t stress_itimer_info = {
 	.stressor = stress_unimplemented,
-	.classifier = CLASS_SIGNAL | CLASS_INTERRUPT | CLASS_OS,
+	.classifier = CLASS_INTERRUPT | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
