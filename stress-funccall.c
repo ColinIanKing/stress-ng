@@ -154,8 +154,8 @@ static inline double stress_mwcdouble(void)
  *  compared for floating point
  */
 #define cmp_type(a, b, type)	(a != b)
-#define cmp_fp(a, b, type)	(fabs((double)(a - b)) > (type)0.0001)
-#define cmp_cmplx(a, b, type)	(cabs((double complex)(a - b)) > (double)0.0001)
+#define cmp_fp(a, b, type)	(fabs((double)(a - b)) > 0.0001 * fmax(fabs((double)a), fabs((double)b)))
+#define cmp_cmplx(a, b, type)	(cabs((double complex)(a - b)) > 0.0001 * fmax(cabs((double complex)a), cabs((double complex)b)))
 #define cmp_ignore(a, b, type)	(0)
 
 #define stress_funccall_type(type, rndfunc, cmpfunc)			\
