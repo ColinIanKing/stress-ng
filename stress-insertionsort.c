@@ -31,8 +31,8 @@ static sigjmp_buf jmp_env;
 #endif
 
 static const stress_help_t help[] = {
-	{ NULL,	"insertionsort N",	"start N workers heap sorting 32 bit random integers" },
-	{ NULL,	"insertionsort-ops N",	"stop after N heap sort bogo operations" },
+	{ NULL,	"insertionsort N",	"start N workers insertion sorting 32 bit random integers" },
+	{ NULL,	"insertionsort-ops N",	"stop after N insertion sort bogo operations" },
 	{ NULL,	"insertionsort-size N",	"number of 32 bit integers to sort" },
 	{ NULL,	NULL,			NULL }
 };
