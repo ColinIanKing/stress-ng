@@ -829,6 +829,12 @@ static int stress_fp(stress_args_t *args)
 		fp_data[i].ld.mul_rev = ld;
 		fp_data[i].d.mul_rev = (double)ld;
 		fp_data[i].f.mul_rev = (float)ld;
+#if defined(HAVE__bf16)
+		fp_data[i].bf16.mul_rev = (__bf16)ld;
+#endif
+#if defined(HAVE_Float16)
+		fp_data[i].f16.mul_rev = (_Float16)ld;
+#endif
 #if defined(HAVE_Float32)
 		fp_data[i].f32.mul_rev = (_Float32)ld;
 #endif
