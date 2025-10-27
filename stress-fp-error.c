@@ -146,7 +146,7 @@ static int stress_fp_error(stress_args_t *args)
 #if defined(ERANGE) && defined(FE_DIVBYZERO)
 		stress_fp_clear_error();
 		stress_fp_check(args, "log(0.0)", log(0.0), -HUGE_VAL,
-			false, false, ERANGE, FE_DIVBYZERO, &rc);
+			false, true, ERANGE, FE_DIVBYZERO, &rc);
 #endif
 #if defined(EDOM) && defined(FE_INVALID)
 		stress_fp_clear_error();
@@ -156,7 +156,7 @@ static int stress_fp_error(stress_args_t *args)
 #if defined(ERANGE) && defined(FE_DIVBYZERO)
 		stress_fp_clear_error();
 		stress_fp_check(args, "log2(0.0)", log2(0.0), -HUGE_VAL,
-			false, false, ERANGE, FE_DIVBYZERO, &rc);
+			false, true, ERANGE, FE_DIVBYZERO, &rc);
 #endif
 #if defined(EDOM) && defined(FE_INVALID)
 		stress_fp_clear_error();
@@ -194,7 +194,7 @@ static int stress_fp_error(stress_args_t *args)
 #if defined(ERANGE) && defined(FE_OVERFLOW)
 		stress_fp_clear_error();
 		stress_fp_check(args, "exp(DBL_MAX)", exp(DBL_MAX), HUGE_VAL,
-			false, false, ERANGE, FE_OVERFLOW, &rc);
+			false, true, ERANGE, FE_OVERFLOW, &rc);
 #endif
 		/*
 		 *  Some implementations of fegetrount return
