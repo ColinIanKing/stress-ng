@@ -31,8 +31,6 @@
 #define IOPORT_OPT_IN		(0x00000001)
 #define IOPORT_OPT_OUT		(0x00000002)
 
-#define S
-
 typedef struct {
 	const char 	*opt;
 	const uint32_t	flag;
