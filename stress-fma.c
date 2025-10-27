@@ -139,7 +139,7 @@ static void TARGET_CLONES stress_fma_sub213_double(stress_fma_t *pfma)
 
 PRAGMA_UNROLL_N(FMA_UNROLL)
 	for (i = 0; i < FMA_ELEMENTS; i++)
-		a[i] = (b * a[i]) + c;
+		a[i] = (b * a[i]) - c;
 }
 
 static void TARGET_CLONES stress_fma_add213_float(stress_fma_t *pfma)
@@ -163,7 +163,7 @@ static void TARGET_CLONES stress_fma_sub213_float(stress_fma_t *pfma)
 
 PRAGMA_UNROLL_N(FMA_UNROLL)
 	for (i = 0; i < FMA_ELEMENTS; i++)
-		a[i] = (b * a[i]) + c;
+		a[i] = (b * a[i]) - c;
 }
 
 static void TARGET_CLONES stress_fma_add231_double(stress_fma_t *pfma)
@@ -189,7 +189,7 @@ static void TARGET_CLONES stress_fma_sub231_double(stress_fma_t *pfma)
 
 PRAGMA_UNROLL_N(FMA_UNROLL)
 	for (i = 0; i < FMA_ELEMENTS; i++) {
-		a[i] = (b * c) + a[i];
+		a[i] = (b * c) - a[i];
 		b += 0.125;
 	}
 }
@@ -217,7 +217,7 @@ static void TARGET_CLONES stress_fma_sub231_float(stress_fma_t *pfma)
 
 PRAGMA_UNROLL_N(FMA_UNROLL)
 	for (i = 0; i < FMA_ELEMENTS; i++) {
-		a[i] = (b * c) + a[i];
+		a[i] = (b * c) - a[i];
 		b += 0.125;
 	}
 }
