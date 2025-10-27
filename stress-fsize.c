@@ -38,6 +38,7 @@ static void stress_fsize_handler(int signum)
 {
 	if (signum == SIGXFSZ) {
 		sigxfsz = true;
+		/* intentionally racy */
 		sigxfsz_count++;
 	}
 }
