@@ -176,10 +176,12 @@ static int stress_punch_action(
 	if (UNLIKELY(!stress_continue(args)))
 		return 0;
 
+	pr_inf("%d %zd %zd\n", mode->write_before, size, offset);
 	/* Don't duplicate writes to previous location */
 	if ((mode->write_before) &&
-	    (prev_size == size) && (prev_offset == offset))
+	    ((prev_size != size) || (prev_offset != offset))) {
 		(void)stress_punch_pwrite(args, buf->buf_before, fd, size, offset);
+	}
 	if (UNLIKELY(!stress_continue(args)))
 		return 0;
 	(void)shim_fallocate(fd, mode->mode, offset, (off_t)size);
