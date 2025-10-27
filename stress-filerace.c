@@ -552,7 +552,7 @@ static void stress_filerace_open_rd(const int fd, const char *filename)
 
 	(void)fd;
 	new_fd = open(filename, O_RDONLY | flag);
-	if (new_fd > -1)
+	if (new_fd != -1)
 		(void)close(new_fd);
 }
 
@@ -563,7 +563,7 @@ static void stress_filerace_open_wr(const int fd, const char *filename)
 
 	(void)fd;
 	new_fd = open(filename, O_APPEND | O_WRONLY | flag);
-	if (new_fd > -1)
+	if (new_fd != -1)
 		(void)close(new_fd);
 }
 
@@ -636,11 +636,11 @@ static void stress_filerace_openmany(const int fd, const char *filename)
 	(void)fd;
 	for (i = 0; i < SIZEOF_ARRAY(fds); i++) {
 		fds[i] = open(filename, O_CREAT | O_RDWR | O_APPEND, S_IRUSR | S_IWUSR);
-		if (fds[i] > -1)
+		if (fds[i] != -1)
 			stress_filerace_write_random_uint32(fds[i]);
 	}
 	for (i = 0; i < SIZEOF_ARRAY(fds); i++) {
-		if (fds[i] > -1)
+		if (fds[i] != -1)
 			(void)close(fds[i]);
 	}
 }
@@ -1092,7 +1092,7 @@ static void stress_filerace_sendfile_fd(const int fd, const char *filename)
 
 	(void)filename;
 	fd_zero = open("/dev/urandom", O_RDONLY);
-	if (fd_zero < 0)
+	if (fd_zero == -1)
 		return;
 
 	offset = ((off_t)stress_mwc32()) & OFFSET_MASK;
@@ -1388,7 +1388,7 @@ static void stress_filerace_child(stress_args_t *args, const char *pathname, con
 			(void)shim_unlink(filename);
 			(void)shim_rmdir(filename);
 			fds[fd_idx] = creat(filename, S_IRUSR | S_IWUSR);
-			if (fds[fd_idx] > 0) {
+			if (fds[fd_idx] != -1) {
 				if (stress_continue(args))
 					stress_filerace_file(fds[fd_idx], filename);
 				fd_idx++;
@@ -1403,7 +1403,7 @@ static void stress_filerace_child(stress_args_t *args, const char *pathname, con
 			stress_filerace_filename(pathname, filename, sizeof(filename));
 			flag = open_wr_flags[stress_mwc8modn((uint8_t)SIZEOF_ARRAY(open_wr_flags))];
 			fds[fd_idx] = open(filename, O_CREAT | O_RDWR | O_APPEND | flag, S_IRUSR | S_IWUSR);
-			if (fds[fd_idx] > 0) {
+			if (fds[fd_idx] != -1) {
 				if (stress_continue(args))
 					stress_filerace_file(fds[fd_idx], filename);
 				fd_idx++;
@@ -1413,7 +1413,7 @@ static void stress_filerace_child(stress_args_t *args, const char *pathname, con
 			stress_filerace_filename(pathname, filename, sizeof(filename));
 			flag = open_wr_flags[stress_mwc8modn((uint8_t)SIZEOF_ARRAY(open_wr_flags))];
 			fds[fd_idx] = open(filename, O_CREAT | O_RDWR | flag, S_IRUSR | S_IWUSR);
-			if (fds[fd_idx] > 0) {
+			if (fds[fd_idx] != -1) {
 				if (stress_continue(args))
 					stress_filerace_file(fds[fd_idx], filename);
 				fd_idx++;
@@ -1442,6 +1442,7 @@ static void stress_filerace_child(stress_args_t *args, const char *pathname, con
 			} else {
 #if defined(O_DIRECTORY)
 				fd = open(pathname, O_DIRECTORY);
+				if (fd != -1)
 					(void)close(fd);
 #endif
 				VOID_RET(int, stat(pathname, &buf));
@@ -1474,7 +1475,7 @@ static void stress_filerace_child(stress_args_t *args, const char *pathname, con
 			VOID_RET(int, mkdir(filename, S_IRUSR | S_IWUSR | S_IXUSR));
 #if defined(O_DIRECTORY)
 			fd = open(filename, O_DIRECTORY);
-			if (fd >= 0) {
+			if (fd != -1) {
 				if (stress_continue(args))
 					stress_filerace_file(fd, filename);
 				(void)close(fd);
@@ -1487,7 +1488,7 @@ static void stress_filerace_child(stress_args_t *args, const char *pathname, con
 
 				(void)snprintf(filename, sizeof(filename), "%s/%2.2" PRIx8, pathname, n);
 				tmp_fd = open(filename, O_CREAT | O_RDWR | O_APPEND, S_IRUSR | S_IWUSR);
-				if (tmp_fd > -1)
+				if (tmp_fd != -1)
 					(void)close(tmp_fd);
 			}
 			break;
@@ -1499,7 +1500,7 @@ static void stress_filerace_child(stress_args_t *args, const char *pathname, con
 
 				flag = open_wr_flags[stress_mwc8modn((uint8_t)SIZEOF_ARRAY(open_wr_flags))];
 				tmp_fd = open(filename, O_CREAT | O_RDWR | flag, S_IRUSR | S_IWUSR);
-				if (tmp_fd > -1)
+				if (tmp_fd != 1)
 					(void)close(tmp_fd);
 				(void)unlink(filename);
 				(void)rmdir(filename);
