@@ -130,8 +130,9 @@ static int stress_fault(stress_args_t *args)
 				continue;	/* Try again */
 			}
 			(void)close(fd);
+			/* posix_fallocate errno is in ret */
 			pr_fail("%s: posix_fallocate failed, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
+				args->name, ret, strerror(ret));
 			rc = EXIT_FAILURE;
 			break;
 		}
