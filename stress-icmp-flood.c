@@ -93,9 +93,9 @@ static int stress_icmp_flood(stress_args_t *args)
 
 	if (!stress_get_setting("icmp-flood-max-size", &icmp_flood_max_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			icmp_flood_max_size = 0;
+			icmp_flood_max_size = true;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			icmp_flood_max_size = 1;
+			icmp_flood_max_size = false;
 	}
 	max_payload_size = icmp_flood_max_size ? MAX_PAYLOAD_SIZE : DEFAULT_PAYLOAD_SIZE;
 
