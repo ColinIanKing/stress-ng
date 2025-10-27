@@ -252,8 +252,6 @@ static void fanotify_event_init_invalid_call(unsigned int flags, unsigned int ev
 		(void)close(fan_fd);
 }
 
-#define FANOTIFY_CLASS_BITS
-
 /*
  *  fanotify_event_init_invalid()
  *  exercise invalid ways to call fanotify_init to
