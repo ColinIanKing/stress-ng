@@ -101,7 +101,7 @@ static int OPTIMIZE3 stress_judy(stress_args_t *args)
 		/* Step #1, populate Judy array in sparse index order */
 		t = stress_time_now();
 		for (i = 0; i < n; i++) {
-			const Word_t idx = gen_index(i);
+			Word_t idx = gen_index(i);
 
 			JLI(pvalue, PJLArray, idx);
 			if (UNLIKELY((pvalue == NULL) || (pvalue == PJERR))) {
@@ -109,6 +109,7 @@ static int OPTIMIZE3 stress_judy(stress_args_t *args)
 					"judy node%s\n", args->name,
 					stress_get_memfree_str());
 				for (j = 0; j < n; j++) {
+					idx = gen_index(j);
 					JLD(judyrc, PJLArray, idx);
 				}
 				goto abort;
