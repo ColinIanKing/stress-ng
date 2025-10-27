@@ -151,8 +151,8 @@ static void stress_fd_race_close_fds(
 			j = (size_t)stress_mwc32modn(n);
 
 			tmp = fds[i];
-			fds[j] = fds[i];
-			fds[i] = tmp;
+			fds[i] = fds[j];
+			fds[j] = tmp;
 		}
 		for (i = 0; i < n; i++)
 			(void)close(fds[i]);
