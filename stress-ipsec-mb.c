@@ -262,10 +262,14 @@ static void *stress_alloc_aligned(const size_t nmemb, const size_t size, const s
 
 	return aligned_alloc(alignment, sz);
 #elif defined(HAVE_MEMALIGN)
-	const size_t sz = nmemb * size;
+	const size_t sz = nmemb * size; 
 
-	return memalign(aiglment, sz);
+	return memalign(alignment, sz);
 #endif
+	(void)nmemb;
+	(void)size;
+	(void)alignment;
+
 	return NULL;
 }
 
