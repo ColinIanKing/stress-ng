@@ -203,11 +203,11 @@ static void OPTIMIZE3 TARGET_CLONES stress_fractal_mandelbrot(fractal_info_t *in
 				break;
 
 			t = x2 - y2 + xc;
-			xc += dx;
 			iter++;
 			y = (2 * x * y) + yc;
 			x = t;
 		}
+		xc += dx;
 		*(data++) = (uint16_t)iter;
 	}
 }
