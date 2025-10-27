@@ -41,11 +41,11 @@ static const stress_opt_t opts[] = {
     defined(HAVE_TIMER_CREATE) &&	\
     defined(HAVE_TIMER_DELETE) &&	\
     defined(HAVE_TIMER_SETTIME)
-stress_args_t *s_args;
+static stress_args_t *s_args;
 static timer_t timerid;
 static double time_end;
 static long int ns_delay;
-void *lock;
+static void *lock;
 
 #define PROCS_MAX	(8)
 
