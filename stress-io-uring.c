@@ -800,6 +800,7 @@ static void OPTIMIZE3 stress_io_uring_sync_file_range_setup(
 	(void)extra_info;
 
 	(void)shim_memset(sqe, 0, sizeof(*sqe));
+	sqe->opcode = IORING_OP_SYNC_FILE_RANGE;
 	sqe->fd = io_uring_file->fd;
 	sqe->off = stress_mwc16() & ~511UL;
 	sqe->len = stress_mwc32() & ~511UL;
