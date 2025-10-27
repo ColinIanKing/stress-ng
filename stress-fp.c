@@ -332,51 +332,51 @@ static double TARGET_CLONES OPTIMIZE3 name(				\
 }
 
 STRESS_FP_ADD(ld, stress_fp_ldouble_add, true)
-STRESS_FP_ADD(ld, stress_fp_ldouble_sub, true)
+STRESS_FP_SUB(ld, stress_fp_ldouble_sub, true)
 STRESS_FP_MUL(ld, stress_fp_ldouble_mul, true)
 STRESS_FP_DIV(ld, stress_fp_ldouble_div, true)
 
 STRESS_FP_ADD(d, stress_fp_double_add, true)
-STRESS_FP_ADD(d, stress_fp_double_sub, true)
+STRESS_FP_SUB(d, stress_fp_double_sub, true)
 STRESS_FP_MUL(d, stress_fp_double_mul, true)
 STRESS_FP_DIV(d, stress_fp_double_div, true)
 
 STRESS_FP_ADD(f, stress_fp_float_add, true)
-STRESS_FP_ADD(f, stress_fp_float_sub, true)
+STRESS_FP_SUB(f, stress_fp_float_sub, true)
 STRESS_FP_MUL(f, stress_fp_float_mul, true)
 STRESS_FP_DIV(f, stress_fp_float_div, true)
 
 #if defined(HAVE__bf16)
 STRESS_FP_ADD(bf16, stress_fp_bf16_add, false)
-STRESS_FP_ADD(bf16, stress_fp_bf16_sub, false)
+STRESS_FP_SUB(bf16, stress_fp_bf16_sub, false)
 STRESS_FP_MUL(bf16, stress_fp_bf16_mul, false)
 STRESS_FP_DIV(bf16, stress_fp_bf16_div, false)
 #endif
 
 #if defined(HAVE_Float16)
 STRESS_FP_ADD(f16, stress_fp_float16_add, false)
-STRESS_FP_ADD(f16, stress_fp_float16_sub, false)
+STRESS_FP_SUB(f16, stress_fp_float16_sub, false)
 STRESS_FP_MUL(f16, stress_fp_float16_mul, false)
 STRESS_FP_DIV(f16, stress_fp_float16_div, false)
 #endif
 
 #if defined(HAVE_Float32)
 STRESS_FP_ADD(f32, stress_fp_float32_add, false)
-STRESS_FP_ADD(f32, stress_fp_float32_sub, false)
+STRESS_FP_SUB(f32, stress_fp_float32_sub, false)
 STRESS_FP_MUL(f32, stress_fp_float32_mul, false)
 STRESS_FP_DIV(f32, stress_fp_float32_div, false)
 #endif
 
 #if defined(HAVE_Float64)
 STRESS_FP_ADD(f64, stress_fp_float64_add, false)
-STRESS_FP_ADD(f64, stress_fp_float64_sub, false)
+STRESS_FP_SUB(f64, stress_fp_float64_sub, false)
 STRESS_FP_MUL(f64, stress_fp_float64_mul, false)
 STRESS_FP_DIV(f64, stress_fp_float64_div, false)
 #endif
 
 #if defined(HAVE__float80)
 STRESS_FP_ADD(f80, stress_fp_float80_add, false)
-STRESS_FP_ADD(f80, stress_fp_float80_sub, false)
+STRESS_FP_SUB(f80, stress_fp_float80_sub, false)
 STRESS_FP_MUL(f80, stress_fp_float80_mul, false)
 STRESS_FP_DIV(f80, stress_fp_float80_div, false)
 #endif
@@ -384,14 +384,14 @@ STRESS_FP_DIV(f80, stress_fp_float80_div, false)
 #if defined(HAVE__float128) || 	\
     defined(HAVE_Float128)
 STRESS_FP_ADD(f128, stress_fp_float128_add, false)
-STRESS_FP_ADD(f128, stress_fp_float128_sub, false)
+STRESS_FP_SUB(f128, stress_fp_float128_sub, false)
 STRESS_FP_MUL(f128, stress_fp_float128_mul, false)
 STRESS_FP_DIV(f128, stress_fp_float128_div, false)
 #endif
 
 #if defined(HAVE__ibm128)
 STRESS_FP_ADD(ibm128, stress_fp_ibm128_add, false)
-STRESS_FP_ADD(ibm128, stress_fp_ibm128_sub, false)
+STRESS_FP_SUB(ibm128, stress_fp_ibm128_sub, false)
 STRESS_FP_MUL(ibm128, stress_fp_ibm128_mul, false)
 STRESS_FP_DIV(ibm128, stress_fp_ibm128_div, false)
 #endif
