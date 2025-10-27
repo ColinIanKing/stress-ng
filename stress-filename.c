@@ -251,7 +251,7 @@ static void stress_filename_generate_utf8(
 			*(ptr++) = 0xf0 | ((ch >> 18) & 0x7);
 			*(ptr++) = 0x80 | ((ch >> 12) & 0x3f);
 			*(ptr++) = 0x80 | ((ch >> 6) & 0x3f);
-			*(ptr++) = 0x80 | ((ch >> 9) & 0x3f);
+			*(ptr++) = 0x80 | ((ch >> 0) & 0x3f);
 			n -= 4;
 		} else {
 			break;
