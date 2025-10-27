@@ -237,7 +237,7 @@ static int stress_ioport(stress_args_t *args)
 			outb(v, port);
 			outb(v, port);
 			duration_out += stress_time_now() - t;
-			count_out += 32;
+			count_out += 32.0;
 		}
 
 		if (fd >= 0) {
