@@ -55,8 +55,8 @@ static const stress_help_t help[] = {
      defined(F_SETLKW) && defined(F_WRLCK) && \
      defined(F_UNLCK)) ||	\
     (defined(F_OFD_GETLK) && defined(F_OFD_SETLK) && \
-     defined(F_OFD_SETLKW) && defined(F_WRLCK) && defined(F_UNLCK)) | \
-    (defined(F_GET_FILE_RW_HINT) && defined(F_SET_FILE_RW_HINT)) | \
+     defined(F_OFD_SETLKW) && defined(F_WRLCK) && defined(F_UNLCK)) || \
+    (defined(F_GET_FILE_RW_HINT) && defined(F_SET_FILE_RW_HINT)) || \
     (defined(F_GET_RW_HINT) && defined(F_SET_RW_HINT))
 
 static size_t setfl_flag_count;
