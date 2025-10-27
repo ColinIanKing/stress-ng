@@ -69,7 +69,6 @@ static int stress_fiemap_writer(
 {
 	uint8_t buf[1];
 	const uint64_t len = fiemap_bytes - sizeof(buf);
-	int rc = EXIT_FAILURE;
 #if defined(FALLOC_FL_PUNCH_HOLE) && \
     defined(FALLOC_FL_KEEP_SIZE)
 	bool punch_hole = true;
@@ -91,7 +90,7 @@ static int stress_fiemap_writer(
 			if ((errno != EAGAIN) && (errno != EINTR)) {
 				pr_fail("%s: write failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
-				goto tidy;
+				return EXIT_FAILURE;
 			}
 		}
 		if (UNLIKELY(!stress_bogo_inc_lock(args, counter_lock, false)))
@@ -117,11 +116,8 @@ static int stress_fiemap_writer(
 		UNEXPECTED
 #endif
 	} while (stress_bogo_inc_lock(args, counter_lock, false));
-	rc = EXIT_SUCCESS;
-tidy:
-	(void)close(fd);
 
-	return rc;
+	return EXIT_SUCCESS;
 }
 
 /*
