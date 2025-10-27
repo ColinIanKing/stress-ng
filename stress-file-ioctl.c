@@ -186,7 +186,7 @@ static void stress_file_ioctl_ext(const int fd)
 #endif
 #if defined(FS_IOC_GETFSLABEL)
 	{
-		char label[17];
+		char label[257];
 
 		VOID_RET(int, ioctl(fd, FS_IOC_GETFSLABEL, label));
 	}
@@ -206,7 +206,7 @@ static void stress_file_ioctl_nilfs(const int fd)
 #endif
 #if defined(FS_IOC_GETFSLABEL)
 	{
-		char label[81];
+		char label[257];
 
 		VOID_RET(int, ioctl(fd, FS_IOC_GETFSLABEL, label));
 	}
@@ -240,7 +240,7 @@ static void stress_file_ioctl_xfs(const int fd)
 #endif
 #if defined(FS_IOC_GETFSLABEL)
 	{
-		char label[17];
+		char label[257];
 
 		VOID_RET(int, ioctl(fd, FS_IOC_GETFSLABEL, label));
 	}
