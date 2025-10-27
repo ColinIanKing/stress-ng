@@ -257,8 +257,8 @@ static int stress_getcwd(stress_args_t *args)
 	ptr = getcwd(path, sizeof path);
 	if (verify) {
 		if (!ptr) {
-			pr_fail("%s: getcwd %s failed, errno=%d (%s)%s\n",
-				args->name, path, errno, strerror(errno),
+			pr_fail("%s: getcwd failed, errno=%d (%s)%s\n",
+				args->name, errno, strerror(errno),
 					stress_get_fs_type(path));
 			return EXIT_FAILURE;
 		} else {
