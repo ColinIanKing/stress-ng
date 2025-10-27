@@ -462,7 +462,7 @@ static void stress_fd_open_sock_af_x25(stress_fd_t *fd)
 #endif
 
 #if defined(AF_ROSE) &&		\
-    defined(SOCK_DGRAM)
+    defined(SOCK_SEQPACKET)
 static void stress_fd_open_sock_af_rose(stress_fd_t *fd)
 {
 	fd->fd = socket(AF_ROSE, SOCK_SEQPACKET, 0);
@@ -471,7 +471,7 @@ static void stress_fd_open_sock_af_rose(stress_fd_t *fd)
 #endif
 
 #if defined(AF_IRDA) &&	\
-    defined(SOCK_DGRAM)
+    defined(SOCK_SEQPACKET)
 static void stress_fd_open_sock_af_irda(stress_fd_t *fd)
 {
 	fd->fd = socket(AF_IRDA, SOCK_SEQPACKET, 0);
@@ -922,7 +922,7 @@ static open_func_t open_funcs[] = {
 	stress_fd_open_sock_af_can,
 #endif
 #if defined(AF_TIPC) &&	\
-    defined(SOCK_DGRAM)
+    defined(SOCK_SEQPACKET)
 	stress_fd_open_sock_af_tipc,
 #endif
 #if defined(AF_BLUETOOTH) &&	\
@@ -934,7 +934,7 @@ static open_func_t open_funcs[] = {
 	stress_fd_open_sock_af_kcm,
 #endif
 #if defined(AF_XDP) &&	\
-    defined(SOCK_SEQPACKET)
+    defined(SOCK_RAW)
 	stress_fd_open_sock_af_xdp,
 #endif
 	stress_fd_open_socketpair,
