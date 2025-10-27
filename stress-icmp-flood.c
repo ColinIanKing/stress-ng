@@ -100,7 +100,6 @@ static int stress_icmp_flood(stress_args_t *args)
 	max_payload_size = icmp_flood_max_size ? MAX_PAYLOAD_SIZE : DEFAULT_PAYLOAD_SIZE;
 
 	(void)shim_memset(pkt, 0, sizeof(pkt));
-	stress_rndbuf(payload, MAX_PAYLOAD_SIZE);
 
 	fd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW);
 	if (fd < 0) {
