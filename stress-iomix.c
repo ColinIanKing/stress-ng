@@ -694,7 +694,7 @@ static void stress_iomix_rd_bytes(
 				if (errno == EINTR)
 					break;
 				if ((errno != EPERM) && (errno != ENOSPC)) {
-					pr_fail("%s: write failed, errno=%d (%s)%s\n",
+					pr_fail("%s: read failed, errno=%d (%s)%s\n",
 						args->name, errno, strerror(errno), fs_type);
 					return;
 				}
