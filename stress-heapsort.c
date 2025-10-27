@@ -33,7 +33,7 @@ static sigjmp_buf jmp_env;
 
 static const stress_help_t help[] = {
 	{ NULL,	"heapsort N",	   	"start N workers heap sorting 32 bit random integers" },
-	{ NULL, "heapsort-method M",	"select sort method [ heapsort-libc | heapsort-nonlibc" },
+	{ NULL, "heapsort-method M",	"select sort method [ heapsort-libc | heapsort-nonlibc ]" },
 	{ NULL,	"heapsort-ops N",	"stop after N heap sort bogo operations" },
 	{ NULL,	"heapsort-size N",	"number of 32 bit integers to sort" },
 	{ NULL,	NULL,		   NULL }
