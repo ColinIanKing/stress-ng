@@ -58,7 +58,6 @@ static int stress_idle_page_supported(const char *name)
 
 #if defined(__linux__)
 
-#define BITMAP_BYTES	(8)
 #define PAGES_TO_SCAN	(64)
 
 /*
@@ -104,7 +103,7 @@ static int stress_idle_page(stress_args_t *args)
 		if (oret == (off_t)-1)
 			goto next;
 
-		ret = read(fd, &bitmap_get, BITMAP_BYTES);
+		ret = read(fd, &bitmap_get, sizeof(bitmap_get));
 		if ((ret < 0) && (errno == ENXIO)) {
 			posn = 0;
 			goto next;
