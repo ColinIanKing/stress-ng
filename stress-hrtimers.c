@@ -27,7 +27,7 @@
 
 static const stress_help_t help[] = {
 	{ NULL,	"hrtimers N",	  "start N workers that exercise high resolution timers" },
-	{ NULL, "hrtimers-adjust","adjust rate to try and maximum timer rate" },
+	{ NULL, "hrtimers-adjust","adjust rate to try and maximize timer rate" },
 	{ NULL,	"hrtimers-ops N", "stop after N bogo high-res timer bogo operations" },
 	{ NULL,	NULL,		  NULL }
 };
