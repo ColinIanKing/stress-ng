@@ -84,7 +84,7 @@ static int stress_ioprio(stress_args_t *args)
 
 		if (shim_ioprio_get(IOPRIO_WHO_PROCESS, args->pid) < 0) {
 			if (errno != EINVAL) {
-				pr_fail("%s: ioprio_get(OPRIO_WHO_PROCESS, %" PRIdMAX"), "
+				pr_fail("%s: ioprio_get(IOPRIO_WHO_PROCESS, %" PRIdMAX"), "
 					"errno=%d (%s)\n",
 					args->name, (intmax_t)args->pid, errno, strerror(errno));
 				goto cleanup_file;
@@ -94,7 +94,7 @@ static int stress_ioprio(stress_args_t *args)
 			break;
 		if (shim_ioprio_get(IOPRIO_WHO_PROCESS, 0) < 0) {
 			if (errno != EINVAL) {
-				pr_fail("%s: ioprio_get(OPRIO_WHO_PROCESS, 0), "
+				pr_fail("%s: ioprio_get(IOPRIO_WHO_PROCESS, 0), "
 					"errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				goto cleanup_file;
@@ -105,7 +105,7 @@ static int stress_ioprio(stress_args_t *args)
 #if defined(HAVE_GETPGRP)
 		if (shim_ioprio_get(IOPRIO_WHO_PGRP, grp) < 0) {
 			if (errno != EINVAL) {
-				pr_fail("%s: ioprio_get(OPRIO_WHO_PGRP, %" PRIdMAX "), "
+				pr_fail("%s: ioprio_get(IOPRIO_WHO_PGRP, %" PRIdMAX "), "
 					"errno=%d (%s)\n",
 					args->name, (intmax_t)grp, errno, strerror(errno));
 				goto cleanup_file;
@@ -118,7 +118,7 @@ static int stress_ioprio(stress_args_t *args)
 #endif
 		if (shim_ioprio_get(IOPRIO_WHO_PGRP, 0) < 0) {
 			if (errno != EINVAL) {
-				pr_fail("%s: ioprio_get(OPRIO_WHO_PGRP, 0), "
+				pr_fail("%s: ioprio_get(IOPRIO_WHO_PGRP, 0), "
 					"errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				goto cleanup_file;
@@ -136,7 +136,7 @@ static int stress_ioprio(stress_args_t *args)
 
 		if (shim_ioprio_get(IOPRIO_WHO_USER, (int)uid) < 0) {
 			if (errno != EINVAL) {
-				pr_fail("%s: ioprio_get(OPRIO_WHO_USR, %d), "
+				pr_fail("%s: ioprio_get(IOPRIO_WHO_USR, %d), "
 					"errno=%d (%s)\n",
 					args->name, uid, errno, strerror(errno));
 				goto cleanup_file;
