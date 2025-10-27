@@ -1518,7 +1518,7 @@ static void stress_fd_lockf(stress_fd_t *fd)
 	if (stress_fd_now(&t, 13.0)) {
 		if (lockf(fd->fd, F_TLOCK, 0) < 0)
 			return;
-		(void)lockf(fd->fd, F_UNLOCK);
+		(void)lockf(fd->fd, F_UNLOCK, 0);
 	}
 }
 #endif
