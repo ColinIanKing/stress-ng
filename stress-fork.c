@@ -510,6 +510,7 @@ static int stress_fork(stress_args_t *args)
 			"at the same time, disabling --fork-unmap option\n",
 			args->name);
 		fork_unmap = false;
+		mode &= ~STRESS_MODE_UNMAP;
 	}
 
 	stress_force_bind();
