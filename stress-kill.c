@@ -85,11 +85,8 @@ static int stress_kill(stress_args_t *args)
 		t = stress_time_now();
 		ret = kill(args->pid, SIGUSR1);
 		if (LIKELY(ret == 0)) {
-			const int saved_errno = errno;
-
 			duration += stress_time_now() - t;
 			count += 1.0;
-			errno = saved_errno;
 		} else if (UNLIKELY((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY))) {
 			pr_fail("%s: kill PID %" PRIdMAX " with SIGUSR1 failed, errno=%d (%s)\n",
 				args->name, (intmax_t)args->pid, errno, strerror(errno));
@@ -99,11 +96,8 @@ static int stress_kill(stress_args_t *args)
 		t = stress_time_now();
 		ret = kill(args->pid, 0);
 		if (LIKELY(ret == 0)) {
-			const int saved_errno = errno;
-
 			duration += stress_time_now() - t;
 			count += 1.0;
-			errno = saved_errno;
 		} else if (UNLIKELY((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY))) {
 			pr_fail("%s: kill PID %" PRIdMAX " with signal 0 failed, errno=%d (%s)\n",
 				args->name, (intmax_t)args->pid, errno, strerror(errno));
@@ -117,11 +111,8 @@ static int stress_kill(stress_args_t *args)
 		t = stress_time_now();
 		ret = kill(-1, 0);
 		if (LIKELY(ret == 0)) {
-			const int saved_errno = errno;
-
 			duration += stress_time_now() - t;
 			count += 1.0;
-			errno = saved_errno;
 		} else if (UNLIKELY((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY))) {
 			pr_fail("%s: kill PID -1 with signal 0 failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
