@@ -189,8 +189,8 @@ static int stress_fd_fork(stress_args_t *args)
 	info->fd_min_val = fds[0];
 	info->fd_max_val = fds[0];
 	if (fds[0] < 0) {
-		pr_dbg("%s: open failed on /dev/zero, errno=%d (%s)\n",
-			args->name, errno, strerror(errno));
+		pr_dbg("%s: open failed on file '%s', errno=%d (%s)\n",
+			args->name, filename, errno, strerror(errno));
 		rc = EXIT_NO_RESOURCE;
 		goto tidy_fds;
 	}
