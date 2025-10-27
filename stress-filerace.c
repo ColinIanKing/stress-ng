@@ -365,7 +365,7 @@ static void stress_filerace_ftruncate_filename(const int fd, const char *filenam
 	if (tmp_fd != -1) {
 		const off_t offset = (off_t)stress_mwc16();
 
-		VOID_RET(int, ftruncate(fd, offset));
+		VOID_RET(int, ftruncate(tmp_fd, offset));
 		(void)close(tmp_fd);
 	}
 }
