@@ -25,6 +25,7 @@
 #if defined(HAVE_COMPLEX_H)
 #include <complex.h>
 #endif
+#include <math.h>
 
 #if defined(STRESS_ARCH_S390)
 /*
@@ -251,7 +252,7 @@ static void stress_funcret_setvar(void *ptr, const size_t size)
  */
 #define cmp_mem(a, b, type)	shim_memcmp(&a.data, &b.data, sizeof(a.data))
 #define cmp_type(a, b, type)	(a != b)
-#define cmp_fp(a, b, type)	((a - b) > (type)0.0001)
+#define cmp_fp(a, b, type)	(fabs((double)(a - b)) > 0.0001 * fmax(fabs((double)a), fabs((double)b)))
 
 #define stress_funcret_type(type, cmp)					\
 static bool NOINLINE stress_funcret_ ## type(stress_args_t *args);\
