@@ -157,7 +157,7 @@ static void stress_inode_flags_ioctl(
 {
 	int ret, attr;
 
-	if (UNLIKELY(!(keep_running || stress_continue(args))))
+	if (UNLIKELY(!(keep_running && stress_continue(args))))
 		return;
 
 	ret = ioctl(fd, FS_IOC_GETFLAGS, &attr);
