@@ -635,7 +635,7 @@ l2:
 cleanup:
 	if (pages) {
 		for (i = 0; i < n_pages; i++) {
-			if (pages[i])
+			if (pages[i] != MAP_FAILED)
 				(void)munmap((void *)pages[i], page_size);
 		}
 		free(pages);
