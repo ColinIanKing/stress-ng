@@ -97,7 +97,7 @@ static int stress_ioport_supported(const char *name)
 		case EINVAL:
 		case EIO:
 		default:
-			pr_inf_skip("%s cannot access port 0x%x, not skipping stressor\n",
+			pr_inf_skip("%s cannot access port 0x%x, skipping stressor\n",
 				name, IO_PORT_POST);
 			return -1;
 		}
