@@ -1054,7 +1054,6 @@ static int stress_io_uring_child(stress_args_t *args, void *context)
 		goto clean;
 
 	flags = O_CREAT | O_RDWR | O_TRUNC;
-	stress_file_rw_hint_short(io_uring_file.fd);
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
@@ -1078,6 +1077,7 @@ static int stress_io_uring_child(stress_args_t *args, void *context)
 				args->name, filename, errno, strerror(errno));
 			goto clean;
 		}
+		stress_file_rw_hint_short(io_uring_file.fd);
 #if defined(O_PATH)
 		io_uring_file.fd_at = open(filename, O_PATH);
 #else
