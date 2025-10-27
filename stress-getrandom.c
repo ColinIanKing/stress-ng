@@ -156,7 +156,7 @@ static int stress_getrandom(stress_args_t *args)
 			 *  other systems such as OpenBSD.
 			 */
 			ret = getentropy(buffer, 1);
-			if (ret > 0)
+			if (ret >= 0)
 				bytes += (double)1.0;
 #endif
 			stress_bogo_inc(args);
