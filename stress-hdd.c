@@ -1041,7 +1041,7 @@ seq_rd_retry:
 			uint64_t baddata = 0;
 
 			for (i = 0; i < hdd_bytes_max; i += hdd_write_size) {
-				const size_t offset = (hdd_bytes > hdd_write_size) ?
+				const uint64_t offset = (hdd_bytes > hdd_write_size) ?
 					stress_mwc64modn(hdd_bytes - hdd_write_size) & ~511UL : 0;
 
 				if (lseek(fd, (off_t)offset, SEEK_SET) < 0) {
