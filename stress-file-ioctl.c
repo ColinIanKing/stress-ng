@@ -376,7 +376,7 @@ static int stress_file_ioctl(stress_args_t *args)
 			opt = 1;
 			ret = ioctl(fd, FIOASYNC, &opt);
 #if defined(O_ASYNC)
-			check_flag(args, "FIONASYNC", fd, O_ASYNC, ret, true, &rc);
+			check_flag(args, "FIOASYNC", fd, O_ASYNC, ret, true, &rc);
 #else
 			(void)ret;
 #endif
@@ -384,7 +384,7 @@ static int stress_file_ioctl(stress_args_t *args)
 			opt = 0;
 			ret = ioctl(fd, FIOASYNC, &opt);
 #if defined(O_ASYNC)
-			check_flag(args, "FIONASYNC", fd, O_ASYNC, ret, false, &rc);
+			check_flag(args, "FIOASYNC", fd, O_ASYNC, ret, false, &rc);
 #else
 			(void)ret;
 #endif
