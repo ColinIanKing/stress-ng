@@ -45,7 +45,6 @@ stress_args_t *s_args;
 static timer_t timerid;
 static double time_end;
 static long int ns_delay;
-static int overrun;
 void *lock;
 
 #define PROCS_MAX	(8)
@@ -202,7 +201,6 @@ static int stress_hrtimers(stress_args_t *args)
 	}
 
         (void)stress_get_setting("hrtimers-adjust", &hrtimers_adjust);
-	overrun = 0;
 	ns_delay = hrtimers_adjust ? 1000 : -1;
 
 	for (i = 0; i < PROCS_MAX; i++) {
