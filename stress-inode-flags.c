@@ -96,9 +96,6 @@ static const int inode_flags[] = {
 #if defined(FS_SECRM_FL)
 	FS_SECRM_FL,
 #endif
-#if defined(FS_SYNC_FL)
-	FS_SYNC_FL,
-#endif
 #if defined(FS_UNRM_FL)
 	FS_UNRM_FL,
 #endif
