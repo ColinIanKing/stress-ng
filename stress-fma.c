@@ -453,7 +453,7 @@ PRAGMA_UNROLL_N(FMA_UNROLL)
 	for (i = 0; i < FMA_ELEMENTS; i++) {
 #if defined(FP_FAST_FMAF) &&	\
     defined(USE_FMA_FAST)
-		a[i] = FP_FAST_FMAF(b, c,-a[i]);
+		a[i] = FP_FAST_FMAF(b, c, -a[i]);
 #else
 		a[i] = shim_fmaf(b, c, -a[i]);
 #endif
