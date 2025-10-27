@@ -59,7 +59,7 @@ static bool OPTIMIZE3 TARGET_CLONES stress_hyperbolic_coshf(stress_args_t *args)
 {
 	double sumcosh = 0.0;
 	double x = -1.0;
-	const double dx = 2.0 / (float)STRESS_HYPERBOLIC_LOOPS;
+	const double dx = 2.0 / (double)STRESS_HYPERBOLIC_LOOPS;
 	const double precision = 1E-4;
 	int i;
 
@@ -120,7 +120,7 @@ static bool OPTIMIZE3 TARGET_CLONES stress_hyperbolic_sinhf(stress_args_t *args)
 {
 	double sumsinh = 0.0;
 	double x = -1.0;
-	const double dx = 2.0 / (float)STRESS_HYPERBOLIC_LOOPS;
+	const double dx = 2.0 / (double)STRESS_HYPERBOLIC_LOOPS;
 	const double precision = 1E-4;
 	int i;
 
