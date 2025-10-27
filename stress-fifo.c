@@ -302,7 +302,7 @@ static int stress_fifo(stress_args_t *args)
 		if (errno == EINTR) {
 			rc = 0;
 		} else {
-			rc = stress_exit_status(fd);
+			rc = stress_exit_status(errno);
 			pr_fail("%s: fifo write open failed, "
 				"errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
