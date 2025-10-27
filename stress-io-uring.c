@@ -280,7 +280,7 @@ static int stress_setup_io_uring(
 				"errno=%d (%s), skipping stressor\n",
 				args->name, stress_get_memfree_str(),
 				errno, strerror(errno));
-			(void)munmap(submit->sq_mmap, submit->cq_size);
+			(void)munmap(submit->sq_mmap, submit->sq_size);
 			return EXIT_NO_RESOURCE;
 		}
 	}
