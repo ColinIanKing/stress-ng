@@ -387,13 +387,15 @@ static void *stress_fd_race_current(void *ptr)
 
 	do {
 		int current_fd = context->current_fd;
-		int fd = current_fd + stress_mwc1();
-		const int fd_end = fd + 10;
+		int fd, fd_end;
 
 		if (context->current_fd == -1) {
 			(void)shim_usleep(200000);
 			continue;
 		}
+
+		fd = current_fd + stress_mwc1();
+		fd_end = fd + 10;
 
 		while (fd < fd_end) {
 			struct stat statbuf;
