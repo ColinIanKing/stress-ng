@@ -133,7 +133,7 @@ static void do_fcntl(
 	{
 		int ret;
 
-		ret = fcntl(fd, F_DUPFD, F_DUPFD_CLOEXEC);
+		ret = fcntl(fd, F_DUPFD_CLOEXEC, 0);
 		check_return(args, ret, "F_DUPFD_CLOEXEC", rc);
 		if (ret > -1)
 			(void)close(ret);
