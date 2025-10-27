@@ -173,7 +173,14 @@ static int stress_flipflop_create_workers(
  */
 static int stress_flipflop_uint64_cmp(const void *a, const void *b)
 {
-	return (int64_t)(*(const uint64_t *)a - *(const uint64_t *)b);
+	register const uint64_t va = *(const uint64_t *)a;
+	register const uint64_t vb = *(const uint64_t *)b;
+
+	if (va < vb)
+		return -1;
+	else if (va > vb)
+		return -1;
+	return 0;
 }
 
 /*
