@@ -371,7 +371,7 @@ static void stress_iomix_rd_rnd_bursts(
 			posn = stress_iomix_rnd_offset(iomix_bytes);
 
 			/* Add some unhelpful advice */
-			stress_iomix_fadvise_random_dontneed(fd, posn, (ssize_t)len);
+			stress_iomix_fadvise_random_dontneed(fd, posn, (off_t)len);
 
 			ret = lseek(fd, posn, SEEK_SET);
 			if (UNLIKELY(ret == (off_t)-1)) {
@@ -431,7 +431,7 @@ static void stress_iomix_rd_seq_slow(
 			const size_t len = 1 + (stress_mwc32() & (sizeof(buffer) - 1));
 
 			/* Add some unhelpful advice */
-			stress_iomix_fadvise_random_dontneed(fd, posn, (ssize_t)len);
+			stress_iomix_fadvise_random_dontneed(fd, posn, (off_t)len);
 
 			rc = read(fd, buffer, len);
 			if (UNLIKELY(rc < 0)) {
