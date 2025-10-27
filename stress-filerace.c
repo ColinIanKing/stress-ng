@@ -633,10 +633,11 @@ static void stress_filerace_openmany(const int fd, const char *filename)
 
 	int fds[MAX_FDS];
 
+	(void)fd;
 	for (i = 0; i < SIZEOF_ARRAY(fds); i++) {
 		fds[i] = open(filename, O_CREAT | O_RDWR | O_APPEND, S_IRUSR | S_IWUSR);
 		if (fds[i] > -1)
-			stress_filerace_write_random_uint32(fd);
+			stress_filerace_write_random_uint32(fds[i]);
 	}
 	for (i = 0; i < SIZEOF_ARRAY(fds); i++) {
 		if (fds[i] > -1)
