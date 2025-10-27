@@ -239,7 +239,7 @@ static int OPTIMIZE3 stress_hsearch(stress_args_t *args)
 					rc = EXIT_FAILURE;
 				} else {
 					if (UNLIKELY(i != (size_t)ep->data)) {
-						pr_fail("%s: hash returned incorrect data %zd\n", args->name, i);
+						pr_fail("%s: hash returned incorrect data %zu\n", args->name, i);
 						rc = EXIT_FAILURE;
 					}
 				}
