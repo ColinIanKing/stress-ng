@@ -680,12 +680,16 @@ static int stress_time(stress_args_t *args)
 		return EXIT_FAILURE;
 	}
 	t1 = shim_time(&t2);
-	if ((t1 == (time_t)-1) && (errno != ENOSYS)) {
+	if (t1 != (time_t)-1) {
 		if (shim_memcmp(&t1, &t2, sizeof(t1))) {
 			pr_fail("%s: time failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			return EXIT_FAILURE;
 		}
+	} else if (errno != ENOSYS) {
+		pr_fail("%s: time failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
+		return EXIT_FAILURE;
 	}
 
 	(void)args;
