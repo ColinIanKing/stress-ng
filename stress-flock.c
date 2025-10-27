@@ -310,7 +310,7 @@ static int stress_flock(stress_args_t *args)
 		pr_inf_skip("%s: failed to mmap %d PIDs%s, skipping stressor\n",
 			args->name, MAX_FLOCK_STRESSORS, stress_get_memfree_str());
 		return EXIT_NO_RESOURCE;
-        }
+	}
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0) {
