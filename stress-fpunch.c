@@ -325,7 +325,7 @@ static int stress_fpunch(stress_args_t *args)
 	fpunch_bytes = fpunch_bytes_total / args->instances;
 	if (stress_instance_zero(args))
 		stress_fs_usage_bytes(args, fpunch_bytes, fpunch_bytes_total);
-	max_punches = (off_t)(fpunch_bytes / (off_t)stride);
+	max_punches = fpunch_bytes / (uint64_t)stride;
 
 	s_pids = stress_sync_s_pids_mmap(STRESS_PUNCH_PIDS);
 	if (s_pids == MAP_FAILED) {
