@@ -197,7 +197,7 @@ static int stress_fp_error(stress_args_t *args)
 			false, true, ERANGE, FE_OVERFLOW, &rc);
 #endif
 		/*
-		 *  Some implementations of fegetrount return
+		 *  Some implementations of fegetround return
 		 *  long long unsigned int, so cast the return
 		 *  to int so we can check for -1 without any
 		 *  warnings.
