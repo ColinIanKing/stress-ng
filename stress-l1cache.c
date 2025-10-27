@@ -449,7 +449,7 @@ PRAGMA_UNROLL_N(2)
 
 			if (UNLIKELY(*(ptr + idx) != (uint8_t)set)) {
 				pr_fail("%s: cache value mismatch at offset %zd, 0x%2.2x vs 0x%2.2x\n",
-					args->name, (size_t)(ptr - cache_start),
+					args->name, idx,
 					*(ptr + idx), (uint8_t)set);
 				return EXIT_FAILURE;
 			}
