@@ -88,7 +88,7 @@ static int stress_io(stress_args_t *args)
 		 *  exercise with an invalid fd
 		 */
 		if (UNLIKELY(syncfs(bad_fd) == 0)) {
-			pr_fail("%s: syncfs on invalid fd %d succeed\n",
+			pr_fail("%s: syncfs on invalid fd %d succeeded\n",
 				args->name, bad_fd);
 			rc = EXIT_FAILURE;
 			goto tidy;
