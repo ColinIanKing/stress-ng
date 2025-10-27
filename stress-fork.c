@@ -334,7 +334,7 @@ static int stress_fork_fn(
 
 					(void)shim_memset(advice, 0, sizeof(advice));
 
-					switch (j++ & 7) {
+					switch (j & 7) {
 					case 0:
 #if defined(MADV_MERGEABLE)
 						advice[n_advice++] = MADV_MERGEABLE;
