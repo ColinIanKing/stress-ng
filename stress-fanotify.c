@@ -644,15 +644,15 @@ static int stress_fanotify(stress_args_t *args)
 			free(buffer);
 			switch (-ret) {
 			case EMFILE:
-				pr_inf_skip("%s: fanotify_init: too many open files, skipping stressor\n", args->name);
+				pr_inf_skip("%s: fanotify_mark: too many open files, skipping stressor\n", args->name);
 				rc = EXIT_NO_RESOURCE;
 				break;
 			case ENOMEM:
-				pr_inf_skip("%s: fanotify_init: out of memory, skipping stressor\n", args->name);
+				pr_inf_skip("%s: fanotify_mark: out of memory, skipping stressor\n", args->name);
 				rc = EXIT_NO_RESOURCE;
 				break;
 			default:
-				pr_fail("%s: fanotify_init failed, errno=%d (%s)\n",
+				pr_fail("%s: fanotify_mark failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				rc = EXIT_FAILURE;
 			}
