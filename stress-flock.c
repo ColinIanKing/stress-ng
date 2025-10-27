@@ -64,7 +64,7 @@ static int stress_flock_child(
 		return EXIT_FAILURE;
 	}
 
-	for (i = 0; ; i++) {
+	for (i = 0; stress_continue(args); i++) {
 		double t;
 
 #if defined(LOCK_EX)
