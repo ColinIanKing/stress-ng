@@ -142,7 +142,6 @@ static int stress_icmp_flood(stress_args_t *args)
 
 	icmp_hdr->type = ICMP_ECHO;
 	icmp_hdr->code = 0;
-	icmp_hdr->un.echo.sequence = htons(seq);
 
 	stress_rndbuf(payload, MAX_PAYLOAD_SIZE);
 
@@ -155,6 +154,7 @@ static int stress_icmp_flood(stress_args_t *args)
 
 		ip_hdr->tot_len = htons(pkt_len);
 		icmp_hdr->un.echo.id = id;
+		icmp_hdr->un.echo.sequence = htons(seq);
 
 		payload[0]++;
 		icmp_hdr->checksum = stress_ipv4_checksum((uint16_t *)icmp_hdr,
