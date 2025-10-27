@@ -113,8 +113,9 @@ again:
 			goto finish;
 		pr_err("%s: fork failed, errno=%d: (%s)\n",
 			args->name, errno, strerror(errno));
-	}
-	if (pid > 0) {
+		rc = EXIT_FAILURE;
+		goto finish;
+	} else if (pid > 0) {
 		int status;
 
 		stress_set_proc_state(args->name, STRESS_STATE_RUN);
