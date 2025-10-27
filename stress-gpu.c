@@ -371,6 +371,7 @@ static int get_config(stress_args_t *args, EGLConfig *config)
 			     configs, num_configs,
 			     &num_configs) == EGL_FALSE) || (num_configs == 0)) {
 		pr_inf_skip("%s: EGL: can't choose EGL config, skipping stressor\n", args->name);
+		free(configs);
 		return EXIT_NO_RESOURCE;
 	}
 
@@ -381,6 +382,7 @@ static int get_config(stress_args_t *args, EGLConfig *config)
 				       EGL_NATIVE_VISUAL_ID,
 				       &gbm_format) == EGL_FALSE) {
 			pr_inf_skip("%s: EGL: eglGetConfigAttrib failed, skipping stressor\n", args->name);
+			free(configs);
 			return EXIT_NO_RESOURCE;
 		}
 
@@ -392,6 +394,7 @@ static int get_config(stress_args_t *args, EGLConfig *config)
 
 		return EXIT_SUCCESS;
 	}
+	free(configs);
 
 	pr_inf_skip("%s: EGL: cannot get configuration, skipping stressor\n", args->name);
 	return EXIT_NO_RESOURCE;
