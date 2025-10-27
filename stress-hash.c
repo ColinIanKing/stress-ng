@@ -688,7 +688,7 @@ static int OPTIMIZE3 stress_hash(stress_args_t *args)
 
 	for (i = 0; i < NUM_HASH_METHODS; i++) {
 		hash_stats[i].duration = 0.0;
-		hash_stats[i].total = false;
+		hash_stats[i].total = 0;
 		hash_stats[i].chi_squared = 0.0;
 	}
 
