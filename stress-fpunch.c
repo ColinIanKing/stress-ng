@@ -262,16 +262,17 @@ static int stress_punch_file(
 			}
 		}
 
-#if defined(FALLOC_FL_PUNCH_HOLE)
+#if defined(FALLOC_FL_PUNCH_HOLE) &&	\
+    defined(FALLOC_FL_KEEP_SIZE)
 		/* Create some holes to make more extents */
 
-		(void)shim_fallocate(fd, FALLOC_FL_PUNCH_HOLE, offset, 16);
+		(void)shim_fallocate(fd, FALLOC_FL_PUNCH_HOLE | FALLOC_FL_KEEP_SIZE, offset, 16);
 		if (UNLIKELY(!stress_continue(args)))
 			break;
-		(void)shim_fallocate(fd, FALLOC_FL_PUNCH_HOLE, offset + 128, 16);
+		(void)shim_fallocate(fd, FALLOC_FL_PUNCH_HOLE | FALLOC_FL_KEEP_SIZE, offset + 128, 16);
 		if (UNLIKELY(!stress_continue(args)))
 			break;
-		(void)shim_fallocate(fd, FALLOC_FL_PUNCH_HOLE, (off_t)stress_mwc64modn(fpunch_bytes), 16);
+		(void)shim_fallocate(fd, FALLOC_FL_PUNCH_HOLE | FALLOC_FL_KEEP_SIZE, (off_t)stress_mwc64modn(fpunch_bytes), 16);
 		if (UNLIKELY(!stress_continue(args)))
 			break;
 #endif
