@@ -51,7 +51,7 @@ static int stress_futex_wait(uint32_t *futex, const int val, const long int nsec
 	static int try_futex_waitv = true;
 	static int try = 0;
 
-	if (try_futex_waitv && (try++ > 16)) {
+	if (try_futex_waitv && (try++ >= 16)) {
 		struct shim_futex_waitv w;
 
 		(void)shim_memset(&w, 0, sizeof(w));
