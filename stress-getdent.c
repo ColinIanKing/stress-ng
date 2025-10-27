@@ -248,6 +248,11 @@ static int stress_getdents64_dir(
 	 */
 	VOID_RET(int, shim_getdents64((unsigned int)bad_fd, buf, buf_sz));
 
+	/*
+	 *  exercise getdents with illegal zero size
+	 */
+	VOID_RET(int, shim_getdents64((unsigned int)fd, buf, 0));
+
 	do {
 		struct shim_linux_dirent64 *ptr = (struct shim_linux_dirent64 *)buf;
 		const struct shim_linux_dirent64 *end;
