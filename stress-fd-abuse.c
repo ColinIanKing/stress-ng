@@ -334,6 +334,7 @@ static void stress_fd_open_pipe2_wr_end(stress_fd_t *fd)
 	fd->flags = 0;
 	if (pipe2(fds, flag) < 0) {
 		fd->fd = -1;
+		return;
 	}
 	(void)close(fds[0]);
 	fd->fd = fds[1];
