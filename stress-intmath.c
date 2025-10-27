@@ -244,7 +244,7 @@ PRAGMA_UNROLL_N(8)						\
 		i0 = r0 - i0;					\
 		i1 = r1 - i1;					\
 		i2 = r2 - i2;					\
-		i3 = r3 - r3;					\
+		i3 = r3 - i3;					\
 	}							\
 	*duration = stress_time_now() - t;			\
 								\
@@ -288,7 +288,7 @@ PRAGMA_UNROLL_N(8)						\
 		r2 = i2 * r1;					\
 		s2 ^= r2;					\
 		r3 = i3 * r2;					\
-		s3 ^= s3;					\
+		s3 ^= r3;					\
 	}							\
 	*duration = stress_time_now() - t;			\
 								\
