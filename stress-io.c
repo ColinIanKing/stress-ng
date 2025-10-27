@@ -88,8 +88,6 @@ static int stress_io(stress_args_t *args)
 		 *  exercise with an invalid fd
 		 */
 		if (UNLIKELY(syncfs(bad_fd) == 0)) {
-			if (UNLIKELY(errno == ENOSYS))
-				goto bogo_inc;
 			pr_fail("%s: syncfs on invalid fd %d succeed\n",
 				args->name, bad_fd);
 			rc = EXIT_FAILURE;
