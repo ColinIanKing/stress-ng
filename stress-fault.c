@@ -100,7 +100,7 @@ static int stress_fault(stress_args_t *args)
 #endif
 	i = 0;
 	do {
-		int fd;
+		int fd = -1;
 		uint8_t *ptr;
 		double t;
 
