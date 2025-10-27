@@ -340,9 +340,9 @@ static int stress_fractal(stress_args_t *args)
 	}
 	if (!stress_get_setting("fractal-ysize", &info.ysize)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			info.ysize = MAX_FRACTAL_XSIZE;
+			info.ysize = MAX_FRACTAL_YSIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			info.ysize = MIN_FRACTAL_XSIZE;
+			info.ysize = MIN_FRACTAL_YSIZE;
 	}
 
 	data_sz = sizeof(*info.data) * (size_t)info.xsize;
