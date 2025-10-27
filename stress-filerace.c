@@ -1351,7 +1351,7 @@ static void stress_filerace_filename(const char *pathname, char *filename, const
 
 	/* wrap or -ve time? */
 	if (t < 0) {
-		t_start = t;
+		t_start = time(NULL);
 		t = 0;
 	}
 	t &= 0x3f;
