@@ -394,10 +394,10 @@ static void stress_filerace_futimes(const int fd, const char *filename)
 	(void)filename;
 
 	tv[0].tv_sec = (time_t)stress_mwc64() & 0x3ffffffffULL;
-	tv[0].tv_usec = (time_t)stress_mwc32modn(1000000);
+	tv[0].tv_usec = (suseconds_t)stress_mwc32modn(1000000);
 
 	tv[1].tv_sec = (time_t)stress_mwc64() & 0x3ffffffffULL;
-	tv[1].tv_usec = (time_t)stress_mwc32modn(1000000);
+	tv[1].tv_usec = (suseconds_t)stress_mwc32modn(1000000);
 
 	VOID_RET(int, futimes(fd, tv));
 }
