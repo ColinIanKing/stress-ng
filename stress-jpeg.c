@@ -49,7 +49,7 @@ typedef struct {
 } jpeg_image_type_t;
 
 static const stress_help_t help[] = {
-	{ NULL,	"jpeg N",		"start N workers that burn cycles with no-ops" },
+	{ NULL,	"jpeg N",		"start N workers that perform jpeg image compression" },
 	{ NULL,	"jpeg-height N",	"image height in pixels "},
 	{ NULL,	"jpeg-image type",	"image type: one of brown, flat, gradient, noise, plasma or xstripes" },
 	{ NULL,	"jpeg-ops N",		"stop after N jpeg bogo no-op operations" },
