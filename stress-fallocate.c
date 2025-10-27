@@ -169,9 +169,9 @@ static int stress_fallocate(stress_args_t *args)
 #endif
 
 #if defined(HAVE_POSIX_FALLOCATE)
-		ret = shim_posix_fallocate(fd_async, (off_t)0, fallocate_bytes);
+		ret = shim_posix_fallocate(fd, (off_t)0, fallocate_bytes);
 #else
-		ret = shim_fallocate(fd_async, 0, (off_t)0, fallocate_bytes);
+		ret = shim_fallocate(fd, 0, (off_t)0, fallocate_bytes);
 #endif
 		if (UNLIKELY(!stress_continue_flag()))
 			break;
