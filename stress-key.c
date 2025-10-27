@@ -261,7 +261,7 @@ static int stress_key(stress_args_t *args)
 #endif
 
 			(void)snprintf(payload, sizeof(payload),
-				"somedata-%zu", n);
+				"somedata-%zu", i);
 #if defined(KEYCTL_UPDATE)
 			if (UNLIKELY(shim_keyctl(KEYCTL_UPDATE, (long int)keys[i],
 					         (long int)payload, (long int)strlen(payload), 0) < 0)) {
