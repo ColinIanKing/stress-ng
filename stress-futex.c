@@ -71,7 +71,7 @@ static int stress_futex_wait(uint32_t *futex, const int val, const long int nsec
 			}
 
 			ret = shim_futex_waitv(&w, 1, 0, &t, CLOCK_MONOTONIC);
-			if ((ret < 0) || (ret == ENOSYS)) {
+			if ((ret < 0) || (errno  == ENOSYS)) {
 				try_futex_waitv = false;
 			} else {
 				return ret;
