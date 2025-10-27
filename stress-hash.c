@@ -198,7 +198,7 @@ static int OPTIMIZE3 stress_hash_method_pjw(
 	stress_hash_stats_t *stats,
 	stress_bucket_t *bucket)
 {
-	return stress_hash_generic(name, hmi, stats,bucket, stress_hash_pjw_wrapper, 0xa89a91c0, 0xa89a91c0);
+	return stress_hash_generic(name, hmi, stats, bucket, stress_hash_pjw_wrapper, 0xa89a91c0, 0xa89a91c0);
 }
 
 static uint32_t CONST stress_hash_djb2a_wrapper(const char *str, const size_t len)
