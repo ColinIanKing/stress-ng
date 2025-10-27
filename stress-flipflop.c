@@ -253,7 +253,7 @@ static int stress_flipflop(stress_args_t *args)
 	if (!setbits)
 		stress_flipflop_set_cpuset(&cpus_b, num_cpus);
 
-	pr_dbg("%s: flipflop_bits=%u, taskset1=%u taskset=%u\n", args->name,
+	pr_dbg("%s: flipflop_bits=%u, taskset1=%u taskset2=%u\n", args->name,
 		flipflop_bits, CPU_COUNT(&cpus_a), CPU_COUNT(&cpus_b));
 
 	bits_size = ((flipflop_bits + 63) / 64) * 8;
