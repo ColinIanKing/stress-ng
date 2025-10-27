@@ -101,9 +101,9 @@ static char stress_fd_filename[PATH_MAX];
 static double t_now;
 
 static const stress_help_t help[] = {
-	{ NULL,	"fd-abuse N",	"start N workers abusing file descriptors" },
-	{ NULL,	"fd-abuse N",	"stop fd-abuse after bogo operations" },
-	{ NULL,	NULL,		NULL }
+	{ NULL,	"fd-abuse N",		"start N workers abusing file descriptors" },
+	{ NULL,	"fd-abuse-ops N",	"stop fd-abuse after bogo operations" },
+	{ NULL,	NULL,			NULL }
 };
 
 static bool stress_fd_now(double *t, const double next)
