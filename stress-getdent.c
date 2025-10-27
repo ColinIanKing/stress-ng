@@ -173,6 +173,9 @@ static int stress_getdents_dir(
 			rc = -errno;
 			goto exit_free;
 		}
+		if (nread > (int)buf_sz)
+			nread = buf_sz;
+
 		(*duration) += stress_time_now() - t;
 		(*count) += 1.0;
 		if (nread == 0)
