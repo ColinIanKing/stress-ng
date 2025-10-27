@@ -110,7 +110,7 @@ static int stress_full(stress_args_t *args)
 		 */
 		ret = write(fd, buffer, buffer_size);
 		if (UNLIKELY(ret != -1)) {
-			pr_fail("%s: write to /dev/null should fail "
+			pr_fail("%s: write to /dev/full should fail "
 				"with errno ENOSPC but it didn't\n",
 				args->name);
 			goto fail;
