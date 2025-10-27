@@ -606,7 +606,8 @@ static void stress_iomix_wr_bytes(
 					pr_fail("%s: write failed, errno=%d (%s)%s\n",
 						args->name, errno, strerror(errno), fs_type);
 					return;
-			}	}
+				}
+			}
 			(void)shim_usleep(1000);
 			posn += rc;
 			if (UNLIKELY(!stress_bogo_inc_lock(args, counter_lock, true)))
@@ -649,7 +650,8 @@ static void stress_iomix_wr_rev_bytes(
 					pr_fail("%s: write failed, errno=%d (%s)%s\n",
 						args->name, errno, strerror(errno), fs_type);
 					return;
-			}	}
+				}
+			}
 			(void)shim_usleep(1000);
 			posn--;
 			if (UNLIKELY(!stress_bogo_inc_lock(args, counter_lock, true)))
