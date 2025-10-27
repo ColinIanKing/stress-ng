@@ -277,9 +277,10 @@ static int stress_inode_flags_stressor(
 		VOID_RET(int, shim_file_getattr(data->dir_fd, "", &ufattr, sizeof(ufattr), 0));
 
 #if defined(AT_EMPTY_PATH)
-		/* Invalid size, E2BIG */
-		VOID_RET(int, shim_file_getattr(data->dir_fd, NULL, (struct shim_file_attr *)two_pages,
-			args->page_size * 2, AT_EMPTY_PATH));
+		/* Invalid size, E3BIG */
+		if (two_pages) 
+			VOID_RET(int, shim_file_getattr(data->dir_fd, NULL, (struct shim_file_attr *)two_pages,
+				args->page_size * 2, AT_EMPTY_PATH));
 #endif
 	}
 #if defined(AT_EMPTY_PATH)
