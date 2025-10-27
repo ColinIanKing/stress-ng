@@ -162,7 +162,7 @@ static int stress_forkheavy_child(stress_args_t *args, void *context)
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			forkheavy_allocs = MAX_FORKHEAVY_ALLOCS;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			forkheavy_allocs = MAX_FORKHEAVY_ALLOCS;
+			forkheavy_allocs = MIN_FORKHEAVY_ALLOCS;
 	}
 	if (!stress_get_setting("forkheavy-procs", &forkheavy_procs)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
