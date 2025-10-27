@@ -136,7 +136,7 @@ static int stress_kvm(stress_args_t *args)
 
 #if defined(KVM_GET_API_VERSION)
 		version = ioctl(kvm_fd, KVM_GET_API_VERSION, 0);
-		if ((!pr_version) && (stress_instance_zero(args))) {
+		if ((version != -1) && (!pr_version) && (stress_instance_zero(args))) {
 			pr_dbg("%s: KVM kernel API version %d\n", args->name, version);
 			pr_version = true;
 		}
