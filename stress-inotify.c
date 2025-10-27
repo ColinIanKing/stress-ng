@@ -315,7 +315,7 @@ redo:
 		}
 
 		/* Scan through inotify events */
-		while ((i >= 0) && (i <= len - (ssize_t)sizeof(struct inotify_event))) {
+		while (i <= len - (ssize_t)sizeof(struct inotify_event)) {
 			struct inotify_event *event =
 				(struct inotify_event *)&buffer[i];
 			uint32_t f = event->mask & (IN_DELETE_SELF |
