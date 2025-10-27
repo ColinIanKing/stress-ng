@@ -37,7 +37,7 @@
 
 static const stress_help_t help[] = {
 	{ NULL,	"gpu N",		"start N GPU worker" },
-	{ NULL,	"gpu-devnode name",	"specify CPU device node name" },
+	{ NULL,	"gpu-devnode name",	"specify GPU device node name" },
 	{ NULL,	"gpu-frag N",		"specify shader core usage per pixel" },
 	{ NULL,	"gpu-ops N",		"stop after N gpu render bogo operations" },
 	{ NULL,	"gpu-tex-size N",	"specify upload texture NxN" },
