@@ -91,7 +91,7 @@ static inline ALWAYS_INLINE double OPTIMIZE3 stress_plasma(
 	const double tau = 2 * M_PI;
 	double cx, cy;
 	double value;
-	double third = 0.3333333333333333333L;
+	double third = 0.3333333333333333333;
 
 	value = shim_sin((whence - x) * tau);
 	value += shim_cos((whence + y) * tau);
