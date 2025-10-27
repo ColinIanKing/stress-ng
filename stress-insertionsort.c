@@ -51,7 +51,7 @@ static uint64_t OPTIMIZE3 insertionsort_fwd(int32_t *base, size_t nmemb)
 			j--;
 		}
 		base[j] = tmp;
-		compares += (i - j - 1);
+		compares += (i - j);
 	}
 	return compares;
 }
