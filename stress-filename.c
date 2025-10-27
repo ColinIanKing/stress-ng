@@ -248,7 +248,7 @@ static void stress_filename_generate_utf8(
 			n -= 3;
 		} else if ((n > 4) && (ch < 0x110000)) {
 			/* U+10000 .. U+110000 */
-			*(ptr++) = 0xe8 | ((ch >> 18) & 0x7);
+			*(ptr++) = 0xf0 | ((ch >> 18) & 0x7);
 			*(ptr++) = 0x80 | ((ch >> 12) & 0x3f);
 			*(ptr++) = 0x80 | ((ch >> 6) & 0x3f);
 			*(ptr++) = 0x80 | ((ch >> 9) & 0x3f);
