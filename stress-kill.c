@@ -40,6 +40,11 @@ static int stress_kill(stress_args_t *args)
 	if (stress_sighandler(args->name, SIGUSR1, SIG_IGN, NULL) < 0)
 		return EXIT_FAILURE;
 
+	/*
+	 *  fork child, no error checking if it failed, if it
+	 *  does not work then it's not critical to the test
+	 *  per se.
+	 */
 	pid = fork();
 	if (pid == 0) {
 		stress_set_proc_state(args->name, STRESS_STATE_RUN);
