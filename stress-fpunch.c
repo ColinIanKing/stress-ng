@@ -102,7 +102,7 @@ static ssize_t stress_punch_pwrite(
 	const size_t size,
 	const off_t offset)
 {
-#if defined(HAVE_PWRITEV)
+#if defined(HAVE_PWRITE)
 	if (UNLIKELY(!stress_continue(args)))
 		return 0;
 	return pwrite(fd, data, size, offset);
@@ -131,7 +131,7 @@ static inline int stress_punch_check_zero(
 	ssize_t ret;
 	register const char *ptr, *ptr_end;
 
-#if defined(HAVE_PREADV)
+#if defined(HAVE_PREAD)
 	ret = pread(fd, data, size, offset);
 #else
 	if (lseek(fd, offset, SEEK_SET) < 0)
