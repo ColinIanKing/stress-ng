@@ -510,7 +510,7 @@ static int OPTIMIZE3 stress_far_branch(stress_args_t *args)
 			k = stress_mwc32modn((uint32_t)n_pages);
 			for (j = 0; j < n_pages; j++)  {
 				if (pages[k] != MAP_FAILED) {
-					pages[i] = pages[j];
+					pages[i] = pages[k];
 					break;
 				}
 				k++;
