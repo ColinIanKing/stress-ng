@@ -484,11 +484,12 @@ static int OPTIMIZE3 stress_far_branch(stress_args_t *args)
 	 */
 	for (k = 0, i = 0; i < PAGE_MULTIPLES; i++) {
 		for (j = 0; k < n_pages; j++, k++) {
-			const size_t shift = (16 + j) & 0xf;
+			const size_t shift = 16 + (j & 0xf);
 			size_t offset = ((uintptr_t)1 << shift) + (4 * page_size * (i + 4));
 
 			pages[k] = stress_far_mmap(fd, page_size, base, offset,
 						funcs, &total_funcs, &total_file_mapped_funcs);
+
 			if (pages[k] != MAP_FAILED) {
 				stress_set_vma_anon_name(pages[k], page_size, "functions-page");
 				n_pages_mapped++;
