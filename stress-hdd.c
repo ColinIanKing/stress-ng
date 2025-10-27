@@ -571,9 +571,9 @@ static void stress_hdd_opts(const char *opt_name, const char *opt_arg, stress_ty
 				const int exclude = hdd_flags & hdd_opts[i].exclude;
 
 				if (exclude) {
-					int j;
+					size_t j;
 
-					for (j = 0; hdd_opts[j].opt; j++) {
+					for (j = 0; j < SIZEOF_ARRAY(hdd_opts); j++) {
 						if ((exclude & hdd_opts[j].flag) == exclude) {
 							(void)fprintf(stderr,
 								"%s option '%s' is not "
