@@ -122,7 +122,7 @@ static int stress_fsize_boundary(
 			args->name, (intmax_t)off, (intmax_t)off);
 		return EXIT_FAILURE;
 	}
-	/* We should be able to fruncate a file to zero bytes */
+	/* We should be able to ftruncate a file to zero bytes */
 	if (ftruncate(fd, 0) < 0) {
 		pr_inf("%s: truncating file to zero bytes failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
