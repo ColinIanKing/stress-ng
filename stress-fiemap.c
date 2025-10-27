@@ -291,7 +291,7 @@ static int stress_fiemap(stress_args_t *args)
 	fiemap_bytes = fiemap_bytes_total / args->instances;
 	if (fiemap_bytes < MIN_FIEMAP_SIZE) {
 		fiemap_bytes = MIN_FIEMAP_SIZE;
-		fiemap_bytes_total = fiemap_bytes * args->instance;
+		fiemap_bytes_total = fiemap_bytes * args->instances;
 	}
 	if (stress_instance_zero(args))
 		stress_fs_usage_bytes(args, fiemap_bytes, fiemap_bytes_total);
