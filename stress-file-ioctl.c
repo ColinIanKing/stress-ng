@@ -294,6 +294,7 @@ static int stress_file_ioctl(stress_args_t *args)
 		for (i = 0; i < SIZEOF_ARRAY(stress_file_ioctl_fs); i++) {
 			if (strcmp(fs_type, stress_file_ioctl_fs[i].name) == 0) {
 				fs_func = stress_file_ioctl_fs[i].fs_func;
+				break;
 			}
 		}
 	}
