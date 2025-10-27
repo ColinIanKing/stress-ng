@@ -376,7 +376,7 @@ static int OPTIMIZE3 stress_far_branch(stress_args_t *args)
 	NOCLOBBER stress_ret_func_t *funcs = NULL;
 	NOCLOBBER void **pages = NULL;
 	NOCLOBBER size_t total_funcs = 0, total_file_mapped_funcs = 0;
-	NOCLOBBER size_t n_pages_failed, n_pages_mapped = 0;
+	NOCLOBBER size_t n_pages_failed = 0, n_pages_mapped = 0;
 	NOCLOBBER double calls = 0.0;
 	NOCLOBBER bool far_branch_flush = false;
 	NOCLOBBER bool far_branch_pageout = false;
