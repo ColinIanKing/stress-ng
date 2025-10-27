@@ -146,7 +146,7 @@ static int stress_insertionsort(stress_args_t *args)
 		goto tidy;
 	}
 	if (stress_sighandler(args->name, SIGALRM, stress_insertionsort_handler, &old_action) < 0) {
-		free(data);
+		(void)munmap((void *)data, data_size);
 		return EXIT_FAILURE;
 	}
 #endif
