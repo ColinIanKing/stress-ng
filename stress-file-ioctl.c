@@ -76,7 +76,7 @@ static void check_flag(
 		 *  The fcntl failed, so checking is not a valid
 		 *  thing to sanity check with.
 		 */
-		if (errno != 0)
+		if (flags < 0)
 			return;
 		if ((set && !(flags & flag)) ||
 		    (!set && (flags & flag))) {
