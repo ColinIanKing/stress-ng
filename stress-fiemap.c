@@ -316,7 +316,6 @@ static int stress_fiemap(stress_args_t *args)
 	(void)shim_memset(&fiemap, 0, sizeof(fiemap));
 	fiemap.fm_length = ~0UL;
 	if (ioctl(fd, FS_IOC_FIEMAP, &fiemap) < 0) {
-		errno = EOPNOTSUPP;
 		if (errno == EOPNOTSUPP) {
 			if (stress_instance_zero(args))
 				pr_inf_skip("%s: ioctl FS_IOC_FIEMAP not supported on the file system, skipping stressor%s\n",
