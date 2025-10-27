@@ -76,12 +76,12 @@ static stress_forkheavy_t *stress_forkheavy_new(void)
 		/* Pop an old one off the free list */
 		new = forkheavy_list.free;
 		forkheavy_list.free = new->next;
-		new->next = NULL;
 	} else {
 		new = (stress_forkheavy_t *)malloc(sizeof(*new));
 		if (!new)
 			return NULL;
 	}
+	new->next = NULL;
 
 	if (forkheavy_list.head)
 		forkheavy_list.tail->next = new;
