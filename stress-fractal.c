@@ -246,10 +246,10 @@ static void OPTIMIZE3 TARGET_CLONES stress_fractal_julia(fractal_info_t *info, c
 
 			x0_2 = x0 * x0;
 			y0_2 = y0 * y0;
-			end0 |= (x0_2 + y0_2 >= 4.0);
+			end0 |= (x0_2 + y0_2 > 4.0);
 			x1_2 = x1 * x1;
 			y1_2 = y1 * y1;
-			end1 |= (x1_2 + y1_2 >= 4.0);
+			end1 |= (x1_2 + y1_2 > 4.0);
 			iter0 += !end0;
 			iter1 += !end1;
 
