@@ -139,8 +139,8 @@ static int stress_fd_fork(stress_args_t *args)
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	stress_set_vma_anon_name(fds, fds_size, "fds");
 	if (fds == MAP_FAILED) {
-		pr_inf_skip("%s: failed to mmap %d file descriptors%s, skipping stressor\n",
-			args->name, STRESS_FD_MAX, stress_get_memfree_str());
+		pr_inf_skip("%s: failed to mmap %zu file descriptors%s, skipping stressor\n",
+			args->name, fd_fork_fds, stress_get_memfree_str());
 		return EXIT_NO_RESOURCE;
 	}
 
