@@ -421,25 +421,30 @@ static int egl_init(
 	if (fd < 0) {
 		pr_inf_skip("%s: couldn't open device '%s', errno=%d (%s), skipping stressor\n",
 			args->name, gpu_devnode, errno, strerror(errno));
+		(void)close(fd);
 		return EXIT_NO_RESOURCE;
 	}
 
 	gbm = gbm_create_device(fd);
 	if (!gbm) {
 		pr_inf_skip("%s: couldn't create gbm device, skipping stressor\n", args->name);
+		(void)close(fd);
 		return EXIT_NO_RESOURCE;
 	}
 
 	display = eglGetPlatformDisplay(EGL_PLATFORM_GBM_KHR, gbm, NULL);
 	if (display == EGL_NO_DISPLAY) {
 		pr_inf_skip("%s: EGL: eglGetPlatformDisplay failed with vendor, skipping stressor\n", args->name);
+		(void)close(fd);
 		return EXIT_NO_RESOURCE;
 	}
 
 	if (eglInitialize(display, &majorVersion, &minorVersion) == EGL_FALSE) {
 		pr_inf_skip("%s: EGL: failed to initialize EGL, skipping stressor\n", args->name);
+		(void)close(fd);
 		return EXIT_NO_RESOURCE;
 	}
+	(void)close(fd);
 
 	if (eglBindAPI(EGL_OPENGL_ES_API) == EGL_FALSE) {
 		pr_inf("%s: EGL: Failed to bind OpenGL ES\n", args->name);
