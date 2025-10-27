@@ -307,7 +307,7 @@ static int stress_flushcache_child(stress_args_t *args, void *ctxt)
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	(void)munmap(context->d_addr, args->page_size);
+	(void)munmap(context->d_addr, context->d_size);
 
 	return EXIT_SUCCESS;
 }
