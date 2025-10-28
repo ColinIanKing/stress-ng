@@ -394,7 +394,7 @@ static int stress_metamix(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		ret = stress_metamix_file(args, temp_dir, fs_type, (uint32_t)i, metamix_bytes);
+		ret = stress_metamix_file(args, temp_dir, fs_type, METAMIX_PROCS, metamix_bytes);
 	} while (stress_bogo_inc_lock(args, counter_lock, true) && (ret == EXIT_SUCCESS));
 
 reap:
