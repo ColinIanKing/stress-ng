@@ -170,7 +170,7 @@ static int stress_loadavg(stress_args_t *args)
 
 	(void)stress_get_setting("loadavg-max", &loadavg_max);
 
-	if (loadavg_max > threads_max) {
+	if ((threads_max > 0) && (loadavg_max > threads_max)) {
 		loadavg_max = threads_max;
 		if (stress_instance_zero(args)) {
 			pr_inf("%s: not enough pthreads, reducing loadavg-max, system limit is %" PRIu64 "\n",
