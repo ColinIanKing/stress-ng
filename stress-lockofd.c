@@ -222,7 +222,8 @@ static int stress_lockofd(stress_args_t *args)
 	char buffer[4096];
 	off_t offset;
 	ssize_t rc;
-
+	
+	(void)shim_memset(&lockofd_infos, 0, sizeof(lockofd_infos));
 	(void)shim_memset(buffer, 0, sizeof(buffer));
 
 	/*
