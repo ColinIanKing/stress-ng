@@ -426,7 +426,7 @@ static inline uint64_t OPTIMIZE3 stress_memrate_stos(
 		func((void *)ptr, loops);
 	}
 	/* And any residual less than chunk_size .. */
-	loops = (uint32_t)((end - ptr)/ wr_size);
+	loops = (uint32_t)((end - ptr) / wr_size);
 	if (loops) {
 		func((void *)ptr, loops);
 		ptr = end;
@@ -472,7 +472,7 @@ static inline uint64_t OPTIMIZE3 stress_memrate_stos_rate(
 	}
 
 	/* And any residual less than chunk_size .. */
-	loops = (uint32_t)((end - ptr)/ wr_size);
+	loops = (uint32_t)((end - ptr) / wr_size);
 	if (loops) {
 		func((void *)ptr, loops);
 		t2 = stress_time_now();
