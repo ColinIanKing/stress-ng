@@ -176,7 +176,6 @@ static int stress_punch_action(
 	if (UNLIKELY(!stress_continue(args)))
 		return 0;
 
-	pr_inf("%d %zd %zd\n", mode->write_before, size, offset);
 	/* Don't duplicate writes to previous location */
 	if ((mode->write_before) &&
 	    ((prev_size != size) || (prev_offset != offset))) {
