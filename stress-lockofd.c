@@ -250,7 +250,7 @@ static int stress_lockofd(stress_args_t *args)
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		ret = stress_exit_status(errno);
 		pr_err("%s: open %s failed, errno=%d (%s)\n",
-			args->name, pathname, errno, strerror(errno));
+			args->name, filename, errno, strerror(errno));
 		(void)shim_rmdir(pathname);
 		return ret;
 	}
