@@ -174,11 +174,12 @@ static int stress_do_mknod(
 		ret = mknod(path, mode, dev);
 	}
 #else
+	(void)dir_fd;
+	(void)bad_fd;
+
 	(void)shim_force_unlink(path);
 	ret = mknod(path, mode, dev);
 #endif
-	(void)dir_fd;
-	(void)bad_fd;
 
 	return ret;
 }
