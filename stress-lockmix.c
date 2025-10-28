@@ -335,11 +335,13 @@ static int stress_lockmix_contention(
 #endif
 #if defined(HAVE_LOCKMIX_LOCKF)
 		case LOCKMIX_TYPE_LOCKF:
-			rc = lockf(fd, F_LOCK, LOCK_SIZE);
-			if (rc < 0) {
-				if (UNLIKELY(stress_lockmix_unlock(args, fd) < 0))
-					return -1;
-				continue;
+			if (lseek(fd, offset, SEEK_SET) != (off_t)-1) {
+				rc = lockf(fd, F_LOCK, LOCK_SIZE);
+				if (rc < 0) {
+					if (UNLIKELY(stress_lockmix_unlock(args, fd) < 0))
+						return -1;
+					continue;
+				}
 			}
 			break;
 #endif
