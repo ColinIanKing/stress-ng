@@ -908,7 +908,7 @@ static inline int stress_matrix_exercise(
 			goto tidy_r;
 		}
 		(void)stress_madvise_collapse(s, matrix_mmap_size);
-		stress_set_vma_anon_name(r, matrix_mmap_size, "matrix-s");
+		stress_set_vma_anon_name(s, matrix_mmap_size, "matrix-s");
 	}
 
 	/*
