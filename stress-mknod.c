@@ -137,7 +137,7 @@ static int stress_mknod_check_errno(
 	default:
 		/* An error occurred that is worth reporting */
 		pr_fail("%s: mknod %s on %s failed, errno=%d (%s)\n",
-			args->name, mode_str, path, errno, strerror(errno));
+			args->name, mode_str, path, err, strerror(err));
 		break;
 	}
 	return -1;
