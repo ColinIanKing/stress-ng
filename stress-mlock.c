@@ -104,6 +104,8 @@ static int do_mlock(
 	} else {
 		double t;
 
+		metrics_count = 0;
+
 		/* slower metrics timed mlock operations */
 		if (use_mlock2) {
 			const uint8_t rnd = stress_mwc8() >> 5;
@@ -153,6 +155,8 @@ static inline int do_mlock(
 		ret = shim_mlock((const void *)addr, len);
 	} else {
 		double t;
+
+		metrics_count = 0;
 
 		/* slower metrics timed mlock operations */
 		t = stress_time_now();
