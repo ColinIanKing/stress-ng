@@ -145,7 +145,7 @@ static void *stress_membarrier_thread(void *arg)
 
 /*
  *  stress on membarrier()
- *	stress system by IO sync calls
+ *	stress system by hammering memory barriers
  */
 static int stress_membarrier(stress_args_t *args)
 {
