@@ -54,10 +54,10 @@ static const stress_help_t help[] = {
 };
 
 #if defined(HAVE_VECMATH)
-typedef uint64_t stress_uint32w1024_t	__attribute__ ((vector_size(1024 / 8)));
-typedef uint64_t stress_uint32w512_t	__attribute__ ((vector_size(512 / 8)));
-typedef uint64_t stress_uint32w256_t	__attribute__ ((vector_size(256 / 8)));
-typedef uint64_t stress_uint32w128_t	__attribute__ ((vector_size(128 / 8)));
+typedef uint64_t stress_uint64w1024_t	__attribute__ ((vector_size(1024 / 8)));
+typedef uint64_t stress_uint64w512_t	__attribute__ ((vector_size(512 / 8)));
+typedef uint64_t stress_uint64w256_t	__attribute__ ((vector_size(256 / 8)));
+typedef uint64_t stress_uint64w128_t	__attribute__ ((vector_size(128 / 8)));
 #endif
 
 #if defined(HAVE_SIGLONGJMP)
@@ -267,14 +267,14 @@ static uint64_t TARGET_CLONES OPTIMIZE3 stress_memrate_read_rate##size(		\
 #define no_prefetch(ptr, arg1, arg2)
 
 #if defined(HAVE_VECMATH)
-STRESS_MEMRATE_READ(1024, stress_uint32w1024_t, no_prefetch)
-STRESS_MEMRATE_READ_RATE(1024, stress_uint32w1024_t, no_prefetch)
-STRESS_MEMRATE_READ(512, stress_uint32w512_t, no_prefetch)
-STRESS_MEMRATE_READ_RATE(512, stress_uint32w512_t, no_prefetch)
-STRESS_MEMRATE_READ(256, stress_uint32w256_t, no_prefetch)
-STRESS_MEMRATE_READ_RATE(256, stress_uint32w256_t, no_prefetch)
-STRESS_MEMRATE_READ(128, stress_uint32w128_t, no_prefetch)
-STRESS_MEMRATE_READ_RATE(128, stress_uint32w128_t, no_prefetch)
+STRESS_MEMRATE_READ(1024, stress_uint64w1024_t, no_prefetch)
+STRESS_MEMRATE_READ_RATE(1024, stress_uint64w1024_t, no_prefetch)
+STRESS_MEMRATE_READ(512, stress_uint64w512_t, no_prefetch)
+STRESS_MEMRATE_READ_RATE(512, stress_uint64w512_t, no_prefetch)
+STRESS_MEMRATE_READ(256, stress_uint64w256_t, no_prefetch)
+STRESS_MEMRATE_READ_RATE(256, stress_uint64w256_t, no_prefetch)
+STRESS_MEMRATE_READ(128, stress_uint64w128_t, no_prefetch)
+STRESS_MEMRATE_READ_RATE(128, stress_uint64w128_t, no_prefetch)
 #endif
 #if defined(HAVE_INT128_T) && !defined(HAVE_VECMATH)
 STRESS_MEMRATE_READ(128, __uint128_t, no_prefetch)
@@ -845,14 +845,14 @@ STRESS_MEMRATE_WRITE_OP_RATE(64, uint64_t, stress_ds_store64, ds, stress_cpu_x86
 #endif
 
 #if defined(HAVE_VECMATH)
-STRESS_MEMRATE_WRITE(1024, stress_uint32w1024_t)
-STRESS_MEMRATE_WRITE_RATE(1024, stress_uint32w1024_t)
-STRESS_MEMRATE_WRITE(512, stress_uint32w512_t)
-STRESS_MEMRATE_WRITE_RATE(512, stress_uint32w512_t)
-STRESS_MEMRATE_WRITE(256, stress_uint32w256_t)
-STRESS_MEMRATE_WRITE_RATE(256, stress_uint32w256_t)
-STRESS_MEMRATE_WRITE(128, stress_uint32w128_t)
-STRESS_MEMRATE_WRITE_RATE(128, stress_uint32w128_t)
+STRESS_MEMRATE_WRITE(1024, stress_uint64w1024_t)
+STRESS_MEMRATE_WRITE_RATE(1024, stress_uint64w1024_t)
+STRESS_MEMRATE_WRITE(512, stress_uint64w512_t)
+STRESS_MEMRATE_WRITE_RATE(512, stress_uint64w512_t)
+STRESS_MEMRATE_WRITE(256, stress_uint64w256_t)
+STRESS_MEMRATE_WRITE_RATE(256, stress_uint64w256_t)
+STRESS_MEMRATE_WRITE(128, stress_uint64w128_t)
+STRESS_MEMRATE_WRITE_RATE(128, stress_uint64w128_t)
 #endif
 #if defined(HAVE_INT128_T) && !defined(HAVE_VECMATH)
 STRESS_MEMRATE_WRITE(128, __uint128_t)
