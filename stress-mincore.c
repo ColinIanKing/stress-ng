@@ -144,7 +144,7 @@ static int stress_mincore(stress_args_t *args)
 
 		for (i = 0; LIKELY((i < 100) && stress_continue_flag()); i++) {
 			int ret, redo = 0;
-			static unsigned char vec[1];
+			unsigned char vec[1];
 			double t;
 
 redo: 			errno = 0;
@@ -170,7 +170,7 @@ redo: 			errno = 0;
 						strerror(errno));
 					rc = EXIT_FAILURE;
 					break;
-				}
+			}
 			}
 			if (mapped != MAP_FAILED) {
 				/* Force page to be resident */
