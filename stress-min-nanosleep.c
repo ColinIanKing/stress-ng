@@ -425,7 +425,9 @@ err:
 					continue;
 
 				ret = waitpid(delays[k].pid, &status, 0);
-				if (ret < 0) {
+				if (ret > 0) {
+					delays[k].finished = true;
+				} else if (ret < 0) {
 					if (errno == ECHILD)
 						delays[k].finished = true;
 				}
