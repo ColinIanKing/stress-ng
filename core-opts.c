@@ -588,7 +588,7 @@ const struct option stress_long_options[] = {
 	{ "metrics-brief",	0,	0,	OPT_metrics_brief },
 	{ "mincore",		1,	0,	OPT_mincore },
 	{ "mincore-ops",	1,	0,	OPT_mincore_ops },
-	{ "mincore-random",	0,	0,	OPT_mincore_rand },
+	{ "mincore-random",	0,	0,	OPT_mincore_random },
 	{ "min-nanosleep",	1,	0,	OPT_min_nanosleep },
 	{ "min-nanosleep-ops",	1,	0,	OPT_min_nanosleep_ops },
 	{ "min-nanosleep-max",	1,	0,	OPT_min_nanosleep_max },

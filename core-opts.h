@@ -879,7 +879,7 @@ typedef enum {
 
 	OPT_mincore,
 	OPT_mincore_ops,
-	OPT_mincore_rand,
+	OPT_mincore_random,
 
 	OPT_min_nanosleep,
 	OPT_min_nanosleep_ops,

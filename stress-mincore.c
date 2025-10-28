@@ -27,7 +27,7 @@ static const stress_help_t help[] = {
 };
 
 static const stress_opt_t opts[] = {
-	{ OPT_mincore_rand, "mincore-rand", TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_mincore_random, "mincore-random", TYPE_ID_BOOL, 0, 1, NULL },
 	END_OPT,
 };
 
@@ -103,12 +103,12 @@ static int stress_mincore(stress_args_t *args)
 	uint8_t *addr = NULL, *prev_addr = NULL;
 	const size_t page_size = args->page_size;
 	const intptr_t mask = ~((intptr_t)page_size - 1);
-	bool mincore_rand = false;
+	bool mincore_random = false;
 	int fd, rc = EXIT_SUCCESS;
 	uint8_t *mapped, *unmapped, *fdmapped;
 	double duration = 0.0, count = 0.0, rate;
 
-	(void)stress_get_setting("mincore-rand", &mincore_rand);
+	(void)stress_get_setting("mincore-random", &mincore_random);
 
 	/* Don't worry if we can't map a page, it is not critical */
 	mapped = mmap(NULL, page_size, PROT_READ | PROT_WRITE,
@@ -216,7 +216,7 @@ redo: 			errno = 0;
 					rc = EXIT_FAILURE;
 				}
 			}
-			if (mincore_rand) {
+			if (mincore_random) {
 				addr = (uint8_t *)(intptr_t)
 					(((intptr_t)addr >> 1) & mask);
 				if (addr == prev_addr)
