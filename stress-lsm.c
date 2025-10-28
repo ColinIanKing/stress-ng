@@ -182,6 +182,7 @@ static int stress_lsm(stress_args_t *args)
 			}
 
 			/* exercise invalid attr */
+			ctx = (struct lsm_ctx *)buf;
 			size = buf_size;
 			ret = shim_lsm_get_self_attr(~0, ctx, &size, 0);
 			if (UNLIKELY((ret >= 0) || ((ret < 0) && (errno != EOPNOTSUPP)))) {
