@@ -33,6 +33,7 @@
 
 static const stress_help_t help[] = {
 	{ NULL,	"llc-affinity N",	"start N workers exercising low level cache over all CPUs" },
+	{ NULL, "llc-clflush",		"enable cache line flushing on memory" },
 	{ NULL,	"llc-affinity-mlock",	"attempt to mlock pages into memory" },
 	{ NULL,	"llc-affinity-numa",	"bind memory mappings to randomly selected NUMA nodes" },
 	{ NULL,	"llc-affinity-ops N",	"stop after N low-level-cache bogo operations" },
