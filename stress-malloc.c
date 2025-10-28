@@ -467,7 +467,7 @@ static int stress_malloc_child(stress_args_t *args, void *context)
 			pr_fail("%s: pthread_join failed (parent), errno=%d (%s)\n",
 				args->name, ret, strerror(ret));
 		}
-		if (malloc_args[j].rc == EXIT_FAILURE)
+		if (malloc_args[j + 1].rc == EXIT_FAILURE)
 			rc = EXIT_FAILURE;
 	}
 #endif
