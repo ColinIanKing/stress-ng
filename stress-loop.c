@@ -280,7 +280,7 @@ static int stress_loop(stress_args_t *args)
 		/*
 		 *  Try to set some flags
 		 */
-		info.lo_flags |= (LO_FLAGS_AUTOCLEAR | LO_FLAGS_READ_ONLY);
+		info64.lo_flags |= (LO_FLAGS_AUTOCLEAR | LO_FLAGS_READ_ONLY);
 #if defined(LOOP_SET_STATUS64)
 		VOID_RET(int, ioctl(loop_dev, LOOP_SET_STATUS64, &info64));
 #endif
