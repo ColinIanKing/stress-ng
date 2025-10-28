@@ -624,7 +624,6 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_xyz_negate(
 {
 	register size_t i;
 
-	(void)a;
 	(void)b;
 
 	for (i = 0; i < n; i++) {
@@ -653,7 +652,6 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_zyx_negate(
 {
 	register size_t k;
 
-	(void)a;
 	(void)b;
 
 	for (k = 0; k < n; k++) {
