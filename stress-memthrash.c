@@ -874,7 +874,7 @@ static inline uint32_t stress_memthrash_max(
 	}
 }
 
-static inline uint32_t stress_memthash_optimal(
+static inline uint32_t stress_memthrash_optimal(
 	const uint32_t instances,
 	const uint32_t total_cpus)
 {
@@ -1020,7 +1020,7 @@ static int stress_memthrash(stress_args_t *args)
 			pr_inf("%s: this is not an optimal choice of stressors, "
 				"try %" PRIu32 " instead\n",
 			args->name,
-			stress_memthash_optimal(args->instances, context.total_cpus));
+			stress_memthrash_optimal(args->instances, context.total_cpus));
 		}
 	}
 
