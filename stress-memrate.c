@@ -1089,7 +1089,7 @@ static int stress_memrate(stress_args_t *args)
 	flag = ((context.memrate_rd_mbs == 0) ? 0 : MR_RD) |
 	       ((context.memrate_wr_mbs == 0) ? 0 : MR_WR);
 	if ((flag & memrate_info[context.memrate_method].rdwr) == 0) {
-		pr_fail("%s: cannot use zero MB rate and just methood %s\n",
+		pr_fail("%s: cannot use zero MB rate and just method %s\n",
 			args->name, memrate_info[context.memrate_method].name);
 		return EXIT_FAILURE;
 	}
