@@ -183,7 +183,7 @@ redo: 			errno = 0;
 				} else {
 					/* Should not return ENOMEM on a mapped page */
 					if (UNLIKELY(errno == ENOMEM)) {
-						pr_fail("%s: mincore on address %p failed, errno=$%d (%s)\n",
+						pr_fail("%s: mincore on address %p failed, errno=%d (%s)\n",
 							args->name, (void *)mapped, errno,
 							strerror(errno));
 						rc = EXIT_FAILURE;
@@ -200,7 +200,7 @@ redo: 			errno = 0;
 				if (ret < 0) {
 					/* Should not return ENOMEM on a mapped page */
 					if (UNLIKELY(errno == ENOMEM)) {
-						pr_fail("%s: mincore on address %p failed, errno=$%d (%s)\n",
+						pr_fail("%s: mincore on address %p failed, errno=%d (%s)\n",
 							args->name, (void *)fdmapped, errno,
 							strerror(errno));
 						rc = EXIT_FAILURE;
