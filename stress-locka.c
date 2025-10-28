@@ -189,7 +189,7 @@ static int stress_locka_contention(
 
 		if (UNLIKELY(!stress_continue_flag()))
 			break;
-		rc = fcntl(fd, F_GETLK, &f);
+		rc = fcntl(fd, F_SETLK, &f);
 		if (UNLIKELY(rc < 0))
 			continue;
 
