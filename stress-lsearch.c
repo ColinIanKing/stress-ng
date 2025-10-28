@@ -189,7 +189,7 @@ static int stress_lsearch(stress_args_t *args)
 			args->name, max, stress_get_memfree_str());
 		return EXIT_NO_RESOURCE;
 	}
-	if ((root = (int32_t *)calloc(max, sizeof(*data))) == NULL) {
+	if ((root = (int32_t *)calloc(max, sizeof(*root))) == NULL) {
 		free(data);
 		pr_inf_skip("%s: malloc failed allocating %zu integers%s, "
 			"skipping stressor\n",
