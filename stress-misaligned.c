@@ -1137,7 +1137,7 @@ static stress_misaligned_method_info_t stress_misaligned_methods[] = {
 #endif
 	{ "int32rd",	stress_misaligned_int32rd,	false,	false },
 	{ "int32wr",	stress_misaligned_int32wr,	false,	false },
-#if defined(HAVE_NT_STORE64)
+#if defined(HAVE_NT_STORE32)
 	{ "int32wrnt",	stress_misaligned_int32wrnt,	false,	false },
 #endif
 	{ "int32inc",	stress_misaligned_int32inc,	false,	false },
