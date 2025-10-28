@@ -3349,7 +3349,7 @@ next_opt:
 			break;
 		case OPT_query:
 			if (!jobmode)
-				(void)printf("Try '%s --help' for more information.\n", g_app_name);
+				(void)printf("Try '%s --help' or 'man stress-ng' for more information.\n", g_app_name);
 			return EXIT_FAILURE;
 		case OPT_quiet:
 			g_opt_flags &= ~(OPT_FLAGS_PR_ALL);
