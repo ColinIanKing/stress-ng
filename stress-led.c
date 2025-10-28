@@ -130,6 +130,8 @@ static stress_led_info_t *stress_led_info_get(void)
 	struct dirent **led_list = NULL;
 
 	n_devs = scandir(sys_devices, &led_list, stress_led_dot_filter, NULL);
+	if (n_devs < 0)
+		return NULL;
 	for (i = 0; i < n_devs; i++) {
 		const int j = stress_mwc16modn(n_devs);
 		struct dirent *tmp;
