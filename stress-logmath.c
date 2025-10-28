@@ -116,7 +116,7 @@ static bool OPTIMIZE3 TARGET_CLONES stress_logmath_clogl(stress_args_t *args)
 {
 	register long double complex sum = 0.0;
 	register int i;
-	static long complex double result = -1.0;
+	static long double complex result = -1.0;
 	static bool first_run = true;
 
 PRAGMA_UNROLL_N(8)
