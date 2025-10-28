@@ -109,7 +109,7 @@ do {								\
 	(void)ptr;						\
 	(void)old_val;						\
 	(void)new_val;						\
-}
+} while (0)
 #endif
 
 #define MEM_LOCK_AND_INC(ptr, inc)		\
