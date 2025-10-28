@@ -82,7 +82,7 @@ static const char * const loop_attr[] = {
 };
 
 /*
- *  stress_loot_supported()
+ *  stress_loop_supported()
  *      check if we can run this as root
  */
 static int stress_loop_supported(const char *name)
