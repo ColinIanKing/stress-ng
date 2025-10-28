@@ -352,7 +352,7 @@ static uint64_t stress_landlock_get_access_mask(void)
 			}
 		}
 	}
-	mask &= 0x1fff;
+	mask &= 0xffff;
 	return mask;
 }
 
