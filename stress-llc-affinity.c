@@ -582,7 +582,7 @@ static int stress_llc_affinity(stress_args_t *args)
 
 	writes /= (double)MB;
 	rate = write_duration > 0.0 ? (double)writes / write_duration : 0.0;
-	stress_metrics_set(args, 0, "MB pec sec memory write rate",
+	stress_metrics_set(args, 0, "MB per sec memory write rate",
 		rate, STRESS_METRIC_HARMONIC_MEAN);
 	reads /= (double)MB;
 	rate = read_duration > 0.0 ? (double)reads / read_duration : 0.0;
