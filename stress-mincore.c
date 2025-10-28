@@ -244,7 +244,7 @@ redo: 			errno = 0;
 #endif
 
 				/*
-				 *  Exercise with masaligned address, ignore return
+				 *  Exercise with misaligned address, ignore return
 				 */
 				ret = shim_mincore((void *)(mapped + 1), 0, vec);
 				stress_mincore_expect(args, ret, 0, errno, EINVAL,
