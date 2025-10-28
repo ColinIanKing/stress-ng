@@ -151,7 +151,7 @@ static void *stress_loadavg_func(void *arg)
  */
 static int stress_loadavg(stress_args_t *args)
 {
-	static stress_loadavg_info_t *pthreads;
+	stress_loadavg_info_t *pthreads;
 	uint64_t i, j, pthread_max;
 	const uint64_t threads_max = stress_loadavg_threads_max();
 	const uint32_t instances = (args->instances > 1 ?
