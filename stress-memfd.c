@@ -522,11 +522,6 @@ buf_unmap:
 		if (fd >= 0)
 			(void)close(fd);
 
-		/* Exercise illegal path / in name */
-		fd = shim_memfd_create("/path/in/name", ~0U);
-		if (fd >= 0)
-			(void)close(fd);
-
 		/* Exercise illegal zero length name */
 		fd = shim_memfd_create("", ~0U);
 		if (fd >= 0)
