@@ -842,7 +842,7 @@ static void stress_misaligned_int64wrnt(
 	return;
 
 fail:
-	pr_inf("%s: int64wrt: difference between 64 bit value written and value read back\n", args->name);
+	pr_inf("%s: int64wrnt: difference between 64 bit value written and value read back\n", args->name);
 	*succeeded = false;
 }
 #endif
@@ -892,7 +892,7 @@ static void stress_misaligned_int64wrds(
 	return;
 
 fail:
-	pr_inf("%s: int64wrt: difference between 64 bit value written and value read back\n", args->name);
+	pr_inf("%s: int64wrds: difference between 64 bit value written and value read back\n", args->name);
 	*succeeded = false;
 }
 #endif
