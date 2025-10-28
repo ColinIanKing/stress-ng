@@ -74,7 +74,7 @@ static OPTIMIZE3 void *memcpy_no_check_func(memcpy_func_t func, void *dest, cons
 	return func(dest, src, n);
 }
 
-static OPTIMIZE3 void *memmove_check_func(memcpy_func_t func, void *dest, const void *src, size_t n)
+static OPTIMIZE3 void *memmove_check_func(memmove_func_t func, void *dest, const void *src, size_t n)
 {
 	void *ptr = func(dest, src, n);
 
@@ -89,7 +89,7 @@ static OPTIMIZE3 void *memmove_check_func(memcpy_func_t func, void *dest, const 
 	return ptr;
 }
 
-static OPTIMIZE3 void *memmove_no_check_func(memcpy_func_t func, void *dest, const void *src, size_t n)
+static OPTIMIZE3 void *memmove_no_check_func(memmove_func_t func, void *dest, const void *src, size_t n)
 {
 	return func(dest, src, n);
 }
@@ -330,7 +330,7 @@ static int stress_memcpy(stress_args_t *args)
 
 	(void)stress_get_setting("memcpy-method", &memcpy_method);
 	func = stress_memcpy_methods[memcpy_method].func;
-	stress_rndbuf(str3, ALIGN_SIZE);
+	stress_rndbuf(str3, MEMCPY_MEMSIZE);
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
