@@ -375,6 +375,11 @@ static int stress_min_nanosleep(stress_args_t *args)
 				dt_nsec = (t2.tv_sec - t1.tv_sec) * 1000000000;
 				dt_nsec += t2.tv_nsec - t1.tv_nsec;
 
+				if (dt_nsec < 0)
+					dt_nsec = 0;
+				if (dt_nsec > UINT32_MAX)
+					dt_nsec = UINT32_MAX;
+
 				dt_nsec /= j;
 
 				if (delay->min_nsec > dt_nsec)
