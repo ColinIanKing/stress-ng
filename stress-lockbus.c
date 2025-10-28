@@ -254,14 +254,20 @@ static int stress_lockbus(stress_args_t *args)
 	misaligned_ptr1 = (uint32_t *)(uintptr_t)((uint8_t *)buffer + 1);
 	misaligned_ptr2 = (uint32_t *)(uintptr_t)((uint8_t *)buffer + 10);
 
-	if (stress_sighandler(args->name, SIGBUS, stress_sigbus_misaligned_handler, NULL) < 0)
-		return EXIT_FAILURE;
+	if (stress_sighandler(args->name, SIGBUS, stress_sigbus_misaligned_handler, NULL) < 0) {
+		rc = EXIT_FAILURE;
+		goto unmap_buffer;
+	}
 #if defined(HAVE_TIMER_FUNCS)
-	if (stress_sighandler(args->name, SIGRTMIN, stress_sigbus_misaligned_handler, NULL) < 0)
-		return EXIT_FAILURE;
+	if (stress_sighandler(args->name, SIGRTMIN, stress_sigbus_misaligned_handler, NULL) < 0) {
+		rc = EXIT_FAILURE;
+		goto unmap_buffer;
+	}
 #endif
-	if (stress_sighandler(args->name, SIGILL, stress_sigill_handler, NULL) < 0)
-		return EXIT_FAILURE;
+	if (stress_sighandler(args->name, SIGILL, stress_sigill_handler, NULL) < 0) {
+		rc = EXIT_FAILURE;
+		goto unmap_buffer;
+	}
 	if (sigsetjmp(jmp_env, 1))
 		goto misaligned_done;
 
@@ -422,6 +428,7 @@ done:
 	stress_metrics_set(args, 0, "nanosecs per memory lock operation",
 		rate * STRESS_DBL_NANOSECOND, STRESS_METRIC_HARMONIC_MEAN);
 
+unmap_buffer:
 	(void)munmap((void *)buffer, BUFFER_SIZE);
 
 	return rc;
