@@ -256,7 +256,8 @@ unmap:
 			if (UNLIKELY(!stress_continue(args)))
 				break;
 		}
-		stress_kill_and_wait_many(args, s_pids, n, SIGALRM, false);
+		/* and kill! */
+		stress_kill_and_wait_many(args, s_pids, n, SIGKILL, false);
 	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
