@@ -319,7 +319,6 @@ static void *stress_malloc_loop(void *ptr)
 					break;
 				}
 				if (LIKELY(info[i].addr != NULL)) {
-					stress_alloc_action("malloc", len);
 					stress_malloc_page_touch((void *)info[i].addr, len, page_size);
 					*info[i].addr = (uintptr_t)info[i].addr;	/* stash address */
 					info[i].len = len;
