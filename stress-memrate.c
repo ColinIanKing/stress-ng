@@ -874,12 +874,12 @@ static const stress_memrate_info_t memrate_info[] = {
 	{ "write64stoq", MR_WR,	stress_memrate_write_stos64,	stress_memrate_write_stos_rate64 },
 #endif
 #if defined(HAVE_ASM_X86_REP_STOSD) &&	\
-    !defined(__ILP32__)
-	{ "write32stow",MR_WR,	stress_memrate_write_stos32,	stress_memrate_write_stos_rate32 },
+    !defined(__ILP2__)
+	{ "write32stod",MR_WR,	stress_memrate_write_stos32,	stress_memrate_write_stos_rate32 },
 #endif
 #if defined(HAVE_ASM_X86_REP_STOSW) &&	\
     !defined(__ILP32__)
-	{ "write16stod",MR_WR,	stress_memrate_write_stos16,	stress_memrate_write_stos_rate16 },
+	{ "write16stow",MR_WR,	stress_memrate_write_stos16,	stress_memrate_write_stos_rate16 },
 #endif
 #if defined(HAVE_ASM_X86_REP_STOSB) &&	\
     !defined(__ILP32__)
