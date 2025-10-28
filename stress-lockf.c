@@ -147,6 +147,13 @@ static int stress_lockf_unlock(stress_args_t *args, const int fd)
 			args->name, errno, strerror(errno));
 		return -1;
 	}
+	/*
+	 *  We need to pop lock record off the list even if
+	 *  the following unlock fails otherwise we get
+	 *  repeated unlock attempts on the same lock forever.
+	 *  If the unlock fails, we just have to report this
+	 *  and abort.
+	 */
 	stress_lockf_info_head_remove();
 
 	if (UNLIKELY(lockf(fd, F_ULOCK, LOCK_SIZE) < 0)) {
