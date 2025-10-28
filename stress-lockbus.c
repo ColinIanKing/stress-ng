@@ -157,7 +157,7 @@ static void stress_lockbus_init(const uint32_t instances)
 	shared_buffer = (uint32_t *)stress_mmap_populate(NULL, SHARED_BUFFER_SIZE,
 		PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (shared_buffer != MAP_FAILED)
-		stress_set_vma_anon_name(shared_buffer, BUFFER_SIZE, "lockbus-shared-data");
+		stress_set_vma_anon_name(shared_buffer, SHARED_BUFFER_SIZE, "lockbus-shared-data");
 }
 
 static void stress_lockbus_deinit(void)
