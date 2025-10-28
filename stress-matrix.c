@@ -180,7 +180,7 @@ PRAGMA_UNROLL_N(8)
 }
 
 /*
- *  stress_matrix_xy_sub()
+ *  stress_matrix_yx_sub()
  *	matrix subtraction
  */
 static void OPTIMIZE3 TARGET_CLONES stress_matrix_yx_sub(
