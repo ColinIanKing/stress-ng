@@ -209,6 +209,11 @@ static int stress_membarrier(stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
+	/*
+	 *  this is potentially racy, but adding locking
+	 *  skews metrics even more so it's a price we
+	 *  pay for something fast verses slow and 100% correct
+	 */
 	for (i = 0; i < MAX_MEMBARRIER_THREADS + 1; i++) {
 		duration += info[i].duration;
 		count += info[i].count;
