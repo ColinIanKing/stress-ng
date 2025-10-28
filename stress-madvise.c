@@ -208,7 +208,7 @@ static int stress_random_advise(
 
 #if defined(MADV_SOFT_OFFLINE)
 	if (advise == MADV_SOFT_OFFLINE) {
-		static int soft_offline_count;
+		static int soft_offline_count = 0;
 
 		/* ..and minimize number of soft offline pages */
 		if ((soft_offline_count >= NUM_SOFT_OFFLINE_MAX) ||
