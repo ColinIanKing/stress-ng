@@ -113,7 +113,7 @@ typedef struct {
 
 static stress_misaligned_method_info_t *current_method;
 
-static inline ALWAYS_INLINE void stress_misligned_disable(void)
+static inline ALWAYS_INLINE void stress_misaligned_disable(void)
 {
 	if (current_method)
 		current_method->disabled = true;
@@ -582,7 +582,7 @@ static void stress_misaligned_int32wrnt(
 	if (!stress_cpu_x86_has_sse2()) {
 		if (stress_instance_zero(args))
 			pr_inf("%s: int32wrnt disabled, 32 bit non-temporal store not available\n", args->name);
-		stress_misligned_disable();
+		stress_misaligned_disable();
 		return;
 	}
 
@@ -815,7 +815,7 @@ static void stress_misaligned_int64wrnt(
 	if (!stress_cpu_x86_has_sse2()) {
 		if (stress_instance_zero(args))
 			pr_inf("%s: int64wrnt disabled, 64 bit non-temporal store not available\n", args->name);
-		stress_misligned_disable();
+		stress_misaligned_disable();
 		return;
 	}
 
@@ -865,7 +865,7 @@ static void stress_misaligned_int64wrds(
 	if (!stress_cpu_x86_has_movdiri()) {
 		if (stress_instance_zero(args))
 			pr_inf("%s: int64wrds disabled, 64 bit direct store not available\n", args->name);
-		stress_misligned_disable();
+		stress_misaligned_disable();
 		return;
 	}
 
@@ -1053,7 +1053,7 @@ static void stress_misaligned_int128wrnt(
 	if (!stress_cpu_x86_has_sse2()) {
 		if (stress_instance_zero(args))
 			pr_inf("%s: int128wrnt disabled, 128 bit non-temporal store not available\n", args->name);
-		stress_misligned_disable();
+		stress_misaligned_disable();
 		return;
 	}
 
@@ -1205,7 +1205,7 @@ static void stress_misaligned_all(
 static MLOCKED_TEXT NORETURN void stress_misaligned_handler(int signum)
 {
 	handled_signum = signum;
-	stress_misligned_disable();
+	stress_misaligned_disable();
 	siglongjmp(jmp_env, STRESS_MISALIGNED_ERROR);
 	stress_no_return();
 }
