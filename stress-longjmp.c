@@ -28,7 +28,7 @@ typedef struct {
 
 static jmp_buf_check_t bufchk;
 static volatile bool longjmp_failed;
-static int sample_counter = 0;
+static volatile int sample_counter = 0;
 
 static const stress_help_t help[] = {
 	{ NULL,	"longjmp N",	 "start N workers exercising setjmp/longjmp" },
