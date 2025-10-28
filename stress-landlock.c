@@ -297,8 +297,9 @@ static void stress_landlock_many(
 					goto close_ruleset;
 				ret = shim_landlock_add_rule(ruleset_fd, LANDLOCK_RULE_PATH_BENEATH, &path_beneath, 0);
 				(void)close(path_beneath.parent_fd);
-				if (UNLIKELY(ret < 0))
+				if (UNLIKELY(ret < 0)) {
 					goto close_ruleset;
+				}
 				break;
 			case SHIM_DT_DIR:
 				if (LIKELY(depth < 30))
@@ -309,12 +310,16 @@ static void stress_landlock_many(
 			}
 		}
 next:
-		free(namelist[i]);
 	}
-	if (namelist)
-		free(namelist);
 
 close_ruleset:
+	if (namelist) {
+		for (i = 0; i < n; i++) {
+			free(namelist[i]);
+		}
+		free(namelist);
+	}
+
 	(void)close(ruleset_fd);
 }
 
