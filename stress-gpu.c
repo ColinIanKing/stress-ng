@@ -421,7 +421,6 @@ static int egl_init(
 	if (fd < 0) {
 		pr_inf_skip("%s: couldn't open device '%s', errno=%d (%s), skipping stressor\n",
 			args->name, gpu_devnode, errno, strerror(errno));
-		(void)close(fd);
 		return EXIT_NO_RESOURCE;
 	}
 
