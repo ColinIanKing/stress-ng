@@ -37,8 +37,6 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
-#undef MADV_FREE
-
 #if defined(HAVE_MADVISE)
 
 #define NUM_MEM_RETRIES_MAX	(256)
