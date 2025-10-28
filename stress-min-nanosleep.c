@@ -461,7 +461,7 @@ err:
 
 			pr_inf("%8" PRIu32 " %9" PRIu32 " %9" PRIu32 " %12.2f %s\n",
 				result.nsec, result.min_nsec, result.max_nsec,
-				(double)result.sum_nsec / (double)result.count,
+				(result.count > 0) ?  (double)result.sum_nsec / (double)result.count : 0.0,
 				notes);
 		}
 		if (underflow) {
