@@ -378,6 +378,7 @@ clr_loop:
 		 *  Disassociate backing store from loop device
 		 */
 		for (i = 0; i < 1000; i++) {
+			/* note LOOP_CLR_FD does not use 3rd arg */
 			ret = ioctl(loop_dev, LOOP_CLR_FD, backing_fd);
 			if (ret < 0) {
 				if (errno == EBUSY) {
