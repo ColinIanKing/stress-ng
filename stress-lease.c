@@ -216,6 +216,7 @@ static int stress_lease(stress_args_t *args)
 		l_pids[i] = stress_lease_spawn(args, filename);
 		if (l_pids[i] < 0) {
 			pr_err("%s: failed to start all the lease breaker processes\n", args->name);
+			ret = EXIT_FAILURE;
 			goto reap;
 		}
 	}
