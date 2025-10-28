@@ -164,7 +164,6 @@ static int OPTIMIZE3 stress_list_slistt(
 	stress_metrics_t *metrics)
 {
 	register list_entry_t *entry, *head, *tail;
-	bool found = false;
 	double t;
 	int rc = EXIT_SUCCESS;
 
@@ -178,6 +177,7 @@ static int OPTIMIZE3 stress_list_slistt(
 	t = stress_time_now();
 	for (entry = head; entry < entries_end; entry++) {
 		register list_entry_t *find;
+		bool found = false;
 
 		for (find = head; find; find = find->u.next) {
 			if (UNLIKELY(find == entry)) {
@@ -214,7 +214,6 @@ static int OPTIMIZE3 stress_list_list(
 {
 	register list_entry_t *entry;
 	struct listhead head;
-	bool found = false;
 	double t;
 	int rc = EXIT_SUCCESS;
 
@@ -228,6 +227,7 @@ static int OPTIMIZE3 stress_list_list(
 	t = stress_time_now();
 	for (entry = entries; entry < entries_end; entry++) {
 		register list_entry_t *find;
+		bool found = false;
 
 		LIST_FOREACH(find, &head, u.list_entries) {
 			if (UNLIKELY(find == entry)) {
@@ -265,7 +265,6 @@ static int OPTIMIZE3 stress_list_slist(
 {
 	register list_entry_t *entry;
 	struct slisthead head;
-	bool found = false;
 	double t;
 	int rc = EXIT_SUCCESS;
 
@@ -279,6 +278,7 @@ static int OPTIMIZE3 stress_list_slist(
 	t = stress_time_now();
 	for (entry = entries; entry < entries_end; entry++) {
 		register list_entry_t *find;
+		bool found = false;
 
 		SLIST_FOREACH(find, &head, u.slist_entries) {
 			if (UNLIKELY(find == entry)) {
@@ -315,7 +315,6 @@ static int OPTIMIZE3 stress_list_circleq(
 {
 	register list_entry_t *entry;
 	struct circleqhead head;
-	bool found = false;
 	double t;
 	int rc = EXIT_SUCCESS;
 
@@ -329,6 +328,7 @@ static int OPTIMIZE3 stress_list_circleq(
 	t = stress_time_now();
 	for (entry = entries; entry < entries_end; entry++) {
 		register const list_entry_t *find;
+		bool found = false;
 
 		CIRCLEQ_FOREACH(find, &head, u.circleq_entries) {
 			if (UNLIKELY(find == entry)) {
@@ -365,7 +365,6 @@ static int OPTIMIZE3 stress_list_stailq(
 {
 	register list_entry_t *entry;
 	struct stailhead head;
-	bool found = false;
 	double t;
 	int rc = EXIT_SUCCESS;
 
@@ -379,6 +378,7 @@ static int OPTIMIZE3 stress_list_stailq(
 	t = stress_time_now();
 	for (entry = entries; entry < entries_end; entry++) {
 		register list_entry_t *find;
+		bool found = false;
 
 		STAILQ_FOREACH(find, &head, u.stailq_entries) {
 			if (UNLIKELY(find == entry)) {
@@ -415,7 +415,6 @@ static int OPTIMIZE3 stress_list_tailq(
 {
 	register list_entry_t *entry;
 	struct tailhead head;
-	bool found = false;
 	double t;
 	int rc = EXIT_SUCCESS;
 
@@ -429,6 +428,7 @@ static int OPTIMIZE3 stress_list_tailq(
 	t = stress_time_now();
 	for (entry = entries; entry < entries_end; entry++) {
 		register list_entry_t *find;
+		bool found = false;
 
 		TAILQ_FOREACH(find, &head, u.tailq_entries) {
 			if (UNLIKELY(find == entry)) {
