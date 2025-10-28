@@ -90,6 +90,9 @@ static inline OPTIMIZE3 void read64(uint64_t *data)
 	v = vdata[1];
 	(void)v;
 	stress_asm_mb();
+	v = vdata[2];
+	(void)v;
+	stress_asm_mb();
 	v = vdata[3];
 	(void)v;
 	stress_asm_mb();
@@ -103,9 +106,6 @@ static inline OPTIMIZE3 void read64(uint64_t *data)
 	(void)v;
 	stress_asm_mb();
 	v = vdata[7];
-	(void)v;
-	stress_asm_mb();
-	v = vdata[8];
 	(void)v;
 	stress_asm_mb();
 }
@@ -124,6 +124,10 @@ static inline OPTIMIZE3 void read64_lfence(uint64_t *data)
 	(void)v;
 	stress_asm_x86_lfence();
 	stress_asm_mb();
+	v = vdata[2];
+	(void)v;
+	stress_asm_x86_lfence();
+	stress_asm_mb();
 	v = vdata[3];
 	(void)v;
 	stress_asm_x86_lfence();
@@ -141,10 +145,6 @@ static inline OPTIMIZE3 void read64_lfence(uint64_t *data)
 	stress_asm_x86_lfence();
 	stress_asm_mb();
 	v = vdata[7];
-	(void)v;
-	stress_asm_x86_lfence();
-	stress_asm_mb();
-	v = vdata[8];
 	(void)v;
 	stress_asm_x86_lfence();
 	stress_asm_mb();
