@@ -41,7 +41,7 @@ static const stress_help_t help[] = {
  */
 static int shim_lsm_list_modules(uint64_t *ids, size_t *size, uint32_t flags)
 {
-	return (int)syscall(__NR_lsm_list_modules, ids, &size, flags);
+	return (int)syscall(__NR_lsm_list_modules, ids, size, flags);
 }
 
 /*
@@ -149,7 +149,7 @@ static int stress_lsm(stress_args_t *args)
 		/* exercise NULL ids */
 		size = 1;
 		ret = shim_lsm_list_modules(NULL, &size, 0);
-		if (UNLIKELY((ret >= 0) || ((ret < 0) && (errno != EFAULT)))) {
+		if (UNLIKELY((ret >= 0) || ((ret < 0) && (errno != E2BIG)))) {
 			pr_fail("%s: lsm_list_modules call with NULL ids should return -1, got %d, errno=%d (%s) instead\n",
 				args->name, ret, errno, strerror(errno));
 			goto err;
