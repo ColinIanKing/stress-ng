@@ -95,7 +95,7 @@ static int OPTIMIZE1 stress_longjmp(stress_args_t *args)
 			return EXIT_FAILURE;
 		}
 		if (UNLIKELY(bufchk.check1 != check1)) {
-			pr_fail("%s: memory corrupted before jmpbuf region\n",
+			pr_fail("%s: memory corrupted after jmpbuf region\n",
 				args->name);
 			return EXIT_FAILURE;
 		}
