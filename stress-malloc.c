@@ -357,13 +357,15 @@ static void *stress_malloc_loop(void *ptr)
 	}
 
 	for (j = 0; j < malloc_max; j++) {
-		if (verify && info[j].addr && ((uintptr_t)info[j].addr != *info[j].addr)) {
-			pr_fail("%s: allocation at %p does not contain correct value\n",
-				args->name, (void *)info[j].addr);
-			malloc_args->rc = EXIT_FAILURE;
+		if (info[j].addr) {
+			if (verify && ((uintptr_t)info[j].addr != *info[j].addr)) {
+				pr_fail("%s: allocation at %p does not contain correct value\n",
+					args->name, (void *)info[j].addr);
+				malloc_args->rc = EXIT_FAILURE;
+			}
+			stress_alloc_action("free", info[j].len);
+			free_func(info[j].addr, info[j].len);
 		}
-		stress_alloc_action("free", info[j].len);
-		free_func(info[j].addr, info[j].len);
 	}
 	stress_alloc_action("munmap", info_size);
 	(void)munmap((void *)info, info_size);
