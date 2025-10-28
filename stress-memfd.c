@@ -381,7 +381,7 @@ static int stress_memfd_child(stress_args_t *args, void *context)
 			 *  ..and allocate space, this should fill file with zeros
 			 *  and kernel compaction should kick in.
 			 */
-			VOID_RET(ssize_t, shim_fallocate(fds[i], 0, (off_t)size, 0));
+			VOID_RET(ssize_t, shim_fallocate(fds[i], 0, 0, (off_t)size));
 
 			if (UNLIKELY(!stress_continue_flag()))
 				goto memfd_unmap;
