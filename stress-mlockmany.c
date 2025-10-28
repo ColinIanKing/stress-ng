@@ -187,7 +187,12 @@ static int stress_mlockmany_child(stress_args_t *args, void *context)
 				stress_set_oom_adjustment(args, true);
 				(void)sched_settings_apply(true);
 
+				/* exercise invalid mlockall call */
 				shim_mlockall(0);
+
+				/* unlock all mlocked memory */
+				shim_munlockall();
+
 				stress_get_memlimits(&shmall, &freemem, &totalmem, &freeswap, &totalswap);
 				/* We detected swap being used, bail out */
 				if (last_freeswap > freeswap)
