@@ -179,7 +179,7 @@ static void stress_memhotplug_mem_toggle(
 		if (errno == EINTR)
 			mem_info->timeout = true;
 	} else {
-		metrics->offline_duration = stress_time_now() - t;
+		metrics->offline_duration += stress_time_now() - t;
 		metrics->offline_count += 1.0;
 	}
 
@@ -191,7 +191,7 @@ static void stress_memhotplug_mem_toggle(
 	errno = 0;
 	n = write(fd, "online", 6);
 	if (n >= 0) {
-		metrics->online_duration = stress_time_now() - t;
+		metrics->online_duration += stress_time_now() - t;
 		metrics->online_count += 1.0;
 	}
 	stress_memhotplug_set_timer(0);
