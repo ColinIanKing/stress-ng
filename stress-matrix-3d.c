@@ -159,7 +159,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_zyx_sub(
 			register size_t i;
 
 			for (i = 0; i < n; i++) {
-				r[i][j][k] = a[i][j][k] + b[i][j][k];
+				r[i][j][k] = a[i][j][k] - b[i][j][k];
 			}
 		}
 	}
