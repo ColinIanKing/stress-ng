@@ -324,8 +324,8 @@ static void stress_mpfr_exp(const mpfr_prec_t precision, mpfr_t *result)
 }
 
 /*
- *  stress_mpfr_ln()
- *  	compute natural log
+ *  stress_mpfr_log()
+ *  	compute log
  */
 static void stress_mpfr_log(const mpfr_prec_t precision, mpfr_t *result)
 {
