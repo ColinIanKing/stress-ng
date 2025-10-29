@@ -192,7 +192,7 @@ static int stress_mmapfixed_child(stress_args_t *args, void *context)
 			newbuf = mremap(buf, sz, sz,
 					MREMAP_FIXED | MREMAP_MAYMOVE,
 					(void *)newaddr);
-			if (newbuf && (newbuf != MAP_FAILED))
+			if (newbuf != MAP_FAILED)
 				buf = newbuf;
 
 #if defined(HAVE_LINUX_MEMPOLICY_H)
