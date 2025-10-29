@@ -324,7 +324,7 @@ static int stress_mmaphuge(stress_args_t *args)
 		if (shim_fallocate(context.fd, 0, 0, (off_t)context.sz) < 0) {
 			rc = stress_exit_status(errno);
 			pr_fail("%s: fallocate of %zu MB failed, errno=%d (%s)\n",
-				args->name, (size_t)(context.fd / MB), errno, strerror(errno));
+				args->name, (size_t)(context.sz / MB), errno, strerror(errno));
 			(void)close(context.fd);
 			(void)stress_temp_dir_rm_args(args);
 			free(context.bufs);
