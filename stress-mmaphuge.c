@@ -280,7 +280,7 @@ static int stress_mmaphuge(stress_args_t *args)
 	context.bufs = (stress_mmaphuge_buf_t *)calloc(context.mmaphuge_mmaps, sizeof(*context.bufs));
 	if (!context.bufs) {
 		pr_inf_skip("%s: cannot allocate %zu byte buffer array%s, skipping stressor\n",
-			args->name, sizeof(context.mmaphuge_mmaps) * sizeof(*context.bufs),
+			args->name, context.mmaphuge_mmaps * sizeof(*context.bufs),
 			stress_get_memfree_str());
 		return EXIT_NO_RESOURCE;
 	}
