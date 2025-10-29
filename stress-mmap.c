@@ -804,7 +804,7 @@ cleanup:
 		 *  unmapped so unmap it again in various ways
 		 */
 		for (n = 0; n < pages; n++) {
-			if (mapped[n] & PAGE_MAPPED) {
+			if (mapped[n] == PAGE_MAPPED) {
 				(void)stress_munmap_force((void *)mappings[n], 0);
 				(void)stress_munmap_force((void *)mappings[n], page_size);
 				break;
