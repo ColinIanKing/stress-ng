@@ -119,10 +119,11 @@ static void stress_mpfr_omega(const mpfr_prec_t precision, mpfr_t *result)
 	}
 	mpfr_set(*result, omega, MPFR_RNDD);
 
+	mpfr_clear(tmp2);
+	mpfr_clear(tmp1);
 	mpfr_clear(omega_prev);
 	mpfr_clear(omega);
-	mpfr_clear(tmp1);
-	mpfr_clear(tmp2);
+
 	mpfr_free_cache();
 }
 
