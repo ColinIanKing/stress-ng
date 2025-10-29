@@ -234,7 +234,7 @@ static int stress_mmapcow_exercise(
 		}
 		break;
 	case 1:
-		/* Foward stride even pages then odd pages */
+		/* Forward stride even pages then odd pages */
 		for (ptr = buf; stress_continue(args) && (ptr < buf_end); ptr += page_size2) {
 			if (UNLIKELY(stress_mmapcow_modify_unmap(args, buf, *buf_size,
 					ptr, page_size, *flags, duration, count) < 0))
