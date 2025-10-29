@@ -203,6 +203,7 @@ static int stress_nanosleep(stress_args_t *args)
 	uint32_t nanosleep_threads = DEFAULT_NANOSLEEP_THREADS;
 	stress_ctxt_t *ctxts;
 	int ret = EXIT_SUCCESS;
+	size_t nanosleep_method = 0; /* all */
 	int mask = STRESS_NANOSLEEP_ALL;
 #if defined(HAVE_CLOCK_GETTIME) &&	\
     defined(CLOCK_MONOTONIC)
@@ -221,7 +222,9 @@ static int stress_nanosleep(stress_args_t *args)
 	}
 	max_ops = args->bogo.max_ops ? (args->bogo.max_ops / nanosleep_threads) + 1 : 0;
 
-	(void)stress_get_setting("stress-nanosleep-method", &mask);
+	(void)stress_get_setting("nanosleep-method", &nanosleep_method);
+	mask = stress_nanosleep_methods[nanosleep_method].mask;
+
 	if (mask & STRESS_NANOSLEEP_CSTATE) {
 		if (cstate_list == NULL) {
 			if (stress_instance_zero(args))
