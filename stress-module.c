@@ -343,11 +343,14 @@ static int stress_module_open(stress_args_t *args, int mod_type)
 		modname, sizeof(modname), stress_mwc32());
 	(void)shim_strlcat(modname, ".ko", sizeof(modname));
 	fd_in = open(global_module_path, O_RDONLY);
-	if (fd_in < 0)
+	if (fd_in < 0) {
+		lzma_end(&strm);
 		return -1;
+	}
 	fd_out = open(modname, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
 	if (fd_out < 0) {
 		(void)close(fd_in);
+		lzma_end(&strm);
 		return -1;
 	}
 	strm.next_in = NULL;
@@ -367,6 +370,7 @@ static int stress_module_open(stress_args_t *args, int mod_type)
 				(void)unlink(modname);
 				(void)close(fd_out);
 				(void)close(fd_in);
+				lzma_end(&strm);
 				return -1;
 			}
 			strm.next_in = buf_in;
@@ -388,6 +392,7 @@ static int stress_module_open(stress_args_t *args, int mod_type)
 				(void)unlink(modname);
 				(void)close(fd_out);
 				(void)close(fd_in);
+				lzma_end(&strm);
 				return -1;
 			}
 			strm.next_out = buf_out;
@@ -401,6 +406,7 @@ static int stress_module_open(stress_args_t *args, int mod_type)
 			(void)unlink(modname);
 			(void)close(fd_out);
 			(void)close(fd_in);
+			lzma_end(&strm);
 			return -1;
 		}
 	}
@@ -411,6 +417,7 @@ static int stress_module_open(stress_args_t *args, int mod_type)
 		(void)unlink(modname);
 		(void)close(fd_out);
 		(void)close(fd_in);
+		lzma_end(&strm);
 		return -1;
 	}
 
@@ -418,7 +425,8 @@ static int stress_module_open(stress_args_t *args, int mod_type)
 	(void)close(fd_out);
 	fd_in = open(modname, O_RDONLY | O_CLOEXEC);
 	(void)unlink(modname);
-
+	lzma_end(&strm);
+	
 	return fd_in;
 #else
 	return -1;
