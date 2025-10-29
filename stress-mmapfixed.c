@@ -60,7 +60,7 @@ static bool OPTIMIZE3 stress_mmapfixed_is_mapped_slow(
 	const size_t page_size)
 {
 	uint64_t vec[PAGE_CHUNKS / sizeof(uint64_t)] ALIGN64;
-	ssize_t n = (ssize_t)len;
+	size_t n = len;
 	size_t n_pages = len / page_size;
 
 	if (n_pages > PAGE_CHUNKS)
@@ -69,16 +69,15 @@ static bool OPTIMIZE3 stress_mmapfixed_is_mapped_slow(
 	(void)shim_memset(vec, 0, sizeof(vec));
 	while (n > 0) {
 		int ret;
-		register const size_t sz = n_pages * page_size;
-		register size_t j;
+		register size_t j, sz, n_pages_todo = n > n_pages ? n_pages : n;
 
-		n -= n_pages;
+	       	sz = n_pages_todo * page_size;
 		ret = shim_mincore(addr, sz, (unsigned char *)vec);
 		if (UNLIKELY(ret == ENOSYS))
 			return false;	/* Dodgy, assume not in memory */
 
 PRAGMA_UNROLL_N(4)
-		for (j = 0; j < SIZEOF_ARRAY(vec); j++) {
+		for (j = 0; j < n_pages_todo; j++) {
 			if (vec[j])
 				return true;
 		}
