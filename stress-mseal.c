@@ -28,11 +28,11 @@ static const stress_help_t help[] = {
 
 typedef int (*mseal_func_t)(stress_args_t *args);
 
-static void *mapping;		/* mmap of 2 pages */
-static size_t mapping_size;	/* size in bytes of 2 pages */
-static void *no_mapping;	/* unmapped non-mapped 2 pages */
-static double mseal_duration;	/* mseal execution duration (secs) */
-static double mseal_count;	/* mseal call count */
+static void *mapping = MAP_FAILED;	/* mmap of 2 pages */
+static size_t mapping_size;		/* size in bytes of 2 pages */
+static void *no_mapping;		/* unmapped non-mapped 2 pages */
+static double mseal_duration;		/* mseal execution duration (secs) */
+static double mseal_count;		/* mseal call count */
 
 static void stress_mseal_mapping_size(size_t *size)
 {
@@ -250,6 +250,8 @@ static int stress_mseal_supported(const char *name)
 				"skipping stressor\n", name,
 				errno, strerror(errno));
 		}
+		(void)munmap(mapping, mapping_size);
+		mapping = MAP_FAILED;
 		return -1;
 	}
 
@@ -350,6 +352,7 @@ static int stress_mseal(stress_args_t *args)
 
 	/* This will fail if mseal works, ignore failure */
 	(void)munmap(mapping, mapping_size);
+	mapping = MAP_FAILED;
 
 	return EXIT_SUCCESS;
 }
