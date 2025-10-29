@@ -370,7 +370,7 @@ static int stress_nop(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	rate = (count > 0.0) ? (duration / count) : 0.0;
-	stress_metrics_set(args, 0, "picosecs per nop instruction",
+	stress_metrics_set(args, 0, "nanosecs per nop instruction",
 		STRESS_DBL_NANOSECOND * rate, STRESS_METRIC_HARMONIC_MEAN);
 
 	return EXIT_SUCCESS;
