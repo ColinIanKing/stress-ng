@@ -264,7 +264,7 @@ static int get_modpath_name(
 				 u.release, module);
 
 			/* Check for .ko end, can't decompress .zst, .xz etc yet */
-			ret = -1 ;
+			ret = -1;
 			len = strlen(module_path);
 			if (len > 6) {
 				if (strncmp(module_path + len - 6, ".ko.xz", 6) == 0)
