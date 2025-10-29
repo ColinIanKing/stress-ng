@@ -101,7 +101,7 @@ static bool stress_mmapfixed_is_mapped(
 	if (len > (page_size * PAGE_CHUNKS))
 		return stress_mmapfixed_is_mapped_slow(addr, len, page_size);
 	ret = shim_msync(addr, len, 0);
-	if (ret == ENOSYS)
+	if (ret < 0)
 		return stress_mmapfixed_is_mapped_slow(addr, len, page_size);
 	if (ret == 0)
 		return true;
