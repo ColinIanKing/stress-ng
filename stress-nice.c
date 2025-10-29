@@ -156,7 +156,7 @@ static int stress_nice(stress_args_t *args)
 
 					errno = 0;
 					old_prio = getpriority(PRIO_PROCESS, 0);
-					if (errno < 0)
+					if (errno != 0)
 						old_prio = BAD_PRIO;
 #endif
 
@@ -164,7 +164,7 @@ static int stress_nice(stress_args_t *args)
 #if defined(HAVE_GETPRIORITY)
 					errno = 0;
 					new_prio = getpriority(PRIO_PROCESS, 0);
-					if (errno < 0)
+					if (errno != 0)
 						new_prio = BAD_PRIO;
 
 					/* Sanity check priority change of nice(1) */
