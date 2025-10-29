@@ -259,7 +259,7 @@ static int stress_nanosleep(stress_args_t *args)
 		ctxts[n].counter = 0;
 		ctxts[n].max_ops = max_ops;
 		ctxts[n].args = args;
-#if defined(HAVE_CLOCK_GETTIME) && 	\
+#if defined(HAVE_CLOCK_GETTIME) &&	\
     defined(CLOCK_MONOTONIC)
 		ctxts[n].overrun_nsec = 0.0;
 		ctxts[n].overrun_count = 0.0;
