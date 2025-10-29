@@ -183,7 +183,7 @@ static int stress_munmap_child(stress_args_t *args, void *context)
 	}
 	errno = 0;
 	rewind(fp);
-	if (UNLIKELY(errno < 0)) {
+	if (UNLIKELY(errno)) {
 		(void)fclose(fp);
 		return EXIT_NO_RESOURCE;
 	}
