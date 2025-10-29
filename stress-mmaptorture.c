@@ -145,12 +145,6 @@ static const int madvise_options[] = {
 #if defined(SHIM_MADV_PAGEOUT)
 	SHIM_MADV_PAGEOUT,
 #endif
-#if defined(SHIM_MADV_POPULATE_READ)
-	SHIM_MADV_POPULATE_READ,
-#endif
-#if defined(SHIM_MADV_POPULATE_WRITE)
-	SHIM_MADV_POPULATE_WRITE,
-#endif
 #if defined(SHIM_MADV_DONTNEED_LOCKED)
 	SHIM_MADV_DONTNEED_LOCKED,
 #endif
