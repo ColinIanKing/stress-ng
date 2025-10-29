@@ -168,6 +168,9 @@ static void OPTIMIZE3 stress_parse_payload(
 		struct taskstats *t;
 		pid_t task_pid;
 
+		if ((new_len == 0) || (new_len > (total_len - len)))
+			break;
+
 		switch (na->nla_type) {
 		case TASKSTATS_TYPE_PID:
 			task_pid = *(pid_t *)NLA_DATA(na);
@@ -237,8 +240,11 @@ static int OPTIMIZE3 stress_netlink_taskstats_monitor(
 		na = (struct nlattr *)GENL_MSG_DATA(&msg);
 
 		for (len = 0; len < msg_len; len += NLA_ALIGN(na->nla_len)) {
+			if (na->nla_len == 0)
+				break;
 			if (na->nla_type == TASKSTATS_TYPE_AGGR_PID)
 				stress_parse_payload(args, na, pid, nivcsw);
+			na = (struct nlattr *)((char *)na + NLA_ALIGN(na->nla_len));
 		}
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
@@ -305,13 +311,19 @@ static int stress_netlink_task(stress_args_t *args)
 		return EXIT_FAILURE;
 	}
 	na = (struct nlattr *)(uintptr_t)GENL_MSG_DATA(&nlmsg);
-	na = (struct nlattr *)(uintptr_t)((char *) na + NLA_ALIGN(na->nla_len));
-	if (na->nla_type == CTRL_ATTR_FAMILY_ID) {
-		const uint16_t *id_ptr = (uint16_t *)NLA_DATA(na);
+	if ((ssize_t)GENL_MSG_PAYLOAD(&nlmsg.n) > NLA_ALIGN(na->nla_len)) {
+		na = (struct nlattr *)(uintptr_t)((char *) na + NLA_ALIGN(na->nla_len));
+		if (na->nla_type == CTRL_ATTR_FAMILY_ID) {
+			const uint16_t *id_ptr = (uint16_t *)NLA_DATA(na);
 
-		id = *id_ptr;
+			id = *id_ptr;
+		} else {
+			pr_fail("%s: failed to get family id\n", args->name);
+			(void)close(sock);
+			return EXIT_FAILURE;
+		}
 	} else {
-		pr_fail("%s: failed to get family id\n", args->name);
+		pr_fail("%s: failed to get family id, nlmsg too small\n", args->name);
 		(void)close(sock);
 		return EXIT_FAILURE;
 	}
