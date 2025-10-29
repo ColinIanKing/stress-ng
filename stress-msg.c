@@ -454,9 +454,9 @@ again:
 			pr_fail("%s: msgctl failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			rc = EXIT_FAILURE;
-		}
-		else
+		} else {
 			pr_dbg("%s: System V message queue deleted, id: %d\n", args->name, msgq_id);
+		}
 	}
 
 cleanup:
