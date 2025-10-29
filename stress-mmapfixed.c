@@ -73,7 +73,7 @@ static bool OPTIMIZE3 stress_mmapfixed_is_mapped_slow(
 
 	       	sz = n_pages_todo * page_size;
 		ret = shim_mincore(addr, sz, (unsigned char *)vec);
-		if (UNLIKELY(ret == ENOSYS))
+		if (UNLIKELY(ret < 0))
 			return false;	/* Dodgy, assume not in memory */
 
 PRAGMA_UNROLL_N(4)
