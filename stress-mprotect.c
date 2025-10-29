@@ -218,8 +218,8 @@ static int stress_mprotect(stress_args_t *args)
 			"errno=%d (%s), skipping stressor\n",
 			args->name, mem_pages,
 			stress_get_memfree_str(), errno, strerror(errno));
-		free(prot_flags);
-		return EXIT_NO_RESOURCE;
+		rc = EXIT_NO_RESOURCE;
+		goto tidy_prot_flags;
 	}
 	stress_set_vma_anon_name(mem, mem_size, "mprotect-data");
 	(void)stress_madvise_mergeable(mem, mem_size);
@@ -258,6 +258,8 @@ static int stress_mprotect(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	(void)munmap((void *)mem, mem_size);
+
+tidy_prot_flags:
 	free(prot_flags);
 
 tidy_s_pids:
