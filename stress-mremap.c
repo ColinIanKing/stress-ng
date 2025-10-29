@@ -299,7 +299,7 @@ static int stress_mremap_child(stress_args_t *args, void *context)
 				goto deinit;
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 			if (mremap_numa)
-				stress_numa_randomize_pages(args, numa_nodes, numa_mask, buf, page_size, new_sz);
+				stress_numa_randomize_pages(args, numa_nodes, numa_mask, buf, new_sz, page_size);
 #endif
 			(void)stress_madvise_randomize(buf, new_sz);
 			if (g_opt_flags & OPT_FLAGS_VERIFY) {
@@ -328,7 +328,7 @@ static int stress_mremap_child(stress_args_t *args, void *context)
 				goto deinit;
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 			if (mremap_numa)
-				stress_numa_randomize_pages(args, numa_nodes, numa_mask, buf, page_size, new_sz);
+				stress_numa_randomize_pages(args, numa_nodes, numa_mask, buf, new_sz, page_size);
 #endif
 			(void)stress_madvise_randomize(buf, new_sz);
 			old_sz = new_sz;
