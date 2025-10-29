@@ -1692,8 +1692,8 @@ static void OPTIMIZE3 stress_mmaprandom_split_hole(mr_ctxt_t *ctxt, const int id
 		new_mr_node->mmap_prot = mr_node->mmap_prot;
 		new_mr_node->mmap_flags = mr_node->mmap_flags;
 		new_mr_node->mmap_offset = mr_node->mmap_offset + (2 * page_size);
-		new_mr_node->mmap_fd = mr_node->mmap_fd | MR_NODE_FLAGS_HAVE_BACKING;
-		new_mr_node->flags = mr_node->flags;
+		new_mr_node->mmap_fd = mr_node->mmap_fd;
+		new_mr_node->flags = mr_node->flags | MR_NODE_FLAGS_HAVE_BACKING;
 		new_mr_node->rand_id = stress_mmapradom_rand_id(ctxt, new_mr_node);
 		RB_INSERT(sm_used_node_tree, &sm_used_node_tree_root, new_mr_node);
 		RB_INSERT(sm_rand_node_tree, &sm_rand_node_tree_root, new_mr_node);
