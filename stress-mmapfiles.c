@@ -169,7 +169,7 @@ static int stress_mmapfiles_child(stress_args_t *args, void *context)
 		"/lib64",
 		"/boot",
 		"/bin",
-		"/etc,",
+		"/etc",
 		"/sbin",
 		"/usr",
 		"/var",
