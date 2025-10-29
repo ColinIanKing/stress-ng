@@ -261,7 +261,7 @@ static void stress_mpfr_trigfunc(
 	mpfr_set_d(theta, 0.0, MPFR_RNDD);
 	/* dtheta = pi / 100 */
 	mpfr_const_pi(dtheta, MPFR_RNDD);
-	mpfr_mul_ui(dtheta, dtheta, 2.0, MPFR_RNDD);
+	mpfr_mul_ui(dtheta, dtheta, 2UL, MPFR_RNDD);
 	mpfr_div_ui(dtheta, dtheta, 100UL, MPFR_RNDD);
 
 	for (i = 1; i <= 100; i++) {
