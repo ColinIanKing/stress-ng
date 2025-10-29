@@ -439,6 +439,8 @@ again:
 			goto cleanup;
 		pr_fail("%s: fork failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
+		/* remove, no error check as we're bailing out */
+		(void)msgctl(msgq_id, IPC_RMID, NULL);
 		rc = EXIT_FAILURE;
 		goto cleanup;
 	} else if (pid == 0) {
