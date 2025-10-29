@@ -208,7 +208,6 @@ static int stress_nice(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	return rc;
-;
 }
 
 const stressor_info_t stress_nice_info = {
