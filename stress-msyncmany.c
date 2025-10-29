@@ -39,8 +39,6 @@ static int stress_msyncmany_child(stress_args_t *args, void *context)
 	uint64_t *mapped = NULL;
 	int rc = EXIT_SUCCESS;
 
-	(void)context;
-
 	max = STRESS_MINIMUM(max, MMAP_MAX);
 	if (max < 1) {
 		pr_fail("%s: sysconf(_SC_MAPPED_FILES) is too low, max = %ld\n",
