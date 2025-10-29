@@ -120,11 +120,11 @@ void stress_dump_processes(void)
 
 			ptr = strstr(buf, "\nPPid:");
 			if (ptr) {
-				intmax_t val;
+				intmax_t ppid_val;
 
-				if (sscanf(ptr, "\nPPid:%" SCNdMAX, &val) != 1)
+				if (sscanf(ptr, "\nPPid:%" SCNdMAX, &ppid_val) != 1)
 					val = 0;
-				ppid = (pid_t)val;
+				ppid = (pid_t)ppid_val;
 			}
 			(void)shim_strscpy(state, "?", sizeof(state));
 			ptr = strstr(buf, "\nState:");
