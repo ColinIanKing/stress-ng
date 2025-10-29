@@ -840,7 +840,7 @@ mappings_unmap:
 		}
 		mmap_fd_offset += page_size;
 		if (mmap_fd_offset >= (off_t)mmap_bytes)
-			mmap_bytes = 0;
+			mmap_fd_offset = 0;
 
 		if (pid > 0)
 			(void)stress_kill_and_wait(args, pid, SIGKILL, false);
