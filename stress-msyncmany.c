@@ -151,6 +151,7 @@ static int stress_msyncmany(stress_args_t *args)
 	if (ret < 0) {
 		pr_inf_skip("%s: cannot allocate data for file %s, skipping stressor\n", args->name, filename);
 		(void)stress_temp_dir_rm_args(args);
+		(void)close(fd);
 		return EXIT_NO_RESOURCE;
 	}
 	ret = stress_oomable_child(args, (void *)&fd, stress_msyncmany_child, STRESS_OOMABLE_NORMAL);
