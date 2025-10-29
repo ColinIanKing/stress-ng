@@ -417,8 +417,8 @@ again:
 					(void)mq_receive(mq, (char *)&msg, (size_t)0, &prio);
 				}
 			}
-			_exit(rc);
 		}
+		_exit(rc);
 	} else {
 		int attr_count = 0;
 		stress_msg_t ALIGN64 msg;
