@@ -344,11 +344,11 @@ tidy:
 	}
 
 	overrun_nsec -= overhead_nsec;
-	overrun_nsec = (overrun_count > 0.0) ? overrun_nsec / overrun_count : 0.0;
+	overrun_nsec = (overrun_count > 0.0) ? (overrun_nsec / overrun_count) - overhead_nsec : 0.0;
 	stress_metrics_set(args, 0, "nanosec sleep overrun",
 		overrun_nsec, STRESS_METRIC_GEOMETRIC_MEAN);
 	underrun_nsec -= overhead_nsec;
-	underrun_nsec = (underrun_count > 0.0) ? underrun_nsec / underrun_count : 0.0;
+	underrun_nsec = (underrun_count > 0.0) ? (underrun_nsec / underrun_count) - underrun_nsec : 0.0;
 	stress_metrics_set(args, 1, "nanosec sleep underrun",
 		underrun_nsec, STRESS_METRIC_GEOMETRIC_MEAN);
 #endif
