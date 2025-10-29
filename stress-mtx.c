@@ -94,7 +94,7 @@ static void OPTIMIZE3 *mtx_exercise(void *arg)
 		stress_bogo_inc(args);
 
 		if (UNLIKELY(mtx_unlock(&mtx) != thrd_success)) {
-			pr_fail("%s: pthread_mtx_unlock failed\n", args->name);
+			pr_fail("%s: mtx_unlock failed\n", args->name);
 			break;
 		}
 	} while (stress_continue(args));
@@ -124,7 +124,7 @@ static int stress_mtx(stress_args_t *args)
 	(void)shim_memset(&pthread_info, 0, sizeof(pthread_info));
 
 	if (mtx_init(&mtx, mtx_plain) != thrd_success) {
-		pr_fail("%s: pthread_mtx_init failed\n", args->name);
+		pr_fail("%s: mtx_init failed\n", args->name);
 		return EXIT_FAILURE;
 	}
 
@@ -190,6 +190,6 @@ const stressor_info_t stress_mtx_info = {
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
-	.unimplemented_reason = "built without librt, threads.h, pthread_np.h or pthread support"
+	.unimplemented_reason = "built without librt, threads.h or pthread support"
 };
 #endif
