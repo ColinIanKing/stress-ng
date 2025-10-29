@@ -172,7 +172,7 @@ static void *stress_nanosleep_pthread(void *c)
 		if (ctxt->mask & STRESS_NANOSLEEP_RANDOM) {
 			register unsigned long int i;
 
-			for (i = 1 << 18; i > 0; i >>=1) {
+			for (i = 1 << 18; i > 0; i >>= 1) {
 				register const unsigned long int mask = (i - 1);
 				register const long int nsec = (long int)(stress_mwc32() & mask) + 8;
 
