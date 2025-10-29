@@ -228,7 +228,7 @@ static int stress_msync(stress_args_t *args)
 		}
 		ret = lseek(fd, offset, SEEK_SET);
 		if (UNLIKELY(ret == (off_t)-1)) {
-			pr_err("%s: cannot seet to offset %" PRIdMAX ", "
+			pr_err("%s: cannot seek to offset %" PRIdMAX ", "
 				"errno=%d (%s)\n",
 				args->name, (intmax_t)offset, errno,
 				strerror(errno));
@@ -257,7 +257,7 @@ do_invalidate:
 
 		ret = lseek(fd, offset, SEEK_SET);
 		if (UNLIKELY(ret == (off_t)-1)) {
-			pr_err("%s: cannot seet to offset %" PRIdMAX ", errno=%d (%s)\n",
+			pr_err("%s: cannot seek to offset %" PRIdMAX ", errno=%d (%s)\n",
 				args->name, (intmax_t)offset, errno,
 				strerror(errno));
 			rc = EXIT_NO_RESOURCE;
