@@ -32,7 +32,7 @@
 
 static const stress_help_t help[] = {
 	{ NULL,	"mmapcow N",      "start N workers stressing copy-on-write and munmaps" },
-	{ NULL, "mmapcow-fork",   "force more page copying by reguler process forking" },
+	{ NULL, "mmapcow-fork",   "force more page copying by regular process forking" },
 	{ NULL,	"mmapcow-free",	  "use madvise(MADV_FREE) on each page before unmapping" },
 	{ NULL,	"mmapcow-mlock",  "lock copy-on-write page into memory before unmapping" },
 	{ NULL,	"mmapcow-numa",	  "bind memory mappings to randomly selected NUMA nodes" },
