@@ -177,7 +177,7 @@ static int OPTIMIZE3 mr_node_page_cmp(mr_node_t *mr_node1, mr_node_t *mr_node2)
 }
 
 /*
- *  mr_node_page_cmp()
+ *  mr_node_rand_cmp()
  *	tree compare to sort by mapping address, for allocated mappings
  */
 static int OPTIMIZE3 mr_node_rand_cmp(mr_node_t *mr_node1, mr_node_t *mr_node2)
