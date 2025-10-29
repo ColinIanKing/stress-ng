@@ -109,7 +109,7 @@ static int stress_mmapmany_child(stress_args_t *args, void *context)
 				break;
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 			if (mmapmany_numa)
-				stress_numa_randomize_pages(args, numa_nodes, numa_mask, ptr, page_size, page_size * 3);
+				stress_numa_randomize_pages(args, numa_nodes, numa_mask, ptr, page_size * 3, page_size);
 #endif
 
 			if (mmapmany_mlock)
