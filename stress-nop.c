@@ -108,7 +108,7 @@ STRESS_NOP_SPIN_OP(x86_serialize, stress_asm_x86_serialize)
 #endif
 
 #if defined(HAVE_ASM_ARM_YIELD)
-STRESS_NOP_SPIN_OP(arm_yield, stress_asm_arm_yield);
+STRESS_NOP_SPIN_OP(arm_yield, stress_asm_arm_yield)
 #endif
 
 #if defined(STRESS_ARCH_X86)
@@ -205,15 +205,15 @@ STRESS_NOP_SPIN_OP(x86_fnop, stress_op_x86_fnop)
 #endif
 
 #if defined(STRESS_ARCH_PPC64)
-STRESS_NOP_SPIN_OP(ppc64_yield, stress_asm_ppc64_yield);
-STRESS_NOP_SPIN_OP(ppc64_mdoio, stress_asm_ppc64_mdoio);
-STRESS_NOP_SPIN_OP(ppc64_mdoom, stress_asm_ppc64_mdoom);
+STRESS_NOP_SPIN_OP(ppc64_yield, stress_asm_ppc64_yield)
+STRESS_NOP_SPIN_OP(ppc64_mdoio, stress_asm_ppc64_mdoio)
+STRESS_NOP_SPIN_OP(ppc64_mdoom, stress_asm_ppc64_mdoom)
 #endif
 
 #if defined(STRESS_ARCH_PPC)
-STRESS_NOP_SPIN_OP(ppc_yield, stress_asm_ppc_yield);
-STRESS_NOP_SPIN_OP(ppc_mdoio, stress_asm_ppc_mdoio);
-STRESS_NOP_SPIN_OP(ppc_mdoom, stress_asm_ppc_mdoom);
+STRESS_NOP_SPIN_OP(ppc_yield, stress_asm_ppc_yield)
+STRESS_NOP_SPIN_OP(ppc_mdoio, stress_asm_ppc_mdoio)
+STRESS_NOP_SPIN_OP(ppc_mdoom, stress_asm_ppc_mdoom)
 #endif
 
 #if defined(STRESS_ARCH_S390)
@@ -222,7 +222,7 @@ static inline void stress_op_s390_nopr(void)
 	__asm__ __volatile__("nopr %r0;\n");
 }
 
-STRESS_NOP_SPIN_OP(s390_nopr, stress_op_s390_nopr);
+STRESS_NOP_SPIN_OP(s390_nopr, stress_op_s390_nopr)
 #endif
 
 static void stress_nop_random(stress_args_t *args, const bool flag,
