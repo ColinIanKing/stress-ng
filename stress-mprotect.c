@@ -202,6 +202,7 @@ static int stress_mprotect(stress_args_t *args)
 #if defined(PROT_GROWSDOWN)
 	prot_bits |= PROT_GROWSDOWN;
 #endif
+	/* ignore PROT_EXEC */
 
 	n_flags = stress_flag_permutation(prot_bits, &prot_flags);
 	if (!prot_flags) {
