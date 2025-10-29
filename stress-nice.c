@@ -168,6 +168,7 @@ static int stress_nice(stress_args_t *args)
 					if ((old_prio != BAD_PRIO) && (new_prio != BAD_PRIO)) {
 						const int delta = new_prio - old_prio;
 
+						/* priorities only increment by 1 or zero */
 						if (delta > 1) {
 							pr_fail("%s: nice(1) changed priority by 1, "
 								"detected a priority change of %d "
