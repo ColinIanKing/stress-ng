@@ -651,7 +651,7 @@ mapped_ok:
 #endif
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 			if (numa_mask && numa_nodes && stress_mwc1())
-				stress_numa_randomize_pages(args, numa_nodes, numa_mask, (void *)ptr, page_size, mmap_size);
+				stress_numa_randomize_pages(args, numa_nodes, numa_mask, (void *)ptr, mmap_size, page_size);
 #endif
 			for (i = 0; i < mmap_size; i += page_size) {
 				if (stress_mwc1())
