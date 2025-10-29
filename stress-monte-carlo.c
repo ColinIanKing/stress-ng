@@ -318,7 +318,7 @@ static double OPTIMIZE3 stress_monte_carlo_pi(
 
 	while (i > 0) {
 		register uint32_t j;
-		register const uint32_t n = (i > 16384) ? 16384 : (i & 16383);
+		register const uint32_t n = (i > 16384) ? 16384 : i;
 
 		for (j = 0; j < n; j++) {
 			register const double x = info->rand();
@@ -348,7 +348,7 @@ static double OPTIMIZE3 stress_monte_carlo_e(
 
 	while (i > 0) {
 		register uint32_t j;
-		register const uint32_t n = (i > 16384) ? 16384 : (i & 16383);
+		register const uint32_t n = (i > 16384) ? 16384 : i;
 
 		for (j = 0; j < n; j++) {
 			register double sum = 0.0;
@@ -378,7 +378,7 @@ static double OPTIMIZE3 stress_monte_carlo_sin(
 
 	while (i > 0) {
 		register uint32_t j;
-		register const uint32_t n = (i > 16384) ? 16384 : (i & 16383);
+		register const uint32_t n = (i > 16384) ? 16384 : i;
 
 		for (j = 0; j < n; j++) {
 			register const double theta = info->rand() * M_PI;
@@ -405,7 +405,7 @@ static double OPTIMIZE3 stress_monte_carlo_exp(
 
 	while (i > 0) {
 		register uint32_t j;
-		register const uint32_t n = (i > 16384) ? 16384 : (i & 16383);
+		register const uint32_t n = (i > 16384) ? 16384 : i;
 
 		for (j = 0; j < n; j++) {
 			register const double x = info->rand();
@@ -432,7 +432,7 @@ static double OPTIMIZE3 stress_monte_carlo_sqrt(
 
 	while (i > 0) {
 		register uint32_t j;
-		register const uint32_t n = (i > 16384) ? 16384 : (i & 16383);
+		register const uint32_t n = (i > 16384) ? 16384 : i;
 
 		for (j = 0; j < n; j++) {
 			register const double x = info->rand();
@@ -459,7 +459,7 @@ static double OPTIMIZE3 stress_monte_carlo_squircle(
 
 	while (i > 0) {
 		register uint32_t j;
-		register const uint32_t n = (i > 16384) ? 16384 : (i & 16383);
+		register const uint32_t n = (i > 16384) ? 16384 : i;
 
 		for (j = 0; j < n; j++) {
 			register const double x = info->rand();
