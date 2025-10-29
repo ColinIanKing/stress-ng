@@ -198,7 +198,7 @@ static int stress_mutex(stress_args_t *args)
 
 	(void)shim_memset(&pthread_info, 0, sizeof(pthread_info));
 
-	if (pthread_mutex_init(&mutex, NULL) < 0) {
+	if (pthread_mutex_init(&mutex, NULL) != 0) {
 		pr_fail("pthread_mutex_init failed, errno=%d: "
 			"(%s)\n", errno, strerror(errno));
 		return EXIT_FAILURE;
