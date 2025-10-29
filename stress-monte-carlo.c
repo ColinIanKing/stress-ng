@@ -509,7 +509,7 @@ static const stress_opt_t opts[] = {
 #define METHODS_MAX	SIZEOF_ARRAY(stress_monte_carlo_methods)
 #define RANDS_MAX	SIZEOF_ARRAY(rand_info)
 
-static void stress_monto_carlo_by_rand(
+static void stress_monte_carlo_by_rand(
 	stress_args_t *args,
 	uint32_t monte_carlo_samples,
 	const size_t rand,
@@ -559,10 +559,10 @@ static void stress_monte_carlo_by_method(
 
 		/* all methods */
 		for (i = 1; i < METHODS_MAX; i++) {
-			stress_monto_carlo_by_rand(args, monte_carlo_samples, rand, i, metrics, results, rands_supported);
+			stress_monte_carlo_by_rand(args, monte_carlo_samples, rand, i, metrics, results, rands_supported);
 		}
 	} else {
-		stress_monto_carlo_by_rand(args, monte_carlo_samples, rand, method, metrics, results, rands_supported);
+		stress_monte_carlo_by_rand(args, monte_carlo_samples, rand, method, metrics, results, rands_supported);
 	}
 }
 
