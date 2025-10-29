@@ -779,7 +779,7 @@ mappings_unmap:
 					if (newptr != MAP_FAILED) {
 						ptr = newptr;
 						mmap_size -= page_size;
-						mmap_stats->remapped_pages += mmap_size / new_size;
+						mmap_stats->remapped_pages += mmap_size / page_size;
 					}
 				}
 #endif
