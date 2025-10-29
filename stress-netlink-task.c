@@ -296,6 +296,8 @@ static int stress_netlink_task(stress_args_t *args)
 	if (ret < 0) {
 		pr_fail("%s: sendto CTRL_CMD_GETFAMILY failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
+		(void)close(sock);
+		return EXIT_FAILURE;
 	}
 	len = recv(sock, &nlmsg, sizeof(nlmsg), 0);
 	if (len < 0) {
