@@ -62,8 +62,8 @@ static const stress_opt_t opts[] = {
     defined(SCHED_FIFO)
 
 #if defined(HAVE_PTHREAD_SETAFFINITY_NP)
-uint32_t *cpus;
-uint32_t n_cpus;
+static uint32_t *cpus;
+static uint32_t n_cpus;
 #endif
 
 static pthread_mutex_t ALIGN64 mutex;
