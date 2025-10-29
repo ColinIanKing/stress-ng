@@ -98,6 +98,7 @@ static int stress_msyncmany_child(stress_args_t *args, void *context)
 		for (i = 0; i < n; i++) {
 			const uint64_t *ptr = (uint64_t *)mappings[i];
 
+			/* really should never happen */
 			if (UNLIKELY(!ptr))
 				continue;
 			if (UNLIKELY(*ptr != pattern)) {
