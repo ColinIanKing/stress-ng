@@ -180,7 +180,7 @@ static int stress_mmapcow_exercise(
 	if (*flags & MMAPCOW_MLOCK) {
 		if (shim_mlock2(buf, *buf_size, MCL_ONFAULT | MCL_FUTURE) < 0) {
 			if (errno == ENOSYS)
-				*flags &= ~(*flags) & MMAPCOW_MLOCK;
+				*flags &= ~MMAPCOW_MLOCK;
 		}
 	}
 #endif
