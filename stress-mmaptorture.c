@@ -717,7 +717,7 @@ mapped_ok:
 					(void)shim_mlockall(mlockall_flags[idx]);
 				}
 #endif
-				/* Pass 1, free random pages */
+				/* Pass 1, free random mappings */
 				for (i = 0; i < n; i++) {
 					ptr = mappings[i].addr;
 					mmap_size = mappings[i].size;
@@ -729,7 +729,7 @@ mapped_ok:
 
 					if (stress_mwc1()) {
 						if ((ptr != MAP_FAILED) && (mmap_size > 0)) {
-							(void)stress_munmap_force((void *)(ptr + i), page_size);
+							(void)stress_munmap_force((void *)ptr, mmap_size);
 							mappings[i].addr = MAP_FAILED;
 							mappings[i].size = 0;
 						}
@@ -746,7 +746,7 @@ mapped_ok:
 					}
 				}
 
-				/* Pass 2, free unfreed pages */
+				/* Pass 2, free unfreed mappings */
 				for (i = 0; i < n; i++) {
 					ptr = mappings[i].addr;
 					mmap_size = mappings[i].size;
