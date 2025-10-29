@@ -117,6 +117,9 @@ static int monitor(stress_args_t *args, const int sock)
 		    (cn_msg->id.val != CN_VAL_PROC))
 			continue;
 
+		if (cn_msg->len < sizeof(struct proc_event))
+			continue;
+
 		proc_ev = (const struct proc_event *)cn_msg->data;
 
 		switch (proc_ev->what) {
