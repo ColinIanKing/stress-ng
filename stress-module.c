@@ -391,7 +391,7 @@ static int stress_module_open(stress_args_t *args, int mod_type)
 				return -1;
 			}
 			strm.next_out = buf_out;
-			strm.avail_out = wr;
+			strm.avail_out = sizeof(buf_out);
 		}
 
 		if (ret != LZMA_OK) {
