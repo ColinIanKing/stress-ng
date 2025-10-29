@@ -134,6 +134,7 @@ static int stress_netdev(stress_args_t *args)
 		if (UNLIKELY(ioctl(fd, SIOCGIFCONF, &ifc) < 0)) {
 			pr_fail("%s: ioctl SIOCGIFCONF failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
+			free(ifc.ifc_buf);
 			rc = EXIT_FAILURE;
 			break;
 		}
