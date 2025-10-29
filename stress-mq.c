@@ -450,7 +450,7 @@ again:
 					(void)mq_setattr(~0, &attr, &old_attr);
 
 				/* Exercise invalid mq id */
-				if ((mq_getattr(0, &attr) == EBADF) && (errno == EBADF))
+				if ((mq_getattr(0, &attr) < 0) && (errno == EBADF))
 					(void)mq_setattr(0, &attr, &old_attr);
 			}
 
