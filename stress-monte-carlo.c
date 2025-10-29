@@ -573,8 +573,7 @@ static void stress_monte_carlo_by_method(
 static int stress_monte_carlo(stress_args_t *args)
 {
 	uint32_t monte_carlo_samples;
-	size_t monte_carlo_method,
-	monte_carlo_rand = 0;
+	size_t monte_carlo_method, monte_carlo_rand = 0;
 	stress_metrics_t metrics[METHODS_MAX][RANDS_MAX];
 	stress_monte_carlo_result_t results[METHODS_MAX][RANDS_MAX];
 	bool rands_supported[RANDS_MAX];
