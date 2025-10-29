@@ -170,9 +170,9 @@ static int stress_null(stress_args_t *args)
 
 #if defined(__linux__)
 			if (UNLIKELY(mmap_count++ > 500)) {
-				mmap_count = 0;
-
 				const off_t off = (off_t)stress_mwc64() & ~((off_t)page_size - 1);
+
+				mmap_count = 0;
 				ptr = mmap(NULL, page_size, PROT_WRITE,
 					MAP_PRIVATE | MAP_ANONYMOUS, fd, off);
 				if (ptr != MAP_FAILED) {
