@@ -183,7 +183,7 @@ static int stress_mmapfork(stress_args_t *args)
 					_exit(MMAPFORK_FAILURE);
 				}
 #endif
-				len_total = (size_t)info.freeram;
+				len_total = (size_t)info.freeram * (size_t)info.mem_unit;
 				if (!stress_get_setting("mmapfork-bytes", &len_total)) {
 					if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 						len_total = MIN_MMAPFORK_BYTES;
