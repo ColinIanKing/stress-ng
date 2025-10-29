@@ -283,7 +283,7 @@ static int stress_munmap(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	rate = ctxt->count > 0.0 ? ctxt->duration / ctxt->count : 0.0;
-	stress_metrics_set(args, 0, "nanosecs per page mmap()",
+	stress_metrics_set(args, 0, "nanosecs per page munmap()",
 		rate * STRESS_DBL_NANOSECOND, STRESS_METRIC_HARMONIC_MEAN);
 
 	(void)munmap((void *)ctxt, sizeof(*ctxt));
