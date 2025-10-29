@@ -96,7 +96,7 @@ static int monitor(stress_args_t *args, const int sock)
 	}
 
 	for (nlmsghdr = (struct nlmsghdr *)buf;
-		NLMSG_OK(nlmsghdr, (unsigned int)len);
+		(len > 0) && NLMSG_OK(nlmsghdr, (unsigned int)len);
 		nlmsghdr = NLMSG_NEXT(nlmsghdr, len)) {
 
 		const struct cn_msg *cn_msg;
