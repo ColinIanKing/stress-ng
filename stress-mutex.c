@@ -87,31 +87,23 @@ static void OPTIMIZE3 *stress_mutex_exercise(void *arg)
 {
 	pthread_info_t *pthread_info = (pthread_info_t *)arg;
 	stress_args_t *args = pthread_info->args;
-	const int max = (pthread_info->prio_max * 7) / 8;
+	const int prio_max = (pthread_info->prio_max * 7) / 8;
+	const int prio_min = (pthread_info->prio_min);
+	const int prio_range = (prio_max - prio_min);
 	int metrics_count = 0;
-#if defined(HAVE_PTHREAD_MUTEXATTR)
-	int mutexattr_ret;
-	pthread_mutexattr_t mutexattr;
-#endif
 
 	stress_mwc_reseed();
 	stress_random_small_sleep();
 
-#if defined(HAVE_PTHREAD_MUTEXATTR)
-	/*
-	 *  Attempt to use priority inheritance on mutex
-	 */
-	mutexattr_ret = pthread_mutexattr_init(&mutexattr);
-	if (mutexattr_ret == 0) {
-		VOID_RET(int, pthread_mutexattr_setprotocol(&mutexattr, PTHREAD_PRIO_INHERIT));
-		VOID_RET(int, pthread_mutexattr_setprioceiling(&mutexattr, max));
-	}
-#endif
-
 	do {
 		struct sched_param param;
 
-		param.sched_priority = max > 0 ? (int)stress_mwc32modn(max) : max;
+		if ((prio_range > 0) && (prio_max > 0)) {
+			param.sched_priority = prio_min + (int)stress_mwc32modn(prio_range);
+		} else {
+			param.sched_priority = prio_max;
+		}
+
 		(void)pthread_setschedparam(pthread_info->pthread, SCHED_FIFO, &param);
 
 		if (LIKELY(metrics_count > 0)) {
@@ -162,12 +154,6 @@ static void OPTIMIZE3 *stress_mutex_exercise(void *arg)
 		}
 	} while (stress_continue(args));
 
-#if defined(HAVE_PTHREAD_MUTEXATTR)
-	if (mutexattr_ret == 0) {
-		(void)pthread_mutexattr_destroy(&mutexattr);
-	}
-#endif
-
 	return &g_nowt;
 }
 
@@ -184,6 +170,10 @@ static int stress_mutex(stress_args_t *args)
 	uint64_t mutex_procs = DEFAULT_MUTEX_PROCS;
 	bool mutex_affinity = false;
 	double duration = 0.0, count = 0.0, rate;
+#if defined(HAVE_PTHREAD_MUTEXATTR)
+	int mutexattr_ret;
+	pthread_mutexattr_t mutexattr;
+#endif
 
 	if (stress_sigchld_set_handler(args) < 0)
 		return EXIT_NO_RESOURCE;
@@ -196,20 +186,40 @@ static int stress_mutex(stress_args_t *args)
 			mutex_procs = MIN_MUTEX_PROCS;
 	}
 
+	prio_min = sched_get_priority_min(SCHED_FIFO);
+	prio_max = sched_get_priority_max(SCHED_FIFO);
+
 	(void)shim_memset(&pthread_info, 0, sizeof(pthread_info));
 
+#if defined(HAVE_PTHREAD_MUTEXATTR)
+	/*
+	 *  Attempt to use priority inheritance on mutex
+	 */
+	mutexattr_ret = pthread_mutexattr_init(&mutexattr);
+	if (mutexattr_ret == 0) {
+		VOID_RET(int, pthread_mutexattr_setprotocol(&mutexattr, PTHREAD_PRIO_INHERIT));
+		VOID_RET(int, pthread_mutexattr_setprioceiling(&mutexattr, (prio_max * 7) / 8));
+	}
+	if (pthread_mutex_init(&mutex, &mutexattr) != 0) {
+		pr_fail("pthread_mutex_init failed, errno=%d: "
+			"(%s)\n", errno, strerror(errno));
+		return EXIT_FAILURE;
+	}
+	if (mutexattr_ret == 0) {
+		(void)pthread_mutexattr_destroy(&mutexattr);
+	}
+#else
 	if (pthread_mutex_init(&mutex, NULL) != 0) {
 		pr_fail("pthread_mutex_init failed, errno=%d: "
 			"(%s)\n", errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
+#endif
 
 #if defined(HAVE_PTHREAD_SETAFFINITY_NP)
 	n_cpus = stress_get_usable_cpus(&cpus, true);
 #endif
 
-	prio_min = sched_get_priority_min(SCHED_FIFO);
-	prio_max = sched_get_priority_max(SCHED_FIFO);
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
