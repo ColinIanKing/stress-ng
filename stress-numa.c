@@ -154,7 +154,7 @@ static void stress_numa_check_maps(
 					str++;
 				while (*str == ' ')
 					str++;
-				if (*str== 'N') {
+				if (*str == 'N') {
 					str++;
 					if ((sscanf(str, "%d", &node) == 1) &&
 					    (expected_node == node)) {
