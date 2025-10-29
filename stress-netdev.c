@@ -128,6 +128,7 @@ static int stress_netdev(stress_args_t *args)
 				args->name, (size_t)ifc.ifc_len,
 				stress_get_memfree_str());
 			rc = EXIT_NO_RESOURCE;
+			break;
 		}
 
 		/* Fetch the addresses */
