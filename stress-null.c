@@ -98,11 +98,12 @@ static int stress_null(stress_args_t *args)
 		} while (stress_continue(args));
 		duration += stress_time_now() - t;
 	} else {
-		if (stress_instance_zero(args))
-                        pr_inf("%s: exercising /dev/null with writes, lseek, "
+		if (stress_instance_zero(args)) {
+			pr_inf("%s: exercising /dev/null with writes, lseek, "
 				"ioctl, fcntl, fallocate, fdatasync and mmap; for "
 				"just write benchmarking use --null-write\n",
 				args->name);
+		}
 		do {
 			int flag;
 #if defined(__linux__)
