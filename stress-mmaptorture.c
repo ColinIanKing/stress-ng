@@ -333,7 +333,7 @@ static void NORETURN MLOCKED_TEXT stress_mmaptorture_sighandler(int signum)
 		break;
 	case SIGSEGV:
 		if (mmap_stats)
-			mmap_stats->sigbus_traps++;
+			mmap_stats->sigsegv_traps++;
 		break;
 	default:
 		break;
