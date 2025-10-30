@@ -137,7 +137,7 @@ static int stress_pageswap_child(stress_args_t *args, void *context)
 				(void)madvise(pi, pi->size, MADV_POPULATE_READ);
 #endif
 
-			if (UNLIKELY(max++ > 65536)) {
+			if (UNLIKELY(max++ >= 65536)) {
 				stress_pageswap_unmap(args, &head, &count, &rc);
 				max = 0;
 			}
