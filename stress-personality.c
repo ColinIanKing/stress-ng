@@ -116,7 +116,7 @@ static int stress_personality(stress_args_t *args)
 			VOID_RET(int, personality(0xbad00000 | stress_mwc32()));
 			VOID_RET(int, personality(p));
 		}
-		if (UNLIKELY(fails == n)) {
+		if (UNLIKELY(fails == n - 1)) {
 			pr_fail("%s: all %zu personalities failed "
 				"to be set\n", args->name, fails);
 			rc = EXIT_FAILURE;
