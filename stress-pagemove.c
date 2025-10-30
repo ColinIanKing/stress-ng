@@ -131,7 +131,11 @@ static int stress_pagemove_child(stress_args_t *args, void *context)
 		if (UNLIKELY(!stress_continue(args)))
 			break;
 
-		(void)mprotect((void *)buf, info->sz, PROT_WRITE);
+		if (mprotect((void *)buf, info->sz, PROT_WRITE) < 0) {
+			pr_fail("%s: failed to mprotect PROT_WRITE memory, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
+			goto fail;
+		}
 
 		for (page_num = 0, ptr = buf; ptr < buf_end; ptr += page_size, page_num++) {
 			page_info_t *p = (page_info_t *)ptr;
@@ -140,7 +144,11 @@ static int stress_pagemove_child(stress_args_t *args, void *context)
 			p->virt_addr = (void *)ptr;
 		}
 
-		(void)mprotect((void *)buf, info->sz, PROT_READ);
+		if (mprotect((void *)buf, info->sz, PROT_READ) < 0) {
+			pr_fail("%s: failed to mprotect PROT_READ memory, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
+			goto fail;
+		}
 
 		for (page_num = 0, ptr = buf; ptr < buf_end; ptr += page_size, page_num++) {
 			register const page_info_t *p = (page_info_t *)ptr;
