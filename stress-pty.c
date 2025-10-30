@@ -525,8 +525,8 @@ static int stress_pty(stress_args_t *args)
 					(void)shim_sched_yield();
 				}
 			}
-		}
 #endif
+		}
 
 #if defined(HAVE_PATHCONF)
 #if defined(_PC_MAX_CANON)
