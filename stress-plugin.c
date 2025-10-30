@@ -150,7 +150,7 @@ static int stress_plugin_method_all(void)
 static void stress_plugin_so(const char *opt_name, const char *opt_arg, stress_type_id_t *type_id, void *value)
 {
 	struct link_map *map = NULL;
-	Elf64_Sym * symtab = NULL;
+	ElfW(Sym) * symtab = NULL;
 	ElfW(Dyn) *section;
 	char * strtab = NULL;
 	unsigned long int symentries = 0;
@@ -180,7 +180,7 @@ static void stress_plugin_so(const char *opt_name, const char *opt_arg, stress_t
 	for (section = map->l_ld; section->d_tag != DT_NULL; ++section) {
 		switch (section->d_tag) {
 		case DT_SYMTAB:
-			symtab = (Elf64_Sym *)section->d_un.d_ptr;
+			symtab = (ElfW(Sym) *)section->d_un.d_ptr;
 			break;
 		case DT_STRTAB:
 			strtab = (char *)section->d_un.d_ptr;
@@ -210,7 +210,7 @@ static void stress_plugin_so(const char *opt_name, const char *opt_arg, stress_t
 
 	for (n_funcs = 0, i = 0; i < size / symentries; i++) {
 		if (ELF64_ST_TYPE(symtab[i].st_info) == STT_FUNC) {
-			const Elf64_Sym *sym = &symtab[i];
+			const ElfW(Sym) *sym = &symtab[i];
 			const char *str = &strtab[sym->st_name];
 
 			if (!strncmp(str, "stress_", 7))
@@ -238,7 +238,7 @@ static void stress_plugin_so(const char *opt_name, const char *opt_arg, stress_t
 
 	for (i = 0; i < size / symentries; i++) {
 		if (ELF64_ST_TYPE(symtab[i].st_info) == STT_FUNC) {
-			const Elf64_Sym *sym = &symtab[i];
+			const ElfW(Sym) *sym = &symtab[i];
 			const char *str = &strtab[sym->st_name];
 
 			if ((strlen(str) > 7) && !strncmp(str, "stress_", 7)) {
