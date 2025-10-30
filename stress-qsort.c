@@ -353,7 +353,7 @@ static int OPTIMIZE3 stress_qsort(stress_args_t *args)
 		stress_sort_compare_reset();
 		t = stress_time_now();
 		/* Sort "random" data */
-		qsort_func(data, n, sizeof(*data), stress_sort_cmp_fwd_int32);
+		qsort_func((void *)data, n, sizeof(*data), stress_sort_cmp_fwd_int32);
 		duration += stress_time_now() - t;
 		count += (double)stress_sort_compare_get();
 		sorted += (double)n;
@@ -367,7 +367,7 @@ static int OPTIMIZE3 stress_qsort(stress_args_t *args)
 		/* Reverse sort */
 		stress_sort_compare_reset();
 		t = stress_time_now();
-		qsort_func(data, n, sizeof(*data), stress_sort_cmp_rev_int32);
+		qsort_func((void *)data, n, sizeof(*data), stress_sort_cmp_rev_int32);
 		duration += stress_time_now() - t;
 		count += (double)stress_sort_compare_get();
 		sorted += (double)n;
@@ -381,7 +381,7 @@ static int OPTIMIZE3 stress_qsort(stress_args_t *args)
 		stress_sort_data_int32_mangle(data, n);
 		stress_sort_compare_reset();
 		t = stress_time_now();
-		qsort_func((uint8_t *)data, n, sizeof(uint32_t), stress_sort_cmp_fwd_int32);
+		qsort_func((void *)data, n, sizeof(uint32_t), stress_sort_cmp_fwd_int32);
 		duration += stress_time_now() - t;
 		count += (double)stress_sort_compare_get();
 		sorted += (double)n;
@@ -389,7 +389,7 @@ static int OPTIMIZE3 stress_qsort(stress_args_t *args)
 		/* Reverse sort */
 		stress_sort_compare_reset();
 		t = stress_time_now();
-		qsort_func(data, n, sizeof(*data), stress_sort_cmp_rev_int32);
+		qsort_func((void *)data, n, sizeof(*data), stress_sort_cmp_rev_int32);
 		duration += stress_time_now() - t;
 		count += (double)stress_sort_compare_get();
 		sorted += (double)n;
