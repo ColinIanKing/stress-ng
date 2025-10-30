@@ -256,7 +256,7 @@ PRAGMA_UNROLL_N(8)
 }
 
 #if !defined(STRESS_OPCODE_SIZE)
-/* Not defimed? Default to 64 bit */
+/* Not defined? Default to 64 bit */
 #define STRESS_OPCODE_SIZE	(64)
 #define STRESS_OPCODE_MASK	(0xffffffffffffffffULL)
 #endif
