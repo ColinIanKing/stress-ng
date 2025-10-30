@@ -199,11 +199,12 @@ static void stress_pci_exercise_file(
 			goto err;
 		if (!S_ISREG(statbuf.st_mode))
 			goto err;
-
 		sz = STRESS_MINIMUM(sizeof(buf), (size_t)statbuf.st_size);
-		if (UNLIKELY(rom)) {
+		if (sz == 0)
+			goto err;
+
+		if (UNLIKELY(rom))
 			VOID_RET(ssize_t, write(fd, "1\n", 2));
-		}
 
 		ptr = mmap(NULL, sz, PROT_READ, MAP_SHARED, fd, 0);
 		if (ptr != MAP_FAILED)
