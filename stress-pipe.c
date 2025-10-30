@@ -464,9 +464,10 @@ static int stress_pipe_write_splice(
 				break;
 			}
 			continue;
+		} else {
+			stress_bogo_inc(args);
+			bytes += ret;
 		}
-		stress_bogo_inc(args);
-		bytes += pipe_data_size;
 	} while (stress_continue(args));
 
 	*pbytes64 = bytes;
