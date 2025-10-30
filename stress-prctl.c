@@ -983,7 +983,7 @@ static int stress_prctl_child(
 		arg = (unsigned long int)prctl(PR_SME_GET_VL, 0, 0, 0, 0);
 #if defined(PR_SME_SET_VL)
 		if (arg >= 0)
-			arg = prctl(PR_SME_SET_VL, (unsigned long int)arg, 0, 0, 0, 0);
+			arg = prctl(PR_SME_SET_VL, (unsigned long int)arg, 0, 0, 0);
 #endif
 		(void)arg;
 	}
@@ -996,7 +996,7 @@ static int stress_prctl_child(
 		bits = prctl(PR_GET_MDWE, 0, 0, 0, 0);
 #if defined(PR_SET_MDWE)
 		if (bits >= 0)
-			bits = prctl(PR_SET_MDWE, (unsigned long int)bits, 0, 0, 0, 0);
+			bits = prctl(PR_SET_MDWE, (unsigned long int)bits, 0, 0, 0);
 #endif
 		(void)bits;
 	}
