@@ -123,15 +123,20 @@ static int stress_prime_start(char *prime_start, mpz_t start)
 		/* Ensure it's positive */
 		ret = mpfr_cmp(zero, start_mpfr);
 		mpfr_clear(zero);
-		if (ret > 0)
+		if (ret > 0) {
+			mpfr_clear(start_mpfr);
 			return -1;
+		}
 
 		/* Convert to string */
-		if (mpfr_asprintf(&str, "%0.Rf", start_mpfr) < 1)
+		if (mpfr_asprintf(&str, "%0.Rf", start_mpfr) < 1) {
+			mpfr_clear(start_mpfr);
 			return -1;
+		}
 		/* Convert string to mpz integer */
 		ret = mpz_set_str(start, str, 0);
 		mpfr_free_str(str);
+		mpfr_clear(start_mpfr);
 		if (ret != 0)
 			return -1;
 #else
