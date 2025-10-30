@@ -276,7 +276,13 @@ static int stress_pagemove_child(stress_args_t *args, void *context)
 	rc = EXIT_SUCCESS;
 fail:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+	/* Attempt to unmap all possible mapped regions */
 	(void)munmap((void *)buf, info->sz);
+
+	if (unmapped_page) {
+		/* may fail if previously unmapped, but that's OK */
+		(void)munmap((void *)unmapped_page, page_size);
+	}
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 	if (numa_mask)
 		stress_numa_mask_free(numa_mask);
