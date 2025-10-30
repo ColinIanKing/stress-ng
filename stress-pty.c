@@ -162,6 +162,7 @@ static int stress_pty(stress_args_t *args)
 				}
 			}
 #endif
+
 #if defined(HAVE_TCDRAIN)
 			{
 				if (UNLIKELY((tcdrain(ptys[i].follower) < 0) &&
@@ -172,6 +173,7 @@ static int stress_pty(stress_args_t *args)
 				}
 			}
 #endif
+
 #if defined(HAVE_TCFLUSH)
 			{
 #if defined(TCIFLUSH)
@@ -197,8 +199,9 @@ static int stress_pty(stress_args_t *args)
 #endif
 			}
 #endif
-#if defined(HAVE_TCFLOW)
-#if defined(TCOOFF) && \
+
+#if defined(HAVE_TCFLOW) &&	\
+    defined(TCOOFF) && 		\
     defined(TCOON)
 			{
 				if (UNLIKELY(tcflow(ptys[i].follower, TCOOFF) < 0)) {
@@ -213,7 +216,9 @@ static int stress_pty(stress_args_t *args)
 				}
 			}
 #endif
-#if defined(TCIOFF) && \
+
+#if defined(HAVE_TCFLOW) &&	\
+    defined(TCIOFF) &&		\
     defined(TCION)
 			{
 				if (UNLIKELY(tcflow(ptys[i].follower, TCIOFF) < 0)) {
@@ -228,8 +233,9 @@ static int stress_pty(stress_args_t *args)
 				}
 			}
 #endif
-#endif
-#if defined(TCGETS)
+
+#if defined(TCGETS) &&	\
+    defined(TCSETS)
 			{
 				struct termios ios;
 
@@ -238,46 +244,61 @@ static int stress_pty(stress_args_t *args)
 					pr_fail("%s: ioctl TCGETS on follower pty failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 					rc = EXIT_FAILURE;
+				} else {
+					if (UNLIKELY((ioctl(ptys[i].follower, TCSETS, &ios) < 0) &&
+						     (errno != EINTR))) {
+						pr_fail("%s: ioctl TCSETS on follower pty failed, errno=%d (%s)\n",
+							args->name, errno, strerror(errno));
+						rc = EXIT_FAILURE;
+					}
 				}
 			}
 #endif
-#if defined(TCSETS)
+
+#if defined(TCGETS) &&	\
+    defined(TCSETSW)
 			{
 				struct termios ios;
 
-				if (UNLIKELY((ioctl(ptys[i].follower, TCSETS, &ios) < 0) &&
+				if (UNLIKELY((ioctl(ptys[i].follower, TCGETS, &ios) < 0) &&
 					     (errno != EINTR))) {
-					pr_fail("%s: ioctl TCSETS on follower pty failed, errno=%d (%s)\n",
+					pr_fail("%s: ioctl TCGETS on follower pty failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 					rc = EXIT_FAILURE;
+				} else {
+					if (UNLIKELY((ioctl(ptys[i].follower, TCSETSW, &ios) < 0) &&
+						     (errno != EINTR))) {
+						pr_fail("%s: ioctl TCSETSW on follower pty failed, errno=%d (%s)\n",
+							args->name, errno, strerror(errno));
+						rc = EXIT_FAILURE;
+					}
 				}
 			}
 #endif
-#if defined(TCSETSW)
+
+#if defined(TCGETS) &&	\
+    defined(TCSETSF)
 			{
 				struct termios ios;
 
-				if (UNLIKELY((ioctl(ptys[i].follower, TCSETSW, &ios) < 0) &&
+				if (UNLIKELY((ioctl(ptys[i].follower, TCGETS, &ios) < 0) &&
 					     (errno != EINTR))) {
-					pr_fail("%s: ioctl TCSETSW on follower pty failed, errno=%d (%s)\n",
+					pr_fail("%s: ioctl TCGETS on follower pty failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 					rc = EXIT_FAILURE;
+				} else {
+					if (UNLIKELY((ioctl(ptys[i].follower, TCSETSF, &ios) < 0) &&
+						     (errno != EINTR))) {
+						pr_fail("%s: ioctl TCSETSF on follower pty failed, errno=%d (%s)\n",
+							args->name, errno, strerror(errno));
+						rc = EXIT_FAILURE;
+					}
 				}
 			}
 #endif
-#if defined(TCSETSF)
-			{
-				struct termios ios;
 
-				if (UNLIKELY((ioctl(ptys[i].follower, TCSETSF, &ios) < 0) &&
-					     (errno != EINTR))) {
-					pr_fail("%s: ioctl TCSETSF on follower pty failed, errno=%d (%s)\n",
-						args->name, errno, strerror(errno));
-					rc = EXIT_FAILURE;
-				}
-			}
-#endif
-#if defined(TCGETA)
+#if defined(TCGETA) &&	\
+    defined(TCSETA)
 			{
 				struct termio io;
 
@@ -286,45 +307,59 @@ static int stress_pty(stress_args_t *args)
 					pr_fail("%s: ioctl TCGETA on follower pty failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 					rc = EXIT_FAILURE;
+				} else {
+					if (UNLIKELY((ioctl(ptys[i].follower, TCSETA, &io) < 0) &&
+						     (errno != EINTR))) {
+						pr_fail("%s: ioctl TCSETA on follower pty failed, errno=%d (%s)\n",
+							args->name, errno, strerror(errno));
+						rc = EXIT_FAILURE;
+					}
 				}
 			}
 #endif
-#if defined(TCSETA)
+
+#if defined(TCGETA) &&	\
+    defined(TCSETAW)
 			{
 				struct termio io;
 
-				if (UNLIKELY((ioctl(ptys[i].follower, TCSETA, &io) < 0) &&
+				if (UNLIKELY((ioctl(ptys[i].follower, TCGETA, &io) < 0) &&
 					     (errno != EINTR))) {
-					pr_fail("%s: ioctl TCSETA on follower pty failed, errno=%d (%s)\n",
+					pr_fail("%s: ioctl TCGETA on follower pty failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 					rc = EXIT_FAILURE;
+				} else {
+					if (UNLIKELY((ioctl(ptys[i].follower, TCSETAW, &io) < 0) &&
+						     (errno != EINTR))) {
+						pr_fail("%s: ioctl TCSETAW on follower pty failed, errno=%d (%s)\n",
+							args->name, errno, strerror(errno));
+						rc = EXIT_FAILURE;
+					}
 				}
 			}
 #endif
-#if defined(TCSETAW)
+
+#if defined(TCGETA) &&	\
+    defined(TCSETAF)
 			{
 				struct termio io;
 
-				if (UNLIKELY((ioctl(ptys[i].follower, TCSETAW, &io) < 0) &&
+				if (UNLIKELY((ioctl(ptys[i].follower, TCGETA, &io) < 0) &&
 					     (errno != EINTR))) {
-					pr_fail("%s: ioctl TCSETAW on follower pty failed, errno=%d (%s)\n",
+					pr_fail("%s: ioctl TCGETA on follower pty failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 					rc = EXIT_FAILURE;
+				} else {
+					if (UNLIKELY((ioctl(ptys[i].follower, TCSETAF, &io) < 0) &&
+						     (errno != EINTR))) {
+						pr_fail("%s: ioctl TCSETAF on follower pty failed, errno=%d (%s)\n",
+							args->name, errno, strerror(errno));
+						rc = EXIT_FAILURE;
+					}
 				}
 			}
 #endif
-#if defined(TCSETAF)
-			{
-				struct termio io;
 
-				if (UNLIKELY((ioctl(ptys[i].follower, TCSETAF, &io) < 0) &&
-					     (errno != EINTR))) {
-					pr_fail("%s: ioctl TCSETAF on follower pty failed, errno=%d (%s)\n",
-						args->name, errno, strerror(errno));
-					rc = EXIT_FAILURE;
-				}
-			}
-#endif
 #if defined(TIOCGLCKTRMIOS)
 			{
 				struct termios ios;
@@ -337,7 +372,9 @@ static int stress_pty(stress_args_t *args)
 				}
 			}
 #endif
-#if defined(TIOCGWINSZ)
+
+#if defined(TIOCGWINSZ) &&	\
+    defined(TIOCSWINSZ)
 			{
 				struct winsize ws;
 
@@ -347,12 +384,6 @@ static int stress_pty(stress_args_t *args)
 						args->name, errno, strerror(errno));
 					rc = EXIT_FAILURE;
 				}
-			}
-#endif
-#if defined(TIOCSWINSZ)
-			{
-				struct winsize ws;
-
 				if (UNLIKELY((ioctl(ptys[i].follower, TIOCSWINSZ, &ws) < 0) &&
 					     (errno != EINTR))) {
 					pr_fail("%s: ioctl TIOCSWINSZ on follower pty failed, errno=%d (%s)\n",
@@ -361,6 +392,7 @@ static int stress_pty(stress_args_t *args)
 				}
 			}
 #endif
+
 #if defined(FIONREAD)
 			{
 				int arg;
@@ -373,6 +405,7 @@ static int stress_pty(stress_args_t *args)
 				}
 			}
 #endif
+
 #if defined(TIOCINQ)
 			{
 				int arg;
@@ -385,6 +418,7 @@ static int stress_pty(stress_args_t *args)
 				}
 			}
 #endif
+
 #if defined(TIOCOUTQ)
 			{
 				int arg;
@@ -397,19 +431,20 @@ static int stress_pty(stress_args_t *args)
 				}
 			}
 #endif
-#if defined(TIOCGPTLCK)
+
+#if defined(TIOCGPTLCK) &&	\
+    defined(TIOCSPTLCK)
 			{
 				int ret, locked = 0;
 
 				ret = ioctl(ptys[i].leader, TIOCGPTLCK, &locked);
-#if defined(TIOCSPTLCK)
 				if (ret == 0)
 					ret = ioctl(ptys[i].leader, TIOCSPTLCK, &locked);
-#endif
 
 				(void)ret;
 			}
 #endif
+
 #if defined(TIOCGPTN)
 			{
 				unsigned int ptynum = 0;
@@ -417,40 +452,47 @@ static int stress_pty(stress_args_t *args)
 				(void)ioctl(ptys[i].leader, TIOCGPTN, &ptynum);	/* BSD */
 			}
 #endif
-#if defined(TIOCGPKT)
+
+#if defined(TIOCGPKT) &&	\
+    defined(TIOCPKT)
+
 			{
 				int val, ret;
 
 				ret = ioctl(ptys[i].leader, TIOCGPKT, &val);
-#if defined(TIOCPKT)
 				if (ret == 0)
 					ret = ioctl(ptys[i].leader, TIOCPKT, &val);
-#endif
 				(void)ret;
 			}
 #endif
+
+#if defined(HAVE_CFGETISPEED) &&	\
+    defined(HAVE_CFGETOSPEED)
 			{
 				struct termios ios;
 
 				if (tcgetattr(ptys[i].follower, &ios) == 0) {
-#if defined(HAVE_CFGETISPEED)
 					(void)cfgetispeed(&ios);
-#endif
-#if defined(HAVE_CFGETOSPEED)
 					(void)cfgetospeed(&ios);
-#endif
-				}
-				if (tcgetattr(ptys[i].leader, &ios) == 0) {
-#if defined(HAVE_CFGETISPEED)
-					(void)cfgetispeed(&ios);
-#endif
-#if defined(HAVE_CFGETOSPEED)
-					(void)cfgetospeed(&ios);
-#endif
 				}
 			}
+#endif
+
+#if defined(HAVE_CFGETISPEED) &&	\
+    defined(HAVE_CFGETOSPEED)
+			{
+				struct termios ios;
+
+				if (tcgetattr(ptys[i].leader, &ios) == 0) {
+					(void)cfgetispeed(&ios);
+					(void)cfgetospeed(&ios);
+				}
+			}
+#endif
+
 			if (UNLIKELY(!stress_continue_flag()))
 				goto clean;
+
 #if defined(TIOCSETD) &&	\
     defined(TIOCGETD) &&	\
     defined(TCXONC)
