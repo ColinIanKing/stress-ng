@@ -51,7 +51,7 @@ typedef struct {
 	int fd;				/* file descriptor */
 	bool pseek_rand;		/* random seek option */
 	uint64_t pseek_io_size;		/* write/read I/O size */
-	pid_t parent_pid;		/* stressor ped */
+	pid_t parent_pid;		/* stressor PID */
 } stress_peekio_info_t;
 
 /*
