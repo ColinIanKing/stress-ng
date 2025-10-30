@@ -522,7 +522,7 @@ static int open_tmpfile_no_rdwr(
 
 #if defined(HAVE_POSIX_OPENPT) &&	\
     defined(O_RDWR) &&			\
-    defined(N_NOCTTY)
+    defined(O_NOCTTY)
 static int open_pt(
 	stress_args_t *args,
 	const char *temp_dir,
@@ -530,11 +530,20 @@ static int open_pt(
 	double *duration,
 	double *count)
 {
+	int fd;
+	double t;
+
 	(void)args;
 	(void)temp_dir;
 	(void)pid;
 
-	return posix_openpt(O_RDWR | O_NOCTTY);
+	t = stress_time_now();
+	fd = posix_openpt(O_RDWR | O_NOCTTY);
+	if (LIKELY(fd >= 0)) {
+		(*duration) += stress_time_now() - t;
+		(*count) += 1.0;
+	}
+	return fd;
 }
 #endif
 
@@ -979,7 +988,7 @@ static const stress_open_func_t open_funcs[] = {
 #endif
 #if defined(HAVE_POSIX_OPENPT) &&	\
     defined(O_RDWR) &&			\
-    defined(N_NOCTTY)
+    defined(O_NOCTTY)
 	open_pt,
 #endif
 #if defined(O_CREAT)
