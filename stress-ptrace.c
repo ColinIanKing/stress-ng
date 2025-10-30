@@ -141,6 +141,7 @@ again:
 					args->name, (intmax_t)pid, errno, strerror(errno));
 				return EXIT_FAILURE;
 			}
+			(void)stress_kill_pid_wait(pid, NULL);
 			return EXIT_SUCCESS;
 		}
 		if (ptrace(PTRACE_SETOPTIONS, pid,
