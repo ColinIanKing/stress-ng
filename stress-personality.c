@@ -77,7 +77,7 @@ static int stress_personality(stress_args_t *args)
 	}
 
 	if (stress_instance_zero(args))
-		pr_dbg("%s: exercising %zu personalities\n", args->name, n);
+		pr_dbg("%s: exercising %zu personalities\n", args->name, n - 1);
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
