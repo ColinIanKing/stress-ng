@@ -532,8 +532,8 @@ tidy_munmap_procs:
 }
 
 static const stress_opt_t opts[] = {
-	{ OPT_pseek_rand,    "pseek-seek-rand",  TYPE_ID_BOOL, 0, 1, NULL },
-	{ OPT_pseek_io_size, "pseek-io-size",    TYPE_ID_UINT64_BYTES_FS, MIN_PSEEKIO_IO_SIZE, MAX_PSEEKIO_IO_SIZE, NULL },
+	{ OPT_pseek_rand,    "pseek-rand",    TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_pseek_io_size, "pseek-io-size", TYPE_ID_UINT64_BYTES_FS, MIN_PSEEKIO_IO_SIZE, MAX_PSEEKIO_IO_SIZE, NULL },
 	END_OPT,
 };
 
