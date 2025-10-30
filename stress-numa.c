@@ -269,7 +269,7 @@ static int stress_numa(stress_args_t *args)
 					PROT_READ | PROT_WRITE,
 					MAP_ANONYMOUS | MAP_SHARED, 0, 0);
 	if (dest_nodes == MAP_FAILED) {
-		pr_inf("%s: failed to mmap dest_nodes array of %zu elements%s, "
+		pr_inf_skip("%s: failed to mmap dest_nodes array of %zu elements%s, "
 			"errno=%d (%s), skipping stressor\n",
 			args->name, num_pages,
 			stress_get_memfree_str(), errno, strerror(errno));
