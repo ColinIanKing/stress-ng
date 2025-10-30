@@ -405,7 +405,6 @@ static int stress_prio_inv(stress_args_t *args)
 	if (pthread_mutexattr_init(&mutexattr) < 0) {
 		pr_fail("pthread_mutexattr_init failed, errno=%d (%s)\n",
 			errno, strerror(errno));
-		(void)pthread_mutex_destroy(&prio_inv_info->mutex);
 		return EXIT_FAILURE;
 	}
 
