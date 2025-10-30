@@ -97,7 +97,7 @@ static void stress_physpage_mtrr(
 
 		ret = ioctl(fd, MTRRIOC_ADD_ENTRY, &sentry);
 		if (UNLIKELY(ret != 0))
-			goto err;
+			continue;
 		if (lseek(fd, 0, SEEK_SET) == 0) {
 			struct mtrr_gentry gentry;
 
@@ -116,7 +116,7 @@ static void stress_physpage_mtrr(
 				*success = false;
 			}
 		}
-err:
+
 		ret = ioctl(fd, MTRRIOC_DEL_ENTRY, &sentry);
 		if (ret < 0)
 			break;
