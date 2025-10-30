@@ -495,9 +495,11 @@ static int stress_pthread(stress_args_t *args)
 	} else {
 		mutex_attr_init = false;
 	}
-#endif
 
+	ret = pthread_mutex_init(&mutex, &mutex_attr);
+#else
 	ret = pthread_mutex_init(&mutex, NULL);
+#endif
 	if (ret) {
 		pr_fail("%s: pthread_mutex_init failed, errno=%d (%s)\n",
 			args->name, ret, strerror(ret));
