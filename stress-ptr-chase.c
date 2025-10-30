@@ -163,7 +163,7 @@ static int stress_ptr_chase(stress_args_t *args)
 	stress_metrics_set(args, 0, "% pointers chased", metric, STRESS_METRIC_HARMONIC_MEAN);
 
 	counter = stress_bogo_get(args);
-	metric = (counter > 0) ? (duration * STRESS_DBL_NANOSECOND) / (double)counter: 0.0;
+	metric = (counter > 0) ? (duration * STRESS_DBL_NANOSECOND) / (double)counter : 0.0;
 	stress_metrics_set(args, 0, "nanosec per pointer", metric, STRESS_METRIC_HARMONIC_MEAN);
 
 	if (metric > 0.0)
