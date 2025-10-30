@@ -18,6 +18,7 @@
  */
 #include "stress-ng.h"
 #include "core-builtin.h"
+#include "core-memory.h"
 #include "core-mmap.h"
 #include "core-numa.h"
 #include "core-out-of-memory.h"
@@ -104,7 +105,11 @@ static int stress_pagemove_child(stress_args_t *args, void *context)
 		(void)shim_mlock(buf, info->sz + page_size);
 	buf_end = buf + info->sz;
 	unmapped_page = buf_end;
-	(void)munmap((void *)unmapped_page, page_size);
+	if (stress_munmap_force((void *)unmapped_page, page_size) < 0) {
+		pr_inf_skip("%s: failed to munmap %zu bytes, errno=%d (%s), skipping stressor\n",
+			args->name, page_size, errno, strerror(errno));
+		return EXIT_NO_RESOURCE;
+	}
 
 	if (info->pagemove_numa) {
 #if defined(HAVE_LINUX_MEMPOLICY_H)
