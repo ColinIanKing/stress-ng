@@ -116,7 +116,7 @@ static int stress_pageswap_child(stress_args_t *args, void *context)
 		}
 
 		pi = (page_info_t *)mmap(NULL, page_size, PROT_READ | PROT_WRITE,
-			MAP_ANONYMOUS | MAP_SHARED, -1, 0);
+			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 		if (UNLIKELY(pi == MAP_FAILED)) {
 			stress_pageswap_unmap(args, &head, &count, &rc);
 			max = 0;
