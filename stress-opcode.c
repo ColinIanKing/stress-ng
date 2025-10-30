@@ -293,7 +293,7 @@ static void OPTIMIZE3 stress_opcode_inc(
 	case 32: {
 			register const uint32_t tmp32 = *op & 0xffffffffL;
 			register uint32_t *ops = (uint32_t *)ops_begin;
-			register size_t i = (ssize_t)(page_size >> 2);
+			register ssize_t i = (ssize_t)(page_size >> 2);
 
 			while (i--) {
 				*(ops++) = tmp32;
@@ -304,7 +304,7 @@ static void OPTIMIZE3 stress_opcode_inc(
 		{
 			register const uint64_t tmp64 = *op;
 			register uint8_t *ops = (uint8_t *)ops_begin;
-			register size_t i = (ssize_t)(page_size / 6);
+			register ssize_t i = (ssize_t)(page_size / 6);
 
 			while (i--) {
 				*(ops++) = (tmp64 >> 0);
@@ -322,7 +322,7 @@ static void OPTIMIZE3 stress_opcode_inc(
 	case 64: {
 			register const uint64_t tmp64 = *op;
 			register uint64_t *ops = (uint64_t *)ops_begin;
-			register size_t i = (ssize_t)(page_size >> 3);
+			register ssize_t i = (ssize_t)(page_size >> 3);
 
 			while (i--)
 				*(ops++) = tmp64;
