@@ -905,23 +905,24 @@ static int open_rdonly_trunc(
 	double *count)
 {
 	char filename[PATH_MAX];
-	int fd;
+	int fd1, fd2;
 
 	(void)args;
 
 	(void)snprintf(filename, sizeof(filename), "%s/stress-open-%" PRIdMAX "-%" PRIu32,
 		temp_dir, (intmax_t)pid, stress_mwc32());
 
-	fd = open_arg3(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR, duration, count);
-	if (fd < 0)
-		return fd;
+	fd1 = open_arg3(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR, duration, count);
+	if (fd1 < 0)
+		return fd1;
 
 	/* undefined behaviour, will open, may truncate on some systems */
-	fd = open_arg2(filename, O_RDONLY | O_TRUNC, duration, count);
-	(void)fd;
+	fd2 = open_arg2(filename, O_RDONLY | O_TRUNC, duration, count);
+	if (fd2 >= 0)
+		(void)close(fd2);
 	(void)shim_unlink(filename);
 
-	return fd;
+	return fd1;
 }
 #endif
 
