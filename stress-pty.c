@@ -190,7 +190,7 @@ static int stress_pty(stress_args_t *args)
 #endif
 #if defined(TCIOFLUSH)
 				if (UNLIKELY(tcflush(ptys[i].follower, TCIOFLUSH) < 0)) {
-					pr_fail("%s: tcflush TCOOFLUSH on follower pty failed, errno=%d (%s)\n",
+					pr_fail("%s: tcflush TCIOFLUSH on follower pty failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 					rc = EXIT_FAILURE;
 				}
