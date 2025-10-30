@@ -51,7 +51,9 @@ static int stress_pipeherd_read_write(stress_args_t *args, const int fd[2], cons
 		ssize_t sz;
 
 		sz = read(fd[0], &data, sizeof(data));
-		if (UNLIKELY(sz < 0)) {
+		if (UNLIKELY(sz <= 0)) {
+			if (sz == 0)
+				goto next;
 			if ((errno == EINTR) || (errno == EPIPE))
 				break;
 			return EXIT_FAILURE;
@@ -59,10 +61,13 @@ static int stress_pipeherd_read_write(stress_args_t *args, const int fd[2], cons
 		data.counter++;
 		sz = write(fd[1], &data, sizeof(data));
 		if (UNLIKELY(sz < 0)) {
+			if (sz == 0)
+				goto next;
 			if ((errno == EINTR) || (errno == EPIPE))
 				break;
 			return EXIT_FAILURE;
 		}
+next:
 		if (pipeherd_yield)
 			(void)shim_sched_yield();
 	}
@@ -120,9 +125,14 @@ static int stress_pipeherd(stress_args_t *args)
 	data.counter = 0;
 	data.check = check;
 	sz = write(fd[1], &data, sizeof(data));
-	if (sz < 0) {
-		pr_fail("%s: write to pipe failed, errno=%d (%s)\n",
-			args->name, errno, strerror(errno));
+	if (UNLIKELY(sz < 0)) {
+		if (sz == 0) {
+			pr_fail("%s: write to pipe failed, zero bytes written\n",
+				args->name);
+		} else {
+			pr_fail("%s: write to pipe failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
+		}
 		(void)close(fd[0]);
 		(void)close(fd[1]);
 		return EXIT_FAILURE;
@@ -162,7 +172,7 @@ static int stress_pipeherd(stress_args_t *args)
 
 	VOID_RET(int, stress_pipeherd_read_write(args, fd, pipeherd_yield));
 	sz = read(fd[0], &data, sizeof(data));
-	if (sz > 0)
+	if (sz >= (ssize_t)sizeof(data))
 		stress_bogo_set(args, data.counter);
 
 #if defined(HAVE_GETRUSAGE) &&	\
@@ -207,7 +217,7 @@ static int stress_pipeherd(stress_args_t *args)
 		}
 	}
 #endif
-	if (data.check != check) {
+	if ((sz >= (ssize_t)sizeof(data)) && (data.check != check)) {
 		pr_fail("%s: verification check failed, got 0x%" PRIx32 ", "
 			"expected 0x%" PRIx32 "\n",
 			args->name, data.check, check);
