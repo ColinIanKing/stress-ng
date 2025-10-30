@@ -398,7 +398,7 @@ static int open_dev_zero_rd(
 	int flags = 0;
 
 	(void)args;
-	(void)temp_dir,
+	(void)temp_dir;
 	(void)pid;
 
 #if defined(O_ASYNC)
