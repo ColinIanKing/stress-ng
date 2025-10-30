@@ -118,7 +118,9 @@ static int stress_ping_sock(stress_args_t *args)
 
 		icmp_hdr->un.echo.sequence++;
 		rand_port++;
-		rand_port &= 0xffff;
+		/* avoid using privileged ports for now */
+		if (rand_port > 65535)
+			rand_port = 1024;
 	} while (stress_continue(args));
 	duration = stress_time_now() - t;
 
