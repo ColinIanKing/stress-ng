@@ -81,7 +81,6 @@ static stress_physmmap_t *stress_physmmap_get_ranges(stress_args_t *args)
 			uintptr_t addr_begin, addr_end;
 			stress_physmmap_t *new_physmmap;
 			size_t region_size;
-			const size_t bitmap_obj_size = sizeof(*new_physmmap->bitmap);
 
 			/* can parse? ignore */
 			if (sscanf(buf, "%" SCNxPTR "-%" SCNxPTR, &addr_begin, &addr_end) != 2)
@@ -99,7 +98,7 @@ static stress_physmmap_t *stress_physmmap_get_ranges(stress_args_t *args)
 				break;
 			new_physmmap->region_size = region_size;
 			new_physmmap->pages = region_size / args->page_size;
-			new_physmmap->bitmap_size = (new_physmmap->pages + bitmap_obj_size - 1) & ~(bitmap_obj_size - 1);
+			new_physmmap->bitmap_size = ((new_physmmap->pages + 63) / 64) * sizeof(uint64_t);
 			new_physmmap->bitmap = malloc(new_physmmap->bitmap_size);
 			if (!new_physmmap->bitmap) {
 				free(new_physmmap);
