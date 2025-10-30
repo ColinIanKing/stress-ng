@@ -466,7 +466,8 @@ static inline void stress_sigsegv_handler(int signum)
 
 	duration += stress_time_now() - t_start;
 	count += 1.0;
-	op_info[idx].trapped = true;
+	if (idx < SIZEOF_ARRAY(op_info))
+		op_info[idx].trapped = true;
 	idx++;
 
 	siglongjmp(jmp_env, 1);
