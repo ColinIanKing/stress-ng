@@ -273,9 +273,9 @@ static int do_quotas(stress_args_t *args, stress_dev_info_t *const dev)
 		struct dqinfo dqinfo;
 
 		(void)shim_memset(&dqinfo, 0, sizeof(dqinfo));
-		VOID_RET(int, quotactl(QCMD(Q_GETQUOTA, USRQUOTA), "", 0, (caddr_t)&dqinfo));
-		VOID_RET(int, quotactl(QCMD(Q_GETQUOTA, USRQUOTA), dev->name, ~0, (caddr_t)&dqinfo));
-		VOID_RET(int, quotactl(QCMD(Q_GETQUOTA, -1), dev->name, ~0, (caddr_t)&dqinfo));
+		VOID_RET(int, quotactl(QCMD(Q_GETINFO, USRQUOTA), "", 0, (caddr_t)&dqinfo));
+		VOID_RET(int, quotactl(QCMD(Q_GETINFO, USRQUOTA), dev->name, ~0, (caddr_t)&dqinfo));
+		VOID_RET(int, quotactl(QCMD(Q_GETINFO, -1), dev->name, ~0, (caddr_t)&dqinfo));
 	}
 #endif
 #if defined(Q_SYNC)
