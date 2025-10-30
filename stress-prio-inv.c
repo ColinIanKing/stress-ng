@@ -156,7 +156,7 @@ static const stress_opt_t opts[] = {
     (defined(SCHED_BATCH) ||				\
      defined(SCHED_EXT) ||				\
      defined(SCHED_FIFO) ||				\
-     defined(SCHED_IDLE) |				\
+     defined(SCHED_IDLE) ||				\
      defined(SCHED_OTHER) ||				\
      defined(SCHED_RR))
 
