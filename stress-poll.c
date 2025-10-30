@@ -69,19 +69,23 @@ static ssize_t OPTIMIZE3 pipe_read(stress_args_t *args, const int fd, const size
 
 		ret = read(fd, &buf, sizeof(buf));
 		if (UNLIKELY(verify)) {
-			if (LIKELY(ret > 0)) {
+			if (LIKELY(ret == sizeof(buf))) {
 				if (UNLIKELY(buf != (uint16_t)n)) {
 					pr_fail("%s: pipe read error, "
 						"expecting different data on "
 						"pipe\n", args->name);
-					return ret;
+					return -1;
 				}
 			} else if (UNLIKELY(ret < 0)) {
 				if ((errno == EAGAIN) || (errno == EINTR))
 					continue;
 				pr_fail("%s: pipe read error detected, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
-				return ret;
+				return -1;
+			} else {
+				pr_fail("%s: pipe short read, expected %zu bytes, got %zd\n",
+					args->name, sizeof(buf), ret);
+				return -1;
 			}
 		}
 		return ret;
@@ -271,7 +275,7 @@ abort:
 			}
 			if (LIKELY(ret > 0)) {
 				for (i = 0; i < max_fds; i++) {
-					if (poll_fds[i].revents == POLLIN) {
+					if (poll_fds[i].revents & POLLIN) {
 						if (UNLIKELY(pipe_read(args, poll_fds[i].fd, i) < 0))
 							break;
 					}
@@ -299,7 +303,7 @@ abort:
 			}
 			if (LIKELY(ret > 0)) {
 				for (i = 0; i < max_fds; i++) {
-					if (poll_fds[i].revents == POLLIN) {
+					if (poll_fds[i].revents & POLLIN) {
 						if (UNLIKELY(pipe_read(args, poll_fds[i].fd, i) < 0))
 							break;
 					}
