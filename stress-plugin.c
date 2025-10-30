@@ -171,6 +171,11 @@ static void stress_plugin_so(const char *opt_name, const char *opt_arg, stress_t
 	}
 
 	dlinfo(stress_plugin_so_dl, RTLD_DI_LINKMAP, &map);
+	if (!map) {
+		fprintf(stderr, "plugin-so: cannot find linkmap in file %s\n", opt_arg);
+		longjmp(g_error_env, 1);
+		stress_no_return();
+	}
 
 	for (section = map->l_ld; section->d_tag != DT_NULL; ++section) {
 		switch (section->d_tag) {
