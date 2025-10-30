@@ -511,10 +511,10 @@ static int stress_pseek(stress_args_t *args)
 		total_reads_duration += procs[i].reads_duration;
 	}
 
-	rate = (total_reads_duration > 0.0) ? total_writes / total_reads_duration : 0.0;
+	rate = (total_writes_duration > 0.0) ? total_writes / total_writes_duration : 0.0;
 	stress_metrics_set(args, 0, "MB/sec write rate",
 		rate / (double)MB, STRESS_METRIC_HARMONIC_MEAN);
-	rate = (total_writes_duration > 0.0) ? total_reads / total_writes_duration : 0.0;
+	rate = (total_reads_duration > 0.0) ? total_reads / total_reads_duration : 0.0;
 	stress_metrics_set(args, 1, "MB/sec read rate",
 		rate / (double)MB, STRESS_METRIC_HARMONIC_MEAN);
 
