@@ -152,6 +152,8 @@ static int do_quotactl(
 
 	status->tested++;
 	if (ret < 0) {
+		ret = errno;
+
 		/* Quota not enabled for this file system? */
 		switch (errno) {
 		case ENOSYS:
@@ -163,23 +165,24 @@ static int do_quotactl(
 		case EROFS:
 			/* Read-only device?- skip it */
 			status->erofs++;
-			return errno;
+			break;
 		case ENOTBLK:
 			status->enotblk++;
 			/* Not a block device? - skip it */
-			return errno;
+			break;
 		case EPERM:
 			pr_inf("%s: need CAP_SYS_ADMIN capability to "
 				"run quota stressor, aborting stress test\n",
 				args->name);
-			return errno;
+			break;
 		default:
 			status->failed++;
 			pr_fail("%s: quotactl command %s on %s (%s) failed, errno=%d (%s)\n",
 				args->name, cmdname, dev->name, dev->mount, errno, strerror(errno));
 		}
+		return ret;
 	}
-	return errno;
+	return 0;
 }
 
 /*
