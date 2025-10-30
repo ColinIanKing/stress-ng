@@ -843,7 +843,7 @@ static char *stress_random_pid(void)
 
 	mixup = stress_mwc32();
 	n = stress_proc_scandir("/proc", &dlist, NULL, mixup_sort);
-	if (!n) {
+	if (n <= 0) {
 		stress_dirent_list_free(dlist, n);
 		return path;
 	}
