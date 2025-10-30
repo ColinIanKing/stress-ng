@@ -83,7 +83,7 @@ static void stress_pageswap_unmap(
 				args->name, (void *)pi);
 			*rc = EXIT_FAILURE;
 		}
-		(void)munmap((void *)pi, pi->size);
+		(void)munmap((void *)pi, size);
 		pi = next;
 	}
 	*head = NULL;
