@@ -35,7 +35,7 @@ static const stress_help_t help[] = {
 
 /*
  *  Personalities are determined at build time, some systems don't
- *  define these so use INVALID_PERSONALITY to unsure the array
+ *  define these so use INVALID_PERSONALITY to ensure the array
  *  is not zero sized as this causes some pedantic compilers to
  *  complain about zero sized allocation of the failed array
  */
