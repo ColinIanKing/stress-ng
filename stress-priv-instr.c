@@ -532,15 +532,17 @@ static int stress_priv_instr(stress_args_t *args)
 	} while (ret == 1);
 
 	do {
-		if (idx >= SIZEOF_ARRAY(op_info))
-			idx = 0;
+		size_t tmp_idx = idx;
+
+		if (tmp_idx >= SIZEOF_ARRAY(op_info))
+			tmp_idx = 0;
 
 		stress_bogo_inc(args);
-		if (op_info[idx].op_func) {
+		if (op_info[tmp_idx].op_func) {
 			t_start = stress_time_now();
-			op_info[idx].op_func();
+			op_info[tmp_idx].op_func();
 		}
-		idx++;
+		idx = tmp_idx + 1;
 	} while (stress_continue(args));
 
 finish:
