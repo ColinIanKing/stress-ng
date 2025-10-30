@@ -291,7 +291,7 @@ static void OPTIMIZE3 stress_opcode_inc(
 		break;
 	default:
 	case 32: {
-			register const uint32_t tmp32 = *op & 0xffffffffL;
+			register const uint32_t tmp32 = *op & 0xffffffffU;
 			register uint32_t *ops = (uint32_t *)ops_begin;
 			register ssize_t i = (ssize_t)(page_size >> 2);
 
