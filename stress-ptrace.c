@@ -160,7 +160,9 @@ again:
 					}
 					return EXIT_SUCCESS;
 				}
-				return WEXITSTATUS(status);
+				if (WIFEXITED(status))
+					return WEXITSTATUS(status);
+				return EXIT_SUCCESS;
 			}
 			pr_fail("%s: ptrace failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
