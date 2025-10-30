@@ -101,7 +101,7 @@ static int stress_oom_pipe_child(stress_args_t *args, void *ctxt)
 	/* Explicitly drop capabilities, makes it more OOM-able */
 	VOID_RET(int, stress_drop_capabilities(args->name));
 
-	for (i = 0; i < max_pipes * 2; i++)
+	for (i = 0; i < context->max_fd; i++)
 		fds[i] = -1;
 
 	for (i = 0; LIKELY(stress_continue(args) && (i < max_pipes)); i++) {
@@ -175,7 +175,7 @@ static int stress_oom_pipe_child(stress_args_t *args, void *ctxt)
 
 	/* And close the pipes */
 clean:
-	for (i = 0, fd = fds; i < max_pipes * 2; i++, fd++) {
+	for (i = 0, fd = fds; i < context->max_fd; i++, fd++) {
 		if (*fd >= 0)
 			(void)close(*fd);
 	}
