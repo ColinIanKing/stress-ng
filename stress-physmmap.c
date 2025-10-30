@@ -266,7 +266,8 @@ static int stress_physmmap(stress_args_t *args)
 				stress_bogo_inc(args);
 			}
 			if (ptr_all != MAP_FAILED) {
-				stress_physmmap_read(ptr_all, physmmap->region_size);
+				if (physmmap_read)
+					stress_physmmap_read(ptr_all, physmmap->region_size);
 				pages_mapped += physmmap->region_size / page_size;
 				mmaps_succeed++;
 				mappable = true;
