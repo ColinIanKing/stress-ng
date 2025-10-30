@@ -209,7 +209,7 @@ static int stress_physmmap(stress_args_t *args)
 	if (stress_instance_zero(args)) {
 		for (physmmap = physmmap_head; physmmap; physmmap = physmmap->next)
 			total_pages += physmmap->pages;
-		pr_inf("%s: attempting mmap/munap %zu pages\n", args->name, total_pages);
+		pr_inf("%s: attempting to mmap/munmap %zu pages\n", args->name, total_pages);
 	}
 
 	t2 = -1.0;
