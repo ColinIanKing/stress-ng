@@ -104,6 +104,8 @@ static int stress_pkey(stress_args_t *args)
 					pr_inf_skip("%s: pkey system calls not implemented, skipping\n",
 						args->name);
 				}
+				if (pkey >= 0)
+					(void)shim_pkey_free(pkey);
 				rc = EXIT_NOT_IMPLEMENTED;
 				break;
 			}
