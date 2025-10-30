@@ -250,9 +250,13 @@ static int stress_lockbus(stress_args_t *args)
 	}
 	stress_set_vma_anon_name(buffer, BUFFER_SIZE, "lockbus-data");
 
+#if defined(STRESS_ARCH_M68K)
+	do_misaligned = false;
+#else
 	do_misaligned = true;
 	misaligned_ptr1 = (uint32_t *)(uintptr_t)((uint8_t *)buffer + 1);
 	misaligned_ptr2 = (uint32_t *)(uintptr_t)((uint8_t *)buffer + 10);
+#endif
 
 	if (stress_sighandler(args->name, SIGBUS, stress_sigbus_misaligned_handler, NULL) < 0) {
 		rc = EXIT_FAILURE;
@@ -301,9 +305,12 @@ static int stress_lockbus(stress_args_t *args)
 		}
 	}
 #endif
+
+#if !defined(STRESS_ARCH_M68K)
 	/* These can hang on old ppc64 linux kernels */
 	MEM_LOCK_AND_INC(misaligned_ptr1, 1);
 	MEM_LOCK_AND_INC(misaligned_ptr2, 1);
+#endif
 
 misaligned_done:
 #if defined(HAVE_TIMER_FUNCS)
