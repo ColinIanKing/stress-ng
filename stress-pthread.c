@@ -562,7 +562,7 @@ static int stress_pthread(stress_args_t *args)
 
 			pthreads[i].t_create = stress_time_now();
 			pthreads[i].t_run = pthreads[i].t_create;
-			pthreads[i].ret = pthread_create(&pthreads[i].pthread, NULL,
+			pthreads[i].ret = pthread_create(&pthreads[i].pthread, &attr,
 				stress_pthread_func, (void *)&pargs);
 			if (UNLIKELY(pthreads[i].ret)) {
 				/* Out of resources, don't try any more */
