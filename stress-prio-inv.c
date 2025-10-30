@@ -443,6 +443,7 @@ static int stress_prio_inv(stress_args_t *args)
 		child_info[i].prio = prio_min + (prio_div * i);
 		child_info[i].niceness = nice_max + (nice_div * i);
 		child_info[i].usage = 0.0;
+		child_info[i].pid = -1;
 
 		pid = fork();
 		if (pid < 0) {
