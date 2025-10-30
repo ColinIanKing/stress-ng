@@ -451,36 +451,37 @@ static int stress_pty(stress_args_t *args)
 			}
 			if (UNLIKELY(!stress_continue_flag()))
 				goto clean;
-		}
 #if defined(TIOCSETD) &&	\
     defined(TIOCGETD) &&	\
     defined(TCXONC)
-		if (stress_instance_zero(args) && (fcntl(ptys[i].follower, F_SETFL, O_NONBLOCK) == 0)) {
+			if (stress_instance_zero(args) &&
+			   (fcntl(ptys[i].follower, F_SETFL, O_NONBLOCK) == 0)) {
 #if defined(NR_LDISCS)
-			const int max_ldisc = NR_LDISCS;
+				const int max_ldisc = NR_LDISCS;
 #else
-			const int max_ldisc = 32;
+				const int max_ldisc = 32;
 #endif
-			int ldisc, orig_ldisc;
+				int ldisc, orig_ldisc;
 
-			if (ioctl(ptys[i].follower, TIOCGETD, &orig_ldisc) == 0) {
-				pr_block_begin();
-				for (ldisc = 0; ldisc < max_ldisc; ldisc++) {
-					int j;
+				if (ioctl(ptys[i].follower, TIOCGETD, &orig_ldisc) == 0) {
+					pr_block_begin();
+					for (ldisc = 0; ldisc < max_ldisc; ldisc++) {
+						int j;
 
-					if (ioctl(ptys[i].follower, TIOCSETD, &ldisc) < 0)
-						break;
-					for (j = 0; j < 256; j++) {
-						if (ioctl(ptys[i].follower, TCXONC, 0) < 0)
+						if (ioctl(ptys[i].follower, TIOCSETD, &ldisc) < 0)
 							break;
-						VOID_RET(ssize_t, write(ptys[i].follower, "", 1));
-						if (ioctl(ptys[i].follower, TCXONC, 1) < 0)
-							break;
+						for (j = 0; j < 256; j++) {
+							if (ioctl(ptys[i].follower, TCXONC, 0) < 0)
+								break;
+							VOID_RET(ssize_t, write(ptys[i].follower, "", 1));
+							if (ioctl(ptys[i].follower, TCXONC, 1) < 0)
+								break;
+						}
 					}
+					VOID_RET(int, ioctl(ptys[i].follower, TIOCSETD, &orig_ldisc));
+					pr_block_end();
+					(void)shim_sched_yield();
 				}
-				VOID_RET(int, ioctl(ptys[i].follower, TIOCSETD, &orig_ldisc));
-				pr_block_end();
-				(void)shim_sched_yield();
 			}
 		}
 #endif
