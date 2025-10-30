@@ -200,6 +200,10 @@ retry:
 			return -1;
 		}
 
+		/*
+		 *  seek and read is not atomic, the fd seek position
+		 *  may be moved between these calls so don't verify the data
+		 */
 		new_offset = lseek(info->fd, 0, SEEK_CUR);
 		if (UNLIKELY(new_offset != offset)) {
 			pr_fail("%s: lseek failed, set offset at %" PRIdMAX
