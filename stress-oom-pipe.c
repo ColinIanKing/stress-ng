@@ -166,7 +166,7 @@ static int stress_oom_pipe_child(stress_args_t *args, void *ctxt)
 				continue;
 			(void)fcntl(fd[0], F_SETPIPE_SZ, page_size);
 			(void)fcntl(fd[1], F_SETPIPE_SZ, page_size);
-			pipe_fill(fd[1], context->max_pipe_size, page_size, wr_buffer);
+			pipe_fill(fd[1], page_size, page_size, wr_buffer);
 			if (!aggressive)
 				pipe_empty(fd[0], page_size, page_size, rd_buffer);
 		}
