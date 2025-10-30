@@ -290,7 +290,6 @@ done:
 	if (stress_instance_zero(args) && (t2 > 0.0)) {
 		register size_t mappable_pages = 0;
 
-		mappable_pages = 0;
 		for (physmmap = physmmap_head; physmmap; physmmap = physmmap->next) {
 			register size_t i;
 
