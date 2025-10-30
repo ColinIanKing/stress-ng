@@ -471,6 +471,8 @@ redo:
 		 *  Multiple randomly sized reads
 		 */
 		if (procfs_flag & PROCFS_FLAG_READ) {
+			off_t dec;
+
 			for (i = 0; i < 4096 * PROC_BUF_SZ; ) {
 				const ssize_t sz = 1 + stress_mwc32modn((uint32_t)sizeof(buffer));
 
@@ -547,7 +549,6 @@ redo:
 			 *  exercise 13 x 5 byte reads backwards through procfs file to
 			 *  ensure we perform some weird misaligned non-word sized reads
 			 */
-			off_t dec;
 
 			pos = lseek(fd, 0, SEEK_END);
 			if (pos < 0)
