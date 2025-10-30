@@ -265,7 +265,7 @@ static inline void OPTIMIZE3 stress_prefetch_benchmark(
 	stress_cpu_data_cache_flush((void *)l3_data, l3_data_size);
 
 	ptr = l3_data;
-	pre_ptr = l3_data + prefetch_info[i].offset;
+	pre_ptr = STRESS_PTRU64_ADD(l3_data, prefetch_info[i].offset);
 	t3 = stress_time_now();
 
 	/* Benchmark reads */
