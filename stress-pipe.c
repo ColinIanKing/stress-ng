@@ -579,7 +579,7 @@ static int stress_pipe(stress_args_t *args)
 	if (pipe_vmsplice) {
 		pipe_vmsplice = false;
 		if (stress_instance_zero(args))
-			pr_inf("%s: no pipe packet mode with O_DIRECT, disabled pipe vmsplicing\n", args->name);
+			pr_inf("%s: no pipe packet mode without O_DIRECT, disabled pipe vmsplicing\n", args->name);
 	}
 #endif
 
