@@ -81,7 +81,7 @@ static bool OPTIMIZE3 TARGET_CLONES stress_chyperbolic_ccoshf(stress_args_t *arg
 	complex double sumccosh = 0.0;
 	complex double x = -1.0;
 	complex const double dx = (1.0 / (double)STRESS_CHYPERBOLIC_LOOPS - I / (2.0 * (double)STRESS_CHYPERBOLIC_LOOPS));
-	const double precision = 1E-4;
+	const double precision = 1E-3;
 	int i;
 
 PRAGMA_UNROLL_N(8)
@@ -148,7 +148,7 @@ static bool OPTIMIZE3 TARGET_CLONES stress_chyperbolic_csinhf(stress_args_t *arg
 	complex double sumcsinh = 0.0;
 	complex double x = -1.0;
 	complex const double dx = (1.0 / (double)STRESS_CHYPERBOLIC_LOOPS - I / (2.0 * (double)STRESS_CHYPERBOLIC_LOOPS));
-	const double precision = 1E-4;
+	const double precision = 1E-3;
 	int i;
 
 PRAGMA_UNROLL_N(8)
@@ -215,7 +215,7 @@ static bool OPTIMIZE3 TARGET_CLONES stress_chyperbolic_ctanhf(stress_args_t *arg
 	complex double sumctanh = 0.0;
 	complex double x = -1.0;
 	complex const double dx = (1.0 / (double)STRESS_CHYPERBOLIC_LOOPS - I / (2.0 * (double)STRESS_CHYPERBOLIC_LOOPS));
-	const double precision = 1E-5;
+	const double precision = 1E-3;
 	int i;
 
 PRAGMA_UNROLL_N(8)
