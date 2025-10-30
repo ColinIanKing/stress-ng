@@ -471,7 +471,7 @@ redo:
 		 *  Multiple randomly sized reads
 		 */
 		if (procfs_flag & PROCFS_FLAG_READ) {
-			for (i = 0; i < 4096 * PROC_BUF_SZ; i++) {
+			for (i = 0; i < 4096 * PROC_BUF_SZ; ) {
 				const ssize_t sz = 1 + stress_mwc32modn((uint32_t)sizeof(buffer));
 
 				if (UNLIKELY(!stress_continue_flag()))
