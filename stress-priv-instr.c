@@ -189,9 +189,11 @@ static void *page;
 
 static void stress_ppc64_tlbie(void)
 {
-        unsigned long int address = (unsigned long int)page;
+	if (page != MAP_FAILED) {
+        	unsigned long int address = (unsigned long int)page;
 
-	__asm__ __volatile__("tlbie %0, 0" : : "r" (address) : "memory");
+		__asm__ __volatile__("tlbie %0, 0" : : "r" (address) : "memory");
+	}
 }
 
 static op_info_t op_info[] =
