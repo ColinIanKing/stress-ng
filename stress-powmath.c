@@ -105,7 +105,7 @@ PRAGMA_UNROLL_N(8)
 	for (i = 0; i < STRESS_POWMATH_LOOPS; i++) {
 		register const float complex fci = fi + (fi * I);
 
-		sum += (complex double)shim_cpowf((double complex)(i + (i * I)), fci);
+		sum += (float complex)shim_cpowf((float complex)(i + (i * I)), fci);
 		fi += scale;
 	}
 	stress_bogo_inc(args);
