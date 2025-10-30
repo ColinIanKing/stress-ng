@@ -34,7 +34,7 @@ typedef int (*stress_open_func_t)(stress_args_t *args, const char *temp_dir, con
 static const stress_help_t help[] = {
 	{ "o N", "open N",		"start N workers exercising open/close" },
 	{ NULL, "open-fd",		"open files in /proc/$pid/fd" },
-	{ NULL,	"open-max N",		"specficify maximum number of files to open" },
+	{ NULL,	"open-max N",		"specify maximum number of files to open" },
 	{ NULL,	"open-ops N",		"stop after N open/close bogo operations" },
 	{ NULL,	NULL,			NULL }
 };
