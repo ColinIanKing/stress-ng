@@ -164,7 +164,7 @@ static int stress_pipe_read_generic_verify(
 #if defined(FIONREAD)
 	register int i = 0;
 #endif
-	register const uint32_t *const buf32 = (uint32_t *)buf;
+	register const uint32_t *const buf32 = (uint32_t *)shim_assume_aligned(buf, 4);
 
 	while (stress_continue_flag()) {
 		register ssize_t n;
@@ -290,13 +290,15 @@ static int stress_pipe_read_splice_verify(
 	const size_t nbufs = buf_size / pipe_data_size;
 	const size_t offset_end = nbufs * pipe_data_size;
 
+	buf = shim_assume_aligned(buf, 4);
+
 	iov.iov_len = pipe_data_size;
 
 	while (stress_continue_flag()) {
 		register ssize_t n;
 
 		iov.iov_base = buf + offset;
-		buf32 = (uint32_t *)iov.iov_base;
+		buf32 = (uint32_t *)shim_assume_aligned(iov.iov_base, 4);
 		offset += pipe_data_size;
 		if (UNLIKELY(offset >= offset_end))
 			offset = 0;
@@ -391,7 +393,7 @@ static int stress_pipe_write_generic_verify(
 	uint32_t val)
 {
 	int rc = 0;
-	register uint32_t *const buf32 = (uint32_t *)buf;
+	register uint32_t *const buf32 = (uint32_t *)shim_assume_aligned(buf, 4);
 	register uint64_t bytes = 0;
 
 	do {
@@ -491,6 +493,7 @@ static int stress_pipe_write_splice_verify(
 	const size_t nbufs = buf_size / pipe_data_size;
 	const size_t offset_end = nbufs * pipe_data_size;
 
+	buf = shim_assume_aligned(buf, 4);
 	iov.iov_len = pipe_data_size;
 
 	do {
