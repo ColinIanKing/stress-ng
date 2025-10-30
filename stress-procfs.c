@@ -648,7 +648,7 @@ mmap_test:
 				goto err;
 			pos = lseek(fd, 1, SEEK_SET);
 			if (pos == (off_t)-1)
-			goto err;
+				goto err;
 
 			if ((stress_time_now() - t_start) > threshold)
 				goto timeout_close;
