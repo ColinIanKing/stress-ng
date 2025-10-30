@@ -627,7 +627,7 @@ finish:
 	rc = EXIT_SUCCESS;
 
 	if ((duration > 0.0) &&
-	    (vstate->ops_attempted > 0.0) &&
+	    (vstate->ops_attempted > 0) &&
 	    stress_instance_zero(args) &&
 	    (args->instances > 0)) {
 		const double secs_in_tropical_year = 365.2422 * 24.0 * 60.0 * 60.0;
@@ -649,22 +649,22 @@ finish:
 	rate = (duration > 0.0) ? (double)vstate->ops_attempted / duration : 0.0;
 	stress_metrics_set(args, 0, "opcodes exercised per sec",
 		rate, STRESS_METRIC_HARMONIC_MEAN);
-	percent = (vstate->ops_attempted > 0.0) ? 100.0 * (double)vstate->ops_ok / (double)vstate->ops_attempted : 0.0;
+	percent = (vstate->ops_attempted > 0) ? 100.0 * (double)vstate->ops_ok / (double)vstate->ops_attempted : 0.0;
 	stress_metrics_set(args, 1, "% opcodes successfully executed",
 		percent, STRESS_METRIC_GEOMETRIC_MEAN);
-	percent = (vstate->ops_attempted > 0.0) ? 100.0 * (double)vstate->sig_count[SIGILL] / (double)vstate->ops_attempted : 0.0;
+	percent = (vstate->ops_attempted > 0) ? 100.0 * (double)vstate->sig_count[SIGILL] / (double)vstate->ops_attempted : 0.0;
 	stress_metrics_set(args, 2, "% illegal opcodes executed",
 		percent, STRESS_METRIC_GEOMETRIC_MEAN);
-	percent = (vstate->ops_attempted > 0.0) ? 100.0 * (double)vstate->sig_count[SIGBUS] / (double)vstate->ops_attempted : 0.0;
+	percent = (vstate->ops_attempted > 0) ? 100.0 * (double)vstate->sig_count[SIGBUS] / (double)vstate->ops_attempted : 0.0;
 	stress_metrics_set(args, 3, "% opcodes generated SIGBUS",
 		percent, STRESS_METRIC_GEOMETRIC_MEAN);
-	percent = (vstate->ops_attempted > 0.0) ? 100.0 * (double)vstate->sig_count[SIGSEGV] / (double)vstate->ops_attempted : 0.0;
+	percent = (vstate->ops_attempted > 0) ? 100.0 * (double)vstate->sig_count[SIGSEGV] / (double)vstate->ops_attempted : 0.0;
 	stress_metrics_set(args, 4, "% opcodes generated SIGSEGV",
 		percent, STRESS_METRIC_GEOMETRIC_MEAN);
-	percent = (vstate->ops_attempted > 0.0) ? 100.0 * (double)vstate->sig_count[SIGFPE] / (double)vstate->ops_attempted : 0.0;
+	percent = (vstate->ops_attempted > 0) ? 100.0 * (double)vstate->sig_count[SIGFPE] / (double)vstate->ops_attempted : 0.0;
 	stress_metrics_set(args, 5, "% opcodes generated SIGFPE",
 		percent, STRESS_METRIC_GEOMETRIC_MEAN);
-	percent = (vstate->ops_attempted > 0.0) ? 100.0 * (double)vstate->sig_count[SIGTRAP] / (double)vstate->ops_attempted : 0.0;
+	percent = (vstate->ops_attempted > 0) ? 100.0 * (double)vstate->sig_count[SIGTRAP] / (double)vstate->ops_attempted : 0.0;
 	stress_metrics_set(args, 6, "% opcodes generated SIGTRAP",
 		percent, STRESS_METRIC_GEOMETRIC_MEAN);
 	rate = (duration > 0.0) ? (double)forks / duration : 0.0;
