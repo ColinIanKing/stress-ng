@@ -374,7 +374,7 @@ static int stress_quota(stress_args_t *args)
 					pr_err("%s: out of memory\n",
 						args->name);
 					(void)closedir(dir);
-					n_devs = i;
+					n_devs = n_mounts;
 					goto tidy;
 				}
 			}
@@ -464,8 +464,10 @@ abort:
 tidy:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	for (i = 0; i < n_devs; i++)
-		free(devs[i].name);
+	for (i = 0; i < n_devs; i++) {
+		if (devs[i].name)
+			free(devs[i].name);
+	}
 
 	stress_mount_free(mnts, n_mounts);
 	return rc;
