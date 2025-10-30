@@ -164,7 +164,8 @@ static stress_pci_info_t *stress_pci_info_get(void)
 			stress_pci_info_get_by_name(&pci_info_list, pci_list[i]->d_name);
 			free(pci_list[i]);
 		}
-		free(pci_list);
+		if (pci_list)
+			free(pci_list);
 	}
 
 	return pci_info_list;
@@ -255,23 +256,25 @@ static void stress_pci_exercise(stress_args_t *args, stress_pci_info_t *pci_info
 	struct dirent **list = NULL;
 
 	n = scandir(pci_info->path, &list, stress_pci_dot_filter, alphasort);
-	if (n == 0)
+	if (n <= 0) {
 		pci_info->ignore = true;
+	} else {
+		for (i = 0; LIKELY(stress_continue(args) && (i < n)); i++) {
+			const char *name = list[i]->d_name;
+			const bool config = !strcmp(name, "config");
+			const bool resource = !strncmp(name, "resource", 8);
+			const bool rom = !strcmp(name, "rom");
 
-	for (i = 0; LIKELY(stress_continue(args) && (i < n)); i++) {
-		const char *name = list[i]->d_name;
-		const bool config = !strcmp(name, "config");
-		const bool resource = !strncmp(name, "resource", 8);
-		const bool rom = !strcmp(name, "rom");
+			stress_pci_exercise_file(pci_info, name, config, resource, rom);
+		}
 
-		stress_pci_exercise_file(pci_info, name, config, resource, rom);
+		for (i = 0; i < n; i++) {
+			free(list[i]);
+			list[i] = NULL;
+		}
 	}
-
-	for (i = 0; i < n; i++) {
-		free(list[i]);
-		list[i] = NULL;
-	}
-	free(list);
+	if (list)
+		free(list);
 }
 
 /*
