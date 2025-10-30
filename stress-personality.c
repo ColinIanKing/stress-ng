@@ -55,7 +55,7 @@ static int stress_personality_supported(const char *name)
 
 /*
  *  stress_personality()
- *	stress system by rapid open/close calls
+ *	stress system by rapid personality calls
  */
 static int stress_personality(stress_args_t *args)
 {
