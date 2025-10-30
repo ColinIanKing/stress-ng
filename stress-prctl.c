@@ -258,7 +258,7 @@ static inline void stress_arch_prctl(void)
 
 			errno = 0;
 			ret = shim_arch_prctl(ARCH_REQ_XCOMP_PERM, idx);
-			if ((ret < 0) && (errno == -EINVAL))
+			if ((ret < 0) && (errno == EINVAL))
 				break;
 		}
 	}
