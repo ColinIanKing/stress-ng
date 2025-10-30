@@ -123,7 +123,7 @@ static bool OPTIMIZE3 TARGET_CLONES stress_powmath_cpowl(stress_args_t *args)
 {
 	register long double complex sum = 0.0;
 	register int i;
-	static long complex double result = -1.0;
+	static long double complex result = -1.0;
 	static bool first_run = true;
 	register const long double scale = 1.0 / (long double)STRESS_POWMATH_LOOPS;
 	register long double ldi = scale;
@@ -204,7 +204,7 @@ static bool OPTIMIZE3 TARGET_CLONES stress_powmath_csqrtl(stress_args_t *args)
 {
 	register long double complex sum = 0.0;
 	register int i;
-	static long complex double result = -1.0;
+	static long double complex result = -1.0;
 	static bool first_run = true;
 	register const long double scale = 1.0 / (long double)STRESS_POWMATH_LOOPS;
 	register long double ldi = 0.0;
