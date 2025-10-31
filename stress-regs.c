@@ -1090,7 +1090,7 @@ do {			\
 	REGS_CHECK(args, "r5", ~(v >> 1), r5);
 	REGS_CHECK(args, "r6", v, r6);
 	REGS_CHECK(args, "r7", v >> 1, r7);
-	REGS_CHECK(args, "r8", v >> 1, r7);
+	REGS_CHECK(args, "r8", v >> 1, r8);
 
 	stash64 = r1 + r2 + r3 + r4 + r5 + r6 + r7 + r8;
 
