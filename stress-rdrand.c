@@ -297,6 +297,11 @@ static int stress_rdrand(stress_args_t *args)
 		register int i;
 		uint64_t c;
 
+		/*
+		 *  keep failure return code from sane check
+		 *  but keep on stressing random numbers to
+		 *  put some load on the system
+		 */
 		rc = stress_rdrand_sane(args);
 
 		time_start = stress_time_now();
