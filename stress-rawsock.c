@@ -128,7 +128,7 @@ static int OPTIMIZE3 stress_rawsock_client(stress_args_t *args, const int rawsoc
 	pkt.iph.version = 4;
 	pkt.iph.ihl = sizeof(struct iphdr) >> 2;
 	pkt.iph.tos = 0;
-	pkt.iph.tot_len = htons(40);
+	pkt.iph.tot_len = htons(sizeof(pkt));
 	pkt.iph.id = 0;
 	pkt.iph.ttl = 64;
 	pkt.iph.protocol = IPPROTO_RAW;
