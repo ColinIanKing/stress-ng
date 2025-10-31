@@ -903,7 +903,7 @@ do {			\
 	SHUFFLE_REGS16();
 
 	stash32 = s5;
-	REGS_CHECK(args, "s0", v32, stash32);
+	REGS_CHECK(args, "s5", v32, stash32);
 
 	stash32 = s0 + s1 + s2 + s3 +
 		s4 + s5 + s6 + s7;
