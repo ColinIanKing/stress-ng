@@ -132,6 +132,8 @@ static int stress_reboot(stress_args_t *args)
 					rc = EXIT_FAILURE;
 				}
 			}
+		} else {
+			/* don't worry about failure */
 		}
 #endif
 		ret = shim_reboot(0, 0, (int)SHIM_LINUX_REBOOT_CMD_RESTART, 0);
