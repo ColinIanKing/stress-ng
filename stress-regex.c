@@ -17,6 +17,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"regex N",	"start N workers exercise POSIX regular expressions" },
@@ -149,6 +150,7 @@ static int stress_regex(stress_args_t *args)
 			if (UNLIKELY(failed[i]))
 				continue;
 
+			(void)shim_memset(&regex, 0, sizeof(regex));
 			t = stress_time_now();
 			ret = regcomp(&regex, stress_posix_regex[i].regex, REG_EXTENDED);
 			if (UNLIKELY(ret != 0)) {
