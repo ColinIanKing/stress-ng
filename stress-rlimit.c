@@ -246,7 +246,8 @@ static int stress_rlimit_child(stress_args_t *args, void *ctxt)
 			case 3:
 				/* Trigger RLIMIT_STACK */
 				{
-					static uint8_t garbage[MAX_RLIMIT_STACK];
+					/* must be on stack, cannot be static! */
+					uint8_t garbage[MAX_RLIMIT_STACK];
 
 					(void)stress_mincore_touch_pages_interruptible(garbage, MAX_RLIMIT_STACK);
 				}
