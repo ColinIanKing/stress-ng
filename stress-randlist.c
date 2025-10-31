@@ -247,7 +247,7 @@ retry:
 
 		if (UNLIKELY(!stress_continue_flag())) {
 			stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
-			stress_randlist_free_ptrs(compact_ptr, ptrs, i, randlist_size);
+			stress_randlist_free_ptrs(compact_ptr, ptrs, n, randlist_size);
 			return EXIT_SUCCESS;
 		}
 	}
