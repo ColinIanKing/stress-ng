@@ -138,7 +138,7 @@ static int radixsort_nonlibc(
 	max = radix_strlen(base[0], endchar);
 	lengths[0] = max;
 	for (i = 1; i < nmemb; i++) {
-		const short int len = radix_strlen(base[i], endchar);
+		const unsigned short int len = radix_strlen(base[i], endchar);
 
 		lengths[i] = len;
 		if (len > max)
