@@ -115,6 +115,7 @@ static void regs_check128(
 			args->name, reg,
 			(uint64_t)(value >> 64), (uint64_t)(value & mask64),
 			(uint64_t)(expected >> 64), (uint64_t)(expected & mask64));
+		stress_regs_success = false;
 	}
 }
 #else
