@@ -373,24 +373,21 @@ static int stress_race_sched_child(stress_args_t *args, void *context)
 				if (rnd & 0x02) {
 					if (stress_race_sched_setaffinity(args, child_pid, cpu_idx) < 0) {
 						rc = EXIT_FAILURE;
-						break;
 					}
 				}
 				if (rnd & 0x04) {
 					if (stress_race_sched_setscheduler(args, child_pid) < 0) {
 						rc = EXIT_FAILURE;
-						break;
 					}
 				}
 				if (rnd & 0x08) {
 					if (stress_race_sched_exercise(args, method_index) < 0) {
 						rc = EXIT_FAILURE;
-						break;
 					}
 				}
 				if (rnd & 0x10)
 					(void)shim_sched_yield();
-				_exit(0);
+				_exit(rc);
 			} else {
 				/* parent */
 				if (rnd & 0x20)
