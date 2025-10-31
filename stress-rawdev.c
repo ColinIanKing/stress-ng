@@ -219,7 +219,6 @@ static int stress_rawdev_ends(
 			metrics->count += ret;
 			stress_bogo_inc(args);
 		}
-		stress_bogo_inc(args);
 	}
 	return 0;
 }
