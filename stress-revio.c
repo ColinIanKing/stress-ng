@@ -409,7 +409,11 @@ static int stress_revio(stress_args_t *args)
 		for (i = 0; i < revio_bytes; i += DEFAULT_REVIO_WRITE_SIZE * (8 + (stress_mwc8() & 7))) {
 			size_t j;
 			off_t lseek_ret;
-			const off_t offset = (off_t)(revio_bytes - i);
+			const off_t offset = (off_t)(revio_bytes - i - DEFAULT_REVIO_WRITE_SIZE);
+
+			/* should never happen.. */
+			if (UNLIKELY(offset < 0))
+				break;
 seq_wr_retry:
 			if (UNLIKELY(!stress_continue(args)))
 				break;
