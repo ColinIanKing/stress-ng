@@ -185,7 +185,7 @@ static int stress_rawdev_ends(
 {
 	size_t i;
 
-	for (i = 0; i < 128; i++) {
+	for (i = 0; (i < 128) && stress_continue(args); i++) {
 		ssize_t ret;
 		off_t offset;
 		double t;
