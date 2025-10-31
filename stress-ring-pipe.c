@@ -173,8 +173,8 @@ static int stress_ring_pipe(stress_args_t *args)
 			max_fd = pipe_fds[n_pipes].fds[0];
 		if (max_fd < pipe_fds[n_pipes].fds[1])
 			max_fd = pipe_fds[n_pipes].fds[1];
-		stress_pipe_non_block(args, pipe_fds[n_pipes].fds[0]);
-		stress_pipe_non_block(args, pipe_fds[n_pipes].fds[1]);
+		(void)stress_pipe_non_block(args, pipe_fds[n_pipes].fds[0]);
+		(void)stress_pipe_non_block(args, pipe_fds[n_pipes].fds[1]);
 
 	}
 
