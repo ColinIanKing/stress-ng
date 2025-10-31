@@ -172,8 +172,10 @@ static inline int stress_rtc_dev(stress_args_t *args)
 					args->name, errno, strerror(errno));
 				goto err;
 			}
+#if defined(RTC_IRQP_SET)
 		} else {
 			VOID_RET(int, ioctl(fd, RTC_IRQP_SET, tmp));
+#endif
 		}
 	}
 #endif
