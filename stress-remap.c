@@ -103,9 +103,10 @@ static int OPTIMIZE3 remap_order(
 		double t;
 		int ret;
 #if defined(HAVE_MLOCK)
-		int lock_ret;
+		int lock_ret = 0;
 
-		lock_ret = mlock(data + (i * stride), page_size);
+		if (remap_mlock)
+			lock_ret = mlock(data + (i * stride), page_size);
 #endif
 		t = stress_time_now();
 		ret = remap_file_pages(data + (i * stride), page_size,
@@ -115,7 +116,7 @@ static int OPTIMIZE3 remap_order(
 			(*count) += 1.0;
 		}
 #if defined(HAVE_MLOCK)
-		if ((lock_ret == 0) && (!remap_mlock)) {
+		if ((lock_ret == 0) && remap_mlock) {
 			(void)munlock(data + (i * stride), page_size);
 		}
 		if (ret) {
