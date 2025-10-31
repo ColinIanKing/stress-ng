@@ -176,7 +176,7 @@ static int stress_race_sched_setaffinity(
 	cpu_set_t cpu_set;
 	int ret;
 
-	if (LIKELY(n_cpus > 0)) {
+	if (LIKELY((n_cpus > 0) && (cpu_idx > 0) && (cpu_idx < (int)n_cpus))) {
 		CPU_ZERO(&cpu_set);
 		CPU_SET(cpus[cpu_idx], &cpu_set);
 		ret = sched_setaffinity(pid, sizeof(cpu_set), &cpu_set);
@@ -226,6 +226,11 @@ static int stress_race_sched_exercise(
 		for (child = children.head; child; child = child->next) {
 			if (stress_mwc1()) {
 				const uint32_t cpu_idx = stress_call_race_sched_method_idx(child->cpu_idx, method_index);
+
+				if (cpu_idx >= n_cpus) {
+					pr_inf("bad cpu idx\n");
+					continue;
+				}
 
 				child->cpu_idx = cpu_idx;
 				if (UNLIKELY(stress_race_sched_setaffinity(args, child->pid, cpu_idx) < 0))
