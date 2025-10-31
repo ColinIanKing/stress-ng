@@ -651,8 +651,8 @@ do {			\
 	stash64 = t6;
 	REGS_CHECK(args, "t6", v, stash64);
 
-	stash64 = t0 + t1 + t2 + t3 + t5 + t6 +
-		t7 + t8 + t9 + t10 + t11;
+	stash64 = t0 + t1 + t2 + t3 + t4 + t5 +
+		  t6 + t7 + t8 + t9 + t10 + t11;
 #undef SHUFFLE_REGS
 }
 #endif
