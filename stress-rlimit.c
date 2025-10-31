@@ -229,7 +229,7 @@ static int stress_rlimit_child(stress_args_t *args, void *ctxt)
 			case 1:
 				/* Trigger RLIMIT_AS */
 				ptr = (uint8_t *)mmap(NULL, MAX_RLIMIT_AS, PROT_READ | PROT_WRITE,
-					MAP_ANONYMOUS | MAP_SHARED, -1, 0);
+					MAP_ANONYMOUS | MAP_PRIVATE , -1, 0);
 				if (ptr != MAP_FAILED)
 					(void)stress_munmap_force((void *)ptr, MAX_RLIMIT_AS);
 				break;
