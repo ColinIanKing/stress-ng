@@ -135,7 +135,7 @@ static void stress_rawpkt_sockopts(const int fd)
 
 		ret = getsockopt(fd, SOL_PACKET, PACKET_VNET_HDR, &val, &len);
 		if (ret == 0)
-			(void)setsockopt(fd, SOL_PACKET, PACKET_ORIGDEV, &val, len);
+			(void)setsockopt(fd, SOL_PACKET, PACKET_VNET_HDR, &val, len);
 	}
 #endif
 #if defined(PACKET_VERSION)
@@ -145,7 +145,7 @@ static void stress_rawpkt_sockopts(const int fd)
 
 		ret = getsockopt(fd, SOL_PACKET, PACKET_VERSION, &val, &len);
 		if (ret == 0)
-			(void)setsockopt(fd, SOL_PACKET, PACKET_ORIGDEV, &val, len);
+			(void)setsockopt(fd, SOL_PACKET, PACKET_VERSION, &val, len);
 	}
 #endif
 #if defined(PACKET_HDRLEN)
@@ -174,7 +174,7 @@ static void stress_rawpkt_sockopts(const int fd)
 
 		ret = getsockopt(fd, SOL_PACKET, PACKET_LOSS, &val, &len);
 		if (ret == 0)
-			(void)setsockopt(fd, SOL_PACKET, PACKET_ORIGDEV, &val, len);
+			(void)setsockopt(fd, SOL_PACKET, PACKET_LOSS, &val, len);
 	}
 #endif
 #if defined(PACKET_TIMESTAMP)
@@ -184,7 +184,7 @@ static void stress_rawpkt_sockopts(const int fd)
 
 		ret = getsockopt(fd, SOL_PACKET, PACKET_TIMESTAMP, &val, &len);
 		if (ret == 0)
-			(void)setsockopt(fd, SOL_PACKET, PACKET_ORIGDEV, &val, len);
+			(void)setsockopt(fd, SOL_PACKET, PACKET_TIMESTAMP, &val, len);
 	}
 #endif
 #if defined(PACKET_FANOUT)
@@ -194,7 +194,7 @@ static void stress_rawpkt_sockopts(const int fd)
 
 		ret = getsockopt(fd, SOL_PACKET, PACKET_FANOUT, &val, &len);
 		if (ret == 0)
-			(void)setsockopt(fd, SOL_PACKET, PACKET_ORIGDEV, &val, len);
+			(void)setsockopt(fd, SOL_PACKET, PACKET_FANOUT, &val, len);
 	}
 #endif
 #if defined(PACKET_IGNORE_OUTGOING)
@@ -204,7 +204,7 @@ static void stress_rawpkt_sockopts(const int fd)
 
 		ret = getsockopt(fd, SOL_PACKET, PACKET_IGNORE_OUTGOING, &val, &len);
 		if (ret == 0)
-			(void)setsockopt(fd, SOL_PACKET, PACKET_ORIGDEV, &val, len);
+			(void)setsockopt(fd, SOL_PACKET, PACKET_OUTGOING, &val, len);
 	}
 #endif
 #if defined(PACKET_ROLLOVER_STATS)
@@ -222,7 +222,7 @@ static void stress_rawpkt_sockopts(const int fd)
 
 		ret = getsockopt(fd, SOL_PACKET, PACKET_TX_HAS_OFF, &val, &len);
 		if (ret == 0)
-			(void)setsockopt(fd, SOL_PACKET, PACKET_ORIGDEV, &val, len);
+			(void)setsockopt(fd, SOL_PACKET, PACKET_TX_HAS_OFF, &val, len);
 	}
 #endif
 #if defined(PACKET_QDISC_BYPASS)
@@ -232,7 +232,7 @@ static void stress_rawpkt_sockopts(const int fd)
 
 		ret = getsockopt(fd, SOL_PACKET, PACKET_QDISC_BYPASS, &val, &len);
 		if (ret == 0)
-			(void)setsockopt(fd, SOL_PACKET, PACKET_ORIGDEV, &val, len);
+			(void)setsockopt(fd, SOL_PACKET, PACKET_QDISC_BYPASS, &val, len);
 	}
 #endif
 	{
