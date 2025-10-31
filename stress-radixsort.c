@@ -261,6 +261,7 @@ static int stress_radixsort(stress_args_t *args)
 	/* This is very expensive, do it once */
 	for (ptr = text, i = 0; i < n; i++, ptr += STR_SIZE) {
 		data[i] = ptr;
+		/* stress_rndstr will terminate the string with '\0' */
 		stress_rndstr((char *)ptr, STR_SIZE);
 	}
 
