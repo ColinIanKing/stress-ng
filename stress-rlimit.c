@@ -63,7 +63,7 @@ typedef struct {
  */
 static stress_limits_t limits[] = {
 #if defined(RLIMIT_CPU)
-	{ RLIMIT_CPU,	{ MAX_RLIMIT_CPU, MAX_RLIMIT_CPU }, { 0, 0 }, false },
+	{ RLIMIT_CPU,	{ MAX_RLIMIT_CPU, MAX_RLIMIT_CPU }, { 0, 0 }, -1 },
 #endif
 #if defined(RLIMIT_FSIZE)
 	{ RLIMIT_FSIZE,	{ MAX_RLIMIT_FSIZE, MAX_RLIMIT_FSIZE }, { 0, 0 }, -1 },
