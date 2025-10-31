@@ -199,6 +199,7 @@ static int stress_remap(stress_args_t *args)
 	for (i = 0; i < remap_pages; i++)
 		data[i * stride] = (stress_mapdata_t)i;
 
+	/* No need to unmapped this address on exit */
 	unmapped = stress_get_umapped_addr(page_size);
 	mapped = (uint8_t *)stress_mmap_populate(NULL, mapped_size,
 			PROT_READ | PROT_WRITE,
@@ -325,8 +326,6 @@ PRAGMA_UNROLL_N(4)
 	(void)munmap((void *)data, data_size);
 	if (mapped)
 		(void)munmap((void *)mapped, mapped_size);
-	if (unmapped)
-		(void)munmap((void *)unmapped, page_size);
 
 	return rc;
 }
