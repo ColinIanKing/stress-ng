@@ -223,7 +223,7 @@ do {			\
 	SHUFFLE_REGS16();
 
 	stash128 = xmm14;
-	REGS_CHECK(args, "xmm5", v128, stash128);
+	REGS_CHECK(args, "xmm14", v128, stash128);
 
 	stash128 = xmm0 + xmm1 + xmm2 + xmm3 +
 		   xmm4 + xmm5 + xmm6 + xmm7 +
