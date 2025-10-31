@@ -166,7 +166,7 @@ static void NORETURN stress_rmap_child(
 				if (mappings[i] != MAP_FAILED) {
 					if (UNLIKELY(!stress_bogo_inc_lock(args, counter_lock, false)))
 						break;
-					if (UNLIKELY(stress_rmap_touch(args, child_index, mappings[i], sz) > 0)) {
+					if (UNLIKELY(stress_rmap_touch(args, child_index, mappings[i], sz) < 0)) {
 						rc = EXIT_FAILURE;
 						goto fail;
 					}
