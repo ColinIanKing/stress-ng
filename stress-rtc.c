@@ -342,15 +342,15 @@ static int stress_rtc(stress_args_t *args)
 		if (ret < 0) {
 			if ((ret != -ENOENT) && (ret != -EINTR)) {
 				rc = EXIT_FAILURE;
+				break;
 			}
-			break;
 		}
 		ret = stress_rtc_proc(args);
 		if (ret < 0) {
 			if ((ret != -ENOENT) && (ret != -EINTR)) {
 				rc = EXIT_FAILURE;
+				break;
 			}
-			break;
 		}
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
