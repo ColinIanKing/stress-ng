@@ -82,7 +82,7 @@ static void regs_check32(
 	if (expected != value) {
 		pr_fail("%s: register %s was 0x%"
 			PRIx32 ", expecting 0x%" PRIx32 "\n",
-			args->name, reg, expected, value);
+			args->name, reg, value, expected);
 		stress_regs_success = false;
 	}
 }
@@ -96,7 +96,7 @@ static void regs_check64(
 	if (expected != value) {
 		pr_fail("%s: register %s was 0x%"
 			PRIx64 ", expecting 0x%" PRIx64 "\n",
-			args->name, reg, expected, value);
+			args->name, reg, value, expected);
 		stress_regs_success = false;
 	}
 }
@@ -113,8 +113,8 @@ static void regs_check128(
 		pr_fail("%s: register %s was 0x%" PRIx64 "%16.16" PRIx64
 			", expecting 0x%" PRIx64 "%16.16" PRIx64 "\n",
 			args->name, reg,
-			(uint64_t)(expected >> 64), (uint64_t)(expected & mask64),
-			(uint64_t)(value >> 64), (uint64_t)(value & mask64));
+			(uint64_t)(value >> 64), (uint64_t)(value & mask64),
+			(uint64_t)(expected >> 64), (uint64_t)(expected & mask64));
 	}
 }
 #else
