@@ -22,8 +22,8 @@
 #include "core-out-of-memory.h"
 
 static const stress_help_t help[] = {
-	{ NULL,	"rmap N",	"start N workers that stress reverse mappings" },
-	{ NULL,	"rmap-ops N",	"stop after N rmap bogo operations" },
+	{ NULL,	"rlimit N",	"start N workers that exercise rlimit" },
+	{ NULL,	"rlimit-ops N",	"stop after N rlimit bogo operations" },
 	{ NULL,	NULL,		NULL }
 };
 

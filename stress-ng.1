@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "23 October 2025"
+.TH STRESS-NG 1 "30 October 2025"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -7430,8 +7430,8 @@ enable splice to move data between pipes (only if splice() is available).
 .RS 5
 .TQ
 .B \-\-rlimit N
-start N workers that exceed CPU and file size resource imits, generating
-SIGXCPU and SIGXFSZ signals.
+start N workers that exceed resource limits via setting rlimit(2) and
+trying to exceed these limits, generating SIGXCPU, SIGXFSZ and SIGSEGV signals.
 .TP
 .B \-\-rlimit\-ops N
 stop after N bogo resource limited SIGXCPU and SIGXFSZ signals have been caught.
