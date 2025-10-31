@@ -270,7 +270,7 @@ static void NORETURN OPTIMIZE3 stress_rawpkt_client(
 	(void)shim_memset(buf, 0, sizeof(buf));
 
 	(void)shim_memcpy(eth->h_dest, hwaddr->ifr_addr.sa_data, sizeof(eth->h_dest));
-	(void)shim_memcpy(eth->h_source, hwaddr->ifr_addr.sa_data, sizeof(eth->h_dest));
+	(void)shim_memcpy(eth->h_source, hwaddr->ifr_addr.sa_data, sizeof(eth->h_source));
 	eth->h_proto = htons(ETH_P_IP);
 
 	ip->ihl = 5;		/* Header length in 32 bit words */
