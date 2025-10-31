@@ -57,11 +57,16 @@ static int stress_pipe_non_block(stress_args_t *args, const int fd)
 	int flags, ret;
 
 	flags = fcntl(fd, F_GETFL);
+	if (UNLIKELY(flags < 0)) {
+		pr_inf("%s: fcntl F_GETFL failed pipe fd %d, errno=%d (%s)\n",
+			args->name, fd, errno, strerror(errno));
+		return -1;
+	}
 	flags |= O_NONBLOCK;
 	ret = fcntl(fd, F_SETFL, flags);
 	if (UNLIKELY(ret < 0)) {
-		pr_inf("%s: cannot set O_NONBLOCK on pipe fd %d\n",
-			args->name, fd);
+		pr_inf("%s: cannot set O_NONBLOCK on pipe fd %d, errno=%d (%s)\n",
+			args->name, fd, errno, strerror(errno));
 		return -1;
 	}
 	return 0;
