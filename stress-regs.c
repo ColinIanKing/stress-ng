@@ -992,7 +992,7 @@ do {			\
 	SHUFFLE_REGS16();
 
 	stash64 = x14;
-	REGS_CHECK(args, "x15", v, stash64);
+	REGS_CHECK(args, "x14", v, stash64);
 
 	stash64 = x0 + x1 + x2 + x3 + x4 +
 		x5 + x6 + x7 + x8 + x9 +
