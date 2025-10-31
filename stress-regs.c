@@ -553,7 +553,7 @@ do {			\
 	SHUFFLE_REGS16();
 
 	stash32 = r8;
-	REGS_CHECK(args, "r8", v , stash32);
+	REGS_CHECK(args, "r8", v, stash32);
 
 	stash32 = r2 + r3 + r4 + r5;
 
