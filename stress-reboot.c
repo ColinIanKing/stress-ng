@@ -124,11 +124,13 @@ static int stress_reboot(stress_args_t *args)
 			(void)stress_mwc8();
 
 			(void)shim_waitpid(pid, &status, (int)__WCLONE);
-			ret = WEXITSTATUS(status);
-			if (WIFEXITED(status) && (ret != 0)) {
-				pr_fail("%s: reboot in PID namespace failed, errno=%d (%s)\n",
-					args->name, ret, strerror(ret));
-				rc = EXIT_FAILURE;
+			if (WIFEXITED(status)) {
+				ret = WEXITSTATUS(status);
+				if (WIFEXITED(status) && (ret != 0)) {
+					pr_fail("%s: reboot in PID namespace failed, errno=%d (%s)\n",
+						args->name, ret, strerror(ret));
+					rc = EXIT_FAILURE;
+				}
 			}
 		}
 #endif
