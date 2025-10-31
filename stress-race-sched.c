@@ -281,7 +281,7 @@ static void stress_race_sched_head_remove(const int options)
 		stress_race_sched_child_t *head = children.head;
 
 		ret = waitpid(children.head->pid, &status, options);
-		if (ret >= 0) {
+		if (ret > 0) {
 			if (children.tail == children.head) {
 				children.tail = NULL;
 				children.head = NULL;
