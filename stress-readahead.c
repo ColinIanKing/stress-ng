@@ -73,7 +73,7 @@ static int do_readahead(
 
 	for (i = 0; i < MAX_OFFSETS; i++) {
 		if (readahead(fd, offsets[i], BUF_SIZE) < 0) {
-			pr_fail("%s: ftruncate failed, errno=%d (%s)%s\n",
+			pr_fail("%s: readahead failed, errno=%d (%s)%s\n",
 				args->name, errno, strerror(errno), fs_type);
 			return -1;
 		}
