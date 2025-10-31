@@ -207,9 +207,9 @@ static void stress_revio_opts(const char *opt_name, const char *opt_arg, stress_
 				const int exclude = revio_flags & revio_opts[i].exclude;
 
 				if (exclude) {
-					int j;
+					size_t j;
 
-					for (j = 0; revio_opts[j].opt; j++) {
+					for (j = 0; j < SIZEOF_ARRAY(revio_opts); j++) {
 						if ((exclude & revio_opts[j].flag) == exclude) {
 							(void)fprintf(stderr,
 								"%s option '%s' is not "
