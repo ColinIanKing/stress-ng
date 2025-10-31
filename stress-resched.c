@@ -166,6 +166,8 @@ static int stress_resched(stress_args_t *args)
 
 		if (getrlimit(RLIMIT_NICE, &rlim) == 0) {
 			max_prio = 20 - (int)rlim.rlim_cur;
+			if (UNLIKELY(max_prio < 0))
+				max_prio = 0;
 		}
 	}
 #endif
