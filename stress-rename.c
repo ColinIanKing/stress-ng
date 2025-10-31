@@ -175,7 +175,7 @@ static int exercise_renameat2(
 	ret = renameat2(file_fd, old_name, newfd, new_name, RENAME_NOREPLACE);
 	if (ret >= 0) {
 		pr_fail("%s: renameat2 unexpectedly succeeded on file "
-			"descriptor rather than" "directory descriptor, "
+			"descriptor rather than directory descriptor, "
 			"errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		(void)close(file_fd);
