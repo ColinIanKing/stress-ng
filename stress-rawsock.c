@@ -204,7 +204,8 @@ static int OPTIMIZE3 stress_rawsock_server(stress_args_t *args, const pid_t pid)
 
 	(void)shim_memset(&addr, 0, sizeof(addr));
 
-	(void)stress_lock_acquire(rawsock_lock);
+	if (UNLIKELY(stress_lock_acquire(rawsock_lock) < 0))
+		_exit(EXIT_FAILURE);
 	g_shared->rawsock.ready++;
 	(void)stress_lock_release(rawsock_lock);
 
