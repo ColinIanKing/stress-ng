@@ -114,7 +114,7 @@ STRESS_ROTATE_HELPER(rol,    uint16_t,  16, shim_rol)
 STRESS_ROTATE_HELPER(rol,    uint32_t,  32, shim_rol)
 STRESS_ROTATE_HELPER(rol,    uint64_t,  64, shim_rol)
 #if defined(HAVE_INT128_T)
-STRESS_ROTATE_HELPER(rol, __uint128_t, 128, shim_ror)
+STRESS_ROTATE_HELPER(rol, __uint128_t, 128, shim_rol)
 #endif
 
 STRESS_ROTATE(rol,     uint8_t,   8, shim_rol)
@@ -122,7 +122,7 @@ STRESS_ROTATE(rol,    uint16_t,  16, shim_rol)
 STRESS_ROTATE(rol,    uint32_t,  32, shim_rol)
 STRESS_ROTATE(rol,    uint64_t,  64, shim_rol)
 #if defined(HAVE_INT128_T)
-STRESS_ROTATE(rol, __uint128_t, 128, shim_ror)
+STRESS_ROTATE(rol, __uint128_t, 128, shim_rol)
 #endif
 
 STRESS_ROTATE_HELPER(ror,     uint8_t,   8, shim_ror)
