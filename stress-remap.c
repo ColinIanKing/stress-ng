@@ -256,7 +256,7 @@ PRAGMA_UNROLL_N(4)
 			order[j] = tmp;
 		}
 
-		if (UNLIKELY(remap_order(args, stride, data, remap_pages, order, page_size, remap_mlock, &duration, &count)) < 0) {
+		if (UNLIKELY(remap_order(args, stride, data, remap_pages, order, page_size, remap_mlock, &duration, &count) < 0)) {
 			rc = EXIT_NO_RESOURCE;
 			break;
 		}
