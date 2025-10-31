@@ -90,7 +90,7 @@ static inline int stress_rtc_dev(stress_args_t *args)
 		if (UNLIKELY(ioctl(fd, RTC_ALM_READ, &rtc_tm) < 0)) {
 			if ((errno != EINVAL) && (errno != EINTR) && (errno != ENOTTY)) {
 				ret = -errno;
-				pr_fail("%s: ioctl RTC_ALRM_READ failed, errno=%d (%s)\n",
+				pr_fail("%s: ioctl RTC_ALM_READ failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				goto err;
 			}
