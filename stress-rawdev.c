@@ -462,7 +462,7 @@ static int stress_rawdev(stress_args_t *args)
 	}
 
 	if (stress_instance_zero(args))
-		pr_dbg("%s: exercising %s (%zd blocks of size %zd bytes)\n",
+		pr_dbg("%s: exercising %s (%zu blocks of size %zu bytes)\n",
 			args->name, devpath, blks, blksz);
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
