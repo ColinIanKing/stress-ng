@@ -64,7 +64,7 @@ static int OPTIMIZE3 stress_rmap_touch(
 	register uintptr_t *begin = ((uintptr_t *)addr) + child_index;
 	register const uintptr_t *end = (uintptr_t *)((uintptr_t)addr + sz);
 	register uintptr_t *ptr;
-	register const size_t inc = RMAP_CHILD_MAX * sizeof(uintptr_t);
+	register const size_t inc = RMAP_CHILD_MAX;
 	register uintptr_t mix = stress_mwc64();
 
 	/* fill and put check value in that always has lowest bit set */
@@ -84,7 +84,7 @@ PRAGMA_UNROLL_N(8)
 			pr_fail("%s: address 0x%p check failure, "
 				"got 0x%" PRIxPTR ", "
 				"expected 0x%" PRIxPTR "\n",
-				args->name, ptr, chk, *ptr);
+				args->name, ptr, *ptr, chk);
 			return -1;
 		}
 	}
