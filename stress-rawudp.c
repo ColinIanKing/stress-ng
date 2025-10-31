@@ -113,7 +113,7 @@ static void NORETURN OPTIMIZE3 stress_rawudp_client(
 
 	udp->source = htons(port);
 	udp->dest = htons(port);
-	udp->len = htons(sizeof(struct udphdr));
+	udp->len = htons(sizeof(struct udphdr) + sizeof(pid_t));
 
 	do {
 		int fd;
@@ -138,7 +138,7 @@ static void NORETURN OPTIMIZE3 stress_rawudp_client(
 
 		*(pid_t *)data = args->pid;
 
-		n = sendto(fd, buf, ip->tot_len, 0, (struct sockaddr *)&s_in, sizeof(s_in));
+		n = sendto(fd, buf, PACKET_SIZE, 0, (struct sockaddr *)&s_in, sizeof(s_in));
 		if (UNLIKELY(n < 0)) {
 			pr_fail("%s: raw socket sendto failed on port %d, errno=%d (%s)\n",
 				args->name, port, errno, strerror(errno));
