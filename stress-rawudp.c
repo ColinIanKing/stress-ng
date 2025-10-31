@@ -99,13 +99,13 @@ static void NORETURN OPTIMIZE3 stress_rawudp_client(
 	(void)shim_memset(buf, 0, sizeof(buf));
 
 	s_in.sin_family = AF_INET;
-	s_in.sin_port = (in_port_t)port;
+	s_in.sin_port = htons(port);
 	s_in.sin_addr.s_addr = addr;
 
 	ip->ihl      = 5;	/* Header length in 32 bit words */
 	ip->version  = 4;	/* IPv4 */
 	ip->tos      = stress_mwc8() & 0x1e;
-	ip->tot_len  = PACKET_SIZE;
+	ip->tot_len  = htons(PACKET_SIZE);
 	ip->ttl      = 16;  	/* Not too many hops! */
 	ip->protocol = SOL_UDP;	/* UDP protocol */
 	ip->saddr = (in_addr_t)addr;
