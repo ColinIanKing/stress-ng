@@ -319,7 +319,7 @@ static int stress_revio(stress_args_t *args)
 	/* Ensure complete file size is not less than the I/O size */
 	if (revio_bytes < DEFAULT_REVIO_WRITE_SIZE) {
 		revio_bytes = DEFAULT_REVIO_WRITE_SIZE;
-		revio_bytes_total = revio_bytes * args->instance;
+		revio_bytes_total = revio_bytes * args->instances;
 	}
 	if (stress_instance_zero(args))
 		stress_fs_usage_bytes(args, revio_bytes, revio_bytes_total);
