@@ -131,7 +131,7 @@ static int stress_readahead(stress_args_t *args)
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
-		return stress_exit_status(-rc);
+		return stress_exit_status(-ret);
 
 	ret = posix_memalign((void **)&buf, BUF_ALIGNMENT, BUF_SIZE);
 	if (ret || !buf) {
