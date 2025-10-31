@@ -378,8 +378,8 @@ static int stress_rdrand(stress_args_t *args)
 	if (average > 10000.0) {
 		double total = 0.0;
 
-		lo = (uint64_t)average - (average * 0.05);
-		hi = (uint64_t)average + (average * 0.05);
+		lo = (uint64_t)(average * 0.95);
+		hi = (uint64_t)(average * 1.05);
 		out_of_range = false;
 
 		for (j = 0; j < SIZEOF_ARRAY(counters); j++) {
