@@ -100,7 +100,6 @@ static inline uint64_t seed64(void)
 #define HAVE_RAND_CAPABILITY
 
 static bool rdrand_supported = false;
-static volatile uint64_t v;
 
 static int stress_rdrand_supported(const char *name)
 {
