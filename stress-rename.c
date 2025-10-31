@@ -106,7 +106,7 @@ static int exercise_renameat2(
 	/* Exercise with invalid flags */
 	ret = renameat2(oldfd, old_name, newfd, new_name, (unsigned int)~0);
 	if (ret >= 0) {
-		pr_fail("%s: reanameat2 with illegal flags "
+		pr_fail("%s: renameat2 with illegal flags "
 			"unexpectedly succeeded\n",
 			args->name);
 		return -1;
