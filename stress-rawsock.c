@@ -121,7 +121,7 @@ static int OPTIMIZE3 stress_rawsock_client(stress_args_t *args, const int rawsoc
 
 	(void)shim_memset(&addr, 0, sizeof(addr));
 	addr.sin_family = AF_INET;
-	addr.sin_port = rawsock_port;
+	addr.sin_port = htons(rawsock_port);
 	addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
 
 	(void)shim_memset(&pkt, 0, sizeof(pkt));
