@@ -88,7 +88,7 @@ static int stress_resources(stress_args_t *args)
 	do {
 		unsigned int i;
 
-		(void)shim_memset(s_pids, 0, sizeof(*s_pids));
+		(void)shim_memset(s_pids, 0, sizeof(*s_pids) * num_pids);
 		for (i = 0; i < num_pids; i++) {
 			pid_t pid;
 
