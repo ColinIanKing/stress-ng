@@ -237,6 +237,14 @@ static int stress_rseq(stress_args_t *args)
 	if (stress_instance_zero(args))
 		pr_dbg("libc rseq_area @ %p\n", rseq_area);
 
+	/* sanity check to keep static analysis happy */
+	if (UNLIKELY(rseq_area == NULL)) {
+		pr_inf_skip("%s: failed to find rseq_area, skipping stressor\n",
+			args->name);
+		ret = EXIT_NO_RESOURCE;
+		goto err;
+	}
+
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
@@ -247,6 +255,8 @@ static int stress_rseq(stress_args_t *args)
 		(double)rseq_info->crit_interruptions * 1000000000.0 / (rseq_info->crit_count) : 0.0;
 	stress_metrics_set(args, 0, "critical section interruptions per billion rseq ops",
 			rate, STRESS_METRIC_HARMONIC_MEAN);
+
+err:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	(void)munmap((void *)rseq_info, sizeof(*rseq_info));
