@@ -24,13 +24,15 @@
 #include "core-out-of-memory.h"
 #include "core-pragma.h"
 
+#if defined(HAVE_SYS_RSEQ_H)
+#include <sys/rseq.h>
+#define HAVE_LINUX_RSEQ_HEADER
+#else
 #if defined(HAVE_LINUX_RSEQ_H)
-#  include <linux/rseq.h>
-#else /* HAVE_LINUX_RSEQ_H undefined */
-#  if defined(HAVE_SYS_RSEQ_H)
-#    include <sys/rseq.h>
-#  endif /* HAVE_SYS_RSEQ_H undefined */
-#endif /* HAVE_LINUX_RSEQ_H undefined */
+#include <linux/rseq.h>
+#define HAVE_LINUX_RSEQ_HEADER
+#endif
+#endif
 
 static const stress_help_t help[] = {
 	{ NULL,	"rseq N",	"start N workers that exercise restartable sequences" },
@@ -38,12 +40,11 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
-#if defined(HAVE_LINUX_RSEQ_H) &&		\
+#if defined(HAVE_LINUX_RSEQ_HEADER) &&		\
     defined(HAVE_ASM_NOP) &&			\
     defined(__NR_rseq) &&			\
     defined(HAVE___RSEQ_OFFSET) &&		\
     defined(HAVE_SYSCALL) &&			\
-    defined(RSEQ_SIG) &&			\
     defined(HAVE_COMPILER_GCC_OR_MUSL) &&	\
     defined(HAVE_BUILTIN_THREAD_POINTER) &&	\
     !defined(HAVE_COMPILER_CLANG) &&		\
