@@ -45,7 +45,7 @@ static const stress_opt_t opts[] = {
 
 typedef uint16_t stress_mapdata_t;
 
-static inline void *stress_get_umapped_addr(const size_t sz)
+static inline void *stress_get_unmapped_addr(const size_t sz)
 {
 	void *addr;
 
@@ -200,7 +200,7 @@ static int stress_remap(stress_args_t *args)
 		data[i * stride] = (stress_mapdata_t)i;
 
 	/* No need to unmapped this address on exit */
-	unmapped = stress_get_umapped_addr(page_size);
+	unmapped = stress_get_unmapped_addr(page_size);
 	mapped = (uint8_t *)stress_mmap_populate(NULL, mapped_size,
 			PROT_READ | PROT_WRITE,
 			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
