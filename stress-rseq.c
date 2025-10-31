@@ -187,9 +187,6 @@ static int stress_rseq_oomable(stress_args_t *args, void *context)
 {
 	struct sigaction sa;
 	(void)context;
-	char misaligned_seq_buf[sizeof(struct rseq) + 1];
-	struct rseq *misaligned_seq = (struct rseq *)&misaligned_seq_buf[1];
-	struct rseq invalid_seq;
 
 	(void)shim_memset(&sa, 0, sizeof(sa));
 	sa.sa_handler = sigsegv_handler;
@@ -197,9 +194,6 @@ static int stress_rseq_oomable(stress_args_t *args, void *context)
 		pr_inf("%s: failed to set SIGSEGV handler\n", args->name);
 		_exit(EXIT_FAILURE);
 	}
-
-	(void)shim_memcpy((void *)misaligned_seq, (void *)rseq_area, sizeof(*rseq_area));
-	(void)shim_memcpy((void *)&invalid_seq, (void *)rseq_area, sizeof(*rseq_area));
 
 	do {
 		register int i;
