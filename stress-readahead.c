@@ -51,8 +51,12 @@ static void OPTIMIZE3 stress_readahead_generate_offsets(
 {
 	register size_t i;
 
-	for (i = 0; i < MAX_OFFSETS; i++)
-		offsets[i] = (off_t)stress_mwc64modn(rounded_readahead_bytes - BUF_SIZE) & ~(BUF_SIZE - 1);
+	for (i = 0; i < MAX_OFFSETS; i++) {
+		const bool small = (rounded_readahead_bytes <= BUF_SIZE);
+
+		offsets[i] = small ? 0:
+			(off_t)stress_mwc64modn(rounded_readahead_bytes - BUF_SIZE) & ~(BUF_SIZE - 1);
+	}
 }
 
 static void OPTIMIZE3 stress_readahead_modify_offsets(off_t *offsets)
