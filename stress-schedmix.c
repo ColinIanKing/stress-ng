@@ -176,8 +176,12 @@ redo:
 		break;
 	case 15:
 		n = stress_mwc16modn(1000);
-		for (i = 0; LIKELY(stress_continue(args) && (i < n)); i++)
-			getpid();
+		for (i = 0; LIKELY(stress_continue(args) && (i < n)); i++) {
+			(void)shim_sched_yield();
+			(void)sleep(0);
+			VOID_RET(int, shim_nice(0));
+			(void)shim_nanosleep_uint64(stress_mwc32modn(1000));
+		}
 		break;
 	case 16:
 		getpid();
