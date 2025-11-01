@@ -410,10 +410,10 @@ static int stress_set(stress_args_t *args)
 			int fsgid;
 
 			/* Passing -1 will return the current fsgid */
-			fsgid = setfsgid((uid_t)-1);
+			fsgid = setfsgid((gid_t)-1);
 			if (fsgid >= 0) {
 				/* Set the current fsgid, should work */
-				ret = setfsgid((uid_t)fsgid);
+				ret = setfsgid((gid_t)fsgid);
 				if (ret == fsgid) {
 					/*
 					 * we can try changing it to
@@ -421,10 +421,10 @@ static int stress_set(stress_args_t *args)
 					 * be restored successfully
 					 */
 					VOID_RET(int, setfsgid(gid));
-					VOID_RET(int, setfsgid((uid_t)getegid()));
+					VOID_RET(int, setfsgid((gid_t)getegid()));
 
 					/* And restore */
-					VOID_RET(int, setfsgid((uid_t)fsgid));
+					VOID_RET(int, setfsgid((gid_t)fsgid));
 				}
 			}
 		}
