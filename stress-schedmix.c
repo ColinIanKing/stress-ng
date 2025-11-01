@@ -385,6 +385,17 @@ static int stress_schedmix_child(stress_args_t *args)
 
 				ret = shim_sched_setattr(0, &attr, 0);
 				break;
+			} else {
+#if defined(SCHED_IDLE)
+				new_policy = SCHED_IDLE;
+#elif defined(SCHED_BATCH)
+				new_policy = SCHED_BATCH;
+#elif defined(SCHED_OTHER)
+				new_policy = SCHED_OTHER;
+#else
+				/* give up, default to zero */
+				newpolicy = 0;
+#endif
 			}
 			param.sched_priority = 0;
 			ret = sched_setscheduler(pid, new_policy, &param);
