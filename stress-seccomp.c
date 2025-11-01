@@ -160,9 +160,6 @@ static uint32_t seccomp_actions[] = {
 #if defined(SECCOMP_RET_LOG)
 	SECCOMP_RET_LOG,
 #endif
-#if defined(SECCOMP_RET_LOG)
-	SECCOMP_RET_ALLOW,
-#endif
 	~0U,	/* Invalid */
 };
 #endif
