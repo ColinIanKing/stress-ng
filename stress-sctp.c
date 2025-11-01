@@ -302,8 +302,18 @@ static void stress_sctp_sockopts(const int fd)
 	UNEXPECTED
 #endif
 #if defined(SCTP_EVENT) &&	\
-    defined(HAVE_SCTP_EVENT_SUBSCRIBE)
-	STRESS_SCTP_SOCKOPT(SCTP_EVENT, struct sctp_event_subscribe)
+    defined(HAVE_SCTP_EVENT)
+	{
+		typedef int32_t	shim_sctp_assoc_t;
+
+		struct shim_sctp_event {
+			shim_sctp_assoc_t se_assoc_id;
+			uint16_t	se_type;
+			uint8_t		se_on;
+		};
+
+		STRESS_SCTP_SOCKOPT(SCTP_EVENT, struct shim_sctp_event)
+	}
 #endif
 #if defined(SCTP_ASCONF_SUPPORTED) &&	\
     defined(HAVE_SCTP_ASSOC_VALUE)
