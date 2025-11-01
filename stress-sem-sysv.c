@@ -287,7 +287,7 @@ timed_out:
 				nsems = 64;
 			s.array = (unsigned short int *)calloc(nsems, sizeof(*s.array));
 			if (s.array) {
-				VOID_RET(int, semctl(sem_id, 2, GETALL, s));
+				ret = semctl(sem_id, 2, GETALL, s);
 #if defined(SETALL)
 				/*
 				 *  SETALL across the semaphores will clobber the state
@@ -296,6 +296,8 @@ timed_out:
 				 */
 				if ((ret == 0) && (semaphore_sysv_setall))
 					VOID_RET(int, semctl(sem_id, 2, SETALL, s));
+#else
+				(void)ret;
 #endif
 				free(s.array);
 			}
