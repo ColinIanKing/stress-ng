@@ -158,7 +158,7 @@ static int stress_session_child(stress_args_t *args, const int fd)
 			wret = shim_waitpid(pid, &status, 0);
 #endif
 			if (wret < 0) {
-				if (UNLIKELY((errno != EINTR) && (errno == ECHILD))) {
+				if (UNLIKELY((errno != EINTR) && (errno != ECHILD))) {
 					stress_session_return_status(fd, errno, STRESS_SESSION_WAITPID_FAILED);
 					return STRESS_SESSION_WAITPID_FAILED;
 				}
