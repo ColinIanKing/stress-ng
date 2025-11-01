@@ -101,7 +101,8 @@ static int stress_session_set_and_get(stress_args_t *args, const int fd)
 	}
 
 	if (UNLIKELY(gsid != sid)) {
-		stress_session_return_status(fd, errno, STRESS_SESSION_WRONGSID_FAILED);
+		/* getsid successful, use explicit 0 for errno */
+		stress_session_return_status(fd, 0, STRESS_SESSION_WRONGSID_FAILED);
 		pr_inf("%s getsid failed, got session ID %d, expected %d\n",
 			args->name, (int)gsid, (int)sid);
 		return STRESS_SESSION_WRONGSID_FAILED;
