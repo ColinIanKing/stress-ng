@@ -206,7 +206,7 @@ case_sched_fifo:
 				continue;
 
 			rng_prio = max_prio - min_prio;
-			if (UNLIKELY(rng_prio == 0)) {
+			if (UNLIKELY(rng_prio <= 0)) {
 				pr_err("%s: invalid min/max priority "
 					"range for scheduling policy %s "
 					"(min=%d, max=%d)\n",
