@@ -284,6 +284,7 @@ static int stress_sem(stress_args_t *args)
 			continue;
 
 		VOID_RET(int, pthread_cancel(sem_pthreads[i].pthread));
+		VOID_RET(int, pthread_join(sem_pthreads[i].pthread, NULL));
 
 		trywait_count += sem_pthreads[i].trywait_count;
 		timedwait_count += sem_pthreads[i].timedwait_count;
