@@ -710,7 +710,7 @@ retry:
 				exercise_shmctl(key, sz, args);
 
 				t = stress_time_now();
-errno = 0;
+				errno = 0;
 				shm_id = shmget(key, sz,
 					IPC_CREAT | IPC_EXCL |
 					S_IRUSR | S_IWUSR | rnd_flag);
