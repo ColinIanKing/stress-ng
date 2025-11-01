@@ -222,16 +222,16 @@ static int stress_session(stress_args_t *args)
 			(void)shim_waitpid(pid, &status, 0);
 			if (WIFEXITED(status) &&
 			   (WEXITSTATUS(status) != STRESS_SESSION_SUCCESS)) {
-				if ((n < (ssize_t)sizeof(error)) ||
-				   ((n == (ssize_t)sizeof(error)) && (error.err == 0))) {
-					pr_fail("%s: failure in child, %s\n", args->name,
-						stress_session_error(WEXITSTATUS(status)));
+				if ((n == (ssize_t)sizeof(error)) && (error.err != 0)) {
+					pr_fail("%s: failure in child, %s, errno=%d\n",
+						args->name,
+						stress_session_error(WEXITSTATUS(status)),
+						error.err);
 					rc = EXIT_FAILURE;
 				} else {
-					pr_fail("%s: failure in child, %s, errno=%d (%s)\n",
+					pr_fail("%s: failure in child, %s\n",
 						args->name,
-						stress_session_error(error.status),
-						error.err, strerror(error.err));
+						stress_session_error(error.status));
 					rc = EXIT_FAILURE;
 				}
 			}
