@@ -674,15 +674,6 @@ static int stress_shm_sysv_child(
 		pid_t pid = -1;
 		key_t key;
 
-		/* find key without an identifier associated with it */
-		if (stress_shm_sysv_get_key(args, i,
-					keys_per_instance,
-					keys_per_segment,
-					&key, keys) == 0) {
-			exercise_shmget(key, sz, args->name);
-			exercise_shmctl(key, sz, args);
-		}
-
 		for (i = 0; i < shm_sysv_segments; i++) {
 			int shm_id = -1, count = 0;
 			void *addr;
@@ -715,6 +706,9 @@ retry:
 						keys_per_segment,
 						&key, keys) < 0)
 					goto reap;
+
+				exercise_shmget(key, sz, args->name);
+				exercise_shmctl(key, sz, args);
 
 				t = stress_time_now();
 errno = 0;
