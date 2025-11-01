@@ -259,7 +259,7 @@ redo:
 #if defined(HAVE_SYS_SELECT_H) &&       \
     defined(HAVE_SELECT)
 	case 25:
-		if (fdstdin < FD_SETSIZE) {
+		if (LIKELY((fdstdin >= 0) && (fdstdin < FD_SETSIZE))) {
 			FD_ZERO(&rfds);
 			FD_SET(fdstdin, &rfds);
 			tv.tv_sec = 0;
@@ -272,7 +272,7 @@ redo:
     defined(HAVE_PSELECT) &&		\
     defined(FD_SETSIZE)
 	case 26:
-		if (fdstdin < FD_SETSIZE) {
+		if (LIKELY((fdstdin >= 0) && (fdstdin < FD_SETSIZE))) {
 			FD_ZERO(&rfds);
 			FD_SET(fdstdin, &rfds);
 			ts.tv_sec = 0;
