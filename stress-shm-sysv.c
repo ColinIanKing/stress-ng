@@ -547,8 +547,7 @@ static void stress_shm_sysv_linux_proc_map(const void *addr, const size_t sz)
 		 *  The vfs allows us to mmap this file, which corresponds
 		 *  to the same physical pages of the shm allocation
 		 */
-		ptr = mmap(NULL, sz, PROT_READ, MAP_PRIVATE | MAP_ANONYMOUS,
-			-1, 0);
+		ptr = mmap(NULL, sz, PROT_READ, MAP_PRIVATE, fd, 0);
 		if (ptr != MAP_FAILED)
 			(void)munmap(ptr, sz);
 
