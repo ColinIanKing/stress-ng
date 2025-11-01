@@ -171,6 +171,10 @@ static void stress_sctp_sockopts(const int fd)
 #endif
 #if defined(SCTP_MAXSEG)
 	{
+		/*
+		 *  try using the wrong type, kernel will
+		 *  complain, do this once
+		 */
 		static bool once = false;
 
 		if (once == false) {
@@ -206,6 +210,10 @@ static void stress_sctp_sockopts(const int fd)
 #endif
 #if defined(SCTP_MAX_BURST)
 	{
+		/*
+		 *  try using the wrong type, kernel will
+		 *  complain, do this once
+		 */
 		static bool once = false;
 
 		if (once == false) {
