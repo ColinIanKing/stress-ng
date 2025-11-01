@@ -52,7 +52,8 @@ static off_t stress_shim_lseek(int fd, off_t offset, int whence)
 
 	if (LIKELY(metrics_count++ < 1000)) {
 		ret = lseek(fd, offset, whence);
-		seek_count++;
+		if (LIKELY(ret >= 0))
+			seek_count++;
 	} else {
 		double t;
 
