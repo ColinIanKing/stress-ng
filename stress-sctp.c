@@ -432,7 +432,7 @@ retry:
 				const pid_t pid = *pidptr;
 
 				if (UNLIKELY(pid != mypid)) {
-					pr_fail("%s: server received unexpected data "
+					pr_fail("%s: client received unexpected data "
 						"contents, got 0x%" PRIxMAX ", "
 						"expected 0x%" PRIxMAX "\n",
 						args->name, (intmax_t)pid,
