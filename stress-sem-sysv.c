@@ -379,11 +379,11 @@ timed_out:
 
 			/* Exercise with probably an illegal sem id */
 			s.__buf = &si;
-			VOID_RET(int, semctl(0x1fffffff, 0, IPC_INFO, &s));
+			VOID_RET(int, semctl(0x1fffffff, 0, SEM_INFO, &s));
 
 			/* Exercise with an illegal sem number */
 			s.__buf = &si;
-			VOID_RET(int, semctl(sem_id, ~0, IPC_INFO, &s));
+			VOID_RET(int, semctl(sem_id, ~0, SEM_INFO, &s));
 		}
 #endif
 		if (UNLIKELY(!stress_continue(args)))
