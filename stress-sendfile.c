@@ -89,6 +89,7 @@ static int stress_sendfile(stress_args_t *args)
 		rc = stress_exit_status(errno);
 		pr_err("%s: fallocate failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
+		(void)shim_unlink(filename);
 		goto close_in;
 	}
 	(void)close(fdin);
@@ -96,8 +97,10 @@ static int stress_sendfile(stress_args_t *args)
 		rc = stress_exit_status(errno);
 		pr_err("%s: open %s failed, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
+		(void)shim_unlink(filename);
 		goto dir_out;
 	}
+	(void)shim_unlink(filename);
 
 	if ((fdout = open("/dev/null", O_WRONLY)) < 0) {
 		pr_err("%s: open /dev/null failed, errno=%d (%s)\n",
@@ -196,7 +199,6 @@ close_out:
 close_in:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)close(fdin);
-	(void)shim_unlink(filename);
 dir_out:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)stress_temp_dir_rm_args(args);
