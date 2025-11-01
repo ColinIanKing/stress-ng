@@ -115,8 +115,8 @@ static void stress_semaphore_sysv_init(const uint32_t instances)
 }
 
 /*
- *  stress_semaphore_sysv_destory()
- *	destroy a System V semaphore
+ *  stress_semaphore_sysv_deinit()
+ *	remove a System V semaphore
  */
 static void stress_semaphore_sysv_deinit(void)
 {
