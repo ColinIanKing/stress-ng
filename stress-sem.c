@@ -302,7 +302,7 @@ static int stress_sem(stress_args_t *args)
 	if (!sem_shared)
 		(void)sem_destroy(&sem_local);
 
-	/* ready the bogo flag duo to cancelling a pthread while updating a bogo-op */
+	/* ready the bogo flag due to cancelling a pthread while updating a bogo-op */
 	stress_bogo_ready(args);
 
 	return EXIT_SUCCESS;
