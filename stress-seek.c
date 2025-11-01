@@ -209,7 +209,8 @@ re_read:
 		}
 		if (UNLIKELY((rwret != sizeof(tmp)) &&
 		    (g_opt_flags & OPT_FLAGS_VERIFY))) {
-			pr_fail("%s: incorrect read size, expecting 512 bytes\n", args->name);
+			pr_fail("%s: incorrect read size %zd, expecting 512 bytes\n",
+				args->name, rwret);
 			rc = EXIT_FAILURE;
 			goto close_finish;
 		}
