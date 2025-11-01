@@ -523,13 +523,13 @@ static int OPTIMIZE3 stress_sctp_server(
 		rc = EXIT_FAILURE;
 		goto die_close;
 	}
-#if defined(TCP_NODELAY)
+#if defined(SCTP_NODELAY)
 	{
 		int one = 1;
 
 		if (g_opt_flags & OPT_FLAGS_SOCKET_NODELAY) {
-			if (setsockopt(fd, SOL_TCP, TCP_NODELAY, &one, sizeof(one)) < 0) {
-				pr_inf("%s: setsockopt TCP_NODELAY "
+			if (setsockopt(fd, SOL_TCP, SCTP_NODELAY, &one, sizeof(one)) < 0) {
+				pr_inf("%s: setsockopt SCTP_NODELAY "
 					"failed and disabled, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				g_opt_flags &= ~OPT_FLAGS_SOCKET_NODELAY;
