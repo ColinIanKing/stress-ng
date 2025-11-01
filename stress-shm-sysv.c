@@ -638,9 +638,9 @@ static int stress_shm_sysv_child(
 	double shmat_duration = 0.0, shmat_count = 0.0;
 	double shmdt_duration = 0.0, shmdt_count = 0.0;
 	uint32_t seg_space = args->instances * shm_sysv_segments;
-	uint32_t max_keys = (uint32_t)MAX_SHM_KEYS / seg_space;
+	uint32_t max_keys = (seg_space > 0) ? (uint32_t)MAX_SHM_KEYS / seg_space : 1;
 	const uint32_t keys_per_instance = MAX_SHM_KEYS / args->instances;
-	const uint32_t keys_per_segment = keys_per_instance / shm_sysv_segments;
+	const uint32_t keys_per_segment = (shm_sysv_segments > 0) ? keys_per_instance / shm_sysv_segments : 1;
 
 	max_keys = (max_keys < 1) ? 1 : max_keys;
 
