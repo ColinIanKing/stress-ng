@@ -59,29 +59,31 @@ static bool OPTIMIZE3 stress_mmapfixed_is_mapped_slow(
 	size_t len,
 	const size_t page_size)
 {
-	uint64_t vec[PAGE_CHUNKS / sizeof(uint64_t)] ALIGN64;
-	size_t n = len;
-	size_t n_pages = len / page_size;
+	if (len > 0) {
+		size_t n = len;
+		const size_t n_pages_max = (len + page_size - 1) / page_size;
+		const size_t n_pages = (n_pages_max > PAGE_CHUNKS) ? PAGE_CHUNKS : n_pages_max;
+		uint8_t vec[n_pages] ALIGN64;
 
-	if (n_pages > PAGE_CHUNKS)
-		n_pages = PAGE_CHUNKS;
+		(void)shim_memset(vec, 0, sizeof(vec));
 
-	(void)shim_memset(vec, 0, sizeof(vec));
-	while (n > 0) {
-		int ret;
-		register size_t j, sz, n_pages_todo = n > n_pages ? n_pages : n;
+		while (n > 0) {
+			int ret;
+			register size_t j, sz, n_pages_todo = n > n_pages ? n_pages : n;
 
-	       	sz = n_pages_todo * page_size;
-		ret = shim_mincore(addr, sz, (unsigned char *)vec);
-		if (UNLIKELY(ret < 0))
-			return false;	/* Dodgy, assume not in memory */
+	       		sz = n_pages_todo * page_size;
+			ret = shim_mincore(addr, sz, (unsigned char *)vec);
+			if (UNLIKELY(ret < 0))
+				return false;	/* Dodgy, assume not in memory */
 
 PRAGMA_UNROLL_N(4)
-		for (j = 0; j < n_pages_todo; j++) {
-			if (vec[j])
-				return true;
+			for (j = 0; j < n_pages_todo; j++) {
+				if (vec[j])
+					return true;
+			}
+			addr = (void *)(((uintptr_t)addr) + sz);
 		}
-		addr = (void *)(((uintptr_t)addr) + sz);
+		return false;
 	}
 	return false;
 }
