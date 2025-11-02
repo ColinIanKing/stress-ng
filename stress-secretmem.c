@@ -64,7 +64,6 @@ static int stress_secretmem_supported(const char *name)
 				name, errno, strerror(errno));
 			break;
 		}
-		(void)close(fd);
 		return -1;
 	}
 	(void)close(fd);
