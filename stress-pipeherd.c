@@ -60,7 +60,7 @@ static int stress_pipeherd_read_write(stress_args_t *args, const int fd[2], cons
 		}
 		data.counter++;
 		sz = write(fd[1], &data, sizeof(data));
-		if (UNLIKELY(sz < 0)) {
+		if (UNLIKELY(sz <= 0)) {
 			if (sz == 0)
 				goto next;
 			if ((errno == EINTR) || (errno == EPIPE))
@@ -125,7 +125,7 @@ static int stress_pipeherd(stress_args_t *args)
 	data.counter = 0;
 	data.check = check;
 	sz = write(fd[1], &data, sizeof(data));
-	if (UNLIKELY(sz < 0)) {
+	if (UNLIKELY(sz <= 0)) {
 		if (sz == 0) {
 			pr_fail("%s: write to pipe failed, zero bytes written\n",
 				args->name);
