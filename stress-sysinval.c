@@ -576,10 +576,10 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 	/* { SYS(fork), 0, { 0, 0, 0, 0, 0, 0 } }, */
 #endif
 #if DEFSYS(fp_udfiex_crtl)
-	{ SYS(fp_udfiex_crtl), ARG_INT, ARG_INT, 0, 0, 0, 0 } },
+	{ SYS(fp_udfiex_crtl), 2, { ARG_INT, ARG_INT, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(free_hugepages)
-	{ SYS(free_hugepages), ARG_PTR, 0, 0, 0, 0, 0 } },
+	{ SYS(free_hugepages), 1, { ARG_PTR, 0, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(fremovexattr)
 	{ SYS(fremovexattr), 2, { ARG_FD, ARG_PTR, 0, 0, 0, 0 } },
@@ -2094,7 +2094,7 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 	{ SYS(usr26), 1, { ARG_INT, 0, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(usr32)
-	{ SYS(usr32), 1, { ARH_INT, 0, 0, 0, 0, 0 } },
+	{ SYS(usr32), 1, { ARG_INT, 0, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(ustat)
 	{ SYS(ustat), 2, { ARG_UINT, ARG_PTR, 0, 0, 0, 0 } },
