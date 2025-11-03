@@ -487,7 +487,7 @@ static uint32_t OPTIMIZE3 qhash_get(void *handle, const uint32_t x, const uint32
 }
 
 /*
- *  hash_del()
+ *  qhash_del()
  *	zero the (x,y) value in sparse hash table
  */
 static void qhash_del(void *handle, const uint32_t x, const uint32_t y)
