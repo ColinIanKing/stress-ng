@@ -76,7 +76,7 @@ static ssize_t shim_listmount(
 		.param = last_mnt_id,
 	};
 
-        return syscall(__NR_listmount, &req, list, num, flags);
+	return syscall(__NR_listmount, &req, list, num, flags);
 }
 
 /*
