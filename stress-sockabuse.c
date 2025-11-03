@@ -158,9 +158,6 @@ static void stress_sockabuse_fd(const int fd)
 	VOID_RET(int, posix_fadvise(fd, 0, 0, POSIX_FADV_RANDOM));
 #endif
 	VOID_RET(int, shim_sync_file_range(fd, 0, 1, 0));
-#if defined(HAVE_FUTIMENS)
-	(void)shim_memset(&timespec, 0, sizeof(timespec));
-#endif
 }
 
 /*
