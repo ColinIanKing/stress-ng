@@ -271,7 +271,7 @@ static void *stress_pthread_func(void *c)
 		delta = stress_time_delta(&t1, &t2);
 		expected = (1.0 + 10.0 + 100.0 + 1000.0 + 10000.0);
 		if (!eintr && UNLIKELY(delta < expected / STRESS_DBL_MICROSECOND)) {
-			pr_fail("%s: nanosleeps for %.f microsecs took less than %.2f microsecs to complete\n",
+			pr_fail("%s: usleeps for %.f microsecs took less than %.2f microsecs to complete\n",
 				args->name, expected, delta * STRESS_DBL_MICROSECOND);
 			ctxt->underruns++;
 		}
