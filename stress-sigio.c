@@ -44,13 +44,13 @@ static const stress_help_t help[] = {
 
 #define BUFFER_SIZE	(4096)
 
-static volatile int got_err;
 static volatile uint64_t async_sigs;
+static volatile stress_args_t *sigio_args;
+static volatile double time_end;
+static volatile int got_err;
 static volatile int rd_fd;
-static stress_args_t *sigio_args;
-static pid_t pid;
-static double time_end;
 static char *rd_buffer;
+static pid_t pid;
 
 /*
  *  stress_sigio_handler()
