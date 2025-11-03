@@ -480,7 +480,8 @@ static void stress_sigsegv_handler(int signum)
     defined(SIGBUS)
 static void stress_sigill_handler(int signum)
 {
-	op_info[idx].invalid = true;
+	if (idx < SIZEOF_ARRAY(op_info))
+		op_info[idx].invalid = true;
 	stress_sigsegv_handler(signum);
 }
 #endif
