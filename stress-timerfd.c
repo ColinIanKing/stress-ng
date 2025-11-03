@@ -125,7 +125,7 @@ static int stress_timerfd(stress_args_t *args)
 	bool timerfd_rand = false;
 	int file_fd;
 	char file_fd_name[PATH_MAX];
-#if defined(CLOCK_BOOTTIME_ALARM)
+#if defined(CLOCK_REALTIME_ALARM)
 	const bool cap_wake_alarm = stress_check_capability(SHIM_CAP_WAKE_ALARM);
 #endif
 	const int bad_fd = stress_get_bad_fd();
