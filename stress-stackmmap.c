@@ -172,20 +172,20 @@ static int stress_stackmmap(stress_args_t *args)
 		if (errno == ENXIO) {
 			pr_inf_skip("%s: mmap failed of %zu bytes on file %s%s, errno=%d (%s),"
 				"skipping stressor\n",
-				args->name, (size_t)STRESS_SIGSTKSZ, filename,
+				args->name, (size_t)MMAPSTACK_SIZE, filename,
 				stress_get_memfree_str(), errno, strerror(errno));
 			rc = EXIT_NO_RESOURCE;
 			(void)close(fd);
 			goto tidy_stack_sig;
 		}
 		pr_fail("%s: mmap failed of %zu bytes failed%s, errno=%d (%s)\n",
-			args->name, (size_t)STRESS_SIGSTKSZ,
+			args->name, (size_t)MMAPSTACK_SIZE,
 			stress_get_memfree_str(), errno, strerror(errno));
 		(void)close(fd);
 		goto tidy_stack_sig;
 	}
 	(void)close(fd);
-	stress_set_vma_anon_name(stack_mmap, STRESS_SIGSTKSZ, "altstack-file");
+	stress_set_vma_anon_name(stack_mmap, MMAPSTACK_SIZE, "altstack-file");
 
 	if (shim_madvise((void *)stack_mmap, MMAPSTACK_SIZE, MADV_RANDOM) < 0) {
 		pr_dbg("%s: madvise failed, errno=%d (%s)\n",
