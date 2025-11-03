@@ -387,8 +387,8 @@ static int stress_sigsegv(stress_args_t *args)
 			/* Signal was tripped */
 #if defined(SA_SIGINFO)
 			if (UNLIKELY(verify && expected_addr && fault_addr &&
-				     (fault_addr < expected_addr) &&
-				     (fault_addr > (expected_addr + 8)))) {
+				     ((fault_addr < expected_addr) ||
+				      (fault_addr > (expected_addr + 8))))) {
 				pr_fail("%s: expecting fault address %p, got %p instead\n",
 					args->name, (volatile void *)expected_addr, fault_addr);
 			}
