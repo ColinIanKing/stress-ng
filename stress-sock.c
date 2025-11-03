@@ -1353,7 +1353,7 @@ static int stress_sock(stress_args_t *args)
 	int sock_type;
 	int sock_port = DEFAULT_SOCKET_PORT;
 	int sock_protocol = 0;
-	int sock_zerocopy = false;
+	bool sock_zerocopy = false;
 	int rc = EXIT_SUCCESS, reserved_port, parent_cpu;
 	const bool rt = stress_sock_kernel_rt();
 	char *mmap_buffer;
