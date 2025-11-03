@@ -210,8 +210,7 @@ rewait:
 
 /*
  *  stress_sighup
- *	stress by generating segmentation faults by
- *	writing to a read only page
+ *	stress by generating SIGHUP signals
  */
 static int stress_sighup(stress_args_t *args)
 {
