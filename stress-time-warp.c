@@ -142,7 +142,7 @@ static const stress_time_warp_info_t clocks[] = {
 #endif
 #endif
 #if defined(HAVE_GETTIMEOFDAY)
-	TIME_MISC(stress_time_warp_gettimeofday, getitimeofday, false),
+	TIME_MISC(stress_time_warp_gettimeofday, gettimeofday, false),
 #endif
 #if defined(HAVE_TIME)
 	TIME_MISC(stress_time_warp_time, time, false),
