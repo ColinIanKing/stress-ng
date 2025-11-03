@@ -181,7 +181,7 @@ again:
 				break;
 		}
 		(void)close(fds[1]);
-		_exit(1);
+		_exit(0);
 	}
 	/* Parent */
 	(void)close(fds[1]);
