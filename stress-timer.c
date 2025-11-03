@@ -41,7 +41,7 @@ static const stress_help_t help[] = {
     defined(HAVE_TIMER_SETTIME)
 static stress_args_t *s_args;
 static volatile uint64_t timer_settime_failure;
-static uint64_t timer_overruns;
+static volatile uint64_t timer_overruns;
 static timer_t timerid;
 static double rate_ns;
 static double time_end;
