@@ -246,6 +246,8 @@ static int stress_sysinfo(stress_args_t *args)
 					continue;
 
 				ret = statvfs(mnts[i], &statvfs_buf);
+				if (UNLIKELY((ret < 0) && (errno == ENOENT)))
+					continue;
 				if (UNLIKELY((ret < 0) && (verify))) {
 					if ((errno != ENOSYS) &&
 					    (errno != EOVERFLOW) &&
