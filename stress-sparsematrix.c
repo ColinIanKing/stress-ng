@@ -1073,7 +1073,7 @@ static uint32_t OPTIMIZE3 hashjudy_get(void *handle, const uint32_t x, const uin
 	Word_t *pvalue, value;
 
 	if (UNLIKELY(!table))
-		return -1;
+		return (uint32_t)-1;
 
 	JLG(pvalue, table->hash_table[x], y);
 	if (UNLIKELY((pvalue == NULL) || (pvalue == PJERR)))
