@@ -490,11 +490,11 @@ static void NOINLINE syscall_shellsort_size_t(
 	register size_t interval;
 
 	for (interval = nmemb / 2; interval > 0; interval /= 2) {
-		register size_t i;
+		register ssize_t i;
 
-		for (i = interval; i < nmemb; i++) {
+		for (i = interval; i < (ssize_t)nmemb; i++) {
 			register size_t j;
-			size_t tmp = base[i];
+			ssize_t tmp = base[i];
 
 			for (j = i; (j >= interval) && cmp(&base[j - interval], &tmp); j -= interval) {
 				base[j] = base[j - interval];
