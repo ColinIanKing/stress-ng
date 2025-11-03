@@ -1269,7 +1269,7 @@ static int mmap_put(void *handle, const uint32_t x, const uint32_t y, const uint
 	if (UNLIKELY(m->x <= x || m->y <= y))
 		return -1;
 
-	offset = (x + ((uint64_t)m->y * y));
+	offset = (x + ((uint64_t)m->x * y));
 	*((uint32_t *)(m->mmap) + offset) = value;
 
 	return 0;
@@ -1283,7 +1283,7 @@ static void mmap_del(void *handle, const uint32_t x, const uint32_t y)
 	if (UNLIKELY(m->x <= x || m->y <= y))
 		return;
 
-	offset = (x + ((uint64_t)m->y * y));
+	offset = (x + ((uint64_t)m->x * y));
 	*((uint32_t *)(m->mmap) + offset) = 0;
 }
 
@@ -1295,7 +1295,7 @@ static uint32_t mmap_get(void *handle, const uint32_t x, const uint32_t y)
 	if (UNLIKELY(m->x <= x || m->y <= y))
 		return (uint32_t)-1;
 
-	offset = (x + ((uint64_t)m->y * y));
+	offset = (x + ((uint64_t)m->x * y));
 	return *((uint32_t *)(m->mmap) + offset);
 }
 
