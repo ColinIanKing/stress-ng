@@ -295,9 +295,6 @@ static const int clocks[] = {
 #if defined(CLOCK_THREAD_CPUTIME_ID)
 	CLOCK_THREAD_CPUTIME_ID,
 #endif
-#if defined(CLOCK_MONOTONIC_ACTIVE)
-	CLOCK_MONOTONIC_ACTIVE,
-#endif
 #if defined(CLOCK_TAI)
 	CLOCK_TAI,
 #endif
