@@ -98,7 +98,8 @@ again:
 				goto finish;
 			pr_fail("%s: fork failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
-			return EXIT_FAILURE;
+			rc = EXIT_FAILURE;
+			goto sigabrt_info_munmap;
 		} else if (pid == 0) {
 			stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
@@ -168,6 +169,7 @@ finish:
 	stress_metrics_set(args, 0, "nanosec SIGABRT latency",
 		rate * STRESS_DBL_NANOSECOND, STRESS_METRIC_HARMONIC_MEAN);
 
+sigabrt_info_munmap:
 	(void)munmap((void *)sigabrt_info, sizeof(*sigabrt_info));
 
 	return rc;
