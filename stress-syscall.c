@@ -519,7 +519,7 @@ static void syscall_shared_error(const int ret)
 /*
  *  syscall_time_now()
  *	get nanosecond time delta since the first call
- *	this allows a couple of hundredd years of run
+ *	this allows a couple of hundred years of run
  *	time before overflow occurs.
  */
 static uint64_t syscall_time_now(void)
