@@ -24,7 +24,7 @@
 #define DEFAULT_SKIPLIST_SIZE	(1 * KB)
 
 typedef struct skip_node {
-	unsigned long int value;
+	uint32_t value;
 	struct skip_node **skip_nodes;
 } skip_node_t;
 
@@ -88,7 +88,7 @@ static skip_list_t *skip_list_init(skip_list_t *list, const size_t max_level)
 	list->level = 1;
 	list->max_level = max_level;
 	list->head = head;
-	head->value = INT_MAX;
+	head->value = UINT32_MAX;
 
 	for (i = 0; i <= max_level; i++)
 		list->head->skip_nodes[i] = list->head;
