@@ -89,7 +89,7 @@ static int stress_signal(stress_args_t *args)
 			break;
 		}
 		if (UNLIKELY(tmp != *pcounter)) {
-			pr_err("%s: setting of SIG_IGN unexpectedly triggered a SIGCHLD\n",
+			pr_err("%s: installing a SIGCHLD SIG_IGN signal handler unexpectedly triggered a SIGCHLD\n",
 				args->name);
 		}
 
@@ -101,7 +101,7 @@ static int stress_signal(stress_args_t *args)
 			break;
 		}
 		if (UNLIKELY(tmp != *pcounter)) {
-			pr_err("%s: setting of SIGIGN unexpectedly triggered a SIGCHLD\n",
+			pr_err("%s: installing a SIGCHLD signal handler unexpectedly triggered a SIGCHLD\n",
 				args->name);
 		}
 
@@ -120,7 +120,7 @@ static int stress_signal(stress_args_t *args)
 			break;
 		}
 		if (UNLIKELY(tmp != *pcounter)) {
-			pr_fail("%s: setting of SIG_DFL unexpectedly triggered a SIGCHLD\n",
+			pr_fail("%s: installing a SIGCHLD SIG_DFL signal handler unexpectedly triggered a SIGCHLD\n",
 				args->name);
 			rc = EXIT_FAILURE;
 		}
