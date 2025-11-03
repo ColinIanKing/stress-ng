@@ -61,7 +61,7 @@ static unsigned int stress_splice_flag(void)
 
 /*
  *  stress_splice_pipe_size()
- *	attempt to se pipe size of multiples of the splice buffer length
+ *	attempt to set pipe size of multiples of the splice buffer length
  */
 static int stress_splice_pipe_size(const int fd)
 {
