@@ -189,6 +189,7 @@ static int stress_smi(stress_args_t *args)
 		pr_inf_skip("%s: stressor will be skipped, cannot enable write "
 			"permissions on the APM port 0x%2x\n",
 			args->name, APM_PORT);
+		return EXIT_NO_RESOURCE;
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
