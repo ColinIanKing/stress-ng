@@ -826,7 +826,7 @@ static void bad_getresgid3(stress_bad_addr_t *ba, volatile uint64_t *counter)
 		gid_t rgid, sgid;
 
 		(*counter)++;
-		VOID_RET(int, getresgid(&rgid, (uid_t *)ba->addr, &sgid));
+		VOID_RET(int, getresgid(&rgid, (gid_t *)ba->addr, &sgid));
 	}
 }
 
