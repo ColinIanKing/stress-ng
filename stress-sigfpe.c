@@ -102,7 +102,7 @@ static char *stress_sigfpe_errstr(const int err)
 	switch (err) {
 #if defined(FPE_INTDIV)
 	case FPE_INTDIV:
-		return "FPE_INTDEV";
+		return "FPE_INTDIV";
 #endif
 #if defined(FPE_INTOVF)
 	case FPE_INTOVF:
