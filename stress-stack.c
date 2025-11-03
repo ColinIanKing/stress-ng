@@ -185,7 +185,6 @@ PRAGMA_UNROLL_N(4)
 
 static int stress_stack_child(stress_args_t *args, void *context)
 {
-	const char *start_ptr = shim_sbrk(0);
 	void *altstack;
 	bool stack_fill = false;
 	bool stack_mlock = false;
@@ -251,12 +250,6 @@ static int stress_stack_child(stress_args_t *args, void *context)
 	}
 
 	stress_parent_died_alarm();
-
-	if (start_ptr == (void *) -1) {
-		pr_err("%s: sbrk(0) failed, errno=%d (%s)\n",
-			args->name, errno, strerror(errno));
-		return EXIT_FAILURE;
-	}
 
 	/* Make sure this is killable by OOM killer */
 	stress_set_oom_adjustment(args, true);
