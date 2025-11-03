@@ -234,6 +234,8 @@ static int stress_sighup(stress_args_t *args)
 	}
 	stress_set_vma_anon_name((void *)sighup_info, sizeof(*sighup_info), "state");
 	sighup_info->count = 0.0;
+	sighup_info->t_start = 0.0;
+	sighup_info->latency = 0.0;
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
