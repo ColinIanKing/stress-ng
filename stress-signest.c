@@ -314,6 +314,7 @@ static int stress_signest(stress_args_t *args)
 			for (j = i; j < max_signals - 1; j++)
 				signals[j] = signals[j + 1];
 			max_signals--;
+			i--; /* recheck this position again */
 		}
 	}
 
