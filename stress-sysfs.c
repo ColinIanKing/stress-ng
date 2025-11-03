@@ -866,7 +866,7 @@ again:
 			for (i = 0; i < MAX_SYSFS_THREADS; i++) {
 				if (pthreads_ret[i] == 0) {
 					stress_force_killed_bogo(args);
-					(void)pthread_kill(pthreads[i], SIGKILL);
+					(void)pthread_cancel(pthreads[i]);
 				}
 			}
 
