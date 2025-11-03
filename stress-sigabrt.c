@@ -52,8 +52,7 @@ static void MLOCKED_TEXT stress_sigabrt_handler(int num)
 
 /*
  *  stress_sigabrt
- *	stress by generating segmentation faults by
- *	writing to a read only page
+ *	stress by generating SIGABRT signals
  */
 static int stress_sigabrt(stress_args_t *args)
 {
