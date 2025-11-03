@@ -391,14 +391,18 @@ finish:
 			for (ptr = buf, i = 0; i < max_signals; i++) {
 				if (signals[i].signalled) {
 					const char *name = stress_get_signal_name(signals[i].signum);
+					ssize_t written;
+					const size_t len = buf + sz - ptr;
 
 					if (name) {
 						if (strncmp(name, "SIG", 3) == 0)
 							name += 3;
-						ptr += snprintf(ptr, (buf + sz - ptr), " %s", name);
+						written = (ssize_t)snprintf(ptr, len, " %s", name);
 					} else {
-						ptr += snprintf(ptr, (buf + sz - ptr), " SIG%d", signals[i].signum);
+						written = (ssize_t)snprintf(ptr, len, " SIG%d", signals[i].signum);
 					}
+					if ((written > 0) && (written < (ssize_t)len))
+						ptr += written;
 				}
 			}
 			pr_inf("%s: %d unique nested signals handled,%s\n", args->name, n, buf);
