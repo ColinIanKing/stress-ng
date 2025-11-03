@@ -389,7 +389,7 @@ finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	stress_net_release_ports(sockmany_port, sockmany_port);
 
-	(void)munmap((void *)sock_fds, args->page_size);
+	(void)munmap((void *)sock_fds, sizeof(*sock_fds));
 	return rc;
 }
 
