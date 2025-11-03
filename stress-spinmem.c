@@ -33,7 +33,7 @@ static const stress_help_t help[] = {
 	{ NULL, "spinmem-method",   "select method of write/reads, default is 32bit" },
 	{ NULL, "spinmem-numa",     "move pages to randomly chosen NUMA nodes" },
 	{ NULL, "spinmem-ops",	    "stop after N bogo shared memory spin write/read operations" },
-	{ NULL, "spinmem-yield",    "force scheduling yeilds after each spin write/read operation" },
+	{ NULL, "spinmem-yield",    "force scheduling yields after each spin write/read operation" },
 	{ NULL, NULL,		    NULL }
 };
 
