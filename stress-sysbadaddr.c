@@ -2626,7 +2626,7 @@ static int stress_sysbadaddr(stress_args_t *args)
 	wx_page = stress_mmap_populate(NULL, page_size,
 		PROT_WRITE | PROT_EXEC, MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (wx_page != MAP_FAILED)
-		stress_set_vma_anon_name(wo_page, page_size, "wo-page");
+		stress_set_vma_anon_name(wx_page, page_size, "wx-page");
 	/*
 	 * Unmap last page, so we know we have an unmapped
 	 * page following the r/w page
