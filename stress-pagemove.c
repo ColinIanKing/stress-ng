@@ -28,6 +28,10 @@
 #define MIN_PAGE_MOVE_BYTES		(64 * KB)
 #define MAX_PAGE_MOVE_BYTES		(MAX_MEM_LIMIT)
 
+#define PAGE0				(0x1)
+#define PAGE1				(0x2)
+#define PAGE2				(0x4)
+
 static const stress_help_t help[] = {
 	{ NULL,	"pagemove N",	  	"start N workers that shuffle move pages" },
 	{ NULL,	"pagemove-bytes N",	"size of mmap'd region to exercise page moving in bytes" },
@@ -40,6 +44,7 @@ static const stress_help_t help[] = {
 typedef struct {
 	void *	virt_addr;		/* original virtual address of page */
 	size_t	page_num;		/* original page number relative to start of entire mapping */
+	uint8_t	bitmask;
 } page_info_t;
 
 static const stress_opt_t opts[] = {
@@ -108,6 +113,7 @@ static int stress_pagemove_child(stress_args_t *args, void *context)
 	if (stress_munmap_force((void *)unmapped_page, page_size) < 0) {
 		pr_inf_skip("%s: failed to munmap %zu bytes, errno=%d (%s), skipping stressor\n",
 			args->name, page_size, errno, strerror(errno));
+		(void)munmap(buf, info->sz + page_size);
 		return EXIT_NO_RESOURCE;
 	}
 
@@ -287,10 +293,14 @@ fail:
 	/* Attempt to unmap all possible mapped regions */
 	(void)munmap((void *)buf, info->sz);
 
+#if 0
+	/* never want to do this */
 	if (unmapped_page) {
 		/* may fail if previously unmapped, but that's OK */
 		(void)munmap((void *)unmapped_page, page_size);
 	}
+#endif
+
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 	if (numa_mask)
 		stress_numa_mask_free(numa_mask);
