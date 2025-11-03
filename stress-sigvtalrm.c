@@ -50,16 +50,19 @@ static void stress_sigvtalrm_set(struct itimerval *timer)
  */
 static void MLOCKED_TEXT OPTIMIZE3 stress_sigvtalrm_handler(int sig)
 {
+	struct itimerval timer;
+
 	(void)sig;
 
-	stress_bogo_inc(s_args);
-	if (UNLIKELY(!stress_continue(s_args))) {
-		struct itimerval timer;
-
-		/* Cancel timer if we detect no more runs */
-		(void)shim_memset(&timer, 0, sizeof(timer));
-		(void)setitimer(ITIMER_VIRTUAL, &timer, NULL);
+	if (LIKELY(s_args != NULL)) {
+		stress_bogo_inc(s_args);
+		if (stress_continue(s_args))
+			return;
 	}
+	
+	/* Cancel timer if we detect no more runs */
+	(void)shim_memset(&timer, 0, sizeof(timer));
+	(void)setitimer(ITIMER_VIRTUAL, &timer, NULL);
 }
 
 /*
