@@ -298,7 +298,7 @@ static int stress_sigsegv(stress_args_t *args)
 	none_ptr = (uint8_t *)mmap(NULL, args->page_size, PROT_NONE,
 		MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (none_ptr == MAP_FAILED) {
-		pr_inf_skip("%s: failed to mmap %zu byte write only page%s, "
+		pr_inf_skip("%s: failed to mmap %zu byte PROT_NONE page%s, "
 			"errno=%d (%s), skipping stressor\n",
 			args->name, args->page_size,
 			stress_get_memfree_str(), errno, strerror(errno));
