@@ -166,6 +166,13 @@ static int stress_shm_posix_child(
 				rc = EXIT_FAILURE;
 				goto reap;
 			}
+			if (ftruncate(shm_fd, sz) < 0) {
+				ok = false;
+				pr_fail("%s: ftruncate %s failed, errno=%d (%s)\n",
+					args->name, shm_name, errno, strerror(errno));
+				rc = EXIT_FAILURE;
+				goto reap;
+			}
 
 			/* Inform parent of the new shm name */
 			(void)shim_memset(&msg, 0, sizeof(msg));
@@ -303,7 +310,8 @@ reap:
 			if (addrs[i]) {
 #if defined(_POSIX_MEMLOCK_RANGE) &&	\
     defined(HAVE_MLOCK)
-				(void)shim_munlock(addrs[i], 4096);
+				/* intentionally munlock just a page */
+				(void)shim_munlock(addrs[i], page_size);
 #endif
 				(void)munmap(addrs[i], sz);
 			}
