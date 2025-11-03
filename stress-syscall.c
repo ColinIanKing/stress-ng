@@ -243,7 +243,7 @@ typedef struct {
 	uint64_t sig_t;			/* signal time */
 	int syscall_errno;		/* errno from syscall */
 	int syscall_ret;		/* return value from syscall */
-	volatile bool t_set;		/* true of sig_t set */
+	volatile bool t_set;		/* true if sig_t set */
 } syscall_shared_info_t;
 
 /*
