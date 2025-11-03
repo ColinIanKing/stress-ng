@@ -201,7 +201,7 @@ static int stress_sync_file(stress_args_t *args)
 		VOID_RET(int, shim_sync_file_range(fd, 0, -1, mode));
 
 		/* Sync from halfway along file to end */
-		VOID_RET(int, shim_sync_file_range(fd, sync_file_bytes << 2, 0, mode));
+		VOID_RET(int, shim_sync_file_range(fd, sync_file_bytes >> 1, 0, mode));
 
 		ret = stress_sync_allocate(args, fd, fs_type, sync_file_bytes);
 		if (UNLIKELY(ret < 0)) {
