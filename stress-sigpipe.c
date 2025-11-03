@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-killpid.h"
+#include "core-signal.h"
 
 #include <sched.h>
 
@@ -29,12 +30,6 @@ static const stress_help_t help[] = {
 	{ NULL,	"sigpipe-ops N", "stop after N SIGPIPE bogo operations" },
 	{ NULL,	NULL,		 NULL }
 };
-
-static void stress_sigpipe_handler(int signum)
-{
-	if (LIKELY(signum == SIGPIPE))
-		stress_bogo_inc(s_args);
-}
 
 static void stress_sigpipe_handler_count_check(int signum)
 {
@@ -56,7 +51,7 @@ static int stress_sigpipe(stress_args_t *args)
 	s_args = args;
 
 	if (stress_sighandler(args->name, SIGPIPE,
-		(args->bogo.max_ops == 0) ? stress_sigpipe_handler :
+		(args->bogo.max_ops == 0) ? stress_sighandler_nop :
 					    stress_sigpipe_handler_count_check, NULL) < 0)
 		return EXIT_FAILURE;
 
