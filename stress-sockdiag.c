@@ -248,6 +248,7 @@ static int sockdiag_recv(stress_args_t *args, const int fd)
 			.msg_iovlen = 1
 		} ;
 		struct nlmsghdr *h = (struct nlmsghdr *)buf;
+		unsigned int len;
 
 		ret = recvmsg(fd, &msg, flags);
 		if (UNLIKELY(ret <= 0)) {
@@ -260,7 +261,8 @@ static int sockdiag_recv(stress_args_t *args, const int fd)
 		if (UNLIKELY(!NLMSG_OK(h, ret)))
 			return -1;
 
-		for (; NLMSG_OK(h, ret); h = NLMSG_NEXT(h, ret)) {
+		len = (unsigned int)ret;
+		for (; NLMSG_OK(h, len); h = NLMSG_NEXT(h, len)) {
 			if (h->nlmsg_type == NLMSG_DONE)
 				return 0;
 
