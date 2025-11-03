@@ -77,7 +77,7 @@ static void OPTIMIZE3 stress_timer_set(struct itimerspec *timer)
 	}
 
 	timer->it_value.tv_sec = (time_t)rate / STRESS_NANOSECOND;
-	timer->it_value.tv_nsec = (suseconds_t)rate % STRESS_NANOSECOND;
+	timer->it_value.tv_nsec = (long int)rate % STRESS_NANOSECOND;
 	if (timer->it_value.tv_sec == 0 &&
 	    timer->it_value.tv_nsec < 1)
 		timer->it_value.tv_nsec = 1;
