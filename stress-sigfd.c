@@ -151,6 +151,7 @@ again:
 			struct signalfd_siginfo fdsi ALIGN64;
 
 			ret = read(sfd, &fdsi, sizeof(fdsi));
+			/* ret < 0, ret == 0 and ret != expected size */
 			if (UNLIKELY((ret < 0) || (ret != sizeof(fdsi)))) {
 				if ((errno == EAGAIN) || (errno == EINTR))
 					continue;
@@ -162,8 +163,6 @@ again:
 				}
 				continue;
 			}
-			if (UNLIKELY(ret == 0))
-				break;
 			if (UNLIKELY(verify)) {
 				if (UNLIKELY(fdsi.ssi_signo != (uint32_t)SIGRTMIN)) {
 					pr_fail("%s: unexpected signal %d\n",
