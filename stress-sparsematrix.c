@@ -270,7 +270,7 @@ static void hash_destroy(void *handle, size_t *objmem)
 		   sizeof(*table->table) * table->n;
 	free(table->table);
 	table->n = 0;
-	table->table = 0;
+	table->table = NULL;
 	free(table);
 }
 
