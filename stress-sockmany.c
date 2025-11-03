@@ -84,14 +84,17 @@ static int OPTIMIZE3 stress_sockmany_client(
 {
 	struct sockaddr *addr;
 	static int fds[SOCKET_MANY_FDS];
+	int i;
 
 	stress_parent_died_alarm();
 	(void)sched_settings_apply(true);
 
 	sock_fds->max_fd = 0;
 
+	for (i = 0; i < SOCKET_MANY_FDS; i++)
+		fds[i] = -1;
+
 	do {
-		int i;
 
 		for (i = 0; i < SOCKET_MANY_FDS; i++) {
 			char ALIGN64 buf[SOCKET_MANY_BUF];
