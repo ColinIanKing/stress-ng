@@ -330,6 +330,16 @@ skip_pselect:
     defined(HAVE_SELECT)
 		eintr = false;
 		stress_sleep_time_now(&t1);
+
+		if (UNLIKELY(!stress_continue_flag()))
+			break;
+		timeout.tv_sec = 0;
+		timeout.tv_usec = 1;
+		if (UNLIKELY(select(0, NULL, NULL, NULL, &timeout) < 0)) {
+			eintr |= (errno == EINTR);
+			break;
+		}
+
 		if (UNLIKELY(!stress_continue_flag()))
 			break;
 		timeout.tv_sec = 0;
