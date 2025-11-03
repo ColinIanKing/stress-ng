@@ -27,11 +27,11 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		 NULL }
 };
 
-static uint64_t counter;
-static uint64_t cld_exited;
-static uint64_t cld_killed;
-static uint64_t cld_stopped;
-static uint64_t cld_continued;
+static volatile uint64_t counter;
+static volatile uint64_t cld_exited;
+static volatile uint64_t cld_killed;
+static volatile uint64_t cld_stopped;
+static volatile uint64_t cld_continued;
 
 static void MLOCKED_TEXT stress_sigchld_handler(
 	int sig,
