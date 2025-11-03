@@ -137,17 +137,6 @@ retry:
 			}
 			goto retry;
 		}
-#if defined(O_ASYNC)
-		{
-			int flags;
-
-			flags = fcntl(sockfd, F_GETFD);
-			if (LIKELY(flags >= 0)) {
-				flags |= O_ASYNC;
-				VOID_RET(int, fcntl(sockfd, F_SETFD, flags));
-			}
-		}
-#endif
 		ret = fcntl(sockfd, F_SETOWN, getpid());
 		if (UNLIKELY(ret < 0)) {
 			pr_fail("%s: fcntl F_SETOWN, failed, errno=%d (%s)\n",
