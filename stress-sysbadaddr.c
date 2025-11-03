@@ -813,7 +813,7 @@ static void bad_getresgid1(stress_bad_addr_t *ba, volatile uint64_t *counter)
 static void bad_getresgid2(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unwriteable) {
-		uid_t egid, sgid;
+		gid_t egid, sgid;
 
 		(*counter)++;
 		VOID_RET(int, getresgid((gid_t *)ba->addr, &egid, &sgid));
