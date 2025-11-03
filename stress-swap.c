@@ -289,7 +289,8 @@ static void stress_swap_check_swapped(uint64_t *swapped_out)
 		return;
 	}
 
-	*swapped_out += swapout - prev_swapout;
+	if (swapout >= prev_swapout)
+		*swapped_out += swapout - prev_swapout;
 	prev_swapout = swapout;
 }
 
