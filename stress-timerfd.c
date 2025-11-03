@@ -319,7 +319,7 @@ static int stress_timerfd(stress_args_t *args)
 			rret = read(timerfds[i], &expval, sizeof expval);
 #endif
 #if defined(USE_POLL)
-			if (pollfds[i].revents != POLLIN)
+			if (pollfds[i].revents & POLLIN)
 				continue;
 			rret = read(pollfds[i].fd, &expval, sizeof expval);
 #endif
