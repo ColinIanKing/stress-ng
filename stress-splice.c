@@ -94,7 +94,7 @@ static inline int stress_splice_write(
 		ret = write(fd, buffer, n);
 		if (UNLIKELY(ret < 0))
 			break;
-		size -= n;
+		size -= ret;
 
 	}
 	return (int)ret;
