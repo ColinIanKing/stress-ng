@@ -237,7 +237,7 @@ static int OPTIMIZE3 stress_sockmany_server(
 			int sndbuf;
 
 			len = sizeof(saddr);
-			if (UNLIKELY(getsockname(fd, &saddr, &len) < 0)) {
+			if (UNLIKELY(getsockname(sfd, &saddr, &len) < 0)) {
 				pr_fail("%s: getsockname failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				(void)close(sfd);
@@ -246,7 +246,7 @@ static int OPTIMIZE3 stress_sockmany_server(
 			len = sizeof(sndbuf);
 #if defined(SOL_SOCKET) &&	\
     defined(SO_SNDBUF)
-			if (UNLIKELY(getsockopt(fd, SOL_SOCKET, SO_SNDBUF, &sndbuf, &len)) < 0) {
+			if (UNLIKELY(getsockopt(sfd, SOL_SOCKET, SO_SNDBUF, &sndbuf, &len)) < 0) {
 				pr_fail("%s: getsockopt failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				(void)close(sfd);
@@ -262,7 +262,7 @@ static int OPTIMIZE3 stress_sockmany_server(
 				 * We try do to a TCP_QUICKACK, failing is OK as
 				 * it's just a faster optimization option
 				 */
-				VOID_RET(int, setsockopt(fd, SOL_TCP, TCP_QUICKACK, &one, sizeof(one)));
+				VOID_RET(int, setsockopt(sfd, SOL_TCP, TCP_QUICKACK, &one, sizeof(one)));
 			}
 #else
 			UNEXPECTED
