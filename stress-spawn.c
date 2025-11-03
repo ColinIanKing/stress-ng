@@ -111,9 +111,9 @@ static int stress_spawn(stress_args_t *args)
 
 		spawn_calls++;
 		ret = posix_spawn(&pid, path, NULL, NULL, argv_new, env_new);
-		if (ret < 0) {
+		if (ret != 0) {
 			pr_fail("%s: posix_spawn failed, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
+				args->name, ret, strerror(ret));
 			rc = EXIT_FAILURE;
 			spawn_fails++;
 		} else {
