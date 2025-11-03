@@ -145,7 +145,7 @@ again:
 			s.sival_int = pid;
 			stress_sigrt_metrics[i].t_start = stress_time_now();
 
-			if (UNLIKELY(sigqueue(pids[i], i + SIGRTMIN, s) < 0)) {
+			if (UNLIKELY(sigqueue(pid, i + SIGRTMIN, s) < 0)) {
 				if ((errno != EAGAIN) && (errno != EINTR)) {
 					pr_fail("%s: sigqueue on signal %d failed, "
 						"errno=%d (%s)\n",
