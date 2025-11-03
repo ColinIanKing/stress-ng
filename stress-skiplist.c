@@ -48,7 +48,7 @@ static const stress_help_t help[] = {
 static inline size_t OPTIMIZE3 skip_list_random_level(const size_t max_level)
 {
 	register size_t level = 1;
-	register size_t r = stress_mwc8(); /* 8 bits -> 2^256 is more than enough */
+	register size_t r = stress_mwc8(); /* 8 bits is more than enough */
 
 	while ((r & 1) && (level < max_level)) {
 		r >>= 1;
