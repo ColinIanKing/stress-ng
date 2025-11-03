@@ -94,15 +94,15 @@ again:
 		} else if (pids[i] == 0) {
 			sigset_t mask;
 			siginfo_t info ALIGN64;
-			int idx;
+			int idx, j;
 
 			stress_set_proc_state(args->name, STRESS_STATE_RUN);
 			stress_parent_died_alarm();
 			(void)sched_settings_apply(true);
 
 			(void)sigemptyset(&mask);
-			for (i = 0; i < MAX_RTSIGS; i++)
-				(void)sigaddset(&mask, i + SIGRTMIN);
+			for (j = 0; j < MAX_RTSIGS; j++)
+				(void)sigaddset(&mask, j + SIGRTMIN);
 
 			(void)shim_memset(&info, 0, sizeof info);
 
