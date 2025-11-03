@@ -59,7 +59,7 @@ static int stress_sigxfsz(stress_args_t *args)
 		return EXIT_FAILURE;
 
 	if (getrlimit(RLIMIT_FSIZE, &limit) < 0) {
-		pr_inf("%s: getrimit failed, errno=%d (%s), skipping stressor\n",
+		pr_inf("%s: getrlimit failed, errno=%d (%s), skipping stressor\n",
 			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
