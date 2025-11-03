@@ -111,8 +111,9 @@ static void stress_tee_pipe_write(stress_args_t *args, int fds[2])
 					args->name, errno, strerror(errno));
 				break;
 			}
+		} else {
+			data.counter++;
 		}
-		data.counter++;
 	}
 	(void)close(fds[1]);
 }
