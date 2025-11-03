@@ -118,7 +118,7 @@ static int stress_smi_supported(const char *name)
         }
 	if (!stress_check_capability(SHIM_CAP_IS_ROOT)) {
                 pr_inf_skip("%s stressor will be skipped, "
-                        "need to be running with root"
+                        "need to be running with root "
                         "rights for this stressor\n", name);
                 return -1;
 	}
