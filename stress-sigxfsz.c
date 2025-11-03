@@ -93,7 +93,8 @@ static int stress_sigxfsz(stress_args_t *args)
 		limit.rlim_cur = stress_mwc32modn(max_sz);
 		if (setrlimit(RLIMIT_FSIZE, &limit) < 0) {
 			if (LIKELY(errno == EINVAL)) {
-				max_sz >>= 1;
+				/* maybe too big, shrink until too small */
+				max_sz <<= 1;
 				if (max_sz > 512)
 					continue;
 			}
