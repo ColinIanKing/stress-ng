@@ -147,7 +147,7 @@ static inline void stress_sys_add_bad(const char *path)
 {
 	if (shim_pthread_spin_lock(&hash_lock))
 		return;	/* Can't lock! */
-	if (!stress_hash_add(sysfs_hash_table, path))
+	if (stress_hash_add(sysfs_hash_table, path))
 		hash_items++;
 	(void)shim_pthread_spin_unlock(&hash_lock);
 }
