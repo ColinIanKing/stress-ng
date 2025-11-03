@@ -81,8 +81,7 @@ static void stress_illegal_op(void)
 	__asm__ __volatile__(".byte 0x00,0x00,0x00,0x3b\n");
 }
 #endif
-#if (defined(__MIPSEL__) || defined(__MIPSEL) || defined(_MIPSEL) || defined(MIPSEL)) && \
-    defined(HAVE_SIGLONGJMP)
+#if defined(__MIPSEL__) || defined(__MIPSEL) || defined(_MIPSEL) || defined(MIPSEL)
 #define HAVE_ILLEGAL_OP
 static void stress_illegal_op(void)
 {
