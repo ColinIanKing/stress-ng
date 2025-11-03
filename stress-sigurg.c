@@ -258,8 +258,8 @@ static int OPTIMIZE3 stress_sigurg_server(
 					break;
 				}
 			} while (stress_continue(args));
+			(void)close(sfd);
 		}
-		(void)close(sfd);
 	} while (stress_continue(args));
 
 die_close:
