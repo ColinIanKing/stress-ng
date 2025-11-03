@@ -295,6 +295,7 @@ static inline bool stress_sys_rw(stress_ctxt_t *ctxt)
 		tv.tv_sec = 0;
 		tv.tv_usec = 0;
 		FD_ZERO(&rfds);
+		FD_SET(fd, &rfds);
 		VOID_RET(int, select(fd + 1, &rfds, NULL, NULL, &tv));
 		if (UNLIKELY(stress_time_now() - t_start > threshold))
 			goto next;
