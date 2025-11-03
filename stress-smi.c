@@ -259,7 +259,7 @@ static int stress_smi(stress_args_t *args)
 				pr_inf("%s: %.2f SMIs per second per CPU (%.2f microsecs per SMI)\n",
 					args->name, rate, duration);
 			} else {
-				pr_inf("%s: cannot determine SMI rate, data is not unreliable\n",
+				pr_inf("%s: cannot determine SMI rate, data is unreliable\n",
 					args->name);
 			}
 		} else {
