@@ -76,7 +76,7 @@ static int stress_sigpipe(stress_args_t *args)
 
 		/* cause SIGPIPE if pipe closed */
 		ret = write(pipefds[1], &data, sizeof(data));
-		if (LIKELY(ret <= 0)) {
+		if (LIKELY(ret < 0)) {
 			if (errno == EPIPE)
 				epipe_count++;
 		}
