@@ -29,8 +29,6 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
-#undef HAVE_LIB_RT
-
 #if (defined(HAVE_LIB_RT) && defined(HAVE_CLOCK_GETTIME)) ||	\
      defined(HAVE_GETTIMEOFDAY) ||				\
      defined(HAVE_TIME) ||					\
