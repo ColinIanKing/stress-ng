@@ -90,6 +90,7 @@ static void stress_timerfd_set(
 	const bool timerfd_rand)
 {
 	double rate;
+	long long int ll_rate_ns;
 
 	if (timerfd_rand) {
 		/* Mix in some random variation */
@@ -99,8 +100,9 @@ static void stress_timerfd_set(
 		rate = rate_ns;
 	}
 
-	timer->it_value.tv_sec = (time_t)rate / STRESS_NANOSECOND;
-	timer->it_value.tv_nsec = (suseconds_t)rate % STRESS_NANOSECOND;
+	ll_rate_ns = (long long int)rate;
+	timer->it_value.tv_sec = (time_t)ll_rate_ns / STRESS_NANOSECOND;
+	timer->it_value.tv_nsec = (long int)ll_rate_ns % STRESS_NANOSECOND;
 
 	if (timer->it_value.tv_sec == 0 &&
 	    timer->it_value.tv_nsec < 1)
