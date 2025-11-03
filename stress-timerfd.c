@@ -362,7 +362,7 @@ static int stress_timerfd(stress_args_t *args)
     defined(TFD_IOC_SET_TICKS)
 		/* Exercise timer tick setting ioctl */
 		{
-			unsigned long int arg = 1ULL;
+			unsigned long int arg = 1UL;
 
 			VOID_RET(int, ioctl(timerfds[0], TFD_IOC_SET_TICKS, &arg));
 		}
