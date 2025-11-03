@@ -25,7 +25,7 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		 NULL }
 };
 
-static uint64_t counter;
+static volatile uint64_t counter;
 
 static void MLOCKED_TEXT stress_signal_handler(int signum)
 {
@@ -70,7 +70,7 @@ static int stress_signal(stress_args_t *args)
 {
 	int rc = EXIT_SUCCESS;
 	const pid_t pid = getpid();
-	const uint64_t *pcounter = (uint64_t *)&counter;
+	const volatile uint64_t *pcounter = (volatile uint64_t *)&counter;
 
 	counter = 0;
 
