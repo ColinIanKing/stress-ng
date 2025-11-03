@@ -76,7 +76,7 @@ static ssize_t shim_listmount(
 		.param = last_mnt_id,
 	};
 
-	return syscall(__NR_listmount, &req, list, num, flags);
+	return (ssize_t)syscall(__NR_listmount, &req, list, num, flags);
 }
 
 /*
@@ -123,9 +123,10 @@ static int stress_statmount_listroot(
 	stress_args_t *args,
 	double *duration,
 	double *count,
-	int *max_mounts)
+	ssize_t *max_mounts)
 {
-	int i, ret;
+	int i;
+	ssize_t ret;
 	uint64_t list[1024];
 
 	ret = shim_listmount(LSMT_ROOT, 0, list, SIZEOF_ARRAY(list), 0);
@@ -163,7 +164,7 @@ static int stress_statmount(stress_args_t *args)
 	uint64_t id;
 	shim_statx_t sx;
 	int ret, rc = EXIT_SUCCESS;
-	int max_mounts = 0;
+	ssize_t max_mounts = 0;
 
 	double duration = 0.0, count = 0.0, rate;
 
@@ -200,7 +201,7 @@ static int stress_statmount(stress_args_t *args)
 	} while (stress_continue(args));
 
 	if (stress_instance_zero(args))
-		pr_inf("%s: %d mount points exercised by statmount\n", args->name, max_mounts);
+		pr_inf("%s: %zd mount points exercised by statmount\n", args->name, max_mounts);
 
 	rate = (duration > 0.0) ? count / duration  : 0.0;
 	stress_metrics_set(args, 0, "statmount calls per sec", rate, STRESS_METRIC_HARMONIC_MEAN);
