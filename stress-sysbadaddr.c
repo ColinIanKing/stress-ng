@@ -914,7 +914,7 @@ static void bad_getsockname2(stress_bad_addr_t *ba, volatile uint64_t *counter)
 	if (ba->unwriteable) {
 		struct sockaddr saddr;
 
-		(void)shim_memset(&ba->addr, 0, sizeof(saddr));
+		(void)shim_memset(ba->addr, 0, sizeof(saddr));
 		(*counter)++;
 		VOID_RET(int, getsockname(0, &saddr, (socklen_t *)ba->addr));
 	}
