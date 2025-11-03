@@ -308,6 +308,8 @@ static int stress_switch_sem_sysv(
                 return EXIT_FAILURE;
         }
 
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
+	stress_sync_start_wait(args);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 again:
 	parent_cpu = stress_get_cpu();
@@ -424,6 +426,9 @@ static int stress_switch_mq(
 	}
 
 	(void)shim_memset(&msg, 0, sizeof(msg));
+
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
+	stress_sync_start_wait(args);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 again:
 	parent_cpu = stress_get_cpu();
