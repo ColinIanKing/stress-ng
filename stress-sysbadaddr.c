@@ -1715,7 +1715,7 @@ static void bad_rename2(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unreadable) {
 		(*counter)++;
-		VOID_RET(int, shim_removexattr(stress_get_temp_path(), (char *)ba->addr));
+		VOID_RET(int, rename(stress_get_temp_path(), (char *)ba->addr));
 	}
 }
 
