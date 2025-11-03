@@ -512,6 +512,7 @@ static int stress_switch(stress_args_t *args)
 
 	switch_delay = (switch_freq == 0) ? 0 : STRESS_NANOSECOND / switch_freq;
 	threshold = switch_freq / THRESH_FREQ;
+	threshold = (threshold < 1) ? 1 : threshold;
 
 	return stress_switch_methods[switch_method].switch_func(args, switch_freq, switch_delay, threshold);
 }
