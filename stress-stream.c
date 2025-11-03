@@ -729,7 +729,7 @@ static inline void x(						\
 								\
 PRAGMA_UNROLL_N(8)						\
 	for (i = 0; i < n; i++) {				\
-		size_t idx = idx1[i];				\
+		const size_t idx = idx1[i];			\
 								\
 		STORE(av[idx], b[idx] + (c[idx] * q));		\
 	}							\
