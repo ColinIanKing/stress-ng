@@ -448,7 +448,7 @@ static void bad_clone1(stress_bad_addr_t *ba, volatile uint64_t *counter)
 		(pid_t *)inc_addr(ba->addr, 1),
 		(void *)inc_addr(ba->addr, 2),
 		(pid_t *)inc_addr(ba->addr, 3));
-	if (pid > 1)
+	if (pid >= 0)
 		(void)stress_kill_pid_wait(pid, &status);
 }
 
@@ -458,7 +458,7 @@ static void bad_clone2(stress_bad_addr_t *ba, volatile uint64_t *counter)
 
 	(*counter)++;
 	pid = clone(clone_func, (void *)ba->addr, STRESS_CLONE_FLAGS, NULL, NULL, NULL);
-	if (pid > 1)
+	if (pid >= 0)
 		(void)stress_kill_pid_wait(pid, &status);
 }
 
@@ -470,7 +470,7 @@ static void bad_clone3(stress_bad_addr_t *ba, volatile uint64_t *counter)
 
 		(*counter)++;
 		pid = clone(clone_func, (void *)stack, STRESS_CLONE_FLAGS, ba->addr, NULL, NULL);
-		if (pid > 1)
+		if (pid >= 0)
 			(void)stress_kill_pid_wait(pid, &status);
 	}
 }
@@ -483,7 +483,7 @@ static void bad_clone4(stress_bad_addr_t *ba, volatile uint64_t *counter)
 
 		(*counter)++;
 		pid = clone(clone_func, (void *)stack, STRESS_CLONE_FLAGS, NULL, ba->addr, NULL);
-		if (pid > 1)
+		if (pid >= 0)
 			(void)stress_kill_pid_wait(pid, &status);
 	}
 }
@@ -496,7 +496,7 @@ static void bad_clone5(stress_bad_addr_t *ba, volatile uint64_t *counter)
 
 		(*counter)++;
 		pid = clone(clone_func, (void *)stack, STRESS_CLONE_FLAGS, NULL, NULL, ba->addr);
-		if (pid > 1)
+		if (pid >= 0)
 			(void)stress_kill_pid_wait(pid, &status);
 	}
 }
