@@ -134,9 +134,6 @@ static const stress_time_warp_info_t clocks[] = {
 #if defined(CLOCK_THREAD_CPUTIME_ID)
 	TIME_CLOCK(shim_clock_gettime, CLOCK_THREAD_CPUTIME_ID, false),
 #endif
-#if defined(CLOCK_MONOTONIC_ACTIVE)
-	TIME_CLOCK(shim_clock_gettime, CLOCK_MONOTONIC_ACTIVE, true),
-#endif
 #if defined(CLOCK_TAI)
 	TIME_CLOCK(shim_clock_gettime, CLOCK_TAI, false),
 #endif
