@@ -285,7 +285,7 @@ tidy_exit:
 	rc = EXIT_SUCCESS;
 tidy_mmap:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
-	(void)munmap((void *)ptr, args->page_size);
+	(void)munmap((void *)ptr, args->page_size * 2);
 tidy_close:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)close(fd);
