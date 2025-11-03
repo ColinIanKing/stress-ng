@@ -96,7 +96,7 @@ static inline ssize_t stress_socket_fd_send(const int fd, const int fd_send)
 static inline int stress_socket_fd_recv(const int fd)
 {
 	struct iovec iov;
-	struct msghdr ALIGN64 msg;
+	struct msghdr msg ALIGN64;
 	struct cmsghdr *cmsg;
 	char msg_data[1] = { 0 };
 	char ctrl[CMSG_SPACE(sizeof(int))];
