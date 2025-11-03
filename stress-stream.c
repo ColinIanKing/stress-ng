@@ -95,7 +95,7 @@ static void stress_stream_checksum_to_hexstr(char *str, const size_t len, const 
 	const unsigned char *ptr = (const unsigned char *)&checksum;
 	size_t i, j;
 
-	for (i = 0, j = 0; (i < sizeof(checksum)) && (j < len); i++, j += 2) {
+	for (i = 0, j = 0; (i < sizeof(checksum)) && ((j + 2) < len); i++, j += 2) {
 		(void)snprintf(str + j, 3, "%2.2x", ptr[i]);
 	}
 	str[j] = '\0';
