@@ -29,7 +29,7 @@
 
 #define STRESS_SYNCLOAD_MS_DEFAULT	(125)	/* 125 milliseconds */
 #define STRESS_SYNCLOAD_MS_MIN		(1)	/* 1 millisecond */
-#define STRESS_SYNCLOAD_MS_MAX		(10000)	/* 1 second */
+#define STRESS_SYNCLOAD_MS_MAX		(10000)	/* 10 second */
 
 #if defined(__APPLE__)
 #define REGISTER_PREFIX "r"
@@ -305,7 +305,7 @@ static int stress_syncload(stress_args_t *args)
 	sec_busy = (double)syncload_msbusy / STRESS_DBL_MILLISECOND;
 	sec_sleep = (double)syncload_mssleep / STRESS_DBL_MILLISECOND;
 
-	sytess_syncload_x86_has_rdrand = stress_cpu_x86_has_rdrand();
+
 
 	timeout = stress_syncload_gettime();
 
