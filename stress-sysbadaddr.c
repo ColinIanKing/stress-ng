@@ -633,7 +633,7 @@ static void bad_flistxattr(stress_bad_addr_t *ba, volatile uint64_t *counter)
 
 static void bad_fstat(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
-	if (ba->unreadable) {
+	if (ba->unwriteable) {
 		int fd = 0;
 
 #if defined(O_DIRECTORY)
