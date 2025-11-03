@@ -25,7 +25,7 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
-#if defined(STRESS_ARCH_ARM) &&	\
+#if defined(STRESS_ARCH_ARM) &&		\
     defined(HAVE_SIGLONGJMP)
 #define HAVE_ILLEGAL_OP
 static void stress_illegal_op(void)
@@ -35,8 +35,9 @@ static void stress_illegal_op(void)
 }
 #endif
 
-#if defined(STRESS_ARCH_ALPHA) && \
-    defined(HAVE_SIGLONGJMP)
+#if defined(STRESS_ARCH_ALPHA) && 	\
+    defined(HAVE_SIGLONGJMP) &&		\
+    !defined(HAVE_ILLEGAL_OP)
 #define HAVE_ILLEGAL_OP
 static void stress_illegal_op(void)
 {
@@ -44,8 +45,9 @@ static void stress_illegal_op(void)
 }
 #endif
 
-#if defined(STRESS_ARCH_HPPA) && \
-    defined(HAVE_SIGLONGJMP)
+#if defined(STRESS_ARCH_HPPA) &&	\
+    defined(HAVE_SIGLONGJMP) &&		\
+    !defined(HAVE_ILLEGAL_OP)
 #define HAVE_ILLEGAL_OP
 static void stress_illegal_op(void)
 {
@@ -53,8 +55,9 @@ static void stress_illegal_op(void)
 }
 #endif
 
-#if defined(STRESS_ARCH_LOONG64) && \
-    defined(HAVE_SIGLONGJMP)
+#if defined(STRESS_ARCH_LOONG64) &&	\
+    defined(HAVE_SIGLONGJMP) &&		\
+    !defined(HAVE_ILLEGAL_OP)
 #define HAVE_ILLEGAL_OP
 static void stress_illegal_op(void)
 {
@@ -63,8 +66,9 @@ static void stress_illegal_op(void)
 }
 #endif
 
-#if defined(STRESS_ARCH_M68K) && \
-    defined(HAVE_SIGLONGJMP)
+#if defined(STRESS_ARCH_M68K) &&	\
+    defined(HAVE_SIGLONGJMP) &&		\
+    !defined(HAVE_ILLEGAL_OP)
 #define HAVE_ILLEGAL_OP
 static void stress_illegal_op(void)
 {
@@ -72,16 +76,18 @@ static void stress_illegal_op(void)
 }
 #endif
 
-#if defined(STRESS_ARCH_MIPS) && \
+#if defined(STRESS_ARCH_MIPS) &&	\
     defined(HAVE_SIGLONGJMP)
-#if defined(__MIPSEB__) || defined(__MIPSEB) || defined(_MIPSEB) || defined(MIPSEB)
+#if (defined(__MIPSEB__) || defined(__MIPSEB) || defined(_MIPSEB) || defined(MIPSEB)) && \
+    !defined(HAVE_ILLEGAL_OP)
 #define HAVE_ILLEGAL_OP
 static void stress_illegal_op(void)
 {
 	__asm__ __volatile__(".byte 0x00,0x00,0x00,0x3b\n");
 }
 #endif
-#if defined(__MIPSEL__) || defined(__MIPSEL) || defined(_MIPSEL) || defined(MIPSEL)
+#if defined(__MIPSEL__) || defined(__MIPSEL) || defined(_MIPSEL) || defined(MIPSEL) && \
+    !defined(HAVE_ILLEGAL_OP)
 #define HAVE_ILLEGAL_OP
 static void stress_illegal_op(void)
 {
@@ -90,8 +96,9 @@ static void stress_illegal_op(void)
 #endif
 #endif
 
-#if defined(STRESS_ARCH_PPC64) && \
-    defined(HAVE_SIGLONGJMP)
+#if defined(STRESS_ARCH_PPC64) &&	\
+    defined(HAVE_SIGLONGJMP) &&		\
+    !defined(HAVE_ILLEGAL_OP)
 #define HAVE_ILLEGAL_OP
 static void stress_illegal_op(void)
 {
@@ -99,8 +106,9 @@ static void stress_illegal_op(void)
 }
 #endif
 
-#if defined(STRESS_ARCH_PPC) &&	\
-    defined(HAVE_SIGLONGJMP)
+#if defined(STRESS_ARCH_PPC) &&		\
+    defined(HAVE_SIGLONGJMP) &&		\
+    !defined(HAVE_ILLEGAL_OP)
 #define HAVE_ILLEGAL_OP
 static void stress_illegal_op(void)
 {
@@ -108,8 +116,9 @@ static void stress_illegal_op(void)
 }
 #endif
 
-#if defined(STRESS_ARCH_RISCV) && \
-    defined(HAVE_SIGLONGJMP)
+#if defined(STRESS_ARCH_RISCV) &&	\
+    defined(HAVE_SIGLONGJMP) &&		\
+    !defined(HAVE_ILLEGAL_OP)
 #define HAVE_ILLEGAL_OP
 static void stress_illegal_op(void)
 {
@@ -117,8 +126,9 @@ static void stress_illegal_op(void)
 }
 #endif
 
-#if defined(STRESS_ARCH_S390) && \
-    defined(HAVE_SIGLONGJMP)
+#if defined(STRESS_ARCH_S390) &&	\
+    defined(HAVE_SIGLONGJMP) &&		\
+    !defined(HAVE_ILLEGAL_OP)
 #define HAVE_ILLEGAL_OP
 static void stress_illegal_op(void)
 {
@@ -126,8 +136,9 @@ static void stress_illegal_op(void)
 }
 #endif
 
-#if defined(STRESS_ARCH_SH4) && \
-    defined(HAVE_SIGLONGJMP)
+#if defined(STRESS_ARCH_SH4) &&		\
+    defined(HAVE_SIGLONGJMP) &&		\
+    !defined(HAVE_ILLEGAL_OP)
 #define HAVE_ILLEGAL_OP
 static void stress_illegal_op(void)
 {
@@ -135,8 +146,9 @@ static void stress_illegal_op(void)
 }
 #endif
 
-#if defined(STRESS_ARCH_SPARC) && \
-    defined(HAVE_SIGLONGJMP)
+#if defined(STRESS_ARCH_SPARC) &&	\
+    defined(HAVE_SIGLONGJMP) &&		\
+    !defined(HAVE_ILLEGAL_OP)
 #define HAVE_ILLEGAL_OP
 static void stress_illegal_op(void)
 {
@@ -144,8 +156,9 @@ static void stress_illegal_op(void)
 }
 #endif
 
-#if defined(STRESS_ARCH_X86) && \
-    defined(HAVE_SIGLONGJMP)
+#if defined(STRESS_ARCH_X86) &&		\
+    defined(HAVE_SIGLONGJMP) &&		\
+    !defined(HAVE_ILLEGAL_OP)
 #define HAVE_ILLEGAL_OP
 static void stress_illegal_op(void)
 {
