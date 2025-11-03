@@ -45,7 +45,7 @@ static const stress_help_t help[] = {
 #define BUFFER_SIZE	(4096)
 
 static volatile uint64_t async_sigs;
-static volatile stress_args_t *sigio_args;
+static stress_args_t *sigio_args;
 static volatile double time_end;
 static volatile int got_err;
 static volatile int rd_fd;
@@ -78,7 +78,7 @@ static void MLOCKED_TEXT stress_sigio_handler(int signum)
 				break;
 			}
 			/* Note, not aync safe! */
-			if (sigio_args)
+			if ((volatile stress_args_t *)sigio_args)
 				stress_bogo_inc(sigio_args);
 		}
 	}
@@ -94,10 +94,10 @@ static int stress_sigio(stress_args_t *args)
 	double t_start, t_delta, rate;
 	char *buffers, *wr_buffer;
 
+	sigio_args = args;
 	rd_fd = -1;
 	fds[0] = -1;
 	fds[1] = -1;
-	sigio_args = args;
 	pid = -1;
 
 	time_end = args->time_end;
