@@ -147,7 +147,9 @@ static const stress_time_warp_info_t clocks[] = {
 #if defined(HAVE_TIME)
 	TIME_MISC(stress_time_warp_time, time, false),
 #endif
+#if defined(HAVE_GETRUSAGE)
 	TIME_MISC(stress_time_warp_rusage, time, false),
+#endif
 };
 
 /*
