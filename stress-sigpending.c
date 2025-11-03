@@ -67,7 +67,8 @@ static int stress_sigpending(stress_args_t *args)
 
 		/* And it is no longer pending */
 		if (UNLIKELY(sigpending(&new_sigset) < 0)) {
-			pr_fail("%s: got an unexpected SIGUSR1 pending signal\n", args->name);
+			pr_fail("%s: sigpending failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			continue;
 		}
 		if (UNLIKELY(sigismember(&new_sigset, SIGUSR1))) {
