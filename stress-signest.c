@@ -384,7 +384,7 @@ finish:
 		}
 	}
 
-	qsort(signals, n, sizeof(stress_signal_t), stress_signest_cmp);
+	qsort(signals, max_signals, sizeof(stress_signal_t), stress_signest_cmp);
 	if (stress_instance_zero(args)) {
 		buf = (char *)calloc(sz, sizeof(*buf));
 		if (buf) {
