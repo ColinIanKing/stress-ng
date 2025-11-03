@@ -262,6 +262,8 @@ static int stress_timerfd(stress_args_t *args)
 #if defined(USE_POLL)
 		int j;
 #endif
+		if (UNLIKELY(!stress_continue_flag()))
+			break;
 
 #if defined(USE_SELECT)
 		FD_ZERO(&rdfs);
@@ -271,21 +273,7 @@ static int stress_timerfd(stress_args_t *args)
 		}
 		timeout.tv_sec = 0;
 		timeout.tv_usec = 500000;
-#endif
-#if defined(USE_POLL)
-		for (i = 0, j = 0; i < timerfd_fds; i++) {
-			if (LIKELY(timerfds[i] >= 0)) {
-				pollfds[j].fd = timerfds[i];
-				pollfds[j].events = POLLIN;
-				pollfds[j].revents = 0;
-				j++;
-			}
-		}
-#endif
 
-		if (UNLIKELY(!stress_continue_flag()))
-			break;
-#if defined(USE_SELECT)
 		ret = select(max_timerfd + 1, &rdfs, NULL, NULL, &timeout);
 		if (UNLIKELY(ret < 0)) {
 			if (errno == EINTR)
@@ -294,36 +282,17 @@ static int stress_timerfd(stress_args_t *args)
 				args->name, errno, strerror(errno));
 			break;
 		}
-#endif
-#if defined(USE_POLL)
-		ret = poll(pollfds, (nfds_t)j, 0);
-		if (UNLIKELY(ret < 0)) {
-			if (errno == EINTR)
-				continue;
-			pr_fail("%s: poll failed, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
-			break;
-		}
-#endif
 		if (UNLIKELY(ret < 1))
-			continue; /* Timeout */
+			goto select_fail;
 
 		for (i = 0; i < timerfd_fds; i++) {
 			ssize_t rret;
 
 			if (timerfds[i] < 0)
 				continue;
-#if defined(USE_SELECT)
 			if (!FD_ISSET(timerfds[i], &rdfs))
 				continue;
 			rret = read(timerfds[i], &expval, sizeof expval);
-#endif
-#if defined(USE_POLL)
-			if (pollfds[i].revents & POLLIN)
-				continue;
-			rret = read(pollfds[i].fd, &expval, sizeof expval);
-#endif
-
 			if (UNLIKELY(rret < 0)) {
 				pr_fail("%s: read of timerfd failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
@@ -344,6 +313,44 @@ static int stress_timerfd(stress_args_t *args)
 			}
 			stress_bogo_inc(args);
 		}
+select_fail:
+#endif
+
+#if defined(USE_POLL)
+		for (i = 0, j = 0; i < timerfd_fds; i++) {
+			if (LIKELY(timerfds[i] >= 0)) {
+				pollfds[j].fd = timerfds[i];
+				pollfds[j].events = POLLIN;
+				pollfds[j].revents = 0;
+				j++;
+			}
+		}
+		ret = poll(pollfds, (nfds_t)j, 0);
+		if (UNLIKELY(ret < 0)) {
+			if (errno == EINTR)
+				continue;
+			pr_fail("%s: poll failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
+			break;
+		}
+		if (UNLIKELY(ret < 1))
+			goto poll_fail;
+
+		for (i = 0; i < j; i++) {
+			ssize_t rret;
+
+			if (pollfds[i].revents & POLLIN) {
+				rret = read(pollfds[i].fd, &expval, sizeof expval);
+				if (UNLIKELY(rret < 0)) {
+					pr_fail("%s: read of timerfd failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
+					break;
+				}
+				stress_bogo_inc(args);
+			}
+		}
+poll_fail:
+#endif
 
 		/* Exercise invalid timerfd_gettime syscalls on bad fd */
 		VOID_RET(int, timerfd_gettime(bad_fd, &value));
