@@ -480,7 +480,7 @@ retry:
 				*ro_ptr = 0;
 				goto retry;
 			case 8:
-				/* Read from write-only address */
+				/* Read from PROT_NONE unreadable address */
 #if defined(SA_SIGINFO)
 				expected_addr = (uint8_t *)none_ptr;
 #endif
