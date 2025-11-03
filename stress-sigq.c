@@ -32,7 +32,7 @@ static const stress_help_t help[] = {
     defined(HAVE_SIGWAITINFO) && \
     defined(SA_SIGINFO)
 
-volatile bool handled_sigchld;
+static volatile bool handled_sigchld;
 
 static void MLOCKED_TEXT stress_sigqhandler(
 	int sig,
