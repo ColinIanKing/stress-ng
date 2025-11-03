@@ -126,6 +126,7 @@ static int stress_smi_supported(const char *name)
                 pr_inf_skip("%s stressor will be skipped, "
                         "CPU cannot read model specific registers (MSR)\n",
                         name);
+                return -1;
 	}
         return 0;
 }
