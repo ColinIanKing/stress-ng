@@ -154,10 +154,8 @@ static int stress_sysinfo(stress_args_t *args)
 #endif
 
 				ret = fstatfs(fd, &statfs_buf);
-				if (UNLIKELY((ret < 0) && (errno == ENOENT))) {
-					(void)close(fd);
+				if (UNLIKELY(ret < 0))
 					continue;
-				}
 				if (UNLIKELY((ret < 0) && (verify))) {
 					if ((errno != ENOSYS) &&
 					    (errno != EOVERFLOW) &&
