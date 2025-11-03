@@ -105,6 +105,7 @@ static int stress_sigbus(stress_args_t *args)
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 #endif
 	NOCLOBBER double time_start;
+	struct sigaction action;
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
@@ -150,6 +151,30 @@ static int stress_sigbus(stress_args_t *args)
 		goto tidy_mmap;
 	}
 
+	(void)shim_memset(&action, 0, sizeof action);
+#if defined(SA_SIGINFO)
+	action.sa_sigaction = stress_bushandler;
+#else
+	action.sa_handler = stress_bushandler;
+#endif
+	(void)sigemptyset(&action.sa_mask);
+#if defined(SA_SIGINFO)
+	action.sa_flags = SA_SIGINFO;
+#endif
+	ret = sigaction(SIGBUS, &action, NULL);
+	if (ret < 0) {
+		pr_fail("%s: sigaction SIGBUS failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
+		goto tidy_mmap;
+	}
+	/* Some systems generate SIGSEGV rather than SIGBUS.. */
+	ret = sigaction(SIGSEGV, &action, NULL);
+	if (UNLIKELY(ret < 0)) {
+		pr_fail("%s: sigaction SIGSEGV failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
+		goto tidy_mmap;
+	}
+
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
@@ -157,32 +182,6 @@ static int stress_sigbus(stress_args_t *args)
 	time_start = stress_time_now();
 
 	for (;;) {
-		struct sigaction action;
-
-		(void)shim_memset(&action, 0, sizeof action);
-#if defined(SA_SIGINFO)
-		action.sa_sigaction = stress_bushandler;
-#else
-		action.sa_handler = stress_bushandler;
-#endif
-		(void)sigemptyset(&action.sa_mask);
-#if defined(SA_SIGINFO)
-		action.sa_flags = SA_SIGINFO;
-#endif
-		ret = sigaction(SIGBUS, &action, NULL);
-		if (ret < 0) {
-			pr_fail("%s: sigaction SIGBUS failed, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
-			goto tidy_mmap;
-		}
-		/* Some systems generate SIGSEGV rather than SIGBUS.. */
-		ret = sigaction(SIGSEGV, &action, NULL);
-		if (UNLIKELY(ret < 0)) {
-			pr_fail("%s: sigaction SIGSEGV failed, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
-			goto tidy_mmap;
-		}
-
 		ret = sigsetjmp(jmp_env, 1);
 
 		/* Timed out? */
