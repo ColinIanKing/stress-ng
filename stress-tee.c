@@ -140,6 +140,7 @@ static void stress_tee_pipe_read(stress_args_t *args, int fds[2])
 			if (UNLIKELY(ret < 0)) {
 				switch (errno) {
 				case EPIPE:
+					(void)close(fds[0]);
 					return;
 				case EAGAIN:
 				case EINTR:
@@ -147,6 +148,7 @@ static void stress_tee_pipe_read(stress_args_t *args, int fds[2])
 				default:
 					pr_fail("%s: unexpected read error, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
+					(void)close(fds[0]);
 					return;
 				}
 			} else {
@@ -302,9 +304,9 @@ do_splice:
 		while (len > 0) {
 			slen = splice(pipe_in[0], NULL, fd, NULL,
 				(size_t)len, SPLICE_F_MOVE);
-			if (UNLIKELY(errno == EINTR))
-				break;
 			if (UNLIKELY(slen < 0)) {
+				if (UNLIKELY(errno == EINTR))
+					break;
 				pr_err("%s: splice failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				goto tidy_child2;
