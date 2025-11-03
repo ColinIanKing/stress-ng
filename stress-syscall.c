@@ -1462,6 +1462,7 @@ static int syscall_epoll_ctl(void)
 	t2 = syscall_time_now();
 	(void)close(fds[0]);
 	(void)close(fds[1]);
+	(void)close(fd);
 
 	return ret;
 }
