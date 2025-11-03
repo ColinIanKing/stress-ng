@@ -94,6 +94,8 @@ static int stress_sigio(stress_args_t *args)
 	char *buffers, *wr_buffer;
 
 	rd_fd = -1;
+	fds[0] = -1;
+	fds[1] = -1;
 	sigio_args = args;
 	pid = -1;
 
