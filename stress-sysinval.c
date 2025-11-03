@@ -305,7 +305,7 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 #endif
 #if DEFSYS(bfin_spinlock)
 	/* blackfin, removed in 4.17 */
-	{ SYS(bfin_spinlock, 1, { ARG_PTR, 0, 0, 0, 0, 0 } },
+	{ SYS(bfin_spinlock), 1, { ARG_PTR, 0, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(bind)
 	{ SYS(bind), 3, { ARG_SOCKFD, ARG_PTR | ARG_STRUCT_SOCKADDR, ARG_SOCKLEN_T, 0, 0, 0 } },
