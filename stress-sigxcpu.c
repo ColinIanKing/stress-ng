@@ -54,7 +54,7 @@ static int stress_sigxcpu(stress_args_t *args)
 	if (stress_sighandler(args->name, SIGXCPU, stress_sigxcpu_handler, NULL) < 0)
 		return EXIT_FAILURE;
 
-	if (getrlimit(RLIMIT_FSIZE, &limit) < 0) {
+	if (getrlimit(RLIMIT_CPU, &limit) < 0) {
 		pr_inf("%s: getrimit failed, errno=%d (%s), skipping stressor\n",
 			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
