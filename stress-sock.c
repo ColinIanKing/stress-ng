@@ -834,6 +834,7 @@ retry:
 #if defined(HAVE_RECVMSG)
 			case SOCKET_OPT_RECVMSG:
 				for (j = 0, i = 16; i < MMAP_IO_SIZE; i += 16, j++) {
+					/* intentionally read into same buffer */
 					vec[j].iov_base = buf;
 					vec[j].iov_len = i;
 				}
@@ -847,6 +848,7 @@ retry:
 			case SOCKET_OPT_RECVMMSG:
 				(void)shim_memset(msgvec, 0, sizeof(msgvec));
 				for (j = 0, i = 16; i < MMAP_IO_SIZE; i += 16, j++) {
+					/* intentionally read into same buffer */
 					vec[j].iov_base = buf;
 					vec[j].iov_len = i;
 				}
@@ -1196,6 +1198,7 @@ retry_send:
 #if defined(HAVE_SENDMSG)
 				case SOCKET_OPT_SENDMSG:
 					for (j = 0, i = 16; i < MMAP_IO_SIZE; i += 16, j++) {
+						/* intentionally write from same buffer */
 						vec[j].iov_base = buf;
 						vec[j].iov_len = i;
 					}
@@ -1221,6 +1224,7 @@ retry_sendmsg:
 				case SOCKET_OPT_SENDMMSG:
 					(void)shim_memset(msgvec, 0, sizeof(msgvec));
 					for (j = 0, i = 16; i < MMAP_IO_SIZE; i += 16, j++) {
+						/* intentionally write from same buffer */
 						vec[j].iov_base = buf;
 						vec[j].iov_len = i;
 					}
