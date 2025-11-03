@@ -87,7 +87,6 @@ static uint8_t *softlockup_buffer;
 #endif
 
 static sigjmp_buf jmp_env;
-static volatile bool softlockup_start;
 
 static NOINLINE void OPTIMIZE0 stress_softlockup_loop(const uint64_t loops)
 {
@@ -186,14 +185,6 @@ static void stress_softlockup_child(
 	size_t policy = 0;
 
 	/*
-	 *  Wait for all children to start before
-	 *  ramping up the scheduler priority
-	 */
-	while (softlockup_start && stress_continue(args)) {
-		(void)shim_usleep(100000);
-	}
-
-	/*
 	 * We run the stressor as a child so that
 	 * if we hit the hard time limits the child is
 	 * terminated with a SIGKILL and we can
@@ -273,7 +264,6 @@ static int stress_softlockup(stress_args_t *args)
 	int rc = EXIT_SUCCESS;
 	uint64_t loop_count;
 
-	softlockup_start = false;
 	timeout = g_opt_timeout;
 	(void)shim_memset(&param, 0, sizeof(param));
 
@@ -368,8 +358,6 @@ again:
 
 	param.sched_priority = policies[0].max_prio;
 	(void)sched_setscheduler(args->pid, policies[0].policy, &param);
-
-	softlockup_start = true;
 
 	(void)shim_pause();
 	rc = stress_kill_and_wait_many(args, s_pids, (size_t)cpus_online, SIGALRM, false);
