@@ -122,8 +122,9 @@ static int stress_spawn(stress_args_t *args)
 
 			(void)shim_waitpid(pid, &status, 0);
 			stress_bogo_inc(args);
-			if (WEXITSTATUS(status) != EXIT_SUCCESS)
-				spawn_fails++;
+			if (WIFEXITED(status))
+				if (WEXITSTATUS(status) != EXIT_SUCCESS)
+					spawn_fails++;
 		}
 	} while (stress_continue(args));
 
