@@ -274,6 +274,7 @@ abort:
 		/* Parent */
 		socket_pair_close(socket_pair_fds, max, 0);
 
+		duration = 0.0;
 		do {
 			for (i = 0; LIKELY(stress_continue(args) && (i < max)); i++) {
 				ssize_t wret;
