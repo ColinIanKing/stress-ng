@@ -46,7 +46,7 @@ static const stress_help_t help[] = {
 
 static volatile int got_err;
 static volatile uint64_t async_sigs;
-static int rd_fd;
+static volatile int rd_fd;
 static stress_args_t *sigio_args;
 static pid_t pid;
 static double time_end;
