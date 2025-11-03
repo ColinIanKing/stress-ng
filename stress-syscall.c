@@ -3295,7 +3295,7 @@ static int syscall_mbind(void)
 	(void)shim_memset(node_mask, 0, sizeof(node_mask));
 	STRESS_SETBIT(node_mask, 0);
 	t1 = syscall_time_now();
-	ret = shim_mbind(buf, syscall_2_pages_size, MPOL_BIND, node_mask, sizeof(node_mask) * 8, MPOL_DEFAULT);
+	ret = shim_mbind(buf, syscall_pages_size, MPOL_BIND, node_mask, sizeof(node_mask) * 8, MPOL_DEFAULT);
 	t2 = syscall_time_now();
 	(void)munmap(buf, syscall_page_size);
 	return (int)ret;
