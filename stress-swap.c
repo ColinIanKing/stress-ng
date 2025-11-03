@@ -363,7 +363,7 @@ static int stress_swap_child(stress_args_t *args, void *context)
 
 	(void)stress_temp_filename_args(args,
 		filename, sizeof(filename), stress_mwc32());
-	fd = open(filename, O_CREAT | O_RDWR, S_IRUSR);
+	fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
 	if (fd < 0) {
 		ret = stress_exit_status(errno);
 		pr_fail("%s: open swap file %s failed, errno=%d (%s)\n",
