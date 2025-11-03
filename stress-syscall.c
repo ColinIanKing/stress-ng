@@ -4357,9 +4357,9 @@ static int syscall_personality(void)
 {
 	int ret;
 
-	t1 = syscall_shared_info->t1;
+	t1 = syscall_time_now();
 	ret = personality(0xffffffffUL);	/* Get */
-	t2 = syscall_shared_info->t1;
+	t2 = syscall_time_now();
 	return ret;
 }
 #endif
@@ -4370,9 +4370,9 @@ static int syscall_pidfd_open(void)
 {
 	int pidfd;
 
-	t1 = syscall_shared_info->t1;
+	t1 = syscall_time_now();
 	pidfd = shim_pidfd_open(syscall_pid, 0);
-	t2 = syscall_shared_info->t1;
+	t2 = syscall_time_now();
 	if (pidfd >= 0)
 		(void)close(pidfd);
 	return pidfd;
@@ -4388,9 +4388,9 @@ static int syscall_pidfd_send_signal(void)
 	pidfd = shim_pidfd_open(syscall_pid, 0);
 	if (pidfd < 0)
 		return -1;
-	t1 = syscall_shared_info->t1;
+	t1 = syscall_time_now();
 	ret = shim_pidfd_send_signal(pidfd, 0, NULL, 0);
-	t2 = syscall_shared_info->t1;
+	t2 = syscall_time_now();
 	(void)close(pidfd);
 	return ret;
 }
