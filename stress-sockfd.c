@@ -176,6 +176,7 @@ retry:
 		if (UNLIKELY(stress_set_sockaddr(args->name, args->instance, mypid,
 				AF_UNIX, socket_fd_port,
 				&addr, &addr_len, NET_ADDR_ANY) < 0)) {
+			(void)close(fd);
 			return EXIT_FAILURE;
 		}
 		if (UNLIKELY(connect(fd, addr, addr_len) < 0)) {
@@ -190,8 +191,10 @@ retry:
 			goto retry;
 		}
 
-		if (UNLIKELY(!stress_continue_flag()))
+		if (UNLIKELY(!stress_continue_flag())) {
+			(void)close(fd);
 			return EXIT_SUCCESS;
+		}
 
 		for (n = 0; LIKELY(stress_continue(args) && (n < max_fd)); n++) {
 			fds[n] = stress_socket_fd_recv(fd);
