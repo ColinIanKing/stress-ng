@@ -42,7 +42,7 @@ static void MLOCKED_TEXT stress_sigxcpu_handler(int signum)
 
 /*
  *  stress_sigxcpu
- *	stress reading of /dev/zero using SIGXCPU
+ *	stress SIGXCPU signal generation
  */
 static int stress_sigxcpu(stress_args_t *args)
 {
