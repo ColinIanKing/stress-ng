@@ -226,7 +226,7 @@ static void stress_spinmem_numa(
 static int stress_spinmem(stress_args_t *args)
 {
 	NOCLOBBER int rc = EXIT_SUCCESS;
-	NOCLOBBER pid_t pid;
+	NOCLOBBER pid_t pid = -1;
 	NOCLOBBER double duration = 0.0, count = 0.0;
 	uint8_t *mapping;
 	double rate;
@@ -387,7 +387,8 @@ completed:
 	(void)stress_sigrestore(args->name, SIGALRM, &old_action);
 #endif
 tidy:
-	stress_kill_and_wait(args, pid, SIGKILL, false);
+	if (pid > 0)
+		stress_kill_and_wait(args, pid, SIGKILL, false);
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	rate = (count > 0.0) ? duration / count : 0.0;
