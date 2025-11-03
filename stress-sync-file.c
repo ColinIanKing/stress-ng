@@ -107,7 +107,7 @@ static int stress_sync_file(stress_args_t *args)
 	char filename[PATH_MAX];
 	const char *fs_type;
 
-	if (!stress_get_setting("sync_file-bytes", &sync_file_bytes_total)) {
+	if (!stress_get_setting("sync-file-bytes", &sync_file_bytes_total)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			sync_file_bytes_total = MAXIMIZED_FILE_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
