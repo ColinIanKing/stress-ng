@@ -274,16 +274,16 @@ static inline size_t CONST stress_vm_count_bits(uint64_t v)
 	if (sizeof(unsigned long int) == sizeof(uint64_t)) {
 		return (size_t)__builtin_popcountl((unsigned long int)v);
 	} else if (sizeof(unsigned long int) == sizeof(uint32_t)) {
-		const unsigned long int lo = (unsigned long int)(v >> 32);
-		const unsigned long int hi = (unsigned long int)(v & 0xffffffff);
+		const unsigned long int hi = (unsigned long int)(v >> 32);
+		const unsigned long int lo = (unsigned long int)(v & 0xffffffff);
 
 		return (size_t)__builtin_popcountl(hi) + __builtin_popcountl(lo);
 	}
 #endif
 #if defined(HAVE_BUILTIN_POPCOUNT)
 	if (sizeof(unsigned int) == sizeof(uint32_t)) {
-		const unsigned int lo = (unsigned int)(v >> 32);
-		const unsigned int hi = (unsigned int)(v & 0xffffffff);
+		const unsigned int hi = (unsigned int)(v >> 32);
+		const unsigned int lo = (unsigned int)(v & 0xffffffff);
 
 		return (size_t)__builtin_popcount(hi) + __builtin_popcount(lo);
 	}
