@@ -388,7 +388,6 @@ static int stress_schedmix_child(stress_args_t *args)
 				attr.sched_period = rndtime * 4000000;
 
 				ret = shim_sched_setattr(0, &attr, 0);
-				break;
 			} else {
 #if defined(SCHED_IDLE)
 				new_policy = SCHED_IDLE;
@@ -398,7 +397,7 @@ static int stress_schedmix_child(stress_args_t *args)
 				new_policy = SCHED_OTHER;
 #else
 				/* give up, default to zero */
-				newpolicy = 0;
+				new_policy = 0;
 #endif
 			}
 			param.sched_priority = 0;
