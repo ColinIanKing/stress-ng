@@ -225,7 +225,7 @@ static int stress_zero(stress_args_t *args)
 					(void)munmap(rd_buffer, page_size);
 					return EXIT_FAILURE;
 				}
-				if (stress_data_is_not_zero((uint64_t *)rd_buffer, (size_t)ret)) {
+				if (stress_data_is_not_zero((uint64_t *)ptr, (size_t)ret)) {
 					pr_fail("%s: memory mapped page of /dev/zero using %s is not zero\n",
 						args->name, mmap_flags[mmap_index].flag_str);
 				}
