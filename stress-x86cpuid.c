@@ -55,7 +55,7 @@ static const stress_cpuid_regs_t ALIGN64 stress_cpuid_regs[] = {
 	{ 0x0000000a, 0x00000000, true },	/* Architectural Performance Monitoring Leaf */
 	{ 0x0000000b, 0x00000000, false },	/* Extended Topology Enumeration Leaf */
 	{ 0x0000000d, 0x00000000, true },	/* Processor Extended State Enumeration Main Leaf */
-	{ 0x0000000d, 0x00000000, true },	/* Processor Extended State Enumeration Sub-leaf */
+	{ 0x0000000d, 0x00000001, true },	/* Processor Extended State Enumeration Sub-leaf */
 	{ 0x0000000f, 0x00000000, true },	/* Intel Resource Director Technology (Intel RDT) Monitoring Enumeration Sub-leaf */
 	{ 0x0000000f, 0x00000001, false },	/* L3 Cache Intel RDT Monitoring Capability Enumeration Sub-leaf */
 	{ 0x00000010, 0x00000000, false },	/* Intel Resource Director Technology (Intel RDT) Allocation Enumeration Sub-leaf */
