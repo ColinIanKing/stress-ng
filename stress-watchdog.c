@@ -129,7 +129,6 @@ static int stress_watchdog(stress_args_t *args)
 		}
 	}
 
-	fd = 0;
 	ret = sigsetjmp(jmp_env, 1);
 	if (ret) {
 		/* We got interrupted, so abort cleanly */
