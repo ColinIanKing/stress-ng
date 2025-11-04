@@ -338,14 +338,14 @@ static size_t stress_wcsncat(stress_args_t *args, stress_wcs_args_t *info)
 	register size_t i;
 
 	for (i = 0; LIKELY(stress_continue_flag() && (i < len1 - 1)); i++) {
-		*strdst = '\0';
+		*strdst = L'\0';
 		WCSCHK(info, strdst == test_wcsncat(strdst, str1, len1));
-		*strdst = '\0';
+		*strdst = L'\0';
 		WCSCHK(info, strdst == test_wcsncat(strdst, str2, len2));
-		*strdst = '\0';
+		*strdst = L'\0';
 		WCSCHK(info, strdst == test_wcsncat(strdst, str1, len1));
 		WCSCHK(info, strdst == test_wcsncat(strdst, str2, len1 + len2));
-		*strdst = '\0';
+		*strdst = L'\0';
 		WCSCHK(info, strdst == test_wcsncat(strdst, str2, i));
 		WCSCHK(info, strdst == test_wcsncat(strdst, str1, i));
 	}
@@ -567,14 +567,14 @@ static size_t stress_wcsxfrm(stress_args_t *args, stress_wcs_args_t *info)
 	register size_t i;
 
 	for (i = 0; LIKELY(stress_continue_flag() && (i < len1 - 1)); i++) {
-		*strdst = '\0';
+		*strdst = L'\0';
 		WCSCHK(info, 0 != test_wcsxfrm(strdst, str1, strdstlen));
-		*strdst = '\0';
+		*strdst = L'\0';
 		WCSCHK(info, 0 != test_wcsxfrm(strdst, str2, strdstlen));
-		*strdst = '\0';
+		*strdst = L'\0';
 		WCSCHK(info, 0 != test_wcsxfrm(strdst, str1, strdstlen));
 		WCSCHK(info, 0 != test_wcsxfrm(strdst, str2, strdstlen));
-		*strdst = '\0';
+		*strdst = L'\0';
 		WCSCHK(info, 0 != test_wcsxfrm(strdst, str2, strdstlen));
 		WCSCHK(info, 0 != test_wcsxfrm(strdst, str1, strdstlen));
 	}
