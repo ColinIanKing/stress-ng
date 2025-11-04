@@ -86,7 +86,7 @@ static int stress_umount_umount(stress_args_t *args, const char *path, const uin
 		case EPERM:
 			if (!warned) {
 				warned = true;
-				pr_inf_skip("%s: umount failed, no permission, skipping stresor\n",
+				pr_inf_skip("%s: umount failed, no permission, skipping stressor\n",
 					args->name);
 			}
 			return EXIT_NO_RESOURCE;
