@@ -126,7 +126,10 @@ static inline long int OPTIMIZE3 x86_64_syscall1(long int number, long int arg1)
  *  x86_64_syscall2()
  *	syscall 2 arg wrapper
  */
-static inline long int OPTIMIZE3 x86_64_syscall2(long int number, int long arg1, int long arg2)
+static inline long int OPTIMIZE3 x86_64_syscall2(
+	long int number,
+	long int arg1,
+	long int arg2)
 {
 	long int ret;
 	long int tmp_arg1 = arg1;
