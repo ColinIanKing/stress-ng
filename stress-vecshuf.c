@@ -27,7 +27,7 @@
 
 #define VECTOR_SIZE_BYTES	(64)
 #define LOOPS_PER_CALL		(65536)
-#define SHUFFLES_PER_LOOP	(4)
+#define SHUFFLES_PER_LOOP	(2)
 
 static const stress_help_t help[] = {
 	{ NULL,	"vecshuf N",		"start N workers performing vector shuffle ops" },
