@@ -141,7 +141,7 @@ static inline void ALWAYS_INLINE stress_tlb_shootdown_read_mem(
 }
 
 /*
- *  stress_tlb_shootdown_read_mem()
+ *  stress_tlb_shootdown_write_mem()
  *	write to every cache line in mem
  */
 static inline void ALWAYS_INLINE stress_tlb_shootdown_write_mem(
@@ -178,7 +178,7 @@ static inline void ALWAYS_INLINE stress_tlb_shootdown_write_mem(
 }
 
 /*
- *  stress_tlb_shootdown_read_mem()
+ *  stress_tlb_shootdown_shootdown_mmap()
  *	mmap with retries
  */
 static void *stress_tlb_shootdown_mmap(
