@@ -282,7 +282,7 @@ static int stress_userfaultfd_child(stress_args_t *args, void *context)
 	sz = userfaultfd_bytes & ~(page_size - 1);
 
 	if (posix_memalign(&zero_page, page_size, page_size)) {
-		pr_err("%s: failed to alloce %zu byte zero page%s\n",
+		pr_err("%s: failed to allocate %zu byte zero page%s\n",
 			args->name, page_size, stress_get_memfree_str());
 		return EXIT_NO_RESOURCE;
 	}
