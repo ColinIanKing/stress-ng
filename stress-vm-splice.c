@@ -171,7 +171,7 @@ static int stress_vm_splice(stress_args_t *args)
 				duration += stress_time_now() - t;
 			}
 			/* Sanity check the data */
-			if (LIKELY(n_bytes > (ssize_t)sizeof(checkval)) &&
+			if (LIKELY(n_bytes >= (ssize_t)sizeof(checkval)) &&
 			    UNLIKELY(checkval != *(uint64_t *)buf)) {
 				pr_fail("%s: data check pattern failed, got %" PRIx64 ", expected %" PRIx64 "\n",
 					args->name, *(uint64_t *)buf, checkval);
