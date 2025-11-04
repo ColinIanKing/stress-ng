@@ -280,7 +280,7 @@ static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_inc(
 }
 
 /*
- *  stress_vm_addr_inc()
+ *  stress_vm_addr_incinv()
  *	set data on inverted incrementing addresses
  */
 static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_incinv(
@@ -335,7 +335,7 @@ PRAGMA_UNROLL_N(4)
 }
 
 /*
- *  stress_vm_addr_dec()
+ *  stress_vm_addr_decinv()
  *	set data on inverted decrementing addresses
  */
 static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_decinv(
