@@ -125,8 +125,8 @@ static int stress_vforkmany(stress_args_t *args)
 	}
 	stress_set_vma_anon_name(vforkmany_shared, sizeof(*vforkmany_shared), "state");
 	vforkmany_shared->terminate = false;
-	vforkmany_shared->invoked = false;
-	vforkmany_shared->waited = false;
+	vforkmany_shared->invoked = 0;
+	vforkmany_shared->waited = 0;
 	vforkmany_shared->t1 = 0.0;
 	vforkmany_shared->t2 = 0.0;
 	vforkmany_shared->duration = 0.0;
