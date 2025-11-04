@@ -23,10 +23,14 @@
 #include "core-setting.h"
 #include "core-stressors.h"
 #include <ctype.h>
+
+#if defined(HAVE_SYS_MOUNT_H)
 #include <sys/mount.h>
+#endif
 
 #if defined(__linux__) &&	\
-    defined(STRESS_ARCH_ARM)
+    defined(STRESS_ARCH_ARM) &&	\
+    defined(HAVE_SYS_MOUNT_H)
 #define HAVE_RESCTRL
 #endif
 
