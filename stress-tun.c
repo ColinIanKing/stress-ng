@@ -310,7 +310,7 @@ child_cleanup_fd:
 				ret = ioctl(fd, TUNGETSNDBUF, &sndbuf);
 				if (ret == 0) {
 #if defined(TUNSETVNETHDRSZ)
-					VOID_RET(int, ioctl(fd, TUNSETSNDBUF, &sndbuf));
+					VOID_RET(int, ioctl(fd, TUNSETVNETHDRSZ, &sndbuf));
 #else
 				UNEXPECTED
 #endif
