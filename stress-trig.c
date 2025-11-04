@@ -280,8 +280,8 @@ PRAGMA_UNROLL_N(8)
 
 static bool OPTIMIZE3 TARGET_CLONES stress_trig_tanl(stress_args_t *args)
 {
-	long double sumtan = 0.0;
-	long double theta = 3.0;
+	long double sumtan = 0.0L;
+	long double theta = 3.0L;
 	const long double dtheta = ((long double)PI - theta) / (long double)STRESS_TRIG_LOOPS;
 	const long double precision = 1E-7;
 	int i;
