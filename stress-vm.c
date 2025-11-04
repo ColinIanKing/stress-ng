@@ -1448,7 +1448,7 @@ abort:
 }
 
 /*
- *  stress_vm_one_zone()
+ *  stress_vm_one_zero()
  *	set all memory to one and see if any bits are stuck at zero and
  *	set all memory to zero and see if any bits are stuck at one
  */
