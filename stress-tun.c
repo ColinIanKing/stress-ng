@@ -134,7 +134,7 @@ static int stress_tun(stress_args_t *args)
 		}
 
 		(void)shim_memset(&ifr, 0, sizeof(ifr));
-		ifr.ifr_flags = tun_tap ? IFF_TAP : IFF_TUN;
+		ifr.ifr_flags = (tun_tap ? IFF_TAP : IFF_TUN) | IFF_NO_PI;
 
 		ret = ioctl(fd, TUNSETIFF, (void *)&ifr);
 		if (UNLIKELY(ret < 0)) {
