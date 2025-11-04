@@ -248,7 +248,7 @@ static int stress_yield(stress_args_t *args)
 	} else {
 		yielders = yield_procs;
 	}
-	max_ops_per_yielder = args->bogo.max_ops / yielders;
+	max_ops_per_yielder = (yielders > 0) ? args->bogo.max_ops / yielders : 0.0;
 
 	pids = (pid_t *)calloc(yielders, sizeof(*pids));
 	if (!pids) {
