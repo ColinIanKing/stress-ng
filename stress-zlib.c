@@ -93,7 +93,7 @@ typedef struct morse {
 
 static const morse_t ALIGN64 morse[] = {
 	{ 'a', ".-" },
-	{ 'b', "-.." },
+	{ 'b', "-..." },
 	{ 'c', "-.-." },
 	{ 'd', "-.." },
 	{ 'e', "." },
