@@ -243,7 +243,7 @@ static void MLOCKED_TEXT OPTIMIZE3 stress_timermix_itimer_action(int sig, siginf
 		if (UNLIKELY(sigismember(&mask, SIGINT)))
 			goto cancel;
 
-	if (LIKELY(!stress_continue(s_args)))
+	if (UNLIKELY(!stress_continue(s_args)))
 		goto cancel;
 
 	for (i = 0; i < SIZEOF_ARRAY(itimer_info); i++) {
