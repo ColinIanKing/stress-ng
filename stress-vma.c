@@ -211,8 +211,10 @@ static void *stress_mmapaddr_get_addr(stress_args_t *args)
 				/* Is it actually mappable? */
 				mapped = mmap((void *)test_addr, page_size, PROT_READ | PROT_WRITE,
 						MAP_FIXED | MAP_ANONYMOUS | MAP_SHARED, -1, 0);
-				if (LIKELY(mapped == MAP_FAILED)) {
-					(void)munmap(mapped, page_size);
+				if (LIKELY(mapped != MAP_FAILED)) {
+					stress_vma_metrics->s.metrics[STRESS_VMA_MMAP]++;
+					if (munmap(mapped, page_size) == 0)
+						stress_vma_metrics->s.metrics[STRESS_VMA_MUNMAP]++;
 					addr = NULL;
 					break;
 				}
