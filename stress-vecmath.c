@@ -312,8 +312,8 @@ static int TARGET_CLONES stress_vecmath(stress_args_t *args)
 		csum128hi = (uint64_t)(a128[0] >> 64);
 		stress_uint128_put(a128[0]);
 		if ((csum128lo != csum128lo_val) || (csum128hi != csum128hi_val)) {
-			pr_fail("%s: 1 x 128 bit vector checksum mismatch, got 0x%16.16" PRIx64 ":%16.16" PRIx64
-				", expected 0x%16.16" PRIx64 "%16.16" PRIx64 "\n", args->name,
+			pr_fail("%s: 1 x 128 bit vector checksum mismatch, got: 0x%16.16" PRIx64 "%16.16" PRIx64
+				", expected: 0x%16.16" PRIx64 "%16.16" PRIx64 "\n", args->name,
 				csum128hi, csum128lo, csum128hi_val, csum128lo_val);
 			rc = EXIT_FAILURE;
 		}
