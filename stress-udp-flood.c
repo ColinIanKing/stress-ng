@@ -101,6 +101,8 @@ static int OPTIMIZE3 stress_udp_flood(stress_args_t *args)
 			args->pid,
 			udp_flood_domain, port, udp_flood_if,
 			&addr, &addr_len, NET_ADDR_ANY) < 0) {
+		(void)close(fd);
+		return EXIT_FAILURE;
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
