@@ -419,7 +419,7 @@ static size_t stress_wcsrchr(stress_args_t *args, stress_wcs_args_t *info)
  */
 static size_t stress_wcscmp(stress_args_t *args, stress_wcs_args_t *info)
 {
-	typedef int * (*test_wcscmp_t)(const wchar_t *s1, const wchar_t *s2);
+	typedef int (*test_wcscmp_t)(const wchar_t *s1, const wchar_t *s2);
 
 	const test_wcscmp_t test_wcscmp = (test_wcscmp_t)info->libc_func;
 	const wchar_t *str1 = info->str1;
