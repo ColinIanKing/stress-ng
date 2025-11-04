@@ -284,7 +284,7 @@ vfork_again:
 				_exit(0);
 			} else {
 				/* parent, wait for child, and exit if not first parent */
-				if (pid >= 1)
+				if (pid > 0)
 					(void)vforkmany_wait(vforkmany_shared, pid);
 				(void)shim_sched_yield();
 				if (getpid() != start_pid)
