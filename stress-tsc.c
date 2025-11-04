@@ -244,7 +244,7 @@ static void stress_tsc_check(
 	if (((old_tsc ^ tsc) >> 63) == 1)
 		return;
 
-	pr_fail("%s: TSC not monitonically increasing, TSC %" PRIx64 " vs previous TSC %" PRIx64 "\n",
+	pr_fail("%s: TSC not monotonically increasing, TSC %" PRIx64 " vs previous TSC %" PRIx64 "\n",
 		args->name, tsc, old_tsc);
 	*ret = EXIT_FAILURE;
 	return;
@@ -295,7 +295,7 @@ do {			\
 } while (0)
 
 /*
- *  Unrolled 32 times, verify monitonically increasing at end
+ *  Unrolled 32 times, verify monotonically increasing at end
  */
 #define TSCx32_verify(args, tsc, old_tsc, ret)	\
 do {			\
@@ -383,7 +383,7 @@ do {					\
 } while (0)
 
 /*
- *  Unrolled 32 times, verify monitonically increasing at end
+ *  Unrolled 32 times, verify monotonically increasing at end
  */
 #define TSCPx32_verify(args, tsc, old_tsc, ret)	\
 do {					\
@@ -478,7 +478,7 @@ do {			\
 } while (0)
 
 /*
- *  Unrolled 32 times, verify monitonically increasing at end, with lfence
+ *  Unrolled 32 times, verify monotonically increasing at end, with lfence
  */
 #define TSCx32_lfence_verify(args, tsc, old_tsc, ret)	\
 do {			\
