@@ -547,7 +547,7 @@ static void *stress_vma_maps(void *ptr)
 
 /*
  *  stress_vma_access()
- *	read access pages
+ *	access pages
  */
 static void *stress_vma_access(void *ptr)
 {
