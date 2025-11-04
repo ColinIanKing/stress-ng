@@ -150,7 +150,7 @@ static int stress_vm_splice(stress_args_t *args)
 			break;
 
 		/*
-		 *  vmsplice from pipe to memory
+		 *  vmsplice from pipe to memory, ignore write failures
 		 */
 		checkval += prime;
 		*(uint64_t *)data = checkval;
