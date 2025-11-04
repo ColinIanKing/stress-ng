@@ -221,8 +221,8 @@ static int stress_unshare(stress_args_t *args)
 				if (errno == EAGAIN)
 					break;
 			} else if (unshare_info[n].pid == 0) {
-				double *duration = &unshare_info[i].duration;
-				double *count = &unshare_info[i].count;
+				double *duration = &unshare_info[n].duration;
+				double *count = &unshare_info[n].count;
 
 				/* Child */
 				stress_set_proc_state(args->name, STRESS_STATE_RUN);
