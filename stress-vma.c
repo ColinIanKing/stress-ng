@@ -129,7 +129,7 @@ static void stress_vma_page_name(const void *addr, size_t page_size)
 		const size_t len = 10 + stress_mwc8modn(sizeof(name) - 11);
 
 		for (i = 0; i < len; i++) {
-			const size_t idx = (size_t)stress_mwc8modn(sizeof(charset));
+			const size_t idx = (size_t)stress_mwc8modn(sizeof(charset) - 1);
 
 			name[i] = charset[idx];
 		}
