@@ -101,8 +101,8 @@ static void TARGET_CLONES OPTIMIZE3 name (vec_args_t *vec_args) \
 	(void)shim_memcpy(&b, vec_args->b, sizeof(b));		\
 	(void)shim_memcpy(&c, vec_args->c, sizeof(c));		\
 	(void)shim_memcpy(&s, vec_args->s, sizeof(s));		\
-	(void)shim_memcpy(&v23, vec_args->v23, sizeof(s));	\
-	(void)shim_memcpy(&v3, vec_args->v23, sizeof(s));	\
+	(void)shim_memcpy(&v23, vec_args->v23, sizeof(v23));	\
+	(void)shim_memcpy(&v3, vec_args->v23, sizeof(v3));	\
 								\
 PRAGMA_UNROLL_N(8)						\
 	for (i = 0; i < 2048; i++) {				\
@@ -228,7 +228,7 @@ static int stress_vecwide(stress_args_t *args)
 				stress_vecwide_metrics[i].count += 1.0;
 				stress_bogo_inc(args);
 
-				if (shim_memcmp(vec_args->res1, vec_args->res2, sizeof(vec_args->res1))) {
+				if (shim_memcmp(vec_args->res1, vec_args->res2, stress_vecwide_funcs[i].byte_size)) {
 					pr_fail("%s: data difference between identical vector computations\n", args->name);
 					rc = EXIT_FAILURE;
 					break;
