@@ -165,7 +165,7 @@ static int TARGET_CLONES stress_vecmath(stress_args_t *args)
 	/* checksum values */
 	const uint8_t csum8_val =  (uint8_t)0x1b;
 	const uint16_t csum16_val = (uint16_t)0xe76b;
-	const uint32_t csum32_val = (uint32_t)0xd18aef8UL;
+	const uint32_t csum32_val = (uint32_t)0x0d18aef8UL;
 	const uint64_t csum64_val = (uint64_t)0x14eb06da7b6dd9c3ULL;
 #if defined(HAVE_INT128_T)
 	const uint64_t csum128lo_val = (uint64_t)0x10afc58fa61974ccULL;
