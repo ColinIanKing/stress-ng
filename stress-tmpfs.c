@@ -175,6 +175,10 @@ static int stress_tmpfs_open(stress_args_t *args, off_t *len)
 				fd = -1;
 				continue;
 			}
+			/*
+			 *  Don't care about small truncated
+			 *  writes, just care about write failures
+			 */
 			rc = write(fd, &data, sizeof(data));
 			if (UNLIKELY(rc < 0)) {
 				(void)close(fd);
