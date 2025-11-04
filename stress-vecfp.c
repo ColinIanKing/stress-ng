@@ -224,25 +224,25 @@ static double TARGET_CLONES OPTIMIZE3 name(			\
 	return t2 - t1;						\
 }
 
-STRESS_VEC_ADD(f, stress_vecfp_float_add_128, stress_vecfp_float_64_t)
+STRESS_VEC_ADD(f, stress_vecfp_float_add_128, stress_vecfp_float_128_t)
 STRESS_VEC_ADD(f, stress_vecfp_float_add_64, stress_vecfp_float_64_t)
 STRESS_VEC_ADD(f, stress_vecfp_float_add_32, stress_vecfp_float_32_t)
 STRESS_VEC_ADD(f, stress_vecfp_float_add_16, stress_vecfp_float_16_t)
 STRESS_VEC_ADD(f, stress_vecfp_float_add_8, stress_vecfp_float_8_t)
 
-STRESS_VEC_MUL(f, stress_vecfp_float_mul_128, stress_vecfp_float_64_t)
+STRESS_VEC_MUL(f, stress_vecfp_float_mul_128, stress_vecfp_float_128_t)
 STRESS_VEC_MUL(f, stress_vecfp_float_mul_64, stress_vecfp_float_64_t)
 STRESS_VEC_MUL(f, stress_vecfp_float_mul_32, stress_vecfp_float_32_t)
 STRESS_VEC_MUL(f, stress_vecfp_float_mul_16, stress_vecfp_float_16_t)
 STRESS_VEC_MUL(f, stress_vecfp_float_mul_8, stress_vecfp_float_8_t)
 
-STRESS_VEC_DIV(f, stress_vecfp_float_div_128, stress_vecfp_float_64_t)
+STRESS_VEC_DIV(f, stress_vecfp_float_div_128, stress_vecfp_float_128_t)
 STRESS_VEC_DIV(f, stress_vecfp_float_div_64, stress_vecfp_float_64_t)
 STRESS_VEC_DIV(f, stress_vecfp_float_div_32, stress_vecfp_float_32_t)
 STRESS_VEC_DIV(f, stress_vecfp_float_div_16, stress_vecfp_float_16_t)
 STRESS_VEC_DIV(f, stress_vecfp_float_div_8, stress_vecfp_float_8_t)
 
-STRESS_VEC_NEG(f, stress_vecfp_float_neg_128, stress_vecfp_float_64_t)
+STRESS_VEC_NEG(f, stress_vecfp_float_neg_128, stress_vecfp_float_128_t)
 STRESS_VEC_NEG(f, stress_vecfp_float_neg_64, stress_vecfp_float_64_t)
 STRESS_VEC_NEG(f, stress_vecfp_float_neg_32, stress_vecfp_float_32_t)
 STRESS_VEC_NEG(f, stress_vecfp_float_neg_16, stress_vecfp_float_16_t)
