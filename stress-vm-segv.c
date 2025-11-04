@@ -146,7 +146,7 @@ again:
 
 			if (shim_waitpid(pid, &status, 0) < 0)
 				goto kill_child;
-			if (WTERMSIG(status) == SIGSEGV)
+			if (WIFSIGNALED(status) && (WTERMSIG(status) == SIGSEGV))
 				stress_bogo_inc(args);
 kill_child:
 			(void)close(fd[0]);
