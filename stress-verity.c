@@ -236,7 +236,6 @@ static int stress_verity(stress_args_t *args)
 			const off_t off = (off_t)i * 64 * 1024;
 			ssize_t n;
 
-			(void)shim_memset(block, i, sizeof(block));
 			VOID_RET(off_t, lseek(fd, off, SEEK_SET));
 
 			n = read(fd, block, sizeof(block));
