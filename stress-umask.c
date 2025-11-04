@@ -29,7 +29,7 @@ static const stress_help_t help[] = {
 
 /*
  *  stress_umask
- *	stress file ioctls
+ *	stress umask file operations
  */
 static int stress_umask(stress_args_t *args)
 {
