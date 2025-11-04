@@ -691,7 +691,7 @@ static int stress_tsc(stress_args_t *args)
 		const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 		double duration = 0.0, count;
 
-		tsc_func(args, verify, &duration);
+		ret = tsc_func(args, verify, &duration);
 		count = 32.0 * 4.0 * (double)stress_bogo_get(args);
 		duration = (count > 0.0) ? duration / count : 0.0;
 		stress_metrics_set(args, 0, "nanosecs per time counter read",
