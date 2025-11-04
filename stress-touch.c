@@ -202,6 +202,7 @@ static void stress_touch_loop(
 		char filename[PATH_MAX];
 		uint64_t counter;
 		int fd, ret;
+		bool use_open;
 
 		ret = stress_lock_acquire(touch_lock);
 		if (UNLIKELY(ret))
@@ -214,19 +215,24 @@ static void stress_touch_loop(
 		(void)stress_temp_filename_args(args, filename,
 			sizeof(filename), counter);
 
+		use_open = true;
 		switch (touch_method_type) {
 		default:
 		case TOUCH_RANDOM:
-			if (stress_mwc1())
+			if (stress_mwc1()) {
 				fd = creat(filename, S_IRUSR | S_IWUSR);
-			else
+				use_open = false;
+			}
+			else {
 				fd = open(filename,  O_CREAT | O_WRONLY | open_flags, S_IRUSR | S_IWUSR);
+			}
 			break;
 		case TOUCH_OPEN:
 			fd = open(filename,  O_CREAT | O_WRONLY | open_flags, S_IRUSR | S_IWUSR);
 			break;
 		case TOUCH_CREAT:
 			fd = creat(filename, S_IRUSR | S_IWUSR);
+			use_open = false;
 			break;
 		}
 
@@ -272,8 +278,9 @@ static void stress_touch_loop(
 			case EBADF:
 #endif
 				/* Unexpected failures, fail on these */
-				pr_fail("%s: creat %s failed, errno=%d (%s)\n",
-					args->name, filename, errno, strerror(errno));
+				pr_fail("%s: %s %s failed, errno=%d (%s)\n",
+					args->name, use_open ? "open" : "creat",
+					filename, errno, strerror(errno));
 				break;
 			default:
 				/* Silently ignore anything else */
