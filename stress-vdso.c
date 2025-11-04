@@ -227,9 +227,9 @@ static int dl_wrapback(struct dl_phdr_info* info, size_t info_size, void *vdso)
 
 		}
 		if (info->dlpi_phdr[i].p_type == PT_DYNAMIC) {
-			ElfW(Dyn *) dyn;
-			ElfW(Dyn *) dyn_start;
-			ElfW(Word *) hash = NULL;
+			ElfW(Dyn) *dyn;
+			ElfW(Dyn) *dyn_start;
+			ElfW(Word) *hash = NULL;
 			ElfW(Word) j;
 			ElfW(Word) buckets = 0;
 			const ElfW(Word *) bucket = NULL;
@@ -242,7 +242,7 @@ static int dl_wrapback(struct dl_phdr_info* info, size_t info_size, void *vdso)
 			if ((void *)info->dlpi_addr != vdso)
 				continue;
 
-			dyn_start = (ElfW(Dyn)*)(info->dlpi_addr +  info->dlpi_phdr[i].p_vaddr);
+			dyn_start = (ElfW(Dyn) *)(info->dlpi_addr +  info->dlpi_phdr[i].p_vaddr);
 
 			/*
 			 *  Find hash table and strtab first
@@ -250,7 +250,7 @@ static int dl_wrapback(struct dl_phdr_info* info, size_t info_size, void *vdso)
 			for (dyn = dyn_start; dyn->d_tag != DT_NULL; dyn++) {
 				switch (dyn->d_tag) {
 				case DT_HASH:
-					hash = (ElfW(Word *))(dyn->d_un.d_ptr + info->dlpi_addr);
+					hash = (ElfW(Word) *)(dyn->d_un.d_ptr + info->dlpi_addr);
 					buckets = hash[0];
 					bucket = &hash[2];
 					chain = &hash[buckets + 2];
@@ -269,7 +269,7 @@ static int dl_wrapback(struct dl_phdr_info* info, size_t info_size, void *vdso)
 
 			for (dyn = dyn_start; dyn->d_tag != DT_NULL; dyn++) {
 				if (dyn->d_tag == DT_SYMTAB) {
-					ElfW(Sym *) symtab = (ElfW(Sym *))(dyn->d_un.d_ptr + info->dlpi_addr);
+					ElfW(Sym) *symtab = (ElfW(Sym *))(dyn->d_un.d_ptr + info->dlpi_addr);
 
 					/*
 					 *  Scan through all the chains in each bucket looking
