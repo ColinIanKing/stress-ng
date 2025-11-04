@@ -499,7 +499,7 @@ static const stress_opt_t opts[] = {
 	{ OPT_udp_domain, "udp-domain", TYPE_ID_INT_DOMAIN, 0, 0, &udp_domain_mask },
 	{ OPT_udp_port,   "udp-port",   TYPE_ID_INT_PORT, MIN_PORT, MAX_PORT, NULL },
 	{ OPT_udp_lite,   "udp-lite",   TYPE_ID_BOOL, 0, 1, NULL },
-	{ OPT_udp_gro,    "upd-gro",    TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_udp_gro,    "udp-gro",    TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_udp_if,     "udp-if",     TYPE_ID_STR, 0, 0, NULL },
 	END_OPT,
 };
