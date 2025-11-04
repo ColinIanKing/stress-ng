@@ -468,7 +468,7 @@ do_read:
 			rate * STRESS_DBL_NANOSECOND, STRESS_METRIC_HARMONIC_MEAN);
 
 		(void)shim_memset(&wake, 0, sizeof(wake));
-		wake.start = (uintptr_t)data;
+		wake.start = (unsigned long int)data;
 		wake.len = page_size;
 		VOID_RET(int, ioctl(fd, UFFDIO_WAKE, &wake));
 	} while (stress_continue(args));
