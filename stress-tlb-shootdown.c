@@ -285,13 +285,13 @@ PRAGMA_UNROLL_N(8)
 		(void)mprotect(mem, mmap_size, PROT_READ | PROT_WRITE);
 #if defined(HAVE_MADVISE) &&	\
     defined(SHIM_MADV_DONTNEED)
-		offset = (stress_mwc32() & mmapfd_mask) & mmap_mask;
-
+		offset = (stress_mwc32() & mmap_mask) & page_mask;
 		(void)shim_madvise(mem + offset, page_size, SHIM_MADV_DONTNEED);
 		stress_tlb_shootdown_read_mem(mem + offset, page_size, page_size);
 
+		offset = (stress_mwc32() & mmapfd_mask) & page_mask;
 		(void)shim_madvise(memfd + offset, page_size, SHIM_MADV_DONTNEED);
-		stress_tlb_shootdown_write_mem(memfd, page_size, page_size);
+		stress_tlb_shootdown_write_mem(memfd + offset, page_size, page_size);
 		shim_msync(memfd, mmapfd_size, MS_ASYNC);
 #endif
 		stress_bogo_inc(args);
@@ -443,7 +443,7 @@ static int stress_tlb_shootdown(stress_args_t *args)
 
 		offset = (stress_mwc32() & mmapfd_mask) & page_mask;
 		(void)shim_madvise(memfd + offset, page_size, SHIM_MADV_DONTNEED);
-		stress_tlb_shootdown_write_mem(memfd, page_size, page_size);
+		stress_tlb_shootdown_write_mem(memfd + offset, page_size, page_size);
 		(void)shim_msync(memfd, mmapfd_size, MS_SYNC);
 
 		(void)shim_madvise(memfd + offset, page_size, SHIM_MADV_DONTNEED);
