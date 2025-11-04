@@ -40,7 +40,7 @@ typedef int16_t stress_vint16_t __attribute__ ((vector_size (16)));
 typedef int32_t stress_vint32_t __attribute__ ((vector_size (16)));
 typedef int64_t stress_vint64_t __attribute__ ((vector_size (16)));
 #if defined(HAVE_INT128_T)
-typedef __uint128_t stress_vint128_t __attribute__ ((vector_size (16)));
+typedef __int128_t stress_vint128_t __attribute__ ((vector_size (16)));
 #endif
 
 /*
@@ -162,7 +162,7 @@ static int TARGET_CLONES stress_veccmp(stress_args_t *args)
 	const uint32_t csum32_val = (uint32_t)0x000001bdUL;
 	const uint64_t csum64_val = (uint64_t)0x88888888888883a5ULL;
 #if defined(HAVE_INT128_T)
-	const uint64_t csum128lo_val = (uint64_t)0xf70615243342545cULL;
+	const uint64_t csum128lo_val = (uint64_t)0xf706152433424dfcULL;
 	const uint64_t csum128hi_val = (uint64_t)0x7f8e9dacbbcad9e8ULL;
 #endif
 
