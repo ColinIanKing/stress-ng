@@ -145,7 +145,7 @@ static int stress_vm_splice(stress_args_t *args)
 		vm_splices += 1.0;
 
 		ret = splice(fds[0], NULL, fd, NULL,
-			vm_splice_bytes, SPLICE_F_MOVE);
+			n_bytes, SPLICE_F_MOVE);
 		if (UNLIKELY(ret < 0))
 			break;
 
