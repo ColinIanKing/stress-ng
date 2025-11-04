@@ -168,6 +168,7 @@ static void *stress_mmapaddr_get_addr(stress_args_t *args)
 	heap_end = (void *)(((uintptr_t)addr & mask) + (page_size * 16));
 	free(addr);
 
+	addr = NULL;
 	while (stress_vma_continue_flag && stress_vma_continue(args)) {
 		uintptr_t test_addr;
 
@@ -252,9 +253,10 @@ static void *stress_vma_mmap(void *ptr)
 
 		const size_t offset = page_size * stress_mwc8modn(STRESS_VMA_PAGES);
 		const int prot = prots[stress_mwc8modn(SIZEOF_ARRAY(prots))];
-		int flags = MAP_FIXED | MAP_ANONYMOUS;
+		int flags = MAP_ANONYMOUS;
 		const void *mapped;
 
+		flags |= (stress_mwc1() ? MAP_FIXED : 0);
 		flags |= (stress_mwc1() ? MAP_SHARED : MAP_PRIVATE);
 #if defined(MAP_GROWSDOWN)
 		flags |= (stress_mwc1() ? MAP_GROWSDOWN : 0);
