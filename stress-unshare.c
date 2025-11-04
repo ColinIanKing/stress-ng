@@ -285,7 +285,7 @@ static int stress_unshare(stress_args_t *args)
 			}
 		}
 		for (i = 0; i < n; i++) {
-			if (unshare_info[i].pid > 1)
+			if (unshare_info[i].pid > 0)
 				stress_kill_and_wait(args, unshare_info[i].pid, SIGKILL, false);
 		}
 		stress_bogo_inc(args);
