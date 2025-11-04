@@ -41,7 +41,7 @@
 
 typedef void(* stress_syncload_op_t)(void);
 
-static bool sytess_syncload_x86_has_rdrand;
+static bool stress_syncload_x86_has_rdrand;
 
 /* Don't make these static otherwise O3 will optimize out the stores */
 double fma_a[8];
@@ -130,7 +130,7 @@ static void stress_syncload_yield(void)
     defined(HAVE_ASM_X86_RDRAND)
 static void stress_syncload_rdrand(void)
 {
-	if (sytess_syncload_x86_has_rdrand) {
+	if (stress_syncload_x86_has_rdrand) {
 		(void)stress_asm_x86_rdrand();
 		(void)stress_asm_x86_rdrand();
 		(void)stress_asm_x86_rdrand();
@@ -305,7 +305,7 @@ static int stress_syncload(stress_args_t *args)
 	sec_busy = (double)syncload_msbusy / STRESS_DBL_MILLISECOND;
 	sec_sleep = (double)syncload_mssleep / STRESS_DBL_MILLISECOND;
 
-
+	stress_syncload_x86_has_rdrand = stress_cpu_x86_has_rdrand();
 
 	timeout = stress_syncload_gettime();
 
