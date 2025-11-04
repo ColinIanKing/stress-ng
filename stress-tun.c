@@ -225,7 +225,7 @@ static int stress_tun(stress_args_t *args)
 
 			(void)shim_memset(&addr, 0, sizeof(addr));
 			addr.sin_family = AF_INET;
-			addr.sin_port = (in_port_t)port;
+			addr.sin_port = htons((in_port_t)port);
 			len = sizeof(addr);
 			inet_pton(AF_INET, ip_addr, &addr.sin_addr.s_addr);
 
@@ -369,7 +369,7 @@ child_cleanup_fd:
 
 			(void)shim_memset(&addr, 0, sizeof(addr));
 			addr.sin_family = AF_INET;
-			addr.sin_port = (in_port_t)port;
+			addr.sin_port = htons((in_port_t)port);
 			len = sizeof(addr);
 			inet_pton(AF_INET, ip_addr, &addr.sin_addr.s_addr);
 
