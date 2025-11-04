@@ -23,6 +23,10 @@
 
 #include <sys/ioctl.h>
 
+#if defined(HAVE_NETINET_IP_H)
+#include <netinet/ip.h>
+#endif
+
 #if defined(HAVE_LINUX_SOCKIOS_H)
 #include <linux/sockios.h>
 #else
@@ -47,7 +51,8 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
-#if defined(AF_PACKET)
+#if defined(AF_PACKET) &&	\
+    defined(IPPROTO_UDP)
 
 /*
  *  stress_udp_flood
@@ -81,7 +86,7 @@ static int OPTIMIZE3 stress_udp_flood(stress_args_t *args)
 		}
 	}
 
-	if ((fd = socket(udp_flood_domain, SOCK_DGRAM, AF_PACKET)) < 0) {
+	if ((fd = socket(udp_flood_domain, SOCK_DGRAM, IPPROTO_UDP)) < 0) {
 		if (errno == EPROTONOSUPPORT) {
 			if (stress_instance_zero(args))
 				pr_inf_skip("%s: skipping stressor, protocol not supported\n",
