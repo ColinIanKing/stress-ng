@@ -320,13 +320,13 @@ static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_dec(
 	uint8_t *ptr;
 
 PRAGMA_UNROLL_N(4)
-	for (ptr = (uint8_t *)buf + sz - 1; ptr != buf; ptr--) {
+	for (ptr = (uint8_t *)buf + sz - 1; ptr >= buf; ptr--) {
 		*ptr = rnd;
 	}
 	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
 		stress_cpu_data_cache_flush((void *)buf, sz);
 PRAGMA_UNROLL_N(4)
-	for (ptr = (uint8_t *)buf + sz - 1; ptr != buf; ptr--) {
+	for (ptr = (uint8_t *)buf + sz - 1; ptr >= buf; ptr--) {
 		if (UNLIKELY(*ptr != rnd))
 			errs++;
 	}
