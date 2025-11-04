@@ -520,6 +520,9 @@ retry:
 				masked_ptr &= mask;
 				masked_ptr |= mask_bit;	/* ensure top bit always set */
 				last_mask = mask;
+#if defined(SA_SIGINFO)
+				expected_addr = (uint8_t *)masked_ptr;
+#endif
 				stress_uint8_put(*(volatile uint8_t *)masked_ptr);
 				goto retry;
 			default:
