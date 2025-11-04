@@ -282,7 +282,7 @@ static void stress_landlock_many(
 			(void)stress_mk_filename(newpath, sizeof(newpath), "", namelist[i]->d_name);
 
 		if (UNLIKELY(realpath(newpath, resolved) == NULL))
-			goto next;
+			continue;
 
 		if (strcmp(newpath, resolved) == 0) {
 			struct landlock_path_beneath_attr path_beneath;
@@ -309,7 +309,6 @@ static void stress_landlock_many(
 				break;
 			}
 		}
-next:
 	}
 
 close_ruleset:
