@@ -278,7 +278,7 @@ static int stress_umount(stress_args_t *args)
 
 	stress_temp_dir(pathname, sizeof(pathname), args->name,
 		args->pid, args->instance);
-	if (mkdir(pathname, S_IRGRP | S_IWGRP) < 0) {
+	if (mkdir(pathname, S_IRUSR | S_IWUSR | S_IXUSR | S_IRGRP | S_IWGRP) < 0) {
 		pr_fail("%s: cannot mkdir %s, errno=%d (%s)\n",
 			args->name, pathname, errno, strerror(errno));
 		(void)stress_sync_s_pids_munmap(s_pids, STRESS_UMOUNT_PROCS);
