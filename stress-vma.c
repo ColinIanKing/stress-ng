@@ -334,7 +334,7 @@ static void *stress_vma_mlock(void *ptr)
 }
 
 /*
- *  stress_vma_mmap()
+ *  stress_vma_munlock()
  *	munlock pages
  */
 static void *stress_vma_munlock(void *ptr)
