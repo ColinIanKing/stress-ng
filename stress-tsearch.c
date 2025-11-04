@@ -153,7 +153,7 @@ abort:
 
 const stressor_info_t stress_tsearch_info = {
 	.stressor = stress_tsearch,
-	.classifier = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY,
+	.classifier = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY | CLASS_SEARCH,
 	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
