@@ -248,16 +248,16 @@ static int OPTIMIZE3 stress_utime(stress_args_t *args)
 
 		/* Exercise with invalid fd */
 		ts[0].tv_sec = UTIME_NOW;
-		ts[0].tv_nsec = UTIME_NOW;
+		ts[0].tv_nsec = 0;
 		ts[1].tv_sec = UTIME_NOW;
-		ts[1].tv_nsec = UTIME_NOW;
+		ts[1].tv_nsec = 0;
 		VOID_RET(int, futimens(-1, ts));
 
 #if defined(UTIME_NOW)
 		ts[0].tv_sec = UTIME_NOW;
-		ts[0].tv_nsec = UTIME_NOW;
+		ts[0].tv_nsec = 0;
 		ts[1].tv_sec = UTIME_NOW;
-		ts[1].tv_nsec = UTIME_NOW;
+		ts[1].tv_nsec = 000000000;
 		if (LIKELY(metrics_count > 0)) {
 			if (UNLIKELY(futimens(fd, ts) < 0)) {
 				pr_dbg("%s: futimens failed, errno=%d (%s)%s\n",
@@ -342,10 +342,10 @@ static int OPTIMIZE3 stress_utime(stress_args_t *args)
 
 #if defined(UTIME_NOW)
 		ts[0].tv_sec = UTIME_NOW;
-		ts[0].tv_nsec = UTIME_NOW;
+		ts[0].tv_nsec = 0;
 
 		ts[1].tv_sec = UTIME_NOW;
-		ts[1].tv_nsec = UTIME_NOW;
+		ts[1].tv_nsec = 0;
 
 		if (LIKELY(metrics_count > 0)) {
 			VOID_RET(int, utimensat(AT_FDCWD, filename, ts, 0));
@@ -377,10 +377,10 @@ STRESS_PRAGMA_PUSH
 STRESS_PRAGMA_WARN_OFF
 		if (dir_fd >= 0) {
 			ts[0].tv_sec = UTIME_NOW;
-			ts[0].tv_nsec = UTIME_NOW;
+			ts[0].tv_nsec = 0;
 
 			ts[1].tv_sec = UTIME_NOW;
-			ts[1].tv_nsec = UTIME_NOW;
+			ts[1].tv_nsec = 0;
 
 			VOID_RET(int, utimensat(dir_fd, "", ts, 0));
 		}
