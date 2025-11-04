@@ -101,7 +101,7 @@ static void stress_yield_sched_policy(stress_args_t *args, const size_t yield_sc
 			attr.sched_deadline = 80 * 100000;
 			attr.sched_period = 160 * 100000;
 
-			ret = shim_sched_setattr(0, &attr, 0);
+			(void)shim_sched_setattr(0, &attr, 0);
 		} else {
 #if defined(SCHED_IDLE)
 			policy = SCHED_IDLE;

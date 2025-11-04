@@ -401,7 +401,7 @@ static int stress_schedmix_child(stress_args_t *args)
 #endif
 			}
 			param.sched_priority = 0;
-			ret = sched_setscheduler(pid, new_policy, &param);
+			(void)sched_setscheduler(pid, new_policy, &param);
 			break;
 #endif
 #if defined(SCHED_IDLE)
