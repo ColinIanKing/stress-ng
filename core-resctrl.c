@@ -240,7 +240,7 @@ static int stress_resctrl_parse_instance_list(
 						begin, begin, partition) < 0)
 				return -1;
 			if (!*ptr)
-				return 0;
+				break;
 		} else if (*ptr == '-') {
 			bool done = false;
 			/* range in comma list */
@@ -262,11 +262,11 @@ static int stress_resctrl_parse_instance_list(
 						begin, end, partition) < 0)
 				return -1;
 			if (!saved || done)
-				return 0;
+				break;
 			ptr++;
 		} else {
 			if (!*numptr)
-				return 0;
+				break;
 			if (!*ptr) {
 				if (!strcmp("all", numptr)) {
 					if (stress_resctrl_add(name, &stress_resctrls[idx],
@@ -279,7 +279,7 @@ static int stress_resctrl_parse_instance_list(
 							begin, begin, partition) < 0)
 						return -1;
 				}
-				return 0;
+				break;
 			}
 		}
 	}
@@ -562,7 +562,7 @@ int stress_resctrl_parse(char *opt_resctrl)
 
 		if (*ptr == '\0') {
 			free(str);
-			return 0;
+			break;
 		}
 
 		if (*ptr != ',') {
