@@ -544,7 +544,6 @@ static int stress_vm_addr(stress_args_t *args)
 	(void)stress_get_setting("vm-addr-numa", &context.vm_addr_numa);
 
 	context.vm_addr_method = &vm_addr_methods[vm_addr_method];
-	context.vm_addr_mlock = false;
 	context.bit_error_count = MAP_FAILED;
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 	context.numa_mask = NULL;
