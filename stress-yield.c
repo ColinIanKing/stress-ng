@@ -309,7 +309,6 @@ static int stress_yield(stress_args_t *args)
 	do {
 #if defined(__FreeBSD__)
 		(void)shim_sched_yield();
-		stress_bogo_inc(args);
 #else
 		(void)shim_usleep(100000);
 #endif
