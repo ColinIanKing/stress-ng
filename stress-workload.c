@@ -607,8 +607,7 @@ static inline void stress_workload_waste_time(
 				shim_memmove(buffer, buffer + 1, buffer_len - 1);
 				break;
 			case STRESS_WORKLOAD_METHOD_INC64:
-				while (stress_time_now() < t_end)
-					val++;
+				val++;
 				break;
 			case STRESS_WORKLOAD_METHOD_MWC64:
 				(void)stress_mwc64();
