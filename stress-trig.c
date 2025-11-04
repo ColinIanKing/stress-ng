@@ -71,7 +71,7 @@ PRAGMA_UNROLL_N(8)
 		theta += dtheta;
 	}
 	stress_bogo_inc(args);
-	return shim_fabs(sumcos - (float)0.0) > precision;
+	return shim_fabs(sumcos - 0.0) > precision;
 }
 
 static bool OPTIMIZE3 TARGET_CLONES stress_trig_cosl(stress_args_t *args)
@@ -132,7 +132,7 @@ PRAGMA_UNROLL_N(8)
 		theta += dtheta;
 	}
 	stress_bogo_inc(args);
-	return shim_fabs(sumsin - (float)0.0) > precision;
+	return shim_fabs(sumsin - 0.0) > precision;
 }
 
 static bool OPTIMIZE3 TARGET_CLONES stress_trig_sinl(stress_args_t *args)
@@ -205,8 +205,8 @@ PRAGMA_UNROLL_N(8)
 		theta += dtheta;
 	}
 	stress_bogo_inc(args);
-	return (shim_fabs(sumsin - (float)0.0) > precision) ||
-	       (shim_fabs(sumcos - (float)0.0) > precision);
+	return (shim_fabs(sumsin - (double)0.0) > precision) ||
+	       (shim_fabs(sumcos - (double)0.0) > precision);
 }
 #endif
 
