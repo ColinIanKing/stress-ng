@@ -831,7 +831,7 @@ static int stress_workload_exercise(
 				}
 				(void)mq_send(mq, (const char *)&workload[i], sizeof(workload[i]), 0);
 				if (sleep_secs > 0.0)
-					(void)shim_nanosleep_uint64((uint64_t)(run_duration_sec * STRESS_DBL_NANOSECOND));
+					(void)shim_nanosleep_uint64((uint64_t)(sleep_secs * STRESS_DBL_NANOSECOND));
 #else
 				stress_workload_waste_time(workload_method, run_duration_sec, buffer, buffer_len);
 #endif
