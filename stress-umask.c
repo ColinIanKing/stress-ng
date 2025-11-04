@@ -34,7 +34,9 @@ static const stress_help_t help[] = {
 static int stress_umask(stress_args_t *args)
 {
 	int ret, rc = EXIT_FAILURE;
-	mode_t mask, prev_mask;
+	mode_t mask, prev_mask, orig_mask;
+
+	orig_mask = umask(0);
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
@@ -113,6 +115,7 @@ static int stress_umask(stress_args_t *args)
 	} while (stress_continue(args));
 	rc = EXIT_SUCCESS;
 fail:
+	(void)umask(orig_mask);
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)stress_temp_dir_rm_args(args);
 
