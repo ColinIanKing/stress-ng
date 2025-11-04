@@ -280,6 +280,18 @@ static int stress_sigill(stress_args_t *args)
 				case ILL_BADSTK:
 					break;
 #endif
+#if defined(ILL_BADIADDR)
+				case ILL_BADIADDR:
+					break;
+#endif
+#if defined(__ILL_BREAK)
+				case __ILL_BREAK:
+					break;
+#endif
+#if defined(__ILL_BNDMOD)
+				case __ILL_BNDMOD:
+					break;
+#endif
 				default:
 					pr_fail("%s: unexpecting SIGILL si_code %d\n",
 						args->name, code);
