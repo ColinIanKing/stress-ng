@@ -66,22 +66,22 @@ typedef struct stress_timer_info {
 
 static stress_timer_info_t timer_info[] = {
 #if defined(CLOCK_REALTIME)
-       { CLOCK_REALTIME, 		"CLOCK_REALTIME",		0, 0 },
+       { CLOCK_REALTIME, 		"CLOCK_REALTIME",		TIMER_ID_INVALID, 0 },
 #endif
 #if defined(CLOCK_MONOTONIC)
-       { CLOCK_MONOTONIC,		"CLOCK_MONOTONIC",		0, 0 },
+       { CLOCK_MONOTONIC,		"CLOCK_MONOTONIC",		TIMER_ID_INVALID, 0 },
 #endif
 #if defined(CLOCK_PROCESS_CPUTIME_ID)
-       { CLOCK_PROCESS_CPUTIME_ID,	"CLOCK_PROCESS_CPUTIME_ID", 	0, 0 },
+       { CLOCK_PROCESS_CPUTIME_ID,	"CLOCK_PROCESS_CPUTIME_ID", 	TIMER_ID_INVALID, 0 },
 #endif
 #if defined(CLOCK_THREAD_CPUTIME_ID)
-       { CLOCK_THREAD_CPUTIME_ID,	"CLOCK_THREAD_CPUTIME_ID", 	0, 0 },
+       { CLOCK_THREAD_CPUTIME_ID,	"CLOCK_THREAD_CPUTIME_ID", 	TIMER_ID_INVALID, 0 },
 #endif
 #if defined(CLOCK_BOOTTIME)
-       { CLOCK_BOOTTIME,		"CLOCK_BOOTTIME",		0, 0 },
+       { CLOCK_BOOTTIME,		"CLOCK_BOOTTIME",		TIMER_ID_INVALID, 0 },
 #endif
 #if defined(CLOCK_TAI)
-       { CLOCK_TAI,			"CLOCK_TAI", 			0, 0 },
+       { CLOCK_TAI,			"CLOCK_TAI", 			TIMER_ID_INVALID, 0 },
 #endif
 };
 
