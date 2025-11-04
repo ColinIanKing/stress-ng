@@ -102,7 +102,17 @@ static void stress_yield_sched_policy(stress_args_t *args, const size_t yield_sc
 			attr.sched_period = 160 * 100000;
 
 			ret = shim_sched_setattr(0, &attr, 0);
-			break;
+		} else {
+#if defined(SCHED_IDLE)
+			policy = SCHED_IDLE;
+#elif defined(SCHED_BATCH)
+			policy = SCHED_BATCH;
+#elif defined(SCHED_OTHER)
+			policy = SCHED_OTHER;
+#else
+			/* give up, default to zero */
+			policy = 0;
+#endif
 		}
 		param.sched_priority = 0;
 		ret = sched_setscheduler(0, policy, &param);
