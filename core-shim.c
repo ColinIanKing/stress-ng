@@ -2221,20 +2221,13 @@ int shim_clock_adjtime(clockid_t clk_id, shim_timex_t *buf)
 
 /*
  *   shim_clock_gettime
- *	wrapper for linux clock_gettime system call,
- *	prefer to use the system call to avoid and
- *	glibc avoidance of the system call
+ *	wrapper for linux clock_gettime system call
  */
 int shim_clock_gettime(clockid_t clk_id, struct timespec *tp)
 {
 #if defined(CLOCK_THREAD_CPUTIME_ID) && \
     defined(HAVE_CLOCK_GETTIME)
-#if defined(__NR_clock_gettime) &&	\
-    defined(HAVE_SYSCALL)
-	return (int)syscall(__NR_clock_gettime, clk_id, tp);
-#else
 	return clock_gettime(clk_id, tp);
-#endif
 #else
 	return (int)shim_enosys(0, clk_id, tp);
 #endif
