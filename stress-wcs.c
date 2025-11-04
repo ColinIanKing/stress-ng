@@ -641,7 +641,7 @@ static const stress_wcs_method_info_t wcs_methods[] = {
 #endif
 #if defined(HAVE_WCSRCHR) &&	\
     defined(HAVE_WCHAR)
-	{ "wcsrchr",		stress_wcsrchr,		(void *)wcschr },
+	{ "wcsrchr",		stress_wcsrchr,		(void *)wcsrchr },
 #endif
 #if defined(HAVE_WCSCOLL) &&	\
     defined(HAVE_WCHAR)
