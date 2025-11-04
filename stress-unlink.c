@@ -272,7 +272,7 @@ static int stress_unlink(stress_args_t *args)
 				(void)stress_kill_and_wait(args, pid, SIGKILL, false);
 
 			duration += metrics[i].duration;
-			count += metrics[i].duration;
+			count += metrics[i].count;
 		}
 	}
 
