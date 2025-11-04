@@ -287,13 +287,14 @@ static inline size_t CONST stress_vm_count_bits(uint64_t v)
 
 		return (size_t)__builtin_popcount(hi) + __builtin_popcount(lo);
 	}
-#else
-	size_t n;
-
-	for (n = 0; v; n++)
-		v &= v - 1;
-	return n;
 #endif
+	{
+		size_t n;
+
+		for (n = 0; v; n++)
+			v &= v - 1;
+		return n;
+	}
 }
 
 /*
