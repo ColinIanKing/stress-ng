@@ -46,12 +46,17 @@ static const stress_help_t help[] = {
     (defined(FS_VERITY_HASH_ALG_SHA256) ||	\
      defined(FS_VERITY_HASH_ALG_SHA512))
 
-static const uint32_t hash_algorithms[] = {
+typedef struct {
+	uint32_t algorithm;	/* hash algorithm */
+	int	 size;		/* hash size */
+} hash_info_t;
+
+static const hash_info_t hash_algorithms[] = {
 #if defined(FS_VERITY_HASH_ALG_SHA256)
-	FS_VERITY_HASH_ALG_SHA256,
+	{ FS_VERITY_HASH_ALG_SHA256,	32 },
 #endif
 #if defined(FS_VERITY_HASH_ALG_SHA512)
-	FS_VERITY_HASH_ALG_SHA512,
+	{ FS_VERITY_HASH_ALG_SHA512,	64 },
 #endif
 };
 
@@ -145,18 +150,18 @@ static int stress_verity(stress_args_t *args)
 			goto clean;
 		}
 
+		hash++;
+		if (hash >= SIZEOF_ARRAY(hash_algorithms))
+			hash = 0;
+
 		(void)shim_memset(&enable, 0, sizeof(enable));
 		enable.version = 1;
-		enable.hash_algorithm = hash_algorithms[hash];
+		enable.hash_algorithm = hash_algorithms[hash].algorithm;
 		enable.block_size = (uint32_t)args->page_size;
 		enable.salt_size = 0;
 		enable.salt_ptr = (intptr_t)NULL;
 		enable.sig_size = 0;
 		enable.sig_ptr = (intptr_t)NULL;
-
-		hash++;
-		if (hash >= SIZEOF_ARRAY(hash_algorithms))
-			hash = 0;
 
 		ret = ioctl(fd, FS_IOC_ENABLE_VERITY, &enable);
 		if (ret < 0) {
@@ -198,8 +203,8 @@ static int stress_verity(stress_args_t *args)
 		/*
 		 *  Exercise measuring verity, ignore return for now
 		 */
-		digest->digest_algorithm = FS_VERITY_HASH_ALG_SHA256;
-		digest->digest_size = 32;
+		digest->digest_algorithm = hash_algorithms[hash].algorithm;
+		digest->digest_size = hash_algorithms[hash].size;
 		VOID_RET(int, ioctl(fd, FS_IOC_MEASURE_VERITY, digest));
 
 #if defined(FS_IOC_GETFLAGS) &&	\
