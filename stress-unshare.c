@@ -193,7 +193,7 @@ static int stress_unshare(stress_args_t *args)
 		size_t n;
 
 		for (n = 0; n < MAX_PIDS; n++)
-			unshare_info[i].pid = -1;
+			unshare_info[n].pid = -1;
 
 		for (n = 0; n < MAX_PIDS; n++) {
 			static size_t idx;
