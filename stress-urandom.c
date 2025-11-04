@@ -174,7 +174,7 @@ static int stress_urandom(stress_args_t *args)
 				bytes += (double)ret;
 			} else {
 				if ((errno != EAGAIN) && (errno != EINTR)) {
-					pr_fail("%s: read of /dev/urandom failed, errno=%d (%s)\n",
+					pr_fail("%s: read of /dev/random failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 					goto err;
 				}
