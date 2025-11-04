@@ -97,7 +97,8 @@ static int stress_umask(stress_args_t *args)
 		}
 
 		for (i = 0; i < 16; i++) {
-			mask = stress_mwc16modn(0777);
+			/* random mask 0..0777 */
+			mask = stress_mwc16modn(01000);
 
 			(void)umask(mask);
 			ret_mask = umask(0);
