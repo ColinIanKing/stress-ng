@@ -296,7 +296,7 @@ static int stress_xattr(stress_args_t *args)
 			goto out_close;
 		} else {
 			if (errno == ENOSPC)
-				STRESS_CLRBIT(set_xattr_ok, i);
+				STRESS_CLRBIT(set_xattr_ok, 0);
 		}
 
 #if defined(HAVE_LSETXATTR)
@@ -310,7 +310,7 @@ static int stress_xattr(stress_args_t *args)
 			goto out_close;
 		} else {
 			if (errno == ENOSPC)
-				STRESS_CLRBIT(set_xattr_ok, i);
+				STRESS_CLRBIT(set_xattr_ok, 0);
 		}
 #endif
 		ret = shim_setxattr(filename, attrname, value, strlen(value),
@@ -323,7 +323,7 @@ static int stress_xattr(stress_args_t *args)
 			goto out_close;
 		} else {
 			if (errno == ENOSPC)
-				STRESS_CLRBIT(set_xattr_ok, i);
+				STRESS_CLRBIT(set_xattr_ok, 0);
 		}
 
 		for (j = 0; j < i; j++) {
@@ -336,7 +336,7 @@ static int stress_xattr(stress_args_t *args)
 			ret = shim_fsetxattr(fd, attrname, value, strlen(value),
 				XATTR_REPLACE);
 			if (ret < 0) {
-				STRESS_CLRBIT(set_xattr_ok, i);
+				STRESS_CLRBIT(set_xattr_ok, j);
 				if (UNLIKELY((errno != ENOSPC) && (errno != EDQUOT) && (errno != E2BIG))) {
 					pr_fail("%s: fsetxattr failed, errno=%d (%s)%s\n",
 						args->name, errno, strerror(errno), fs_type);
@@ -348,7 +348,7 @@ static int stress_xattr(stress_args_t *args)
 			ret = shim_setxattr(filename, attrname, value, strlen(value),
 				XATTR_REPLACE);
 			if (ret < 0) {
-				STRESS_CLRBIT(set_xattr_ok, i);
+				STRESS_CLRBIT(set_xattr_ok, j);
 				if (UNLIKELY((errno != ENOSPC) && (errno != EDQUOT) && (errno != E2BIG))) {
 					pr_fail("%s: setxattr failed, errno=%d (%s)%s\n",
 						args->name, errno, strerror(errno), fs_type);
@@ -366,7 +366,7 @@ static int stress_xattr(stress_args_t *args)
 
 				ret = shim_setxattrat(AT_FDCWD, filename, 0, attrname, &arg, sizeof(arg));
 				if (ret < 0) {
-					STRESS_CLRBIT(set_xattr_ok, i);
+					STRESS_CLRBIT(set_xattr_ok, j);
 					if (UNLIKELY((errno != ENOSYS) && (errno != ENOSPC) && (errno != EDQUOT) && (errno != E2BIG))) {
 						pr_fail("%s: setxattrat failed, errno=%d (%s)%s\n",
 							args->name, errno, strerror(errno), fs_type);
@@ -381,7 +381,7 @@ static int stress_xattr(stress_args_t *args)
 			ret = shim_lsetxattr(filename, attrname, value, strlen(value),
 				XATTR_REPLACE);
 			if (ret < 0) {
-				STRESS_CLRBIT(set_xattr_ok, i);
+				STRESS_CLRBIT(set_xattr_ok, j);
 				if (UNLIKELY((errno != ENOSPC) && (errno != EDQUOT) && (errno != E2BIG))) {
 					pr_fail("%s: lsetxattr failed, errno=%d (%s)%s\n",
 						args->name, errno, strerror(errno), fs_type);
@@ -393,7 +393,7 @@ static int stress_xattr(stress_args_t *args)
 				goto out_finished;
 		}
 		for (j = 0; j < i; j++) {
-			if (STRESS_GETBIT(set_xattr_ok, i) == 0)
+			if (STRESS_GETBIT(set_xattr_ok, j) == 0)
 				continue;
 			(void)snprintf(attrname, sizeof(attrname), "user.var_%d", j);
 			(void)snprintf(value, sizeof(value), "value-%d", j);
@@ -407,7 +407,7 @@ static int stress_xattr(stress_args_t *args)
 			}
 			if (UNLIKELY((STRESS_GETBIT(set_xattr_ok, j) != 0) && strncmp(value, tmp, (size_t)sret))) {
 				pr_fail("%s: fgetxattr values different %.*s vs %.*s\n",
-					args->name, ret, value, ret, tmp);
+					args->name, ret, value, (int)sret, tmp);
 				goto out_close;
 			}
 
@@ -423,7 +423,7 @@ static int stress_xattr(stress_args_t *args)
 			}
 			if (UNLIKELY((STRESS_GETBIT(set_xattr_ok, j) != 0) && strncmp(value, tmp, (size_t)sret))) {
 				pr_fail("%s: getxattr values different %.*s vs %.*s\n",
-					args->name, ret, value, ret, tmp);
+					args->name, ret, value, (int)sret, tmp);
 				goto out_close;
 			}
 
@@ -436,7 +436,7 @@ static int stress_xattr(stress_args_t *args)
 			}
 			if (UNLIKELY((STRESS_GETBIT(set_xattr_ok, j) != 0) && strncmp(value, tmp, (size_t)sret))) {
 				pr_fail("%s: lgetxattr values different %.*s vs %.*s\n",
-					args->name, ret, value, ret, tmp);
+					args->name, ret, value, (int)sret, tmp);
 				goto out_close;
 			}
 
