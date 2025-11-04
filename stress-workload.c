@@ -593,7 +593,7 @@ static inline void stress_workload_waste_time(
 	case STRESS_WORKLOAD_METHOD_RANDOM:
 	default:
 		while ((t = stress_time_now()) < t_end) {
-			switch (stress_mwc8modn(STRESS_WORKLOAD_METHOD_MAX - 1) + 1) {
+			switch (stress_mwc8modn(STRESS_WORKLOAD_METHOD_MAX) + 1) {
 			case STRESS_WORKLOAD_METHOD_TIME:
 				(void)time(NULL);
 				break;
