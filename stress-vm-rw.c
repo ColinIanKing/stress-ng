@@ -341,7 +341,11 @@ fail:
 	/* Tell child we're done */
 	msg_wr.addr = NULL;
 	msg_wr.val = 0;
-	if (write(ctxt->pipe_wr[0], &msg_wr, sizeof(msg_wr)) < 0) {
+	/*
+	 * Just report write failure, there is little we
+	 * can do if write size is incorrect!
+	 */
+	if (write(ctxt->pipe_wr[1], &msg_wr, sizeof(msg_wr)) < 0) {
 		if (errno != EBADF)
 			pr_dbg("%s: failed to write "
 				"termination message "
