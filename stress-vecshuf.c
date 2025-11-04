@@ -473,7 +473,7 @@ const stressor_info_t stress_vecshuf_info = {
 #else
 
 static const stress_opt_t opts[] = {
-        { OPT_vecshuf_method, "vecshuf_method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_unimplemented_method },
+        { OPT_vecshuf_method, "vecshuf-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_unimplemented_method },
 	END_OPT,
 };
 
