@@ -519,7 +519,7 @@ static void *stress_vma_msync(void *ptr)
 
 #if defined(__linux__)
 /*
- *  stress_vma_msync()
+ *  stress_vma_maps()
  *	exercise /proc/self/maps
  */
 static void *stress_vma_maps(void *ptr)
