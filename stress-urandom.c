@@ -291,7 +291,7 @@ next:
 
 							/* Exercise 2 byte read on last 1 byte of page */
 							t = stress_time_now();
-							ret = read(fd_rnd, ptr + args->page_size - 1, 2);
+							ret = read(fd_rnd_blk, ptr + args->page_size - 1, 2);
 							if (ret >= 0) {
 								duration += stress_time_now() - t;
 								bytes += (double)ret;
@@ -304,7 +304,7 @@ next:
 						double t;
 
 						t = stress_time_now();
-						ret = read(fd_rnd, buffer, 1);
+						ret = read(fd_rnd_blk, buffer, 1);
 						if (ret >= 0) {
 							duration += stress_time_now() - t;
 							bytes += (double)ret;
