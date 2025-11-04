@@ -221,7 +221,7 @@ static int dl_wrapback(struct dl_phdr_info* info, size_t info_size, void *vdso)
 
 	for (i = 0; i < info->dlpi_phnum; i++) {
 		if (info->dlpi_phdr[i].p_type == PT_LOAD) {
-			load_offset = (void *)(info->dlpi_addr +
+			load_offset = (void *)(info->dlpi_addr
 				+ (uintptr_t)info->dlpi_phdr[i].p_offset
 				- (uintptr_t)info->dlpi_phdr[i].p_vaddr);
 
