@@ -111,7 +111,7 @@ static int stress_watchdog(stress_args_t *args)
 
 	/*
 	 *  Sanity check for existence and r/w permissions
-	 *  on /dev/shm, it may not be configure for the
+	 *  on watchdog device, it may not be configure for the
 	 *  kernel, so don't make it a failure of it does
 	 *  not exist or we can't access it.
 	 */
