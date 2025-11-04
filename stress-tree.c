@@ -679,15 +679,18 @@ static btree_node_t * OPTIMIZE3 btree_split_node(
 	uint32_t *new_value,
 	const int pos,
 	btree_node_t *node,
-	btree_node_t *child)
+	btree_node_t *child,
+	bool *alloc_fail)
 {
 	btree_node_t *new_node;
 	register int j;
 	const int median = (pos > BTREE_MIN) ? BTREE_MIN + 1 : BTREE_MIN;
 
 	new_node = (btree_node_t *)calloc(1, sizeof(*new_node));
-	if (UNLIKELY(!new_node))
+	if (UNLIKELY(!new_node)) {
+		*alloc_fail = true;
 		return NULL;
+	}
 
 	j = median + 1;
 	while (j <= BTREE_MAX) {
@@ -742,7 +745,7 @@ static btree_node_t * OPTIMIZE3 btree_insert_value(
 		if (node->count < BTREE_MAX) {
 			btree_insert_node(*new_value, pos, node, child);
 		} else {
-			child = btree_split_node(*new_value, new_value, pos, node, child);
+			child = btree_split_node(*new_value, new_value, pos, node, child, alloc_fail);
 			*make_new_node = true;
 			return child;
 		}
@@ -764,7 +767,7 @@ static bool OPTIMIZE3 btree_insert(btree_node_t **root, const uint32_t value)
 
 		node = (btree_node_t *)calloc(1, sizeof(*node));
 		if (UNLIKELY(!node))
-			return false;
+			return true;
 		node->count = 1;
 		node->value[1] = new_value;
 		node->node[0] = *root;
@@ -834,7 +837,12 @@ static void stress_tree_btree(
 	t = stress_time_now();
 PRAGMA_UNROLL_N(4)
 	for (node = nodes, i = 0; i < n; i++, node++)
-		btree_insert(&root, node->value);
+		if (UNLIKELY(btree_insert(&root, node->value) == true)) {
+			pr_fail("%s: btree node #%zu allocation failure\n",
+				args->name, i);
+			btree_remove_tree(&root);
+			return;
+		}
 	metrics->insert += stress_time_now() - t;
 
 	/* Mandatory forward tree check */
@@ -843,7 +851,7 @@ PRAGMA_UNROLL_N(4)
 	for (node = nodes, i = 0; i < n; i++, node++) {
 		find = btree_find(root, node->value);
 		if (UNLIKELY(!find)) {
-			pr_fail("%s: btree node #%zd not found\n",
+			pr_fail("%s: btree node #%zu not found\n",
 				args->name, i);
 			*rc = EXIT_FAILURE;
 		}
