@@ -583,7 +583,7 @@ static int stress_vm_addr(stress_args_t *args)
 						&context.vm_addr_numa);
 #else
 		if (stress_instance_zero(args))
-			pr_inf("%s: --vm-addr-uma selected but not supported by this system, disabling option\n",
+			pr_inf("%s: --vm-addr-numa selected but not supported by this system, disabling option\n",
 				args->name);
 		context.vm_addr_numa = false;
 #endif
