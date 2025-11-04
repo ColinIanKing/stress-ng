@@ -376,7 +376,10 @@ static int stress_wait(stress_args_t *args)
 				ret = EXIT_FAILURE;
 			}
 #endif
-			stress_wait_continued(args, status);
+#if defined(CLD_CONTINUED)
+			if (info.si_code == CLD_CONTINUED)
+				stress_wait_continued(args, info.si_status);
+#endif
 		}
 #endif
 	} while (stress_continue(args));
