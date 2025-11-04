@@ -782,12 +782,8 @@ static void OPTIMIZE3 btree_remove_tree(btree_node_t **node)
 	if (!*node)
 		return;
 
-PRAGMA_UNROLL_N(4)
-	for (i = 0; i <= (*node)->count; i++) {
+	for (i = 0; i <= (*node)->count; i++)
 		btree_remove_tree(&(*node)->node[i]);
-		free((*node)->node[i]);
-		(*node)->node[i] = NULL;
-	}
 	free(*node);
 	*node = NULL;
 }
