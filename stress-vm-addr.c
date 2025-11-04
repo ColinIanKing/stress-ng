@@ -272,6 +272,8 @@ static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_inc(
 	for (ptr = buf; LIKELY(ptr < ptr_end); ptr++) {
 		*ptr = rnd;
 	}
+	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+		stress_cpu_data_cache_flush((void *)buf, sz);
 	for (ptr = buf; LIKELY(ptr < ptr_end); ptr++) {
 		if (UNLIKELY(*ptr != rnd))
 			errs++;
@@ -351,6 +353,8 @@ PRAGMA_UNROLL_N(4)
 
 		*(buf + i) = rnd;
 	}
+	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+		stress_cpu_data_cache_flush((void *)buf, sz);
 PRAGMA_UNROLL_N(4)
 	for (n = sz; n; n--) {
 		const size_t i = ((n - 1) ^ mask) & mask;
