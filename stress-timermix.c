@@ -114,7 +114,7 @@ static inline void stress_timermix_timer_throttle_check(const double time_now)
 			rate_ns = ok_ns;
 		}
 	} else {
-		//ok_ns = rate_ns;
+		ok_ns = rate_ns;
 		rate_ns = rate_ns * 0.95;
 	}
 
