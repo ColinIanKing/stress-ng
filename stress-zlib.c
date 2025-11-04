@@ -1418,9 +1418,9 @@ static void stress_zlib_get_args(stress_zlib_args_t *params) {
 	}
 	if (!stress_get_setting("zlib-mem-level", &params->mem_level)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			params->level = ZLIB_MAX_MEM_LEVEL;
+			params->mem_level = ZLIB_MAX_MEM_LEVEL;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			params->level = ZLIB_MIN_MEM_LEVEL;
+			params->mem_level = ZLIB_MIN_MEM_LEVEL;
 	}
 	(void)stress_get_setting("zlib-method", &params->method);
 	(void)stress_get_setting("zlib-window-bits", &params->window_bits);
