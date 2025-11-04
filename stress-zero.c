@@ -219,7 +219,7 @@ static int stress_zero(stress_args_t *args)
 					if ((errno == ENOMEM) || (errno == EAGAIN))
 						continue;
 					pr_fail("%s: mmap /dev/zero using %s failed, errno=%d (%s)\n",
-						args->name, mmap_flags[i].flag_str, errno, strerror(errno));
+						args->name, mmap_flags[mmap_index].flag_str, errno, strerror(errno));
 					(void)close(fd);
 					(void)munmap(wr_buffer, page_size);
 					(void)munmap(rd_buffer, page_size);
@@ -227,7 +227,7 @@ static int stress_zero(stress_args_t *args)
 				}
 				if (stress_data_is_not_zero((uint64_t *)rd_buffer, (size_t)ret)) {
 					pr_fail("%s: memory mapped page of /dev/zero using %s is not zero\n",
-						args->name, mmap_flags[i].flag_str);
+						args->name, mmap_flags[mmap_index].flag_str);
 				}
 				(void)stress_munmap_force(ptr, page_size);
 				mmap_index++;
