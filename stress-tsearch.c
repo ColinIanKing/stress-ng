@@ -96,7 +96,7 @@ static int stress_tsearch(stress_args_t *args)
 		stress_sort_compare_reset();
 		t = stress_time_now();
 		for (i = 0; LIKELY(stress_continue_flag() && (i < n)); i++) {
-			const void **result = tfind(&data[i], &root, stress_sort_cmp_fwd_int32);
+			void **result = tfind(&data[i], &root, stress_sort_cmp_fwd_int32);
 
 			if (g_opt_flags & OPT_FLAGS_VERIFY) {
 				if (UNLIKELY(!result)) {
@@ -124,7 +124,7 @@ static int stress_tsearch(stress_args_t *args)
 
 		/* Step #3, delete */
 		for (i = 0; i < n; i++) {
-			const void **result = tdelete(&data[i], &root, stress_sort_cmp_fwd_int32);
+			void **result = tdelete(&data[i], &root, stress_sort_cmp_fwd_int32);
 
 			if (UNLIKELY((g_opt_flags & OPT_FLAGS_VERIFY) && (result == NULL))) {
 				pr_fail("%s: element %zu could not be found\n",
