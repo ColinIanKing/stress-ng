@@ -84,8 +84,10 @@ static void stress_unlink_exercise(
 
 	stress_mwc_reseed();
 
-	for (i = 0; i < UNLINK_FILES; i++)
+	for (i = 0; i < UNLINK_FILES; i++) {
 		idx[i] = i;
+		fds[i] = -1;
+	}
 
 	stress_unlink_shuffle(idx, mask);
 
