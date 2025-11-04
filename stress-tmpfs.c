@@ -362,7 +362,12 @@ static int stress_tmpfs_child(stress_args_t *args, void *ctxt)
 				const uint64_t page = (i + j) % pages;
 
 				if (!mappings[page].state) {
+					/*
+					 * for non-file mapping, try to mmap to zero offset in
+					 * given hint to try and create multi-mapped page entries
+					 */
 					offset = tmpfs_mmap_file ? (off_t)(page * page_size) : 0;
+
 					/*
 					 * Attempt to map them back into the original address, this
 					 * may fail (it's not the most portable operation), so keep
