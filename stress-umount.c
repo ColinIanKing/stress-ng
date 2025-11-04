@@ -77,7 +77,7 @@ static int stress_umount_umount(stress_args_t *args, const char *path, const uin
 		ret = umount(path);
 #endif
 		if (ret == 0) {
-			if (i > 1) {
+			if (i >= 1) {
 				(void)shim_nanosleep_uint64(ns_delay);
 			}
 			continue;
