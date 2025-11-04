@@ -64,7 +64,6 @@ static const stress_cpuid_regs_t ALIGN64 stress_cpuid_regs[] = {
 	{ 0x00000010, 0x00000003, false },	/* Memory Bandwidth Allocation Enumeration Sub-leaf */
 	{ 0x00000012, 0x00000000, false },	/* Intel SGX Capability Enumeration Leaf, sub-leaf 0 */
 	{ 0x00000012, 0x00000001, false },	/* Intel SGX Capability Enumeration Leaf, sub-leaf 1 */
-	{ 0x00000012, 0x00000001, false },	/* Intel SGX Capability Enumeration Leaf, sub-leaf 1 */
 	{ 0x00000014, 0x00000000, false },	/* Intel Processor Trace Enumeration Main Leaf */
 	{ 0x00000014, 0x00000001, false },	/* Intel Processor Trace Enumeration Sub-leaf */
 	{ 0x00000015, 0x00000000, false },	/* Time Stamp Counter and Nominal Core Crystal Clock Information Leaf */
