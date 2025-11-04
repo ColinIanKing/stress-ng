@@ -258,7 +258,7 @@ static int stress_uprobe(stress_args_t *args)
 				stress_bogo_inc(args);
 				if (UNLIKELY(!stress_continue(args)))
 					goto terminate;
-			} while (ptr < data + sizeof(data));
+			} while (ptr < data + n);
 		}
 
 terminate:
