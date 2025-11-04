@@ -230,7 +230,7 @@ static size_t stress_strcpy(stress_args_t *args, stress_str_args_t *info)
 {
 	typedef char * (*test_strcpy_t)(char *dest, const char *src);
 
-	char test_strcpy_t test_strcpy = (test_strcpy_t)info->libc_func;
+	test_strcpy_t test_strcpy = (test_strcpy_t)info->libc_func;
 	const char *str1 = info->str1;
 	const char *str2 = info->str2;
 	char *strdst = info->strdst;
