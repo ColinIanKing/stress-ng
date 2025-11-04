@@ -450,8 +450,8 @@ static int stress_x86syscall(stress_args_t *args)
 #endif
 #if defined(__NR_getgid)
 	{
-		const pid_t gid1 = getgid();
-		const pid_t gid2 = (gid_t)x86_64_syscall0(__NR_getgid);
+		const gid_t gid1 = getgid();
+		const gid_t gid2 = (gid_t)x86_64_syscall0(__NR_getgid);
 
 		if (gid1 != gid2) {
 			pr_fail("%s: getgid syscall returned GID %" PRIdMAX ", "
