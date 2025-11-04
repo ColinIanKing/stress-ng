@@ -238,9 +238,9 @@ static int stress_zero(stress_args_t *args)
 			/*
 			 *  lseek on /dev/zero just because we can
 			 */
-			(void)lseek(fd, SEEK_SET, 0);
-			(void)lseek(fd, SEEK_END, 0);
-			(void)lseek(fd, SEEK_CUR, 0);
+			(void)lseek(fd, 0, SEEK_SET);
+			(void)lseek(fd, 0, SEEK_END);
+			(void)lseek(fd, 0, SEEK_CUR);
 
 #if defined(FIONBIO)
 			{
