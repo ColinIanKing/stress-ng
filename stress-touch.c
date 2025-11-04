@@ -271,7 +271,6 @@ static void stress_touch_loop(
 #if defined(EBADF)
 			case EBADF:
 #endif
-			case -1:
 				/* Unexpected failures, fail on these */
 				pr_fail("%s: creat %s failed, errno=%d (%s)\n",
 					args->name, filename, errno, strerror(errno));
