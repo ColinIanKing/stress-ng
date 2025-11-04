@@ -1072,7 +1072,7 @@ tidy:
 
 		geomean = pow(mantissa, inverse_n) *
 			  pow(2.0, (double)exponent * inverse_n);
-		pr_dbg("%s: %.2f tree ops per second (goemetric mean of per stressor tree op rates)\n",
+		pr_dbg("%s: %.2f tree ops per second (geometric mean of per stressor tree op rates)\n",
 			args->name, geomean);
 	}
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
