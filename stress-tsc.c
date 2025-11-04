@@ -433,7 +433,7 @@ do {					\
 	do {			\
 		rdtsc();	\
 		lfence();	\
-	} while (0);
+	} while (0)
 
 /*
  *  Unrolled 32 times, no verify with lfence
