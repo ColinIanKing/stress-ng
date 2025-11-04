@@ -168,7 +168,7 @@ retry:
 	} while (stress_continue(args));
 
 	t = stress_time_now();
-	for (i = 0; i < UNLINK_FILES; i++) {
+	for (i = 0, n = 0; i < UNLINK_FILES; i++) {
 		if (unlink(filenames[i]) == 0)
 			n++;
 	}
