@@ -41,6 +41,8 @@
 #endif
 
 #define BAD_ADDR	((void *)(0x10))
+#define ADDR_PAGE_MASK(virt_addr, page_size)	\
+	(volatile uint8_t *)((uintptr_t)(virt_addr) & ~(page_size - 1))
 
 static const stress_help_t help[] = {
 	{ NULL,	"sigsegv N",	 "start N workers generating segmentation faults" },
@@ -386,6 +388,14 @@ static int stress_sigsegv(stress_args_t *args)
 		if (ret) {
 			/* Signal was tripped */
 #if defined(SA_SIGINFO)
+#if defined(STRESS_ARCH_S390)
+			/*
+			 *  Some architectures only provide faulting
+			 *  address info aligned to nearest page boundary.
+			 */
+			expected_addr = ADDR_PAGE_MASK(expected_addr, args->page_size);
+			fault_addr = ADDR_PAGE_MASK(fault_addr, args->page_size);
+#endif
 			if (UNLIKELY(verify && expected_addr && fault_addr &&
 				     ((fault_addr < expected_addr) ||
 				      (fault_addr > (expected_addr + 8))))) {
