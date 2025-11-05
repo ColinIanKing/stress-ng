@@ -1310,6 +1310,7 @@ static const char *stress_get_fs_dev_model(const char *filename)
 const char *stress_get_fs_info(const char *filename, uintmax_t *blocks)
 {
 #if defined(HAVE_LINUX_MAGIC_H) &&	\
+    defined(HAVE_SYS_VFS_H) &&		\
     defined(HAVE_SYS_STATFS_H)
 	struct statfs buf;
 
