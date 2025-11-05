@@ -396,7 +396,7 @@ static int stress_sigsegv(stress_args_t *args)
 			expected_addr = ADDR_PAGE_MASK(expected_addr, args->page_size);
 			fault_addr = ADDR_PAGE_MASK(fault_addr, args->page_size);
 #endif
-			if (UNLIKELY(verify && expected_addr && fault_addr &&
+			if (UNLIKELY(verify && (code != 128) && expected_addr && fault_addr &&
 				     ((fault_addr < expected_addr) ||
 				      (fault_addr > (expected_addr + 8))))) {
 				pr_fail("%s: expecting fault address %p, got %p instead\n",
