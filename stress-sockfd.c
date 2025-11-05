@@ -228,7 +228,8 @@ retry:
 		(void)close(fd);
 	} while (stress_continue(args));
 
-#if defined(HAVE_SOCKADDR_UN)
+#if defined(HAVE_SYS_UN_H) &&	\
+    defined(HAVE_SOCKADDR_UN)
 	if (addr) {
 		const struct sockaddr_un *addr_un = (struct sockaddr_un *)addr;
 
@@ -374,7 +375,8 @@ static int OPTIMIZE3 stress_socket_server(
 die_close:
 	(void)close(fd);
 die:
-#if defined(HAVE_SOCKADDR_UN)
+#if defined(HAVE_SYS_UN_H) &&	\
+    defined(HAVE_SOCKADDR_UN)
 	if (addr) {
 		const struct sockaddr_un *addr_un = (struct sockaddr_un *)addr;
 

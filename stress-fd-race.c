@@ -362,7 +362,8 @@ retry:
 		(void)close(fd);
 	} while (stress_continue(args));
 
-#if defined(HAVE_SOCKADDR_UN)
+#if defined(HAVE_SYS_UN_H) &&	\
+    defined(HAVE_SOCKADDR_UN)
 	if (addr) {
 		const struct sockaddr_un *addr_un = (struct sockaddr_un *)addr;
 
@@ -625,7 +626,8 @@ retry:
 die_close:
 	(void)close(fd);
 die:
-#if defined(HAVE_SOCKADDR_UN)
+#if defined(HAVE_SYS_UN_H) &&	\
+    defined(HAVE_SOCKADDR_UN)
 	if (addr) {
 		const struct sockaddr_un *addr_un = (struct sockaddr_un *)addr;
 

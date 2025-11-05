@@ -256,6 +256,7 @@ static int OPTIMIZE3 stress_udp_client(
 	rc = EXIT_SUCCESS;
 child_die:
 #if defined(AF_UNIX) &&		\
+    defined(HAVE_SYS_UN_H) &&	\
     defined(HAVE_SOCKADDR_UN)
 	if ((udp_domain == AF_UNIX) && addr) {
 		const struct sockaddr_un *addr_un = (struct sockaddr_un *)addr;
@@ -388,6 +389,7 @@ die_close:
 die:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 #if defined(AF_UNIX) &&		\
+    defined(HAVE_SYS_UN_H) &&	\
     defined(HAVE_SOCKADDR_UN)
 	if ((udp_domain == AF_UNIX) && addr) {
 		const struct sockaddr_un *addr_un = (struct sockaddr_un *)addr;

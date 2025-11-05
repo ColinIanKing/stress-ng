@@ -235,6 +235,7 @@ int stress_set_sockaddr_if(
 	}
 #endif
 #if defined(AF_UNIX) &&		\
+    defined(HAVE_SYS_UN_H) &&	\
     defined(HAVE_SOCKADDR_UN)
 	case AF_UNIX: {
 		static struct sockaddr_un addr;

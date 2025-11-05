@@ -169,6 +169,7 @@ retry:
 	} while (stress_continue(args));
 
 #if defined(AF_UNIX) &&		\
+    defined(HAVE_SYS_UN_H) &&	\
     defined(HAVE_SOCKADDR_UN)
 	if (dccp_domain == AF_UNIX) {
 		const struct sockaddr_un *addr_un = (struct sockaddr_un *)addr;
@@ -377,6 +378,7 @@ die_close:
 die:
 	t2 = stress_time_now();
 #if defined(AF_UNIX) &&		\
+    defined(HAVE_SYS_UN_H) &&	\
     defined(HAVE_SOCKADDR_UN)
 	if (addr && (dccp_domain == AF_UNIX)) {
 		const struct sockaddr_un *addr_un = (struct sockaddr_un *)addr;
