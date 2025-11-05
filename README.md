@@ -617,6 +617,7 @@ stress-ng has found various Kernel, QEMU bugs/regressions, and libc bugs; approp
 * [select: core_sys_select add unlikely branch hint on return path](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=6b24a702ecf167ab61456276bb72133d84ccca45)
 * [mm: fix the inaccurate memory statistics issue for users](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=82241a83cd15aaaf28200a40ad1a8b480012edaf)
 * [powerpc/defconfigs: Set HZ=1000 on ppc64 and powernv defconfigs](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=a206d233401208e1c36cf7c66f23a36f91d33de3)
+* [ARM64: sigaction siginfo_t si_addr is incorrect on SIGSEGVs on addresses that are very large](sigaction siginfo_t si_addr is incorrect on SIGSEGVs on addresses that are very large])
 
 I appreciate information concerning kernel bugs or performance regressions found with stress-ng.
 
