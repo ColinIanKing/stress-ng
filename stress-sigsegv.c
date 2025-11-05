@@ -517,6 +517,15 @@ retry:
 					mask = mask_bit;
 				}
 				mask_shift++;
+				/*
+				 *   too high and some 64 bit kernels [1] can't
+				 *   fill in si_addr correctly, so
+				 *   limit this.
+				 *
+				 *   [1] ARM64 linux, OpenIndiana x86, etc
+				 */
+				if (mask_shift > 50)
+					mask_shift = 0;
 				masked_ptr &= mask;
 				masked_ptr |= mask_bit;	/* ensure top bit always set */
 				last_mask = mask;
