@@ -291,7 +291,7 @@ static inline int stress_rtc_sys(stress_args_t *args)
 		}
 	}
 	if (enoents == SIZEOF_ARRAY(interfaces)) {
-		pr_fail("%s: no RTC interfaces found for /sys/class/rtc/rtc0\n", args->name);
+		pr_inf("%s: no RTC interfaces found for /sys/class/rtc/rtc0\n", args->name);
 		rc = -ENOENT;
 	}
 
@@ -321,6 +321,9 @@ static inline int stress_rtc_proc(stress_args_t *args)
 static int stress_rtc(stress_args_t *args)
 {
 	int rc = EXIT_SUCCESS;
+	bool rtc_dev_test = true;
+	bool rtc_sys_test = true;
+	bool rtc_proc_test = true;
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
@@ -329,28 +332,47 @@ static int stress_rtc(stress_args_t *args)
 	do {
 		int ret;
 
-		ret = stress_rtc_dev(args);
-		if (ret < 0) {
-			if ((ret != -ENOENT) && (ret != -EINTR) &&
-			    (ret != -EACCES) && (ret != -EBUSY) &&
-			    (ret != -EPERM)) {
-				rc = EXIT_FAILURE;
-				break;
+		if (rtc_dev_test) {
+			ret = stress_rtc_dev(args);
+			if (ret < 0) {
+				if (ret == -ENOENT)
+					rtc_dev_test = false;
+				if ((ret != -ENOENT) && (ret != -EINTR) &&
+				    (ret != -EACCES) && (ret != -EBUSY) &&
+				    (ret != -EPERM)) {
+					rc = EXIT_FAILURE;
+					break;
+				}
 			}
 		}
-		ret = stress_rtc_sys(args);
-		if (ret < 0) {
-			if ((ret != -ENOENT) && (ret != -EINTR)) {
-				rc = EXIT_FAILURE;
-				break;
+
+		if (rtc_sys_test) {
+			ret = stress_rtc_sys(args);
+			if (ret < 0) {
+				if (ret == -ENOENT)
+					rtc_sys_test = false;
+				if ((ret != -ENOENT) && (ret != -EINTR)) {
+					rc = EXIT_FAILURE;
+					break;
+				}
 			}
 		}
-		ret = stress_rtc_proc(args);
-		if (ret < 0) {
-			if ((ret != -ENOENT) && (ret != -EINTR)) {
-				rc = EXIT_FAILURE;
-				break;
+
+		if (rtc_proc_test) {
+			ret = stress_rtc_proc(args);
+			if (ret < 0) {
+				if (ret == -ENOENT)
+					rtc_proc_test = false;
+				if ((ret != -ENOENT) && (ret != -EINTR)) {
+					rc = EXIT_FAILURE;
+					break;
+				}
 			}
+		}
+		if (!(rtc_dev_test | rtc_sys_test | rtc_proc_test)) {
+			pr_inf_skip("%s: getting ENOENT on real time clock access, skipping stresor\n", args->name);
+			rc = EXIT_NO_RESOURCE;
+			break;
 		}
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
