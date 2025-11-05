@@ -572,6 +572,7 @@ stress-ng has found various Kernel, QEMU bugs/regressions, and libc bugs; approp
 * [cifs: Fix null-ptr-deref by static initializing global lock](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=b0b73329ebeeb727913f07b5b6bb85e66e03d156)
 * [Revert "sched_ext: Skip per-CPU tasks in scx_bpf_reenqueue_local()"](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=0b47b6c3543efd65f2e620e359b05f4938314fbd)
 * [mm/mremap: avoid expensive folio lookup on mremap folio pte batch](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=0b5be138ce00f421bd7cc5a226061bd62c4ab850)
+* [ARM64: sigaction siginfo_t si_addr is incorrect on SIGSEGVs on addresses that are very large](https://bugzilla.kernel.org/show_bug.cgi?id=220750)
 
 ## Kernel improvements that used stress-ng
 
@@ -617,7 +618,6 @@ stress-ng has found various Kernel, QEMU bugs/regressions, and libc bugs; approp
 * [select: core_sys_select add unlikely branch hint on return path](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=6b24a702ecf167ab61456276bb72133d84ccca45)
 * [mm: fix the inaccurate memory statistics issue for users](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=82241a83cd15aaaf28200a40ad1a8b480012edaf)
 * [powerpc/defconfigs: Set HZ=1000 on ppc64 and powernv defconfigs](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=a206d233401208e1c36cf7c66f23a36f91d33de3)
-* [ARM64: sigaction siginfo_t si_addr is incorrect on SIGSEGVs on addresses that are very large](sigaction siginfo_t si_addr is incorrect on SIGSEGVs on addresses that are very large])
 
 I appreciate information concerning kernel bugs or performance regressions found with stress-ng.
 
