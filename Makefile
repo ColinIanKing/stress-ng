@@ -18,9 +18,9 @@
 #
 
 #
-# Codename "tricky timer tester"
+# Codename "refreshed kernel agitator"
 #
-VERSION=0.19.05
+VERSION=0.19.06
 
 #
 # Determine supported toolchains
