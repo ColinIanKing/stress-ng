@@ -175,6 +175,7 @@ static void stress_affinity_child(
 			CPU_ZERO(&mask);
 			if (sched_getaffinity(0, sizeof(getmask), &getmask) == 0) {
 				if ((g_opt_flags & OPT_FLAGS_VERIFY) &&
+				    (!(g_opt_flags & OPT_FLAGS_AGGRESSIVE)) &&
 				    (!taskset_random) &&
 				    (!CPU_ISSET(cpu, &getmask)))
 					pr_fail("%s: failed to move to CPU %" PRIu32 "\n",
@@ -274,6 +275,13 @@ static int stress_affinity(stress_args_t *args)
 	(void)stress_get_setting("affinity-pin", &info->affinity_pin);
 	(void)stress_get_setting("affinity-rand", &info->affinity_rand);
 	(void)stress_get_setting("affinity-sleep", &info->affinity_sleep);
+
+	if ((g_opt_flags & OPT_FLAGS_AGGRESSIVE) &&
+	    (g_opt_flags & OPT_FLAGS_VERIFY) &&
+	    stress_instance_zero(args)) {
+		pr_inf("%s: verification of sched_getaffinity disabled "
+			"when --aggressive is enabled\n", args->name);
+	}
 
 	/*
 	 *  process slots 1..STRESS_AFFINITY_PROCS are the children,
