@@ -1719,6 +1719,7 @@ child_exit:
  */
 static void MLOCKED_TEXT stress_run(
 	const int32_t ticks_per_sec,
+	const uint32_t n_stressors,
 	stress_stressor_t *stressors_list,
 	double *duration,
 	bool *success,
@@ -1753,7 +1754,7 @@ static void MLOCKED_TEXT stress_run(
 			(void)sleep(g_opt_pause);
 		}
 	}
-	pr_dbg("starting stressors\n");
+	pr_dbg("starting stressor%s\n", n_stressors > 1 ? "s" : "");
 
 	/*
 	 *  Work through the list of stressors to run
@@ -3574,6 +3575,7 @@ static void stress_setup_parallel(const uint32_t classifier, const int32_t insta
  */
 static inline void stress_run_sequential(
 	const int32_t ticks_per_sec,
+	const uint32_t n_stressors,
 	double *duration,
 	bool *success,
 	bool *resource_success,
@@ -3623,7 +3625,7 @@ static inline void stress_run_sequential(
 		}
 		next = ss->next;
 		ss->next = NULL;
-		stress_run(ticks_per_sec, ss, duration, success, resource_success,
+		stress_run(ticks_per_sec, n_stressors, ss, duration, success, resource_success,
 			metrics_success, &checksum);
 		ss->next = next;
 	}
@@ -3636,6 +3638,7 @@ static inline void stress_run_sequential(
  */
 static inline void stress_run_parallel(
 	const int32_t ticks_per_sec,
+	const uint32_t n_stressors,
 	double *duration,
 	bool *success,
 	bool *resource_success,
@@ -3646,7 +3649,7 @@ static inline void stress_run_parallel(
 	/*
 	 *  Run all stressors in parallel
 	 */
-	stress_run(ticks_per_sec, stress_stressor_list.head, duration, success, resource_success,
+	stress_run(ticks_per_sec, n_stressors, stress_stressor_list.head, duration, success, resource_success,
 			metrics_success, &checksum);
 	stress_metrics_check(success);
 }
@@ -3666,6 +3669,7 @@ static inline void stress_run_permute(
 	size_t i, perms, num_perms, run = 0;
 	const size_t max_perms = STRESS_MAX_PERMUTATIONS;
 	char str[4096];
+	uint32_t n_stressors = 0;
 
 	for (perms = 0, ss = stress_stressor_list.head; ss; ss = ss->next) {
 		ss->ignore.permute = true;
@@ -3703,6 +3707,8 @@ static inline void stress_run_permute(
 
 			ss->ignore.permute = ((i & (1U << j)) == 0);
 			if (!ss->ignore.permute) {
+				n_stressors++;
+
 				if (*str)
 					shim_strlcat(str, ", ", sizeof(str));
 				shim_strlcat(str, ss->stressor->name, sizeof(str));
@@ -3715,7 +3721,7 @@ static inline void stress_run_permute(
 			(num_perms > 0) ?  100.0 * (double)run / (double)num_perms : 100.0,
 			*finish ? ", finish at " : "",
 			finish);
-		stress_run_parallel(ticks_per_sec, duration, success, resource_success, metrics_success);
+		stress_run_parallel(ticks_per_sec, n_stressors, duration, success, resource_success, metrics_success);
 	}
 	for (ss = stress_stressor_list.head; ss; ss = ss->next) {
 		ss->ignore.permute = false;
@@ -3837,6 +3843,7 @@ int main(int argc, char **argv, char **envp)
 	int32_t ionice_level = UNDEFINED;	/* ionice level */
 	size_t i;
 	uint32_t class = 0;
+	uint32_t n_stressors;
 	const uint32_t cpus_online = (uint32_t)stress_get_processors_online();
 	const uint32_t cpus_configured = (uint32_t)stress_get_processors_configured();
 	int ret;
@@ -4159,12 +4166,13 @@ int main(int argc, char **argv, char **envp)
 	stress_config_check();
 	stress_resctrl_init();
 
+	n_stressors = stress_get_num_stressors();
 	if (g_opt_flags & OPT_FLAGS_SEQUENTIAL) {
-		stress_run_sequential(ticks_per_sec, &duration, &success, &resource_success, &metrics_success);
+		stress_run_sequential(ticks_per_sec, n_stressors, &duration, &success, &resource_success, &metrics_success);
 	} else if (g_opt_flags & OPT_FLAGS_PERMUTE) {
 		stress_run_permute(ticks_per_sec, &duration, &success, &resource_success, &metrics_success);
 	} else {
-		stress_run_parallel(ticks_per_sec, &duration, &success, &resource_success, &metrics_success);
+		stress_run_parallel(ticks_per_sec, n_stressors, &duration, &success, &resource_success, &metrics_success);
 	}
 
 	stress_clocksource_check();
