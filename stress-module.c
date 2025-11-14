@@ -336,7 +336,7 @@ static int stress_module_open(stress_args_t *args, int mod_type)
 	 */
 	ret = lzma_stream_decoder(&strm, UINT64_MAX, LZMA_CONCATENATED);
 	if (ret != LZMA_OK) {
-		pr_inf("%s: lzma_stream_decoder failed, ret=%d\n", args->name, ret);
+		pr_inf("%s: lzma_stream_decoder failed, ret=%u\n", args->name, ret);
 		return -1;
 	}
 	(void)stress_temp_filename_args(args,
@@ -402,7 +402,7 @@ static int stress_module_open(stress_args_t *args, int mod_type)
 		if (ret != LZMA_OK) {
 			if (ret == LZMA_STREAM_END)
 				break;
-			pr_inf("%s: decompress error %d\n", args->name, ret);
+			pr_inf("%s: decompress error %u\n", args->name, ret);
 			(void)unlink(modname);
 			(void)close(fd_out);
 			(void)close(fd_in);

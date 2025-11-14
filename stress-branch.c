@@ -387,7 +387,7 @@ L0x000:
 	if (bogo_counter > 10000) {
 		for (i = 0; i < SIZEOF_ARRAY(counters); i++) {
 			if ((counters[i] < lo) || (counters[i] > hi)) {
-				pr_fail("%s: branch label %zd execution count out by more than 10%%, "
+				pr_fail("%s: branch label %zu execution count out by more than 10%%, "
 					"got %" PRIu64 ", expected between %" PRIu64 " and %" PRIu64 "\n",
 					args->name, i * 64, counters[i], lo, hi);
 				rc = EXIT_FAILURE;

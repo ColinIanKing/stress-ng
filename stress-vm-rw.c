@@ -148,7 +148,8 @@ redo_rd1:
 			for (ptr = buf; ptr < end; ptr += args->page_size) {
 				if (UNLIKELY(*ptr != msg_rd.val)) {
 					pr_fail("%s: memory at %p (offset %tx): %d vs %d\n",
-						args->name, (void *)ptr, ptr - buf, *ptr, msg_rd.val);
+						args->name, (void *)ptr,
+						(ptrdiff_t)(ptr - buf), *ptr, msg_rd.val);
 					rc = EXIT_FAILURE;
 					goto cleanup;
 				}
@@ -223,7 +224,7 @@ redo_rd2:
 		if (UNLIKELY(rwret != sizeof(msg_rd))) {
 			if (rwret == 0)
 				break;
-			pr_fail("%s: read failed, expected %zd bytes, got %zd\n",
+			pr_fail("%s: read failed, expected %zu bytes, got %zd\n",
 				args->name, sizeof(msg_rd), rwret);
 			break;
 		}
@@ -258,7 +259,9 @@ redo_rd2:
 			for (ptr1 = localbuf; ptr1 < end; ptr1 += args->page_size) {
 				if (UNLIKELY(*ptr1)) {
 					pr_fail("%s: memory at %p (offset %tx): %d vs %d\n",
-						args->name, (void *)ptr1, ptr1 - localbuf, *ptr1, msg_rd.val);
+						args->name, (void *)ptr1,
+						(ptrdiff_t)(ptr1 - localbuf),
+						*ptr1, msg_rd.val);
 					goto fail;
 				}
 				*ptr1 = 0;

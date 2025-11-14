@@ -531,7 +531,7 @@ again:
 			stress_force_killed_bogo(args);
 			(void)stress_kill_pid_wait(pid, NULL);
 		} else if (WIFSIGNALED(status)) {
-			pr_dbg("%s: child died: %s (instance %d)\n",
+			pr_dbg("%s: child died: %s (instance %" PRIu32 ")\n",
 				args->name, stress_strsignal(WTERMSIG(status)),
 				args->instance);
 			return EXIT_FAILURE;

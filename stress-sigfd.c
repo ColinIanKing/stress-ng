@@ -165,7 +165,7 @@ again:
 			}
 			if (UNLIKELY(verify)) {
 				if (UNLIKELY(fdsi.ssi_signo != (uint32_t)SIGRTMIN)) {
-					pr_fail("%s: unexpected signal %d\n",
+					pr_fail("%s: unexpected signal %u\n",
 						args->name, fdsi.ssi_signo);
 					rc = EXIT_FAILURE;
 					break;

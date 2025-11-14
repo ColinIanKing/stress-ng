@@ -1127,7 +1127,7 @@ static int stress_open(stress_args_t *args)
 		}
 	}
 	if (!args->instance)
-		pr_inf("%s: using a maximum of %zd file descriptors\n", args->name, open_max);
+		pr_inf("%s: using a maximum of %zu file descriptors\n", args->name, open_max);
 	stress_set_vma_anon_name(fds, sz, "fds");
 
 	if (open_fd) {

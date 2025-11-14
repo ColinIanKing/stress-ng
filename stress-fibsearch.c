@@ -135,8 +135,8 @@ static int OPTIMIZE3 stress_fibsearch(stress_args_t *args)
 						args->name, i);
 				else if (*result != *ptr) {
 					pr_fail("%s: element %zu "
-						"found %" PRIu32
-						", expecting %" PRIu32 "\n",
+						"found %" PRId32
+						", expecting %" PRId32 "\n",
 						args->name, i, *result, *ptr);
 					rc = EXIT_FAILURE;
 					break;

@@ -337,7 +337,7 @@ static void *stress_malloc_loop(void *ptr)
 						if (UNLIKELY(usable_size < len)) {
 							pr_fail("%s: malloc_usable_size on %p returned a "
 								"value %zu, expected %zu or larger\n",
-								args->name, info[i].addr, usable_size, len);
+								args->name, (void *)info[i].addr, usable_size, len);
 							malloc_args->rc = EXIT_FAILURE;
 							break;
 						}

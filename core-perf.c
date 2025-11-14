@@ -517,7 +517,7 @@ int stress_perf_open(stress_perf_t *sp)
 		}
 		if (!g_shared->perf.no_perf) {
 			pr_dbg("perf: perf_event_open failed, no "
-				"perf events [%u]\n", getpid());
+				"perf events [%" PRIdMAX "]\n", (intmax_t)getpid());
 			g_shared->perf.no_perf = true;
 		}
 		ret = stress_lock_release(g_shared->perf.lock);

@@ -209,8 +209,8 @@ static int OPTIMIZE3 stress_rawudp_server(
 						"got 0x%" PRIxMAX ", "
 						 "expected 0x%" PRIxMAX "\n",
 						args->name,
-						(intmax_t)*(const pid_t *)data,
-						(intmax_t)args->pid);
+						(uintmax_t)*(const pid_t *)data,
+						(uintmax_t)args->pid);
 					rc = EXIT_FAILURE;
 				}
 				bytes += (double)n;

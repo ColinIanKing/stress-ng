@@ -578,14 +578,14 @@ again:
 				}
 				(void)shim_waitpid(pid, &status, 0);
 			} else if (WIFSIGNALED(status)) {
-				pr_dbg("%s: child died: %s (instance %d)\n",
+				pr_dbg("%s: child died: %s (instance %" PRIu32 ")\n",
 					args->name, stress_strsignal(WTERMSIG(status)),
 					args->instance);
 				/* If we got killed by OOM killer, re-start */
 				if (WTERMSIG(status) == SIGKILL) {
 					stress_log_system_mem_info();
 					pr_dbg("%s: assuming killed by OOM killer, "
-						"restarting again (instance %d)\n",
+						"restarting again (instance %" PRIu32 ")\n",
 						args->name, args->instance);
 					goto again;
 				}

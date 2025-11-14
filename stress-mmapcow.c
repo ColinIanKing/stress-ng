@@ -131,7 +131,7 @@ PRAGMA_UNROLL_N(8)
 		}
 		stress_mmapcow_force_unmap(args, buf, buf_size, page_size);
 		pr_fail("%s: munmap of page at %p failed, errno=%d (%s)\n",
-			args->name, page, errno, strerror(errno));
+			args->name, (void *)page, errno, strerror(errno));
 		return -1;
 	}
 	stress_bogo_inc(args);

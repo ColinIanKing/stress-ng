@@ -133,7 +133,7 @@ static int stress_mprotect_mem(
 					stress_mprotect_flags(prot_flags[j], str, sizeof(str));
 					pr_fail("%s: page %p was readable with PROT_READ unset, "
 						"protection flags used:%s\n",
-						args->name, ptr, str);
+						args->name, (void *)ptr, str);
 					return EXIT_FAILURE;
 				}
 #endif
@@ -148,7 +148,7 @@ static int stress_mprotect_mem(
 					stress_mprotect_flags(prot_flags[j], str, sizeof(str));
 					pr_fail("%s: page %p was writable with PROT_WRITE unset, "
 						"protection flags used:%s\n",
-						args->name, ptr, str);
+						args->name, (void *)ptr, str);
 					return EXIT_FAILURE;
 				}
 #endif

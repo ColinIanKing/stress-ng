@@ -111,7 +111,7 @@ static inline int stress_dev_shm_child(
 					if (*ptr != val) {
 						pr_fail("%s: address %p does not contain correct value, "
 							"got 0x%" PRIx32 ", expecting 0x%" PRIx32 "\n",
-							args->name, ptr, *ptr, val);
+							args->name, (void *)ptr, *ptr, val);
 						(void)munmap((void *)addr, (size_t)sz);
 						VOID_RET(int, ftruncate(fd, 0));
 						return EXIT_FAILURE;
@@ -170,7 +170,7 @@ again:
 				    (WTERMSIG(status) == SIGBUS)) {
 					stress_log_system_mem_info();
 					pr_dbg("%s: assuming killed by OOM killer, "
-						"restarting again (instance %d)\n",
+						"restarting again (instance %" PRIu32 ")\n",
 						args->name, args->instance);
 				}
 			}

@@ -102,7 +102,7 @@ static int stress_msyncmany_child(stress_args_t *args, void *context)
 			if (UNLIKELY(!ptr))
 				continue;
 			if (UNLIKELY(*ptr != pattern)) {
-				pr_fail("%s: failed: mapping %zd at %p contained %" PRIx64 " and not %" PRIx64 "\n",
+				pr_fail("%s: failed: mapping %zu at %p contained %" PRIx64 " and not %" PRIx64 "\n",
 					args->name, i, (const void *)ptr, *ptr, pattern);
 				rc = EXIT_FAILURE;
 				failed++;

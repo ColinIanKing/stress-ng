@@ -632,7 +632,7 @@ static int stress_fp_call_method(
 				return EXIT_SUCCESS;
 			}
 			if (ret) {
-				pr_fail("%s %s %s verification failure on element %zd, got %Lf, expected %Lf\n",
+				pr_fail("%s %s %s verification failure on element %zu, got %Lf, expected %Lf\n",
 					args->name, fp_description, method_name, i, r0, r1);
 				return EXIT_FAILURE;
 			}

@@ -91,7 +91,7 @@ static void stress_stackmmap_push_msync(stress_stack_check_t *prev_check)
 	for (i = 0, ptr = &check; (i < 256) && ptr; ptr = ptr->prev, i++) {
 		if (UNLIKELY(ptr->self_addr != ptr)) {
 			pr_inf("%s: sanity check address mismatch, got 0x%p, "
-				"expecting 0x%p\n", name, ptr, ptr->self_addr);
+				"expecting 0x%p\n", name, (void *)ptr, (void *)ptr->self_addr);
 			check_status = EXIT_FAILURE;
 			return;
 		}

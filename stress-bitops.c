@@ -453,7 +453,7 @@ static int OPTIMIZE3 stress_bitops_cmp(const char *name, uint32_t *count)
 		sum += cmp2;
 		if (UNLIKELY(cmp1 != cmp2)) {
 			pr_fail("%s: cmp method 1 failure, values 0x%" PRIx32 " vs 0x%" PRIx32 ", cmp1 = 0x%" PRIx32 ", cmp2 = 0x%" PRIx32 "\n",
-				name, x, y, cmp1, cmp2);
+				name, (uint32_t)x, (uint32_t)y, (uint32_t)cmp1, (uint32_t)cmp2);
 			return EXIT_FAILURE;
 		}
 
@@ -462,7 +462,7 @@ static int OPTIMIZE3 stress_bitops_cmp(const char *name, uint32_t *count)
 		sum += cmp2;
 		if (UNLIKELY(cmp1 != cmp2)) {
 			pr_fail("%s: cmp method 2 failure, values 0x%" PRIx32 " vs 0x%" PRIx32 ", cmp1 = 0x%" PRIx32 ", cmp2 = 0x%" PRIx32 "\n",
-				name, x, y, cmp1, cmp2);
+				name, (uint32_t)x, (uint32_t)y, (uint32_t)cmp1, (uint32_t)cmp2);
 			return EXIT_FAILURE;
 		}
 

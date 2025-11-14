@@ -79,7 +79,7 @@ static void stress_pagemove_remap_fail(
 	const uint8_t *to)
 {
 	pr_fail("%s: mremap of address %p to %p failed, errno=%d (%s)\n",
-		args->name, from, to, errno, strerror(errno));
+		args->name, (const void *)from, (const void *)to, errno, strerror(errno));
 }
 
 static int stress_pagemove_child(stress_args_t *args, void *context)

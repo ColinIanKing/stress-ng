@@ -774,7 +774,7 @@ retry:
 				if ((errno == EINVAL) || (errno == EIDRM))
 					goto reap;
 				ok = false;
-				pr_fail("%s: shmat on NULL address failed on id %d, (key=%d, size=%zd), errno=%d (%s)\n",
+				pr_fail("%s: shmat on NULL address failed on id %d, (key=%d, size=%zu), errno=%d (%s)\n",
 					args->name, shm_id, (int)key, sz, errno, strerror(errno));
 				rc = EXIT_FAILURE;
 				goto reap;

@@ -246,7 +246,7 @@ static int stress_numa(stress_args_t *args)
 		char str[32];
 
 		stress_uint64_to_str(str, sizeof(str), (uint64_t)numa_bytes, 1, true);
-		pr_inf("%s: system has %lu of a maximum %lu memory NUMA nodes. Using %s mappings for each instance.\n",
+		pr_inf("%s: system has %ld of a maximum %ld memory NUMA nodes. Using %s mappings for each instance.\n",
 			args->name, numa_mask->nodes, numa_mask->max_nodes, str);
 	}
 
@@ -481,7 +481,7 @@ static int stress_numa(stress_args_t *args)
 				numa_mask->max_nodes, MPOL_MF_MOVE);
 		if (UNLIKELY(lret < 0)) {
 			if ((errno != EIO) && (errno != ENOSYS)) {
-				pr_fail("%s: mbind to node %lu using MPOL_MF_MOVE failed, errno=%d (%s)\n",
+				pr_fail("%s: mbind to node %ld using MPOL_MF_MOVE failed, errno=%d (%s)\n",
 					args->name, node, errno, strerror(errno));
 				goto err;
 			}
@@ -514,7 +514,7 @@ static int stress_numa(stress_args_t *args)
 			numa_mask->max_nodes, MPOL_DEFAULT);
 		if (UNLIKELY(lret < 0)) {
 			if ((errno != EIO) && (errno != ENOSYS)) {
-				pr_fail("%s: mbind to node %lu using MPOL_DEFAULT failed, errno=%d (%s)\n",
+				pr_fail("%s: mbind to node %ld using MPOL_DEFAULT failed, errno=%d (%s)\n",
 					args->name, node, errno, strerror(errno));
 				goto err;
 			}
@@ -557,7 +557,7 @@ static int stress_numa(stress_args_t *args)
 			lret = shim_mbind((void *)buf, numa_bytes, MPOL_BIND, numa_mask->mask,
 				numa_mask->max_nodes, MPOL_MF_MOVE_ALL);
 			if (lret >= 0) {
-				pr_fail("%s: mbind on node %lu using MPOL_MF_MOVE_ALL without capability CAP_SYS_NICE unexpectedly succeeded, "
+				pr_fail("%s: mbind on node %ld using MPOL_MF_MOVE_ALL without capability CAP_SYS_NICE unexpectedly succeeded, "
 						"errno=%d (%s)\n", args->name, node, errno, strerror(errno));
 			}
 		}

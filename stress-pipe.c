@@ -93,7 +93,7 @@ static void pipe_change_size(
 	} else {
 		if (UNLIKELY((size_t)sz != pipe_size)) {
 			pr_err("%s: cannot set desired pipe size, "
-				"pipe %zd, defaulting to size %zd\n",
+				"pipe %zu, defaulting to size %zd\n",
 				args->name, pipe_size, sz);
 		}
 	}

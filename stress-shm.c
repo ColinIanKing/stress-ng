@@ -270,7 +270,7 @@ static int stress_shm_posix_child(
 			} else {
 				if (UNLIKELY(statbuf.st_size != (off_t)sz)) {
 					pr_fail("%s: fstat reports different size of shared memory, "
-						"got %" PRIdMAX " bytes, expected %zd bytes\n", args->name,
+						"got %" PRIdMAX " bytes, expected %zu bytes\n", args->name,
 						(intmax_t)statbuf.st_size, sz);
 				}
 			}
@@ -490,7 +490,7 @@ again:
 				if (WTERMSIG(status) == SIGKILL) {
 					stress_log_system_mem_info();
 					pr_dbg("%s: assuming killed by OOM killer, "
-						"restarting again (instance %d)\n",
+						"restarting again (instance %" PRIu32 ")\n",
 						args->name, args->instance);
 					restarts++;
 				}

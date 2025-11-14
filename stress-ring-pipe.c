@@ -183,7 +183,7 @@ static int stress_ring_pipe(stress_args_t *args)
 			"skipping stressor\n", args->name);
 		goto err_close_pipes;
 	} else if (n_pipes < ring_pipe_num) {
-		pr_inf("%s: limiting to %zd pipes due to file descriptor limit\n",
+		pr_inf("%s: limiting to %zu pipes due to file descriptor limit\n",
 			args->name, n_pipes);
 	}
 
@@ -196,7 +196,7 @@ static int stress_ring_pipe(stress_args_t *args)
 #endif
 
 	if (stress_instance_zero(args)) {
-		pr_inf("%s: using %zd pipes with %zd byte data, %s\n",
+		pr_inf("%s: using %zu pipes with %zu byte data, %s\n",
 			args->name, n_pipes, ring_pipe_size,
 			ring_pipe_splice ? "using splice" : "using read+write");
 	}

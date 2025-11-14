@@ -291,7 +291,7 @@ static int stress_yield(stress_args_t *args)
 		pids[i] = fork();
 		if (pids[i] < 0) {
 			pr_dbg("%s: fork failed (instance %" PRIu32
-				", yielder %zd), errno=%d (%s)\n",
+				", yielder %zu), errno=%d (%s)\n",
 				args->name, args->instance, i, errno, strerror(errno));
 		} else if (pids[i] == 0) {
 			stress_set_proc_state(args->name, STRESS_STATE_RUN);

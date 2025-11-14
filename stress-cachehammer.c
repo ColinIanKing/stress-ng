@@ -242,14 +242,14 @@ static void OPTIMIZE3 hammer_write(
 		if (UNLIKELY(val != pattern)) {
 			pr_fail("%s: write: read back of stored value at address "
 				"%p not %" PRIx64 ", got %" PRIx64 " instead\n",
-				args->name, vptr, pattern, val);
+				args->name, (volatile void *)vptr, pattern, val);
 		}
 		vptr = (volatile uint64_t *)addr2;
 		val = *vptr;
 		if (UNLIKELY(val != pattern)) {
 			pr_fail("%s: write: read back of stored value at address "
 				"%p not %" PRIx64 ", got %" PRIx64 " instead\n",
-				args->name, vptr, pattern, val);
+				args->name, (volatile void *)vptr, pattern, val);
 		}
 	}
 }
@@ -301,7 +301,7 @@ static void OPTIMIZE3 hammer_write64(
 			if (UNLIKELY(val != pattern)) {
 				pr_fail("%s: write64: read back of stored value at address "
 					"%p not %" PRIx64 ", got %" PRIx64 " instead\n",
-					args->name, vptr, pattern, val);
+					args->name, (volatile void *)vptr, pattern, val);
 			}
 		}
 	}
@@ -342,14 +342,14 @@ static void OPTIMIZE3 hammer_readwrite(
 		if (UNLIKELY(val != pattern)) {
 			pr_fail("%s: readwrite: read back of stored value at address "
 				"%p not %" PRIx64 ", got %" PRIx64 " instead\n",
-				args->name, vptr, pattern, val);
+				args->name, (volatile void *)vptr, pattern, val);
 		}
 		vptr = (volatile uint64_t *)addr2;
 		val = *vptr;
 		if (UNLIKELY(val != pattern)) {
 			pr_fail("%s: readwrite: read back of stored value at address "
 				"%p not %" PRIx64 ", got %" PRIx64 " instead\n",
-				args->name, vptr, pattern, val);
+				args->name, (volatile void *)vptr, pattern, val);
 		}
 	}
 }
@@ -429,14 +429,14 @@ static void OPTIMIZE3 hammer_writeread(
 		if (UNLIKELY(val != pattern)) {
 			pr_fail("%s: writeread: read back of stored value at address "
 				"%p not %" PRIx64 ", got %" PRIx64 " instead\n",
-				args->name, vptr, pattern, val);
+				args->name, (volatile void *)vptr, pattern, val);
 		}
 		vptr = (volatile uint64_t *)addr2;
 		val = *vptr;
 		if (UNLIKELY(val != pattern)) {
 			pr_fail("%s: writeread: read back of stored value at address "
 				"%p not %" PRIx64 ", got %" PRIx64 " instead\n",
-				args->name, vptr, pattern, val);
+				args->name, (volatile void *)vptr, pattern, val);
 		}
 	}
 }
@@ -488,7 +488,7 @@ static void OPTIMIZE3 hammer_writeread64(
 			if (UNLIKELY(val != pattern)) {
 				pr_fail("%s: writeread64: read back of stored value at address "
 					"%p not %" PRIx64 ", got %" PRIx64 " instead\n",
-					args->name, vptr, pattern, val);
+					args->name, (volatile void *)vptr, pattern, val);
 			}
 		}
 	}
@@ -603,14 +603,14 @@ static void OPTIMIZE3 hammer_ppc64_dcbst(
 			if (UNLIKELY(val != pattern)) {
 				pr_fail("%s: dcbst: read back of stored value at address "
 					"%p not %" PRIx64 ", got %" PRIx64 " instead\n",
-					args->name, vptr, pattern, val);
+					args->name, (volatile void *)vptr, pattern, val);
 			}
 			vptr = (volatile uint64_t *)addr2;
 			val = *vptr;
 			if (UNLIKELY(val != pattern)) {
 				pr_fail("%s: dcbst: read back of stored value at address "
 					"%p not %" PRIx64 ", got %" PRIx64 " instead\n",
-					args->name, vptr, pattern, val);
+					args->name, (volatile void *)vptr, pattern, val);
 			}
 		}
 	}
@@ -659,14 +659,14 @@ static void OPTIMIZE3 hammer_ppc_dcbst(
 			if (UNLIKELY(val != pattern)) {
 				pr_fail("%s: dcbst: read back of stored value at address "
 					"%p not %" PRIx64 ", got %" PRIx64 " instead\n",
-					args->name, vptr, pattern, val);
+					args->name, (volatile void *)vptr, pattern, val);
 			}
 			vptr = (volatile uint64_t *)addr2;
 			val = *vptr;
 			if (UNLIKELY(val != pattern)) {
 				pr_fail("%s: dcbst: read back of stored value at address "
 					"%p not %" PRIx64 ", got %" PRIx64 " instead\n",
-					args->name, vptr, pattern, val);
+					args->name, (volatile void *)vptr, pattern, val);
 			}
 		}
 	}
@@ -793,14 +793,14 @@ static void OPTIMIZE3 hammer_ppc64_dcbtst(
 			if (UNLIKELY(val != pattern)) {
 				pr_fail("%s: dcbtst: read back of stored value at address "
 					"%p not %" PRIx64 ", got %" PRIx64 " instead\n",
-					args->name, vptr, pattern, val);
+					args->name, (volatile void *)vptr, pattern, val);
 			}
 			vptr = (volatile uint64_t *)addr2;
 			val = *vptr;
 			if (UNLIKELY(val != pattern)) {
 				pr_fail("%s: dcbtst: read back of stored value at address "
 					"%p not %" PRIx64 ", got %" PRIx64 " instead\n",
-					args->name, vptr, pattern, val);
+					args->name, (volatile void *)vptr, pattern, val);
 			}
 		}
 	}
@@ -849,14 +849,14 @@ static void OPTIMIZE3 hammer_ppc_dcbtst(
 			if (UNLIKELY(val != pattern)) {
 				pr_fail("%s: dcbtst: read back of stored value at address "
 					"%p not %" PRIx64 ", got %" PRIx64 " instead\n",
-					args->name, vptr, pattern, val);
+					args->name, (volatile void *)vptr, pattern, val);
 			}
 			vptr = (volatile uint64_t *)addr2;
 			val = *vptr;
 			if (UNLIKELY(val != pattern)) {
 				pr_fail("%s: dcbtst: read back of stored value at address "
 					"%p not %" PRIx64 ", got %" PRIx64 " instead\n",
-					args->name, vptr, pattern, val);
+					args->name, (volatile void *)vptr, pattern, val);
 			}
 		}
 	}
@@ -1273,14 +1273,14 @@ static void OPTIMIZE3 hammer_write_clflush(
 			if (UNLIKELY(val != pattern)) {
 				pr_fail("%s: write-clflush: read back of stored value at address "
 					"%p not %" PRIx64 ", got %" PRIx64 " instead\n",
-					args->name, vptr, pattern, val);
+					args->name, (volatile void *)vptr, pattern, val);
 			}
 			vptr = (volatile uint64_t *)addr2;
 			val = *vptr;
 			if (UNLIKELY(val != pattern)) {
 				pr_fail("%s: write-clflush: read back of stored value at address "
 					"%p not %" PRIx64 ", got %" PRIx64 " instead\n",
-					args->name, vptr, pattern, val);
+					args->name, (volatile void *)vptr, pattern, val);
 			}
 		}
 	}
@@ -1327,14 +1327,14 @@ static void OPTIMIZE3 hammer_write_clflushopt(
 			if (UNLIKELY(val != pattern)) {
 				pr_fail("%s: write-clflushopt: read back of stored value at address "
 					"%p not %" PRIx64 ", got %" PRIx64 " instead\n",
-					args->name, vptr, pattern, val);
+					args->name, (volatile void *)vptr, pattern, val);
 			}
 			vptr = (volatile uint64_t *)addr2;
 			val = *vptr;
 			if (UNLIKELY(val != pattern)) {
 				pr_fail("%s: write-clflushopt: read back of stored value at address "
 					"%p not %" PRIx64 ", got %" PRIx64 " instead\n",
-					args->name, vptr, pattern, val);
+					args->name, (volatile void *)vptr, pattern, val);
 			}
 		}
 	}
@@ -1408,14 +1408,14 @@ static void OPTIMIZE3 hammer_clwb(
 			if (UNLIKELY(val != pattern)) {
 				pr_fail("%s: write-clwb: read back of stored value at address "
 					"%p not %" PRIx64 ", got %" PRIx64 " instead\n",
-					args->name, vptr, pattern, val);
+					args->name, (volatile void *)vptr, pattern, val);
 			}
 			vptr = (volatile uint64_t *)addr2;
 			val = *vptr;
 			if (UNLIKELY(val != pattern)) {
 				pr_fail("%s: write-clwb: read back of stored value at address "
 					"%p not %" PRIx64 ", got %" PRIx64 " instead\n",
-					args->name, vptr, pattern, val);
+					args->name, (volatile void *)vptr, pattern, val);
 			}
 		}
 	}

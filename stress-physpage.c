@@ -111,7 +111,7 @@ static void stress_physpage_mtrr(
 				gentry.regnum++;
 			}
 			if (UNLIKELY(!found)) {
-				pr_fail("%s: cannot find mtrr entry at %p, size %zd, type %d\n",
+				pr_fail("%s: cannot find mtrr entry at %p, size %zu, type %" PRIu32 "\n",
 					args->name, (void *)phys_addr, page_size, mtrr_types[i]);
 				*success = false;
 			}
@@ -152,8 +152,8 @@ static int stress_virt_to_phys(
 			args->name, (void *)virt_addr, errno, strerror(errno));
 		goto err;
 	} else if (UNLIKELY(n != (ssize_t)sizeof(pageinfo))) {
-		pr_fail("%s: read address %p in /proc/self/pagemap returned %zd bytes, expected %zd\n",
-			args->name, (void *)virt_addr, (size_t)n, sizeof(pageinfo));
+		pr_fail("%s: read address %p in /proc/self/pagemap returned %zd bytes, expected %zu\n",
+			args->name, (void *)virt_addr, n, sizeof(pageinfo));
 		goto err;
 	}
 

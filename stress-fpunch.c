@@ -146,7 +146,7 @@ static inline int stress_punch_check_zero(
 	while (ptr < ptr_end) {
 		if (*ptr) {
 			pr_inf("%s: data at file offset 0x%" PRIxMAX " was 0x%2.2x and not zero\n",
-				args->name, (intmax_t)(offset + (ptr - data)), *ptr & 0xff);
+				args->name, (uintmax_t)(offset + (ptr - data)), (unsigned int)(*ptr & 0xff));
 			return -1;
 		}
 		ptr++;

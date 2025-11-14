@@ -236,7 +236,7 @@ static int stress_mseal_supported(const char *name)
 	mapping = stress_mseal_mmap(mapping_size);
 	if (mapping == MAP_FAILED) {
 		pr_inf_skip("%s: cannot check if mseal is supported, memory mapping of "
-			"%zd bytes failed, skipping stressor\n", name, mapping_size);
+			"%zu bytes failed, skipping stressor\n", name, mapping_size);
 		return -1;
 	}
 

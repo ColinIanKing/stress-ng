@@ -147,7 +147,7 @@ PRAGMA_UNROLL
 
 		if (UNLIKELY(*data8 != val8)) {
 			pr_fail("%s: adjacent method: cache line error in offset 0x%x, expected %2" PRIx8 ", got %2" PRIx8 "\n",
-				args->name, idx, val8, *data8);
+				args->name, (unsigned int)idx, val8, *data8);
 			return EXIT_FAILURE;
 		}
 	}
@@ -184,7 +184,7 @@ PRAGMA_UNROLL
 
 		if (UNLIKELY(*data8 != val8)) {
 			pr_fail("%s: copy method: cache line error in offset 0x%x, expected %2" PRIx8 ", got %2" PRIx8 "\n",
-				args->name, idx, val8, *data8);
+				args->name, (unsigned int)idx, val8, *data8);
 			return EXIT_FAILURE;
 		}
 	}
@@ -225,7 +225,7 @@ PRAGMA_UNROLL
 
 		if (UNLIKELY(*data8 != val8)) {
 			pr_fail("%s: inc method: cache line error in offset 0x%x, expected %2" PRIx8 ", got %2" PRIx8 "\n",
-				args->name, idx, val8, *data8);
+				args->name, (unsigned int)idx, val8, *data8);
 			return EXIT_FAILURE;
 		}
 	}
@@ -301,7 +301,7 @@ PRAGMA_UNROLL
 
 		if (UNLIKELY(*data8 != val8)) {
 			pr_fail("%s: rdwr method: cache line error in offset 0x%x, expected %2" PRIx8 ", got %2" PRIx8 "\n",
-				args->name, idx, val8, *data8);
+				args->name, (unsigned int)idx, val8, *data8);
 			return EXIT_FAILURE;
 		}
 	}
@@ -332,7 +332,7 @@ PRAGMA_UNROLL
 		EXERCISE(val8);
 		if (UNLIKELY(val8 != *data8)) {
 			pr_fail("%s: mix method: cache line error in offset 0x%x, expected %2" PRIx8 ", got %2" PRIx8 "\n",
-				args->name, idx, val8, *data8);
+				args->name, (unsigned int)idx, val8, *data8);
 			return EXIT_FAILURE;
 		}
 		tmp = val8;
@@ -372,7 +372,7 @@ PRAGMA_UNROLL
 		}
 		if (UNLIKELY(val8 != *data8)) {
 			pr_fail("%s: rdrev64 method: cache line error in offset 0x%x, expected %2" PRIx8 ", got %2" PRIx8 "\n",
-				args->name, idx, val8, *data8);
+				args->name, (unsigned int)idx, val8, *data8);
 			return EXIT_FAILURE;
 		}
 	}
@@ -413,7 +413,7 @@ PRAGMA_UNROLL
 		}
 		if (UNLIKELY(val8 != *data8)) {
 			pr_fail("%s: rdfwd64: cache line error in offset 0x%x, expected %2" PRIx8 ", got %2" PRIx8 "\n",
-				args->name, idx, val8, *data8);
+				args->name, (unsigned int)idx, val8, *data8);
 			return EXIT_FAILURE;
 		}
 	}
@@ -467,7 +467,7 @@ PRAGMA_UNROLL
 #endif
 		if (UNLIKELY(val8 != *data8)) {
 			pr_fail("%s: rdints method: cache line error in offset 0x%x, expected %2" PRIx8 ", got %2" PRIx8 "\n",
-				args->name, idx, val8, *data8);
+				args->name, (unsigned int)idx, val8, *data8);
 			return EXIT_FAILURE;
 		}
 	}
@@ -499,7 +499,7 @@ PRAGMA_UNROLL
 		stress_asm_mb();
 		if (UNLIKELY(*data8 != val8)) {
 			pr_fail("%s: bits method: cache line error in offset 0x%x, expected %2" PRIx8 ", got %2" PRIx8 "\n",
-				args->name, idx, val8, *data8);
+				args->name, (unsigned int)idx, val8, *data8);
 			return EXIT_FAILURE;
 		}
 		val8 ^= 0xff;
@@ -507,7 +507,7 @@ PRAGMA_UNROLL
 		stress_asm_mb();
 		if (UNLIKELY(*data8 != val8)) {
 			pr_fail("%s: bits method: cache line error in offset 0x%x, expected %2" PRIx8 ", got %2" PRIx8 "\n",
-				args->name, idx, val8, *data8);
+				args->name, (unsigned int)idx, val8, *data8);
 			return EXIT_FAILURE;
 		}
 	}
@@ -542,7 +542,7 @@ PRAGMA_UNROLL
 
 		if (UNLIKELY(*data8 != val8)) {
 			pr_fail("%s: atomicinc method: cache line error in offset 0x%x, expected %2" PRIx8 ", got %2" PRIx8 "\n",
-				args->name, idx, val8, *data8);
+				args->name, (unsigned int)idx, val8, *data8);
 			return EXIT_FAILURE;
 		}
 	}
@@ -754,7 +754,7 @@ static int stress_cacheline(stress_args_t *args)
 
 	if (stress_instance_zero(args)) {
 		pr_dbg("%s: using method '%s'\n", args->name, cacheline_methods[cacheline_method].name);
-		pr_dbg("%s: L1 cache line size %zd bytes\n", args->name, l1_cacheline_size);
+		pr_dbg("%s: L1 cache line size %zu bytes\n", args->name, l1_cacheline_size);
 	}
 
 	func = cacheline_methods[cacheline_method].func;

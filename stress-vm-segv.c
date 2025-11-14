@@ -140,7 +140,7 @@ again:
 				test_valid = true;
 			} else {
 				pr_dbg("%s: did not get child start message 0x%x got 0x%x instead\n",
-					args->name, MSG_CHILD_STARTED, msg);
+					args->name, (unsigned int)MSG_CHILD_STARTED, (unsigned int)msg);
 				goto kill_child;
 			}
 

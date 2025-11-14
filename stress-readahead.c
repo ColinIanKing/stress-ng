@@ -254,7 +254,7 @@ rnd_rd_retry:
 					goto rnd_rd_retry;
 				if (errno) {
 					pr_fail("%s: read failed, errno=%d (%s)%s at offset 0x%" PRIxMAX "\n",
-						args->name, errno, strerror(errno), fs_type, (intmax_t)offsets[i]);
+						args->name, errno, strerror(errno), fs_type, (uintmax_t)offsets[i]);
 					goto close_finish;
 				}
 				continue;
@@ -274,7 +274,7 @@ PRAGMA_UNROLL_N(8)
 						if (baddata == 0) {
 							pr_inf("%s: first data error at offset 0x%" PRIxMAX
 								", got 0x%" PRIx64 ", expecting 0x%" PRIx64 "\n",
-								args->name, (intmax_t)(offsets[i] + (j * sizeof(*buf))), buf[j], v);
+								args->name, (uintmax_t)(offsets[i] + (j * sizeof(*buf))), buf[j], v);
 						}
 						baddata++;
 					}
@@ -282,8 +282,8 @@ PRAGMA_UNROLL_N(8)
 				if (UNLIKELY(baddata)) {
 					pr_fail("%s: error in data between 0x%" PRIxMAX " and 0x%" PRIxMAX "\n",
 						args->name,
-						(intmax_t)offsets[i],
-						(intmax_t)offsets[i] + BUF_SIZE - 1);
+						(uintmax_t)offsets[i],
+						(uintmax_t)offsets[i] + BUF_SIZE - 1);
 				}
 			}
 			stress_bogo_inc(args);

@@ -171,7 +171,7 @@ static int OPTIMIZE3 stress_brk_child(stress_args_t *args, void *context)
 			if (diff > 0) {
 				ptr = shim_sbrk(-diff);
 				if (ptr == (void *)-1) {
-					pr_fail("%s: sbrk(%" PRIxPTR ") failed, errno=%d (%s)\n",
+					pr_fail("%s: sbrk(%" PRIdPTR ") failed, errno=%d (%s)\n",
 						args->name, -diff, errno, strerror(errno));
 					return EXIT_FAILURE;
 				} else {
@@ -261,7 +261,7 @@ static int OPTIMIZE3 stress_brk_child(stress_args_t *args, void *context)
 					pr_fail("%s: brk shrink page at %p contains incorrect "
 						"check value 0x%" PRIxPTR ", expected "
 						"0x%" PRIxPTR "\n",
-						args->name, tmp, *tmp, (uintptr_t)tmp);
+						args->name, (void *)tmp, *tmp, (uintptr_t)tmp);
 					return EXIT_FAILURE;
 				}
 			}

@@ -237,7 +237,7 @@ retry:
 			goto retry;
 		}
 		/* Nope, give up, not necessarily a test failure, we maybe low on fds */
-		pr_warn("%s: inotify_init failed, errno=%d (%s) after %" PRIu32 " calls\n",
+		pr_warn("%s: inotify_init failed, errno=%d (%s) after %d calls\n",
 			args->name, errno, strerror(errno), n);
 		return EXIT_SUCCESS;
 	}

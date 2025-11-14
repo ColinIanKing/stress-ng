@@ -186,7 +186,7 @@ static int stress_mmaphuge_child(stress_args_t *args, void *v_context)
 						if (UNLIKELY(*ptr != val)) {
 							pr_fail("%s: memory %p at offset 0x%zx check error, "
 								"got 0x%" PRIx64 ", expecting 0x%" PRIx64 "\n",
-								args->name, buf, (uint8_t *)ptr - buf, *ptr, val);
+								args->name, (void *)buf, (size_t)((uint8_t *)ptr - buf), *ptr, val);
 							rc = EXIT_FAILURE;
 						}
 					}

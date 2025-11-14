@@ -225,7 +225,7 @@ static int stress_lsearch(stress_args_t *args)
 					pr_fail("%s: element %zu could not be found\n", args->name, i);
 					rc = EXIT_FAILURE;
 				} else if (*result != data[i]) {
-					pr_fail("%s: element %zu found %" PRIu32 ", expecting %" PRIu32 "\n",
+					pr_fail("%s: element %zu found %" PRId32 ", expecting %" PRId32 "\n",
 						args->name, i, *result, data[i]);
 					rc = EXIT_FAILURE;
 				}

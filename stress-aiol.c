@@ -623,7 +623,7 @@ retry_open:
 
 			if (stress_aiol_check_buffer(pattern, bufptr, BUFFER_SZ) != true) {
 				if (warnings++ < 5) {
-					pr_inf("%s: unexpected data mismatch in buffer %zd (maybe a wait timeout issue)\n",
+					pr_inf("%s: unexpected data mismatch in buffer %zu (maybe a wait timeout issue)\n",
 						args->name, i);
 					break;
 				}

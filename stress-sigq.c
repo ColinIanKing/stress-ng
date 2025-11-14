@@ -151,7 +151,7 @@ again:
 			if (UNLIKELY(info.si_value.sival_int != val)) {
 				if (UNLIKELY(info.si_value.sival_int != 0)) {
 					pr_fail("%s: got unexpected sival_int value, got 0x%x, expecting 0x%x\n",
-						args->name, info.si_value.sival_int, val);
+						args->name, (unsigned int)info.si_value.sival_int, (unsigned int)val);
 					rc = EXIT_FAILURE;
 				}
 				break;

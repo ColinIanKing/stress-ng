@@ -276,7 +276,7 @@ next:
     defined(RUSAGE_SELF) &&		\
     defined(HAVE_RUSAGE_RU_MINFLT)
 	if (!shim_getrusage(RUSAGE_SELF, &usage)) {
-		pr_dbg("%s: page faults: minor: %lu, major: %lu\n",
+		pr_dbg("%s: page faults: minor: %ld, major: %ld\n",
 			args->name, usage.ru_minflt, usage.ru_majflt);
 	}
 	dt = t2 - t1;

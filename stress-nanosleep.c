@@ -355,7 +355,7 @@ tidy:
 
 	if (limited) {
 		pr_inf("%s: %.2f%% of iterations could not reach "
-			"requested %d threads (instance %"
+			"requested %" PRIu32 " threads (instance %"
 			PRIu32 ")\n",
 			args->name,
 			100.0 * (double)limited / (double)nanosleep_threads,

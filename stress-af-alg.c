@@ -894,12 +894,12 @@ static int stress_af_alg(stress_args_t *args)
 
 	if (stress_instance_zero(args)) {
 		pr_block_begin();
-		pr_inf("%s: %zd cryptographic algorithms found in /proc/crypto\n",
+		pr_inf("%s: %zu cryptographic algorithms found in /proc/crypto\n",
 			args->name, proc_count);
-		pr_inf("%s: %zd cryptographic algorithms in total (with defconfigs)\n",
+		pr_inf("%s: %zu cryptographic algorithms in total (with defconfigs)\n",
 			args->name, count);
 		if (internal)
-			pr_inf("%s: %zd cryptographic algorithms are internal and may be unused\n",
+			pr_inf("%s: %zu cryptographic algorithms are internal and may be unused\n",
 				args->name, internal);
 		pr_block_end();
 	}

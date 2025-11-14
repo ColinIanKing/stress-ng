@@ -136,7 +136,7 @@ static int stress_ioprio(stress_args_t *args)
 
 		if (shim_ioprio_get(IOPRIO_WHO_USER, (int)uid) < 0) {
 			if (errno != EINVAL) {
-				pr_fail("%s: ioprio_get(IOPRIO_WHO_USR, %d), "
+				pr_fail("%s: ioprio_get(IOPRIO_WHO_USR, %u), "
 					"errno=%d (%s)\n",
 					args->name, uid, errno, strerror(errno));
 				goto cleanup_file;

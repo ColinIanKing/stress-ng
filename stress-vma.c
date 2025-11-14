@@ -827,7 +827,7 @@ static int stress_vma(stress_args_t *args)
 	stress_vma_page = mmap(NULL, args->page_size, PROT_READ | PROT_WRITE,
 				MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (stress_vma_page == MAP_FAILED) {
-		pr_inf_skip("%s: cannot mmap 1 page (%zd bytes) , errno=%d (%s), skipping stressor\n",
+		pr_inf_skip("%s: cannot mmap 1 page (%zu bytes) , errno=%d (%s), skipping stressor\n",
 			args->name, args->page_size, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}

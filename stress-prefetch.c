@@ -442,7 +442,7 @@ static int stress_prefetch(stress_args_t *args)
 		prefetch_info[i].rate = 0.0;
 	}
 	if (stress_instance_zero(args)) {
-		pr_inf("%s: using a %zdK L3 cache with prefetch method '%s'\n",
+		pr_inf("%s: using a %zuK L3 cache with prefetch method '%s'\n",
 		args->name, l3_data_size >> 10, prefetch_methods[prefetch_method].name);
 	}
 
@@ -485,7 +485,7 @@ static int stress_prefetch(stress_args_t *args)
 	else
 		ns = 0.0;
 
-	pr_dbg("%s: best prefetch read rate @ %.2f GB per sec at offset %zd (~%.2f nanosecs)\n",
+	pr_dbg("%s: best prefetch read rate @ %.2f GB per sec at offset %zu (~%.2f nanosecs)\n",
 		args->name, best_rate / (double)GB,
 		prefetch_info[best].offset, ns);
 

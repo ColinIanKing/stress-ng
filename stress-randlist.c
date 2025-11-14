@@ -130,7 +130,7 @@ static inline void OPTIMIZE3 stress_randlist_exercise(
 		if (UNLIKELY(!stress_continue_flag()))
 			break;
 		if (UNLIKELY(verify && stress_randlist_bad_data(ptr, randlist_size))) {
-			pr_fail("%s: data check failure in list object at 0x%p\n", args->name, ptr);
+			pr_fail("%s: data check failure in list object at 0x%p\n", args->name, (void *)ptr);
 			*rc = EXIT_FAILURE;
 		}
 	}
@@ -274,7 +274,7 @@ retry:
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	pr_dbg("%s: heap allocations: %zd, mmap allocations: %zd\n", args->name, heap_allocs, mmap_allocs);
+	pr_dbg("%s: heap allocations: %zu, mmap allocations: %zu\n", args->name, heap_allocs, mmap_allocs);
 
 	if (compact_ptr) {
 		free(compact_ptr);

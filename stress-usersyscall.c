@@ -283,19 +283,20 @@ static int OPTIMIZE3 stress_usersyscall(stress_args_t *args)
 			}
 			pr_fail("%s: didn't get 0x%x on user syscall, "
 				"got 0x%x instead, errno=%d (%s)\n",
-				args->name, USR_SYSCALL, ret, errno, strerror(errno));
+				args->name, (unsigned int)USR_SYSCALL,
+				(unsigned int)ret, errno, strerror(errno));
 			continue;
 		}
 		/* check handler si_code */
 		if (UNLIKELY(siginfo.si_code != SYS_USER_DISPATCH)) {
 			pr_fail("%s: didn't get SYS_USER_DISPATCH in siginfo.si_code, "
-				"got 0x%x instead\n", args->name, siginfo.si_code);
+				"got 0x%x instead\n", args->name, (unsigned int)siginfo.si_code);
 			continue;
 		}
 		/* check handler si_error */
 		if (UNLIKELY(siginfo.si_errno != 0)) {
 			pr_fail("%s: didn't get 0x0 in siginfo.si_errno, "
-				"got 0x%x instead\n", args->name, siginfo.si_errno);
+				"got 0x%x instead\n", args->name, (unsigned int)siginfo.si_errno);
 			continue;
 		}
 		VOID_RET(int, prctl(PR_SET_SYSCALL_USER_DISPATCH,
@@ -341,7 +342,8 @@ static int OPTIMIZE3 stress_usersyscall(stress_args_t *args)
 			if (UNLIKELY(ret_not_libc != __NR_getpid)) {
 				pr_fail("%s: didn't get __NR_getpid %x on user syscall, "
 					"got 0x%x instead, errno=%d (%s)\n",
-					args->name, __NR_getpid, ret_not_libc,
+					args->name, (unsigned int)__NR_getpid,
+					(unsigned int)ret_not_libc,
 					saved_errno, strerror(saved_errno));
 			}
 		}

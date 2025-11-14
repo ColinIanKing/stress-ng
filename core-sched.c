@@ -175,7 +175,7 @@ int stress_set_sched(
 			else
 				attr.sched_priority = (uint32_t)((max - min) / 2);
 			if (!quiet)
-				pr_inf("%s: priority not given, defaulting to %d\n",
+				pr_inf("%s: priority not given, defaulting to %" PRIu32 "\n",
 					prefix, attr.sched_priority);
 		}
 		if ((attr.sched_priority < (uint32_t)min) ||

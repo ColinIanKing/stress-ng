@@ -102,7 +102,7 @@ static int stress_fsize_boundary(
 
 	if (setrlimit(RLIMIT_FSIZE, &new_rlim) < 0) {
 		pr_fail("%s: failed to set RLIMIT_FSIZE to %" PRIdMAX " (0x%" PRIxMAX "), errno=%d (%s)\n",
-			args->name, (intmax_t)new_rlim.rlim_cur, (intmax_t)new_rlim.rlim_cur,
+			args->name, (intmax_t)new_rlim.rlim_cur, (uintmax_t)new_rlim.rlim_cur,
 			errno, strerror(errno));
 	}
 
@@ -112,7 +112,7 @@ static int stress_fsize_boundary(
 	if (ret < 0) {
 		if ((errno != EFBIG) && (errno != ENOSPC) && (errno != EINTR)) {
 			pr_fail("%s: fallocate failed at offset %" PRIdMAX" (0x%" PRIxMAX ") with unexpected error, errno=%d (%s)\n",
-				args->name, (intmax_t)off, (intmax_t)off,
+				args->name, (intmax_t)off, (uintmax_t)off,
 				errno, strerror(errno));
 			rc = EXIT_FAILURE;
 		}
@@ -120,7 +120,7 @@ static int stress_fsize_boundary(
 	}
 	if (sigxfsz) {
 		pr_fail("%s: got an unexpected SIGXFSZ signal at offset %" PRIdMAX " (0x%" PRIxMAX ")\n",
-			args->name, (intmax_t)off, (intmax_t)off);
+			args->name, (intmax_t)off, (uintmax_t)off);
 		return EXIT_FAILURE;
 	}
 	/* We should be able to ftruncate a file to zero bytes */
@@ -136,19 +136,19 @@ static int stress_fsize_boundary(
 	if (ret == 0) {
 		if (!stress_fsize_reported(off, FSIZE_TYPE_FALLOC)) {
 			pr_inf("%s: fallocate unexpectedly succeeded at offset %" PRIdMAX " (0x%" PRIxMAX "), expecting EFBIG error\n",
-				args->name, (intmax_t)off, (intmax_t)off);
+				args->name, (intmax_t)off, (uintmax_t)off);
 			return EXIT_FAILURE;
 		}
 		return rc;
 	} else if ((errno != EFBIG) && (errno != ENOSPC) && (errno != EINTR)) {
 		pr_fail("%s: fallocate failed at offset %" PRIdMAX" (0x%" PRIxMAX ") with unexpected error, errno=%d (%s)\n",
-			args->name, (intmax_t)off, (intmax_t)off,
+			args->name, (intmax_t)off, (uintmax_t)off,
 			errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
 	if (!sigxfsz && !stress_fsize_reported(off, FSIZE_TYPE_SIGXFSZ)) {
 		pr_inf("%s: did not get expected SIGXFSZ signal at offset %" PRIdMAX " (0x%" PRIxMAX ")\n",
-			args->name, (intmax_t)off, (intmax_t)off);
+			args->name, (intmax_t)off, (uintmax_t)off);
 		return EXIT_FAILURE;
 	}
 	return rc;
@@ -224,7 +224,7 @@ static int stress_fsize(stress_args_t *args)
 
 		if (setrlimit(RLIMIT_FSIZE, &new_rlim) < 0) {
 			pr_fail("%s: failed to set RLIMIT_FSIZE to %" PRIdMAX " (0x%" PRIxMAX "), errno=%d (%s)\n",
-				args->name, (intmax_t)max, (intmax_t)max, errno, strerror(errno));
+				args->name, (intmax_t)max, (uintmax_t)max, errno, strerror(errno));
 		}
 
 		/* We should be able to fruncate a file to zero bytes */
@@ -242,13 +242,13 @@ static int stress_fsize(stress_args_t *args)
 			if ((errno == ENOSPC) || (errno == EINTR)) {
 				/* No resource */
 				pr_inf_skip("%s: allocating file to %" PRIdMAX " (0x%" PRIxMAX ") bytes failed, errno=%d (%s), "
-					"skipping stressor\n", args->name, (intmax_t)max, (intmax_t)max,
+					"skipping stressor\n", args->name, (intmax_t)max, (uintmax_t)max,
 					errno, strerror(errno));
 				rc = EXIT_NO_RESOURCE;
 			} else {
 				/* A real issue, report it */
 				pr_inf("%s: allocating file to %" PRIdMAX " bytes (0x%" PRIxMAX ") failed, errno=%d (%s), "
-					"terminating stressor\n", args->name, (intmax_t)max, (intmax_t)max,
+					"terminating stressor\n", args->name, (intmax_t)max, (uintmax_t)max,
 					errno, strerror(errno));
 				rc = EXIT_FAILURE;
 			}
@@ -257,16 +257,16 @@ static int stress_fsize(stress_args_t *args)
 		sigxfsz = false;
 		if (shim_fallocate(fd, 0, (off_t)max, 4096) == 0) {
 			pr_fail("%s: fallocate unexpectedly succeeded at offset %" PRIdMAX " (0x%" PRIxMAX "), expecting EFBIG error\n",
-				args->name, (intmax_t)max, (intmax_t)max);
+				args->name, (intmax_t)max, (uintmax_t)max);
 			rc = EXIT_FAILURE;
 		} else if ((errno != EFBIG) && (errno != ENOSPC) && (errno != EINTR)) {
 			pr_fail("%s: failed at offset %" PRIdMAX " (0x%" PRIxMAX ") with unexpected error, errno=%d (%s)\n",
-				args->name, (intmax_t)max, (intmax_t)max, errno, strerror(errno) );
+				args->name, (intmax_t)max, (uintmax_t)max, errno, strerror(errno) );
 			rc = EXIT_FAILURE;
 		}
 		if (!sigxfsz) {
 			pr_fail("%s: expected a SIGXFSZ signal at offset %" PRIdMAX " (0x%" PRIxMAX "), nothing happened\n",
-				args->name, (intmax_t)max, (intmax_t)max);
+				args->name, (intmax_t)max, (uintmax_t)max);
 			rc = EXIT_FAILURE;
 		}
 
@@ -291,7 +291,7 @@ static int stress_fsize(stress_args_t *args)
 		new_rlim = old_rlim;
 		if (setrlimit(RLIMIT_FSIZE, &new_rlim) < 0) {
 			pr_fail("%s: failed to set RLIMIT_FSIZE to %" PRIdMAX " (0x%" PRIxMAX "), errno=%d (%s)\n",
-				args->name, (intmax_t)new_rlim.rlim_cur, (intmax_t)new_rlim.rlim_cur,
+				args->name, (intmax_t)new_rlim.rlim_cur, (uintmax_t)new_rlim.rlim_cur,
 				errno, strerror(errno));
 			rc = EXIT_FAILURE;
 		}

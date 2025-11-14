@@ -8902,7 +8902,7 @@ static int stress_syscall(stress_args_t *args)
 	}
 
 	if (stress_instance_zero(args)) {
-		pr_inf("%s: %zd system call tests, %zd (%.1f%%) fastest non-failing tests fully exercised\n",
+		pr_inf("%s: %zu system call tests, %zu (%.1f%%) fastest non-failing tests fully exercised\n",
 			args->name, STRESS_SYSCALLS_MAX, exercised,
 			(double)exercised * 100.0 / (double)STRESS_SYSCALLS_MAX);
 		stress_syscall_report_syscall_top10(args);

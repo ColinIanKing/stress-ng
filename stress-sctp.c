@@ -453,8 +453,8 @@ retry:
 					pr_fail("%s: client received unexpected data "
 						"contents, got 0x%" PRIxMAX ", "
 						"expected 0x%" PRIxMAX "\n",
-						args->name, (intmax_t)pid,
-						(intmax_t)mypid);
+						args->name, (uintmax_t)pid,
+						(uintmax_t)mypid);
 					rc = EXIT_FAILURE;
 					break;
 				}

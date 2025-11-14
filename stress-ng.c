@@ -1544,7 +1544,7 @@ static int MLOCKED_TEXT stress_run_child(
 	stress_set_iopriority(ionice_class, ionice_level);
 	(void)umask(0077);
 
-	pr_dbg("%s: [%" PRIdMAX "] started (instance %" PRIu32 " on CPU %u)\n",
+	pr_dbg("%s: [%" PRIdMAX "] started (instance %" PRId32 " on CPU %u)\n",
 		name, (intmax_t)child_pid, instance, stress_get_cpu());
 
 	if (g_opt_flags & OPT_FLAGS_INTERRUPTS)
@@ -1676,7 +1676,7 @@ static int MLOCKED_TEXT stress_run_child(
 	stats->duration_total += stats->duration;
 
 	stress_get_usage_stats(ticks_per_sec, stats);
-	pr_dbg("%s: [%" PRIdMAX "] exited (instance %" PRIu32 " on CPU %d)\n",
+	pr_dbg("%s: [%" PRIdMAX "] exited (instance %" PRId32 " on CPU %u)\n",
 		name, (intmax_t)child_pid, instance, stress_get_cpu());
 
 	/* Allow for some slops of ~0.5 secs */
@@ -2305,7 +2305,7 @@ static void stress_metrics_dump(FILE *yaml)
 
 			name = ss->stressor->name;
 			if (ss->stats[0]->metrics.max_metrics > SIZEOF_ARRAY(ss->stats[0]->metrics.items))
-				pr_metrics("note: %zd metrics were set, only reporting first %zd metrics\n",
+				pr_metrics("note: %zu metrics were set, only reporting first %zu metrics\n",
 					ss->stats[0]->metrics.max_metrics, SIZEOF_ARRAY(ss->stats[0]->metrics.items));
 
 			for (i = 0; i < SIZEOF_ARRAY(ss->stats[0]->metrics.items); i++) {
@@ -2345,11 +2345,11 @@ static void stress_metrics_dump(FILE *yaml)
 							geometric_mean = 0.0;
 						}
 						if (g_opt_flags & OPT_FLAGS_SN) {
-							pr_metrics("%-13s %13.2e %s (geometric mean of %" PRIu32 " instance%s)\n",
+							pr_metrics("%-13s %13.2e %s (geometric mean of %" PRId32 " instance%s)\n",
 								name, geometric_mean, description,
 								ss->completed_instances, plural);
 						} else {
-							pr_metrics("%-13s %13.2f %s (geometric mean of %" PRIu32 " instance%s)\n",
+							pr_metrics("%-13s %13.2f %s (geometric mean of %" PRId32 " instance%s)\n",
 								name, geometric_mean, description,
 								ss->completed_instances, plural);
 						}
@@ -2375,11 +2375,11 @@ static void stress_metrics_dump(FILE *yaml)
 							harmonic_mean = 0.0;
 						}
 						if (g_opt_flags & OPT_FLAGS_SN) {
-							pr_metrics("%-13s %13.2e %s (harmonic mean of %" PRIu32 " instance%s)\n",
+							pr_metrics("%-13s %13.2e %s (harmonic mean of %" PRId32 " instance%s)\n",
 								name, harmonic_mean, description,
 								ss->completed_instances, plural);
 						} else {
-							pr_metrics("%-13s %13.2f %s (harmonic mean of %" PRIu32 " instance%s)\n",
+							pr_metrics("%-13s %13.2f %s (harmonic mean of %" PRId32 " instance%s)\n",
 								name, harmonic_mean, description,
 								ss->completed_instances, plural);
 						}
@@ -2393,11 +2393,11 @@ static void stress_metrics_dump(FILE *yaml)
 								total += item->value;
 						}
 						if (g_opt_flags & OPT_FLAGS_SN) {
-							pr_metrics("%-13s %13.2e %s (total of %" PRIu32 " instance%s)\n",
+							pr_metrics("%-13s %13.2e %s (total of %" PRId32 " instance%s)\n",
 								name, total, description,
 								ss->completed_instances, plural);
 						} else {
-							pr_metrics("%-13s %13.2f %s (total of %" PRIu32 " instance%s)\n",
+							pr_metrics("%-13s %13.2f %s (total of %" PRId32 " instance%s)\n",
 								name, total, description,
 								ss->completed_instances, plural);
 						}
@@ -2411,11 +2411,11 @@ static void stress_metrics_dump(FILE *yaml)
 								maximum = item->value;
 						}
 						if (g_opt_flags & OPT_FLAGS_SN) {
-							pr_metrics("%-13s %13.2e %s (maximum of %" PRIu32 " instance%s)\n",
+							pr_metrics("%-13s %13.2e %s (maximum of %" PRId32 " instance%s)\n",
 								name, maximum, description,
 								ss->completed_instances, plural);
 						} else {
-							pr_metrics("%-13s %13.2f %s (maximum of %" PRIu32 " instance%s)\n",
+							pr_metrics("%-13s %13.2f %s (maximum of %" PRId32 " instance%s)\n",
 								name, maximum, description,
 								ss->completed_instances, plural);
 						}
@@ -3498,7 +3498,7 @@ static void stress_alloc_proc_stats(
 {
 	*stats = (stress_stats_t **)calloc((size_t)n, sizeof(stress_stats_t *));
 	if (!*stats) {
-		pr_err("cannot allocate stats array of %" PRIu32 " elements%s\n",
+		pr_err("cannot allocate stats array of %" PRId32 " elements%s\n",
 			n, stress_get_memfree_str());
 		stress_stressors_free();
 		exit(EXIT_FAILURE);
@@ -3618,7 +3618,7 @@ static inline void stress_run_sequential(
 				*finish = '\0';
 
 			run++;
-			pr_inf("starting %s, %zd of %zd (%.2f%%)%s%s\n",
+			pr_inf("starting %s, %zu of %zu (%.2f%%)%s%s\n",
 				name, run, total_run,
 				(total_run > 0) ?  100.0 * (double)run / (double)total_run : 100.0,
 				*finish ? ", finish at " : "", finish);
@@ -3716,7 +3716,7 @@ static inline void stress_run_permute(
 			j++;
 		}
 		run++;
-		pr_inf("starting %s, %zd of %zd (%.2f%%)%s%s\n",
+		pr_inf("starting %s, %zu of %zu (%.2f%%)%s%s\n",
 			str, run, num_perms,
 			(num_perms > 0) ?  100.0 * (double)run / (double)num_perms : 100.0,
 			*finish ? ", finish at " : "",
@@ -3987,7 +3987,7 @@ int main(int argc, char **argv, char **envp)
 	stress_runinfo();
 	stress_buildinfo();
 	stress_cpuidle_log_info();
-	pr_dbg("%" PRId32 " processor%s online, %" PRId32
+	pr_dbg("%" PRIu32 " processor%s online, %" PRIu32
 		" processor%s configured\n",
 		cpus_online, cpus_online == 1 ? "" : "s",
 		cpus_configured, cpus_configured == 1 ? "" : "s");

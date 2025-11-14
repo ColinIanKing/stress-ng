@@ -851,7 +851,7 @@ void stress_yaml_runinfo(FILE *yaml)
 		pr_yaml(yaml, "      freeswap: %lu\n", (long unsigned int)info.freeswap);
 	}
 #endif
-	pr_yaml(yaml, "      pagesize: %zd\n", stress_get_page_size());
+	pr_yaml(yaml, "      pagesize: %zu\n", stress_get_page_size());
 	pr_yaml(yaml, "      cpus: %" PRId32 "\n", stress_get_processors_configured());
 	pr_yaml(yaml, "      cpus-online: %" PRId32 "\n", stress_get_processors_online());
 	pr_yaml(yaml, "      ticks-per-second: %" PRId32 "\n", stress_get_ticks_per_second());

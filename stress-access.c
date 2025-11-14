@@ -369,7 +369,7 @@ static int stress_access(stress_args_t *args)
 				if (report_chmod_error) {
 					pr_fail("%s: access %3.3o on chmod mode %3.3o failed, errno=%d (%s)%s\n",
 						args->name,
-						modes[i].access_mode,
+						(unsigned int)modes[i].access_mode,
 						(unsigned int)modes[i].chmod_mode,
 						errno, strerror(errno), fs_type);
 					rc = EXIT_FAILURE;
@@ -386,7 +386,7 @@ static int stress_access(stress_args_t *args)
 				if (report_chmod_error) {
 					pr_fail("%s: faccessat %3.3o on chmod mode %3.3o failed, errno=%d (%s)%s\n",
 						args->name,
-						modes[i].access_mode,
+						(unsigned int)modes[i].access_mode,
 						(unsigned int)modes[i].chmod_mode,
 						errno, strerror(errno), fs_type);
 					rc = EXIT_FAILURE;
@@ -456,7 +456,7 @@ static int stress_access(stress_args_t *args)
 					if (report_chmod_error) {
 						pr_fail("%s: access %3.3o on chmod mode %3.3o was ok (not expected), errno=%d (%s)%s\n",
 							args->name,
-							modes[i].access_mode,
+							(unsigned int)modes[i].access_mode,
 							(unsigned int)chmod_mode,
 							errno, strerror(errno), fs_type);
 						rc = EXIT_FAILURE;
@@ -475,7 +475,7 @@ static int stress_access(stress_args_t *args)
 					if (report_chmod_error) {
 						pr_fail("%s: faccessat %3.3o on chmod mode %3.3o was ok (not expected), errno=%d (%s)%s\n",
 							args->name,
-							modes[i].access_mode,
+							(unsigned int)modes[i].access_mode,
 							(unsigned int)chmod_mode,
 							errno, strerror(errno), fs_type);
 						rc = EXIT_FAILURE;

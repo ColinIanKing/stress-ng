@@ -84,7 +84,7 @@ PRAGMA_UNROLL_N(8)
 			pr_fail("%s: address 0x%p check failure, "
 				"got 0x%" PRIxPTR ", "
 				"expected 0x%" PRIxPTR "\n",
-				args->name, ptr, *ptr, chk);
+				args->name, (void *)ptr, *ptr, chk);
 			return -1;
 		}
 	}

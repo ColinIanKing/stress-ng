@@ -259,7 +259,7 @@ PRAGMA_UNROLL_N(2)
 
 		for (ptr = cache_start; ptr < cache_end; ptr += l1cache_set_size) {
 			if (UNLIKELY(*ptr != (uint8_t)set)) {
-				pr_fail("%s: cache value mismatch at offset %zd, 0x%2.2x vs 0x%2.2x\n",
+				pr_fail("%s: cache value mismatch at offset %zu, 0x%2.2x vs 0x%2.2x\n",
 					args->name, (size_t)(ptr - cache_start),
 					*ptr, (uint8_t)set);
 				return EXIT_FAILURE;
@@ -345,7 +345,7 @@ PRAGMA_UNROLL_N(2)
 
 		for (ptr = cache_end - l1cache_set_size + 1; ptr >= cache_start; ptr -= l1cache_set_size) {
 			if (UNLIKELY(*ptr != (uint8_t)set)) {
-				pr_fail("%s: cache value mismatch at offset %zd, 0x%2.2x vs 0x%2.2x\n",
+				pr_fail("%s: cache value mismatch at offset %zu, 0x%2.2x vs 0x%2.2x\n",
 					args->name, (size_t)(ptr - cache_start),
 					*ptr, (uint8_t)set);
 				return EXIT_FAILURE;
@@ -448,7 +448,7 @@ PRAGMA_UNROLL_N(2)
 			register const size_t idx = stress_mwc32modn((uint32_t)cache_size);
 
 			if (UNLIKELY(*(ptr + idx) != (uint8_t)set)) {
-				pr_fail("%s: cache value mismatch at offset %zd, 0x%2.2x vs 0x%2.2x\n",
+				pr_fail("%s: cache value mismatch at offset %zu, 0x%2.2x vs 0x%2.2x\n",
 					args->name, idx,
 					*(ptr + idx), (uint8_t)set);
 				return EXIT_FAILURE;

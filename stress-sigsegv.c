@@ -400,7 +400,8 @@ static int stress_sigsegv(stress_args_t *args)
 				     ((fault_addr < expected_addr) ||
 				      (fault_addr > (expected_addr + 8))))) {
 				pr_fail("%s: expecting fault address %p, got %p instead\n",
-					args->name, (volatile void *)expected_addr, fault_addr);
+					args->name, (volatile void *)expected_addr,
+					(volatile void *)fault_addr);
 			}
 			if (UNLIKELY((verify &&
 				     (signo != -1) &&

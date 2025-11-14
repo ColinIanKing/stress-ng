@@ -4880,7 +4880,7 @@ again:
 		const size_t opened = stress_dev_infos_opened(dev_info_list);
 		const bool is_root = stress_check_capability(SHIM_CAP_IS_ROOT);
 
-		pr_inf("%s: %zd of %zd devices opened and exercised%s\n",
+		pr_inf("%s: %zu of %zu devices opened and exercised%s\n",
 			args->name, opened, dev_info_list_len,
 			is_root ? "" : " (run as root to exercise more devices)");
 	}

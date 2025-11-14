@@ -301,7 +301,7 @@ retry:
 	}
 	/* No luck, well that's unexpected.. */
 	if (UNLIKELY(!stress_continue(args)))
-		pr_fail("%s: child process with illegal stack unexpectedly worked, %d\n",
+		pr_fail("%s: child process with illegal stack unexpectedly worked, %" PRIu32 "\n",
 			args->name, rnd);
 	return EXIT_FAILURE;
 }
@@ -416,7 +416,7 @@ again:
 						stress_log_system_mem_info();
 						pr_dbg("%s: assuming killed by OOM "
 							"killer, bailing out "
-							"(instance %d)\n",
+							"(instance %" PRIu32 ")\n",
 							args->name, args->instance);
 						rc = EXIT_SUCCESS;
 						goto finish;
@@ -424,7 +424,7 @@ again:
 						stress_log_system_mem_info();
 						pr_dbg("%s: assuming killed by OOM "
 							"killer, restarting again "
-							"(instance %d)\n",
+							"(instance %" PRIu32 ")\n",
 							args->name, args->instance);
 						goto again;
 					}

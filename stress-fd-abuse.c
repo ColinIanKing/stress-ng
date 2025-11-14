@@ -2162,7 +2162,7 @@ static int stress_fd_abuse(stress_args_t *args)
 	}
 
 	if (stress_instance_zero(args))
-		pr_dbg("%s: %zd fd opening operations, %zd fd exercising operations\n",
+		pr_dbg("%s: %zu fd opening operations, %zu fd exercising operations\n",
 			args->name, SIZEOF_ARRAY(open_funcs), SIZEOF_ARRAY(fd_funcs));
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);

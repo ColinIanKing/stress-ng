@@ -218,7 +218,7 @@ static int stress_link_generic(
 				} else {
 					buf[rret] = '\0';
 					if ((size_t)rret != oldpathlen) {
-						pr_fail("%s: readlink length error, got %zd, expected: %zd\n",
+						pr_fail("%s: readlink length error, got %zu, expected: %zu\n",
 							args->name, (size_t)rret, oldpathlen);
 						rc = EXIT_FAILURE;
 					} else {

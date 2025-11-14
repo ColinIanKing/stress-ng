@@ -585,11 +585,11 @@ static void stress_rt_dist(
 	if (n >= dist_size - 3)
 		n = dist_size;
 
-	pr_inf("%s: latency distribution (%" PRIu64 " ns intervals):\n", name, cyclic_dist);
+	pr_inf("%s: latency distribution (%" PRId64 " ns intervals):\n", name, cyclic_dist);
 	pr_inf("%s: (for the first %zd buckets of %zd)\n", name, dist_size, dist_max_size);
 	pr_inf("%s: %12s %10s\n", name, "latency (ns)", "frequency");
 	for (i = 0; i < n; i++) {
-		pr_inf("%s: %12" PRIu64 " %10" PRId64 "\n",
+		pr_inf("%s: %12" PRId64 " %10" PRId64 "\n",
 			name, cyclic_dist * i, dist[i]);
 	}
 
@@ -601,7 +601,7 @@ static void stress_rt_dist(
 		pr_inf("%s: %12s %10s (all zeros hereafter)\n", name, "..", "..");
 		pr_inf("%s: %12s %10s\n", name, "..", "..");
 		for (i = STRESS_MAXIMUM(dist_size - 3, n); i < dist_size; i++) {
-			pr_inf("%s: %12" PRIu64 " %10" PRId64 "\n",
+			pr_inf("%s: %12" PRId64 " %10" PRId64 "\n",
 				name, cyclic_dist * i, (int64_t)0);
 		}
 	}
@@ -918,7 +918,7 @@ tidy:
 			};
 
 			pr_block_begin();
-			pr_inf("%s: sched %s%s%s%s: %" PRIu64 " ns delay, %zd samples\n",
+			pr_inf("%s: sched %s%s%s%s: %" PRIu64 " ns delay, %zu samples\n",
 				args->name,
 				cyclic_policies[cyclic_policy].name,
 				(*sched_ext_op) ? " (" : "",
@@ -947,7 +947,7 @@ tidy:
 			stress_rt_dist(args->name, rt_stats, (int64_t)cyclic_dist);
 
 			if (rt_stats->index < rt_stats->index_reqd)
-				pr_inf("%s: Note: --cyclic-samples needed to be %zd to capture all the data for this run\n",
+				pr_inf("%s: Note: --cyclic-samples needed to be %zu to capture all the data for this run\n",
 					args->name, rt_stats->index_reqd);
 			pr_block_end();
 		} else {

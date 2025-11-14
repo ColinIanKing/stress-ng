@@ -521,7 +521,7 @@ void stress_smart_stop(void)
 				}
 				pr_inf("could not find any S.M.A.R.T. enabled devices%s\n", extra);
 			} else {
-				pr_inf("no S.M.A.R.T. data statistics changed on %zd device%s\n",
+				pr_inf("no S.M.A.R.T. data statistics changed on %zu device%s\n",
 					devs, devs > 1 ? "s" : "");
 			}
 		}

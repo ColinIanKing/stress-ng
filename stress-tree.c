@@ -226,7 +226,7 @@ PRAGMA_UNROLL_N(4)
 	for (node = nodes, i = 0; i < n; i++, node++) {
 		find = RB_FIND(stress_rb_tree, &rb_root, node);
 		if (UNLIKELY(!find)) {
-			pr_fail("%s: rb tree node #%zd not found\n",
+			pr_fail("%s: rb tree node #%zu not found\n",
 				args->name, i);
 			*rc = EXIT_FAILURE;
 		}
@@ -238,7 +238,7 @@ PRAGMA_UNROLL_N(4)
 		for (node = &nodes[n - 1], i = n - 1; node >= nodes; node--, i--) {
 			find = RB_FIND(stress_rb_tree, &rb_root, node);
 			if (UNLIKELY(!find)) {
-				pr_fail("%s: rb tree node #%zd not found\n",
+				pr_fail("%s: rb tree node #%zu not found\n",
 					args->name, i);
 				*rc = EXIT_FAILURE;
 			}
@@ -250,7 +250,7 @@ PRAGMA_UNROLL_N(4)
 
 			find = RB_FIND(stress_rb_tree, &rb_root, &nodes[j]);
 			if (UNLIKELY(!find)) {
-				pr_fail("%s: rb tree node #%zd not found\n",
+				pr_fail("%s: rb tree node #%zu not found\n",
 					args->name, j);
 				*rc = EXIT_FAILURE;
 			}
@@ -303,7 +303,7 @@ PRAGMA_UNROLL_N(4)
 	for (node = nodes, i = 0; i < n; i++, node++) {
 		find = SPLAY_FIND(stress_splay_tree, &splay_root, node);
 		if (UNLIKELY(!find)) {
-			pr_fail("%s: splay tree node #%zd not found\n",
+			pr_fail("%s: splay tree node #%zu not found\n",
 				args->name, i);
 			*rc = EXIT_FAILURE;
 		}
@@ -315,7 +315,7 @@ PRAGMA_UNROLL_N(4)
 		for (node = &nodes[n - 1], i = n - 1; node >= nodes; node--, i--) {
 			find = SPLAY_FIND(stress_splay_tree, &splay_root, node);
 			if (UNLIKELY(!find)) {
-				pr_fail("%s: splay tree node #%zd not found\n",
+				pr_fail("%s: splay tree node #%zu not found\n",
 					args->name, i);
 				*rc = EXIT_FAILURE;
 			}
@@ -326,7 +326,7 @@ PRAGMA_UNROLL_N(4)
 
 			find = SPLAY_FIND(stress_splay_tree, &splay_root, &nodes[j]);
 			if (UNLIKELY(!find)) {
-				pr_fail("%s: splay tree node #%zd not found\n",
+				pr_fail("%s: splay tree node #%zu not found\n",
 					args->name, j);
 				*rc = EXIT_FAILURE;
 			}
@@ -407,7 +407,7 @@ PRAGMA_UNROLL_N(4)
 	for (node = nodes, i = 0; i < n; i++, node++) {
 		find = binary_find(head, node);
 		if (UNLIKELY(!find)) {
-			pr_fail("%s: binary tree node #%zd not found\n",
+			pr_fail("%s: binary tree node #%zu not found\n",
 				args->name, i);
 			*rc = EXIT_FAILURE;
 		}
@@ -419,7 +419,7 @@ PRAGMA_UNROLL_N(4)
 		for (node = &nodes[n - 1], i = n - 1; node >= nodes; node--, i--) {
 			find = binary_find(head, node);
 			if (UNLIKELY(!find)) {
-				pr_fail("%s: binary tree node #%zd not found\n",
+				pr_fail("%s: binary tree node #%zu not found\n",
 					args->name, i);
 				*rc = EXIT_FAILURE;
 			}
@@ -430,7 +430,7 @@ PRAGMA_UNROLL_N(4)
 
 			find = binary_find(head, &nodes[j]);
 			if (UNLIKELY(!find)) {
-				pr_fail("%s: binary tree node #%zd not found\n",
+				pr_fail("%s: binary tree node #%zu not found\n",
 					args->name, j);
 				*rc = EXIT_FAILURE;
 			}
@@ -621,7 +621,7 @@ PRAGMA_UNROLL_N(4)
 	for (node = nodes, i = 0; i < n; i++, node++) {
 		find = avl_find(head, node);
 		if (UNLIKELY(!find)) {
-			pr_fail("%s: avl tree node #%zd not found\n",
+			pr_fail("%s: avl tree node #%zu not found\n",
 				args->name, i);
 			*rc = EXIT_FAILURE;
 		}
@@ -633,7 +633,7 @@ PRAGMA_UNROLL_N(4)
 		for (node = &nodes[n - 1], i = n - 1; node >= nodes; node--, i--) {
 			find = avl_find(head, node);
 			if (UNLIKELY(!find)) {
-				pr_fail("%s: avl tree node #%zd not found\n",
+				pr_fail("%s: avl tree node #%zu not found\n",
 					args->name, i);
 				*rc = EXIT_FAILURE;
 			}
@@ -644,7 +644,7 @@ PRAGMA_UNROLL_N(4)
 
 			find = avl_find(head, &nodes[j]);
 			if (UNLIKELY(!find)) {
-				pr_fail("%s: avl tree node #%zd not found\n",
+				pr_fail("%s: avl tree node #%zu not found\n",
 					args->name, j);
 				*rc = EXIT_FAILURE;
 			}
@@ -863,7 +863,7 @@ PRAGMA_UNROLL_N(4)
 		for (node = &nodes[n - 1], i = n - 1; node >= nodes; node--, i--) {
 			find = btree_find(root, node->value);
 			if (UNLIKELY(!find)) {
-				pr_fail("%s: btree node #%zd not found\n",
+				pr_fail("%s: btree node #%zu not found\n",
 					args->name, i);
 				*rc = EXIT_FAILURE;
 			}
@@ -874,7 +874,7 @@ PRAGMA_UNROLL_N(4)
 
 			find = btree_find(root, nodes[j].value);
 			if (UNLIKELY(!find)) {
-				pr_fail("%s: btree node #%zd not found\n",
+				pr_fail("%s: btree node #%zu not found\n",
 					args->name, j);
 				*rc = EXIT_FAILURE;
 			}
@@ -1001,7 +1001,7 @@ static int stress_tree(stress_args_t *args)
 	n = (size_t)tree_size;
 	nodes = (struct tree_node *)calloc(n, sizeof(*nodes));
 	if (!nodes) {
-		pr_inf_skip("%s: malloc failed allocating %zd tree nodes, "
+		pr_inf_skip("%s: malloc failed allocating %zu tree nodes, "
 			"skipping stressor\n", args->name, n);
 		return EXIT_NO_RESOURCE;
 	}

@@ -194,7 +194,7 @@ static int stress_bigheap_child(stress_args_t *args, void *context)
 			pr_inf("%s: caught signal %d (%s), si_code = %d, fault address %p, phase %d '%s', alloc = %p .. %p\n",
 				args->name, signo, signame ? signame : "unknown",
 				sigcode, fault_addr, phase, stress_bigheap_phase(),
-				ptr, (uint8_t *)ptr + size);
+				ptr, (void *)((uint8_t *)ptr + size));
 		}
 		/* just abort */
 		return EXIT_FAILURE;
@@ -263,7 +263,7 @@ static int stress_bigheap_child(stress_args_t *args, void *context)
 		if (UNLIKELY(ptr == NULL)) {
 			phase = STRESS_BIGHEAP_OUT_OF_MEMORY;
 			pr_dbg("%s: out of memory at %" PRIu64
-				" MB (instance %d)\n",
+				" MB (instance %" PRIu32 ")\n",
 				args->name, ((uint64_t)size) >> 20,
 				args->instance);
 			if (old_ptr)

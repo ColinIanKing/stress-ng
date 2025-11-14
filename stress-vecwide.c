@@ -251,7 +251,7 @@ static int stress_vecwide(stress_args_t *args)
 			exp_pc = (double)stress_vecwide_funcs[i].byte_size / (double)total_bytes * 100.0;
 			win    = exp_pc / dur_pc;
 
-			pr_dbg("%s: %5zd %5.2f%% %5.2f%% %5.2f\n",
+			pr_dbg("%s: %5zu %5.2f%% %5.2f%% %5.2f\n",
 				args->name, 8 * stress_vecwide_funcs[i].byte_size,
 				dur_pc, exp_pc, win);
 		}

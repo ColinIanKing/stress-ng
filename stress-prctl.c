@@ -360,7 +360,7 @@ static int stress_prctl_syscall_user_dispatch(stress_args_t *args)
 
 	if (prctl_sigsys_info.syscall != __NR_kill) {
 		pr_fail("%s: prctl PR_SET_SYSCALL_USER_DISPATCH syscall expected syscall 0x%x, got 0x%x instead\n",
-			args->name, __NR_kill, prctl_sigsys_info.syscall);
+			args->name, (unsigned int)__NR_kill, (unsigned int)prctl_sigsys_info.syscall);
 		goto err;
 	}
 

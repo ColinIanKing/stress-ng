@@ -285,7 +285,7 @@ static int stress_plugin(stress_args_t *args)
 	}
 	if (plugin_method >= stress_plugin_methods_num) {
 		if (stress_instance_zero(args))
-			pr_inf("%s: invalid plugin method index %zd, expecting 0..%zd\n",
+			pr_inf("%s: invalid plugin method index %zu, expecting 0..%zu\n",
 				args->name, plugin_method, stress_plugin_methods_num);
 		(void)dlclose(stress_plugin_so_dl);
 		return EXIT_NO_RESOURCE;
