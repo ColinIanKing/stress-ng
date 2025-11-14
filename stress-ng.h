@@ -174,6 +174,18 @@
 #endif
 #endif
 
+#if defined(HAVE_SYS_TREE_H)
+#if defined(__QNX__) && __QNX__ >= 800
+/* QNX 8 contains a version of sys/tree.h which uses __uintptr_t and __unused */
+#ifndef __uintptr_t
+#define __uintptr_t uintptr_t
+#endif
+#ifndef __unused
+#define __unused
+#endif
+#endif
+#endif
+
 /*
  *  Per stressor misc rate metrics
  */

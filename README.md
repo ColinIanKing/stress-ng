@@ -196,11 +196,18 @@ the toolchain (both CC and CXX). For example, a mips64 cross build:
     STATIC=1 CC=mips64-linux-gnuabi64-gcc CXX=mips64-linux-gnuabi64-g++ make -j $(nproc)
 ```
 
-To perform a cross-compile for qnx, for example, a aarch64 qnx cross build:
+To perform a cross-compilation for QNX 7.1, for example, an aarch64 QNX cross build:
 
 ```
     make clean
     CC=aarch64-unknown-nto-qnx7.1.0-gcc CXX=aarch64-unknown-nto-qnx7.1.0-g++ STATIC=1 make
+```
+
+To perform a cross-compilation for QNX 8, for example, an aarch64 QNX cross build:
+
+```
+    make clean
+    CC=aarch64-unknown-nto-qnx8.0.0-gcc CXX=aarch64-unknown-nto-qnx8.0.0-g++ make
 ```
 
 To generate a PDF version of the manual (requires ps2pdf to be installed)
