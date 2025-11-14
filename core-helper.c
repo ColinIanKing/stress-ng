@@ -1985,3 +1985,21 @@ void stress_no_return(void)
 {
 	_exit(EXIT_FAILURE);
 }
+
+char *stress_get_env_ld_library_path()
+{
+	char *ld_library_path = NULL;
+	char *parent_ld_path;
+	/*
+	 * Determine if ld_library_path is set and must be preserved to self-launch
+	 */
+	parent_ld_path = getenv("LD_LIBRARY_PATH");
+	if (parent_ld_path) {
+		ld_library_path = malloc(strlen(parent_ld_path) + 17);
+		if (ld_library_path) {
+			(void) snprintf(ld_library_path, strlen(parent_ld_path) + 17, "LD_LIBRARY_PATH=%s", parent_ld_path);
+		}
+	}
+	return ld_library_path;
+}
+

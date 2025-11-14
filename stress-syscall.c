@@ -1602,12 +1602,13 @@ static int syscall_execve(void)
 	else if (pid == 0) {
 		int ret;
 		char *argv[3];
-		char *env[1];
+		char *env[2];
 
 		argv[0] = syscall_exec_prog;
 		argv[1] = "--exec-exit";
 		argv[2] = NULL;
-		env[0] = NULL;
+		env[0] = stress_get_env_ld_library_path();
+		env[1] = NULL;
 
 		syscall_execve_silence_stdio();
 
@@ -1647,7 +1648,7 @@ static int syscall_execveat(void)
 		int fd;
 #endif
 		char *argv[3];
-		char *env[1];
+		char *env[2];
 
 #if defined(O_PATH) &&	\
     defined(AT_EMPTY_PATH)
@@ -1656,7 +1657,8 @@ static int syscall_execveat(void)
 		argv[0] = syscall_exec_prog;
 		argv[1] = "--exec-exit";
 		argv[2] = NULL;
-		env[0] = NULL;
+		env[0] = stress_get_env_ld_library_path();
+		env[1] = NULL;
 
 		syscall_execve_silence_stdio();
 

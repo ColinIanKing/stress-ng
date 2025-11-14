@@ -62,7 +62,6 @@ static int stress_spawn(stress_args_t *args)
 	char *path;
 	char exec_path[PATH_MAX];
 	char *ld_library_path = NULL;
-	char *parent_ld_path;
 	uint64_t spawn_fails = 0, spawn_calls = 0;
 	static char *argv_new[] = { NULL, "--exec-exit", NULL };
 	static char *env_new[] = { NULL, NULL };
@@ -77,17 +76,8 @@ static int stress_spawn(stress_args_t *args)
 		return EXIT_FAILURE;
 	}
 
-	/*
-	 * Determine if ld_library_path is set and must be preserved to self-launch
-	 */
-	parent_ld_path = getenv("LD_LIBRARY_PATH");
-	if (parent_ld_path) {
-		ld_library_path = malloc(strlen(parent_ld_path) + 16);
-		if (ld_library_path) {
-			(void)snprintf(ld_library_path, strlen(parent_ld_path) + 16, "LD_LIBRARY_PATH=%s", parent_ld_path);
-			env_new[0] = ld_library_path;
-		}
-	}
+	ld_library_path = stress_get_env_ld_library_path();
+	env_new[0] = ld_library_path;
 
 	/*
 	 *  Determine our own self as the executable, e.g. run stress-ng

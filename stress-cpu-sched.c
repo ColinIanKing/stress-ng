@@ -627,6 +627,7 @@ again:
 		const pid_t mypid = getpid();
 
 		stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 #if defined(HAVE_TIMER_CLOCK_REALTIME)
 		if (timerid != (timer_t)-1) {
 			(void)timer_delete(timerid);
@@ -643,7 +644,7 @@ again:
 		argv[2] = NULL;
 		argv[3] = NULL;
 
-		env[0] = NULL;
+		env[0] = stress_get_env_ld_library_path();
 		env[1] = NULL;
 
 		_exit(execve(exec_prog, argv, env));

@@ -672,6 +672,7 @@ static int stress_exec(stress_args_t *args)
 	char *exec_prog;
 	char exec_path[PATH_MAX];
 	char garbage_prog[PATH_MAX];
+	char *ld_library_path = NULL;
 	int ret, rc = EXIT_FAILURE;
 #if (defined(HAVE_EXECVEAT) ||	\
      defined(HAVE_FEXECVE)) &&	\
@@ -701,6 +702,8 @@ static int stress_exec(stress_args_t *args)
 		exec_fork_method = stress_exec_fork_methods[exec_fork_method_idx].method;
 
 	stress_ksm_memory_merge(1);
+
+	ld_library_path = stress_get_env_ld_library_path();
 
 	/*
 	 *  Determine our own self as the executable, e.g. run stress-ng
@@ -831,7 +834,7 @@ static int stress_exec(stress_args_t *args)
 			sph->arg.argv[1] = "--exec-exit";
 			sph->arg.argv[2] = NULL;
 			sph->arg.argv[3] = NULL;
-			sph->arg.env[0] = NULL;
+			sph->arg.env[0] = ld_library_path;
 			sph->arg.env[1] = NULL;
 
 			switch (exec_fork_method) {
@@ -940,6 +943,8 @@ static int stress_exec(stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
+	if (ld_library_path)
+		free(ld_library_path);
 
 #if (defined(HAVE_EXECVEAT) ||	\
      defined(HAVE_FEXECVE)) &&	\
