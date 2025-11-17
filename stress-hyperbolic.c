@@ -83,10 +83,10 @@ static bool OPTIMIZE3 TARGET_CLONES stress_hyperbolic_coshl(stress_args_t *args)
 	switch (sizeof(precision)) {
 	case 16:
 	case 12:
-		precision = 1E-8;
+		precision = 1E-8L;
 		break;
 	default:
-		precision = 1E-7;
+		precision = 1E-7L;
 		break;
 	}
 
@@ -144,10 +144,10 @@ static bool OPTIMIZE3 TARGET_CLONES stress_hyperbolic_sinhl(stress_args_t *args)
 	switch (sizeof(precision)) {
 	case 16:
 	case 12:
-		precision = 1E-8;
+		precision = 1E-8L;
 		break;
 	default:
-		precision = 1E-7;
+		precision = 1E-7L;
 		break;
 	}
 
@@ -187,7 +187,7 @@ static bool OPTIMIZE3 TARGET_CLONES stress_hyperbolic_tanhf(stress_args_t *args)
 
 PRAGMA_UNROLL_N(8)
 	for (i = 0; i < STRESS_HYPERBOLIC_LOOPS; i++) {
-		sumtanh += shim_tanhf((float)x);
+		sumtanh += (double)shim_tanhf((float)x);
 		x += dx;
 	}
 	stress_bogo_inc(args);
@@ -196,10 +196,10 @@ PRAGMA_UNROLL_N(8)
 
 static bool OPTIMIZE3 TARGET_CLONES stress_hyperbolic_tanhl(stress_args_t *args)
 {
-	long double sumtanh = 0.0;
-	long double x = -10.0;
+	long double sumtanh = 0.0L;
+	long double x = -10.0L;
 	const long double dx = 20.0L / (long double)STRESS_HYPERBOLIC_LOOPS;
-	const long double precision = 1E-7;
+	const long double precision = 1E-7L;
 	int i;
 
 PRAGMA_UNROLL_N(8)

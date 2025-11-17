@@ -44,25 +44,25 @@ static const stress_help_t help[] = {
 
 #if defined(HAVE_COMPLEX_H)
 
-#define CCOSD_SUM (9989.57840184182168741245 + I *  421.84459305523512284708)
-#define CCOSF_SUM (9989.57840049266815185547 + I *  421.84459273131869849749)
-#define CCOSL_SUM (9989.57840184171815867131 + I *  421.84459305520919505939)
+#define CCOSD_SUM shim_cmplx(9989.57840184182168741245, 421.84459305523512284708)
+#define CCOSF_SUM shim_cmplx(9989.57840049266815185547, 421.84459273131869849749)
+#define CCOSL_SUM shim_cmplxl(9989.57840184171815867131L, 421.84459305520919505939L)
 
-#define CSIND_SUM (-103.79703901230311657855 + I * 2446.84911650352341894177)
-#define CSINF_SUM (-103.79704056875198148191 + I * 2446.84911444940007640980)
-#define CSINL_SUM (-103.79703901192314422636 + I * 2446.84911650326313248272)
+#define CSIND_SUM shim_cmplx(-103.79703901230311657855, 2446.84911650352341894177)
+#define CSINF_SUM shim_cmplx(-103.79704056875198148191, 2446.84911444940007640980)
+#define CSINL_SUM shim_cmplxl(-103.79703901192314422636L, 2446.84911650326313248272L)
 
-#define CTAND_SUM ( 218.42756568810500539257 + I * 2582.61959103427079753601)
-#define CTANF_SUM ( 218.42756647889473242685 + I * 2582.61959293121617520228)
-#define CTANL_SUM ( 218.42756568850280469996 + I * 2582.61959103398629689075)
+#define CTAND_SUM shim_cmplx(218.42756568810500539257, 2582.61959103427079753601)
+#define CTANF_SUM shim_cmplx(218.42756647889473242685, 2582.61959293121617520228)
+#define CTANL_SUM shim_cmplxl(218.42756568850280469996L, 2582.61959103398629689075L)
 
 #if defined(HAVE_CCOS)
 static bool OPTIMIZE3 TARGET_CLONES stress_ctrig_ccos(stress_args_t *args)
 {
-	complex double sumccos = 0.0;
-	complex double z = -0.5 + 0.5 * I;
-	complex const double dz = (1.0 / (double)STRESS_CTRIG_LOOPS - I / (2.0 * (double)STRESS_CTRIG_LOOPS));
-	const double precision = 1E-7;
+	complex double sumccos = shim_cmplx(0.0, 0.0);
+	complex double z = shim_cmplx(-0.5, 0.5);
+	const complex double dz = shim_cmplx(1.0 / (double)STRESS_CTRIG_LOOPS, -1.0 / (2.0 * (double)STRESS_CTRIG_LOOPS));
+	const double precision = 1E-7L;
 	int i;
 
 PRAGMA_UNROLL_N(8)
@@ -71,17 +71,17 @@ PRAGMA_UNROLL_N(8)
 		z += dz;
 	}
 	stress_bogo_inc(args);
-	return cabs(sumccos - (complex double)CCOSD_SUM) > precision;
+	return cabs(sumccos - CCOSD_SUM) > precision;
 }
 #endif
 
 #if defined(HAVE_CCOSF)
 static bool OPTIMIZE3 TARGET_CLONES stress_ctrig_ccosf(stress_args_t *args)
 {
-	complex double sumccos = 0.0;
-	complex double z = -0.5 + 0.5 * I;
-	complex const double dz = (1.0 / (double)STRESS_CTRIG_LOOPS - I / (2.0 * (double)STRESS_CTRIG_LOOPS));
-	const double precision = 1E-3;
+	complex double sumccos = shim_cmplx(0.0, 0.0);
+	complex double z = shim_cmplx(-0.5, 0.5);
+	const complex double dz = shim_cmplx(1.0 / (double)STRESS_CTRIG_LOOPS, -1.0 / (2.0 * (double)STRESS_CTRIG_LOOPS));
+	const double precision = 1E-3L;
 	int i;
 
 PRAGMA_UNROLL_N(8)
@@ -90,26 +90,26 @@ PRAGMA_UNROLL_N(8)
 		z += dz;
 	}
 	stress_bogo_inc(args);
-	return cabs(sumccos - (complex double)CCOSF_SUM) > precision;
+	return cabs(sumccos - CCOSF_SUM) > precision;
 }
 #endif
 
 #if defined(HAVE_CCOSL)
 static bool OPTIMIZE3 TARGET_CLONES stress_ctrig_ccosl(stress_args_t *args)
 {
-	complex long double sumccos = 0.0L;
-	complex long double z = -0.5 + 0.5 * I;
-	const complex long double dz = (1.0 / (double)STRESS_CTRIG_LOOPS - I / (2.0 * (double)STRESS_CTRIG_LOOPS));
+	complex long double sumccos = shim_cmplxl(0.0L, 0.0L);
+	complex long double z = shim_cmplxl(-0.5L, 0.5L);
+	const complex long double dz = shim_cmplxl(1.0L / (long double)STRESS_CTRIG_LOOPS, -1.0L / (2.0L * (long double)STRESS_CTRIG_LOOPS));
 	long double precision;
 	int i;
 
 	switch (sizeof(precision)) {
 	case 16:
 	case 12:
-		precision = 1E-8;
+		precision = 1E-8L;
 		break;
 	default:
-		precision = 1E-7;
+		precision = 1E-7L;
 		break;
 	}
 
@@ -119,16 +119,16 @@ PRAGMA_UNROLL_N(8)
 		z += dz;
 	}
 	stress_bogo_inc(args);
-	return cabsl(sumccos - (complex long double)CCOSL_SUM) > precision;
+	return cabsl(sumccos - CCOSL_SUM) > precision;
 }
 #endif
 
 #if defined(HAVE_CSIN)
 static bool OPTIMIZE3 TARGET_CLONES stress_ctrig_csin(stress_args_t *args)
 {
-	complex double sumcsin = 0.0;
-	complex double z = -0.5 + 0.5 * I;
-	const complex double dz = (1.0 / (double)STRESS_CTRIG_LOOPS - I / (2.0 * (double)STRESS_CTRIG_LOOPS));
+	complex double sumcsin = shim_cmplx(0.0, 0.0);
+	complex double z = shim_cmplx(-0.5, 0.5);
+	const complex double dz = shim_cmplx(1.0 / (double)STRESS_CTRIG_LOOPS, -1.0 / (2.0 * (double)STRESS_CTRIG_LOOPS));
 	const double precision = 1E-7;
 	int i;
 
@@ -139,16 +139,16 @@ PRAGMA_UNROLL_N(8)
 	}
 	stress_bogo_inc(args);
 
-	return cabs(sumcsin - (complex double)CSIND_SUM) > precision;
+	return cabs(sumcsin - CSIND_SUM) > precision;
 }
 #endif
 
 #if defined(HAVE_CSINF)
 static bool OPTIMIZE3 TARGET_CLONES stress_ctrig_csinf(stress_args_t *args)
 {
-	complex double sumcsin = 0.0;
-	complex double z = -0.5 + 0.5 * I;
-	const complex double dz = (1.0 / (double)STRESS_CTRIG_LOOPS - I / (2.0 * (double)STRESS_CTRIG_LOOPS));
+	complex double sumcsin = shim_cmplx(0.0, 0.0);
+	complex double z = shim_cmplx(-0.5, 0.5);
+	const complex double dz = shim_cmplx(1.0 / (double)STRESS_CTRIG_LOOPS, -1.0 / (2.0 * (double)STRESS_CTRIG_LOOPS));
 	const double precision = 1E-3;
 	int i;
 
@@ -158,26 +158,26 @@ PRAGMA_UNROLL_N(8)
 		z += dz;
 	}
 	stress_bogo_inc(args);
-	return cabs(sumcsin - (complex double)CSINF_SUM) > precision;
+	return cabs(sumcsin - CSINF_SUM) > precision;
 }
 #endif
 
 #if defined(HAVE_CSINL)
 static bool OPTIMIZE3 TARGET_CLONES stress_ctrig_csinl(stress_args_t *args)
 {
-	complex long double sumcsin = 0.0L;
-	complex long double z = -0.5 + 0.5 * I;
-	const complex long double dz = (1.0 / (double)STRESS_CTRIG_LOOPS - I / (2.0 * (double)STRESS_CTRIG_LOOPS));
+	complex long double sumcsin = shim_cmplxl(0.0L, 0.0L);
+	complex long double z = shim_cmplxl(-0.5L, 0.5L);
+	const complex long double dz = shim_cmplxl(1.0L / (long double)STRESS_CTRIG_LOOPS, -1.0L / (2.0L * (long double)STRESS_CTRIG_LOOPS));
 	long double precision;
 	int i;
 
 	switch (sizeof(precision)) {
 	case 16:
 	case 12:
-		precision = 1E-8;
+		precision = 1E-8L;
 		break;
 	default:
-		precision = 1E-7;
+		precision = 1E-7L;
 		break;
 	}
 
@@ -187,16 +187,16 @@ PRAGMA_UNROLL_N(8)
 		z += dz;
 	}
 	stress_bogo_inc(args);
-	return cabsl(sumcsin - (complex long double)CSINL_SUM) > precision;
+	return cabsl(sumcsin - CSINL_SUM) > precision;
 }
 #endif
 
 #if defined(HAVE_CTAN)
 static bool OPTIMIZE3 TARGET_CLONES stress_ctrig_ctan(stress_args_t *args)
 {
-	complex double sumctan = 0.0;
-	complex double z = -0.5 + 0.5 * I;
-	const complex double dz = (1.0 / (double)STRESS_CTRIG_LOOPS - I / (2.0 * (double)STRESS_CTRIG_LOOPS));
+	complex double sumctan = shim_cmplx(0.0, 0.0);
+	complex double z = shim_cmplx(-0.5, 0.5);
+	const complex double dz = shim_cmplx(1.0 / (double)STRESS_CTRIG_LOOPS, -1.0 / (2.0 * (double)STRESS_CTRIG_LOOPS));
 	const double precision = 1E-7;
 	int i;
 
@@ -206,16 +206,16 @@ PRAGMA_UNROLL_N(8)
 		z += dz;
 	}
 	stress_bogo_inc(args);
-	return cabs(sumctan - (complex double)CTAND_SUM) > precision;
+	return cabs(sumctan - CTAND_SUM) > precision;
 }
 #endif
 
 #if defined(HAVE_CTANF)
 static bool OPTIMIZE3 TARGET_CLONES stress_ctrig_ctanf(stress_args_t *args)
 {
-	complex double sumctan = 0.0;
-	complex double z = -0.5 + 0.5 * I;
-	const complex double dz = (1.0 / (double)STRESS_CTRIG_LOOPS - I / (2.0 * (double)STRESS_CTRIG_LOOPS));
+	complex double sumctan = shim_cmplx(0.0, 0.0);
+	complex double z = shim_cmplx(-0.5, 0.5);
+	const complex double dz = shim_cmplx(1.0 / (double)STRESS_CTRIG_LOOPS, -1.0 / (2.0 * (double)STRESS_CTRIG_LOOPS));
 	const double precision = 1E-4;
 	int i;
 
@@ -225,26 +225,26 @@ PRAGMA_UNROLL_N(8)
 		z += dz;
 	}
 	stress_bogo_inc(args);
-	return cabs(sumctan - (complex double)CTANF_SUM) > precision;
+	return cabs(sumctan - CTANF_SUM) > precision;
 }
 #endif
 
 #if defined(HAVE_CTANL)
 static bool OPTIMIZE3 TARGET_CLONES stress_ctrig_ctanl(stress_args_t *args)
 {
-	complex long double sumctan = 0.0L;
-	complex long double z = -0.5 + 0.5 * I;
-	const complex long double dz = (1.0 / (double)STRESS_CTRIG_LOOPS - I / (2.0 * (double)STRESS_CTRIG_LOOPS));
+	complex long double sumctan = shim_cmplxl(0.0L, 0.0L);
+	complex long double z = shim_cmplxl(-0.5L, + 0.5L);
+	const complex long double dz = shim_cmplxl(1.0L / (long double)STRESS_CTRIG_LOOPS, -1.0L / (2.0L * (long double)STRESS_CTRIG_LOOPS));
 	long double precision;
 	int i;
 
 	switch (sizeof(precision)) {
 	case 16:
 	case 12:
-		precision = 1E-8;
+		precision = 1E-8L;
 		break;
 	default:
-		precision = 1E-7;
+		precision = 1E-7L;
 		break;
 	}
 
@@ -254,7 +254,7 @@ PRAGMA_UNROLL_N(8)
 		z += dz;
 	}
 	stress_bogo_inc(args);
-	return cabsl(sumctan - (complex long double)CTANL_SUM) > precision;
+	return cabsl(sumctan - CTANL_SUM) > precision;
 }
 #endif
 

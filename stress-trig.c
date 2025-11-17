@@ -44,7 +44,7 @@ static bool OPTIMIZE3 TARGET_CLONES stress_trig_cos(stress_args_t *args)
 {
 	double sumcos = 0.0;
 	double theta = 0.0;
-	const double dtheta = (PI * 2.0) / (double)STRESS_TRIG_LOOPS;
+	const double dtheta = (double)((PI * 2.0L) / (long double)STRESS_TRIG_LOOPS);
 	const double precision = 1E-7;
 	int i;
 
@@ -61,7 +61,7 @@ static bool OPTIMIZE3 TARGET_CLONES stress_trig_cosf(stress_args_t *args)
 {
 	double sumcos = 0.0;
 	double theta = 0.0;
-	const double dtheta = (PI * 2.0) / (float)STRESS_TRIG_LOOPS;
+	const double dtheta = (double)((PI * 2.0L) / (long double)STRESS_TRIG_LOOPS);
 	const double precision = 1E-4;
 	int i;
 
@@ -85,10 +85,10 @@ static bool OPTIMIZE3 TARGET_CLONES stress_trig_cosl(stress_args_t *args)
 	switch (sizeof(precision)) {
 	case 16:
 	case 12:
-		precision = 1E-8;
+		precision = 1E-8L;
 		break;
 	default:
-		precision = 1E-7;
+		precision = 1E-7L;
 		break;
 	}
 
@@ -105,7 +105,7 @@ static bool OPTIMIZE3 TARGET_CLONES stress_trig_sin(stress_args_t *args)
 {
 	double sumsin = 0.0;
 	double theta = 0.0;
-	const double dtheta = (PI * 2.0) / (double)STRESS_TRIG_LOOPS;
+	const double dtheta = (double)((PI * 2.0L) / (long double)STRESS_TRIG_LOOPS);
 	const double precision = 1E-7;
 	int i;
 
@@ -122,7 +122,7 @@ static bool OPTIMIZE3 TARGET_CLONES stress_trig_sinf(stress_args_t *args)
 {
 	double sumsin = 0.0;
 	double theta = 0.0;
-	const double dtheta = (PI * 2.0) / (float)STRESS_TRIG_LOOPS;
+	const double dtheta = (double)((PI * 2.0L) / (long double)STRESS_TRIG_LOOPS);
 	const double precision = 1E-4;
 	int i;
 
@@ -146,10 +146,10 @@ static bool OPTIMIZE3 TARGET_CLONES stress_trig_sinl(stress_args_t *args)
 	switch (sizeof(precision)) {
 	case 16:
 	case 12:
-		precision = 1E-8;
+		precision = 1E-8L;
 		break;
 	default:
-		precision = 1E-7;
+		precision = 1E-7L;
 		break;
 	}
 
@@ -167,7 +167,7 @@ static bool OPTIMIZE3 TARGET_CLONES stress_trig_sincos(stress_args_t *args)
 {
 	double sumsin = 0.0, sumcos = 0.0;
 	double theta = 0.0;
-	const double dtheta = (PI * 2.0) / (double)STRESS_TRIG_LOOPS;
+	const double dtheta = (double)((PI * 2.0L) / (long double)STRESS_TRIG_LOOPS);
 	const double precision = 1E-7;
 	int i;
 
@@ -191,7 +191,7 @@ static bool OPTIMIZE3 TARGET_CLONES stress_trig_sincosf(stress_args_t *args)
 {
 	double sumsin = 0.0, sumcos = 0.0;
 	double theta = 0.0;
-	const double dtheta = (PI * 2.0) / (float)STRESS_TRIG_LOOPS;
+	const double dtheta = (double)((PI * 2.0L) / (long double)STRESS_TRIG_LOOPS);
 	const double precision = 1E-4;
 	int i;
 
@@ -200,8 +200,8 @@ PRAGMA_UNROLL_N(8)
 		float c, s;
 
 		shim_sincosf((float)theta, &s, &c);
-		sumsin += s;
-		sumcos += c;
+		sumsin += (double)s;
+		sumcos += (double)c;
 		theta += dtheta;
 	}
 	stress_bogo_inc(args);
@@ -213,7 +213,7 @@ PRAGMA_UNROLL_N(8)
 #if defined(HAVE_SINCOSL)
 static bool OPTIMIZE3 TARGET_CLONES stress_trig_sincosl(stress_args_t *args)
 {
-	long double sumsin = 0.0, sumcos = 0.0;
+	long double sumsin = 0.0L, sumcos = 0.0L;
 	long double theta = 0.0L;
 	const long double dtheta = (PI * 2.0L) / (long double)STRESS_TRIG_LOOPS;
 	long double precision;
@@ -222,10 +222,10 @@ static bool OPTIMIZE3 TARGET_CLONES stress_trig_sincosl(stress_args_t *args)
 	switch (sizeof(precision)) {
 	case 16:
 	case 12:
-		precision = 1E-8;
+		precision = 1E-8L;
 		break;
 	default:
-		precision = 1E-7;
+		precision = 1E-7L;
 		break;
 	}
 
@@ -239,8 +239,8 @@ PRAGMA_UNROLL_N(8)
 		theta += dtheta;
 	}
 	stress_bogo_inc(args);
-	return (shim_fabsl(sumsin - (long double)0.0) > precision) ||
-	       (shim_fabsl(sumcos - (long double)0.0) > precision);
+	return (shim_fabsl(sumsin - (long double)0.0L) > precision) ||
+	       (shim_fabsl(sumcos - (long double)0.0L) > precision);
 }
 #endif
 
@@ -271,7 +271,7 @@ static bool OPTIMIZE3 TARGET_CLONES stress_trig_tanf(stress_args_t *args)
 
 PRAGMA_UNROLL_N(8)
 	for (i = 0; i < STRESS_TRIG_LOOPS; i++) {
-		sumtan += shim_tanf((float)theta);
+		sumtan += (double)shim_tanf((float)theta);
 		theta += dtheta;
 	}
 	stress_bogo_inc(args);
@@ -283,7 +283,7 @@ static bool OPTIMIZE3 TARGET_CLONES stress_trig_tanl(stress_args_t *args)
 	long double sumtan = 0.0L;
 	long double theta = 3.0L;
 	const long double dtheta = ((long double)PI - theta) / (long double)STRESS_TRIG_LOOPS;
-	const long double precision = 1E-7;
+	const long double precision = 1E-7L;
 	int i;
 
 PRAGMA_UNROLL_N(8)

@@ -24,6 +24,7 @@
 
 #define STRESS_BESSELMATH_LOOPS	(10000)
 #define PRECISION		(1.0E-4)
+#define PRECISION_L		(1.0E-4L)
 
 typedef struct {
 	const char *name;
@@ -198,14 +199,14 @@ PRAGMA_UNROLL_N(8)
 static bool OPTIMIZE3 stress_besselmath_j0l(stress_args_t *args)
 {
 	static bool first_run = true;
-	static long double result = -1.0;
-	register long double sum = 0.0, di = 0.1;
+	static long double result = -1.0L;
+	register long double sum = 0.0L, di = 0.1L;
 	register int i;
 
 PRAGMA_UNROLL_N(8)
 	for (i = 0; i < STRESS_BESSELMATH_LOOPS; i++) {
 		sum += shim_j0l(di);
-		di += 0.001;
+		di += 0.001L;
 	}
 	stress_bogo_inc(args);
 
@@ -213,7 +214,7 @@ PRAGMA_UNROLL_N(8)
 		result = sum;
 		first_run = false;
 	}
-	return (shim_fabsl(sum - result) > PRECISION);
+	return (shim_fabsl(sum - result) > PRECISION_L);
 }
 #endif
 
@@ -221,14 +222,14 @@ PRAGMA_UNROLL_N(8)
 static bool OPTIMIZE3 stress_besselmath_j1l(stress_args_t *args)
 {
 	static bool first_run = true;
-	static long double result = -1.0;
-	register long double sum = 0.0, di = 0.1;
+	static long double result = -1.0L;
+	register long double sum = 0.0L, di = 0.1L;
 	register int i;
 
 PRAGMA_UNROLL_N(8)
 	for (i = 0; i < STRESS_BESSELMATH_LOOPS; i++) {
 		sum += shim_j1l(di);
-		di += 0.001;
+		di += 0.001L;
 	}
 	stress_bogo_inc(args);
 
@@ -236,7 +237,7 @@ PRAGMA_UNROLL_N(8)
 		result = sum;
 		first_run = false;
 	}
-	return (shim_fabsl(sum - result) > PRECISION);
+	return (shim_fabsl(sum - result) > PRECISION_L);
 }
 #endif
 
@@ -244,14 +245,14 @@ PRAGMA_UNROLL_N(8)
 static bool OPTIMIZE3 stress_besselmath_jnl(stress_args_t *args)
 {
 	static bool first_run = true;
-	static long double result = -1.0;
-	register long double sum = 0.0, di = 0.1;
+	static long double result = -1.0L;
+	register long double sum = 0.0L, di = 0.1L;
 	register int i;
 
 PRAGMA_UNROLL_N(8)
 	for (i = 0; i < STRESS_BESSELMATH_LOOPS; i++) {
 		sum += shim_jnl(5, di);
-		di += 0.001;
+		di += 0.001L;
 	}
 	stress_bogo_inc(args);
 
@@ -259,7 +260,7 @@ PRAGMA_UNROLL_N(8)
 		result = sum;
 		first_run = false;
 	}
-	return (shim_fabsl(sum - result) > PRECISION);
+	return (shim_fabsl(sum - result) > PRECISION_L);
 }
 #endif
 
@@ -405,14 +406,14 @@ PRAGMA_UNROLL_N(8)
 static bool OPTIMIZE3 stress_besselmath_y0l(stress_args_t *args)
 {
 	static bool first_run = true;
-	static long double result = -1.0;
-	register long double sum = 0.0, di = 0.1;
+	static long double result = -1.0L;
+	register long double sum = 0.0L, di = 0.1L;
 	register int i;
 
 PRAGMA_UNROLL_N(8)
 	for (i = 0; i < STRESS_BESSELMATH_LOOPS; i++) {
 		sum += shim_y0l(di);
-		di += 0.001;
+		di += 0.001L;
 	}
 	stress_bogo_inc(args);
 
@@ -420,7 +421,7 @@ PRAGMA_UNROLL_N(8)
 		result = sum;
 		first_run = false;
 	}
-	return (shim_fabsl(sum - result) > PRECISION);
+	return (shim_fabsl(sum - result) > PRECISION_L);
 }
 #endif
 
@@ -428,14 +429,14 @@ PRAGMA_UNROLL_N(8)
 static bool OPTIMIZE3 stress_besselmath_y1l(stress_args_t *args)
 {
 	static bool first_run = true;
-	static long double result = -1.0;
-	register long double sum = 0.0, di = 0.1;
+	static long double result = -1.0L;
+	register long double sum = 0.0L, di = 0.1L;
 	register int i;
 
 PRAGMA_UNROLL_N(8)
 	for (i = 0; i < STRESS_BESSELMATH_LOOPS; i++) {
 		sum += shim_y1l(di);
-		di += 0.001;
+		di += 0.001L;
 	}
 	stress_bogo_inc(args);
 
@@ -443,7 +444,7 @@ PRAGMA_UNROLL_N(8)
 		result = sum;
 		first_run = false;
 	}
-	return (shim_fabsl(sum - result) > PRECISION);
+	return (shim_fabsl(sum - result) > PRECISION_L);
 }
 #endif
 
@@ -451,14 +452,14 @@ PRAGMA_UNROLL_N(8)
 static bool OPTIMIZE3 stress_besselmath_ynl(stress_args_t *args)
 {
 	static bool first_run = true;
-	static long double result = -1.0;
-	register long double sum = 0.0, di = 0.1;
+	static long double result = -1.0L;
+	register long double sum = 0.0L, di = 0.1L;
 	register int i;
 
 PRAGMA_UNROLL_N(8)
 	for (i = 0; i < STRESS_BESSELMATH_LOOPS; i++) {
 		sum += shim_ynl(5, di);
-		di += 0.001;
+		di += 0.001L;
 	}
 	stress_bogo_inc(args);
 
@@ -466,7 +467,7 @@ PRAGMA_UNROLL_N(8)
 		result = sum;
 		first_run = false;
 	}
-	return (shim_fabsl(sum - result) > PRECISION);
+	return (shim_fabsl(sum - result) > PRECISION_L);
 }
 #endif
 

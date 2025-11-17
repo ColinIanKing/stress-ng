@@ -774,7 +774,7 @@ static int stress_fp(stress_args_t *args)
 		fp_data[i].f128.add = (_Float128)ld;
 #endif
 
-		ld = -(ld * 0.992);
+		ld = -(ld * 0.992L);
 		fp_data[i].ld.add_rev = ld;
 		fp_data[i].d.add_rev = (double)ld;
 		fp_data[i].f.add_rev = (float)ld;
@@ -825,7 +825,7 @@ static int stress_fp(stress_args_t *args)
 		fp_data[i].f128.mul = (_Float128)ld;
 #endif
 
-		ld = 0.9995 / ld;
+		ld = 0.9995L / ld;
 		fp_data[i].ld.mul_rev = ld;
 		fp_data[i].d.mul_rev = (double)ld;
 		fp_data[i].f.mul_rev = (float)ld;

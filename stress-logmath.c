@@ -30,6 +30,7 @@
 
 #define STRESS_LOGMATH_LOOPS	(10000)
 #define PRECISION		(1.0E-4)
+#define PRECISION_L		(1.0E-4L)
 
 typedef struct {
 	const char *name;
@@ -72,7 +73,7 @@ static bool OPTIMIZE3 TARGET_CLONES stress_logmath_clog(stress_args_t *args)
 PRAGMA_UNROLL_N(8)
 	for (i = 0; i < STRESS_LOGMATH_LOOPS; i++) {
 		register const double df = (double)(i + 1);
-		register const double complex dci = df + (df * I);
+		register const double complex dci = shim_cmplx(df, df);
 
 		sum += shim_clog(dci);
 	}
@@ -97,7 +98,7 @@ static bool OPTIMIZE3 TARGET_CLONES stress_logmath_clogf(stress_args_t *args)
 PRAGMA_UNROLL_N(8)
 	for (i = 0; i < STRESS_LOGMATH_LOOPS; i++) {
 		register const float fi = (float)(i + 1);
-		register const float complex fci = fi + (fi * I);
+		register const float complex fci = shim_cmplxf(fi, fi);
 
 		sum += (complex double)shim_clogf(fci);
 	}
@@ -114,15 +115,15 @@ PRAGMA_UNROLL_N(8)
 #if defined(HAVE_CLOGL)
 static bool OPTIMIZE3 TARGET_CLONES stress_logmath_clogl(stress_args_t *args)
 {
-	register long double complex sum = 0.0;
+	register long double complex sum = 0.0L;
 	register int i;
-	static long double complex result = -1.0;
+	static long double complex result = -1.0L;
 	static bool first_run = true;
 
 PRAGMA_UNROLL_N(8)
 	for (i = 0; i < STRESS_LOGMATH_LOOPS; i++) {
 		register const long double ldi = (long double)(i + 1);
-		register const long double complex ldci = ldi + (ldi * I);
+		register const long double complex ldci = shim_cmplxl(ldi, ldi);
 
 		sum += shim_clogl(ldci);
 	}
@@ -132,7 +133,7 @@ PRAGMA_UNROLL_N(8)
 		result = sum;
 		first_run = false;
 	}
-	return (shim_cabsl(sum - result) > PRECISION);
+	return (shim_cabsl(sum - result) > PRECISION_L);
 }
 #endif
 
@@ -189,9 +190,9 @@ PRAGMA_UNROLL_N(8)
 #if defined(HAVE_LOGL)
 static bool OPTIMIZE3 TARGET_CLONES stress_logmath_logl(stress_args_t *args)
 {
-	register long double sum = 0.0;
+	register long double sum = 0.0L;
 	register int i;
-	static long double result = -1.0;
+	static long double result = -1.0L;
 	static bool first_run = true;
 
 PRAGMA_UNROLL_N(8)
@@ -206,7 +207,7 @@ PRAGMA_UNROLL_N(8)
 		result = sum;
 		first_run = false;
 	}
-	return (shim_fabsl(sum - result) > PRECISION);
+	return (shim_fabsl(sum - result) > PRECISION_L);
 }
 #endif
 
@@ -261,9 +262,9 @@ PRAGMA_UNROLL_N(8)
 #if defined(HAVE_LOGBL)
 static bool OPTIMIZE3 TARGET_CLONES stress_logmath_logbl(stress_args_t *args)
 {
-	register long double sum = 0.0;
+	register long double sum = 0.0L;
 	register int i;
-	static long double result = -1.0;
+	static long double result = -1.0L;
 	static bool first_run = true;
 
 PRAGMA_UNROLL_N(8)
@@ -278,7 +279,7 @@ PRAGMA_UNROLL_N(8)
 		result = sum;
 		first_run = false;
 	}
-	return (shim_fabsl(sum - result) > PRECISION);
+	return (shim_fabsl(sum - result) > PRECISION_L);
 }
 #endif
 
@@ -333,9 +334,9 @@ PRAGMA_UNROLL_N(8)
 #if defined(HAVE_LOG10L)
 static bool OPTIMIZE3 TARGET_CLONES stress_logmath_log10l(stress_args_t *args)
 {
-	register long double sum = 0.0;
+	register long double sum = 0.0L;
 	register int i;
-	static long double result = -1.0;
+	static long double result = -1.0L;
 	static bool first_run = true;
 
 PRAGMA_UNROLL_N(8)
@@ -350,7 +351,7 @@ PRAGMA_UNROLL_N(8)
 		result = sum;
 		first_run = false;
 	}
-	return (shim_fabsl(sum - result) > PRECISION);
+	return (shim_fabsl(sum - result) > PRECISION_L);
 }
 #endif
 
@@ -405,9 +406,9 @@ PRAGMA_UNROLL_N(8)
 #if defined(HAVE_LOG2L)
 static bool OPTIMIZE3 TARGET_CLONES stress_logmath_log2l(stress_args_t *args)
 {
-	register long double sum = 0.0;
+	register long double sum = 0.0L;
 	register int i;
-	static long double result = -1.0;
+	static long double result = -1.0L;
 	static bool first_run = true;
 
 PRAGMA_UNROLL_N(8)
@@ -421,7 +422,7 @@ PRAGMA_UNROLL_N(8)
 		result = sum;
 		first_run = false;
 	}
-	return (shim_fabsl(sum - result) > PRECISION);
+	return (shim_fabsl(sum - result) > PRECISION_L);
 }
 #endif
 

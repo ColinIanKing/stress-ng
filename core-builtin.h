@@ -61,6 +61,16 @@
 #define	shim_strdup(str)		strdup((str))
 #endif
 
+#if defined(HAVE_BUILTIN_COMPLEX)
+#define shim_cmplxf(r, i)		__builtin_complex((float)(r), (float)(i))
+#define shim_cmplx(r, i)		__builtin_complex((double)(r), (double)(i))
+#define shim_cmplxl(r, i)		__builtin_complex((long double)(r), (long double)(i))
+#else
+#define shim_cmplxf(r, i)		((float)(r) + (I * (float)(i)))
+#define shim_cmplx(r, i)		((double)(r) + (I * (double)(i)))
+#define shim_cmplxl(r, i)		((long double)(r) + (I * (long double)(i)))
+#endif
+
 #if defined(HAVE_BUILTIN_CABS)
 #define shim_cabs(x)		__builtin_cabs((x))
 #else

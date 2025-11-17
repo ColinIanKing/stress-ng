@@ -30,6 +30,7 @@
 
 #define STRESS_POWMATH_LOOPS	(10000)
 #define PRECISION		(1.0E-4)
+#define PRECISION_L		(1.0E-4L)
 
 typedef struct {
 	const char *name;
@@ -76,9 +77,9 @@ static bool OPTIMIZE3 TARGET_CLONES stress_powmath_cpow(stress_args_t *args)
 
 PRAGMA_UNROLL_N(8)
 	for (i = 0; i < STRESS_POWMATH_LOOPS; i++) {
-		register const double complex dci = di + (di * I);
+		register const double complex dci = shim_cmplx(di, di);
 
-		sum += shim_cpow((double complex)(i + (i * I)), dci);
+		sum += shim_cpow(shim_cmplx((double)i, (double)i), dci);
 		di += scale;
 	}
 	stress_bogo_inc(args);
@@ -94,18 +95,18 @@ PRAGMA_UNROLL_N(8)
 #if defined(HAVE_CPOWF)
 static bool OPTIMIZE3 TARGET_CLONES stress_powmath_cpowf(stress_args_t *args)
 {
-	register complex double sum = 0.0;
+	register complex double sum = 0.0L;
 	register int i;
-	static complex double result = -1.0;
+	static complex double result = -1.0L;
 	static bool first_run = true;
-	register const float scale = 1.0 / (float)STRESS_POWMATH_LOOPS;
+	register const float scale = (float)1.0 / (float)STRESS_POWMATH_LOOPS;
 	register float fi = scale;
 
 PRAGMA_UNROLL_N(8)
 	for (i = 0; i < STRESS_POWMATH_LOOPS; i++) {
-		register const float complex fci = fi + (fi * I);
+		register const float complex fci = shim_cmplxf(fi, fi);
 
-		sum += (float complex)shim_cpowf((float complex)(i + (i * I)), fci);
+		sum += (double complex)shim_cpowf(shim_cmplxf((float)i, (float)i), fci);
 		fi += scale;
 	}
 	stress_bogo_inc(args);
@@ -121,18 +122,18 @@ PRAGMA_UNROLL_N(8)
 #if defined(HAVE_CPOWL)
 static bool OPTIMIZE3 TARGET_CLONES stress_powmath_cpowl(stress_args_t *args)
 {
-	register long double complex sum = 0.0;
+	register long double complex sum = 0.0L;
 	register int i;
-	static long double complex result = -1.0;
+	static long double complex result = -1.0L;
 	static bool first_run = true;
-	register const long double scale = 1.0 / (long double)STRESS_POWMATH_LOOPS;
+	register const long double scale = 1.0L / (long double)STRESS_POWMATH_LOOPS;
 	register long double ldi = scale;
 
 PRAGMA_UNROLL_N(8)
 	for (i = 0; i < STRESS_POWMATH_LOOPS; i++) {
-		register const long double complex ldci = ldi + (ldi * I);
+		register const long double complex ldci = shim_cmplxl(ldi, ldi);
 
-		sum += shim_cpowl((long double complex)(i + (i * I)), ldci);
+		sum += shim_cpowl(shim_cmplxl((long double)i, (long double)i), ldci);
 		ldi += scale;
 	}
 	stress_bogo_inc(args);
@@ -141,7 +142,7 @@ PRAGMA_UNROLL_N(8)
 		result = sum;
 		first_run = false;
 	}
-	return (shim_cabsl(sum - result) > PRECISION);
+	return (shim_cabsl(sum - result) > PRECISION_L);
 }
 #endif
 
@@ -157,7 +158,7 @@ static bool OPTIMIZE3 TARGET_CLONES stress_powmath_csqrt(stress_args_t *args)
 
 PRAGMA_UNROLL_N(8)
 	for (i = 0; i < STRESS_POWMATH_LOOPS; i++) {
-		register const double complex dci = di + (di * I);
+		register const double complex dci = shim_cmplx(di, di);
 
 		sum += shim_csqrt(dci);
 		di += scale;
@@ -175,16 +176,16 @@ PRAGMA_UNROLL_N(8)
 #if defined(HAVE_CSQRTF)
 static bool OPTIMIZE3 TARGET_CLONES stress_powmath_csqrtf(stress_args_t *args)
 {
-	register complex double sum = 0.0;
+	register complex double sum = 0.0L;
 	register int i;
-	static complex double result = -1.0;
+	static complex double result = -1.0L;
 	static bool first_run = true;
-	register const float scale = 1.0 / (float)STRESS_POWMATH_LOOPS;
+	register const float scale = (float)1.0 / (float)STRESS_POWMATH_LOOPS;
 	register float fi = 0.0;
 
 PRAGMA_UNROLL_N(8)
 	for (i = 0; i < STRESS_POWMATH_LOOPS; i++) {
-		register const float complex fci = fi + (fi * I);
+		register const float complex fci =  shim_cmplxf(fi, fi);
 
 		sum += (complex double)shim_csqrtf(fci);
 		fi += scale;
@@ -202,16 +203,16 @@ PRAGMA_UNROLL_N(8)
 #if defined(HAVE_CSQRTL)
 static bool OPTIMIZE3 TARGET_CLONES stress_powmath_csqrtl(stress_args_t *args)
 {
-	register long double complex sum = 0.0;
+	register long double complex sum = 0.0L;
 	register int i;
-	static long double complex result = -1.0;
+	static long double complex result = -1.0L;
 	static bool first_run = true;
-	register const long double scale = 1.0 / (long double)STRESS_POWMATH_LOOPS;
-	register long double ldi = 0.0;
+	register const long double scale = 1.0L / (long double)STRESS_POWMATH_LOOPS;
+	register long double ldi = 0.0L;
 
 PRAGMA_UNROLL_N(8)
 	for (i = 0; i < STRESS_POWMATH_LOOPS; i++) {
-		register const long double complex ldci = ldi + (ldi * I);
+		register const long double complex ldci = shim_cmplxl(ldi, ldi);
 
 		sum += shim_csqrtl(ldci);
 		ldi += scale;
@@ -222,7 +223,7 @@ PRAGMA_UNROLL_N(8)
 		result = sum;
 		first_run = false;
 	}
-	return (shim_cabsl(sum - result) > PRECISION);
+	return (shim_cabsl(sum - result) > PRECISION_L);
 }
 #endif
 
@@ -260,7 +261,7 @@ static bool OPTIMIZE3 TARGET_CLONES stress_powmath_cbrtf(stress_args_t *args)
 	register int i;
 	static double result = -1.0;
 	static bool first_run = true;
-	register const float scale = 1.0 / (float)STRESS_POWMATH_LOOPS;
+	register const float scale = (float)1.0 / (float)STRESS_POWMATH_LOOPS;
 	register float fi = 0.0;
 
 PRAGMA_UNROLL_N(8)
@@ -281,12 +282,12 @@ PRAGMA_UNROLL_N(8)
 #if defined(HAVE_CBRTL)
 static bool OPTIMIZE3 TARGET_CLONES stress_powmath_cbrtl(stress_args_t *args)
 {
-	register long double sum = 0.0;
+	register long double sum = 0.0L;
 	register int i;
-	static long double result = -1.0;
+	static long double result = -1.0L;
 	static bool first_run = true;
-	register const long double scale = 1.0 / (long double)STRESS_POWMATH_LOOPS;
-	register long double ldi = 0.0;
+	register const long double scale = 1.0L / (long double)STRESS_POWMATH_LOOPS;
+	register long double ldi = 0.0L;
 
 PRAGMA_UNROLL_N(8)
 	for (i = 0; i < STRESS_POWMATH_LOOPS; i++) {
@@ -299,7 +300,7 @@ PRAGMA_UNROLL_N(8)
 		result = sum;
 		first_run = false;
 	}
-	return (shim_fabsl(sum - result) > PRECISION);
+	return (shim_fabsl(sum - result) > PRECISION_L);
 }
 #endif
 
@@ -354,9 +355,9 @@ PRAGMA_UNROLL_N(8)
 #if defined(HAVE_HYPOTL)
 static bool OPTIMIZE3 TARGET_CLONES stress_powmath_hypotl(stress_args_t *args)
 {
-	register long double sum = 0.0;
+	register long double sum = 0.0L;
 	register int i;
-	static long double result = -1.0;
+	static long double result = -1.0L;
 	static bool first_run = true;
 
 PRAGMA_UNROLL_N(8)
@@ -371,7 +372,7 @@ PRAGMA_UNROLL_N(8)
 		result = sum;
 		first_run = false;
 	}
-	return (shim_fabsl(sum - result) > PRECISION);
+	return (shim_fabsl(sum - result) > PRECISION_L);
 }
 #endif
 
@@ -407,7 +408,7 @@ static bool OPTIMIZE3 TARGET_CLONES stress_powmath_powf(stress_args_t *args)
 	register int i;
 	static double result = -1.0;
 	static bool first_run = true;
-	register const float scale = 1.0 / (float)STRESS_POWMATH_LOOPS;
+	register const float scale = (float)1.0 / (float)STRESS_POWMATH_LOOPS;
 	register float fi = 0.0;
 
 PRAGMA_UNROLL_N(8)
@@ -428,12 +429,12 @@ PRAGMA_UNROLL_N(8)
 #if defined(HAVE_POWL)
 static bool OPTIMIZE3 TARGET_CLONES stress_powmath_powl(stress_args_t *args)
 {
-	register long double sum = 0.0;
+	register long double sum = 0.0L;
 	register int i;
-	static long double result = -1.0;
+	static long double result = -1.0L;
 	static bool first_run = true;
-	register const long double scale = 1.0 / (long double)STRESS_POWMATH_LOOPS;
-	register long double ldi = 0.0;
+	register const long double scale = 1.0L / (long double)STRESS_POWMATH_LOOPS;
+	register long double ldi = 0.0L;
 
 PRAGMA_UNROLL_N(8)
 	for (i = 0; i < STRESS_POWMATH_LOOPS; i++) {
@@ -446,7 +447,7 @@ PRAGMA_UNROLL_N(8)
 		result = sum;
 		first_run = false;
 	}
-	return (shim_fabsl(sum - result) > PRECISION);
+	return (shim_fabsl(sum - result) > PRECISION_L);
 }
 #endif
 
@@ -482,7 +483,7 @@ static bool OPTIMIZE3 TARGET_CLONES stress_powmath_sqrtf(stress_args_t *args)
 	register int i;
 	static double result = -1.0;
 	static bool first_run = true;
-	register const float scale = 1.0 / (float)STRESS_POWMATH_LOOPS;
+	register const float scale = (float)1.0 / (float)STRESS_POWMATH_LOOPS;
 	register float fi = 0.0;
 
 PRAGMA_UNROLL_N(8)
@@ -503,12 +504,12 @@ PRAGMA_UNROLL_N(8)
 #if defined(HAVE_SQRTL)
 static bool OPTIMIZE3 TARGET_CLONES stress_powmath_sqrtl(stress_args_t *args)
 {
-	register long double sum = 0.0;
+	register long double sum = 0.0L;
 	register int i;
-	static long double result = -1.0;
+	static long double result = -1.0L;
 	static bool first_run = true;
-	register const long double scale = 1.0 / (long double)STRESS_POWMATH_LOOPS;
-	register long double ldi = 0.0;
+	register const long double scale = 1.0L / (long double)STRESS_POWMATH_LOOPS;
+	register long double ldi = 0.0L;
 
 PRAGMA_UNROLL_N(8)
 	for (i = 0; i < STRESS_POWMATH_LOOPS; i++) {
@@ -521,7 +522,7 @@ PRAGMA_UNROLL_N(8)
 		result = sum;
 		first_run = false;
 	}
-	return (shim_fabsl(sum - result) > PRECISION);
+	return (shim_fabsl(sum - result) > PRECISION_L);
 }
 #endif
 

@@ -370,7 +370,7 @@ static void OPTIMIZE3 stress_vecfp_call_method(
 			if (fabsf(vecfp_init[i].f.r1 - vecfp_init[i].f.r2) > (float)0.0001) {
 				pr_fail("%s: %s float vector operation result mismatch, got %f, expected %f\n",
 					args->name, stress_vecfp_funcs[method].name,
-					vecfp_init[i].f.r2, vecfp_init[i].f.r1);
+					(double)vecfp_init[i].f.r2, (double)vecfp_init[i].f.r1);
 				*success = false;
 				break;
 			}

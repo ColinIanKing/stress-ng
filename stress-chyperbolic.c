@@ -44,24 +44,24 @@ static const stress_help_t help[] = {
 
 #if defined(HAVE_COMPLEX_H)
 
-#define CCOSHD_SUM (11319.64446039962604118045 + I * 865.40045684982658258377)
-#define CCOSHF_SUM (11319.64446061849594116211 + I * 865.40045857543373131193)
-#define CCOSHL_SUM (11319.64446039942314836679 + I * 865.40045684969749112403)
+#define CCOSHD_SUM shim_cmplx(11319.64446039962604118045, 865.40045684982658258377)
+#define CCOSHF_SUM shim_cmplx(11319.64446061849594116211, 865.40045857543373131193)
+#define CCOSHL_SUM shim_cmplxl(11319.64446039942314836679L, 865.40045684969749112403L)
 
-#define CSINHD_SUM (-5324.57218954220297746360 - I * 2661.75257615712280312437)
-#define CSINHF_SUM (-5324.57219118710781913251 - I * 2661.75257824994332622737)
-#define CSINHL_SUM (-5324.57218954160808443987 - I * 2661.75257615727348525780)
+#define CSINHD_SUM shim_cmplx(-5324.57218954220297746360, -2661.75257615712280312437)
+#define CSINHF_SUM shim_cmplx(-5324.57219118710781913251, -2661.75257824994332622737)
+#define CSINHL_SUM shim_cmplxl(-5324.57218954160808443987L, -2661.75257615727348525780L)
 
-#define CTANHD_SUM (-4515.30135717186658439459 - I * 2257.18713612209239727235)
-#define CTANHF_SUM (-4515.30135638175124768168 - I * 2257.18713951996687683277)
-#define CTANHL_SUM (-4515.30135717137690498646 - I * 2257.18713612237787513592)
+#define CTANHD_SUM shim_cmplx(-4515.30135717186658439459, -2257.18713612209239727235)
+#define CTANHF_SUM shim_cmplx(-4515.30135638175124768168, -2257.18713951996687683277)
+#define CTANHL_SUM shim_cmplxl(-4515.30135717137690498646L, -2257.18713612237787513592L)
 
 #if defined(HAVE_CCOSH)
 static bool OPTIMIZE3 TARGET_CLONES stress_chyperbolic_ccosh(stress_args_t *args)
 {
 	complex double sumccosh = 0.0;
 	complex double x = -1.0;
-	complex const double dx = (1.0 / (double)STRESS_CHYPERBOLIC_LOOPS - I / (2.0 * (double)STRESS_CHYPERBOLIC_LOOPS));
+	const complex double dx = shim_cmplx(1.0 / (double)STRESS_CHYPERBOLIC_LOOPS, -1.0 / (2.0 * (double)STRESS_CHYPERBOLIC_LOOPS));
 	const double precision = 1E-7;
 	int i;
 
@@ -71,7 +71,7 @@ PRAGMA_UNROLL_N(8)
 		x += dx;
 	}
 	stress_bogo_inc(args);
-	return cabs(sumccosh - (complex double)CCOSHD_SUM) > precision;
+	return cabs(sumccosh - CCOSHD_SUM) > precision;
 }
 #endif
 
@@ -80,7 +80,7 @@ static bool OPTIMIZE3 TARGET_CLONES stress_chyperbolic_ccoshf(stress_args_t *arg
 {
 	complex double sumccosh = 0.0;
 	complex double x = -1.0;
-	complex const double dx = (1.0 / (double)STRESS_CHYPERBOLIC_LOOPS - I / (2.0 * (double)STRESS_CHYPERBOLIC_LOOPS));
+	const complex double dx = shim_cmplx(1.0 / (double)STRESS_CHYPERBOLIC_LOOPS, -1.0 / (2.0 * (double)STRESS_CHYPERBOLIC_LOOPS));
 	const double precision = 1E-3;
 	int i;
 
@@ -90,7 +90,7 @@ PRAGMA_UNROLL_N(8)
 		x += dx;
 	}
 	stress_bogo_inc(args);
-	return cabs(sumccosh - (complex double)CCOSHF_SUM) > precision;
+	return cabs(sumccosh - CCOSHF_SUM) > precision;
 }
 #endif
 
@@ -99,17 +99,17 @@ static bool OPTIMIZE3 TARGET_CLONES stress_chyperbolic_ccoshl(stress_args_t *arg
 {
 	complex long double sumccosh = 0.0L;
 	complex long double x = -1.0L;
-	complex const long double dx = (1.0 / (long double)STRESS_CHYPERBOLIC_LOOPS - I / (2.0 * (long double)STRESS_CHYPERBOLIC_LOOPS));
+	const complex long double dx = shim_cmplxl(1.0L / (long double)STRESS_CHYPERBOLIC_LOOPS, -1.0L / (2.0L * (long double)STRESS_CHYPERBOLIC_LOOPS));
 	long double precision;
 	int i;
 
 	switch (sizeof(precision)) {
 	case 16:
 	case 12:
-		precision = 1E-8;
+		precision = 1E-8L;
 		break;
 	default:
-		precision = 1E-7;
+		precision = 1E-7L;
 		break;
 	}
 
@@ -119,7 +119,7 @@ PRAGMA_UNROLL_N(8)
 		x += dx;
 	}
 	stress_bogo_inc(args);
-	return cabsl(sumccosh - (complex long double)CCOSHL_SUM) > precision;
+	return cabsl(sumccosh - CCOSHL_SUM) > precision;
 }
 #endif
 
@@ -128,7 +128,7 @@ static bool OPTIMIZE3 TARGET_CLONES stress_chyperbolic_csinh(stress_args_t *args
 {
 	complex double sumcsinh = 0.0;
 	complex double x = -1.0;
-	complex const double dx = (1.0 / (double)STRESS_CHYPERBOLIC_LOOPS - I / (2.0 * (double)STRESS_CHYPERBOLIC_LOOPS));
+	const complex double dx = shim_cmplx(1.0 / (double)STRESS_CHYPERBOLIC_LOOPS, -1.0 / (2.0 * (double)STRESS_CHYPERBOLIC_LOOPS));
 	const double precision = 1E-7;
 	int i;
 
@@ -138,7 +138,7 @@ PRAGMA_UNROLL_N(8)
 		x += dx;
 	}
 	stress_bogo_inc(args);
-	return cabs(sumcsinh - (complex double)CSINHD_SUM) > precision;
+	return cabs(sumcsinh - CSINHD_SUM) > precision;
 }
 #endif
 
@@ -147,7 +147,7 @@ static bool OPTIMIZE3 TARGET_CLONES stress_chyperbolic_csinhf(stress_args_t *arg
 {
 	complex double sumcsinh = 0.0;
 	complex double x = -1.0;
-	complex const double dx = (1.0 / (double)STRESS_CHYPERBOLIC_LOOPS - I / (2.0 * (double)STRESS_CHYPERBOLIC_LOOPS));
+	const complex double dx = shim_cmplx(1.0 / (double)STRESS_CHYPERBOLIC_LOOPS, -1.0 / (2.0 * (double)STRESS_CHYPERBOLIC_LOOPS));
 	const double precision = 1E-3;
 	int i;
 
@@ -157,7 +157,7 @@ PRAGMA_UNROLL_N(8)
 		x += dx;
 	}
 	stress_bogo_inc(args);
-	return cabs(sumcsinh - (complex double)CSINHF_SUM) > precision;
+	return cabs(sumcsinh - CSINHF_SUM) > precision;
 }
 #endif
 
@@ -166,17 +166,17 @@ static bool OPTIMIZE3 TARGET_CLONES stress_chyperbolic_csinhl(stress_args_t *arg
 {
 	complex long double sumcsinh = 0.0L;
 	complex long double x = -1.0L;
-	complex long const double dx = (1.0 / (long double)STRESS_CHYPERBOLIC_LOOPS - I / (2.0 * (long double)STRESS_CHYPERBOLIC_LOOPS));
+	const complex long double dx = shim_cmplxl(1.0L / (long double)STRESS_CHYPERBOLIC_LOOPS, -1.0L / (2.0L * (long double)STRESS_CHYPERBOLIC_LOOPS));
 	long double precision;
 	int i;
 
 	switch (sizeof(precision)) {
 	case 16:
 	case 12:
-		precision = 1E-8;
+		precision = 1E-8L;
 		break;
 	default:
-		precision = 1E-7;
+		precision = 1E-7L;
 		break;
 	}
 
@@ -186,7 +186,7 @@ PRAGMA_UNROLL_N(8)
 		x += dx;
 	}
 	stress_bogo_inc(args);
-	return cabsl(sumcsinh - (complex long double)CSINHL_SUM) > precision;
+	return cabsl(sumcsinh - CSINHL_SUM) > precision;
 }
 #endif
 
@@ -195,7 +195,7 @@ static bool OPTIMIZE3 TARGET_CLONES stress_chyperbolic_ctanh(stress_args_t *args
 {
 	complex double sumctanh = 0.0;
 	complex double x = -1.0;
-	complex const double dx = (1.0 / (double)STRESS_CHYPERBOLIC_LOOPS - I / (2.0 * (double)STRESS_CHYPERBOLIC_LOOPS));
+	const complex double dx = shim_cmplx(1.0 / (double)STRESS_CHYPERBOLIC_LOOPS, -1.0 / (2.0 * (double)STRESS_CHYPERBOLIC_LOOPS));
 	const double precision = 1E-7;
 	int i;
 
@@ -214,27 +214,27 @@ static bool OPTIMIZE3 TARGET_CLONES stress_chyperbolic_ctanhf(stress_args_t *arg
 {
 	complex double sumctanh = 0.0;
 	complex double x = -1.0;
-	complex const double dx = (1.0 / (double)STRESS_CHYPERBOLIC_LOOPS - I / (2.0 * (double)STRESS_CHYPERBOLIC_LOOPS));
+	const complex double dx = shim_cmplx(1.0 / (double)STRESS_CHYPERBOLIC_LOOPS, -1.0 / (2.0 * (double)STRESS_CHYPERBOLIC_LOOPS));
 	const double precision = 1E-3;
 	int i;
 
 PRAGMA_UNROLL_N(8)
 	for (i = 0; i < STRESS_CHYPERBOLIC_LOOPS; i++) {
-		sumctanh += shim_ctanhf((complex float)x);
+		sumctanh += (complex double)shim_ctanhf((complex float)x);
 		x += dx;
 	}
 	stress_bogo_inc(args);
-	return cabs(sumctanh - (complex double)CTANHF_SUM) > precision;
+	return cabs(sumctanh - CTANHF_SUM) > precision;
 }
 #endif
 
 #if defined(HAVE_CTANHL)
 static bool OPTIMIZE3 TARGET_CLONES stress_chyperbolic_ctanhl(stress_args_t *args)
 {
-	complex long double sumctanh = 0.0;
-	complex long double x = -1.0;
-	complex long const double dx = (1.0 / (long double)STRESS_CHYPERBOLIC_LOOPS - I / (2.0 * (long double)STRESS_CHYPERBOLIC_LOOPS));
-	const long double precision = 1E-7;
+	complex long double sumctanh = 0.0L;
+	complex long double x = -1.0L;
+	const complex long double dx = shim_cmplxl(1.0L / (long double)STRESS_CHYPERBOLIC_LOOPS, -1.0L / (2.0L * (long double)STRESS_CHYPERBOLIC_LOOPS));
+	const long double precision = 1E-7L;
 	int i;
 
 PRAGMA_UNROLL_N(8)
@@ -243,7 +243,7 @@ PRAGMA_UNROLL_N(8)
 		x += dx;
 	}
 	stress_bogo_inc(args);
-	return cabsl(sumctanh - (complex long double)CTANHL_SUM) > precision;
+	return cabsl(sumctanh - CTANHL_SUM) > precision;
 }
 #endif
 

@@ -489,7 +489,7 @@ static void TARGET_CLONES stress_workload_vecfp(void)
 	for (i = 0; i < 64; i++) {
 		sum += a.f[i];
 	}
-	stress_long_double_put(sum);
+	stress_double_put(sum);
 #else
 	/* See how well compiler can vectorize version */
         double a[64], b[64];

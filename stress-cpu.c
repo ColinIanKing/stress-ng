@@ -2024,7 +2024,7 @@ static int OPTIMIZE3 stress_cpu_pi(const char *name)
 		s += (factorial(4 * k) *
 			((26390.0L * (long double)k) + 1103)) /
 			(shim_powl(factorial(k), 4.0L) * shim_powl(396.0L, 4.0L * k));
-		pi = 1.0 / (s * c);
+		pi = 1.0L / (s * c);
 		k++;
 	} while ((k < max_iter) && (shim_fabsl(pi - last_pi) > precision));
 
@@ -2054,7 +2054,7 @@ static int OPTIMIZE3 stress_cpu_pi(const char *name)
  */
 static int OPTIMIZE3 OPTIMIZE_FAST_MATH stress_cpu_omega(const char *name)
 {
-	long double omega = 0.5 + ((double)stress_mwc16() * 1.0E-9), last_omega = 0.0L;
+	long double omega = 0.5L + ((long double)stress_mwc16() * 1.0E-9L), last_omega = 0.0L;
 	const long double precision = 1.0e-20L;
 	const int max_iter = 6;
 	int n = 0;
