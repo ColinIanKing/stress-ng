@@ -222,7 +222,7 @@ PRAGMA_UNROLL_N(FMA_UNROLL)
 	}
 }
 
-stress_fma_func_t stress_fma_funcs[] = {
+static const stress_fma_func_t stress_fma_funcs[] = {
 	stress_fma_add132_double,
 	stress_fma_add132_float,
 	stress_fma_add213_double,
@@ -461,7 +461,7 @@ PRAGMA_UNROLL_N(FMA_UNROLL)
 	}
 }
 
-stress_fma_func_t stress_fma_libc_funcs[] = {
+static const stress_fma_func_t stress_fma_libc_funcs[] = {
 	stress_fma_add132_libc_double,
 	stress_fma_add132_libc_float,
 	stress_fma_add213_libc_double,
