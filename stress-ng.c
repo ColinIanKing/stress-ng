@@ -2420,6 +2420,8 @@ static void stress_metrics_dump(FILE *yaml)
 								ss->completed_instances, plural);
 						}
 						break;
+					default:
+						break;
 					}
 				}
 			}
