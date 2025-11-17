@@ -84,17 +84,19 @@ static void MLOCKED_TEXT stress_sigalrm_handler(int signum)
  */
 static void stress_sleep_time_now(stress_sleep_times_t *t)
 {
-	t->time_now = stress_time_now();
 #if defined(HAVE_CLOCK_GETTIME) &&      \
     defined(CLOCK_MONOTONIC)
 	struct timespec ts;
 
+	t->time_now = stress_time_now();
 	if (clock_gettime(CLOCK_MONOTONIC, &ts) < 0) {
 		/* fall back to re-using stress_time_now() time */
 		t->monotonic = t->time_now;
 	} else {
 		t->monotonic = ts.tv_sec + (ts.tv_nsec * ONE_BILLIONTH);
 	}
+#else
+	t->time_now = stress_time_now();
 #endif
 }
 
