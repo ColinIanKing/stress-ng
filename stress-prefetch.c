@@ -191,6 +191,7 @@ static inline void stress_prefetch_none(const void *addr)
 }
 
 #define STRESS_PREFETCH_LOOP(func, type)				\
+do {									\
 	if (verify) {							\
 		checksum = 0;						\
 		while (ptr < l3_data_end) {				\
@@ -227,7 +228,8 @@ static inline void stress_prefetch_none(const void *addr)
 			(void)(*(ptr + 7));				\
 			ptr = STRESS_PTRU64_ADD(ptr, STRESS_CACHE_LINE_SIZE); \
 		}							\
-	}
+	}								\
+} while (0)
 
 static inline void OPTIMIZE3 stress_prefetch_benchmark(
 	stress_args_t *args,
