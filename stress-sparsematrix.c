@@ -543,7 +543,7 @@ static int OPTIMIZE3 judy_put(void *handle, const uint32_t x, const uint32_t y, 
 	Word_t *pvalue;
 	const Word_t idx = ((Word_t)x << 32) | y;
 
-	JLI(pvalue, *(Pvoid_t *)handle, idx);
+	JLI(pvalue, *(Pvoid_t *)handle, idx)
 	if (UNLIKELY((pvalue == NULL) || (pvalue == PJERR)))
 		return -1;
 
@@ -604,8 +604,8 @@ static int sparse_rb_node_cmp(sparse_rb_t *n1, sparse_rb_t *n2)
 }
 
 static RB_HEAD(sparse_rb_tree, sparse_rb) rb_root;
-RB_PROTOTYPE(sparse_rb_tree, sparse_rb, rb, sparse_rb_node_cmp);
-RB_GENERATE(sparse_rb_tree, sparse_rb, rb, sparse_rb_node_cmp);
+RB_PROTOTYPE(sparse_rb_tree, sparse_rb, rb, sparse_rb_node_cmp)
+RB_GENERATE(sparse_rb_tree, sparse_rb, rb, sparse_rb_node_cmp)
 
 /*
  *  rb_create()
@@ -718,8 +718,8 @@ static int sparse_splay_node_cmp(sparse_splay_t *n1, sparse_splay_t *n2)
 }
 
 static SPLAY_HEAD(sparse_splay_tree, sparse_splay) splay_root;
-SPLAY_PROTOTYPE(sparse_splay_tree, sparse_splay, splay, sparse_splay_node_cmp);
-SPLAY_GENERATE(sparse_splay_tree, sparse_splay, splay, sparse_splay_node_cmp);
+SPLAY_PROTOTYPE(sparse_splay_tree, sparse_splay, splay, sparse_splay_node_cmp)
+SPLAY_GENERATE(sparse_splay_tree, sparse_splay, splay, sparse_splay_node_cmp)
 
 /*
  *  splay_create()
@@ -1038,7 +1038,7 @@ static int OPTIMIZE3 hashjudy_put(void *handle, const uint32_t x, const uint32_t
 	if (UNLIKELY(!table))
 		return -1;
 
-	JLI(pvalue, table->hash_table[x], y);
+	JLI(pvalue, table->hash_table[x], y)
 	if (UNLIKELY((pvalue == NULL) || (pvalue == PJERR)))
 		return -1;
 	*pvalue = (Word_t)value;
