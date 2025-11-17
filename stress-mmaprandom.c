@@ -204,18 +204,18 @@ static int OPTIMIZE3 mr_node_node_cmp(mr_node_t *mr_node1, mr_node_t *mr_node2)
 
 /* Used nodes are ordered by mmap addr */
 static RB_HEAD(sm_used_node_tree, mr_node) sm_used_node_tree_root;
-RB_PROTOTYPE(sm_used_node_tree, mr_node, rb, mr_node_page_cmp);
-RB_GENERATE(sm_used_node_tree, mr_node, rb, mr_node_page_cmp);
+RB_PROTOTYPE(sm_used_node_tree, mr_node, rb, mr_node_page_cmp)
+RB_GENERATE(sm_used_node_tree, mr_node, rb, mr_node_page_cmp)
 static size_t sm_used_nodes;
 
 static RB_HEAD(sm_rand_node_tree, mr_node) sm_rand_node_tree_root;
-RB_PROTOTYPE(sm_rand_node_tree, mr_node, rb_rand, mr_node_rand_cmp);
-RB_GENERATE(sm_rand_node_tree, mr_node, rb_rand, mr_node_rand_cmp);
+RB_PROTOTYPE(sm_rand_node_tree, mr_node, rb_rand, mr_node_rand_cmp)
+RB_GENERATE(sm_rand_node_tree, mr_node, rb_rand, mr_node_rand_cmp)
 
 /* Free nodes are ordered by the node's own addr */
 static RB_HEAD(sm_free_node_tree, mr_node) sm_free_node_tree_root;
-RB_PROTOTYPE(sm_free_node_tree, mr_node, rb, mr_node_node_cmp);
-RB_GENERATE(sm_free_node_tree, mr_node, rb, mr_node_node_cmp);
+RB_PROTOTYPE(sm_free_node_tree, mr_node, rb, mr_node_node_cmp)
+RB_GENERATE(sm_free_node_tree, mr_node, rb, mr_node_node_cmp)
 static size_t sm_free_nodes;
 
 /*
