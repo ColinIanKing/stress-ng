@@ -588,6 +588,8 @@ static const CONST char *stress_catch_sig_si_code(const int sig, const int sig_c
 			return unknown;
 		}
 		break;
+	default:
+		break;
 	}
 	return unknown;
 }
