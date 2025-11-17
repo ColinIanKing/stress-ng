@@ -291,7 +291,7 @@ static const stress_ctrig_method_t stress_ctrig_methods[] = {
 #endif
 };
 
-stress_metrics_t stress_ctrig_metrics[SIZEOF_ARRAY(stress_ctrig_methods)];
+static stress_metrics_t stress_ctrig_metrics[SIZEOF_ARRAY(stress_ctrig_methods)];
 
 static bool stress_ctrig_exercise(stress_args_t *args, const size_t idx)
 {
