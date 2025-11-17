@@ -439,6 +439,8 @@ void stress_set_proc_name_scramble(void)
 		case 15:
 			name[i] = '/';
 			break;
+		default:
+			break;
 		}
 		rnd1 = shim_rol64(rnd1);
 		rnd2 = shim_rol64(rnd2);
@@ -1528,6 +1530,8 @@ int CONST stress_exit_status(const int err)
 		return EXIT_NO_RESOURCE;
 	case ENOSYS:
 		return EXIT_NOT_IMPLEMENTED;
+	default:
+		break;
 	}
 	return EXIT_FAILURE;	/* cppcheck-suppress ConfigurationNotChecked */
 }
