@@ -3037,8 +3037,6 @@ static void stress_dev_ptp_linux(
 	const int fd,
 	const char *devpath)
 {
-	VOID_ARGS(args, fd, devpath);
-
 #if defined(PTP_CLOCK_GETCAPS) &&	\
     defined(PTP_PIN_GETFUNC)
 	int ret;
@@ -3059,6 +3057,8 @@ static void stress_dev_ptp_linux(
 			VOID_RET(int, ioctl(fd, PTP_PIN_GETFUNC, &desc));
 		}
 	}
+#else
+	VOID_ARGS(args, fd, devpath);
 #endif
 }
 #endif
