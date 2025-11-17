@@ -396,7 +396,7 @@ static const stress_expmath_method_t stress_expmath_methods[] = {
 
 #define NUM_EXPMATH_METHODS	(SIZEOF_ARRAY(stress_expmath_methods))
 
-stress_metrics_t stress_expmath_metrics[NUM_EXPMATH_METHODS];
+static stress_metrics_t stress_expmath_metrics[NUM_EXPMATH_METHODS];
 
 static bool stress_expmath_exercise(stress_args_t *args, const size_t idx)
 {
