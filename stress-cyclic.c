@@ -976,7 +976,7 @@ static const char *stress_cyclic_policies(const size_t i)
 {
 	return (NUM_CYCLIC_POLICIES == 0) ? NULL :
 		(((ssize_t)i < (ssize_t)NUM_CYCLIC_POLICIES) ? cyclic_policies[i].opt_name : NULL);
-};
+}
 
 static const stress_opt_t opts[] = {
 	{ OPT_cyclic_dist,    "cyclic-dist",    TYPE_ID_UINT64, 1, 10000000, NULL },
