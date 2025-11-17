@@ -396,8 +396,6 @@ static int stress_seccomp(stress_args_t *args)
 			break;
 		}
 		if (pid == 0) {
-			stress_set_proc_state(args->name, STRESS_STATE_RUN);
-
 			/*
 			 *  The child has a seccomp filter applied and
 			 *  1 in 50 chance that write() is not allowed
@@ -405,6 +403,8 @@ static int stress_seccomp(stress_args_t *args)
 			 *  sees it die on a SIGSYS
 			 */
 			int fd, rc = EXIT_SUCCESS;
+
+			stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 			stress_process_dumpable(false);
 			VOID_RET(int, stress_sighandler(args->name, SIGSYS, stress_sigsys, NULL));
