@@ -2188,6 +2188,7 @@ static void stress_dev_cdrom_linux(
 #endif
 
 #if defined(CDROM_SET_OPTIONS)
+#if defined(CDROM_CLEAR_OPTIONS)
 	IOCTL_TIMEOUT(0.20, {
 		int option = 0;	/* Just read options */
 		int ret;
@@ -2199,12 +2200,24 @@ static void stress_dev_cdrom_linux(
 			/* Set (with current options) */
 			VOID_RET(int, ioctl(fd, CDROM_SET_OPTIONS, option));
 		}
-#if defined(CDROM_CLEAR_OPTIONS)
 		VOID_RET(int, ioctl(fd, CDROM_CLEAR_OPTIONS, 0));
 		VOID_RET(int, ioctl(fd, CDROM_CLEAR_OPTIONS, option));
 		VOID_RET(int, ioctl(fd, CDROM_SET_OPTIONS, option));
-#endif
 	}, return);
+#else
+	IOCTL_TIMEOUT(0.20, {
+		int option = 0;	/* Just read options */
+		int ret;
+
+		/* Read */
+		ret = ioctl(fd, CDROM_SET_OPTIONS, option);
+		if (ret >= 0) {
+			option = ret;
+			/* Set (with current options) */
+			VOID_RET(int, ioctl(fd, CDROM_SET_OPTIONS, option));
+		}
+	}, return);
+#endif
 #endif
 
 #if defined(CDROM_SELECT_DISC) &&	\
