@@ -535,7 +535,7 @@ static const char *stress_besselmath_method(const size_t i)
 	return (i < SIZEOF_ARRAY(stress_besselmath_methods)) ? stress_besselmath_methods[i].name : NULL;
 }
 
-stress_metrics_t stress_besselmath_metrics[SIZEOF_ARRAY(stress_besselmath_methods)];
+static stress_metrics_t stress_besselmath_metrics[SIZEOF_ARRAY(stress_besselmath_methods)];
 
 static bool stress_besselmath_exercise(stress_args_t *args, const size_t idx)
 {
