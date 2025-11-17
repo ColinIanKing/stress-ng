@@ -330,7 +330,7 @@ static const stress_vecfp_funcs_t stress_vecfp_funcs[] = {
 	{ "doublev8neg",	stress_vecfp_double_neg_8,     8 },
 };
 
-stress_metrics_t stress_vecfp_metrics[SIZEOF_ARRAY(stress_vecfp_funcs)] ALIGN64;
+static stress_metrics_t stress_vecfp_metrics[SIZEOF_ARRAY(stress_vecfp_funcs)] ALIGN64;
 
 static void OPTIMIZE3 stress_vecfp_call_method(
 	stress_args_t *args,
