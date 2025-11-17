@@ -846,7 +846,7 @@ static inline void ALWAYS_INLINE stress_force_killed_bogo(stress_args_t *args)
  *	add val to the stressor bogo ops counter with lock, return true
  *	if stress_continue is true
  */
-static inline void stress_bogo_add_lock(stress_args_t *args, void *lock, const int64_t val)
+static inline void stress_bogo_add_lock(stress_args_t *args, void *lock, const uint64_t val)
 {
 	/*
 	 *  Failure in lock acquire, don't bump counter
