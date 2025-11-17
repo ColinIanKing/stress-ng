@@ -40,6 +40,7 @@
 #include "core-out-of-memory.h"
 #include "core-perf.h"
 #include "core-pragma.h"
+#include "core-put.h"
 #include "core-rapl.h"
 #include "core-resctrl.h"
 #include "core-shared-cache.h"
