@@ -107,7 +107,7 @@ static void stress_get_topology_set(
 	}
 
 	/* Must be at most max_cpus worth of packages (over estimated) */
-	sets = calloc(max_cpus, sizeof(*sets));
+	sets = calloc((size_t)max_cpus, sizeof(*sets));
 	if (!sets) {
 		(void)fprintf(stderr, "%s: cannot allocate %d cpusets, aborting\n", option, max_cpus);
 		_exit(EXIT_FAILURE);
