@@ -478,7 +478,7 @@ static const stress_logmath_method_t stress_logmath_methods[] = {
 #endif
 };
 
-stress_metrics_t stress_logmath_metrics[SIZEOF_ARRAY(stress_logmath_methods)];
+static stress_metrics_t stress_logmath_metrics[SIZEOF_ARRAY(stress_logmath_methods)];
 
 static const char *stress_logmath_method(const size_t i)
 {
