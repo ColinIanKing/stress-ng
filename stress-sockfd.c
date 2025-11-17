@@ -346,16 +346,16 @@ static int OPTIMIZE3 stress_socket_server(
 					ssize_t ret;
 
 					ret = stress_socket_fd_send(sfd, new_fd);
-					if (UNLIKELY((ret < 0) &&
-						     ((errno != EAGAIN) &&
-						      (errno != EINTR) &&
-						      (errno != EWOULDBLOCK) &&
-						      (errno != ECONNRESET) &&
-						      (errno != ENOMEM) &&
+					if ((ret < 0) &&
+					    ((errno != EAGAIN) &&
+					     (errno != EINTR) &&
+					     (errno != EWOULDBLOCK) &&
+					     (errno != ECONNRESET) &&
+					     (errno != ENOMEM) &&
 #if defined(ETOOMANYREFS)
-						      (errno != ETOOMANYREFS) &&
+					     (errno != ETOOMANYREFS) &&
 #endif
-						      (errno != EPIPE)))) {
+					     (errno != EPIPE))) {
 						pr_fail("%s: sendmsg failed, errno=%d (%s)\n",
 							args->name, errno, strerror(errno));
 						(void)close(new_fd);
