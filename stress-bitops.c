@@ -1088,7 +1088,7 @@ static const stress_bitops_method_info_t bitops_methods[] = {
 	{ "zerobyte",		stress_bitops_zerobyte },
 };
 
-stress_metrics_t metrics[SIZEOF_ARRAY(bitops_methods)];
+static stress_metrics_t metrics[SIZEOF_ARRAY(bitops_methods)];
 
 static const char *stress_bitops_method(const size_t i)
 {
