@@ -82,7 +82,7 @@ static inline bool stress_prefetch_true(void)
 	return true;
 }
 
-stress_prefetch_method_t prefetch_methods[] = {
+static stress_prefetch_method_t prefetch_methods[] = {
 	{ "builtin",		STRESS_PREFETCH_BUILTIN,	stress_prefetch_true,	false },
 	{ "builtinl0",		STRESS_PREFETCH_BUILTIN_L0,	stress_prefetch_true,	false },
 	{ "builtinl3",		STRESS_PREFETCH_BUILTIN_L3,	stress_prefetch_true,	false },
