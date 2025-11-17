@@ -117,17 +117,17 @@ static stress_stressor_list_t stress_stressor_list;
 static volatile bool wait_flag = true;		/* false = exit run wait loop */
 static pid_t main_pid;				/* stress-ng main pid */
 static bool *sigalarmed = NULL;			/* pointer to stressor stats->sigalarmed */
+static int32_t opt_sequential = DEFAULT_SEQUENTIAL; /* # of sequential stressors */
+static int32_t opt_parallel = DEFAULT_PARALLEL;	/* # of parallel stressors */
+static int32_t opt_permute = DEFAULT_PARALLEL;	/* # of permuted stressors */
+static unsigned int opt_pause = 0;		/* pause between stressor invocations */
 
 /* Globals */
 stress_stressor_t *g_stressor_current;		/* current stressor being invoked */
-int32_t g_opt_sequential = DEFAULT_SEQUENTIAL;	/* # of sequential stressors */
-int32_t g_opt_parallel = DEFAULT_PARALLEL;	/* # of parallel stressors */
-int32_t g_opt_permute = DEFAULT_PARALLEL;	/* # of permuted stressors */
 uint64_t g_opt_timeout = TIMEOUT_NOT_SET;	/* timeout in seconds */
 uint64_t g_opt_flags = OPT_FLAGS_PR_ERROR |	/* default option flags */
 		       OPT_FLAGS_PR_INFO |
 		       OPT_FLAGS_MMAP_MADVISE;
-unsigned int g_opt_pause = 0;			/* pause between stressor invocations */
 volatile bool g_stress_continue_flag = true;	/* false to exit stressor */
 const char g_app_name[] = "stress-ng";		/* Name of application */
 stress_shared_t *g_shared;			/* shared memory */
@@ -1743,15 +1743,15 @@ static void MLOCKED_TEXT stress_run(
 	(void)stress_get_setting("ionice-class", &ionice_class);
 	(void)stress_get_setting("ionice-level", &ionice_level);
 
-	if (g_opt_pause) {
+	if (opt_pause) {
 		static bool first_run = true;
 
 		if (first_run)
 			first_run = false;
 		else {
-			pr_dbg("pausing for %u second%s\n", g_opt_pause,
-				g_opt_pause == 1 ? "" : "s");
-			(void)sleep(g_opt_pause);
+			pr_dbg("pausing for %u second%s\n", opt_pause,
+				opt_pause == 1 ? "" : "s");
+			(void)sleep(opt_pause);
 		}
 	}
 	pr_dbg("starting stressor%s\n", n_stressors > 1 ? "s" : "");
@@ -3137,11 +3137,11 @@ static void stress_enable_classes(const uint32_t classifier)
 			stress_stressor_t *ss = stress_find_proc_info(&stressors[i]);
 
 			if (g_opt_flags & OPT_FLAGS_SEQUENTIAL)
-				ss->instances = g_opt_sequential;
+				ss->instances = opt_sequential;
 			else if (g_opt_flags & OPT_FLAGS_ALL)
-				ss->instances = g_opt_parallel;
+				ss->instances = opt_parallel;
 			else if (g_opt_flags & OPT_FLAGS_PERMUTE)
-				ss->instances = g_opt_permute;
+				ss->instances = opt_permute;
 		}
 	}
 }
@@ -3238,9 +3238,9 @@ next_opt:
 		switch (c) {
 		case OPT_all:
 			g_opt_flags |= OPT_FLAGS_ALL;
-			g_opt_parallel= stress_get_int32_instance_percent(optarg);
-			stress_get_processors(&g_opt_parallel);
-			stress_check_max_stressors("all", g_opt_parallel);
+			opt_parallel= stress_get_int32_instance_percent(optarg);
+			stress_get_processors(&opt_parallel);
+			stress_check_max_stressors("all", opt_parallel);
 			break;
 		case OPT_cache_size:
 			/* 1K..4GB should be enough range  */
@@ -3345,8 +3345,8 @@ next_opt:
 			}
 			break;
 		case OPT_pause:
-			g_opt_pause = stress_get_uint(optarg);
-			stress_set_setting_global("pause", TYPE_ID_UINT, &g_opt_pause);
+			opt_pause = stress_get_uint(optarg);
+			stress_set_setting_global("pause", TYPE_ID_UINT, &opt_pause);
 			break;
 		case OPT_query:
 			if (!jobmode)
@@ -3397,16 +3397,16 @@ next_opt:
 			break;
 		case OPT_sequential:
 			g_opt_flags |= OPT_FLAGS_SEQUENTIAL;
-			g_opt_sequential = stress_get_int32_instance_percent(optarg);
-			stress_get_processors(&g_opt_sequential);
-			stress_check_range("sequential", (uint64_t)g_opt_sequential,
+			opt_sequential = stress_get_int32_instance_percent(optarg);
+			stress_get_processors(&opt_sequential);
+			stress_check_range("sequential", (uint64_t)opt_sequential,
 				MIN_SEQUENTIAL, MAX_SEQUENTIAL);
 			break;
 		case OPT_permute:
 			g_opt_flags |= OPT_FLAGS_PERMUTE;
-			g_opt_permute = stress_get_int32_instance_percent(optarg);
-			stress_get_processors(&g_opt_permute);
-			stress_check_max_stressors("permute", g_opt_permute);
+			opt_permute = stress_get_int32_instance_percent(optarg);
+			stress_get_processors(&opt_permute);
+			stress_check_max_stressors("permute", opt_permute);
 			break;
 		case OPT_status:
 			if (stress_set_status(optarg) < 0)
@@ -3610,7 +3610,7 @@ static inline void stress_run_sequential(
 
 			t_finish = time(NULL);
 			t_finish += g_opt_timeout * ((108 * (total_run - run)) / 100);
-			t_finish += g_opt_pause * (total_run - run - 1);
+			t_finish += opt_pause * (total_run - run - 1);
 			tm_finish = localtime(&t_finish);
 			if (tm_finish)
 				(void)strftime(finish, sizeof(finish), "%T %F", tm_finish);
@@ -4001,11 +4001,11 @@ int main(int argc, char **argv, char **envp)
 	 *  These two options enable all the stressors
 	 */
 	if (g_opt_flags & OPT_FLAGS_SEQUENTIAL)
-		stress_enable_all_stressors(g_opt_sequential);
+		stress_enable_all_stressors(opt_sequential);
 	if (g_opt_flags & OPT_FLAGS_ALL)
-		stress_enable_all_stressors(g_opt_parallel);
+		stress_enable_all_stressors(opt_parallel);
 	if (g_opt_flags & OPT_FLAGS_PERMUTE)
-		stress_enable_all_stressors(g_opt_permute);
+		stress_enable_all_stressors(opt_permute);
 	/*
 	 *  Discard stressors that we can't run
 	 */
@@ -4059,11 +4059,11 @@ int main(int argc, char **argv, char **envp)
 	 *  Setup stressor proc info
 	 */
 	if (g_opt_flags & OPT_FLAGS_SEQUENTIAL) {
-		stress_setup_sequential(class, g_opt_sequential);
+		stress_setup_sequential(class, opt_sequential);
 	} else if (g_opt_flags & OPT_FLAGS_PERMUTE) {
-		stress_setup_sequential(class, g_opt_permute);
+		stress_setup_sequential(class, opt_permute);
 	} else {
-		stress_setup_parallel(class, g_opt_parallel);
+		stress_setup_parallel(class, opt_parallel);
 	}
 	/*
 	 *  Seq/parallel modes may have added in
