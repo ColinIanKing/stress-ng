@@ -89,7 +89,7 @@ static void stress_secretmem_unmap(
 				mappings[i].bitmap &= ~PAGE1;
 			}
 			if ((mappings[i].bitmap & PAGE3) &&
-			    (stress_munmap_force((void *)mappings[i].addr + page_size2, page_size) == 0)) {
+			    (stress_munmap_force((void *)(mappings[i].addr + page_size2), page_size) == 0)) {
 				mappings[i].bitmap &= ~PAGE3;
 			}
 		}
