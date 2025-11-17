@@ -359,14 +359,14 @@ static inline int stress_io_uring_complete(
 
 	for (;;) {
 		stress_asm_mb();
+		stress_io_uring_user_data_t *user_data;
 
 		/* Empty? */
 		if (head == *cring->tail)
 			break;
 
 		cqe = &cring->cqes[head & *submit->cq_ring.ring_mask];
-		stress_io_uring_user_data_t *const user_data =
-			(stress_io_uring_user_data_t *)(uintptr_t)cqe->user_data;
+		user_data = (stress_io_uring_user_data_t *)(uintptr_t)cqe->user_data;
 		if (cqe->res < 0) {
 			int err;
 
@@ -499,10 +499,10 @@ static void OPTIMIZE3 stress_io_uring_async_cancel_setup(
 	struct io_uring_sqe *sqe,
 	const void *extra_info)
 {
-	(void)io_uring_file;
-
 	const struct io_uring_sqe *sqe_to_cancel =
 		(const struct io_uring_sqe *)extra_info;
+
+	(void)io_uring_file;
 
 	(void)shim_memset(sqe, 0, sizeof(*sqe));
 	sqe->fd = sqe_to_cancel->fd;
@@ -819,10 +819,10 @@ static void OPTIMIZE3 stress_io_uring_setxattr_setup(
 	struct io_uring_sqe *sqe,
 	const void *extra_info)
 {
+	static char attr_value[] = "ioring-xattr-data";
+
 	(void)io_uring_file;
 	(void)extra_info;
-
-	static char attr_value[] = "ioring-xattr-data";
 
 	(void)shim_memset(sqe, 0, sizeof(*sqe));
 	sqe->opcode = IORING_OP_SETXATTR;
@@ -847,10 +847,10 @@ static void OPTIMIZE3 stress_io_uring_getxattr_setup(
 	struct io_uring_sqe *sqe,
 	const void *extra_info)
 {
+	static char attr_value[128];
+
 	(void)io_uring_file;
 	(void)extra_info;
-
-	static char attr_value[128];
 
 	(void)shim_memset(sqe, 0, sizeof(*sqe));
 	sqe->opcode = IORING_OP_GETXATTR;
