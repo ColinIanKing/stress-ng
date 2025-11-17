@@ -358,9 +358,9 @@ static inline int stress_io_uring_complete(
 	int ret = EXIT_SUCCESS;
 
 	for (;;) {
-		stress_asm_mb();
 		stress_io_uring_user_data_t *user_data;
 
+		stress_asm_mb();
 		/* Empty? */
 		if (head == *cring->tail)
 			break;
