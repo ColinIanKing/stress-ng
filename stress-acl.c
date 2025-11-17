@@ -263,6 +263,8 @@ static int stress_acl_setup(
 					case ACL_MASK:
 						perm_mask = 0777;
 						break;
+					default:
+						break;
 					}
 
 					if (acl_get_permset(entry, &permset) != 0) {
