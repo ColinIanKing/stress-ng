@@ -42,6 +42,9 @@ static const stress_help_t help[] = {
     defined(HAVE_SYS_APPARMOR_H) && 	\
     defined(HAVE_SYS_SELECT_H)
 
+/* include auto-generated static profile data */
+#include "apparmor-data.h"
+
 #define APPARMOR_BUF_SZ	(4096)
 
 typedef int (*stress_apparmor_func)(stress_args_t *args);
@@ -56,9 +59,6 @@ static stress_apparmor_shared_info_t *stress_apparmor_shared_info;
 static volatile bool apparmor_run = true;
 static char *apparmor_path = NULL;
 static char *data_copy, *data_prev;
-
-extern char g_apparmor_data[];
-extern const size_t g_apparmor_data_len;
 
 /*
  *  stress_apparmor_supported()
