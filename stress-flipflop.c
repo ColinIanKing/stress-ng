@@ -69,7 +69,7 @@ struct stress_flipflop_worker {
 	pid_t ppid;			/* controlling parent pid */
 	bool *worker_hold;		/* hold flag */
 	bool *worker_exit;		/* exit flag */
-} ALIGNED64;
+} ALIGN64;
 
 typedef struct stress_flipflop_worker stress_flipflop_worker_t;
 
