@@ -907,13 +907,15 @@ static inline void *stress_stream_mmap(
 		if (stream_mlock)
 			(void)shim_mlock(ptr, (size_t)sz);
 #if defined(HAVE_MADVISE)
-		size_t stream_madvise;
-		int advice = MADV_NORMAL;
+		{
+			size_t stream_madvise;
+			int advice = MADV_NORMAL;
 
-		if (stress_get_setting("stream-madvise", &stream_madvise))
-			advice = stream_madvise_info[stream_madvise].advice;
+			if (stress_get_setting("stream-madvise", &stream_madvise))
+				advice = stream_madvise_info[stream_madvise].advice;
 
-		VOID_RET(int, madvise(ptr, (size_t)sz, advice));
+			VOID_RET(int, madvise(ptr, (size_t)sz, advice));
+		}
 #else
 		UNEXPECTED
 #endif
