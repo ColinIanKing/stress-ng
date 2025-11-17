@@ -1887,17 +1887,21 @@ static void stress_dev_cdrom_linux(
 		VOID_RET(int, ioctl(fd, CDROMREADTOCENTRY, &entry));
 	}, return);
 #endif
+
+#if defined(CDROM_LBA)
+#define CDSC_FORMAT	CDROM_LBA
+#elif defined(CDROM_MSF)
+#define CDSC_FORMAT	CDROM_MSF
+#endif
+
 #if defined(CDROMSUBCHNL) &&	\
+    defined(CDSC_FORMAT) &&	\
     defined(HAVE_CDROM_SUBCHNL)
 	IOCTL_TIMEOUT(0.10, {
 		struct cdrom_subchnl q;
 
 		(void)shim_memset(&q, 0, sizeof(q));
-#if defined(CDROM_LBA)
-		q.cdsc_format = CDROM_LBA;
-#elif defined(CDROM_MSF)
-		q.cdsc_format = CDROM_MSF;
-#endif
+		q.cdsc_format = CDSC_FORMAT;
 		VOID_RET(int, ioctl(fd, CDROMSUBCHNL, &q));
 	}, return);
 #endif
