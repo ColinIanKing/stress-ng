@@ -18,9 +18,10 @@
  *
  */
 #include "stress-ng.h"
-#include "core-pragma.h"
+#include "core-builtin.h"
 #include "core-cpu-cache.h"
 #include "core-mmap.h"
+#include "core-pragma.h"
 
 #if defined(HAVE_SYS_SHM_H)
 #include <sys/shm.h>
@@ -44,8 +45,8 @@ void OPTIMIZE3 stress_mmap_set(
 	const size_t page_size)
 {
 	register uint64_t val = stress_mwc64();
-	register uint64_t *ptr = (uint64_t *)buf;
-	register const uint64_t *end = (uint64_t *)(buf + sz);
+	register uint64_t *ptr = (uint64_t *)shim_assume_aligned(buf, 8);
+	register const uint64_t *end = (uint64_t *)shim_assume_aligned((buf + sz), 8);
 #if defined(USE_ASM_X86_REP_STOSQ)
         register const uint32_t loops = page_size / sizeof(uint64_t);
 #endif
@@ -109,8 +110,8 @@ int OPTIMIZE3 stress_mmap_check(
 	const size_t sz,
 	const size_t page_size)
 {
-	register uint64_t *ptr = (uint64_t *)buf;
-	register const uint64_t *end = (uint64_t *)(buf + sz);
+	register uint64_t *ptr = (uint64_t *)shim_assume_aligned(buf, 8);
+	register const uint64_t *end = (uint64_t *)shim_assume_aligned((buf + sz), 8);
 
 	while (LIKELY((ptr < end) && stress_continue_flag())) {
 		register const uint64_t *page_end = (uint64_t *)((uintptr_t)ptr + page_size);
@@ -169,9 +170,9 @@ void OPTIMIZE3 stress_mmap_set_light(
 	const size_t sz,
 	const size_t page_size)
 {
-	register uint64_t *ptr = (uint64_t *)buf;
+	register uint64_t *ptr = (uint64_t *)shim_assume_aligned(buf, 8);
 	register uint64_t val = stress_mwc64();
-	register const uint64_t *end = (uint64_t *)(buf + sz);
+	register const uint64_t *end = (uint64_t *)shim_assume_aligned((buf + sz), 8);
 	register const size_t ptr_inc = page_size / sizeof(*ptr);
 
 	while (LIKELY(ptr < end)) {
@@ -190,9 +191,9 @@ int OPTIMIZE3 stress_mmap_check_light(
 	const size_t sz,
 	const size_t page_size)
 {
-	register uint64_t *ptr = (uint64_t *)buf;
+	register uint64_t *ptr = (uint64_t *)shim_assume_aligned(buf, 8);
 	register uint64_t val = *ptr;
-	register const uint64_t *end = (uint64_t *)(buf + sz);
+	register const uint64_t *end = (uint64_t *)shim_assume_aligned((buf + sz), 8);
 	register const size_t ptr_inc = page_size / sizeof(*ptr);
 
 	while (LIKELY(ptr < end)) {
