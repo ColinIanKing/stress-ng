@@ -476,9 +476,9 @@ static int stress_efivar(stress_args_t *args)
 	pid_t pid;
 	size_t sz;
 	double duration = 0.0, count = 0.0;
-	efi_mode = STRESS_EFI_UNKNOWN;
 	int rc = EXIT_SUCCESS;
 
+	efi_mode = STRESS_EFI_UNKNOWN;
 	efi_dentries = NULL;
 
 	dir_count = scandir(sysfs_efi_efivars, &efi_dentries, NULL, alphasort);
