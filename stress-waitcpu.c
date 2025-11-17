@@ -236,7 +236,7 @@ static void stress_waitcpu_loong64_dbar(void)
 #endif
 #endif
 
-stress_waitcpu_method_t stress_waitcpu_method[] = {
+static stress_waitcpu_method_t stress_waitcpu_method[] = {
 	{ "nop",	stress_waitcpu_nop,		stress_waitcpu_nop_supported,		false, 0.0, 0.0, 0.0 },
 #if defined(STRESS_ARCH_X86)
 #if defined(HAVE_ASM_X86_PAUSE)
