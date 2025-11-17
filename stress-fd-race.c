@@ -693,7 +693,7 @@ static void stress_fd_race_filename_free(stress_fd_race_filename_t *list)
 		free(entry->filename);
 		free(entry);
 		entry = next;
-	};
+	}
 }
 
 /*
