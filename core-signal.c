@@ -599,7 +599,7 @@ static const CONST char *stress_catch_sig_si_code(const int sig, const int sig_c
  *	handle signal, dump 16 bytes before and after the illegal opcode
  *	and terminate immediately to avoid any recursive signal handling
  */
-static void stress_catch_sig_handler(
+static void NORETURN stress_catch_sig_handler(
 	int sig,
 	siginfo_t *info,
 	void *ucontext,
@@ -642,7 +642,7 @@ static void stress_catch_sig_handler(
  *  stress_catch_sigill_handler()
  *	handler for SIGILL
  */
-static void stress_catch_sigill_handler(
+static void NORETURN stress_catch_sigill_handler(
 	int sig,
 	siginfo_t *info,
 	void *ucontext)
@@ -654,7 +654,7 @@ static void stress_catch_sigill_handler(
  *  stress_catch_sigsegv_handler()
  *	handler for SIGSEGV
  */
-static void stress_catch_sigsegv_handler(
+static void NORETURN stress_catch_sigsegv_handler(
 	int sig,
 	siginfo_t *info,
 	void *ucontext)
