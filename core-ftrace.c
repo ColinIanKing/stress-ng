@@ -69,8 +69,8 @@ static int rb_node_cmp(struct rb_node *n1, struct rb_node *n2)
 }
 
 static RB_HEAD(rb_tree, rb_node) rb_root;
-RB_PROTOTYPE(rb_tree, rb_node, rb, rb_node_cmp);
-RB_GENERATE(rb_tree, rb_node, rb, rb_node_cmp);
+RB_PROTOTYPE(rb_tree, rb_node, rb, rb_node_cmp)
+RB_GENERATE(rb_tree, rb_node, rb, rb_node_cmp)
 
 /*
  *  stress_ftrace_get_debugfs_path()
