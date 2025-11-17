@@ -790,9 +790,9 @@ void stress_perf_stat_dump(FILE *yaml, stress_stressor_t *stressors_list, const 
 			if (label && (ct != STRESS_PERF_INVALID)) {
 				char extra[32];
 				char yaml_label[128];
-				*extra = '\0';
 				size_t i;
 
+				*extra = '\0';
 				no_perf_stats = false;
 
 				for (i = 0; i < SIZEOF_ARRAY(perf_relatives); i++) {
