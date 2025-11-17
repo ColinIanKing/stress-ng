@@ -192,8 +192,8 @@ static int OPTIMIZE3 tree_node_cmp_fwd(struct tree_node *n1, struct tree_node *n
 
 #if defined(HAVE_RB_TREE)
 static RB_HEAD(stress_rb_tree, tree_node) rb_root;
-RB_PROTOTYPE(stress_rb_tree, tree_node, u.rb, tree_node_cmp_fwd);
-RB_GENERATE(stress_rb_tree, tree_node, u.rb, tree_node_cmp_fwd);
+RB_PROTOTYPE(stress_rb_tree, tree_node, u.rb, tree_node_cmp_fwd)
+RB_GENERATE(stress_rb_tree, tree_node, u.rb, tree_node_cmp_fwd)
 
 static void OPTIMIZE3 stress_tree_rb(
 	stress_args_t *args,
@@ -269,8 +269,8 @@ PRAGMA_UNROLL_N(4)
 
 #if defined(HAVE_SPLAY_TREE)
 static SPLAY_HEAD(stress_splay_tree, tree_node) splay_root;
-SPLAY_PROTOTYPE(stress_splay_tree, tree_node, u.splay, tree_node_cmp_fwd);
-SPLAY_GENERATE(stress_splay_tree, tree_node, u.splay, tree_node_cmp_fwd);
+SPLAY_PROTOTYPE(stress_splay_tree, tree_node, u.splay, tree_node_cmp_fwd)
+SPLAY_GENERATE(stress_splay_tree, tree_node, u.splay, tree_node_cmp_fwd)
 
 static void OPTIMIZE3 stress_tree_splay(
 	stress_args_t *args,
