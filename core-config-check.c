@@ -47,8 +47,15 @@ static void stress_config_sigill_handler(int sig)
  *	check if x86-64 has lahf_lm CPU flag set and if so check
  *	if lahf opcode works without triggering a SIGILL as can
  *	occur on the Apple Rosetta 2 emulator of x86-64
+ *
+ *	Force -O2 to work around gcc -march=znver3 -O3 -pipe -funroll-loops
+ *	build issue:
+ *	   core-asm-x86.h: Assembler messages:
+ *         core-asm-x86.h:382: Error: can't encode register '%ah' in aninstruction requiring REX/REX2 prefix
+ *      See: https://github.com/ColinIanKing/stress-ng/issues/589
+ *           https://bugs.gentoo.org/show_bug.cgi?id=962017
  */
-static void stress_config_check_lahf_lm(void)
+static void OPTIMIZE2 stress_config_check_lahf_lm(void)
 {
 	if (stress_cpu_x86_has_lahf_lm()) {
 		uint8_t value;
