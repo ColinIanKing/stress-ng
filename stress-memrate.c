@@ -1063,7 +1063,7 @@ tidy:
  */
 static int stress_memrate(stress_args_t *args)
 {
-	int rc;
+	int rc, flag;
 	size_t i, stats_size;
 	stress_memrate_context_t context;
 	double inverse_n, geomean, rd_mantissa, rd_n, wr_mantissa, wr_n;
@@ -1074,7 +1074,6 @@ static int stress_memrate(stress_args_t *args)
 	context.memrate_wr_mbs = ~0ULL;
 	context.memrate_flush = false;
 	context.memrate_method = 0; 	/* all */
-	int flag;
 
 	(void)stress_get_setting("memrate-bytes", &context.memrate_bytes);
 	(void)stress_get_setting("memrate-flush", &context.memrate_flush);
