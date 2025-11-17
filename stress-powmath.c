@@ -587,7 +587,7 @@ static const stress_powmath_method_t stress_powmath_methods[] = {
 #endif
 };
 
-stress_metrics_t stress_powmath_metrics[SIZEOF_ARRAY(stress_powmath_methods)];
+static stress_metrics_t stress_powmath_metrics[SIZEOF_ARRAY(stress_powmath_methods)];
 
 static bool stress_powmath_exercise(stress_args_t *args, const size_t idx)
 {
