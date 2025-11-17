@@ -207,8 +207,9 @@ static int stress_zero(stress_args_t *args)
 			 *  Periodically exercise mmap
 			 */
 			if (mmap_counter++ > 500) {
-				mmap_counter = 0;
 				int32_t *ptr;
+
+				mmap_counter = 0;
 
 				/*
 				 *  check if we can mmap /dev/zero
