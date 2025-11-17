@@ -103,14 +103,14 @@ static int OPTIMIZE3 stress_judy(stress_args_t *args)
 		for (i = 0; i < n; i++) {
 			Word_t idx = gen_index(i);
 
-			JLI(pvalue, PJLArray, idx);
+			JLI(pvalue, PJLArray, idx)
 			if (UNLIKELY((pvalue == NULL) || (pvalue == PJERR))) {
 				pr_err("%s: cannot allocate new "
 					"judy node%s\n", args->name,
 					stress_get_memfree_str());
 				for (j = 0; j < n; j++) {
 					idx = gen_index(j);
-					JLD(judyrc, PJLArray, idx);
+					JLD(judyrc, PJLArray, idx)
 				}
 				goto abort;
 			}
@@ -151,7 +151,7 @@ static int OPTIMIZE3 stress_judy(stress_args_t *args)
 		for (j = n -1, i = 0; i < n; i++, j--) {
 			const Word_t idx = gen_index(j);
 
-			JLD(judyrc, PJLArray, idx);
+			JLD(judyrc, PJLArray, idx)
 			if (UNLIKELY(verify && (judyrc != 1))) {
 				pr_fail("%s: element %" PRIu32 " could not "
 					"be found\n", args->name, (uint32_t)idx);
