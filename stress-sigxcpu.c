@@ -28,7 +28,7 @@ static const stress_help_t help[] = {
 #if defined(SIGXCPU) &&	\
     defined(RLIMIT_CPU)
 
-stress_args_t *sigxcpu_args;
+static stress_args_t *sigxcpu_args;
 
 /*
  *  stress_sigxcpu_handler()
