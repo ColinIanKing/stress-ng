@@ -3332,7 +3332,7 @@ do {						\
 		stress_asm_mb();			\
 		*(p2) = tmp;			\
 		stress_asm_mb();			\
-} while (0);
+} while (0)
 
 /*
  *  stress_vm_checkerboard()
