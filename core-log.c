@@ -43,7 +43,7 @@ typedef struct {
 	char *buf;	/* accumulated messages */
 } pr_msg_buf_t;
 
-pr_msg_buf_t pr_msg_buf;
+static pr_msg_buf_t pr_msg_buf;
 
 int pr_fd(void)
 {
