@@ -319,7 +319,7 @@ static const stress_trig_method_t stress_trig_methods[] = {
 	{ "tanl",	stress_trig_tanl },
 };
 
-stress_metrics_t stress_trig_metrics[SIZEOF_ARRAY(stress_trig_methods)];
+static stress_metrics_t stress_trig_metrics[SIZEOF_ARRAY(stress_trig_methods)];
 
 static bool stress_trig_exercise(stress_args_t *args, const size_t idx)
 {
