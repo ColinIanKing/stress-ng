@@ -280,7 +280,7 @@ static const stress_chyperbolic_method_t stress_chyperbolic_methods[] = {
 #endif
 };
 
-stress_metrics_t stress_chyperbolic_metrics[SIZEOF_ARRAY(stress_chyperbolic_methods)];
+static stress_metrics_t stress_chyperbolic_metrics[SIZEOF_ARRAY(stress_chyperbolic_methods)];
 
 static bool stress_chyperbolic_exercise(stress_args_t *args, const size_t idx)
 {
