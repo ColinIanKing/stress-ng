@@ -344,7 +344,7 @@ bool stress_cpu_is_x86(void)
 	uint32_t eax, ebx, ecx, edx;
 	size_t i;
 
-	eax = 0, ebx = 0, ecx = 0, edx = 0;
+	eax = 0; ebx = 0; ecx = 0; edx = 0;
 	stress_asm_x86_cpuid(eax, ebx, ecx, edx);
 
 	/* Intel CPU? */
@@ -358,7 +358,7 @@ bool stress_cpu_is_x86(void)
 	}
 
 	/* Virtual machine? */
-	eax = 0x40000000, ebx = 0, ecx = 0, edx = 0;
+	eax = 0x40000000; ebx = 0; ecx = 0; edx = 0;
 	stress_asm_x86_cpuid(eax, ebx, ecx, edx);
 	for (i = 0; i < SIZEOF_ARRAY(x86_virt_id_str); i++) {
 		const char *str = x86_virt_id_str[i];
@@ -378,11 +378,11 @@ bool stress_cpu_is_x86(void)
  */
 #if defined(STRESS_ARCH_X86)
 #define stress_cpu_x86_extended_features(ebx, ecx, edx)	\
-{							\
+do {							\
 	uint32_t eax = 7;				\
 							\
 	stress_asm_x86_cpuid(eax, ebx, ecx, edx);	\
-}
+} while (0)
 #endif
 
 /*
