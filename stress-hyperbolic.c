@@ -226,7 +226,7 @@ static const stress_hyperbolic_method_t stress_hyperbolic_methods[] = {
 	{ "tanhl",	stress_hyperbolic_tanhl },
 };
 
-stress_metrics_t stress_hyperbolic_metrics[SIZEOF_ARRAY(stress_hyperbolic_methods)];
+static stress_metrics_t stress_hyperbolic_metrics[SIZEOF_ARRAY(stress_hyperbolic_methods)];
 
 static bool stress_hyperbolic_exercise(stress_args_t *args, const size_t idx)
 {
