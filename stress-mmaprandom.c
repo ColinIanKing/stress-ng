@@ -2092,7 +2092,7 @@ static int stress_mmaprandom_child(stress_args_t *args, void *context)
 	ctxt->pidfd = shim_pidfd_open(getpid(), 0);
 
 	do {
-		const size_t i = stress_mwc8modn(SIZEOF_ARRAY(mr_funcs));
+		const int i = (int)stress_mwc8modn(SIZEOF_ARRAY(mr_funcs));
 
 		mr_funcs[i].func(ctxt, i);
 		stress_bogo_inc(args);
