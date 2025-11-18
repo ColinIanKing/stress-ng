@@ -654,7 +654,7 @@ static void bad_getcpu1(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unwriteable) {
 		(*counter)++;
-		VOID_RET(int, shim_getcpu((unsigned *)ba->addr, (unsigned *)inc_addr(ba->addr, 2),
+		VOID_RET(long int, shim_getcpu((unsigned *)ba->addr, (unsigned *)inc_addr(ba->addr, 2),
 				(void *)inc_addr(ba->addr, 2)));
 	}
 }
@@ -665,7 +665,7 @@ static void bad_getcpu2(stress_bad_addr_t *ba, volatile uint64_t *counter)
 		unsigned int node = 0;
 
 		(*counter)++;
-		VOID_RET(int, shim_getcpu((unsigned *)ba->addr, &node, NULL));
+		VOID_RET(long int, shim_getcpu((unsigned *)ba->addr, &node, NULL));
 	}
 }
 
@@ -675,7 +675,7 @@ static void bad_getcpu3(stress_bad_addr_t *ba, volatile uint64_t *counter)
 		unsigned int cpu;
 
 		(*counter)++;
-		VOID_RET(int, shim_getcpu(&cpu, (unsigned *)ba->addr, NULL));
+		VOID_RET(long int, shim_getcpu(&cpu, (unsigned *)ba->addr, NULL));
 	}
 }
 
@@ -686,7 +686,7 @@ static void bad_getcpu4(stress_bad_addr_t *ba, volatile uint64_t *counter)
 		unsigned int cpu;
 
 		(*counter)++;
-		VOID_RET(int, shim_getcpu(&cpu, &node, ba->addr));
+		VOID_RET(long int, shim_getcpu(&cpu, &node, ba->addr));
 	}
 }
 
@@ -1164,7 +1164,7 @@ static void bad_lsm_get_self_attr1(stress_bad_addr_t *ba, volatile uint64_t *cou
 		size_t size = 1024;
 
 		(*counter)++;
-		VOID_RET(int, syscall(__NR_lsm_get_self_attr, 0, ba->addr, &size, 0));
+		VOID_RET(long int, syscall(__NR_lsm_get_self_attr, 0, ba->addr, &size, 0));
 	}
 }
 
@@ -1174,7 +1174,7 @@ static void bad_lsm_get_self_attr2(stress_bad_addr_t *ba, volatile uint64_t *cou
 		unsigned char ctxt[1024];
 
 		(*counter)++;
-		VOID_RET(int, syscall(__NR_lsm_get_self_attr, 0, ctxt, ba->addr, 0));
+		VOID_RET(long int, syscall(__NR_lsm_get_self_attr, 0, ctxt, ba->addr, 0));
 	}
 }
 #endif
@@ -1184,7 +1184,7 @@ static void bad_lsm_set_self_attr(stress_bad_addr_t *ba, volatile uint64_t *coun
 {
 	if (ba->unreadable) {
 		(*counter)++;
-		VOID_RET(int, syscall(__NR_lsm_set_self_attr, 0, ba->addr, 1024, 0));
+		VOID_RET(long int, syscall(__NR_lsm_set_self_attr, 0, ba->addr, 1024, 0));
 	}
 }
 #endif
@@ -1196,7 +1196,7 @@ static void bad_lsm_list_modules1(stress_bad_addr_t *ba, volatile uint64_t *coun
 		size_t size = 64;
 
 		(*counter)++;
-		VOID_RET(int, syscall(__NR_lsm_list_modules, (uint64_t *)ba->addr, &size, 0));
+		VOID_RET(long int, syscall(__NR_lsm_list_modules, (uint64_t *)ba->addr, &size, 0));
 	}
 }
 
@@ -1206,7 +1206,7 @@ static void bad_lsm_list_modules2(stress_bad_addr_t *ba, volatile uint64_t *coun
 		uint64_t ids[64];
 
 		(*counter)++;
-		VOID_RET(int, syscall(__NR_lsm_list_modules, ids, (size_t *)ba->addr, 0));
+		VOID_RET(long int, syscall(__NR_lsm_list_modules, ids, (size_t *)ba->addr, 0));
 	}
 }
 #endif
