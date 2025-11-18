@@ -980,7 +980,7 @@ static int stress_prctl_child(
 	{
 		int arg;
 
-		arg = (unsigned long int)prctl(PR_SME_GET_VL, 0, 0, 0, 0);
+		arg = prctl(PR_SME_GET_VL, 0, 0, 0, 0);
 #if defined(PR_SME_SET_VL)
 		if (arg >= 0)
 			arg = prctl(PR_SME_SET_VL, (unsigned long int)arg, 0, 0, 0);
