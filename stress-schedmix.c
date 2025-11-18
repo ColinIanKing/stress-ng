@@ -217,7 +217,7 @@ redo:
 		VOID_RET(int, shim_getrusage(RUSAGE_CHILDREN, &usage));
 #endif
 #endif
-		VOID_RET(int, times(&tms_buf));
+		VOID_RET(clock_t, times(&tms_buf));
 		break;
 #if defined(__linux__)
 	case 22:
