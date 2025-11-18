@@ -216,6 +216,8 @@
 #define HAVE_IOPRIO_SET
 #endif
 
+#define SHIM_QCMD(cmd, type)	QCMD(((uint32_t)(cmd)), (type))
+
 typedef struct {
 	const char *opt;	/* method option string */
 	const int method;	/* SYSCALL_METHOD_* value */
@@ -4955,7 +4957,7 @@ static int syscall_quotactl(void)
 	char buf[4096];
 
 	t1 = syscall_time_now();
-	ret = quotactl(QCMD(Q_SYNC, USRQUOTA), "", 0, (caddr_t)buf);
+	ret = quotactl(SHIM_QCMD(Q_SYNC, USRQUOTA), "", 0, (caddr_t)buf);
 	t2 = syscall_time_now();
 	return ret;
 }
@@ -4974,7 +4976,7 @@ static int syscall_quotactl_fd(void)
 		return -1;
 
 	t1 = syscall_time_now();
-	ret = shim_quotactl_fd(fd, QCMD(Q_SYNC, USRQUOTA), 0, NULL);
+	ret = shim_quotactl_fd(fd, SHIM_QCMD(Q_SYNC, USRQUOTA), 0, NULL);
 	t2 = syscall_time_now();
 	(void)close(fd);
 	return ret;

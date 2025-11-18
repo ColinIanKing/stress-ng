@@ -26,6 +26,8 @@
 #include <sys/quota.h>
 #endif
 
+#define SHIM_QCMD(cmd, type)	QCMD(((uint32_t)(cmd)), (type))
+
 static const stress_help_t help[] = {
 	{ NULL,	"quota N",	"start N workers exercising quotactl commands" },
 	{ NULL,	"quota-ops N",	"stop after N quotactl bogo operations" },
@@ -203,7 +205,7 @@ static int do_quotas(stress_args_t *args, stress_dev_info_t *const dev)
 
 		(void)shim_memset(&dqblk, 0, sizeof(dqblk));
 		err = do_quotactl(args, "Q_GETQUOTA", &status,
-			QCMD(Q_GETQUOTA, USRQUOTA),
+			SHIM_QCMD(Q_GETQUOTA, USRQUOTA),
 			dev, 0, (caddr_t)&dqblk);
 		if (err == EPERM)
 			return err;
@@ -215,7 +217,7 @@ static int do_quotas(stress_args_t *args, stress_dev_info_t *const dev)
 
 		(void)shim_memset(&nextdqblk, 0, sizeof(nextdqblk));
 		err = do_quotactl(args, "Q_GETNEXTQUOTA", &status,
-			QCMD(Q_GETNEXTQUOTA, USRQUOTA),
+			SHIM_QCMD(Q_GETNEXTQUOTA, USRQUOTA),
 			dev, 0, (caddr_t)&nextdqblk);
 		if (err == EPERM)
 			return err;
@@ -227,7 +229,7 @@ static int do_quotas(stress_args_t *args, stress_dev_info_t *const dev)
 
 		(void)shim_memset(&format, 0, sizeof(format));
 		err = do_quotactl(args, "Q_GETFMT", &status,
-			QCMD(Q_GETFMT, USRQUOTA),
+			SHIM_QCMD(Q_GETFMT, USRQUOTA),
 			dev, 0, (caddr_t)&format);
 		if (err == EPERM)
 			return err;
@@ -239,7 +241,7 @@ static int do_quotas(stress_args_t *args, stress_dev_info_t *const dev)
 
 		(void)shim_memset(&dqinfo, 0, sizeof(dqinfo));
 		err = do_quotactl(args, "Q_GETINFO", &status,
-			QCMD(Q_GETINFO, USRQUOTA),
+			SHIM_QCMD(Q_GETINFO, USRQUOTA),
 			dev, 0, (caddr_t)&dqinfo);
 		if (err == EPERM)
 			return err;
@@ -252,7 +254,7 @@ static int do_quotas(stress_args_t *args, stress_dev_info_t *const dev)
 
 		(void)shim_memset(&dqstats, 0, sizeof(dqstats));
 		err = do_quotactl(args, "Q_GETSTATS", &status,
-			QCMD(Q_GETSTATS, USRQUOTA),
+			SHIM_QCMD(Q_GETSTATS, USRQUOTA),
 			dev, 0, (caddr_t)&dqstats);
 		if (err == EPERM)
 			return err;
@@ -261,7 +263,7 @@ static int do_quotas(stress_args_t *args, stress_dev_info_t *const dev)
 #if defined(Q_SYNC)
 	if (LIKELY(stress_continue_flag())) {
 		err = do_quotactl(args, "Q_SYNC", &status,
-			QCMD(Q_SYNC, USRQUOTA),
+			SHIM_QCMD(Q_SYNC, USRQUOTA),
 			dev, 0, 0);
 		if (err == EPERM)
 			return err;
@@ -276,17 +278,17 @@ static int do_quotas(stress_args_t *args, stress_dev_info_t *const dev)
 		struct dqinfo dqinfo;
 
 		(void)shim_memset(&dqinfo, 0, sizeof(dqinfo));
-		VOID_RET(int, quotactl(QCMD(Q_GETINFO, USRQUOTA), "", 0, (caddr_t)&dqinfo));
-		VOID_RET(int, quotactl(QCMD(Q_GETINFO, USRQUOTA), dev->name, ~0, (caddr_t)&dqinfo));
-		VOID_RET(int, quotactl(QCMD(Q_GETINFO, -1), dev->name, ~0, (caddr_t)&dqinfo));
+		VOID_RET(int, quotactl(SHIM_QCMD(Q_GETINFO, USRQUOTA), "", 0, (caddr_t)&dqinfo));
+		VOID_RET(int, quotactl(SHIM_QCMD(Q_GETINFO, USRQUOTA), dev->name, ~0, (caddr_t)&dqinfo));
+		VOID_RET(int, quotactl(SHIM_QCMD(Q_GETINFO, -1), dev->name, ~0, (caddr_t)&dqinfo));
 	}
 #endif
 #if defined(Q_SYNC)
 	/* special Q_SYNC without specific device will sync all */
-	VOID_RET(int, quotactl(QCMD(Q_SYNC, USRQUOTA), NULL, 0, NULL));
+	VOID_RET(int, quotactl(SHIM_QCMD(Q_SYNC, USRQUOTA), NULL, 0, NULL));
 
 	/* invalid Q_SYNC with "" device name */
-	VOID_RET(int, quotactl(QCMD(Q_SYNC, USRQUOTA), "", 0, NULL));
+	VOID_RET(int, quotactl(SHIM_QCMD(Q_SYNC, USRQUOTA), "", 0, NULL));
 #endif
 
 	if (status.tested == 0) {
