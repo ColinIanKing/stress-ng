@@ -821,8 +821,8 @@ static void TARGET_CLONES stress_rand_data_pink(
 {
 	register uint8_t *ptr = (uint8_t *)data;
 	register const uint8_t *end = (uint8_t *)data_end;
-	size_t idx = 0;
-	const size_t mask = (1 << PINK_MAX_ROWS) - 1;
+	uint32_t idx = 0;
+	const uint32_t mask = (1 << PINK_MAX_ROWS) - 1;
 	uint64_t sum = 0;
 	const uint64_t max = (PINK_MAX_ROWS + 1) * (1 << (PINK_BITS - 1));
 	uint64_t rows[PINK_MAX_ROWS];
@@ -837,9 +837,9 @@ static void TARGET_CLONES stress_rand_data_pink(
 		idx = (idx + 1) & mask;
 		if (idx) { /* cppcheck-suppress knownConditionTrueFalse */
 #if defined(HAVE_BUILTIN_CTZ)
-			const size_t j = (size_t)__builtin_ctz(idx);
+			register const uint32_t j = (uint32_t)__builtin_ctz(idx);
 #else
-			const size_t j = (size_t)stress_builtin_ctz(idx);
+			register const uint32_t j = (size_t)stress_builtin_ctz(idx);
 #endif
 
 			sum -= rows[j];
