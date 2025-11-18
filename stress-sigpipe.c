@@ -67,7 +67,7 @@ static int stress_sigpipe(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		register int ret;
+		register ssize_t ret;
 
 		/* cause SIGPIPE if pipe closed */
 		ret = write(pipefds[1], &data, sizeof(data));
