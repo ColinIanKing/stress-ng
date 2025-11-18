@@ -150,7 +150,7 @@ static int stress_proc_scandir(
 static uint32_t mixup_hash(const char *str)
 {
 	if (isdigit((int)str[0])) {
-		const uint32_t val = atol(str);
+		const uint32_t val = (uint32_t)atol(str);
 
 		return stress_reverse32(val ^ mixup);
 	}
