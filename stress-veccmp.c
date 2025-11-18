@@ -68,22 +68,22 @@ typedef __int128_t stress_vint128_t __attribute__ ((vector_size (16)));
 
 #if defined(HAVE_INT128_T)
 #define H128(a0, a1, a2, a3, a4, a5, a6, a7, a8, a9, aa, ab, ac, ad, ae, af)	\
-	((__int128_t)(((__int128_t)a0 << 120) |		\
-		     ((__int128_t)a1 << 112) |		\
-		     ((__int128_t)a2 << 104) |		\
-		     ((__int128_t)a3 <<  96) |		\
-		     ((__int128_t)a4 <<  88) |		\
-		     ((__int128_t)a5 <<  80) |		\
-		     ((__int128_t)a6 <<  72) |		\
-		     ((__int128_t)a7 <<  64) |		\
-		     ((__int128_t)a8 <<  56) |		\
-		     ((__int128_t)a9 <<  48) |		\
-		     ((__int128_t)aa <<  40) |		\
-		     ((__int128_t)ab <<  32) |		\
-		     ((__int128_t)ac <<  24) |		\
-		     ((__int128_t)ad <<  16) |		\
-		     ((__int128_t)ae <<   8) |		\
-		     ((__int128_t)af <<   0)))		\
+	((__int128_t)(((__uint128_t)a0 << 120) |	\
+		      ((__uint128_t)a1 << 112) |	\
+		      ((__uint128_t)a2 << 104) |	\
+		      ((__uint128_t)a3 <<  96) |	\
+		      ((__uint128_t)a4 <<  88) |	\
+		      ((__uint128_t)a5 <<  80) |	\
+		      ((__uint128_t)a6 <<  72) |	\
+		      ((__uint128_t)a7 <<  64) |	\
+		      ((__uint128_t)a8 <<  56) |	\
+		      ((__uint128_t)a9 <<  48) |	\
+		      ((__uint128_t)aa <<  40) |	\
+		      ((__uint128_t)ab <<  32) |	\
+		      ((__uint128_t)ac <<  24) |	\
+		      ((__uint128_t)ad <<  16) |	\
+		      ((__uint128_t)ae <<   8) |	\
+		      ((__uint128_t)af <<   0)))	\
 
 #endif
 
