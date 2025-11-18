@@ -562,7 +562,7 @@ static uint32_t OPTIMIZE3 judy_get(void *handle, const uint32_t x, const uint32_
 
 	JLG(pvalue, *(Pvoid_t *)handle, idx);
 	value = pvalue ? *pvalue : 0;
-	return value;
+	return (uint32_t)value;
 }
 
 /*
