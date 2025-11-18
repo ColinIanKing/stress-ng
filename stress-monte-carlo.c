@@ -156,7 +156,7 @@ static double OPTIMIZE3 stress_mc_random_rand(void)
 #if defined(HAVE_SRANDOM)
 static void stress_mc_random_seed(void)
 {
-	unsigned int seed = (shim_time(NULL) + getpid());
+	unsigned int seed = (unsigned int)(shim_time(NULL) + getpid());
 
 	srandom(seed);
 }
@@ -230,7 +230,7 @@ static double OPTIMIZE3 stress_mc_lcg_rand(void)
 {
 	register const double scale_u32 = 1.0 / (double)0x7fffffff;
 	register uint64_t product = (uint64_t)stress_mc_lcg_state * 48271;
-	register uint32_t r = (product & 0x7fffffff) + (product >> 31);
+	register uint32_t r = (uint32_t)((product & 0x7fffffff) + (product >> 31));
 
 	r = (r & 0x7fffffff) + (r >> 31);
 	stress_mc_lcg_state = r;
