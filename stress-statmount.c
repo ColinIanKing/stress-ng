@@ -56,7 +56,7 @@ static int shim_statmount(
 		.param = mask,
 	};
 
-	return syscall(__NR_statmount, &req, buf, bufsize, flags);
+	return (int)syscall(__NR_statmount, &req, buf, bufsize, flags);
 }
 
 /*
