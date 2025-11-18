@@ -60,7 +60,7 @@ typedef struct {
 typedef struct {
 	stress_args_t *args;		/* stressor args */
 	stress_peekio_info_t *info;	/* info */
-	int proc_num;			/* process instance */
+	size_t proc_num;		/* process instance */
 	int io_mode;			/* IO_MODE_* */
 	uint8_t *buf;			/* I/O buffer */
 #if defined(HAVE_LIB_PTHREAD)
@@ -89,7 +89,7 @@ static const stress_help_t help[] = {
 static inline ALWAYS_INLINE uint8_t CONST OPTIMIZE3 data_value(
 	const size_t i,
 	const size_t j,
-	const int proc_num)
+	const size_t proc_num)
 {
 	register const size_t sum = i + j;
 
@@ -100,7 +100,7 @@ static void OPTIMIZE3 TARGET_CLONES pseek_fill_buf(
 	uint8_t *buf,
 	const size_t buf_size,
 	const size_t i,
-	const int proc_num)
+	const size_t proc_num)
 {
 	register size_t j;
 
@@ -113,7 +113,7 @@ static void OPTIMIZE3 TARGET_CLONES pseek_fill_buf(
  *  stress_pseek_write_offset()
  *	write at a given offset
  */
-static int stress_pseek_write_offset(
+static ssize_t stress_pseek_write_offset(
 	stress_args_t *args,
 	stress_peekio_info_t *info,
 	stress_peekio_proc_t *proc,
@@ -182,7 +182,7 @@ retry:
  *  stress_pseek_read_offset()
  *	read at a given offset
  */
-static int stress_pseek_read_offset(
+static ssize_t stress_pseek_read_offset(
 	stress_args_t *args,
 	stress_peekio_info_t *info,
 	stress_peekio_proc_t *proc,
