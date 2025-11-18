@@ -106,10 +106,10 @@ static int stress_mprotect_mem(
 	VOID_RET(int, sigsetjmp(jmp_env, 1));
 
 	while (LIKELY(stress_continue(args))) {
-		const uint32_t page = stress_mwc32modn(mem_pages);
+		const uint32_t page = stress_mwc32modn((uint32_t)mem_pages);
 		uint8_t *ptr = mem + (page_size * page);
 		const size_t max_size = (size_t)(mem_end - ptr);
-		const size_t size = stress_mwc32modn(max_size);
+		const size_t size = stress_mwc32modn((uint32_t)max_size);
 		int i;
 
 		/* Don't set protection on data less than a page size */
