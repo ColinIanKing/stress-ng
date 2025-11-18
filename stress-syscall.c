@@ -1328,14 +1328,14 @@ static int syscall_connect(void)
 #define HAVE_SYSCALL_COPY_FILE_RANGE
 static int syscall_copy_file_range(void)
 {
-	int ret;
+	ssize_t ret;
 	shim_off64_t off_in = 0;
 	shim_off64_t off_out = 8192;
 
 	t1 = syscall_time_now();
 	ret = shim_copy_file_range(syscall_fd, &off_in, syscall_fd, &off_out, 4096, 0);
 	t2 = syscall_time_now();
-	return ret;
+	return (int)ret;
 }
 #endif
 
@@ -1914,7 +1914,7 @@ static int syscall_fdatasync(void)
 #define HAVE_SYSCALL_FGETXATTR
 static int syscall_fgetxattr(void)
 {
-	int ret;
+	ssize_t ret;
 	char buf[64];
 
 	VOID_RET(int, shim_fsetxattr(syscall_fd, syscall_xattr_name, "123", 3, 0));
@@ -1922,7 +1922,7 @@ static int syscall_fgetxattr(void)
 	ret = shim_fgetxattr(syscall_fd, syscall_xattr_name, buf, sizeof(buf));
 	t2 = syscall_time_now();
 	VOID_RET(int, shim_fremovexattr(syscall_fd, syscall_xattr_name));
-	return ret;
+	return (int)ret;
 }
 #endif
 
@@ -2119,12 +2119,12 @@ static int syscall_futimesat(void)
 static int syscall_getcpu(void)
 {
 	unsigned cpu, node;
-	int ret;
+	long int ret;
 
 	t1 = syscall_time_now();
 	ret = shim_getcpu(&cpu, &node, NULL);
 	t2 = syscall_time_now();
-	return ret;
+	return (int)ret;
 }
 #endif
 
@@ -2527,14 +2527,14 @@ static int syscall_getuid(void)
 static int syscall_getxattr(void)
 {
 	char buf[64];
-	int ret;
+	ssize_t ret;
 
 	VOID_RET(int, shim_setxattr(syscall_filename, syscall_xattr_name, "123", 3, 0));
 	t1 = syscall_time_now();
 	ret = shim_getxattr(syscall_filename, syscall_xattr_name, buf, sizeof(buf));
 	t2 = syscall_time_now();
 	VOID_RET(int, shim_removexattr(syscall_filename, syscall_xattr_name));
-	return ret;
+	return (int)ret;
 }
 #endif
 
@@ -2641,7 +2641,7 @@ static int syscall_io_cancel(void)
 	struct io_event event;
 	uint32_t buffer[128];
 
-	ret = syscall(__NR_io_setup, 1, &ctx);
+	ret = (int)syscall(__NR_io_setup, 1, &ctx);
 	if (ret < 0)
 		return -1;
 
@@ -2655,17 +2655,17 @@ static int syscall_io_cancel(void)
 	cbs[0] = &cb[0];
 	cb[0].key = 0xff;
 
-	ret = syscall(__NR_io_submit, ctx, 1, cbs);
+	ret = (int)syscall(__NR_io_submit, ctx, 1, cbs);
 	if (ret < 0) {
-		VOID_RET(int, syscall(__NR_io_destroy, ctx));
+		VOID_RET(long int, syscall(__NR_io_destroy, ctx));
 		return -1;
 	}
 
 	t1 = syscall_time_now();
-	VOID_RET(int, syscall(__NR_io_cancel, ctx, &cb[0], &event));
+	VOID_RET(long int, syscall(__NR_io_cancel, ctx, &cb[0], &event));
 	t2 = syscall_time_now();
 
-	VOID_RET(int, syscall(__NR_io_destroy, ctx));
+	VOID_RET(long int, syscall(__NR_io_destroy, ctx));
 	return 0;
 }
 #endif
@@ -2681,11 +2681,11 @@ static int syscall_io_destroy(void)
 	int ret;
 	io_context_t ctx = 0;
 
-	ret = syscall(__NR_io_setup, 1, &ctx);
+	ret = (int)syscall(__NR_io_setup, 1, &ctx);
 	if (ret < 0)
 		return -1;
 	t1 = syscall_time_now();
-	ret = syscall(__NR_io_destroy, ctx);
+	ret = (int)syscall(__NR_io_destroy, ctx);
 	t2 = syscall_time_now();
 	return ret;
 }
@@ -2705,15 +2705,15 @@ static int syscall_io_getevents(void)
 	struct io_event events;
 	struct timespec timeout;
 
-	ret = syscall(__NR_io_setup, 1, &ctx);
+	ret = (int)syscall(__NR_io_setup, 1, &ctx);
 	if (ret < 0)
 		return -1;
 	timeout.tv_sec = 0;
 	timeout.tv_nsec = 1;
 	t1 = syscall_time_now();
-	ret = syscall(__NR_io_getevents, ctx, 1, 1, &events, &timeout);
+	ret = (int)syscall(__NR_io_getevents, ctx, 1, 1, &events, &timeout);
 	t2 = syscall_time_now();
-	VOID_RET(int, syscall(__NR_io_destroy, ctx));
+	VOID_RET(long int, syscall(__NR_io_destroy, ctx));
 	return ret;
 }
 #endif
@@ -2732,7 +2732,7 @@ static int syscall_io_pgetevents(void)
 	struct io_event events;
 	struct timespec timeout;
 
-	ret = syscall(__NR_io_setup, 1, &ctx);
+	ret = (int)syscall(__NR_io_setup, 1, &ctx);
 	if (ret < 0)
 		return -1;
 
@@ -2740,9 +2740,9 @@ static int syscall_io_pgetevents(void)
 	timeout.tv_nsec = 1;
 
 	t1 = syscall_time_now();
-	ret = syscall(__NR_io_pgetevents, ctx, 1, 1, &events, &timeout, NULL);
+	ret = (int)syscall(__NR_io_pgetevents, ctx, 1, 1, &events, &timeout, NULL);
 	t2 = syscall_time_now();
-	VOID_RET(int, syscall(__NR_io_destroy, ctx));
+	VOID_RET(long int, syscall(__NR_io_destroy, ctx));
 	return ret;
 }
 #endif
@@ -2789,10 +2789,10 @@ static int syscall_io_setup(void)
 	io_context_t ctx = 0;
 
 	t1 = syscall_time_now();
-	ret = syscall(__NR_io_setup, 1, &ctx);
+	ret = (int)syscall(__NR_io_setup, 1, &ctx);
 	t2 = syscall_time_now();
 	if (ret >= 0)
-		VOID_RET(int, syscall(__NR_io_destroy, ctx));
+		VOID_RET(long int, syscall(__NR_io_destroy, ctx));
 	return ret;
 }
 #endif
@@ -2813,7 +2813,7 @@ static int syscall_io_submit(void)
 	struct iocb *cbs[1];
 	uint32_t buffer[128];
 
-	ret = syscall(__NR_io_setup, 1, &ctx);
+	ret = (int)syscall(__NR_io_setup, 1, &ctx);
 	if (ret < 0)
 		return -1;
 
@@ -2827,11 +2827,11 @@ static int syscall_io_submit(void)
 	cbs[0] = &cb[0];
 
 	t1 = syscall_time_now();
-	ret = syscall(__NR_io_submit, ctx, 1, cbs);
+	ret = (int)syscall(__NR_io_submit, ctx, 1, cbs);
 	t2 = syscall_time_now();
 
 	if (ret < 0) {
-		VOID_RET(int, syscall(__NR_io_destroy, ctx));
+		VOID_RET(long int, syscall(__NR_io_destroy, ctx));
 		return -1;
 	}
 
@@ -2841,13 +2841,13 @@ static int syscall_io_submit(void)
 
 		timeout.tv_sec = 0;
 		timeout.tv_nsec = 10000;
-		ret = syscall(__NR_io_getevents, ctx, 1, 1, &events, &timeout);
+		ret = (int)syscall(__NR_io_getevents, ctx, 1, 1, &events, &timeout);
 		if (ret != 0)
 			break;
 		if (!stress_continue_flag())
 			break;
 	}
-	VOID_RET(int, syscall(__NR_io_destroy, ctx));
+	VOID_RET(long int, syscall(__NR_io_destroy, ctx));
 	return ret;
 }
 #endif
@@ -2863,7 +2863,7 @@ static int syscall_io_uring_setup(void)
 
 	(void)shim_memset(&p, 0, sizeof(p));
 	t1 = syscall_time_now();
-	fd = syscall(__NR_io_uring_setup, (unsigned long int)SIZEOF_ARRAY(p), &p);
+	fd = (int)syscall(__NR_io_uring_setup, (unsigned long int)SIZEOF_ARRAY(p), &p);
 	t2 = syscall_time_now();
 	if (fd >= 0)
 		(void)close(fd);
@@ -2921,7 +2921,7 @@ static int syscall_ioctl(void)
 #define HAVE_SYSCALL_KCMP
 static int syscall_kcmp(void)
 {
-	int ret;
+	long int ret;
 	pid_t ppid = getppid();
 
 #if !defined(KCMP_FS)
@@ -2930,7 +2930,7 @@ static int syscall_kcmp(void)
 	t1 = syscall_time_now();
 	ret = shim_kcmp(syscall_pid, ppid, KCMP_FS, 0, 0);
 	t2 = syscall_time_now();
-	return ret;
+	return (int)ret;
 
 }
 #endif
@@ -2946,7 +2946,7 @@ static int syscall_keyctl(void)
 	key_serial_t key;
 	char ALIGN64 description[64];
 	static char payload[] = "example payload";
-	int ret;
+	long int ret;
 
 	(void)snprintf(description, sizeof(description),
 		"stress-ng-syscall-key-%" PRIdMAX, (intmax_t)syscall_pid);
@@ -2958,7 +2958,7 @@ static int syscall_keyctl(void)
 	t1 = syscall_time_now();
 	ret = syscall(__NR_keyctl, KEYCTL_INVALIDATE, key);
 	t2 = syscall_time_now();
-	return ret;
+	return (int)ret;
 }
 #endif
 
@@ -3012,7 +3012,7 @@ static int syscall_lgetxattr(void)
 {
 	if (*syscall_symlink_filename) {
 		char buf[64];
-		int ret;
+		ssize_t ret;
 
 		if (shim_lsetxattr(syscall_symlink_filename, syscall_lxattr_name, "123", 3, 0) < 0)
 			return -1;
@@ -3020,7 +3020,7 @@ static int syscall_lgetxattr(void)
 		ret = shim_lgetxattr(syscall_symlink_filename, syscall_lxattr_name, buf, sizeof(buf));
 		t2 = syscall_time_now();
 		VOID_RET(int, shim_lremovexattr(syscall_symlink_filename, syscall_lxattr_name));
-		return ret;
+		return (int)ret;
 	}
 	return -1;
 }
@@ -3108,7 +3108,7 @@ static int syscall_lookup_dcookie(void)
 	int ret;
 
 	t1 = syscall_time_now();
-	ret = syscall(__NR_lookup_dcookie, stress_mwc64(), buf, sizeof(buf));
+	ret = (int)syscall(__NR_lookup_dcookie, stress_mwc64(), buf, sizeof(buf));
 	t2 = syscall_time_now();
 	return ret;
 }
@@ -4040,7 +4040,8 @@ static int syscall_msgget(void)
 static int syscall_msgrcv(void)
 {
 	const uint32_t value = stress_mwc32();
-	int msgq_id, ret;
+	int msgq_id;
+	ssize_t ret;
 
 	struct syscall_msgbuf {
 		long int mtype;
@@ -4064,7 +4065,7 @@ static int syscall_msgrcv(void)
 	VOID_RET(int, msgctl(msgq_id, IPC_RMID, NULL));
 	if (msg_rcv.value != value)
 		return -1;
-	return ret;
+	return (int)ret;
 }
 #endif
 
@@ -4814,7 +4815,7 @@ static int syscall_process_vm_readv(void)
 {
 	struct iovec local[1], remote[1];
 	void *buf, *local_buf, *remote_buf;
-	int ret;
+	size_t ret;
 
 	buf = mmap(NULL, syscall_page_size * 2, PROT_READ | PROT_WRITE,
 		MAP_ANONYMOUS | MAP_SHARED, -1, 0);
@@ -4834,7 +4835,7 @@ static int syscall_process_vm_readv(void)
 	ret = process_vm_readv(syscall_pid, local, 1, remote, 1, 0);
 	t2 = syscall_time_now();
 	(void)munmap(buf, syscall_page_size * 2);
-	return ret;
+	return (int)ret;
 }
 #endif
 
@@ -4845,7 +4846,7 @@ static int syscall_process_vm_writev(void)
 {
 	struct iovec local[1], remote[1];
 	void *buf, *local_buf, *remote_buf;
-	int ret;
+	size_t ret;
 
 	buf = mmap(NULL, syscall_page_size * 2, PROT_READ | PROT_WRITE,
 		MAP_ANONYMOUS | MAP_SHARED, -1, 0);
@@ -4865,7 +4866,7 @@ static int syscall_process_vm_writev(void)
 	ret = process_vm_writev(syscall_pid, local, 1, remote, 1, 0);
 	t2 = syscall_time_now();
 	(void)munmap(buf, syscall_page_size * 2);
-	return ret;
+	return (int)ret;
 }
 #endif
 
@@ -5097,7 +5098,7 @@ static int syscall_readahead(void)
 	t1 = syscall_time_now();
 	ret = readahead(syscall_fd, offset, 4096);
 	t2 = syscall_time_now();
-	return ret;
+	return (int)ret;
 }
 #endif
 
@@ -5106,12 +5107,12 @@ static int syscall_readlink(void)
 {
 	if (*syscall_symlink_filename) {
 		char path[PATH_MAX];
-		int ret;
+		size_t ret;
 
 		t1 = syscall_time_now();
 		ret = readlink(syscall_symlink_filename, path, sizeof(path));
 		t2 = syscall_time_now();
-		return ret;
+		return (int)ret;
 	}
 	return -1;
 }
@@ -5122,12 +5123,12 @@ static int syscall_readlinkat(void)
 {
 	if (*syscall_symlink_filename) {
 		char path[PATH_MAX];
-		int ret;
+		ssize_t ret;
 
 		t1 = syscall_time_now();
 		ret = readlinkat(syscall_dir_fd, syscall_symlink_filename, path, sizeof(path));
 		t2 = syscall_time_now();
-		return ret;
+		return (int)ret;
 	}
 	return -1;
 }
@@ -5279,7 +5280,7 @@ static int syscall_restart_syscall(void)
 	int ret;
 
 	t1 = syscall_time_now();
-	ret = syscall(__NR_restart_syscall);
+	ret = (int)syscall(__NR_restart_syscall);
 	t2 = syscall_time_now();
 	return ret;
 }
@@ -5355,7 +5356,7 @@ static int syscall_rseq(void)
 	t2 = syscall_time_now();
 	if (ret < 0)
 		return -1;
-	VOID_RET(int, (int)syscall(__NR_rseq, &rseq, sizeof(rseq), RSEQ_FLAG_UNREGISTER, signature));
+	VOID_RET(long int, syscall(__NR_rseq, &rseq, sizeof(rseq), RSEQ_FLAG_UNREGISTER, signature));
 	return 0;
 }
 #endif
@@ -5832,7 +5833,8 @@ static int syscall_sendto(void)
 #define HAVE_SYSCALL_SENDFILE
 static int syscall_sendfile(void)
 {
-	int ret, fd;
+	int fd;
+	ssize_t ret;
 	off_t offset = 0;
 
 	fd = creat(syscall_tmp_filename, S_IRUSR | S_IWUSR);
@@ -5845,7 +5847,7 @@ static int syscall_sendfile(void)
 
 	VOID_RET(int, close(fd));
 	VOID_RET(int, shim_unlink(syscall_tmp_filename));
-	return ret;
+	return (int)ret;
 }
 #endif
 
@@ -6492,7 +6494,7 @@ static int syscall_socketpair(void)
 #define HAVE_SYSCALL_SPLICE
 static int syscall_splice(void)
 {
-	int ret = -1;
+	ssize_t ret = -1;
 	int fd1[2], fd2[2];
 	char buf[4];
 	ssize_t sret;
@@ -6519,7 +6521,7 @@ pipe_close_fd1:
 	(void)close(fd1[0]);
 	(void)close(fd1[1]);
 
-	return ret;
+	return (int)ret;
 }
 #endif
 
@@ -6702,7 +6704,7 @@ static int syscall_syslog(void)
 	char buffer[1024];
 
 	t1 = syscall_time_now();
-	ret = syscall(__NR_syslog, SYSLOG_ACTION_READ, buffer, sizeof(buffer));
+	ret = (int)syscall(__NR_syslog, SYSLOG_ACTION_READ, buffer, sizeof(buffer));
 	t2 = syscall_time_now();
 
 	return ret;
@@ -6716,36 +6718,35 @@ static int syscall_syslog(void)
 #define HAVE_SYSCALL_TEE
 static int syscall_tee(void)
 {
-	int ret;
 	int fd1[2], fd2[2];
 	char buf[4];
-	ssize_t sret;
+	ssize_t tret, sret;
 
 	if (pipe(fd1) < 0)
 		return -1;
 	if (pipe(fd2) < 0) {
-		ret = -1;
+		tret = -1;
 		goto close_fd1;
 	}
 
 	sret = write(fd1[1], "test", 4);
 	if (sret < 0) {
-		ret = -1;
+		tret = -1;
 		goto close_fd2;
 	}
 	t1 = syscall_time_now();
-	ret = tee(fd1[0], fd2[1], 1, SPLICE_F_NONBLOCK);
+	tret = tee(fd1[0], fd2[1], 1, SPLICE_F_NONBLOCK);
 	t2 = syscall_time_now();
 	sret = read(fd2[0], buf, 4);
 	if (sret < 0)
-		ret = -1;
+		tret = -1;
 close_fd2:
 	(void)close(fd2[0]);
 	(void)close(fd2[1]);
 close_fd1:
 	(void)close(fd1[0]);
 	(void)close(fd1[1]);
-	return ret;
+	return (int)tret;
 }
 #endif
 
