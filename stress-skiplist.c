@@ -100,7 +100,7 @@ static skip_list_t *skip_list_init(skip_list_t *list, const size_t max_level)
  *  skip_list_insert()
  *	insert a value into the skiplist
  */
-static skip_node_t OPTIMIZE3 *skip_list_insert(skip_list_t *list, const unsigned long int value)
+static skip_node_t OPTIMIZE3 *skip_list_insert(skip_list_t *list, const uint32_t value)
 {
 	skip_node_t **skip_nodes;
 	skip_node_t *skip_node = list->head;
@@ -170,13 +170,13 @@ static skip_node_t OPTIMIZE3 *skip_list_search(skip_list_t *list, const unsigned
  *  skip_list_ln2()
  *	compute maximum skiplist level
  */
-static inline unsigned long int OPTIMIZE3 skip_list_ln2(register unsigned long int n)
+static inline uint32_t OPTIMIZE3 skip_list_ln2(register uint32_t n)
 {
 #if defined(HAVE_BUILTIN_CLZL)
 	/* this is fine as long as n > 0 */
-	return (sizeof(n) * 8) - __builtin_clzl(n);
+	return (uint32_t)((sizeof(n) * 8) - __builtin_clz(n));
 #else
-	register unsigned long int i = 0;
+	register uint32_t i = 0;
 
 	while (n) {
 		i++;
@@ -211,8 +211,8 @@ static void skip_list_free(skip_list_t *list)
  */
 static int OPTIMIZE3 stress_skiplist(stress_args_t *args)
 {
-	unsigned long int n, i, ln2n;
-	uint64_t skiplist_size = DEFAULT_SKIPLIST_SIZE;
+	uint32_t n, i, ln2n;
+	uint32_t skiplist_size = DEFAULT_SKIPLIST_SIZE;
 	int rc = EXIT_FAILURE;
 
 	if (!stress_get_setting("skiplist-size", &skiplist_size)) {
@@ -221,7 +221,7 @@ static int OPTIMIZE3 stress_skiplist(stress_args_t *args)
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			skiplist_size = MIN_SKIPLIST_SIZE;
 	}
-	n = (unsigned long int)skiplist_size;
+	n = skiplist_size;
 	ln2n = skip_list_ln2(n);
 
 	/*
@@ -229,7 +229,7 @@ static int OPTIMIZE3 stress_skiplist(stress_args_t *args)
 	 *  sizes where they assume ln2n is 0
 	 */
 	if (ln2n < 1) {
-		pr_fail("%s: unexpected ln base 2 of %lu is less than 1 (should not occur)\n",
+		pr_fail("%s: unexpected ln base 2 of %" PRIu32 " is less than 1 (should not occur)\n",
 			args->name, n);
 		rc = EXIT_FAILURE;
 		goto finish;
@@ -249,7 +249,7 @@ static int OPTIMIZE3 stress_skiplist(stress_args_t *args)
 		}
 
 		for (i = 0; i < n; i++) {
-			const unsigned long int v = (i >> 1) ^ i;
+			const uint32_t v = (i >> 1) ^ i;
 
 			if (UNLIKELY(!skip_list_insert(&list, v))) {
 				pr_inf("%s: out of memory initializing the skip list%s\n",
@@ -260,10 +260,10 @@ static int OPTIMIZE3 stress_skiplist(stress_args_t *args)
 		}
 
 		for (i = 0; i < n; i++) {
-			const unsigned long int v = (i >> 1) ^ i;
+			const uint32_t v = (i >> 1) ^ i;
 
 			if (UNLIKELY(!skip_list_search(&list, v))) {
-				pr_fail("%s node containing value %lu was not found\n",
+				pr_fail("%s node containing value %" PRIu32 " was not found\n",
 					args->name, v);
 				rc = EXIT_FAILURE;
 				skip_list_free(&list);
@@ -283,7 +283,7 @@ finish:
 }
 
 static const stress_opt_t opts[] = {
-	{ OPT_skiplist_size, "skiplist-size", TYPE_ID_UINT64, MIN_SKIPLIST_SIZE, MAX_SKIPLIST_SIZE, NULL },
+	{ OPT_skiplist_size, "skiplist-size", TYPE_ID_UINT32, MIN_SKIPLIST_SIZE, MAX_SKIPLIST_SIZE, NULL },
 	END_OPT,
 };
 
