@@ -219,12 +219,12 @@ static int stress_lockbus(stress_args_t *args)
 	timer_t timerid;
 	NOCLOBBER int timer_ret = -1;
 #endif
-#if defined(STRESS_ARCH_X86)
-	uint32_t *splitlock_ptr1, *splitlock_ptr2;
-	bool lockbus_nosplit = false;
 #if defined(HAVE_NUMA_LOCKBUS)
 	NOCLOBBER stress_numa_mask_t *numa_mask;
 #endif
+#if defined(STRESS_ARCH_X86)
+	uint32_t *splitlock_ptr1, *splitlock_ptr2;
+	bool lockbus_nosplit = false;
 
 	do_sigill = false;
 	(void)stress_get_setting("lockbus-nosplit", &lockbus_nosplit);
