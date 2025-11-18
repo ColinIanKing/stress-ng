@@ -3598,6 +3598,7 @@ static int syscall_mmap(void)
 				MAP_SHARED, syscall_fd, 0);
 		break;
 	case 11:
+	default:
 		ptr = mmap(NULL, syscall_page_size, PROT_WRITE,
 				MAP_SHARED, syscall_fd, 0);
 		break;

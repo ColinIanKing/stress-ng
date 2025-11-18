@@ -162,6 +162,7 @@ static void NORETURN stress_rmap_child(
 			}
 			break;
 		case 3:
+		default:
 			for (i = 0; i < MAPPINGS_MAX - 1; i++) {
 				if (mappings[i] != MAP_FAILED) {
 					if (UNLIKELY(!stress_bogo_inc_lock(args, counter_lock, false)))

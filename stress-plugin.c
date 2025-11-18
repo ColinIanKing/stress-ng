@@ -188,6 +188,8 @@ static void stress_plugin_so(const char *opt_name, const char *opt_arg, stress_t
 		case DT_SYMENT:
 			symentries = section->d_un.d_val;
 			break;
+		default:
+			break;
 		}
 	}
 

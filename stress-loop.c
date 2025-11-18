@@ -247,6 +247,7 @@ static int stress_loop(stress_args_t *args)
 			info.lo_encrypt_key_size = 0;
 			break;
 		case 1:
+		default:
 			info.lo_encrypt_type = LO_CRYPT_XOR;
 			stress_rndbuf(info.lo_encrypt_key, LO_KEY_SIZE);
 			info.lo_encrypt_key[LO_KEY_SIZE - 1] = '\0';

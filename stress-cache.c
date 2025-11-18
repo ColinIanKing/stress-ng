@@ -1217,6 +1217,7 @@ static int stress_cache(stress_args_t *args)
 		}
 		switch (r) {
 		case STRESS_CACHE_MIXED_OPS:
+		default:
 			if ((masked_flags) && (n_flags > 0)) {
 				cache_mixed_ops_funcs[flag_permutations[idx_flags]](args, inc, r, &i, &k, &metrics[STRESS_CACHE_MIXED_OPS]);
 				idx_flags++;

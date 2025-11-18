@@ -129,6 +129,8 @@ static const char * CONST stress_recv_func_str(const int sock_opts)
 		return "recvmsg";
 	case SOCKET_OPT_SENDMMSG:
 		return "recvmmsg";
+	default:
+		break;
 	}
 	return "unknown";
 }
@@ -367,6 +369,8 @@ static void stress_sock_invalid_recv(const int fd, const int opt)
 		VOID_RET(ssize_t, recvmmsg(~0, msgvec, MSGVEC_SIZE, 0, &ts));
 		break;
 #endif
+	default:
+		break;
 	}
 }
 
@@ -863,6 +867,9 @@ retry:
 				}
 				break;
 #endif
+			default:
+				n = 0;
+				break;
 			}
 			if (UNLIKELY(n <= 0)) {
 				if (n == 0)

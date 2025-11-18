@@ -119,6 +119,7 @@ static void stress_iomix_fsync_min_1Hz(const int fd)
 			(void)shim_fdatasync(fd);
 			break;
 		case 2:
+		default:
 			shim_sync();
 			break;
 		}

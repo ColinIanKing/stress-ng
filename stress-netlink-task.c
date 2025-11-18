@@ -191,6 +191,8 @@ static void OPTIMIZE3 stress_parse_payload(
 			}
 			*nivcsw = (uint64_t)t->nivcsw;
 			break;
+		default:
+			break;
 		}
 		len += new_len;
 		na = (struct nlattr *)(uintptr_t)((char *)na + new_len);

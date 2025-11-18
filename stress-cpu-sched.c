@@ -318,6 +318,7 @@ static void stress_cpu_sched_mix_pids(stress_pid_t *mix_pids, stress_pid_t *orig
 	register size_t j;
 
 	switch (stress_mwc8modn(3)) {
+	default:
 	case 0:
 		/* In order */
 		(void)memcpy(mix_pids, orig_pids, n * sizeof(*mix_pids));

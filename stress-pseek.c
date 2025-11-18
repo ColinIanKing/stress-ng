@@ -170,6 +170,8 @@ retry:
 		pr_fail("%s: write of %" PRIu64 " bytes only wrote %zd bytes\n",
 			args->name, info->pseek_io_size, ret);
 		return -1;
+	default:
+		break;
 	}
 	pr_fail("%s: write failed, errno=%d (%s)%s\n",
 		args->name, errno, strerror(errno), info->fs_type);
@@ -254,6 +256,8 @@ PRAGMA_UNROLL_N(4)
 		pr_fail("%s: read of %" PRIu64 " bytes only read %zd bytes\n",
 			args->name, info->pseek_io_size, ret);
 		return -1;
+	default:
+		break;
 	}
 	pr_fail("%s: read failed, errno=%d (%s)%s\n",
 		args->name, errno, strerror(errno), info->fs_type);

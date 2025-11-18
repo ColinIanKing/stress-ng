@@ -4120,6 +4120,7 @@ static inline int stress_enosys_parent(
 #endif
 		break;
 	case 4:
+	default:
 		/* Various bit masks */
 		for (number = 0x400; number; number <<= 1) {
 			if (UNLIKELY(!stress_continue(args)))

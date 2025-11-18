@@ -1533,6 +1533,8 @@ static int stress_zlib_inflate(
 						args->name, stress_zlib_err(ret));
 					(void)inflateEnd(&stream_inf);
 					goto zlib_checksum_error;
+				default:
+					break;
 				}
 
 				if (g_opt_flags & OPT_FLAGS_VERIFY) {

@@ -257,6 +257,8 @@ retry_bind:
 				goto retry_bind;
 			rc = EXIT_NO_RESOURCE;
 			goto err;
+		default:
+			break;
 		}
 		pr_fail("%s: %s (%s): bind failed, errno=%d (%s)\n",
 			args->name, info->name, info->type, errno, strerror(errno));
@@ -973,7 +975,6 @@ static int stress_af_alg(stress_args_t *args)
 					goto deinit;
 				break;
 			case CRYPTO_UNKNOWN:
-			default:
 				break;
 			}
 		}

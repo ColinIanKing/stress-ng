@@ -2455,6 +2455,8 @@ static void syscall_set_cwd_perms(const unsigned long int syscall_num)
 		VOID_RET(int, chown(current_context->dirfd.cwd, current_context->dirfd.uid, current_context->dirfd.gid));
 		break;
 #endif
+	default:
+		break;
 	}
 }
 

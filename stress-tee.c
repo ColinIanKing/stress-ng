@@ -295,6 +295,8 @@ static int stress_tee(stress_args_t *args)
 					args->name);
 				ret = EXIT_NO_RESOURCE;
 				goto tidy_child2;
+			default:
+				break;
 			}
 			pr_fail("%s: tee failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));

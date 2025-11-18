@@ -985,6 +985,7 @@ static void stress_filerace_acl_set(const int fd, const char *filename)
 			acl_set_qualifier(entry, &uid);
 			break;
 		case ACL_GROUP:
+		default:
 			acl_set_qualifier(entry, &gid);
 			break;
 		}

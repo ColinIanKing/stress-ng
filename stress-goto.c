@@ -251,6 +251,7 @@ static int OPTIMIZE_GOTO stress_goto(stress_args_t *args)
 		labels = labels_backward;
 		break;
 	case STRESS_GOTO_RANDOM:
+	default:
 		labels = labels_forward;
 		break;
 	}

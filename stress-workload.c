@@ -795,6 +795,7 @@ static int stress_workload_exercise(
 		}
 		break;
 	case STRESS_WORKLOAD_DIST_EVEN:
+	default:
 		scale = (double)workload_slice_us / (double)max_quanta;
 		for (i = 0; i < max_quanta; i++) {
 			workload[i].when_us = (double)i * scale;
