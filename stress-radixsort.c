@@ -104,7 +104,7 @@ static inline ALWAYS_INLINE int radix_strlen(const unsigned char *str, unsigned 
 	while (*ptr != endbyte)
 		ptr++;
 
-	return ptr - str;
+	return (int)(ptr - str);
 }
 
 static int radixsort_nonlibc(
