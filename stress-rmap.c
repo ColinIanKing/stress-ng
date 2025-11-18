@@ -57,7 +57,7 @@ static void MLOCKED_TEXT NORETURN stress_rmap_handler(int signum)
 
 static int OPTIMIZE3 stress_rmap_touch(
 	stress_args_t *args,
-	const int child_index,
+	const size_t child_index,
 	uint32_t *addr,
 	const size_t sz)
 {
@@ -94,7 +94,7 @@ PRAGMA_UNROLL_N(8)
 static void NORETURN stress_rmap_child(
 	stress_args_t *args,
 	const size_t page_size,
-	const int child_index,
+	const size_t child_index,
 	uint32_t *mappings[MAPPINGS_MAX])
 {
 	const size_t sz = MAPPING_PAGES * page_size;
