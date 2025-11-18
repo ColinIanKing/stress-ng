@@ -438,7 +438,7 @@ uint64_t OPTIMIZE3 stress_mwc64modn(const uint64_t max)
  *  stress_rndbuf()
  *	fill buffer with pseudorandom bytes
  */
-OPTIMIZE3 void stress_rndbuf(void *buf, const size_t len)
+void OPTIMIZE3 stress_rndbuf(void *buf, const size_t len)
 {
 	register char *ptr = (char *)buf;
 	register const char *end = ptr + len;
@@ -451,7 +451,7 @@ OPTIMIZE3 void stress_rndbuf(void *buf, const size_t len)
  *  stress_rndstr()
  *	generate pseudorandom string
  */
-OPTIMIZE3 void stress_rndstr(char *str, const size_t len)
+void OPTIMIZE3 stress_rndstr(char *str, const size_t len)
 {
 	/*
 	 * base64url alphabet.
@@ -493,7 +493,7 @@ OPTIMIZE3 void stress_rndstr(char *str, const size_t len)
  *	fill a uint8_t buffer full of random data
  *	buffer *must* be multiple of 4 bytes in size
  */
-OPTIMIZE3 void stress_uint8rnd4(uint8_t *data, const size_t len)
+void OPTIMIZE3 stress_uint8rnd4(uint8_t *data, const size_t len)
 {
 	register uint32_t *ptr32 = (uint32_t *)shim_assume_aligned(data, 4);
 	register uint32_t *ptr32end;
