@@ -75,7 +75,7 @@ typedef struct {
 } stress_tree_metrics_t;
 
 typedef void (*stress_tree_func)(stress_args_t *args,
-				 const size_t n,
+				 const uint32_t n,
 				 struct tree_node *data,
 				 stress_tree_metrics_t *metrics,
 				 int *rc);
@@ -197,12 +197,12 @@ RB_GENERATE(stress_rb_tree, tree_node, u.rb, tree_node_cmp_fwd)
 
 static void OPTIMIZE3 stress_tree_rb(
 	stress_args_t *args,
-	const size_t n,
+	const uint32_t n,
 	struct tree_node *nodes,
 	stress_tree_metrics_t *metrics,
 	int *rc)
 {
-	size_t i;
+	register uint32_t i;
 	register struct tree_node *node, *next;
 	struct tree_node *find;
 	double t;
@@ -226,7 +226,7 @@ PRAGMA_UNROLL_N(4)
 	for (node = nodes, i = 0; i < n; i++, node++) {
 		find = RB_FIND(stress_rb_tree, &rb_root, node);
 		if (UNLIKELY(!find)) {
-			pr_fail("%s: rb tree node #%zu not found\n",
+			pr_fail("%s: rb tree node #%" PRIu32 " not found\n",
 				args->name, i);
 			*rc = EXIT_FAILURE;
 		}
@@ -238,7 +238,7 @@ PRAGMA_UNROLL_N(4)
 		for (node = &nodes[n - 1], i = n - 1; node >= nodes; node--, i--) {
 			find = RB_FIND(stress_rb_tree, &rb_root, node);
 			if (UNLIKELY(!find)) {
-				pr_fail("%s: rb tree node #%zu not found\n",
+				pr_fail("%s: rb tree node #%" PRIu32 " not found\n",
 					args->name, i);
 				*rc = EXIT_FAILURE;
 			}
@@ -246,11 +246,11 @@ PRAGMA_UNROLL_N(4)
 		/* optional random find */
 PRAGMA_UNROLL_N(4)
 		for (i = 0; i < n; i++) {
-			const size_t j = stress_mwc32modn(n);
+			const uint32_t j = stress_mwc32modn(n);
 
 			find = RB_FIND(stress_rb_tree, &rb_root, &nodes[j]);
 			if (UNLIKELY(!find)) {
-				pr_fail("%s: rb tree node #%zu not found\n",
+				pr_fail("%s: rb tree node #%" PRIu32 " not found\n",
 					args->name, j);
 				*rc = EXIT_FAILURE;
 			}
@@ -274,12 +274,12 @@ SPLAY_GENERATE(stress_splay_tree, tree_node, u.splay, tree_node_cmp_fwd)
 
 static void OPTIMIZE3 stress_tree_splay(
 	stress_args_t *args,
-	const size_t n,
+	const uint32_t n,
 	struct tree_node *nodes,
 	stress_tree_metrics_t *metrics,
 	int *rc)
 {
-	size_t i;
+	register uint32_t i;
 	register struct tree_node *node, *next;
 	struct tree_node *find;
 	double t;
@@ -303,7 +303,7 @@ PRAGMA_UNROLL_N(4)
 	for (node = nodes, i = 0; i < n; i++, node++) {
 		find = SPLAY_FIND(stress_splay_tree, &splay_root, node);
 		if (UNLIKELY(!find)) {
-			pr_fail("%s: splay tree node #%zu not found\n",
+			pr_fail("%s: splay tree node #%" PRIu32 " not found\n",
 				args->name, i);
 			*rc = EXIT_FAILURE;
 		}
@@ -315,18 +315,18 @@ PRAGMA_UNROLL_N(4)
 		for (node = &nodes[n - 1], i = n - 1; node >= nodes; node--, i--) {
 			find = SPLAY_FIND(stress_splay_tree, &splay_root, node);
 			if (UNLIKELY(!find)) {
-				pr_fail("%s: splay tree node #%zu not found\n",
+				pr_fail("%s: splay tree node #%" PRIu32 " not found\n",
 					args->name, i);
 				*rc = EXIT_FAILURE;
 			}
 		}
 		/* optional random find */
 		for (i = 0; i < n; i++) {
-			const size_t j = stress_mwc32modn(n);
+			const uint32_t j = stress_mwc32modn(n);
 
 			find = SPLAY_FIND(stress_splay_tree, &splay_root, &nodes[j]);
 			if (UNLIKELY(!find)) {
-				pr_fail("%s: splay tree node #%zu not found\n",
+				pr_fail("%s: splay tree node #%" PRIu32 " not found\n",
 					args->name, j);
 				*rc = EXIT_FAILURE;
 			}
@@ -384,12 +384,12 @@ static void OPTIMIZE3 TARGET_CLONES binary_remove_tree(struct tree_node *node)
 
 static void OPTIMIZE3 stress_tree_binary(
 	stress_args_t *args,
-	const size_t n,
+	const uint32_t n,
 	struct tree_node *nodes,
 	stress_tree_metrics_t *metrics,
 	int *rc)
 {
-	size_t i;
+	register uint32_t i;
 	struct tree_node *node, *head = NULL;
 	const struct tree_node *find;
 	double t;
@@ -407,7 +407,7 @@ PRAGMA_UNROLL_N(4)
 	for (node = nodes, i = 0; i < n; i++, node++) {
 		find = binary_find(head, node);
 		if (UNLIKELY(!find)) {
-			pr_fail("%s: binary tree node #%zu not found\n",
+			pr_fail("%s: binary tree node #%" PRIu32 " not found\n",
 				args->name, i);
 			*rc = EXIT_FAILURE;
 		}
@@ -419,18 +419,18 @@ PRAGMA_UNROLL_N(4)
 		for (node = &nodes[n - 1], i = n - 1; node >= nodes; node--, i--) {
 			find = binary_find(head, node);
 			if (UNLIKELY(!find)) {
-				pr_fail("%s: binary tree node #%zu not found\n",
+				pr_fail("%s: binary tree node #%" PRIu32 " not found\n",
 					args->name, i);
 				*rc = EXIT_FAILURE;
 			}
 		}
 		/* optional random find */
 		for (i = 0; i < n; i++) {
-			const size_t j = stress_mwc32modn(n);
+			const uint32_t j = stress_mwc32modn(n);
 
 			find = binary_find(head, &nodes[j]);
 			if (UNLIKELY(!find)) {
-				pr_fail("%s: binary tree node #%zu not found\n",
+				pr_fail("%s: binary tree node #%" PRIu32 " not found\n",
 					args->name, j);
 				*rc = EXIT_FAILURE;
 			}
@@ -598,12 +598,12 @@ static void OPTIMIZE3 avl_remove_tree(struct tree_node *node)
 
 static void OPTIMIZE3 stress_tree_avl(
 	stress_args_t *args,
-	const size_t n,
+	const uint32_t n,
 	struct tree_node *nodes,
 	stress_tree_metrics_t *metrics,
 	int *rc)
 {
-	size_t i;
+	register uint32_t i;
 	struct tree_node *node, *head = NULL;
 	const struct tree_node *find;
 	double t;
@@ -621,7 +621,7 @@ PRAGMA_UNROLL_N(4)
 	for (node = nodes, i = 0; i < n; i++, node++) {
 		find = avl_find(head, node);
 		if (UNLIKELY(!find)) {
-			pr_fail("%s: avl tree node #%zu not found\n",
+			pr_fail("%s: avl tree node #%" PRIu32 " not found\n",
 				args->name, i);
 			*rc = EXIT_FAILURE;
 		}
@@ -633,18 +633,18 @@ PRAGMA_UNROLL_N(4)
 		for (node = &nodes[n - 1], i = n - 1; node >= nodes; node--, i--) {
 			find = avl_find(head, node);
 			if (UNLIKELY(!find)) {
-				pr_fail("%s: avl tree node #%zu not found\n",
+				pr_fail("%s: avl tree node #%" PRIu32 " not found\n",
 					args->name, i);
 				*rc = EXIT_FAILURE;
 			}
 		}
 		/* optional random find */
 		for (i = 0; i < n; i++) {
-			const size_t j = stress_mwc32modn(n);
+			const uint32_t j = stress_mwc32modn(n);
 
 			find = avl_find(head, &nodes[j]);
 			if (UNLIKELY(!find)) {
-				pr_fail("%s: avl tree node #%zu not found\n",
+				pr_fail("%s: avl tree node #%" PRIu32 " not found\n",
 					args->name, j);
 				*rc = EXIT_FAILURE;
 			}
@@ -823,12 +823,12 @@ static inline bool OPTIMIZE3 btree_find(btree_node_t *root, const uint32_t value
 
 static void stress_tree_btree(
 	stress_args_t *args,
-	const size_t n,
+	const uint32_t n,
 	struct tree_node *nodes,
 	stress_tree_metrics_t *metrics,
 	int *rc)
 {
-	size_t i;
+	register uint32_t i;
 	struct tree_node *node;
 	btree_node_t *root = NULL;
 	bool find;
@@ -838,7 +838,7 @@ static void stress_tree_btree(
 PRAGMA_UNROLL_N(4)
 	for (node = nodes, i = 0; i < n; i++, node++)
 		if (UNLIKELY(btree_insert(&root, node->value) == true)) {
-			pr_fail("%s: btree node #%zu allocation failure\n",
+			pr_fail("%s: btree node #%" PRIu32 " allocation failure\n",
 				args->name, i);
 			btree_remove_tree(&root);
 			return;
@@ -851,7 +851,7 @@ PRAGMA_UNROLL_N(4)
 	for (node = nodes, i = 0; i < n; i++, node++) {
 		find = btree_find(root, node->value);
 		if (UNLIKELY(!find)) {
-			pr_fail("%s: btree node #%zu not found\n",
+			pr_fail("%s: btree node #%" PRIu32 " not found\n",
 				args->name, i);
 			*rc = EXIT_FAILURE;
 		}
@@ -863,18 +863,18 @@ PRAGMA_UNROLL_N(4)
 		for (node = &nodes[n - 1], i = n - 1; node >= nodes; node--, i--) {
 			find = btree_find(root, node->value);
 			if (UNLIKELY(!find)) {
-				pr_fail("%s: btree node #%zu not found\n",
+				pr_fail("%s: btree node #%" PRIu32 " not found\n",
 					args->name, i);
 				*rc = EXIT_FAILURE;
 			}
 		}
 		/* optional random find */
 		for (i = 0; i < n; i++) {
-			const size_t j = stress_mwc32modn(n);
+			const uint32_t j = stress_mwc32modn(n);
 
 			find = btree_find(root, nodes[j].value);
 			if (UNLIKELY(!find)) {
-				pr_fail("%s: btree node #%zu not found\n",
+				pr_fail("%s: btree node #%" PRIu32 " not found\n",
 					args->name, j);
 				*rc = EXIT_FAILURE;
 			}
@@ -888,7 +888,7 @@ PRAGMA_UNROLL_N(4)
 
 static void stress_tree_all(
 	stress_args_t *args,
-	const size_t n,
+	const uint32_t n,
 	struct tree_node *nodes,
 	stress_tree_metrics_t *metrics,
 	int *rc);
@@ -913,12 +913,12 @@ static stress_tree_metrics_t stress_tree_metrics[SIZEOF_ARRAY(stress_tree_method
 
 static void stress_tree_all(
 	stress_args_t *args,
-	const size_t n,
+	const uint32_t n,
 	struct tree_node *nodes,
 	stress_tree_metrics_t *metrics,
 	int *rc)
 {
-	size_t i;
+	register uint32_t i;
 
 	(void)metrics;
 
@@ -934,16 +934,16 @@ static const char *stress_tree_method(const size_t i)
 
 static const stress_opt_t opts[] = {
 	{ OPT_tree_method, "tree-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_tree_method },
-	{ OPT_tree_size,   "tree-size",   TYPE_ID_UINT64, MIN_TREE_SIZE, MAX_TREE_SIZE, NULL },
+	{ OPT_tree_size,   "tree-size",   TYPE_ID_UINT32, MIN_TREE_SIZE, MAX_TREE_SIZE, NULL },
 	END_OPT,
 };
 
-static void OPTIMIZE3 TARGET_CLONES stress_tree_shuffle(struct tree_node *nodes, const size_t n)
+static void OPTIMIZE3 TARGET_CLONES stress_tree_shuffle(struct tree_node *nodes, const uint32_t n)
 {
 	register uint32_t const a = 16843009;
 	register uint32_t const c = 826366247;
 	register uint32_t seed = 99; //stress_mwc32();
-	register size_t i;
+	register uint32_t i;
 
 PRAGMA_UNROLL_N(4)
 	for (i = 0; i < n; i++) {
@@ -965,7 +965,7 @@ PRAGMA_UNROLL_N(4)
  */
 static int stress_tree(stress_args_t *args)
 {
-	uint64_t tree_size = DEFAULT_TREE_SIZE;
+	uint32_t tree_size = DEFAULT_TREE_SIZE;
 	struct tree_node *nodes;
 	size_t n, i, j, tree_method = 0;
 	int rc = EXIT_SUCCESS;
@@ -1023,15 +1023,15 @@ static int stress_tree(stress_args_t *args)
 
 	for (i = 0; i < n; i++)
 		nodes[i].value = (uint32_t)i;
-	stress_tree_shuffle(nodes, n);
+	stress_tree_shuffle(nodes, tree_size);
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		func(args, n, nodes, metrics, &rc);
-		stress_tree_shuffle(nodes, n);
+		func(args, tree_size, nodes, metrics, &rc);
+		stress_tree_shuffle(nodes, tree_size);
 
 		stress_bogo_inc(args);
 	} while ((rc == EXIT_SUCCESS) && stress_continue(args));
