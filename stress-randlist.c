@@ -149,7 +149,7 @@ static int stress_randlist(stress_args_t *args)
 	bool do_mmap = false;
 	bool randlist_compact = false;
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
-	size_t randlist_items = DEFAULT_RANDLIST_ITEMS;
+	uint32_t randlist_items = DEFAULT_RANDLIST_ITEMS;
 	size_t randlist_size = DEFAULT_RANDLIST_SIZE;
 	size_t heap_allocs = 0;
 	size_t mmap_allocs = 0;
@@ -172,9 +172,9 @@ static int stress_randlist(stress_args_t *args)
 	if (randlist_size >= args->page_size)
 		do_mmap = true;
 
-	ptrs = (stress_randlist_item_t **)calloc(randlist_items, sizeof(stress_randlist_item_t *));
+	ptrs = (stress_randlist_item_t **)calloc((size_t)randlist_items, sizeof(stress_randlist_item_t *));
 	if (!ptrs) {
-		pr_inf_skip("%s: cannot allocate %zu temporary pointers%s, skipping stressor\n",
+		pr_inf_skip("%s: cannot allocate %" PRIu32 " temporary pointers%s, skipping stressor\n",
 			args->name, randlist_items, stress_get_memfree_str());
 		return EXIT_NO_RESOURCE;
 	}
@@ -291,7 +291,7 @@ retry:
 
 static const stress_opt_t opts[] = {
 	{ OPT_randlist_compact,	"randlist-compact", TYPE_ID_BOOL, 0, 1, NULL },
-	{ OPT_randlist_items,	"randlist-items",   TYPE_ID_SIZE_T, MIN_RANDLIST_ITEMS, MAX_RANDLIST_ITEMS, NULL },
+	{ OPT_randlist_items,	"randlist-items",   TYPE_ID_UINT32, MIN_RANDLIST_ITEMS, MAX_RANDLIST_ITEMS, NULL },
 	{ OPT_randlist_size,	"randlist-size",    TYPE_ID_SIZE_T, MIN_RANDLIST_SIZE, MAX_RANDLIST_SIZE, NULL },
 	END_OPT,
 };
