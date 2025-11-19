@@ -529,7 +529,7 @@ static void stress_filerace_readahead(const int fd, const char *filename)
 	const size_t len = ((off_t)stress_mwc16()) & OFFSET_MASK;
 
 	(void)filename;
-	VOID_RET(int, readahead(fd, offset, len));
+	VOID_RET(ssize_t, readahead(fd, offset, len));
 }
 #endif
 
@@ -895,7 +895,7 @@ unmap:
 #if defined(F_SET_RW_HINT)
 static void stress_filerace_fcntl_rw_hint(const int fd, const char *filename)
 {
-	static const unsigned long hints[] = {
+	static const uint64_t hints[] = {
 #if defined(RWH_WRITE_LIFE_EXTREME)
 		RWH_WRITE_LIFE_EXTREME,
 #endif
@@ -916,7 +916,7 @@ static void stress_filerace_fcntl_rw_hint(const int fd, const char *filename)
 #endif
 		0UL,
 	};
-	const unsigned hint = hints[stress_mwc8modn((uint8_t)SIZEOF_ARRAY(hints))];
+	const uint64_t hint = hints[stress_mwcsizemodn(SIZEOF_ARRAY(hints))];
 
 	(void)filename;
 	VOID_RET(int, fcntl(fd, F_SET_RW_HINT, &hint));
