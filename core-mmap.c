@@ -48,7 +48,7 @@ void OPTIMIZE3 stress_mmap_set(
 	register uint64_t *ptr = (uint64_t *)shim_assume_aligned(buf, 8);
 	register const uint64_t *end = (uint64_t *)shim_assume_aligned((buf + sz), 8);
 #if defined(USE_ASM_X86_REP_STOSQ)
-        register const uint32_t loops = page_size / sizeof(uint64_t);
+        register const uint32_t loops = (uint32_t)(page_size / sizeof(uint64_t));
 #endif
 
 	while (ptr < end) {
