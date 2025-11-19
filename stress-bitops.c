@@ -757,11 +757,11 @@ static int OPTIMIZE3 stress_bitops_reverse(const char *name, uint32_t *count)
 		}
 
 		tmp = v;
-		tmp = (((tmp & 0xaaaaaaaaUL) >> 1)  | ((tmp & 0x55555555UL) << 1));
-		tmp = (((tmp & 0xccccccccUL) >> 2)  | ((tmp & 0x33333333UL) << 2));
-		tmp = (((tmp & 0xf0f0f0f0UL) >> 4)  | ((tmp & 0x0f0f0f0fUL) << 4));
-		tmp = (((tmp & 0xff00ff00UL) >> 8)  | ((tmp & 0x00ff00ffUL) << 8));
-		r2 =  (((tmp & 0xffff0000UL) >> 16) | ((tmp & 0x0000ffffUL) << 16));
+		tmp = (((tmp & 0xaaaaaaaaU) >> 1)  | ((tmp & 0x55555555U) << 1));
+		tmp = (((tmp & 0xccccccccU) >> 2)  | ((tmp & 0x33333333U) << 2));
+		tmp = (((tmp & 0xf0f0f0f0U) >> 4)  | ((tmp & 0x0f0f0f0fU) << 4));
+		tmp = (((tmp & 0xff00ff00U) >> 8)  | ((tmp & 0x00ff00ffU) << 8));
+		r2 =  (((tmp & 0xffff0000U) >> 16) | ((tmp & 0x0000ffffU) << 16));
 		sum += r2;
 		if (UNLIKELY(r1 != r2)) {
 			pr_fail("%s: reverse parallel method failure, value 0x%" PRIx32 ", r1 = 0x%" PRIx32 ", r2 = 0x%" PRIx32 "\n",
