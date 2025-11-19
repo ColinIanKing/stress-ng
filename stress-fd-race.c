@@ -81,7 +81,7 @@ typedef struct {
 	int socket_fd_port;		/* socket fd port */
 	size_t fds_size;		/* size of fd array in bytes */
 	int *fds;			/* pointer to fd array */
-	int n;				/* elements in fd array */
+	size_t n;			/* elements in fd array */
 	pthread_barrier_t barrier;	/* pthread sync barrier */
 	dev_t proc_dev;			/* /proc dev number */
 	dev_t dev_dev;			/* /dev dev number */
@@ -148,7 +148,7 @@ static void stress_fd_race_close_fds(
 			register size_t j;
 			register int tmp;
 
-			j = (size_t)stress_mwc32modn(n);
+			j = stress_mwcsizemodn(n);
 
 			tmp = fds[i];
 			fds[i] = fds[j];
@@ -247,7 +247,7 @@ static void *stress_fd_race_pthread(void *ptr)
 {
 	stress_fd_race_context *context = (stress_fd_race_context *)ptr;
 
-	int i;
+	size_t i;
 
 	stress_random_small_sleep();
 
