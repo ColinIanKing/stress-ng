@@ -439,7 +439,7 @@ static inline void stress_bad_ioctl_rw(
 #endif
 
 		(void)close(fd);
-		if ((thread_index >= 0) && (thread_index < MAX_DEV_THREADS)) {
+		if (thread_index < MAX_DEV_THREADS) {
 			ret = stress_lock_acquire(lock);
 			if (ret)
 				break;
