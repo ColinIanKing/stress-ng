@@ -43,6 +43,7 @@
 #define STRESS_VARYLOAD_TYPE_TRIANGLE	(2)
 #define STRESS_VARYLOAD_TYPE_PULSE	(3)
 #define STRESS_VARYLOAD_TYPE_RANDOM 	(4)
+#define STRESS_VARYLOAD_TYPE_BROWN	(5)
 
 #define STRESS_VARYLOAD_TYPE_DEFAULT	STRESS_VARYLOAD_TYPE_TRIANGLE
 #define STRESS_VARYLOAD_MS_DEFAULT	(1000)	/* 1 second */
@@ -65,11 +66,12 @@ static const stress_help_t help[] = {
 	{ NULL, "varyload-ms M",	"vary workload every M milliseconds" },
 	{ NULL, "varyload-sched P",	"select scheduler policy [ batch | deadline | ext | fifo | idle | rr | other ]" },
 	{ NULL, "varyload-method M",	"select a varyload method, default is all" },
-	{ NULL, "varyload-type T",	"select a varyload load type [ saw-inc, saw-dec | trigangle | pulse | random ]" },
+	{ NULL, "varyload-type T",	"select a varyload load type [ brown | saw-inc | saw-dec | triangle | pulse | random ]" },
 	{ NULL,	NULL,			NULL }
 };
 
 static const stress_varyload_type_t varyload_types[] = {
+	{ "brown",	STRESS_VARYLOAD_TYPE_BROWN },
 	{ "saw-inc",	STRESS_VARYLOAD_TYPE_SAW_INC },
 	{ "saw-dec",	STRESS_VARYLOAD_TYPE_SAW_DEC },
 	{ "triangle",	STRESS_VARYLOAD_TYPE_TRIANGLE },
@@ -461,6 +463,28 @@ redo:
 				else
 					stress_varyload_waste_time(args, varyload_method,
 						varyload_ms, buffer, buffer_len);
+			} while (stress_continue(args));
+			break;
+		case STRESS_VARYLOAD_TYPE_BROWN:
+			load = args->instances / 2;
+			do {
+				int32_t newload = load + stress_mwc8modn(3) - 1;
+
+				if (newload >= (int32_t)args->instances)
+					newload = (int32_t)args->instances;
+				if (newload < 1)
+					newload = 1;
+				load = (uint32_t)newload;
+
+				for (i = 1; i < load; i++)
+					(void)kill(pids[i], SIGCONT);
+				for (; i < args->instances; i++)
+					(void)kill(pids[i], SIGSTOP);
+				if (!stress_continue(args))
+					break;
+				stress_varyload_waste_time(args, varyload_method,
+					varyload_ms, buffer, buffer_len);
+
 			} while (stress_continue(args));
 			break;
 		default:
