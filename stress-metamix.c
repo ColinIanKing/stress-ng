@@ -362,7 +362,9 @@ static int stress_metamix(stress_args_t *args)
 	stress_mwc_get_seed(&w, &z);
 
 	for (i = 0; i < METAMIX_PROCS; i++) {
-		(void)stress_mwc_set_seed(w ^ i, z + i);
+		register uint32_t ui32 = (uint32_t)i;
+
+		(void)stress_mwc_set_seed(w ^ ui32, z + ui32);
 		(void)stress_mwc32();
 
 		stress_sync_start_init(&s_pids[i]);
