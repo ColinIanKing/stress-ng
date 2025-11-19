@@ -311,7 +311,7 @@ static void stress_filename_generate_random_normal(
 	size_t i;
 
 	for (i = 0; i < sz_max; i++) {
-		const size_t j = (size_t)stress_mwc32modn(chars_allowed);
+		const size_t j = stress_mwcsizemodn(chars_allowed);
 
 		filename[i] = allowed[j];
 	}
