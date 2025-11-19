@@ -133,7 +133,7 @@ static int stress_icache_func(stress_args_t *args, void *page, const size_t page
 					    PROT_READ | PROT_EXEC) < 0)
 				return EXIT_FAILURE;
 			icache_func();
-			(void)shim_cacheflush((char *)page, page_size, SHIM_ICACHE);
+			(void)shim_cacheflush((char *)page, (int)page_size, SHIM_ICACHE);
 		}
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
