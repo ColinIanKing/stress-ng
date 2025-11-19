@@ -44,7 +44,7 @@ static void OPTIMIZE3 * fibsearch(
 	register size_t fib0 = fib2 + fib1;
 	register ssize_t n = nmemb - 1;
 	register void *ptr;
-	register int offset = -1;
+	register ssize_t offset = -1;
 
 	while (fib0 < nmemb) {
 		fib2 = fib1;
