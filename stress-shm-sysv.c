@@ -585,7 +585,7 @@ retry:
 
 		/* Get a unique random key */
 		offset = (args->instance * keys_per_instance) +
-		         (segment * keys_per_segment) +
+		         ((int)segment * keys_per_segment) +
 		         stress_mwc32modn(keys_per_segment);
 		/* Key should never exceed MAX_SHM_KEYS */
 		new_key = offset & (MAX_SHM_KEYS - 1);
@@ -637,7 +637,7 @@ static int stress_shm_sysv_child(
 	double shmget_duration = 0.0, shmget_count = 0.0;
 	double shmat_duration = 0.0, shmat_count = 0.0;
 	double shmdt_duration = 0.0, shmdt_count = 0.0;
-	uint32_t seg_space = args->instances * shm_sysv_segments;
+	uint32_t seg_space = args->instances * (int)shm_sysv_segments;
 	uint32_t max_keys = (seg_space > 0) ? (uint32_t)MAX_SHM_KEYS / seg_space : 1;
 	const uint32_t keys_per_instance = MAX_SHM_KEYS / args->instances;
 	const uint32_t keys_per_segment = (shm_sysv_segments > 0) ? keys_per_instance / shm_sysv_segments : 1;
