@@ -573,7 +573,7 @@ PRAGMA_UNROLL_N(4)
  */
 uint32_t PURE OPTIMIZE3 stress_hash_mulxror32(const char *str, const size_t len)
 {
-	register uint32_t hash = len;
+	register uint32_t hash = (uint32_t)len;
 	register size_t i;
 
 PRAGMA_UNROLL_N(4)
