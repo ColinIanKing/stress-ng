@@ -539,7 +539,7 @@ static void stress_thrash_move_pages(stress_numa_mask_t *numa_nodes)
 			node = stress_numa_next_node(node, numa_nodes);
 			if (LIKELY(node < INT_MAX)) {
 				pages[0] = (void *)off;
-				nodes[0] = node;
+				nodes[0] = (int)node;
 				states[0] = 0;
 
 				if (shim_move_pages(parent_pid, 1, pages, nodes, states, flag) < 0) {
