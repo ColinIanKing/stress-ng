@@ -224,7 +224,7 @@ static void stress_cgroup_read(const char *path)
 		const off_t offset = (off_t)stress_mwc32modn((uint32_t)len);
 
 		if (lseek(fd, offset, SEEK_SET) >= 0)
-			VOID_RET(int, read(fd, buf, sizeof(buf)));
+			VOID_RET(ssize_t, read(fd, buf, sizeof(buf)));
 	}
 
 	(void)close(fd);
