@@ -122,7 +122,7 @@ static inline OPTIMIZE3 void stress_memthrash_random_chunk(
 		chunks = 1;
 
 	for (i = 0; !thread_terminate && (i < max); i++) {
-		const size_t chunk = stress_mwc32modn(chunks);
+		const size_t chunk = stress_mwcsizemodn(chunks);
 		const size_t offset = chunk * chunk_size;
 		void *ptr = (void *)(((uint8_t *)mem) + offset);
 
@@ -369,8 +369,8 @@ static void OPTIMIZE3 stress_memthrash_swap(
 	const size_t mem_size)
 {
 	size_t i;
-	register size_t offset1 = stress_mwc32modn(mem_size);
-	register size_t offset2 = stress_mwc32modn(mem_size);
+	register size_t offset1 = stress_mwcsizemodn(mem_size);
+	register size_t offset2 = stress_mwcsizemodn(mem_size);
 	uint8_t *mem_u8 = (uint8_t *)mem;
 
 	(void)context;
@@ -431,7 +431,7 @@ static void OPTIMIZE3 stress_memthrash_prefetch(
 	switch (locality) {
 	case 1:
 		for (i = 0; !thread_terminate && (i < max); i++) {
-			size_t offset = stress_mwc32modn(mem_size);
+			size_t offset = stress_mwcsizemodn(mem_size);
 			uint8_t *const ptr = ((uint8_t *)mem) + offset;
 			volatile uint8_t *const vptr = ptr;
 
@@ -442,7 +442,7 @@ static void OPTIMIZE3 stress_memthrash_prefetch(
 		break;
 	case 2:
 		for (i = 0; !thread_terminate && (i < max); i++) {
-			size_t offset = stress_mwc32modn(mem_size);
+			size_t offset = stress_mwcsizemodn(mem_size);
 			uint8_t *const ptr = ((uint8_t *)mem) + offset;
 			volatile uint8_t *const vptr = ptr;
 
@@ -454,7 +454,7 @@ static void OPTIMIZE3 stress_memthrash_prefetch(
 	case 3:
 	default:
 		for (i = 0; !thread_terminate && (i < max); i++) {
-			size_t offset = stress_mwc32modn(mem_size);
+			size_t offset = stress_mwcsizemodn(mem_size);
 			uint8_t *const ptr = ((uint8_t *)mem) + offset;
 			volatile uint8_t *const vptr = ptr;
 
@@ -477,7 +477,7 @@ static void OPTIMIZE3 stress_memthrash_flush(
 	(void)context;
 
 	for (i = 0; !thread_terminate && (i < max); i++) {
-		size_t offset = stress_mwc32modn(mem_size);
+		size_t offset = stress_mwcsizemodn(mem_size);
 		uint8_t *const ptr = ((uint8_t *)mem) + offset;
 		volatile uint8_t *const vptr = ptr;
 
@@ -497,7 +497,7 @@ static void OPTIMIZE3 stress_memthrash_mfence(
 	(void)context;
 
 	for (i = 0; !thread_terminate && (i < max); i++) {
-		size_t offset = stress_mwc32modn(mem_size);
+		size_t offset = stress_mwcsizemodn(mem_size);
 		volatile uint8_t *ptr = ((uint8_t *)mem) + offset;
 
 		*ptr = i & 0xff;
@@ -515,7 +515,7 @@ static void OPTIMIZE3 stress_memthrash_lock(
 	(void)context;
 
 	for (i = 0; !thread_terminate && (i < 64); i++) {
-		size_t offset = stress_mwc32modn(mem_size);
+		size_t offset = stress_mwcsizemodn(mem_size);
 		volatile uint8_t *ptr = ((uint8_t *)mem) + offset;
 
 		MEM_LOCK(ptr, 1);
@@ -530,7 +530,7 @@ static void OPTIMIZE3 stress_memthrash_spinread(
 	uint32_t i;
 	volatile uint32_t *ptr;
 	const size_t size = mem_size - (8 * sizeof(*ptr));
-	const size_t offset = stress_mwc32modn(size) & ~(size_t)3;
+	const size_t offset = stress_mwcsizemodn(size) & ~(size_t)3;
 
 	(void)context;
 
@@ -582,7 +582,7 @@ static void OPTIMIZE3 stress_memthrash_spinwrite(
 	uint32_t i;
 	volatile uint32_t *ptr;
 	const size_t size = mem_size - (8 * sizeof(*ptr));
-	const size_t offset = stress_mwc32modn(size) & ~(size_t)3;
+	const size_t offset = stress_mwcsizemodn(size) & ~(size_t)3;
 
 	(void)context;
 
@@ -719,7 +719,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_memthrash_numa(
 	if (!numa_mask)
 		return;
 
-	node = (unsigned long int)stress_mwc32modn((uint32_t)numa_mask->nodes);
+	node = (unsigned long int)stress_mwcsizemodn((uint32_t)numa_mask->nodes);
 	(void)shim_memset(numa_mask->mask, 0, numa_mask->mask_size);
 
 	for (ptr = (uint8_t *)mem; ptr < end; ptr += page_size) {
