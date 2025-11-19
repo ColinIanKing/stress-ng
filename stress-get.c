@@ -638,10 +638,10 @@ static int stress_getcpu(stress_args_t *args)
 {
 	unsigned cpu, node;
 
-	VOID_RET(int, shim_getcpu(&cpu, &node, NULL));
-	VOID_RET(int, shim_getcpu(NULL, &node, NULL));
-	VOID_RET(int, shim_getcpu(&cpu, NULL, NULL));
-	VOID_RET(int, shim_getcpu(NULL, NULL, NULL));
+	VOID_RET(long int, shim_getcpu(&cpu, &node, NULL));
+	VOID_RET(long int, shim_getcpu(NULL, &node, NULL));
+	VOID_RET(long int, shim_getcpu(&cpu, NULL, NULL));
+	VOID_RET(long int, shim_getcpu(NULL, NULL, NULL));
 
 	(void)args;
 
