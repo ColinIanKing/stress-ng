@@ -95,7 +95,7 @@ static inline void stress_far_branch_page_flush(void *page, const size_t page_si
 	}
 
 	shim_flush_icache((char *)page, (char *)page + page_size);
-	(void)shim_cacheflush((char *)page, page_size, SHIM_ICACHE);
+	(void)shim_cacheflush((char *)page, (int)page_size, SHIM_ICACHE);
 	(void)mprotect(page, page_size, PROT_READ | PROT_EXEC);
 }
 
@@ -307,7 +307,7 @@ use_page:
 
 do_prot:
 	(void)mprotect((void *)ptr, page_size, PROT_READ | PROT_EXEC);
-	(void)shim_cacheflush((char *)ptr, page_size, SHIM_ICACHE);
+	(void)shim_cacheflush((char *)ptr, (int)page_size, SHIM_ICACHE);
 	(*total_funcs) += n;
 	return ptr;
 }
@@ -331,7 +331,7 @@ static inline void stress_far_branch_shuffle(
 	register size_t i;
 
 	for (i = 0; i < total_funcs; i += stride) {
-		register const size_t k = stress_mwc32modn(total_funcs);
+		register const size_t k = stress_mwcsizemodn(total_funcs);
 		register stress_ret_func_t tmp;
 
 		tmp = funcs[i];
