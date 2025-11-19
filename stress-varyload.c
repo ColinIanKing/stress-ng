@@ -274,7 +274,7 @@ static void stress_varyload_waste_time(
 	double t_end = stress_time_now() + (0.001 * (double)varyload_ms);
 
 	do {
-		stress_workload_waste_time(workload_method, 0.001, buffer, buffer_len);
+		stress_workload_waste_time(args->name, workload_method, 0.001, buffer, buffer_len);
 		stress_bogo_inc(args);
 	} while (stress_continue_flag() && (stress_time_now() < t_end));
 }

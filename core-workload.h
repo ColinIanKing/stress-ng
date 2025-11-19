@@ -43,8 +43,8 @@ typedef struct {
 
 extern const stress_workload_method_t workload_methods[];
 extern const char *stress_workload_method(const size_t i);
-extern void stress_workload_waste_time(const int workload_method,
-	const double run_duration_sec, uint8_t *buffer,
-	const size_t buffer_len);
+extern void stress_workload_waste_time(const char *name,
+	const int workload_method, const double run_duration_sec,
+	uint8_t *buffer, const size_t buffer_len);
 
 #endif

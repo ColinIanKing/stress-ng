@@ -141,13 +141,13 @@ static void stress_workload_pause(void)
 #endif
 }
 
-static void stress_workload_procname(void)
+static void stress_workload_procname(const char *name)
 {
 	char procname[64];
 
 	(void)snprintf(procname, sizeof(procname),
-		"workload-%" PRIx64 "%" PRIx64 "%" PRIx64,
-		stress_mwc64(), stress_mwc64(), stress_mwc64());
+		"%s-%" PRIx64 "%" PRIx64 "%" PRIx64,
+		name, stress_mwc64(), stress_mwc64(), stress_mwc64());
 	stress_set_proc_name(procname);
 }
 
@@ -258,6 +258,7 @@ static void TARGET_CLONES stress_workload_vecfp(void)
 }
 
 void stress_workload_waste_time(
+	const char *name,
 	const int workload_method,
 	const double run_duration_sec,
 	uint8_t *buffer,
@@ -320,7 +321,7 @@ void stress_workload_waste_time(
 		break;
 	case STRESS_WORKLOAD_METHOD_PROCNAME:
 		while (stress_time_now() < t_end)
-			stress_workload_procname();
+			stress_workload_procname(name);
 		break;
 	case STRESS_WORKLOAD_METHOD_RANDOM:
 	default:
@@ -364,7 +365,7 @@ void stress_workload_waste_time(
 				break;
 			default:
 			case STRESS_WORKLOAD_METHOD_PROCNAME:
-				stress_workload_procname();
+				stress_workload_procname(name);
 				break;
 			}
 		}

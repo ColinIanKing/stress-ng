@@ -58,6 +58,7 @@ typedef struct {
 
 #if defined(WORKLOAD_THREADED)
 typedef struct {
+	stress_args_t *args;
 	mqd_t	mq;
 	uint8_t *buffer;
 	size_t buffer_len;
@@ -474,10 +475,10 @@ static int stress_workload_exercise(
 				if (sleep_secs > 0.0)
 					(void)shim_nanosleep_uint64((uint64_t)(sleep_secs * STRESS_DBL_NANOSECOND));
 #else
-				stress_workload_waste_time(workload_method, run_duration_sec, buffer, buffer_len);
+				stress_workload_waste_time(args->name, workload_method, run_duration_sec, buffer, buffer_len);
 #endif
 			} else {
-				stress_workload_waste_time(workload_method, run_duration_sec, buffer, buffer_len);
+				stress_workload_waste_time(args->name, workload_method, run_duration_sec, buffer, buffer_len);
 			}
 		}
 		stress_bogo_inc(args);
@@ -501,7 +502,7 @@ static void *stress_workload_thread(void *ctxt)
 
 		ret = mq_receive(c->mq, (char *)&wl, sizeof(wl), &prio);
 		if (ret == sizeof(wl))
-			stress_workload_waste_time(c->workload_method, wl.run_duration_sec, c->buffer, c->buffer_len);
+			stress_workload_waste_time(c->args->name, c->workload_method, wl.run_duration_sec, c->buffer, c->buffer_len);
 		else {
 			if ((errno == EINTR) || (errno == ETIMEDOUT)) {
 				continue;
@@ -603,6 +604,7 @@ static int stress_workload(stress_args_t *args)
 			goto exit_close_mq;
 		}
 
+		c.args = args;
 		c.buffer = buffer;
 		c.buffer_len = buffer_len;
 		c.workload_method = workload_method;
