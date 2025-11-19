@@ -564,7 +564,7 @@ static int stress_cpu_sched_next_cpu_idx(const int instance, const int last_cpu_
 		return (int)(now.tv_sec % (time_t)n_cpus);
 	case 4:
 		/* instance and seconds past EPOCH */
-		return (instance + (now.tv_sec / 12)) % n_cpus;
+		return (instance + (int)(now.tv_sec / 12)) % n_cpus;
 	case 5:
 		/* stride n_cpus by instance number */
 		return (last_cpu_idx + instance + 1) % n_cpus;
