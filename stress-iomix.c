@@ -1044,7 +1044,7 @@ static void stress_iomix_readahead(
 		const off_t offset = stress_iomix_rnd_offset(iomix_bytes);
 		const size_t len = 512 * stress_mwc8modn(16);
 
-		VOID_RET(int, readahead(fd, offset, len));
+		VOID_RET(ssize_t, readahead(fd, offset, len));
 
 		(void)shim_usleep(stress_mwc32modn(2000000));
 		if (UNLIKELY(!stress_bogo_inc_lock(args, counter_lock, true)))
