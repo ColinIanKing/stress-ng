@@ -369,8 +369,8 @@ redo:
 
 	if (stress_instance_zero(args)) {
 		pr_inf("%s: using load method '%s', load type '%s', varying every %" PRIu32 "ms\n",
-			args->name, workload_methods[varyload_method].name,
-			varyload_types[varyload_type].name,
+			args->name, workload_methods[varyload_method_idx].name,
+			varyload_types[varyload_type_idx].name,
 			varyload_ms);
 	}
 
