@@ -363,6 +363,7 @@ HEADERS = \
 	core-vecmath.h \
 	core-version.h \
 	core-vmstat.h \
+	core-workload.h \
 	stress-af-alg-defconfigs.h \
 	stress-eigen-ops.h \
 	stress-ng.h
@@ -438,6 +439,7 @@ CORE_SRC = \
 	core-ftrace.c \
 	core-try-open.c \
 	core-vmstat.c \
+	core-workload.c \
 	stress-ng.c
 
 #
