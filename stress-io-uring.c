@@ -609,7 +609,7 @@ static void OPTIMIZE3 stress_io_uring_read_setup(
 	sqe->fd = io_uring_file->fd;
 	sqe->opcode = IORING_OP_READ;
 	sqe->addr = (uintptr_t)io_uring_file->iovecs[0].iov_base;
-	sqe->len = io_uring_file->iovecs[0].iov_len;
+	sqe->len = (uint32_t)io_uring_file->iovecs[0].iov_len;
 	sqe->off = (uint64_t)io_uring_rand ?
 			(stress_mwc8() * io_uring_file->blocks) : 0;
 }
@@ -631,7 +631,7 @@ static void OPTIMIZE3 stress_io_uring_write_setup(
 	sqe->fd = io_uring_file->fd;
 	sqe->opcode = IORING_OP_WRITE;
 	sqe->addr = (uintptr_t)io_uring_file->iovecs[0].iov_base;
-	sqe->len = io_uring_file->iovecs[0].iov_len;
+	sqe->len = (uint32_t)io_uring_file->iovecs[0].iov_len;
 	sqe->off = (uint64_t)io_uring_rand ?
 			(stress_mwc8() * io_uring_file->blocks) : 0;
 }
