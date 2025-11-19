@@ -1660,7 +1660,7 @@ static int OPTIMIZE3 stress_cachehammer(stress_args_t *args)
 	const size_t buffer_size = (size_t)g_shared->mem_cache.size;
 	const size_t local_buffer_size = buffer_size * 4;
 	const uint32_t mask = ~0x3f;
-	const uint32_t page_mask = (page_size - 1) & ~0x3f;
+	const uint32_t page_mask = (uint32_t)((page_size - 1) & ~0x3f);
 	size_t i, j;
 	NOCLOBBER size_t tries = 0;
 	char buf[1024];
