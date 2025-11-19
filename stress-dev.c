@@ -3757,7 +3757,7 @@ static void stress_dev_autofs_linux(
 		info->ioctlfd = -1;
 		(void)shim_strscpy(info->path, tmp, tmp_len);
 		info->ismountpoint.in.type = AUTOFS_TYPE_ANY;
-		info->size = size;
+		info->size = (uint32_t)size;
 		VOID_RET(int, ioctl(fd, AUTOFS_DEV_IOCTL_ISMOUNTPOINT, info));
 	}
 	free(info);
