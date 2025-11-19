@@ -69,7 +69,7 @@ typedef struct {
 	pthread_t	pthread;
 	stress_pthread_args_t pa;
 	int		ret;
-	int		thread_index;
+	size_t		thread_index;
 } stress_bad_ioctl_thread_t;
 
 typedef struct dev_ioctl_info {
@@ -237,7 +237,7 @@ static void NORETURN MLOCKED_TEXT stress_segv_handler(int signum)
 static inline void stress_bad_ioctl_rw(
 	stress_args_t *args,
 	const bool is_pthread,
-	const int thread_index)
+	const size_t thread_index)
 {
 	const double threshold = 0.25;
 	const size_t page_size = args->page_size;
