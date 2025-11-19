@@ -439,8 +439,8 @@ static int stress_prio_inv(stress_args_t *args)
 	for (i = 0; i < MUTEX_PROCS; i++) {
 		pid_t pid;
 
-		child_info[i].prio = prio_min + (prio_div * i);
-		child_info[i].niceness = nice_max + (nice_div * i);
+		child_info[i].prio = prio_min + (prio_div * (int)i);
+		child_info[i].niceness = nice_max + (nice_div * (int)i);
 		child_info[i].usage = 0.0;
 		child_info[i].pid = -1;
 
