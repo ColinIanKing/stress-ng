@@ -103,4 +103,15 @@ static inline uint64_t stress_mwc64modn(const uint64_t max)
 extern uint64_t stress_mwc64modn(const uint64_t max);
 #endif
 
+/*
+ *  stress_mwcsizemodn()
+ *	return size_t sized non-modulo biased value 1..max (inclusive)
+ */
+static inline size_t stress_mwcsizemodn(const size_t max)
+{
+	return (SIZE_MAX <= 0xffffffffUL) ?
+		(size_t)stress_mwc32modn((uint32_t)max) :
+		(size_t)stress_mwc64modn((uint64_t)max);
+}
+
 #endif
