@@ -667,7 +667,7 @@ typedef struct {
 	} atomic ALIGN64;		/* Shared atomic temp vars */
 	struct {
 		void *lock;
-		int64_t row;
+		int32_t row;
 	} fractal;			/* Fractal stressor row state */
 	struct {
 		/* futexes must be aligned to avoid -EINVAL */
