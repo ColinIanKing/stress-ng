@@ -793,6 +793,7 @@ STRESS_SRC = \
 	stress-userfaultfd.c \
 	stress-usersyscall.c \
 	stress-utime.c \
+	stress-varyload.c \
 	stress-vdso.c \
 	stress-veccmp.c \
 	stress-vecfp.c \

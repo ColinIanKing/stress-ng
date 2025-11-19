@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "30 October 2025"
+.TH STRESS-NG 1 "19 November 2025"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -9217,6 +9217,110 @@ writes.
 .TP
 .B \-\-utime\-ops N
 stop utime stress workers after N utime bogo operations.
+.RE
+.TP
+.B Varying load stressor
+.RS 5
+.TQ
+.B \-\-varyload N
+start N workers that vary the system load using 1 to N runnable varyload
+stressor instances. Depending on the \-\-varyload\-type the number of
+varyload instances running at any moment of time is changed to scale up
+or scale down the running load. Varyload instances are temporarily stopped
+and started by a controlling instance sending SIGSTOP and SIGCONT signals
+to these processes.
+.TP
+.B \-\-varyload\-ops N
+stop ater N varyload 1ms bogo cycles
+.TP
+.B \-\-varyload\-ms M
+vary the load every M milliseconds (from 1 to 3600000 milliseconds). The
+load is changed based on the \-\-varyload\-type option.
+.TP
+.B \-\-varyload\-sched P
+select the scheduler policy, may be one of batch, deadline, ext, fifo, idle,
+rr or other.
+.TP
+.B \-\-varyload\-method M
+select CPU loading method. The available methods are described as follows:
+.sp
+.TS
+lB2 lB
+l lx.
+Method  Description
+all	T{
+randomly select any one of all the following methods:
+T}
+fma	T{
+perform multiply-add operations, on modern processors these may be compiled
+into fused-multiply-add instructions.
+T}
+getpid	T{
+get the stressor's PID via getpid(2).
+T}
+time	T{
+get the current time via time(2).
+T}
+inc64	T{
+increment a 64 bit integer.
+T}
+memmove	T{
+copy (move) a 1 MB buffer using memmove(3).
+T}
+memread	T{
+read from a 1 MB buffer using fast memory reads.
+T}
+memset	T{
+write to a 1 MB buffer using memset(3).
+T}
+mcw64	T{
+compute 64 bit random numbers using a mwc random generator.
+T}
+nop	T{
+waste cycles using no-op instructions.
+T}
+pause	T{
+stop execution using CPU pause/yield or memory barrier instructions where available.
+T}
+procname	T{
+where possible, change the stressor process name.
+T}
+random	T{
+a random mix of all the workload methods, changing the workload method on every spin-loop.
+T}
+sqrt	T{
+perform double precision floating point sqrt(3) and hypot(3) math operations.
+T}
+vecfp	T{
+perform multiplication and addition on a vector of 64 double precision floating point
+values.
+T}
+.TE
+.TP
+.B \-\-varyload\-type T
+select the varying load type. The available types are described as follows:
+.sp
+.TS
+lB2 lB
+l lx.
+Type	Description
+trigangle	T{
+repeatedly vary the load from 1 up to N and then down to 1 in increments of 1.
+T}
+saw-inc	T{
+repeatedly vary the load from 1 to N in increments of 1 and then directly back down to 1.
+T}
+saw-dec	T{
+repeatedly vary the load from N down to 1 in decrements of 1 and then directly back up to N.
+T}
+pulse	T{
+repeatedly vary the load directly from 1 to N and then directly back down to 1.
+T}
+random	T{
+randomly select load in range 1..N.
+T}
+.TE
+.TP
 .RE
 .TP
 .B Virtual dynamic shared object stressor

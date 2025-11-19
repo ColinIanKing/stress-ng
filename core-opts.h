@@ -1703,6 +1703,13 @@ typedef enum {
 	OPT_utime_ops,
 	OPT_utime_fsync,
 
+	OPT_varyload,
+	OPT_varyload_method,
+	OPT_varyload_ms,
+	OPT_varyload_ops,
+	OPT_varyload_sched,
+	OPT_varyload_type,
+
 	OPT_vdso,
 	OPT_vdso_ops,
 	OPT_vdso_func,

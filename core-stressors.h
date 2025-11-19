@@ -367,6 +367,7 @@
 	MACRO(userfaultfd)	\
 	MACRO(usersyscall)	\
 	MACRO(utime)		\
+	MACRO(varyload)		\
 	MACRO(vdso)		\
 	MACRO(veccmp)		\
 	MACRO(vecfp)		\
