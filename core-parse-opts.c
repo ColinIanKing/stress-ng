@@ -449,7 +449,7 @@ static const stress_scale_t size_scales[] = {
 uint64_t stress_get_uint64_byte_scale(const char *const str)
 {
 	int ch, i;
-	const int len = strlen(str);
+	const size_t len = strlen(str);
 
 	if (len < 1) {
 		(void)fprintf(stderr, "Illegal empty specifier\n");
