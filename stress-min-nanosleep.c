@@ -383,9 +383,9 @@ static int stress_min_nanosleep(stress_args_t *args)
 				dt_nsec /= j;
 
 				if (delay->min_nsec > dt_nsec)
-					delay->min_nsec = dt_nsec;
+					delay->min_nsec = (uint32_t)dt_nsec;
 				if (delay->max_nsec < dt_nsec)
-					delay->max_nsec = dt_nsec;
+					delay->max_nsec = (uint32_t)dt_nsec;
 				delay->count++;
 				delay->sum_nsec += dt_nsec;
 				delay->updated = true;
