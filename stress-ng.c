@@ -3391,7 +3391,7 @@ next_opt:
 			stress_set_setting_global("sched-deadline", TYPE_ID_UINT64, &u64);
 			break;
 		case OPT_sched_reclaim:
-			g_opt_flags |= OPT_FLAGS_DEADLINE_GRUB;
+			g_opt_flags |= OPT_FLAGS_SCHED_RECLAIM;
 			break;
 		case OPT_seed:
 			u64 = stress_get_uint64(optarg);

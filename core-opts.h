@@ -60,7 +60,7 @@
 #define OPT_FLAGS_OOMABLE	 STRESS_BIT_ULL(29)	/* --oomable */
 #define OPT_FLAGS_ABORT		 STRESS_BIT_ULL(30)	/* --abort */
 #define OPT_FLAGS_TIMESTAMP	 STRESS_BIT_ULL(31)	/* --timestamp */
-#define OPT_FLAGS_DEADLINE_GRUB  STRESS_BIT_ULL(32)	/* --sched-reclaim */
+#define OPT_FLAGS_SCHED_RECLAIM  STRESS_BIT_ULL(32)	/* --sched-reclaim */
 #define OPT_FLAGS_FTRACE	 STRESS_BIT_ULL(33)	/* --ftrace */
 #define OPT_FLAGS_SEED		 STRESS_BIT_ULL(34)	/* --seed */
 #define OPT_FLAGS_SKIP_SILENT	 STRESS_BIT_ULL(35)	/* --skip-silent */
