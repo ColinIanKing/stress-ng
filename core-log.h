@@ -21,6 +21,25 @@
 
 #include "core-attribute.h"
 
+/* pr_* bit masks, stored in g_pr_log_flags */
+#define PR_LOG_FLAGS_ERROR	 STRESS_BIT_ULL(0)	/* Print errors */
+#define PR_LOG_FLAGS_INFO	 STRESS_BIT_ULL(1)	/* Print info */
+#define PR_LOG_FLAGS_DEBUG	 STRESS_BIT_ULL(2) 	/* Print debug */
+#define PR_LOG_FLAGS_FAIL	 STRESS_BIT_ULL(3) 	/* Print test failure message */
+#define PR_LOG_FLAGS_WARN	 STRESS_BIT_ULL(4)	/* Print warning */
+#define PR_LOG_FLAGS_METRICS	 STRESS_BIT_ULL(5)	/* Print metrics */
+#define PR_LOG_FLAGS_STDOUT	 STRESS_BIT_ULL(6)	/* --stdout */
+#define PR_LOG_FLAGS_STDERR	 STRESS_BIT_ULL(7)	/* --stdout */
+#define PR_LOG_FLAGS_BRIEF	 STRESS_BIT_ULL(8)	/* --log-brief */
+#define PR_LOG_FLAGS_LOCKLESS	 STRESS_BIT_ULL(9)	/* --log-lockless */
+#define PR_LOG_FLAGS_SKIP_SILENT STRESS_BIT_ULL(10)	/* --skip-silent */
+#define PR_LOG_FLAGS_TIMESTAMP   STRESS_BIT_ULL(11)	/* --timestamp */
+#define PR_LOG_FLAGS_SYSLOG	 STRESS_BIT_ULL(12)	/* --syslog */
+
+#define PR_LOG_FLAGS_ALL	 (PR_LOG_FLAGS_ERROR | PR_LOG_FLAGS_INFO | \
+				  PR_LOG_FLAGS_DEBUG | PR_LOG_FLAGS_FAIL | \
+				  PR_LOG_FLAGS_WARN  | PR_LOG_FLAGS_METRICS)
+
 extern WARN_UNUSED int pr_fd(void);
 extern void pr_block_begin(void);
 extern void pr_block_end(void);

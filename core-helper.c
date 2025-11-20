@@ -741,7 +741,7 @@ void stress_runinfo(void)
     defined(HAVE_SYS_UTSNAME_H)
 	struct utsname uts;
 #endif
-	if (!(g_opt_flags & OPT_FLAGS_PR_DEBUG))
+	if (!(g_pr_log_flags & PR_LOG_FLAGS_DEBUG))
 		return;
 
 	if (sizeof(STRESS_GIT_COMMIT_ID) > 1) {

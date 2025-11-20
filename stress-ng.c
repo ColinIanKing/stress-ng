@@ -104,6 +104,7 @@ typedef struct {
 typedef struct {
 	const int opt;			/* optarg option */
 	const uint64_t opt_flag;	/* global options flag bit setting */
+	const uint32_t pr_log_flag;	/* global pr log flag bit setting */
 } stress_opt_flag_t;
 
 /* Per stressor linked list */
@@ -126,9 +127,9 @@ static unsigned int opt_pause = 0;		/* pause between stressor invocations */
 /* Globals */
 stress_stressor_t *g_stressor_current;		/* current stressor being invoked */
 uint64_t g_opt_timeout = TIMEOUT_NOT_SET;	/* timeout in seconds */
-uint64_t g_opt_flags = OPT_FLAGS_PR_ERROR |	/* default option flags */
-		       OPT_FLAGS_PR_INFO |
-		       OPT_FLAGS_MMAP_MADVISE;
+uint64_t g_opt_flags = OPT_FLAGS_MMAP_MADVISE;	/* enable madvise by default */
+uint32_t g_pr_log_flags = PR_LOG_FLAGS_ERROR |	/* default pr_log flags */
+		          PR_LOG_FLAGS_INFO;
 volatile bool g_stress_continue_flag = true;	/* false to exit stressor */
 const char g_app_name[] = "stress-ng";		/* Name of application */
 stress_shared_t *g_shared;			/* shared memory */
@@ -152,59 +153,59 @@ static stress_sigalrm_info_t sigalrm_info;
  *  optarg option to global setting option flags
  */
 static const stress_opt_flag_t opt_flags[] = {
-	{ OPT_abort,		OPT_FLAGS_ABORT },
-	{ OPT_aggressive,	OPT_FLAGS_AGGRESSIVE_MASK },
-	{ OPT_autogroup,	OPT_FLAGS_AUTOGROUP },
-	{ OPT_buildinfo,	OPT_FLAGS_BUILDINFO },
-	{ OPT_c_states,		OPT_FLAGS_C_STATES },
-	{ OPT_change_cpu,	OPT_FLAGS_CHANGE_CPU },
-	{ OPT_dry_run,		OPT_FLAGS_DRY_RUN },
-	{ OPT_ftrace,		OPT_FLAGS_FTRACE },
-	{ OPT_ignite_cpu,	OPT_FLAGS_IGNITE_CPU },
-	{ OPT_interrupts,	OPT_FLAGS_INTERRUPTS },
-	{ OPT_keep_files, 	OPT_FLAGS_KEEP_FILES },
-	{ OPT_keep_name, 	OPT_FLAGS_KEEP_NAME },
-	{ OPT_klog_check,	OPT_FLAGS_KLOG_CHECK },
-	{ OPT_ksm,		OPT_FLAGS_KSM },
-	{ OPT_log_brief,	OPT_FLAGS_LOG_BRIEF },
-	{ OPT_log_lockless,	OPT_FLAGS_LOG_LOCKLESS },
-	{ OPT_maximize,		OPT_FLAGS_MAXIMIZE },
-	{ OPT_metrics,		OPT_FLAGS_METRICS | OPT_FLAGS_PR_METRICS },
-	{ OPT_metrics_brief,	OPT_FLAGS_METRICS_BRIEF | OPT_FLAGS_METRICS | OPT_FLAGS_PR_METRICS },
-	{ OPT_minimize,		OPT_FLAGS_MINIMIZE },
-	{ OPT_no_oom_adjust,	OPT_FLAGS_NO_OOM_ADJUST },
-	{ OPT_no_rand_seed,	OPT_FLAGS_NO_RAND_SEED },
-	{ OPT_oomable,		OPT_FLAGS_OOMABLE },
-	{ OPT_oom_no_child,	OPT_FLAGS_OOM_NO_CHILD },
-	{ OPT_oom_avoid,	OPT_FLAGS_OOM_AVOID },
-	{ OPT_page_in,		OPT_FLAGS_MMAP_MINCORE },
-	{ OPT_pathological,	OPT_FLAGS_PATHOLOGICAL },
+	{ OPT_abort,		OPT_FLAGS_ABORT, 0 },
+	{ OPT_aggressive,	OPT_FLAGS_AGGRESSIVE_MASK, 0 },
+	{ OPT_autogroup,	OPT_FLAGS_AUTOGROUP, 0 },
+	{ OPT_buildinfo,	OPT_FLAGS_BUILDINFO, 0 },
+	{ OPT_c_states,		OPT_FLAGS_C_STATES, 0 },
+	{ OPT_change_cpu,	OPT_FLAGS_CHANGE_CPU, 0 },
+	{ OPT_dry_run,		OPT_FLAGS_DRY_RUN, 0 },
+	{ OPT_ftrace,		OPT_FLAGS_FTRACE, 0 },
+	{ OPT_ignite_cpu,	OPT_FLAGS_IGNITE_CPU, 0 },
+	{ OPT_interrupts,	OPT_FLAGS_INTERRUPTS, 0 },
+	{ OPT_keep_files, 	OPT_FLAGS_KEEP_FILES, 0 },
+	{ OPT_keep_name, 	OPT_FLAGS_KEEP_NAME, 0 },
+	{ OPT_klog_check,	OPT_FLAGS_KLOG_CHECK, 0 },
+	{ OPT_ksm,		OPT_FLAGS_KSM, 0 },
+	{ OPT_log_brief,	0, PR_LOG_FLAGS_BRIEF },
+	{ OPT_log_lockless,	0, PR_LOG_FLAGS_LOCKLESS },
+	{ OPT_maximize,		OPT_FLAGS_MAXIMIZE, 0 },
+	{ OPT_metrics,		OPT_FLAGS_METRICS, PR_LOG_FLAGS_METRICS },
+	{ OPT_metrics_brief,	OPT_FLAGS_METRICS_BRIEF | OPT_FLAGS_METRICS, PR_LOG_FLAGS_METRICS },
+	{ OPT_minimize,		OPT_FLAGS_MINIMIZE, 0 },
+	{ OPT_no_oom_adjust,	OPT_FLAGS_NO_OOM_ADJUST, 0 },
+	{ OPT_no_rand_seed,	OPT_FLAGS_NO_RAND_SEED, 0 },
+	{ OPT_oomable,		OPT_FLAGS_OOMABLE, 0 },
+	{ OPT_oom_no_child,	OPT_FLAGS_OOM_NO_CHILD, 0 },
+	{ OPT_oom_avoid,	OPT_FLAGS_OOM_AVOID, 0 },
+	{ OPT_page_in,		OPT_FLAGS_MMAP_MINCORE, 0 },
+	{ OPT_pathological,	OPT_FLAGS_PATHOLOGICAL, 0 },
 #if defined(STRESS_PERF_STATS) && 	\
     defined(HAVE_LINUX_PERF_EVENT_H)
-	{ OPT_perf_stats,	OPT_FLAGS_PERF_STATS },
+	{ OPT_perf_stats,	OPT_FLAGS_PERF_STATS, 0 },
 #endif
-	{ OPT_progress,		OPT_FLAGS_PROGRESS },
-	{ OPT_randprocname,	OPT_FLAGS_RANDPROCNAME },
-	{ OPT_rapl,		OPT_FLAGS_RAPL | OPT_FLAGS_RAPL_REQUIRED },
-	{ OPT_settings,		OPT_FLAGS_SETTINGS },
-	{ OPT_skip_silent,	OPT_FLAGS_SKIP_SILENT },
-	{ OPT_smart,		OPT_FLAGS_SMART },
-	{ OPT_sn,		OPT_FLAGS_SN },
-	{ OPT_sock_nodelay,	OPT_FLAGS_SOCKET_NODELAY },
-	{ OPT_stderr,		OPT_FLAGS_STDERR },
-	{ OPT_stdout,		OPT_FLAGS_STDOUT },
-	{ OPT_stressor_time,	OPT_FLAGS_STRESSOR_TIME },
-	{ OPT_sync_start,	OPT_FLAGS_SYNC_START },
+	{ OPT_progress,		OPT_FLAGS_PROGRESS, 0 },
+	{ OPT_randprocname,	OPT_FLAGS_RANDPROCNAME, 0 },
+	{ OPT_rapl,		OPT_FLAGS_RAPL | OPT_FLAGS_RAPL_REQUIRED, 0 },
+	{ OPT_settings,		OPT_FLAGS_SETTINGS, 0 },
+	{ OPT_skip_silent,	0, PR_LOG_FLAGS_SKIP_SILENT },
+	{ OPT_smart,		OPT_FLAGS_SMART, 0 },
+	{ OPT_sn,		OPT_FLAGS_SN, 0 },
+	{ OPT_sock_nodelay,	OPT_FLAGS_SOCKET_NODELAY, 0 },
+	{ OPT_stderr,		0, PR_LOG_FLAGS_STDERR },
+	{ OPT_stdout,		0, PR_LOG_FLAGS_STDOUT },
+	{ OPT_stressor_time,	OPT_FLAGS_STRESSOR_TIME, 0 },
+	{ OPT_sync_start,	OPT_FLAGS_SYNC_START, 0 },
 #if defined(HAVE_SYSLOG_H)
-	{ OPT_syslog,		OPT_FLAGS_SYSLOG },
+	{ OPT_syslog,		0, PR_LOG_FLAGS_SYSLOG },
 #endif
-	{ OPT_taskset_random,	OPT_FLAGS_TASKSET_RANDOM },
-	{ OPT_thrash, 		OPT_FLAGS_THRASH },
-	{ OPT_times,		OPT_FLAGS_TIMES },
-	{ OPT_timestamp,	OPT_FLAGS_TIMESTAMP },
-	{ OPT_thermal_zones,	OPT_FLAGS_THERMAL_ZONES | OPT_FLAGS_TZ_INFO },
-	{ OPT_verbose,		OPT_FLAGS_PR_ALL },
-	{ OPT_verify,		OPT_FLAGS_VERIFY | OPT_FLAGS_PR_FAIL },
+	{ OPT_taskset_random,	OPT_FLAGS_TASKSET_RANDOM, 0 },
+	{ OPT_thrash, 		OPT_FLAGS_THRASH, 0 },
+	{ OPT_times,		OPT_FLAGS_TIMES, 0 },
+	{ OPT_timestamp,	0, PR_LOG_FLAGS_TIMESTAMP },
+	{ OPT_thermal_zones,	OPT_FLAGS_THERMAL_ZONES | OPT_FLAGS_TZ_INFO, 0 },
+	{ OPT_verbose,		0, PR_LOG_FLAGS_ALL },
+	{ OPT_verify,		OPT_FLAGS_VERIFY, PR_LOG_FLAGS_FAIL },
 };
 
 static void MLOCKED_TEXT stress_handle_terminate(int signum);
@@ -3244,6 +3245,7 @@ next_opt:
 			if (c == opt_flags[i].opt) {
 				stress_set_setting_true("global", stress_opt_name(c), NULL);
 				g_opt_flags |= opt_flags[i].opt_flag;
+				g_pr_log_flags |= opt_flags[i].pr_log_flag;
 				goto next_opt;
 			}
 		}
@@ -3366,7 +3368,7 @@ next_opt:
 				(void)printf("Try '%s --help' or 'man stress-ng' for more information.\n", g_app_name);
 			return EXIT_FAILURE;
 		case OPT_quiet:
-			g_opt_flags &= ~(OPT_FLAGS_PR_ALL);
+			g_pr_log_flags &= ~(PR_LOG_FLAGS_ALL);
 			break;
 		case OPT_random:
 			g_opt_flags |= OPT_FLAGS_RANDOM;
@@ -3911,8 +3913,8 @@ int main(int argc, char **argv, char **envp)
 	if (ret != EXIT_SUCCESS)
 		goto exit_settings_free;
 
-	if ((g_opt_flags & (OPT_FLAGS_STDERR | OPT_FLAGS_STDOUT)) ==
-	    (OPT_FLAGS_STDERR | OPT_FLAGS_STDOUT)) {
+	if ((g_pr_log_flags & (PR_LOG_FLAGS_STDERR | PR_LOG_FLAGS_STDOUT)) ==
+	    (PR_LOG_FLAGS_STDERR | PR_LOG_FLAGS_STDOUT)) {
 		(void)fprintf(stderr, "stderr and stdout cannot "
 			"be used together\n");
 		ret = EXIT_FAILURE;

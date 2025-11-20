@@ -47,7 +47,7 @@ static pr_msg_buf_t pr_msg_buf;
 
 int pr_fd(void)
 {
-	return (g_opt_flags & OPT_FLAGS_STDERR) ? fileno(stderr) : fileno(stdout);
+	return (g_pr_log_flags & PR_LOG_FLAGS_STDERR) ? fileno(stderr) : fileno(stdout);
 }
 
 /*
@@ -97,7 +97,7 @@ static void pr_log_write_buf(const char *buf, const size_t buf_len)
  */
 static void pr_log_write(const char *buf, const size_t buf_len)
 {
-	const bool buffer_messages = !(g_opt_flags & OPT_FLAGS_LOG_LOCKLESS);
+	const bool buffer_messages = !(g_pr_log_flags & PR_LOG_FLAGS_LOCKLESS);
 
 	if (buffer_messages && (pr_msg_buf.pid == getpid())) {
 		if (!pr_msg_buf.buf) {
@@ -230,7 +230,7 @@ static int pr_msg(
 	char ts[32];
 	pid_t pid = getpid();
 
-	if (g_opt_flags & OPT_FLAGS_TIMESTAMP) {
+	if (g_pr_log_flags & PR_LOG_FLAGS_TIMESTAMP) {
 		struct timeval tv;
 		static const char empty_ts[] = "xx-xx-xx.xxx ";
 
@@ -254,24 +254,24 @@ static int pr_msg(
 		*ts = '\0';
 	}
 
-	if ((flag & (OPT_FLAGS_PR_FAIL | OPT_FLAGS_PR_WARN)) || (g_opt_flags & flag)) {
+	if ((flag & (PR_LOG_FLAGS_FAIL | PR_LOG_FLAGS_WARN)) || (g_pr_log_flags & flag)) {
 		char buf[8192];
 		const char *type = "";
 
-		if (flag & OPT_FLAGS_PR_ERROR)
+		if (flag & PR_LOG_FLAGS_ERROR)
 			type = "error:";
-		if (flag & OPT_FLAGS_PR_DEBUG)
+		if (flag & PR_LOG_FLAGS_DEBUG)
 			type = "debug:";
-		if (flag & OPT_FLAGS_PR_INFO)
+		if (flag & PR_LOG_FLAGS_INFO)
 			type = "info: ";
-		if (flag & OPT_FLAGS_PR_FAIL)
+		if (flag & PR_LOG_FLAGS_FAIL)
 			type = "fail: ";
-		if (flag & OPT_FLAGS_PR_WARN)
+		if (flag & PR_LOG_FLAGS_WARN)
 			type = "warn: ";
-		if (flag & OPT_FLAGS_PR_METRICS)
+		if (flag & PR_LOG_FLAGS_METRICS)
 			type = "metrc:";
 
-		if (g_opt_flags & OPT_FLAGS_LOG_BRIEF) {
+		if (g_pr_log_flags & PR_LOG_FLAGS_BRIEF) {
 			const size_t n = (size_t)vsnprintf(buf, sizeof(buf), fmt, ap);
 
 			pr_log_write(buf, n);
@@ -285,7 +285,7 @@ static int pr_msg(
 			pr_log_write(buf, len);
 		}
 
-		if (flag & OPT_FLAGS_PR_FAIL) {
+		if (flag & PR_LOG_FLAGS_FAIL) {
 			abort_fails++;
 			if (abort_fails >= ABORT_FAILURES) {
 				if (!abort_msg_emitted) {
@@ -305,8 +305,8 @@ static int pr_msg(
 
 #if defined(HAVE_SYSLOG_H)
 		/* Log messages if syslog requested, don't log DEBUG */
-		if ((g_opt_flags & OPT_FLAGS_SYSLOG) &&
-		    (!(flag & OPT_FLAGS_PR_DEBUG))) {
+		if ((g_pr_log_flags & PR_LOG_FLAGS_SYSLOG) &&
+		    (!(flag & PR_LOG_FLAGS_DEBUG))) {
 			syslog(LOG_INFO, "%s", buf);
 		}
 #endif
@@ -323,7 +323,7 @@ void pr_dbg(const char *fmt, ...)
 	va_list ap;
 
 	va_start(ap, fmt);
-	(void)pr_msg(OPT_FLAGS_PR_DEBUG, fmt, ap);
+	(void)pr_msg(PR_LOG_FLAGS_DEBUG, fmt, ap);
 	va_end(ap);
 }
 
@@ -336,8 +336,8 @@ void pr_dbg_skip(const char *fmt, ...)
 	va_list ap;
 
 	va_start(ap, fmt);
-	if (!(g_opt_flags & OPT_FLAGS_SKIP_SILENT))
-		(void)pr_msg(OPT_FLAGS_PR_DEBUG, fmt, ap);
+	if (!(g_pr_log_flags & PR_LOG_FLAGS_SKIP_SILENT))
+		(void)pr_msg(PR_LOG_FLAGS_DEBUG, fmt, ap);
 	va_end(ap);
 }
 
@@ -350,7 +350,7 @@ void pr_inf(const char *fmt, ...)
 	va_list ap;
 
 	va_start(ap, fmt);
-	(void)pr_msg(OPT_FLAGS_PR_INFO, fmt, ap);
+	(void)pr_msg(PR_LOG_FLAGS_INFO, fmt, ap);
 	va_end(ap);
 }
 
@@ -363,8 +363,8 @@ void pr_inf_skip(const char *fmt, ...)
 	va_list ap;
 
 	va_start(ap, fmt);
-	if (!(g_opt_flags & OPT_FLAGS_SKIP_SILENT))
-		(void)pr_msg(OPT_FLAGS_PR_INFO, fmt, ap);
+	if (!(g_pr_log_flags & PR_LOG_FLAGS_SKIP_SILENT))
+		(void)pr_msg(PR_LOG_FLAGS_INFO, fmt, ap);
 	va_end(ap);
 }
 
@@ -377,7 +377,7 @@ void pr_err(const char *fmt, ...)
 	va_list ap;
 
 	va_start(ap, fmt);
-	(void)pr_msg(OPT_FLAGS_PR_ERROR, fmt, ap);
+	(void)pr_msg(PR_LOG_FLAGS_ERROR, fmt, ap);
 	va_end(ap);
 }
 
@@ -390,8 +390,8 @@ void pr_err_skip(const char *fmt, ...)
 	va_list ap;
 
 	va_start(ap, fmt);
-	if (!(g_opt_flags & OPT_FLAGS_SKIP_SILENT))
-		(void)pr_msg(OPT_FLAGS_PR_ERROR, fmt, ap);
+	if (!(g_pr_log_flags & PR_LOG_FLAGS_SKIP_SILENT))
+		(void)pr_msg(PR_LOG_FLAGS_ERROR, fmt, ap);
 	va_end(ap);
 }
 
@@ -404,7 +404,7 @@ void pr_fail(const char *fmt, ...)
 	va_list ap;
 
 	va_start(ap, fmt);
-	(void)pr_msg(OPT_FLAGS_PR_FAIL, fmt, ap);
+	(void)pr_msg(PR_LOG_FLAGS_FAIL, fmt, ap);
 	va_end(ap);
 }
 
@@ -417,7 +417,7 @@ void pr_tidy(const char *fmt, ...)
 	va_list ap;
 
 	va_start(ap, fmt);
-	(void)pr_msg(g_shared && g_shared->caught_sigint ? OPT_FLAGS_PR_INFO : OPT_FLAGS_PR_DEBUG, fmt, ap);
+	(void)pr_msg(g_shared && g_shared->caught_sigint ? PR_LOG_FLAGS_INFO : PR_LOG_FLAGS_DEBUG, fmt, ap);
 	va_end(ap);
 }
 
@@ -430,7 +430,7 @@ void pr_warn(const char *fmt, ...)
 	va_list ap;
 
 	va_start(ap, fmt);
-	(void)pr_msg(OPT_FLAGS_PR_WARN, fmt, ap);
+	(void)pr_msg(PR_LOG_FLAGS_WARN, fmt, ap);
 	va_end(ap);
 }
 
@@ -443,8 +443,8 @@ void pr_warn_skip(const char *fmt, ...)
 	va_list ap;
 
 	va_start(ap, fmt);
-	if (!(g_opt_flags & OPT_FLAGS_SKIP_SILENT))
-		(void)pr_msg(OPT_FLAGS_PR_WARN, fmt, ap);
+	if (!(g_pr_log_flags & PR_LOG_FLAGS_SKIP_SILENT))
+		(void)pr_msg(PR_LOG_FLAGS_WARN, fmt, ap);
 	va_end(ap);
 }
 
@@ -457,6 +457,6 @@ void pr_metrics(const char *fmt, ...)
 	va_list ap;
 
 	va_start(ap, fmt);
-	(void)pr_msg(OPT_FLAGS_PR_METRICS, fmt, ap);
+	(void)pr_msg(PR_LOG_FLAGS_METRICS, fmt, ap);
 	va_end(ap);
 }

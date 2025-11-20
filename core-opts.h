@@ -22,18 +22,13 @@
 #include <unistd.h>
 #include <getopt.h>
 
-/* pr_* bit masks, first bits of global option flags */
-#define OPT_FLAGS_PR_ERROR	 STRESS_BIT_ULL(0)	/* Print errors */
-#define OPT_FLAGS_PR_INFO	 STRESS_BIT_ULL(1)	/* Print info */
-#define OPT_FLAGS_PR_DEBUG	 STRESS_BIT_ULL(2) 	/* Print debug */
-#define OPT_FLAGS_PR_FAIL	 STRESS_BIT_ULL(3) 	/* Print test failure message */
-#define OPT_FLAGS_PR_WARN	 STRESS_BIT_ULL(4)	/* Print warning */
-#define OPT_FLAGS_PR_METRICS	 STRESS_BIT_ULL(5)	/* Print metrics */
-#define OPT_FLAGS_PR_ALL	 (OPT_FLAGS_PR_ERROR | OPT_FLAGS_PR_INFO | \
-				  OPT_FLAGS_PR_DEBUG | OPT_FLAGS_PR_FAIL | \
-				  OPT_FLAGS_PR_WARN  | OPT_FLAGS_PR_METRICS)
-
-/* Option bit masks, stats from the next PR_ option onwards */
+/* Option bit masks */
+#define OPT_FLAGS_SPARE0	 STRESS_BIT_ULL(0)
+#define OPT_FLAGS_SPARE1	 STRESS_BIT_ULL(1)
+#define OPT_FLAGS_SPARE2	 STRESS_BIT_ULL(2)
+#define OPT_FLAGS_SPARE3	 STRESS_BIT_ULL(3)
+#define OPT_FLAGS_SPARE4	 STRESS_BIT_ULL(4)
+#define OPT_FLAGS_SPARE5	 STRESS_BIT_ULL(5)
 #define OPT_FLAGS_METRICS	 STRESS_BIT_ULL(6)	/* --metrics, Dump metrics at end */
 #define OPT_FLAGS_RANDOM	 STRESS_BIT_ULL(7)	/* --random, Randomize */
 #define OPT_FLAGS_SET		 STRESS_BIT_ULL(8)	/* Set if user specifies stress procs */
@@ -45,12 +40,12 @@
 #define OPT_FLAGS_TIMES		 STRESS_BIT_ULL(14)	/* --times, user/system time summary */
 #define OPT_FLAGS_MINIMIZE	 STRESS_BIT_ULL(15)	/* --minimize, Minimize */
 #define OPT_FLAGS_MAXIMIZE	 STRESS_BIT_ULL(16)	/* --maximize Maximize */
-#define OPT_FLAGS_SYSLOG	 STRESS_BIT_ULL(17)	/* --syslog, log test progress to syslog */
+#define OPT_FLAGS_SPARE17	 STRESS_BIT_ULL(17)
 #define OPT_FLAGS_AGGRESSIVE	 STRESS_BIT_ULL(18)	/* --aggressive, aggressive mode enabled */
 #define OPT_FLAGS_ALL		 STRESS_BIT_ULL(19)	/* --all mode */
 #define OPT_FLAGS_SEQUENTIAL	 STRESS_BIT_ULL(20)	/* --sequential mode */
 #define OPT_FLAGS_PERF_STATS	 STRESS_BIT_ULL(21)	/* --perf stats mode */
-#define OPT_FLAGS_LOG_BRIEF	 STRESS_BIT_ULL(22)	/* --log-brief */
+#define OPT_FLAGS_SPARE22	 STRESS_BIT_ULL(22)
 #define OPT_FLAGS_THERMAL_ZONES  STRESS_BIT_ULL(23)	/* --tz thermal zones */
 #define OPT_FLAGS_SOCKET_NODELAY STRESS_BIT_ULL(24)	/* --sock-nodelay */
 #define OPT_FLAGS_IGNITE_CPU	 STRESS_BIT_ULL(25)	/* --cpu-ignite */
@@ -59,21 +54,21 @@
 #define OPT_FLAGS_THRASH	 STRESS_BIT_ULL(28)	/* --thrash */
 #define OPT_FLAGS_OOMABLE	 STRESS_BIT_ULL(29)	/* --oomable */
 #define OPT_FLAGS_ABORT		 STRESS_BIT_ULL(30)	/* --abort */
-#define OPT_FLAGS_TIMESTAMP	 STRESS_BIT_ULL(31)	/* --timestamp */
+#define OPT_FLAGS_SPARE31	 STRESS_BIT_ULL(31)
 #define OPT_FLAGS_SCHED_RECLAIM  STRESS_BIT_ULL(32)	/* --sched-reclaim */
 #define OPT_FLAGS_FTRACE	 STRESS_BIT_ULL(33)	/* --ftrace */
 #define OPT_FLAGS_SEED		 STRESS_BIT_ULL(34)	/* --seed */
-#define OPT_FLAGS_SKIP_SILENT	 STRESS_BIT_ULL(35)	/* --skip-silent */
+#define OPT_FLAGS_SPARE35	 STRESS_BIT_ULL(35)
 #define OPT_FLAGS_SMART		 STRESS_BIT_ULL(36)	/* --smart */
 #define OPT_FLAGS_NO_OOM_ADJUST	 STRESS_BIT_ULL(37)	/* --no-oom-adjust */
 #define OPT_FLAGS_KEEP_FILES	 STRESS_BIT_ULL(38)	/* --keep-files */
-#define OPT_FLAGS_STDERR	 STRESS_BIT_ULL(39)	/* --stderr */
-#define OPT_FLAGS_STDOUT	 STRESS_BIT_ULL(40)	/* --stdout */
+#define OPT_FLAGS_SPARE39	 STRESS_BIT_ULL(39)
+#define OPT_FLAGS_SPARE40 	 STRESS_BIT_ULL(40)
 #define OPT_FLAGS_KLOG_CHECK	 STRESS_BIT_ULL(41)	/* --klog-check */
 #define OPT_FLAGS_DRY_RUN	 STRESS_BIT_ULL(42)	/* --dry-run, don't actually run */
 #define OPT_FLAGS_OOM_AVOID	 STRESS_BIT_ULL(43)	/* --oom-avoid */
 #define OPT_FLAGS_TZ_INFO	 STRESS_BIT_ULL(44)	/* --tz, enable thermal zone info */
-#define OPT_FLAGS_LOG_LOCKLESS	 STRESS_BIT_ULL(45)	/* --log-lockless */
+#define OPT_FLAGS_SPARE45	 STRESS_BIT_ULL(45)
 #define OPT_FLAGS_SN		 STRESS_BIT_ULL(46)	/* --sn scientific notation */
 #define OPT_FLAGS_CHANGE_CPU	 STRESS_BIT_ULL(47)	/* --change-cpu */
 #define OPT_FLAGS_KSM		 STRESS_BIT_ULL(48)	/* --ksm */
