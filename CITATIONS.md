@@ -194,3 +194,4 @@
  * [SPAM: Streamlined Prefetcher-Aware Multi-Threaded Cache Covert-Channel Attack](https://www.cse.iitb.ac.in/~biswa/CAL25.pdf)
  * [TUNA: Tuning Unstable and Noisy Cloud Applications](https://www.microsoft.com/en-us/research/wp-content/uploads/2025/02/TUNA_EuroSys_2025.pdf)
  * [Adaptive Machine Learning for Resource-Constrained Environments](https://arxiv.org/pdf/2503.18634)
+ * [A comprehensive performance evaluation of TEEs for confidential DNA alignment](https://iris.unito.it/retrieve/c4c635a3-4b06-4b75-9bdb-c36abb43ae76/1-s2.0-S0167739X25003267-main.pdf)
