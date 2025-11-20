@@ -545,9 +545,9 @@ void stress_zero_bogo_max_ops(void)
 	stress_stressor_t *ss;
 
 	for (ss = stress_stressor_list.head; ss; ss = ss->next) {
-		int32_t i;
-
 		if (!ss->ignore.run) {
+			int32_t i;
+
 			for (i = 0; i < ss->instances; i++)
 				ss->stats[i]->args.bogo.max_ops = 0;
 		}
