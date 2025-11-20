@@ -37,13 +37,15 @@
 #include <sched.h>
 #include <time.h>
 
+#define STRESS_ALL_DURATION		(20.0)
 
-#define STRESS_VARYLOAD_TYPE_BROWN	(0)
-#define STRESS_VARYLOAD_TYPE_SAW_INC	(1)
-#define STRESS_VARYLOAD_TYPE_SAW_DEC	(2)
-#define STRESS_VARYLOAD_TYPE_TRIANGLE	(3)
-#define STRESS_VARYLOAD_TYPE_PULSE	(4)
-#define STRESS_VARYLOAD_TYPE_RANDOM 	(5)
+#define STRESS_VARYLOAD_TYPE_ALL	(0)
+#define STRESS_VARYLOAD_TYPE_BROWN	(1)
+#define STRESS_VARYLOAD_TYPE_SAW_INC	(2)
+#define STRESS_VARYLOAD_TYPE_SAW_DEC	(3)
+#define STRESS_VARYLOAD_TYPE_TRIANGLE	(4)
+#define STRESS_VARYLOAD_TYPE_PULSE	(5)
+#define STRESS_VARYLOAD_TYPE_RANDOM 	(6)
 
 #define STRESS_VARYLOAD_TYPE_DEFAULT	STRESS_VARYLOAD_TYPE_TRIANGLE
 #define STRESS_VARYLOAD_MS_DEFAULT	(1000)	/* 1 second */
@@ -71,6 +73,7 @@ static const stress_help_t help[] = {
 };
 
 static const stress_varyload_type_t varyload_types[] = {
+	{ "all",	STRESS_VARYLOAD_TYPE_ALL },
 	{ "brown",	STRESS_VARYLOAD_TYPE_BROWN },
 	{ "saw-inc",	STRESS_VARYLOAD_TYPE_SAW_INC },
 	{ "saw-dec",	STRESS_VARYLOAD_TYPE_SAW_DEC },
@@ -282,6 +285,136 @@ static void stress_varyload_waste_time(
 }
 
 /*
+ *  stress_varyload_by_type
+ *	stateful load varying
+ */
+static void stress_varyload_by_type(
+	stress_args_t *args,
+	const pid_t *pids,
+	const int varyload_type,
+	const int varyload_method,
+	const uint32_t varyload_ms,
+	uint8_t *buffer,
+	const size_t buffer_len)
+{
+	static uint32_t load_saw_inc;
+	static uint32_t load_saw_dec;
+	static uint32_t load_triangle;
+	static uint32_t load_brown;
+	static bool pulse_low = true;
+	static bool triangle_inc = true;
+	uint32_t i;
+	int32_t newload;
+
+	switch (varyload_type) {
+	case STRESS_VARYLOAD_TYPE_SAW_INC:
+		if (load_saw_inc == 0)
+			load_saw_inc = 1;
+
+		for (i = 1; i < load_saw_inc; i++)
+			(void)kill(pids[i], SIGCONT);
+		for (; i < args->instances; i++)
+			(void)kill(pids[i], SIGSTOP);
+		if (!stress_continue(args))
+			break;
+		stress_varyload_waste_time(args, varyload_method,
+			varyload_ms, buffer, buffer_len);
+		load_saw_inc++;
+		if (load_saw_inc > args->instances)
+			load_saw_inc = 1;
+		break;
+	case STRESS_VARYLOAD_TYPE_SAW_DEC:
+		if (load_saw_dec == 0)
+			load_saw_dec = args->instances;
+
+		for (i = 1; i < load_saw_dec; i++)
+			(void)kill(pids[i], SIGCONT);
+		for (; i < args->instances; i++)
+			(void)kill(pids[i], SIGSTOP);
+		if (!stress_continue(args))
+			break;
+		stress_varyload_waste_time(args, varyload_method,
+			varyload_ms, buffer, buffer_len);
+		load_saw_dec--;
+		if (load_saw_dec < 1)
+			load_saw_dec = args->instances;
+		break;
+	case STRESS_VARYLOAD_TYPE_TRIANGLE:
+		if (load_triangle == 0)
+			load_triangle = 1;
+
+		for (i = 1; i < load_triangle; i++)
+			(void)kill(pids[i], SIGCONT);
+		for (; i < args->instances; i++)
+			(void)kill(pids[i], SIGSTOP);
+		if (!stress_continue(args))
+			break;
+		stress_varyload_waste_time(args, varyload_method,
+			varyload_ms, buffer, buffer_len);
+		if (triangle_inc) {
+			if (load_triangle < args->instances)
+				load_triangle++;
+			if (load_triangle >= args->instances)
+				triangle_inc = false;
+		} else {
+			if (load_triangle > 1)
+				load_triangle--;
+			if (load_triangle <= 1)
+				triangle_inc = true;
+		}
+		break;
+	case STRESS_VARYLOAD_TYPE_PULSE:
+		if (pulse_low) {
+			for (i = 1; i < args->instances; i++)
+				(void)kill(pids[i], SIGSTOP);
+			(void)shim_usleep_interruptible(varyload_ms * 1000);
+		} else {
+			for (i = 1; i < args->instances; i++)
+				(void)kill(pids[i], SIGCONT);
+			if (!stress_continue(args))
+				break;
+			stress_varyload_waste_time(args, varyload_method,
+				varyload_ms, buffer, buffer_len);
+		}
+		pulse_low = !pulse_low;
+		break;
+	case STRESS_VARYLOAD_TYPE_RANDOM:
+		for (i = 1; i < args->instances; i++)
+			(void)kill(pids[i], stress_mwc1() ? SIGSTOP : SIGCONT);
+		if (!stress_continue(args))
+			break;
+		if (stress_mwc1())
+			(void)shim_usleep_interruptible(varyload_ms * 1000);
+		else
+			stress_varyload_waste_time(args, varyload_method,
+				varyload_ms, buffer, buffer_len);
+		break;
+	case STRESS_VARYLOAD_TYPE_BROWN:
+		if (load_brown == 0)
+			load_brown = args->instances / 2;
+
+		newload = load_brown + stress_mwc8modn(3) - 1;
+		if (newload >= (int32_t)args->instances)
+			newload = (int32_t)args->instances;
+		if (newload < 1)
+			newload = 1;
+		load_brown = (uint32_t)newload;
+
+		for (i = 1; i < load_brown; i++)
+			(void)kill(pids[i], SIGCONT);
+		for (; i < args->instances; i++)
+			(void)kill(pids[i], SIGSTOP);
+		if (!stress_continue(args))
+			break;
+		stress_varyload_waste_time(args, varyload_method,
+			varyload_ms, buffer, buffer_len);
+		break;
+	default:
+		break;
+	}
+}
+
+/*
  *  stress_varyload
  *	load system with varying loads
  */
@@ -296,7 +429,7 @@ static int stress_varyload(stress_args_t *args)
 	const size_t buffer_len = MB;
 	int rc = EXIT_SUCCESS;
 	pid_t *pids;
-	uint32_t i, load = 1;
+	uint32_t i;
 	bool controller = stress_instance_zero(args);
 	bool sync_fail = false;
 
@@ -382,113 +515,34 @@ redo:
 		for (i = 1; i < args->instances; i++)
 			(void)kill(pids[i], SIGSTOP);
 
-		switch (varyload_type) {
-		case STRESS_VARYLOAD_TYPE_SAW_INC:
-			do {
-				for (i = 1; i < load; i++)
-					(void)kill(pids[i], SIGCONT);
-				for (; i < args->instances; i++)
-					(void)kill(pids[i], SIGSTOP);
-				if (!stress_continue(args))
-					break;
-				stress_varyload_waste_time(args, varyload_method,
-					varyload_ms, buffer, buffer_len);
-				load++;
-				if (load >= args->instances)
-					load = 1;
-			} while (stress_continue(args));
-			break;
-		case STRESS_VARYLOAD_TYPE_SAW_DEC:
-			load = args->instances;
-			do {
-				for (i = 1; i < load; i++)
-					(void)kill(pids[i], SIGCONT);
-				for (; i < args->instances; i++)
-					(void)kill(pids[i], SIGSTOP);
-				if (!stress_continue(args))
-					break;
-				stress_varyload_waste_time(args, varyload_method,
-					varyload_ms, buffer, buffer_len);
-				load--;
-				if (load < 1)
-					load = args->instances;
-			} while (stress_continue(args));
-			break;
-		case STRESS_VARYLOAD_TYPE_TRIANGLE:
-			do {
-				for (load = 1; load < args->instances; load++) {
-					for (i = 1; i < load; i++)
-						(void)kill(pids[i], SIGCONT);
-					for (; i < args->instances; i++)
-						(void)kill(pids[i], SIGSTOP);
-					if (!stress_continue(args))
-						break;
-					stress_varyload_waste_time(args, varyload_method,
-						varyload_ms, buffer, buffer_len);
-				}
-				for (load = args->instances; load > 1; load--) {
-					for (i = 1; i < load; i++)
-						(void)kill(pids[i], SIGCONT);
-					for (; i < args->instances; i++)
-						(void)kill(pids[i], SIGSTOP);
-					if (!stress_continue(args))
-						break;
-					stress_varyload_waste_time(args, varyload_method,
-						varyload_ms, buffer, buffer_len);
-				}
-			} while (stress_continue(args));
-			break;
-		case STRESS_VARYLOAD_TYPE_PULSE:
-			do {
-				for (i = 1; i < args->instances; i++)
-					(void)kill(pids[i], SIGSTOP);
-				(void)shim_usleep_interruptible(varyload_ms * 1000);
-				for (i = 1; i < args->instances; i++)
-					(void)kill(pids[i], SIGCONT);
-				if (!stress_continue(args))
-					break;
-				stress_varyload_waste_time(args, varyload_method,
-					varyload_ms, buffer, buffer_len);
-			} while (stress_continue(args));
-			break;
-		case STRESS_VARYLOAD_TYPE_RANDOM:
-			do {
-				for (i = 1; i < args->instances; i++) {
-					(void)kill(pids[i], stress_mwc1() ? SIGSTOP : SIGCONT);
-				}
-				if (!stress_continue(args))
-					break;
-				if (stress_mwc1())
-					(void)shim_usleep_interruptible(varyload_ms * 1000);
-				else
-					stress_varyload_waste_time(args, varyload_method,
-						varyload_ms, buffer, buffer_len);
-			} while (stress_continue(args));
-			break;
-		case STRESS_VARYLOAD_TYPE_BROWN:
-			load = args->instances / 2;
-			do {
-				int32_t newload = load + stress_mwc8modn(3) - 1;
+		if (varyload_type == STRESS_VARYLOAD_TYPE_ALL) {
+			/* Work through all varyload types periodically */
 
-				if (newload >= (int32_t)args->instances)
-					newload = (int32_t)args->instances;
-				if (newload < 1)
-					newload = 1;
-				load = (uint32_t)newload;
+			double now = stress_time_now();
+			double t_next = now + STRESS_ALL_DURATION;
 
-				for (i = 1; i < load; i++)
-					(void)kill(pids[i], SIGCONT);
-				for (; i < args->instances; i++)
-					(void)kill(pids[i], SIGSTOP);
-				if (!stress_continue(args))
-					break;
-				stress_varyload_waste_time(args, varyload_method,
-					varyload_ms, buffer, buffer_len);
+			varyload_type = STRESS_VARYLOAD_TYPE_BROWN;
+			do {
+				double now = stress_time_now();
 
+				if (now > t_next) {
+					t_next = now + STRESS_ALL_DURATION;
+					varyload_type++;
+					if (varyload_type > STRESS_VARYLOAD_TYPE_RANDOM)
+						varyload_type = STRESS_VARYLOAD_TYPE_BROWN;
+				}
+				stress_varyload_by_type(args, pids, varyload_type,
+						varyload_method, varyload_ms,
+						buffer, buffer_len);
 			} while (stress_continue(args));
-			break;
-		default:
-			break;
+
+		} else {
+			/* Do just the one varyload type */
+			do {
+				stress_varyload_by_type(args, pids, varyload_type,
+						varyload_method, varyload_ms,
+						buffer, buffer_len);
+			} while (stress_continue(args));
 		}
 
 		for (i = 1; i < args->instances; i++)

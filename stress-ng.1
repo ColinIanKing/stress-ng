@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "19 November 2025"
+.TH STRESS-NG 1 "20 November 2025"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -9304,6 +9304,9 @@ select the varying load type. The available types are described as follows:
 lB2 lB
 l lx.
 Type	Description
+all	T{
+cycle through all the varyload types, running each type for 20 seconds at a time.
+T}
 brown	T{
 repeatedly vary the load using brown noise, using random increment/decrement in load.
 T}
