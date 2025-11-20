@@ -713,7 +713,8 @@ static int stress_exec(stress_args_t *args)
 		if (stress_instance_zero(args))
 			pr_inf_skip("%s: skipping stressor, can't determine stress-ng "
 				"executable name\n", args->name);
-		return EXIT_NOT_IMPLEMENTED;
+		rc = EXIT_NOT_IMPLEMENTED;
+		goto err_free_ld_library_path;
 	}
 
 #if defined(HAVE_VFORK)
@@ -733,7 +734,8 @@ static int stress_exec(stress_args_t *args)
 	if (stress_pid_hash_table == MAP_FAILED) {
 		pr_inf_skip("%s: failed to allocate %zu byte PID hash table%s, skipping stressor\n",
 			args->name, stress_pid_hash_table_size, stress_get_memfree_str());
-		return EXIT_NO_RESOURCE;
+		rc = EXIT_NO_RESOURCE;
+		goto err_free_ld_library_path;
 	}
 	stress_set_vma_anon_name(stress_pid_hash_table, stress_pid_hash_table_size, "pid-hash");
 
@@ -744,8 +746,8 @@ static int stress_exec(stress_args_t *args)
 	if (stress_pid_cache == MAP_FAILED) {
 		pr_inf_skip("%s: failed to allocate %zu byte PID hash cache%s, skipping stressor\n",
 			args->name, cache_max, stress_get_memfree_str());
-		(void)munmap((void *)stress_pid_hash_table, stress_pid_hash_table_size);
-		return EXIT_NO_RESOURCE;
+		rc = EXIT_NO_RESOURCE;
+		goto err_unmap_pid_hash_table;
 	}
 	stress_set_vma_anon_name(stress_pid_cache, cache_max, "pid-cache");
 	stress_pid_cache_index = 0;
@@ -778,8 +780,10 @@ static int stress_exec(stress_args_t *args)
 	}
 #endif
 	ret = stress_temp_dir_mk_args(args);
-	if (ret < 0)
-		return stress_exit_status(-ret);
+	if (ret < 0) {
+		rc = stress_exit_status(-ret);
+		goto err_unmap_pid_cache;
+	}
 	(void)stress_temp_filename_args(args,
 		garbage_prog, sizeof(garbage_prog), stress_mwc32());
 
@@ -790,7 +794,8 @@ static int stress_exec(stress_args_t *args)
 	if (fdexec < 0) {
 		pr_fail("%s: open O_PATH on /proc/self/exe failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
-		goto err;
+		rc = EXIT_FAILURE;
+		goto err_rm;
 	}
 #endif
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
@@ -943,8 +948,6 @@ static int stress_exec(stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	if (ld_library_path)
-		free(ld_library_path);
 
 #if (defined(HAVE_EXECVEAT) ||	\
      defined(HAVE_FEXECVE)) &&	\
@@ -958,22 +961,23 @@ static int stress_exec(stress_args_t *args)
 	}
 
 	rc = EXIT_SUCCESS;
-#if (defined(HAVE_EXECVEAT) ||	\
-     defined(HAVE_FEXECVE)) &&	\
-    defined(O_PATH)
-err:
-#endif
 	stress_exec_free_pid();
 
-
-	if (str)
-		(void)munmap((void *)str, arg_max);
-
-	(void)munmap((void *)stress_pid_hash_table, stress_pid_hash_table_size);
-	(void)munmap((void *)stress_pid_cache, cache_max);
-
+err_rm:
 	(void)shim_unlink(garbage_prog);
 	(void)stress_temp_dir_rm_args(args);
+
+err_unmap_pid_cache:
+	if (str)
+		(void)munmap((void *)str, arg_max);
+	(void)munmap((void *)stress_pid_cache, cache_max);
+
+err_unmap_pid_hash_table:
+	(void)munmap((void *)stress_pid_hash_table, stress_pid_hash_table_size);
+
+err_free_ld_library_path:
+	if (ld_library_path)
+		free(ld_library_path);
 
 	return rc;
 }
