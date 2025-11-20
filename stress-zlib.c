@@ -413,8 +413,8 @@ static void TARGET_CLONES stress_rand_data_00_ff(
 	uint64_t *RESTRICT data,
 	uint64_t *RESTRICT data_end)
 {
-	register uint32_t *ptr = (uint32_t *)data;
-	register const uint32_t *end = (uint32_t *)data_end;
+	register uint8_t *ptr = (uint8_t *)data;
+	register const uint8_t *end = (uint8_t *)data_end;
 
 	(void)args;
 
