@@ -66,10 +66,10 @@ static inline uint16_t CONST ALWAYS_INLINE stress_reverse16(register uint16_t x)
 #if defined(HAVE_BUILTIN_BITREVERSE)
 	return __builtin_bitreverse16(x);
 #else
-	x = (((x & 0xaaaaUL) >> 1)  | ((x & 0x5555UL) << 1));
-	x = (((x & 0xccccUL) >> 2)  | ((x & 0x3333UL) << 2));
-	x = (((x & 0xf0f0UL) >> 4)  | ((x & 0x0f0fUL) << 4));
-	x = (((x & 0xff00UL) >> 8)  | ((x & 0x00ffUL) << 8));
+	x = (((x & 0xaaaaU) >> 1)  | ((x & 0x5555U) << 1));
+	x = (((x & 0xccccU) >> 2)  | ((x & 0x3333U) << 2));
+	x = (((x & 0xf0f0U) >> 4)  | ((x & 0x0f0fU) << 4));
+	x = (((x & 0xff00U) >> 8)  | ((x & 0x00ffU) << 8));
 	return x;
 #endif
 }
@@ -83,9 +83,9 @@ static inline uint8_t CONST ALWAYS_INLINE stress_reverse8(register uint8_t x)
 #if defined(HAVE_BUILTIN_BITREVERSE)
 	return __builtin_bitreverse8(x);
 #else
-	x = (((x & 0xaaUL) >> 1)  | ((x & 0x55UL) << 1));
-	x = (((x & 0xccUL) >> 2)  | ((x & 0x33UL) << 2));
-	x = (((x & 0xf0UL) >> 4)  | ((x & 0x0fUL) << 4));
+	x = (((x & 0xaaU) >> 1)  | ((x & 0x55U) << 1));
+	x = (((x & 0xccU) >> 2)  | ((x & 0x33U) << 2));
+	x = (((x & 0xf0U) >> 4)  | ((x & 0x0fU) << 4));
 	return x;
 #endif
 }
@@ -99,10 +99,10 @@ static inline uint32_t CONST ALWAYS_INLINE stress_swap32(uint32_t val)
 #if defined(HAVE_BUILTIN_BSWAP32)
 	return __builtin_bswap32(val);
 #else
-	return ((val >> 24) & 0x000000ff) |
-	       ((val << 8)  & 0x00ff0000) |
-	       ((val >> 8)  & 0x0000ff00) |
-	       ((val << 24) & 0xff000000);
+	return ((val >> 24) & 0x000000ffUL) |
+	       ((val << 8)  & 0x00ff0000UL) |
+	       ((val >> 8)  & 0x0000ff00UL) |
+	       ((val << 24) & 0xff000000UL);
 #endif
 }
 
