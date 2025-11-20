@@ -23,70 +23,77 @@
 #include <getopt.h>
 
 /* Option bit masks */
-#define OPT_FLAGS_SPARE0	 STRESS_BIT_ULL(0)
-#define OPT_FLAGS_SPARE1	 STRESS_BIT_ULL(1)
-#define OPT_FLAGS_SPARE2	 STRESS_BIT_ULL(2)
-#define OPT_FLAGS_SPARE3	 STRESS_BIT_ULL(3)
-#define OPT_FLAGS_SPARE4	 STRESS_BIT_ULL(4)
-#define OPT_FLAGS_SPARE5	 STRESS_BIT_ULL(5)
-#define OPT_FLAGS_METRICS	 STRESS_BIT_ULL(6)	/* --metrics, Dump metrics at end */
-#define OPT_FLAGS_RANDOM	 STRESS_BIT_ULL(7)	/* --random, Randomize */
-#define OPT_FLAGS_SET		 STRESS_BIT_ULL(8)	/* Set if user specifies stress procs */
-#define OPT_FLAGS_KEEP_NAME	 STRESS_BIT_ULL(9)	/* --keep-name, Keep stress names to stress-ng */
-#define OPT_FLAGS_METRICS_BRIEF	 STRESS_BIT_ULL(10)	/* --metrics-brief, dump brief metrics */
-#define OPT_FLAGS_VERIFY	 STRESS_BIT_ULL(11)	/* --verify, verify mode */
-#define OPT_FLAGS_MMAP_MADVISE	 STRESS_BIT_ULL(12)	/* --no-madvise, disable random madvise settings */
-#define OPT_FLAGS_MMAP_MINCORE	 STRESS_BIT_ULL(13)	/* --page-in, mincore force pages into mem */
-#define OPT_FLAGS_TIMES		 STRESS_BIT_ULL(14)	/* --times, user/system time summary */
-#define OPT_FLAGS_MINIMIZE	 STRESS_BIT_ULL(15)	/* --minimize, Minimize */
-#define OPT_FLAGS_MAXIMIZE	 STRESS_BIT_ULL(16)	/* --maximize Maximize */
-#define OPT_FLAGS_SPARE17	 STRESS_BIT_ULL(17)
-#define OPT_FLAGS_AGGRESSIVE	 STRESS_BIT_ULL(18)	/* --aggressive, aggressive mode enabled */
-#define OPT_FLAGS_ALL		 STRESS_BIT_ULL(19)	/* --all mode */
-#define OPT_FLAGS_SEQUENTIAL	 STRESS_BIT_ULL(20)	/* --sequential mode */
-#define OPT_FLAGS_PERF_STATS	 STRESS_BIT_ULL(21)	/* --perf stats mode */
-#define OPT_FLAGS_SPARE22	 STRESS_BIT_ULL(22)
-#define OPT_FLAGS_THERMAL_ZONES  STRESS_BIT_ULL(23)	/* --tz thermal zones */
-#define OPT_FLAGS_SOCKET_NODELAY STRESS_BIT_ULL(24)	/* --sock-nodelay */
-#define OPT_FLAGS_IGNITE_CPU	 STRESS_BIT_ULL(25)	/* --cpu-ignite */
-#define OPT_FLAGS_PATHOLOGICAL	 STRESS_BIT_ULL(26)	/* --pathological */
-#define OPT_FLAGS_NO_RAND_SEED	 STRESS_BIT_ULL(27)	/* --no-rand-seed */
-#define OPT_FLAGS_THRASH	 STRESS_BIT_ULL(28)	/* --thrash */
-#define OPT_FLAGS_OOMABLE	 STRESS_BIT_ULL(29)	/* --oomable */
-#define OPT_FLAGS_ABORT		 STRESS_BIT_ULL(30)	/* --abort */
-#define OPT_FLAGS_SPARE31	 STRESS_BIT_ULL(31)
-#define OPT_FLAGS_SCHED_RECLAIM  STRESS_BIT_ULL(32)	/* --sched-reclaim */
-#define OPT_FLAGS_FTRACE	 STRESS_BIT_ULL(33)	/* --ftrace */
-#define OPT_FLAGS_SEED		 STRESS_BIT_ULL(34)	/* --seed */
-#define OPT_FLAGS_SPARE35	 STRESS_BIT_ULL(35)
-#define OPT_FLAGS_SMART		 STRESS_BIT_ULL(36)	/* --smart */
-#define OPT_FLAGS_NO_OOM_ADJUST	 STRESS_BIT_ULL(37)	/* --no-oom-adjust */
-#define OPT_FLAGS_KEEP_FILES	 STRESS_BIT_ULL(38)	/* --keep-files */
-#define OPT_FLAGS_SPARE39	 STRESS_BIT_ULL(39)
-#define OPT_FLAGS_SPARE40 	 STRESS_BIT_ULL(40)
-#define OPT_FLAGS_KLOG_CHECK	 STRESS_BIT_ULL(41)	/* --klog-check */
-#define OPT_FLAGS_DRY_RUN	 STRESS_BIT_ULL(42)	/* --dry-run, don't actually run */
-#define OPT_FLAGS_OOM_AVOID	 STRESS_BIT_ULL(43)	/* --oom-avoid */
-#define OPT_FLAGS_TZ_INFO	 STRESS_BIT_ULL(44)	/* --tz, enable thermal zone info */
-#define OPT_FLAGS_SPARE45	 STRESS_BIT_ULL(45)
-#define OPT_FLAGS_SN		 STRESS_BIT_ULL(46)	/* --sn scientific notation */
-#define OPT_FLAGS_CHANGE_CPU	 STRESS_BIT_ULL(47)	/* --change-cpu */
-#define OPT_FLAGS_KSM		 STRESS_BIT_ULL(48)	/* --ksm */
-#define OPT_FLAGS_SETTINGS	 STRESS_BIT_ULL(49)	/* --settings */
-#define OPT_FLAGS_WITH		 STRESS_BIT_ULL(50)	/* --with list */
-#define OPT_FLAGS_PERMUTE	 STRESS_BIT_ULL(51)	/* --permute N */
-#define OPT_FLAGS_INTERRUPTS	 STRESS_BIT_ULL(52)	/* --interrupts */
-#define OPT_FLAGS_PROGRESS	 STRESS_BIT_ULL(53)	/* --progress */
-#define OPT_FLAGS_SYNC_START	 STRESS_BIT_ULL(54)	/* --sync-start */
-#define OPT_FLAGS_RAPL		 STRESS_BIT_ULL(55)	/* --rapl */
-#define OPT_FLAGS_RAPL_REQUIRED  STRESS_BIT_ULL(56)	/* set if RAPL is required */
-#define OPT_FLAGS_C_STATES	 STRESS_BIT_ULL(57)	/* --c-states */
-#define OPT_FLAGS_STRESSOR_TIME	 STRESS_BIT_ULL(58)	/* --stressor-time */
-#define OPT_FLAGS_TASKSET_RANDOM STRESS_BIT_ULL(59)	/* --taskset-random */
-#define OPT_FLAGS_BUILDINFO	 STRESS_BIT_ULL(60)	/* --buildinfo */
-#define OPT_FLAGS_AUTOGROUP	 STRESS_BIT_ULL(61)	/* --autogroup */
-#define OPT_FLAGS_RANDPROCNAME	 STRESS_BIT_ULL(62)	/* --randprocname */
-#define OPT_FLAGS_OOM_NO_CHILD	 STRESS_BIT_ULL(63)	/* --oom-no-child */
+#define OPT_FLAGS_METRICS	 STRESS_BIT_ULL(0)	/* --metrics, Dump metrics at end */
+#define OPT_FLAGS_RANDOM	 STRESS_BIT_ULL(1)	/* --random, Randomize */
+#define OPT_FLAGS_SET		 STRESS_BIT_ULL(2)	/* Set if user specifies stress procs */
+#define OPT_FLAGS_KEEP_NAME	 STRESS_BIT_ULL(3)	/* --keep-name, Keep stress names to stress-ng */
+#define OPT_FLAGS_METRICS_BRIEF	 STRESS_BIT_ULL(4)	/* --metrics-brief, dump brief metrics */
+#define OPT_FLAGS_VERIFY	 STRESS_BIT_ULL(5)	/* --verify, verify mode */
+#define OPT_FLAGS_MMAP_MADVISE	 STRESS_BIT_ULL(6)	/* --no-madvise, disable random madvise settings */
+#define OPT_FLAGS_MMAP_MINCORE	 STRESS_BIT_ULL(7)	/* --page-in, mincore force pages into mem */
+
+#define OPT_FLAGS_TIMES		 STRESS_BIT_ULL(8)	/* --times, user/system time summary */
+#define OPT_FLAGS_MINIMIZE	 STRESS_BIT_ULL(9)	/* --minimize, Minimize */
+#define OPT_FLAGS_MAXIMIZE	 STRESS_BIT_ULL(10)	/* --maximize Maximize */
+#define OPT_FLAGS_AGGRESSIVE	 STRESS_BIT_ULL(11)	/* --aggressive, aggressive mode enabled */
+#define OPT_FLAGS_ALL		 STRESS_BIT_ULL(12)	/* --all mode */
+#define OPT_FLAGS_SEQUENTIAL	 STRESS_BIT_ULL(13)	/* --sequential mode */
+#define OPT_FLAGS_PERF_STATS	 STRESS_BIT_ULL(14)	/* --perf stats mode */
+#define OPT_FLAGS_THERMAL_ZONES  STRESS_BIT_ULL(15)	/* --tz thermal zones */
+
+#define OPT_FLAGS_SOCKET_NODELAY STRESS_BIT_ULL(16)	/* --sock-nodelay */
+#define OPT_FLAGS_IGNITE_CPU	 STRESS_BIT_ULL(17)	/* --cpu-ignite */
+#define OPT_FLAGS_PATHOLOGICAL	 STRESS_BIT_ULL(18)	/* --pathological */
+#define OPT_FLAGS_NO_RAND_SEED	 STRESS_BIT_ULL(19)	/* --no-rand-seed */
+#define OPT_FLAGS_THRASH	 STRESS_BIT_ULL(20)	/* --thrash */
+#define OPT_FLAGS_OOMABLE	 STRESS_BIT_ULL(21)	/* --oomable */
+#define OPT_FLAGS_ABORT		 STRESS_BIT_ULL(22)	/* --abort */
+#define OPT_FLAGS_SCHED_RECLAIM  STRESS_BIT_ULL(23)	/* --sched-reclaim */
+
+#define OPT_FLAGS_FTRACE	 STRESS_BIT_ULL(24)	/* --ftrace */
+#define OPT_FLAGS_SEED		 STRESS_BIT_ULL(25)	/* --seed */
+#define OPT_FLAGS_SMART		 STRESS_BIT_ULL(26)	/* --smart */
+#define OPT_FLAGS_NO_OOM_ADJUST	 STRESS_BIT_ULL(27)	/* --no-oom-adjust */
+#define OPT_FLAGS_KEEP_FILES	 STRESS_BIT_ULL(28)	/* --keep-files */
+#define OPT_FLAGS_KLOG_CHECK	 STRESS_BIT_ULL(29)	/* --klog-check */
+#define OPT_FLAGS_DRY_RUN	 STRESS_BIT_ULL(30)	/* --dry-run, don't actually run */
+#define OPT_FLAGS_OOM_AVOID	 STRESS_BIT_ULL(31)	/* --oom-avoid */
+
+#define OPT_FLAGS_TZ_INFO	 STRESS_BIT_ULL(32)	/* --tz, enable thermal zone info */
+#define OPT_FLAGS_SN		 STRESS_BIT_ULL(33)	/* --sn scientific notation */
+#define OPT_FLAGS_CHANGE_CPU	 STRESS_BIT_ULL(34)	/* --change-cpu */
+#define OPT_FLAGS_KSM		 STRESS_BIT_ULL(35)	/* --ksm */
+#define OPT_FLAGS_SETTINGS	 STRESS_BIT_ULL(36)	/* --settings */
+#define OPT_FLAGS_WITH		 STRESS_BIT_ULL(37)	/* --with list */
+#define OPT_FLAGS_PERMUTE	 STRESS_BIT_ULL(38)	/* --permute N */
+#define OPT_FLAGS_INTERRUPTS	 STRESS_BIT_ULL(39)	/* --interrupts */
+
+#define OPT_FLAGS_PROGRESS	 STRESS_BIT_ULL(40)	/* --progress */
+#define OPT_FLAGS_SYNC_START	 STRESS_BIT_ULL(41)	/* --sync-start */
+#define OPT_FLAGS_RAPL		 STRESS_BIT_ULL(42)	/* --rapl */
+#define OPT_FLAGS_RAPL_REQUIRED  STRESS_BIT_ULL(43)	/* set if RAPL is required */
+#define OPT_FLAGS_C_STATES	 STRESS_BIT_ULL(44)	/* --c-states */
+#define OPT_FLAGS_STRESSOR_TIME	 STRESS_BIT_ULL(45)	/* --stressor-time */
+#define OPT_FLAGS_TASKSET_RANDOM STRESS_BIT_ULL(46)	/* --taskset-random */
+#define OPT_FLAGS_BUILDINFO	 STRESS_BIT_ULL(47)	/* --buildinfo */
+
+#define OPT_FLAGS_AUTOGROUP	 STRESS_BIT_ULL(48)	/* --autogroup */
+#define OPT_FLAGS_RANDPROCNAME	 STRESS_BIT_ULL(49)	/* --randprocname */
+#define OPT_FLAGS_OOM_NO_CHILD	 STRESS_BIT_ULL(50)	/* --oom-no-child */
+#define OPT_FLAGS_SPARE_51	 STRESS_BIT_ULL(51)
+#define OPT_FLAGS_SPARE_52	 STRESS_BIT_ULL(52)
+#define OPT_FLAGS_SPARE_53	 STRESS_BIT_ULL(53)
+#define OPT_FLAGS_SPARE_54	 STRESS_BIT_ULL(54)
+#define OPT_FLAGS_SPARE_55	 STRESS_BIT_ULL(55)
+
+#define OPT_FLAGS_SPARE_56	 STRESS_BIT_ULL(56)
+#define OPT_FLAGS_SPARE_57	 STRESS_BIT_ULL(57)
+#define OPT_FLAGS_SPARE_58	 STRESS_BIT_ULL(58)
+#define OPT_FLAGS_SPARE_59	 STRESS_BIT_ULL(59)
+#define OPT_FLAGS_SPARE_60	 STRESS_BIT_ULL(60)
+#define OPT_FLAGS_SPARE_61	 STRESS_BIT_ULL(61)
+#define OPT_FLAGS_SPARE_62	 STRESS_BIT_ULL(62)
+#define OPT_FLAGS_SPARE_63	 STRESS_BIT_ULL(63)
 
 #define OPT_FLAGS_MINMAX_MASK		\
 	(OPT_FLAGS_MINIMIZE | OPT_FLAGS_MAXIMIZE)
