@@ -380,7 +380,7 @@ redo:
 
 	if (controller) {
 		for (i = 1; i < args->instances; i++)
-			kill(pids[i], SIGSTOP);
+			(void)kill(pids[i], SIGSTOP);
 
 		switch (varyload_type) {
 		case STRESS_VARYLOAD_TYPE_SAW_INC:
@@ -492,7 +492,7 @@ redo:
 		}
 
 		for (i = 1; i < args->instances; i++)
-			kill(pids[i], SIGCONT);
+			(void)kill(pids[i], SIGCONT);
 	} else {
 		do {
 			stress_varyload_waste_time(args, varyload_method,
