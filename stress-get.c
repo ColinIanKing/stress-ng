@@ -838,6 +838,41 @@ static int stress_lookup_dcookie(stress_args_t *args)
 	return EXIT_SUCCESS;
 }
 
+static int stress_nslist(stress_args_t *args)
+{
+	static const int ns_types[] = {
+		0,		/* ALL */
+		(1ULL << 7),	/* TIME_NS */
+		(1ULL << 17),	/* MNT_NS */
+		(1ULL << 25),	/* CGROUP_NS */
+		(1ULL << 26),	/* UTS_NS */
+		(1ULL << 27),	/* IPC_NS */
+		(1ULL << 28),	/* USER_NS */
+		(1ULL << 29),	/* PID_NS */
+		(1ULL << 30),	/* NET_NS */
+	};
+
+	struct shim_ns_id_req req;
+	uint64_t ids[128];
+	ssize_t ret;
+	const size_t idx = stress_mwcsizemodn(SIZEOF_ARRAY(ns_types));
+
+	(void)args;
+
+	(void)memset(&req, 0, sizeof(req));
+	req.size = sizeof(req);
+	req.ns_id = 0;
+	req.ns_type = ns_types[idx];
+	req.user_ns_id = 0;
+	errno = 0;
+
+	ret = shim_listns(&req, ids, SIZEOF_ARRAY(ids), 0);
+	if ((ret < 0) && (errno != ENOSYS))
+		return EXIT_FAILURE;
+
+	return EXIT_SUCCESS;
+}
+
 static int stress_adjtimex(stress_args_t *args)
 {
 #if defined(HAVE_SYS_TIMEX_H) &&	\
@@ -1000,6 +1035,7 @@ static const stress_get_func_t stress_get_funcs[] = {
 	stress_gettimeofday,
 	stress_getuid,
 	stress_lookup_dcookie,
+	stress_nslist,
 	stress_prlimit,
 	stress_sgetmask,
 	stress_statfs,

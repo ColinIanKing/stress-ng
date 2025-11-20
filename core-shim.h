@@ -531,6 +531,15 @@ typedef struct shim_file_attr {
 	uint32_t fa_cowextsize;
 } shim_file_attr_t;
 
+typedef struct shim_ns_id_req {
+	uint32_t size;
+	uint32_t spare;
+	uint64_t ns_id;
+	uint32_t ns_type;
+	uint32_t spare2;
+	uint64_t user_ns_id;
+} shim_ns_id_req_t;
+
 /*
  *  shim_unconstify_ptr()
  *      some older system calls require non-const void *
@@ -724,4 +733,6 @@ extern int shim_file_getattr(int dfd, const char *filename,
 extern int shim_file_setattr(int dfd, const char *filename,
 	struct shim_file_attr *ufattr, size_t usize, unsigned int at_flags);
 extern int shim_pause(void);
+extern ssize_t shim_listns(const struct shim_ns_id_req *req, uint64_t *ns_ids,
+        size_t nr_ns_ids, unsigned int flags);
 #endif

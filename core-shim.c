@@ -3096,3 +3096,22 @@ int shim_pause(void)
 	return -1;
 #endif
 }
+
+/*
+ * shim_listns()
+ *	shim wrapper for listns()
+ */
+ssize_t shim_listns(
+	const struct shim_ns_id_req *req,
+	uint64_t *ns_ids,
+	size_t nr_ns_ids,
+	unsigned int flags)
+{
+#if defined(HAVE_LISTNS)
+	return listns(req, ns_ids, nr_ns_ids, flags);
+#elif defined(__NR_listns)
+	return (ssize_t)syscall(__NR_listns, req, ns_ids, nr_ns_ids, flags);
+#else
+	return (ssize_t)shim_enosys(0, req, ns_ids, nr_ns_ids, flags);
+#endif
+}
