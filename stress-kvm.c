@@ -145,25 +145,23 @@ static int stress_kvm(stress_args_t *args)
 	do {
 #if defined(STRESS_KVM_X86)
 		struct kvm_sregs sregs;
+		uint8_t value = 0;
 #endif
 		struct kvm_regs regs;
 		struct kvm_userspace_memory_region kvm_mem;
-#if defined(STRESS_KVM_ARM)
-		struct kvm_one_reg reg;
-		struct kvm_vcpu_init vcpu;
-#endif
 		struct kvm_run *run;
 		int kvm_fd, vm_fd, vcpu_fd, version, ret, i;
 		void *vm_mem;
 #if defined(STRESS_KVM_ARM)
 		void *mmio_mem;
+		struct kvm_one_reg reg;
+		struct kvm_vcpu_init vcpu;
 		const uint64_t arm_pc_index = ((uint8_t *)&regs.regs.pc - (uint8_t *)&regs) / sizeof(uint32_t);
 		const uint64_t arm_entry_addr = PHYS_ADDR;
 #endif
 		const size_t vm_mem_size = args->page_size;
 		ssize_t run_size;
 		bool run_ok = false;
-		uint8_t value = 0;
 
 		kvm_fd = stress_kvm_open(args->name, stress_instance_zero(args));
 		if (kvm_fd < 0)
@@ -342,7 +340,9 @@ static int stress_kvm(stress_args_t *args)
 		}
 
 		for (i = 0; LIKELY((i < 1000) && stress_continue(args)); i++) {
+#if defined(STRESS_KVM_X86)
 			uint8_t *port;
+#endif
 
 			ret = ioctl(vcpu_fd, KVM_RUN, 0);
 			if (ret < 0) {
@@ -353,6 +353,7 @@ static int stress_kvm(stress_args_t *args)
 				goto tidy_run;
 			}
 			switch (run->exit_reason) {
+#if defined(STRESS_KVM_X86)
 			case KVM_EXIT_IO:
 				port = (uint8_t *)run + run->io.data_offset;
 				if (run->io.direction == 0) {
@@ -367,6 +368,12 @@ static int stress_kvm(stress_args_t *args)
 					goto tidy_run;
 				}
 				break;
+#endif
+#if defined(STRESS_KVM_ARM)
+			case KVM_EXIT_MMIO:
+				run_ok = true;
+				goto tidy_run;
+#endif
 			case KVM_EXIT_SHUTDOWN:
 				goto tidy_run;
 			default:
