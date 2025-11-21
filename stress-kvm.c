@@ -35,6 +35,19 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
+#if defined(STRESS_ARCH_X86) &&	\
+    !defined(__i386__) &&	\
+    !defined(__i386)
+#define STRESS_KVM_X86
+#define PHYS_ADDR	(0x00000000)
+#endif
+
+#if defined(STRESS_ARCH_ARM) &&	\
+    defined(__ARM_ARCH_ISA_A64)
+#define STRESS_KVM_ARM
+#define PHYS_ADDR	(0x04000000)
+#endif
+
 #if defined(__linux__)	&&			\
     defined(HAVE_LINUX_KVM_H) && 		\
     defined(KVM_CREATE_VM) &&			\
@@ -47,9 +60,8 @@ static const stress_help_t help[] = {
     defined(KVM_RUN) &&				\
     defined(KVM_EXIT_IO) &&			\
     defined(KVM_EXIT_SHUTDOWN) &&		\
-    defined(STRESS_ARCH_X86) &&			\
-    !defined(__i386__) &&			\
-    !defined(__i386)
+    (defined(STRESS_KVM_X86) ||			\
+     defined(STRESS_KVM_ARM))
 
 static int stress_kvm_open(const char *name, const bool report)
 {
@@ -92,10 +104,11 @@ static int stress_kvm_supported(const char *name)
 	return 0;
 }
 
+#if defined(STRESS_KVM_X86)
 /*
  *  Minimal x86 kernel, read/increment/write port $80 loop
  */
-static const uint8_t kvm_x86_kernel[] = {
+static const uint8_t kvm_kernel[] = {
 	0x31, 0xc0,  /* xor    %eax,%eax */
 	0x0f, 0xa2,  /* cpuid */
 	0x0f, 0x31,  /* rdtsc */
@@ -105,6 +118,17 @@ static const uint8_t kvm_x86_kernel[] = {
 	0xe7, 0x80,  /* out    %eax,$0x80 */
 	0xeb, 0xf1,  /* jmp    0 <_start> */
 };
+#endif
+
+#if defined(STRESS_KVM_ARM)
+static const uint8_t kvm_kernel[] = {
+	0x01, 0x00, 0xb0, 0xd2,	/* mov     x1, #0x80000000 */
+	0x00, 0x00, 0x80, 0x12, /* mov     w0, #0xffffffff */
+	0x20, 0x00, 0x00, 0x39, /* strb    w0, [x1] */
+	0x20, 0x00, 0x00, 0x39, /* strb    w0, [x1] */
+	0xfe, 0xff, 0xff, 0x17, /* b       768 <_start+0x8> */
+};
+#endif
 
 /*
  *  stress_kvm
@@ -119,14 +143,25 @@ static int stress_kvm(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
+#if defined(STRESS_KVM_X86)
+		struct kvm_sregs sregs;
+#endif
+		struct kvm_regs regs;
+		struct kvm_userspace_memory_region kvm_mem;
+#if defined(STRESS_KVM_ARM)
+		struct kvm_one_reg reg;
+		struct kvm_vcpu_init vcpu;
+#endif
+		struct kvm_run *run;
 		int kvm_fd, vm_fd, vcpu_fd, version, ret, i;
 		void *vm_mem;
-		const size_t vm_mem_size = (stress_mwc16() + 2) * args->page_size;
+#if defined(STRESS_KVM_ARM)
+		void *mmio_mem;
+		const uint64_t arm_pc_index = ((uint8_t *)&regs.regs.pc - (uint8_t *)&regs) / sizeof(uint32_t);
+		const uint64_t arm_entry_addr = PHYS_ADDR;
+#endif
+		const size_t vm_mem_size = args->page_size;
 		ssize_t run_size;
-		struct kvm_userspace_memory_region kvm_mem;
-		struct kvm_sregs sregs;
-		struct kvm_regs regs;
-		struct kvm_run *run;
 		bool run_ok = false;
 		uint8_t value = 0;
 
@@ -161,23 +196,49 @@ static int stress_kvm(stress_args_t *args)
 			-1, 0);
 		if (vm_mem == MAP_FAILED)
 			goto tidy_vm_fd;
-		stress_set_vma_anon_name(vm_mem, vm_mem_size, "vm-memory");
 		(void)stress_madvise_mergeable(vm_mem, vm_mem_size);
 
 		(void)shim_memset(&kvm_mem, 0, sizeof(kvm_mem));
 		kvm_mem.slot = 0;
 		kvm_mem.guest_phys_addr = 0;
+		kvm_mem.guest_phys_addr = PHYS_ADDR;
 		kvm_mem.memory_size = vm_mem_size;
 		kvm_mem.userspace_addr = (uintptr_t)vm_mem;
-
+		kvm_mem.flags = 0;
 		ret = ioctl(vm_fd, KVM_SET_USER_MEMORY_REGION, &kvm_mem);
 		if (ret < 0) {
 			if (errno == EINTR)
 				goto tidy_vm_mmap;
-			pr_fail("%s: ioctl KVM_SET_USER_MEMORY_REGION failed, errno=%d (%s)\n",
+			pr_fail("%s: ioctl KVM_SET_USER_MEMORY_REGION for text region failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			goto tidy_vm_mmap;
 		}
+
+#if defined(STRESS_KVM_ARM)
+		/*
+		 *  ARM: 1 page r/o MMIO space at 0x80000000
+		 */
+		mmio_mem = stress_mmap_populate(NULL, 2 * args->page_size,
+			PROT_READ,
+			MAP_PRIVATE | MAP_ANONYMOUS | MAP_NORESERVE,
+			-1, 0);
+		if (mmio_mem == MAP_FAILED)
+			goto tidy_vm_fd;
+
+		kvm_mem.slot = 1;
+		kvm_mem.guest_phys_addr = 0x80000000;
+		kvm_mem.memory_size = args->page_size * 2;
+		kvm_mem.userspace_addr = (uintptr_t)mmio_mem;
+		kvm_mem.flags = KVM_MEM_READONLY;
+		ret = ioctl(vm_fd, KVM_SET_USER_MEMORY_REGION, &kvm_mem);
+		if (ret < 0) {
+			if (errno == EINTR)
+				goto tidy_vm_mmap;
+			pr_fail("%s: ioctl KVM_SET_USER_MEMORY_REGION for MMIO memory failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
+			goto tidy_mmio_mmap;
+		}
+#endif
 
 		vcpu_fd = ioctl(vm_fd, KVM_CREATE_VCPU, 0);
 		if (vcpu_fd < 0) {
@@ -185,10 +246,12 @@ static int stress_kvm(stress_args_t *args)
 				goto tidy_vm_mmap;
 			pr_fail("%s: ioctl KVM_CREATE_VCPU failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
-			goto tidy_vm_mmap;
+			goto tidy_mmio_mmap;
 		}
 
-		(void)shim_memcpy(vm_mem, &kvm_x86_kernel, sizeof(kvm_x86_kernel));
+		(void)shim_memcpy(vm_mem, &kvm_kernel, sizeof(kvm_kernel));
+
+#if defined(STRESS_KVM_X86)
 		if (ioctl(vcpu_fd, KVM_GET_SREGS, &sregs) < 0) {
 			if (errno == EINTR)
 				goto tidy_vcpu_fd;
@@ -215,8 +278,18 @@ static int stress_kvm(stress_args_t *args)
 				args->name, errno, strerror(errno));
 			goto tidy_vcpu_fd;
 		}
+#endif
+
+#if defined(STRESS_KVM_X86)
+		if (ioctl(vcpu_fd, KVM_GET_REGS, &regs) < 0) {
+			pr_fail("%s: ioctl KVM_GET_REGS failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
+			goto tidy_vcpu_fd;
+		}
+#endif
 
 		(void)shim_memset(&regs, 0, sizeof(regs));
+#if defined(STRESS_KVM_X86)
 		regs.rflags = 2;
 		regs.rip = 0;
 		if (ioctl(vcpu_fd, KVM_SET_REGS, &regs) < 0) {
@@ -226,6 +299,29 @@ static int stress_kvm(stress_args_t *args)
 				args->name, errno, strerror(errno));
 			goto tidy_vcpu_fd;
 		}
+#endif
+#if defined(STRESS_KVM_ARM)
+		(void)memset(&vcpu, 0, sizeof(vcpu));
+		if (ioctl(vm_fd, KVM_ARM_PREFERRED_TARGET, &vcpu) < 0) {
+			pr_fail("%s: ioctl KVM_ARM_PREFERRED_TARGET failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
+			goto tidy_vcpu_fd;
+		}
+		vcpu.features[0] |= 1 << KVM_ARM_VCPU_PSCI_0_2;
+		if (ioctl(vcpu_fd, KVM_ARM_VCPU_INIT, &vcpu) < 0) {
+			pr_fail("%s: ioctl KVM_ARM_VCPU_INIT failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
+			goto tidy_vcpu_fd;
+		}
+		reg.id = KVM_REG_ARM64 | KVM_REG_SIZE_U64 | KVM_REG_ARM_CORE | arm_pc_index;
+		reg.addr = (uint64_t)&arm_entry_addr;
+
+		if (ioctl(vcpu_fd, KVM_SET_ONE_REG, &reg) < 0) {
+			pr_fail("%s: ioctl KVM_SET_ONE_REG failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
+			goto tidy_vcpu_fd;
+		}
+#endif
 
 		run_size = (ssize_t)ioctl(kvm_fd, KVM_GET_VCPU_MMAP_SIZE, 0);
 		if (run_size < 0) {
@@ -244,7 +340,6 @@ static int stress_kvm(stress_args_t *args)
 				errno, strerror(errno));
 			goto tidy_vcpu_fd;
 		}
-		stress_set_vma_anon_name(run, (size_t)run_size, "kvm-run");
 
 		for (i = 0; LIKELY((i < 1000) && stress_continue(args)); i++) {
 			uint8_t *port;
@@ -277,14 +372,16 @@ static int stress_kvm(stress_args_t *args)
 			default:
 				break;
 			}
-#if defined(KVM_GET_REGS)
+#if defined(STRESS_KVM_X86) &&	\
+    defined(KVM_GET_REGS)
 			{
 				struct kvm_regs kregs;
 
 				VOID_RET(int, ioctl(vcpu_fd, KVM_GET_REGS, &kregs));
 			}
 #endif
-#if defined(KVM_GET_FPU)
+#if defined(STRESS_KVM_X86) &&	\
+    defined(KVM_GET_FPU)
 			{
 				struct kvm_fpu fpu;
 
@@ -298,14 +395,16 @@ static int stress_kvm(stress_args_t *args)
 				VOID_RET(int, ioctl(vcpu_fd, KVM_GET_MP_STATE, &state));
 			}
 #endif
-#if defined(KVM_GET_XSAVE)
+#if defined(STRESS_KVM_X86) &&	\
+    defined(KVM_GET_XSAVE)
 			{
 				struct kvm_xsave xsave;
 
 				VOID_RET(int, ioctl(vcpu_fd, KVM_GET_XSAVE, &xsave));
 			}
 #endif
-#if defined(KVM_GET_TSC_KHZ)
+#if defined(STRESS_KVM_X86) &&	\
+    defined(KVM_GET_TSC_KHZ)
 			VOID_RET(int, ioctl(vcpu_fd, KVM_GET_TSC_KHZ, 0));
 #endif
 		}
@@ -313,7 +412,26 @@ tidy_run:
 		(void)munmap((void *)run, (size_t)run_size);
 tidy_vcpu_fd:
 		(void)close(vcpu_fd);
+tidy_mmio_mmap:
+#if defined(STRESS_KVM_ARM)
+		kvm_mem.slot = 1;
+		kvm_mem.guest_phys_addr = 0x80000000;
+		kvm_mem.memory_size = 0;
+		kvm_mem.userspace_addr = (uintptr_t)mmio_mem;
+		kvm_mem.flags = 0;
+		ret = ioctl(vm_fd, KVM_SET_USER_MEMORY_REGION, &kvm_mem);
+
+		(void)munmap((void *)mmio_mem, args->page_size);
+#endif
 tidy_vm_mmap:
+		kvm_mem.slot = 0;
+		kvm_mem.guest_phys_addr = 0;
+		kvm_mem.guest_phys_addr = PHYS_ADDR;
+		kvm_mem.memory_size = vm_mem_size;
+		kvm_mem.userspace_addr = (uintptr_t)vm_mem;
+		kvm_mem.flags = 0;
+		ret = ioctl(vm_fd, KVM_SET_USER_MEMORY_REGION, &kvm_mem);
+
 		(void)munmap((void *)vm_mem, vm_mem_size);
 tidy_vm_fd:
 		(void)close(vm_fd);
