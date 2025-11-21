@@ -156,6 +156,7 @@ static int stress_kvm(stress_args_t *args)
 		void *mmio_mem;
 		struct kvm_one_reg reg;
 		struct kvm_vcpu_init vcpu;
+		int mmio_exits = 0;
 		const uint64_t arm_pc_index = ((uint8_t *)&regs.regs.pc - (uint8_t *)&regs) / sizeof(uint32_t);
 		const uint64_t arm_entry_addr = PHYS_ADDR;
 #endif
@@ -371,8 +372,12 @@ static int stress_kvm(stress_args_t *args)
 #endif
 #if defined(STRESS_KVM_ARM)
 			case KVM_EXIT_MMIO:
-				run_ok = true;
-				goto tidy_run;
+				mmio_exits++;
+				if (mmio_exits > 255) {
+					run_ok = true;
+					goto tidy_run;
+				}
+				break;
 #endif
 			case KVM_EXIT_SHUTDOWN:
 				goto tidy_run;
