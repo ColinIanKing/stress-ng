@@ -195,3 +195,7 @@
  * [TUNA: Tuning Unstable and Noisy Cloud Applications](https://www.microsoft.com/en-us/research/wp-content/uploads/2025/02/TUNA_EuroSys_2025.pdf)
  * [Adaptive Machine Learning for Resource-Constrained Environments](https://arxiv.org/pdf/2503.18634)
  * [A comprehensive performance evaluation of TEEs for confidential DNA alignment](https://iris.unito.it/retrieve/c4c635a3-4b06-4b75-9bdb-c36abb43ae76/1-s2.0-S0167739X25003267-main.pdf)
+ * [FUKURO: An Agent-Driven Framework for Real-Time Remote Host Resource Managemen](https://rsisinternational.org/journals/ijriss/download_pdf.php?id=2021)
+ * [TZ-LLM: Protecting On-Device Large Language Models with Arm TrustZone](https://arxiv.org/pdf/2511.13717)
+ * [Graph Neural Networks for Anomaly Detection in Cloud Infrastructure](https://www.scirp.org/pdf/jcc_1733321.pdf)
+
