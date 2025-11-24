@@ -2,7 +2,9 @@
 
 export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 DPKG_EXPORT_BUILDFLAGS = 1
+DPKG_EXPORT_BUILDTOOLS = 1
 include /usr/share/dpkg/buildflags.mk
+include /usr/share/dpkg/buildtools.mk
 
 override_dh_auto_build:
 	$(shell dpkg-buildflags --export=sh); dh_auto_build -- $(if $(filter terse,$(DEB_BUILD_OPTIONS)),,VERBOSE=1)
