@@ -48,6 +48,11 @@ static const stress_help_t help[] = {
 #define PHYS_ADDR	(0x04000000)
 #endif
 
+#if defined(STRESS_ARCH_RISCV)
+#define STRESS_KVM_RISCV
+#define PHYS_ADDR	(0x04000000)
+#endif
+
 #if defined(__linux__)	&&			\
     defined(HAVE_LINUX_KVM_H) && 		\
     defined(KVM_CREATE_VM) &&			\
@@ -61,7 +66,8 @@ static const stress_help_t help[] = {
     defined(KVM_EXIT_IO) &&			\
     defined(KVM_EXIT_SHUTDOWN) &&		\
     (defined(STRESS_KVM_X86) ||			\
-     defined(STRESS_KVM_ARM))
+     defined(STRESS_KVM_ARM) ||			\
+     defined(STRESS_KVM_RISCV))
 
 static int stress_kvm_open(const char *name, const bool report)
 {
@@ -130,6 +136,17 @@ static const uint8_t kvm_kernel[] = {
 };
 #endif
 
+#if defined(STRESS_KVM_RISCV)
+static const uint8_t kvm_kernel[] = {
+	0x85, 0x47,		/* li   a5, 1 */
+	0xfe, 0x07,		/* slli a5,a5,0x1f */
+	0x7d, 0x57,		/* li   a5, 0xff */
+	0x23, 0x80, 0xe7, 0x00,	/* sb   a4,0(a5) */
+	0x23, 0x80, 0xe7, 0x00, /* sb   a4,0(a5) */
+	0xe5, 0xbf,		/* j    66e <_start+0x6) */
+};
+#endif
+
 /*
  *  stress_kvm
  *	stress /dev/kvm
@@ -152,13 +169,17 @@ static int stress_kvm(stress_args_t *args)
 		struct kvm_run *run;
 		int kvm_fd, vm_fd, vcpu_fd, version, ret, i;
 		void *vm_mem;
-#if defined(STRESS_KVM_ARM)
+#if defined(STRESS_KVM_ARM) ||	\
+    defined(STRESS_KVM_RISCV)
 		void *mmio_mem;
-		struct kvm_one_reg reg;
-		struct kvm_vcpu_init vcpu;
 		int mmio_exits = 0;
+		struct kvm_one_reg reg;
+		const uint64_t entry_addr = PHYS_ADDR;
+#endif
+
+#if defined(STRESS_KVM_ARM)
+		struct kvm_vcpu_init vcpu;
 		const uint64_t arm_pc_index = ((uint8_t *)&regs.regs.pc - (uint8_t *)&regs) / sizeof(uint32_t);
-		const uint64_t arm_entry_addr = PHYS_ADDR;
 #endif
 		const size_t vm_mem_size = args->page_size;
 		ssize_t run_size;
@@ -213,7 +234,8 @@ static int stress_kvm(stress_args_t *args)
 			goto tidy_vm_mmap;
 		}
 
-#if defined(STRESS_KVM_ARM)
+#if defined(STRESS_KVM_ARM) ||	\
+    defined(STRESS_KVM_RISCV)
 		/*
 		 *  ARM: 1 page r/o MMIO space at 0x80000000
 		 */
@@ -313,7 +335,18 @@ static int stress_kvm(stress_args_t *args)
 			goto tidy_vcpu_fd;
 		}
 		reg.id = KVM_REG_ARM64 | KVM_REG_SIZE_U64 | KVM_REG_ARM_CORE | arm_pc_index;
-		reg.addr = (uint64_t)&arm_entry_addr;
+		reg.addr = (uint64_t)&entry_addr;
+
+		if (ioctl(vcpu_fd, KVM_SET_ONE_REG, &reg) < 0) {
+			pr_fail("%s: ioctl KVM_SET_ONE_REG failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
+			goto tidy_vcpu_fd;
+		}
+#endif
+#if defined(STRESS_KVM_RISCV)
+		/* set program counter */
+		reg.id = KVM_REG_RISCV | KVM_REG_SIZE_U64 | KVM_REG_RISCV_CORE | 0;
+		reg.addr = (uint64_t)&entry_addr;
 
 		if (ioctl(vcpu_fd, KVM_SET_ONE_REG, &reg) < 0) {
 			pr_fail("%s: ioctl KVM_SET_ONE_REG failed, errno=%d (%s)\n",
@@ -370,7 +403,8 @@ static int stress_kvm(stress_args_t *args)
 				}
 				break;
 #endif
-#if defined(STRESS_KVM_ARM)
+#if defined(STRESS_KVM_ARM) ||	\
+    defined(STRESS_KVM_RISCV)
 			case KVM_EXIT_MMIO:
 				mmio_exits++;
 				if (mmio_exits > 255) {
@@ -425,7 +459,8 @@ tidy_run:
 tidy_vcpu_fd:
 		(void)close(vcpu_fd);
 tidy_mmio_mmap:
-#if defined(STRESS_KVM_ARM)
+#if defined(STRESS_KVM_ARM) ||	\
+    defined(STRESS_KVM_RISCV)
 		kvm_mem.slot = 1;
 		kvm_mem.guest_phys_addr = 0x80000000;
 		kvm_mem.memory_size = 0;

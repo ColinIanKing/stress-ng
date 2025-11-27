@@ -4293,9 +4293,9 @@ stop klog workers after N syslog operations.
 .TQ
 .B \-\-kvm N
 start N workers that create, run and destroy a minimal virtual machine, 64 bit
-x86 and ARM Linux only.  For x86 the virtual machine reads, increments and
+ARM, RISC-V and x86 ARM Linux only.  For x86 the virtual machine reads, increments and
 writes to port 0x80 in a spin loop and the stressor handles the I/O
-transactions. For ARM64 the virtual machine writes to a MMIO region and the
+transactions. For ARM64 and RISC-V the virtual machine writes to a MMIO region and the
 stressor handles the MMIO exits.
 .TP
 .B \-\-kvm\-ops N
