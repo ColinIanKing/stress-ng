@@ -963,7 +963,11 @@ static int stress_exec(stress_args_t *args)
 	rc = EXIT_SUCCESS;
 	stress_exec_free_pid();
 
+#if (defined(HAVE_EXECVEAT) ||	\
+     defined(HAVE_FEXECVE)) &&	\
+    defined(O_PATH)
 err_rm:
+#endif
 	(void)shim_unlink(garbage_prog);
 	(void)stress_temp_dir_rm_args(args);
 
