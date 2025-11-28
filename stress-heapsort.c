@@ -326,8 +326,9 @@ tidy:
 	rate = (duration > 0.0) ? count / duration : 0.0;
 	stress_metrics_set(args, 0, "heapsort comparisons per sec",
 		rate, STRESS_METRIC_HARMONIC_MEAN);
+	rate = (sorted > 0.0) ? count / sorted : 0.0;
 	stress_metrics_set(args, 1, "heapsort comparisons per item",
-		count / sorted, STRESS_METRIC_HARMONIC_MEAN);
+		rate, STRESS_METRIC_HARMONIC_MEAN);
 
 	pr_dbg("%s: %.2f heapsort comparisons per sec\n", args->name, rate);
 
