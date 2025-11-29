@@ -503,7 +503,8 @@ typedef struct shim_timex {
 } shim_timex_t;
 #endif
 
-#if defined(HAVE_PPOLL)
+#if defined(HAVE_PPOLL) &&	\
+    defined(HAVE_POLL_H)
 typedef nfds_t shim_nfds_t;
 
 typedef struct pollfd shim_pollfd_t;
