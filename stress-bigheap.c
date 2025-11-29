@@ -230,7 +230,8 @@ static int stress_bigheap_child(stress_args_t *args, void *context)
 		if ((size > bigheap_bytes) ||
 		    (oom_avoid && stress_low_memory((size_t)bigheap_growth))) {
 			free(old_ptr);
-#if defined(HAVE_MALLOC_TRIM)
+#if defined(HAVE_MALLOC_TRIM) &&	\
+    defined(HAVE_MALLOC_H)
 			phase = STRESS_BIGHEAP_MALLOC_TRIM;
 			(void)malloc_trim(0);
 #endif
