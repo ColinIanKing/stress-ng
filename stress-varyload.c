@@ -523,7 +523,7 @@ redo:
 
 			varyload_type = STRESS_VARYLOAD_TYPE_BROWN;
 			do {
-				double now = stress_time_now();
+				now = stress_time_now();
 
 				if (now > t_next) {
 					t_next = now + STRESS_ALL_DURATION;
