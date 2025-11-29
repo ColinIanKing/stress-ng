@@ -261,7 +261,7 @@ static int stress_close(stress_args_t *args)
 		}
 	}
 
-#if defined(HAVE_FACCESSAT) || 1
+#if defined(HAVE_FACCESSAT)
 	{
 		ret = stress_temp_dir_mk_args(args);
 		if (ret < 0) {
