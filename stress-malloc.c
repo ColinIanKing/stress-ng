@@ -294,7 +294,8 @@ static void *stress_malloc_loop(void *ptr)
 					info[i].addr = aligned_alloc(tmp_align, len);
 					break;
 #endif
-#if defined(HAVE_MEMALIGN)
+#if defined(HAVE_MEMALIGN) &&	\
+    defined(HAVE_MALLOC_H)
 				case 3:
 					/* SunOS 4.1.3 */
 					stress_alloc_action("memalign", len);
@@ -348,7 +349,8 @@ static void *stress_malloc_loop(void *ptr)
 				}
 			}
 		}
-#if defined(HAVE_MALLOC_TRIM)
+#if defined(HAVE_MALLOC_TRIM) &&	\
+    defined(HAVE_MALLOC_H)
 		if (malloc_trim_opt && (trim_counter++ == 0)) {
 			stress_alloc_action("malloc_trim", 0);
 			(void)malloc_trim(0);
