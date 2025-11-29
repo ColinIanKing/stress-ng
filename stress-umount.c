@@ -48,7 +48,8 @@ static int stress_umount_supported(const char *name)
 	return 0;
 }
 
-#if defined(__linux__)
+#if defined(HAVE_SYS_MOUNT_H) &&	\
+    defined(__linux__)
 /*
  *  stress_umount_umount()
  *	umount a path with retries.
