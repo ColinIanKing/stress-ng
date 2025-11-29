@@ -180,6 +180,7 @@ static int stress_link_generic(
 			if (symlink_func) {
 				char buf[PATH_MAX];
 #if defined(O_DIRECTORY) &&	\
+    defined(HAVE_LIBGEN_H) &&	\
     defined(HAVE_READLINKAT)
 				{
 					char tmpfilename[PATH_MAX], *filename;
