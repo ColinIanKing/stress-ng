@@ -237,7 +237,10 @@ retry:
 				stress_bad_altstack_force_fault(stack);
 			goto retry;
 #else
-		case 1..4:
+		case 1:
+		case 2:
+		case 3:
+		case 4:
 			goto retry;
 #endif
 		case 5:
