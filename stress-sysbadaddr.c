@@ -1465,7 +1465,8 @@ static void bad_pread(stress_bad_addr_t *ba, volatile uint64_t *counter)
 }
 #endif
 
-#if defined(HAVE_PREADV)
+#if defined(HAVE_SYS_UIO_H) &&	\
+    defined(HAVE_PREADV)
 static void bad_preadv(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unwriteable) {
@@ -1481,7 +1482,8 @@ static void bad_preadv(stress_bad_addr_t *ba, volatile uint64_t *counter)
 }
 #endif
 
-#if defined(HAVE_PREADV2)
+#if defined(HAVE_SYS_UIO_H) &&	\
+    defined(HAVE_PREADV2)
 static void bad_preadv2(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unwriteable) {
@@ -1592,7 +1594,8 @@ static void bad_pwrite(stress_bad_addr_t *ba, volatile uint64_t *counter)
 }
 #endif
 
-#if defined(HAVE_PWRITEV)
+#if defined(HAVE_SYS_UIO_H) &&	\
+    defined(HAVE_PWRITEV)
 static void bad_pwritev(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unreadable) {
@@ -1608,7 +1611,8 @@ static void bad_pwritev(stress_bad_addr_t *ba, volatile uint64_t *counter)
 }
 #endif
 
-#if defined(HAVE_PWRITEV2)
+#if defined(HAVE_SYS_UIO_H) &&	\
+    defined(HAVE_PWRITEV2)
 static void bad_pwritev2(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unreadable) {
@@ -1662,7 +1666,8 @@ static void bad_readlink3(stress_bad_addr_t *ba, volatile uint64_t *counter)
 	}
 }
 
-#if defined(HAVE_READV)
+#if defined(HAVE_SYS_UIO_H) &&	\
+    defined(HAVE_READV)
 static void bad_readv(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unwriteable) {
@@ -2070,7 +2075,8 @@ static void bad_write(stress_bad_addr_t *ba, volatile uint64_t *counter)
 	}
 }
 
-#if defined(HAVE_WRITEV)
+#if defined(HAVE_SYS_UIO_H) &&	\
+    defined(HAVE_WRITEV)
 static void bad_writev(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unreadable) {
@@ -2305,10 +2311,12 @@ static const stress_bad_syscall_t bad_syscalls[] = {
 #if defined(HAVE_PREAD)
 	bad_pread,
 #endif
-#if defined(HAVE_PREADV)
+#if defined(HAVE_SYS_UIO_H) &&	\
+    defined(HAVE_PREADV)
 	bad_preadv,
 #endif
-#if defined(HAVE_PREADV2)
+#if defined(HAVE_SYS_UIO_H) &&	\
+    defined(HAVE_PREADV2)
 	bad_preadv2,
 #endif
 #if defined(HAVE_PTRACE) &&	\
@@ -2318,17 +2326,20 @@ static const stress_bad_syscall_t bad_syscalls[] = {
 #if defined(HAVE_PWRITE)
 	bad_pwrite,
 #endif
-#if defined(HAVE_PWRITEV)
+#if defined(HAVE_SYS_UIO_H) &&	\
+    defined(HAVE_PWRITEV)
 	bad_pwritev,
 #endif
-#if defined(HAVE_PWRITEV2)
+#if defined(HAVE_SYS_UIO_H) &&	\
+    defined(HAVE_PWRITEV2)
 	bad_pwritev2,
 #endif
 	bad_read,
 	bad_readlink1,
 	bad_readlink2,
 	bad_readlink3,
-#if defined(HAVE_READV)
+#if defined(HAVE_SYS_UIO_H) &&	\
+    defined(HAVE_READV)
 	bad_readv,
 #endif
 #if defined(HAVE_REMOVEXATTR) &&	\
@@ -2395,7 +2406,8 @@ static const stress_bad_syscall_t bad_syscalls[] = {
 	bad_waitid,
 #endif
 	bad_write,
-#if defined(HAVE_WRITEV)
+#if defined(HAVE_SYS_UIO_H) &&	\
+    defined(HAVE_WRITEV)
 	bad_writev,
 #endif
 };
