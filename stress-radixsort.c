@@ -154,7 +154,9 @@ static int radixsort_nonlibc(
 }
 
 static const stress_radixsort_method_t stress_radixsort_methods[] = {
-#if defined(HAVE_LIB_BSD)
+#if (defined(HAVE_LIB_BSD) &&		\
+     defined(HAVE_BSD_STDLIB_H)) ||	\
+    defined(HAVE_RADIXSORT)
 	{ "radixsort-libc",	radixsort },
 #endif
 	{ "radixsort-nonlibc",	radixsort_nonlibc },
