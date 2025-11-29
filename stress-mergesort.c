@@ -209,7 +209,10 @@ static int mergesort_nonlibc(
 }
 
 static const stress_mergesort_method_t stress_mergesort_methods[] = {
-#if defined(HAVE_LIB_BSD)
+#if (defined(HAVE_LIB_BSD) && 		\
+     defined(HAVE_BSD_STDLIB_H)) ||	\
+    defined(HAVE_MERGESORT)
+
 	{ "mergesort-libc",	mergesort },
 #endif
 	{ "mergesort-nonlibc",	mergesort_nonlibc },
