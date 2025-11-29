@@ -3020,7 +3020,8 @@ int shim_ppoll(
 	const struct timespec *tmo_p,
 	const sigset_t *sigmask)
 {
-#if defined(HAVE_PPOLL)
+#if defined(HAVE_PPOLL) &&	\
+    defined(HAVE_POLL_H)
 	return ppoll(fds, nfds, tmo_p, sigmask);
 #elif defined(__NR_ppoll) && defined(_NSIG)
 	struct timespec tval;
