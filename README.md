@@ -8,7 +8,7 @@ stress-ng will stress test a computer system in various selectable ways. It
 was designed to exercise various physical subsystems of a computer as well as
 the various operating system kernel interfaces. Stress-ng features:
 
-  * 360+ stress tests
+  * 370+ stress tests
   * 100+ CPU specific stress tests that exercise floating point, integer,
     bit manipulation and control flow
   * 60+ virtual memory stress tests
