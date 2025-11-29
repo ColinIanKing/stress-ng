@@ -177,7 +177,8 @@ static void *stress_malloc_loop(void *ptr)
 	const size_t info_size = malloc_max * sizeof(*info);
 	size_t j;
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
-#if defined(HAVE_MALLOC_TRIM)
+#if defined(HAVE_MALLOC_TRIM) &&	\
+    defined(HAVE_MALLOC_H)
 	register uint16_t trim_counter = 0;
 #endif
 
@@ -330,7 +331,8 @@ static void *stress_malloc_loop(void *ptr)
 					if (UNLIKELY(!stress_bogo_inc_lock(args, counter_lock, true)))
 						break;
 
-#if defined(HAVE_MALLOC_USABLE_SIZE)
+#if defined(HAVE_MALLOC_USABLE_SIZE) &&	\
+    defined(HAVE_MALLOC_H)
 					/* add some sanity checking */
 					if (UNLIKELY(verify)) {
 						const size_t usable_size = malloc_usable_size(info[i].addr);
