@@ -424,13 +424,13 @@ static int stress_sigsegv(stress_args_t *args)
 #endif
 			stress_bogo_inc(args);
 		} else {
+retry:
 #if defined(SA_SIGINFO)
 			signo = -1;
 			code = -1;
 			fault_addr = NULL;
 			expected_addr = NULL;
 #endif
-retry:
 			if (UNLIKELY(!stress_continue(args)))
 				break;
 			switch (stress_mwc8modn(11)) {
@@ -480,6 +480,12 @@ retry:
 				stress_cpu_data_cache_flush((char *)&expected_addr, (int)sizeof(*expected_addr));
 #endif
 				stress_sigsegv_vdso();
+				/*
+				 *  calls to clock_gettime() and gettimeofday()
+				 *  may fail with -EFAULT rather than generating SIGSEGV
+				 *  (for example when the system calls are not via the
+				 *  VDSO), so we end up in the retry path
+				 */
 				goto retry;
 #endif
 			case 7:
