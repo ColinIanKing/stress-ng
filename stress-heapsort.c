@@ -127,7 +127,9 @@ static int heapsort_nonlibc(
 }
 
 static const stress_heapsort_method_t stress_heapsort_methods[] = {
-#if defined(HAVE_LIB_BSD)
+#if (defined(HAVE_LIB_BSD) &&		\
+     defined(HAVE_BSD_STDLIB_H)) ||	\
+     defined(HAVE_HEAPSORT)
 	{ "heapsort-libc",	heapsort },
 #endif
 	{ "heapsort-nonlibc",	heapsort_nonlibc },
