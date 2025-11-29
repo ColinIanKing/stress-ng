@@ -83,6 +83,9 @@
 #if defined(HAVE_SYS_SENDFILE_H)
 #include <sys/sendfile.h>
 #endif
+#if defined(HAVE_SYS_UIO_H)
+#include <sys/uio.h>
+#endif
 
 #define FD_FLAG_READ	(0x0001)
 #define FD_FLAG_WRITE	(0x0002)
@@ -1625,7 +1628,8 @@ static void stress_fd_readv(stress_fd_t *fd)
 }
 #endif
 
-#if defined(HAVE_WRITEV)
+#if defined(HAVE_SYS_UIO_H) &&	\
+    defined(HAVE_WRITEV)
 static void stress_fd_writev(stress_fd_t *fd)
 {
 	if (fd->flags & FD_FLAG_WRITE) {
@@ -1644,7 +1648,8 @@ static void stress_fd_writev(stress_fd_t *fd)
 }
 #endif
 
-#if defined(HAVE_PREADV)
+#if defined(HAVE_SYS_UIO_H) &&	\
+    defined(HAVE_PREADV)
 static void stress_fd_preadv(stress_fd_t *fd)
 {
 	if (fd->flags & FD_FLAG_READ) {
@@ -1660,7 +1665,8 @@ static void stress_fd_preadv(stress_fd_t *fd)
 }
 #endif
 
-#if defined(HAVE_PWRITEV)
+#if defined(HAVE_SYS_UIO_H) &&	\
+    defined(HAVE_PWRITEV)
 static void stress_fd_pwritev(stress_fd_t *fd)
 {
 	if (fd->flags & FD_FLAG_WRITE) {
@@ -1676,8 +1682,10 @@ static void stress_fd_pwritev(stress_fd_t *fd)
 }
 #endif
 
-#if defined(HAVE_PREADV2) ||	\
-    defined(HAVE_PWRITEV2)
+#if defined(HAVE_SYS_UIO_H) &&	\
+     (defined(HAVE_PREADV2) ||	\
+     defined(HAVE_PWRITEV2))
+
 static const int rwf_flags[] = {
 	0,
 #if defined(RWF_DSYNC)
@@ -1698,7 +1706,8 @@ static const int rwf_flags[] = {
 };
 #endif
 
-#if defined(HAVE_PREADV2)
+#if defined(HAVE_SYS_UIO_H) &&	\
+    defined(HAVE_PREADV2)
 static void stress_fd_preadv2(stress_fd_t *fd)
 {
 	if (fd->flags & FD_FLAG_READ) {
@@ -1715,7 +1724,8 @@ static void stress_fd_preadv2(stress_fd_t *fd)
 }
 #endif
 
-#if defined(HAVE_PWRITEV2)
+#if defined(HAVE_SYS_UIO_H) &&	\
+    defined(HAVE_PWRITEV2)
 static void stress_fd_pwritev2(stress_fd_t *fd)
 {
 	if (fd->flags & FD_FLAG_WRITE) {
@@ -2016,22 +2026,28 @@ static const fd_func_t fd_funcs[] = {
 #if defined(HAVE_PWRITE)
 	stress_fd_pwrite,
 #endif
-#if defined(HAVE_READV)
+#if defined(HAVE_SYS_UIO_H) &&	\
+    defined(HAVE_READV)
 	stress_fd_readv,
 #endif
-#if defined(HAVE_WRITEV)
+#if defined(HAVE_SYS_UIO_H) &&	\
+    defined(HAVE_WRITEV)
 	stress_fd_writev,
 #endif
-#if defined(HAVE_PREADV)
+#if defined(HAVE_SYS_UIO_H) &&	\
+    defined(HAVE_PREADV)
 	stress_fd_preadv,
 #endif
-#if defined(HAVE_PWRITEV)
+#if defined(HAVE_SYS_UIO_H) &&	\
+    defined(HAVE_PWRITEV)
 	stress_fd_pwritev,
 #endif
-#if defined(HAVE_PREADV2)
+#if defined(HAVE_SYS_UIO_H) &&	\
+    defined(HAVE_PREADV2)
 	stress_fd_preadv2,
 #endif
-#if defined(HAVE_PWRITEV2)
+#if defined(HAVE_SYS_UIO_H) &&	\
+    defined(HAVE_PWRITEV2)
 	stress_fd_pwritev2,
 #endif
 #if defined(MSG_DONTWAIT)
