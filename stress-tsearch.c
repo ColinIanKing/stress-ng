@@ -40,7 +40,8 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
-#if defined(HAVE_TSEARCH)
+#if defined(HAVE_SEARCH_H) &&	\
+    defined(HAVE_TSEARCH)
 
 /*
  *  stress_tsearch()
