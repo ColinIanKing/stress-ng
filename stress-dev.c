@@ -1556,7 +1556,7 @@ static void stress_dev_mem_mmap_linux(
 	(void)write_page;
 #endif
 
-	buffer = mmap(NULL, page_size, PROT_READ | PROT_WRITE,
+	buffer = (char *)mmap(NULL, page_size, PROT_READ | PROT_WRITE,
 		MAP_PRIVATE | MAP_ANONYMOUS, fd, 0);
 
 	ptr = mmap(NULL, page_size, PROT_READ, MAP_PRIVATE, fd, 0);
@@ -2877,7 +2877,7 @@ static void stress_dev_port_linux(
 	}
 
 	/* Should fail */
-	ptr = mmap(NULL, page_size, PROT_READ, MAP_PRIVATE, fd, 0);
+	ptr = (uint8_t *)mmap(NULL, page_size, PROT_READ, MAP_PRIVATE, fd, 0);
 	if (ptr != MAP_FAILED)
 		(void)munmap(ptr, page_size);
 }
@@ -4189,10 +4189,10 @@ static inline void stress_dev_rw(
 			goto next;
 		}
 #endif
-		ptr = mmap(NULL, args->page_size, PROT_READ, MAP_PRIVATE, fd, 0);
+		ptr = (char *)mmap(NULL, args->page_size, PROT_READ, MAP_PRIVATE, fd, 0);
 		if (ptr != MAP_FAILED)
 			(void)munmap(ptr, args->page_size);
-		ptr = mmap(NULL, args->page_size, PROT_READ, MAP_SHARED, fd, 0);
+		ptr = (char *)mmap(NULL, args->page_size, PROT_READ, MAP_SHARED, fd, 0);
 		if (ptr != MAP_FAILED)
 			(void)munmap(ptr, args->page_size);
 		(void)stress_dev_close_unlock(path, fd);
@@ -4206,10 +4206,10 @@ static inline void stress_dev_rw(
 		if (fd < 0)
 			goto next;
 
-		ptr = mmap(NULL, args->page_size, PROT_WRITE, MAP_PRIVATE, fd, 0);
+		ptr = (char *)mmap(NULL, args->page_size, PROT_WRITE, MAP_PRIVATE, fd, 0);
 		if (ptr != MAP_FAILED)
 			(void)munmap(ptr, args->page_size);
-		ptr = mmap(NULL, args->page_size, PROT_WRITE, MAP_SHARED, fd, 0);
+		ptr = (char *)mmap(NULL, args->page_size, PROT_WRITE, MAP_SHARED, fd, 0);
 		if (ptr != MAP_FAILED)
 			(void)munmap(ptr, args->page_size);
 
@@ -4800,7 +4800,7 @@ static int stress_dev(stress_args_t *args)
 
 	mmap_dev_states_size = sizeof(*mmap_dev_states) * dev_info_list_len;
 	mmap_dev_states_size = (mmap_dev_states_size + page_size - 1) & ~(page_size - 1);
-	mmap_dev_states = mmap(NULL, mmap_dev_states_size, PROT_READ | PROT_WRITE,
+	mmap_dev_states = (dev_state_t *)mmap(NULL, mmap_dev_states_size, PROT_READ | PROT_WRITE,
 			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (mmap_dev_states == MAP_FAILED) {
 		pr_inf_skip("%s: cannot allocate shared memory for device state data, "
