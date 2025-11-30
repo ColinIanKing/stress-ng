@@ -62,28 +62,28 @@ static const stress_opt_t opts[] = {
  */
 static stress_lockf_info_t *stress_lockf_info_new(void)
 {
-	stress_lockf_info_t *new;
+	stress_lockf_info_t *new_item;
 
 	if (lockf_infos.free) {
 		/* Pop an old one off the free list */
-		new = lockf_infos.free;
-		lockf_infos.free = new->next;
-		new->next = NULL;
+		new_item = lockf_infos.free;
+		lockf_infos.free = new_item->next;
+		new_item->next = NULL;
 	} else {
-		new = (stress_lockf_info_t *)calloc(1, sizeof(*new));
-		if (!new)
+		new_item = (stress_lockf_info_t *)calloc(1, sizeof(*new_item));
+		if (!new_item)
 			return NULL;
 	}
 
 	if (lockf_infos.head)
-		lockf_infos.tail->next = new;
+		lockf_infos.tail->next = new_item;
 	else
-		lockf_infos.head = new;
+		lockf_infos.head = new_item;
 
-	lockf_infos.tail = new;
+	lockf_infos.tail = new_item;
 	lockf_infos.length++;
 
-	return new;
+	return new_item;
 }
 
 /*
