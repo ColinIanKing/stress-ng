@@ -101,7 +101,7 @@ static inline const uint64_t *uint64_ptr_offset(const uint64_t *ptr, const size_
 static void stress_memfd_fill_pages_generic(const uint64_t val, void *ptr, const size_t size)
 {
 	register uint64_t *u64ptr = (uint64_t *)ptr;
-	register const uint64_t *u64end = (const uint64_t *)uint64_ptr_offset(ptr, size);
+	register const uint64_t *u64end = (const uint64_t *)uint64_ptr_offset(u64ptr, size);
 	register uint64_t v = val;
 
 	while (u64ptr < u64end) {
