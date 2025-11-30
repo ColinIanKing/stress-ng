@@ -84,7 +84,7 @@ static void stress_flipflop_sigusr1_handler(int signum)
 
 static void *stress_flipflop_worker(void *arg)
 {
-	stress_flipflop_worker_t *w = arg;
+	stress_flipflop_worker_t *w = (stress_flipflop_worker_t *)arg;
 	const bool check_max_loops = (w->nr_max_loops > 0);
 
 	(void)sched_setaffinity(0, sizeof(*(w->cpus)), w->cpus);
@@ -232,7 +232,7 @@ static int stress_flipflop(stress_args_t *args)
 	if (stress_sighandler(args->name, SIGUSR1, stress_flipflop_sigusr1_handler, NULL))
 		return EXIT_NO_RESOURCE;
 
-	dist = calloc(2 * flipflop_bits, sizeof(uint64_t));
+	dist = (uint64_t *)calloc(2 * flipflop_bits, sizeof(uint64_t));
 	if (!dist) {
 		pr_inf_skip("%s: failed to allocate dist array%s, skipping stressor\n",
 			args->name, stress_get_memfree_str());
@@ -257,7 +257,7 @@ static int stress_flipflop(stress_args_t *args)
 		flipflop_bits, CPU_COUNT(&cpus_a), CPU_COUNT(&cpus_b));
 
 	bits_size = ((flipflop_bits + 63) / 64) * 8;
-	bits = calloc(bits_size, 1);
+	bits = (uint64_t *)calloc(bits_size, 1);
 	if (!bits) {
 		pr_inf_skip("%s: failed to allocate %zu bytes%s, skipping stressor\n",
 			args->name, bits_size, stress_get_memfree_str());
