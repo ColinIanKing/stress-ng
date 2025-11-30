@@ -3857,7 +3857,7 @@ int main(int argc, char **argv, char **envp)
 	int32_t ionice_class = UNDEFINED;	/* ionice class */
 	int32_t ionice_level = UNDEFINED;	/* ionice level */
 	size_t i;
-	uint32_t class = 0;
+	uint32_t opt_class = 0;
 	uint32_t n_stressors;
 	const uint32_t cpus_online = (uint32_t)stress_get_processors_online();
 	const uint32_t cpus_configured = (uint32_t)stress_get_processors_configured();
@@ -3957,9 +3957,9 @@ int main(int argc, char **argv, char **envp)
 		ret = EXIT_FAILURE;
 		goto exit_stressors_free;
 	}
-	(void)stress_get_setting("class", &class);
+	(void)stress_get_setting("class", &opt_class);
 
-	if (class &&
+	if (opt_class &&
 	    !(g_opt_flags & (OPT_FLAGS_SEQUENTIAL | OPT_FLAGS_ALL | OPT_FLAGS_PERMUTE))) {
 		(void)fprintf(stderr, "class option is only used with "
 			"--sequential, --all or --permute options\n");
@@ -4074,11 +4074,11 @@ int main(int argc, char **argv, char **envp)
 	 *  Setup stressor proc info
 	 */
 	if (g_opt_flags & OPT_FLAGS_SEQUENTIAL) {
-		stress_setup_sequential(class, opt_sequential);
+		stress_setup_sequential(opt_class, opt_sequential);
 	} else if (g_opt_flags & OPT_FLAGS_PERMUTE) {
-		stress_setup_sequential(class, opt_permute);
+		stress_setup_sequential(opt_class, opt_permute);
 	} else {
-		stress_setup_parallel(class, opt_parallel);
+		stress_setup_parallel(opt_class, opt_parallel);
 	}
 	/*
 	 *  Seq/parallel modes may have added in
