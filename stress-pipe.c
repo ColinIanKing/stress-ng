@@ -290,7 +290,7 @@ static int stress_pipe_read_splice_verify(
 	const size_t nbufs = buf_size / pipe_data_size;
 	const size_t offset_end = nbufs * pipe_data_size;
 
-	buf = shim_assume_aligned(buf, 4);
+	buf = (char *)shim_assume_aligned(buf, 4);
 
 	iov.iov_len = pipe_data_size;
 
@@ -494,7 +494,7 @@ static int stress_pipe_write_splice_verify(
 	const size_t nbufs = buf_size / pipe_data_size;
 	const size_t offset_end = nbufs * pipe_data_size;
 
-	buf = shim_assume_aligned(buf, 4);
+	buf = (char *)shim_assume_aligned(buf, 4);
 	iov.iov_len = pipe_data_size;
 
 	do {
