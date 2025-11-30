@@ -96,28 +96,28 @@ static bool stress_pid_a_zombie(const pid_t pid)
  */
 static stress_zombie_t *stress_zombie_new(void)
 {
-	stress_zombie_t *new;
+	stress_zombie_t *new_item;
 
 	if (zombies.free) {
 		/* Pop an old one off the free list */
-		new = zombies.free;
-		zombies.free = new->next;
-		new->next = NULL;
+		new_item = zombies.free;
+		zombies.free = new_item->next;
+		new_item->next = NULL;
 	} else {
-		new = (stress_zombie_t *)calloc(1, sizeof(*new));
-		if (!new)
+		new_item = (stress_zombie_t *)calloc(1, sizeof(*new_item));
+		if (!new_item)
 			return NULL;
 	}
 
 	if (zombies.head)
-		zombies.tail->next = new;
+		zombies.tail->next = new_item;
 	else
-		zombies.head = new;
+		zombies.head = new_item;
 
-	zombies.tail = new;
+	zombies.tail = new_item;
 	zombies.length++;
 
-	return new;
+	return new_item;
 }
 
 /*
