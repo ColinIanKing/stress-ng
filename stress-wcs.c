@@ -65,8 +65,6 @@ typedef struct {
 	void			*libc_func;
 } stress_wcs_method_info_t;
 
-static const stress_wcs_method_info_t wcs_methods[];
-
 /*
  *  stress_wcs_fill
  */
