@@ -333,7 +333,7 @@ static char *vdso_sym_list_str(void)
 		char *tmp;
 
 		len += (strlen(vdso_sym->name) + 2);
-		tmp = realloc(str, len);
+		tmp = (char *)realloc(str, len);
 		if (!tmp) {
 			free(str);
 			return NULL;
