@@ -68,6 +68,18 @@ static const stress_help_t help[] = {
 #define VEC_VNNI128_BYTES	(VEC_VNNI128_BITS >> 3)
 #define VEC_VNNI128_LOOPS	(VEC_SIZE_BYTES / VEC_VNNI128_BYTES)
 
+#if defined(HAVE_M128I_U)
+typedef __m128i_u shim_m128i_u;
+#else
+typedef uint64_t shim_m128i_u __attribute__ ((__vector_size__ (16)));
+#endif
+
+#if defined(HAVE_M256I_U)
+typedef __m256i_u shim_m256i_u;
+#else
+typedef uint64_t shim_m256i_u __attribute__ ((__vector_size__ (32)));
+#endif
+
 static uint8_t a_init[VEC_SIZE_BYTES] ALIGNED(8);
 static uint8_t b_init[VEC_SIZE_BYTES] ALIGNED(8);
 static uint8_t c_init[VEC_SIZE_BYTES] ALIGNED(8);
@@ -150,10 +162,10 @@ PRAGMA_UNROLL_N(VEC_VNNI256_LOOPS)
 	for (i = 0; i < VEC_SIZE_BYTES; i += VEC_VNNI256_BYTES) {
 		__m256i a, b, r;
 
-		a = _mm256_loadu_si256((void *)&a_init[i]);
-		b = _mm256_loadu_si256((void *)&b_init[i]);
+		a = _mm256_loadu_si256((const shim_m256i_u *)&a_init[i]);
+		b = _mm256_loadu_si256((const shim_m256i_u *)&b_init[i]);
 		r = _mm256_add_epi8(a, b);
-		_mm256_storeu_si256((void *)&result[i], r);
+		_mm256_storeu_si256((shim_m256i_u *)&result[i], r);
 	}
 }
 #endif
@@ -175,10 +187,10 @@ PRAGMA_UNROLL_N(VEC_VNNI128_LOOPS)
 	for (i = 0; i < VEC_SIZE_BYTES; i += VEC_VNNI128_BYTES) {
 		__m128i a, b, r;
 
-		a = _mm_loadu_si128((void *)&a_init[i]);
-		b = _mm_loadu_si128((void *)&b_init[i]);
+		a = _mm_loadu_si128((const shim_m128i_u *)&a_init[i]);
+		b = _mm_loadu_si128((const shim_m128i_u *)&b_init[i]);
 		r = _mm_add_epi8(a, b);
-		_mm_storeu_si128((void *)&result[i], r);
+		_mm_storeu_si128((shim_m128i_u *)&result[i], r);
 	}
 }
 #endif
@@ -236,11 +248,11 @@ PRAGMA_UNROLL_N(VEC_VNNI256_LOOPS)
 	for (i = 0; i < VEC_SIZE_BYTES; i += VEC_VNNI256_BYTES) {
 		__m256i a, b, c, r;
 
-		a = _mm256_loadu_si256((void *)&a_init[i]);
-		b = _mm256_loadu_si256((void *)&b_init[i]);
-		c = _mm256_loadu_si256((void *)&c_init[i]);
+		a = _mm256_loadu_si256((const shim_m256i_u *)&a_init[i]);
+		b = _mm256_loadu_si256((const shim_m256i_u *)&b_init[i]);
+		c = _mm256_loadu_si256((const shim_m256i_u *)&c_init[i]);
 		r = _mm256_dpbusd_epi32(c, a, b);
-		_mm256_storeu_si256((void *)&result[i], r);
+		_mm256_storeu_si256((shim_m256i_u *)&result[i], r);
 	}
 }
 #endif
@@ -262,11 +274,11 @@ PRAGMA_UNROLL_N(VEC_VNNI128_LOOPS)
 	for (i = 0; i < VEC_SIZE_BYTES; i += VEC_VNNI128_BYTES) {
 		__m128i a, b, c, r;
 
-		a = _mm_loadu_si128((void *)&a_init[i]);
-		b = _mm_loadu_si128((void *)&b_init[i]);
-		c = _mm_loadu_si128((void *)&c_init[i]);
+		a = _mm_loadu_si128((const shim_m128i_u *)&a_init[i]);
+		b = _mm_loadu_si128((const shim_m128i_u *)&b_init[i]);
+		c = _mm_loadu_si128((const shim_m128i_u *)&c_init[i]);
 		r = _mm_dpbusd_epi32(c, a, b);
-		_mm_storeu_si128((void *)&result[i], r);
+		_mm_storeu_si128((shim_m128i_u *)&result[i], r);
 	}
 }
 #endif
@@ -331,11 +343,11 @@ PRAGMA_UNROLL_N(VEC_VNNI256_LOOPS)
 	for (i = 0; i < VEC_SIZE_BYTES; i += VEC_VNNI256_BYTES) {
 		__m256i a, b, c, r;
 
-		a = _mm256_loadu_si256((void *)&a_init[i]);
-		b = _mm256_loadu_si256((void *)&b_init[i]);
-		c = _mm256_loadu_si256((void *)&c_init[i]);
+		a = _mm256_loadu_si256((const shim_m256i_u *)&a_init[i]);
+		b = _mm256_loadu_si256((const shim_m256i_u *)&b_init[i]);
+		c = _mm256_loadu_si256((const shim_m256i_u *)&c_init[i]);
 		r = _mm256_dpwssd_epi32(c, a, b);
-		_mm256_storeu_si256((void *)&result[i], r);
+		_mm256_storeu_si256((shim_m256i_u *)&result[i], r);
 	}
 }
 #endif
@@ -357,11 +369,11 @@ PRAGMA_UNROLL_N(VEC_VNNI128_LOOPS)
 	for (i = 0; i < VEC_SIZE_BYTES; i += VEC_VNNI128_BYTES) {
 		__m128i a, b, c, r;
 
-		a = _mm_loadu_si128((void *)&a_init[i]);
-		b = _mm_loadu_si128((void *)&b_init[i]);
-		c = _mm_loadu_si128((void *)&c_init[i]);
+		a = _mm_loadu_si128((const shim_m128i_u *)&a_init[i]);
+		b = _mm_loadu_si128((const shim_m128i_u *)&b_init[i]);
+		c = _mm_loadu_si128((const shim_m128i_u *)&c_init[i]);
 		r = _mm_dpwssd_epi32(c, a, b);
-		_mm_storeu_si128((void *)&result[i], r);
+		_mm_storeu_si128((shim_m128i_u *)&result[i], r);
 	}
 }
 #endif
