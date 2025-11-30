@@ -74,8 +74,6 @@ typedef struct {
 	const stress_funccall_func   func;   /* the funccall method function */
 } stress_funccall_method_info_t;
 
-static const stress_funccall_method_info_t stress_funccall_methods[];
-
 static const stress_help_t help[] = {
 	{ NULL,	"funccall N",		"start N workers exercising 1 to 9 arg functions" },
 	{ NULL,	"funccall-method M",	"select function call method M" },
