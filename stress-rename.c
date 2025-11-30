@@ -303,22 +303,22 @@ restart:
 
 #if defined(EXERCISE_RENAMEAT)
 		if (tmp_fd >= 0) {
-			char *old, *new;
+			char *oldbasename, *newbasename;
 
 			(void)stress_temp_filename(newname, PATH_MAX,
 				args->name, args->pid, inst1, i++);
 
 			/* Skip over tmp_path prefix */
-			old = stress_basename(oldname);
-			new = stress_basename(newname);
+			oldbasename = stress_basename(oldname);
+			newbasename = stress_basename(newname);
 
-			if (exercise_renameat(args, old, tmp_fd, new, tmp_fd, bad_fd) < 0) {
+			if (exercise_renameat(args, oldbasename, tmp_fd, newbasename, tmp_fd, bad_fd) < 0) {
 				(void)shim_unlink(oldname);
 				(void)shim_unlink(newname);
 				goto restart;
 			}
 
-			if (renameat(tmp_fd, old, tmp_fd, new) < 0) {
+			if (renameat(tmp_fd, oldbasename, tmp_fd, newbasename) < 0) {
 				(void)shim_unlink(oldname);
 				(void)shim_unlink(newname);
 				goto restart;
