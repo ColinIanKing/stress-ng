@@ -380,7 +380,7 @@ static int stress_pseek(stress_args_t *args)
 	double total_writes_duration = 0.0, total_reads_duration = 0.0;
 	double rate;
 
-	procs = stress_mmap_populate(NULL, procs_size, PROT_READ | PROT_WRITE,
+	procs = (stress_peekio_proc_t *)stress_mmap_populate(NULL, procs_size, PROT_READ | PROT_WRITE,
 					MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (procs == MAP_FAILED) {
 		pr_inf_skip("%s: failed to mmap %zu byte procs array%s, "
