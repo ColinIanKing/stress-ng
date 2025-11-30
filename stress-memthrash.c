@@ -89,7 +89,6 @@ typedef struct {
 } stress_memthrash_primes_t;
 
 
-static const stress_memthrash_method_info_t memthrash_methods[];
 static void *mem;
 static volatile bool thread_terminate;
 static sigset_t set;
