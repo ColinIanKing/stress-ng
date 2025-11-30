@@ -34,7 +34,7 @@ static const stress_help_t help[] = {
 static NOINLINE void vm_unmap_child(const size_t page_size)
 {
 	size_t len = ~(size_t)0;
-	uint8_t *addr = stress_align_address((void *)vm_unmap_child, page_size);
+	uint8_t *addr = (uint8_t *)stress_align_address((void *)vm_unmap_child, page_size);
 
 	len = len ^ (len >> 1);
 	while (len > page_size) {
@@ -58,7 +58,7 @@ static NOINLINE void vm_unmap_self(const size_t page_size)
 	 *  processes to hang, so don't do it
 	 */
 #else
-	uint8_t *addr = stress_align_address((void *)vm_unmap_self, page_size);
+	uint8_t *addr = (uint8_t *)stress_align_address((void *)vm_unmap_self, page_size);
 
 	(void)munmap((void *)addr, page_size);
 	(void)munmap((void *)(addr - page_size), page_size);
@@ -72,7 +72,7 @@ static NOINLINE void vm_unmap_self(const size_t page_size)
 static NOINLINE OPTIMIZE0 void vm_unmap_stack(const size_t page_size)
 {
 	uint32_t stackvar = 0;
-	uint8_t *addr = stress_align_address((void *)&stackvar, page_size);
+	uint8_t *addr = (uint8_t *)stress_align_address((void *)&stackvar, page_size);
 
 #if defined(HAVE_MPROTECT) &&	\
     defined(PROT_READ)
