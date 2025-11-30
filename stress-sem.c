@@ -101,7 +101,7 @@ static void stress_sem_deinit(void)
  */
 static void OPTIMIZE3 *stress_sem_thrash(void *arg)
 {
-	const stress_pthread_args_t *p_args = arg;
+	const stress_pthread_args_t *p_args = (const stress_pthread_args_t *)arg;
 	stress_args_t *args = p_args->args;
 	stress_sem_pthread_t *pthread = (stress_sem_pthread_t *)p_args->data;
 
