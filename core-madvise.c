@@ -378,7 +378,7 @@ void stress_madvise_pid_all_pages(
 		} else {
 			register uint8_t *ptr;
 
-			for (ptr = start; ptr < (uint8_t *)end; ptr += page_size) {
+			for (ptr = (uint8_t *)start; ptr < (uint8_t *)end; ptr += page_size) {
 				size_t idx = stress_mwc8modn((uint8_t)n_advice);
 				const int new_advice = advice[idx];
 
