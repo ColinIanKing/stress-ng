@@ -1263,7 +1263,7 @@ static void stress_misaligned_exercised(stress_args_t *args)
 			char *tmp;
 			const size_t name_len = strlen(info->name);
 
-			tmp = realloc(str, (size_t)str_len + name_len + 2);
+			tmp = (char *)realloc(str, (size_t)str_len + name_len + 2);
 			if (!tmp) {
 				free(str);
 				return;
