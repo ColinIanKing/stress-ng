@@ -90,7 +90,7 @@ static int OPTIMIZE3 stress_vm_child(void *arg)
 	(void)close(ctxt->pipe_wr[0]);
 	(void)close(ctxt->pipe_rd[1]);
 
-	buf = mmap(NULL, ctxt->sz, PROT_READ | PROT_WRITE,
+	buf = (uint8_t *)mmap(NULL, ctxt->sz, PROT_READ | PROT_WRITE,
 		MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (buf == MAP_FAILED) {
 		rc = stress_exit_status(errno);
@@ -185,7 +185,7 @@ static int OPTIMIZE3 stress_vm_parent(stress_context_t *ctxt)
 	size_t sz;
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 
-	localbuf = mmap(NULL, ctxt->sz, PROT_READ | PROT_WRITE,
+	localbuf = (uint8_t *)mmap(NULL, ctxt->sz, PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (localbuf == MAP_FAILED) {
 		pr_fail("%s: failed to mmap %zu bytes%s, errno=%d (%s)\n",
@@ -234,7 +234,7 @@ redo_rd2:
 
 		/* Perform read from child's memory */
 		ptr1 = localbuf;
-		ptr2 = msg_rd.addr;
+		ptr2 = (uint8_t *)msg_rd.addr;
 		sz = ctxt->sz;
 		for (i = 0; i < ctxt->iov_count; i++) {
 			len = sz >= CHUNK_SIZE ? CHUNK_SIZE : sz;
@@ -289,7 +289,7 @@ redo_rd2:
 		/* Write to child's memory */
 		msg_wr = msg_rd;
 		ptr1 = localbuf;
-		ptr2 = msg_rd.addr;
+		ptr2 = (uint8_t *)msg_rd.addr;
 		sz = ctxt->sz;
 		for (i = 0; i < ctxt->iov_count; i++) {
 			len = sz >= CHUNK_SIZE ? CHUNK_SIZE : sz;
