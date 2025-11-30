@@ -191,7 +191,7 @@ stress_numa_mask_t *stress_numa_mask_alloc(void)
 {
 	stress_numa_mask_t *numa_mask;
 
-	numa_mask = malloc(sizeof(*numa_mask));
+	numa_mask = (stress_numa_mask_t *)malloc(sizeof(*numa_mask));
 	if (UNLIKELY(!numa_mask))
 		return NULL;
 
