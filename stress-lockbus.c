@@ -148,7 +148,7 @@ static bool do_misaligned;
 static bool do_splitlock;
 #endif
 static bool do_sigill;
-static uint32_t *shared_buffer = MAP_FAILED;
+static uint32_t *shared_buffer = (uint32_t *)MAP_FAILED;
 
 static void stress_lockbus_init(const uint32_t instances)
 {
@@ -164,7 +164,7 @@ static void stress_lockbus_deinit(void)
 {
 	if (shared_buffer != MAP_FAILED) {
 		(void)munmap((void *)shared_buffer, SHARED_BUFFER_SIZE);
-		shared_buffer = MAP_FAILED;
+		shared_buffer = (uint32_t *)MAP_FAILED;
 	}
 }
 
