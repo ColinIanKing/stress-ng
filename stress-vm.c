@@ -343,7 +343,7 @@ static size_t TARGET_CLONES stress_vm_moving_inversion(
 		stress_cpu_data_cache_flush(buf, sz);
 	(void)stress_mincore_touch_pages(buf, sz);
 
-	inject_random_bit_errors(buf, sz);
+	inject_random_bit_errors((uint8_t *)buf, sz);
 
 	stress_mwc_set_seed(w, z);
 	for (bit_errors = 0, ptr = (uint64_t *)buf; ptr < (uint64_t *)buf_end; ) {
@@ -365,7 +365,7 @@ static size_t TARGET_CLONES stress_vm_moving_inversion(
 	if (UNLIKELY(!stress_continue_flag()))
 		goto ret;
 
-	inject_random_bit_errors(buf, sz);
+	inject_random_bit_errors((uint8_t *)buf, sz);
 
 	if (vm_flush)
 		stress_cpu_data_cache_flush(buf, sz);
@@ -452,7 +452,7 @@ static size_t TARGET_CLONES stress_vm_modulo_x(
 			if (UNLIKELY(!stress_continue_flag()))
 				goto ret;
 		}
-		inject_random_bit_errors(buf, sz);
+		inject_random_bit_errors((uint8_t *)buf, sz);
 
 		for (ptr = (uint8_t *)buf + i; ptr < (uint8_t *)buf_end; ptr += stride) {
 			if (UNLIKELY(*ptr != pattern))
@@ -795,7 +795,7 @@ static size_t TARGET_CLONES OPTIMIZE3 stress_vm_gray(
 			return 0;
 	}
 	(void)stress_mincore_touch_pages(buf, sz);
-	inject_random_bit_errors(buf, sz);
+	inject_random_bit_errors((uint8_t *)buf, sz);
 
 	for (v = val, ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ) {
 		register uint8_t mask;
@@ -877,7 +877,7 @@ static size_t TARGET_CLONES stress_vm_grayflip(
 		*ptr++ = gray;
 	}
 	(void)stress_mincore_touch_pages(buf, sz);
-	inject_random_bit_errors(buf, sz);
+	inject_random_bit_errors((uint8_t *)buf, sz);
 
 	for (v = val, ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; v++) {
 		register uint8_t gray;
@@ -940,7 +940,7 @@ static size_t TARGET_CLONES stress_vm_incdec(
 		stress_asm_mb();
 	}
 	(void)stress_mincore_touch_pages(buf, sz);
-	inject_random_bit_errors(buf, sz);
+	inject_random_bit_errors((uint8_t *)buf, sz);
 	for (ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr++) {
 		*ptr -= val;
 		stress_asm_mb();
@@ -976,7 +976,7 @@ static size_t TARGET_CLONES stress_vm_prime_incdec(
 	const uint64_t max_ops)
 {
 	static uint8_t val = 0;
-	register uint8_t *ptr = buf;
+	register uint8_t *ptr = (uint8_t *)buf;
 	size_t bit_errors = 0, i;
 	const uint64_t prime = stress_get_prime64(sz + 4096);
 	register uint64_t j, c;
@@ -998,7 +998,7 @@ static size_t TARGET_CLONES stress_vm_prime_incdec(
 			break;
 	}
 	(void)stress_mincore_touch_pages(buf, sz);
-	inject_random_bit_errors(buf, sz);
+	inject_random_bit_errors((uint8_t *)buf, sz);
 	/*
 	 *  Step through memory in prime sized steps
 	 *  in a totally sub-optimal way to exercise
@@ -1114,7 +1114,7 @@ static size_t TARGET_CLONES stress_vm_swap(
 	if (vm_flush)
 		stress_cpu_data_cache_flush(buf, sz);
 	(void)stress_mincore_touch_pages(buf, sz);
-	inject_random_bit_errors(buf, sz);
+	inject_random_bit_errors((uint8_t *)buf, sz);
 
 	stress_mwc_set_seed(w1, z1);
 	for (ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr += chunk_sz) {
@@ -1191,7 +1191,7 @@ static size_t TARGET_CLONES stress_vm_rand_set(
 	if (vm_flush)
 		stress_cpu_data_cache_flush(buf, sz);
 	(void)stress_mincore_touch_pages(buf, sz);
-	inject_random_bit_errors(buf, sz);
+	inject_random_bit_errors((uint8_t *)buf, sz);
 
 	stress_mwc_set_seed(w, z);
 	for (ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr += chunk_sz) {
@@ -1296,7 +1296,7 @@ static size_t TARGET_CLONES stress_vm_ror(
 		stress_cpu_data_cache_flush(buf, sz);
 	(void)stress_mincore_touch_pages(buf, sz);
 
-	inject_random_bit_errors(buf, sz);
+	inject_random_bit_errors((uint8_t *)buf, sz);
 
 	stress_mwc_set_seed(w, z);
 	for (ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr += chunk_sz) {
@@ -1414,7 +1414,7 @@ static size_t TARGET_CLONES stress_vm_flip(
 
 	if (vm_flush)
 		stress_cpu_data_cache_flush(buf, sz);
-	inject_random_bit_errors(buf, sz);
+	inject_random_bit_errors((uint8_t *)buf, sz);
 
 	stress_mwc_set_seed(w, z);
 	for (ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr += chunk_sz) {
@@ -1468,7 +1468,7 @@ static size_t TARGET_CLONES stress_vm_one_zero(
 
 	(void)shim_memset(buf, 0xff, sz);
 	(void)stress_mincore_touch_pages(buf, sz);
-	inject_random_bit_errors(buf, sz);
+	inject_random_bit_errors((uint8_t *)buf, sz);
 	c += sz / 8;
 
 	for (ptr = (uint64_t *)buf; ptr < (uint64_t *)buf_end; ptr += 8) {
@@ -1489,7 +1489,7 @@ static size_t TARGET_CLONES stress_vm_one_zero(
 	if (vm_flush)
 		stress_cpu_data_cache_flush(buf, sz);
 	(void)stress_mincore_touch_pages(buf, sz);
-	inject_random_bit_errors(buf, sz);
+	inject_random_bit_errors((uint8_t *)buf, sz);
 	c += sz / 8;
 
 	for (ptr = (uint64_t *)buf; ptr < (uint64_t *)buf_end; ptr += 8) {
@@ -1534,7 +1534,7 @@ static size_t TARGET_CLONES stress_vm_zero_one(
 
 	(void)shim_memset(buf, 0x00, sz);
 	(void)stress_mincore_touch_pages(buf, sz);
-	inject_random_bit_errors(buf, sz);
+	inject_random_bit_errors((uint8_t *)buf, sz);
 	c += sz / 8;
 
 	for (ptr = (uint64_t *)buf; ptr < (uint64_t *)buf_end; ptr += 8) {
@@ -1555,7 +1555,7 @@ static size_t TARGET_CLONES stress_vm_zero_one(
 	if (vm_flush)
 		stress_cpu_data_cache_flush(buf, sz);
 	(void)stress_mincore_touch_pages(buf, sz);
-	inject_random_bit_errors(buf, sz);
+	inject_random_bit_errors((uint8_t *)buf, sz);
 	c += sz / 8;
 
 	for (ptr = (uint64_t *)buf; ptr < (uint64_t *)buf_end; ptr += 8) {
@@ -1618,7 +1618,7 @@ static size_t TARGET_CLONES stress_vm_galpat_zero(
 	if (vm_flush)
 		stress_cpu_data_cache_flush(buf, sz);
 	(void)stress_mincore_touch_pages(buf, sz);
-	inject_random_bit_errors(buf, sz);
+	inject_random_bit_errors((uint8_t *)buf, sz);
 
 	for (ptr = (uint64_t *)buf; ptr < (uint64_t *)buf_end; ptr += 8) {
 		bits_set += stress_vm_count_bits(*(ptr + 0));
@@ -1686,7 +1686,7 @@ static size_t TARGET_CLONES stress_vm_galpat_one(
 	if (vm_flush)
 		stress_cpu_data_cache_flush(buf, sz);
 	(void)stress_mincore_touch_pages(buf, sz);
-	inject_random_bit_errors(buf, sz);
+	inject_random_bit_errors((uint8_t *)buf, sz);
 
 	for (ptr = (uint64_t *)buf; ptr < (uint64_t *)buf_end; ptr += 8) {
 		bits_set += stress_vm_count_bits(~(*(ptr + 0)));
@@ -1786,7 +1786,7 @@ static size_t TARGET_CLONES stress_vm_inc_nybble(
 	if (vm_flush)
 		stress_cpu_data_cache_flush(buf, sz);
 	(void)stress_mincore_touch_pages(buf, sz);
-	inject_random_bit_errors(buf, sz);
+	inject_random_bit_errors((uint8_t *)buf, sz);
 
 	for (ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr += 8) {
 		bit_errors += (*(ptr + 0) != val);
@@ -1861,7 +1861,7 @@ static size_t TARGET_CLONES stress_vm_rand_sum(
 	if (vm_flush)
 		stress_cpu_data_cache_flush(buf, sz);
 	(void)stress_mincore_touch_pages(buf, sz);
-	inject_random_bit_errors(buf, sz);
+	inject_random_bit_errors((uint8_t *)buf, sz);
 
 	stress_mwc_set_seed(w, z);
 	for (ptr = (uint64_t *)buf; ptr < (uint64_t *)buf_end; ptr += chunk_sz) {
@@ -1933,7 +1933,7 @@ static size_t TARGET_CLONES stress_vm_prime_zero(
 	if (vm_flush)
 		stress_cpu_data_cache_flush(buf, sz);
 	(void)stress_mincore_touch_pages(buf, sz);
-	inject_random_bit_errors(buf, sz);
+	inject_random_bit_errors((uint8_t *)buf, sz);
 
 	for (ptr = (uint8_t *)buf + offset; ptr < (uint8_t *)buf_end; ptr += prime)
 		bit_errors += stress_vm_count_bits8(*ptr);
@@ -1997,7 +1997,7 @@ static size_t TARGET_CLONES stress_vm_prime_one(
 	if (vm_flush)
 		stress_cpu_data_cache_flush(buf, sz);
 	(void)stress_mincore_touch_pages(buf, sz);
-	inject_random_bit_errors(buf, sz);
+	inject_random_bit_errors((uint8_t *)buf, sz);
 
 	for (ptr = (uint8_t *)buf + offset; ptr < (uint8_t *)buf_end; ptr += prime)
 		bit_errors += 8 - stress_vm_count_bits8(*ptr);
@@ -2061,7 +2061,7 @@ static size_t TARGET_CLONES stress_vm_prime_gray_zero(
 	if (vm_flush)
 		stress_cpu_data_cache_flush(buf, sz);
 	(void)stress_mincore_touch_pages(buf, sz);
-	inject_random_bit_errors(buf, sz);
+	inject_random_bit_errors((uint8_t *)buf, sz);
 
 	for (ptr = (uint8_t *)buf + offset; ptr < (uint8_t *)buf_end; ptr += prime)
 		bit_errors += stress_vm_count_bits8(*ptr);
@@ -2125,7 +2125,7 @@ static size_t TARGET_CLONES stress_vm_prime_gray_one(
 	if (vm_flush)
 		stress_cpu_data_cache_flush(buf, sz);
 	(void)stress_mincore_touch_pages(buf, sz);
-	inject_random_bit_errors(buf, sz);
+	inject_random_bit_errors((uint8_t *)buf, sz);
 
 	for (ptr = (uint8_t *)buf + offset; ptr < (uint8_t *)buf_end; ptr += prime)
 		bit_errors += 8 - stress_vm_count_bits8(*ptr);
@@ -2943,7 +2943,7 @@ static size_t TARGET_CLONES stress_vm_cache_stripe(
 	if (vm_flush)
 		stress_cpu_data_cache_flush(buf, sz);
 	(void)stress_mincore_touch_pages(buf, sz);
-	inject_random_bit_errors(buf, sz);
+	inject_random_bit_errors((uint8_t *)buf, sz);
 	stress_vm_check("cache-stripe", bit_errors);
 abort:
 	stress_bogo_set(args, c);
@@ -2985,7 +2985,7 @@ static size_t TARGET_CLONES stress_vm_cache_lines(
 		bit_errors += (*ptr != i++);
 	}
 	(void)stress_mincore_touch_pages(buf, sz);
-	inject_random_bit_errors(buf, sz);
+	inject_random_bit_errors((uint8_t *)buf, sz);
 	if (vm_flush)
 		stress_cpu_data_cache_flush(buf, sz);
 	stress_vm_check("cache-lines", bit_errors);
@@ -3114,7 +3114,7 @@ static size_t TARGET_CLONES stress_vm_wrrd128nt(
 	}
 	if (vm_flush)
 		stress_cpu_data_cache_flush(buf, sz);
-	inject_random_bit_errors(buf, sz);
+	inject_random_bit_errors((uint8_t *)buf, sz);
 	stress_vm_check("wrrd128nt", bit_errors);
 abort:
 	stress_bogo_set(args, c);
@@ -3291,7 +3291,7 @@ static size_t stress_vm_lfsr32(
 	if (vm_flush)
 		stress_cpu_data_cache_flush(buf, sz);
 	(void)stress_mincore_touch_pages(buf, sz);
-	inject_random_bit_errors(buf, sz);
+	inject_random_bit_errors((uint8_t *)buf, sz);
 
 	for (lfsr = 0xf63acb01, ptr = (uint32_t *)buf; ptr < (uint32_t *)buf_end; ptr += chunk_sz) {
 		bit_errors += stress_vm_count_bits(*(ptr + 0) ^ lfsr);
@@ -3411,7 +3411,7 @@ static size_t TARGET_CLONES stress_vm_checkerboard(
 	if (vm_flush)
 		stress_cpu_data_cache_flush(buf, sz);
 	(void)stress_mincore_touch_pages(buf, sz);
-	inject_random_bit_errors(buf, sz);
+	inject_random_bit_errors((uint8_t *)buf, sz);
 
 	for (ptr = (uint64_t *)buf; ptr < (uint64_t *)buf_end; ptr += 8) {
 		if (UNLIKELY(!stress_continue_flag()))
@@ -3724,7 +3724,7 @@ static int stress_vm(stress_args_t *args)
 		context.vm_numa = false;
 #endif
 	}
-	context.bit_error_count = MAP_FAILED;
+	context.bit_error_count = (uint64_t *)MAP_FAILED;
 
 	(void)stress_get_setting("vm-method", &vm_method);
 	context.vm_method = &vm_methods[vm_method];
