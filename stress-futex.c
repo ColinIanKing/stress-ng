@@ -49,9 +49,9 @@ static int stress_futex_wait(uint32_t *futex, const int val, const long int nsec
 #if defined(FUTEX_32) &&		\
     defined(CLOCK_MONOTONIC)
 	static int try_futex_waitv = true;
-	static int try = 0;
+	static int tries = 0;
 
-	if (try_futex_waitv && (try++ >= 16)) {
+	if (try_futex_waitv && (tries++ >= 16)) {
 		struct shim_futex_waitv w;
 
 		(void)shim_memset(&w, 0, sizeof(w));
@@ -60,7 +60,7 @@ static int stress_futex_wait(uint32_t *futex, const int val, const long int nsec
 		w.uaddr = (uintptr_t)futex;
 		w.flags = FUTEX_32;
 
-		try = 0;
+		tries = 0;
 		if (clock_gettime(CLOCK_MONOTONIC, &t) == 0) {
 			int ret;
 
