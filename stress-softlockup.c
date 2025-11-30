@@ -170,7 +170,7 @@ static void drop_niceness(void)
 	}
 }
 
-static void stress_softlockup_child(
+static void NORETURN stress_softlockup_child(
 	stress_args_t *args,
 	struct sched_param *param,
 	const double start,
