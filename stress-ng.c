@@ -1900,7 +1900,7 @@ static int stress_show_stressors(void)
 					"%s %" PRId32 " %s", previous ? "," : "", n, name);
 			previous = true;
 			if (buffer_len >= 0) {
-				newstr = realloc(str, (size_t)(len + buffer_len + 1));
+				newstr = (char *)realloc(str, (size_t)(len + buffer_len + 1));
 				if (!newstr) {
 					pr_err("cannot allocate %zu byte temporary buffer%s\n",
 						(size_t)(len + buffer_len + 1),
@@ -1932,7 +1932,7 @@ static void stress_exit_status_type(const char *name, const size_t type)
 	size_t str_len = 1;
 	uint32_t n = 0;
 
-	str = malloc(1);
+	str = (char *)malloc(1);
 	if (!str)
 		return;
 	*str = '\0';
@@ -1951,7 +1951,7 @@ static void stress_exit_status_type(const char *name, const size_t type)
 			(void)snprintf(buf, sizeof(buf), " %s (%" PRIu32")",
 				ss->stressor->name, count);
 			buf_len = strlen(buf);
-			new_str = realloc(str, str_len + buf_len);
+			new_str = (char *)realloc(str, str_len + buf_len);
 			if (!new_str) {
 				free(str);
 				return;
