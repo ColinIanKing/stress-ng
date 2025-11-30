@@ -96,20 +96,20 @@ static void *stress_flipflop_worker(void *arg)
 	}
 
 	while (!*(volatile bool *)w->worker_exit) {
-		uint64_t old = *((volatile uint64_t *)w->word);
-		uint64_t new = (old & w->and_mask) | w->or_mask;
+		uint64_t old_val = *((volatile uint64_t *)w->word);
+		uint64_t new_val = (old_val & w->and_mask) | w->or_mask;
 		uint64_t ret;
 
 		w->nr_loops++;
 		if ((UNLIKELY(check_max_loops) && (w->nr_loops >= w->nr_max_loops)))
 			break;
 
-		if (old == new)
+		if (old_val == new_val)
 			continue;
 
-		ret = __sync_val_compare_and_swap(w->word, old, new);
+		ret = __sync_val_compare_and_swap(w->word, old_val, new_val);
 		w->nr_tries++;
-		if (ret == old)
+		if (ret == old_val)
 			w->nr_successes++;
 		if (UNLIKELY(!stress_continue_flag()))
 			break;
