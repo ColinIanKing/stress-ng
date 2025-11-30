@@ -3478,7 +3478,7 @@ static int syscall_msync(void)
 	if (i >= SIZEOF_ARRAY(flags))
 		i = 0;
 
-	ptr = mmap(NULL, syscall_page_size, PROT_READ | PROT_WRITE,
+	ptr = (char *)mmap(NULL, syscall_page_size, PROT_READ | PROT_WRITE,
 			MAP_SHARED, syscall_fd, 0);
 	if (ptr == MAP_FAILED)
 		return -1;
@@ -4169,7 +4169,7 @@ static int syscall_name_to_handle_at(void)
 		free(fhp);
 		return -1;
 	}
-	tmp = realloc(fhp, sizeof(*tmp) + fhp->handle_bytes);
+	tmp = (struct file_handle *)realloc(fhp, sizeof(*tmp) + fhp->handle_bytes);
 	if (!tmp) {
 		free(fhp);
 		return -1;
@@ -4273,7 +4273,7 @@ static int syscall_open_by_handle_at(void)
 	ret = name_to_handle_at(AT_FDCWD, syscall_filename, fhp, &mount_id, 0);
 	if ((ret < 0) && (errno != EOVERFLOW))
 		goto err_free_fhp;
-	tmp = realloc(fhp, sizeof(*tmp) + fhp->handle_bytes);
+	tmp = (struct file_handle *)realloc(fhp, sizeof(*tmp) + fhp->handle_bytes);
 	if (!tmp)
 		goto err_free_fhp;
 	fhp = tmp;
@@ -8834,7 +8834,7 @@ static int stress_syscall(stress_args_t *args)
 			stress_get_memfree_str(), errno, strerror(errno));
 		goto err_rmdir;
 	}
-	stress_uint8rnd4(syscall_2_pages, syscall_2_pages_size);
+	stress_uint8rnd4((uint8_t *)syscall_2_pages, syscall_2_pages_size);
 
 	syscall_shared_info = (syscall_shared_info_t *)mmap(NULL,
 				sizeof(*syscall_shared_info),
