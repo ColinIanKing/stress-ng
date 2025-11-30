@@ -54,8 +54,6 @@ typedef struct {
 	const stress_funcret_func func;	/* the funcret method function */
 } stress_funcret_method_info_t;
 
-static const stress_funcret_method_info_t stress_funcret_methods[];
-
 static const stress_help_t help[] = {
 	{ NULL,	"funcret N",		"start N workers exercising function return copying" },
 	{ NULL,	"funcret-method M",	"select method of exercising a function return type" },
