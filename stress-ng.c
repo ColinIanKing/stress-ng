@@ -450,12 +450,12 @@ static uint32_t PURE stress_get_class_id(const char *const str)
  *  stress_get_class()
  *	parse for allowed class types, return bit mask of types, 0 if error
  */
-static int stress_get_class(char *const class_str, uint32_t *class)
+static int stress_get_class(char *const class_str, uint32_t *opt_class)
 {
 	char *str, *token;
 	int ret = 0;
 
-	*class = 0;
+	*opt_class = 0;
 	for (str = class_str; (token = strtok(str, ",")) != NULL; str = NULL) {
 		uint32_t cl = stress_get_class_id(token);
 
@@ -487,7 +487,7 @@ static int stress_get_class(char *const class_str, uint32_t *class)
 			(void)fprintf(stderr, "\n\n");
 			return -1;
 		}
-		*class |= cl;
+		*opt_class |= cl;
 	}
 	return ret;
 }
