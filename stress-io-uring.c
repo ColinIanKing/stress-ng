@@ -285,16 +285,16 @@ static int stress_setup_io_uring(
 		}
 	}
 
-	sring->head = VOID_ADDR_OFFSET(submit->sq_mmap, p.sq_off.head);
-	sring->tail = VOID_ADDR_OFFSET(submit->sq_mmap, p.sq_off.tail);
-	sring->ring_mask = VOID_ADDR_OFFSET(submit->sq_mmap, p.sq_off.ring_mask);
-	sring->ring_entries = VOID_ADDR_OFFSET(submit->sq_mmap, p.sq_off.ring_entries);
-	sring->flags = VOID_ADDR_OFFSET(submit->sq_mmap, p.sq_off.flags);
-	sring->array = VOID_ADDR_OFFSET(submit->sq_mmap, p.sq_off.array);
+	sring->head = (unsigned int *)VOID_ADDR_OFFSET(submit->sq_mmap, p.sq_off.head);
+	sring->tail = (unsigned int *)VOID_ADDR_OFFSET(submit->sq_mmap, p.sq_off.tail);
+	sring->ring_mask = (unsigned int *)VOID_ADDR_OFFSET(submit->sq_mmap, p.sq_off.ring_mask);
+	sring->ring_entries = (unsigned int *)VOID_ADDR_OFFSET(submit->sq_mmap, p.sq_off.ring_entries);
+	sring->flags = (unsigned int *)VOID_ADDR_OFFSET(submit->sq_mmap, p.sq_off.flags);
+	sring->array = (unsigned int *)VOID_ADDR_OFFSET(submit->sq_mmap, p.sq_off.array);
 
 	submit->sqes_entries = p.sq_entries;
 	submit->sqes_size = p.sq_entries * sizeof(struct io_uring_sqe);
-	submit->sqes_mmap = stress_mmap_populate(NULL, submit->sqes_size,
+	submit->sqes_mmap = (struct io_uring_sqe *)stress_mmap_populate(NULL, submit->sqes_size,
 			PROT_READ | PROT_WRITE, MAP_SHARED,
 			submit->io_uring_fd, IORING_OFF_SQES);
 	if (submit->sqes_mmap == MAP_FAILED) {
@@ -308,11 +308,11 @@ static int stress_setup_io_uring(
 		return EXIT_NO_RESOURCE;
 	}
 
-	cring->head = VOID_ADDR_OFFSET(submit->cq_mmap, p.cq_off.head);
-	cring->tail = VOID_ADDR_OFFSET(submit->cq_mmap, p.cq_off.tail);
-	cring->ring_mask = VOID_ADDR_OFFSET(submit->cq_mmap, p.cq_off.ring_mask);
-	cring->ring_entries = VOID_ADDR_OFFSET(submit->cq_mmap, p.cq_off.ring_entries);
-	cring->cqes = VOID_ADDR_OFFSET(submit->cq_mmap, p.cq_off.cqes);
+	cring->head = (unsigned int *)VOID_ADDR_OFFSET(submit->cq_mmap, p.cq_off.head);
+	cring->tail = (unsigned int *)VOID_ADDR_OFFSET(submit->cq_mmap, p.cq_off.tail);
+	cring->ring_mask = (unsigned int *)VOID_ADDR_OFFSET(submit->cq_mmap, p.cq_off.ring_mask);
+	cring->ring_entries = (unsigned int *)VOID_ADDR_OFFSET(submit->cq_mmap, p.cq_off.ring_entries);
+	cring->cqes = (struct io_uring_cqe *)VOID_ADDR_OFFSET(submit->cq_mmap, p.cq_off.cqes);
 
 	return EXIT_SUCCESS;
 }
@@ -1005,7 +1005,7 @@ static int stress_io_uring_child(stress_args_t *args, void *context)
 	io_uring_file.blocks = blocks;
 	io_uring_file.block_size = block_size;
 	io_uring_file.iovecs_sz = blocks * sizeof(*io_uring_file.iovecs);
-	io_uring_file.iovecs =
+	io_uring_file.iovecs = (struct iovec *)
 		stress_mmap_populate(NULL, io_uring_file.iovecs_sz,
 			PROT_READ | PROT_WRITE,
 			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
