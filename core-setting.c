@@ -294,7 +294,7 @@ static int stress_set_setting_generic(
 		setting->u.off = *(const off_t *)value;
 		break;
 	case TYPE_ID_STR:
-		setting->u.str = stress_const_optdup(value);
+		setting->u.str = stress_const_optdup((const char *)value);
 		if (!setting->u.str) {
 			free(setting);
 			goto err;
