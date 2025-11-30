@@ -338,7 +338,7 @@ static int stress_revio(stress_args_t *args)
 		(void)stress_temp_dir_rm_args(args);
 		return rc;
 	}
-	buf = alloc_buf;
+	buf = (uint8_t *)alloc_buf;
 #else
 	/* Work around lack of posix_memalign */
 	alloc_buf = malloc((size_t)DEFAULT_REVIO_WRITE_SIZE + BUF_ALIGNMENT);
