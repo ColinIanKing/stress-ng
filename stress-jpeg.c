@@ -386,7 +386,7 @@ static int stress_jpeg(stress_args_t *args)
 
 	rgb_size = (size_t)x_max * (size_t)y_max * 3;
 
-	rgb = stress_mmap_populate(NULL, rgb_size,
+	rgb = (uint8_t *)stress_mmap_populate(NULL, rgb_size,
 		PROT_READ | PROT_WRITE,
 		MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (rgb == MAP_FAILED) {
