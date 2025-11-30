@@ -131,7 +131,7 @@ static int OPTIMIZE3 stress_brk_child(stress_args_t *args, void *context)
 
 	(void)context;
 
-	start_ptr = shim_sbrk(0);
+	start_ptr = (uint8_t *)shim_sbrk(0);
 	if (start_ptr == (void *) -1) {
 		pr_fail("%s: sbrk(0) failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
@@ -157,7 +157,7 @@ static int OPTIMIZE3 stress_brk_child(stress_args_t *args, void *context)
 			VOID_RET(void *, shim_sbrk(0));
 
 			/* Get brk address, should not fail */
-			ptr = shim_sbrk(0);
+			ptr = (uint8_t *)shim_sbrk(0);
 			if (ptr == (void *)-1) {
 				pr_fail("%s: sbrk(0) failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
@@ -169,7 +169,7 @@ static int OPTIMIZE3 stress_brk_child(stress_args_t *args, void *context)
 			 *  to start
 			 */
 			if (diff > 0) {
-				ptr = shim_sbrk(-diff);
+				ptr = (uint8_t *)shim_sbrk(-diff);
 				if (ptr == (void *)-1) {
 					pr_fail("%s: sbrk(%" PRIdPTR ") failed, errno=%d (%s)\n",
 						args->name, -diff, errno, strerror(errno));
@@ -178,7 +178,7 @@ static int OPTIMIZE3 stress_brk_child(stress_args_t *args, void *context)
 					brk_context->sbrk_shrinks++;
 				}
 				/* Get brk address, should not fail */
-				ptr = shim_sbrk(0);
+				ptr = (uint8_t *)shim_sbrk(0);
 				if (ptr == (void *)-1) {
 					pr_fail("%s: sbrk(0) failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
@@ -199,7 +199,7 @@ static int OPTIMIZE3 stress_brk_child(stress_args_t *args, void *context)
 		if (LIKELY(i < 8)) {
 			/* Expand brk by 1 page */
 			t = stress_time_now();
-			new_start_ptr = shim_sbrk((intptr_t)page_size);
+			new_start_ptr = (uint8_t *)shim_sbrk((intptr_t)page_size);
 			if (new_start_ptr != (void *)-1) {
 				uintptr_t *tmp;
 
