@@ -607,7 +607,7 @@ retry_open:
 			if (info.events[i].res2)
 				continue;
 
-			bufptr = obj->u.c.buf;
+			bufptr = (uint8_t *)obj->u.c.buf;
 			/* check for bufptr overflow */
 			if (bufptr >= info.buffer + BUFFER_SZ)
 				continue;
