@@ -426,7 +426,7 @@ static inline int stress_do_exec(stress_exec_context_t *context)
 		if (ret == 0) {
 			int *exec_ret;
 
-			ret = pthread_join(pthread_exec, (void *)&exec_ret);
+			ret = pthread_join(pthread_exec, (void **)&exec_ret);
 			if (ret == 0) {
 				if (ret_dummy == 0)
 					(void)pthread_kill(pthread_dummy, SIGKILL);
@@ -754,7 +754,7 @@ static int stress_exec(stress_args_t *args)
 	stress_pid_cache_items = (size_t)exec_max;
 
 	arg_max = (MAX_ARG_PAGES + 1) * args->page_size;
-	str = mmap(NULL, arg_max, PROT_READ | PROT_WRITE,
+	str = (char *)mmap(NULL, arg_max, PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (str == MAP_FAILED)
 		str = NULL;
@@ -877,7 +877,7 @@ static int stress_exec(stress_args_t *args)
 #if defined(HAVE_CLONE)
 			case EXEC_FORK_METHOD_CLONE:
 				stack_top = (char *)stress_get_stack_top(sph->stack, CLONE_STACK_SIZE);
-				stack_top = stress_align_stack(stack_top);
+				stack_top = (char *)stress_align_stack(stack_top);
 				stress_set_proc_state(args->name, STRESS_STATE_RUN);
 				pid = clone(stress_exec_child, stack_top, CLONE_VM | SIGCHLD, &sph->arg);
 				break;
