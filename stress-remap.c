@@ -201,7 +201,7 @@ static int stress_remap(stress_args_t *args)
 		data[i * stride] = (stress_mapdata_t)i;
 
 	/* No need to unmapped this address on exit */
-	unmapped = stress_get_unmapped_addr(page_size);
+	unmapped = (uint8_t *)stress_get_unmapped_addr(page_size);
 	mapped = (uint8_t *)stress_mmap_populate(NULL, mapped_size,
 			PROT_READ | PROT_WRITE,
 			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
