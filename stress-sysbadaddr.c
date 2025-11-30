@@ -575,7 +575,7 @@ static void bad_execve2(stress_bad_addr_t *ba, volatile uint64_t *counter)
 
 		if (stress_get_proc_self_exe(name, sizeof(name)) == 0) {
 			(*counter)++;
-			VOID_RET(int, execve(name, ba->addr, NULL));
+			VOID_RET(int, execve(name, (char * const *)ba->addr, NULL));
 		}
 	}
 }
@@ -589,7 +589,7 @@ static void bad_execve3(stress_bad_addr_t *ba, volatile uint64_t *counter)
 			static char *newargv[] = { NULL, NULL };
 
 			(*counter)++;
-			VOID_RET(int, execve(name, newargv, ba->addr));
+			VOID_RET(int, execve(name, newargv, (char *const *)ba->addr));
 		}
 	}
 }
@@ -600,7 +600,7 @@ static void bad_execve4(stress_bad_addr_t *ba, volatile uint64_t *counter)
 		static char *newargv[] = { NULL, NULL };
 
 		(*counter)++;
-		VOID_RET(int, execve(ba->addr, newargv, NULL));
+		VOID_RET(int, execve((const char *)ba->addr, newargv, NULL));
 	}
 }
 
@@ -1223,7 +1223,7 @@ static void bad_lstat2(stress_bad_addr_t *ba, volatile uint64_t *counter)
 		struct stat statbuf;
 
 		(*counter)++;
-		VOID_RET(int, shim_lstat(ba->addr, &statbuf));
+		VOID_RET(int, shim_lstat((const char *)ba->addr, &statbuf));
 	}
 }
 
@@ -1252,7 +1252,7 @@ static void bad_memfd_create(stress_bad_addr_t *ba, volatile uint64_t *counter)
 		int fd;
 
 		(*counter)++;
-		fd = shim_memfd_create(ba->addr, 0);
+		fd = shim_memfd_create((const char *)ba->addr, 0);
 		if (fd >= 0)
 			VOID_RET(int, close(fd));
 	}
@@ -1676,7 +1676,7 @@ static void bad_readv(stress_bad_addr_t *ba, volatile uint64_t *counter)
 		fd = open("/dev/zero", O_RDONLY);
 		if (fd > -1) {
 			(*counter)++;
-			VOID_RET(ssize_t, readv(fd, ba->addr, 32));
+			VOID_RET(ssize_t, readv(fd, (const struct iovec *)ba->addr, 32));
 			VOID_RET(int, close(fd));
 		}
 	}
@@ -1740,7 +1740,7 @@ UNEXPECTED
 static void bad_select1(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	int fd;
-	fd_set *readfds = ba->addr;
+	fd_set *readfds = (fd_set *)ba->addr;
 	fd_set *writefds = readfds + 1;
 	fd_set *exceptfds = writefds + 1;
 
@@ -1789,7 +1789,7 @@ static void bad_select3(stress_bad_addr_t *ba, volatile uint64_t *counter)
 	fd = open("/dev/zero", O_RDONLY);
 	if (fd > -1) {
 		(*counter)++;
-		VOID_RET(int, select(fd, ba->addr, &writefds, &exceptfds, &tv));
+		VOID_RET(int, select(fd, (fd_set *)ba->addr, &writefds, &exceptfds, &tv));
 		VOID_RET(int, close(fd));
 	}
 }
@@ -1810,7 +1810,7 @@ static void bad_select4(stress_bad_addr_t *ba, volatile uint64_t *counter)
 	fd = open("/dev/zero", O_RDONLY);
 	if (fd > -1) {
 		(*counter)++;
-		VOID_RET(int, select(fd, &readfds, ba->addr, &exceptfds, &tv));
+		VOID_RET(int, select(fd, &readfds, (fd_set *)ba->addr, &exceptfds, &tv));
 		VOID_RET(int, close(fd));
 	}
 }
@@ -1831,7 +1831,7 @@ static void bad_select5(stress_bad_addr_t *ba, volatile uint64_t *counter)
 	fd = open("/dev/zero", O_RDONLY);
 	if (fd > -1) {
 		(*counter)++;
-		VOID_RET(int, select(fd, &readfds, &writefds, ba->addr, &tv));
+		VOID_RET(int, select(fd, &readfds, &writefds, (fd_set *)ba->addr, &tv));
 		VOID_RET(int, close(fd));
 	}
 }
@@ -1998,7 +1998,7 @@ static void bad_utime(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unreadable) {
 		(*counter)++;
-		VOID_RET(int, utime(ba->addr, (struct utimbuf *)ba->addr));
+		VOID_RET(int, utime((const char *)ba->addr, (struct utimbuf *)ba->addr));
 	}
 }
 #endif
@@ -2008,7 +2008,7 @@ static void bad_utimes1(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unreadable) {
 		(*counter)++;
-		VOID_RET(int, utimes(ba->addr, (const struct timeval *)inc_addr(ba->addr, 1)));
+		VOID_RET(int, utimes((const char *)ba->addr, (const struct timeval *)inc_addr(ba->addr, 1)));
 	}
 }
 #endif
@@ -2028,7 +2028,7 @@ static void bad_utimes3(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unreadable) {
 		(*counter)++;
-		VOID_RET(int, utimes(ba->addr, NULL));
+		VOID_RET(int, utimes((const char *)ba->addr, NULL));
 	}
 }
 #endif
@@ -2085,7 +2085,7 @@ static void bad_writev(stress_bad_addr_t *ba, volatile uint64_t *counter)
 		fd = open("/dev/zero", O_RDONLY);
 		if (fd > -1) {
 			(*counter)++;
-			VOID_RET(ssize_t, writev(fd, (void *)ba->addr, 32));
+			VOID_RET(ssize_t, writev(fd, (const struct iovec *)ba->addr, 32));
 			VOID_RET(int, close(fd));
 		}
 	}
