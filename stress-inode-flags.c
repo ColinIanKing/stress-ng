@@ -203,7 +203,7 @@ static int stress_inode_flags_stressor(
 #if defined(AT_EMPTY_PATH)
 	char *two_pages;
 
-	two_pages = calloc(2, args->page_size);
+	two_pages = (char *)calloc(2, args->page_size);
 #endif
 
 	/* Find basename */
@@ -307,7 +307,7 @@ static void *stress_inode_flags_thread(void *arg)
 
 	stress_random_small_sleep();
 
-	pa->pthread_ret = stress_inode_flags_stressor(pa->args, pa->data);
+	pa->pthread_ret = stress_inode_flags_stressor(pa->args, (const stress_data_t *)pa->data);
 
 	return &g_nowt;
 }
