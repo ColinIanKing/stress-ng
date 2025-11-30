@@ -249,28 +249,28 @@ static int stress_race_sched_exercise(
  */
 static stress_race_sched_child_t *stress_race_sched_new(void)
 {
-	stress_race_sched_child_t *new;
+	stress_race_sched_child_t *new_item;
 
 	if (children.free) {
 		/* Pop an old one off the free list */
-		new = children.free;
-		children.free = new->next;
-		new->next = NULL;
+		new_item = children.free;
+		children.free = new_item->next;
+		new_item->next = NULL;
 	} else {
-		new = (stress_race_sched_child_t *)calloc(1, sizeof(*new));
-		if (!new)
+		new_item = (stress_race_sched_child_t *)calloc(1, sizeof(*new_item));
+		if (!new_item)
 			return NULL;
 	}
 
 	if (children.head)
-		children.tail->next = new;
+		children.tail->next = new_item;
 	else
-		children.head = new;
+		children.head = new_item;
 
-	children.tail = new;
+	children.tail = new_item;
 	children.length++;
 
-	return new;
+	return new_item;
 }
 
 /*
