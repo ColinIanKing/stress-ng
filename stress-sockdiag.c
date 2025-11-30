@@ -272,7 +272,7 @@ static int sockdiag_recv(stress_args_t *args, const int fd)
 			if (UNLIKELY(h->nlmsg_type != SOCK_DIAG_BY_FAMILY))
 				return -1;
 
-			if (stress_sockdiag_parse(args, NLMSG_DATA(h), h->nlmsg_len))
+			if (stress_sockdiag_parse(args, (struct unix_diag_msg *)NLMSG_DATA(h), h->nlmsg_len))
 				return -1;
 		}
 	}
