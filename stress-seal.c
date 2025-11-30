@@ -69,7 +69,7 @@ static int stress_seal(stress_args_t *args)
 	char filename[PATH_MAX];
 	char *buf;
 
-	buf = stress_mmap_populate(NULL, page_size,
+	buf = (char *)stress_mmap_populate(NULL, page_size,
 			PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (buf == MAP_FAILED) {
@@ -162,7 +162,7 @@ static int stress_seal(stress_args_t *args)
 		 *  mmap file, sealing it will return EBUSY until
 		 *  the mapping is removed
 		 */
-		ptr = mmap(NULL, (size_t)sz, PROT_WRITE, MAP_SHARED,
+		ptr = (uint8_t *)mmap(NULL, (size_t)sz, PROT_WRITE, MAP_SHARED,
 			fd, 0);
 		if (UNLIKELY(ptr == MAP_FAILED)) {
 			if (errno == ENOMEM)
