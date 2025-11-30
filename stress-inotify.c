@@ -54,7 +54,7 @@ static const stress_help_t help[] = {
 #define TIME_OUT	(10)	/* Secs for inotify to report back */
 #define BUF_SIZE	(4096)
 
-typedef int (*stress_inotify_helper)(stress_args_t *args, const char *path, void *private);
+typedef int (*stress_inotify_helper)(stress_args_t *args, const char *path, void *private_data);
 typedef int (*stress_inotify_func)(stress_args_t *args, const char *path, const int bad_fd);
 
 typedef struct {
@@ -209,7 +209,7 @@ static int inotify_exercise(
 	const char *matchname,	/* Filename for inotify event to report */
 	const stress_inotify_helper func, /* Helper func */
 	const uint32_t flags,	/* IN_* flags to watch for */
-	void *private,		/* Helper func private data */
+	void *private_data,	/* Helper func private data */
 	const int bad_fd)	/* A bad file descriptor */
 {
 	int fd, wd, n = 0, rc = EXIT_SUCCESS;
@@ -250,7 +250,7 @@ retry:
 		return EXIT_FAILURE;
 	}
 
-	if (func(args, filename, private) < 0)
+	if (func(args, filename, private_data) < 0)
 		goto cleanup;
 
 	while (check_flags) {
@@ -734,9 +734,9 @@ static int inotify_delete_self(
 static int inotify_move_self_helper(
 	stress_args_t *args,
 	const char *oldpath,
-	void *private)
+	void *private_data)
 {
-	const char *newpath = (const char *)private;
+	const char *newpath = (const char *)private_data;
 
 	if (rename(oldpath, newpath) < 0) {
 		pr_err("%s: cannot rename %s to %s, errno=%d (%s)\n",
@@ -774,9 +774,9 @@ static int inotify_move_self(
 static int inotify_moved_to_helper(
 	stress_args_t *args,
 	const char *newpath,
-	void *private)
+	void *private_data)
 {
-	const char *oldpath = (const char *)private;
+	const char *oldpath = (const char *)private_data;
 
 	if (rename(oldpath, newpath) < 0) {
 		pr_err("%s: cannot rename %s to %s, errno=%d (%s)\n",
@@ -818,9 +818,9 @@ static int inotify_moved_to(
 static int inotify_moved_from_helper(
 	stress_args_t *args,
 	const char *oldpath,
-	void *private)
+	void *private_data)
 {
-	const char *newpath = (const char *)private;
+	const char *newpath = (const char *)private_data;
 
 	if (rename(oldpath, newpath) < 0) {
 		pr_err("%s: cannot rename %s to %s, errno=%d (%s)\n",
