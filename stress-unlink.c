@@ -119,6 +119,7 @@ retry:
 					retries++;
 					if (LIKELY(stress_continue(args) && (retries < 5)))
 						goto retry;
+					break;
 				default:
 					break;
 				}
