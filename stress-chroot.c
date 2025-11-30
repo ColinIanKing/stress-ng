@@ -187,7 +187,7 @@ static int stress_chroot_test2(chroot_shared_data_t *data)
 #if defined(__linux__)
 	int ret1, ret2, errno1, errno2;
 
-	do_chroot(data, (void *)1, NULL, &ret1, &ret2, &errno1, &errno2);
+	do_chroot(data, (const char *)1, NULL, &ret1, &ret2, &errno1, &errno2);
 	if ((ret1 >= 0) || (errno1 != EFAULT)) {
 		pr_fail("%s: chroot(\"(void *)1\"), expected EFAULT"
 			", got instead errno=%d (%s)\n",
