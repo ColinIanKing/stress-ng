@@ -564,7 +564,11 @@ static int stress_pthread(stress_args_t *args)
 
 			pthreads[i].t_create = stress_time_now();
 			pthreads[i].t_run = pthreads[i].t_create;
+#if defined(HAVE_PTHREAD_ATTR_SETSTACK)
 			pthreads[i].ret = pthread_create(&pthreads[i].pthread, &attr,
+#else
+			pthreads[i].ret = pthread_create(&pthreads[i].pthread, NULL,
+#endif
 				stress_pthread_func, (void *)&pargs);
 			if (UNLIKELY(pthreads[i].ret)) {
 				/* Out of resources, don't try any more */
