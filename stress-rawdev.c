@@ -438,7 +438,7 @@ static int stress_rawdev(stress_args_t *args)
 		blksz = MIN_BLKSZ;
 
 	mmapsz = ((blksz + page_size - 1) & ~(page_size - 1));
-	buffer = stress_mmap_populate(NULL, mmapsz,
+	buffer = (char *)stress_mmap_populate(NULL, mmapsz,
 			PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (buffer == MAP_FAILED) {
