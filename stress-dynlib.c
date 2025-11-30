@@ -164,7 +164,7 @@ static int stress_dynlib(stress_args_t *args)
 
 				(void)dlerror();
 				t = stress_time_now();
-				ptr = dlsym(handles[i], libnames[i].symbol);
+				ptr = (const uint8_t *)dlsym(handles[i], libnames[i].symbol);
 				/*
 				 * The function pointer should be readable,
 				 * however, we have a SIGSEGV handler that
