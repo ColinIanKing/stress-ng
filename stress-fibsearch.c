@@ -128,7 +128,7 @@ static int OPTIMIZE3 stress_fibsearch(stress_args_t *args)
 		for (ptr = data, i = 0; i < n; i++, ptr++) {
 			int32_t *result;
 
-			result = fibsearch(ptr, data, n, sizeof(*ptr), stress_sort_cmp_fwd_int32);
+			result = (int32_t *)fibsearch(ptr, data, n, sizeof(*ptr), stress_sort_cmp_fwd_int32);
 			if (g_opt_flags & OPT_FLAGS_VERIFY) {
 				if (result == NULL)
 					pr_fail("%s: element %zu could not be found\n",
