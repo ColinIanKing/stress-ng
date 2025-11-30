@@ -243,7 +243,7 @@ static void stress_sigsegv_vdso(void)
      defined(STRESS_ARCH_RISCV) ||	\
      defined(STRESS_ARCH_S390) ||	\
      defined(STRESS_ARCH_X86))
-	(void)clock_gettime(CLOCK_REALTIME, BAD_ADDR);
+	(void)clock_gettime(CLOCK_REALTIME, (struct timespec *)BAD_ADDR);
 #endif
 #if defined(STRESS_ARCH_ARM) ||		\
     defined(STRESS_ARCH_MIPS) ||	\
@@ -252,7 +252,7 @@ static void stress_sigsegv_vdso(void)
     defined(STRESS_ARCH_RISCV) ||	\
     defined(STRESS_ARCH_S390) ||	\
     defined(STRESS_ARCH_X86)
-	(void)gettimeofday(BAD_ADDR, NULL);
+	(void)gettimeofday((struct timeval *)BAD_ADDR, NULL);
 #endif
 }
 #endif
