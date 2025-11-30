@@ -976,6 +976,8 @@ static int stress_af_alg(stress_args_t *args)
 				break;
 			case CRYPTO_UNKNOWN:
 				break;
+			default:
+				break;
 			}
 		}
 	} while (stress_continue(args));
