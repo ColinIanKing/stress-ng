@@ -1155,8 +1155,8 @@ static int OPTIMIZE3 TARGET_CLONES stress_stream_verify(
 static int stress_stream(stress_args_t *args)
 {
 	int rc = EXIT_FAILURE;
-	double *a = MAP_FAILED, *b = MAP_FAILED, *c = MAP_FAILED;
-	size_t *idx1 = MAP_FAILED, *idx2 = MAP_FAILED, *idx3 = MAP_FAILED;
+	double *a = (double *)MAP_FAILED, *b = (double *)MAP_FAILED, *c = (double *)MAP_FAILED;
+	size_t *idx1 = (size_t *)MAP_FAILED, *idx2 = (size_t *)MAP_FAILED, *idx3 = (size_t *)MAP_FAILED;
 	const double q = 3.0;
 	double old_checksum = -1.0;
 	double fp_ops = 0.0, dt;
@@ -1233,33 +1233,33 @@ static int stress_stream(stress_args_t *args)
 	sz = n * sizeof(*a);
 	sz_idx = n * sizeof(size_t);
 
-	a = stress_stream_mmap(args, sz, stream_mlock);
+	a = (double *)stress_stream_mmap(args, sz, stream_mlock);
 	if (a == MAP_FAILED)
 		goto err_unmap;
-	b = stress_stream_mmap(args, sz, stream_mlock);
+	b = (double *)stress_stream_mmap(args, sz, stream_mlock);
 	if (b == MAP_FAILED)
 		goto err_unmap;
-	c = stress_stream_mmap(args, sz, stream_mlock);
+	c = (double *)stress_stream_mmap(args, sz, stream_mlock);
 	if (c == MAP_FAILED)
 		goto err_unmap;
 
 	switch (stream_index) {
 	case 3:
-		idx3 = stress_stream_mmap(args, sz_idx, stream_mlock);
+		idx3 = (size_t *)stress_stream_mmap(args, sz_idx, stream_mlock);
 		if (idx3 == MAP_FAILED)
 			goto err_unmap;
 		stress_stream_init_index(idx3, n);
 		goto case_stream_index_2;
 	case 2:
 case_stream_index_2:
-		idx2 = stress_stream_mmap(args, sz_idx, stream_mlock);
+		idx2 = (size_t *)stress_stream_mmap(args, sz_idx, stream_mlock);
 		if (idx2 == MAP_FAILED)
 			goto err_unmap;
 		stress_stream_init_index(idx2, n);
 		goto case_stream_index_1;
 	case 1:
 case_stream_index_1:
-		idx1 = stress_stream_mmap(args, sz_idx, stream_mlock);
+		idx1 = (size_t *)stress_stream_mmap(args, sz_idx, stream_mlock);
 		if (idx1 == MAP_FAILED)
 			goto err_unmap;
 		stress_stream_init_index(idx1, n);
