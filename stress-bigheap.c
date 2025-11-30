@@ -316,7 +316,7 @@ static int stress_bigheap_child(stress_args_t *args, void *context)
 				}
 			}
 			last_ptr = ptr;
-			last_ptr_end = (void *)uintptr_end;
+			last_ptr_end = (uint8_t *)uintptr_end;
 		}
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
