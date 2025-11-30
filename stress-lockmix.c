@@ -111,28 +111,28 @@ static const char * const stress_lock_types[] = {
  */
 static stress_lockmix_info_t *stress_lockmix_info_new(void)
 {
-	stress_lockmix_info_t *new;
+	stress_lockmix_info_t *new_item;
 
 	if (lockmix_infos.free) {
 		/* Pop an old one off the free list */
-		new = lockmix_infos.free;
-		lockmix_infos.free = new->next;
-		new->next = NULL;
+		new_item = lockmix_infos.free;
+		lockmix_infos.free = new_item->next;
+		new_item->next = NULL;
 	} else {
-		new = (stress_lockmix_info_t *)calloc(1, sizeof(*new));
-		if (!new)
+		new_item = (stress_lockmix_info_t *)calloc(1, sizeof(*new_item));
+		if (!new_item)
 			return NULL;
 	}
 
 	if (lockmix_infos.head)
-		lockmix_infos.tail->next = new;
+		lockmix_infos.tail->next = new_item;
 	else
-		lockmix_infos.head = new;
+		lockmix_infos.head = new_item;
 
-	lockmix_infos.tail = new;
+	lockmix_infos.tail = new_item;
 	lockmix_infos.length++;
 
-	return new;
+	return new_item;
 }
 
 /*
