@@ -57,7 +57,7 @@ static size_t stress_minsigstksz;
 
 STRESS_PRAGMA_PUSH
 STRESS_PRAGMA_WARN_OFF
-static void stress_bad_altstack_force_fault(uint8_t *stack_start)
+static void stress_bad_altstack_force_fault(void *stack_start)
 {
 	volatile uint8_t *vol_stack = (volatile uint8_t *)stack_start;
 	/* trigger segfault on stack */
