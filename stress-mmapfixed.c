@@ -191,7 +191,7 @@ static int stress_mmapfixed_child(stress_args_t *args, void *context)
 
 			if (stress_mmapfixed_is_mapped((void *)newaddr, sz, page_size))
 				goto unmap;
-			newbuf = mremap(buf, sz, sz,
+			newbuf = (uint8_t *)mremap(buf, sz, sz,
 					MREMAP_FIXED | MREMAP_MAYMOVE,
 					(void *)newaddr);
 			if (newbuf != MAP_FAILED)
@@ -220,7 +220,7 @@ static int stress_mmapfixed_child(stress_args_t *args, void *context)
 					continue;
 
 				*buf64 = val64;
-				newbuf = mremap(buf, sz, sz,
+				newbuf = (uint8_t *)mremap(buf, sz, sz,
 						MREMAP_FIXED | MREMAP_MAYMOVE,
 						(void *)rndaddr);
 				if (newbuf && (newbuf != MAP_FAILED)) {
