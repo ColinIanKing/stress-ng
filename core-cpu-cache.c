@@ -1078,6 +1078,8 @@ static int stress_cpu_cache_get_auxval(stress_cpu_cache_cpu_t *cpu)
 		case STRESS_CACHE_WAYS:
 			cpu->caches[idx].ways = (uint32_t)value;
 			break;
+		default:
+			break;
 		}
 	}
 
