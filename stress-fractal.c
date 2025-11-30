@@ -346,7 +346,7 @@ static int stress_fractal(stress_args_t *args)
 	}
 
 	data_sz = sizeof(*info.data) * (size_t)info.xsize;
-	info.data = stress_mmap_populate(NULL, data_sz, PROT_READ | PROT_WRITE,
+	info.data = (uint16_t *)stress_mmap_populate(NULL, data_sz, PROT_READ | PROT_WRITE,
 					MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (info.data == MAP_FAILED) {
 		pr_inf_skip("%s: cannot mmap fractal data buffer of %zu bytes%s, skipping stressor\n",
