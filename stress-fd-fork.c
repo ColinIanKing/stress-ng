@@ -134,7 +134,7 @@ static int stress_fd_fork(stress_args_t *args)
 	}
 
 	fds_size = sizeof(int) * fd_fork_fds;
-	fds = stress_mmap_populate(NULL, fds_size,
+	fds = (int *)stress_mmap_populate(NULL, fds_size,
 			PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	stress_set_vma_anon_name(fds, fds_size, "fds");
@@ -144,7 +144,7 @@ static int stress_fd_fork(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
-	info = stress_mmap_populate(NULL, sizeof(*info),
+	info = (stress_fd_close_info_t *)stress_mmap_populate(NULL, sizeof(*info),
 			PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (info == MAP_FAILED) {
