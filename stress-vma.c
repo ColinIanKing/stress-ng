@@ -165,7 +165,7 @@ static void *stress_mmapaddr_get_addr(stress_args_t *args)
 		return NULL;
 
 	/* determine page aligned heap end and some slop */
-	heap_end = (void *)(((uintptr_t)addr & mask) + (page_size * 16));
+	heap_end = (char *)(((uintptr_t)addr & mask) + (page_size * 16));
 	free(addr);
 
 	addr = NULL;
