@@ -61,8 +61,6 @@ typedef struct {
 static const char *current_method = NULL;		/* current matrix method */
 static size_t method_all_index;				/* all method index */
 
-static const stress_matrix_3d_method_info_t matrix_3d_methods[];
-
 /*
  *  stress_matrix_3d_xyz_add()
  *	matrix addition
