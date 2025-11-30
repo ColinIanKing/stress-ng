@@ -72,7 +72,7 @@ static int stress_vm_splice(stress_args_t *args)
 		stress_usage_bytes(args, vm_splice_bytes, vm_splice_bytes * args->instances);
 	sz = vm_splice_bytes & ~(page_size - 1);
 
-	buf = stress_mmap_populate(NULL, sz, PROT_READ | PROT_WRITE,
+	buf = (uint8_t *)stress_mmap_populate(NULL, sz, PROT_READ | PROT_WRITE,
 		MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (buf == MAP_FAILED) {
 		pr_inf_skip("%s: failed to mmap %zu bytes buffer%s, errno=%d (%s), skipping stressor\n",
@@ -81,7 +81,7 @@ static int stress_vm_splice(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 	stress_set_vma_anon_name(buf, sz, "iov-buffer");
-	data = stress_mmap_populate(NULL, page_size, PROT_READ | PROT_WRITE,
+	data = (char *)stress_mmap_populate(NULL, page_size, PROT_READ | PROT_WRITE,
 		MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (data == MAP_FAILED) {
 		pr_inf_skip("%s: failed to mmap %zu sized buffer%s, errno=%d (%s), skipping stressor\n",
