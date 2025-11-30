@@ -101,7 +101,7 @@ static inline const uint64_t *uint64_ptr_offset(const uint64_t *ptr, const size_
 static void stress_memfd_fill_pages_generic(const uint64_t val, void *ptr, const size_t size)
 {
 	register uint64_t *u64ptr = (uint64_t *)ptr;
-	register const uint64_t *u64end = uint64_ptr_offset(ptr, size);
+	register const uint64_t *u64end = (const uint64_t *)uint64_ptr_offset(ptr, size);
 	register uint64_t v = val;
 
 	while (u64ptr < u64end) {
@@ -460,7 +460,7 @@ memfd_unmap:
 
 				if (UNLIKELY(ftruncate(fds[i], (off_t)test_size) < 0))
 					continue;
-				buf = mmap(NULL, test_size, PROT_READ | PROT_WRITE,
+				buf = (uint64_t *)mmap(NULL, test_size, PROT_READ | PROT_WRITE,
 						MAP_PRIVATE, fds[i], 0);
 				if (UNLIKELY(buf == MAP_FAILED))
 					continue;
