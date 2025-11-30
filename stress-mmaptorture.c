@@ -424,7 +424,7 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 	if (stress_sighandler(args->name, SIGSEGV, stress_mmaptorture_sighandler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 
-	data = malloc(page_size);
+	data = (char *)malloc(page_size);
 	if (UNLIKELY(!data)) {
 		pr_fail("%s: malloc of %zu bytes failed%s, out of memory\n",
 			args->name, page_size, stress_get_memfree_str());
@@ -453,7 +453,7 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 	}
 #endif
 	for (i = 0; i < MMAP_MAPPINGS_MAX; i++) {
-		mappings[i].addr = MAP_FAILED;
+		mappings[i].addr = (uint8_t *)MAP_FAILED;
 		mappings[i].size = 0;
 		mappings[i].offset = 0;
 	}
@@ -491,7 +491,7 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 			mmap_stats->mprotect_pages += mmap_bytes / page_size;
 #endif
 		for (n = 0; n < MMAP_MAPPINGS_MAX; n++) {
-			mappings[n].addr = MAP_FAILED;
+			mappings[n].addr = (uint8_t *)MAP_FAILED;
 			mappings[n].size = 0;
 			mappings[n].offset = 0;
 		}
@@ -595,7 +595,7 @@ mapped_ok:
 			mappings[n].addr = ptr;
 			mappings[n].size = mmap_size;
 			mappings[n].offset = offset;
-			stress_mmaptorture_vm_name((void *)ptr, mmap_size, page_size);
+			stress_mmaptorture_vm_name(ptr, mmap_size, page_size);
 
 			if (stress_mwc1()) {
 				for (i = 0; i < mmap_size; i += 64)
@@ -681,16 +681,16 @@ mapped_ok:
 						if (UNLIKELY(mappings[n].addr == MAP_FAILED)) {
 							mappings[n].size = 0;
 						} else {
-							stress_mmaptorture_vm_name((void *)mappings[n].addr, page_size, page_size);
+							stress_mmaptorture_vm_name(mappings[n].addr, page_size, page_size);
 							mmap_stats->mmap_pages++;
 						}
 					} else {
-						mappings[n].addr = MAP_FAILED;
+						mappings[n].addr = (uint8_t *)MAP_FAILED;
 						mappings[n].size = 0;
 					}
 #endif
 				} else {
-					mappings[n].addr = MAP_FAILED;
+					mappings[n].addr = (uint8_t *)MAP_FAILED;
 					mappings[n].size = 0;
 				}
 			}
@@ -724,7 +724,7 @@ mapped_ok:
 					if (stress_mwc1()) {
 						if ((ptr != MAP_FAILED) && (mmap_size > 0)) {
 							(void)stress_munmap_force((void *)ptr, mmap_size);
-							mappings[i].addr = MAP_FAILED;
+							mappings[i].addr = (uint8_t *)MAP_FAILED;
 							mappings[i].size = 0;
 						}
 					}
@@ -747,7 +747,7 @@ mapped_ok:
 
 					if ((ptr != MAP_FAILED) && (mmap_size > 0)) {
 						(void)stress_munmap_force((void *)ptr, mmap_size);
-						mappings[i].addr = MAP_FAILED;
+						mappings[i].addr = (uint8_t *)MAP_FAILED;
 						mappings[i].size = 0;
 					}
 				}
@@ -812,7 +812,7 @@ mappings_unmap:
 #endif
 				(void)shim_mincore((void *)ptr, mmap_size, vec);
 			}
-			mappings[i].addr = MAP_FAILED;
+			mappings[i].addr = (uint8_t *)MAP_FAILED;
 			mappings[i].size = 0;
 		}
 
