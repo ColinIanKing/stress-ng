@@ -64,11 +64,11 @@ int32_t stress_get_opt_ionice_class(const char *const str)
  *  stress_set_iopriority()
  *	check ioprio settings and set
  */
-void stress_set_iopriority(const int32_t class, const int32_t level)
+void stress_set_iopriority(const int32_t ioprio_class, const int32_t level)
 {
 	int data = level, rc;
 
-	switch (class) {
+	switch (ioprio_class) {
 	case UNDEFINED:	/* No preference, don't set */
 		return;
 	case IOPRIO_CLASS_RT:
@@ -87,11 +87,11 @@ void stress_set_iopriority(const int32_t class, const int32_t level)
 		data = 0;
 		break;
 	default:
-		(void)fprintf(stderr, "Unknown priority class: %d\n", class);
+		(void)fprintf(stderr, "Unknown priority class: %d\n", ioprio_class);
 		_exit(EXIT_FAILURE);
 	}
 	rc = shim_ioprio_set(IOPRIO_WHO_PROCESS, 0,
-		IOPRIO_PRIO_VALUE(class, data));
+		IOPRIO_PRIO_VALUE(ioprio_class, data));
 	if ((rc < 0) && (errno != ENOSYS)) {
 		(void)fprintf(stderr, "Cannot set I/O priority, errno=%d (%s)\n",
 			errno, strerror(errno));
@@ -99,9 +99,9 @@ void stress_set_iopriority(const int32_t class, const int32_t level)
 	}
 }
 #else
-void stress_set_iopriority(const int32_t class, const int32_t level)
+void stress_set_iopriority(const int32_t ioprio_class, const int32_t level)
 {
-	(void)class;
+	(void)ioprio_class;
 	(void)level;
 }
 #endif
