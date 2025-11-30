@@ -46,8 +46,6 @@ static const stress_help_t help[] = {
 #define BITOPS_CTZ(x)	(UNLIKELY((x) == 0) ? 32 : __builtin_ctz((x)))
 #endif
 
-static const stress_bitops_method_info_t bitops_methods[];
-
 static int stress_bitops_all(const char *name, uint32_t *count);
 
 /*
