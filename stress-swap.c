@@ -344,7 +344,7 @@ static int stress_swap_child(stress_args_t *args, void *context)
 			swap_self = true;
 	}
 
-	page = mmap(NULL, page_size, PROT_READ | PROT_WRITE,
+	page = (uint8_t *)mmap(NULL, page_size, PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (page == MAP_FAILED) {
 		pr_inf_skip("%s: failed to mmap 1 page%s, errno=%d (%s), skipping stressor\n",
@@ -466,7 +466,7 @@ static int stress_swap_child(stress_args_t *args, void *context)
 			goto tidy_close;
 		}
 
-		ptr = mmap(NULL, mmap_size, PROT_READ | PROT_WRITE,
+		ptr = (char *)mmap(NULL, mmap_size, PROT_READ | PROT_WRITE,
 				MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 		if (ptr != MAP_FAILED) {
 			size_t i;
