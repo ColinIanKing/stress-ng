@@ -287,7 +287,7 @@ static int stress_userfaultfd_child(stress_args_t *args, void *context)
 		return EXIT_NO_RESOURCE;
 	}
 
-	data = mmap(NULL, sz, PROT_READ | PROT_WRITE,
+	data = (uint8_t *)mmap(NULL, sz, PROT_READ | PROT_WRITE,
 		MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (data == MAP_FAILED) {
 		rc = EXIT_NO_RESOURCE;
