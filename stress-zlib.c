@@ -131,7 +131,6 @@ static const morse_t ALIGN64 morse[] = {
 	{ ' ', " " }
 };
 
-static const stress_zlib_method_t zlib_rand_data_methods[];
 static volatile bool pipe_broken = false;
 static sigjmp_buf jmpbuf;
 
