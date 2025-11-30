@@ -180,7 +180,7 @@ static int stress_splice(stress_args_t *args)
 
 	buffer_len = (ssize_t)(splice_bytes > SPLICE_BUFFER_LEN ?
 				SPLICE_BUFFER_LEN : splice_bytes);
-	buffer = stress_mmap_populate(NULL, (size_t)buffer_len,
+	buffer = (char *)stress_mmap_populate(NULL, (size_t)buffer_len,
 			PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (buffer == MAP_FAILED) {
