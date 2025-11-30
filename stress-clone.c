@@ -292,31 +292,31 @@ static inline CONST uint64_t uint64_ptr(const void *ptr)
  */
 static stress_clone_t *stress_clone_new(void)
 {
-	stress_clone_t *new;
+	stress_clone_t *new_clone;
 
 	if (clones.free) {
 		/* Pop an old one off the free list */
-		new = clones.free;
-		clones.free = new->next;
-		new->next = NULL;
+		new_clone = clones.free;
+		clones.free = new_clone->next;
+		new_clone->next = NULL;
 	} else {
-		new = stress_mmap_populate(NULL,
-			sizeof(*new), PROT_READ | PROT_WRITE,
+		new_clone = stress_mmap_populate(NULL,
+			sizeof(*new_clone), PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
-		if (new == MAP_FAILED)
+		if (new_clone == MAP_FAILED)
 			return NULL;
-		stress_set_vma_anon_name(new, sizeof(*new), "clone-descriptor");
+		stress_set_vma_anon_name(new_clone, sizeof(*new_clone), "clone-descriptor");
 	}
 
 	if (clones.head)
-		clones.tail->next = new;
+		clones.tail->next = new_clone;
 	else
-		clones.head = new;
+		clones.head = new_clone;
 
-	clones.tail = new;
+	clones.tail = new_clone;
 	clones.length++;
 
-	return new;
+	return new_clone;
 }
 
 /*
