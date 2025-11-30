@@ -93,13 +93,13 @@ static stress_physmmap_t *stress_physmmap_get_ranges(stress_args_t *args)
 			    (region_size > max_size))
 				continue;
 
-			new_physmmap = malloc(sizeof(*new_physmmap));
+			new_physmmap = (stress_physmmap_t *)malloc(sizeof(*new_physmmap));
 			if (!new_physmmap)
 				break;
 			new_physmmap->region_size = region_size;
 			new_physmmap->pages = region_size / args->page_size;
 			new_physmmap->bitmap_size = ((new_physmmap->pages + 63) / 64) * sizeof(uint64_t);
-			new_physmmap->bitmap = malloc(new_physmmap->bitmap_size);
+			new_physmmap->bitmap = (uint64_t *)malloc(new_physmmap->bitmap_size);
 			if (!new_physmmap->bitmap) {
 				free(new_physmmap);
 				break;
