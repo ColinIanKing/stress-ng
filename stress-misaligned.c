@@ -1220,7 +1220,7 @@ static void stress_misaligned_reset_timer(void)
 	VOID_RET(int, timer_settime(timer_id, 0, &timer, NULL));
 }
 
-static MLOCKED_TEXT void stress_misaligned_timer_handler(int signum)
+static MLOCKED_TEXT NORETURN void stress_misaligned_timer_handler(int signum)
 {
 	(void)signum;
 
