@@ -219,8 +219,8 @@ static int stress_rmap(stress_args_t *args)
 	}
 
 	for (i = 0; i < MAPPINGS_MAX; i++) {
-		mappings[i] = MAP_FAILED;
-		paddings[i] = MAP_FAILED;
+		mappings[i] = (uint32_t *)MAP_FAILED;
+		paddings[i] = (uint32_t *)MAP_FAILED;
 	}
 
 	/* Make sure this is killable by OOM killer */
