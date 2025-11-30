@@ -237,8 +237,8 @@ static int stress_rlimit_child(stress_args_t *args, void *ctxt)
 				/* Trigger RLIMIT_DATA */
 				oldbrk = shim_sbrk(0);
 				if (oldbrk != (void *)-1) {
-					ptr = shim_sbrk(MAX_RLIMIT_DATA);
-					if (ptr != (void *)-1) {
+					ptr = (uint8_t *)shim_sbrk(MAX_RLIMIT_DATA);
+					if (ptr != (uint8_t *)-1) {
 						VOID_RET(int, shim_brk(oldbrk));
 					}
 				}
