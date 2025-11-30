@@ -135,7 +135,7 @@ static int stress_mmapaddr_child(stress_args_t *args, void *context)
 		/* Randomly chosen low or high address mask */
 		const uintptr_t mask = (rnd & 0x80) ? page_mask : page_mask32;
 
-		addr = stress_mmapaddr_get_addr(args, mask, page_size);
+		addr = (uint8_t *)stress_mmapaddr_get_addr(args, mask, page_size);
 		if (!addr) {
 			if (UNLIKELY(errno == ENOSYS))
 				break;
@@ -184,12 +184,12 @@ static int stress_mmapaddr_child(stress_args_t *args, void *context)
     NEED_GLIBC(2,4,0) &&	\
     defined(MREMAP_FIXED) &&	\
     defined(MREMAP_MAYMOVE)
-		addr = stress_mmapaddr_get_addr(args, mask, page_size);
+		addr = (uint8_t *)stress_mmapaddr_get_addr(args, mask, page_size);
 		if (UNLIKELY(!addr))
 			goto unmap;
 
 		/* Now try to remap with a new fixed address */
-		remap_addr = mremap(map_addr, page_size, page_size, MREMAP_FIXED | MREMAP_MAYMOVE, addr);
+		remap_addr = (uint8_t *)mremap(map_addr, page_size, page_size, MREMAP_FIXED | MREMAP_MAYMOVE, addr);
 		if (remap_addr && (remap_addr != MAP_FAILED)) {
 			map_addr = remap_addr;
 			if (mmapaddr_mlock)
