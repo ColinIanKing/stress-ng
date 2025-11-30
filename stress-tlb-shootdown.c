@@ -371,7 +371,7 @@ static int stress_tlb_shootdown(stress_args_t *args)
 		rc = EXIT_NO_RESOURCE;
 		goto err_close;
 	}
-	memfd = stress_tlb_shootdown_mmap(args, NULL, mmapfd_size,
+	memfd = (uint8_t *)stress_tlb_shootdown_mmap(args, NULL, mmapfd_size,
 			PROT_WRITE | PROT_READ, MAP_SHARED, fd, 0);
 	if ((void *)memfd == MAP_FAILED) {
 		rc = EXIT_NO_RESOURCE;
@@ -382,7 +382,7 @@ static int stress_tlb_shootdown(stress_args_t *args)
 #endif
 #endif
 
-	mem = stress_tlb_shootdown_mmap(args, NULL, mmap_size,
+	mem = (uint8_t *)stress_tlb_shootdown_mmap(args, NULL, mmap_size,
 			PROT_WRITE | PROT_READ,
 			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if ((void *)mem == MAP_FAILED) {
