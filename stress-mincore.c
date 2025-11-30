@@ -111,7 +111,7 @@ static int stress_mincore(stress_args_t *args)
 	(void)stress_get_setting("mincore-random", &mincore_random);
 
 	/* Don't worry if we can't map a page, it is not critical */
-	mapped = mmap(NULL, page_size, PROT_READ | PROT_WRITE,
+	mapped = (uint8_t *)mmap(NULL, page_size, PROT_READ | PROT_WRITE,
 			MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (mapped != MAP_FAILED)
 		stress_set_vma_anon_name(mapped, page_size, "rw-page");
@@ -119,20 +119,20 @@ static int stress_mincore(stress_args_t *args)
 	/* Map a file backed page, silently ignore failure */
 	fd = stress_mincore_file(args);
 	if (fd >= 0) {
-		fdmapped = mmap(NULL, page_size, PROT_READ | PROT_WRITE,
+		fdmapped = (uint8_t *)mmap(NULL, page_size, PROT_READ | PROT_WRITE,
 				MAP_PRIVATE, fd, 0);
 	} else {
-		fdmapped = MAP_FAILED;
+		fdmapped = (uint8_t *)MAP_FAILED;
 	}
 	if (fdmapped != MAP_FAILED)
 		stress_set_vma_anon_name(fdmapped, page_size, "fd-page");
 
 	/* Map then unmap a page to get an unmapped page address */
-	unmapped = mmap(NULL, page_size, PROT_READ | PROT_WRITE,
+	unmapped = (uint8_t *)mmap(NULL, page_size, PROT_READ | PROT_WRITE,
 			MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (unmapped != MAP_FAILED) {
 		if (munmap((void *)unmapped, page_size) < 0)
-			unmapped = MAP_FAILED;
+			unmapped = (uint8_t *)MAP_FAILED;
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
@@ -260,7 +260,7 @@ redo: 			errno = 0;
 				/*
 				 *  Exercise with invalid page
 				 */
-				ret = shim_mincore(mapped, page_size, args->mapped->page_none);
+				ret = shim_mincore(mapped, page_size, (unsigned char *)args->mapped->page_none);
 				stress_mincore_expect(args, ret, 0, errno, EFAULT,
 					"invalid vector address", &rc);
 			}
