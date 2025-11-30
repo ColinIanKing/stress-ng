@@ -119,7 +119,7 @@ static int stress_umount_umount(stress_args_t *args, const char *path, const uin
  *  stress_umount_read_proc_mounts()
  *	exercise reading of proc mounts
  */
-static void stress_umount_read_proc_mounts(stress_args_t *args, const char *path)
+static void NORETURN stress_umount_read_proc_mounts(stress_args_t *args, const char *path)
 {
 	(void)path;
 
@@ -146,7 +146,7 @@ static void stress_umount_read_proc_mounts(stress_args_t *args, const char *path
  *  stress_umount_umounter()
  *	racy unmount, hammer time!
  */
-static void stress_umount_umounter(stress_args_t *args, const char *path)
+static void NORETURN stress_umount_umounter(stress_args_t *args, const char *path)
 {
 	int rc;
 	stress_parent_died_alarm();
@@ -165,7 +165,7 @@ static void stress_umount_umounter(stress_args_t *args, const char *path)
  *	aggressively perform ramfs mounts, this can force out of memory
  *	conditions
  */
-static void stress_umount_mounter(stress_args_t *args, const char *path)
+static void NORETURN stress_umount_mounter(stress_args_t *args, const char *path)
 {
 	const uint64_t ramfs_size = 64 * KB;
 	int i = 0, rc = EXIT_SUCCESS;
