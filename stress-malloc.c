@@ -243,10 +243,10 @@ static void *stress_malloc_loop(void *ptr)
 				stress_alloc_action("realloc", len);
 				tmp = realloc(info[i].addr, len);
 				if (tmp) {
-					info[i].addr = tmp;
+					info[i].addr = (uintptr_t *)tmp;
 					info[i].len = len;
 
-					stress_malloc_page_touch((void *)info[i].addr, info[i].len, page_size);
+					stress_malloc_page_touch((uint8_t *)info[i].addr, info[i].len, page_size);
 					*info[i].addr = (uintptr_t)info[i].addr;	/* stash address */
 					if (UNLIKELY(verify && (uintptr_t)info[i].addr != *info[i].addr)) {
 						pr_fail("%s: allocation at %p does not contain correct value\n",
@@ -273,7 +273,7 @@ static void *stress_malloc_loop(void *ptr)
 					if (len < (n * sizeof(uintptr_t)))
 						len = n * sizeof(uintptr_t);
 					stress_alloc_action("calloc", len);
-					info[i].addr = (void *)calloc(n, len / n);
+					info[i].addr = (uintptr_t *)calloc(n, len / n);
 					len = n * (len / n);
 					break;
 #if defined(HAVE_POSIX_MEMALIGN)
@@ -292,7 +292,7 @@ static void *stress_malloc_loop(void *ptr)
 					/* round len to multiple of alignment */
 					len = (len + tmp_align - 1) & ~(tmp_align - 1);
 					stress_alloc_action("aligned_alloc", len);
-					info[i].addr = aligned_alloc(tmp_align, len);
+					info[i].addr = (uintptr_t *)aligned_alloc(tmp_align, len);
 					break;
 #endif
 #if defined(HAVE_MEMALIGN) &&	\
@@ -300,19 +300,19 @@ static void *stress_malloc_loop(void *ptr)
 				case 3:
 					/* SunOS 4.1.3 */
 					stress_alloc_action("memalign", len);
-					info[i].addr = memalign(MK_ALIGN(i), len);
+					info[i].addr = (uintptr_t *)memalign(MK_ALIGN(i), len);
 					break;
 #endif
 #if defined(HAVE_VALLOC) &&	\
     !defined(HAVE_LIB_PTHREAD)
 				case 4:
 					stress_alloc_action("valloc", len);
-					info[i].addr = valloc(len);
+					info[i].addr = (uintptr_t *)valloc(len);
 					break;
 #elif defined(HAVE_MEMALIGN)
 				case 4:
 					stress_alloc_action("memalign", len);
-					info[i].addr = memalign(page_size, len);
+					info[i].addr = (uintptr_t *)memalign(page_size, len);
 					break;
 #endif
 				default:
@@ -321,7 +321,7 @@ static void *stress_malloc_loop(void *ptr)
 					break;
 				}
 				if (LIKELY(info[i].addr != NULL)) {
-					stress_malloc_page_touch((void *)info[i].addr, len, page_size);
+					stress_malloc_page_touch((uint8_t *)info[i].addr, len, page_size);
 					*info[i].addr = (uintptr_t)info[i].addr;	/* stash address */
 					info[i].len = len;
 
