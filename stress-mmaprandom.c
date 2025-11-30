@@ -776,7 +776,7 @@ static void OPTIMIZE3 stress_mmaprandom_mmap_anon(mr_ctxt_t *ctxt, const int idx
 		int old_flags;
 
 		if (ctxt->oom_avoid && stress_low_memory(size * 2)) {
-			addr = MAP_FAILED;
+			addr = (uint8_t *)MAP_FAILED;
 			break;
 		}
 
@@ -899,7 +899,7 @@ static void OPTIMIZE3 stress_mmaprandom_mmap_file(mr_ctxt_t *ctxt, const int idx
 		int old_flags;
 
 		if (ctxt->oom_avoid && stress_low_memory(size * 2)) {
-			addr = MAP_FAILED;
+			addr = (uint8_t *)MAP_FAILED;
 			break;
 		}
 
@@ -1085,7 +1085,7 @@ static void OPTIMIZE3 stress_mmaprandom_shm_sysv(mr_ctxt_t *ctxt, const int idx)
 	shmid = shmget(IPC_PRIVATE, size, shmflag);
 	if (shmid < 0)
 		return;
-	addr = shmat(shmid, NULL, (shmflag & S_IWUSR) ? 0 : SHM_RDONLY);
+	addr = (uint8_t *)shmat(shmid, NULL, (shmflag & S_IWUSR) ? 0 : SHM_RDONLY);
 	if (shmctl(shmid, IPC_RMID, NULL) < 0) {
 		if (addr != (void *)-1)
 			VOID_RET(int, shmdt(addr));
@@ -1201,7 +1201,7 @@ static void OPTIMIZE3 stress_mmaprandom_read(mr_ctxt_t *ctxt, const int idx)
 #else
 	if (mr_node->mmap_prot & PROT_READ) {
 #endif
-		uint64_t *volatile ptr = mr_node->mmap_addr;
+		uint64_t *volatile ptr = (uint64_t *volatile)mr_node->mmap_addr;
 		const uint64_t *end = (uint64_t *)((intptr_t)ptr + mr_node->mmap_size);
 
 		while (ptr < end) {
@@ -1436,7 +1436,7 @@ static void stress_mmaprandom_mincore(mr_ctxt_t *ctxt, const int idx)
 	if (!mr_node)
 		return;
 
-	vec = calloc(ctxt->maxpages, sizeof(*vec));
+	vec = (unsigned char *)calloc(ctxt->maxpages, sizeof(*vec));
 	if (!vec)
 		return;
 
@@ -1562,7 +1562,7 @@ static void OPTIMIZE3 stress_mmaprandom_unmap_first_page(mr_ctxt_t *ctxt, const 
 
 	page_size = mr_node->mmap_page_size;
 	if (mr_node->mmap_size >= (2 * page_size)) {
-		uint8_t *ptr = mr_node->mmap_addr;
+		uint8_t *ptr = (uint8_t *)mr_node->mmap_addr;
 
 		if (UNLIKELY(stress_mmaprandom_munmap_force(ptr, page_size, page_size) < 0))
 			return;
@@ -1597,7 +1597,7 @@ static void stress_mmaprandom_unmap_last_page(mr_ctxt_t *ctxt, const int idx)
 
 	page_size = mr_node->mmap_page_size;
 	if (mr_node->mmap_size >= (2 * page_size)) {
-		uint8_t *ptr = mr_node->mmap_addr;
+		uint8_t *ptr = (uint8_t *)mr_node->mmap_addr;
 
 		ptr += (mr_node->mmap_size - page_size);
 		if (UNLIKELY(stress_mmaprandom_munmap_force(ptr, page_size, page_size) < 0))
@@ -1671,7 +1671,7 @@ static void OPTIMIZE3 stress_mmaprandom_split_hole(mr_ctxt_t *ctxt, const int id
 
 	page_size = mr_node->mmap_page_size;
 	if (mr_node->mmap_size >= (3 * page_size)) {
-		uint8_t *ptr = mr_node->mmap_addr;
+		uint8_t *ptr = (uint8_t *)mr_node->mmap_addr;
 		mr_node_t *new_mr_node;
 
 		new_mr_node = RB_MIN(sm_free_node_tree, &sm_free_node_tree_root);
@@ -1855,7 +1855,7 @@ static void OPTIMIZE3 stress_mmaprandom_join(mr_ctxt_t *ctxt, const int idx)
 		if (mr_node->flags & MR_NODE_FLAG_SHM)
 			return;
 
-		ptr = mr_node->mmap_addr;
+		ptr = (uint8_t *)mr_node->mmap_addr;
 		page_size = mr_node->mmap_page_size;
 		max_size = page_size * ctxt->maxpages;
 
@@ -2151,7 +2151,7 @@ static int stress_mmaprandom(stress_args_t *args)
 #endif
 	}
 
-	ctxt->page = mmap(NULL, args->page_size, PROT_READ | PROT_WRITE,
+	ctxt->page = (uint8_t *)mmap(NULL, args->page_size, PROT_READ | PROT_WRITE,
 		MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (ctxt->page == MAP_FAILED) {
 		pr_inf_skip("%s: skipping stressor, cannot mmap page buffer, errno=%d (%s)\n",
