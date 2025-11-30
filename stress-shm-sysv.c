@@ -798,7 +798,7 @@ retry:
 
 			if (UNLIKELY(!stress_continue(args)))
 				goto reap;
-			if (UNLIKELY(stress_shm_sysv_check(addr, sz, page_size) < 0)) {
+			if (UNLIKELY(stress_shm_sysv_check((uint8_t *)addr, sz, page_size) < 0)) {
 				ok = false;
 				pr_fail("%s: memory check failed\n", args->name);
 				rc = EXIT_FAILURE;
