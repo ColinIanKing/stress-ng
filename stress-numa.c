@@ -295,7 +295,7 @@ static int stress_numa(stress_args_t *args)
 	/*
 	 *  We need a buffer to migrate around NUMA nodes
 	 */
-	buf = stress_mmap_populate(NULL, numa_bytes,
+	buf = (uint8_t *)stress_mmap_populate(NULL, numa_bytes,
 		PROT_READ | PROT_WRITE,
 		MAP_ANONYMOUS | MAP_SHARED, 0, 0);
 	if (buf == MAP_FAILED) {
