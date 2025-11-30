@@ -133,24 +133,24 @@ PRAGMA_UNROLL_N(elements)					\
 }
 
 #define SHIM_SHUFFLE_u8_64(dst, src, mask)	\
-	shim_builtin_shuffle_u8_64((void *)&(dst), (void *)&(src), (void *)&(mask))
+	shim_builtin_shuffle_u8_64((stress_scalar_u8_t *)&(dst), (stress_scalar_u8_t *)&(src), (stress_scalar_u8_t *)&(mask))
 STRESS_VEC_BUILTIN_SHUFFLE(u8, 64)
 
 #define SHIM_SHUFFLE_u16_32(dst, src, mask) \
-	shim_builtin_shuffle_u16_32((void *)&(dst), (void *)&(src), (void *)&(mask))
+	shim_builtin_shuffle_u16_32((stress_scalar_u16_t *)&(dst), (stress_scalar_u16_t *)&(src), (stress_scalar_u16_t *)&(mask))
 STRESS_VEC_BUILTIN_SHUFFLE(u16, 32)
 
 #define SHIM_SHUFFLE_u32_16(dst, src, mask) \
-	shim_builtin_shuffle_u32_16((void *)&(dst), (void *)&(src), (void *)&(mask))
+	shim_builtin_shuffle_u32_16((stress_scalar_u32_t *)&(dst), (stress_scalar_u32_t *)&(src), (stress_scalar_u32_t *)&(mask))
 STRESS_VEC_BUILTIN_SHUFFLE(u32, 16)
 
 #define SHIM_SHUFFLE_u64_8(dst, src, mask) \
-	shim_builtin_shuffle_u64_8((void *)&(dst), (void *)&(src), (void *)&(mask))
+	shim_builtin_shuffle_u64_8((stress_scalar_u64_t *)&(dst), (stress_scalar_u64_t *)&(src), (stress_scalar_u64_t *)&(mask))
 STRESS_VEC_BUILTIN_SHUFFLE(u64, 8)
 #if defined(HAVE_INT128_T)
 STRESS_VEC_BUILTIN_SHUFFLE(u128, 4)
 #define SHIM_SHUFFLE_u128_4(dst, src, mask) \
-	shim_builtin_shuffle_u128_4((void *)&(dst), (void *)&(src), (void *)&(mask))
+	shim_builtin_shuffle_u128_4((stress_scalar_u128_t *)&(dst), (stress_scalar_u128_t *)&(src), (stress_scalar_u128_t *)&(mask))
 #endif
 #endif
 
