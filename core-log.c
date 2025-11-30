@@ -110,7 +110,7 @@ static void pr_log_write(const char *buf, const size_t buf_len)
 			char *new_buf;
 			const size_t len = strlen(pr_msg_buf.buf);
 
-			new_buf = realloc(pr_msg_buf.buf, len + buf_len + 1);
+			new_buf = (char *)realloc(pr_msg_buf.buf, len + buf_len + 1);
 			if (UNLIKELY(!new_buf)) {
 				pr_log_write_buf(pr_msg_buf.buf, strlen(pr_msg_buf.buf));
 				free(pr_msg_buf.buf);
