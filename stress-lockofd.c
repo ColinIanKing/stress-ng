@@ -58,28 +58,28 @@ static stress_lockofd_info_list_t lockofd_infos;
  */
 static stress_lockofd_info_t *stress_lockofd_info_new(void)
 {
-	stress_lockofd_info_t *new;
+	stress_lockofd_info_t *new_item;
 
 	if (lockofd_infos.free) {
 		/* Pop an old one off the free list */
-		new = lockofd_infos.free;
-		lockofd_infos.free = new->next;
-		new->next = NULL;
+		new_item = lockofd_infos.free;
+		lockofd_infos.free = new_item->next;
+		new_item->next = NULL;
 	} else {
-		new = (stress_lockofd_info_t *)calloc(1, sizeof(*new));
-		if (!new)
+		new_item = (stress_lockofd_info_t *)calloc(1, sizeof(*new_item));
+		if (!new_item)
 			return NULL;
 	}
 
 	if (lockofd_infos.head)
-		lockofd_infos.tail->next = new;
+		lockofd_infos.tail->next = new_item;
 	else
-		lockofd_infos.head = new;
+		lockofd_infos.head = new_item;
 
-	lockofd_infos.tail = new;
+	lockofd_infos.tail = new_item;
 	lockofd_infos.length++;
 
-	return new;
+	return new_item;
 }
 
 /*
