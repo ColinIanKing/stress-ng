@@ -66,7 +66,7 @@ static inline void ALWAYS_INLINE dekker_mbarrier(void)
 #endif
 }
 
-static void stress_dekker_sigill_handler(int signum)
+static void NORETURN stress_dekker_sigill_handler(int signum)
 {
 	(void)signum;
 
