@@ -162,7 +162,7 @@ static inline void read64_lfence(uint64_t *data)
  */
 static inline OPTIMIZE3 void stress_memory_contend(const stress_pthread_args_t *pa)
 {
-	uint64_t **mappings = pa->data;
+	uint64_t **mappings = (uint64_t **)pa->data;
 	volatile uint64_t *vdata0 = mappings[0];
 	volatile uint64_t *vdata1 = mappings[1];
 	uint64_t *data0 = mappings[0];
