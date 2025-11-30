@@ -53,8 +53,6 @@ typedef struct {
 	bool vm_addr_numa;
 } stress_vm_addr_context_t;
 
-static const stress_vm_addr_method_info_t vm_addr_methods[];
-
 static const stress_help_t help[] = {
 	{ NULL,	"vm-addr N",	    "start N vm address exercising workers" },
 	{ NULL, "vm-addr-method M", "select method to exercise vm addresses" },
