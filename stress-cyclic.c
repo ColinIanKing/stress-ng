@@ -86,7 +86,7 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
-static stress_cyclic_state_t *stress_cyclic_state = MAP_FAILED;
+static stress_cyclic_state_t *stress_cyclic_state = (stress_cyclic_state_t *)MAP_FAILED;
 
 static const stress_policy_t cyclic_policies[] = {
 #if defined(SCHED_BATCH)
