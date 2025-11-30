@@ -70,28 +70,28 @@ static stress_forkheavy_list_t forkheavy_list;
  */
 static stress_forkheavy_t *stress_forkheavy_new(void)
 {
-	stress_forkheavy_t *new;
+	stress_forkheavy_t *new_item;
 
 	if (forkheavy_list.free) {
 		/* Pop an old one off the free list */
-		new = forkheavy_list.free;
-		forkheavy_list.free = new->next;
+		new_item = forkheavy_list.free;
+		forkheavy_list.free = new_item->next;
 	} else {
-		new = (stress_forkheavy_t *)malloc(sizeof(*new));
-		if (!new)
+		new_item = (stress_forkheavy_t *)malloc(sizeof(*new_item));
+		if (!new_item)
 			return NULL;
 	}
-	new->next = NULL;
+	new_item->next = NULL;
 
 	if (forkheavy_list.head)
-		forkheavy_list.tail->next = new;
+		forkheavy_list.tail->next = new_item;
 	else
-		forkheavy_list.head = new;
+		forkheavy_list.head = new_item;
 
-	forkheavy_list.tail = new;
+	forkheavy_list.tail = new_item;
 	forkheavy_list.length++;
 
-	return new;
+	return new_item;
 }
 
 /*
