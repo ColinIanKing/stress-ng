@@ -133,7 +133,7 @@ try_read:
 				args->name, errno, strerror(errno));
 			goto fail;
 		}
-		if (stress_data_is_not_zero(buffer, buffer_size)) {
+		if (stress_data_is_not_zero((uint64_t *)buffer, buffer_size)) {
 			pr_fail("%s: buffer does not contain all zeros\n", args->name);
 			goto fail;
 		}
