@@ -66,7 +66,7 @@ static inline skip_node_t *skip_node_alloc(const size_t levels)
 	const size_t sz = sizeof(skip_node_t) + ((levels + 1) * sizeof(skip_node_t *));
 	skip_node_t *skip_node;
 
-	skip_node = calloc(1, sz);
+	skip_node = (skip_node_t *)calloc(1, sz);
 	if (!skip_node)
 		return NULL;
 	skip_node->skip_nodes = (skip_node_t **)(skip_node + 1);
