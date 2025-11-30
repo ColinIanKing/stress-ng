@@ -127,7 +127,7 @@ static int stress_mmapfork(stress_args_t *args)
 	/*
 	 *  Setup a page that should be wiped if MADV_WIPEONFORK works
 	 */
-	wipe_ptr = mmap(NULL, wipe_size, PROT_READ | PROT_WRITE,
+	wipe_ptr = (uint8_t *)mmap(NULL, wipe_size, PROT_READ | PROT_WRITE,
 		MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (wipe_ptr != MAP_FAILED) {
 		stress_set_vma_anon_name(wipe_ptr, wipe_size, "wipe-on-fork-data");
