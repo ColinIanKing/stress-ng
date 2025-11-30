@@ -98,8 +98,6 @@ static const stress_help_t help[] = {
 	{ NULL,	 NULL,			NULL }
 };
 
-static const stress_cpu_method_info_t stress_cpu_methods[];
-
 /* Don't make this static to ensure dithering does not get optimised out */
 uint8_t pixels[STRESS_CPU_DITHER_X][STRESS_CPU_DITHER_Y];
 
