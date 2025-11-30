@@ -118,7 +118,7 @@ static int stress_mmaphuge_child(stress_args_t *args, void *v_context)
 		size_t i;
 
 		for (i = 0; i < context->mmaphuge_mmaps; i++)
-			bufs[i].buf = MAP_FAILED;
+			bufs[i].buf = (uint8_t *)MAP_FAILED;
 
 		for (i = 0; LIKELY(stress_continue(args) && (i < context->mmaphuge_mmaps)); i++) {
 			size_t shmall, freemem, totalmem, freeswap, totalswap, last_freeswap, last_totalswap;
@@ -127,7 +127,7 @@ static int stress_mmaphuge_child(stress_args_t *args, void *v_context)
 			stress_get_memlimits(&shmall, &freemem, &totalmem, &last_freeswap, &last_totalswap);
 
 			for (j = 0; j < SIZEOF_ARRAY(stress_mmap_settings); j++) {
-				uint8_t *buf = MAP_FAILED;
+				uint8_t *buf = (uint8_t *)MAP_FAILED;
 				const size_t sz = stress_mmap_settings[idx].sz;
 				int flags = MAP_ANONYMOUS;
 
@@ -238,7 +238,7 @@ static int stress_mmaphuge_child(stress_args_t *args, void *v_context)
 				*buf = stress_mwc8();
 				(void)stress_munmap_force((void *)buf, sz);
 			}
-			bufs[i].buf = MAP_FAILED;
+			bufs[i].buf = (uint8_t *)MAP_FAILED;
 		}
 	} while (stress_continue(args));
 
