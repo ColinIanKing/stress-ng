@@ -59,28 +59,28 @@ static stress_locka_info_list_t locka_infos;
  */
 static stress_locka_info_t *stress_locka_info_new(void)
 {
-	stress_locka_info_t *new;
+	stress_locka_info_t *new_item;
 
 	if (locka_infos.free) {
 		/* Pop an old one off the free list */
-		new = locka_infos.free;
-		locka_infos.free = new->next;
-		new->next = NULL;
+		new_item = locka_infos.free;
+		locka_infos.free = new_item->next;
+		new_item->next = NULL;
 	} else {
-		new = (stress_locka_info_t *)calloc(1, sizeof(*new));
-		if (!new)
+		new_item = (stress_locka_info_t *)calloc(1, sizeof(*new_item));
+		if (!new_item)
 			return NULL;
 	}
 
 	if (locka_infos.head)
-		locka_infos.tail->next = new;
+		locka_infos.tail->next = new_item;
 	else
-		locka_infos.head = new;
+		locka_infos.head = new_item;
 
-	locka_infos.tail = new;
+	locka_infos.tail = new_item;
 	locka_infos.length++;
 
-	return new;
+	return new_item;
 }
 
 /*
