@@ -71,7 +71,7 @@ static void dnotify_handler(int sig, siginfo_t *si, void *data)
 	dnotify_fd = si->si_fd;
 }
 
-typedef int (*stress_dnotify_helper)(stress_args_t *args, const char *path, const void *private);
+typedef int (*stress_dnotify_helper)(stress_args_t *args, const char *path, const void *private_data);
 typedef int (*stress_dnotify_func)(stress_args_t *args, const char *path);
 
 typedef struct {
@@ -90,7 +90,7 @@ static int dnotify_exercise(
 	const char *watchname,		/* File or directory to watch using dnotify */
 	const stress_dnotify_helper func,/* Helper func */
 	const unsigned long int flags,	/* DN_* flags to watch for */
-	void *private)			/* Helper func private data */
+	void *private_data)		/* Helper func private data */
 {
 	int fd, i = 0, rc = 0;
 #if defined(DN_MULTISHOT)
@@ -118,7 +118,7 @@ static int dnotify_exercise(
 	}
 
 	dnotify_fd = -1;
-	if (func(args, filename, private) < 0) {
+	if (func(args, filename, private_data) < 0) {
 		rc = -1;
 		goto cleanup;
 	}
@@ -386,9 +386,9 @@ static int dnotify_delete_file(stress_args_t *args, const char *path)
 static int dnotify_rename_helper(
 	stress_args_t *args,
 	const char *oldpath,
-	const void *private)
+	const void *private_data)
 {
-	const char *newpath = (const char *)private;
+	const char *newpath = (const char *)private_data;
 
 	if (rename(oldpath, newpath) < 0) {
 		pr_err("%s: cannot rename %s to %s, errno=%d (%s)\n",
