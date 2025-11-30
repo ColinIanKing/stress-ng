@@ -138,8 +138,6 @@ typedef struct {
 	const stress_list_func   func;	/* the list method function */
 } stress_list_method_info_t;
 
-static const stress_list_method_info_t list_methods[];
-
 #if defined(HAVE_SIGLONGJMP)
 /*
  *  stress_list_handler()
