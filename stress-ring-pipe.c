@@ -134,7 +134,7 @@ static int stress_ring_pipe(stress_args_t *args)
 	(void)stress_get_setting("ring-pipe-size", &ring_pipe_size);
 	(void)stress_get_setting("ring-pipe-splice", &ring_pipe_splice);
 
-	buf = stress_mmap_populate(NULL, (size_t)STRESS_RING_PIPE_SIZE_MAX,
+	buf = (char *)stress_mmap_populate(NULL, (size_t)STRESS_RING_PIPE_SIZE_MAX,
 		PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (buf == MAP_FAILED) {
 		pr_inf_skip("%s: failed to mmap %d size buffer%s, "
