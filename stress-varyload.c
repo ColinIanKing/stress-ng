@@ -433,7 +433,7 @@ static int stress_varyload(stress_args_t *args)
 	bool controller = stress_instance_zero(args);
 	bool sync_fail = false;
 
-	pids = calloc((size_t)args->instances, sizeof(*pids));
+	pids = (pid_t *)calloc((size_t)args->instances, sizeof(*pids));
 	if (!pids) {
 		pr_inf("%s: failed to allocate %" PRIu32 " pids, skipping stressor\n",
 			args->name, args->instances);
