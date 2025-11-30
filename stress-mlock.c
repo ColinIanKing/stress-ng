@@ -339,7 +339,7 @@ static int stress_mlock_child(stress_args_t *args, void *context)
 	 *  Under memory pressure we may need to scale back our
 	 *  mappings array to the point where it can fit into memory.
 	 */
-	mappings = MAP_FAILED;
+	mappings = (uint8_t **)MAP_FAILED;
 	while (stress_continue(args) && (mappings_len >= page_size)) {
 		mappings = (uint8_t **)mmap(NULL, mappings_len, PROT_READ | PROT_WRITE,
 			MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
@@ -464,7 +464,7 @@ static int stress_mlock_child(stress_args_t *args, void *context)
 				VOID_RET(int, shim_munlock((void *)((uint8_t *)addr + page_size), 0));
 			}
 			(void)stress_munmap_force((void *)addr, page_size * 3);
-			mappings[i] = MAP_FAILED;
+			mappings[i] = (uint8_t *)MAP_FAILED;
 		}
 
 		for (n = 0; n < max; n++) {
