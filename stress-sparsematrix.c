@@ -104,8 +104,6 @@ typedef struct {
 	const func_get		get;	/* get a value from the matrix */
 } stress_sparsematrix_method_info_t;
 
-static const stress_sparsematrix_method_info_t sparsematrix_methods[];
-
 static const stress_help_t help[] = {
 	{ NULL,	"sparsematrix N",	 "start N workers that exercise a sparse matrix" },
 	{ NULL,	"sparsematrix-items N",	 "N is the number of items in the spare matrix" },
