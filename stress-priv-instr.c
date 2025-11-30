@@ -462,7 +462,7 @@ static sigjmp_buf jmp_env;
 static size_t idx = 0;
 static double t_start, duration, count;
 
-static void stress_sigsegv_handler(int signum)
+static void NORETURN stress_sigsegv_handler(int signum)
 {
 	(void)signum;
 
