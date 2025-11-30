@@ -265,7 +265,7 @@ static inline int stress_flush_dcache(
     defined(HAVE_ASM_PPC64_DCBST)
 		dcbst_page((void *)ptr, page_size, cl_size);
 #endif
-		shim_cacheflush((void *)ptr, (int)page_size, SHIM_DCACHE);
+		shim_cacheflush((char *)ptr, (int)page_size, SHIM_DCACHE);
 		ptr += page_size;
 	}
 	return 0;
@@ -299,8 +299,8 @@ static int stress_flushcache_child(stress_args_t *args, void *ctxt)
 		stress_flush_dcache(args, context);
 
 		if (context->i_addr)
-			shim_cacheflush(context->i_addr, (int)context->i_size, SHIM_ICACHE | SHIM_DCACHE);
-		shim_cacheflush(context->d_addr, (int)context->d_size, SHIM_ICACHE | SHIM_DCACHE);
+			shim_cacheflush((char *)context->i_addr, (int)context->i_size, SHIM_ICACHE | SHIM_DCACHE);
+		shim_cacheflush((char *)context->d_addr, (int)context->d_size, SHIM_ICACHE | SHIM_DCACHE);
 
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
