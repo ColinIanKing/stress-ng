@@ -122,12 +122,12 @@ static int try_remap(
 			t = stress_time_now();
 #if defined(MREMAP_FIXED)
 		if (addr) {
-			newbuf = mremap(*buf, old_sz, new_sz, flags, addr);
+			newbuf = (uint8_t *)mremap(*buf, old_sz, new_sz, flags, addr);
 		} else {
-			newbuf = mremap(*buf, old_sz, new_sz, flags & ~MREMAP_FIXED);
+			newbuf = (uint8_t *)mremap(*buf, old_sz, new_sz, flags & ~MREMAP_FIXED);
 		}
 #else
-		newbuf = mremap(*buf, old_sz, new_sz, flags);
+		newbuf = (uint8_t *)mremap(*buf, old_sz, new_sz, flags);
 #endif
 		if (newbuf && (newbuf != MAP_FAILED)) {
 			if (UNLIKELY(metrics_counter == 0)) {
@@ -144,7 +144,7 @@ static int try_remap(
 			 */
 			if (UNLIKELY(metrics_counter == 0))
 				t = stress_time_now();
-			newbuf = mremap(*buf, new_sz, new_sz,
+			newbuf = (uint8_t *)mremap(*buf, new_sz, new_sz,
 					MREMAP_DONTUNMAP | MREMAP_MAYMOVE);
 			if (newbuf && (newbuf != MAP_FAILED)) {
 				if (UNLIKELY(metrics_counter == 0)) {
@@ -258,7 +258,7 @@ static int stress_mremap_child(stress_args_t *args, void *context)
 		if (UNLIKELY(!stress_continue_flag()))
 			goto deinit;
 
-		buf = mmap(NULL, new_sz, PROT_READ | PROT_WRITE, flags, -1, 0);
+		buf = (uint8_t *)mmap(NULL, new_sz, PROT_READ | PROT_WRITE, flags, -1, 0);
 		if (buf == MAP_FAILED) {
 			/* Force MAP_POPULATE off, just in case */
 #if defined(MAP_POPULATE)
@@ -336,15 +336,15 @@ static int stress_mremap_child(stress_args_t *args, void *context)
 		}
 
 		/* Invalid remap flags */
-		ptr = mremap(buf, old_sz, old_sz, ~0);
+		ptr = (uint8_t *)mremap(buf, old_sz, old_sz, ~0);
 		if (ptr && (ptr != MAP_FAILED))
 			buf = ptr;
-		ptr = mremap(buf, old_sz, old_sz, MREMAP_FIXED | MREMAP_MAYMOVE, (void *)~(uintptr_t)0);
+		ptr = (uint8_t *)mremap(buf, old_sz, old_sz, MREMAP_FIXED | MREMAP_MAYMOVE, (void *)~(uintptr_t)0);
 		if (ptr && (ptr != MAP_FAILED))
 			buf = ptr;
 #if defined(MREMAP_MAYMOVE)
 		/* Invalid new size */
-		ptr = mremap(buf, old_sz, 0, MREMAP_MAYMOVE);
+		ptr = (uint8_t *)mremap(buf, old_sz, 0, MREMAP_MAYMOVE);
 		if (ptr && (ptr != MAP_FAILED))
 			buf = ptr;
 #endif
