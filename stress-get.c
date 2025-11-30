@@ -779,7 +779,7 @@ static int stress_uname(stress_args_t *args)
 		if (ret != 0) {
 			uname_segv = true;
 		} else {
-			ret = uname(args->mapped->page_none);
+			ret = uname((struct utsname *)args->mapped->page_none);
 			if (ret >= 0) {
 				pr_fail("%s: uname unexpectedly succeeded with read only utsbuf, "
 					"expected -EFAULT, instead got errno=%d (%s)\n",
