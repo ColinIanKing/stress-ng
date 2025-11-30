@@ -208,7 +208,7 @@ static int stress_pagemove_child(stress_args_t *args, void *context)
 				remap_addr3 = mremap((void *)remap_addr1, page_size, page_size,
 					MREMAP_FIXED | MREMAP_MAYMOVE, (void *)(ptr + page_size));
 				if (UNLIKELY(remap_addr3 == MAP_FAILED)) {
-					stress_pagemove_remap_fail(args, remap_addr1, ptr + page_size);
+					stress_pagemove_remap_fail(args, (uint8_t *)remap_addr1, ptr + page_size);
 					goto fail;
 				}
 #if defined(HAVE_LINUX_MEMPOLICY_H)
@@ -262,7 +262,7 @@ static int stress_pagemove_child(stress_args_t *args, void *context)
 				duration += (t2 - t1);
 				count += 1.0;
 				if (UNLIKELY(remap_addr3 == MAP_FAILED)) {
-					stress_pagemove_remap_fail(args, remap_addr1, ptr + page_size);
+					stress_pagemove_remap_fail(args, (uint8_t *)remap_addr1, ptr + page_size);
 					goto fail;
 				}
 #if defined(HAVE_LINUX_MEMPOLICY_H)
