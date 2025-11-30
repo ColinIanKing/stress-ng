@@ -268,7 +268,7 @@ case_sched_fifo:
 #if defined(__linux__)
 			/* Linux allows NULL param, will return EFAULT */
 			(void)shim_memset(&param, 0, sizeof(param));
-			VOID_RET(int, sched_getparam(pid, stress_get_null()));
+			VOID_RET(int, sched_getparam(pid, (struct sched_param *)stress_get_null()));
 #endif
 
 			/* Exercise bad pid, ESRCH error */
@@ -281,7 +281,7 @@ case_sched_fifo:
 
 #if defined(__linux__)
 			/* Linux allows NULL param, will return EFAULT */
-			VOID_RET(int, sched_setparam(pid, stress_get_null()));
+			VOID_RET(int, sched_setparam(pid, (struct sched_param *)stress_get_null()));
 #endif
 
 			/*
