@@ -478,7 +478,7 @@ static void NORETURN stress_sigsegv_handler(int signum)
 
 #if defined(SIGILL) ||	\
     defined(SIGBUS)
-static void stress_sigill_handler(int signum)
+static void NORETURN stress_sigill_handler(int signum)
 {
 	if (idx < SIZEOF_ARRAY(op_info))
 		op_info[idx].invalid = true;
