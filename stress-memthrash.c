@@ -395,7 +395,7 @@ static void OPTIMIZE3 stress_memthrash_matrix(
 	const size_t mem_size)
 {
 	size_t i, j;
-	volatile uint8_t *vmem = mem;
+	volatile uint8_t *vmem = (volatile uint8_t *)mem;
 
 	(void)context;
 	(void)mem_size;
