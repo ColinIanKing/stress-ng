@@ -201,7 +201,7 @@ static void *stress_far_mmap(
 	size_t *total_funcs,		/* Total number of functions */
 	size_t *total_file_mapped_funcs)/* Total number of file mapped functions */
 {
-	uint8_t *ptr = MAP_FAILED;
+	uint8_t *ptr = (uint8_t *)MAP_FAILED;
 	uintptr_t addr = (uintptr_t)NULL;
 	size_t i, n;
 	static size_t count = 0;
