@@ -112,7 +112,7 @@ static int monitor(stress_args_t *args, const int sock)
 		if (nlmsghdr->nlmsg_len < NLMSG_LENGTH(sizeof(struct cn_msg)))
 			continue;
 
-		cn_msg = NLMSG_DATA(nlmsghdr);
+		cn_msg = (const struct cn_msg *)NLMSG_DATA(nlmsghdr);
 		if ((cn_msg->id.idx != CN_IDX_PROC) ||
 		    (cn_msg->id.val != CN_VAL_PROC))
 			continue;
