@@ -142,7 +142,7 @@ static uint64_t TARGET_CLONES OPTIMIZE3 stress_memrate_read##size(		\
 	bool *valid)						\
 {								\
 	register type v, *ptr;					\
-	void *start ALIGNED(4096) = context->start;		\
+	const type *start ALIGNED(4096) = (type *)context->start;\
 	const type *end ALIGNED(4096) = (type *)context->end;	\
 								\
 	for (ptr = start; ptr < end;) {				\
@@ -192,7 +192,7 @@ static uint64_t TARGET_CLONES OPTIMIZE3 stress_memrate_read_rate##size(		\
 {								\
 	register type *ptr;					\
 	type v;							\
-	void *start ALIGNED(4096) = context->start;		\
+	const type *start ALIGNED(4096) = (type *)context->start;\
 	const type *end ALIGNED(4096) = (type *)context->end;	\
 	const uint64_t loops = 					\
 		stress_memrate_loops(context, sizeof(type) * 16);\
@@ -371,7 +371,7 @@ static uint64_t TARGET_CLONES OPTIMIZE3	stress_memrate_write##size(	\
 	const stress_memrate_context_t *context,		\
 	bool *valid)						\
 {								\
-	void *start ALIGNED(4096) = context->start;		\
+	const type *start ALIGNED(4096) = (type *)context->start;\
 	const type *end ALIGNED(4096) = (type *)context->end;	\
 	register type v, *ptr;					\
 								\
@@ -634,7 +634,7 @@ static uint64_t TARGET_CLONES OPTIMIZE3 stress_memrate_write_rate##size(	\
 	const stress_memrate_context_t *context,		\
 	bool *valid)						\
 {								\
-	void *start ALIGNED(4096) = context->start;		\
+	const type *start ALIGNED(4096) = (type *)context->start;\
 	const type *end ALIGNED(4096) = (type *)context->end;	\
 	const uint64_t loops = 					\
 		stress_memrate_loops(context, sizeof(type) * 16);\
@@ -702,7 +702,7 @@ static uint64_t OPTIMIZE3 stress_memrate_write_ ## write_op ## size (	\
 	const stress_memrate_context_t *context,		\
 	bool *valid)						\
 {								\
-	void *start ALIGNED(4096) = context->start;		\
+	const type *start ALIGNED(4096) = (type *)context->start;\
 	const type *end ALIGNED(4096) = (type *)context->end;	\
 	register type v, *ptr;					\
 								\
@@ -748,7 +748,7 @@ static uint64_t OPTIMIZE3 stress_memrate_write_ ## write_op ## _rate ## size( \
 	const stress_memrate_context_t *context,		\
 	bool *valid)						\
 {								\
-	void *start ALIGNED(4096) = context->start;		\
+	const type *start ALIGNED(4096) = (type *)context->start;\
 	const type *end ALIGNED(4096) = (type *)context->end;	\
 	const uint64_t loops = 					\
 		stress_memrate_loops(context, sizeof(type) * 16);\
@@ -941,7 +941,7 @@ static void OPTIMIZE3 stress_memrate_init_data(
 {
 	register volatile uint32_t *ptr;
 
-	for (ptr = start; ptr < (uint32_t *)end; ptr++)
+	for (ptr = (uint32_t *)start; ptr < (uint32_t *)end; ptr++)
 		*ptr = stress_mwc32();
 }
 
