@@ -57,7 +57,7 @@ static inline void OPTIMIZE3 * lfind_nonlibc(
 	int (*compare)(const void *p1, const void *p2))
 {
 	register size_t i = 0;
-	register const char *found = base;
+	register const char *found = (const char *)base;
 
 	while ((i < *nmemb) && ((*compare)(key, (const void *)found) != 0)) {
 		i++;
@@ -219,7 +219,7 @@ static int stress_lsearch(stress_args_t *args)
 		for (i = 0; LIKELY(stress_continue_flag() && (i < n)); i++) {
 			int32_t *result;
 
-			result = lfind_func(&data[i], root, &n, sizeof(*data), stress_lsearch_cmp_int32);
+			result = (int32_t *)lfind_func(&data[i], root, &n, sizeof(*data), stress_lsearch_cmp_int32);
 			if (g_opt_flags & OPT_FLAGS_VERIFY) {
 				if (result == NULL) {
 					pr_fail("%s: element %zu could not be found\n", args->name, i);
