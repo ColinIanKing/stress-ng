@@ -85,8 +85,6 @@ typedef struct {
 	const stress_tree_func   func;	/* the tree method function */
 } stress_tree_method_info_t;
 
-static const stress_tree_method_info_t stress_tree_methods[];
-
 static const stress_help_t help[] = {
 	{ NULL,	"tree N",	 "start N workers that exercise tree structures" },
 	{ NULL,	"tree-method M", "select tree method: all,avl,binary,btree,rb,splay" },
