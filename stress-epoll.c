@@ -859,7 +859,7 @@ static void NORETURN epoll_server(
 				 *  never return more than 0 events and if it does we were expecting
 				 *  -EFAULT.
 				 */
-				n = epoll_wait(efd, args->mapped->page_none, 1, 100);
+				n = epoll_wait(efd, (struct epoll_event *)args->mapped->page_none, 1, 100);
 				if (UNLIKELY(n > 0)) {
 					pr_fail("%s: epoll_wait unexpectedly succeeded, "
 						"expected -EFAULT, instead got errno=%d (%s)\n",
@@ -879,7 +879,7 @@ static void NORETURN epoll_server(
 				 *  never return more than 0 events and if it does we were expecting
 				 *  -EFAULT.
 				 */
-				n = stress_epoll_pwait(efd, args->mapped->page_none, 1, 100, &sigmask);
+				n = stress_epoll_pwait(efd, (struct epoll_event *)args->mapped->page_none, 1, 100, &sigmask);
 				if (UNLIKELY(n > 0)) {
 					pr_fail("%s: epoll_pwait unexpectedly succeeded, "
 						"expected -EFAULT, instead got errno=%d (%s)\n",
