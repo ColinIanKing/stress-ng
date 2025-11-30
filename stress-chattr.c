@@ -132,10 +132,10 @@ static int do_chattr(
 			continue;
 
 		if (shim_fallocate(fd, 0, 0, args->page_size) == 0) {
-			page = mmap(NULL, args->page_size, PROT_READ | PROT_WRITE,
+			page = (uint8_t *)mmap(NULL, args->page_size, PROT_READ | PROT_WRITE,
 				MAP_SHARED, fd, 0);
 		} else {
-			page = MAP_FAILED;
+			page = (uint8_t *)MAP_FAILED;
 		}
 
 		orig_flags = 0UL;
