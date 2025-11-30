@@ -73,7 +73,7 @@ static const stress_opt_t opts[] = {
 
 #if defined(HAVE_CLOCK_GETTIME) &&	\
     defined(CLOCK_MONOTONIC)
-static nanosleep_delays_t *delays = MAP_FAILED;
+static nanosleep_delays_t *delays = (nanosleep_delays_t *)MAP_FAILED;
 static size_t delays_size;
 
 #if defined(HAVE_SCHED_SETAFFINITY) &&		\
@@ -268,7 +268,7 @@ static void stress_min_nanosleep_init(const uint32_t instances)
 {
 	delays_size = (size_t)instances * sizeof(*delays);
 
-	delays = stress_mmap_populate(NULL, delays_size, PROT_READ | PROT_WRITE,
+	delays = (nanosleep_delays_t *)stress_mmap_populate(NULL, delays_size, PROT_READ | PROT_WRITE,
 					MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (delays != MAP_FAILED)
 		stress_set_vma_anon_name(delays, delays_size, "nanosleep-timings");
