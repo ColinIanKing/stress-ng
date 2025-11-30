@@ -300,7 +300,7 @@ static stress_clone_t *stress_clone_new(void)
 		clones.free = new_clone->next;
 		new_clone->next = NULL;
 	} else {
-		new_clone = stress_mmap_populate(NULL,
+		new_clone = (stress_clone_t *)stress_mmap_populate(NULL,
 			sizeof(*new_clone), PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 		if (new_clone == MAP_FAILED)
@@ -377,7 +377,7 @@ static void stress_clone_free(void)
 static int clone_func(void *arg)
 {
 	size_t i;
-	stress_clone_args_t *clone_arg = arg;
+	stress_clone_args_t *clone_arg = (stress_clone_args_t *)arg;
 	stress_clone_shared_t *shared = clone_arg->shared;
 	stress_metrics_t *metrics = &shared->metrics;
 
@@ -593,7 +593,7 @@ static int stress_clone(stress_args_t *args)
 	stress_clone_shared_t *shared;
 	double average;
 
-	shared = mmap(NULL, sizeof(*shared), PROT_READ | PROT_WRITE,
+	shared = (stress_clone_shared_t *)mmap(NULL, sizeof(*shared), PROT_READ | PROT_WRITE,
 			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (shared == MAP_FAILED) {
 		pr_inf_skip("%s: failed to memory map %zu bytes%s, skipping stressor\n",
