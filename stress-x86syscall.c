@@ -308,7 +308,7 @@ static char *x86syscall_list_str(void)
 			char *tmp;
 
 			len += (strlen(x86syscalls[i].name) + 2);
-			tmp = realloc(str, len);
+			tmp = (char *)realloc(str, len);
 			if (!tmp) {
 				free(str);
 				return NULL;
