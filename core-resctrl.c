@@ -323,7 +323,7 @@ static int stress_resctrl_partition_add(
 		fprintf(stderr, "resctrl: duplicated partition name '%s'\n", name);
 		return -1;
 	}
-	partition = calloc(1, sizeof(*partition));
+	partition = (stress_partition_info_t *)calloc(1, sizeof(*partition));
 	if (!partition) {
 		fprintf(stderr, "out of memory parsing resctrl\n");
 		return -1;
