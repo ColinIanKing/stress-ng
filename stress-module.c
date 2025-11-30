@@ -280,6 +280,8 @@ static int get_modpath_name(
 			pr_inf("%s: invalid line in '%s' at line %zu: '%s'\n",
 				args->name, depmod, lineno, line);
 			goto out_close;
+		default:
+			break;
 		}
 
 		free(line);
