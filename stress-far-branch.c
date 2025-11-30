@@ -66,7 +66,7 @@ static int sig_num = -1;
 static sigjmp_buf jmp_env;
 static bool check_flag;
 
-static void MLOCKED_TEXT stress_sig_handler(
+static void NORETURN MLOCKED_TEXT stress_sig_handler(
         int sig,
         siginfo_t *info,
         void *ucontext)
