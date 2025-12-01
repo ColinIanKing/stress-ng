@@ -532,7 +532,7 @@ static int stress_swap_child(stress_args_t *args, void *context)
 	} while (stress_continue(args));
 
 	duration = stress_time_now() - t;
-	rate = (duration > 0.0) ? swapped_out / duration : 0.0;
+	rate = (duration > 0.0) ? (double)swapped_out / duration : 0.0;
 	stress_metrics_set(args, 0, "pages swapped out per second", rate, STRESS_METRIC_GEOMETRIC_MEAN);
 
 	ret = EXIT_SUCCESS;
