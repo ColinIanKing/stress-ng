@@ -62,7 +62,7 @@ static bool OPTIMIZE3 TARGET_CLONES stress_ctrig_ccos(stress_args_t *args)
 	complex double sumccos = shim_cmplx(0.0, 0.0);
 	complex double z = shim_cmplx(-0.5, 0.5);
 	const complex double dz = shim_cmplx(1.0 / (double)STRESS_CTRIG_LOOPS, -1.0 / (2.0 * (double)STRESS_CTRIG_LOOPS));
-	const double precision = 1E-7L;
+	const double precision = 1E-7;
 	int i;
 
 PRAGMA_UNROLL_N(8)
@@ -81,7 +81,7 @@ static bool OPTIMIZE3 TARGET_CLONES stress_ctrig_ccosf(stress_args_t *args)
 	complex double sumccos = shim_cmplx(0.0, 0.0);
 	complex double z = shim_cmplx(-0.5, 0.5);
 	const complex double dz = shim_cmplx(1.0 / (double)STRESS_CTRIG_LOOPS, -1.0 / (2.0 * (double)STRESS_CTRIG_LOOPS));
-	const double precision = 1E-3L;
+	const double precision = 1E-3;
 	int i;
 
 PRAGMA_UNROLL_N(8)
