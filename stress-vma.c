@@ -855,7 +855,7 @@ static int stress_vma(stress_args_t *args)
 
 	for (i = 0; i < SIZEOF_ARRAY(stress_vma_metrics->s.metrics); i++) {
 		char msg[64];
-		const double rate = (duration > 0.0) ? stress_vma_metrics->s.metrics[i] / duration : 0.0;
+		const double rate = (duration > 0.0) ? (double)stress_vma_metrics->s.metrics[i] / duration : 0.0;
 
 		(void)snprintf(msg, sizeof(msg), "%s per second", stress_vma_metrics_name[i]);
 		stress_metrics_set(args, i, msg,
