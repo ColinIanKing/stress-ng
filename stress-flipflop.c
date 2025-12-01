@@ -338,7 +338,10 @@ static int stress_flipflop(stress_args_t *args)
 			nr_successes,
 			100.0 * (double)nr_successes / (double)nr_tries);
 		pr_inf("%s: QPS loops/tries/successes = %.02lf / %.02lf / %.02lf\n",
-			args->name, nr_loops / duration, nr_tries / duration, nr_successes / duration);
+			args->name,
+			(double)nr_loops / duration,
+			(double)nr_tries / duration,
+			(double)nr_successes / duration);
 		pr_inf("%s: QPS min/p25/p50/p75/max = %.02lf / %.02lf / %.02lf / %.02lf / %.02lf\n",
 			args->name,
 			(double)dist[0] / duration,
