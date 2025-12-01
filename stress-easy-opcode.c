@@ -262,7 +262,6 @@ typedef struct  {
 	size_t ops;
 } stress_easy_opcode_state_t;
 
-
 static inline size_t OPTIMIZE3 stress_easy_opcode_fill(void *ops_begin, size_t size)
 {
 	uint8_t *ptr = (uint8_t *)ops_begin, *ptr_end;
@@ -374,7 +373,7 @@ again:
 
 			(void)mprotect((void *)ops_begin, ops_size, PROT_WRITE);
 			/* Populate with opcodes */
-			state->ops = (double)stress_easy_opcode_fill(ops_begin, ops_size);
+			state->ops = stress_easy_opcode_fill(ops_begin, ops_size);
 			/* Make read-only executable and force I$ flush */
 			(void)mprotect((void *)ops_begin, ops_size, PROT_READ | PROT_EXEC);
 			shim_flush_icache((char *)ops_begin, (char *)ops_end);
