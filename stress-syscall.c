@@ -8645,7 +8645,7 @@ static void stress_syscall_rank_calls_by_sort(const int percent)
 	}
 
 	syscall_shellsort_size_t(sort_index, STRESS_SYSCALLS_MAX, cmp_test_duration);
-	max = (double)STRESS_SYSCALLS_MAX * ((double)percent / 100.0);
+	max = (size_t)(STRESS_SYSCALLS_MAX * ((double)percent / 100.0));
 	for (n = 0, i = 0; (n < max) && (i < STRESS_SYSCALLS_MAX); i++) {
 		syscall_stats_t *ss = &syscall_stats[sort_index[i]];
 
