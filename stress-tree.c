@@ -1066,7 +1066,7 @@ tidy:
 	}
 
 	if (j > 0) {
-		double geomean, inverse_n = 1.0L / (double)j;
+		double geomean, inverse_n = 1.0 / (double)j;
 
 		geomean = pow(mantissa, inverse_n) *
 			  pow(2.0, (double)exponent * inverse_n);
