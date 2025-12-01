@@ -173,7 +173,7 @@ static int stress_icmp_flood(stress_args_t *args)
 	counter = stress_bogo_get(args);
 	sendto_ok = counter - sendto_fails;
 
-	rate = (duration > 0.0) ? sendto_ok / duration : 0.0;
+	rate = (duration > 0.0) ? (double)sendto_ok / duration : 0.0;
 	stress_metrics_set(args, 0, "sendto calls per sec",
 		rate, STRESS_METRIC_HARMONIC_MEAN);
 	rate = (duration > 0.0) ? bytes / duration : 0.0;
