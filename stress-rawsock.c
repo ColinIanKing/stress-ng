@@ -230,7 +230,7 @@ static int OPTIMIZE3 stress_rawsock_server(stress_args_t *args, const pid_t pid)
 		} else  {
 			register uint32_t hash;
 
-			bytes += n;
+			bytes += (double)n;
 			hash = stress_hash_mulxror32((const char * )&pkt.data, sizeof(pkt.data));
 			if (UNLIKELY(hash != pkt.hash)) {
 				pr_fail("%s: recv data hash check fail on "
