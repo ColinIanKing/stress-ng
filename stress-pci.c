@@ -233,10 +233,10 @@ static void stress_pci_exercise_file(
 			if (LIKELY(n_read > 0)) {
 				if (config) {
 					pci_info->metrics[PCI_METRICS_CONFIG].duration += stress_time_now() - t;
-					pci_info->metrics[PCI_METRICS_CONFIG].count += n_read;
+					pci_info->metrics[PCI_METRICS_CONFIG].count += (double)n_read;
 				} else if (resource) {
 					pci_info->metrics[PCI_METRICS_RESOURCE].duration += stress_time_now() - t;
-					pci_info->metrics[PCI_METRICS_RESOURCE].count += n_read;
+					pci_info->metrics[PCI_METRICS_RESOURCE].count += (double)n_read;
 				}
 			}
 		} else {
@@ -355,7 +355,7 @@ static int stress_pci(stress_args_t *args)
 			stress_pci_exercise(args, pci_info);
 			stress_bogo_inc(args);
 			if (pci_ops_rate > 0) {
-				const double t_next = t_start + (stress_bogo_get(args) * t_delta);
+				const double t_next = t_start + ((double)stress_bogo_get(args) * t_delta);
 				const double t_sleep = t_next - stress_time_now();
 
 				if (LIKELY(t_sleep > 0.0)) {
