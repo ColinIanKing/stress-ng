@@ -117,7 +117,7 @@ static int OPTIMIZE3 stress_judy(stress_args_t *args)
 			*pvalue = i;
 		}
 		duration[JUDY_OP_INSERT] += stress_time_now() - t;
-		count[JUDY_OP_INSERT] += n;
+		count[JUDY_OP_INSERT] += (double)n;
 
 		/* Step #2, find */
 		t = stress_time_now();
@@ -144,7 +144,7 @@ static int OPTIMIZE3 stress_judy(stress_args_t *args)
 			}
 		}
 		duration[JUDY_OP_FIND] += stress_time_now() - t;
-		count[JUDY_OP_FIND] += n;
+		count[JUDY_OP_FIND] += (double)n;
 
 		/* Step #3, delete, reverse index order */
 		t = stress_time_now();
@@ -159,7 +159,7 @@ static int OPTIMIZE3 stress_judy(stress_args_t *args)
 			}
 		}
 		duration[JUDY_OP_DELETE] += stress_time_now() - t;
-		count[JUDY_OP_DELETE] += n;
+		count[JUDY_OP_DELETE] += (double)n;
 
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
