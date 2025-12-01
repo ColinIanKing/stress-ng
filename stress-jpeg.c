@@ -112,7 +112,7 @@ static void OPTIMIZE3 stress_rgb_plasma(
 {
 	register uint8_t *ptr = rgb;
 	register int32_t sy;
-	const double hundredth = 0.01L;
+	const double hundredth = 0.01;
 	const double tx = ((double)stress_mwc32()) * hundredth;
 	const double ty = ((double)stress_mwc32()) * hundredth;
 	const double tz = ((double)stress_mwc32()) * hundredth;
@@ -184,8 +184,8 @@ static void OPTIMIZE3 stress_rgb_gradient(
 	const int32_t	x_max,
 	const int32_t	y_max)
 {
-	const float dy = 256.0 / y_max;
-	const float dx = 256.0 / x_max;
+	const float dy = 256.0f / (float)y_max;
+	const float dx = 256.0f / (float)x_max;
 	register float y = 0.0;
 	register int sy;
 
