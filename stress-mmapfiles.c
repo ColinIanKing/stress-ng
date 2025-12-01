@@ -143,7 +143,7 @@ static size_t stress_mmapfiles_dir(
 				n_mappings++;
 				mmapfile_info->mmap_count += 1.0;
 				mmapfile_info->mmap_duration += delta;
-				mmapfile_info->mmap_page_count += (double)(len + page_size - 1) / page_size;
+				mmapfile_info->mmap_page_count += (double)(len + page_size - 1) / (double)page_size;
 				stress_bogo_inc(args);
 			} else {
 				if (errno == ENOMEM) {
@@ -188,6 +188,7 @@ static int stress_mmapfiles_child(stress_args_t *args, void *context)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
+		const size_t page_size = args->page_size;
 		size_t i, n;
 
 		for (n = 0, i = 0; i < SIZEOF_ARRAY(dirs); i++) {
@@ -211,7 +212,7 @@ static int stress_mmapfiles_child(stress_args_t *args, void *context)
 
 				mmapfile_info->munmap_duration += delta;
 				mmapfile_info->munmap_count += 1.0;
-				mmapfile_info->munmap_page_count += (double)(len + args->page_size - 1) / args->page_size;
+				mmapfile_info->munmap_page_count += (double)(len + args->page_size - 1) / (double)page_size;
 			} else {
 				(void)stress_munmap_force((void *)mmapfile_info->mappings[i].addr, mmapfile_info->mappings[i].len);
 			}
