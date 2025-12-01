@@ -106,7 +106,7 @@ static int stress_rawdev_sweep(
 			}
 		} else {
 			metrics->duration += stress_time_now() - t;
-			metrics->count += ret;
+			metrics->count += (double)ret;
 			stress_bogo_inc(args);
 		}
 	}
@@ -123,7 +123,7 @@ static int stress_rawdev_sweep(
 			}
 		} else {
 			metrics->duration += stress_time_now() - t;
-			metrics->count += ret;
+			metrics->count += (double)ret;
 			stress_bogo_inc(args);
 		}
 	}
@@ -162,7 +162,7 @@ static int stress_rawdev_wiggle(
 				}
 			} else {
 				metrics->duration += stress_time_now() - t;
-				metrics->count += ret;
+				metrics->count += (double)ret;
 				stress_bogo_inc(args);
 			}
 		}
@@ -201,7 +201,7 @@ static int stress_rawdev_ends(
 			}
 		} else {
 			metrics->duration += stress_time_now() - t;
-			metrics->count += ret;
+			metrics->count += (double)ret;
 			stress_bogo_inc(args);
 		}
 
@@ -216,7 +216,7 @@ static int stress_rawdev_ends(
 			}
 		} else {
 			metrics->duration += stress_time_now() - t;
-			metrics->count += ret;
+			metrics->count += (double)ret;
 			stress_bogo_inc(args);
 		}
 	}
@@ -252,7 +252,7 @@ static int stress_rawdev_random(
 			}
 		} else {
 			metrics->duration += stress_time_now() - t;
-			metrics->count += ret;
+			metrics->count += (double)ret;
 			stress_bogo_inc(args);
 		}
 	}
@@ -289,7 +289,7 @@ static int stress_rawdev_burst(
 			}
 		} else {
 			metrics->duration += stress_time_now() - t;
-			metrics->count += ret;
+			metrics->count += (double)ret;
 			stress_bogo_inc(args);
 		}
 		blk++;
