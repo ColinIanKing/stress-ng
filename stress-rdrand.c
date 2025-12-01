@@ -383,7 +383,7 @@ static int stress_rdrand(stress_args_t *args)
 		out_of_range = false;
 
 		for (j = 0; j < SIZEOF_ARRAY(counters); j++) {
-			total += counters[j];
+			total += (double)counters[j];
 			if ((counters[j] < lo) || (counters[j] > hi)) {
 				out_of_range = true;
 				rc = EXIT_FAILURE;
@@ -398,7 +398,7 @@ static int stress_rdrand(stress_args_t *args)
 				pr_inf("Frequency distribution:\n");
 				for (i = 0; i < (uint64_t)SIZEOF_ARRAY(counters); i++) {
 					pr_inf("0x%16.16" PRIx64 "..0x%16.16" PRIx64 " %5.2f%% %10" PRIu64 "\n",
-						i  * shift, ((i + 1) * shift) - 1, counters[i] * 100.0 / total, counters[i]);
+						i  * shift, ((i + 1) * shift) - 1, (double)counters[i] * 100.0 / total, counters[i]);
 				}
 			}
 		}
