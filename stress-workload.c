@@ -333,13 +333,13 @@ static void stress_workload_bucket_report(stress_workload_bucket_t *bucket)
 		width2, "count", "%");
 	for (i = 0; i < SIZEOF_ARRAY(bucket->bucket); i++) {
 		pr_dbg("%*" PRIu64 " .. %*" PRIu64 " %*" PRIu64 " %4.1f\n",
-			width1, (uint64_t)(i * bucket->width),
-			width1, (uint64_t)((i + 1) * bucket->width) - 1,
+			width1, (uint64_t)((double)i * bucket->width),
+			width1, (uint64_t)((double)(i + 1) * bucket->width) - 1,
 			width2, bucket->bucket[i],
 			(double)100.0 * (double)bucket->bucket[i] / (double)total);
 	}
 	pr_dbg("%*" PRIu64 " .. %*s %*" PRIu64 " %4.1f\n",
-		width1, (uint64_t)(i * bucket->width),
+		width1, (uint64_t)((double)i * bucket->width),
 		width1, "",
 		width2, bucket->overflow,
 		(double)100.0 * (double)bucket->overflow / (double)total);
