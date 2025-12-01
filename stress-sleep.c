@@ -93,7 +93,7 @@ static void stress_sleep_time_now(stress_sleep_times_t *t)
 		/* fall back to re-using stress_time_now() time */
 		t->monotonic = t->time_now;
 	} else {
-		t->monotonic = ts.tv_sec + (ts.tv_nsec * ONE_BILLIONTH);
+		t->monotonic = (double)ts.tv_sec + ((double)ts.tv_nsec * ONE_BILLIONTH);
 	}
 #else
 	t->time_now = stress_time_now();
