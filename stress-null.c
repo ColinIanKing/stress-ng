@@ -189,7 +189,7 @@ static int stress_null(stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	rate = (duration > 0.0) ? (bytes / duration) / (double)MB : 0.0;
+	rate = (duration > 0.0) ? ((double)bytes / duration) / (double)MB : 0.0;
 	stress_metrics_set(args, 0, "MB per sec /dev/null write rate",
 		rate, STRESS_METRIC_HARMONIC_MEAN);
 
