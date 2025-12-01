@@ -199,7 +199,7 @@ static int stress_regex(stress_args_t *args)
 		char str[64];
 		double rate;
 
-		rate = comp_times[i] > 0 ? comp_count[i] / comp_times[i] : 0.0;
+		rate = comp_times[i] > 0.0 ? (double)comp_count[i] / comp_times[i] : 0.0;
 		(void)snprintf(str, sizeof(str), "regcomp '%s' per sec", stress_posix_regex[i].description);
 		stress_metrics_set(args, i + 2, str, rate, STRESS_METRIC_HARMONIC_MEAN);
 	}
