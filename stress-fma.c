@@ -204,7 +204,7 @@ static void TARGET_CLONES stress_fma_add231_float(stress_fma_t *pfma)
 PRAGMA_UNROLL_N(FMA_UNROLL)
 	for (i = 0; i < FMA_ELEMENTS; i++) {
 		a[i] = (b * c) + a[i];
-		b += 0.125;
+		b += 0.125f;
 	}
 }
 
@@ -218,7 +218,7 @@ static void TARGET_CLONES stress_fma_sub231_float(stress_fma_t *pfma)
 PRAGMA_UNROLL_N(FMA_UNROLL)
 	for (i = 0; i < FMA_ELEMENTS; i++) {
 		a[i] = (b * c) - a[i];
-		b += 0.125;
+		b += 0.125f;
 	}
 }
 
@@ -438,7 +438,7 @@ PRAGMA_UNROLL_N(FMA_UNROLL)
 #else
 		a[i] = shim_fmaf(b, c, a[i]);
 #endif
-		b += 0.125;
+		b += 0.125f;
 	}
 }
 
@@ -457,7 +457,7 @@ PRAGMA_UNROLL_N(FMA_UNROLL)
 #else
 		a[i] = shim_fmaf(b, c, -a[i]);
 #endif
-		b += 0.125;
+		b += 0.125f;
 	}
 }
 
