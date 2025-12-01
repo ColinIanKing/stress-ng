@@ -8548,7 +8548,7 @@ static void stress_syscall_rank_calls_by_geomean(const double scale)
 		bool ignore = false;
 
 		if (ss->succeed) {
-			if (ss->max_test_duration > geomean)
+			if ((double)ss->max_test_duration > geomean)
 				ignore = true;
 		} else {
 			ss->ignore = true;
