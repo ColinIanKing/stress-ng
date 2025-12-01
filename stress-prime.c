@@ -149,9 +149,9 @@ static int stress_prime_start(char *prime_start, mpz_t start)
 static int OPTIMIZE3 stress_prime(stress_args_t *args)
 {
 	double rate, t_progress_secs;
+	NOCLOBBER double t_start;
 	NOCLOBBER double duration = 0.0;
 	NOCLOBBER size_t digits = 0;
-	NOCLOBBER size_t t_start;
 	uint64_t ops;
 	mpz_t start, value, factorial;
 	int prime_method = STRESS_PRIME_METHOD_INC;
