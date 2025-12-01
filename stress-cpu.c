@@ -367,7 +367,7 @@ static int OPTIMIZE3 stress_cpu_logmap(const char *name)
 	 * Use an accumulation point that is slightly larger
 	 * than the point where chaotic behaviour starts
 	 */
-	const double r = 3.569945671870944901842L * 1.0999999L;
+	const double r = 3.569945671870944901842 * 1.0999999;
 	register int i;
 
 	(void)name;
@@ -410,7 +410,7 @@ static int OPTIMIZE3 stress_cpu_rand48(const char *name)
 	double d = 0;
 	long long int l = 0;
 #if defined(STRESS_CPU_RAND48_VERIFY)
-	const double d_expected_sum = 8184.618041L;
+	const double d_expected_sum = 8184.618041;
 	const long long int l_expected_sum = 17522760427916;
 #endif
 
@@ -986,7 +986,7 @@ static int OPTIMIZE3 TARGET_CLONES stress_cpu_ ## c_name(const char *name) \
 	type a = FP(0.18728, ltype) + 				\
 		cI * FP(0.2762, ltype),				\
 		b = (type)((double)r1/(double)(1UL<<31)) - cI * FP(0.11121, ltype),	\
-		c = (type)((double)r2/(double)(1UL<<31)) + cI * stress_mwc32(),	\
+		c = (type)((double)r2/(double)(1UL<<31)) + cI * (type)stress_mwc32(),	\
 		d = (type)0.5,					\
 		r;						\
 								\
