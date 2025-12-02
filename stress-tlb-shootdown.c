@@ -156,21 +156,21 @@ static inline void ALWAYS_INLINE stress_tlb_shootdown_write_mem(
 		register size_t m;
 
 		for (m = 0; m < page_size; ) {
-			vmem[m] = m + rnd8;
+			vmem[m] = (uint8_t)m + rnd8;
 			m += STRESS_CACHE_LINE_SIZE;
-			vmem[m] = m + rnd8;
+			vmem[m] = (uint8_t)m + rnd8;
 			m += STRESS_CACHE_LINE_SIZE;
-			vmem[m] = m + rnd8;
+			vmem[m] = (uint8_t)m + rnd8;
 			m += STRESS_CACHE_LINE_SIZE;
-			vmem[m] = m + rnd8;
+			vmem[m] = (uint8_t)m + rnd8;
 			m += STRESS_CACHE_LINE_SIZE;
-			vmem[m] = m + rnd8;
+			vmem[m] = (uint8_t)m + rnd8;
 			m += STRESS_CACHE_LINE_SIZE;
-			vmem[m] = m + rnd8;
+			vmem[m] = (uint8_t)m + rnd8;
 			m += STRESS_CACHE_LINE_SIZE;
-			vmem[m] = m + rnd8;
+			vmem[m] = (uint8_t)m + rnd8;
 			m += STRESS_CACHE_LINE_SIZE;
-			vmem[m] = m + rnd8;
+			vmem[m] = (uint8_t)m + rnd8;
 			m += STRESS_CACHE_LINE_SIZE;
 		}
 	}
