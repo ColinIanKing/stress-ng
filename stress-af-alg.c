@@ -1173,15 +1173,15 @@ static void stress_af_alg_init(const uint32_t instances)
 			info.type = dup_field(buffer);
 		}
 		else if (!strncmp(buffer, "blocksize", 9))
-			info.block_size = int_field(buffer);
+			info.block_size = (int8_t)int_field(buffer);
 		else if (!strncmp(buffer, "max keysize", 11))
-			info.max_key_size = int_field(buffer);
+			info.max_key_size = (int8_t)int_field(buffer);
 		else if (!strncmp(buffer, "maxauthsize", 11))
-			info.max_auth_size = int_field(buffer);
+			info.max_auth_size = (int8_t)int_field(buffer);
 		else if (!strncmp(buffer, "ivsize", 6))
-			info.iv_size = int_field(buffer);
+			info.iv_size = (int8_t)int_field(buffer);
 		else if (!strncmp(buffer, "digestsize", 10))
-			info.digest_size = int_field(buffer);
+			info.digest_size = (int8_t)int_field(buffer);
 		else if (!strncmp(buffer, "internal", 8))
 			info.internal = bool_field(buffer);
 		else if (!strncmp(buffer, "selftest", 8))
