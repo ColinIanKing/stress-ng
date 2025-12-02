@@ -133,7 +133,7 @@ static stress_led_info_t *stress_led_info_get(void)
 	if (n_devs < 0)
 		return NULL;
 	for (i = 0; i < n_devs; i++) {
-		const int j = stress_mwc16modn(n_devs);
+		const size_t j = stress_mwcsizemodn((size_t)n_devs);
 		struct dirent *tmp;
 
 		tmp = led_list[j];
