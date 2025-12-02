@@ -1471,7 +1471,7 @@ static uint16_t CONST OPTIMIZE3 ccitt_crc16(const uint8_t *data, size_t n)
 		}
 	}
 
-	crc = ~crc;
+	crc = (uint16_t)~crc;
 	return ((uint16_t)(crc << 8)) | (crc >> 8);
 }
 
