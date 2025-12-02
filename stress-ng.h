@@ -557,11 +557,11 @@ extern const char stress_config[];
 /* Generic bit setting on an array macros */
 #define STRESS_NBITS(a)		(sizeof(a[0]) * 8)
 #define STRESS_GETBIT(a, i)	(a[i / STRESS_NBITS(a)] & \
-				 (TYPEOF_CAST(a[0])1U << (i & (STRESS_NBITS(a)-1))))
+				 (TYPEOF_CAST(a[0])1U << ((size_t)i & (STRESS_NBITS(a)-1))))
 #define STRESS_CLRBIT(a, i)	(a[i / STRESS_NBITS(a)] &= \
-				 ~(TYPEOF_CAST(a[0])1U << (i & (STRESS_NBITS(a)-1))))
+				 ~(TYPEOF_CAST(a[0])1U << ((size_t)i & (STRESS_NBITS(a)-1))))
 #define STRESS_SETBIT(a, i)	(a[i / STRESS_NBITS(a)] |= \
-				 (TYPEOF_CAST(a[0])1U << (i & (STRESS_NBITS(a)-1))))
+				 (TYPEOF_CAST(a[0])1U << ((size_t)i & (STRESS_NBITS(a)-1))))
 
 #define SIZEOF_ARRAY(a)		(sizeof(a) / sizeof(a[0]))
 
