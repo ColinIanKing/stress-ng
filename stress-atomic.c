@@ -183,7 +183,7 @@ typedef int (*atomic_func_t)(stress_args_t *args, double *duration, double *coun
 do {									\
 	double t;							\
 	type tmp = (type)stress_mwc64();				\
-	type unshared, check1 = tmp, check2 = ~tmp;			\
+	type unshared, check1 = tmp, check2 = (type)~tmp;		\
 									\
 	t = stress_time_now();						\
 	/* 4 ops */							\
