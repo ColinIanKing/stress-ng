@@ -144,11 +144,11 @@ again:
 		break;
 	case RACE_SCHED_METHOD_RAND:
 		if (n_cpus > 0)
-			new_cpu_idx = (int)stress_mwc32modn((uint32_t)n_cpus);
+			new_cpu_idx = stress_mwc32modn((uint32_t)n_cpus);
 		break;
 	case RACE_SCHED_METHOD_RANDINC:
 		if (n_cpus > 0) {
-			new_cpu_idx += (int)(stress_mwc8modn((uint32_t)n_cpus) & 0x3) + 1;
+			new_cpu_idx += (uint32_t)((stress_mwc8modn((uint8_t)n_cpus) & 0x3) + 1);
 			new_cpu_idx %= n_cpus;
 		}
 		break;
