@@ -2126,8 +2126,8 @@ static int stress_fd_abuse_process(stress_args_t *args, void *context)
 
 		t_now = stress_time_now();
 		for (i = 0 ; stress_continue(args) && (i < 20); i++) {
-			register const size_t func_idx = stress_mwc8modn(SIZEOF_ARRAY(fd_funcs));
-			register const size_t fd_idx = stress_mwc8modn(n);
+			register const size_t func_idx = stress_mwcsizemodn(SIZEOF_ARRAY(fd_funcs));
+			register const size_t fd_idx = stress_mwcsizemodn(n);
 
 			fd_funcs[func_idx](&fds[fd_idx]);
 			if (pid > -1)
