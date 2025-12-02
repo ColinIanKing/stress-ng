@@ -469,10 +469,10 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 		if (sigsetjmp(jmp_env, 1))
 			goto mappings_unmap;
 
-		VOID_RET(int, ftruncate(mmap_fd, (off_t)stress_mwc64modn((uint64_t)mmap_bytes)));
+		VOID_RET(int, ftruncate(mmap_fd, (off_t)stress_mwcsizemodn(mmap_bytes)));
 		VOID_RET(int, ftruncate(mmap_fd, (off_t)mmap_bytes));
 
-		offset = stress_mwc64modn((uint64_t)mmap_bytes) & page_mask;
+		offset = (off_t)stress_mwcsizemodn((uint64_t)mmap_bytes) & page_mask;
 		if (lseek(mmap_fd, offset, SEEK_SET) == offset) {
 			(void)shim_memset(data, stress_mwc8(), page_size);
 			if (write(mmap_fd, data, page_size) == (ssize_t)page_size) {
@@ -620,7 +620,7 @@ mapped_ok:
 						mmap_stats->lock_pages++;
 				}
 				if ((flag & PAGE_WR_FLAG) && (mprotect_flag & PROT_WRITE))
-					*(volatile uint8_t *)(ptr + i) = stress_mwc64();
+					*(volatile uint8_t *)(ptr + i) = stress_mwc8();
 				if ((flag & PAGE_RD_FLAG) && (mprotect_flag & PROT_READ))
 					*(volatile uint8_t *)(ptr + i);
 			}
