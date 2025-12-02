@@ -59,7 +59,7 @@ static int OPTIMIZE3 stress_page_check(
 	(void)val;
 	(void)sz;
 #else
-	uint16_t val16 = (uint16_t)val << 8 | val;
+	uint16_t val16 = (uint16_t)((uint16_t)val << 8) | val;
 	uint32_t val32 = (uint32_t)val16 << 16 | val16;
 	register uint64_t val64 = (uint64_t)val32 << 32 | val32;
 	register const uint64_t *buf64 = (const uint64_t *)buf;
