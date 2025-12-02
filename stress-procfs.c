@@ -681,7 +681,7 @@ err:
 
 		/* /proc + ... */
 		if (len > 5) {
-			char *pptr = path + 5 + stress_mwc16modn(len - 5);
+			char *pptr = path + 5 + stress_mwcsizemodn(len - 5);
 
 			/* Skip over / */
 			while (*pptr == '/')
