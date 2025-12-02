@@ -117,7 +117,7 @@ static int stress_mprotect_mem(
 			continue;
 
 		for (i = 0; LIKELY((i < 10) && stress_continue(args)); i++) {
-			const int j = stress_mwc16modn(n_flags);
+			const size_t j = stress_mwcsizemodn(n_flags);
 
 			if (LIKELY(mprotect((void *)ptr, size, prot_flags[j]) == 0)) {
 				stress_bogo_inc(args);
