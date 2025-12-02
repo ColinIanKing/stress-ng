@@ -767,13 +767,13 @@ static int OPTIMIZE3 stress_bitops_reverse(const char *name, uint32_t *count)
 			return EXIT_FAILURE;
 		}
 
-		b1 = v;
+		b1 = (uint8_t)v;
 		b1 = ((b1 * 0x80200802ULL) & 0x0884422110ULL) * 0x0101010101ULL >> 32;
-		b2 = v >> 8;
+		b2 = (uint8_t)(v >> 8);
 		b2 = ((b2 * 0x80200802ULL) & 0x0884422110ULL) * 0x0101010101ULL >> 32;
-		b3 = v >> 16;
+		b3 = (uint8_t)(v >> 16);
 		b3 = ((b3 * 0x80200802ULL) & 0x0884422110ULL) * 0x0101010101ULL >> 32;
-		b4 = v >> 24;
+		b4 = (uint8_t)(v >> 24);
 		b4 = ((b4 * 0x80200802ULL) & 0x0884422110ULL) * 0x0101010101ULL >> 32;
 		r2 = ((uint32_t)b1 << 24) | ((uint32_t)b2 << 16) | ((uint32_t)b3 << 8) | ((uint32_t)b4 << 0);
 		sum += r2;
@@ -783,13 +783,13 @@ static int OPTIMIZE3 stress_bitops_reverse(const char *name, uint32_t *count)
 			return EXIT_FAILURE;
 		}
 
-		b1 = v;
+		b1 = (uint8_t)v;
 		b1 = ((b1 * 0x0802LU & 0x22110LU) | (b1 * 0x8020LU & 0x88440LU)) * 0x10101LU >> 16;
-		b2 = (v >> 8);
+		b2 = (uint8_t)(v >> 8);
 		b2 = ((b2 * 0x0802LU & 0x22110LU) | (b2 * 0x8020LU & 0x88440LU)) * 0x10101LU >> 16;
-		b3 = (v >> 16);
+		b3 = (uint8_t)(v >> 16);
 		b3 = ((b3 * 0x0802LU & 0x22110LU) | (b3 * 0x8020LU & 0x88440LU)) * 0x10101LU >> 16;
-		b4 = (v >> 24);
+		b4 = (uint8_t)(v >> 24);
 		b4 = ((b4 * 0x0802LU & 0x22110LU) | (b4 * 0x8020LU & 0x88440LU)) * 0x10101LU >> 16;
 		r2 = ((uint32_t)b1 << 24) | ((uint32_t)b2 << 16) | ((uint32_t)b3 << 8) | ((uint32_t)b4 << 0);
 		sum += r2;
