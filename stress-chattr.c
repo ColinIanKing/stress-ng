@@ -290,7 +290,7 @@ static int do_chattr(
 			ret = sigsetjmp(jmp_env, 1);
 			do_jmp = true;
 			if (ret == 0)
-				*page = j;
+				*page = (uint8_t)j;
 			do_jmp = false;
 		}
 
