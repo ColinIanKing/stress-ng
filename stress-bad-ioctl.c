@@ -529,7 +529,7 @@ static void stress_bad_ioctl_dir(
 					case STRESS_BAD_IOCTL_CMD_STRIDE:
 						type = ((node->ioctl_state >> 8) & 0xff) - 3;
 						nr = ((node->ioctl_state) & 0xff) + 1;
-						node->ioctl_state = (((uint16_t)type) << 8) | nr;
+						node->ioctl_state = (uint16_t)(((uint16_t)type) << 8) | nr;
 						break;
 					}
 				}
