@@ -386,7 +386,7 @@ static void stress_filename_generate_random_utf8_like(
 
 	while (i < sz_max) {
 		const size_t residual = STRESS_MINIMUM(sz_max - i, 4);
-		const size_t len = stress_mwc8modn(residual) + 1;
+		const size_t len = stress_mwcsizemodn(residual) + 1;
 
 		switch (len) {
 		default:
