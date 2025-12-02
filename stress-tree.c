@@ -931,7 +931,7 @@ static const char *stress_tree_method(const size_t i)
 }
 
 static const stress_opt_t opts[] = {
-	{ OPT_tree_method, "tree-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_tree_method },
+	{ OPT_tree_method, "tree-method", TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_tree_method },
 	{ OPT_tree_size,   "tree-size",   TYPE_ID_UINT32, MIN_TREE_SIZE, MAX_TREE_SIZE, NULL },
 	END_OPT,
 };

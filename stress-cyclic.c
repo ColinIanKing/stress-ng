@@ -980,8 +980,8 @@ static const char *stress_cyclic_policies(const size_t i)
 
 static const stress_opt_t opts[] = {
 	{ OPT_cyclic_dist,    "cyclic-dist",    TYPE_ID_UINT64, 1, 10000000, NULL },
-	{ OPT_cyclic_method,  "cyclic-method",  TYPE_ID_SIZE_T_METHOD, 0, 0, stress_cyclic_methods },
-	{ OPT_cyclic_policy,  "cyclic-policy",  TYPE_ID_SIZE_T_METHOD, 0, 0, stress_cyclic_policies },
+	{ OPT_cyclic_method,  "cyclic-method",  TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_cyclic_methods },
+	{ OPT_cyclic_policy,  "cyclic-policy",  TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_cyclic_policies },
 	{ OPT_cyclic_prio,    "cyclic-prio",    TYPE_ID_INT32, 1, 100, NULL },
 	{ OPT_cyclic_sleep,   "cyclic-sleep",   TYPE_ID_UINT64, 1, STRESS_NANOSECOND, NULL },
 	{ OPT_cyclic_samples, "cyclic-samples", TYPE_ID_SIZE_T, 1, MAX_SAMPLES, NULL },

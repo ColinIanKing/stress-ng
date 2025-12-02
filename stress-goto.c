@@ -41,7 +41,7 @@ static const char *stress_goto_direction(const size_t i)
 }
 
 static const stress_opt_t opts[] = {
-	{ OPT_goto_direction, "goto-direction", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_goto_direction },
+	{ OPT_goto_direction, "goto-direction", TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_goto_direction },
 	END_OPT,
 };
 

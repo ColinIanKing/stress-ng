@@ -357,7 +357,7 @@ static const char *stress_chyperbolic_method(const size_t i)
 }
 
 static const stress_opt_t opts[] = {
-	{ OPT_chyperbolic_method, "chyperbolic-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_chyperbolic_method },
+	{ OPT_chyperbolic_method, "chyperbolic-method", TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_chyperbolic_method },
 	END_OPT,
 };
 

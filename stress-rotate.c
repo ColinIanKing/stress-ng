@@ -230,7 +230,7 @@ static const char *stress_rotate_method(const size_t i)
 }
 
 static const stress_opt_t opts[] = {
-        { OPT_rotate_method, "rotate-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_rotate_method },
+        { OPT_rotate_method, "rotate-method", TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_rotate_method },
 	END_OPT,
 };
 

@@ -43,7 +43,7 @@ static const char *stress_yield_sched(const size_t i)
 
 static const stress_opt_t opts[] = {
 	{ OPT_yield_procs, "yield-procs", TYPE_ID_UINT32, MIN_YIELD_PROCS, MAX_YIELD_PROCS, NULL },
-	{ OPT_yield_sched, "yield-sched", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_yield_sched },
+	{ OPT_yield_sched, "yield-sched", TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_yield_sched },
 	END_OPT,
 };
 

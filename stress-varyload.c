@@ -113,10 +113,10 @@ static const char *stress_varyload_sched(const size_t i)
 }
 
 static const stress_opt_t opts[] = {
-	{ OPT_varyload_method,	"varyload-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_workload_method },
+	{ OPT_varyload_method,	"varyload-method", TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_workload_method },
 	{ OPT_varyload_ms,	"varyload-ms",	   TYPE_ID_UINT32, 1, 36000000, NULL },
-	{ OPT_varyload_sched,	"varyload-sched",  TYPE_ID_SIZE_T_METHOD, 0, 0, stress_varyload_sched },
-	{ OPT_varyload_type,	"varyload-type",   TYPE_ID_SIZE_T_METHOD, 0, 0, stress_varyload_type },
+	{ OPT_varyload_sched,	"varyload-sched",  TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_varyload_sched },
+	{ OPT_varyload_type,	"varyload-type",   TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_varyload_type },
 	END_OPT,
 };
 

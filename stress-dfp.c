@@ -608,7 +608,7 @@ static const char *stress_dfp_method(const size_t i)
 }
 
 static const stress_opt_t opts[] = {
-	{ OPT_dfp_method, "dfp-method", TYPE_ID_SIZE_T_METHOD, 0, 1, stress_dfp_method },
+	{ OPT_dfp_method, "dfp-method", TYPE_ID_SIZE_T_METHOD, 0, 1, (void *)stress_dfp_method },
 	END_OPT,
 };
 

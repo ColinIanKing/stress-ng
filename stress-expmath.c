@@ -474,7 +474,7 @@ static const char *stress_expmath_method(const size_t i)
 }
 
 static const stress_opt_t opts[] = {
-	{ OPT_expmath_method, "expmath-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_expmath_method },
+	{ OPT_expmath_method, "expmath-method", TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_expmath_method },
 	END_OPT,
 };
 

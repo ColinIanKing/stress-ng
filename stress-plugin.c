@@ -417,8 +417,8 @@ static const char *stress_plugin_method(const size_t i)
 }
 
 static const stress_opt_t opts[] = {
-	{ OPT_plugin_method, "plugin-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_plugin_method },
-	{ OPT_plugin_so,     "plugin-so",     TYPE_ID_CALLBACK, 0, 0, stress_plugin_so },
+	{ OPT_plugin_method, "plugin-method", TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_plugin_method },
+	{ OPT_plugin_so,     "plugin-so",     TYPE_ID_CALLBACK, 0, 0, (void *)stress_plugin_so },
 	END_OPT,
 };
 
@@ -441,8 +441,8 @@ static void stress_plugin_so(const char *opt_name, const char *opt_arg, stress_t
 }
 
 static const stress_opt_t opts[] = {
-	{ OPT_plugin_method, "plugin-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_unimplemented_method },
-	{ OPT_plugin_so,     "plugin-so",     TYPE_ID_CALLBACK, 0, 0, stress_plugin_so },
+	{ OPT_plugin_method, "plugin-method", TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_unimplemented_method },
+	{ OPT_plugin_so,     "plugin-so",     TYPE_ID_CALLBACK, 0, 0, (void *)stress_plugin_so },
 	END_OPT,
 };
 

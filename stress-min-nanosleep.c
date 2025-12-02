@@ -67,7 +67,7 @@ static const char *stress_min_nanoseconds_sched(const size_t i)
 
 static const stress_opt_t opts[] = {
 	{ OPT_min_nanosleep_max,   "min-nanosleep-max",   TYPE_ID_SIZE_T, 0, NANOSLEEP_MAX_NS, NULL },
-	{ OPT_min_nanosleep_sched, "min-nanosleep-sched", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_min_nanoseconds_sched },
+	{ OPT_min_nanosleep_sched, "min-nanosleep-sched", TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_min_nanoseconds_sched },
 	END_OPT,
 };
 

@@ -1361,8 +1361,8 @@ static const char *stress_zlib_method(const size_t i)
 static const stress_opt_t opts[] = {
 	{ OPT_zlib_level,        "zlib-level",        TYPE_ID_UINT32, ZLIB_MIN_COMPRESSION, ZLIB_MAX_COMPRESSION, NULL },
 	{ OPT_zlib_mem_level,    "zlib-mem-level",    TYPE_ID_UINT32, ZLIB_MIN_MEM_LEVEL, ZLIB_MAX_MEM_LEVEL, NULL },
-	{ OPT_zlib_method,       "zlib-method",       TYPE_ID_SIZE_T_METHOD, 0, 0, stress_zlib_method },
-	{ OPT_zlib_window_bits,  "zlib-window-bits",  TYPE_ID_CALLBACK, 0, 0, stress_zlib_window_bits },
+	{ OPT_zlib_method,       "zlib-method",       TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_zlib_method },
+	{ OPT_zlib_window_bits,  "zlib-window-bits",  TYPE_ID_CALLBACK, 0, 0, (void *)stress_zlib_window_bits },
 	{ OPT_zlib_stream_bytes, "zlib-stream-bytes", TYPE_ID_UINT64_BYTES_VM, 0, MAX_MEM_LIMIT, NULL },
 	{ OPT_zlib_strategy,     "zlib-strategy",      TYPE_ID_UINT32, Z_DEFAULT_STRATEGY, Z_FIXED, NULL },
 	END_OPT,

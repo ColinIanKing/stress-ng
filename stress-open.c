@@ -188,7 +188,7 @@ static void stress_open_max(const char *opt_name, const char *opt_arg, stress_ty
 
 static const stress_opt_t opts[] = {
 	{ OPT_open_fd,  "open-fd",  TYPE_ID_BOOL, 0, 1, NULL },
-	{ OPT_open_max,	"open-max", TYPE_ID_CALLBACK, 0, 1, stress_open_max },
+	{ OPT_open_max,	"open-max", TYPE_ID_CALLBACK, 0, 1, (void *)stress_open_max },
 	END_OPT,
 };
 

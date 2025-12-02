@@ -74,7 +74,7 @@ static const char *stress_jpeg_image(const size_t i)
 
 static const stress_opt_t opts[] = {
 	{ OPT_jpeg_height,  "jpeg-height",   TYPE_ID_INT32, MIN_JPEG_HEIGHT, MAX_JPEG_HEIGHT, NULL },
-	{ OPT_jpeg_image,   "jpeg-image",    TYPE_ID_SIZE_T_METHOD, 0, 0, stress_jpeg_image },
+	{ OPT_jpeg_image,   "jpeg-image",    TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_jpeg_image },
 	{ OPT_jpeg_width,   "jpeg-width",    TYPE_ID_INT32, MIN_JPEG_WIDTH, MAX_JPEG_WIDTH, NULL },
 	{ OPT_jpeg_quality, "jpeg-quality",  TYPE_ID_INT32, MIN_JPEG_QUALITY, MAX_JPEG_QUALITY, NULL },
 	END_OPT,

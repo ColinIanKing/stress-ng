@@ -55,7 +55,7 @@ static const char *stress_prime_method(const size_t i)
 }
 
 static const stress_opt_t opts[] = {
-	{ OPT_prime_method,   "prime-method",   TYPE_ID_SIZE_T_METHOD, 0, 0, stress_prime_method },
+	{ OPT_prime_method,   "prime-method",   TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_prime_method },
 	{ OPT_prime_progress, "prime-progress", TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_prime_start,    "prime-start",    TYPE_ID_STR, 0, 0, NULL },
 	END_OPT,

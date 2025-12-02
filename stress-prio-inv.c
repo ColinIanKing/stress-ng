@@ -136,8 +136,8 @@ static const char *stress_prio_inv_type(const size_t i)
 }
 
 static const stress_opt_t opts[] = {
-	{ OPT_prio_inv_policy, "prio-inv-policy", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_prio_inv_policy },
-	{ OPT_prio_inv_type,   "prio-inv-type",   TYPE_ID_SIZE_T_METHOD, 0, 0, stress_prio_inv_type },
+	{ OPT_prio_inv_policy, "prio-inv-policy", TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_prio_inv_policy },
+	{ OPT_prio_inv_type,   "prio-inv-type",   TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_prio_inv_type },
 	END_OPT,
 };
 

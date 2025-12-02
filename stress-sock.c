@@ -1499,10 +1499,10 @@ static const stress_opt_t opts[] = {
 	{ OPT_sock_if,	     "sock-if",       TYPE_ID_STR, 0, 0, NULL },
 	{ OPT_sock_msgs,     "sock-msgs",     TYPE_ID_SIZE_T, MIN_SOCKET_MSGS, MAX_SOCKET_MSGS, NULL },
 	{ OPT_sock_nodelay,  "sock-nodelay",  TYPE_ID_BOOL, 0, 1, NULL },
-	{ OPT_sock_opts,     "sock-opts",     TYPE_ID_SIZE_T_METHOD, 0, 0, stress_sock_opts },
-	{ OPT_sock_type,     "sock-type",     TYPE_ID_SIZE_T_METHOD, 0, 0, stress_sock_types },
+	{ OPT_sock_opts,     "sock-opts",     TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_sock_opts },
+	{ OPT_sock_type,     "sock-type",     TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_sock_types },
 	{ OPT_sock_port,     "sock-port",     TYPE_ID_INT_PORT, MIN_PORT, MAX_PORT, NULL },
-	{ OPT_sock_protocol, "sock-protocol", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_sock_protocols },
+	{ OPT_sock_protocol, "sock-protocol", TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_sock_protocols },
 	{ OPT_sock_zerocopy, "sock-zerocopy", TYPE_ID_BOOL, 0, 1, NULL },
 	END_OPT,
 };

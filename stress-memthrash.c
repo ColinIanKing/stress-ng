@@ -1049,7 +1049,7 @@ static const char *stress_memthrash_method(const size_t i)
 }
 
 static const stress_opt_t opts[] = {
-	{ OPT_memthrash_method, "memthrash-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_memthrash_method },
+	{ OPT_memthrash_method, "memthrash-method", TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_memthrash_method },
 	END_OPT,
 };
 
@@ -1062,7 +1062,7 @@ const stressor_info_t stress_memthrash_info = {
 #else
 
 static const stress_opt_t opts[] = {
-	{ OPT_memthrash_method, "memthrash-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_unimplemented_method },
+	{ OPT_memthrash_method, "memthrash-method", TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_unimplemented_method },
 	END_OPT,
 };
 

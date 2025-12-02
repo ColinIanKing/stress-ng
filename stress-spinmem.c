@@ -417,7 +417,7 @@ static const char *stress_spinmem_method(const size_t i)
 
 static const stress_opt_t opts[] = {
 	{ OPT_spinmem_affinity, "spinmem-affinity", TYPE_ID_BOOL, 0, 1, NULL },
-	{ OPT_spinmem_method,   "spinmem-method",   TYPE_ID_SIZE_T_METHOD, 0, 0, stress_spinmem_method },
+	{ OPT_spinmem_method,   "spinmem-method",   TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_spinmem_method },
 	{ OPT_spinmem_numa,     "spinmem-numa",     TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_spinmem_yield,    "spinmem-yield",    TYPE_ID_BOOL, 0, 1, NULL },
 	END_OPT,

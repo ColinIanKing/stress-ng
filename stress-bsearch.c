@@ -213,7 +213,7 @@ static int OPTIMIZE3 stress_bsearch(stress_args_t *args)
 
 static const stress_opt_t opts[] = {
 	{ OPT_bsearch_size,   "bsearch-size",   TYPE_ID_UINT64,        MIN_BSEARCH_SIZE, MAX_BSEARCH_SIZE, NULL },
-	{ OPT_bsearch_method, "bsearch-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_bsearch_method },
+	{ OPT_bsearch_method, "bsearch-method", TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_bsearch_method },
 	END_OPT,
 };
 

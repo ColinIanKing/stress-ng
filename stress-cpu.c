@@ -3206,7 +3206,7 @@ static const char *stress_cpu_method(const size_t i)
 static const stress_opt_t opts[] = {
 	{ OPT_cpu_load,        "cpu-load",        TYPE_ID_INT32, 0, 100, NULL },
 	{ OPT_cpu_load_slice,  "cpu-load-slice",  TYPE_ID_INT32, (uint64_t)-5000, (uint64_t)5000, NULL },
-	{ OPT_cpu_method,      "cpu-method",      TYPE_ID_SIZE_T_METHOD, 0, 0, stress_cpu_method },
+	{ OPT_cpu_method,      "cpu-method",      TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_cpu_method },
 	{ OPT_cpu_old_metrics, "cpu-old-metrics", TYPE_ID_BOOL,  0, 1, NULL },
 	END_OPT,
 };

@@ -1031,7 +1031,7 @@ static const char *stress_matrix_method(const size_t i)
 }
 
 static const stress_opt_t opts[] = {
-	{ OPT_matrix_method, "matrix-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_matrix_method },
+	{ OPT_matrix_method, "matrix-method", TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_matrix_method },
 	{ OPT_matrix_size,   "matrix-size",   TYPE_ID_SIZE_T, MIN_MATRIX_SIZE, MAX_MATRIX_SIZE, NULL },
 	{ OPT_matrix_yx,     "matrix-yx",     TYPE_ID_BOOL, 0, 1, NULL },
 	END_OPT,
@@ -1048,7 +1048,7 @@ const stressor_info_t stress_matrix_info = {
 #else
 
 static const stress_opt_t opts[] = {
-	{ OPT_matrix_method, "matrix-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_unimplemented_method },
+	{ OPT_matrix_method, "matrix-method", TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_unimplemented_method },
 	{ OPT_matrix_size,   "matrix-size",   TYPE_ID_SIZE_T, MIN_MATRIX_SIZE, MAX_MATRIX_SIZE, NULL },
 	{ OPT_matrix_yx,     "matrix-yx",     TYPE_ID_BOOL, 0, 1, NULL },
 	END_OPT,

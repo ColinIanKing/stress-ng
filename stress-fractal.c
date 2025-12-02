@@ -307,7 +307,7 @@ static const char *stress_fractal_method(const size_t i)
 
 static const stress_opt_t opts[] = {
 	{ OPT_fractal_iterations, "fractal-iterations", TYPE_ID_INT32, MIN_FRACTAL_ITERATIONS, MAX_FRACTAL_ITERATIONS, NULL },
-	{ OPT_fractal_method,     "fractal-method",     TYPE_ID_SIZE_T_METHOD, 0, 0, stress_fractal_method },
+	{ OPT_fractal_method,     "fractal-method",     TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_fractal_method },
 	{ OPT_fractal_xsize,      "fractal-xsize",      TYPE_ID_INT32, MIN_FRACTAL_XSIZE, MAX_FRACTAL_XSIZE, NULL },
 	{ OPT_fractal_ysize,      "fractal-ysize",      TYPE_ID_INT32, MIN_FRACTAL_YSIZE, MAX_FRACTAL_YSIZE, NULL },
 	END_OPT,

@@ -883,9 +883,9 @@ static int stress_ipsec_mb(stress_args_t *args)
 }
 
 static const stress_opt_t opts[] = {
-	{ OPT_ipsec_mb_feature, "ipsec-mb-feature", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_ipsec_mb_feature },
+	{ OPT_ipsec_mb_feature, "ipsec-mb-feature", TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_ipsec_mb_feature },
 	{ OPT_ipsec_mb_jobs,    "ipsec-mb-jobs",    TYPE_ID_INT, 1, 65536, NULL },
-	{ OPT_ipsec_mb_method,  "ipsec-mb-method",  TYPE_ID_SIZE_T_METHOD, 0, 0, stress_ipsec_mb_method },
+	{ OPT_ipsec_mb_method,  "ipsec-mb-method",  TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_ipsec_mb_method },
 	END_OPT,
 };
 
@@ -907,9 +907,9 @@ static int stress_ipsec_mb_supported(const char *name)
 }
 
 static const stress_opt_t opts[] = {
-	{ OPT_ipsec_mb_feature, "ipsec-mb-feature", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_unimplemented_method },
+	{ OPT_ipsec_mb_feature, "ipsec-mb-feature", TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_unimplemented_method },
 	{ OPT_ipsec_mb_jobs,    "ipsec-mb-jobs",    TYPE_ID_INT, MIN_IPSEC_MB_JOBS, MAX_IPSEC_MB_JOBS, NULL },
-	{ OPT_ipsec_mb_method,  "ipsec-mb-method",  TYPE_ID_SIZE_T_METHOD, 0, 0, stress_unimplemented_method },
+	{ OPT_ipsec_mb_method,  "ipsec-mb-method",  TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_unimplemented_method },
 	END_OPT,
 };
 

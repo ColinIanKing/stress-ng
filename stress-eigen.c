@@ -216,7 +216,7 @@ static int stress_eigen(stress_args_t *args)
 }
 
 static const stress_opt_t opts[] = {
-	{ OPT_eigen_method, "eigen-method",  TYPE_ID_SIZE_T_METHOD, 0, 0, stress_eigen_method },
+	{ OPT_eigen_method, "eigen-method",  TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_eigen_method },
 	{ OPT_eigen_size,   "eigen-size",    TYPE_ID_SIZE_T, MIN_MATRIX_SIZE, MAX_MATRIX_SIZE, NULL },
 	END_OPT,
 };
@@ -232,7 +232,7 @@ const stressor_info_t stress_eigen_info = {
 #else
 
 static const stress_opt_t opts[] = {
-	{ OPT_eigen_method, "eigen-method",  TYPE_ID_SIZE_T_METHOD, 0, 0, stress_unimplemented_method },
+	{ OPT_eigen_method, "eigen-method",  TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_unimplemented_method },
 	{ OPT_eigen_size,   "eigen-size",    TYPE_ID_SIZE_T, MIN_MATRIX_SIZE, MAX_MATRIX_SIZE, NULL },
 	END_OPT,
 };

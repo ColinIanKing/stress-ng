@@ -85,7 +85,7 @@ static const stress_opt_t opts[] = {
 	{ OPT_dccp_domain, "dccp-domain", TYPE_ID_INT_DOMAIN,    0, 0, &dccp_domain_mask },
 	{ OPT_dccp_if,     "dccp-if",     TYPE_ID_STR,           0, 0, NULL },
 	{ OPT_dccp_msgs,   "dccp-msgs",   TYPE_ID_SIZE_T,        MIN_DCCP_MSGS, MAX_DCCP_MSGS, NULL },
-	{ OPT_dccp_opts,   "dccp-opts",	  TYPE_ID_SIZE_T_METHOD, 0, 0, stress_dccp_options },
+	{ OPT_dccp_opts,   "dccp-opts",	  TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_dccp_options },
 	{ OPT_dccp_port,   "dccp-port",   TYPE_ID_INT_PORT,      MIN_PORT, MAX_PORT, NULL },
 	END_OPT,
 };

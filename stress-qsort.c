@@ -427,7 +427,7 @@ static const char *stress_qsort_method(const size_t i)
 
 static const stress_opt_t opts[] = {
 	{ OPT_qsort_size,   "qsort-size",   TYPE_ID_UINT64, MIN_QSORT_SIZE, MAX_QSORT_SIZE, NULL },
-	{ OPT_qsort_method, "qsort-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_qsort_method },
+	{ OPT_qsort_method, "qsort-method", TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_qsort_method },
 	END_OPT,
 };
 

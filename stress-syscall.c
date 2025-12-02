@@ -8943,7 +8943,7 @@ static const char *stress_syscall_method(const size_t i)
 }
 
 static const stress_opt_t opts[] = {
-	{ OPT_syscall_method, "syscall-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_syscall_method },
+	{ OPT_syscall_method, "syscall-method", TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_syscall_method },
 	{ OPT_syscall_top,    "syscall-top",    TYPE_ID_SIZE_T, 0, 1000, NULL },
 	END_OPT,
 };

@@ -489,7 +489,7 @@ static const stress_opt_t opts[] = {
 	{ OPT_l1cache_sets,      "l1cache-sets",      TYPE_ID_UINT32, 1, 65536, NULL },
 	{ OPT_l1cache_size,      "l1cache-size",      TYPE_ID_UINT32, 1, INT_MAX, NULL },
 	{ OPT_l1cache_line_size, "l1cache-line-size", TYPE_ID_UINT32, 1, INT_MAX, NULL },
-	{ OPT_l1cache_method,    "l1cache-method",    TYPE_ID_SIZE_T_METHOD, 0, 0, stress_l1cache_method },
+	{ OPT_l1cache_method,    "l1cache-method",    TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_l1cache_method },
 	{ OPT_l1cache_mlock,     "l1cache-mlock",     TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_l1cache_ways,      "l1cache-ways",      TYPE_ID_UINT32, 1, 65536, NULL },
 	END_OPT,

@@ -142,7 +142,7 @@ static const char *stress_heapsort_method(const size_t i)
 
 static const stress_opt_t opts[] = {
 	{ OPT_heapsort_size,   "heapsort-size",   TYPE_ID_UINT64, MIN_HEAPSORT_SIZE, MAX_HEAPSORT_SIZE, NULL },
-	{ OPT_heapsort_method, "heapsort-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_heapsort_method },
+	{ OPT_heapsort_method, "heapsort-method", TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_heapsort_method },
 	END_OPT,
 };
 

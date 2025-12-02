@@ -517,7 +517,7 @@ static const char *stress_prefetch_method(const size_t i)
 
 static const stress_opt_t opts[] = {
 	{ OPT_prefetch_l3_size,	"prefetch-l3-size", TYPE_ID_SIZE_T_BYTES_VM, MIN_PREFETCH_L3_SIZE, MAX_PREFETCH_L3_SIZE, NULL },
-	{ OPT_prefetch_method,	"prefetch-method",  TYPE_ID_SIZE_T_METHOD, 0, 0, stress_prefetch_method },
+	{ OPT_prefetch_method,	"prefetch-method",  TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_prefetch_method },
 	END_OPT,
 };
 

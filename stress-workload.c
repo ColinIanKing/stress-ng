@@ -128,11 +128,11 @@ static const char *stress_workload_sched(const size_t i)
 }
 
 static const stress_opt_t opts[] = {
-	{ OPT_workload_dist,      "workload-dist",      TYPE_ID_SIZE_T_METHOD, 0, 0, stress_workload_dist },
+	{ OPT_workload_dist,      "workload-dist",      TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_workload_dist },
 	{ OPT_workload_load,      "workload-load",      TYPE_ID_UINT32, 1, 100, NULL },
-	{ OPT_workload_method,    "workload-method",    TYPE_ID_SIZE_T_METHOD, 0, 0, stress_workload_method },
+	{ OPT_workload_method,    "workload-method",    TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_workload_method },
 	{ OPT_workload_quanta_us, "workload-quanta-us", TYPE_ID_UINT32,  1, 10000000, NULL },
-	{ OPT_workload_sched,     "workload-sched",     TYPE_ID_SIZE_T_METHOD, 0, 0, stress_workload_sched },
+	{ OPT_workload_sched,     "workload-sched",     TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_workload_sched },
 	{ OPT_workload_slice_us,  "workload-slice-us",  TYPE_ID_UINT32, 1, 10000000, NULL },
 	{ OPT_workload_threads,   "workload-threads",   TYPE_ID_UINT32, 0, 1024, NULL },
 	END_OPT,

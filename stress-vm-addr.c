@@ -623,7 +623,7 @@ static const char *stress_vm_addr_method(const size_t i)
 }
 
 static const stress_opt_t opts[] = {
-	{ OPT_vm_addr_method, "vm-addr-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_vm_addr_method },
+	{ OPT_vm_addr_method, "vm-addr-method", TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_vm_addr_method },
 	{ OPT_vm_addr_mlock,  "vm-addr-mlock",  TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_vm_addr_numa,   "vm-addr-numa",   TYPE_ID_BOOL, 0, 1, NULL },
 	END_OPT,

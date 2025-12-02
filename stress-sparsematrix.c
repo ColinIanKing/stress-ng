@@ -1330,7 +1330,7 @@ static const char *sparsematrix_method(const size_t i)
 
 static const stress_opt_t opts[] = {
 	{ OPT_sparsematrix_items,  "sparsematrix-items",  TYPE_ID_UINT64, MIN_SPARSEMATRIX_ITEMS, MAX_SPARSEMATRIX_ITEMS, NULL },
-	{ OPT_sparsematrix_method, "sparsematrix-method", TYPE_ID_SIZE_T_METHOD, 0, 1, sparsematrix_method },
+	{ OPT_sparsematrix_method, "sparsematrix-method", TYPE_ID_SIZE_T_METHOD, 0, 1, (void *)sparsematrix_method },
 	{ OPT_sparsematrix_size,   "sparsematrix-size",   TYPE_ID_UINT32, MIN_SPARSEMATRIX_SIZE, MAX_SPARSEMATRIX_SIZE, NULL },
 	END_OPT,
 };

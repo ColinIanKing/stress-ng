@@ -735,7 +735,7 @@ static const char *stress_intmath_method(const size_t i)
 }
 
 static const stress_opt_t opts[] = {
-	{ OPT_intmath_method, "intmath-method", TYPE_ID_SIZE_T_METHOD, 0, 1, stress_intmath_method },
+	{ OPT_intmath_method, "intmath-method", TYPE_ID_SIZE_T_METHOD, 0, 1, (void *)stress_intmath_method },
 	{ OPT_intmath_fast,   "intmath-fast",   TYPE_ID_BOOL, 0, 1, NULL },
 	END_OPT,
 };

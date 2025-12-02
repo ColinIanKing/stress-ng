@@ -70,7 +70,7 @@ static const char *stress_fd_fork_file(const size_t i)
 
 static const stress_opt_t opts[] = {
 	{ OPT_fd_fork_fds,  "fd-fork-fds",  TYPE_ID_SIZE_T, STRESS_FD_MIN, STRESS_FD_MAX, NULL },
-	{ OPT_fd_fork_file, "fd-fork-file", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_fd_fork_file },
+	{ OPT_fd_fork_file, "fd-fork-file", TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_fd_fork_file },
 	END_OPT,
 };
 

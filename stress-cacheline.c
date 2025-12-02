@@ -815,7 +815,7 @@ finish:
 
 static const stress_opt_t opts[] = {
 	{ OPT_cacheline_affinity, "cacheline-affinity", TYPE_ID_BOOL, 0, 1, NULL },
-	{ OPT_cacheline_method,   "cacheline-method",   TYPE_ID_SIZE_T_METHOD, 0, 0, stress_cacheline_method },
+	{ OPT_cacheline_method,   "cacheline-method",   TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_cacheline_method },
 	END_OPT,
 };
 

@@ -507,7 +507,7 @@ static const char *stress_list_method(const size_t i)
 }
 
 static const stress_opt_t opts[] = {
-	{ OPT_list_method, "list-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_list_method },
+	{ OPT_list_method, "list-method", TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_list_method },
 	{ OPT_list_size,   "list-size",   TYPE_ID_UINT64, MIN_LIST_SIZE, MAX_LIST_SIZE, NULL },
 	END_OPT,
 };

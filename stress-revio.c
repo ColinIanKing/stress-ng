@@ -481,7 +481,7 @@ finish:
 
 static const stress_opt_t opts[] = {
 	{ OPT_revio_bytes, "revio-bytes", TYPE_ID_UINT64_BYTES_VM, MIN_REVIO_BYTES, MAX_REVIO_BYTES, NULL },
-	{ OPT_revio_opts,  "revio-opts",  TYPE_ID_CALLBACK, 0, 0, stress_revio_opts },
+	{ OPT_revio_opts,  "revio-opts",  TYPE_ID_CALLBACK, 0, 0, (void *)stress_revio_opts },
 	END_OPT,
 };
 

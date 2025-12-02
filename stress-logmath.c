@@ -556,7 +556,7 @@ static int stress_logmath(stress_args_t *args)
 }
 
 static const stress_opt_t opts[] = {
-	{ OPT_logmath_method, "logmath-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_logmath_method },
+	{ OPT_logmath_method, "logmath-method", TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_logmath_method },
 	END_OPT,
 };
 

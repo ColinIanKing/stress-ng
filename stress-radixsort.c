@@ -185,7 +185,7 @@ static const char *stress_radixsort_method(const size_t i)
 }
 
 static const stress_opt_t opts[] = {
-	{ OPT_radixsort_method,	"radixsort-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_radixsort_method },
+	{ OPT_radixsort_method,	"radixsort-method", TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_radixsort_method },
 	{ OPT_radixsort_size,	"radixsort-size",   TYPE_ID_UINT64, MIN_RADIXSORT_SIZE, MAX_RADIXSORT_SIZE, NULL },
 	END_OPT,
 };

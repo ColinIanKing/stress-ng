@@ -155,8 +155,8 @@ static const char *stress_touch_method(const size_t i)
 }
 
 static const stress_opt_t opts[] = {
-	{ OPT_touch_opts,   "touch-opts",   TYPE_ID_CALLBACK, 0, 0, stress_touch_opts },
-	{ OPT_touch_method, "touch-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_touch_method },
+	{ OPT_touch_opts,   "touch-opts",   TYPE_ID_CALLBACK, 0, 0, (void *)stress_touch_opts },
+	{ OPT_touch_method, "touch-method", TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_touch_method },
 	END_OPT,
 };
 

@@ -55,7 +55,7 @@ static const char *stress_bad_ioctl_method(const size_t i)
 }
 
 static const stress_opt_t opts[] = {
-	{ OPT_bad_ioctl_method, "bad-ioctl-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_bad_ioctl_method },
+	{ OPT_bad_ioctl_method, "bad-ioctl-method", TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_bad_ioctl_method },
 	END_OPT,
 };
 

@@ -1465,7 +1465,7 @@ static const char *stress_misaligned_method(const size_t i)
 }
 
 static const stress_opt_t opts[] = {
-	{ OPT_misaligned_method, "misaligned-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_misaligned_method },
+	{ OPT_misaligned_method, "misaligned-method", TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_misaligned_method },
 	END_OPT,
 };
 

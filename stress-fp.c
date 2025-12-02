@@ -884,7 +884,7 @@ static const char *stress_fp_method(const size_t i)
 }
 
 static const stress_opt_t opts[] = {
-	{ OPT_fp_method, "fp-method", TYPE_ID_SIZE_T_METHOD, 0, 1, stress_fp_method },
+	{ OPT_fp_method, "fp-method", TYPE_ID_SIZE_T_METHOD, 0, 1, (void *)stress_fp_method },
 	END_OPT,
 };
 

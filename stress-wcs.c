@@ -766,7 +766,7 @@ static const char *stress_wcs_method(const size_t i)
 }
 
 static const stress_opt_t opts[] = {
-	{ OPT_wcs_method, "wcs-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_wcs_method },
+	{ OPT_wcs_method, "wcs-method", TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_wcs_method },
 	END_OPT,
 };
 

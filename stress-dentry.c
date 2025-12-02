@@ -481,7 +481,7 @@ abort:
 
 static const stress_opt_t opts[] = {
 	{ OPT_dentries,	    "dentries",     TYPE_ID_UINT64, MIN_DENTRIES, MAX_DENTRIES, NULL },
-	{ OPT_dentry_order, "dentry-order", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_dentry_order },
+	{ OPT_dentry_order, "dentry-order", TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_dentry_order },
 	END_OPT,
 };
 

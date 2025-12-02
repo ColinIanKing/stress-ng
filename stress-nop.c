@@ -382,7 +382,7 @@ static const char *stress_nop_instr(const size_t i)
 }
 
 static const stress_opt_t opts[] = {
-	{ OPT_nop_instr, "nop-instr", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_nop_instr },
+	{ OPT_nop_instr, "nop-instr", TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_nop_instr },
 	END_OPT,
 };
 
@@ -395,7 +395,7 @@ const stressor_info_t stress_nop_info = {
 #else
 
 static const stress_opt_t opts[] = {
-	{ OPT_nop_instr, "nop-instr", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_unimplemented_method },
+	{ OPT_nop_instr, "nop-instr", TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_unimplemented_method },
 	END_OPT,
 };
 

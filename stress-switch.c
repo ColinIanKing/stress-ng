@@ -529,7 +529,7 @@ static const char *stress_switch_method(const size_t i)
 
 static const stress_opt_t opts[] = {
 	{ OPT_switch_freq,   "switch-freq",   TYPE_ID_UINT64, 0, STRESS_NANOSECOND, NULL },
-	{ OPT_switch_method, "switch-method", TYPE_ID_SIZE_T_METHOD, 0, 1, stress_switch_method },
+	{ OPT_switch_method, "switch-method", TYPE_ID_SIZE_T_METHOD, 0, 1, (void *)stress_switch_method },
 	END_OPT,
 };
 

@@ -352,14 +352,14 @@ static const char *stress_rawdev_method(const size_t i)
 }
 
 static const stress_opt_t opts[] = {
-	{ OPT_rawdev_method, "rawdev-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_rawdev_method },
+	{ OPT_rawdev_method, "rawdev-method", TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_rawdev_method },
 	END_OPT,
 };
 
 #else
 
 static const stress_opt_t opts[] = {
-	{ OPT_rawdev_method, "rawdev-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_unimplemented_method },
+	{ OPT_rawdev_method, "rawdev-method", TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_unimplemented_method },
 	END_OPT,
 };
 

@@ -143,7 +143,7 @@ static const char *stress_lsearch_method(const size_t i)
 }
 
 static const stress_opt_t opts[] = {
-	{ OPT_lsearch_method, "lsearch-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_lsearch_method },
+	{ OPT_lsearch_method, "lsearch-method", TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_lsearch_method },
 	{ OPT_lsearch_size,   "lsearch-size",   TYPE_ID_UINT64, MIN_LSEARCH_SIZE, MAX_LSEARCH_SIZE, NULL },
 	END_OPT,
 };

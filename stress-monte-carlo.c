@@ -500,8 +500,8 @@ static const char *stress_monte_carlo_rand(const size_t i)
 }
 
 static const stress_opt_t opts[] = {
-	{ OPT_monte_carlo_method,  "monte-carlo-method",  TYPE_ID_SIZE_T_METHOD, 0, 0, stress_monte_carlo_method },
-	{ OPT_monte_carlo_rand,    "monte-carlo-rand",    TYPE_ID_SIZE_T_METHOD, 0, 0, stress_monte_carlo_rand },
+	{ OPT_monte_carlo_method,  "monte-carlo-method",  TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_monte_carlo_method },
+	{ OPT_monte_carlo_rand,    "monte-carlo-rand",    TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_monte_carlo_rand },
 	{ OPT_monte_carlo_samples, "monte-carlo-samples", TYPE_ID_UINT32, MIN_MONTE_CARLO_SAMPLES, MAX_MONTE_CARLO_SAMPLES, NULL },
 	END_OPT,
 };

@@ -735,7 +735,7 @@ static const char *stress_hash_method(const size_t i)
 }
 
 static const stress_opt_t opts[] = {
-	{ OPT_hash_method, "hash-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_hash_method },
+	{ OPT_hash_method, "hash-method", TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_hash_method },
 	END_OPT,
 };
 

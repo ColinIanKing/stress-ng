@@ -1167,7 +1167,7 @@ static int stress_bitops(stress_args_t *args)
 }
 
 static const stress_opt_t opts[] = {
-	{ OPT_bitops_method, "bitops-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_bitops_method },
+	{ OPT_bitops_method, "bitops-method", TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_bitops_method },
 	END_OPT,
 };
 

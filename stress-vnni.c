@@ -607,7 +607,7 @@ static const char *stress_vnni_method(const size_t i)
 
 static const stress_opt_t opts[] = {
 	{ OPT_vnni_intrinsic, "vnni-intrinsic", TYPE_ID_BOOL, 0, 1, NULL },
-	{ OPT_vnni_method,    "vnni-method",    TYPE_ID_SIZE_T_METHOD, 0, 0, stress_vnni_method },
+	{ OPT_vnni_method,    "vnni-method",    TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_vnni_method },
 	END_OPT,
 };
 

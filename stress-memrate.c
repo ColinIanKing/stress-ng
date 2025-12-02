@@ -1205,7 +1205,7 @@ static const stress_opt_t opts[] = {
 	{ OPT_memrate_flush,  "memrate-flush",  TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_memrate_rd_mbs, "memrate-rd-mbs", TYPE_ID_UINT64, 0, 1000000, NULL },
 	{ OPT_memrate_wr_mbs, "memrate-wr-mbs", TYPE_ID_UINT64, 0, 1000000, NULL },
-	{ OPT_memrate_method, "memrate-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_memmap_method },
+	{ OPT_memrate_method, "memrate-method", TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_memmap_method },
 	END_OPT,
 };
 

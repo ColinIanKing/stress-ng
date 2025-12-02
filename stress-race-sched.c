@@ -84,7 +84,7 @@ static const char *stress_race_sched_method(const size_t i)
 }
 
 static const stress_opt_t opts[] = {
-	{ OPT_race_sched_method, "race-sched-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_race_sched_method },
+	{ OPT_race_sched_method, "race-sched-method", TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_race_sched_method },
 	END_OPT,
 };
 

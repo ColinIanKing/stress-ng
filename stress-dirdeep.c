@@ -483,7 +483,7 @@ static int stress_dirdeep(stress_args_t *args)
 static const stress_opt_t opts[] = {
 	{ OPT_dirdeep_bytes,  "dirdeep-bytes",  TYPE_ID_OFF_T,  MIN_DIRDEEP_BYTES, MAX_DIRDEEP_BYTES, NULL },
 	{ OPT_dirdeep_dirs,   "dirdeep-dirs",   TYPE_ID_UINT32, 1, sizeof(stress_dir_names) - 1, NULL },
-	{ OPT_dirdeep_inodes, "dirdeep-inodes", TYPE_ID_CALLBACK, 0, 0, stress_dirdeep_inodes },
+	{ OPT_dirdeep_inodes, "dirdeep-inodes", TYPE_ID_CALLBACK, 0, 0, (void *)stress_dirdeep_inodes },
 	{ OPT_dirdeep_files,  "dirdeep-files",  TYPE_ID_UINT32, 0, 65535, NULL },
 	END_OPT,
 };

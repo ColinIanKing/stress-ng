@@ -88,7 +88,7 @@ static const stress_opt_t opts[] = {
 	{ OPT_mmap_odirect,     "mmap-odirect",     TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_mmap_osync,       "mmap-osync",       TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_mmap_slow_munmap,	"mmap-slow-munmap", TYPE_ID_BOOL, 0, 1, NULL },
-	{ OPT_mmap_stressful,   "mmap-stressful",   TYPE_ID_CALLBACK, 0, 0, stress_mmap_stressful },
+	{ OPT_mmap_stressful,   "mmap-stressful",   TYPE_ID_CALLBACK, 0, 0, (void *)stress_mmap_stressful },
 	{ OPT_mmap_write_check, "mmap-write-check", TYPE_ID_BOOL, 0, 1, NULL },
 	END_OPT,
 };

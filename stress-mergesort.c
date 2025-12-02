@@ -225,7 +225,7 @@ static const char *stress_mergesort_method(const size_t i)
 
 static const stress_opt_t opts[] = {
 	{ OPT_mergesort_size,   "mergesort-size",   TYPE_ID_UINT64, MIN_MERGESORT_SIZE, MAX_MERGESORT_SIZE, NULL },
-	{ OPT_mergesort_method, "mergesort-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_mergesort_method },
+	{ OPT_mergesort_method, "mergesort-method", TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_mergesort_method },
 	END_OPT,
 };
 

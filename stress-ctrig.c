@@ -368,7 +368,7 @@ static const char *stress_ctrig_method(const size_t i)
 }
 
 static const stress_opt_t opts[] = {
-	{ OPT_ctrig_method, "ctrig-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_ctrig_method },
+	{ OPT_ctrig_method, "ctrig-method", TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_ctrig_method },
 	END_OPT,
 };
 

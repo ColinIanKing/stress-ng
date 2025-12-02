@@ -89,7 +89,7 @@ static const char *stress_nanosleep_method(const size_t i)
 
 static const stress_opt_t opts[] = {
 	{ OPT_nanosleep_threads, "nanosleep-threads", TYPE_ID_UINT32, MIN_NANOSLEEP_THREADS, MAX_NANOSLEEP_THREADS, NULL },
-	{ OPT_nanosleep_method,  "nanosleep-method",  TYPE_ID_SIZE_T_METHOD, 0, 0, stress_nanosleep_method },
+	{ OPT_nanosleep_method,  "nanosleep-method",  TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_nanosleep_method },
 	END_OPT,
 };
 

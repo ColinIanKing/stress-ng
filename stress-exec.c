@@ -165,8 +165,8 @@ static const char *stress_exec_fork_method(const size_t i)
 
 static const stress_opt_t opts[] = {
 	{ OPT_exec_max,		"exec-max",         TYPE_ID_INT32, MIN_EXECS, MAX_EXECS, NULL },
-	{ OPT_exec_method,	"exec-method",	    TYPE_ID_SIZE_T_METHOD, 0, 0, stress_exec_method },
-	{ OPT_exec_fork_method,	"exec-fork-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_exec_fork_method },
+	{ OPT_exec_method,	"exec-method",	    TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_exec_method },
+	{ OPT_exec_fork_method,	"exec-fork-method", TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_exec_fork_method },
 	{ OPT_exec_no_pthread,	"exec-no-pthread",  TYPE_ID_BOOL, 0, 1, NULL },
 	END_OPT,
 };

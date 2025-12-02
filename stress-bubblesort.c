@@ -134,7 +134,7 @@ static const char *stress_bubblesort_method(const size_t i)
 
 static const stress_opt_t opts[] = {
 	{ OPT_bubblesort_size,   "bubblesort-size",   TYPE_ID_UINT64, MIN_BUBBLESORT_SIZE, MAX_BUBBLESORT_SIZE, NULL },
-	{ OPT_bubblesort_method, "bubblesort-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_bubblesort_method },
+	{ OPT_bubblesort_method, "bubblesort-method", TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_bubblesort_method },
 	END_OPT,
 };
 

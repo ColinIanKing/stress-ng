@@ -72,8 +72,8 @@ static const char *stress_ioport_port(const size_t i)
 }
 
 static const stress_opt_t opts[] = {
-	{ OPT_ioport_opts, "ioport-opts", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_ioport_opts },
-	{ OPT_ioport_port, "ioport-port", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_ioport_port },
+	{ OPT_ioport_opts, "ioport-opts", TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_ioport_opts },
+	{ OPT_ioport_port, "ioport-port", TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_ioport_port },
 	END_OPT,
 };
 

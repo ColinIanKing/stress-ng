@@ -100,7 +100,7 @@ static const stress_opt_t opts[] = {
 	{ OPT_sctp_domain, "sctp-domain", TYPE_ID_INT_DOMAIN, 0, 0, &sctp_domain_mask },
 	{ OPT_sctp_if,     "sctp-if",     TYPE_ID_STR, 0, 0, NULL },
 	{ OPT_sctp_port,   "sctp-port",   TYPE_ID_INT_PORT, MIN_PORT, MAX_PORT, NULL },
-	{ OPT_sctp_sched,  "sctp-sched",  TYPE_ID_SIZE_T_METHOD, 0, 0, stress_sctp_sched },
+	{ OPT_sctp_sched,  "sctp-sched",  TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_sctp_sched },
 	END_OPT,
 };
 
