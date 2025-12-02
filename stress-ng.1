@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "20 November 2025"
+.TH STRESS-NG 1 "2 December 2025"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -287,6 +287,13 @@ however this may cause contention when emitting a high rate of logging messages
 in verbose mode with many stressors are running, for example when testing CPU
 scaling with many processes on many CPUs. This option disables log message
 locking.
+.TP
+.B \-\-make\-it\-fail
+enable fault injection on stressor processes (Linux only, needs to
+run with root permission to write to /proc/self/make-it-fail). The appropriate
+Linux kernel /sys/kernel/debug fault injection sysfs interfaces need to be
+set inconjunction when using this option and the kernel requires fault
+injection to be enabled.
 .TP
 .B \-\-maximize
 overrides the default stressor settings and instead sets these to the maximum

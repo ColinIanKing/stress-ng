@@ -109,6 +109,7 @@ again:
 		int n = 0;
 
 		stress_set_proc_state(args->name, STRESS_STATE_RUN);
+		stress_set_make_it_fail();
 		(void)stress_change_cpu(args, parent_cpu);
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);

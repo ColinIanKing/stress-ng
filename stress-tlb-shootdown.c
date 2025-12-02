@@ -415,6 +415,8 @@ static int stress_tlb_shootdown(stress_args_t *args)
 			continue;
 		} else if (s_pids[i].pid == 0) {
 			stress_set_proc_state(args->name, STRESS_STATE_RUN);
+			stress_set_make_it_fail();
+
 			stress_tlb_shootdown_child(args, n_cpus, i, stride,
 					mmap_size, mmap_mask,
 					page_size, page_mask,

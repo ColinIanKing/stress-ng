@@ -154,6 +154,8 @@ fork_again:
 		static size_t waste_size;
 
 		stress_set_proc_state(args->name, STRESS_STATE_RUN);
+		stress_set_make_it_fail();
+
 		/*
 		 *  We want the children to be OOM'd if we
 		 *  eat up too much memory

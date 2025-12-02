@@ -396,13 +396,15 @@ static int stress_fpunch(stress_args_t *args)
 
 		s_pids[i].pid = fork();
 		if (s_pids[i].pid == 0) {
+#if !defined(HAVE_PREADV_WRITEV)
+			int tmp_fd;
+#endif
+
 			stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 			s_pids[i].pid = getpid();
 			stress_sync_start_wait_s_pid(&s_pids[i]);
 			stress_set_proc_state(args->name, STRESS_STATE_RUN);
-#if !defined(HAVE_PREADV_WRITEV)
-			int tmp_fd;
-#endif
+			stress_set_make_it_fail();
 
 			VOID_RET(int, stress_sighandler(args->name, SIGALRM, stress_fpunch_child_handler, NULL));
 #if defined(HAVE_PREADV_WRITEV)

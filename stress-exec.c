@@ -848,6 +848,7 @@ static int stress_exec(stress_args_t *args)
 				pid = fork();
 				if (pid == 0) {
 					stress_set_proc_state(args->name, STRESS_STATE_RUN);
+					stress_set_make_it_fail();
 					_exit(stress_exec_child(&sph->arg));
 				}
 				break;

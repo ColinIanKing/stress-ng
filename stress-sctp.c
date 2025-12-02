@@ -696,6 +696,7 @@ again:
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
 		stress_set_proc_state(args->name, STRESS_STATE_RUN);
+		stress_set_make_it_fail();
 		 (void)stress_change_cpu(args, parent_cpu);
 		ret = stress_sctp_client(args, mypid, sctp_port, sctp_domain, sctp_sched_type, sctp_if);
 		_exit(ret);

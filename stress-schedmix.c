@@ -551,6 +551,7 @@ static int stress_schedmix(stress_args_t *args)
 			s_pids[i].pid = getpid();
 			stress_sync_start_wait_s_pid(&s_pids[i]);
 			stress_set_proc_state(args->name, STRESS_STATE_RUN);
+			stress_set_make_it_fail();
 
 			VOID_RET(int, shim_nice(stress_mwc8modn(7)));
 			stress_parent_died_alarm();

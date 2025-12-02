@@ -220,6 +220,7 @@ again:
 		const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 
 		stress_set_proc_state(args->name, STRESS_STATE_RUN);
+		stress_set_make_it_fail();
 		(void)stress_change_cpu(args, parent_cpu);
 		stress_set_oom_adjustment(args, true);
 		stress_parent_died_alarm();

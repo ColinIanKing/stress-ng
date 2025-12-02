@@ -218,6 +218,7 @@ static int stress_hrtimers(stress_args_t *args)
 			s_pids[i].pid = getpid();
 			stress_sync_start_wait_s_pid(&s_pids[i]);
 			stress_set_proc_state(args->name, STRESS_STATE_RUN);
+			stress_set_make_it_fail();
 
 			stress_parent_died_alarm();
 			stress_set_oom_adjustment(args, true);

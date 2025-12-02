@@ -90,6 +90,8 @@ again:
 		if (stress_sighandler(args->name, SIGUSR1, stress_alarm_sigusr1_handler, NULL) < 0)
 			_exit(EXIT_FAILURE);
 
+		stress_set_make_it_fail();
+
 		do {
 			unsigned int secs_sleep;
 			unsigned int secs_left;

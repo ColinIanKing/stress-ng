@@ -238,6 +238,7 @@ static int stress_fd_fork(stress_args_t *args)
 				continue;
 			} else if (pids[i] == 0) {
 				stress_set_proc_state(args->name, STRESS_STATE_RUN);
+				stress_set_make_it_fail();
 				if (rnd) {
 					stress_fd_close(fds, fd_fork_fds, info);
 				}

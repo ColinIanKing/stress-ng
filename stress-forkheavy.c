@@ -210,6 +210,7 @@ static int stress_forkheavy_child(stress_args_t *args, void *context)
 				const double duration = stress_time_now() - metrics->t_start;
 
 				stress_set_proc_state(args->name, STRESS_STATE_RUN);
+				stress_set_make_it_fail();
 
 				if (update_metrics && (duration > 0.0) &&
 				    (stress_lock_acquire(metrics->lock) == 0)) {

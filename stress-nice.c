@@ -90,6 +90,7 @@ static int stress_nice(stress_args_t *args)
 			int i;
 
 			stress_set_proc_state(args->name, STRESS_STATE_RUN);
+			stress_set_make_it_fail();
 
 			/*
 			 *  Test if calling process has CAP_SYS_NICE

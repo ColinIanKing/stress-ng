@@ -80,7 +80,7 @@
 #define OPT_FLAGS_AUTOGROUP	 STRESS_BIT_ULL(48)	/* --autogroup */
 #define OPT_FLAGS_RANDPROCNAME	 STRESS_BIT_ULL(49)	/* --randprocname */
 #define OPT_FLAGS_OOM_NO_CHILD	 STRESS_BIT_ULL(50)	/* --oom-no-child */
-#define OPT_FLAGS_SPARE_51	 STRESS_BIT_ULL(51)
+#define OPT_FLAGS_MAKE_IT_FAIL	 STRESS_BIT_ULL(51)	/* --make-it-fail */
 #define OPT_FLAGS_SPARE_52	 STRESS_BIT_ULL(52)
 #define OPT_FLAGS_SPARE_53	 STRESS_BIT_ULL(53)
 #define OPT_FLAGS_SPARE_54	 STRESS_BIT_ULL(54)
@@ -816,6 +816,8 @@ typedef enum {
 	OPT_malloc_touch,
 	OPT_malloc_trim,
 	OPT_malloc_zerofree,
+
+	OPT_make_it_fail,
 
 	OPT_matrix,
 	OPT_matrix_ops,

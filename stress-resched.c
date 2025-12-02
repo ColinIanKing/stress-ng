@@ -142,6 +142,7 @@ static void stress_resched_spawn(
 	pid = fork();
 	if (pid == 0) {
 		stress_set_proc_state(args->name, STRESS_STATE_RUN);
+		stress_set_make_it_fail();
 		stress_resched_child(args, idx, max_prio, yields);
 	} else if (pid > 0) {
 		s_pids[idx].pid = pid;

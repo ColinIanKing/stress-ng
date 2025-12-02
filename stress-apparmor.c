@@ -269,6 +269,7 @@ again:
 		stress_parent_died_alarm();
 		if (!stress_apparmor_stress_continue_inc(args, false))
 			goto abort;
+		stress_set_make_it_fail();
 		ret = func(args);
 abort:
 		free(apparmor_path);

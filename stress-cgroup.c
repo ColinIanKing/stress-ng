@@ -329,6 +329,7 @@ static void stress_cgroup_new_group(stress_args_t *args, const char *realpathnam
 	} else if (pid == 0) {
 		/* Child, perform some activity */
 		stress_set_proc_state(args->name, STRESS_STATE_RUN);
+		stress_set_make_it_fail();
 		do {
 			void *ptr;
 			const size_t sz = MB;
@@ -598,6 +599,7 @@ again:
 				break;
 			}
 		} else {
+			stress_set_make_it_fail();
 			_exit(stress_cgroup_child(args));
 		}
 	} while (stress_continue(args));

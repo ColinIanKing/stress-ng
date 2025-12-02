@@ -169,6 +169,7 @@ static const stress_opt_flag_t opt_flags[] = {
 	{ OPT_ksm,		OPT_FLAGS_KSM, 0 },
 	{ OPT_log_brief,	0, PR_LOG_FLAGS_BRIEF },
 	{ OPT_log_lockless,	0, PR_LOG_FLAGS_LOCKLESS },
+	{ OPT_make_it_fail,	OPT_FLAGS_MAKE_IT_FAIL, 0 },
 	{ OPT_maximize,		OPT_FLAGS_MAXIMIZE, 0 },
 	{ OPT_metrics,		OPT_FLAGS_METRICS, PR_LOG_FLAGS_METRICS },
 	{ OPT_metrics_brief,	OPT_FLAGS_METRICS_BRIEF | OPT_FLAGS_METRICS, PR_LOG_FLAGS_METRICS },
@@ -347,6 +348,7 @@ static const stress_help_t help_generic[] = {
 	{ NULL,		"log-brief",		"less verbose log messages" },
 	{ NULL,		"log-file filename",	"log messages to a log file" },
 	{ NULL,		"log-lockless",		"log messages without message locking" },
+	{ NULL,		"make-it-fail",		"enable per stressor process fault injection failures" },
 	{ NULL,		"maximize",		"enable maximum stress options" },
 	{ NULL,		"max-fd N",		"set maximum file descriptor limit" },
 	{ NULL,		"mbind",		"set NUMA memory binding to specific nodes" },
@@ -1817,6 +1819,8 @@ again:
 				stats->s_pid.pid = child_pid;
 				if (g_opt_flags & OPT_FLAGS_C_STATES)
 					stress_cpuidle_read_cstates_begin(&stats->cstates);
+
+				stress_set_make_it_fail();
 
 				rc = stress_run_child(checksum,
 						stats, fork_time_start,

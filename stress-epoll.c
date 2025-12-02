@@ -178,6 +178,7 @@ again:
 		return -1;
 	} else if (s_pid->pid == 0) {
 		stress_set_proc_state(args->name, STRESS_STATE_RUN);
+		stress_set_make_it_fail();
 		s_pid->pid = getpid();
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);

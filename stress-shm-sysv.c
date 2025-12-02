@@ -893,6 +893,7 @@ retry:
 		pid = fork();
 		if (pid == 0) {
 			stress_set_proc_state(args->name, STRESS_STATE_RUN);
+			stress_set_make_it_fail();
 
 			for (i = 0; i < shm_sysv_segments; i++) {
 #if defined(IPC_STAT) &&	\

@@ -468,6 +468,7 @@ again:
 	} else if (pid == 0) {
 		stress_set_proc_state(args->name, STRESS_STATE_RUN);
 		stress_set_oom_adjustment(args, false);
+		stress_set_make_it_fail();
 		ret = stress_socket_client(args, mypid, max_fd, socket_fd_port, socket_fd_reuse, fds, fds_size);
 		_exit(ret);
 	} else {

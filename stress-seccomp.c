@@ -177,6 +177,7 @@ static int stress_seccomp_supported(const char *name)
 		return -1;
 	}
 	if (pid == 0) {
+		stress_set_make_it_fail();
 		if (shim_seccomp(SECCOMP_SET_MODE_FILTER, 0, &prog_allow_all) == 0) {
 			_exit(0);
 		}

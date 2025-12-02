@@ -372,6 +372,7 @@ static int stress_race_sched_child(stress_args_t *args, void *context)
 				const pid_t child_pid = getpid();
 
 				stress_set_proc_state(args->name, STRESS_STATE_RUN);
+				stress_set_make_it_fail();
 
 				if (rnd & 0x01)
 					(void)shim_sched_yield();

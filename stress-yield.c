@@ -295,6 +295,7 @@ static int stress_yield(stress_args_t *args)
 				args->name, args->instance, i, errno, strerror(errno));
 		} else if (pids[i] == 0) {
 			stress_set_proc_state(args->name, STRESS_STATE_RUN);
+			stress_set_make_it_fail();
 			stress_parent_died_alarm();
 			(void)sched_settings_apply(true);
 			stress_yield_sched_policy(args, yield_sched);

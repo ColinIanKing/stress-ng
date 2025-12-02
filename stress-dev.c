@@ -4850,6 +4850,7 @@ again:
 			sys_dev_info_t *sys_dev_info = sys_dev_info_list;
 
 			stress_set_proc_state(args->name, STRESS_STATE_RUN);
+			stress_set_make_it_fail();
 			stress_parent_died_alarm();
 			(void)sched_settings_apply(true);
 			rc = shim_pthread_spin_init(&lock, SHIM_PTHREAD_PROCESS_SHARED);

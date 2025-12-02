@@ -102,6 +102,7 @@ static int stress_resources(stress_args_t *args)
 				stress_set_proc_state(args->name, STRESS_STATE_RUN);
 				stress_set_oom_adjustment(args, true);
 				VOID_RET(int, stress_drop_capabilities(args->name));
+				stress_set_make_it_fail();
 				(void)sched_settings_apply(true);
 
 				n = stress_resources_allocate(args, resources, num_resources, pipe_size, min_mem_free, true);

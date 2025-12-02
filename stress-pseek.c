@@ -334,6 +334,7 @@ static int stress_pseek_spawn(stress_args_t *args, stress_peekio_proc_t *proc)
 	} else if (pid == 0) {
 		/* Child */
 		stress_set_proc_state(args->name, STRESS_STATE_RUN);
+		stress_set_make_it_fail();
 		stress_peekio_exercise(proc);
 		_exit(0);
 	} else {

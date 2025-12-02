@@ -229,6 +229,7 @@ static int stress_zombie(stress_args_t *args)
 				 *
 				stress_zombie_free();
 				 */
+				stress_set_make_it_fail();
 				stress_set_proc_state(args->name, STRESS_STATE_ZOMBIE);
 				_exit(0);
 			}

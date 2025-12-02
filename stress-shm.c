@@ -513,6 +513,7 @@ again:
 		} else {
 			/* Child, stress memory */
 			stress_parent_died_alarm();
+			stress_set_make_it_fail();
 
 			(void)close(pipefds[0]);
 			rc = stress_shm_posix_child(args, pipefds[1], sz, shm_posix_objects, shm_mlock);

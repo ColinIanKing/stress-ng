@@ -535,6 +535,7 @@ const struct option stress_long_options[] = {
 	{ "malloc-touch",	0,	0,	OPT_malloc_touch },
 	{ "malloc-trim",	0,	0,	OPT_malloc_trim },
 	{ "malloc-zerofree",	0,	0,	OPT_malloc_zerofree },
+	{ "make-it-fail",	0,	0,	OPT_make_it_fail },
 	{ "matrix",		1,	0,	OPT_matrix },
 	{ "matrix-method",	1,	0,	OPT_matrix_method },
 	{ "matrix-ops",		1,	0,	OPT_matrix_ops },

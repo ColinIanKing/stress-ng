@@ -478,6 +478,7 @@ static int stress_dir(stress_args_t *args)
 	pid = fork();
 	if (pid == 0) {
 		stress_set_proc_state(args->name, STRESS_STATE_RUN);
+		stress_set_make_it_fail();
 		stress_dir_read_concurrent(args, pathname);
 		_exit(0);
 	}

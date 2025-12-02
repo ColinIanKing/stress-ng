@@ -214,6 +214,8 @@ static int stress_mmapcow_exercise(
 		/* force child to have different rnd from parent */
 		if (pid == 0) {
 			stress_set_proc_state(args->name, STRESS_STATE_RUN);
+			stress_set_make_it_fail();
+
 			rnd = stress_mwc8() & 7;
 
 			/* don't exercise child on low memory scenarios */
