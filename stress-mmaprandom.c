@@ -721,7 +721,7 @@ static void OPTIMIZE3 stress_mmaprandom_mmap_invalid(mr_ctxt_t *ctxt, const int 
 	(void)mask;
 	state++;
 
-	/* intentially wrong fd */
+	/* intentionally wrong fd */
 	fd = (flags & MAP_ANONYMOUS) ? ctxt->fds[FD_FILE].fd : -1;
 	ptr = mmap(hint, len, prot, flags, fd, offset);
 	if (UNLIKELY(ptr != MAP_FAILED))
