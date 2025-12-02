@@ -91,7 +91,7 @@ static int stress_msg_get_stats(stress_args_t *args, const int msgq_id)
 		 * select random msgq index numbers, we may hit
 		 * some that are in use. Ignore failures
 		 */
-		(void)msgctl(stress_mwc8modn(msgq_id + 1), MSG_STAT_ANY, &buf);
+		(void)msgctl((int)stress_mwc8modn((uint8_t)(msgq_id + 1)), MSG_STAT_ANY, &buf);
 	}
 #endif
 
@@ -325,7 +325,7 @@ static void OPTIMIZE3 stress_msg_sender(
 		int msg_flag = 0;
 #endif
 
-		msg.mtype = (msg_types) ? stress_mwc8modn(msg_types) + 1 : 1;
+		msg.mtype = (msg_types) ? (long int)stress_mwc8modn((uint8_t)msg_types) + 1 : 1L;
 resend:
 		if (UNLIKELY(msgsnd(msgq_id, &msg, msg_bytes, msg_flag) < 0)) {
 			if (errno == EAGAIN) {
