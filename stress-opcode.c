@@ -307,12 +307,12 @@ static void OPTIMIZE3 stress_opcode_inc(
 			register ssize_t i = (ssize_t)(page_size / 6);
 
 			while (i--) {
-				*(ops++) = (tmp64 >> 0);
-				*(ops++) = (tmp64 >> 8);
-				*(ops++) = (tmp64 >> 16);
-				*(ops++) = (tmp64 >> 24);
-				*(ops++) = (tmp64 >> 32);
-				*(ops++) = (tmp64 >> 40);
+				*(ops++) = (uint8_t)(tmp64 >> 0);
+				*(ops++) = (uint8_t)(tmp64 >> 8);
+				*(ops++) = (uint8_t)(tmp64 >> 16);
+				*(ops++) = (uint8_t)(tmp64 >> 24);
+				*(ops++) = (uint8_t)(tmp64 >> 32);
+				*(ops++) = (uint8_t)(tmp64 >> 40);
 			}
 			/* There is some slop at the end */
 			while (ops < (const uint8_t *)ops_end)
