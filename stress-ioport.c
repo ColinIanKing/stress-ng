@@ -38,7 +38,7 @@ typedef struct {
 
 typedef struct {
 	const char 	*name;
-	const int 	port;
+	const unsigned short port;
 } stress_ioport_port_t;
 
 static const stress_ioport_opts_t ioport_opts[] = {
@@ -130,9 +130,10 @@ static int stress_ioport_ioperm(
  */
 static int stress_ioport(stress_args_t *args)
 {
-	int ret, fd, rc = EXIT_SUCCESS, port;
+	int ret, fd, rc = EXIT_SUCCESS;
 	size_t ioport_opt = 2, ioport_idx = 0;
 	uint32_t flag = 0;
+	unsigned short port;
 	unsigned char v;
 	double duration_in = 0.0, count_in = 0.0;
 	double duration_out = 0.0, count_out = 0.0;
@@ -253,7 +254,7 @@ static int stress_ioport(stress_args_t *args)
 				if (n == sizeof(val)) {
 					offret = lseek(fd, offset, SEEK_SET);
 					if (offret != (off_t)-1) {
-						val = ~v;
+						val = (unsigned char)~v;
 						VOID_RET(ssize_t, write(fd, &val, sizeof(val)));
 					}
 
