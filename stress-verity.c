@@ -47,8 +47,8 @@ static const stress_help_t help[] = {
      defined(FS_VERITY_HASH_ALG_SHA512))
 
 typedef struct {
-	uint32_t algorithm;	/* hash algorithm */
-	int	 size;		/* hash size */
+	uint16_t algorithm;	/* hash algorithm */
+	uint16_t size;		/* hash size */
 } hash_info_t;
 
 static const hash_info_t hash_algorithms[] = {
