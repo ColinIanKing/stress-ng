@@ -203,7 +203,7 @@ static void TARGET_CLONES OPTIMIZE3 stress_vnni_vpaddb(stress_args_t *args)
 
 PRAGMA_UNROLL_N(8)
 	for (i = 0; i < VEC_SIZE_BYTES; i++)
-		result[i] = (int16_t)(int8_t)a_init[i] + (int16_t)(int8_t)b_init[i];
+		result[i] = (uint8_t)((int16_t)(int8_t)a_init[i] + (int16_t)(int8_t)b_init[i]);
 }
 
 #if defined(STRESS_ARCH_X86_64) &&	\
