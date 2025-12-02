@@ -657,7 +657,7 @@ static void OPTIMIZE3 stress_memthrash_tlb(
 	/* Stride around memory in prime cache line strides, writes */
 	for (j = 0, k = offset; j < cache_lines; j++) {
 		ptr = (volatile uint8_t *)mem + k;
-		*ptr = j;
+		*ptr = (uint8_t)j;
 		k = (k + prime_stride) & mask;
 	}
 }
