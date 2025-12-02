@@ -103,7 +103,7 @@ static inline ALWAYS_INLINE int32_t stress_fractal_get_row(stress_args_t *args, 
     !defined(__fiwix__)
 	/*
 	 *  Fast method, inc and modulo. There is an issue where
-	 *  the row eventualy wraps and the next row will be incorrect
+	 *  the row eventually wraps and the next row will be incorrect
 	 *  if max_rows does not divide exactly into row. However, since
 	 *  this is just a compute benchmark, this is a minor issue.
 	 */
