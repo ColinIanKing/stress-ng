@@ -415,7 +415,7 @@ static void stress_filename_generate_random_utf8_like(
 	}
 	filename[i] = '\0';
 	/*
-	 *  occassionally truncate valid utf8 filename to create
+	 *  occasionally truncate valid utf8 filename to create
 	 *  invalid utf8 strings, c.f.:
 	 *  https://sourceware.org/pipermail/cygwin/2024-September/256451.html
 	 */
