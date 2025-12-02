@@ -251,7 +251,7 @@ retry:
 			goto retry;
 		case 6:
 			/* Illegal text segment stack */
-			ret = stress_sigaltstack_no_check((void *)stress_signal_handler, STRESS_SIGSTKSZ);
+			ret = stress_sigaltstack_no_check(stress_signal_handler, STRESS_SIGSTKSZ);
 			if (ret == 0)
 				stress_bad_altstack_force_fault(stack);
 			goto retry;
