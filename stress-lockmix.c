@@ -308,7 +308,7 @@ static int stress_lockmix_contention(
 		len = (stress_mwc16() + 1) & 0xfff;
 		offset = (off_t)stress_mwc64modn((uint64_t)(LOCK_FILE_SIZE - len));
 
-		type_idx = (size_t)stress_mwc16modn(lock_types_max);
+		type_idx = stress_mwcsizemodn(lock_types_max);
 		type = lock_types[type_idx];
 
 		switch (type) {
@@ -486,7 +486,7 @@ redo:
 #endif
 	for (i = 0; i < lock_types_max; i++) {
 		uint8_t tmp;
-		size_t j = (size_t)stress_mwc16modn(lock_types_max);
+		const size_t j = stress_mwcsizemodn(lock_types_max);
 
 		tmp = lock_types[i];
 		lock_types[i] = lock_types[j];
