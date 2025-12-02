@@ -71,12 +71,23 @@ int __dso_handle;
 #define PAGE_4K_SHIFT			(12)
 #define PAGE_4K				(1 << PAGE_4K_SHIFT)
 
-const char ALIGN64 NONSTRING stress_ascii64[64] =
-	"0123456789ABCDEFGHIJKLMNOPQRSTUV"
-	"WXYZabcdefghijklmnopqrstuvwxyz@!";
+const char ALIGN64 stress_ascii64[64] = {
+	'0', '1', '2', '3', '4', '5', '6', '7',
+	'8', '9', 'A', 'B', 'C', 'D', 'E', 'F',
+	'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N',
+	'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V',
+	'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd',
+	'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l',
+	'm', 'n', 'o', 'p', 'q', 'r', 's', 't',
+	'u', 'v', 'w', 'x', 'y', 'z', '@', '!',
+};
 
-const char ALIGN64 NONSTRING stress_ascii32[32] =
-	"ABCDEFGHIJKLMNOPQRSTUVWXYZ_+@:#!";
+const char ALIGN64 stress_ascii32[32] = {
+	'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
+	'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
+	'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X',
+	'Y', 'Z', '_', '+', '@', 'L', '#', '!',
+};
 
 /*
  *  stress_get_processors_online()
