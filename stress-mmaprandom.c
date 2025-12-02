@@ -954,7 +954,7 @@ static inline size_t stress_mmaprandom_get_random_size(
 {
 	size_t n = mmap_size / page_size;
 
-	return page_size * (1 + stress_mwc8modn(n));
+	return page_size * (1 + (size_t)stress_mwc8modn((uint8_t)n));
 }
 
 /*
@@ -1392,7 +1392,7 @@ static void stress_mmaprandom_madvise(mr_ctxt_t *ctxt, const int idx)
 	if (!mr_node)
 		return;
 
-	advice = madvise_options[stress_mwc8modn(madvise_options_elements)];
+	advice = madvise_options[stress_mwcsizemodn(madvise_options_elements)];
 #if defined(MADV_HWPOISON)
 	/* We really don't want to do this */
         if (advice == MADV_HWPOISON)
