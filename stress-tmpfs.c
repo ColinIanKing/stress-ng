@@ -349,7 +349,7 @@ static int stress_tmpfs_child(stress_args_t *args, void *ctxt)
 			}
 		}
 		/*
-		 *  force unmap just incase individual mappings
+		 *  force unmap just in case individual mappings
 		 *  failed, and it's another useful test scenario,
 		 *  e.g. does unmapping again cause kernel issues?
 		 */
