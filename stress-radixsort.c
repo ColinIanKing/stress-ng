@@ -135,10 +135,10 @@ static int radixsort_nonlibc(
 	}
 
 	endchar = (unsigned char)endbyte;
-	max = radix_strlen(base[0], endchar);
+	max = (unsigned short int)radix_strlen(base[0], endchar);
 	lengths[0] = max;
 	for (i = 1; i < nmemb; i++) {
-		const unsigned short int len = radix_strlen(base[i], endchar);
+		const unsigned short int len = (unsigned short int)radix_strlen(base[i], endchar);
 
 		lengths[i] = len;
 		if (len > max)
@@ -146,7 +146,7 @@ static int radixsort_nonlibc(
 	}
 
 	for (digit = max - 1; digit >= 0; digit--)
-		radix_count_sort(nmemb, digit, base, b, lengths, table);
+		radix_count_sort(nmemb, (unsigned short int)digit, base, b, lengths, table);
 
 	free(lengths);
 	free(b);
