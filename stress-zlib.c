@@ -364,42 +364,42 @@ static void stress_rand_data_digits(
 		v = rnd & 0xffff;
 		v10th = div10(v);
 		r = v - mul10(v10th);
-		*(ptr++) = r + '0';
+		*(ptr++) = (uint8_t)(r + '0');
 
 		v = v10th;
 		v10th = div10(v);
 		r = v - mul10(v10th);
-		*(ptr++) = r + '0';
+		*(ptr++) = (uint8_t)(r + '0');
 
 		v = v10th;
 		v10th = div10(v);
 		r = v - mul10(v10th);
-		*(ptr++) = r + '0';
+		*(ptr++) = (uint8_t)(r + '0');
 
 		v = v10th;
 		v10th = div10(v);
 		r = v - mul10(v10th);
-		*(ptr++) = r + '0';
+		*(ptr++) = (uint8_t)(r + '0');
 
 		v = rnd >> 16;
 		v10th = div10(v);
 		r = v - mul10(v10th);
-		*(ptr++) = r + '0';
+		*(ptr++) = (uint8_t)(r + '0');
 
 		v = v10th;
 		v10th = div10(v);
 		r = v - mul10(v10th);
-		*(ptr++) = r + '0';
+		*(ptr++) = (uint8_t)(r + '0');
 
 		v = v10th;
 		v10th = div10(v);
 		r = v - mul10(v10th);
-		*(ptr++) = r + '0';
+		*(ptr++) = (uint8_t)(r + '0');
 
 		v = v10th;
 		v10th = div10(v);
 		r = v - mul10(v10th);
-		*(ptr++) = r + '0';
+		*(ptr++) = (uint8_t)(r + '0');
 	}
 }
 
