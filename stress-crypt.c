@@ -156,9 +156,16 @@ static int stress_crypt(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		static const char seedchars[64] ALIGN64 NONSTRING =
-			"./0123456789ABCDEFGHIJKLMNOPQRST"
-			"UVWXYZabcdefghijklmnopqrstuvwxyz";
+		static const char seedchars[64] ALIGN64 = {
+			'.', '/', '0', '1', '2', '3', '4', '5',
+			'6', '7', '8', '9', 'A', 'B', 'C', 'D',
+			'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L',
+			'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',
+			'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b',
+			'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j',
+			'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r',
+			's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+		};
 #if defined(HAVE_CRYPT_R)
 		char *const phrase = data.input;
 		char *const setting = data.setting;
