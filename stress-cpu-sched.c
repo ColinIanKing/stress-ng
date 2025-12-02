@@ -329,8 +329,8 @@ static void stress_cpu_sched_mix_pids(stress_pid_t *mix_pids, stress_pid_t *orig
 		for (i = 0; i < 3; i++) {
 			for (j = 0; j < n; j++) {
 				stress_pid_t tmp;
+				const size_t k = stress_mwc8modn((uint8_t)n);
 
-				size_t k = stress_mwc8modn(n);
 				tmp = mix_pids[j];
 				mix_pids[j] = mix_pids[k];
 				mix_pids[k] = tmp;
@@ -747,7 +747,7 @@ again:
 				case 6:
 					if (numa_mask) {
 						(void)shim_memset((void *)numa_mask->mask, 0, numa_mask->mask_size);
-						STRESS_SETBIT(numa_mask->mask, (int)stress_mwc16modn(numa_mask->nodes));
+						STRESS_SETBIT(numa_mask->mask, (int)stress_mwc32modn(numa_mask->nodes));
 						mode = mpol_modes[stress_mwc8modn(SIZEOF_ARRAY(mpol_modes))];
 						(void)shim_set_mempolicy(mode, numa_mask->mask, numa_mask->max_nodes);
 					}
