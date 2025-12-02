@@ -77,7 +77,7 @@ static int stress_metamix_file(
 	file_info_t file_info[METAMIX_WRITES];
 	size_t i, n;
 	off_t offset = (metamix_bytes > (off_t)args->page_size) ?
-		(off_t)stress_mwc16modn(metamix_bytes >> 2) : 0;
+		(off_t)stress_mwc16modn((uint16_t)(metamix_bytes >> 2)) : 0;
 	off_t end = (off_t)0;
 	const size_t min_data_len = sizeof(uint32_t);
 	const size_t checksum_len = sizeof(file_info[0].checksum);
@@ -103,7 +103,7 @@ static int stress_metamix_file(
 	(void)shim_memset(file_info, 0, sizeof(file_info));
 
 	for (n = 0; n < METAMIX_WRITES; n++) {
-		const size_t data_len = stress_mwc8modn(max_seek) + min_data_len;
+		const size_t data_len = (size_t)stress_mwc8modn((uint8_t)max_seek) + min_data_len;
 		off_t bytes_left;
 
 		file_info[n].offset = offset;
