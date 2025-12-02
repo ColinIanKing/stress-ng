@@ -766,7 +766,7 @@ PRAGMA_UNROLL_N(8)
 	return EXIT_SUCCESS;
 }
 
-#define int_ops(type, a, b, c1, c2, c3)	\
+#define INT_OPS(type, a, b, c1, c2, c3)	\
 	do {				\
 		a += b;			\
 		b ^= a;			\
@@ -802,7 +802,7 @@ PRAGMA_UNROLL_N(8)
 /*
  *  Generic int stressor macro
  */
-#define stress_cpu_int(type, sz, int_a, int_b, int_c1, int_c2, int_c3)	\
+#define STRESS_CPU_INT(type, sz, int_a, int_b, int_c1, int_c2, int_c3)	\
 static int OPTIMIZE3 TARGET_CLONES stress_cpu_int ## sz(const char *name)\
 {								\
 	const type mask = (type)~(type)0;			\
@@ -819,7 +819,7 @@ static int OPTIMIZE3 TARGET_CLONES stress_cpu_int ## sz(const char *name)\
 	b = (type)stress_mwc32();				\
 								\
 	for (i = 0; i < 1000; i++) {				\
-		int_ops(type, a, b, c1, c2, c3)			\
+		INT_OPS(type, a, b, c1, c2, c3)			\
 	}							\
 								\
 	if ((g_opt_flags & OPT_FLAGS_VERIFY) &&			\
@@ -835,43 +835,43 @@ static int OPTIMIZE3 TARGET_CLONES stress_cpu_int ## sz(const char *name)\
 /* For compilers that support int128 .. */
 #if defined(HAVE_INT128_T)
 
-stress_cpu_int(__uint128_t, 128,
+STRESS_CPU_INT(__uint128_t, 128,
 	STRESS_UINT128(0x132af604d8b9183a,0x5e3af8fa7a663d74),
 	STRESS_UINT128(0x62f086e6160e4e,0xd84c9f800365858),
 	STRESS_UINT128(C1, C1), STRESS_UINT128(C2, C2), STRESS_UINT128(C3, C3))
 #endif
 
-stress_cpu_int(uint64_t, 64, \
+STRESS_CPU_INT(uint64_t, 64, \
 	0x13f7f6dc1d79197cULL, 0x1863d2c6969a51ceULL,
 	C1, C2, C3)
 
-stress_cpu_int(uint32_t, 32, \
+STRESS_CPU_INT(uint32_t, 32, \
 	0x1ce9b547UL, 0xa24b33aUL,
 	C1, C2, C3)
 
-stress_cpu_int(uint16_t, 16, \
+STRESS_CPU_INT(uint16_t, 16, \
 	0x1871, 0x07f0,
 	C1, C2, C3)
 
-stress_cpu_int(uint8_t, 8, \
+STRESS_CPU_INT(uint8_t, 8, \
 	0x12, 0x1a,
 	C1, C2, C3)
 
-#define float_thresh(x, type)	x = (type)		\
+#define FLOAT_THRESH(x, type)	x = (type)		\
 	((shim_fabs((double)x) > 1.0) ?	\
 	((type)(0.1 + (double)x - (double)(long)x)) :	\
 	((type)(x)))
 
-#define float_ops(type, a, b, c, d, f_sin, f_cos)	\
+#define FLOAT_OPS(type, a, b, c, d, f_sin, f_cos)	\
 	do {						\
 		a = a + b;				\
 		b = a * c;				\
 		c = a - b;				\
 		d = a / (type)8.1;			\
-		float_thresh(d, type);			\
+		FLOAT_THRESH(d, type);			\
 		a = c / (type)5.1923;			\
-		float_thresh(a, type);			\
-		float_thresh(c, type);			\
+		FLOAT_THRESH(a, type);			\
+		FLOAT_THRESH(c, type);			\
 		b = c + a;				\
 		c = b * (type)f_sin(b);			\
 		d = d + b + (type)f_sin(a);		\
@@ -888,7 +888,7 @@ stress_cpu_int(uint8_t, 8, \
 /*
  *  Generic floating point stressor macro
  */
-#define stress_cpu_fp(type, fp_name, f_sin, f_cos)	\
+#define STRESS_CPU_FP(type, fp_name, f_sin, f_cos)	\
 static int OPTIMIZE3 TARGET_CLONES stress_cpu_ ## fp_name(const char *name)\
 {							\
 	int i;						\
@@ -903,7 +903,7 @@ static int OPTIMIZE3 TARGET_CLONES stress_cpu_ ## fp_name(const char *name)\
 	(void)name;					\
 							\
 	for (i = 0; i < 1000; i++) {			\
-		float_ops(type, a, b, c, d,		\
+		FLOAT_OPS(type, a, b, c, d,		\
 			f_sin, f_cos);			\
 	}						\
 	r = a + b + c + d;				\
@@ -911,43 +911,43 @@ static int OPTIMIZE3 TARGET_CLONES stress_cpu_ ## fp_name(const char *name)\
 	return EXIT_SUCCESS;				\
 }
 
-stress_cpu_fp(float, float, shim_sinf, shim_cosf)
-stress_cpu_fp(double, double, shim_sin, shim_cos)
-stress_cpu_fp(long double, longdouble, shim_sinl, shim_cosl)
+STRESS_CPU_FP(float, float, shim_sinf, shim_cosf)
+STRESS_CPU_FP(double, double, shim_sin, shim_cos)
+STRESS_CPU_FP(long double, longdouble, shim_sinl, shim_cosl)
 #if defined(HAVE_Decimal32) &&	\
     !defined(HAVE_COMPILER_CLANG)
-stress_cpu_fp(_Decimal32, decimal32, shim_sinf, shim_cosf)
+STRESS_CPU_FP(_Decimal32, decimal32, shim_sinf, shim_cosf)
 #endif
 #if defined(HAVE_Decimal64) &&	\
     !defined(HAVE_COMPILER_CLANG)
-stress_cpu_fp(_Decimal64, decimal64, shim_sin, shim_cos)
+STRESS_CPU_FP(_Decimal64, decimal64, shim_sin, shim_cos)
 #endif
 #if defined(HAVE_Decimal128) &&	\
     !defined(HAVE_COMPILER_CLANG)
-stress_cpu_fp(_Decimal128, decimal128, shim_sinl, shim_cosl)
+STRESS_CPU_FP(_Decimal128, decimal128, shim_sinl, shim_cosl)
 #endif
 #if defined(HAVE_fp16) &&	\
     !defined(HAVE_COMPILER_CLANG)
-stress_cpu_fp(__fp16, float16, shim_sin, shim_cos)
+STRESS_CPU_FP(__fp16, float16, shim_sin, shim_cos)
 #endif
 #if defined(HAVE_Float32) &&	\
     !defined(HAVE_COMPILER_CLANG)
-stress_cpu_fp(_Float32, float32, shim_sin, shim_cos)
+STRESS_CPU_FP(_Float32, float32, shim_sin, shim_cos)
 #endif
 #if defined(HAVE_Float64) &&	\
     !defined(HAVE_COMPILER_CLANG)
-stress_cpu_fp(_Float64, float64, shim_sin, shim_cos)
+STRESS_CPU_FP(_Float64, float64, shim_sin, shim_cos)
 #endif
 #if defined(HAVE__float80) &&	\
     !defined(HAVE_COMPILER_CLANG)
-stress_cpu_fp(__float80, float80, shim_sinl, shim_cosl)
+STRESS_CPU_FP(__float80, float80, shim_sinl, shim_cosl)
 #endif
 #if defined(HAVE__float128) &&	\
     !defined(HAVE_COMPILER_CLANG)
-stress_cpu_fp(__float128, float128, shim_sinl, shim_cosl)
+STRESS_CPU_FP(__float128, float128, shim_sinl, shim_cosl)
 #elif defined(HAVE_Float128) &&	\
     !defined(HAVE_COMPILER_CLANG)
-stress_cpu_fp(_Float128, float128, shim_sinl, shim_cosl)
+STRESS_CPU_FP(_Float128, float128, shim_sinl, shim_cosl)
 #endif
 
 /* Append floating point literal specifier to literal value */
@@ -976,7 +976,7 @@ static inline void stress_cpu_complex_long_double_put(complex long double v)
 /*
  *  Generic complex stressor macro
  */
-#define stress_cpu_complex(type, ltype, c_name, f_csin, f_ccos, f_put)	\
+#define STRESS_CPU_COMPLEX(type, ltype, c_name, f_csin, f_ccos, f_put)	\
 static int OPTIMIZE3 TARGET_CLONES stress_cpu_ ## c_name(const char *name) \
 {								\
 	int i;							\
@@ -993,19 +993,19 @@ static int OPTIMIZE3 TARGET_CLONES stress_cpu_ ## c_name(const char *name) \
 	(void)name;						\
 								\
 	for (i = 0; i < 1000; i++) {				\
-		float_ops(type, a, b, c, d, f_csin, f_ccos);	\
+		FLOAT_OPS(type, a, b, c, d, f_csin, f_ccos);	\
 	}							\
 	r = a + b + c + d;					\
 	f_put(r);						\
 	return EXIT_SUCCESS;					\
 }
 
-stress_cpu_complex(complex float, f, complex_float, shim_csinf, shim_ccosf, stress_cpu_complex_float_put)
-stress_cpu_complex(complex double, , complex_double, shim_csin, shim_ccos, stress_cpu_complex_double_put)
-stress_cpu_complex(complex long double, l, complex_long_double, shim_csinl, shim_ccosl, stress_cpu_complex_long_double_put)
+STRESS_CPU_COMPLEX(complex float, f, complex_float, shim_csinf, shim_ccosf, stress_cpu_complex_float_put)
+STRESS_CPU_COMPLEX(complex double, , complex_double, shim_csin, shim_ccos, stress_cpu_complex_double_put)
+STRESS_CPU_COMPLEX(complex long double, l, complex_long_double, shim_csinl, shim_ccosl, stress_cpu_complex_long_double_put)
 #endif
 
-#define int_float_ops(ftype, flt_a, flt_b, flt_c, flt_d,	\
+#define INT_FLOAT_OPS(ftype, flt_a, flt_b, flt_c, flt_d,	\
 	f_sin, f_cos, inttype, int_a, int_b, 			\
 	int_c1, int_c2, int_c3)					\
 								\
@@ -1056,7 +1056,7 @@ stress_cpu_complex(complex long double, l, complex_long_double, shim_csinl, shim
 /*
  *  Generic integer and floating point stressor macro
  */
-#define stress_cpu_int_fp(inttype, sz, ftype, fp_name, 		\
+#define STRESS_CPU_INT_FP(inttype, sz, ftype, fp_name, 		\
 	int_a, int_b, int_c1, int_c2, int_c3, f_sinf, f_cosf)	\
 static int OPTIMIZE3 TARGET_CLONES stress_cpu_int ## sz ## _ ## fp_name(const char *name)\
 {								\
@@ -1081,7 +1081,7 @@ static int OPTIMIZE3 TARGET_CLONES stress_cpu_int ## sz ## _ ## fp_name(const ch
 	b = stress_mwc32();					\
 								\
 	for (i = 0; i < 1000; i++) {				\
-		int_float_ops(ftype, flt_a, flt_b, flt_c, 	\
+		INT_FLOAT_OPS(ftype, flt_a, flt_b, flt_c, 	\
 			flt_d,f_sinf, f_cosf, inttype,		\
 			a, b, c1, c2, c3);			\
 	}							\
@@ -1098,44 +1098,44 @@ static int OPTIMIZE3 TARGET_CLONES stress_cpu_int ## sz ## _ ## fp_name(const ch
 	return EXIT_SUCCESS;					\
 }
 
-stress_cpu_int_fp(uint32_t, 32, float, float,
+STRESS_CPU_INT_FP(uint32_t, 32, float, float,
 	0x1ce9b547UL, 0xa24b33aUL,
 	C1, C2, C3, shim_sinf, shim_cosf)
-stress_cpu_int_fp(uint32_t, 32, double, double,
+STRESS_CPU_INT_FP(uint32_t, 32, double, double,
 	0x1ce9b547UL, 0xa24b33aUL,
 	C1, C2, C3, shim_sin, shim_cos)
-stress_cpu_int_fp(uint32_t, 32, long double, longdouble,
+STRESS_CPU_INT_FP(uint32_t, 32, long double, longdouble,
 	0x1ce9b547UL, 0xa24b33aUL,
 	C1, C2, C3, shim_sinl, shim_cosl)
-stress_cpu_int_fp(uint64_t, 64, float, float,
+STRESS_CPU_INT_FP(uint64_t, 64, float, float,
 	0x13f7f6dc1d79197cULL, 0x1863d2c6969a51ceULL,
 	C1, C2, C3, shim_sinf, shim_cosf)
-stress_cpu_int_fp(uint64_t, 64, double, double,
+STRESS_CPU_INT_FP(uint64_t, 64, double, double,
 	0x13f7f6dc1d79197cULL, 0x1863d2c6969a51ceULL,
 	C1, C2, C3, shim_sin, shim_cos)
-stress_cpu_int_fp(uint64_t, 64, long double, longdouble,
+STRESS_CPU_INT_FP(uint64_t, 64, long double, longdouble,
 	0x13f7f6dc1d79197cULL, 0x1863d2c6969a51ceULL,
 	C1, C2, C3, shim_sinl, shim_cosl)
 
 #if defined(HAVE_INT128_T)
-stress_cpu_int_fp(__uint128_t, 128, float, float,
+STRESS_CPU_INT_FP(__uint128_t, 128, float, float,
 	STRESS_UINT128(0x132af604d8b9183a,0x5e3af8fa7a663d74),
 	STRESS_UINT128(0x0062f086e6160e4e,0x0d84c9f800365858),
 	STRESS_UINT128(C1, C1), STRESS_UINT128(C2, C2), STRESS_UINT128(C3, C3),
 	shim_sinf, shim_cosf)
-stress_cpu_int_fp(__uint128_t, 128, double, double,
+STRESS_CPU_INT_FP(__uint128_t, 128, double, double,
 	STRESS_UINT128(0x132af604d8b9183a,0x5e3af8fa7a663d74),
 	STRESS_UINT128(0x0062f086e6160e4e,0x0d84c9f800365858),
 	STRESS_UINT128(C1, C1), STRESS_UINT128(C2, C2), STRESS_UINT128(C3, C3),
 	shim_sin, shim_cos)
-stress_cpu_int_fp(__uint128_t, 128, long double, longdouble,
+STRESS_CPU_INT_FP(__uint128_t, 128, long double, longdouble,
 	STRESS_UINT128(0x132af604d8b9183a,0x5e3af8fa7a663d74),
 	STRESS_UINT128(0x0062f086e6160e4e,0x0d84c9f800365858),
 	STRESS_UINT128(C1, C1), STRESS_UINT128(C2, C2), STRESS_UINT128(C3, C3),
 	shim_sinl, shim_cosl)
 #if defined(HAVE_Decimal32) &&	\
     !defined(HAVE_COMPILER_CLANG)
-stress_cpu_int_fp(__uint128_t, 128, _Decimal32, decimal32,
+STRESS_CPU_INT_FP(__uint128_t, 128, _Decimal32, decimal32,
 	STRESS_UINT128(0x132af604d8b9183a,0x5e3af8fa7a663d74),
 	STRESS_UINT128(0x0062f086e6160e4e,0x0d84c9f800365858),
 	STRESS_UINT128(C1, C1), STRESS_UINT128(C2, C2), STRESS_UINT128(C3, C3),
@@ -1143,7 +1143,7 @@ stress_cpu_int_fp(__uint128_t, 128, _Decimal32, decimal32,
 #endif
 #if defined(HAVE_Decimal64) &&	\
     !defined(HAVE_COMPILER_CLANG)
-stress_cpu_int_fp(__uint128_t, 128, _Decimal64, decimal64,
+STRESS_CPU_INT_FP(__uint128_t, 128, _Decimal64, decimal64,
 	STRESS_UINT128(0x132af604d8b9183a,0x5e3af8fa7a663d74),
 	STRESS_UINT128(0x0062f086e6160e4e,0x0d84c9f800365858),
 	STRESS_UINT128(C1, C1), STRESS_UINT128(C2, C2), STRESS_UINT128(C3, C3),
@@ -1151,7 +1151,7 @@ stress_cpu_int_fp(__uint128_t, 128, _Decimal64, decimal64,
 #endif
 #if defined(HAVE_Decimal128) &&	\
     !defined(HAVE_COMPILER_CLANG)
-stress_cpu_int_fp(__uint128_t, 128, _Decimal128, decimal128,
+STRESS_CPU_INT_FP(__uint128_t, 128, _Decimal128, decimal128,
 	STRESS_UINT128(0x132af604d8b9183a,0x5e3af8fa7a663d74),
 	STRESS_UINT128(0x0062f086e6160e4e,0x0d84c9f800365858),
 	STRESS_UINT128(C1, C1), STRESS_UINT128(C2, C2), STRESS_UINT128(C3, C3),
