@@ -747,7 +747,7 @@ again:
 				case 6:
 					if (numa_mask) {
 						(void)shim_memset((void *)numa_mask->mask, 0, numa_mask->mask_size);
-						STRESS_SETBIT(numa_mask->mask, (int)stress_mwc32modn(numa_mask->nodes));
+						STRESS_SETBIT(numa_mask->mask, (int)stress_mwc64modn(numa_mask->nodes));
 						mode = mpol_modes[stress_mwc8modn(SIZEOF_ARRAY(mpol_modes))];
 						(void)shim_set_mempolicy(mode, numa_mask->mask, numa_mask->max_nodes);
 					}
