@@ -31,7 +31,10 @@
 #define TARGET_CLONES
 #endif
 
+/*
+#define VERY_SMALL	(0)
 #define VERY_WIDE	(0)
+*/
 
 static const stress_help_t help[] = {
 	{ NULL,	"vecwide N",	 "start N workers performing vector math ops" },
@@ -44,7 +47,7 @@ static const stress_help_t help[] = {
 /*
  *  8 bit vectors, named by int8wN where N = number of bits width
  */
-#if VERY_WIDE
+#if defined(VERY_WIDE)
 typedef int8_t stress_vint8w8192_t	__attribute__ ((vector_size(8192 / 8)));
 typedef int8_t stress_vint8w4096_t	__attribute__ ((vector_size(4096 / 8)));
 #endif
@@ -55,11 +58,11 @@ typedef int8_t stress_vint8w256_t	__attribute__ ((vector_size(256 / 8)));
 typedef int8_t stress_vint8w128_t	__attribute__ ((vector_size(128 / 8)));
 typedef int8_t stress_vint8w64_t	__attribute__ ((vector_size(64 / 8)));
 typedef int8_t stress_vint8w32_t	__attribute__ ((vector_size(32 / 8)));
-#if VERY_SMALL
+#if defined(VERY_SMALL)
 typedef int8_t stress_vint8w16_t	__attribute__ ((vector_size(16 / 8)));
 #endif
 
-#if VERY_WIDE
+#if defined(VERY_WIDE)
 #define VEC_MAX_SZ	sizeof(stress_vint8w8192_t)
 #else
 #define VEC_MAX_SZ	sizeof(stress_vint8w2048_t)
@@ -124,7 +127,7 @@ PRAGMA_UNROLL							\
 	}							\
 }
 
-#if VERY_WIDE
+#if defined(VERY_WIDE)
 STRESS_VECWIDE(stress_vecwide_8192, stress_vint8w8192_t)
 STRESS_VECWIDE(stress_vecwide_4096, stress_vint8w4096_t)
 #endif
@@ -135,12 +138,12 @@ STRESS_VECWIDE(stress_vecwide_256, stress_vint8w256_t)
 STRESS_VECWIDE(stress_vecwide_128, stress_vint8w128_t)
 STRESS_VECWIDE(stress_vecwide_64, stress_vint8w64_t)
 STRESS_VECWIDE(stress_vecwide_32, stress_vint8w32_t)
-#if VERY_SMALL
+#if defined(VERY_SMALL)
 STRESS_VECWIDE(stress_vecwide_16, stress_vint8w16_t)
 #endif
 
 static const stress_vecwide_funcs_t stress_vecwide_funcs[] = {
-#if VERY_WIDE
+#if defined(VERY_WIDE)
 	{ stress_vecwide_8192, sizeof(stress_vint8w8192_t) },
 	{ stress_vecwide_4096, sizeof(stress_vint8w4096_t) },
 #endif
@@ -151,7 +154,7 @@ static const stress_vecwide_funcs_t stress_vecwide_funcs[] = {
 	{ stress_vecwide_128,  sizeof(stress_vint8w128_t)  },
 	{ stress_vecwide_64,   sizeof(stress_vint8w64_t)   },
 	{ stress_vecwide_32,   sizeof(stress_vint8w32_t)   },
-#if VERY_SMALL
+#if defined(VERY_SMALL)
 	{ stress_vecwide_16,   sizeof(stress_vint8w16_t)   },
 #endif
 };
