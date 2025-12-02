@@ -116,10 +116,10 @@ static void OPTIMIZE3 stress_x86cpuid_reorder_regs(const size_t n, stress_cpuid_
 	register size_t i;
 
 	for (i = 0; i < n; i++)
-		idx[i] = i;
+		idx[i] = (uint8_t)i;
 
 	for (i = 0; i < n; i++) {
-		register const size_t j = stress_mwc8modn((uint8_t)n);
+		register const size_t j = stress_mwcsizemodn(n);
 		register uint8_t tmp;
 
 		tmp = idx[i];
