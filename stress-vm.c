@@ -429,7 +429,7 @@ static size_t TARGET_CLONES stress_vm_modulo_x(
 
 	stress_mwc_reseed();
 	pattern = stress_mwc8();
-	compliment = ~pattern;
+	compliment = (uint8_t)~pattern;
 
 	for (i = 0; i < stride; i++) {
 		for (ptr = (uint8_t *)buf + i; ptr < (uint8_t *)buf_end; ptr += stride) {
@@ -585,7 +585,7 @@ static size_t TARGET_CLONES stress_vm_walking_one_addr(
 	const uint64_t max_ops)
 {
 	register uint8_t *ptr;
-	uint8_t d1 = 0, d2 = ~d1;
+	uint8_t d1 = 0, d2 = (uint8_t)~d1;
 	size_t bit_errors = 0;
 	register uint64_t c = stress_bogo_get(args);
 
@@ -634,7 +634,7 @@ static size_t TARGET_CLONES stress_vm_walking_zero_addr(
 	const uint64_t max_ops)
 {
 	register uint8_t *ptr;
-	uint8_t d1 = 0, d2 = ~d1;
+	uint8_t d1 = 0, d2 = (uint8_t)~d1;
 	size_t bit_errors = 0;
 	uint64_t sz_mask;
 	register uint64_t c = stress_bogo_get(args);
@@ -865,7 +865,7 @@ static size_t TARGET_CLONES stress_vm_grayflip(
 		*ptr++ = gray;
 		stress_asm_mb();
 
-		gray = ~gray;
+		gray = (uint8_t)~gray;
 		*ptr++ = gray;
 		stress_asm_mb();
 
@@ -873,7 +873,7 @@ static size_t TARGET_CLONES stress_vm_grayflip(
 		*ptr++ = gray;
 		stress_asm_mb();
 
-		gray = ~gray;
+		gray = (uint8_t)~gray;
 		*ptr++ = gray;
 	}
 	(void)stress_mincore_touch_pages(buf, sz);
@@ -888,13 +888,13 @@ static size_t TARGET_CLONES stress_vm_grayflip(
 		gray = (v >> 1) ^ v;
 		if (UNLIKELY(*(ptr++) != gray))
 			bit_errors++;
-		gray = ~gray;
+		gray = (uint8_t)~gray;
 		if (UNLIKELY(*(ptr++) != gray))
 			bit_errors++;
 		gray = (v >> 1) ^ v;
 		if (UNLIKELY(*(ptr++) != gray))
 			bit_errors++;
-		gray = ~gray;
+		gray = (uint8_t)~gray;
 		if (UNLIKELY(*(ptr++) != gray))
 			bit_errors++;
 		c += 4;
