@@ -20,6 +20,7 @@
 #include "core-madvise.h"
 #include "core-mmap.h"
 #include "core-sort.h"
+#include "core-target-clones.h"
 
 #define MIN_INSERTIONSORT_SIZE		(1 * KB)
 #define MAX_INSERTIONSORT_SIZE		(4 * MB)
@@ -37,7 +38,7 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
-static uint64_t OPTIMIZE3 insertionsort_fwd(int32_t *base, size_t nmemb)
+static uint64_t OPTIMIZE3 TARGET_CLONES insertionsort_fwd(int32_t *base, size_t nmemb)
 {
 	register size_t i;
 	register uint64_t compares = 0;
@@ -56,7 +57,7 @@ static uint64_t OPTIMIZE3 insertionsort_fwd(int32_t *base, size_t nmemb)
 	return compares;
 }
 
-static uint64_t OPTIMIZE3 insertionsort_rev(int32_t *base, size_t nmemb)
+static uint64_t OPTIMIZE3 TARGET_CLONES insertionsort_rev(int32_t *base, size_t nmemb)
 {
 	register size_t i;
 	register uint64_t compares = 0;
