@@ -479,7 +479,7 @@ void stress_set_proc_name(const char *name)
 	if (UNLIKELY(!name))
 		return;
 	(void)snprintf(long_name, sizeof(long_name), "%s-%s",
-			g_app_name, name);
+			g_prog_name, name);
 	stress_set_proc_name_raw(long_name);
 }
 
@@ -500,7 +500,7 @@ void stress_set_proc_state_str(const char *name, const char *str)
 	if (UNLIKELY(!name))
 		return;
 	(void)snprintf(long_name, sizeof(long_name), "%s-%s",
-			g_app_name, name);
+			g_prog_name, name);
 	stress_set_proc_name_raw(long_name);
 }
 
@@ -757,10 +757,10 @@ void stress_runinfo(void)
 
 	if (sizeof(STRESS_GIT_COMMIT_ID) > 1) {
 		pr_dbg("%s %s g%12.12s\n",
-			g_app_name, VERSION, STRESS_GIT_COMMIT_ID);
+			g_prog_name, VERSION, STRESS_GIT_COMMIT_ID);
 	} else {
 		pr_dbg("%s %s\n",
-			g_app_name, VERSION);
+			g_prog_name, VERSION);
 	}
 
 #if defined(HAVE_UNAME) &&	\

@@ -725,7 +725,7 @@ typedef struct stress {
 extern stress_stressor_t *g_stressor_current;
 
 /* Various global option settings and flags */
-extern const char g_app_name[];		/* Name of application */
+extern const char g_prog_name[];	/* Name of programme */
 extern stress_shared_t *g_shared;	/* shared memory */
 extern uint64_t	g_opt_timeout;		/* timeout in seconds */
 extern uint64_t	g_opt_flags;		/* option flags */

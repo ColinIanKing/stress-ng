@@ -131,7 +131,7 @@ uint64_t g_opt_flags = OPT_FLAGS_MMAP_MADVISE;	/* enable madvise by default */
 uint32_t g_pr_log_flags = PR_LOG_FLAGS_ERROR |	/* default pr_log flags */
 		          PR_LOG_FLAGS_INFO;
 volatile bool g_stress_continue_flag = true;	/* false to exit stressor */
-const char g_app_name[] = "stress-ng";		/* Name of application */
+const char g_prog_name[] = "stress-ng";		/* Name of programme*/
 stress_shared_t *g_shared;			/* shared memory */
 jmp_buf g_error_env;				/* parsing error env */
 stress_put_val_t g_put_val;			/* sync data to somewhere */
@@ -720,7 +720,7 @@ static void MLOCKED_TEXT stress_stats_handler(int signum)
 #endif
 	*hdr = '\0';
 	ret = snprintf(buffer, sizeof(buffer), "%s: info:  [%" PRIdMAX "] ",
-		g_app_name, (intmax_t)getpid());
+		g_prog_name, (intmax_t)getpid());
 	if (ret > 0) {
 		hdr += ret;
 		len += ret;
@@ -803,7 +803,7 @@ static int stress_set_handler(const char *stress, const bool child)
 static void stress_version(void)
 {
 	(void)printf("%s, version " VERSION " (%s, %s)%s\n",
-		g_app_name, stress_get_compiler(), stress_get_uname_info(),
+		g_prog_name, stress_get_compiler(), stress_get_uname_info(),
 		stress_is_dev_tty(STDOUT_FILENO) ? "" : " \U0001F4BB\U0001F525");
 }
 
@@ -919,7 +919,7 @@ static inline void stress_show_stressor_names(void)
 static void NORETURN stress_usage(void)
 {
 	stress_version();
-	(void)printf("\nUsage: %s [OPTION [ARG]]\n", g_app_name);
+	(void)printf("\nUsage: %s [OPTION [ARG]]\n", g_prog_name);
 	(void)printf("\nGeneral control options:\n");
 	stress_usage_help(help_generic);
 	(void)printf("\nStressor specific options:\n");
@@ -927,7 +927,7 @@ static void NORETURN stress_usage(void)
 	(void)printf("\nExample: %s --cpu 8 --iomix 4 --vm 2 --vm-bytes 128M "
 		"--fork 4 --timeout 10s\n\n"
 		"Note: sizes can be suffixed with B, K, M, G and times with "
-		"s, m, h, d, y\n", g_app_name);
+		"s, m, h, d, y\n", g_prog_name);
 	stress_settings_free();
 	exit(EXIT_SUCCESS);
 }
@@ -1282,7 +1282,7 @@ static void MLOCKED_TEXT stress_handle_terminate(int signum)
 		 *  Critical failure, report and die ASAP
 		 */
 		(void)snprintf(buf, sizeof(buf), "%s: info:  [%" PRIdMAX "] stressor terminated with unexpected %s\n",
-			g_app_name, (intmax_t)getpid(), stress_strsignal(signum));
+			g_prog_name, (intmax_t)getpid(), stress_strsignal(signum));
 		VOID_RET(ssize_t, write(fd, buf, strlen(buf)));
 		if (signum == SIGABRT)
 			stress_backtrace();
@@ -3369,7 +3369,7 @@ next_opt:
 			break;
 		case OPT_query:
 			if (!jobmode)
-				(void)printf("Try '%s --help' or 'man stress-ng' for more information.\n", g_app_name);
+				(void)printf("Try '%s --help' or 'man stress-ng' for more information.\n", g_prog_name);
 			return EXIT_FAILURE;
 		case OPT_quiet:
 			g_pr_log_flags &= ~(PR_LOG_FLAGS_ALL);

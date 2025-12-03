@@ -563,12 +563,12 @@ int stress_temp_filename(
 
 	(void)snprintf(directoryname, sizeof(directoryname),
 		"tmp-%s-%s-%d-%" PRIu32,
-		g_app_name, name, (int)pid, instance);
+		g_prog_name, name, (int)pid, instance);
 	stress_temp_hash_truncate(directoryname);
 
 	(void)snprintf(filename, sizeof(filename),
 		"%s-%s-%d-%" PRIu32 "-%" PRIu64,
-		g_app_name, name, (int)pid, instance, magic);
+		g_prog_name, name, (int)pid, instance, magic);
 	stress_temp_hash_truncate(filename);
 
 	return snprintf(path, len, "%s/%s/%s",
@@ -605,7 +605,7 @@ int stress_temp_dir(
 
 	(void)snprintf(directoryname, sizeof(directoryname),
 		"tmp-%s-%s-%d-%" PRIu32,
-		g_app_name, name, (int)pid, instance);
+		g_prog_name, name, (int)pid, instance);
 	stress_temp_hash_truncate(directoryname);
 
 	l = snprintf(path, len, "%s/%s",

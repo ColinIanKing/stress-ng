@@ -277,7 +277,7 @@ static int pr_msg(
 			pr_log_write(buf, n);
 		} else {
 			const size_t n = (size_t)snprintf(buf, sizeof(buf), "%s: %s%s [%" PRIdMAX "] ",
-				g_app_name, ts, type, (intmax_t)pid);
+				g_prog_name, ts, type, (intmax_t)pid);
 			size_t len;
 
 			ret = vsnprintf(buf + n, sizeof(buf) - n, fmt, ap);
@@ -296,7 +296,7 @@ static int pr_msg(
 
 					(void)snprintf(buf, sizeof(buf), "%s: %s%s [%" PRIdMAX "] "
 						"info: %d failures reached, aborting stress process\n",
-						g_app_name, ts, type, (intmax_t)pid, ABORT_FAILURES);
+						g_prog_name, ts, type, (intmax_t)pid, ABORT_FAILURES);
 					len = strlen(buf);
 					pr_log_write(buf, len);
 				}
