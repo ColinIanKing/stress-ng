@@ -210,6 +210,13 @@ To perform a cross-compilation for QNX 8, for example, an aarch64 QNX cross buil
     CC=aarch64-unknown-nto-qnx8.0.0-gcc CXX=aarch64-unknown-nto-qnx8.0.0-g++ make
 ```
 
+To use clang-scan for static analysis (e.g. using clang-21):
+```
+    make clean
+    CC=clang-21 make -f Makefile.config -j $(nproc)
+    CC=scan-build-21 make
+```
+
 To generate a PDF version of the manual (requires ps2pdf to be installed)
 ```
     make pdf
