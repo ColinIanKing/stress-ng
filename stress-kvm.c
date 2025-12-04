@@ -466,7 +466,7 @@ tidy_mmio_mmap:
 		kvm_mem.memory_size = 0;
 		kvm_mem.userspace_addr = (uintptr_t)mmio_mem;
 		kvm_mem.flags = 0;
-		ret = ioctl(vm_fd, KVM_SET_USER_MEMORY_REGION, &kvm_mem);
+		VOID_RET(int, ioctl(vm_fd, KVM_SET_USER_MEMORY_REGION, &kvm_mem));
 
 		(void)munmap((void *)mmio_mem, args->page_size);
 #endif
@@ -477,7 +477,7 @@ tidy_vm_mmap:
 		kvm_mem.memory_size = vm_mem_size;
 		kvm_mem.userspace_addr = (uintptr_t)vm_mem;
 		kvm_mem.flags = 0;
-		ret = ioctl(vm_fd, KVM_SET_USER_MEMORY_REGION, &kvm_mem);
+		VOID_RET(int, ioctl(vm_fd, KVM_SET_USER_MEMORY_REGION, &kvm_mem));
 
 		(void)munmap((void *)vm_mem, vm_mem_size);
 tidy_vm_fd:
