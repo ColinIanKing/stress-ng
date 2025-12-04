@@ -230,7 +230,7 @@ static int OPTIMIZE_GOTO stress_goto(stress_args_t *args)
 	static uint64_t ALIGN64 counters[MAX_LABELS >> 6];
 	static const void ALIGN64 *labels_forward[MAX_LABELS];
 	static const void ALIGN64 *labels_backward[MAX_LABELS];
-	const void **labels = labels_forward;
+	const void **labels;
 
 	for (i = 0; i < MAX_LABELS; i++) {
 		labels_forward[i] = default_labels[(i + 1) % MAX_LABELS];
