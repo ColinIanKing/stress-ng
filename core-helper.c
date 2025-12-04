@@ -399,7 +399,7 @@ void stress_set_proc_name_scramble(void)
 
 	rnd1 = (uint64_t)getpid();
 	rnd2 = (uint64_t)((double)rnd1 * now);
-	rnd2 = shim_ror64n(rnd1, rnd1 & 0x63);
+	rnd2 = shim_ror64n(rnd2, rnd1 & 0x63);
 
 	/* generate scrambled bit patterns via hashing */
 	a = stress_hash_murmur3_32((uint8_t *)&now, sizeof(now), (uint32_t)rnd2);
