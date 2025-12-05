@@ -1096,7 +1096,7 @@ static int stress_prctl_child(
 
 #if defined(PR_GET_SHADOW_STACK_STATUS)
 	{
-		unsigned long mode;
+		unsigned long int mode;
 		int ret;
 
 		ret = prctl(PR_GET_SHADOW_STACK_STATUS, &mode, 0, 0, 0);
