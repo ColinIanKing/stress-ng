@@ -327,7 +327,7 @@ static int stress_numa(stress_args_t *args)
 		long int lret;
 		unsigned long int i;
 		uint8_t *ptr;
-		unsigned cpu, curr_node;
+		unsigned int cpu, curr_node;
 		struct shim_getcpu_cache cache;
 
 		(void)shim_memset(numa_mask->mask, 0x00, numa_mask->mask_size);
