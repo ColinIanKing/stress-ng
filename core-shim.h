@@ -581,7 +581,7 @@ extern int shim_get_mempolicy(int *mode, unsigned long int *nodemask,
 extern int shim_set_mempolicy(int mode, unsigned long int *nodemask,
 	unsigned long int maxnode);
 extern long int shim_mbind(void *addr, unsigned long int len, int mode,
-	const unsigned long int *nodemask, unsigned long int maxnode, unsigned flags);
+	const unsigned long int *nodemask, unsigned long int maxnode, unsigned int flags);
 extern long int shim_migrate_pages(int pid, unsigned long int maxnode,
 	const unsigned long int *old_nodes, const unsigned long int *new_nodes);
 extern long int shim_move_pages(int pid, unsigned long int count, void **pages,
