@@ -245,11 +245,11 @@ static void stress_check_numa_range(
 {
 	if (node >= max_node) {
 		if (max_node > 1) {
-			(void)fprintf(stderr, "%s: invalid range, %lu is not allowed, "
-				"allowed range: 0 to %lu\n", option,
+			(void)fprintf(stderr, "%s: invalid range, %ld is not allowed, "
+				"allowed range: 0 to %ld\n", option,
 				node, max_node - 1);
 		} else {
-			(void)fprintf(stderr, "%s: invalid range, %lu is not allowed, "
+			(void)fprintf(stderr, "%s: invalid range, %ld is not allowed, "
 				"allowed range: 0\n", option, node);
 		}
 		_exit(EXIT_FAILURE);
