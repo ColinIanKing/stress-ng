@@ -2118,7 +2118,7 @@ static int syscall_futimesat(void)
 #define HAVE_SYSCALL_GETCPU
 static int syscall_getcpu(void)
 {
-	unsigned cpu, node;
+	unsigned int cpu, node;
 	long int ret;
 
 	t1 = syscall_time_now();
