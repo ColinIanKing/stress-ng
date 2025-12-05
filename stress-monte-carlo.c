@@ -253,7 +253,7 @@ static inline ALWAYS_INLINE OPTIMIZE3 uint32_t stress_mc_rotr32(uint32_t x, unsi
 static double OPTIMIZE3 stress_mc_pcg32_rand(void)
 {
 	register uint64_t x = stress_mc_pcg32_state;
-	register const unsigned count = (unsigned)(x >> 59);
+	register const unsigned int count = (unsigned)(x >> 59);
 	register const double scale_u32 = 1.0 / (double)0xffffffff;
 
 	static uint64_t const multiplier = 6364136223846793005u;
