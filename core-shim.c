@@ -677,7 +677,7 @@ long int shim_mbind(
 	int mode,
 	const unsigned long int *nodemask,
 	unsigned long int maxnode,
-	unsigned flags)
+	unsigned int flags)
 {
 #if defined(__NR_mbind) &&	\
     defined(HAVE_SYSCALL)
