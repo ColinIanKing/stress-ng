@@ -93,22 +93,22 @@ typedef struct {
  * io uring submission queue info
  */
 typedef struct {
-	unsigned *head;
-	unsigned *tail;
-	unsigned *ring_mask;
-	unsigned *ring_entries;
-	unsigned *flags;
-	unsigned *array;
+	unsigned int *head;
+	unsigned int *tail;
+	unsigned int *ring_mask;
+	unsigned int *ring_entries;
+	unsigned int *flags;
+	unsigned int *array;
 } stress_uring_io_sq_ring_t;
 
 /*
  * io uring completion queue info
  */
 typedef struct {
-	unsigned *head;
-	unsigned *tail;
-	unsigned *ring_mask;
-	unsigned *ring_entries;
+	unsigned int *head;
+	unsigned int *tail;
+	unsigned int *ring_mask;
+	unsigned int *ring_entries;
 	struct io_uring_cqe *cqes;
 } stress_uring_io_cq_ring_t;
 
@@ -153,7 +153,7 @@ static const char *stress_io_uring_opcode_name(const uint8_t opcode);
  *  shim_io_uring_setup
  *	wrapper for io_uring_setup()
  */
-static inline int shim_io_uring_setup(unsigned entries, struct io_uring_params *p)
+static inline int shim_io_uring_setup(unsigned int entries, struct io_uring_params *p)
 {
 	return (int)syscall(__NR_io_uring_setup, entries, p);
 }
@@ -250,7 +250,7 @@ static int stress_setup_io_uring(
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
-	submit->sq_size = p.sq_off.array + p.sq_entries * sizeof(unsigned);
+	submit->sq_size = p.sq_off.array + p.sq_entries * sizeof(unsigned int);
 	submit->cq_size = p.cq_off.cqes + p.cq_entries * sizeof(struct io_uring_cqe);
 	if (p.features & IORING_FEAT_SINGLE_MMAP) {
 		if (submit->cq_size > submit->sq_size)
@@ -354,7 +354,7 @@ static inline int stress_io_uring_complete(
 {
 	stress_uring_io_cq_ring_t *cring = &submit->cq_ring;
 	struct io_uring_cqe *cqe;
-	unsigned head = *cring->head;
+	unsigned int head = *cring->head;
 	int ret = EXIT_SUCCESS;
 
 	for (;;) {
@@ -434,7 +434,7 @@ static int stress_io_uring_submit(
 	const void *extra_data)
 {
 	stress_uring_io_sq_ring_t *sring = &submit->sq_ring;
-	unsigned idx = 0, tail = 0, next_tail = 0;
+	unsigned int idx = 0, tail = 0, next_tail = 0;
 	struct io_uring_sqe *sqe;
 	int ret;
 
