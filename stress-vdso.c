@@ -80,7 +80,7 @@ static stress_vdso_sym_t *vdso_sym_list;
  */
 static int OPTIMIZE3 wrap_getcpu(void *vdso_func)
 {
-	unsigned cpu, node;
+	unsigned int cpu, node;
 
 	int (*vdso_getcpu)(unsigned *cpu, unsigned *node, void *tcache);
 
