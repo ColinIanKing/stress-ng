@@ -500,7 +500,7 @@ static int stress_file_ioctl(stress_args_t *args)
 
 			char buf[DEDUPE_BUF_SIZE] ALIGNED(64);
 
-			struct file_dedupe_range *d = (struct file_dedupe_range *)buf;
+			struct file_dedupe_range *d = (struct file_dedupe_range *)shim_assume_aligned(buf, 1);
 
 			d->src_offset = 0;
 			d->src_length = file_sz;
