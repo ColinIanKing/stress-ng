@@ -48,10 +48,10 @@ static const stress_opt_t opts[] = {
 static int stress_vm_splice(stress_args_t *args)
 {
 	int fd, fds[2], rc = EXIT_SUCCESS;
-	uint8_t *buf;
+	uint64_t *buf;
 	const size_t page_size = args->page_size;
 	size_t sz, vm_splice_bytes, vm_splice_bytes_total = DEFAULT_VM_SPLICE_BYTES;
-	char *data;
+	uint64_t *data;
 	double duration = 0.0, bytes = 0.0, vm_splices = 0.0, rate;
 	int metrics_counter = 0;
 	uint64_t checkval = stress_mwc64();
@@ -72,7 +72,7 @@ static int stress_vm_splice(stress_args_t *args)
 		stress_usage_bytes(args, vm_splice_bytes, vm_splice_bytes * args->instances);
 	sz = vm_splice_bytes & ~(page_size - 1);
 
-	buf = (uint8_t *)stress_mmap_populate(NULL, sz, PROT_READ | PROT_WRITE,
+	buf = (uint64_t *)stress_mmap_populate(NULL, sz, PROT_READ | PROT_WRITE,
 		MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (buf == MAP_FAILED) {
 		pr_inf_skip("%s: failed to mmap %zu bytes buffer%s, errno=%d (%s), skipping stressor\n",
@@ -80,8 +80,8 @@ static int stress_vm_splice(stress_args_t *args)
 			stress_get_memfree_str(), errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
-	stress_set_vma_anon_name(buf, sz, "iov-buffer");
-	data = (char *)stress_mmap_populate(NULL, page_size, PROT_READ | PROT_WRITE,
+	stress_set_vma_anon_name((void *)buf, sz, "iov-buffer");
+	data = (uint64_t *)stress_mmap_populate(NULL, page_size, PROT_READ | PROT_WRITE,
 		MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (data == MAP_FAILED) {
 		pr_inf_skip("%s: failed to mmap %zu sized buffer%s, errno=%d (%s), skipping stressor\n",
@@ -90,7 +90,7 @@ static int stress_vm_splice(stress_args_t *args)
 		(void)munmap((void *)buf, sz);
 		return EXIT_NO_RESOURCE;
 	}
-	stress_set_vma_anon_name(data, page_size, "io-buffer");
+	stress_set_vma_anon_name((void *)data, page_size, "io-buffer");
 
 	if (pipe(fds) < 0) {
 		(void)munmap((void *)data, page_size);
@@ -111,14 +111,14 @@ static int stress_vm_splice(stress_args_t *args)
 		return EXIT_FAILURE;
 	}
 
-	stress_rndbuf(data, page_size);
+	stress_rndbuf((void *)data, page_size);
 	prime = stress_get_prime64(vm_splice_bytes);
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
-	(void)shim_memset(buf, 0, sz);
+	(void)shim_memset((void *)buf, 0, sz);
 	do {
 		ssize_t ret, n_bytes;
 		struct iovec iov ALIGN64;
@@ -153,7 +153,7 @@ static int stress_vm_splice(stress_args_t *args)
 		 *  vmsplice from pipe to memory, ignore write failures
 		 */
 		checkval += prime;
-		*(uint64_t *)data = checkval;
+		*data = checkval;
 		n_bytes = write(fds[1], data, page_size);
 		if (LIKELY(n_bytes > 0)) {
 			iov.iov_base = buf;
@@ -172,9 +172,9 @@ static int stress_vm_splice(stress_args_t *args)
 			}
 			/* Sanity check the data */
 			if (LIKELY(n_bytes >= (ssize_t)sizeof(checkval)) &&
-			    UNLIKELY(checkval != *(uint64_t *)buf)) {
+			    UNLIKELY(checkval != *buf)) {
 				pr_fail("%s: data check pattern failed, got %" PRIx64 ", expected %" PRIx64 "\n",
-					args->name, *(uint64_t *)buf, checkval);
+					args->name, *buf, checkval);
 				rc = EXIT_FAILURE;
 			}
 			bytes += (double)n_bytes;
