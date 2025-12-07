@@ -317,7 +317,7 @@ redo:
 		/* Scan through inotify events */
 		while (i <= len - (ssize_t)sizeof(struct inotify_event)) {
 			struct inotify_event *event =
-				(struct inotify_event *)&buffer[i];
+				(struct inotify_event *)shim_assume_aligned(&buffer[i], 1);
 			uint32_t f = event->mask & (IN_DELETE_SELF |
 						    IN_MOVE_SELF |
 						    IN_MOVED_TO |
