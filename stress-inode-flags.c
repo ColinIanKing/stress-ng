@@ -279,7 +279,8 @@ static int stress_inode_flags_stressor(
 #if defined(AT_EMPTY_PATH)
 		/* Invalid size, E3BIG */
 		if (two_pages) 
-			VOID_RET(int, shim_file_getattr(data->dir_fd, NULL, (struct shim_file_attr *)two_pages,
+			VOID_RET(int, shim_file_getattr(data->dir_fd, NULL,
+				(struct shim_file_attr *)shim_assume_aligned(two_pages, 1),
 				args->page_size * 2, AT_EMPTY_PATH));
 #endif
 	}
