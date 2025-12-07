@@ -85,8 +85,8 @@ static int stress_icmp_flood(stress_args_t *args)
 	uint16_t seq = 0;
 
 	char ALIGN64 pkt[MAX_PKT_LEN];
-	struct iphdr *const ip_hdr = (struct iphdr *)pkt;
-	struct icmphdr *const icmp_hdr = (struct icmphdr *)(pkt + sizeof(struct iphdr));
+	struct iphdr *const ip_hdr = (struct iphdr *)shim_assume_aligned(pkt, 1);
+	struct icmphdr *const icmp_hdr = (struct icmphdr *)shim_assume_aligned((pkt + sizeof(struct iphdr)), 1);
 	char *const payload = pkt + sizeof(struct iphdr) + sizeof(struct icmphdr);
 	uint32_t max_payload_size;
 	bool icmp_flood_max_size = false;
