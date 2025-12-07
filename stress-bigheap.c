@@ -271,7 +271,7 @@ static int stress_bigheap_child(stress_args_t *args, void *context)
 				free(old_ptr);
 			size = 0;
 		} else {
-			uintptr_t *uintptr, *uintptr_end = (uintptr_t *)((uint8_t *)ptr + size);
+			uintptr_t *uintptr, *uintptr_end = (uintptr_t *)((uintptr_t)ptr + size);
 
 			duration += stress_time_now() - t;
 			count += 1.0;
