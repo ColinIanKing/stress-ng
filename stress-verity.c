@@ -102,7 +102,7 @@ static int stress_verity(stress_args_t *args)
 	do {
 		struct fsverity_enable_arg enable;
 		char digest_buf[256];
-		struct fsverity_digest *digest = (struct fsverity_digest *)digest_buf;
+		struct fsverity_digest *digest = (struct fsverity_digest *)shim_assume_aligned(digest_buf, 1);
 		char block[512];
 		int i;
 #if defined(FS_IOC_READ_VERITY_METADATA)
