@@ -475,8 +475,8 @@ static void stress_dev_dm_linux(
 #if defined(DM_VERSION) &&	\
     defined(HAVE_DM_IOCTL)
 	{
-		uint8_t buf[sizeof(struct dm_ioctl) + 4096];
-		struct dm_ioctl *dm = (struct dm_ioctl *)buf;
+		uint8_t buf[sizeof(struct dm_ioctl) + 4096] ALIGNED(8);
+		struct dm_ioctl *dm = (struct dm_ioctl *)shim_assume_aligned(buf, 8);
 
 		shim_memset(buf, 0, sizeof(buf));
 		dm->version[0] = DM_VERSION_MAJOR;
@@ -495,8 +495,8 @@ static void stress_dev_dm_linux(
 #if defined(DM_LIST_DEVICES) &&	\
     defined(HAVE_DM_IOCTL)
 	{
-		uint8_t buf[sizeof(struct dm_ioctl) + 4096];
-		struct dm_ioctl *dm = (struct dm_ioctl *)buf;
+		uint8_t buf[sizeof(struct dm_ioctl) + 4096] ALIGNED(8);
+		struct dm_ioctl *dm = (struct dm_ioctl *)shim_assume_aligned(buf, 8);
 
 		shim_memset(buf, 0, sizeof(buf));
 		dm->version[0] = DM_VERSION_MAJOR;
@@ -506,15 +506,15 @@ static void stress_dev_dm_linux(
 		dm->data_start = sizeof(struct dm_ioctl);
 
 		if (ioctl(fd, DM_LIST_DEVICES, dm) == 0) {
-			struct dm_name_list *nl = (struct dm_name_list *)(buf + dm->data_start);
+			struct dm_name_list *nl = (struct dm_name_list *)shim_assume_aligned(buf + dm->data_start, 1);
 			uint32_t i;
 
 			for (i = 0; i < dm->data_size; i++) {
 #if defined(DM_DEV_STATUS)
 				if (strlen(nl->name) < 4096) {
 
-					uint8_t buf2[sizeof(struct dm_ioctl) + 4096];
-					struct dm_ioctl *dm2 = (struct dm_ioctl *)buf2;
+					uint8_t buf2[sizeof(struct dm_ioctl) + 4096] ALIGNED(8);
+					struct dm_ioctl *dm2 = (struct dm_ioctl *)shim_assume_aligned(buf2, 8);
 
 					shim_memset(buf2, 0, sizeof(buf2));
 					dm2->version[0] = DM_VERSION_MAJOR;
@@ -547,8 +547,8 @@ static void stress_dev_dm_linux(
 #if defined(DM_LIST_VERSIONS) &&	\
     defined(HAVE_DM_IOCTL)
 	{
-		uint8_t buf[sizeof(struct dm_ioctl) + 4096];
-		struct dm_ioctl *dm = (struct dm_ioctl *)buf;
+		uint8_t buf[sizeof(struct dm_ioctl) + 4096] ALIGNED(8);
+		struct dm_ioctl *dm = (struct dm_ioctl *)shim_assume_aligned(buf, 8);
 
 		shim_memset(buf, 0, sizeof(buf));
 		dm->version[0] = DM_VERSION_MAJOR;
