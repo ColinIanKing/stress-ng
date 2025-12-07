@@ -139,7 +139,7 @@ static void OPTIMIZE3 stress_rgb_noise(
 {
 	const int32_t size = x_max * y_max * 3;
 	register int32_t i, n;
-	register uint32_t *ptr32 = (uint32_t *)rgb;
+	register uint32_t *ptr32 = (uint32_t *)shim_assume_aligned(rgb, 4);
 	register uint8_t *ptr8;
 
 	n = size >> 2;
