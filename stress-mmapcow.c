@@ -91,14 +91,14 @@ static int OPTIMIZE3 stress_mmapcow_modify_unmap(
 	stress_args_t *args,
 	uint8_t *buf,
 	const size_t buf_size,
-	uint8_t *page,
+	uint8_t *page,		/* page aligned */
 	const size_t page_size,
 	const int flags,
 	double *duration,
 	double *count)
 {
-	volatile uint8_t *ptr = page;
-	const uint8_t *ptr_end = page + page_size;
+	volatile uint64_t *ptr = (volatile uint64_t *)shim_assume_aligned(page, page_size);
+	const uint64_t *ptr_end = (uint64_t *)(((uintptr_t)ptr) + page_size);
 	uint64_t val = stress_mwc64() | 0x1248124812481248ULL;	/* random, and never zero */
 	double t1, t2;
 
@@ -110,11 +110,11 @@ static int OPTIMIZE3 stress_mmapcow_modify_unmap(
 #endif
 	/* Time duration of page touch + page fault */
 	t1 = stress_time_now();
-	*(volatile uint64_t *)ptr = val;
+	*ptr = val;
 	t2 = stress_time_now();
 PRAGMA_UNROLL_N(8)
-	for (; ptr < ptr_end; ptr += 64) {
-		*(volatile uint64_t *)ptr = val;
+	for (; ptr < ptr_end; ptr += 8) {
+		*ptr = val;
 	}
 	stress_cpu_data_cache_flush(page, page_size);
 	(*duration) += (t2 - t1);
