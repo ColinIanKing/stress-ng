@@ -100,7 +100,7 @@ static int stress_msg_get_stats(stress_args_t *args, const int msgq_id)
 	{
 		struct msginfo info;
 
-		if (UNLIKELY(msgctl(msgq_id, IPC_INFO, (struct msqid_ds *)&info) < 0)) {
+		if (UNLIKELY(msgctl(msgq_id, IPC_INFO, (struct msqid_ds *)(void *)&info) < 0)) {
 			pr_fail("%s: msgctl IPC_INFO failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			return -errno;
@@ -112,7 +112,7 @@ static int stress_msg_get_stats(stress_args_t *args, const int msgq_id)
 	{
 		struct msginfo info;
 
-		if (UNLIKELY(msgctl(msgq_id, MSG_INFO, (struct msqid_ds *)&info) < 0)) {
+		if (UNLIKELY(msgctl(msgq_id, MSG_INFO, (struct msqid_ds *)(void *)&info) < 0)) {
 			pr_fail("%s: msgctl MSG_INFO failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			return -errno;
