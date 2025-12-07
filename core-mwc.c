@@ -497,18 +497,23 @@ void OPTIMIZE3 stress_rndstr(char *str, const size_t len)
 /*
  *  stress_uint8rnd4()
  *	fill a uint8_t buffer full of random data
- *	buffer *must* be multiple of 4 bytes in size
  */
 void OPTIMIZE3 stress_uint8rnd4(uint8_t *data, const size_t len)
 {
-	register uint32_t *ptr32 = (uint32_t *)shim_assume_aligned(data, 4);
-	register uint32_t *ptr32end;
+	register uint32_t *ptr32, *ptr32end;
+	register uint8_t *ptr8 = data, *ptr8end = data + len;
 
-	if (UNLIKELY(!data || (len < 4)))
+	if (UNLIKELY(!data))
 		return;
 
-	ptr32end = (uint32_t *)(data + len);
+	/* fill unaligned bytes to 32 bit boundary */
+	while (((uintptr_t)ptr8 & 3) && (ptr8 < ptr8end))
+		*ptr8++ = stress_mwc8();
 
+	ptr32 = (uint32_t *)ptr8;
+	ptr32end = (uint32_t *)(((uintptr_t)ptr8end) & ~3);
+
+	/* fill 32 bit aligned words */
 	if (stress_little_endian()) {
 		while (ptr32 < ptr32end)
 			*ptr32++ = stress_mwc32();
@@ -516,4 +521,9 @@ void OPTIMIZE3 stress_uint8rnd4(uint8_t *data, const size_t len)
 		while (ptr32 < ptr32end)
 			*ptr32++ = stress_swap32(stress_mwc32());
 	}
+
+	/* fill unaligned bytes end */
+	ptr8 = (uint8_t *)ptr32;
+	while (ptr8 < ptr8end)
+		*ptr8++ = stress_mwc8();
 }
