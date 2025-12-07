@@ -131,7 +131,7 @@ static int stress_mmapfixed_child(stress_args_t *args, void *context)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		uint8_t *buf;
+		uint64_t *buf;
 		int flags = MAP_FIXED | MAP_ANONYMOUS;
 		const size_t sz = page_size * (1 + stress_mwc8modn(7));
 
@@ -163,7 +163,7 @@ static int stress_mmapfixed_child(stress_args_t *args, void *context)
 		if ((g_opt_flags & OPT_FLAGS_OOM_AVOID) && stress_low_memory(sz))
 			goto next;
 
-		buf = (uint8_t *)mmap((void *)addr, sz, PROT_READ | PROT_WRITE, flags, -1, 0);
+		buf = (uint64_t *)mmap((void *)addr, sz, PROT_READ | PROT_WRITE, flags, -1, 0);
 		if (buf == MAP_FAILED)
 			goto next;
 #if defined(HAVE_LINUX_MEMPOLICY_H)
@@ -178,7 +178,7 @@ static int stress_mmapfixed_child(stress_args_t *args, void *context)
     defined(MREMAP_FIXED) &&	\
     defined(MREMAP_MAYMOVE)
 		{
-			uint8_t *newbuf;
+			uint64_t *newbuf;
 			uintptr_t mask = ~(uintptr_t)0;
 			const uintptr_t newaddr = addr ^
 				((page_size << 3) | (page_size << 4));
@@ -191,7 +191,7 @@ static int stress_mmapfixed_child(stress_args_t *args, void *context)
 
 			if (stress_mmapfixed_is_mapped((void *)newaddr, sz, page_size))
 				goto unmap;
-			newbuf = (uint8_t *)mremap(buf, sz, sz,
+			newbuf = (uint64_t *)mremap(buf, sz, sz,
 					MREMAP_FIXED | MREMAP_MAYMOVE,
 					(void *)newaddr);
 			if (newbuf != MAP_FAILED)
@@ -207,8 +207,7 @@ static int stress_mmapfixed_child(stress_args_t *args, void *context)
 
 			for (mask = ~(uintptr_t)0; mask > page_size; mask >>= 1) {
 				const uintptr_t rndaddr = rndaddr_base & mask;
-				uint64_t *buf64 = (uint64_t *)buf;
-				const uint64_t val64 = (uint64_t)(uintptr_t)buf64;
+				const uint64_t val64 = (uint64_t)(uintptr_t)buf;
 
 				if (rndaddr == last_rndaddr)
 					continue;
@@ -219,17 +218,15 @@ static int stress_mmapfixed_child(stress_args_t *args, void *context)
 				if (stress_mmapfixed_is_mapped((void *)rndaddr, sz, page_size))
 					continue;
 
-				*buf64 = val64;
-				newbuf = (uint8_t *)mremap(buf, sz, sz,
+				*buf = val64;
+				newbuf = (uint64_t *)mremap(buf, sz, sz,
 						MREMAP_FIXED | MREMAP_MAYMOVE,
 						(void *)rndaddr);
 				if (newbuf && (newbuf != MAP_FAILED)) {
-					buf64 = (uint64_t *)newbuf;
-
-					if (UNLIKELY(*buf64 != val64)) {
+					if (UNLIKELY(*newbuf != val64)) {
 						pr_fail("%s: remap from %p to %p contains 0x%" PRIx64
 							" and not expected value 0x%" PRIx64 "\n",
-							args->name, (void *)buf, (void *)newbuf, *buf64, val64);
+							args->name, (void *)buf, (void *)newbuf, *buf, val64);
 						rc = EXIT_FAILURE;
 					}
 
