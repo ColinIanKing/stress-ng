@@ -523,7 +523,7 @@ retry_bind:
 		cmsg->cmsg_level = SOL_ALG;
 		cmsg->cmsg_type = ALG_SET_IV;
 		cmsg->cmsg_len = CMSG_LEN(4) + CMSG_LEN(iv_size);
-		iv = (struct af_alg_iv *)CMSG_DATA(cmsg);
+		iv = (struct af_alg_iv *)shim_assume_aligned(CMSG_DATA(cmsg), 1);
 		iv->ivlen = (uint32_t)iv_size;
 
 		stress_rndbuf((char *)iv->iv, (size_t)iv_size);
@@ -590,7 +590,7 @@ retry_bind:
 		cmsg->cmsg_level = SOL_ALG;
 		cmsg->cmsg_type = ALG_SET_IV;
 		cmsg->cmsg_len = CMSG_LEN(4) + CMSG_LEN(iv_size);
-		iv = (struct af_alg_iv *)CMSG_DATA(cmsg);
+		iv = (struct af_alg_iv *)shim_assume_aligned(CMSG_DATA(cmsg), 1);
 		iv->ivlen = (uint32_t)iv_size;
 
 		iov.iov_base = output;
