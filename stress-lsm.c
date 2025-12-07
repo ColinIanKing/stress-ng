@@ -176,7 +176,8 @@ static int stress_lsm(stress_args_t *args)
 					lsm_id_reserved = true;
 				else if (ctx->id >= LSM_ID_CAPABILITY)
 					lsm_id_defined = true;
-				ctx = (struct lsm_ctx *)((uint8_t *)ctx + sizeof(*ctx) + ctx->ctx_len);
+				ctx = (struct lsm_ctx *)
+					shim_assume_aligned(((uint8_t *)ctx + sizeof(*ctx) + ctx->ctx_len), 1);
 				if (ctx >= ctx_end)
 					break;
 			}
