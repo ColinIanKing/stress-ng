@@ -128,9 +128,9 @@ static int stress_bigheap_child(stress_args_t *args, void *context)
 {
 	uint64_t bigheap_growth = DEFAULT_BIGHEAP_GROWTH;
 	size_t bigheap_bytes = DEFAULT_BIGHEAP_BYTES;
-	NOCLOBBER void *ptr = NULL;
-	NOCLOBBER const void *last_ptr = NULL;
-	NOCLOBBER uint8_t *last_ptr_end = NULL;
+	NOCLOBBER uintptr_t *ptr = NULL;
+	NOCLOBBER const uintptr_t *last_ptr = NULL;
+	NOCLOBBER uintptr_t *last_ptr_end = NULL;
 	NOCLOBBER size_t size = 0, stride;
 	NOCLOBBER double duration = 0.0, count = 0.0;
 	NOCLOBBER bool segv_reported = false;
@@ -212,7 +212,7 @@ static int stress_bigheap_child(stress_args_t *args, void *context)
 #endif
 
 	do {
-		void *old_ptr = ptr;
+		uintptr_t *old_ptr = ptr;
 		double t;
 
 		/*
@@ -243,12 +243,12 @@ static int stress_bigheap_child(stress_args_t *args, void *context)
 		t = stress_time_now();
 		if (old_ptr) {
 			phase = STRESS_BIGHEAP_REALLOC;
-			ptr = realloc(old_ptr, size);
+			ptr = (uintptr_t *)realloc(old_ptr, size);
 			if (g_opt_flags & OPT_FLAGS_AGGRESSIVE) {
 				if (LIKELY(ptr != NULL)) {
 					old_ptr = ptr;
 					size += 64;
-					ptr = realloc(old_ptr, size);
+					ptr = (uintptr_t *)realloc(old_ptr, size);
 					if (LIKELY(ptr != NULL))
 						stress_bogo_inc(args);
 				}
@@ -256,9 +256,9 @@ static int stress_bigheap_child(stress_args_t *args, void *context)
 		} else {
 			phase = STRESS_BIGHEAP_MALLOC;
 			if (UNLIKELY(aggressive)) {
-				ptr = calloc(1, size);
+				ptr = (uintptr_t *)calloc(1, size);
 			} else {
-				ptr = malloc(size);
+				ptr = (uintptr_t *)malloc(size);
 			}
 		}
 		if (UNLIKELY(ptr == NULL)) {
@@ -271,7 +271,7 @@ static int stress_bigheap_child(stress_args_t *args, void *context)
 				free(old_ptr);
 			size = 0;
 		} else {
-			uintptr_t *uintptr, *uintptr_end = (uintptr_t *)((uint8_t*)ptr + size);
+			uintptr_t *uintptr, *uintptr_end = (uintptr_t *)((uint8_t *)ptr + size);
 
 			duration += stress_time_now() - t;
 			count += 1.0;
@@ -297,10 +297,10 @@ static int stress_bigheap_child(stress_args_t *args, void *context)
 			if (verify) {
 				if (last_ptr == ptr) {
 					phase = STRESS_BIGHEAP_WRITE_HEAP_END;
-					uintptr = (uintptr_t *)last_ptr_end;
+					uintptr = last_ptr_end;
 				} else {
 					phase = STRESS_BIGHEAP_WRITE_HEAP_FULL;
-					uintptr = (uintptr_t *)ptr;
+					uintptr = ptr;
 				}
 				while (uintptr < uintptr_end) {
 					if (UNLIKELY(!stress_continue(args)))
@@ -316,7 +316,7 @@ static int stress_bigheap_child(stress_args_t *args, void *context)
 				}
 			}
 			last_ptr = ptr;
-			last_ptr_end = (uint8_t *)uintptr_end;
+			last_ptr_end = uintptr_end;
 		}
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
