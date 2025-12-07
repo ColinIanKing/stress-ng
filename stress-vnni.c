@@ -286,8 +286,8 @@ PRAGMA_UNROLL_N(VEC_VNNI128_LOOPS)
 static void TARGET_CLONES OPTIMIZE3 stress_vnni_vpdpbusd(stress_args_t *args)
 {
 	register int i, j;
-	uint32_t *r32 = (uint32_t *)result;
-	register const uint32_t *c32 = (uint32_t *)c_init;
+	uint32_t *r32 = (uint32_t *)shim_assume_aligned(result, 8);
+	register const uint32_t *c32 = (uint32_t *)shim_assume_aligned(c_init, 8);
 
 	(void)args;
 
@@ -381,10 +381,10 @@ PRAGMA_UNROLL_N(VEC_VNNI128_LOOPS)
 static void TARGET_CLONES OPTIMIZE3 stress_vnni_vpdpwssd(stress_args_t *args)
 {
 	register int i, j;
-	const int16_t *a16 = (int16_t *)a_init;
-	const int16_t *b16 = (int16_t *)b_init;
-	int32_t *r32 = (int32_t *)result;
-	register const int32_t *c32 = (int32_t *)c_init;
+	const int16_t *a16 = (int16_t *)shim_assume_aligned(a_init, 8);
+	const int16_t *b16 = (int16_t *)shim_assume_aligned(b_init, 8);
+	int32_t *r32 = (int32_t *)shim_assume_aligned(result, 8);
+	register const int32_t *c32 = (int32_t *)shim_assume_aligned(c_init, 8);
 
 	(void)args;
 
