@@ -207,14 +207,14 @@ static int stress_zero(stress_args_t *args)
 			 *  Periodically exercise mmap
 			 */
 			if (mmap_counter++ > 500) {
-				int32_t *ptr;
+				uint64_t *ptr;
 
 				mmap_counter = 0;
 
 				/*
 				 *  check if we can mmap /dev/zero
 				 */
-				ptr = (int32_t *)mmap(NULL, page_size, PROT_READ, mmap_flags[mmap_index].flag,
+				ptr = (uint64_t *)mmap(NULL, page_size, PROT_READ, mmap_flags[mmap_index].flag,
 					fd, (off_t)(page_size * stress_mwc16()));
 				if (UNLIKELY(ptr == MAP_FAILED)) {
 					if ((errno == ENOMEM) || (errno == EAGAIN))
@@ -226,7 +226,7 @@ static int stress_zero(stress_args_t *args)
 					(void)munmap(rd_buffer, page_size);
 					return EXIT_FAILURE;
 				}
-				if (stress_data_is_not_zero((uint64_t *)ptr, (size_t)ret)) {
+				if (stress_data_is_not_zero(ptr, (size_t)ret)) {
 					pr_fail("%s: memory mapped page of /dev/zero using %s is not zero\n",
 						args->name, mmap_flags[mmap_index].flag_str);
 				}
