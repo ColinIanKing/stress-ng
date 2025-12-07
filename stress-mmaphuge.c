@@ -60,7 +60,7 @@ static const stress_opt_t opts[] = {
 #endif
 
 typedef struct {
-	uint8_t	*buf;		/* mapping start */
+	void *buf;		/* mapping start */
 	size_t	sz;		/* mapping size */
 } stress_mmaphuge_buf_t;
 
@@ -127,7 +127,7 @@ static int stress_mmaphuge_child(stress_args_t *args, void *v_context)
 			stress_get_memlimits(&shmall, &freemem, &totalmem, &last_freeswap, &last_totalswap);
 
 			for (j = 0; j < SIZEOF_ARRAY(stress_mmap_settings); j++) {
-				uint8_t *buf = (uint8_t *)MAP_FAILED;
+				uint64_t *buf = (uint64_t *)MAP_FAILED;
 				const size_t sz = stress_mmap_settings[idx].sz;
 				int flags = MAP_ANONYMOUS;
 
@@ -143,18 +143,18 @@ static int stress_mmaphuge_child(stress_args_t *args, void *v_context)
 					const off_t offset = (off_t)4096 * stress_mwc8modn(16);
 
 					if (sz + offset < context->sz) {
-						buf = (uint8_t *)mmap(NULL, sz,
+						buf = (uint64_t *)mmap(NULL, sz,
 								PROT_READ | PROT_WRITE,
 								flags & ~MAP_ANONYMOUS, context->fd, offset);
 						if (buf == MAP_FAILED)
-							buf = (uint8_t *)mmap(NULL, sz,
+							buf = (uint64_t *)mmap(NULL, sz,
 								PROT_READ | PROT_WRITE,
 								flags & ~MAP_ANONYMOUS, context->fd, 0);
 					}
 				}
 				/* file mapping failed or not mapped yet, try anonymous map */
 				if (buf == MAP_FAILED) {
-					buf = (uint8_t *)mmap(NULL, sz,
+					buf = (uint64_t *)mmap(NULL, sz,
 							PROT_READ | PROT_WRITE,
 							flags, -1, 0);
 				}
@@ -167,7 +167,7 @@ static int stress_mmaphuge_child(stress_args_t *args, void *v_context)
 					const uint64_t rndval = stress_mwc64();
 					register const size_t stride = (page_size * 64) / sizeof(uint64_t);
 					register uint64_t *ptr, val;
-					const uint64_t *buf_end = (uint64_t *)(buf + sz);
+					const uint64_t *buf_end = (uint64_t *)((uintptr_t)buf + sz);
 
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 					if (context->mmaphuge_numa)
@@ -178,15 +178,15 @@ static int stress_mmaphuge_child(stress_args_t *args, void *v_context)
 						(void)shim_mlock(buf, sz);
 
 					/* Touch every other 64 pages.. */
-					for (val = rndval, ptr = (uint64_t *)buf; ptr < buf_end; ptr += stride, val++) {
+					for (val = rndval, ptr = buf; ptr < buf_end; ptr += stride, val++) {
 						*ptr = val;
 					}
 					/* ..and sanity check */
-					for (val = rndval, ptr = (uint64_t *)buf; ptr < buf_end; ptr += stride, val++) {
+					for (val = rndval, ptr = buf; ptr < buf_end; ptr += stride, val++) {
 						if (UNLIKELY(*ptr != val)) {
 							pr_fail("%s: memory %p at offset 0x%zx check error, "
 								"got 0x%" PRIx64 ", expecting 0x%" PRIx64 "\n",
-								args->name, (void *)buf, (size_t)((uint8_t *)ptr - buf), *ptr, val);
+								args->name, (void *)buf, (size_t)((uintptr_t)ptr - (uintptr_t)buf), *ptr, val);
 							rc = EXIT_FAILURE;
 						}
 					}
