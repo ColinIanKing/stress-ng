@@ -392,31 +392,30 @@ uint32_t PURE OPTIMIZE3 stress_hash_coffin(const char *str)
 uint32_t PURE OPTIMIZE3 stress_hash_coffin32_le(const char *str, const size_t len)
 {
 	register uint32_t result = 0x55555555;
-	register const uint32_t *ptr32 = (const uint32_t *)str;
-	register uint32_t val = *ptr32;
 	register size_t n = len;
+	uint32_t val;
+
+	(void)shim_memcpy(&val, str, sizeof(val));
 
 	while (n > 4) {
 		register uint32_t tmp;
 
+		str += 4;
 		tmp = val & 0xff;
 		n -= 4;
 		result = shim_rol32n(result ^ tmp, 5);
 		tmp = (val >> 8) & 0xff;
-		ptr32++;
 		result = shim_rol32n(result ^ tmp, 5);
 		tmp = (val >> 16) & 0xff;
 		result = shim_rol32n(result ^ tmp, 5);
 		tmp = (val >> 24) & 0xff;
-		val = *ptr32;
+		(void)shim_memcpy(&val, str, sizeof(val));
 		result = shim_rol32n(result ^ tmp, 5);
 	}
 
 	{
-		register const uint8_t *ptr8 = (const uint8_t *)ptr32;
-
 		while (n--) {
-			result ^= *ptr8++;
+			result ^= (uint8_t)*(str++);
 			result = shim_rol32n(result, 5);
 		}
 	}
@@ -430,31 +429,29 @@ uint32_t PURE OPTIMIZE3 stress_hash_coffin32_le(const char *str, const size_t le
 uint32_t PURE OPTIMIZE3 stress_hash_coffin32_be(const char *str, const size_t len)
 {
 	register uint32_t result = 0x55555555;
-	register const uint32_t *ptr32 = (const uint32_t *)str;
-	register uint32_t val = *ptr32;
 	register size_t n = len;
+	uint32_t val;
 
+	(void)shim_memcpy(&val, str, sizeof(val));
 	while (n > 4) {
 		register uint32_t tmp;
 
+		str += 4;
 		tmp = (val >> 24) & 0xff;
 		n -= 4;
 		result = shim_rol32n(result ^ tmp, 5);
 		tmp = (val >> 16) & 0xff;
-		ptr32++;
 		result = shim_rol32n(result ^ tmp, 5);
 		tmp = (val >> 8) & 0xff;
 		result = shim_rol32n(result ^ tmp, 5);
 		tmp = val & 0xff;
-		val = *ptr32;
+		(void)shim_memcpy(&val, str, sizeof(val));
 		result = shim_rol32n(result ^ tmp, 5);
 	}
 
 	{
-		register const uint8_t *ptr8 = (const uint8_t *)ptr32;
-
 		while (n--) {
-			result ^= *ptr8++;
+			result ^= (uint8_t)*(str++);
 			result = shim_rol32n(result, 5);
 		}
 	}
