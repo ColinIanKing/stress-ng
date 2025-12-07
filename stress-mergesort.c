@@ -52,14 +52,24 @@ typedef struct {
 
 #define IDX(base, idx, size)	((base) + ((idx) * (size)))
 
-static inline void ALWAYS_INLINE mergesort_copy(uint8_t *RESTRICT p1, uint8_t *RESTRICT p2, register size_t size)
+static inline void ALWAYS_INLINE mergesort_copy4(uint8_t *RESTRICT p1, uint8_t *RESTRICT p2, register size_t size)
 {
-	register const uint32_t *u32end = (uint32_t *)(p1 + size);
-	register uint32_t *u32p1 = (uint32_t *)p1;
-	register uint32_t *u32p2 = (uint32_t *)p2;
+	register const uint32_t *u32end = (uint32_t *)shim_assume_aligned((p1 + size), 4);
+	register uint32_t *u32p1 = (uint32_t *)shim_assume_aligned(p1, 4);
+	register uint32_t *u32p2 = (uint32_t *)shim_assume_aligned(p2, 4);
 
 	while (LIKELY(u32p1 < u32end))
 		*(u32p1++) = *(u32p2++);
+}
+
+static inline void ALWAYS_INLINE mergesort_copy(uint8_t *RESTRICT p1, uint8_t *RESTRICT p2, register size_t size)
+{
+	register const uint8_t *u8end = (uint8_t *)(p1 + size);
+	register uint8_t *u8p1 = (uint8_t *)p1;
+	register uint8_t *u8p2 = (uint8_t *)p2;
+
+	while (LIKELY(u8p1 < u8end))
+		*(u8p1++) = *(u8p2++);
 }
 
 /*
@@ -89,8 +99,8 @@ static inline void mergesort_partition4(
 	rhs_len = right - mid;
 	rhs_size = rhs_len * 4;
 
-	mergesort_copy(lhs, IDX(base, left, 4), lhs_size);
-	mergesort_copy(rhs, IDX(base, (mid + 1), 4), rhs_size);
+	mergesort_copy4(lhs, IDX(base, left, 4), lhs_size);
+	mergesort_copy4(rhs, IDX(base, (mid + 1), 4), rhs_size);
 
 	base = IDX(base, left, 4);
 	lhs_end = rhs;
@@ -98,11 +108,11 @@ static inline void mergesort_partition4(
 
 	while ((lhs < lhs_end) && (rhs < rhs_end)) {
 		if (compar(lhs, rhs) < 0) {
-			*(uint32_t *)base = *(uint32_t *)lhs;
+			*(uint32_t *)shim_assume_aligned(base, 4) = *(uint32_t *)shim_assume_aligned(lhs, 4);
 			lhs += 4;
 			base += 4;
 		} else {
-			*(uint32_t *)base = *(uint32_t *)rhs;
+			*(uint32_t *)shim_assume_aligned(base, 4) = *(uint32_t *)shim_assume_aligned(rhs, 4);
 			rhs += 4;
 			base += 4;
 		}
@@ -110,12 +120,12 @@ static inline void mergesort_partition4(
 
 	n = lhs_end - lhs;
 	if (n > 0) {
-		mergesort_copy(base, lhs, n);
+		mergesort_copy4(base, lhs, n);
 		base += n;
 	}
 	n = rhs_end - rhs;
 	if (n > 0) {
-		mergesort_copy(base, rhs, n);
+		mergesort_copy4(base, rhs, n);
 	}
 }
 
