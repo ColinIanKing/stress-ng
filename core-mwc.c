@@ -510,7 +510,7 @@ void OPTIMIZE3 stress_uint8rnd4(uint8_t *data, const size_t len)
 	while (((uintptr_t)ptr8 & 3) && (ptr8 < ptr8end))
 		*ptr8++ = stress_mwc8();
 
-	ptr32 = (uint32_t *)ptr8;
+	ptr32 = (uint32_t *)shim_assume_aligned(ptr8, 4);
 	ptr32end = (uint32_t *)(((uintptr_t)ptr8end) & ~3);
 
 	/* fill 32 bit aligned words */
