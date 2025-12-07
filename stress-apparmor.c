@@ -343,7 +343,7 @@ static int apparmor_stress_kernel_interface(stress_args_t *args)
 		 *  already loaded the same policy, so we may get EEXIST
 		 */
 		ret = aa_kernel_interface_load_policy(kern_if,
-			g_apparmor_data, g_apparmor_data_len);
+			(const char *)g_apparmor_data, g_apparmor_data_len);
 		if (ret < 0) {
 			if (errno != EEXIST) {
 				pr_fail("%s: aa_kernel_interface_load_policy() failed, errno=%d (%s)\n",
@@ -360,7 +360,7 @@ static int apparmor_stress_kernel_interface(stress_args_t *args)
 		 *  interface correctly.
 		 */
 		ret = aa_kernel_interface_replace_policy(kern_if,
-			g_apparmor_data, g_apparmor_data_len);
+			(const char *)g_apparmor_data, g_apparmor_data_len);
 		if (ret < 0)
 			aa_kernel_interface_unref(kern_if);
 
