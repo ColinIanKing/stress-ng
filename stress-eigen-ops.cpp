@@ -51,7 +51,7 @@ template <typename T> static int eigen_add(const size_t size, double *duration, 
 		*duration += stress_time_now() - t;
 		*count += 1.0;
 
-		r = ((result_check - result).norm() < THRESHOLD);
+		r = ((result_check - result).norm() < static_cast<T>THRESHOLD);
 		if (!r)
 			return EXIT_FAILURE;
 	} catch (...) {
@@ -81,7 +81,7 @@ template <typename T> static int eigen_multiply(const size_t size, double *durat
 		*duration += stress_time_now() - t;
 		*count += 1.0;
 
-		r = ((result_check - result).norm() < THRESHOLD);
+		r = ((result_check - result).norm() < static_cast<T>THRESHOLD);
 		if (!r)
 			return EXIT_FAILURE;
 	} catch (...) {
@@ -110,7 +110,7 @@ template <typename T> static int eigen_transpose(const size_t size, double *dura
 		*duration += stress_time_now() - t;
 		*count += 1.0;
 
-		r = ((result_check - result).norm() < THRESHOLD);
+		r = ((result_check - result).norm() < static_cast<T>THRESHOLD);
 		if (!r)
 			return EXIT_FAILURE;
 	} catch (...) {
@@ -139,7 +139,7 @@ template <typename T> static int eigen_inverse(const size_t size, double *durati
 		*duration += stress_time_now() - t;
 		*count += 1.0;
 
-		r = ((result_check - result).norm() < THRESHOLD);
+		r = ((result_check - result).norm() < static_cast<T>THRESHOLD);
 		if (!r)
 			return EXIT_FAILURE;
 	} catch (...) {
