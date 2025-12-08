@@ -123,9 +123,11 @@ const int madvise_options[] = {
 /* Linux 6.12 */
 #if defined(MADV_GUARD_INSTALL) &&	\
     defined(MADV_NORMAL)
-	MADV_GUARD_INSTALL,
+	/* This makes a page non writable, disable it to avoid SIGSEGVs */
+	/* MADV_GUARD_INSTALL, */
 #endif
 #if defined(MADV_GUARD_REMOVE)
+	/* Should always fail as MADV_GUARD_INSTALL is not used */
 	MADV_GUARD_REMOVE,
 #endif
 /* OpenBSD */
@@ -237,6 +239,25 @@ static const int madvise_random_options[] = {
 };
 #endif
 
+
+/*
+ *  stress_advice_check()
+ *	return MADV_NORMAL if advice should be ignored
+ *	otherwise retuen advice
+ */
+int stress_advice_check(const int advice)
+{
+	switch (madvise_options[advice]) {
+#if defined(MADV_GUARD_INSTALL)
+	case MADV_GUARD_INSTALL:
+		return MADV_NORMAL;
+#endif
+	default:
+		break;
+	}
+	return advice;
+}
+
 /*
  *  stress_madvise_randomize()
  *	apply random madvise setting to a memory region
@@ -246,8 +267,9 @@ int stress_madvise_randomize(void *addr, const size_t length)
 #if defined(HAVE_MADVISE)
 	if (g_opt_flags & OPT_FLAGS_MMAP_MADVISE) {
 		const int i = stress_mwc32modn((uint32_t)SIZEOF_ARRAY(madvise_random_options));
+		const int advice = stress_advice_check(madvise_random_options[i]);
 
-		return madvise(addr, length, madvise_random_options[i]);
+		return madvise(addr, length, advice);
 	}
 #else
 	UNEXPECTED

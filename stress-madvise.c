@@ -116,27 +116,6 @@ static inline void stress_read_proc_maps(const char *maps)
 }
 
 /*
- *  stress_ignore_advice()
- *	return true if advice should not be used
- */
-static bool stress_ignore_advice(const int advice)
-{
-	switch (madvise_options[advice]) {
-#if defined(MADV_GUARD_INSTALL)
-	case MADV_GUARD_INSTALL:
-		return true;
-#endif
-#if defined(MADV_GUARD_REMOVE)
-	case MADV_GUARD_REMOVE:
-		return true;
-#endif
-	default:
-		break;
-	}
-	return false;
-}
-
-/*
  *  stress_random_advise()
  *	get a random advise option
  */
@@ -146,7 +125,7 @@ static int stress_random_advise(
 	const size_t size,
 	const bool hwpoison)
 {
-	const int advise = madvise_options[stress_mwcsizemodn(madvise_options_elements)];
+	int advice = madvise_options[stress_mwcsizemodn(madvise_options_elements)];
 #if defined(MADV_HWPOISON) || defined(MADV_SOFT_OFFLINE)
 	static int hwpoison_count = 0;
 #if defined(MADV_NORMAL)
@@ -156,11 +135,10 @@ static int stress_random_advise(
 #endif
 #endif
 
-	if (stress_ignore_advice(advise))
-		return madv_normal;
+	advice = stress_advice_check(advice);
 
 #if defined(MADV_HWPOISON)
-	if (advise == MADV_HWPOISON) {
+	if (advice == MADV_HWPOISON) {
 		if (hwpoison) {
 			const size_t page_size = args->page_size;
 			const size_t vec_size = (size + page_size - 1) / page_size;
@@ -228,7 +206,7 @@ static int stress_random_advise(
 #endif
 
 #if defined(MADV_SOFT_OFFLINE)
-	if (advise == MADV_SOFT_OFFLINE) {
+	if (advice == MADV_SOFT_OFFLINE) {
 		static int soft_offline_count = 0;
 
 		/* ..and minimize number of soft offline pages */
@@ -238,7 +216,7 @@ static int stress_random_advise(
 		soft_offline_count++;
 	}
 #endif
-	return advise;
+	return advice;
 }
 
 /*
@@ -266,16 +244,16 @@ static void *stress_madvise_pages(void *arg)
 
 	for (n = 0; n < sz; n += page_size) {
 		void *ptr = (void *)(((uint8_t *)buf) + n);
-		const int advise = stress_random_advise(args, ptr, page_size, ctxt->hwpoison);
+		const int advice = stress_random_advise(args, ptr, page_size, ctxt->hwpoison);
 
-		(void)shim_madvise(ptr, page_size, advise);
+		(void)shim_madvise(ptr, page_size, advice);
 		if (stress_mwc8() < 16)
 			stress_read_proc_smaps(ctxt->smaps);
 		if (stress_mwc8() < 16)
 			stress_read_proc_maps(ctxt->maps);
 #if defined(MADV_GUARD_INSTALL) && defined(MADV_NORMAL)
 		/* avoid segfaults by setting back to normal */
-		if (advise == MADV_GUARD_INSTALL)
+		if (advice == MADV_GUARD_INSTALL)
 			(void)shim_madvise(ptr, page_size, MADV_NORMAL);
 #endif
 		(void)shim_msync(ptr, page_size, MS_ASYNC);
@@ -283,12 +261,12 @@ static void *stress_madvise_pages(void *arg)
 	for (n = 0; n < sz; n += page_size) {
 		const size_t m = (size_t)(stress_mwc64modn((uint64_t)sz) & ~(page_size - 1));
 		void *ptr = (void *)(((uint8_t *)buf) + m);
-		const int advise = stress_random_advise(args, ptr, page_size, ctxt->hwpoison);
+		const int advice = stress_random_advise(args, ptr, page_size, ctxt->hwpoison);
 
-		(void)shim_madvise(ptr, page_size, advise);
+		(void)shim_madvise(ptr, page_size, advice);
 #if defined(MADV_GUARD_INSTALL) && defined(MADV_NORMAL)
 		/* avoid segfaults by setting back to normal */
-		if (advise == MADV_GUARD_INSTALL)
+		if (advice == MADV_GUARD_INSTALL)
 			(void)shim_madvise(ptr, page_size, MADV_NORMAL);
 #endif
 		(void)shim_msync(ptr, page_size, MS_ASYNC);
@@ -619,7 +597,7 @@ madv_free_out:
 		 * Some systems allow zero sized page zero madvise
 		 * to see if that madvice is implemented, so try this
 		 */
-		(void)madvise(0, 0, stress_ignore_advice(advice) ? MADV_NORMAL : madvise_options[advice]);
+		(void)madvise(0, 0, stress_advice_check(madvise_options[advice]));
 		advice++;
 		advice = (advice >= madvise_options_elements) ? 0: advice;
 
