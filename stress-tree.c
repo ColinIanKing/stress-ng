@@ -190,7 +190,7 @@ static int OPTIMIZE3 tree_node_cmp_fwd(struct tree_node *n1, struct tree_node *n
 
 #if defined(HAVE_RB_TREE)
 static RB_HEAD(stress_rb_tree, tree_node) rb_root;
-RB_PROTOTYPE(stress_rb_tree, tree_node, u.rb, tree_node_cmp_fwd)
+RB_PROTOTYPE(stress_rb_tree, tree_node, u.rb, tree_node_cmp_fwd);
 RB_GENERATE(stress_rb_tree, tree_node, u.rb, tree_node_cmp_fwd)
 
 static void OPTIMIZE3 stress_tree_rb(
