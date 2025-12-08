@@ -58,7 +58,7 @@ static void MLOCKED_TEXT NORETURN stress_rmap_handler(int signum)
 static int OPTIMIZE3 stress_rmap_touch(
 	stress_args_t *args,
 	const size_t child_index,
-	uint32_t *addr,
+	uintptr_t *addr,
 	const size_t sz)
 {
 	register uintptr_t *begin = ((uintptr_t *)addr) + child_index;
@@ -95,7 +95,7 @@ static void NORETURN stress_rmap_child(
 	stress_args_t *args,
 	const size_t page_size,
 	const size_t child_index,
-	uint32_t *mappings[MAPPINGS_MAX])
+	uintptr_t *mappings[MAPPINGS_MAX])
 {
 	const size_t sz = MAPPING_PAGES * page_size;
 	int rc = EXIT_SUCCESS;
@@ -197,8 +197,8 @@ static int stress_rmap(stress_args_t *args)
 	int fd = -1, rc;
 	size_t i;
 	stress_pid_t *s_pids, *s_pids_head = NULL;
-	uint32_t *mappings[MAPPINGS_MAX];
-	uint32_t *paddings[MAPPINGS_MAX];
+	uintptr_t *mappings[MAPPINGS_MAX];
+	uintptr_t *paddings[MAPPINGS_MAX];
 	char filename[PATH_MAX];
 
 	if (stress_sigchld_set_handler(args) < 0)
@@ -219,8 +219,8 @@ static int stress_rmap(stress_args_t *args)
 	}
 
 	for (i = 0; i < MAPPINGS_MAX; i++) {
-		mappings[i] = (uint32_t *)MAP_FAILED;
-		paddings[i] = (uint32_t *)MAP_FAILED;
+		mappings[i] = MAP_FAILED;
+		paddings[i] = MAP_FAILED;
 	}
 
 	/* Make sure this is killable by OOM killer */
@@ -267,11 +267,11 @@ static int stress_rmap(stress_args_t *args)
 			goto cleanup;
 
 		mappings[i] =
-			(uint32_t *)mmap(NULL, MAPPING_PAGES * page_size, PROT_READ | PROT_WRITE,
+			(uintptr_t *)mmap(NULL, MAPPING_PAGES * page_size, PROT_READ | PROT_WRITE,
 				MAP_SHARED, fd, offset);
 		/* Squeeze at least a page in between each mapping */
 		paddings[i] =
-			(uint32_t *)mmap(NULL, page_size, PROT_READ | PROT_WRITE,
+			(uintptr_t *)mmap(NULL, page_size, PROT_READ | PROT_WRITE,
 				MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 		if (paddings[i] != MAP_FAILED)
 			stress_set_vma_anon_name(paddings[i], page_size, "mmap-padding");
