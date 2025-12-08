@@ -286,7 +286,7 @@ void stress_set_sockaddr_port(
 	switch (domain) {
 #if defined(AF_INET)
 	case AF_INET: {
-		struct sockaddr_in *addr = (struct sockaddr_in *)sockaddr;
+		struct sockaddr_in *addr = (struct sockaddr_in *)(void *)sockaddr;
 
 		addr->sin_port = htons(port);
 		break;
@@ -294,7 +294,7 @@ void stress_set_sockaddr_port(
 #endif
 #if defined(AF_INET6)
 	case AF_INET6: {
-		struct sockaddr_in6 *addr = (struct sockaddr_in6 *)sockaddr;
+		struct sockaddr_in6 *addr = (struct sockaddr_in6 *)(void *)sockaddr;
 
 		addr->sin6_port = htons(port);
 		break;
