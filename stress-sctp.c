@@ -446,9 +446,9 @@ retry:
 			if (UNLIKELY(n <= 0))
 				break;
 			if (n >= (ssize_t)sizeof(pid_t)) {
-				const pid_t *pidptr = (pid_t *)buf;
-				const pid_t pid = *pidptr;
+				pid_t pid;
 
+				shim_memcpy(&pid, buf, sizeof(pid));
 				if (UNLIKELY(pid != mypid)) {
 					pr_fail("%s: client received unexpected data "
 						"contents, got 0x%" PRIxMAX ", "
@@ -579,10 +579,9 @@ static int OPTIMIZE3 stress_sctp_server(
 		if (LIKELY(sfd >= 0)) {
 			size_t i;
 			const int c = stress_ascii32[idx++ & 0x1f];
-			pid_t *pidptr = (pid_t *)buf;
 
-			(void)shim_memset(buf, c, sizeof(buf));
-			*pidptr = mypid;
+			(void)shim_memset(buf + sizeof(mypid), c, sizeof(buf) - sizeof(mypid));
+			(void)shim_memcpy(buf, &mypid, sizeof(mypid));
 			for (i = 16; i < sizeof(buf); i += 16) {
 				ssize_t ret = sctp_sendmsg(sfd, buf, i,
 						NULL, 0, 0, 0,
