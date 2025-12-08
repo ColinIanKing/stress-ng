@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-builtin.h"
 #include "core-mmap.h"
+#include "core-pragma.h"
 
 /*
  *  currently disabled
@@ -248,6 +249,8 @@ static int stress_sigbus(stress_args_t *args)
 			if (stress_mwc1()) {
 				static uint64_t data[2];
 				uint8_t *ptr8 = (uint8_t *)data;
+
+				/* Intentional misaligned warnings may occur here */
 				volatile uint64_t *ptr64 = (volatile uint64_t *)(ptr8 + 1);
 				volatile uint32_t *ptr32 = (volatile uint32_t *)(ptr8 + 1);
 				volatile uint16_t *ptr16 = (volatile uint16_t *)(ptr8 + 1);
