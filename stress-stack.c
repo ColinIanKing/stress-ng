@@ -106,11 +106,9 @@ static bool OPTIMIZE3 stress_stack_alloc(
 		 *  is random and non-zero to avoid
 		 *  kernel same page merging
 		 */
-		for (i = 0; i < STRESS_DATA_SIZE; i += page_size4) {
-			register uint32_t * const ptr = (uint32_t *)(((uint8_t *)data) + i);
-
-			*ptr = stress_mwc32();
-			*(ptr + 1) = stress_mwc32() | 1;
+		for (i = 0; i < STRESS_DATA_SIZE; i += page_size4 / sizeof(data[0])) {
+			data[i] = stress_mwc32();
+			data[i + 1] = stress_mwc32() | 1;
 		}
 	}
 	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
