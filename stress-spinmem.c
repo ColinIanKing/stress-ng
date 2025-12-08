@@ -20,6 +20,7 @@
 #include "core-affinity.h"
 #include "core-asm-arm.h"
 #include "core-asm-generic.h"
+#include "core-builtin.h"
 #include "core-cpu-cache.h"
 #include "core-killpid.h"
 #include "core-mmap.h"
@@ -88,7 +89,8 @@ static void MLOCKED_TEXT stress_spinmem_handler(int signum)
 #define SPINMEM_READER(name, type)		\
 static void OPTIMIZE3 name(uint8_t *data, const bool spinmem_yield)	\
 {						\
-	volatile type *uptr = (type *)data;	\
+	volatile type *uptr = (type *)		\
+		shim_assume_aligned(data, 16);	\
 	register type val = (type)0;		\
 	register int i;				\
 						\
@@ -116,7 +118,8 @@ static void OPTIMIZE3 name(uint8_t *data, const bool spinmem_yield)	\
 #define SPINMEM_WRITER(name, type)		\
 static void OPTIMIZE3 name(uint8_t *data, const bool spinmem_yield)	\
 {						\
-	volatile type *uptr = (type *)data;	\
+	volatile type *uptr = (type *)		\
+		shim_assume_aligned(data, 16);	\
 	register type v = *data;		\
 	register int i;				\
 						\
