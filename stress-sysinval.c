@@ -106,7 +106,7 @@ static const stress_help_t help[] = {
 #define ARG_BPF_CMDS		0x00000003UL | ARG_MISC
 #define ARG_BPF_LEN		0x00000004UL | ARG_MISC
 
-#define ARG_VALUE(x, v)		{ (x), SIZEOF_ARRAY(v), (unsigned long int *)v }
+#define ARG_VALUE(x, v)		{ (x), SIZEOF_ARRAY(v), (unsigned long int *)(void *)v }
 #define ARG_MISC_ID(x)		((x) & ~ARG_MISC)
 
 /*
