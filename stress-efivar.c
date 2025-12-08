@@ -111,7 +111,7 @@ static inline void efi_get_varname(char *dst, const size_t len, const stress_efi
 {
 	register size_t i = len;
 
-	const uint16_t *src = (const uint16_t *)var->varname;
+	const uint16_t *src = (const uint16_t *)(const void *)var->varname;
 
 	while ((*src) && (i > 1)) {
 		*dst++ = (char)(*(src++) & 0xff);
@@ -325,7 +325,7 @@ static int get_variable_sysfs_efi_vars(
 {
 	size_t i;
 	stress_efi_var_t var;
-	const uint32_t *attributes = (uint32_t *)var.attributes;
+	const uint32_t *attributes = (uint32_t *)(void *)var.attributes;
 
 	static const char * const efi_sysfs_names[] = {
 		"attributes",
