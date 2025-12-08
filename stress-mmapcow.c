@@ -97,7 +97,7 @@ static int OPTIMIZE3 stress_mmapcow_modify_unmap(
 	double *duration,
 	double *count)
 {
-	volatile uint64_t *ptr = (volatile uint64_t *)shim_assume_aligned(page, page_size);
+	volatile uint64_t *ptr = (volatile uint64_t *)shim_assume_aligned(page, 8);
 	const uint64_t *ptr_end = (uint64_t *)(((uintptr_t)ptr) + page_size);
 	uint64_t val = stress_mwc64() | 0x1248124812481248ULL;	/* random, and never zero */
 	double t1, t2;
