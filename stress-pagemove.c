@@ -158,7 +158,7 @@ static int stress_pagemove_child(stress_args_t *args, void *context)
 		}
 
 		for (page_num = 0, ptr = buf; ptr < buf_end; ptr += page_size, page_num++) {
-			register const page_info_t *p = (page_info_t *)ptr;
+			register const page_info_t *p = (page_info_t *)(void *)ptr;
 
 			if (UNLIKELY((p->page_num != page_num) ||
 				     (p->virt_addr != (void *)ptr))) {
@@ -277,7 +277,7 @@ static int stress_pagemove_child(stress_args_t *args, void *context)
 				metrics_count = 0;
 		}
 		for (page_num = 0, ptr = buf; ptr < buf_end; ptr += page_size, page_num++) {
-			register const page_info_t *p = (page_info_t *)ptr;
+			register const page_info_t *p = (page_info_t *)(void *)ptr;
 			register const size_t expected = (page_num + 1) % info->pages;
 
 			if (UNLIKELY(expected != p->page_num))
