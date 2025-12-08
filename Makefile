@@ -112,6 +112,10 @@ PEDANTIC_FLAGS := \
 	-Wmissing-format-attribute -Wno-long-long -Wpacked \
 	-Wredundant-decls -Wshadow -Wno-missing-field-initializers \
 	-Wno-missing-braces -Wno-sign-compare -Wno-multichar \
+	-Warray-bounds=2 -Wstringop-overflow -Wformat-overflow \
+	-Wmaybe-uninitialized -Wshadow -Wdouble-promotion \
+	-Wcast-align=strict -Wduplicated-cond \
+	-Wduplicated-branches \
 	-DHAVE_PEDANTIC
 endif
 override CFLAGS += $(foreach flag,$(PEDANTIC_FLAGS),$(cc_supports_flag))
