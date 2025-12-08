@@ -329,7 +329,7 @@ case_sched_fifo:
 				(void)shim_memset(large_attr, 0, large_attr_size);
 
 				VOID_RET(int, shim_sched_getattr(pid,
-					(struct shim_sched_attr *)large_attr,
+					(struct shim_sched_attr *)(void *)large_attr,
 					(unsigned int)large_attr_size, 0));
 
 				free(large_attr);
