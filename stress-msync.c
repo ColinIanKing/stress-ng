@@ -50,7 +50,7 @@ static const stress_opt_t opts[] = {
  *	check in 64 bit byte chunks
  */
 static int OPTIMIZE3 stress_page_check(
-	const uint8_t *buf,
+	const uint64_t *buf,
 	const uint8_t val,
 	const size_t sz)
 {
@@ -62,17 +62,16 @@ static int OPTIMIZE3 stress_page_check(
 	uint16_t val16 = (uint16_t)((uint16_t)val << 8) | val;
 	uint32_t val32 = (uint32_t)val16 << 16 | val16;
 	register uint64_t val64 = (uint64_t)val32 << 32 | val32;
-	register const uint64_t *buf64 = (const uint64_t *)buf;
-	register const uint64_t *buf64end = (const uint64_t *)(buf + sz);
+	register const uint64_t *bufend = (const uint64_t *)((uintptr_t)buf + sz);
 
-	while (buf64 < buf64end) {
-		if (UNLIKELY(*(buf64++) != val64))
+	while (buf < bufend) {
+		if (UNLIKELY(*(buf++) != val64))
 			return -1;
-		if (UNLIKELY(*(buf64++) != val64))
+		if (UNLIKELY(*(buf++) != val64))
 			return -1;
-		if (UNLIKELY(*(buf64++) != val64))
+		if (UNLIKELY(*(buf++) != val64))
 			return -1;
-		if (UNLIKELY(*(buf64++) != val64))
+		if (UNLIKELY(*(buf++) != val64))
 			return -1;
 	}
 #endif
@@ -99,8 +98,8 @@ static void MLOCKED_TEXT NORETURN stress_sigbus_handler(int signum)
  */
 static int stress_msync(stress_args_t *args)
 {
-	NOCLOBBER uint8_t *buf = NULL;
-	uint8_t *data = NULL;
+	NOCLOBBER uint64_t *buf = NULL;
+	uint64_t *data = NULL;
 	const size_t page_size = args->page_size;
 	const size_t min_size = 2 * page_size;
 	uint64_t msync_bytes, msync_bytes_total = DEFAULT_MSYNC_BYTES;
@@ -178,7 +177,7 @@ static int stress_msync(stress_args_t *args)
 		return EXIT_FAILURE;
 	}
 
-	buf = (uint8_t *)stress_mmap_populate(NULL, sz,
+	buf = (uint64_t *)stress_mmap_populate(NULL, sz,
 		PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
 	if (buf == MAP_FAILED) {
 		pr_err("%s: failed to mmap memory of size %" PRIu64 " bytes%s, errno=%d (%s)\n",
@@ -187,7 +186,7 @@ static int stress_msync(stress_args_t *args)
 		rc = EXIT_NO_RESOURCE;
 		goto err;
 	}
-	data = (uint8_t *)stress_mmap_populate(NULL, page_size,
+	data = (uint64_t *)stress_mmap_populate(NULL, page_size,
 		PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (data == MAP_FAILED) {
 		pr_err("%s: failed to mmap memory of size %zu bytes%s, errno=%d (%s)\n",
@@ -205,6 +204,7 @@ static int stress_msync(stress_args_t *args)
 	do {
 		off_t offset;
 		uint8_t val;
+		void *ptr;
 
 		ret = sigsetjmp(jmp_env, 1);
 		if (ret) {
@@ -215,10 +215,11 @@ static int stress_msync(stress_args_t *args)
 		 *  Change data in memory, msync to disk
 		 */
 		offset = (off_t)stress_mwc64modn(sz - page_size) & ~((off_t)page_size - 1);
+		ptr = (void *)((uintptr_t)buf + offset);
 		val = stress_mwc8();
 
-		(void)shim_memset(buf + offset, val, page_size);
-		ret = shim_msync(buf + offset, page_size, MS_SYNC);
+		(void)shim_memset(ptr, val, page_size);
+		ret = shim_msync(ptr, page_size, MS_SYNC);
 		if (UNLIKELY(ret < 0)) {
 			pr_fail("%s: msync MS_SYNC on "
 				"offset %" PRIdMAX " failed, errno=%d (%s)\n",
@@ -251,9 +252,10 @@ do_invalidate:
 		 *  Now change data on disc, msync invalidate
 		 */
 		offset = (off_t)stress_mwc64modn(sz - page_size) & ~((off_t)page_size - 1);
+		ptr = (void *)((uintptr_t)buf + offset);
 		val = stress_mwc8();
 
-		(void)shim_memset(buf + offset, val, page_size);
+		(void)shim_memset(ptr, val, page_size);
 
 		ret = lseek(fd, offset, SEEK_SET);
 		if (UNLIKELY(ret == (off_t)-1)) {
@@ -269,7 +271,7 @@ do_invalidate:
 				args->name, errno, strerror(errno));
 			goto do_next;
 		}
-		ret = shim_msync(buf + offset, page_size, MS_INVALIDATE);
+		ret = shim_msync(ptr, page_size, MS_INVALIDATE);
 		if (UNLIKELY(ret < 0)) {
 			pr_fail("%s: msync MS_INVALIDATE on "
 				"offset %" PRIdMAX " failed, errno=%d (%s)\n",
@@ -277,29 +279,29 @@ do_invalidate:
 				strerror(errno));
 			goto do_next;
 		}
-		if (UNLIKELY(stress_page_check(buf + offset, val, page_size) < 0)) {
+		if (UNLIKELY(stress_page_check((uint64_t *)ptr, val, page_size) < 0)) {
 			pr_fail("%s: msync'd data in memory "
 				"different to data in file\n", args->name);
 		}
 
 		/* Exercise invalid msync flags */
-		VOID_RET(int, shim_msync(buf + offset, page_size, MS_ASYNC | MS_SYNC));
-		VOID_RET(int, shim_msync(buf + offset, page_size, ~0));
+		VOID_RET(int, shim_msync(ptr, page_size, MS_ASYNC | MS_SYNC));
+		VOID_RET(int, shim_msync(ptr, page_size, ~0));
 
 		/* Exercise invalid address wrap-around */
 		VOID_RET(int, shim_msync((void *)(~(uintptr_t)0 & ~(page_size - 1)),
 				page_size << 1, MS_ASYNC));
 
 		/* Exercise start == end no-op msync */
-		VOID_RET(int, shim_msync(buf + offset, 0, MS_ASYNC));
+		VOID_RET(int, shim_msync(ptr, 0, MS_ASYNC));
 
 #if defined(HAVE_MLOCK) &&	\
     defined(MS_INVALIDATE)
 		/* Force EBUSY when invalidating on a locked page */
-		ret = shim_mlock(buf + offset, page_size);
+		ret = shim_mlock(ptr, page_size);
 		if (LIKELY(ret == 0)) {
-			VOID_RET(int, shim_msync(buf + offset, page_size, MS_INVALIDATE));
-			VOID_RET(int, shim_munlock(buf + offset, page_size));
+			VOID_RET(int, shim_msync(ptr, page_size, MS_INVALIDATE));
+			VOID_RET(int, shim_munlock(ptr, page_size));
 		}
 #endif
 
