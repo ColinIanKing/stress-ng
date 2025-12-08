@@ -95,7 +95,7 @@ static int monitor(stress_args_t *args, const int sock)
 		}
 	}
 
-	for (nlmsghdr = (struct nlmsghdr *)buf;
+	for (nlmsghdr = (struct nlmsghdr *)(void *)buf;
 		(len > 0) && NLMSG_OK(nlmsghdr, (unsigned int)len);
 		nlmsghdr = NLMSG_NEXT(nlmsghdr, len)) {
 
@@ -120,7 +120,7 @@ static int monitor(stress_args_t *args, const int sock)
 		if (cn_msg->len < sizeof(struct proc_event))
 			continue;
 
-		proc_ev = (const struct proc_event *)cn_msg->data;
+		proc_ev = (const struct proc_event *)(const void *)cn_msg->data;
 
 		switch (proc_ev->what) {
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,14)
