@@ -92,7 +92,6 @@ static int OPTIMIZE3 stress_udp_client(
 		socklen_t len;
 		int fd, j = 0;
 		char ALIGN64 buf[UDP_BUF];
-		pid_t *pidptr = (pid_t *)buf;
 
 		if (UNLIKELY((fd = socket(udp_domain, SOCK_DGRAM, udp_proto)) < 0)) {
 			pr_fail("%s: socket failed, errno=%d (%s)\n",
@@ -212,8 +211,8 @@ static int OPTIMIZE3 stress_udp_client(
 #else
 		UNEXPECTED
 #endif
-		(void)shim_memset(buf, stress_mwc8(), sizeof(buf));
-		*pidptr = pid;
+		(void)shim_memcpy(buf, &pid, sizeof(pid));
+		(void)shim_memset(buf + sizeof(pid), stress_mwc8(), sizeof(buf) - sizeof(pid));
 
 		do {
 			register size_t i;
@@ -366,9 +365,9 @@ static int OPTIMIZE3 stress_udp_server(
 			}
 			break;
 		} else {
-			const pid_t *pidptr = (const pid_t *)buf;
-			const pid_t pid = *pidptr;
+			pid_t pid;
 
+			(void)shim_memcpy(&pid, buf, sizeof(pid));
 			if (UNLIKELY(pid != client_pid)) {
 				pr_fail("%s: server received unexpected data "
 					"contents, got 0x%" PRIxMAX ", "
