@@ -96,7 +96,7 @@ static int stress_ping_sock(stress_args_t *args)
 	addr.sin_family = AF_INET;
 	addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
 
-	icmp_hdr = (struct icmphdr *)buf;
+	icmp_hdr = (struct icmphdr *)(void *)buf;
 	(void)shim_memset(icmp_hdr, 0, sizeof(*icmp_hdr));
 	icmp_hdr->type = ICMP_ECHO;
 	icmp_hdr->un.echo.id = (uint16_t)getpid();	/* some unique ID */
