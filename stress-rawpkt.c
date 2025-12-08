@@ -279,7 +279,7 @@ static void NORETURN OPTIMIZE3 stress_rawpkt_client(
 	ip->tot_len = sizeof(struct iphdr) + sizeof(struct udphdr);
 	ip->ttl = 16;  		/* Not too many hops! */
 	ip->protocol = SOL_UDP;	/* UDP protocol */
-	ip->saddr = inet_addr(inet_ntoa((((struct sockaddr_in *)&(ifaddr->ifr_addr))->sin_addr)));
+	ip->saddr = inet_addr(inet_ntoa((((struct sockaddr_in *)(void *)&(ifaddr->ifr_addr))->sin_addr)));
 	ip->daddr = ip->saddr;
 
 	udp->source = htons(port);
@@ -343,7 +343,7 @@ static int OPTIMIZE3 stress_rawpkt_server(
 	const struct udphdr *udp = (struct udphdr *)((uintptr_t)buf + sizeof(struct ethhdr) + sizeof(struct iphdr));
 	struct sockaddr saddr;
 	int saddr_len = sizeof(saddr);
-	const in_addr_t addr = inet_addr(inet_ntoa((((struct sockaddr_in *)&(ifaddr->ifr_addr))->sin_addr)));
+	const in_addr_t addr = inet_addr(inet_ntoa((((struct sockaddr_in *)(void *)&(ifaddr->ifr_addr))->sin_addr)));
 	uint64_t all_pkts = 0;
 	const ssize_t min_size = sizeof(struct ethhdr) + sizeof(struct iphdr) + sizeof(struct udphdr);
 	double t_start, duration, bytes = 0.0, rate;
