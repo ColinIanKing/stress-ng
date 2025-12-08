@@ -166,7 +166,7 @@ static int stress_tun(stress_args_t *args)
 		if (UNLIKELY(sfd < 0))
 			goto clean_up;
 		ifr.ifr_addr.sa_family = AF_INET;
-		tun_addr = (struct sockaddr_in *)&ifr.ifr_addr;
+		tun_addr = (struct sockaddr_in *)(void *)&ifr.ifr_addr;
 
 		/*
 		 *  Attempt to assign some kind of random address
