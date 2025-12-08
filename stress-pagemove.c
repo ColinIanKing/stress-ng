@@ -144,7 +144,8 @@ static int stress_pagemove_child(stress_args_t *args, void *context)
 		}
 
 		for (page_num = 0, ptr = buf; ptr < buf_end; ptr += page_size, page_num++) {
-			page_info_t *p = (page_info_t *)ptr;
+			/* aligned to page, min page size is 4K */
+			page_info_t *p = (page_info_t *)shim_assume_aligned(ptr, 4096);
 
 			p->page_num = page_num;
 			p->virt_addr = (void *)ptr;
