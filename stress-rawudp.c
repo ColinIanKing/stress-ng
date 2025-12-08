@@ -86,9 +86,9 @@ static void NORETURN OPTIMIZE3 stress_rawudp_client(
 {
 	int rc = EXIT_FAILURE;
 	uint16_t id = 12345;
-	char buf[PACKET_SIZE];
-	struct iphdr *ip = (struct iphdr *)buf;
-	struct udphdr *udp = (struct udphdr *)(buf + sizeof(struct iphdr));
+	char buf[PACKET_SIZE] ALIGNED(64);
+	struct iphdr *ip = (struct iphdr *)(void *)buf;
+	struct udphdr *udp = (struct udphdr *)(void *)(buf + sizeof(struct iphdr));
 	uint8_t *data = (uint8_t *)(buf + sizeof(struct iphdr) + sizeof(struct udphdr));
 	struct sockaddr_in s_in;
 	int one = 1;
@@ -134,9 +134,9 @@ static void NORETURN OPTIMIZE3 stress_rawudp_client(
 
 		ip->tos = stress_mwc8() & 0x1e;
 		ip->id = htons(id++);
-		ip->check = stress_ipv4_checksum((uint16_t *)buf, PACKET_SIZE);
+		ip->check = stress_ipv4_checksum((uint16_t *)shim_assume_aligned(buf, 64), PACKET_SIZE);
 
-		*(pid_t *)data = args->pid;
+		(void)shim_memcpy(data, &args->pid, sizeof(args->pid));
 
 		n = sendto(fd, buf, PACKET_SIZE, 0, (struct sockaddr *)&s_in, sizeof(s_in));
 		if (UNLIKELY(n < 0)) {
@@ -165,9 +165,9 @@ static int OPTIMIZE3 stress_rawudp_server(
 	socklen_t addr_len;
 	int rc = EXIT_SUCCESS;
 	struct sockaddr_in s_in;
-	char buf[PACKET_SIZE];
-	const struct iphdr *ip = (struct iphdr *)buf;
-	const struct udphdr *udp = (struct udphdr *)(buf + sizeof(struct iphdr));
+	char buf[PACKET_SIZE] ALIGNED(64);
+	const struct iphdr *ip = (struct iphdr *)(void *)buf;
+	const struct udphdr *udp = (struct udphdr *)(void *)(buf + sizeof(struct iphdr));
 	const uint8_t *data = (uint8_t *)(buf + sizeof(struct iphdr) + sizeof(struct udphdr));
 	double t_start, duration = 0.0, bytes = 0.0, rate;
 	char msg[64];
@@ -204,12 +204,15 @@ static int OPTIMIZE3 stress_rawudp_server(
 			if (((in_addr_t)ip->saddr == addr) &&
 			    (ip->protocol == SOL_UDP) &&
 			    (ntohs(udp->source) == port)) {
-				if (UNLIKELY(*(const pid_t *)data != args->pid)) {
+				pid_t pid;
+
+				(void)shim_memcpy(&pid, data, sizeof(pid));
+				if (UNLIKELY(pid != args->pid)) {
 					pr_fail("%s: data check failure, "
 						"got 0x%" PRIxMAX ", "
 						 "expected 0x%" PRIxMAX "\n",
 						args->name,
-						(uintmax_t)*(const pid_t *)data,
+						(uintmax_t)pid,
 						(uintmax_t)args->pid);
 					rc = EXIT_FAILURE;
 				}
@@ -269,7 +272,7 @@ static int stress_rawudp(stress_args_t *args)
 				args->name, rawudp_if, stress_net_domain(AF_INET));
 			rawudp_if = NULL;
 		} else {
-			addr = ((struct sockaddr_in *)&if_addr)->sin_addr.s_addr;
+			addr = ((struct sockaddr_in *)(void *)&if_addr)->sin_addr.s_addr;
 		}
 	}
 
