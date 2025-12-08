@@ -116,6 +116,27 @@ static inline void stress_read_proc_maps(const char *maps)
 }
 
 /*
+ *  stress_ignore_advice()
+ *	return true if advice should not be used
+ */
+static bool stress_ignore_advice(const int advice)
+{
+	switch (madvise_options[advice]) {
+#if defined(MADV_GUARD_INSTALL)
+	case MADV_GUARD_INSTALL:
+		return true;
+#endif
+#if defined(MADV_GUARD_REMOVE)
+	case MADV_GUARD_REMOVE:
+		return true;
+#endif
+	default:
+		break;
+	}
+	return false;
+}
+
+/*
  *  stress_random_advise()
  *	get a random advise option
  */
@@ -134,6 +155,9 @@ static int stress_random_advise(
 	const int madv_normal = 0;
 #endif
 #endif
+
+	if (stress_ignore_advice(advise))
+		return madv_normal;
 
 #if defined(MADV_HWPOISON)
 	if (advise == MADV_HWPOISON) {
@@ -595,7 +619,7 @@ madv_free_out:
 		 * Some systems allow zero sized page zero madvise
 		 * to see if that madvice is implemented, so try this
 		 */
-		(void)madvise(0, 0, madvise_options[advice]);
+		(void)madvise(0, 0, stress_ignore_advice(advice) ? MADV_NORMAL : madvise_options[advice]);
 		advice++;
 		advice = (advice >= madvise_options_elements) ? 0: advice;
 
