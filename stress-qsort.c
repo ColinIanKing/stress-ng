@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-madvise.h"
 #include "core-mmap.h"
 #include "core-pragma.h"
@@ -51,6 +52,10 @@ typedef struct {
 	const qsort_func_t qsort_func;
 } stress_qsort_method_t;
 
+typedef uint32_t qsort_swap_type_t;
+
+#define ALIGN_SWAP_TYPE(ptr)	shim_assume_aligned(ptr, sizeof(qsort_swap_type_t))
+
 #if defined(HAVE_SIGLONGJMP)
 /*
  *  stress_qsort_handler()
@@ -68,7 +73,6 @@ static void MLOCKED_TEXT stress_qsort_handler(int signum)
 }
 #endif
 
-typedef uint32_t qsort_swap_type_t;
 
 static inline size_t qsort_bm_minimum(const size_t x, const size_t y)
 {
@@ -85,8 +89,8 @@ static inline uint8_t ALWAYS_INLINE *qsort_bm_med3(uint8_t *a, uint8_t *b, uint8
 static inline void ALWAYS_INLINE qsort_bm_swapfunc(uint8_t *a, uint8_t *b, size_t n, int swaptype)
 {
 	if (swaptype <= 1) {
-		register qsort_swap_type_t * RESTRICT pi = (qsort_swap_type_t *)a;
-		register qsort_swap_type_t * RESTRICT pj = (qsort_swap_type_t *)b;
+		register qsort_swap_type_t * RESTRICT pi = (qsort_swap_type_t *)ALIGN_SWAP_TYPE(a);
+		register qsort_swap_type_t * RESTRICT pj = (qsort_swap_type_t *)ALIGN_SWAP_TYPE(b);
 
 PRAGMA_UNROLL_N(4)
 		do {
@@ -116,9 +120,9 @@ static inline void ALWAYS_INLINE qsort_bm_swap(uint8_t *a, uint8_t *b, const siz
 	if (swaptype == 0) {
 		register qsort_swap_type_t tmp;
 
-		tmp = *(qsort_swap_type_t *)a;
-		*(qsort_swap_type_t *)a = *(qsort_swap_type_t *)b;
-		*(qsort_swap_type_t *)b = tmp;
+		tmp = *(qsort_swap_type_t *)ALIGN_SWAP_TYPE(a);
+		*(qsort_swap_type_t *)ALIGN_SWAP_TYPE(a) = *(qsort_swap_type_t *)ALIGN_SWAP_TYPE(b);
+		*(qsort_swap_type_t *)ALIGN_SWAP_TYPE(b) = tmp;
 	} else {
 		qsort_bm_swapfunc(a, b, es, swaptype);
 	}
@@ -167,7 +171,7 @@ static void TARGET_CLONES OPTIMIZE3 qsort_bm(void *base, size_t n, size_t es, co
 		qsort_bm_swap(pv, pm, es, swaptype);
 	} else {
 		pv = (uint8_t *)&v;
-		*(qsort_swap_type_t *)pv = *(qsort_swap_type_t *)pm;
+		*(qsort_swap_type_t *)ALIGN_SWAP_TYPE(pv) = *(qsort_swap_type_t *)ALIGN_SWAP_TYPE(pm);
 	}
 
 	pa = pb = a;
