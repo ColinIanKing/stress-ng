@@ -246,7 +246,7 @@ static int OPTIMIZE3 stress_netlink_taskstats_monitor(
 				break;
 			if (na->nla_type == TASKSTATS_TYPE_AGGR_PID)
 				stress_parse_payload(args, na, pid, nivcsw);
-			na = (struct nlattr *)((char *)na + NLA_ALIGN(na->nla_len));
+			na = (struct nlattr *)(void *)((char *)na + NLA_ALIGN(na->nla_len));
 		}
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
