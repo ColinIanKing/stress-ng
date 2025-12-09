@@ -60,7 +60,9 @@ static volatile int signo;
 static volatile int code;
 #endif
 
-#if defined(__FreeBSD__)
+#if defined(__FreeBSD__) ||	\
+    defined(__NetNBSD__) ||	\
+    defined(__OpenBSD__)
 #define MAX_MASK_SHIFT	(46)
 #else
 #define MAX_MASK_SHIFT	(50)
