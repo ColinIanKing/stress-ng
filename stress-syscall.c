@@ -1330,11 +1330,17 @@ static int syscall_copy_file_range(void)
 {
 	ssize_t ret;
 	shim_off64_t off_in = 0;
-	shim_off64_t off_out = 8192;
+	shim_off64_t off_out = 0;
+	int fd_out;
+
+	fd_out = open("/dev/null", O_WRONLY);
+	if (fd_out < 0)
+		return -1;
 
 	t1 = syscall_time_now();
-	ret = shim_copy_file_range(syscall_fd, &off_in, syscall_fd, &off_out, 4096, 0);
+	ret = shim_copy_file_range(syscall_fd, &off_in, fd_out, &off_out, 4096, 0);
 	t2 = syscall_time_now();
+	(void)close(fd_out);
 	return (int)ret;
 }
 #endif
@@ -2981,7 +2987,6 @@ static int syscall_kill(void)
 		t1 = syscall_time_now();
 		ret = kill(pid, SIGKILL);
 		t2 = syscall_time_now();
-
 		VOID_RET(pid_t, waitpid(pid, &status, 0));
 	}
 #else
@@ -4344,10 +4349,12 @@ static int syscall_pause(void)
 			int status;
 
 			VOID_RET(int, kill(pid, SIGUSR1));
+			VOID_RET(int, kill(pid, SIGCONT));
 
 			ret = waitpid(pid, &status, WNOHANG);
 			if (ret == pid)
 				break;
+			(void)stress_random_small_sleep();
 			(void)shim_sched_yield();
 		}
 	}
@@ -6431,10 +6438,12 @@ static int syscall_sigsuspend(void)
 			pid_t wret;
 
 			VOID_RET(int, kill(pid, SIGUSR1));
+			VOID_RET(int, kill(pid, SIGCONT));
 
 			wret = waitpid(pid, &status, WNOHANG);
 			if (wret == pid)
 				break;
+			(void)stress_random_small_sleep();
 			(void)shim_sched_yield();
 		} while (stress_continue_flag());
 
@@ -7323,6 +7332,7 @@ static int syscall_waitid(void)
 			ret = waitid(P_PID, pid, &info, WEXITED);
 			if ((ret == 0) && (info.si_pid == pid))
 				break;
+			(void)stress_random_small_sleep();
 			(void)shim_sched_yield();
 		}
 		t2 = syscall_time_now();
@@ -7380,6 +7390,7 @@ static int syscall_wait3(void)
 			ret = wait3(&status, 0, &usage);
 			if (ret == pid)
 				break;
+			(void)stress_random_small_sleep();
 			(void)shim_sched_yield();
 		}
 		t2 = syscall_time_now();
@@ -7410,6 +7421,7 @@ static int syscall_wait4(void)
 			ret = wait4(pid, &status, 0, &usage);
 			if (ret == pid)
 				break;
+			(void)stress_random_small_sleep();
 			(void)shim_sched_yield();
 		}
 		t2 = syscall_time_now();
@@ -7440,6 +7452,7 @@ static int syscall_waitpid(void)
 			ret = waitpid(pid, &status, 0);
 			if (ret == pid)
 				break;
+			(void)stress_random_small_sleep();
 			(void)shim_sched_yield();
 		}
 		t2 = syscall_time_now();
