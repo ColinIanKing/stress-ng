@@ -62,7 +62,8 @@ static volatile int code;
 
 #if defined(__FreeBSD__) ||	\
     defined(__NetNBSD__) ||	\
-    defined(__OpenBSD__)
+    defined(__OpenBSD__) ||	\
+    defined(__sun__)
 #define MAX_MASK_SHIFT	(46)
 #else
 #define MAX_MASK_SHIFT	(50)
