@@ -770,11 +770,15 @@ again:
 	} else if (pid == 0) {
 #if defined(HAVE_SCHED_GET_PRIORITY_MIN) &&	\
     defined(HAVE_SCHED_GET_PRIORITY_MAX)
-		const pid_t mypid = getpid();
+		NOCLOBBER pid_t mypid;
 #endif
 		int ret;
 		NOCLOBBER int ncrc = EXIT_FAILURE;
 
+#if defined(HAVE_SCHED_GET_PRIORITY_MIN) &&	\
+    defined(HAVE_SCHED_GET_PRIORITY_MAX)
+		mypid = getpid();
+#endif
 		stress_set_proc_state(args->name, STRESS_STATE_RUN);
 		stress_set_make_it_fail();
 
