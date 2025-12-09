@@ -355,7 +355,7 @@ static void *stress_pthread_func(void *parg)
 		struct timespec abstime;
 
 		if (clock_gettime(CLOCK_MONOTONIC, &abstime) < 0)
-			goto yield;
+			break;
 		abstime.tv_nsec += 10000000;
 		if (abstime.tv_nsec >= STRESS_NANOSECOND) {
 			abstime.tv_nsec -= STRESS_NANOSECOND;
@@ -370,7 +370,6 @@ static void *stress_pthread_func(void *parg)
 				break;
 			}
 		}
-yield:
 #endif
 		(void)shim_sched_yield();
 	}
@@ -419,6 +418,7 @@ die:
 	(void)keep_running();
 
 	stress_pthread_tid_address(args);
+	(void)shim_sched_yield();
 
 	return &g_nowt;
 }
