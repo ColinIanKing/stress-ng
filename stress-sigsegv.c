@@ -60,6 +60,12 @@ static volatile int signo;
 static volatile int code;
 #endif
 
+#if defined(__FreeBSD__)
+#define MAX_MASK_SHIFT	(46)
+#else
+#define MAX_MASK_SHIFT	(50)
+#endif
+
 /*
  *  stress_segvhandler()
  *	SEGV handler
@@ -541,7 +547,7 @@ retry:
 				 *
 				 *   [1] ARM64 linux, OpenIndiana x86, etc
 				 */
-				if (mask_shift > 50)
+				if (mask_shift > MAX_MASK_SHIFT)
 					mask_shift = 0;
 				masked_ptr &= mask;
 				masked_ptr |= mask_bit;	/* ensure top bit always set */
