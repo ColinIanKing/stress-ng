@@ -112,7 +112,7 @@ To build on BSD systems, one requires gcc and GNU make:
 To build on OS X systems, just use:
 ```
     make clean
-    make -j
+    make
 ```
 
 To build on MINIX, gmake, binutils and clang are required:
