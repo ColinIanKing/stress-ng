@@ -29,12 +29,14 @@
 #if defined(HAVE_LIB_RT) && 		\
     defined(HAVE_TIMER_CREATE) &&	\
     defined(HAVE_TIMER_DELETE) &&	\
-    defined(HAVE_TIMER_SETTIME)
+    defined(HAVE_TIMER_SETTIME) &&	\
+    defined(SA_SIGINFO)
 #define EXERCISE_TIMER		(1)
 #endif
 
 #if defined(HAVE_GETITIMER) &&  \
-    defined(HAVE_SETITIMER)
+    defined(HAVE_SETITIMER) &&	\
+    defined(SA_SIGINFO)
 #define EXERCISE_ITIMER		(1)
 #endif
 
