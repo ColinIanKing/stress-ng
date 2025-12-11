@@ -655,7 +655,7 @@ static int stress_mmaprandom_munmap_force(
 	size_t length,
 	size_t page_size)
 {
-#if defined(MADV_FREE)
+#if defined(HAVE_MADVISE)
 	const int advise = MWC_RND_ELEMENT(madvise_unmap_options);
 
 	(void)stress_mmaprandom_madvise_pages(addr, length, advise, page_size);
