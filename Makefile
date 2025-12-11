@@ -26,11 +26,11 @@ VERSION=0.19.06
 # Determine supported toolchains
 #
 COMPILER = cc
-ifneq ($(shell $(CC) -v 2>&1 | grep version | grep gcc),)
-COMPILER = gcc
-endif
-ifneq ($(shell $(CC) -v 2>&1 | grep version | grep icc),)
+ifneq ($(shell $(CC) -v 2>&1 | grep "^icc version"),)
 COMPILER = icc
+endif
+ifneq ($(shell $(CC) -v 2>&1 | grep version | grep "^gcc"),)
+COMPILER = gcc
 endif
 ifneq ($(shell $(CC) -v 2>&1 | grep "Portable C Compiler"),)
 COMPILER = pcc
@@ -832,7 +832,12 @@ OBJS += $(SRC:.c=.o)
 
 APPARMOR_PARSER=/sbin/apparmor_parser
 
-all: config.h stress-ng
+all: build_info config.h stress-ng
+
+build_info:
+	$(PRE_Q)echo "Compiler: $(COMPILER)"
+	$(PRE_Q)echo "CFLAGS: $(CFLAGS)"
+	$(PRE_Q)echo "LDFLAGS: $(LDFLAGS)"
 
 .SUFFIXES: .cpp .c .o
 
