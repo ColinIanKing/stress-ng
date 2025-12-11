@@ -594,7 +594,7 @@ static void * stress_mmaprandom_mmap(
 	return mmap(hint, length, prot, flags, fd, offset);
 }
 
-#if defined(MADV_FREE)
+#if defined(HAVE_MADVISE)
 /*
  *  stress_mmaprandom_madvise_pages()
  *	apply madvise to a region, either over the entire
@@ -942,19 +942,6 @@ static void OPTIMIZE3 stress_mmaprandom_mmap_file(mr_ctxt_t *ctxt, const int idx
 	RB_INSERT(sm_used_node_tree, &sm_used_node_tree_root, mr_node);
 	RB_INSERT(sm_rand_node_tree, &sm_rand_node_tree_root, mr_node);
 	sm_used_nodes++;
-}
-
-/*
- *  stress_mmaprandom_get_random_size()
- *	get an randomly selected used mr_node
- */
-static inline size_t stress_mmaprandom_get_random_size(
-	const size_t mmap_size,
-	const size_t page_size)
-{
-	size_t n = mmap_size / page_size;
-
-	return page_size * (1 + (size_t)stress_mwc8modn((uint8_t)n));
 }
 
 /*
@@ -1450,6 +1437,19 @@ static void stress_mmaprandom_mincore(mr_ctxt_t *ctxt, const int idx)
 #endif
 
 #if defined(HAVE_MSYNC)
+/*
+ *  stress_mmaprandom_get_random_size()
+ *	get an randomly selected used mr_node
+ */
+static inline size_t stress_mmaprandom_get_random_size(
+	const size_t mmap_size,
+	const size_t page_size)
+{
+	size_t n = mmap_size / page_size;
+
+	return page_size * (1 + (size_t)stress_mwc8modn((uint8_t)n));
+}
+
 /*
  *  stress_mmaprandom_msync()
  *	msync a mapping
