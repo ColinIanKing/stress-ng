@@ -117,8 +117,8 @@ To build on OS X systems, just use:
 
 To build on MINIX, gmake, binutils and clang are required:
 ```
-    CC=clang gmake clean
-    CC=clang gmake
+    CC=clang LD=clang gmake clean
+    CC=clang LD=clang gmake
 ```
 
 To build on SunOS, one requires GCC and GNU make, build using:
