@@ -515,7 +515,7 @@ static const uint32_t masks_32bit[] = {
 };
 
 /*
- *  64 bit address space addess masks
+ *  64 bit address space address masks
  */
 static const uint64_t masks_64bit[] = {
 	0x00000000007fffffULL,
