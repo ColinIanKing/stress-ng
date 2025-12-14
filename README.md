@@ -648,6 +648,9 @@ I appreciate information concerning kernel bugs or performance regressions found
 
 * [Citations](./CITATIONS.md)
 
+I appreciate links to published research papers where stress-ng has
+been used and referenced to help keep the citations list relevant. 
+
 ## Contributors
 
 Many thanks to the following contributors to stress-ng (in alphabetical order):
