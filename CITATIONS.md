@@ -161,6 +161,7 @@
 * [Enhancing the PSI framework in Linux Kernel for predictive and accurate workload analysis](https://lpc.events/event/18/contributions/1884/attachments/1439/3069/LPC2024_PIntu_PSI.pdf)
 * [Virtualization vs. Containerization, a Comparative Approach for Application Deployment in the Computing Continuum Focused on the Edge](https://www.researchgate.net/publication/385953515_Virtualization_vs_Containerization_a_Comparative_Approach_for_Application_Deployment_in_the_Computing_Continuum_Focused_on_the_Edge)
 * [Performance Analysis of Intel Total Memory Encryption Multi-Key](https://scholar.afit.edu/cgi/viewcontent.cgi?article=8692&context=etd)
+* [An experimental approach for evaluating cache allocation policies in multicore for real-time mixed-criticality systems](https://hal.science/hal-04627006/document)
 
 2025:
  * [SPY-PMU: Side-Channel Profiling of Your Performance Monitoring Unit to Leak Remote User Activity](https://eprint.iacr.org/2025/014)
@@ -198,4 +199,5 @@
  * [FUKURO: An Agent-Driven Framework for Real-Time Remote Host Resource Managemen](https://rsisinternational.org/journals/ijriss/download_pdf.php?id=2021)
  * [TZ-LLM: Protecting On-Device Large Language Models with Arm TrustZone](https://arxiv.org/pdf/2511.13717)
  * [Graph Neural Networks for Anomaly Detection in Cloud Infrastructure](https://www.scirp.org/pdf/jcc_1733321.pdf)
+ * [METRION: A Framework for Accurate Software Energy Measurement](https://arxiv.org/html/2512.06806v1)
 
