@@ -204,6 +204,22 @@ int shim_cacheflush(char *addr, int nbytes, int cache)
 		return 0;
 	}
 #endif
+#if defined(HAVE_ASM_RISCV_CBO_CACHE_MANAGEMENT)
+	if (cache == SHIM_DCACHE)  {
+		unsigned int cl_size;
+
+		if (!stress_asm_riscv_has_cbom())
+			return -1;
+
+		cl_size = stress_asm_riscv_cl_size();
+		if (!cl_size)
+			return -1;
+
+		for(unsigned int i = 0u; i < nbytes / cl_size; i++)
+			stress_asm_riscv_cbo_flush(addr + i * cl_size);
+		return 0;
+	}
+#endif
 	return -1;
 #elif defined(HAVE_BUILTIN___CLEAR_CACHE)
 	/* More portable builtin */
