@@ -68,7 +68,8 @@ static const stress_help_t help[] = {
 #if defined(SIOCATMARK) &&	\
     defined(AF_INET) &&		\
     defined(SOCK_STREAM) &&	\
-    defined(IPPROTO_TCP)
+    defined(IPPROTO_TCP) &&	\
+    defined(F_SETOWN)
 
 static stress_args_t *s_args;
 static int sockfd = -1;
