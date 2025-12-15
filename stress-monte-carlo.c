@@ -162,7 +162,8 @@ static void stress_mc_random_seed(void)
 }
 #endif
 
-#if defined(HAVE_DRAND48)
+#if defined(HAVE_DRAND48) &&	\
+    defined(HAVE_SEED48)
 static double stress_mc_drand48_rand(void)
 {
 	return drand48();
@@ -283,7 +284,8 @@ static const stress_monte_carlo_rand_info_t rand_info[] = {
     defined(HAVE_ASM_PPC64_DARN)
 	{ "darn",	stress_mc_darn_rand,		stress_mc_no_seed,		stress_mc_darn_supported },
 #endif
-#if defined(HAVE_DRAND48)
+#if defined(HAVE_DRAND48) &&	\
+    defined(HAVE_SEED48)
 	{ "drand48",	stress_mc_drand48_rand,		stress_mc_drand48_seed,		stress_mc_supported },
 #endif
 #if defined(HAVE_GETRANDOM) &&	\
