@@ -66,9 +66,6 @@ typedef struct {
 	uint64_t  index;		/* which pthread */
 	volatile double	t_create;	/* time when created */
 	volatile double	t_run;		/* time when thread started running */
-#if defined(HAVE_PTHREAD_ATTR_SETSTACK)
-	void 	 *stack;		/* pthread stack */
-#endif
 } stress_pthread_info_t;
 
 static pthread_cond_t cond;
@@ -437,9 +434,6 @@ static int stress_pthread(stress_args_t *args)
 	stress_pthread_args_t pargs = { args, NULL, 0 };
 	sigset_t set;
 	double count = 0.0, duration = 0.0, average;
-#if defined(HAVE_PTHREAD_ATTR_SETSTACK)
-	const size_t stack_size = STRESS_MAXIMUM(DEFAULT_STACK_MIN, stress_get_min_pthread_stack_size());
-#endif
 #if defined(HAVE_PTHREAD_MUTEXATTR_T) &&		\
     defined(HAVE_PTHREAD_MUTEXATTR_INIT) &&		\
     defined(HAVE_PTHREAD_MUTEXATTR_DESTROY) &&		\
@@ -528,47 +522,11 @@ static int stress_pthread(stress_args_t *args)
 		}
 
 		for (i = 0; i < pthread_max; i++) {
-#if defined(HAVE_PTHREAD_ATTR_SETSTACK)
-			pthread_attr_t attr;
-#endif
 			pargs.data = (void *)&pthreads[i];
-
-#if defined(HAVE_PTHREAD_ATTR_SETSTACK)
-			/*
-			 *  We allocate our own per pthread stack to ensure we
-			 *  have one available before the pthread is started
-			 *  and this allows us to exercise the pthread stack
-			 *  setting.
-			 */
-			pthreads[i].stack = (void *)calloc(1, stack_size);
-			if (UNLIKELY(!pthreads[i].stack))
-				break;
-
-			ret = pthread_attr_init(&attr);
-			if (UNLIKELY(ret)) {
-				(void)pthread_mutex_unlock(&mutex);
-				pr_fail("%s: pthread_attr_init failed, errno=%d (%s)\n",
-					args->name, ret, strerror(ret));
-				stop_running();
-				goto reap;
-			}
-			ret = pthread_attr_setstack(&attr, pthreads[i].stack, stack_size);
-			if (UNLIKELY(ret)) {
-				(void)pthread_mutex_unlock(&mutex);
-				pr_fail("%s: pthread_attr_setstack failed, errno=%d (%s)\n",
-					args->name, ret, strerror(ret));
-				stop_running();
-				goto reap;
-			}
-#endif
 
 			pthreads[i].t_create = stress_time_now();
 			pthreads[i].t_run = pthreads[i].t_create;
-#if defined(HAVE_PTHREAD_ATTR_SETSTACK)
-			pthreads[i].ret = pthread_create(&pthreads[i].pthread, &attr,
-#else
 			pthreads[i].ret = pthread_create(&pthreads[i].pthread, NULL,
-#endif
 				stress_pthread_func, (void *)&pargs);
 			if (UNLIKELY(pthreads[i].ret)) {
 				/* Out of resources, don't try any more */
@@ -675,10 +633,6 @@ reap:
 					count += 1;
 				}
 			}
-#if defined(HAVE_PTHREAD_ATTR_SETSTACK)
-			if (pthreads[j].stack != NULL)
-				free(pthreads[j].stack);
-#endif
 		}
 	} while (!locked && keep_running() && stress_continue(args));
 
