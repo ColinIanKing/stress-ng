@@ -587,6 +587,7 @@ stress-ng has found various Kernel, QEMU bugs/regressions, and libc bugs; approp
 * [Revert "sched_ext: Skip per-CPU tasks in scx_bpf_reenqueue_local()"](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=0b47b6c3543efd65f2e620e359b05f4938314fbd)
 * [mm/mremap: avoid expensive folio lookup on mremap folio pte batch](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=0b5be138ce00f421bd7cc5a226061bd62c4ab850)
 * [ARM64: sigaction siginfo_t si_addr is incorrect on SIGSEGVs on addresses that are very large](https://bugzilla.kernel.org/show_bug.cgi?id=220750)
+* [FreeBSD 15.0-RELEASE: system hangs when performing stress-ng utime stress tests](https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=291683)
 
 ## Kernel improvements that used stress-ng
 
