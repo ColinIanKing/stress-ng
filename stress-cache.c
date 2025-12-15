@@ -75,8 +75,8 @@ static const stress_help_t help[] = {
 #endif
 	{ NULL, "cache-enable-all",	"enable all cache options (fence,flush,sfence,etc..)" },
 	{ NULL,	"cache-fence",		"serialize stores" },
-#if defined(HAVE_ASM_X86_CLFLUSH)
-	{ NULL,	"cache-flush",		"flush cache after every memory write (x86 only)" },
+#if defined(HAVE_ASM_X86_CLFLUSH) || defined(HAVE_ASM_RISCV_CBO_CACHE_MANAGEMENT)
+	{ NULL,	"cache-flush",		"flush cache after every memory write (x86 / RISC-V)" },
 #endif
 	{ NULL,	"cache-level N",	"only exercise specified cache" },
 	{ NULL, "cache-no-affinity",	"do not change CPU affinity" },
@@ -90,7 +90,9 @@ static const stress_help_t help[] = {
 	{ NULL,	"cache-sfence",		"serialize stores with sfence" },
 #endif
 	{ NULL,	"cache-ways N",		"only fill specified number of cache ways" },
-	{ NULL, "cache-clwb",		"cache line writeback (x86 only)" },
+#if defined(HAVE_ASM_X86_CLWB) || defined(HAVE_ASM_RISCV_CBO_CACHE_MANAGEMENT)
+	{ NULL, "cache-clwb",		"cache line writeback (x86 / RISC-V)" },
+#endif
 	{ NULL,	NULL,			NULL }
 };
 
@@ -135,6 +137,8 @@ static uint64_t disabled_flags;
 
 #if defined(HAVE_ASM_X86_CLFLUSH)
 #define SHIM_CLFLUSH(p)		stress_asm_x86_clflush(p)
+#elif defined(HAVE_ASM_RISCV_CBO_CACHE_MANAGEMENT)
+#define SHIM_CLFLUSH(p)		stress_asm_riscv_cbo_flush(p)
 #else
 #define SHIM_CLFLUSH(p)
 #endif
@@ -153,6 +157,8 @@ static uint64_t disabled_flags;
 
 #if defined(HAVE_ASM_X86_CLWB)
 #define SHIM_CLWB(p)		stress_asm_x86_clwb(p)
+#elif defined(HAVE_ASM_RISCV_CBO_CACHE_MANAGEMENT)
+#define SHIM_CLWB(p)		stress_asm_riscv_cbo_clean(p)
 #else
 #define SHIM_CLWB(p)
 #endif
@@ -1119,7 +1125,7 @@ static int stress_cache(stress_args_t *args)
 	}
 #endif
 
-#if !defined(HAVE_ASM_X86_CLFLUSH)
+#if !defined(HAVE_ASM_X86_CLFLUSH) && !defined(HAVE_ASM_RISCV_CBO_CACHE_MANAGEMENT)
 	if (cache_flags & CACHE_FLAGS_CLFLUSH)
 		ignored_flags |= CACHE_FLAGS_CLFLUSH;
 	cache_flags &= ~CACHE_FLAGS_CLFLUSH;
@@ -1128,6 +1134,14 @@ static int stress_cache(stress_args_t *args)
 
 #if defined(HAVE_ASM_X86_CLFLUSH)
 	if (!stress_cpu_x86_has_clfsh() && (cache_flags & CACHE_FLAGS_CLFLUSH)) {
+		cache_flags &= ~CACHE_FLAGS_CLFLUSH;
+		cache_flags_mask &= ~CACHE_FLAGS_CLFLUSH;
+		ignored_flags |= CACHE_FLAGS_CLFLUSH;
+	}
+#endif
+
+#if defined(HAVE_ASM_RISCV_CBO_CACHE_MANAGEMENT)
+	if (!stress_asm_riscv_has_cbom() && (cache_flags & CACHE_FLAGS_CLFLUSH)) {
 		cache_flags &= ~CACHE_FLAGS_CLFLUSH;
 		cache_flags_mask &= ~CACHE_FLAGS_CLFLUSH;
 		ignored_flags |= CACHE_FLAGS_CLFLUSH;
@@ -1149,7 +1163,7 @@ static int stress_cache(stress_args_t *args)
 	}
 #endif
 
-#if !defined(HAVE_ASM_X86_CLWB)
+#if !defined(HAVE_ASM_X86_CLWB) && !defined(HAVE_ASM_RISCV_CBO_CACHE_MANAGEMENT)
 	if (cache_flags & CACHE_FLAGS_CLWB)
 		ignored_flags |= CACHE_FLAGS_CLWB;
 	cache_flags &= ~CACHE_FLAGS_CLWB;
@@ -1158,6 +1172,14 @@ static int stress_cache(stress_args_t *args)
 
 #if defined(HAVE_ASM_X86_CLWB)
 	if (!stress_cpu_x86_has_clwb() && (cache_flags & CACHE_FLAGS_CLWB)) {
+		cache_flags &= ~CACHE_FLAGS_CLWB;
+		cache_flags_mask &= ~CACHE_FLAGS_CLWB;
+		ignored_flags |= CACHE_FLAGS_CLWB;
+	}
+#endif
+
+#if defined(HAVE_ASM_RISCV_CBO_CACHE_MANAGEMENT)
+	if (!stress_asm_riscv_has_cbom() && (cache_flags & CACHE_FLAGS_CLWB)) {
 		cache_flags &= ~CACHE_FLAGS_CLWB;
 		cache_flags_mask &= ~CACHE_FLAGS_CLWB;
 		ignored_flags |= CACHE_FLAGS_CLWB;
