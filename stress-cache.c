@@ -75,7 +75,8 @@ static const stress_help_t help[] = {
 #endif
 	{ NULL, "cache-enable-all",	"enable all cache options (fence,flush,sfence,etc..)" },
 	{ NULL,	"cache-fence",		"serialize stores" },
-#if defined(HAVE_ASM_X86_CLFLUSH) || defined(HAVE_ASM_RISCV_CBO_CACHE_MANAGEMENT)
+#if defined(HAVE_ASM_X86_CLFLUSH) ||	\
+    defined(HAVE_ASM_RISCV_CBO_CACHE_MANAGEMENT)
 	{ NULL,	"cache-flush",		"flush cache after every memory write (x86 / RISC-V)" },
 #endif
 	{ NULL,	"cache-level N",	"only exercise specified cache" },
@@ -90,7 +91,8 @@ static const stress_help_t help[] = {
 	{ NULL,	"cache-sfence",		"serialize stores with sfence" },
 #endif
 	{ NULL,	"cache-ways N",		"only fill specified number of cache ways" },
-#if defined(HAVE_ASM_X86_CLWB) || defined(HAVE_ASM_RISCV_CBO_CACHE_MANAGEMENT)
+#if defined(HAVE_ASM_X86_CLWB) ||	\
+    defined(HAVE_ASM_RISCV_CBO_CACHE_MANAGEMENT)
 	{ NULL, "cache-clwb",		"cache line writeback (x86 / RISC-V)" },
 #endif
 	{ NULL,	NULL,			NULL }
@@ -1125,7 +1127,8 @@ static int stress_cache(stress_args_t *args)
 	}
 #endif
 
-#if !defined(HAVE_ASM_X86_CLFLUSH) && !defined(HAVE_ASM_RISCV_CBO_CACHE_MANAGEMENT)
+#if !defined(HAVE_ASM_X86_CLFLUSH) &&	\
+    !defined(HAVE_ASM_RISCV_CBO_CACHE_MANAGEMENT)
 	if (cache_flags & CACHE_FLAGS_CLFLUSH)
 		ignored_flags |= CACHE_FLAGS_CLFLUSH;
 	cache_flags &= ~CACHE_FLAGS_CLFLUSH;
@@ -1163,7 +1166,8 @@ static int stress_cache(stress_args_t *args)
 	}
 #endif
 
-#if !defined(HAVE_ASM_X86_CLWB) && !defined(HAVE_ASM_RISCV_CBO_CACHE_MANAGEMENT)
+#if !defined(HAVE_ASM_X86_CLWB) &&	\
+    !defined(HAVE_ASM_RISCV_CBO_CACHE_MANAGEMENT)
 	if (cache_flags & CACHE_FLAGS_CLWB)
 		ignored_flags |= CACHE_FLAGS_CLWB;
 	cache_flags &= ~CACHE_FLAGS_CLWB;
