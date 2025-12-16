@@ -85,7 +85,7 @@ void OPTIMIZE3 stress_sort_data_int32_init(int32_t *data, const size_t n)
 	}
 }
 
-void OPTIMIZE3 TARGET_CLONES stress_sort_data_int32_shuffle(int32_t *data, const size_t n)
+void OPTIMIZE3 stress_sort_data_int32_shuffle(int32_t *data, const size_t n)
 {
 	register uint32_t const a = 16843009;
         register uint32_t const c = 826366247;
@@ -94,6 +94,7 @@ void OPTIMIZE3 TARGET_CLONES stress_sort_data_int32_shuffle(int32_t *data, const
 	register size_t i;
 
 	register size_t mask = n - 1;
+
 	/* Powers of two can use a bit mask for modulo n */
 	if ((n & mask) == 0) {
 PRAGMA_UNROLL_N(8)
