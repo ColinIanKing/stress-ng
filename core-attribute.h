@@ -166,14 +166,6 @@
 #define PURE
 #endif
 
-#if defined(HAVE_ATTRIBUTE_NONSTRING) &&				\
-    ((defined(HAVE_COMPILER_GCC_OR_MUSL) && NEED_GNUC(15, 0, 0)) ||	\
-     (defined(HAVE_COMPILER_CLANG) && NEED_CLANG(20, 0, 0)))
-#define NONSTRING __attribute__((nonstring))
-#else
-#define NONSTRING
-#endif
-
 /* GCC mlocked data and data section attribute */
 #if ((defined(HAVE_COMPILER_GCC_OR_MUSL) && NEED_GNUC(4, 6, 0) ||	\
      (defined(HAVE_COMPILER_CLANG) && NEED_CLANG(3, 0, 0)))) &&		\

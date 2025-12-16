@@ -28,8 +28,8 @@
  */
 #define stress_warn_once()	stress_warn_once_hash(__FILE__, __LINE__)
 
-extern const char ALIGN64 NONSTRING stress_ascii64[64];
-extern const char ALIGN64 NONSTRING stress_ascii32[32];
+extern const char ALIGN64 stress_ascii64[64];
+extern const char ALIGN64 stress_ascii32[32];
 
 extern WARN_UNUSED int32_t stress_get_processors_online(void);
 extern WARN_UNUSED int32_t stress_get_processors_configured(void);
