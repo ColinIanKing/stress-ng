@@ -44,7 +44,7 @@
         "mv     a0, %0\n"                                                       \
         "li     a1, %1\n"                                                       \
         ".4byte %2\n"                                                           \
-        : : "r" (base), "i" (op), "i" (MK_CBO(op)) : "a0", "a1", "memory");   \
+        : : "r" (base), "i" (op), "i" (MK_CBO(op)) : "a0", "a1", "memory");	\
 })
 
 static void cbo_flush(char *base)  { CBO_INSN(base, 2); }
@@ -57,8 +57,8 @@ static char mem[4096] __attribute__((aligned(4096))) = { [0 ... 4095] = 0xaa };
 int main(void)
 {
 #if defined(__NR_riscv_hwprobe) && \
-	defined(RISCV_HWPROBE_EXT_ZICBOM) && \
-	defined(RISCV_HWPROBE_KEY_ZICBOM_BLOCK_SIZE)
+    defined(RISCV_HWPROBE_EXT_ZICBOM) && \
+    defined(RISCV_HWPROBE_KEY_ZICBOM_BLOCK_SIZE)
 	int ret;
 	struct riscv_hwprobe pair;
 	cpu_set_t cpus;
@@ -70,13 +70,16 @@ int main(void)
 
 	if (pair.value & RISCV_HWPROBE_EXT_ZICBOM) {
 		uint64_t block_size;
+		int i;
+
 		pair.key = RISCV_HWPROBE_KEY_ZICBOM_BLOCK_SIZE;
 
 		ret = (int)syscall(__NR_riscv_hwprobe, &pair, 1, sizeof(cpu_set_t), &cpus, 0);
 		block_size = pair.value;
 
-		for (int i = 0; i < 4096 / block_size; ++i) {
-			cbo_flush(&mem[i * block_size]);
+		if (block_size > 0) {
+			for (i = 0; i < 4096 / block_size; i++)
+				cbo_flush(&mem[i * block_size]);
 		}
 	}
 #else
