@@ -47,11 +47,16 @@ static int stress_mseal_expect_addr(
 	void *expect_addr,
 	int expect_errno)
 {
+	char err1[256], err2[256];
+
 	if (LIKELY((addr == expect_addr) && (errno == expect_errno)))
 		return 0;
+
+	(void)shim_strscpy(err1, strerror(errno), sizeof(err1));
+	(void)shim_strscpy(err2, strerror(expect_errno), sizeof(err2));
 	pr_fail("%s: %s, returned errno %d (%s), expected errno %d (%s)\n",
-		args->name, msg, errno, strerror(errno),
-		expect_errno, strerror(expect_errno));
+		args->name, msg, errno, err1,
+		expect_errno, err2);
 	return -1;
 }
 
