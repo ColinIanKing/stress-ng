@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "2 December 2025"
+.TH STRESS-NG 1 "16 December 2025"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -8468,9 +8468,9 @@ stop after N bogo string operations.
 .B \-\-stream N
 start N workers exercising a memory bandwidth stressor very loosely based on the
 STREAM "Sustainable Memory Bandwidth in High Performance Computers" benchmarking
-tool by John D. McCalpin, Ph.D. This stressor allocates buffers that are at
-least 4 times the size of the CPU L2 cache and continually performs rounds of
-following computations on large arrays of double precision floating point numbers:
+tool by John D. McCalpin, Ph.D. This stressor allocates 3 buffers that are at
+the size of the CPU L2 cache and continually performs rounds of following
+computations on large arrays of double precision floating point numbers:
 .sp
 .TS
 lB2 lB

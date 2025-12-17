@@ -1220,18 +1220,18 @@ static int stress_stream(stress_args_t *args)
 	if (L3 < args->page_size)
 		L3 = args->page_size;
 
-	/*
-	 *  Each array must be at least 4 x the
-	 *  size of the L3 cache
-	 */
-	sz = (L3 * 4);
-	n = sz / sizeof(*a);
+	n = L3 / sizeof(*a);
 	/*
 	 *  n must be a multiple of the max unroll size (8)
 	 */
 	n = (n + 7) & ~(uint64_t)7;
 	sz = n * sizeof(*a);
 	sz_idx = n * sizeof(size_t);
+
+	if (stress_instance_zero(args)) {
+		pr_inf("%s: Using 3 cache sized buffers for stream operations, total %" PRIu64 "K per stream instance\n",
+			args->name, 3 * (sz / 1024));
+	}
 
 	a = (double *)stress_stream_mmap(args, sz, stream_mlock);
 	if (a == MAP_FAILED)
