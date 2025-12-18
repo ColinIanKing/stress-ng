@@ -588,6 +588,7 @@ stress-ng has found various Kernel, QEMU bugs/regressions, and libc bugs; approp
 * [mm/mremap: avoid expensive folio lookup on mremap folio pte batch](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=0b5be138ce00f421bd7cc5a226061bd62c4ab850)
 * [ARM64: sigaction siginfo_t si_addr is incorrect on SIGSEGVs on addresses that are very large](https://bugzilla.kernel.org/show_bug.cgi?id=220750)
 * [FreeBSD 15.0-RELEASE: system hangs when performing stress-ng utime stress tests](https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=291683)
+* [sparc64 emulation crashes with opcode lduba [ %g5 + %l6 ] (146), %l6](https://gitlab.com/qemu-project/qemu/-/issues/3249)
 
 ## Kernel improvements that used stress-ng
 
