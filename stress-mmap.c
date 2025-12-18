@@ -733,8 +733,10 @@ retry:
 			register const size_t page = idx[n];
 
 			if (!mapped[page]) {
-				const off_t offset = mmap_file ? (off_t)(page * page_size) : 0;
+				NOCLOBBER off_t offset;
 				int fixed_flags = MAP_FIXED;
+
+				offset = mmap_file ? (off_t)(page * page_size) : 0;
 
 				/*
 				 * Attempt to map them back into the original address, this
