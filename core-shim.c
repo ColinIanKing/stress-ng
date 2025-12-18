@@ -1417,6 +1417,7 @@ ssize_t shim_strscpy(char *dst, const char *src, size_t len)
 size_t shim_strlcat(char *dst, const char *src, size_t len)
 {
 #if defined(HAVE_BSD_STRLCAT) &&	\
+    defined(HAVE_BSD_STRING_H) &&	\
     !defined(BUILD_STATIC)
 	return strlcat(dst, src, len);
 #else
