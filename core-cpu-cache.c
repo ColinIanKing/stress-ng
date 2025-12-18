@@ -1436,7 +1436,7 @@ void stress_cpu_cache_get_level_size(const uint16_t cache_level, size_t *cache_s
 free_cpu_caches:
 	stress_free_cpu_caches(cpu_caches);
 #else
-	(void)cache_line;
+	(void)cache_level;
 
 	*cache_size = 0;
 	*cache_line_size = 0;
