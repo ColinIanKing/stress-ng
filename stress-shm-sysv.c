@@ -840,7 +840,7 @@ retry:
 			{
 				struct shminfo s;
 
-				if (UNLIKELY(shmctl(shm_id, IPC_INFO, (struct shmid_ds *)&s) < 0))
+				if (UNLIKELY(shmctl(shm_id, IPC_INFO, (struct shmid_ds *)(void *)&s) < 0))
 					pr_fail("%s: shmctl IPC_INFO failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 			}
@@ -852,7 +852,7 @@ retry:
 			{
 				struct shm_info s;
 
-				if (UNLIKELY(shmctl(shm_id, SHM_INFO, (struct shmid_ds *)&s) < 0))
+				if (UNLIKELY(shmctl(shm_id, SHM_INFO, (struct shmid_ds *)(void *)&s) < 0))
 					pr_fail("%s: shmctl SHM_INFO failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 			}
