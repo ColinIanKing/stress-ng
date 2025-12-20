@@ -162,6 +162,7 @@
 * [Virtualization vs. Containerization, a Comparative Approach for Application Deployment in the Computing Continuum Focused on the Edge](https://www.researchgate.net/publication/385953515_Virtualization_vs_Containerization_a_Comparative_Approach_for_Application_Deployment_in_the_Computing_Continuum_Focused_on_the_Edge)
 * [Performance Analysis of Intel Total Memory Encryption Multi-Key](https://scholar.afit.edu/cgi/viewcontent.cgi?article=8692&context=etd)
 * [An experimental approach for evaluating cache allocation policies in multicore for real-time mixed-criticality systems](https://hal.science/hal-04627006/document)
+* [SRFS: Parallel Processing Fault-tolerant ROS2-based Flight Software for the Space Ranger Cubes](https://arxiv.org/pdf/2412.08164)
 
 2025:
  * [SPY-PMU: Side-Channel Profiling of Your Performance Monitoring Unit to Leak Remote User Activity](https://eprint.iacr.org/2025/014)
@@ -200,4 +201,7 @@
  * [TZ-LLM: Protecting On-Device Large Language Models with Arm TrustZone](https://arxiv.org/pdf/2511.13717)
  * [Graph Neural Networks for Anomaly Detection in Cloud Infrastructure](https://www.scirp.org/pdf/jcc_1733321.pdf)
  * [METRION: A Framework for Accurate Software Energy Measurement](https://arxiv.org/html/2512.06806v1)
+ * [Container-level Energy Observability in Kubernetes Clusters](https://arxiv.org/pdf/2504.10702)
+ * [Dodoor: Efficient Randomized Decentralized Scheduling with Load Caching for Heterogeneous Tasks and Clusters](https://arxiv.org/pdf/2510.12889)
+ * [AUTOGUARDX: A Comprehensive Cybersecurity Framework for Connected Vehicles](https://arxiv.org/pdf/2508.18155)
 
