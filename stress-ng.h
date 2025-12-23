@@ -232,9 +232,9 @@ typedef struct {
 /* Run-time stressor args */
 typedef struct {
 	struct {
-		uint64_t max_ops;		/* max number of bogo ops */
-		stress_counter_info_t ci;	/* counter info struct */
-		bool possibly_oom_killed;	/* was oom killed? */
+		volatile uint64_t max_ops; /* max number of bogo ops */
+		stress_counter_info_t ci;  /* counter info struct */
+		bool possibly_oom_killed;  /* was oom killed? */
 	} bogo;
 	const char *name;		/* stressor name */
 	uint32_t instance;		/* stressor instance # */
