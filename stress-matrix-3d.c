@@ -821,6 +821,7 @@ static inline int stress_matrix_3d_exercise(
 {
 	int ret = EXIT_NO_RESOURCE;
 	typedef stress_matrix_3d_type_t (*matrix_3d_ptr_t)[n][n];
+	typedef const stress_matrix_3d_type_t (*const_matrix_3d_ptr_t)[n][n];
 	size_t matrix_3d_size = sizeof(stress_matrix_3d_type_t) * n * n * n;
 	size_t matrix_3d_mmap_size = round_up(args->page_size, matrix_3d_size);
 	const size_t num_matrix_3d_methods = SIZEOF_ARRAY(matrix_3d_methods);
@@ -907,14 +908,14 @@ static inline int stress_matrix_3d_exercise(
 		double t;
 
 		t = stress_time_now();
-		(void)func(n, a, b, r);
+		(void)func(n, (const_matrix_3d_ptr_t)a, (const_matrix_3d_ptr_t)b, (matrix_3d_ptr_t)r);
 		matrix_3d_metrics[matrix_3d_method].duration += stress_time_now() - t;
 		matrix_3d_metrics[matrix_3d_method].count += 1.0;
 		stress_bogo_inc(args);
 
 		if (verify) {
 			t = stress_time_now();
-			(void)func(n, a, b, s);
+			(void)func(n, (const_matrix_3d_ptr_t)a, (const_matrix_3d_ptr_t)b, (matrix_3d_ptr_t)s);
 			matrix_3d_metrics[matrix_3d_method].duration += stress_time_now() - t;
 			matrix_3d_metrics[matrix_3d_method].count += 1.0;
 			stress_bogo_inc(args);
