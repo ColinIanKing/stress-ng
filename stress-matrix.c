@@ -835,6 +835,7 @@ static inline int stress_matrix_exercise(
 	const size_t n)
 {
 	typedef stress_matrix_type_t (*matrix_ptr_t)[n];
+	typedef const stress_matrix_type_t (*const_matrix_ptr_t)[n];
 
 	int ret = EXIT_NO_RESOURCE;
 	const size_t matrix_size = sizeof(stress_matrix_type_t) * n * n;
@@ -920,14 +921,14 @@ static inline int stress_matrix_exercise(
 		double t;
 
 		t = stress_time_now();
-		(void)func(n, a, b, r);
+		(void)func(n, (const_matrix_ptr_t)a, (const_matrix_ptr_t)b, (matrix_ptr_t)r);
 		matrix_metrics[matrix_method].duration += stress_time_now() - t;
 		matrix_metrics[matrix_method].count += 1.0;
 		stress_bogo_inc(args);
 
 		if (verify) {
 			t = stress_time_now();
-			(void)func(n, a, b, s);
+			(void)func(n, (const_matrix_ptr_t)a, (const_matrix_ptr_t)b, (matrix_ptr_t)s);
 			matrix_metrics[matrix_method].duration += stress_time_now() - t;
 			matrix_metrics[matrix_method].count += 1.0;
 			stress_bogo_inc(args);
