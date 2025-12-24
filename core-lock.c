@@ -191,10 +191,12 @@ static int CONST stress_atomic_lock_deinit(stress_lock_t *lock)
 static int stress_atomic_lock_acquire(stress_lock_t *lock)
 {
 	if (LIKELY(lock != NULL)) {
-		double t = stress_time_now();
+		const double t_start = stress_time_now();
 
 		while (test_and_set(&lock->u.flag) == true) {
-			if (UNLIKELY(((stress_time_now() - t) > 5.0) && !stress_continue_flag())) {
+			const double duration = stress_time_now() - t_start;
+
+			if ((duration > 5.0) && !stress_continue_flag()) {
 				errno = EAGAIN;
 				return -1;
 			}
