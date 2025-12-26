@@ -79,7 +79,8 @@
 
 #if defined(HAVE_ATOMIC_FETCH_ADD_8)
 #define SHIM_ATOMIC_FETCH_ADD_8(ptr, val, order)	__atomic_fetch_add_8(ptr, val, order)
-#elif defined(HAVE_ATOMIC_FETCH_ADD)
+#elif defined(HAVE_ATOMIC_FETCH_ADD) &&	\
+      !defined(STRESS_ARCH_OR1K)
 #define SHIM_ATOMIC_FETCH_ADD_8(ptr, val, order)	__atomic_fetch_add(ptr, val, order)
 #endif
 

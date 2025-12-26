@@ -115,6 +115,13 @@ To build on OS X systems, just use:
     make
 ```
 
+To cross build for OpenRisc (OR1K), install the cross compiler and use static builds:
+```
+    export PATH=$PATH:$HOME/or1k/or1k-none-linux-musl/bin
+    export CC=or1k-none-linux-musl-gcc
+    STATIC=1 make
+```
+
 To build on MINIX, gmake, binutils and clang are required:
 ```
     CC=clang LD=clang gmake clean

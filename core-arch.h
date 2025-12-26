@@ -107,6 +107,13 @@ extern WARN_UNUSED const char *stress_get_arch(void);
 #define STRESS_OPCODE_MASK	(0xffffffffUL)
 #endif
 
+/* Arch specific OR1K */
+#if defined(__OR1K__)
+#define STRESS_ARCH_OR1K	(1)
+#define STRESS_OPCODE_SIZE	(32)
+#define STRESS_OPCODE_MASK	(0xffffffffUL)
+#endif
+
 /* Arch specific PPC64, must be before PPC */
 #if defined(__PPC64__) || defined(__ppc64__)
 #define STRESS_ARCH_PPC64	(1)
