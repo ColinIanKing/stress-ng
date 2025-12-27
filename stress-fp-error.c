@@ -77,6 +77,11 @@ static inline bool stress_double_same(
 	return fabs(val - val_expected) < 0.0000001;
 }
 
+#if (defined(EDOM) && defined(FE_INVALID)) ||		\
+    (defined(ERANGE) && defined(FE_DIVBYZERO)) ||	\
+    (defined(ERANGE) && defined(FE_UNDERFLOW)) ||	\
+    (defined(ERANGE) && defined(FE_OVERFLOW)) ||	\
+    (defined(FE_INEXACT))
 static void stress_fp_check(
 	stress_args_t *args,
 	const char *expr,
@@ -121,6 +126,7 @@ static void stress_fp_check(
 	*rc = EXIT_FAILURE;
 #endif
 }
+#endif
 
 /*
  *  stress_fp_error()
