@@ -96,6 +96,16 @@ static void stress_illegal_op(void)
 #endif
 #endif
 
+#if defined(STRESS_ARCH_OR1K) &&	\
+    defined(HAVE_SIGLONGJMP) &&		\
+    !defined(HAVE_ILLEGAL_OP)
+#define HAVE_ILLEGAL_OP
+static void stress_illegal_op(void)
+{
+	__asm__ __volatile("l.mtspr r0,r31,0x0\n");
+}
+#endif
+
 #if defined(STRESS_ARCH_PPC64) &&	\
     defined(HAVE_SIGLONGJMP) &&		\
     !defined(HAVE_ILLEGAL_OP)
