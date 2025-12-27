@@ -167,6 +167,34 @@ static const stress_easy_opcode_t easy_opcodes[] = {
 	{ 4, { 0x01, 0xc0, 0x70, 0x25 } }, /* move $14,$14 */
 	{ 4, { 0x01, 0xe0, 0x78, 0x25 } }, /* move $15,$15 */
 };
+#elif defined(STRESS_ARCH_OR1K) &&	\
+      defined(STRESS_ARCH_LE) &&	\
+      defined(HAVE_MPROTECT)
+#define HAVE_EASY_OPCODES
+static const stress_easy_opcode_t easy_opcodes[] = {
+	{ 4, { 0x00, 0x00, 0x00, 0x15 } }, /* nop */
+	{ 4, { 0x04, 0xf8, 0xff, 0xe3 } }, /* l.or r31,r31,r31 */
+	{ 4, { 0x04, 0xe8, 0xbd, 0xe3 } }, /* l.or r29,r29,r29 */
+	{ 4, { 0x04, 0xd8, 0x7b, 0xe3 } }, /* l.or r27,r27,r27 */
+	{ 4, { 0x04, 0xc8, 0x39, 0xe3 } }, /* l.or r25,r25,r25 */
+	{ 4, { 0x04, 0xb8, 0xf7, 0xe2 } }, /* l.or r23,r23,r23 */
+	{ 4, { 0x04, 0xa8, 0xb5, 0xe2 } }, /* l.or r21,r21,r21 */
+	{ 4, { 0x04, 0x98, 0x63, 0xe2 } }, /* l.or r19,r19,r19 */
+};
+#elif defined(STRESS_ARCH_OR1K) &&	\
+      defined(STRESS_ARCH_BE) &&	\
+      defined(HAVE_MPROTECT)
+#define HAVE_EASY_OPCODES
+static const stress_easy_opcode_t easy_opcodes[] = {
+	{ 4, { 0x15, 0x00, 0x00, 0x00 } }, /* nop */
+	{ 4, { 0xe3, 0xff, 0xf8, 0x04 } }, /* l.or r31,r31,r31 */
+	{ 4, { 0xe3, 0xbd, 0xe8, 0x04 } }, /* l.or r29,r29,r29 */
+	{ 4, { 0xe3, 0x7b, 0xd8, 0x04 } }, /* l.or r27,r27,r27 */
+	{ 4, { 0xe3, 0x39, 0xc8, 0x04 } }, /* l.or r25,r25,r25 */
+	{ 4, { 0xe2, 0xf7, 0xb8, 0x04 } }, /* l.or r23,r23,r23 */
+	{ 4, { 0xe2, 0xb5, 0xa8, 0x04 } }, /* l.or r21,r21,r21 */
+	{ 4, { 0xe2, 0x73, 0x98, 0x04 } }, /* l.or r19,r19,r19 */
+};
 #elif defined(STRESS_ARCH_PPC64) &&	\
       defined(STRESS_ARCH_LE) &&	\
       defined(HAVE_MPROTECT)
