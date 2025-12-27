@@ -912,6 +912,52 @@ do {			\
 }
 #endif
 
+#if defined(STRESS_ARCH_OR1K)
+
+#define STRESS_REGS_HELPER
+/*
+ *  stress_regs_helper(void)
+ *	stress OR1K registers
+ */
+static void NOINLINE OPTIMIZE0 stress_regs_helper(stress_args_t *args, register uint64_t v)
+{
+	register uint32_t r13  __asm__("r13")  = (uint32_t)v;
+	register uint32_t r15  __asm__("r15")  = r13 >> 1;
+	register uint32_t r17  __asm__("r17")  = r13 << 1;
+	register uint32_t r19  __asm__("r19")  = r13 >> 2;
+	register uint32_t r21  __asm__("r21")  = r13 << 2;
+	register uint32_t r23  __asm__("r23")  = ~r13;
+	register uint32_t r25  __asm__("r25")  = ~r15;
+	register uint32_t r27  __asm__("r27")  = ~r17;
+	register uint32_t r29  __asm__("r29")  = ~r19;
+	register uint32_t r31  __asm__("r31")  = ~r21;
+
+#define SHUFFLE_REGS()	\
+do {			\
+	r31 = r13;	\
+	r13 = r15;	\
+	r15 = r17;	\
+	r17 = r19;	\
+	r19 = r21;	\
+	r21 = r23;	\
+	r23 = r25;	\
+	r25 = r27;	\
+	r27 = r29;	\
+	r29 = r31;	\
+} while (0);		\
+
+	SHUFFLE_REGS16();
+
+	stash32 = r17;
+	REGS_CHECK(args, "r17", v, stash32);
+
+	stash32 = r13 + r15 + r17 + r19 +
+		  r21 + r23 + r25 + r27 +
+		  r29 + r31;
+#undef SHUFFLE_REGS
+}
+#endif
+
 #if defined(STRESS_ARCH_ARM) &&	\
     defined(__aarch64__)
 
