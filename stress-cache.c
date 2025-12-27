@@ -1022,7 +1022,7 @@ static int stress_cache(stress_args_t *args)
 	uint64_t k = i + (buffer_size >> 1);
 	NOCLOBBER uint64_t r = 0;
 	uint64_t inc = (buffer_size >> 2) + 1;
-	void *bad_addr;
+	NOCLOBBER void *bad_addr;
 	size_t j;
 	stress_metrics_t metrics[STRESS_CACHE_MAX];
 
