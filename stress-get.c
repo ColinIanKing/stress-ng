@@ -859,7 +859,7 @@ static int stress_nslist(stress_args_t *args)
 
 	(void)args;
 
-	(void)memset(&req, 0, sizeof(req));
+	(void)shim_memset(&req, 0, sizeof(req));
 	req.size = sizeof(req);
 	req.ns_id = 0;
 	req.ns_type = ns_types[idx];
