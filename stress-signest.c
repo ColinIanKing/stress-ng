@@ -252,7 +252,7 @@ static inline void stress_signest_shuffle(void)
 	register size_t i;
 	
 	for (i = 0; i < max_signals; i++) {
-		register size_t j = (size_t)stress_mwc32modn((uint32_t)max_signals);
+		register const size_t j = (size_t)stress_mwc32modn((uint32_t)max_signals);
 		stress_signal_t tmp;
 
 		tmp = signals[i];
