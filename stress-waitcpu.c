@@ -84,6 +84,7 @@ static inline void stress_waitcpu_arm_yield(void)
 static bool stress_waitcpu_x86_pause_supported(void)
 {
 	uint32_t eax = 0, ebx = 0, ecx = 0, edx = 0;
+
 	if (!stress_cpu_is_x86())
 		return false;
 	stress_asm_x86_cpuid(eax, ebx, ecx, edx);
