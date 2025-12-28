@@ -1990,8 +1990,8 @@ static void stress_mmaprandom_proc_info(mr_ctxt_t *ctxt, const int idx)
 		struct procmap_query query;
 		char buf[1024];
 
-		(void)memset(&query, 0, sizeof(query));
-		(void)memset(buf, 0, sizeof(buf));
+		(void)shim_memset(&query, 0, sizeof(query));
+		(void)shim_memset(buf, 0, sizeof(buf));
 		query.size = sizeof(query);
 		query.query_flags = PROCMAP_QUERY_VMA_READABLE | PROCMAP_QUERY_VMA_SHARED;
 		query.query_addr = mr_node ? (uintptr_t)mr_node->mmap_addr : (uintptr_t)g_shared;
