@@ -587,7 +587,7 @@ static int stress_vnni(stress_args_t *args)
 		if (stress_vnni_data[i].vnni_capable &&
 		    (stress_vnni_data[i].metrics.count > 0.0)) {
 			char buf[64];
-			double rate = stress_vnni_data[i].metrics.duration > 0.0 ?
+			const double rate = stress_vnni_data[i].metrics.duration > 0.0 ?
 				stress_vnni_data[i].metrics.count / stress_vnni_data[i].metrics.duration : 0.0;
 
 			(void)snprintf(buf, sizeof(buf), "%s ops per sec", stress_vnni_methods[i].name);
