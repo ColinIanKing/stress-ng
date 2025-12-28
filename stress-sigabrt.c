@@ -40,7 +40,7 @@ static void MLOCKED_TEXT stress_sigabrt_handler(int num)
 	(void)num;
 
 	if (sigabrt_info) { /* Should always be not null */
-		double latency = stress_time_now() - sigabrt_info->t_start;
+		const double latency = stress_time_now() - sigabrt_info->t_start;
 
 		sigabrt_info->signalled = true;
 		if (latency > 0.0) {
