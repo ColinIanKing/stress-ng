@@ -2702,7 +2702,7 @@ static inline int stress_do_syscall(stress_args_t *args)
 				for (n = 0; n < 5; n++) {
 					for (i = 0; i < SIZEOF_ARRAY(reorder); i++) {
 						register size_t tmp;
-						register size_t j = (sz == 0) ? 0 : stress_mwc32modn(sz);
+						register const size_t j = (sz == 0) ? 0 : stress_mwc32modn(sz);
 
 						tmp = reorder[i];
 						reorder[i] = reorder[j];
@@ -2712,7 +2712,7 @@ static inline int stress_do_syscall(stress_args_t *args)
 			}
 
 			for (i = 0; LIKELY(stress_continue(args) && (i < SYSCALL_ARGS_SIZE)); i++) {
-				const size_t j = reorder[i];
+				register const size_t j = reorder[i];
 
 				(void)shim_memset(current_context->args, 0, sizeof(current_context->args));
 				current_context->syscall = stress_syscall_args[j].syscall;
@@ -2933,7 +2933,7 @@ static int stress_sysinval(stress_args_t *args)
  	 *  the number of syscalls actually exercised
 	 */
 	for (i = 0; i < SYSCALL_ARGS_SIZE; i++) {
-		unsigned long int syscall_num = stress_syscall_args[i].syscall;
+		const unsigned long int syscall_num = stress_syscall_args[i].syscall;
 		size_t exercised = 0, unique = 0;
 		size_t j;
 
