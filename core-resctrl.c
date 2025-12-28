@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-arch.h"
+#include "core-builtin.h"
 #include "core-resctrl.h"
 #include "core-setting.h"
 #include "core-stressors.h"
@@ -178,7 +179,7 @@ static int stress_resctrl_add(
 		fprintf(stderr, "out of memory parsing resctrl\n");
 		return -1;
 	}
-	resctrl->name = strdup(name);
+	resctrl->name = shim_strdup(name);
 	if (!resctrl->name) {
 		free(resctrl);
 		fprintf(stderr, "out of memory parsing resctrl\n");
@@ -328,7 +329,7 @@ static int stress_resctrl_partition_add(
 		fprintf(stderr, "out of memory parsing resctrl\n");
 		return -1;
 	}
-	partition->name = strdup(name);
+	partition->name = shim_strdup(name);
 	if (!partition->name) {
 		fprintf(stderr, "out of memory parsing resctrl\n");
 		free(partition);
@@ -475,7 +476,7 @@ static int stress_resctrl_parse_partition(const char *name, char **str)
  */
 int stress_resctrl_parse(char *opt_resctrl)
 {
-	char *str = strdup(opt_resctrl);
+	char *str = shim_strdup(opt_resctrl);
 	char *ptr;
 
 	if (!str) {
