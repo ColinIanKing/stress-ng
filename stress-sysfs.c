@@ -105,8 +105,8 @@ static inline uint32_t path_sum(const char *path)
 
 static int mixup_sort(const struct dirent **d1, const struct dirent **d2)
 {
-	const uint32_t s1 = path_sum((*d1)->d_name);
-	const uint32_t s2 = path_sum((*d2)->d_name);
+	register const uint32_t s1 = path_sum((*d1)->d_name);
+	register const uint32_t s2 = path_sum((*d2)->d_name);
 
 	if (s1 == s2)
 		return 0;
