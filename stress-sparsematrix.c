@@ -704,8 +704,8 @@ static size_t splay_objmem;
  */
 static int sparse_splay_node_cmp(sparse_splay_t *n1, sparse_splay_t *n2)
 {
-	register uint64_t n1xy = n1->xy;
-	register uint64_t n2xy = n2->xy;
+	register const uint64_t n1xy = n1->xy;
+	register const uint64_t n2xy = n2->xy;
 
 	if (n1xy == n2xy)
 		return 0;
