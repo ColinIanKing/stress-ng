@@ -536,7 +536,7 @@ static int stress_filename_readdir(
 				continue;
 			}
 			/* stat'd files differ? */
-			if (memcmp(&sb_file, &sb_readdir_file, sizeof(sb_file))) {
+			if (shim_memcmp(&sb_file, &sb_readdir_file, sizeof(sb_file))) {
 				pr_fail("%s: failed: difference between stat'd file and readdir'd file, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				rc = -1;
