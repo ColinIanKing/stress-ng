@@ -321,11 +321,11 @@ static void stress_cpu_sched_mix_pids(stress_pid_t *mix_pids, stress_pid_t *orig
 	default:
 	case 0:
 		/* In order */
-		(void)memcpy(mix_pids, orig_pids, n * sizeof(*mix_pids));
+		(void)shim_memcpy(mix_pids, orig_pids, n * sizeof(*mix_pids));
 		break;
 	case 1:
 		/* Shuffle */
-		(void)memcpy(mix_pids, orig_pids, n * sizeof(*mix_pids));
+		(void)shim_memcpy(mix_pids, orig_pids, n * sizeof(*mix_pids));
 		for (i = 0; i < 3; i++) {
 			for (j = 0; j < n; j++) {
 				stress_pid_t tmp;
