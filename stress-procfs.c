@@ -241,19 +241,19 @@ static void stress_proc_mtrr(stress_args_t *args, const int fd)
 
 #if defined(HAVE_MTRR_SENTRY) &&	\
     defined(MTRRIOC_SET_ENTRY)
-		(void)memset(&sentry, 0, sizeof(sentry));
+		(void)shim_memset(&sentry, 0, sizeof(sentry));
 		sentry.base = gentry.base;
 		sentry.size = 0;
 		sentry.type = gentry.type;
 		VOID_RET(int, ioctl(fd, MTRRIOC_SET_ENTRY, &sentry));
 
-		(void)memset(&sentry, 0, sizeof(sentry));
+		(void)shim_memset(&sentry, 0, sizeof(sentry));
 		sentry.base = gentry.base;
 		sentry.size = gentry.size;
 		sentry.type = ~0;
 		VOID_RET(int, ioctl(fd, MTRRIOC_SET_ENTRY, &sentry));
 
-		(void)memset(&sentry, 0, sizeof(sentry));
+		(void)shim_memset(&sentry, 0, sizeof(sentry));
 		sentry.base = gentry.base;
 		sentry.size = ~4095;
 		sentry.type = gentry.type;
