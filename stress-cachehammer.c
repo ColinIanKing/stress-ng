@@ -99,8 +99,8 @@ static void stress_cachehammer_init(const uint32_t instances)
 
 	(void)instances;
 
-	(void)memset(cachehammer_filename, 0, sizeof(cachehammer_filename));
-	(void)memset(cachehammer_path, 0, sizeof(cachehammer_path));
+	(void)shim_memset(cachehammer_filename, 0, sizeof(cachehammer_filename));
+	(void)shim_memset(cachehammer_path, 0, sizeof(cachehammer_path));
 
 	page = (uint8_t *)calloc(page_size, sizeof(*page));
 	if (!page)
