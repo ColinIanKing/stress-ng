@@ -322,7 +322,7 @@ static int stress_kvm(stress_args_t *args)
 		}
 #endif
 #if defined(STRESS_KVM_ARM)
-		(void)memset(&vcpu, 0, sizeof(vcpu));
+		(void)shim_memset(&vcpu, 0, sizeof(vcpu));
 		if (ioctl(vm_fd, KVM_ARM_PREFERRED_TARGET, &vcpu) < 0) {
 			pr_fail("%s: ioctl KVM_ARM_PREFERRED_TARGET failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
