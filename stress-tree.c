@@ -1049,7 +1049,7 @@ tidy:
 				  stress_tree_metrics[i].remove;
 
 		if ((duration > 0.0) && (stress_tree_metrics[i].count > 0.0)) {
-			double rate = stress_tree_metrics[i].count / duration;
+			const double rate = stress_tree_metrics[i].count / duration;
 			char msg[64];
 			double f;
 			int e;
