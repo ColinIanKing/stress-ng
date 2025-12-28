@@ -922,8 +922,8 @@ static void TARGET_CLONES stress_rand_data_logmap(
 		 *  value
 		 */
 		double v = x - (int)x;
-		v *= 1278178.381817673;
 
+		v *= 1278178.381817673;
 		*(ptr++) = (uint8_t)v;
 		x = x * r * (1.0 - x);
 	}
