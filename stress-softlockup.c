@@ -210,7 +210,8 @@ static void NORETURN stress_softlockup_child(
 
 	policy = 0;
 	do {
-		uint8_t i, n = 30 + (stress_mwc8() & 0x3f);
+		uint8_t i;
+		const uint8_t n = 30 + (stress_mwc8() & 0x3f);
 
 		/*
 		 *  Note: Re-setting the scheduler policy on Linux
