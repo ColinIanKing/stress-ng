@@ -150,9 +150,8 @@ static int stress_rawdev_wiggle(
 
 		for (j = 0; LIKELY((j < shift_ul(blks, 8)) && stress_continue(args)); j += shift_ul(blks, 10)) {
 			const off_t offset = (off_t)(i - j) * (off_t)blksz;
-			double t;
+			const double t = stress_time_now();
 
-			t = stress_time_now();
 			ret = pread(fd, buffer, blksz, offset);
 			if (UNLIKELY(ret < 0)) {
 				if (errno != EINTR) {
@@ -240,9 +239,8 @@ static int stress_rawdev_random(
 	for (i = 0; LIKELY((i < 256) && stress_continue(args)); i++) {
 		ssize_t ret;
 		const off_t offset = (off_t)blksz * stress_mwc64modn(blks);
-		double t;
+		const double t = stress_time_now();
 
-		t = stress_time_now();
 		ret = pread(fd, buffer, blksz, offset);
 		if (UNLIKELY(ret < 0)) {
 			if (errno != EINTR) {
@@ -277,9 +275,8 @@ static int stress_rawdev_burst(
 	for (i = 0; LIKELY((i < 256) && stress_continue(args)); i++) {
 		ssize_t ret;
 		const off_t offset = blk * (off_t)blksz;
-		double t;
+		const double t = stress_time_now();
 
-		t = stress_time_now();
 		ret = pread(fd, buffer, blksz, offset);
 		if (UNLIKELY(ret < 0)) {
 			if (errno != EINTR) {
