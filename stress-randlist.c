@@ -239,7 +239,7 @@ retry:
 	 *  Shuffle into random item order
 	 */
 	for (i = 0; i < randlist_items; i++) {
-		size_t n = (size_t)stress_mwc32modn(randlist_items);
+		const size_t n = (size_t)stress_mwc32modn(randlist_items);
 
 		ptr = ptrs[i];
 		ptrs[i] = ptrs[n];
