@@ -179,10 +179,12 @@ void stress_config_check(void)
 		}
 	}
 #endif
+
 	stress_get_memlimits(&shmall, &freemem, &totalmem, &freeswap, &totalswap);
 	freetotal = freemem + freeswap;
-	if (((freemem > 0) && (freemem < (size_t)(256 * MB))) ||
-	    ((freetotal > 0) && (freetotal < (size_t)(512 * MB)))) {
+	if (!(g_opt_flags & OPT_FLAGS_OOM_AVOID) &&
+	    (((freemem > 0) && (freemem < (size_t)(256 * MB))) ||
+	    ((freetotal > 0) && (freetotal < (size_t)(512 * MB))))) {
 		pr_inf("note: system has only %zu MB of free memory and swap, "
 			"recommend using --oom-avoid\n", freetotal / (size_t)MB);
 	}
