@@ -23,6 +23,7 @@
 #include "core-affinity.h"
 #include "core-attribute.h"
 #include "core-builtin.h"
+#include "core-mmap.h"
 #include "core-pthread.h"
 #include "core-time.h"
 
@@ -53,7 +54,7 @@ static const stress_help_t help[] = {
     defined(HAVE_SCHED_SETAFFINITY) &&	\
     defined(HAVE_SYNC_VAL_COMPARE_AND_SWAP)
 
-typedef struct stress_flipflop_worker {
+typedef struct stress_flipflop_info {
 	uint64_t *word;			/* word being twiddled */
 	uint64_t and_mask;		/* mask, and ops */
 	uint64_t or_mask;		/* mask, or ops */
@@ -69,6 +70,15 @@ typedef struct stress_flipflop_worker {
 	pid_t ppid;			/* controlling parent pid */
 	bool *worker_hold;		/* hold flag */
 	bool *worker_exit;		/* exit flag */
+} stress_flipflop_info_t;
+
+/*
+ *  padded stress_flipflop_info_t to the nearest
+ *  64 byte multiple
+ */
+typedef struct stress_flipflop_worker {
+	stress_flipflop_info_t info;
+	uint8_t pad[64 - (sizeof(stress_flipflop_info_t) & 0x3f)];
 } stress_flipflop_worker_t ALIGN64;
 
 /*
@@ -83,38 +93,38 @@ static void stress_flipflop_sigusr1_handler(int signum)
 static void *stress_flipflop_worker(void *arg)
 {
 	stress_flipflop_worker_t *w = (stress_flipflop_worker_t *)arg;
-	const bool check_max_loops = (w->nr_max_loops > 0);
+	const bool check_max_loops = (w->info.nr_max_loops > 0);
 
-	(void)sched_setaffinity(0, sizeof(*(w->cpus)), w->cpus);
+	(void)sched_setaffinity(0, sizeof(*(w->info.cpus)), w->info.cpus);
 
 	/* wait on hold or until finished flag */
-	while (*(volatile bool *)w->worker_hold) {
+	while (*(volatile bool *)w->info.worker_hold) {
 		if (UNLIKELY(!stress_continue_flag()))
 			return &g_nowt;
 	}
 
-	while (!*(volatile bool *)w->worker_exit) {
-		uint64_t old_val = *((volatile uint64_t *)w->word);
-		uint64_t new_val = (old_val & w->and_mask) | w->or_mask;
+	while (!*(volatile bool *)w->info.worker_exit) {
+		uint64_t old_val = *((volatile uint64_t *)w->info.word);
+		uint64_t new_val = (old_val & w->info.and_mask) | w->info.or_mask;
 		uint64_t ret;
 
-		w->nr_loops++;
-		if ((UNLIKELY(check_max_loops) && (w->nr_loops >= w->nr_max_loops)))
+		w->info.nr_loops++;
+		if ((UNLIKELY(check_max_loops) && (w->info.nr_loops >= w->info.nr_max_loops)))
 			break;
 
 		if (old_val == new_val)
 			continue;
 
-		ret = __sync_val_compare_and_swap(w->word, old_val, new_val);
-		w->nr_tries++;
+		ret = __sync_val_compare_and_swap(w->info.word, old_val, new_val);
+		w->info.nr_tries++;
 		if (ret == old_val)
-			w->nr_successes++;
+			w->info.nr_successes++;
 		if (UNLIKELY(!stress_continue_flag()))
 			break;
 	}
 
 	/* Interrupt parent in sleep */
-	(void)kill(w->ppid, SIGUSR1);
+	(void)kill(w->info.ppid, SIGUSR1);
 	return &g_nowt;
 }
 
@@ -139,27 +149,27 @@ static int stress_flipflop_create_workers(
 		const uint32_t idx = i / 64;
 		const uint32_t bit = i % 64;
 
-		w->thread_ret = -1;
-		w->nr_max_loops = max_ops;
-		w->ppid = getpid();
-		w->cpus = cpus;
-		w->worker_hold = worker_hold;
-		w->worker_exit = worker_exit;
-		w->word = &bits[idx];
+		w->info.thread_ret = -1;
+		w->info.nr_max_loops = max_ops;
+		w->info.ppid = getpid();
+		w->info.cpus = cpus;
+		w->info.worker_hold = worker_hold;
+		w->info.worker_exit = worker_exit;
+		w->info.word = &bits[idx];
 		if (set_or_clear) {
-			w->and_mask = -1LLU;
-			w->or_mask = 1LLU << bit;
+			w->info.and_mask = -1LLU;
+			w->info.or_mask = 1LLU << bit;
 		} else {
-			w->and_mask = ~(1LLU << bit);
-			w->or_mask = 0;
+			w->info.and_mask = ~(1LLU << bit);
+			w->info.or_mask = 0;
 		}
 	}
 
 	for (i = 0; i < flipflop_bits; i++) {
 		stress_flipflop_worker_t *w = &workers[i];
 
-		w->thread_ret = pthread_create(&w->thread, NULL, stress_flipflop_worker, w);
-		if (w->thread_ret != 0)
+		w->info.thread_ret = pthread_create(&w->info.thread, NULL, stress_flipflop_worker, w);
+		if (w->info.thread_ret != 0)
 			return -1;
 	}
 	return 0;
@@ -207,7 +217,7 @@ static int stress_flipflop(stress_args_t *args)
 	uint32_t flipflop_bits = (uint32_t)num_cpus, i;
 	cpu_set_t cpus_a, cpus_b;
 	uint64_t nr_loops = 0, nr_tries = 0, nr_successes = 0, max_ops;
-	size_t bits_size;
+	size_t bits_size, workers_size;
 	int rc = EXIT_SUCCESS, setbits;
 	char *flipflop_taskset1 = NULL, *flipflop_taskset2 = NULL;
 	const bool loop_until_max_ops = (args->bogo.max_ops > 0);
@@ -264,10 +274,13 @@ static int stress_flipflop(stress_args_t *args)
 	}
 
 	max_ops = (args->bogo.max_ops * BOGO_SCALE) / (2 * flipflop_bits);
-	workers = (stress_flipflop_worker_t *)calloc(2 * flipflop_bits, sizeof(stress_flipflop_worker_t));
-	if (!workers) {
-		pr_inf_skip("%s: failed to allocate workers array%s, skipping stressor\n",
-			args->name, stress_get_memfree_str());
+	workers_size = 2 * flipflop_bits * sizeof(stress_flipflop_worker_t);
+	workers = (stress_flipflop_worker_t *)stress_mmap_populate(NULL, workers_size,
+							PROT_READ | PROT_WRITE,
+							MAP_ANONYMOUS | MAP_SHARED, -1, 0);
+	if (workers == MAP_FAILED) {
+		pr_inf_skip("%s: failed to mmap workers array%s, errno=%d (%s), skipping stressor\n",
+			args->name, stress_get_memfree_str(), errno, strerror(errno));
 		rc = EXIT_NO_RESOURCE;
 		goto free_bits;
 	}
@@ -296,8 +309,8 @@ static int stress_flipflop(stress_args_t *args)
 		shim_pause();
 
 		for (i = 0; i < 2 * flipflop_bits; i++) {
-			bogo_ops += workers[i].nr_loops;
-			if (loop_until_max_ops && (workers[i].nr_loops < max_ops))
+			bogo_ops += workers[i].info.nr_loops;
+			if (loop_until_max_ops && (workers[i].info.nr_loops < max_ops))
 				all_done = false;
 		}
 
@@ -315,15 +328,15 @@ static int stress_flipflop(stress_args_t *args)
 	for (i = 0; i < 2 * flipflop_bits; i++) {
 		stress_flipflop_worker_t *w = &workers[i];
 
-		if (!w->thread_ret)
-			(void)pthread_join(w->thread, NULL);
+		if (!w->info.thread_ret)
+			(void)pthread_join(w->info.thread, NULL);
 
-		w->thread_ret = -1;
-		nr_loops += w->nr_loops;
-		nr_tries += w->nr_tries;
-		nr_successes += w->nr_successes;
+		w->info.thread_ret = -1;
+		nr_loops += w->info.nr_loops;
+		nr_tries += w->info.nr_tries;
+		nr_successes += w->info.nr_successes;
 
-		dist[i] = w->nr_successes;
+		dist[i] = w->info.nr_successes;
 	}
 
 	if (stress_instance_zero(args)) {
@@ -355,10 +368,10 @@ free_workers:
 	for (i = 0; i < 2 * flipflop_bits; i++) {
 		stress_flipflop_worker_t *w = &workers[i];
 
-		if (!w->thread_ret)
-			(void)pthread_join(w->thread, NULL);
+		if (!w->info.thread_ret)
+			(void)pthread_join(w->info.thread, NULL);
 	}
-	free(workers);
+	(void)munmap((void *)workers, workers_size);
 free_bits:
 	free(bits);
 free_dist:
