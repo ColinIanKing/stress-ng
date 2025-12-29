@@ -104,7 +104,7 @@ static int stress_mknod_find_dev(mode_t mode, dev_t *dev)
 
 		/* A match, copy it */
 		if ((statbuf.st_mode & S_IFMT) == mode) {
-			(void)shim_memcpy(dev, &statbuf.st_rdev, sizeof(*dev));
+			*dev = statbuf.st_rdev;
 			rc = 0;
 			break;
 		}
