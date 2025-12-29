@@ -247,7 +247,7 @@ static const int madvise_random_options[] = {
  */
 int stress_advice_check(const int advice)
 {
-	switch (madvise_options[advice]) {
+	switch (advice) {
 #if defined(MADV_GUARD_INSTALL)
 	case MADV_GUARD_INSTALL:
 		return MADV_NORMAL;
