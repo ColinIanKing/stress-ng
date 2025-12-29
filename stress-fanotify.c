@@ -444,7 +444,7 @@ static void stress_fanotify_read_events(
 	struct fanotify_event_metadata *metadata;
 
 	len = read(fan_fd, (void *)buffer, buffer_size);
-	if (len <= 0)
+	if (len < sizeof(struct fanotify_event_metadata))
 		return;
 
 	metadata = (struct fanotify_event_metadata *)buffer;
