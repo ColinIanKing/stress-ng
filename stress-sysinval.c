@@ -2461,6 +2461,87 @@ static void syscall_set_cwd_perms(const unsigned long int syscall_num)
 }
 
 /*
+ *  syscall_do_call()
+ *	perform the system call
+ */
+static void syscall_do_call(
+	const stress_syscall_arg_t *stress_syscall_arg,
+	volatile bool *syscall_exercised)
+{
+	int ret;
+	const unsigned long int syscall_num = stress_syscall_arg->syscall;
+	const unsigned long int hash = stress_syscall_hash(syscall_num, current_context->args);
+	stress_syscall_arg_hash_t *h = hash_table->table[hash];
+	struct itimerval it;
+
+	while (h) {
+		if (!shim_memcmp(h->args, current_context->args, sizeof(h->args))) {
+			switch (h->type) {
+			case SYSCALL_CRASH:
+				current_context->skip_crashed++;
+				break;
+			default:
+				break;
+			}
+			return;
+		}
+		h = h->next;
+	}
+
+	errno = 0;
+	current_context->counter++;
+	current_context->hash = hash;
+	current_context->type = SYSCALL_CRASH;	/* Assume it will crash */
+
+	/*
+	 * Force abort if we take too long
+	 */
+	it.it_interval.tv_sec = 0;
+	it.it_interval.tv_usec = SYSCALL_TIMEOUT_USEC;
+	it.it_value.tv_sec = 0;
+	it.it_value.tv_usec = SYSCALL_TIMEOUT_USEC;
+	VOID_RET(int, setitimer(ITIMER_REAL, &it, NULL));
+
+	ret = sigsetjmp(jmpbuf, 1);
+	if (ret == 1) {
+		/* timed out! */
+		current_context->type = SYSCALL_TIMED_OUT;
+		goto timed_out;
+	}
+	do_jmp = true;
+
+	*syscall_exercised = true;
+
+	ret = (int)syscall((long int)syscall_num,
+		current_context->args[0],
+		current_context->args[1],
+		current_context->args[2],
+		current_context->args[3],
+		current_context->args[4],
+		current_context->args[5]);
+
+	syscall_set_cwd_perms(syscall_num);
+
+timed_out:
+	do_jmp = false;
+	if (current_context->type == SYSCALL_TIMED_OUT) {
+		/*
+		 *  Remember syscalls that block for too long so we don't retry them
+		 */
+		hash_table_add(hash, syscall_num, current_context->args, SYSCALL_TIMED_OUT);
+		current_context->skip_timed_out++;
+	} else if (ret == 0) {
+		/*
+		 *  For this child we remember syscalls that don't fail
+		 *  so we don't retry them
+		 */
+		hash_table_add(hash, syscall_num, current_context->args, SYSCALL_ERRNO_ZERO);
+		current_context->skip_errno_zero++;
+	}
+	current_context->type = SYSCALL_FAIL;	/* it just failed */
+}
+
+/*
  *  syscall_permute()
  *	recursively permute all possible system call invalid arguments
  *	- if the system call crashes, the call info is cached in
@@ -2474,103 +2555,25 @@ static void syscall_set_cwd_perms(const unsigned long int syscall_num)
 static void syscall_permute(
 	stress_args_t *args,
 	const int arg_num,
+	const unsigned long int arg_bitmask,
 	const stress_syscall_arg_t *stress_syscall_arg,
 	volatile bool *syscall_exercised)
 {
-	unsigned long int arg_bitmask = stress_syscall_arg->arg_bitmasks[arg_num];
 	size_t i;
-	unsigned long int *values = NULL;
-	unsigned long int rnd_values[4];
-	size_t num_values = 0;
+	unsigned long int *values, rnd_values[4];
+	size_t num_values;
 
 	if (UNLIKELY(stress_time_now() > args->time_end))
 		_exit(EXIT_SUCCESS);
 
+	/* all args now permuted, do the call */
 	if (arg_num >= stress_syscall_arg->num_args) {
-		int ret;
-		const unsigned long int syscall_num = stress_syscall_arg->syscall;
-		const unsigned long int hash = stress_syscall_hash(syscall_num, current_context->args);
-		stress_syscall_arg_hash_t *h = hash_table->table[hash];
-		struct itimerval it;
-
-		while (h) {
-			if (!shim_memcmp(h->args, current_context->args, sizeof(h->args))) {
-				switch (h->type) {
-				case SYSCALL_CRASH:
-					current_context->skip_crashed++;
-					break;
-				default:
-					break;
-				}
-				return;
-			}
-			h = h->next;
-		}
-
-		errno = 0;
-		current_context->counter++;
-		current_context->hash = hash;
-		current_context->type = SYSCALL_CRASH;	/* Assume it will crash */
-
-		/*
-		 * Force abort if we take too long
-		 */
-		it.it_interval.tv_sec = 0;
-		it.it_interval.tv_usec = SYSCALL_TIMEOUT_USEC;
-		it.it_value.tv_sec = 0;
-		it.it_value.tv_usec = SYSCALL_TIMEOUT_USEC;
-		VOID_RET(int, setitimer(ITIMER_REAL, &it, NULL));
-
-		ret = sigsetjmp(jmpbuf, 1);
-		if (ret == 1) {
-			/* timed out! */
-			current_context->type = SYSCALL_TIMED_OUT;
-			goto timed_out;
-		}
-		do_jmp = true;
-
-		*syscall_exercised = true;
-
-		ret = (int)syscall((long int)syscall_num,
-			current_context->args[0],
-			current_context->args[1],
-			current_context->args[2],
-			current_context->args[3],
-			current_context->args[4],
-			current_context->args[5]);
-
-		syscall_set_cwd_perms(syscall_num);
-
-		/*
-		(void)printf("syscall: %s(%lx,%lx,%lx,%lx,%lx,%lx) -> %d\n",
-			current_context->name,
-			current_context->args[0],
-			current_context->args[1],
-			current_context->args[2],
-			current_context->args[3],
-			current_context->args[4],
-			current_context->args[5], ret);
-		*/
-
-timed_out:
-		do_jmp = false;
-		if (current_context->type == SYSCALL_TIMED_OUT) {
-			/*
-			 *  Remember syscalls that block for too long so we don't retry them
-			 */
-			hash_table_add(hash, syscall_num, current_context->args, SYSCALL_TIMED_OUT);
-			current_context->skip_timed_out++;
-		} else if (ret == 0) {
-			/*
-			 *  For this child we remember syscalls that don't fail
-			 *  so we don't retry them
-			 */
-			hash_table_add(hash, syscall_num, current_context->args, SYSCALL_ERRNO_ZERO);
-			current_context->skip_errno_zero++;
-		}
-		current_context->type = SYSCALL_FAIL;	/* it just failed */
+		syscall_do_call(stress_syscall_arg, syscall_exercised);
 		return;
 	}
+
+	values = NULL;
+	num_values = 0;
 
 	switch (arg_bitmask) {
 	case ARG_NONE:
@@ -2635,7 +2638,7 @@ timed_out:
 	 */
 	for (i = 0; i < num_values; i++) {
 		current_context->args[arg_num] = values[i];
-		syscall_permute(args, arg_num + 1, stress_syscall_arg, syscall_exercised);
+		syscall_permute(args, arg_num + 1, stress_syscall_arg->arg_bitmasks[arg_num], stress_syscall_arg, syscall_exercised);
 		current_context->args[arg_num] = 0;
 	}
 }
@@ -2722,7 +2725,7 @@ static inline int stress_do_syscall(stress_args_t *args)
 				/* Ignore too many crashes from this system call */
 				if (current_context->crash_count[j] >= MAX_CRASHES)
 					continue;
-				syscall_permute(args, 0, &stress_syscall_args[j], &stress_syscall_exercised[j]);
+				syscall_permute(args, 0, stress_syscall_args[j].arg_bitmasks[0], &stress_syscall_args[j], &stress_syscall_exercised[j]);
 				syscall_set_cwd_perms(current_context->syscall);
 			}
 		}
