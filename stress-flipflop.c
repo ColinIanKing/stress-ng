@@ -53,7 +53,7 @@ static const stress_help_t help[] = {
     defined(HAVE_SCHED_SETAFFINITY) &&	\
     defined(HAVE_SYNC_VAL_COMPARE_AND_SWAP)
 
-struct stress_flipflop_worker {
+typedef struct stress_flipflop_worker {
 	uint64_t *word;			/* word being twiddled */
 	uint64_t and_mask;		/* mask, and ops */
 	uint64_t or_mask;		/* mask, or ops */
@@ -69,9 +69,7 @@ struct stress_flipflop_worker {
 	pid_t ppid;			/* controlling parent pid */
 	bool *worker_hold;		/* hold flag */
 	bool *worker_exit;		/* exit flag */
-} ALIGN64;
-
-typedef struct stress_flipflop_worker stress_flipflop_worker_t;
+} stress_flipflop_worker_t ALIGN64;
 
 /*
  *  stress_flipflop_sigusr1_handler()
