@@ -69,9 +69,10 @@ static bool OPTIMIZE3 stress_mmapfixed_is_mapped_slow(
 
 		while (n > 0) {
 			int ret;
-			register size_t j, sz, n_pages_todo = n > n_pages ? n_pages : n;
+			register size_t j;
+			register const size_t n_pages_todo = n > n_pages ? n_pages : n;
+			register const size_t sz = n_pages_todo * page_size;
 
-	       		sz = n_pages_todo * page_size;
 			ret = shim_mincore(addr, sz, (unsigned char *)vec);
 			if (UNLIKELY(ret < 0))
 				return false;	/* Dodgy, assume not in memory */
