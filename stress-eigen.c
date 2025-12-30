@@ -173,8 +173,8 @@ static inline int stress_eigen_exercise(
 	}
 
 	if (j > 0) {
-		double inverse_n = 1.0 / (double)j;
-		double geomean = pow(mantissa, inverse_n) *
+		const double inverse_n = 1.0 / (double)j;
+		const double geomean = pow(mantissa, inverse_n) *
 				 pow(2.0, (double)exponent * inverse_n);
 
 		pr_dbg("%s: %.2f eigen ops per second (geometric mean of per stressor bogo-op rates)\n",
