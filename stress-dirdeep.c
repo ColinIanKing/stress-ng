@@ -43,7 +43,7 @@ static const char stress_dir_names[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
  */
 static void stress_dirdeep_inodes(const char *opt_name, const char *opt_arg, stress_type_id_t *type_id, void *value)
 {
-	uint64_t inodes = stress_get_filesystem_available_inodes();
+	const uint64_t inodes = stress_get_filesystem_available_inodes();
 	uint64_t *dirdeep_inodes = (uint64_t *)value;
 
 	*type_id = TYPE_ID_UINT64;
