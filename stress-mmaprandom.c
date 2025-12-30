@@ -752,7 +752,7 @@ static void OPTIMIZE3 stress_mmaprandom_mmap_anon(mr_ctxt_t *ctxt, const int idx
 		return;
 
 	for (i = 0; i < SIZEOF_ARRAY(mmap_extra_flags); i++) {
-		int new_flags = MWC_RND_ELEMENT(mmap_extra_flags);
+		const int new_flags = MWC_RND_ELEMENT(mmap_extra_flags);
 
 #if defined(MAP_HUGETLB)
 		if (new_flags & MAP_HUGETLB) {
