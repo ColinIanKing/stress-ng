@@ -139,7 +139,7 @@ static void stress_mc_mwc_seed(void)
 
 static double OPTIMIZE3 stress_mc_mwc64_rand(void)
 {
-	const double scale_u64 = 1.0 / (double)0xffffffffffffffffULL;
+	register const double scale_u64 = 1.0 / (double)0xffffffffffffffffULL;
 
 	return scale_u64 * (double)stress_mwc64();
 }
