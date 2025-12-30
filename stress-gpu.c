@@ -329,6 +329,7 @@ static void stress_gpu_run(const GLsizei texsize, const GLsizei uploads)
 {
 	if (texsize > 0) {
 		int i;
+
 		for (i = 0; LIKELY(stress_continue_flag() && (i < uploads)); i++) {
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texsize,
 				     texsize, 0, GL_RGBA, GL_UNSIGNED_BYTE,
