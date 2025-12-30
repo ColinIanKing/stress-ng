@@ -1076,7 +1076,6 @@ static int stress_get(stress_args_t *args)
 
 	i = 0;
 
-
 	do {
 		if (get_slow_sync) {
 			i = (size_t)(round(stress_time_now() * 10.0)) % SIZEOF_ARRAY(stress_get_funcs);
