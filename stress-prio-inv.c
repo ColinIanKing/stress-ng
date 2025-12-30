@@ -177,7 +177,10 @@ static void stress_prio_inv_getrusage(stress_prio_inv_child_info_t *child_info)
 {
 	struct rusage usage;
 
-	getrusage(RUSAGE_SELF, &usage);
+	if (getrusage(RUSAGE_SELF, &usage) < 0) {
+		child_info->usage = 0.0;
+		return;
+	}
 
 	child_info->usage =
 		(double)usage.ru_utime.tv_sec +
