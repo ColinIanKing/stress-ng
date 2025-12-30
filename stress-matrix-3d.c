@@ -257,7 +257,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_zyx_mult(
 	stress_matrix_3d_type_t r[RESTRICT n][n][n])
 {
 	register size_t k;
-	stress_matrix_3d_type_t v = b[0][0][0];
+	const stress_matrix_3d_type_t v = b[0][0][0];
 
 	(void)b;
 
@@ -285,7 +285,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_xyz_div(
 	stress_matrix_3d_type_t r[RESTRICT n][n][n])
 {
 	register size_t i;
-	stress_matrix_3d_type_t v = b[0][0][0];
+	const stress_matrix_3d_type_t v = b[0][0][0];
 
 	(void)b;
 
@@ -314,7 +314,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_zyx_div(
 	stress_matrix_3d_type_t r[RESTRICT n][n][n])
 {
 	register size_t k;
-	stress_matrix_3d_type_t v = b[0][0][0];
+	const stress_matrix_3d_type_t v = b[0][0][0];
 
 	(void)b;
 
@@ -955,8 +955,8 @@ static inline int stress_matrix_3d_exercise(
 	}
 
 	if (j > 0) {
-		double inverse_n = 1.0 / (double)j;
-		double geomean = pow(mantissa, inverse_n) *
+		const double inverse_n = 1.0 / (double)j;
+		const double geomean = pow(mantissa, inverse_n) *
 				 pow(2.0, (double)exponent * inverse_n);
 		pr_dbg("%s: %.2f matrix-3d ops per second (geometric mean of per stressor bogo-op rates)\n",
 			args->name, geomean);
