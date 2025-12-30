@@ -708,7 +708,7 @@ static void stress_filerace_lockf_lock(const int fd, const char *filename)
 static void stress_filerace_lockf_tlock(const int fd, const char *filename)
 {
 	/* lock 4096 bytes in first 64K  of file */
-	off_t offset = stress_mwc16() & ~(off_t)(4095);
+	const off_t offset = stress_mwc16() & ~(off_t)(4095);
 	char data[4096];
 
 	(void)filename;
@@ -730,7 +730,7 @@ static void stress_filerace_lockf_tlock(const int fd, const char *filename)
 static void stress_filerace_lockf_test(const int fd, const char *filename)
 {
 	/* lock 4096 bytes in first 64K  of file */
-	off_t offset = stress_mwc16() & ~(off_t)(4095);
+	const off_t offset = stress_mwc16() & ~(off_t)(4095);
 
 	(void)filename;
 
@@ -745,7 +745,7 @@ static void stress_filerace_lockf_test(const int fd, const char *filename)
 static void stress_filerace_lockofd_wr(const int fd, const char *filename)
 {
 	/* lock 4096 bytes in first 64K  of file */
-	off_t offset = stress_mwc16() & ~(off_t)(4095);
+	const off_t offset = stress_mwc16() & ~(off_t)(4095);
 	char data[4096];
 
 	(void)filename;
@@ -783,7 +783,7 @@ static void stress_filerace_lockofd_wr(const int fd, const char *filename)
 static void stress_filerace_lockofd_rd(const int fd, const char *filename)
 {
 	/* lock 4096 bytes in first 64K  of file */
-	off_t offset = stress_mwc16() & ~(off_t)(4095);
+	const off_t offset = stress_mwc16() & ~(off_t)(4095);
 
 	(void)filename;
 
@@ -1374,7 +1374,7 @@ static void stress_filerace_child(stress_args_t *args, const char *pathname, con
 		char filename[PATH_MAX];
 		char filename2[PATH_MAX];
 		int flag;
-		int which = stress_mwc8modn(11);
+		const int which = stress_mwc8modn(11);
 #if defined(O_DIRECTORY)
 		int fd;
 #endif
