@@ -73,7 +73,7 @@ static int stress_dup2_race_clone(void *arg)
 	 *  Unexpected, the next fd is the same as an earlier
 	 *  previous fd, so don't dup2 on this
 	 */
-	if  (UNLIKELY(fd == info->fd))
+	if (UNLIKELY(fd == info->fd))
 		_exit(0);
 
 	/*
