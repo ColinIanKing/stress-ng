@@ -137,8 +137,8 @@ static int stress_ptr_chase(stress_args_t *args)
 	ptr = ptrs[0];
 	t_start = stress_time_now();
 	do {
-		register size_t j = stress_mwc16() & (PTRS_PER_4K_PAGE - 1);
-		register uintptr_t addr = (uintptr_t)ptr->next[j];
+		register const size_t j = stress_mwc16() & (PTRS_PER_4K_PAGE - 1);
+		register const uintptr_t addr = (uintptr_t)ptr->next[j];
 
 		ptr->next[j] = (stress_ptrs_t *)(addr | 1);
 		ptr = (stress_ptrs_t *)(addr & ptr_mask);
@@ -149,7 +149,7 @@ static int stress_ptr_chase(stress_args_t *args)
 
 	for (i = 0; i < n; i++) {
 		register size_t j;
-		register uintptr_t addr = (uintptr_t)ptrs[i];
+		register const uintptr_t addr = (uintptr_t)ptrs[i];
 
 		ptr = (stress_ptrs_t *)(addr & ptr_mask);
 
