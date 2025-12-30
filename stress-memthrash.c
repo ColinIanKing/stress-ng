@@ -846,7 +846,7 @@ static void *stress_memthrash_func(void *ctxt)
 
 		for (j = MATRIX_SIZE_MIN_SHIFT; LIKELY(j <= MATRIX_SIZE_MAX_SHIFT &&
 		     !thread_terminate && stress_continue(args)); j++) {
-			size_t mem_size = 1 << (2 * j);
+			const size_t mem_size = 1 << (2 * j);
 			size_t i;
 
 			for (i = 0; i < SIZEOF_ARRAY(memthrash_methods); i++)
@@ -867,7 +867,7 @@ static inline uint32_t stress_memthrash_max(
 	if ((instances >= total_cpus) || (instances == 0)) {
 		return 1;
 	} else {
-		uint32_t max = total_cpus / instances;
+		const uint32_t max = total_cpus / instances;
 
 		return ((total_cpus % instances) == 0) ? max : max + 1;
 	}
