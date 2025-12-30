@@ -151,7 +151,7 @@ static int OPTIMIZE3 stress_poll(stress_args_t *args)
 		rnd_fds_index[i] = (int)(i % max_fds);
 	}
 	for (i = 0; i < max_rnd_fds; i++) {
-		register size_t j = stress_mwc32modn((uint32_t)max_rnd_fds);
+		register const size_t j = stress_mwc32modn((uint32_t)max_rnd_fds);
 		register int tmp;
 
 		tmp = rnd_fds_index[i];
