@@ -90,7 +90,7 @@ static inline int stress_getdents_rand(
 	size_t i, j = stress_mwc32modn(n);
 
 	for (i = 0; i < n; i++) {
-		stress_getdents_func func = getdents_funcs[j];
+		const stress_getdents_func func = getdents_funcs[j];
 
 		if (func) {
 			ret = func(args, path, recurse, depth, bad_fd, duration, count);
