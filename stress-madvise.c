@@ -558,7 +558,7 @@ static int stress_madvise(stress_args_t *args)
 			val = stress_mwc8();
 
 			for (n = 0; n < sz; n += page_size) {
-				register uint8_t v = (uint8_t)(val + n);
+				register const uint8_t v = (uint8_t)(val + n);
 
 				buf[n] = v;
 			}
@@ -570,7 +570,7 @@ static int stress_madvise(stress_args_t *args)
 				goto madv_free_out;
 
 			for (n = 0; n < sz; n += page_size) {
-				register uint8_t v = (uint8_t)(val + n);
+				register const uint8_t v = (uint8_t)(val + n);
 
 				if (buf[n] != v)
 					madv_frees_raced++;
