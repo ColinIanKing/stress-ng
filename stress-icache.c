@@ -83,7 +83,7 @@ static int NOINLINE icache_mprotect(
 static int stress_icache_func(stress_args_t *args, void *page, const size_t page_size)
 {
 	volatile uint32_t *vaddr = (volatile uint32_t *)page;
-	stress_ret_func_t icache_func = (stress_ret_func_t)page;
+	const stress_ret_func_t icache_func = (stress_ret_func_t)page;
 
 	if (icache_madvise_nohugepage(args, page, page_size) < 0)
 		return EXIT_NO_RESOURCE;
