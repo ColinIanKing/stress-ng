@@ -975,7 +975,7 @@ die:
 static int stress_epoll(stress_args_t *args)
 {
 	stress_pid_t *s_pids, *s_pids_head = NULL;
-	pid_t mypid = getpid();
+	const pid_t mypid = getpid();
 	int i, rc = EXIT_SUCCESS;
 	int epoll_domain = AF_UNIX;
 	int epoll_port = DEFAULT_EPOLL_PORT;
