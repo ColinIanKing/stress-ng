@@ -316,9 +316,9 @@ redo:
 
 		/* Scan through inotify events */
 		while (i <= len - (ssize_t)sizeof(struct inotify_event)) {
-			struct inotify_event *event =
+			const struct inotify_event *event =
 				(struct inotify_event *)shim_assume_aligned(&buffer[i], 1);
-			uint32_t f = event->mask & (IN_DELETE_SELF |
+			const uint32_t f = event->mask & (IN_DELETE_SELF |
 						    IN_MOVE_SELF |
 						    IN_MOVED_TO |
 						    IN_MOVED_FROM |
@@ -427,7 +427,7 @@ static int mk_file(stress_args_t *args, const char *filename, const size_t len)
 
 	(void)shim_memset(buffer, 'x', BUF_SIZE);
 	while (LIKELY(stress_continue(args) && (sz > 0))) {
-		size_t n = (sz > BUF_SIZE) ? BUF_SIZE : sz;
+		const size_t n = (sz > BUF_SIZE) ? BUF_SIZE : sz;
 		ssize_t ret;
 
 		ret = write(fd, buffer, n);
