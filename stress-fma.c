@@ -74,8 +74,8 @@ static void TARGET_CLONES stress_fma_add132_double(stress_fma_t *fma)
 {
 	register size_t i;
 	register double *a = fma->double_a;
-	register double b = fma->double_b;
-	register double c = fma->double_c;
+	register const double b = fma->double_b;
+	register const double c = fma->double_c;
 
 PRAGMA_UNROLL_N(FMA_UNROLL)
 	for (i = 0; i < FMA_ELEMENTS; i++)
@@ -86,8 +86,8 @@ static void TARGET_CLONES stress_fma_sub132_double(stress_fma_t *fma)
 {
 	register size_t i;
 	register double *a = fma->double_a;
-	register double b = fma->double_b;
-	register double c = fma->double_c;
+	register const double b = fma->double_b;
+	register const double c = fma->double_c;
 
 PRAGMA_UNROLL_N(FMA_UNROLL)
 	for (i = 0; i < FMA_ELEMENTS; i++)
@@ -98,8 +98,8 @@ static void TARGET_CLONES stress_fma_add132_float(stress_fma_t *fma)
 {
 	register size_t i;
 	register float *a = fma->float_a;
-	register float b = fma->float_b;
-	register float c = fma->float_c;
+	register const float b = fma->float_b;
+	register const float c = fma->float_c;
 
 PRAGMA_UNROLL_N(FMA_UNROLL)
 	for (i = 0; i < FMA_ELEMENTS; i++)
@@ -110,8 +110,8 @@ static void TARGET_CLONES stress_fma_sub132_float(stress_fma_t *fma)
 {
 	register size_t i;
 	register float *a = fma->float_a;
-	register float b = fma->float_b;
-	register float c = fma->float_c;
+	register const float b = fma->float_b;
+	register const float c = fma->float_c;
 
 PRAGMA_UNROLL_N(FMA_UNROLL)
 	for (i = 0; i < FMA_ELEMENTS; i++)
@@ -122,8 +122,8 @@ static void TARGET_CLONES stress_fma_add213_double(stress_fma_t *pfma)
 {
 	register size_t i;
 	register double *a = pfma->double_a;
-	register double b = pfma->double_b;
-	register double c = pfma->double_c;
+	register const double b = pfma->double_b;
+	register const double c = pfma->double_c;
 
 PRAGMA_UNROLL_N(FMA_UNROLL)
 	for (i = 0; i < FMA_ELEMENTS; i++)
@@ -134,8 +134,8 @@ static void TARGET_CLONES stress_fma_sub213_double(stress_fma_t *pfma)
 {
 	register size_t i;
 	register double *a = pfma->double_a;
-	register double b = pfma->double_b;
-	register double c = pfma->double_c;
+	register const double b = pfma->double_b;
+	register const double c = pfma->double_c;
 
 PRAGMA_UNROLL_N(FMA_UNROLL)
 	for (i = 0; i < FMA_ELEMENTS; i++)
