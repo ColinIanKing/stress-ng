@@ -189,7 +189,7 @@ static int stress_ramfs_fs_ops(
 			off_t offset = 0, scale;
 
 			for (scale = 80; scale <= 100; scale++) {
-				off_t end = scale * (ramfs_size / 100);
+				const off_t end = scale * (ramfs_size / 100);
 
 				errno = 0;
 				if (shim_fallocate(fd, 0, offset, end - offset) < 0)
