@@ -384,7 +384,7 @@ static int stress_module_open(stress_args_t *args, int mod_type)
 		ret = lzma_code(&strm, action);
 
 		if ((strm.avail_out == 0) || (ret == LZMA_STREAM_END)) {
-			size_t n = sizeof(buf_out) - strm.avail_out;
+			const size_t n = sizeof(buf_out) - strm.avail_out;
 			ssize_t wr;
 
 			wr = write(fd_out, buf_out, n);
