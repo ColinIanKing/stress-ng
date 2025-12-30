@@ -94,9 +94,9 @@ static int dnotify_exercise(
 {
 	int fd, i = 0, rc = 0;
 #if defined(DN_MULTISHOT)
-	unsigned long int flags_ms = flags | DN_MULTISHOT;
+	const unsigned long int flags_ms = flags | DN_MULTISHOT;
 #else
-	unsigned long int flags_ms = flags;
+	const unsigned long int flags_ms = flags;
 #endif
 
 	if ((fd = open(watchname, O_RDONLY)) < 0) {
