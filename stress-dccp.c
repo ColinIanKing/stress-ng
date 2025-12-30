@@ -269,7 +269,7 @@ static int stress_dccp_server(
 			socklen_t len;
 			int sndbuf;
 			struct msghdr msg;
-			struct iovec vec[sizeof(buf)/16];
+			struct iovec vec[sizeof(buf) / 16];
 #if defined(HAVE_SENDMMSG)
 			struct mmsghdr msgvec[MSGVEC_SIZE];
 #endif
