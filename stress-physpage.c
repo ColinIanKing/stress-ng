@@ -89,7 +89,6 @@ static void stress_physpage_mtrr(
 	for (i = 0; i < SIZEOF_ARRAY(mtrr_types); i++) {
 		struct mtrr_sentry sentry;
 		int ret;
-		bool found = false;
 
 		sentry.base = phys_addr;
 		sentry.size = (uint32_t)page_size;
@@ -100,6 +99,7 @@ static void stress_physpage_mtrr(
 			continue;
 		if (lseek(fd, 0, SEEK_SET) == 0) {
 			struct mtrr_gentry gentry;
+			bool found = false;
 
 			gentry.regnum = 0;
 			while (ioctl(fd, MTRRIOC_GET_ENTRY, &gentry) == 0) {
