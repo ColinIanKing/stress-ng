@@ -942,9 +942,6 @@ static inline uint64_t get_stream_L3_size(stress_args_t *args)
 		goto report_size;
 	}
 	max_cache_level = stress_cpu_cache_get_max_level(cpu_caches);
-	if ((max_cache_level > 0) && (max_cache_level < 3) && (!args->instance))
-		pr_inf("%s: no L3 cache, using L%" PRIu16 " size instead\n",
-			args->name, max_cache_level);
 
 	cache = stress_cpu_cache_get(cpu_caches, max_cache_level);
 	if (!cache) {
@@ -960,6 +957,17 @@ static inline uint64_t get_stream_L3_size(stress_args_t *args)
 				"determine cache size\n", args->name);
 		stress_free_cpu_caches(cpu_caches);
 		goto report_size;
+	}
+	if ((max_cache_level > 0) && (max_cache_level < 3) && (!args->instance)) {
+		if (cache->size > cache_size) {
+			pr_inf("%s: no L3 cache, using L%" PRIu16 " size instead\n",
+				args->name, max_cache_level);
+		} else {
+			pr_inf("%s: no L3 cache, and L%" PRIu16 " size is small, using built-in default instead\n",
+				args->name, max_cache_level);
+			goto report_size;
+
+		}
 	}
 	cache_size = cache->size;
 
@@ -1201,18 +1209,18 @@ static int stress_stream(stress_args_t *args)
 	}
 
 	if (stress_instance_zero(args)) {
-		pr_inf("%s: stressor loosely based on a variant of the "
-			"STREAM benchmark code\n", args->name);
-		pr_inf("%s: do NOT submit any of these results "
-			"to the STREAM benchmark results\n", args->name);
 		if (guess) {
 			pr_inf("%s: cannot determine CPU L3 cache size, "
 				"defaulting to %" PRIu64 "K\n",
 				args->name, L3 / 1024);
 		} else {
-			pr_inf("%s: Using cache size of %" PRIu64 "K\n",
+			pr_inf("%s: using cache size of %" PRIu64 "K\n",
 				args->name, L3 / 1024);
 		}
+		pr_inf("%s: stressor loosely based on a variant of the "
+			"STREAM benchmark code\n", args->name);
+		pr_inf("%s: do NOT submit any of these results "
+			"to the STREAM benchmark results\n", args->name);
 	}
 
 	/* ..and shared amongst all the STREAM stressor instances */
@@ -1229,7 +1237,7 @@ static int stress_stream(stress_args_t *args)
 	sz_idx = n * sizeof(size_t);
 
 	if (stress_instance_zero(args)) {
-		pr_inf("%s: Using 3 cache sized buffers for stream operations, total %" PRIu64 "K per stream instance\n",
+		pr_inf("%s: using 3 cache sized buffers for stream operations, total %" PRIu64 "K per stream instance\n",
 			args->name, 3 * (sz / 1024));
 	}
 
