@@ -18,9 +18,9 @@
 #
 
 #
-# Codename "refreshed kernel agitator"
+# Codename "versatile vma vexer"
 #
-VERSION=0.19.06
+VERSION=0.20.00
 
 #
 # Determine supported toolchains
