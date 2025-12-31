@@ -20,7 +20,8 @@ the various operating system kernel interfaces. Stress-ng features:
     for Linux, Cygwin and SunOs/Dilos/Solaris.
     with gcc, musl-gcc, clang, icc, icx, tcc and pcc.
   * tested on alpha, armel, armhf, arm64, hppa, i386, loong64, m68k, mips32, mips64,
-    power32, ppc64el, risc-v, sh4, s390x, sparc64, x86-64
+    openrisc (OR1K), power32, ppc64el, risc-v, sh4, s390x, sparc64, VAX (on NetBSD)
+    x86-64
 
 stress-ng was originally intended to make a machine work hard and trip hardware
 issues such as thermal overruns as well as operating system bugs that only
