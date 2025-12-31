@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2024-2025 Colin Ian King.
- * Copyright (C) 2025 SiPearl
+ * Copyright (C) 2024-2026 Colin Ian King.
+ * Copyright (C) 2025-2026 SiPearl
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
