@@ -337,9 +337,9 @@ select_fail:
 			goto poll_fail;
 
 		for (i = 0; i < j; i++) {
-			ssize_t rret;
-
 			if (pollfds[i].revents & POLLIN) {
+				ssize_t rret;
+
 				rret = read(pollfds[i].fd, &expval, sizeof expval);
 				if (UNLIKELY(rret < 0)) {
 					pr_fail("%s: read of timerfd failed, errno=%d (%s)\n",
