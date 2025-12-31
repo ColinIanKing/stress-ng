@@ -179,6 +179,20 @@ static op_info_t op_info[] =
 };
 #endif
 
+#if defined(STRESS_ARCH_OR1K) &&	\
+    defined(HAVE_SIGLONGJMP)
+#define HAVE_PRIV_INSTR
+static void stress_or1k_lmtspr_0(void)
+{
+	__asm__ __volatile("l.mtspr r0,r31,0x0\n");
+}
+
+static op_info_t op_info[] =
+{
+	{ "l.mtspr r0,r1,0x0",	stress_or1k_lmtspr_0,	false, false },
+};
+#endif
+
 #if defined(STRESS_ARCH_PPC64) &&	\
     defined(HAVE_SIGLONGJMP) &&		\
     defined(HAVE_ASM_PPC64_TLBIE)
