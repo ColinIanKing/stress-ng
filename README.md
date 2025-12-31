@@ -19,8 +19,8 @@ the various operating system kernel interfaces. Stress-ng features:
     Minix, Android, MacOS X, Serenity OS, GNU/Hurd, Haiku, Windows Subsystem
     for Linux, Cygwin and SunOs/Dilos/Solaris.
     with gcc, musl-gcc, clang, icc, icx, tcc and pcc.
-  * tested on alpha, armel, armhf, arm64, hppa, i386, loong64, m68k, mips32, mips64,
-    openrisc (OR1K), power32, ppc64el, risc-v, sh4, s390x, sparc64, VAX (on NetBSD)
+  * tested on Alpha, ARMEL, ARMHF, ARM64, HPPA, i386, loong64, M68k, MIPS32, MIPS64,
+    OpenRisc (OR1K), Power32, PPC64el, RISC-V, sh4, s390x, SPARC64, VAX (on NetBSD)
     x86-64
 
 stress-ng was originally intended to make a machine work hard and trip hardware
