@@ -766,6 +766,39 @@ static int stress_cpu_cache_get_m68k(stress_cpu_cache_cpu_t *cpu)
 }
 #endif
 
+#if defined(__linux__) &&	\
+    defined(STRESS_ARCH_OR1K)
+static int stress_cpu_cache_get_or1k(stress_cpu_cache_cpu_t *cpu)
+{
+	const size_t count = 2;
+
+	cpu->caches = (stress_cpu_cache_t *)calloc(count, sizeof(*(cpu->caches)));
+	if (UNLIKELY(!cpu->caches)) {
+		pr_err("failed to allocate %zu bytes for cpu caches\n",
+			count * sizeof(*(cpu->caches)));
+		return 0;
+	}
+
+	/* Harvard L1 I$ */
+	cpu->caches[0].type = CACHE_TYPE_INSTRUCTION;
+	cpu->caches[0].level = 1;
+	cpu->caches[0].size = 8192;
+	cpu->caches[0].line_size = 32;
+	cpu->caches[0].ways = 1;
+
+	/* Harvard L1 D$ */
+	cpu->caches[1].type = CACHE_TYPE_DATA;
+	cpu->caches[1].level = 1;
+	cpu->caches[1].size = 8192;
+	cpu->caches[1].line_size = 32;
+	cpu->caches[1].ways = 1;
+
+	cpu->cache_count = count;
+
+	return count;
+}
+#endif
+
 #if defined(__linux__)
 /*
  * stress_cpu_cache_size_to_bytes()
@@ -1162,6 +1195,11 @@ static void stress_cpu_cache_get_details(stress_cpu_cache_cpu_t *cpu, const char
 #if defined(__linux__) &&	\
     defined(STRESS_ARCH_RISCV)
 	if (stress_cpu_cache_get_riscv(cpu, cpu_path))
+		return;
+#endif
+#if defined(__linux__) &&	\
+    defined(STRESS_ARCH_OR1K)
+	if (stress_cpu_cache_get_or1k(cpu))
 		return;
 #endif
 
