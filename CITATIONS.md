@@ -144,6 +144,7 @@
 * [ROS2 Real-time Performance Optimization and Evaluation](https://cjme.springeropen.com/articles/10.1186/s10033-023-00976-5)
 * [Experimental and numerical analysis of the thermal behaviour of a single-phase immersion-cooled data centre](https://www.sciencedirect.com/science/article/pii/S1359431123012899)
 * [Enhancing Empirical Software Performance Engineering Research with Kernel-Level Events: A Comprehensive System Tracing Approach](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4556983)
+* [A 2-Phase Strategy for Intelligent Cloud Operations](https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=10239346)
 
 2024:
 * [IdleLeak: Exploiting Idle State Side Effects for Information Leakage](https://www.sicheroder.net/files/idleleak.pdf) * [Profiling with trust: system monitoring from trusted execution environments](https://www.researchgate.net/publication/378265673_Profiling_with_trust_system_monitoring_from_trusted_execution_environments)
@@ -163,6 +164,7 @@
 * [Performance Analysis of Intel Total Memory Encryption Multi-Key](https://scholar.afit.edu/cgi/viewcontent.cgi?article=8692&context=etd)
 * [An experimental approach for evaluating cache allocation policies in multicore for real-time mixed-criticality systems](https://hal.science/hal-04627006/document)
 * [SRFS: Parallel Processing Fault-tolerant ROS2-based Flight Software for the Space Ranger Cubes](https://arxiv.org/pdf/2412.08164)
+* [Optimizing Network Performance: Benchmarking of NVIDIA Bluefield-2 Offloading Capabilities](https://sol.sbc.org.br/index.php/errc/article/view/35428/35215)
 
 2025:
  * [SPY-PMU: Side-Channel Profiling of Your Performance Monitoring Unit to Leak Remote User Activity](https://eprint.iacr.org/2025/014)
