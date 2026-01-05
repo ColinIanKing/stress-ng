@@ -49,6 +49,7 @@ static const char * const err_exceptions[] = {
 	"Invalid logical block size (4000)",
 	"Invalid logical block size (65535)",
 	"Buffer I/O error on dev loop",
+	"over core_pipe_limit, skipping core dump",
 };
 
 /*
