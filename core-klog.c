@@ -42,6 +42,9 @@ static const char * const err_exceptions[] = {
 	"kmod_concurrent_max",
 	"hrtimer: interrupt took",
 	"no longer affine to",
+	"AppArmor DFA ",
+	"apparmor: aa_kernel_interface_replace_policy",
+	"apparmor=\"STATUS\"",
 };
 
 /*
