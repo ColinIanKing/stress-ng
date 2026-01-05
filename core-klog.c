@@ -45,6 +45,10 @@ static const char * const err_exceptions[] = {
 	"AppArmor DFA ",
 	"apparmor: aa_kernel_interface_replace_policy",
 	"apparmor=\"STATUS\"",
+	"Invalid logical block size (256)",
+	"Invalid logical block size (4000)",
+	"Invalid logical block size (65535)",
+	"Buffer I/O error on dev loop",
 };
 
 /*
