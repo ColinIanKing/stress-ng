@@ -965,6 +965,7 @@ static inline uint64_t get_stream_L3_size(stress_args_t *args)
 		} else {
 			pr_inf("%s: no L3 cache, and L%" PRIu16 " size is small, using built-in default instead\n",
 				args->name, max_cache_level);
+			stress_free_cpu_caches(cpu_caches);
 			goto report_size;
 
 		}
