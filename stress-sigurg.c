@@ -290,7 +290,7 @@ static int stress_sigurg(stress_args_t *args)
 	sock_port += args->instance;
 	if (sock_port > MAX_PORT)
 		sock_port -= (MAX_PORT- MIN_PORT + 1);
-	reserved_port = stress_net_reserve_ports(sock_port, sock_port);
+	reserved_port = stress_net_reserve_ports(args, sock_port, sock_port);
 	if (reserved_port < 0) {
 		pr_inf_skip("%s: cannot reserve port %d, skipping stressor\n",
 			args->name, sock_port);

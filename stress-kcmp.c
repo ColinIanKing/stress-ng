@@ -154,7 +154,7 @@ static int stress_kcmp(stress_args_t *args)
 
 #if defined(HAVE_SYS_EPOLL_H) &&	\
     NEED_GLIBC(2,3,2)
-	reserved_port = stress_net_reserve_ports(port, port);
+	reserved_port = stress_net_reserve_ports(args, port, port);
 
 	if (reserved_port >= 0) {
 		efd = -1;

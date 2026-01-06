@@ -118,7 +118,7 @@ static int OPTIMIZE3 stress_udp_flood(stress_args_t *args)
 		if (UNLIKELY(++port > 65535))
 			port = 1024;
 
-		reserved_port = stress_net_reserve_ports(port, port);
+		reserved_port = stress_net_reserve_ports(args, port, port);
 		if (UNLIKELY(reserved_port < 0))
 			continue;
 		port = reserved_port;
@@ -148,7 +148,7 @@ static int OPTIMIZE3 stress_udp_flood(stress_args_t *args)
 			break;
 
 		rand_port = 1024 + stress_mwc16modn(65535 - 1024);
-		reserved_port = stress_net_reserve_ports(rand_port, rand_port);
+		reserved_port = stress_net_reserve_ports(args, rand_port, rand_port);
 		if (UNLIKELY(reserved_port < 0))
 			continue;
 		rand_port = reserved_port;

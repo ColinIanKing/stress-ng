@@ -121,7 +121,7 @@ static int stress_tun(stress_args_t *args)
 		struct sockaddr_in *tun_addr;
 		int port = 2000 + (stress_mwc16() & 0xfff);
 
-		port = stress_net_reserve_ports(port, port);
+		port = stress_net_reserve_ports(args, port, port);
 		if (UNLIKELY(port < 0))
 			continue;	/* try again */
 

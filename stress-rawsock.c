@@ -321,7 +321,7 @@ static int stress_rawsock(stress_args_t *args)
 	rawsock_port += args->instance;
 	if (rawsock_port > MAX_PORT)
 		rawsock_port -= (MAX_PORT - MIN_PORT + 1);
-	reserved_port = stress_net_reserve_ports(rawsock_port, rawsock_port);
+	reserved_port = stress_net_reserve_ports(args, rawsock_port, rawsock_port);
 	if (reserved_port < 0) {
 		pr_inf_skip("%s: cannot reserve port %d, skipping stressor\n",
 			args->name, rawsock_port);

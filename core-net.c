@@ -325,36 +325,107 @@ static bool CONST stress_net_port_range_ok(const int start_port, const int end_p
 }
 
 /*
+ *  stress_net_get_local_bind_ports()
+ *	try to determine which ports are bind()ed
+ */
+static void stress_net_get_local_bind_ports(uint8_t *bind_ports)
+{
+#if defined(__linux__)
+	FILE *fp;
+	char buffer[1024];
+	size_t i;
+
+	static const char * const proc_net_files[] = {
+		"/proc/net/tcp",
+		"/proc/net/tcp6",
+		"/proc/net/udp",
+		"/proc/net/udp6",
+		"/proc/net/udplite",
+		"/proc/net/udplite6",
+	};
+
+	for (i = 0; i < SIZEOF_ARRAY(proc_net_files); i++) {
+		fp = fopen(proc_net_files[i], "r");
+		if (!fp)
+			continue;
+
+		while (fgets(buffer, sizeof(buffer), fp) != NULL) {
+			int n;
+			uint64_t addr;
+			uint16_t port;
+
+			if (sscanf(buffer, "%d: %" SCNx64 ":%" SCNx16, &n, &addr, &port) == 3) {
+				/* check for localhost ports */
+				switch (addr) {
+				case 0x0100007fU:
+				case 0x00000000000000000000000000000000ULL:
+				case 0x00000000000000000000000001000000ULL:
+					STRESS_SETBIT(bind_ports, port);
+					break;
+				}
+			}
+		}
+		(void)fclose(fp);
+	}
+#else
+	(void)bind_ports;
+#endif
+}
+
+/*
  *   stress_net_reserve_ports()
  *	attempt to reserve ports, returns nearest available contiguous
  *	ports that are available or -1 if none could be found
  */
-int stress_net_reserve_ports(const int start_port, const int end_port)
+int stress_net_reserve_ports(
+	stress_args_t *args,
+	const int start_port,
+	const int end_port)
 {
 	int i, port = -1;
+	const int quantity = (end_port - start_port) + 1;
+	uint8_t bind_ports[65536 / sizeof(uint8_t)];
 
 	if (UNLIKELY(!stress_net_port_range_ok(start_port, end_port)))
 		return -1;
 
-	if (UNLIKELY(stress_lock_acquire(g_shared->net_port_map.lock) < 0))
-		return -1;
+	(void)memset(bind_ports, 0, sizeof(bind_ports));
+	stress_net_get_local_bind_ports(bind_ports);
 
 	if (LIKELY(start_port == end_port)) {
+		int yield_count = 0;
+
+		if (UNLIKELY(stress_lock_acquire(g_shared->net_port_map.lock) < 0))
+			return -1;
 		/* most cases just request one port */
 		for (i = start_port; i < 65536; i++) {
-			if (STRESS_GETBIT(g_shared->net_port_map.allocated, i) == 0) {
+			if ((STRESS_GETBIT(g_shared->net_port_map.allocated, i) == 0) &&
+			    (STRESS_GETBIT(bind_ports, i) == 0)) {
 				STRESS_SETBIT(g_shared->net_port_map.allocated, i);
+				(void)stress_lock_release(g_shared->net_port_map.lock);
 				port = i;
 				break;
 			}
+			yield_count++;
+			if (yield_count > 16) {
+				yield_count = 0;
+				(void)stress_lock_release(g_shared->net_port_map.lock);
+				(void)shim_sched_yield();
+				if (UNLIKELY(stress_lock_acquire(g_shared->net_port_map.lock) < 0))
+					return -1;
+			}
 		}
+		(void)stress_lock_release(g_shared->net_port_map.lock);
 	} else {
-		const int quantity = (end_port - start_port) + 1;
 		int j = 0;
+		int yield_count = 0;
 
+		if (UNLIKELY(stress_lock_acquire(g_shared->net_port_map.lock) < 0))
+			return -1;
 		/* otherwise scan for contiguous port range */
 		for (i = start_port; i < 65536; i++) {
-			if (STRESS_GETBIT(g_shared->net_port_map.allocated, i) == 0) {
+			if ((STRESS_GETBIT(g_shared->net_port_map.allocated, i) == 0) &&
+			    (STRESS_GETBIT(bind_ports, i) == 0)) {
 				j++;
 				if (j == quantity) {
 					port = i + 1 - quantity;
@@ -364,14 +435,31 @@ int stress_net_reserve_ports(const int start_port, const int end_port)
 				port = -1;
 				j = 0;
 			}
+			yield_count++;
+			if (yield_count > 16) {
+				yield_count = 0;
+				(void)stress_lock_release(g_shared->net_port_map.lock);
+				(void)shim_sched_yield();
+				if (UNLIKELY(stress_lock_acquire(g_shared->net_port_map.lock) < 0))
+					return -1;
+			}
 		}
 		if (port != -1) {
 			for (i = port; i < port + quantity; i++)
 				STRESS_SETBIT(g_shared->net_port_map.allocated, i);
 		}
+		(void)stress_lock_release(g_shared->net_port_map.lock);
 	}
-	(void)stress_lock_release(g_shared->net_port_map.lock);
 
+	if (start_port != port) {
+		if (start_port == end_port) {
+			pr_dbg("%s: using free port %d instead of %d as port is allocated or used\n",
+				args->name, port, start_port);
+		} else {
+			pr_dbg("%s: using free ports %d..%d instead of %d..%d as one or more ports are allocated or used\n",
+				args->name, port, port + quantity, start_port, end_port);
+		}
+	}
 	return port;
 }
 

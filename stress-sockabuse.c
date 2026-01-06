@@ -383,7 +383,7 @@ static int stress_sockabuse(stress_args_t *args)
 	sockabuse_port += args->instance;
 	if (sockabuse_port > MAX_PORT)
 		sockabuse_port -= (MAX_PORT - MIN_PORT + 1);
-	reserved_port = stress_net_reserve_ports(sockabuse_port, sockabuse_port);
+	reserved_port = stress_net_reserve_ports(args, sockabuse_port, sockabuse_port);
 	if (reserved_port < 0) {
 		pr_inf_skip("%s: cannot reserve port %d, skipping stressor\n",
 			args->name, sockabuse_port);

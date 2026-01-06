@@ -666,7 +666,7 @@ static int stress_sctp(stress_args_t *args)
 	sctp_port += args->instance;
 	if (sctp_port > MAX_PORT)
 		sctp_port -= (MAX_PORT - MIN_PORT + 1);
-	reserved_port = stress_net_reserve_ports(sctp_port, sctp_port);
+	reserved_port = stress_net_reserve_ports(args, sctp_port, sctp_port);
 	if (reserved_port < 0) {
 		pr_inf_skip("%s: cannot reserve port %d, skipping stressor\n",
 			args->name, sctp_port);

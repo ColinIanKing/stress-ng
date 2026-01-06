@@ -432,7 +432,7 @@ static int stress_dccp(stress_args_t *args)
 	dccp_port += args->instance;
 	if (dccp_port > MAX_PORT)
 		dccp_port -= (MAX_PORT - MIN_PORT + 1);
-	reserved_port = stress_net_reserve_ports(dccp_port, dccp_port);
+	reserved_port = stress_net_reserve_ports(args, dccp_port, dccp_port);
 	if (reserved_port < 0) {
 		pr_inf_skip("%s: cannot reserve port %d, skipping stressor\n",
 			args->name, dccp_port);
