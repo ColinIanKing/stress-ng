@@ -78,6 +78,16 @@ typedef struct {
 	stress_numa_mask_t *numa_nodes;
 #endif
 	size_t vm_bytes;
+
+	double mmap_duration_total;
+	double mmap_duration_min;
+	double mmap_duration_max;
+	double munmap_duration_total;
+	double munmap_duration_min;
+	double munmap_duration_max;
+	uint64_t mmap_count;
+	uint64_t munmap_count;
+
 	bool vm_numa;
 } stress_vm_context_t;
 
@@ -3565,13 +3575,18 @@ static int stress_vm_child(stress_args_t *args, void *ctxt)
 
 	t_start = stress_time_now();
 	do {
+		double syscall_start, syscall_duration;
+
 		if (!vm_keep || (buf == NULL)) {
+			syscall_start = 0.0;
 			if (UNLIKELY(!stress_continue_flag()))
 				return EXIT_SUCCESS;
 			if (UNLIKELY(((g_opt_flags & OPT_FLAGS_OOM_AVOID) && stress_low_memory(buf_sz)))) {
 				buf = MAP_FAILED;
 				errno = ENOMEM;
 			} else {
+				syscall_start = stress_time_now();
+
 #if defined(HAVE_MPROTECT) &&	\
     defined(PROT_NONE)
 				/*
@@ -3608,6 +3623,14 @@ static int stress_vm_child(stress_args_t *args, void *ctxt)
 				(void)shim_usleep(10000);
 				continue;	/* Try again */
 			}
+			syscall_duration = stress_time_now() - syscall_start;
+			context->mmap_duration_total += syscall_duration;
+			if (context->mmap_duration_min > syscall_duration)
+				context->mmap_duration_min = syscall_duration;
+			if (context->mmap_duration_max < syscall_duration)
+				context->mmap_duration_max = syscall_duration;
+			context->mmap_count++;
+
 			buf_end = (void *)((uint8_t *)buf + buf_sz);
 #if defined(HAVE_MPROTECT) &&	\
     defined(PROT_NONE)
@@ -3642,12 +3665,21 @@ static int stress_vm_child(stress_args_t *args, void *ctxt)
 
 		if (!vm_keep) {
 			(void)stress_madvise_randomize(buf, buf_sz);
+
+			syscall_start = stress_time_now();
 #if defined(HAVE_MPROTECT) &&	\
     defined(PROT_NONE)
 			(void)stress_munmap_force(buf, buf_sz + page_size);
 #else
 			(void)stress_munmap_force(buf, buf_sz);
 #endif
+			syscall_duration = stress_time_now() - syscall_start;
+			context->munmap_duration_total += syscall_duration;
+			if (context->munmap_duration_min > syscall_duration)
+				context->munmap_duration_min = syscall_duration;
+			if (context->munmap_duration_max < syscall_duration)
+				context->munmap_duration_max = syscall_duration;
+			context->munmap_count++;
 		}
 	} while (stress_continue_vm(args));
 
@@ -3706,28 +3738,43 @@ static int stress_vm(stress_args_t *args)
 	int err = 0, ret = EXIT_SUCCESS;
 	size_t vm_method = 0;
 	size_t vm_total = DEFAULT_VM_BYTES;
-	stress_vm_context_t context;
+	stress_vm_context_t *context;
 
-	(void)shim_memset(&context, 0, sizeof(context));
+	context = stress_mmap_anon_shared(sizeof(*context), PROT_READ | PROT_WRITE);
+	if (context == MAP_FAILED) {
+		pr_inf_skip("%s: failed to mmap %zu byte sized context, "
+			"errno=%d (%s), skipping stressor\n",
+			args->name, sizeof(*context), errno, strerror(errno));
+		return EXIT_NO_RESOURCE;
+	}
+	context->mmap_duration_total = 0.0;
+	context->mmap_duration_min = 1.0E9;
+	context->mmap_duration_max = 0.0;
+	context->munmap_duration_total = 0.0;
+	context->munmap_duration_min = 1.0E9;
+	context->munmap_duration_max = 0.0;
+	context->mmap_count = 0ULL;
+	context->munmap_count = 0ULL;
+
 	stress_vm_get_cache_line_size();
 
-	(void)stress_get_setting("vm-numa", &context.vm_numa);
-	if (context.vm_numa) {
+	(void)stress_get_setting("vm-numa", &context->vm_numa);
+	if (context->vm_numa) {
 #if defined(HAVE_LINUX_MEMPOLICY_H)
-		stress_numa_mask_and_node_alloc(args, &context.numa_nodes,
-						&context.numa_mask, "--vm-numa",
-						&context.vm_numa);
+		stress_numa_mask_and_node_alloc(args, &context->numa_nodes,
+						&context->numa_mask, "--vm-numa",
+						&context->vm_numa);
 #else
 		if (stress_instance_zero(args))
 			pr_inf("%s: --vm-numa selected but not supported by this system, disabling option\n",
 				args->name);
-		context.vm_numa = false;
+		context->vm_numa = false;
 #endif
 	}
-	context.bit_error_count = (uint64_t *)MAP_FAILED;
+	context->bit_error_count = (uint64_t *)MAP_FAILED;
 
 	(void)stress_get_setting("vm-method", &vm_method);
-	context.vm_method = &vm_methods[vm_method];
+	context->vm_method = &vm_methods[vm_method];
 
 	if (!stress_get_setting("vm-bytes", &vm_total)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -3735,78 +3782,100 @@ static int stress_vm(stress_args_t *args)
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			vm_total = MIN_VM_BYTES;
 	}
-	context.vm_bytes = vm_total / args->instances;
-	if (context.vm_bytes < MIN_VM_BYTES) {
-		context.vm_bytes = MIN_VM_BYTES;
-		vm_total = context.vm_bytes * args->instances;
+	context->vm_bytes = vm_total / args->instances;
+	if (context->vm_bytes < MIN_VM_BYTES) {
+		context->vm_bytes = MIN_VM_BYTES;
+		vm_total = context->vm_bytes * args->instances;
 	}
-	if (context.vm_bytes < page_size) {
-		context.vm_bytes = MIN_VM_BYTES;
-		vm_total = context.vm_bytes * args->instances;
+	if (context->vm_bytes < page_size) {
+		context->vm_bytes = MIN_VM_BYTES;
+		vm_total = context->vm_bytes * args->instances;
 	}
 
 	if (stress_instance_zero(args)) {
-		pr_dbg("%s: using method '%s'\n", args->name, context.vm_method->name);
-		stress_usage_bytes(args, context.vm_bytes, vm_total);
+		pr_dbg("%s: using method '%s'\n", args->name, context->vm_method->name);
+		stress_usage_bytes(args, context->vm_bytes, vm_total);
 	}
 
 	for (retries = 0; LIKELY((retries < 100) && stress_continue_flag()); retries++) {
-		context.bit_error_count = (uint64_t *)
+		context->bit_error_count = (uint64_t *)
 			stress_mmap_populate(NULL, page_size,
 				PROT_READ | PROT_WRITE,
 				MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 		err = errno;
-		if (context.bit_error_count != MAP_FAILED)
+		if (context->bit_error_count != MAP_FAILED)
 			break;
 		(void)shim_usleep(100);
 	}
 
 	/* Cannot allocate a single page for bit error counter */
-	if (context.bit_error_count == MAP_FAILED) {
+	if (context->bit_error_count == MAP_FAILED) {
 		if (LIKELY(stress_continue_flag())) {
 			pr_err("%s: could not mmap bit error counter: "
 				"retry count=%zu, errno=%d (%s)\n",
 				args->name, retries, err, strerror(err));
 		}
 #if defined(HAVE_LINUX_MEMPOLICY_H)
-		if (context.numa_mask)
-			stress_numa_mask_free(context.numa_mask);
-		if (context.numa_nodes)
-			stress_numa_mask_free(context.numa_nodes);
+		if (context->numa_mask)
+			stress_numa_mask_free(context->numa_mask);
+		if (context->numa_nodes)
+			stress_numa_mask_free(context->numa_nodes);
 #endif
+		(void)stress_munmap_anon_shared(context, sizeof(*context));
 		return EXIT_NO_RESOURCE;
 	}
-	stress_set_vma_anon_name(context.bit_error_count, page_size, "bit-error-count");
+	stress_set_vma_anon_name(context->bit_error_count, page_size, "bit-error-count");
 
-	*context.bit_error_count = 0ULL;
+	*context->bit_error_count = 0ULL;
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
-	ret = stress_oomable_child(args, &context, stress_vm_child, STRESS_OOMABLE_NORMAL);
+	ret = stress_oomable_child(args, context, stress_vm_child, STRESS_OOMABLE_NORMAL);
 
 #if defined(MS_SYNC)
-	(void)shim_msync(context.bit_error_count, page_size, MS_SYNC);
+	(void)shim_msync(context->bit_error_count, page_size, MS_SYNC);
 #endif
-	if (*context.bit_error_count > 0) {
+	if (*context->bit_error_count > 0) {
 		pr_fail("%s: detected %" PRIu64 " bit errors while "
 			"stressing memory\n",
-			args->name, *context.bit_error_count);
+			args->name, *context->bit_error_count);
 		ret = EXIT_FAILURE;
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
-	(void)munmap((void *)context.bit_error_count, page_size);
+	(void)munmap((void *)context->bit_error_count, page_size);
 
 #if defined(HAVE_LINUX_MEMPOLICY_H)
-	if (context.numa_mask)
-		stress_numa_mask_free(context.numa_mask);
-	if (context.numa_nodes)
-		stress_numa_mask_free(context.numa_nodes);
+	if (context->numa_mask)
+		stress_numa_mask_free(context->numa_mask);
+	if (context->numa_nodes)
+		stress_numa_mask_free(context->numa_nodes);
 #endif
 	tmp_counter = stress_bogo_get(args) >> VM_BOGO_SHIFT;
 	stress_bogo_set(args, tmp_counter);
+
+	if (context->mmap_count > 0) {
+		stress_metrics_set(args, 0, "mmaps total", (double)context->mmap_count, STRESS_METRIC_GEOMETRIC_MEAN);
+		stress_metrics_set(args, 1, "ms mmap min. duration",
+			STRESS_DBL_MILLISECOND * context->mmap_duration_min, STRESS_METRIC_GEOMETRIC_MEAN);
+		stress_metrics_set(args, 2, "ms mmap max. duration",
+			STRESS_DBL_MILLISECOND * context->mmap_duration_max, STRESS_METRIC_GEOMETRIC_MEAN);
+		stress_metrics_set(args, 3, "ms mmap avg. duration",
+			STRESS_DBL_MILLISECOND * context->mmap_duration_total / (double)context->mmap_count, STRESS_METRIC_GEOMETRIC_MEAN);
+	}
+	if (context->munmap_count > 0) {
+		stress_metrics_set(args, 4, "munmaps total", (double)context->mmap_count, STRESS_METRIC_GEOMETRIC_MEAN);
+		stress_metrics_set(args, 5, "ms mmap min. duration",
+			STRESS_DBL_MILLISECOND * context->munmap_duration_min, STRESS_METRIC_GEOMETRIC_MEAN);
+		stress_metrics_set(args, 6, "ms mmap max. duration",
+			STRESS_DBL_MILLISECOND * context->munmap_duration_max, STRESS_METRIC_GEOMETRIC_MEAN);
+		stress_metrics_set(args, 7, "ms mmap avg. duration",
+			STRESS_DBL_MILLISECOND * context->munmap_duration_total / (double)context->munmap_count, STRESS_METRIC_GEOMETRIC_MEAN);
+	}
+
+	(void)stress_munmap_anon_shared(context, sizeof(*context));
 
 	return ret;
 }
