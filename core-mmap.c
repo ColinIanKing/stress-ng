@@ -287,3 +287,107 @@ int stress_munmap_anon_shared(void *addr, size_t length)
 	return munmap(addr, length);
 #endif
 }
+
+#define STRESS_PAGE_SOFT_DIRTY	(STRESS_BIT_UL(55))
+#define STRESS_PAGE_EXCLUSIVE	(STRESS_BIT_UL(56))
+#define STRESS_PAGE_SWAPPED	(STRESS_BIT_UL(62))
+#define STRESS_PAGE_PRESENT	(STRESS_BIT_UL(63))
+#define STRESS_PAGE_PFN_MASK	(STRESS_BIT_UL(55) - 1)
+
+
+/*
+ *  stress_mmap_pread()
+ *	perform pread if available, otherwise seek + read
+ */
+static inline ssize_t stress_mmap_pread(int fd, void *buf, size_t count, off_t offset)
+{
+#if defined(HAVE_PREADV) && 0
+	return pread(fd, buf, count, offset);
+#else
+	if (lseek(fd, offset, SEEK_SET) == (off_t)-1)
+		return (ssize_t)-1;
+	return read(fd, buf, count);
+#endif
+}
+
+/*
+ *  stress_mmap_stats()
+ *	attempt to read physical page statistics on all pages in a mapping
+ */
+int stress_mmap_stats(void *addr, const size_t length, stress_mmap_stats_t *stats)
+{
+#if defined(__linux__)
+	int fd;
+	const size_t page_size = stress_get_page_size();
+	uintptr_t virt_addr, phys_addr, prev_phys_addr = 0;
+	const uintptr_t virt_begin = (uintptr_t)addr;
+	const uintptr_t virt_end = virt_begin + length;
+	off_t offset = (off_t)(sizeof(uint64_t) * (virt_begin / page_size));
+
+	if (!stats)
+		return -1;
+
+	(void)memset(stats, 0, sizeof(*stats));
+	stats->pages_total = length / page_size;
+
+	fd = open("/proc/self/pagemap", O_RDONLY);
+	if (fd < 0)
+		return -1;
+
+	for (virt_addr = virt_begin; virt_addr < virt_end; virt_addr += page_size, offset += sizeof(uint64_t)) {
+		uint64_t info;
+
+		if (stress_mmap_pread(fd, &info, sizeof(info), offset) != sizeof(info)) {
+			stats->pages_unknown++;
+		} else {
+			if (info & STRESS_PAGE_SOFT_DIRTY)
+				stats->pages_soft_dirty++;
+			if (info & STRESS_PAGE_EXCLUSIVE)
+				stats->pages_exclusive_mapped++;
+			if (info & STRESS_PAGE_SWAPPED)
+				stats->pages_swapped++;
+			if (info & STRESS_PAGE_PRESENT) {
+				stats->pages_present++;
+				phys_addr = (info & STRESS_PAGE_PFN_MASK) * page_size;
+				if (phys_addr == 0)
+					stats->pages_null++;
+				else if ((prev_phys_addr == 0) && (phys_addr != 0)) {
+					stats->pages_contiguous++;
+				} else if (phys_addr == prev_phys_addr + page_size) {
+					stats->pages_contiguous++;
+				}
+				prev_phys_addr = phys_addr;
+			}
+		}
+	}
+	(void)close(fd);
+
+	return 0;
+#else
+	(void)addr;
+	(void)length;
+
+	if (stats)
+		(void)memset(stats, 0, sizeof(*stats));
+
+	return -1;
+#endif
+}
+
+/*
+ *  stress_mmap_stats_sum()
+ *	sum stats into stats_total for running totals
+ */
+void stress_mmap_stats_sum(
+	stress_mmap_stats_t *stats_total,
+	const stress_mmap_stats_t *stats)
+{
+	stats_total->pages_total += stats->pages_total;
+	stats_total->pages_present += stats->pages_present;
+	stats_total->pages_swapped += stats->pages_swapped;
+	stats_total->pages_contiguous += stats->pages_contiguous;
+	stats_total->pages_soft_dirty += stats->pages_soft_dirty;
+	stats_total->pages_exclusive_mapped += stats->pages_exclusive_mapped;
+	stats_total->pages_unknown += stats->pages_unknown;
+	stats_total->pages_null += stats->pages_null;
+}

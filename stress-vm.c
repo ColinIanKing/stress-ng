@@ -51,6 +51,12 @@
 
 #define NO_MEM_RETRIES_MAX	(32)
 
+/*
+ * enable this for end page mapping protection debugging
+ *
+#define STRESS_VM_END_PAGE_PROTECT
+*/
+
 static size_t stress_vm_cache_line_size;
 static bool vm_flush;
 
@@ -79,6 +85,8 @@ typedef struct {
 #endif
 	size_t vm_bytes;
 
+	stress_mmap_stats_t stats;
+
 	double mmap_duration_total;
 	double mmap_duration_min;
 	double mmap_duration_max;
@@ -89,6 +97,7 @@ typedef struct {
 	uint64_t munmap_count;
 
 	bool vm_numa;
+
 } stress_vm_context_t;
 
 static const stress_help_t help[] = {
@@ -3548,6 +3557,7 @@ static int stress_vm_child(stress_args_t *args, void *ctxt)
 	const uint64_t max_ops = args->bogo.max_ops << VM_BOGO_SHIFT;
 	uint64_t vm_hang = DEFAULT_VM_HANG;
 	double t_start, duration, rate;
+	double syscall_start, syscall_duration;
 	void *buf = NULL, *buf_end = NULL;
 	int no_mem_retries = 0;
 	int vm_flags = 0;                      /* VM mmap flags */
@@ -3555,6 +3565,7 @@ static int stress_vm_child(stress_args_t *args, void *ctxt)
 	int advice = -1;
 	int rc = EXIT_SUCCESS;
 	bool vm_keep = false;
+	stress_mmap_stats_t stats;
 
 	stress_catch_sigill();
 
@@ -3575,7 +3586,6 @@ static int stress_vm_child(stress_args_t *args, void *ctxt)
 
 	t_start = stress_time_now();
 	do {
-		double syscall_start, syscall_duration;
 
 		if (!vm_keep || (buf == NULL)) {
 			syscall_start = 0.0;
@@ -3588,7 +3598,8 @@ static int stress_vm_child(stress_args_t *args, void *ctxt)
 				syscall_start = stress_time_now();
 
 #if defined(HAVE_MPROTECT) &&	\
-    defined(PROT_NONE)
+    defined(PROT_NONE) &&	\
+    defined(STRESS_VM_END_PAGE_PROTECT)
 				/*
 				 *   allocate buffer + one trailing page
 				 *   so the last page can be marked PROT_NONE later
@@ -3633,7 +3644,8 @@ static int stress_vm_child(stress_args_t *args, void *ctxt)
 
 			buf_end = (void *)((uint8_t *)buf + buf_sz);
 #if defined(HAVE_MPROTECT) &&	\
-    defined(PROT_NONE)
+    defined(PROT_NONE) &&	\
+    defined(STRESS_VM_END_PAGE_PROTECT)
 			/*
 			 * page after end of buffer is not readable or writable
 			 * to catch any buffer overruns
@@ -3664,11 +3676,16 @@ static int stress_vm_child(stress_args_t *args, void *ctxt)
 		}
 
 		if (!vm_keep) {
+			(void)shim_memset(&stats, 0, sizeof(stats));
+			if (stress_mmap_stats(buf, buf_sz, &stats) == 0)
+				stress_mmap_stats_sum(&context->stats, &stats);
+
 			(void)stress_madvise_randomize(buf, buf_sz);
 
 			syscall_start = stress_time_now();
 #if defined(HAVE_MPROTECT) &&	\
-    defined(PROT_NONE)
+    defined(PROT_NONE) &&	\
+    defined(STRESS_VM_END_PAGE_PROTECT)
 			(void)stress_munmap_force(buf, buf_sz + page_size);
 #else
 			(void)stress_munmap_force(buf, buf_sz);
@@ -3686,12 +3703,25 @@ static int stress_vm_child(stress_args_t *args, void *ctxt)
 	duration = stress_time_now() - t_start;
 
 	if (vm_keep && (buf != NULL)) {
+		(void)shim_memset(&stats, 0, sizeof(stats));
+		if (stress_mmap_stats(buf, buf_sz, &stats) == 0)
+			stress_mmap_stats_sum(&context->stats, &stats);
+
+		syscall_start = stress_time_now();
 #if defined(HAVE_MPROTECT) && 	\
-    defined(PROT_NONE)
+    defined(PROT_NONE) &&	\
+    defined(STRESS_VM_END_PAGE_PROTECT)
 		(void)stress_munmap_force(buf, buf_sz + page_size);
 #else
 		(void)stress_munmap_force(buf, buf_sz);
 #endif
+		syscall_duration = stress_time_now() - syscall_start;
+		context->munmap_duration_total += syscall_duration;
+		if (context->munmap_duration_min > syscall_duration)
+			context->munmap_duration_min = syscall_duration;
+		if (context->munmap_duration_max < syscall_duration)
+			context->munmap_duration_max = syscall_duration;
+		context->munmap_count++;
 	}
 
 	rate = (duration > 0.0) ? (stress_bogo_get(args) >> VM_BOGO_SHIFT) / duration : 0.0;
@@ -3735,7 +3765,7 @@ static int stress_vm(stress_args_t *args)
 	uint64_t tmp_counter;
 	const size_t page_size = args->page_size;
 	size_t retries;
-	int err = 0, ret = EXIT_SUCCESS;
+	int err = 0, ret = EXIT_SUCCESS, metric;
 	size_t vm_method = 0;
 	size_t vm_total = DEFAULT_VM_BYTES;
 	stress_vm_context_t *context;
@@ -3755,6 +3785,7 @@ static int stress_vm(stress_args_t *args)
 	context->munmap_duration_max = 0.0;
 	context->mmap_count = 0ULL;
 	context->munmap_count = 0ULL;
+	(void)shim_memset(&context->stats, 0, sizeof(context->stats));
 
 	stress_vm_get_cache_line_size();
 
@@ -3856,23 +3887,38 @@ static int stress_vm(stress_args_t *args)
 	tmp_counter = stress_bogo_get(args) >> VM_BOGO_SHIFT;
 	stress_bogo_set(args, tmp_counter);
 
+	metric = 0;
 	if (context->mmap_count > 0) {
-		stress_metrics_set(args, 0, "mmaps total", (double)context->mmap_count, STRESS_METRIC_GEOMETRIC_MEAN);
-		stress_metrics_set(args, 1, "ms mmap min. duration",
+		stress_metrics_set(args, metric++, "mmaps total", (double)context->mmap_count, STRESS_METRIC_GEOMETRIC_MEAN);
+		stress_metrics_set(args, metric++, "ms mmap min. duration",
 			STRESS_DBL_MILLISECOND * context->mmap_duration_min, STRESS_METRIC_GEOMETRIC_MEAN);
-		stress_metrics_set(args, 2, "ms mmap max. duration",
+		stress_metrics_set(args, metric++, "ms mmap max. duration",
 			STRESS_DBL_MILLISECOND * context->mmap_duration_max, STRESS_METRIC_GEOMETRIC_MEAN);
-		stress_metrics_set(args, 3, "ms mmap avg. duration",
+		stress_metrics_set(args, metric++, "ms mmap avg. duration",
 			STRESS_DBL_MILLISECOND * context->mmap_duration_total / (double)context->mmap_count, STRESS_METRIC_GEOMETRIC_MEAN);
 	}
 	if (context->munmap_count > 0) {
-		stress_metrics_set(args, 4, "munmaps total", (double)context->mmap_count, STRESS_METRIC_GEOMETRIC_MEAN);
-		stress_metrics_set(args, 5, "ms mmap min. duration",
+		stress_metrics_set(args, metric++, "munmaps total", (double)context->mmap_count, STRESS_METRIC_GEOMETRIC_MEAN);
+		stress_metrics_set(args, metric++, "ms mmap min. duration",
 			STRESS_DBL_MILLISECOND * context->munmap_duration_min, STRESS_METRIC_GEOMETRIC_MEAN);
-		stress_metrics_set(args, 6, "ms mmap max. duration",
+		stress_metrics_set(args, metric++, "ms mmap max. duration",
 			STRESS_DBL_MILLISECOND * context->munmap_duration_max, STRESS_METRIC_GEOMETRIC_MEAN);
-		stress_metrics_set(args, 7, "ms mmap avg. duration",
+		stress_metrics_set(args, metric++, "ms mmap avg. duration",
 			STRESS_DBL_MILLISECOND * context->munmap_duration_total / (double)context->munmap_count, STRESS_METRIC_GEOMETRIC_MEAN);
+	}
+
+	if (context->stats.pages_total > 0) {
+		double pc;
+
+		stress_metrics_set(args, metric++, "pages mmapped", (double)context->stats.pages_total, STRESS_METRIC_GEOMETRIC_MEAN);
+		pc = 100.0 * (double)context->stats.pages_swapped / (double)context->stats.pages_total;
+		stress_metrics_set(args, metric++, "% pages swapped", pc, STRESS_METRIC_GEOMETRIC_MEAN);
+		pc = 100.0 * (double)context->stats.pages_soft_dirty / (double)context->stats.pages_total;
+		stress_metrics_set(args, metric++, "% pages dirtied", pc, STRESS_METRIC_GEOMETRIC_MEAN);
+		if (context->stats.pages_null == 0) {
+			pc = 100.0 * (double)context->stats.pages_contiguous / (double)context->stats.pages_total;
+			stress_metrics_set(args, metric++, "% pages physically contiguous", pc, STRESS_METRIC_GEOMETRIC_MEAN);
+		}
 	}
 
 	(void)stress_munmap_anon_shared(context, sizeof(*context));
