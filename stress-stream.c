@@ -948,15 +948,13 @@ static inline uint64_t get_stream_L3_size(stress_args_t *args)
 		if (!args->instance)
 			pr_inf("%s: using built-in defaults as no suitable "
 				"cache found\n", args->name);
-		stress_free_cpu_caches(cpu_caches);
-		goto report_size;
+		goto free_cpu_caches;
 	}
 	if (!cache->size) {
 		if (!args->instance)
 			pr_inf("%s: using built-in defaults as unable to "
 				"determine cache size\n", args->name);
-		stress_free_cpu_caches(cpu_caches);
-		goto report_size;
+		goto free_cpu_caches;
 	}
 	if ((max_cache_level > 0) && (max_cache_level < 3) && (!args->instance)) {
 		if (cache->size > cache_size) {
@@ -965,13 +963,13 @@ static inline uint64_t get_stream_L3_size(stress_args_t *args)
 		} else {
 			pr_inf("%s: no L3 cache, and L%" PRIu16 " size is small, using built-in default instead\n",
 				args->name, max_cache_level);
-			stress_free_cpu_caches(cpu_caches);
-			goto report_size;
+			goto free_cpu_caches;
 
 		}
 	}
 	cache_size = cache->size;
 
+free_cpu_caches:
 	stress_free_cpu_caches(cpu_caches);
 
 report_size:
