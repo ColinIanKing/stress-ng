@@ -3899,11 +3899,11 @@ static int stress_vm(stress_args_t *args)
 	}
 	if (context->munmap_count > 0) {
 		stress_metrics_set(args, metric++, "munmaps total", (double)context->mmap_count, STRESS_METRIC_GEOMETRIC_MEAN);
-		stress_metrics_set(args, metric++, "ms mmap min. duration",
+		stress_metrics_set(args, metric++, "ms munmap min. duration",
 			STRESS_DBL_MILLISECOND * context->munmap_duration_min, STRESS_METRIC_GEOMETRIC_MEAN);
-		stress_metrics_set(args, metric++, "ms mmap max. duration",
+		stress_metrics_set(args, metric++, "ms munmap max. duration",
 			STRESS_DBL_MILLISECOND * context->munmap_duration_max, STRESS_METRIC_GEOMETRIC_MEAN);
-		stress_metrics_set(args, metric++, "ms mmap avg. duration",
+		stress_metrics_set(args, metric++, "ms munmap avg. duration",
 			STRESS_DBL_MILLISECOND * context->munmap_duration_total / (double)context->munmap_count, STRESS_METRIC_GEOMETRIC_MEAN);
 	}
 
