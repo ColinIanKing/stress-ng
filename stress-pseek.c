@@ -373,7 +373,7 @@ static int stress_pseek(stress_args_t *args)
 	size_t pseek_bytes;
 	static stress_peekio_info_t info;
 
-	size_t i;
+	size_t i, file_size;
 	size_t pseek_procs = DEFAULT_PSEEKIO_PROCS;
 	stress_peekio_proc_t *procs;
 	const size_t procs_size = sizeof(*procs) * pseek_procs;
@@ -480,6 +480,10 @@ static int stress_pseek(stress_args_t *args)
 		goto tidy_unlink;
 	}
 	(void)shim_unlink(filename);
+
+	file_size = pseek_procs * info.pseek_io_size * PSEEKIO_CHUNK_SCALE;
+	if (stress_instance_zero(args))
+		stress_fs_usage_bytes(args, file_size, file_size * args->instances);
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);

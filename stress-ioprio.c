@@ -45,6 +45,7 @@ static const stress_help_t help[] = {
 
 #define MAX_IOV		(4)
 #define BUF_SIZE	(32)
+#define MAX_FILE_SIZE	((512 * 65536) + (MAX_IOV * BUF_SIZE))
 
 /*
  *  stress set/get io priorities
@@ -72,6 +73,9 @@ static int stress_ioprio(stress_args_t *args)
 		goto cleanup_dir;
 	}
 	(void)shim_unlink(filename);
+
+	if (stress_instance_zero(args))
+		stress_fs_usage_bytes(args, MAX_FILE_SIZE, MAX_FILE_SIZE * args->instances);
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);

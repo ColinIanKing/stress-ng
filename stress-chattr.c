@@ -365,6 +365,9 @@ static int stress_chattr(stress_args_t *args)
 	(void)stress_temp_filename(filename, sizeof(filename),
 		args->name, ppid, 0, 0);
 
+	if (stress_instance_zero(args))
+		stress_fs_usage_bytes(args, args->page_size, args->page_size * args->instances);
+
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);

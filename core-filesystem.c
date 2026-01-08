@@ -473,7 +473,7 @@ void stress_fs_usage_bytes(
 	char s1[32], s2[32], s3[32];
 
 	if (total_fs_size > 0) {
-		pr_inf("%s: using %s file system space per stressor instance (total %s of %s available file system space)\n",
+		pr_inf("%s: using %sB file system space per stressor instance (total %sB of %sB available file system space)\n",
 			args->name,
 			stress_uint64_to_str(s1, sizeof(s1), (uint64_t)fs_size_per_instance, 2, true),
 			stress_uint64_to_str(s2, sizeof(s2), (uint64_t)fs_size_total, 2, true),
