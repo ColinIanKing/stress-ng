@@ -21,13 +21,11 @@
 #include "core-builtin.h"
 #include "core-cpu-cache.h"
 #include "core-mmap.h"
-#include "core-pragma.h"
-#include "core-target-clones.h"
+#include "core-put.h"
 
 #if defined(HAVE_SYS_SHM_H)
 #include <sys/shm.h>
 #endif
-
 
 #if defined(HAVE_ASM_X86_REP_STOSQ) &&  \
     !defined(__ILP32__)
@@ -213,6 +211,10 @@ int OPTIMIZE3 stress_mmap_check_light(
  *	into memory to avoid faulting during stressor
  *	execution. Useful for mappings that get accessed
  *	immediately after being mmap'd.
+ *
+ *	Don't populate if MAP_POPULATE is not available
+ *	and if fd is used to avoid potential SIGBUS faults
+ *	if the file can't back the pages.
  */
 void *stress_mmap_populate(
 	void *addr,
@@ -222,16 +224,22 @@ void *stress_mmap_populate(
 	int fd,
 	off_t offset)
 {
-#if defined(MAP_POPULATE)
 	void *ret;
 
+#if defined(MAP_POPULATE)
 	flags |= MAP_POPULATE;
 	ret = mmap(addr, length, prot, flags, fd, offset);
 	if (ret != MAP_FAILED)
 		return ret;
+	/* remove flag, try again */
 	flags &= ~MAP_POPULATE;
 #endif
-	return mmap(addr, length, prot, flags, fd, offset);
+	ret = mmap(addr, length, prot, flags, fd, offset);
+	if (ret == MAP_FAILED)
+		return ret;
+	if (fd < 0)
+		stress_mmap_populate_forward(ret, length, prot);
+	return ret;
 }
 
 /*
@@ -393,40 +401,75 @@ void stress_mmap_stats_sum(
 	stats_total->pages_null += stats->pages_null;
 }
 
-void OPTIMIZE3 stress_mmap_populate_forward(void *addr, const size_t len)
+/*
+ *  stress_mmap_populate_forward()
+ *	populate pages in forward direction in a mmap'd region,
+ *	if PROT_WRITE then read/write data,
+ *	if PROT_READ, read data
+ *	if no read/write protection, don't do anything
+ */
+void OPTIMIZE3 stress_mmap_populate_forward(
+	void *addr,
+	const size_t len,
+	const int prot)
 {
 	register const size_t page_size = stress_get_page_size();
 	register volatile uint8_t *ptr = (uint8_t *)addr;
 	register const uint8_t *ptr_end = (uint8_t *)addr + len;
 
-	while ((ptr < ptr_end) && stress_continue_flag()) {
-		register uint8_t val;
+	if ((prot & (PROT_READ | PROT_WRITE)) == (PROT_READ | PROT_WRITE))  {
+		while (LIKELY((ptr < ptr_end) && stress_continue_flag())) {
+			register uint8_t val;
 
-		val = *ptr;
-		stress_asm_mb();
-		*ptr = val + 1;
-		stress_asm_mb();
-		*ptr = val;
-
-		ptr += page_size;
+			val = *ptr;
+			stress_asm_mb();
+			*ptr = val + 1;
+			stress_asm_mb();
+			*ptr = val;
+			ptr += page_size;
+		}
+	} else if (prot & PROT_READ) {
+		while (LIKELY((ptr < ptr_end) && stress_continue_flag())) {
+			(void)*ptr;
+			stress_asm_mb();
+			ptr += page_size;
+		}
 	}
 }
 
-void OPTIMIZE3 stress_mmap_populate_reverse(void *addr, const size_t len)
+/*
+ *  stress_mmap_populate_reverse()
+ *	populate pages in reverse direction in a mmap'd region,
+ *	if PROT_WRITE then read/write data,
+ *	if PROT_READ, read data
+ *	if no read/write protection, don't do anything
+ */
+void OPTIMIZE3 stress_mmap_populate_reverse(
+	void *addr,
+	const size_t len,
+	const int prot)
 {
 	register const size_t page_size = stress_get_page_size();
 	register volatile uint8_t *ptr = (uint8_t *)(((uintptr_t)addr + len - 1) & ~(page_size - 1));
 	register const uint8_t *ptr_start = (uint8_t *)addr;
 
-	while ((ptr >= ptr_start) && stress_continue_flag()) {
-		register uint8_t val;
+	if ((prot & (PROT_READ | PROT_WRITE)) == (PROT_READ | PROT_WRITE))  {
+		while ((ptr >= ptr_start) && stress_continue_flag()) {
+			register uint8_t val;
 
-		val = *ptr;
-		stress_asm_mb();
-		*ptr = val + 1;
-		stress_asm_mb();
-		*ptr = val;
+			val = *ptr;
+			stress_asm_mb();
+			*ptr = val + 1;
+			stress_asm_mb();
+			*ptr = val;
+			ptr -= page_size;
+		}
+	} else if (prot & PROT_READ) {
+		while ((ptr >= ptr_start) && stress_continue_flag()) {
 
-		ptr -= page_size;
+			(void)*ptr;
+			stress_asm_mb();
+			ptr -= page_size;
+		}
 	}
 }

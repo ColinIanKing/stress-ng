@@ -3648,7 +3648,7 @@ static int stress_vm_child(stress_args_t *args, void *ctxt)
 #if !defined(MAP_POPULATE)
 			/* prefault pages in if MMAP can't do it */
 			if (vm_populate)
-				stress_mmap_populate_forward(buf, buf_sz);
+				stress_mmap_populate_forward(buf, buf_sz, PROT_READ | PROT_WRITE);
 #endif
 
 #if defined(HAVE_MPROTECT) &&	\
