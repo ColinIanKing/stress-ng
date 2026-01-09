@@ -22,6 +22,7 @@
 #include "core-cpu-cache.h"
 #include "core-mmap.h"
 #include "core-pragma.h"
+#include "core-target-clones.h"
 
 #if defined(HAVE_SYS_SHM_H)
 #include <sys/shm.h>
@@ -390,4 +391,42 @@ void stress_mmap_stats_sum(
 	stats_total->pages_exclusive_mapped += stats->pages_exclusive_mapped;
 	stats_total->pages_unknown += stats->pages_unknown;
 	stats_total->pages_null += stats->pages_null;
+}
+
+void OPTIMIZE3 stress_mmap_populate_forward(void *addr, const size_t len)
+{
+	register const size_t page_size = stress_get_page_size();
+	register volatile uint8_t *ptr = (uint8_t *)addr;
+	register const uint8_t *ptr_end = (uint8_t *)addr + len;
+
+	while ((ptr < ptr_end) && stress_continue_flag()) {
+		register uint8_t val;
+
+		val = *ptr;
+		stress_asm_mb();
+		*ptr = val + 1;
+		stress_asm_mb();
+		*ptr = val;
+
+		ptr += page_size;
+	}
+}
+
+void OPTIMIZE3 stress_mmap_populate_reverse(void *addr, const size_t len)
+{
+	register const size_t page_size = stress_get_page_size();
+	register volatile uint8_t *ptr = (uint8_t *)(((uintptr_t)addr + len - 1) & ~(page_size - 1));
+	register const uint8_t *ptr_start = (uint8_t *)addr;
+
+	while ((ptr >= ptr_start) && stress_continue_flag()) {
+		register uint8_t val;
+
+		val = *ptr;
+		stress_asm_mb();
+		*ptr = val + 1;
+		stress_asm_mb();
+		*ptr = val;
+
+		ptr -= page_size;
+	}
 }
