@@ -113,9 +113,7 @@ static const stress_help_t help[] = {
 	{ NULL,	 "vm-method M",	 "specify stress vm method M, default is all" },
 	{ NULL,	 "vm-numa",	 "bind memory mappings to randomly selected NUMA nodes" },
 	{ NULL,	 "vm-ops N",	 "stop after N vm bogo operations" },
-#if defined(MAP_POPULATE)
 	{ NULL,	 "vm-populate",	 "populate (prefault) page tables for a mapping" },
-#endif
 	{ NULL,	 NULL,		 NULL }
 };
 
@@ -3536,18 +3534,6 @@ static size_t stress_vm_all(
 	return bit_errors;
 }
 
-#if defined(MAP_LOCKED) ||	\
-    defined(MAP_POPULATE)
-static void stress_vm_flags(const char *opt, int *vm_flags, const int bitmask)
-{
-	bool flag = false;
-
-	(void)stress_get_setting(opt, &flag);
-	if (flag)
-		*vm_flags |= bitmask;
-}
-#endif
-
 static int stress_vm_child(stress_args_t *args, void *ctxt)
 {
 	stress_vm_context_t *context = (stress_vm_context_t *)ctxt;
@@ -3565,6 +3551,8 @@ static int stress_vm_child(stress_args_t *args, void *ctxt)
 	int advice = -1;
 	int rc = EXIT_SUCCESS;
 	bool vm_keep = false;
+	bool vm_populate = false;
+	bool vm_locked = false;
 	stress_mmap_stats_t stats;
 
 	stress_catch_sigill();
@@ -3574,16 +3562,29 @@ static int stress_vm_child(stress_args_t *args, void *ctxt)
 		vm_flush = true;
 	(void)stress_get_setting("vm-hang", &vm_hang);
 	(void)stress_get_setting("vm-keep", &vm_keep);
-#if defined(MAP_LOCKED)
-	stress_vm_flags("vm-locked", &vm_flags, MAP_LOCKED);
-#endif
-#if defined(MAP_POPULATE)
-	stress_vm_flags("vm-populate", &vm_flags, MAP_POPULATE);
-#endif
-	(void)stress_get_setting("vm-flags", &vm_flags);
+	(void)stress_get_setting("vm-locked", &vm_locked);
+	(void)stress_get_setting("vm-populate", &vm_populate);
 	if (stress_get_setting("vm-madvise", &vm_madvise))
 		advice = vm_madvise_info[vm_madvise].advice;
 
+	if (vm_locked) {
+#if defined(MAP_LOCKED)
+		vm_flags |= MAP_LOCKED;
+#else
+		if (stress_instance_zero(args))
+			pr_inf("%s: --vm-locked disabled because mmap MAP_LOCKED is not available\n",
+				args->name);
+#endif
+	}
+	if (vm_populate) {
+#if defined(MAP_POPULATE)
+		vm_flags |= MAP_POPULATE;
+#else
+		if (stress_instance_zero(args))
+			pr_inf("%s: --vm-populate implemented using page touching because mmap MAP_POPULATE is not available\n",
+				args->name);
+#endif
+	}
 	t_start = stress_time_now();
 	do {
 
@@ -3643,6 +3644,13 @@ static int stress_vm_child(stress_args_t *args, void *ctxt)
 			context->mmap_count++;
 
 			buf_end = (void *)((uint8_t *)buf + buf_sz);
+
+#if !defined(MAP_POPULATE)
+			/* prefault pages in if MMAP can't do it */
+			if (vm_populate)
+				stress_mmap_populate_forward(buf, buf_sz);
+#endif
+
 #if defined(HAVE_MPROTECT) &&	\
     defined(PROT_NONE) &&	\
     defined(STRESS_VM_END_PAGE_PROTECT)
