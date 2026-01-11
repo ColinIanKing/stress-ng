@@ -65,7 +65,7 @@ static int stress_mincore_touch_pages_generic(
 	const bool interruptible)
 {
 	const size_t page_size = stress_get_page_size();
-	const size_t n_pages = buf_len / page_size;
+	const size_t n_pages = (buf_len + page_size - 1) / page_size;
 
 #if !defined(HAVE_MINCORE)
 	if (!(g_opt_flags & OPT_FLAGS_MMAP_MINCORE))
