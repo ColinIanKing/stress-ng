@@ -26,10 +26,10 @@
 
 typedef struct {
 	stress_args_t *args;	/* stress-ng arguments */
-	size_t page_shift;		/* log2(page_size) */
-	char *exec_path;		/* path of executable */
-	double duration;		/* mmap run time duration */
-	double count;			/* count of mmap calls */
+	size_t page_shift;	/* log2(page_size) */
+	char *exec_path;	/* path of executable */
+	double duration;	/* mmap run time duration */
+	double count;		/* count of mmap calls */
 } munmap_context_t;
 
 static const stress_help_t help[] = {
