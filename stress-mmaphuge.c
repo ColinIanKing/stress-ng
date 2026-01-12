@@ -81,6 +81,7 @@ typedef struct {
 	stress_numa_mask_t *numa_mask;
 	stress_numa_mask_t *numa_nodes;
 #endif
+	stress_mmap_stats_t stats;
 } stress_mmaphuge_context_t;
 
 static const stress_mmaphuge_setting_t stress_mmaphuge_settings[] =
@@ -215,6 +216,7 @@ static int stress_mmaphuge_child(stress_args_t *args, void *v_context)
 		}
 
 		for (i = 0; i < context->mmaphuge_mmaps; i++) {
+			stress_mmap_stats_t stats;
 			uint8_t *buf = bufs[i].buf;
 			size_t sz;
 
@@ -222,6 +224,10 @@ static int stress_mmaphuge_child(stress_args_t *args, void *v_context)
 				continue;
 
 			sz = bufs[i].sz;
+			(void)memset(&stats, 0, sizeof(stats));
+			if (stress_mmap_stats(buf, (size_t)sz, &stats) == 0)
+				stress_mmap_stats_sum(&context->stats, &stats);
+
 			if (page_size < sz) {
 				uint8_t *end_page = buf + (sz - page_size);
 				int ret;
@@ -253,95 +259,106 @@ static int stress_mmaphuge_child(stress_args_t *args, void *v_context)
  */
 static int stress_mmaphuge(stress_args_t *args)
 {
-	stress_mmaphuge_context_t context;
+	stress_mmaphuge_context_t *context;
+	int ret, metric = 0;
 
-	int ret;
+	context = stress_mmap_anon_shared(sizeof(*context), PROT_READ | PROT_WRITE);
+	if (context == MAP_FAILED) {
+		pr_inf_skip("%s: failed to mmap %zu byte sized context, "
+			"errno=%d (%s), skipping stressor\n",
+			args->name, sizeof(*context), errno, strerror(errno));
+		return EXIT_NO_RESOURCE;
+	}
+	(void)memset(&context->stats, 0, sizeof(context->stats));
 
 #if defined(HAVE_LINUX_MEMPOLICY_H)
-	context.numa_mask = NULL;
-	context.numa_nodes = NULL;
+	context->numa_mask = NULL;
+	context->numa_nodes = NULL;
 #endif
-	context.sz = 16 * MB;
-	context.fd = -1;
-	context.mmaphuge_mmaps = MAX_MMAP_BUFS;
-	if (!stress_get_setting("mmaphuge-mmaps", &context.mmaphuge_mmaps)) {
+	context->sz = 16 * MB;
+	context->fd = -1;
+	context->mmaphuge_mmaps = MAX_MMAP_BUFS;
+	if (!stress_get_setting("mmaphuge-mmaps", &context->mmaphuge_mmaps)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			context.mmaphuge_mmaps = MAX_MMAPHUGE_MMAPS;
+			context->mmaphuge_mmaps = MAX_MMAPHUGE_MMAPS;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			context.mmaphuge_mmaps = MIN_MMAPHUGE_MMAPS;
+			context->mmaphuge_mmaps = MIN_MMAPHUGE_MMAPS;
 	}
-	context.mmaphuge_file = false;
-	(void)stress_get_setting("mmaphuge-file", &context.mmaphuge_file);
-	context.mmaphuge_numa = false;
-	(void)stress_get_setting("mmaphuge-numa", &context.mmaphuge_numa);
-	context.mmaphuge_mlock = false;
-	(void)stress_get_setting("mmaphuge-mlock", &context.mmaphuge_mlock);
+	context->mmaphuge_file = false;
+	(void)stress_get_setting("mmaphuge-file", &context->mmaphuge_file);
+	context->mmaphuge_numa = false;
+	(void)stress_get_setting("mmaphuge-numa", &context->mmaphuge_numa);
+	context->mmaphuge_mlock = false;
+	(void)stress_get_setting("mmaphuge-mlock", &context->mmaphuge_mlock);
 
-	context.bufs = (stress_mmaphuge_buf_t *)calloc(context.mmaphuge_mmaps, sizeof(*context.bufs));
-	if (!context.bufs) {
+	context->bufs = (stress_mmaphuge_buf_t *)calloc(context->mmaphuge_mmaps, sizeof(*context->bufs));
+	if (!context->bufs) {
 		pr_inf_skip("%s: cannot allocate %zu byte buffer array%s, skipping stressor\n",
-			args->name, context.mmaphuge_mmaps * sizeof(*context.bufs),
+			args->name, context->mmaphuge_mmaps * sizeof(*context->bufs),
 			stress_get_memfree_str());
+		(void)stress_munmap_anon_shared(context, sizeof(*context));
 		return EXIT_NO_RESOURCE;
 	}
 
-	if (context.mmaphuge_file) {
+	if (context->mmaphuge_file) {
 		char filename[PATH_MAX];
 		ssize_t rc;
 
 		rc = stress_temp_dir_mk_args(args);
 		if (rc < 0) {
-			free(context.bufs);
+			free(context->bufs);
+			(void)stress_munmap_anon_shared(context, sizeof(*context));
 			return stress_exit_status((int)-rc);
 		}
 
 		(void)stress_temp_filename_args(args,
 			filename, sizeof(filename), stress_mwc32());
-		context.fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
-		if (context.fd < 0) {
+		context->fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
+		if (context->fd < 0) {
 			rc = stress_exit_status(errno);
 			pr_fail("%s: open %s failed, errno=%d (%s)\n",
 				args->name, filename, errno, strerror(errno));
 			(void)shim_unlink(filename);
 			(void)stress_temp_dir_rm_args(args);
-			free(context.bufs);
-
+			free(context->bufs);
+			(void)stress_munmap_anon_shared(context, sizeof(*context));
 			return (int)rc;
 		}
 		(void)shim_unlink(filename);
-		if (lseek(context.fd, (off_t)(context.sz - args->page_size), SEEK_SET) < 0) {
+		if (lseek(context->fd, (off_t)(context->sz - args->page_size), SEEK_SET) < 0) {
 			pr_fail("%s: lseek failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
-			(void)close(context.fd);
+			(void)close(context->fd);
 			(void)stress_temp_dir_rm_args(args);
-			free(context.bufs);
-
+			free(context->bufs);
+			(void)stress_munmap_anon_shared(context, sizeof(*context));
 			return EXIT_FAILURE;
 		}
 		/*
 		 *  Allocate a 16 MB aligned chunk of data.
 		 */
-		if (shim_fallocate(context.fd, 0, 0, (off_t)context.sz) < 0) {
+		if (shim_fallocate(context->fd, 0, 0, (off_t)context->sz) < 0) {
 			rc = stress_exit_status(errno);
 			pr_fail("%s: fallocate of %zu MB failed, errno=%d (%s)\n",
-				args->name, (size_t)(context.sz / MB), errno, strerror(errno));
-			(void)close(context.fd);
+				args->name, (size_t)(context->sz / MB), errno, strerror(errno));
+			(void)close(context->fd);
 			(void)stress_temp_dir_rm_args(args);
-			free(context.bufs);
+			free(context->bufs);
+			(void)stress_munmap_anon_shared(context, sizeof(*context));
 			return (int)rc;
 		}
 	}
 
-	if (context.mmaphuge_numa) {
+	if (context->mmaphuge_numa) {
 #if defined(HAVE_LINUX_MEMPOLICY_H)
-		stress_numa_mask_and_node_alloc(args, &context.numa_nodes,
-						&context.numa_mask, "--mmaphuge-numa",
-						&context.mmaphuge_numa);
+		stress_numa_mask_and_node_alloc(args, &context->numa_nodes,
+						&context->numa_mask, "--mmaphuge-numa",
+						&context->mmaphuge_numa);
 #else
 		if (stress_instance_zero(args))
 			pr_inf("%s: --mmaphuge-numa selected but not supported by this system, disabling option\n",
 				args->name);
-		context.mmaphuge_numa = false;
+		context->mmaphuge_numa = false;
 #endif
 	}
 
@@ -357,20 +374,28 @@ static int stress_mmaphuge(stress_args_t *args)
 	}
 
 
-	ret = stress_oomable_child(args, (void *)&context, stress_mmaphuge_child, STRESS_OOMABLE_QUIET);
+	ret = stress_oomable_child(args, (void *)context, stress_mmaphuge_child, STRESS_OOMABLE_QUIET);
+
+	metric = 0;
+        stress_mmap_stats_report(args, &context->stats, &metric,
+			STRESS_MMAP_REPORT_FLAGS_TOTAL |
+			STRESS_MMAP_REPORT_FLAGS_SWAPPED |
+			STRESS_MMAP_REPORT_FLAGS_DIRTIED |
+			STRESS_MMAP_REPORT_FLAGS_CONTIGUOUS);
 
 #if defined(HAVE_LINUX_MEMPOLICY_H)
-	if (context.numa_mask)
-		stress_numa_mask_free(context.numa_mask);
-	if (context.numa_nodes)
-		stress_numa_mask_free(context.numa_nodes);
+	if (context->numa_mask)
+		stress_numa_mask_free(context->numa_mask);
+	if (context->numa_nodes)
+		stress_numa_mask_free(context->numa_nodes);
 #endif
-	free(context.bufs);
+	free(context->bufs);
 
-	if (context.mmaphuge_file) {
-		(void)close(context.fd);
+	if (context->mmaphuge_file) {
+		(void)close(context->fd);
 		(void)stress_temp_dir_rm_args(args);
 	}
+	(void)stress_munmap_anon_shared(context, sizeof(*context));
 
 	return ret;
 }
