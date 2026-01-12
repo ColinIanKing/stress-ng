@@ -685,13 +685,13 @@ Luis Henriques, Lukas Durfina, Matteo Italia, Matthew Tippett,
 Mauricio Faria de Oliveira, Maxime Chevallier, Max Kellermann,
 Maya Rashish, Mayuresh Chitale, Meysam Azad, Mike Koreneff,
 Munehisa Kamata, Myd Xia, Nick Hanley, Nicolas Bouton,
-Nikolas Kyx, Paul Menzel, Pierre Ducroquet, Piyush Goyal,
-Pranav P, Ralf Ramsauer, Rosen Penev, Rulin Huang, Sascha Hauer,
-Sergey Fedorov, Sergey Matyukevich, Shifrin Dmitry, Shoily Rahman,
-Siddhesh Poyarekar, Dominik Steinberger, Stian Onarheim,
-Thadeu Lima de Souza Cascardo, Thia Wyrod, Thinh Tran,
-Tim Gardner, Tim Gates, Tim Orling, Tommi Rantala, Witold Baryluk,
-Yiwei Lin, Yong-Xuan Wang, Zhiyi Sun, Zong Li.
+Nikolas Kyx, Nysal Jan K.A, Paul Menzel, Pierre Ducroquet,
+Piyush Goyal, Pranav P, Ralf Ramsauer, Rosen Penev, Rulin Huang,
+Sascha Hauer, Sergey Fedorov, Sergey Matyukevich, Shifrin Dmitry,
+Shoily Rahman, Siddhesh Poyarekar, Dominik Steinberger,
+Stian Onarheim, Thadeu Lima de Souza Cascardo, Thia Wyrod,
+Thinh Tran, Tim Gardner, Tim Gates, Tim Orling, Tommi Rantala,
+Witold Baryluk, Yiwei Lin, Yong-Xuan Wang, Zhiyi Sun, Zong Li.
 
 ## Static Analysis
 
