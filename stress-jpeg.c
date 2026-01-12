@@ -435,6 +435,12 @@ static int stress_jpeg(stress_args_t *args)
 		break;
 	}
 
+	if (stress_instance_zero(args)) {
+		const size_t total_size = rgb_size + row_pointer_size;
+
+		stress_usage_bytes(args, total_size, total_size * args->instances);
+	}
+
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);

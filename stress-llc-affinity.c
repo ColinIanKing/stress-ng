@@ -484,6 +484,9 @@ static int stress_llc_affinity(stress_args_t *args)
 		(void)shim_mlock(buf, mmap_sz);
 	buf_end = (uint64_t *)((uintptr_t)buf + mmap_sz);
 
+	if (stress_instance_zero(args))
+		stress_usage_bytes(args, mmap_sz, mmap_sz * args->instances);
+
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);

@@ -128,6 +128,9 @@ static int stress_loop(stress_args_t *args)
 		goto tidy;
 	}
 
+	if (stress_instance_zero(args))
+		stress_usage_bytes(args, backing_size, backing_size * args->instances);
+
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);

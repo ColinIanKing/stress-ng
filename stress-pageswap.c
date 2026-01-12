@@ -19,6 +19,8 @@
 #include "stress-ng.h"
 #include "core-out-of-memory.h"
 
+#define MAX_PAGES	(65536)
+
 static const stress_help_t help[] = {
 	{ NULL,	"pageswap N",		"start N workers that swap pages out and in" },
 	{ NULL,	"pageswap-ops N",	"stop after N page swap bogo operations" },
@@ -92,7 +94,7 @@ static void stress_pageswap_unmap(
 /*
  *  stress_pageswap_child()
  *	oomable process that maps pages and force pages them out with
- *	madvise. Once 65536 pages (or we run out of mappings) occurs
+ *	madvise. Once MAX_PAGES pages (or we run out of mappings) occurs
  *	the pages are unmapped - the walking of the list pages them back
  *	in before they are unmapped.
  */
@@ -137,7 +139,7 @@ static int stress_pageswap_child(stress_args_t *args, void *context)
 				(void)madvise(pi, pi->size, MADV_POPULATE_READ);
 #endif
 
-			if (UNLIKELY(max++ >= 65536)) {
+			if (UNLIKELY(max++ >= MAX_PAGES)) {
 				stress_pageswap_unmap(args, &head, &count, &rc);
 				max = 0;
 			}
@@ -163,6 +165,9 @@ static int stress_pageswap_child(stress_args_t *args, void *context)
 static int stress_pageswap(stress_args_t *args)
 {
 	int rc;
+
+	if (stress_instance_zero(args))
+		stress_usage_bytes(args, args->page_size * MAX_PAGES, args->page_size * MAX_PAGES * args->instances);
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);

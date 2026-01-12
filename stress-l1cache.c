@@ -557,6 +557,9 @@ static int stress_l1cache(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
+	if (stress_instance_zero(args))
+		stress_usage_bytes(args, l1cache_size << 2, (l1cache_size << 2) * args->instances);
+
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);

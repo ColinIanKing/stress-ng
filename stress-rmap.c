@@ -188,7 +188,7 @@ fail:
 
 /*
  *  stress_rmap()
- *	stress mmap
+ *	stress rmaps
  */
 static int stress_rmap(stress_args_t *args)
 {
@@ -275,6 +275,12 @@ static int stress_rmap(stress_args_t *args)
 				MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 		if (paddings[i] != MAP_FAILED)
 			stress_set_vma_anon_name(paddings[i], page_size, "mmap-padding");
+	}
+
+	if (stress_instance_zero(args)) {
+		const size_t map_sz = MAPPINGS_MAX * MAPPING_PAGES * page_size;
+
+		stress_usage_bytes(args, map_sz, map_sz * args->instances);
 	}
 
 	/*

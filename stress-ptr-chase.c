@@ -130,6 +130,12 @@ static int stress_ptr_chase(stress_args_t *args)
 		}
 	}
 
+	if (stress_instance_zero(args)) {
+		const size_t sz = alloc_size + ptrs_size;
+
+		stress_usage_bytes(args, sz, sz * args->instances);
+	}
+
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);

@@ -462,6 +462,9 @@ static int stress_madvise(stress_args_t *args)
 		VOID_RET(ssize_t, write(fd, page, page_size));
 	}
 
+	if (stress_instance_zero(args))
+		stress_usage_bytes(args, sz, sz * args->instances);
+
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);

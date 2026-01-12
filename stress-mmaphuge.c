@@ -83,7 +83,7 @@ typedef struct {
 #endif
 } stress_mmaphuge_context_t;
 
-static const stress_mmaphuge_setting_t stress_mmap_settings[] =
+static const stress_mmaphuge_setting_t stress_mmaphuge_settings[] =
 {
 #if defined(MAP_HUGE_2MB)
 	{ MAP_HUGETLB | MAP_HUGE_2MB,	2 * MB },
@@ -126,13 +126,13 @@ static int stress_mmaphuge_child(stress_args_t *args, void *v_context)
 
 			stress_get_memlimits(&shmall, &freemem, &totalmem, &last_freeswap, &last_totalswap);
 
-			for (j = 0; j < SIZEOF_ARRAY(stress_mmap_settings); j++) {
+			for (j = 0; j < SIZEOF_ARRAY(stress_mmaphuge_settings); j++) {
 				uint64_t *buf = (uint64_t *)MAP_FAILED;
-				const size_t sz = stress_mmap_settings[idx].sz;
+				const size_t sz = stress_mmaphuge_settings[idx].sz;
 				int flags = MAP_ANONYMOUS;
 
 				flags |= (stress_mwc1() ? MAP_PRIVATE : MAP_SHARED);
-				flags |= stress_mmap_settings[idx].flags;
+				flags |= stress_mmaphuge_settings[idx].flags;
 
 				if ((g_opt_flags & OPT_FLAGS_OOM_AVOID) && stress_low_memory(page_size))
 					break;
@@ -160,7 +160,7 @@ static int stress_mmaphuge_child(stress_args_t *args, void *v_context)
 				}
 				bufs[i].buf = buf;
 				idx++;
-				if (UNLIKELY(idx >= SIZEOF_ARRAY(stress_mmap_settings)))
+				if (UNLIKELY(idx >= SIZEOF_ARRAY(stress_mmaphuge_settings)))
 					idx = 0;
 
 				if (buf != MAP_FAILED) {
@@ -344,6 +344,18 @@ static int stress_mmaphuge(stress_args_t *args)
 		context.mmaphuge_numa = false;
 #endif
 	}
+
+	if (stress_instance_zero(args)) {
+		size_t i, max = 0;
+
+		for (i = 0; i < SIZEOF_ARRAY(stress_mmaphuge_settings); i++) {
+			if (max < stress_mmaphuge_settings[i].sz)
+				max = stress_mmaphuge_settings[i].sz;
+		}
+
+		stress_usage_bytes(args, max, max * args->instances);
+	}
+
 
 	ret = stress_oomable_child(args, (void *)&context, stress_mmaphuge_child, STRESS_OOMABLE_QUIET);
 

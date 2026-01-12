@@ -397,6 +397,12 @@ static int stress_swap_child(stress_args_t *args, void *context)
 		goto tidy_close;
 	}
 
+	if (stress_instance_zero(args)) {
+		const size_t size = MAX_SWAP_PAGES * page_size;
+
+		stress_usage_bytes(args, size, size * args->instances);
+	}
+
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);

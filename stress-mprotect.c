@@ -228,6 +228,9 @@ static int stress_mprotect(stress_args_t *args)
 	/* Make sure this is killable by OOM killer */
 	stress_set_oom_adjustment(args, true);
 
+	if (stress_instance_zero(args))
+		stress_usage_bytes(args, mem_size, mem_size * args->instances);
+
 	for (i = 0; i < MPROTECT_MAX; i++) {
 		stress_sync_start_init(&s_pids[i]);
 

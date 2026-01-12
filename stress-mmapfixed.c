@@ -288,6 +288,10 @@ static int stress_mmapfixed(stress_args_t *args)
 		info.mmapfixed_numa = false;
 #endif
 	}
+
+	if (stress_instance_zero(args))
+		stress_usage_bytes(args, args->page_size * 8, args->page_size * 8 * args->instances);
+
 	ret = stress_oomable_child(args, &info, stress_mmapfixed_child, STRESS_OOMABLE_QUIET);
 
 #if defined(HAVE_LINUX_MEMPOLICY_H)
