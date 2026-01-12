@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-killpid.h"
 #include "core-madvise.h"
+#include "core-mmap.h"
 #include "core-out-of-memory.h"
 
 static const stress_help_t help[] = {
@@ -32,6 +33,7 @@ static const stress_help_t help[] = {
 
 typedef struct {
 	int fd;			/* /dev/shm File descriptor */
+	stress_mmap_stats_t stats;
 } stress_dev_shm_context_t;
 
 /*
@@ -41,9 +43,10 @@ typedef struct {
  */
 static inline int stress_dev_shm_child(
 	stress_args_t *args,
-	const int fd)
+	stress_dev_shm_context_t *context)
 {
 	int rc = EXIT_SUCCESS;
+	const int fd = context->fd;
 	const size_t page_size = args->page_size;
 	const size_t page_thresh = 16 * MB;
 	ssize_t sz = (ssize_t)page_size;
@@ -81,6 +84,7 @@ static inline int stress_dev_shm_child(
 			}
 		}
 		if (sz > 0) {
+
 			/*
 			 *  Now try to map this into our address space
 			 */
@@ -93,6 +97,11 @@ static inline int stress_dev_shm_child(
 				register const uint32_t *end = addr + ((size_t)sz / sizeof(*end));
 				const size_t words = page_size / sizeof(*ptr);
 				const uint32_t rnd = stress_mwc32();
+				stress_mmap_stats_t stats;
+
+				(void)memset(&stats, 0, sizeof(stats));
+				if (stress_mmap_stats(addr, (size_t)sz, &stats) == 0)
+					stress_mmap_stats_sum(&context->stats, &stats);
 
 				stress_set_vma_anon_name(addr, (size_t)sz, "mmapped-dev-shm");
 				(void)stress_madvise_randomize(addr, (size_t)sz);
@@ -183,7 +192,7 @@ again:
 			stress_parent_died_alarm();
 			(void)sched_settings_apply(true);
 
-			rc = stress_dev_shm_child(args, context->fd);
+			rc = stress_dev_shm_child(args, context);
 			_exit(rc);
 		}
 	}
@@ -198,8 +207,18 @@ finish:
 static int stress_dev_shm(stress_args_t *args)
 {
 	int rc = EXIT_SUCCESS;
+	int metric;
 	char path[PATH_MAX];
-	stress_dev_shm_context_t context;
+	stress_dev_shm_context_t *context;
+
+	context = stress_mmap_anon_shared(sizeof(*context), PROT_READ | PROT_WRITE);
+	if (context == MAP_FAILED) {
+		pr_inf_skip("%s: failed to mmap %zu byte sized context, "
+			"errno=%d (%s), skipping stressor\n",
+			args->name, sizeof(*context), errno, strerror(errno));
+		return EXIT_NO_RESOURCE;
+        }
+	(void)memset(&context->stats, 0, sizeof(context->stats));
 
 	/*
 	 *  Sanity check for existence and r/w permissions
@@ -212,22 +231,25 @@ static int stress_dev_shm(stress_args_t *args)
 			if (stress_instance_zero(args))
 				pr_inf_skip("%s: /dev/shm does not exist, skipping stressor\n",
 					args->name);
-			return EXIT_NO_RESOURCE;
+			rc = EXIT_NO_RESOURCE;
+			goto unmap_context;
 		} else {
 			if (stress_instance_zero(args))
 				pr_inf_skip("%s: cannot access /dev/shm, errno=%d (%s), skipping stressor\n",
 					args->name, errno, strerror(errno));
-			return EXIT_NO_RESOURCE;
+			rc = EXIT_NO_RESOURCE;
+			goto unmap_context;
 		}
 	}
 
 	(void)snprintf(path, sizeof(path), "/dev/shm/stress-dev-shm-%" PRIu32 "-%d-%" PRIu32,
 		args->instance, getpid(), stress_mwc32());
-	context.fd = open(path, O_CREAT | O_EXCL | O_RDWR, S_IRUSR | S_IWUSR);
-	if (context.fd < 0) {
+	context->fd = open(path, O_CREAT | O_EXCL | O_RDWR, S_IRUSR | S_IWUSR);
+	if (context->fd < 0) {
 		pr_inf("%s: cannot create %s, errno=%d (%s)\n",
 			args->name, path, errno, strerror(errno));
-		return EXIT_SUCCESS;
+		rc = EXIT_FAILURE;
+		goto unmap_context;
 	}
 	(void)shim_unlink(path);
 
@@ -235,11 +257,20 @@ static int stress_dev_shm(stress_args_t *args)
 	stress_sync_start_wait(args);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
-	rc = stress_oomable_child(args, &context, stress_dev_shm_oomable_child, STRESS_OOMABLE_NORMAL);
+	rc = stress_oomable_child(args, context, stress_dev_shm_oomable_child, STRESS_OOMABLE_NORMAL);
+
+	metric = 0;
+	stress_mmap_stats_report(args, &context->stats, &metric,
+			STRESS_MMAP_REPORT_FLAGS_TOTAL |
+			STRESS_MMAP_REPORT_FLAGS_SWAPPED |
+			STRESS_MMAP_REPORT_FLAGS_DIRTIED);
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	(void)close(context.fd);
+
+	(void)close(context->fd);
+unmap_context:
+	(void)stress_munmap_anon_shared(context, sizeof(*context));
 	return rc;
 }
 
