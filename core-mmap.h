@@ -28,15 +28,19 @@
 #define STRESS_MMAP_REPORT_FLAGS_NULL		(0x0040)
 #define STRESS_MMAP_REPORT_FLAGS_CONTIGUOUS	(0x0080)
 
+/*
+ *  stress_mmap_stats_t used for page stats used
+ *  by stress_mmap_stats_* helpers
+ */
 typedef struct {
-	size_t pages_mapped;
-	size_t pages_present;
-	size_t pages_swapped;
-	size_t pages_contiguous;
-	size_t pages_dirtied;
-	size_t pages_exclusive;
-	size_t pages_unknown;
-	size_t pages_null;
+	size_t pages_mapped;		/* number of pages mmap'd */
+	size_t pages_present;		/* number of pages present in memory */
+	size_t pages_swapped;		/* number of pages swapped out */
+	size_t pages_contiguous;	/* number of physical contiguous pages */
+	size_t pages_dirtied;		/* number of soft dirty pages */
+	size_t pages_exclusive;		/* number of pages exclusively mapped */
+	size_t pages_unknown;		/* number of pages with unknown map state */
+	size_t pages_null;		/* number of pages with physical zero address */
 } stress_mmap_stats_t;
 
 extern void stress_mmap_set(uint8_t *buf, const size_t sz, const size_t page_size);
