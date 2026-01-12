@@ -817,13 +817,13 @@ static inline int stress_matrix_3d_exercise(
 	stress_args_t *args,
 	const size_t matrix_3d_method,
 	const size_t matrix_3d_zyx,
-	const size_t n)
+	const size_t n,
+	const size_t matrix_3d_size_bytes,
+	const size_t matrix_3d_mmap_size)
 {
 	int ret = EXIT_NO_RESOURCE;
 	typedef stress_matrix_3d_type_t (*matrix_3d_ptr_t)[n][n];
 	typedef const stress_matrix_3d_type_t (*const_matrix_3d_ptr_t)[n][n];
-	size_t matrix_3d_size = sizeof(stress_matrix_3d_type_t) * n * n * n;
-	size_t matrix_3d_mmap_size = round_up(args->page_size, matrix_3d_size);
 	const size_t num_matrix_3d_methods = SIZEOF_ARRAY(matrix_3d_methods);
 	const stress_matrix_3d_func_t func = matrix_3d_methods[matrix_3d_method].func[matrix_3d_zyx];
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
@@ -920,7 +920,7 @@ static inline int stress_matrix_3d_exercise(
 			matrix_3d_metrics[matrix_3d_method].count += 1.0;
 			stress_bogo_inc(args);
 
-			if (shim_memcmp(r, s, matrix_3d_size)) {
+			if (shim_memcmp(r, s, matrix_3d_size_bytes)) {
 				pr_fail("%s: %s: data difference between identical matrix-3d computations\n",
 					args->name, current_method);
 				ret = EXIT_FAILURE;
@@ -983,6 +983,8 @@ static int stress_matrix_3d(stress_args_t *args)
 	size_t matrix_3d_method = 0; 	/* All method */
 	size_t matrix_3d_size = DEFAULT_MATRIX3D_SIZE;
 	size_t matrix_3d_zyx = 0;
+	size_t matrix_3d_size_bytes;
+	size_t matrix_3d_mmap_size;
 	int rc;
 
 	stress_catch_sigill();
@@ -1001,11 +1003,20 @@ static int stress_matrix_3d(stress_args_t *args)
 			matrix_3d_size = MIN_MATRIX3D_SIZE;
 	}
 
+	matrix_3d_size_bytes = sizeof(stress_matrix_3d_type_t) * matrix_3d_size *
+			       matrix_3d_size * matrix_3d_size;
+	matrix_3d_mmap_size = round_up(args->page_size, matrix_3d_size_bytes);
+
+	/* report size used by the 3 matrices a, b and r */
+	if (stress_instance_zero(args))
+		stress_usage_bytes(args, 3 * matrix_3d_mmap_size, 3 * matrix_3d_mmap_size * args->instances);
+
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
-	rc = stress_matrix_3d_exercise(args, matrix_3d_method, matrix_3d_zyx, matrix_3d_size);
+	rc = stress_matrix_3d_exercise(args, matrix_3d_method, matrix_3d_zyx, matrix_3d_size,
+				       matrix_3d_size_bytes, matrix_3d_mmap_size);
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

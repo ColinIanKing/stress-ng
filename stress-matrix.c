@@ -832,14 +832,14 @@ static inline int stress_matrix_exercise(
 	stress_args_t *args,
 	const size_t matrix_method,
 	const size_t matrix_yx,
-	const size_t n)
+	const size_t n,
+	const size_t matrix_byte_size,
+	const size_t matrix_mmap_size)
 {
 	typedef stress_matrix_type_t (*matrix_ptr_t)[n];
 	typedef const stress_matrix_type_t (*const_matrix_ptr_t)[n];
 
 	int ret = EXIT_NO_RESOURCE;
-	const size_t matrix_size = sizeof(stress_matrix_type_t) * n * n;
-	const size_t matrix_mmap_size = round_up(args->page_size, matrix_size);
 	const size_t num_matrix_methods = SIZEOF_ARRAY(matrix_methods);
 	const stress_matrix_func_t func = matrix_methods[matrix_method].func[matrix_yx];
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
@@ -933,7 +933,7 @@ static inline int stress_matrix_exercise(
 			matrix_metrics[matrix_method].count += 1.0;
 			stress_bogo_inc(args);
 
-			if (shim_memcmp(r, s, matrix_size)) {
+			if (shim_memcmp(r, s, matrix_byte_size)) {
 				pr_fail("%s: %s: data difference between identical matrix computations\n",
 					args->name, current_method);
 				ret = EXIT_FAILURE;
@@ -997,6 +997,8 @@ static int stress_matrix(stress_args_t *args)
 	size_t matrix_method = 0;	/* All method */
 	size_t matrix_size = DEFAULT_MATRIX_SIZE;
 	size_t matrix_yx = 0;
+	size_t matrix_byte_size;	/* Size of matrix in bytes */
+	size_t matrix_mmap_size;	/* Size of mmap for matrix in bytes */
 	int rc;
 
 	stress_catch_sigill();
@@ -1015,11 +1017,19 @@ static int stress_matrix(stress_args_t *args)
 			matrix_size = MIN_MATRIX_SIZE;
 	}
 
+	matrix_byte_size = sizeof(stress_matrix_type_t) * matrix_size * matrix_size;
+	matrix_mmap_size = round_up(args->page_size, matrix_byte_size);
+
+	/* report size used by the 3 matrices a, b and r */
+	if (stress_instance_zero(args))
+		stress_usage_bytes(args, 3 * matrix_mmap_size, 3 * matrix_mmap_size * args->instances);
+
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
-	rc = stress_matrix_exercise(args, matrix_method, matrix_yx, matrix_size);
+	rc = stress_matrix_exercise(args, matrix_method, matrix_yx, matrix_size,
+				    matrix_byte_size, matrix_mmap_size);
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
