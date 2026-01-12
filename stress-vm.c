@@ -3915,19 +3915,11 @@ static int stress_vm(stress_args_t *args)
 			STRESS_DBL_MILLISECOND * context->munmap_duration_total / (double)context->munmap_count, STRESS_METRIC_GEOMETRIC_MEAN);
 	}
 
-	if (context->stats.pages_total > 0) {
-		double pc;
-
-		stress_metrics_set(args, metric++, "pages mmapped", (double)context->stats.pages_total, STRESS_METRIC_GEOMETRIC_MEAN);
-		pc = 100.0 * (double)context->stats.pages_swapped / (double)context->stats.pages_total;
-		stress_metrics_set(args, metric++, "% pages swapped", pc, STRESS_METRIC_GEOMETRIC_MEAN);
-		pc = 100.0 * (double)context->stats.pages_soft_dirty / (double)context->stats.pages_total;
-		stress_metrics_set(args, metric++, "% pages dirtied", pc, STRESS_METRIC_GEOMETRIC_MEAN);
-		if (context->stats.pages_null == 0) {
-			pc = 100.0 * (double)context->stats.pages_contiguous / (double)context->stats.pages_total;
-			stress_metrics_set(args, metric++, "% pages physically contiguous", pc, STRESS_METRIC_GEOMETRIC_MEAN);
-		}
-	}
+	stress_mmap_stats_report(args, &context->stats, &metric,
+		STRESS_MMAP_REPORT_FLAGS_TOTAL |
+		STRESS_MMAP_REPORT_FLAGS_SWAPPED |
+		STRESS_MMAP_REPORT_FLAGS_DIRTIED |
+		STRESS_MMAP_REPORT_FLAGS_CONTIGUOUS);
 
 	(void)stress_munmap_anon_shared(context, sizeof(*context));
 

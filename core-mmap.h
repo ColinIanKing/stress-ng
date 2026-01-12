@@ -19,13 +19,22 @@
 #ifndef CORE_MMAP_H
 #define CORE_MMAP_H
 
+#define STRESS_MMAP_REPORT_FLAGS_TOTAL		(0x0001)
+#define STRESS_MMAP_REPORT_FLAGS_PRESENT	(0x0002)
+#define STRESS_MMAP_REPORT_FLAGS_SWAPPED	(0x0004)
+#define STRESS_MMAP_REPORT_FLAGS_DIRTIED	(0x0008)
+#define STRESS_MMAP_REPORT_FLAGS_EXCLUSIVE	(0x0010)
+#define STRESS_MMAP_REPORT_FLAGS_UKNOWN		(0x0020)
+#define STRESS_MMAP_REPORT_FLAGS_NULL		(0x0040)
+#define STRESS_MMAP_REPORT_FLAGS_CONTIGUOUS	(0x0080)
+
 typedef struct {
-	size_t pages_total;
+	size_t pages_mapped;
 	size_t pages_present;
 	size_t pages_swapped;
 	size_t pages_contiguous;
-	size_t pages_soft_dirty;
-	size_t pages_exclusive_mapped;
+	size_t pages_dirtied;
+	size_t pages_exclusive;
 	size_t pages_unknown;
 	size_t pages_null;
 } stress_mmap_stats_t;
@@ -40,6 +49,8 @@ extern WARN_UNUSED void *stress_mmap_anon_shared(size_t length, int prot);
 extern int stress_munmap_anon_shared(void *addr, size_t length);
 extern WARN_UNUSED int stress_mmap_stats(void *addr, const size_t length, stress_mmap_stats_t *stats);
 extern void stress_mmap_stats_sum(stress_mmap_stats_t *stats_total, const stress_mmap_stats_t *stats);
+extern void stress_mmap_stats_report(stress_args_t *args, const stress_mmap_stats_t *stats,
+	int *metric_index, const int flags);
 extern void stress_mmap_populate_forward(void *addr, const size_t len, const int prot);
 extern void stress_mmap_populate_reverse(void *addr, const size_t len, const int prot);
 
