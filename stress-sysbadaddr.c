@@ -2552,9 +2552,8 @@ static int stress_sysbadaddr(stress_args_t *args)
 	int ret;
 	size_t i;
 
-	state = (stress_sysbadaddr_state_t *)stress_mmap_populate(NULL,
-		sizeof(*state), PROT_READ | PROT_WRITE,
-		MAP_ANONYMOUS | MAP_SHARED, -1, 0);
+	state = (stress_sysbadaddr_state_t *)stress_mmap_anon_shared(
+		sizeof(*state), PROT_READ | PROT_WRITE);
 	if (state == MAP_FAILED) {
 		pr_inf_skip("%s: failed to mmap %zu byte anonymous state structure%s, "
 		       "errno=%d (%s), skipping stressor\n",
@@ -2666,7 +2665,7 @@ cleanup:
 	stress_munmap(rx_page, page_size);
 	stress_munmap(rw_page, page_size);
 	stress_munmap(ro_page, page_size);
-	stress_munmap((void *)state, sizeof(*state));
+	stress_munmap_anon_shared((void *)state, sizeof(*state));
 
 	return ret;
 }

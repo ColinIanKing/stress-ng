@@ -329,9 +329,7 @@ static int stress_flushcache(stress_args_t *args)
 
 	context.x86_clfsh = stress_cpu_x86_has_clfsh();
 	context.x86_demote = stress_cpu_x86_has_cldemote();
-	context.i_addr = stress_mmap_populate(NULL, page_size,
-				PROT_READ | PROT_WRITE | PROT_EXEC,
-				MAP_ANONYMOUS | MAP_SHARED, -1, 0);
+	context.i_addr = stress_mmap_anon_shared(page_size, PROT_READ | PROT_WRITE | PROT_EXEC);
 	if (context.i_addr == MAP_FAILED) {
 		pr_inf_skip("%s: could not mmap %zu sized page%s, skipping stressor\n",
 			args->name, page_size, stress_get_memfree_str());
@@ -355,7 +353,7 @@ static int stress_flushcache(stress_args_t *args)
 			args->name, numa_nodes, context.d_size / 1024);
 	ret = stress_oomable_child(args, (void *)&context, stress_flushcache_child, STRESS_OOMABLE_NORMAL);
 
-	(void)munmap(context.i_addr, page_size);
+	(void)stress_munmap_anon_shared(context.i_addr, page_size);
 	return ret;
 }
 

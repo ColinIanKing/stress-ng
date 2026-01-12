@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-attribute.h"
+#include "core-mmap.h"
 #include "core-out-of-memory.h"
 #include "core-prime.h"
 
@@ -252,8 +253,7 @@ static int stress_munmap(stress_args_t *args)
 	double rate;
 	char exec_path[PATH_MAX];
 
-	ctxt = (munmap_context_t *)mmap(NULL, sizeof(*ctxt), PROT_READ | PROT_WRITE,
-		MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+	ctxt = (munmap_context_t *)stress_mmap_anon_shared(sizeof(*ctxt), PROT_READ | PROT_WRITE);
 	if (ctxt == MAP_FAILED) {
 		pr_inf_skip("%s: skipping stressor, cannot mmap context buffer, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
@@ -268,7 +268,7 @@ static int stress_munmap(stress_args_t *args)
 	if (!ctxt->exec_path) {
 		pr_inf_skip("%s: skipping stressor, cannot determine child executable path\n",
 			args->name);
-		(void)munmap((void *)ctxt, sizeof(*ctxt));
+		(void)stress_munmap_anon_shared((void *)ctxt, sizeof(*ctxt));
 		return EXIT_NO_RESOURCE;
 	}
 	stress_munmap_clean_path(ctxt->exec_path);
@@ -286,7 +286,7 @@ static int stress_munmap(stress_args_t *args)
 	stress_metrics_set(args, 0, "nanosecs per page munmap()",
 		rate * STRESS_DBL_NANOSECOND, STRESS_METRIC_HARMONIC_MEAN);
 
-	(void)munmap((void *)ctxt, sizeof(*ctxt));
+	(void)stress_munmap_anon_shared((void *)ctxt, sizeof(*ctxt));
 
 	return EXIT_SUCCESS;
 }

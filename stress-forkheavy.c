@@ -267,10 +267,7 @@ static int stress_forkheavy(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
-	metrics = (stress_metrics_t *)stress_mmap_populate(
-			NULL, sizeof(*metrics),
-			PROT_READ | PROT_WRITE,
-			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+	metrics = (stress_metrics_t *)stress_mmap_anon_shared(sizeof(*metrics), PROT_READ | PROT_WRITE);
 	if (metrics == MAP_FAILED) {
 		pr_inf_skip("%s: failed to memory map %zu bytes%s, skipping stressor\n",
 			args->name, sizeof(*metrics), stress_get_memfree_str());
@@ -293,7 +290,7 @@ static int stress_forkheavy(stress_args_t *args)
 	stress_metrics_set(args, 0, "microsecs per fork" ,
 		average * 1000000, STRESS_METRIC_HARMONIC_MEAN);
 
-	(void)munmap((void *)metrics, sizeof(*metrics));
+	(void)stress_munmap_anon_shared((void *)metrics, sizeof(*metrics));
 	free(forkheavy_args.resources);
 
 	return rc;

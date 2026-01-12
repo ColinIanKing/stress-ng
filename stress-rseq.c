@@ -221,9 +221,7 @@ static int stress_rseq(stress_args_t *args)
 	 *  stats when the child gets SEGV'd by rseq when we use
 	 *  in invalid signature
 	 */
-	rseq_info = (rseq_info_t *)stress_mmap_populate(NULL, sizeof(*rseq_info),
-			PROT_READ | PROT_WRITE,
-			MAP_ANONYMOUS | MAP_SHARED, -1, 0);
+	rseq_info = (rseq_info_t *)stress_mmap_anon_shared(sizeof(*rseq_info), PROT_READ | PROT_WRITE);
 	if (rseq_info == MAP_FAILED) {
 		pr_inf_skip("%s: failed to mmap %zu byte shared page%s, "
 			"errno=%d (%s), skipping stressor\n",
@@ -259,7 +257,7 @@ static int stress_rseq(stress_args_t *args)
 err:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	(void)munmap((void *)rseq_info, sizeof(*rseq_info));
+	(void)stress_munmap_anon_shared((void *)rseq_info, sizeof(*rseq_info));
 
 	return ret;
 }

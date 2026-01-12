@@ -22,6 +22,7 @@
 #include "core-cpu-cache.h"
 #include "core-madvise.h"
 #include "core-memory.h"
+#include "core-mmap.h"
 #include "core-numa.h"
 #include "core-out-of-memory.h"
 #include "core-target-clones.h"
@@ -2123,8 +2124,7 @@ static int stress_mmaprandom(stress_args_t *args)
 	char filename[PATH_MAX];
 	int rc = EXIT_SUCCESS;
 
-	ctxt = (mr_ctxt_t *)mmap(NULL, sizeof(*ctxt), PROT_READ | PROT_WRITE,
-		MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+	ctxt = (mr_ctxt_t *)stress_mmap_anon_shared(sizeof(*ctxt), PROT_READ | PROT_WRITE);
 	if (ctxt == MAP_FAILED) {
 		pr_inf_skip("%s: skipping stressor, cannot mmap context buffer, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
@@ -2152,8 +2152,7 @@ static int stress_mmaprandom(stress_args_t *args)
 #endif
 	}
 
-	ctxt->page = (uint8_t *)mmap(NULL, args->page_size, PROT_READ | PROT_WRITE,
-		MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+	ctxt->page = (uint8_t *)stress_mmap_anon_shared(args->page_size, PROT_READ | PROT_WRITE);
 	if (ctxt->page == MAP_FAILED) {
 		pr_inf_skip("%s: skipping stressor, cannot mmap page buffer, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
@@ -2162,8 +2161,7 @@ static int stress_mmaprandom(stress_args_t *args)
 	}
 	stress_set_vma_anon_name(ctxt->page, args->page_size, "io-page");
 
-	ctxt->count = (double *)mmap(NULL, count_size, PROT_READ | PROT_WRITE,
-		MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+	ctxt->count = (double *)stress_mmap_anon_shared(count_size, PROT_READ | PROT_WRITE);
 	if (ctxt->count == MAP_FAILED) {
 		pr_inf_skip("%s: skipping stressor, cannot mmap metrics, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
@@ -2204,8 +2202,7 @@ static int stress_mmaprandom(stress_args_t *args)
 	ctxt->fds[FD_FILE].mode = O_RDONLY;
 
 	mr_nodes_size = ctxt->n_mr_nodes * sizeof(*ctxt->mr_nodes);
-	ctxt->mr_nodes = (mr_node_t *)mmap(NULL, mr_nodes_size, PROT_READ | PROT_WRITE,
-		MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+	ctxt->mr_nodes = (mr_node_t *)stress_mmap_anon_shared(mr_nodes_size, PROT_READ | PROT_WRITE);
 	if (ctxt->mr_nodes == MAP_FAILED) {
 		pr_inf_skip("%s: skipping stressor, cannot mmap %zu page structures\n",
 			args->name, ctxt->n_mr_nodes);
@@ -2250,17 +2247,17 @@ static int stress_mmaprandom(stress_args_t *args)
 		stress_metrics_set(args, i, buf, rate, STRESS_METRIC_HARMONIC_MEAN);
 	}
 
-	(void)munmap((void *)ctxt->mr_nodes, mr_nodes_size);
+	(void)stress_munmap_anon_shared((void *)ctxt->mr_nodes, mr_nodes_size);
 tidy_fds:
 	for (i = 0; i < MAX_FDS; i++) {
 		if (ctxt->fds[i].fd != -1)
 			(void)close(ctxt->fds[i].fd);
 	}
-	(void)munmap((void *)ctxt->count, count_size);
+	(void)stress_munmap_anon_shared((void *)ctxt->count, count_size);
 tidy_dir:
 	(void)stress_temp_dir_rm_args(args);
 unmap_ctxt_page:
-	(void)munmap((void *)ctxt->page, args->page_size);
+	(void)stress_munmap_anon_shared((void *)ctxt->page, args->page_size);
 unmap_ctxt:
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 	if (ctxt->numa_mask)
@@ -2268,7 +2265,7 @@ unmap_ctxt:
 	if (ctxt->numa_nodes)
 		stress_numa_mask_free(ctxt->numa_nodes);
 #endif
-	(void)munmap((void *)ctxt, sizeof(*ctxt));
+	(void)stress_munmap_anon_shared((void *)ctxt, sizeof(*ctxt));
 
 	return rc;
 }

@@ -237,10 +237,8 @@ static int stress_mmapfiles(stress_args_t *args)
 	int ret;
 	double metric;
 
-	mmapfile_info = (stress_mmapfile_info_t *)stress_mmap_populate(NULL, sizeof(*mmapfile_info),
-				PROT_READ | PROT_WRITE,
-				MAP_SHARED | MAP_ANONYMOUS,
-				-1, 0);
+	mmapfile_info = (stress_mmapfile_info_t *)stress_mmap_anon_shared(sizeof(*mmapfile_info),
+				PROT_READ | PROT_WRITE);
 	if (mmapfile_info == MAP_FAILED) {
 		pr_inf("%s: cannot mmap %zu byte mmap file information%s, "
 			"errno=%d (%s), skipping stressor\n",
@@ -302,7 +300,7 @@ static int stress_mmapfiles(stress_args_t *args)
 	if (mmapfile_info->numa_nodes)
 		stress_numa_mask_free(mmapfile_info->numa_nodes);
 #endif
-	(void)munmap((void *)mmapfile_info, sizeof(*mmapfile_info));
+	(void)stress_munmap_anon_shared((void *)mmapfile_info, sizeof(*mmapfile_info));
 
 	return ret;
 }

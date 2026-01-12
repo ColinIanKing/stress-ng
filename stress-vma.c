@@ -834,9 +834,7 @@ static int stress_vma(stress_args_t *args)
 	}
 
 	stress_vma_metrics = (stress_vma_metrics_t *)
-		stress_mmap_populate(NULL, sizeof(*stress_vma_metrics),
-			PROT_READ | PROT_WRITE,
-			MAP_ANONYMOUS | MAP_SHARED, -1, 0);
+		stress_mmap_anon_shared(sizeof(*stress_vma_metrics), PROT_READ | PROT_WRITE);
 	if (stress_vma_metrics == MAP_FAILED) {
 		pr_inf_skip("%s: cannot mmap vma shared statistics data, errno=%d (%s), skipping stressor\n",
 			args->name, errno, strerror(errno));
@@ -863,7 +861,7 @@ static int stress_vma(stress_args_t *args)
 			rate, STRESS_METRIC_HARMONIC_MEAN);
 	}
 
-	(void)munmap((void *)stress_vma_metrics, sizeof(*stress_vma_metrics));
+	(void)stress_munmap_anon_shared((void *)stress_vma_metrics, sizeof(*stress_vma_metrics));
 	(void)munmap(stress_vma_page, args->page_size);
 
 	return ret;

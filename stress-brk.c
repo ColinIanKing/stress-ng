@@ -301,9 +301,7 @@ static int stress_brk(stress_args_t *args)
 	int rc;
 	double rate;
 
-	brk_context = (brk_context_t *)stress_mmap_populate(NULL, sizeof(*brk_context),
-						PROT_READ | PROT_WRITE,
-						MAP_ANONYMOUS | MAP_SHARED, -1, 0);
+	brk_context = (brk_context_t *)stress_mmap_anon_shared(sizeof(*brk_context), PROT_READ | PROT_WRITE);
 	if (brk_context == MAP_FAILED) {
 		pr_inf_skip("%s: cannot mmap brk context region%s, errno=%d (%s), skipping stressor\n",
 			args->name, stress_get_memfree_str(),
@@ -350,7 +348,7 @@ static int stress_brk(stress_args_t *args)
 	stress_metrics_set(args, 1, "nanosecs per sbrk page shrink",
 		rate * STRESS_DBL_NANOSECOND, STRESS_METRIC_HARMONIC_MEAN);
 
-	(void)munmap((void *)brk_context, sizeof(*brk_context));
+	(void)stress_munmap_anon_shared((void *)brk_context, sizeof(*brk_context));
 
 	return rc;
 }

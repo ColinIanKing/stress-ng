@@ -1096,8 +1096,7 @@ static int stress_memrate(stress_args_t *args)
 	stats_size = memrate_items * sizeof(*context.stats);
 	stats_size = (stats_size + args->page_size - 1) & ~(args->page_size - 1);
 
-	context.stats = (stress_memrate_stats_t *)stress_mmap_populate(NULL, stats_size,
-		PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+	context.stats = (stress_memrate_stats_t *)stress_mmap_anon_shared(stats_size, PROT_READ | PROT_WRITE);
 	if (context.stats == MAP_FAILED) {
 		pr_inf_skip("%s: failed to mmap %zu byte statistics buffer%s, "
 			"errno=%d (%s), skipping stressor\n",
@@ -1189,7 +1188,7 @@ static int stress_memrate(stress_args_t *args)
 	}
 	pr_block_end();
 
-	(void)munmap((void *)context.stats, stats_size);
+	(void)stress_munmap_anon_shared((void *)context.stats, stats_size);
 
 	return rc;
 }

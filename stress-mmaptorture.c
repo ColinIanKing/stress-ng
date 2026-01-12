@@ -864,9 +864,8 @@ static int stress_mmaptorture(stress_args_t *args)
 	int ret;
 	double t_start, duration, rate;
 
-	mmap_stats = (mmap_stats_t *)stress_mmap_populate(NULL, sizeof(*mmap_stats),
-					PROT_READ | PROT_WRITE,
-					MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+	mmap_stats = (mmap_stats_t *)stress_mmap_anon_shared(sizeof(*mmap_stats),
+					PROT_READ | PROT_WRITE);
 	if (mmap_stats == MAP_FAILED) {
 		pr_inf_skip("%s: cannot mmap %zu bytes stats shared page%s, "
 			"errno=%d (%s), skipping stressor\n", args->name,
@@ -905,7 +904,7 @@ static int stress_mmaptorture(stress_args_t *args)
 	rate = (duration > 0.0) ? (double)mmap_stats->sigsegv_traps / duration : 0.0;
 	stress_metrics_set(args, 8, "intentional SIGSEGV signals per sec", rate, STRESS_METRIC_HARMONIC_MEAN);
 
-	(void)munmap((void *)mmap_stats, sizeof(*mmap_stats));
+	(void)stress_munmap_anon_shared((void *)mmap_stats, sizeof(*mmap_stats));
 
 	return ret;
 }
