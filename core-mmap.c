@@ -540,3 +540,50 @@ void OPTIMIZE3 stress_mmap_populate_reverse(
 		}
 	}
 }
+
+/*
+ *  stress_mmap_discontiguous()
+ *  	attempt to break up mapping into various page sized
+ *	discontiguous physical pages
+ */
+void OPTIMIZE3 stress_mmap_discontiguous(void *addr, const size_t len)
+{
+#if defined(MADV_DONTNEED)
+	size_t i;
+	static const size_t page_sizes[] = {
+		1 * 1024 * 1024 * 1024,
+		16 * 1024 * 1024,
+		2 * 1024 * 1024,
+		256 * 1024,
+		64 * 1024,
+		8192,
+		4096,
+	};
+
+	for (i = 0; i < SIZEOF_ARRAY(page_sizes); i++) {
+		const size_t page_size = page_sizes[i];
+		register const size_t page_2_skip = page_size << 1;
+		register uint8_t *ptr = (uint8_t *)addr;
+		register const uint8_t *ptr_end = ptr + len;
+
+		if (len < page_size)
+			continue;
+#if defined(MADV_NOHUGEPAGE)
+		(void)madvise(addr, len, MADV_NOHUGEPAGE);
+#endif
+#if defined(MADV_UNMERGEABLE)
+		(void)madvise(addr, len, MADV_UNMERGEABLE);
+#endif
+		if (madvise(addr, len, MADV_DONTNEED) < 0)
+			return;
+
+		while (ptr < ptr_end) {
+			*(volatile uint8_t *)ptr;
+			ptr += page_2_skip;
+		}
+	}
+#else
+	(void)addr;
+	(void)len;
+#endif
+}

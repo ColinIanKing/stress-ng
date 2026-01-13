@@ -55,6 +55,7 @@ extern WARN_UNUSED int stress_mmap_stats(void *addr, const size_t length, stress
 extern void stress_mmap_stats_sum(stress_mmap_stats_t *stats_total, const stress_mmap_stats_t *stats);
 extern void stress_mmap_stats_report(stress_args_t *args, const stress_mmap_stats_t *stats,
 	int *metric_index, const int flags);
+extern void stress_mmap_discontiguous(void *addr, const size_t len);
 extern void stress_mmap_populate_forward(void *addr, const size_t len, const int prot);
 extern void stress_mmap_populate_reverse(void *addr, const size_t len, const int prot);
 
