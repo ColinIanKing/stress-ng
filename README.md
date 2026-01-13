@@ -598,6 +598,9 @@ stress-ng has found various Kernel, QEMU bugs/regressions, and libc bugs; approp
 * [FreeBSD 15.0-RELEASE: system hangs when performing stress-ng utime stress tests](https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=291683)
 * [sparc64 emulation crashes with opcode lduba [ %g5 + %l6 ] (146), %l6](https://gitlab.com/qemu-project/qemu/-/issues/3249)
 
+2026:
+ * [swapfile activation bug causes data corruption when swapfile < 2MB with fragmented extents](https://bugzilla.kernel.org/show_bug.cgi?id=220951)
+
 ## Kernel improvements that used stress-ng
 
 2020:
