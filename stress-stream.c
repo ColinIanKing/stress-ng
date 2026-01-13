@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2016-2021 Canonical, Ltd.
  * Copyright (C) 2022-2026 Colin Ian King.
+ * Copyright (C) 2026      NVIDIA.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -56,6 +57,7 @@ typedef struct {
 
 static const stress_help_t help[] = {
 	{ NULL,	"stream N",		"start N workers exercising memory bandwidth" },
+	{ NULL, "stream-discontiguous", "make mmap'd physical pages discontiguous" },
 	{ NULL,	"stream-index N",	"specify number of indices into the data (0..3)" },
 	{ NULL,	"stream-l3-size N",	"specify the L3 cache size of the CPU" },
 	{ NULL,	"stream-madvise M",	"specify mmap'd stream buffer madvise advice" },
@@ -1172,6 +1174,7 @@ static int stress_stream(stress_args_t *args)
 	uint64_t stream_L3_size = DEFAULT_STREAM_L3_SIZE;
 	uint32_t init_counter, init_counter_max;
 	bool guess = false;
+	bool stream_discontiguous = false;
 	bool stream_mlock = false;
 	bool stream_prefetch = false;
 #if defined(HAVE_NT_STORE_DOUBLE)
@@ -1184,6 +1187,7 @@ static int stress_stream(stress_args_t *args)
 
 	stress_catch_sigill();
 
+	(void)stress_get_setting("stream-discontiguous", &stream_discontiguous);
 	(void)stress_get_setting("stream-mlock", &stream_mlock);
 	(void)stress_get_setting("stream-prefetch", &stream_prefetch);
 
@@ -1285,6 +1289,12 @@ case_stream_index_1:
 	stress_sync_start_wait(args);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
+	if (stream_discontiguous) {
+		stress_mmap_discontiguous(a, sz);
+		stress_mmap_discontiguous(b, sz);
+		stress_mmap_discontiguous(c, sz);
+	}
+
 	rc = EXIT_SUCCESS;
 	dt = 0.0;
 	do {
@@ -1349,11 +1359,12 @@ static const char *stress_stream_madvise(const size_t i)
 }
 
 static const stress_opt_t opts[] = {
-	{ OPT_stream_index,    "stream-index",    TYPE_ID_UINT32, 0, 3, NULL },
-	{ OPT_stream_l3_size,  "stream-l3-size",  TYPE_ID_UINT64_BYTES_VM, MIN_STREAM_L3_SIZE, MAX_STREAM_L3_SIZE, NULL },
-	{ OPT_stream_madvise,  "stream-madvise",  TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_stream_madvise },
-	{ OPT_stream_mlock,    "stream-mlock",    TYPE_ID_BOOL, 0, 1, NULL },
-	{ OPT_stream_prefetch, "stream-prefetch", TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_stream_discontiguous, "stream-discontiguous", TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_stream_index,         "stream-index",         TYPE_ID_UINT32, 0, 3, NULL },
+	{ OPT_stream_l3_size,       "stream-l3-size",       TYPE_ID_UINT64_BYTES_VM, MIN_STREAM_L3_SIZE, MAX_STREAM_L3_SIZE, NULL },
+	{ OPT_stream_madvise,       "stream-madvise",       TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_stream_madvise },
+	{ OPT_stream_mlock,         "stream-mlock",         TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_stream_prefetch,      "stream-prefetch",      TYPE_ID_BOOL, 0, 1, NULL },
 	END_OPT,
 };
 

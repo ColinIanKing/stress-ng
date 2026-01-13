@@ -8503,6 +8503,10 @@ read/write/compute rates because of loop overheads and the use of volatile
 pointers to ensure the compiler does not optimize out stores.
 .RE
 .TP
+.B \-\-stream\-discontiguous
+attempt to make mmap'd physical pages discontiguous by forcing pages to
+pages to be in 'randomly' mixed physical page locations.
+.TP
 .B \-\-stream\-index N
 specify number of stream indices used to index into the data arrays a, b and
 c.  This adds indirection into the data lookup by using randomly shuffled
@@ -9654,6 +9658,10 @@ available.
 mmap N bytes in total, this is shared by each vm worker, the default is 256 MB.
 One can specify the size as % of total available memory or in units of Bytes,
 KBytes, MBytes and GBytes using the suffix b, k, m or g.
+.TP
+.B \-\-vm\-discontiguous
+attempt to make mmap'd physical pages discontiguous by forcing pages to
+pages to be in 'randomly' mixed physical page locations.
 .TP
 .B \-\-vm\-flush
 cache flush mapped memory after each memory region has been completely

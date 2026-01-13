@@ -1550,6 +1550,7 @@ typedef enum {
 	OPT_str_method,
 
 	OPT_stream,
+	OPT_stream_discontiguous,
 	OPT_stream_index,
 	OPT_stream_l3_size,
 	OPT_stream_madvise,
@@ -1751,6 +1752,7 @@ typedef enum {
 	OPT_vforkmany_vm_bytes,
 
 	OPT_vm_bytes,
+	OPT_vm_discontiguous,
 	OPT_vm_flush,
 	OPT_vm_hang,
 	OPT_vm_keep,

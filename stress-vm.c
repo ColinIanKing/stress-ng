@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2013-2021 Canonical, Ltd.
  * Copyright (C) 2022-2026 Colin Ian King.
+ * Copyright (C) 2026      NVIDIA.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -97,24 +98,24 @@ typedef struct {
 	uint64_t munmap_count;
 
 	bool vm_numa;
-
 } stress_vm_context_t;
 
 static const stress_help_t help[] = {
-	{ "m N", "vm N",	 "start N workers spinning on anonymous mmap" },
-	{ NULL,	 "vm-bytes N",	 "allocate N bytes per vm worker (default 256MB)" },
-	{ NULL,  "vm-flush",	 "cache flush data after write" },
-	{ NULL,	 "vm-hang N",	 "sleep N seconds before freeing memory" },
-	{ NULL,	 "vm-keep",	 "redirty memory instead of reallocating" },
+	{ "m N", "vm N",             "start N workers spinning on anonymous mmap" },
+	{ NULL,	 "vm-bytes N",       "allocate N bytes per vm worker (default 256MB)" },
+	{ NULL,  "vm-discontiguous", "make mmap'd physical pages discontiguous" },
+	{ NULL,  "vm-flush",         "cache flush data after write" },
+	{ NULL,	 "vm-hang N",        "sleep N seconds before freeing memory" },
+	{ NULL,	 "vm-keep",          "redirty memory instead of reallocating" },
 #if defined(MAP_LOCKED)
-	{ NULL,	 "vm-locked",	 "lock the pages of the mapped region into memory" },
+	{ NULL,	 "vm-locked",        "lock the pages of the mapped region into memory" },
 #endif
-	{ NULL,	 "vm-madvise M", "specify mmap'd vm buffer madvise advice" },
-	{ NULL,	 "vm-method M",	 "specify stress vm method M, default is all" },
-	{ NULL,	 "vm-numa",	 "bind memory mappings to randomly selected NUMA nodes" },
-	{ NULL,	 "vm-ops N",	 "stop after N vm bogo operations" },
-	{ NULL,	 "vm-populate",	 "populate (prefault) page tables for a mapping" },
-	{ NULL,	 NULL,		 NULL }
+	{ NULL,	 "vm-madvise M",     "specify mmap'd vm buffer madvise advice" },
+	{ NULL,	 "vm-method M",	     "specify stress vm method M, default is all" },
+	{ NULL,	 "vm-numa",          "bind memory mappings to randomly selected NUMA nodes" },
+	{ NULL,	 "vm-ops N",         "stop after N vm bogo operations" },
+	{ NULL,	 "vm-populate",      "populate (prefault) page tables for a mapping" },
+	{ NULL,	 NULL,               NULL }
 };
 
 static const stress_vm_madvise_info_t vm_madvise_info[] = {
@@ -3550,6 +3551,7 @@ static int stress_vm_child(stress_args_t *args, void *ctxt)
 	size_t vm_madvise = 0;
 	int advice = -1;
 	int rc = EXIT_SUCCESS;
+	bool vm_discontiguous = false;
 	bool vm_keep = false;
 	bool vm_populate = false;
 	bool vm_locked = false;
@@ -3557,6 +3559,7 @@ static int stress_vm_child(stress_args_t *args, void *ctxt)
 
 	stress_catch_sigill();
 
+	(void)stress_get_setting("vm-discontiguous", &vm_discontiguous);
 	(void)stress_get_setting("vm-flush", &vm_flush);
 	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
 		vm_flush = true;
@@ -3672,7 +3675,10 @@ static int stress_vm_child(stress_args_t *args, void *ctxt)
 		}
 
 		no_mem_retries = 0;
-		(void)stress_mincore_touch_pages(buf, buf_sz);
+		if (vm_discontiguous)
+			stress_mmap_discontiguous(buf, buf_sz);
+		else
+			(void)stress_mincore_touch_pages(buf, buf_sz);
 		*(context->bit_error_count) += func(buf, buf_end, buf_sz, args, max_ops);
 
 		if (vm_hang == 0) {
@@ -3937,15 +3943,16 @@ static const char *stress_vm_method(const size_t i)
 }
 
 static const stress_opt_t opts[] = {
-	{ OPT_vm_bytes,    "vm-bytes",    TYPE_ID_SIZE_T_BYTES_VM, MIN_VM_BYTES, MAX_VM_BYTES, NULL },
-	{ OPT_vm_flush,	   "vm-flush",	  TYPE_ID_BOOL, 0, 1, NULL },
-	{ OPT_vm_hang,     "vm-hang",     TYPE_ID_UINT64, MIN_VM_HANG, MAX_VM_HANG, NULL },
-	{ OPT_vm_keep,     "vm-keep",     TYPE_ID_BOOL, 0, 1, NULL },
-	{ OPT_vm_locked,   "vm-locked",   TYPE_ID_BOOL, 0, 1, NULL },
-	{ OPT_vm_madvise,  "vm-madvise",  TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_vm_madvise },
-	{ OPT_vm_method,   "vm-method",   TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_vm_method },
-	{ OPT_vm_numa,	   "vm-numa",	  TYPE_ID_BOOL, 0, 1, NULL },
-	{ OPT_vm_populate, "vm-populate", TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_vm_bytes,    	"vm-bytes",         TYPE_ID_SIZE_T_BYTES_VM, MIN_VM_BYTES, MAX_VM_BYTES, NULL },
+	{ OPT_vm_discontiguous, "vm-discontiguous", TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_vm_flush,	   	"vm-flush",	    TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_vm_hang,     	"vm-hang",          TYPE_ID_UINT64, MIN_VM_HANG, MAX_VM_HANG, NULL },
+	{ OPT_vm_keep,     	"vm-keep",          TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_vm_locked,   	"vm-locked",        TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_vm_madvise,  	"vm-madvise",       TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_vm_madvise },
+	{ OPT_vm_method,   	"vm-method",        TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_vm_method },
+	{ OPT_vm_numa,	   	"vm-numa",	    TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_vm_populate, 	"vm-populate",      TYPE_ID_BOOL, 0, 1, NULL },
 	END_OPT,
 };
 
