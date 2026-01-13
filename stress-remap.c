@@ -144,6 +144,7 @@ static int OPTIMIZE3 remap_order(
 static int stress_remap(stress_args_t *args)
 {
 	stress_mapdata_t *data;
+	stress_mmap_stats_t stats;
 	size_t *order;
 	size_t remap_pages = DEFAULT_REMAP_PAGES;
 	uint8_t *unmapped, *mapped;
@@ -153,6 +154,7 @@ static int stress_remap(stress_args_t *args)
 	double duration = 0.0, count = 0.0, rate = 0.0;
 	bool remap_mlock = false;
 	int rc = EXIT_SUCCESS;
+	int metric;
 
 	(void)stress_get_setting("remap-mlock", &remap_mlock);
 	if (!stress_get_setting("remap-pages", &remap_pages)) {
@@ -325,9 +327,19 @@ PRAGMA_UNROLL_N(4)
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
+	metric = 0;
 	rate = (count > 0.0) ? duration / count : 0.0;
-	stress_metrics_set(args, 0, "nanosecs per page remap",
+	stress_metrics_set(args, metric++, "nanosecs per page remap",
 		rate * 1000000000, STRESS_METRIC_HARMONIC_MEAN);
+
+	stress_mmap_stats_clear(&stats);
+	if (stress_mmap_stats(data, data_size, &stats) == 0) {
+		stress_mmap_stats_report(args, &stats, &metric,
+			STRESS_MMAP_REPORT_FLAGS_TOTAL |
+			STRESS_MMAP_REPORT_FLAGS_SWAPPED |
+			STRESS_MMAP_REPORT_FLAGS_DIRTIED |
+			STRESS_MMAP_REPORT_FLAGS_CONTIGUOUS);
+	}
 
 	(void)munmap((void *)order, order_size);
 	(void)munmap((void *)data, data_size);
