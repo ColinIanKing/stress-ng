@@ -31,6 +31,8 @@
 #include <time.h>
 #include <math.h>
 
+#undef HAVE_SIGLONGJMP
+
 #define MR_RD			(0x0001)
 #define MR_WR			(0x0002)
 #define MR_RW			(MR_RD | MR_WR)
@@ -43,14 +45,15 @@
 #define STRESS_PTR_MINIMUM(a, b)	STRESS_MINIMUM((uintptr_t)a, (uintptr_t)b)
 
 static const stress_help_t help[] = {
-	{ NULL,	"memrate N",		"start N workers exercised memory read/writes" },
-	{ NULL,	"memrate-bytes N",	"size of memory buffer being exercised" },
-	{ NULL,	"memrate-flush",	"flush cache before each iteration" },
-	{ NULL, "memrate-method M",	"specify read/write memory exercising method" },
-	{ NULL,	"memrate-ops N",	"stop after N memrate bogo operations" },
-	{ NULL,	"memrate-rd-mbs N",	"read rate from buffer in megabytes per second" },
-	{ NULL,	"memrate-wr-mbs N",	"write rate to buffer in megabytes per second" },
-	{ NULL,	NULL,			NULL }
+	{ NULL,	"memrate N",             "start N workers exercised memory read/writes" },
+	{ NULL,	"memrate-bytes N",       "size of memory buffer being exercised" },
+	{ NULL, "memrate-discontiguous", "make mmap'd physical pages discontiguous" },
+	{ NULL,	"memrate-flush",         "flush cache before each iteration" },
+	{ NULL, "memrate-method M",      "specify read/write memory exercising method" },
+	{ NULL,	"memrate-ops N",         "stop after N memrate bogo operations" },
+	{ NULL,	"memrate-rd-mbs N",      "read rate from buffer in megabytes per second" },
+	{ NULL,	"memrate-wr-mbs N",      "write rate to buffer in megabytes per second" },
+	{ NULL,	NULL,                    NULL }
 };
 
 #if defined(HAVE_VECMATH)
@@ -72,13 +75,15 @@ typedef struct {
 } stress_memrate_stats_t;
 
 typedef struct {
-	stress_memrate_stats_t *stats;
+	stress_memrate_stats_t *memrate_stats;
+	stress_mmap_stats_t mmap_stats;
 	uint64_t memrate_bytes;
 	uint64_t memrate_rd_mbs;
 	uint64_t memrate_wr_mbs;
 	size_t memrate_method;
 	void *start;
 	void *end;
+	bool memrate_discontiguous;
 	bool memrate_flush;
 } stress_memrate_context_t;
 
@@ -1002,15 +1007,16 @@ static void stress_memrate_dispatch_method(
 		stress_memrate_flush(context);
 	t1 = stress_time_now();
 	kbytes = stress_memrate_dispatch(info, context, &valid);
-	context->stats[method].kbytes += (double)kbytes;
+	context->memrate_stats[method].kbytes += (double)kbytes;
 	t2 = stress_time_now();
-	context->stats[method].duration += (t2 - t1);
-	context->stats[method].valid = valid;
+	context->memrate_stats[method].duration += (t2 - t1);
+	context->memrate_stats[method].valid = valid;
 }
 
 static int stress_memrate_child(stress_args_t *args, void *ctxt)
 {
 	stress_memrate_context_t *context = (stress_memrate_context_t *)ctxt;
+	stress_mmap_stats_t mmap_stats;
 	void *buffer, *buffer_end;
 
 	stress_catch_sigill();
@@ -1024,6 +1030,9 @@ static int stress_memrate_child(stress_args_t *args, void *ctxt)
 	buffer_end = (uint8_t *)buffer + context->memrate_bytes;
 	stress_memrate_init_data(buffer, buffer_end);
 
+	if (context->memrate_discontiguous)
+		stress_mmap_discontiguous(buffer, context->memrate_bytes);
+
 	context->start = buffer;
 	context->end = buffer_end;
 
@@ -1033,6 +1042,8 @@ static int stress_memrate_child(stress_args_t *args, void *ctxt)
 	if (stress_sighandler(args->name, SIGALRM, stress_memrate_alarm_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 #endif
+
+	stress_mmap_stats_clear(&mmap_stats);
 
 	do {
 		if (context->memrate_method == 0) {
@@ -1049,6 +1060,11 @@ static int stress_memrate_child(stress_args_t *args, void *ctxt)
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
 
+	if (stress_mmap_stats(buffer, context->memrate_bytes, &mmap_stats) == 0) {
+		stress_mmap_stats_sum(&context->mmap_stats, &mmap_stats);
+	}
+
+
 #if defined(HAVE_SIGLONGJMP)
 tidy:
 	do_jmp = false;
@@ -1063,60 +1079,73 @@ tidy:
  */
 static int stress_memrate(stress_args_t *args)
 {
-	int rc, flag;
-	size_t i, stats_size;
-	stress_memrate_context_t context;
+	int rc, flag, metric;
+	size_t i, memrate_stats_size;
+	stress_memrate_context_t *context;
 	double inverse_n, geomean, rd_mantissa, rd_n, wr_mantissa, wr_n;
 	int64_t rd_exponent, wr_exponent;
 
-	context.memrate_bytes = DEFAULT_MEMRATE_BYTES;
-	context.memrate_rd_mbs = ~0ULL;
-	context.memrate_wr_mbs = ~0ULL;
-	context.memrate_flush = false;
-	context.memrate_method = 0; 	/* all */
-
-	(void)stress_get_setting("memrate-bytes", &context.memrate_bytes);
-	(void)stress_get_setting("memrate-flush", &context.memrate_flush);
-	(void)stress_get_setting("memrate-rd-mbs", &context.memrate_rd_mbs);
-	(void)stress_get_setting("memrate-wr-mbs", &context.memrate_wr_mbs);
-	(void)stress_get_setting("memrate-method", &context.memrate_method);
-
-	if ((context.memrate_rd_mbs == 0ULL) && (context.memrate_wr_mbs == 0ULL)) {
-		pr_fail("%s: cannot use zero MB rates for read and write\n", args->name);
-		return EXIT_FAILURE;
-	}
-	flag = ((context.memrate_rd_mbs == 0) ? 0 : MR_RD) |
-	       ((context.memrate_wr_mbs == 0) ? 0 : MR_WR);
-	if ((flag & memrate_info[context.memrate_method].rdwr) == 0) {
-		pr_fail("%s: cannot use zero MB rate and just method %s\n",
-			args->name, memrate_info[context.memrate_method].name);
-		return EXIT_FAILURE;
-	}
-
-	stats_size = memrate_items * sizeof(*context.stats);
-	stats_size = (stats_size + args->page_size - 1) & ~(args->page_size - 1);
-
-	context.stats = (stress_memrate_stats_t *)stress_mmap_anon_shared(stats_size, PROT_READ | PROT_WRITE);
-	if (context.stats == MAP_FAILED) {
-		pr_inf_skip("%s: failed to mmap %zu byte statistics buffer%s, "
+	context = (stress_memrate_context_t *)stress_mmap_anon_shared(sizeof(*context), PROT_READ | PROT_WRITE);
+	if (context == MAP_FAILED) {
+		pr_inf_skip("%s: failed to mmap %zu byte context, "
 			"errno=%d (%s), skipping stressor\n",
-			args->name, stats_size, stress_get_memfree_str(),
-			errno, strerror(errno));
+			args->name, sizeof(*context), errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
-	for (i = 0; i < memrate_items; i++) {
-		context.stats[i].duration = 0.0;
-		context.stats[i].kbytes = 0.0;
-		context.stats[i].valid = false;
+
+	context->memrate_bytes = DEFAULT_MEMRATE_BYTES;
+	context->memrate_discontiguous = false;
+	context->memrate_rd_mbs = ~0ULL;
+	context->memrate_wr_mbs = ~0ULL;
+	context->memrate_flush = false;
+	context->memrate_method = 0; 	/* all */
+
+	(void)stress_get_setting("memrate-bytes", &context->memrate_bytes);
+	(void)stress_get_setting("memrate-discontiguous", &context->memrate_discontiguous);
+	(void)stress_get_setting("memrate-flush", &context->memrate_flush);
+	(void)stress_get_setting("memrate-rd-mbs", &context->memrate_rd_mbs);
+	(void)stress_get_setting("memrate-wr-mbs", &context->memrate_wr_mbs);
+	(void)stress_get_setting("memrate-method", &context->memrate_method);
+
+	if ((context->memrate_rd_mbs == 0ULL) && (context->memrate_wr_mbs == 0ULL)) {
+		pr_fail("%s: cannot use zero MB rates for read and write\n", args->name);
+		rc = EXIT_FAILURE;
+		goto unmap_context;
+	}
+	flag = ((context->memrate_rd_mbs == 0) ? 0 : MR_RD) |
+	       ((context->memrate_wr_mbs == 0) ? 0 : MR_WR);
+	if ((flag & memrate_info[context->memrate_method].rdwr) == 0) {
+		pr_fail("%s: cannot use zero MB rate and just method %s\n",
+			args->name, memrate_info[context->memrate_method].name);
+		rc = EXIT_FAILURE;
+		goto unmap_context;
 	}
 
-	context.memrate_bytes = (context.memrate_bytes + 1023) & ~(1023ULL);
+	memrate_stats_size = memrate_items * sizeof(*context->memrate_stats);
+	memrate_stats_size = (memrate_stats_size + args->page_size - 1) & ~(args->page_size - 1);
+
+	context->memrate_stats = (stress_memrate_stats_t *)stress_mmap_anon_shared(memrate_stats_size, PROT_READ | PROT_WRITE);
+	if (context->memrate_stats == MAP_FAILED) {
+		pr_inf_skip("%s: failed to mmap %zu byte statistics buffer%s, "
+			"errno=%d (%s), skipping stressor\n",
+			args->name, memrate_stats_size, stress_get_memfree_str(),
+			errno, strerror(errno));
+		rc = EXIT_NO_RESOURCE;
+		goto unmap_context;
+	}
+	for (i = 0; i < memrate_items; i++) {
+		context->memrate_stats[i].duration = 0.0;
+		context->memrate_stats[i].kbytes = 0.0;
+		context->memrate_stats[i].valid = false;
+	}
+
+	context->memrate_bytes = (context->memrate_bytes + 1023) & ~(1023ULL);
 	if (stress_instance_zero(args)) {
-		stress_usage_bytes(args, context.memrate_bytes, context.memrate_bytes);
+		stress_usage_bytes(args, context->memrate_bytes, context->memrate_bytes);
 		pr_inf("%s: cache flushing %s\n", args->name,
-			context.memrate_flush ? "enabled" :
+			context->memrate_flush ? "enabled" :
 			"disabled, cache flushing can be enabled with --memrate-flush option");
-		if ((context.memrate_bytes > MB) && (context.memrate_bytes & MB))
+		if ((context->memrate_bytes > MB) && (context->memrate_bytes & MB))
 			pr_inf("%s: for optimal speed, use multiples of 1 MB for --memrate-bytes\n", args->name);
 	}
 
@@ -1124,7 +1153,7 @@ static int stress_memrate(stress_args_t *args)
 	stress_sync_start_wait(args);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
-	rc = stress_oomable_child(args, &context, stress_memrate_child, STRESS_OOMABLE_NORMAL);
+	rc = stress_oomable_child(args, context, stress_memrate_child, STRESS_OOMABLE_NORMAL);
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
@@ -1134,13 +1163,14 @@ static int stress_memrate(stress_args_t *args)
 	wr_mantissa = 1.0;
 	wr_exponent = 0;
 	wr_n = 0.0;
+	metric = 0;
 
 	for (i = 1; i < memrate_items; i++) {
-		if (!context.stats[i].valid)
+		if (!context->memrate_stats[i].valid)
 			continue;
-		if (context.stats[i].duration > 0.0) {
+		if (context->memrate_stats[i].duration > 0.0) {
 			char tmp[32];
-			const double rate = context.stats[i].kbytes / (context.stats[i].duration * KB);
+			const double rate = context->memrate_stats[i].kbytes / (context->memrate_stats[i].duration * KB);
 			int e;
 			double f;
 
@@ -1162,7 +1192,7 @@ static int stress_memrate(stress_args_t *args)
 			}
 
 			(void)snprintf(tmp, sizeof(tmp), "%s MB per sec", memrate_info[i].name);
-			stress_metrics_set(args, i, tmp,
+			stress_metrics_set(args, metric++, tmp,
 				rate, STRESS_METRIC_HARMONIC_MEAN);
 
 		} else {
@@ -1188,7 +1218,14 @@ static int stress_memrate(stress_args_t *args)
 	}
 	pr_block_end();
 
-	(void)stress_munmap_anon_shared((void *)context.stats, stats_size);
+	stress_mmap_stats_report(args, &context->mmap_stats, &metric,
+			STRESS_MMAP_REPORT_FLAGS_TOTAL |
+			STRESS_MMAP_REPORT_FLAGS_SWAPPED |
+			STRESS_MMAP_REPORT_FLAGS_CONTIGUOUS);
+
+	(void)stress_munmap_anon_shared((void *)context->memrate_stats, memrate_stats_size);
+unmap_context:
+	(void)stress_munmap_anon_shared((void *)context, sizeof(*context));
 
 	return rc;
 }
@@ -1200,11 +1237,12 @@ static const char *stress_memmap_method(const size_t i)
 
 
 static const stress_opt_t opts[] = {
-	{ OPT_memrate_bytes,  "memrate-bytes",  TYPE_ID_UINT64_BYTES_VM, MIN_MEMRATE_BYTES, MAX_MEMRATE_BYTES, NULL },
-	{ OPT_memrate_flush,  "memrate-flush",  TYPE_ID_BOOL, 0, 1, NULL },
-	{ OPT_memrate_rd_mbs, "memrate-rd-mbs", TYPE_ID_UINT64, 0, 1000000, NULL },
-	{ OPT_memrate_wr_mbs, "memrate-wr-mbs", TYPE_ID_UINT64, 0, 1000000, NULL },
-	{ OPT_memrate_method, "memrate-method", TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_memmap_method },
+	{ OPT_memrate_bytes,         "memrate-bytes",  TYPE_ID_UINT64_BYTES_VM, MIN_MEMRATE_BYTES, MAX_MEMRATE_BYTES, NULL },
+	{ OPT_memrate_discontiguous, "memrate-discontiguous", TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_memrate_flush,         "memrate-flush",  TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_memrate_rd_mbs,        "memrate-rd-mbs", TYPE_ID_UINT64, 0, 1000000, NULL },
+	{ OPT_memrate_wr_mbs,        "memrate-wr-mbs", TYPE_ID_UINT64, 0, 1000000, NULL },
+	{ OPT_memrate_method,        "memrate-method", TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_memmap_method },
 	END_OPT,
 };
 

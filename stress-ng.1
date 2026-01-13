@@ -5078,6 +5078,10 @@ is 256 MB. One can specify the size in units of Bytes, KBytes, MBytes and
 GBytes using the suffix b, k, m or g, or cache sizes with L1, L2, L3 or
 LLC (lower level cache size).
 .TP
+.B \-\-memrate\-discontiguous
+attempt to make mmap'd physical pages discontiguous by forcing pages to
+pages to be in 'randomly' mixed physical page locations.
+.TP
 .B \-\-memrate\-flush
 flush cache between each memory exercising test to remove caching benefits in
 memory rate metrics.
