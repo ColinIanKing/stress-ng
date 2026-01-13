@@ -59,4 +59,9 @@ extern void stress_mmap_discontiguous(void *addr, const size_t len);
 extern void stress_mmap_populate_forward(void *addr, const size_t len, const int prot);
 extern void stress_mmap_populate_reverse(void *addr, const size_t len, const int prot);
 
+static inline void stress_mmap_stats_clear(stress_mmap_stats_t *stats)
+{
+	(void)memset(stats, 0, sizeof(*stats));
+}
+
 #endif
