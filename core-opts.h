@@ -313,6 +313,8 @@ typedef enum {
 	OPT_close,
 	OPT_close_ops,
 
+	OPT_compact_memory,
+
 	OPT_context,
 	OPT_context_ops,
 

@@ -143,6 +143,7 @@ const struct option stress_long_options[] = {
 	{ "clone-ops",		1,	0,	OPT_clone_ops },
 	{ "close",		1,	0,	OPT_close },
 	{ "close-ops",		1,	0,	OPT_close_ops },
+	{ "compact-memory",	0,	0,	OPT_compact_memory },
 	{ "config",		0,	0,	OPT_config },
 	{ "context",		1,	0,	OPT_context },
 	{ "context-ops",	1,	0,	OPT_context_ops },

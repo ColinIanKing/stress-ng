@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "31 December 2025"
+.TH STRESS-NG 1 "14 January 2025"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -120,6 +120,10 @@ the \-\-sequential option.
 
 Specifying a name followed by an escaped question mark (for example \-\-class vm\\?) will
 print out all the stressors in that specific class.
+.TP
+.B \-\-compact\-memory
+compact memory at the start of each stressor invocation to reduce memory
+fragmentation, requires root capability (Linux only).
 .TP
 .B \-\-config
 print out the configuration used to build stress\-ng.

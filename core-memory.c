@@ -652,3 +652,43 @@ int stress_get_pid_memory_usage(
 	return -1;
 #endif
 }
+
+/*
+ *  stress_compact_memory()
+ *	attempt to compact kernel memory allocator
+ */
+void stress_compact_memory(void)
+{
+	static bool compact_skip = false;
+	bool compact_memory = false;
+#if defined(__linux__)
+	static const char path[] = "/proc/sys/vm/compact_memory";
+	ssize_t ret;
+
+	if (compact_skip)
+		return;
+
+	(void)stress_get_setting("compact-memory", &compact_memory);
+
+	if (!compact_memory)
+		return;
+	ret = stress_system_write(path, "1", 1);
+	if (ret < 0) {
+		if (!compact_skip) {
+			int err = (int)-ret;
+
+			pr_inf("failed to compact memory, errno=%d (%s), "
+			       "disabling option --compact-memory\n",
+				err, strerror(err));
+			compact_skip = true;
+		}
+	}
+#else
+	stress_get_setting("compact-memory", &compact_memory);
+	if (compact_memory && !compact_skip) {
+		pr_inf("cannot compact memory on this system, "
+		       "disabling option --compact-memory\n");
+		compact_skip = true;
+	}
+#endif
+}

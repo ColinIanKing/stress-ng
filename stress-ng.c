@@ -1798,6 +1798,9 @@ static void MLOCKED_TEXT stress_run(
 again:
 			if (!stress_continue_flag())
 				break;
+
+			stress_compact_memory();
+
 			fork_time_start = stress_time_now();
 			pid = fork();
 			switch (pid) {
@@ -3197,6 +3200,7 @@ int stress_parse_opts(int argc, char **argv, const bool jobmode)
 		uint32_t u32;
 		uint64_t u64, max_fds;
 		int16_t i16;
+		bool b;
 		int c, option_index, ret;
 		size_t i;
 
@@ -3298,6 +3302,10 @@ next_opt:
 				stress_set_setting_global("class", TYPE_ID_UINT32, &u32);
 				stress_enable_classes(u32);
 			}
+			break;
+		case OPT_compact_memory:
+			b = true;
+			stress_set_setting_global("compact-memory", TYPE_ID_BOOL, &b);
 			break;
 		case OPT_config:
 			printf("config:\n%s", stress_config);
