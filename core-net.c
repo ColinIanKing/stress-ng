@@ -395,7 +395,7 @@ int stress_net_reserve_ports(
 	if (LIKELY(start_port == end_port)) {
 		int yield_count = 0;
 
-		if (UNLIKELY(stress_lock_acquire(g_shared->net_port_map.lock) < 0))
+		if (UNLIKELY(stress_lock_acquire_relax(g_shared->net_port_map.lock) < 0))
 			return -1;
 		/* most cases just request one port */
 		for (i = start_port; i < 65536; i++) {
@@ -411,7 +411,7 @@ int stress_net_reserve_ports(
 				yield_count = 0;
 				(void)stress_lock_release(g_shared->net_port_map.lock);
 				(void)shim_sched_yield();
-				if (UNLIKELY(stress_lock_acquire(g_shared->net_port_map.lock) < 0))
+				if (UNLIKELY(stress_lock_acquire_relax(g_shared->net_port_map.lock) < 0))
 					return -1;
 			}
 		}
@@ -420,7 +420,7 @@ int stress_net_reserve_ports(
 		int j = 0;
 		int yield_count = 0;
 
-		if (UNLIKELY(stress_lock_acquire(g_shared->net_port_map.lock) < 0))
+		if (UNLIKELY(stress_lock_acquire_relax(g_shared->net_port_map.lock) < 0))
 			return -1;
 		/* otherwise scan for contiguous port range */
 		for (i = start_port; i < 65536; i++) {
@@ -440,7 +440,7 @@ int stress_net_reserve_ports(
 				yield_count = 0;
 				(void)stress_lock_release(g_shared->net_port_map.lock);
 				(void)shim_sched_yield();
-				if (UNLIKELY(stress_lock_acquire(g_shared->net_port_map.lock) < 0))
+				if (UNLIKELY(stress_lock_acquire_relax(g_shared->net_port_map.lock) < 0))
 					return -1;
 			}
 		}
