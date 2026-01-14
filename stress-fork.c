@@ -402,7 +402,7 @@ static int stress_fork_fn(
 					}
 					if (n_advice) {
 						stress_madvise_pid_all_pages(getpid(), advice, n_advice);
-						stress_pagein_self(args->name);
+						stress_thrash_pagein_self(args->name);
 					}
 				}
 

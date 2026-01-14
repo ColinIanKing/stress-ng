@@ -49,10 +49,10 @@ static void MLOCKED_TEXT stress_thrash_handler(int signum)
 }
 
 /*
- *  stress_pagein_handler()
+ *  stress_thrash_pagein_handler()
  *	jmp back to stress_pagein_self on signal
  */
-static void MLOCKED_TEXT stress_pagein_handler(int signum)
+static void MLOCKED_TEXT stress_thrash_pagein_handler(int signum)
 {
 	(void)signum;
 
@@ -72,10 +72,10 @@ static void stress_thrash_state(const char *state)
 }
 
 /*
- *  stress_pagein_self()
+ *  stress_thrash_pagein_self()
  *	force pages into memory for current process
  */
-int stress_pagein_self(const char *name)
+int stress_thrash_pagein_self(const char *name)
 {
 	char buffer[4096];
 	int rc = 0, ret;
@@ -85,8 +85,8 @@ int stress_pagein_self(const char *name)
 
 	jmp_env_set = false;
 
-	VOID_RET(int, stress_sighandler(name, SIGBUS, stress_pagein_handler, &bus_action));
-	VOID_RET(int, stress_sighandler(name, SIGSEGV, stress_pagein_handler, &segv_action));
+	VOID_RET(int, stress_sighandler(name, SIGBUS, stress_thrash_pagein_handler, &bus_action));
+	VOID_RET(int, stress_sighandler(name, SIGSEGV, stress_thrash_pagein_handler, &segv_action));
 
 	ret = sigsetjmp(jmp_env, 1);
 	if (ret == 1)
@@ -253,10 +253,10 @@ static void stress_file_read(const char *filename)
 #endif
 
 /*
- *  stress_sys_memory()
+ *  stress_thrash_sys_memory()
  *	stress sys files that are memory related
  */
-static inline void stress_sys_memory(void)
+static inline void stress_thrash_sys_memory(void)
 {
 #if defined(__linux__)
 	static const char * const sys_files[] = {
@@ -273,10 +273,10 @@ static inline void stress_sys_memory(void)
 }
 
 /*
- *  stress_proc_memory()
+ *  stress_thrash_proc_memory()
  *	stress proc files that are memory related
  */
-static inline void stress_proc_memory(void)
+static inline void stress_thrash_proc_memory(void)
 {
 #if defined(__linux__)
 	static const char * const proc_files[] = {
@@ -332,10 +332,10 @@ static inline void stress_proc_memory(void)
 }
 
 /*
- *  stress_compact_memory()
+ *  stress_thrash_compact_memory()
  *	trigger memory compaction, Linux only
  */
-static inline void stress_compact_memory(void)
+static inline void stress_thrash_compact_memory(void)
 {
 #if defined(__linux__)
 	if (!thrash_run)
@@ -347,10 +347,10 @@ static inline void stress_compact_memory(void)
 }
 
 /*
- *  stress_zone_reclaim()
+ *  stress_thrash_zone_reclaim()
  *	trigger reclaim when zones run out of memory
  */
-static inline void stress_zone_reclaim(void)
+static inline void stress_thrash_zone_reclaim(void)
 {
 #if defined(__linux__)
 	char mode[2];
@@ -367,10 +367,10 @@ static inline void stress_zone_reclaim(void)
 }
 
 /*
- *  stress_kmemleak_scan()
+ *  stress_thrash_kmemleak_scan()
  *	trigger kernel memory leak scan
  */
-static inline void stress_kmemleak_scan(void)
+static inline void stress_thrash_kmemleak_scan(void)
 {
 #if defined(__linux__)
 	if (!thrash_run)
@@ -382,10 +382,10 @@ static inline void stress_kmemleak_scan(void)
 }
 
 /*
- *  stress_slab_shrink()
+ *  stress_thrash_slab_shrink()
  *	shrink slabs to help release some memory
  */
-static inline void stress_slab_shrink(void)
+static inline void stress_thrash_slab_shrink(void)
 {
 	DIR *dir;
 	const struct dirent *d;
@@ -416,10 +416,10 @@ static inline void stress_slab_shrink(void)
 }
 
 /*
- *  stress_drop_caches()
+ *  stress_thrash_drop_caches()
  *	drop caches
  */
-static inline void stress_drop_caches(void)
+static inline void stress_thrash_drop_caches(void)
 {
 #if defined(__linux__)
 	static int method = 0;
@@ -436,10 +436,10 @@ static inline void stress_drop_caches(void)
 }
 
 /*
- *  stress_merge_memory()
+ *  stress_thrash_merge_memory()
  *	trigger ksm memory merging, Linux only
  */
-static inline void stress_merge_memory(void)
+static inline void stress_thrash_merge_memory(void)
 {
 #if defined(__linux__)
 	if (!thrash_run)
@@ -451,10 +451,10 @@ static inline void stress_merge_memory(void)
 }
 
 /*
- *  stress_pagein_all_procs()
+ *  stress_thrash_pagein_all_procs()
  *	force pages into memory for all processes
  */
-static int stress_pagein_all_procs(void)
+static int stress_thrash_pagein_all_procs(void)
 {
 	DIR *dp;
 	const struct dirent *d;
@@ -597,23 +597,23 @@ int stress_thrash_start(void)
 #endif
 		while (thrash_run) {
 			if ((stress_mwc8() & 0x3) == 0) {
-				stress_slab_shrink();
-				stress_pagein_all_procs();
+				stress_thrash_slab_shrink();
+				stress_thrash_pagein_all_procs();
 			}
 			if ((stress_mwc8() & 0x7) == 0) {
-				stress_drop_caches();
+				stress_thrash_drop_caches();
 			}
-			stress_compact_memory();
+			stress_thrash_compact_memory();
 
-			stress_merge_memory();
+			stress_thrash_merge_memory();
 
-			stress_zone_reclaim();
+			stress_thrash_zone_reclaim();
 
-			stress_kmemleak_scan();
+			stress_thrash_kmemleak_scan();
 
-			stress_proc_memory();
+			stress_thrash_proc_memory();
 
-			stress_sys_memory();
+			stress_thrash_sys_memory();
 
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 			stress_thrash_move_pages(numa_nodes);
@@ -670,7 +670,7 @@ void stress_thrash_stop(void)
 {
 }
 
-int CONST stress_pagein_self(const char *name)
+int CONST stress_thrash_pagein_self(const char *name)
 {
 	(void)name;
 
