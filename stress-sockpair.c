@@ -301,6 +301,13 @@ abort:
 						break;
 					if ((errno == EAGAIN) || (errno == EINTR))
 						continue;
+					if (errno == ECONNRESET) {
+						pr_fail("%s: write failed, errno=%d (%s), "
+							"server process may be killed due to low memory, "
+							"maybe try using --oom-avoid\n",
+							args->name, errno, strerror(errno));
+						break;
+					}
 					if (errno) {
 						pr_fail("%s: write failed, errno=%d (%s)\n",
 							args->name, errno, strerror(errno));
