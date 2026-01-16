@@ -218,10 +218,21 @@
 
 #define SHIM_QCMD(cmd, type)	QCMD(((uint32_t)(cmd)), (type))
 
+#define STRESS_SYSCALL_RANK_NAME	(0)
+#define STRESS_SYSCALL_RANK_AVG		(1)
+#define STRESS_SYSCALL_RANK_MIN		(2)
+#define STRESS_SYSCALL_RANK_MAX		(3)
+
 typedef struct {
 	const char *opt;	/* method option string */
 	const int method;	/* SYSCALL_METHOD_* value */
 } syscall_method_t;
+
+typedef struct {
+	const char *opt;	/* rank option string */
+	const int rank;		/* rank type */
+	int (*cmp)(const void *p1, const void *p2);
+} syscall_rank_t;
 
 typedef int (*syscall_func_t)(void);
 
@@ -252,6 +263,7 @@ typedef struct {
  *  system call statistics for each exercised system call
  */
 typedef struct {
+	const char *name;		/* name of system call */
 	uint64_t count;			/* # times called */
 	double total_duration;		/* syscall duration in ns */
 	double average_duration;	/* average syscall duration */
@@ -557,6 +569,7 @@ static const stress_help_t help[] = {
 	{ NULL,	"syscall N",		"start N workers that exercise a wide range of system calls" },
 	{ NULL,	"syscall-method M",	"select method of selecting system calls to exercise" },
 	{ NULL,	"syscall-ops N",	"stop after N syscall bogo operations" },
+	{ NULL, "syscall-rank R",	"select ranking of system call stats [ name | average | min | max ]"} ,
 	{ NULL,	"syscall-top N",	"display fastest top N system calls" },
 	{ NULL,	NULL,			NULL }
 };
@@ -571,6 +584,18 @@ static const syscall_method_t syscall_methods[] = {
 	{ "geomean1",	SYSCALL_METHOD_GEOMEAN1 },
 	{ "geomean2",	SYSCALL_METHOD_GEOMEAN2 },
 	{ "geomean3",	SYSCALL_METHOD_GEOMEAN3 },
+};
+
+static int cmp_syscall_name(const void *p1, const void *p2);
+static int cmp_syscall_average(const void *p1, const void *p2);
+static int cmp_syscall_min(const void *p1, const void *p2);
+static int cmp_syscall_max(const void *p1, const void *p2);
+
+static const syscall_rank_t syscall_ranks[] = {
+	{ "name",	STRESS_SYSCALL_RANK_NAME, cmp_syscall_name },
+	{ "average",	STRESS_SYSCALL_RANK_AVG, cmp_syscall_average },
+	{ "min",	STRESS_SYSCALL_RANK_MIN, cmp_syscall_min },
+	{ "max",	STRESS_SYSCALL_RANK_MAX, cmp_syscall_max },
 };
 
 #if defined(HAVE_SYS_UN_H) &&	\
@@ -8570,24 +8595,64 @@ static void stress_syscall_rank_calls_by_geomean(const double scale)
 	}
 }
 
-static inline int cmp_syscall_time(const void *p1, const void *p2)
+/*
+ *  Rank top results by syscall name
+ */
+static int cmp_syscall_name(const void *p1, const void *p2)
 {
-	register const size_t i1 = *(const size_t *)p1;
-	register const size_t i2 = *(const size_t *)p2;
+	const size_t i1 = *(const size_t *)p1;
+	const size_t i2 = *(const size_t *)p2;
+
+	return strcmp(syscall_stats[i1].name, syscall_stats[i2].name) >= 0;
+}
+
+/*
+ *  Rank top results by average duration
+ */
+static int cmp_syscall_average(const void *p1, const void *p2)
+{
+	const size_t i1 = *(const size_t *)p1;
+	const size_t i2 = *(const size_t *)p2;
 
 	return syscall_stats[i1].average_duration > syscall_stats[i2].average_duration;
 }
 
 /*
- *  stress_syscall_report_syscall_top10()
- *	report the top 10 fastest system calls sorted by average syscall
+ *  Rank top results by minumum duration
+ */
+static int cmp_syscall_min(const void *p1, const void *p2)
+{
+	const size_t i1 = *(const size_t *)p1;
+	const size_t i2 = *(const size_t *)p2;
+
+	return syscall_stats[i1].min_duration > syscall_stats[i2].min_duration;
+}
+
+/*
+ *  Rank top results by maximum duration
+ */
+static int cmp_syscall_max(const void *p1, const void *p2)
+{
+	const size_t i1 = *(const size_t *)p1;
+	const size_t i2 = *(const size_t *)p2;
+
+	return syscall_stats[i1].max_duration > syscall_stats[i2].max_duration;
+}
+
+/*
+ *  stress_syscall_report_syscall_top()
+ *	report the top fastest system calls sorted by average syscall
  *	duration in nanoseconds.
  */
-static void stress_syscall_report_syscall_top10(stress_args_t *args)
+static void stress_syscall_report_syscall_top(stress_args_t *args)
 {
-	size_t i, n, sort_index[STRESS_SYSCALLS_MAX], syscall_top = 10;
+	size_t i, n, sort_index[STRESS_SYSCALLS_MAX];
+	size_t syscall_top = 10, syscall_rank = 1;
 
 	(void)stress_get_setting("syscall-top", &syscall_top);
+	(void)stress_get_setting("syscall-rank", &syscall_rank);
+
+	pr_inf("%zd %p\n", syscall_rank, syscall_ranks[syscall_rank].cmp);
 
 	for (n = 0, i = 0; (i < STRESS_SYSCALLS_MAX); i++) {
 		if (syscall_stats[i].succeed)
@@ -8607,14 +8672,19 @@ static void stress_syscall_report_syscall_top10(stress_args_t *args)
 			ss->average_duration = SYSCALL_DAY_NS;
 		}
 	}
-	syscall_shellsort_size_t(sort_index, STRESS_SYSCALLS_MAX, cmp_syscall_time);
+
+	/* Sort by average top */
+	if (syscall_top < STRESS_SYSCALLS_MAX)
+		syscall_shellsort_size_t(sort_index, STRESS_SYSCALLS_MAX, cmp_syscall_average);
+	/* Rank the top results by rank type */
+	syscall_shellsort_size_t(sort_index, syscall_top, syscall_ranks[syscall_rank].cmp);
 
 	pr_block_begin();
 	pr_inf("%s: Top %zu fastest system calls (timings in nanosecs):\n",
 		args->name, syscall_top);
 	pr_inf("%s: %25s %10s %10s %10s\n", args->name,
 		"System Call", "Avg (ns)", "Min (ns)", "Max (ns)");
-	for (i = 0; i < syscall_top; i++) {
+	for (n = 0, i = 0; n < syscall_top; i++) {
 		const size_t j = sort_index[i];
 		syscall_stats_t *ss = &syscall_stats[j];
 
@@ -8625,6 +8695,7 @@ static void stress_syscall_report_syscall_top10(stress_args_t *args)
 				ss->total_duration / (double)ss->count,
 				ss->min_duration,
 				ss->max_duration);
+			n++;
 		}
 	}
 	pr_block_end();
@@ -8874,6 +8945,7 @@ static int stress_syscall(stress_args_t *args)
 	for (i = 0; i < STRESS_SYSCALLS_MAX; i++) {
 		syscall_stats_t *ss = &syscall_stats[i];
 
+		ss->name = syscalls[i].name;
 		ss->total_duration = 0.0;
 		ss->count = 0ULL;
 		ss->min_duration = ~0ULL;
@@ -8922,7 +8994,7 @@ static int stress_syscall(stress_args_t *args)
 		pr_inf("%s: %zu system call tests, %zu (%.1f%%) fastest non-failing tests fully exercised\n",
 			args->name, STRESS_SYSCALLS_MAX, exercised,
 			(double)exercised * 100.0 / (double)STRESS_SYSCALLS_MAX);
-		stress_syscall_report_syscall_top10(args);
+		stress_syscall_report_syscall_top(args);
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
@@ -8955,8 +9027,14 @@ static const char *stress_syscall_method(const size_t i)
 	return (i < SIZEOF_ARRAY(syscall_methods)) ? syscall_methods[i].opt : NULL;
 }
 
+static const char *stress_syscall_rank(const size_t i)
+{
+	return (i < SIZEOF_ARRAY(syscall_ranks)) ? syscall_ranks[i].opt : NULL;
+}
+
 static const stress_opt_t opts[] = {
 	{ OPT_syscall_method, "syscall-method", TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_syscall_method },
+	{ OPT_syscall_rank,   "syscall-rank",   TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_syscall_rank },
 	{ OPT_syscall_top,    "syscall-top",    TYPE_ID_SIZE_T, 0, 1000, NULL },
 	END_OPT,
 };

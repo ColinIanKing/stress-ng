@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "14 January 2025"
+.TH STRESS-NG 1 "16 January 2025"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -8706,6 +8706,10 @@ select tests that are less or equal to 3 \(mu the
 geometric mean of all the test times
 T}
 .TE
+.TP
+.B \-\-syscall\-rank [ name | average | min | max ]
+select ranking of top fastest system calls, ranked by system call name,
+average duration, minimum duration or maximum duration.
 .TP
 .B \-\-syscall\-ops N
 stop after N system calls

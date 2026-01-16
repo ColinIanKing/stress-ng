@@ -1586,6 +1586,7 @@ typedef enum {
 	OPT_syscall,
 	OPT_syscall_method,
 	OPT_syscall_ops,
+	OPT_syscall_rank,
 	OPT_syscall_top,
 
 	OPT_sysinfo,

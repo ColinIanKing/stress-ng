@@ -1128,6 +1128,7 @@ const struct option stress_long_options[] = {
 	{ "syscall",		1,	0,	OPT_syscall },
 	{ "syscall-method",	1,	0,	OPT_syscall_method },
 	{ "syscall-ops",	1,	0,	OPT_syscall_ops },
+	{ "syscall-rank",	1,	0,	OPT_syscall_rank },
 	{ "syscall-top",	1,	0,	OPT_syscall_top },
 	{ "sysfs",		1,	0,	OPT_sysfs },
 	{ "sysfs-ops",		1,	0,	OPT_sysfs_ops },
