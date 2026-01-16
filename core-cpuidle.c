@@ -294,6 +294,7 @@ void stress_cpuidle_dump(FILE *yaml, stress_stressor_t *stressors_list)
 		size_t i;
 		int32_t j;
 		double residencies[STRESS_CSTATES_MAX];
+		bool overflow[STRESS_CSTATES_MAX];
 		cpu_cstate_t *cc;
 		double c0_residency = 100.0;
 		bool valid = false;
@@ -313,6 +314,12 @@ void stress_cpuidle_dump(FILE *yaml, stress_stressor_t *stressors_list)
 			}
 			residencies[i] = (duration_us > 0) ?
 					100.0 * residency_us / (1000000.0 * duration_us) : 0.0;
+			if (residencies[i] > 100.0) {
+				residencies[i] = 100.0;
+				overflow[i] = true;
+			} else {
+				overflow[i] = false;
+			}
 			c0_residency -= residencies[i];
 		}
 		/* and zero residuals to be safe */
@@ -324,9 +331,11 @@ void stress_cpuidle_dump(FILE *yaml, stress_stressor_t *stressors_list)
 			pr_yaml(yaml, "    - stressor: %s\n", ss->stressor->name);
 
 			for (i = 0, cc = cpu_cstate_list; (i < STRESS_CSTATES_MAX) && cc; i++, cc = cc->next) {
+				const char *const notes = overflow[i] ? " (inaccurate)" : "";
+
 				if (strcmp(cc->cstate, busy_state) == 0)
 					residencies[i] = c0_residency;
-				pr_inf(" %-5.5s %6.2f%%\n", cc->cstate, residencies[i]);
+				pr_inf(" %-5.5s %6.2f%%%s\n", cc->cstate, residencies[i], notes);
 				pr_yaml(yaml, "      %s: %.2f\n", cc->cstate, residencies[i]);
 			}
 			pr_yaml(yaml, "\n");
