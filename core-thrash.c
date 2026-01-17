@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-attribute.h"
 #include "core-killpid.h"
+#include "core-mmap.h"
 #include "core-numa.h"
 #include "core-thrash.h"
 
@@ -30,6 +31,23 @@
     defined(HAVE_PTRACE)
 
 #define KSM_RUN_MERGE		"1"
+#define MAX_PROC_MAPS	(512)
+
+#define STRESS_PROC_MAP_READ		(0x0001)
+#define STRESS_PROC_MAP_WRITE		(0x0002)
+#define STRESS_PROC_MAP_EXEC		(0x0004)
+#define STRESS_PROC_MAP_PRIVATE		(0x0008)
+#define STRESS_PROC_MAP_SHARED		(0x0010)
+#define STRESS_PROC_MAP_ANON		(0x0020)
+#define STRESS_PROC_MAP_ANON_PRIVATE	(STRESS_PROC_MAP_ANON | \
+					 STRESS_PROC_MAP_PRIVATE)
+
+typedef struct {
+	uintmax_t 	begin;	/* mmap beginning */
+	uintmax_t	end;	/* mmap end */
+	uintmax_t	len;	/* mmap size */
+	int		flags;	/* mmap flags */
+} stress_proc_maps_t;
 
 static pid_t thrash_pid;
 static pid_t parent_pid;
@@ -72,37 +90,34 @@ static void stress_thrash_state(const char *state)
 }
 
 /*
- *  stress_thrash_pagein_self()
- *	force pages into memory for current process
+ *  stress_thrash_read_proc_maps()
+ *  	read up to max_maps worth of proc_map mapping info
  */
-int stress_thrash_pagein_self(const char *name)
+static size_t stress_thrash_read_proc_maps(
+	const pid_t pid,
+	stress_proc_maps_t *proc_maps,
+	size_t max_maps)
 {
+	FILE *fp;
+	size_t n = 0;
 	char buffer[4096];
-	int rc = 0, ret;
-	NOCLOBBER FILE *fpmap = NULL;
 	const size_t page_size = stress_get_page_size();
-	struct sigaction bus_action, segv_action;
+	const uintmax_t end_max = (~(uintmax_t)0) - (page_size - 1);
 
-	jmp_env_set = false;
+	if (pid == (pid_t)-1) {
+		fp = fopen("/proc/self/maps", "r");
+	} else {
+		(void)snprintf(buffer, sizeof(buffer), "/proc/%" PRIdMAX "/maps", (intmax_t)pid);
+		fp = fopen(buffer, "r");
+	}
+	if (!fp)
+		return 0;
 
-	VOID_RET(int, stress_sighandler(name, SIGBUS, stress_thrash_pagein_handler, &bus_action));
-	VOID_RET(int, stress_sighandler(name, SIGSEGV, stress_thrash_pagein_handler, &segv_action));
-
-	ret = sigsetjmp(jmp_env, 1);
-	if (ret == 1)
-		goto err;
-
-	fpmap = fopen("/proc/self/maps", "r");
-	if (!fpmap)
-		return -errno;
-
-	stress_thrash_state("pagein");
 	/*
 	 * Look for field 0060b000-0060c000 r--p 0000b000 08:01 1901726
 	 */
-	while (fgets(buffer, sizeof(buffer), fpmap)) {
+	while (fgets(buffer, sizeof(buffer), fp)) {
 		uintmax_t begin, end, len;
-		uintptr_t off;
 		char tmppath[1024];
 		char prot[6];
 
@@ -114,9 +129,10 @@ int stress_thrash_pagein_self(const char *name)
 		if (strncmp("[v", tmppath, 2) == 0)
 			continue;
 
-		/* ignore non-readable mappings */
-		if (prot[0] != 'r')
+		/* Ensure end look sane */
+		if (end > end_max)
 			continue;
+
 		len = end - begin;
 
 		/* Ignore bad range */
@@ -126,25 +142,73 @@ int stress_thrash_pagein_self(const char *name)
 		if (len > 0x80000000UL)
 			continue;
 
-		for (off = begin; off < end; off += page_size) {
+		proc_maps[n].begin = begin;
+		proc_maps[n].end = end;
+		proc_maps[n].len = len;
+		proc_maps[n].flags =
+			((prot[0] == 'r') ? STRESS_PROC_MAP_READ : 0) |
+			((prot[1] == 'w') ? STRESS_PROC_MAP_WRITE : 0) |
+			((prot[2] == 'x') ? STRESS_PROC_MAP_EXEC : 0) |
+			((prot[3] == 'p') ? STRESS_PROC_MAP_PRIVATE : 0) |
+			((prot[3] == 's') ? STRESS_PROC_MAP_SHARED : 0) |
+			((*tmppath == '\0') ? STRESS_PROC_MAP_ANON : 0);
+		n++;
+		if (n >= max_maps)
+			break;
+	}
+	(void)fclose(fp);
+
+	return n;
+}
+
+/*
+ *  stress_thrash_pagein_self()
+ *	force pages into memory for current process
+ */
+static void stress_thrash_pagein_self(
+	const stress_proc_maps_t *proc_maps,
+	const size_t n_maps)
+{
+	int ret;
+	const size_t page_size = stress_get_page_size();
+	struct sigaction bus_action, segv_action;
+	size_t i;
+	static const char name[] = "core-thrash";
+
+	jmp_env_set = false;
+
+	VOID_RET(int, stress_sighandler(name, SIGBUS, stress_thrash_pagein_handler, &bus_action));
+	VOID_RET(int, stress_sighandler(name, SIGSEGV, stress_thrash_pagein_handler, &segv_action));
+
+	ret = sigsetjmp(jmp_env, 1);
+	if (ret == 1)
+		goto err;
+
+	stress_thrash_state("pagein");
+
+	for (i = 0; thrash_run && (i < n_maps); i++) {
+		bool writeable;
+		uintmax_t off;
+
+		/* ignore non-readable mappings */
+		if (!(proc_maps[i].flags & STRESS_PROC_MAP_READ))
+			continue;
+		/* ignore non-writeable mappings */
+		writeable = !!(proc_maps[i].flags & STRESS_PROC_MAP_WRITE);
+
+		for (off = proc_maps[i].begin; thrash_run && (off < proc_maps[i].end); off += page_size) {
 			volatile uint8_t *ptr = (uint8_t *)off;
 			const uint8_t value = *ptr;
 
-			if (prot[1] == 'w')
+			if (writeable)
 				*ptr = value;
 		}
 	}
-
 err:
-	if (fpmap)
-		(void)fclose(fpmap);
-
 	jmp_env_set = false;
 	/* Restore action */
 	(void)sigaction(SIGBUS, &bus_action, NULL);
 	(void)sigaction(SIGSEGV, &segv_action, NULL);
-
-	return rc;
 }
 
 /*
@@ -154,9 +218,9 @@ err:
 static int stress_pagein_proc(const pid_t pid)
 {
 	char path[PATH_MAX];
-	char buffer[4096];
+	stress_proc_maps_t proc_maps[MAX_PROC_MAPS];
 	int fdmem, rc = 0;
-	FILE *fpmap;
+	size_t i, n_maps;
 	const size_t page_size = stress_get_page_size();
 
 	if ((pid == parent_pid) || (pid == getpid()))
@@ -167,66 +231,39 @@ static int stress_pagein_proc(const pid_t pid)
 	if (fdmem < 0)
 		return -errno;
 
-	(void)snprintf(path, sizeof(path), "/proc/%" PRIdMAX "/maps", (intmax_t)pid);
-	fpmap = fopen(path, "r");
-	if (!fpmap) {
-		rc = -errno;
-		goto exit_fdmem;
-	}
+	n_maps = stress_thrash_read_proc_maps(pid, proc_maps, SIZEOF_ARRAY(proc_maps));
 
 	/*
 	 * Look for field 0060b000-0060c000 r--p 0000b000 08:01 1901726
 	 */
-	while (thrash_run && fgets(buffer, sizeof(buffer), fpmap)) {
-		off_t off, begin, end, len;
-		char tmppath[1024];
-		char prot[6];
+	for (i = 0; thrash_run && (i < n_maps); i++) {
+		uintmax_t off, end;
+		const uintmax_t max_off = ((uintmax_t)~(off_t)0) - (page_size - 1);
 
-		/* portable off_t and scanf is a pain */
-		if ((sizeof(off_t) < 4) || (sizeof(off_t) > 8))
+		/* ignore non-readable mappings */
+		if (!(proc_maps[i].flags & STRESS_PROC_MAP_READ))
 			continue;
-		else if (sizeof(off_t) == 4) {
-			uint32_t begin32, end32;
-
-			if (sscanf(buffer, "%" SCNx32 "-%" SCNx32 " %5s %*x %*x:%*x %*d %1023s", &begin32, &end32, prot, tmppath) != 4)
-				continue;
-			begin = (off_t)begin32;
-			end = (off_t)end32;
-		} else if (sizeof(off_t) <= 8) {
-			uint64_t begin64, end64;
-
-			if (sscanf(buffer, "%" SCNx64 "-%" SCNx64 " %5s %*x %*x:%*x %*d %1023s", &begin64, &end64, prot, tmppath) != 4)
-				continue;
-			begin = (off_t)begin64;
-			end = (off_t)end64;
-		}
-
-		/* ignore non-readable and non-private mappings */
-		if ((prot[0] != 'r') && (prot[3] != 'p'))
+		/* ignore non-private mappings */
+		if (!(proc_maps[i].flags & STRESS_PROC_MAP_PRIVATE))
 			continue;
 
-		/* Ignore bad range */
-		if ((begin >= end) || (begin == 0))
-			continue;
+		end = proc_maps[i].end;
+		if (end >= max_off)
+			end = max_off;
 
-		len = end - begin;
-		/* Skip huge ranges more than 2GB */
-		if (len > (off_t)0x80000000UL)
-			continue;
-
-		for (off = begin; thrash_run && (off < end); off += page_size) {
+		for (off = proc_maps[i].begin; thrash_run && (off < end); off += page_size) {
 			unsigned long int data;
-			off_t pos;
+			off_t ret, pos;
 
-			pos = lseek(fdmem, off, SEEK_SET);
-			if (pos != off)
+			pos = (off_t)off;
+
+			ret = lseek(fdmem, pos, SEEK_SET);
+			if (ret != pos)
 				continue;
 			VOID_RET(ssize_t, read(fdmem, &data, sizeof(data)));
 		}
 	}
 
-	(void)fclose(fpmap);
-exit_fdmem:
 	(void)close(fdmem);
 
 	return rc;
@@ -318,7 +355,7 @@ static inline void stress_thrash_proc_memory(void)
 		if (!isdigit((unsigned char)d->d_name[0]))
 			continue;
 
-		for (i = 0; i < SIZEOF_ARRAY(proc_pid_files); i++) {
+		for (i = 0; thrash_run && (i < SIZEOF_ARRAY(proc_pid_files)); i++) {
 			char filename[PATH_MAX];
 
 			(void)snprintf(filename, sizeof(filename),
@@ -487,50 +524,26 @@ static int stress_thrash_pagein_all_procs(void)
 }
 
 #if defined(HAVE_LINUX_MEMPOLICY_H)
-static void stress_thrash_move_pages(stress_numa_mask_t *numa_nodes)
+static void stress_thrash_move_pages(
+	const stress_proc_maps_t *proc_maps,
+	const size_t n_maps,
+	stress_numa_mask_t *numa_nodes)
 {
-	char buffer[4096];
-	NOCLOBBER FILE *fpmap = NULL;
 	const size_t page_size = stress_get_page_size();
 	long int node = 0;
-	uint16_t i;
-
-	fpmap = fopen("/proc/self/maps", "r");
-	if (!fpmap)
-		return;
+	size_t i;
+	uint16_t j;
 
 	/* start on a random node */
-	for (i = 0; i < stress_mwc16modn((uint16_t)numa_nodes->nodes); i++)
+	for (j = 0; j < stress_mwc16modn((uint16_t)numa_nodes->nodes); j++)
 		node = stress_numa_next_node(node, numa_nodes);
 
 	stress_thrash_state("movepages");
-	/*
-	 * Look for field 0060b000-0060c000 r--p 0000b000 08:01 1901726
-	 */
-	while (fgets(buffer, sizeof(buffer), fpmap)) {
-		uintmax_t begin, end, len;
+
+	for (i = 0; thrash_run && (i < n_maps); i++) {
 		uintptr_t off;
-		char tmppath[1024];
-		char prot[6];
 
-		if (sscanf(buffer, "%" SCNx64 "-%" SCNx64
-		           " %5s %*x %*x:%*x %*d %1023s", &begin, &end, prot, tmppath) != 4)
-			continue;
-
-		/* Avoid VDSO etc.. */
-		if (strncmp("[v", tmppath, 2) == 0)
-			continue;
-
-		len = end - begin;
-
-		/* Ignore bad range */
-		if ((begin >= end) || (len == 0) || (begin == 0))
-			continue;
-		/* Skip huge ranges more than 2GB */
-		if (len > 0x80000000UL)
-			continue;
-
-		for (off = begin; off < end; off += page_size) {
+		for (off = proc_maps[i].begin; thrash_run && (off < proc_maps[i].end); off += page_size) {
 			void *pages[1];
 			int nodes[1];
 			int states[1];
@@ -544,15 +557,43 @@ static void stress_thrash_move_pages(stress_numa_mask_t *numa_nodes)
 
 				if (shim_move_pages(parent_pid, 1, pages, nodes, states, flag) < 0) {
 					if (errno == ENOSYS)
-						goto err;
+						return;
 				}
 			}
 		}
 	}
-err:
-	(void)fclose(fpmap);
 }
 #endif
+
+static void stress_thrash_fragment_mappings(
+	const stress_proc_maps_t *proc_maps,
+	const size_t n_maps)
+{
+	size_t i;
+
+	stress_thrash_state("fragment");
+
+	for (i = 0; thrash_run && (i < n_maps); i++) {
+		void *addr;
+		size_t len;
+
+		/* ignore non-readable mappings */
+		if (!(proc_maps[i].flags & STRESS_PROC_MAP_READ))
+			continue;
+		/* ignore non-writeable mappings */
+		if (!(proc_maps[i].flags & STRESS_PROC_MAP_WRITE))
+			continue;
+		/* ignore private mappings */
+		if (proc_maps[i].flags & STRESS_PROC_MAP_PRIVATE)
+			continue;
+
+		addr = (void *)proc_maps[i].begin;
+		len = (size_t)proc_maps[i].len;
+
+		stress_mmap_discontiguous(addr, len);
+
+	}
+}
 
 /*
  *  stress_thrash_start()
@@ -565,7 +606,6 @@ int stress_thrash_start(void)
         stress_numa_mask_t *numa_nodes;
 	bool thrash_numa = true;
 #endif
-
 	if (geteuid() != 0) {
 		pr_inf("not running as root, ignoring --thrash option\n");
 		return -1;
@@ -596,6 +636,11 @@ int stress_thrash_start(void)
 						"NUMA thrashing", &thrash_numa);
 #endif
 		while (thrash_run) {
+			stress_proc_maps_t proc_maps[MAX_PROC_MAPS];
+			size_t n_maps;
+
+			n_maps = stress_thrash_read_proc_maps(-1, proc_maps, SIZEOF_ARRAY(proc_maps));
+
 			if ((stress_mwc8() & 0x3) == 0) {
 				stress_thrash_slab_shrink();
 				stress_thrash_pagein_all_procs();
@@ -603,6 +648,7 @@ int stress_thrash_start(void)
 			if ((stress_mwc8() & 0x7) == 0) {
 				stress_thrash_drop_caches();
 			}
+
 			stress_thrash_compact_memory();
 
 			stress_thrash_merge_memory();
@@ -613,10 +659,14 @@ int stress_thrash_start(void)
 
 			stress_thrash_proc_memory();
 
+			stress_thrash_fragment_mappings(proc_maps, n_maps);
+
+			stress_thrash_pagein_self(proc_maps, n_maps);
+
 			stress_thrash_sys_memory();
 
 #if defined(HAVE_LINUX_MEMPOLICY_H)
-			stress_thrash_move_pages(numa_nodes);
+			stress_thrash_move_pages(proc_maps, n_maps, numa_nodes);
 #endif
 			stress_thrash_state("sleep");
 
@@ -668,12 +718,5 @@ int CONST stress_thrash_start(void)
 
 void stress_thrash_stop(void)
 {
-}
-
-int CONST stress_thrash_pagein_self(const char *name)
-{
-	(void)name;
-
-	return 0;
 }
 #endif

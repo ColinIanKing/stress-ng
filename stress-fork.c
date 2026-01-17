@@ -400,10 +400,8 @@ static int stress_fork_fn(
 					default:
 						break;
 					}
-					if (n_advice) {
+					if (n_advice)
 						stress_madvise_pid_all_pages(getpid(), advice, n_advice);
-						stress_thrash_pagein_self(args->name);
-					}
 				}
 
 				/* exercise some setpgid calls before we die */
