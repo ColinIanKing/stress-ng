@@ -84,9 +84,6 @@ RHEL, Fedora, Centos (static builds):
 SUSE:
   * gcc gcc-c++ eigen3-devel keyutils-devel libaio-devel libapparmor-devel libatomic1 libattr-devel libbsd-devel libcap-devel libgbm-devel libglvnd-devel libjpeg-turbo libkmod-devel libmd-devel libseccomp-devel lksctp-tools-devel mpfr-devel xxhash-devel zlib-devel
 
-ClearLinux:
-  * devpkg-acl devpkg-eigen devpkg-Judy devpkg-kmod devpkg-attr devpkg-libbsd devpkg-libjpeg-turbo devpkg-libsctp devpkg-mesa
-
 Alpine Linux:
   * build-base eigen-dev jpeg-dev judy-dev keyutils-dev kmod-dev libacl-dev libaio-dev libatomic libattr libbsd-dev libcap-dev libmd-dev libseccomp-dev lksctp-tools-dev mesa-dev mpfr-dev xxhash-dev zlib-dev
 
