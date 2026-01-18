@@ -1638,3 +1638,25 @@ void stress_clean_dir(
 		}
 	}
 }
+
+/*
+ *  stress_droo_caches()
+ *	drop file caches
+ */
+int stress_drop_caches(const int flags)
+{
+#if defined(__linux__)
+	char buf[2];
+
+	if ((flags < STRESS_DROP_CACHE_PAGE_CACHE) ||
+	    (flags > STRESS_DROP_CACHE_ALL))
+		return -1;
+
+	(void)snprintf(buf, sizeof(buf), "%1d", flags);
+	return (int)stress_system_write("/proc/sys/vm/drop_caches", buf, 1);
+#else
+	(void)flags;
+
+	return 0;
+#endif
+}

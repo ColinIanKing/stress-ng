@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-builtin.h"
+#include "core-filesystem.h"
 #include "core-killpid.h"
 #include "core-mmap.h"
 #include "core-put.h"
@@ -857,22 +858,16 @@ static void stress_iomix_drop_caches(
 	(void)iomix_bytes;
 
 	do {
-		shim_sync();
-		if (stress_system_write("/proc/sys/vm/drop_caches", "1", 1) < 0)
-			(void)shim_pause();
-		(void)sleep(5);
-		if (UNLIKELY(!stress_continue(args)))
-			return;
-		shim_sync();
-		if (stress_system_write("/proc/sys/vm/drop_caches", "2", 1) < 0)
-			(void)shim_pause();
-		(void)sleep(5);
-		if (UNLIKELY(!stress_continue(args)))
-			return;
-		shim_sync();
-		if (stress_system_write("/proc/sys/vm/drop_caches", "3", 1) < 0)
-			(void)shim_pause();
-		(void)sleep(5);
+		int i;
+
+		for (i = STRESS_DROP_CACHE_PAGE_CACHE; i <= STRESS_DROP_CACHE_ALL; i++) {
+			shim_sync();
+			if (stress_drop_caches(i) < 0)
+				(void)shim_pause();
+			if (UNLIKELY(!stress_continue(args)))
+				return;
+			(void)sleep(5);
+		}
 	} while (stress_bogo_inc_lock(args, counter_lock, true));
 }
 #endif

@@ -459,16 +459,12 @@ static inline void stress_thrash_slab_shrink(void)
 static inline void stress_thrash_drop_caches(void)
 {
 #if defined(__linux__)
-	static int method = 0;
-	char str[3];
-
-	str[0] = '1' + (char)method;
-	str[1] = '\0';
+	static int flags = STRESS_DROP_CACHE_PAGE_CACHE;
 
 	stress_thrash_state("dropcache");
-	VOID_RET(ssize_t, stress_system_write("/proc/sys/vm/drop_caches", str, 1));
-	if (method++ >= 2)
-		method = 0;
+	stress_drop_caches(flags);
+	if (flags++ >= STRESS_DROP_CACHE_ALL)
+		flags = STRESS_DROP_CACHE_PAGE_CACHE;
 #endif
 }
 

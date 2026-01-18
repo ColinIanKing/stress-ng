@@ -21,6 +21,11 @@
 
 #include "stress-ng.h"
 
+#define STRESS_DROP_CACHE_PAGE_CACHE	(0x01)
+#define STRESS_DROP_CACHE_SLAB_OBJECTS	(0x02)
+#define STRESS_DROP_CACHE_ALL		(STRESS_DROP_CACHE_PAGE_CACHE | \
+					 STRESS_DROP_CACHE_SLAB_OBJECTS)
+
 extern WARN_UNUSED const char *stress_get_temp_path(void);
 extern WARN_UNUSED int stress_check_temp_path(void);
 extern size_t stress_mk_filename(char *fullname, const size_t fullname_len,
@@ -71,4 +76,5 @@ extern void stress_file_rw_hint_short(const int fd);
 extern void stress_unset_chattr_flags(const char *pathname);
 extern void stress_clean_dir(const char *name, const pid_t pid,
 	const uint32_t instance);
+extern int stress_drop_caches(const int flags);
 #endif
