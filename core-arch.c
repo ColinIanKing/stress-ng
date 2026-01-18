@@ -36,6 +36,8 @@ const char *stress_get_arch(void)
 	return "M68K";
 #elif defined(STRESS_ARCH_MIPS)
 	return "MIPS";
+#elif defined(STRESS_ARCH_OR1K)
+	return "OR1K";
 #elif defined(STRESS_ARCH_PPC)
 	return "PPC";
 #elif defined(STRESS_ARCH_PPC64)
