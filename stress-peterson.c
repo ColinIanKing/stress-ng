@@ -125,11 +125,15 @@ static int stress_peterson_p0(stress_args_t *args)
 #endif
 	}
 
+#if defined(STRESS_ARCH_ARM) || defined(STRESS_ARCH_PPC64) || defined(STRESS_ARCH_PPC) || defined(STRESS_ARCH_RISCV)
+	peterson_mfence();
+	peterson_mbarrier();
+#endif
 	/* Critical section */
 	check0 = peterson->m.check;
 	peterson->m.check++;
 	check1 = peterson->m.check;
-#if defined(STRESS_ARCH_ARM)
+#if defined(STRESS_ARCH_ARM) || defined(STRESS_ARCH_PPC64) || defined(STRESS_ARCH_PPC) || defined(STRESS_ARCH_RISCV)
 	peterson_mfence();
 	peterson_mbarrier();
 #endif
@@ -164,11 +168,15 @@ static int stress_peterson_p1(stress_args_t *args)
 #endif
 	}
 
+#if defined(STRESS_ARCH_ARM) || defined(STRESS_ARCH_PPC64) || defined(STRESS_ARCH_PPC) || defined(STRESS_ARCH_RISCV)
+	peterson_mfence();
+	peterson_mbarrier();
+#endif
 	/* Critical section */
 	check0 = peterson->m.check;
 	peterson->m.check--;
 	check1 = peterson->m.check;
-#if defined(STRESS_ARCH_ARM)
+#if defined(STRESS_ARCH_ARM) || defined(STRESS_ARCH_PPC64) || defined(STRESS_ARCH_PPC) || defined(STRESS_ARCH_RISCV)
 	peterson_mfence();
 	peterson_mbarrier();
 #endif
