@@ -8655,8 +8655,6 @@ static void stress_syscall_report_syscall_top(stress_args_t *args)
 	(void)stress_get_setting("syscall-top", &syscall_top);
 	(void)stress_get_setting("syscall-rank", &syscall_rank);
 
-	pr_inf("%zd %p\n", syscall_rank, syscall_ranks[syscall_rank].cmp);
-
 	for (n = 0, i = 0; (i < STRESS_SYSCALLS_MAX); i++) {
 		if (syscall_stats[i].succeed)
 			n++;
