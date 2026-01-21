@@ -312,11 +312,15 @@ static inline void stress_schedmix_itimer_clear(void)
 	VOID_RET(int, setitimer(ITIMER_PROF, &timer, NULL));
 }
 
-static void stress_schedmix_itimer_handler(int signum)
+static void MLOCKED_TEXT stress_schedmix_itimer_handler(int signum)
 {
+	const int saved_errno = errno;
+
 	(void)signum;
 
 	stress_schedmix_itimer_set();
+
+	errno = saved_errno;
 }
 #endif
 

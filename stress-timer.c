@@ -105,6 +105,7 @@ static inline void stress_proc_self_timer_read(void)
  */
 static void MLOCKED_TEXT OPTIMIZE3 stress_timer_handler(int sig)
 {
+	const int saved_errno = errno;
 	struct itimerspec timer;
 	sigset_t mask;
 	int ret;
@@ -127,6 +128,7 @@ static void MLOCKED_TEXT OPTIMIZE3 stress_timer_handler(int sig)
 	if (ret > 0)
 		timer_overruns += (uint64_t)ret;
 
+	errno = saved_errno;
 	return;
 
 cancel:
@@ -135,6 +137,7 @@ cancel:
 	(void)shim_memset(&timer, 0, sizeof(timer));
 	if (UNLIKELY(timer_settime(timerid, 0, &timer, NULL) < 0))
 		timer_settime_failure++;
+	errno = saved_errno;
 }
 
 /*

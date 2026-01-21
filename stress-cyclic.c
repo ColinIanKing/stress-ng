@@ -322,9 +322,12 @@ static struct timespec itimer_time;
 
 static void MLOCKED_TEXT stress_cyclic_itimer_handler(int sig)
 {
+	const int saved_errno = errno;
+
 	(void)sig;
 
 	(void)clock_gettime(CLOCK_REALTIME, &itimer_time);
+	errno = saved_errno;
 }
 
 /*

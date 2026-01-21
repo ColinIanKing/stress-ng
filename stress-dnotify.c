@@ -63,7 +63,7 @@ static int stress_dnotify_supported(const char *name)
 	return 0;
 }
 
-static void dnotify_handler(int sig, siginfo_t *si, void *data)
+static void MLOCKED_TEXT dnotify_handler(int sig, siginfo_t *si, void *data)
 {
 	(void)sig;
 	(void)data;

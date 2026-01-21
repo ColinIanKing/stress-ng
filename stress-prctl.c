@@ -286,7 +286,7 @@ static stress_prctl_sigsys_info_t prctl_sigsys_info;
 #define PRCTL_SYSCALL_ON()	\
 	do { prctl_sigsys_info.selector = SYSCALL_DISPATCH_FILTER_BLOCK; } while (0)
 
-static void stress_prctl_sigsys_handler(int sig, siginfo_t *info, void *ucontext)
+static void MLOCKED_TEXT stress_prctl_sigsys_handler(int sig, siginfo_t *info, void *ucontext)
 {
 	(void)ucontext;
 

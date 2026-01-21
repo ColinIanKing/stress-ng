@@ -892,7 +892,7 @@ static inline char *plural(uint32_t n)
 	return n > 1 ? "s" : "";
 }
 
-static void stress_memthrash_sigalrm_handler(int signum)
+static void MLOCKED_TEXT stress_memthrash_sigalrm_handler(int signum)
 {
 	(void)signum;
 

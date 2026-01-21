@@ -97,7 +97,7 @@ typedef struct {
 } stress_memrate_info_t;
 
 #if defined(HAVE_SIGLONGJMP)
-static void stress_memrate_alarm_handler(int signum)
+static void MLOCKED_TEXT stress_memrate_alarm_handler(int signum)
 {
         (void)signum;
 

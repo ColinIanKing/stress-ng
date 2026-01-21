@@ -293,7 +293,7 @@ redo_policy:
 	return ret;
 }
 
-static void NORETURN stress_prio_inv_alarm_handler(int sig)
+static void MLOCKED_TEXT NORETURN stress_prio_inv_alarm_handler(int sig)
 {
 	(void)sig;
 

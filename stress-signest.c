@@ -176,6 +176,7 @@ static void stress_signest_ignore(void)
 
 static void MLOCKED_TEXT stress_signest_handler(int signum)
 {
+	const int saved_errno = errno;
 	const int i = signum;
 	const intptr_t addr = (intptr_t)&i;
 	const double run_time = stress_time_now() - signal_info.time_start;
@@ -240,7 +241,7 @@ static void MLOCKED_TEXT stress_signest_handler(int signum)
 	raised++;
 done:
 	--signal_info.depth;
-	return;
+	errno = saved_errno;
 }
 
 /*

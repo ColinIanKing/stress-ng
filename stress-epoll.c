@@ -139,6 +139,8 @@ static void NORETURN MLOCKED_TEXT stress_segv_handler(int num)
  */
 static void MLOCKED_TEXT epoll_timer_handler(int sig)
 {
+	const int saved_errno = errno;
+
 	(void)sig;
 
 	/* Cancel timer if we detect no more runs */
@@ -151,6 +153,7 @@ static void MLOCKED_TEXT epoll_timer_handler(int sig)
 		timer.it_interval.tv_nsec = timer.it_value.tv_nsec;
 
 		(void)timer_settime(epoll_timerid, 0, &timer, NULL);
+		errno = saved_errno;
 	}
 }
 

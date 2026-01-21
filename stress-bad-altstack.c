@@ -81,6 +81,7 @@ static void NORETURN MLOCKED_TEXT stress_xcpu_handler(int signum)
 static void NORETURN MLOCKED_TEXT stress_signal_handler(int signum)
 {
 	uint8_t data[STRESS_BAD_ALTSTACK_SIZE];
+	const int saved_errno = errno;
 
 	/*
 	 * Linux does not allow setting the alternative stack
@@ -104,6 +105,7 @@ static void NORETURN MLOCKED_TEXT stress_signal_handler(int signum)
 #else
 	UNEXPECTED
 #endif
+	errno = saved_errno;
 	/*
 	 *  If we've not got this far we've not
 	 *  generated a fault inside the stack of the

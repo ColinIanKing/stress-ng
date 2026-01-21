@@ -40,6 +40,7 @@ static void MLOCKED_TEXT stress_sighup_handler(int num)
 	(void)num;
 
 	if (LIKELY(sighup_info != NULL)) { /* Should always be not null */
+		const int saved_errno = errno;
 		double latency = stress_time_now() - sighup_info->t_start;
 
 		sighup_info->signalled = true;
@@ -47,6 +48,7 @@ static void MLOCKED_TEXT stress_sighup_handler(int num)
 			sighup_info->latency += latency;
 			sighup_info->count += 1.0;
 		}
+		errno = saved_errno;
 	}
 }
 

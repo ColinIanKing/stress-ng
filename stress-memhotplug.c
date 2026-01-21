@@ -221,7 +221,7 @@ static void stress_memhotplug_mem_online(stress_mem_info_t *mem_info)
 	(void)close(fd);
 }
 
-static void stress_segv_handler(int signum)
+static void MLOCKED_TEXT stress_segv_handler(int signum)
 {
 	(void)signum;
 

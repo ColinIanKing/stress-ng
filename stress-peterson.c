@@ -67,7 +67,7 @@ static inline void ALWAYS_INLINE peterson_mbarrier(void)
 #endif
 }
 
-static void NORETURN stress_peterson_sigill_handler(int signum)
+static void MLOCKED_TEXT NORETURN stress_peterson_sigill_handler(int signum)
 {
 	(void)signum;
 

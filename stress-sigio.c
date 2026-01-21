@@ -63,6 +63,8 @@ static void MLOCKED_TEXT stress_sigio_handler(int signum)
 	async_sigs++;
 
 	if (LIKELY(rd_fd > 0)) {
+		const int saved_errno = errno;
+
 		/*
 		 *  Data is ready, so drain as much as possible
 		 */
@@ -81,6 +83,7 @@ static void MLOCKED_TEXT stress_sigio_handler(int signum)
 			if ((volatile stress_args_t *)sigio_args)
 				stress_bogo_inc(sigio_args);
 		}
+		errno = saved_errno;
 	}
 }
 

@@ -90,8 +90,9 @@ static void stress_itimer_set(struct itimerval *timer)
  *  stress_itimer_handler()
  *	catch itimer signal and cancel if no more runs flagged
  */
-static void OPTIMIZE3 stress_itimer_handler(int sig)
+static void MLOCKED_TEXT OPTIMIZE3 stress_itimer_handler(int sig)
 {
+	const int saved_errno = errno;
 	struct itimerval timer;
 	sigset_t mask;
 
@@ -108,12 +109,16 @@ static void OPTIMIZE3 stress_itimer_handler(int sig)
 	if ((stress_bogo_get(s_args) & 65535) == 0)
 		if (stress_time_now() > time_end)
 			goto cancel;
+
+	errno = saved_errno;
 	return;
 cancel:
 	stress_continue_set_flag(false);
 	/* Cancel timer if we detect no more runs */
 	(void)shim_memset(&timer, 0, sizeof(timer));
 	(void)setitimer(ITIMER_PROF, &timer, NULL);
+
+	errno = saved_errno;
 }
 
 /*

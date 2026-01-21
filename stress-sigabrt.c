@@ -40,6 +40,7 @@ static void MLOCKED_TEXT stress_sigabrt_handler(int num)
 	(void)num;
 
 	if (sigabrt_info) { /* Should always be not null */
+		const int saved_errno = errno;
 		const double latency = stress_time_now() - sigabrt_info->t_start;
 
 		sigabrt_info->signalled = true;
@@ -47,6 +48,7 @@ static void MLOCKED_TEXT stress_sigabrt_handler(int num)
 			sigabrt_info->latency += latency;
 			sigabrt_info->count += 1.0;
 		}
+		errno = saved_errno;
 	}
 }
 

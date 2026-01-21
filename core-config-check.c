@@ -35,7 +35,7 @@
 
 static volatile bool stress_config_sigill_trapped;
 
-static void stress_config_sigill_handler(int sig)
+static void MLOCKED_TEXT stress_config_sigill_handler(int sig)
 {
 	(void)sig;
 

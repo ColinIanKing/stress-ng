@@ -72,6 +72,7 @@ static void MLOCKED_TEXT OPTIMIZE3 stress_hrtimers_handler(int sig)
 	struct itimerspec timer;
 	sigset_t mask;
 	register uint64_t bogo_counter;
+	const int saved_errno = errno;
 
 	(void)sig;
 
@@ -95,6 +96,8 @@ cancel:
 	(void)shim_memset(&timer, 0, sizeof(timer));
 	(void)timer_settime(timerid, 0, &timer, NULL);
 	(void)shim_kill(getpid(), SIGALRM);
+
+	errno = saved_errno;
 }
 
 

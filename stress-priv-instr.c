@@ -476,7 +476,7 @@ static sigjmp_buf jmp_env;
 static size_t idx = 0;
 static double t_start, duration, count;
 
-static void NORETURN stress_sigsegv_handler(int signum)
+static void MLOCKED_TEXT NORETURN stress_sigsegv_handler(int signum)
 {
 	(void)signum;
 
@@ -492,7 +492,7 @@ static void NORETURN stress_sigsegv_handler(int signum)
 
 #if defined(SIGILL) ||	\
     defined(SIGBUS)
-static void NORETURN stress_sigill_handler(int signum)
+static void MLOCKED_TEXT NORETURN stress_sigill_handler(int signum)
 {
 	if (idx < SIZEOF_ARRAY(op_info))
 		op_info[idx].invalid = true;

@@ -2085,7 +2085,7 @@ static const fd_func_t fd_funcs[] = {
 /*
  *  Handle and ignore SIGIO/SIGPIPE signals
  */
-static void stress_fd_sig_handler(int sig)
+static void MLOCKED_TEXT stress_fd_sig_handler(int sig)
 {
 	(void)sig;
 }

@@ -447,6 +447,8 @@ int stress_sighandler_default(const int signum)
  */
 void stress_handle_stop_stressing(const int signum)
 {
+	const int saved_errno = errno;
+
 	(void)signum;
 
 	stress_continue_set_flag(false);
@@ -455,6 +457,7 @@ void stress_handle_stop_stressing(const int signum)
 	 * that it needs to terminate
 	 */
 	(void)alarm(1);
+	errno = saved_errno;
 }
 
 /*
@@ -514,7 +517,7 @@ void NORETURN MLOCKED_TEXT stress_sig_handler_exit(int signum)
  *  stress_sighandler_nop()
  *	no-operation signal handler
  */
-void stress_sighandler_nop(int sig)
+void MLOCKED_TEXT stress_sighandler_nop(int sig)
 {
 	(void)sig;
 }

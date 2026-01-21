@@ -1322,7 +1322,7 @@ die:
 	return rc;
 }
 
-static void stress_sock_sigpipe_handler(int signum)
+static void MLOCKED_TEXT stress_sock_sigpipe_handler(int signum)
 {
 	(void)signum;
 

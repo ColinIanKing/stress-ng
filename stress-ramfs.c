@@ -68,7 +68,7 @@ static const stress_opt_t opts[] = {
 
 static volatile bool keep_mounting = true;
 
-static void stress_ramfs_child_handler(int signum)
+static void MLOCKED_TEXT stress_ramfs_child_handler(int signum)
 {
 	(void)signum;
 

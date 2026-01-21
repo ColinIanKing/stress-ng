@@ -33,12 +33,15 @@ static volatile double t, duration;
 
 static void MLOCKED_TEXT stress_sigtrap_handler(int num)
 {
+	const int saved_errno = errno;
 	const double delta = stress_time_now() - t;
+
 	(void)num;
 
 	if (delta > 0.0)
 		duration += delta;
 	counter++;
+	errno = saved_errno;
 }
 
 /*

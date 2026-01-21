@@ -389,6 +389,7 @@ static void MLOCKED_TEXT stress_cpu_sched_hrtimer_handler(int sig)
 {
 	sigset_t sigset;
 	bool cancel_timer = false;
+	const int saved_errno = errno;
 
 	(void)sig;
 
@@ -401,6 +402,7 @@ static void MLOCKED_TEXT stress_cpu_sched_hrtimer_handler(int sig)
 	if (cancel_timer) {
 		stress_cpu_sched_hrtimer_sigprocmask(SIG_BLOCK);
 		stress_cpu_sched_hrtimer_set(0);
+		errno = saved_errno;
 		return;
 	}
 
@@ -414,6 +416,7 @@ static void MLOCKED_TEXT stress_cpu_sched_hrtimer_handler(int sig)
 		}
 		stress_cpu_sched_hrtimer_set(TIMER_NS);
 	}
+	errno = saved_errno;
 }
 #endif
 

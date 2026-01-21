@@ -31,7 +31,7 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		 NULL }
 };
 
-static void stress_sigpipe_handler_count_check(int signum)
+static void MLOCKED_TEXT stress_sigpipe_handler_count_check(int signum)
 {
 	if (LIKELY(signum == SIGPIPE))
 		stress_bogo_inc(s_args);

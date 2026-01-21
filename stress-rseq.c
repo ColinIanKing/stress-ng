@@ -148,7 +148,7 @@ l3:
  *	pattern) then a SIGSEGV is triggered. Hence we
  *	require a handler for this
  */
-static void sigsegv_handler(int sig)
+static void MLOCKED_TEXT sigsegv_handler(int sig)
 {
 	(void)sig;
 

@@ -85,7 +85,7 @@ typedef struct stress_flipflop_worker {
  *  stress_flipflop_sigusr1_handler()
  *	handler to interrupt parent pause() waits
  */
-static void stress_flipflop_sigusr1_handler(int signum)
+static void MLOCKED_TEXT stress_flipflop_sigusr1_handler(int signum)
 {
 	(void)signum;
 }

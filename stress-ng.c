@@ -621,7 +621,10 @@ static void stress_kill_stressors(const int sig, const bool force_sigkill)
  */
 static void MLOCKED_TEXT stress_sigint_handler(int signum)
 {
+	const int saved_errno = errno;
+
 	(void)signum;
+
 	if (g_shared)
 		g_shared->caught_sigint = true;
 	stress_continue_set_flag(false);
@@ -629,6 +632,8 @@ static void MLOCKED_TEXT stress_sigint_handler(int signum)
 
 	/* Send alarm to all stressors */
 	stress_kill_stressors(SIGALRM, true);
+
+	errno = saved_errno;
 }
 
 /*
@@ -637,6 +642,8 @@ static void MLOCKED_TEXT stress_sigint_handler(int signum)
  */
 static void MLOCKED_TEXT stress_sigalrm_handler(int signum)
 {
+	const int saved_errno = errno;
+
 	if (g_shared) {
 		g_shared->caught_sigint = true;
 		if ((sigalarmed) && (!*sigalarmed)) {
@@ -654,6 +661,8 @@ static void MLOCKED_TEXT stress_sigalrm_handler(int signum)
 		/* Child */
 		stress_handle_stop_stressing(signum);
 	}
+
+	errno = saved_errno;
 }
 
 /*
@@ -674,6 +683,8 @@ static void MLOCKED_TEXT stress_sigalrm_action_handler(
 	siginfo_t *info,
 	void *ucontext)
 {
+	const int saved_errno = errno;
+
 	(void)ucontext;
 
 	if (g_shared && 			/* shared mem initialized */
@@ -688,6 +699,8 @@ static void MLOCKED_TEXT stress_sigalrm_action_handler(
 		sigalrm_info.triggered = true;
 	}
 	stress_sigalrm_handler(signum);
+
+	errno = saved_errno;
 }
 #endif
 
@@ -708,6 +721,7 @@ static void MLOCKED_TEXT stress_stats_handler(int signum)
     defined(__ATOMIC_RELAXED)
 	static int counter = 0;
 #endif
+	const int saved_errno = errno;
 
 	(void)signum;
 
@@ -751,6 +765,8 @@ static void MLOCKED_TEXT stress_stats_handler(int signum)
     defined(__ATOMIC_RELAXED)
 	(void)__atomic_sub_fetch(&counter, 1, __ATOMIC_RELAXED);
 #endif
+
+	errno = saved_errno;
 }
 #endif
 
@@ -1269,6 +1285,7 @@ static void MLOCKED_TEXT stress_handle_terminate(int signum)
 {
 	static char buf[128];
 	const int fd = fileno(stderr);
+	const int saved_errno = errno;
 
 	stress_continue_set_flag(false);
 
@@ -1295,6 +1312,8 @@ static void MLOCKED_TEXT stress_handle_terminate(int signum)
 		stress_kill_stressors(SIGALRM, true);
 		break;
 	}
+
+	errno = saved_errno;
 }
 
 /*

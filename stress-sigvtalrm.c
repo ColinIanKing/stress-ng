@@ -50,6 +50,7 @@ static void stress_sigvtalrm_set(struct itimerval *timer)
  */
 static void MLOCKED_TEXT OPTIMIZE3 stress_sigvtalrm_handler(int sig)
 {
+	const int saved_errno = errno;
 	struct itimerval timer;
 
 	(void)sig;
@@ -63,6 +64,8 @@ static void MLOCKED_TEXT OPTIMIZE3 stress_sigvtalrm_handler(int sig)
 	/* Cancel timer if we detect no more runs */
 	(void)shim_memset(&timer, 0, sizeof(timer));
 	(void)setitimer(ITIMER_VIRTUAL, &timer, NULL);
+
+	errno = saved_errno;
 }
 
 /*

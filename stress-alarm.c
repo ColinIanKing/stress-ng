@@ -37,7 +37,7 @@ static const stress_help_t help[] = {
 	{ NULL, NULL,		NULL }
 };
 
-static void NORETURN stress_alarm_sigusr1_handler(int sig)
+static void MLOCKED_TEXT NORETURN stress_alarm_sigusr1_handler(int sig)
 {
 	(void)sig;
 

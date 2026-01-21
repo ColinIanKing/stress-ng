@@ -34,7 +34,7 @@ typedef struct {
 	uint64_t	counter;
 } stress_tee_t;
 
-static void stress_sigpipe_handler(int signum)
+static void MLOCKED_TEXT stress_sigpipe_handler(int signum)
 {
 	(void)signum;
 

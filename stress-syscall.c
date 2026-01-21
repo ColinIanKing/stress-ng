@@ -863,17 +863,20 @@ reap_child:
 }
 #endif
 
-static void syscall_sigignore_handler(int num)
+static void MLOCKED_TEXT syscall_sigignore_handler(int num)
 {
 	(void)num;
 }
 
-static void syscall_sigusr1_handler(int num)
+static void MLOCKED_TEXT syscall_sigusr1_handler(int num)
 {
+	const int saved_errno = errno;
 	(void)num;
 
 	syscall_shared_info->sig_t = syscall_time_now();
 	syscall_shared_info->t_set = true;
+
+	errno = saved_errno;
 }
 
 #if defined(HAVE_SYS_UN_H) &&	\

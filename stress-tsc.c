@@ -81,7 +81,7 @@ static inline uint64_t rdtsc(void)
 	return stress_asm_riscv_rdtime();
 }
 
-static void stress_sigill_handler(int signum)
+static void MLOCKED_TEXT stress_sigill_handler(int signum)
 {
 	(void)signum;
 

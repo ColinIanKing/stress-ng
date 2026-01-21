@@ -74,8 +74,9 @@ static const stress_help_t help[] = {
 static stress_args_t *s_args;
 static int sockfd = -1;
 
-static void stress_sigurg_handler(int signum)
+static void MLOCKED_TEXT stress_sigurg_handler(int signum)
 {
+	const int saved_errno = errno;
 	static char buf[1];
 
 	(void)signum;
@@ -83,6 +84,8 @@ static void stress_sigurg_handler(int signum)
 	if (LIKELY(stress_continue(s_args) &&
 		  (recv(sockfd, buf, sizeof(buf), MSG_OOB) > 0)))
 		stress_bogo_inc(s_args);
+
+	errno = saved_errno;
 }
 
 /*

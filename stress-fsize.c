@@ -34,7 +34,7 @@ static const stress_help_t help[] = {
 static volatile bool sigxfsz;
 static uint64_t sigxfsz_count;
 
-static void stress_fsize_handler(int signum)
+static void MLOCKED_TEXT stress_fsize_handler(int signum)
 {
 	if (signum == SIGXFSZ) {
 		sigxfsz = true;

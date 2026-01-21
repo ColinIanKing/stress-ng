@@ -133,6 +133,7 @@ static inline void stress_timermix_timer_throttle_check(const double time_now)
  */
 static void MLOCKED_TEXT OPTIMIZE3 stress_timermix_timer_action(int sig, siginfo_t *siginfo, void *ucontext)
 {
+	const int saved_errno = errno;
 	struct itimerspec timer;
 	sigset_t mask;
 	size_t i;
@@ -181,7 +182,7 @@ cancel:
 		(void)shim_memset(&timer, 0, sizeof(timer));
 		(void)timer_settime(timer_info[i].timer_id, 0, &timer, NULL);
 	}
-
+	errno = saved_errno;
 }
 #endif
 

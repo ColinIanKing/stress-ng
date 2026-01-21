@@ -30,7 +30,7 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		  NULL }
 };
 
-static void stress_fault_handler(int signum)
+static void MLOCKED_TEXT stress_fault_handler(int signum)
 {
 	(void)signum;
 

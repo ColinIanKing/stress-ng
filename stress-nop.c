@@ -316,7 +316,7 @@ static void stress_nop_random(
 	} while (stress_continue(args));
 }
 
-static void NORETURN stress_sigill_nop_handler(int signum)
+static void MLOCKED_TEXT NORETURN stress_sigill_nop_handler(int signum)
 {
 	(void)signum;
 

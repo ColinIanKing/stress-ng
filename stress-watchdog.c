@@ -85,12 +85,16 @@ static void stress_watchdog_magic_close(void)
 
 static void /*NORETURN*/ MLOCKED_TEXT stress_watchdog_handler(int signum)
 {
+	const int saved_errno = errno;
+
 	(void)signum;
 
 	stress_watchdog_magic_close();
 
 	/* trigger early termination */
 	stress_continue_set_flag(false);
+
+	errno = saved_errno;
 }
 
 /*

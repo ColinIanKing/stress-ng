@@ -31,7 +31,7 @@ static const stress_help_t help[] = {
 
 static void *counter_lock;
 
-static void stress_sigsuspend_chld_handler(int sig)
+static void MLOCKED_TEXT stress_sigsuspend_chld_handler(int sig)
 {
 	(void)sig;
 
