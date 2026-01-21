@@ -1565,6 +1565,10 @@ typedef enum {
 
 	OPT_stressors,
 
+	OPT_strnum,
+	OPT_strnum_ops,
+	OPT_strnum_method,
+
 	OPT_symlink,
 	OPT_symlink_ops,
 	OPT_symlink_sync,

@@ -20,6 +20,7 @@
 #define _GNU_SOURCE
 
 #include <stddef.h>
+#include <stdlib.h>
 #include <string.h>
 
 #if !(defined(__APPLE__) || \

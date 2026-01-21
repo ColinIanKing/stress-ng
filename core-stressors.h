@@ -333,6 +333,7 @@
 	MACRO(statmount)	\
 	MACRO(str)		\
 	MACRO(stream)		\
+	MACRO(strnum)		\
 	MACRO(swap)		\
 	MACRO(switch)		\
 	MACRO(symlink)		\

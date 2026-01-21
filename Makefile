@@ -764,6 +764,7 @@ STRESS_SRC = \
 	stress-statmount.c \
 	stress-str.c \
 	stress-stream.c \
+	stress-strnum.c \
 	stress-swap.c \
 	stress-switch.c \
 	stress-sync-file.c \

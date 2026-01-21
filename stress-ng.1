@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "16 January 2025"
+.TH STRESS-NG 1 "21 January 2026"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -8548,6 +8548,102 @@ into memory fetch loops that may improve read performance. This option
 enables this optimization, however, it may lead to degraded performance
 if the compiler does not insert the prefetching in the correct places.
 Best to enable this for the default \-\-stream\-index 0 setting.
+.RE
+.TP
+.B String to/from Numeric conversions
+.RS 5
+.TQ
+.B \-\-strnum 1
+start N workers that exercise various libc string to/from numeric
+conversion functions. Every 1000 bogo iterations a new randomized set
+of signed and unsigned integers (int, long, long long) and floating
+point values (float, double, long double) are generated and coversions
+are performed on them to string values and from string values back
+to their original type.
+.TP
+.B \-\-strnum\-ops N
+stop after N bogo string/numeric conversion operations.
+.TP
+.B \-\-strnum\-method method
+select the preferred conversion function, these are as follows:
+.sp
+.TS
+lB2 lB
+l lx.
+Method	Description
+all	T{
+select all the available conversion methods
+T}
+atoi	T{
+convert a string to a signed integer using atoi()
+T}
+atol	T{
+convert a string to a signed long integer using atol()
+T}
+atoll	T{
+convert a string to a signed long long integer using atoll()
+T}
+strtoul	T{
+convert a string to an unsigned long integer using strtoul()
+T}
+strtoull	T{
+convert a string to an unsigned long long integer using stroull()
+T}
+sscanf-i	T{
+convert a string to a signed integer using sscanf()
+T}
+sscanf-li	T{
+convert a string to a signed long integer using sscanf()
+T}
+sscanf-lli	T{
+convert a string to a signed long long integer using sscanf()
+T}
+sscanf-u	T{
+convert a string to an unsigned integer using sscanf()
+T}
+sscanf-lu	T{
+convert a string to an unsigned long integer using sscanf()
+T}
+sscanf-llu	T{
+convert a string to an unsigned long long integer using sscanf()
+T}
+snprintf-i	T{
+convert a signed integer to a string using snprintf()
+T}
+snprintf-li	T{
+convert a signed long integer to a string using snprintf()
+T}
+snprintf-lli	T{
+convert a signed long long integer to a string using snprintf()
+T}
+strtof	T{
+convert a string to a float using strtof()
+T}
+strtod	T{
+convert a string to a double using strtof()
+T}
+strtold	T{
+convert a string to a long double using strtof()
+T}
+sscanf-f	T{
+convert a string to a float using sscanf()
+T}
+sscanf-d	T{
+convert a string to a double using sscanf()
+T}
+sscanf-ld	T{
+convert a string to a long double using sscanf()
+T}
+strfromf	T{
+convert a float to a string using strfromf()
+T}
+strfromd	T{
+convert a double to a string using strfromd()
+T}
+strfroml	T{
+convert a long double to a string using strfroml()
+T}
+.TE
 .RE
 .TP
 .B Swap partitions stressor (Linux)
