@@ -248,6 +248,33 @@ static inline void stress_arch_prctl(void)
 #endif
 #if defined(HAVE_ASM_PRCTL_H) &&		\
     defined(HAVE_SYS_PRCTL_H) &&		\
+    defined(ARCH_GET_XCOMP_GUEST_PERM) &&	\
+    defined(STRESS_ARCH_X86_64)
+	{
+		uint64_t permitted;
+
+		VOID_RET(int, shim_arch_prctl(ARCH_GET_XCOMP_GUEST_PERM, (unsigned long int)&permitted));
+	}
+#endif
+#if defined(HAVE_ASM_PRCTL_H) &&		\
+    defined(HAVE_SYS_PRCTL_H) &&		\
+    defined(ARCH_REQ_XCOMP_GUEST_PERM) &&	\
+    defined(STRESS_ARCH_X86_64)
+	{
+		unsigned long int idx;
+
+		for (idx = 0; idx < 255; idx++) {
+			int ret;
+
+			errno = 0;
+			ret = shim_arch_prctl(ARCH_REQ_XCOMP_GUEST_PERM, idx);
+			if ((ret < 0) && (errno == EINVAL))
+				break;
+		}
+	}
+#endif
+#if defined(HAVE_ASM_PRCTL_H) &&		\
+    defined(HAVE_SYS_PRCTL_H) &&		\
     defined(ARCH_REQ_XCOMP_PERM) &&		\
     defined(STRESS_ARCH_X86_64)
 	{
