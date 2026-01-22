@@ -573,8 +573,8 @@ static void stress_kill_stressors(const int sig, const bool force_sigkill)
 
 		/* multiple calls will always fallback to SIGKILL */
 		if (getpid() == main_pid) {
-			double t_now = stress_time_now();
-			double t_delta = t_now - kill_last;
+			const double t_now = stress_time_now();
+			const double t_delta = t_now - kill_last;
 
 			/* Throttle spammy messages to 1/10th second */
 			kill_last = t_now;
@@ -2131,7 +2131,7 @@ static char *stress_description_yamlify(const char *description)
 	const char *src, *end = yamlified + sizeof(yamlified);
 
 	for (dst = yamlified, src = description; *src; src++) {
-		register int ch = (int)*src;
+		register const int ch = (int)*src;
 
 		if (isalpha((unsigned char)ch)) {
 			*(dst++) = (char)tolower((unsigned char)ch);
@@ -2902,6 +2902,7 @@ static void stress_set_proc_limits(void)
 		info = ss->stressor->info;
 		if (info && info->set_limit && ss->instances) {
 			const uint64_t max = (uint64_t)limit.rlim_cur / (uint64_t)ss->instances;
+
 			info->set_limit(max);
 		}
 	}
@@ -3022,7 +3023,7 @@ static inline void stress_exclude_pathological(void)
 
 			if ((!ss->ignore.run) && (ss->stressor->info->classifier & CLASS_PATHOLOGICAL)) {
 				if (ss->instances > 0) {
-					const char* name = ss->stressor->name;
+					const char *name = ss->stressor->name;
 
 					pr_inf("disabled '%s' as it "
 						"may hang or reboot the machine "
@@ -3112,7 +3113,7 @@ static void stress_with(const int32_t instances)
 
 	for (str = opt_with; (token = strtok(str, ",")) != NULL; str = NULL) {
 		stress_stressor_t *ss;
-		ssize_t i = stress_stressor_find(token);
+		const ssize_t i = stress_stressor_find(token);
 
 		if (i < 0) {
 			(void)fprintf(stderr, "Unknown stressor: '%s', "
