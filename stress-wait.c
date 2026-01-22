@@ -189,7 +189,7 @@ static int stress_wait(stress_args_t *args)
 	pr_dbg("%s: waiter started [%" PRIdMAX "]\n",
 		args->name, (intmax_t)args->pid);
 
-	if (stress_sighandler(args->name, SIGUSR1, stress_sighandler_nop, NULL) < 0)
+	if (stress_sighandler(args->name, SIGUSR1, stress_signal_ignore_handler, NULL) < 0)
 		return EXIT_FAILURE;
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);

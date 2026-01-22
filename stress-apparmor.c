@@ -662,7 +662,7 @@ static int stress_apparmor(stress_args_t *args)
 	size_t i;
 	int rc = EXIT_NO_RESOURCE;
 
-	if (stress_sighandler(args->name, SIGUSR1, stress_sighandler_nop, NULL) < 0) {
+	if (stress_sighandler(args->name, SIGUSR1, stress_signal_ignore_handler, NULL) < 0) {
 		return EXIT_FAILURE;
 	}
 

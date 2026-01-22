@@ -576,7 +576,7 @@ static int stress_sem_sysv(stress_args_t *args)
 	}
 	(void)stress_get_setting("sem-sysv-setall", &semaphore_sysv_setall);
 
-	if (stress_sighandler(args->name, SIGCHLD, stress_sighandler_nop, NULL) < 0)
+	if (stress_sighandler(args->name, SIGCHLD, stress_signal_ignore_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 
 	s_pids = stress_sync_s_pids_mmap(MAX_SEM_SYSV_PROCS);

@@ -2157,10 +2157,10 @@ static int stress_fd_abuse(stress_args_t *args)
 	int rc = EXIT_SUCCESS;
 
 #if defined(SIGIO)
-	if (stress_sighandler(args->name, SIGIO, stress_sighandler_nop, NULL) < 0)
+	if (stress_sighandler(args->name, SIGIO, stress_signal_ignore_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 #endif
-	if (stress_sighandler(args->name, SIGPIPE, stress_sighandler_nop, NULL) < 0)
+	if (stress_sighandler(args->name, SIGPIPE, stress_signal_ignore_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 
 	if (stress_temp_dir_mk_args(args) < 0) {

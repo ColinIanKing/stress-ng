@@ -108,7 +108,7 @@ static int static_dup2_child(info_t *info)
 
 	(void)shim_memset(&action, 0, sizeof(action));
 	action.sa_flags = 0;
-	action.sa_handler = stress_sighandler_nop;
+	action.sa_handler = stress_signal_ignore_handler;
 	if (UNLIKELY(sigaction(SIGALRM, &action, NULL) < 0))
 		_exit(1);
 

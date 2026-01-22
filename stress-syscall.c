@@ -6357,7 +6357,7 @@ static int syscall_signal(void)
 	shim_sighandler_t prev_handler;
 
 	t1 = syscall_time_now();
-	prev_handler = signal(SIGCHLD, stress_sighandler_nop);
+	prev_handler = signal(SIGCHLD, stress_signal_ignore_handler);
 	t2 = syscall_time_now();
 	if (prev_handler == SIG_ERR)
 		return -1;
@@ -8877,7 +8877,7 @@ static int stress_syscall(stress_args_t *args)
 	if (stress_sighandler(args->name, SIGUSR1, syscall_sigusr1_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 #if defined(SIGXFSZ)
-	if (stress_sighandler(args->name, SIGXFSZ, stress_sighandler_nop, NULL) < 0)
+	if (stress_sighandler(args->name, SIGXFSZ, stress_signal_ignore_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 #endif
 

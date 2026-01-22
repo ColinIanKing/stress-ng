@@ -514,10 +514,10 @@ void NORETURN MLOCKED_TEXT stress_sig_handler_exit(int signum)
 }
 
 /*
- *  stress_sighandler_nop()
- *	no-operation signal handler
+ *  stress_signal_ignore_handler()
+ *	no-operation signal handler, ignored signal
  */
-void MLOCKED_TEXT stress_sighandler_nop(int sig)
+void MLOCKED_TEXT stress_signal_ignore_handler(int sig)
 {
 	(void)sig;
 }

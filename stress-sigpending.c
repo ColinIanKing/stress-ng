@@ -33,7 +33,7 @@ static int stress_sigpending(stress_args_t *args)
 {
 	sigset_t new_sigset ALIGN64, old_sigset ALIGN64;
 
-	if (stress_sighandler(args->name, SIGUSR1, stress_sighandler_nop, NULL) < 0)
+	if (stress_sighandler(args->name, SIGUSR1, stress_signal_ignore_handler, NULL) < 0)
 		return EXIT_FAILURE;
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);

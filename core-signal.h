@@ -35,7 +35,7 @@ extern int stress_sigrestore(const char *name, const int signum,
 	struct sigaction *orig_action);
 extern WARN_UNUSED bool stress_sigalrm_pending(void);
 extern NORETURN MLOCKED_TEXT void stress_sig_handler_exit(int signum);
-extern void stress_sighandler_nop(int sig);
+extern void stress_signal_ignore_handler(int sig);
 extern void stress_catch_sigill(void);
 extern void stress_catch_sigsegv(void);
 

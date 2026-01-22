@@ -21,6 +21,7 @@
 #include "core-builtin.h"
 #include "core-killpid.h"
 #include "core-try-open.h"
+#include "core-signal.h"
 
 #include <time.h>
 
@@ -154,7 +155,7 @@ int stress_open_timeout(
 	 *  we can't test, so just return 0 and try
 	 *  it anyhow.
 	 */
-	ret = stress_sighandler(name, SIGRTMIN, stress_sighandler_nop, NULL);
+	ret = stress_sighandler(name, SIGRTMIN, stress_signal_ignore_handler, NULL);
 	if (ret < 0)
 		return open(path, flags);
 

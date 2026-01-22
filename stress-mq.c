@@ -102,7 +102,7 @@ static int stress_mq(stress_args_t *args)
 	int rc = EXIT_SUCCESS;
 
 #if defined(SIGUSR2)
-	if (stress_sighandler(args->name, SIGUSR2, stress_sighandler_nop, NULL) < 0)
+	if (stress_sighandler(args->name, SIGUSR2, stress_signal_ignore_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 #endif
 

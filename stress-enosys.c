@@ -4164,7 +4164,7 @@ static int stress_enosys(stress_args_t *args)
 	for (i = 0; i < (ssize_t)SIZEOF_ARRAY(skip_syscalls) - 1; i++)
 		syscall_add(skip_syscalls[i]);
 
-	if (stress_sighandler(args->name, SIGPIPE, stress_sighandler_nop, NULL) < 0)
+	if (stress_sighandler(args->name, SIGPIPE, stress_signal_ignore_handler, NULL) < 0)
 		return EXIT_FAILURE;
 
 	t_start = stress_time_now();

@@ -69,7 +69,7 @@ static int stress_sigrt(stress_args_t *args)
 
 	stress_zero_metrics(stress_sigrt_metrics, MAX_RTSIGS);
 	for (i = 0; i < MAX_RTSIGS; i++) {
-		if (stress_sighandler(args->name, i + SIGRTMIN, stress_sighandler_nop, NULL) < 0) {
+		if (stress_sighandler(args->name, i + SIGRTMIN, stress_signal_ignore_handler, NULL) < 0) {
 			free(pids);
 			(void)munmap((void *)stress_sigrt_metrics, stress_sigrt_metrics_size);
 			return EXIT_FAILURE;
