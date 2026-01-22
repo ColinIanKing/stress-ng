@@ -91,7 +91,7 @@ static void stress_strnum_set_values(void)
 	stress_strnum_double = (double)stress_strnum_li / (double)LONG_MAX;
 	stress_strnum_long_double = (long double)stress_strnum_lli /(long double)LONG_LONG_MAX;
 
-	(void)snprintf(stress_strnum_float_str, sizeof(stress_strnum_float_str), "%.7f", stress_strnum_float);
+	(void)snprintf(stress_strnum_float_str, sizeof(stress_strnum_float_str), "%.7f", (double)stress_strnum_float);
 	(void)snprintf(stress_strnum_double_str, sizeof(stress_strnum_double_str), "%.7g", stress_strnum_double);
 	(void)snprintf(stress_strnum_long_double_str, sizeof(stress_strnum_long_double_str), "%.7Lf", stress_strnum_long_double);
 }
@@ -312,7 +312,7 @@ static bool stress_strnum_strtof(stress_args_t *args, const stress_strnum_method
 	val = strtof(stress_strnum_float_str, NULL);
 	if (UNLIKELY(shim_fabsf(val - stress_strnum_float) > precision)) {
 		pr_fail("%s: %s(%s) failed, got %f, expecting %f\n",
-			args->name, this->name, stress_strnum_float_str, val, stress_strnum_float);
+			args->name, this->name, stress_strnum_float_str, (double)val, (double)stress_strnum_float);
 		return false;
 	}
 	return true;
@@ -325,7 +325,7 @@ static bool stress_strnum_strtod(stress_args_t *args, const stress_strnum_method
 	double val;
 	const double precision = 1.0E-5;
 
-	val = strtof(stress_strnum_double_str, NULL);
+	val = strtod(stress_strnum_double_str, NULL);
 	if (UNLIKELY(shim_fabs(val - stress_strnum_double) > precision)) {
 		pr_fail("%s: %s(%s) failed, got %g, expecting %g\n",
 			args->name, this->name, stress_strnum_double_str, val, stress_strnum_double);
@@ -339,9 +339,9 @@ static bool stress_strnum_strtod(stress_args_t *args, const stress_strnum_method
 static bool stress_strnum_strtold(stress_args_t *args, const stress_strnum_method_t *this)
 {
 	long double val;
-	const long double precision = 1.0E-5;
+	const long double precision = 1.0E-5L;
 
-	val = strtof(stress_strnum_long_double_str, NULL);
+	val = strtold(stress_strnum_long_double_str, NULL);
 	if (UNLIKELY(shim_fabsl(val - stress_strnum_long_double) > precision)) {
 		pr_fail("%s: %s(%s) failed, got %Lf, expecting %Lf\n",
 			args->name, this->name, stress_strnum_long_double_str, val, stress_strnum_long_double);
@@ -430,7 +430,7 @@ static bool stress_strnum_sscanf_f(stress_args_t *args, const stress_strnum_meth
 	}
 	if (UNLIKELY(shim_fabsf(val - stress_strnum_float) > precision)) {
 		pr_fail("%s: sscanf(%s, \"%%f\", &val) failed, got %f, expecting %f\n",
-			args->name, stress_strnum_float_str, val, stress_strnum_float);
+			args->name, stress_strnum_float_str, (double)val, (double)stress_strnum_float);
 		return false;
 	}
 	return true;
@@ -461,7 +461,7 @@ static bool stress_strnum_sscanf_d(stress_args_t *args, const stress_strnum_meth
 static bool stress_strnum_sscanf_ld(stress_args_t *args, const stress_strnum_method_t *this)
 {
 	long double val;
-	const long double precision = 1.0E-6;
+	const long double precision = 1.0E-6L;
 	int ret;
 
 	(void)this;
@@ -490,7 +490,7 @@ static bool stress_strnum_strfromf(stress_args_t *args, const stress_strnum_meth
 	(void)strfromf(str, sizeof(str), "%.7f", stress_strnum_float);
 	if (strcmp(str, stress_strnum_float_str)) {
 		pr_fail("%s: strfromf(str, sizeof(str), \"%%.7f\", %.7f) failed, got %s, expecting %s\n",
-			args->name, stress_strnum_float, str, stress_strnum_float_str);
+			args->name, (double)stress_strnum_float, str, stress_strnum_float_str);
 		return false;
 	}
 	return true;
