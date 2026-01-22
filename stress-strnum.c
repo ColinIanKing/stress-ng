@@ -591,13 +591,13 @@ static int stress_strnum_call_method(
 	int i;
 
 	t = stress_time_now();
-	for (i = 0; i < LOOPS_PER_BOGO_OP; i++) {
+	for (i = 0; stress_continue_flag() && (i < LOOPS_PER_BOGO_OP); i++) {
 		passed = strnum_method->func(args, strnum_method);
 		if (!passed)
 			return false;
 	}
 	metrics->duration += stress_time_now() - t;
-	metrics->count += (double)LOOPS_PER_BOGO_OP;
+	metrics->count += (double)i;
 	stress_bogo_inc(args);
 	return true;
 }
