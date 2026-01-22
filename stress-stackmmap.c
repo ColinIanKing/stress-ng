@@ -23,6 +23,7 @@
 #include "core-mmap.h"
 #include "core-out-of-memory.h"
 #include "core-put.h"
+#include "core-signal.h"
 
 #if defined(HAVE_UCONTEXT_H)
 #include <ucontext.h>
@@ -274,7 +275,7 @@ again:
 			 *  is required because we ran out of stack
 			 */
 			(void)shim_memset(&new_action, 0, sizeof new_action);
-			new_action.sa_handler = stress_sig_handler_exit;
+			new_action.sa_handler = stress_signal_exit_handler;
 			(void)sigemptyset(&new_action.sa_mask);
 			new_action.sa_flags = SA_ONSTACK;
 			if (UNLIKELY(sigaction(SIGSEGV, &new_action, NULL) < 0))

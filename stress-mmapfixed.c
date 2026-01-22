@@ -23,6 +23,7 @@
 #include "core-numa.h"
 #include "core-out-of-memory.h"
 #include "core-pragma.h"
+#include "core-signal.h"
 
 typedef struct {
 	bool mmapfixed_mlock;
@@ -124,8 +125,7 @@ static int stress_mmapfixed_child(stress_args_t *args, void *context)
 	int rc = EXIT_SUCCESS;
 	mmapfixed_info_t *info = (mmapfixed_info_t *)context;
 
-	VOID_RET(int, stress_sighandler(args->name, SIGSEGV,
-				stress_sig_handler_exit, NULL));
+	VOID_RET(int, stress_sighandler(args->name, SIGSEGV, stress_signal_exit_handler, NULL));
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);

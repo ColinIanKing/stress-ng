@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-signal.h"
 
 /* Sleep tests */
 #define STRESS_SLEEP_INTMAX	(1U << 0)
@@ -80,7 +81,7 @@ again:
 
 		stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
-		if (stress_sighandler(args->name, SIGUSR1, stress_sig_handler_exit, NULL) < 0)
+		if (stress_sighandler(args->name, SIGUSR1, stress_signal_exit_handler, NULL) < 0)
 			_exit(EXIT_FAILURE);
 
 		stress_set_make_it_fail();

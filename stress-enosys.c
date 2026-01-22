@@ -24,6 +24,7 @@
 #include "core-killpid.h"
 #include "core-out-of-memory.h"
 #include "core-pragma.h"
+#include "core-signal.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"enosys N",	"start N workers that call non-existent system calls" },
@@ -4215,7 +4216,7 @@ again:
 			if (stress_drop_capabilities(args->name) < 0)
 				_exit(EXIT_NO_RESOURCE);
 			for (i = 0; i < SIZEOF_ARRAY(exit_sigs); i++) {
-				if (stress_sighandler(args->name, exit_sigs[i], stress_sig_handler_exit, NULL) < 0)
+				if (stress_sighandler(args->name, exit_sigs[i], stress_signal_exit_handler, NULL) < 0)
 					_exit(EXIT_FAILURE);
 			}
 			for (i = 0; i < SIZEOF_ARRAY(sigs); i++) {

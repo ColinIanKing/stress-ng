@@ -294,8 +294,7 @@ static int stress_rmap(stress_args_t *args)
 			stress_set_proc_state(args->name, STRESS_STATE_RUN);
 			stress_set_make_it_fail();
 
-			if (stress_sighandler(args->name, SIGALRM,
-			    stress_sig_handler_exit, NULL) < 0)
+			if (stress_sighandler(args->name, SIGALRM, stress_signal_exit_handler, NULL) < 0)
 				_exit(EXIT_FAILURE);
 
 			stress_parent_died_alarm();

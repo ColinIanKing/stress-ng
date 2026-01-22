@@ -171,7 +171,7 @@ static int stress_bad_altstack_child(stress_args_t *args)
 #endif
 #if defined(SIGXCPU) &&	\
     defined(RLIMIT_CPU)
-	if (stress_sighandler(args->name, SIGXCPU, stress_sig_handler_exit, NULL) < 0)
+	if (stress_sighandler(args->name, SIGXCPU, stress_signal_exit_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 
 	rlim.rlim_cur = 1;

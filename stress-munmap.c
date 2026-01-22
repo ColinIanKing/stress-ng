@@ -138,8 +138,8 @@ static int stress_munmap_child(stress_args_t *args, void *context)
 	int rc = EXIT_SUCCESS;
 	uint64_t inode;
 
-	VOID_RET(int, stress_sighandler(args->name, SIGSEGV, stress_sig_handler_exit, NULL));
-	VOID_RET(int, stress_sighandler(args->name, SIGBUS, stress_sig_handler_exit, NULL));
+	VOID_RET(int, stress_sighandler(args->name, SIGSEGV, stress_signal_exit_handler, NULL));
+	VOID_RET(int, stress_sighandler(args->name, SIGBUS, stress_signal_exit_handler, NULL));
 
 	(void)snprintf(path, sizeof(path), "/proc/%" PRIdMAX "/maps", (intmax_t)pid);
 	fp = fopen(path, "r");

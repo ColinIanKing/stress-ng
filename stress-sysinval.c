@@ -22,6 +22,8 @@
 #include "core-capabilities.h"
 #include "core-killpid.h"
 #include "core-out-of-memory.h"
+#include "core-signal.h"
+
 #include <sys/socket.h>
 
 static const stress_help_t help[] = {
@@ -2679,7 +2681,7 @@ static inline int stress_do_syscall(stress_args_t *args)
 			_exit(EXIT_NO_RESOURCE);
 		}
 		for (i = 0; i < SIZEOF_ARRAY(sigs); i++) {
-			if (UNLIKELY(stress_sighandler(args->name, sigs[i], stress_sig_handler_exit, NULL) < 0))
+			if (UNLIKELY(stress_sighandler(args->name, sigs[i], stress_signal_exit_handler, NULL) < 0))
 				_exit(EXIT_FAILURE);
 		}
 

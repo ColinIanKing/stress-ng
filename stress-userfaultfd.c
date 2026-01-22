@@ -155,7 +155,7 @@ static int stress_userfaultfd_clone(void *arg)
 	stress_parent_died_alarm();
 	(void)sched_settings_apply(true);
 
-	if (stress_sighandler(args->name, SIGALRM, stress_sig_handler_exit, NULL) < 0)
+	if (stress_sighandler(args->name, SIGALRM, stress_signal_exit_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 
 	do {

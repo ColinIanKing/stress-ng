@@ -400,7 +400,7 @@ static int stress_fpunch(stress_args_t *args)
 			stress_set_proc_state(args->name, STRESS_STATE_RUN);
 			stress_set_make_it_fail();
 
-			VOID_RET(int, stress_sighandler(args->name, SIGALRM, stress_sig_handler_exit, NULL));
+			VOID_RET(int, stress_sighandler(args->name, SIGALRM, stress_signal_exit_handler, NULL));
 #if defined(HAVE_PREADV_WRITEV)
 			ret = stress_punch_file(args, buf, fpunch_bytes, i, fd);
 			(void)close(fd);

@@ -502,11 +502,11 @@ bool stress_sigalrm_pending(void)
 }
 
 /*
- *  stress_sig_handler_exit()
+ *  stress_signal_exit_handler()
  *	signal handler that exits a process via _exit(0) for
  *	immediate dead stop termination.
  */
-void NORETURN MLOCKED_TEXT stress_sig_handler_exit(int signum)
+void NORETURN MLOCKED_TEXT stress_signal_exit_handler(int signum)
 {
 	(void)signum;
 
