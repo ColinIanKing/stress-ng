@@ -21,6 +21,7 @@
 #include "core-builtin.h"
 #include "core-madvise.h"
 #include "core-mmap.h"
+#include "core-signal.h"
 #include "core-sort.h"
 #include "core-target-clones.h"
 
@@ -315,7 +316,7 @@ static int stress_mergesort(stress_args_t *args)
 		/*
 		 * We return here if SIGALRM jmp'd back
 		 */
-		(void)stress_sigrestore(args->name, SIGALRM, &old_action);
+		(void)stress_signal_restore(args->name, SIGALRM, &old_action);
 		goto tidy;
 	}
 	if (stress_sighandler(args->name, SIGALRM, stress_mergesort_handler, &old_action) < 0) {
@@ -428,7 +429,7 @@ static int stress_mergesort(stress_args_t *args)
     !defined(__NetBSD__) &&	\
     defined(HAVE_SIGLONGJMP)
 	do_jmp = false;
-	(void)stress_sigrestore(args->name, SIGALRM, &old_action);
+	(void)stress_signal_restore(args->name, SIGALRM, &old_action);
 tidy:
 #endif
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);

@@ -330,7 +330,7 @@ static int OPTIMIZE3 stress_qsort(stress_args_t *args)
 		/*
 		 * We return here if SIGALRM jmp'd back
 		 */
-		(void)stress_sigrestore(args->name, SIGALRM, &old_action);
+		(void)stress_signal_restore(args->name, SIGALRM, &old_action);
 		goto tidy;
 	}
 	if (stress_sighandler(args->name, SIGALRM, stress_qsort_handler, &old_action) < 0) {
@@ -407,7 +407,7 @@ static int OPTIMIZE3 stress_qsort(stress_args_t *args)
 
 #if defined(HAVE_SIGLONGJMP)
 	do_jmp = false;
-	(void)stress_sigrestore(args->name, SIGALRM, &old_action);
+	(void)stress_signal_restore(args->name, SIGALRM, &old_action);
 tidy:
 #endif
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);

@@ -31,7 +31,7 @@ extern void stress_signal_stop_flag_handler(int sig);
 extern int stress_signal_default_handler(const int signum);
 extern void stress_signal_stop_stressing_realarm(const int signum);
 extern WARN_UNUSED int stress_signal_stop_stressing(const char *name, const int sig);
-extern int stress_sigrestore(const char *name, const int signum,
+extern int stress_signal_restore(const char *name, const int signum,
 	struct sigaction *orig_action);
 extern WARN_UNUSED bool stress_signal_alrm_pending(void);
 extern NORETURN void stress_signal_exit_handler(int signum);

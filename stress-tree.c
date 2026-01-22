@@ -1012,7 +1012,7 @@ static int stress_tree(stress_args_t *args)
 		/*
 		 * We return here if SIGALRM jmp'd back
 		 */
-		(void)stress_sigrestore(args->name, SIGALRM, &old_action);
+		(void)stress_signal_restore(args->name, SIGALRM, &old_action);
 		goto tidy;
 	}
 	if (stress_sighandler(args->name, SIGALRM, stress_tree_handler, &old_action) < 0) {
@@ -1038,7 +1038,7 @@ static int stress_tree(stress_args_t *args)
 
 #if defined(HAVE_SIGLONGJMP)
 	do_jmp = false;
-	(void)stress_sigrestore(args->name, SIGALRM, &old_action);
+	(void)stress_signal_restore(args->name, SIGALRM, &old_action);
 
 tidy:
 #endif

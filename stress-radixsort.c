@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-builtin.h"
 #include "core-cpu-cache.h"
+#include "core-signal.h"
 
 #define MIN_RADIXSORT_SIZE	(1 * KB)
 #define MAX_RADIXSORT_SIZE	(4 * MB)
@@ -247,7 +248,7 @@ static int stress_radixsort(stress_args_t *args)
 		/*
 		 * We return here if SIGALRM jmp'd back
 		 */
-		(void)stress_sigrestore(args->name, SIGALRM, &old_action);
+		(void)stress_signal_restore(args->name, SIGALRM, &old_action);
 		goto tidy;
 	}
 	if (stress_sighandler(args->name, SIGALRM, stress_radixsort_handler, &old_action) < 0) {
@@ -313,7 +314,7 @@ static int stress_radixsort(stress_args_t *args)
 
 #if defined(HAVE_SIGLONGJMP)
 	do_jmp = false;
-	(void)stress_sigrestore(args->name, SIGALRM, &old_action);
+	(void)stress_signal_restore(args->name, SIGALRM, &old_action);
 tidy:
 #endif
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);

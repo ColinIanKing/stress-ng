@@ -1215,7 +1215,7 @@ static void stress_rand_data_objcode(
 	}
 	if (stress_sighandler(args->name, SIGBUS, stress_bad_read_handler, &sigbus_orig) < 0) {
 		use_rand_data = true;
-		(void)stress_sigrestore(args->name, SIGSEGV, &sigsegv_orig);
+		(void)stress_signal_restore(args->name, SIGSEGV, &sigsegv_orig);
 		stress_rand_data_binary(args, data, data_end);
 		return;
 	}
@@ -1226,8 +1226,8 @@ static void stress_rand_data_objcode(
 	 *  fall back to stress_rand_data_binary.
 	 */
 	if (sigsetjmp(jmpbuf, 1) != 0) {
-		(void)stress_sigrestore(args->name, SIGSEGV, &sigsegv_orig);
-		(void)stress_sigrestore(args->name, SIGBUS, &sigbus_orig);
+		(void)stress_signal_restore(args->name, SIGSEGV, &sigsegv_orig);
+		(void)stress_signal_restore(args->name, SIGBUS, &sigbus_orig);
 		stress_rand_data_binary(args, data, data_end);
 		return;
 	}
@@ -1246,8 +1246,8 @@ static void stress_rand_data_objcode(
 		if (text++ >= text_end)
 			text = text_start;
 	}
-	(void)stress_sigrestore(args->name, SIGSEGV, &sigsegv_orig);
-	(void)stress_sigrestore(args->name, SIGBUS, &sigbus_orig);
+	(void)stress_signal_restore(args->name, SIGSEGV, &sigsegv_orig);
+	(void)stress_signal_restore(args->name, SIGBUS, &sigbus_orig);
 }
 
 /*

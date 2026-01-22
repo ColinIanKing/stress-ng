@@ -23,6 +23,7 @@
 #include "core-killpid.h"
 #include "core-lock.h"
 #include "core-mmap.h"
+#include "core-signal.h"
 
 #include <math.h>
 #include <sched.h>
@@ -389,7 +390,7 @@ tidy:
 	(void)timer_settime(timerid, 0, &timer, NULL);
 	(void)timer_delete(timerid);
 restore:
-	stress_sigrestore(args->name, SIGRTMIN, &old_action);
+	stress_signal_restore(args->name, SIGRTMIN, &old_action);
 	return ret;
 }
 #else

@@ -472,10 +472,10 @@ int stress_signal_stop_stressing(const char *name, const int sig)
 }
 
 /*
- *  stress_sigrestore()
+ *  stress_signal_restore()
  *	restore a handler
  */
-int stress_sigrestore(
+int stress_signal_restore(
 	const char *name,
 	const int signum,
 	struct sigaction *orig_action)

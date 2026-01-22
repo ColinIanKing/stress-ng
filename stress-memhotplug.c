@@ -21,6 +21,7 @@
 #include "core-builtin.h"
 #include "core-capabilities.h"
 #include "core-mmap.h"
+#include "core-signal.h"
 
 #if defined(__linux__)
 typedef struct {
@@ -338,7 +339,7 @@ finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	do_jmp = false;
-	(void)stress_sigrestore(args->name, SIGSEGV, &old_action);
+	(void)stress_signal_restore(args->name, SIGSEGV, &old_action);
 
 	if (segv_count) {
 		pr_dbg("%s: caught %" PRIu64 " unexpected SIGSEGVs\n",

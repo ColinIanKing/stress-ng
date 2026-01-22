@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-builtin.h"
+#include "core-signal.h"
 
 #if defined(HAVE_SYS_QUEUE_H)
 #include <sys/queue.h>
@@ -558,7 +559,7 @@ static int stress_list(stress_args_t *args)
 		/*
 		 * We return here if SIGALRM jmp'd back
 		 */
-		(void)stress_sigrestore(args->name, SIGALRM, &old_action);
+		(void)stress_signal_restore(args->name, SIGALRM, &old_action);
 		goto tidy;
 	}
 	if (stress_sighandler(args->name, SIGALRM, stress_list_handler, &old_action) < 0) {
@@ -603,7 +604,7 @@ static int stress_list(stress_args_t *args)
 	} while (stress_continue(args));
 
 #if defined(HAVE_SIGLONGJMP)
-	(void)stress_sigrestore(args->name, SIGALRM, &old_action);
+	(void)stress_signal_restore(args->name, SIGALRM, &old_action);
 	do_jmp = false;
 tidy:
 #endif

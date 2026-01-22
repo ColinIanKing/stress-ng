@@ -20,6 +20,7 @@
 #include "core-madvise.h"
 #include "core-mmap.h"
 #include "core-pragma.h"
+#include "core-signal.h"
 #include "core-sort.h"
 
 #define MIN_BITONICSORT_SIZE		(1 * KB)
@@ -166,7 +167,7 @@ static int OPTIMIZE3 stress_bitonicsort(stress_args_t *args)
 		/*
 		 * We return here if SIGALRM jmp'd back
 		 */
-		(void)stress_sigrestore(args->name, SIGALRM, &old_action);
+		(void)stress_signal_restore(args->name, SIGALRM, &old_action);
 		goto tidy;
 	}
 	if (stress_sighandler(args->name, SIGALRM, stress_bitonicsort_handler, &old_action) < 0) {
@@ -268,7 +269,7 @@ PRAGMA_UNROLL_N(4)
 
 #if defined(HAVE_SIGLONGJMP)
 	do_jmp = false;
-	(void)stress_sigrestore(args->name, SIGALRM, &old_action);
+	(void)stress_signal_restore(args->name, SIGALRM, &old_action);
 tidy:
 #endif
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);

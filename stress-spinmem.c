@@ -25,6 +25,7 @@
 #include "core-killpid.h"
 #include "core-mmap.h"
 #include "core-numa.h"
+#include "core-signal.h"
 
 #include <sched.h>
 
@@ -294,7 +295,7 @@ static int stress_spinmem(stress_args_t *args)
 		/*
 		 * We return here if SIGALRM jmp'd back
 		 */
-		 (void)stress_sigrestore(args->name, SIGALRM, &old_action);
+		 (void)stress_signal_restore(args->name, SIGALRM, &old_action);
 		goto tidy;
 	}
 	if (stress_sighandler(args->name, SIGALRM, stress_spinmem_handler, &old_action) < 0) {
@@ -388,7 +389,7 @@ completed:
 #endif
 #if defined(HAVE_SIGLONGJMP)
 	do_jmp = false;
-	(void)stress_sigrestore(args->name, SIGALRM, &old_action);
+	(void)stress_signal_restore(args->name, SIGALRM, &old_action);
 #endif
 tidy:
 	if (pid > 0)

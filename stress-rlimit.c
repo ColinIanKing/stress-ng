@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-mincore.h"
 #include "core-out-of-memory.h"
+#include "core-signal.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"rlimit N",	"start N workers that exercise rlimit" },
@@ -316,9 +317,9 @@ static int stress_rlimit(stress_args_t *args)
 	ret = stress_oomable_child(args, &context, stress_rlimit_child, STRESS_OOMABLE_NORMAL);
 
 	do_jmp = false;
-	(void)stress_sigrestore(args->name, SIGXCPU, &old_action_xcpu);
-	(void)stress_sigrestore(args->name, SIGXFSZ, &old_action_xfsz);
-	(void)stress_sigrestore(args->name, SIGSEGV, &old_action_segv);
+	(void)stress_signal_restore(args->name, SIGXCPU, &old_action_xcpu);
+	(void)stress_signal_restore(args->name, SIGXFSZ, &old_action_xfsz);
+	(void)stress_signal_restore(args->name, SIGSEGV, &old_action_segv);
 	(void)close(context.fd);
 	(void)stress_temp_dir_rm_args(args);
 
