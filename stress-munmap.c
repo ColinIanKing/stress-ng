@@ -22,6 +22,7 @@
 #include "core-mmap.h"
 #include "core-out-of-memory.h"
 #include "core-prime.h"
+#include "core-signal.h"
 
 #include <ctype.h>
 
@@ -119,17 +120,6 @@ static void stress_munmap_range(
 }
 
 /*
- *  stress_munmap_sig_handler()
- *	signal handler to immediately terminates
- */
-static void NORETURN MLOCKED_TEXT stress_munmap_sig_handler(int num)
-{
-	(void)num;
-
-	_exit(0);
-}
-
-/*
  *  stress_munmap_child()
  *	child process that attempts to unmap a lot of the
  *	pages mapped into stress-ng without killing itself with
@@ -148,8 +138,8 @@ static int stress_munmap_child(stress_args_t *args, void *context)
 	int rc = EXIT_SUCCESS;
 	uint64_t inode;
 
-	VOID_RET(int, stress_sighandler(args->name, SIGSEGV, stress_munmap_sig_handler, NULL));
-	VOID_RET(int, stress_sighandler(args->name, SIGBUS, stress_munmap_sig_handler, NULL));
+	VOID_RET(int, stress_sighandler(args->name, SIGSEGV, stress_sig_handler_exit, NULL));
+	VOID_RET(int, stress_sighandler(args->name, SIGBUS, stress_sig_handler_exit, NULL));
 
 	(void)snprintf(path, sizeof(path), "/proc/%" PRIdMAX "/maps", (intmax_t)pid);
 	fp = fopen(path, "r");

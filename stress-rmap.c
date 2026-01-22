@@ -22,6 +22,7 @@
 #include "core-killpid.h"
 #include "core-out-of-memory.h"
 #include "core-pragma.h"
+#include "core-signal.h"
 
 #define RMAP_CHILD_MAX		(16)
 #define MAPPINGS_MAX		(64)
@@ -43,17 +44,6 @@ static void *counter_lock;
  *
  *  file size = ((MAPPINGS_MAX - 1) + MAPPING_PAGES) * page_size;
  */
-
-/*
- *  stress_rmap_handler()
- *      rmap signal handler
- */
-static void MLOCKED_TEXT NORETURN stress_rmap_handler(int signum)
-{
-	(void)signum;
-
-	_exit(0);
-}
 
 static int OPTIMIZE3 stress_rmap_touch(
 	stress_args_t *args,
@@ -305,7 +295,7 @@ static int stress_rmap(stress_args_t *args)
 			stress_set_make_it_fail();
 
 			if (stress_sighandler(args->name, SIGALRM,
-			    stress_rmap_handler, NULL) < 0)
+			    stress_sig_handler_exit, NULL) < 0)
 				_exit(EXIT_FAILURE);
 
 			stress_parent_died_alarm();

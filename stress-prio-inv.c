@@ -21,6 +21,7 @@
 #include "core-killpid.h"
 #include "core-capabilities.h"
 #include "core-pthread.h"
+#include "core-signal.h"
 
 #if defined(HAVE_PTHREAD_NP_H)
 #include <pthread_np.h>
@@ -293,13 +294,6 @@ redo_policy:
 	return ret;
 }
 
-static void MLOCKED_TEXT NORETURN stress_prio_inv_alarm_handler(int sig)
-{
-	(void)sig;
-
-	_exit(0);
-}
-
 #if defined(SCHED_FIFO) ||	\
     defined(SCHED_RR)
 static void stress_prio_inv_check_policy(
@@ -458,7 +452,7 @@ static int stress_prio_inv(stress_args_t *args)
 			goto reap;
 		} else if (pid == 0) {
 			stress_set_proc_state(args->name, STRESS_STATE_RUN);
-			if (stress_sighandler(args->name, SIGALRM, stress_prio_inv_alarm_handler, NULL) < 0)
+			if (stress_sighandler(args->name, SIGALRM, stress_sig_handler_exit, NULL) < 0)
 				pr_inf("%s: cannot set SIGALRM signal handler, process termination may not work\n", args->name);
 			stress_set_make_it_fail();
 

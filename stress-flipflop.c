@@ -81,15 +81,6 @@ typedef struct stress_flipflop_worker {
 	uint8_t pad[64 - (sizeof(stress_flipflop_info_t) & 0x3f)];
 } stress_flipflop_worker_t ALIGN64;
 
-/*
- *  stress_flipflop_sigusr1_handler()
- *	handler to interrupt parent pause() waits
- */
-static void MLOCKED_TEXT stress_flipflop_sigusr1_handler(int signum)
-{
-	(void)signum;
-}
-
 static void *stress_flipflop_worker(void *arg)
 {
 	stress_flipflop_worker_t *w = (stress_flipflop_worker_t *)arg;
@@ -237,7 +228,7 @@ static int stress_flipflop(stress_args_t *args)
 		return EXIT_FAILURE;
 	}
 
-	if (stress_sighandler(args->name, SIGUSR1, stress_flipflop_sigusr1_handler, NULL))
+	if (stress_sighandler(args->name, SIGUSR1, stress_sighandler_nop, NULL))
 		return EXIT_NO_RESOURCE;
 
 	dist = (uint64_t *)calloc(2 * flipflop_bits, sizeof(uint64_t));

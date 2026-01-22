@@ -20,6 +20,7 @@
 #include "core-builtin.h"
 #include "core-killpid.h"
 #include "core-out-of-memory.h"
+#include "core-signal.h"
 
 #if defined(HAVE_LINUX_IF_TUN_H)
 #include <linux/if_tun.h>
@@ -2082,14 +2083,6 @@ static const fd_func_t fd_funcs[] = {
 #endif
 };
 
-/*
- *  Handle and ignore SIGIO/SIGPIPE signals
- */
-static void MLOCKED_TEXT stress_fd_sig_handler(int sig)
-{
-	(void)sig;
-}
-
 static int stress_fd_abuse_process(stress_args_t *args, void *context)
 {
 	size_t i, n;
@@ -2164,10 +2157,10 @@ static int stress_fd_abuse(stress_args_t *args)
 	int rc = EXIT_SUCCESS;
 
 #if defined(SIGIO)
-	if (stress_sighandler(args->name, SIGIO, stress_fd_sig_handler, NULL) < 0)
+	if (stress_sighandler(args->name, SIGIO, stress_sighandler_nop, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 #endif
-	if (stress_sighandler(args->name, SIGPIPE, stress_fd_sig_handler, NULL) < 0)
+	if (stress_sighandler(args->name, SIGPIPE, stress_sighandler_nop, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 
 	if (stress_temp_dir_mk_args(args) < 0) {

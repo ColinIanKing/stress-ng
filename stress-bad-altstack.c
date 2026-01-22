@@ -25,6 +25,7 @@
 #include "core-out-of-memory.h"
 #include "core-put.h"
 #include "core-pragma.h"
+#include "core-signal.h"
 
 #if defined(HAVE_SYS_AUXV_H)
 #include <sys/auxv.h>
@@ -67,16 +68,6 @@ static void stress_bad_altstack_force_fault(void *stack_start)
 	(void)*vol_stack;		/* cppcheck-suppress nullPointer */
 }
 STRESS_PRAGMA_POP
-
-#if defined(SIGXCPU) &&	\
-    defined(RLIMIT_CPU)
-static void NORETURN MLOCKED_TEXT stress_xcpu_handler(int signum)
-{
-	(void)signum;
-
-	_exit(0);
-}
-#endif
 
 static void NORETURN MLOCKED_TEXT stress_signal_handler(int signum)
 {
@@ -180,7 +171,7 @@ static int stress_bad_altstack_child(stress_args_t *args)
 #endif
 #if defined(SIGXCPU) &&	\
     defined(RLIMIT_CPU)
-	if (stress_sighandler(args->name, SIGXCPU, stress_xcpu_handler, NULL) < 0)
+	if (stress_sighandler(args->name, SIGXCPU, stress_sig_handler_exit, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 
 	rlim.rlim_cur = 1;

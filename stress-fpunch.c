@@ -22,6 +22,7 @@
 #include "core-killpid.h"
 #include "core-madvise.h"
 #include "core-mmap.h"
+#include "core-signal.h"
 
 #define MIN_FPUNCH_BYTES	(1 * MB)
 #define MAX_FPUNCH_BYTES	(2 * GB)
@@ -82,13 +83,6 @@ static const stress_fallocate_modes_t modes[] = {
 	{ FALLOC_FL_INSERT_RANGE,			false, true, false },
 #endif
 };
-
-static void NORETURN MLOCKED_TEXT stress_fpunch_child_handler(int signum)
-{
-	(void)signum;
-
-	_exit(EXIT_SUCCESS);
-}
 
 /*
  *  stress_punch_pwrite()
@@ -406,7 +400,7 @@ static int stress_fpunch(stress_args_t *args)
 			stress_set_proc_state(args->name, STRESS_STATE_RUN);
 			stress_set_make_it_fail();
 
-			VOID_RET(int, stress_sighandler(args->name, SIGALRM, stress_fpunch_child_handler, NULL));
+			VOID_RET(int, stress_sighandler(args->name, SIGALRM, stress_sig_handler_exit, NULL));
 #if defined(HAVE_PREADV_WRITEV)
 			ret = stress_punch_file(args, buf, fpunch_bytes, i, fd);
 			(void)close(fd);

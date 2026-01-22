@@ -220,17 +220,6 @@ RB_GENERATE(sm_free_node_tree, mr_node, rb, mr_node_node_cmp)
 static size_t sm_free_nodes;
 
 /*
- *  stress_mmaprandom_sig_handler()
- *	signal handler to immediately terminates
- */
-static void NORETURN MLOCKED_TEXT stress_mmaprandom_sig_handler(int num)
-{
-	(void)num;
-
-	_exit(0);
-}
-
-/*
  *  mmap protection flags
  */
 static const int prot_flags[] = {
@@ -2088,8 +2077,8 @@ static int stress_mmaprandom_child(stress_args_t *args, void *context)
 	int rc = EXIT_SUCCESS;
 	mr_node_t *mr_node;
 
-	VOID_RET(int, stress_sighandler(args->name, SIGSEGV, stress_mmaprandom_sig_handler, NULL));
-	VOID_RET(int, stress_sighandler(args->name, SIGBUS, stress_mmaprandom_sig_handler, NULL));
+	VOID_RET(int, stress_sighandler(args->name, SIGSEGV, stress_sig_handler_exit, NULL));
+	VOID_RET(int, stress_sighandler(args->name, SIGBUS, stress_sig_handler_exit, NULL));
 
 	ctxt->pidfd = shim_pidfd_open(getpid(), 0);
 

@@ -21,6 +21,7 @@
 #include "core-cpu-cache.h"
 #include "core-builtin.h"
 #include "core-io-priority.h"
+#include "core-signal.h"
 
 #include <math.h>
 #include <sched.h>
@@ -862,11 +863,6 @@ reap_child:
 	return 0;
 }
 #endif
-
-static void MLOCKED_TEXT syscall_sigignore_handler(int num)
-{
-	(void)num;
-}
 
 static void MLOCKED_TEXT syscall_sigusr1_handler(int num)
 {
@@ -6361,7 +6357,7 @@ static int syscall_signal(void)
 	shim_sighandler_t prev_handler;
 
 	t1 = syscall_time_now();
-	prev_handler = signal(SIGCHLD, syscall_sigignore_handler);
+	prev_handler = signal(SIGCHLD, stress_sighandler_nop);
 	t2 = syscall_time_now();
 	if (prev_handler == SIG_ERR)
 		return -1;
@@ -8881,7 +8877,7 @@ static int stress_syscall(stress_args_t *args)
 	if (stress_sighandler(args->name, SIGUSR1, syscall_sigusr1_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 #if defined(SIGXFSZ)
-	if (stress_sighandler(args->name, SIGXFSZ, syscall_sigignore_handler, NULL) < 0)
+	if (stress_sighandler(args->name, SIGXFSZ, stress_sighandler_nop, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 #endif
 

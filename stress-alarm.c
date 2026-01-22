@@ -37,13 +37,6 @@ static const stress_help_t help[] = {
 	{ NULL, NULL,		NULL }
 };
 
-static void MLOCKED_TEXT NORETURN stress_alarm_sigusr1_handler(int sig)
-{
-	(void)sig;
-
-	_exit(0);
-}
-
 static void stress_alarm_stress_bogo_inc(stress_args_t *args)
 {
 	sigset_t set;
@@ -87,7 +80,7 @@ again:
 
 		stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
-		if (stress_sighandler(args->name, SIGUSR1, stress_alarm_sigusr1_handler, NULL) < 0)
+		if (stress_sighandler(args->name, SIGUSR1, stress_sig_handler_exit, NULL) < 0)
 			_exit(EXIT_FAILURE);
 
 		stress_set_make_it_fail();

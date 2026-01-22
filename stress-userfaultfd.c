@@ -21,6 +21,7 @@
 #include "core-builtin.h"
 #include "core-killpid.h"
 #include "core-out-of-memory.h"
+#include "core-signal.h"
 
 #include <sched.h>
 #include <sys/ioctl.h>
@@ -143,17 +144,6 @@ static int stress_userfaultfd_supported(const char *name)
 }
 
 /*
- *  stress_child_alarm_handler()
- *	SIGALRM handler to terminate child immediately
- */
-static void MLOCKED_TEXT NORETURN stress_child_alarm_handler(int signum)
-{
-	(void)signum;
-
-	_exit(0);
-}
-
-/*
  *  stress_userfaultfd_clone()
  *	generate page faults for parent to handle
  */
@@ -165,7 +155,7 @@ static int stress_userfaultfd_clone(void *arg)
 	stress_parent_died_alarm();
 	(void)sched_settings_apply(true);
 
-	if (stress_sighandler(args->name, SIGALRM, stress_child_alarm_handler, NULL) < 0)
+	if (stress_sighandler(args->name, SIGALRM, stress_sig_handler_exit, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 
 	do {
