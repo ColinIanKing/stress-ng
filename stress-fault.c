@@ -256,8 +256,8 @@ next:
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
 
-	(void)stress_sighandler_default(SIGBUS);
-	(void)stress_sighandler_default(SIGSEGV);
+	(void)stress_signal_default_handler(SIGBUS);
+	(void)stress_signal_default_handler(SIGSEGV);
 
 #if defined(HAVE_GETRUSAGE) &&		\
     defined(RUSAGE_SELF) &&		\

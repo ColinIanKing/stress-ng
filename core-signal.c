@@ -428,10 +428,10 @@ int stress_sigchld_set_handler(stress_args_t *args)
 }
 
 /*
- *  stress_sighandler_default
+ *  stress_signal_default_handler
  *	restore signal handler to default handler
  */
-int stress_sighandler_default(const int signum)
+int stress_signal_default_handler(const int signum)
 {
 	struct sigaction new_action;
 

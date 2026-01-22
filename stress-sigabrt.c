@@ -121,7 +121,7 @@ again:
 				abort();
 				/* Should never get here */
 			} else {
-				(void)stress_sighandler_default(SIGABRT);
+				(void)stress_signal_default_handler(SIGABRT);
 
 				/* Raising SIGABRT without an handler will abort */
 				sigabrt_info->t_start = stress_time_now();

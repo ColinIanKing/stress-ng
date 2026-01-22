@@ -1437,11 +1437,11 @@ static int stress_misaligned(stress_args_t *args)
 		VOID_RET(int, timer_settime(timer_id, 0, &timer, NULL));
 		VOID_RET(int, timer_delete(timer_id));
 	}
-	(void)stress_sighandler_default(SIGRTMIN);
+	(void)stress_signal_default_handler(SIGRTMIN);
 #endif
-	(void)stress_sighandler_default(SIGBUS);
-	(void)stress_sighandler_default(SIGILL);
-	(void)stress_sighandler_default(SIGSEGV);
+	(void)stress_signal_default_handler(SIGBUS);
+	(void)stress_signal_default_handler(SIGILL);
+	(void)stress_signal_default_handler(SIGSEGV);
 
 	stress_misaligned_exercised(args);
 
