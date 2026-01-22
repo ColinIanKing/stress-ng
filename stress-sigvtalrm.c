@@ -78,7 +78,7 @@ static int stress_sigvtalrm(stress_args_t *args)
 
 	s_args = args;
 
-	if (stress_sighandler(args->name, SIGVTALRM, stress_sigvtalrm_handler, NULL) < 0)
+	if (stress_signal_handler(args->name, SIGVTALRM, stress_sigvtalrm_handler, NULL) < 0)
 		return EXIT_FAILURE;
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);

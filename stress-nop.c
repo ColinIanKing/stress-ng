@@ -340,7 +340,7 @@ static int stress_nop(stress_args_t *args)
 	(void)stress_get_setting("nop-instr", &nop_instr);
 	instr = &nop_instrs[nop_instr];
 
-	if (stress_sighandler(args->name, SIGILL, stress_sigill_nop_handler, NULL) < 0)
+	if (stress_signal_handler(args->name, SIGILL, stress_sigill_nop_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 
 	do_random = (instr->nop_func == stress_nop_random);

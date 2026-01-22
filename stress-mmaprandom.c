@@ -2078,8 +2078,8 @@ static int stress_mmaprandom_child(stress_args_t *args, void *context)
 	int rc = EXIT_SUCCESS;
 	mr_node_t *mr_node;
 
-	VOID_RET(int, stress_sighandler(args->name, SIGSEGV, stress_signal_exit_handler, NULL));
-	VOID_RET(int, stress_sighandler(args->name, SIGBUS, stress_signal_exit_handler, NULL));
+	VOID_RET(int, stress_signal_handler(args->name, SIGSEGV, stress_signal_exit_handler, NULL));
+	VOID_RET(int, stress_signal_handler(args->name, SIGBUS, stress_signal_exit_handler, NULL));
 
 	ctxt->pidfd = shim_pidfd_open(getpid(), 0);
 

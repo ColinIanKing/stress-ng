@@ -8874,10 +8874,10 @@ static int stress_syscall(stress_args_t *args)
 	syscall_umask_mask = umask(0);
 	syscall_exec_prog = stress_get_proc_self_exe(exec_path, sizeof(exec_path));
 
-	if (stress_sighandler(args->name, SIGUSR1, syscall_sigusr1_handler, NULL) < 0)
+	if (stress_signal_handler(args->name, SIGUSR1, syscall_sigusr1_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 #if defined(SIGXFSZ)
-	if (stress_sighandler(args->name, SIGXFSZ, stress_signal_ignore_handler, NULL) < 0)
+	if (stress_signal_handler(args->name, SIGXFSZ, stress_signal_ignore_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 #endif
 

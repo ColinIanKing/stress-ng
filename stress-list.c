@@ -562,7 +562,7 @@ static int stress_list(stress_args_t *args)
 		(void)stress_signal_restore(args->name, SIGALRM, &old_action);
 		goto tidy;
 	}
-	if (stress_sighandler(args->name, SIGALRM, stress_list_handler, &old_action) < 0) {
+	if (stress_signal_handler(args->name, SIGALRM, stress_list_handler, &old_action) < 0) {
 		free(entries);
 		return EXIT_FAILURE;
 	}

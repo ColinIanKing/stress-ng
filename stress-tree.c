@@ -1015,7 +1015,7 @@ static int stress_tree(stress_args_t *args)
 		(void)stress_signal_restore(args->name, SIGALRM, &old_action);
 		goto tidy;
 	}
-	if (stress_sighandler(args->name, SIGALRM, stress_tree_handler, &old_action) < 0) {
+	if (stress_signal_handler(args->name, SIGALRM, stress_tree_handler, &old_action) < 0) {
 		free(nodes);
 		return EXIT_FAILURE;
 	}

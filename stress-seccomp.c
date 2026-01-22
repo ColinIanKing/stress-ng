@@ -408,7 +408,7 @@ static int stress_seccomp(stress_args_t *args)
 			stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 			stress_process_dumpable(false);
-			VOID_RET(int, stress_sighandler(args->name, SIGSYS, stress_sigsys, NULL));
+			VOID_RET(int, stress_signal_handler(args->name, SIGSYS, stress_sigsys, NULL));
 
 			(void)stress_seccomp_set_huge_filter(args);
 			if (stress_seccomp_set_filter(args, allow_write, do_random) < 0)

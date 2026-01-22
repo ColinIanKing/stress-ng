@@ -231,7 +231,7 @@ unmap:
  */
 static int stress_mmapaddr(stress_args_t *args)
 {
-	if (stress_sighandler(args->name, SIGSEGV, stress_fault_handler, NULL) < 0)
+	if (stress_signal_handler(args->name, SIGSEGV, stress_fault_handler, NULL) < 0)
 		return EXIT_FAILURE;
 
 	return stress_oomable_child(args, NULL, stress_mmapaddr_child, STRESS_OOMABLE_NORMAL);

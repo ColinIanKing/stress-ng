@@ -61,7 +61,7 @@ static int stress_sigabrt(stress_args_t *args)
 	double rate;
 	int rc = EXIT_SUCCESS;
 
-	if (stress_sighandler(args->name, SIGABRT, stress_sigabrt_handler, NULL) < 0)
+	if (stress_signal_handler(args->name, SIGABRT, stress_sigabrt_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 
 	sigabrt_info = (stress_sigabrt_info_t *)mmap(NULL, sizeof(*sigabrt_info),
@@ -110,7 +110,7 @@ again:
 
 			/* Randomly select death by abort or SIGABRT */
 			if (sigabrt_info->handler_enabled) {
-				VOID_RET(int, stress_sighandler(args->name, SIGABRT, stress_sigabrt_handler, NULL));
+				VOID_RET(int, stress_signal_handler(args->name, SIGABRT, stress_sigabrt_handler, NULL));
 
 				/*
 				 * Aborting with a handler will call the handler, the handler will

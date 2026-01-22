@@ -241,7 +241,7 @@ static int stress_nanosleep(stress_args_t *args)
 		}
 	}
 
-	if (stress_sighandler(args->name, SIGALRM, stress_sigalrm_handler, NULL) < 0)
+	if (stress_signal_handler(args->name, SIGALRM, stress_sigalrm_handler, NULL) < 0)
 		return EXIT_FAILURE;
 
 	ctxts = (stress_ctxt_t *)calloc(nanosleep_threads, sizeof(*ctxts));

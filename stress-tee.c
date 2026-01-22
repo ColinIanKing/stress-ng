@@ -231,7 +231,7 @@ static int stress_tee(stress_args_t *args)
 	int metrics_count = 0;
 	double duration = 0.0, bytes = 0.0, rate;
 
-	if (stress_sighandler(args->name, SIGPIPE, stress_signal_stop_flag_handler, NULL) < 0)
+	if (stress_signal_handler(args->name, SIGPIPE, stress_signal_stop_flag_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 
 	fd = open("/dev/null", O_WRONLY);

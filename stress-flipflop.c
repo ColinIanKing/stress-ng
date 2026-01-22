@@ -228,7 +228,7 @@ static int stress_flipflop(stress_args_t *args)
 		return EXIT_FAILURE;
 	}
 
-	if (stress_sighandler(args->name, SIGUSR1, stress_signal_ignore_handler, NULL))
+	if (stress_signal_handler(args->name, SIGUSR1, stress_signal_ignore_handler, NULL))
 		return EXIT_NO_RESOURCE;
 
 	dist = (uint64_t *)calloc(2 * flipflop_bits, sizeof(uint64_t));

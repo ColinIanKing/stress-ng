@@ -359,7 +359,7 @@ static int stress_sockpair(stress_args_t *args)
 	stress_sync_start_wait(args);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
-	if (stress_sighandler(args->name, SIGPIPE, stress_signal_ignore_handler, NULL) < 0)
+	if (stress_signal_handler(args->name, SIGPIPE, stress_signal_ignore_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 
 	rc = stress_oomable_child(args, NULL, stress_sockpair_oomable, STRESS_OOMABLE_DROP_CAP);

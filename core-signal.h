@@ -24,7 +24,7 @@
 extern const char *stress_signal_name(const int signum);
 extern const char *stress_signal_str(const int signum) RETURNS_NONNULL;
 extern void stress_signal_longjump_mask(sigset_t *set);
-extern WARN_UNUSED int stress_sighandler(const char *name, const int signum,
+extern WARN_UNUSED int stress_signal_handler(const char *name, const int signum,
 	void (*handler)(int), struct sigaction *orig_action);
 extern WARN_UNUSED int stress_signal_sigchld_handler(stress_args_t *args);
 extern void stress_signal_stop_flag_handler(int sig);

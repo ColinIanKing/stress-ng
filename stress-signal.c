@@ -27,7 +27,7 @@ static const stress_help_t help[] = {
 
 static volatile uint64_t counter;
 
-static void MLOCKED_TEXT stress_signal_handler(int signum)
+static void MLOCKED_TEXT stress_signal_count_handler(int signum)
 {
 	(void)signum;
 
@@ -94,7 +94,7 @@ static int stress_signal(stress_args_t *args)
 		}
 
 		tmp = *pcounter;
-		if (UNLIKELY(shim_signal(SIGCHLD, stress_signal_handler) == SIG_ERR)) {
+		if (UNLIKELY(shim_signal(SIGCHLD, stress_signal_count_handler) == SIG_ERR)) {
 			pr_fail("%s: cannot install SIGCHLD signal handler, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			rc = EXIT_FAILURE;

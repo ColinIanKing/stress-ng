@@ -429,7 +429,7 @@ static int stress_sleep(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
-	if (stress_sighandler(args->name, SIGALRM, stress_sigalrm_handler, NULL) < 0)
+	if (stress_signal_handler(args->name, SIGALRM, stress_sigalrm_handler, NULL) < 0)
 		return EXIT_FAILURE;
 
 	(void)shim_memset(ctxts, 0, sizeof(ctxts));

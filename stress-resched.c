@@ -182,7 +182,7 @@ static int stress_resched(stress_args_t *args)
 	for (i = 0; i < s_pids_max; i++)
 		s_pids[i].pid = -1;
 
-	if (stress_sighandler(args->name, SIGUSR1, stress_resched_usr1_handler, NULL) < 0) {
+	if (stress_signal_handler(args->name, SIGUSR1, stress_resched_usr1_handler, NULL) < 0) {
 		rc = EXIT_NO_RESOURCE;
 		goto tidy_s_pids;
 	}

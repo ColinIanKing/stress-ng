@@ -606,7 +606,7 @@ again:
 				_exit(EXIT_FAILURE);
 			}
 
-			if (stress_sighandler(args->name, SIGSEGV, stress_segv_handler, NULL) < 0)
+			if (stress_signal_handler(args->name, SIGSEGV, stress_segv_handler, NULL) < 0)
 				_exit(EXIT_NO_RESOURCE);
 
 			stress_set_make_it_fail();

@@ -1040,7 +1040,7 @@ static int stress_memrate_child(stress_args_t *args, void *ctxt)
 #if defined(HAVE_SIGLONGJMP)
 	if (sigsetjmp(jmpbuf, 1) != 0)
 		goto tidy;
-	if (stress_sighandler(args->name, SIGALRM, stress_memrate_alarm_handler, NULL) < 0)
+	if (stress_signal_handler(args->name, SIGALRM, stress_memrate_alarm_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 #endif
 

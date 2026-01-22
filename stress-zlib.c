@@ -1208,12 +1208,12 @@ static void stress_rand_data_objcode(
 	}
 
 	/* Try and install sighandlers */
-	if (stress_sighandler(args->name, SIGSEGV, stress_bad_read_handler, &sigsegv_orig) < 0) {
+	if (stress_signal_handler(args->name, SIGSEGV, stress_bad_read_handler, &sigsegv_orig) < 0) {
 		use_rand_data = true;
 		stress_rand_data_binary(args, data, data_end);
 		return;
 	}
-	if (stress_sighandler(args->name, SIGBUS, stress_bad_read_handler, &sigbus_orig) < 0) {
+	if (stress_signal_handler(args->name, SIGBUS, stress_bad_read_handler, &sigbus_orig) < 0) {
 		use_rand_data = true;
 		(void)stress_signal_restore(args->name, SIGSEGV, &sigsegv_orig);
 		stress_rand_data_binary(args, data, data_end);
@@ -1763,7 +1763,7 @@ static int stress_zlib(stress_args_t *args)
 	if (stress_signal_sigchld_handler(args) < 0)
 		return EXIT_NO_RESOURCE;
 
-	if (stress_sighandler(args->name, SIGPIPE, stress_sigpipe_handler, NULL) < 0)
+	if (stress_signal_handler(args->name, SIGPIPE, stress_sigpipe_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 
 	shared_checksums = (stress_zlib_shared_checksums_t *)

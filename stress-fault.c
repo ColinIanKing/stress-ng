@@ -80,9 +80,9 @@ static int stress_fault(stress_args_t *args)
 	(void)stress_temp_filename_args(args,
 		filename, sizeof(filename), stress_mwc32());
 
-	if (stress_sighandler(args->name, SIGSEGV, stress_segvhandler, NULL) < 0)
+	if (stress_signal_handler(args->name, SIGSEGV, stress_segvhandler, NULL) < 0)
 		return EXIT_FAILURE;
-	if (stress_sighandler(args->name, SIGBUS, stress_segvhandler, NULL) < 0)
+	if (stress_signal_handler(args->name, SIGBUS, stress_segvhandler, NULL) < 0)
 		return EXIT_FAILURE;
 
 	mapto = mmap(NULL, page_size, PROT_READ,

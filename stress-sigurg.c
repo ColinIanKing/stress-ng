@@ -305,7 +305,7 @@ static int stress_sigurg(stress_args_t *args)
 	pr_dbg("%s: process [%d] using socket port %d\n",
 		args->name, (int)args->pid, sock_port);
 
-	if (stress_sighandler(args->name, SIGURG, stress_sigurg_handler, NULL) < 0)
+	if (stress_signal_handler(args->name, SIGURG, stress_sigurg_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);

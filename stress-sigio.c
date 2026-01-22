@@ -195,7 +195,7 @@ again:
 	stress_sync_start_wait(args);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
-	if (stress_sighandler(args->name, SIGIO, stress_sigio_handler, NULL) < 0)
+	if (stress_signal_handler(args->name, SIGIO, stress_sigio_handler, NULL) < 0)
 		goto reap;
 
 	ret = fcntl(fds[0], F_SETFL, flags | O_ASYNC | O_NONBLOCK);
@@ -230,7 +230,7 @@ again:
 
 finish:
 	/*  And ignore IO signals from now on */
-	VOID_RET(int, stress_sighandler(args->name, SIGIO, SIG_IGN, NULL));
+	VOID_RET(int, stress_signal_handler(args->name, SIGIO, SIG_IGN, NULL));
 
 reap:
 	if (pid > 0)

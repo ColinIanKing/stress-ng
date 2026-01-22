@@ -1049,17 +1049,17 @@ static int stress_cache(stress_args_t *args)
 		goto tidy_cpus;
 	}
 
-	if (stress_sighandler(args->name, SIGSEGV, stress_cache_sighandler, NULL) < 0) {
+	if (stress_signal_handler(args->name, SIGSEGV, stress_cache_sighandler, NULL) < 0) {
 		ret = EXIT_NO_RESOURCE;
 		goto tidy_cpus;
 	}
 #if !defined(STRESS_ARCH_X86)
-	if (stress_sighandler(args->name, SIGBUS, stress_cache_sighandler, NULL) < 0) {
+	if (stress_signal_handler(args->name, SIGBUS, stress_cache_sighandler, NULL) < 0) {
 		ret = EXIT_NO_RESOURCE;
 		goto tidy_cpus;
 	}
 #endif
-	if (stress_sighandler(args->name, SIGILL, stress_cache_sigillhandler, NULL) < 0) {
+	if (stress_signal_handler(args->name, SIGILL, stress_cache_sigillhandler, NULL) < 0) {
 		ret = EXIT_NO_RESOURCE;
 		goto tidy_cpus;
 	}

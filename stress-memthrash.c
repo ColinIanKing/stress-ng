@@ -915,7 +915,7 @@ static int stress_memthrash_child(stress_args_t *args, void *ctxt)
 		return EXIT_NO_RESOURCE;
 	}
 
-	VOID_RET(int, stress_sighandler(args->name, SIGALRM, stress_memthrash_sigalrm_handler, NULL));
+	VOID_RET(int, stress_signal_handler(args->name, SIGALRM, stress_memthrash_sigalrm_handler, NULL));
 
 
 mmap_retry:

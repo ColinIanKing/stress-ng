@@ -2681,11 +2681,11 @@ static inline int stress_do_syscall(stress_args_t *args)
 			_exit(EXIT_NO_RESOURCE);
 		}
 		for (i = 0; i < SIZEOF_ARRAY(sigs); i++) {
-			if (UNLIKELY(stress_sighandler(args->name, sigs[i], stress_signal_exit_handler, NULL) < 0))
+			if (UNLIKELY(stress_signal_handler(args->name, sigs[i], stress_signal_exit_handler, NULL) < 0))
 				_exit(EXIT_FAILURE);
 		}
 
-		if (UNLIKELY(stress_sighandler(args->name, SIGALRM, stress_syscall_itimer_handler, NULL) < 0))
+		if (UNLIKELY(stress_signal_handler(args->name, SIGALRM, stress_syscall_itimer_handler, NULL) < 0))
 			_exit(EXIT_FAILURE);
 
 		stress_set_make_it_fail();

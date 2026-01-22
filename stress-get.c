@@ -1063,7 +1063,7 @@ static int stress_get(stress_args_t *args)
     (defined(HAVE_ADJTIMEX) || defined(HAVE_ADJTIME))
 	cap_sys_time = stress_check_capability(SHIM_CAP_SYS_TIME);
 #endif
-	if (stress_sighandler(args->name, SIGSEGV, stress_segv_handler, NULL) < 0)
+	if (stress_signal_handler(args->name, SIGSEGV, stress_segv_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 
 	mounts_max = stress_mount_get(mnts, MOUNTS_MAX);

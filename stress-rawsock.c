@@ -108,7 +108,7 @@ static int OPTIMIZE3 stress_rawsock_client(stress_args_t *args, const int rawsoc
 	struct sockaddr_in addr;
 
 	stress_parent_died_alarm();
-	if (stress_sighandler(args->name, SIGALRM, rawsock_sigalrm_handler, NULL) < 0)
+	if (stress_signal_handler(args->name, SIGALRM, rawsock_sigalrm_handler, NULL) < 0)
 		return EXIT_FAILURE;
 
 	(void)sched_settings_apply(true);

@@ -341,7 +341,7 @@ again:
 				_exit(EXIT_NO_RESOURCE);
 			}
 			for (i = 0; i < SIZEOF_ARRAY(sig_report); i++) {
-				if (stress_sighandler(args->name, sig_report[i].signum, stress_sig_handler, NULL) < 0)
+				if (stress_signal_handler(args->name, sig_report[i].signum, stress_sig_handler, NULL) < 0)
 					_exit(EXIT_FAILURE);
 			}
 

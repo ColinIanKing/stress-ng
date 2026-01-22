@@ -43,9 +43,9 @@ static int stress_sigsuspend(stress_args_t *args)
 	sigset_t mask, oldmask;
 	int rc = EXIT_SUCCESS, parent_cpu;
 
-	if (stress_sighandler(args->name, SIGUSR1, stress_signal_ignore_handler, NULL) < 0)
+	if (stress_signal_handler(args->name, SIGUSR1, stress_signal_ignore_handler, NULL) < 0)
 		return EXIT_FAILURE;
-	if (stress_sighandler(args->name, SIGCHLD, stress_signal_stop_flag_handler, NULL) < 0)
+	if (stress_signal_handler(args->name, SIGCHLD, stress_signal_stop_flag_handler, NULL) < 0)
 		return EXIT_FAILURE;
 
 	counter_lock = stress_lock_create("counter");

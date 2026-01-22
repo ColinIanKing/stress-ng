@@ -327,9 +327,9 @@ static int stress_pci(stress_args_t *args)
 		return EXIT_FAILURE;
 	}
 
-	if (stress_sighandler(args->name, SIGSEGV, stress_pci_handler, NULL) < 0)
+	if (stress_signal_handler(args->name, SIGSEGV, stress_pci_handler, NULL) < 0)
 		return EXIT_FAILURE;
-	if (stress_sighandler(args->name, SIGBUS, stress_pci_handler, NULL) < 0)
+	if (stress_signal_handler(args->name, SIGBUS, stress_pci_handler, NULL) < 0)
 		return EXIT_FAILURE;
 
 	pci_info_list = stress_pci_info_get();

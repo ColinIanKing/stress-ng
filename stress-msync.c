@@ -114,7 +114,7 @@ static int stress_msync(stress_args_t *args)
 		pr_fail("%s: sigsetjmp failed\n", args->name);
 		return EXIT_FAILURE;
 	}
-	if (stress_sighandler(args->name, SIGBUS, stress_sigbus_handler, NULL) < 0)
+	if (stress_signal_handler(args->name, SIGBUS, stress_sigbus_handler, NULL) < 0)
 		return EXIT_FAILURE;
 
 	if (!stress_get_setting("msync-bytes", &msync_bytes_total)) {

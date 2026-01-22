@@ -63,7 +63,7 @@ static void OPTIMIZE2 stress_config_check_lahf_lm(void)
 
 		stress_config_sigill_trapped = false;
 
-		if (stress_sighandler(__func__, SIGILL, stress_config_sigill_handler, &old_action) < 0)
+		if (stress_signal_handler(__func__, SIGILL, stress_config_sigill_handler, &old_action) < 0)
 			return;
 
 		value = stress_asm_lahf();

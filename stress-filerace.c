@@ -1591,7 +1591,7 @@ static int stress_filerace(stress_args_t *args)
 
 	t_start = time(NULL);
 #if defined(SIGIO)
-	if (stress_sighandler(args->name, SIGIO, stress_sigio_handler, NULL) < 0)
+	if (stress_signal_handler(args->name, SIGIO, stress_sigio_handler, NULL) < 0)
 		return EXIT_FAILURE;
 #endif
 

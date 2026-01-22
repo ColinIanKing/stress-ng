@@ -146,7 +146,7 @@ static int stress_itimer(stress_args_t *args)
 	}
 	rate_us = itimer_freq ? 1000000.0 / (double)itimer_freq : 1000000.0;
 
-	if (stress_sighandler(args->name, SIGPROF, stress_itimer_handler, NULL) < 0)
+	if (stress_signal_handler(args->name, SIGPROF, stress_itimer_handler, NULL) < 0)
 		return EXIT_FAILURE;
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);

@@ -59,7 +59,7 @@ static int stress_alarm(stress_args_t *args)
 	pid_t pid;
 	int rc = EXIT_SUCCESS;
 
-	if (stress_sighandler(args->name, SIGALRM, stress_signal_ignore_handler, NULL) < 0)
+	if (stress_signal_handler(args->name, SIGALRM, stress_signal_ignore_handler, NULL) < 0)
 		return EXIT_FAILURE;
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
@@ -81,7 +81,7 @@ again:
 
 		stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
-		if (stress_sighandler(args->name, SIGUSR1, stress_signal_exit_handler, NULL) < 0)
+		if (stress_signal_handler(args->name, SIGUSR1, stress_signal_exit_handler, NULL) < 0)
 			_exit(EXIT_FAILURE);
 
 		stress_set_make_it_fail();

@@ -388,7 +388,7 @@ static int stress_sockabuse(stress_args_t *args)
 	pr_dbg("%s: process [%d] using socket port %d\n",
 		args->name, (int)args->pid, sockabuse_port);
 
-	if (stress_sighandler(args->name, SIGPIPE, stress_signal_stop_flag_handler, NULL) < 0)
+	if (stress_signal_handler(args->name, SIGPIPE, stress_signal_stop_flag_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);

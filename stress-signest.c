@@ -171,7 +171,7 @@ static void stress_signest_ignore(void)
 	size_t i;
 
 	for (i = 0; i < max_signals; i++)
-		VOID_RET(int, stress_sighandler("signest", signals[i].signum, SIG_IGN, NULL));
+		VOID_RET(int, stress_signal_handler("signest", signals[i].signum, SIG_IGN, NULL));
 }
 
 static void MLOCKED_TEXT stress_signest_handler(int signum)
@@ -352,7 +352,7 @@ static int stress_signest(stress_args_t *args)
 	}
 
 	for (i = 0; i < max_signals; i++) {
-		if (stress_sighandler(args->name, signals[i].signum, stress_signest_handler, NULL) < 0)
+		if (stress_signal_handler(args->name, signals[i].signum, stress_signest_handler, NULL) < 0)
 			return EXIT_NO_RESOURCE;
 	}
 

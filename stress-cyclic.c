@@ -351,7 +351,7 @@ static int stress_cyclic_itimer(
 	timer.it_interval.tv_sec = timer.it_value.tv_sec = cyclic_sleep / STRESS_NANOSECOND;
 	timer.it_interval.tv_nsec = timer.it_value.tv_nsec = cyclic_sleep % STRESS_NANOSECOND;
 
-	if (stress_sighandler(args->name, SIGRTMIN, stress_cyclic_itimer_handler, &old_action) < 0)
+	if (stress_signal_handler(args->name, SIGRTMIN, stress_cyclic_itimer_handler, &old_action) < 0)
 		return ret;
 
 	(void)shim_memset(&sev, 0, sizeof(sev));
@@ -806,7 +806,7 @@ again:
 		ret = sigsetjmp(jmp_env, 1);
 		if (ret)
 			goto tidy_ok;
-		if (stress_sighandler(args->name, SIGXCPU, stress_rlimit_handler, &old_action_xcpu) < 0)
+		if (stress_signal_handler(args->name, SIGXCPU, stress_rlimit_handler, &old_action_xcpu) < 0)
 			goto tidy;
 #else
 		(void)ret;

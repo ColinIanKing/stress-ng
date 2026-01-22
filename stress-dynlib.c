@@ -128,7 +128,7 @@ static int stress_dynlib(stress_args_t *args)
 
 	(void)shim_memset(handles, 0, sizeof(handles));
 
-	if (stress_sighandler(args->name, SIGSEGV, stress_segvhandler, NULL) < 0)
+	if (stress_signal_handler(args->name, SIGSEGV, stress_segvhandler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);

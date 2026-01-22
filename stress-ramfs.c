@@ -273,13 +273,13 @@ static int stress_ramfs_child(stress_args_t *args)
 	const uint64_t page_size = (uint64_t)stress_get_page_size();
 	const uint64_t page_mask = ~(page_size - 1);
 
-	if (stress_sighandler(args->name, SIGALRM,
+	if (stress_signal_handler(args->name, SIGALRM,
 	    stress_ramfs_child_handler, NULL) < 0) {
 		pr_fail("%s: SIGALRM sighandler failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
-	if (stress_sighandler(args->name, SIGSEGV,
+	if (stress_signal_handler(args->name, SIGSEGV,
 	    stress_ramfs_child_handler, NULL) < 0) {
 		pr_fail("%s: SIGSEGV sighandler failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));

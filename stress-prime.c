@@ -194,7 +194,7 @@ static int OPTIMIZE3 stress_prime(stress_args_t *args)
 	t_start = stress_time_now();
 	t_progress_secs = t_start + STRESS_PRIME_PROGRESS_INC_SECS;
 
-	if (stress_sighandler(args->name, SIGALRM, stress_prime_alarm_handler, NULL) < 0)
+	if (stress_signal_handler(args->name, SIGALRM, stress_prime_alarm_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 
 	do {

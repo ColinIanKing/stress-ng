@@ -56,7 +56,7 @@ static int stress_sigxfsz(stress_args_t *args)
 
 	async_sigs = 0;
 
-	if (stress_sighandler(args->name, SIGXFSZ, stress_sigxfsz_handler, NULL) < 0)
+	if (stress_signal_handler(args->name, SIGXFSZ, stress_sigxfsz_handler, NULL) < 0)
 		return EXIT_FAILURE;
 
 	if (getrlimit(RLIMIT_FSIZE, &limit) < 0) {
@@ -122,7 +122,7 @@ static int stress_sigxfsz(stress_args_t *args)
 		rate, STRESS_METRIC_HARMONIC_MEAN);
 
 	/*  And ignore IO signals from now on */
-	VOID_RET(int, stress_sighandler(args->name, SIGXFSZ, SIG_IGN, NULL));
+	VOID_RET(int, stress_signal_handler(args->name, SIGXFSZ, SIG_IGN, NULL));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

@@ -155,7 +155,7 @@ int stress_open_timeout(
 	 *  we can't test, so just return 0 and try
 	 *  it anyhow.
 	 */
-	ret = stress_sighandler(name, SIGRTMIN, stress_signal_ignore_handler, NULL);
+	ret = stress_signal_handler(name, SIGRTMIN, stress_signal_ignore_handler, NULL);
 	if (ret < 0)
 		return open(path, flags);
 

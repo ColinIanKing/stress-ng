@@ -173,7 +173,7 @@ static int stress_timer(stress_args_t *args)
 	rate_ns = timer_freq ? (double)STRESS_NANOSECOND / (double)timer_freq :
 			       (double)STRESS_NANOSECOND;
 
-	if (stress_sighandler(args->name, SIGRTMIN, stress_timer_handler, NULL) < 0)
+	if (stress_signal_handler(args->name, SIGRTMIN, stress_timer_handler, NULL) < 0)
 		return EXIT_FAILURE;
 
 	(void)shim_memset(&sev, 0, sizeof(sev));

@@ -338,9 +338,9 @@ static int stress_chattr(stress_args_t *args)
 	double rate, t, duration;
 
 	do_jmp = false;
-	if (stress_sighandler(args->name, SIGSEGV, stress_chattr_fault_handler, NULL) < 0)
+	if (stress_signal_handler(args->name, SIGSEGV, stress_chattr_fault_handler, NULL) < 0)
 		return EXIT_FAILURE;
-	if (stress_sighandler(args->name, SIGBUS, stress_chattr_fault_handler, NULL) < 0)
+	if (stress_signal_handler(args->name, SIGBUS, stress_chattr_fault_handler, NULL) < 0)
 		return EXIT_FAILURE;
 
 	for (i = 0; i < SIZEOF_ARRAY(stress_chattr_flags); i++) {

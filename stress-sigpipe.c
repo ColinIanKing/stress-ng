@@ -50,7 +50,7 @@ static int stress_sigpipe(stress_args_t *args)
 
 	s_args = args;
 
-	if (stress_sighandler(args->name, SIGPIPE,
+	if (stress_signal_handler(args->name, SIGPIPE,
 		(args->bogo.max_ops == 0) ? stress_signal_ignore_handler:
 					    stress_sigpipe_handler_count_check, NULL) < 0)
 		return EXIT_FAILURE;

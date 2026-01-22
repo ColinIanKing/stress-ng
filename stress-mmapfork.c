@@ -165,7 +165,7 @@ static int stress_mmapfork(stress_args_t *args)
 				stress_parent_died_alarm();
 				(void)sched_settings_apply(true);
 
-				if (stress_sighandler(args->name, SIGSEGV, stress_segvhandler, NULL) < 0)
+				if (stress_signal_handler(args->name, SIGSEGV, stress_segvhandler, NULL) < 0)
 					_exit(MMAPFORK_FAILURE);
 
 				(void)shim_memset(&info, 0, sizeof(info));

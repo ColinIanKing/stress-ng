@@ -661,7 +661,7 @@ static int stress_sctp(stress_args_t *args)
 		}
 	}
 
-	if (stress_sighandler(args->name, SIGPIPE, stress_sctp_sigpipe, NULL) < 0)
+	if (stress_signal_handler(args->name, SIGPIPE, stress_sctp_sigpipe, NULL) < 0)
 		return EXIT_FAILURE;
 
 	sctp_port += args->instance;

@@ -252,9 +252,9 @@ static int stress_memhotplug(stress_args_t *args)
 	void *mmap_ptr = MAP_FAILED;
 	size_t mmap_size = 0;
 
-	if (stress_sighandler(args->name, SIGPROF, stress_signal_ignore_handler, NULL))
+	if (stress_signal_handler(args->name, SIGPROF, stress_signal_ignore_handler, NULL))
 		return EXIT_NO_RESOURCE;
-	if (stress_sighandler(args->name, SIGSEGV, stress_segv_handler, &old_action) < 0)
+	if (stress_signal_handler(args->name, SIGSEGV, stress_segv_handler, &old_action) < 0)
 		return EXIT_NO_RESOURCE;
 
 	(void)stress_get_setting("memhotplug-mmap", &memhotplug_mmap);

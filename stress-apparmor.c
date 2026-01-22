@@ -260,7 +260,7 @@ again:
 		if (!stress_apparmor_stress_continue_inc(args, false))
 			goto abort;
 
-		if (stress_sighandler(args->name, SIGALRM,
+		if (stress_signal_handler(args->name, SIGALRM,
 				      stress_apparmor_alrm_handler, NULL) < 0) {
 			_exit(EXIT_FAILURE);
 		}
@@ -662,7 +662,7 @@ static int stress_apparmor(stress_args_t *args)
 	size_t i;
 	int rc = EXIT_NO_RESOURCE;
 
-	if (stress_sighandler(args->name, SIGUSR1, stress_signal_ignore_handler, NULL) < 0) {
+	if (stress_signal_handler(args->name, SIGUSR1, stress_signal_ignore_handler, NULL) < 0) {
 		return EXIT_FAILURE;
 	}
 

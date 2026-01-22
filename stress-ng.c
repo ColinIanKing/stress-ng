@@ -88,12 +88,12 @@
 #define STRESS_STRESSOR_UNSUPPORTED		(1)
 #define STRESS_STRESSOR_EXCLUDED		(2)
 
-typedef void (*stress_sighandler_t)(int signum);
+typedef void (*stress_signal_handler_t)(int signum);
 
 /* Map signals to handlers */
 typedef struct stress_signal_map {
 	int signum;			/* signal number */
-	stress_sighandler_t handler;	/* signal handler */
+	stress_signal_handler_t handler;	/* signal handler */
 } stress_signal_map_t;
 
 /* Stress test classes */
@@ -780,13 +780,13 @@ static int stress_set_handler(const char *stress, const bool child)
 #if defined(SA_SIGINFO)
 	struct sigaction sa;
 #endif
-	if (stress_sighandler(stress, SIGINT, stress_sigint_handler, NULL) < 0)
+	if (stress_signal_handler(stress, SIGINT, stress_sigint_handler, NULL) < 0)
 		return -1;
-	if (stress_sighandler(stress, SIGHUP, stress_sigint_handler, NULL) < 0)
+	if (stress_signal_handler(stress, SIGHUP, stress_sigint_handler, NULL) < 0)
 		return -1;
 #if defined(SIGUSR2)
 	if (!child) {
-		if (stress_sighandler(stress, SIGUSR2,
+		if (stress_signal_handler(stress, SIGUSR2,
 			stress_stats_handler, NULL) < 0) {
 			return -1;
 		}
@@ -807,7 +807,7 @@ static int stress_set_handler(const char *stress, const bool child)
                         stress, errno, strerror(errno));
 	}
 #else
-	if (stress_sighandler(stress, SIGALRM, stress_sigalrm_handler, NULL) < 0)
+	if (stress_signal_handler(stress, SIGALRM, stress_sigalrm_handler, NULL) < 0)
 		return -1;
 #endif
 	return 0;
@@ -4094,7 +4094,7 @@ int main(int argc, char **argv, char **envp)
 	 *  Enable signal handers
 	 */
 	for (i = 0; i < SIZEOF_ARRAY(stress_signal_map); i++) {
-		if (stress_sighandler("stress-ng",
+		if (stress_signal_handler("stress-ng",
 				stress_signal_map[i].signum,
 				stress_signal_map[i].handler, NULL) < 0) {
 			ret = EXIT_FAILURE;

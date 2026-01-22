@@ -290,11 +290,11 @@ static int stress_rlimit(stress_args_t *args)
 
 	context.start = stress_time_now();
 
-	if (stress_sighandler(args->name, SIGSEGV, stress_rlimit_handler, &old_action_segv) < 0)
+	if (stress_signal_handler(args->name, SIGSEGV, stress_rlimit_handler, &old_action_segv) < 0)
 		return EXIT_FAILURE;
-	if (stress_sighandler(args->name, SIGXCPU, stress_rlimit_handler, &old_action_xcpu) < 0)
+	if (stress_signal_handler(args->name, SIGXCPU, stress_rlimit_handler, &old_action_xcpu) < 0)
 		return EXIT_FAILURE;
-	if (stress_sighandler(args->name, SIGXFSZ, stress_rlimit_handler, &old_action_xfsz) < 0)
+	if (stress_signal_handler(args->name, SIGXFSZ, stress_rlimit_handler, &old_action_xfsz) < 0)
 		return EXIT_FAILURE;
 
 	(void)stress_temp_filename_args(args,

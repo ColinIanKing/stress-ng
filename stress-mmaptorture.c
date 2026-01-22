@@ -419,9 +419,9 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 			args->name);
 		return EXIT_NO_RESOURCE;
         }
-	if (stress_sighandler(args->name, SIGBUS, stress_mmaptorture_sighandler, NULL) < 0)
+	if (stress_signal_handler(args->name, SIGBUS, stress_mmaptorture_sighandler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
-	if (stress_sighandler(args->name, SIGSEGV, stress_mmaptorture_sighandler, NULL) < 0)
+	if (stress_signal_handler(args->name, SIGSEGV, stress_mmaptorture_sighandler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 
 	data = (char *)malloc(page_size);

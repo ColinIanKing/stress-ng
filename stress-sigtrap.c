@@ -57,7 +57,7 @@ static int stress_sigtrap(stress_args_t *args)
 	duration = 0.0;
 	t = 0.0;
 
-	if (stress_sighandler(args->name, SIGTRAP, stress_sigtrap_handler, NULL) < 0)
+	if (stress_signal_handler(args->name, SIGTRAP, stress_sigtrap_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);

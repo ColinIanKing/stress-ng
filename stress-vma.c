@@ -708,8 +708,8 @@ static void stress_vma_loop(
 {
 	size_t i, n;
 
-	VOID_RET(int, stress_sighandler(args->name, SIGSEGV, stress_vm_handle_sigsegv, NULL));
-	VOID_RET(int, stress_sighandler(args->name, SIGBUS, stress_vm_handle_sigbus, NULL));
+	VOID_RET(int, stress_signal_handler(args->name, SIGSEGV, stress_vm_handle_sigsegv, NULL));
+	VOID_RET(int, stress_signal_handler(args->name, SIGBUS, stress_vm_handle_sigbus, NULL));
 
 	ctxt->args = args;
 

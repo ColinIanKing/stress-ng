@@ -2441,7 +2441,7 @@ static inline int stress_do_syscall(stress_args_t *args)
 		stress_set_make_it_fail();
 
 		for (k = 0; k < SIZEOF_ARRAY(sigs); k++) {
-			if (stress_sighandler(args->name, sigs[k], stress_signal_exit_handler, NULL) < 0)
+			if (stress_signal_handler(args->name, sigs[k], stress_signal_exit_handler, NULL) < 0)
 				_exit(EXIT_FAILURE);
 		}
 

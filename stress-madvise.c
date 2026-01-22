@@ -425,7 +425,7 @@ static int stress_madvise(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
-	if (stress_sighandler(args->name, SIGBUS, stress_sigbus_handler, NULL) < 0) {
+	if (stress_signal_handler(args->name, SIGBUS, stress_sigbus_handler, NULL) < 0) {
 		(void)munmap((void *)page, page_size);
 		return EXIT_FAILURE;
 	}

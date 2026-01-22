@@ -66,7 +66,7 @@ static int stress_schedpolicy(stress_args_t *args)
 
 #if defined(SCHED_FLAG_DL_OVERRUN) &&	\
     defined(SIGXCPU)
-	if (stress_sighandler(args->name, SIGXCPU, stress_signal_ignore_handler, NULL) < 0)
+	if (stress_signal_handler(args->name, SIGXCPU, stress_signal_ignore_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 #endif
 

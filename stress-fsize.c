@@ -189,7 +189,7 @@ static int stress_fsize(stress_args_t *args)
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
-	if (stress_sighandler(args->name, SIGXFSZ, stress_fsize_handler, NULL) < 0)
+	if (stress_signal_handler(args->name, SIGXFSZ, stress_fsize_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 
 	ret = stress_temp_dir_mk_args(args);

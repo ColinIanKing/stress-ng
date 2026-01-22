@@ -191,7 +191,7 @@ static int stress_lease(stress_args_t *args)
 
 	(void)shim_memset(l_pids, 0, sizeof(l_pids));
 
-	if (stress_sighandler(args->name, SIGIO, stress_lease_handler, NULL) < 0)
+	if (stress_signal_handler(args->name, SIGIO, stress_lease_handler, NULL) < 0)
 		return EXIT_FAILURE;
 
 	ret = stress_temp_dir_mk_args(args);

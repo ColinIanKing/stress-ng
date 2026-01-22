@@ -251,7 +251,7 @@ static int stress_radixsort(stress_args_t *args)
 		(void)stress_signal_restore(args->name, SIGALRM, &old_action);
 		goto tidy;
 	}
-	if (stress_sighandler(args->name, SIGALRM, stress_radixsort_handler, &old_action) < 0) {
+	if (stress_signal_handler(args->name, SIGALRM, stress_radixsort_handler, &old_action) < 0) {
 		free(data);
 		free(text);
 		return EXIT_FAILURE;

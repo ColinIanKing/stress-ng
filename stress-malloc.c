@@ -412,7 +412,7 @@ static int stress_malloc_child(stress_args_t *args, void *context)
 		return EXIT_FAILURE;
 	}
 
-	if (stress_sighandler(args->name, SIGSEGV, stress_malloc_sigsegv_handler, NULL) < 0)
+	if (stress_signal_handler(args->name, SIGSEGV, stress_malloc_sigsegv_handler, NULL) < 0)
 		return EXIT_FAILURE;
 
 	if (!stress_get_setting("malloc-pthreads", &malloc_pthreads)) {

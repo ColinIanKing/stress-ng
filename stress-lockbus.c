@@ -229,7 +229,7 @@ static int stress_lockbus(stress_args_t *args)
 	do_sigill = false;
 	(void)stress_get_setting("lockbus-nosplit", &lockbus_nosplit);
 
-	if (stress_sighandler(args->name, SIGBUS, stress_sigbus_splitlock_handler, NULL) < 0)
+	if (stress_signal_handler(args->name, SIGBUS, stress_sigbus_splitlock_handler, NULL) < 0)
 		return EXIT_FAILURE;
 #endif
 
@@ -258,17 +258,17 @@ static int stress_lockbus(stress_args_t *args)
 	misaligned_ptr2 = (uint32_t *)(uintptr_t)((uint8_t *)buffer + 10);
 #endif
 
-	if (stress_sighandler(args->name, SIGBUS, stress_sigbus_misaligned_handler, NULL) < 0) {
+	if (stress_signal_handler(args->name, SIGBUS, stress_sigbus_misaligned_handler, NULL) < 0) {
 		rc = EXIT_FAILURE;
 		goto unmap_buffer;
 	}
 #if defined(HAVE_TIMER_FUNCS)
-	if (stress_sighandler(args->name, SIGRTMIN, stress_sigbus_misaligned_handler, NULL) < 0) {
+	if (stress_signal_handler(args->name, SIGRTMIN, stress_sigbus_misaligned_handler, NULL) < 0) {
 		rc = EXIT_FAILURE;
 		goto unmap_buffer;
 	}
 #endif
-	if (stress_sighandler(args->name, SIGILL, stress_sigill_handler, NULL) < 0) {
+	if (stress_signal_handler(args->name, SIGILL, stress_sigill_handler, NULL) < 0) {
 		rc = EXIT_FAILURE;
 		goto unmap_buffer;
 	}
@@ -331,7 +331,7 @@ misaligned_done:
 			do_misaligned ? "enabled" : "disabled");
 
 #if defined(STRESS_ARCH_X86)
-	if (stress_sighandler(args->name, SIGBUS, stress_sigbus_splitlock_handler, NULL) < 0)
+	if (stress_signal_handler(args->name, SIGBUS, stress_sigbus_splitlock_handler, NULL) < 0)
 		return EXIT_FAILURE;
 	/* Split lock on a page boundary */
 	splitlock_ptr1 = (uint32_t *)(uintptr_t)(((uint8_t *)buffer) + args->page_size - (sizeof(*splitlock_ptr1) >> 1));

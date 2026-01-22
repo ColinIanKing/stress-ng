@@ -37,7 +37,7 @@ static int stress_kill(stress_args_t *args)
 	int ret;
 	double duration = 0.0, count = 0.0, rate;
 
-	if (stress_sighandler(args->name, SIGUSR1, SIG_IGN, NULL) < 0)
+	if (stress_signal_handler(args->name, SIGUSR1, SIG_IGN, NULL) < 0)
 		return EXIT_FAILURE;
 
 	/*
@@ -48,7 +48,7 @@ static int stress_kill(stress_args_t *args)
 	pid = fork();
 	if (pid == 0) {
 		stress_set_proc_state(args->name, STRESS_STATE_RUN);
-		VOID_RET(int, stress_sighandler(args->name, SIGUSR1, stress_signal_ignore_handler, NULL));
+		VOID_RET(int, stress_signal_handler(args->name, SIGUSR1, stress_signal_ignore_handler, NULL));
 		stress_set_make_it_fail();
 
 		while (stress_continue(args)) {

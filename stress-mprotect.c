@@ -98,9 +98,9 @@ static int stress_mprotect_mem(
 {
 	const uint8_t *mem_end = mem + (page_size * mem_pages);
 
-	if (stress_sighandler(args->name, SIGSEGV, stress_sig_handler, NULL) < 0)
+	if (stress_signal_handler(args->name, SIGSEGV, stress_sig_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
-	if (stress_sighandler(args->name, SIGBUS, stress_sig_handler, NULL) < 0)
+	if (stress_signal_handler(args->name, SIGBUS, stress_sig_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 
 	VOID_RET(int, sigsetjmp(jmp_env, 1));

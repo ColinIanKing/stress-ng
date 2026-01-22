@@ -81,7 +81,7 @@ static int stress_sigq(stress_args_t *args)
 
 	handled_sigchld = false;
 
-	if (stress_sighandler(args->name, SIGCHLD, stress_sigq_chld_handler, NULL) < 0)
+	if (stress_signal_handler(args->name, SIGCHLD, stress_sigq_chld_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 
 	(void)shim_memset(&sa, 0, sizeof(sa));

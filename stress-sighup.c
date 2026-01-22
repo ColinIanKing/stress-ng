@@ -69,7 +69,7 @@ again:
 		return -1;
 	} else if (pid == 0) {
 		stress_set_proc_state(args->name, STRESS_STATE_RUN);
-		VOID_RET(int, stress_sighandler(args->name, SIGHUP, stress_sighup_handler, NULL));
+		VOID_RET(int, stress_signal_handler(args->name, SIGHUP, stress_sighup_handler, NULL));
 		stress_set_make_it_fail();
 
 		/* Raising SIGHUP without an handler will abort */
@@ -107,7 +107,7 @@ static int stress_sighup_process_group(stress_args_t *args)
 	int status;
 	char msg = 'x';
 
-	VOID_RET(int, stress_sighandler(args->name, SIGHUP, stress_sighup_handler, NULL));
+	VOID_RET(int, stress_signal_handler(args->name, SIGHUP, stress_sighup_handler, NULL));
 
 	sighup_info->pid = 0;
 again:
@@ -143,7 +143,7 @@ again:
 			stress_sighup_closefds(fds_rcv);
 			_exit(0);
 		} else if (pid2 == 0) {
-			VOID_RET(int, stress_sighandler(args->name, SIGHUP, stress_sighup_handler, NULL));
+			VOID_RET(int, stress_signal_handler(args->name, SIGHUP, stress_sighup_handler, NULL));
 			sighup_info->pid = getpid();
 			if (read(fds_snd[0], &msg, 1) < 1) {
 				stress_sighup_closefds(fds_snd);
@@ -221,7 +221,7 @@ static int stress_sighup(stress_args_t *args)
 	double rate;
 	int rc = EXIT_SUCCESS;
 
-	if (stress_sighandler(args->name, SIGHUP, stress_sighup_handler, NULL) < 0)
+	if (stress_signal_handler(args->name, SIGHUP, stress_sighup_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 
 	sighup_info = (stress_sighup_info_t *)mmap(NULL, sizeof(*sighup_info),

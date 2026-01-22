@@ -942,7 +942,7 @@ static int stress_af_alg(stress_args_t *args)
 	if (sigsetjmp(jmpbuf, 1) != 0)
 		goto deinit;
 
-	if (stress_sighandler(args->name, SIGALRM, stress_af_alg_alarm_handler, NULL) < 0) {
+	if (stress_signal_handler(args->name, SIGALRM, stress_af_alg_alarm_handler, NULL) < 0) {
 		rc = EXIT_NO_RESOURCE;
 		goto deinit;
 	}

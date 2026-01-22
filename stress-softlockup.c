@@ -199,7 +199,7 @@ static void NORETURN stress_softlockup_child(
 	rlim.rlim_max = 1000000 * timeout;
 	(void)setrlimit(RLIMIT_RTTIME, &rlim);
 #endif
-	if (stress_sighandler(args->name, SIGXCPU, stress_rlimit_handler, &old_action_xcpu) < 0)
+	if (stress_signal_handler(args->name, SIGXCPU, stress_rlimit_handler, &old_action_xcpu) < 0)
 		goto tidy;
 
 	ret = sigsetjmp(jmp_env, 1);

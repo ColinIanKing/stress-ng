@@ -1415,7 +1415,7 @@ static int stress_sock(stress_args_t *args)
 	pr_dbg("%s: process [%d] using socket port %d\n",
 		args->name, (int)args->pid, sock_port);
 
-	if (stress_sighandler(args->name, SIGPIPE, stress_signal_stop_flag_handler, NULL) < 0)
+	if (stress_signal_handler(args->name, SIGPIPE, stress_signal_stop_flag_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 
 	mmap_buffer = (char *)stress_mmap_populate(NULL, MMAP_BUF_SIZE,

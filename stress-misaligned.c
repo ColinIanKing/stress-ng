@@ -1316,15 +1316,15 @@ static int stress_misaligned(stress_args_t *args)
 #endif
 	(void)stress_get_setting("misaligned-method", &misaligned_method);
 
-	if (stress_sighandler(args->name, SIGBUS, stress_misaligned_handler, NULL) < 0)
+	if (stress_signal_handler(args->name, SIGBUS, stress_misaligned_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
-	if (stress_sighandler(args->name, SIGILL, stress_misaligned_handler, NULL) < 0)
+	if (stress_signal_handler(args->name, SIGILL, stress_misaligned_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
-	if (stress_sighandler(args->name, SIGSEGV, stress_misaligned_handler, NULL) < 0)
+	if (stress_signal_handler(args->name, SIGSEGV, stress_misaligned_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 
 #if defined(HAVE_TIMER_FUNCTIONALITY)
-	if (stress_sighandler(args->name, SIGRTMIN, stress_misaligned_timer_handler, NULL) < 0)
+	if (stress_signal_handler(args->name, SIGRTMIN, stress_misaligned_timer_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 #endif
 

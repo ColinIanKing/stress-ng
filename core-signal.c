@@ -353,10 +353,10 @@ void stress_signal_longjump_mask(sigset_t *set)
 }
 
 /*
- *  stress_sighandler()
+ *  stress_signal_handler()
  *	set signal handler in generic way
  */
-int stress_sighandler(
+int stress_signal_handler(
 	const char *name,
 	const int signum,
 	void (*handler)(int),
@@ -424,7 +424,7 @@ static void MLOCKED_TEXT stress_sigchld_helper_handler(int signum)
  */
 int stress_signal_sigchld_handler(stress_args_t *args)
 {
-	return stress_sighandler(args->name, SIGCHLD, stress_sigchld_helper_handler, NULL);
+	return stress_signal_handler(args->name, SIGCHLD, stress_sigchld_helper_handler, NULL);
 }
 
 /*
@@ -468,7 +468,7 @@ void MLOCKED_TEXT stress_signal_stop_stressing_realarm(const int signum)
  */
 int stress_signal_stop_stressing(const char *name, const int sig)
 {
-	return stress_sighandler(name, sig, stress_signal_stop_stressing_realarm, NULL);
+	return stress_signal_handler(name, sig, stress_signal_stop_stressing_realarm, NULL);
 }
 
 /*

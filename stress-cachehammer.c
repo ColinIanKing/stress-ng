@@ -1706,11 +1706,11 @@ static int OPTIMIZE3 stress_cachehammer(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
-	if (stress_sighandler(args->name, SIGSEGV, stress_cache_sighandler, NULL) < 0)
+	if (stress_signal_handler(args->name, SIGSEGV, stress_cache_sighandler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
-	if (stress_sighandler(args->name, SIGBUS, stress_cache_sighandler, NULL) < 0)
+	if (stress_signal_handler(args->name, SIGBUS, stress_cache_sighandler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
-	if (stress_sighandler(args->name, SIGILL, stress_cache_sighandler, NULL) < 0)
+	if (stress_signal_handler(args->name, SIGILL, stress_cache_sighandler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 
 	/*

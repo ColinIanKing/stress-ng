@@ -298,7 +298,7 @@ static int stress_spinmem(stress_args_t *args)
 		 (void)stress_signal_restore(args->name, SIGALRM, &old_action);
 		goto tidy;
 	}
-	if (stress_sighandler(args->name, SIGALRM, stress_spinmem_handler, &old_action) < 0) {
+	if (stress_signal_handler(args->name, SIGALRM, stress_spinmem_handler, &old_action) < 0) {
 		rc = EXIT_FAILURE;
 		goto tidy;
 	}

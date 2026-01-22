@@ -520,14 +520,14 @@ static int stress_priv_instr(stress_args_t *args)
 	if (page != MAP_FAILED)
 		stress_set_vma_anon_name(page, args->page_size, "priv-page");
 #endif
-	if (stress_sighandler(args->name, SIGSEGV, stress_sigsegv_handler, NULL))
+	if (stress_signal_handler(args->name, SIGSEGV, stress_sigsegv_handler, NULL))
 		return EXIT_NO_RESOURCE;
 #if defined(SIGILL)
-	if (stress_sighandler(args->name, SIGILL, stress_sigill_handler, NULL))
+	if (stress_signal_handler(args->name, SIGILL, stress_sigill_handler, NULL))
 		return EXIT_NO_RESOURCE;
 #endif
 #if defined(SIGBUS)
-	if (stress_sighandler(args->name, SIGBUS, stress_sigill_handler, NULL))
+	if (stress_signal_handler(args->name, SIGBUS, stress_sigill_handler, NULL))
 		return EXIT_NO_RESOURCE;
 #endif
 

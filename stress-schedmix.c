@@ -330,7 +330,7 @@ static int stress_schedmix_child(stress_args_t *args)
 
 #if defined(HAVE_SETITIMER) &&	\
     defined(ITIMER_PROF)
-	if (stress_sighandler(args->name, SIGPROF, stress_schedmix_itimer_handler, NULL) == 0)
+	if (stress_signal_handler(args->name, SIGPROF, stress_schedmix_itimer_handler, NULL) == 0)
 		stress_schedmix_itimer_set();
 #endif
 
@@ -513,7 +513,7 @@ static int stress_schedmix(stress_args_t *args)
 
 #if defined(SCHED_FLAG_DL_OVERRUN) &&	\
     defined(SIGXCPU)
-	if (stress_sighandler(args->name, SIGXCPU, stress_signal_ignore_handler, NULL) < 0)
+	if (stress_signal_handler(args->name, SIGXCPU, stress_signal_ignore_handler, NULL) < 0)
 		return EXIT_FAILURE;
 #endif
 

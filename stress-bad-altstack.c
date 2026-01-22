@@ -69,7 +69,7 @@ static void stress_bad_altstack_force_fault(void *stack_start)
 }
 STRESS_PRAGMA_POP
 
-static void NORETURN MLOCKED_TEXT stress_signal_handler(int signum)
+static void NORETURN MLOCKED_TEXT stress_bad_altstack_signal_handler(int signum)
 {
 	uint8_t data[STRESS_BAD_ALTSTACK_SIZE];
 	const int saved_errno = errno;
@@ -157,21 +157,21 @@ static int stress_bad_altstack_child(stress_args_t *args)
 	(void)sigaltstack(&ss, NULL);
 
 #if defined(SIGSEGV)
-	if (stress_sighandler(args->name, SIGSEGV, stress_signal_handler, NULL) < 0)
+	if (stress_signal_handler(args->name, SIGSEGV, stress_bad_altstack_signal_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 #endif
 #if defined(SIGBUS)
-	if (stress_sighandler(args->name, SIGBUS, stress_signal_handler, NULL) < 0)
+	if (stress_signal_handler(args->name, SIGBUS, stress_bad_altstack_signal_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 #endif
 #if defined(SIGILL)
 	/* Some BSD kernels trigger SIGILL on bad alternative stack jmps */
-	if (stress_sighandler(args->name, SIGILL, stress_signal_handler, NULL) < 0)
+	if (stress_signal_handler(args->name, SIGILL, stress_bad_altstack_signal_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 #endif
 #if defined(SIGXCPU) &&	\
     defined(RLIMIT_CPU)
-	if (stress_sighandler(args->name, SIGXCPU, stress_signal_exit_handler, NULL) < 0)
+	if (stress_signal_handler(args->name, SIGXCPU, stress_signal_exit_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 
 	rlim.rlim_cur = 1;
@@ -244,7 +244,7 @@ retry:
 			goto retry;
 		case 6:
 			/* Illegal text segment stack */
-			ret = stress_sigaltstack_no_check(stress_signal_handler, STRESS_SIGSTKSZ);
+			ret = stress_sigaltstack_no_check(stress_bad_altstack_signal_handler, STRESS_SIGSTKSZ);
 			if (ret == 0)
 				stress_bad_altstack_force_fault(stack);
 			goto retry;

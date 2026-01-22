@@ -51,7 +51,7 @@ static int stress_sigxcpu(stress_args_t *args)
 
 	sigxcpu_args = args;
 
-	if (stress_sighandler(args->name, SIGXCPU, stress_sigxcpu_handler, NULL) < 0)
+	if (stress_signal_handler(args->name, SIGXCPU, stress_sigxcpu_handler, NULL) < 0)
 		return EXIT_FAILURE;
 
 	if (getrlimit(RLIMIT_CPU, &limit) < 0) {
@@ -77,7 +77,7 @@ static int stress_sigxcpu(stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	VOID_RET(int, stress_sighandler(args->name, SIGXCPU, SIG_IGN, NULL));
+	VOID_RET(int, stress_signal_handler(args->name, SIGXCPU, SIG_IGN, NULL));
 
 	return rc;
 }

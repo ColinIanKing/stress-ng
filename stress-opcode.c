@@ -513,7 +513,7 @@ again:
 			(void)sched_settings_apply(true);
 
 			for (i = 0; i < SIZEOF_ARRAY(sigs); i++) {
-				if (stress_sighandler(args->name, sigs[i], stress_opcode_child_sighandler, NULL) < 0)
+				if (stress_signal_handler(args->name, sigs[i], stress_opcode_child_sighandler, NULL) < 0)
 					_exit(EXIT_FAILURE);
 			}
 

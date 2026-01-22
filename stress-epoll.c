@@ -525,7 +525,7 @@ static int epoll_client(
 	struct sockaddr *addr = NULL;
 	uint64_t buf[4096 / sizeof(uint64_t)];
 
-	if (stress_sighandler(args->name, SIGRTMIN, epoll_timer_handler, NULL) < 0)
+	if (stress_signal_handler(args->name, SIGRTMIN, epoll_timer_handler, NULL) < 0)
 		return EXIT_FAILURE;
 
 	stress_rndbuf((void *)buf, sizeof(buf));
@@ -689,7 +689,7 @@ static void NORETURN epoll_server(
 	const int bad_fd = stress_get_bad_fd();
 	int fd_count = 0;
 
-	if (stress_sighandler(args->name, SIGSEGV, stress_segv_handler, NULL) < 0) {
+	if (stress_signal_handler(args->name, SIGSEGV, stress_segv_handler, NULL) < 0) {
 		rc = EXIT_NO_RESOURCE;
 		goto die;
 	}
@@ -995,7 +995,7 @@ static int stress_epoll(stress_args_t *args)
 			epoll_sockets = MIN_EPOLL_SOCKETS;
 	}
 
-	if (stress_sighandler(args->name, SIGPIPE, SIG_IGN, NULL) < 0)
+	if (stress_signal_handler(args->name, SIGPIPE, SIG_IGN, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 
 	s_pids = stress_sync_s_pids_mmap(MAX_SERVERS);

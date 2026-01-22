@@ -512,7 +512,7 @@ static int stress_mmap_child(stress_args_t *args, void *ctxt)
 	static const char mmap_name[] = "stress-mmap";
 	NOCLOBBER int rc = EXIT_SUCCESS;
 
-	VOID_RET(int, stress_sighandler(args->name, SIGBUS, stress_mmap_sighandler, NULL));
+	VOID_RET(int, stress_signal_handler(args->name, SIGBUS, stress_mmap_sighandler, NULL));
 
 	mapped = (uint8_t *)mmap(NULL, pages * sizeof(*mapped),
 				PROT_READ | PROT_WRITE,

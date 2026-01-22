@@ -109,7 +109,7 @@ static int stress_watchdog(stress_args_t *args)
 
 	fd = -1;
 	for (i = 0; i < SIZEOF_ARRAY(sigs); i++) {
-		if (stress_sighandler(args->name, sigs[i], stress_watchdog_handler, NULL) < 0)
+		if (stress_signal_handler(args->name, sigs[i], stress_watchdog_handler, NULL) < 0)
 			return EXIT_FAILURE;
 	}
 

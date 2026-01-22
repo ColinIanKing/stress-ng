@@ -177,8 +177,8 @@ static void stress_thrash_pagein_self(
 
 	jmp_env_set = false;
 
-	VOID_RET(int, stress_sighandler(name, SIGBUS, stress_thrash_pagein_handler, &bus_action));
-	VOID_RET(int, stress_sighandler(name, SIGSEGV, stress_thrash_pagein_handler, &segv_action));
+	VOID_RET(int, stress_signal_handler(name, SIGBUS, stress_thrash_pagein_handler, &bus_action));
+	VOID_RET(int, stress_signal_handler(name, SIGSEGV, stress_thrash_pagein_handler, &segv_action));
 
 	ret = sigsetjmp(jmp_env, 1);
 	if (ret == 1)
@@ -624,7 +624,7 @@ int stress_thrash_start(void)
 		VOID_RET(int, stress_set_sched(getpid(), SCHED_RR, 10, true));
 #endif
 		stress_thrash_state("init");
-		if (stress_sighandler("main", SIGALRM, stress_thrash_handler, NULL) < 0)
+		if (stress_signal_handler("main", SIGALRM, stress_thrash_handler, NULL) < 0)
 			_exit(0);
 
 #if defined(HAVE_LINUX_MEMPOLICY_H)
