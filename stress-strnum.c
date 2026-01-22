@@ -29,6 +29,10 @@ static const stress_help_t help[] = {
 
 #define LOOPS_PER_BOGO_OP	(1000)
 
+#if !defined(LONG_LONG_MAX)
+#define LONG_LONG_MAX (~(unsigned long long int)0ULL)
+#endif
+
 struct stress_strnum_method;
 
 typedef bool (*stress_strnum_func_t)(stress_args_t *args, const struct stress_strnum_method *this);
