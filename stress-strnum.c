@@ -69,7 +69,7 @@ static float stress_strnum_float;
 static double stress_strnum_double;
 static long double stress_strnum_long_double;
 
-static void stress_strnum_set_values(void)
+static void OPTIMIZE3 stress_strnum_set_values(void)
 {
 	stress_strnum_i = (int)stress_mwc32() - (INT_MAX / 2);
 	stress_strnum_li = (long int)stress_mwc64() - (LONG_MAX / 2);
@@ -96,7 +96,7 @@ static void stress_strnum_set_values(void)
 	(void)snprintf(stress_strnum_long_double_str, sizeof(stress_strnum_long_double_str), "%.7Lf", stress_strnum_long_double);
 }
 
-static bool stress_strnum_atoi(stress_args_t *args, const stress_strnum_method_t *this)
+static bool OPTIMIZE3 stress_strnum_atoi(stress_args_t *args, const stress_strnum_method_t *this)
 {
 	int i;
 
@@ -109,7 +109,7 @@ static bool stress_strnum_atoi(stress_args_t *args, const stress_strnum_method_t
 	return true;
 }
 
-static bool stress_strnum_atol(stress_args_t *args, const stress_strnum_method_t *this)
+static bool OPTIMIZE3 stress_strnum_atol(stress_args_t *args, const stress_strnum_method_t *this)
 {
 	long int li;
 
@@ -122,7 +122,7 @@ static bool stress_strnum_atol(stress_args_t *args, const stress_strnum_method_t
 	return true;
 }
 
-static bool stress_strnum_atoll(stress_args_t *args, const stress_strnum_method_t *this)
+static bool OPTIMIZE3 stress_strnum_atoll(stress_args_t *args, const stress_strnum_method_t *this)
 {
 	long long int lli;
 
@@ -136,7 +136,7 @@ static bool stress_strnum_atoll(stress_args_t *args, const stress_strnum_method_
 }
 
 #if defined(HAVE_STRTOUL)
-static bool stress_strnum_strtoul(stress_args_t *args, const stress_strnum_method_t *this)
+static bool OPTIMIZE3 stress_strnum_strtoul(stress_args_t *args, const stress_strnum_method_t *this)
 {
 	unsigned long int lu;
 
@@ -157,7 +157,7 @@ static bool stress_strnum_strtoul(stress_args_t *args, const stress_strnum_metho
 #endif
 
 #if defined(HAVE_STRTOULL)
-static bool stress_strnum_strtoull(stress_args_t *args, const stress_strnum_method_t *this)
+static bool OPTIMIZE3 stress_strnum_strtoull(stress_args_t *args, const stress_strnum_method_t *this)
 {
 	unsigned long long int llu;
 
@@ -177,7 +177,7 @@ static bool stress_strnum_strtoull(stress_args_t *args, const stress_strnum_meth
 }
 #endif
 
-static bool stress_strnum_sscanf_i(stress_args_t *args, const stress_strnum_method_t *this)
+static bool OPTIMIZE3 stress_strnum_sscanf_i(stress_args_t *args, const stress_strnum_method_t *this)
 {
 	int i;
 	int ret;
@@ -198,7 +198,7 @@ static bool stress_strnum_sscanf_i(stress_args_t *args, const stress_strnum_meth
 	return true;
 }
 
-static bool stress_strnum_sscanf_li(stress_args_t *args, const stress_strnum_method_t *this)
+static bool OPTIMIZE3 stress_strnum_sscanf_li(stress_args_t *args, const stress_strnum_method_t *this)
 {
 	long int li;
 	int ret;
@@ -219,7 +219,7 @@ static bool stress_strnum_sscanf_li(stress_args_t *args, const stress_strnum_met
 	return true;
 }
 
-static bool stress_strnum_sscanf_lli(stress_args_t *args, const stress_strnum_method_t *this)
+static bool OPTIMIZE3 stress_strnum_sscanf_lli(stress_args_t *args, const stress_strnum_method_t *this)
 {
 	long long int lli;
 	int ret;
@@ -240,7 +240,7 @@ static bool stress_strnum_sscanf_lli(stress_args_t *args, const stress_strnum_me
 	return true;
 }
 
-static bool stress_strnum_sscanf_u(stress_args_t *args, const stress_strnum_method_t *this)
+static bool OPTIMIZE3 stress_strnum_sscanf_u(stress_args_t *args, const stress_strnum_method_t *this)
 {
 	unsigned int u;
 	int ret;
@@ -261,7 +261,7 @@ static bool stress_strnum_sscanf_u(stress_args_t *args, const stress_strnum_meth
 	return true;
 }
 
-static bool stress_strnum_sscanf_lu(stress_args_t *args, const stress_strnum_method_t *this)
+static bool OPTIMIZE3 stress_strnum_sscanf_lu(stress_args_t *args, const stress_strnum_method_t *this)
 {
 	unsigned long int lu;
 	int ret;
@@ -282,7 +282,7 @@ static bool stress_strnum_sscanf_lu(stress_args_t *args, const stress_strnum_met
 	return true;
 }
 
-static bool stress_strnum_sscanf_llu(stress_args_t *args, const stress_strnum_method_t *this)
+static bool OPTIMIZE3 stress_strnum_sscanf_llu(stress_args_t *args, const stress_strnum_method_t *this)
 {
 	unsigned long long int llu;
 	int ret;
@@ -304,7 +304,7 @@ static bool stress_strnum_sscanf_llu(stress_args_t *args, const stress_strnum_me
 }
 
 #if defined(HAVE_STRTOF)
-static bool stress_strnum_strtof(stress_args_t *args, const stress_strnum_method_t *this)
+static bool OPTIMIZE3 stress_strnum_strtof(stress_args_t *args, const stress_strnum_method_t *this)
 {
 	float val;
 	const float precision = 1.0E-5;
@@ -320,7 +320,7 @@ static bool stress_strnum_strtof(stress_args_t *args, const stress_strnum_method
 #endif
 
 #if defined(HAVE_STRTOD)
-static bool stress_strnum_strtod(stress_args_t *args, const stress_strnum_method_t *this)
+static bool OPTIMIZE3 stress_strnum_strtod(stress_args_t *args, const stress_strnum_method_t *this)
 {
 	double val;
 	const double precision = 1.0E-5;
@@ -336,7 +336,7 @@ static bool stress_strnum_strtod(stress_args_t *args, const stress_strnum_method
 #endif
 
 #if defined(HAVE_STRTOLD)
-static bool stress_strnum_strtold(stress_args_t *args, const stress_strnum_method_t *this)
+static bool OPTIMIZE3 stress_strnum_strtold(stress_args_t *args, const stress_strnum_method_t *this)
 {
 	long double val;
 	const long double precision = 1.0E-5L;
@@ -351,7 +351,7 @@ static bool stress_strnum_strtold(stress_args_t *args, const stress_strnum_metho
 }
 #endif
 
-static bool stress_strnum_snprintf_i(stress_args_t *args, const stress_strnum_method_t *this)
+static bool OPTIMIZE3 stress_strnum_snprintf_i(stress_args_t *args, const stress_strnum_method_t *this)
 {
 	char str[32];
 	int ret;
@@ -372,7 +372,7 @@ static bool stress_strnum_snprintf_i(stress_args_t *args, const stress_strnum_me
 	return true;
 }
 
-static bool stress_strnum_snprintf_li(stress_args_t *args, const stress_strnum_method_t *this)
+static bool OPTIMIZE3 stress_strnum_snprintf_li(stress_args_t *args, const stress_strnum_method_t *this)
 {
 	char str[32];
 	int ret;
@@ -393,7 +393,7 @@ static bool stress_strnum_snprintf_li(stress_args_t *args, const stress_strnum_m
 	return true;
 }
 
-static bool stress_strnum_snprintf_lli(stress_args_t *args, const stress_strnum_method_t *this)
+static bool OPTIMIZE3 stress_strnum_snprintf_lli(stress_args_t *args, const stress_strnum_method_t *this)
 {
 	char str[32];
 	int ret;
@@ -414,7 +414,7 @@ static bool stress_strnum_snprintf_lli(stress_args_t *args, const stress_strnum_
 	return true;
 }
 
-static bool stress_strnum_sscanf_f(stress_args_t *args, const stress_strnum_method_t *this)
+static bool OPTIMIZE3 stress_strnum_sscanf_f(stress_args_t *args, const stress_strnum_method_t *this)
 {
 	float val;
 	const float precision = 1.0E-6;
@@ -436,7 +436,7 @@ static bool stress_strnum_sscanf_f(stress_args_t *args, const stress_strnum_meth
 	return true;
 }
 
-static bool stress_strnum_sscanf_d(stress_args_t *args, const stress_strnum_method_t *this)
+static bool OPTIMIZE3 stress_strnum_sscanf_d(stress_args_t *args, const stress_strnum_method_t *this)
 {
 	double val;
 	const double precision = 1.0E-6;
@@ -458,7 +458,7 @@ static bool stress_strnum_sscanf_d(stress_args_t *args, const stress_strnum_meth
 	return true;
 }
 
-static bool stress_strnum_sscanf_ld(stress_args_t *args, const stress_strnum_method_t *this)
+static bool OPTIMIZE3 stress_strnum_sscanf_ld(stress_args_t *args, const stress_strnum_method_t *this)
 {
 	long double val;
 	const long double precision = 1.0E-6L;
@@ -481,7 +481,7 @@ static bool stress_strnum_sscanf_ld(stress_args_t *args, const stress_strnum_met
 }
 
 #if defined(HAVE_STRFROMF)
-static bool stress_strnum_strfromf(stress_args_t *args, const stress_strnum_method_t *this)
+static bool OPTIMIZE3 stress_strnum_strfromf(stress_args_t *args, const stress_strnum_method_t *this)
 {
 	char str[32];
 
@@ -498,7 +498,7 @@ static bool stress_strnum_strfromf(stress_args_t *args, const stress_strnum_meth
 #endif
 
 #if defined(HAVE_STRFROMD)
-static bool stress_strnum_strfromd(stress_args_t *args, const stress_strnum_method_t *this)
+static bool OPTIMIZE3 stress_strnum_strfromd(stress_args_t *args, const stress_strnum_method_t *this)
 {
 	char str[32];
 
@@ -515,7 +515,7 @@ static bool stress_strnum_strfromd(stress_args_t *args, const stress_strnum_meth
 #endif
 
 #if defined(HAVE_STRFROML)
-static bool stress_strnum_strfroml(stress_args_t *args, const stress_strnum_method_t *this)
+static bool OPTIMIZE3 stress_strnum_strfroml(stress_args_t *args, const stress_strnum_method_t *this)
 {
 	char str[32];
 
@@ -580,7 +580,7 @@ static stress_metrics_t stress_strnum_metrics[SIZEOF_ARRAY(stress_strnum_methods
 
 #define STRESS_NUM_STRNUM_METHODS	(SIZEOF_ARRAY(stress_strnum_methods))
 
-static int stress_strnum_call_method(
+static int OPTIMIZE3 stress_strnum_call_method(
 	stress_args_t *args,
 	const size_t method)
 {
@@ -602,7 +602,7 @@ static int stress_strnum_call_method(
 	return true;
 }
 
-static bool stress_strnum_all(stress_args_t *args, const stress_strnum_method_t *this)
+static bool OPTIMIZE3 stress_strnum_all(stress_args_t *args, const stress_strnum_method_t *this)
 {
 	size_t i;
 
