@@ -282,10 +282,10 @@ static void stress_dump_map_info(uint8_t *fault_addr)
 }
 
 /*
- *  stress_get_signal_name()
+ *  stress_signal_name()
  *	return string version of signal number, NULL if not found
  */
-const char PURE *stress_get_signal_name(const int signum)
+const char PURE *stress_signal_name(const int signum)
 {
 	size_t i;
 
@@ -313,7 +313,7 @@ const char PURE *stress_get_signal_name(const int signum)
 const char *stress_strsignal(const int signum)
 {
 	static char buffer[40];
-	const char *str = stress_get_signal_name(signum);
+	const char *str = stress_signal_name(signum);
 
 	if (str)
 		(void)snprintf(buffer, sizeof(buffer), "signal %d '%s'",

@@ -379,7 +379,7 @@ finish:
 
 	for (sz = 1, n = 0, i = 0; i < max_signals; i++) {
 		if (signals[i].signalled) {
-			const char *name = stress_get_signal_name(signals[i].signum);
+			const char *name = stress_signal_name(signals[i].signum);
 
 			n++;
 			sz += name ? (strlen(name) + 1) : 32;
@@ -392,7 +392,7 @@ finish:
 		if (buf) {
 			for (ptr = buf, i = 0; i < max_signals; i++) {
 				if (signals[i].signalled) {
-					const char *name = stress_get_signal_name(signals[i].signum);
+					const char *name = stress_signal_name(signals[i].signum);
 					ssize_t written;
 					const size_t len = buf + sz - ptr;
 

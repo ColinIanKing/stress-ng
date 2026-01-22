@@ -1041,7 +1041,7 @@ static int stress_cache(stress_args_t *args)
 	(void)cache_flags_mask;
 
 	if (sigsetjmp(jmp_env, 1)) {
-		const char *signame = stress_get_signal_name(caught_signum);
+		const char *signame = stress_signal_name(caught_signum);
 
 		pr_inf_skip("%s: signal %s (#%d) caught, skipping stressor\n",
 			args->name, signame ? signame : "unknown", caught_signum);

@@ -21,7 +21,7 @@
 
 #include "stress-ng.h"
 
-extern const char *stress_get_signal_name(const int signum);
+extern const char *stress_signal_name(const int signum);
 extern const char *stress_strsignal(const int signum) RETURNS_NONNULL;
 extern void stress_mask_longjump_signals(sigset_t *set);
 extern WARN_UNUSED int stress_sighandler(const char *name, const int signum,
