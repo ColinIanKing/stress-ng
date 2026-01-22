@@ -324,10 +324,10 @@ const char *stress_signal_str(const int signum)
 }
 
 /*
- * stress_mask_longjump_signals()
+ *  stress_signal_longjump_mask()
  *	mask all signals which may have handlers which use siglongjmp()
  */
-void stress_mask_longjump_signals(sigset_t *set)
+void stress_signal_longjump_mask(sigset_t *set)
 {
 #if defined(SIGBUS)
 	sigaddset(set, SIGBUS);
@@ -394,7 +394,7 @@ int stress_sighandler(
 	 */
 	if ((signum == SIGALRM) || (signum == SIGINT) || (signum == SIGHUP)
 		|| (signum == SIGTERM))
-		stress_mask_longjump_signals(&new_action.sa_mask);
+		stress_signal_longjump_mask(&new_action.sa_mask);
 	new_action.sa_flags = SA_NOCLDSTOP;
 #if defined(HAVE_SIGALTSTACK)
 	new_action.sa_flags |= SA_ONSTACK;

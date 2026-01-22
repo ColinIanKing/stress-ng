@@ -799,7 +799,7 @@ static int stress_set_handler(const char *stress, const bool child)
 	 *  Signals intended to stop stress-ng should never be interrupted
 	 *  by a signal with a handler which may not return to the caller.
 	 */
-	stress_mask_longjump_signals(&sa.sa_mask);
+	stress_signal_longjump_mask(&sa.sa_mask);
 	sa.sa_sigaction = stress_sigalrm_action_handler;
 	sa.sa_flags = SA_SIGINFO;
 	if (sigaction(SIGALRM, &sa, NULL) < 0) {
