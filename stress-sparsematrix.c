@@ -21,7 +21,8 @@
 #include "core-mmap.h"
 #include "core-pragma.h"
 #include "core-prime.h"
-#include "math.h"
+
+#include <math.h>
 
 #if defined(HAVE_SYS_TREE_H)
 #include <sys/tree.h>
