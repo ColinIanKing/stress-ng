@@ -23,6 +23,7 @@
 #include "core-cpu.h"
 #include "core-killpid.h"
 #include "core-net.h"
+#include "core-signal.h"
 
 #include <sys/ioctl.h>
 
@@ -282,7 +283,7 @@ static int OPTIMIZE3 stress_udp_server(
 	struct sockaddr *addr = NULL;
 	int rc = EXIT_FAILURE;
 
-	if (stress_sig_stop_stressing(args->name, SIGALRM) < 0)
+	if (stress_signal_stop_stressing(args->name, SIGALRM) < 0)
 		goto die;
 	if ((fd = socket(udp_domain, SOCK_DGRAM, udp_proto)) < 0) {
 		pr_fail("%s: socket failed, errno=%d (%s)\n",

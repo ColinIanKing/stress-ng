@@ -971,7 +971,7 @@ static int OPTIMIZE3 stress_sock_server(
 			sock_msgs = MIN_SOCKET_MSGS;
 	}
 
-	if (stress_sig_stop_stressing(args->name, SIGALRM) < 0) {
+	if (stress_signal_stop_stressing(args->name, SIGALRM) < 0) {
 		rc = EXIT_FAILURE;
 		goto die;
 	}

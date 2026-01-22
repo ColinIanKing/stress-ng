@@ -21,6 +21,7 @@
 #include "core-builtin.h"
 #include "core-net.h"
 #include "core-out-of-memory.h"
+#include "core-signal.h"
 
 #include <sys/ioctl.h>
 
@@ -261,7 +262,7 @@ static int OPTIMIZE3 stress_socket_server(
 	int rc = EXIT_SUCCESS;
 	const int bad_fd = stress_get_bad_fd();
 
-	if (stress_sig_stop_stressing(args->name, SIGALRM)) {
+	if (stress_signal_stop_stressing(args->name, SIGALRM)) {
 		rc = EXIT_FAILURE;
 		goto die;
 	}

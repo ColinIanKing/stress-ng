@@ -22,6 +22,7 @@
 #include "core-builtin.h"
 #include "core-killpid.h"
 #include "core-net.h"
+#include "core-signal.h"
 
 #if defined(HAVE_SYS_UN_H)
 #include <sys/un.h>
@@ -500,7 +501,7 @@ static int OPTIMIZE3 stress_sctp_server(
 
 	(void)sctp_sched_type;
 
-	if (stress_sig_stop_stressing(args->name, SIGALRM)) {
+	if (stress_signal_stop_stressing(args->name, SIGALRM)) {
 		rc = EXIT_FAILURE;
 		goto die;
 	}

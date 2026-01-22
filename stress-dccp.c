@@ -22,6 +22,7 @@
 #include "core-builtin.h"
 #include "core-killpid.h"
 #include "core-net.h"
+#include "core-signal.h"
 
 #include <sys/ioctl.h>
 
@@ -207,7 +208,7 @@ static int stress_dccp_server(
 			dccp_msgs = MIN_DCCP_MSGS;
 	}
 
-	if (stress_sig_stop_stressing(args->name, SIGALRM) < 0) {
+	if (stress_signal_stop_stressing(args->name, SIGALRM) < 0) {
 		rc = EXIT_FAILURE;
 		goto die;
 	}

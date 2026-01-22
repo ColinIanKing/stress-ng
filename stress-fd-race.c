@@ -21,6 +21,7 @@
 #include "core-net.h"
 #include "core-out-of-memory.h"
 #include "core-pthread.h"
+#include "core-signal.h"
 
 #include <sys/ioctl.h>
 #include <ctype.h>
@@ -508,7 +509,7 @@ static int OPTIMIZE3 stress_race_fd_server(
 	(void)shim_memset(pthreads_ret, 0, sizeof(pthreads_ret));
 	(void)shim_memset(pthreads, 0, sizeof(pthreads));
 
-	if (stress_sig_stop_stressing(args->name, SIGALRM)) {
+	if (stress_signal_stop_stressing(args->name, SIGALRM)) {
 		rc = EXIT_FAILURE;
 		goto die;
 	}

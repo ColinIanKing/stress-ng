@@ -23,6 +23,7 @@
 #include "core-killpid.h"
 #include "core-madvise.h"
 #include "core-net.h"
+#include "core-signal.h"
 
 #include <sys/ioctl.h>
 
@@ -202,7 +203,7 @@ static int OPTIMIZE3 stress_sigurg_server(
 
 	(void)signal(SIGPIPE, SIG_IGN);
 
-	if (stress_sig_stop_stressing(args->name, SIGALRM) < 0) {
+	if (stress_signal_stop_stressing(args->name, SIGALRM) < 0) {
 		rc = EXIT_FAILURE;
 		goto die;
 	}

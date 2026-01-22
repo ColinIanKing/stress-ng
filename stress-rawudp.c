@@ -173,7 +173,7 @@ static int OPTIMIZE3 stress_rawudp_server(
 	double t_start, duration = 0.0, bytes = 0.0, rate;
 	char msg[64];
 
-	if (stress_sig_stop_stressing(args->name, SIGALRM) < 0) {
+	if (stress_signal_stop_stressing(args->name, SIGALRM) < 0) {
 		rc = EXIT_FAILURE;
 		goto die;
 	}

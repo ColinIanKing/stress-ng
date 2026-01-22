@@ -21,6 +21,7 @@
 #include "core-affinity.h"
 #include "core-builtin.h"
 #include "core-mmap.h"
+#include "core-signal.h"
 
 #include <sys/ioctl.h>
 
@@ -555,7 +556,7 @@ static int stress_pipe(stress_args_t *args)
 			pipe_data_size = MIN_PIPE_DATA_SIZE;
 	}
 
-	if (stress_sig_stop_stressing(args->name, SIGPIPE) < 0)
+	if (stress_signal_stop_stressing(args->name, SIGPIPE) < 0)
 		return EXIT_FAILURE;
 
 	(void)shim_memset(pipefds, 0, sizeof(pipefds));

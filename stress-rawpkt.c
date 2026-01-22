@@ -349,7 +349,7 @@ static int OPTIMIZE3 stress_rawpkt_server(
 	const ssize_t min_size = sizeof(struct ethhdr) + sizeof(struct iphdr) + sizeof(struct udphdr);
 	double t_start, duration, bytes = 0.0, rate;
 
-	if (stress_sig_stop_stressing(args->name, SIGALRM) < 0) {
+	if (stress_signal_stop_stressing(args->name, SIGALRM) < 0) {
 		rc = EXIT_FAILURE;
 		goto die;
 	}

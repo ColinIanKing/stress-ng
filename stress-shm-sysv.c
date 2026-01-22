@@ -25,6 +25,7 @@
 #include "core-mincore.h"
 #include "core-out-of-memory.h"
 #include "core-pragma.h"
+#include "core-signal.h"
 
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 #include <linux/mempolicy.h>
@@ -655,7 +656,7 @@ static int stress_shm_sysv_child(
 		return EXIT_NO_RESOURCE;
 	}
 
-	if (stress_sig_stop_stressing(args->name, SIGALRM) < 0) {
+	if (stress_signal_stop_stressing(args->name, SIGALRM) < 0) {
 		free(buffer);
 		return EXIT_FAILURE;
 	}

@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-capabilities.h"
+#include "core-signal.h"
 
 #if defined(NSIG)
 #define MAX_SIGNUM      NSIG
@@ -66,7 +67,7 @@ static int stress_make_daemon(
 	ssize_t sz;
 	int rc = EXIT_SUCCESS;
 
-	if (stress_sig_stop_stressing(args->name, SIGALRM) < 0)
+	if (stress_signal_stop_stressing(args->name, SIGALRM) < 0)
 		goto err_close_fd;
 	if (setsid() < 0) {
 		if (errno != ENOSYS) {
@@ -167,7 +168,7 @@ static int stress_daemon(stress_args_t *args)
 
 	(void)stress_get_setting("daemon-wait", &daemon_wait);
 
-	if (stress_sig_stop_stressing(args->name, SIGALRM) < 0)
+	if (stress_signal_stop_stressing(args->name, SIGALRM) < 0)
 		return EXIT_FAILURE;
 
 	if (pipe(fds) < 0) {

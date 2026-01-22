@@ -241,7 +241,7 @@ static int stress_sockabuse_server(
 	int rc = EXIT_SUCCESS;
 	double t1 = 0.0, t2 = 0.0, dt;
 
-	if (stress_sig_stop_stressing(args->name, SIGALRM) < 0) {
+	if (stress_signal_stop_stressing(args->name, SIGALRM) < 0) {
 		rc = EXIT_FAILURE;
 		goto die;
 	}

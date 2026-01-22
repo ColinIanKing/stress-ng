@@ -22,6 +22,7 @@
 #include "core-builtin.h"
 #include "core-killpid.h"
 #include "core-mmap.h"
+#include "core-signal.h"
 
 #if defined(HAVE_MQUEUE_H)
 #include <mqueue.h>
@@ -136,7 +137,7 @@ static int stress_switch_pipe(
 	size_t buf_size;
 	char *buf;
 
-	if (stress_sig_stop_stressing(args->name, SIGPIPE) < 0)
+	if (stress_signal_stop_stressing(args->name, SIGPIPE) < 0)
 		return EXIT_FAILURE;
 
 	(void)shim_memset(pipefds, 0, sizeof(pipefds));

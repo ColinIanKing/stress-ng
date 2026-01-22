@@ -461,11 +461,11 @@ void stress_handle_stop_stressing(const int signum)
 }
 
 /*
- *  stress_sig_stop_stressing()
+ *  stress_signal_stop_stressing()
  *	install a handler that sets the global flag
  *	to indicate to a stressor to stop stressing
  */
-int stress_sig_stop_stressing(const char *name, const int sig)
+int stress_signal_stop_stressing(const char *name, const int sig)
 {
 	return stress_sighandler(name, sig, stress_handle_stop_stressing, NULL);
 }
