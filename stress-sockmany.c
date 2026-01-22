@@ -302,7 +302,7 @@ static int stress_sockmany(stress_args_t *args)
 	int rc = EXIT_SUCCESS, reserved_port, parent_cpu;
 	char *sockmany_if = NULL;
 
-	if (stress_sigchld_set_handler(args) < 0)
+	if (stress_signal_sigchld_handler(args) < 0)
 		return EXIT_NO_RESOURCE;
 
 	(void)stress_get_setting("sockmany-if", &sockmany_if);

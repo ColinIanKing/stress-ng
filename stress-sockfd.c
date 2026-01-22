@@ -403,7 +403,7 @@ static int stress_sockfd(stress_args_t *args)
 	bool socket_fd_reuse = false;
 	size_t fds_size;
 
-	if (stress_sigchld_set_handler(args) < 0)
+	if (stress_signal_sigchld_handler(args) < 0)
 		return EXIT_NO_RESOURCE;
 
 	(void)stress_get_setting("sockfd-port", &socket_fd_port);

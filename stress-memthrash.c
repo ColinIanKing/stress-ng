@@ -31,6 +31,7 @@
 #include "core-pthread.h"
 #include "core-pragma.h"
 #include "core-prime.h"
+#include "core-signal.h"
 #include "core-target-clones.h"
 
 #if defined(HAVE_LINUX_MEMPOLICY_H) &&	\
@@ -988,7 +989,7 @@ static int stress_memthrash(stress_args_t *args)
 	size_t memthrash_method = 0;
 	int rc;
 
-	if (stress_sigchld_set_handler(args) < 0)
+	if (stress_signal_sigchld_handler(args) < 0)
 		return EXIT_NO_RESOURCE;
 
 	stress_memthrash_find_primes();

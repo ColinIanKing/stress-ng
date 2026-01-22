@@ -417,7 +417,7 @@ static int stress_udp(stress_args_t *args)
 	bool udp_gro = false;
 	char *udp_if = NULL;
 
-	if (stress_sigchld_set_handler(args) < 0)
+	if (stress_signal_sigchld_handler(args) < 0)
 		return EXIT_NO_RESOURCE;
 
 	(void)stress_get_setting("udp-if", &udp_if);

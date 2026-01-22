@@ -635,7 +635,7 @@ static int stress_sctp(stress_args_t *args)
 	int ret, reserved_port, parent_cpu;
 	char *sctp_if = NULL;
 
-	if (stress_sigchld_set_handler(args) < 0)
+	if (stress_signal_sigchld_handler(args) < 0)
 		return EXIT_NO_RESOURCE;
 
 	(void)stress_get_setting("sctp-domain", &sctp_domain);

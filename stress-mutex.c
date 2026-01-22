@@ -20,6 +20,7 @@
 #include "core-affinity.h"
 #include "core-builtin.h"
 #include "core-pthread.h"
+#include "core-signal.h"
 
 #if defined(HAVE_PTHREAD_NP_H)
 #include <pthread_np.h>
@@ -175,7 +176,7 @@ static int stress_mutex(stress_args_t *args)
 	pthread_mutexattr_t mutexattr;
 #endif
 
-	if (stress_sigchld_set_handler(args) < 0)
+	if (stress_signal_sigchld_handler(args) < 0)
 		return EXIT_NO_RESOURCE;
 
 	(void)stress_get_setting("mutex-affinity", &mutex_affinity);

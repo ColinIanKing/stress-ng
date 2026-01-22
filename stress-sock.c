@@ -1366,7 +1366,7 @@ static int stress_sock(stress_args_t *args)
 	char *mmap_buffer;
 	char *sock_if = NULL;
 
-	if (stress_sigchld_set_handler(args) < 0)
+	if (stress_signal_sigchld_handler(args) < 0)
 		return EXIT_NO_RESOURCE;
 
 	(void)stress_get_setting("sock-if", &sock_if);

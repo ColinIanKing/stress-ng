@@ -21,6 +21,7 @@
 #include "core-hash.h"
 #include "core-killpid.h"
 #include "core-mmap.h"
+#include "core-signal.h"
 
 #define MIN_METAMIX_BYTES		(512)
 #define MAX_METAMIX_BYTES		(MAX_FILE_LIMIT)
@@ -325,7 +326,7 @@ static int stress_metamix(stress_args_t *args)
 	char temp_dir[PATH_MAX];
 	const char *fs_type;
 
-	if (stress_sigchld_set_handler(args) < 0)
+	if (stress_signal_sigchld_handler(args) < 0)
 		return EXIT_NO_RESOURCE;
 
 	s_pids = stress_sync_s_pids_mmap(METAMIX_PROCS);

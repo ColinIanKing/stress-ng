@@ -445,7 +445,7 @@ static int stress_rawpkt(stress_args_t *args)
 	struct ifreq hwaddr, ifaddr, idx;
 	int rawpkt_rxring = 0;
 
-	if (stress_sigchld_set_handler(args) < 0)
+	if (stress_signal_sigchld_handler(args) < 0)
 		return EXIT_NO_RESOURCE;
 
 	(void)stress_get_setting("rawpkt-port", &rawpkt_port);

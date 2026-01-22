@@ -22,6 +22,7 @@
 #include "core-capabilities.h"
 #include "core-killpid.h"
 #include "core-mounts.h"
+#include "core-signal.h"
 
 #include <sys/ioctl.h>
 
@@ -495,7 +496,7 @@ static int stress_fanotify(stress_args_t *args)
 	int ret, rc = EXIT_SUCCESS;
 	stress_fanotify_account_t account;
 
-	if (stress_sigchld_set_handler(args) < 0)
+	if (stress_signal_sigchld_handler(args) < 0)
 		return EXIT_NO_RESOURCE;
 
 	(void)shim_memset(&account, 0, sizeof(account));

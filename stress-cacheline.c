@@ -23,6 +23,7 @@
 #include "core-killpid.h"
 #include "core-lock.h"
 #include "core-pragma.h"
+#include "core-signal.h"
 
 #include <sched.h>
 
@@ -714,7 +715,7 @@ static int stress_cacheline(stress_args_t *args)
 	size_t n_pids, i;
 	stress_pid_t *s_pids = NULL, *s_pids_head = NULL;
 
-	if (stress_sigchld_set_handler(args) < 0)
+	if (stress_signal_sigchld_handler(args) < 0)
 		return EXIT_NO_RESOURCE;
 
 	if (!g_shared->cacheline.lock) {

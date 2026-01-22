@@ -191,7 +191,7 @@ static int stress_rmap(stress_args_t *args)
 	uintptr_t *paddings[MAPPINGS_MAX];
 	char filename[PATH_MAX];
 
-	if (stress_sigchld_set_handler(args) < 0)
+	if (stress_signal_sigchld_handler(args) < 0)
 		return EXIT_NO_RESOURCE;
 
 	s_pids = stress_sync_s_pids_mmap(RMAP_CHILD_MAX);

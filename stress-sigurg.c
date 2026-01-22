@@ -288,7 +288,7 @@ static int stress_sigurg(stress_args_t *args)
 
 	s_args = args;
 
-	if (stress_sigchld_set_handler(args) < 0)
+	if (stress_signal_sigchld_handler(args) < 0)
 		return EXIT_NO_RESOURCE;
 
 	sock_port += args->instance;

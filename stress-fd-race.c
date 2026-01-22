@@ -807,7 +807,7 @@ static int stress_fd_race(stress_args_t *args)
 	(void)stress_get_setting("fd-race-dev", &fd_race_dev);
 	(void)stress_get_setting("fd-race-proc", &fd_race_proc);
 
-	if (stress_sigchld_set_handler(args) < 0)
+	if (stress_signal_sigchld_handler(args) < 0)
 		return EXIT_NO_RESOURCE;
 
 	stress_fd_race_get_dev(args, "/dev", "fd-race-dev", &context.dev_dev, &fd_race_dev);

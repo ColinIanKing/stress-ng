@@ -26,6 +26,7 @@
 #include "core-lock.h"
 #include "core-out-of-memory.h"
 #include "core-net.h"
+#include "core-signal.h"
 
 #include <sys/ioctl.h>
 
@@ -276,7 +277,7 @@ static int stress_rawsock_child(stress_args_t *args, void *context)
 	pid_t pid;
 	const int rawsock_port = *(int *)context;
 
-	if (stress_sigchld_set_handler(args) < 0)
+	if (stress_signal_sigchld_handler(args) < 0)
 		return EXIT_NO_RESOURCE;
 again:
 	parent_cpu = stress_get_cpu();

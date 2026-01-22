@@ -21,6 +21,7 @@
 #include "core-builtin.h"
 #include "core-killpid.h"
 #include "core-out-of-memory.h"
+#include "core-signal.h"
 
 #include <sched.h>
 #include <time.h>
@@ -188,7 +189,7 @@ static int stress_hrtimers(stress_args_t *args)
 
 	s_args = args;
 
-	if (stress_sigchld_set_handler(args) < 0)
+	if (stress_signal_sigchld_handler(args) < 0)
 		return EXIT_NO_RESOURCE;
 
 	s_pids = stress_sync_s_pids_mmap(PROCS_MAX);

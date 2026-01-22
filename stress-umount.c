@@ -20,6 +20,7 @@
 #include "core-builtin.h"
 #include "core-capabilities.h"
 #include "core-killpid.h"
+#include "core-signal.h"
 
 #if defined(HAVE_SYS_MOUNT_H)
 #include <sys/mount.h>
@@ -273,7 +274,7 @@ static int stress_umount(stress_args_t *args)
 	stress_sync_start_init(&s_pids[1]);
 	stress_sync_start_init(&s_pids[2]);
 
-	if (stress_sigchld_set_handler(args) < 0) {
+	if (stress_signal_sigchld_handler(args) < 0) {
 		(void)stress_sync_s_pids_munmap(s_pids, STRESS_UMOUNT_PROCS);
 		return EXIT_NO_RESOURCE;
 	}

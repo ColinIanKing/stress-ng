@@ -23,6 +23,7 @@
 #include "core-killpid.h"
 #include "core-mmap.h"
 #include "core-put.h"
+#include "core-signal.h"
 
 #include <sys/ioctl.h>
 
@@ -1106,7 +1107,7 @@ static int stress_iomix(stress_args_t *args)
 	int oflags = O_CREAT | O_RDWR;
 	bool iomix_bytes_shrunk = false;
 
-	if (stress_sigchld_set_handler(args) < 0)
+	if (stress_signal_sigchld_handler(args) < 0)
 		return EXIT_NO_RESOURCE;
 
 	s_pids = stress_sync_s_pids_mmap(MAX_IOMIX_PROCS);

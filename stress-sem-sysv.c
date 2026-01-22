@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-builtin.h"
 #include "core-killpid.h"
+#include "core-signal.h"
 
 #if defined(HAVE_SEM_SYSV)
 #include <sys/sem.h>
@@ -560,7 +561,7 @@ static int stress_sem_sysv(stress_args_t *args)
 	int rc = EXIT_SUCCESS;
 	bool semaphore_sysv_setall = false;
 
-	if (stress_sigchld_set_handler(args) < 0)
+	if (stress_signal_sigchld_handler(args) < 0)
 		return EXIT_NO_RESOURCE;
 
 	if (!g_shared->sem_sysv.init) {

@@ -249,7 +249,7 @@ static int stress_userfaultfd_child(stress_args_t *args, void *context)
 	size_t userfaultfd_bytes, userfaultfd_bytes_total = DEFAULT_USERFAULT_BYTES;
 	double t, duration = 0.0, rate;
 
-	if (stress_sigchld_set_handler(args) < 0)
+	if (stress_signal_sigchld_handler(args) < 0)
 		return EXIT_NO_RESOURCE;
 
 	(void)context;

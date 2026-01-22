@@ -396,7 +396,7 @@ static int stress_prio_inv(stress_args_t *args)
 	stress_prio_inv_check_policy(args, SCHED_RR, &sched_policy, policy_name);
 #endif
 
-	if (stress_sigchld_set_handler(args) < 0)
+	if (stress_signal_sigchld_handler(args) < 0)
 		return EXIT_NO_RESOURCE;
 
 	/*

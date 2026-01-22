@@ -1760,7 +1760,7 @@ static int stress_zlib(stress_args_t *args)
 
 	stress_signal_catch_sigill();
 
-	if (stress_sigchld_set_handler(args) < 0)
+	if (stress_signal_sigchld_handler(args) < 0)
 		return EXIT_NO_RESOURCE;
 
 	if (stress_sighandler(args->name, SIGPIPE, stress_sigpipe_handler, NULL) < 0)
