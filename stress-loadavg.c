@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-pthread.h"
+#include "core-signal.h"
 
 #define MAX_LOADAVG	(1000000)
 
@@ -67,7 +68,7 @@ static inline void stop_running(void)
  */
 static bool keep_running(void)
 {
-	if (stress_sigalrm_pending())
+	if (stress_signal_alrm_pending())
 		stop_running();
 	return keep_running_flag;
 }

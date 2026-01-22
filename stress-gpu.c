@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-out-of-memory.h"
 #include "core-pthread.h"
+#include "core-signal.h"
 
 #if defined(HAVE_EGL_H)
 #include <EGL/egl.h>
@@ -611,7 +612,7 @@ static int stress_gpu_child(stress_args_t *args, void *context)
 			break;
 		}
 		stress_bogo_inc(args);
-	} while (!stress_sigalrm_pending() && stress_continue(args));
+	} while (!stress_signal_alrm_pending() && stress_continue(args));
 
 #if defined(HAVE_LIB_PTHREAD)
 	if (pret == 0) {

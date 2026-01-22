@@ -489,10 +489,10 @@ int stress_sigrestore(
 }
 
 /*
- *  stress_sigalrm_pending()
+ *  stress_signal_alrm_pending()
  *	return true if SIGALRM is pending
  */
-bool stress_sigalrm_pending(void)
+bool stress_signal_alrm_pending(void)
 {
 	sigset_t set;
 

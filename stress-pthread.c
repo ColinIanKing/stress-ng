@@ -21,6 +21,7 @@
 #include "core-arch.h"
 #include "core-builtin.h"
 #include "core-pthread.h"
+#include "core-signal.h"
 
 #if defined(HAVE_MODIFY_LDT)
 #include <asm/ldt.h>
@@ -122,7 +123,7 @@ static inline void stop_running(void)
  */
 static bool keep_running(void)
 {
-	if (stress_sigalrm_pending())
+	if (stress_signal_alrm_pending())
 		stop_running();
 	return keep_running_flag;
 }
