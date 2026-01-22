@@ -89,7 +89,7 @@ static void OPTIMIZE3 stress_strnum_set_values(void)
 
 	stress_strnum_float = (float)stress_strnum_i / (float)INT_MAX;
 	stress_strnum_double = (double)stress_strnum_li / (double)LONG_MAX;
-	stress_strnum_long_double = (long double)stress_strnum_lli /(long double)LONG_LONG_MAX;
+	stress_strnum_long_double = (long double)stress_strnum_lli / (long double)LONG_LONG_MAX;
 
 	(void)snprintf(stress_strnum_float_str, sizeof(stress_strnum_float_str), "%.7f", (double)stress_strnum_float);
 	(void)snprintf(stress_strnum_double_str, sizeof(stress_strnum_double_str), "%.7g", stress_strnum_double);
