@@ -26,6 +26,7 @@
 #include "core-pthread.h"
 #include "core-prime.h"
 #include "core-put.h"
+#include "core-signal.h"
 #include "core-try-open.h"
 
 #include <sys/ioctl.h>
@@ -811,7 +812,7 @@ again:
 				if (stress_sysfs_bad_signal(status)) {
 					pr_inf("%s: killed by %s exercising '%s'\n",
 						args->name,
-						stress_strsignal(WTERMSIG(status)),
+						stress_signal_str(WTERMSIG(status)),
 						ctxt->sysfs_path);
 					stress_sys_add_bad(ctxt->sysfs_path);
 					rc = EXIT_FAILURE;

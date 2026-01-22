@@ -21,6 +21,7 @@
 #include "core-builtin.h"
 #include "core-capabilities.h"
 #include "core-killpid.h"
+#include "core-signal.h"
 
 #include <sched.h>
 
@@ -472,7 +473,7 @@ again:
 				(void)shim_waitpid(pid, &status, 0);
 			} else if (WIFSIGNALED(status)) {
 				pr_dbg("%s: child died: %s (instance %" PRIu32 ")\n",
-					args->name, stress_strsignal(WTERMSIG(status)),
+					args->name, stress_signal_str(WTERMSIG(status)),
 					args->instance);
 				/* If we got killed by OOM killer, re-start */
 				if (WTERMSIG(status) == SIGKILL) {

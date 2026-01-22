@@ -21,6 +21,7 @@
 #include "core-builtin.h"
 #include "core-killpid.h"
 #include "core-out-of-memory.h"
+#include "core-signal.h"
 
 #if defined(HAVE_SYS_STATVFS_H)
 #include <sys/statvfs.h>
@@ -843,7 +844,7 @@ again:
 			(void)stress_kill_pid_wait(pid, NULL);
 		} else if (WIFSIGNALED(status)) {
 			pr_dbg("%s: child died: %s (instance %" PRIu32 ")\n",
-				args->name, stress_strsignal(WTERMSIG(status)),
+				args->name, stress_signal_str(WTERMSIG(status)),
 				args->instance);
 			/* If we got killed by OOM killer, re-start */
 			if (WTERMSIG(status) == SIGKILL) {

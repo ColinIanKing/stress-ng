@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-put.h"
+#include "core-signal.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"fault N",	"start N workers producing page faults" },
@@ -108,7 +109,7 @@ static int stress_fault(stress_args_t *args)
 		if (ret) {
 			do_jmp = false;
 			pr_fail("%s: unexpected %s, terminating early\n",
-				args->name, stress_strsignal(die_signum));
+				args->name, stress_signal_str(die_signum));
 			rc = EXIT_FAILURE;
 			break;
 		}

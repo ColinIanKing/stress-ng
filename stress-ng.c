@@ -45,6 +45,7 @@
 #include "core-resctrl.h"
 #include "core-shared-cache.h"
 #include "core-shared-heap.h"
+#include "core-signal.h"
 #include "core-smart.h"
 #include "core-stressors.h"
 #include "core-syslog.h"
@@ -1050,7 +1051,7 @@ redo:
 			const int wterm_signal = WTERMSIG(status);
 
 			if (wterm_signal != SIGALRM) {
-				const char *signame = stress_strsignal(wterm_signal);
+				const char *signame = stress_signal_str(wterm_signal);
 
 				pr_dbg("%s: [%" PRIdMAX "] terminated on %s\n",
 					name, (intmax_t)ret, signame);
@@ -1299,7 +1300,7 @@ static void MLOCKED_TEXT stress_handle_terminate(int signum)
 		 *  Critical failure, report and die ASAP
 		 */
 		(void)snprintf(buf, sizeof(buf), "%s: info:  [%" PRIdMAX "] stressor terminated with unexpected %s\n",
-			g_prog_name, (intmax_t)getpid(), stress_strsignal(signum));
+			g_prog_name, (intmax_t)getpid(), stress_signal_str(signum));
 		VOID_RET(ssize_t, write(fd, buf, strlen(buf)));
 		if (signum == SIGABRT)
 			stress_backtrace();

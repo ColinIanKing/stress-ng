@@ -26,6 +26,7 @@
 #include "core-mmap.h"
 #include "core-nt-store.h"
 #include "core-numa.h"
+#include "core-signal.h"
 #include "core-target-clones.h"
 
 #include <time.h>
@@ -1385,7 +1386,7 @@ static int stress_misaligned(stress_args_t *args)
 			pr_inf_skip("%s: skipping method %s, misaligned operations tripped %s\n",
 				args->name, current_method->name,
 				handled_signum == -1 ? "an error" :
-				stress_strsignal(handled_signum));
+				stress_signal_str(handled_signum));
 			break;
 		case STRESS_MISALIGNED_TIMED_OUT:
 			pr_inf_skip("%s: skipping method %s, misaligned operations timed out after %.3f seconds, not fully tested\n",

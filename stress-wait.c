@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-builtin.h"
 #include "core-killpid.h"
+#include "core-signal.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"wait N",	"start N workers waiting on child being stop/resumed" },
@@ -352,7 +353,7 @@ static int stress_wait(stress_args_t *args)
 			}
 			if (UNLIKELY((info.si_signo != SIGCHLD) && (info.si_signo != 0))) {
 				pr_fail("%s: waitid returned si_signo %d (%s) but expected SIGCHLD\n",
-					args->name, info.si_signo, stress_strsignal(info.si_signo));
+					args->name, info.si_signo, stress_signal_str(info.si_signo));
 				ret = EXIT_FAILURE;
 			}
 			if (UNLIKELY((info.si_status != EXIT_SUCCESS) &&

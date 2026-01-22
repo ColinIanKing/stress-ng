@@ -22,6 +22,7 @@
 #include "core-capabilities.h"
 #include "core-killpid.h"
 #include "core-out-of-memory.h"
+#include "core-signal.h"
 
 #if defined(HAVE_SYS_PROCCTL_H)
 #include <sys/procctl.h>
@@ -324,7 +325,7 @@ rewait:
 			stress_set_proc_state(args->name, STRESS_STATE_RUN);
 			if (not_quiet)
 				pr_dbg("%s: child died: %s (instance %" PRIu32 ")\n",
-					args->name, stress_strsignal(WTERMSIG(status)),
+					args->name, stress_signal_str(WTERMSIG(status)),
 					args->instance);
 			/* Bus error death? retry */
 			if (WTERMSIG(status) == SIGBUS) {

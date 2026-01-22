@@ -307,10 +307,10 @@ const char PURE *stress_signal_name(const int signum)
 }
 
 /*
- *  stress_strsignal()
+ *  stress_signal_str()
  *	signum to human readable string
  */
-const char *stress_strsignal(const int signum)
+const char *stress_signal_str(const int signum)
 {
 	static char buffer[40];
 	const char *str = stress_signal_name(signum);
@@ -375,7 +375,7 @@ int stress_sighandler(
 			if (stack == MAP_FAILED) {
 				pr_inf("%s: sigaction %s: cannot allocated signal stack, "
 					"errno=%d (%s)\n",
-					name, stress_strsignal(signum),
+					name, stress_signal_str(signum),
 					errno, strerror(errno));
 				return -1;
 			}
@@ -402,7 +402,7 @@ int stress_sighandler(
 
 	if (sigaction(signum, &new_action, orig_action) < 0) {
 		pr_fail("%s: sigaction %s, errno=%d (%s)\n",
-			name, stress_strsignal(signum), errno, strerror(errno));
+			name, stress_signal_str(signum), errno, strerror(errno));
 		return -1;
 	}
 	return 0;
@@ -482,7 +482,7 @@ int stress_sigrestore(
 {
 	if (UNLIKELY(sigaction(signum, orig_action, NULL) < 0)) {
 		pr_fail("%s: sigaction %s restore, errno=%d (%s)\n",
-			name, stress_strsignal(signum), errno, strerror(errno));
+			name, stress_signal_str(signum), errno, strerror(errno));
 		return -1;
 	}
 	return 0;

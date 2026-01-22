@@ -24,6 +24,7 @@
 #include "core-killpid.h"
 #include "core-madvise.h"
 #include "core-out-of-memory.h"
+#include "core-signal.h"
 
 #define STRESS_EFI_UNKNOWN	(0)
 #define STRESS_EFI_VARS		(1)
@@ -532,7 +533,7 @@ again:
 			(void)stress_kill_pid_wait(pid, NULL);
 		} else if (WIFSIGNALED(status)) {
 			pr_dbg("%s: child died: %s (instance %" PRIu32 ")\n",
-				args->name, stress_strsignal(WTERMSIG(status)),
+				args->name, stress_signal_str(WTERMSIG(status)),
 				args->instance);
 			return EXIT_FAILURE;
 		} else if (WIFEXITED(status)) {
