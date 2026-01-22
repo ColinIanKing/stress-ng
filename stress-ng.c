@@ -659,7 +659,7 @@ static void MLOCKED_TEXT stress_sigalrm_handler(int signum)
 		stress_kill_stressors(SIGALRM, false);
 	} else {
 		/* Child */
-		stress_handle_stop_stressing(signum);
+		stress_signal_stop_stressing_realarm(signum);
 	}
 
 	errno = saved_errno;

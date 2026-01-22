@@ -442,10 +442,11 @@ int stress_sighandler_default(const int signum)
 }
 
 /*
- *  stress_handle_stop_stressing()
- *	set flag to indicate to stressor to stop stressing
+ *  stress_signal_stop_stressing_realarm()
+ *	set flag to indicate to stressor to stop stressing,
+ *	re-alarm SIGALRM
  */
-void stress_handle_stop_stressing(const int signum)
+void MLOCKED_TEXT stress_signal_stop_stressing_realarm(const int signum)
 {
 	const int saved_errno = errno;
 
@@ -467,7 +468,7 @@ void stress_handle_stop_stressing(const int signum)
  */
 int stress_signal_stop_stressing(const char *name, const int sig)
 {
-	return stress_sighandler(name, sig, stress_handle_stop_stressing, NULL);
+	return stress_sighandler(name, sig, stress_signal_stop_stressing_realarm, NULL);
 }
 
 /*

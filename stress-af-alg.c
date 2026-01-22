@@ -131,7 +131,7 @@ static void MLOCKED_TEXT stress_af_alg_alarm_handler(int signum)
 	static int count = 0;
 
 	/* Indicate we need to stop */
-	stress_handle_stop_stressing(signum);
+	stress_signal_stop_stressing_realarm(signum);
 
 	/*
 	 * If we've not stopped after 5 seconds then an af-alg
