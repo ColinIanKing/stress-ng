@@ -34,6 +34,7 @@
 #include "core-out-of-memory.h"
 #include "core-pragma.h"
 #include "core-prime.h"
+#include "core-signal.h"
 #include "core-vecmath.h"
 
 #define MIN_VM_BYTES		(4 * KB)
@@ -3557,7 +3558,7 @@ static int stress_vm_child(stress_args_t *args, void *ctxt)
 	bool vm_locked = false;
 	stress_mmap_stats_t stats;
 
-	stress_catch_sigill();
+	stress_signal_catch_sigill();
 
 	(void)stress_get_setting("vm-discontiguous", &vm_discontiguous);
 	(void)stress_get_setting("vm-flush", &vm_flush);

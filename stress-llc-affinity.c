@@ -24,6 +24,7 @@
 #include "core-cpu-cache.h"
 #include "core-mmap.h"
 #include "core-numa.h"
+#include "core-signal.h"
 #include "core-target-clones.h"
 
 #include <sched.h>
@@ -417,7 +418,7 @@ static int stress_llc_affinity(stress_args_t *args)
 	if (UNLIKELY(n_numa_nodes < 1))
 		n_numa_nodes = 1;
 
-	stress_catch_sigill();
+	stress_signal_catch_sigill();
 
 	(void)stress_get_setting("llc-affinity-clflush", &llc_affinity_clflush);
 	(void)stress_get_setting("llc-affinity-mlock", &llc_affinity_mlock);

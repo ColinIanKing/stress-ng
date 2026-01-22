@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-arch.h"
 #include "core-put.h"
+#include "core-signal.h"
 #include "core-target-clones.h"
 #include "core-vecmath.h"
 
@@ -185,7 +186,7 @@ static int TARGET_CLONES stress_vecmath(stress_args_t *args)
 	const stress_vint128_t v3_128 = { V3(INT1x128) };
 #endif
 
-	stress_catch_sigill();
+	stress_signal_catch_sigill();
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);

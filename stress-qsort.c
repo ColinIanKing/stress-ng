@@ -22,6 +22,7 @@
 #include "core-madvise.h"
 #include "core-mmap.h"
 #include "core-pragma.h"
+#include "core-signal.h"
 #include "core-sort.h"
 #include "core-target-clones.h"
 
@@ -299,7 +300,7 @@ static int OPTIMIZE3 stress_qsort(stress_args_t *args)
 	int ret;
 #endif
 
-	stress_catch_sigill();
+	stress_signal_catch_sigill();
 
 	(void)stress_get_setting("qsort-method", &qsort_method);
 	if (!stress_get_setting("qsort-size", &qsort_size)) {

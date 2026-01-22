@@ -25,6 +25,7 @@
 #include "core-mmap.h"
 #include "core-nt-store.h"
 #include "core-out-of-memory.h"
+#include "core-signal.h"
 #include "core-target-clones.h"
 #include "core-vecmath.h"
 
@@ -1019,7 +1020,7 @@ static int stress_memrate_child(stress_args_t *args, void *ctxt)
 	stress_mmap_stats_t mmap_stats;
 	void *buffer, *buffer_end;
 
-	stress_catch_sigill();
+	stress_signal_catch_sigill();
 
 	buffer = stress_memrate_mmap(args, context->memrate_bytes);
 	if (buffer == MAP_FAILED)

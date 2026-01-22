@@ -36,6 +36,7 @@
 #include "core-nt-store.h"
 #include "core-numa.h"
 #include "core-pragma.h"
+#include "core-signal.h"
 #include "core-target-clones.h"
 
 #include <math.h>
@@ -1187,7 +1188,7 @@ static int stress_stream(stress_args_t *args)
 	double rd_bytes = 0.0, wr_bytes = 0.0;
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 
-	stress_catch_sigill();
+	stress_signal_catch_sigill();
 
 	(void)stress_get_setting("stream-discontiguous", &stream_discontiguous);
 	(void)stress_get_setting("stream-mlock", &stream_mlock);

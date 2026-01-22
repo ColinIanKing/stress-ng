@@ -25,6 +25,7 @@
 #include "core-numa.h"
 #include "core-out-of-memory.h"
 #include "core-pragma.h"
+#include "core-signal.h"
 #include "core-target-clones.h"
 
 #define MIN_VM_ADDR_BYTES	(8 * MB)
@@ -484,7 +485,7 @@ static int stress_vm_addr_child(stress_args_t *args, void *ctxt)
 	const stress_vm_addr_func func = context->vm_addr_method->func;
 	const size_t page_size = args->page_size;
 
-	stress_catch_sigill();
+	stress_signal_catch_sigill();
 
 	do {
 		for (buf_addr = page_size; buf_addr && (buf_addr < max_addr); buf_addr <<= 1) {

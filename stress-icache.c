@@ -23,6 +23,7 @@
 #include "core-builtin.h"
 #include "core-cpu-cache.h"
 #include "core-mmap.h"
+#include "core-signal.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"icache N",	"start N CPU instruction cache thrashing workers" },
@@ -154,7 +155,7 @@ static int stress_icache(stress_args_t *args)
 	void *page;
 	int ret;
 
-	stress_catch_sigsegv();
+	stress_signal_catch_sigsegv();
 
 	page = stress_mmap_populate(NULL, page_size,
 			PROT_READ | PROT_WRITE | PROT_EXEC,

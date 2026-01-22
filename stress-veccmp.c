@@ -20,6 +20,7 @@
 #include "core-arch.h"
 #include "core-put.h"
 #include "core-pragma.h"
+#include "core-signal.h"
 #include "core-target-clones.h"
 #include "core-vecmath.h"
 
@@ -166,7 +167,7 @@ static int TARGET_CLONES stress_veccmp(stress_args_t *args)
 	const uint64_t csum128hi_val = (uint64_t)0x7f8e9dacbbcad9e8ULL;
 #endif
 
-	stress_catch_sigill();
+	stress_signal_catch_sigill();
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);

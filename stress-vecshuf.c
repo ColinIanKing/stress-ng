@@ -22,6 +22,7 @@
 #include "core-mmap.h"
 #include "core-pragma.h"
 #include "core-put.h"
+#include "core-signal.h"
 #include "core-target-clones.h"
 #include "core-vecmath.h"
 
@@ -363,7 +364,7 @@ static int stress_vecshuf(stress_args_t *args)
 	size_t i;
 	int rc = EXIT_SUCCESS;
 
-	stress_catch_sigill();
+	stress_signal_catch_sigill();
 
 	data = (stress_vec_data_t *)stress_mmap_populate(NULL, sizeof(*data),
 			PROT_READ | PROT_WRITE,

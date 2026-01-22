@@ -23,6 +23,7 @@
 #include "core-mmap.h"
 #include "core-pragma.h"
 #include "core-put.h"
+#include "core-signal.h"
 #include "core-target-clones.h"
 
 #include <math.h>
@@ -1001,7 +1002,7 @@ static int stress_matrix(stress_args_t *args)
 	size_t matrix_mmap_size;	/* Size of mmap for matrix in bytes */
 	int rc;
 
-	stress_catch_sigill();
+	stress_signal_catch_sigill();
 
 	(void)stress_get_setting("matrix-method", &matrix_method);
 	(void)stress_get_setting("matrix-yx", &matrix_yx);

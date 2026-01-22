@@ -23,6 +23,7 @@
 #include "core-cpu.h"
 #include "core-put.h"
 #include "core-pragma.h"
+#include "core-signal.h"
 #include "core-target-clones.h"
 
 #if defined(HAVE_COMPILER_MUSL)
@@ -523,7 +524,7 @@ static int stress_vnni(stress_args_t *args)
 {
 	size_t i, j, vnni_method = 0, intrinsic_count = 0;
 
-	stress_catch_sigill();
+	stress_signal_catch_sigill();
 
 	vnni_checksum_okay = true;
 	little_endian = stress_little_endian();

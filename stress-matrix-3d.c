@@ -23,7 +23,9 @@
 #include "core-mmap.h"
 #include "core-pragma.h"
 #include "core-put.h"
+#include "core-signal.h"
 #include "core-target-clones.h"
+
 #include <math.h>
 
 #define MIN_MATRIX3D_SIZE	(16)
@@ -987,7 +989,7 @@ static int stress_matrix_3d(stress_args_t *args)
 	size_t matrix_3d_mmap_size;
 	int rc;
 
-	stress_catch_sigill();
+	stress_signal_catch_sigill();
 
 	(void)stress_get_setting("matrix-3d-method", &matrix_3d_method);
 	(void)stress_get_setting("matrix-3d-zyx", &matrix_3d_zyx);

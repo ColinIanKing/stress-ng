@@ -26,6 +26,7 @@
 #include "core-net.h"
 #include "core-pragma.h"
 #include "core-put.h"
+#include "core-signal.h"
 #include "core-target-clones.h"
 
 #include <math.h>
@@ -3048,7 +3049,7 @@ static int OPTIMIZE3 stress_cpu(stress_args_t *args)
 	size_t i;
 	int rc = EXIT_SUCCESS;
 
-	stress_catch_sigill();
+	stress_signal_catch_sigill();
 
 	(void)stress_get_setting("cpu-load-slice", &cpu_load_slice);
 	(void)stress_get_setting("cpu-old-metrics", &cpu_old_metrics);

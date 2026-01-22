@@ -23,6 +23,7 @@
 #include "core-mmap.h"
 #include "core-put.h"
 #include "core-pragma.h"
+#include "core-signal.h"
 #include "core-target-clones.h"
 
 #include <math.h>
@@ -522,7 +523,7 @@ static int stress_fma(stress_args_t *args)
 	fma_func_array = stress_fma_funcs;
 #endif
 
-	stress_catch_sigill();
+	stress_signal_catch_sigill();
 
 	pfma = (stress_fma_t *)stress_mmap_populate(NULL, sizeof(*pfma),
 				PROT_READ | PROT_WRITE,

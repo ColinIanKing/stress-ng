@@ -21,8 +21,10 @@
 #include "core-attribute.h"
 #include "core-builtin.h"
 #include "core-pragma.h"
+#include "core-signal.h"
 #include "core-target-clones.h"
-#include "math.h"
+
+#include <math.h>
 
 #if defined(HAVE_SYS_TREE_H)
 #include <sys/tree.h>
@@ -976,7 +978,7 @@ static int stress_tree(stress_args_t *args)
 	int ret;
 #endif
 
-	stress_catch_sigill();
+	stress_signal_catch_sigill();
 
 	for (i = 0; i < SIZEOF_ARRAY(stress_tree_metrics); i++) {
 		stress_tree_metrics[i].insert = 0.0;

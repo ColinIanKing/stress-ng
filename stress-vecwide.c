@@ -22,6 +22,7 @@
 #include "core-mmap.h"
 #include "core-pragma.h"
 #include "core-put.h"
+#include "core-signal.h"
 #include "core-target-clones.h"
 #include "core-vecmath.h"
 
@@ -171,7 +172,7 @@ static int stress_vecwide(stress_args_t *args)
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 	int rc = EXIT_SUCCESS;
 
-	stress_catch_sigill();
+	stress_signal_catch_sigill();
 
 	vec_args = (vec_args_t *)stress_mmap_populate(NULL, vec_args_size,
 					PROT_READ | PROT_WRITE,

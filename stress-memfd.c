@@ -22,6 +22,7 @@
 #include "core-madvise.h"
 #include "core-numa.h"
 #include "core-out-of-memory.h"
+#include "core-signal.h"
 #include "core-target-clones.h"
 
 #if defined(HAVE_LINUX_MEMFD_H)
@@ -189,7 +190,7 @@ static int stress_memfd_child(stress_args_t *args, void *context)
 	stress_numa_mask_t *numa_nodes = NULL;
 #endif
 
-	stress_catch_sigill();
+	stress_signal_catch_sigill();
 
 	(void)context;
 

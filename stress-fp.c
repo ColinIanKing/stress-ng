@@ -23,6 +23,7 @@
 #include "core-madvise.h"
 #include "core-mmap.h"
 #include "core-put.h"
+#include "core-signal.h"
 #include "core-target-clones.h"
 
 #define LOOPS_PER_CALL	(65536)
@@ -665,7 +666,7 @@ static int stress_fp(stress_args_t *args)
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 	int rc = EXIT_SUCCESS;
 
-	stress_catch_sigill();
+	stress_signal_catch_sigill();
 
 	mmap_size = FP_ELEMENTS * sizeof(*fp_data);
 	fp_data = (fp_data_t *)stress_mmap_populate(NULL, mmap_size,

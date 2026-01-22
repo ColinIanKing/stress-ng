@@ -610,11 +610,11 @@ static const CONST char *stress_catch_sig_si_code(const int sig, const int sig_c
 }
 
 /*
- *  stress_catch_sig_handler()
+ *  stress_signal_catch_sig_handler()
  *	handle signal, dump 16 bytes before and after the illegal opcode
  *	and terminate immediately to avoid any recursive signal handling
  */
-static void NORETURN stress_catch_sig_handler(
+static void NORETURN stress_signal_catch_sig_handler(
 	int sig,
 	siginfo_t *info,
 	void *ucontext,
@@ -654,37 +654,37 @@ static void NORETURN stress_catch_sig_handler(
 }
 
 /*
- *  stress_catch_sigill_handler()
+ *  stress_signal_catch_sigill_handler()
  *	handler for SIGILL
  */
-static void NORETURN stress_catch_sigill_handler(
+static void NORETURN stress_signal_catch_sigill_handler(
 	int sig,
 	siginfo_t *info,
 	void *ucontext)
 {
-	stress_catch_sig_handler(sig, info, ucontext, SIGILL, "SIGILL");
+	stress_signal_catch_sig_handler(sig, info, ucontext, SIGILL, "SIGILL");
 }
 
 /*
- *  stress_catch_sigsegv_handler()
+ *  stress_signal_catch_sigsegv_handler()
  *	handler for SIGSEGV
  */
-static void NORETURN stress_catch_sigsegv_handler(
+static void NORETURN stress_signal_catch_sigsegv_handler(
 	int sig,
 	siginfo_t *info,
 	void *ucontext)
 {
-	stress_catch_sig_handler(sig, info, ucontext, SIGSEGV, "SIGSEGV");
+	stress_signal_catch_sig_handler(sig, info, ucontext, SIGSEGV, "SIGSEGV");
 }
 
 /*
- *  stress_catch_sig()
+ *  stress_signal_catch_sig()
  *	add signal handler to catch and dump illegal instructions,
  *	this is mainly to be used by any code using target clones
  *	just in case the compiler emits code that the target cannot
  *	actually execute.
  */
-static void stress_catch_sig(
+static void stress_signal_catch_sig(
 	const int sig,
 	void (*handler)(int sig, siginfo_t *info, void *ucontext)
 )
@@ -701,19 +701,19 @@ static void stress_catch_sig(
 }
 
 /*
- *  stress_catch_sigill()
+ *  stress_signal_catch_sigill()
  *	catch and dump SIGILL signals
  */
-void stress_catch_sigill(void)
+void stress_signal_catch_sigill(void)
 {
-	stress_catch_sig(SIGILL, stress_catch_sigill_handler);
+	stress_signal_catch_sig(SIGILL, stress_signal_catch_sigill_handler);
 }
 
 /*
- *  stress_catch_sigsegv()
+ *  stress_signal_catch_sigsegv()
  *	catch and dump SIGSEGV signals
  */
-void stress_catch_sigsegv(void)
+void stress_signal_catch_sigsegv(void)
 {
-	stress_catch_sig(SIGSEGV, stress_catch_sigsegv_handler);
+	stress_signal_catch_sig(SIGSEGV, stress_signal_catch_sigsegv_handler);
 }

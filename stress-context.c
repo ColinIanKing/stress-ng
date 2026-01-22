@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-builtin.h"
 #include "core-mmap.h"
+#include "core-signal.h"
 
 #if defined(HAVE_UCONTEXT_H)
 #include <ucontext.h>
@@ -209,7 +210,7 @@ static int stress_context(stress_args_t *args)
 	stress_sync_start_wait(args);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
-	stress_catch_sigsegv();
+	stress_signal_catch_sigsegv();
 
 	/* And start.. */
 	t = stress_time_now();
