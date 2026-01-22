@@ -523,6 +523,17 @@ void MLOCKED_TEXT stress_sighandler_nop(int sig)
 }
 
 /*
+ *  stress_signal_stop_flag_handler()
+ *	set flag to stop child from running
+ */
+void MLOCKED_TEXT stress_signal_stop_flag_handler(int sig)
+{
+	(void)sig;
+
+	stress_continue_set_flag(false);
+}
+
+/*
  *  stress_catch_sig_si_code()
  *	convert signal and si_code into human readable form
  */

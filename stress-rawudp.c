@@ -23,6 +23,7 @@
 #include "core-capabilities.h"
 #include "core-killpid.h"
 #include "core-net.h"
+#include "core-signal.h"
 
 #if defined(HAVE_NETINET_IP_H)
 #include <netinet/ip.h>
@@ -237,13 +238,6 @@ die:
 	return rc;
 }
 
-static void MLOCKED_TEXT stress_sock_sigpipe_handler(int signum)
-{
-	(void)signum;
-
-	stress_continue_set_flag(false);
-}
-
 /*
  *  stress_rawudp
  *	stress raw socket I/O UDP packet send/receive
@@ -290,7 +284,7 @@ static int stress_rawudp(stress_args_t *args)
 	pr_dbg("%s: process [%d] using socket port %d\n",
 		args->name, (int)args->pid, rawudp_port);
 
-	if (stress_sighandler(args->name, SIGPIPE, stress_sock_sigpipe_handler, NULL) < 0)
+	if (stress_sighandler(args->name, SIGPIPE, stress_signal_stop_flag_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);

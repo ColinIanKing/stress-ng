@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-affinity.h"
 #include "core-killpid.h"
+#include "core-signal.h"
 
 #define MAX_SIGSUSPEND_PIDS	(4)
 
@@ -30,13 +31,6 @@ static const stress_help_t help[] = {
 };
 
 static void *counter_lock;
-
-static void MLOCKED_TEXT stress_sigsuspend_chld_handler(int sig)
-{
-	(void)sig;
-
-	stress_continue_set_flag(false);
-}
 
 /*
  *  stress_sigsuspend
@@ -51,7 +45,7 @@ static int stress_sigsuspend(stress_args_t *args)
 
 	if (stress_sighandler(args->name, SIGUSR1, stress_sighandler_nop, NULL) < 0)
 		return EXIT_FAILURE;
-	if (stress_sighandler(args->name, SIGCHLD, stress_sigsuspend_chld_handler, NULL) < 0)
+	if (stress_sighandler(args->name, SIGCHLD, stress_signal_stop_flag_handler, NULL) < 0)
 		return EXIT_FAILURE;
 
 	counter_lock = stress_lock_create("counter");

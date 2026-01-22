@@ -25,6 +25,7 @@
 #include "core-madvise.h"
 #include "core-mmap.h"
 #include "core-net.h"
+#include "core-signal.h"
 
 #include <sys/ioctl.h>
 
@@ -1322,13 +1323,6 @@ die:
 	return rc;
 }
 
-static void MLOCKED_TEXT stress_sock_sigpipe_handler(int signum)
-{
-	(void)signum;
-
-	stress_continue_set_flag(false);
-}
-
 /*
  *  stress_sock_kernel_rt()
  * 	return true if kernel is PREEMPT_RT, true if
@@ -1421,7 +1415,7 @@ static int stress_sock(stress_args_t *args)
 	pr_dbg("%s: process [%d] using socket port %d\n",
 		args->name, (int)args->pid, sock_port);
 
-	if (stress_sighandler(args->name, SIGPIPE, stress_sock_sigpipe_handler, NULL) < 0)
+	if (stress_sighandler(args->name, SIGPIPE, stress_signal_stop_flag_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 
 	mmap_buffer = (char *)stress_mmap_populate(NULL, MMAP_BUF_SIZE,

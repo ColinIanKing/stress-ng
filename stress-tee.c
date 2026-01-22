@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-killpid.h"
+#include "core-signal.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"tee N",	"start N workers exercising the tee system call" },
@@ -33,13 +34,6 @@ typedef struct {
 	uint64_t	length;
 	uint64_t	counter;
 } stress_tee_t;
-
-static void MLOCKED_TEXT stress_sigpipe_handler(int signum)
-{
-	(void)signum;
-
-	stress_continue_set_flag(false);
-}
 
 /*
  *  stress_tee_spawn()
@@ -237,7 +231,7 @@ static int stress_tee(stress_args_t *args)
 	int metrics_count = 0;
 	double duration = 0.0, bytes = 0.0, rate;
 
-	if (stress_sighandler(args->name, SIGPIPE, stress_sigpipe_handler, NULL) < 0)
+	if (stress_sighandler(args->name, SIGPIPE, stress_signal_stop_flag_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 
 	fd = open("/dev/null", O_WRONLY);

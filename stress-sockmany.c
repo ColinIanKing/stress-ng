@@ -23,6 +23,7 @@
 #include "core-killpid.h"
 #include "core-mmap.h"
 #include "core-net.h"
+#include "core-signal.h"
 
 #if defined(HAVE_NETINET_TCP_H)
 #include <netinet/tcp.h>
@@ -289,13 +290,6 @@ die:
 	return rc;
 }
 
-static void MLOCKED_TEXT stress_sockmany_sigpipe_handler(int signum)
-{
-	(void)signum;
-
-	stress_continue_set_flag(false);
-}
-
 /*
  *  stress_sockmany
  *	stress many sockets
@@ -352,7 +346,7 @@ static int stress_sockmany(stress_args_t *args)
 	}
 	stress_set_vma_anon_name(sock_fds, sizeof(*sock_fds), "sock-fds");
 
-	if (stress_sighandler(args->name, SIGPIPE, stress_sockmany_sigpipe_handler, NULL) < 0) {
+	if (stress_sighandler(args->name, SIGPIPE, stress_signal_stop_flag_handler, NULL) < 0) {
 		(void)munmap((void *)sock_fds, sizeof(*sock_fds));
 		return EXIT_NO_RESOURCE;
 	}

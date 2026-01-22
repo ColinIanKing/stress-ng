@@ -27,6 +27,7 @@ extern void stress_mask_longjump_signals(sigset_t *set);
 extern WARN_UNUSED int stress_sighandler(const char *name, const int signum,
 	void (*handler)(int), struct sigaction *orig_action);
 extern WARN_UNUSED int stress_sigchld_set_handler(stress_args_t *args);
+extern void MLOCKED_TEXT stress_signal_stop_flag_handler(int sig);
 extern int stress_sighandler_default(const int signum);
 extern void stress_handle_stop_stressing(const int signum);
 extern WARN_UNUSED int stress_sig_stop_stressing(const char *name, const int sig);
