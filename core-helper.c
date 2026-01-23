@@ -552,7 +552,7 @@ size_t stress_munge_underscore(char *dst, const char *src, size_t len)
 
 	if (LIKELY(n)) {
 		while (--n) {
-			register char c = *s++;
+			register const char c = *s++;
 
 			*d++ = stress_chr_munge(c);
 			if (c == '\0')
@@ -1931,7 +1931,7 @@ uint64_t stress_get_machine_id(void)
 #if defined(HAVE_GETHOSTID)
 	{
 		/* Mangle 32 bit hostid to 64 bit */
-		uint64_t hostid = (uint64_t)gethostid();
+		const uint64_t hostid = (uint64_t)gethostid();
 
 		id = hostid ^ ((~hostid) << 32);
 	}
@@ -2033,4 +2033,3 @@ void stress_set_make_it_fail(void)
 		(void)stress_system_write("/proc/self/make-it-fail", "1\n", 2);
 #endif
 }
-
