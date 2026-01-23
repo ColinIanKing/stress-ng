@@ -1166,7 +1166,7 @@ void stress_vmstat_start(void)
 				}
 #endif
 
-				stress_get_cpu_freq(&avg_ghz, &min_ghz, &max_ghz);
+				stress_cpu_freq_get(&avg_ghz, &min_ghz, &max_ghz);
 				if (avg_ghz > 0.0)
 					(void)snprintf(cpuspeed, sizeof(cpuspeed), "%5.2f %5.2f %5.2f",
 						avg_ghz, min_ghz, max_ghz);

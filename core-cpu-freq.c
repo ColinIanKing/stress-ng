@@ -43,10 +43,10 @@ static inline void stress_zero_cpu_ghz(
 
 #if defined(__linux__)
 /*
- *  stress_get_cpu_freq()
+ *  stress_cpu_freq_get()
  *	get CPU frequencies in GHz
  */
-void stress_get_cpu_freq(
+void stress_cpu_freq_get(
 	double *avg_ghz,
 	double *min_ghz,
 	double *max_ghz)
@@ -99,7 +99,7 @@ void stress_get_cpu_freq(
 }
 #elif defined(__FreeBSD__) ||	\
       defined(__APPLE__)
-void stress_get_cpu_freq(
+void stress_cpu_freq_get(
 	double *avg_ghz,
 	double *min_ghz,
 	double *max_ghz)
@@ -140,7 +140,7 @@ void stress_get_cpu_freq(
 	}
 }
 #elif defined(__OpenBSD__)
-void stress_get_cpu_freq(
+void stress_cpu_freq_get(
 	double *avg_ghz,
 	double *min_ghz,
 	double *max_ghz)
@@ -160,7 +160,7 @@ void stress_get_cpu_freq(
 	}
 }
 #else
-void stress_get_cpu_freq(
+void stress_cpu_freq_get(
 	double *avg_ghz,
 	double *min_ghz,
 	double *max_ghz)
