@@ -21,7 +21,7 @@
 
 #include "stress-ng.h"
 
-extern WARN_UNUSED const char *stress_get_arch(void);
+extern WARN_UNUSED const char *stress_arch_get(void);
 
 #if defined(__BYTE_ORDER__) &&  \
     defined(__ORDER_LITTLE_ENDIAN__)

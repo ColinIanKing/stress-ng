@@ -18,7 +18,7 @@
  */
 #include "core-arch.h"
 
-const char *stress_get_arch(void)
+const char *stress_arch_get(void)
 {
 #if defined(STRESS_ARCH_ALPHA)
 	return "Alpha";
