@@ -329,7 +329,8 @@ uint32_t PURE OPTIMIZE3 stress_hash_muladd32(const char *str, const size_t len)
 
 PRAGMA_UNROLL_N(4)
 	while (*str) {
-		register uint32_t top = (prod >> 24);
+		register const uint32_t top = (prod >> 24);
+
 		prod *= (uint8_t)*str++;
 		prod += top;
 	}
@@ -346,7 +347,8 @@ uint32_t PURE OPTIMIZE3 stress_hash_muladd64(const char *str, const size_t len)
 
 PRAGMA_UNROLL_N(4)
 	while (*str) {
-		register uint64_t top = (prod >> 56);
+		register const uint64_t top = (prod >> 56);
+
 		prod *= (uint8_t)*str++;
 		prod += top;
 	}
