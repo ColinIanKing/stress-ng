@@ -1010,7 +1010,7 @@ static int stress_cpu_cache_get_index(
 	cpu->cache_count = (uint32_t)n;
 	cpu->caches = (stress_cpu_cache_t *)calloc(cpu->cache_count, sizeof(*(cpu->caches)));
 	if (UNLIKELY(!cpu->caches)) {
-		size_t cache_bytes = cpu->cache_count * sizeof(*(cpu->caches));
+		const size_t cache_bytes = cpu->cache_count * sizeof(*(cpu->caches));
 
 		pr_err("failed to allocate %zu bytes for cpu caches\n",
 			cache_bytes);
