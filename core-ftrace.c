@@ -369,7 +369,7 @@ static void stress_ftrace_analyze(void)
 	pr_inf("ftrace: %-30.30s %15.15s %20.20s\n", "System Call", "Number of Calls", "Total Time (us)");
 
 	for (tn = RB_MIN(rb_tree, &rb_root); tn; tn = next) {
-		int64_t count = tn->end_count - tn->start_count;
+		const int64_t count = tn->end_count - tn->start_count;
 
 		if (count > 0) {
 			func_calls++;
