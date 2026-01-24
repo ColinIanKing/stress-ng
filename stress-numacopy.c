@@ -33,8 +33,8 @@
 #define NUMA_NODES_MAX 		(64L)
 
 static const stress_help_t help[] = {
-	{ NULL,	"numa N",		"start N workers stressing NUMA interfaces" },
-	{ NULL,	"numa-ops N",		"stop after N NUMA bogo operations" },
+	{ NULL,	"numacopy N",		"start N workers copying pagess between NUMA nodes" },
+	{ NULL,	"numacopy-ops N",	"stop after N NUMA page copying bogo operations" },
 	{ NULL,	NULL,			NULL }
 };
 
