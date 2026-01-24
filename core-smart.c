@@ -345,7 +345,7 @@ static void stress_smart_data_diff(stress_smart_dev_t *dev)
 			const stress_smart_raw_value_t *rv2 = &end->values[j];
 
 			if (attr_id == rv2->attr_id) {
-				int32_t delta = (int32_t)(rv2->data - rv1->data);
+				const int32_t delta = (int32_t)(rv2->data - rv1->data);
 
 				if (delta) {
 					const char *dev_name = (strncmp(dev->dev_name, "/dev/", 5) == 0) ?
