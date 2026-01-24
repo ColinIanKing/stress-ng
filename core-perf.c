@@ -448,7 +448,7 @@ static char *stress_perf_yaml_label(char *dst, const char *src, const size_t n)
 		size_t i = n;
 
 		do {
-			unsigned char ch = (unsigned char)*s;
+			const unsigned char ch = (unsigned char)*s;
 
 			if (ch == ' ')
 				*d = '_';
