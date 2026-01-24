@@ -215,7 +215,7 @@ static int stress_numacopy(stress_args_t *args)
 
 		for (max_rate = 0.0, i = 0; i < num_numa_nodes_squared; i++) {
 			const double dur = metrics[i].duration;
-			const double rate = (dur > 0.0) ? numa_pages_memcpy / dur : 0.0;
+			rate = (dur > 0.0) ? numa_pages_memcpy / dur : 0.0;
 
 			metrics[i].rate = rate;
 			if (max_rate < rate)
