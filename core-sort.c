@@ -99,8 +99,8 @@ void OPTIMIZE3 stress_sort_data_int32_shuffle(int32_t *data, const size_t n)
 	if ((n & mask) == 0) {
 PRAGMA_UNROLL_N(8)
 		for (i = 0; i < n; i++) {
-			register uint32_t j = seed & mask;
-			register uint32_t tmp = data32[i];
+			register const uint32_t j = seed & mask;
+			register const uint32_t tmp = data32[i];
 
 			data32[i] = data32[j];
 			seed = (a * seed + c);
@@ -109,8 +109,8 @@ PRAGMA_UNROLL_N(8)
 	} else {
 PRAGMA_UNROLL_N(8)
 		for (i = 0; i < n; i++) {
-			register uint32_t j = seed % n;
-			register uint32_t tmp = data32[i];
+			register const uint32_t j = seed % n;
+			register const uint32_t tmp = data32[i];
 
 			data32[i] = data32[j];
 			seed = (a * seed + c);
