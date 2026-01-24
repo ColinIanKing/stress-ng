@@ -38,6 +38,11 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
+typedef struct stress_numacopy_metric {
+	double duration;
+	double rate;
+} stress_numacopy_metric_t;
+
 #if defined(__NR_mbind)
 
 /*
@@ -52,9 +57,10 @@ static int stress_numacopy(stress_args_t *args)
 	int rc = EXIT_FAILURE;
 	uint8_t **numa_pages, *local_page;
 	long int i, node, num_numa_nodes, num_numa_nodes_squared;
+	size_t index;
 	double numa_pages_memcpy = 0.0, numa_pages_memset = 0.0;
-	double rate, duration= 0;
-	double *numa_duration;
+	double duration = 0.0, rate = 0.0, max_rate, scale;
+	stress_numacopy_metric_t *metrics;
 
 	numa_nodes = stress_numa_mask_alloc();
 	if (!numa_nodes) {
@@ -86,15 +92,16 @@ static int stress_numacopy(stress_args_t *args)
 		num_numa_nodes_squared = num_numa_nodes * num_numa_nodes;
 	}
 
-	numa_duration = (double *)calloc(num_numa_nodes_squared, sizeof(*numa_duration));
-	if (!numa_duration) {
-		pr_inf_skip("%s: failed to allocate numa duration array, skipping strssor\n", args->name);
+	metrics = (stress_numacopy_metric_t *)calloc(num_numa_nodes_squared, sizeof(*metrics));
+	if (!metrics) {
+		pr_inf_skip("%s: failed to allocate numa metrics array, skipping strssor\n", args->name);
 		rc = EXIT_NO_RESOURCE;
 		goto numa_mask_free;
 	}
-	for (i = 0; i < num_numa_nodes_squared; i++)
-		numa_duration[i] = 0.0;
-
+	for (i = 0; i < num_numa_nodes_squared; i++) {
+		metrics[i].duration = 0.0;
+		metrics[i].rate = 0.0;
+	}
 
 	numa_pages_size = (size_t)num_numa_nodes * sizeof(*numa_pages);
 	numa_bytes = (args->page_size * (size_t)(num_numa_nodes + 1)) +
@@ -111,7 +118,7 @@ static int stress_numacopy(stress_args_t *args)
 			args->name, num_numa_nodes,
 			stress_get_memfree_str(), errno, strerror(errno));
 		rc = EXIT_NO_RESOURCE;
-		goto numa_duration_free;
+		goto metrics_free;
 	}
 	stress_set_vma_anon_name(numa_pages, numa_pages_size, "pages");
 
@@ -188,7 +195,7 @@ static int stress_numacopy(stress_args_t *args)
 				}
 				dt = stress_time_now() - t;
 				duration += dt;
-				numa_duration[node] += dt;
+				metrics[node].duration += dt;
 				node++;
 			}
 		}
@@ -197,32 +204,58 @@ static int stress_numacopy(stress_args_t *args)
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
 
-	if (duration > 0.0) {
-		long int node_from, node_to;
-		char str[7 + (num_numa_nodes * 6)];
-		char buf[7];
+	if (stress_instance_zero(args)) {
+		static const char * const scales[] = {
+			"",
+			"thousands of ",
+			"millions of ",		/* likely */
+			"billions of ",		/* unlikely */
+			"trillions of ",	/* very unlikely! */
+		};
 
-		pr_block_begin();
-		pr_inf("percentage of run time copying data node per node:\n");
-		*str = '\0';
-		for (node = 0; node < num_numa_nodes; node++) {
+		for (max_rate = 0.0, i = 0; i < num_numa_nodes_squared; i++) {
+			const double dur = metrics[i].duration;
+			const double rate = (dur > 0.0) ? numa_pages_memcpy / dur : 0.0;
 
-			snprintf(buf, sizeof(buf), " %5.0f", (double)node);
-			shim_strlcat(str, buf, sizeof(str));
+			metrics[i].rate = rate;
+			if (max_rate < rate)
+				max_rate = rate;
 		}
-		pr_inf("node %s\n", str);
-		node = 0;
-		for (node_from = 0; node_from < num_numa_nodes; node_from++) {
-			snprintf(str, sizeof(str), "%5.0f", (double)node_from);
 
-			for (node_to = 0; node_to < num_numa_nodes; node_to++) {
-				snprintf(buf, sizeof(buf), " %5.2f", 100.0 * numa_duration[node] / duration);
+		rate = max_rate;
+		scale = 1.0;
+		for (index = 0; (rate > 100.0) && (index < SIZEOF_ARRAY(scales)); index++) {
+			rate = rate / 1000.0;
+			scale = scale * 1000.0;
+		}
+
+		if (duration > 0.0) {
+			long int node_from, node_to;
+			char str[7 + (num_numa_nodes * 6)];
+			char buf[7];
+
+			pr_block_begin();
+			pr_inf("%s: %s%zdKB page copies to/from each node per second (for instance 0):\n",
+				args->name, scales[index], page_size >> 10);
+			*str = '\0';
+			for (node = 0; node < num_numa_nodes; node++) {
+				snprintf(buf, sizeof(buf), " %5.0f", (double)node);
 				shim_strlcat(str, buf, sizeof(str));
-				node++;
 			}
-			pr_inf("%s\n", str);
+			pr_inf("node %s\n", str);
+			node = 0;
+			for (node_from = 0; node_from < num_numa_nodes; node_from++) {
+				snprintf(str, sizeof(str), "%5.0f", (double)node_from);
+
+				for (node_to = 0; node_to < num_numa_nodes; node_to++) {
+					snprintf(buf, sizeof(buf), " %5.1f", metrics[node].rate / scale);
+					shim_strlcat(str, buf, sizeof(str));
+					node++;
+				}
+				pr_inf("%s\n", str);
+			}
+			pr_block_end();
 		}
-		pr_block_end();
 	}
 
 	numa_pages_memset *= (double)num_numa_nodes_squared;
@@ -246,8 +279,8 @@ numa_pages_free:
 			(void)munmap((void *)numa_pages[node], page_size);
 	}
 	(void)munmap((void *)numa_pages, numa_pages_size);
-numa_duration_free:
-	free(numa_duration);
+metrics_free:
+	free(metrics);
 numa_mask_free:
 	stress_numa_mask_free(numa_mask);
 numa_nodes_free:
@@ -269,7 +302,6 @@ const stressor_info_t stress_numacopy_info = {
 	.stressor = stress_unimplemented,
 	.classifier = CLASS_CPU | CLASS_MEMORY | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
-	.opts = opts,
 	.help = help,
 	.unimplemented_reason = "built without linux/mempolicy.h, mbind()"
 };

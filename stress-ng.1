@@ -6256,11 +6256,10 @@ shuffle node order for the address list when calling move_pages(2)
 .TQ
 .B \-\-numacopy N
 start N workers that iterate over each NUMA node copying a local page of
-data to and from all the other NUMA nodes. The percentage of total run
-time for each combination of node to node copy is output at the end of the
-run. The local nodes copies take a smaller percentage of overall run time
-than the distant node copies. The stressor exercises NUMA node memory
-bus interconnect.
+data to and from all the other NUMA nodes. The number of pages copied
+for each combination of node to node copy is output at the end of the
+run. The local nodes copies should be faster than the distant node copies.
+The stressor exercises NUMA node memory bus interconnect.
 .TP
 .B \-\-numacopy-ops N
 stop after N NUMA copy bogo-operations. A bogo operation is 100 copies
