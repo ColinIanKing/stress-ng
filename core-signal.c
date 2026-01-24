@@ -165,6 +165,7 @@ static void stress_dbg(const char *fmt, ...)
 	va_list ap;
 	int n, sz;
 	static char buf[256];
+
 	n = snprintf(buf, sizeof(buf), "stress-ng: debug: [%" PRIdMAX"] ", (intmax_t)getpid());
 	if (UNLIKELY(n < 0))
 		return;
