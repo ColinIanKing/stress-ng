@@ -807,9 +807,9 @@ static void stress_read_vmstat(stress_vmstat_t *vmstat)
 {
 	vm_statistics64_data_t vm_stat;
 	struct xsw_usage xsu;
-	mach_port_t host = mach_host_self();
+	const mach_port_t host = mach_host_self();
 	natural_t count = HOST_VM_INFO64_COUNT;
-	size_t page_size = stress_get_page_size();
+	const size_t page_size = stress_get_page_size();
 	int ret;
 
 	(void)shim_memset(&vm_stat, 0, sizeof(vmstat));
