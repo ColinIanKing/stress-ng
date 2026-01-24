@@ -1067,6 +1067,9 @@ typedef enum {
 	OPT_numa_shuffle_addr,
 	OPT_numa_shuffle_node,
 
+	OPT_numacopy,
+	OPT_numacopy_ops,
+
 	OPT_oom_no_child,
 	OPT_oom_avoid,
 	OPT_oom_avoid_bytes,

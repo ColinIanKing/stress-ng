@@ -223,6 +223,7 @@
 	MACRO(nop)		\
 	MACRO(null)		\
 	MACRO(numa)		\
+	MACRO(numacopy)		\
 	MACRO(oom_pipe)		\
 	MACRO(opcode)		\
 	MACRO(open)		\

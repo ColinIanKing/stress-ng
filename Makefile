@@ -654,6 +654,7 @@ STRESS_SRC = \
 	stress-nop.c \
 	stress-null.c \
 	stress-numa.c \
+	stress-numacopy.c \
 	stress-oom-pipe.c \
 	stress-opcode.c \
 	stress-open.c \
