@@ -92,8 +92,7 @@ static void TARGET_CLONES stress_numacopy_exercise(
 			}
 			dt = stress_time_now() - t;
 			(*duration) += dt;
-			metrics[node].duration += dt;
-			node++;
+			metrics[node++].duration += dt;
 		}
 	}
 	(*numa_pages_memset) += 2.0 * (double)STRESS_NUMACOPY_LOOPS;
@@ -234,8 +233,8 @@ static int stress_numacopy(stress_args_t *args)
 
 		for (max_rate = 0.0, i = 0; i < num_numa_nodes_squared; i++) {
 			const double dur = metrics[i].duration;
-			rate = (dur > 0.0) ? numa_pages_memcpy / dur : 0.0;
 
+			rate = (dur > 0.0) ? numa_pages_memcpy / dur : 0.0;
 			metrics[i].rate = rate;
 			if (max_rate < rate)
 				max_rate = rate;
