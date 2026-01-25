@@ -24,6 +24,7 @@
 #include "core-madvise.h"
 #include "core-mmap.h"
 #include "core-numa.h"
+#include "core-target-clones.h"
 
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 #include <linux/mempolicy.h>
@@ -44,6 +45,61 @@ typedef struct stress_numacopy_metric {
 } stress_numacopy_metric_t;
 
 #if defined(__NR_mbind)
+
+/*
+ *  stress_numacopy_exercise()
+ *	exercise page copying across NUMA nodes
+ */
+static void TARGET_CLONES stress_numacopy_exercise(
+	stress_args_t *args,
+	const size_t page_size,
+	register const int num_numa_nodes,
+	uint8_t * const local_page,
+	uint8_t ** const numa_pages,
+	stress_numacopy_metric_t * const metrics,
+	double * const duration,
+	double * const numa_pages_memcpy,
+	double * const numa_pages_memset)
+{
+	long int node_from, node_to, node;
+	uint8_t val = stress_mwc8();
+
+	node = 0;
+	for (node_from = 0; node_from < num_numa_nodes; node_from++) {
+		register uint8_t * const numa_pages_from = numa_pages[node_from];
+
+		for (node_to = 0; node_to < num_numa_nodes; node_to++) {
+			double t = stress_time_now(), dt;
+			register int j;
+			register uint8_t * const numa_pages_to = numa_pages[node_to];
+
+			for (j = 0; j < STRESS_NUMACOPY_LOOPS; j++) {
+				/* fill local page, copy to node_from, copy node_from to node_to */
+				(void)shim_memset(local_page, val, page_size);
+				(void)shim_memcpy(numa_pages_from, local_page, page_size);
+				(void)shim_memcpy(numa_pages_to, numa_pages_from, page_size);
+				if (*numa_pages_to != val)
+					pr_inf("%s: invalid value in node data %ld\n", args->name, node_to);
+				val++;
+
+				/* fill local page, copy to node_to, copy node_to to node_from */
+				(void)shim_memset(local_page, val, page_size);
+				(void)shim_memcpy(numa_pages_to, local_page, page_size);
+				(void)shim_memcpy(numa_pages_from, numa_pages_to, page_size);
+				if (*numa_pages_from != val)
+					pr_inf("%s: invalid value in node data %ld\n", args->name, node_from);
+				val++;
+			}
+			dt = stress_time_now() - t;
+			(*duration) += dt;
+			metrics[node].duration += dt;
+			node++;
+		}
+	}
+	(*numa_pages_memset) += 2.0 * (double)STRESS_NUMACOPY_LOOPS;
+	(*numa_pages_memcpy) += 4.0 * (double)STRESS_NUMACOPY_LOOPS;
+	stress_bogo_inc(args);
+}
 
 /*
  *  stress_numacopy()
@@ -161,47 +217,10 @@ static int stress_numacopy(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		long int node_from, node_to;
-
-		node = 0;
-		for (node_from = 0; node_from < num_numa_nodes; node_from++) {
-			for (node_to = 0; node_to < num_numa_nodes; node_to++) {
-				uint8_t val;
-				int j;
-				double t = stress_time_now(), dt;
-
-				for (j = 0; j < STRESS_NUMACOPY_LOOPS; j++) {
-					/* fill local page, copy to node_from, copy node_from to node_to */
-					val = stress_mwc8();
-					(void)shim_memset(local_page, val, page_size);
-
-					(void)shim_memcpy(numa_pages[node_from], local_page, page_size);
-					(void)shim_memcpy(numa_pages[node_to], numa_pages[node_from], page_size);
-
-					if (*numa_pages[node_to] != val) {
-						pr_inf("%s: invalid value in node data %ld\n", args->name, node_to);
-					}
-
-					/* fill local page, copy to node_to, copy node_to to node_from */
-					val = stress_mwc8();
-					(void)shim_memset(local_page, val, page_size);
-
-					(void)shim_memcpy(numa_pages[node_to], local_page, page_size);
-					(void)shim_memcpy(numa_pages[node_from], numa_pages[node_to], page_size);
-
-					if (*numa_pages[node_from] != val) {
-						pr_inf("%s: invalid value in node data %ld\n", args->name, node_from);
-					}
-				}
-				dt = stress_time_now() - t;
-				duration += dt;
-				metrics[node].duration += dt;
-				node++;
-			}
-		}
-		numa_pages_memset += 2.0 * (double)STRESS_NUMACOPY_LOOPS;
-		numa_pages_memcpy += 4.0 * (double)STRESS_NUMACOPY_LOOPS;
-		stress_bogo_inc(args);
+		stress_numacopy_exercise(args, page_size, num_numa_nodes,
+					local_page, numa_pages, metrics,
+					&duration, &numa_pages_memcpy,
+					&numa_pages_memset);
 	} while (stress_continue(args));
 
 	if (stress_instance_zero(args)) {
