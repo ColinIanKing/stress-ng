@@ -1853,8 +1853,9 @@ typedef enum {
 	OPT_zlib_strategy,
 
 	OPT_zombie,
-	OPT_zombie_ops,
+	OPT_zombie_clone,
 	OPT_zombie_max,
+	OPT_zombie_ops,
 } stress_op_t;
 
 #endif

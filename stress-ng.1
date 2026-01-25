@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "24 January 2026"
+.TH STRESS-NG 1 "25 January 2026"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -10751,6 +10751,12 @@ state until they are reaped.  Once the maximum number of processes is reached
 (or fork fails because one has reached the maximum allowed number of children)
 the oldest child is reaped and a new process is then created in a first-in
 first-out manner, and then repeated.
+.TP
+.B \-\-zombie\-clone
+Use clone(2) instead of fork(2) to create zombie processes (Linux only). If
+run with CAP_SYS_ADMIN then the processes are created with new cgroup, ipc,
+net, mount and PID namespaces and namespace leakage is exercised with the
+creation of a new mount and socket.
 .TP
 .B \-\-zombie\-max N
 try to create as many as N zombie processes. This may not be reached if the

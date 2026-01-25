@@ -1341,6 +1341,7 @@ const struct option stress_long_options[] = {
 	{ "zlib-stream-bytes",	1,	0,	OPT_zlib_stream_bytes },
 	{ "zlib-window-bits",	1,	0,	OPT_zlib_window_bits },
 	{ "zombie",		1,	0,	OPT_zombie },
+	{ "zombie-clone",	0,	0,	OPT_zombie_clone },
 	{ "zombie-max",		1,	0,	OPT_zombie_max },
 	{ "zombie-ops",		1,	0,	OPT_zombie_ops },
 	{ NULL,			0,	0,	0 }
