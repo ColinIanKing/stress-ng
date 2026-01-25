@@ -840,7 +840,7 @@ all: build_info config.h stress-ng
 # Coverity temp file clean
 #
 cov_clean: clean
-	$(PRE_V)rm -rf cov-int cov-int.tar.xz
+	$(PRE_V)rm -rf cov-int cov-int.tar.xz cov-int.tar
 
 #
 # Coverity builds
