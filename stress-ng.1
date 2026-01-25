@@ -3527,7 +3527,7 @@ of forward or random branching every 1024 branches.
 stop goto workers after N bogo loops of 1024 branch instructions.
 .RE
 .TP
-.B 2D GPU stressor
+.B GPU opengl stressor
 .RS 5
 .TQ
 .B \-\-gpu N
@@ -4129,7 +4129,7 @@ stop after N rounds of io-uring operations.
 randomize order of io-uring operations and file seek locations.
 .RE
 .TP
-.B Ipsec multi-buffer cryptographic stressor
+.B IPsec multi-buffer cryptographic stressor
 .RS 5
 .TQ
 .B \-\-ipsec\-mb N
@@ -4532,7 +4532,7 @@ should increase locking contention.
 stop lockf workers after N bogo lockf operations.
 .RE
 .TP
-.B mixed file lock stressor (locka, lockf, lockofd)
+.B Mixed file lock stressor (locka, lockf, lockofd)
 .RS 5
 .TQ
 .B \-\-lockmix N
@@ -4561,7 +4561,7 @@ concurrent locks. Old locks are unlocked in a first-in, first-out basis.
 stop lockofd workers after N bogo lockofd operations.
 .RE
 .TP
-.B Logarithmic functions
+.B Logarithmic functions stressor
 .RS 5
 .TQ
 .B \-\-logmath N
@@ -5784,7 +5784,7 @@ do not unload the module right after loading it with finit_module().
 stop after N module load/unload cycles
 .RE
 .TP
-.B Monte Carlo computations of \(*p and e and various integrals
+.B Monte Carlo computations of \(*p and e and various integrals stressor
 .RS 5
 .TQ
 .B \-\-monte\-carlo N
@@ -6251,7 +6251,7 @@ shuffle page order for the address list when calling move_pages(2)
 shuffle node order for the address list when calling move_pages(2)
 .RE
 .TP
-.B NUMA page copying
+.B NUMA page copying stressor
 .RS 5
 .TQ
 .B \-\-numacopy N
@@ -6266,7 +6266,7 @@ stop after N NUMA copy bogo-operations. A bogo operation is 100 copies
 of pages to/from every node to every node.
 .RE
 .TP
-.B Large Pipe stressor
+.B Large pipe stressor
 .RS 5
 .TQ
 .B \-\-oom\-pipe N
@@ -6813,7 +6813,7 @@ T}
 stop prefetch stressors after N benchmark operations
 .RE
 .TP
-.B Search for prime numbers using large integers
+.B Prime number search (using large integers) stressor
 .RS 5
 .TQ
 .B \-\-prime N
@@ -7119,7 +7119,7 @@ stop radixsort stress workers after N bogo radixsorts.
 specify number of strings to sort, default is 262144 (256 \(mu 1024).
 .RE
 .TP
-.B Memory filesystem stressor
+.B RAM filesystem stressor
 .RS 5
 .TQ
 .B \-\-ramfs N
@@ -7544,7 +7544,7 @@ the RTC. This is a Linux only stressor.
 stop after N bogo RTC interface accesses.
 .RE
 .TP
-.B Fast process rescheduling stressor
+.B Scheduler mix stressor
 .RS 5
 .TQ
 .B \-\-schedmix N
@@ -7655,7 +7655,7 @@ with "secretmem=" option to allocate a secret memory reservation.
 stop secretmem stress workers after N stress loop iterations.
 .RE
 .TP
-.B IO seek stressor
+.B File seek stressor
 .RS 5
 .TQ
 .B \-\-seek N
@@ -7919,7 +7919,7 @@ SIGIO signals. This exercises asynchronous I/O via SIGIO.
 stop sigio stress workers after handling N SIGIO signals.
 .RE
 .TP
-.B System signals stressor
+.B Signal stressor
 .RS 5
 .TQ
 .B \-\-signal N
@@ -8365,7 +8365,7 @@ stress\-ng and then exit almost immediately. Currently Linux only.
 stop spawn stress workers after N bogo spawns.
 .RE
 .TP
-.B Spinmem stressor
+.B Spin on memory for process synchronization stressor
 .RS 5
 .TQ
 .B \-\-spinmem N
@@ -8565,7 +8565,7 @@ if the compiler does not insert the prefetching in the correct places.
 Best to enable this for the default \-\-stream\-index 0 setting.
 .RE
 .TP
-.B String to/from Numeric conversions
+.B String to/from Numeric conversions stressor
 .RS 5
 .TQ
 .B \-\-strnum 1
@@ -8859,7 +8859,7 @@ blocklisted too.  Linux only.
 stop sysinval workers after N system call attempts.
 .RE
 .TP
-.B /sys stressor (Linux)
+.B /sys sysfs stressor (Linux)
 .RS 5
 .TQ
 .B \-\-sysfs N
