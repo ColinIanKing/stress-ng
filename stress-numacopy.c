@@ -34,9 +34,9 @@
 #define NUMA_NODES_MAX 		(64L)
 
 static const stress_help_t help[] = {
-	{ NULL,	"numacopy N",		"start N workers copying pagess between NUMA nodes" },
-	{ NULL,	"numacopy-ops N",	"stop after N NUMA page copying bogo operations" },
-	{ NULL,	NULL,			NULL }
+	{ NULL,	"numacopy N",     "start N workers copying pagess between NUMA nodes" },
+	{ NULL,	"numacopy-ops N", "stop after N NUMA page copying bogo operations" },
+	{ NULL,	NULL,             NULL }
 };
 
 typedef struct stress_numacopy_metric {
@@ -323,6 +323,6 @@ const stressor_info_t stress_numacopy_info = {
 	.classifier = CLASS_CPU | CLASS_MEMORY | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
-	.unimplemented_reason = "built without linux/mempolicy.h, mbind()"
+	.unimplemented_reason = "built without linux/mempolicy.h or mbind()"
 };
 #endif
