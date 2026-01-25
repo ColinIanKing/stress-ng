@@ -836,6 +836,20 @@ APPARMOR_PARSER=/sbin/apparmor_parser
 
 all: build_info config.h stress-ng
 
+#
+# Coverity temp file clean
+#
+cov_clean: clean
+	$(PRE_V)rm -rf cov-int cov-int.tar.xz
+
+#
+# Coverity builds
+#
+cov: cov_clean clean build_info config.h
+	$(PRE_V)cov-build --dir=cov-int make
+	$(PRE_V)tar cvf - cov-int > cov-int.tar
+	$(PRE_V)tar -Jcf cov-int.tar.xz cov-int
+
 build_info:
 	$(PRE_Q)echo "Compiler: $(COMPILER)"
 	$(PRE_Q)echo "CFLAGS: $(CFLAGS)"
