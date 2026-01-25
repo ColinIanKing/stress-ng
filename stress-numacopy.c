@@ -231,10 +231,7 @@ static int stress_numacopy(stress_args_t *args)
 		if (index >= SIZEOF_ARRAY(scales)) {
 			pr_inf("%s: page copy rate out of range, cannot report "
 				"node copying rates\n", args->name);
-			duration = -1.0;
-		}
-
-		if (duration > 0.0) {
+		} else if (duration > 0.0) {
 			long int node_from, node_to;
 			char str[7 + (num_numa_nodes * 6)];
 			char buf[7];
