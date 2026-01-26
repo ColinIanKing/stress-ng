@@ -38,7 +38,7 @@
 
 
 /* Network helpers */
-extern void stress_set_net_port(const char *optname, const char *opt,
+extern void stress_net_port_set(const char *optname, const char *opt,
 	const int min_port, const int max_port, int *port);
 extern WARN_UNUSED int stress_set_net_domain(const int domain_mask,
 	const char *name, const char *domain_name, int *domain);

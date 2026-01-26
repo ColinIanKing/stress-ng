@@ -777,7 +777,7 @@ int stress_parse_opt(const char *stressor_name, const char *opt_arg, const stres
 		}
 		return stress_set_setting(stressor_name, opt_name, TYPE_ID_UINT, &setting.u.sint);
 	case TYPE_ID_INT_PORT:
-		stress_set_net_port(opt_name, opt_arg, (int)min, (int)max, &setting.u.sint);
+		stress_net_port_set(opt_name, opt_arg, (int)min, (int)max, &setting.u.sint);
 		return stress_set_setting(stressor_name, opt_name, TYPE_ID_INT, &setting.u.sint);
 	case TYPE_ID_OFF_T:
 		/* off_t always in bytes units */

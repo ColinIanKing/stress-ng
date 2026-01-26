@@ -96,10 +96,10 @@ int stress_net_interface_exists(const char *interface, const int domain, struct 
 }
 
 /*
- *  stress_set_net_port()
+ *  stress_net_port_set()
  *	set up port number from opt
  */
-void stress_set_net_port(
+void stress_net_port_set(
 	const char *optname,
 	const char *opt,
 	const int min_port,
