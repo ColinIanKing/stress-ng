@@ -131,9 +131,9 @@ retry:
 			return EXIT_FAILURE;
 		}
 
-		if (stress_set_sockaddr_if(args->name, args->instance, mypid,
-				dccp_domain, dccp_port, dccp_if,
-				&addr, &addr_len, NET_ADDR_ANY) < 0) {
+		if (stress_net_sockaddr_if_set(args->name, args->instance, mypid,
+					       dccp_domain, dccp_port, dccp_if,
+					       &addr, &addr_len, NET_ADDR_ANY) < 0) {
 			(void)close(fd);
 			return EXIT_FAILURE;
 		}
@@ -237,9 +237,9 @@ static int stress_dccp_server(
 		goto die_close;
 	}
 
-	if (stress_set_sockaddr_if(args->name, args->instance, mypid,
-		dccp_domain, dccp_port, dccp_if,
-		&addr, &addr_len, NET_ADDR_ANY) < 0) {
+	if (stress_net_sockaddr_if_set(args->name, args->instance, mypid,
+				       dccp_domain, dccp_port, dccp_if,
+				       &addr, &addr_len, NET_ADDR_ANY) < 0) {
 		rc = EXIT_FAILURE;
 		goto die_close;
 	}

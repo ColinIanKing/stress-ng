@@ -156,10 +156,10 @@ int stress_net_domain_set(
 }
 
 /*
- *  stress_set_sockaddr_if()
+ *  stress_net_sockaddr_if_set()
  * 	setup socket address with optional interface name
  */
-int stress_set_sockaddr_if(
+int stress_net_sockaddr_if_set(
 	const char *name,
 	const uint32_t instance,
 	const pid_t pid,
@@ -271,7 +271,7 @@ int stress_set_sockaddr(
 	socklen_t *len,
 	const int net_addr)
 {
-	return stress_set_sockaddr_if(name, instance, pid, domain, port, NULL, sockaddr, len, net_addr);
+	return stress_net_sockaddr_if_set(name, instance, pid, domain, port, NULL, sockaddr, len, net_addr);
 }
 
 /*

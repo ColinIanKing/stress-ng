@@ -564,9 +564,9 @@ retry:
 		(void)sock_zerocopy;
 #endif
 
-		if (UNLIKELY(stress_set_sockaddr_if(args->name, args->instance, mypid,
-						    sock_domain, sock_port, sock_if,
-						    &addr, &addr_len, NET_ADDR_ANY) < 0)) {
+		if (UNLIKELY(stress_net_sockaddr_if_set(args->name, args->instance, mypid,
+							sock_domain, sock_port, sock_if,
+							&addr, &addr_len, NET_ADDR_ANY) < 0)) {
 			(void)close(fd);
 			goto free_controls;
 		}
@@ -1025,9 +1025,9 @@ static int OPTIMIZE3 stress_sock_server(
 	/* exercise invalid level */
 	(void)setsockopt(fd, -1, SO_REUSEADDR, &so_reuseaddr, sizeof(so_reuseaddr));
 
-	if (stress_set_sockaddr_if(args->name, args->instance, ppid,
-			sock_domain, sock_port, sock_if,
-			&addr, &addr_len, NET_ADDR_ANY) < 0) {
+	if (stress_net_sockaddr_if_set(args->name, args->instance, ppid,
+				       sock_domain, sock_port, sock_if,
+				       &addr, &addr_len, NET_ADDR_ANY) < 0) {
 		goto die_close;
 	}
 

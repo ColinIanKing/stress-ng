@@ -101,9 +101,9 @@ static int OPTIMIZE3 stress_udp_client(
 			goto child_die;
 		}
 
-		if (UNLIKELY(stress_set_sockaddr_if(args->name, args->instance, mypid,
-				udp_domain, udp_port, udp_if,
-				&addr, &len, NET_ADDR_ANY) < 0)) {
+		if (UNLIKELY(stress_net_sockaddr_if_set(args->name, args->instance, mypid,
+							udp_domain, udp_port, udp_if,
+							&addr, &len, NET_ADDR_ANY) < 0)) {
 			(void)close(fd);
 			rc = EXIT_NO_RESOURCE;
 			goto child_die;
@@ -290,9 +290,9 @@ static int OPTIMIZE3 stress_udp_server(
 			args->name, errno, strerror(errno));
 		goto die;
 	}
-	if (stress_set_sockaddr_if(args->name, args->instance, mypid,
-			udp_domain, udp_port, udp_if,
-			&addr, &addr_len, NET_ADDR_ANY) < 0) {
+	if (stress_net_sockaddr_if_set(args->name, args->instance, mypid,
+				       udp_domain, udp_port, udp_if,
+				       &addr, &addr_len, NET_ADDR_ANY) < 0) {
 		goto die_close;
 	}
 #if defined(IPPROTO_UDPLITE)

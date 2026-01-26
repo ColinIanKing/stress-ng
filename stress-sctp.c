@@ -396,9 +396,9 @@ retry:
 			return EXIT_FAILURE;
 		}
 
-		if (UNLIKELY(stress_set_sockaddr_if(args->name, args->instance, mypid,
-				sctp_domain, sctp_port, sctp_if,
-				&addr, &addr_len, NET_ADDR_LOOPBACK) < 0)) {
+		if (UNLIKELY(stress_net_sockaddr_if_set(args->name, args->instance, mypid,
+							sctp_domain, sctp_port, sctp_if,
+							&addr, &addr_len, NET_ADDR_LOOPBACK) < 0)) {
 			(void)close(fd);
 			return EXIT_FAILURE;
 		}
@@ -526,8 +526,9 @@ static int OPTIMIZE3 stress_sctp_server(
 		rc = EXIT_FAILURE;
 		goto die_close;
 	}
-	if (stress_set_sockaddr_if(args->name, args->instance, mypid,
-		sctp_domain, sctp_port, sctp_if, &addr, &addr_len, NET_ADDR_ANY) < 0) {
+	if (stress_net_sockaddr_if_set(args->name, args->instance, mypid,
+				       sctp_domain, sctp_port, sctp_if,
+				       &addr, &addr_len, NET_ADDR_ANY) < 0) {
 		rc = EXIT_FAILURE;
 		goto die_close;
 	}

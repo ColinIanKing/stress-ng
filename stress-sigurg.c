@@ -120,9 +120,9 @@ retry:
 				args->name, errno, strerror(errno));
 			return EXIT_FAILURE;
 		}
-		if (UNLIKELY(stress_set_sockaddr_if(args->name, args->instance, mypid,
-				AF_INET, sock_port, NULL,
-				&addr, &addr_len, NET_ADDR_ANY) < 0)) {
+		if (UNLIKELY(stress_net_sockaddr_if_set(args->name, args->instance, mypid,
+							AF_INET, sock_port, NULL,
+							&addr, &addr_len, NET_ADDR_ANY) < 0)) {
 			(void)close(sockfd);
 			sockfd = -1;
 			return EXIT_FAILURE;
@@ -223,9 +223,9 @@ static int OPTIMIZE3 stress_sigurg_server(
 		goto die_close;
 	}
 
-	if (stress_set_sockaddr_if(args->name, args->instance, ppid,
-			AF_INET, sock_port, NULL,
-			&addr, &addr_len, NET_ADDR_ANY) < 0) {
+	if (stress_net_sockaddr_if_set(args->name, args->instance, ppid,
+				       AF_INET, sock_port, NULL,
+				       &addr, &addr_len, NET_ADDR_ANY) < 0) {
 		goto die_close;
 	}
 

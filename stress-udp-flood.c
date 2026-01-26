@@ -97,10 +97,10 @@ static int OPTIMIZE3 stress_udp_flood(stress_args_t *args)
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
-	if (stress_set_sockaddr_if(args->name, args->instance,
-			args->pid,
-			udp_flood_domain, port, udp_flood_if,
-			&addr, &addr_len, NET_ADDR_ANY) < 0) {
+	if (stress_net_sockaddr_if_set(args->name, args->instance,
+				       args->pid, udp_flood_domain,
+				       port, udp_flood_if, &addr,
+				       &addr_len, NET_ADDR_ANY) < 0) {
 		(void)close(fd);
 		return EXIT_FAILURE;
 	}
