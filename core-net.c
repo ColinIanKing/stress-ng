@@ -258,10 +258,10 @@ int stress_net_sockaddr_if_set(
 }
 
 /*
- *  stress_set_sockaddr()
+ *  stress_net_sockaddr_set()
  * 	setup socket address without interface name
  */
-int stress_set_sockaddr(
+int stress_net_sockaddr_set(
 	const char *name,
 	const uint32_t instance,
 	const pid_t pid,

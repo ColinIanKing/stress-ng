@@ -45,7 +45,7 @@ extern WARN_UNUSED int stress_net_domain_set(const int domain_mask,
 extern WARN_UNUSED int stress_net_sockaddr_if_set(const char *name, const uint32_t instance,
         const pid_t pid, const int domain, const int port, const char *ifname,
 	struct sockaddr **sockaddr, socklen_t *len, const int net_addr);
-extern WARN_UNUSED int stress_set_sockaddr(const char *name, const uint32_t instance,
+extern WARN_UNUSED int stress_net_sockaddr_set(const char *name, const uint32_t instance,
 	const pid_t pid, const int domain, const int port,
 	struct sockaddr **sockaddr, socklen_t *len, const int net_addr);
 extern void stress_set_sockaddr_port(const int domain, const int port,

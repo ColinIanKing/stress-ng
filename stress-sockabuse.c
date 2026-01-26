@@ -191,9 +191,9 @@ retry:
 			return EXIT_FAILURE;
 		}
 
-		if (UNLIKELY(stress_set_sockaddr(args->name, args->instance, mypid,
-				AF_INET, sockabuse_port,
-				&addr, &addr_len, NET_ADDR_ANY) < 0)) {
+		if (UNLIKELY(stress_net_sockaddr_set(args->name, args->instance,
+						     mypid, AF_INET, sockabuse_port,
+						     &addr, &addr_len, NET_ADDR_ANY) < 0)) {
 			return EXIT_FAILURE;
 		}
 		if (UNLIKELY(connect(fd, addr, addr_len) < 0)) {
@@ -271,9 +271,9 @@ static int stress_sockabuse_server(
 		}
 #endif
 
-		if (UNLIKELY(stress_set_sockaddr(args->name, args->instance, mypid,
-				AF_INET, sockabuse_port,
-				&addr, &addr_len, NET_ADDR_ANY) < 0)) {
+		if (UNLIKELY(stress_net_sockaddr_set(args->name, args->instance,
+						     mypid, AF_INET, sockabuse_port,
+						     &addr, &addr_len, NET_ADDR_ANY) < 0)) {
 			(void)close(fd);
 			continue;
 		}

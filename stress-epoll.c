@@ -588,8 +588,9 @@ retry:
 			return EXIT_FAILURE;
 		}
 
-		if (UNLIKELY(stress_set_sockaddr(args->name, args->instance, mypid,
-			epoll_domain, port, &addr, &addr_len, NET_ADDR_ANY) < 0)) {
+		if (UNLIKELY(stress_net_sockaddr_set(args->name, args->instance,
+						     mypid, epoll_domain, port,
+						     &addr, &addr_len, NET_ADDR_ANY) < 0)) {
 			(void)close(fd);
 			return EXIT_FAILURE;
 		}
@@ -704,8 +705,9 @@ static void NORETURN epoll_server(
 		goto die_close;
 	}
 
-	if (stress_set_sockaddr(args->name, args->instance, mypid,
-		epoll_domain, port, &addr, &addr_len, NET_ADDR_ANY) < 0) {
+	if (stress_net_sockaddr_set(args->name, args->instance, mypid,
+				    epoll_domain, port, &addr, &addr_len,
+				    NET_ADDR_ANY) < 0) {
 		rc = EXIT_FAILURE;
 		goto die_close;
 	}

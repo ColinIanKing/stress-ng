@@ -319,9 +319,9 @@ retry:
 			return EXIT_FAILURE;
 		}
 
-		if (UNLIKELY(stress_set_sockaddr(args->name, args->instance, context->pid,
-				AF_UNIX, context->socket_fd_port,
-				&addr, &addr_len, NET_ADDR_ANY) < 0)) {
+		if (UNLIKELY(stress_net_sockaddr_set(args->name, args->instance, context->pid,
+						     AF_UNIX, context->socket_fd_port,
+						     &addr, &addr_len, NET_ADDR_ANY) < 0)) {
 			return EXIT_FAILURE;
 		}
 		if (UNLIKELY(connect(fd, addr, addr_len) < 0)) {
@@ -536,9 +536,9 @@ retry:
 		rc = EXIT_FAILURE;
 		goto die_close;
 	}
-	if (stress_set_sockaddr(args->name, args->instance, context->pid,
-			AF_UNIX, context->socket_fd_port,
-			&addr, &addr_len, NET_ADDR_ANY) < 0) {
+	if (stress_net_sockaddr_set(args->name, args->instance, context->pid,
+				    AF_UNIX, context->socket_fd_port,
+				    &addr, &addr_len, NET_ADDR_ANY) < 0) {
 		rc = EXIT_FAILURE;
 		goto die_close;
 	}

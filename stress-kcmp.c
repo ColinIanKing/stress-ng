@@ -168,8 +168,9 @@ static int stress_kcmp(stress_args_t *args)
 			sfd = -1;
 			goto again;
 		}
-		if (stress_set_sockaddr(args->name, args->instance, mypid,
-					AF_INET, reserved_port, &addr, &addr_len, NET_ADDR_ANY) < 0) {
+		if (stress_net_sockaddr_set(args->name, args->instance, mypid,
+					    AF_INET, reserved_port, &addr,
+					    &addr_len, NET_ADDR_ANY) < 0) {
 			(void)close(sfd);
 			sfd = -1;
 			goto again;
