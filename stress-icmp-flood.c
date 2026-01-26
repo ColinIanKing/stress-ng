@@ -156,7 +156,7 @@ static int stress_icmp_flood(stress_args_t *args)
 		icmp_hdr->un.echo.sequence = htons(seq);
 
 		payload[0]++;
-		icmp_hdr->checksum = stress_ipv4_checksum((uint16_t *)icmp_hdr,
+		icmp_hdr->checksum = stress_net_ipv4_checksum((uint16_t *)icmp_hdr,
 			sizeof(struct icmphdr) + payload_len);
 
 		ret = sendto(fd, pkt, pkt_len, 0, (struct sockaddr*)&servaddr, sizeof(servaddr));

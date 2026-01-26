@@ -1539,7 +1539,7 @@ static int stress_cpu_ipv4checksum(const char *name)
 
 	random_buffer((uint8_t *)buffer, sizeof(buffer));
 	for (i = 1; i < sizeof(buffer); i++)
-		stress_uint16_put(stress_ipv4_checksum(buffer, i));
+		stress_uint16_put(stress_net_ipv4_checksum(buffer, i));
 	return EXIT_SUCCESS;
 }
 

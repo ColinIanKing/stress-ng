@@ -301,7 +301,7 @@ static void NORETURN OPTIMIZE3 stress_rawpkt_client(
 		ssize_t n;
 
 		ip->id = htons(id++);
-		ip->check = stress_ipv4_checksum((uint16_t *)ip, sizeof(struct iphdr) + sizeof(struct udphdr));
+		ip->check = stress_net_ipv4_checksum((uint16_t *)ip, sizeof(struct iphdr) + sizeof(struct udphdr));
 
 		n = sendto(fd, buf, sizeof(struct ethhdr) + ip->tot_len, 0, (struct sockaddr *)&sadr, sizeof(sadr));
 		if (UNLIKELY(n < 0)) {

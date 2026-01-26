@@ -135,7 +135,7 @@ static void NORETURN OPTIMIZE3 stress_rawudp_client(
 
 		ip->tos = stress_mwc8() & 0x1e;
 		ip->id = htons(id++);
-		ip->check = stress_ipv4_checksum((uint16_t *)shim_assume_aligned(buf, 64), PACKET_SIZE);
+		ip->check = stress_net_ipv4_checksum((uint16_t *)shim_assume_aligned(buf, 64), PACKET_SIZE);
 
 		(void)shim_memcpy(data, &args->pid, sizeof(args->pid));
 
