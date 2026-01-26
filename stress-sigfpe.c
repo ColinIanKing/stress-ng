@@ -55,7 +55,7 @@ static const stress_help_t help[] = {
 #define SNG_FLTDIV	(0x80000000)
 
 static sigjmp_buf jmp_env;
-static int signum;
+static int sigfpe_signum;
 #if defined(STRESS_CHECK_SIGINFO)
 static volatile siginfo_t siginfo;
 #endif
@@ -69,7 +69,7 @@ static void NORETURN MLOCKED_TEXT stress_fpehandler(int signum, siginfo_t *info,
 {
 	(void)ucontext;
 
-	signum = signum;
+	sigfpe_signum = signum;
 	(void)feclearexcept(FE_ALL_EXCEPT);
 	siginfo = *info;
 
@@ -78,7 +78,7 @@ static void NORETURN MLOCKED_TEXT stress_fpehandler(int signum, siginfo_t *info,
 #else
 static void NORETURN MLOCKED_TEXT stress_fpehandler(int signum)
 {
-	signum = signum;
+	sigfpe_signum = signum;
 	(void)feclearexcept(FE_ALL_EXCEPT);
 
 	stress_signal_longjmp(signum, jmp_env, 1);
@@ -330,7 +330,7 @@ static int stress_sigfpe(stress_args_t *args)
 
 #if defined(STRESS_CHECK_SIGINFO)
 			if (verify) {
-				if (signum == SIGFPE) {
+				if (sigfpe_signum == SIGFPE) {
 					if (UNLIKELY((siginfo.si_code >= 0) &&
 						     (siginfo.si_code != expected_err_code))) {
 						pr_fail("%s: got SIGFPE error %d (%s), expecting %d (%s)\n",
@@ -340,7 +340,7 @@ static int stress_sigfpe(stress_args_t *args)
 						rc = EXIT_FAILURE;
 						break;
 					}
-				} else if (signum == SIGILL) {
+				} else if (sigfpe_signum == SIGILL) {
 					static bool reported = false;
 
 					if (!reported) {
