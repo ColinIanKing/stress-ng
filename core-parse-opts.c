@@ -771,7 +771,7 @@ int stress_parse_opt(const char *stressor_name, const char *opt_arg, const stres
 		return stress_set_setting(stressor_name, opt_name, TYPE_ID_INT, &setting.u.sint);
 	case TYPE_ID_INT_DOMAIN:
 		domain_mask = (opt->data == NULL) ? 0 : *(int *)opt->data;
-		if (stress_set_net_domain(domain_mask, opt_name, opt_arg, &setting.u.sint) < 0) {
+		if (stress_net_domain_set(domain_mask, opt_name, opt_arg, &setting.u.sint) < 0) {
 			longjmp(g_error_env, 1);
 			stress_no_return();
 		}

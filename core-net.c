@@ -128,10 +128,10 @@ const char CONST *stress_net_domain(const int domain)
 }
 
 /*
- *  stress_set_net_domain()
+ *  stress_net_domain_set()
  *	set the domain option
  */
-int stress_set_net_domain(
+int stress_net_domain_set(
 	const int domain_mask,
 	const char *name,
 	const char *domain_name,
