@@ -259,20 +259,20 @@ static int stress_numacopy(stress_args_t *args)
 				args->name, scales[index], page_size >> 10);
 			*str = '\0';
 			for (node = 0; node < num_numa_nodes; node++) {
-				snprintf(buf, sizeof(buf), " %5.0f", (double)node);
-				shim_strlcat(str, buf, sizeof(str));
+				(void)snprintf(buf, sizeof(buf), " %5.0f", (double)node);
+				(void)shim_strlcat(str, buf, sizeof(str));
 			}
-			pr_inf("node %s\n", str);
+			pr_inf("%s: node %s\n", args->name, str);
 			node = 0;
 			for (node_from = 0; node_from < num_numa_nodes; node_from++) {
-				snprintf(str, sizeof(str), "%5.0f", (double)node_from);
+				(void)snprintf(str, sizeof(str), "%5.0f", (double)node_from);
 
 				for (node_to = 0; node_to < num_numa_nodes; node_to++) {
-					snprintf(buf, sizeof(buf), " %5.1f", metrics[node].rate / scale);
-					shim_strlcat(str, buf, sizeof(str));
+					(void)snprintf(buf, sizeof(buf), " %5.1f", metrics[node].rate / scale);
+					(void)shim_strlcat(str, buf, sizeof(str));
 					node++;
 				}
-				pr_inf("%s\n", str);
+				pr_inf("%s: %s\n", args->name, str);
 			}
 			pr_block_end();
 		}
