@@ -194,27 +194,22 @@ static volatile int code;
  */
 #if defined(SA_SIGINFO)
 static void NORETURN MLOCKED_TEXT stress_sigill_handler(
-	int num,
+	int signum,
 	siginfo_t *info,
 	void *ucontext)
 {
-	(void)num;
 	(void)ucontext;
 
 	fault_addr = info->si_addr;
 	signo = info->si_signo;
 	code = info->si_code;
 
-	siglongjmp(jmp_env, 1);		/* Ugly, bounce back */
-	stress_no_return();
+	stress_signal_longjmp(signum, jmp_env, 1);
 }
 #else
 static void NORETURN MLOCKED_TEXT stress_sigill_handler(int signum)
 {
-	(void)signum;
-
-	siglongjmp(jmp_env, 1);		/* Ugly, bounce back */
-	stress_no_return();
+	stress_signal_longjmp(signum, jmp_env, 1);
 }
 #endif
 

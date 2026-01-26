@@ -65,12 +65,9 @@ static uint64_t sigbus_count;
  */
 static void NORETURN MLOCKED_TEXT stress_sigbus_handler(int signum)
 {
-	(void)signum;
-
 	sigbus_count++;
 
-	siglongjmp(jmp_env, 1);
-	stress_no_return();
+	stress_signal_longjmp(signum, jmp_env, 1);
 }
 
 /*

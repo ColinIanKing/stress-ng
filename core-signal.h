@@ -38,5 +38,8 @@ extern NORETURN void stress_signal_exit_handler(int signum);
 extern void stress_signal_ignore_handler(int sig);
 extern void stress_signal_catch_sigill(void);
 extern void stress_signal_catch_sigsegv(void);
+extern NORETURN void stress_signal_longjmp(const int signum, sigjmp_buf jmp_env, const int val);
+extern void stress_signal_longjmp_flag(const int signum, sigjmp_buf jmp_env, const int val,
+	volatile bool *do_jmp);
 
 #endif

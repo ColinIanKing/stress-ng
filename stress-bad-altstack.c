@@ -53,7 +53,7 @@ static void *zero_stack;
 #if defined(O_TMPFILE)
 static void *bus_stack;
 #endif
-static sigjmp_buf jmpbuf;
+static sigjmp_buf jmp_env;
 static size_t stress_minsigstksz;
 
 STRESS_PRAGMA_PUSH
@@ -83,7 +83,6 @@ static void NORETURN MLOCKED_TEXT stress_bad_altstack_signal_handler(int signum)
 	}
 	 */
 
-	(void)signum;
 	(void)munmap(stack, stress_minsigstksz);
 	(void)shim_memset(data, 0xff, sizeof(data));
 	stress_uint8_put(data[0]);
@@ -102,8 +101,7 @@ static void NORETURN MLOCKED_TEXT stress_bad_altstack_signal_handler(int signum)
 	 *  generated a fault inside the stack of the
 	 *  signal handler, so jmp back and re-try
 	 */
-	siglongjmp(jmpbuf, 1);
-	stress_no_return();
+	stress_signal_longjmp(signum, jmp_env, 1);
 }
 
 static int stress_bad_altstack_child(stress_args_t *args)
@@ -122,7 +120,7 @@ static int stress_bad_altstack_child(stress_args_t *args)
 	struct rlimit rlim;
 #endif
 
-	if (sigsetjmp(jmpbuf, 1) != 0) {
+	if (sigsetjmp(jmp_env, 1) != 0) {
 		/*
 		 *  We land here if we get a segfault
 		 *  but not a segfault in the sighandler

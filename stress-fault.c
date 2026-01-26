@@ -41,10 +41,7 @@ static void MLOCKED_TEXT stress_segvhandler(int signum)
 {
 	die_signum = signum;
 
-	if (do_jmp) {
-		siglongjmp(jmp_env, 1);		/* Ugly, bounce back */
-		stress_no_return();
-	}
+	stress_signal_longjmp_flag(signum, jmp_env, 1, &do_jmp);
 }
 
 /*

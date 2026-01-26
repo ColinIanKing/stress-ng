@@ -50,11 +50,10 @@ static volatile int code;
  */
 #if defined(SA_SIGINFO)
 static void NORETURN MLOCKED_TEXT stress_bushandler(
-	int num,
+	int signum,
 	siginfo_t *info,
 	void *ucontext)
 {
-	(void)num;
 	(void)ucontext;
 
 #if defined(STRESS_ARCH_X86_64) &&	\
@@ -69,13 +68,11 @@ static void NORETURN MLOCKED_TEXT stress_bushandler(
 		signo = info->si_signo;
 		code = info->si_code;
 	}
-	siglongjmp(jmp_env, 1);		/* Ugly, bounce back */
-	stress_no_return();
+	stress_signal_longjmp(signum, jmp_env, 1);
 }
 #else
 static void NORETURN MLOCKED_TEXT stress_bushandler(int signum)
 {
-	(void)signum;
 
 #if defined(STRESS_ARCH_X86_64) &&	\
     defined(SET_AC_EFLAGS)
@@ -84,8 +81,7 @@ static void NORETURN MLOCKED_TEXT stress_bushandler(int signum)
 			     "andl $0xfffbffff, (%rsp);\n"
 			     "popf;\n");
 #endif
-	siglongjmp(jmp_env, 1);		/* Ugly, bounce back */
-	stress_no_return();
+	stress_signal_longjmp(signum, jmp_env, 1);
 }
 #endif
 

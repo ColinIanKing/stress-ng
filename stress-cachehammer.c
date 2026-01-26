@@ -1584,10 +1584,7 @@ static size_t func_index;
 
 static void NORETURN MLOCKED_TEXT stress_cache_sighandler(int signum)
 {
-	(void)signum;
-
-	siglongjmp(jmp_env, 1);         /* Ugly, bounce back */
-	stress_no_return();
+	stress_signal_longjmp(signum, jmp_env, 1);
 }
 
 /*

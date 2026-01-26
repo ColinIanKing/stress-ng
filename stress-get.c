@@ -177,12 +177,9 @@ static const shim_priority_which_t priorities[] = {
 
 static sigjmp_buf jmp_env;
 
-static void NORETURN MLOCKED_TEXT stress_segv_handler(int num)
+static void NORETURN MLOCKED_TEXT stress_segv_handler(int signum)
 {
-	(void)num;
-
-	siglongjmp(jmp_env, 1);
-	stress_no_return();
+	stress_signal_longjmp(signum, jmp_env, 1);
 }
 
 static int stress_getppid(stress_args_t *args)

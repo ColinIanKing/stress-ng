@@ -50,7 +50,7 @@ static const stress_opt_t opts[] = {
     defined(AF_ALG)
 
 static volatile bool do_jmp = true;
-static sigjmp_buf jmpbuf;
+static sigjmp_buf jmp_env;
 
 #if !defined(SOL_ALG)
 #define SOL_ALG				(279)
@@ -137,11 +137,8 @@ static void MLOCKED_TEXT stress_af_alg_alarm_handler(int signum)
 	 * If we've not stopped after 5 seconds then an af-alg
 	 * got stuck, so force  jmp to terminate path
 	 */
-	if (UNLIKELY(do_jmp && count++ > 5)) {
-		do_jmp = false;
-		siglongjmp(jmpbuf, 1);
-		stress_no_return();
-	}
+	if (UNLIKELY(do_jmp && count++ > 5))
+		stress_signal_longjmp_flag(signum, jmp_env, 1, &do_jmp);
 }
 
 /*
@@ -939,7 +936,7 @@ static int stress_af_alg(stress_args_t *args)
 	stress_sync_start_wait(args);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
-	if (sigsetjmp(jmpbuf, 1) != 0)
+	if (sigsetjmp(jmp_env, 1) != 0)
 		goto deinit;
 
 	if (stress_signal_handler(args->name, SIGALRM, stress_af_alg_alarm_handler, NULL) < 0) {

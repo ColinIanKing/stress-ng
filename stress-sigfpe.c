@@ -65,25 +65,23 @@ static volatile siginfo_t siginfo;
  *	SIGFPE handler
  */
 #if defined(STRESS_CHECK_SIGINFO)
-static void NORETURN MLOCKED_TEXT stress_fpehandler(int num, siginfo_t *info, void *ucontext)
+static void NORETURN MLOCKED_TEXT stress_fpehandler(int signum, siginfo_t *info, void *ucontext)
 {
 	(void)ucontext;
 
-	signum = num;
+	signum = signum;
 	(void)feclearexcept(FE_ALL_EXCEPT);
 	siginfo = *info;
 
-	siglongjmp(jmp_env, 1);		/* Ugly, bounce back */
-	stress_no_return();
+	stress_signal_longjmp(signum, jmp_env, 1);
 }
 #else
-static void NORETURN MLOCKED_TEXT stress_fpehandler(int num)
+static void NORETURN MLOCKED_TEXT stress_fpehandler(int signum)
 {
-	signum = num;
+	signum = signum;
 	(void)feclearexcept(FE_ALL_EXCEPT);
 
-	siglongjmp(jmp_env, 1);		/* Ugly, bounce back */
-	stress_no_return();
+	stress_signal_longjmp(signum, jmp_env, 1);
 }
 #endif
 

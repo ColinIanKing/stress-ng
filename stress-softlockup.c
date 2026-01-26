@@ -143,11 +143,8 @@ static void stress_softlockup_rep_stosb(void)
  */
 static void MLOCKED_TEXT NORETURN stress_rlimit_handler(int signum)
 {
-	(void)signum;
-
 	stress_continue_set_flag(false);
-	siglongjmp(jmp_env, 1);
-	stress_no_return();
+	stress_signal_longjmp(signum, jmp_env, 1);
 }
 
 /*

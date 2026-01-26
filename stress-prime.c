@@ -65,7 +65,7 @@ static const stress_opt_t opts[] = {
     defined(HAVE_LIB_GMP) &&	\
     defined(HAVE_SIGLONGJMP)
 
-static sigjmp_buf jmpbuf;
+static sigjmp_buf jmp_env;
 static bool jumped;
 
 static void MLOCKED_TEXT stress_prime_alarm_handler(int signum)
@@ -75,10 +75,8 @@ static void MLOCKED_TEXT stress_prime_alarm_handler(int signum)
 
 	stress_continue_set_flag(false);
 	count++;
-	if (count > 1) {
-		siglongjmp(jmpbuf, 1);
-		stress_no_return();
-	}
+	if (count > 1)
+		stress_signal_longjmp(signum, jmp_env, 1);
 }
 
 /*
@@ -186,7 +184,7 @@ static int OPTIMIZE3 stress_prime(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	jumped = false;
-	if (sigsetjmp(jmpbuf, 1) != 0) {
+	if (sigsetjmp(jmp_env, 1) != 0) {
 		jumped = true;
 		goto finish;
 	}

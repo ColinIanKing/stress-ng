@@ -66,7 +66,7 @@ typedef uint64_t stress_uint64w128_t	__attribute__ ((vector_size(128 / 8)));
 
 #if defined(HAVE_SIGLONGJMP)
 static volatile bool do_jmp = true;
-static sigjmp_buf jmpbuf;
+static sigjmp_buf jmp_env;
 #endif
 
 typedef struct {
@@ -100,13 +100,7 @@ typedef struct {
 #if defined(HAVE_SIGLONGJMP)
 static void MLOCKED_TEXT stress_memrate_alarm_handler(int signum)
 {
-        (void)signum;
-
-	if (do_jmp) {
-		do_jmp = false;
-	        siglongjmp(jmpbuf, 1);
-		stress_no_return();
-	}
+	stress_signal_longjmp_flag(signum, jmp_env, 1, &do_jmp);
 }
 #endif
 
@@ -1038,7 +1032,7 @@ static int stress_memrate_child(stress_args_t *args, void *ctxt)
 	context->end = buffer_end;
 
 #if defined(HAVE_SIGLONGJMP)
-	if (sigsetjmp(jmpbuf, 1) != 0)
+	if (sigsetjmp(jmp_env, 1) != 0)
 		goto tidy;
 	if (stress_signal_handler(args->name, SIGALRM, stress_memrate_alarm_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;

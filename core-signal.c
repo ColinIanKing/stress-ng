@@ -718,3 +718,35 @@ void stress_signal_catch_sigsegv(void)
 {
 	stress_signal_catch_sig(SIGSEGV, stress_signal_catch_sigsegv_handler);
 }
+
+/*
+ *  stress_signal_longjmp()
+ *	perform siglongjm
+ */
+void NORETURN stress_signal_longjmp(
+	const int signum,
+	sigjmp_buf jmp_env,
+	const int val)
+{
+        (void)signum;
+
+        siglongjmp(jmp_env, val);
+        stress_no_return();
+}
+
+/*
+ *  stress_signal_longjmp()
+ *	perform siglongjmp, set do_jmp flag if non-null
+ */
+void stress_signal_longjmp_flag(
+	const int signum,
+	sigjmp_buf jmp_env,
+	const int val,
+	volatile bool *do_jmp)
+{
+	if (!*do_jmp)
+		return;
+	*do_jmp = false;
+	stress_signal_longjmp(signum, jmp_env, val);
+
+}

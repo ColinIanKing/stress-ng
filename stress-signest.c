@@ -200,18 +200,12 @@ static void MLOCKED_TEXT stress_signest_handler(int signum)
 
 	if (UNLIKELY(run_time > (double)g_opt_timeout)) {
 		stress_signest_ignore();
-		if (jmp_env_ok) {
-			siglongjmp(jmp_env, 1);
-			stress_no_return();
-		}
+		stress_signal_longjmp_flag(signum, jmp_env, 1, &jmp_env_ok);
 	}
 
 	if (UNLIKELY(signal_info.stop)) {
 		stress_signest_ignore();
-		if (jmp_env_ok) {
-			siglongjmp(jmp_env, 1);
-			stress_no_return();
-		}
+		stress_signal_longjmp_flag(signum, jmp_env, 1, &jmp_env_ok);
 	}
 
 	if (UNLIKELY(!signal_info.args))
@@ -220,10 +214,7 @@ static void MLOCKED_TEXT stress_signest_handler(int signum)
 	stress_bogo_inc(signal_info.args);
 	if (UNLIKELY(!stress_continue(signal_info.args))) {
 		stress_signest_ignore();
-		if (jmp_env_ok) {
-			siglongjmp(jmp_env, 1);
-			stress_no_return();
-		}
+		stress_signal_longjmp_flag(signum, jmp_env, 1, &jmp_env_ok);
 	}
 
 	signals[signal_index].signalled = true;
@@ -232,10 +223,7 @@ static void MLOCKED_TEXT stress_signest_handler(int signum)
 		goto done;
 
 	if (signal_info.stop || !stress_continue(signal_info.args)) {
-		if (jmp_env_ok) {
-			siglongjmp(jmp_env, 1);
-			stress_no_return();
-		}
+		stress_signal_longjmp_flag(signum, jmp_env, 1, &jmp_env_ok);
 	}
 	(void)shim_raise(signals[signal_index].signum);
 	raised++;

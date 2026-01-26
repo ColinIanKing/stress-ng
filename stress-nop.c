@@ -36,7 +36,7 @@ static const stress_help_t help[] = {
 #if defined(HAVE_ASM_NOP) &&	\
     defined(HAVE_SIGLONGJMP)
 
-static sigjmp_buf jmpbuf;
+static sigjmp_buf jmp_env;
 
 typedef void (*nop_func_t)(stress_args_t *args,
 			   const bool flag,
@@ -318,12 +318,9 @@ static void stress_nop_random(
 
 static void MLOCKED_TEXT NORETURN stress_sigill_nop_handler(int signum)
 {
-	(void)signum;
-
 	current_instr->ignore = true;
 
-	siglongjmp(jmpbuf, 1);
-	stress_no_return();
+	stress_signal_longjmp(signum, jmp_env, 1);
 }
 
 /*
@@ -345,7 +342,7 @@ static int stress_nop(stress_args_t *args)
 
 	do_random = (instr->nop_func == stress_nop_random);
 
-	if (sigsetjmp(jmpbuf, 1) != 0) {
+	if (sigsetjmp(jmp_env, 1) != 0) {
 		/* We reach here on an SIGILL trap */
 		if (current_instr == &nop_instrs[0]) {
 			/* Really should be able to do nop, skip */

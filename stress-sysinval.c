@@ -180,7 +180,7 @@ typedef struct {
 static stress_syscall_hash_table_t *hash_table;
 
 static volatile bool do_jmp;
-static sigjmp_buf jmpbuf;
+static sigjmp_buf jmp_env;
 
 static const int sigs[] = {
 #if defined(SIGILL)
@@ -2402,15 +2402,11 @@ static void hash_table_add(
 	hash_table->index++;
 }
 
-static void MLOCKED_TEXT stress_syscall_itimer_handler(int sig)
+static void MLOCKED_TEXT stress_syscall_itimer_handler(int signum)
 {
-	(void)sig;
-
 	if (do_jmp && current_context) {
-		do_jmp = false;
 		current_context->type = SYSCALL_TIMED_OUT;
-		siglongjmp(jmpbuf, 1);
-		stress_no_return();
+		stress_signal_longjmp_flag(signum, jmp_env, 1, &do_jmp);
 	}
 }
 
@@ -2506,7 +2502,7 @@ static void syscall_do_call(
 	it.it_value.tv_usec = SYSCALL_TIMEOUT_USEC;
 	VOID_RET(int, setitimer(ITIMER_REAL, &it, NULL));
 
-	ret = sigsetjmp(jmpbuf, 1);
+	ret = sigsetjmp(jmp_env, 1);
 	if (ret == 1) {
 		/* timed out! */
 		current_context->type = SYSCALL_TIMED_OUT;

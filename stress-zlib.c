@@ -133,7 +133,7 @@ static const morse_t ALIGN64 morse[] = {
 };
 
 static volatile bool pipe_broken = false;
-static sigjmp_buf jmpbuf;
+static sigjmp_buf jmp_env;
 
 static const char * const lorem_ipsum[] = {
 	"Lorem ipsum dolor sit amet, consectetur adipiscing elit. ",
@@ -191,10 +191,7 @@ static void MLOCKED_TEXT stress_sigpipe_handler(int signum)
 
 static void NORETURN MLOCKED_TEXT stress_bad_read_handler(int signum)
 {
-	(void)signum;
-
-	siglongjmp(jmpbuf, 1);
-	stress_no_return();
+	stress_signal_longjmp(signum, jmp_env, 1);
 }
 
 /*
@@ -1225,7 +1222,7 @@ static void stress_rand_data_objcode(
 	 *  from specific text pages, so trap these and
 	 *  fall back to stress_rand_data_binary.
 	 */
-	if (sigsetjmp(jmpbuf, 1) != 0) {
+	if (sigsetjmp(jmp_env, 1) != 0) {
 		(void)stress_signal_restore(args->name, SIGSEGV, &sigsegv_orig);
 		(void)stress_signal_restore(args->name, SIGBUS, &sigbus_orig);
 		stress_rand_data_binary(args, data, data_end);

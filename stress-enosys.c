@@ -3955,8 +3955,7 @@ static void NORETURN MLOCKED_TEXT stress_sig_handler(int signum)
 		/* No idea how we got here, bail out */
 		_exit(1);
 	}
-	siglongjmp(jmp_env, 1);
-	stress_no_return();
+	stress_signal_longjmp(signum, jmp_env, 1);
 }
 
 /*

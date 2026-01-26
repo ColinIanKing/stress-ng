@@ -137,12 +137,7 @@ static const stress_resource_id_t resource_ids[] = {
  */
 static void MLOCKED_TEXT stress_rlimit_handler(int signum)
 {
-	(void)signum;
-
-	if (do_jmp) {
-		siglongjmp(jmp_env, 1);
-		stress_no_return();
-	}
+	stress_signal_longjmp_flag(signum, jmp_env, 1, &do_jmp);
 }
 
 

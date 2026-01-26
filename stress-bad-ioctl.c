@@ -224,10 +224,7 @@ done:
 
 static void NORETURN MLOCKED_TEXT stress_segv_handler(int signum)
 {
-	(void)signum;
-
-	siglongjmp(jmp_env, 1);
-	stress_no_return();
+	stress_signal_longjmp(signum, jmp_env, 1);
 }
 
 /*

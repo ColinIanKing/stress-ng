@@ -125,12 +125,9 @@ STRESS_PRAGMA_WARN_OFF
 STRESS_PRAGMA_POP
 }
 
-static void NORETURN MLOCKED_TEXT stress_segv_handler(int num)
+static void NORETURN MLOCKED_TEXT stress_segv_handler(int signum)
 {
-	(void)num;
-
-	siglongjmp(jmp_env, 1);
-	stress_no_return();
+	stress_signal_longjmp(signum, jmp_env, 1);
 }
 
 /*

@@ -224,14 +224,9 @@ static void stress_memhotplug_mem_online(stress_mem_info_t *mem_info)
 
 static void MLOCKED_TEXT stress_segv_handler(int signum)
 {
-	(void)signum;
-
 	segv_count++;
 
-	if (do_jmp) {
-		siglongjmp(jmp_env, 1);         /* Ugly, bounce back */
-		stress_no_return();
-	}
+	stress_signal_longjmp_flag(signum, jmp_env, 1, &do_jmp);
 }
 
 /*

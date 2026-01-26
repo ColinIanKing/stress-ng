@@ -22,7 +22,7 @@
 typedef struct {
 	double ts;		/* timestamp */
 	uint32_t check0;	/* memory clobbering check canary */
-	jmp_buf buf;		/* jmpbuf itself */
+	jmp_buf jmp_env;	/* jmpbuf itself */
 	uint32_t check1;	/* memory clobbering check canary */
 } jmp_buf_check_t;
 
@@ -39,7 +39,7 @@ static const stress_help_t help[] = {
 static void OPTIMIZE1 NOINLINE NORETURN stress_longjmp_sample_func(void)
 {
 	bufchk.ts = stress_time_now();
-	longjmp(bufchk.buf, 1);	/* Jump out */
+	longjmp(bufchk.jmp_env, 1);	/* Jump out */
 
 	longjmp_failed = true;
 	_exit(EXIT_FAILURE);	/* Never get here */
@@ -47,7 +47,7 @@ static void OPTIMIZE1 NOINLINE NORETURN stress_longjmp_sample_func(void)
 
 static void OPTIMIZE1 NOINLINE NORETURN stress_longjmp_func(void)
 {
-	longjmp(bufchk.buf, 1);	/* Jump out */
+	longjmp(bufchk.jmp_env, 1);	/* Jump out */
 
 	longjmp_failed = true;
 	_exit(EXIT_FAILURE);	/* Never get here */
@@ -78,7 +78,7 @@ static int OPTIMIZE1 stress_longjmp(stress_args_t *args)
 	stress_sync_start_wait(args);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
-	ret = setjmp(bufchk.buf);
+	ret = setjmp(bufchk.jmp_env);
 	if (ret) {
 		if (UNLIKELY(sample_counter == 0)) {
 			t_total += (stress_time_now() - bufchk.ts);

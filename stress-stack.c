@@ -64,10 +64,7 @@ static sigjmp_buf jmp_env;
  */
 static void MLOCKED_TEXT NORETURN stress_segvhandler(int signum)
 {
-	(void)signum;
-
-	siglongjmp(jmp_env, 1);		/* Ugly, bounce back */
-	stress_no_return();
+	stress_signal_longjmp(signum, jmp_env, 1);
 }
 
 /*

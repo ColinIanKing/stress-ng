@@ -433,11 +433,8 @@ static sigjmp_buf jmp_env;
  */
 static void NORETURN MLOCKED_TEXT stress_rlimit_handler(int signum)
 {
-	(void)signum;
-
 	stress_continue_set_flag(false);
-	siglongjmp(jmp_env, 1);
-	stress_no_return();
+	stress_signal_longjmp(signum, jmp_env, 1);
 }
 #endif
 

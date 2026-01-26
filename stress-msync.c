@@ -84,12 +84,9 @@ static int OPTIMIZE3 stress_page_check(
  */
 static void MLOCKED_TEXT NORETURN stress_sigbus_handler(int signum)
 {
-	(void)signum;
-
 	sigbus_count++;
 
-	siglongjmp(jmp_env, 1); /* bounce back */
-	stress_no_return();
+	stress_signal_longjmp(signum, jmp_env, 1);
 }
 
 /*

@@ -110,10 +110,7 @@ static const stress_lib_info_t libnames[] = {
  */
 static void NORETURN MLOCKED_TEXT stress_segvhandler(int signum)
 {
-	(void)signum;
-
-	siglongjmp(jmp_env, 1);
-	stress_no_return();
+	stress_signal_longjmp(signum, jmp_env, 1);
 }
 
 /*

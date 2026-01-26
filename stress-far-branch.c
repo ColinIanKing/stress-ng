@@ -67,19 +67,18 @@ static sigjmp_buf jmp_env;
 static bool check_flag;
 
 static void NORETURN MLOCKED_TEXT stress_sig_handler(
-        int sig,
+        int signum,
         siginfo_t *info,
         void *ucontext)
 {
 	(void)ucontext;
 
-	sig_num = sig;
+	sig_num = signum;
 	sig_addr = (info) ? info->si_addr : (void *)~(uintptr_t)0;
 
 	stress_continue_set_flag(false);
 
-	siglongjmp(jmp_env, 1);
-	stress_no_return();
+	stress_signal_longjmp(signum, jmp_env, 1);
 }
 
 static inline void stress_far_branch_page_flush(void *page, const size_t page_size)

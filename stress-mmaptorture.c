@@ -318,8 +318,6 @@ static void stress_mmaptorture_deinit(void)
 
 static void NORETURN MLOCKED_TEXT stress_mmaptorture_sighandler(int signum)
 {
-	(void)signum;
-
 	switch (signum) {
 	case SIGBUS:
 		if (mmap_stats)
@@ -332,8 +330,7 @@ static void NORETURN MLOCKED_TEXT stress_mmaptorture_sighandler(int signum)
 	default:
 		break;
 	}
-	siglongjmp(jmp_env, 1);	/* Ugly, bounce back */
-	stress_no_return();
+	stress_signal_longjmp(signum, jmp_env, 1);
 }
 
 static void stress_mmaptorture_msync(

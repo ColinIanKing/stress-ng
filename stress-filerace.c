@@ -846,14 +846,11 @@ static void stress_filerace_fchdir(const int fd, const char *filename)
     defined(MS_SYNC) &&		\
     defined(HAVE_FALLOCATE) &&	\
     defined(FALLOC_FL_ZERO_RANGE)
-static sigjmp_buf mmap_jmpbuf;
+static sigjmp_buf jmp_env;
 
-static void NORETURN MLOCKED_TEXT stress_filerace_mmap_sigbus_handler(int sig)
+static void NORETURN MLOCKED_TEXT stress_filerace_mmap_sigbus_handler(int signum)
 {
-	(void)sig;
-
-	siglongjmp(mmap_jmpbuf, 1);
-	stress_no_return();
+	stress_signal_longjmp(signum, jmp_env, 1);
 }
 
 static void stress_filerace_mmap(const int fd, const char *filename)
@@ -861,7 +858,7 @@ static void stress_filerace_mmap(const int fd, const char *filename)
 	NOCLOBBER void *ptr;
 	NOCLOBBER size_t mmap_size;
 	off_t offset;
-	struct sigaction new_action, old_action;
+	struct sigaction new_action, old_sigbus_action, old_sigsegv_action;
 
 	mmap_size = stress_get_page_size() * (1 + (stress_mwc8() & 0xf));
 	offset = ((off_t)(stress_mwc32() & OFFSET_MASK_UNALIGNED)) & ~(off_t)(mmap_size - 1);
@@ -879,7 +876,9 @@ static void stress_filerace_mmap(const int fd, const char *filename)
 	 *  fallocate causing the mmap'd region to be no longer
 	 *  backed by the file
 	 */
-	if (sigaction(SIGBUS, &new_action, &old_action) < 0)
+	if (sigaction(SIGBUS, &new_action, &old_sigbus_action) < 0)
+		return;
+	if (sigaction(SIGSEGV, &new_action, &old_sigsegv_action) < 0)
 		return;
 	if (fallocate(fd, FALLOC_FL_ZERO_RANGE, offset, mmap_size) < 0)
 		return;
@@ -887,13 +886,14 @@ static void stress_filerace_mmap(const int fd, const char *filename)
 		   MAP_SHARED, fd, offset);
 	if (ptr == MAP_FAILED)
 		return;
-	if (sigsetjmp(mmap_jmpbuf, 1) != 0)
+	if (sigsetjmp(jmp_env, 1) != 0)
 		goto unmap;
 	(void)shim_memset(ptr, stress_mwc8(), mmap_size);
 	VOID_RET(int, msync(ptr, mmap_size, stress_mwc1() ? MS_ASYNC : MS_SYNC));
 unmap:
 	(void)munmap(ptr, mmap_size);
-	(void)sigaction(SIGBUS, &old_action, NULL);
+	(void)sigaction(SIGBUS, &old_sigbus_action, NULL);
+	(void)sigaction(SIGSEGV, &old_sigsegv_action, NULL);
 }
 #endif
 

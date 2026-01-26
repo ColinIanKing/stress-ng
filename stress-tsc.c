@@ -73,7 +73,7 @@ static inline uint64_t rdtsc(void) {
 
 #define HAVE_STRESS_TSC_CAPABILITY
 
-static sigjmp_buf jmpbuf;
+static sigjmp_buf jmp_env;
 static bool tsc_supported = false;
 
 static inline uint64_t rdtsc(void)
@@ -83,10 +83,7 @@ static inline uint64_t rdtsc(void)
 
 static void MLOCKED_TEXT stress_sigill_handler(int signum)
 {
-	(void)signum;
-
-	siglongjmp(jmpbuf, 1);
-	stress_no_return();
+	stress_signal_longjmp(signum, jmp_env, NULL, 1);
 }
 
 /*
@@ -103,7 +100,7 @@ static int stress_tsc_supported(const char *name)
 	/*
 	 *  We get here with non-zero return if SIGILL occurs
 	 */
-	if (sigsetjmp(jmpbuf, 1) != 0) {
+	if (sigsetjmp(jmp_env, 1) != 0) {
 		pr_inf_skip("%s stressor will be skipped, "
 			"rdtime not allowed\n", name);
 		return -1;
