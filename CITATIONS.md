@@ -205,3 +205,6 @@
  * [When Things Heat Up: Detecting Malicious Activity Using CPU Thermal Sensors](https://www.mdpi.com/2624-800X/5/3/56)
  * [xPUE: Extending Power Usage Effectiveness Metrics for Cloud Infrastructures](https://arxiv.org/pdf/2503.07124)
 
+2026:
+ * [On-Device Deep Reinforcement Learning for Decentralized Task Offloading: Performance trade-offs in the training process](https://arxiv.org/html/2601.03976v1#S4)
+
