@@ -123,7 +123,7 @@ static int OPTIMIZE3 stress_udp_flood(stress_args_t *args)
 			continue;
 		port = reserved_port;
 
-		stress_set_sockaddr_port(udp_flood_domain, port, addr);
+		stress_net_sockaddr_port_set(udp_flood_domain, port, addr);
 		(void)shim_memset(buf, stress_ascii64[j++ & 63], sz);
 		n = sendto(fd, buf, sz, 0, addr, addr_len);
 		if (LIKELY(n > 0)) {
@@ -152,7 +152,7 @@ static int OPTIMIZE3 stress_udp_flood(stress_args_t *args)
 		if (UNLIKELY(reserved_port < 0))
 			continue;
 		rand_port = reserved_port;
-		stress_set_sockaddr_port(udp_flood_domain, rand_port, addr);
+		stress_net_sockaddr_port_set(udp_flood_domain, rand_port, addr);
 		n = sendto(fd, buf, sz, 0, addr, addr_len);
 		if (LIKELY(n > 0)) {
 			stress_bogo_inc(args);

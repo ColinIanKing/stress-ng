@@ -275,10 +275,10 @@ int stress_net_sockaddr_set(
 }
 
 /*
- *  stress_set_sockaddr_port()
+ *  stress_net_sockaddr_port_set()
  *	setup just the socket address port
  */
-void stress_set_sockaddr_port(
+void stress_net_sockaddr_port_set(
 	const int domain,
 	const int port,
 	struct sockaddr *sockaddr)
