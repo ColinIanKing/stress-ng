@@ -217,7 +217,7 @@ static void OPTIMIZE3 sort_copy(void *p1, void *p2, register size_t size)
 	} while (--size);
 }
 
-sort_swap_func_t sort_swap_func(const size_t size)
+stress_sort_swap_func_t stress_sort_swap_func(const size_t size)
 {
 	switch (size) {
 	case 8:
@@ -234,7 +234,7 @@ sort_swap_func_t sort_swap_func(const size_t size)
 	return sort_swap;
 }
 
-sort_copy_func_t sort_copy_func(const size_t size)
+stress_sort_copy_func_t stress_sort_copy_func(const size_t size)
 {
 	switch (size) {
 	case 8:

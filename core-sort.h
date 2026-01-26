@@ -22,8 +22,8 @@
 #include <inttypes.h>
 #include "core-attribute.h"
 
-typedef void (*sort_swap_func_t)(void *p1, void *p2, register size_t size);
-typedef void (*sort_copy_func_t)(void *p1, void *p2, register size_t size);
+typedef void (*stress_sort_swap_func_t)(void *p1, void *p2, register size_t size);
+typedef void (*stress_sort_copy_func_t)(void *p1, void *p2, register size_t size);
 
 extern void stress_sort_data_int32_init(int32_t *data, const size_t n);
 extern void stress_sort_data_int32_shuffle(int32_t *data, const size_t n);
@@ -32,8 +32,8 @@ extern void stress_sort_compare_reset(void);
 extern uint64_t stress_sort_compare_get(void);
 extern uint64_t stress_sort_compares ALIGN64;
 
-extern sort_swap_func_t sort_swap_func(const size_t size);
-extern sort_copy_func_t sort_copy_func(const size_t size);
+extern stress_sort_swap_func_t stress_sort_swap_func(const size_t size);
+extern stress_sort_copy_func_t stress_sort_copy_func(const size_t size);
 
 static inline ALWAYS_INLINE CONST int stress_sort_cmp_str(const void *p1, const void *p2)
 {

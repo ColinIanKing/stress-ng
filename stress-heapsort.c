@@ -55,8 +55,8 @@ static int heapsort_nonlibc(
 {
 	register uint8_t *u8base;
 	register size_t l = (nmemb / 2) + 1;
-	sort_swap_func_t swap_func;
-	sort_copy_func_t copy_func;
+	stress_sort_swap_func_t swap_func;
+	stress_sort_copy_func_t copy_func;
 
 	if (UNLIKELY(nmemb <= 1))
 		return 0;
@@ -65,8 +65,8 @@ static int heapsort_nonlibc(
 		return -1;
 	}
 
-	swap_func = sort_swap_func(size);
-	copy_func = sort_copy_func(size);
+	swap_func = stress_sort_swap_func(size);
+	copy_func = stress_sort_copy_func(size);
 
 	/*
 	 *  Phase #1, create initial heap
