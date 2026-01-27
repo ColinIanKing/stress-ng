@@ -1000,7 +1000,7 @@ static int stress_cache(stress_args_t *args)
 	cpu_set_t proc_mask;
 	NOCLOBBER uint32_t cpu = 0;
 	uint32_t *cpus;
-	const uint32_t n_cpus = stress_get_usable_cpus(&cpus, true);
+	const uint32_t n_cpus = stress_affinity_cpus_get(&cpus, true);
 	NOCLOBBER bool pinned = false;
 #endif
 	NOCLOBBER uint32_t cache_flags = 0;
@@ -1382,7 +1382,7 @@ tidy_cpus:
 #if defined(HAVE_SCHED_GETAFFINITY) &&	\
     defined(HAVE_SCHED_SETAFFINITY) &&	\
     defined(HAVE_SCHED_GETCPU)
-	stress_free_usable_cpus(&cpus);
+	stress_affinity_cpus_free(&cpus);
 #endif
 
 	return ret;

@@ -635,7 +635,7 @@ static int stress_cacheline_child(
 #if defined(HAVE_SCHED_GETAFFINITY) &&	\
     defined(HAVE_SCHED_SETAFFINITY)
 	uint32_t *cpus;
-	const uint32_t n_cpus = stress_get_usable_cpus(&cpus, true);
+	const uint32_t n_cpus = stress_affinity_cpus_get(&cpus, true);
 #endif
 
 	(void)cacheline_affinity;
@@ -654,7 +654,7 @@ static int stress_cacheline_child(
 
 #if defined(HAVE_SCHED_GETAFFINITY) &&	\
     defined(HAVE_SCHED_SETAFFINITY)
-	stress_free_usable_cpus(&cpus);
+	stress_affinity_cpus_free(&cpus);
 #endif
 	return rc;
 }

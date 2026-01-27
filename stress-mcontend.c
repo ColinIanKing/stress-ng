@@ -465,13 +465,13 @@ static int stress_mcontend(stress_args_t *args)
 	(void)stress_get_setting("mcontend-numa", &mcontend_numa);
 
 #if defined(HAVE_SCHED_SETAFFINITY)
-	n_cpus = stress_get_usable_cpus(&cpus, true);
+	n_cpus = stress_affinity_cpus_get(&cpus, true);
 #endif
 
 	rc = stress_temp_dir_mk_args(args);
 	if (rc < 0) {
 #if defined(HAVE_SCHED_SETAFFINITY)
-		stress_free_usable_cpus(&cpus);
+		stress_affinity_cpus_free(&cpus);
 #endif
 		return stress_exit_status(-rc);
 	}
@@ -485,7 +485,7 @@ static int stress_mcontend(stress_args_t *args)
 		(void)shim_unlink(filename);
 		(void)stress_temp_dir_rm_args(args);
 #if defined(HAVE_SCHED_SETAFFINITY)
-		stress_free_usable_cpus(&cpus);
+		stress_affinity_cpus_free(&cpus);
 #endif
 		return EXIT_NO_RESOURCE;
 	}
@@ -498,7 +498,7 @@ static int stress_mcontend(stress_args_t *args)
 		(void)close(fd);
 		(void)stress_temp_dir_rm_args(args);
 #if defined(HAVE_SCHED_SETAFFINITY)
-		stress_free_usable_cpus(&cpus);
+		stress_affinity_cpus_free(&cpus);
 #endif
 		return EXIT_NO_RESOURCE;
 
@@ -518,7 +518,7 @@ static int stress_mcontend(stress_args_t *args)
 		(void)close(fd);
 		(void)stress_temp_dir_rm_args(args);
 #if defined(HAVE_SCHED_SETAFFINITY)
-		stress_free_usable_cpus(&cpus);
+		stress_affinity_cpus_free(&cpus);
 #endif
 		return EXIT_NO_RESOURCE;
 	}
@@ -532,7 +532,7 @@ static int stress_mcontend(stress_args_t *args)
 		(void)close(fd);
 		(void)stress_temp_dir_rm_args(args);
 #if defined(HAVE_SCHED_SETAFFINITY)
-		stress_free_usable_cpus(&cpus);
+		stress_affinity_cpus_free(&cpus);
 #endif
 		return EXIT_NO_RESOURCE;
 	}
@@ -595,7 +595,7 @@ static int stress_mcontend(stress_args_t *args)
 
 	(void)stress_temp_dir_rm_args(args);
 #if defined(HAVE_SCHED_SETAFFINITY)
-	stress_free_usable_cpus(&cpus);
+	stress_affinity_cpus_free(&cpus);
 #endif
 
 	return EXIT_SUCCESS;

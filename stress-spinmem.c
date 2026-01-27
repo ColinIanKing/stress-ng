@@ -235,7 +235,7 @@ static int stress_spinmem(stress_args_t *args)
 	bool spinmem_yield = false;
 #if defined(HAVE_SCHED_SETAFFINITY)
 	uint32_t *cpus = NULL;
-	uint32_t n_cpus = stress_get_usable_cpus(&cpus, true);
+	uint32_t n_cpus = stress_affinity_cpus_get(&cpus, true);
 #endif
 #if defined(HAVE_LINUX_MEMPOLICY_H)
         stress_numa_mask_t *numa_mask = NULL;
@@ -403,7 +403,7 @@ tidy_cpus:
 		stress_numa_mask_free(numa_nodes);
 #endif
 #if defined(HAVE_SCHED_SETAFFINITY)
-	stress_free_usable_cpus(&cpus);
+	stress_affinity_cpus_free(&cpus);
 #endif
 
 	return rc;

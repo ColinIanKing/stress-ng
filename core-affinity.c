@@ -383,10 +383,10 @@ int stress_affinity_cpu_set(const char *arg)
 #endif
 
 /*
- *  stress_get_usable_cpus()
+ *  stress_affinity_cpus_get()
  *	get an uint32_t array of cpu numbers of usable cpus.
  */
-uint32_t stress_get_usable_cpus(uint32_t **cpus, const bool use_affinity)
+uint32_t stress_affinity_cpus_get(uint32_t **cpus, const bool use_affinity)
 {
 	uint32_t i, n_cpus = stress_get_processors_configured();
 
@@ -443,10 +443,10 @@ uint32_t stress_get_usable_cpus(uint32_t **cpus, const bool use_affinity)
 }
 
 /*
- *  stress_free_usable_cpus()
+ *  stress_affinity_usable_cpus_free()
  *	free *cpus
  */
-void stress_free_usable_cpus(uint32_t **cpus)
+void stress_affinity_cpus_free(uint32_t **cpus)
 {
 	if (!cpus)
 		return;

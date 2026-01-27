@@ -330,7 +330,7 @@ static int stress_race_sched_child(stress_args_t *args, void *context)
 	uint32_t cpu_idx = 0;
 	size_t method_index = 0;
 	const pid_t mypid = getpid();
-	n_cpus = stress_get_usable_cpus(&cpus, true);
+	n_cpus = stress_affinity_cpus_get(&cpus, true);
 
 	(void)stress_get_setting("race-sched-method", &method_index);
 
@@ -434,6 +434,7 @@ static int stress_race_sched_child(stress_args_t *args, void *context)
 	}
 	/* And free */
 	stress_race_sched_free();
+	stress_affinity_cpus_free(&cpus);
 
 	return rc;
 }

@@ -397,7 +397,7 @@ static void TARGET_CLONES OPTIMIZE3 stress_llc_read_cache_line_n(
 static int stress_llc_affinity(stress_args_t *args)
 {
 	uint32_t *cpus;
-	const uint32_t n_cpus = stress_get_usable_cpus(&cpus, true);
+	const uint32_t n_cpus = stress_affinity_cpus_get(&cpus, true);
 	const size_t page_size = args->page_size;
 	uint32_t cpu_idx = args->instance;
 	size_t llc_affinity_size = 0, cache_line_size = 64, mmap_sz;
@@ -432,7 +432,7 @@ static int stress_llc_affinity(stress_args_t *args)
 				args->name);
 			pr_inf("%s: alternatively use --llc-affinity-size to specify LLC cache size\n",
 				args->name);
-			stress_free_usable_cpus(&cpus);
+			stress_affinity_cpus_free(&cpus);
 			return EXIT_NO_RESOURCE;
 		}
 	}
@@ -458,7 +458,7 @@ static int stress_llc_affinity(stress_args_t *args)
 		pr_inf_skip("%s: failed to mmap region of %zu bytes%s, errno=%d (%s), "
 			"skipping stressor\n", args->name, mmap_sz,
 			stress_get_memfree_str(), errno, strerror(errno));
-		stress_free_usable_cpus(&cpus);
+		stress_affinity_cpus_free(&cpus);
 		return EXIT_NO_RESOURCE;
 	}
 	stress_set_vma_anon_name(buf, mmap_sz, "llc-buffer");
@@ -601,7 +601,7 @@ static int stress_llc_affinity(stress_args_t *args)
 
 	(void)munmap((void *)buf, mmap_sz);
 
-	stress_free_usable_cpus(&cpus);
+	stress_affinity_cpus_free(&cpus);
 
 	return EXIT_SUCCESS;
 }

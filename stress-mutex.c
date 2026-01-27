@@ -218,9 +218,8 @@ static int stress_mutex(stress_args_t *args)
 #endif
 
 #if defined(HAVE_PTHREAD_SETAFFINITY_NP)
-	n_cpus = stress_get_usable_cpus(&cpus, true);
+	n_cpus = stress_affinity_cpus_get(&cpus, true);
 #endif
-
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
@@ -252,7 +251,7 @@ static int stress_mutex(stress_args_t *args)
 	if (!created) {
 		pr_inf("%s: could not create any pthreads\n", args->name);
 #if defined(HAVE_PTHREAD_SETAFFINITY_NP)
-		stress_free_usable_cpus(&cpus);
+		stress_affinity_cpus_free(&cpus);
 #endif
 		return EXIT_NO_RESOURCE;
 	}
@@ -279,7 +278,7 @@ static int stress_mutex(stress_args_t *args)
 		rate * STRESS_DBL_NANOSECOND, STRESS_METRIC_HARMONIC_MEAN);
 
 #if defined(HAVE_PTHREAD_SETAFFINITY_NP)
-	stress_free_usable_cpus(&cpus);
+	stress_affinity_cpus_free(&cpus);
 #endif
 	return EXIT_SUCCESS;
 }

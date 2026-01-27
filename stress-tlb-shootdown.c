@@ -325,7 +325,7 @@ static int stress_tlb_shootdown(stress_args_t *args)
 	const size_t mmap_mask = mmap_size - 1;
 	const size_t cache_lines = mmap_size >> STRESS_CACHE_LINE_SHIFT;
 	uint32_t *cpus;
-	const uint32_t n_cpus = stress_get_usable_cpus(&cpus, true);
+	const uint32_t n_cpus = stress_affinity_cpus_get(&cpus, true);
 	stress_pid_t *s_pids, *s_pids_head = NULL;
 	const pid_t pid = getpid();
 	int rc = EXIT_SUCCESS;
@@ -510,7 +510,7 @@ err_s_pids:
 	(void)stress_sync_s_pids_munmap(s_pids, MAX_TLB_PROCS);
 #endif
 err_free_cpus:
-	stress_free_usable_cpus(&cpus);
+	stress_affinity_cpus_free(&cpus);
 
 	return rc;
 }

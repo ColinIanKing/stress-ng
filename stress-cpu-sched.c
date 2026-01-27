@@ -894,7 +894,7 @@ static int stress_cpu_sched(stress_args_t *args)
 {
 	int rc;
 
-	n_cpus = stress_get_usable_cpus(&cpus, true);
+	n_cpus = stress_affinity_cpus_get(&cpus, true);
 
 #if defined(HAVE_SET_MEMPOLICY)
 	numa_mask = stress_numa_mask_alloc();
@@ -913,7 +913,7 @@ static int stress_cpu_sched(stress_args_t *args)
 		stress_numa_mask_free(numa_mask);
 #endif
 
-	stress_free_usable_cpus(&cpus);
+	stress_affinity_cpus_free(&cpus);
 	return rc;
 }
 
