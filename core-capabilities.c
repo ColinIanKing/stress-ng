@@ -82,7 +82,7 @@ static inline bool stress_check_root(void)
 }
 
 #if defined(HAVE_SYS_CAPABILITY_H)
-void stress_getset_capability(void)
+void stress_capabilities_getset(void)
 {
 	struct __user_cap_header_struct uch;
 	struct __user_cap_data_struct ucd[_LINUX_CAPABILITY_U32S_3];
@@ -95,7 +95,7 @@ void stress_getset_capability(void)
 	(void)capset(&uch, ucd);
 }
 #else
-void stress_getset_capability(void)
+void stress_capabilities_getset(void)
 {
 }
 #endif

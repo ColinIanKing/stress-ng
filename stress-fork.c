@@ -96,7 +96,7 @@ static void stress_force_bind(void)
 #endif
 	(void)setpgid(0, 0);
 #if defined(HAVE_SYS_CAPABILITY_H)
-	stress_getset_capability();
+	stress_capabilities_getset();
 #endif
 #if defined(__NR_getpid) && \
     defined(HAVE_SYSCALL)

@@ -265,8 +265,8 @@
 #define SHIM_CAP_BPF			SHIM_CAP_IS_ROOT
 #endif
 
-void stress_getset_capability(void);
-WARN_UNUSED bool stress_capabilities_check(const int capability);
-WARN_UNUSED int stress_capabilities_drop(const char *name);
+extern void stress_capabilities_getset(void);
+extern WARN_UNUSED bool stress_capabilities_check(const int capability);
+extern WARN_UNUSED int stress_capabilities_drop(const char *name);
 
 #endif
