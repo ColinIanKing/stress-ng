@@ -320,12 +320,12 @@ int stress_affinity_cpu_set(const char *arg)
 }
 
 /*
- *  stress_change_cpu()
+ *  stress_affinity_change_cpu()
  *	try and change process to a different CPU.
  *	old_cpu: the cpu to change from, -ve = current cpu (that we don't want to use)
  *					 +ve = cpu don't want to ever use
  */
-int stress_change_cpu(stress_args_t *args, const int old_cpu)
+int stress_affinity_change_cpu(stress_args_t *args, const int old_cpu)
 {
 	int from_cpu;
 

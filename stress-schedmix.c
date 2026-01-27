@@ -559,7 +559,7 @@ static int stress_schedmix(stress_args_t *args)
 
 			VOID_RET(int, shim_nice(stress_mwc8modn(7)));
 			stress_parent_died_alarm();
-			(void)stress_change_cpu(args, parent_cpu);
+			(void)stress_affinity_change_cpu(args, parent_cpu);
 			_exit(stress_schedmix_child(args));
 		} else {
 			stress_sync_start_s_pid_list_add(&s_pids_head, &s_pids[i]);

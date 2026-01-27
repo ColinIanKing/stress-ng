@@ -343,7 +343,7 @@ again:
 			stress_set_proc_state(args->name, STRESS_STATE_RUN);
 			stress_set_make_it_fail();
 
-			(void)stress_change_cpu(args, parent_cpu);
+			(void)stress_affinity_change_cpu(args, parent_cpu);
 			stress_softlockup_child(args, &param, start, timeout, loop_count);
 		} else {
 			stress_sync_start_s_pid_list_add(&s_pids_head, &s_pids[i]);

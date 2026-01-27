@@ -149,7 +149,7 @@ again:
 		uint64_t threshold = THRESHOLD;
 
 		stress_set_make_it_fail();
-		(void)stress_change_cpu(args, parent_cpu);
+		(void)stress_affinity_change_cpu(args, parent_cpu);
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
 

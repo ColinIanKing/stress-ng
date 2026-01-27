@@ -670,7 +670,7 @@ again:
 		stress_set_make_it_fail();
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
-		(void)stress_change_cpu(args, parent_cpu);
+		(void)stress_affinity_change_cpu(args, parent_cpu);
 
 		(void)close(pipefds[1]);
 #if defined(HAVE_VMSPLICE)

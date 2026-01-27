@@ -22,7 +22,7 @@
 #include "config.h"
 
 extern int stress_affinity_cpu_set(const char *arg);
-extern int stress_change_cpu(stress_args_t *args, const int old_cpu);
+extern int stress_affinity_change_cpu(stress_args_t *args, const int old_cpu);
 
 #if defined(HAVE_CPU_SET_T)
 extern int stress_affinity_parse_cpu(const char *arg, cpu_set_t *set, int *setbits);

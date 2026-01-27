@@ -445,7 +445,7 @@ again:
 		goto cleanup;
 	} else if (pid == 0) {
 		stress_set_proc_state(args->name, STRESS_STATE_RUN);
-		(void)stress_change_cpu(args, parent_cpu);
+		(void)stress_affinity_change_cpu(args, parent_cpu);
 		rc = stress_msg_receiver(args, msgq_id, msg_types, msg_bytes);
 		_exit(rc);
 	} else {
