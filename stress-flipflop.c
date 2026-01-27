@@ -241,14 +241,14 @@ static int stress_flipflop(stress_args_t *args)
 	setbits = 0;
 	CPU_ZERO(&cpus_a);
 	if (flipflop_taskset1)
-		(void)stress_parse_cpu_affinity(flipflop_taskset1, &cpus_a, &setbits);
+		(void)stress_affinity_parse_cpu(flipflop_taskset1, &cpus_a, &setbits);
 	if (!setbits)
 		stress_flipflop_set_cpuset(&cpus_a, num_cpus);
 
 	setbits = 0;
 	CPU_ZERO(&cpus_b);
 	if (flipflop_taskset2)
-		(void)stress_parse_cpu_affinity(flipflop_taskset2, &cpus_b, &setbits);
+		(void)stress_affinity_parse_cpu(flipflop_taskset2, &cpus_b, &setbits);
 	if (!setbits)
 		stress_flipflop_set_cpuset(&cpus_b, num_cpus);
 

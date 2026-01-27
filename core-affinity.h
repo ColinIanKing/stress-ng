@@ -25,7 +25,7 @@ extern int stress_set_cpu_affinity(const char *arg);
 extern int stress_change_cpu(stress_args_t *args, const int old_cpu);
 
 #if defined(HAVE_CPU_SET_T)
-extern int stress_parse_cpu_affinity(const char *arg, cpu_set_t *set, int *setbits);
+extern int stress_affinity_parse_cpu(const char *arg, cpu_set_t *set, int *setbits);
 #endif
 
 extern WARN_UNUSED uint32_t stress_get_usable_cpus(uint32_t **cpus, const bool use_affinity);

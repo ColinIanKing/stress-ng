@@ -187,14 +187,10 @@ static void stress_get_topology_set(
 }
 
 /*
- * stress_set_cpu_affinity()
- * @arg: list of CPUs to set affinity to, comma separated
- * @set: cpuset to set
- * @setbits: number of bits set
- *
- * Returns: 0 - OK
+ * stress_affinity_parse_cpu()
+ *	parse cpu affinity options
  */
-int stress_parse_cpu_affinity(const char *arg, cpu_set_t *set, int *setbits)
+int stress_affinity_parse_cpu(const char *arg, cpu_set_t *set, int *setbits)
 {
 	char *str, *ptr, *token;
 	const int32_t max_cpus = stress_get_processors_configured();
@@ -317,7 +313,7 @@ int stress_set_cpu_affinity(const char *arg)
 	cpu_set_t set;
 	int setbits, ret;
 
-	ret = stress_parse_cpu_affinity(arg, &set, &setbits);
+	ret = stress_affinity_parse_cpu(arg, &set, &setbits);
 	if ((ret == 0) && (setbits))
 		stress_set_cpu_affinity_current(&set);
 	return ret;
