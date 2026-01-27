@@ -519,7 +519,7 @@ void OPTIMIZE3 stress_uint8rnd4(uint8_t *data, const size_t len)
 			*ptr32++ = stress_mwc32();
 	} else {
 		while (ptr32 < ptr32end)
-			*ptr32++ = stress_swap32(stress_mwc32());
+			*ptr32++ = stress_bitops_swap32(stress_mwc32());
 	}
 
 	/* fill unaligned bytes end */

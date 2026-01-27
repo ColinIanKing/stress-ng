@@ -348,12 +348,12 @@ static void OPTIMIZE3 stress_opcode_mixed(
 		*(ops++) = tmp;
 		*(ops++) = tmp ^ 0xffffffff;	/* Inverted */
 		*(ops++) = ((tmp >> 1) ^ tmp);	/* Gray */
-		*(ops++) = stress_reverse64(tmp);
+		*(ops++) = stress_bitops_reverse64(tmp);
 
 		*(ops++) = rnd;
 		*(ops++) = rnd ^ 0xffffffff;
 		*(ops++) = ((rnd >> 1) ^ rnd);
-		*(ops++) = stress_reverse64(rnd);
+		*(ops++) = stress_bitops_reverse64(rnd);
 	}
 }
 

@@ -231,10 +231,10 @@ static int OPTIMIZE3 TARGET_CLONES stress_cpu_bitops(const char *name)
 	const uint32_t sum = 0x8aac4aab;
 
 	for (i = 0; i < 16384; i++) {
-		i_sum += stress_bitreverse32(i);
-		i_sum += stress_parity32(i);
-		i_sum += stress_popcount32(i);
-		i_sum += stress_nextpwr2(i);
+		i_sum += stress_bitops_bitreverse32(i);
+		i_sum += stress_bitops_parity32(i);
+		i_sum += stress_bitops_popcount32(i);
+		i_sum += stress_bitops_nextpwr2(i);
 	}
 	if ((g_opt_flags & OPT_FLAGS_VERIFY) && (i_sum != sum)) {
 		pr_fail("%s: bitops error detected, failed "

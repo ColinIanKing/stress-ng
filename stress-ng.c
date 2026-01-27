@@ -3984,7 +3984,7 @@ int main(int argc, char **argv, char **envp)
 	/*
 	 *  Sanity check seq/all settings
 	 */
-	if (stress_popcount64(g_opt_flags & (OPT_FLAGS_RANDOM | OPT_FLAGS_SEQUENTIAL | OPT_FLAGS_ALL | OPT_FLAGS_PERMUTE)) > 1) {
+	if (stress_bitops_popcount64(g_opt_flags & (OPT_FLAGS_RANDOM | OPT_FLAGS_SEQUENTIAL | OPT_FLAGS_ALL | OPT_FLAGS_PERMUTE)) > 1) {
 		(void)fprintf(stderr, "cannot invoke --random, --sequential, --all or --permute "
 			"options together\n");
 		ret = EXIT_FAILURE;

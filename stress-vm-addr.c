@@ -205,7 +205,7 @@ static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_rev(
 
 PRAGMA_UNROLL_N(4)
 	for (n = 0; n < sz; n++) {
-		size_t i = stress_reverse64(n << shift) & mask;
+		size_t i = stress_bitops_reverse64(n << shift) & mask;
 
 		*(buf + i) = rnd;
 	}
@@ -213,7 +213,7 @@ PRAGMA_UNROLL_N(4)
 		stress_cpu_data_cache_flush((void *)buf, sz);
 PRAGMA_UNROLL_N(4)
 	for (n = 0; n < sz; n++) {
-		size_t i = stress_reverse64(n << shift) & mask;
+		size_t i = stress_bitops_reverse64(n << shift) & mask;
 
 		if (UNLIKELY(*(buf + i) != rnd))
 			errs++;
@@ -240,7 +240,7 @@ static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_revinv(
 
 PRAGMA_UNROLL_N(4)
 	for (n = 0; n < sz; n++) {
-		size_t i = (stress_reverse64(n << shift) ^ mask) & mask;
+		size_t i = (stress_bitops_reverse64(n << shift) ^ mask) & mask;
 
 		*(buf + i) = rnd;
 	}
@@ -248,7 +248,7 @@ PRAGMA_UNROLL_N(4)
 		stress_cpu_data_cache_flush((void *)buf, sz);
 PRAGMA_UNROLL_N(4)
 	for (n = 0; n < sz; n++) {
-		size_t i = (stress_reverse64(n << shift) ^ mask) & mask;
+		size_t i = (stress_bitops_reverse64(n << shift) ^ mask) & mask;
 
 		if (UNLIKELY(*(buf + i) != rnd))
 			errs++;

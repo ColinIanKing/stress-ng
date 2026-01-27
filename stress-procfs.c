@@ -152,7 +152,7 @@ static uint32_t mixup_hash(const char *str)
 	if (isdigit((int)str[0])) {
 		const uint32_t val = (uint32_t)atol(str);
 
-		return stress_reverse32(val ^ mixup);
+		return stress_bitops_reverse32(val ^ mixup);
 	}
 	return stress_hash_pjw(str) ^ mixup;
 

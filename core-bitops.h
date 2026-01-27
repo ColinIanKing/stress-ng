@@ -22,10 +22,10 @@
 #include "core-attribute.h"
 
 /*
- *  stress_reverse64
+ *  stress_bitops_reverse64
  *	generic fast-ish 64 bit reverse
  */
-static inline uint64_t CONST ALWAYS_INLINE stress_reverse64(register uint64_t x)
+static inline uint64_t CONST ALWAYS_INLINE stress_bitops_reverse64(register uint64_t x)
 {
 #if defined(HAVE_BUILTIN_BITREVERSE)
 	return __builtin_bitreverse64(x);
@@ -40,10 +40,10 @@ static inline uint64_t CONST ALWAYS_INLINE stress_reverse64(register uint64_t x)
 }
 
 /*
- *  stress_reverse32
+ *  stress_bitops_reverse32
  *	generic fast-ish 32 bit reverse
  */
-static inline uint32_t CONST ALWAYS_INLINE stress_reverse32(register uint32_t x)
+static inline uint32_t CONST ALWAYS_INLINE stress_bitops_reverse32(register uint32_t x)
 {
 #if defined(HAVE_BUILTIN_BITREVERSE)
 	return __builtin_bitreverse32(x);
@@ -58,10 +58,10 @@ static inline uint32_t CONST ALWAYS_INLINE stress_reverse32(register uint32_t x)
 }
 
 /*
- *  stress_reverse16
+ *  stress_bitops_reverse16
  *	generic fast-ish 16 bit reverse
  */
-static inline uint16_t CONST ALWAYS_INLINE stress_reverse16(register uint16_t x)
+static inline uint16_t CONST ALWAYS_INLINE stress_bitops_reverse16(register uint16_t x)
 {
 #if defined(HAVE_BUILTIN_BITREVERSE)
 	return __builtin_bitreverse16(x);
@@ -75,10 +75,10 @@ static inline uint16_t CONST ALWAYS_INLINE stress_reverse16(register uint16_t x)
 }
 
 /*
- *  stress_reverse8
+ *  stress_bitops_reverse8
  *	generic fast-ish 8 bit reverse
  */
-static inline uint8_t CONST ALWAYS_INLINE stress_reverse8(register uint8_t x)
+static inline uint8_t CONST ALWAYS_INLINE stress_bitops_reverse8(register uint8_t x)
 {
 #if defined(HAVE_BUILTIN_BITREVERSE)
 	return __builtin_bitreverse8(x);
@@ -91,10 +91,10 @@ static inline uint8_t CONST ALWAYS_INLINE stress_reverse8(register uint8_t x)
 }
 
 /*
- *  stress_swap32()
+ *  stress_bitops_swap32()
  *	swap order of bytes of a uint32_t value
  */
-static inline uint32_t CONST ALWAYS_INLINE stress_swap32(uint32_t val)
+static inline uint32_t CONST ALWAYS_INLINE stress_bitops_swap32(uint32_t val)
 {
 #if defined(HAVE_BUILTIN_BSWAP32)
 	return __builtin_bswap32(val);
@@ -107,10 +107,10 @@ static inline uint32_t CONST ALWAYS_INLINE stress_swap32(uint32_t val)
 }
 
 /*
- *  stress_bitreverse32()
+ *  stress_bitops_bitreverse32()
  *	reverse bits in a uint32_t value
  */
-static inline uint32_t CONST ALWAYS_INLINE stress_bitreverse32(const uint32_t val)
+static inline uint32_t CONST ALWAYS_INLINE stress_bitops_bitreverse32(const uint32_t val)
 {
 #if defined(HAVE_BUILTIN_BITREVERSE)
 	return  __builtin_bitreverse32(val);
@@ -129,10 +129,10 @@ static inline uint32_t CONST ALWAYS_INLINE stress_bitreverse32(const uint32_t va
 }
 
 /*
- *  stress_popcount64()
+ *  stress_bitops_popcount64()
  *	population count (count number of 1 bits) in a uint64_t value
  */
-static inline uint32_t CONST ALWAYS_INLINE stress_popcount64(const uint64_t val)
+static inline uint32_t CONST ALWAYS_INLINE stress_bitops_popcount64(const uint64_t val)
 {
 #if defined(HAVE_BUILTIN_POPCOUNT) &&	\
     !defined(HAVE_COMPILER_PCC)
@@ -148,10 +148,10 @@ static inline uint32_t CONST ALWAYS_INLINE stress_popcount64(const uint64_t val)
 }
 
 /*
- *  stress_popcount32()
+ *  stress_bitops_popcount32()
  *	population count (count number of 1 bits) in a uint32_t value
  */
-static inline uint32_t CONST ALWAYS_INLINE stress_popcount32(const uint32_t val)
+static inline uint32_t CONST ALWAYS_INLINE stress_bitops_popcount32(const uint32_t val)
 {
 #if defined(HAVE_BUILTIN_POPCOUNT)
 	return  __builtin_popcount((unsigned int)val);
@@ -166,10 +166,10 @@ static inline uint32_t CONST ALWAYS_INLINE stress_popcount32(const uint32_t val)
 }
 
 /*
- *  stress_parity32
+ *  stress_bitops_parity32
  *	parity check in a uint32_t value
  */
-static inline uint32_t CONST ALWAYS_INLINE stress_parity32(const uint32_t val)
+static inline uint32_t CONST ALWAYS_INLINE stress_bitops_parity32(const uint32_t val)
 {
 #if defined(HAVE_BUILTIN_PARITY)
 	return  __builtin_parity((unsigned int)val);
@@ -186,10 +186,10 @@ static inline uint32_t CONST ALWAYS_INLINE stress_parity32(const uint32_t val)
 }
 
 /*
- *  stress_nextpwr2()
+ *  stress_bitops_nextpwr2()
  *	round to next power of 2
  */
-static inline uint32_t CONST ALWAYS_INLINE stress_nextpwr2(const uint32_t val)
+static inline uint32_t CONST ALWAYS_INLINE stress_bitops_nextpwr2(const uint32_t val)
 {
 	register uint32_t v = val - 1;
 
