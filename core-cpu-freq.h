@@ -19,6 +19,6 @@
 #ifndef CORE_CPU_FREQ_H
 #define CORE_CPU_FREQ_H
 
-void stress_cpu_freq_get(double *avg_ghz, double *min_ghz, double *max_ghz);
+extern void stress_cpu_freq_get(double *avg_ghz, double *min_ghz, double *max_ghz);
 
 #endif
