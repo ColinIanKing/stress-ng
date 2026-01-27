@@ -21,7 +21,7 @@
 
 #include "config.h"
 
-extern int stress_set_cpu_affinity(const char *arg);
+extern int stress_affinity_cpu_set(const char *arg);
 extern int stress_change_cpu(stress_args_t *args, const int old_cpu);
 
 #if defined(HAVE_CPU_SET_T)

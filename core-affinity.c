@@ -33,7 +33,7 @@ static const char option[] = "taskset";
     defined(HAVE_SCHED_SETAFFINITY) && \
     defined(HAVE_CPU_SET_T)
 
-static cpu_set_t stress_affinity_cpu_set;
+static cpu_set_t stress_affinity_cpu_set_val;
 
 /*
  * stress_check_cpu_affinity_range()
@@ -80,7 +80,7 @@ static void stress_set_cpu_affinity_current(cpu_set_t *set)
 			option, errno, strerror(errno));
 		_exit(EXIT_FAILURE);
 	}
-	(void)shim_memcpy(&stress_affinity_cpu_set, set, sizeof(stress_affinity_cpu_set));
+	(void)shim_memcpy(&stress_affinity_cpu_set_val, set, sizeof(stress_affinity_cpu_set_val));
 }
 
 /*
@@ -303,12 +303,12 @@ int stress_affinity_parse_cpu(const char *arg, cpu_set_t *set, int *setbits)
 }
 
 /*
- * stress_set_cpu_affinity()
+ * stress_affinity_cpu_set()
  * @arg: list of CPUs to set affinity to, comma separated
  *
  * Returns: 0 - OK
  */
-int stress_set_cpu_affinity(const char *arg)
+int stress_affinity_cpu_set(const char *arg)
 {
 	cpu_set_t set;
 	int setbits, ret;
@@ -336,11 +336,11 @@ int stress_change_cpu(stress_args_t *args, const int old_cpu)
 	if ((g_opt_flags & OPT_FLAGS_CHANGE_CPU) == 0)
 		return old_cpu;
 
-	if (CPU_COUNT(&stress_affinity_cpu_set) == 0) {
+	if (CPU_COUNT(&stress_affinity_cpu_set_val) == 0) {
 		if (sched_getaffinity(0, sizeof(mask), &mask) < 0)
 			return old_cpu;		/* no dice */
 	} else {
-		shim_memcpy(&mask, &stress_affinity_cpu_set, sizeof(mask));
+		shim_memcpy(&mask, &stress_affinity_cpu_set_val, sizeof(mask));
 	}
 
 	if (old_cpu < 0) {
@@ -373,7 +373,7 @@ int PURE stress_change_cpu(stress_args_t *args, const int old_cpu)
 	return old_cpu;
 }
 
-int stress_set_cpu_affinity(const char *arg)
+int stress_affinity_cpu_set(const char *arg)
 {
 	(void)arg;
 
@@ -395,14 +395,14 @@ uint32_t stress_get_usable_cpus(uint32_t **cpus, const bool use_affinity)
     defined(HAVE_CPU_SET_T)
 	if (use_affinity) {
 		/* if affinity has been set.. */
-		if (CPU_COUNT(&stress_affinity_cpu_set) > 0) {
+		if (CPU_COUNT(&stress_affinity_cpu_set_val) > 0) {
 			uint32_t n;
 
 			/* don't want to overrun the cpu set */
 			n_cpus = STRESS_MINIMUM(n_cpus, CPU_SETSIZE);
 
 			for (n = 0, i = 0; i < n_cpus; i++) {
-				if (CPU_ISSET((int)i, &stress_affinity_cpu_set))
+				if (CPU_ISSET((int)i, &stress_affinity_cpu_set_val))
 					n++;
 			}
 			if (n == 0) {
@@ -415,7 +415,7 @@ uint32_t stress_get_usable_cpus(uint32_t **cpus, const bool use_affinity)
 				return 0;
 
 			for (n = 0, i = 0; i < n_cpus; i++) {
-				if (CPU_ISSET((int)i, &stress_affinity_cpu_set)) {
+				if (CPU_ISSET((int)i, &stress_affinity_cpu_set_val)) {
 					(*cpus)[n] = i;
 					n++;
 				}

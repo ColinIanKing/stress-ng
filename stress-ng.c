@@ -3464,7 +3464,7 @@ next_opt:
 			stress_show_stressor_names();
 			exit(EXIT_SUCCESS);
 		case OPT_taskset:
-			if (stress_set_cpu_affinity(optarg) < 0)
+			if (stress_affinity_cpu_set(optarg) < 0)
 				exit(EXIT_FAILURE);
 			break;
 		case OPT_temp_path:
