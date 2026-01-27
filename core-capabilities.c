@@ -143,11 +143,11 @@ bool stress_check_capability(const int capability)
 #endif
 
 /*
- *  stress_drop_capabilities()
+ *  stress_capabilities_drop()
  *	drop all capabilities and disable any new privileges
  */
 #if defined(HAVE_SYS_CAPABILITY_H)
-int stress_drop_capabilities(const char *name)
+int stress_capabilities_drop(const char *name)
 {
 	int ret;
 	uint32_t i;
@@ -204,7 +204,7 @@ int stress_drop_capabilities(const char *name)
 	return 0;
 }
 #else
-int stress_drop_capabilities(const char *name)
+int stress_capabilities_drop(const char *name)
 {
 	(void)name;
 

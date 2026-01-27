@@ -402,7 +402,7 @@ rewait:
 
 		/* Explicitly drop capabilities, makes it more OOM-able */
 		if (flag & STRESS_OOMABLE_DROP_CAP) {
-			VOID_RET(int, stress_drop_capabilities(args->name));
+			VOID_RET(int, stress_capabilities_drop(args->name));
 		}
 		/*
 		 * Process may have exceeded run time by the time it was

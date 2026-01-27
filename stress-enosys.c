@@ -4212,7 +4212,7 @@ again:
 			stress_shared_readonly();
 
 			/* Drop all capabilities */
-			if (stress_drop_capabilities(args->name) < 0)
+			if (stress_capabilities_drop(args->name) < 0)
 				_exit(EXIT_NO_RESOURCE);
 			for (i = 0; i < SIZEOF_ARRAY(exit_sigs); i++) {
 				if (stress_signal_handler(args->name, exit_sigs[i], stress_signal_exit_handler, NULL) < 0)

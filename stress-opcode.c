@@ -521,7 +521,7 @@ again:
 			stress_process_dumpable(false);
 
 			/* Drop all capabilities */
-			if (stress_drop_capabilities(args->name) < 0) {
+			if (stress_capabilities_drop(args->name) < 0) {
 				_exit(EXIT_NO_RESOURCE);
 			}
 

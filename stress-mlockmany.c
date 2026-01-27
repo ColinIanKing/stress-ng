@@ -114,7 +114,7 @@ static int stress_mlockmany_child(stress_args_t *args, void *context)
 	stress_set_oom_adjustment(args, true);
 
 	/* Explicitly drop capabilities, makes it more OOM-able */
-	VOID_RET(int, stress_drop_capabilities(args->name));
+	VOID_RET(int, stress_capabilities_drop(args->name));
 
 	if (mlockmany_procs == UNSET_MLOCKMANY_PROCS) {
 		mlockmany_procs = args->instances > 0 ? DEFAULT_MLOCKMANY_PROCS / args->instances : 1;

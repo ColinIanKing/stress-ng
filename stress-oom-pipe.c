@@ -99,7 +99,7 @@ static int stress_oom_pipe_child(stress_args_t *args, void *ctxt)
 	stress_uint8rnd4((uint8_t *)wr_buffer, page_size);
 
 	/* Explicitly drop capabilities, makes it more OOM-able */
-	VOID_RET(int, stress_drop_capabilities(args->name));
+	VOID_RET(int, stress_capabilities_drop(args->name));
 
 	for (i = 0; i < context->max_fd; i++)
 		fds[i] = -1;

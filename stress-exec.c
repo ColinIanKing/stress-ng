@@ -504,7 +504,7 @@ static int stress_exec_child(void *arg)
 	(void)dup2(fd_in, STDIN_FILENO);
 	(void)close(fd_out);
 	(void)close(fd_in);
-	VOID_RET(int, stress_drop_capabilities(argp->args->name));
+	VOID_RET(int, stress_capabilities_drop(argp->args->name));
 
 	/*
 	 *  Create a garbage executable

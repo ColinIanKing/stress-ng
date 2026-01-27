@@ -2657,7 +2657,7 @@ static inline int stress_do_syscall(stress_args_t *args)
 	if (UNLIKELY(!stress_continue_flag()))
 		return 0;
 
-	if (stress_drop_capabilities(args->name) < 0)
+	if (stress_capabilities_drop(args->name) < 0)
 		return EXIT_NO_RESOURCE;
 
 	pid = fork();
@@ -2673,7 +2673,7 @@ static inline int stress_do_syscall(stress_args_t *args)
 		stress_process_dumpable(false);
 
 		/* Drop all capabilities */
-		if (stress_drop_capabilities(args->name) < 0) {
+		if (stress_capabilities_drop(args->name) < 0) {
 			_exit(EXIT_NO_RESOURCE);
 		}
 		for (i = 0; i < SIZEOF_ARRAY(sigs); i++) {

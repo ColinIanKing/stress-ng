@@ -2452,7 +2452,7 @@ static inline int stress_do_syscall(stress_args_t *args)
 		stress_shared_readonly();
 
 		/* Drop all capabilities */
-		if (stress_drop_capabilities(args->name) < 0) {
+		if (stress_capabilities_drop(args->name) < 0) {
 			_exit(EXIT_NO_RESOURCE);
 		}
 

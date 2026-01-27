@@ -287,7 +287,7 @@ static int stress_fork_fn(
 #endif
 
 	/* Explicitly drop capabilities, makes it more OOM-able */
-	VOID_RET(int, stress_drop_capabilities(args->name));
+	VOID_RET(int, stress_capabilities_drop(args->name));
 
 	j = args->instance;
 	do {
