@@ -19,6 +19,6 @@
 #ifndef CORE_CONFIG_CHECK_H
 #define CORE_CONFIG_CHECK_H
 
-void stress_config_check(void);
+extern void stress_config_check(void);
 
 #endif
