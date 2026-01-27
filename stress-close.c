@@ -225,7 +225,7 @@ static int stress_close(stress_args_t *args)
 	size_t i;
 	const uid_t uid = getuid();
 	const gid_t gid = getgid();
-	const bool not_root = !stress_check_capability(SHIM_CAP_IS_ROOT);
+	const bool not_root = !stress_capabilities_check(SHIM_CAP_IS_ROOT);
 	bool close_failure = false;
 	double max_duration = 0.0, duration = 0.0, count = 0.0, rate;
 #if defined(HAVE_FACCESSAT)

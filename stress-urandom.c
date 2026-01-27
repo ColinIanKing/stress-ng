@@ -65,7 +65,7 @@ static int stress_urandom(stress_args_t *args)
 #if defined(__linux__)
 	int fd_rnd_wr;
 #endif
-	bool sys_admin = stress_check_capability(SHIM_CAP_SYS_ADMIN);
+	bool sys_admin = stress_capabilities_check(SHIM_CAP_SYS_ADMIN);
 	double duration = 0.0, bytes = 0.0, rate;
 	const size_t page_size = args->page_size;
 

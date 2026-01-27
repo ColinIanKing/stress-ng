@@ -321,7 +321,7 @@ static int stress_exec_supported(const char *name)
 	 *  this could allow somebody to try and run another
 	 *  executable as root.
 	 */
-	if (stress_check_capability(SHIM_CAP_IS_ROOT)) {
+	if (stress_capabilities_check(SHIM_CAP_IS_ROOT)) {
 		pr_inf_skip("%s stressor must not run as root, skipping the stressor\n", name);
 		return -1;
 	}

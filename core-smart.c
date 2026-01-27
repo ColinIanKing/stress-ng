@@ -514,7 +514,7 @@ void stress_smart_stop(void)
 			if (devs == 0) {
 				char *extra;
 
-				if (stress_check_capability(SHIM_CAP_IS_ROOT)) {
+				if (stress_capabilities_check(SHIM_CAP_IS_ROOT)) {
 					extra = "";
 				} else {
 					extra = " (try running as root)";

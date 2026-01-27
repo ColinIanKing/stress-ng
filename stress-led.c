@@ -259,7 +259,7 @@ static int stress_led(stress_args_t *args)
 {
 	stress_led_info_t *led_info_list;
 	stress_led_info_t *led_info;
-	const bool is_root = stress_check_capability(SHIM_CAP_IS_ROOT);
+	const bool is_root = stress_capabilities_check(SHIM_CAP_IS_ROOT);
 
 	if (!is_root && (stress_instance_zero(args)))
 		pr_inf("%s: unable to set LED settings, need root privilege\n", args->name);

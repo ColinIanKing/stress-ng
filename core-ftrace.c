@@ -311,7 +311,7 @@ void stress_ftrace_start(void)
 
 	RB_INIT(&rb_root);
 
-	if (!stress_check_capability(SHIM_CAP_SYS_ADMIN)) {
+	if (!stress_capabilities_check(SHIM_CAP_SYS_ADMIN)) {
 		pr_inf("ftrace: requires CAP_SYS_ADMIN capability for tracing\n");
 		return;
 	}

@@ -2546,7 +2546,7 @@ static void stress_dev_console_linux(
     defined(CAP_SYS_TTY_CONFIG)
 	{
 		struct vt_sizes argp;
-		bool perm = stress_check_capability(CAP_SYS_TTY_CONFIG);
+		bool perm = stress_capabilities_check(CAP_SYS_TTY_CONFIG);
 
 		/* Exercise only if permission is not present */
 		if (!perm) {
@@ -2562,7 +2562,7 @@ static void stress_dev_console_linux(
     defined(CAP_SYS_TTY_CONFIG)
 	{
 		struct vt_consize argp;
-		bool perm = stress_check_capability(CAP_SYS_TTY_CONFIG);
+		bool perm = stress_capabilities_check(CAP_SYS_TTY_CONFIG);
 
 		/* Exercise only if permission is not present */
 		if (!perm) {
@@ -4896,7 +4896,7 @@ again:
 
 	if (stress_instance_zero(args)) {
 		const size_t opened = stress_dev_infos_opened(dev_info_list);
-		const bool is_root = stress_check_capability(SHIM_CAP_IS_ROOT);
+		const bool is_root = stress_capabilities_check(SHIM_CAP_IS_ROOT);
 
 		pr_inf("%s: %zu of %zu devices opened and exercised%s\n",
 			args->name, opened, dev_info_list_len,

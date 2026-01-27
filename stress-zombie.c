@@ -325,7 +325,7 @@ static int stress_zombie(stress_args_t *args)
 			zombie_clone = false;
 		}
 #else
-		if (!stress_check_capability(SHIM_CAP_SYS_ADMIN)) {
+		if (!stress_capabilities_check(SHIM_CAP_SYS_ADMIN)) {
 			pr_inf("%s: --zombie-clone selected without CAP_SYS_ADMIN "
 				"rights, minimal clone flags being used\n", args->name);
 			clone_flags = 0;

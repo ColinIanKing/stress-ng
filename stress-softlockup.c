@@ -40,7 +40,7 @@ static const stress_help_t help[] = {
  */
 static int stress_softlockup_supported(const char *name)
 {
-	if (!stress_check_capability(SHIM_CAP_SYS_NICE)) {
+	if (!stress_capabilities_check(SHIM_CAP_SYS_NICE)) {
 		pr_inf_skip("%s stressor will be skipped, "
 			"need to be running with CAP_SYS_NICE "
 			"rights for this stressor\n", name);

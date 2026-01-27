@@ -740,7 +740,7 @@ static int stress_sysfs(stress_args_t *args)
 
 	ctxt->args = args;
 	ctxt->kmsgfd = open("/dev/kmsg", O_RDONLY | O_NONBLOCK);
-	ctxt->sys_admin = stress_check_capability(SHIM_CAP_SYS_ADMIN);
+	ctxt->sys_admin = stress_capabilities_check(SHIM_CAP_SYS_ADMIN);
 	(void)stress_kmsg_drain(ctxt->kmsgfd);
 
 	ret = shim_pthread_spin_init(&lock, PTHREAD_PROCESS_PRIVATE);

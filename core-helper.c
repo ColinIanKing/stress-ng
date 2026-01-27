@@ -1469,7 +1469,7 @@ bool stress_redo_fork(stress_args_t *args, const int err)
 void stress_clear_warn_once(void)
 {
 #if defined(__linux__)
-	if (stress_check_capability(SHIM_CAP_IS_ROOT))
+	if (stress_capabilities_check(SHIM_CAP_IS_ROOT))
 		(void)stress_system_write("/sys/kernel/debug/clear_warn_once", "1", 1);
 #endif
 }

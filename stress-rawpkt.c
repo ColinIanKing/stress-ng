@@ -76,7 +76,7 @@ static const stress_help_t help[] = {
  */
 static int stress_rawpkt_supported(const char *name)
 {
-	if (!stress_check_capability(SHIM_CAP_NET_RAW)) {
+	if (!stress_capabilities_check(SHIM_CAP_NET_RAW)) {
 		pr_inf_skip("%s stressor will be skipped, "
 			"need to be running with CAP_NET_RAW "
 			"rights for this stressor\n", name);

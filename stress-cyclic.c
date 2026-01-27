@@ -680,7 +680,7 @@ static int stress_cyclic(stress_args_t *args)
 	policy = cyclic_policies[cyclic_policy].policy;
 
 	if (cyclic_policies[cyclic_policy].cap_sys_nice &&
-	    !stress_check_capability(SHIM_CAP_SYS_NICE)) {
+	    !stress_capabilities_check(SHIM_CAP_SYS_NICE)) {
 		pr_inf_skip("%s stressor needs to be run with CAP_SYS_NICE "
 			"set for %s policy, skipping stressor\n",
 			args->name, cyclic_policies[cyclic_policy].name);

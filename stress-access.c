@@ -257,7 +257,7 @@ static int stress_access(stress_args_t *args)
 #if defined(HAVE_FACCESSAT)
 	const int bad_fd = stress_get_bad_fd();
 #endif
-	const bool is_root = stress_check_capability(SHIM_CAP_IS_ROOT);
+	const bool is_root = stress_capabilities_check(SHIM_CAP_IS_ROOT);
 	const char *fs_type;
 	stress_pid_t *s_pids, *s_pids_head = NULL;
 	uint32_t rnd32 = stress_mwc32();

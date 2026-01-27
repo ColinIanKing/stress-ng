@@ -73,7 +73,7 @@ typedef struct {
  */
 static int stress_netlink_task_supported(const char *name)
 {
-	if (!stress_check_capability(SHIM_CAP_NET_ADMIN)) {
+	if (!stress_capabilities_check(SHIM_CAP_NET_ADMIN)) {
 		pr_inf_skip("%s stressor will be skipped, "
 			"need to be running with CAP_NET_ADMIN "
 			"rights for this stressor\n", name);

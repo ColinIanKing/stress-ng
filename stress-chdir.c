@@ -55,7 +55,7 @@ static int stress_chdir(stress_args_t *args)
 	char path[PATH_MAX], cwd[PATH_MAX], badpath[PATH_MAX], longpath[PATH_MAX + 16];
 	int rc, ret = EXIT_FAILURE;
 	struct stat statbuf;
-	const bool is_root = stress_check_capability(SHIM_CAP_IS_ROOT);
+	const bool is_root = stress_capabilities_check(SHIM_CAP_IS_ROOT);
 	bool got_statbuf = false;
 	bool tidy_info = false;
 	double count = 0.0, duration = 0.0, rate, start_time;

@@ -95,7 +95,7 @@ typedef struct {
  */
 static int stress_swap_supported(const char *name)
 {
-	if (!stress_check_capability(SHIM_CAP_SYS_ADMIN)) {
+	if (!stress_capabilities_check(SHIM_CAP_SYS_ADMIN)) {
 		pr_inf_skip("%s stressor will be skipped, "
 			"need to be running with CAP_SYS_ADMIN "
 			"rights for this stressor\n", name);
@@ -447,7 +447,7 @@ static int stress_swap_child(stress_args_t *args, void *context)
 				 * too many swap files, so delay, retry to
 				 * keep the pressure up.
 				 */
-				if (stress_check_capability(SHIM_CAP_SYS_ADMIN)) {
+				if (stress_capabilities_check(SHIM_CAP_SYS_ADMIN)) {
 					(void)shim_usleep(100000);
 					continue;
 				}

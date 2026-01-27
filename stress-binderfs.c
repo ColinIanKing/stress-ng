@@ -52,7 +52,7 @@ static int stress_binderfs_supported(const char *name)
 	const char *tmppath = stress_get_temp_path();
 	char path[PATH_MAX];
 
-	if (!stress_check_capability(SHIM_CAP_SYS_ADMIN)) {
+	if (!stress_capabilities_check(SHIM_CAP_SYS_ADMIN)) {
 		pr_inf_skip("%s stressor will be skipped, "
 			"need to be running with CAP_SYS_ADMIN "
 			"rights for this stressor\n", name);

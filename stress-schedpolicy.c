@@ -50,7 +50,7 @@ static int stress_schedpolicy(stress_args_t *args)
 	int old_policy = -1, rc = EXIT_SUCCESS;
 	bool schedpolicy_rand = false;
 #if defined(_POSIX_PRIORITY_SCHEDULING)
-	const bool root_or_nice_capability = stress_check_capability(SHIM_CAP_SYS_NICE);
+	const bool root_or_nice_capability = stress_capabilities_check(SHIM_CAP_SYS_NICE);
 #endif
 #if defined(HAVE_SCHED_GETATTR) && \
     defined(HAVE_SCHED_SETATTR)

@@ -118,14 +118,14 @@ static int stress_set(stress_args_t *args)
     defined(HAVE_SETPGID)
 	const pid_t mypid = getpid();
 #endif
-	const bool cap_sys_resource = stress_check_capability(SHIM_CAP_SYS_RESOURCE);
+	const bool cap_sys_resource = stress_capabilities_check(SHIM_CAP_SYS_RESOURCE);
 #if defined(HAVE_SETREUID)
-	const bool cap_setuid = stress_check_capability(SHIM_CAP_SETUID);
+	const bool cap_setuid = stress_capabilities_check(SHIM_CAP_SETUID);
 	int bad_uid_count = 0;
 #endif
 #if defined(HAVE_GETPGID) &&    \
     defined(HAVE_SETPGID)
-	const bool cap_root = stress_check_capability(0);
+	const bool cap_root = stress_capabilities_check(0);
 #endif
 
 	for (i = 0; i < SIZEOF_ARRAY(rlimits); i++) {
@@ -212,7 +212,7 @@ static int stress_set(stress_args_t *args)
 
 #if defined(HAVE_SETTIMEOFDAY) &&	\
     defined(HAVE_GETTIMEOFDAY)
-		if (!stress_check_capability(SHIM_CAP_SYS_TIME)) {
+		if (!stress_capabilities_check(SHIM_CAP_SYS_TIME)) {
 			struct timeval tv;
 			shim_timezone_t tz;
 

@@ -67,8 +67,8 @@ static int stress_klog(stress_args_t *args)
 {
 	char *buffer;
 	ssize_t len;
-	const bool klog_capable = stress_check_capability(SHIM_CAP_SYS_ADMIN) ||
-				  stress_check_capability(SHIM_CAP_SYSLOG);
+	const bool klog_capable = stress_capabilities_check(SHIM_CAP_SYS_ADMIN) ||
+				  stress_capabilities_check(SHIM_CAP_SYSLOG);
 
 	len = shim_klogctl(SYSLOG_ACTION_SIZE_BUFFER, NULL, 0);
 	if (len < 0) {

@@ -136,7 +136,7 @@ static int stress_kcmp(stress_args_t *args)
 #endif
 	int ret = EXIT_SUCCESS;
 	const int bad_fd = stress_get_bad_fd();
-	const bool is_root = stress_check_capability(SHIM_CAP_IS_ROOT);
+	const bool is_root = stress_capabilities_check(SHIM_CAP_IS_ROOT);
 #if defined(HAVE_SYS_EPOLL_H) &&	\
     NEED_GLIBC(2,3,2)
 	int port = 23000, reserved_port;

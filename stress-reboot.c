@@ -92,7 +92,7 @@ static int reboot_clone_func(void *arg)
  */
 static int stress_reboot(stress_args_t *args)
 {
-	const bool reboot_capable = stress_check_capability(SHIM_CAP_SYS_BOOT);
+	const bool reboot_capable = stress_capabilities_check(SHIM_CAP_SYS_BOOT);
 	int rc = EXIT_SUCCESS;
 #if defined(HAVE_CLONE)
 	char *stack;

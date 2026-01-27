@@ -102,12 +102,12 @@ void stress_getset_capability(void)
 
 #if defined(HAVE_SYS_CAPABILITY_H)
 /*
- *  stress_check_capability()
+ *  stress_capabilities_check()
  *	returns true if process has the given capability,
  *	if capability is SHIM_CAP_IS_ROOT then just check if process is
  *	root.
  */
-bool stress_check_capability(const int capability)
+bool stress_capabilities_check(const int capability)
 {
 	int ret;
 	struct __user_cap_header_struct uch;
@@ -134,7 +134,7 @@ bool stress_check_capability(const int capability)
 	return (ucd[idx].permitted & mask) ? true : false;
 }
 #else
-bool stress_check_capability(const int capability)
+bool stress_capabilities_check(const int capability)
 {
 	(void)capability;
 

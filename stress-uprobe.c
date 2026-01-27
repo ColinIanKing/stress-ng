@@ -38,7 +38,7 @@ static int stress_uprobe_supported(const char *name)
 		"libc start for tracing with static builds of stress-ng\n", name);
 	return -1;
 #else
-	if (!stress_check_capability(SHIM_CAP_SYS_ADMIN)) {
+	if (!stress_capabilities_check(SHIM_CAP_SYS_ADMIN)) {
 		pr_inf_skip("%s stressor will be skipped, "
 			"need to be running with CAP_SYS_ADMIN "
 			"rights for this stressor\n", name);

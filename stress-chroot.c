@@ -65,7 +65,7 @@ static const chroot_escape_t chroot_escapes[] = {
  */
 static int stress_chroot_supported(const char *name)
 {
-	if (!stress_check_capability(SHIM_CAP_SYS_ADMIN)) {
+	if (!stress_capabilities_check(SHIM_CAP_SYS_ADMIN)) {
 		pr_inf_skip("%s stressor will be skipped, "
 			"need to be running with CAP_SYS_ADMIN "
 			"rights for this stressor\n", name);

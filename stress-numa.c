@@ -181,7 +181,7 @@ static int stress_numa(stress_args_t *args)
 
 	uint8_t *buf;
 	int rc = EXIT_FAILURE;
-	const bool cap_sys_nice = stress_check_capability(SHIM_CAP_SYS_NICE);
+	const bool cap_sys_nice = stress_capabilities_check(SHIM_CAP_SYS_NICE);
 	int *status, *dest_nodes;
 	int failed = 0;
 	void **pages;

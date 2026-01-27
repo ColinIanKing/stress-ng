@@ -209,7 +209,7 @@ static int stress_fanotify_supported(const char *name)
 	static const char nosyscall[] =
 		": system call not supported";
 
-	if (!stress_check_capability(SHIM_CAP_SYS_ADMIN)) {
+	if (!stress_capabilities_check(SHIM_CAP_SYS_ADMIN)) {
 		pr_inf_skip("%s %s%s\n", name, skipped, noperm);
 		return -1;
 	}

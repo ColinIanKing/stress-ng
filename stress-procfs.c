@@ -903,7 +903,7 @@ static int stress_procfs(stress_args_t *args)
 	(void)shim_strscpy(proc_path, "/proc/self", sizeof(proc_path));
 
 	ctxt.args = args;
-	ctxt.writeable = !stress_check_capability(SHIM_CAP_IS_ROOT);
+	ctxt.writeable = !stress_capabilities_check(SHIM_CAP_IS_ROOT);
 
 	rc = shim_pthread_spin_init(&lock, PTHREAD_PROCESS_PRIVATE);
 	if (rc) {
