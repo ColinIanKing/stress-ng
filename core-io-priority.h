@@ -48,7 +48,7 @@
 #define IOPRIO_PRIO_VALUE(ioprio_class, data)  (((ioprio_class) << 13) | (data))
 #endif
 
-int32_t stress_get_opt_ionice_class(const char *const str);
-void stress_set_iopriority(const int32_t ioprio_class, const int32_t level);
+extern int32_t stress_get_opt_ionice_class(const char *const str);
+extern void stress_set_iopriority(const int32_t ioprio_class, const int32_t level);
 
 #endif
