@@ -919,11 +919,11 @@ extern WARN_UNUSED ssize_t stress_stressor_find(const char *name);
 #if !defined(STRESS_CORE_SHIM) &&	\
     !defined(HAVE_PEDANTIC) &&		\
     (defined(HAVE_COMPILER_GCC_OR_MUSL) && defined(HAVE_COMPILER_CLANG))
-int unlink(const char *pathname) __attribute__((deprecated("use shim_unlink")));
-int unlinkat(int dirfd, const char *pathname, int flags) __attribute__((deprecated("use shim_unlinkat")));
-int rmdir(const char *pathname) __attribute__((deprecated("use shim_rmdir")));
-size_t strlcpy(char *dst, const char *src, size_t size) __attribute__((deprecated("shim_strscpy")));
-size_t strlcat(char *dst, const char *src, size_t size) __attribute__((deprecated("shim_strlcat")));
+extern int unlink(const char *pathname) __attribute__((deprecated("use shim_unlink")));
+extern int unlinkat(int dirfd, const char *pathname, int flags) __attribute__((deprecated("use shim_unlinkat")));
+extern int rmdir(const char *pathname) __attribute__((deprecated("use shim_rmdir")));
+extern size_t strlcpy(char *dst, const char *src, size_t size) __attribute__((deprecated("shim_strscpy")));
+extern size_t strlcat(char *dst, const char *src, size_t size) __attribute__((deprecated("shim_strlcat")));
 
 #endif
 
