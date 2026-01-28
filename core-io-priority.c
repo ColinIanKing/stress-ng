@@ -21,10 +21,10 @@
 #include "core-io-priority.h"
 
 /*
- *  stress_get_opt_ionice_class()
+ *  stress_io_priority_ionice_class_get
  *	string io scheduler to IOPRIO_CLASS
  */
-int32_t stress_get_opt_ionice_class(const char *const str)
+int32_t stress_io_priority_ionice_class_get(const char *const str)
 {
 #if defined(IOPRIO_CLASS_IDLE)
 	if (!strcmp("idle", str))
@@ -61,7 +61,7 @@ int32_t stress_get_opt_ionice_class(const char *const str)
 
 #if defined(__NR_ioprio_set)
 /*
- *  stress_set_iopriority()
+ *  stress_io_priority_set()
  *	check ioprio settings and set
  */
 void stress_io_priority_set(const int32_t ioprio_class, const int32_t level)

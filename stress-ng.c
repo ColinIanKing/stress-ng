@@ -3338,7 +3338,7 @@ next_opt:
 			stress_usage();
 			break;
 		case OPT_ionice_class:
-			i32 = stress_get_opt_ionice_class(optarg);
+			i32 = stress_io_priority_ionice_class_get(optarg);
 			stress_set_setting_global("ionice-class", TYPE_ID_INT32, &i32);
 			break;
 		case OPT_ionice_level:
