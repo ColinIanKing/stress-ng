@@ -34,15 +34,48 @@
 #define NUMA_NODES_MAX 		(64L)
 
 static const stress_help_t help[] = {
-	{ NULL,	"numacopy N",     "start N workers copying pagess between NUMA nodes" },
-	{ NULL,	"numacopy-ops N", "stop after N NUMA page copying bogo operations" },
-	{ NULL,	NULL,             NULL }
+	{ NULL,	"numacopy N",      "start N workers copying pagess between NUMA nodes" },
+	{ NULL, "numacopy-mode M", "select mbind mode flags [ bind | interleave | preferred | weighted-interleave ]" },
+	{ NULL,	"numacopy-ops N",  "stop after N NUMA page copying bogo operations" },
+	{ NULL,	NULL,              NULL }
 };
 
 typedef struct stress_numacopy_metric {
 	double duration;
 	double rate;
 } stress_numacopy_metric_t;
+
+/* NUMA mbind mode options */
+typedef struct stress_numacopy_mode {
+	const char *name;
+	const int mode;
+
+} stress_numacopy_mode_t;
+
+static const stress_numacopy_mode_t stress_numacopy_modes[] = {
+#if defined(MPOL_BIND)
+	{ "bind", MPOL_BIND },
+#endif
+#if defined(MPOL_INTERLEAVE)
+	{ "interleave", MPOL_INTERLEAVE },
+#endif
+#if defined(MPOL_PREFERRED)
+	{ "preferred", MPOL_PREFERRED },
+#endif
+#if defined(MPOL_WEIGHTED_INTERLEAVE)
+	{ "weighted-interleave", MPOL_WEIGHTED_INTERLEAVE },
+#endif
+};
+
+static const char *stress_numacopy_mode(const size_t i)
+{
+	return (i <  SIZEOF_ARRAY(stress_numacopy_modes)) ? stress_numacopy_modes[i].name : NULL;
+}
+
+static const stress_opt_t opts[] = {
+	{ OPT_numacopy_mode, "numacopy-mode", TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_numacopy_mode },
+	END_OPT,
+};
 
 #if defined(__NR_mbind)
 
@@ -109,13 +142,16 @@ static int stress_numacopy(stress_args_t *args)
 	stress_numa_mask_t *numa_mask, *numa_nodes;
 	const size_t page_size = args->page_size;
 	size_t numa_bytes, numa_pages_size;
-	int rc = EXIT_FAILURE;
+	int rc = EXIT_FAILURE, mode;
 	uint8_t **numa_pages, *local_page;
 	long int i, node, num_numa_nodes, num_numa_nodes_squared;
-	size_t index;
+	size_t index, numacopy_mode_index = 0;
 	double numa_pages_memcpy = 0.0, numa_pages_memset = 0.0;
 	double duration = 0.0, rate = 0.0, max_rate, scale;
 	stress_numacopy_metric_t *metrics;
+
+	(void)stress_get_setting("numacopy-mode", &numacopy_mode_index);
+	mode = stress_numacopy_modes[numacopy_mode_index].mode;
 
 	numa_nodes = stress_numa_mask_alloc();
 	if (!numa_nodes) {
@@ -201,14 +237,14 @@ static int stress_numacopy(stress_args_t *args)
 		}
 
 		STRESS_SETBIT(numa_mask->mask, node);
-		lret = shim_mbind(numa_pages[node], (unsigned long int)page_size, MPOL_BIND, numa_mask->mask,
+		lret = shim_mbind(numa_pages[node], (unsigned long int)page_size, mode, numa_mask->mask,
 				numa_mask->max_nodes, MPOL_MF_MOVE | MPOL_MF_STRICT);
-		(void)shim_memset(numa_pages[node], 0xff, page_size);
 		if (UNLIKELY(lret < 0)) {
 			pr_fail("%s: mbind to node %ld using MPOL_MF_MOVE failed, errno=%d (%s)\n",
 				args->name, node, errno, strerror(errno));
 			goto err;
 		}
+		(void)shim_memset(numa_pages[node], 0xff, page_size);
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
@@ -315,6 +351,7 @@ const stressor_info_t stress_numacopy_info = {
 	.stressor = stress_numacopy,
 	.classifier = CLASS_CPU | CLASS_MEMORY | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
+	.opts = opts,
 	.help = help
 };
 #else
@@ -322,6 +359,7 @@ const stressor_info_t stress_numacopy_info = {
 	.stressor = stress_unimplemented,
 	.classifier = CLASS_CPU | CLASS_MEMORY | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
+	.opts = opts,
 	.help = help,
 	.unimplemented_reason = "built without linux/mempolicy.h or mbind()"
 };

@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "25 January 2026"
+.TH STRESS-NG 1 "28 January 2026"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -6261,7 +6261,10 @@ for each combination of node to node copy is output at the end of the
 run. The local nodes copies should be faster than the distant node copies.
 The stressor exercises NUMA node memory bus interconnect.
 .TP
-.B \-\-numacopy-ops N
+.B \-\-numacopy\-mode [ bind | interleave | preferred | weighted-interleave ]
+select mbind mode options, see mbind(2) for an explanation of these modes.
+.TP
+.B \-\-numacopy\-ops N
 stop after N NUMA copy bogo-operations. A bogo operation is 100 copies
 of pages to/from every node to every node.
 .RE
