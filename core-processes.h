@@ -19,6 +19,6 @@
 #ifndef CORE_PROCESSES_H
 #define CORE_PROCESSES_H
 
-extern void stress_dump_processes(void);
+extern void stress_processes_dump(void);
 
 #endif

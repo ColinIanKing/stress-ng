@@ -28,7 +28,7 @@
  *  stress_dump_processes_filter()
  *	filter out non-process filenames from /proc
  */
-static int stress_dump_processes_filter(const struct dirent *d)
+static int stress_processes_dump_filter(const struct dirent *d)
 {
 	if (UNLIKELY(!d))
 		return 0;
@@ -37,16 +37,16 @@ static int stress_dump_processes_filter(const struct dirent *d)
 }
 
 /*
- *  stress_dump_processes()
+ *  stress_processes_dump()
  *	dump out names and state of running processes
  */
-void stress_dump_processes(void)
+void stress_processes_dump(void)
 {
 	int i, n, pid_width = 5;
 
 	struct dirent **namelist = NULL;
 
-	n = scandir("/proc", &namelist, stress_dump_processes_filter, alphasort);
+	n = scandir("/proc", &namelist, stress_processes_dump_filter, alphasort);
 	if (UNLIKELY(n <= 0))
 		return;
 
@@ -139,7 +139,7 @@ void stress_dump_processes(void)
 	stress_dirent_list_free(namelist, n);
 }
 #else
-void stress_dump_processes(void)
+void stress_processes_dump(void)
 {
 }
 #endif

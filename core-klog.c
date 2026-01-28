@@ -238,7 +238,7 @@ log_err:
 				stress_klog_kernel_cmdline();
 				/* rate limit process dumping */
 				if ((stress_time_now() - last_logged) > 30.0)
-					stress_dump_processes();
+					stress_processes_dump();
 				pr_err("%s: %s: %s '%s'\n", name, msg, ts, ptr);
 				last_logged = stress_time_now();
 				g_shared->klog_errors++;
