@@ -97,11 +97,11 @@ static void stress_parse_error(
 }
 
 /*
- *  stress_parse_jobfile()
+ *  stress_job_parse_file()
  *	parse a jobfile, turn job commands into
  *	individual stress-ng options
  */
-int stress_parse_jobfile(
+int stress_job_parse_file(
 	const int argc,
 	char **argv,
 	const char *jobfile)

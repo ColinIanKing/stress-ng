@@ -3966,7 +3966,7 @@ int main(int argc, char **argv, char **envp)
 	 *  Load in job file options
 	 */
 	(void)stress_get_setting("job", &job_filename);
-	if (stress_parse_jobfile(argc, argv, job_filename) < 0) {
+	if (stress_job_parse_file(argc, argv, job_filename) < 0) {
 		ret = EXIT_FAILURE;
 		goto exit_stressors_free;
 	}
