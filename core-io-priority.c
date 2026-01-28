@@ -64,7 +64,7 @@ int32_t stress_get_opt_ionice_class(const char *const str)
  *  stress_set_iopriority()
  *	check ioprio settings and set
  */
-void stress_set_iopriority(const int32_t ioprio_class, const int32_t level)
+void stress_io_priority_set(const int32_t ioprio_class, const int32_t level)
 {
 	int data = level, rc;
 
@@ -99,7 +99,7 @@ void stress_set_iopriority(const int32_t ioprio_class, const int32_t level)
 	}
 }
 #else
-void stress_set_iopriority(const int32_t ioprio_class, const int32_t level)
+void stress_io_priority_set(const int32_t ioprio_class, const int32_t level)
 {
 	(void)ioprio_class;
 	(void)level;

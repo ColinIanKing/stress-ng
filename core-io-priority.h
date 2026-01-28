@@ -49,6 +49,6 @@
 #endif
 
 extern int32_t stress_get_opt_ionice_class(const char *const str);
-extern void stress_set_iopriority(const int32_t ioprio_class, const int32_t level);
+extern void stress_io_priority_set(const int32_t ioprio_class, const int32_t level);
 
 #endif

@@ -1565,7 +1565,7 @@ static int MLOCKED_TEXT stress_run_child(
 	stress_set_proc_state(name, STRESS_STATE_INIT);
 	stress_mwc_reseed();
 	stress_set_max_limits();
-	stress_set_iopriority(ionice_class, ionice_level);
+	stress_io_priority_set(ionice_class, ionice_level);
 	(void)umask(0077);
 
 	pr_dbg("%s: [%" PRIdMAX "] started (instance %" PRId32 " on CPU %u)\n",
