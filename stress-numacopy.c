@@ -49,7 +49,6 @@ typedef struct stress_numacopy_metric {
 typedef struct stress_numacopy_mode {
 	const char *name;
 	const int mode;
-
 } stress_numacopy_mode_t;
 
 static const stress_numacopy_mode_t stress_numacopy_modes[] = {
