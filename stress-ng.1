@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "28 January 2026"
+.TH STRESS-NG 1 "29 January 2026"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -7339,6 +7339,11 @@ move instructions.  Each bogo-op represents 1000 calls of a shuffling function
 that shuffles the registers 32 times. Only implemented for the GCC compiler
 since this requires register annotations and optimization level 0 to compile
 appropriately.
+.TP
+.B \-\-regs\-bitflip
+flip all the bits (invert) in each register after each register has been
+re-assigned. On some processors this may consume more power and generate
+more heat.
 .TP
 .B \-\-regs\-ops N
 stop regs stressors after N bogo operations.

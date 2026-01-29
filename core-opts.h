@@ -1268,6 +1268,7 @@ typedef enum {
 	OPT_regex_ops,
 
 	OPT_regs,
+	OPT_regs_bitflip,
 	OPT_regs_ops,
 
 	OPT_remap,

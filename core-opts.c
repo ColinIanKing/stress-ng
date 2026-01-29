@@ -893,6 +893,7 @@ const struct option stress_long_options[] = {
 	{ "regex",		1,	0,	OPT_regex },
 	{ "regex-ops",		1,	0,	OPT_regex_ops },
 	{ "regs",		1,	0,	OPT_regs },
+	{ "regs-bitflip",	0,	0,	OPT_regs_bitflip },
 	{ "regs-ops",		1,	0,	OPT_regs_ops },
 	{ "remap",		1,	0,	OPT_remap },
 	{ "remap-mlock",	0,	0,	OPT_remap_mlock },
