@@ -409,7 +409,7 @@ static int stress_zombie(stress_args_t *args)
 	/* And free */
 	stress_zombie_free();
 
-#if defined(HAVE_CLONE)
+#if defined(HAVE_LINUX_CLONE)
 	if (*context.path)
                 (void)shim_rmdir(context.path);
 #endif
