@@ -197,7 +197,7 @@ static void stress_thrash_pagein_self(
 		writeable = !!(proc_maps[i].flags & STRESS_PROC_MAP_WRITE);
 
 		for (off = proc_maps[i].begin; thrash_run && (off < proc_maps[i].end); off += page_size) {
-			volatile uint8_t *ptr = (uint8_t *)off;
+			volatile uint8_t *ptr = (volatile uint8_t *)(uintptr_t)off;
 			const uint8_t value = *ptr;
 
 			if (writeable)
@@ -583,7 +583,7 @@ static void stress_thrash_fragment_mappings(
 		if (proc_maps[i].flags & STRESS_PROC_MAP_PRIVATE)
 			continue;
 
-		addr = (void *)proc_maps[i].begin;
+		addr = (void *)(uintptr_t)proc_maps[i].begin;
 		len = (size_t)proc_maps[i].len;
 
 		stress_mmap_discontiguous(addr, len);
