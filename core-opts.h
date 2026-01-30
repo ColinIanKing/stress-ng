@@ -173,8 +173,9 @@ typedef enum {
 	OPT_affinity_sleep,
 
 	OPT_af_alg,
-	OPT_af_alg_ops,
 	OPT_af_alg_dump,
+	OPT_af_alg_ops,
+	OPT_af_alg_type,
 
 	OPT_aio,
 	OPT_aio_ops,

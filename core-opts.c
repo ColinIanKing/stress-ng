@@ -31,6 +31,7 @@ const struct option stress_long_options[] = {
 	{ "af-alg",		1,	0,	OPT_af_alg },
 	{ "af-alg-dump",	0,	0,	OPT_af_alg_dump },
 	{ "af-alg-ops",		1,	0,	OPT_af_alg_ops },
+	{ "af-alg-type",	1,	0,	OPT_af_alg_type },
 	{ "affinity",		1,	0,	OPT_affinity },
 	{ "affinity-delay",	1,	0,	OPT_affinity_delay },
 	{ "affinity-ops",	1,	0,	OPT_affinity_ops },

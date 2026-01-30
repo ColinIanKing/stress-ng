@@ -877,6 +877,9 @@ parsed from the /proc/crypto file to standard output (stdout).
 .TP
 .B \-\-af\-alg\-ops N
 stop af\-alg workers after N AF_ALG messages are hashed.
+.TP
+.B \-\-af\-alg\-type [ all | ahash | shash | skcipher | rng | aead ]
+specify crypto type, 'all' defaults to using all the types.
 .RE
 .TP
 .B Asynchronous I/O stressor (POSIX AIO)
