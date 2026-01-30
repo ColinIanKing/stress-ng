@@ -73,7 +73,7 @@ static const stress_rlimit_t limits[] = {
 #endif
 };
 
-static void stress_set_limit(int resource, const char *opt)
+static void stress_limit_set(int resource, const char *opt)
 {
 	struct rlimit rlim;
 	uint64_t val = 0;
@@ -94,18 +94,18 @@ static void stress_set_limit(int resource, const char *opt)
 }
 
 /*
- *  stress_set_max_limits()
+ *  stress_limit_max_set()
  *	push rlimits to maximum values allowed
  *	so we can stress a system to the maximum,
  *	we ignore any rlimit errors.
  */
-void stress_set_max_limits(void)
+void stress_limit_max_set(void)
 {
 	size_t i;
 	struct rlimit rlim;
 
 	for (i = 0; i < SIZEOF_ARRAY(limits); i++)
-		stress_set_limit(limits[i].resource, limits[i].opt);
+		stress_limit_set(limits[i].resource, limits[i].opt);
 
 #if defined(RLIMIT_NOFILE)
 	{
