@@ -85,7 +85,7 @@ static const stress_opt_t opts[] = {
 static void TARGET_CLONES stress_numacopy_exercise(
 	stress_args_t *args,
 	const size_t page_size,
-	register const int num_numa_nodes,
+	register const long int num_numa_nodes,
 	uint8_t * const local_page,
 	uint8_t ** const numa_pages,
 	stress_numacopy_metric_t * const metrics,
@@ -173,12 +173,12 @@ static int stress_numacopy(stress_args_t *args)
 
 	if (num_numa_nodes > NUMA_NODES_MAX) {
 		if (stress_instance_zero(args))
-			pr_inf("%s: too many NUMA nodes, using just %zd of %zd NUMA nodes\n", args->name, NUMA_NODES_MAX, num_numa_nodes);
+			pr_inf("%s: too many NUMA nodes, using just %ld of %ld NUMA nodes\n", args->name, NUMA_NODES_MAX, num_numa_nodes);
 		num_numa_nodes = NUMA_NODES_MAX;
 		num_numa_nodes_squared = NUMA_NODES_MAX * NUMA_NODES_MAX;
 	} else {
 		if (stress_instance_zero(args))
-			pr_inf("%s: using %zd NUMA nodes\n", args->name, num_numa_nodes);
+			pr_inf("%s: using %ld NUMA nodes\n", args->name, num_numa_nodes);
 		num_numa_nodes_squared = num_numa_nodes * num_numa_nodes;
 	}
 
