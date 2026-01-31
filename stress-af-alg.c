@@ -55,14 +55,12 @@ static const stress_crypto_type_info_t crypto_type_info[] = {
 	{ CRYPTO_ALL,		"CRYPTO_ALL",		"all" },
 	{ CRYPTO_AHASH,		"CRYPTO_AHASH",		"ahash" },
 	{ CRYPTO_SHASH,		"CRYPTO_SHASH",		"shash" },
-	/*
 	{ CRYPTO_CIPHER,	"CRYPTO_CIPHER",	"cipher" },
-	{ CRYPTO_AKCIPHER,	"CRYPTO_AKCIPHER",	"akcipher" },
-	*/
+	/*{ CRYPTO_AKCIPHER,	"CRYPTO_AKCIPHER",	"akcipher" },*/
 	{ CRYPTO_SKCIPHER,	"CRYPTO_SKCIPHER",	"skcipher" },
 	{ CRYPTO_RNG,		"CRYPTO_RNG",		"rng" },
 	{ CRYPTO_AEAD,		"CRYPTO_AEAD",		"aead" },
-	{ CRYPTO_UNKNOWN,	"CRYPTO_UNKNOWN",	"unknown" },
+	/*{ CRYPTO_UNKNOWN,	"CRYPTO_UNKNOWN",	"unknown" },*/
 };
 
 static const stress_help_t help[] = {
@@ -397,11 +395,25 @@ static int stress_af_alg_cipher(
 	const ssize_t iv_size = info->iv_size;
 	const size_t cbuf_size = CMSG_SPACE(sizeof(__u32)) +
 				  CMSG_SPACE(4) + CMSG_SPACE(iv_size);
+	char name[64];
+	char *salg_name;
 	const char *salg_type = "skcipher";
 	int retries = MAX_AF_ALG_RETRIES_BIND;
 	char input[DATA_LEN + ALLOC_SLOP] ALIGN64;
 	char output[DATA_LEN + ALLOC_SLOP] ALIGN64;
 	char *cbuf, *key;
+
+	switch (info->crypto_type) {
+	case CRYPTO_CIPHER:
+		(void)snprintf(name, sizeof(name), "ecb(%s)", info->name);
+		salg_name = name;
+		break;
+	case CRYPTO_SKCIPHER:
+		salg_name = info->name;
+		break;
+	default:
+		return 0;
+	}
 
 	cbuf = (char *)malloc(cbuf_size);
 	if (UNLIKELY(!cbuf))
@@ -410,7 +422,7 @@ static int stress_af_alg_cipher(
 	(void)shim_memset(&sa, 0, sizeof(sa));
 	sa.salg_family = AF_ALG;
 	(void)shim_strscpy((char *)sa.salg_type, salg_type, sizeof(sa.salg_type));
-	(void)shim_strscpy((char *)sa.salg_name, info->name, sizeof(sa.salg_name) - 1);
+	(void)shim_strscpy((char *)sa.salg_name, salg_name, sizeof(sa.salg_name) - 1);
 
 retry_bind:
 	if (bind(sockfd, (struct sockaddr *)&sa, sizeof(sa)) < 0) {
@@ -1297,7 +1309,6 @@ static int stress_af_alg(stress_args_t *args)
 				break;
 #endif
 			case CRYPTO_CIPHER:
-			case CRYPTO_AKCIPHER:
 			case CRYPTO_SKCIPHER:
 				rc = stress_af_alg_cipher(args, sockfd, info);
 				if (UNLIKELY(verify && (rc == EXIT_FAILURE)))
@@ -1309,6 +1320,8 @@ static int stress_af_alg(stress_args_t *args)
 					goto deinit;
 				break;
 			case CRYPTO_UNKNOWN:
+				break;
+			case CRYPTO_AKCIPHER:
 				break;
 			default:
 				break;
