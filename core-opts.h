@@ -632,6 +632,7 @@ typedef enum {
 
 	OPT_icache,
 	OPT_icache_ops,
+	OPT_icache_pages,
 
 	OPT_icmp_flood,
 	OPT_icmp_flood_ops,

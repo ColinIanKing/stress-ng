@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "29 January 2026"
+.TH STRESS-NG 1 "31 January 2026"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -1404,8 +1404,8 @@ start N workers that exercise the cache with a randomized mix of memory
 read/writes and where possible cache prefetches and cache flushes to
 random addresses in three memory mapped regions, one of which is shared
 among all the cache stressors and is the size of the L3 cache, one is
-local to each instance and is 4 times the L3 cache size and one is a single
-page mapping that cannot be read or written.
+local to each stressor instance and is 4 times the L3 cache size and one
+is a single page mapping that cannot be read or written.
 .TP
 .B \-\-cachehammer\-numa
 periodically assign exercised pages to randomly selected NUMA nodes. This is disabled
@@ -3904,6 +3904,10 @@ reloads.
 .TP
 .B \-\-icache\-ops N
 stop the icache workers after N bogo icache operations are completed.
+.TP
+.B \-\-icache\-pages N
+specify the number of pages to use for instruction cache stressing for each
+stressor instance. The default is 1 page, range 1 to 1024.
 .RE
 .TP
 .B ICMP flooding stressor

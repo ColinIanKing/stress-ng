@@ -393,6 +393,7 @@ const struct option stress_long_options[] = {
 	{ "hyperbolic-ops",	1,	0,	OPT_hyperbolic_ops },
 	{ "icache",		1,	0,	OPT_icache },
 	{ "icache-ops",		1,	0,	OPT_icache_ops },
+	{ "icache-pages",	1,	0,	OPT_icache_pages },
 	{ "icmp-flood",		1,	0,	OPT_icmp_flood },
 	{ "icmp-flood-ops",	1,	0,	OPT_icmp_flood_ops },
 	{ "icmp-flood-max-size", 1,	0,	OPT_icmp_flood_max_size },
