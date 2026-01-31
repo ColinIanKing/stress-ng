@@ -81,18 +81,18 @@ static int NOINLINE icache_mprotect(
 	return ret;
 }
 
-static int stress_icache_func(stress_args_t *args, void *page, const size_t page_size)
+static int stress_icache_func(stress_args_t *args, uint8_t *page, const size_t page_size)
 {
 	volatile uint32_t *vaddr = (volatile uint32_t *)page;
-	const stress_ret_func_t icache_func = (stress_ret_func_t)page;
 
-	if (icache_madvise_nohugepage(args, page, page_size) < 0)
+	if (icache_madvise_nohugepage(args, (void *)page, page_size) < 0)
 		return EXIT_NO_RESOURCE;
 	do {
-		register int i = 1024;
+		register int j = 1024;
 
-		while (--i) {
+		while (--j) {
 			register uint32_t val;
+			size_t i;
 
 			/*
 			 *  Change protection to make page modifiable.
@@ -102,30 +102,33 @@ static int stress_icache_func(stress_args_t *args, void *page, const size_t page
 			 *  fault in the stressor, just an arch
 			 *  resource protection issue.
 			 */
-			if (icache_mprotect(args, page,
+			if (icache_mprotect(args, (void *)page,
 					    page_size,
 					    PROT_READ | PROT_WRITE |
 					    PROT_EXEC) < 0)
 				return EXIT_NO_RESOURCE;
-			/*
-			 *  Modifying executable code on x86 will
-			 *  call a I-cache reload when we execute
-			 *  the modified ops.
-			 */
-			val = *vaddr;
-			*vaddr ^= ~0;
 
-			/*
-			 * ARM CPUs need us to clear the I$ between
-			 * each modification of the object code.
-			 *
-			 * We may need to do the same for other CPUs
-			 * as the default code assumes smart x86 style
-			 * I$ behaviour.
-			 */
-			shim_flush_icache((char *)page, (char *)page + 64);
-			*vaddr = val;
-			shim_flush_icache((char *)page, (char *)page + 64);
+			for (i = 0; i < page_size; i += 64) {
+				/*
+				 *  Modifying executable code on x86 will
+				 *  call a I-cache reload when we execute
+				 *  the modified ops.
+				 */
+				val = *vaddr;
+				*vaddr ^= ~0;
+
+				/*
+				 * ARM CPUs need us to clear the I$ between
+				 * each modification of the object code.
+				 *
+				 * We may need to do the same for other CPUs
+				 * as the default code assumes smart x86 style
+				 * I$ behaviour.
+				 */
+				shim_flush_icache((char *)page, (char *)page + 64);
+				*vaddr = val;
+				shim_flush_icache((char *)page, (char *)page + 64);
+			}
 			/*
 			 *  Set back to a text segment READ/EXEC page
 			 *  attributes, this really should not fail.
@@ -133,7 +136,11 @@ static int stress_icache_func(stress_args_t *args, void *page, const size_t page
 			if (icache_mprotect(args, (void *)page, page_size,
 					    PROT_READ | PROT_EXEC) < 0)
 				return EXIT_FAILURE;
-			icache_func();
+			for (i = 0; i < page_size; i += 64) {
+				const stress_ret_func_t icache_func = (stress_ret_func_t)(page + i);
+
+				icache_func();
+			}
 			(void)shim_cacheflush((char *)page, (int)page_size, SHIM_ICACHE);
 		}
 		stress_bogo_inc(args);
@@ -152,12 +159,13 @@ static int stress_icache_func(stress_args_t *args, void *page, const size_t page
 static int stress_icache(stress_args_t *args)
 {
 	const size_t page_size = args->page_size;
-	void *page;
+	size_t i;
+	uint8_t *page;
 	int ret;
 
 	stress_signal_catch_sigsegv();
 
-	page = stress_mmap_populate(NULL, page_size,
+	page = (uint8_t *)stress_mmap_populate(NULL, page_size,
 			PROT_READ | PROT_WRITE | PROT_EXEC,
 			MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (page == MAP_FAILED) {
@@ -166,8 +174,10 @@ static int stress_icache(stress_args_t *args)
 			errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
-	stress_set_vma_anon_name(page, page_size, "opcodes");
-	(void)shim_memcpy(page, &stress_ret_opcode.opcodes, stress_ret_opcode.len);
+	stress_set_vma_anon_name((void *)page, page_size, "opcodes");
+	for (i = 0; i < page_size; i += 64) {
+		(void)shim_memcpy((void *)(page + i), &stress_ret_opcode.opcodes, stress_ret_opcode.len);
+	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
