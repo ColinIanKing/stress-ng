@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "31 January 2026"
+.TH STRESS-NG 1 "1 February 2026"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -2395,19 +2395,45 @@ select the decimal floating point method to use, available methods are:
 lB2 lB
 l lx.
 Method	Description
-all	iterate over all the following floating point methods:
-df32add	32 bit decimal floating point addition (_Decimal32)
-df64add	64 bit decimal floating point addition (_Decimal64)
-df128add	128 bit decimal floating point addition (_Decimal128)
-df32sub	32 bit decimal floating point subtraction (_Decimal32)
-df64sub	64 bit decimal floating point subtraction (_Decimal64)
-df128sub	128 bit decimal floating point subtraction (_Decimal128)
-df32mul	32 bit decimal floating point multiplication (_Decimal32)
-df64mul	64 bit decimal floating point multiplication (_Decimal64)
-df128mul	128 bit decimal floating point multiplication (_Decimal128)
-df32div	32 bit decimal floating point division (_Decimal32)
-df64div	64 bit decimal floating point division (_Decimal64)
-df128div	128 bit decimal floating point division (_Decimal128)
+all	T{
+iterate over all the following floating point methods:
+T}
+df32add	T{
+32 bit decimal floating point addition (_Decimal32)
+T}
+df64add	T{
+64 bit decimal floating point addition (_Decimal64)
+T}
+df128add	T{
+128 bit decimal floating point addition (_Decimal128)
+T}
+df32sub	T{
+32 bit decimal floating point subtraction (_Decimal32)
+T}
+df64sub	T{
+64 bit decimal floating point subtraction (_Decimal64)
+T}
+df128sub	T{
+128 bit decimal floating point subtraction (_Decimal128)
+T}
+df32mul	T{
+32 bit decimal floating point multiplication (_Decimal32)
+T}
+df64mul	T{
+64 bit decimal floating point multiplication (_Decimal64)
+T{
+df128mul	T{
+128 bit decimal floating point multiplication (_Decimal128)
+T}
+df32div	T{
+32 bit decimal floating point division (_Decimal32)
+T}
+df64div	T{
+64 bit decimal floating point division (_Decimal64)
+T}
+df128div	T{
+128 bit decimal floating point division (_Decimal128)
+T}
 .TE
 .RS
 .PP
@@ -3262,43 +3288,117 @@ select the floating point method to use, available methods are:
 lB2 lB
 l lx.
 Method	Description
-all	iterate over all the following floating point methods:
-float128add	128 bit floating point addition
-ibm128add	IBM 128 bit floating point addition (powerpc)
-float80add	80 bit floating point addition
-float64add	64 bit floating point addition
-float32add	32 bit binary32 floating point addition
-floatadd	floating point addition
-bf16add	bf16 floating point addition
-doubleadd	double precision floating point addition
-ldoubleadd	long double precision floating point addition
-float128sub	128 bit floating point subtraction
-ibm128sub	IBM 128 bit floating point subtraction (powerpc)
-float80sub	80 bit floating point subtraction
-float64sub	64 bit floating point subtraction
-float32sub	32 bit binary32 floating point subtraction
-floatsub	floating point subtraction
-bf16sub	bf16 floating point subtraction
-doublesub	double precision floating point subtraction
-ldoublesub	long double precision floating point subtraction
-float128mul	128 bit floating point multiplication
-ibm128mul	IBM 128 bit floating point multiplication (powerpc)
-float80mul	80 bit floating point multiplication
-float64mul	64 bit floating point multiplication
-float32mul	32 bit binary32 floating point multiplication
-floatmul	floating point multiplication
-bf16mul	bf16 floating point multiplication
-doublemul	double precision floating point multiplication
-ldoublemul	long double precision floating point multiplication
-float128div	128 bit floating point division
-ibm128div	IBM 128 bit floating point division (powerpc)
-float80div	80 bit floating point division
-float64div	64 bit floating point division
-float32div	32 bit binary32 floating point division
-floatdiv	floating point division
-bf16div	bf16 floating point division
-doublediv	double precision floating point division
-ldoublediv	long double precision floating point division
+all	T{
+iterate over all the following floating point methods:
+T}
+float128add	T{
+128 bit floating point addition
+T}
+ibm128add	T{
+IBM 128 bit floating point addition (powerpc)
+T}
+float80add	T{
+80 bit floating point addition
+T}
+float64add	T{
+64 bit floating point addition
+T}
+float32add	T{
+32 bit binary32 floating point addition
+T}
+floatadd	T{
+floating point addition
+T}
+bf16add	T{
+bf16 floating point addition
+T}
+doubleadd	T{
+double precision floating point addition
+T}
+ldoubleadd	T{
+long double precision floating point addition
+T}
+float128sub	T{
+128 bit floating point subtraction
+T}
+ibm128sub	T{
+IBM 128 bit floating point subtraction (powerpc)
+T}
+float80sub	T{
+80 bit floating point subtraction
+T}
+float64sub	T{
+64 bit floating point subtraction
+T}
+float32sub	T{
+32 bit binary32 floating point subtraction
+T}
+floatsub	T{
+floating point subtraction
+T}
+bf16sub	T{
+bf16 floating point subtraction
+T}
+doublesub	T{
+double precision floating point subtraction
+T}
+ldoublesub	T{
+long double precision floating point subtraction
+T}
+float128mul	T{
+128 bit floating point multiplication
+T}
+ibm128mul	T{
+IBM 128 bit floating point multiplication (powerpc)
+T}
+float80mul	T{
+80 bit floating point multiplication
+T}
+float64mul	T{
+64 bit floating point multiplication
+T}
+float32mul	T{
+32 bit binary32 floating point multiplication
+T}
+floatmul	T{
+floating point multiplication
+T}
+bf16mul	T{
+bf16 floating point multiplication
+T}
+doublemul	T{
+double precision floating point multiplication
+T}
+ldoublemul	T{
+long double precision floating point multiplication
+T}
+float128div	T{
+128 bit floating point division
+T}
+ibm128div	T{
+IBM 128 bit floating point division (powerpc)
+T}
+float80div	T{
+80 bit floating point division
+T}
+float64div	T{
+64 bit floating point division
+T}
+float32div	T{
+32 bit binary32 floating point division
+T}
+floatdiv	T{
+floating point division
+T}
+bf16div	T{
+bf16 floating point division
+T}
+doublediv	T{
+double precision floating point division
+T}
+ldoublediv	T{
+long double precision floating point division
+T}
 .TE
 .RS
 .PP
@@ -3996,32 +4096,84 @@ select the integer math method to use, available methods are:
 lB2 lB
 l lx.
 Method	Description
-all	iterate over all the following integer methods:
-add128	128 bit signed integer addition
-add64	64 bit signed integer addition
-add32	32 bit signed integer addition
-add16	16 bit signed integer addition
-add8	8 bit signed integer addition
-sub128	128 bit signed integer subtraction
-sub64	64 bit signed integer subtraction
-sub32	32 bit signed integer subtraction
-sub16	16 bit signed integer subtraction
-sub8	8 bit signed integer subtraction
-mul128	128 bit signed integer multiplication
-mul64	64 bit signed integer multiplication
-mul32	32 bit signed integer multiplication
-mul16	16 bit signed integer multiplication
-mul8	8 bit signed integer multiplication
-div128	128 bit signed integer division
-div64	64 bit signed integer division
-div32	32 bit signed integer division
-div16	16 bit signed integer division
-div8	8 bit signed integer division
-mod128	128 bit signed integer modulo
-mod64	64 bit signed integer modulo
-mod32	32 bit signed integer modulo
-mod16	16 bit signed integer modulo
-mod8	8 bit signed integer modulo
+all	T{
+iterate over all the following integer methods:
+T}
+add128	T{
+128 bit signed integer addition
+T}
+add64	T{
+64 bit signed integer addition
+T}
+add32	T{
+32 bit signed integer addition
+T}
+add16	T{
+16 bit signed integer addition
+T}
+add8	T{
+8 bit signed integer addition
+T}
+sub128	T{
+128 bit signed integer subtraction
+T}
+sub64	T{
+64 bit signed integer subtraction
+T}
+sub32	T{
+32 bit signed integer subtraction
+T}
+sub16	T{
+16 bit signed integer subtraction
+T}
+sub8	T{
+8 bit signed integer subtraction
+T}
+mul128	T{
+128 bit signed integer multiplication
+T}
+mul64	T{
+64 bit signed integer multiplication
+T}
+mul32	T{
+32 bit signed integer multiplication
+T}
+mul16	T{
+16 bit signed integer multiplication
+T}
+mul8	T{
+8 bit signed integer multiplication
+T}
+div128	T{
+128 bit signed integer division
+T}
+div64	T{
+64 bit signed integer division
+T}
+div32	T{
+32 bit signed integer division
+T}
+div16	T{
+16 bit signed integer division
+T}
+div8	T{
+8 bit signed integer division
+T}
+mod128	T{
+128 bit signed integer modulo
+T}
+mod64	T{
+64 bit signed integer modulo
+T}
+mod32	T{
+32 bit signed integer modulo
+T}
+mod16	T{
+16 bit signed integer modulo
+T}
+mod8	T{
+8 bit signed integer modulo
+T}
 .TE
 .sp
 for the \-\-intmath\-fast option, the following methods are available:
@@ -4030,27 +4182,69 @@ for the \-\-intmath\-fast option, the following methods are available:
 lB2 lB
 l lx.
 Method	Description
-all	iterate over all the following integer methods:
-addfast64	fast 64 bit signed integer addition
-addfast32	fast 32 bit signed integer addition
-addfast16	fast 16 bit signed integer addition
-addfast8	fast 8 bit signed integer addition
-subfast64	fast 64 bit signed integer subtraction
-subfast32	fast 32 bit signed integer subtraction
-subfast16	fast 16 bit signed integer subtraction
-subfast8	fast 8 bit signed integer subtraction
-mulfast64	fast 64 bit signed integer multiplication
-mulfast32	fast 32 bit signed integer multiplication
-mulfast16	fast 16 bit signed integer multiplication
-mulfast8	fast 8 bit signed integer multiplication
-divfast64	fast 64 bit signed integer division
-divfast32	fast 32 bit signed integer division
-divfast16	fast 16 bit signed integer division
-divfast8	fast 8 bit signed integer division
-modfast64	fast 64 bit signed integer modulo
-modfast32	fast 32 bit signed integer modulo
-modfast16	fast 16 bit signed integer modulo
-modfast8	fast 8 bit signed integer modulo
+all	T{
+iterate over all the following integer methods:
+T}
+addfast64	T{
+fast 64 bit signed integer addition
+T}
+addfast32	T{
+fast 32 bit signed integer addition
+T}
+addfast16	T{
+fast 16 bit signed integer addition
+T}
+addfast8	T{
+fast 8 bit signed integer addition
+T}
+subfast64	T{
+fast 64 bit signed integer subtraction
+T}
+subfast32	T{
+fast 32 bit signed integer subtraction
+T}
+subfast16	T{
+fast 16 bit signed integer subtraction
+T}
+subfast8	T{
+fast 8 bit signed integer subtraction
+T}
+mulfast64	T{
+fast 64 bit signed integer multiplication
+T}
+mulfast32	T{
+fast 32 bit signed integer multiplication
+T}
+mulfast16	T{
+fast 16 bit signed integer multiplication
+T}
+mulfast8	T{
+fast 8 bit signed integer multiplication
+T}
+divfast64	T{
+fast 64 bit signed integer division
+T}
+divfast32	T{
+fast 32 bit signed integer division
+T}
+divfast16	T{
+fast 16 bit signed integer division
+T}
+divfast8	T{
+fast 8 bit signed integer division
+T}
+modfast64	T{
+fast 64 bit signed integer modulo
+T}
+modfast32	T{
+fast 32 bit signed integer modulo
+T}
+modfast16	T{
+fast 16 bit signed integer modulo
+T}
+modfast8	T{
+fast 8 bit signed integer modulo
+T}
 .TE
 .TP
 .B \-\-intmath\-ops N
@@ -5106,34 +5300,90 @@ as follows:
 lB2 lB
 l lx.
 Method	Description
-all	iterate over all the below memrate methods
-read128pf	read 128 bits per read using prefetching
-read64pf	read 64 bits per read using prefetching
-read1024	read a vector of 1024 bits per read
-read512	read a vector of 512 bits per read
-read256	read a vector of 256 bits per read
-read128	read 128 bits per read
-read64	read 64 bits per read
-read32	read 32 bits per read
-read16	read 16 bits per read
-read8	read 8 bits per read
-write64stoq	write 64 bits per write with x86 rep stoq
-write32stow	write 32 bits per write with x86 rep stow
-write16stod	write 16 bits per write with x86 rep stod
-write8stob	write 8 bits per write with x86 rep stob
-write64ds	write 64 bits per write with x86 movdiri
-write128nt	write 128 bits per write using non-temporal store
-write64nt	write 64 bits per write using non-temporal store
-write32nt	write 32 bits per write using non-temporal store
-write1024	write a vector of 1024 bits per write
-write512	write a vector of 512 bits per write
-write256	write a vector of 256 bits per write
-write128	write 128 bits per write
-write64	write 64 bits per write
-write32	write 32 bits per write
-write16	write 16 bits per write
-write8	write 8 bits per write
-memset	write using libc memset
+all	T{
+iterate over all the below memrate methods
+T}
+read128pf	T{
+read 128 bits per read using prefetching
+T}
+read64pf	T{
+read 64 bits per read using prefetching
+T}
+read1024	T{
+read a vector of 1024 bits per read
+T}
+read512	T{
+read a vector of 512 bits per read
+T}
+read256	T{
+read a vector of 256 bits per read
+T}
+read128	T{
+read 128 bits per read
+T}
+read64	T{
+read 64 bits per read
+T}
+read32	T{
+read 32 bits per read
+T}
+read16	T{
+read 16 bits per read
+T}
+read8	T{
+read 8 bits per read
+T}
+write64stoq	T{
+write 64 bits per write with x86 rep stoq
+T}
+write32stow	T{
+write 32 bits per write with x86 rep stow
+T}
+write16stod	T{
+write 16 bits per write with x86 rep stod
+T}
+write8stob	T{
+write 8 bits per write with x86 rep stob
+T}
+write64ds	T{
+write 64 bits per write with x86 movdiri
+T}
+write128nt	T{
+write 128 bits per write using non-temporal store
+T}
+write64nt	T{
+write 64 bits per write using non-temporal store
+T}
+write32nt	T{
+write 32 bits per write using non-temporal store
+T}
+write1024	T{
+write a vector of 1024 bits per write
+T}
+write512	T{
+write a vector of 512 bits per write
+T}
+write256	T{
+write a vector of 256 bits per write
+T}
+write128	T{
+write 128 bits per write
+T}
+write64	T{
+write 64 bits per write
+T}
+write32	T{
+write 32 bits per write
+T}
+write16	T{
+write 16 bits per write
+T}
+write8	T{
+write 8 bits per write
+T}
+memset	T{
+write using libc memset
+T}
 .TE
 .TP
 .B \-\-memrate\-ops N
@@ -5351,26 +5601,66 @@ Available misaligned stress methods are described as follows:
 lB2 lB
 l lx.
 Method	Description
-all	iterate over all the following misaligned methods
-int16rd	8 \(mu 16 bit integer reads
-int16wr	8 \(mu 16 bit integer writes
-int16inc	8 \(mu 16 bit integer increments
-int16atomic	8 \(mu 16 bit atomic integer increments
-int32rd	4 \(mu 32 bit integer reads
-int32wr	4 \(mu 32 bit integer writes
-int32wtnt	4 \(mu 32 bit non-temporal stores (x86 only)
-int32inc	4 \(mu 32 bit integer increments
-int32atomic	4 \(mu 32 bit atomic integer increments
-int64rd	2 \(mu 64 bit integer reads
-int64wr	2 \(mu 64 bit integer writes
-int64wrds	4 \(mu 64 bit direct stores (x86 only)
-int64wtnt	4 \(mu 64 bit non-temporal stores (x86 only)
-int64inc	2 \(mu 64 bit integer increments
-int64atomic	2 \(mu 64 bit atomic integer increments
-int128rd	1 \(mu 128 bit integer reads
-int128wr	1 \(mu 128 bit integer writes
-int128inc	1 \(mu 128 bit integer increments
-int128atomic	1 \(mu 128 bit atomic integer increments
+all	T{
+iterate over all the following misaligned methods
+T}
+int16rd	T{
+8 \(mu 16 bit integer reads
+T}
+int16wr	T{
+8 \(mu 16 bit integer writes
+T}
+int16inc	T{
+8 \(mu 16 bit integer increments
+T}
+int16atomic	T{
+8 \(mu 16 bit atomic integer increments
+T}
+int32rd	T{
+4 \(mu 32 bit integer reads
+T}
+int32wr	T{
+4 \(mu 32 bit integer writes
+T}
+int32wtnt	T{
+4 \(mu 32 bit non-temporal stores (x86 only)
+T}
+int32inc	T{
+4 \(mu 32 bit integer increments
+T}
+int32atomic	T{
+4 \(mu 32 bit atomic integer increments
+T}
+int64rd	T{
+2 \(mu 64 bit integer reads
+T}
+int64wr	T{
+2 \(mu 64 bit integer writes
+T}
+int64wrds	T{
+4 \(mu 64 bit direct stores (x86 only)
+T}
+int64wtnt	T{
+4 \(mu 64 bit non-temporal stores (x86 only)
+T}
+int64inc	T{
+2 \(mu 64 bit integer increments
+T}
+int64atomic	T{
+2 \(mu 64 bit atomic integer increments
+T}
+int128rd	T{
+1 \(mu 128 bit integer reads
+T}
+int128wr	T{
+1 \(mu 128 bit integer writes
+T}
+int128inc	T{
+1 \(mu 128 bit integer increments
+T}
+int128atomic	T{
+1 \(mu 128 bit atomic integer increments
+T}
 .TE
 .PP
 Note that some of these options (128 bit integer and/or atomic operations) may
@@ -7515,17 +7805,39 @@ and is the default.
 lB2 lB
 l lx.
 Method	Description
-all	exercise with all the rotate stressor methods (see below):
-rol8	8 bit unsigned rotate left by 1 bit
-ror8	8 bit unsigned rotate right by 1 bit
-rol16	16 bit unsigned rotate left by 1 bit
-ror16	16 bit unsigned rotate right by 1 bit
-rol32	32 bit unsigned rotate left by 1 bit
-ror32	32 bit unsigned rotate right by 1 bit
-rol64	64 bit unsigned rotate left by 1 bit
-ror64	64 bit unsigned rotate right by 1 bit
-rol128	128 bit unsigned rotate left by 1 bit
-ror128	128 bit unsigned rotate right by 1 bit
+all	T{
+exercise with all the rotate stressor methods (see below):
+T}
+rol8	T{
+8 bit unsigned rotate left by 1 bit
+T}
+ror8	T{
+8 bit unsigned rotate right by 1 bit
+T}
+rol16	T{
+16 bit unsigned rotate left by 1 bit
+T}
+ror16	T{
+16 bit unsigned rotate right by 1 bit
+T}
+rol32	T{
+32 bit unsigned rotate left by 1 bit
+T}
+ror32	T{
+32 bit unsigned rotate right by 1 bit
+T}
+rol64	T{
+64 bit unsigned rotate left by 1 bit
+T}
+ror64	T{
+64 bit unsigned rotate right by 1 bit
+T}
+rol128	T{
+128 bit unsigned rotate left by 1 bit
+T}
+ror128	T{
+128 bit unsigned rotate right by 1 bit
+T}
 .TE
 .TP
 .B \-\-rotate\-ops N
@@ -8813,12 +9125,24 @@ The available methods are as follows:
 lB lB
 l lx.
 Method	Description
-all	select all the available system calls
-fast10	select the fastest 10% system call tests
-fast25	select the fastest 25% system call tests
-fast50	select the fastest 50% system call tests
-fast75	select the fastest 75% system call tests
-fast90	select the fastest 90% system call tests
+all	T{
+select all the available system calls
+T}
+fast10	T{
+select the fastest 10% system call tests
+T}
+fast25	T{
+select the fastest 25% system call tests
+T}
+fast50	T{
+select the fastest 50% system call tests
+T}
+fast75	T{
+select the fastest 75% system call tests
+T}
+fast90	T{
+select the fastest 90% system call tests
+T}
 geomean1	T{
 select tests that are less or equal to the
 geometric mean of all the test times
@@ -10589,8 +10913,12 @@ specify the reserved compression state memory for zlib.  Default is 8.
 cB2 lB lB lB
 c l s s.
 Value
-1	minimum memory usage.
-9	maximum memory usage.
+1	T{
+minimum memory usage.
+T}
+9	T{
+maximum memory usage.
+T}
 .TE
 .TP
 .B \-\-zlib\-method method
@@ -10718,11 +11046,21 @@ compression algorithm. Default is 0.
 cB2 lB lB lB
 c l s s.
 Value
-0	used for normal data (Z_DEFAULT_STRATEGY).
-1	for data generated by a filter or predictor (Z_FILTERED)
-2	forces huffman encoding (Z_HUFFMAN_ONLY).
-3	Limit match distances to one run-length-encoding (Z_RLE).
-4	prevents dynamic huffman codes (Z_FIXED).
+0	T{
+used for normal data (Z_DEFAULT_STRATEGY).
+T}
+1	T{
+for data generated by a filter or predictor (Z_FILTERED)
+T}
+2	T{
+forces huffman encoding (Z_HUFFMAN_ONLY).
+T}
+3	T{
+Limit match distances to one run-length-encoding (Z_RLE).
+T}
+4	T{
+prevents dynamic huffman codes (Z_FIXED).
+T}
 .TE
 .TP
 .B \-\-zlib\-stream\-bytes S
@@ -10749,10 +11087,18 @@ specified as the base two logarithm of the buffer size (e.g. value 9 is 2\[ua]9 
 cB2 lB lB lB
 c l s s.
 Value
--8-(-15)	raw deflate format.
-8-15	zlib format.
-24-31	gzip format.
-40-47	inflate auto format detection using zlib deflate format.
+-8-(-15)	T{
+raw deflate format.
+T}
+8-15	T{
+zlib format.
+T}
+24-31	T{
+gzip format.
+T}
+40-47	T{
+inflate auto format detection using zlib deflate format.
+T}
 .TE
 .RE
 .TP
