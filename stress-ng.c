@@ -40,6 +40,7 @@
 #include "core-out-of-memory.h"
 #include "core-perf.h"
 #include "core-pragma.h"
+#include "core-prime.h"
 #include "core-put.h"
 #include "core-rapl.h"
 #include "core-resctrl.h"
@@ -117,7 +118,6 @@ typedef struct {
 static stress_stressor_list_t stress_stressor_list;
 
 /* Various option settings and flags */
-static volatile bool wait_flag = true;		/* false = exit run wait loop */
 static pid_t main_pid;				/* stress-ng main pid */
 static bool *sigalarmed = NULL;			/* pointer to stressor stats->sigalarmed */
 static int32_t opt_sequential = DEFAULT_SEQUENTIAL; /* # of sequential stressors */
@@ -149,6 +149,9 @@ typedef struct {
 
 static stress_sigalrm_info_t sigalrm_info;
 #endif
+
+static stress_stats_t **stress_stats_hash_table;
+static size_t stress_stats_hash_table_size;
 
 /*
  *  optarg option to global setting option flags
@@ -417,6 +420,69 @@ static const stress_help_t help_generic[] = {
 };
 
 /*
+ *  stress_stats_hash_table_alloc()
+ *	allocate a prime sized stress_stats_t hash table based
+ *	on a hint of n elements
+ */
+static int stress_stats_hash_table_alloc(const size_t n)
+{
+	stress_stats_hash_table_size = (size_t)stress_get_next_prime64((uint64_t)n);
+	stress_stats_hash_table = (stress_stats_t **)calloc(stress_stats_hash_table_size, sizeof(*stress_stats_hash_table));
+	if (!stress_stats_hash_table) {
+		pr_err("failed to allocate %zu sized stats hash table\n", stress_stats_hash_table_size);
+		return -1;
+	}
+	return 0;
+}
+
+/*
+ *  stress_stats_hash_table_free()
+ *	free tress_stats_t hash table
+ */
+static inline void stress_stats_hash_table_free(void)
+{
+	free(stress_stats_hash_table);
+	stress_stats_hash_table = NULL;
+	stress_stats_hash_table_size = 0;
+}
+
+/*
+ *  stress_stats_pid_to_hash()
+ *	generate a hash based on a unique PID
+ */
+static inline size_t stress_stats_pid_to_hash(const pid_t pid)
+{
+	return (size_t)pid % stress_stats_hash_table_size;
+}
+
+/*
+ *  stress_stats_pid_find()
+ *	find the associated stress_stats_t struct for a given PID
+ */
+static inline stress_stats_t *stress_stats_pid_find(const pid_t pid)
+{
+	const size_t hash = stress_stats_pid_to_hash(pid);
+	register stress_stats_t *stats = stress_stats_hash_table[hash];
+
+	while (stats->s_pid.pid != pid)
+		stats = stats->hash_next;
+
+	return stats;
+}
+
+/*
+ *  stress_stats_hash_table_add()
+ *	add stats to the stress_stats hash table
+ */
+static inline void stress_stats_hash_table_add(stress_stats_t *stats)
+{
+	const size_t hash = stress_stats_pid_to_hash(stats->s_pid.pid);
+
+	stats->hash_next = stress_stats_hash_table[hash];
+	stress_stats_hash_table[hash] = stats;
+}
+
+/*
  *  stress_hash_checksum()
  *	generate a hash of the checksum data
  */
@@ -608,7 +674,7 @@ static void stress_kill_stressors(const int sig, const bool force_sigkill)
 			const pid_t pid = stats->s_pid.pid;
 
 			/* Don't kill -1 (group), or init processes! */
-			if ((pid > 1) && !stats->signalled) {
+			if ((pid > 1) && !stats->s_pid.reaped && !stats->signalled) {
 				(void)shim_kill(pid, signum);
 				stats->signalled = true;
 			}
@@ -629,7 +695,6 @@ static void MLOCKED_TEXT stress_sigint_handler(int signum)
 	if (g_shared)
 		g_shared->caught_sigint = true;
 	stress_continue_set_flag(false);
-	wait_flag = false;
 
 	/* Send alarm to all stressors */
 	stress_kill_stressors(SIGALRM, true);
@@ -656,7 +721,6 @@ static void MLOCKED_TEXT stress_sigalrm_handler(int signum)
 
 	if (getpid() == main_pid) {
 		/* Parent */
-		wait_flag = false;
 		stress_kill_stressors(SIGALRM, false);
 	} else {
 		/* Child */
@@ -1019,136 +1083,182 @@ static const char * PURE stress_exit_status_to_string(const int status)
 }
 
 /*
- *   stress_wait_pid()
- *	wait for a stressor by their given pid
+ *  stress_wait_reap_count()
+ *	determine number of children that are pending reaping
  */
-static void stress_wait_pid(
-	stress_stressor_t *ss,
-	const pid_t pid,
+static int32_t stress_wait_reap_count(stress_stressor_t *stressors_list)
+{
+	int32_t reap_count = 0;
+	stress_stressor_t *ss;
+
+	for (ss = stressors_list; ss; ss = ss->next) {
+		int32_t j;
+
+		if (ss->ignore.run || ss->ignore.permute)
+			continue;
+
+		for (j = 0; j < ss->instances; j++) {
+			stress_stats_t *const stats = ss->stats[j];
+
+			if ((stats->s_pid.pid > 0) && !stats->s_pid.reaped)
+				reap_count++;
+		}
+	}
+	return reap_count;
+}
+
+/*
+ *   stress_wait_status()
+ *	handle child wait status
+ */
+static void stress_wait_status(
 	stress_stats_t *stats,
 	bool *success,
 	bool *resource_success,
-	bool *metrics_success,
-	const int flag)
+	bool *metrics_success)
 {
-	pid_t ret;
-	int status;
+	int status, wexit_status;
 	bool do_abort = false;
+	stress_stressor_t *ss = stats->ss;
 	const char *name = ss->stressor->name;
+	const pid_t pid = stats->s_pid.pid;
 
-	/* already reaped, don't bother waiting */
-	if (stats->s_pid.reaped)
+	/* not reaped, don't bother */
+	if (!stats->s_pid.reaped) {
+		pr_warn("stress-ng: wait status check on pid %" PRIdMAX " that has not been waited for\n",
+			(intmax_t)stats->s_pid.pid);
 		return;
-redo:
-	ret = shim_waitpid(pid, &status, flag);
-	if (ret > 0) {
-		int wexit_status = WEXITSTATUS(status);
-
-		stats->s_pid.reaped = true;
-
-		if (WIFSIGNALED(status)) {
-#if defined(WTERMSIG)
-			const int wterm_signal = WTERMSIG(status);
-
-			if (wterm_signal != SIGALRM) {
-				const char *signame = stress_signal_str(wterm_signal);
-
-				pr_dbg("%s: [%" PRIdMAX "] terminated on %s\n",
-					name, (intmax_t)ret, signame);
-			}
-#else
-			pr_dbg("%s [%" PRIdMAX "] terminated on signal\n",
-				name, (intmax_t)ret);
-#endif
-			/*
-			 *  If the stressor got killed by OOM or SIGKILL
-			 *  then somebody outside of our control nuked it
-			 *  so don't necessarily flag that up as a direct
-			 *  failure.
-			 */
-			if (stress_process_oomed(ret)) {
-				pr_dbg("%s: [%" PRIdMAX "] killed by the OOM killer\n",
-					name, (intmax_t)ret);
-			} else if (wterm_signal == SIGKILL) {
-				pr_dbg("%s: [%" PRIdMAX "] possibly killed by the OOM killer\n",
-					name, (intmax_t)ret);
-			} else if (wterm_signal != SIGALRM) {
-				*success = false;
-				/* force EXIT_SIGNALED */
-				wexit_status = EXIT_SIGNALED;
-			}
-		}
-		switch (wexit_status) {
-		case EXIT_SUCCESS:
-			ss->status[STRESS_STRESSOR_STATUS_PASSED]++;
-			break;
-		case EXIT_NO_RESOURCE:
-			ss->status[STRESS_STRESSOR_STATUS_SKIPPED]++;
-			pr_warn_skip("%s: [%" PRIdMAX "] aborted early, no system resources\n",
-				name, (intmax_t)ret);
-			*resource_success = false;
-			do_abort = true;
-			break;
-		case EXIT_NOT_IMPLEMENTED:
-			ss->status[STRESS_STRESSOR_STATUS_SKIPPED]++;
-			do_abort = true;
-			break;
-		case EXIT_SIGNALED:
-			ss->status[STRESS_STRESSOR_STATUS_FAILED]++;
-			do_abort = true;
-			*success = false;
-#if defined(STRESS_REPORT_EXIT_SIGNALED)
-			pr_dbg("%s: [%" PRIdMAX "] aborted via a termination signal\n",
-				name, (intmax_t)ret);
-#endif
-			break;
-		case EXIT_BY_SYS_EXIT:
-			ss->status[STRESS_STRESSOR_STATUS_FAILED]++;
-			pr_dbg("%s: [%" PRIdMAX "] aborted via exit() which was not expected\n",
-				name, (intmax_t)ret);
-			do_abort = true;
-			break;
-		case EXIT_METRICS_UNTRUSTWORTHY:
-			ss->status[STRESS_STRESSOR_STATUS_BAD_METRICS]++;
-			*metrics_success = false;
-			break;
-		case EXIT_FAILURE:
-			ss->status[STRESS_STRESSOR_STATUS_FAILED]++;
-			/*
-			 *  Stressors should really return EXIT_NOT_SUCCESS
-			 *  as EXIT_FAILURE should indicate a core stress-ng
-			 *  problem.
-			 */
-			wexit_status = EXIT_NOT_SUCCESS;
-			goto wexit_status_default;
-		default:
-wexit_status_default:
-			pr_err("%s: [%" PRIdMAX "] terminated with an error, exit status=%d (%s)\n",
-				name, (intmax_t)ret, wexit_status,
-				stress_exit_status_to_string(wexit_status));
-			*success = false;
-			do_abort = true;
-			break;
-		}
-		if ((g_opt_flags & OPT_FLAGS_ABORT) && do_abort) {
-			stress_continue_set_flag(false);
-			wait_flag = false;
-			stress_kill_stressors(SIGALRM, true);
-		}
-
-		stress_stressor_finished(&stats->s_pid.pid);
-		pr_dbg("%s: [%" PRIdMAX "] terminated (%s)\n",
-			name, (intmax_t)ret,
-			stress_exit_status_to_string(wexit_status));
-	} else if (ret == -1) {
-		/* Somebody interrupted the wait */
-		if (errno == EINTR)
-			goto redo;
-		/* This child did not exist, mark it done anyhow */
-		if ((errno == ECHILD) || (errno == ESRCH))
-			stress_stressor_finished(&stats->s_pid.pid);
 	}
+
+	status = stats->s_pid.wait_status;
+	wexit_status = WEXITSTATUS(status);
+
+	if (WIFSIGNALED(status)) {
+#if defined(WTERMSIG)
+		const int wterm_signal = WTERMSIG(status);
+
+		if (wterm_signal != SIGALRM) {
+			const char *signame = stress_signal_str(wterm_signal);
+
+			pr_dbg("%s: [%" PRIdMAX "] terminated on %s\n",
+				name, (intmax_t)pid, signame);
+		}
+#else
+		pr_dbg("%s [%" PRIdMAX "] terminated on signal\n",
+			name, (intmax_t)pid);
+#endif
+		/*
+		 *  If the stressor got killed by OOM or SIGKILL
+		 *  then somebody outside of our control nuked it
+		 *  so don't necessarily flag that up as a direct
+		 *  failure.
+		 */
+		if (stress_process_oomed(pid)) {
+			pr_dbg("%s: [%" PRIdMAX "] killed by the OOM killer\n",
+				name, (intmax_t)pid);
+		} else if (wterm_signal == SIGKILL) {
+			pr_dbg("%s: [%" PRIdMAX "] possibly killed by the OOM killer\n",
+				name, (intmax_t)pid);
+		} else if (wterm_signal != SIGALRM) {
+			*success = false;
+			/* force EXIT_SIGNALED */
+			wexit_status = EXIT_SIGNALED;
+		}
+	}
+
+	switch (wexit_status) {
+	case EXIT_SUCCESS:
+		ss->status[STRESS_STRESSOR_STATUS_PASSED]++;
+		break;
+	case EXIT_NO_RESOURCE:
+		ss->status[STRESS_STRESSOR_STATUS_SKIPPED]++;
+		pr_warn_skip("%s: [%" PRIdMAX "] aborted early, no system resources\n",
+			name, (intmax_t)pid);
+		*resource_success = false;
+		do_abort = true;
+		break;
+	case EXIT_NOT_IMPLEMENTED:
+		ss->status[STRESS_STRESSOR_STATUS_SKIPPED]++;
+		do_abort = true;
+		break;
+	case EXIT_SIGNALED:
+		ss->status[STRESS_STRESSOR_STATUS_FAILED]++;
+		do_abort = true;
+		*success = false;
+#if defined(STRESS_REPORT_EXIT_SIGNALED)
+		pr_dbg("%s: [%" PRIdMAX "] aborted via a termination signal\n",
+			name, (intmax_t)pid);
+#endif
+		break;
+	case EXIT_BY_SYS_EXIT:
+		ss->status[STRESS_STRESSOR_STATUS_FAILED]++;
+		pr_dbg("%s: [%" PRIdMAX "] aborted via exit() which was not expected\n",
+			name, (intmax_t)pid);
+		do_abort = true;
+		break;
+	case EXIT_METRICS_UNTRUSTWORTHY:
+		ss->status[STRESS_STRESSOR_STATUS_BAD_METRICS]++;
+		*metrics_success = false;
+		break;
+	case EXIT_FAILURE:
+		ss->status[STRESS_STRESSOR_STATUS_FAILED]++;
+		/*
+		 *  Stressors should really return EXIT_NOT_SUCCESS
+		 *  as EXIT_FAILURE should indicate a core stress-ng
+		 *  problem.
+		 */
+		wexit_status = EXIT_NOT_SUCCESS;
+		goto wexit_status_default;
+	default:
+wexit_status_default:
+		pr_err("%s: [%" PRIdMAX "] terminated with an error, exit status=%d (%s)\n",
+			name, (intmax_t)pid, wexit_status,
+			stress_exit_status_to_string(wexit_status));
+		*success = false;
+		do_abort = true;
+		break;
+	}
+	if ((g_opt_flags & OPT_FLAGS_ABORT) && do_abort) {
+		stress_continue_set_flag(false);
+		stress_kill_stressors(SIGALRM, true);
+	}
+
+	stress_stressor_finished(&stats->s_pid.pid);
+	pr_dbg("%s: [%" PRIdMAX "] terminated (%s)\n",
+		name, (intmax_t)pid,
+		stress_exit_status_to_string(wexit_status));
 }
+
+/*
+ *  stress_child_wait()
+ *	wait for a child, if one has successfully been
+ *	waited for, mark as reaped
+ */
+static stress_stats_t *stress_child_wait(
+	const int flag,
+	bool *success,
+	bool *resource_success,
+	bool *metrics_success)
+{
+	int status;
+	pid_t pid;
+
+	pid = waitpid(-1, &status, flag);
+	if (pid > 0) {
+		stress_stats_t *stats = stress_stats_pid_find(pid);
+
+		if (stats) {
+			stats->s_pid.reaped = true;
+			stats->s_pid.wait_status = status;
+
+			stress_wait_status(stats, success, resource_success, metrics_success);
+
+			return stats;
+		}
+	}
+	return NULL;
+}
+
 
 #if defined(HAVE_SCHED_GETAFFINITY) &&	\
     NEED_GLIBC(2,3,0)
@@ -1164,16 +1274,18 @@ static void stress_wait_aggressive(
 	bool *resource_success,
 	bool *metrics_success)
 {
-	stress_stressor_t *ss;
 	cpu_set_t proc_mask;
 	const useconds_t usec_sleep =
 		ticks_per_sec ? 1000000 / ((useconds_t)ticks_per_sec) : 1000000 / 1000;
+	int32_t reap_count = stress_wait_reap_count(stressors_list);
 
 	pr_dbg("changing stressor cpu affinity every %lu usecs\n", (unsigned long int)usec_sleep);
 
-	while (wait_flag) {
+	for (;;) {
+		stress_stats_t *stats;
 		const int32_t cpus = stress_get_processors_configured();
-		bool procs_alive = false;
+		int32_t cpu_num;
+		cpu_set_t mask;
 
 		/*
 		 *  If we can't get the mask, then don't do
@@ -1186,42 +1298,25 @@ static void stress_wait_aggressive(
 
 		(void)shim_usleep(usec_sleep);
 
-		for (ss = stressors_list; ss; ss = ss->next) {
-			int32_t j;
+		stats = stress_child_wait(WNOHANG, success, resource_success, metrics_success);
+		if (stats)
+			reap_count--;
+		if (reap_count <= 0)
+			return;
 
-			if (ss->ignore.run || ss->ignore.permute)
-				continue;
+		if (!stats)
+			continue;
 
-			for (j = 0; j < ss->instances; j++) {
-				stress_stats_t *const stats = ss->stats[j];
-				const pid_t pid = stats->s_pid.pid;
+		do {
+			cpu_num = (int32_t)stress_mwc32modn(cpus);
+		} while (!(CPU_ISSET(cpu_num, &proc_mask)));
 
-				if (pid && !stats->s_pid.reaped) {
-					cpu_set_t mask;
-					int32_t cpu_num;
+		CPU_ZERO(&mask);
+		CPU_SET(cpu_num, &mask);
 
-					stress_wait_pid(ss, pid, stats,
-						success, resource_success,
-						metrics_success, WNOHANG);
-
-					/* PID not reaped by the WNOHANG waitpid? */
-					if (!stats->s_pid.reaped)
-						procs_alive = true;
-					do {
-						cpu_num = (int32_t)stress_mwc32modn(cpus);
-					} while (!(CPU_ISSET(cpu_num, &proc_mask)));
-
-					CPU_ZERO(&mask);
-					CPU_SET(cpu_num, &mask);
-
-					/* may fail if child has just died, just continue */
-					(void)sched_setaffinity(pid, sizeof(mask), &mask);
-					(void)shim_sched_yield();
-				}
-			}
-		}
-		if (!procs_alive)
-			break;
+		/* may fail if child has just died, just continue */
+		(void)sched_setaffinity(stats->s_pid.pid, sizeof(mask), &mask);
+		(void)shim_sched_yield();
 	}
 }
 #endif
@@ -1238,9 +1333,10 @@ static void stress_wait_stressors(
 	bool *resource_success,
 	bool *metrics_success)
 {
-	stress_stressor_t *ss;
+	int32_t reap_count = 0;
 
 	stress_sync_start_cont_list(s_pids_head);
+
 
 #if defined(HAVE_SCHED_GETAFFINITY) &&	\
     NEED_GLIBC(2,3,0)
@@ -1255,25 +1351,15 @@ static void stress_wait_stressors(
 #else
 	(void)ticks_per_sec;
 #endif
-	for (ss = stressors_list; ss; ss = ss->next) {
-		int32_t j;
+	reap_count = stress_wait_reap_count(stressors_list);
+	do {
+		stress_stats_t *stats;
 
-		if (ss->ignore.run || ss->ignore.permute)
-			continue;
+		stats = stress_child_wait(0, success, resource_success, metrics_success);
+		if (stats)
+			reap_count--;
+	} while (reap_count > 0);
 
-		for (j = 0; j < ss->instances; j++) {
-			stress_stats_t *const stats = ss->stats[j];
-			const pid_t pid = stats->s_pid.pid;
-
-			if (pid) {
-				const char *name = ss->stressor->name;
-
-				stress_wait_pid(ss, pid, stats,
-					success, resource_success, metrics_success, 0);
-				stress_clean_dir(name, pid, (uint32_t)j);
-			}
-		}
-	}
 	if (g_opt_flags & OPT_FLAGS_IGNITE_CPU)
 		stress_ignite_cpu_stop();
 }
@@ -1336,18 +1422,21 @@ static stress_stressor_t *stress_get_nth_stressor(const uint32_t n)
 
 /*
  *  stress_get_num_stressors()
- *	return number of stressors in stressor list
+ *	return number of stressors and instances in stressor list
  */
-static inline uint32_t stress_get_num_stressors(void)
+static inline void stress_get_num_stressors(uint32_t *n_stressors, uint32_t *n_instances)
 {
-	uint32_t n = 0;
 	stress_stressor_t *ss;
 
-	for (ss = stress_stressor_list.head; ss; ss = ss->next)
-		if (!ss->ignore.run)
-			n++;
+	*n_stressors = 0;
+	*n_instances = 0;
 
-	return n;
+	for (ss = stress_stressor_list.head; ss; ss = ss->next) {
+		if (!ss->ignore.run) {
+			(*n_stressors)++;
+			(*n_instances) += ss->instances;
+		}
+	}
 }
 
 /*
@@ -1725,7 +1814,6 @@ child_exit:
 	 */
 	if ((rc != 0) && (g_opt_flags & OPT_FLAGS_ABORT)) {
 		stress_continue_set_flag(false);
-		wait_flag = false;
 		(void)shim_kill(getppid(), SIGALRM);
 	}
 	stress_set_proc_state(name, STRESS_STATE_EXIT);
@@ -1760,7 +1848,6 @@ static void MLOCKED_TEXT stress_run(
 	bool handler_set = false;
 	stress_pid_t *s_pids_head = NULL;
 
-	wait_flag = true;
 	time_start = stress_time_now();
 
 	(void)stress_get_setting("backoff", &backoff);
@@ -1809,6 +1896,10 @@ static void MLOCKED_TEXT stress_run(
 			stats->args.bogo.ci.counter_ready = true;
 			stats->args.bogo.ci.counter = 0;
 			stats->checksum = *checksum;
+
+			stats->ss = g_stressor_current;
+			stats->s_pid.reaped = false;
+			stats->s_pid.wait_status = 0;
 
 			if (g_opt_flags & OPT_FLAGS_DRY_RUN) {
 				stats->s_pid.reaped = true;
@@ -1863,6 +1954,7 @@ again:
 					stress_ftrace_add_pid(pid);
 
 					stress_sync_start_s_pid_list_add(&s_pids_head, &stats->s_pid);
+					stress_stats_hash_table_add(stats);
 				}
 
 				/* Forced early abort during startup? */
@@ -1873,6 +1965,11 @@ again:
 				}
 				break;
 			}
+			/*
+			 *  See if any spawned child processes have
+			 *  already exited, reap and save their status
+			 */
+			(void)stress_child_wait(WNOHANG, success, resource_success, metrics_success);
 		}
 	}
 	if (!handler_set) {
@@ -3076,7 +3173,9 @@ static inline void stress_set_random_stressors(void)
 
 	if (g_opt_flags & OPT_FLAGS_RANDOM) {
 		int32_t n = opt_random;
-		const uint32_t n_procs = stress_get_num_stressors();
+		uint32_t n_procs, n_instances;
+
+		stress_get_num_stressors(&n_procs, &n_instances);
 
 		if (g_opt_flags & OPT_FLAGS_SET) {
 			(void)fprintf(stderr, "cannot specify random "
@@ -3891,7 +3990,7 @@ int main(int argc, char **argv, char **envp)
 	int32_t ionice_level = UNDEFINED;	/* ionice level */
 	size_t i;
 	uint32_t opt_class = 0;
-	uint32_t n_stressors;
+	uint32_t n_stressors, n_instances;
 	const uint32_t cpus_online = (uint32_t)stress_get_processors_online();
 	const uint32_t cpus_configured = (uint32_t)stress_get_processors_configured();
 	int ret;
@@ -4214,7 +4313,12 @@ int main(int argc, char **argv, char **envp)
 	stress_config_check();
 	stress_resctrl_init();
 
-	n_stressors = stress_get_num_stressors();
+	stress_get_num_stressors(&n_stressors, &n_instances);
+	if (stress_stats_hash_table_alloc(n_instances) < 0) {
+		ret = EXIT_FAILURE;
+		goto exit_resctrl;
+	}
+
 	if (g_opt_flags & OPT_FLAGS_SEQUENTIAL) {
 		stress_run_sequential(ticks_per_sec, n_stressors, &duration, &success, &resource_success, &metrics_success);
 	} else if (g_opt_flags & OPT_FLAGS_PERMUTE) {
@@ -4223,6 +4327,7 @@ int main(int argc, char **argv, char **envp)
 		stress_run_parallel(ticks_per_sec, n_stressors, &duration, &success, &resource_success, &metrics_success);
 	}
 
+	stress_stats_hash_table_free();
 	stress_clocksource_check();
 
 	/* Stop alarms */
@@ -4276,16 +4381,17 @@ int main(int argc, char **argv, char **envp)
 	stress_times_dump(yaml, ticks_per_sec, duration);
 	stress_exit_status_summary();
 
+	pr_inf("%s run completed in %s\n",
+		success ? "successful" : "unsuccessful",
+		stress_duration_to_str(duration, true, false));
+
+exit_resctrl:
 	stress_resctrl_deinit();
 	stress_klog_stop(&success);
 	stress_smart_stop();
 	stress_vmstat_stop();
 	stress_ftrace_stop();
 	stress_ftrace_free();
-
-	pr_inf("%s run completed in %s\n",
-		success ? "successful" : "unsuccessful",
-		stress_duration_to_str(duration, true, false));
 
 	stress_settings_show();
 	/*

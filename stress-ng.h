@@ -198,6 +198,7 @@ typedef struct stress_pid {
 	pid_t oomable_child;		/* oomable child pid, zero = none */
 	volatile uint8_t state;		/* sync start state */
 	bool reaped;			/* successfully waited for */
+	int wait_status;		/* waitpid status */
 } stress_pid_t;
 
 /* Bogo-op counter state */
@@ -580,6 +581,8 @@ typedef struct {
 
 /* Per stressor statistics and accounting info */
 typedef struct stress_stats {
+	struct stress_stats *hash_next;	/* next stats in hash table */
+	stress_stressor_t *ss;		/* stressor that this belongs to */
 	stress_args_t args;		/* stressor args */
 	double start;			/* wall clock start time */
 	double duration;		/* finish - start */
