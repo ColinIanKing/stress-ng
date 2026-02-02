@@ -311,10 +311,14 @@ static void stress_varyload_by_type(
 		if (load_saw_inc == 0)
 			load_saw_inc = 1;
 
-		for (i = 1; i < load_saw_inc; i++)
-			(void)kill(pids[i], SIGCONT);
-		for (; i < args->instances; i++)
-			(void)kill(pids[i], SIGSTOP);
+		for (i = 1; i < load_saw_inc; i++) {
+			if (pids[i] >= 0) 
+				(void)kill(pids[i], SIGCONT);
+		}
+		for (; i < args->instances; i++) {
+			if (pids[i] >= 0) 
+				(void)kill(pids[i], SIGSTOP);
+		}
 		if (!stress_continue(args))
 			break;
 		stress_varyload_waste_time(args, varyload_method,
@@ -327,10 +331,14 @@ static void stress_varyload_by_type(
 		if (load_saw_dec == 0)
 			load_saw_dec = args->instances;
 
-		for (i = 1; i < load_saw_dec; i++)
-			(void)kill(pids[i], SIGCONT);
-		for (; i < args->instances; i++)
-			(void)kill(pids[i], SIGSTOP);
+		for (i = 1; i < load_saw_dec; i++) {
+			if (pids[i] >= 0) 
+				(void)kill(pids[i], SIGCONT);
+		}
+		for (; i < args->instances; i++) {
+			if (pids[i] >= 0) 
+				(void)kill(pids[i], SIGSTOP);
+		}
 		if (!stress_continue(args))
 			break;
 		stress_varyload_waste_time(args, varyload_method,
@@ -343,10 +351,14 @@ static void stress_varyload_by_type(
 		if (load_triangle == 0)
 			load_triangle = 1;
 
-		for (i = 1; i < load_triangle; i++)
-			(void)kill(pids[i], SIGCONT);
-		for (; i < args->instances; i++)
-			(void)kill(pids[i], SIGSTOP);
+		for (i = 1; i < load_triangle; i++) {
+			if (pids[i] >= 0) 
+				(void)kill(pids[i], SIGCONT);
+		}
+		for (; i < args->instances; i++) {
+			if (pids[i] >= 0) 
+				(void)kill(pids[i], SIGSTOP);
+		}
 		if (!stress_continue(args))
 			break;
 		stress_varyload_waste_time(args, varyload_method,
@@ -365,12 +377,16 @@ static void stress_varyload_by_type(
 		break;
 	case STRESS_VARYLOAD_TYPE_PULSE:
 		if (pulse_low) {
-			for (i = 1; i < args->instances; i++)
-				(void)kill(pids[i], SIGSTOP);
+			for (i = 1; i < args->instances; i++) {
+				if (pids[i] >= 0) 
+					(void)kill(pids[i], SIGSTOP);
+			}
 			(void)shim_usleep_interruptible(varyload_ms * 1000);
 		} else {
-			for (i = 1; i < args->instances; i++)
-				(void)kill(pids[i], SIGCONT);
+			for (i = 1; i < args->instances; i++) {
+				if (pids[i] >= 0) 
+					(void)kill(pids[i], SIGCONT);
+			}
 			if (!stress_continue(args))
 				break;
 			stress_varyload_waste_time(args, varyload_method,
@@ -379,8 +395,10 @@ static void stress_varyload_by_type(
 		pulse_low = !pulse_low;
 		break;
 	case STRESS_VARYLOAD_TYPE_RANDOM:
-		for (i = 1; i < args->instances; i++)
-			(void)kill(pids[i], stress_mwc1() ? SIGSTOP : SIGCONT);
+		for (i = 1; i < args->instances; i++) {
+			if (pids[i] >= 0) 
+				(void)kill(pids[i], stress_mwc1() ? SIGSTOP : SIGCONT);
+		}
 		if (!stress_continue(args))
 			break;
 		if (stress_mwc1())
@@ -400,10 +418,14 @@ static void stress_varyload_by_type(
 			newload = 1;
 		load_brown = (uint32_t)newload;
 
-		for (i = 1; i < load_brown; i++)
-			(void)kill(pids[i], SIGCONT);
-		for (; i < args->instances; i++)
-			(void)kill(pids[i], SIGSTOP);
+		for (i = 1; i < load_brown; i++) {
+			if (pids[i] >= 0) 
+				(void)kill(pids[i], SIGCONT);
+		}
+		for (; i < args->instances; i++) {
+			if (pids[i] >= 0) 
+				(void)kill(pids[i], SIGSTOP);
+		}
 		if (!stress_continue(args))
 			break;
 		stress_varyload_waste_time(args, varyload_method,
@@ -438,6 +460,10 @@ static int stress_varyload(stress_args_t *args)
 		pr_inf("%s: failed to allocate %" PRIu32 " pids, skipping stressor\n",
 			args->name, args->instances);
 		return EXIT_NO_RESOURCE;
+	}
+
+	for (i = 0; i < args->instances; i++) {
+		pids[i] = -1;
 	}
 
 	pids[0] = getpid();
@@ -512,8 +538,10 @@ redo:
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	if (controller) {
-		for (i = 1; i < args->instances; i++)
-			(void)kill(pids[i], SIGSTOP);
+		for (i = 1; i < args->instances; i++) {
+			if (pids[i] >= 0) 
+				(void)kill(pids[i], SIGSTOP);
+		}
 
 		if (varyload_type == STRESS_VARYLOAD_TYPE_ALL) {
 			/* Work through all varyload types periodically */
@@ -545,8 +573,10 @@ redo:
 			} while (stress_continue(args));
 		}
 
-		for (i = 1; i < args->instances; i++)
-			(void)kill(pids[i], SIGCONT);
+		for (i = 1; i < args->instances; i++) {
+			if (pids[i] >= 0) 
+				(void)kill(pids[i], SIGCONT);
+		}
 	} else {
 		do {
 			stress_varyload_waste_time(args, varyload_method,
