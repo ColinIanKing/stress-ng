@@ -26,12 +26,17 @@
 
 #define MIN_MEM_FREE	(16 * MB)
 #define MAX_PIDS 	(2048)
-#define MAX_LOOPS	(2048)
+
+#define MAX_RESOURCES	(65536)
+#define MIN_RESOURCES	(1)
+#define DFL_RESOURCES	(2048)
 
 static const stress_help_t help[] = {
 	{ NULL,	"resources N",	   "start N workers consuming system resources" },
-	{ NULL,	"resources-mlock", "attempt to mlock pages into memory" },
 	{ NULL,	"resources-ops N", "stop after N resource bogo operations" },
+	{ NULL,	"resources-mlock", "attempt to mlock pages into memory" },
+	{ NULL,	"resources-share", "share specified number of resources between instances" },
+	{ NULL,	"resources-num N", "number of resource instances per worker" },
 	{ NULL,	NULL,		   NULL }
 };
 
@@ -45,9 +50,29 @@ static int stress_resources(stress_args_t *args)
 	size_t min_mem_free, shmall, freemem, totalmem, freeswap, totalswap;
 	size_t num_pids = MAX_PIDS;
 	stress_resources_t *resources;
-	const size_t num_resources = MAX_LOOPS;
+	size_t num_resources = DFL_RESOURCES;
 	stress_pid_t *s_pids;
 	bool resources_mlock = false;
+	bool resources_share = false;
+
+	if (!stress_get_setting("resources-num", &num_resources)) {
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
+			num_resources = MAX_RESOURCES;
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
+			num_resources = MIN_RESOURCES;
+	}
+
+	if ((num_resources < MIN_RESOURCES) || (num_resources > MAX_RESOURCES)) {
+		pr_fail("%s: resources-num out of range", args->name);
+		return EXIT_FAILURE;
+	}
+
+	if (stress_get_setting("resources-share", &resources_share)) {
+		if (resources_share) {
+			num_resources /= (args->instances == 0) ? 1 : args->instances;
+			num_resources = STRESS_MAXIMUM(num_resources, MIN_RESOURCES);
+		}
+	}
 
 	if (!stress_get_setting("resources-mlock", &resources_mlock)) {
 		if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
@@ -130,6 +155,8 @@ static int stress_resources(stress_args_t *args)
 
 static const stress_opt_t opts[] = {
 	{ OPT_resources_mlock, "resources-mlock", TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_resources_share, "resources-share", TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_resources_num, "resources-num", TYPE_ID_UINT32, MIN_RESOURCES, MAX_RESOURCES, NULL },
 	END_OPT,
 };
 
