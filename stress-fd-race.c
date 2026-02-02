@@ -291,10 +291,12 @@ static int OPTIMIZE3 stress_race_fd_client(stress_fd_race_context *context)
 		int fds_min = INT_MAX, fds_max = -1;
 		int pthreads_ret[MAX_PTHREADS];
 		pthread_t pthreads[MAX_PTHREADS];
+		size_t j;
 
-		(void)shim_memset(pthreads_ret, 0, sizeof(pthreads_ret));
+		for (j = 0; j < MAX_PTHREADS; j++)
+			pthreads_ret[j] = -1;
+
 		(void)shim_memset(pthreads, 0, sizeof(pthreads));
-
 		(void)shim_memset(context->fds, 0, context->fds_size);
 retry:
 		if (UNLIKELY(!stress_continue_flag()))
@@ -506,7 +508,9 @@ static int OPTIMIZE3 stress_race_fd_server(
 	int pthreads_ret[MAX_PTHREADS];
 	pthread_t pthreads[MAX_PTHREADS];
 
-	(void)shim_memset(pthreads_ret, 0, sizeof(pthreads_ret));
+	for (j = 0; j < MAX_PTHREADS; j++) {
+		pthreads_ret[j] = -1;
+	}
 	(void)shim_memset(pthreads, 0, sizeof(pthreads));
 
 	if (stress_signal_stop_stressing(args->name, SIGALRM)) {
