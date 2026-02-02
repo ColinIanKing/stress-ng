@@ -312,11 +312,11 @@ static void stress_varyload_by_type(
 			load_saw_inc = 1;
 
 		for (i = 1; i < load_saw_inc; i++) {
-			if (pids[i] >= 0) 
+			if (pids[i] >= 0)
 				(void)kill(pids[i], SIGCONT);
 		}
 		for (; i < args->instances; i++) {
-			if (pids[i] >= 0) 
+			if (pids[i] >= 0)
 				(void)kill(pids[i], SIGSTOP);
 		}
 		if (!stress_continue(args))
@@ -332,11 +332,11 @@ static void stress_varyload_by_type(
 			load_saw_dec = args->instances;
 
 		for (i = 1; i < load_saw_dec; i++) {
-			if (pids[i] >= 0) 
+			if (pids[i] >= 0)
 				(void)kill(pids[i], SIGCONT);
 		}
 		for (; i < args->instances; i++) {
-			if (pids[i] >= 0) 
+			if (pids[i] >= 0)
 				(void)kill(pids[i], SIGSTOP);
 		}
 		if (!stress_continue(args))
@@ -352,11 +352,11 @@ static void stress_varyload_by_type(
 			load_triangle = 1;
 
 		for (i = 1; i < load_triangle; i++) {
-			if (pids[i] >= 0) 
+			if (pids[i] >= 0)
 				(void)kill(pids[i], SIGCONT);
 		}
 		for (; i < args->instances; i++) {
-			if (pids[i] >= 0) 
+			if (pids[i] >= 0)
 				(void)kill(pids[i], SIGSTOP);
 		}
 		if (!stress_continue(args))
@@ -378,13 +378,13 @@ static void stress_varyload_by_type(
 	case STRESS_VARYLOAD_TYPE_PULSE:
 		if (pulse_low) {
 			for (i = 1; i < args->instances; i++) {
-				if (pids[i] >= 0) 
+				if (pids[i] >= 0)
 					(void)kill(pids[i], SIGSTOP);
 			}
 			(void)shim_usleep_interruptible(varyload_ms * 1000);
 		} else {
 			for (i = 1; i < args->instances; i++) {
-				if (pids[i] >= 0) 
+				if (pids[i] >= 0)
 					(void)kill(pids[i], SIGCONT);
 			}
 			if (!stress_continue(args))
@@ -396,7 +396,7 @@ static void stress_varyload_by_type(
 		break;
 	case STRESS_VARYLOAD_TYPE_RANDOM:
 		for (i = 1; i < args->instances; i++) {
-			if (pids[i] >= 0) 
+			if (pids[i] >= 0)
 				(void)kill(pids[i], stress_mwc1() ? SIGSTOP : SIGCONT);
 		}
 		if (!stress_continue(args))
@@ -419,11 +419,11 @@ static void stress_varyload_by_type(
 		load_brown = (uint32_t)newload;
 
 		for (i = 1; i < load_brown; i++) {
-			if (pids[i] >= 0) 
+			if (pids[i] >= 0)
 				(void)kill(pids[i], SIGCONT);
 		}
 		for (; i < args->instances; i++) {
-			if (pids[i] >= 0) 
+			if (pids[i] >= 0)
 				(void)kill(pids[i], SIGSTOP);
 		}
 		if (!stress_continue(args))
@@ -539,7 +539,7 @@ redo:
 
 	if (controller) {
 		for (i = 1; i < args->instances; i++) {
-			if (pids[i] >= 0) 
+			if (pids[i] >= 0)
 				(void)kill(pids[i], SIGSTOP);
 		}
 
@@ -574,7 +574,7 @@ redo:
 		}
 
 		for (i = 1; i < args->instances; i++) {
-			if (pids[i] >= 0) 
+			if (pids[i] >= 0)
 				(void)kill(pids[i], SIGCONT);
 		}
 	} else {
