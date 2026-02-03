@@ -6697,6 +6697,10 @@ page them back in and unmapped in reverse mapping order.
 .TP
 .B \-\-pageswap\-ops N
 stop after N page allocation bogo operations.
+.TP
+.B \-\-pageswap\-pages N
+specify the maximum number of pages to be mmap'd per instace; range 1 to 1048576.
+The default is 65536 pages.
 .RE
 .TP
 .B PCI sysfs stressor (Linux)

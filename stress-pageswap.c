@@ -19,12 +19,20 @@
 #include "stress-ng.h"
 #include "core-out-of-memory.h"
 
-#define MAX_PAGES	(65536)
+#define MIN_PAGESWAP_PAGES	(1)
+#define MAX_PAGESWAP_PAGES	(1024 * 1024)
+#define DEFAULT_PAGESWAP_PAGES	(65536)
 
 static const stress_help_t help[] = {
-	{ NULL,	"pageswap N",		"start N workers that swap pages out and in" },
-	{ NULL,	"pageswap-ops N",	"stop after N page swap bogo operations" },
-	{ NULL,	NULL,			NULL }
+	{ NULL,	"pageswap N",       "start N workers that swap pages out and in" },
+	{ NULL, "pageswap-pages N", "specify maximum number of pages to swap out" },
+	{ NULL,	"pageswap-ops N",   "stop after N page swap bogo operations" },
+	{ NULL,	NULL,               NULL }
+};
+
+static const stress_opt_t opts[] = {
+	{ OPT_pageswap_pages, "pageswap-pages", TYPE_ID_SIZE_T, MIN_PAGESWAP_PAGES, MAX_PAGESWAP_PAGES, NULL },
+	END_OPT,
 };
 
 typedef struct page_info {
@@ -102,11 +110,10 @@ static int stress_pageswap_child(stress_args_t *args, void *context)
 {
 	const size_t page_size = STRESS_MAXIMUM(args->page_size, sizeof(page_info_t));
 	size_t max = 0;
+	const size_t pageswap_pages = *(size_t *)context;
 	page_info_t *head = NULL;
 	double count = 0.0, t, duration, rate;
 	int rc = EXIT_SUCCESS;
-
-	(void)context;
 
 	t = stress_time_now();
 	do {
@@ -139,7 +146,7 @@ static int stress_pageswap_child(stress_args_t *args, void *context)
 				(void)madvise(pi, pi->size, MADV_POPULATE_READ);
 #endif
 
-			if (UNLIKELY(max++ >= MAX_PAGES)) {
+			if (UNLIKELY(max++ >= pageswap_pages)) {
 				stress_pageswap_unmap(args, &head, &count, &rc);
 				max = 0;
 			}
@@ -165,15 +172,18 @@ static int stress_pageswap_child(stress_args_t *args, void *context)
 static int stress_pageswap(stress_args_t *args)
 {
 	int rc;
+	size_t pageswap_pages = DEFAULT_PAGESWAP_PAGES;
+
+	(void)stress_get_setting("pageswap-pages", &pageswap_pages);
 
 	if (stress_instance_zero(args))
-		stress_usage_bytes(args, args->page_size * MAX_PAGES, args->page_size * MAX_PAGES * args->instances);
+		stress_usage_bytes(args, args->page_size * pageswap_pages, args->page_size * pageswap_pages * args->instances);
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
-	rc = stress_oomable_child(args, NULL, stress_pageswap_child, STRESS_OOMABLE_DROP_CAP);
+	rc = stress_oomable_child(args, &pageswap_pages, stress_pageswap_child, STRESS_OOMABLE_DROP_CAP);
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	return rc;
@@ -184,6 +194,7 @@ const stressor_info_t stress_pageswap_info = {
 	.supported = stress_pageswap_supported,
 	.classifier = CLASS_OS | CLASS_VM,
 	.verify = VERIFY_OPTIONAL,
+	.opts = opts,
 	.help = help
 };
 
@@ -194,6 +205,7 @@ const stressor_info_t stress_pageswap_info = {
 	.supported = stress_pageswap_supported,
 	.classifier = CLASS_OS | CLASS_VM,
 	.verify = VERIFY_OPTIONAL,
+	.opts = opts,
 	.help = help,
 	.unimplemented_reason = "built without madvise() MADV_PAGEOUT defined"
 };

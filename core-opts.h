@@ -1105,6 +1105,7 @@ typedef enum {
 
 	OPT_pageswap,
 	OPT_pageswap_ops,
+	OPT_pageswap_pages,
 
 	OPT_pci,
 	OPT_pci_dev,
