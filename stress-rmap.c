@@ -39,7 +39,7 @@ static const stress_help_t help[] = {
 };
 
 static const stress_opt_t opts[] = {
-	{ OPT_rmap_procs, "rmap_procs", TYPE_ID_SIZE_T, MIN_RMAP_PROCS, MAX_RMAP_PROCS, NULL },
+	{ OPT_rmap_procs, "rmap-procs", TYPE_ID_SIZE_T, MIN_RMAP_PROCS, MAX_RMAP_PROCS, NULL },
 	END_OPT,
 };
 
@@ -203,7 +203,7 @@ static int stress_rmap(stress_args_t *args)
 	uintptr_t *paddings[MAPPINGS_MAX];
 	char filename[PATH_MAX];
 
-	(void)stress_get_setting("rmap-proc", &rmap_procs);
+	(void)stress_get_setting("rmap-procs", &rmap_procs);
 
 	if (stress_signal_sigchld_handler(args) < 0)
 		return EXIT_NO_RESOURCE;
