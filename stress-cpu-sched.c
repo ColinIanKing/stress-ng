@@ -63,12 +63,20 @@
 #define HAVE_SCHEDULING
 #endif
 
-#define MAX_CPU_SCHED_PROCS		(16)
+#define MIN_CPU_SCHED_PROCS		(2)
+#define MAX_CPU_SCHED_PROCS		(1024)
+#define DEFAULT_CPU_SCHED_PROCS		(16)
 
 static const stress_help_t help[] = {
 	{ NULL,	"cpu-sched N",		"start N workers that exercise cpu scheduling" },
 	{ NULL,	"cpu-sched-ops N",	"stop after N bogo cpu scheduling operations" },
+	{ NULL, "cpu-sched-procs N",	"specify number of processes per instance" },
 	{ NULL,	NULL,			NULL }
+};
+
+static const stress_opt_t opts[] = {
+	{ OPT_cpu_sched_procs, "cpu-sched-procs", TYPE_ID_SIZE_T, MIN_CPU_SCHED_PROCS, MAX_CPU_SCHED_PROCS, NULL },
+	END_OPT,
 };
 
 #if defined(HAVE_SCHEDULING) &&		\
@@ -673,6 +681,7 @@ static int stress_cpu_sched_child(stress_args_t *args, void *context)
 	int cpu_idx = 0, rc = EXIT_SUCCESS;
 	const int instance = (int)args->instance;
 	size_t i;
+	size_t cpu_sched_procs = DEFAULT_CPU_SCHED_PROCS;
 	stress_pid_t pids[MAX_CPU_SCHED_PROCS];
 	char exec_path[PATH_MAX];
 	char *exec_prog = stress_get_proc_self_exe(exec_path, sizeof(exec_path));
@@ -681,6 +690,7 @@ static int stress_cpu_sched_child(stress_args_t *args, void *context)
 	uint32_t counter = 0;
 	double time_end = stress_time_now() + (double)g_opt_timeout;
 
+	(void)stress_get_setting("cpu-sched-procs", &cpu_sched_procs);
 	(void)context;
 
 #if defined(HAVE_SYS_PRCTL_H) &&	\
@@ -689,10 +699,10 @@ static int stress_cpu_sched_child(stress_args_t *args, void *context)
 #endif
 
 	(void)shim_memset(pids, 0, sizeof(pids));
-	for (i = 0; i < MAX_CPU_SCHED_PROCS; i++) {
+	for (i = 0; i < cpu_sched_procs; i++)
 		stress_cpu_sched_pids[i].pid = -1;
-	}
-	for (i = 0; LIKELY((i < MAX_CPU_SCHED_PROCS) && stress_continue(args)); i++) {
+
+	for (i = 0; LIKELY((i < cpu_sched_procs) && stress_continue(args)); i++) {
 		pid_t pid;
 		int retry = 0;
 
@@ -788,9 +798,9 @@ again:
 	}
 
 	do {
-		stress_cpu_sched_mix_pids(pids, stress_cpu_sched_pids, MAX_CPU_SCHED_PROCS);
+		stress_cpu_sched_mix_pids(pids, stress_cpu_sched_pids, cpu_sched_procs);
 
-		for (i = 0; LIKELY((i < MAX_CPU_SCHED_PROCS) && stress_continue(args)); i++) {
+		for (i = 0; LIKELY((i < cpu_sched_procs) && stress_continue(args)); i++) {
 			const pid_t pid = pids[i].pid;
 			const bool stop_cont = stress_mwc1();
 
@@ -820,8 +830,8 @@ again:
 				(void)kill(pid, SIGCONT);
 			stress_bogo_inc(args);
 		}
-		for (i = 0; (i < LIKELY((MAX_CPU_SCHED_PROCS >> 2)) && stress_continue(args)); i++) {
-			const pid_t pid = pids[stress_mwc8modn(MAX_CPU_SCHED_PROCS)].pid;
+		for (i = 0; LIKELY((i < (cpu_sched_procs >> 2)) && stress_continue(args)); i++) {
+			const pid_t pid = pids[stress_mwc8modn(cpu_sched_procs)].pid;
 
 			if (LIKELY(pid != -1)) {
 				(void)kill(pid, SIGSTOP);
@@ -881,7 +891,7 @@ again:
 		}
 	} while (stress_continue(args));
 
-	(void)stress_kill_and_wait_many(args, stress_cpu_sched_pids, MAX_CPU_SCHED_PROCS, SIGKILL, false);
+	(void)stress_kill_and_wait_many(args, stress_cpu_sched_pids, cpu_sched_procs, SIGKILL, false);
 
 	return rc;
 }
@@ -921,6 +931,7 @@ const stressor_info_t stress_cpu_sched_info = {
 	.stressor = stress_cpu_sched,
 	.classifier = CLASS_SCHEDULER | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
+	.opts = opts,
 	.help = help
 };
 
@@ -930,6 +941,7 @@ const stressor_info_t stress_cpu_sched_info = {
         .stressor = stress_unimplemented,
 	.classifier = CLASS_SCHEDULER | CLASS_OS,
 	.help = help,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.unimplemented_reason = "built without Linux scheduling or sched_setscheduler() system call"
 };

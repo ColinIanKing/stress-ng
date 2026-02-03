@@ -163,6 +163,7 @@ const struct option stress_long_options[] = {
 	{ "cpu-online-ops",	1,	0,	OPT_cpu_online_ops },
 	{ "cpu-sched",		1,	0,	OPT_cpu_sched },
 	{ "cpu-sched-ops",	1,	0,	OPT_cpu_sched_ops },
+	{ "cpu-sched-procs",	1,	0,	OPT_cpu_sched_procs },
 	{ "crypt",		1,	0,	OPT_crypt },
 	{ "crypt-method",	1,	0,	OPT_crypt_method },
 	{ "crypt-ops",		1,	0,	OPT_crypt_ops },

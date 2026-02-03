@@ -338,6 +338,7 @@ typedef enum {
 
 	OPT_cpu_sched,
 	OPT_cpu_sched_ops,
+	OPT_cpu_sched_procs,
 
 	OPT_crypt,
 	OPT_crypt_method,
