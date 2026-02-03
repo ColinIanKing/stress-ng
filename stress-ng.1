@@ -7705,6 +7705,10 @@ memoryfds, userfaultfds, pipes and sockets).
 attempt to mlock(2) mmap'd pages into memory causing more memory pressure by
 preventing pages from swapped out.
 .TP
+.B \-\-resources\-num N
+specify the number of resource loops used per child process to consume N
+allocation and accessing rounds of resources. The default is 1024.
+.TP
 .B \-\-resources\-ops N
 stop after N resource child forks.
 .TP

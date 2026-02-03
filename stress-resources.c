@@ -30,13 +30,16 @@
 #define MAX_RESOURCES_PROCS	(4096)
 #define DEFAULT_RESOURCES_PROCS	(1024)
 
-#define MAX_LOOPS	(2048)
+#define MIN_RESOURCES_NUM	(1)
+#define MAX_RESOURCES_NUM	(4096)
+#define DEFAULT_RESOURCES_NUM	(1024)
 
 static const stress_help_t help[] = {
 	{ NULL,	"resources N",	     "start N workers consuming system resources" },
 	{ NULL,	"resources-mlock",   "attempt to mlock pages into memory" },
 	{ NULL,	"resources-ops N",   "stop after N resource bogo operations" },
 	{ NULL, "resources-procs N", "number of child processes per instance" },
+	{ NULL, "resources-num N",   "number of resources to allocate per instance" },
 	{ NULL,	NULL,                NULL }
 };
 
@@ -50,9 +53,9 @@ static int stress_resources(stress_args_t *args)
 {
 	const size_t pipe_size = stress_probe_max_pipe_size();
 	size_t min_mem_free, shmall, freemem, totalmem, freeswap, totalswap;
+	size_t resources_num = DEFAULT_RESOURCES_NUM;
 	size_t resources_procs = DEFAULT_RESOURCES_PROCS;
 	stress_resources_t *resources;
-	const size_t num_resources = MAX_LOOPS;
 	stress_pid_t *s_pids;
 	bool resources_mlock = false;
 
@@ -62,12 +65,17 @@ static int stress_resources(stress_args_t *args)
 		if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
 			resources_mlock = true;
 	}
+	if (!stress_get_setting("resources-num", &resources_num)) {
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
+			resources_num = MIN_RESOURCES_NUM;
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
+			resources_num = MAX_RESOURCES_NUM;
+	}
 	if (!stress_get_setting("resources-procs", &resources_procs)) {
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			resources_procs = MIN_RESOURCES_PROCS;
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			resources_procs = MAX_RESOURCES_PROCS;
-
 	}
 
 	stress_get_memlimits(&shmall, &freemem, &totalmem, &freeswap, &totalswap);
@@ -89,16 +97,19 @@ static int stress_resources(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
-	resources = (stress_resources_t *)malloc(num_resources * sizeof(*resources));
+	resources = (stress_resources_t *)malloc(resources_num * sizeof(*resources));
 	if (!resources) {
 		pr_inf_skip("%s: cannot allocate %zu resource structures%s, skipping stressor\n",
-			args->name, num_resources, stress_get_memfree_str());
+			args->name, resources_num, stress_get_memfree_str());
 		(void)stress_sync_s_pids_munmap(s_pids, resources_procs);
 		return EXIT_NO_RESOURCE;
 	}
 
 	if (stress_instance_zero(args))
-		pr_inf("%s: spawning %zu child processes per instance\n", args->name, resources_procs);
+		pr_inf("%s: using %zu resource%s and spawning %zu child process%s per instance\n",
+			args->name,
+			resources_num, resources_num == 1 ? "" : "s",
+			resources_procs, resources_procs == 1 ? "" : "es");
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
@@ -132,7 +143,7 @@ static int stress_resources(stress_args_t *args)
 
 				if (!stress_continue(args))
 					_exit(0);
-				n = stress_resources_allocate(args, resources, num_resources, pipe_size, min_mem_free, true);
+				n = stress_resources_allocate(args, resources, resources_num, pipe_size, min_mem_free, true);
 				if (stress_continue(args))
 					stress_resources_access(args, resources, n);
 				if ((i == 0) && !stress_continue(args) && stress_instance_zero(args))
@@ -164,6 +175,7 @@ static int stress_resources(stress_args_t *args)
 
 static const stress_opt_t opts[] = {
 	{ OPT_resources_mlock, "resources-mlock", TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_resources_num,   "resources-num",   TYPE_ID_SIZE_T, MIN_RESOURCES_NUM, MAX_RESOURCES_NUM, NULL },
 	{ OPT_resources_procs, "resources-procs", TYPE_ID_SIZE_T, MIN_RESOURCES_PROCS, MAX_RESOURCES_PROCS, NULL },
 	END_OPT,
 };
