@@ -79,7 +79,7 @@ int stress_kill_sig(const pid_t pid, const int signum)
  *  stress_wait_until_reaped()
  *	wait until a process has been removed from process table
  */
-static int stress_wait_until_reaped(
+int stress_wait_until_reaped(
 	stress_args_t *args,
 	const pid_t pid,
 	const int signum,
@@ -175,6 +175,7 @@ int stress_kill_and_wait_many(
 	size_t i;
 	const pid_t mypid = getpid();
 	int rc = EXIT_SUCCESS;
+
 
 	/* Kill first */
 	for (i = 0; i < n_pids; i++) {
