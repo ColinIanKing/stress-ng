@@ -114,7 +114,7 @@ static int stress_icache_func(stress_args_t *args, uint8_t *pages, const size_t 
 				return EXIT_NO_RESOURCE;
 
 			for (i = 0; i < pages_size; i += 64) {
-				uint8_t * const addr = pages + i;
+				void * const addr = (void * const)(pages + i);
 				volatile uint32_t *vaddr = (volatile uint32_t *)addr;
 
 				/*
