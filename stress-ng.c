@@ -464,7 +464,7 @@ static inline stress_stats_t *stress_stats_pid_find(const pid_t pid)
 	const size_t hash = stress_stats_pid_to_hash(pid);
 	register stress_stats_t *stats = stress_stats_hash_table[hash];
 
-	while (stats->s_pid.pid != pid)
+	while (stats && (stats->s_pid.pid != pid))
 		stats = stats->hash_next;
 
 	return stats;
