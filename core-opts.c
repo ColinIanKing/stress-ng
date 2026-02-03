@@ -929,6 +929,7 @@ const struct option stress_long_options[] = {
 	{ "rlimit-ops",		1,	0,	OPT_rlimit_ops },
 	{ "rmap",		1,	0,	OPT_rmap },
 	{ "rmap-ops",		1,	0,	OPT_rmap_ops },
+	{ "rmap-procs",		1,	0,	OPT_rmap_procs },
 	{ "rotate",		1,	0,	OPT_rotate },
 	{ "rotate-method",	1,	0,	OPT_rotate_method },
 	{ "rotate-ops",		1,	0,	OPT_rotate_ops },

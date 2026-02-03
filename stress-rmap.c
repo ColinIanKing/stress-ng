@@ -24,14 +24,23 @@
 #include "core-pragma.h"
 #include "core-signal.h"
 
-#define RMAP_CHILD_MAX		(16)
+#define MIN_RMAP_PROCS		(8)
+#define MAX_RMAP_PROCS		(256)
+#define DEFAULT_RMAP_PROCS	(16)
+
 #define MAPPINGS_MAX		(64)
 #define MAPPING_PAGES		(16)
 
 static const stress_help_t help[] = {
 	{ NULL,	"rmap N",	"start N workers that stress reverse mappings" },
+	{ NULL, "rmap-procs N",	"specify number of child processes to spawn" },
 	{ NULL,	"rmap-ops N",	"stop after N rmap bogo operations" },
 	{ NULL,	NULL,		NULL }
+};
+
+static const stress_opt_t opts[] = {
+	{ OPT_rmap_procs, "rmap_procs", TYPE_ID_SIZE_T, MIN_RMAP_PROCS, MAX_RMAP_PROCS, NULL },
+	END_OPT,
 };
 
 static void *counter_lock;
@@ -47,6 +56,7 @@ static void *counter_lock;
 
 static int OPTIMIZE3 stress_rmap_touch(
 	stress_args_t *args,
+	const size_t rmap_procs,
 	const size_t child_index,
 	uintptr_t *addr,
 	const size_t sz)
@@ -54,7 +64,7 @@ static int OPTIMIZE3 stress_rmap_touch(
 	register uintptr_t *begin = ((uintptr_t *)addr) + child_index;
 	register const uintptr_t *end = (uintptr_t *)((uintptr_t)addr + sz);
 	register uintptr_t *ptr;
-	register const size_t inc = RMAP_CHILD_MAX;
+	register const size_t inc = rmap_procs;
 	register uintptr_t mix = stress_mwc64();
 
 	/* fill and put check value in that always has lowest bit set */
@@ -83,6 +93,7 @@ PRAGMA_UNROLL_N(8)
 
 static void NORETURN stress_rmap_child(
 	stress_args_t *args,
+	const size_t rmap_procs,
 	const size_t page_size,
 	const size_t child_index,
 	uintptr_t *mappings[MAPPINGS_MAX])
@@ -106,7 +117,7 @@ static void NORETURN stress_rmap_child(
 				if (mappings[i] != MAP_FAILED) {
 					if (UNLIKELY(!stress_bogo_inc_lock(args, counter_lock, false)))
 						break;
-					if (UNLIKELY(stress_rmap_touch(args, child_index, mappings[i], sz) < 0)) {
+					if (UNLIKELY(stress_rmap_touch(args, rmap_procs, child_index, mappings[i], sz) < 0)) {
 						rc = EXIT_FAILURE;
 						goto fail;
 					}
@@ -122,7 +133,7 @@ static void NORETURN stress_rmap_child(
 				if (mappings[i] != MAP_FAILED) {
 					if (UNLIKELY(!stress_bogo_inc_lock(args, counter_lock, false)))
 						break;
-					if (UNLIKELY(stress_rmap_touch(args, child_index, mappings[i], sz) < 0)) {
+					if (UNLIKELY(stress_rmap_touch(args, rmap_procs, child_index, mappings[i], sz) < 0)) {
 						rc = EXIT_FAILURE;
 						goto fail;
 					}
@@ -140,7 +151,7 @@ static void NORETURN stress_rmap_child(
 				if (mappings[j] != MAP_FAILED) {
 					if (UNLIKELY(!stress_bogo_inc_lock(args, counter_lock, false)))
 						break;
-					if (UNLIKELY(stress_rmap_touch(args, child_index, mappings[j], sz) < 0)) {
+					if (UNLIKELY(stress_rmap_touch(args, rmap_procs, child_index, mappings[j], sz) < 0)) {
 						rc = EXIT_FAILURE;
 						goto fail;
 					}
@@ -157,7 +168,7 @@ static void NORETURN stress_rmap_child(
 				if (mappings[i] != MAP_FAILED) {
 					if (UNLIKELY(!stress_bogo_inc_lock(args, counter_lock, false)))
 						break;
-					if (UNLIKELY(stress_rmap_touch(args, child_index, mappings[i], sz) < 0)) {
+					if (UNLIKELY(stress_rmap_touch(args, rmap_procs, child_index, mappings[i], sz) < 0)) {
 						rc = EXIT_FAILURE;
 						goto fail;
 					}
@@ -186,25 +197,28 @@ static int stress_rmap(stress_args_t *args)
 	const size_t sz = ((MAPPINGS_MAX - 1) + MAPPING_PAGES) * page_size;
 	int fd = -1, rc;
 	size_t i;
+	size_t rmap_procs = DEFAULT_RMAP_PROCS;
 	stress_pid_t *s_pids, *s_pids_head = NULL;
 	uintptr_t *mappings[MAPPINGS_MAX];
 	uintptr_t *paddings[MAPPINGS_MAX];
 	char filename[PATH_MAX];
 
+	(void)stress_get_setting("rmap-proc", &rmap_procs);
+
 	if (stress_signal_sigchld_handler(args) < 0)
 		return EXIT_NO_RESOURCE;
 
-	s_pids = stress_sync_s_pids_mmap(RMAP_CHILD_MAX);
+	s_pids = stress_sync_s_pids_mmap(rmap_procs);
 	if (s_pids == MAP_FAILED) {
-		pr_inf_skip("%s: failed to mmap %d PIDs%s, skipping stressor\n",
-			args->name, RMAP_CHILD_MAX, stress_get_memfree_str());
+		pr_inf_skip("%s: failed to mmap %zu PIDs%s, skipping stressor\n",
+			args->name, rmap_procs, stress_get_memfree_str());
 		return EXIT_NO_RESOURCE;
 	}
 
 	counter_lock = stress_lock_create("counter");
 	if (!counter_lock) {
 		pr_inf_skip("%s: failed to create counter lock. skipping stressor\n", args->name);
-		(void)stress_sync_s_pids_munmap(s_pids, RMAP_CHILD_MAX);
+		(void)stress_sync_s_pids_munmap(s_pids, rmap_procs);
 		return EXIT_NO_RESOURCE;
 	}
 
@@ -219,7 +233,7 @@ static int stress_rmap(stress_args_t *args)
 	rc = stress_temp_dir_mk_args(args);
 	if (rc < 0) {
 		(void)stress_lock_destroy(counter_lock);
-		(void)stress_sync_s_pids_munmap(s_pids, RMAP_CHILD_MAX);
+		(void)stress_sync_s_pids_munmap(s_pids, rmap_procs);
 		return stress_exit_status((int)-rc);
 	}
 
@@ -233,7 +247,7 @@ static int stress_rmap(stress_args_t *args)
 		(void)shim_unlink(filename);
 		(void)stress_temp_dir_rm_args(args);
 		(void)stress_lock_destroy(counter_lock);
-		(void)stress_sync_s_pids_munmap(s_pids, RMAP_CHILD_MAX);
+		(void)stress_sync_s_pids_munmap(s_pids, rmap_procs);
 
 		return (int)rc;
 	}
@@ -245,7 +259,7 @@ static int stress_rmap(stress_args_t *args)
 		(void)close(fd);
 		(void)stress_temp_dir_rm_args(args);
 		(void)stress_lock_destroy(counter_lock);
-		(void)stress_sync_s_pids_munmap(s_pids, RMAP_CHILD_MAX);
+		(void)stress_sync_s_pids_munmap(s_pids, rmap_procs);
 
 		return EXIT_NO_RESOURCE;
 	}
@@ -276,7 +290,7 @@ static int stress_rmap(stress_args_t *args)
 	/*
 	 *  Spawn children workers
 	 */
-	for (i = 0; i < RMAP_CHILD_MAX; i++) {
+	for (i = 0; i < rmap_procs; i++) {
 		stress_sync_start_init(&s_pids[i]);
 
 		if (UNLIKELY(!stress_continue(args)))
@@ -303,7 +317,7 @@ static int stress_rmap(stress_args_t *args)
 			/* Make sure this is killable by OOM killer */
 			stress_set_oom_adjustment(args, true);
 
-			stress_rmap_child(args, page_size, i, mappings);
+			stress_rmap_child(args, rmap_procs, page_size, i, mappings);
 		} else {
 			stress_sync_start_s_pid_list_add(&s_pids_head, &s_pids[i]);
 		}
@@ -324,7 +338,7 @@ static int stress_rmap(stress_args_t *args)
 cleanup:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	rc = stress_kill_and_wait_many(args, s_pids, RMAP_CHILD_MAX, SIGALRM, true);
+	rc = stress_kill_and_wait_many(args, s_pids, rmap_procs, SIGALRM, true);
 
 	for (i = 0; i < MAPPINGS_MAX; i++) {
 		if (mappings[i] != MAP_FAILED)
@@ -336,7 +350,7 @@ cleanup:
 	(void)close(fd);
 	(void)stress_temp_dir_rm_args(args);
 	(void)stress_lock_destroy(counter_lock);
-	(void)stress_sync_s_pids_munmap(s_pids, RMAP_CHILD_MAX);
+	(void)stress_sync_s_pids_munmap(s_pids, rmap_procs);
 
 	return rc;
 }
@@ -345,5 +359,6 @@ const stressor_info_t stress_rmap_info = {
 	.stressor = stress_rmap,
 	.classifier = CLASS_OS | CLASS_MEMORY,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.opts = opts,
 };

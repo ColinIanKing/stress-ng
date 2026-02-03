@@ -7817,6 +7817,10 @@ previous by 3 pages and at least 1 page of non-mapped memory between each
 of the mappings. Data is synchronously msync'd to the file 1 in every
 256 iterations in a random manner.
 .TP
+.B \-\-rmap\-procs N
+specify the number of processes per worker to exercise the reverse mapping. The
+range is 8 to 256, with a default of 16.
+.TP
 .B \-\-rmap\-ops N
 stop after N bogo rmap memory writes/reads.
 .RE
