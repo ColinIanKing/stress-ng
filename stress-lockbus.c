@@ -37,14 +37,20 @@
 #define HAVE_TIMER_FUNCS
 #endif
 
+#define MIN_LOCKBUS_BYTES	(64 * KB)
+#define MAX_LOCKBUS_BYTES	(MAX_MEM_LIMIT)
+#define DEFAULT_LOCKBUS_BYTES	(16 * MB)
+
 static const stress_help_t help[] = {
 	{ NULL,	"lockbus N",	 	"start N workers locking a memory increment" },
+	{ NULL, "lockbus-bytes N",	"size of lockbus memory region" },
 	{ NULL, "lockbus-nosplit",	"disable split locks" },
 	{ NULL,	"lockbus-ops N", 	"stop after N lockbus bogo operations" },
 	{ NULL, NULL,			NULL }
 };
 
 static const stress_opt_t opts[] = {
+	{ OPT_lockbus_bytes,   "lockbus-bytes",   TYPE_ID_SIZE_T_BYTES_VM, MIN_LOCKBUS_BYTES, MAX_LOCKBUS_BYTES, NULL },
 	{ OPT_lockbus_nosplit, "lockbus-nosplit", TYPE_ID_BOOL, 0, 1, NULL },
 	END_OPT,
 };
@@ -92,8 +98,6 @@ do {							\
 } while (0)
 #endif
 
-#define BUFFER_SIZE		(1024 * 1024 * 8)
-#define SHARED_BUFFER_SIZE	(1024 * 1024 * 8)
 #define CHUNK_SIZE		(64 * 4)
 
 #if defined(HAVE_SYNC_BOOL_COMPARE_AND_SWAP)
@@ -149,21 +153,31 @@ static bool do_splitlock;
 #endif
 static bool do_sigill;
 static uint32_t *shared_buffer = (uint32_t *)MAP_FAILED;
+static size_t lockbus_bytes = (size_t)DEFAULT_LOCKBUS_BYTES;
+static size_t lockbus_buffer_size = (size_t)(DEFAULT_LOCKBUS_BYTES >> 1);
 
 static void stress_lockbus_init(const uint32_t instances)
 {
+	const size_t pages2_size = stress_get_page_size() << 1;
+
 	(void)instances;
 
-	shared_buffer = (uint32_t *)stress_mmap_populate(NULL, SHARED_BUFFER_SIZE,
+	lockbus_bytes = DEFAULT_LOCKBUS_BYTES;
+	(void)stress_get_setting("lockbus-bytes", &lockbus_bytes);
+
+	lockbus_bytes = (lockbus_bytes + pages2_size - 1) & ~(pages2_size - 1);
+	lockbus_buffer_size = lockbus_bytes >> 1;
+
+	shared_buffer = (uint32_t *)stress_mmap_populate(NULL, lockbus_buffer_size,
 		PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (shared_buffer != MAP_FAILED)
-		stress_set_vma_anon_name(shared_buffer, SHARED_BUFFER_SIZE, "lockbus-shared-data");
+		stress_set_vma_anon_name(shared_buffer, lockbus_buffer_size, "lockbus-shared-data");
 }
 
 static void stress_lockbus_deinit(void)
 {
 	if (shared_buffer != MAP_FAILED) {
-		(void)munmap((void *)shared_buffer, SHARED_BUFFER_SIZE);
+		(void)munmap((void *)shared_buffer, lockbus_buffer_size);
 		shared_buffer = (uint32_t *)MAP_FAILED;
 	}
 }
@@ -202,7 +216,7 @@ static void NORETURN MLOCKED_TEXT stress_sigbus_splitlock_handler(int signum)
  */
 static int stress_lockbus(stress_args_t *args)
 {
-	uint32_t *buffer;
+	uint32_t *local_buffer;
 	double t, rate;
 	NOCLOBBER double duration, count;
 	NOCLOBBER int rc = EXIT_SUCCESS;
@@ -227,42 +241,42 @@ static int stress_lockbus(stress_args_t *args)
 
 	if (shared_buffer == MAP_FAILED) {
 		pr_inf_skip("%s: failed to mmap %zu shared bytes%s, errno=%d (%s), skipping stressor\n",
-			args->name, (size_t)SHARED_BUFFER_SIZE,
+			args->name, (size_t)lockbus_buffer_size,
 			stress_get_memfree_str(), errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
 
-	buffer = (uint32_t *)stress_mmap_populate(NULL, BUFFER_SIZE,
+	local_buffer = (uint32_t *)stress_mmap_populate(NULL, lockbus_buffer_size,
 			PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_SHARED, -1, 0);
-	if (buffer == MAP_FAILED) {
+	if (local_buffer == MAP_FAILED) {
 		pr_inf_skip("%s: failed to mmap %zu bytes%s, errno=%d (%s), skipping stressor\n",
-			args->name, (size_t)BUFFER_SIZE,
+			args->name, (size_t)lockbus_buffer_size,
 			stress_get_memfree_str(), errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
-	stress_set_vma_anon_name(buffer, BUFFER_SIZE, "lockbus-data");
+	stress_set_vma_anon_name(local_buffer, lockbus_buffer_size, "lockbus-data");
 
 #if defined(STRESS_ARCH_M68K)
 	do_misaligned = false;
 #else
 	do_misaligned = true;
-	misaligned_ptr1 = (uint32_t *)(uintptr_t)((uint8_t *)buffer + 1);
-	misaligned_ptr2 = (uint32_t *)(uintptr_t)((uint8_t *)buffer + 10);
+	misaligned_ptr1 = (uint32_t *)(uintptr_t)((uint8_t *)local_buffer + 1);
+	misaligned_ptr2 = (uint32_t *)(uintptr_t)((uint8_t *)local_buffer + 10);
 #endif
 
 	if (stress_signal_handler(args->name, SIGBUS, stress_sigbus_misaligned_handler, NULL) < 0) {
 		rc = EXIT_FAILURE;
-		goto unmap_buffer;
+		goto unmap_local_buffer;
 	}
 #if defined(HAVE_TIMER_FUNCS)
 	if (stress_signal_handler(args->name, SIGRTMIN, stress_sigbus_misaligned_handler, NULL) < 0) {
 		rc = EXIT_FAILURE;
-		goto unmap_buffer;
+		goto unmap_local_buffer;
 	}
 #endif
 	if (stress_signal_handler(args->name, SIGILL, stress_sigill_handler, NULL) < 0) {
 		rc = EXIT_FAILURE;
-		goto unmap_buffer;
+		goto unmap_local_buffer;
 	}
 	if (sigsetjmp(jmp_env, 1))
 		goto misaligned_done;
@@ -326,9 +340,9 @@ misaligned_done:
 	if (stress_signal_handler(args->name, SIGBUS, stress_sigbus_splitlock_handler, NULL) < 0)
 		return EXIT_FAILURE;
 	/* Split lock on a page boundary */
-	splitlock_ptr1 = (uint32_t *)(uintptr_t)(((uint8_t *)buffer) + args->page_size - (sizeof(*splitlock_ptr1) >> 1));
+	splitlock_ptr1 = (uint32_t *)(uintptr_t)(((uint8_t *)local_buffer) + args->page_size - (sizeof(*splitlock_ptr1) >> 1));
 	/* Split lock on a cache boundary */
-	splitlock_ptr2 = (uint32_t *)(uintptr_t)(((uint8_t *)buffer) + 64 - (sizeof(*splitlock_ptr2) >> 1));
+	splitlock_ptr2 = (uint32_t *)(uintptr_t)(((uint8_t *)local_buffer) + 64 - (sizeof(*splitlock_ptr2) >> 1));
 	do_splitlock = !lockbus_nosplit;
 	if (stress_instance_zero(args))
 		pr_dbg("%s: splitlocks %s\n", args->name,
@@ -345,14 +359,22 @@ misaligned_done:
 		numa_nodes = stress_numa_mask_alloc();
 		if (numa_nodes) {
 			if (stress_numa_mask_nodes_get(numa_nodes) > 0) {
-				stress_numa_randomize_pages(args, numa_nodes, numa_mask, buffer, BUFFER_SIZE, args->page_size);
-				stress_numa_randomize_pages(args, numa_nodes, numa_mask, shared_buffer, SHARED_BUFFER_SIZE, args->page_size);
+				stress_numa_randomize_pages(args, numa_nodes, numa_mask, local_buffer, lockbus_buffer_size, args->page_size);
+				stress_numa_randomize_pages(args, numa_nodes, numa_mask, shared_buffer, lockbus_buffer_size, args->page_size);
 			}
 			stress_numa_mask_free(numa_nodes);
 		}
 		stress_numa_mask_free(numa_mask);
 	}
 #endif
+
+	if (stress_instance_zero(args)) {
+		const size_t page_size = stress_get_page_size();
+		const size_t total_bytes = lockbus_buffer_size + (lockbus_buffer_size * args->instances);
+		const size_t stressor_bytes = ((total_bytes / args->instances) + page_size - 1) & ~(page_size - 1);
+
+		stress_usage_bytes(args, stressor_bytes, total_bytes);
+	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
@@ -362,8 +384,8 @@ misaligned_done:
 	count = 0;
 	do {
 		uint32_t *ptr0 = stress_mwc1() ?
-			buffer + (stress_mwc32modn(BUFFER_SIZE - CHUNK_SIZE) >> 2) :
-			shared_buffer + (stress_mwc32modn(SHARED_BUFFER_SIZE - CHUNK_SIZE) >> 2);
+			local_buffer + (stress_mwc32modn(lockbus_buffer_size - CHUNK_SIZE) >> 2) :
+			shared_buffer + (stress_mwc32modn(lockbus_buffer_size - CHUNK_SIZE) >> 2);
 #if defined(STRESS_ARCH_X86)
 		uint32_t *ptr1 = do_splitlock ? splitlock_ptr1 : ptr0;
 		uint32_t *ptr2 = do_splitlock ? splitlock_ptr2 : ptr0;
@@ -427,8 +449,8 @@ done:
 	stress_metrics_set(args, 0, "nanosecs per memory lock operation",
 		rate * STRESS_DBL_NANOSECOND, STRESS_METRIC_HARMONIC_MEAN);
 
-unmap_buffer:
-	(void)munmap((void *)buffer, BUFFER_SIZE);
+unmap_local_buffer:
+	(void)munmap((void *)local_buffer, lockbus_buffer_size);
 
 	return rc;
 }

@@ -767,8 +767,9 @@ typedef enum {
 	OPT_loadavg_max,
 
 	OPT_lockbus,
-	OPT_lockbus_ops,
+	OPT_lockbus_bytes,
 	OPT_lockbus_nosplit,
+	OPT_lockbus_ops,
 
 	OPT_locka,
 	OPT_locka_ops,

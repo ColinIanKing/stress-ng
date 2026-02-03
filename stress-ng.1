@@ -4689,9 +4689,16 @@ have been reached.
 .TQ
 .B \-\-lockbus N
 start N workers that rapidly lock and increment 64 bytes of randomly chosen
-memory from a 16 MB mmap'd region (Intel x86 and ARM CPUs only).  This will
-cause cacheline misses and stalling of CPUs. Pages are spread randomly across
-NUMA nodes to exercise NUMA bus locking for NUMA systems.
+memory from a 16 MB mmap'd region (Intel x86 and ARM CPUs only). 50% of the
+mmap'd region is shared between all lockbus stressor instances, 50% is local
+to each lockbus stressor.  This stressor will cause cacheline misses and
+stalling of CPUs. Pages are spread randomly across NUMA nodes to exercise
+NUMA bus locking for NUMA systems.
+.TP
+.B \-\-lockbus\-bytes N
+exercise bus locking over N bytes, the default is 16 MB. One can specify
+the size in as % of total available memory or in units of Bytes, KBytes, MBytes
+and GBytes using the suffix b, k, m or g.
 .TP
 .B \-\-lockbus\-nosplit
 disable split locks that lock across cache line boundaries.
