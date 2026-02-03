@@ -1288,6 +1288,7 @@ typedef enum {
 	OPT_resources,
 	OPT_resources_mlock,
 	OPT_resources_ops,
+	OPT_resources_procs,
 
 	OPT_revio,
 	OPT_revio_ops,

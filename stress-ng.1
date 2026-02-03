@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, may be w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "1 February 2026"
+.TH STRESS-NG 1 "3 February 2026"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -7697,9 +7697,9 @@ stop after N rescheduling sched_yield calls.
 .TQ
 .B \-\-resources N
 start N workers that consume various system resources. Each worker will spawn
-1024 child processes that iterate 1024 times consuming shared memory, heap,
-stack, temporary files and various file descriptors (eventfds, memoryfds,
-userfaultfds, pipes and sockets).
+a default of 1024 child processes that iterate 1024 times consuming shared
+memory, heap, stack, temporary files and various file descriptors (eventfds,
+memoryfds, userfaultfds, pipes and sockets).
 .TP
 .B \-\-resources\-mlock
 attempt to mlock(2) mmap'd pages into memory causing more memory pressure by
@@ -7707,6 +7707,10 @@ preventing pages from swapped out.
 .TP
 .B \-\-resources\-ops N
 stop after N resource child forks.
+.TP
+.B \-\-resources\-procs N
+specify the number of child process to spawn per stressor instance, range 1
+to 4096. The default is 1024.
 .RE
 .TP
 .B Writing temporary files in reverse position stressor

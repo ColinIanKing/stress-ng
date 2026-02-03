@@ -25,15 +25,22 @@
 #include "core-resources.h"
 
 #define MIN_MEM_FREE	(16 * MB)
-#define MAX_PIDS 	(2048)
+
+#define MIN_RESOURCES_PROCS	(1)
+#define MAX_RESOURCES_PROCS	(4096)
+#define DEFAULT_RESOURCES_PROCS	(1024)
+
 #define MAX_LOOPS	(2048)
 
 static const stress_help_t help[] = {
-	{ NULL,	"resources N",	   "start N workers consuming system resources" },
-	{ NULL,	"resources-mlock", "attempt to mlock pages into memory" },
-	{ NULL,	"resources-ops N", "stop after N resource bogo operations" },
-	{ NULL,	NULL,		   NULL }
+	{ NULL,	"resources N",	     "start N workers consuming system resources" },
+	{ NULL,	"resources-mlock",   "attempt to mlock pages into memory" },
+	{ NULL,	"resources-ops N",   "stop after N resource bogo operations" },
+	{ NULL, "resources-procs N", "number of child processes per instance" },
+	{ NULL,	NULL,                NULL }
 };
+
+static pid_t stress_reources_pid = -1;
 
 /*
  *  stress_resources()
@@ -43,15 +50,24 @@ static int stress_resources(stress_args_t *args)
 {
 	const size_t pipe_size = stress_probe_max_pipe_size();
 	size_t min_mem_free, shmall, freemem, totalmem, freeswap, totalswap;
-	size_t num_pids = MAX_PIDS;
+	size_t resources_procs = DEFAULT_RESOURCES_PROCS;
 	stress_resources_t *resources;
 	const size_t num_resources = MAX_LOOPS;
 	stress_pid_t *s_pids;
 	bool resources_mlock = false;
 
+	stress_reources_pid = getpid();
+
 	if (!stress_get_setting("resources-mlock", &resources_mlock)) {
 		if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
 			resources_mlock = true;
+	}
+	if (!stress_get_setting("resources-procs", &resources_procs)) {
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
+			resources_procs = MIN_RESOURCES_PROCS;
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
+			resources_procs = MAX_RESOURCES_PROCS;
+
 	}
 
 	stress_get_memlimits(&shmall, &freemem, &totalmem, &freeswap, &totalswap);
@@ -66,10 +82,10 @@ static int stress_resources(stress_args_t *args)
 	UNEXPECTED
 #endif
 
-	s_pids = stress_sync_s_pids_mmap(num_pids);
+	s_pids = stress_sync_s_pids_mmap(resources_procs);
 	if (s_pids == MAP_FAILED) {
 		pr_inf_skip("%s: failed to mmap %zu PIDs%s, skipping stressor\n",
-			args->name, num_pids, stress_get_memfree_str());
+			args->name, resources_procs, stress_get_memfree_str());
 		return EXIT_NO_RESOURCE;
 	}
 
@@ -77,9 +93,12 @@ static int stress_resources(stress_args_t *args)
 	if (!resources) {
 		pr_inf_skip("%s: cannot allocate %zu resource structures%s, skipping stressor\n",
 			args->name, num_resources, stress_get_memfree_str());
-		(void)stress_sync_s_pids_munmap(s_pids, num_pids);
+		(void)stress_sync_s_pids_munmap(s_pids, resources_procs);
 		return EXIT_NO_RESOURCE;
 	}
+
+	if (stress_instance_zero(args))
+		pr_inf("%s: spawning %zu child processes per instance\n", args->name, resources_procs);
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
@@ -88,12 +107,18 @@ static int stress_resources(stress_args_t *args)
 	do {
 		unsigned int i;
 
-		(void)shim_memset(s_pids, 0, sizeof(*s_pids) * num_pids);
-		for (i = 0; i < num_pids; i++) {
+		(void)shim_memset(s_pids, 0, sizeof(*s_pids) * resources_procs);
+
+		for (i = 0; i < resources_procs; i++)
+			s_pids[i].pid = -1;
+
+		for (i = 0; i < resources_procs; i++) {
 			pid_t pid;
 
 			stress_get_memlimits(&shmall, &freemem, &totalmem, &freeswap, &totalswap);
 			if ((freemem > 0) && (freemem < min_mem_free))
+				break;
+			if (!stress_continue(args))
 				break;
 			pid = fork();
 			if (pid == 0) {
@@ -105,24 +130,33 @@ static int stress_resources(stress_args_t *args)
 				stress_set_make_it_fail();
 				(void)sched_settings_apply(true);
 
+				if (!stress_continue(args))
+					_exit(0);
 				n = stress_resources_allocate(args, resources, num_resources, pipe_size, min_mem_free, true);
-				stress_resources_access(args, resources, n);
+				if (stress_continue(args))
+					stress_resources_access(args, resources, n);
+				if ((i == 0) && !stress_continue(args) && stress_instance_zero(args))
+					pr_inf("%s: freeing resources (make take a while)\n", args->name);
 				stress_resources_free(args, resources, n);
 
 				_exit(0);
 			}
-
 			s_pids[i].pid = pid;
 			if (UNLIKELY(!stress_continue(args)))
 				break;
 			stress_bogo_inc(args);
 		}
-		stress_kill_and_wait_many(args, s_pids, num_pids, SIGALRM, true);
+		for (i = 0; i < resources_procs; i++) {
+			const pid_t pid = s_pids[i].pid;
+
+			if ((pid > 1) && (pid != stress_reources_pid))
+				stress_wait_until_reaped(args, pid, SIGALRM, true);
+		}
 	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	free(resources);
-	(void)stress_sync_s_pids_munmap(s_pids, num_pids);
+	(void)stress_sync_s_pids_munmap(s_pids, resources_procs);
 
 	return EXIT_SUCCESS;
 }
@@ -130,6 +164,7 @@ static int stress_resources(stress_args_t *args)
 
 static const stress_opt_t opts[] = {
 	{ OPT_resources_mlock, "resources-mlock", TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_resources_procs, "resources-procs", TYPE_ID_SIZE_T, MIN_RESOURCES_PROCS, MAX_RESOURCES_PROCS, NULL },
 	END_OPT,
 };
 

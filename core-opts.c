@@ -909,6 +909,7 @@ const struct option stress_long_options[] = {
 	{ "resources",		1,	0,	OPT_resources },
 	{ "resources-mlock",	0,	0,	OPT_resources_mlock },
 	{ "resources-ops",	1,	0,	OPT_resources_ops },
+	{ "resources-procs",	1,	0,	OPT_resources_procs },
 	{ "revio",		1,	0,	OPT_revio },
 	{ "revio-bytes",	1,	0,	OPT_revio_bytes },
 	{ "revio-ops",		1,	0,	OPT_revio_ops },

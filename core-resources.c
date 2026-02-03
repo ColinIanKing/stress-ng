@@ -330,12 +330,16 @@ size_t stress_resources_allocate(
 			if (UNLIKELY(!stress_continue_flag()))
 				break;
 		}
+		if (UNLIKELY(!stress_continue_flag()))
+			break;
 		if (UNLIKELY((stress_mwc8() & 0xf) == 0)) {
 			resources[i].m_sbrk = shim_sbrk((intptr_t)page_size);
 			resources[i].m_sbrk_size = page_size;
 			if (UNLIKELY(!stress_continue_flag()))
 				break;
 		}
+		if (UNLIKELY(!stress_continue_flag()))
+			break;
 		if (UNLIKELY((stress_mwc8() & 0xf) == 0)) {
 			resources[i].m_mmap_size = page_size * 2;
 			resources[i].m_mmap = mmap(NULL, resources[i].m_mmap_size,
@@ -355,6 +359,8 @@ size_t stress_resources_allocate(
 				(void)stress_madvise_mergeable(resources[i].m_mmap, resources[i].m_mmap_size);
 			}
 		}
+		if (UNLIKELY(!stress_continue_flag()))
+			break;
 		resources[i].pipe_ret = pipe(resources[i].fd_pipe);
 #if defined(F_SETPIPE_SZ)
 		if (resources[i].pipe_ret == 0) {
