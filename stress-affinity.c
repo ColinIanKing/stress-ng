@@ -24,7 +24,9 @@
 
 #include <sched.h>
 
-#define STRESS_AFFINITY_PROCS	(16)
+#define MIN_AFFINITY_PROCS	(2)
+#define MAX_AFFINITY_PROCS	(1024)
+#define DEFAULT_AFFINITY_PROCS	(16)
 
 typedef struct {
 	volatile uint32_t cpu;		/* Pinned CPU to use, in pin mode */
@@ -39,6 +41,7 @@ static const stress_help_t help[] = {
 	{ NULL,	"affinity N",	  	"start N workers that rapidly change CPU affinity" },
 	{ NULL, "affinity-delay D",	"delay in nanoseconds between affinity changes" },
 	{ NULL,	"affinity-ops N",	"stop after N affinity bogo operations" },
+	{ NULL, "affinity-procs N",	"number of child processes to run per affinity instance" },
 	{ NULL, "affinity-pin",		"keep per stressor threads pinned to same CPU" },
 	{ NULL,	"affinity-rand",	"change affinity randomly rather than sequentially" },
 	{ NULL,	"affinity-sleep N",	"sleep in nanoseconds between affinity changes" },
@@ -48,6 +51,7 @@ static const stress_help_t help[] = {
 static const stress_opt_t opts[] = {
 	{ OPT_affinity_delay, "affinity-delay", TYPE_ID_UINT64, 0, STRESS_NANOSECOND, NULL },
 	{ OPT_affinity_pin,   "affinity-pin",	TYPE_ID_BOOL,	0, 1,                 NULL },
+	{ OPT_affinity_procs, "affinity-procs", TYPE_ID_SIZE_T, MIN_AFFINITY_PROCS, MAX_AFFINITY_PROCS, NULL },
 	{ OPT_affinity_rand,  "affinity-rand",  TYPE_ID_BOOL,	0, 1,                 NULL },
 	{ OPT_affinity_sleep, "affinity-sleep", TYPE_ID_UINT64, 0, STRESS_NANOSECOND, NULL },
 	END_OPT,
@@ -90,9 +94,12 @@ static int stress_affinity_supported(const char *name)
  *  stress_affinity_reap()
  *	kill and wait on child processes
  */
-static void stress_affinity_reap(stress_args_t *args, const stress_pid_t *s_pids)
+static void stress_affinity_reap(
+	stress_args_t *args,
+	const stress_pid_t *s_pids,
+	const size_t affinity_procs)
 {
-	stress_kill_and_wait_many(args, s_pids, STRESS_AFFINITY_PROCS, SIGALRM, true);
+	stress_kill_and_wait_many(args, s_pids, affinity_procs, SIGALRM, true);
 }
 
 /*
@@ -238,18 +245,21 @@ static int stress_affinity(stress_args_t *args)
 	size_t i;
 	stress_affinity_info_t *info;
 	const size_t info_sz = (sizeof(*info) + args->page_size) & ~(args->page_size - 1);
+	size_t affinity_procs = DEFAULT_AFFINITY_PROCS;
 
-	s_pids = stress_sync_s_pids_mmap(STRESS_AFFINITY_PROCS);
+	(void)stress_get_setting("affinity-procs", &affinity_procs);
+
+	s_pids = stress_sync_s_pids_mmap(affinity_procs);
 	if (s_pids == MAP_FAILED) {
-		pr_inf_skip("%s: failed to mmap %d PIDs%s, skipping stressor\n",
-			args->name, STRESS_AFFINITY_PROCS, stress_get_memfree_str());
+		pr_inf_skip("%s: failed to mmap %zu PIDs%s, skipping stressor\n",
+			args->name, affinity_procs, stress_get_memfree_str());
 		return EXIT_NO_RESOURCE;
 	}
 
 	counter_lock = stress_lock_create("counter");
 	if (!counter_lock) {
 		pr_inf_skip("%s: failed to create counter lock. skipping stressor\n", args->name);
-		(void)stress_sync_s_pids_munmap(s_pids, STRESS_AFFINITY_PROCS);
+		(void)stress_sync_s_pids_munmap(s_pids, affinity_procs);
 		return EXIT_NO_RESOURCE;
 	}
 
@@ -260,7 +270,7 @@ static int stress_affinity(stress_args_t *args)
 		pr_inf_skip("%s: cannot mmap %zu bytes for shared counters%s, skipping stressor\n",
 			args->name, info_sz, stress_get_memfree_str());
 		(void)stress_lock_destroy(counter_lock);
-		(void)stress_sync_s_pids_munmap(s_pids, STRESS_AFFINITY_PROCS);
+		(void)stress_sync_s_pids_munmap(s_pids, affinity_procs);
 		return EXIT_NO_RESOURCE;
 	}
 	stress_set_vma_anon_name(info, info_sz, "counters");
@@ -284,10 +294,10 @@ static int stress_affinity(stress_args_t *args)
 	}
 
 	/*
-	 *  process slots 1..STRESS_AFFINITY_PROCS are the children,
+	 *  process slots 1..affinity_procs are the children,
 	 *  slot 0 is the parent.
 	 */
-	for (i = 1; i < STRESS_AFFINITY_PROCS; i++) {
+	for (i = 1; i < affinity_procs; i++) {
 		stress_sync_start_init(&s_pids[i]);
 		s_pids[i].pid = fork();
 
@@ -318,11 +328,11 @@ static int stress_affinity(stress_args_t *args)
 	 *  will have reap'd the processes, but to be safe, reap again
 	 *  to ensure all processes are really dead and reaped.
 	 */
-	stress_affinity_reap(args, s_pids);
+	stress_affinity_reap(args, s_pids, affinity_procs);
 
 	(void)munmap((void *)info, info_sz);
 	(void)stress_lock_destroy(counter_lock);
-	(void)stress_sync_s_pids_munmap(s_pids, STRESS_AFFINITY_PROCS);
+	(void)stress_sync_s_pids_munmap(s_pids, affinity_procs);
 
 	return EXIT_SUCCESS;
 }

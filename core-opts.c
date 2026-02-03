@@ -36,6 +36,7 @@ const struct option stress_long_options[] = {
 	{ "affinity-delay",	1,	0,	OPT_affinity_delay },
 	{ "affinity-ops",	1,	0,	OPT_affinity_ops },
 	{ "affinity-pin",	0,	0,	OPT_affinity_pin },
+	{ "affinity-procs",	1,	0,	OPT_affinity_procs },
 	{ "affinity-rand",	0,	0,	OPT_affinity_rand },
 	{ "affinity-sleep",	1,	0,	OPT_affinity_sleep },
 	{ "aggressive",		0,	0,	OPT_aggressive },

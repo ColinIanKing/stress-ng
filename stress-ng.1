@@ -856,6 +856,10 @@ stop affinity workers after N bogo affinity operations.
 pin all the 16 per stressor processes to a CPU. All 16 processes follow the
 CPU chosen by the main parent stressor, forcing heavy per CPU loading.
 .TP
+.B \-\-affinity\-procs N
+specify number of processes per affinity instance to run, the range is
+2 to 1024 with a default of 16.
+.TP
 .B \-\-affinity\-rand
 switch CPU affinity randomly rather than the default of sequentially.
 .TP
