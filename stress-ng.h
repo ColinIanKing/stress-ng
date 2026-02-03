@@ -385,29 +385,29 @@ do {				\
 #define STRESS_PROCS_MAX	(8192)		/* Max number of processes per stressor */
 
 /* Stressor classes */
-#define CLASS_CPU		STRESS_BIT_UL(0)	/* CPU only */
-#define CLASS_MEMORY		STRESS_BIT_UL(1)	/* Memory thrashers */
+#define CLASS_COMPUTE		STRESS_BIT_UL(0)	/* CPU computations */
+#define CLASS_CPU		STRESS_BIT_UL(1)	/* CPU only */
 #define CLASS_CPU_CACHE		STRESS_BIT_UL(2)	/* CPU cache */
-#define CLASS_IO		STRESS_BIT_UL(3)	/* I/O read/writes etc */
-#define CLASS_NETWORK		STRESS_BIT_UL(4)	/* Network, sockets, etc */
-#define CLASS_SCHEDULER		STRESS_BIT_UL(5)	/* Scheduling */
-#define CLASS_VM		STRESS_BIT_UL(6)	/* VM stress, big memory, swapping */
-#define CLASS_INTERRUPT		STRESS_BIT_UL(7)	/* interrupt floods */
-#define CLASS_OS		STRESS_BIT_UL(8)	/* generic OS tests */
-#define CLASS_PIPE_IO		STRESS_BIT_UL(9)	/* pipe I/O */
-#define CLASS_FILESYSTEM	STRESS_BIT_UL(10)	/* file system */
-#define CLASS_DEV		STRESS_BIT_UL(11)	/* device (null, zero, etc) */
-#define CLASS_SECURITY		STRESS_BIT_UL(12)	/* security APIs */
-#define CLASS_PATHOLOGICAL	STRESS_BIT_UL(13)	/* can hang a machine */
-#define CLASS_GPU		STRESS_BIT_UL(14)	/* GPU */
-#define CLASS_SIGNAL		STRESS_BIT_UL(15)	/* software signals */
-#define CLASS_SEARCH		STRESS_BIT_UL(16)	/* Search algorithms */
-#define CLASS_COMPUTE		STRESS_BIT_UL(17)	/* CPU computations */
-#define CLASS_FP		STRESS_BIT_UL(18)	/* Floating point operations */
-#define CLASS_INTEGER		STRESS_BIT_UL(19)	/* Integer operations */
-#define CLASS_SORT		STRESS_BIT_UL(20)	/* Sort stressors */
-#define CLASS_IPC		STRESS_BIT_UL(21)	/* Inter process communication */
-#define CLASS_VECTOR		STRESS_BIT_UL(22)	/* Vector math operations */
+#define CLASS_DEV		STRESS_BIT_UL(3)	/* device (null, zero, etc) */
+#define CLASS_FILESYSTEM	STRESS_BIT_UL(4)	/* file system */
+#define CLASS_FP		STRESS_BIT_UL(5)	/* Floating point operations */
+#define CLASS_GPU		STRESS_BIT_UL(6)	/* GPU */
+#define CLASS_INTEGER		STRESS_BIT_UL(7)	/* Integer operations */
+#define CLASS_INTERRUPT		STRESS_BIT_UL(8)	/* interrupt floods */
+#define CLASS_IO		STRESS_BIT_UL(9)	/* I/O read/writes etc */
+#define CLASS_IPC		STRESS_BIT_UL(10)	/* Inter process communication */
+#define CLASS_MEMORY		STRESS_BIT_UL(11)	/* Memory thrashers */
+#define CLASS_NETWORK		STRESS_BIT_UL(12)	/* Network, sockets, etc */
+#define CLASS_OS		STRESS_BIT_UL(13)	/* generic OS tests */
+#define CLASS_PATHOLOGICAL	STRESS_BIT_UL(14)	/* can hang a machine */
+#define CLASS_PIPE_IO		STRESS_BIT_UL(15)	/* pipe I/O */
+#define CLASS_SCHEDULER		STRESS_BIT_UL(16)	/* Scheduling */
+#define CLASS_SECURITY		STRESS_BIT_UL(17)	/* security APIs */
+#define CLASS_SEARCH		STRESS_BIT_UL(18)	/* Search algorithms */
+#define CLASS_SORT		STRESS_BIT_UL(19)	/* Sort stressors */
+#define CLASS_SIGNAL		STRESS_BIT_UL(20)	/* software signals */
+#define CLASS_VECTOR		STRESS_BIT_UL(21)	/* Vector math operations */
+#define CLASS_VM		STRESS_BIT_UL(22)	/* VM stress, big memory, swapping */
 
 /* Help information for options */
 typedef struct {
