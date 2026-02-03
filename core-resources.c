@@ -914,7 +914,7 @@ void stress_resources_access(
 
 	(void)page_size;
 
-	for (i = 0; i < num_resources; i++) {
+	for (i = 0; (i < num_resources) && stress_continue(args); i++) {
 		if (resources[i].m_malloc)
 			(void)shim_memset(resources[i].m_malloc, (int)i, resources[i].m_malloc_size);
 		if (resources[i].m_mmap && (resources[i].m_mmap != MAP_FAILED))
