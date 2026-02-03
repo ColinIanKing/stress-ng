@@ -206,5 +206,7 @@
  * [xPUE: Extending Power Usage Effectiveness Metrics for Cloud Infrastructures](https://arxiv.org/pdf/2503.07124)
 
 2026:
+ * [Enabling SLO-Aware 5G Multi-Access Edge Computing with SMEC](https://arxiv.org/html/2601.19162v1)
+ * [Object detection on low-compute edge SoCs: a reproducible benchmark and deployment guidelines](https://www.nature.com/articles/s41598-026-36862-y_reference.pdf)
  * [On-Device Deep Reinforcement Learning for Decentralized Task Offloading: Performance trade-offs in the training process](https://arxiv.org/html/2601.03976v1#S4)
 
