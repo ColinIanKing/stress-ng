@@ -336,7 +336,7 @@ tidy:
 
 const stressor_info_t stress_heapsort_info = {
 	.stressor = stress_heapsort,
-	.classifier = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY | CLASS_SORT,
+	.classifier = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY | CLASS_SORT | CLASS_HOT,
 	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help

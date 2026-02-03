@@ -594,7 +594,7 @@ static const stress_opt_t opts[] = {
 
 const stressor_info_t stress_dfp_info = {
 	.stressor = stress_dfp,
-	.classifier = CLASS_CPU | CLASS_FP | CLASS_COMPUTE,
+	.classifier = CLASS_CPU | CLASS_FP | CLASS_COMPUTE | CLASS_HOT,
 	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
@@ -615,7 +615,7 @@ static const stress_opt_t opts[] = {
 
 const stressor_info_t stress_dfp_info = {
 	.stressor = stress_unimplemented,
-	.classifier = CLASS_CPU | CLASS_FP | CLASS_COMPUTE,
+	.classifier = CLASS_CPU | CLASS_FP | CLASS_COMPUTE | CLASS_HOT,
 	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help,

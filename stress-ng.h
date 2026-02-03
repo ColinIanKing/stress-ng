@@ -405,9 +405,10 @@ do {				\
 #define CLASS_SECURITY		STRESS_BIT_UL(17)	/* security APIs */
 #define CLASS_SEARCH		STRESS_BIT_UL(18)	/* Search algorithms */
 #define CLASS_SORT		STRESS_BIT_UL(19)	/* Sort stressors */
-#define CLASS_SIGNAL		STRESS_BIT_UL(20)	/* software signals */
-#define CLASS_VECTOR		STRESS_BIT_UL(21)	/* Vector math operations */
-#define CLASS_VM		STRESS_BIT_UL(22)	/* VM stress, big memory, swapping */
+#define CLASS_HOT		STRESS_BIT_UL(20)	/* Hot stressors */
+#define CLASS_SIGNAL		STRESS_BIT_UL(21)	/* software signals */
+#define CLASS_VECTOR		STRESS_BIT_UL(22)	/* Vector math operations */
+#define CLASS_VM		STRESS_BIT_UL(23)	/* VM stress, big memory, swapping */
 
 /* Help information for options */
 typedef struct {

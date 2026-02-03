@@ -163,7 +163,7 @@ const stressor_info_t stress_tsearch_info = {
 
 const stressor_info_t stress_tsearch_info = {
 	.stressor = stress_unimplemented,
-	.classifier = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY | CLASS_SEARCH,
+	.classifier = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY | CLASS_SEARCH | CLASS_HOT,
 	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help,

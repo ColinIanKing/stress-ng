@@ -310,6 +310,7 @@ static const stress_class_info_t stress_classes[] = {
 	{ CLASS_FILESYSTEM,	"filesystem" },
 	{ CLASS_FP,		"fp" },
 	{ CLASS_GPU,		"gpu" },
+	{ CLASS_HOT,		"hot" },
 	{ CLASS_INTERRUPT,	"interrupt" },
 	{ CLASS_IO,		"io" },
 	{ CLASS_IPC,		"ipc" },

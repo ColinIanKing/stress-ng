@@ -328,7 +328,7 @@ tidy:
 
 const stressor_info_t stress_bubblesort_info = {
 	.stressor = stress_bubblesort,
-	.classifier = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY | CLASS_SORT,
+	.classifier = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY | CLASS_SORT | CLASS_HOT,
 	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
