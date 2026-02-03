@@ -4856,9 +4856,12 @@ longjmp calls).
 .TQ
 .B \-\-loop N
 start N workers that exercise the loopback control device. This creates 2 MB
-loopback devices, expands them to 4 MB, performs some loopback status information
-get and set operations and then destroys them. Linux only and requires
-CAP_SYS_ADMIN capability.
+loopback devices, expands them to double this size, performs some loopback
+status information get and set operations and then destroys them. Linux only
+and requires CAP_SYS_ADMIN capability.
+.TP
+.B \-\-loop\-bytes N
+specify the size of the loop device in bytes, range 1MB to 1GB, the default is 2MB.
 .TP
 .B \-\-loop\-ops N
 stop after N bogo loopback creation/deletion operations.

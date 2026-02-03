@@ -29,10 +29,20 @@
 #include <linux/loop.h>
 #endif
 
+#define MIN_LOOP_BYTES		(1 * MB)
+#define MAX_LOOP_BYTES		(1 * GB)
+#define DEFAULT_LOOP_BYTES	(2 * MB)
+
 static const stress_help_t help[] = {
 	{ NULL,	"loop N",	"start N workers exercising loopback devices" },
+	{ NULL, "loop-bytes N",	"set maximum size of loopback device"},
 	{ NULL,	"loop-ops N",	"stop after N bogo loopback operations" },
 	{ NULL,	NULL,		NULL }
+};
+
+static const stress_opt_t opts[] = {
+	{ OPT_loop_bytes, "loop-bytes", TYPE_ID_SIZE_T_BYTES_VM, MIN_LOOP_BYTES, MAX_LOOP_BYTES, NULL },
+	END_OPT,
 };
 
 #if defined(HAVE_LINUX_LOOP_H) && \
@@ -104,9 +114,11 @@ static int stress_loop(stress_args_t *args)
 {
 	int ret, backing_fd, rc = EXIT_FAILURE;
 	char backing_file[PATH_MAX];
-	size_t backing_size = 2 * MB;
+	size_t loop_bytes = DEFAULT_LOOP_BYTES;
 	const int bad_fd = stress_get_bad_fd();
 	uint8_t blk[4096] ALIGNED(8);
+
+	(void)stress_get_setting("loop-bytes", &loop_bytes);
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
@@ -121,7 +133,7 @@ static int stress_loop(stress_args_t *args)
 		goto tidy;
 	}
 	(void)shim_unlink(backing_file);
-	if (ftruncate(backing_fd, (off_t)backing_size) < 0) {
+	if (ftruncate(backing_fd, (off_t)loop_bytes) < 0) {
 		pr_fail("%s: ftruncate failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		(void)close(backing_fd);
@@ -129,7 +141,7 @@ static int stress_loop(stress_args_t *args)
 	}
 
 	if (stress_instance_zero(args))
-		stress_usage_bytes(args, backing_size, backing_size * args->instances);
+		stress_usage_bytes(args, loop_bytes, loop_bytes * args->instances);
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
@@ -231,7 +243,7 @@ static int stress_loop(stress_args_t *args)
 
 		/* fill loop device with data */
 		stress_uint8rnd4(blk, sizeof(blk));
-		for (i = 0; i < backing_size; i += sizeof(blk)) {
+		for (i = 0; i < loop_bytes; i += sizeof(blk)) {
 			shim_memcpy(blk, &i, sizeof(i));
 			if (write(loop_dev, (void *)blk, sizeof(blk)) != (ssize_t)sizeof(blk))
 				break;
@@ -261,15 +273,15 @@ static int stress_loop(stress_args_t *args)
 #endif
 #endif
 
-		ptr = stress_mmap_populate(NULL, backing_size, PROT_READ | PROT_WRITE,
+		ptr = stress_mmap_populate(NULL, loop_bytes, PROT_READ | PROT_WRITE,
 			MAP_SHARED, loop_dev, 0);
 		if (ptr != MAP_FAILED) {
-			stress_set_vma_anon_name(ptr, backing_size, "data");
-			(void)stress_mincore_touch_pages_interruptible(ptr, backing_size);
+			stress_set_vma_anon_name(ptr, loop_bytes, "data");
+			(void)stress_mincore_touch_pages_interruptible(ptr, loop_bytes);
 #if defined(MS_ASYNC)
-			(void)shim_msync(ptr, backing_size, MS_ASYNC);
+			(void)shim_msync(ptr, loop_bytes, MS_ASYNC);
 #endif
-			(void)stress_munmap_force(ptr, backing_size);
+			(void)stress_munmap_force(ptr, loop_bytes);
 			(void)shim_fsync(loop_dev);
 		}
 
@@ -294,7 +306,7 @@ static int stress_loop(stress_args_t *args)
 		/*
 		 *  Resize command (even though we have not changed size)
 		 */
-		VOID_RET(int, ftruncate(backing_fd, (off_t)backing_size * 2));
+		VOID_RET(int, ftruncate(backing_fd, (off_t)(loop_bytes << 1)));
 		VOID_RET(int, ioctl(loop_dev, LOOP_SET_CAPACITY));
 #endif
 
@@ -355,7 +367,7 @@ static int stress_loop(stress_args_t *args)
 #endif
 		/* read loop back */
 		if (lseek(loop_dev, 0, SEEK_SET) != (off_t)-1) {
-			for (i = 0; i < backing_size; i += sizeof(blk)) {
+			for (i = 0; i < loop_bytes; i += sizeof(blk)) {
 				if (read(loop_dev, (void *)blk, sizeof(blk)) != (ssize_t)sizeof(blk))
 					break;
 			}
@@ -368,11 +380,11 @@ static int stress_loop(stress_args_t *args)
 		(void)shim_fallocate(loop_dev, FALLOC_FL_PUNCH_HOLE, 0, 4096);
 #endif
 #if defined(FALLOC_FL_ZERO_RANGE)
-		(void)shim_fallocate(loop_dev, FALLOC_FL_ZERO_RANGE, 0, backing_size);
+		(void)shim_fallocate(loop_dev, FALLOC_FL_ZERO_RANGE, 0, loop_bytes);
 #endif
 #endif
 		VOID_RET(int, ftruncate(loop_dev, 0));
-		VOID_RET(int, ftruncate(loop_dev, backing_size));
+		VOID_RET(int, ftruncate(loop_dev, loop_bytes));
 
 #if defined(LOOP_GET_STATUS)
 clr_loop:
@@ -421,7 +433,7 @@ destroy_loop:
 next:
 		(void)close(ctrl_dev);
 #if defined(LOOP_SET_CAPACITY)
-		VOID_RET(int, ftruncate(backing_fd, (off_t)backing_size));
+		VOID_RET(int, ftruncate(backing_fd, (off_t)loop_bytes));
 #endif
 
 		stress_bogo_inc(args);
@@ -443,6 +455,7 @@ const stressor_info_t stress_loop_info = {
 	.supported = stress_loop_supported,
 	.classifier = CLASS_OS | CLASS_DEV,
 	.verify = VERIFY_ALWAYS,
+	.opts = opts,
 	.help = help
 };
 #else
@@ -458,6 +471,7 @@ const stressor_info_t stress_loop_info = {
 	.supported = stress_loop_supported,
 	.classifier = CLASS_OS | CLASS_DEV,
 	.help = help,
+	.opts = opts,
 	.unimplemented_reason = "built without linux/loop.h or loop ioctl() commands"
 };
 #endif

@@ -795,6 +795,7 @@ typedef enum {
 	OPT_longjmp_ops,
 
 	OPT_loop,
+	OPT_loop_bytes,
 	OPT_loop_ops,
 
 	OPT_lsearch,

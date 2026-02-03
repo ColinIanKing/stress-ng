@@ -519,6 +519,7 @@ const struct option stress_long_options[] = {
 	{ "longjmp",		1,	0,	OPT_longjmp },
 	{ "longjmp-ops",	1,	0,	OPT_longjmp_ops },
 	{ "loop",		1,	0,	OPT_loop },
+	{ "loop-bytes",		1,	0,	OPT_loop_bytes },
 	{ "loop-ops",		1,	0,	OPT_loop_ops },
 	{ "lsearch",		1,	0,	OPT_lsearch },
 	{ "lsearch-method",	1,	0,	OPT_lsearch_method },
