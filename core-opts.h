@@ -807,6 +807,7 @@ typedef enum {
 	OPT_lsm_ops,
 
 	OPT_madvise,
+	OPT_madvise_bytes,
 	OPT_madvise_ops,
 	OPT_madvise_hwpoison,
 

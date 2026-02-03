@@ -4909,6 +4909,12 @@ stop after N loops of fetching security modules lists and fetching LSM attribute
 start N workers that apply random madvise(2) advise settings on pages of
 a 4 MB file backed shared memory mapping.
 .TP
+.B \-\-madvise\-bytes N
+mmap N bytes for per madvise worker for the file backed shared memory mapping. The
+range is 4K to 64M, and the default is 4 MB. One can specify the size as % of total
+available memory or in units of Bytes, KBytes, MBytes and GBytes using the
+suffix b, k, m or g.
+.TP
 .B \-\-madvise\-hwpoison
 enable MADV_HWPOISON page poisoning (if available, only when run as root). This
 will page poison a few pages and will cause kernel error messages to be

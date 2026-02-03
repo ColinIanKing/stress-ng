@@ -528,6 +528,7 @@ const struct option stress_long_options[] = {
 	{ "lsm",		1,	0,	OPT_lsm },
 	{ "lsm-ops",		1,	0,	OPT_lsm_ops },
 	{ "madvise",		1,	0,	OPT_madvise },
+	{ "madvise-bytes",	1,	0,	OPT_madvise_bytes },
 	{ "madvise-ops",	1,	0,	OPT_madvise_ops },
 	{ "madvise-hwpoison",	0,	0,	OPT_madvise_hwpoison },
 	{ "malloc",		1,	0,	OPT_malloc },

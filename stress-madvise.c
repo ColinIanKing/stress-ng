@@ -25,14 +25,20 @@
 #include "core-out-of-memory.h"
 #include "core-pthread.h"
 
+#define MIN_MADVISE_BYTES	(4 * KB)
+#define MAX_MADVISE_BYTES	(64 * MB)
+#define DEFAULT_MADVISE_BYTES	(4 * MB)
+
 static const stress_help_t help[] = {
 	{ NULL,	"madvise N",	 	"start N workers exercising madvise on memory" },
+	{ NULL, "madvise-bytes N",	"specify size of memory being madvise'd" },
 	{ NULL,	"madvise-ops N",	"stop after N bogo madvise operations" },
 	{ NULL,	"madvise-hwpoison",	"enable hardware page poisoning (disabled by default)" },
 	{ NULL,	NULL,			NULL }
 };
 
 static const stress_opt_t opts[] = {
+	{ OPT_madvise_bytes,    "madvise-bytes", TYPE_ID_SIZE_T_BYTES_VM, MIN_MADVISE_BYTES, MAX_MADVISE_BYTES, NULL },
 	{ OPT_madvise_hwpoison,	"madvise-hwpoison", TYPE_ID_BOOL, 0, 1, NULL },
 	END_OPT,
 };
@@ -51,7 +57,7 @@ typedef struct madvise_ctxt {
 	void *buf;
 	char smaps[PATH_MAX];
 	char maps[PATH_MAX];
-	size_t sz;
+	size_t madvise_bytes;
 	bool  is_thread;
 	bool  hwpoison;
 } madvise_ctxt_t;
@@ -226,7 +232,7 @@ static void *stress_madvise_pages(void *arg)
 	const madvise_ctxt_t *ctxt = (const madvise_ctxt_t *)arg;
 	stress_args_t *args = ctxt->args;
 	void *buf = ctxt->buf;
-	const size_t sz = ctxt->sz;
+	const size_t madvise_bytes = ctxt->madvise_bytes;
 	const size_t page_size = args->page_size;
 
 	if (ctxt->is_thread) {
@@ -239,7 +245,7 @@ static void *stress_madvise_pages(void *arg)
 		stress_random_small_sleep();
 	}
 
-	for (n = 0; n < sz; n += page_size) {
+	for (n = 0; n < madvise_bytes; n += page_size) {
 		void *ptr = (void *)(((uint8_t *)buf) + n);
 		const int advice = stress_random_advise(args, ptr, page_size, ctxt->hwpoison);
 
@@ -255,8 +261,8 @@ static void *stress_madvise_pages(void *arg)
 #endif
 		(void)shim_msync(ptr, page_size, MS_ASYNC);
 	}
-	for (n = 0; n < sz; n += page_size) {
-		const size_t m = (size_t)(stress_mwc64modn((uint64_t)sz) & ~(page_size - 1));
+	for (n = 0; n < madvise_bytes; n += page_size) {
+		const size_t m = (size_t)(stress_mwc64modn((uint64_t)madvise_bytes) & ~(page_size - 1));
 		void *ptr = (void *)(((uint8_t *)buf) + m);
 		const int advice = stress_random_advise(args, ptr, page_size, ctxt->hwpoison);
 
@@ -270,11 +276,11 @@ static void *stress_madvise_pages(void *arg)
 	}
 #if defined(MADV_PAGEOUT) && defined(MS_SYNC)
 	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE) {
-		(void)shim_madvise(buf, sz, MADV_PAGEOUT);
-		(void)shim_msync(buf, sz, MS_SYNC);
+		(void)shim_madvise(buf, madvise_bytes, MADV_PAGEOUT);
+		(void)shim_msync(buf, madvise_bytes, MS_SYNC);
 #if defined(MADV_POPULATE_WRITE)
-		(void)shim_madvise(buf, sz, MADV_POPULATE_WRITE);
-		(void)shim_msync(buf, sz, MS_SYNC);
+		(void)shim_madvise(buf, madvise_bytes, MADV_POPULATE_WRITE);
+		(void)shim_msync(buf, madvise_bytes, MS_SYNC);
 #endif
 	}
 #endif
@@ -332,7 +338,7 @@ static void *stress_madvise_pages(void *arg)
 	return &g_nowt;
 }
 
-static void stress_process_madvise(const pid_t pid, void *buf, const size_t sz)
+static void stress_process_madvise(const pid_t pid, void *buf, const size_t madvise_bytes)
 {
 	int pidfd;
 	struct iovec vec;
@@ -340,7 +346,7 @@ static void stress_process_madvise(const pid_t pid, void *buf, const size_t sz)
 	(void)pid;
 
 	vec.iov_base = buf;
-	vec.iov_len = sz;
+	vec.iov_len = madvise_bytes;
 
 	pidfd = shim_pidfd_open(pid, 0);
 	if (pidfd >= 0) {
@@ -375,7 +381,6 @@ static void stress_process_madvise(const pid_t pid, void *buf, const size_t sz)
 static int stress_madvise(stress_args_t *args)
 {
 	const size_t page_size = args->page_size;
-	const size_t sz = (4 *  MB) & ~(page_size - 1);
 	const pid_t pid = getpid();
 	int fd = -1;
 	NOCLOBBER size_t advice = 0;
@@ -392,6 +397,9 @@ static int stress_madvise(stress_args_t *args)
 #endif
 
 	(void)shim_memset(&ctxt, 0, sizeof(ctxt));
+	ctxt.madvise_bytes = DEFAULT_MADVISE_BYTES;
+	(void)stress_get_setting("madvise-bytes", &ctxt.madvise_bytes);
+	ctxt.madvise_bytes = (ctxt.madvise_bytes + page_size - 1) & ~(page_size - 1);
 	(void)stress_get_setting("madvise-hwpoison", &ctxt.hwpoison);
 
 	num_mem_retries = 0;
@@ -455,12 +463,12 @@ static int stress_madvise(stress_args_t *args)
 
 	stress_file_rw_hint_short(fd);
 
-	for (n = 0; n < sz; n += page_size) {
+	for (n = 0; n < ctxt.madvise_bytes; n += page_size) {
 		VOID_RET(ssize_t, write(fd, page, page_size));
 	}
 
 	if (stress_instance_zero(args))
-		stress_usage_bytes(args, sz, sz * args->instances);
+		stress_usage_bytes(args, ctxt.madvise_bytes, ctxt.madvise_bytes * args->instances);
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
@@ -481,11 +489,13 @@ static int stress_madvise(stress_args_t *args)
 
 		file_mapped = stress_mwc1();
 		if (file_mapped) {
-			buf = (uint8_t *)stress_mmap_populate(NULL, sz, PROT_READ | PROT_WRITE,
-								MAP_PRIVATE, fd, 0);
+			buf = (uint8_t *)stress_mmap_populate(NULL, ctxt.madvise_bytes,
+							      PROT_READ | PROT_WRITE,
+							      MAP_PRIVATE, fd, 0);
 		} else {
-			buf = (uint8_t *)stress_mmap_populate(NULL, sz, PROT_READ | PROT_WRITE,
-								MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+			buf = (uint8_t *)stress_mmap_populate(NULL, ctxt.madvise_bytes,
+							      PROT_READ | PROT_WRITE,
+							      MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 		}
 		if (buf == MAP_FAILED) {
 			/* Force MAP_POPULATE off, just in case */
@@ -496,19 +506,18 @@ static int stress_madvise(stress_args_t *args)
 		}
 		ret = sigsetjmp(jmp_env, 1);
 		if (ret) {
-			(void)munmap((void *)buf, sz);
+			(void)munmap((void *)buf, ctxt.madvise_bytes);
 			/* Try again */
 			continue;
 		}
 
-		(void)shim_memset(buf, 0xff, sz);
-		(void)stress_madvise_randomize(buf, sz);
-		(void)stress_mincore_touch_pages(buf, sz);
-		stress_process_madvise(pid, buf, sz);
+		(void)shim_memset(buf, 0xff, ctxt.madvise_bytes);
+		(void)stress_madvise_randomize(buf, ctxt.madvise_bytes);
+		(void)stress_mincore_touch_pages(buf, ctxt.madvise_bytes);
+		stress_process_madvise(pid, buf, ctxt.madvise_bytes);
 
 		ctxt.args = args;
 		ctxt.buf = buf;
-		ctxt.sz = sz;
 
 #if defined(HAVE_LIB_PTHREAD)
 		{
@@ -542,7 +551,7 @@ static int stress_madvise(stress_args_t *args)
 		(void)madvise((void *)buf, 0xffff0000, MADV_NORMAL);
 
 		/* Invalid advice option, EINVAL */
-		(void)madvise((void *)buf, sz, ~0);
+		(void)madvise((void *)buf, ctxt.madvise_bytes, ~0);
 
 #endif
 
@@ -557,36 +566,36 @@ static int stress_madvise(stress_args_t *args)
 			madv_tries = 0;
 			val = stress_mwc8();
 
-			for (n = 0; n < sz; n += page_size) {
+			for (n = 0; n < ctxt.madvise_bytes; n += page_size) {
 				register const uint8_t v = (uint8_t)(val + n);
 
 				buf[n] = v;
 			}
-			if (madvise((void *)buf, sz, MADV_FREE) != 0)
+			if (madvise((void *)buf, ctxt.madvise_bytes, MADV_FREE) != 0)
 				goto madv_free_out;
 			if (lseek(fd, 0, SEEK_SET) != 0)
 				goto madv_free_out;
-			if (read(fd, buf, sz) != (ssize_t)sz)
+			if (read(fd, buf, ctxt.madvise_bytes) != (ssize_t)ctxt.madvise_bytes)
 				goto madv_free_out;
 
-			for (n = 0; n < sz; n += page_size) {
+			for (n = 0; n < ctxt.madvise_bytes; n += page_size) {
 				register const uint8_t v = (uint8_t)(val + n);
 
 				if (buf[n] != v)
 					madv_frees_raced++;
 			}
-			madv_frees += sz / page_size;
+			madv_frees += ctxt.madvise_bytes / page_size;
 		}
 madv_free_out:
 #endif
-		(void)munmap((void *)buf, sz);
+		(void)munmap((void *)buf, ctxt.madvise_bytes);
 
 #if defined(MADV_NORMAL)
 		{
 			void *bad_addr = (void *)(~(uintptr_t)0 & ~(page_size -1));
 
 			/* Invalid madvise on unmapped pages */
-			(void)madvise((void *)buf, sz, MADV_NORMAL);
+			(void)madvise((void *)buf, ctxt.madvise_bytes, MADV_NORMAL);
 
 			/* Invalid madvise on wrapped address */
 			(void)madvise(bad_addr, page_size * 2, MADV_NORMAL);
