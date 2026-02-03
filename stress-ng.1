@@ -6848,6 +6848,10 @@ a "thundering herd" of wakeups on processes that are blocked on pipe waits.
 .B \-\-pipeherd\-ops N
 stop pipe stress workers after N bogo pipe write operations.
 .TP
+.B \-\-pipeherd\-procs N
+specify the number of child processes per stressor instance that share
+a pipe, range from 8 to 1024. The default is 100.
+.TP
 .B \-\-pipeherd\-yield
 force a scheduling yield after each write, this increases the context
 switch rate.

@@ -798,6 +798,7 @@ const struct option stress_long_options[] = {
 	{ "pipe-vmsplice",	0,	0,	OPT_pipe_vmsplice },
 	{ "pipeherd",		1,	0,	OPT_pipeherd },
 	{ "pipeherd-ops",	1,	0,	OPT_pipeherd_ops },
+	{ "pipeherd-procs",	1,	0,	OPT_pipeherd_procs },
 	{ "pipeherd-yield", 	0,	0,	OPT_pipeherd_yield },
 	{ "pkey",		1,	0,	OPT_pkey },
 	{ "pkey-ops",		1,	0,	OPT_pkey_ops },

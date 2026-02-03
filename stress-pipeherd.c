@@ -30,7 +30,9 @@
  *     ("pipe: use exclusive waits when reading or writing")
  *
  */
-#define PIPE_HERD_MAX	(100)
+#define MIN_PIPEHERD_PROCS	(8)
+#define MAX_PIPEHERD_PROCS	(1024)
+#define DEFAULT_PIPEHERD_PROCS	(100)
 
 typedef struct {
 	uint64_t	counter;
@@ -40,6 +42,7 @@ typedef struct {
 static const stress_help_t help[] = {
 	{ "p N", "pipeherd N",		"start N multi-process workers exercising pipes I/O" },
 	{ NULL,	"pipeherd-ops N",	"stop after N pipeherd I/O bogo operations" },
+	{ NULL,	"pipeherd-procs N",	"specify number of proxesses to per stressor" },
 	{ NULL,	"pipeherd-yield",	"force processes to yield after each write" },
 	{ NULL,	NULL,			NULL }
 };
@@ -83,8 +86,8 @@ static int stress_pipeherd(stress_args_t *args)
 	int fd[2];
 	stress_pipeherd_data_t data;
 	uint32_t check = stress_mwc32();
-	pid_t pids[PIPE_HERD_MAX];
-	int i, rc;
+	pid_t pids[MAX_PIPEHERD_PROCS];
+	int i, rc, pipeherd_procs = DEFAULT_PIPEHERD_PROCS;
 	ssize_t sz;
 	bool pipeherd_yield = false;
 #if defined(HAVE_GETRUSAGE) &&	\
@@ -95,6 +98,7 @@ static int stress_pipeherd(stress_args_t *args)
 	double t1, t2;
 #endif
 
+	(void)stress_get_setting("pipeherd-procss", &pipeherd_procs);
 	if (!stress_get_setting("pipeherd-yield", &pipeherd_yield)) {
 		if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
 			pipeherd_yield = true;
@@ -138,7 +142,7 @@ static int stress_pipeherd(stress_args_t *args)
 		return EXIT_FAILURE;
 	}
 
-	for (i = 0; i < PIPE_HERD_MAX; i++)
+	for (i = 0; i < pipeherd_procs; i++)
 		pids[i] = -1;
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
@@ -151,7 +155,7 @@ static int stress_pipeherd(stress_args_t *args)
     defined(HAVE_RUSAGE_RU_NVCSW)
 	t1 = stress_time_now();
 #endif
-	for (i = 0; LIKELY(stress_continue(args) && (i < PIPE_HERD_MAX)); i++) {
+	for (i = 0; LIKELY(stress_continue(args) && (i < pipeherd_procs)); i++) {
 		pid_t pid;
 
 		pid = fork();
@@ -185,7 +189,7 @@ static int stress_pipeherd(stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	for (i = 0; i < PIPE_HERD_MAX; i++) {
+	for (i = 0; i < pipeherd_procs; i++) {
 		if (pids[i] >= 0)
 			(void)stress_kill_pid_wait(pids[i], NULL);
 	}
@@ -228,6 +232,7 @@ static int stress_pipeherd(stress_args_t *args)
 }
 
 static const stress_opt_t opts[] = {
+	{ OPT_pipeherd_procs, "pipeherd-procs", TYPE_ID_INT, MIN_PIPEHERD_PROCS, MAX_PIPEHERD_PROCS, NULL },
 	{ OPT_pipeherd_yield, "pipeherd-yield", TYPE_ID_BOOL, 0, 1, NULL },
 	END_OPT,
 };

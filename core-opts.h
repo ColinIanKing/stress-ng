@@ -1143,6 +1143,7 @@ typedef enum {
 
 	OPT_pipeherd,
 	OPT_pipeherd_ops,
+	OPT_pipeherd_procs,
 	OPT_pipeherd_yield,
 
 	OPT_pkey,
