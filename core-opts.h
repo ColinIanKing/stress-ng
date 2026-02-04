@@ -1702,9 +1702,10 @@ typedef enum {
 	OPT_udp_port,
 
 	OPT_udp_flood,
-	OPT_udp_flood_ops,
 	OPT_udp_flood_domain,
 	OPT_udp_flood_if,
+	OPT_udp_flood_max_size,
+	OPT_udp_flood_ops,
 
 	OPT_umask,
 	OPT_umask_ops,

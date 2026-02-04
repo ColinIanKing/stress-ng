@@ -33,12 +33,15 @@
 UNEXPECTED
 #endif
 
-#define MAX_UDP_SIZE	(2048)
+#define MIN_UDP_FLOOD_MAX_SIZE		(1)
+#define MAX_UDP_FLOOD_MAX_SIZE		(65507)
+#define DEFAULT_UDP_FLOOD_MAX_SIZE	(2048)
 
 static const stress_help_t help[] = {
 	{ NULL,	"udp-flood N",		"start N workers that performs a UDP flood attack" },
 	{ NULL,	"udp-flood-domain D",	"specify domain, default is ipv4" },
 	{ NULL, "udp-flood-if I",	"use network interface I, e.g. lo, eth0, etc." },
+	{ NULL, "udp-flood-max-size N",	"specify maximum size of UDP data" },
 	{ NULL,	"udp-flood-ops N",	"stop after N udp flood bogo operations" },
 	{ NULL,	NULL,			NULL }
 };
@@ -46,8 +49,9 @@ static const stress_help_t help[] = {
 static int udp_domain_mask = DOMAIN_INET_ALL;
 
 static const stress_opt_t opts[] = {
-	{ OPT_udp_flood_domain,	"udp-flood-domain", TYPE_ID_INT_DOMAIN, 0, 0, &udp_domain_mask },
-	{ OPT_udp_flood_if,	"udp-flood-if",     TYPE_ID_STR, 0, 0, NULL },
+	{ OPT_udp_flood_domain,   "udp-flood-domain",   TYPE_ID_INT_DOMAIN, 0, 0, &udp_domain_mask },
+	{ OPT_udp_flood_if,       "udp-flood-if",       TYPE_ID_STR, 0, 0, NULL },
+	{ OPT_udp_flood_max_size, "udp-flood-max-size", TYPE_ID_SIZE_T, MIN_UDP_FLOOD_MAX_SIZE, MAX_UDP_FLOOD_MAX_SIZE, NULL },
 	END_OPT,
 };
 
@@ -62,17 +66,18 @@ static int OPTIMIZE3 stress_udp_flood(stress_args_t *args)
 {
 	int fd, rc = EXIT_SUCCESS, j = 0;
 	int udp_flood_domain = AF_INET;
-	int port = 1024;
 	struct sockaddr *addr;
 	socklen_t addr_len;
-	const size_t sz_max = STRESS_MINIMUM(23 + args->instance, MAX_UDP_SIZE);
+	size_t udp_flood_max_size = DEFAULT_UDP_FLOOD_MAX_SIZE;
 	size_t sz = 1;
 	char *udp_flood_if = NULL;
 	double bytes = 0.0, duration, t, rate;
 	uint64_t sendto_failed = 0, total_count;
+	int port_change = 0, seq_port = -1, rand_port = -1, reserved_port;
 
 	(void)stress_get_setting("udp-flood-domain", &udp_flood_domain);
 	(void)stress_get_setting("udp-flood-if", &udp_flood_if);
+	(void)stress_get_setting("udp-flood-max-size", &udp_flood_max_size);
 
 	if (udp_flood_if) {
 		int ret;
@@ -99,7 +104,7 @@ static int OPTIMIZE3 stress_udp_flood(stress_args_t *args)
 	}
 	if (stress_net_sockaddr_if_set(args->name, args->instance,
 				       args->pid, udp_flood_domain,
-				       port, udp_flood_if, &addr,
+				       1024, udp_flood_if, &addr,
 				       &addr_len, NET_ADDR_ANY) < 0) {
 		(void)close(fd);
 		return EXIT_FAILURE;
@@ -109,21 +114,36 @@ static int OPTIMIZE3 stress_udp_flood(stress_args_t *args)
 	stress_sync_start_wait(args);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
+	seq_port = -1024;
+	rand_port = -1024;
+
 	t = stress_time_now();
 	do {
-		char buf[MAX_UDP_SIZE];
-		int rand_port, reserved_port;
+		char buf[MAX_UDP_FLOOD_MAX_SIZE];
 		ssize_t n;
 
-		if (UNLIKELY(++port > 65535))
-			port = 1024;
+		if (seq_port < 0) {
+			reserved_port = -seq_port;
+			if (UNLIKELY(++reserved_port > 65535)) {
+				pr_inf("here2 %d\n", reserved_port);
+				reserved_port = 1024;
+			}
+			seq_port = -reserved_port;
 
-		reserved_port = stress_net_reserve_ports(args, port, port);
-		if (UNLIKELY(reserved_port < 0))
-			continue;
-		port = reserved_port;
+			reserved_port = stress_net_reserve_ports(args, reserved_port, reserved_port);
+			if (UNLIKELY(reserved_port < 0))
+				continue;
+			seq_port = reserved_port;
+		}
+		if (rand_port < 0) {
+			reserved_port = 1024 + stress_mwc16modn(65535 - 1024);
+			reserved_port = stress_net_reserve_ports(args, reserved_port, reserved_port);
+			if (UNLIKELY(reserved_port < 0))
+				continue;
+			rand_port = reserved_port;
+		}
 
-		stress_net_sockaddr_port_set(udp_flood_domain, port, addr);
+		stress_net_sockaddr_port_set(udp_flood_domain, seq_port, addr);
 		(void)shim_memset(buf, stress_ascii64[j++ & 63], sz);
 		n = sendto(fd, buf, sz, 0, addr, addr_len);
 		if (LIKELY(n > 0)) {
@@ -134,7 +154,7 @@ static int OPTIMIZE3 stress_udp_flood(stress_args_t *args)
 		}
 
 #if defined(SIOCOUTQ)
-		if (UNLIKELY((port & 0x1f) == 0)) {
+		if (UNLIKELY((seq_port & 0x1f) == 0)) {
 			int pending;
 
 			VOID_RET(int, ioctl(fd, SIOCOUTQ, &pending));
@@ -142,16 +162,6 @@ static int OPTIMIZE3 stress_udp_flood(stress_args_t *args)
 #else
 		UNEXPECTED
 #endif
-		stress_net_release_ports(port, port);
-
-		if (UNLIKELY(!stress_continue(args)))
-			break;
-
-		rand_port = 1024 + stress_mwc16modn(65535 - 1024);
-		reserved_port = stress_net_reserve_ports(args, rand_port, rand_port);
-		if (UNLIKELY(reserved_port < 0))
-			continue;
-		rand_port = reserved_port;
 		stress_net_sockaddr_port_set(udp_flood_domain, rand_port, addr);
 		n = sendto(fd, buf, sz, 0, addr, addr_len);
 		if (LIKELY(n > 0)) {
@@ -160,9 +170,18 @@ static int OPTIMIZE3 stress_udp_flood(stress_args_t *args)
 		} else {
 			sendto_failed++;
 		}
-		stress_net_release_ports(rand_port, rand_port);
-		if (UNLIKELY(++sz >= sz_max))
+		if (UNLIKELY(++sz > udp_flood_max_size))
 			sz = 1;
+
+		port_change++;
+		if (port_change > 16384) {
+			port_change = 0;
+
+			stress_net_release_ports(seq_port, seq_port);
+			stress_net_release_ports(rand_port, rand_port);
+			seq_port = -seq_port;
+			rand_port = -1024;
+		}
 	} while (stress_continue(args));
 
 	duration = stress_time_now() - t;

@@ -9592,7 +9592,7 @@ up or does not support the domain then the loopback (lo) interface is used as th
 use the UDP-Lite (RFC 3828) protocol (only for ipv4 and ipv6 domains).
 .TP
 .B \-\-udp\-max\-size N
-specify the maximim data size in bytes, range 16 to 65507.
+specify the maximum data size in bytes, range 16 to 65507.
 .TP
 .B \-\-udp\-ops N
 stop udp stress workers after N bogo operations.
@@ -9606,8 +9606,8 @@ default, ports 7000 upwards are used.
 .RS 5
 .TQ
 .B \-\-udp\-flood N
-start N workers that attempt to flood the host with UDP packets to random
-ports. The IP address of the packets are currently not spoofed. This is only
+start N workers that attempt to flood the host with UDP packets to randomly
+selected ports. The IP address of the packets are currently not spoofed. This is only
 available on systems that support AF_PACKET.
 .TP
 .B \-\-udp\-flood\-domain D
@@ -9617,6 +9617,9 @@ supported.
 .B \-\-udp\-flood\-if NAME
 use network interface NAME. If the interface NAME does not exist, is not
 up or does not support the domain then the loopback (lo) interface is used as the default.
+.TP
+.B \-\-udp\-flood\-max\-size N
+specify the maximum data size in bytes, range 1 to 65507.
 .TP
 .B \-\-udp\-flood\-ops N
 stop udp-flood stress workers after N bogo operations.
