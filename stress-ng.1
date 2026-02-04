@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, may be w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "3 February 2026"
+.TH STRESS-NG 1 "4 February 2026"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -9573,7 +9573,9 @@ for level 3 raw packets (tunnelling).
 .B \-\-udp N
 start N workers that transmit data using UDP. This involves a pair of
 client/server processes performing rapid connects, sends, receives and
-disconnects on the local host.
+disconnects on the local host. Data is transmitted in increasing size
+from at least 16 bytes to the maximux data size (default of 1024 bytes)
+in increasing steps of 16 .
 .TP
 .B \-\-udp\-domain D
 specify the domain to use, the default is ipv4. Currently ipv4 and ipv6 are
@@ -9588,6 +9590,9 @@ up or does not support the domain then the loopback (lo) interface is used as th
 .TP
 .B \-\-udp\-lite
 use the UDP-Lite (RFC 3828) protocol (only for ipv4 and ipv6 domains).
+.TP
+.B \-\-udp\-max\-size N
+specify the maximim data size in bytes, range 16 to 65507.
 .TP
 .B \-\-udp\-ops N
 stop udp stress workers after N bogo operations.

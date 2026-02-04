@@ -49,7 +49,9 @@ UNEXPECTED
 
 #define DEFAULT_UDP_PORT	(7000)
 
-#define UDP_BUF			(1024)	/* UDP I/O buffer size */
+#define MIN_UDP_MAX_SIZE	(16)
+#define MAX_UDP_MAX_SIZE	(65507)
+#define DEFAULT_UDP_MAX_SIZE	(1024)
 
 /* See bugs section of udplite(7) */
 #if !defined(SOL_UDPLITE)
@@ -63,14 +65,15 @@ UNEXPECTED
 #endif
 
 static const stress_help_t help[] = {
-	{ NULL,	"udp N",	"start N workers performing UDP send/receives " },
-	{ NULL,	"udp-domain D",	"specify domain, default is ipv4" },
-	{ NULL, "udp-gro",	"enable UDP-GRO" },
-	{ NULL,	"udp-if I",	"use network interface I, e.g. lo, eth0, etc." },
-	{ NULL,	"udp-lite",	"use the UDP-Lite (RFC 3828) protocol" },
-	{ NULL,	"udp-ops N",	"stop after N udp bogo operations" },
-	{ NULL,	"udp-port P",	"use ports P to P + number of workers - 1" },
-	{ NULL,	NULL,		NULL }
+	{ NULL,	"udp N",         "start N workers performing UDP send/receives " },
+	{ NULL,	"udp-domain D",	 "specify domain, default is ipv4" },
+	{ NULL, "udp-gro",        "enable UDP-GRO" },
+	{ NULL,	"udp-if I",       "use network interface I, e.g. lo, eth0, etc." },
+	{ NULL,	"udp-lite",       "use the UDP-Lite (RFC 3828) protocol" },
+	{ NULL, "udp-max-size N", "specify maximum size of UDP data" },
+	{ NULL,	"udp-ops N",      "stop after N udp bogo operations" },
+	{ NULL,	"udp-port P",     "use ports P to P + number of workers - 1" },
+	{ NULL,	NULL,             NULL }
 };
 
 static int OPTIMIZE3 stress_udp_client(
@@ -80,11 +83,13 @@ static int OPTIMIZE3 stress_udp_client(
 	const int udp_proto,
 	const int udp_port,
 	const bool udp_gro,
-	const char *udp_if)
+	const char *udp_if,
+	const size_t udp_max_size)
 {
 	struct sockaddr *addr = NULL;
 	int rc = EXIT_FAILURE;
 	const pid_t pid = getpid();
+	const size_t udp_min_size = (udp_max_size & 0xf) + 16;
 
 	stress_parent_died_alarm();
 	(void)sched_settings_apply(true);
@@ -92,7 +97,7 @@ static int OPTIMIZE3 stress_udp_client(
 	do {
 		socklen_t len;
 		int fd, j = 0;
-		char ALIGN64 buf[UDP_BUF];
+		char ALIGN64 buf[MAX_UDP_MAX_SIZE];
 
 		if (UNLIKELY((fd = socket(udp_domain, SOCK_DGRAM, udp_proto)) < 0)) {
 			pr_fail("%s: socket failed, errno=%d (%s)\n",
@@ -218,7 +223,7 @@ static int OPTIMIZE3 stress_udp_client(
 		do {
 			register size_t i;
 
-			for (i = 16; i < sizeof(buf); i += 16, j++) {
+			for (i = 16; i <= udp_max_size; i += 16, j++) {
 				ssize_t ret;
 
 				ret = sendto(fd, buf, i, 0, addr, len);
@@ -277,7 +282,7 @@ static int OPTIMIZE3 stress_udp_server(
 	const bool udp_gro,
 	const char *udp_if)
 {
-	char ALIGN64 buf[UDP_BUF];
+	char ALIGN64 buf[MAX_UDP_MAX_SIZE];
 	int fd;
 	socklen_t addr_len = 0;
 	struct sockaddr *addr = NULL;
@@ -406,6 +411,7 @@ die:
  */
 static int stress_udp(stress_args_t *args)
 {
+	size_t udp_max_size = DEFAULT_UDP_MAX_SIZE;
 	int udp_port = DEFAULT_UDP_PORT;
 	int udp_domain = AF_INET;
 	pid_t pid, mypid = getpid();
@@ -421,8 +427,9 @@ static int stress_udp(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 
 	(void)stress_get_setting("udp-if", &udp_if);
-	(void)stress_get_setting("udp-port", &udp_port);
 	(void)stress_get_setting("udp-domain", &udp_domain);
+	(void)stress_get_setting("udp-port", &udp_port);
+	(void)stress_get_setting("udp-max-size", &udp_max_size);
 #if defined(IPPROTO_UDPLITE)
 	(void)stress_get_setting("udp-lite", &udp_lite);
 
@@ -481,12 +488,14 @@ again:
 	} else if (pid == 0) {
 		stress_set_proc_state(args->name, STRESS_STATE_RUN);
 		(void)stress_affinity_change_cpu(args, parent_cpu);
-		rc = stress_udp_client(args, mypid, udp_domain, udp_proto, udp_port, udp_gro, udp_if);
+		rc = stress_udp_client(args, mypid, udp_domain, udp_proto,
+				       udp_port, udp_gro, udp_if, udp_max_size);
 		_exit(rc);
 	} else {
 		int status;
 
-		rc = stress_udp_server(args, mypid, pid, udp_domain, udp_proto, udp_port, udp_gro, udp_if);
+		rc = stress_udp_server(args, mypid, pid, udp_domain, udp_proto,
+				       udp_port, udp_gro, udp_if);
 		(void)stress_kill_pid_wait(pid, &status);
 		if (WIFEXITED(status))
 			if (WEXITSTATUS(status) != EXIT_SUCCESS)
@@ -498,11 +507,12 @@ again:
 static int udp_domain_mask = DOMAIN_INET | DOMAIN_INET6;
 
 static const stress_opt_t opts[] = {
-	{ OPT_udp_domain, "udp-domain", TYPE_ID_INT_DOMAIN, 0, 0, &udp_domain_mask },
-	{ OPT_udp_port,   "udp-port",   TYPE_ID_INT_PORT, MIN_PORT, MAX_PORT, NULL },
-	{ OPT_udp_lite,   "udp-lite",   TYPE_ID_BOOL, 0, 1, NULL },
-	{ OPT_udp_gro,    "udp-gro",    TYPE_ID_BOOL, 0, 1, NULL },
-	{ OPT_udp_if,     "udp-if",     TYPE_ID_STR, 0, 0, NULL },
+	{ OPT_udp_domain,   "udp-domain",   TYPE_ID_INT_DOMAIN, 0, 0, &udp_domain_mask },
+	{ OPT_udp_gro,      "udp-gro",      TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_udp_if,       "udp-if",       TYPE_ID_STR, 0, 0, NULL },
+	{ OPT_udp_lite,     "udp-lite",     TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_udp_max_size, "udp-max-size", TYPE_ID_SIZE_T, MIN_UDP_MAX_SIZE, MAX_UDP_MAX_SIZE, NULL },
+	{ OPT_udp_port,     "udp-port",     TYPE_ID_INT_PORT, MIN_PORT, MAX_PORT, NULL },
 	END_OPT,
 };
 

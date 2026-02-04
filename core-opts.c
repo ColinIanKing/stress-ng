@@ -1215,6 +1215,7 @@ const struct option stress_long_options[] = {
 	{ "udp-gro",		0,	0,	OPT_udp_gro },
 	{ "udp-if",		1,	0,	OPT_udp_if },
 	{ "udp-lite",		0,	0,	OPT_udp_lite },
+	{ "udp-max-size",	1,	0,	OPT_udp_max_size },
 	{ "udp-ops",		1,	0,	OPT_udp_ops },
 	{ "udp-port",		1,	0,	OPT_udp_port },
 	{ "udp-flood",		1,	0,	OPT_udp_flood },
