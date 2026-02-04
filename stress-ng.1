@@ -7599,8 +7599,8 @@ be one of 1, 2, 4, 8 or 16.
 .RS 5
 .TQ
 .B \-\-rawudp N
-start N workers that send and receive UDP packets using raw sockets on the
-localhost. Requires CAP_NET_RAW to run.
+start N workers that send and receive UDP packets containing a process ID
+using raw sockets on the localhost. Requires CAP_NET_RAW to run.
 .TP
 .B \-\-rawudp\-if NAME
 use network interface NAME. If the interface NAME does not exist, is not
@@ -7839,12 +7839,12 @@ previous by 3 pages and at least 1 page of non-mapped memory between each
 of the mappings. Data is synchronously msync'd to the file 1 in every
 256 iterations in a random manner.
 .TP
+.B \-\-rmap\-ops N
+stop after N bogo rmap memory writes/reads.
+.TP
 .B \-\-rmap\-procs N
 specify the number of processes per worker to exercise the reverse mapping. The
 range is 8 to 256, with a default of 16.
-.TP
-.B \-\-rmap\-ops N
-stop after N bogo rmap memory writes/reads.
 .RE
 .TP
 .B 1 bit rotation stressor

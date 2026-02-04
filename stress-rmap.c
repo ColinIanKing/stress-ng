@@ -33,8 +33,8 @@
 
 static const stress_help_t help[] = {
 	{ NULL,	"rmap N",	"start N workers that stress reverse mappings" },
-	{ NULL, "rmap-procs N",	"specify number of child processes to spawn" },
 	{ NULL,	"rmap-ops N",	"stop after N rmap bogo operations" },
+	{ NULL, "rmap-procs N",	"specify number of child processes to spawn" },
 	{ NULL,	NULL,		NULL }
 };
 
