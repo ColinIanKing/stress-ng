@@ -3135,6 +3135,12 @@ file system race conditions while files are being operated upon. The randomized
 operations will cause some invalid file operations to fail, these failures are
 silently ignored.
 .TP
+.B \-\-filerace\-procs N
+specify the number of child processes per worker to spawn to exercise the 
+file racing.  Note that the main stressor process plus the the child processes
+makes up the total number of concurrent processes runniner per stressor instance.
+The range is 1 to 64, with a default of 7.
+.TP
 .B \-\-filerace\-ops N
 stop after N randomized file bogo-operations, this is not a reliable metric
 of performance because of the highly randomized actions occurring on randomly

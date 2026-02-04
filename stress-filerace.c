@@ -42,7 +42,9 @@
 #include <sys/sendfile.h>
 #endif
 
-#define MAX_FILERACE_PROCS	(7)
+#define MIN_FILERACE_PROCS	(1)
+#define MAX_FILERACE_PROCS	(64)
+#define DEFAULT_FILERACE_PROCS	(7)
 #define MAX_FDS			(128)
 
 /* 16MB max, with bottom bits clear for 512 byte alignment */
@@ -60,7 +62,13 @@ static time_t t_start;
 static const stress_help_t help[] = {
 	{ NULL,	"filerace N",		"start N workers that attempt to race file system calls" },
 	{ NULL,	"filerace-ops N",	"stop after N filerace bogo operations" },
+	{ NULL, "filerace-procs N",	"specify number of processes per instance" },
 	{ NULL,	NULL,			NULL }
+};
+
+static const stress_opt_t opts[] = {
+	{ OPT_filerace_procs, "filerace-procs", TYPE_ID_SIZE_T, MIN_FILERACE_PROCS, MAX_FILERACE_PROCS, NULL },
+	END_OPT,
 };
 
 /*
@@ -1588,6 +1596,9 @@ static int stress_filerace(stress_args_t *args)
 	char pathname[PATH_MAX - 256];
 	pid_t pids[MAX_FILERACE_PROCS];
 	size_t i, children = 0;
+	size_t filerace_procs = DEFAULT_FILERACE_PROCS;
+
+	(void)stress_get_setting("filerace-procs", &filerace_procs);
 
 	t_start = time(NULL);
 #if defined(SIGIO)
@@ -1614,7 +1625,7 @@ static int stress_filerace(stress_args_t *args)
 	stress_sync_start_wait(args);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
-	for (i = 0; i < MAX_FILERACE_PROCS; i++) {
+	for (i = 0; i < filerace_procs; i++) {
 		pids[i] = fork();
 
 		if (pids[i] < 0) {
@@ -1636,7 +1647,7 @@ static int stress_filerace(stress_args_t *args)
 
 	stress_filerace_child(args, pathname, true);
 
-	for (i = 0; i < MAX_FILERACE_PROCS; i++) {
+	for (i = 0; i < filerace_procs; i++) {
 		if (pids[i] > 0)
 			stress_kill_and_wait(args, pids[i], SIGKILL, true);
 	}
@@ -1652,5 +1663,6 @@ const stressor_info_t stress_filerace_info = {
 	.stressor = stress_filerace,
 	.classifier = CLASS_FILESYSTEM | CLASS_OS,
 	.verify = VERIFY_NONE,
+	.opts = opts,
 	.help = help
 };
