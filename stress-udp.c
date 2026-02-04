@@ -223,7 +223,7 @@ static int OPTIMIZE3 stress_udp_client(
 		do {
 			register size_t i;
 
-			for (i = 16; i <= udp_max_size; i += 16, j++) {
+			for (i = udp_min_size; i <= udp_max_size; i += 16, j++) {
 				ssize_t ret;
 
 				ret = sendto(fd, buf, i, 0, addr, len);
