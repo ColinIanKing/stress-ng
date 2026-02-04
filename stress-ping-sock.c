@@ -97,7 +97,7 @@ static int stress_ping_sock(stress_args_t *args)
 	char ALIGN64 buf[sizeof(*icmp_hdr) + MAX_PING_SOCK_MAX_SIZE];
 	double t, duration = 0.0, rate;
 	size_t ping_sock_max_size = DEFAULT_PING_SOCK_MAX_SIZE;
-
+	double total = 0.0;
 
 	(void)stress_get_setting("ping-sock-max-size", &ping_sock_max_size);
 
@@ -123,10 +123,14 @@ static int stress_ping_sock(stress_args_t *args)
 
 	t = stress_time_now();
 	do {
+		size_t ret;
+
 		(void)shim_memset(buf + sizeof(*icmp_hdr), stress_ascii64[j++ & 63], ping_sock_max_size);
 		addr.sin_port = htons(rand_port);
 
-		if (LIKELY(sendto(fd, buf, ping_sock_max_size, 0, (struct sockaddr *)&addr, sizeof(addr)) > 0)) {
+		ret = sendto(fd, buf, ping_sock_max_size, 0, (struct sockaddr *)&addr, sizeof(addr));
+		if (LIKELY(ret > 0)) {
+			total += (double)ret;
 			stress_bogo_inc(args);
 		} else {
 			pr_fail("%s: sendto failed: errno=%d (%s)\n",
@@ -145,6 +149,9 @@ static int stress_ping_sock(stress_args_t *args)
 
 	rate = (duration > 0.0) ? (double)stress_bogo_get(args) / duration : 0.0;
 	stress_metrics_set(args, 0, "ping sendto calls per sec",
+		rate, STRESS_METRIC_HARMONIC_MEAN);
+	rate = (duration > 0.0) ? total / duration : 0.0;
+	stress_metrics_set(args, 1, "ping bytes per sec",
 		rate, STRESS_METRIC_HARMONIC_MEAN);
 
 	(void)close(fd);
