@@ -22,25 +22,29 @@
 #include "core-killpid.h"
 #include "core-mmap.h"
 
-#define MIN_MMAPFORK_BYTES     (4 * KB)
-#define MAX_MMAPFORK_BYTES     (MAX_MEM_LIMIT)
+#define MIN_MMAPFORK_BYTES	(4 * KB)
+#define MAX_MMAPFORK_BYTES	(MAX_MEM_LIMIT)
+
+#define MIN_MMAPFORK_PROCS	(1)
+#define MAX_MMAPFORK_PROCS	(256)
+#define DEFAULT_MMAPFORK_PROCS	(32)
 
 static const stress_help_t help[] = {
 	{ NULL,	"mmapfork N",	    "start N workers stressing many forked mmaps/munmaps" },
-	{ NULL,	"mmapfork-ops N",   "stop after N mmapfork bogo operations" },
 	{ NULL,	"mmapfork-bytes N", "mmap and munmap N bytes by workers for each stress iteration" },
+	{ NULL,	"mmapfork-ops N",   "stop after N mmapfork bogo operations" },
+	{ NULL, "mmapfork-procs N", "specify number of processes per instance" },
 	{ NULL,	NULL,		    NULL }
 };
 
 static const stress_opt_t opts[] = {
 	{ OPT_mmapfork_bytes, "mmapfork-bytes", TYPE_ID_SIZE_T_BYTES_VM, MIN_MMAPFORK_BYTES, MAX_MMAPFORK_BYTES, NULL },
+	{ OPT_mmapfork_procs, "mmapfork-procs", TYPE_ID_SIZE_T, MIN_MMAPFORK_PROCS, MAX_MMAPFORK_PROCS, NULL },
 	END_OPT,
 };
 
 #if defined(HAVE_SYS_SYSINFO_H) &&	\
     defined(HAVE_SYSINFO)
-
-#define MAX_PIDS			(32)
 
 #define MMAPFORK_FAILURE		(0x01)
 #define MMAPFORK_SEGV_MMAP		(0x02)
@@ -111,8 +115,9 @@ static bool stress_memory_is_not_zero(const uint8_t *ptr, const size_t size)
  */
 static int stress_mmapfork(stress_args_t *args)
 {
-	stress_pid_t s_pids[MAX_PIDS];
+	stress_pid_t s_pids[MAX_MMAPFORK_PROCS];
 	struct sysinfo info;
+	size_t mmapfork_procs = DEFAULT_MMAPFORK_PROCS;
 	void *ptr;
 	uint64_t segv_count = 0;
 	int8_t segv_reasons = 0;
@@ -122,6 +127,8 @@ static int stress_mmapfork(stress_args_t *args)
 	bool wipe_ok = false;
 #endif
 	bool report_size = (stress_instance_zero(args));
+
+	(void)stress_get_setting("mmapfork-procs", &mmapfork_procs);
 
 #if defined(MADV_WIPEONFORK)
 	/*
@@ -144,10 +151,10 @@ static int stress_mmapfork(stress_args_t *args)
 	do {
 		size_t i, len;
 
-		for (i = 0; i < MAX_PIDS; i++)
+		for (i = 0; i < mmapfork_procs; i++)
 			s_pids[i].pid = -1;
 
-		for (i = 0; i < MAX_PIDS; i++) {
+		for (i = 0; i < mmapfork_procs; i++) {
 			if (UNLIKELY(!stress_continue(args)))
 				goto reap;
 
@@ -195,7 +202,7 @@ static int stress_mmapfork(stress_args_t *args)
 				if (len_total < args->page_size)
 					len_total = args->page_size;
 
-				len = (len_total / (args->instances * MAX_PIDS)) / 2;
+				len = (len_total / (args->instances * mmapfork_procs)) / 2;
 				if (len < args->page_size)
 					len = args->page_size;
 				if ((i == 0) && report_size) {
@@ -237,7 +244,7 @@ static int stress_mmapfork(stress_args_t *args)
 		/*
 		 *  Wait for children to terminate
 		 */
-		for (i = 0; i < MAX_PIDS; i++) {
+		for (i = 0; i < mmapfork_procs; i++) {
 			int status;
 
 			if (UNLIKELY(s_pids[i].pid < 0))
@@ -264,7 +271,7 @@ static int stress_mmapfork(stress_args_t *args)
 			}
 		}
 reap:
-		stress_kill_and_wait_many(args, s_pids, MAX_PIDS, SIGALRM, false);
+		stress_kill_and_wait_many(args, s_pids, mmapfork_procs, SIGALRM, false);
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
 

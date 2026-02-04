@@ -3136,7 +3136,7 @@ operations will cause some invalid file operations to fail, these failures are
 silently ignored.
 .TP
 .B \-\-filerace\-procs N
-specify the number of child processes per worker to spawn to exercise the 
+specify the number of child processes per worker to spawn to exercise the
 file racing.  Note that the main stressor process plus the the child processes
 makes up the total number of concurrent processes runniner per stressor instance.
 The range is 1 to 64, with a default of 7.
@@ -5910,6 +5910,10 @@ in units of Bytes, KBytes, MBytes and GBytes using the suffix b, k, m or g.
 .TP
 .B \-\-mmapfork\-ops N
 stop after N mmapfork bogo operations.
+.TP
+.B \-\-mmapfork\-procs N
+specify the number of child processes per worker to fork. The range is 1
+to 256, with a default of 32.
 .RE
 .TP
 .B Memory map files stressor
