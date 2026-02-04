@@ -35,8 +35,8 @@
 
 static const stress_help_t help[] = {
 	{ NULL,	"sockpair N",	       "start N workers exercising socket pair I/O activity" },
-	{ NULL,	"sockpair-ops N",      "stop after N socket pair bogo operations" },
 	{ NULL, "sockpair-max-size N", "specify maximum size of socket pair data" },
+	{ NULL,	"sockpair-ops N",      "stop after N socket pair bogo operations" },
 	{ NULL,	NULL,                  NULL }
 };
 
