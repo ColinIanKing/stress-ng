@@ -31,10 +31,12 @@
 UNEXPECTED
 #endif
 
-#define DEFAULT_SOCKET_MANY_PORT (11000)
+#define DEFAULT_SOCKET_MANY_PORT 	(11000)
+#define SOCKET_MANY_FDS			(100000)
 
-#define SOCKET_MANY_BUF		(8)
-#define SOCKET_MANY_FDS		(100000)
+#define MIN_SOCKMANY_MAX_SIZE		(1)
+#define MAX_SOCKMANY_MAX_SIZE		(16384)
+#define DEFAULT_SOCKMANY_MAX_SIZE	(8)
 
 typedef struct {
 	int max_fd;
@@ -44,14 +46,16 @@ typedef struct {
 static const stress_help_t help[] = {
 	{ NULL, "sockmany N",		"start N workers exercising many socket connections" },
 	{ NULL,	"sockmany-if I",	"use network interface I, e.g. lo, eth0, etc." },
+	{ NULL, "sockmany-max-size N",	"specify maximum size of sockmany data" },
 	{ NULL,	"sockmany-ops N",	"stop after N sockmany bogo operations" },
 	{ NULL,	"sockmany-port",	"use socket ports P to P + number of workers - 1" },
 	{ NULL,	NULL,			NULL }
 };
 
 static const stress_opt_t opts[] = {
-	{ OPT_sockmany_if,   "sockmany-if",   TYPE_ID_STR, 0, 0, NULL },
-	{ OPT_sockmany_port, "sockmany-port", TYPE_ID_INT_PORT, MIN_PORT, MAX_PORT, NULL },
+	{ OPT_sockmany_if,       "sockmany-if",       TYPE_ID_STR, 0, 0, NULL },
+	{ OPT_sockmany_max_size, "sockmany-max-size", TYPE_ID_SIZE_T, MIN_SOCKMANY_MAX_SIZE, MAX_SOCKMANY_MAX_SIZE, NULL },
+	{ OPT_sockmany_port,     "sockmany-port",     TYPE_ID_INT_PORT, MIN_PORT, MAX_PORT, NULL },
 	END_OPT,
 };
 
@@ -98,7 +102,7 @@ static int OPTIMIZE3 stress_sockmany_client(
 	do {
 
 		for (i = 0; i < SOCKET_MANY_FDS; i++) {
-			char ALIGN64 buf[SOCKET_MANY_BUF];
+			char ALIGN64 buf[MAX_SOCKMANY_MAX_SIZE];
 			ssize_t n;
 			int retries = 0;
 			socklen_t addr_len = 0;
@@ -172,9 +176,10 @@ static int OPTIMIZE3 stress_sockmany_server(
 	stress_args_t *args,
 	const int sockmany_port,
 	const pid_t mypid,
-	const char *sockmany_if)
+	const char *sockmany_if,
+	const size_t sockmany_max_size)
 {
-	char ALIGN64 buf[SOCKET_MANY_BUF];
+	char ALIGN64 buf[MAX_SOCKMANY_MAX_SIZE];
 	int fd;
 	socklen_t addr_len = 0;
 	struct sockaddr *addr = NULL;
@@ -268,8 +273,8 @@ static int OPTIMIZE3 stress_sockmany_server(
 #else
 			UNEXPECTED
 #endif
-			(void)shim_memset(buf, stress_ascii64[msgs & 63], sizeof(buf));
-			sret = send(sfd, buf, sizeof(buf), 0);
+			(void)shim_memset(buf, stress_ascii64[msgs & 63], sockmany_max_size);
+			sret = send(sfd, buf, sockmany_max_size, 0);
 			if (UNLIKELY(sret < 0)) {
 				if ((errno != EINTR) && (errno != EPIPE))
 					pr_fail("%s: send failed, errno=%d (%s)\n",
@@ -301,11 +306,13 @@ static int stress_sockmany(stress_args_t *args)
 	int sockmany_port = DEFAULT_SOCKET_MANY_PORT;
 	int rc = EXIT_SUCCESS, reserved_port, parent_cpu;
 	char *sockmany_if = NULL;
+	size_t sockmany_max_size = DEFAULT_SOCKMANY_MAX_SIZE;
 
 	if (stress_signal_sigchld_handler(args) < 0)
 		return EXIT_NO_RESOURCE;
 
 	(void)stress_get_setting("sockmany-if", &sockmany_if);
+	(void)stress_get_setting("sockmany-max-size", &sockmany_max_size);
 	(void)stress_get_setting("sockmany-port", &sockmany_port);
 
 	if (sockmany_if) {
@@ -372,10 +379,12 @@ again:
 		stress_set_make_it_fail();
 		(void)stress_affinity_change_cpu(args, parent_cpu);
 
-		rc = stress_sockmany_client(args, sockmany_port, ppid, sock_fds, sockmany_if);
+		rc = stress_sockmany_client(args, sockmany_port, ppid,
+					    sock_fds, sockmany_if);
 		_exit(rc);
 	} else {
-		rc = stress_sockmany_server(args, sockmany_port, ppid, sockmany_if);
+		rc = stress_sockmany_server(args, sockmany_port, ppid,
+					    sockmany_if, sockmany_max_size);
 		(void)stress_kill_pid_wait(pid, NULL);
 	}
 	pr_dbg("%s: %d sockets opened at one time\n", args->name, sock_fds->max_fd);

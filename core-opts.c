@@ -1075,6 +1075,7 @@ const struct option stress_long_options[] = {
 	{ "sockfd-reuse",	0,	0,	OPT_sockfd_reuse },
 	{ "sockmany",		1,	0,	OPT_sockmany },
 	{ "sockmany-if",	1,	0,	OPT_sockmany_if },
+	{ "sockmany-max-size",	1,	0,	OPT_sockmany_max_size },
 	{ "sockmany-ops",	1,	0,	OPT_sockmany_ops },
 	{ "sockmany-port",	1,	0,	OPT_sockmany_port },
 	{ "sockpair",		1,	0,	OPT_sockpair },

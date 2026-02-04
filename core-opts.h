@@ -1512,6 +1512,7 @@ typedef enum {
 
 	OPT_sockmany,
 	OPT_sockmany_if,
+	OPT_sockmany_max_size,
 	OPT_sockmany_ops,
 	OPT_sockmany_port,
 
