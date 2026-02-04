@@ -791,6 +791,7 @@ const struct option stress_long_options[] = {
 	{ "pidfd-ops",		1,	0,	OPT_pidfd_ops },
 	{ "ping-sock",		1,	0,	OPT_ping_sock },
 	{ "ping-sock-ops",	1,	0,	OPT_ping_sock_ops },
+	{ "ping-sock-max-size",	1,	0,	OPT_ping_sock_max_size },
 	{ "pipe",		1,	0,	OPT_pipe },
 	{ "pipe-data-size",	1,	0,	OPT_pipe_data_size },
 	{ "pipe-ops",		1,	0,	OPT_pipe_ops },

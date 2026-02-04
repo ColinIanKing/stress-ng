@@ -1137,6 +1137,7 @@ typedef enum {
 
 	OPT_ping_sock,
 	OPT_ping_sock_ops,
+	OPT_ping_sock_max_size,
 
 	OPT_pipe_data_size,
 	OPT_pipe_ops,

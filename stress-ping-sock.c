@@ -24,10 +24,21 @@
 #include <netinet/ip_icmp.h>
 #endif
 
+#define ICMP_HEADER_SIZE		(8)
+#define MIN_PING_SOCK_MAX_SIZE		(1 + ICMP_HEADER_SIZE)
+#define MAX_PING_SOCK_MAX_SIZE		(65515)
+#define DEFAULT_PING_SOCK_MAX_SIZE	(4 + ICMP_HEADER_SIZE)
+
 static const stress_help_t help[] = {
 	{ NULL,	"ping-sock N",		"start N workers that exercises a ping socket" },
 	{ NULL,	"ping-sock-ops N",	"stop after N ping sendto messages" },
+	{ NULL, "ping-sock-max-size N", "specify maximum size of raw UDP data" },
 	{ NULL,	NULL,			NULL }
+};
+
+static const stress_opt_t opts[] = {
+	{ OPT_ping_sock_max_size, "ping-sock-max-size", TYPE_ID_SIZE_T, MIN_PING_SOCK_MAX_SIZE, MAX_PING_SOCK_MAX_SIZE, NULL },
+	END_OPT,
 };
 
 #if defined(PF_INET) &&		\
@@ -35,8 +46,6 @@ static const stress_help_t help[] = {
     defined(IPPROTO_ICMP) &&	\
     defined(HAVE_ICMPHDR) &&	\
     defined(__linux__)
-
-#define PING_PAYLOAD_SIZE	(4)
 
 static int stress_rawsock_open(const char *name, int *fd)
 {
@@ -85,8 +94,12 @@ static int stress_ping_sock(stress_args_t *args)
 	struct sockaddr_in addr;
 	struct icmphdr *icmp_hdr;
 	int rand_port;
-	char ALIGN64 buf[sizeof(*icmp_hdr) + PING_PAYLOAD_SIZE];
+	char ALIGN64 buf[sizeof(*icmp_hdr) + MAX_PING_SOCK_MAX_SIZE];
 	double t, duration = 0.0, rate;
+	size_t ping_sock_max_size = DEFAULT_PING_SOCK_MAX_SIZE;
+
+
+	(void)stress_get_setting("ping-sock-max-size", &ping_sock_max_size);
 
 	rc = stress_rawsock_open(args->name, &fd);
 	if (rc != EXIT_SUCCESS)
@@ -110,11 +123,15 @@ static int stress_ping_sock(stress_args_t *args)
 
 	t = stress_time_now();
 	do {
-		(void)shim_memset(buf + sizeof(*icmp_hdr), stress_ascii64[j++ & 63], PING_PAYLOAD_SIZE);
+		(void)shim_memset(buf + sizeof(*icmp_hdr), stress_ascii64[j++ & 63], ping_sock_max_size);
 		addr.sin_port = htons(rand_port);
 
-		if (LIKELY(sendto(fd, buf, sizeof(buf), 0, (struct sockaddr *)&addr, sizeof(addr)) > 0))
+		if (LIKELY(sendto(fd, buf, ping_sock_max_size, 0, (struct sockaddr *)&addr, sizeof(addr)) > 0)) {
 			stress_bogo_inc(args);
+		} else {
+			pr_fail("%s: sendto failed: errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
+		}
 
 		icmp_hdr->un.echo.sequence++;
 		rand_port++;
@@ -139,6 +156,7 @@ const stressor_info_t stress_ping_sock_info = {
 	.stressor = stress_ping_sock,
 	.classifier = CLASS_NETWORK | CLASS_OS,
 	.supported = stress_rawsock_supported,
+	.opts = opts,
 	.help = help
 };
 #else
@@ -146,6 +164,7 @@ const stressor_info_t stress_ping_sock_info = {
 	.stressor = stress_unimplemented,
 	.classifier = CLASS_NETWORK | CLASS_OS,
 	.help = help,
+	.opts = opts,
 	.unimplemented_reason = "built without netinet/ip_icmp.h, SOCK_DGRAM, IPPROTO_ICMP or struct icmphdr"
 };
 #endif
