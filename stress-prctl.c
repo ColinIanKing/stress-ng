@@ -142,6 +142,7 @@ static const stress_help_t help[] = {
     defined(PR_GET_INDIR_BR_LP_STATUS) ||	/* 79 */ \
     defined(PR_SET_INDIR_BR_LP_STATUS) ||	/* 80 */ \
     defined(PR_LOCK_INDIR_BR_LP_STATUS) ||	/* 81 */ \
+    defined(PR_RSEQ_SLICE_EXTENSION) ||		/* 82 */ \
     defined(PR_GET_AUXV) ||			/* 0x41555856 */ \
     defined(PR_SET_VMA) ||			/* 0x53564d41 */ \
     defined(PR_SET_PTRACER)			/* 0x59616d61 */
@@ -1176,10 +1177,22 @@ static int stress_prctl_child(
 	}
 #endif
 
-
 #if defined(PR_LOCK_INDIR_BR_LP_STATUS)
 	{
 		VOID_RET(int, prctl(PR_LOCK_INDIR_BR_LP_STATUS, 0, 0, 0, 0));
+	}
+#endif
+
+#if defined(PR_RSEQ_SLICE_EXTENSION) && 	\
+    defined(PR_RSEQ_SLICE_EXTENSION_GET) &&	\
+    defined(PR_RSEQ_SLICE_EXTENSION_SET)
+	{
+		int ret;
+
+		ret = prctl(PR_RSEQ_SLICE_EXTENSION, PR_RSEQ_SLICE_EXTENSION_GET, 0, 0, 0);
+		if (ret == 0)
+			ret = prctl(PR_RSEQ_SLICE_EXTENSION, PR_RSEQ_SLICE_EXTENSION_SET, ret, 0, 0);
+		(void)ret;
 	}
 #endif
 
