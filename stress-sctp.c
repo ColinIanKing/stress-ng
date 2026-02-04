@@ -44,7 +44,9 @@ UNEXPECTED
 
 #define DEFAULT_SCTP_PORT	(9000)
 
-#define SOCKET_BUF		(8192)	/* Socket I/O buffer size */
+#define MIN_SCTP_MAX_SIZE	(1)
+#define MAX_SCTP_MAX_SIZE	(65536)
+#define DEFAULT_SCTP_MAX_SIZE	(8192)
 
 typedef struct {
 	const int	sched_type;
@@ -52,12 +54,13 @@ typedef struct {
 } stress_sctp_sched_t;
 
 static const stress_help_t help[] = {
-	{ NULL,	"sctp N",	 "start N workers performing SCTP send/receives " },
-	{ NULL,	"sctp-domain D", "specify sctp domain, default is ipv4" },
-	{ NULL,	"sctp-if I",	 "use network interface I, e.g. lo, eth0, etc." },
-	{ NULL,	"sctp-ops N",	 "stop after N SCTP bogo operations" },
-	{ NULL,	"sctp-port P",	 "use SCTP ports P to P + number of workers - 1" },
-	{ NULL, "sctp-sched S",	 "specify sctp scheduler" },
+	{ NULL,	"sctp N",	   "start N workers performing SCTP send/receives " },
+	{ NULL,	"sctp-domain D",   "specify sctp domain, default is ipv4" },
+	{ NULL,	"sctp-if I",	   "use network interface I, e.g. lo, eth0, etc." },
+	{ NULL, "sctp-max-size N", "specify maximum size of sctp data" },
+	{ NULL,	"sctp-ops N",	   "stop after N SCTP bogo operations" },
+	{ NULL,	"sctp-port P",	   "use SCTP ports P to P + number of workers - 1" },
+	{ NULL, "sctp-sched S",	   "specify sctp scheduler" },
 	{ NULL,	NULL, 		 NULL }
 };
 
@@ -98,10 +101,11 @@ static const char *stress_sctp_sched(const size_t i)
 static int sctp_domain_mask = DOMAIN_INET | DOMAIN_INET6;
 
 static const stress_opt_t opts[] = {
-	{ OPT_sctp_domain, "sctp-domain", TYPE_ID_INT_DOMAIN, 0, 0, &sctp_domain_mask },
-	{ OPT_sctp_if,     "sctp-if",     TYPE_ID_STR, 0, 0, NULL },
-	{ OPT_sctp_port,   "sctp-port",   TYPE_ID_INT_PORT, MIN_PORT, MAX_PORT, NULL },
-	{ OPT_sctp_sched,  "sctp-sched",  TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_sctp_sched },
+	{ OPT_sctp_domain,   "sctp-domain",   TYPE_ID_INT_DOMAIN, 0, 0, &sctp_domain_mask },
+	{ OPT_sctp_if,       "sctp-if",       TYPE_ID_STR, 0, 0, NULL },
+	{ OPT_sctp_max_size, "sctp-max-size", TYPE_ID_SIZE_T, MIN_SCTP_MAX_SIZE, MAX_SCTP_MAX_SIZE, NULL },
+	{ OPT_sctp_port,     "sctp-port",   TYPE_ID_INT_PORT, MIN_PORT, MAX_PORT, NULL },
+	{ OPT_sctp_sched,    "sctp-sched",  TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_sctp_sched },
 	END_OPT,
 };
 
@@ -373,7 +377,7 @@ static int OPTIMIZE3 stress_sctp_client(
 	(void)sched_settings_apply(true);
 
 	do {
-		char ALIGN64 buf[SOCKET_BUF];
+		char ALIGN64 buf[MAX_SCTP_MAX_SIZE];
 		int fd;
 		int retries = 0;
 		socklen_t addr_len = 0;
@@ -489,15 +493,17 @@ static int OPTIMIZE3 stress_sctp_server(
 	const int sctp_port,
 	const int sctp_domain,
 	const int sctp_sched_type,
-	const char *sctp_if)
+	const char *sctp_if,
+	const size_t sctp_max_size)
 {
-	char ALIGN64 buf[SOCKET_BUF];
+	char ALIGN64 buf[MAX_SCTP_MAX_SIZE];
 	int fd;
 	int so_reuseaddr = 1;
 	socklen_t addr_len = 0;
 	struct sockaddr *addr = NULL;
 	int rc = EXIT_SUCCESS;
 	int idx = 0;
+	const size_t sctp_min_size = (sctp_max_size & 0xf) + 16;
 
 	(void)sctp_sched_type;
 
@@ -584,12 +590,14 @@ static int OPTIMIZE3 stress_sctp_server(
 
 			(void)shim_memset(buf + sizeof(mypid), c, sizeof(buf) - sizeof(mypid));
 			(void)shim_memcpy(buf, &mypid, sizeof(mypid));
-			for (i = 16; i < sizeof(buf); i += 16) {
+			for (i = sctp_min_size; i <= sctp_max_size; i += 16) {
 				ssize_t ret = sctp_sendmsg(sfd, buf, i,
 						NULL, 0, 0, 0,
 						LOCALTIME_STREAM, 0, 0);
-				if (UNLIKELY(ret < 0))
+				if (UNLIKELY(ret < 0)) {
+					pr_inf("%d %s %zd\n", errno, strerror(errno), sctp_max_size);
 					break;
+				}
 
 				stress_bogo_inc(args);
 			}
@@ -633,6 +641,7 @@ static int stress_sctp(stress_args_t *args)
 	int sctp_domain = AF_INET;
 	int sctp_sched_type = -1; /* undefined */
 	size_t sctp_sched = 1; /* default to fcfs */
+	size_t sctp_max_size = DEFAULT_SCTP_MAX_SIZE;
 	int ret, reserved_port, parent_cpu;
 	char *sctp_if = NULL;
 
@@ -641,6 +650,7 @@ static int stress_sctp(stress_args_t *args)
 
 	(void)stress_get_setting("sctp-domain", &sctp_domain);
 	(void)stress_get_setting("sctp-if", &sctp_if);
+	(void)stress_get_setting("sctp-max-size", &sctp_max_size);
 	(void)stress_get_setting("sctp-port", &sctp_port);
 	if (stress_get_setting("sctp-sched", &sctp_sched)) {
 #if defined(HAVE_SCTP_SCHED_TYPE) &&	\
@@ -699,12 +709,14 @@ again:
 		stress_set_proc_state(args->name, STRESS_STATE_RUN);
 		stress_set_make_it_fail();
 		 (void)stress_affinity_change_cpu(args, parent_cpu);
-		ret = stress_sctp_client(args, mypid, sctp_port, sctp_domain, sctp_sched_type, sctp_if);
+		ret = stress_sctp_client(args, mypid, sctp_port, sctp_domain,
+					 sctp_sched_type, sctp_if);
 		_exit(ret);
 	} else {
 		int status;
 
-		ret = stress_sctp_server(args, mypid, sctp_port, sctp_domain, sctp_sched_type, sctp_if);
+		ret = stress_sctp_server(args, mypid, sctp_port, sctp_domain,
+					 sctp_sched_type, sctp_if, sctp_max_size);
 		(void)stress_kill_pid_wait(pid, &status);
 		if (WIFEXITED(status)) {
 			if (WEXITSTATUS(status) != EXIT_SUCCESS) {

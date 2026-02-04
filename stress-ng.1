@@ -6815,7 +6815,7 @@ domain, a SOCK_DGRAM socket type and an IPPROTO_ICMP protocol.
 stop the ping\-sock stress workers after N ICMP messages are sent.
 .TP
 .B \-\-ping\-sock\-max\-size N
-specify the maximum data size in bytes, wiih range 9 to 65515 as thhe default
+specify the maximum data size in bytes, with the range 9 to 65515 and the default
 as 12.
 .RE
 .TP
@@ -7970,6 +7970,10 @@ are supported.
 .B \-\-sctp\-if NAME
 use network interface NAME. If the interface NAME does not exist, is not
 up or does not support the domain then the loopback (lo) interface is used as the default.
+.TP
+.B \-\-sctp\-\-max\-size N
+specify the maximum data size in bytes, with the range 1 to 65535 and the default
+as 8192.
 .TP
 .B \-\-sctp\-ops N
 stop sctp workers after N bogo operations.

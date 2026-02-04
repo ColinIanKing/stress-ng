@@ -955,6 +955,7 @@ const struct option stress_long_options[] = {
 	{ "sctp",		1,	0,	OPT_sctp },
 	{ "sctp-domain",	1,	0,	OPT_sctp_domain },
 	{ "sctp-if",		1,	0,	OPT_sctp_if },
+	{ "sctp-max-size",	1,	0,	OPT_sctp_max_size },
 	{ "sctp-ops",		1,	0,	OPT_sctp_ops },
 	{ "sctp-port",		1,	0,	OPT_sctp_port },
 	{ "sctp-sched",		1,	0,	OPT_sctp_sched },

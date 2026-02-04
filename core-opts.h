@@ -1347,6 +1347,7 @@ typedef enum {
 	OPT_sctp_ops,
 	OPT_sctp_domain,
 	OPT_sctp_if,
+	OPT_sctp_max_size,
 	OPT_sctp_port,
 	OPT_sctp_sched,
 
