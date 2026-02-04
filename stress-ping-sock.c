@@ -116,6 +116,7 @@ static int stress_ping_sock(stress_args_t *args)
 	icmp_hdr->un.echo.sequence = 1;
 
 	rand_port = 1024 + stress_mwc16modn(65535 - 1024);
+	addr.sin_port = htons(rand_port);
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
@@ -126,7 +127,6 @@ static int stress_ping_sock(stress_args_t *args)
 		size_t ret;
 
 		(void)shim_memset(buf + sizeof(*icmp_hdr), stress_ascii64[j++ & 63], ping_sock_max_size);
-		addr.sin_port = htons(rand_port);
 
 		ret = sendto(fd, buf, ping_sock_max_size, 0, (struct sockaddr *)&addr, sizeof(addr));
 		if (LIKELY(ret > 0)) {
@@ -140,8 +140,10 @@ static int stress_ping_sock(stress_args_t *args)
 		icmp_hdr->un.echo.sequence++;
 		rand_port++;
 		/* avoid using privileged ports for now */
-		if (rand_port > 65535)
+		if (rand_port > 65535) {
 			rand_port = 1024;
+		}
+		addr.sin_port = htons(rand_port);
 	} while (stress_continue(args));
 	duration = stress_time_now() - t;
 
