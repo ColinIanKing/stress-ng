@@ -28,12 +28,21 @@
 #include <sys/socket.h>
 
 #define MAX_SOCKET_PAIRS	(32768)
-#define SOCKET_PAIR_BUF         (4096)	/* Socket pair I/O buffer size */
+
+#define MIN_SOCKPAIR_MAX_SIZE		(1)
+#define MAX_SOCKPAIR_MAX_SIZE		(65535)
+#define DEFAULT_SOCKPAIR_MAX_SIZE	(4096)
 
 static const stress_help_t help[] = {
-	{ NULL,	"sockpair N",	  "start N workers exercising socket pair I/O activity" },
-	{ NULL,	"sockpair-ops N", "stop after N socket pair bogo operations" },
-	{ NULL,	NULL,		  NULL }
+	{ NULL,	"sockpair N",	       "start N workers exercising socket pair I/O activity" },
+	{ NULL,	"sockpair-ops N",      "stop after N socket pair bogo operations" },
+	{ NULL, "sockpair-max-size N", "specify maximum size of socket pair data" },
+	{ NULL,	NULL,                  NULL }
+};
+
+static const stress_opt_t opts[] = {
+	{ OPT_sockpair_max_size, "sockpair-max-size", TYPE_ID_SIZE_T, MIN_SOCKPAIR_MAX_SIZE, MAX_SOCKPAIR_MAX_SIZE, NULL },
+	END_OPT,
 };
 
 /*
@@ -120,7 +129,10 @@ static int stress_sockpair_oomable(stress_args_t *args, void *context)
 	uint64_t low_memory_count = 0;
 	const size_t low_mem_size = args->page_size * 32 * args->instances;
 	const bool oom_avoid = !!(g_opt_flags & OPT_FLAGS_OOM_AVOID);
+	size_t sockpair_max_size = DEFAULT_SOCKPAIR_MAX_SIZE;
 	(void)context;
+
+	(void)stress_get_setting("sockpair-max-size", &sockpair_max_size);
 
 	/* exercise invalid socketpair domain */
 	socket_pair_fds_bad[0] = -1;
@@ -230,7 +242,7 @@ again:
 
 		socket_pair_close(socket_pair_fds, max, 1);
 		while (stress_continue(args)) {
-			uint8_t buf[SOCKET_PAIR_BUF] ALIGN64;
+			uint8_t buf[MAX_SOCKPAIR_MAX_SIZE] ALIGN64;
 			ssize_t n;
 
 			for (i = 0; LIKELY(stress_continue(args) && (i < max)); i++) {
@@ -267,7 +279,7 @@ abort:
 		socket_pair_close(socket_pair_fds, max, 0);
 		_exit(EXIT_SUCCESS);
 	} else {
-		uint8_t buf[SOCKET_PAIR_BUF] ALIGN64;
+		uint8_t buf[MAX_SOCKPAIR_MAX_SIZE] ALIGN64;
 		int val = 0;
 
 		stress_set_oom_adjustment(args, true);
@@ -292,9 +304,9 @@ abort:
 					}
 				}
 
-				socket_pair_memset(buf, (uint8_t)val++, sizeof(buf));
+				socket_pair_memset(buf, (uint8_t)val++, sockpair_max_size);
 				t = stress_time_now();
-				wret = write(socket_pair_fds[i][1], buf, sizeof(buf));
+				wret = write(socket_pair_fds[i][1], buf, sockpair_max_size);
 				if (LIKELY(wret > 0)) {
 					bytes += (double)wret;
 					duration += stress_time_now() - t;
@@ -373,5 +385,6 @@ const stressor_info_t stress_sockpair_info = {
 	.stressor = stress_sockpair,
 	.classifier = CLASS_NETWORK | CLASS_OS,
 	.verify = VERIFY_OPTIONAL,
+	.opts = opts,
 	.help = help
 };

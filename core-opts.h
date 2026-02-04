@@ -1516,6 +1516,7 @@ typedef enum {
 	OPT_sockmany_port,
 
 	OPT_sockpair,
+	OPT_sockpair_max_size,
 	OPT_sockpair_ops,
 
 	OPT_softlockup,

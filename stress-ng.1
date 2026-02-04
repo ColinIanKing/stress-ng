@@ -7971,7 +7971,7 @@ are supported.
 use network interface NAME. If the interface NAME does not exist, is not
 up or does not support the domain then the loopback (lo) interface is used as the default.
 .TP
-.B \-\-sctp\-\-max\-size N
+.B \-\-sctp\-max\-size N
 specify the maximum data size in bytes, with the range 1 to 65535 and the default
 as 8192.
 .TP
@@ -8640,6 +8640,10 @@ used.
 .B \-\-sockpair N
 start N workers that perform socket pair I/O read/writes. This involves a pair
 of client/server processes performing randomly sized socket I/O operations.
+.TP
+.B \-\-sockpair\-max\-size N
+specify the maximum data size in bytes, with the range 1 to 65535 and the default
+as 4096.
 .TP
 .B \-\-sockpair\-ops N
 stop socket pair stress workers after N bogo operations.

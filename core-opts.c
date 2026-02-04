@@ -1078,6 +1078,7 @@ const struct option stress_long_options[] = {
 	{ "sockmany-ops",	1,	0,	OPT_sockmany_ops },
 	{ "sockmany-port",	1,	0,	OPT_sockmany_port },
 	{ "sockpair",		1,	0,	OPT_sockpair },
+	{ "sockpair-max-size",	1,	0,	OPT_sockpair_max_size },
 	{ "sockpair-ops",	1,	0,	OPT_sockpair_ops },
 	{ "softlockup",		1,	0,	OPT_softlockup },
 	{ "softlockup-ops",	1,	0,	OPT_softlockup_ops },
