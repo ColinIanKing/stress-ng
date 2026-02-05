@@ -1204,13 +1204,13 @@ static void stress_dev_blk(
 #endif
 
 	offset = lseek(fd, 0, SEEK_END);
-	stress_uint64_put((uint64_t)offset);
+	stress_put_uint64((uint64_t)offset);
 
 	offset = lseek(fd, 0, SEEK_SET);
-	stress_uint64_put((uint64_t)offset);
+	stress_put_uint64((uint64_t)offset);
 
 	offset = lseek(fd, 0, SEEK_CUR);
-	stress_uint64_put((uint64_t)offset);
+	stress_put_uint64((uint64_t)offset);
 }
 
 static inline char *stress_dev_basename(char *devpath)
@@ -4117,11 +4117,11 @@ static inline void stress_dev_rw(
 #endif
 
 		offset = lseek(fd, 0, SEEK_SET);
-		stress_uint64_put((uint64_t)offset);
+		stress_put_uint64((uint64_t)offset);
 		offset = lseek(fd, 0, SEEK_CUR);
-		stress_uint64_put((uint64_t)offset);
+		stress_put_uint64((uint64_t)offset);
 		offset = lseek(fd, 0, SEEK_END);
-		stress_uint64_put((uint64_t)offset);
+		stress_put_uint64((uint64_t)offset);
 
 		if (stress_time_now() - t_start > threshold) {
 			timeout = true;

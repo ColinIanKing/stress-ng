@@ -505,7 +505,7 @@ retry:
 #if defined(SA_SIGINFO)
 				expected_addr = (uint8_t *)none_ptr;
 #endif
-				stress_uint8_put(*none_ptr);
+				stress_put_uint8(*none_ptr);
 				goto retry;
 			case 9:
 #if defined(HAVE_MADVISE) &&	\
@@ -553,7 +553,7 @@ retry:
 #if defined(SA_SIGINFO)
 				expected_addr = (uint8_t *)masked_ptr;
 #endif
-				stress_uint8_put(*(volatile uint8_t *)masked_ptr);
+				stress_put_uint8(*(volatile uint8_t *)masked_ptr);
 				goto retry;
 			default:
 				goto retry;

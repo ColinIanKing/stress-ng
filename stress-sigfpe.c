@@ -187,7 +187,7 @@ static void NOINLINE OPTIMIZE0 stress_int_div_by_zero(void)
 	uint8_t k = stress_mwc8();
 	uint64_t zero = stress_get_uint64_zero();
 
-	stress_uint64_put(k / zero);
+	stress_put_uint64(k / zero);
 }
 
 static void NOINLINE OPTIMIZE0 stress_float_div_by_zero(void)
@@ -195,7 +195,7 @@ static void NOINLINE OPTIMIZE0 stress_float_div_by_zero(void)
 	float k = (float)stress_mwc8();
 	float zero = (float)stress_get_uint64_zero();
 
-	stress_float_put(k / zero);
+	stress_put_float(k / zero);
 }
 
 /*

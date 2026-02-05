@@ -170,7 +170,7 @@ static int stress_dynlib(stress_args_t *args)
 				duration += stress_time_now() - t;
 				count += 1.0;
 				if (ptr)
-					stress_uint8_put(*ptr);
+					stress_put_uint8(*ptr);
 			}
 		}
 tidy:

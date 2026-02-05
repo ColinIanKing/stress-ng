@@ -234,13 +234,13 @@ next:
 				ptr = (uint8_t *)mmap(mapto, page_size, PROT_READ,
 					MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 				if (ptr != MAP_FAILED) {
-					stress_uint8_put(*ptr);
+					stress_put_uint8(*ptr);
 					stress_set_vma_anon_name(ptr, page_size, "page-fault-minor");
 #if defined(HAVE_MADVISE) &&	\
     defined(MADV_DONTNEED)
 					if (madvise((void *)ptr, page_size, MADV_DONTNEED) == 0) {
 						t = stress_time_now();
-						stress_uint8_put(*ptr);
+						stress_put_uint8(*ptr);
 						duration += stress_time_now() - t;
 						count += 1.0;
 					}

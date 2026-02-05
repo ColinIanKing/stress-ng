@@ -67,7 +67,7 @@ static void OPTIMIZE2 stress_config_check_lahf_lm(void)
 			return;
 
 		value = stress_asm_lahf();
-		stress_uint8_put(value);
+		stress_put_uint8(value);
 
 		(void)sigaction(SIGILL, &old_action, NULL);
 

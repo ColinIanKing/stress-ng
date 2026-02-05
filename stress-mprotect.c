@@ -124,7 +124,7 @@ static int stress_mprotect_mem(
 				if (UNLIKELY((prot_flags[j] & (PROT_READ | PROT_WRITE)) == 0)) {
 					char str[128];
 
-					stress_uint8_put(*ptr);
+					stress_put_uint8(*ptr);
 
 					/* not readable, should not get here */
 					stress_mprotect_flags(prot_flags[j], str, sizeof(str));

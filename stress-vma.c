@@ -566,7 +566,7 @@ static void *stress_vma_access(void *ptr)
 		volatile const uint8_t *ptr8 = (volatile uint8_t *)(data + offset);
 
 		stress_vma_metrics->s.metrics[STRESS_VMA_ACCESS]++;
-		stress_uint8_put(*ptr8);
+		stress_put_uint8(*ptr8);
 		if (aggressive)
 			stress_cpu_cache_data_flush((void *)ptr, page_size);
 	}

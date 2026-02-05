@@ -261,8 +261,8 @@ static inline void OPTIMIZE3 stress_prefetch_benchmark(
 		stress_asm_mb();
 	}
 	t2 = stress_time_now();
-	stress_void_ptr_put((volatile void *)ptr);
-	stress_void_ptr_put((volatile void *)pre_ptr);
+	stress_put_void_ptr((volatile void *)ptr);
+	stress_put_void_ptr((volatile void *)pre_ptr);
 
 	stress_cpu_cache_data_flush((void *)l3_data, l3_data_size);
 
@@ -352,7 +352,7 @@ static inline void OPTIMIZE3 stress_prefetch_benchmark(
 #endif
 		}
 	}
-	stress_void_ptr_put(pre_ptr);
+	stress_put_void_ptr(pre_ptr);
 	t4 = stress_time_now();
 
 	/* Update stats */

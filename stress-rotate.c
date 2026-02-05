@@ -34,6 +34,12 @@ typedef double (*stress_rotate_func_t)(stress_args_t *args, const bool verify, b
 
 static double stress_rotate_all(stress_args_t *args, const bool verify, bool *success);
 
+#define put_uint8_(x)	stress_put_uint8(x)
+#define put_uint16_(x)	stress_put_uint16(x)
+#define put_uint32_(x)	stress_put_uint32(x)
+#define put_uint64_(x)	stress_put_uint64(x)
+#define put_uint128_(x)	stress_put_uint128(x)
+
 #if defined(HAVE_INT128_T)
 static __uint128_t stress_mwc128(void)
 {
@@ -64,7 +70,7 @@ stress_ ## fname ## size ## helper(stress_args_t *args, type *checksum)\
 	v2 = stress_mwc ## size();				\
 	v3 = stress_mwc ## size();				\
 	*checksum = v0 + v1 + v2 + v3;				\
-	stress_uint ## size ## _put(*checksum);			\
+	put_uint ## size ## _(*checksum);			\
 								\
 	t1 = stress_time_now();					\
 PRAGMA_UNROLL_N(8)						\
@@ -77,7 +83,7 @@ PRAGMA_UNROLL_N(8)						\
 	t2 = stress_time_now();					\
 	stress_bogo_inc(args);					\
 	*checksum = v0 + v1 + v2 + v3;				\
-	stress_uint ## size ## _put(*checksum);			\
+	put_uint ## size ## _(*checksum);			\
 	return t2 - t1;						\
 }
 

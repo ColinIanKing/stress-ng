@@ -193,7 +193,7 @@ static void stress_syncload_spinwrite(void)
 	register int i = 1000;
 
 	while (i--)
-		stress_uint32_put((uint32_t)i);
+		stress_put_uint32((uint32_t)i);
 }
 
 static void OPTIMIZE_FAST_MATH TARGET_CLONES stress_syncload_sqrt(void)

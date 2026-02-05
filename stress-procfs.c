@@ -579,7 +579,7 @@ mmap_test:
 			ptr = (uint8_t *)stress_mmap_populate(NULL, page_size, PROT_READ,
 				MAP_SHARED | MAP_ANONYMOUS, fd, 0);
 			if (ptr != MAP_FAILED) {
-				stress_uint8_put(*ptr);
+				stress_put_uint8(*ptr);
 				(void)munmap((void *)ptr, page_size);
 			}
 

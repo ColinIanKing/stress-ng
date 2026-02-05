@@ -81,15 +81,15 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
-#define bool_put	stress_uint8_put
-#define uint8_t_put	stress_uint8_put
-#define uint16_t_put	stress_uint16_put
-#define uint32_t_put	stress_uint32_put
-#define uint64_t_put	stress_uint64_put
-#define __uint128_t_put	stress_uint128_put
-#define float_put	stress_float_put
-#define double_put	stress_double_put
-#define stress_long_double_t_put stress_long_double_put
+#define bool_put	stress_put_bool
+#define uint8_t_put	stress_put_uint8
+#define uint16_t_put	stress_put_uint16
+#define uint32_t_put	stress_put_uint32
+#define uint64_t_put	stress_put_uint64
+#define __uint128_t_put	stress_put_uint128
+#define float_put	stress_put_float
+#define double_put	stress_put_double
+#define stress_long_double_t_put stress_put_long_double
 typedef long double 		stress_long_double_t;
 #if defined(HAVE_COMPLEX_H) &&			\
     defined(HAVE_COMPLEX) &&			\

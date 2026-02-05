@@ -284,7 +284,7 @@ static int OPTIMIZE_FAST_MATH stress_cpu_trig(const char *name)
 			d_sum += (long double)shim_sinf(thetaf);
 		}
 	}
-	stress_long_double_put(d_sum);
+	stress_put_long_double(d_sum);
 	return EXIT_SUCCESS;
 }
 
@@ -328,7 +328,7 @@ static int OPTIMIZE_FAST_MATH stress_cpu_hyperbolic(const char *name)
 			d_sum += (long double)shim_sinhf(thetaf);
 		}
 	}
-	stress_long_double_put(d_sum);
+	stress_put_long_double(d_sum);
 	return EXIT_SUCCESS;
 }
 
@@ -384,7 +384,7 @@ PRAGMA_UNROLL_N(8)
 		 */
 		x = x * r * (1.0 - x);
 	}
-	stress_double_put(x);
+	stress_put_double(x);
 	return EXIT_SUCCESS;
 }
 
@@ -437,8 +437,8 @@ static int OPTIMIZE3 stress_cpu_rand48(const char *name)
 	}
 #endif
 
-	stress_double_put(d);
-	stress_uint64_put((uint64_t)l);
+	stress_put_double(d);
+	stress_put_uint64((uint64_t)l);
 	return EXIT_SUCCESS;
 }
 #endif
@@ -459,7 +459,7 @@ PRAGMA_UNROLL_N(8)
 	for (i = 0; LIKELY(i < 16384); i++) {
 		lfsr = (lfsr >> 1) ^ (unsigned int)(-(lfsr & 1u) & 0xd0000001U);
 	}
-	stress_uint32_put(lfsr);
+	stress_put_uint32(lfsr);
 	return EXIT_SUCCESS;
 }
 
@@ -693,7 +693,7 @@ static int OPTIMIZE3 TARGET_CLONES stress_cpu_collatz(const char *name)
 		n = (n & 1) ? (3 * n) + 1 : n / 2;
 		s += n;		/* Force compiler to do iterative computations */
 	}
-	stress_uint64_put(s);
+	stress_put_uint64(s);
 	if ((g_opt_flags & OPT_FLAGS_VERIFY) && (i != 1348)) {
 		pr_fail("%s: error detected, failed collatz progression\n",
 			name);
@@ -908,7 +908,7 @@ static int OPTIMIZE3 TARGET_CLONES stress_cpu_ ## fp_name(const char *name)\
 			f_sin, f_cos);			\
 	}						\
 	r = a + b + c + d;				\
-	stress_double_put((double)r);			\
+	stress_put_double((double)r);			\
 	return EXIT_SUCCESS;				\
 }
 
@@ -959,19 +959,19 @@ STRESS_CPU_FP(_Float128, float128, shim_sinl, shim_cosl)
     defined(__STDC_IEC_559_COMPLEX__) &&\
     !defined(__UCLIBC__)
 
-static inline void stress_cpu_complex_float_put(complex float v)
+static inline void stress_cpu_put_complex_float(complex float v)
 {
-	stress_float_put((float)(v * v));
+	stress_put_float((float)(v * v));
 }
 
-static inline void stress_cpu_complex_double_put(complex double v)
+static inline void stress_cpu_put_complex_double(complex double v)
 {
-	stress_double_put((double)(v * v));
+	stress_put_double((double)(v * v));
 }
 
-static inline void stress_cpu_complex_long_double_put(complex long double v)
+static inline void stress_cpu_put_complex_long_double(complex long double v)
 {
-	stress_long_double_put((long double)(v * v));
+	stress_put_long_double((long double)(v * v));
 }
 
 /*
@@ -1001,9 +1001,9 @@ static int OPTIMIZE3 TARGET_CLONES stress_cpu_ ## c_name(const char *name) \
 	return EXIT_SUCCESS;					\
 }
 
-STRESS_CPU_COMPLEX(complex float, f, complex_float, shim_csinf, shim_ccosf, stress_cpu_complex_float_put)
-STRESS_CPU_COMPLEX(complex double, , complex_double, shim_csin, shim_ccos, stress_cpu_complex_double_put)
-STRESS_CPU_COMPLEX(complex long double, l, complex_long_double, shim_csinl, shim_ccosl, stress_cpu_complex_long_double_put)
+STRESS_CPU_COMPLEX(complex float, f, complex_float, shim_csinf, shim_ccosf, stress_cpu_put_complex_float)
+STRESS_CPU_COMPLEX(complex double, , complex_double, shim_csin, shim_ccos, stress_cpu_put_complex_double)
+STRESS_CPU_COMPLEX(complex long double, l, complex_long_double, shim_csinl, shim_ccosl, stress_cpu_put_complex_long_double)
 #endif
 
 #define INT_FLOAT_OPS(ftype, flt_a, flt_b, flt_c, flt_d,	\
@@ -1095,7 +1095,7 @@ static int OPTIMIZE3 TARGET_CLONES stress_cpu_int ## sz ## _ ## fp_name(const ch
 	}							\
 								\
 	flt_r = flt_a + flt_b + flt_c + flt_d;			\
-	stress_double_put((double)flt_r);			\
+	stress_put_double((double)flt_r);			\
 	return EXIT_SUCCESS;					\
 }
 
@@ -1193,7 +1193,7 @@ PRAGMA_UNROLL_N(8)
 		r += 1;
 		g += 2;
 		b += 3;
-		stress_uint64_put(r + g + b);
+		stress_put_uint64(r + g + b);
 	}
 	return EXIT_SUCCESS;
 }
@@ -1237,7 +1237,7 @@ static int OPTIMIZE3 TARGET_CLONES stress_cpu_matrix_prod(const char *name)
 PRAGMA_UNROLL_N(8)
 		for (j = 0; j < MATRIX_PROD_SIZE; j++)
 			sum += r[i][j];
-	stress_long_double_put(sum);
+	stress_put_long_double(sum);
 	return EXIT_SUCCESS;
 }
 
@@ -1302,7 +1302,7 @@ static int OPTIMIZE3 stress_cpu_psi(const char *name)
 		}
 	}
 
-	stress_long_double_put(psi);
+	stress_put_long_double(psi);
 	return EXIT_SUCCESS;
 }
 
@@ -1337,7 +1337,7 @@ static int OPTIMIZE3 TARGET_CLONES OPTIMIZE_FAST_MATH stress_cpu_ln2(const char 
 		return EXIT_FAILURE;
 	}
 
-	stress_long_double_put(ln2);
+	stress_put_long_double(ln2);
 	return EXIT_SUCCESS;
 }
 
@@ -1390,8 +1390,8 @@ static int OPTIMIZE_FAST_MATH stress_cpu_explog(const char *name)
 		n = shim_exp(n);
 		m += n;
 	}
-	stress_double_put(m);
-	stress_double_put(n);
+	stress_put_double(m);
+	stress_put_double(n);
 	return EXIT_SUCCESS;
 }
 
@@ -1406,7 +1406,7 @@ do {						\
 		v = a;				\
 	else					\
 		v = b;				\
-	stress_uint32_put((uint32_t)(next + i));\
+	stress_put_uint32((uint32_t)(next + i));\
 } while (0)
 
 /*
@@ -1489,7 +1489,7 @@ static int stress_cpu_crc16(const char *name)
 
 	random_buffer(buffer, sizeof(buffer));
 	for (i = 1; i < sizeof(buffer); i++)
-		stress_uint64_put(ccitt_crc16(buffer, i));
+		stress_put_uint64(ccitt_crc16(buffer, i));
 	return EXIT_SUCCESS;
 }
 
@@ -1522,7 +1522,7 @@ static int stress_cpu_fletcher16(const char *name)
 
 	random_buffer((uint8_t *)buffer, sizeof(buffer));
 	for (i = 1; i < sizeof(buffer); i++)
-		stress_uint16_put(fletcher16(buffer, i));
+		stress_put_uint16(fletcher16(buffer, i));
 	return EXIT_SUCCESS;
 }
 
@@ -1539,7 +1539,7 @@ static int stress_cpu_ipv4checksum(const char *name)
 
 	random_buffer((uint8_t *)buffer, sizeof(buffer));
 	for (i = 1; i < sizeof(buffer); i++)
-		stress_uint16_put(stress_net_ipv4_checksum(buffer, i));
+		stress_put_uint16(stress_net_ipv4_checksum(buffer, i));
 	return EXIT_SUCCESS;
 }
 
@@ -1582,7 +1582,7 @@ static int OPTIMIZE3 OPTIMIZE_FAST_MATH stress_cpu_zeta(const char *name)
 	for (i = 2; i < 11; i++) {
 		const long double complex z = zeta((long double complex)i, precision);
 
-		stress_long_double_put((long double)z);
+		stress_put_long_double((long double)z);
 	}
 	return EXIT_SUCCESS;
 }
@@ -1606,7 +1606,7 @@ static int OPTIMIZE3 OPTIMIZE_FAST_MATH stress_cpu_gamma(const char *name)
 		k += 1.0L;
 	} while ((k < 1e6L) && shim_fabsl(gammanew - gammaold) > precision);
 
-	stress_long_double_put(gammanew);
+	stress_put_long_double(gammanew);
 
 	if (g_opt_flags & OPT_FLAGS_VERIFY) {
 		if (shim_fabsl(gammanew - GAMMA) > 1.0e-5L) {
@@ -1656,7 +1656,7 @@ static int OPTIMIZE3 stress_cpu_correlate(const char *name)
 				   (data[j] - data_average);
 		}
 		corr[i] /= (double)CORRELATE_LEN;
-		stress_double_put(corr[i]);
+		stress_put_double(corr[i]);
 	}
 	return EXIT_SUCCESS;
 }
@@ -1814,7 +1814,7 @@ static int stress_cpu_hanoi(const char *name)
 			"the expected number\n", name);
 		return EXIT_FAILURE;
 	}
-	stress_uint64_put(n);
+	stress_put_uint64(n);
 
 	return EXIT_SUCCESS;
 }
@@ -1873,10 +1873,10 @@ static int TARGET_CLONES OPTIMIZE_FAST_MATH stress_cpu_floatconversion(const cha
 		ld = (long double)(double)(float)d;
 		ld_sum += ld;
 	}
-	stress_long_double_put(ld_sum);
-	stress_double_put(d_sum);
-	stress_float_put(f_sum);
-	stress_uint32_put(j_sum);
+	stress_put_long_double(ld_sum);
+	stress_put_double(d_sum);
+	stress_put_float(f_sum);
+	stress_put_uint32(j_sum);
 
 	return EXIT_SUCCESS;
 }
@@ -1950,9 +1950,9 @@ static int stress_cpu_intconversion(const char *name)
 		i64 = -(int64_t)(uint32_t)-(int16_t)(uint64_t)i32_sum;
 		i64_sum += i64;
 	}
-	stress_uint16_put((uint16_t)i16_sum);
-	stress_uint32_put((uint32_t)i32_sum);
-	stress_uint64_put((uint64_t)i64_sum);
+	stress_put_uint16((uint16_t)i16_sum);
+	stress_put_uint32((uint32_t)i32_sum);
+	stress_put_uint64((uint64_t)i64_sum);
 
 	return EXIT_SUCCESS;
 }
@@ -2041,7 +2041,7 @@ static int OPTIMIZE3 stress_cpu_pi(const char *name)
 		}
 	}
 
-	stress_long_double_put(pi);
+	stress_put_long_double(pi);
 
 	return EXIT_SUCCESS;
 }
@@ -2082,7 +2082,7 @@ static int OPTIMIZE3 OPTIMIZE_FAST_MATH stress_cpu_omega(const char *name)
 		}
 	}
 
-	stress_long_double_put(omega);
+	stress_put_long_double(omega);
 
 	return EXIT_SUCCESS;
 }
@@ -2215,7 +2215,7 @@ static int stress_cpu_callfunc(const char *name)
 	ret = stress_cpu_callfunc_func(1024,
 		u64arg, u32arg, u16arg, u8arg,
 		&u64arg, &u32arg, &u16arg, &u8arg);
-	stress_uint64_put((uint64_t)ret);
+	stress_put_uint64((uint64_t)ret);
 
 	return EXIT_SUCCESS;
 }
@@ -2440,7 +2440,7 @@ static int TARGET_CLONES stress_cpu_div8(const char *name)
 		i -= n;
 		j += delta;
 	}
-	stress_uint8_put(sum);
+	stress_put_uint8(sum);
 
 	return EXIT_SUCCESS;
 }
@@ -2470,7 +2470,7 @@ static int TARGET_CLONES stress_cpu_div16(const char *name)
 		i -= n;
 		j += delta;
 	}
-	stress_uint16_put(sum);
+	stress_put_uint16(sum);
 
 	return EXIT_SUCCESS;
 }
@@ -2500,7 +2500,7 @@ static int TARGET_CLONES stress_cpu_div32(const char *name)
 		i -= n;
 		j += delta;
 	}
-	stress_uint32_put(sum);
+	stress_put_uint32(sum);
 
 	return EXIT_SUCCESS;
 }
@@ -2530,7 +2530,7 @@ static int TARGET_CLONES stress_cpu_div64(const char *name)
 		i -= n;
 		j += delta;
 	}
-	stress_uint64_put(sum);
+	stress_put_uint64(sum);
 
 	return EXIT_SUCCESS;
 }
@@ -2562,7 +2562,7 @@ static int TARGET_CLONES stress_cpu_div128(const char *name)
 		i -= n;
 		j += delta;
 	}
-	stress_uint64_put((uint64_t)sum);
+	stress_put_uint64((uint64_t)sum);
 
 	return EXIT_SUCCESS;
 }
@@ -2789,10 +2789,10 @@ static int stress_cpu_stats(const char *name)
 	/* Standard Deviation */
 	stddev = shim_sqrt(stddev);
 
-	stress_double_put(am);
-	stress_double_put(gm);
-	stress_double_put(hm);
-	stress_double_put(stddev);
+	stress_put_double(am);
+	stress_put_double(gm);
+	stress_put_double(hm);
+	stress_put_double(stddev);
 
 	if (min > hm) {
 		pr_fail("%s: stats: minimum %f > harmonic mean %f\n",

@@ -276,7 +276,7 @@ static int TARGET_CLONES stress_vecmath(stress_args_t *args)
 			a8[4]  ^ a8[5]  ^ a8[6]  ^ a8[7]  ^
 			a8[8]  ^ a8[9]  ^ a8[10] ^ a8[11] ^
 			a8[12] ^ a8[13] ^ a8[14] ^ a8[15];
-		stress_uint8_put(csum8);
+		stress_put_uint8(csum8);
 		if (csum8 != csum8_val) {
 			pr_fail("%s: 16 x 8 bit vector checksum mismatch, got 0x%2.2" PRIx8
 				", expected 0x%" PRIx8 "\n", args->name, csum8, csum8_val);
@@ -285,7 +285,7 @@ static int TARGET_CLONES stress_vecmath(stress_args_t *args)
 
 		csum16 = a16[0] ^ a16[1] ^ a16[2] ^ a16[3] ^
 			 a16[4] ^ a16[5] ^ a16[6] ^ a16[7];
-		stress_uint16_put(csum16);
+		stress_put_uint16(csum16);
 		if (csum16 != csum16_val) {
 			pr_fail("%s: 8 x 16 bit vector checksum mismatch, got 0x%4.4" PRIx16
 				", expected 0x%" PRIx16 "\n", args->name, csum16, csum16_val);
@@ -293,7 +293,7 @@ static int TARGET_CLONES stress_vecmath(stress_args_t *args)
 		}
 
 		csum32 = a32[0] ^ a32[1] ^ a32[2] ^ a32[3];
-		stress_uint32_put(csum32);
+		stress_put_uint32(csum32);
 		if (csum32 != csum32_val) {
 			pr_fail("%s: 4 x 32 bit vector checksum mismatch, got 0x%8.8" PRIx32
 				", expected 0x%" PRIx32 "\n", args->name, csum32, csum32_val);
@@ -301,7 +301,7 @@ static int TARGET_CLONES stress_vecmath(stress_args_t *args)
 		}
 
 		csum64 = a64[0] ^ a64[1];
-		stress_uint64_put(csum64);
+		stress_put_uint64(csum64);
 		if (csum64 != csum64_val) {
 			pr_fail("%s: 2 x 64 bit vector checksum mismatch, got 0x%16.16" PRIx64
 				", expected 0x%" PRIx64 "\n", args->name, csum64, csum64_val);
@@ -311,7 +311,7 @@ static int TARGET_CLONES stress_vecmath(stress_args_t *args)
 #if defined(HAVE_INT128_T)
 		csum128lo = (uint64_t)(a128[0] & 0xffffffffffffffffULL);
 		csum128hi = (uint64_t)(a128[0] >> 64);
-		stress_uint128_put(a128[0]);
+		stress_put_uint128(a128[0]);
 		if ((csum128lo != csum128lo_val) || (csum128hi != csum128hi_val)) {
 			pr_fail("%s: 1 x 128 bit vector checksum mismatch, got: 0x%16.16" PRIx64 "%16.16" PRIx64
 				", expected: 0x%16.16" PRIx64 "%16.16" PRIx64 "\n", args->name,

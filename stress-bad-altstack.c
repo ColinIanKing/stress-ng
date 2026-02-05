@@ -63,7 +63,7 @@ static void stress_bad_altstack_force_fault(void *stack_start)
 	volatile uint8_t *vol_stack = (volatile uint8_t *)stack_start;
 	/* trigger segfault on stack */
 
-	stress_uint8_put(*vol_stack);	/* cppcheck-suppress nullPointer */
+	stress_put_uint8(*vol_stack);	/* cppcheck-suppress nullPointer */
 	*vol_stack = 0;			/* cppcheck-suppress nullPointer */
 	(void)*vol_stack;		/* cppcheck-suppress nullPointer */
 }
@@ -85,7 +85,7 @@ static void NORETURN MLOCKED_TEXT stress_bad_altstack_signal_handler(int signum)
 
 	(void)munmap(stack, stress_minsigstksz);
 	(void)shim_memset(data, 0xff, sizeof(data));
-	stress_uint8_put(data[0]);
+	stress_put_uint8(data[0]);
 
 	if (zero_stack != MAP_FAILED)
 		(void)munmap(zero_stack, stress_minsigstksz);

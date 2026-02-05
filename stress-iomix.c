@@ -558,7 +558,7 @@ static void stress_iomix_rd_wr_mmap(
 				const uint8_t *buffer = (uint8_t *)mmaps[i];
 
 				/* Force page data to be read */
-				stress_uint8_put(buffer[0]);
+				stress_put_uint8(buffer[0]);
 
 				stress_rndbuf(mmaps[i], page_size);
 #if defined(MS_ASYNC) &&	\

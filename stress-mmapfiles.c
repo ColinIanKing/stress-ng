@@ -135,7 +135,7 @@ static size_t stress_mmapfiles_dir(
 					register size_t i;
 
 					for (i = 0; i < len; i += page_size) {
-						stress_uint8_put(*(ptr + i));
+						stress_put_uint8(*(ptr + i));
 					}
 				}
 				mmapfile_info->mappings[n_mappings].addr = (void *)ptr;

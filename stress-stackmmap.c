@@ -79,10 +79,10 @@ static void stress_stackmmap_push_msync(stress_stack_check_t *prev_check)
 	 * won't get optimized away
 	 */
 	check.waste[0] = stress_mwc32();
-	stress_uint32_put(check.waste[0]);
+	stress_put_uint32(check.waste[0]);
 	check.waste[1] = ~check.waste[0];
-	stress_uint32_put(check.waste[1]);
-	stress_uint64_put((uint64_t)(intptr_t)&check);
+	stress_put_uint32(check.waste[1]);
+	stress_put_uint64((uint64_t)(intptr_t)&check);
 
 	if (addr != laddr) {
 		(void)shim_msync(addr, page_size, stress_mwc1() ? MS_ASYNC : MS_SYNC);
@@ -108,7 +108,7 @@ static void stress_stackmmap_push_msync(stress_stack_check_t *prev_check)
 	if (LIKELY(stress_continue_flag()))
 		stress_stackmmap_push_msync(&check);
 
-	stress_uint32_put(check.waste[1]);
+	stress_put_uint32(check.waste[1]);
 }
 
 /*

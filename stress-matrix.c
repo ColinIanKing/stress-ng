@@ -405,7 +405,7 @@ PRAGMA_UNROLL_N(8)
 			sum += a[i][j] * b[i][j];
 		}
 	}
-	stress_float_put((float)sum);
+	stress_put_float((float)sum);
 }
 
 /*
@@ -431,7 +431,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_yx_frobenius(
 			sum += a[i][j] * b[i][j];
 		}
 	}
-	stress_float_put((float)sum);
+	stress_put_float((float)sum);
 }
 
 /*

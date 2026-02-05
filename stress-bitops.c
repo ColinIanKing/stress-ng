@@ -78,7 +78,7 @@ static int OPTIMIZE3 stress_bitops_sign(const char *name, uint32_t *count)
 		}
 		v += d;
 	}
-	stress_uint32_put(sum);
+	stress_put_uint32(sum);
 	*count += (2 * i);
 
 	return EXIT_SUCCESS;
@@ -115,7 +115,7 @@ static int OPTIMIZE3 stress_bitops_abs(const char *name, uint32_t *count)
 		}
 		v += d;
 	}
-	stress_uint32_put(sum);
+	stress_put_uint32(sum);
 	*count += (2 * i);
 	return EXIT_SUCCESS;
 }
@@ -204,7 +204,7 @@ static int OPTIMIZE3 TARGET_CLONES stress_bitops_countbits(const char *name, uin
 		}
 		v += dv;
 	}
-	stress_uint32_put(sum);
+	stress_put_uint32(sum);
 #if defined(HAVE_BUILTIN_POPCOUNT)
 	*count += 6 * i;
 #else
@@ -299,7 +299,7 @@ static int OPTIMIZE3 TARGET_CLONES stress_bitops_clz(const char *name, uint32_t 
 #endif
 		v += dv;
 	}
-	stress_uint32_put(sum);
+	stress_put_uint32(sum);
 #if defined(HAVE_BUILTIN_POPCOUNT) &&	\
     defined(HAVE_BUILTIN_CLZ)
 	*count += 4 * i;
@@ -406,7 +406,7 @@ static int OPTIMIZE3 TARGET_CLONES stress_bitops_ctz(const char *name, uint32_t 
 #endif
 		v += dv;
 	}
-	stress_uint32_put(sum);
+	stress_put_uint32(sum);
 #if defined(HAVE_BUILTIN_CTZ) &&	\
     defined(HAVE_BUILTIN_POPCOUNT)
 	*count += 5 * i;
@@ -467,7 +467,7 @@ static int OPTIMIZE3 stress_bitops_cmp(const char *name, uint32_t *count)
 		x += dx;
 		y += dy;
 	}
-	stress_uint32_put(sum);
+	stress_put_uint32(sum);
 	*count += 3 * i;
 
 	return EXIT_SUCCESS;
@@ -540,7 +540,7 @@ static int OPTIMIZE3 stress_bitops_parity(const char *name, uint32_t *count)
 #endif
 		v += dv;
 	}
-	stress_uint32_put(sum);
+	stress_put_uint32(sum);
 #if defined(HAVE_BUILTIN_PARITY)
 	*count += 5 * i;
 #else
@@ -580,7 +580,7 @@ static int OPTIMIZE3 stress_bitops_min(const char *name, uint32_t *count)
 		x += dx;
 		y += dy;
 	}
-	stress_uint32_put(sum);
+	stress_put_uint32(sum);
 	*count += 2 * i;
 	return EXIT_SUCCESS;
 }
@@ -616,7 +616,7 @@ static int OPTIMIZE3 stress_bitops_max(const char *name, uint32_t *count)
 		x += dx;
 		y += dy;
 	}
-	stress_uint32_put(sum);
+	stress_put_uint32(sum);
 	*count += 2 * i;
 	return EXIT_SUCCESS;
 }
@@ -710,7 +710,7 @@ static int OPTIMIZE3 stress_bitops_log2(const char *name, uint32_t *count)
 
 		v += dv;
 	}
-	stress_uint32_put(sum);
+	stress_put_uint32(sum);
 	*count += 4 * i;
 	return EXIT_SUCCESS;
 }
@@ -810,7 +810,7 @@ static int OPTIMIZE3 stress_bitops_reverse(const char *name, uint32_t *count)
 #endif
 		v += dv;
 	}
-	stress_uint32_put(sum);
+	stress_put_uint32(sum);
 #if defined(HAVE_BUILTIN_BITREVERSE)
 	*count += 6 * i;
 #else
@@ -908,7 +908,7 @@ static int OPTIMIZE3 stress_bitops_rnddnpwr2(const char *name, uint32_t *count)
 #endif
 		v += dv;
 	}
-	stress_uint32_put(sum);
+	stress_put_uint32(sum);
 #if defined(HAVE_BUILTIN_CLZ)
 	*count += 3 * i;
 #else
@@ -978,7 +978,7 @@ static int OPTIMIZE3 stress_bitops_rnduppwr2(const char *name, uint32_t *count)
 
 		v += dv;
 	}
-	stress_uint32_put(sum);
+	stress_put_uint32(sum);
 #if defined(HAVE_BUILTIN_CLZ)
 	*count += 3 * i;
 #else
@@ -1032,7 +1032,7 @@ static int OPTIMIZE3 stress_bitops_swap(const char *name, uint32_t *count)
 		x += dx;
 		y += dy;
 	}
-	stress_uint32_put(sum);
+	stress_put_uint32(sum);
 	*count += 2 * i;
 	return EXIT_SUCCESS;
 }

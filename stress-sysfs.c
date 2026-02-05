@@ -284,7 +284,7 @@ static inline bool stress_sys_rw(stress_ctxt_t *ctxt)
 		ptr = (uint8_t *)mmap(NULL, page_size, PROT_READ,
 			MAP_SHARED, fd, 0);
 		if (ptr != MAP_FAILED) {
-			stress_uint8_put(*ptr);
+			stress_put_uint8(*ptr);
 			(void)munmap((void *)ptr, page_size);
 		}
 		if (UNLIKELY(stress_time_now() - t_start > threshold))

@@ -124,7 +124,7 @@ PRAGMA_UNROLL_N(8)						\
 								\
 PRAGMA_UNROLL							\
 	for (i = 0; i < (int)sizeof(res); i++) {		\
-		stress_uint8_put((uint8_t)res[i]);		\
+		stress_put_uint8((uint8_t)res[i]);		\
 	}							\
 }
 

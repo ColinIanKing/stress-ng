@@ -165,7 +165,7 @@ PRAGMA_UNROLL_N(4)
 				break;
 			}
 		}
-		stress_void_ptr_put(check_ptr);
+		stress_put_void_ptr(check_ptr);
 	}
 
 	stress_bogo_inc(args);

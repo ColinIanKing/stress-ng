@@ -165,7 +165,7 @@ try_read:
 		ptr = (uint8_t *)mmap(NULL, args->page_size, PROT_READ,
 			MAP_PRIVATE, fd, 0);
 		if (ptr != MAP_FAILED) {
-			stress_uint8_put(*ptr);
+			stress_put_uint8(*ptr);
 #if defined(MS_SYNC)
 			(void)msync((void *)ptr, args->page_size, MS_SYNC);
 #else

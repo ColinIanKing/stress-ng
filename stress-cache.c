@@ -870,7 +870,7 @@ static void stress_cache_read(
 	*i_ptr = i;
 	*k_ptr = k;
 
-	stress_uint32_put(total);
+	stress_put_uint32(total);
 }
 
 static void stress_cache_write(
@@ -908,7 +908,7 @@ static void stress_cache_write(
 	*i_ptr = i;
 	*k_ptr = k;
 
-	stress_uint32_put(total);
+	stress_put_uint32(total);
 }
 
 static void stress_cached_str_flags(char *buf, size_t buflen, const uint32_t flags)
@@ -1362,7 +1362,7 @@ next:
 		pr_inf("%s: disabled%s due to illegal instruction signal\n", args->name, buf);
 	}
 
-	stress_uint32_put(total);
+	stress_put_uint32(total);
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

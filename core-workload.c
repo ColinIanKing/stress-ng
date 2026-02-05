@@ -64,21 +64,21 @@ static TARGET_CLONES void stress_workload_fma(void)
 	const double b = (double)(r >> 4);
 	const double c = (double)(r ^ 0xa5a55a5a);
 
-	stress_double_put((a * b) + c);
-	stress_double_put((a * c) + b);
-	stress_double_put((b * c) + a);
+	stress_put_double((a * b) + c);
+	stress_put_double((a * c) + b);
+	stress_put_double((b * c) + a);
 
-	stress_double_put(a + (b * c));
-	stress_double_put(a + (c * b));
-	stress_double_put(b + (c * a));
+	stress_put_double(a + (b * c));
+	stress_put_double(a + (c * b));
+	stress_put_double(b + (c * a));
 
-	stress_double_put((a * b) - c);
-	stress_double_put((a * c) - b);
-	stress_double_put((b * c) - a);
+	stress_put_double((a * b) - c);
+	stress_put_double((a * c) - b);
+	stress_put_double((b * c) - a);
 
-	stress_double_put(a - (b * c));
-	stress_double_put(a - (c * b));
-	stress_double_put(b - (c * a));
+	stress_put_double(a - (b * c));
+	stress_put_double(a - (c * b));
+	stress_put_double(b - (c * a));
 }
 
 static void stress_workload_nop(void)
@@ -211,7 +211,7 @@ static void stress_workload_sqrt(const double v1, const double v2)
 	r += sqrt(v2) + hypot(v2, v1 + v2);
 	r += sqrt(v1 + v2);
 
-	stress_double_put(r);
+	stress_put_double(r);
 }
 
 static void TARGET_CLONES stress_workload_vecfp(void)
@@ -239,7 +239,7 @@ static void TARGET_CLONES stress_workload_vecfp(void)
 	for (i = 0; i < 64; i++) {
 		sum += a.f[i];
 	}
-	stress_double_put(sum);
+	stress_put_double(sum);
 #else
 	/* See how well compiler can vectorize version */
         double a[64], b[64];
@@ -261,7 +261,7 @@ static void TARGET_CLONES stress_workload_vecfp(void)
 	for (i = 0; i < 64; i++) {
 		sum += a[i];
 	}
-	stress_long_double_put(sum);
+	stress_put_long_double(sum);
 #endif
 }
 

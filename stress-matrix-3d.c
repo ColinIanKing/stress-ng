@@ -414,7 +414,7 @@ PRAGMA_UNROLL_N(8)
 			}
 		}
 	}
-	stress_float_put((float)sum);
+	stress_put_float((float)sum);
 }
 
 /*
@@ -444,7 +444,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_zyx_frobenius(
 			}
 		}
 	}
-	stress_float_put((float)sum);
+	stress_put_float((float)sum);
 }
 
 /*
