@@ -473,7 +473,7 @@ static int syscall_errno;			/* errno from syscall */
 static mode_t syscall_umask_mask;		/* current umask */
 static syscall_shared_info_t *syscall_shared_info = NULL;
 static char *syscall_exec_prog;			/* stress-ng exec path */
-static jmp_buf jmp_env;				/* jmp_buf for sigsegv handler */
+static sigjmp_buf jmp_env;			/* jmp_buf for sigsegv handler */
 static volatile bool do_jmp = false;		/* use jmp_buf if do_jmo is true */
 
 #if (defined(HAVE_SYS_XATTR_H) || defined(HAVE_ATTR_XATTR_H)) && \
