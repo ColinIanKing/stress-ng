@@ -239,7 +239,7 @@ static int stress_stack_child(stress_args_t *args, void *context)
 	 *  than try to push onto an already overflowed
 	 *  stack
 	 */
-	if (stress_sigaltstack(altstack, STRESS_SIGSTKSZ) < 0) {
+	if (stress_stack_sigalt(altstack, STRESS_SIGSTKSZ) < 0) {
 		(void)munmap(altstack, STRESS_SIGSTKSZ);
 		return EXIT_NO_RESOURCE;
 	}

@@ -381,7 +381,7 @@ int stress_signal_handler(
 				return -1;
 			}
 			stress_set_vma_anon_name(stack, STRESS_SIGSTKSZ, "sigstack");
-			if (stress_sigaltstack(stack, STRESS_SIGSTKSZ) < 0)
+			if (stress_stack_sigalt(stack, STRESS_SIGSTKSZ) < 0)
 				return -1;
 		}
 	}

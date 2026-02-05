@@ -286,7 +286,7 @@ again:
 			 *  to handle segfaults on an overrun
 			 *  mmap'd stack
 			 */
-			if (UNLIKELY(stress_sigaltstack(stack_sig, STRESS_SIGSTKSZ) < 0))
+			if (UNLIKELY(stress_stack_sigalt(stack_sig, STRESS_SIGSTKSZ) < 0))
 				_exit(EXIT_FAILURE);
 
 			check_status = EXIT_SUCCESS;

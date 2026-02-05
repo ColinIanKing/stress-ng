@@ -108,7 +108,7 @@ static int stress_vforkmany(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 	stress_set_vma_anon_name(stack_sig, STRESS_SIGSTKSZ, "altstack");
-	if (stress_sigaltstack(stack_sig, STRESS_SIGSTKSZ) < 0)
+	if (stress_stack_sigalt(stack_sig, STRESS_SIGSTKSZ) < 0)
 		return EXIT_FAILURE;
 
 	vforkmany_shared = (vforkmany_shared_t *)
@@ -119,7 +119,7 @@ static int stress_vforkmany(stress_args_t *args)
 		pr_inf("%s: failed to mmap %zu bytes%s, errno=%d (%s)\n",
 			args->name, sizeof(*vforkmany_shared),
 			stress_get_memfree_str(), errno, strerror(errno));
-		VOID_RET(int, stress_sigaltstack(NULL, 0));
+		VOID_RET(int, stress_stack_sigalt(NULL, 0));
 		(void)munmap((void *)stack_sig, STRESS_SIGSTKSZ);
 		return EXIT_NO_RESOURCE;
 	}
@@ -146,7 +146,7 @@ fork_again:
 		pr_err("%s: fork failed, errno=%d: (%s)\n",
 			args->name, errno, strerror(errno));
 		(void)munmap((void *)vforkmany_shared, sizeof(*vforkmany_shared));
-		VOID_RET(int, stress_sigaltstack(NULL, 0));
+		VOID_RET(int, stress_stack_sigalt(NULL, 0));
 		(void)munmap((void *)stack_sig, STRESS_SIGSTKSZ);
 		return EXIT_FAILURE;
 	} else if (chpid == 0) {
@@ -329,7 +329,7 @@ finish:
 		rc = EXIT_FAILURE;
 	}
 
-	VOID_RET(int, stress_sigaltstack(NULL, 0));
+	VOID_RET(int, stress_stack_sigalt(NULL, 0));
 	(void)munmap((void *)stack_sig, STRESS_SIGSTKSZ);
 	(void)munmap((void *)vforkmany_shared, sizeof(*vforkmany_shared));
 

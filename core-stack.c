@@ -107,12 +107,12 @@ int stress_stack_sigalt_no_check(void *stack, const size_t size)
 }
 
 /*
- *  stress_sigaltstack()
+ *  stress_stack_sigalt()
  *	attempt to set up an alternative signal stack
  *	  stack - must be at least MINSIGSTKSZ
  *	  size  - size of stack (- STACK_ALIGNMENT)
  */
-int stress_sigaltstack(void *stack, const size_t size)
+int stress_stack_sigalt(void *stack, const size_t size)
 {
 #if defined(HAVE_SIGALTSTACK)
 	if (stack && (size < (size_t)STRESS_MINSIGSTKSZ)) {

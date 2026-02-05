@@ -319,7 +319,7 @@ static int stress_signest(stress_args_t *args)
 	}
 	stress_set_vma_anon_name(altstack, altstack_size, "altstack");
 
-	if (stress_sigaltstack(altstack, altstack_size) < 0) {
+	if (stress_stack_sigalt(altstack, altstack_size) < 0) {
 		(void)munmap((void *)altstack, altstack_size);
 		return EXIT_FAILURE;
 	}

@@ -155,7 +155,7 @@ static int stress_rlimit_child(stress_args_t *args, void *ctxt)
 		return EXIT_NO_RESOURCE;
 	}
 
-	if (stress_sigaltstack(stack, STRESS_MINSIGSTKSZ) < 0) {
+	if (stress_stack_sigalt(stack, STRESS_MINSIGSTKSZ) < 0) {
 		(void)munmap((void *)stack, STRESS_MINSIGSTKSZ);
 		return EXIT_NO_RESOURCE;
 	}
