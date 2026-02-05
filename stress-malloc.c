@@ -326,7 +326,7 @@ static void *stress_malloc_loop(void *ptr)
 					info[i].len = len;
 
 					if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
-						stress_cpu_data_cache_flush((void *)info[i].addr, len);
+						stress_cpu_cache_data_flush((void *)info[i].addr, len);
 
 					if (UNLIKELY(!stress_bogo_inc_lock(args, counter_lock, true)))
 						break;

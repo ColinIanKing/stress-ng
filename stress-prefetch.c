@@ -249,7 +249,7 @@ static inline void OPTIMIZE3 stress_prefetch_benchmark(
 	uint64_t *pre_ptr;
 	register uint64_t checksum;
 
-	stress_cpu_data_cache_flush((void *)l3_data, l3_data_size);
+	stress_cpu_cache_data_flush((void *)l3_data, l3_data_size);
 
 	/* Benchmark loop */
 	ptr = l3_data;
@@ -264,7 +264,7 @@ static inline void OPTIMIZE3 stress_prefetch_benchmark(
 	stress_void_ptr_put((volatile void *)ptr);
 	stress_void_ptr_put((volatile void *)pre_ptr);
 
-	stress_cpu_data_cache_flush((void *)l3_data, l3_data_size);
+	stress_cpu_cache_data_flush((void *)l3_data, l3_data_size);
 
 	ptr = l3_data;
 	pre_ptr = STRESS_PTRU64_ADD(l3_data, prefetch_info[i].offset);

@@ -1482,10 +1482,10 @@ free_cpu_caches:
 }
 
 /*
- *  stress_cpu_data_cache_flush()
+ *  stress_cpu_cache_data_flush()
  *	flush data cache, optimal down to more generic
  */
-void OPTIMIZE3 stress_cpu_data_cache_flush(void *addr, const size_t len)
+void OPTIMIZE3 stress_cpu_cache_data_flush(void *addr, const size_t len)
 {
 #if defined(HAVE_ASM_X86_CLFLUSHOPT) ||	\
     defined(HAVE_ASM_X86_CLFLUSH) ||	\

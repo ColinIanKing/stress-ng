@@ -1239,7 +1239,7 @@ static void stress_mmaprandom_cache_flush(mr_ctxt_t *ctxt, const int idx)
 #else
 	if (mr_node->mmap_prot & PROT_WRITE) {
 #endif
-		stress_cpu_data_cache_flush(mr_node->mmap_addr, mr_node->mmap_size);
+		stress_cpu_cache_data_flush(mr_node->mmap_addr, mr_node->mmap_size);
 		ctxt->count[idx] += 1.0;
 	}
 }

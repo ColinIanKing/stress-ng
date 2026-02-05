@@ -116,7 +116,7 @@ PRAGMA_UNROLL_N(8)
 	for (; ptr < ptr_end; ptr += 8) {
 		*ptr = val;
 	}
-	stress_cpu_data_cache_flush(page, page_size);
+	stress_cpu_cache_data_flush(page, page_size);
 	(*duration) += (t2 - t1);
 	(*count) += 1;
 

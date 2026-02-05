@@ -481,7 +481,7 @@ retry:
 				/* Illegal address passed to VDSO system call  */
 #if defined(SA_SIGINFO)
 				expected_addr = (uint8_t *)BAD_ADDR;
-				stress_cpu_data_cache_flush((char *)&expected_addr, (int)sizeof(*expected_addr));
+				stress_cpu_cache_data_flush((char *)&expected_addr, (int)sizeof(*expected_addr));
 #endif
 				stress_sigsegv_vdso();
 				/*
@@ -496,7 +496,7 @@ retry:
 #if defined(SA_SIGINFO)
 				/* Write to read-only address */
 				expected_addr = (uint8_t *)ro_ptr;
-				stress_cpu_data_cache_flush((char *)&expected_addr, (int)sizeof(*expected_addr));
+				stress_cpu_cache_data_flush((char *)&expected_addr, (int)sizeof(*expected_addr));
 #endif
 				*ro_ptr = 0;
 				goto retry;

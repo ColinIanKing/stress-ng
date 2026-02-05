@@ -68,7 +68,7 @@ do {					\
 } while (0)				\
 
 #define SPINMEM_FLUSH(ptr)		\
-	stress_cpu_data_cache_flush((void *)ptr, 64)
+	stress_cpu_cache_data_flush((void *)ptr, 64)
 
 #if defined(HAVE_SIGLONGJMP)
 /*

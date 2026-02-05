@@ -89,7 +89,7 @@ PRAGMA_UNROLL_N(4)
 		step = (step >= 4096) ? 1 : step << 1;
 	}
 	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
-		stress_cpu_data_cache_flush((void *)buf, sz);
+		stress_cpu_cache_data_flush((void *)buf, sz);
 PRAGMA_UNROLL_N(4)
 	for (step = 1, n = 0; n < sz; n += step) {
 		if (UNLIKELY(*(buf + n) != rnd))
@@ -116,7 +116,7 @@ PRAGMA_UNROLL_N(4)
 		step = (step >= 4096) ? 1 : step << 1;
 	}
 	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
-		stress_cpu_data_cache_flush((void *)buf, sz);
+		stress_cpu_cache_data_flush((void *)buf, sz);
 PRAGMA_UNROLL_N(4)
 	for (step = 1, n = 0; n < sz; n += step) {
 		if (UNLIKELY(*(buf + (n ^ mask)) != rnd))
@@ -145,7 +145,7 @@ PRAGMA_UNROLL_N(4)
 		*(buf + gray) = rnd;
 	}
 	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
-		stress_cpu_data_cache_flush((void *)buf, sz);
+		stress_cpu_cache_data_flush((void *)buf, sz);
 PRAGMA_UNROLL_N(4)
 	for (n = 0; n < sz; n++) {
 		size_t gray = ((n >> 1) ^ n) & mask;
@@ -175,7 +175,7 @@ PRAGMA_UNROLL_N(4)
 		*(buf + gray) = rnd;
 	}
 	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
-		stress_cpu_data_cache_flush((void *)buf, sz);
+		stress_cpu_cache_data_flush((void *)buf, sz);
 PRAGMA_UNROLL_N(4)
 	for (n = 0; n < sz; n++) {
 		size_t gray = (((n >> 1) ^ n) ^ mask) & mask;
@@ -210,7 +210,7 @@ PRAGMA_UNROLL_N(4)
 		*(buf + i) = rnd;
 	}
 	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
-		stress_cpu_data_cache_flush((void *)buf, sz);
+		stress_cpu_cache_data_flush((void *)buf, sz);
 PRAGMA_UNROLL_N(4)
 	for (n = 0; n < sz; n++) {
 		size_t i = stress_bitops_reverse64(n << shift) & mask;
@@ -245,7 +245,7 @@ PRAGMA_UNROLL_N(4)
 		*(buf + i) = rnd;
 	}
 	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
-		stress_cpu_data_cache_flush((void *)buf, sz);
+		stress_cpu_cache_data_flush((void *)buf, sz);
 PRAGMA_UNROLL_N(4)
 	for (n = 0; n < sz; n++) {
 		size_t i = (stress_bitops_reverse64(n << shift) ^ mask) & mask;
@@ -272,7 +272,7 @@ static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_inc(
 		*ptr = rnd;
 	}
 	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
-		stress_cpu_data_cache_flush((void *)buf, sz);
+		stress_cpu_cache_data_flush((void *)buf, sz);
 	for (ptr = buf; LIKELY(ptr < ptr_end); ptr++) {
 		if (UNLIKELY(*ptr != rnd))
 			errs++;
@@ -298,7 +298,7 @@ PRAGMA_UNROLL_N(4)
 		*(buf + i) = rnd;
 	}
 	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
-		stress_cpu_data_cache_flush((void *)buf, sz);
+		stress_cpu_cache_data_flush((void *)buf, sz);
 PRAGMA_UNROLL_N(4)
 	for (n = 0; n < sz; n++) {
 		size_t i = (n ^ mask) & mask;
@@ -325,7 +325,7 @@ PRAGMA_UNROLL_N(4)
 		*ptr = rnd;
 	}
 	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
-		stress_cpu_data_cache_flush((void *)buf, sz);
+		stress_cpu_cache_data_flush((void *)buf, sz);
 PRAGMA_UNROLL_N(4)
 	for (ptr = (uint8_t *)buf + sz - 1; ptr >= buf; ptr--) {
 		if (UNLIKELY(*ptr != rnd))
@@ -353,7 +353,7 @@ PRAGMA_UNROLL_N(4)
 		*(buf + i) = rnd;
 	}
 	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
-		stress_cpu_data_cache_flush((void *)buf, sz);
+		stress_cpu_cache_data_flush((void *)buf, sz);
 PRAGMA_UNROLL_N(4)
 	for (n = sz; n; n--) {
 		const size_t i = ((n - 1) ^ mask) & mask;
@@ -392,7 +392,7 @@ PRAGMA_UNROLL_N(4)
 			*ptr = rnd;
 	}
 	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
-		stress_cpu_data_cache_flush((void *)buf, sz);
+		stress_cpu_cache_data_flush((void *)buf, sz);
 PRAGMA_UNROLL_N(4)
 	for (bits = 0; bits < nbits; bits++) {
 		register size_t stride = 1U << bits;
@@ -427,7 +427,7 @@ PRAGMA_UNROLL_N(4)
 		buf[(gray ^ mask) & mask] = rnd;
 	}
 	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
-		stress_cpu_data_cache_flush((void *)buf, sz);
+		stress_cpu_cache_data_flush((void *)buf, sz);
 PRAGMA_UNROLL_N(4)
 	for (n = 0; n < sz; n++) {
 		register size_t gray = ((n >> 1) ^ n);

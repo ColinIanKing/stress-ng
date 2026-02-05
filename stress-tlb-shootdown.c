@@ -174,7 +174,7 @@ static inline void ALWAYS_INLINE stress_tlb_shootdown_write_mem(
 			m += STRESS_CACHE_LINE_SIZE;
 		}
 	}
-	stress_cpu_data_cache_flush((void *)mem, size);
+	stress_cpu_cache_data_flush((void *)mem, size);
 }
 
 /*

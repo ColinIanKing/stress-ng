@@ -418,7 +418,7 @@ static void *stress_vma_madvise(void *ptr)
 		if (madvise((void *)(data + offset), len, advice[i]) == 0)
 			stress_vma_metrics->s.metrics[STRESS_VMA_MADVISE]++;
 		if (aggressive)
-			stress_cpu_data_cache_flush((void *)ptr, page_size);
+			stress_cpu_cache_data_flush((void *)ptr, page_size);
 	}
 	return NULL;
 }
@@ -568,7 +568,7 @@ static void *stress_vma_access(void *ptr)
 		stress_vma_metrics->s.metrics[STRESS_VMA_ACCESS]++;
 		stress_uint8_put(*ptr8);
 		if (aggressive)
-			stress_cpu_data_cache_flush((void *)ptr, page_size);
+			stress_cpu_cache_data_flush((void *)ptr, page_size);
 	}
 	return NULL;
 }

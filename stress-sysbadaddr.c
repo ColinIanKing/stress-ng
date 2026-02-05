@@ -315,7 +315,7 @@ static void bad_bind(stress_bad_addr_t *ba, volatile uint64_t *counter)
 static void bad_cacheflush(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	(*counter)++;
-	stress_cpu_data_cache_flush(ba->addr, 4096);
+	stress_cpu_cache_data_flush(ba->addr, 4096);
 }
 #endif
 
