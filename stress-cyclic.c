@@ -814,7 +814,7 @@ again:
 #if defined(SCHED_DEADLINE)
 redo_policy:
 #endif
-		ret = stress_set_sched(mypid, policy, rt_stats->max_prio, true);
+		ret = stress_sched_set(mypid, policy, rt_stats->max_prio, true);
 		if (ret < 0) {
 			const int saved_errno = errno;
 
@@ -898,7 +898,7 @@ tidy:
 		(void)munmap((void *)rt_stats, size);
 		_exit(ncrc);
 	} else {
-		VOID_RET(int, stress_set_sched(args->pid, policy, rt_stats->max_prio, true));
+		VOID_RET(int, stress_sched_set(args->pid, policy, rt_stats->max_prio, true));
 
 		(void)shim_pause();
 		stress_force_killed_bogo(args);

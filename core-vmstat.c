@@ -1040,7 +1040,7 @@ void stress_vmstat_start(void)
 #endif
 
 #if defined(SCHED_DEADLINE)
-	VOID_RET(int, stress_set_sched(getpid(), SCHED_DEADLINE, 99, true));
+	VOID_RET(int, stress_sched_set(getpid(), SCHED_DEADLINE, 99, true));
 #endif
 
 	t_start = stress_time_now();

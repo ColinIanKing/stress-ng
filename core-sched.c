@@ -96,7 +96,7 @@ static const char prefix[] = "sched";
  *  set_sched()
  * 	are sched settings valid, if so, set them
  */
-int stress_set_sched(
+int stress_sched_set(
 	const pid_t pid,
 	const int sched,
 	const int sched_priority,
@@ -253,7 +253,7 @@ int stress_set_sched(
 #define HAVE_STRESS_SET_SCHED	(1)
 
 /* No-op shim */
-int PURE stress_set_sched(
+int PURE stress_sched_set(
 	const pid_t pid,
 	const int sched,
 	const int sched_priority,
@@ -310,7 +310,7 @@ int sched_settings_apply(const bool quiet)
 	(void)stress_get_setting("sched", &sched);
 	(void)stress_get_setting("sched-prio", &sched_prio);
 
-	return stress_set_sched(getpid(), (int)sched, sched_prio, quiet);
+	return stress_sched_set(getpid(), (int)sched, sched_prio, quiet);
 }
 
 /*

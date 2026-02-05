@@ -149,7 +149,7 @@ void stress_klog_start(void)
 		stress_parent_died_alarm();
 		stress_set_proc_state_str("klog","monitoring");
 
-		VOID_RET(int, stress_set_sched(getpid(), SCHED_RR, UNDEFINED, true));
+		VOID_RET(int, stress_sched_set(getpid(), SCHED_RR, UNDEFINED, true));
 		(void)fseek(klog_fp, 0, SEEK_END);
 
 		while (fgets(buf, sizeof(buf), klog_fp)) {

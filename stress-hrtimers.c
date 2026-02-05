@@ -121,7 +121,7 @@ static int stress_hrtimer_process(stress_args_t *args)
 	(void)sigprocmask(SIG_SETMASK, &mask, NULL);
 	/* If sched is not set, use SCHED_RR as default */
 	if (!stress_get_setting("sched", &sched)) {
-		VOID_RET(int, stress_set_sched(getpid(), SCHED_RR, UNDEFINED, true));
+		VOID_RET(int, stress_sched_set(getpid(), SCHED_RR, UNDEFINED, true));
 	}
 
 	(void)shim_memset(&action, 0, sizeof action);

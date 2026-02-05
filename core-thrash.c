@@ -621,7 +621,7 @@ int stress_thrash_start(void)
 		return -1;
 	} else if (thrash_pid == 0) {
 #if defined(SCHED_RR)
-		VOID_RET(int, stress_set_sched(getpid(), SCHED_RR, 10, true));
+		VOID_RET(int, stress_sched_set(getpid(), SCHED_RR, 10, true));
 #endif
 		stress_thrash_state("init");
 		if (stress_signal_handler("main", SIGALRM, stress_thrash_handler, NULL) < 0)
