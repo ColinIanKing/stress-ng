@@ -43,8 +43,6 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,                NULL }
 };
 
-static pid_t stress_reources_pid = -1;
-
 /*
  *  stress_resources()
  *	stress by forking and exiting
@@ -58,8 +56,6 @@ static int stress_resources(stress_args_t *args)
 	stress_resources_t *resources;
 	stress_pid_t *s_pids;
 	bool resources_mlock = false;
-
-	stress_reources_pid = getpid();
 
 	if (!stress_get_setting("resources-mlock", &resources_mlock)) {
 		if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
@@ -157,12 +153,9 @@ static int stress_resources(stress_args_t *args)
 				break;
 			stress_bogo_inc(args);
 		}
-		for (i = 0; i < resources_procs; i++) {
-			const pid_t pid = s_pids[i].pid;
 
-			if ((pid > 1) && (pid != stress_reources_pid))
-				stress_wait_until_reaped(args, pid, SIGALRM, true);
-		}
+		stress_kill_and_wait_many(args, s_pids, resources_procs, SIGALRM, true);
+
 	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
