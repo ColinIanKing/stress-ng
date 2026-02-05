@@ -51,7 +51,7 @@ static pid_t stress_reources_pid = -1;
  *	send SIGALARM to all known valid running PIDs in s_pids[]
  */
 static void stress_resources_alarm(
-	stress_pid_t *s_pids,
+	const stress_pid_t * const s_pids,
 	const size_t resources_procs)
 {
 	size_t i;
