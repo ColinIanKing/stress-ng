@@ -314,11 +314,11 @@ int stress_sched_settings_apply(const bool quiet)
 }
 
 /*
- *  sched_get_sched_ext_ops()
+ *  stress_sched_ext_ops_get()
  *	read sched_ext ops field (contains sched_ext scheduler name)
  *	return -1 if unreadable/invalid, or length of read string
  */
-ssize_t sched_get_sched_ext_ops(char *buf, const size_t len)
+ssize_t stress_sched_ext_ops_get(char *buf, const size_t len)
 {
 	ssize_t ret = -1;
 	char state[16];
