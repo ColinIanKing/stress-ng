@@ -22,7 +22,7 @@
 #include "stress-ng.h"
 
 #define STRESS_SIGSTKSZ		(stress_stack_sigstksz())
-#define STRESS_MINSIGSTKSZ	(stress_get_min_sig_stack_size())
+#define STRESS_MINSIGSTKSZ	(stress_stack_minsigstksz())
 
 static inline WARN_UNUSED CONST ALWAYS_INLINE void *stress_align_stack(void *stack_top)
 {
@@ -35,7 +35,7 @@ extern WARN_UNUSED int stress_stack_sigalt_no_check(void *stack, const size_t si
 extern WARN_UNUSED int stress_stack_sigalt(void *stack, const size_t size);
 extern void stress_stack_sigalt_disable(void);
 extern WARN_UNUSED size_t stress_stack_sigstksz(void);
-extern WARN_UNUSED size_t stress_get_min_sig_stack_size(void);
+extern WARN_UNUSED size_t stress_stack_minsigstksz(void);
 extern WARN_UNUSED size_t stress_get_min_pthread_stack_size(void);
 extern void stress_stack_smash_check_flag_set(const bool flag);
 extern void stress_stack_backtrace(void);
