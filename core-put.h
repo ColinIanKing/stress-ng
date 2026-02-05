@@ -24,7 +24,7 @@ extern stress_put_val_t g_put_val;	/* sync data to somewhere */
 #define stress_put_bool(a)	stress_put_uint8((uint8_t)(a))
 
 /*
- *  put_uint8()
+ *  stress_put_uint8()
  *	stash a uint8_t value
  */
 static inline void ALWAYS_INLINE stress_put_uint8(const uint8_t a)
@@ -33,7 +33,7 @@ static inline void ALWAYS_INLINE stress_put_uint8(const uint8_t a)
 }
 
 /*
- *  put_uint16()
+ *  stress_put_uint16()
  *	stash a uint16_t value
  */
 static inline void ALWAYS_INLINE stress_put_uint16(const uint16_t a)
