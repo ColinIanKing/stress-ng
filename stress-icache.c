@@ -201,7 +201,7 @@ static int stress_icache(stress_args_t *args)
 	ret = stress_icache_func(args, pages, pages_size);
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	(void)munmap(pages, pages_size);
+	(void)munmap((void *)pages, pages_size);
 	return ret;
 }
 
