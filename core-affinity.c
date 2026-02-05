@@ -365,7 +365,7 @@ int stress_affinity_change_cpu(stress_args_t *args, const int old_cpu)
 }
 
 #else
-int PURE stress_change_cpu(stress_args_t *args, const int old_cpu)
+int PURE stress_affinity_change_cpu(stress_args_t *args, const int old_cpu)
 {
 	(void)args;
 
