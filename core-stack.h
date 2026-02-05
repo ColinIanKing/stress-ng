@@ -29,7 +29,7 @@ static inline WARN_UNUSED CONST ALWAYS_INLINE void *stress_align_stack(void *sta
 	return (void *)((uintptr_t)stack_top & ~(uintptr_t)0xf);
 }
 
-extern WARN_UNUSED ssize_t stress_get_stack_direction(void);
+extern WARN_UNUSED ssize_t stress_stack_direction(void);
 extern WARN_UNUSED void *stress_get_stack_top(void *start, const size_t size);
 extern WARN_UNUSED int stress_sigaltstack_no_check(void *stack, const size_t size);
 extern WARN_UNUSED int stress_sigaltstack(void *stack, const size_t size);

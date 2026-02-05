@@ -326,7 +326,7 @@ static int stress_signest(stress_args_t *args)
 
 	signal_info.args = args;
 	signal_info.stop = false;
-	signal_info.altstack = (intptr_t)(stress_get_stack_direction() > 0 ?
+	signal_info.altstack = (intptr_t)(stress_stack_direction() > 0 ?
 		altstack : altstack + altstack_size);
 	signal_info.altstack_start = (intptr_t)altstack;
 	signal_info.altstack_end = (intptr_t)altstack + (intptr_t)altstack_size;

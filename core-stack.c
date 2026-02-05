@@ -35,10 +35,10 @@
 static bool stress_stack_check_flag;
 
 /*
- *  stress_get_stack_direction_helper()
+ *  stress_stack_direction_helper()
  *	helper to determine direction of stack
  */
-static ssize_t NOINLINE OPTIMIZE0 stress_get_stack_direction_helper(const uint8_t *val1)
+static ssize_t NOINLINE OPTIMIZE0 stress_stack_direction_helper(const uint8_t *val1)
 {
 	const uint8_t val2 = *val1;
 	const ssize_t diff = &val2 - (const uint8_t *)val1;
@@ -47,7 +47,7 @@ static ssize_t NOINLINE OPTIMIZE0 stress_get_stack_direction_helper(const uint8_
 }
 
 /*
- *  stress_get_stack_direction()
+ *  stress_stack_direction()
  *      determine which way the stack goes, up / down
  *	just pass in any var on the stack before calling
  *	return:
@@ -55,13 +55,13 @@ static ssize_t NOINLINE OPTIMIZE0 stress_get_stack_direction_helper(const uint8_
  *		 0 - error
  *	  	-1 - stack goes up (unconventional)
  */
-ssize_t stress_get_stack_direction(void)
+ssize_t stress_stack_direction(void)
 {
 	uint8_t val1 = 0;
 	uint8_t waste[64];
 
 	waste[(sizeof waste) - 1] = 0;
-	return stress_get_stack_direction_helper(&val1);
+	return stress_stack_direction_helper(&val1);
 }
 
 /*
@@ -71,7 +71,7 @@ ssize_t stress_get_stack_direction(void)
  */
 void *stress_get_stack_top(void *start, const size_t size)
 {
-	const size_t offset = stress_get_stack_direction() < 0 ? (size - 64) : 64;
+	const size_t offset = stress_stack_direction() < 0 ? (size - 64) : 64;
 
 	return (void *)((char *)start + offset);
 }
