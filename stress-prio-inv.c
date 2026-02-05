@@ -264,14 +264,14 @@ redo_policy:
 					warned = true;
 					pr_inf("%s: cannot set scheduling priority to %d and policy %s, "
 						"no permission, retrying with 'other'\n",
-						args->name, prio, stress_get_sched_name(policy));
+						args->name, prio, stress_sched_name_get(policy));
 				}
 				param.sched_priority = 0;
 				policy = SCHED_OTHER;
 				goto redo_policy;
 			}
 			pr_fail("%s: cannot set scheduling priority to %d and policy %s, errno=%d (%s)\n",
-				args->name, prio, stress_get_sched_name(policy),
+				args->name, prio, stress_sched_name_get(policy),
 				errno, strerror(errno));
 		}
 		break;
@@ -282,7 +282,7 @@ redo_policy:
 		ret = sched_setscheduler(0, policy, &param);
 		if (ret < 0) {
 			pr_fail("%s: cannot set scheduling priority to %d and policy %s, errno=%d (%s)\n",
-				args->name, prio, stress_get_sched_name(policy),
+				args->name, prio, stress_sched_name_get(policy),
 				errno, strerror(errno));
 		}
 		ret = setpriority(PRIO_PROCESS, 0, niceness);

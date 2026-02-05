@@ -97,7 +97,7 @@ static const char * stress_min_nanosleep_sched_name(void)
 {
 	const int sched = sched_getscheduler(0);
 
-	return stress_get_sched_name(sched);
+	return stress_sched_name_get(sched);
 }
 
 /*

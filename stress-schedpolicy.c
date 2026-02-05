@@ -252,7 +252,7 @@ case_sched_fifo:
 					"but function returned %d (%s) instead\n",
 					args->name, (intmax_t)pid, new_policy,
 					new_policy_name, ret,
-					stress_get_sched_name(ret));
+					stress_sched_name_get(ret));
 				rc = EXIT_FAILURE;
 				break;
 			}

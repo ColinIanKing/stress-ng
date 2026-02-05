@@ -63,10 +63,10 @@ const stress_sched_types_t stress_sched_types[] = {
 const size_t stress_sched_types_length = SIZEOF_ARRAY(stress_sched_types);
 
 /*
- *  get_sched_name()
+ *  stres_sched_name_get()
  *	convert sched class to human readable string
  */
-const char * PURE stress_get_sched_name(const int sched)
+const char * PURE stress_sched_name_get(const int sched)
 {
 	size_t i;
 
@@ -111,7 +111,7 @@ int stress_set_sched(
 #endif
 	int rc;
 	struct sched_param param;
-	const char *sched_name = stress_get_sched_name(sched);
+	const char *sched_name = stress_sched_name_get(sched);
 
 #if defined(SCHED_DEADLINE) &&	\
     defined(__linux__)
