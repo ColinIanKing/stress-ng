@@ -174,11 +174,11 @@ static inline long int stress_get_min_aux_sig_stack_size(void)
 }
 
 /*
- *  stress_get_sig_stack_size()
+ *  stress_stack_sigstksz()
  *	wrapper for STRESS_SIGSTKSZ, try and find
  *	stack size required
  */
-size_t stress_get_sig_stack_size(void)
+size_t stress_stack_sigstksz(void)
 {
 	static long int sz = -1;
 	long int min;
