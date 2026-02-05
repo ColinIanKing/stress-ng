@@ -23,12 +23,13 @@
 #include "core-killpid.h"
 #include "core-out-of-memory.h"
 #include "core-resources.h"
+#include "core-signal.h"
 
 #define MIN_MEM_FREE	(16 * MB)
 
 #define MIN_RESOURCES_PROCS	(1)
 #define MAX_RESOURCES_PROCS	(4096)
-#define DEFAULT_RESOURCES_PROCS	(1024)
+#define DEFAULT_RESOURCES_PROCS	(256)
 
 #define MIN_RESOURCES_NUM	(1)
 #define MAX_RESOURCES_NUM	(4096)
@@ -46,6 +47,23 @@ static const stress_help_t help[] = {
 static pid_t stress_reources_pid = -1;
 
 /*
+ *  stress_resources_alarm()
+ *	send SIGALARM to all known valid running PIDs in s_pids[]
+ */
+static void stress_resources_alarm(
+	stress_pid_t *s_pids,
+	const size_t resources_procs)
+{
+	size_t i;
+
+	for (i = 0; i < resources_procs; i++) {
+		if (s_pids[i].pid != -1)
+			(void)kill(s_pids[i].pid, SIGALRM);
+	}
+	return;
+}
+
+/*
  *  stress_resources()
  *	stress by forking and exiting
  */
@@ -58,6 +76,7 @@ static int stress_resources(stress_args_t *args)
 	stress_resources_t *resources;
 	stress_pid_t *s_pids;
 	bool resources_mlock = false;
+	bool report_freeing = true;
 
 	stress_reources_pid = getpid();
 
@@ -116,14 +135,14 @@ static int stress_resources(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		unsigned int i;
+		size_t i, forked, reaped;
 
 		(void)shim_memset(s_pids, 0, sizeof(*s_pids) * resources_procs);
 
 		for (i = 0; i < resources_procs; i++)
 			s_pids[i].pid = -1;
 
-		for (i = 0; i < resources_procs; i++) {
+		for (forked = 0, i = 0; i < resources_procs; i++) {
 			pid_t pid;
 
 			stress_get_memlimits(&shmall, &freemem, &totalmem, &freeswap, &totalswap);
@@ -144,25 +163,50 @@ static int stress_resources(stress_args_t *args)
 				if (!stress_continue(args))
 					_exit(0);
 				n = stress_resources_allocate(args, resources, resources_num, pipe_size, min_mem_free, true);
-				if (stress_continue(args))
+				if (stress_continue(args)) {
+					shim_sched_yield();
 					stress_resources_access(args, resources, n);
-				if ((i == 0) && !stress_continue(args) && stress_instance_zero(args))
-					pr_inf("%s: freeing resources (make take a while)\n", args->name);
+				}
+				shim_sched_yield();
 				stress_resources_free(args, resources, n);
-
 				_exit(0);
+			} else if (pid > 0) {
+				forked++;
 			}
 			s_pids[i].pid = pid;
 			if (UNLIKELY(!stress_continue(args)))
 				break;
 			stress_bogo_inc(args);
 		}
-		for (i = 0; i < resources_procs; i++) {
-			const pid_t pid = s_pids[i].pid;
 
-			if ((pid > 1) && (pid != stress_reources_pid))
-				stress_wait_until_reaped(args, pid, SIGALRM, true);
-		}
+		reaped = 0;
+		do {
+			size_t j;
+			pid_t pid;
+			int status;
+
+			if (!stress_continue(args)) {
+				stress_resources_alarm(s_pids, resources_procs);
+
+				if (report_freeing && stress_instance_zero(args)) {
+					pr_inf("%s: freeing resources (make take a while)\n", args->name);
+					report_freeing = false;
+				}
+			}
+			pid = waitpid(0, &status, 0);
+			/* retry on failures, such as EINTR */
+			if (pid < 0)
+				continue;
+
+			/* Search for PID, mark it as reaped */
+			for (j = 0; j < resources_procs; j++) {
+				if (pid == s_pids[j].pid) {
+					s_pids[j].pid = -1;
+					reaped++;
+					break;
+				}
+			}
+		} while (reaped < forked);
 	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
