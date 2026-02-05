@@ -135,10 +135,10 @@ int stress_stack_sigalt(void *stack, const size_t size)
 }
 
 /*
- *  stress_sigaltstack_disable()
+ *  stress_stack_sigalt_disable()
  *	disable the alternative signal stack
  */
-void stress_sigaltstack_disable(void)
+void stress_stack_sigalt_disable(void)
 {
 #if defined(HAVE_SIGALTSTACK)
 	stack_t ss;

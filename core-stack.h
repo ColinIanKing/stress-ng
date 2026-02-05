@@ -33,7 +33,7 @@ extern WARN_UNUSED ssize_t stress_stack_direction(void);
 extern WARN_UNUSED void *stress_stack_top(void *start, const size_t size);
 extern WARN_UNUSED int stress_stack_sigalt_no_check(void *stack, const size_t size);
 extern WARN_UNUSED int stress_stack_sigalt(void *stack, const size_t size);
-extern void stress_sigaltstack_disable(void);
+extern void stress_stack_sigalt_disable(void);
 extern WARN_UNUSED size_t stress_get_sig_stack_size(void);
 extern WARN_UNUSED size_t stress_get_min_sig_stack_size(void);
 extern WARN_UNUSED size_t stress_get_min_pthread_stack_size(void);
