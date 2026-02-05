@@ -4224,7 +4224,7 @@ again:
 			}
 
 			stress_parent_died_alarm();
-			(void)sched_settings_apply(true);
+			(void)stress_sched_settings_apply(true);
 
 			do {
 				if (stress_enosys_child(args, rd_fds[0], wr_fds[1], mypid) < 0)

@@ -162,7 +162,7 @@ kill_child:
 			stress_set_oom_adjustment(args, true);
 			stress_set_make_it_fail();
 			stress_process_dumpable(false);
-			(void)sched_settings_apply(true);
+			(void)stress_sched_settings_apply(true);
 
 			(void)close(fd[0]);
 

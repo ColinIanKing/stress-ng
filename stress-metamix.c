@@ -381,7 +381,7 @@ static int stress_metamix(stress_args_t *args)
 			stress_set_proc_state(args->name, STRESS_STATE_RUN);
 			stress_set_make_it_fail();
 
-			(void)sched_settings_apply(true);
+			(void)stress_sched_settings_apply(true);
 
 			do {
 				ret = stress_metamix_file(args, temp_dir, fs_type, (uint32_t)i, metamix_bytes);

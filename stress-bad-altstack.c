@@ -194,7 +194,7 @@ static int stress_bad_altstack_child(stress_args_t *args)
 
 	stress_set_oom_adjustment(args, true);
 	stress_process_dumpable(false);
-	(void)sched_settings_apply(true);
+	(void)stress_sched_settings_apply(true);
 
 	for (i = 0; i < 10; i++) {
 retry:

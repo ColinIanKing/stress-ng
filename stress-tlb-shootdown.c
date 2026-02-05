@@ -240,7 +240,7 @@ static void OPTIMIZE3 stress_tlb_shootdown_child(
 	s_pids[i].pid = getpid();
 
 	stress_parent_died_alarm();
-	(void)sched_settings_apply(true);
+	(void)stress_sched_settings_apply(true);
 
 	/* Make sure this is killable by OOM killer */
 	stress_set_oom_adjustment(args, true);

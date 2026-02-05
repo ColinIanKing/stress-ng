@@ -1127,7 +1127,7 @@ fork_again:
 		} else {
 			/* Child, stress memory */
 			stress_parent_died_alarm();
-			(void)sched_settings_apply(true);
+			(void)stress_sched_settings_apply(true);
 
 			/*
 			 * Nicing the child may OOM it first as this

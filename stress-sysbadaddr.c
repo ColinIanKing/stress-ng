@@ -2457,7 +2457,7 @@ static inline int stress_do_syscall(stress_args_t *args)
 		}
 
 		stress_parent_died_alarm();
-		(void)sched_settings_apply(true);
+		(void)stress_sched_settings_apply(true);
 
 		state->counter = stress_bogo_get(args);
 		while (state->syscall_index < SIZEOF_ARRAY(bad_syscalls)) {

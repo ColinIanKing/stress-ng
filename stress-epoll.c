@@ -181,7 +181,7 @@ again:
 		stress_set_make_it_fail();
 		s_pid->pid = getpid();
 		stress_parent_died_alarm();
-		(void)sched_settings_apply(true);
+		(void)stress_sched_settings_apply(true);
 		stress_sync_start_wait_s_pid(s_pid);
 
 		func(args, child, mypid, epoll_port, epoll_domain, epoll_sockets, max_servers);

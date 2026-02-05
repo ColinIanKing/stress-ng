@@ -92,7 +92,7 @@ static int OPTIMIZE3 stress_udp_client(
 	const size_t udp_min_size = (udp_max_size & 0xf) + 16;
 
 	stress_parent_died_alarm();
-	(void)sched_settings_apply(true);
+	(void)stress_sched_settings_apply(true);
 
 	do {
 		socklen_t len;

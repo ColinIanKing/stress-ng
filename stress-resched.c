@@ -77,7 +77,7 @@ static void OPTIMIZE3 NORETURN stress_resched_child(
 #endif
 
 	stress_parent_died_alarm();
-	(void)sched_settings_apply(true);
+	(void)stress_sched_settings_apply(true);
 
 	for (i = niceness; i < max_niceness; i++) {
 		int k;

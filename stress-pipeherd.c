@@ -163,7 +163,7 @@ static int stress_pipeherd(stress_args_t *args)
 			stress_set_proc_state(args->name, STRESS_STATE_RUN);
 			stress_set_make_it_fail();
 			stress_parent_died_alarm();
-			(void)sched_settings_apply(true);
+			(void)stress_sched_settings_apply(true);
 			rc = stress_pipeherd_read_write(args, fd, pipeherd_yield);
 			(void)close(fd[0]);
 			(void)close(fd[1]);

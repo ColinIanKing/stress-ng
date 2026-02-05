@@ -100,7 +100,7 @@ again:
 		stress_set_proc_state(args->name, STRESS_STATE_RUN);
 		stress_set_make_it_fail();
 		stress_parent_died_alarm();
-		(void)sched_settings_apply(true);
+		(void)stress_sched_settings_apply(true);
 
 		/*
 		 * Child to be traced, we abort if we detect

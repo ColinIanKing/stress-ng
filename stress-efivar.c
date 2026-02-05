@@ -548,7 +548,7 @@ again:
 		stress_set_make_it_fail();
 		stress_parent_died_alarm();
 		stress_set_oom_adjustment(args, true);
-		(void)sched_settings_apply(true);
+		(void)stress_sched_settings_apply(true);
 
 		do {
 			if (efi_vars_get(args, mypid, &duration, &count) < 0) {

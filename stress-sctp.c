@@ -374,7 +374,7 @@ static int OPTIMIZE3 stress_sctp_client(
 	(void)sctp_sched_type;
 
 	stress_parent_died_alarm();
-	(void)sched_settings_apply(true);
+	(void)stress_sched_settings_apply(true);
 
 	do {
 		char ALIGN64 buf[MAX_SCTP_MAX_SIZE];

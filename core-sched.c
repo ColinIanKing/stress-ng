@@ -296,13 +296,13 @@ int32_t stress_get_opt_sched(const char *const str)
 }
 
 /*
- *  sched_settings_apply()
+ *  stress_sched_settings_apply()
  *	fetch scheduler settings and apply them, useful for fork'd
  *	child stressor processes to set the scheduling settings
  *	rather than assuming that they are inherited from the
  *	parent
  */
-int sched_settings_apply(const bool quiet)
+int stress_sched_settings_apply(const bool quiet)
 {
 	int32_t sched = UNDEFINED;
 	int32_t sched_prio = UNDEFINED;

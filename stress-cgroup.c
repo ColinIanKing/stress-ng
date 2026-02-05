@@ -480,7 +480,7 @@ static int stress_cgroup_child(stress_args_t *args)
 	uint64_t mount_retry = 0, umount_retry = 0;
 
 	stress_parent_died_alarm();
-	(void)sched_settings_apply(true);
+	(void)stress_sched_settings_apply(true);
 
 	stress_temp_dir(pathname, sizeof(pathname), args->name, args->pid, args->instance);
 	if (mkdir(pathname, S_IRGRP | S_IWGRP) < 0) {

@@ -102,7 +102,7 @@ static int OPTIMIZE3 stress_sigurg_client(
 	int rc = EXIT_FAILURE;
 
 	stress_parent_died_alarm();
-	(void)sched_settings_apply(true);
+	(void)stress_sched_settings_apply(true);
 	(void)signal(SIGPIPE, SIG_IGN);
 
 	do {

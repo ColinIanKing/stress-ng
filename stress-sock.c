@@ -507,7 +507,7 @@ static int OPTIMIZE3 stress_sock_client(
 	uint32_t count = 0;
 
 	stress_parent_died_alarm();
-	(void)sched_settings_apply(true);
+	(void)stress_sched_settings_apply(true);
 
 	ctrls = stress_get_congestion_controls(sock_domain, &n_ctrls);
 

@@ -231,7 +231,7 @@ static int OPTIMIZE3 stress_msg_receiver(
 	int rc = EXIT_SUCCESS;
 
 	stress_parent_died_alarm();
-	(void)sched_settings_apply(true);
+	(void)stress_sched_settings_apply(true);
 
 	while (stress_continue(args)) {
 		register uint32_t i;

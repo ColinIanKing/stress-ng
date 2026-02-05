@@ -265,7 +265,7 @@ static void NORETURN OPTIMIZE3 stress_rawpkt_client(
 	int fd;
 
 	stress_parent_died_alarm();
-	(void)sched_settings_apply(true);
+	(void)stress_sched_settings_apply(true);
 
 	(void)shim_memset(&sadr, 0, sizeof(sadr));
 	(void)shim_memset(buf, 0, sizeof(buf));

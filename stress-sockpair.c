@@ -238,7 +238,7 @@ again:
 		(void)stress_affinity_change_cpu(args, parent_cpu);
 		stress_set_oom_adjustment(args, true);
 		stress_parent_died_alarm();
-		(void)sched_settings_apply(true);
+		(void)stress_sched_settings_apply(true);
 
 		socket_pair_close(socket_pair_fds, max, 1);
 		while (stress_continue(args)) {
@@ -284,7 +284,7 @@ abort:
 
 		stress_set_oom_adjustment(args, true);
 		stress_parent_died_alarm();
-		(void)sched_settings_apply(true);
+		(void)stress_sched_settings_apply(true);
 
 		/* Parent */
 		socket_pair_close(socket_pair_fds, max, 0);

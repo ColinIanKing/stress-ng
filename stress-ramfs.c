@@ -286,7 +286,7 @@ static int stress_ramfs_child(stress_args_t *args)
 		return EXIT_FAILURE;
 	}
 	stress_parent_died_alarm();
-	(void)sched_settings_apply(true);
+	(void)stress_sched_settings_apply(true);
 
 	if (!stress_get_setting("ramfs-size", &ramfs_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)

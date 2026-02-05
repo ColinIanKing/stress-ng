@@ -148,7 +148,7 @@ static int OPTIMIZE3 stress_socket_client(
 	struct sockaddr *addr = NULL;
 
 	stress_parent_died_alarm();
-	(void)sched_settings_apply(true);
+	(void)stress_sched_settings_apply(true);
 
 	do {
 		int fd, retries = 0;

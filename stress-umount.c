@@ -151,7 +151,7 @@ static void NORETURN stress_umount_umounter(stress_args_t *args, const char *pat
 {
 	int rc;
 	stress_parent_died_alarm();
-	(void)sched_settings_apply(true);
+	(void)stress_sched_settings_apply(true);
 
 	do {
 		rc = stress_umount_umount(args, path, 10000);
@@ -172,7 +172,7 @@ static void NORETURN stress_umount_mounter(stress_args_t *args, const char *path
 	int i = 0, rc = EXIT_SUCCESS;
 
 	stress_parent_died_alarm();
-	(void)sched_settings_apply(true);
+	(void)stress_sched_settings_apply(true);
 
 	do {
 		int ret;
@@ -236,7 +236,7 @@ again:
 		s_pid->pid = getpid();
 
 		stress_parent_died_alarm();
-		(void)sched_settings_apply(true);
+		(void)stress_sched_settings_apply(true);
 
 		stress_sync_start_wait_s_pid(s_pid);
 

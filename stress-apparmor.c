@@ -265,7 +265,7 @@ again:
 			_exit(EXIT_FAILURE);
 		}
 
-		(void)sched_settings_apply(true);
+		(void)stress_sched_settings_apply(true);
 		stress_parent_died_alarm();
 		if (!stress_apparmor_stress_continue_inc(args, false))
 			goto abort;

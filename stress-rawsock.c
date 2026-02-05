@@ -111,7 +111,7 @@ static int OPTIMIZE3 stress_rawsock_client(stress_args_t *args, const int rawsoc
 	if (stress_signal_handler(args->name, SIGALRM, rawsock_sigalrm_handler, NULL) < 0)
 		return EXIT_FAILURE;
 
-	(void)sched_settings_apply(true);
+	(void)stress_sched_settings_apply(true);
 
 	if ((fd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW)) < 0) {
 		pr_fail("%s: socket failed, errno=%d (%s)\n",

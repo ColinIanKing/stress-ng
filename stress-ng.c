@@ -1634,7 +1634,7 @@ static int MLOCKED_TEXT stress_run_child(
 	stress_set_proc_state(name, STRESS_STATE_START);
 	g_shared->instance_count.started++;
 
-	if (sched_settings_apply(true) < 0) {
+	if (stress_sched_settings_apply(true) < 0) {
 		rc = EXIT_NO_RESOURCE;
 		stress_block_signals();
 		goto child_exit;

@@ -392,7 +392,7 @@ again:
 
 			stress_set_proc_state(args->name, STRESS_STATE_RUN);
 			stress_set_make_it_fail();
-			(void)sched_settings_apply(true);
+			(void)stress_sched_settings_apply(true);
 
 #if defined(MADV_HUGEPAGE)
 			(void)shim_madvise((void*)opcodes, page_size * (PAGES + 2), MADV_HUGEPAGE);

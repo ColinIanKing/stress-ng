@@ -199,7 +199,7 @@ again:
 		stress_set_make_it_fail();
 		(void)stress_affinity_change_cpu(args, parent_cpu);
 		stress_parent_died_alarm();
-		(void)sched_settings_apply(true);
+		(void)stress_sched_settings_apply(true);
 
 		for (i = 0; i < max_fds; i++)
 			(void)close(pipe_fds[i].fd[0]);

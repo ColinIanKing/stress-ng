@@ -737,7 +737,7 @@ static void stress_vma_loop(
 			stress_set_proc_state(args->name, STRESS_STATE_RUN);
 			stress_set_make_it_fail();
 			stress_parent_died_alarm();
-			(void)sched_settings_apply(true);
+			(void)stress_sched_settings_apply(true);
 
 			for (i = 0, j = 0; stress_vma_continue_flag && stress_vma_continue(args) && (i < SIZEOF_ARRAY(vma_funcs)); i++) {
 				size_t k;
@@ -791,7 +791,7 @@ static int stress_vma_child(stress_args_t *args, void *void_ctxt)
 			s_pids[i].pid = getpid();
 
 			stress_parent_died_alarm();
-			(void)sched_settings_apply(true);
+			(void)stress_sched_settings_apply(true);
 
 			stress_sync_start_wait_s_pid(&s_pids[i]);
 			stress_vma_loop(args, ctxt);

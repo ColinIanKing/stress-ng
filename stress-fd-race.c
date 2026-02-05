@@ -282,7 +282,7 @@ static int OPTIMIZE3 stress_race_fd_client(stress_fd_race_context *context)
 	stress_args_t *args = context->args;
 
 	stress_parent_died_alarm();
-	(void)sched_settings_apply(true);
+	(void)stress_sched_settings_apply(true);
 
 	do {
 		ssize_t n;

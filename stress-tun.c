@@ -201,7 +201,7 @@ static int stress_tun(stress_args_t *args)
 			stress_set_make_it_fail();
 			(void)stress_affinity_change_cpu(args, parent_cpu);
 			stress_parent_died_alarm();
-			(void)sched_settings_apply(true);
+			(void)stress_sched_settings_apply(true);
 
 			sfd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 			if (UNLIKELY(sfd < 0)) {

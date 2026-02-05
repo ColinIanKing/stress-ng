@@ -173,7 +173,7 @@ static int stress_sockabuse_client(
 	struct sockaddr *addr;
 
 	stress_parent_died_alarm();
-	(void)sched_settings_apply(true);
+	(void)stress_sched_settings_apply(true);
 
 	do {
 		char buf[SOCKET_BUF];

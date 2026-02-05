@@ -342,7 +342,7 @@ static int stress_flock(stress_args_t *args)
 			stress_set_make_it_fail();
 
 			stress_parent_died_alarm();
-			(void)sched_settings_apply(true);
+			(void)stress_sched_settings_apply(true);
 
 			_exit(stress_flock_child(args, filename, bad_fd, false));
 		} else {

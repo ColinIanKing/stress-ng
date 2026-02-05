@@ -226,7 +226,7 @@ static int stress_hrtimers(stress_args_t *args)
 
 			stress_parent_died_alarm();
 			stress_set_oom_adjustment(args, true);
-			(void)sched_settings_apply(true);
+			(void)stress_sched_settings_apply(true);
 			(void)stress_hrtimer_process(args);
 			_exit(EXIT_SUCCESS);
 		} else if (s_pids[i].pid > 0) {

@@ -1213,7 +1213,7 @@ static int stress_iomix(stress_args_t *args)
 			stress_set_make_it_fail();
 
 			/* Child */
-			(void)sched_settings_apply(true);
+			(void)stress_sched_settings_apply(true);
 			iomix_funcs[i](args, fd, fs_type, iomix_bytes);
 			_exit(EXIT_SUCCESS);
 		} else {

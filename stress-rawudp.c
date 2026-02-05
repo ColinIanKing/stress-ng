@@ -95,7 +95,7 @@ static void NORETURN OPTIMIZE3 stress_rawudp_client(
 	int one = 1;
 
 	stress_parent_died_alarm();
-	(void)sched_settings_apply(true);
+	(void)stress_sched_settings_apply(true);
 
 	(void)shim_memset(buf, 0, sizeof(buf));
 

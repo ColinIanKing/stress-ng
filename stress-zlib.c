@@ -1808,7 +1808,7 @@ again:
 		stress_set_make_it_fail();
 		(void)stress_affinity_change_cpu(args, parent_cpu);
 		stress_parent_died_alarm();
-		(void)sched_settings_apply(true);
+		(void)stress_sched_settings_apply(true);
 
 		(void)close(fds[1]);
 		ret = stress_zlib_inflate(args, fds[0], &shared_checksums->inflate);

@@ -224,7 +224,7 @@ static inline pid_t stress_fiemap_spawn(
 		stress_set_make_it_fail();
 
 		stress_parent_died_alarm();
-		(void)sched_settings_apply(true);
+		(void)stress_sched_settings_apply(true);
 		stress_mwc_reseed();
 		stress_fiemap_ioctl(args, fd);
 		_exit(EXIT_SUCCESS);

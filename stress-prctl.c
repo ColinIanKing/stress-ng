@@ -1251,7 +1251,7 @@ again:
 
 			stress_set_proc_state(args->name, STRESS_STATE_RUN);
 			stress_set_make_it_fail();
-			(void)sched_settings_apply(true);
+			(void)stress_sched_settings_apply(true);
 
 			rc = stress_prctl_child(args, mypid, page_anon, args->page_size);
 			_exit(rc);

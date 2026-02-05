@@ -540,7 +540,7 @@ again:
 		stress_set_make_it_fail();
 
 		stress_parent_died_alarm();
-		(void)sched_settings_apply(true);
+		(void)stress_sched_settings_apply(true);
 
 		_exit(stress_semaphore_sysv_thrash(args, semaphore_sysv_setall));
 	} else {

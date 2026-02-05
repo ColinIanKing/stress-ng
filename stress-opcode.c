@@ -507,7 +507,7 @@ again:
 
 			stress_set_proc_state(args->name, STRESS_STATE_RUN);
 			stress_set_make_it_fail();
-			(void)sched_settings_apply(true);
+			(void)stress_sched_settings_apply(true);
 
 			for (i = 0; i < SIZEOF_ARRAY(sigs); i++) {
 				if (stress_signal_handler(args->name, sigs[i], stress_opcode_child_sighandler, NULL) < 0)
