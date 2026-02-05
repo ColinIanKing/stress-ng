@@ -987,12 +987,14 @@ static int syscall_bind(void)
 #define HAVE_SYSCALL_BRK
 static int syscall_brk(void)
 {
+#if !defined(__sun__)
 	if (syscall_brk_addr != (void *)-1) {
 		t1 = syscall_time_now();
 		(void)shim_brk(syscall_brk_addr);
 		t2 = syscall_time_now();
 		return 0;
 	}
+#endif
 	return -1;
 }
 
