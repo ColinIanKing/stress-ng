@@ -77,13 +77,13 @@ void *stress_stack_top(void *start, const size_t size)
 }
 
 /*
- *  stress_sigaltstack_no_check()
+ *  stress_stack_sigalt_no_check()
  *	attempt to set up an alternative signal stack with no
  *	minimum size check on stack
  *	  stack - must be at least MINSIGSTKSZ
  *	  size  - size of stack (- STACK_ALIGNMENT)
  */
-int stress_sigaltstack_no_check(void *stack, const size_t size)
+int stress_stack_sigalt_no_check(void *stack, const size_t size)
 {
 #if defined(HAVE_SIGALTSTACK)
 	stack_t ss;
@@ -121,7 +121,7 @@ int stress_sigaltstack(void *stack, const size_t size)
 		return -1;
 	}
 
-	if (stress_sigaltstack_no_check(stack, size) < 0) {
+	if (stress_stack_sigalt_no_check(stack, size) < 0) {
 		pr_fail("sigaltstack failed, errno=%d (%s)\n",
 			errno, strerror(errno));
 		return -1;

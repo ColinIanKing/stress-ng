@@ -79,7 +79,7 @@ static void NORETURN MLOCKED_TEXT stress_bad_altstack_signal_handler(int signum)
 	 * while in this context. Not sure if this is portable
 	 * so ignore this for now.
 	{
-		VOID_RET(int, stress_sigaltstack_no_check(stack, STRESS_BAD_ALTSTACK_SIZE));
+		VOID_RET(int, stress_stack_sigalt_no_check(stack, STRESS_BAD_ALTSTACK_SIZE));
 	}
 	 */
 
@@ -180,7 +180,7 @@ static int stress_bad_altstack_child(stress_args_t *args)
 #endif
 
 	/* Set alternative stack for testing */
-	if (stress_sigaltstack_no_check(stack, stress_minsigstksz) < 0) {
+	if (stress_stack_sigalt_no_check(stack, stress_minsigstksz) < 0) {
 		/*
 		 *  Pretend it's all OK, for example OpenBSD can fail
 		 *  depending on the stack setting on some of test cases
@@ -236,20 +236,20 @@ retry:
 #endif
 		case 5:
 			/* Illegal NULL stack */
-			ret = stress_sigaltstack_no_check(NULL, STRESS_SIGSTKSZ);
+			ret = stress_stack_sigalt_no_check(NULL, STRESS_SIGSTKSZ);
 			if (ret == 0)
 				stress_bad_altstack_force_fault(stack);
 			goto retry;
 		case 6:
 			/* Illegal text segment stack */
-			ret = stress_sigaltstack_no_check(stress_bad_altstack_signal_handler, STRESS_SIGSTKSZ);
+			ret = stress_stack_sigalt_no_check(stress_bad_altstack_signal_handler, STRESS_SIGSTKSZ);
 			if (ret == 0)
 				stress_bad_altstack_force_fault(stack);
 			goto retry;
 		case 7:
 			/* Small stack */
 			for (ret = -1, sz = 0; sz <= STRESS_SIGSTKSZ; sz += 256) {
-				ret = stress_sigaltstack_no_check(stack, sz);
+				ret = stress_stack_sigalt_no_check(stack, sz);
 				if (ret == 0)
 					break;
 			}
@@ -261,7 +261,7 @@ retry:
 #if defined(HAVE_VDSO_VIA_GETAUXVAL)
 			/* Illegal stack on VDSO, otherwises NULL stack */
 			if (vdso) {
-				ret = stress_sigaltstack_no_check((void *)vdso, STRESS_SIGSTKSZ);
+				ret = stress_stack_sigalt_no_check((void *)vdso, STRESS_SIGSTKSZ);
 				if (ret == 0)
 					stress_bad_altstack_force_fault(stack);
 			}
@@ -270,7 +270,7 @@ retry:
 		case 9:
 			/* Illegal /dev/zero mapped stack */
 			if (zero_stack != MAP_FAILED) {
-				ret = stress_sigaltstack_no_check(zero_stack, stress_minsigstksz);
+				ret = stress_stack_sigalt_no_check(zero_stack, stress_minsigstksz);
 				if (ret == 0)
 					stress_bad_altstack_force_fault(zero_stack);
 			}
@@ -279,7 +279,7 @@ retry:
 #if defined(O_TMPFILE)
 			/* Illegal mapped stack to empty file, causes BUS error */
 			if (bus_stack != MAP_FAILED) {
-				ret = stress_sigaltstack_no_check(bus_stack, stress_minsigstksz);
+				ret = stress_stack_sigalt_no_check(bus_stack, stress_minsigstksz);
 				if (ret == 0)
 					stress_bad_altstack_force_fault(bus_stack);
 			}
