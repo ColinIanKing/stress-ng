@@ -1390,7 +1390,7 @@ static void MLOCKED_TEXT stress_handle_terminate(int signum)
 			g_prog_name, (intmax_t)getpid(), stress_signal_str(signum));
 		VOID_RET(ssize_t, write(fd, buf, strlen(buf)));
 		if (signum == SIGABRT)
-			stress_backtrace();
+			stress_stack_backtrace();
 		stress_kill_stressors(SIGALRM, true);
 		_exit(EXIT_SIGNALED);
 	default:

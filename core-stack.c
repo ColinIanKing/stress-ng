@@ -306,13 +306,13 @@ void stress_set_stack_smash_check_flag(const bool flag)
 }
 
 /*
- *  stress_backtrace
+ *  stress_stack_backtrace
  *	dump stack trace to stdout, this could be called
  *	from a signal context so try to keep buffer small
  *	and fflush on all printfs to ensure we dump as
  *	much as possible.
  */
-void stress_backtrace(void)
+void stress_stack_backtrace(void)
 {
 #if defined(HAVE_EXECINFO_H) &&	\
     defined(HAVE_BACKTRACE)
