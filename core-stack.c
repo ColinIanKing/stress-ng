@@ -239,43 +239,6 @@ size_t stress_stack_minsigstksz(void)
 }
 
 /*
- *  stress_get_min_pthread_stack_size()
- *	return the minimum size of stack for a pthread
- */
-size_t stress_get_min_pthread_stack_size(void)
-{
-	static long int sz = -1;
-	long int min, tmp;
-
-	/* return cached copy */
-	if (sz > 0)
-		return (size_t)sz;
-
-	min = stress_get_min_aux_sig_stack_size();
-#if defined(__SC_THREAD_STACK_MIN_VALUE)
-	tmp = sysconf(__SC_THREAD_STACK_MIN_VALUE);
-	if (tmp > 0)
-		min = STRESS_MAXIMUM(tmp, min);
-#endif
-#if defined(_SC_THREAD_STACK_MIN_VALUE)
-	tmp = sysconf(_SC_THREAD_STACK_MIN_VALUE);
-	if (tmp > 0)
-		min = STRESS_MAXIMUM(tmp, min);
-#endif
-#if defined(PTHREAD_STACK_MIN)
-	tmp = PTHREAD_STACK_MIN;
-	if (tmp > 0)
-		tmp = STRESS_MAXIMUM(tmp, 8192);
-	else
-		tmp = 8192;
-#else
-	tmp = 8192;
-#endif
-	sz = STRESS_MAXIMUM(tmp, min);
-	return (size_t)sz;
-}
-
-/*
  *  __stack_chk_fail()
  *	override stack smashing callback
  */
