@@ -7743,7 +7743,7 @@ stop after N rescheduling sched_yield calls.
 .TQ
 .B \-\-resources N
 start N workers that consume various system resources. Each worker will spawn
-a default of 1024 child processes that iterate 1024 times consuming shared
+a default of 256 child processes that iterate 1024 times consuming shared
 memory, heap, stack, temporary files and various file descriptors (eventfds,
 memoryfds, userfaultfds, pipes and sockets).
 .TP
@@ -7760,7 +7760,7 @@ stop after N resource child forks.
 .TP
 .B \-\-resources\-procs N
 specify the number of child process to spawn per stressor instance, range 1
-to 4096. The default is 1024.
+to 4096. The default is 256.
 .RE
 .TP
 .B Writing temporary files in reverse position stressor
