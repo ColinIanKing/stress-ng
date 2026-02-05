@@ -3765,7 +3765,7 @@ static void stress_vm_get_cache_line_size(void)
 	if (cache && cache->line_size)
 		stress_vm_cache_line_size = (size_t)cache->line_size;
 
-	stress_free_cpu_caches(cpu_caches);
+	stress_cpu_cache_free(cpu_caches);
 #else
 	stress_vm_cache_line_size = 64;	/* Default guess */
 #endif

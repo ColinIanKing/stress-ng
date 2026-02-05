@@ -118,7 +118,7 @@ int stress_cache_alloc(const char *name)
 	pr_dbg("CPU data cache: %s\n", cache_info);
 init_done:
 
-	stress_free_cpu_caches(cpu_caches);
+	stress_cpu_cache_free(cpu_caches);
 	g_shared->mem_cache.buffer =
 		(uint8_t *)stress_mmap_anon_shared(g_shared->mem_cache.size, PROT_READ | PROT_WRITE);
 	if (g_shared->mem_cache.buffer == MAP_FAILED) {

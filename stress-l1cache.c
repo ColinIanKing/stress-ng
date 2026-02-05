@@ -167,7 +167,7 @@ static int stress_l1cache_info_ok(
 	if ((*sets == 0) && (*ways > 0) && (*line_size > 0))
 		*sets = *size / (*ways * *line_size);
 
-	stress_free_cpu_caches(cpu_caches);
+	stress_cpu_cache_free(cpu_caches);
 #endif
 	if ((*size == 0) && (*line_size == 0) && (*ways == 0) && (*sets == 0))
 		goto bad_cache;
@@ -178,7 +178,7 @@ static int stress_l1cache_info_ok(
 
 #if defined(__linux__)
 bad_cache_free:
-	stress_free_cpu_caches(cpu_caches);
+	stress_cpu_cache_free(cpu_caches);
 #endif
 bad_cache:
 	pr_inf_skip("%s: skipping stressor, cannot determine "

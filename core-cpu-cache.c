@@ -1380,13 +1380,13 @@ stress_cpu_cache_cpus_t *stress_cpu_cache_get_all_details(void)
 #endif
 
 /*
- * stress_free_cpu_caches()
+ * stress_cpu_cache_free()
  * @cpus: value returned by get_all_cpu_cache_details().
  *
  * Undo the action of get_all_cpu_cache_details() by freeing all
  * associated resources.
  */
-void stress_free_cpu_caches(stress_cpu_cache_cpus_t *cpus)
+void stress_cpu_cache_free(stress_cpu_cache_cpus_t *cpus)
 {
 	uint32_t  i;
 
@@ -1438,7 +1438,7 @@ void stress_cpu_cache_get_llc_size(size_t *llc_size, size_t *cache_line_size)
 	*cache_line_size = cache->line_size ? cache->line_size : 64;
 
 free_cpu_caches:
-	stress_free_cpu_caches(cpu_caches);
+	stress_cpu_cache_free(cpu_caches);
 #else
 	*llc_size = 0;
 	*cache_line_size = 0;
@@ -1472,7 +1472,7 @@ void stress_cpu_cache_get_level_size(const uint16_t cache_level, size_t *cache_s
 	*cache_line_size = cache->line_size ? cache->line_size : 64;
 
 free_cpu_caches:
-	stress_free_cpu_caches(cpu_caches);
+	stress_cpu_cache_free(cpu_caches);
 #else
 	(void)cache_level;
 

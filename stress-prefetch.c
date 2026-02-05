@@ -149,19 +149,19 @@ static inline uint64_t get_prefetch_L3_size(stress_args_t *args)
 		if (!args->instance)
 			pr_inf("%s: using built-in defaults as no suitable "
 				"cache found\n", args->name);
-		stress_free_cpu_caches(cpu_caches);
+		stress_cpu_cache_free(cpu_caches);
 		return cache_size;
 	}
 	if (!cache->size) {
 		if (!args->instance)
 			pr_inf("%s: using built-in defaults as unable to "
 				"determine cache size\n", args->name);
-		stress_free_cpu_caches(cpu_caches);
+		stress_cpu_cache_free(cpu_caches);
 		return cache_size;
 	}
 	cache_size = cache->size;
 
-	stress_free_cpu_caches(cpu_caches);
+	stress_cpu_cache_free(cpu_caches);
 #else
 	if (!args->instance)
 		pr_inf("%s: using built-in defaults as unable to "

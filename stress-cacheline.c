@@ -85,19 +85,19 @@ static uint64_t get_L1_line_size(stress_args_t *args)
 		if (!args->instance)
 			pr_inf("%s: using built-in defaults as no suitable "
 				"cache found\n", args->name);
-		stress_free_cpu_caches(cpu_caches);
+		stress_cpu_cache_free(cpu_caches);
 		return cache_size;
 	}
 	if (!cache->line_size) {
 		if (!args->instance)
 			pr_inf("%s: using built-in defaults as unable to "
 				"determine cache line size\n", args->name);
-		stress_free_cpu_caches(cpu_caches);
+		stress_cpu_cache_free(cpu_caches);
 		return cache_size;
 	}
 	cache_size = cache->line_size;
 
-	stress_free_cpu_caches(cpu_caches);
+	stress_cpu_cache_free(cpu_caches);
 #else
 	if (!args->instance)
 		pr_inf("%s: using built-in defaults as unable to "

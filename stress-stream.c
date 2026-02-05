@@ -973,7 +973,7 @@ static inline uint64_t get_stream_L3_size(stress_args_t *args)
 	cache_size = cache->size;
 
 free_cpu_caches:
-	stress_free_cpu_caches(cpu_caches);
+	stress_cpu_cache_free(cpu_caches);
 
 report_size:
 	cache_size *= numa_nodes;
