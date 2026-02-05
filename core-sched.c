@@ -269,10 +269,10 @@ int PURE stress_sched_set(
 #endif
 
 /*
- *  get_opt_sched()
+ *  stess_sched_opt_get()
  *	get scheduler policy
  */
-int32_t stress_get_opt_sched(const char *const str)
+int32_t stress_sched_opt_get(const char *const str)
 {
 	size_t i;
 

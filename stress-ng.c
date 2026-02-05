@@ -3516,7 +3516,7 @@ next_opt:
 			stress_set_setting_global("resctrl", TYPE_ID_STR, optarg);
 			break;
 		case OPT_sched:
-			i32 = stress_get_opt_sched(optarg);
+			i32 = stress_sched_opt_get(optarg);
 			stress_set_setting_global("sched", TYPE_ID_INT32, &i32);
 			break;
 		case OPT_sched_prio:
