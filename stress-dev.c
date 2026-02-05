@@ -3965,7 +3965,7 @@ static int stress_dev_open_lock(
 {
 	int fd;
 
-	fd = stress_open_timeout(args->name, dev_info->path, mode, 250000000);
+	fd = stress_try_open_timeout(args->name, dev_info->path, mode, 250000000);
 	if (fd < 0) {
 		if (errno == EBUSY)
 			(void)shim_usleep(10000);

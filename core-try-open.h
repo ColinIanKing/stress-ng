@@ -28,7 +28,7 @@
 
 extern int stress_try_open(stress_args_t *args, const char *path,
 	const int flags, const unsigned long int timeout_ns);
-extern int stress_open_timeout(const char *name, const char *path,
+extern int stress_try_open_timeout(const char *name, const char *path,
 	const int flags, const unsigned long int timeout_ns);
 
 #endif

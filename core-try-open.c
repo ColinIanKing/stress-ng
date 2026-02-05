@@ -139,7 +139,7 @@ done:
  *  Try to open a file, return 0 if can open it, non-zero
  *  if it cannot be opened within timeout nanoseconds.
  */
-int stress_open_timeout(
+int stress_try_open_timeout(
 	const char *name,
 	const char *path,
 	const int flags,
@@ -184,7 +184,7 @@ int stress_open_timeout(
 	return ret;
 }
 #else
-int stress_open_timeout(
+int stress_try_open_timeout(
 	const char *name,
 	const char *path,
 	const int flags,
