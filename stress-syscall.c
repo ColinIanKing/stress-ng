@@ -952,6 +952,7 @@ static int syscall_add_key(void)
 #define HAVE_SYSCALL_ALARM
 static int syscall_alarm(void)
 {
+#if !defined(__sun__)
 	pid_t pid;
 	int ret = -1;
 
@@ -973,6 +974,9 @@ static int syscall_alarm(void)
 		ret = syscall_shared_info->syscall_ret;
 	}
 	return ret;
+#else
+	return -1;
+#endif
 }
 
 #if defined(HAVE_SYS_UN_H) &&	\
