@@ -274,6 +274,7 @@ typedef struct {
 	int syscall_errno;		/* syscall errno */
 	bool ignore;			/* true if too slow */
 	bool succeed;			/* syscall returned OK */
+	bool segv;			/* true if sigsegv occurred */
 } syscall_stats_t;
 
 #if (defined(HAVE_CLOCK_ADJTIME) &&	\
@@ -472,6 +473,8 @@ static int syscall_errno;			/* errno from syscall */
 static mode_t syscall_umask_mask;		/* current umask */
 static syscall_shared_info_t *syscall_shared_info = NULL;
 static char *syscall_exec_prog;			/* stress-ng exec path */
+static jmp_buf jmp_env;				/* jmp_buf for sigsegv handler */
+static volatile bool do_jmp = false;		/* use jmp_buf if do_jmo is true */
 
 #if (defined(HAVE_SYS_XATTR_H) || defined(HAVE_ATTR_XATTR_H)) && \
     (defined(HAVE_FGETXATTR) ||		\
@@ -864,10 +867,21 @@ reap_child:
 }
 #endif
 
-static void MLOCKED_TEXT syscall_sigusr1_handler(int num)
+static void MLOCKED_TEXT syscall_sigsegv_handler(int signum)
 {
 	const int saved_errno = errno;
-	(void)num;
+
+	syscall_shared_info->sig_t = syscall_time_now();
+
+	errno = saved_errno;
+
+	stress_signal_longjmp_flag(signum, jmp_env, 1, &do_jmp);
+}
+
+static void MLOCKED_TEXT syscall_sigusr1_handler(int signum)
+{
+	const int saved_errno = errno;
+	(void)signum;
 
 	syscall_shared_info->sig_t = syscall_time_now();
 	syscall_shared_info->t_set = true;
@@ -8686,12 +8700,13 @@ static void stress_syscall_report_syscall_top(stress_args_t *args)
 		syscall_stats_t *ss = &syscall_stats[j];
 
 		if (ss->succeed) {
-			pr_inf("%s: %25s %10.1f %10" PRIu64 " %10" PRIu64 "\n",
+			pr_inf("%s: %25s %10.1f %10" PRIu64 " %10" PRIu64 "%s\n",
 				args->name,
 				syscalls[j].name,
 				ss->total_duration / (double)ss->count,
 				ss->min_duration,
-				ss->max_duration);
+				ss->max_duration,
+				ss->segv ? " (SIGSEGV occurred)" : "");
 			n++;
 		}
 	}
@@ -8812,9 +8827,17 @@ static void stress_syscall_benchmark_calls(stress_args_t *args)
 		t2 = ~0ULL;
 		errno = 0;
 
+		ret = sigsetjmp(jmp_env, 1);
+		do_jmp = true;
+		if (ret) {
+			ss->segv = true;
+			continue;
+		}
+
 		/* Do the system call test */
 		test_t1 = syscall_time_now();
 		ret = syscalls[j].syscall();
+		do_jmp = false;
 		ss->syscall_errno = syscall_errno;
 		test_t2 = syscall_time_now();
 
@@ -8874,6 +8897,8 @@ static int stress_syscall(stress_args_t *args)
 	syscall_umask_mask = umask(0);
 	syscall_exec_prog = stress_get_proc_self_exe(exec_path, sizeof(exec_path));
 
+	if (stress_signal_handler(args->name, SIGSEGV, syscall_sigsegv_handler, NULL) < 0)
+		return EXIT_NO_RESOURCE;
 	if (stress_signal_handler(args->name, SIGUSR1, syscall_sigusr1_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 #if defined(SIGXFSZ)
