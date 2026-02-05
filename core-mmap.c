@@ -303,9 +303,11 @@ int stress_munmap_anon_shared(void *addr, size_t length)
 #define STRESS_PAGE_PRESENT	(STRESS_BIT_ULL(63))
 #define STRESS_PAGE_PFN_MASK	(STRESS_BIT_ULL(55) - 1)
 
+#if defined(__linux__)
 /*
  *  stress_mmap_pread()
- *	perform pread if available, otherwise seek + read
+ *	perform pread if available, otherwise seek + read,
+ *	only required for stress_mmap_stats()
  */
 static inline ssize_t stress_mmap_pread(int fd, void *buf, size_t count, off_t offset)
 {
@@ -317,6 +319,7 @@ static inline ssize_t stress_mmap_pread(int fd, void *buf, size_t count, off_t o
 	return read(fd, buf, count);
 #endif
 }
+#endif
 
 #define PHYS_ADDR_UNKNOWN	(~(uintptr_t)0)
 
