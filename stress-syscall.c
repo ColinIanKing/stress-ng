@@ -8811,7 +8811,7 @@ static void stress_syscall_rank_calls(const int syscall_method)
  */
 static void stress_syscall_benchmark_calls(stress_args_t *args)
 {
-	size_t i;
+	NOCLOBBER size_t i;
 
 	for (i = 0; i < STRESS_SYSCALLS_MAX; i++) {
 		int ret;
