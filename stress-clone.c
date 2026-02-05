@@ -542,7 +542,7 @@ static int stress_clone_child(stress_args_t *args, void *context)
 					stress_clone_shim_exit(clone_func(&clone_arg));
 				}
 			} else {
-				char *stack_top = (char *)stress_get_stack_top((char *)clone_info->stack, CLONE_STACK_SIZE);
+				char *stack_top = (char *)stress_stack_top((char *)clone_info->stack, CLONE_STACK_SIZE);
 #if defined(__FreeBSD_kernel__) || 	\
     defined(__NetBSD__)
 				shared->metrics.t_start = stress_time_now();

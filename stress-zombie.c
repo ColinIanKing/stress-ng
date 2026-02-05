@@ -360,7 +360,7 @@ static int stress_zombie(stress_args_t *args)
 
 #if defined(HAVE_LINUX_CLONE)
 			if (zombie_clone) {
-				void *stack =  stress_get_stack_top(zombie->stack, ZOMBIE_STACK_SIZE);
+				void *stack =  stress_stack_top(zombie->stack, ZOMBIE_STACK_SIZE);
 
 				zombie->pid = clone(clone_func, stack, clone_flags, (void *)&context);
 				if (zombie->pid < 0) {

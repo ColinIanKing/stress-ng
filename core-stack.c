@@ -65,11 +65,11 @@ ssize_t stress_stack_direction(void)
 }
 
 /*
- *  stress_get_stack_top()
+ *  stress_stack_top()
  *	Get the stack top given the start and size of the stack,
  *	offset by a bit of slop. Assumes stack is > 64 bytes
  */
-void *stress_get_stack_top(void *start, const size_t size)
+void *stress_stack_top(void *start, const size_t size)
 {
 	const size_t offset = stress_stack_direction() < 0 ? (size - 64) : 64;
 

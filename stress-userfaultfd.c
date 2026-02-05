@@ -245,7 +245,7 @@ static int stress_userfaultfd_child(stress_args_t *args, void *context)
 	stress_context_t c;
 	bool do_poll = true;
 	static uint8_t stack[STACK_SIZE]; /* Child clone stack */
-	uint8_t *stack_top = (uint8_t *)stress_get_stack_top((void *)stack, STACK_SIZE);
+	uint8_t *stack_top = (uint8_t *)stress_stack_top((void *)stack, STACK_SIZE);
 	size_t userfaultfd_bytes, userfaultfd_bytes_total = DEFAULT_USERFAULT_BYTES;
 	double t, duration = 0.0, rate;
 

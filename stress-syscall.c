@@ -1265,7 +1265,7 @@ static int syscall_clone(void)
 	pid_t child_tid = -1;
 	int status;
 	char stack[8192];
-	char *stack_top = (char *)stress_get_stack_top((char *)stack, sizeof(stack));
+	char *stack_top = (char *)stress_stack_top((char *)stack, sizeof(stack));
 
 	syscall_shared_info->t1 = ~0ULL;
 	syscall_shared_info->t2 = ~0ULL;
@@ -7178,7 +7178,7 @@ static int syscall_unshare(void)
 	pid_t child_tid = -1;
 	int status;
 	char stack[8192];
-	char *stack_top = (char *)stress_get_stack_top((char *)stack, sizeof(stack));
+	char *stack_top = (char *)stress_stack_top((char *)stack, sizeof(stack));
 	static size_t i = 0;
 	int unshare_flag = unshare_flags[i];
 

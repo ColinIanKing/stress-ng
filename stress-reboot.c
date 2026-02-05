@@ -113,7 +113,7 @@ static int stress_reboot(stress_args_t *args)
 	do {
 		int ret;
 #if defined(HAVE_CLONE)
-		char *stack_top = (char *)stress_get_stack_top((void *)stack, CLONE_STACK_SIZE);
+		char *stack_top = (char *)stress_stack_top((void *)stack, CLONE_STACK_SIZE);
 		pid_t pid;
 
 		pid = clone(reboot_clone_func, stress_align_stack(stack_top),

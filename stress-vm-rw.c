@@ -372,7 +372,7 @@ static int stress_vm_rw(stress_args_t *args)
 {
 	stress_context_t ctxt;
 	uint8_t stack[64*1024];
-	uint8_t *stack_top = (uint8_t *)stress_get_stack_top((void *)stack, STACK_SIZE);
+	uint8_t *stack_top = (uint8_t *)stress_stack_top((void *)stack, STACK_SIZE);
 	size_t vm_rw_bytes, vm_rw_bytes_total = DEFAULT_VM_RW_BYTES;
 	int rc;
 

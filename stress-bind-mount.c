@@ -204,7 +204,7 @@ static int stress_bind_mount(stress_args_t *args)
 	do {
 		pid_t pid;
 		char stack[CLONE_STACK_SIZE];
-		char *const stack_top = (char *)stress_get_stack_top((void *)stack, CLONE_STACK_SIZE);
+		char *const stack_top = (char *)stress_stack_top((void *)stack, CLONE_STACK_SIZE);
 
 		(void)shim_memset(stack, 0, sizeof stack);
 

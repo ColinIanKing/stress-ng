@@ -1750,7 +1750,7 @@ static void stress_mmaprandom_clone(mr_ctxt_t *ctxt, const int idx)
 	static double next_time = 0.0;
 	double now;
 	uint64_t stack[CLONE_STACK_SIZE / sizeof(uint64_t)];
-	char *stack_top = (char *)stress_get_stack_top((char *)stack, CLONE_STACK_SIZE);
+	char *stack_top = (char *)stress_stack_top((char *)stack, CLONE_STACK_SIZE);
 
 	now = stress_time_now();
 	if (now < next_time)
