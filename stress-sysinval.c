@@ -2668,7 +2668,7 @@ static inline int stress_do_syscall(stress_args_t *args)
 		size_t reorder[SYSCALL_ARGS_SIZE];
 
 		/* We don't want bad ops clobbering this region */
-		stress_set_stack_smash_check_flag(false);
+		stress_stack_smash_check_flag_set(false);
 		stress_shared_readonly();
 		stress_process_dumpable(false);
 

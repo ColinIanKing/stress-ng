@@ -346,7 +346,7 @@ again:
 			}
 
 			/* Disable stack smashing messages */
-			stress_set_stack_smash_check_flag(false);
+			stress_stack_smash_check_flag_set(false);
 
 			do {
 				if (func())

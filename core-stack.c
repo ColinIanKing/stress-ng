@@ -297,10 +297,10 @@ NORETURN WEAK void __stack_chk_fail(void)
 #endif
 
 /*
- *  stress_set_stack_smash_check_flag()
+ *  stress_stack_smash_check_flag_set()
  *	set flag, true = report flag, false = silently ignore
  */
-void stress_set_stack_smash_check_flag(const bool flag)
+void stress_stack_smash_check_flag_set(const bool flag)
 {
 	stress_stack_check_flag = flag;
 }

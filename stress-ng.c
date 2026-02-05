@@ -4000,7 +4000,7 @@ int main(int argc, char **argv, char **envp)
 	main_pid = getpid();
 
 	/* Enable stress-ng stack smashing message */
-	stress_set_stack_smash_check_flag(true);
+	stress_stack_smash_check_flag_set(true);
 
 	stress_fixup_stressor_names();
 
