@@ -36,8 +36,8 @@
 
 static const stress_help_t help[] = {
 	{ NULL,	"tsc N",	"start N workers reading the time stamp counter" },
-	{ NULL,	"tsc-ops N",	"stop after N TSC bogo operations" },
 	{ NULL, "tsc-lfence",	"add lfence after TSC reads for serialization (x86 only)" },
+	{ NULL,	"tsc-ops N",	"stop after N TSC bogo operations" },
 	{ NULL,	"tsc-rdscp",	"use rdtscp instead of rdtsc, disables tsc-lfence (x86 only)" },
 	{ NULL,	NULL,		NULL }
 };

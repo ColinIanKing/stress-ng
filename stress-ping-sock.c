@@ -31,8 +31,8 @@
 
 static const stress_help_t help[] = {
 	{ NULL,	"ping-sock N",		"start N workers that exercises a ping socket" },
-	{ NULL,	"ping-sock-ops N",	"stop after N ping sendto messages" },
 	{ NULL, "ping-sock-max-size N", "specify maximum size of raw UDP data" },
+	{ NULL,	"ping-sock-ops N",	"stop after N ping sendto messages" },
 	{ NULL,	NULL,			NULL }
 };
 

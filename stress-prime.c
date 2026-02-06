@@ -35,8 +35,8 @@
 
 static const stress_help_t help[] = {
 	{ NULL,	"prime N",		"start N workers that find prime numbers" },
-	{ NULL,	"prime-ops N",		"stop after N prime operations" },
 	{ NULL, "prime-method M",	"method of searching for next prime [ factorial | inc | pwr2 | pwr10 ]" },
+	{ NULL,	"prime-ops N",		"stop after N prime operations" },
 	{ NULL,	"prime-progress",	"show prime progress every 60 seconds (just first stressor instance)" },
 	{ NULL,	"prime-start N",	"value N from where to start computing primes" },
 	{ NULL,	NULL,		 	NULL }

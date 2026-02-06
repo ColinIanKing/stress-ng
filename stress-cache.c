@@ -66,12 +66,15 @@ typedef struct {
 
 static const stress_help_t help[] = {
 	{ "C N","cache N",	 	"start N CPU cache thrashing workers" },
-	{ NULL,	"cache-size N",		"override the default cache size setting to N bytes" },
 #if defined(HAVE_ASM_X86_CLDEMOTE)
 	{ NULL,	"cache-cldemote",	"cache line demote (x86 only)" },
 #endif
 #if defined(HAVE_ASM_X86_CLFLUSHOPT)
 	{ NULL, "cache-clflushopt",	"optimized cache line flush (x86 only)" },
+#endif
+#if defined(HAVE_ASM_X86_CLWB) ||	\
+    defined(HAVE_ASM_RISCV_CBO_CACHE_MANAGEMENT)
+	{ NULL, "cache-clwb",		"cache line writeback (x86 / RISC-V)" },
 #endif
 	{ NULL, "cache-enable-all",	"enable all cache options (fence,flush,sfence,etc..)" },
 	{ NULL,	"cache-fence",		"serialize stores" },
@@ -90,11 +93,8 @@ static const stress_help_t help[] = {
 #if defined(HAVE_BUILTIN_SFENCE)
 	{ NULL,	"cache-sfence",		"serialize stores with sfence" },
 #endif
+	{ NULL,	"cache-size N",		"override the default cache size setting to N bytes" },
 	{ NULL,	"cache-ways N",		"only fill specified number of cache ways" },
-#if defined(HAVE_ASM_X86_CLWB) ||	\
-    defined(HAVE_ASM_RISCV_CBO_CACHE_MANAGEMENT)
-	{ NULL, "cache-clwb",		"cache line writeback (x86 / RISC-V)" },
-#endif
 	{ NULL,	NULL,			NULL }
 };
 

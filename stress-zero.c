@@ -31,8 +31,8 @@
 
 static const stress_help_t help[] = {
 	{ NULL,	"zero N",	"start N workers exercising /dev/zero with read, mmap, ioctl, lseek" },
-	{ NULL, "zero-read",	"just exercise /dev/zero with reading" },
 	{ NULL,	"zero-ops N",	"stop after N /dev/zero bogo read operations" },
+	{ NULL, "zero-read",	"just exercise /dev/zero with reading" },
 	{ NULL,	NULL,		NULL }
 };
 

@@ -59,8 +59,8 @@ typedef void (*stress_fma_func_t)(stress_fma_t *fma);
 
 static const stress_help_t help[] = {
 	{ NULL,	"fma N",	"start N workers performing floating point multiply-add ops" },
-	{ NULL,	"fma-ops N",	"stop after N floating point multiply-add bogo operations" },
 	{ NULL, "fma-libc",	"use fma libc fused multiply-add helpers" },
+	{ NULL,	"fma-ops N",	"stop after N floating point multiply-add bogo operations" },
 	{ NULL,	NULL,		 NULL }
 };
 

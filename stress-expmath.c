@@ -39,8 +39,8 @@ typedef struct {
 
 static const stress_help_t help[] = {
 	{ NULL,	"expmath N",	 	"start N workers exercising exponential math functions" },
-	{ NULL,	"expmath-ops N",	"stop after N expmath bogo exponential math operations" },
 	{ NULL, "expmath-method M",	"select exponential math function to exercise" },
+	{ NULL,	"expmath-ops N",	"stop after N expmath bogo exponential math operations" },
 	{ NULL,	NULL,		 	NULL }
 };
 

@@ -33,8 +33,8 @@ typedef struct {
 
 static const stress_help_t help[] = {
 	{ NULL,	"besselmath N",	 	"start N workers exercising bessel math functions" },
-	{ NULL,	"besselmath-ops N",	"stop after N besselmath bogo bessel math operations" },
 	{ NULL, "besselmath-method M",	"select bessel math function to exercise" },
+	{ NULL,	"besselmath-ops N",	"stop after N besselmath bogo bessel math operations" },
 	{ NULL,	NULL,		 	NULL }
 };
 

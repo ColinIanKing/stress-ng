@@ -75,8 +75,8 @@ static const stress_help_t help[] = {
 	{ NULL, "malloc-pthreads N",	"number of pthreads to run concurrently" },
 	{ NULL,	"malloc-thresh N",	"threshold where malloc uses mmap instead of sbrk" },
 	{ NULL, "malloc-touch",		"touch pages force pages to be populated" },
-	{ NULL,	"malloc-zerofree",	"zero free'd memory" },
 	{ NULL, "malloc-trim",		"enable malloc trimming" },
+	{ NULL,	"malloc-zerofree",	"zero free'd memory" },
 	{ NULL,	NULL,			NULL }
 };
 

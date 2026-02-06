@@ -30,8 +30,8 @@
 
 static const stress_help_t help[] = {
 	{ NULL,	"physpage N",	  "start N workers performing physical page lookup" },
-	{ NULL,	"physpage-ops N", "stop after N physical page bogo operations" },
 	{ NULL,	"physpage-mtrr",  "enable modification of MTRR types on physical page" },
+	{ NULL,	"physpage-ops N", "stop after N physical page bogo operations" },
 	{ NULL,	NULL,		  NULL }
 };
 

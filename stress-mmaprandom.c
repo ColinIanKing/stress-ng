@@ -99,9 +99,9 @@
 
 static const stress_help_t help[] = {
 	{ NULL,	"mmaprandom N",	 	 "start N workers stressing random memory mapping operations" },
-	{ NULL,	"mmaprandom-ops N",	 "stop after N mmaprandom bogo operations" },
 	{ NULL, "mmaprandom-mappings N", "maximum number of mappings to be made" },
 	{ NULL,	"mmaprandom-numa",	 "move processes to randomly chosen NUMA nodes" },
+	{ NULL,	"mmaprandom-ops N",	 "stop after N mmaprandom bogo operations" },
 	{ NULL,	NULL,		 	 NULL }
 };
 

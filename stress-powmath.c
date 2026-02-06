@@ -39,8 +39,8 @@ typedef struct {
 
 static const stress_help_t help[] = {
 	{ NULL,	"powmath N",	 	"start N workers exercising power math functions" },
-	{ NULL,	"powmath-ops N",	"stop after N powmath bogo power math operations" },
 	{ NULL, "powmath-method M",	"select power math function to exercise" },
+	{ NULL,	"powmath-ops N",	"stop after N powmath bogo power math operations" },
 	{ NULL,	NULL,		 	NULL }
 };
 

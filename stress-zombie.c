@@ -105,9 +105,9 @@ static bool zombie_clone = false;
 
 static const stress_help_t help[] = {
 	{ NULL,	"zombie N",         "start N workers that rapidly create and reap zombies" },
+	{ NULL, "zombie-clone",	    "using clone instead of fork, exercise clone and network cleanup" },
 	{ NULL,	"zombie-max N",     "set upper limit of N zombies per worker" },
 	{ NULL,	"zombie-ops N",     "stop after N bogo zombie fork operations" },
-	{ NULL, "zombie-clone",	    "using clone instead of fork, exercise clone and network cleanup" },
 	{ NULL,	NULL,                NULL }
 };
 

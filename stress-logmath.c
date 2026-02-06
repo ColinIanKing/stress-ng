@@ -39,8 +39,8 @@ typedef struct {
 
 static const stress_help_t help[] = {
 	{ NULL,	"logmath N",	 	"start N workers exercising logarithmic math functions" },
-	{ NULL,	"logmath-ops N",	"stop after N logmath bogo logarithmic math operations" },
 	{ NULL, "logmath-method M",	"select logarithmic math function to exercise" },
+	{ NULL,	"logmath-ops N",	"stop after N logmath bogo logarithmic math operations" },
 	{ NULL,	NULL,		 NULL }
 };
 

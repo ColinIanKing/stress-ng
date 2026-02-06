@@ -77,8 +77,8 @@ typedef struct {
 
 static const stress_help_t help[] = {
 	{ "d N","pseek N",		"start N workers spinning on seek/write/seek/read" },
-	{ NULL, "pseek-rand",		"perform random seeks rather than fixed seeks" },
 	{ NULL,	"pseek-io-size N",	"set the default write/read I/O size to N bytes" },
+	{ NULL, "pseek-rand",		"perform random seeks rather than fixed seeks" },
 	{ NULL, NULL,			NULL }
 };
 

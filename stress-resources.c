@@ -38,9 +38,9 @@
 static const stress_help_t help[] = {
 	{ NULL,	"resources N",	     "start N workers consuming system resources" },
 	{ NULL,	"resources-mlock",   "attempt to mlock pages into memory" },
+	{ NULL, "resources-num N",   "number of resources to allocate per instance" },
 	{ NULL,	"resources-ops N",   "stop after N resource bogo operations" },
 	{ NULL, "resources-procs N", "number of child processes per instance" },
-	{ NULL, "resources-num N",   "number of resources to allocate per instance" },
 	{ NULL,	NULL,                NULL }
 };
 

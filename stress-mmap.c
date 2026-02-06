@@ -43,7 +43,6 @@ static const stress_help_t help[] = {
 	{ NULL,	"mmap N",	     "start N workers stressing mmap and munmap" },
 	{ NULL,	"mmap-async",	     "using asynchronous msyncs for file based mmap" },
 	{ NULL,	"mmap-bytes N",	     "mmap and munmap N bytes for each stress iteration" },
-	{ NULL, "mmap-stressful",    "enable most stressful mmap options (and slowest)" },
 	{ NULL,	"mmap-file",	     "mmap onto a file using synchronous msyncs" },
 	{ NULL, "mmap-madvise",	     "enable random madvise on mmap'd region" },
 	{ NULL,	"mmap-mergeable",    "where possible, flag mmap'd pages as mergeable" },
@@ -55,6 +54,7 @@ static const stress_help_t help[] = {
 	{ NULL,	"mmap-ops N",	     "stop after N mmap bogo operations" },
 	{ NULL, "mmap-osync",	     "enable O_SYNC on file" },
 	{ NULL,	"mmap-slow-munmap",  "munmap pages inefficiently one at a time" },
+	{ NULL, "mmap-stressful",    "enable most stressful mmap options (and slowest)" },
 	{ NULL,	"mmap-write-check", "set check value in each page and perform sanity read check" },
 	{ NULL,	NULL,		     NULL }
 };

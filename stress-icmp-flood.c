@@ -34,8 +34,8 @@
 
 static const stress_help_t help[] = {
 	{ NULL,	"icmp-flood N",		"start N ICMP packet flood workers" },
-	{ NULL,	"icmp-flood-ops N",	"stop after N ICMP bogo operations (ICMP packets)" },
 	{ NULL, "icmp-flood-max-size",	"use randomized packet sizes up to 65535 bytes" },
+	{ NULL,	"icmp-flood-ops N",	"stop after N ICMP bogo operations (ICMP packets)" },
 	{ NULL,	NULL,			NULL }
 };
 

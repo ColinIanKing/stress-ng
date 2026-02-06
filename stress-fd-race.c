@@ -56,8 +56,8 @@ typedef struct stress_fd_race_filename {
 
 static const stress_help_t help[] = {
 	{ NULL,	"fd-race N",	 "start N workers sending file descriptors over sockets" },
-	{ NULL,	"fd-race-ops N", "stop after N fd_race bogo operations" },
 	{ NULL, "fd-race-dev",	 "race on /dev/* files" },
+	{ NULL,	"fd-race-ops N", "stop after N fd_race bogo operations" },
 	{ NULL, "fd-race-proc",	 "race on /proc/* files" },
 	{ NULL,	NULL,		 NULL }
 };

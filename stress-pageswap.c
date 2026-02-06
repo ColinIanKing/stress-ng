@@ -25,8 +25,8 @@
 
 static const stress_help_t help[] = {
 	{ NULL,	"pageswap N",       "start N workers that swap pages out and in" },
-	{ NULL, "pageswap-pages N", "specify maximum number of pages to swap out" },
 	{ NULL,	"pageswap-ops N",   "stop after N page swap bogo operations" },
+	{ NULL, "pageswap-pages N", "specify maximum number of pages to swap out" },
 	{ NULL,	NULL,               NULL }
 };
 

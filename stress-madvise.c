@@ -32,8 +32,8 @@
 static const stress_help_t help[] = {
 	{ NULL,	"madvise N",	 	"start N workers exercising madvise on memory" },
 	{ NULL, "madvise-bytes N",	"specify size of memory being madvise'd" },
-	{ NULL,	"madvise-ops N",	"stop after N bogo madvise operations" },
 	{ NULL,	"madvise-hwpoison",	"enable hardware page poisoning (disabled by default)" },
+	{ NULL,	"madvise-ops N",	"stop after N bogo madvise operations" },
 	{ NULL,	NULL,			NULL }
 };
 

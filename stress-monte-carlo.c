@@ -51,10 +51,10 @@ typedef struct {
 
 static const stress_help_t help[] = {
 	{ NULL,	"monte-carlo N",	"start N workers performing monte-carlo computations" },
+	{ NULL,	"monte-carlo-method M",	"select computation method [ pi | e | exp | sin | sqrt | squircle ]" },
 	{ NULL,	"monte-carlo-ops N",	"stop after N monte-carlo operations" },
 	{ NULL, "monte-carlo-rand R",	"select random number generator [ all | drand48 | getrandom | lcg | pcg32 | mwc32 | mwc64 | random | xorshift ]" },
 	{ NULL,	"monte-carlo-samples N","specify number of samples for each computation" },
-	{ NULL,	"monte-carlo-method M",	"select computation method [ pi | e | exp | sin | sqrt | squircle ]" },
 	{ NULL,	NULL,			NULL }
 };
 

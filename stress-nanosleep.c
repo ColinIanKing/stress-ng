@@ -67,9 +67,9 @@ static sigset_t set;
 
 static const stress_help_t help[] = {
 	{ NULL,	"nanosleep N",		"start N workers performing short sleeps" },
+	{ NULL,	"nanosleep-method M",	"select nanosleep sleep time method [ all | cstate | random ]" },
 	{ NULL,	"nanosleep-ops N",	"stop after N bogo sleep operations" },
 	{ NULL,	"nanosleep-threads N",	"number of threads to run concurrently (default 8)" },
-	{ NULL,	"nanosleep-method M",	"select nanosleep sleep time method [ all | cstate | random ]" },
 	{ NULL,	NULL,			NULL }
 };
 

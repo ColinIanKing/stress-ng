@@ -49,8 +49,8 @@ typedef struct {
 
 static const stress_help_t help[] = {
 	{ NULL,	"fd-fork N",		"start N workers exercising dup/fork/close" },
-	{ NULL, "fd-fork-file file",	"select file to dup [ null, random, stdin, stdout, zero ]" },
 	{ NULL,	"fd-fork-fds N",	"set maximum number of file descriptors to use" },
+	{ NULL, "fd-fork-file file",	"select file to dup [ null, random, stdin, stdout, zero ]" },
 	{ NULL,	"fd-fork-ops N",	"stop after N dup/fork/close bogo operations" },
 	{ NULL,	NULL,			NULL }
 };

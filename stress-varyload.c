@@ -64,10 +64,10 @@ typedef struct {
 
 static const stress_help_t help[] = {
 	{ NULL,	"varyload N",		"start N workers that exercise a mix of scheduling loads" },
-	{ NULL,	"varyload-ops N",	"stop after N varyload bogo operations" },
-	{ NULL, "varyload-ms M",	"vary workload every M milliseconds" },
-	{ NULL, "varyload-sched P",	"select scheduler policy [ batch | deadline | ext | fifo | idle | rr | other ]" },
 	{ NULL, "varyload-method M",	"select a varyload method, default is all" },
+	{ NULL, "varyload-ms M",	"vary workload every M milliseconds" },
+	{ NULL,	"varyload-ops N",	"stop after N varyload bogo operations" },
+	{ NULL, "varyload-sched P",	"select scheduler policy [ batch | deadline | ext | fifo | idle | rr | other ]" },
 	{ NULL, "varyload-type T",	"select a varyload load type [ brown | saw-inc | saw-dec | triangle | pulse | random ]" },
 	{ NULL,	NULL,			NULL }
 };

@@ -37,9 +37,9 @@
 
 static const stress_help_t help[] = {
 	{ NULL,	"msg N",	"start N workers stressing System V messages" },
+	{ NULL, "msg-bytes N",	"set the message size 4..8192" },
 	{ NULL,	"msg-ops N",	"stop msg workers after N bogo messages" },
 	{ NULL, "msg-types N",	"enable N different message types" },
-	{ NULL, "msg-bytes N",	"set the message size 4..8192" },
 	{ NULL,	NULL,		NULL }
 };
 

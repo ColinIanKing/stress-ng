@@ -31,8 +31,8 @@
 
 static const stress_help_t help[] = {
 	{ NULL,	"bad-ioctl N",		"start N stressors that perform illegal ioctls on devices" },
-	{ NULL,	"bad-ioctl-ops  N",	"stop after N bad ioctl bogo operations" },
 	{ NULL,	"bad-ioctl-method M",	"method of selecting ioctl command [ random | inc | random-inc | stride ]" },
+	{ NULL,	"bad-ioctl-ops  N",	"stop after N bad ioctl bogo operations" },
 	{ NULL,	NULL,			NULL }
 };
 

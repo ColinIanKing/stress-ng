@@ -37,8 +37,8 @@ typedef struct {
 
 static const stress_help_t help[] = {
 	{ NULL,	"chyperbolic N",	"start N workers exercising complex hyperbolic functions" },
-	{ NULL,	"chyperbolic-ops N",	"stop after N chyperbolic bogo complex hyperbolic function operations" },
 	{ NULL, "chyperbolic-method M",	"select complex hyperbolic function to exercise" },
+	{ NULL,	"chyperbolic-ops N",	"stop after N chyperbolic bogo complex hyperbolic function operations" },
 	{ NULL,	NULL,		 	NULL }
 };
 
