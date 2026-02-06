@@ -67,10 +67,14 @@ _stress_ng()
 	'--besselmath-method' | \
 	'--bitops-method' | \
 	'--bsearch-method' | \
+	'--bubblesort-method' | \
 	'--cacheline-method' | \
+	'--chyperbolic-method' | \
 	'--cpu-method' | \
 	'--crypt-method' | \
+	'--ctrig-method' | \
 	'--cyclic-method' | \
+	'--dfp-method' | \
 	'--eigen-method' | \
 	'--exec-fork-method' | \
 	'--exec-method' | \
@@ -82,6 +86,8 @@ _stress_ng()
 	'--hash-method' | \
 	'--heapsort-method' | \
 	'--hsearch-method' | \
+	'--hyperbolic-method' | \
+	'--intmath-method' | \
 	'--ipsec-mb-method' | \
 	'--l1cache-method' | \
 	'--list-method' | \
@@ -90,6 +96,7 @@ _stress_ng()
 	'--matrix-method' | \
 	'--matrix-3d-method' | \
 	'--memcpy-method' | \
+	'--memrate-method' | \
 	'--memthrash-method' | \
 	'--mergesort-method' | \
 	'--misaligned-method' | \
@@ -106,12 +113,15 @@ _stress_ng()
 	'--rawdev-method' | \
 	'--rotate-method' | \
 	'--sparsematrix-method' | \
+	'--spinmem-method' | \
 	'--str-method' | \
+	'--strnum-method' | \
 	'--switch-method' | \
 	'--syscall-method' | \
 	'--touch-method' | \
 	'--tree-method' | \
 	'--trig-method' | \
+	'--varyload-method' | \
 	'--vecfp-method' | \
 	'--vecshuf-method' | \
 	'--vm-method' | \
