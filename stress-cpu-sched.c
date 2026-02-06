@@ -698,9 +698,7 @@ static int stress_cpu_sched_child(stress_args_t *args, void *context)
 	(void)prctl(PR_SET_TIMERSLACK, 5);
 #endif
 
-	(void)shim_memset(pids, 0, sizeof(pids));
-	for (i = 0; i < cpu_sched_procs; i++)
-		stress_cpu_sched_pids[i].pid = -1;
+	stress_sync_init_pids(pids, MAX_CPU_SCHED_PROCS);
 
 	for (i = 0; LIKELY((i < cpu_sched_procs) && stress_continue(args)); i++) {
 		pid_t pid;
