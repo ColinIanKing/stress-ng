@@ -26,7 +26,7 @@
 #include <math.h>
 
 #define MIN_MONTE_CARLO_SAMPLES	(1)
-#define MAX_MONTE_CARLO_SAMPLES	(0xffffffffULL)
+#define MAX_MONTE_CARLO_SAMPLES	(0x7FFFFFFFFFFFFFFFULL)
 
 /* Don't use HAVE_ASM_X86_RDRAND for now, it is too slow */
 #undef HAVE_ASM_X86_RDRAND
@@ -41,7 +41,7 @@ typedef struct {
 typedef struct {
 	const char *name;
 	double expected;
-	double (*method)(const stress_monte_carlo_rand_info_t *info, const uint32_t samples);
+	double (*method)(const stress_monte_carlo_rand_info_t *info, const uint64_t samples);
 } stress_monte_carlo_method_t;
 
 typedef struct {
@@ -313,10 +313,10 @@ static const stress_monte_carlo_rand_info_t rand_info[] = {
  */
 static double OPTIMIZE3 stress_monte_carlo_pi(
 	const stress_monte_carlo_rand_info_t *info,
-	const uint32_t samples)
+	const uint64_t samples)
 {
 	register uint64_t pi_count = 0;
-	register uint32_t i = samples;
+	register uint64_t i = samples;
 
 	while (i > 0) {
 		register uint32_t j;
@@ -343,10 +343,10 @@ static double OPTIMIZE3 stress_monte_carlo_pi(
  */
 static double OPTIMIZE3 stress_monte_carlo_e(
 	const stress_monte_carlo_rand_info_t *info,
-	const uint32_t samples)
+	const uint64_t samples)
 {
 	register uint64_t count = 0;
-	register uint32_t i = samples;
+	register uint64_t i = samples;
 
 	while (i > 0) {
 		register uint32_t j;
@@ -373,9 +373,9 @@ static double OPTIMIZE3 stress_monte_carlo_e(
  */
 static double OPTIMIZE3 stress_monte_carlo_sin(
 	const stress_monte_carlo_rand_info_t *info,
-	const uint32_t samples)
+	const uint64_t samples)
 {
-	register uint32_t i = samples;
+	register uint64_t i = samples;
 	double sum = 0.0;
 
 	while (i > 0) {
@@ -400,9 +400,9 @@ static double OPTIMIZE3 stress_monte_carlo_sin(
  */
 static double OPTIMIZE3 stress_monte_carlo_exp(
 	const stress_monte_carlo_rand_info_t *info,
-	const uint32_t samples)
+	const uint64_t samples)
 {
-	register uint32_t i = samples;
+	register uint64_t i = samples;
 	double sum = 0.0;
 
 	while (i > 0) {
@@ -427,9 +427,9 @@ static double OPTIMIZE3 stress_monte_carlo_exp(
  */
 static double OPTIMIZE3 stress_monte_carlo_sqrt(
 	const stress_monte_carlo_rand_info_t *info,
-	const uint32_t samples)
+	const uint64_t samples)
 {
-	register uint32_t i = samples;
+	register uint64_t i = samples;
 	double sum = 0.0;
 
 	while (i > 0) {
@@ -454,10 +454,10 @@ static double OPTIMIZE3 stress_monte_carlo_sqrt(
  */
 static double OPTIMIZE3 stress_monte_carlo_squircle(
 	const stress_monte_carlo_rand_info_t *info,
-	const uint32_t samples)
+	const uint64_t samples)
 {
 	register uint64_t area_count = 0;
-	register uint32_t i = samples;
+	register uint64_t i = samples;
 
 	while (i > 0) {
 		register uint32_t j;
@@ -504,7 +504,7 @@ static const char *stress_monte_carlo_rand(const size_t i)
 static const stress_opt_t opts[] = {
 	{ OPT_monte_carlo_method,  "monte-carlo-method",  TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_monte_carlo_method },
 	{ OPT_monte_carlo_rand,    "monte-carlo-rand",    TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_monte_carlo_rand },
-	{ OPT_monte_carlo_samples, "monte-carlo-samples", TYPE_ID_UINT32, MIN_MONTE_CARLO_SAMPLES, MAX_MONTE_CARLO_SAMPLES, NULL },
+	{ OPT_monte_carlo_samples, "monte-carlo-samples", TYPE_ID_UINT64, MIN_MONTE_CARLO_SAMPLES, MAX_MONTE_CARLO_SAMPLES, NULL },
 	END_OPT,
 };
 
@@ -513,7 +513,7 @@ static const stress_opt_t opts[] = {
 
 static void stress_monte_carlo_by_rand(
 	stress_args_t *args,
-	uint32_t monte_carlo_samples,
+	uint64_t monte_carlo_samples,
 	const size_t rand,
 	const size_t method,
 	stress_metrics_t metrics[METHODS_MAX][RANDS_MAX],
@@ -549,7 +549,7 @@ static void stress_monte_carlo_by_rand(
 
 static void stress_monte_carlo_by_method(
 	stress_args_t *args,
-	uint32_t monte_carlo_samples,
+	uint64_t monte_carlo_samples,
 	const size_t rand,
 	const size_t method,
 	stress_metrics_t metrics[METHODS_MAX][RANDS_MAX],
@@ -574,7 +574,7 @@ static void stress_monte_carlo_by_method(
  */
 static int stress_monte_carlo(stress_args_t *args)
 {
-	uint32_t monte_carlo_samples;
+	uint64_t monte_carlo_samples;
 	size_t monte_carlo_method, monte_carlo_rand = 0;
 	stress_metrics_t metrics[METHODS_MAX][RANDS_MAX];
 	stress_monte_carlo_result_t results[METHODS_MAX][RANDS_MAX];
