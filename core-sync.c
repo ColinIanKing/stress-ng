@@ -18,6 +18,7 @@
  */
 
 #include "stress-ng.h"
+#include "core-bitops.h"
 #include "core-sync.h"
 
 /*
@@ -184,4 +185,80 @@ void stress_sync_start_cont_list(stress_pid_t *s_pids_head)
 			(void)shim_usleep(10000);
 		} while (stress_continue_flag());
 	}
+}
+
+/*
+ *  stress_sync_order_pid_hash()
+ *	create a 1 to 1 mapping of pid to hash by just reversing
+ *	the bits. For ascending ordered pids this creates a mapping
+ *	that can be inseted into a binary tree with a fairly good
+ *	left/right balance
+ */
+static OPTIMIZE3 pid_t stress_sync_order_pid_hash(const pid_t pid)
+{
+	switch (sizeof(pid)) {
+	case 2:
+		return (pid_t)stress_bitops_reverse16((uint64_t)pid);
+	case 4:
+		return (pid_t)stress_bitops_reverse32((uint64_t)pid);
+	case 8:
+		return (pid_t)stress_bitops_reverse64((uint64_t)pid);
+	}
+	return (pid_t)stress_bitops_reverse64((uint64_t)pid);
+}
+
+/*
+ *  stress_sync_init_pids()
+ *	initialize all the fields of an s_pids array of size n_pids
+ */
+void stress_sync_init_pids(stress_pid_t *s_pids, const size_t n_pids)
+{
+	size_t i;
+
+	for (i = 0; i < n_pids; i++) {
+		s_pids[i].next = NULL;
+		s_pids[i].left = NULL;
+		s_pids[i].right = NULL;
+		s_pids[i].pid = -1;
+		s_pids[i].pid_hash = -1;
+		s_pids[i].oomable_child = 0;
+		s_pids[i].state = STRESS_SYNC_START_FLAG_WAITING;
+		s_pids[i].reaped = false;
+		s_pids[i].wait_status = 0;
+	}
+}
+
+/*
+ *  stress_sync_order_pid()
+ *	add s_pid into a ordered binary tree with the root as head
+ *	using the PID as the key (mashed by the pid hashing) for
+ *	a relatively good balance.
+ */
+void OPTIMIZE3 stress_sync_order_pid(stress_pid_t **head, stress_pid_t *s_pid)
+{
+	register const pid_t pid_hash = stress_sync_order_pid_hash(s_pid->pid);
+
+	while (*head) {
+		head = (pid_hash <= (*head)->pid_hash) ?
+                        &(*head)->left : &(*head)->right;
+        }
+	s_pid->pid_hash = pid_hash;
+        *head = s_pid;
+}
+
+/*
+ *  struct_sync_find_pid()
+ *	find a PID in a the binary tree head
+ */
+stress_pid_t * OPTIMIZE3 struct_sync_find_pid(stress_pid_t *head, const pid_t pid)
+{
+	register const pid_t pid_hash = stress_sync_order_pid_hash(pid);
+
+        while (head) {
+                if (pid_hash == head->pid_hash)
+                        return head;
+                head = (pid_hash <= head->pid_hash) ?
+			head->left : head->right;
+        }
+        return NULL;
 }

@@ -194,7 +194,10 @@
 /* Process tracking info via pid */
 typedef struct stress_pid {
 	struct stress_pid *next;	/* next stress_pid in list, or NULL */
+	struct stress_pid *left;	/* left tree node */
+	struct stress_pid *right;	/* right node node */
 	pid_t pid;			/* PID of process */
+	pid_t pid_hash;			/* PID hash */
 	pid_t oomable_child;		/* oomable child pid, zero = none */
 	volatile uint8_t state;		/* sync start state */
 	bool reaped;			/* successfully waited for */
