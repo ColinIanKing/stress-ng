@@ -179,8 +179,7 @@ static int stress_resched(stress_args_t *args)
 			args->name, s_pids_max, stress_get_memfree_str());
 		return EXIT_NO_RESOURCE;
 	}
-	for (i = 0; i < s_pids_max; i++)
-		s_pids[i].pid = -1;
+	stress_sync_init_pids(s_pids, s_pids_max);
 
 	if (stress_signal_handler(args->name, SIGUSR1, stress_resched_usr1_handler, NULL) < 0) {
 		rc = EXIT_NO_RESOURCE;
