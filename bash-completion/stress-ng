@@ -179,9 +179,12 @@ _stress_ng()
 	'--affinity-pin' | \
 	'--affinity-rand' | \
 	'--aggressive' | \
+	'--autogroup' | \
 	'--bigheap-mlock' | \
 	'--brk-mlock' | \
 	'--brk-notouch' | \
+	'--buildinfo' | \
+	'--c-states' | \
 	'--cache-cldemote' | \
 	'--cache-clflushopt' | \
 	'--cache-clwb' | \
@@ -189,17 +192,25 @@ _stress_ng()
 	'--cache-fence' | \
 	'--cache-flush' | \
 	'--cache-no-affinity' | \
+	'--cache-permute' | \
 	'--cache-prefetch' | \
+	'--cache-prefetchw' | \
 	'--cache-sfence' | \
+	'--cachehammer-numa' | \
 	'--cacheline-affinity' | \
+	'--compact-memory' | \
 	'--change-cpu' | \
 	'--config' | \
-	'--cpu-online-affinity0,' | \
+	'--cpu-online-affinity,' | \
 	'--cpu-online-all' | \
 	'--daemon-wait' | \
 	'--dry-run' | \
 	'--eventfd-nonblock' | \
 	'--exec-no-pthread' | \
+	'--far-branch-flush' | \
+	'--far-branch-pageout' | \
+	'--fd-race-dev' | \
+	'--fd-race-proc' | \
 	'--fma-libc' | \
 	'--fork-pageout' | \
 	'--fork-unmap' | \
@@ -211,6 +222,7 @@ _stress_ng()
 	'--help' | \
 	'--ignite-cpu' | \
 	'--interrupts' | \
+	'--intmath-fast' | \
 	'--io-uring-rand' | \
 	'--itimer-rand' | \
 	'--keep-files' | \
@@ -219,12 +231,15 @@ _stress_ng()
 	'--ksm' | \
 	'--l1cache-mlock' | \
 	'--link-sync' | \
+	'--llc-affinity-clflush' | \
 	'--llc-affinity-mlock' | \
+	'--llc-affinity-numa' | \
 	'--lockbus-nosplit' | \
 	'--lockf-nonblock' | \
 	'--log-brief' | \
 	'--log-lockless' | \
 	'--madvise-hwpoison' | \
+	'--make-it-fail' | \
 	'--malloc-mlock' | \
 	'--malloc-touch' | \
 	'--malloc-trim' | \
@@ -232,40 +247,55 @@ _stress_ng()
 	'--matrix-yx' | \
 	'--matrix-3d-zyx' | \
 	'--maximize' | \
+	'--mcontend-numa' | \
 	'--memfd-madvise' | \
 	'--memfd-mlock' | \
+	'--memfd-numa' | \
 	'--memfd-zap-pte' | \
 	'--memhotplug-mmap' | \
+	'--memrate-discontiguous' | \
 	'--memrate-flush' | \
 	'--metrics' | \
 	'--metrics-brief' | \
 	'--mincore-random' | \
-	'--min-nanosleep-sched1,' | \
+	'--min-nanosleep-sched,' | \
 	'--minimize' | \
 	'--mmap-async' | \
 	'--mmap-file' | \
 	'--mmap-madvise' | \
 	'--mmap-mergeable' | \
-	'--mmap-mprotect' | \
 	'--mmap-mlock' | \
+	'--mmap-mprotect' | \
 	'--mmap-mmap2' | \
+	'--mmap-numa' | \
 	'--mmap-odirect' | \
 	'--mmap-osync' | \
 	'--mmap-slow-munmap' | \
 	'--mmap-stressful' | \
 	'--mmap-write-check' | \
 	'--mmapaddr-mlock' | \
+	'--mmapcow-free' | \
+	'--mmapcow-fork' | \
+	'--mmapcow-mlock' | \
+	'--mmapcow-numa' | \
+	'--mmapfiles-numa' | \
 	'--mmapfiles-populate' | \
 	'--mmapfiles-shared' | \
 	'--mmapfixed-mlock' | \
+	'--mmapfixed-numa' | \
 	'--mmaphuge-file' | \
 	'--mmaphuge-mlock' | \
+	'--mmaphuge-numa' | \
 	'--mmapmany-mlock' | \
+	'--mmapmany-numa' | \
+	'--mmaprandom-mappings' | \
+	'--mmaprandom-maxpages' | \
 	'--module-no-modver' | \
-	'--module-no-vermag' | \
 	'--module-no-unload' | \
-	'--monte-carlo-samples1,' | \
+	'--module-no-vermag' | \
+	'--monte-carlo-samples' | \
 	'--mremap-mlock' | \
+	'--mremap-numa' | \
 	'--mutex-affinity' | \
 	'--no-madvise' | \
 	'--no-oom-adjust' | \
@@ -274,28 +304,36 @@ _stress_ng()
 	'--numa-shuffle-addr' | \
 	'--numa-shuffle-node' | \
 	'--oomable' | \
+	'--oom-no-child' | \
 	'--oom-avoid' | \
 	'--open-fd' | \
 	'--page-in' | \
 	'--pagemove-mlock' | \
+	'--pagemove-numa' | \
 	'--pathological' | \
 	'--perf' | \
 	'--physpage-mtrr' | \
+	'--physmmap-read' | \
 	'--pipe-vmsplice' | \
 	'--pipeherd-yield' | \
 	'--prime-progress' | \
 	'--progress' | \
+	'--pseek-rand' | \
 	'--quiet' | \
 	'--ramfs-fill' | \
 	'--randlist-compact' | \
+	'--randprocname' | \
 	'--rapl' | \
 	'--rdrand-seed' | \
+	'--regs-bitflip' | \
 	'--remap-mlock' | \
 	'--resources-mlock' | \
 	'--ring-pipe-splice' | \
 	'--sched-reclaim' | \
 	'--schedpolicy-rand' | \
 	'--seek-punch' | \
+	'--sem-shared' | \
+	'--sem-sysv-setall' | \
 	'--settings' | \
 	'--shm-mlock' | \
 	'--shm-sysv-mlock' | \
@@ -305,19 +343,27 @@ _stress_ng()
 	'--sock-nodelay' | \
 	'--sock-zerocopy' | \
 	'--sockfd-reuse' | \
-	'--sparsematrix-method1,' | \
+	'--sparsematrix-method' | \
+	'--spinmem-affinity' | \
+	'--spinmem-numa' | \
+	'--spinmem-yield' | \
 	'--stack-fill' | \
 	'--stack-mlock' | \
 	'--stack-pageout' | \
 	'--stack-unmap' | \
 	'--stderr' | \
 	'--stdout' | \
+	'--stream-discontiguous' | \
+	'--stream-mlock' | \
+	'--stream-prefetch' | \
 	'--stressors' | \
+	'--stressor-time' | \
 	'--stream-mlock' | \
 	'--swap-self' | \
 	'--symlink-sync' | \
 	'--sync-start' | \
 	'--syslog' | \
+	'--taskset-random' | \
 	'--timer-rand' | \
 	'--timerfd-rand' | \
 	'--tmpfs-mmap-async' | \
@@ -337,12 +383,16 @@ _stress_ng()
 	'--verifiable' | \
 	'--version' | \
 	'--vforkmany-vm' | \
+	'--vm-discontiguous' | \
+	'--vm-flush' | \
 	'--vm-keep' | \
 	'--vm-locked' | \
 	'--vm-populate' | \
 	'--vm-addr-mlock' | \
+	'--vm-addr-numa' | \
 	'--vnni-intrinsic' | \
-	'--zero-read')
+	'--zero-read' | \
+	'--zombie-clone')
 		return 0
 		;;
 	-*)
