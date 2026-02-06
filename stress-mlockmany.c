@@ -148,13 +148,11 @@ static int stress_mlockmany_child(stress_args_t *args, void *context)
 		unsigned int n;
 		size_t shmall, freemem, totalmem, freeswap, totalswap, last_freeswap, last_totalswap;
 
-		(void)shim_memset(s_pids, 0, sizeof(*s_pids) * mlockmany_procs);
+		stress_sync_init_pids(s_pids, mlockmany_procs);
 		stress_get_memlimits(&shmall, &freemem, &totalmem, &last_freeswap, &last_totalswap);
 
 		for (n = 0; LIKELY(stress_continue(args) && (n < mlockmany_procs)); n++) {
 			pid_t pid;
-
-			s_pids[n].pid = -1;
 
 			/* In case we've missed SIGALRM */
 			if (UNLIKELY(stress_time_now() > args->time_end)) {
