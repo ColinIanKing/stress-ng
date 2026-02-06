@@ -151,8 +151,7 @@ static int stress_mmapfork(stress_args_t *args)
 	do {
 		size_t i, len;
 
-		for (i = 0; i < mmapfork_procs; i++)
-			s_pids[i].pid = -1;
+		stress_sync_init_pids(s_pids, mmapfork_procs);
 
 		for (i = 0; i < mmapfork_procs; i++) {
 			if (UNLIKELY(!stress_continue(args)))
