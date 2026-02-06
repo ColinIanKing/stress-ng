@@ -136,11 +136,10 @@ static int stress_resources(stress_args_t *args)
 
 	do {
 		size_t i, forked, reaped;
+		stress_pid_t *s_pids_head;
 
-		(void)shim_memset(s_pids, 0, sizeof(*s_pids) * resources_procs);
-
-		for (i = 0; i < resources_procs; i++)
-			s_pids[i].pid = -1;
+		stress_sync_init_pids(s_pids, resources_procs);
+		s_pids_head = NULL;
 
 		for (forked = 0, i = 0; i < resources_procs; i++) {
 			pid_t pid;
@@ -174,6 +173,8 @@ static int stress_resources(stress_args_t *args)
 				forked++;
 			}
 			s_pids[i].pid = pid;
+			stress_sync_order_pid(&s_pids_head, &s_pids[i]);
+
 			if (UNLIKELY(!stress_continue(args)))
 				break;
 			stress_bogo_inc(args);
@@ -181,9 +182,9 @@ static int stress_resources(stress_args_t *args)
 
 		reaped = 0;
 		do {
-			size_t j;
 			pid_t pid;
 			int status;
+			stress_pid_t *s_pid;
 
 			if (!stress_continue(args)) {
 				stress_resources_alarm(s_pids, resources_procs);
@@ -195,17 +196,14 @@ static int stress_resources(stress_args_t *args)
 			}
 			pid = waitpid(0, &status, 0);
 			/* retry on failures, such as EINTR */
-			if (pid < 0)
+			if (UNLIKELY(pid < 0))
 				continue;
 
-			/* Search for PID, mark it as reaped */
-			for (j = 0; j < resources_procs; j++) {
-				if (pid == s_pids[j].pid) {
-					s_pids[j].pid = -1;
-					reaped++;
-					break;
-				}
-			}
+			s_pid = struct_sync_find_pid(s_pids_head, pid);
+			if (UNLIKELY(s_pid == NULL))
+				continue;
+			s_pid->pid = -1;
+			reaped++;
 		} while (reaped < forked);
 	} while (stress_continue(args));
 
