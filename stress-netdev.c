@@ -42,7 +42,7 @@ static const stress_help_t help[] = {
     defined(HAVE_IFREQ)
 
 /*
- *  As per man 7 netdevice advise, workaround glibc 2.1 missing
+ *  As per man 7 netdevice advice, workaround glibc 2.1 missing
  *  ifr_newname
  */
 #ifndef ifr_newname
