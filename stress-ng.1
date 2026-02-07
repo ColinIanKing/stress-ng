@@ -7575,8 +7575,8 @@ localhost. Requires CAP_NET_RAW to run.
 stop rawsock workers after N packets are received.
 .TP
 .B \-\-rawsock\-port P
-start at socket port P. For N rawsock worker processes, ports P to P \(mi 1 are
-used.
+start at socket port P. For N rawsock worker processes, ports P to P \(pl (N \(mi 1) are
+used (wrapped to keep in range of 1024 to 65535).
 .RE
 .TP
 .B Localhost ethernet raw packets stressor
