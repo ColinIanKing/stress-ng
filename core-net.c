@@ -501,3 +501,14 @@ uint16_t CONST OPTIMIZE3 stress_net_ipv4_checksum(uint16_t *ptr, const size_t sz
 
 	return (uint16_t)~sum;
 }
+
+/*
+ *  stress_net_port_wraparound()
+ *	wrap overflowed port back round to start port
+ */
+int stress_net_port_wraparound(const int port)
+{
+	const int port_range = (MAX_PORT - MIN_PORT + 1);
+
+	return MIN_PORT + (((port - MIN_PORT) % port_range) + port_range) % port_range;
+}
