@@ -121,6 +121,55 @@ static int OPTIMIZE3 stress_bitops_abs(const char *name, uint32_t *count)
 }
 
 /*
+ *  stress_bitops_bswap()
+ *	byteswap value
+ */
+static int OPTIMIZE3 stress_bitops_bswap(const char *name, uint32_t *count)
+{
+	int32_t i;
+	uint32_t v = stress_mwc32();
+	uint32_t sum = 0;
+
+	for (i = 0; i < 1000; i++) {
+		register uint32_t bswap1, bswap2;
+
+		/* #1 bswap shift method 1 */
+		bswap1 = ((v >> 0) & 0xff) << 24 |
+			 ((v >> 8) & 0xff) << 16 |
+			 ((v >> 16) & 0xff) << 8 |
+			 (v >> 24) << 0;
+
+		/* #2 bswap, shift method 2 */
+		bswap2 = (v << 24) | (v >> 8);
+		bswap2 = (bswap2 & ~0x00ff0000u) | ((v <<  8) & 0x00ff0000u);
+		bswap2 = (bswap2 & ~0x000000ffu) | ((v >> 24) & 0x000000ffu);
+
+		if (UNLIKELY(bswap1 != bswap2)) {
+			pr_fail("%s: bswap method failure, value 0x%" PRIx32
+				", bswap1 = 0x%" PRIx32 ", bswap2 = 0x%" PRIx32 "\n",
+				name, v, bswap1, bswap2);
+			return EXIT_FAILURE;
+		}
+
+		/* #3 bswap bitops builtin */
+		bswap2 = stress_bitops_swap32(v);
+
+		if (UNLIKELY(bswap1 != bswap2)) {
+			pr_fail("%s: bswap method failure, value 0x%" PRIx32
+				", bswap1 = 0x%" PRIx32 ", bswap2 = 0x%" PRIx32 "\n",
+				name, v, bswap1, bswap2);
+			return EXIT_FAILURE;
+		}
+
+		v += stress_mwc32();
+		sum += bswap2;
+	}
+	stress_put_uint32(sum);
+	*count += (3 * i);
+	return EXIT_SUCCESS;
+}
+
+/*
  *  stress_bitops_countbits()
  *	count number of bits set
  */
@@ -1069,6 +1118,7 @@ static int OPTIMIZE3 stress_bitops_zerobyte(const char *name, uint32_t *count)
 static const stress_bitops_method_info_t bitops_methods[] = {
 	{ "all",		stress_bitops_all },	/* Special "all" test */
 	{ "abs",		stress_bitops_abs },
+	{ "bswap",		stress_bitops_bswap },
 	{ "countbits",		stress_bitops_countbits },
 	{ "clz",		stress_bitops_clz },
 	{ "ctz",		stress_bitops_ctz },

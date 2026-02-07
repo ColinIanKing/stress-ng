@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, may be w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "4 February 2026"
+.TH STRESS-NG 1 "7 February 2026"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -1197,6 +1197,10 @@ iterate over all the below bitops stress methods.
 T}
 abs	T{
 calculate the absolute value of a 32 bit signed integer. Computed two different ways, one with masking and addition, one with masking and subtraction.
+T}
+bswap	T{
+swap bytes in a 32 bit unsigned integer. Computed 3 ways, two with byte shifting and one using a builtin intrinsic. Some optimisers may
+convert these into a single bswap operation.
 T}
 countbits	T{
 count the number of bits set to 1 in a 32 bit unsigned integer. Computed six different ways, two with bit counting, one with 64 bit multiplication, one with parallelised masking and shifting, one using triple masking and shifts, one using a builtin popcount function.
