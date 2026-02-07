@@ -61,7 +61,7 @@ static const stress_help_t help[] = {
 	{ NULL,	"sctp-ops N",	   "stop after N SCTP bogo operations" },
 	{ NULL,	"sctp-port P",	   "use SCTP ports P to P + number of workers - 1" },
 	{ NULL, "sctp-sched S",	   "specify sctp scheduler" },
-	{ NULL,	NULL, 		 NULL }
+	{ NULL,	NULL,              NULL }
 };
 
 #if defined(HAVE_LIB_SCTP) &&	\
