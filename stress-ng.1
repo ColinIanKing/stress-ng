@@ -7591,8 +7591,8 @@ CAP_NET_RAW to run.
 stop rawpkt workers after N packets from the sender process are received.
 .TP
 .B \-\-rawpkt\-port N
-start at port P. For N rawpkt worker processes, ports P to (P \(mu 4) \(mi 1
-are used. The default starting port is port 14000.
+start at port P. For N rawpkt worker processes, ports P to P \(pl (N \(mi 1) are
+used (wrapped to keep in range of 1024 to 65535).
 .TP
 .B \-\-rawpkt\-rxring N
 setup raw packets with RX ring with N number of blocks, this selects TPACKET_V. N must

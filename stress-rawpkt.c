@@ -457,8 +457,7 @@ static int stress_rawpkt(stress_args_t *args)
 		rawpkt_rxring = 0;
 	}
 	rawpkt_port += args->instance;
-	if (rawpkt_port > MAX_PORT)
-		rawpkt_port -= (MAX_PORT - MIN_PORT + 1); /* Wrap round */
+	rawpkt_port = stress_net_port_wraparound(rawpkt_port);
 	reserved_port = stress_net_reserve_ports(args, rawpkt_port, rawpkt_port);
 	if (reserved_port < 0) {
 		pr_inf_skip("%s: cannot reserve port %d, skipping stressor\n",
