@@ -2313,8 +2313,8 @@ messages. If N is too small then the rate is throttled back by the overhead of d
 socket connect and disconnects.
 .TP
 .B \-\-dccp\-port P
-start DCCP at port P. For N dccp worker processes, ports P to P \(mi 1 are
-used.
+start DCCP at port P. For N dccp worker processes, ports P to P \(pl (N \(mi 1) are
+used (wrapped to keep in range of 1024 to 65535).
 .TP
 .B \-\-dccp\-ops N
 stop dccp stress workers after N bogo operations.
