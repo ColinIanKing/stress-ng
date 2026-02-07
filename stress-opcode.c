@@ -165,7 +165,6 @@ static struct sock_fprog prog = {
 
 static void MLOCKED_TEXT stress_opcode_child_sighandler(int signum)
 {
-
 	if ((signum >= 0) && (signum < MAX_SIGS)) {
 		const int saved_errno = errno;
 		volatile stress_opcode_state_t *vstate = (volatile stress_opcode_state_t *)state;
