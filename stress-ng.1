@@ -2314,7 +2314,7 @@ socket connect and disconnects.
 .TP
 .B \-\-dccp\-port P
 start DCCP at port P. For N dccp worker processes, ports P to P \(pl (N \(mi 1) are
-used (wrapped to keep in range of 1024 to 65535).
+used (wrapped to keep in range of 1024 to 65535). The default port is port 10000.
 .TP
 .B \-\-dccp\-ops N
 stop dccp stress workers after N bogo operations.
@@ -7576,7 +7576,7 @@ stop rawsock workers after N packets are received.
 .TP
 .B \-\-rawsock\-port P
 start at socket port P. For N rawsock worker processes, ports P to P \(pl (N \(mi 1) are
-used (wrapped to keep in range of 1024 to 65535).
+used (wrapped to keep in range of 1024 to 65535). The default port is port 45000.
 .RE
 .TP
 .B Localhost ethernet raw packets stressor
@@ -7592,7 +7592,7 @@ stop rawpkt workers after N packets from the sender process are received.
 .TP
 .B \-\-rawpkt\-port N
 start at port P. For N rawpkt worker processes, ports P to P \(pl (N \(mi 1) are
-used (wrapped to keep in range of 1024 to 65535).
+used (wrapped to keep in range of 1024 to 65535). The default port is port 14000.
 .TP
 .B \-\-rawpkt\-rxring N
 setup raw packets with RX ring with N number of blocks, this selects TPACKET_V. N must
