@@ -1696,6 +1696,7 @@ typedef enum {
 
 	OPT_tun,
 	OPT_tun_ops,
+	OPT_tun_port,
 	OPT_tun_tap,
 
 	OPT_udp,

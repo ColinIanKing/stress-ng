@@ -48,15 +48,20 @@ UNEXPECTED
 
 #define PACKETS_TO_SEND		(64)
 
+#define DEFAULT_TUN_PORT	(2000)
+
 static const stress_help_t help[] = {
 	{ NULL,	"tun N",	"start N workers exercising tun interface" },
 	{ NULL,	"tun-ops N",	"stop after N tun bogo operations" },
+	{ NULL, "tun-port P",	"use ports P to P + number of workers - 1" },
 	{ NULL, "tun-tap",	"use TAP interface instead of TUN" },
 	{ NULL,	NULL,		NULL }
 };
 
 static const stress_opt_t opts[] = {
-	{ OPT_tun_tap, "tun-tap", TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_tun_tap,  "tun-tap",  TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_tun_port, "tun-port", TYPE_ID_INT_PORT, MIN_PORT, MAX_PORT, NULL },
+
 	END_OPT,
 };
 
@@ -103,11 +108,14 @@ static int stress_tun_supported(const char *name)
 static int stress_tun(stress_args_t *args)
 {
 	int rc = EXIT_SUCCESS;
+	int tun_port = DEFAULT_TUN_PORT;
 	const uid_t owner = geteuid();
 	const gid_t group = getegid();
 	char ip_addr[32];
 	bool tun_tap = false;
+	const uint16_t modulo = (uint16_t)(args->instances & 0xffff) + 16;
 
+	(void)stress_get_setting("tun-port", &tun_port);
 	(void)stress_get_setting("tun-tap", &tun_tap);
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
@@ -119,7 +127,10 @@ static int stress_tun(stress_args_t *args)
 		pid_t pid;
 		struct ifreq ifr;
 		struct sockaddr_in *tun_addr;
-		int port = 2000 + (stress_mwc16() & 0xfff);
+		int port = tun_port + stress_mwc16modn(modulo);
+
+		if (port > MAX_PORT)
+			port = (port - MAX_PORT) + MIN_PORT;
 
 		port = stress_net_reserve_ports(args, port, port);
 		if (UNLIKELY(port < 0))

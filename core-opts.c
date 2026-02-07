@@ -1215,6 +1215,7 @@ const struct option stress_long_options[] = {
 	{ "tz",			0,	0,	OPT_thermal_zones },
 	{ "tun",		1,	0,	OPT_tun },
 	{ "tun-ops",		1,	0,	OPT_tun_ops },
+	{ "tun-port",		1,	0,	OPT_tun_port },
 	{ "tun-tap",		0,	0,	OPT_tun_tap },
 	{ "udp",		1,	0,	OPT_udp },
 	{ "udp-domain",		1,	0,	OPT_udp_domain },
