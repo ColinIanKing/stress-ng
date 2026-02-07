@@ -7614,8 +7614,8 @@ up or does not support the domain then the loopback (lo) interface is used as th
 stop rawudp workers after N packets are received.
 .TP
 .B \-\-rawudp\-port N
-start at port P. For N rawudp worker processes, ports P to (P \(mu 4) - 1
-are used. The default starting port is port 13000.
+start at port P. For N rawudp worker processes, ports P to P \(pl (N \(mi 1) are
+used (wrapped to keep in range of 1024 to 65535). The default port is port 13000.
 .RE
 .TP
 .B Random number generator stressor
