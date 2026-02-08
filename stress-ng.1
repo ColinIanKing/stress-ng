@@ -8562,8 +8562,8 @@ of one of these 3 on each iteration. Note that sendmmsg is only available for
 Linux systems that support this system call.
 .TP
 .B \-\-sock\-port P
-start at socket port P. For N socket worker processes, ports P to P \(mi 1 are
-used.
+start at socket port P. For N socket worker processes, ports P to P \(pl (N \(mi 1) are
+used (wrapped to keep in range of 1024 to 65535). The default port is port 2000.
 .TP
 .B \-\-sock\-protocol P
 Use the specified protocol P, default is tcp. Options are tcp and mptcp (if
