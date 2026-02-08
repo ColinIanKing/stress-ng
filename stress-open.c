@@ -1204,11 +1204,34 @@ close_all:
 		 */
 		shim_sync();
 		errno = 0;
+
+		/*
+		 *  close a random fd to see if close range
+		 *  or close break on a duplicated close
+		 */
+		i = stress_mwc32modn(max_fd - min_fd + 1) + min_fd;
+		(void)close(fds[i]);
+
 		ret = shim_close_range(min_fd, max_fd, 0);
 		if (ret < 0) {
 			for (i = 0; i < n; i++)
-				(void)close(fds[i]);
+				if (fds[i] != -1)
+					(void)close(fds[i]);
 		}
+#if defined(F_GETFL)
+		/*
+		 *  verify that F_GETFL always fails on all
+		 *  closed file descriptors
+		 */
+		for (i = 0; i < n; i++) {
+			if (fds[i] != -1) {
+				if (fcntl(fds[i], F_GETFL) >= 0) {
+					pr_inf("%s: close of file descriptor %d failed\n",
+						args->name, fds[i]);
+				}
+			}
+		}
+#endif
 	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
@@ -1231,6 +1254,7 @@ close_all:
 const stressor_info_t stress_open_info = {
 	.stressor = stress_open,
 	.classifier = CLASS_FILESYSTEM | CLASS_OS,
+	.verify = VERIFY_ALWAYS,
 	.opts = opts,
 	.help = help
 };
