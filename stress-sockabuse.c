@@ -375,6 +375,7 @@ static int stress_sockabuse(stress_args_t *args)
 	(void)stress_get_setting("sockabuse-port", &sockabuse_port);
 
 	sockabuse_port += args->instance;
+	sockabuse_port = stress_net_port_wraparound(sockabuse_port);
 	if (sockabuse_port > MAX_PORT)
 		sockabuse_port -= (MAX_PORT - MIN_PORT + 1);
 	reserved_port = stress_net_reserve_ports(args, sockabuse_port, sockabuse_port);

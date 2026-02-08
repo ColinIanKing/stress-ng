@@ -8589,8 +8589,8 @@ illegal and unexpected calls gracefully.
 stop after N iterations of the socket abusing stressor loop.
 .TP
 .B \-\-sockabuse\-port P
-start at socket port P. For N sockabuse worker processes, ports P to P \(mi 1 are
-used.
+start at socket port P. For N sockabuse worker processes, ports P to P \(pl (N \(mi 1) are
+used (wrapped to keep in range of 1024 to 65535). The default port is port 12000.
 .RE
 .TP
 .B Socket diagnostic stressor (Linux)
