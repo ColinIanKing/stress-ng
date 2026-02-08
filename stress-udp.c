@@ -446,8 +446,7 @@ static int stress_udp(stress_args_t *args)
 	}
 #endif
 	udp_port += args->instance;
-	if (udp_port > MAX_PORT)
-		udp_port -= (MAX_PORT - MIN_PORT + 1);
+	udp_port = stress_net_port_wraparound(udp_port);
 	reserved_port = stress_net_reserve_ports(args, udp_port, udp_port);
 	if (reserved_port < 0) {
 		pr_inf_skip("%s: cannot reserve port %d, skipping stressor\n",

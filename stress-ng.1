@@ -9631,8 +9631,8 @@ specify the maximum data size in bytes, range 16 to 65507.
 stop udp stress workers after N bogo operations.
 .TP
 .B \-\-udp\-port P
-start at port P. For N udp worker processes, ports P to P \(mi 1 are used. By
-default, ports 7000 upwards are used.
+start at port P. For N udp worker processes, ports P to P \(pl (N \(mi 1) are
+used (wrapped to keep in range of 1024 to 65535). The default port is port 7000.
 .RE
 .TP
 .B UDP flooding stressor
