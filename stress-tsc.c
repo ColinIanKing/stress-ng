@@ -62,7 +62,8 @@ static int stress_tsc_supported(const char *name)
 	return 0;
 }
 
-static inline uint64_t rdtsc(void) {
+static inline uint64_t rdtsc(void)
+{
 	return stress_asm_loong64_rdtime();
 }
 
