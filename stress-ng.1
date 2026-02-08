@@ -2719,7 +2719,7 @@ stop epoll workers after N bogo operations.
 .B \-\-epoll\-port P
 start at socket port P. For N epoll worker processes, ports P to (P \(mu 4) \(mi 1
 are used for ipv4, ipv6 domains and ports P to P \(mi 1 are used for the unix
-domain.
+domain. Ports wrapped to keep in range of 1024 to 65535. The default port is port 6000.
 .TP
 .B \-\-epoll\-sockets N
 specify the maximum number of concurrently open sockets allowed in the server.
