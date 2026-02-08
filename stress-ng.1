@@ -8620,8 +8620,6 @@ the CMSG data and immediately closes the files.
 stop sockfd stress workers after N bogo operations.
 .TP
 .B \-\-sockfd\-port P
-start at socket port P. For N socket worker processes, ports P to P \(mi 1 are
-used.
 start at socket port P. For N sockfd worker processes, ports P to P \(pl (N \(mi 1) are
 used (wrapped to keep in range of 1024 to 65535). The default port is port 8000.
 .TP
@@ -8649,8 +8647,8 @@ as 8.
 stop after N connections.
 .TP
 .B \-\-sockmany\-port P
-start at socket port P. For N sockmany worker processes, ports P to P \(mi 1 are
-used.
+start at socket port P. For N sockmany worker processes, ports P to P \(pl (N \(mi 1) are
+used (wrapped to keep in range of 1024 to 65535). The default port is port 11000.
 .RE
 .TP
 .B Socket I/O stressor
