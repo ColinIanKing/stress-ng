@@ -129,9 +129,7 @@ static int stress_tun(stress_args_t *args)
 		struct sockaddr_in *tun_addr;
 		int port = tun_port + stress_mwc16modn(modulo);
 
-		if (port > MAX_PORT)
-			port = (port - MAX_PORT) + MIN_PORT;
-
+		port = stress_net_port_wraparound(port);
 		port = stress_net_reserve_ports(args, port, port);
 		if (UNLIKELY(port < 0))
 			continue;	/* try again */

@@ -9592,8 +9592,8 @@ packets over the tunnel using UDP and then destroys it. A new random
 stop after N iterations of creating/sending/receiving/destroying a tunnel.
 .TP
 .B \-\-tun\-port P
-start at port P. For N tun worker processes, ports P to P \(pl (N \(pl 16) \(mi 1 are used
-(with a wraparound back to 1024 if larger than 65535). By default, ports 2000 upwards are used.
+start at port P. For N tun worker processes, ports P to P \(pl (N \(pl 16) \(mi 1 are
+used (wrapped to keep in range of 1024 to 65535). The default port is port 2000.
 .TP
 .B \-\-tun\-tap
 use network tap device using level 2 frames (bridging) rather than a tun device
