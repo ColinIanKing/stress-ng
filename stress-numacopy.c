@@ -239,6 +239,12 @@ static int stress_numacopy(stress_args_t *args)
 		lret = shim_mbind(numa_pages[node], (unsigned long int)page_size, mode, numa_mask->mask,
 				numa_mask->max_nodes, MPOL_MF_MOVE | MPOL_MF_STRICT);
 		if (UNLIKELY(lret < 0)) {
+			if (errno == ENOSYS) {
+				pr_inf_skip("%s: mbind not availed, errno=%d (%s), skipping stressor\n",
+					args->name, errno, strerror(errno));
+				rc = EXIT_NO_RESOURCE;
+				goto err;
+			}
 			pr_fail("%s: mbind to node %ld using MPOL_MF_MOVE failed, errno=%d (%s)\n",
 				args->name, node, errno, strerror(errno));
 			goto err;
@@ -320,7 +326,6 @@ static int stress_numacopy(stress_args_t *args)
 	stress_metrics_set(args, 1, "numa_pages filled per sec", rate, STRESS_METRIC_GEOMETRIC_MEAN);
 	rate = duration > 0.0 ? numa_pages_memcpy / duration : 0.0;
 	stress_metrics_set(args, 0, "pages copied per sec", rate, STRESS_METRIC_GEOMETRIC_MEAN);
-
 
 	rc = EXIT_SUCCESS;
 err:
