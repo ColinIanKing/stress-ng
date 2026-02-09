@@ -118,7 +118,12 @@ static int stress_loop(stress_args_t *args)
 	const int bad_fd = stress_get_bad_fd();
 	uint8_t blk[4096] ALIGNED(8);
 
-	(void)stress_get_setting("loop-bytes", &loop_bytes);
+	if (!stress_get_setting("loop-bytes", &loop_bytes)) {
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
+			loop_bytes = MAX_LOOP_BYTES;
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
+			loop_bytes = MIN_LOOP_BYTES;
+	}
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
