@@ -25,6 +25,10 @@
 #include "core-mmap.h"
 #include "core-signal.h"
 
+#define MIN_ICACHE_PAGES	(1)
+#define MAX_ICACHE_PAGES	(1024)
+#define DEFAULT_ICACHE_PAGES	(1)
+
 static const stress_help_t help[] = {
 	{ NULL,	"icache N",       "start N CPU instruction cache thrashing workers" },
 	{ NULL,	"icache-ops N",   "stop after N icache bogo operations" },
@@ -33,7 +37,7 @@ static const stress_help_t help[] = {
 };
 
 static const stress_opt_t opts[] = {
-	{ OPT_icache_pages,  "icache-pages", TYPE_ID_UINT32, 0, 1024, NULL },
+	{ OPT_icache_pages,  "icache-pages", TYPE_ID_UINT32, 1, 1024, NULL },
 	END_OPT,
 };
 
@@ -170,10 +174,15 @@ static int stress_icache(stress_args_t *args)
 	size_t i;
 	uint8_t *pages;
 	int ret;
-	uint32_t icache_pages = 1;
+	uint32_t icache_pages = DEFAULT_ICACHE_PAGES;
 	size_t pages_size;
 
-	(void)stress_get_setting("icache-pages", &icache_pages);
+	if (!stress_get_setting("icache-pages", &icache_pages)) {
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
+			icache_pages = MAX_ICACHE_PAGES;
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
+			icache_pages = MIN_ICACHE_PAGES;
+	}
 	pages_size = page_size * (size_t)icache_pages;
 
 	stress_signal_catch_sigsegv();
