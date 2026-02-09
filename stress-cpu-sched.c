@@ -690,8 +690,14 @@ static int stress_cpu_sched_child(stress_args_t *args, void *context)
 	uint32_t counter = 0;
 	double time_end = stress_time_now() + (double)g_opt_timeout;
 
-	(void)stress_get_setting("cpu-sched-procs", &cpu_sched_procs);
 	(void)context;
+
+	if (!stress_get_setting("cpu-sched-procs", &cpu_sched_procs)) {
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
+			cpu_sched_procs = MIN_CPU_SCHED_PROCS;
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
+			cpu_sched_procs = MAX_CPU_SCHED_PROCS;
+	}
 
 #if defined(HAVE_SYS_PRCTL_H) &&	\
     defined(PR_SET_TIMERSLACK)
