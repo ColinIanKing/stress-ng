@@ -128,7 +128,12 @@ static int stress_mmapfork(stress_args_t *args)
 #endif
 	bool report_size = (stress_instance_zero(args));
 
-	(void)stress_get_setting("mmapfork-procs", &mmapfork_procs);
+	if (!stress_get_setting("mmapfork-procs", &mmapfork_procs)) {
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
+			mmapfork_procs = MAX_MMAPFORK_PROCS;
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
+			mmapfork_procs = MIN_MMAPFORK_PROCS;
+	}
 
 #if defined(MADV_WIPEONFORK)
 	/*
