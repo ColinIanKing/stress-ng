@@ -540,7 +540,12 @@ static int stress_schedmix(stress_args_t *args)
 	}
 #endif
 
-	(void)stress_get_setting("schedmix-procs", &schedmix_procs);
+	if (!stress_get_setting("schedmix-procs", &schedmix_procs)) {
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
+			schedmix_procs = MAX_SCHEDMIX_PROCS;
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
+			schedmix_procs = MIN_SCHEDMIX_PROCS;
+	}
 
 	for (i = 0; i < schedmix_procs; i++) {
 		stress_sync_start_init(&s_pids[i]);
