@@ -1029,11 +1029,13 @@ seq_rd_retry:
 			}
 			if (misreads)
 				pr_dbg("%s: %" PRIu64
-					" incomplete sequential reads\n",
-					args->name, misreads);
+					" incomplete sequential read%s\n",
+					args->name, misreads,
+					(misreads == 1) ? "" : "s");
 			if (baddata)
-				pr_fail("%s: incorrect data found %" PRIu64 " times\n",
-					args->name, baddata);
+				pr_fail("%s: incorrect data found %" PRIu64 " time%s\n",
+					args->name, baddata,
+					(baddata == 1) ? "" : "s");
 		}
 		/* Random Read */
 		if (hdd_flags & HDD_OPT_RD_RND) {
@@ -1095,11 +1097,13 @@ rnd_rd_retry:
 			}
 			if (misreads)
 				pr_dbg("%s: %" PRIu64
-					" incomplete random reads\n",
-					args->name, misreads);
+					" incomplete random read%s\n",
+					args->name, misreads,
+					(misreads == 1) ? "" : "s");
 			if (baddata)
-				pr_fail("%s: incorrect data found %" PRIu64 " times\n",
-					args->name, baddata);
+				pr_fail("%s: incorrect data found %" PRIu64 " time%s\n",
+					args->name, baddata,
+					(baddata == 1) ? "" : "s");
 		}
 		extents = stress_get_extents(fd);
 		if (extents > max_extents)
