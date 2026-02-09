@@ -162,7 +162,12 @@ static void *stress_close_func(void *arg)
 #endif
 	int close_fds = DEFAULT_CLOSE_FDS;
 
-	(void)stress_get_setting("close-fds", &close_fds);
+	if (!stress_get_setting("close-fds", &close_fds)) {
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
+			close_fds = MIN_CLOSE_FDS;
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
+			close_fds = MAX_CLOSE_FDS;
+	}
 
 	/*
 	 *  Block all signals, let controlling thread
