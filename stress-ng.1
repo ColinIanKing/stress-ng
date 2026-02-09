@@ -3205,15 +3205,15 @@ which case these become no-ops.
 .TP
 .B \-\-flushcache\-d\-bytes N
 specify size of data region to be data flushed, range 1K to 4GB with a
-default of the lower level cache size. One can specify the size as % of
-total available memory or in units of Bytes, KBytes, MBytes and GBytes
-using the suffix b, k, m or g.
+default of the lower level data cache size. One can specify the size
+as % of total available memory or in units of Bytes, KBytes, MBytes and
+GBytes using the suffix b, k, m or g.
 .TP
 .B \-\-flushcache\-i\-bytes N
 specify size of instruction region be instruction flushed, range 1K to
-4GB with a default of 4K. One can specify the size as % of total available
-memory or in units of Bytes, KBytes, MBytes and GBytes using the suffix b,
-k, m or g.
+4GB with a default of the level 1 instruction cache size. One can specify
+the size as % of total available memory or in units of Bytes, KBytes,
+MBytes and GBytes using the suffix b, k, m or g.
 .TP
 .B \-\-flushcache\-ops N
 stop after N cache flush iterations.

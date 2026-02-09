@@ -91,7 +91,8 @@ static int stress_get_string_from_file(
  */
 static stress_cpu_cache_t * stress_cpu_cache_get_by_cpu(
 	const stress_cpu_cache_cpu_t *cpu,
-	const int cache_level)
+	const int cache_level,
+	const stress_cpu_cache_type_t cache_type)
 {
 	uint32_t  i;
 
@@ -104,9 +105,18 @@ static stress_cpu_cache_t * stress_cpu_cache_get_by_cpu(
 		if (p->level != cache_level)
 			continue;
 
-		/* we want a data cache */
-		if (p->type != CACHE_TYPE_INSTRUCTION)
-			return p;
+		switch (p->type) {
+			case CACHE_TYPE_DATA:
+			case CACHE_TYPE_UNIFIED:
+				if (cache_type == CACHE_TYPE_DATA)
+					return p;
+				break;
+			case CACHE_TYPE_INSTRUCTION:
+				if (cache_type == CACHE_TYPE_INSTRUCTION)
+					return p;
+			default:
+				break;
+		}
 	}
 	return NULL;
 }
@@ -148,7 +158,10 @@ uint16_t stress_cpu_cache_get_max_level(const stress_cpu_cache_cpus_t *cpus)
  *
  * Returns: stress_cpu_cache_t pointer, or NULL on error.
  */
-stress_cpu_cache_t *stress_cpu_cache_get(const stress_cpu_cache_cpus_t *cpus, const uint16_t cache_level)
+stress_cpu_cache_t *stress_cpu_cache_get(
+	const stress_cpu_cache_cpus_t *cpus,
+	const uint16_t cache_level,
+	const stress_cpu_cache_type_t cache_type)
 {
 	const stress_cpu_cache_cpu_t *cpu;
 
@@ -165,7 +178,7 @@ stress_cpu_cache_t *stress_cpu_cache_get(const stress_cpu_cache_cpus_t *cpus, co
 
 	cpu = &cpus->cpus[stress_cpu_cache_get_cpu(cpus)];
 
-	return stress_cpu_cache_get_by_cpu(cpu, cache_level);
+	return stress_cpu_cache_get_by_cpu(cpu, cache_level, cache_type);
 }
 
 #if defined(__linux__) &&	\
@@ -1430,7 +1443,7 @@ void stress_cpu_cache_get_llc_size(size_t *llc_size, size_t *cache_line_size)
 	max_cache_level = stress_cpu_cache_get_max_level(cpu_caches);
 	if (UNLIKELY(max_cache_level < 1))
 		goto free_cpu_caches;
-	cache = stress_cpu_cache_get(cpu_caches, max_cache_level);
+	cache = stress_cpu_cache_get(cpu_caches, max_cache_level, CACHE_TYPE_DATA);
 	if (UNLIKELY(!cache))
 		goto free_cpu_caches;
 
@@ -1449,7 +1462,11 @@ free_cpu_caches:
  *  stress_cpu_cache_get_level_size()
  *	get cpu cache size for a specific cache level
  */
-void stress_cpu_cache_get_level_size(const uint16_t cache_level, size_t *cache_size, size_t *cache_line_size)
+void stress_cpu_cache_get_level_size(
+	const uint16_t cache_level,
+	size_t *cache_size,
+	size_t *cache_line_size,
+	stress_cpu_cache_type_t cache_type)
 {
 #if defined(__linux__) ||	\
     defined(__APPLE__) ||	\
@@ -1464,7 +1481,7 @@ void stress_cpu_cache_get_level_size(const uint16_t cache_level, size_t *cache_s
 	if (UNLIKELY(!cpu_caches))
 		return;
 
-	cache = stress_cpu_cache_get(cpu_caches, cache_level);
+	cache = stress_cpu_cache_get(cpu_caches, cache_level, cache_type);
 	if (UNLIKELY(!cache))
 		goto free_cpu_caches;
 

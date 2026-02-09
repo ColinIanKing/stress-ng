@@ -67,7 +67,7 @@ int stress_cache_alloc(const char *name)
 		g_shared->mem_cache.level = max_cache_level;
 	}
 
-	cache = stress_cpu_cache_get(cpu_caches, g_shared->mem_cache.level);
+	cache = stress_cpu_cache_get(cpu_caches, g_shared->mem_cache.level, CACHE_TYPE_DATA);
 	if (!cache) {
 		if (stress_warn_once())
 			pr_dbg("%s: using built-in defaults as no suitable "
@@ -106,7 +106,7 @@ int stress_cache_alloc(const char *name)
 	for (level = 1; level <= max_cache_level; level++) {
 		size_t cache_size = 0, cache_line_size = 0;
 
-		stress_cpu_cache_get_level_size(level, &cache_size, &cache_line_size);
+		stress_cpu_cache_get_level_size(level, &cache_size, &cache_line_size, CACHE_TYPE_DATA);
 		if ((cache_size > 0) && (cache_line_size > 0)) {
 			char tmp[64];
 

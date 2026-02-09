@@ -66,7 +66,8 @@ typedef struct {
 	void	*i_addr;		/* instruction cache address */
 	size_t	d_bytes;		/* data cache size */
 	size_t 	i_bytes;		/* instruction cache size */
-	size_t	cl_size;		/* cache line size */
+	size_t	d_cl_size;		/* data cache line size */
+	size_t	i_cl_size;		/* instruction cache line size */
 	bool	x86_clfsh;		/* true if x86 clflush op is available */
 	bool	x86_demote;		/* true if x86 cldemote op is available */
 } stress_flushcache_context_t;
@@ -208,7 +209,7 @@ static inline int stress_flush_icache(
 {
 	void *i_addr = context->i_addr;
 	const size_t i_bytes = context->i_bytes;
-	const size_t cl_size = context->cl_size;
+	const size_t d_cl_size = context->d_cl_size;
 	uint8_t *ptr = (uint8_t *)i_addr;
 	uint8_t *ptr_end = ptr + i_bytes;
 
@@ -220,24 +221,24 @@ static inline int stress_flush_icache(
 		const uint8_t val = *vptr;
 
 		*vptr ^= ~0;
-		shim_flush_icache((char *)ptr, (char *)ptr + cl_size);
+		shim_flush_icache((char *)ptr, (char *)ptr + d_cl_size);
 #if defined(HAVE_ASM_PPC64_ICBI)
 		stress_asm_ppc64_icbi((void *)ptr);
 #elif defined(HAVE_ASM_PPC_ICBI)
 		stress_asm_ppc_icbi((void *)ptr);
 #endif
 		*vptr = val;
-		shim_flush_icache((char *)ptr, (char *)ptr + cl_size);
+		shim_flush_icache((char *)ptr, (char *)ptr + d_cl_size);
 #if defined(HAVE_ASM_PPC64_ICBI)
 		stress_asm_ppc64_icbi((void *)ptr);
 #elif defined(HAVE_ASM_PPC_ICBI)
 		stress_asm_ppc_icbi((void *)ptr);
 #endif
-		ptr += cl_size;
+		ptr += d_cl_size;
 	}
 
 #if defined(HAVE_BUILTIN___CLEAR_CACHE)
-	clear_cache_page(i_addr, i_bytes, cl_size);
+	clear_cache_page(i_addr, i_bytes, d_cl_size);
 #endif
 	(void)shim_cacheflush((char *)i_addr, (int)i_bytes, SHIM_ICACHE);
 	if (stress_flushcache_mprotect(args, i_addr, i_bytes, PROT_READ | PROT_EXEC) < 0)
@@ -259,7 +260,7 @@ static inline int stress_flush_dcache(
     defined(HAVE_ASM_X86_CLDEMOTE) ||	\
     defined(HAVE_ASM_PPC_DCBST) ||	\
     defined(HAVE_ASM_PPC64_DCBST)
-	const size_t cl_size = context->cl_size;
+	const size_t d_cl_size = context->d_cl_size;
 #endif
 
 	register uint8_t *ptr = (uint8_t *)d_addr;
@@ -268,16 +269,16 @@ static inline int stress_flush_dcache(
 	while (LIKELY((ptr < ptr_end) && stress_continue_flag())) {
 #if defined(HAVE_ASM_X86_CLFLUSH)
 		if (context->x86_clfsh)
-			clflush_page((void *)ptr, page_size, cl_size);
+			clflush_page((void *)ptr, page_size, d_cl_size);
 #endif
 
 #if defined(HAVE_ASM_X86_CLDEMOTE)
 		if (context->x86_demote)
-			cldemote_page((void *)ptr, page_size, cl_size);
+			cldemote_page((void *)ptr, page_size, d_cl_size);
 #endif
 #if defined(HAVE_ASM_PPC_DCBST) ||	\
     defined(HAVE_ASM_PPC64_DCBST)
-		dcbst_page((void *)ptr, page_size, cl_size);
+		dcbst_page((void *)ptr, page_size, d_cl_size);
 #endif
 		shim_cacheflush((char *)ptr, (int)page_size, SHIM_DCACHE);
 		ptr += page_size;
@@ -335,13 +336,14 @@ static int stress_flushcache(stress_args_t *args)
 {
 	const size_t page_size = args->page_size;
 	long int numa_nodes = stress_numa_nodes();
-	stress_flushcache_context_t context;
 	int ret;
+	stress_flushcache_context_t context;
 
 	(void)shim_memset(&context, 0, sizeof(context));
-
-	stress_cpu_cache_get_llc_size(&context.d_bytes, &context.cl_size);
 	context.i_bytes = page_size;
+
+	stress_cpu_cache_get_llc_size(&context.d_bytes, &context.d_cl_size);
+	stress_cpu_cache_get_level_size(1, &context.i_bytes, &context.i_cl_size, CACHE_TYPE_INSTRUCTION);
 
 	(void)stress_get_setting("flushcache-d-bytes", &context.d_bytes);
 	(void)stress_get_setting("flushcache-i-bytes", &context.i_bytes);
@@ -350,8 +352,10 @@ static int stress_flushcache(stress_args_t *args)
 		context.d_bytes = page_size;
 	if (context.i_bytes < page_size)
 		context.i_bytes = page_size;
-	if (context.cl_size == 0)
-		context.cl_size = 64;
+	if (context.d_cl_size == 0)
+		context.d_cl_size = 64;
+	if (context.i_cl_size == 0)
+		context.i_cl_size = 64;
 
 	if (UNLIKELY(numa_nodes < 1))
 		numa_nodes = 1;

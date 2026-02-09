@@ -502,7 +502,8 @@ uint64_t stress_get_uint64_byte(const char *const str)
 			longjmp(g_error_env, 1);
 			stress_no_return();
 		}
-		stress_cpu_cache_get_level_size((uint16_t)cache_level, &llc_size, &cache_line_size);
+		stress_cpu_cache_get_level_size((uint16_t)cache_level, &llc_size,
+						&cache_line_size, CACHE_TYPE_DATA);
 	}
 
 	if (llc_size == 0) {

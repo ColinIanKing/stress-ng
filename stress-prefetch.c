@@ -144,7 +144,7 @@ static inline uint64_t get_prefetch_L3_size(stress_args_t *args)
 		pr_inf("%s: no L3 cache, using L%" PRIu16 " size instead\n",
 			args->name, max_cache_level);
 
-	cache = stress_cpu_cache_get(cpu_caches, max_cache_level);
+	cache = stress_cpu_cache_get(cpu_caches, max_cache_level, CACHE_TYPE_DATA);
 	if (!cache) {
 		if (!args->instance)
 			pr_inf("%s: using built-in defaults as no suitable "

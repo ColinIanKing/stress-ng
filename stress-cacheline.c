@@ -80,7 +80,7 @@ static uint64_t get_L1_line_size(stress_args_t *args)
 		return cache_size;
 	}
 
-	cache = stress_cpu_cache_get(cpu_caches, 1);
+	cache = stress_cpu_cache_get(cpu_caches, 1, CACHE_TYPE_DATA);
 	if (!cache) {
 		if (!args->instance)
 			pr_inf("%s: using built-in defaults as no suitable "
