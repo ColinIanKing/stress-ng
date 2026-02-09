@@ -303,10 +303,10 @@ static int stress_numacopy(stress_args_t *args)
 				(void)snprintf(buf, sizeof(buf), " %5.0f", (double)node);
 				(void)shim_strlcat(str, buf, sizeof(str));
 			}
-			pr_inf("%s: node %s\n", args->name, str);
+			pr_inf("%s: node%s\n", args->name, str);
 			node = 0;
 			for (node_from = 0; node_from < num_numa_nodes; node_from++) {
-				(void)snprintf(str, sizeof(str), "%5.0f", (double)node_from);
+				(void)snprintf(str, sizeof(str), "%4.0f", (double)node_from);
 
 				for (node_to = 0; node_to < num_numa_nodes; node_to++) {
 					(void)snprintf(buf, sizeof(buf), " %5.1f", metrics[node].rate / scale);
