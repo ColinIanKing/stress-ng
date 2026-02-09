@@ -174,7 +174,12 @@ static int stress_pageswap(stress_args_t *args)
 	int rc;
 	size_t pageswap_pages = DEFAULT_PAGESWAP_PAGES;
 
-	(void)stress_get_setting("pageswap-pages", &pageswap_pages);
+	if (!stress_get_setting("pageswap-pages", &pageswap_pages)) {
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
+			pageswap_pages = MAX_PAGESWAP_PAGES;
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
+			pageswap_pages = MIN_PAGESWAP_PAGES;
+	}
 
 	if (stress_instance_zero(args))
 		stress_usage_bytes(args, args->page_size * pageswap_pages, args->page_size * pageswap_pages * args->instances);
