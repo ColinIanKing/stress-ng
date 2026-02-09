@@ -44,7 +44,7 @@ UNEXPECTED
 
 #define DEFAULT_SCTP_PORT	(9000)
 
-#define MIN_SCTP_MAX_SIZE	(1)
+#define MIN_SCTP_MAX_SIZE	(16)
 #define MAX_SCTP_MAX_SIZE	(65536)
 #define DEFAULT_SCTP_MAX_SIZE	(8192)
 
@@ -650,7 +650,12 @@ static int stress_sctp(stress_args_t *args)
 
 	(void)stress_get_setting("sctp-domain", &sctp_domain);
 	(void)stress_get_setting("sctp-if", &sctp_if);
-	(void)stress_get_setting("sctp-max-size", &sctp_max_size);
+	if (!stress_get_setting("sctp-max-size", &sctp_max_size)) {
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
+			sctp_max_size = MAX_SCTP_MAX_SIZE;
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
+			sctp_max_size = MIN_SCTP_MAX_SIZE;
+	}
 	(void)stress_get_setting("sctp-port", &sctp_port);
 	if (stress_get_setting("sctp-sched", &sctp_sched)) {
 #if defined(HAVE_SCTP_SCHED_TYPE) &&	\
