@@ -1229,7 +1229,7 @@ void stress_vmstat_start(void)
 		if (status_sleep == status_delay) {
 			const double runtime = round(stress_time_now() - g_shared->time_started);
 
-			pr_inf("status: %" PRIu32 " run, %" PRIu32 " exit, %" PRIu32 " reap, %" PRIu32 " fail, %" PRIu32 " sigalarm, %s\n",
+			pr_inf("status: %" PRIu32 " run, %" PRIu32 " exit, %" PRIu32 " reap, %" PRIu32 " fail, %" PRIu32 " SIGALRM, %s\n",
 				g_shared->instance_count.started,
 				g_shared->instance_count.exited,
 				g_shared->instance_count.reaped,
