@@ -146,6 +146,9 @@ static void *stress_close_func(void *arg)
 {
 	stress_pthread_args_t *pargs = (stress_pthread_args_t *)arg;
 	stress_args_t *args = pargs->args;
+#if defined(F_SETLK)
+	const pid_t mypid = getpid();
+#endif
 
 	/*
 	 *  Block all signals, let controlling thread
@@ -163,9 +166,12 @@ static void *stress_close_func(void *arg)
 			max_delay_us ? stress_mwc64modn(max_delay_us) : 0;
 		int fds[FDS_TO_DUP], i, ret;
 		int flag;
+		int valid_fd = -1;
 
 		for (i = 0; i < FDS_TO_DUP; i++) {
 			fds[i] = dup2(fileno(stderr), i + FDS_START);
+			if ((valid_fd == -1) && (fds[i] > FDS_START))
+				valid_fd = fds[i];
 		}
 
 		(void)shim_usleep_interruptible(delay);
@@ -173,6 +179,25 @@ static void *stress_close_func(void *arg)
 			(void)close(fd);
 		if (dupfd != -1)
 			(void)close(dupfd);
+
+#if defined(F_SETLK)
+		{
+			/*
+			 *  Advisory locks are lost on close
+			 *  so attempt to lock the fd
+			 */
+			struct flock f;
+
+			f.l_type = F_RDLCK;
+			f.l_whence = SEEK_SET;
+			f.l_start = 0;
+			f.l_len = 1024;
+			f.l_pid = mypid;
+
+			if (fds[0] >= 0)
+				VOID_RET(int, fcntl(valid_fd, F_SETLK, &f));
+		}
+#endif
 
 #if defined(F_GETFL)
 		{
@@ -188,7 +213,14 @@ static void *stress_close_func(void *arg)
 		UNEXPECTED
 #endif
 		/*
-		 *  close a range of fds
+		 *  close a valid fd
+		 */
+		VOID_RET(int, close(valid_fd));
+
+		/*
+		 *  close a range of fds (valid_fd has alwready been closed
+		 *  so this checks that a single fd close failure doesn't
+		 *  make close_range bail out early)
 		 */
 		flag = close_range_flags[stress_mwc8modn(SIZEOF_ARRAY(close_range_flags))];
 		ret = shim_close_range(FDS_START, FDS_START + FDS_TO_DUP, flag);
@@ -206,7 +238,12 @@ static void *stress_close_func(void *arg)
 		 *  close with invalid fds and flags
 		 */
 		VOID_RET(int, shim_close_range(FDS_START + FDS_TO_DUP, FDS_START, ~0U));
-	}
+
+		/*
+		 *  close a previously valid fd than has now been closed
+		 */
+		VOID_RET(int, close(valid_fd));
+	}	
 
 	return &g_nowt;
 }
