@@ -230,7 +230,12 @@ static int stress_memfd_child(stress_args_t *args, void *context)
 	if (memfd_bytes < MIN_MEMFD_BYTES)
 		memfd_bytes = MIN_MEMFD_BYTES;
 
-	(void)stress_get_setting("memfd-fds", &memfd_fds);
+	if (!stress_get_setting("memfd-fds", &memfd_fds)) {
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
+			memfd_fds = MAX_MEMFD_FDS;
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
+			memfd_fds = MIN_MEMFD_FDS;
+	}
 
 	size = memfd_bytes / memfd_fds;
 	if (size < min_size)
