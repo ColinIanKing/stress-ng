@@ -21,6 +21,7 @@
 #include "core-pthread.h"
 #include "core-signal.h"
 
+#define MIN_LOADAVG	(1)
 #define MAX_LOADAVG	(1000000)
 
 static const stress_help_t help[] = {
@@ -166,10 +167,13 @@ static int stress_loadavg(stress_args_t *args)
 	stress_pthread_args_t pargs = { args, NULL, 0 };
 	sigset_t set;
 
-	if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-		loadavg_max = 4;	/* Really low */
 
-	(void)stress_get_setting("loadavg-max", &loadavg_max);
+	if (!stress_get_setting("loadavg-max", &loadavg_max)) {
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
+			loadavg_max = MAX_LOADAVG;	/* Stupidly high */
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
+			loadavg_max = MIN_LOADAVG;	/* Really low */
+	}
 
 	if ((threads_max > 0) && (loadavg_max > threads_max)) {
 		loadavg_max = threads_max;
