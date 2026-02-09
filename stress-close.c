@@ -257,7 +257,7 @@ static void *stress_close_func(void *arg)
 		 *  close a previously valid fd than has now been closed
 		 */
 		VOID_RET(int, close(valid_fd));
-	}	
+	}
 
 	return &g_nowt;
 }
