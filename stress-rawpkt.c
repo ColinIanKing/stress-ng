@@ -449,7 +449,12 @@ static int stress_rawpkt(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 
 	(void)stress_get_setting("rawpkt-port", &rawpkt_port);
-	(void)stress_get_setting("rawpkt-rxring", &rawpkt_rxring);
+	if (!stress_get_setting("rawpkt-rxring", &rawpkt_rxring)) {
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
+			rawpkt_rxring = 16;
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
+			rawpkt_rxring = 1;
+	}
 
 	if ((rawpkt_rxring & (rawpkt_rxring - 1)) != 0) {
 		(void)pr_inf("%s: --rawpkt-rxring value %d is not "
