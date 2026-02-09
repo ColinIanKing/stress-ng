@@ -203,7 +203,12 @@ static int stress_rmap(stress_args_t *args)
 	uintptr_t *paddings[MAPPINGS_MAX];
 	char filename[PATH_MAX];
 
-	(void)stress_get_setting("rmap-procs", &rmap_procs);
+	if (!stress_get_setting("rmap-procs", &rmap_procs)) {
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
+			rmap_procs = MAX_RMAP_PROCS;
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
+			rmap_procs = MIN_RMAP_PROCS;
+	}
 
 	if (stress_signal_sigchld_handler(args) < 0)
 		return EXIT_NO_RESOURCE;
