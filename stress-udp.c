@@ -429,7 +429,12 @@ static int stress_udp(stress_args_t *args)
 	(void)stress_get_setting("udp-if", &udp_if);
 	(void)stress_get_setting("udp-domain", &udp_domain);
 	(void)stress_get_setting("udp-port", &udp_port);
-	(void)stress_get_setting("udp-max-size", &udp_max_size);
+	if (!stress_get_setting("udp-max-size", &udp_max_size)) {
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
+			udp_max_size = MAX_UDP_MAX_SIZE;
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
+			udp_max_size = MIN_UDP_MAX_SIZE;
+	}
 #if defined(IPPROTO_UDPLITE)
 	(void)stress_get_setting("udp-lite", &udp_lite);
 
