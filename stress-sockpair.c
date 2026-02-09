@@ -132,7 +132,12 @@ static int stress_sockpair_oomable(stress_args_t *args, void *context)
 	size_t sockpair_max_size = DEFAULT_SOCKPAIR_MAX_SIZE;
 	(void)context;
 
-	(void)stress_get_setting("sockpair-max-size", &sockpair_max_size);
+	if (!stress_get_setting("sockpair-max-size", &sockpair_max_size)) {
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
+			sockpair_max_size = MAX_SOCKPAIR_MAX_SIZE;
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
+			sockpair_max_size = MIN_SOCKPAIR_MAX_SIZE;
+	}
 
 	/* exercise invalid socketpair domain */
 	socket_pair_fds_bad[0] = -1;
