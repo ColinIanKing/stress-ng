@@ -99,7 +99,12 @@ static int stress_ping_sock(stress_args_t *args)
 	size_t ping_sock_max_size = DEFAULT_PING_SOCK_MAX_SIZE;
 	double total = 0.0;
 
-	(void)stress_get_setting("ping-sock-max-size", &ping_sock_max_size);
+	if (!stress_get_setting("ping-sock-max-size", &ping_sock_max_size)) {
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
+			ping_sock_max_size = MAX_PING_SOCK_MAX_SIZE;
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
+			ping_sock_max_size = MIN_PING_SOCK_MAX_SIZE;
+	}
 
 	rc = stress_rawsock_open(args->name, &fd);
 	if (rc != EXIT_SUCCESS)
