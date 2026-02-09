@@ -3198,12 +3198,24 @@ stop flock stress workers after N bogo flock operations.
 .B Cache flushing stressor
 .RS 5
 .TQ
-.B \-\-flush\-cache N
+.B \-\-flushcache N
 start N workers that flush the data and instruction cache (where possible).
 Some architectures may not support cache flushing on either cache, in
 which case these become no-ops.
 .TP
-.B \-\-flush\-cache\-ops N
+.B \-\-flushcache\-d\-bytes N
+specify size of data region to be data flushed, range 1K to 4GB with a
+default of the lower level cache size. One can specify the size as % of
+total available memory or in units of Bytes, KBytes, MBytes and GBytes
+using the suffix b, k, m or g.
+.TP
+.B \-\-flushcache\-i\-bytes N
+specify size of instruction region be instruction flushed, range 1K to
+4GB with a default of 4K. One can specify the size as % of total available
+memory or in units of Bytes, KBytes, MBytes and GBytes using the suffix b,
+k, m or g.
+.TP
+.B \-\-flushcache\-ops N
 stop after N cache flush iterations.
 .RE
 .TP

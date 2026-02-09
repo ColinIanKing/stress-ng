@@ -522,6 +522,8 @@ typedef enum {
 	OPT_flock_ops,
 
 	OPT_flushcache,
+	OPT_flushcache_d_bytes,
+	OPT_flushcache_i_bytes,
 	OPT_flushcache_ops,
 
 	OPT_fma,

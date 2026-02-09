@@ -27,10 +27,25 @@
 #include "core-numa.h"
 #include "core-out-of-memory.h"
 
+#define MIN_D_BYTES	(1 * KB)
+#define MAX_D_BYTES	(4 * GB)
+
+#define MIN_I_BYTES	(1 * KB)
+#define MAX_I_BYTES	(4 * GB)
+#define DEFAULT_I_BYTES	(4 * KB)
+
 static const stress_help_t help[] = {
-	{ NULL,	"flushcache N",		"start N CPU instruction + data cache flush workers" },
-	{ NULL,	"flushcache-ops N",	"stop after N flush cache bogo operations" },
-	{ NULL,	NULL,		NULL }
+	{ NULL,	"flushcache N",       "start N CPU instruction + data cache flush workers" },
+	{ NULL, "flushcashe-d-bytes", "specify data cache size" },
+	{ NULL, "flushcashe-i-bytes", "specify instruction cache size" },
+	{ NULL,	"flushcache-ops N",   "stop after N flush cache bogo operations" },
+	{ NULL,	NULL,                 NULL }
+};
+
+static const stress_opt_t opts[] = {
+	{ OPT_flushcache_d_bytes, "flushcache-d-bytes",  TYPE_ID_SIZE_T_BYTES_VM, MIN_D_BYTES, MAX_D_BYTES, NULL },
+	{ OPT_flushcache_i_bytes, "flushcache-i-bytes",  TYPE_ID_SIZE_T_BYTES_VM, MIN_I_BYTES, MAX_I_BYTES, NULL },
+	END_OPT,
 };
 
 #if (defined(STRESS_ARCH_X86) ||		\
@@ -49,8 +64,8 @@ typedef struct {
 	stress_ret_func_t icache_func;	/* 4K/16K/64K sized i-cache function */
 	void	*d_addr;		/* data cache address */
 	void	*i_addr;		/* instruction cache address */
-	size_t	d_size;			/* data cache size */
-	size_t 	i_size;			/* instruction cache size */
+	size_t	d_bytes;		/* data cache size */
+	size_t 	i_bytes;		/* instruction cache size */
 	size_t	cl_size;		/* cache line size */
 	bool	x86_clfsh;		/* true if x86 clflush op is available */
 	bool	x86_demote;		/* true if x86 cldemote op is available */
@@ -192,13 +207,12 @@ static inline int stress_flush_icache(
 	const stress_flushcache_context_t *context)
 {
 	void *i_addr = context->i_addr;
-	const size_t i_size = context->i_size;
+	const size_t i_bytes = context->i_bytes;
 	const size_t cl_size = context->cl_size;
-	void *page_addr = (void *)((uintptr_t)i_addr & ~(args->page_size - 1));
 	uint8_t *ptr = (uint8_t *)i_addr;
-	uint8_t *ptr_end = ptr + i_size;
+	uint8_t *ptr_end = ptr + i_bytes;
 
-	if (stress_flushcache_mprotect(args, page_addr, context->i_size, PROT_READ | PROT_WRITE | PROT_EXEC) < 0)
+	if (stress_flushcache_mprotect(args, i_addr, i_bytes, PROT_READ | PROT_WRITE | PROT_EXEC) < 0)
 		return -1;
 
 	while (LIKELY((ptr < ptr_end) && stress_continue_flag())) {
@@ -223,10 +237,10 @@ static inline int stress_flush_icache(
 	}
 
 #if defined(HAVE_BUILTIN___CLEAR_CACHE)
-	clear_cache_page(i_addr, i_size, cl_size);
+	clear_cache_page(i_addr, i_bytes, cl_size);
 #endif
-	(void)shim_cacheflush((char *)i_addr, (int)i_size, SHIM_ICACHE);
-	if (stress_flushcache_mprotect(args, page_addr, i_size, PROT_READ | PROT_EXEC) < 0)
+	(void)shim_cacheflush((char *)i_addr, (int)i_bytes, SHIM_ICACHE);
+	if (stress_flushcache_mprotect(args, i_addr, i_bytes, PROT_READ | PROT_EXEC) < 0)
 		return -1;
 
 	context->icache_func();
@@ -239,7 +253,7 @@ static inline int stress_flush_dcache(
 	const stress_flushcache_context_t *context)
 {
 	void *d_addr = context->d_addr;
-	const size_t d_size = context->d_size;
+	const size_t d_bytes= context->d_bytes;
 	const size_t page_size = args->page_size;
 #if defined(HAVE_ASM_X86_CLFLUSH) ||	\
     defined(HAVE_ASM_X86_CLDEMOTE) ||	\
@@ -249,7 +263,7 @@ static inline int stress_flush_dcache(
 #endif
 
 	register uint8_t *ptr = (uint8_t *)d_addr;
-	const uint8_t *ptr_end = ptr + d_size;
+	const uint8_t *ptr_end = ptr + d_bytes;
 
 	while (LIKELY((ptr < ptr_end) && stress_continue_flag())) {
 #if defined(HAVE_ASM_X86_CLFLUSH)
@@ -275,19 +289,19 @@ static int stress_flushcache_child(stress_args_t *args, void *ctxt)
 {
 	stress_flushcache_context_t *context = (stress_flushcache_context_t *)ctxt;
 
-	context->d_addr = stress_mmap_populate(NULL, context->d_size,
+	context->d_addr = stress_mmap_populate(NULL, context->d_bytes,
 			PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (context->d_addr == MAP_FAILED) {
 		pr_inf_skip("%s: failed to mmap %zu bytes%s, skipping stressor\n",
-			args->name, context->d_size, stress_get_memfree_str());
+			args->name, context->d_bytes, stress_get_memfree_str());
 		return EXIT_NO_RESOURCE;
 	}
-	stress_set_vma_anon_name(context->d_addr, context->d_size, "d-cache");
+	stress_set_vma_anon_name(context->d_addr, context->d_bytes, "d-cache");
 
 	if (context->i_addr)
-		(void)stress_flushcache_nohugepage(context->i_addr, context->i_size);
-	(void)stress_flushcache_nohugepage(context->d_addr, context->d_size);
+		(void)stress_flushcache_nohugepage(context->i_addr, context->i_bytes);
+	(void)stress_flushcache_nohugepage(context->d_addr, context->d_bytes);
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
@@ -299,15 +313,15 @@ static int stress_flushcache_child(stress_args_t *args, void *ctxt)
 		stress_flush_dcache(args, context);
 
 		if (context->i_addr)
-			shim_cacheflush((char *)context->i_addr, (int)context->i_size, SHIM_ICACHE | SHIM_DCACHE);
-		shim_cacheflush((char *)context->d_addr, (int)context->d_size, SHIM_ICACHE | SHIM_DCACHE);
+			shim_cacheflush((char *)context->i_addr, (int)context->i_bytes, SHIM_ICACHE | SHIM_DCACHE);
+		shim_cacheflush((char *)context->d_addr, (int)context->d_bytes, SHIM_ICACHE | SHIM_DCACHE);
 
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	(void)munmap(context->d_addr, context->d_size);
+	(void)munmap(context->d_addr, context->d_bytes);
 
 	return EXIT_SUCCESS;
 }
@@ -324,36 +338,54 @@ static int stress_flushcache(stress_args_t *args)
 	stress_flushcache_context_t context;
 	int ret;
 
+	(void)shim_memset(&context, 0, sizeof(context));
+
+	stress_cpu_cache_get_llc_size(&context.d_bytes, &context.cl_size);
+	context.i_bytes = page_size;
+
+	(void)stress_get_setting("flushcache-d-bytes", &context.d_bytes);
+	(void)stress_get_setting("flushcache-i-bytes", &context.i_bytes);
+
+	if (context.d_bytes < page_size)
+		context.d_bytes = page_size;
+	if (context.i_bytes < page_size)
+		context.i_bytes = page_size;
+	if (context.cl_size == 0)
+		context.cl_size = 64;
+
 	if (UNLIKELY(numa_nodes < 1))
 		numa_nodes = 1;
 
 	context.x86_clfsh = stress_cpu_x86_has_clfsh();
 	context.x86_demote = stress_cpu_x86_has_cldemote();
-	context.i_addr = stress_mmap_anon_shared(page_size, PROT_READ | PROT_WRITE | PROT_EXEC);
+	context.i_addr = stress_mmap_anon_shared(context.i_bytes, PROT_READ | PROT_WRITE | PROT_EXEC);
 	if (context.i_addr == MAP_FAILED) {
 		pr_inf_skip("%s: could not mmap %zu sized page%s, skipping stressor\n",
-			args->name, page_size, stress_get_memfree_str());
+			args->name, context.i_bytes, stress_get_memfree_str());
 		return EXIT_NO_RESOURCE;
 	}
-	stress_set_vma_anon_name(context.i_addr, page_size, "i-cache");
+	stress_set_vma_anon_name(context.i_addr, context.i_bytes, "i-cache");
 	context.icache_func = (stress_ret_func_t)context.i_addr;
-	context.i_size = page_size;
 
 	(void)shim_memcpy(context.i_addr, &stress_ret_opcode.opcodes, stress_ret_opcode.len);
 
-	stress_cpu_cache_get_llc_size(&context.d_size, &context.cl_size);
-	if (context.d_size < page_size)
-		context.d_size = page_size;
-	if (context.cl_size == 0)
-		context.cl_size = 64;
 
-	context.d_size *= numa_nodes;
-	if (stress_instance_zero(args) && (numa_nodes > 1))
-		pr_inf("%s: scaling cache size by number of numa nodes %ld to %zuK\n",
-			args->name, numa_nodes, context.d_size / 1024);
+	context.d_bytes *= numa_nodes;
+	if (stress_instance_zero(args)) {
+		char d_str[32], i_str[32];
+
+		if (numa_nodes > 1) {
+			pr_inf("%s: scaling data cache size by number of numa nodes %ld to %zuK\n",
+				args->name, numa_nodes, context.d_bytes >> 10);
+		}
+		pr_inf("%s: data cache size: %s, instruction cache size: %s\n",
+			args->name,
+			stress_uint64_to_str(d_str, sizeof(d_str), (uint64_t)context.d_bytes, 2, true),
+			stress_uint64_to_str(i_str, sizeof(i_str), (uint64_t)context.i_bytes, 2, true));
+	}
 	ret = stress_oomable_child(args, (void *)&context, stress_flushcache_child, STRESS_OOMABLE_NORMAL);
 
-	(void)stress_munmap_anon_shared(context.i_addr, page_size);
+	(void)stress_munmap_anon_shared(context.i_addr, context.i_bytes);
 	return ret;
 }
 
@@ -361,6 +393,7 @@ const stressor_info_t stress_flushcache_info = {
 	.stressor = stress_flushcache,
 	.classifier = CLASS_CPU_CACHE,
 	.supported = stress_asm_ret_supported,
+	.opts = opts,
 	.help = help
 };
 #else
@@ -368,6 +401,7 @@ const stressor_info_t stress_flushcache_info = {
 	.stressor = stress_unimplemented,
 	.classifier = CLASS_CPU_CACHE,
 	.supported = stress_asm_ret_supported,
+	.opts = opts,
 	.help = help,
 	.unimplemented_reason = "built without cache flush support"
 };

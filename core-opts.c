@@ -307,6 +307,8 @@ const struct option stress_long_options[] = {
 	{ "flock",		1,	0,	OPT_flock },
 	{ "flock-ops",		1,	0,	OPT_flock_ops },
 	{ "flushcache",		1,	0,	OPT_flushcache },
+	{ "flushcache-d-bytes",	1,	0,	OPT_flushcache_d_bytes },
+	{ "flushcache-i-bytes",	1,	0,	OPT_flushcache_i_bytes },
 	{ "flushcache-ops",	1,	0,	OPT_flushcache_ops },
 	{ "fma",		1,	0,	OPT_fma },
 	{ "fma-ops",		1,	0,	OPT_fma_ops },
