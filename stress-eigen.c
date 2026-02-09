@@ -195,8 +195,6 @@ static int stress_eigen(stress_args_t *args)
 	int rc;
 
 	(void)stress_get_setting("eigen-method", &eigen_method);
-	(void)stress_get_setting("eigen-size", &eigen_size);
-
 	if (!stress_get_setting("eigen-size", &eigen_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			eigen_size = MAX_MATRIX_SIZE;
