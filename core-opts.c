@@ -144,6 +144,7 @@ const struct option stress_long_options[] = {
 	{ "clone-max",		1,	0,	OPT_clone_max },
 	{ "clone-ops",		1,	0,	OPT_clone_ops },
 	{ "close",		1,	0,	OPT_close },
+	{ "close-fds",		1,	0,	OPT_close_fds },
 	{ "close-ops",		1,	0,	OPT_close_ops },
 	{ "compact-memory",	0,	0,	OPT_compact_memory },
 	{ "config",		0,	0,	OPT_config },

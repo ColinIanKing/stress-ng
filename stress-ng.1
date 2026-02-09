@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, may be w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "7 February 2026"
+.TH STRESS-NG 1 "9 February 2026"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -1677,6 +1677,9 @@ stop clone stress workers after N bogo clone operations.
 start N workers that try to force race conditions on closing opened file
 descriptors. These file descriptors have been opened in various ways to try
 and exercise different kernel close handlers.
+.TP
+.B \-\-close\-fds N
+specify the number of fds to close, the range is from 2 to 65535, with a default of 8.
 .TP
 .B \-\-close\-ops N
 stop close workers after N bogo close operations.

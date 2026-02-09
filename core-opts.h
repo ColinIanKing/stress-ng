@@ -313,6 +313,7 @@ typedef enum {
 	OPT_clone_max,
 
 	OPT_close,
+	OPT_close_fds,
 	OPT_close_ops,
 
 	OPT_compact_memory,

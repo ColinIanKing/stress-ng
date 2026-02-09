@@ -50,11 +50,22 @@
 #include <sys/signalfd.h>
 #endif
 
+#define MIN_CLOSE_FDS		(2)
+#define MAX_CLOSE_FDS		(65536)
+#define DEFAULT_CLOSE_FDS	(8)
+
 static const stress_help_t help[] = {
 	{ NULL,	"close N",	"start N workers that exercise races on close" },
+	{ NULL, "close-fds",	"specify the number of file descriptors to exercse" },
 	{ NULL,	"close-ops N",	"stop after N bogo close operations" },
 	{ NULL,	NULL,		NULL }
 };
+
+static const stress_opt_t opts[] = {
+	{ OPT_close_fds, "close-fds", TYPE_ID_INT, MIN_CLOSE_FDS, MAX_CLOSE_FDS, NULL },
+	END_OPT,
+};
+
 
 #if defined(HAVE_LIB_PTHREAD)
 
@@ -149,6 +160,9 @@ static void *stress_close_func(void *arg)
 #if defined(F_SETLK)
 	const pid_t mypid = getpid();
 #endif
+	int close_fds = DEFAULT_CLOSE_FDS;
+
+	(void)stress_get_setting("close-fds", &close_fds);
 
 	/*
 	 *  Block all signals, let controlling thread
@@ -164,11 +178,11 @@ static void *stress_close_func(void *arg)
 	while (stress_continue(args)) {
 		const uint64_t delay =
 			max_delay_us ? stress_mwc64modn(max_delay_us) : 0;
-		int fds[FDS_TO_DUP], i, ret;
+		int fds[MAX_CLOSE_FDS], i, ret;
 		int flag;
 		int valid_fd = -1;
 
-		for (i = 0; i < FDS_TO_DUP; i++) {
+		for (i = 0; i < close_fds; i++) {
 			fds[i] = dup2(fileno(stderr), i + FDS_START);
 			if ((valid_fd == -1) && (fds[i] > FDS_START))
 				valid_fd = fds[i];
@@ -555,6 +569,7 @@ const stressor_info_t stress_close_info = {
 	.stressor = stress_close,
 	.classifier = CLASS_OS,
 	.verify = VERIFY_ALWAYS,
+	.opts = opts,
 	.help = help
 };
 #else
@@ -562,6 +577,7 @@ const stressor_info_t stress_close_info = {
 	.stressor = stress_unimplemented,
 	.classifier = CLASS_OS,
 	.verify = VERIFY_ALWAYS,
+	.opts = opts,
 	.help = help,
 	.unimplemented_reason = "built without pthread support"
 };
