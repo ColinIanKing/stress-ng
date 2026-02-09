@@ -247,7 +247,12 @@ static int stress_affinity(stress_args_t *args)
 	const size_t info_sz = (sizeof(*info) + args->page_size) & ~(args->page_size - 1);
 	size_t affinity_procs = DEFAULT_AFFINITY_PROCS;
 
-	(void)stress_get_setting("affinity-procs", &affinity_procs);
+	if (!stress_get_setting("affinity-procs", &affinity_procs)) {
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
+			affinity_procs = MIN_AFFINITY_PROCS;
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
+			affinity_procs = MAX_AFFINITY_PROCS;
+	}
 
 	s_pids = stress_sync_s_pids_mmap(affinity_procs);
 	if (s_pids == MAP_FAILED) {
