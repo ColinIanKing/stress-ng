@@ -433,12 +433,15 @@ static int stress_schedmix_child(stress_args_t *args)
 				VOID_RET(int, sched_rr_get_interval(pid, &t));
 			}
 #endif
+#define NEED_CASE_SCHED_FIFO
 			goto case_sched_fifo;
 #endif
 #if defined(SCHED_FIFO)
 		case SCHED_FIFO:
 #endif
+#if defined(NEED_CASE_SCHED_FIFO)
 case_sched_fifo:
+#endif
 			min_prio = sched_get_priority_min(new_policy);
 			max_prio = sched_get_priority_max(new_policy);
 
