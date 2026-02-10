@@ -540,13 +540,13 @@ static void stress_thrash_move_pages(
 		uintptr_t off;
 
 		for (off = proc_maps[i].begin; thrash_run && (off < proc_maps[i].end); off += page_size) {
-			void *pages[1];
-			int nodes[1];
-			int states[1];
-			int flag = stress_mwc1() ? MPOL_MF_MOVE : MPOL_MF_MOVE_ALL;
-
 			node = stress_numa_next_node(node, numa_nodes);
 			if (LIKELY(node < INT_MAX)) {
+				void *pages[1];
+				int nodes[1];
+				int states[1];
+				const int flag = stress_mwc1() ? MPOL_MF_MOVE : MPOL_MF_MOVE_ALL;
+
 				pages[0] = (void *)off;
 				nodes[0] = (int)node;
 				states[0] = 0;
