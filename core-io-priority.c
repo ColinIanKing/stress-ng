@@ -41,9 +41,9 @@ int32_t stress_io_priority_ionice_class_get(const char *const str)
 		return IOPRIO_CLASS_RT;
 #endif
 	if (strcmp("which", str))
-		(void)fprintf(stderr, "Invalid ionice-class option: %s\n", str);
+		(void)fprintf(stderr, "invalid ionice-class option: %s\n", str);
 
-	(void)fprintf(stderr, "Available options are:");
+	(void)fprintf(stderr, "available options are:");
 #if defined(IOPRIO_CLASS_IDLE)
 	(void)fprintf(stderr, " idle");
 #endif
@@ -66,34 +66,36 @@ int32_t stress_io_priority_ionice_class_get(const char *const str)
  */
 void stress_io_priority_set(const int32_t ioprio_class, const int32_t level)
 {
-	int data = level, rc;
+	int new_level = level, rc;
 
 	switch (ioprio_class) {
 	case UNDEFINED:	/* No preference, don't set */
 		return;
 	case IOPRIO_CLASS_RT:
 	case IOPRIO_CLASS_BE:
-		if ((level < 0) || (level > 7)) {
-			(void)fprintf(stderr, "Priority levels range from 0 "
+		if (new_level == UNDEFINED)
+			new_level = 0;
+		if ((new_level < 0) || (new_level > 7)) {
+			(void)fprintf(stderr, "priority levels range from 0 "
 				"(max) to 7 (min)\n");
 			_exit(EXIT_FAILURE);
 		}
 		break;
 	case IOPRIO_CLASS_IDLE:
-		if ((level != UNDEFINED) &&
-		    (level != 0))
-			(void)fprintf(stderr, "Cannot set priority level "
+		if ((new_level != UNDEFINED) &&
+		    (new_level != 0))
+			(void)fprintf(stderr, "cannot set priority level "
 				"with idle, defaulting to 0\n");
-		data = 0;
+		new_level = 0;
 		break;
 	default:
-		(void)fprintf(stderr, "Unknown priority class: %d\n", ioprio_class);
+		(void)fprintf(stderr, "unknown priority class: %d\n", ioprio_class);
 		_exit(EXIT_FAILURE);
 	}
 	rc = shim_ioprio_set(IOPRIO_WHO_PROCESS, 0,
-		IOPRIO_PRIO_VALUE(ioprio_class, data));
+		IOPRIO_PRIO_VALUE(ioprio_class, new_level));
 	if ((rc < 0) && (errno != ENOSYS)) {
-		(void)fprintf(stderr, "Cannot set I/O priority, errno=%d (%s)\n",
+		(void)fprintf(stderr, "cannot set I/O priority, errno=%d (%s)\n",
 			errno, strerror(errno));
 		_exit(EXIT_FAILURE);
 	}
