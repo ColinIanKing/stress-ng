@@ -501,7 +501,8 @@ void OPTIMIZE3 stress_rndstr(char *str, const size_t len)
 void OPTIMIZE3 stress_uint8rnd4(uint8_t *data, const size_t len)
 {
 	register uint32_t *ptr32, *ptr32end;
-	register uint8_t *ptr8 = data, *ptr8end = data + len;
+	register uint8_t *ptr8 = data;
+	register const uint8_t *ptr8end = data + len;
 
 	if (UNLIKELY(!data))
 		return;
