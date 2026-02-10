@@ -305,7 +305,7 @@ static void stress_workload_bucket_account(stress_workload_bucket_t *bucket, con
 		bucket->overflow++;
 }
 
-static void stress_workload_bucket_report(stress_workload_bucket_t *bucket)
+static void stress_workload_bucket_report(stress_args_t *args, stress_workload_bucket_t *bucket)
 {
 	size_t i;
 	int width1, width2;
@@ -327,18 +327,20 @@ static void stress_workload_bucket_report(stress_workload_bucket_t *bucket)
 		width2 = 7;
 
 	pr_block_begin();
-	pr_dbg("distribution of workload start time in workload slice:\n");
-	pr_dbg("%-*s %*s %4s\n",
-		(width1 * 2) + 4, "start time (us)",
+	pr_dbg("%s: distribution of workload start time in workload slice:\n", args->name);
+	pr_dbg("%s: %-*s %*s %4s\n",
+		args->name, (width1 * 2) + 4, "start time (us)",
 		width2, "count", "%");
 	for (i = 0; i < SIZEOF_ARRAY(bucket->bucket); i++) {
-		pr_dbg("%*" PRIu64 " .. %*" PRIu64 " %*" PRIu64 " %4.1f\n",
+		pr_dbg("%s: %*" PRIu64 " .. %*" PRIu64 " %*" PRIu64 " %4.1f\n",
+			args->name,
 			width1, (uint64_t)((double)i * bucket->width),
 			width1, (uint64_t)((double)(i + 1) * bucket->width) - 1,
 			width2, bucket->bucket[i],
 			(double)100.0 * (double)bucket->bucket[i] / (double)total);
 	}
-	pr_dbg("%*" PRIu64 " .. %*s %*" PRIu64 " %4.1f\n",
+	pr_dbg("%s: %*" PRIu64 " .. %*s %*" PRIu64 " %4.1f\n",
+		args->name,
 		width1, (uint64_t)((double)i * bucket->width),
 		width1, "",
 		width2, bucket->overflow,
@@ -696,7 +698,7 @@ static int stress_workload(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	if (stress_instance_zero(args))
-		stress_workload_bucket_report(&slice_offset_bucket);
+		stress_workload_bucket_report(args, &slice_offset_bucket);
 
 	free(workload);
 
