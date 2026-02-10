@@ -368,7 +368,7 @@ static int stress_call_exec_method(const stress_exec_context_t *context)
  *  stress_exec_from_pthread()
  *	perform exec calls from inside a pthread. This should cause
  * 	the kernel to also kill and reap other associated pthreads
- *	automatically such as the dummy pthead
+ *	automatically such as the dummy pthread
  */
 static void *stress_exec_from_pthread(void *arg)
 {
