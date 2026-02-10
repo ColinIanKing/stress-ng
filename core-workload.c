@@ -165,7 +165,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_workload_read(void *buffer, const siz
 	typedef int64_t stress_vint64_t __attribute__ ((vector_size (128)));
 
 	register stress_vint64_t *ptr = (stress_vint64_t *)buffer;
-	register stress_vint64_t *end = (stress_vint64_t *)(((uintptr_t)buffer) + buffer_len);
+	register const stress_vint64_t *end = (stress_vint64_t *)(((uintptr_t)buffer) + buffer_len);
 
 	while (ptr < end) {
 		stress_vint64_t v;
