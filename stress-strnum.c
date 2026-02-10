@@ -587,13 +587,11 @@ static int OPTIMIZE3 stress_strnum_call_method(
 	double t;
 	stress_metrics_t *metrics = &stress_strnum_metrics[method];
 	const stress_strnum_method_t *strnum_method = &stress_strnum_methods[method];
-	bool passed;
 	int i;
 
 	t = stress_time_now();
 	for (i = 0; stress_continue_flag() && (i < LOOPS_PER_BOGO_OP); i++) {
-		passed = strnum_method->func(args, strnum_method);
-		if (!passed)
+		if (!strnum_method->func(args, strnum_method))
 			return false;
 	}
 	metrics->duration += stress_time_now() - t;
