@@ -100,7 +100,6 @@ static int stress_icache_func(stress_args_t *args, uint8_t *pages, const size_t 
 		register int j = 1024;
 
 		while (--j) {
-			register uint32_t val;
 			size_t i;
 
 			/*
@@ -120,6 +119,7 @@ static int stress_icache_func(stress_args_t *args, uint8_t *pages, const size_t 
 			for (i = 0; i < pages_size; i += 64) {
 				void * const addr = (void * const)(pages + i);
 				volatile uint32_t *vaddr = (volatile uint32_t *)addr;
+				register uint32_t val;
 
 				/*
 				 *  Modifying executable code on x86 will
