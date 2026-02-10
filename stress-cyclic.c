@@ -773,7 +773,6 @@ again:
     defined(HAVE_SCHED_GET_PRIORITY_MAX)
 		NOCLOBBER pid_t mypid;
 #endif
-		int ret;
 		NOCLOBBER int ncrc = EXIT_FAILURE;
 
 #if defined(HAVE_SCHED_GET_PRIORITY_MIN) &&	\
@@ -800,13 +799,15 @@ again:
 #endif
 
 #if defined(HAVE_SIGLONGJMP)
-		ret = sigsetjmp(jmp_env, 1);
-		if (ret)
-			goto tidy_ok;
-		if (stress_signal_handler(args->name, SIGXCPU, stress_rlimit_handler, &old_action_xcpu) < 0)
-			goto tidy;
-#else
-		(void)ret;
+		{
+			int ret;
+
+			ret = sigsetjmp(jmp_env, 1);
+			if (ret)
+				goto tidy_ok;
+			if (stress_signal_handler(args->name, SIGXCPU, stress_rlimit_handler, &old_action_xcpu) < 0)
+				goto tidy;
+		}
 #endif
 
 #if defined(HAVE_SCHED_GET_PRIORITY_MIN) &&	\
