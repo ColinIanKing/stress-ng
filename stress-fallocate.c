@@ -103,7 +103,10 @@ static int stress_fallocate(stress_args_t *args)
 	int *mode_perms = NULL, all_modes;
 	size_t i, mode_count;
 	const char *fs_type;
-	int count = 0, rc = EXIT_SUCCESS;
+	int rc = EXIT_SUCCESS;
+#if defined(O_SYNC)
+	int count = 0;
+#endif
 
 	for (all_modes = 0, i = 0; i < SIZEOF_ARRAY(modes); i++)
 		all_modes |= modes[i];
