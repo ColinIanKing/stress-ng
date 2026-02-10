@@ -303,7 +303,7 @@ static void stress_exec_remove_pid(const pid_t pid)
 				stress_pid_hash_table[hash] = sph->next;
 			}
 			stress_exec_free_list_add(sph);
-			return;
+			break;
 		}
 		prev = sph;
 		sph = sph->next;
@@ -470,6 +470,8 @@ static int stress_exec_child(void *arg)
 #else
 	bool exec_garbage = false;
 #endif
+	alarm(0);
+
 	if (method == EXEC_METHOD_ALL) {
 		switch (stress_mwc8modn(3)) {
 		default:
@@ -663,6 +665,51 @@ do_exec:
 	return rc;
 }
 
+static pid_t stress_exec_wait(
+	stress_args_t *args,
+	const int exec_fork_method,
+	uint64_t *exec_calls,
+	uint64_t *exec_fails)
+{
+	pid_t wret;
+	int status;
+
+	wret = waitpid(-1, &status, 0);
+	if (wret < 0) {
+		if (errno == ECHILD)
+			return 0;
+		return -1;
+	}
+	if ((wret > 0) && WIFEXITED(status)) {
+		stress_exec_remove_pid(wret);
+		(*exec_calls)++;
+		stress_bogo_inc(args);
+
+		switch (exec_fork_method) {
+		case EXEC_FORK_METHOD_FORK:
+			if (WIFEXITED(status) && (WEXITSTATUS(status) == EXIT_FAILURE))
+				(*exec_fails)++;
+			break;
+#if defined(HAVE_VFORK)
+		case EXEC_FORK_METHOD_VFORK:
+			break;
+#endif
+#if defined(HAVE_CLONE)
+		case EXEC_FORK_METHOD_CLONE:
+			break;
+#endif
+#if defined(HAVE_SPAWN_H) &&	\
+    defined(HAVE_POSIX_SPAWN)
+		case EXEC_FORK_METHOD_SPAWN:
+			break;
+#endif
+		default:
+			break;
+		}
+	}
+	return wret;
+}
+
 /*
  *  stress_exec()
  *	stress by forking and exec'ing
@@ -679,7 +726,7 @@ static int stress_exec(stress_args_t *args)
     defined(O_PATH)
 	int fdexec;
 #endif
-	uint64_t volatile exec_fails = 0, exec_calls = 0;
+	uint64_t exec_fails = 0, exec_calls = 0;
 	uint32_t exec_max = DEFAULT_EXECS;
 	size_t exec_method_idx;
 	size_t exec_fork_method_idx;
@@ -803,11 +850,10 @@ static int stress_exec(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		NOCLOBBER uint32_t i;
+		NOCLOBBER uint32_t i, reap_count = 0;
+		pid_t pid;
 
 		for (i = 0; i < exec_max; i++) {
-			int status;
-			pid_t pid, wret;
 #if defined(HAVE_CLONE)
 			char *stack_top;
 			const bool alloc_stack = (exec_fork_method == EXEC_FORK_METHOD_CLONE);
@@ -847,6 +893,7 @@ static int stress_exec(stress_args_t *args)
 			case EXEC_FORK_METHOD_FORK:
 				pid = fork();
 				if (pid == 0) {
+					alarm(0);
 					stress_set_proc_state(args->name, STRESS_STATE_RUN);
 					stress_set_make_it_fail();
 					_exit(stress_exec_child(&sph->arg));
@@ -858,6 +905,7 @@ static int stress_exec(stress_args_t *args)
 			case EXEC_FORK_METHOD_RFORK:
 				pid = rfork(RFPROC | RFFDG);
 				if (pid == 0) {
+					alarm(0);
 					stress_set_proc_state(args->name, STRESS_STATE_RUN);
 					_exit(stress_exec_child(&sph->arg));
 				}
@@ -871,6 +919,7 @@ static int stress_exec(stress_args_t *args)
 					 *  vfork has to be super simple to avoid clobbering
 					 *  the parent stack, so just do vanilla execve
 					 */
+					alarm(0);
 					_exit(execve(exec_prog, sph->arg.argv, sph->arg.env));
 				}
 				break;
@@ -893,62 +942,32 @@ static int stress_exec(stress_args_t *args)
 #endif
 			}
 
-			stress_exec_add_pid(sph, pid);
+			if (pid != -1)
+				stress_exec_add_pid(sph, pid);
 
 			/* Check if we can reap children */
-			wret = waitpid(-1, &status, WNOHANG);
-			if ((wret > 0) && WIFEXITED(status)) {
-				stress_exec_remove_pid(wret);
-				exec_calls++;
-				stress_bogo_inc(args);
-			}
+			(void)stress_exec_wait(args, exec_fork_method, &exec_calls, &exec_fails);
 		}
 
 		/* Parent, wait for children */
+
+		reap_count = 0;
 		for (i = 0; i < HASH_EXECS; i++) {
 			stress_pid_hash_t *sph = stress_pid_hash_table[i];
 
 			while (sph) {
-				stress_pid_hash_t *next = sph->next;
-
-				if (LIKELY(sph->pid > 0)) {
-					int status;
-
-					(void)shim_waitpid(sph->pid, &status, 0);
-					stress_exec_remove_pid(sph->pid);
-					exec_calls++;
-					stress_bogo_inc(args);
-
-					switch (exec_fork_method) {
-					case EXEC_FORK_METHOD_FORK:
-						if (WIFEXITED(status) &&
-						    (WEXITSTATUS(status) == EXIT_FAILURE))
-							exec_fails++;
-						break;
-#if defined(HAVE_VFORK)
-					case EXEC_FORK_METHOD_VFORK:
-						break;
-#endif
-#if defined(HAVE_CLONE)
-					case EXEC_FORK_METHOD_CLONE:
-						break;
-#endif
-#if defined(HAVE_SPAWN_H) &&	\
-    defined(HAVE_POSIX_SPAWN)
-					case EXEC_FORK_METHOD_SPAWN:
-						break;
-#endif
-					default:
-						break;
-					}
-				}
-				sph = next;
+				reap_count++;
+				sph = sph->next;
 			}
+		}
+
+		for (i = 0; i < reap_count; i++) {
+			while (stress_exec_wait(args, exec_fork_method, &exec_calls, &exec_fails) < 0)
+				;
 		}
 	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
-
 
 #if (defined(HAVE_EXECVEAT) ||	\
      defined(HAVE_FEXECVE)) &&	\
