@@ -401,7 +401,10 @@ static int stress_af_alg_cipher(
 	int retries = MAX_AF_ALG_RETRIES_BIND;
 	char input[DATA_LEN + ALLOC_SLOP] ALIGN64;
 	char output[DATA_LEN + ALLOC_SLOP] ALIGN64;
-	char *cbuf, *key;
+	char *cbuf;
+#if defined(ALG_SET_KEY)
+	char *key;
+#endif
 
 	switch (info->crypto_type) {
 	case CRYPTO_CIPHER:
