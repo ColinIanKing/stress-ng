@@ -122,7 +122,7 @@ static inline void stress_format_time(
 		int ret;
 
 		if (*emitted) {
-			ret = snprintf(*ptr, *len, ", ");
+			ret = snprintf(*ptr, *len, " ");
 			if (ret > 0) {
 				*len -= (size_t)ret;
 				*ptr += ret;
