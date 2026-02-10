@@ -178,7 +178,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_workload_read(void *buffer, const siz
 	stress_cpu_cache_data_flush(buffer, buffer_len);
 #else
 	register uint64_t *ptr = (uint64_t *)buffer;
-	register uint64_t *end = (uint64_t *)(((uintptr_t)buffer) + buffer_len);
+	register const uint64_t *end = (uint64_t *)(((uintptr_t)buffer) + buffer_len);
 
 	stress_cpu_cache_data_flush(buffer, buffer_len);
 	while (ptr < end) {
