@@ -1338,7 +1338,6 @@ static void stress_wait_stressors(
 
 	stress_sync_start_cont_list(s_pids_head);
 
-
 #if defined(HAVE_SCHED_GETAFFINITY) &&	\
     NEED_GLIBC(2,3,0)
 	/*
@@ -1353,13 +1352,13 @@ static void stress_wait_stressors(
 	(void)ticks_per_sec;
 #endif
 	reap_count = stress_wait_reap_count(stressors_list);
-	do {
+	while (reap_count > 0) {
 		stress_stats_t *stats;
 
 		stats = stress_child_wait(0, success, resource_success, metrics_success);
 		if (stats)
 			reap_count--;
-	} while (reap_count > 0);
+	}
 
 	if (g_opt_flags & OPT_FLAGS_IGNITE_CPU)
 		stress_ignite_cpu_stop();
