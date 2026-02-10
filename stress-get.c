@@ -375,11 +375,12 @@ static int stress_getpgid(stress_args_t *args)
 static int stress_getpriority(stress_args_t *args)
 {
 #if defined(HAVE_GETPRIORITY)
-	pid_t pid;
 	static size_t i = 0;
 
 	if (i < SIZEOF_ARRAY(priorities)) {
+		pid_t pid;
 		int ret;
+
 		/*
 		 *  Exercise getpriority calls that use illegal
 		 *  arguments to get more kernel test coverage
