@@ -102,13 +102,13 @@ static void stress_limit_set(int resource, const char *opt)
 void stress_limit_max_set(void)
 {
 	size_t i;
-	struct rlimit rlim;
 
 	for (i = 0; i < SIZEOF_ARRAY(limits); i++)
 		stress_limit_set(limits[i].resource, limits[i].opt);
 
 #if defined(RLIMIT_NOFILE)
 	{
+		struct rlimit rlim;
 		uint64_t max_fd = 0;
 
 		(void)stress_get_setting("max-fd", &max_fd);
