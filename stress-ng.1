@@ -1153,9 +1153,9 @@ stop after N binderfs cycles.
 .RS 5
 .TQ
 .B \-\-bind\-mount N
-start N workers that repeatedly bind mount / to / inside a user namespace. This
-can consume resources rapidly, forcing out of memory situations. Do not use this
-stressor unless you want to risk hanging your machine.
+start N workers that repeatedly bind mount /bin to a temporary path. This
+can consume resources rapidly. Do not use this stressor unless you want
+to risk hanging your machine. Requires the CAP_SYS_ADMIN capability.
 .TP
 .B \-\-bind\-mount\-ops N
 stop after N bind mount bogo operations.

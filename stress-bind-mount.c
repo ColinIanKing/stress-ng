@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-builtin.h"
+#include "core-capabilities.h"
 #include "core-pthread.h"
 
 #if defined(HAVE_SYS_MOUNT_H)
@@ -39,7 +40,16 @@ static const stress_help_t help[] = {
     defined(CLONE_NEWNS) && \
     defined(CLONE_VM)
 
-#define CLONE_STACK_SIZE	(128*1024)
+static int stress_bind_mount_supported(const char *name)
+{
+	if (!stress_capabilities_check(SHIM_CAP_SYS_ADMIN)) {
+		pr_inf_skip("%s stressor will be skipped, "
+			"need to be running with CAP_SYS_ADMIN "
+			"rights for this stressor\n", name);
+		return -1;
+	}
+	return 0;
+}
 
 static void MLOCKED_TEXT stress_bind_mount_child_handler(int signum)
 {
@@ -51,18 +61,16 @@ static void MLOCKED_TEXT stress_bind_mount_child_handler(int signum)
 }
 
 /*
- *  stress_bind_mount_child()
+ *  stress_bind_mount_exercise()
  *	aggressively perform bind mounts, this can force out of memory
  *	situations
  */
-static int stress_bind_mount_child(void *parg)
+static int stress_bind_mount_exercise(stress_args_t *args, const char *path)
 {
-	const stress_pthread_args_t *pargs = (stress_pthread_args_t *)parg;
-	stress_args_t *args = pargs->args;
-	const char *path = (const char *)pargs->data;
 	double mount_duration = 0.0, umount_duration = 0.0;
 	double mount_count = 0.0, umount_count = 0.0;
 	double rate;
+	static const char bind_to_path[] = "/bin";
 
 	if (stress_signal_handler(args->name, SIGALRM,
 				stress_bind_mount_child_handler, NULL) < 0) {
@@ -83,12 +91,30 @@ static int stress_bind_mount_child(void *parg)
 		DIR *dir;
 		const struct dirent *d;
 		double t;
+#if defined(HAVE_OPEN_TREE)
+		int fd;
+#endif
 
 		t = stress_time_now();
-		rc = mount("/", path, "", MS_BIND | MS_REC | MS_RDONLY, 0);
+#if defined(HAVE_OPEN_TREE)
+		fd = open_tree(-EBADF, bind_to_path, OPEN_TREE_CLONE | OPEN_TREE_CLOEXEC);
+		if (fd < 0) {
+			pr_inf_skip("%s: open_tree on '%s' failed, errno=%d (%s), "
+				"skipping stressor\n", args->name, path,
+				errno, strerror(errno));
+			(void)shim_rmdir(path);
+			return EXIT_NO_RESOURCE;
+		}
+		rc = move_mount(fd, "", AT_FDCWD, path, MOVE_MOUNT_F_EMPTY_PATH);
+		(void)close(fd);
+#else
+		rc = mount(bind_to_path, path, "", MS_BIND | MS_REC, NULL);
+#endif
 		if (rc < 0) {
 			if ((errno == EACCES) || (errno == ENOENT)) {
-				pr_inf_skip("%s: bind mount failed, skipping stressor\n", args->name);
+				pr_inf_skip("%s: bind mount failed, errno=%d (%s), "
+					"skipping stressor\n", args->name,
+					errno, strerror(errno));
 				(void)shim_rmdir(path);
 				return EXIT_NO_RESOURCE;
 			}
@@ -103,14 +129,14 @@ static int stress_bind_mount_child(void *parg)
 		/*
 		 *  Check if we can stat the files in the bound mount path
 		 */
-		dir = opendir("/");
+		dir = opendir(bind_to_path);
 		if (!dir)
 			goto bind_umount;
 
 		stat_count = 0;
 		stat_okay = 0;
 
-		while ((d = readdir(dir)) != NULL) {
+		while (((stat_okay < 64) && (d = readdir(dir)) != NULL)) {
 			char bindpath[PATH_MAX + sizeof(d->d_name) + 1];
 			const char *name = d->d_name;
 			struct stat statbuf;
@@ -119,12 +145,18 @@ static int stress_bind_mount_child(void *parg)
 				continue;
 
 			stat_count++;
+			(void)snprintf(bindpath, sizeof(bindpath), "%s/%s", bind_to_path, name);
+			rc = shim_lstat(bindpath, &statbuf);
+			if (rc < 0)
+				continue;
+
 			(void)snprintf(bindpath, sizeof(bindpath), "%s/%s", path, name);
+
 			/*
 			 *  Note that not all files may succeed on being stat'd on
 			 *  some systems
 			 */
-			rc = shim_stat(bindpath, &statbuf);
+			rc = shim_lstat(bindpath, &statbuf);
 			if (rc == 0)
 				stat_okay++;
 		}
@@ -184,9 +216,8 @@ bind_umount:
  */
 static int stress_bind_mount(stress_args_t *args)
 {
-	int status, ret, rc = EXIT_SUCCESS;
+	int ret, rc = EXIT_SUCCESS;
 	char path[PATH_MAX];
-	stress_pthread_args_t pargs = { args, path, 0 };
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
@@ -202,48 +233,10 @@ static int stress_bind_mount(stress_args_t *args)
 	}
 
 	do {
-		pid_t pid;
-		char stack[CLONE_STACK_SIZE];
-		char *const stack_top = (char *)stress_stack_top((void *)stack, CLONE_STACK_SIZE);
-
-		(void)shim_memset(stack, 0, sizeof stack);
-
-		pid = (pid_t)clone(stress_bind_mount_child,
-			stress_align_stack(stack_top),
-			CLONE_NEWUSER | CLONE_NEWNS | CLONE_VM | SIGCHLD,
-			(void *)&pargs, 0);
-		if (pid < 0) {
-			switch (errno) {
-			case ENOMEM:
-			case ENOSPC:
-			case EPERM:
-				rc = EXIT_NO_RESOURCE;
-				goto err;
-			case ENOSYS:
-				rc = EXIT_NOT_IMPLEMENTED;
-				goto err;
-			default:
-				break;
-			}
-			pr_fail("%s: clone failed, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
-			return EXIT_FAILURE;
-		}
-		if (shim_waitpid(pid, &status, 0) < 0) {
-			pr_inf("%s: waitpid on PID %" PRIdMAX " failed, errno=%d (%s)\n",
-				args->name, (intmax_t)pid, errno, strerror(errno));
+		if (stress_bind_mount_exercise(args, path) != EXIT_SUCCESS)
 			break;
-		}
-		if (WIFEXITED(status)) {
-			rc = WEXITSTATUS(status);
-			if (rc != EXIT_SUCCESS)
-				break;
-		} else if (WIFSIGNALED(status)) {
-			break;
-		}
 	} while (stress_continue(args));
 
-err:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	(void)shim_rmdir(path);
@@ -255,6 +248,7 @@ const stressor_info_t stress_bind_mount_info = {
 	.stressor = stress_bind_mount,
 	.classifier = CLASS_FILESYSTEM | CLASS_OS | CLASS_PATHOLOGICAL,
 	.verify = VERIFY_ALWAYS,
+	.supported = stress_bind_mount_supported,
 	.help = help
 };
 #else
