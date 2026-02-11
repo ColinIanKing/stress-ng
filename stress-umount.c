@@ -169,7 +169,7 @@ static void NORETURN stress_umount_umounter(stress_args_t *args, const char *pat
 static void NORETURN stress_umount_mounter(stress_args_t *args, const char *path)
 {
 	int i = 0, rc = EXIT_SUCCESS;
-	const char skip[] = "skipping stressor";
+	static const char skip[] = "skipping stressor";
 
 	stress_parent_died_alarm();
 	(void)stress_sched_settings_apply(true);
