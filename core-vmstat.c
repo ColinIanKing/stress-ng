@@ -121,7 +121,8 @@ static int32_t iostat_delay = 0;
 static int32_t raplstat_delay = 0;
 
 
-#if defined(__FreeBSD__)
+#if defined(__FreeBSD__) ||	\
+    defined(__DragonFly__)
 /*
  *  freebsd_get_cpu_time()
  *	get user, system, idle times; FreeBSD variant
@@ -131,7 +132,13 @@ static void freebsd_get_cpu_time(
 	uint64_t *system_time,
 	uint64_t *idle_time)
 {
+#if defined(__FreeBSD__)
 	const int cpus = stress_bsd_getsysctl_int("kern.smp.cpus");
+#elif defined(__DragonFly__)
+	const int cpus = stress_bsd_getsysctl_int("hw.ncpu");
+#else
+	const int cpus = 0;
+#endif
 	long int *vals;
 	int i;
 
@@ -683,7 +690,8 @@ static void stress_read_vmstat(stress_vmstat_t *vmstat)
 		(void)fclose(fp);
 	}
 }
-#elif defined(__FreeBSD__)
+#elif defined(__FreeBSD__) || 	\
+      defined(__DragonFly__)
 /*
  *  stress_read_vmstat()
  *	read vmstat statistics, FreeBSD variant, partially implemented
@@ -826,7 +834,7 @@ static void stress_read_vmstat(stress_vmstat_t *vmstat)
 		vmstat->swap_free = xsu.xsu_avail;
 	}
 	vmstat->user_time = 0;
-	vmstat->system_time= 0;
+	vmstat->system_time = 0;
 	vmstat->idle_time = 0;
 	vmstat->wait_time = 0;
 	vmstat->stolen_time = 0;
