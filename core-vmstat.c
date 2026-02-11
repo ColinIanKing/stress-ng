@@ -704,6 +704,10 @@ static void stress_read_vmstat(stress_vmstat_t *vmstat)
 
 	vmstat->interrupt = stress_bsd_getsysctl_uint64("vm.stats.sys.v_intr");
 	vmstat->context_switch = stress_bsd_getsysctl_uint64("vm.stats.sys.v_swtch");
+	vmstat->swap_total = stress_bsd_getsysctl_uint64("vm.swap_size");
+	vmstat->swap_free = stress_bsd_getsysctl_uint64("vm.swap_free");
+	vmstat->swap_used = (vmstat->swap_total > vmstat->swap_free) ?
+		vmstat->swap_total - vmstat->swap_free : 0;
 	vmstat->swap_in = stress_bsd_getsysctl_uint64("vm.stats.vm.v_swapin");
 	vmstat->swap_out = stress_bsd_getsysctl_uint64("vm.stats.vm.v_swapout");
 	vmstat->block_in = stress_bsd_getsysctl_uint64("vm.stats.vm.v_vnodepgsin");
