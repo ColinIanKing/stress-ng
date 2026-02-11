@@ -1814,8 +1814,11 @@ int shim_fsconfig(
 	const void *value,
 	int aux)
 {
-#if defined(__NR_fsconfig) &&	\
-    defined(HAVE_SYSCALL)
+#if defined(HAVE_FSCONFIG) &&	\
+    defined(HAVE_SYS_MOUNT_H)
+	return fsconfig(fd, cmd, key, value, aux);
+#elif defined(__NR_fsconfig) &&	\
+      defined(HAVE_SYSCALL)
 	return (int)syscall(__NR_fsconfig, fd, cmd, key, value, aux);
 #else
 	return (int)shim_enosys(0, fd, cmd, key, value, aux);
