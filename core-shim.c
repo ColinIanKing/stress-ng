@@ -1830,8 +1830,11 @@ int shim_move_mount(
 	const char *to_pathname,
 	unsigned int flags)
 {
-#if defined(__NR_move_mount) &&	\
-    defined(HAVE_SYSCALL)
+#if defined(HAVE_FSMOUNT) &&	\
+    defined(HAVE_SYS_MOUNT)
+	return move_mount(from_dfd, from_pathname, to_dfd, to_pathname, flags);
+#elif defined(__NR_move_mount) &&	\
+      defined(HAVE_SYSCALL)
 	return (int)syscall(__NR_move_mount, from_dfd, from_pathname,
 		to_dfd, to_pathname, flags);
 #else
