@@ -80,6 +80,10 @@ UNEXPECTED
 #include <asm/ldt.h>
 #endif
 
+#if defined(HAVE_SYS_MOUNT)
+#include <sys/mount.h>
+#endif
+
 #if defined(HAVE_SYS_PIDFD_H)
 #include <sys/pidfd.h>
 #endif
@@ -1785,8 +1789,11 @@ int shim_fsopen(const char *fsname, unsigned int flags)
  */
 int shim_fsmount(int fd, unsigned int flags, unsigned int ms_flags)
 {
-#if defined(__NR_fsmount) &&	\
-    defined(HAVE_SYSCALL)
+#if defined(HAVE_FSMOUNT) &&	\
+    defined(HAVE_SYS_MOUNT)
+	return fsmount(fsfd, flags, attr_flags);
+#elif defined(__NR_fsmount) &&	\
+      defined(HAVE_SYSCALL)
 	return (int)syscall(__NR_fsmount, fd, flags, ms_flags);
 #else
 	return (int)shim_enosys(0, fd, flags, ms_flags);
@@ -3151,7 +3158,7 @@ int shim_rseq_slice_yield(void)
 
 /*
  *  shim_open_tree()
- *	shim wrapper for Linux system call open_tree();
+ *	shim wrapper for Linux system call open_tree()
  */
 int shim_open_tree(int dirfd, const char *path, unsigned int flags)
 {
@@ -3163,4 +3170,3 @@ int shim_open_tree(int dirfd, const char *path, unsigned int flags)
 	return (int)shim_enosys(0, dirfd, path, flags;
 #endif
 }
-
