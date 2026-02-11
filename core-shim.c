@@ -3148,3 +3148,19 @@ int shim_rseq_slice_yield(void)
 	return (int)shim_enosys(0);
 #endif
 }
+
+/*
+ *  shim_open_tree()
+ *	shim wrapper for Linux system call open_tree();
+ */
+int shim_open_tree(int dirfd, const char *path, unsigned int flags)
+{
+#if defined(HAVE_OPEN_TREE)
+	return open_tree(dirfd, path, flags);
+#elif defined(__NR_open_tree)
+	return (int)syscall(__NR_open_tree, dirfd, path, flags);
+#else
+	return (int)shim_enosys(0, dirfd, path, flags;
+#endif
+}
+
