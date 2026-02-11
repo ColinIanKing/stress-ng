@@ -478,7 +478,7 @@ static int stress_cgroup_child(stress_args_t *args)
 	char pathname[PATH_MAX], realpathname[PATH_MAX];
 	int rc = EXIT_SUCCESS;
 	uint64_t mount_retry = 0, umount_retry = 0;
-	const char skip[] = "skipping stressor";
+	static const char skip[] = "skipping stressor";
 
 	stress_parent_died_alarm();
 	(void)stress_sched_settings_apply(true);
