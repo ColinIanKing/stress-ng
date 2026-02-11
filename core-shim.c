@@ -3133,3 +3133,18 @@ ssize_t shim_listns(
 	return (ssize_t)shim_enosys(0, req, ns_ids, nr_ns_ids, flags);
 #endif
 }
+
+/*
+ *  shim_rseq_slice_yield()
+ *	shim wrapper for Linux system call rseq_slice_yield()
+ */
+int shim_rseq_slice_yield(void)
+{
+#if defined(HAVE_RSEQ_SLICE_YIELD)
+	return rseq_slice_yield();
+#elif defined(__NR_rseq_slice_yield)
+	return (int)syscall(__NR_rseq_slice_yield);
+#else
+	return (int)shim_enosys(0);
+#endif
+}

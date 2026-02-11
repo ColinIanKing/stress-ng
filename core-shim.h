@@ -736,4 +736,5 @@ extern int shim_file_setattr(int dfd, const char *filename,
 extern int shim_pause(void);
 extern ssize_t shim_listns(const struct shim_ns_id_req *req, uint64_t *ns_ids,
         size_t nr_ns_ids, unsigned int flags);
+extern int shim_rseq_slice_yield(void);
 #endif
