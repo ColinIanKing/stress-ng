@@ -280,12 +280,6 @@ static int stress_zombie_clone_cap_sys_admin(void *voidctxt)
 	stress_zombie_context_t *context = (stress_zombie_context_t *)voidctxt;
 	stress_zombie_child(context->args);
 
-#if defined(CLONE_NEWNS) &&	\
-    defined(MS_REC) &&		\
-    defined(MS_PRIVATE)
-	/* intentional mount, should be cleaned up on exit */
-	VOID_RET(int, mount("none", "/proc", "", MS_REC | MS_PRIVATE, NULL));
-#endif
 #if defined(CLONE_NEWNET) &&	\
     defined(AF_INET) &&		\
     defined(SOCK_STREAM)
