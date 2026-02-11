@@ -478,6 +478,7 @@ static int stress_cgroup_child(stress_args_t *args)
 	char pathname[PATH_MAX], realpathname[PATH_MAX];
 	int rc = EXIT_SUCCESS;
 	uint64_t mount_retry = 0, umount_retry = 0;
+	const char skip[] = "skipping stressor";
 
 	stress_parent_died_alarm();
 	(void)stress_sched_settings_apply(true);
@@ -496,6 +497,59 @@ static int stress_cgroup_child(stress_args_t *args)
 	}
 
 	do {
+#if defined(HAVE_FSOPEN) &&	\
+    defined(HAVE_FSCONFIG) &&	\
+    defined(HAVE_FSMOUNT) &&	\
+    defined(HAVE_MOVE_MOUNT) &&	\
+    defined(HAVE_SYS_MOUNT_H)
+		int fd, fd_mnt;
+
+		fd = fsopen("cgroup2", FSOPEN_CLOEXEC);
+		if (fd < 0) {
+			pr_inf_skip("%s: fsopen failed, errno=%d (%s), "
+				"skipping stressor\n",
+				args->name, errno, strerror(errno));
+			(void)stress_temp_dir_rm_args(args);
+			return EXIT_FAILURE;
+		}
+		if (fsconfig(fd, FSCONFIG_SET_STRING, "source", "none", 0) < 0) {
+			pr_inf_skip("%s: fsconfig FSCONFIG_SET_STRING 'source' failed, errno=%d (%s), %s\n",
+				args->name, errno, strerror(errno), skip);
+			(void)close(fd);
+			(void)stress_temp_dir_rm_args(args);
+			return EXIT_FAILURE;
+		}
+		if (fsconfig(fd, FSCONFIG_CMD_CREATE, NULL, NULL, 0) < 0) {
+			pr_inf_skip("%s: fsconfig FSCONFIG_CMD_CREATE, failed, errno=%d (%s), %s\n",
+				args->name, errno, strerror(errno), skip);
+			(void)close(fd);
+			(void)stress_temp_dir_rm_args(args);
+			return EXIT_FAILURE;
+		}
+		fd_mnt = fsmount(fd, FSMOUNT_CLOEXEC, 0);
+		if (fd_mnt < 0) {
+			pr_inf_skip("%s: fsmount failed, errno=%d (%s), %s\n",
+				args->name, errno, strerror(errno), skip);
+			(void)close(fd);
+			rc = EXIT_FAILURE;
+			goto cleanup;
+		}
+		if (move_mount(fd_mnt, "", AT_FDCWD, realpathname, MOVE_MOUNT_F_EMPTY_PATH) < 0) {
+			if (errno == EPERM) {
+				pr_inf_skip("%s: move_mount failed, no permission, %s\n",
+					args->name, skip);
+			} else {
+				pr_fail("%s: move_mount failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
+			}
+			(void)close(fd_mnt);
+			(void)close(fd);
+			rc = EXIT_FAILURE;
+			goto cleanup;
+		}
+		(void)close(fd_mnt);
+		(void)close(fd);
+#else
 		int ret;
 
 		ret = mount("none", realpathname, "cgroup2", 0, NULL);
@@ -505,21 +559,21 @@ static int stress_cgroup_child(stress_args_t *args)
 				stress_group_sleep(&mount_retry);
 				continue;
 			} else if (errno == EPERM) {
-				pr_inf_skip("%s: mount failed, no permission, skipping stressor\n",
-					args->name);
+				pr_inf_skip("%s: mount failed, no permission, %s\n",
+					args->name, skip);
 				rc = EXIT_NO_RESOURCE;
 				goto cleanup;
 			} else if ((errno != ENOSPC) &&
 				   (errno != ENOMEM) &&
 				   (errno != ENODEV)) {
-				pr_fail("%s: mount failed, errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
+				pr_fail("%s: mount failed, errno=%d (%s), %s\n",
+					args->name, errno, strerror(errno), skip);
 				rc = EXIT_FAILURE;
 			}
 			/* Just in case, force umount */
 			goto cleanup;
 		}
-
+#endif
 		stress_cgroup_controllers(realpathname);
 		stress_cgroup_read_files(realpathname);
 		stress_cgroup_new_group(args, realpathname);
@@ -531,6 +585,7 @@ cleanup:
 	stress_cgroup_umount(args, realpathname, &umount_retry);
 	if (stress_cgroup_mounted_state(realpathname) == STRESS_CGROUP_MOUNTED)
 		pr_dbg("%s: could not unmount of %s\n", args->name, realpathname);
+
 	(void)stress_temp_dir_rm_args(args);
 	if ((mount_retry + umount_retry) > 0) {
 		pr_dbg("%s: %" PRIu64 " mount retries, %" PRIu64 " umount retries\n",
