@@ -1634,6 +1634,7 @@ char *stress_get_proc_self_exe(char *path, const size_t path_len)
 }
 
 #if defined(__FreeBSD__) ||	\
+    defined(__DragonFly__) ||	\
     defined(__NetBSD__) ||	\
     defined(__APPLE__)
 /*
