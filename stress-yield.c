@@ -312,6 +312,7 @@ static int stress_yield(stress_args_t *args)
 					pr_fail("%s: sched_yield failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 				}
+				VOID_RET(int, shim_rseq_slice_yield());
 			} while (stress_continue_flag() && (!max_ops_per_yielder || (metrics[i].count < (double)max_ops_per_yielder)));
 			_exit(EXIT_SUCCESS);
 		}
