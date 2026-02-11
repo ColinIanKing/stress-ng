@@ -87,21 +87,25 @@ static int stress_bind_mount_exercise(stress_args_t *args, const char *path)
 	stress_parent_died_alarm();
 
 	do {
+		static const char skip[] = "skipping stressor";
 		int rc, retries, stat_count, stat_okay;
 		DIR *dir;
 		const struct dirent *d;
 		double t;
-#if defined(HAVE_OPEN_TREE)
+#if defined(HAVE_OPEN_TREE) &&	\
+    defined(HAVE_MOVE_MOUNT) &&	\
+    defined(HAVE_SYS_MOUNT_H)
 		int fd;
 #endif
 
 		t = stress_time_now();
-#if defined(HAVE_OPEN_TREE)
+#if defined(HAVE_OPEN_TREE) &&	\
+    defined(HAVE_MOVE_MOUNT) &&	\
+    defined(HAVE_SYS_MOUNT_H)
 		fd = open_tree(-EBADF, bind_to_path, OPEN_TREE_CLONE | OPEN_TREE_CLOEXEC);
 		if (fd < 0) {
-			pr_inf_skip("%s: open_tree on '%s' failed, errno=%d (%s), "
-				"skipping stressor\n", args->name, path,
-				errno, strerror(errno));
+			pr_inf_skip("%s: open_tree on '%s' failed, errno=%d (%s), %s\n",
+				args->name, path, errno, strerror(errno), skip);
 			(void)shim_rmdir(path);
 			return EXIT_NO_RESOURCE;
 		}
@@ -112,9 +116,8 @@ static int stress_bind_mount_exercise(stress_args_t *args, const char *path)
 #endif
 		if (rc < 0) {
 			if ((errno == EACCES) || (errno == ENOENT)) {
-				pr_inf_skip("%s: bind mount failed, errno=%d (%s), "
-					"skipping stressor\n", args->name,
-					errno, strerror(errno));
+				pr_inf_skip("%s: bind mount failed, errno=%d (%s), %s\n",
+					args->name, errno, strerror(errno), skip);
 				(void)shim_rmdir(path);
 				return EXIT_NO_RESOURCE;
 			}
