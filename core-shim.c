@@ -80,7 +80,7 @@ UNEXPECTED
 #include <asm/ldt.h>
 #endif
 
-#if defined(HAVE_SYS_MOUNT)
+#if defined(HAVE_SYS_MOUNT_H)
 #include <sys/mount.h>
 #endif
 
@@ -1775,7 +1775,10 @@ int shim_pidfd_getfd(int pidfd, int targetfd, unsigned int flags)
  */
 int shim_fsopen(const char *fsname, unsigned int flags)
 {
-#if defined(__NR_fsopen) &&	\
+#if defined(HAVE_FSOPEN) &&	\
+    defined(HAVE_SYS_MOUNT_H)
+	return fsopen(fsname, flags);
+#elif defined(__NR_fsopen) &&	\
     defined(HAVE_SYSCALL)
 	return (int)syscall(__NR_fsopen, fsname, flags);
 #else
@@ -1790,8 +1793,8 @@ int shim_fsopen(const char *fsname, unsigned int flags)
 int shim_fsmount(int fd, unsigned int flags, unsigned int ms_flags)
 {
 #if defined(HAVE_FSMOUNT) &&	\
-    defined(HAVE_SYS_MOUNT)
-	return fsmount(fsfd, flags, attr_flags);
+    defined(HAVE_SYS_MOUNT_H)
+	return fsmount(fd, flags, ms_flags);
 #elif defined(__NR_fsmount) &&	\
       defined(HAVE_SYSCALL)
 	return (int)syscall(__NR_fsmount, fd, flags, ms_flags);
@@ -1831,7 +1834,7 @@ int shim_move_mount(
 	unsigned int flags)
 {
 #if defined(HAVE_FSMOUNT) &&	\
-    defined(HAVE_SYS_MOUNT)
+    defined(HAVE_SYS_MOUNT_H)
 	return move_mount(from_dfd, from_pathname, to_dfd, to_pathname, flags);
 #elif defined(__NR_move_mount) &&	\
       defined(HAVE_SYSCALL)
