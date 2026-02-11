@@ -799,15 +799,10 @@ again:
 #endif
 
 #if defined(HAVE_SIGLONGJMP)
-		{
-			int ret;
-
-			ret = sigsetjmp(jmp_env, 1);
-			if (ret)
-				goto tidy_ok;
-			if (stress_signal_handler(args->name, SIGXCPU, stress_rlimit_handler, &old_action_xcpu) < 0)
-				goto tidy;
-		}
+		if (sigsetjmp(jmp_env, 1))
+			goto tidy_ok;
+		if (stress_signal_handler(args->name, SIGXCPU, stress_rlimit_handler, &old_action_xcpu) < 0)
+			goto tidy;
 #endif
 
 #if defined(HAVE_SCHED_GET_PRIORITY_MIN) &&	\
@@ -815,8 +810,7 @@ again:
 #if defined(SCHED_DEADLINE)
 redo_policy:
 #endif
-		ret = stress_sched_set(mypid, policy, rt_stats->max_prio, true);
-		if (ret < 0) {
+		if (stress_sched_set(mypid, policy, rt_stats->max_prio, true) < 0) {
 			const int saved_errno = errno;
 
 #if defined(SCHED_DEADLINE)
