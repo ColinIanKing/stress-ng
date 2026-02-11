@@ -320,25 +320,78 @@ static int stress_ramfs_child(stress_args_t *args)
 	}
 
 	do {
-		int ret;
 		char opt[32];
-#if defined(__NR_fsopen) &&		\
-    defined(__NR_fsmount) &&		\
-    defined(__NR_fsconfig) &&		\
-    defined(__NR_move_mount) &&		\
-    defined(FSCONFIG_SET_STRING) &&	\
-    defined(FSCONFIG_CMD_CREATE) &&	\
-    defined(MOVE_MOUNT_F_EMPTY_PATH)
-		int fd, mfd;
-#endif
 		const char *fs = (i++ & 1) ? "ramfs" : "tmpfs";
+		static const char skip[] = "skipping stressor";
 
-		(void)snprintf(opt, sizeof(opt), "size=%" PRIu64, ramfs_size);
-		ret = mount("", realpathname, fs, 0, opt);
-		if (ret < 0) {
+#if defined(HAVE_FSOPEN) &&		\
+    defined(HAVE_FSCONFIG) &&		\
+    defined(HAVE_FSMOUNT) &&		\
+    defined(HAVE_MOVE_MOUNT) &&		\
+    defined(HAVE_SYS_MOUNT_H)
+		int fd, fd_mnt;
+
+		fd = fsopen(fs, FSOPEN_CLOEXEC);
+		if (fd < 0) {
+			pr_inf_skip("%s: fsopen '%s' failed, errno=%d (%s), "
+				"skipping stressor\n",
+				args->name, fs, errno, strerror(errno));
+			rc = EXIT_NO_RESOURCE;
+			goto cleanup;
+		}
+		if (fsconfig(fd, FSCONFIG_SET_STRING, "source", fs, 0) < 0) {
+			pr_inf_skip("%s: fsconfig FSCONFIG_SET_STRING 'source' failed, errno=%d (%s), %s\n",
+				args->name, errno, strerror(errno), skip);
+			(void)close(fd);
+			rc = EXIT_NO_RESOURCE;
+			goto cleanup;
+		}
+		(void)snprintf(opt, sizeof(opt), "%" PRIu64, ramfs_size);
+		if (fsconfig(fd, FSCONFIG_SET_STRING, "size", opt, 0) < 0) {
+			pr_inf_skip("%s: fsconfig FSCONFIG_SET_STRING 'size', failed, errno=%d (%s), %s\n",
+				args->name, errno, strerror(errno), skip);
+			(void)close(fd);
+			rc = EXIT_NO_RESOURCE;
+			goto cleanup;
+		}
+		if (fsconfig(fd, FSCONFIG_CMD_CREATE, NULL, NULL, 0) < 0) {
+			pr_inf_skip("%s: fsconfig FSCONFIG_CMD_CREATE, failed, errno=%d (%s), %s\n",
+				args->name, errno, strerror(errno), skip);
+			(void)close(fd);
+			rc = EXIT_NO_RESOURCE;
+			goto cleanup;
+		}
+		fd_mnt = fsmount(fd, FSMOUNT_CLOEXEC, 0);
+		if (fd_mnt < 0) {
+			pr_inf_skip("%s: fsmount failed, errno=%d (%s), %s\n",
+				args->name, errno, strerror(errno), skip);
+			(void)close(fd);
+			rc = EXIT_NO_RESOURCE;
+			goto cleanup;
+		}
+		if (move_mount(fd_mnt, "", AT_FDCWD, realpathname, MOVE_MOUNT_F_EMPTY_PATH) < 0) {
 			if (errno == EPERM) {
-				pr_inf_skip("%s: cannot mount, no permission, skipping stressor\n",
-					args->name);
+				pr_inf_skip("%s: cannot mount, no permission, %s\n",
+					args->name, skip);
+				rc = EXIT_NO_RESOURCE;
+			} else {
+				pr_fail("%s: move_mount failed, errno=%d (%s), %s\n",
+					args->name, errno, strerror(errno), skip);
+				rc = EXIT_FAILURE;
+			}
+			(void)close(fd_mnt);
+			(void)close(fd);
+			goto cleanup;
+		}
+		(void)close(fd_mnt);
+		(void)close(fd);
+	
+#else
+		(void)snprintf(opt, sizeof(opt), "size=%" PRIu64, ramfs_size);
+		if (mount("", realpathname, fs, 0, opt) < 0) {
+			if (errno == EPERM) {
+				pr_inf_skip("%s: cannot mount, no permission, %s\n",
+					args->name, skip);
 				rc = EXIT_NO_RESOURCE;
 			} else if ((errno != ENOSPC) &&
 			    (errno != ENOMEM) &&
@@ -349,80 +402,11 @@ static int stress_ramfs_child(stress_args_t *args)
 			/* Just in case, force umount */
 			goto cleanup;
 		}
-		if (stress_ramfs_fs_ops(args, ramfs_size, ramfs_fill, realpathname) == EXIT_FAILURE)
-			rc = EXIT_FAILURE;
-		stress_ramfs_umount(args, realpathname);
-
-#if defined(__NR_fsopen) &&		\
-    defined(__NR_fsmount) &&		\
-    defined(__NR_fsconfig) &&		\
-    defined(__NR_move_mount) &&		\
-    defined(FSCONFIG_SET_STRING) &&	\
-    defined(FSCONFIG_CMD_CREATE) &&	\
-    defined(MOVE_MOUNT_F_EMPTY_PATH)
-		/*
-		 *  Use the new Linux 5.2 mount system calls
-		 */
-		fd = shim_fsopen(fs, 0);
-		if (fd < 0) {
-			if ((errno == ENOSYS) ||
-			    (errno == ENODEV))
-				goto skip_fsopen;
-			pr_fail("%s: fsopen failed, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
-			goto skip_fsopen;
-		}
-		(void)snprintf(opt, sizeof(opt), "%" PRIu64, ramfs_size);
-		if (shim_fsconfig(fd, FSCONFIG_SET_STRING, "size", opt, 0) < 0) {
-			if (errno == ENOSYS)
-				goto cleanup_fd;
-			pr_fail("%s: fsconfig failed, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
-			rc = EXIT_FAILURE;
-			goto cleanup_fd;
-		}
-		if (shim_fsconfig(fd, FSCONFIG_CMD_CREATE, NULL, NULL, 0) < 0) {
-			if (errno == ENOSYS)
-				goto cleanup_fd;
-			pr_fail("%s: fsconfig failed, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
-			rc = EXIT_FAILURE;
-			goto cleanup_fd;
-		}
-		mfd = shim_fsmount(fd, 0, 0);
-		if (mfd < 0) {
-			if (errno == ENOSYS)
-				goto cleanup_fd;
-			/*
-			 * We may just have no memory for this, non-fatal
-			 * and try again
-			 */
-			if ((errno == ENOSPC) || (errno == ENOMEM))
-				goto cleanup_fd;
-			pr_fail("%s: fsmount failed, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
-			rc = EXIT_FAILURE;
-			goto cleanup_fd;
-		}
-		if (shim_move_mount(mfd, "", AT_FDCWD, realpathname, MOVE_MOUNT_F_EMPTY_PATH) < 0) {
-			if (errno == ENOSYS)
-				goto cleanup_mfd;
-			pr_fail("%s: move_mount failed, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
-			rc = EXIT_FAILURE;
-			goto cleanup_mfd;
-
-		}
-cleanup_mfd:
-		(void)close(mfd);
-cleanup_fd:
-		(void)close(fd);
-		if (stress_ramfs_fs_ops(args, ramfs_size, ramfs_fill, realpathname) == EXIT_FAILURE)
-			rc = EXIT_FAILURE;
-		stress_ramfs_umount(args, realpathname);
-skip_fsopen:
-
 #endif
+		if (stress_ramfs_fs_ops(args, ramfs_size, ramfs_fill, realpathname) == EXIT_FAILURE)
+			rc = EXIT_FAILURE;
+		stress_ramfs_umount(args, realpathname);
+
 		stress_bogo_inc(args);
 	} while (keep_mounting && stress_continue(args));
 
