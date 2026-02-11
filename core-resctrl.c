@@ -690,6 +690,7 @@ void stress_resctrl_init(void)
 	stress_partition_info_t *partition;
 	char buf[1024];
 	FILE *fp;
+	static const char disabling[] = "disabling resctrl";
 
 	resctrl_enabled = true;
 
@@ -702,7 +703,8 @@ void stress_resctrl_init(void)
 	/* try and found existing resctrl mount point */
 	fp = fopen("/proc/mounts", "r");
 	if (!fp) {
-		pr_warn("resctrl: cannot open /proc/mounts, errno=%d (%s), disabling resctrl\n", errno, strerror(errno));
+		pr_warn("resctrl: cannot open /proc/mounts, errno=%d (%s), %s\n",
+			errno, strerror(errno), disabling);
 		resctrl_enabled = false;
 		return;
 	}
@@ -718,23 +720,83 @@ void stress_resctrl_init(void)
 	if (*resctrl_mnt) {
 		resctrl_cleanup = false;
 	} else {
+#if defined(HAVE_FSOPEN) &&	\
+    defined(HAVE_FSCONFIG) &&	\
+    defined(HAVE_FSMOUNT) &&	\
+    defined(HAVE_MOVE_MOUNT) &&	\
+    defined(HAVE_SYS_MOUNT_H)
+		int fd, fd_mnt;
+#endif
 		/* no mount point, let stress-ng mount one */
 		(void)snprintf(resctrl_mnt, sizeof(resctrl_mnt), "%s/stress-ng-resctrl", stress_get_temp_path());
 		if (mkdir(resctrl_mnt, S_IRWXU) < 0) {
-			pr_warn("resctrl: cannot create resctrl mount point, errno=%d (%s), disabling resctrl\n",
-				errno, strerror(errno));
+			pr_warn("resctrl: cannot create resctrl mount point, errno=%d (%s), %s\n",
+				errno, strerror(errno), disabling);
 			resctrl_enabled = false;
 			return;
 		}
 
 		/* sudo mount -t resctrl resctrl /sys/fs/resctrl */
+#if defined(HAVE_FSOPEN) &&	\
+    defined(HAVE_FSCONFIG) &&	\
+    defined(HAVE_FSMOUNT) &&	\
+    defined(HAVE_MOVE_MOUNT) &&	\
+    defined(HAVE_SYS_MOUNT_H)
+		fd = fsopen("resctrl", FSOPEN_CLOEXEC);
+		if (fd < 0) {
+			pr_warn("resctrl: cannot fsopen resctrl, errno=%d (%s), %s\n",
+				errno, strerror(errno), disabling);
+			(void)rmdir(resctrl_mnt);
+			resctrl_enabled = false;
+			return;
+		}
+		if (fsconfig(fd, FSCONFIG_SET_STRING, "source", "resctrl", 0) < 0) {
+			pr_warn("resctrl: cannot fsconfig resctrl, errno=%d (%s), %s\n",
+				errno, strerror(errno), disabling);
+			(void)close(fd);
+			(void)rmdir(resctrl_mnt);
+			resctrl_enabled = false;
+			return;
+		}
+		if (fsconfig(fd, FSCONFIG_CMD_CREATE, NULL, NULL, 0) < 0) {
+			pr_warn("resctrl: cannot fsconfig resctrl, errno=%d (%s), %s\n",
+				errno, strerror(errno), disabling);
+			(void)close(fd);
+			(void)rmdir(resctrl_mnt);
+			resctrl_enabled = false;
+			return;
+		}
+		fd_mnt = fsmount(fd, FSMOUNT_CLOEXEC, 0);
+			if (fd_mnt < 0) {
+				pr_warn("resctrl: cannot fsmount resctrl, errno=%d (%s), %s\n",
+			errno, strerror(errno), disabling);
+			(void)close(fd);
+			(void)rmdir(resctrl_mnt);
+			resctrl_enabled = false;
+			return;
+		}
+		if (move_mount(fd_mnt, "", AT_FDCWD, resctrl_mnt, MOVE_MOUNT_F_EMPTY_PATH) < 0) {
+			pr_warn("resctrl: cannot move_mount resctrl, errno=%d (%s), %s\n",
+				errno, strerror(errno), disabling);
+			(void)close(fd_mnt);
+			(void)close(fd);
+			(void)rmdir(resctrl_mnt);
+			resctrl_enabled = false;
+			return;
+		}
+		(void)close(fd_mnt);
+		(void)close(fd);
+		resctrl_cleanup = true;
+#else
 		if (mount("resctrl", resctrl_mnt, "resctrl", 0, NULL) < 0) {
-			pr_warn("resctrl: cannot mount resctl, errno=%d (%s), disabling resctrl\n", errno, strerror(errno));
+			pr_warn("resctrl: cannot mount resctl, errno=%d (%s), %s\n",
+				errno, strerror(errno), disabling);
 			(void)rmdir(resctrl_mnt);
 			resctrl_enabled = false;
 			return;
 		}
 		resctrl_cleanup = true;
+#endif
 	}
 
 	/*
@@ -749,8 +811,8 @@ void stress_resctrl_init(void)
 		if (ret < 0) {
 			if (errno == EEXIST)
 				continue;
-			pr_inf("resctrl: cannot create resctrl for %s, errno=%d (%s), disabling resctrl\n",
-				partition->name, errno, strerror(errno));
+			pr_inf("resctrl: cannot create resctrl for %s, errno=%d (%s), %s\n",
+				partition->name, errno, strerror(errno), disabling);
 			resctrl_enabled = false;
 			break;
 		}
