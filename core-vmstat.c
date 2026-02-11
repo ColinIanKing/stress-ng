@@ -699,7 +699,7 @@ static void stress_read_vmstat(stress_vmstat_t *vmstat)
 	vmstat->swap_in = stress_bsd_getsysctl_uint64("vm.stats.vm.v_swapin");
 	vmstat->swap_out = stress_bsd_getsysctl_uint64("vm.stats.vm.v_swapout");
 	vmstat->block_in = stress_bsd_getsysctl_uint64("vm.stats.vm.v_vnodepgsin");
-	vmstat->block_out = stress_bsd_getsysctl_uint64("vm.stats.vm.v_vnodepgsin");
+	vmstat->block_out = stress_bsd_getsysctl_uint64("vm.stats.vm.v_vnodepgsout");
 	vmstat->memory_free = (uint64_t)stress_bsd_getsysctl_uint32("vm.stats.vm.v_free_count");
 	vmstat->memory_cached = (uint64_t)stress_bsd_getsysctl_uint("vm.stats.vm.v_cache_count");
 
