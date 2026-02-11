@@ -48,7 +48,6 @@ static int stress_binderfs_supported(const char *name)
 #if defined(__linux__) &&			\
     defined(HAVE_LINUX_ANDROID_BINDER_H) &&	\
     defined(HAVE_LINUX_ANDROID_BINDERFS_H)
-	int ret;
 	const char *tmppath = stress_get_temp_path();
 	char path[PATH_MAX];
 
@@ -66,18 +65,48 @@ static int stress_binderfs_supported(const char *name)
 		return 0;	/* defer */
 	if (mkdir(path, S_IRWXU) < 0)
 		return 0;	/* defer */
-	ret = mount("binder", path, "binder", 0, 0);
-	if (ret >= 0) {
-		(void)umount(path);
-		(void)rmdir(path);
-		return 0;
-	}
 
-	if (errno == ENODEV) {
-		pr_inf_skip("%s stressor will be skipped, binderfs not supported\n", name);
-	} else {
-		pr_inf_skip("%s stressor will be skipped, binderfs cannot be mounted\n", name);
+#if defined(HAVE_FSOPEN) &&		\
+    defined(HAVE_FSCONFIG) &&		\
+    defined(HAVE_FSMOUNT) &&		\
+    defined(HAVE_MOVE_MOUNT) &&		\
+    defined(HAVE_SYS_MOUNT_H)
+	int fd, fd_mnt;
+
+	fd = fsopen("binder", FSOPEN_CLOEXEC);
+	if (fd < 0)
+		goto unsupported;
+	if (fsconfig(fd, FSCONFIG_SET_STRING, "source", "binder", 0) < 0) {
+		(void)close(fd);
+		goto unsupported;
 	}
+	if (fsconfig(fd, FSCONFIG_CMD_CREATE, NULL, NULL, 0) < 0) {
+		(void)close(fd);
+		goto unsupported;
+	}
+	fd_mnt = fsmount(fd, FSMOUNT_CLOEXEC, 0);
+	if (fd_mnt < 0) {
+		(void)close(fd);
+		goto unsupported;
+	}
+	if (move_mount(fd_mnt, "", AT_FDCWD, path, MOVE_MOUNT_F_EMPTY_PATH) < 0) {
+		(void)close(fd_mnt);
+		(void)close(fd);
+		goto unsupported;
+	}
+	(void)close(fd_mnt);
+	(void)close(fd);
+	(void)umount(path);
+	(void)rmdir(path);
+	return 0;
+#else
+	if (mount("binder", path, "binder", 0, 0) < 0)
+		goto unsupported;
+	return 0;
+#endif
+
+unsupported:
+	pr_inf_skip("%s stressor will be skipped, binderfs not supported\n", name);
 	/* umount just in case it got mounted and mount was lying */
 	(void)umount(path);
 	(void)rmdir(path);
@@ -150,6 +179,7 @@ static int stress_binderfs(stress_args_t *args)
 	double mount_duration = 0.0, umount_duration = 0.0;
 	double mount_count = 0.0, umount_count = 0.0;
 	double rate;
+	static const char skip[] = "skipping stressor";
 
 	stress_temp_dir(pathname, sizeof(pathname), args->name, args->pid, args->instance);
 	ret = stress_temp_dir_mk_args(args);
@@ -167,9 +197,58 @@ static int stress_binderfs(stress_args_t *args)
 		int i;
 		struct binderfs_device device;
 #endif
+#if defined(HAVE_FSOPEN) &&		\
+    defined(HAVE_FSCONFIG) &&		\
+    defined(HAVE_FSMOUNT) &&		\
+    defined(HAVE_MOVE_MOUNT) &&		\
+    defined(HAVE_SYS_MOUNT_H)
+		int fd_mnt, saved_errno;
+#endif
 
 		t = stress_time_now();
+#if defined(HAVE_FSOPEN) &&		\
+    defined(HAVE_FSCONFIG) &&		\
+    defined(HAVE_FSMOUNT) &&		\
+    defined(HAVE_MOVE_MOUNT) &&		\
+    defined(HAVE_SYS_MOUNT_H)
+		fd = fsopen("binder", FSOPEN_CLOEXEC);
+		if (fd < 0) {
+			pr_inf_skip("%s: fsopen failed on binderfs at %s, errno=%d (%s), %s\n",
+				args->name, pathname, errno, strerror(errno), skip);
+			rc = EXIT_NO_RESOURCE;
+			goto clean;
+		}
+		if (fsconfig(fd, FSCONFIG_SET_STRING, "source", "binder", 0) < 0) {
+			pr_inf_skip("%s: fsconfig failed on binderfs at %s, errno=%d (%s), %s\n",
+				args->name, pathname, errno, strerror(errno), skip);
+			rc = EXIT_NO_RESOURCE;
+			(void)close(fd);
+			goto clean;
+		}
+		if (fsconfig(fd, FSCONFIG_CMD_CREATE, NULL, NULL, 0) < 0) {
+			pr_inf_skip("%s: fsconfig failed on binderfs at %s, errno=%d (%s), %s\n",
+				args->name, pathname, errno, strerror(errno), skip);
+			rc = EXIT_NO_RESOURCE;
+			(void)close(fd);
+			goto clean;
+		}
+		fd_mnt = fsmount(fd, FSMOUNT_CLOEXEC, 0);
+		if (fd_mnt < 0) {
+			pr_inf_skip("%s: fsmount failed on binderfs at %s, errno=%d (%s), %s\n",
+				args->name, pathname, errno, strerror(errno), skip);
+			rc = EXIT_NO_RESOURCE;
+			(void)close(fd);
+			goto clean;
+		}
+
+		ret = move_mount(fd_mnt, "", AT_FDCWD, pathname, MOVE_MOUNT_F_EMPTY_PATH);
+		saved_errno = errno;
+		(void)close(fd_mnt);
+		(void)close(fd);
+		errno = saved_errno;
+#else
 		ret = mount("binder", pathname, "binder", 0, 0);
+#endif
 		if (ret >= 0) {
 			mount_duration += stress_time_now() - t;
 			mount_count += 1.0;
@@ -177,16 +256,16 @@ static int stress_binderfs(stress_args_t *args)
 		if (ret < 0) {
 			if (errno == ENODEV) {
 				/* ENODEV indicates it's not available on this kernel */
-				pr_inf_skip("%s: binderfs not supported, errno=%d (%s), skipping stressor\n",
-					args->name, errno, strerror(errno));
+				pr_inf_skip("%s: binderfs not supported, errno=%d (%s), %s\n",
+					args->name, errno, strerror(errno), skip);
 				rc = EXIT_NO_RESOURCE;
 				goto clean;
 			} else if ((errno == ENOSPC) ||
 				   (errno == ENOMEM) ||
 				   (errno == EPERM)) {
 				/* ..ran out of resources, skip */
-				pr_inf_skip("%s: mount failed on binderfs at %s, errno=%d (%s), skipping stressor\n",
-					args->name, pathname, errno, strerror(errno));
+				pr_inf_skip("%s: mount failed on binderfs at %s, errno=%d (%s), %s\n",
+					args->name, pathname, errno, strerror(errno), skip);
 				rc = EXIT_NO_RESOURCE;
 				goto clean;
 			} else {
@@ -197,7 +276,6 @@ static int stress_binderfs(stress_args_t *args)
 				goto clean;
 			}
 		}
-
 		(void)stress_mk_filename(filename, sizeof(filename),
 			pathname, "binder-control");
 		fd = open(filename, O_RDONLY | O_CLOEXEC);
