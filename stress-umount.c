@@ -168,27 +168,85 @@ static void NORETURN stress_umount_umounter(stress_args_t *args, const char *pat
  */
 static void NORETURN stress_umount_mounter(stress_args_t *args, const char *path)
 {
-	const uint64_t ramfs_size = 64 * KB;
 	int i = 0, rc = EXIT_SUCCESS;
+	const char skip[] = "skipping stressor";
 
 	stress_parent_died_alarm();
 	(void)stress_sched_settings_apply(true);
 
 	do {
-		int ret;
-		char opt[32];
 		const char *fs = (i++ & 1) ? "ramfs" : "tmpfs";
 
-		(void)snprintf(opt, sizeof(opt), "size=%" PRIu64, ramfs_size);
-		ret = mount("", path, fs, 0, opt);
-		if (ret < 0) {
+#if defined(HAVE_FSOPEN) &&	\
+    defined(HAVE_FSCONFIG) &&	\
+    defined(HAVE_FSMOUNT) &&	\
+    defined(HAVE_MOVE_MOUNT) &&	\
+    defined(HAVE_SYS_MOUNT_H)
+		int fd, fd_mnt;
+
+		fd = fsopen(fs, FSOPEN_CLOEXEC);
+		if (fd < 0) {
+			pr_inf_skip("%s: fsopen '%s' failed, errno=%d (%s), "
+				"skipping stressor\n",
+				args->name, fs, errno, strerror(errno));
+			(void)stress_temp_dir_rm_args(args);
+			_exit(EXIT_FAILURE);
+		}
+		if (fsconfig(fd, FSCONFIG_SET_STRING, "source", fs, 0) < 0) {
+			pr_inf_skip("%s: fsconfig FSCONFIG_SET_STRING 'source' failed, errno=%d (%s), %s\n",
+				args->name, errno, strerror(errno), skip);
+			(void)close(fd);
+			(void)stress_temp_dir_rm_args(args);
+			_exit(EXIT_FAILURE);
+		}
+		if (fsconfig(fd, FSCONFIG_SET_STRING, "size", "64K", 0) < 0) {
+			pr_inf_skip("%s: fsconfig FSCONFIG_SET_STRING 'size', failed, errno=%d (%s), %s\n",
+				args->name, errno, strerror(errno), skip);
+			(void)close(fd);
+			(void)stress_temp_dir_rm_args(args);
+			_exit(EXIT_FAILURE);
+		}
+		if (fsconfig(fd, FSCONFIG_CMD_CREATE, NULL, NULL, 0) < 0) {
+			pr_inf_skip("%s: fsconfig FSCONFIG_CMD_CREATE, failed, errno=%d (%s), %s\n",
+				args->name, errno, strerror(errno), skip);
+			(void)close(fd);
+			(void)stress_temp_dir_rm_args(args);
+			_exit(EXIT_FAILURE);
+		}
+		fd_mnt = fsmount(fd, FSMOUNT_CLOEXEC, 0);
+		if (fd_mnt < 0) {
+			pr_inf_skip("%s: fsmount failed, errno=%d (%s), %s\n",
+				args->name, errno, strerror(errno), skip);
+			(void)close(fd);
+			rc = EXIT_FAILURE;
+			goto cleanup;
+		}
+		if (move_mount(fd_mnt, "", AT_FDCWD, path, MOVE_MOUNT_F_EMPTY_PATH) < 0) {
+			if (errno == EPERM) {
+				pr_inf_skip("%s: mount failed, no permission, %s\n",
+					args->name, skip);
+			} else {
+				pr_fail("%s: move_mount failed, errno=%d (%s), %s\n",
+					args->name, errno, strerror(errno), skip);
+			}
+			(void)close(fd_mnt);
+			(void)close(fd);
+			rc = EXIT_FAILURE;
+			goto cleanup;
+		}
+		(void)close(fd_mnt);
+		(void)close(fd);
+
+		stress_bogo_inc(args);
+#else
+		if (mount("", path, fs, 0, "size=64K") < 0) {
 			if (errno == EPERM) {
 				static bool warned = false;
 
 				if (UNLIKELY(!warned)) {
 					warned = true;
-					pr_inf_skip("%s: mount failed, no permission, "
-						"skipping stressor\n", args->name);
+					pr_inf_skip("%s: mount failed, no permission, %s\n",
+						args->name, skip);
 				}
 				rc = EXIT_NO_RESOURCE;
 			} else if (UNLIKELY((errno != ENOSPC) &&
@@ -203,6 +261,7 @@ static void NORETURN stress_umount_mounter(stress_args_t *args, const char *path
 		} else {
 			stress_bogo_inc(args);
 		}
+#endif
 		(void)stress_umount_umount(args, path, 1000000);
 	} while (stress_continue(args));
 
