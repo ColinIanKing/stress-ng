@@ -3176,6 +3176,6 @@ int shim_open_tree(int dirfd, const char *path, unsigned int flags)
 #elif defined(__NR_open_tree)
 	return (int)syscall(__NR_open_tree, dirfd, path, flags);
 #else
-	return (int)shim_enosys(0, dirfd, path, flags;
+	return (int)shim_enosys(0, dirfd, path, flags);
 #endif
 }
