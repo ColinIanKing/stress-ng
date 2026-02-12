@@ -193,7 +193,11 @@ static int issue_aio_sync_request(
 {
 	while (stress_continue_flag()) {
 		int ret;
+#if O_SYNC == D_SYNC
+		const int op = O_SYNC;
+#else
 		const int op = stress_mwc1() ? O_SYNC : O_DSYNC;
+#endif
 
 		io_req->request = 0;
 		io_req->status = EINPROGRESS;
