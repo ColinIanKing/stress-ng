@@ -27,7 +27,7 @@
 
 #include <sys/socket.h>
 
-#define MAX_SOCKET_PAIRS	(32768)
+#define MAX_SOCKET_PAIRS		(32768)
 
 #define MIN_SOCKPAIR_MAX_SIZE		(1)
 #define MAX_SOCKPAIR_MAX_SIZE		(65535)
@@ -253,7 +253,7 @@ again:
 			for (i = 0; LIKELY(stress_continue(args) && (i < max)); i++) {
 				errno = 0;
 
-				n = read(socket_pair_fds[i][0], buf, sizeof(buf));
+				n = read(socket_pair_fds[i][0], buf, sockpair_max_size);
 				if (UNLIKELY(n <= 0)) {
 					switch (errno) {
 					case 0:		/* OKAY */
