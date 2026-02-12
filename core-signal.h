@@ -42,4 +42,34 @@ extern NORETURN void stress_signal_siglongjmp(const int signum, sigjmp_buf jmp_e
 extern void stress_signal_siglongjmp_flag(const int signum, sigjmp_buf jmp_env, const int val,
 	volatile bool *do_jmp);
 
+/*
+ *  stress_signal_siglongjmp()
+ *	perform siglongjmp, we use a macro because CYGWIN
+ *	builds fail when passing jmp_env if the following
+ *	macro is a function.
+ */
+#define stress_signal_siglongjmp(signum, jmp_env, val) 	\
+do {							\
+        (void)signum;					\
+							\
+        siglongjmp(jmp_env, val);			\
+        stress_no_return();				\
+} while (0)
+
+
+/*
+ *  stress_signal_siglongjmp()
+ *	perform siglongjmp, set do_jmp flag if non-null,
+ *	we use a macro because CYGWIN builds fail when
+ *	passing jmp_env if the following macro as a
+ *	function.
+ */
+#define stress_signal_siglongjmp_flag(signum, jmp_env, val, do_jmp)	\
+do {							\
+	if (!*(do_jmp))					\
+		return;					\
+	*(do_jmp) = false;				\
+	stress_signal_siglongjmp(signum, jmp_env, val);	\
+} while (0)
+
 #endif
