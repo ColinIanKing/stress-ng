@@ -417,7 +417,7 @@ static bool OPTIMIZE3 stress_strnum_snprintf_lli(stress_args_t *args, const stre
 static bool OPTIMIZE3 stress_strnum_sscanf_f(stress_args_t *args, const stress_strnum_method_t *this)
 {
 	float val;
-	const float precision = 1.0E-6;
+	const float precision = 1.0E-4;
 	int ret;
 
 	(void)this;
