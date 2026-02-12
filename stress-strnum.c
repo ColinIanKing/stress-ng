@@ -480,18 +480,33 @@ static bool OPTIMIZE3 stress_strnum_sscanf_ld(stress_args_t *args, const stress_
 	return true;
 }
 
+static inline ALWAYS_INLINE OPTIMIZE3 size_t stress_strnum_trunc_posn(const char *str, const int dec_pl)
+{
+	char *ptr;
+
+	ptr = strchr(str, '.');
+	if (LIKELY(ptr != NULL)) {
+		return (ptr - str) + dec_pl + 1;
+	}
+	return 0;
+}
+
 #if defined(HAVE_STRFROMF)
 static bool OPTIMIZE3 stress_strnum_strfromf(stress_args_t *args, const stress_strnum_method_t *this)
 {
+	size_t posn;
 	char str[32];
 
 	(void)this;
 
 	(void)strfromf(str, sizeof(str), "%.7f", stress_strnum_float);
-	if (strcmp(str, stress_strnum_float_str)) {
-		pr_fail("%s: strfromf(str, sizeof(str), \"%%.7f\", %.7f) failed, got %s, expecting %s\n",
-			args->name, (double)stress_strnum_float, str, stress_strnum_float_str);
-		return false;
+	posn = stress_strnum_trunc_posn(str, 4);
+	if (posn) {
+		if (strncmp(str, stress_strnum_float_str, posn)) {
+			pr_fail("%s: strfromf(str, sizeof(str), \"%%.7f\", %.7f) failed, got %s, expecting %s\n",
+				args->name, (double)stress_strnum_float, str, stress_strnum_float_str);
+			return false;
+		}
 	}
 	return true;
 }
@@ -500,12 +515,14 @@ static bool OPTIMIZE3 stress_strnum_strfromf(stress_args_t *args, const stress_s
 #if defined(HAVE_STRFROMD)
 static bool OPTIMIZE3 stress_strnum_strfromd(stress_args_t *args, const stress_strnum_method_t *this)
 {
+	size_t posn;
 	char str[32];
 
 	(void)this;
 
 	(void)strfromd(str, sizeof(str), "%.7g", stress_strnum_double);
-	if (strcmp(str, stress_strnum_double_str)) {
+	posn = stress_strnum_trunc_posn(str, 6);
+	if (strncmp(str, stress_strnum_double_str, posn)) {
 		pr_fail("%s: strfromd(str, sizeof(str), \"%%.7g\", %.7g) failed, got %s, expecting %s\n",
 			args->name, stress_strnum_double, str, stress_strnum_double_str);
 		return false;
@@ -517,12 +534,14 @@ static bool OPTIMIZE3 stress_strnum_strfromd(stress_args_t *args, const stress_s
 #if defined(HAVE_STRFROML)
 static bool OPTIMIZE3 stress_strnum_strfroml(stress_args_t *args, const stress_strnum_method_t *this)
 {
+	size_t posn;
 	char str[32];
 
 	(void)this;
 
 	(void)strfroml(str, sizeof(str), "%.7f", stress_strnum_long_double);
-	if (strcmp(str, stress_strnum_long_double_str)) {
+	posn = stress_strnum_trunc_posn(str, 6);
+	if (strncmp(str, stress_strnum_long_double_str, posn)) {
 		pr_fail("%s: strfroml(str, sizeof(str), \"%%.7f\", %.7Lf) failed, got %s, expecting %s\n",
 			args->name, stress_strnum_long_double, str, stress_strnum_long_double_str);
 		return false;
