@@ -68,7 +68,7 @@ static void NORETURN MLOCKED_TEXT stress_bushandler(
 		signo = info->si_signo;
 		code = info->si_code;
 	}
-	stress_signal_longjmp(signum, jmp_env, 1);
+	stress_signal_siglongjmp(signum, jmp_env, 1);
 }
 #else
 static void NORETURN MLOCKED_TEXT stress_bushandler(int signum)
@@ -81,7 +81,7 @@ static void NORETURN MLOCKED_TEXT stress_bushandler(int signum)
 			     "andl $0xfffbffff, (%rsp);\n"
 			     "popf;\n");
 #endif
-	stress_signal_longjmp(signum, jmp_env, 1);
+	stress_signal_siglongjmp(signum, jmp_env, 1);
 }
 #endif
 

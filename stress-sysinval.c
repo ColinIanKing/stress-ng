@@ -2406,7 +2406,7 @@ static void MLOCKED_TEXT stress_syscall_itimer_handler(int signum)
 {
 	if (do_jmp && current_context) {
 		current_context->type = SYSCALL_TIMED_OUT;
-		stress_signal_longjmp_flag(signum, jmp_env, 1, &do_jmp);
+		stress_signal_siglongjmp_flag(signum, jmp_env, 1, &do_jmp);
 	}
 }
 

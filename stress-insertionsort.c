@@ -89,7 +89,7 @@ static const stress_opt_t opts[] = {
  */
 static void MLOCKED_TEXT stress_insertionsort_handler(int signum)
 {
-	stress_signal_longjmp_flag(signum, jmp_env, 1, &do_jmp);
+	stress_signal_siglongjmp_flag(signum, jmp_env, 1, &do_jmp);
 }
 #endif
 

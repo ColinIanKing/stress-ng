@@ -73,7 +73,7 @@ static void NORETURN MLOCKED_TEXT stress_fpehandler(int signum, siginfo_t *info,
 	(void)feclearexcept(FE_ALL_EXCEPT);
 	siginfo = *info;
 
-	stress_signal_longjmp(signum, jmp_env, 1);
+	stress_signal_siglongjmp(signum, jmp_env, 1);
 }
 #else
 static void NORETURN MLOCKED_TEXT stress_fpehandler(int signum)
@@ -81,7 +81,7 @@ static void NORETURN MLOCKED_TEXT stress_fpehandler(int signum)
 	sigfpe_signum = signum;
 	(void)feclearexcept(FE_ALL_EXCEPT);
 
-	stress_signal_longjmp(signum, jmp_env, 1);
+	stress_signal_siglongjmp(signum, jmp_env, 1);
 }
 #endif
 

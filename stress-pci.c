@@ -287,7 +287,7 @@ static void stress_pci_exercise(stress_args_t *args, stress_pci_info_t *pci_info
  */
 static void NORETURN MLOCKED_TEXT stress_pci_handler(int signum)
 {
-	stress_signal_longjmp(signum, jmp_env, 1);
+	stress_signal_siglongjmp(signum, jmp_env, 1);
 }
 
 static void stress_pci_rate(const stress_metrics_t *metrics, char *str, const size_t len)

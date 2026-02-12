@@ -69,7 +69,7 @@ static inline void ALWAYS_INLINE peterson_mbarrier(void)
 
 static void MLOCKED_TEXT NORETURN stress_peterson_sigill_handler(int signum)
 {
-	stress_signal_longjmp(signum, jmp_env, 1);
+	stress_signal_siglongjmp(signum, jmp_env, 1);
 }
 
 static int stress_peterson_supported(const char *name)

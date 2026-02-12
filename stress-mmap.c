@@ -265,7 +265,7 @@ static const int mmap_flags[] = {
 
 static void MLOCKED_TEXT stress_mmap_sighandler(int signum)
 {
-	stress_signal_longjmp_flag(signum, jmp_env, 1, &jmp_env_set);
+	stress_signal_siglongjmp_flag(signum, jmp_env, 1, &jmp_env_set);
 }
 
 /*

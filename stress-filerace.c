@@ -858,7 +858,7 @@ static sigjmp_buf jmp_env;
 
 static void NORETURN MLOCKED_TEXT stress_filerace_mmap_sigbus_handler(int signum)
 {
-	stress_signal_longjmp(signum, jmp_env, 1);
+	stress_signal_siglongjmp(signum, jmp_env, 1);
 }
 
 static void stress_filerace_mmap(const int fd, const char *filename)

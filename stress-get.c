@@ -179,7 +179,7 @@ static sigjmp_buf jmp_env;
 
 static void NORETURN MLOCKED_TEXT stress_segv_handler(int signum)
 {
-	stress_signal_longjmp(signum, jmp_env, 1);
+	stress_signal_siglongjmp(signum, jmp_env, 1);
 }
 
 static int stress_getppid(stress_args_t *args)

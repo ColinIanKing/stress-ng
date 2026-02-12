@@ -191,13 +191,13 @@ static void NORETURN MLOCKED_TEXT stress_sigill_handler(int signum)
 		do_sigill = true;
 #endif
 	}
-	stress_signal_longjmp(signum, jmp_env, 1);
+	stress_signal_siglongjmp(signum, jmp_env, 1);
 }
 
 static void NORETURN MLOCKED_TEXT stress_sigbus_misaligned_handler(int signum)
 {
 	do_misaligned = false;
-	stress_signal_longjmp(signum, jmp_env, 1);
+	stress_signal_siglongjmp(signum, jmp_env, 1);
 }
 
 #if defined(STRESS_ARCH_X86)
@@ -206,7 +206,7 @@ static void NORETURN MLOCKED_TEXT stress_sigbus_splitlock_handler(int signum)
 	(void)signum;
 
 	do_splitlock = false;
-	stress_signal_longjmp(signum, jmp_env, 1);
+	stress_signal_siglongjmp(signum, jmp_env, 1);
 }
 #endif
 

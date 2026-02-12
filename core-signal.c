@@ -720,10 +720,10 @@ void stress_signal_catch_sigsegv(void)
 }
 
 /*
- *  stress_signal_longjmp()
+ *  stress_signal_siglongjmp()
  *	perform siglongjm
  */
-void NORETURN stress_signal_longjmp(
+void NORETURN stress_signal_siglongjmp(
 	const int signum,
 	sigjmp_buf jmp_env,
 	const int val)
@@ -735,10 +735,10 @@ void NORETURN stress_signal_longjmp(
 }
 
 /*
- *  stress_signal_longjmp()
+ *  stress_signal_siglongjmp()
  *	perform siglongjmp, set do_jmp flag if non-null
  */
-void stress_signal_longjmp_flag(
+void stress_signal_siglongjmp_flag(
 	const int signum,
 	sigjmp_buf jmp_env,
 	const int val,
@@ -747,6 +747,6 @@ void stress_signal_longjmp_flag(
 	if (!*do_jmp)
 		return;
 	*do_jmp = false;
-	stress_signal_longjmp(signum, jmp_env, val);
+	stress_signal_siglongjmp(signum, jmp_env, val);
 
 }

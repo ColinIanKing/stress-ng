@@ -320,7 +320,7 @@ static void MLOCKED_TEXT NORETURN stress_sigill_nop_handler(int signum)
 {
 	current_instr->ignore = true;
 
-	stress_signal_longjmp(signum, jmp_env, 1);
+	stress_signal_siglongjmp(signum, jmp_env, 1);
 }
 
 /*

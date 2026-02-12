@@ -85,12 +85,12 @@ static void NORETURN MLOCKED_TEXT stress_segvhandler(
 	signo = info->si_signo;
 	code = info->si_code;
 
-	stress_signal_longjmp(signum, jmp_env, 1);
+	stress_signal_siglongjmp(signum, jmp_env, 1);
 }
 #else
 static void NORETURN MLOCKED_TEXT stress_segvhandler(int signum)
 {
-	stress_signal_longjmp(signum, jmp_env, 1);
+	stress_signal_siglongjmp(signum, jmp_env, 1);
 }
 #endif
 

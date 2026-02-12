@@ -101,7 +101,7 @@ static void NORETURN MLOCKED_TEXT stress_bad_altstack_signal_handler(int signum)
 	 *  generated a fault inside the stack of the
 	 *  signal handler, so jmp back and re-try
 	 */
-	stress_signal_longjmp(signum, jmp_env, 1);
+	stress_signal_siglongjmp(signum, jmp_env, 1);
 }
 
 static int stress_bad_altstack_child(stress_args_t *args)

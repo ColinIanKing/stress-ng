@@ -486,7 +486,7 @@ static void MLOCKED_TEXT NORETURN stress_sigsegv_handler(int signum)
 		op_info[idx].trapped = true;
 	idx++;
 
-	stress_signal_longjmp(signum, jmp_env, 1);
+	stress_signal_siglongjmp(signum, jmp_env, 1);
 }
 
 #if defined(SIGILL) ||	\

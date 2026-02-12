@@ -226,7 +226,7 @@ static void MLOCKED_TEXT stress_segv_handler(int signum)
 {
 	segv_count++;
 
-	stress_signal_longjmp_flag(signum, jmp_env, 1, &do_jmp);
+	stress_signal_siglongjmp_flag(signum, jmp_env, 1, &do_jmp);
 }
 
 /*

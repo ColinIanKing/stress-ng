@@ -191,7 +191,7 @@ static void MLOCKED_TEXT stress_sigpipe_handler(int signum)
 
 static void NORETURN MLOCKED_TEXT stress_bad_read_handler(int signum)
 {
-	stress_signal_longjmp(signum, jmp_env, 1);
+	stress_signal_siglongjmp(signum, jmp_env, 1);
 }
 
 /*

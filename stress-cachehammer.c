@@ -1584,7 +1584,7 @@ static size_t func_index;
 
 static void NORETURN MLOCKED_TEXT stress_cache_sighandler(int signum)
 {
-	stress_signal_longjmp(signum, jmp_env, 1);
+	stress_signal_siglongjmp(signum, jmp_env, 1);
 }
 
 /*

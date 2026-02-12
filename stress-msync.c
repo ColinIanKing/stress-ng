@@ -86,7 +86,7 @@ static void MLOCKED_TEXT NORETURN stress_sigbus_handler(int signum)
 {
 	sigbus_count++;
 
-	stress_signal_longjmp(signum, jmp_env, 1);
+	stress_signal_siglongjmp(signum, jmp_env, 1);
 }
 
 /*

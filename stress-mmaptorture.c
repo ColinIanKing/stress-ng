@@ -330,7 +330,7 @@ static void NORETURN MLOCKED_TEXT stress_mmaptorture_sighandler(int signum)
 	default:
 		break;
 	}
-	stress_signal_longjmp(signum, jmp_env, 1);
+	stress_signal_siglongjmp(signum, jmp_env, 1);
 }
 
 static void stress_mmaptorture_msync(

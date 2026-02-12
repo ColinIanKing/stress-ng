@@ -76,7 +76,7 @@ static void MLOCKED_TEXT stress_prime_alarm_handler(int signum)
 	stress_continue_set_flag(false);
 	count++;
 	if (count > 1)
-		stress_signal_longjmp(signum, jmp_env, 1);
+		stress_signal_siglongjmp(signum, jmp_env, 1);
 }
 
 /*

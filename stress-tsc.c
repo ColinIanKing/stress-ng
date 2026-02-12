@@ -84,7 +84,7 @@ static inline uint64_t rdtsc(void)
 
 static void MLOCKED_TEXT stress_sigill_handler(int signum)
 {
-	stress_signal_longjmp(signum, jmp_env, 1);
+	stress_signal_siglongjmp(signum, jmp_env, 1);
 }
 
 /*

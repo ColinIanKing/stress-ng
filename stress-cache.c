@@ -785,7 +785,7 @@ typedef void (*cache_read_func_t)(uint64_t *pi, uint64_t *pk, uint32_t *ptotal);
 static void NORETURN MLOCKED_TEXT stress_cache_sighandler(int signum)
 {
 	caught_signum = signum;
-	stress_signal_longjmp(signum, jmp_env, 1);
+	stress_signal_siglongjmp(signum, jmp_env, 1);
 }
 
 static void NORETURN MLOCKED_TEXT stress_cache_sigillhandler(int signum)
@@ -810,7 +810,7 @@ static void NORETURN MLOCKED_TEXT stress_cache_sigillhandler(int signum)
 			}
 		}
 	}
-	stress_signal_longjmp(signum, jmp_env, 1);
+	stress_signal_siglongjmp(signum, jmp_env, 1);
 }
 
 /*

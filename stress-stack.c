@@ -64,7 +64,7 @@ static sigjmp_buf jmp_env;
  */
 static void MLOCKED_TEXT NORETURN stress_segvhandler(int signum)
 {
-	stress_signal_longjmp(signum, jmp_env, 1);
+	stress_signal_siglongjmp(signum, jmp_env, 1);
 }
 
 /*

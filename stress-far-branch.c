@@ -78,7 +78,7 @@ static void NORETURN MLOCKED_TEXT stress_sig_handler(
 
 	stress_continue_set_flag(false);
 
-	stress_signal_longjmp(signum, jmp_env, 1);
+	stress_signal_siglongjmp(signum, jmp_env, 1);
 }
 
 static inline void stress_far_branch_page_flush(void *page, const size_t page_size)

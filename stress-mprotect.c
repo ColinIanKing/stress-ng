@@ -42,7 +42,7 @@ static sigjmp_buf jmp_env;
 
 static void NORETURN MLOCKED_TEXT stress_sig_handler(int signum)
 {
-	stress_signal_longjmp(signum, jmp_env, 1);
+	stress_signal_siglongjmp(signum, jmp_env, 1);
 }
 
 static const stress_mprotect_flags_t mprotect_flags[] = {

@@ -170,7 +170,7 @@ static const stress_radixsort_method_t stress_radixsort_methods[] = {
  */
 static void MLOCKED_TEXT stress_radixsort_handler(int signum)
 {
-	stress_signal_longjmp_flag(signum, jmp_env, 1, &do_jmp);
+	stress_signal_siglongjmp_flag(signum, jmp_env, 1, &do_jmp);
 }
 #endif
 

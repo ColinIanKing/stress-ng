@@ -875,7 +875,7 @@ static void MLOCKED_TEXT syscall_sigsegv_handler(int signum)
 
 	errno = saved_errno;
 
-	stress_signal_longjmp_flag(signum, jmp_env, 1, &do_jmp);
+	stress_signal_siglongjmp_flag(signum, jmp_env, 1, &do_jmp);
 }
 
 static void MLOCKED_TEXT syscall_sigusr1_handler(int signum)
