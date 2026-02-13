@@ -863,7 +863,7 @@ static void stress_iomix_drop_caches(
 
 		for (i = STRESS_DROP_CACHE_PAGE_CACHE; i <= STRESS_DROP_CACHE_ALL; i++) {
 			shim_sync();
-			if (stress_drop_caches(i) < 0)
+			if (stress_fs_drop_caches(i) < 0)
 				(void)shim_pause();
 			if (UNLIKELY(!stress_continue(args)))
 				return;

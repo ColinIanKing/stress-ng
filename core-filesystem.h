@@ -76,5 +76,5 @@ extern void stress_file_rw_hint_short(const int fd);
 extern void stress_unset_chattr_flags(const char *pathname);
 extern void stress_clean_dir(const char *name, const pid_t pid,
 	const uint32_t instance);
-extern int stress_drop_caches(const int flags);
+extern int stress_fs_drop_caches(const int flags);
 #endif

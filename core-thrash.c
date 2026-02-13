@@ -462,7 +462,7 @@ static inline void stress_thrash_drop_caches(void)
 	static int flags = STRESS_DROP_CACHE_PAGE_CACHE;
 
 	stress_thrash_state("dropcache");
-	stress_drop_caches(flags);
+	stress_fs_drop_caches(flags);
 	if (flags++ >= STRESS_DROP_CACHE_ALL)
 		flags = STRESS_DROP_CACHE_PAGE_CACHE;
 #endif

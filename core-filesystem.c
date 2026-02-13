@@ -1640,10 +1640,10 @@ void stress_clean_dir(
 }
 
 /*
- *  stress_droo_caches()
- *	drop file caches
+ *  stress_fs_drop_caches()
+ *	drop file system caches, Linux only
  */
-int stress_drop_caches(const int flags)
+int stress_fs_drop_caches(const int flags)
 {
 #if defined(__linux__)
 	char buf[2];
