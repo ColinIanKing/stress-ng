@@ -289,7 +289,7 @@ int stress_process_dumpable(const bool dumpable)
 	{
 		char const *str = dumpable ? "0x33" : "0x00";
 
-		if (stress_system_write("/proc/self/coredump_filter", str, strlen(str)) < 0)
+		if (stress_fs_file_write("/proc/self/coredump_filter", str, strlen(str)) < 0)
 			rc = -1;
 	}
 #endif
@@ -1470,7 +1470,7 @@ void stress_clear_warn_once(void)
 {
 #if defined(__linux__)
 	if (stress_capabilities_check(SHIM_CAP_IS_ROOT))
-		(void)stress_system_write("/sys/kernel/debug/clear_warn_once", "1", 1);
+		(void)stress_fs_file_write("/sys/kernel/debug/clear_warn_once", "1", 1);
 #endif
 }
 
@@ -2031,6 +2031,6 @@ void stress_set_make_it_fail(void)
 {
 #if defined(__linux__)
 	if (g_opt_flags & OPT_FLAGS_MAKE_IT_FAIL)
-		(void)stress_system_write("/proc/self/make-it-fail", "1\n", 2);
+		(void)stress_fs_file_write("/proc/self/make-it-fail", "1\n", 2);
 #endif
 }

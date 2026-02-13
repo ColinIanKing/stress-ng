@@ -692,10 +692,10 @@ int stress_temp_dir_rm_args(stress_args_t *args)
 }
 
 /*
- *  stress_system_write()
- *	write a buffer to a /sys or /proc entry
+ *  stress_fs_file_write()
+ *	write a buffer to a named file, e.g. a /sys or /proc entry
  */
-ssize_t stress_system_write(
+ssize_t stress_fs_file_write(
 	const char *path,
 	const char *buf,
 	const size_t buf_len)
@@ -1653,7 +1653,7 @@ int stress_fs_drop_caches(const int flags)
 		return -1;
 
 	(void)snprintf(buf, sizeof(buf), "%1d", flags);
-	return (int)stress_system_write("/proc/sys/vm/drop_caches", buf, 1);
+	return (int)stress_fs_file_write("/proc/sys/vm/drop_caches", buf, 1);
 #else
 	(void)flags;
 

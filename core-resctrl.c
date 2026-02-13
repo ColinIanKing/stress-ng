@@ -614,7 +614,7 @@ static int stress_resctrl_set_pid(const char *name, const pid_t pid, stress_part
 	}
 	(void)snprintf(buf, sizeof(buf), "L%" PRIu32 ":%" PRIu32 "=%" PRIx64 "\n",
 		partition->cachelevel, partition->node, partition->bitmask);
-	ret = stress_system_write(path, buf, strlen(buf));
+	ret = stress_fs_file_write(path, buf, strlen(buf));
 	if (ret < 0) {
 		ptr = strstr(buf, "\n");
 		if (ptr)
@@ -625,7 +625,7 @@ static int stress_resctrl_set_pid(const char *name, const pid_t pid, stress_part
 
 	(void)snprintf(buf, sizeof(buf), "MB:%" PRIu32 "=%" PRIu32 "\n",
 		partition->node, partition->bandwidth);
-	ret = stress_system_write(path, buf, strlen(buf));
+	ret = stress_fs_file_write(path, buf, strlen(buf));
 	if (ret < 0) {
 		ptr = strstr(buf, "\n");
 		if (ptr)
@@ -636,7 +636,7 @@ static int stress_resctrl_set_pid(const char *name, const pid_t pid, stress_part
 
 	(void)snprintf(path, sizeof(path), "%s/stress-ng-%s/tasks", resctrl_mnt, partition->name);
 	(void)snprintf(buf, sizeof(buf), "%" PRIdMAX "\n", (intmax_t)pid);
-	ret = stress_system_write(path, buf, strlen(buf));
+	ret = stress_fs_file_write(path, buf, strlen(buf));
 	if (ret < 0) {
 		ptr = strstr(buf, "\n");
 		if (ptr)

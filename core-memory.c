@@ -261,7 +261,7 @@ void stress_ksm_memory_merge(const int flag)
 			VOID_RET(int, prctl(PR_SET_MEMORY_MERGE, flag));
 			prev_flag = flag;
 		}
-		(void)stress_system_write("/sys/kernel/mm/ksm/run", "1\n", 2);
+		(void)stress_fs_file_write("/sys/kernel/mm/ksm/run", "1\n", 2);
 	}
 #else
 	(void)flag;
@@ -672,7 +672,7 @@ void stress_compact_memory(void)
 
 	if (!compact_memory)
 		return;
-	ret = stress_system_write(path, "1", 1);
+	ret = stress_fs_file_write(path, "1", 1);
 	if (ret < 0) {
 		if (!compact_skip) {
 			int err = (int)-ret;

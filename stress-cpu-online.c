@@ -76,7 +76,7 @@ static int stress_cpu_online_set(
 	(void)snprintf(filename, sizeof(filename),
 		"/sys/devices/system/cpu/cpu%" PRIu32 "/online", cpu);
 
-	ret = stress_system_write(filename, data, 2);
+	ret = stress_fs_file_write(filename, data, 2);
 	if (ret < 0) {
 		switch (ret) {
 		case -EAGAIN:
@@ -143,7 +143,7 @@ static int stress_cpu_online_supported(const char *name)
 		return -1;
 	}
 
-	ret = stress_system_write("/sys/devices/system/cpu/cpu1/online", "1\n", 2);
+	ret = stress_fs_file_write("/sys/devices/system/cpu/cpu1/online", "1\n", 2);
 	if (ret < 0) {
 		pr_inf_skip("%s stressor will be skipped, "
 		       "cannot write to cpu1 online sysfs control file\n", name);

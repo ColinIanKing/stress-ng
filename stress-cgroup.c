@@ -252,7 +252,7 @@ static void stress_cgroup_controllers(const char *realpathname)
 		char controller[256];
 
 		ret = (ssize_t)snprintf(controller, sizeof(controller), "+%s\n", token);
-		stress_system_write(path, controller, ret);
+		stress_fs_file_write(path, controller, ret);
 	}
 }
 
@@ -299,7 +299,7 @@ static void stress_cgroup_add_pid(const char *realpathname, const pid_t pid)
 
 	len = (ssize_t)snprintf(cmd, sizeof(cmd), "%" PRIdMAX "\n", (intmax_t)pid);
 	(void)snprintf(filename, sizeof(filename), "%s/stress-ng-%" PRIdMAX "/cgroup.procs", realpathname, (intmax_t)pid);
-	stress_system_write(filename, cmd, len);
+	stress_fs_file_write(filename, cmd, len);
 }
 
 /*
@@ -313,7 +313,7 @@ static void stress_cgroup_del_pid(const char *realpathname, const pid_t pid)
 
 	len = (ssize_t)snprintf(cmd, sizeof(cmd), "%" PRIdMAX "\n", (intmax_t)pid);
 	(void)snprintf(filename, sizeof(filename), "%s/cgroup.procs", realpathname);
-	stress_system_write(filename, cmd, len);
+	stress_fs_file_write(filename, cmd, len);
 }
 
 /*
@@ -458,7 +458,7 @@ static void stress_cgroup_new_group(stress_args_t *args, const char *realpathnam
 			stress_cgroup_read(filename);
 
 			if (values[i].value) {
-				(void)stress_system_write(filename, values[i].value, strlen(values[i].value));
+				(void)stress_fs_file_write(filename, values[i].value, strlen(values[i].value));
 				stress_cgroup_read(filename);
 			}
 			stress_cgroup_del_pid(realpathname, pid);

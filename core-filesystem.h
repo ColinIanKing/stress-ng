@@ -49,7 +49,7 @@ extern WARN_UNUSED int stress_temp_dir_mk_args(stress_args_t *args);
 extern int stress_temp_dir_rm(const char *name, const pid_t pid,
 	const uint32_t instance);
 extern int stress_temp_dir_rm_args(stress_args_t *args);
-extern ssize_t stress_system_write(const char *path, const char *buf,
+extern ssize_t stress_fs_file_write(const char *path, const char *buf,
 	const size_t buf_len);
 extern ssize_t stress_fs_discard(const char *path);
 extern WARN_UNUSED ssize_t stress_system_read(const char *path, char *buf,

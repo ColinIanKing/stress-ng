@@ -90,7 +90,7 @@ typedef struct {
 
 static void stress_sysfs_sys_power_disk(const char *path)
 {
-	(void)stress_system_write(path, "test_resume", 11);
+	(void)stress_fs_file_write(path, "test_resume", 11);
 }
 
 static const stress_sysfs_wr_func_t stress_sysfs_wr_funcs[] = {

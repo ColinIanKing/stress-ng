@@ -323,7 +323,7 @@ void stress_ftrace_start(void)
 	}
 
 	(void)snprintf(filename, sizeof(filename), "%s/tracing/function_profile_enabled", path);
-	if (stress_system_write(filename, "0", 1) < 0) {
+	if (stress_fs_file_write(filename, "0", 1) < 0) {
 		pr_inf("ftrace: cannot enable function profiling, cannot write to '%s', errno=%d (%s)\n",
 			filename, errno, strerror(errno));
 		return;
@@ -331,7 +331,7 @@ void stress_ftrace_start(void)
 	stress_ftrace_add_pid(-1);
 	stress_ftrace_add_pid(getpid());
 	(void)snprintf(filename, sizeof(filename), "%s/tracing/function_profile_enabled", path);
-	if (stress_system_write(filename, "1", 1) < 0) {
+	if (stress_fs_file_write(filename, "1", 1) < 0) {
 		pr_inf("ftrace: cannot enable function profiling, cannot write to '%s', errno=%d (%s)\n",
 			filename, errno, strerror(errno));
 		return;
@@ -410,7 +410,7 @@ void stress_ftrace_stop(void)
 
 	stress_ftrace_add_pid(-1);
 	(void)snprintf(filename, sizeof(filename), "%s/tracing/function_profile_enabled", path);
-	if (stress_system_write(filename, "0", 1) < 0) {
+	if (stress_fs_file_write(filename, "0", 1) < 0) {
 		pr_inf("ftrace: cannot disable function profiling, errno=%d (%s)\n",
 			errno, strerror(errno));
 		return;
