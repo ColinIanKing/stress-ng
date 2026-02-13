@@ -97,7 +97,7 @@ static int stress_xattr(stress_args_t *args)
 			args->name, filename, errno, strerror(errno));
 		goto out;
 	}
-	fs_type = stress_get_fs_type(filename);
+	fs_type = stress_fs_type_get(filename);
 #if defined(O_TMPFILE)
 	(void)stress_temp_dir_args(args, dirname, sizeof(dirname));
 #endif

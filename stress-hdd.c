@@ -845,7 +845,7 @@ static int stress_hdd(stress_args_t *args)
 			goto finish;
 		}
 
-		fs_type = stress_get_fs_type(filename);
+		fs_type = stress_fs_type_get(filename);
 
 		stress_fs_file_rw_hint_short(fd);
 

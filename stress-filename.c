@@ -746,7 +746,7 @@ static int stress_filename(stress_args_t *args)
 	if (statvfs(pathname, &buf) < 0) {
 		pr_fail("%s: statvfs %s failed, errno=%d (%s)%s\n",
 			args->name, pathname, errno, strerror(errno),
-			stress_get_fs_type(pathname));
+			stress_fs_type_get(pathname));
 		goto tidy_dir;
 	}
 #else
@@ -779,7 +779,7 @@ static int stress_filename(stress_args_t *args)
 
 	if (stress_filename_probe_length(args, filename, ptr, &sz_max) < 0) {
 		pr_fail("%s: failed to determine maximum filename length%s\n",
-			args->name, stress_get_fs_type(pathname));
+			args->name, stress_fs_type_get(pathname));
 		goto tidy_dir;
 	}
 

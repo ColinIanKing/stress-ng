@@ -156,7 +156,7 @@ static int stress_readahead(stress_args_t *args)
 			args->name, filename, errno, strerror(errno));
 		goto finish;
 	}
-	fs_type = stress_get_fs_type(filename);
+	fs_type = stress_fs_type_get(filename);
 
 	/* write-only open, ignore failure */
 	fd_wr = open(filename, O_WRONLY, S_IRUSR | S_IWUSR);

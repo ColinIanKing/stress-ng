@@ -305,7 +305,7 @@ static int stress_chmod(stress_args_t *args)
 					"retries to open and gave up "
 					"(instance %" PRIu32 ")%s\n",
 					args->name, filename, retries, args->instance,
-					stress_get_fs_type(filename));
+					stress_fs_type_get(filename));
 				goto tidy;
 			}
 		}
@@ -323,7 +323,7 @@ static int stress_chmod(stress_args_t *args)
 			if (do_fchmod(fd, bad_fd, i, mask, all_mask) < 0) {
 				pr_fail("%s: fchmod failed, errno=%d (%s)%s\n",
 					args->name, errno, strerror(errno),
-					stress_get_fs_type(filename));
+					stress_fs_type_get(filename));
 			}
 			if (do_chmod(dfd, bad_fd, filebase, filename, longpath, i,
 				     mask, all_mask, mode_count, mode_perms) < 0) {
@@ -337,7 +337,7 @@ static int stress_chmod(stress_args_t *args)
 				}
 				pr_fail("%s: chmod %s failed, errno=%d (%s)%s\n",
 					args->name, filename, errno, strerror(errno),
-					stress_get_fs_type(filename));
+					stress_fs_type_get(filename));
 			}
 		}
 		shim_fsync(fd);

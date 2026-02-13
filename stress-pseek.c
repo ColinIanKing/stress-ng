@@ -470,7 +470,7 @@ static int stress_pseek(stress_args_t *args)
 			args->name, filename, errno, strerror(errno));
 		goto tidy_unlink;
 	}
-	info.fs_type = stress_get_fs_type(filename);
+	info.fs_type = stress_fs_type_get(filename);
 
 	pseek_bytes = PSEEKIO_CHUNK_SCALE * pseek_procs * info.pseek_io_size;
 	if (ftruncate(info.fd, (off_t)pseek_bytes) < 0) {

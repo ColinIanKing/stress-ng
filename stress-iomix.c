@@ -1161,7 +1161,7 @@ static int stress_iomix(stress_args_t *args)
 			args->name, filename, errno, strerror(errno));
 		goto lock_destroy;
 	}
-	fs_type = stress_get_fs_type(filename);
+	fs_type = stress_fs_type_get(filename);
 	(void)shim_unlink(filename);
 
 	do {

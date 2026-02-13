@@ -307,7 +307,7 @@ static int stress_fiemap(stress_args_t *args)
 			args->name, filename, errno, strerror(errno));
 		goto dir_clean;
 	}
-	fs_type = stress_get_fs_type(filename);
+	fs_type = stress_fs_type_get(filename);
 	(void)shim_unlink(filename);
 
 	(void)shim_memset(&fiemap, 0, sizeof(fiemap));

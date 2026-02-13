@@ -206,7 +206,7 @@ static int stress_copy_file(stress_args_t *args)
 		rc = stress_exit_status(errno);
 		pr_fail("%s: ftruncated failed, errno=%d (%s)%s\n",
 			args->name, errno, strerror(errno),
-			stress_get_fs_type(tmp));
+			stress_fs_type_get(tmp));
 		goto tidy_in;
 	}
 

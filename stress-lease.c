@@ -159,7 +159,7 @@ static int stress_try_lease(
 		if (errno != EAGAIN) {
 			pr_fail("%s: fcntl failed, errno=%d: (%s)%s\n",
 				args->name, errno, strerror(errno),
-				stress_get_fs_type(filename));
+				stress_fs_type_get(filename));
 			rc = EXIT_FAILURE;
 			break;
 		}

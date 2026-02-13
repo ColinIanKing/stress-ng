@@ -1343,10 +1343,10 @@ const char *stress_fs_info_get(const char *filename, uintmax_t *blocks)
 }
 
 /*
- *  stress_get_fs_type()
+ *  stress_fs_type_get()
  *	return the file system type that the given filename is in
  */
-const char *stress_get_fs_type(const char *filename)
+const char *stress_fs_type_get(const char *filename)
 {
 	uintmax_t blocks;
 	const char *fs_name = stress_fs_info_get(filename, &blocks);

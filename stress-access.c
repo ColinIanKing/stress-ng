@@ -304,7 +304,7 @@ static int stress_access(stress_args_t *args)
 		goto tidy;
 	}
 
-	fs_type = stress_get_fs_type(filename1);
+	fs_type = stress_fs_type_get(filename1);
 	/*
 	 * Some file systems can't do some forms of chmod correctly
 	 * due to limited mode bits in the underlying file system,

@@ -389,7 +389,7 @@ static int stress_revio(stress_args_t *args)
 		}
 		stress_fs_file_rw_hint_short(fd);
 
-		fs_type = stress_get_fs_type(filename);
+		fs_type = stress_fs_type_get(filename);
 		(void)shim_unlink(filename);
 		if (UNLIKELY(ftruncate(fd, (off_t)revio_bytes) < 0)) {
 			pr_fail("%s: ftruncate failed, errno=%d (%s)%s\n",

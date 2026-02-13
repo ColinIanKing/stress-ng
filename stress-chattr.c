@@ -142,7 +142,7 @@ static int do_chattr(
 				/* unexpected failure */
 				pr_fail("%s: ioctl SHIM_EXT2_IOC_GETFLAGS failed, errno=%d (%s)%s\n",
 					args->name, errno, strerror(errno),
-					stress_get_fs_type(filename));
+					stress_fs_type_get(filename));
 				rc = EXIT_FAILURE;
 				goto tidy_fd;
 			}
@@ -172,7 +172,7 @@ static int do_chattr(
 						pr_fail("%s: ioctl SHIM_EXT2_IOC_SETFLAGS (chattr zero flags) failed, errno=%d (%s)%s\n",
 							args->name,
 							errno, strerror(errno),
-							stress_get_fs_type(filename));
+							stress_fs_type_get(filename));
 						rc = EXIT_FAILURE;
 						goto tidy_fd;
 					}
@@ -207,7 +207,7 @@ static int do_chattr(
 				pr_fail("%s: ioctl SHIM_EXT2_IOC_SETFLAGS 0x%lx (chattr '%s') failed, errno=%d (%s)%s\n",
 					args->name, flags, flags_str,
 					errno, strerror(errno),
-					stress_get_fs_type(filename));
+					stress_fs_type_get(filename));
 				rc = EXIT_FAILURE;
 				goto tidy_fdw;
 			}
@@ -227,7 +227,7 @@ static int do_chattr(
 				pr_fail("%s: ioctl SHIM_EXT2_IOC_GETFLAGS failed, errno=%d (%s)%s\n",
 					args->name,
 					errno, strerror(errno),
-					stress_get_fs_type(filename));
+					stress_fs_type_get(filename));
 				rc = EXIT_FAILURE;
 				goto tidy_fdw;
 			}

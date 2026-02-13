@@ -132,7 +132,7 @@ static int stress_seek(stress_args_t *args)
 	}
 	stress_fs_file_rw_hint_short(fd);
 
-	fs_type = stress_get_fs_type(filename);
+	fs_type = stress_fs_type_get(filename);
 	(void)shim_unlink(filename);
 	/* Generate file with hole at the end */
 	if (stress_shim_lseek(fd, (off_t)len, SEEK_SET) < 0) {

@@ -358,7 +358,7 @@ static int stress_metamix(stress_args_t *args)
 		ret = stress_exit_status(-ret);
 		goto lock_destroy;
 	}
-	fs_type = stress_get_fs_type(temp_dir);
+	fs_type = stress_fs_type_get(temp_dir);
 
 	stress_mwc_get_seed(&w, &z);
 

@@ -221,7 +221,7 @@ static int stress_chown(stress_args_t *args)
 					"retries to open and gave up "
 					"(instance %" PRIu32 ")%s\n",
 					args->name, filename, retries, args->instance,
-					stress_get_fs_type(filename));
+					stress_fs_type_get(filename));
 				rc = EXIT_NO_RESOURCE;
 				goto tidy;
 			}
@@ -245,7 +245,7 @@ static int stress_chown(stress_args_t *args)
 		if ((ret < 0) && (ret != -EPERM)) {
 			pr_fail("%s: fchown failed, errno=%d (%s)%s\n",
 				args->name, errno, strerror(errno),
-				stress_get_fs_type(filename));
+				stress_fs_type_get(filename));
 			rc = EXIT_FAILURE;
 			break;
 		}
@@ -254,7 +254,7 @@ static int stress_chown(stress_args_t *args)
 		if ((ret < 0) && (ret != -EPERM)) {
 			pr_fail("%s: chown %s failed, errno=%d (%s)%s\n",
 				args->name, filename, errno, strerror(errno),
-				stress_get_fs_type(filename));
+				stress_fs_type_get(filename));
 			rc = EXIT_FAILURE;
 			break;
 		}
@@ -262,7 +262,7 @@ static int stress_chown(stress_args_t *args)
 		if ((ret < 0) && (ret != -EPERM)) {
 			pr_fail("%s: lchown %s failed, errno=%d (%s)%s\n",
 				args->name, filename, errno, strerror(errno),
-				stress_get_fs_type(filename));
+				stress_fs_type_get(filename));
 			rc = EXIT_FAILURE;
 			break;
 		}

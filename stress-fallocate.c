@@ -146,7 +146,7 @@ static int stress_fallocate(stress_args_t *args)
 	/* don't worry if this fails, we won't use it if fails */
 	fd_sync = open(filename, O_RDWR | O_SYNC);
 #endif
-	fs_type = stress_get_fs_type(filename);
+	fs_type = stress_fs_type_get(filename);
 #if defined(HAVE_PATHCONF)
 #if defined(_PC_ALLOC_SIZE_MIN)
 	VOID_RET(long int, pathconf(filename, _PC_ALLOC_SIZE_MIN));

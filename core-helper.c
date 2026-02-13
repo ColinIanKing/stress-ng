@@ -746,7 +746,7 @@ void stress_runinfo(void)
 {
 	char real_path[PATH_MAX], *real_path_ret;
 	const char *temp_path = stress_get_temp_path();
-	const char *fs_type = stress_get_fs_type(temp_path);
+	const char *fs_type = stress_fs_type_get(temp_path);
 	size_t freemem, totalmem, freeswap, totalswap;
 #if defined(HAVE_UNAME) &&	\
     defined(HAVE_SYS_UTSNAME_H)

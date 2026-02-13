@@ -654,7 +654,7 @@ static int open_direct(
 		ret = shim_stat(filename, &statbuf);
 		if (UNLIKELY(ret == 0)) {
 			pr_inf("%s: open with O_DIRECT failed but file '%s' was created%s\n",
-				args->name, filename, stress_get_fs_type(filename));
+				args->name, filename, stress_fs_type_get(filename));
 		}
 	}
 	(void)shim_unlink(filename);
