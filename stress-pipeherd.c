@@ -21,6 +21,8 @@
 #include "core-builtin.h"
 #include "core-killpid.h"
 
+#include <sched.h>
+
 /*
  *  Herd of pipe processes, simulates how GNU make passes tokens
  *  when building with -j option, but without the timely building.
@@ -133,19 +135,6 @@ static int stress_pipeherd(stress_args_t *args)
 	(void)shim_memset(&data, 0, sizeof(data));	/* stop valgrind complaining */
 	data.counter = 0;
 	data.check = check;
-	sz = write(fd[1], &data, sizeof(data));
-	if (UNLIKELY(sz <= 0)) {
-		if (sz == 0) {
-			pr_fail("%s: write to pipe failed, zero bytes written\n",
-				args->name);
-		} else {
-			pr_fail("%s: write to pipe failed, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
-		}
-		(void)close(fd[0]);
-		(void)close(fd[1]);
-		return EXIT_FAILURE;
-	}
 
 	for (i = 0; i < pipeherd_procs; i++)
 		pids[i] = -1;
@@ -180,7 +169,31 @@ static int stress_pipeherd(stress_args_t *args)
 		}
 	}
 
-	VOID_RET(int, stress_pipeherd_read_write(args, fd, pipeherd_yield));
+#if defined(SCHED_RR)
+	if (stress_sched_set(getpid(), SCHED_RR, UNDEFINED, false) < 0) {
+		pr_warn("%s: failed to set SCHED_RR for pipe herder process\n",
+			args->name);
+	}
+#endif
+
+	sz = write(fd[1], &data, sizeof(data));
+	if (UNLIKELY(sz <= 0)) {
+		if (sz == 0) {
+			pr_fail("%s: write to pipe failed, zero bytes written\n",
+				args->name);
+		} else {
+			pr_fail("%s: write to pipe failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
+		}
+		(void)close(fd[0]);
+		(void)close(fd[1]);
+		return EXIT_FAILURE;
+	}
+
+	do {
+		(void)shim_usleep_interruptible(250000);
+	} while (stress_continue(args));
+
 	sz = read(fd[0], &data, sizeof(data));
 	if (sz >= (ssize_t)sizeof(data))
 		stress_bogo_set(args, data.counter);
@@ -194,6 +207,13 @@ static int stress_pipeherd(stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
+	/* stop first */
+	for (i = 0; i < pipeherd_procs; i++) {
+		if (pids[i] >= 0)
+			stress_kill_sig(pids[i], SIGALRM);
+	}
+
+	/* then reap */
 	for (i = 0; i < pipeherd_procs; i++) {
 		if (pids[i] >= 0)
 			(void)stress_kill_pid_wait(pids[i], NULL);
