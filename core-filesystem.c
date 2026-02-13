@@ -920,10 +920,10 @@ int stress_fs_bad_fd_get(void)
 }
 
 /*
- *  stress_is_a_pipe()
+ *  stress_fs_pipe_check()
  *	return true if fd is a pipe
  */
-bool stress_is_a_pipe(const int fd)
+bool stress_fs_pipe_check(const int fd)
 {
 	struct stat statbuf;
 

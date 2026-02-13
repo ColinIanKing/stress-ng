@@ -1421,7 +1421,7 @@ int stress_get_tty_width(void)
 	struct winsize ws;
 	int ret, fd;
 
-	if (stress_is_a_pipe(fileno(stdout)))
+	if (stress_fs_pipe_check(fileno(stdout)))
 		fd = fileno(stdin);
 	else
 		fd = fileno(stdout);
