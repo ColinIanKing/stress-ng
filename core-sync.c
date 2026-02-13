@@ -191,7 +191,7 @@ void stress_sync_start_cont_list(stress_pid_t *s_pids_head)
  *  stress_sync_order_pid_hash()
  *	create a 1 to 1 mapping of pid to hash by just reversing
  *	the bits. For ascending ordered pids this creates a mapping
- *	that can be inseted into a binary tree with a fairly good
+ *	that can be inserted into a binary tree with a fairly good
  *	left/right balance
  */
 static OPTIMIZE3 pid_t stress_sync_order_pid_hash(const pid_t pid)
