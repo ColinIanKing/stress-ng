@@ -224,7 +224,7 @@ retry:
 #endif
 		}
 
-		stress_close_fds(fds, n);
+		stress_fs_close_fds(fds, n);
 		(void)shutdown(fd, SHUT_RDWR);
 		(void)close(fd);
 	} while (stress_continue(args));

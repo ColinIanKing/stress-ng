@@ -1365,10 +1365,10 @@ const char *stress_get_fs_type(const char *filename)
 }
 
 /*
- *  stress_close_fds()
+ *  stress_fs_close_fds()
  *	close an array of file descriptors
  */
-void stress_close_fds(int *fds, const size_t n)
+void stress_fs_close_fds(int *fds, const size_t n)
 {
 	size_t i, j;
 

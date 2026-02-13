@@ -108,8 +108,7 @@ tidy:
 	if (fd != -1)
 		(void)close(fd);
 
-	stress_close_fds(fds, n_mnts);
-
+	stress_fs_close_fds(fds, n_mnts);
 	stress_mount_free(mnts, n_mnts);
 #else
 	UNEXPECTED

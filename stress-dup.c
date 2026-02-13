@@ -399,7 +399,7 @@ static int stress_dup(stress_args_t *args)
 			stress_bogo_inc(args);
 		}
 		/* close from fds[1]..fds[n], i.e. n - 1 fds in total */
-		stress_close_fds(&fds[1], n - 1);
+		stress_fs_close_fds(&fds[1], n - 1);
 	} while (stress_continue(args));
 
 tidy_fds:
