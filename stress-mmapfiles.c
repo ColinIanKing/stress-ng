@@ -88,7 +88,7 @@ static size_t stress_mmapfiles_dir(
 			break;
 		if (UNLIKELY(!stress_continue_flag()))
 			break;
-		if (UNLIKELY(stress_is_dot_filename(d->d_name)))
+		if (UNLIKELY(stress_fs_filename_dotty(d->d_name)))
 			continue;
 		type = shim_dirent_type(path, d);
 		if (type == SHIM_DT_DIR) {

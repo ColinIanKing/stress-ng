@@ -374,7 +374,7 @@ static int rm_dir(stress_args_t *args, const char *path)
 		while ((d = readdir(dp)) != NULL) {
 			char filename[PATH_MAX];
 
-			if (stress_is_dot_filename(d->d_name))
+			if (stress_fs_filename_dotty(d->d_name))
 				continue;
 			(void)stress_mk_filename(filename, sizeof(filename),
 				path, d->d_name);

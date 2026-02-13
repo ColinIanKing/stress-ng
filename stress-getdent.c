@@ -196,7 +196,7 @@ static int stress_getdents_dir(
 		       
 			d_type = (unsigned char)*((char *)ptr + d->d_reclen - 1);
 			if (d_type == SHIM_DT_DIR &&
-			    !stress_is_dot_filename(d->d_name)) {
+			    !stress_fs_filename_dotty(d->d_name)) {
 				char newpath[PATH_MAX];
 
 				(void)stress_mk_filename(newpath, sizeof(newpath), path, d->d_name);
@@ -287,7 +287,7 @@ static int stress_getdents64_dir(
 				break;
 
 			if (d->d_type == SHIM_DT_DIR &&
-			    !stress_is_dot_filename(d->d_name)) {
+			    !stress_fs_filename_dotty(d->d_name)) {
 				char newpath[PATH_MAX];
 
 				(void)stress_mk_filename(newpath, sizeof(newpath), path, d->d_name);

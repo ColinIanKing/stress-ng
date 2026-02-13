@@ -4381,7 +4381,7 @@ static bool stress_dev_avoid(char *filename)
 
 	if (name == NULL)
 		return true;
-	if (stress_is_dot_filename(name))
+	if (stress_fs_filename_dotty(name))
 		return true;
 	/*
 	 *  Avoid https://bugs.xenserver.org/browse/XSO-809
@@ -4637,7 +4637,7 @@ static void stress_sys_dev_infos_get(
 
 		if (UNLIKELY(!stress_continue(args)))
 			break;
-		if (stress_is_dot_filename(d->d_name))
+		if (stress_fs_filename_dotty(d->d_name))
 			continue;
 
 		(void)stress_mk_filename(tmp, sizeof(tmp), path, d->d_name);

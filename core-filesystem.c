@@ -1047,7 +1047,7 @@ int stress_fs_dirent_list_prune(struct dirent **dlist, const int n)
 
 	for (i = 0, j = 0; i < n; i++) {
 		if (dlist[i]) {
-			if (stress_is_dot_filename(dlist[i]->d_name)) {
+			if (stress_fs_filename_dotty(dlist[i]->d_name)) {
 				free(dlist[i]);
 				dlist[i] = NULL;
 			} else {
@@ -1459,10 +1459,10 @@ static int CONST OPTIMIZE3 stress_dot_dirent_filter(const struct dirent *d)
 }
 
 /*
- *  stress_is_dot_filename()
+ *  stress_fs_filename_dotty()
  *	is filename "." or "..", name maybe null
  */
-bool CONST OPTIMIZE3 stress_is_dot_filename(const char *name)
+bool CONST OPTIMIZE3 stress_fs_filename_dotty(const char *name)
 {
 	if (UNLIKELY(!name))
 		return false;

@@ -103,7 +103,7 @@ static int stress_dirent_proc_prune(struct dirent **dlist, const int n)
 		if (dlist[i]) {
 			register bool ignore = false;
 
-			if (stress_is_dot_filename(dlist[i]->d_name))
+			if (stress_fs_filename_dotty(dlist[i]->d_name))
 				ignore = true;
 			else if (isdigit((unsigned char)dlist[i]->d_name[0])) {
 				/* only allow a small numeric files.. */
@@ -786,7 +786,7 @@ static void stress_proc_dir(
 		struct dirent *d = dlist[i];
 		unsigned char type;
 
-		if (stress_is_dot_filename(d->d_name)) {
+		if (stress_fs_filename_dotty(d->d_name)) {
 			free(d);
 			dlist[i] = NULL;
 			continue;

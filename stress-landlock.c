@@ -242,7 +242,7 @@ static int stress_landlock_supported(const char *name)
 
 static int stress_landlock_filter(const struct dirent *d)
 {
-	return !stress_is_dot_filename(d->d_name);
+	return !stress_fs_filename_dotty(d->d_name);
 }
 
 /*

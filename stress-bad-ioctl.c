@@ -175,7 +175,7 @@ static void stress_bad_ioctl_dev_dir(
 
 		if (UNLIKELY(!stress_continue(args)))
 			break;
-		if (stress_is_dot_filename(d->d_name))
+		if (stress_fs_filename_dotty(d->d_name))
 			continue;
 
 		len = strlen(d->d_name);

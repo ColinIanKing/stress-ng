@@ -213,7 +213,7 @@ static void stress_apparmor_dir(
 
 		if (!stress_apparmor_stress_continue_inc(args, false))
 			break;
-		if (stress_is_dot_filename(d->d_name))
+		if (stress_fs_filename_dotty(d->d_name))
 			continue;
 		switch (shim_dirent_type(path, d)) {
 		case SHIM_DT_DIR:

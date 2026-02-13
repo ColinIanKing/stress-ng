@@ -283,7 +283,7 @@ static void stress_filename_tidy(
 		while ((d = readdir(dir)) != NULL) {
 			char filename[PATH_MAX];
 
-			if (stress_is_dot_filename(d->d_name))
+			if (stress_fs_filename_dotty(d->d_name))
 				continue;
 			(void)stress_mk_filename(filename, sizeof(filename),
 				path, d->d_name);
@@ -516,7 +516,7 @@ static int stress_filename_readdir(
 		int name_cmp;
 
 		/* ignore dot files */
-		if (stress_is_dot_filename(d->d_name))
+		if (stress_fs_filename_dotty(d->d_name))
 			continue;
 
 		readdir_count++;

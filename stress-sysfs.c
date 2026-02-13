@@ -561,7 +561,7 @@ static void stress_sys_dir(
 		const struct dirent *d = dlist[i];
 		double time_start, time_end, time_out;
 
-		if (stress_is_dot_filename(d->d_name))
+		if (stress_fs_filename_dotty(d->d_name))
 			goto dt_reg_free;
 
 		(void)stress_mk_filename(tmp, sizeof(tmp), path, d->d_name);
@@ -845,7 +845,7 @@ again:
 					if (UNLIKELY(!stress_continue(args)))
 						break;
 
-					if (UNLIKELY(stress_is_dot_filename(dlist[j]->d_name)))
+					if (UNLIKELY(stress_fs_filename_dotty(dlist[j]->d_name)))
 						continue;
 
 					stress_mk_filename(sysfspath, sizeof(sysfspath),
