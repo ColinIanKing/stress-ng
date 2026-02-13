@@ -433,11 +433,11 @@ uint64_t stress_get_filesystem_size(void)
 }
 
 /*
- *  stress_get_filesystem_available_inodes()
+ *  stress_fs_available_inodes_get()
  *	get number of free available inodes on the current stress
  *	temporary path, return 0 if failed
  */
-uint64_t stress_get_filesystem_available_inodes(void)
+uint64_t stress_fs_available_inodes_get(void)
 {
 #if defined(HAVE_SYS_STATVFS_H)
 	int rc;

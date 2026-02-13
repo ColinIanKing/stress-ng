@@ -43,7 +43,7 @@ static const char stress_dir_names[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
  */
 static void stress_dirdeep_inodes(const char *opt_name, const char *opt_arg, stress_type_id_t *type_id, void *value)
 {
-	const uint64_t inodes = stress_get_filesystem_available_inodes();
+	const uint64_t inodes = stress_fs_available_inodes_get();
 	uint64_t *dirdeep_inodes = (uint64_t *)value;
 
 	*type_id = TYPE_ID_UINT64;
@@ -84,7 +84,7 @@ static bool stress_dirdeep_make(
     defined(O_DIRECTORY)
 	int dir_fd;
 #endif
-	const uint64_t inodes_avail = stress_get_filesystem_available_inodes();
+	const uint64_t inodes_avail = stress_fs_available_inodes_get();
 
 	if ((inodes_avail == 0) || (inodes_start == 0)) {
 		if (*inodes_estimate > dirdeep_inodes)
@@ -425,7 +425,7 @@ static int stress_dirdeep(stress_args_t *args)
 			dirdeep_inodes = ~0ULL;
 	}
 
-	inodes_start = stress_get_filesystem_available_inodes();
+	inodes_start = stress_fs_available_inodes_get();
 
 	(void)stress_temp_dir_args(args, rootpath, sizeof(rootpath));
 	path_len = strlen(rootpath);
