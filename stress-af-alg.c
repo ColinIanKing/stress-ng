@@ -907,9 +907,6 @@ retry_bind:
 
 		t = stress_time_now();
 		if (UNLIKELY(sendmsg(fd, &msg, 0) < 0)) {
-			pr_inf("SEND: %d %s\n", errno, strerror(errno));
-			rc = 0;
-			goto err_close;
 			if (errno == 0)
 				break;
 			if (errno == ENOMEM)
