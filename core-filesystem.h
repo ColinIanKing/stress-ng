@@ -30,7 +30,7 @@ extern WARN_UNUSED const char *stress_get_temp_path(void);
 extern WARN_UNUSED int stress_check_temp_path(void);
 extern size_t stress_mk_filename(char *fullname, const size_t fullname_len,
 	const char *pathname, const char *filename);
-extern WARN_UNUSED uint64_t stress_get_filesystem_size(void);
+extern WARN_UNUSED uint64_t stress_fs_size_get(void);
 extern WARN_UNUSED uint64_t stress_fs_available_inodes_get(void);
 extern void stress_fs_usage_bytes( stress_args_t *args,
 	const off_t fs_size_per_instance, const off_t fs_size_total);

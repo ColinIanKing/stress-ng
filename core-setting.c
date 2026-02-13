@@ -400,7 +400,7 @@ bool stress_get_setting(const char *name, void *value)
 				break;
 			case TYPE_ID_UINT64_BYTES_FS_PERCENT:
 				set = true;
-				*(uint64_t *)value = setting->u.uint64 * (stress_get_filesystem_size() / 100);
+				*(uint64_t *)value = setting->u.uint64 * (stress_fs_size_get() / 100);
 				break;
 			case TYPE_ID_INT64:
 				set = true;
@@ -415,7 +415,7 @@ bool stress_get_setting(const char *name, void *value)
 				break;
 			case TYPE_ID_SIZE_T_BYTES_FS_PERCENT:
 				set = true;
-				*(size_t *)value = setting->u.size * (stress_get_filesystem_size() / 100);
+				*(size_t *)value = setting->u.size * (stress_fs_size_get() / 100);
 				break;
 			case TYPE_ID_SSIZE_T:
 				set = true;

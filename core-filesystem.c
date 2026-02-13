@@ -398,12 +398,12 @@ size_t stress_mk_filename(
 }
 
 /*
- *  stress_get_filesystem_size()
+ *  stress_fs_size_get()
  *	get size of free space still available on the
  *	file system where stress temporary path is located,
  *	return 0 if failed
  */
-uint64_t stress_get_filesystem_size(void)
+uint64_t stress_fs_size_get(void)
 {
 #if defined(HAVE_SYS_STATVFS_H)
 	int rc;
@@ -469,7 +469,7 @@ void stress_fs_usage_bytes(
 	const off_t fs_size_per_instance,
 	const off_t fs_size_total)
 {
-	const off_t total_fs_size = (off_t)stress_get_filesystem_size();
+	const off_t total_fs_size = (off_t)stress_fs_size_get();
 	char s1[32], s2[32], s3[32];
 
 	if (total_fs_size > 0) {
