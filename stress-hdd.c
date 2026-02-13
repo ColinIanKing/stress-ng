@@ -1105,7 +1105,7 @@ rnd_rd_retry:
 					args->name, baddata,
 					(baddata == 1) ? "" : "s");
 		}
-		extents = stress_get_extents(fd);
+		extents = stress_fs_extents_get(fd);
 		if (extents > max_extents)
 			max_extents = extents;
 

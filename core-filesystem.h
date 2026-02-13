@@ -63,7 +63,7 @@ extern WARN_UNUSED bool stress_is_dot_filename(const char *name);
 extern void stress_dirent_list_free(struct dirent **dlist, const int n);
 extern WARN_UNUSED int stress_dirent_list_prune(struct dirent **dlist, const int n);
 extern int stress_read_fdinfo(const pid_t pid, const int fd);
-extern WARN_UNUSED size_t stress_get_extents(const int fd);
+extern WARN_UNUSED size_t stress_fs_extents_get(const int fd);
 extern ssize_t stress_fs_read_discard(const int fd);
 extern WARN_UNUSED ssize_t stress_read_buffer(const int fd, void* buffer,
 	const ssize_t size, const bool ignore_sig_eintr);

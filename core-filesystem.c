@@ -1161,10 +1161,10 @@ int stress_read_fdinfo(const pid_t pid, const int fd)
 }
 
 /*
- *  stress_get_extents()
+ *  stress_fs_extents_get()
  *	try to determine number extents in a file
  */
-size_t stress_get_extents(const int fd)
+size_t stress_fs_extents_get(const int fd)
 {
 #if defined(FS_IOC_FIEMAP) &&	\
     defined(HAVE_LINUX_FIEMAP_H)

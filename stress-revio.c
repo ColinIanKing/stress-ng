@@ -448,7 +448,7 @@ PRAGMA_UNROLL_N(4)
 			stress_bogo_inc(args);
 		}
 		iterations++;
-		extents = stress_get_extents(fd);
+		extents = stress_fs_extents_get(fd);
 		avg_extents += (double)extents;
 #if defined(HAVE_READAHEAD)
 		if (revio_flags & REVIO_OPT_READAHEAD) {
