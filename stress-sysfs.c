@@ -706,7 +706,7 @@ static int stress_sysfs(stress_args_t *args)
 	n = scandir("/sys", &dlist, NULL, alphasort);
 	if (n <= 0)
 		goto exit_no_sysfs_entries;
-	n = stress_dirent_list_prune(dlist, n);
+	n = stress_fs_dirent_list_prune(dlist, n);
 	if (n <= 0)
 		goto exit_no_sysfs_entries;
 

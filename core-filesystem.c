@@ -1035,10 +1035,10 @@ void stress_dirent_list_free(struct dirent **dlist, const int n)
 }
 
 /*
- *  stress_dirent_list_prune()
+ *  stress_fs_dirent_list_prune()
  *	remove . and .. files from directory list
  */
-int stress_dirent_list_prune(struct dirent **dlist, const int n)
+int stress_fs_dirent_list_prune(struct dirent **dlist, const int n)
 {
 	int i, j;
 
