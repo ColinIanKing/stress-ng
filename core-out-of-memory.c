@@ -356,7 +356,7 @@ rewait:
 							oomed ? "" : "assuming ",
 							(intmax_t)pid,
 							args->instance);
-					stress_clean_dir(args->name, args->pid, args->instance);
+					stress_fs_clean_dir(args->name, args->pid, args->instance);
 					return EXIT_SUCCESS;
 				} else {
 					stress_log_system_mem_info();

@@ -1500,10 +1500,10 @@ static void stress_unset_inode_flags(const char *filename, const int flag)
 }
 
 /*
- *  stress_clean_dir_files()
+ *  stress_fs_clean_dir_files()
  *  	recursively delete files in directories
  */
-static void stress_clean_dir_files(
+static void stress_fs_clean_dir_files(
 	const char *temp_path,
 	const size_t temp_path_len,
 	char *path,
@@ -1571,7 +1571,7 @@ static void stress_clean_dir_files(
 			stress_unset_inode_flags(temp_path, O_DIRECTORY);
 #endif
 			stress_fs_unset_chattr_flags(path);
-			stress_clean_dir_files(temp_path, temp_path_len, path, path_posn + name_len);
+			stress_fs_clean_dir_files(temp_path, temp_path_len, path, path_posn + name_len);
 			(void)shim_rmdir(path);
 			break;
 		case DT_LNK:
@@ -1599,7 +1599,7 @@ static void stress_clean_dir_files(
 			stress_unset_inode_flags(temp_path, O_DIRECTORY);
 #endif
 			stress_fs_unset_chattr_flags(temp_path);
-			stress_clean_dir_files(temp_path, temp_path_len, path, path_posn + name_len);
+			stress_fs_clean_dir_files(temp_path, temp_path_len, path, path_posn + name_len);
 			(void)shim_rmdir(path);
 		} else if (((statbuf.st_mode & S_IFMT) == S_IFLNK) ||
 			   ((statbuf.st_mode & S_IFMT) == S_IFREG)) {
@@ -1615,12 +1615,12 @@ static void stress_clean_dir_files(
 }
 
 /*
- *  stress_clean_dir()
+ *  stress_fs_clean_dir()
  *	perform tidy up of any residual temp files; this
  *	happens if a stressor was terminated before it could
  *	tidy itself up, e.g. OOM'd or KILL'd
  */
-void stress_clean_dir(
+void stress_fs_clean_dir(
 	const char *name,
 	const pid_t pid,
 	const uint32_t instance)
@@ -1634,7 +1634,7 @@ void stress_clean_dir(
 		(void)stress_temp_dir(path, sizeof(path), name, pid, instance);
 		if (access(path, F_OK) == 0) {
 			pr_dbg("%s: removing temporary files in %s\n", name, path);
-			stress_clean_dir_files(temp_path, temp_path_len, path, strlen(path));
+			stress_fs_clean_dir_files(temp_path, temp_path_len, path, strlen(path));
 		}
 	}
 }
