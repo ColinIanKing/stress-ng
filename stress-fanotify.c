@@ -502,8 +502,8 @@ static int stress_fanotify(stress_args_t *args)
 	(void)shim_memset(&account, 0, sizeof(account));
 
 	stress_temp_dir_args(args, pathname, sizeof(pathname));
-	(void)stress_mk_filename(filename, sizeof(filename), pathname, "fanotify_file");
-	(void)stress_mk_filename(filename2, sizeof(filename2), pathname, "fanotify_file2");
+	(void)stress_fs_make_filename(filename, sizeof(filename), pathname, "fanotify_file");
+	(void)stress_fs_make_filename(filename2, sizeof(filename2), pathname, "fanotify_file2");
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
 		return stress_exit_status(-ret);

@@ -162,7 +162,7 @@ static void stress_filerace_tidy(const char *path)
 
 			if (stress_fs_filename_dotty(d->d_name))
 				continue;
-			(void)stress_mk_filename(filename, sizeof(filename),
+			(void)stress_fs_make_filename(filename, sizeof(filename),
 				path, d->d_name);
 			/* could be a file or a dir, so remove both */
 			(void)shim_unlink(filename);

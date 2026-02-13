@@ -230,7 +230,7 @@ static int dnotify_attrib_file(stress_args_t *args, const char *path)
 	char filepath[PATH_MAX];
 	int rc;
 
-	stress_mk_filename(filepath, sizeof(filepath), path, "dnotify_file");
+	stress_fs_make_filename(filepath, sizeof(filepath), path, "dnotify_file");
 	if (mk_file(args, filepath, 4096) < 0)
 		return 0;
 
@@ -275,7 +275,7 @@ static int dnotify_access_file(stress_args_t *args, const char *path)
 	char filepath[PATH_MAX];
 	int rc;
 
-	stress_mk_filename(filepath, sizeof(filepath), path, "dnotify_file");
+	stress_fs_make_filename(filepath, sizeof(filepath), path, "dnotify_file");
 	if (mk_file(args, filepath, 4096) < 0)
 		return 0;
 
@@ -322,7 +322,7 @@ static int dnotify_modify_file(stress_args_t *args, const char *path)
 {
 	char filepath[PATH_MAX];
 
-	stress_mk_filename(filepath, sizeof(filepath), path, "dnotify_file");
+	stress_fs_make_filename(filepath, sizeof(filepath), path, "dnotify_file");
 	return dnotify_exercise(args, filepath, path, dnotify_modify_helper,
 				DN_MODIFY, NULL);
 
@@ -351,7 +351,7 @@ static int dnotify_creat_file(stress_args_t *args, const char *path)
 	char filepath[PATH_MAX];
 	int rc;
 
-	stress_mk_filename(filepath, sizeof(filepath), path, "dnotify_file");
+	stress_fs_make_filename(filepath, sizeof(filepath), path, "dnotify_file");
 	rc = dnotify_exercise(args, filepath, path,
 		dnotify_creat_helper, DN_CREATE, NULL);
 	(void)rm_file(args, filepath);
@@ -373,7 +373,7 @@ static int dnotify_delete_file(stress_args_t *args, const char *path)
 	char filepath[PATH_MAX];
 	int rc;
 
-	stress_mk_filename(filepath, sizeof(filepath), path, "dnotify_file");
+	stress_fs_make_filename(filepath, sizeof(filepath), path, "dnotify_file");
 	if (mk_file(args, filepath, 4096) < 0)
 		return 0;
 	rc = dnotify_exercise(args, filepath, path,
@@ -403,8 +403,8 @@ static int dnotify_rename_file(stress_args_t *args, const char *path)
 	char oldfile[PATH_MAX], newfile[PATH_MAX];
 	int rc;
 
-	stress_mk_filename(oldfile, sizeof(oldfile), path, "dnotify_file");
-	stress_mk_filename(newfile, sizeof(newfile), path, "dnotify_file_renamed");
+	stress_fs_make_filename(oldfile, sizeof(oldfile), path, "dnotify_file");
+	stress_fs_make_filename(newfile, sizeof(newfile), path, "dnotify_file_renamed");
 
 	if (mk_file(args, oldfile, 4096) < 0)
 		return 0;

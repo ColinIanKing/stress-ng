@@ -191,7 +191,7 @@ static int stress_cpu_cache_get_value(
 	char path[PATH_MAX];
 	char tmp[128];
 
-	(void)stress_mk_filename(path, sizeof(path), cpu_path, file);
+	(void)stress_fs_make_filename(path, sizeof(path), cpu_path, file);
 	if (LIKELY(stress_get_string_from_file(path, tmp, sizeof(tmp)) == 0)) {
 		if (sscanf(tmp, "%" SCNu64, value) == 1)
 			return 0;
@@ -936,32 +936,32 @@ static int stress_add_cpu_cache_detail(stress_cpu_cache_t *cache, const char *in
 		goto out;
 	if (UNLIKELY(!index_path))
 		goto out;
-	(void)stress_mk_filename(path, sizeof(path), index_path, "type");
+	(void)stress_fs_make_filename(path, sizeof(path), index_path, "type");
 	if (stress_get_string_from_file(path, tmp, sizeof(tmp)) < 0)
 		goto out;
 	cache->type = (stress_cpu_cache_type_t)stress_cpu_cache_get_type(tmp);
 	if (cache->type == CACHE_TYPE_UNKNOWN)
 		goto out;
 
-	(void)stress_mk_filename(path, sizeof(path), index_path, "size");
+	(void)stress_fs_make_filename(path, sizeof(path), index_path, "size");
 	if (stress_get_string_from_file(path, tmp, sizeof(tmp)) < 0)
 		goto out;
 	cache->size = stress_cpu_cache_size_to_bytes(tmp);
 
-	(void)stress_mk_filename(path, sizeof(path), index_path, "level");
+	(void)stress_fs_make_filename(path, sizeof(path), index_path, "level");
 	if (stress_get_string_from_file(path, tmp, sizeof(tmp)) < 0)
 		goto out;
 	if (sscanf(tmp, "%" SCNu16, &val16) != 1)
 		goto out;
 	cache->level = val16;
-	(void)stress_mk_filename(path, sizeof(path), index_path, "coherency_line_size");
+	(void)stress_fs_make_filename(path, sizeof(path), index_path, "coherency_line_size");
 	if (stress_get_string_from_file(path, tmp, sizeof(tmp)) < 0)
 		goto out;
 	if (sscanf(tmp, "%" SCNu32, &val32) != 1)
 		goto out;
 	cache->line_size = val32;
 
-	(void)stress_mk_filename(path, sizeof(path), index_path, "ways_of_associativity");
+	(void)stress_fs_make_filename(path, sizeof(path), index_path, "ways_of_associativity");
 	if (stress_get_string_from_file(path, tmp, sizeof(tmp)) < 0) {
 		cache->ways = 0;
 	} else {
@@ -1014,7 +1014,7 @@ static int stress_cpu_cache_get_index(
 	uint32_t i;
 	char path[PATH_MAX];
 
-	(void)stress_mk_filename(path, sizeof(path), cpu_path, stress_cpu_cache_dir);
+	(void)stress_fs_make_filename(path, sizeof(path), cpu_path, stress_cpu_cache_dir);
 	n = scandir(path, &namelist, index_filter, index_sort);
 	if (UNLIKELY(n <= 0)) {
 		cpu->caches = NULL;
@@ -1038,7 +1038,7 @@ static int stress_cpu_cache_get_index(
 		char fullpath[PATH_MAX];
 
 		(void)shim_memset(fullpath, 0, sizeof(fullpath));
-		(void)stress_mk_filename(fullpath, sizeof(fullpath), path, name);
+		(void)stress_fs_make_filename(fullpath, sizeof(fullpath), path, name);
 		if (stress_add_cpu_cache_detail(&cpu->caches[i], fullpath) != EXIT_SUCCESS) {
 			free(cpu->caches);
 			cpu->caches = NULL;
@@ -1283,7 +1283,7 @@ stress_cpu_cache_cpus_t *stress_cpu_cache_get_all_details(void)
 		stress_cpu_cache_cpu_t *const cpu = &cpus->cpus[i];
 
 		(void)shim_memset(fullpath, 0, sizeof(fullpath));
-		(void)stress_mk_filename(fullpath, sizeof(fullpath), stress_sys_cpu_prefix, name);
+		(void)stress_fs_make_filename(fullpath, sizeof(fullpath), stress_sys_cpu_prefix, name);
 		cpu->num = (uint32_t)i;
 		if (cpu->num == 0) {
 			/* 1st CPU cannot be taken offline */

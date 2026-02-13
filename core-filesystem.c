@@ -378,10 +378,10 @@ int stress_fs_temp_path_check(void)
 }
 
 /*
- *  stress_mk_filename()
+ *  stress_fs_make_filename()
  *	generate a full file name from a path and filename
  */
-size_t stress_mk_filename(
+size_t stress_fs_make_filename(
 	char *fullname,
 	const size_t fullname_len,
 	const char *pathname,

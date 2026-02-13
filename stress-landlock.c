@@ -277,9 +277,9 @@ static void stress_landlock_many(
 		char newpath[PATH_MAX], resolved[PATH_MAX];
 
 		if (strcmp(path, "/"))
-			(void)stress_mk_filename(newpath, sizeof(newpath), path, namelist[i]->d_name);
+			(void)stress_fs_make_filename(newpath, sizeof(newpath), path, namelist[i]->d_name);
 		else
-			(void)stress_mk_filename(newpath, sizeof(newpath), "", namelist[i]->d_name);
+			(void)stress_fs_make_filename(newpath, sizeof(newpath), "", namelist[i]->d_name);
 
 		if (UNLIKELY(realpath(newpath, resolved) == NULL))
 			continue;

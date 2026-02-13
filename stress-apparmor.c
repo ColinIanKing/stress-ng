@@ -89,7 +89,7 @@ static int stress_apparmor_supported(const char *name)
 		return -1;
 	}
 	/* ..and see if profiles are accessible */
-	(void)stress_mk_filename(path, sizeof(path), apparmor_path, "profiles");
+	(void)stress_fs_make_filename(path, sizeof(path), apparmor_path, "profiles");
 	if ((fd = open(path, O_RDONLY)) < 0) {
 		switch (errno) {
 		case EACCES:
@@ -218,12 +218,12 @@ static void stress_apparmor_dir(
 		switch (shim_dirent_type(path, d)) {
 		case SHIM_DT_DIR:
 			if (recurse) {
-				(void)stress_mk_filename(name, sizeof(name), path, d->d_name);
+				(void)stress_fs_make_filename(name, sizeof(name), path, d->d_name);
 				stress_apparmor_dir(args, name, recurse, depth + 1);
 			}
 			break;
 		case SHIM_DT_REG:
-			(void)stress_mk_filename(name, sizeof(name), path, d->d_name);
+			(void)stress_fs_make_filename(name, sizeof(name), path, d->d_name);
 			stress_apparmor_read(args, name);
 			break;
 		default:
@@ -288,7 +288,7 @@ static int apparmor_stress_profiles(stress_args_t *args)
 {
 	char path[PATH_MAX];
 
-	(void)stress_mk_filename(path, sizeof(path), apparmor_path, "profiles");
+	(void)stress_fs_make_filename(path, sizeof(path), apparmor_path, "profiles");
 
 	do {
 		stress_apparmor_read(args, path);
@@ -305,7 +305,7 @@ static int apparmor_stress_features(stress_args_t *args)
 {
 	char path[PATH_MAX];
 
-	(void)stress_mk_filename(path, sizeof(path), apparmor_path, "features");
+	(void)stress_fs_make_filename(path, sizeof(path), apparmor_path, "features");
 
 	do {
 		stress_apparmor_dir(args, path, true, 0);

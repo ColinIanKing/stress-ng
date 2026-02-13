@@ -310,7 +310,7 @@ static void stress_swap_clean_dir(stress_args_t *args)
 		struct stat stat_buf;
 		char filename[PATH_MAX];
 
-		stress_mk_filename(filename, sizeof(filename), path, d->d_name);
+		stress_fs_make_filename(filename, sizeof(filename), path, d->d_name);
 		if (shim_stat(filename, &stat_buf) == 0) {
 			if (S_ISREG(stat_buf.st_mode)) {
 				(void)stress_swapoff(filename);

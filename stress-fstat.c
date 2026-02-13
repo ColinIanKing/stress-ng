@@ -312,7 +312,7 @@ static int stress_fstat(stress_args_t *args)
 			goto free_cache;
 		}
 
-		(void)stress_mk_filename(path, sizeof(path), fstat_dir, d->d_name);
+		(void)stress_fs_make_filename(path, sizeof(path), fstat_dir, d->d_name);
 		if (do_not_stat(path))
 			continue;
 		if ((si = (stress_stat_info_t *)calloc(1, sizeof(*si))) == NULL) {

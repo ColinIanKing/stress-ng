@@ -110,7 +110,7 @@ static void stress_cachehammer_init(const uint32_t instances)
 		goto err_free;
 	if (mkdir(cachehammer_path, S_IRWXU) < 0)
 		goto err_rmdir;
-	(void)stress_mk_filename(cachehammer_filename,
+	(void)stress_fs_make_filename(cachehammer_filename,
 		sizeof(cachehammer_filename), cachehammer_path, "mmap-page");
 	fd = open(cachehammer_filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
 	if (fd < 0)

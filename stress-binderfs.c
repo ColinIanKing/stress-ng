@@ -276,7 +276,7 @@ static int stress_binderfs(stress_args_t *args)
 				goto clean;
 			}
 		}
-		(void)stress_mk_filename(filename, sizeof(filename),
+		(void)stress_fs_make_filename(filename, sizeof(filename),
 			pathname, "binder-control");
 		fd = open(filename, O_RDONLY | O_CLOEXEC);
 		if (fd < 0) {
@@ -299,7 +299,7 @@ static int stress_binderfs(stress_args_t *args)
 			char devname[32];
 
 			(void)snprintf(devname, sizeof(devname), "sng-%d", i);
-			(void)stress_mk_filename(devpath, sizeof(devpath), pathname, devname);
+			(void)stress_fs_make_filename(devpath, sizeof(devpath), pathname, devname);
 			(void)unlink(devpath);
 		}
 close_control:

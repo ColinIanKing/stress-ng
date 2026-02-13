@@ -285,7 +285,7 @@ static void stress_filename_tidy(
 
 			if (stress_fs_filename_dotty(d->d_name))
 				continue;
-			(void)stress_mk_filename(filename, sizeof(filename),
+			(void)stress_fs_make_filename(filename, sizeof(filename),
 				path, d->d_name);
 			if (shim_unlink(filename)) {
 				pr_fail("%s: unlink() failed when tidying, "

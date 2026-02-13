@@ -199,7 +199,7 @@ static int stress_getdents_dir(
 			    !stress_fs_filename_dotty(d->d_name)) {
 				char newpath[PATH_MAX];
 
-				(void)stress_mk_filename(newpath, sizeof(newpath), path, d->d_name);
+				(void)stress_fs_make_filename(newpath, sizeof(newpath), path, d->d_name);
 				rc = stress_getdents_rand(args, newpath, recurse, depth - 1, bad_fd, duration, count);
 				if (rc < 0)
 					goto exit_free;
@@ -290,7 +290,7 @@ static int stress_getdents64_dir(
 			    !stress_fs_filename_dotty(d->d_name)) {
 				char newpath[PATH_MAX];
 
-				(void)stress_mk_filename(newpath, sizeof(newpath), path, d->d_name);
+				(void)stress_fs_make_filename(newpath, sizeof(newpath), path, d->d_name);
 				rc = stress_getdents_rand(args, newpath, recurse, depth - 1, bad_fd, duration, count);
 				if (rc < 0)
 					goto exit_free;

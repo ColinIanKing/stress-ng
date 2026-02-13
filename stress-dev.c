@@ -4504,7 +4504,7 @@ static void stress_dev_infos_get(
 				continue;
 		}
 
-		(void)stress_mk_filename(tmp, sizeof(tmp), path, d->d_name);
+		(void)stress_fs_make_filename(tmp, sizeof(tmp), path, d->d_name);
 
 		/* Don't exercise our tty */
 		if (tty_name && !strcmp(tty_name, tmp))
@@ -4640,7 +4640,7 @@ static void stress_sys_dev_infos_get(
 		if (stress_fs_filename_dotty(d->d_name))
 			continue;
 
-		(void)stress_mk_filename(tmp, sizeof(tmp), path, d->d_name);
+		(void)stress_fs_make_filename(tmp, sizeof(tmp), path, d->d_name);
 
 		switch (shim_dirent_type(path, d)) {
 		case SHIM_DT_LNK:

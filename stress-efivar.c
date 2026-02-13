@@ -265,7 +265,7 @@ static int efi_read_variable(
 	int flags;
 #endif
 
-	(void)stress_mk_filename(filename, sizeof(filename), efi_path, varname);
+	(void)stress_fs_make_filename(filename, sizeof(filename), efi_path, varname);
 	if ((fd = open(filename, O_RDONLY)) < 0)
 		return 0;	/* silently fail for open-retry later on */
 

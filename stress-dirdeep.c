@@ -430,7 +430,7 @@ static int stress_dirdeep(stress_args_t *args)
 	(void)stress_temp_dir_args(args, rootpath, sizeof(rootpath));
 	path_len = strlen(rootpath);
 
-	(void)stress_mk_filename(linkpath, sizeof(linkpath), rootpath, "/f");
+	(void)stress_fs_make_filename(linkpath, sizeof(linkpath), rootpath, "/f");
 
 	if (inodes_start) {
 		if (dirdeep_inodes > inodes_start)

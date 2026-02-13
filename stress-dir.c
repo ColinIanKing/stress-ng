@@ -150,7 +150,7 @@ static int stress_dir_read(
 			break;
 		}
 #endif
-		stress_mk_filename(filename, sizeof(filename), path, de->d_name);
+		stress_fs_make_filename(filename, sizeof(filename), path, de->d_name);
 		fd = open(filename, O_RDONLY);
 		if (fd >= 0) {
 			(void)shim_fstat(fd, &statbuf);
@@ -181,7 +181,7 @@ static int stress_dir_rename(
 	char tmp[32];
 
 	(void)snprintf(tmp, sizeof(tmp), "rename-%" PRIu32 "-%" PRIdMAX, stress_mwc32(), (intmax_t)getpid());
-	stress_mk_filename(new_filename, sizeof(new_filename), path, tmp);
+	stress_fs_make_filename(new_filename, sizeof(new_filename), path, tmp);
 
 	dp = opendir(path);
 	if (!dp)
@@ -199,7 +199,7 @@ static int stress_dir_rename(
 		if (de->d_name[0] == '.')
 			continue;
 
-		stress_mk_filename(old_filename, sizeof(old_filename), path, de->d_name);
+		stress_fs_make_filename(old_filename, sizeof(old_filename), path, de->d_name);
 		if (rename(old_filename, new_filename) < 0) {
 			pr_fail("%s: rename %s to %s failed, errno=%d (%s)\n",
 				args->name, old_filename, new_filename,

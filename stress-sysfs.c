@@ -564,7 +564,7 @@ static void stress_sys_dir(
 		if (stress_fs_filename_dotty(d->d_name))
 			goto dt_reg_free;
 
-		(void)stress_mk_filename(tmp, sizeof(tmp), path, d->d_name);
+		(void)stress_fs_make_filename(tmp, sizeof(tmp), path, d->d_name);
 		/* Is it in the hash of bad paths? */
 		if (stress_sys_bad(sysfs_hash_table, tmp))
 			goto dt_reg_free;
@@ -632,7 +632,7 @@ dt_reg_free:
 		if (shim_dirent_type(path, d) != SHIM_DT_DIR)
 			goto dt_dir_free;
 
-		(void)stress_mk_filename(tmp, sizeof(tmp), path, d->d_name);
+		(void)stress_fs_make_filename(tmp, sizeof(tmp), path, d->d_name);
 		ret = shim_stat(tmp, &buf);
 		if (ret < 0)
 			goto dt_dir_free;
@@ -848,7 +848,7 @@ again:
 					if (UNLIKELY(stress_fs_filename_dotty(dlist[j]->d_name)))
 						continue;
 
-					stress_mk_filename(sysfspath, sizeof(sysfspath),
+					stress_fs_make_filename(sysfspath, sizeof(sysfspath),
 							"/sys", dlist[j]->d_name);
 
 					stress_sys_dir(ctxt, sysfspath, true, 0);

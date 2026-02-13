@@ -344,7 +344,7 @@ char *stress_find_mount_dev(const char *name)
 		int ret;
 		struct stat stat_buf;
 
-		stress_mk_filename(dev_path, sizeof(dev_path), "/dev", d->d_name);
+		stress_fs_make_filename(dev_path, sizeof(dev_path), "/dev", d->d_name);
 		ret = shim_stat(dev_path, &stat_buf);
 		if ((ret == 0) &&
 		    (S_ISBLK(stat_buf.st_mode)) &&

@@ -1055,7 +1055,7 @@ static void stress_fd_dir(const char *path, double *duration, double *count)
 			char name[PATH_MAX];
 			int fd;
 
-			stress_mk_filename(name, sizeof(name), path, de->d_name);
+			stress_fs_make_filename(name, sizeof(name), path, de->d_name);
 			fd = open_arg2(name, O_RDONLY, duration, count);
 			if (fd >= 0)
 				(void)close(fd);

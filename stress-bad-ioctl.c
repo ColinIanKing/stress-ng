@@ -199,7 +199,7 @@ static void stress_bad_ioctl_dev_dir(
 
 		switch (shim_dirent_type(path, d)) {
 		case SHIM_DT_DIR:
-			(void)stress_mk_filename(tmp, sizeof(tmp), path, d->d_name);
+			(void)stress_fs_make_filename(tmp, sizeof(tmp), path, d->d_name);
 			ret = shim_stat(tmp, &buf);
 			if (ret < 0)
 				continue;
@@ -209,7 +209,7 @@ static void stress_bad_ioctl_dev_dir(
 			break;
 		case SHIM_DT_BLK:
 		case SHIM_DT_CHR:
-			(void)stress_mk_filename(tmp, sizeof(tmp), path, d->d_name);
+			(void)stress_fs_make_filename(tmp, sizeof(tmp), path, d->d_name);
 			if (strstr(tmp, "watchdog"))
 				continue;
 			stress_bad_ioctl_dev_new(&dev_ioctl_info_head, tmp);
