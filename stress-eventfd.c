@@ -196,7 +196,7 @@ exit_child:
 			 *  Accessing /proc/self/fdinfo/[fd1|fd2] will exercise
 			 *  eventfd-count and eventfd-id proc interfaces.
 			 */
-			(void)stress_read_fdinfo(self, stress_mwc1() ? fd1 : fd2);
+			(void)stress_fs_fdinfo_read(self, stress_mwc1() ? fd1 : fd2);
 
 			for (;;) {
 				if (UNLIKELY(!stress_continue_flag()))

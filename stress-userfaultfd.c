@@ -419,7 +419,7 @@ static int stress_userfaultfd_child(stress_args_t *args, void *context)
 				continue;
 
 			if (UNLIKELY(count++ >= COUNT_MAX)) {
-				(void)stress_read_fdinfo(self, fd);
+				(void)stress_fs_fdinfo_read(self, fd);
 				count = 0;
 			}
 		}

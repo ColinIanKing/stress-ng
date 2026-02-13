@@ -381,7 +381,7 @@ poll_fail:
 		 *  exercise this interface
 		 */
 		if (UNLIKELY(count++ >= COUNT_MAX)) {
-			(void)stress_read_fdinfo(self, timerfds[0]);
+			(void)stress_fs_fdinfo_read(self, timerfds[0]);
 			count = 0;
 		}
 	} while (stress_continue(args));

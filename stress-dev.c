@@ -4083,7 +4083,7 @@ static inline void stress_dev_rw(
 			goto next;
 		}
 
-		(void)stress_read_fdinfo(pid, fd);
+		(void)stress_fs_fdinfo_read(pid, fd);
 
 		if (shim_fstat(fd, &statbuf) < 0) {
 			pr_fail("%s: stat failed on %s, errno=%d (%s)\n",

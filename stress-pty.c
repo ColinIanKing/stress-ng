@@ -148,8 +148,8 @@ static int stress_pty(stress_args_t *args)
 			if ((ptys[i].leader < 0) || (ptys[i].follower < 0))
 				continue;
 
-			(void)stress_read_fdinfo(pid, ptys[i].leader);
-			(void)stress_read_fdinfo(pid, ptys[i].follower);
+			(void)stress_fs_fdinfo_read(pid, ptys[i].leader);
+			(void)stress_fs_fdinfo_read(pid, ptys[i].follower);
 
 #if defined(HAVE_TCGETATTR)
 			{

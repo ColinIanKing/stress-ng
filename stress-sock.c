@@ -1281,7 +1281,7 @@ retry_sendmmsg:
 			count++;
 #endif
 			stress_sock_ioctl(fd, sock_domain, rt);
-			stress_read_fdinfo(self, sfd);
+			stress_fs_fdinfo_read(self, sfd);
 
 			(void)close(sfd);
 		}

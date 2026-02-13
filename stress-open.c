@@ -1188,7 +1188,7 @@ static int stress_open(stress_args_t *args)
 				if (fds[i] < (int)min_fd)
 					min_fd = (unsigned int)fds[i];
 			}
-			stress_read_fdinfo(mypid, fds[i]);
+			stress_fs_fdinfo_read(mypid, fds[i]);
 
 			if (UNLIKELY((i & 8191) == 8191))
 				shim_sync();

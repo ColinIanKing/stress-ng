@@ -610,7 +610,7 @@ static void stress_filename_test_normal(
 			args->name, sz_max, errno, strerror(errno));
 		*rc = EXIT_FAILURE;
 	} else {
-		stress_read_fdinfo(pid, fd);
+		stress_fs_fdinfo_read(pid, fd);
 		(void)close(fd);
 
 		/* exercise dcache lookup of existent filename */
@@ -659,7 +659,7 @@ static void stress_filename_test_utf8(
 	if ((fd = creat(filename, S_IRUSR | S_IWUSR)) < 0)
 		return;
 
-	stress_read_fdinfo(pid, fd);
+	stress_fs_fdinfo_read(pid, fd);
 	(void)close(fd);
 
 	/* exercise dcache lookup of existent filename */

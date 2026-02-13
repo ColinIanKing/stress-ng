@@ -221,7 +221,7 @@ static int efi_get_data(
 		goto err_vars;
 	}
 
-	(void)stress_read_fdinfo(pid, fd);
+	(void)stress_fs_fdinfo_read(pid, fd);
 	(void)shim_memset(buf, 0, buf_len);
 
 	if (metrics)
@@ -288,7 +288,7 @@ static int efi_read_variable(
 	(*duration) += stress_time_now() - t;
 	(*count) += 1.0;
 
-	(void)stress_read_fdinfo(pid, fd);
+	(void)stress_fs_fdinfo_read(pid, fd);
 	stress_efi_sysfs_fd(args, fd, n);
 
 #if defined(FS_IOC_GETFLAGS) &&	\

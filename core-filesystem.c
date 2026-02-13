@@ -1139,10 +1139,10 @@ ignore_eintr:
 }
 
 /*
- *  stress_read_fdinfo()
+ *  stress_fs_fdinfo_read()
  *	read the fdinfo for a specific pid's fd, Linux only
  */
-int stress_read_fdinfo(const pid_t pid, const int fd)
+int stress_fs_fdinfo_read(const pid_t pid, const int fd)
 {
 #if defined(__linux__)
 	char path[PATH_MAX];

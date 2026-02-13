@@ -1102,7 +1102,7 @@ static int stress_io_uring_child(stress_args_t *args, void *context)
 		if (i++ >= 4096) {
 			i = 0;
 			if (LIKELY(stress_continue(args)))
-				(void)stress_read_fdinfo(self, submit.io_uring_fd);
+				(void)stress_fs_fdinfo_read(self, submit.io_uring_fd);
 		}
 		(void)close(io_uring_file.fd);
 		if (io_uring_file.fd_at >= 0)

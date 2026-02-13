@@ -178,7 +178,7 @@ again:
 			 *  for this specific kind of fd info.
 			 */
 			if (UNLIKELY((fdsi.ssi_int & 0xffff) == 0))
-				(void)stress_read_fdinfo(self, sfd);
+				(void)stress_fs_fdinfo_read(self, sfd);
 
 			stress_bogo_inc(args);
 		} while (stress_continue(args));
