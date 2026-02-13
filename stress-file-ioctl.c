@@ -265,7 +265,7 @@ static int stress_file_ioctl(stress_args_t *args)
 {
 	char filename[PATH_MAX];
 	int ret, fd, rc = EXIT_SUCCESS;
-	const int bad_fd = stress_get_bad_fd();
+	const int bad_fd = stress_fs_bad_fd_get();
 #if defined(FICLONE) || defined(FICLONERANGE)
 	int dfd;
 #endif

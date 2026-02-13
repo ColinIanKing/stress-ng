@@ -151,7 +151,7 @@ static int stress_copy_file_range_verify(
 static int stress_copy_file(stress_args_t *args)
 {
 	int fd_in, fd_out, rc = EXIT_FAILURE, ret;
-	const int fd_bad = stress_get_bad_fd();
+	const int fd_bad = stress_fs_bad_fd_get();
 	char filename[PATH_MAX - 5], tmp[PATH_MAX];
 	uint64_t copy_file_bytes, copy_file_bytes_total = DEFAULT_COPY_FILE_BYTES;
 	double duration = 0.0, bytes = 0.0, rate;

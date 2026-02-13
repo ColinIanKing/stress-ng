@@ -96,7 +96,7 @@ static int stress_fallocate(stress_args_t *args)
 #if defined(O_SYNC)
 	int fd_sync = -1;
 #endif
-	const int bad_fd = stress_get_bad_fd();
+	const int bad_fd = stress_fs_bad_fd_get();
 	char filename[PATH_MAX];
 	uint64_t ftrunc_errs = 0;
 	off_t fallocate_bytes, fallocate_bytes_total = DEFAULT_FALLOCATE_BYTES;

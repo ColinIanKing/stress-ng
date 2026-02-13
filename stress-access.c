@@ -255,7 +255,7 @@ static int stress_access(stress_args_t *args)
 	char filename2[PATH_MAX];
 	const mode_t all_mask = 0700;
 #if defined(HAVE_FACCESSAT)
-	const int bad_fd = stress_get_bad_fd();
+	const int bad_fd = stress_fs_bad_fd_get();
 #endif
 	const bool is_root = stress_capabilities_check(SHIM_CAP_IS_ROOT);
 	const char *fs_type;

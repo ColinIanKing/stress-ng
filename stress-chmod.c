@@ -236,7 +236,7 @@ static int stress_chmod(stress_args_t *args)
 	const pid_t ppid = getppid();
 	int fd = -1, rc = EXIT_FAILURE, retries = 0, dfd = -1;
 	size_t i;
-	const int bad_fd = stress_get_bad_fd();
+	const int bad_fd = stress_fs_bad_fd_get();
 	mode_t all_mask = 0;
 	char filename[PATH_MAX], pathname[PATH_MAX], longpath[PATH_MAX + 16];
 	char tmp[PATH_MAX], *filebase;

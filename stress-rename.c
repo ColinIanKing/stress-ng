@@ -221,7 +221,7 @@ static int stress_rename(stress_args_t *args)
 	const uint32_t inst2 = inst1 + 1;
 #if defined(EXERCISE_RENAMEAT) ||	\
     defined(EXERCISE_RENAMEAT2)
-	const int bad_fd = stress_get_bad_fd();
+	const int bad_fd = stress_fs_bad_fd_get();
 	int tmp_fd;
 #endif
 

@@ -121,7 +121,7 @@ static bool stress_fd_now(double *t, const double next)
 
 static void stress_fd_bad_fd(stress_fd_t *fd)
 {
-	fd->fd = stress_get_bad_fd();
+	fd->fd = stress_fs_bad_fd_get();
 	fd->flags = FD_FLAG_READ | FD_FLAG_WRITE;
 }
 

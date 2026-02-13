@@ -295,7 +295,7 @@ static int epoll_notification(
 	const int epoll_sockets,
 	int *fd_count)
 {
-	const int bad_fd = stress_get_bad_fd();
+	const int bad_fd = stress_fs_bad_fd_get();
 
 	for (;;) {
 		struct sockaddr saddr;
@@ -684,7 +684,7 @@ static void NORETURN epoll_server(
 	NOCLOBBER struct epoll_event *events = NULL;
 	struct sockaddr *addr = NULL;
 	socklen_t addr_len = 0;
-	const int bad_fd = stress_get_bad_fd();
+	const int bad_fd = stress_fs_bad_fd_get();
 	int fd_count = 0;
 
 	if (stress_signal_handler(args->name, SIGSEGV, stress_segv_handler, NULL) < 0) {

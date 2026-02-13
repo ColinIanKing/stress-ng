@@ -60,7 +60,7 @@ static int stress_sigfd(stress_args_t *args)
 {
 	pid_t pid, ppid = args->pid;
 	int sfd, parent_cpu, rc = EXIT_SUCCESS;
-	const int bad_fd = stress_get_bad_fd();
+	const int bad_fd = stress_fs_bad_fd_get();
 	sigset_t mask;
 
 	(void)sigemptyset(&mask);

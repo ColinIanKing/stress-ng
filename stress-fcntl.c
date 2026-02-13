@@ -822,7 +822,7 @@ static int stress_fcntl(stress_args_t *args)
 {
 	const pid_t ppid = getppid();
 	int fd, rc = EXIT_FAILURE, retries = 0, path_fd;
-	const int bad_fd = stress_get_bad_fd();
+	const int bad_fd = stress_fs_bad_fd_get();
 	char filename[PATH_MAX], pathname[PATH_MAX];
 
 	setfl_flag_count = stress_flag_permutation(all_setfl_flags, &setfl_flag_perms);

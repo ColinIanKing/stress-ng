@@ -135,7 +135,7 @@ static int stress_kcmp(stress_args_t *args)
 	const pid_t mypid = getpid();
 #endif
 	int ret = EXIT_SUCCESS;
-	const int bad_fd = stress_get_bad_fd();
+	const int bad_fd = stress_fs_bad_fd_get();
 	const bool is_root = stress_capabilities_check(SHIM_CAP_IS_ROOT);
 #if defined(HAVE_SYS_EPOLL_H) &&	\
     NEED_GLIBC(2,3,2)

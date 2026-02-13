@@ -281,7 +281,7 @@ static int test_fanotify_mark(char *mounts[])
 {
 	int ret_fd;
 #if defined(FAN_MARK_INODE)
-	const int bad_fd = stress_get_bad_fd();
+	const int bad_fd = stress_fs_bad_fd_get();
 #endif
 
 	ret_fd = fanotify_init(0, 0);

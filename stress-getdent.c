@@ -313,7 +313,7 @@ exit_close:
  */
 static int stress_getdent(stress_args_t *args)
 {
-	const int bad_fd = stress_get_bad_fd();
+	const int bad_fd = stress_fs_bad_fd_get();
 	double duration = 0.0, count = 0.0, rate;
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);

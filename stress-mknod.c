@@ -219,7 +219,7 @@ static int stress_mknod(stress_args_t *args)
 	dev_t chr_dev, blk_dev;
 	int chr_dev_ret, blk_dev_ret;
 	int dir_fd = -1;
-	const int bad_fd = stress_get_bad_fd();
+	const int bad_fd = stress_fs_bad_fd_get();
 #if defined(HAVE_MKNODAT) &&	\
     defined(O_DIRECTORY)
 	char pathname[PATH_MAX];

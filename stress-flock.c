@@ -300,7 +300,7 @@ static int stress_flock_child(
 static int stress_flock(stress_args_t *args)
 {
 	int fd, ret, rc = EXIT_FAILURE;
-	const int bad_fd = stress_get_bad_fd();
+	const int bad_fd = stress_fs_bad_fd_get();
 	size_t i;
 	stress_pid_t *s_pids, *s_pids_head = NULL;
 	char filename[PATH_MAX];

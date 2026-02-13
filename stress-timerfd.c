@@ -128,7 +128,7 @@ static int stress_timerfd(stress_args_t *args)
 #if defined(CLOCK_REALTIME_ALARM)
 	const bool cap_wake_alarm = stress_capabilities_check(SHIM_CAP_WAKE_ALARM);
 #endif
-	const int bad_fd = stress_get_bad_fd();
+	const int bad_fd = stress_fs_bad_fd_get();
 	const pid_t self = getpid();
 	int *timerfds;
 	int ret, rc = EXIT_SUCCESS;

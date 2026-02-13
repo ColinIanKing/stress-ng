@@ -998,7 +998,7 @@ static int stress_inotify(stress_args_t *args)
 {
 	char pathname[PATH_MAX - 16];
 	int ret, i, rc = EXIT_SUCCESS;
-	const int bad_fd = stress_get_bad_fd();
+	const int bad_fd = stress_fs_bad_fd_get();
 
 	stress_temp_dir_args(args, pathname, sizeof(pathname));
 	ret = stress_temp_dir_mk_args(args);

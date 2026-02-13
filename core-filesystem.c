@@ -887,11 +887,11 @@ size_t stress_get_file_limit(void)
 }
 
 /*
- *  stress_get_bad_fd()
+ *  stress_fs_bad_fd_get()
  *	return a fd that will produce -EINVAL when using it
  *	either because it is not open or it is just out of range
  */
-int stress_get_bad_fd(void)
+int stress_fs_bad_fd_get(void)
 {
 #if defined(RLIMIT_NOFILE) &&	\
     defined(F_GETFL)

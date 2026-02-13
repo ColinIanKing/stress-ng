@@ -62,7 +62,7 @@ static int stress_sysinfo(stress_args_t *args)
 #if defined(HAVE_SYS_SYSINFO_H) &&	\
     defined(HAVE_SYSINFO) &&		\
     defined(HAVE_SYS_STATFS_H)
-	const int bad_fd = stress_get_bad_fd();
+	const int bad_fd = stress_fs_bad_fd_get();
 #endif
 
 	(void)shim_memset(mnts, 0, sizeof(mnts));

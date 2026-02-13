@@ -115,7 +115,7 @@ static int stress_loop(stress_args_t *args)
 	int ret, backing_fd, rc = EXIT_FAILURE;
 	char backing_file[PATH_MAX];
 	size_t loop_bytes = DEFAULT_LOOP_BYTES;
-	const int bad_fd = stress_get_bad_fd();
+	const int bad_fd = stress_fs_bad_fd_get();
 	uint8_t blk[4096] ALIGNED(8);
 
 	if (!stress_get_setting("loop-bytes", &loop_bytes)) {

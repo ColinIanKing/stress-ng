@@ -505,7 +505,7 @@ retry_open:
 	stress_fs_file_rw_hint_short(info.fds[0]);
 
 #if defined(__NR_io_cancel)
-	bad_fd = stress_get_bad_fd();
+	bad_fd = stress_fs_bad_fd_get();
 #endif
 
 	/*

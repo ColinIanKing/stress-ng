@@ -39,7 +39,7 @@ static int stress_io(stress_args_t *args)
 	int i, fd, n_mnts;
 	char *mnts[MAX_MNTS];
 	int fds[MAX_MNTS];
-	const int bad_fd = stress_get_bad_fd();
+	const int bad_fd = stress_fs_bad_fd_get();
 
 	if (stress_instance_zero(args))
 		pr_inf("%s: this is a legacy I/O sync stressor, consider using iomix instead\n", args->name);

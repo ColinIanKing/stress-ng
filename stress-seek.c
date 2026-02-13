@@ -78,7 +78,7 @@ static int stress_seek(stress_args_t *args)
 	uint64_t len;
 	uint64_t seek_size = DEFAULT_SEEK_SIZE;
 	int ret, fd, rc = EXIT_FAILURE;
-	const int bad_fd = stress_get_bad_fd();
+	const int bad_fd = stress_fs_bad_fd_get();
 	char filename[PATH_MAX];
 	uint8_t buf[512] ALIGN64;
 	const off_t bad_off_t = max_off_t();

@@ -494,7 +494,7 @@ static int stress_mmap_child(stress_args_t *args, void *ctxt)
 	const bool mmap_file = context->mmap_file;
 	const int fd = context->fd;
 	NOCLOBBER int no_mem_retries = 0;
-	const int bad_fd = stress_get_bad_fd();
+	const int bad_fd = stress_fs_bad_fd_get();
 #if defined(MS_ASYNC) &&	\
     defined(MS_SYNC)
 	const int ms_flags = context->mmap_async ? MS_ASYNC : MS_SYNC;

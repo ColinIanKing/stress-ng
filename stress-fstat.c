@@ -242,7 +242,7 @@ static int stress_fstat_threads(stress_args_t *args, stress_stat_info_t *si, con
 		.args = args,
 		.si = si,
 		.euid = euid,
-		.bad_fd = stress_get_bad_fd(),
+		.bad_fd = stress_fs_bad_fd_get(),
 	};
 #if defined(HAVE_LIB_PTHREAD)
 	stress_fstat_pthread_info_t pthreads[MAX_FSTAT_THREADS];

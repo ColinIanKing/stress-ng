@@ -117,7 +117,7 @@ static void stress_pidfd_reap(pid_t pid, int pidfd)
  */
 static int stress_pidfd(stress_args_t *args)
 {
-	const int bad_fd = stress_get_bad_fd();
+	const int bad_fd = stress_fs_bad_fd_get();
 	int rc = EXIT_SUCCESS;
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);

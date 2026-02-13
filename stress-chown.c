@@ -166,7 +166,7 @@ static int stress_chown(stress_args_t *args)
 {
 	const pid_t ppid = getppid();
 	int fd = -1, rc = EXIT_FAILURE, retries = 0;
-	const int bad_fd = stress_get_bad_fd();
+	const int bad_fd = stress_fs_bad_fd_get();
 	char filename[PATH_MAX], pathname[PATH_MAX];
 	const uid_t uid = getuid();
 	const gid_t gid = getgid();

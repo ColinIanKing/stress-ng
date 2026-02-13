@@ -109,7 +109,7 @@ static int stress_sendfile(stress_args_t *args)
 		goto close_in;
 	}
 
-	bad_fd = stress_get_bad_fd();
+	bad_fd = stress_fs_bad_fd_get();
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);

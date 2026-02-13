@@ -278,7 +278,7 @@ static int stress_close(stress_args_t *args)
 	pthread_t pthread[MAX_PTHREADS];
 	int rc = EXIT_NO_RESOURCE;
 	int ret, rets[MAX_PTHREADS];
-	const int bad_fd = stress_get_bad_fd();
+	const int bad_fd = stress_fs_bad_fd_get();
 	size_t i;
 	const uid_t uid = getuid();
 	const gid_t gid = getgid();

@@ -116,7 +116,7 @@ static int get_mount_info(stress_args_t *args)
 static int stress_handle_child(stress_args_t *args, void *context)
 {
 	const int mounts = *((int *)context);
-	const int bad_fd = stress_get_bad_fd();
+	const int bad_fd = stress_fs_bad_fd_get();
 	int rc = EXIT_SUCCESS;
 
 	do {

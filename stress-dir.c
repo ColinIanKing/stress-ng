@@ -451,7 +451,7 @@ static int stress_dir(stress_args_t *args)
 	uint64_t dir_dirs = DEFAULT_DIR_DIRS;
 	char pathname[PATH_MAX];
 	int dir_fd = -1;
-	const int bad_fd = stress_get_bad_fd();
+	const int bad_fd = stress_fs_bad_fd_get();
 	pid_t pid;
 
 	stress_temp_dir(pathname, sizeof(pathname), args->name,
