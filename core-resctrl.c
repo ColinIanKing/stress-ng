@@ -594,7 +594,7 @@ static int stress_resctrl_set_pid(const char *name, const pid_t pid, stress_part
 
 	(void)snprintf(path, sizeof(path), "%s/stress-ng-%s/schemata", resctrl_mnt, partition->name);
 	if (partition->cachelevel == 0) {
-		ret = stress_system_read(path, buf, sizeof(buf));
+		ret = stress_fs_file_read(path, buf, sizeof(buf));
 		if (ret < 0) {
 			pr_warn("%s: failed to read default schemata cache level for resctrl partition '%s', errno=%d (%s)\n",
 				name, partition->name, errno, strerror(errno));

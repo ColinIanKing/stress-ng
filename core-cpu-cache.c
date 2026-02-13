@@ -66,8 +66,8 @@ static int stress_get_string_from_file(
 	char *ptr;
 	ssize_t ret;
 
-	/* system read will zero fill tmp */
-	ret = stress_system_read(path, tmp, tmp_len);
+	/* fs_file_read will zero fill tmp */
+	ret = stress_fs_file_read(path, tmp, tmp_len);
 	if (UNLIKELY(ret < 0))
 		return -1;
 

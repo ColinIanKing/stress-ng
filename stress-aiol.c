@@ -412,7 +412,7 @@ static int stress_aiol(stress_args_t *args)
 		return EXIT_FAILURE;
 	}
 
-	if (stress_system_read("/proc/sys/fs/aio-max-nr", buf, sizeof(buf)) > 0) {
+	if (stress_fs_file_read("/proc/sys/fs/aio-max-nr", buf, sizeof(buf)) > 0) {
 		if (sscanf(buf, "%" SCNu32, &aio_max_nr) != 1) {
 			/* Guess max */
 			aio_max_nr = DEFAULT_AIO_MAX_NR;

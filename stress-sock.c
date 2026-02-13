@@ -175,7 +175,7 @@ static char **stress_get_congestion_controls(const int sock_domain, size_t *n_ct
 	if (sock_domain != AF_INET)
 		return NULL;
 
-	buf_len = stress_system_read(PROC_CONG_CTRLS, buf, sizeof(buf));
+	buf_len = stress_fs_file_read(PROC_CONG_CTRLS, buf, sizeof(buf));
 	if (buf_len <= 0)
 		return NULL;
 

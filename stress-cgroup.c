@@ -240,7 +240,7 @@ static void stress_cgroup_controllers(const char *realpathname)
 	ssize_t ret;
 
 	(void)snprintf(path, sizeof(path), "%s/%s", realpathname, "cgroup.subtree_control");
-	ret = stress_system_read(path, controllers, sizeof(controllers));
+	ret = stress_fs_file_read(path, controllers, sizeof(controllers));
 	if (ret < 0)
 		return;
 

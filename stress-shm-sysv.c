@@ -435,7 +435,7 @@ static void exercise_shmget(const key_t key, const size_t sz, const char *name)
 		char buf[32];
 
 		/* Find size from shmmax proc value */
-		if (stress_system_read("/proc/sys/kernel/shmmax", buf, sizeof(buf)) > 0) {
+		if (stress_fs_file_read("/proc/sys/kernel/shmmax", buf, sizeof(buf)) > 0) {
 			size_t shmmax;
 
 			if (sscanf(buf, "%zu", &shmmax) == 1) {

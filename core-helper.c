@@ -1370,7 +1370,7 @@ pid_t stress_get_unused_pid_racy(const bool fork_test)
 	}
 
 	(void)shim_memset(buf, 0, sizeof(buf));
-	if (stress_system_read("/proc/sys/kernel/pid_max", buf, sizeof(buf) - 1) > 0) {
+	if (stress_fs_file_read("/proc/sys/kernel/pid_max", buf, sizeof(buf) - 1) > 0) {
 		long val;
 
 		if (sscanf(buf, "%ld", &val) == 1)
@@ -1845,7 +1845,7 @@ static void stress_process_info_dump(
 		return;
 
 	(void)snprintf(path, sizeof(path), "/proc/%" PRIdMAX "/%s", (intmax_t)pid, filename);
-	ret = stress_system_read(path, buf, sizeof(buf));
+	ret = stress_fs_file_read(path, buf, sizeof(buf));
 	if (ret < 0)
 		return;
 
@@ -1912,7 +1912,7 @@ uint64_t stress_get_machine_id(void)
 		char buf[17];
 
 		/* Try machine id from /etc */
-		if (stress_system_read("/etc/machine-id", buf, sizeof(buf)) > 0) {
+		if (stress_fs_file_read("/etc/machine-id", buf, sizeof(buf)) > 0) {
 			buf[16] = '\0';
 			return (uint64_t)strtoll(buf, NULL, 16);
 		}
@@ -1923,7 +1923,7 @@ uint64_t stress_get_machine_id(void)
 		char buf[17];
 
 		/* Try machine id from /var/lib */
-		if (stress_system_read("/var/lib/dbus/machine-id", buf, sizeof(buf)) > 0) {
+		if (stress_fs_file_read("/var/lib/dbus/machine-id", buf, sizeof(buf)) > 0) {
 			buf[16] = '\0';
 			return (uint64_t)strtoll(buf, NULL, 16);
 		}

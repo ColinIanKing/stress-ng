@@ -45,7 +45,7 @@ static int stress_dnotify_supported(const char *name)
 	static const char path[] = "/proc/sys/fs/dir-notify-enable";
 	int enabled;
 
-	if (stress_system_read(path, buf, sizeof(buf)) < 0) {
+	if (stress_fs_file_read(path, buf, sizeof(buf)) < 0) {
 		pr_inf_skip("%s stressor will be skipped, cannot "
 			"open '%s', CONFIG_DNOTIFY is probably not set\n",
 			name, path);

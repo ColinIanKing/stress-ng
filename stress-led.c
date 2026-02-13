@@ -181,13 +181,13 @@ static stress_led_info_t *stress_led_info_get(void)
 
 			(void)snprintf(led_path, sizeof(led_path),
 				"%s/%s/brightness", sys_devices, led_list[i]->d_name);
-			if (stress_system_read(led_path, buf, sizeof(buf)) < 1)
+			if (stress_fs_file_read(led_path, buf, sizeof(buf)) < 1)
 				goto led_free_orig_trigger;
 			led_info->orig_brightness = atoi(buf);
 
 			(void)snprintf(led_path, sizeof(led_path),
 				"%s/%s/max_brightness", sys_devices, led_list[i]->d_name);
-			if (stress_system_read(led_path, buf, sizeof(buf)) < 1)
+			if (stress_fs_file_read(led_path, buf, sizeof(buf)) < 1)
 				goto led_free_orig_trigger;
 			led_info->max_brightness = atoi(buf);
 			/* Threshold values */

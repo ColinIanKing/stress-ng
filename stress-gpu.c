@@ -96,7 +96,7 @@ static void stress_get_gpu_freq_mhz(double *gpu_freq)
 		char filename[128];
 		snprintf(filename, sizeof(filename), "/sys/class/drm/card%d/gt_cur_freq_mhz", gpu_card);
 
-		if (stress_system_read(filename, buf, sizeof(buf)) > 0) {
+		if (stress_fs_file_read(filename, buf, sizeof(buf)) > 0) {
 			if (sscanf(buf, "%lf", gpu_freq) == 1)
 				return;
 		}

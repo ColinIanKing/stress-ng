@@ -834,7 +834,7 @@ void stress_perf_stat_dump(FILE *yaml, stress_stressor_t *stressors_list, const 
 			int level = 0;
 			static const char *path = "/proc/sys/kernel/perf_event_paranoid";
 
-			ret = stress_system_read(path, buffer, sizeof(buffer) - 1);
+			ret = stress_fs_file_read(path, buffer, sizeof(buffer) - 1);
 			if (ret > 0) {
 				if (sscanf(buffer, "%5d", &level) == 1)
 					paranoid = true;

@@ -207,7 +207,7 @@ void stress_get_memlimits(
 
 	(void)stress_get_meminfo(freemem, totalmem, freeswap, totalswap);
 #if defined(__linux__)
-	if (LIKELY(stress_system_read("/proc/sys/kernel/shmall", buf, sizeof(buf)) > 0)) {
+	if (LIKELY(stress_fs_file_read("/proc/sys/kernel/shmall", buf, sizeof(buf)) > 0)) {
 		if (sscanf(buf, "%zu", shmall) == 1)
 			return;
 	}

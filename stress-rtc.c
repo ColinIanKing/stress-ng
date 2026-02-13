@@ -273,7 +273,7 @@ static inline int stress_rtc_sys(stress_args_t *args)
 		ssize_t ret;
 
 		(void)snprintf(path, sizeof(path), "/sys/class/rtc/rtc0/%s", interfaces[i]);
-		ret = stress_system_read(path, buf, sizeof(buf));
+		ret = stress_fs_file_read(path, buf, sizeof(buf));
 		if (UNLIKELY(ret < 0)) {
 			if (ret == -EINTR) {
 				rc = (int)ret;
@@ -304,7 +304,7 @@ static inline int stress_rtc_proc(stress_args_t *args)
 	char buf[4096];
 	static char *path = "/proc/driver/rtc";
 
-	ret = stress_system_read(path, buf, sizeof(buf));
+	ret = stress_fs_file_read(path, buf, sizeof(buf));
 	if (ret < 0) {
 		if ((ret != -ENOENT) && (ret != -EINTR)) {
 			pr_fail("%s: read of %s failed, errno=%zd (%s)\n",

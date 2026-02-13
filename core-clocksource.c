@@ -63,7 +63,7 @@ void stress_clocksource_check(void)
 			continue;
 
 		(void)snprintf(path, sizeof(path), "%s/%s/current_clocksource", dirname, entry->d_name);
-		ret = stress_system_read(path, buf, sizeof(buf) - 1);
+		ret = stress_fs_file_read(path, buf, sizeof(buf) - 1);
 		if (ret > 0) {
 			buf[ret] = '\0';
 			stress_clocksource_tolower(buf);

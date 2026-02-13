@@ -52,7 +52,7 @@ extern int stress_temp_dir_rm_args(stress_args_t *args);
 extern ssize_t stress_fs_file_write(const char *path, const char *buf,
 	const size_t buf_len);
 extern ssize_t stress_fs_discard(const char *path);
-extern WARN_UNUSED ssize_t stress_system_read(const char *path, char *buf,
+extern WARN_UNUSED ssize_t stress_fs_file_read(const char *path, char *buf,
 	const size_t buf_len);
 extern WARN_UNUSED size_t stress_fs_max_file_limit_get(void);
 extern WARN_UNUSED size_t stress_fs_file_limit_get(void);

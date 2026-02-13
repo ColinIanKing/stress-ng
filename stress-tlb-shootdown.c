@@ -468,7 +468,7 @@ static int stress_tlb_shootdown(stress_args_t *args)
 			char buf[64];
 			ssize_t rd_ret;
 
-			rd_ret = stress_system_read(flush_ceiling, buf, sizeof(buf));
+			rd_ret = stress_fs_file_read(flush_ceiling, buf, sizeof(buf));
 			if (rd_ret > 0)
 				VOID_RET(ssize_t, stress_fs_file_write(flush_ceiling, buf, rd_ret));
 		}

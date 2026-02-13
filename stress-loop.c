@@ -235,7 +235,7 @@ static int stress_loop(stress_args_t *args)
 			(void)snprintf(attr_path, sizeof(attr_path),
 				"/sys/devices/virtual/block/loop%ld/loop/%s",
 				dev_num, loop_attr[i]);
-			VOID_RET(ssize_t, stress_system_read(attr_path, buf, sizeof(buf)));
+			VOID_RET(ssize_t, stress_fs_file_read(attr_path, buf, sizeof(buf)));
 		}
 
 #if defined(LOOP_GET_STATUS)

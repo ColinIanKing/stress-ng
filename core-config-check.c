@@ -99,7 +99,7 @@ static int stress_config_read(const char *path, uint64_t *value)
 {
 	char buffer[256];
 
-	if (UNLIKELY(stress_system_read(path, buffer, sizeof(buffer)) < 0))
+	if (UNLIKELY(stress_fs_file_read(path, buffer, sizeof(buffer)) < 0))
 		return -1;
 	if (UNLIKELY(!*buffer))
 		return -1;
@@ -164,7 +164,7 @@ void stress_config_check(void)
 			char buffer[64];
 
 			(void)snprintf(filename, sizeof(filename), "%s/%s/cpufreq/scaling_governor", cpu_path, namelist[i]->d_name);
-			if (UNLIKELY(stress_system_read(filename, buffer, sizeof(buffer)) < 0))
+			if (UNLIKELY(stress_fs_file_read(filename, buffer, sizeof(buffer)) < 0))
 				continue;
 			if (strncmp(buffer, "powersave", 9) == 0)
 				powersave++;

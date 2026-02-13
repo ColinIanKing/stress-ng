@@ -134,7 +134,7 @@ static void stress_get_topology_set(
 
 		(void)snprintf(filename, sizeof(filename), "%s/%s/topology/%s", path, d->d_name, topology_list);
 
-		if (stress_system_read(filename, str, sizeof(str)) < 1)
+		if (stress_fs_file_read(filename, str, sizeof(str)) < 1)
 			continue;
 
 		CPU_ZERO(&newset);

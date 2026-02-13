@@ -740,10 +740,10 @@ ssize_t stress_fs_discard(const char *path)
 }
 
 /*
- *  stress_system_read()
- *	read a buffer from a /sys or /proc entry
+ *  stress_fs_file_read()
+ *	read a buffer from a named from, e.g. a /sys or /proc entry
  */
-ssize_t stress_system_read(
+ssize_t stress_fs_file_read(
 	const char *path,
 	char *buf,
 	const size_t buf_len)
@@ -984,7 +984,7 @@ size_t stress_fs_max_pipe_size_get(void)
 	/*
 	 *  Try and find maximum pipe size directly
 	 */
-	ret = stress_system_read("/proc/sys/fs/pipe-max-size", buf, sizeof(buf));
+	ret = stress_fs_file_read("/proc/sys/fs/pipe-max-size", buf, sizeof(buf));
 	if (ret > 0) {
 		if (sscanf(buf, "%zu", &sz) == 1)
 			if (!stress_check_max_pipe_size(sz, page_size))
@@ -1151,7 +1151,7 @@ int stress_read_fdinfo(const pid_t pid, const int fd)
 	(void)snprintf(path, sizeof(path), "/proc/%d/fdinfo/%d",
 		(int)pid, fd);
 
-	return (int)stress_system_read(path, buf, sizeof(buf));
+	return (int)stress_fs_file_read(path, buf, sizeof(buf));
 #else
 	(void)pid;
 	(void)fd;
@@ -1275,7 +1275,7 @@ static const char *stress_get_fs_dev_model(const char *filename)
 		return NULL;
 
 	(void)snprintf(path, sizeof(path), "/sys/block/%s/device/model", dev);
-	if (stress_system_read(path, buf, sizeof(buf)) > 0) {
+	if (stress_fs_file_read(path, buf, sizeof(buf)) > 0) {
 		char *ptr;
 
 		for (ptr = buf; *ptr; ptr++) {

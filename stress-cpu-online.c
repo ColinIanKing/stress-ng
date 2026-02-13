@@ -109,7 +109,7 @@ static int stress_cpu_online_get(const uint32_t cpu, int *setting)
 		"/sys/devices/system/cpu/cpu%" PRIu32 "/online", cpu);
 
 	(void)shim_memset(data, 0, sizeof(data));
-	ret = stress_system_read(filename, data, sizeof(data));
+	ret = stress_fs_file_read(filename, data, sizeof(data));
 	if (ret < 1) {
 		*setting = -1;
 		return EXIT_FAILURE;

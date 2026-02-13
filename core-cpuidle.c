@@ -140,12 +140,12 @@ void stress_cpuidle_init(void)
 			if (strncmp(cpuidle_d->d_name, "state", 5))
 				continue;
 			(void)snprintf(path, sizeof(path), "%s/%s/residency", cpuidle_path, cpuidle_d->d_name);
-			if (stress_system_read(path, data, sizeof(data)) > 0) {
+			if (stress_fs_file_read(path, data, sizeof(data)) > 0) {
 				if (sscanf(data, "%" SCNu32, &residency) != 1)
 					continue;
 			}
 			(void)snprintf(path, sizeof(path), "%s/%s/name", cpuidle_path, cpuidle_d->d_name);
-			if (stress_system_read(path, data, sizeof(data)) < 1)
+			if (stress_fs_file_read(path, data, sizeof(data)) < 1)
 				continue;
 			ptr = strchr(data, '\n');
 			if (ptr)
@@ -237,14 +237,14 @@ static void stress_cpuidle_read_cstates(
 				continue;
 
 			(void)snprintf(path, sizeof(path), "%s/%s/name", cpuidle_path, cpuidle_d->d_name);
-			if (stress_system_read(path, cstate, sizeof(cstate)) < 1)
+			if (stress_fs_file_read(path, cstate, sizeof(cstate)) < 1)
 				continue;
 			ptr = strchr(cstate, '\n');
 			if (ptr)
 				*ptr = '\0';
 
 			(void)snprintf(path, sizeof(path), "%s/%s/time", cpuidle_path, cpuidle_d->d_name);
-			if (stress_system_read(path, data, sizeof(data)) < 1)
+			if (stress_fs_file_read(path, data, sizeof(data)) < 1)
 				continue;
 			now = stress_time_now();
 			cstate_time = 0;

@@ -191,7 +191,7 @@ void stress_ignite_cpu_start(void)
 			(void)snprintf(path, sizeof(path),
 				"/sys/devices/system/cpu/cpu%" PRId32
 				"/cpufreq/scaling_max_freq", cpu);
-			ret = stress_system_read(path, buffer, sizeof(buffer));
+			ret = stress_fs_file_read(path, buffer, sizeof(buffer));
 			if (ret > 0) {
 				ret = sscanf(buffer, "%" SCNu64,
 					&cpu_settings[cpu].scaling_max_freq);
@@ -203,7 +203,7 @@ void stress_ignite_cpu_start(void)
 			(void)snprintf(path, sizeof(path),
 				"/sys/devices/system/cpu/cpu%" PRId32
 				"/cpufreq/scaling_min_freq", cpu);
-			ret = stress_system_read(path, buffer, sizeof(buffer));
+			ret = stress_fs_file_read(path, buffer, sizeof(buffer));
 			if (ret > 0) {
 				ret = sscanf(buffer, "%" SCNu64,
 					&cpu_settings[cpu].scaling_min_freq);
@@ -215,7 +215,7 @@ void stress_ignite_cpu_start(void)
 			(void)snprintf(path, sizeof(path),
 				"/sys/devices/system/cpu/cpu%" PRId32
 				"/cpufreq/cpuinfo_max_freq", cpu);
-			ret = stress_system_read(path, buffer, sizeof(buffer));
+			ret = stress_fs_file_read(path, buffer, sizeof(buffer));
 			if (ret > 0) {
 				ret = sscanf(buffer, "%" SCNu64,
 					&cpu_settings[cpu].cpuinfo_max_freq);
@@ -227,7 +227,7 @@ void stress_ignite_cpu_start(void)
 			(void)snprintf(path, sizeof(path),
 				"/sys/devices/system/cpu/cpu%" PRId32
 				"/cpufreq/cpuinfo_min_freq", cpu);
-			ret = stress_system_read(path, buffer, sizeof(buffer));
+			ret = stress_fs_file_read(path, buffer, sizeof(buffer));
 			if (ret > 0) {
 				ret = sscanf(buffer, "%" SCNu64,
 					&cpu_settings[cpu].cpuinfo_min_freq);
@@ -239,7 +239,7 @@ void stress_ignite_cpu_start(void)
 			(void)snprintf(path, sizeof(path),
 				"/sys/devices/system/cpu/cpu%" PRId32
 				"/power/pm_qos_resume_latency_us", cpu);
-			ret = stress_system_read(path, buffer, sizeof(buffer));
+			ret = stress_fs_file_read(path, buffer, sizeof(buffer));
 			if (ret > 0) {
 				ret = sscanf(buffer, "%" SCNu64,
 					&cpu_settings[cpu].resume_latency_us);
@@ -252,7 +252,7 @@ void stress_ignite_cpu_start(void)
 			(void)snprintf(path, sizeof(path),
 				"/sys/devices/system/cpu/cpu%" PRId32
 				"/cpufreq/scaling_governor", cpu);
-			ret = stress_system_read(path, cpu_settings[cpu].cur_governor,
+			ret = stress_fs_file_read(path, cpu_settings[cpu].cur_governor,
 					  sizeof(cpu_settings[cpu].cur_governor));
 			if (ret > 0)
 				cpu_settings[cpu].setting_flag |= SETTING_GOVERNOR;
@@ -261,7 +261,7 @@ void stress_ignite_cpu_start(void)
 			(void)snprintf(path, sizeof(path),
 				"/sys/devices/system/cpu/cpu%" PRId32
 				"/power/energy_perf_bias", cpu);
-			ret = stress_system_read(path, buffer, sizeof(buffer));
+			ret = stress_fs_file_read(path, buffer, sizeof(buffer));
 			if (ret > 0) {
 				int8_t bias;
 
@@ -281,7 +281,7 @@ void stress_ignite_cpu_start(void)
 		size_t len;
 
 		settings[i].ignore = true;
-		ret = stress_system_read(settings[i].path, buf, sizeof(buf) - 1);
+		ret = stress_fs_file_read(settings[i].path, buf, sizeof(buf) - 1);
 		if (ret < 0)
 			continue;
 		buf[ret] = '\0';
