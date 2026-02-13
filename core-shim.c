@@ -2870,6 +2870,13 @@ int shim_kill(pid_t pid, int sig)
 {
 	if (sig == 0)
 		return kill(pid, sig);
+	if (UNLIKELY(pid == -1)) {
+		/* try to avoid killing entire process group */
+		pr_dbg("stress_ng: kill(-1, %s) ignored\n",
+			stress_signal_name(sig));
+		errno = EPERM;
+		return -1;
+	}
 	if (UNLIKELY(pid == 1)) {
 		errno = EPERM;
 		return -1;
