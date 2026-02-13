@@ -377,8 +377,8 @@ static int stress_key(stress_args_t *args)
 #endif
 		}
 
-		(void)stress_system_discard("/proc/keys");
-		(void)stress_system_discard("/proc/key-users");
+		(void)stress_fs_discard("/proc/keys");
+		(void)stress_fs_discard("/proc/key-users");
 
 		/*
 		 *  Perform invalid keyctl command

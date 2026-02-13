@@ -92,7 +92,7 @@ static void stress_read_proc_file(const char *filename, bool *ignore)
 		*ignore = true;
 		return;
 	}
-	(void)stress_read_discard(fd);
+	(void)stress_fs_read_discard(fd);
 	(void)close(fd);
 }
 

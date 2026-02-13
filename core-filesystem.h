@@ -51,7 +51,7 @@ extern int stress_temp_dir_rm(const char *name, const pid_t pid,
 extern int stress_temp_dir_rm_args(stress_args_t *args);
 extern ssize_t stress_system_write(const char *path, const char *buf,
 	const size_t buf_len);
-extern ssize_t stress_system_discard(const char *path);
+extern ssize_t stress_fs_discard(const char *path);
 extern WARN_UNUSED ssize_t stress_system_read(const char *path, char *buf,
 	const size_t buf_len);
 extern WARN_UNUSED size_t stress_get_max_file_limit(void);
@@ -64,7 +64,7 @@ extern void stress_dirent_list_free(struct dirent **dlist, const int n);
 extern WARN_UNUSED int stress_dirent_list_prune(struct dirent **dlist, const int n);
 extern int stress_read_fdinfo(const pid_t pid, const int fd);
 extern WARN_UNUSED size_t stress_get_extents(const int fd);
-extern ssize_t stress_read_discard(const int fd);
+extern ssize_t stress_fs_read_discard(const int fd);
 extern WARN_UNUSED ssize_t stress_read_buffer(const int fd, void* buffer,
 	const ssize_t size, const bool ignore_sig_eintr);
 extern WARN_UNUSED ssize_t stress_write_buffer(const int fd, const void* buffer,

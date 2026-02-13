@@ -1968,7 +1968,7 @@ static void stress_mmaprandom_proc_info(mr_ctxt_t *ctxt, const int idx)
 	fd = open(filename, O_RDONLY);
 	if (fd < 0)
 		return;
-	if (stress_read_discard(fd) > 0)
+	if (stress_fs_read_discard(fd) > 0)
 		ctxt->count[idx] += 1.0;
 	(void)close(fd);
 

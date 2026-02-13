@@ -221,10 +221,10 @@ redo:
 		break;
 #if defined(__linux__)
 	case 22:
-		(void)stress_system_discard("/proc/pressure/cpu");
+		(void)stress_fs_discard("/proc/pressure/cpu");
 		break;
 	case 23:
-		(void)stress_system_discard("/proc/self/schedstat");
+		(void)stress_fs_discard("/proc/self/schedstat");
 		break;
 #endif
 #if defined(HAVE_SCHEDMIX_SEM)

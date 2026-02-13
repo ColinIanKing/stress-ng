@@ -95,7 +95,7 @@ static void OPTIMIZE3 stress_timer_set(struct itimerspec *timer)
 static inline void stress_proc_self_timer_read(void)
 {
 #if defined(__linux__)
-	(void)stress_system_discard("/proc/self/timers");
+	(void)stress_fs_discard("/proc/self/timers");
 #endif
 }
 

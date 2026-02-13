@@ -720,10 +720,10 @@ ssize_t stress_system_write(
 }
 
 /*
- *  stress_system_discard()
+ *  stress_fs_discard()
  *	read and discard contents of a given file
  */
-ssize_t stress_system_discard(const char *path)
+ssize_t stress_fs_discard(const char *path)
 {
 	int fd;
 	ssize_t ret;
@@ -733,7 +733,7 @@ ssize_t stress_system_discard(const char *path)
 	fd = open(path, O_RDONLY);
 	if (UNLIKELY(fd < 0))
 		return -errno;
-	ret = stress_read_discard(fd);
+	ret = stress_fs_read_discard(fd);
 	(void)close(fd);
 
 	return ret;
@@ -1060,10 +1060,10 @@ int stress_dirent_list_prune(struct dirent **dlist, const int n)
 }
 
 /*
- *  stress_read_discard()
+ *  stress_fs_read_discard()
  *	read and discard contents of file fd
  */
-ssize_t stress_read_discard(const int fd)
+ssize_t stress_fs_read_discard(const int fd)
 {
 	ssize_t rbytes = 0, ret;
 

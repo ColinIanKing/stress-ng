@@ -883,10 +883,10 @@ again:
 		if ((counter & 0x03ff) == 0) {
 			stress_cpu_sched_fork(args);
 #if defined(__linux__)
-			stress_system_discard("/sys/kernel/debug/sched/debug");
-			stress_system_discard("/proc/pressure/cpu");
-			stress_system_discard("/proc/pressure/irq");
-			stress_system_discard("/proc/schedstat");
+			stress_fs_discard("/sys/kernel/debug/sched/debug");
+			stress_fs_discard("/proc/pressure/cpu");
+			stress_fs_discard("/proc/pressure/irq");
+			stress_fs_discard("/proc/schedstat");
 #endif
 		}
 		if (((counter & 0xfff) == 0) &&
