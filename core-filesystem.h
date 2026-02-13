@@ -65,7 +65,7 @@ extern WARN_UNUSED int stress_dirent_list_prune(struct dirent **dlist, const int
 extern int stress_read_fdinfo(const pid_t pid, const int fd);
 extern WARN_UNUSED size_t stress_fs_extents_get(const int fd);
 extern ssize_t stress_fs_read_discard(const int fd);
-extern WARN_UNUSED ssize_t stress_read_buffer(const int fd, void* buffer,
+extern WARN_UNUSED ssize_t stress_fs_read(const int fd, void* buffer,
 	const ssize_t size, const bool ignore_sig_eintr);
 extern WARN_UNUSED ssize_t stress_write_buffer(const int fd, const void* buffer,
 	const ssize_t size, const bool ignore_sig_eintr);

@@ -1475,7 +1475,7 @@ static int stress_zlib_inflate(
 			int def_size;
 
 			/* read buffer size first */
-			sz = stress_read_buffer(fd, &def_size, sizeof(def_size), false);
+			sz = stress_fs_read(fd, &def_size, sizeof(def_size), false);
 			if (sz == 0) {
 				break;
 			} else if ((sz != sizeof(def_size)) || (sz < 0)) {
@@ -1494,7 +1494,7 @@ static int stress_zlib_inflate(
 				}
 			}
 			/* read deflated buffer */
-			sz = stress_read_buffer(fd, in, def_size, false);
+			sz = stress_fs_read(fd, in, def_size, false);
 			if (sz == 0) {
 				break;
 			} else if ((sz != def_size) || (sz < 0)) {

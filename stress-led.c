@@ -167,7 +167,7 @@ static stress_led_info_t *stress_led_info_get(void)
 			if (fd < 0)
 				goto led_free_name;
 			(void)shim_memset(buf, 0, sizeof(buf));
-			len = stress_read_buffer(fd, buf, sizeof(buf), true);
+			len = stress_fs_read(fd, buf, sizeof(buf), true);
 			(void)close(fd);
 			if (len < 0)
 				goto led_free_name;

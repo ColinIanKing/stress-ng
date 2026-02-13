@@ -1079,12 +1079,12 @@ ssize_t stress_fs_read_discard(const int fd)
 }
 
 /*
- *  stress_read_buffer()
+ *  stress_fs_read()
  *	In addition to read() this function makes sure all bytes have been
  *	read. You're also able to ignore EINTR signals which could happen
  *	on alarm() in the parent process.
  */
-ssize_t stress_read_buffer(
+ssize_t stress_fs_read(
 	const int fd,
 	void *buffer,
 	const ssize_t size,
