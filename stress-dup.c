@@ -212,7 +212,7 @@ static int stress_dup(stress_args_t *args)
 {
 	static int fds[STRESS_FD_MAX];
 	int rc = EXIT_SUCCESS;
-	size_t max_fd = stress_get_file_limit();
+	size_t max_fd = stress_fs_file_limit_get();
 	bool do_dup3 = true;
 	const int bad_fd = stress_fs_bad_fd_get();
 	double dup_duration = 0.0, dup_count = 0.0, rate;

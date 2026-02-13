@@ -55,7 +55,7 @@ extern ssize_t stress_fs_discard(const char *path);
 extern WARN_UNUSED ssize_t stress_system_read(const char *path, char *buf,
 	const size_t buf_len);
 extern WARN_UNUSED size_t stress_get_max_file_limit(void);
-extern WARN_UNUSED size_t stress_get_file_limit(void);
+extern WARN_UNUSED size_t stress_fs_file_limit_get(void);
 extern WARN_UNUSED int stress_fs_bad_fd_get(void);
 extern WARN_UNUSED bool stress_is_a_pipe(const int fd);
 extern WARN_UNUSED size_t stress_probe_max_pipe_size(void);

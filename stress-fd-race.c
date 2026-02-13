@@ -804,7 +804,7 @@ static int stress_fd_race(stress_args_t *args)
 
 	context.args = args;
 	context.pid = getpid();
-	context.max_fd = (ssize_t)stress_get_file_limit();
+	context.max_fd = (ssize_t)stress_fs_file_limit_get();
 	context.socket_fd_port = DEFAULT_SOCKET_FD_PORT;
 	context.current_fd = -1;
 

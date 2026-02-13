@@ -3460,7 +3460,7 @@ next_opt:
 			stress_set_setting_global("log-file", TYPE_ID_STR, (void *)optarg);
 			break;
 		case OPT_max_fd:
-			max_fds = (uint64_t)stress_get_file_limit();
+			max_fds = (uint64_t)stress_fs_file_limit_get();
 			u64 = stress_get_uint64_percent(optarg, 1, max_fds, NULL,
 				"cannot determine maximum file descriptor limit");
 			stress_check_range(optarg, u64, 8, max_fds);

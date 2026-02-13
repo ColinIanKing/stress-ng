@@ -111,7 +111,7 @@ static int stress_fd_fork(stress_args_t *args)
 {
 	int *fds, rc = EXIT_SUCCESS;
 	size_t i, count_fd = 1, start_fd = 1, fds_size;
-	size_t max_fd = stress_get_file_limit();
+	size_t max_fd = stress_fs_file_limit_get();
 	size_t fd_fork_fds = STRESS_FD_DEFAULT;
 	size_t fd_fork_file = STRESS_FD_ZERO;
 	stress_fd_close_info_t *info;

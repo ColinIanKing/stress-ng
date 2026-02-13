@@ -207,7 +207,7 @@ static int stress_oom_pipe(stress_args_t *args)
 	context.wr_buffer = (uint32_t *)buffer;
 	context.rd_buffer = (uint32_t *)((uintptr_t)buffer + page_size);
 
-	context.max_fd = stress_get_file_limit();
+	context.max_fd = stress_fs_file_limit_get();
 	context.max_pipe_size = stress_probe_max_pipe_size();
 
 	context.fds = (int *)calloc(context.max_fd, sizeof(*context.fds));

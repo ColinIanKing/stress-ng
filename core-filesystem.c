@@ -846,12 +846,12 @@ static inline size_t stress_get_open_count(void)
 }
 
 /*
- *  stress_get_file_limit()
+ *  stress_fs_file_limit_get()
  *	get max number of files that the current
  *	process can open excluding currently opened
  *	files.
  */
-size_t stress_get_file_limit(void)
+size_t stress_fs_file_limit_get(void)
 {
 	struct rlimit rlim;
 	size_t last_opened, opened, max = 65536;	/* initial guess */

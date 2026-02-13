@@ -396,7 +396,7 @@ die:
 static int stress_sockfd(stress_args_t *args)
 {
 	pid_t pid, mypid = getpid();
-	ssize_t max_fd = (ssize_t)stress_get_file_limit();
+	ssize_t max_fd = (ssize_t)stress_fs_file_limit_get();
 	int socket_fd_port = DEFAULT_SOCKET_FD_PORT;
 	int ret = EXIT_SUCCESS, reserved_port;
 	int *fds;
