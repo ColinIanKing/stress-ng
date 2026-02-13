@@ -483,10 +483,10 @@ void stress_fs_usage_bytes(
 
 
 /*
- *  stress_set_nonblock()
+ *  stress_fs_set_nonblock()
  *	try to make fd non-blocking
  */
-int stress_set_nonblock(const int fd)
+int stress_fs_set_nonblock(const int fd)
 {
 	int flags;
 #if defined(O_NONBLOCK)

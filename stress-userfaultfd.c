@@ -301,7 +301,7 @@ static int stress_userfaultfd_child(stress_args_t *args, void *context)
 		goto unmap_data;
 	}
 
-	if (stress_set_nonblock(fd) < 0)
+	if (stress_fs_set_nonblock(fd) < 0)
 		do_poll = false;
 
 	/* API sanity check */

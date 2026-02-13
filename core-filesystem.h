@@ -34,7 +34,7 @@ extern WARN_UNUSED uint64_t stress_get_filesystem_size(void);
 extern WARN_UNUSED uint64_t stress_get_filesystem_available_inodes(void);
 extern void stress_fs_usage_bytes( stress_args_t *args,
 	const off_t fs_size_per_instance, const off_t fs_size_total);
-extern WARN_UNUSED int stress_set_nonblock(const int fd);
+extern WARN_UNUSED int stress_fs_set_nonblock(const int fd);
 extern int stress_temp_filename(char *path, const size_t len, const char *name,
 	const pid_t pid, const uint32_t instance, const uint64_t magic);
 extern int stress_temp_filename_args(stress_args_t *args, char *path,
