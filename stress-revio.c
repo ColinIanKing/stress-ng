@@ -387,7 +387,7 @@ static int stress_revio(stress_args_t *args)
 			rc = EXIT_FAILURE;
 			goto finish;
 		}
-		stress_file_rw_hint_short(fd);
+		stress_fs_file_rw_hint_short(fd);
 
 		fs_type = stress_get_fs_type(filename);
 		(void)shim_unlink(filename);

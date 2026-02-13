@@ -1395,10 +1395,10 @@ close_slow:
 }
 
 /*
- *  stress_file_rw_hint_short()
+ *  stress_fs_file_rw_hint_short()
  *	hint that file data opened on fd has short lifetime
  */
-void stress_file_rw_hint_short(const int fd)
+void stress_fs_file_rw_hint_short(const int fd)
 {
 #if defined(F_SET_FILE_RW_HINT) &&	\
     defined(RWH_WRITE_LIFE_SHORT)

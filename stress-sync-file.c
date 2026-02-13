@@ -140,7 +140,7 @@ static int stress_sync_file(stress_args_t *args)
 		(void)stress_temp_dir_rm_args(args);
 		return ret;
 	}
-	stress_file_rw_hint_short(fd);
+	stress_fs_file_rw_hint_short(fd);
 
 	fs_type = stress_get_fs_type(filename);
 #if defined(HAVE_PATHCONF)

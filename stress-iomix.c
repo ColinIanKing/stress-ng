@@ -1197,7 +1197,7 @@ static int stress_iomix(stress_args_t *args)
 		pr_inf("%s: file size too large for file system, reducing file size to %" PRIdMAX " MB\n",
 			args->name, (intmax_t)iomix_bytes >> 20);
 
-	stress_file_rw_hint_short(fd);
+	stress_fs_file_rw_hint_short(fd);
 
 	for (i = 0; i < MAX_IOMIX_PROCS; i++) {
 		stress_sync_start_init(&s_pids[i]);

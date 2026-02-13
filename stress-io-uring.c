@@ -1078,7 +1078,7 @@ static int stress_io_uring_child(stress_args_t *args, void *context)
 				args->name, filename, errno, strerror(errno));
 			goto clean;
 		}
-		stress_file_rw_hint_short(io_uring_file.fd);
+		stress_fs_file_rw_hint_short(io_uring_file.fd);
 #if defined(O_PATH)
 		io_uring_file.fd_at = open(filename, O_PATH);
 #else

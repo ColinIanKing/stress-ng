@@ -99,7 +99,7 @@ static int stress_metamix_file(
 		return ret;
 	}
 
-	stress_file_rw_hint_short(fd);
+	stress_fs_file_rw_hint_short(fd);
 
 	(void)shim_memset(file_info, 0, sizeof(file_info));
 

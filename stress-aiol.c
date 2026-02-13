@@ -502,7 +502,7 @@ retry_open:
 		goto finish;
 	}
 
-	stress_file_rw_hint_short(info.fds[0]);
+	stress_fs_file_rw_hint_short(info.fds[0]);
 
 #if defined(__NR_io_cancel)
 	bad_fd = stress_get_bad_fd();
@@ -518,7 +518,7 @@ retry_open:
 		if (info.fds[i] < 0)
 			info.fds[i] = info.fds[0];
 		else
-			stress_file_rw_hint_short(info.fds[i]);
+			stress_fs_file_rw_hint_short(info.fds[i]);
 	}
 	(void)shim_unlink(filename);
 

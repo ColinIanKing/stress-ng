@@ -354,7 +354,7 @@ static int stress_fpunch(stress_args_t *args)
 			args->name, filename, errno, strerror(errno));
 		goto tidy_temp;
 	}
-	stress_file_rw_hint_short(fd);
+	stress_fs_file_rw_hint_short(fd);
 
 	(void)shim_memset(&buf->buf_before, 0xff, sizeof(buf->buf_before));
 	(void)shim_memset(&buf->buf_after, 0xa5, sizeof(buf->buf_after));

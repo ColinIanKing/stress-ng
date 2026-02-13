@@ -847,7 +847,7 @@ static int stress_hdd(stress_args_t *args)
 
 		fs_type = stress_get_fs_type(filename);
 
-		stress_file_rw_hint_short(fd);
+		stress_fs_file_rw_hint_short(fd);
 
 		/* Exercise ftruncate or truncate */
 		if (stress_mwc1()) {

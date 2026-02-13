@@ -207,7 +207,7 @@ static int stress_fsize(stress_args_t *args)
 	}
 	(void)shim_unlink(filename);
 
-	stress_file_rw_hint_short(fd);
+	stress_fs_file_rw_hint_short(fd);
 
 	max = STRESS_MINIMUM(old_rlim.rlim_max, 1024 * 256);
 	if (stress_instance_zero(args))
