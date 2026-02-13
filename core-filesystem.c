@@ -1303,11 +1303,11 @@ static const char *stress_get_fs_dev_model(const char *filename)
 }
 
 /*
- *  stress_get_fs_info()
+ *  stress_fs_info_get()
  *	for a given filename, determine the filesystem it is stored
  *	on and return filesystem type and number of blocks
  */
-const char *stress_get_fs_info(const char *filename, uintmax_t *blocks)
+const char *stress_fs_info_get(const char *filename, uintmax_t *blocks)
 {
 #if defined(HAVE_LINUX_MAGIC_H) &&	\
     defined(HAVE_SYS_VFS_H) &&		\
@@ -1349,7 +1349,7 @@ const char *stress_get_fs_info(const char *filename, uintmax_t *blocks)
 const char *stress_get_fs_type(const char *filename)
 {
 	uintmax_t blocks;
-	const char *fs_name = stress_get_fs_info(filename, &blocks);
+	const char *fs_name = stress_fs_info_get(filename, &blocks);
 	const char *model = stress_get_fs_dev_model(filename);
 
 	if (fs_name) {
