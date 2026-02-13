@@ -1018,10 +1018,10 @@ ret:
 }
 
 /*
- *  stress_dirent_list_free()
+ *  stress_fs_dirent_list_free()
  *	free dirent list
  */
-void stress_dirent_list_free(struct dirent **dlist, const int n)
+void stress_fs_dirent_list_free(struct dirent **dlist, const int n)
 {
 	if (LIKELY(dlist != NULL)) {
 		int i;

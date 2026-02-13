@@ -219,7 +219,7 @@ static void stress_bad_ioctl_dev_dir(
 		}
 	}
 done:
-	stress_dirent_list_free(dlist, n);
+	stress_fs_dirent_list_free(dlist, n);
 }
 
 static void NORETURN MLOCKED_TEXT stress_segv_handler(int signum)

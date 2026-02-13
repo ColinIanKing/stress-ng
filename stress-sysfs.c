@@ -546,7 +546,7 @@ static void stress_sys_dir(
 
 	n = scandir(path, &dlist, NULL, mixup_sort);
 	if (UNLIKELY(n <= 0)) {
-		stress_dirent_list_free(dlist, n);
+		stress_fs_dirent_list_free(dlist, n);
 		return;
 	}
 
@@ -616,7 +616,7 @@ dt_reg_free:
 	}
 
 	if (!recurse) {
-		stress_dirent_list_free(dlist, n);
+		stress_fs_dirent_list_free(dlist, n);
 		return;
 	}
 
@@ -645,7 +645,7 @@ dt_dir_free:
 		free(dlist[i]);
 		dlist[i] = NULL;
 	}
-	stress_dirent_list_free(dlist, n);
+	stress_fs_dirent_list_free(dlist, n);
 }
 
 static bool stress_sysfs_bad_signal(const int status)
@@ -903,7 +903,7 @@ exit_delete_hash:
 		(void)close(ctxt->kmsgfd);
 
 exit_free:
-	stress_dirent_list_free(dlist, n);
+	stress_fs_dirent_list_free(dlist, n);
 	(void)munmap((void *)ctxt, sizeof(*ctxt));
 
 	return rc;

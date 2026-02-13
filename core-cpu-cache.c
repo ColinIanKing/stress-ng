@@ -1049,7 +1049,7 @@ static int stress_cpu_cache_get_index(
 	}
 list_free:
 	n = (int)cpu->cache_count;
-	stress_dirent_list_free(namelist, n);
+	stress_fs_dirent_list_free(namelist, n);
 
 	return n;
 #else
@@ -1309,7 +1309,7 @@ stress_cpu_cache_cpus_t *stress_cpu_cache_get_all_details(void)
 	}
 
 out:
-	stress_dirent_list_free(namelist, cpu_count);
+	stress_fs_dirent_list_free(namelist, cpu_count);
 	return cpus;
 }
 #elif defined(__APPLE__)
@@ -1346,7 +1346,7 @@ stress_cpu_cache_cpus_t *stress_cpu_cache_get_all_details(void)
 	}
 
 out:
-	stress_dirent_list_free(namelist, cpu_count);
+	stress_fs_dirent_list_free(namelist, cpu_count);
 	return cpus;
 }
 #elif defined(STRESS_ARCH_X86)

@@ -777,7 +777,7 @@ static void stress_proc_dir(
 	dlist = NULL;
 	n = stress_proc_scandir(path, &dlist, NULL, mixup_sort);
 	if (n <= 0) {
-		stress_dirent_list_free(dlist, n);
+		stress_fs_dirent_list_free(dlist, n);
 		return;
 	}
 
@@ -809,7 +809,7 @@ static void stress_proc_dir(
 	}
 
 	if (!recurse) {
-		stress_dirent_list_free(dlist, n);
+		stress_fs_dirent_list_free(dlist, n);
 		return;
 	}
 
@@ -827,7 +827,7 @@ static void stress_proc_dir(
 			stress_bogo_inc(args);
 		}
 	}
-	stress_dirent_list_free(dlist, n);
+	stress_fs_dirent_list_free(dlist, n);
 }
 
 /*
@@ -846,7 +846,7 @@ static char *stress_random_pid(void)
 	mixup = stress_mwc32();
 	n = stress_proc_scandir("/proc", &dlist, NULL, mixup_sort);
 	if (n <= 0) {
-		stress_dirent_list_free(dlist, n);
+		stress_fs_dirent_list_free(dlist, n);
 		return path;
 	}
 
@@ -867,7 +867,7 @@ static char *stress_random_pid(void)
 		}
 	}
 
-	stress_dirent_list_free(dlist, n);
+	stress_fs_dirent_list_free(dlist, n);
 	return path;
 }
 
@@ -978,7 +978,7 @@ static int stress_procfs(stress_args_t *args)
 	}
 	(void)shim_pthread_spin_destroy(&lock);
 
-	stress_dirent_list_free(dlist, n);
+	stress_fs_dirent_list_free(dlist, n);
 
 	return EXIT_SUCCESS;
 }

@@ -322,7 +322,7 @@ static int stress_dir_exercise(
 		}
 	}
 	path[len] = '\0';
-	stress_dirent_list_free(namelist, n);
+	stress_fs_dirent_list_free(namelist, n);
 
 	return 0;
 }

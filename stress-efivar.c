@@ -568,7 +568,7 @@ finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	(void)munmap((void *)efi_ignore, sz);
-	stress_dirent_list_free(efi_dentries, dir_count);
+	stress_fs_dirent_list_free(efi_dentries, dir_count);
 
 	return rc;
 }

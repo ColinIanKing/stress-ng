@@ -1270,10 +1270,10 @@ static inline bool is_scsi_dev(dev_info_t *dev_info)
 			}
 		}
 
-		stress_dirent_list_free(scsi_block_list, m);
+		stress_fs_dirent_list_free(scsi_block_list, m);
 	}
 
-	stress_dirent_list_free(scsi_device_list, n);
+	stress_fs_dirent_list_free(scsi_device_list, n);
 
 	if (is_scsi)
 		dev_info->state->scsi_device = true;
@@ -4527,7 +4527,7 @@ static void stress_dev_infos_get(
 			break;
 		}
 	}
-	stress_dirent_list_free(dlist, n);
+	stress_fs_dirent_list_free(dlist, n);
 }
 
 /*
@@ -4683,7 +4683,7 @@ static void stress_sys_dev_infos_get(
 			break;
 		}
 	}
-	stress_dirent_list_free(dlist, n);
+	stress_fs_dirent_list_free(dlist, n);
 }
 
 /*

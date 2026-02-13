@@ -136,7 +136,7 @@ void stress_processes_dump(void)
 		pr_inf("proc: %-8.8s %*" PRIdMAX " %*" PRIdMAX " %c %s\n", p_name,
 				pid_width, (intmax_t)pid, pid_width, (intmax_t)ppid, state[0], cmd);
 	}
-	stress_dirent_list_free(namelist, n);
+	stress_fs_dirent_list_free(namelist, n);
 }
 #else
 void stress_processes_dump(void)

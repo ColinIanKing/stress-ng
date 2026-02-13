@@ -212,7 +212,7 @@ led_free_info:
 			free(led_info);
 		}
 	}
-	stress_dirent_list_free(led_list, n_devs);
+	stress_fs_dirent_list_free(led_list, n_devs);
 
 	return led_info_list;
 }

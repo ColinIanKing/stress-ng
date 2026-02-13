@@ -169,7 +169,7 @@ void stress_config_check(void)
 			if (strncmp(buffer, "powersave", 9) == 0)
 				powersave++;
 		}
-		stress_dirent_list_free(namelist, n);
+		stress_fs_dirent_list_free(namelist, n);
 		if (powersave > 0) {
 			pr_inf("note: %d cpus have scaling governors set to "
 				"powersave and this may impact performance; "
