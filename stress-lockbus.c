@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-arch.h"
+#include "core-builtin.h"
 #include "core-mmap.h"
 #include "core-numa.h"
 
@@ -290,6 +291,7 @@ static int stress_lockbus(stress_args_t *args)
 		struct sigevent sev;
 		struct itimerspec timer;
 
+		(void)shim_memset(&sev, 0, sizeof(sev));
 		sev.sigev_notify = SIGEV_SIGNAL;
 		sev.sigev_signo = SIGRTMIN;
 		sev.sigev_value.sival_ptr = &timerid;
