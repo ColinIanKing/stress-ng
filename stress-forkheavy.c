@@ -258,7 +258,7 @@ static int stress_forkheavy(stress_args_t *args)
 	stress_forkheavy_args_t forkheavy_args;
 
 	(void)shim_memset(&forkheavy_args, 0, sizeof(forkheavy_args));
-	forkheavy_args.pipe_size = stress_probe_max_pipe_size();
+	forkheavy_args.pipe_size = stress_fs_max_pipe_size_get();
 	forkheavy_args.num_resources = DEFAULT_FORKHEAVY_ALLOCS;
 	forkheavy_args.resources = (stress_resources_t *)malloc(forkheavy_args.num_resources * sizeof(*forkheavy_args.resources));
 	if (!forkheavy_args.resources) {

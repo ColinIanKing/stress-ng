@@ -69,7 +69,7 @@ static void stress_resources_alarm(
  */
 static int stress_resources(stress_args_t *args)
 {
-	const size_t pipe_size = stress_probe_max_pipe_size();
+	const size_t pipe_size = stress_fs_max_pipe_size_get();
 	size_t min_mem_free, shmall, freemem, totalmem, freeswap, totalswap;
 	size_t resources_num = DEFAULT_RESOURCES_NUM;
 	size_t resources_procs = DEFAULT_RESOURCES_PROCS;

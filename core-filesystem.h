@@ -58,7 +58,7 @@ extern WARN_UNUSED size_t stress_fs_max_file_limit_get(void);
 extern WARN_UNUSED size_t stress_fs_file_limit_get(void);
 extern WARN_UNUSED int stress_fs_bad_fd_get(void);
 extern WARN_UNUSED bool stress_is_a_pipe(const int fd);
-extern WARN_UNUSED size_t stress_probe_max_pipe_size(void);
+extern WARN_UNUSED size_t stress_fs_max_pipe_size_get(void);
 extern WARN_UNUSED bool stress_is_dot_filename(const char *name);
 extern void stress_dirent_list_free(struct dirent **dlist, const int n);
 extern WARN_UNUSED int stress_dirent_list_prune(struct dirent **dlist, const int n);

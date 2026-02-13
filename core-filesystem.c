@@ -961,10 +961,10 @@ static inline int stress_check_max_pipe_size(
 #endif
 
 /*
- *  stress_probe_max_pipe_size()
+ *  stress_fs_max_pipe_size_get()
  *	determine the maximum allowed pipe size
  */
-size_t stress_probe_max_pipe_size(void)
+size_t stress_fs_max_pipe_size_get(void)
 {
 	static size_t max_pipe_size;
 
