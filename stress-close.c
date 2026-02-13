@@ -213,7 +213,7 @@ static void *stress_close_func(void *arg)
 			f.l_len = 1024;
 			f.l_pid = mypid;
 
-			if (fds[0] >= 0)
+			if (valid_fd >= 0)
 				VOID_RET(int, fcntl(valid_fd, F_SETLK, &f));
 		}
 #endif
@@ -234,7 +234,8 @@ static void *stress_close_func(void *arg)
 		/*
 		 *  close a valid fd
 		 */
-		VOID_RET(int, close(valid_fd));
+		if (valid_fd >= 0)
+			VOID_RET(int, close(valid_fd));
 
 		/*
 		 *  close a range of fds (valid_fd has alwready been closed
