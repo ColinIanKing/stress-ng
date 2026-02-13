@@ -349,10 +349,10 @@ static const stress_fs_name_t stress_fs_names[] = {
 #endif
 
 /*
- *  stress_get_temp_path()
+ *  stress_fs_temp_path_get()
  *	get temporary file path, return "." if null
  */
-inline const char *stress_get_temp_path(void)
+inline const char *stress_fs_temp_path_get(void)
 {
 	char *path;
 
@@ -367,7 +367,7 @@ inline const char *stress_get_temp_path(void)
  */
 int stress_fs_temp_path_check(void)
 {
-	const char *path = stress_get_temp_path();
+	const char *path = stress_fs_temp_path_get();
 
 	if (UNLIKELY(access(path, R_OK | W_OK) < 0)) {
 		(void)fprintf(stderr, "aborting: temp-path '%s' must be readable "
@@ -409,7 +409,7 @@ uint64_t stress_fs_size_get(void)
 	int rc;
 	struct statvfs buf;
 	fsblkcnt_t blocks, max_blocks;
-	const char *path = stress_get_temp_path();
+	const char *path = stress_fs_temp_path_get();
 
 	if (UNLIKELY(!path))
 		return 0;
@@ -442,7 +442,7 @@ uint64_t stress_fs_available_inodes_get(void)
 #if defined(HAVE_SYS_STATVFS_H)
 	int rc;
 	struct statvfs buf;
-	const char *path = stress_get_temp_path();
+	const char *path = stress_fs_temp_path_get();
 
 	if (UNLIKELY(!path))
 		return 0;
@@ -533,7 +533,7 @@ static void stress_temp_hash_truncate(char *filename)
 	struct statvfs buf;
 
 	(void)shim_memset(&buf, 0, sizeof(buf));
-	if (statvfs(stress_get_temp_path(), &buf) == 0)
+	if (statvfs(stress_fs_temp_path_get(), &buf) == 0)
 		f_namemax = buf.f_namemax;
 #endif
 
@@ -572,7 +572,7 @@ int stress_temp_filename(
 	stress_temp_hash_truncate(filename);
 
 	return snprintf(path, len, "%s/%s/%s",
-		stress_get_temp_path(), directoryname, filename);
+		stress_fs_temp_path_get(), directoryname, filename);
 }
 
 /*
@@ -609,7 +609,7 @@ int stress_temp_dir(
 	stress_temp_hash_truncate(directoryname);
 
 	l = snprintf(path, len, "%s/%s",
-		stress_get_temp_path(), directoryname);
+		stress_fs_temp_path_get(), directoryname);
 	return l;
 }
 
@@ -1625,7 +1625,7 @@ void stress_fs_clean_dir(
 	const pid_t pid,
 	const uint32_t instance)
 {
-	const char *temp_path = stress_get_temp_path();
+	const char *temp_path = stress_fs_temp_path_get();
 	const size_t temp_path_len = strlen(temp_path);
 
 	if (LIKELY(name != NULL)) {

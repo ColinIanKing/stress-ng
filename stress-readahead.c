@@ -231,7 +231,7 @@ PRAGMA_UNROLL_N(8)
 
 	if (statbuf.st_size < (off_t)readahead_bytes) {
 		pr_inf_skip("%s: out of free file space on %s, stressor instance %" PRIu32 " terminating early\n",
-			args->name, stress_get_temp_path(), args->instance);
+			args->name, stress_fs_temp_path_get(), args->instance);
 		rc = EXIT_NO_RESOURCE;
 		goto close_finish;
 	}

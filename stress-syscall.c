@@ -1117,7 +1117,7 @@ static int syscall_chroot(void)
 	if (pid < 0)
 		return -1;
 	else if (pid == 0) {
-		const char *path = stress_get_temp_path();
+		const char *path = stress_fs_temp_path_get();
 		int ret;
 
 		syscall_shared_info->t1 = syscall_time_now();
@@ -8920,7 +8920,7 @@ static int stress_syscall(stress_args_t *args)
 	}
 
 #if defined(O_DIRECTORY)
-	syscall_dir_fd = open(stress_get_temp_path(), O_DIRECTORY | O_RDONLY);
+	syscall_dir_fd = open(stress_fs_temp_path_get(), O_DIRECTORY | O_RDONLY);
 #else
 	syscall_dir_fd = -1;
 #endif

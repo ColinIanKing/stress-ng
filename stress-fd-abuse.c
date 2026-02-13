@@ -196,7 +196,7 @@ static void stress_fd_open_file_rw_direct(stress_fd_t *fd)
     defined(HAVE_OPENAT)
 static void stress_fd_open_temp_path(stress_fd_t *fd)
 {
-	const char *tmp = stress_get_temp_path();
+	const char *tmp = stress_fs_temp_path_get();
 
 	if (tmp) {
 		fd->fd = openat(AT_FDCWD, tmp, O_RDWR | O_NONBLOCK | O_DIRECTORY);
@@ -249,7 +249,7 @@ static void stress_fd_open_file_rw_nonblock(stress_fd_t *fd)
 #if defined(O_PATH)
 static void stress_fd_open_file_path(stress_fd_t *fd)
 {
-	const char *tmp = stress_get_temp_path();
+	const char *tmp = stress_fs_temp_path_get();
 
 	if (tmp) {
 		fd->fd = open(tmp, O_PATH);

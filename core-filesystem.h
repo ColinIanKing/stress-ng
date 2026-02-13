@@ -26,7 +26,7 @@
 #define STRESS_DROP_CACHE_ALL		(STRESS_DROP_CACHE_PAGE_CACHE | \
 					 STRESS_DROP_CACHE_SLAB_OBJECTS)
 
-extern WARN_UNUSED const char *stress_get_temp_path(void);
+extern WARN_UNUSED const char *stress_fs_temp_path_get(void);
 extern WARN_UNUSED int stress_fs_temp_path_check(void);
 extern size_t stress_mk_filename(char *fullname, const size_t fullname_len,
 	const char *pathname, const char *filename);

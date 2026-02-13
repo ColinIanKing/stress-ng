@@ -48,7 +48,7 @@ static void stress_dirdeep_inodes(const char *opt_name, const char *opt_arg, str
 
 	*type_id = TYPE_ID_UINT64;
 	if (inodes == 0) {
-		const char *type = stress_fs_type_get(stress_get_temp_path());
+		const char *type = stress_fs_type_get(stress_fs_temp_path_get());
 
 		pr_inf("%s: cannot determine number of available free inodes, defaulting to maximum allowed%s\n", opt_name, type);
 		*dirdeep_inodes = ~0ULL;

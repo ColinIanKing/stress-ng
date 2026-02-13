@@ -622,7 +622,7 @@ static void bad_flistxattr(stress_bad_addr_t *ba, volatile uint64_t *counter)
 #if defined(O_DIRECTORY)
 	int fd;
 
-	fd = open(stress_get_temp_path(), O_RDONLY | O_DIRECTORY);
+	fd = open(stress_fs_temp_path_get(), O_RDONLY | O_DIRECTORY);
 	if (fd >= 0) {
 		(*counter)++;
 		VOID_RET(ssize_t, shim_flistxattr(fd, (char *)ba->addr, 1024));
@@ -638,7 +638,7 @@ static void bad_fstat(stress_bad_addr_t *ba, volatile uint64_t *counter)
 		int fd = 0;
 
 #if defined(O_DIRECTORY)
-		fd = open(stress_get_temp_path(), O_RDONLY | O_DIRECTORY);
+		fd = open(stress_fs_temp_path_get(), O_RDONLY | O_DIRECTORY);
 		if (fd < 0)
 			fd = 0;
 #endif
@@ -982,7 +982,7 @@ static void bad_getxattr3(stress_bad_addr_t *ba, volatile uint64_t *counter)
 		char buf[1024];
 
 		(*counter)++;
-		VOID_RET(ssize_t, shim_getxattr(stress_get_temp_path(), (char *)ba->addr, buf, sizeof(buf)));
+		VOID_RET(ssize_t, shim_getxattr(stress_fs_temp_path_get(), (char *)ba->addr, buf, sizeof(buf)));
 	}
 }
 
@@ -990,7 +990,7 @@ static void bad_getxattr4(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unwriteable) {
 		(*counter)++;
-		VOID_RET(ssize_t, shim_getxattr(stress_get_temp_path(), "somename", ba->addr, 1024));
+		VOID_RET(ssize_t, shim_getxattr(stress_fs_temp_path_get(), "somename", ba->addr, 1024));
 	}
 }
 #endif
@@ -1027,7 +1027,7 @@ static void bad_link2(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unreadable) {
 		(*counter)++;
-		VOID_RET(int, link(stress_get_temp_path(), (char *)ba->addr));
+		VOID_RET(int, link(stress_fs_temp_path_get(), (char *)ba->addr));
 	}
 }
 
@@ -1035,7 +1035,7 @@ static void bad_link3(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unreadable) {
 		(*counter)++;
-		VOID_RET(int, link((char *)ba->addr, stress_get_temp_path()));
+		VOID_RET(int, link((char *)ba->addr, stress_fs_temp_path_get()));
 	}
 }
 
@@ -1064,7 +1064,7 @@ static void bad_lgetxattr3(stress_bad_addr_t *ba, volatile uint64_t *counter)
 		char buf[1024];
 
 		(*counter)++;
-		VOID_RET(ssize_t, shim_lgetxattr(stress_get_temp_path(), (char *)ba->addr, buf, sizeof(buf)));
+		VOID_RET(ssize_t, shim_lgetxattr(stress_fs_temp_path_get(), (char *)ba->addr, buf, sizeof(buf)));
 	}
 }
 
@@ -1072,7 +1072,7 @@ static void bad_lgetxattr4(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unwriteable) {
 		(*counter)++;
-		VOID_RET(ssize_t, shim_lgetxattr(stress_get_temp_path(), "somename", ba->addr, 1024));
+		VOID_RET(ssize_t, shim_lgetxattr(stress_fs_temp_path_get(), "somename", ba->addr, 1024));
 	}
 }
 #endif
@@ -1099,7 +1099,7 @@ static void bad_listxattr3(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unwriteable) {
 		(*counter)++;
-		VOID_RET(ssize_t, shim_listxattr(stress_get_temp_path(), (char *)ba->addr, 4096));
+		VOID_RET(ssize_t, shim_listxattr(stress_fs_temp_path_get(), (char *)ba->addr, 4096));
 	}
 }
 #endif
@@ -1126,7 +1126,7 @@ static void bad_llistxattr3(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unwriteable) {
 		(*counter)++;
-		VOID_RET(ssize_t, shim_llistxattr(stress_get_temp_path(), (char *)ba->addr, 4096));
+		VOID_RET(ssize_t, shim_llistxattr(stress_fs_temp_path_get(), (char *)ba->addr, 4096));
 	}
 }
 #endif
@@ -1153,7 +1153,7 @@ static void bad_lremovexattr3(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unreadable) {
 		(*counter)++;
-		VOID_RET(int, shim_lremovexattr(stress_get_temp_path(), (char *)ba->addr));
+		VOID_RET(int, shim_lremovexattr(stress_fs_temp_path_get(), (char *)ba->addr));
 	}
 }
 #endif
@@ -1232,7 +1232,7 @@ static void bad_lstat3(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unwriteable) {
 		(*counter)++;
-		VOID_RET(int, shim_lstat(stress_get_temp_path(), (struct stat *)ba->addr));
+		VOID_RET(int, shim_lstat(stress_fs_temp_path_get(), (struct stat *)ba->addr));
 	}
 }
 
@@ -1653,7 +1653,7 @@ static void bad_readlink2(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unwriteable) {
 		(*counter)++;
-		VOID_RET(ssize_t, shim_readlink(stress_get_temp_path(), (char *)ba->addr, 8192));
+		VOID_RET(ssize_t, shim_readlink(stress_fs_temp_path_get(), (char *)ba->addr, 8192));
 	}
 }
 
@@ -1704,7 +1704,7 @@ static void bad_removexattr3(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unreadable) {
 		(*counter)++;
-		VOID_RET(int, shim_removexattr(stress_get_temp_path(), (char *)ba->addr));
+		VOID_RET(int, shim_removexattr(stress_fs_temp_path_get(), (char *)ba->addr));
 	}
 }
 #endif
@@ -1721,7 +1721,7 @@ static void bad_rename2(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unreadable) {
 		(*counter)++;
-		VOID_RET(int, rename(stress_get_temp_path(), (char *)ba->addr));
+		VOID_RET(int, rename(stress_fs_temp_path_get(), (char *)ba->addr));
 	}
 }
 
@@ -1889,7 +1889,7 @@ static void bad_stat2(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unwriteable) {
 		(*counter)++;
-		VOID_RET(int, shim_stat(stress_get_temp_path(), (struct stat *)ba->addr));
+		VOID_RET(int, shim_stat(stress_fs_temp_path_get(), (struct stat *)ba->addr));
 	}
 }
 
@@ -2019,7 +2019,7 @@ static void bad_utimes2(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unreadable) {
 		(*counter)++;
-		VOID_RET(int, utimes(stress_get_temp_path(), (const struct timeval *)ba->addr));
+		VOID_RET(int, utimes(stress_fs_temp_path_get(), (const struct timeval *)ba->addr));
 	}
 }
 #endif

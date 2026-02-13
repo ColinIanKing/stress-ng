@@ -496,7 +496,7 @@ static int stress_landlock(stress_args_t *args)
 	int failures = 0;
 	pid_t pid_many;
 
-	ctxt.path = stress_get_temp_path();
+	ctxt.path = stress_fs_temp_path_get();
 	(void)snprintf(ctxt.filename, sizeof(ctxt.filename), "%s/landlock-%" PRIdMAX,
 			ctxt.path, (intmax_t)getpid());
 

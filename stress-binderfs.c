@@ -48,7 +48,7 @@ static int stress_binderfs_supported(const char *name)
 #if defined(__linux__) &&			\
     defined(HAVE_LINUX_ANDROID_BINDER_H) &&	\
     defined(HAVE_LINUX_ANDROID_BINDERFS_H)
-	const char *tmppath = stress_get_temp_path();
+	const char *tmppath = stress_fs_temp_path_get();
 	char path[PATH_MAX];
 
 	if (!stress_capabilities_check(SHIM_CAP_SYS_ADMIN)) {

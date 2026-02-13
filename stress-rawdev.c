@@ -370,7 +370,7 @@ static int stress_rawdev(stress_args_t *args)
 {
 	int ret, fd, rc = EXIT_SUCCESS;
 	char *devpath, *buffer;
-	const char *path = stress_get_temp_path();
+	const char *path = stress_fs_temp_path_get();
 	size_t blks, blksz = 0, mmapsz;
 	size_t i, j, rawdev_method = 0;
 	const size_t page_size = args->page_size;

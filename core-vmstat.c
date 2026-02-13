@@ -381,7 +381,7 @@ static char *stress_iostat_iostat_name(
 	struct stat statbuf;
 
 	/* Resolve links */
-	temp_path = realpath(stress_get_temp_path(), NULL);
+	temp_path = realpath(stress_fs_temp_path_get(), NULL);
 	if (UNLIKELY(!temp_path))
 		return NULL;
 

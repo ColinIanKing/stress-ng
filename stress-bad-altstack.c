@@ -335,7 +335,7 @@ static int stress_bad_altstack(stress_args_t *args)
 	(void)stress_madvise_mergeable(stack, stress_minsigstksz);
 
 #if defined(O_TMPFILE)
-	tmp_fd = open(stress_get_temp_path(), O_TMPFILE | O_RDWR, S_IRUSR | S_IWUSR);
+	tmp_fd = open(stress_fs_temp_path_get(), O_TMPFILE | O_RDWR, S_IRUSR | S_IWUSR);
 	if (tmp_fd < 0) {
 		bus_stack = MAP_FAILED;
 	} else {

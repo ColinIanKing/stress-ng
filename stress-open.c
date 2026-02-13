@@ -674,7 +674,7 @@ static int open_with_openat_cwd(
 {
 	char cwd[PATH_MAX];
 	char filename[PATH_MAX];
-	const char *temp_path = stress_get_temp_path();
+	const char *temp_path = stress_fs_temp_path_get();
 	int fd;
 	double t;
 

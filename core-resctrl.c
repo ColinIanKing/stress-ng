@@ -728,7 +728,8 @@ void stress_resctrl_init(void)
 		int fd, fd_mnt;
 #endif
 		/* no mount point, let stress-ng mount one */
-		(void)snprintf(resctrl_mnt, sizeof(resctrl_mnt), "%s/stress-ng-resctrl", stress_get_temp_path());
+		(void)snprintf(resctrl_mnt, sizeof(resctrl_mnt), "%s/stress-ng-resctrl",
+			stress_fs_temp_path_get());
 		if (mkdir(resctrl_mnt, S_IRWXU) < 0) {
 			pr_warn("resctrl: cannot create resctrl mount point, errno=%d (%s), %s\n",
 				errno, strerror(errno), disabling);
