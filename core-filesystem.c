@@ -1108,12 +1108,12 @@ ignore_eintr:
 }
 
 /*
- *  stress_write_buffer()
+ *  stress_fs_write()
  *	In addition to write() this function makes sure all bytes have been
  *	written. You're also able to ignore EINTR interrupts which could happen
  *	on alarm() in the parent process.
  */
-ssize_t stress_write_buffer(
+ssize_t stress_fs_write(
 	const int fd,
 	const void *buffer,
 	const ssize_t size,

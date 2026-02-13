@@ -67,7 +67,7 @@ extern WARN_UNUSED size_t stress_fs_extents_get(const int fd);
 extern ssize_t stress_fs_read_discard(const int fd);
 extern WARN_UNUSED ssize_t stress_fs_read(const int fd, void* buffer,
 	const ssize_t size, const bool ignore_sig_eintr);
-extern WARN_UNUSED ssize_t stress_write_buffer(const int fd, const void* buffer,
+extern WARN_UNUSED ssize_t stress_fs_write(const int fd, const void* buffer,
 	const ssize_t size, const bool ignore_sig_eintr);
 extern WARN_UNUSED const char *stress_fs_info_get(const char *filename, uintmax_t *blocks);
 extern WARN_UNUSED const char *stress_fs_type_get(const char *filename) RETURNS_NONNULL;

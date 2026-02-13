@@ -1679,7 +1679,7 @@ static int stress_zlib_deflate(
 					continue;
 
 				/* write buffer length value */
-				sz = stress_write_buffer(fd, &def_size, sizeof(def_size), true);
+				sz = stress_fs_write(fd, &def_size, sizeof(def_size), true);
 				if (sz == 0) {
 					break;
 				} else if (sz != sizeof(def_size)) {
@@ -1698,7 +1698,7 @@ static int stress_zlib_deflate(
 					}
 				}
 				/* write deflate buffer */
-				sz = stress_write_buffer(fd, out, def_size, true);
+				sz = stress_fs_write(fd, out, def_size, true);
 				if (sz == 0) {
 					break;
 				} else if (sz != def_size) {
