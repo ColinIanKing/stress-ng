@@ -4053,7 +4053,7 @@ int main(int argc, char **argv, char **envp)
 		goto exit_stressors_free;
 	}
 
-	if (stress_check_temp_path() < 0) {
+	if (stress_fs_temp_path_check() < 0) {
 		ret = EXIT_FAILURE;
 		goto exit_stressors_free;
 	}

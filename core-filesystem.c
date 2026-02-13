@@ -362,10 +362,10 @@ inline const char *stress_get_temp_path(void)
 }
 
 /*
- *  stress_check_temp_path()
+ *  stress_fs_temp_path_check()
  *	check if temp path is accessible
  */
-int stress_check_temp_path(void)
+int stress_fs_temp_path_check(void)
 {
 	const char *path = stress_get_temp_path();
 
