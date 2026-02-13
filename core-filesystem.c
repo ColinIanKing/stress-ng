@@ -502,11 +502,11 @@ int stress_fs_set_nonblock(const int fd)
 }
 
 /*
- *  stress_base36_encode_uint64()
+ *  stress_fs_base36_encode_uint64()
  *	encode 64 bit hash of filename into a unique base 36
  *	filename of up to 13 chars long + 1 char eos
  */
-static inline void OPTIMIZE3 stress_base36_encode_uint64(char dst[14], uint64_t val)
+static inline void OPTIMIZE3 stress_fs_base36_encode_uint64(char dst[14], uint64_t val)
 {
 	static const char b36[] = "abcdefghijklmnopqrstuvwxyz0123456789";
 	const int b = 36;
@@ -520,12 +520,12 @@ static inline void OPTIMIZE3 stress_base36_encode_uint64(char dst[14], uint64_t 
 }
 
 /*
- *  stress_temp_hash_truncate()
+ *  stress_fs_temp_hash_truncate()
  *	filenames may be too long for the underlying filesystem
  *	so workaround this by hashing them into a 64 bit hex
  *	filename.
  */
-static void stress_temp_hash_truncate(char *filename)
+static void stress_fs_temp_hash_truncate(char *filename)
 {
 	size_t f_namemax = 16;
 	size_t len = strlen(filename);
@@ -542,7 +542,7 @@ static void stress_temp_hash_truncate(char *filename)
 		const uint32_t lower = stress_hash_pjw(filename);
 		const uint64_t val = ((uint64_t)upper << 32) | lower;
 
-		stress_base36_encode_uint64(filename, val);
+		stress_fs_base36_encode_uint64(filename, val);
 	}
 }
 
@@ -564,12 +564,12 @@ int stress_temp_filename(
 	(void)snprintf(directoryname, sizeof(directoryname),
 		"tmp-%s-%s-%d-%" PRIu32,
 		g_prog_name, name, (int)pid, instance);
-	stress_temp_hash_truncate(directoryname);
+	stress_fs_temp_hash_truncate(directoryname);
 
 	(void)snprintf(filename, sizeof(filename),
 		"%s-%s-%d-%" PRIu32 "-%" PRIu64,
 		g_prog_name, name, (int)pid, instance, magic);
-	stress_temp_hash_truncate(filename);
+	stress_fs_temp_hash_truncate(filename);
 
 	return snprintf(path, len, "%s/%s/%s",
 		stress_fs_temp_path_get(), directoryname, filename);
@@ -606,7 +606,7 @@ int stress_temp_dir(
 	(void)snprintf(directoryname, sizeof(directoryname),
 		"tmp-%s-%s-%d-%" PRIu32,
 		g_prog_name, name, (int)pid, instance);
-	stress_temp_hash_truncate(directoryname);
+	stress_fs_temp_hash_truncate(directoryname);
 
 	l = snprintf(path, len, "%s/%s",
 		stress_fs_temp_path_get(), directoryname);
@@ -815,10 +815,10 @@ size_t stress_fs_max_file_limit_get(void)
 }
 
 /*
- *  stress_get_open_count(void)
+ *  static_fs_open_count_get(void)
  *	get number of open file descriptors
  */
-static inline size_t stress_get_open_count(void)
+static inline size_t static_fs_open_count_get(void)
 {
 #if defined(__linux__)
 	DIR *dir;
@@ -861,7 +861,7 @@ size_t stress_fs_file_limit_get(void)
 
 	last_opened = 0;
 
-	opened = stress_get_open_count();
+	opened = static_fs_open_count_get();
 	if (opened == 0) {
 		size_t i;
 
@@ -936,10 +936,10 @@ bool stress_fs_pipe_check(const int fd)
 
 #if defined(F_SETPIPE_SZ)
 /*
- *  stress_check_max_pipe_size()
+ *  stress_fs_max_pipe_size_check()
  *	check if the given pipe size is allowed
  */
-static inline int stress_check_max_pipe_size(
+static inline int stress_fs_max_pipe_size_check(
 	const size_t sz,
 	const size_t page_size)
 {
@@ -987,7 +987,7 @@ size_t stress_fs_max_pipe_size_get(void)
 	ret = stress_fs_file_read("/proc/sys/fs/pipe-max-size", buf, sizeof(buf));
 	if (ret > 0) {
 		if (sscanf(buf, "%zu", &sz) == 1)
-			if (!stress_check_max_pipe_size(sz, page_size))
+			if (!stress_fs_max_pipe_size_check(sz, page_size))
 				goto ret;
 	}
 
@@ -1003,7 +1003,7 @@ size_t stress_fs_max_pipe_size_get(void)
 		if (prev_sz == sz)
 			return sz;
 		prev_sz = sz;
-		if (stress_check_max_pipe_size(sz, page_size) == 0) {
+		if (stress_fs_max_pipe_size_check(sz, page_size) == 0) {
 			min = sz;
 		} else {
 			max = sz;
@@ -1210,11 +1210,11 @@ static const char *stress_fs_magic_to_name(const unsigned long int fs_magic)
 #if defined(HAVE_SYS_SYSMACROS_H) &&	\
     defined(__linux__)
 /*
- *  stress_find_partition_dev()
+ *  static_fs_partition_dev_find()
  *	find major device name of device with major/minor number
  *	via the partition info
  */
-static bool stress_find_partition_dev(
+static bool static_fs_partition_dev_find(
 	const unsigned int devmajor,
 	const unsigned int devminor,
 	char *name,
@@ -1254,10 +1254,10 @@ static bool stress_find_partition_dev(
 #endif
 
 /*
- *  stress_get_fs_dev_model()
+ *  static_fs_dev_model_get()
  *	file model name of device that the file is on
  */
-static const char *stress_get_fs_dev_model(const char *filename)
+static const char *static_fs_dev_model_get(const char *filename)
 {
 #if defined(HAVE_SYS_SYSMACROS_H) &&	\
     defined(__linux__)
@@ -1271,7 +1271,7 @@ static const char *stress_get_fs_dev_model(const char *filename)
 	if (UNLIKELY(shim_stat(filename, &statbuf) < 0))
 		return NULL;
 
-	if (!stress_find_partition_dev(major(statbuf.st_dev), 0, dev, sizeof(dev)))
+	if (!static_fs_partition_dev_find(major(statbuf.st_dev), 0, dev, sizeof(dev)))
 		return NULL;
 
 	(void)snprintf(path, sizeof(path), "/sys/block/%s/device/model", dev);
@@ -1350,7 +1350,7 @@ const char *stress_fs_type_get(const char *filename)
 {
 	uintmax_t blocks;
 	const char *fs_name = stress_fs_info_get(filename, &blocks);
-	const char *model = stress_get_fs_dev_model(filename);
+	const char *model = static_fs_dev_model_get(filename);
 
 	if (fs_name) {
 		static char tmp[256];
@@ -1443,11 +1443,11 @@ void stress_fs_unset_chattr_flags(const char *pathname)
 }
 
 /*
- *  stress_dot_dirent_filter()
+ *  stress_fs_dirent_filter_dotty()
  *  	filter out dot files . and .. for scandir(), dirent and
  *  	d->d_name are valid
  */
-static int CONST OPTIMIZE3 stress_dot_dirent_filter(const struct dirent *d)
+static int CONST OPTIMIZE3 stress_fs_dirent_filter_dotty(const struct dirent *d)
 {
 	if (d->d_name[0] == '.') {
 		if (d->d_name[1] == '\0')
@@ -1476,10 +1476,10 @@ bool CONST OPTIMIZE3 stress_fs_filename_dotty(const char *name)
 }
 
 /*
- *  stress_unset_inode_flags()
+ *  static_fs_inode_flags_unset()
  *	unset the inode flag bits specified in flag
  */
-static void stress_unset_inode_flags(const char *filename, const int flag)
+static void static_fs_inode_flags_unset(const char *filename, const int flag)
 {
 #if defined(FS_IOC_SETFLAGS)
 	int fd;
@@ -1534,7 +1534,7 @@ static void stress_fs_clean_dir_files(
 	if (strncmp(path, temp_path, temp_path_len))
 		return;
 
-	n = scandir(path, &names, stress_dot_dirent_filter, alphasort);
+	n = scandir(path, &names, stress_fs_dirent_filter_dotty, alphasort);
 	if (n < 0) {
 		(void)shim_rmdir(path);
 		return;
@@ -1568,7 +1568,7 @@ static void stress_fs_clean_dir_files(
 		case DT_DIR:
 			free(names[n]);
 #if defined(O_DIRECTORY)
-			stress_unset_inode_flags(temp_path, O_DIRECTORY);
+			static_fs_inode_flags_unset(temp_path, O_DIRECTORY);
 #endif
 			stress_fs_unset_chattr_flags(path);
 			stress_fs_clean_dir_files(temp_path, temp_path_len, path, path_posn + name_len);
@@ -1577,7 +1577,7 @@ static void stress_fs_clean_dir_files(
 		case DT_LNK:
 		case DT_REG:
 			free(names[n]);
-			stress_unset_inode_flags(temp_path, 0);
+			static_fs_inode_flags_unset(temp_path, 0);
 			stress_fs_unset_chattr_flags(path);
 			if (strstr(path, "swap"))
 				(void)stress_swapoff(path);
@@ -1596,14 +1596,14 @@ static void stress_fs_clean_dir_files(
 
 		if ((statbuf.st_mode & S_IFMT) == S_IFDIR) {
 #if defined(O_DIRECTORY)
-			stress_unset_inode_flags(temp_path, O_DIRECTORY);
+			static_fs_inode_flags_unset(temp_path, O_DIRECTORY);
 #endif
 			stress_fs_unset_chattr_flags(temp_path);
 			stress_fs_clean_dir_files(temp_path, temp_path_len, path, path_posn + name_len);
 			(void)shim_rmdir(path);
 		} else if (((statbuf.st_mode & S_IFMT) == S_IFLNK) ||
 			   ((statbuf.st_mode & S_IFMT) == S_IFREG)) {
-			stress_unset_inode_flags(temp_path, 0);
+			static_fs_inode_flags_unset(temp_path, 0);
 			stress_fs_unset_chattr_flags(temp_path);
 			(void)unlink(path);
 		}
