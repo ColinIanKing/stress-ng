@@ -6,6 +6,7 @@ core-perf-event.h
 personality.h
 io-uring.h
 git-commit-id.h
+apparmor-data.h
 stress-ng
 stress-ng.exe
 *.o
