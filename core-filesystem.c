@@ -774,12 +774,12 @@ ssize_t stress_system_read(
 }
 
 /*
- *  stress_get_max_file_limit()
+ *  stress_fs_max_file_limit_get()
  *	get max number of files that the current
  *	process can open not counting the files that
  *	may already been opened.
  */
-size_t stress_get_max_file_limit(void)
+size_t stress_fs_max_file_limit_get(void)
 {
 #if defined(HAVE_GETDTABLESIZE)
 	int tablesize;

@@ -160,14 +160,14 @@ static size_t stress_get_max_fds(void)
 
 		new_rlim.rlim_cur = new_rlim.rlim_max;
 		if (setrlimit(RLIMIT_NOFILE, &new_rlim) == 0) {
-			max_fds = stress_get_max_file_limit();
+			max_fds = stress_fs_max_file_limit_get();
 			(void)setrlimit(RLIMIT_NOFILE, &rlim);
 		}
 	}
 #endif
 
 	if (max_fds == 0)
-		max_fds = stress_get_max_file_limit();
+		max_fds = stress_fs_max_file_limit_get();
 	if (max_fds > max_size)
 		max_fds = max_size;
 
@@ -1073,7 +1073,7 @@ static int stress_open(stress_args_t *args)
 	int *fds, ret;
 	char path[PATH_MAX], temp_dir[PATH_MAX];
 	const size_t max_size = (size_t)-1;
-	size_t open_max = stress_get_max_file_limit();
+	size_t open_max = stress_fs_max_file_limit_get();
 	size_t i, sz;
 	pid_t pid = -1;
 	const pid_t mypid = getpid();
