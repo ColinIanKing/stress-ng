@@ -945,7 +945,7 @@ core-perf.o: core-perf.c core-perf-event.c config.h
 
 core-config.c: config.h
 	$(PRE_V)echo "const char stress_config[] = " > core-config.c
-	$(PRE_V)sed 's/.*/"&\\n"/' config.h >> core-config.c
+	$(PRE_V)sed 's/.*/\t"&\\n"/' config.h >> core-config.c
 	$(PRE_V)echo ";" >> core-config.c
 
 stress-vecmath.o: stress-vecmath.c config.h
