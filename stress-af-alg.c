@@ -1302,10 +1302,8 @@ static int stress_af_alg(stress_args_t *args)
 #if defined(ALG_SET_AEAD_ASSOCLEN)
 			case CRYPTO_AEAD:
 				rc = stress_af_alg_aead(args, sockfd, info);
-				if (UNLIKELY(verify && (rc == EXIT_FAILURE))) {
-					pr_inf("and HERE: %d\n", rc);
+				if (UNLIKELY(verify && (rc == EXIT_FAILURE)))
 					goto deinit;
-				}
 				break;
 #endif
 			case CRYPTO_CIPHER:
