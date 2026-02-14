@@ -596,7 +596,7 @@ stress-ng has found various Kernel, QEMU bugs/regressions, and libc bugs; approp
 * [sparc64 emulation crashes with opcode lduba [ %g5 + %l6 ] (146), %l6](https://gitlab.com/qemu-project/qemu/-/issues/3249)
 
 2026:
- * [swapfile activation bug causes data corruption when swapfile < 2MB with fragmented extents](https://bugzilla.kernel.org/show_bug.cgi?id=220951)
+ * [f2fs: fix to avoid mapping wrong physical block for swapfile](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=5c145c03188bc9ba1c29e0bc4d527a5978fc47f9)
 
 ## Kernel improvements that used stress-ng
 
