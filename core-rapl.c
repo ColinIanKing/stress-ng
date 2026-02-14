@@ -263,7 +263,7 @@ static int stress_rapl_get_power(stress_rapl_domain_t *rapl_domains, const int w
 	return got_data;
 }
 
-int stress_rapl_get_power_raplstat(stress_rapl_domain_t *rapl_domains)
+int stress_rapl_power_raplstat_get(stress_rapl_domain_t *rapl_domains)
 {
 	return stress_rapl_get_power(rapl_domains, STRESS_RAPL_DATA_RAPLSTAT);
 }

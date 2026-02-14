@@ -1040,7 +1040,7 @@ void stress_vmstat_start(void)
 	}
 #if defined(STRESS_RAPL)
 	if (raplstat_delay && (g_opt_flags & OPT_FLAGS_RAPL_REQUIRED))
-		stress_rapl_get_power_raplstat(g_shared->rapl_domains);
+		stress_rapl_power_raplstat_get(g_shared->rapl_domains);
 #endif
 
 #if defined(HAVE_SYS_SYSMACROS_H) &&	\
@@ -1256,7 +1256,7 @@ void stress_vmstat_start(void)
 		    (g_opt_flags & OPT_FLAGS_RAPL_REQUIRED)) {
 			int ret;
 
-			ret = stress_rapl_get_power_raplstat(g_shared->rapl_domains);
+			ret = stress_rapl_power_raplstat_get(g_shared->rapl_domains);
 			if (ret == 0) {
 				char buf[256], *ptr;
 				stress_rapl_domain_t *rapl;

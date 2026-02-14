@@ -56,7 +56,7 @@ typedef struct {
 
 extern void stress_rapl_domains_free(stress_rapl_domain_t *rapl_domains);
 extern int stress_rapl_domains_get(stress_rapl_domain_t **rapl_domains);
-extern int stress_rapl_get_power_raplstat(stress_rapl_domain_t *rapl_domains);
+extern int stress_rapl_power_raplstat_get(stress_rapl_domain_t *rapl_domains);
 extern int stress_rapl_get_power_stressor(stress_rapl_domain_t *rapl_domains, stress_rapl_t *rapl);
 extern void stress_rapl_dump(FILE *yaml, stress_stressor_t *stressors_list, stress_rapl_domain_t *rapl_domains);
 #endif
