@@ -490,7 +490,7 @@ uint64_t stress_get_uint64_byte(const char *const str)
 
 	/* Try cache sizes */
 	if (strcasecmp(str, "LLC")  == 0) {
-		stress_cpu_cache_get_llc_size(&llc_size, &cache_line_size);
+		stress_cpu_cache_llc_size_get(&llc_size, &cache_line_size);
 	} else {
 		int cache_level;
 

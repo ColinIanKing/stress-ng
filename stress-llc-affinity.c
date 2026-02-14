@@ -426,7 +426,7 @@ static int stress_llc_affinity(stress_args_t *args)
 	(void)stress_get_setting("llc-affinity-size", &llc_affinity_size);
 
 	if (llc_affinity_size == 0) {
-		stress_cpu_cache_get_llc_size(&llc_affinity_size, &cache_line_size);
+		stress_cpu_cache_llc_size_get(&llc_affinity_size, &cache_line_size);
 		if (llc_affinity_size == 0) {
 			pr_inf_skip("%s: cannot determine cache details, skipping stressor\n",
 				args->name);

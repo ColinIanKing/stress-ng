@@ -1420,11 +1420,11 @@ void stress_cpu_cache_free(stress_cpu_cache_cpus_t *cpus)
 }
 
 /*
- *  stress_cpu_cache_get_llc_size()
+ *  stress_cpu_cache_llc_size_get()
  * 	get Lower Level Cache size and Cache Line size (sizes in bytes)
  *	sizes are zero if not available.
  */
-void stress_cpu_cache_get_llc_size(size_t *llc_size, size_t *cache_line_size)
+void stress_cpu_cache_llc_size_get(size_t *llc_size, size_t *cache_line_size)
 {
 #if defined(__linux__) ||	\
     defined(__APPLE__) ||	\
