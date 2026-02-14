@@ -2697,7 +2697,7 @@ int shim_force_unlink(const char *pathname)
 
 	ret = unlink(pathname);
 	if (ret < 0) {
-		stress_fs_unset_chattr_flags(pathname);
+		stress_fs_chattr_flags_unset(pathname);
 		ret = unlink(pathname);
 	}
 	return ret;
@@ -2742,7 +2742,7 @@ int shim_force_rmdir(const char *pathname)
 
 	ret = rmdir(pathname);
 	if (ret < 0) {
-		stress_fs_unset_chattr_flags(pathname);
+		stress_fs_chattr_flags_unset(pathname);
 		ret = rmdir(pathname);
 	}
 	return ret;

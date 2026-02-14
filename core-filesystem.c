@@ -1411,10 +1411,10 @@ void stress_fs_file_rw_hint_short(const int fd)
 }
 
 /*
- *  stress_fs_unset_chattr_flags()
+ *  stress_fs_chattr_flags_unset()
  *	disable all chattr flags including the immutable flags
  */
-void stress_fs_unset_chattr_flags(const char *pathname)
+void stress_fs_chattr_flags_unset(const char *pathname)
 {
 #if defined(__linux__) &&	\
     defined(_IOW)
@@ -1570,7 +1570,7 @@ static void stress_fs_clean_dir_files(
 #if defined(O_DIRECTORY)
 			static_fs_inode_flags_unset(temp_path, O_DIRECTORY);
 #endif
-			stress_fs_unset_chattr_flags(path);
+			stress_fs_chattr_flags_unset(path);
 			stress_fs_clean_dir_files(temp_path, temp_path_len, path, path_posn + name_len);
 			(void)shim_rmdir(path);
 			break;
@@ -1578,7 +1578,7 @@ static void stress_fs_clean_dir_files(
 		case DT_REG:
 			free(names[n]);
 			static_fs_inode_flags_unset(temp_path, 0);
-			stress_fs_unset_chattr_flags(path);
+			stress_fs_chattr_flags_unset(path);
 			if (strstr(path, "swap"))
 				(void)stress_swapoff(path);
 			(void)shim_unlink(path);
@@ -1598,13 +1598,13 @@ static void stress_fs_clean_dir_files(
 #if defined(O_DIRECTORY)
 			static_fs_inode_flags_unset(temp_path, O_DIRECTORY);
 #endif
-			stress_fs_unset_chattr_flags(temp_path);
+			stress_fs_chattr_flags_unset(temp_path);
 			stress_fs_clean_dir_files(temp_path, temp_path_len, path, path_posn + name_len);
 			(void)shim_rmdir(path);
 		} else if (((statbuf.st_mode & S_IFMT) == S_IFLNK) ||
 			   ((statbuf.st_mode & S_IFMT) == S_IFREG)) {
 			static_fs_inode_flags_unset(temp_path, 0);
-			stress_fs_unset_chattr_flags(temp_path);
+			stress_fs_chattr_flags_unset(temp_path);
 			(void)unlink(path);
 		}
 #endif
