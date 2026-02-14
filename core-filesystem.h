@@ -43,9 +43,9 @@ extern int stress_fs_temp_dir(char *path, const size_t len, const char *name,
 	const pid_t pid, const uint32_t instance);
 extern int stress_fs_temp_dir_args(stress_args_t *args, char *path,
 	const size_t len);
-extern WARN_UNUSED int stress_fs_temp_dir_mk(const char *name, const pid_t pid,
+extern WARN_UNUSED int stress_fs_temp_dir_make(const char *name, const pid_t pid,
 	const uint32_t instance);
-extern WARN_UNUSED int stress_fs_temp_dir_mk_args(stress_args_t *args);
+extern WARN_UNUSED int stress_fs_temp_dir_make_args(stress_args_t *args);
 extern int stress_fs_temp_dir_rm(const char *name, const pid_t pid,
 	const uint32_t instance);
 extern int stress_fs_temp_dir_rm_args(stress_args_t *args);

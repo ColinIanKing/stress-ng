@@ -102,7 +102,7 @@ static int stress_link_generic(
 		"/tmp/stress-ng-%s-%d-%" PRIu64 "-link",
 		args->name, (int)getpid(), stress_mwc64());
 
-	ret = stress_fs_temp_dir_mk_args(args);
+	ret = stress_fs_temp_dir_make_args(args);
 	if (ret < 0)
 		return stress_exit_status(-ret);
 

@@ -764,7 +764,7 @@ static int stress_hdd(stress_args_t *args)
 			args->name, hdd_bytes);
 	}
 
-	ret = stress_fs_temp_dir_mk_args(args);
+	ret = stress_fs_temp_dir_make_args(args);
 	if (ret < 0)
 		return stress_exit_status((int)-ret);
 

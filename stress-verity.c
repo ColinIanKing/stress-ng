@@ -93,7 +93,7 @@ static int stress_verity(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
-	ret = stress_fs_temp_dir_mk_args(args);
+	ret = stress_fs_temp_dir_make_args(args);
 	if (ret < 0)
 		return stress_exit_status(-ret);
 

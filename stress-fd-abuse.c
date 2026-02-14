@@ -2163,7 +2163,7 @@ static int stress_fd_abuse(stress_args_t *args)
 	if (stress_signal_handler(args->name, SIGPIPE, stress_signal_ignore_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 
-	if (stress_fs_temp_dir_mk_args(args) < 0) {
+	if (stress_fs_temp_dir_make_args(args) < 0) {
 		shim_memset(stress_fd_filename, 0, sizeof(stress_fd_filename));
 	} else {
 		(void)stress_fs_temp_filename_args(args, stress_fd_filename,

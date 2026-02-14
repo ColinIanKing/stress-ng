@@ -344,7 +344,7 @@ static int stress_inode_flags(stress_args_t *args)
 		goto tidy_lock;
 	}
 
-	rc = stress_fs_temp_dir_mk_args(args);
+	rc = stress_fs_temp_dir_make_args(args);
 	if (rc < 0) {
 		rc = stress_exit_status(-rc);
 		goto tidy_inode_flag_perms;

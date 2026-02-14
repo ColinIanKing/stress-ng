@@ -234,7 +234,7 @@ static int stress_mknod(stress_args_t *args)
 	chr_dev_ret = stress_mknod_find_dev(S_IFCHR, &chr_dev);
 	blk_dev_ret = stress_mknod_find_dev(S_IFBLK, &blk_dev);
 
-	ret = stress_fs_temp_dir_mk_args(args);
+	ret = stress_fs_temp_dir_make_args(args);
 	if (ret < 0)
 		return stress_exit_status(-ret);
 

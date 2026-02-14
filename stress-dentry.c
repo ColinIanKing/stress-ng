@@ -333,7 +333,7 @@ static int stress_dentry(stress_args_t *args)
 	}
 	(void)stress_get_setting("dentry-order", &dentry_order);
 
-	ret = stress_fs_temp_dir_mk_args(args);
+	ret = stress_fs_temp_dir_make_args(args);
 	if (ret < 0)
 		return stress_exit_status(-ret);
 

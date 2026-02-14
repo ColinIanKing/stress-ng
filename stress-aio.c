@@ -252,7 +252,7 @@ static int stress_aio(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
-	ret = stress_fs_temp_dir_mk_args(args);
+	ret = stress_fs_temp_dir_make_args(args);
 	if (ret < 0) {
 		ret = stress_exit_status(-ret);
 		free(io_reqs);

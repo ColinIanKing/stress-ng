@@ -235,7 +235,7 @@ static int stress_rmap(stress_args_t *args)
 	/* Make sure this is killable by OOM killer */
 	stress_set_oom_adjustment(args, true);
 
-	rc = stress_fs_temp_dir_mk_args(args);
+	rc = stress_fs_temp_dir_make_args(args);
 	if (rc < 0) {
 		(void)stress_lock_destroy(counter_lock);
 		(void)stress_sync_s_pids_munmap(s_pids, rmap_procs);

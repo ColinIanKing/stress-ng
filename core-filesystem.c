@@ -627,10 +627,10 @@ int stress_fs_temp_dir_args(
 }
 
 /*
- *   stress_fs_temp_dir_mk()
+ *   stress_fs_temp_dir_make()
  *	create a temporary directory
  */
-int stress_fs_temp_dir_mk(
+int stress_fs_temp_dir_make(
 	const char *name,
 	const pid_t pid,
 	const uint32_t instance)
@@ -651,12 +651,12 @@ int stress_fs_temp_dir_mk(
 }
 
 /*
- *   stress_fs_temp_dir_mk_args()
+ *   stress_fs_temp_dir_make_args()
  *	create a temporary director using info from args
  */
-int stress_fs_temp_dir_mk_args(stress_args_t *args)
+int stress_fs_temp_dir_make_args(stress_args_t *args)
 {
-	return stress_fs_temp_dir_mk(args->name, args->pid, args->instance);
+	return stress_fs_temp_dir_make(args->name, args->pid, args->instance);
 }
 
 /*

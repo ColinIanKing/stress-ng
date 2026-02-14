@@ -192,7 +192,7 @@ static int stress_fsize(stress_args_t *args)
 	if (stress_signal_handler(args->name, SIGXFSZ, stress_fsize_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 
-	ret = stress_fs_temp_dir_mk_args(args);
+	ret = stress_fs_temp_dir_make_args(args);
 	if (ret < 0)
 		return stress_exit_status(-ret);
 

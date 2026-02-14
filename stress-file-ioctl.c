@@ -276,7 +276,7 @@ static int stress_file_ioctl(stress_args_t *args)
 	size_t i;
 	uintmax_t blocks;
 
-	ret = stress_fs_temp_dir_mk_args(args);
+	ret = stress_fs_temp_dir_make_args(args);
 	if (ret < 0)
 		return stress_exit_status(-ret);
 

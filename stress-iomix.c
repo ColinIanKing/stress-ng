@@ -1147,7 +1147,7 @@ static int stress_iomix(stress_args_t *args)
 	if (stress_instance_zero(args))
 		stress_fs_usage_bytes(args, iomix_bytes, iomix_bytes_total);
 
-	ret = stress_fs_temp_dir_mk_args(args);
+	ret = stress_fs_temp_dir_make_args(args);
 	if (ret < 0) {
 		ret = stress_exit_status(-ret);
 		goto lock_destroy;

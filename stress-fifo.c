@@ -256,7 +256,7 @@ static int stress_fifo(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
-	rc = stress_fs_temp_dir_mk_args(args);
+	rc = stress_fs_temp_dir_make_args(args);
 	if (rc < 0) {
 		rc = stress_exit_status(-rc);
 		goto tidy_pids;

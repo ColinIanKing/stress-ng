@@ -217,7 +217,7 @@ static int stress_unlink(stress_args_t *args)
 	stress_zero_metrics(metrics, UNLINK_PROCS);
 
 	stress_fs_temp_dir_args(args, pathname, sizeof(pathname));
-	ret = stress_fs_temp_dir_mk_args(args);
+	ret = stress_fs_temp_dir_make_args(args);
 	if (ret < 0) {
 		rc =  stress_exit_status(-ret);
 		goto metrics_free;

@@ -133,7 +133,7 @@ static int stress_msyncmany(stress_args_t *args)
 	int ret, fd;
 	char filename[PATH_MAX];
 
-	ret = stress_fs_temp_dir_mk_args(args);
+	ret = stress_fs_temp_dir_make_args(args);
         if (ret < 0)
                 return stress_exit_status(-ret);
 

@@ -135,7 +135,7 @@ static int stress_stackmmap(stress_args_t *args)
 	page_mask = ~(page_size - 1);
 
 	/* Create file back'd mmaping for the stack */
-	ret = stress_fs_temp_dir_mk_args(args);
+	ret = stress_fs_temp_dir_make_args(args);
 	if (ret < 0)
 		return stress_exit_status(-ret);
 	(void)stress_fs_temp_filename_args(args,

@@ -320,7 +320,7 @@ static int stress_close(stress_args_t *args)
 
 #if defined(HAVE_FACCESSAT)
 	{
-		ret = stress_fs_temp_dir_mk_args(args);
+		ret = stress_fs_temp_dir_make_args(args);
 		if (ret < 0) {
 			rc = stress_exit_status(-ret);
 			goto tidy;

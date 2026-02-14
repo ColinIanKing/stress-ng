@@ -125,7 +125,7 @@ static int stress_loop(stress_args_t *args)
 			loop_bytes = MIN_LOOP_BYTES;
 	}
 
-	ret = stress_fs_temp_dir_mk_args(args);
+	ret = stress_fs_temp_dir_make_args(args);
 	if (ret < 0)
 		return stress_exit_status(-ret);
 

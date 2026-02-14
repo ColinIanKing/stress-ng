@@ -456,7 +456,7 @@ static int stress_pseek(stress_args_t *args)
 		(void)shim_memset(procs[i].buf, stress_mwc8(), (size_t)info.pseek_io_size);
 	}
 
-	ret = stress_fs_temp_dir_mk_args(args);
+	ret = stress_fs_temp_dir_make_args(args);
 	if (ret < 0) {
 		rc = EXIT_NO_RESOURCE;
 		goto tidy_munmap_bufs;

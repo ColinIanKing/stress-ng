@@ -468,7 +468,7 @@ static int stress_mcontend(stress_args_t *args)
 	n_cpus = stress_affinity_cpus_get(&cpus, true);
 #endif
 
-	rc = stress_fs_temp_dir_mk_args(args);
+	rc = stress_fs_temp_dir_make_args(args);
 	if (rc < 0) {
 #if defined(HAVE_SCHED_SETAFFINITY)
 		stress_affinity_cpus_free(&cpus);

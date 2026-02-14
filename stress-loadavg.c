@@ -208,7 +208,7 @@ static int stress_loadavg(stress_args_t *args)
 	}
 
 #if defined(LOADAVG_IO)
-	ret = stress_fs_temp_dir_mk_args(args);
+	ret = stress_fs_temp_dir_make_args(args);
 	if (ret < 0) {
 		free(pthreads);
 		return stress_exit_status((int)-ret);

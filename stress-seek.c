@@ -116,7 +116,7 @@ static int stress_seek(stress_args_t *args)
 
 	len = seek_size - sizeof(buf);
 
-	ret = stress_fs_temp_dir_mk_args(args);
+	ret = stress_fs_temp_dir_make_args(args);
 	if (ret < 0)
 		return stress_exit_status(-ret);
 

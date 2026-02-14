@@ -1047,7 +1047,7 @@ static int stress_mmap(stress_args_t *args)
 		int file_flags = O_CREAT | O_RDWR;
 		ssize_t wr_ret, rc;
 
-		rc = stress_fs_temp_dir_mk_args(args);
+		rc = stress_fs_temp_dir_make_args(args);
 		if (rc < 0)
 			return stress_exit_status((int)-rc);
 

@@ -312,7 +312,7 @@ static int stress_flock(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
-	ret = stress_fs_temp_dir_mk_args(args);
+	ret = stress_fs_temp_dir_make_args(args);
 	if (ret < 0) {
 		rc = stress_exit_status(-ret);
 		goto err_free_s_pids;

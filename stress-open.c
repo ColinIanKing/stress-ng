@@ -1089,7 +1089,7 @@ static int stress_open(stress_args_t *args)
 	if (sizeof(void *) == 4)
 		open_max = STRESS_MINIMUM(open_max, 65536);
 
-	ret = stress_fs_temp_dir_mk_args(args);
+	ret = stress_fs_temp_dir_make_args(args);
 	if (ret < 0)
 		return stress_exit_status(-ret);
 	(void)stress_fs_temp_dir_args(args, temp_dir, sizeof(temp_dir));

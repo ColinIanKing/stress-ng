@@ -2170,7 +2170,7 @@ static int stress_mmaprandom(stress_args_t *args)
 	}
 	stress_set_vma_anon_name(ctxt->count, count_size, "counters");
 
-	ret = stress_fs_temp_dir_mk_args(args);
+	ret = stress_fs_temp_dir_make_args(args);
 	if (ret < 0) {
 		rc = stress_exit_status((int)-ret);
 		goto tidy_dir;

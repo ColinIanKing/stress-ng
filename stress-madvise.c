@@ -440,7 +440,7 @@ static int stress_madvise(stress_args_t *args)
 
 	(void)shim_memset(page, 0xa5, page_size);
 
-	ret = stress_fs_temp_dir_mk_args(args);
+	ret = stress_fs_temp_dir_make_args(args);
 	if (ret < 0) {
 		(void)munmap((void *)page, page_size);
 		return stress_exit_status(-ret);

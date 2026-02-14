@@ -356,7 +356,7 @@ static int stress_swap_child(stress_args_t *args, void *context)
 	(void)stress_madvise_mergeable(page, page_size);
 
 	stress_swap_clean_dir(args);
-	ret = stress_fs_temp_dir_mk_args(args);
+	ret = stress_fs_temp_dir_make_args(args);
 	if (ret < 0) {
 		ret = stress_exit_status(-ret);
 		goto tidy_free;

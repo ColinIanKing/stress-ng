@@ -126,7 +126,7 @@ static int stress_fallocate(stress_args_t *args)
 	}
 	if (stress_instance_zero(args))
 		stress_fs_usage_bytes(args, fallocate_bytes, fallocate_bytes_total);
-	ret = stress_fs_temp_dir_mk_args(args);
+	ret = stress_fs_temp_dir_make_args(args);
 	if (ret < 0) {
 		free(mode_perms);
 		return stress_exit_status(-ret);

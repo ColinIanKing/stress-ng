@@ -79,7 +79,7 @@ static int stress_chdir(stress_args_t *args)
 		goto err;
 	}
 
-	rc = stress_fs_temp_dir_mk_args(args);
+	rc = stress_fs_temp_dir_make_args(args);
 	if (rc < 0) {
 		ret = stress_exit_status(-rc);
 		goto err;

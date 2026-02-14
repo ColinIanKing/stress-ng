@@ -826,7 +826,7 @@ static int stress_exec(stress_args_t *args)
 		exec_method = EXEC_METHOD_ALL;
 	}
 #endif
-	ret = stress_fs_temp_dir_mk_args(args);
+	ret = stress_fs_temp_dir_make_args(args);
 	if (ret < 0) {
 		rc = stress_exit_status(-ret);
 		goto err_unmap_pid_cache;

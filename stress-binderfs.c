@@ -182,7 +182,7 @@ static int stress_binderfs(stress_args_t *args)
 	static const char skip[] = "skipping stressor";
 
 	stress_fs_temp_dir(pathname, sizeof(pathname), args->name, args->pid, args->instance);
-	ret = stress_fs_temp_dir_mk_args(args);
+	ret = stress_fs_temp_dir_make_args(args);
 	if (ret < 0)
 		return stress_exit_status(-ret);
 

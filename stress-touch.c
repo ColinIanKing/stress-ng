@@ -331,7 +331,7 @@ static int stress_touch(stress_args_t *args)
 	    (open_flags != 0))
 		pr_inf("%s: note: touch-opts are not used for creat touch method\n", args->name);
 
-	ret = stress_fs_temp_dir_mk_args(args);
+	ret = stress_fs_temp_dir_make_args(args);
 	if (ret < 0) {
 		(void)stress_lock_destroy(touch_lock);
 		(void)stress_sync_s_pids_munmap(s_pids, TOUCH_PROCS);

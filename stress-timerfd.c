@@ -149,7 +149,7 @@ static int stress_timerfd(stress_args_t *args)
 				 (double)STRESS_NANOSECOND;
 
 	/* Create a non valid timerfd file descriptor */
-	ret = stress_fs_temp_dir_mk_args(args);
+	ret = stress_fs_temp_dir_make_args(args);
 	if (ret < 0) {
 		rc = stress_exit_status(-ret);
 		goto dir_rm;

@@ -228,9 +228,9 @@ static int stress_rename(stress_args_t *args)
 	(void)shim_memset(name1, 0, sizeof(name1));
 	(void)shim_memset(name2, 0, sizeof(name2));
 
-	if (stress_fs_temp_dir_mk(args->name, args->pid, inst1) < 0)
+	if (stress_fs_temp_dir_make(args->name, args->pid, inst1) < 0)
 		return EXIT_FAILURE;
-	if (stress_fs_temp_dir_mk(args->name, args->pid, inst2) < 0) {
+	if (stress_fs_temp_dir_make(args->name, args->pid, inst2) < 0) {
 		(void)stress_fs_temp_dir_rm(args->name, args->pid, inst1);
 		return EXIT_FAILURE;
 	}

@@ -293,7 +293,7 @@ static int stress_fiemap(stress_args_t *args)
 	if (stress_instance_zero(args))
 		stress_fs_usage_bytes(args, fiemap_bytes, fiemap_bytes_total);
 
-	ret = stress_fs_temp_dir_mk_args(args);
+	ret = stress_fs_temp_dir_make_args(args);
 	if (ret < 0) {
 		rc = stress_exit_status(-ret);
 		goto clean;

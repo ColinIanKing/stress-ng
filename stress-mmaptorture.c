@@ -290,7 +290,7 @@ static void stress_mmaptorture_init(const uint32_t instances)
 		mmap_bytes_adjusted = true;
 	}
 
-	if (stress_fs_temp_dir_mk(name, pid, 0) < 0) {
+	if (stress_fs_temp_dir_make(name, pid, 0) < 0) {
 		mmap_fd = -1;
 		return;
 	}

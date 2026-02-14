@@ -304,7 +304,7 @@ static int stress_mmaphuge(stress_args_t *args)
 		char filename[PATH_MAX];
 		ssize_t rc;
 
-		rc = stress_fs_temp_dir_mk_args(args);
+		rc = stress_fs_temp_dir_make_args(args);
 		if (rc < 0) {
 			free(context->bufs);
 			(void)stress_munmap_anon_shared(context, sizeof(*context));
