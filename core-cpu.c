@@ -810,13 +810,13 @@ bool stress_cpu_x86_has_avx512_bw(void)
 }
 
 /*
- *  stress_cpu_disable_fp_subnormals
+ *  stress_cpu_fp_subnormals_disable
  *     Floating Point subnormals can be expensive and require
  *     micro-ops from the Microcode Sequencer ROM. Disabling
  *     these makes FP ops faster but not strictly IEEE compliant.
  *     See https://en.wikipedia.org/wiki/Subnormal_number
  */
-void stress_cpu_disable_fp_subnormals(void)
+void stress_cpu_fp_subnormals_disable(void)
 {
 #if defined(STRESS_ARCH_X86) &&		\
     defined(HAVE_IMMINTRIN_H) &&	\

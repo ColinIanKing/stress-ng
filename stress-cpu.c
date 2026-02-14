@@ -3093,7 +3093,7 @@ static int OPTIMIZE3 stress_cpu(stress_args_t *args)
 	 * Normal use case, 100% load, simple spinning on CPU
 	 */
 	if (cpu_load == 100) {
-		stress_cpu_disable_fp_subnormals();
+		stress_cpu_fp_subnormals_disable();
 		do {
 			rc = stress_call_cpu_method(cpu_method, args, &counter);
 		} while ((rc == EXIT_SUCCESS) && stress_continue(args));
@@ -3108,7 +3108,7 @@ static int OPTIMIZE3 stress_cpu(stress_args_t *args)
 	 * not intended to be 100% accurate timing, it is good
 	 * enough for most purposes.
 	 */
-	stress_cpu_disable_fp_subnormals();
+	stress_cpu_fp_subnormals_disable();
 	bias = 0.0;
 	do {
 		double delay_cpu_clock, t1_cpu_clock, t2_cpu_clock;
