@@ -63,7 +63,7 @@ typedef struct {
 
 static const stress_help_t help[] = {
 	{ NULL,	"race-sched N",		"start N workers that race cpu affinity" },
-	{ NULL, "race-sched-method M",	"method M: all, rand, next, prev, yoyo, randinc" },
+	{ NULL, "race-sched-method M",	"select method of process moving [ all | rand | next | prev | yoyo | randinc ]" },
 	{ NULL,	"race-sched-ops N",	"stop after N bogo race operations" },
 	{ NULL,	NULL,			NULL }
 };
