@@ -1705,7 +1705,7 @@ static int MLOCKED_TEXT stress_run_child(
 		stats->start = stress_time_now();
 #if defined(STRESS_RAPL)
 		if (g_opt_flags & OPT_FLAGS_RAPL)
-			(void)stress_rapl_get_power_stressor(g_shared->rapl_domains, NULL);
+			(void)stress_rapl_power_stressor_get(g_shared->rapl_domains, NULL);
 #endif
 		if (g_opt_flags & OPT_FLAGS_STRESSOR_TIME)
 			stress_log_time(name, stats->start, "start");
@@ -1722,7 +1722,7 @@ static int MLOCKED_TEXT stress_run_child(
 		}
 #if defined(STRESS_RAPL)
 		if (g_opt_flags & OPT_FLAGS_RAPL)
-			(void)stress_rapl_get_power_stressor(g_shared->rapl_domains, &stats->rapl);
+			(void)stress_rapl_power_stressor_get(g_shared->rapl_domains, &stats->rapl);
 #endif
 		pr_fail_check(&rc);
 #if defined(SA_SIGINFO) &&	\

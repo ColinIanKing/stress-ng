@@ -269,10 +269,10 @@ int stress_rapl_power_raplstat_get(stress_rapl_domain_t *rapl_domains)
 }
 
 /*
- *  stress_rapl_get_power_stressor()
+ *  stress_rapl_power_stressor_get()
  *	get per stressor power discharge rate from system via the RAPL interface
  */
-int stress_rapl_get_power_stressor(stress_rapl_domain_t *rapl_domains, stress_rapl_t *rapl)
+int stress_rapl_power_stressor_get(stress_rapl_domain_t *rapl_domains, stress_rapl_t *rapl)
 {
 	int ret;
 	size_t i;
