@@ -67,7 +67,7 @@ extern stress_cpu_cache_t *stress_cpu_cache_get(const stress_cpu_cache_cpus_t *c
 	const uint16_t cache_level, const stress_cpu_cache_type_t cache_type);
 extern void stress_cpu_cache_free(stress_cpu_cache_cpus_t *cpus);
 extern void stress_cpu_cache_llc_size_get(size_t *llc_size, size_t *cache_line_size);
-extern void stress_cpu_cache_get_level_size(const uint16_t cache_level,
+extern void stress_cpu_cache_level_size_get(const uint16_t cache_level,
 	size_t *cache_size, size_t *cache_line_size,
 	const stress_cpu_cache_type_t cache_type);
 extern void stress_cpu_cache_data_flush(void *addr, const size_t len);

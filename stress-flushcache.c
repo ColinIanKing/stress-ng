@@ -343,7 +343,7 @@ static int stress_flushcache(stress_args_t *args)
 	context.i_bytes = page_size;
 
 	stress_cpu_cache_llc_size_get(&context.d_bytes, &context.d_cl_size);
-	stress_cpu_cache_get_level_size(1, &context.i_bytes, &context.i_cl_size, CACHE_TYPE_INSTRUCTION);
+	stress_cpu_cache_level_size_get(1, &context.i_bytes, &context.i_cl_size, CACHE_TYPE_INSTRUCTION);
 
 	(void)stress_get_setting("flushcache-d-bytes", &context.d_bytes);
 	(void)stress_get_setting("flushcache-i-bytes", &context.i_bytes);

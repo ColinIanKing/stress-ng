@@ -1459,10 +1459,10 @@ free_cpu_caches:
 }
 
 /*
- *  stress_cpu_cache_get_level_size()
+ *  stress_cpu_cache_level_size_get()
  *	get cpu cache size for a specific cache level
  */
-void stress_cpu_cache_get_level_size(
+void stress_cpu_cache_level_size_get(
 	const uint16_t cache_level,
 	size_t *cache_size,
 	size_t *cache_line_size,

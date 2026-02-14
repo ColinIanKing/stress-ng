@@ -106,7 +106,7 @@ int stress_cache_alloc(const char *name)
 	for (level = 1; level <= max_cache_level; level++) {
 		size_t cache_size = 0, cache_line_size = 0;
 
-		stress_cpu_cache_get_level_size(level, &cache_size, &cache_line_size, CACHE_TYPE_DATA);
+		stress_cpu_cache_level_size_get(level, &cache_size, &cache_line_size, CACHE_TYPE_DATA);
 		if ((cache_size > 0) && (cache_line_size > 0)) {
 			char tmp[64];
 
