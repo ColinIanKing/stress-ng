@@ -47,6 +47,6 @@ extern WARN_UNUSED bool stress_cpu_x86_has_waitpkg(void);
 extern WARN_UNUSED bool stress_cpu_x86_has_movdiri(void);
 
 extern void stress_cpu_fp_subnormals_disable(void);
-extern void stress_cpu_enable_fp_subnormals(void);
+extern void stress_cpu_fp_subnormals_enable(void);
 
 #endif

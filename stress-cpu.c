@@ -3097,7 +3097,7 @@ static int OPTIMIZE3 stress_cpu(stress_args_t *args)
 		do {
 			rc = stress_call_cpu_method(cpu_method, args, &counter);
 		} while ((rc == EXIT_SUCCESS) && stress_continue(args));
-		stress_cpu_enable_fp_subnormals();
+		stress_cpu_fp_subnormals_enable();
 
 		stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 		return rc;
@@ -3187,7 +3187,7 @@ static int OPTIMIZE3 stress_cpu(stress_args_t *args)
 			bias = (t3_wall_clock - t2_wall_clock) - delay;
 		}
 	} while ((rc == EXIT_SUCCESS) && stress_continue(args));
-	stress_cpu_enable_fp_subnormals();
+	stress_cpu_fp_subnormals_enable();
 
 	if (stress_is_affinity_set() && (stress_instance_zero(args))) {
 		pr_inf("%s: CPU affinity probably set, this can affect CPU loading\n",

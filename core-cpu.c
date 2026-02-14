@@ -828,12 +828,12 @@ void stress_cpu_fp_subnormals_disable(void)
 }
 
 /*
- *  stress_cpu_enable_fp_subnormals
+ *  stress_cpu_fp_subnormals_enable
  *     Floating Point subnormals can be expensive and require
  *     micro-ops from the Microcode Sequencer ROM. Enable them to
  *     be IEEE compliant and slower.
  */
-void stress_cpu_enable_fp_subnormals(void)
+void stress_cpu_fp_subnormals_enable(void)
 {
 #if defined(STRESS_ARCH_X86) &&		\
     defined(HAVE_IMMINTRIN_H) &&	\
