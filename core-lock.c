@@ -188,25 +188,6 @@ static int CONST stress_atomic_lock_deinit(stress_lock_t *lock)
 	return 0;
 }
 
-static int stress_atomic_lock_acquire(stress_lock_t *lock)
-{
-	if (LIKELY(lock != NULL)) {
-		const double t_start = stress_time_now();
-
-		while (test_and_set(&lock->u.flag) == true) {
-			const double duration = stress_time_now() - t_start;
-
-			if ((duration > 5.0) && !stress_continue_flag()) {
-				errno = EAGAIN;
-				return -1;
-			}
-		}
-		return 0;
-	}
-	errno = EINVAL;
-	return -1;
-}
-
 #if defined(HAVE_ASM_X86_PAUSE) ||	\
     defined(HAVE_ASM_LOONG64_DBAR) ||	\
     defined(STRESS_ARCH_PPC64) ||	\
@@ -260,6 +241,30 @@ static int stress_atomic_lock_acquire_relax(stress_lock_t *lock)
 	errno = EINVAL;
 	return -1;
 }
+
+static int stress_atomic_lock_acquire(stress_lock_t *lock)
+{
+	if (LIKELY(lock != NULL)) {
+		const double t_start = stress_time_now();
+		register int spin = 0;
+
+		while (test_and_set(&lock->u.flag) == true) {
+			const double duration = stress_time_now() - t_start;
+
+			if ((duration > 5.0) && !stress_continue_flag()) {
+				errno = EAGAIN;
+				return -1;
+			}
+			/* Too many spins, use relaxed acquire */
+			if (spin++ > 1000)
+				return stress_atomic_lock_acquire_relax(lock);
+		}
+		return 0;
+	}
+	errno = EINVAL;
+	return -1;
+}
+
 
 static int stress_atomic_lock_release(stress_lock_t *lock)
 {
