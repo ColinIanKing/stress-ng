@@ -87,9 +87,9 @@ static void stress_rapl_add_list(stress_rapl_domain_t **rapl_domains, stress_rap
 }
 
 /*
- *  stress_rapl_get_domains()
+ *  stress_rapl_domains_get()
  */
-int stress_rapl_get_domains(stress_rapl_domain_t **rapl_domains)
+int stress_rapl_domains_get(stress_rapl_domain_t **rapl_domains)
 {
 	DIR *dir;
 	const struct dirent *entry;

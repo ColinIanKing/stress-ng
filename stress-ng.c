@@ -4296,7 +4296,7 @@ int main(int argc, char **argv, char **envp)
 
 #if defined(STRESS_RAPL)
 	if (g_opt_flags & OPT_FLAGS_RAPL_REQUIRED)
-		stress_rapl_get_domains(&g_shared->rapl_domains);
+		stress_rapl_domains_get(&g_shared->rapl_domains);
 #endif
 
 	stress_clear_warn_once();
