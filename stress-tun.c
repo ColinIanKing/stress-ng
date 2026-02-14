@@ -61,7 +61,6 @@ static const stress_help_t help[] = {
 static const stress_opt_t opts[] = {
 	{ OPT_tun_tap,  "tun-tap",  TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_tun_port, "tun-port", TYPE_ID_INT_PORT, MIN_PORT, MAX_PORT, NULL },
-
 	END_OPT,
 };
 
