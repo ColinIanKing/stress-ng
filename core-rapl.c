@@ -37,10 +37,10 @@
 #include <fcntl.h>
 
 /*
- *  stress_rapl_free_domains()
+ *  stress_rapl_domains_free()
  *	free RAPL domain list
  */
-void stress_rapl_free_domains(stress_rapl_domain_t *rapl_domains)
+void stress_rapl_domains_free(stress_rapl_domain_t *rapl_domains)
 {
 	stress_rapl_domain_t *rapl_domain = rapl_domains;
 

@@ -54,7 +54,7 @@ typedef struct {
         double power_watts[STRESS_RAPL_DOMAINS_MAX];
 } stress_rapl_t;
 
-extern void stress_rapl_free_domains(stress_rapl_domain_t *rapl_domains);
+extern void stress_rapl_domains_free(stress_rapl_domain_t *rapl_domains);
 extern int stress_rapl_get_domains(stress_rapl_domain_t **rapl_domains);
 extern int stress_rapl_get_power_raplstat(stress_rapl_domain_t *rapl_domains);
 extern int stress_rapl_get_power_stressor(stress_rapl_domain_t *rapl_domains, stress_rapl_t *rapl);

@@ -4373,7 +4373,7 @@ int main(int argc, char **argv, char **envp)
 	if (g_opt_flags & OPT_FLAGS_RAPL)
 		stress_rapl_dump(yaml, stress_stressor_list.head, g_shared->rapl_domains);
 	if (g_opt_flags & OPT_FLAGS_RAPL_REQUIRED)
-		stress_rapl_free_domains(g_shared->rapl_domains);
+		stress_rapl_domains_free(g_shared->rapl_domains);
 #endif
 	/*
 	 *  Dump run times
