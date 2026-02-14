@@ -485,7 +485,7 @@ static int stress_aiol(stress_args_t *args)
 		goto free_memory;
 	}
 
-	(void)stress_temp_filename_args(args,
+	(void)stress_fs_temp_filename_args(args,
 		filename, sizeof(filename), stress_mwc32());
 
 retry_open:

@@ -362,7 +362,7 @@ static int stress_swap_child(stress_args_t *args, void *context)
 		goto tidy_free;
 	}
 
-	(void)stress_temp_filename_args(args,
+	(void)stress_fs_temp_filename_args(args,
 		filename, sizeof(filename), stress_mwc32());
 	fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
 	if (fd < 0) {

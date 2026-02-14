@@ -192,7 +192,7 @@ static int stress_copy_file(stress_args_t *args)
         if (ret < 0)
                 return stress_exit_status(-ret);
 
-	(void)stress_temp_filename_args(args,
+	(void)stress_fs_temp_filename_args(args,
 			filename, sizeof(filename), stress_mwc32());
 	(void)snprintf(tmp, sizeof(tmp), "%s-orig", filename);
 	if ((fd_in = open(tmp, O_CREAT | O_RDWR,  S_IRUSR | S_IWUSR)) < 0) {

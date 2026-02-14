@@ -457,7 +457,7 @@ static int stress_acl(stress_args_t *args)
 		}
 	}
 
-	(void)stress_temp_filename_args(args, filename, sizeof(filename), stress_mwc32());
+	(void)stress_fs_temp_filename_args(args, filename, sizeof(filename), stress_mwc32());
 	if ((fd = creat(filename, S_IRUSR | S_IWUSR)) < 0) {
 		rc = stress_exit_status(errno);
 		pr_fail("%s: create %s failed, errno=%d (%s)\n",

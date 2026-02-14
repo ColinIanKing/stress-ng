@@ -69,7 +69,7 @@ static void stress_mknod_tidy(
 		char path[PATH_MAX];
 		const uint64_t gray_code = (i >> 1) ^ i;
 
-		(void)stress_temp_filename_args(args,
+		(void)stress_fs_temp_filename_args(args,
 			path, sizeof(path), gray_code);
 		(void)shim_unlink(path);
 	}
@@ -199,7 +199,7 @@ static void stress_mknod_test_dev(
 	char path[PATH_MAX];
 	int ret;
 
-	(void)stress_temp_filename_args(args, path, sizeof(path), stress_mwc32());
+	(void)stress_fs_temp_filename_args(args, path, sizeof(path), stress_mwc32());
 
 	ret = stress_do_mknod(dir_fd, bad_fd, path, mode, dev);
 	if (ret < 0)
@@ -263,7 +263,7 @@ static int stress_mknod(stress_args_t *args)
 			register const uint64_t gray_code = (i >> 1) ^ i;
 			register const size_t j = stress_mwc32modn(num_nodes);
 
-			(void)stress_temp_filename_args(args,
+			(void)stress_fs_temp_filename_args(args,
 				path, sizeof(path), gray_code);
 			if (stress_do_mknod(dir_fd, bad_fd, path, modes[j].mode | S_IRUSR | S_IWUSR, 0) < 0) {
 				if (stress_mknod_check_errno(args, modes[j].mode_str, path, errno) < 0)

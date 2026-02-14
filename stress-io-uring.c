@@ -1045,7 +1045,7 @@ static int stress_io_uring_child(stress_args_t *args, void *context)
 		return stress_exit_status(-ret);
 	}
 
-	(void)stress_temp_filename_args(args,
+	(void)stress_fs_temp_filename_args(args,
 		filename, sizeof(filename), stress_mwc32());
 
 	io_uring_file.filename = filename;

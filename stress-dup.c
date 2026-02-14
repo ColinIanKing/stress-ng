@@ -229,7 +229,7 @@ static int stress_dup(stress_args_t *args)
 			goto tidy_mmap;
 		}
 
-		(void)stress_temp_filename_args(args, info->fifoname,
+		(void)stress_fs_temp_filename_args(args, info->fifoname,
 			sizeof(info->fifoname), stress_mwc32());
 	}
 #endif

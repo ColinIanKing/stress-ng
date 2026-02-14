@@ -822,7 +822,7 @@ static int stress_fd_race(stress_args_t *args)
 		rc = stress_exit_status(-ret);
 		goto tidy_dir;
 	}
-	(void)stress_temp_filename_args(args, filename, sizeof(filename), stress_mwc32());
+	(void)stress_fs_temp_filename_args(args, filename, sizeof(filename), stress_mwc32());
 	fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
 	if (fd < 0) {
 		pr_inf("%s: failed to create file '%s', errno=%d (%s), skipping stressor\n",

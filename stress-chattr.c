@@ -357,7 +357,7 @@ static int stress_chattr(stress_args_t *args)
 			return rc;
 		}
 	}
-	(void)stress_temp_filename(filename, sizeof(filename),
+	(void)stress_fs_temp_filename(filename, sizeof(filename),
 		args->name, ppid, 0, 0);
 
 	if (stress_instance_zero(args))

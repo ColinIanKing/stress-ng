@@ -212,7 +212,7 @@ static void stress_touch_loop(
 		ret = stress_lock_release(touch_lock);
 		if (UNLIKELY(ret))
 			break;
-		(void)stress_temp_filename_args(args, filename,
+		(void)stress_fs_temp_filename_args(args, filename,
 			sizeof(filename), counter);
 
 		use_open = true;

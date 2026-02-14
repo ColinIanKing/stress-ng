@@ -547,10 +547,10 @@ static void stress_fs_temp_hash_truncate(char *filename)
 }
 
 /*
- *  stress_temp_filename()
+ *  stress_fs_temp_filename()
  *      construct a temp filename
  */
-int stress_temp_filename(
+int stress_fs_temp_filename(
 	char *path,
 	const size_t len,
 	const char *name,
@@ -576,16 +576,16 @@ int stress_temp_filename(
 }
 
 /*
- *  stress_temp_filename_args()
+ *  stress_fs_temp_filename_args()
  *      construct a temp filename using info from args
  */
-int stress_temp_filename_args(
+int stress_fs_temp_filename_args(
 	stress_args_t *args,
 	char *path,
 	const size_t len,
 	const uint64_t magic)
 {
-	return stress_temp_filename(path, len, args->name,
+	return stress_fs_temp_filename(path, len, args->name,
 		args->pid, args->instance, magic);
 }
 

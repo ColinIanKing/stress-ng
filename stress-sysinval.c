@@ -2811,7 +2811,7 @@ static int stress_sysinval(stress_args_t *args)
 	if (ret < 0)
 		return stress_exit_status(-ret);
 
-	(void)stress_temp_filename_args(args,
+	(void)stress_fs_temp_filename_args(args,
 		filename, sizeof(filename), stress_mwc32());
 	fds[0] = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
 	if (fds[0] < 0) {

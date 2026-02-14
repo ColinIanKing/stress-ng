@@ -262,7 +262,7 @@ static int stress_fifo(stress_args_t *args)
 		goto tidy_pids;
 	}
 
-	(void)stress_temp_filename_args(args,
+	(void)stress_fs_temp_filename_args(args,
 		fifoname, sizeof(fifoname), stress_mwc32());
 
 	if (mkfifo(fifoname, S_IRUSR | S_IWUSR) < 0) {

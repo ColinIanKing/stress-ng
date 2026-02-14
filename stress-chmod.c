@@ -270,7 +270,7 @@ static int stress_chmod(stress_args_t *args)
 	stress_rndstr(longpath, sizeof(longpath));
 	longpath[0] = '/';
 
-	(void)stress_temp_filename(filename, sizeof(filename),
+	(void)stress_fs_temp_filename(filename, sizeof(filename),
 		args->name, ppid, 0, 0);
 	(void)shim_strscpy(tmp, filename, sizeof(tmp));
 	filebase = basename(tmp);

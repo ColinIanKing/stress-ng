@@ -146,7 +146,7 @@ static int stress_readahead(stress_args_t *args)
 		return rc;
 	}
 
-	(void)stress_temp_filename_args(args,
+	(void)stress_fs_temp_filename_args(args,
 		filename, sizeof(filename), stress_mwc32());
 
 	fd = open(filename, flags, S_IRUSR | S_IWUSR);

@@ -349,7 +349,7 @@ static int stress_inode_flags(stress_args_t *args)
 		rc = stress_exit_status(-rc);
 		goto tidy_inode_flag_perms;
 	}
-	(void)stress_temp_filename_args(args,
+	(void)stress_fs_temp_filename_args(args,
 		file_name, sizeof(file_name), stress_mwc32());
 
 	(void)shim_strscpy(tmp, file_name, sizeof(tmp));

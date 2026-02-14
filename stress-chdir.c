@@ -94,7 +94,7 @@ static int stress_chdir(stress_args_t *args)
 	stress_rndstr(longpath, sizeof(longpath));
 	longpath[0] = '/';
 
-	(void)stress_temp_filename_args(args, badpath, sizeof(badpath), ~0ULL);
+	(void)stress_fs_temp_filename_args(args, badpath, sizeof(badpath), ~0ULL);
 	(void)shim_memset(&statbuf, 0, sizeof(statbuf));
 	*path = '\0';	/* Keep static analysis tools happy */
 
@@ -109,7 +109,7 @@ static int stress_chdir(stress_args_t *args)
 #else
 		UNEXPECTED
 #endif
-		(void)stress_temp_filename_args(args,
+		(void)stress_fs_temp_filename_args(args,
 			path, sizeof(path), rnd | gray_code);
 		chdir_info[i].path = shim_strdup(path);
 		if (chdir_info[i].path == NULL)

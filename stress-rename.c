@@ -249,7 +249,7 @@ static int stress_rename(stress_args_t *args)
 	stress_sync_start_wait(args);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 restart:
-	(void)stress_temp_filename(oldname, PATH_MAX,
+	(void)stress_fs_temp_filename(oldname, PATH_MAX,
 		args->name, args->pid, inst1, i++);
 
 	if ((fp = fopen(oldname, "w+")) == NULL) {
@@ -271,7 +271,7 @@ restart:
 	(void)fclose(fp);
 
 	while (stress_continue(args)) {
-		(void)stress_temp_filename(newname, PATH_MAX,
+		(void)stress_fs_temp_filename(newname, PATH_MAX,
 			args->name, args->pid, inst2, i++);
 		if (rename(oldname, newname) < 0) {
 			(void)shim_unlink(oldname);
@@ -286,7 +286,7 @@ restart:
 		if (UNLIKELY(!stress_continue(args)))
 			break;
 
-		(void)stress_temp_filename(newname, PATH_MAX,
+		(void)stress_fs_temp_filename(newname, PATH_MAX,
 			args->name, args->pid, inst1, i++);
 		if (rename(oldname, newname) < 0) {
 			(void)shim_unlink(oldname);
@@ -305,7 +305,7 @@ restart:
 		if (tmp_fd >= 0) {
 			char *oldbasename, *newbasename;
 
-			(void)stress_temp_filename(newname, PATH_MAX,
+			(void)stress_fs_temp_filename(newname, PATH_MAX,
 				args->name, args->pid, inst1, i++);
 
 			/* Skip over tmp_path prefix */
@@ -338,7 +338,7 @@ restart:
 		if (tmp_fd >= 0) {
 			char *oldbasename, *newbasename;
 
-			(void)stress_temp_filename(newname, PATH_MAX,
+			(void)stress_fs_temp_filename(newname, PATH_MAX,
 				args->name, args->pid, inst1, i++);
 
 			/* Skip over tmp_path prefix */

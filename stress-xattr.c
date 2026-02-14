@@ -90,7 +90,7 @@ static int stress_xattr(stress_args_t *args)
 	}
 
 	rnd32 = stress_mwc32();
-	(void)stress_temp_filename_args(args, filename, sizeof(filename), rnd32);
+	(void)stress_fs_temp_filename_args(args, filename, sizeof(filename), rnd32);
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		rc = stress_exit_status(errno);
 		pr_fail("%s: open %s failed, errno=%d (%s)\n",

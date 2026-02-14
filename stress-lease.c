@@ -197,7 +197,7 @@ static int stress_lease(stress_args_t *args)
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
 		return stress_exit_status(-ret);
-	(void)stress_temp_filename_args(args,
+	(void)stress_fs_temp_filename_args(args,
 		filename, sizeof(filename), stress_mwc32());
 
 	fd = creat(filename, S_IRUSR | S_IWUSR);

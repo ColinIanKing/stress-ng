@@ -292,7 +292,7 @@ static int stress_rlimit(stress_args_t *args)
 	if (stress_signal_handler(args->name, SIGXFSZ, stress_rlimit_handler, &old_action_xfsz) < 0)
 		return EXIT_FAILURE;
 
-	(void)stress_temp_filename_args(args,
+	(void)stress_fs_temp_filename_args(args,
 		filename, sizeof(filename), stress_mwc32());
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)

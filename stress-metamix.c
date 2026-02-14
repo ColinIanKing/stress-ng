@@ -90,7 +90,7 @@ static int stress_metamix_file(
 	uint8_t buf[buf_len];
 	struct stat statbuf;
 
-	stress_temp_filename(filename, sizeof(filename), args->name,
+	stress_fs_temp_filename(filename, sizeof(filename), args->name,
                 args->pid, args->instance, stress_mwc32() ^ instance);
 	if ((fd = open(filename, O_WRONLY | O_CREAT | O_EXCL, S_IRUSR | S_IWUSR)) < 0) {
 		ret = stress_exit_status(errno);

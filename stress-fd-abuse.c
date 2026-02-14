@@ -2166,7 +2166,7 @@ static int stress_fd_abuse(stress_args_t *args)
 	if (stress_temp_dir_mk_args(args) < 0) {
 		shim_memset(stress_fd_filename, 0, sizeof(stress_fd_filename));
 	} else {
-		(void)stress_temp_filename_args(args, stress_fd_filename,
+		(void)stress_fs_temp_filename_args(args, stress_fd_filename,
 			sizeof(stress_fd_filename), stress_mwc32());
 	}
 

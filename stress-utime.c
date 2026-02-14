@@ -98,7 +98,7 @@ static int OPTIMIZE3 stress_utime(stress_args_t *args)
 	UNEXPECTED
 #endif
 
-	(void)stress_temp_filename_args(args,
+	(void)stress_fs_temp_filename_args(args,
 		filename, sizeof(filename), stress_mwc32());
 	if ((fd = open(filename, O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR)) < 0) {
 		ret = stress_exit_status(errno);

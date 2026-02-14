@@ -82,7 +82,7 @@ static void stress_dentry_unlink_file(
 {
 	char path[PATH_MAX];
 
-	stress_temp_filename_args(args, path, sizeof(path), gray_code * 2);
+	stress_fs_temp_filename_args(args, path, sizeof(path), gray_code * 2);
 	if (verify) {
 		int fd;
 		uint64_t val;
@@ -357,7 +357,7 @@ static int stress_dentry(stress_args_t *args)
 			if (UNLIKELY(!stress_continue(args)))
 				goto abort;
 
-			stress_temp_filename_args(args,
+			stress_fs_temp_filename_args(args,
 				path, sizeof(path), gray_code * 2);
 
 			t = stress_time_now();
@@ -402,7 +402,7 @@ static int stress_dentry(stress_args_t *args)
 				goto abort;
 
 			/* The following should succeed */
-			stress_temp_filename_args(args,
+			stress_fs_temp_filename_args(args,
 				path, sizeof(path), gray_code * 2);
 
 			t = stress_time_now();
@@ -411,7 +411,7 @@ static int stress_dentry(stress_args_t *args)
 				access_count += 1.0;
 			}
 
-			stress_temp_filename_args(args,
+			stress_fs_temp_filename_args(args,
 				path, sizeof(path), dentry_offset + (gray_code * 2) + 1);
 			/* The following should fail */
 			t = stress_time_now();
@@ -420,7 +420,7 @@ static int stress_dentry(stress_args_t *args)
 				bogus_access_count += 1.0;
 			}
 
-			stress_temp_filename_args(args,
+			stress_fs_temp_filename_args(args,
 				path, sizeof(path), dentry_offset + i);
 			/* The following should fail */
 			t = stress_time_now();

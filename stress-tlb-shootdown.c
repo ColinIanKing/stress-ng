@@ -355,7 +355,7 @@ static int stress_tlb_shootdown(stress_args_t *args)
 		rc = stress_exit_status(-ret);
 		goto err_s_pids;
 	}
-	(void)stress_temp_filename_args(args,
+	(void)stress_fs_temp_filename_args(args,
 		filename, sizeof(filename), stress_mwc32());
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		ret = stress_exit_status(errno);

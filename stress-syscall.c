@@ -8931,11 +8931,11 @@ static int stress_syscall(stress_args_t *args)
 		goto err_close_dir_fd;
 	}
 
-	(void)stress_temp_filename_args(args,
+	(void)stress_fs_temp_filename_args(args,
 		syscall_filename, sizeof(syscall_filename), rnd_filenum);
-	(void)stress_temp_filename_args(args,
+	(void)stress_fs_temp_filename_args(args,
 		syscall_tmp_filename, sizeof(syscall_tmp_filename), rnd_filenum + 1);
-	(void)stress_temp_filename_args(args,
+	(void)stress_fs_temp_filename_args(args,
 		syscall_symlink_filename, sizeof(syscall_symlink_filename), rnd_filenum + 2);
 
 	syscall_2_pages = mmap(NULL, args->page_size * 2, PROT_READ | PROT_WRITE,

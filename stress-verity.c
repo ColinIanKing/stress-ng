@@ -97,7 +97,7 @@ static int stress_verity(stress_args_t *args)
 	if (ret < 0)
 		return stress_exit_status(-ret);
 
-	(void)stress_temp_filename_args(args, filename, sizeof(filename), stress_mwc32());
+	(void)stress_fs_temp_filename_args(args, filename, sizeof(filename), stress_mwc32());
 
 	if (stress_instance_zero(args))
 		stress_fs_usage_bytes(args, file_size, file_size * args->instances);

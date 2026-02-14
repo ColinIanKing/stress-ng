@@ -71,7 +71,7 @@ static int stress_umask(stress_args_t *args)
 			}
 			prev_mask = mask;
 
-			(void)stress_temp_filename_args(args, filename, sizeof(filename), stress_mwc32());
+			(void)stress_fs_temp_filename_args(args, filename, sizeof(filename), stress_mwc32());
 			fd = open(filename, O_CREAT | O_RDWR, 0777);
 			if (fd < 0) {
 				pr_fail("%s: cannot create file %s\n", args->name, filename);

@@ -831,7 +831,7 @@ static int stress_exec(stress_args_t *args)
 		rc = stress_exit_status(-ret);
 		goto err_unmap_pid_cache;
 	}
-	(void)stress_temp_filename_args(args,
+	(void)stress_fs_temp_filename_args(args,
 		garbage_prog, sizeof(garbage_prog), stress_mwc32());
 
 #if (defined(HAVE_EXECVEAT) ||	\

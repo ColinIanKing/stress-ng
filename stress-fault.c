@@ -74,7 +74,7 @@ static int stress_fault(stress_args_t *args)
 	if (ret < 0)
 		return stress_exit_status(-ret);
 
-	(void)stress_temp_filename_args(args,
+	(void)stress_fs_temp_filename_args(args,
 		filename, sizeof(filename), stress_mwc32());
 
 	if (stress_signal_handler(args->name, SIGSEGV, stress_segvhandler, NULL) < 0)

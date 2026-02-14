@@ -838,7 +838,7 @@ static int stress_fcntl(stress_args_t *args)
 			return stress_exit_status(errno);
 		}
 	}
-	(void)stress_temp_filename(filename, sizeof(filename),
+	(void)stress_fs_temp_filename(filename, sizeof(filename),
 		args->name, ppid, 0, 0);
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);

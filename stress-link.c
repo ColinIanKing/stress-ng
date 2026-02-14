@@ -62,7 +62,7 @@ static void stress_link_unlink(
 	for (i = 0; i < n; i++) {
 		char path[PATH_MAX];
 
-		(void)stress_temp_filename_args(args, path, sizeof(path), i);
+		(void)stress_fs_temp_filename_args(args, path, sizeof(path), i);
 		(void)shim_force_unlink(path);
 		/*
 		 *  Some file systems, such as minix 3 suffer from
@@ -115,7 +115,7 @@ static int stress_link_generic(
 	(void)do_sync;
 #endif
 
-	(void)stress_temp_filename_args(args, oldpath, sizeof(oldpath), ~0UL);
+	(void)stress_fs_temp_filename_args(args, oldpath, sizeof(oldpath), ~0UL);
 	if ((fd = open(oldpath, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		if ((errno == ENFILE) || (errno == ENOMEM) || (errno == ENOSPC)) {
 			if (temp_dir_fd >= 0)
@@ -149,7 +149,7 @@ static int stress_link_generic(
 			char newpath[PATH_MAX];
 			struct stat stbuf;
 
-			(void)stress_temp_filename_args(args,
+			(void)stress_fs_temp_filename_args(args,
 				newpath, sizeof(newpath), i);
 			if (linkfunc(oldpath, newpath) < 0) {
 				if ((errno == EDQUOT) ||

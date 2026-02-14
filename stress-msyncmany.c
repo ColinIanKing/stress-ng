@@ -137,7 +137,7 @@ static int stress_msyncmany(stress_args_t *args)
         if (ret < 0)
                 return stress_exit_status(-ret);
 
-	(void)stress_temp_filename_args(args, filename, sizeof(filename), stress_mwc32());
+	(void)stress_fs_temp_filename_args(args, filename, sizeof(filename), stress_mwc32());
 	fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
 	if (fd < 0) {
 		pr_inf_skip("%s: cannot create %s, skipping stressor\n", args->name, filename);

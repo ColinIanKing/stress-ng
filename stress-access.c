@@ -285,9 +285,9 @@ static int stress_access(stress_args_t *args)
 		return stress_exit_status(-ret);
 	}
 
-	(void)stress_temp_filename_args(args,
+	(void)stress_fs_temp_filename_args(args,
 		filename1, sizeof(filename1), rnd32);
-	(void)stress_temp_filename_args(args,
+	(void)stress_fs_temp_filename_args(args,
 		filename2, sizeof(filename2), rnd32 + 1);
 
 	(void)umask(0700);

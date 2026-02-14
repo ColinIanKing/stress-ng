@@ -232,7 +232,7 @@ static void stress_dir_tidy(
 		char path[PATH_MAX];
 		const uint64_t gray_code = (i >> 1) ^ i;
 
-		(void)stress_temp_filename_args(args,
+		(void)stress_fs_temp_filename_args(args,
 			path, sizeof(path), gray_code);
 		(void)shim_rmdir(path);
 	}
@@ -494,7 +494,7 @@ static int stress_dir(stress_args_t *args)
 			char path[PATH_MAX];
 			const uint64_t gray_code = (i >> 1) ^ i;
 
-			(void)stress_temp_filename_args(args,
+			(void)stress_fs_temp_filename_args(args,
 				path, sizeof(path), gray_code);
 			(void)shim_force_rmdir(path);
 			if (stress_mkdir(dir_fd, path, S_IRUSR | S_IWUSR) < 0) {

@@ -280,7 +280,7 @@ static int stress_file_ioctl(stress_args_t *args)
 	if (ret < 0)
 		return stress_exit_status(-ret);
 
-	(void)stress_temp_filename_args(args, filename, sizeof(filename), rnd);
+	(void)stress_fs_temp_filename_args(args, filename, sizeof(filename), rnd);
 	fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
 	if (fd < 0) {
 		ret = stress_exit_status(errno);
@@ -302,7 +302,7 @@ static int stress_file_ioctl(stress_args_t *args)
 	(void)shim_unlink(filename);
 
 #if defined(FICLONE) || defined(FICLONERANGE)
-	(void)stress_temp_filename_args(args, filename, sizeof(filename), rnd + 1);
+	(void)stress_fs_temp_filename_args(args, filename, sizeof(filename), rnd + 1);
 	dfd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
 	if (dfd < 0) {
 		ret = stress_exit_status(errno);

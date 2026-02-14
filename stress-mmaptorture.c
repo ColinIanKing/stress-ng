@@ -294,7 +294,7 @@ static void stress_mmaptorture_init(const uint32_t instances)
 		mmap_fd = -1;
 		return;
 	}
-	stress_temp_filename(path, sizeof(path), name, pid, 0, stress_mwc32());
+	stress_fs_temp_filename(path, sizeof(path), name, pid, 0, stress_mwc32());
 	mmap_fd = open(path, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR | S_IXUSR);
 	if (mmap_fd < 0) {
 		mmap_fd = -1;

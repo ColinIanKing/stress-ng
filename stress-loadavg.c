@@ -214,7 +214,7 @@ static int stress_loadavg(stress_args_t *args)
 		return stress_exit_status((int)-ret);
 	}
 
-	(void)stress_temp_filename_args(args,
+	(void)stress_fs_temp_filename_args(args,
 		filename, sizeof(filename), stress_mwc32());
 
 	/*  Not a failure if can't open a file */

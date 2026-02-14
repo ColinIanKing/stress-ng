@@ -71,7 +71,7 @@ static int stress_sigxfsz(stress_args_t *args)
 
 	(void)shim_memset(buffer, 0xff, sizeof(buffer));
 
-	(void)stress_temp_filename_args(args,
+	(void)stress_fs_temp_filename_args(args,
 		filename, sizeof(filename), stress_mwc32());
 	fd = open(filename, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
 	if (fd < 0) {

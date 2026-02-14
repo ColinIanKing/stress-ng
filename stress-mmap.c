@@ -1051,7 +1051,7 @@ static int stress_mmap(stress_args_t *args)
 		if (rc < 0)
 			return stress_exit_status((int)-rc);
 
-		(void)stress_temp_filename_args(args,
+		(void)stress_fs_temp_filename_args(args,
 			filename, sizeof(filename), stress_mwc32());
 
 		if (mmap_odirect) {

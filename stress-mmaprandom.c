@@ -2175,7 +2175,7 @@ static int stress_mmaprandom(stress_args_t *args)
 		rc = stress_exit_status((int)-ret);
 		goto tidy_dir;
 	}
-	(void)stress_temp_filename_args(args,
+	(void)stress_fs_temp_filename_args(args,
 		filename, sizeof(filename), stress_mwc32());
 #if defined(O_NOATIME)
 	ctxt->fds[FD_FILE].fd = open(filename, O_CREAT | O_RDWR | O_NOATIME, S_IRUSR | S_IWUSR);

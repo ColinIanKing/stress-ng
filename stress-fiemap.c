@@ -299,7 +299,7 @@ static int stress_fiemap(stress_args_t *args)
 		goto clean;
 	}
 
-	(void)stress_temp_filename_args(args,
+	(void)stress_fs_temp_filename_args(args,
 		filename, sizeof(filename), stress_mwc32());
 	if ((fd = open(filename, flags, S_IRUSR | S_IWUSR)) < 0) {
 		rc = stress_exit_status(errno);

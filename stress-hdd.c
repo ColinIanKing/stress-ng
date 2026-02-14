@@ -799,7 +799,7 @@ static int stress_hdd(stress_args_t *args)
 	buf = (uint8_t *)stress_align_address(alloc_buf, BUF_ALIGNMENT);
 #endif
 	(void)shim_memset(buf, stress_mwc8(), hdd_write_size);
-	(void)stress_temp_filename_args(args,
+	(void)stress_fs_temp_filename_args(args,
 		filename, sizeof(filename), stress_mwc32());
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);

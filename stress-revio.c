@@ -354,7 +354,7 @@ static int stress_revio(stress_args_t *args)
 
 	stress_rndbuf(buf, DEFAULT_REVIO_WRITE_SIZE);
 
-	(void)stress_temp_filename_args(args,
+	(void)stress_fs_temp_filename_args(args,
 		filename, sizeof(filename), stress_mwc32());
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);

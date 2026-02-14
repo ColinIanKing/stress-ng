@@ -245,7 +245,7 @@ static int stress_lockofd(stress_args_t *args)
 	 *  as we need to share this among all the other
 	 *  stress flock processes
 	 */
-	(void)stress_temp_filename_args(args,
+	(void)stress_fs_temp_filename_args(args,
 		filename, sizeof(filename), stress_mwc32());
 
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
