@@ -483,7 +483,7 @@ static int stress_cgroup_child(stress_args_t *args)
 	stress_parent_died_alarm();
 	(void)stress_sched_settings_apply(true);
 
-	stress_temp_dir(pathname, sizeof(pathname), args->name, args->pid, args->instance);
+	stress_fs_temp_dir(pathname, sizeof(pathname), args->name, args->pid, args->instance);
 	if (mkdir(pathname, S_IRGRP | S_IWGRP) < 0) {
 		pr_fail("%s: cannot mkdir %s, errno=%d (%s)\n",
 			args->name, pathname, errno, strerror(errno));
@@ -492,7 +492,7 @@ static int stress_cgroup_child(stress_args_t *args)
 	if (!realpath(pathname, realpathname)) {
 		pr_fail("%s: cannot realpath %s, errno=%d (%s)\n",
 			args->name, pathname, errno, strerror(errno));
-		(void)stress_temp_dir_rm_args(args);
+		(void)stress_fs_temp_dir_rm_args(args);
 		return EXIT_FAILURE;
 	}
 
@@ -509,21 +509,21 @@ static int stress_cgroup_child(stress_args_t *args)
 			pr_inf_skip("%s: fsopen failed, errno=%d (%s), "
 				"skipping stressor\n",
 				args->name, errno, strerror(errno));
-			(void)stress_temp_dir_rm_args(args);
+			(void)stress_fs_temp_dir_rm_args(args);
 			return EXIT_FAILURE;
 		}
 		if (fsconfig(fd, FSCONFIG_SET_STRING, "source", "none", 0) < 0) {
 			pr_inf_skip("%s: fsconfig FSCONFIG_SET_STRING 'source' failed, errno=%d (%s), %s\n",
 				args->name, errno, strerror(errno), skip);
 			(void)close(fd);
-			(void)stress_temp_dir_rm_args(args);
+			(void)stress_fs_temp_dir_rm_args(args);
 			return EXIT_FAILURE;
 		}
 		if (fsconfig(fd, FSCONFIG_CMD_CREATE, NULL, NULL, 0) < 0) {
 			pr_inf_skip("%s: fsconfig FSCONFIG_CMD_CREATE, failed, errno=%d (%s), %s\n",
 				args->name, errno, strerror(errno), skip);
 			(void)close(fd);
-			(void)stress_temp_dir_rm_args(args);
+			(void)stress_fs_temp_dir_rm_args(args);
 			return EXIT_FAILURE;
 		}
 		fd_mnt = fsmount(fd, FSMOUNT_CLOEXEC, 0);
@@ -586,7 +586,7 @@ cleanup:
 	if (stress_cgroup_mounted_state(realpathname) == STRESS_CGROUP_MOUNTED)
 		pr_dbg("%s: could not unmount of %s\n", args->name, realpathname);
 
-	(void)stress_temp_dir_rm_args(args);
+	(void)stress_fs_temp_dir_rm_args(args);
 	if ((mount_retry + umount_retry) > 0) {
 		pr_dbg("%s: %" PRIu64 " mount retries, %" PRIu64 " umount retries\n",
 			args->name, mount_retry, umount_retry);

@@ -188,7 +188,7 @@ static int stress_copy_file(stress_args_t *args)
 	if (stress_instance_zero(args))
 		stress_fs_usage_bytes(args, copy_file_bytes, copy_file_bytes_total);
 
-        ret = stress_temp_dir_mk_args(args);
+        ret = stress_fs_temp_dir_mk_args(args);
         if (ret < 0)
                 return stress_exit_status(-ret);
 
@@ -333,7 +333,7 @@ tidy_in:
 	(void)close(fd_in);
 tidy_dir:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
-	(void)stress_temp_dir_rm_args(args);
+	(void)stress_fs_temp_dir_rm_args(args);
 
 	return rc;
 }

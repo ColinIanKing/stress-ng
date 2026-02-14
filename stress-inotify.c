@@ -1000,8 +1000,8 @@ static int stress_inotify(stress_args_t *args)
 	int ret, i, rc = EXIT_SUCCESS;
 	const int bad_fd = stress_fs_bad_fd_get();
 
-	stress_temp_dir_args(args, pathname, sizeof(pathname));
-	ret = stress_temp_dir_mk_args(args);
+	stress_fs_temp_dir_args(args, pathname, sizeof(pathname));
+	ret = stress_fs_temp_dir_mk_args(args);
 	if (ret < 0)
 		return stress_exit_status(-ret);
 
@@ -1023,7 +1023,7 @@ static int stress_inotify(stress_args_t *args)
 	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
-	(void)stress_temp_dir_rm_args(args);
+	(void)stress_fs_temp_dir_rm_args(args);
 
 	return rc;
 }

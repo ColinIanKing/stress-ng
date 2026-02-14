@@ -194,7 +194,7 @@ static int stress_lease(stress_args_t *args)
 	if (stress_signal_handler(args->name, SIGIO, stress_lease_handler, NULL) < 0)
 		return EXIT_FAILURE;
 
-	ret = stress_temp_dir_mk_args(args);
+	ret = stress_fs_temp_dir_mk_args(args);
 	if (ret < 0)
 		return stress_exit_status(-ret);
 	(void)stress_fs_temp_filename_args(args,
@@ -205,7 +205,7 @@ static int stress_lease(stress_args_t *args)
 		ret = stress_exit_status(errno);
 		pr_err("%s: creat failed, errno=%d: (%s)\n",
 			args->name, errno, strerror(errno));
-		(void)stress_temp_dir_rm_args(args);
+		(void)stress_fs_temp_dir_rm_args(args);
 		return ret;
 	}
 	(void)close(fd);
@@ -246,7 +246,7 @@ reap:
 	}
 
 	(void)shim_unlink(filename);
-	(void)stress_temp_dir_rm_args(args);
+	(void)stress_fs_temp_dir_rm_args(args);
 
 	pr_dbg("%s: %" PRIu64 " lease sigio interrupts caught\n", args->name, lease_sigio);
 	dt = t2 - t1;

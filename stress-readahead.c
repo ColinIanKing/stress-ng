@@ -133,7 +133,7 @@ static int stress_readahead(stress_args_t *args)
 	if (stress_instance_zero(args))
 		stress_fs_usage_bytes(args, readahead_bytes, readahead_bytes_total);
 
-	ret = stress_temp_dir_mk_args(args);
+	ret = stress_fs_temp_dir_mk_args(args);
 	if (ret < 0)
 		return stress_exit_status(-ret);
 
@@ -142,7 +142,7 @@ static int stress_readahead(stress_args_t *args)
 		rc = stress_exit_status(errno);
 		pr_err("%s: cannot allocate %d byte buffer%s\n",
 			args->name, BUF_SIZE, stress_get_memfree_str());
-		(void)stress_temp_dir_rm_args(args);
+		(void)stress_fs_temp_dir_rm_args(args);
 		return rc;
 	}
 
@@ -328,7 +328,7 @@ close_finish:
 finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	free(buf);
-	(void)stress_temp_dir_rm_args(args);
+	(void)stress_fs_temp_dir_rm_args(args);
 
 	if (misreads)
 		pr_dbg("%s: %" PRIu64 " incomplete random reads\n",

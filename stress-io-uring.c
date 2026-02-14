@@ -1039,7 +1039,7 @@ static int stress_io_uring_child(stress_args_t *args, void *context)
 		file_size -= iov_length;
 	}
 
-	ret = stress_temp_dir_mk_args(args);
+	ret = stress_fs_temp_dir_mk_args(args);
 	if (ret < 0) {
 		stress_io_uring_unmap_iovecs(&io_uring_file);
 		return stress_exit_status(-ret);
@@ -1118,7 +1118,7 @@ clean:
 	stress_close_io_uring(&submit);
 	stress_io_uring_unmap_iovecs(&io_uring_file);
 	(void)shim_unlink(filename);
-	(void)stress_temp_dir_rm_args(args);
+	(void)stress_fs_temp_dir_rm_args(args);
 	return rc;
 }
 

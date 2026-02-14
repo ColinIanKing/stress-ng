@@ -2807,7 +2807,7 @@ static int stress_sysinval(stress_args_t *args)
 
 	sockfds[0] = socket(AF_UNIX, SOCK_STREAM, 0);
 
-	ret = stress_temp_dir_mk_args(args);
+	ret = stress_fs_temp_dir_mk_args(args);
 	if (ret < 0)
 		return stress_exit_status(-ret);
 
@@ -2993,7 +2993,7 @@ tidy:
 
 err_dir:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
-	(void)stress_temp_dir_rm_args(args);
+	(void)stress_fs_temp_dir_rm_args(args);
 
 	return rc;
 }

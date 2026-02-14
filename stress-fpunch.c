@@ -340,7 +340,7 @@ static int stress_fpunch(stress_args_t *args)
 	stress_set_vma_anon_name(buf, sizeof(*buf), "fpunch-buffer");
 	(void)stress_madvise_mergeable(buf, sizeof(*buf));
 
-	ret = stress_temp_dir_mk_args(args);
+	ret = stress_fs_temp_dir_mk_args(args);
 	if (ret < 0) {
 		rc = stress_exit_status(-ret);
 		goto tidy_buf;
@@ -449,7 +449,7 @@ tidy:
 	if (fd != -1)
 		(void)close(fd);
 tidy_temp:
-	(void)stress_temp_dir_rm_args(args);
+	(void)stress_fs_temp_dir_rm_args(args);
 tidy_buf:
 	(void)munmap((void *)buf, sizeof(*buf));
 tidy_s_pids:

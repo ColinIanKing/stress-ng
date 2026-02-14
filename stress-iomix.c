@@ -1147,7 +1147,7 @@ static int stress_iomix(stress_args_t *args)
 	if (stress_instance_zero(args))
 		stress_fs_usage_bytes(args, iomix_bytes, iomix_bytes_total);
 
-	ret = stress_temp_dir_mk_args(args);
+	ret = stress_fs_temp_dir_mk_args(args);
 	if (ret < 0) {
 		ret = stress_exit_status(-ret);
 		goto lock_destroy;
@@ -1236,7 +1236,7 @@ reap:
 tidy:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)close(fd);
-	(void)stress_temp_dir_rm_args(args);
+	(void)stress_fs_temp_dir_rm_args(args);
 lock_destroy:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)stress_lock_destroy(counter_lock);

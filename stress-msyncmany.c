@@ -133,7 +133,7 @@ static int stress_msyncmany(stress_args_t *args)
 	int ret, fd;
 	char filename[PATH_MAX];
 
-	ret = stress_temp_dir_mk_args(args);
+	ret = stress_fs_temp_dir_mk_args(args);
         if (ret < 0)
                 return stress_exit_status(-ret);
 
@@ -141,7 +141,7 @@ static int stress_msyncmany(stress_args_t *args)
 	fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
 	if (fd < 0) {
 		pr_inf_skip("%s: cannot create %s, skipping stressor\n", args->name, filename);
-		(void)stress_temp_dir_rm_args(args);
+		(void)stress_fs_temp_dir_rm_args(args);
 		return EXIT_NO_RESOURCE;
 	}
 	(void)shim_unlink(filename);
@@ -149,13 +149,13 @@ static int stress_msyncmany(stress_args_t *args)
 	ret = shim_fallocate(fd, 0, 0, (off_t)args->page_size);
 	if (ret < 0) {
 		pr_inf_skip("%s: cannot allocate data for file %s, skipping stressor\n", args->name, filename);
-		(void)stress_temp_dir_rm_args(args);
+		(void)stress_fs_temp_dir_rm_args(args);
 		(void)close(fd);
 		return EXIT_NO_RESOURCE;
 	}
 	ret = stress_oomable_child(args, (void *)&fd, stress_msyncmany_child, STRESS_OOMABLE_NORMAL);
 	(void)close(fd);
-	(void)stress_temp_dir_rm_args(args);
+	(void)stress_fs_temp_dir_rm_args(args);
 
 	return ret;
 }

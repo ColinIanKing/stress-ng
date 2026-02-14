@@ -333,11 +333,11 @@ static int stress_dentry(stress_args_t *args)
 	}
 	(void)stress_get_setting("dentry-order", &dentry_order);
 
-	ret = stress_temp_dir_mk_args(args);
+	ret = stress_fs_temp_dir_mk_args(args);
 	if (ret < 0)
 		return stress_exit_status(-ret);
 
-	(void)stress_temp_dir(dir_path, sizeof(dir_path), args->name,
+	(void)stress_fs_temp_dir(dir_path, sizeof(dir_path), args->name,
 		args->pid, args->instance);
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
@@ -474,7 +474,7 @@ abort:
 
 	/* force unlink of all files */
 	stress_dentry_unlink(args, dentries, dentry_order, verify);
-	(void)stress_temp_dir_rm_args(args);
+	(void)stress_fs_temp_dir_rm_args(args);
 
 	return rc;
 }

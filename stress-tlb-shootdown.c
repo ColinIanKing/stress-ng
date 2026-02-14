@@ -350,7 +350,7 @@ static int stress_tlb_shootdown(stress_args_t *args)
 
 #if defined(HAVE_MADVISE) &&	\
     defined(MADV_DONTNEED)
-	ret = stress_temp_dir_mk_args(args);
+	ret = stress_fs_temp_dir_mk_args(args);
 	if (ret < 0) {
 		rc = stress_exit_status(-ret);
 		goto err_s_pids;
@@ -505,7 +505,7 @@ err_munmap_memfd:
 err_close:
 	(void)close(fd);
 err_rmdir:
-	(void)stress_temp_dir_rm_args(args);
+	(void)stress_fs_temp_dir_rm_args(args);
 err_s_pids:
 	(void)stress_sync_s_pids_munmap(s_pids, MAX_TLB_PROCS);
 #endif

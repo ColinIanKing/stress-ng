@@ -414,7 +414,7 @@ static int stress_lockmix(stress_args_t *args)
 	 *  There will be a race to create the directory
 	 *  so EEXIST is expected on all but one instance
 	 */
-	(void)stress_temp_dir_args(args, pathname, sizeof(pathname));
+	(void)stress_fs_temp_dir_args(args, pathname, sizeof(pathname));
 	if (mkdir(pathname, S_IRWXU) < 0) {
 		if (errno != EEXIST) {
 			ret = stress_exit_status(errno);

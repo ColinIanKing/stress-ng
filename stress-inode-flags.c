@@ -344,7 +344,7 @@ static int stress_inode_flags(stress_args_t *args)
 		goto tidy_lock;
 	}
 
-	rc = stress_temp_dir_mk_args(args);
+	rc = stress_fs_temp_dir_mk_args(args);
 	if (rc < 0) {
 		rc = stress_exit_status(-rc);
 		goto tidy_inode_flag_perms;
@@ -414,7 +414,7 @@ tidy_dir_fd:
 tidy_unlink:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)shim_unlink(file_name);
-	stress_temp_dir_rm_args(args);
+	stress_fs_temp_dir_rm_args(args);
 tidy_inode_flag_perms:
 	free(inode_flag_perms);
 tidy_lock:

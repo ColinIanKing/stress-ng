@@ -79,7 +79,7 @@ static int stress_chdir(stress_args_t *args)
 		goto err;
 	}
 
-	rc = stress_temp_dir_mk_args(args);
+	rc = stress_fs_temp_dir_mk_args(args);
 	if (rc < 0) {
 		ret = stress_exit_status(-rc);
 		goto err;
@@ -281,7 +281,7 @@ tidy:
 			pr_tidy("%s: removing %" PRIu32 " directories\n", args->name, chdir_dirs);
 		}
 	}
-	(void)stress_temp_dir_rm_args(args);
+	(void)stress_fs_temp_dir_rm_args(args);
 
 	rate = (duration > 0.0) ? count / duration : 0.0;
 	stress_metrics_set(args, 0, "chdir calls per sec",

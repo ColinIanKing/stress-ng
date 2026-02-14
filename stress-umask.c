@@ -38,7 +38,7 @@ static int stress_umask(stress_args_t *args)
 
 	orig_mask = umask(0);
 
-	ret = stress_temp_dir_mk_args(args);
+	ret = stress_fs_temp_dir_mk_args(args);
 	if (ret < 0)
 		return stress_exit_status(-ret);
 
@@ -117,7 +117,7 @@ static int stress_umask(stress_args_t *args)
 fail:
 	(void)umask(orig_mask);
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
-	(void)stress_temp_dir_rm_args(args);
+	(void)stress_fs_temp_dir_rm_args(args);
 
 	return rc;
 }

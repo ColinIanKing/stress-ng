@@ -312,7 +312,7 @@ static int stress_flock(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
-	ret = stress_temp_dir_mk_args(args);
+	ret = stress_fs_temp_dir_mk_args(args);
 	if (ret < 0) {
 		rc = stress_exit_status(-ret);
 		goto err_free_s_pids;
@@ -364,7 +364,7 @@ reap:
 	(void)shim_unlink(filename);
 err:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
-	(void)stress_temp_dir_rm_args(args);
+	(void)stress_fs_temp_dir_rm_args(args);
 err_free_s_pids:
 	(void)stress_sync_s_pids_munmap(s_pids, MAX_FLOCK_STRESSORS);
 

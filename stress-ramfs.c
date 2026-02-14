@@ -305,7 +305,7 @@ static int stress_ramfs_child(stress_args_t *args)
 			ramfs_size / page_size, page_size >> 10);
 	}
 
-	stress_temp_dir(pathname, sizeof(pathname), args->name,
+	stress_fs_temp_dir(pathname, sizeof(pathname), args->name,
 		args->pid, args->instance);
 	if (mkdir(pathname, S_IRUSR | S_IWUSR | S_IXUSR | S_IRGRP | S_IWGRP) < 0) {
 		pr_fail("%s: cannot mkdir %s, errno=%d (%s)\n",
@@ -315,7 +315,7 @@ static int stress_ramfs_child(stress_args_t *args)
 	if (!realpath(pathname, realpathname)) {
 		pr_fail("%s: cannot realpath %s, errno=%d (%s)\n",
 			args->name, pathname, errno, strerror(errno));
-		(void)stress_temp_dir_rm_args(args);
+		(void)stress_fs_temp_dir_rm_args(args);
 		return EXIT_FAILURE;
 	}
 
@@ -412,7 +412,7 @@ static int stress_ramfs_child(stress_args_t *args)
 
 cleanup:
 	stress_ramfs_umount(args, realpathname);
-	(void)stress_temp_dir_rm_args(args);
+	(void)stress_fs_temp_dir_rm_args(args);
 
 	return rc;
 }

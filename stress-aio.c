@@ -252,7 +252,7 @@ static int stress_aio(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
-	ret = stress_temp_dir_mk_args(args);
+	ret = stress_fs_temp_dir_mk_args(args);
 	if (ret < 0) {
 		ret = stress_exit_status(-ret);
 		free(io_reqs);
@@ -373,7 +373,7 @@ finish:
 			rate, STRESS_METRIC_HARMONIC_MEAN);
 	stress_metrics_set(args, 1, "async I/O signals",
 			(double)total, STRESS_METRIC_TOTAL);
-	(void)stress_temp_dir_rm_args(args);
+	(void)stress_fs_temp_dir_rm_args(args);
 	return rc;
 }
 

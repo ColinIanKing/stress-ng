@@ -1047,7 +1047,7 @@ static int stress_mmap(stress_args_t *args)
 		int file_flags = O_CREAT | O_RDWR;
 		ssize_t wr_ret, rc;
 
-		rc = stress_temp_dir_mk_args(args);
+		rc = stress_fs_temp_dir_mk_args(args);
 		if (rc < 0)
 			return stress_exit_status((int)-rc);
 
@@ -1079,7 +1079,7 @@ static int stress_mmap(stress_args_t *args)
 			pr_fail("%s: open %s failed, errno=%d (%s)\n",
 				args->name, filename, errno, strerror(errno));
 			(void)shim_unlink(filename);
-			(void)stress_temp_dir_rm_args(args);
+			(void)stress_fs_temp_dir_rm_args(args);
 
 			return (int)rc;
 		}
@@ -1088,7 +1088,7 @@ static int stress_mmap(stress_args_t *args)
 			pr_fail("%s: lseek failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			(void)close(context.fd);
-			(void)stress_temp_dir_rm_args(args);
+			(void)stress_fs_temp_dir_rm_args(args);
 
 			return EXIT_FAILURE;
 		}
@@ -1106,7 +1106,7 @@ redo:
 			pr_fail("%s: write failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			(void)close(context.fd);
-			(void)stress_temp_dir_rm_args(args);
+			(void)stress_fs_temp_dir_rm_args(args);
 
 			return (int)rc;
 		}
@@ -1137,7 +1137,7 @@ redo:
 
 	if (context.mmap_file) {
 		(void)close(context.fd);
-		(void)stress_temp_dir_rm_args(args);
+		(void)stress_fs_temp_dir_rm_args(args);
 	}
 	if (context.mmap_prot_perms)
 		free(context.mmap_prot_perms);

@@ -8925,7 +8925,7 @@ static int stress_syscall(stress_args_t *args)
 	syscall_dir_fd = -1;
 #endif
 
-	ret = stress_temp_dir_mk_args(args);
+	ret = stress_fs_temp_dir_mk_args(args);
 	if (ret < 0) {
 		rc = stress_exit_status((int)-ret);
 		goto err_close_dir_fd;
@@ -9041,7 +9041,7 @@ err_unmap_syscall_shared_info:
 err_unmap_syscall_page:
 	(void)munmap(syscall_2_pages, syscall_2_pages_size);
 err_rmdir:
-	(void)stress_temp_dir_rm_args(args);
+	(void)stress_fs_temp_dir_rm_args(args);
 err_close_dir_fd:
 #if defined(O_DIRECTORY)
 	if (syscall_dir_fd >= 0)

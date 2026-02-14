@@ -256,7 +256,7 @@ static int stress_fifo(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
-	rc = stress_temp_dir_mk_args(args);
+	rc = stress_fs_temp_dir_mk_args(args);
 	if (rc < 0) {
 		rc = stress_exit_status(-rc);
 		goto tidy_pids;
@@ -349,7 +349,7 @@ reap:
 tidy:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)shim_unlink(fifoname);
-	(void)stress_temp_dir_rm_args(args);
+	(void)stress_fs_temp_dir_rm_args(args);
 tidy_pids:
 	(void)stress_sync_s_pids_munmap(s_pids, MAX_FIFO_READERS);
 

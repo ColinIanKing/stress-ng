@@ -164,11 +164,11 @@ static int stress_dirmany(stress_args_t *args)
 	off_t dirmany_bytes = 0;
 	size_t pathname_len;
 
-	stress_temp_dir(pathname, sizeof(pathname), args->name,
+	stress_fs_temp_dir(pathname, sizeof(pathname), args->name,
 		args->pid, args->instance);
 	pathname_len = strlen(pathname);
 
-	ret = stress_temp_dir_mk_args(args);
+	ret = stress_fs_temp_dir_mk_args(args);
 	if (ret < 0)
 		return stress_exit_status(-ret);
 
@@ -233,7 +233,7 @@ static int stress_dirmany(stress_args_t *args)
 	if (total_created == 0)
 		pr_warn("%s: no files were created in %s\n", args->name, pathname);
 
-	(void)stress_temp_dir_rm_args(args);
+	(void)stress_fs_temp_dir_rm_args(args);
 
 	return ret;
 }

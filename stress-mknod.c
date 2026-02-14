@@ -234,13 +234,13 @@ static int stress_mknod(stress_args_t *args)
 	chr_dev_ret = stress_mknod_find_dev(S_IFCHR, &chr_dev);
 	blk_dev_ret = stress_mknod_find_dev(S_IFBLK, &blk_dev);
 
-	ret = stress_temp_dir_mk_args(args);
+	ret = stress_fs_temp_dir_mk_args(args);
 	if (ret < 0)
 		return stress_exit_status(-ret);
 
 #if defined(HAVE_MKNODAT) &&	\
     defined(O_DIRECTORY)
-	stress_temp_dir(pathname, sizeof(pathname), args->name,
+	stress_fs_temp_dir(pathname, sizeof(pathname), args->name,
 		args->pid, args->instance);
 	dir_fd = open(pathname, O_DIRECTORY | O_RDONLY);
 #endif
@@ -284,7 +284,7 @@ static int stress_mknod(stress_args_t *args)
 	if (dir_fd >= 0)
 		(void)close(dir_fd);
 
-	(void)stress_temp_dir_rm_args(args);
+	(void)stress_fs_temp_dir_rm_args(args);
 
 	return EXIT_SUCCESS;
 }

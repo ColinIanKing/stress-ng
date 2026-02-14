@@ -430,8 +430,8 @@ static int stress_chroot(stress_args_t *args)
 	data->cwd_fd = -1;
 
 	stress_rndstr(longpath, sizeof(longpath));
-	(void)stress_temp_dir(badpath, sizeof(badpath), "badpath", args->pid, 0xbad);
-	(void)stress_temp_dir_args(args, temppath, sizeof(temppath));
+	(void)stress_fs_temp_dir(badpath, sizeof(badpath), "badpath", args->pid, 0xbad);
+	(void)stress_fs_temp_dir_args(args, temppath, sizeof(temppath));
 	(void)stress_fs_temp_filename_args(args, filename, sizeof(filename), stress_mwc32());
 	if (mkdir(temppath, S_IRWXU) < 0) {
 		pr_fail("%s: mkdir %s failed, errno=%d (%s)\n",

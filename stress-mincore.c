@@ -43,7 +43,7 @@ static int stress_mincore_file(stress_args_t *args)
 {
 	int ret, fd;
 	char filename[PATH_MAX];
-	ret = stress_temp_dir_mk_args(args);
+	ret = stress_fs_temp_dir_mk_args(args);
 	if (ret != 0)
 		return -1;
 
@@ -52,13 +52,13 @@ static int stress_mincore_file(stress_args_t *args)
 	fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
 	(void)shim_unlink(filename);
 	if (fd < 0) {
-		(void)stress_temp_dir_rm_args(args);
+		(void)stress_fs_temp_dir_rm_args(args);
 		return -1;
 	}
 	ret = shim_fallocate(fd, 0, (off_t)0, (off_t)args->page_size);
 	if (ret < 0) {
 		(void)close(fd);
-		(void)stress_temp_dir_rm_args(args);
+		(void)stress_fs_temp_dir_rm_args(args);
 		return -1;
 	}
 	return fd;
@@ -298,7 +298,7 @@ err:
 
 	if (fd >= 0) {
 		(void)close(fd);
-		(void)stress_temp_dir_rm_args(args);
+		(void)stress_fs_temp_dir_rm_args(args);
 	}
 	return rc;
 }

@@ -304,7 +304,7 @@ static int stress_mmaphuge(stress_args_t *args)
 		char filename[PATH_MAX];
 		ssize_t rc;
 
-		rc = stress_temp_dir_mk_args(args);
+		rc = stress_fs_temp_dir_mk_args(args);
 		if (rc < 0) {
 			free(context->bufs);
 			(void)stress_munmap_anon_shared(context, sizeof(*context));
@@ -319,7 +319,7 @@ static int stress_mmaphuge(stress_args_t *args)
 			pr_fail("%s: open %s failed, errno=%d (%s)\n",
 				args->name, filename, errno, strerror(errno));
 			(void)shim_unlink(filename);
-			(void)stress_temp_dir_rm_args(args);
+			(void)stress_fs_temp_dir_rm_args(args);
 			free(context->bufs);
 			(void)stress_munmap_anon_shared(context, sizeof(*context));
 			return (int)rc;
@@ -329,7 +329,7 @@ static int stress_mmaphuge(stress_args_t *args)
 			pr_fail("%s: lseek failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			(void)close(context->fd);
-			(void)stress_temp_dir_rm_args(args);
+			(void)stress_fs_temp_dir_rm_args(args);
 			free(context->bufs);
 			(void)stress_munmap_anon_shared(context, sizeof(*context));
 			return EXIT_FAILURE;
@@ -342,7 +342,7 @@ static int stress_mmaphuge(stress_args_t *args)
 			pr_fail("%s: fallocate of %zu MB failed, errno=%d (%s)\n",
 				args->name, (size_t)(context->sz / MB), errno, strerror(errno));
 			(void)close(context->fd);
-			(void)stress_temp_dir_rm_args(args);
+			(void)stress_fs_temp_dir_rm_args(args);
 			free(context->bufs);
 			(void)stress_munmap_anon_shared(context, sizeof(*context));
 			return (int)rc;
@@ -393,7 +393,7 @@ static int stress_mmaphuge(stress_args_t *args)
 
 	if (context->mmaphuge_file) {
 		(void)close(context->fd);
-		(void)stress_temp_dir_rm_args(args);
+		(void)stress_fs_temp_dir_rm_args(args);
 	}
 	(void)stress_munmap_anon_shared(context, sizeof(*context));
 

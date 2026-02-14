@@ -590,10 +590,10 @@ int stress_fs_temp_filename_args(
 }
 
 /*
- *  stress_temp_dir()
+ *  stress_fs_temp_dir()
  *	create a temporary directory name
  */
-int stress_temp_dir(
+int stress_fs_temp_dir(
 	char *path,
 	const size_t len,
 	const char *name,
@@ -614,23 +614,23 @@ int stress_temp_dir(
 }
 
 /*
- *  stress_temp_dir_args()
+ *  stress_fs_temp_dir_args()
  *	create a temporary directory name using info from args
  */
-int stress_temp_dir_args(
+int stress_fs_temp_dir_args(
 	stress_args_t *args,
 	char *path,
 	const size_t len)
 {
-	return stress_temp_dir(path, len,
+	return stress_fs_temp_dir(path, len,
 		args->name, args->pid, args->instance);
 }
 
 /*
- *   stress_temp_dir_mk()
+ *   stress_fs_temp_dir_mk()
  *	create a temporary directory
  */
-int stress_temp_dir_mk(
+int stress_fs_temp_dir_mk(
 	const char *name,
 	const pid_t pid,
 	const uint32_t instance)
@@ -638,7 +638,7 @@ int stress_temp_dir_mk(
 	int ret;
 	char tmp[PATH_MAX];
 
-	stress_temp_dir(tmp, sizeof(tmp), name, pid, instance);
+	stress_fs_temp_dir(tmp, sizeof(tmp), name, pid, instance);
 	ret = mkdir(tmp, S_IRWXU);
 	if (UNLIKELY(ret < 0)) {
 		ret = -errno;
@@ -651,19 +651,19 @@ int stress_temp_dir_mk(
 }
 
 /*
- *   stress_temp_dir_mk_args()
+ *   stress_fs_temp_dir_mk_args()
  *	create a temporary director using info from args
  */
-int stress_temp_dir_mk_args(stress_args_t *args)
+int stress_fs_temp_dir_mk_args(stress_args_t *args)
 {
-	return stress_temp_dir_mk(args->name, args->pid, args->instance);
+	return stress_fs_temp_dir_mk(args->name, args->pid, args->instance);
 }
 
 /*
- *  stress_temp_dir_rm()
+ *  stress_fs_temp_dir_rm()
  *	remove a temporary directory
  */
-int stress_temp_dir_rm(
+int stress_fs_temp_dir_rm(
 	const char *name,
 	const pid_t pid,
 	const uint32_t instance)
@@ -671,7 +671,7 @@ int stress_temp_dir_rm(
 	int ret;
 	char tmp[PATH_MAX + 1];
 
-	stress_temp_dir(tmp, sizeof(tmp), name, pid, instance);
+	stress_fs_temp_dir(tmp, sizeof(tmp), name, pid, instance);
 	ret = shim_rmdir(tmp);
 	if (UNLIKELY(ret < 0)) {
 		ret = -errno;
@@ -683,12 +683,12 @@ int stress_temp_dir_rm(
 }
 
 /*
- *  stress_temp_dir_rm_args()
+ *  stress_fs_temp_dir_rm_args()
  *	remove a temporary directory using info from args
  */
-int stress_temp_dir_rm_args(stress_args_t *args)
+int stress_fs_temp_dir_rm_args(stress_args_t *args)
 {
-	return stress_temp_dir_rm(args->name, args->pid, args->instance);
+	return stress_fs_temp_dir_rm(args->name, args->pid, args->instance);
 }
 
 /*
@@ -1631,7 +1631,7 @@ void stress_fs_clean_dir(
 	if (LIKELY(name != NULL)) {
 		char path[PATH_MAX];
 
-		(void)stress_temp_dir(path, sizeof(path), name, pid, instance);
+		(void)stress_fs_temp_dir(path, sizeof(path), name, pid, instance);
 		if (access(path, F_OK) == 0) {
 			pr_dbg("%s: removing temporary files in %s\n", name, path);
 			stress_fs_clean_dir_files(temp_path, temp_path_len, path, strlen(path));

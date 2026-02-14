@@ -189,28 +189,28 @@ static void NORETURN stress_umount_mounter(stress_args_t *args, const char *path
 			pr_inf_skip("%s: fsopen '%s' failed, errno=%d (%s), "
 				"skipping stressor\n",
 				args->name, fs, errno, strerror(errno));
-			(void)stress_temp_dir_rm_args(args);
+			(void)stress_fs_temp_dir_rm_args(args);
 			_exit(EXIT_FAILURE);
 		}
 		if (fsconfig(fd, FSCONFIG_SET_STRING, "source", fs, 0) < 0) {
 			pr_inf_skip("%s: fsconfig FSCONFIG_SET_STRING 'source' failed, errno=%d (%s), %s\n",
 				args->name, errno, strerror(errno), skip);
 			(void)close(fd);
-			(void)stress_temp_dir_rm_args(args);
+			(void)stress_fs_temp_dir_rm_args(args);
 			_exit(EXIT_FAILURE);
 		}
 		if (fsconfig(fd, FSCONFIG_SET_STRING, "size", "64K", 0) < 0) {
 			pr_inf_skip("%s: fsconfig FSCONFIG_SET_STRING 'size', failed, errno=%d (%s), %s\n",
 				args->name, errno, strerror(errno), skip);
 			(void)close(fd);
-			(void)stress_temp_dir_rm_args(args);
+			(void)stress_fs_temp_dir_rm_args(args);
 			_exit(EXIT_FAILURE);
 		}
 		if (fsconfig(fd, FSCONFIG_CMD_CREATE, NULL, NULL, 0) < 0) {
 			pr_inf_skip("%s: fsconfig FSCONFIG_CMD_CREATE, failed, errno=%d (%s), %s\n",
 				args->name, errno, strerror(errno), skip);
 			(void)close(fd);
-			(void)stress_temp_dir_rm_args(args);
+			(void)stress_fs_temp_dir_rm_args(args);
 			_exit(EXIT_FAILURE);
 		}
 		fd_mnt = fsmount(fd, FSMOUNT_CLOEXEC, 0);
@@ -338,7 +338,7 @@ static int stress_umount(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
-	stress_temp_dir(pathname, sizeof(pathname), args->name,
+	stress_fs_temp_dir(pathname, sizeof(pathname), args->name,
 		args->pid, args->instance);
 	if (mkdir(pathname, S_IRUSR | S_IWUSR | S_IXUSR | S_IRGRP | S_IWGRP) < 0) {
 		pr_fail("%s: cannot mkdir %s, errno=%d (%s)\n",
@@ -349,7 +349,7 @@ static int stress_umount(stress_args_t *args)
 	if (!realpath(pathname, realpathname)) {
 		pr_fail("%s: cannot realpath %s, errno=%d (%s)\n",
 			args->name, pathname, errno, strerror(errno));
-		(void)stress_temp_dir_rm_args(args);
+		(void)stress_fs_temp_dir_rm_args(args);
 		(void)stress_sync_s_pids_munmap(s_pids, STRESS_UMOUNT_PROCS);
 		return EXIT_FAILURE;
 	}
@@ -375,7 +375,7 @@ static int stress_umount(stress_args_t *args)
 reap:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	stress_kill_and_wait_many(args, s_pids, STRESS_UMOUNT_PROCS, SIGALRM, true);
-	(void)stress_temp_dir_rm_args(args);
+	(void)stress_fs_temp_dir_rm_args(args);
 	(void)stress_sync_s_pids_munmap(s_pids, STRESS_UMOUNT_PROCS);
 
 	return ret;

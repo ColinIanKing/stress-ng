@@ -817,7 +817,7 @@ static int stress_fd_race(stress_args_t *args)
 	stress_fd_race_get_dev(args, "/dev", "fd-race-dev", &context.dev_dev, &fd_race_dev);
 	stress_fd_race_get_dev(args, "/proc", "fd-race-proc", &context.proc_dev, &fd_race_proc);
 
-	ret = stress_temp_dir_mk_args(args);
+	ret = stress_fs_temp_dir_mk_args(args);
 	if (ret < 0) {
 		rc = stress_exit_status(-ret);
 		goto tidy_dir;
@@ -922,7 +922,7 @@ tidy_fds:
 tidy_file:
 	(void)unlink(filename);
 tidy_dir:
-	(void)stress_temp_dir_rm_args(args);
+	(void)stress_fs_temp_dir_rm_args(args);
 	stress_fd_race_filename_free(list);
 
 	return rc;

@@ -300,7 +300,7 @@ static void stress_swap_clean_dir(stress_args_t *args)
 	DIR *dir;
 	const struct dirent *d;
 
-	stress_temp_dir(path, sizeof(path), args->name,
+	stress_fs_temp_dir(path, sizeof(path), args->name,
 		args->pid, args->instance);
 	dir = opendir(path);
 	if (!dir)
@@ -356,7 +356,7 @@ static int stress_swap_child(stress_args_t *args, void *context)
 	(void)stress_madvise_mergeable(page, page_size);
 
 	stress_swap_clean_dir(args);
-	ret = stress_temp_dir_mk_args(args);
+	ret = stress_fs_temp_dir_mk_args(args);
 	if (ret < 0) {
 		ret = stress_exit_status(-ret);
 		goto tidy_free;
@@ -548,7 +548,7 @@ tidy_close:
 tidy_rm:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)shim_unlink(filename);
-	(void)stress_temp_dir_rm_args(args);
+	(void)stress_fs_temp_dir_rm_args(args);
 tidy_free:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)munmap((void *)page, page_size);

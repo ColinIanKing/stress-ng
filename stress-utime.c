@@ -85,14 +85,14 @@ static int OPTIMIZE3 stress_utime(stress_args_t *args)
 
 	(void)stress_get_setting("utime-fsync", &utime_fsync);
 
-	ret = stress_temp_dir_mk_args(args);
+	ret = stress_fs_temp_dir_mk_args(args);
 	if (ret < 0)
 		return stress_exit_status(-ret);
 
 #if defined(O_DIRECTORY) &&	\
     defined(O_PATH) &&		\
     defined(UTIME_NOW)
-	(void)stress_temp_dir_args(args, path, sizeof(path));
+	(void)stress_fs_temp_dir_args(args, path, sizeof(path));
 	dir_fd = open(path, O_DIRECTORY | O_PATH);
 #else
 	UNEXPECTED
@@ -104,7 +104,7 @@ static int OPTIMIZE3 stress_utime(stress_args_t *args)
 		ret = stress_exit_status(errno);
 		pr_err("%s: open failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
-		(void)stress_temp_dir_rm_args(args);
+		(void)stress_fs_temp_dir_rm_args(args);
 		if (dir_fd >= 0) /* cppcheck-suppress knownConditionTrueFalse */
 			(void)close(dir_fd);
 		return ret;
@@ -541,7 +541,7 @@ STRESS_PRAGMA_POP
 #endif
 	(void)close(fd);
 	(void)shim_unlink(filename);
-	(void)stress_temp_dir_rm_args(args);
+	(void)stress_fs_temp_dir_rm_args(args);
 
 	return rc;
 }

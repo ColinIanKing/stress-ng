@@ -192,7 +192,7 @@ static int stress_fsize(stress_args_t *args)
 	if (stress_signal_handler(args->name, SIGXFSZ, stress_fsize_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 
-	ret = stress_temp_dir_mk_args(args);
+	ret = stress_fs_temp_dir_mk_args(args);
 	if (ret < 0)
 		return stress_exit_status(-ret);
 
@@ -202,7 +202,7 @@ static int stress_fsize(stress_args_t *args)
 		ret = stress_exit_status(errno);
 		pr_fail("%s: open %s failed, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
-		(void)stress_temp_dir_rm_args(args);
+		(void)stress_fs_temp_dir_rm_args(args);
 		return ret;
 	}
 	(void)shim_unlink(filename);
@@ -326,7 +326,7 @@ err:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	if (fd != -1)
 		(void)close(fd);
-	(void)stress_temp_dir_rm_args(args);
+	(void)stress_fs_temp_dir_rm_args(args);
 
 	return rc;
 }

@@ -276,7 +276,7 @@ static int stress_file_ioctl(stress_args_t *args)
 	size_t i;
 	uintmax_t blocks;
 
-	ret = stress_temp_dir_mk_args(args);
+	ret = stress_fs_temp_dir_mk_args(args);
 	if (ret < 0)
 		return stress_exit_status(-ret);
 
@@ -285,7 +285,7 @@ static int stress_file_ioctl(stress_args_t *args)
 	if (fd < 0) {
 		ret = stress_exit_status(errno);
 		pr_err("%s: cannot create %s\n", args->name, filename);
-		(void)stress_temp_dir_rm_args(args);
+		(void)stress_fs_temp_dir_rm_args(args);
 		return ret;
 	}
 
@@ -307,7 +307,7 @@ static int stress_file_ioctl(stress_args_t *args)
 	if (dfd < 0) {
 		ret = stress_exit_status(errno);
 		(void)close(fd);
-		(void)stress_temp_dir_rm_args(args);
+		(void)stress_fs_temp_dir_rm_args(args);
 		pr_err("%s: cannot create %s\n", args->name, filename);
 		return ret;
 	}
@@ -745,7 +745,7 @@ tidy:
 	(void)close(dfd);
 #endif
 	(void)close(fd);
-	(void)stress_temp_dir_rm_args(args);
+	(void)stress_fs_temp_dir_rm_args(args);
 
 	return rc;
 }

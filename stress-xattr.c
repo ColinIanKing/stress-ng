@@ -83,7 +83,7 @@ static int stress_xattr(stress_args_t *args)
 	}
 #endif
 
-	ret = stress_temp_dir_mk_args(args);
+	ret = stress_fs_temp_dir_mk_args(args);
 	if (ret < 0) {
 		rc = stress_exit_status(-ret);
 		goto out_free;
@@ -99,7 +99,7 @@ static int stress_xattr(stress_args_t *args)
 	}
 	fs_type = stress_fs_type_get(filename);
 #if defined(O_TMPFILE)
-	(void)stress_temp_dir_args(args, dirname, sizeof(dirname));
+	(void)stress_fs_temp_dir_args(args, dirname, sizeof(dirname));
 #endif
 	(void)snprintf(bad_filename, sizeof(bad_filename), "%s_bad", filename);
 
@@ -613,7 +613,7 @@ out:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	free(hugevalue);
 	(void)shim_unlink(filename);
-	(void)stress_temp_dir_rm_args(args);
+	(void)stress_fs_temp_dir_rm_args(args);
 out_free:
 #if defined(XATTR_SIZE_MAX)
 	free(large_tmp);

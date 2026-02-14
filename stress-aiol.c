@@ -479,7 +479,7 @@ static int stress_aiol(stress_args_t *args)
 			goto free_memory;
 		}
 	}
-	ret = stress_temp_dir_mk_args(args);
+	ret = stress_fs_temp_dir_mk_args(args);
 	if (ret < 0) {
 		rc = stress_exit_status(-ret);
 		goto free_memory;
@@ -837,7 +837,7 @@ retry_open:
 finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)shim_io_destroy(info.ctx_id);
-	(void)stress_temp_dir_rm_args(args);
+	(void)stress_fs_temp_dir_rm_args(args);
 
 free_memory:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);

@@ -732,7 +732,7 @@ static int stress_filename(stress_args_t *args)
 
 	(void)stress_get_setting("filename-opts", &filename_opt);
 
-	stress_temp_dir_args(args, pathname, sizeof(pathname));
+	stress_fs_temp_dir_args(args, pathname, sizeof(pathname));
 	if (mkdir(pathname, S_IRWXU) < 0) {
 		if (errno != EEXIST) {
 			pr_fail("%s: mkdir %s failed, errno=%d (%s)\n",

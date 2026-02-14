@@ -65,7 +65,7 @@ static int stress_sigxfsz(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
-	ret = stress_temp_dir_mk_args(args);
+	ret = stress_fs_temp_dir_mk_args(args);
 	if (ret < 0)
 		return stress_exit_status((int)-ret);
 
@@ -128,7 +128,7 @@ static int stress_sigxfsz(stress_args_t *args)
 
 	(void)close(fd);
 tidy_dir:
-	(void)stress_temp_dir_rm_args(args);
+	(void)stress_fs_temp_dir_rm_args(args);
 
 	return rc;
 }

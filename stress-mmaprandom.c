@@ -2170,7 +2170,7 @@ static int stress_mmaprandom(stress_args_t *args)
 	}
 	stress_set_vma_anon_name(ctxt->count, count_size, "counters");
 
-	ret = stress_temp_dir_mk_args(args);
+	ret = stress_fs_temp_dir_mk_args(args);
 	if (ret < 0) {
 		rc = stress_exit_status((int)-ret);
 		goto tidy_dir;
@@ -2255,7 +2255,7 @@ tidy_fds:
 	}
 	(void)stress_munmap_anon_shared((void *)ctxt->count, count_size);
 tidy_dir:
-	(void)stress_temp_dir_rm_args(args);
+	(void)stress_fs_temp_dir_rm_args(args);
 unmap_ctxt_page:
 	(void)stress_munmap_anon_shared((void *)ctxt->page, args->page_size);
 unmap_ctxt:

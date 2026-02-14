@@ -330,7 +330,7 @@ static int stress_zombie(stress_args_t *args)
 
 #if defined(HAVE_LINUX_CLONE)
 	context.args = args;
-	(void)stress_temp_dir(context.path, sizeof(context.path), args->name, getpid(), args->instance);
+	(void)stress_fs_temp_dir(context.path, sizeof(context.path), args->name, getpid(), args->instance);
         ret = mkdir(context.path, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
         if (ret < 0) {
                 (void)shim_rmdir(context.path);

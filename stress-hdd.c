@@ -764,7 +764,7 @@ static int stress_hdd(stress_args_t *args)
 			args->name, hdd_bytes);
 	}
 
-	ret = stress_temp_dir_mk_args(args);
+	ret = stress_fs_temp_dir_mk_args(args);
 	if (ret < 0)
 		return stress_exit_status((int)-ret);
 
@@ -782,7 +782,7 @@ static int stress_hdd(stress_args_t *args)
 		pr_err("%s: cannot allocate %zu byte buffer%s\n",
 			args->name, (size_t)hdd_write_size,
 			stress_get_memfree_str());
-		(void)stress_temp_dir_rm_args(args);
+		(void)stress_fs_temp_dir_rm_args(args);
 		return rc;
 	}
 	buf = (uint8_t *)alloc_buf;
@@ -793,7 +793,7 @@ static int stress_hdd(stress_args_t *args)
 		pr_err("%s: cannot allocate %zu byte buffer%s\n",
 			args->name, (size_t)hdd_write_size + BUF_ALIGNMENT,
 			stress_get_memfree_str());
-		(void)stress_temp_dir_rm_args(args);
+		(void)stress_fs_temp_dir_rm_args(args);
 		return rc;
 	}
 	buf = (uint8_t *)stress_align_address(alloc_buf, BUF_ALIGNMENT);
@@ -1135,7 +1135,7 @@ finish:
 		(double)max_extents, STRESS_METRIC_GEOMETRIC_MEAN);
 
 	free(alloc_buf);
-	(void)stress_temp_dir_rm_args(args);
+	(void)stress_fs_temp_dir_rm_args(args);
 	return rc;
 }
 

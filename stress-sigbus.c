@@ -104,7 +104,7 @@ static int stress_sigbus(stress_args_t *args)
 	NOCLOBBER double time_start;
 	struct sigaction action;
 
-	ret = stress_temp_dir_mk_args(args);
+	ret = stress_fs_temp_dir_mk_args(args);
 	if (ret < 0)
 		return stress_exit_status(-ret);
 	(void)stress_fs_temp_filename_args(args, filename, sizeof(filename), stress_mwc32());
@@ -289,7 +289,7 @@ tidy_close:
 	(void)close(fd);
 tidy_dir:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
-	(void)stress_temp_dir_rm_args(args);
+	(void)stress_fs_temp_dir_rm_args(args);
 	return rc;
 }
 

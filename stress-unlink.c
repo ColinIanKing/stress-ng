@@ -216,8 +216,8 @@ static int stress_unlink(stress_args_t *args)
 	stress_set_vma_anon_name(metrics, metrics_sz, "metrics");
 	stress_zero_metrics(metrics, UNLINK_PROCS);
 
-	stress_temp_dir_args(args, pathname, sizeof(pathname));
-	ret = stress_temp_dir_mk_args(args);
+	stress_fs_temp_dir_args(args, pathname, sizeof(pathname));
+	ret = stress_fs_temp_dir_mk_args(args);
 	if (ret < 0) {
 		rc =  stress_exit_status(-ret);
 		goto metrics_free;
@@ -294,7 +294,7 @@ filenames_free:
 metrics_free:
 	(void)munmap((void *)metrics, metrics_sz);
 
-	(void)stress_temp_dir_rm_args(args);
+	(void)stress_fs_temp_dir_rm_args(args);
 
 	return rc;
 

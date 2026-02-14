@@ -224,7 +224,7 @@ static int stress_dup(stress_args_t *args)
 		MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (info != MAP_FAILED) {
 		stress_set_vma_anon_name(info, sizeof(*info), "dup-race-context");
-		if (stress_temp_dir_mk(args->name, args->pid, args->instance) < 0) {
+		if (stress_fs_temp_dir_mk(args->name, args->pid, args->instance) < 0) {
 			rc = EXIT_NO_RESOURCE;
 			goto tidy_mmap;
 		}
@@ -410,7 +410,7 @@ tidy_fds:
 	if (info != MAP_FAILED) {
 		if (info->fifoname[0])
 			(void)shim_unlink(info->fifoname);
-		(void)stress_temp_dir_rm_args(args);
+		(void)stress_fs_temp_dir_rm_args(args);
 	}
 
 tidy_mmap:

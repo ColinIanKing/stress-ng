@@ -125,7 +125,7 @@ static int stress_loop(stress_args_t *args)
 			loop_bytes = MIN_LOOP_BYTES;
 	}
 
-	ret = stress_temp_dir_mk_args(args);
+	ret = stress_fs_temp_dir_mk_args(args);
 	if (ret < 0)
 		return stress_exit_status(-ret);
 
@@ -450,7 +450,7 @@ next:
 	(void)close(backing_fd);
 tidy:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
-	(void)stress_temp_dir_rm_args(args);
+	(void)stress_fs_temp_dir_rm_args(args);
 
 	return rc;
 }

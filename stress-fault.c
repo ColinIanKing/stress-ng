@@ -70,7 +70,7 @@ static int stress_fault(stress_args_t *args)
 	NOCLOBBER double duration = 0.0, count = 0.0;
 	NOCLOBBER int rc = EXIT_SUCCESS;
 
-	ret = stress_temp_dir_mk_args(args);
+	ret = stress_fs_temp_dir_mk_args(args);
 	if (ret < 0)
 		return stress_exit_status(-ret);
 
@@ -268,7 +268,7 @@ next:
 	if (mapto != MAP_FAILED)
 		(void)munmap(mapto, page_size);
 	(void)shim_unlink(filename);
-	(void)stress_temp_dir_rm_args(args);
+	(void)stress_fs_temp_dir_rm_args(args);
 
 #if defined(HAVE_GETRUSAGE) &&		\
     defined(RUSAGE_SELF) &&		\

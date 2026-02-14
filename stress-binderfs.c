@@ -61,7 +61,7 @@ static int stress_binderfs_supported(const char *name)
 	if (!tmppath)
 		return 0;	/* defer */
 
-	if (stress_temp_dir(path, sizeof(path), "binderfs", getpid(), 0) < 0)
+	if (stress_fs_temp_dir(path, sizeof(path), "binderfs", getpid(), 0) < 0)
 		return 0;	/* defer */
 	if (mkdir(path, S_IRWXU) < 0)
 		return 0;	/* defer */
@@ -181,8 +181,8 @@ static int stress_binderfs(stress_args_t *args)
 	double rate;
 	static const char skip[] = "skipping stressor";
 
-	stress_temp_dir(pathname, sizeof(pathname), args->name, args->pid, args->instance);
-	ret = stress_temp_dir_mk_args(args);
+	stress_fs_temp_dir(pathname, sizeof(pathname), args->name, args->pid, args->instance);
+	ret = stress_fs_temp_dir_mk_args(args);
 	if (ret < 0)
 		return stress_exit_status(-ret);
 
@@ -318,7 +318,7 @@ close_control:
 clean:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	(void)stress_temp_dir_rm_args(args);
+	(void)stress_fs_temp_dir_rm_args(args);
 
 	rate = (mount_count > 0.0) ? (double)mount_duration / mount_count : 0.0;
 	stress_metrics_set(args, 0, "microsecs per mount",

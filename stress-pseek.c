@@ -456,7 +456,7 @@ static int stress_pseek(stress_args_t *args)
 		(void)shim_memset(procs[i].buf, stress_mwc8(), (size_t)info.pseek_io_size);
 	}
 
-	ret = stress_temp_dir_mk_args(args);
+	ret = stress_fs_temp_dir_mk_args(args);
 	if (ret < 0) {
 		rc = EXIT_NO_RESOURCE;
 		goto tidy_munmap_bufs;
@@ -530,7 +530,7 @@ static int stress_pseek(stress_args_t *args)
 	(void)close(info.fd);
 tidy_unlink:
 	(void)shim_unlink(filename);
-	(void)stress_temp_dir_rm_args(args);
+	(void)stress_fs_temp_dir_rm_args(args);
 tidy_munmap_bufs:
 	for (i = 0; i < pseek_procs; i++)
 		(void)munmap((void *)procs[i].buf, (size_t)info.pseek_io_size);

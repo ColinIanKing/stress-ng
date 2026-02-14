@@ -352,8 +352,8 @@ static int stress_metamix(stress_args_t *args)
 	if (stress_instance_zero(args))
 		stress_fs_usage_bytes(args, metamix_bytes, metamix_bytes_total);
 
-	stress_temp_dir_args(args, temp_dir, sizeof(temp_dir));
-	ret = stress_temp_dir_mk_args(args);
+	stress_fs_temp_dir_args(args, temp_dir, sizeof(temp_dir));
+	ret = stress_fs_temp_dir_mk_args(args);
 	if (ret < 0) {
 		ret = stress_exit_status(-ret);
 		goto lock_destroy;
@@ -406,7 +406,7 @@ reap:
 		ret = EXIT_FAILURE;
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
-	(void)stress_temp_dir_rm_args(args);
+	(void)stress_fs_temp_dir_rm_args(args);
 lock_destroy:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)stress_lock_destroy(counter_lock);

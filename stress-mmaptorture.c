@@ -290,7 +290,7 @@ static void stress_mmaptorture_init(const uint32_t instances)
 		mmap_bytes_adjusted = true;
 	}
 
-	if (stress_temp_dir_mk(name, pid, 0) < 0) {
+	if (stress_fs_temp_dir_mk(name, pid, 0) < 0) {
 		mmap_fd = -1;
 		return;
 	}
@@ -298,7 +298,7 @@ static void stress_mmaptorture_init(const uint32_t instances)
 	mmap_fd = open(path, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR | S_IXUSR);
 	if (mmap_fd < 0) {
 		mmap_fd = -1;
-		(void)stress_temp_dir_rm(path, pid, 0);
+		(void)stress_fs_temp_dir_rm(path, pid, 0);
 		return;
 	}
 	(void)unlink(path);
@@ -313,7 +313,7 @@ static void stress_mmaptorture_deinit(void)
 		return;
 	if (mmap_data != MAP_FAILED)
 		(void)munmap((void *)mmap_data, mmap_bytes);
-	(void)stress_temp_dir_rm(name, getpid(), 0);
+	(void)stress_fs_temp_dir_rm(name, getpid(), 0);
 }
 
 static void NORETURN MLOCKED_TEXT stress_mmaptorture_sighandler(int signum)

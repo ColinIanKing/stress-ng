@@ -102,11 +102,11 @@ static int stress_link_generic(
 		"/tmp/stress-ng-%s-%d-%" PRIu64 "-link",
 		args->name, (int)getpid(), stress_mwc64());
 
-	ret = stress_temp_dir_mk_args(args);
+	ret = stress_fs_temp_dir_mk_args(args);
 	if (ret < 0)
 		return stress_exit_status(-ret);
 
-	stress_temp_dir(dir_path, sizeof(dir_path), args->name, args->pid, args->instance);
+	stress_fs_temp_dir(dir_path, sizeof(dir_path), args->name, args->pid, args->instance);
 #if defined(O_DIRECTORY)
 	if (do_sync)
 		temp_dir_fd = open(dir_path, O_RDONLY | O_DIRECTORY);
@@ -126,7 +126,7 @@ static int stress_link_generic(
 			args->name, oldpath, errno, strerror(errno));
 		if (temp_dir_fd >= 0)
 			(void)close(temp_dir_fd);
-		(void)stress_temp_dir_rm_args(args);
+		(void)stress_fs_temp_dir_rm_args(args);
 		return EXIT_FAILURE;
 	}
 	(void)close(fd);
@@ -316,7 +316,7 @@ err_unlink:
 		(void)close(temp_dir_fd);
 #endif
 	(void)shim_unlink(oldpath);
-	(void)stress_temp_dir_rm_args(args);
+	(void)stress_fs_temp_dir_rm_args(args);
 
 	stress_mount_free(mnts, mounts_max);
 

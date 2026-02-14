@@ -454,7 +454,7 @@ static int stress_dir(stress_args_t *args)
 	const int bad_fd = stress_fs_bad_fd_get();
 	pid_t pid;
 
-	stress_temp_dir(pathname, sizeof(pathname), args->name,
+	stress_fs_temp_dir(pathname, sizeof(pathname), args->name,
 		args->pid, args->instance);
 	if (!stress_get_setting("dir-dirs", &dir_dirs)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -464,7 +464,7 @@ static int stress_dir(stress_args_t *args)
 	}
 
 
-	ret = stress_temp_dir_mk_args(args);
+	ret = stress_fs_temp_dir_mk_args(args);
 	if (ret < 0)
 		return stress_exit_status(-ret);
 
@@ -555,7 +555,7 @@ static int stress_dir(stress_args_t *args)
 
 	if (pid >= 0)
 		(void)stress_kill_pid_wait(pid, NULL);
-	(void)stress_temp_dir_rm_args(args);
+	(void)stress_fs_temp_dir_rm_args(args);
 
 	return ret;
 }

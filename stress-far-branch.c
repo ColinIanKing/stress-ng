@@ -381,7 +381,7 @@ static int OPTIMIZE3 stress_far_branch(stress_args_t *args)
 	NOCLOBBER bool far_branch_pageout = false;
 	char filename[PATH_MAX];
 
-	ret = stress_temp_dir_mk_args(args);
+	ret = stress_fs_temp_dir_mk_args(args);
 	if (ret < 0)
 		return stress_exit_status(-ret);
 	(void)stress_fs_temp_filename_args(args,
@@ -389,7 +389,7 @@ static int OPTIMIZE3 stress_far_branch(stress_args_t *args)
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		pr_fail("%s: open %s failed, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
-		(void)stress_temp_dir_rm_args(args);
+		(void)stress_fs_temp_dir_rm_args(args);
 		return EXIT_NO_RESOURCE;
 	}
 	(void)shim_unlink(filename);
@@ -643,7 +643,7 @@ cleanup:
 	free(funcs);
 	(void)close(fd);
 
-	(void)stress_temp_dir_rm_args(args);
+	(void)stress_fs_temp_dir_rm_args(args);
 
 	if (!check_flag && (calls > (double)total_funcs)) {
 		pr_fail("%s: failed to execute check function\n", args->name);

@@ -1614,7 +1614,7 @@ static int stress_filerace(stress_args_t *args)
 	uid = getuid();
 	gid = getgid();
 
-	stress_temp_dir_args(args, pathname, sizeof(pathname));
+	stress_fs_temp_dir_args(args, pathname, sizeof(pathname));
 	if (mkdir(pathname, S_IRWXU) < 0) {
 		if (errno != EEXIST) {
 			pr_fail("%s: mkdir %s failed, errno=%d (%s)\n",

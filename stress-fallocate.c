@@ -126,7 +126,7 @@ static int stress_fallocate(stress_args_t *args)
 	}
 	if (stress_instance_zero(args))
 		stress_fs_usage_bytes(args, fallocate_bytes, fallocate_bytes_total);
-	ret = stress_temp_dir_mk_args(args);
+	ret = stress_fs_temp_dir_mk_args(args);
 	if (ret < 0) {
 		free(mode_perms);
 		return stress_exit_status(-ret);
@@ -138,7 +138,7 @@ static int stress_fallocate(stress_args_t *args)
 		ret = stress_exit_status(errno);
 		pr_fail("%s: open %s failed, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
-		(void)stress_temp_dir_rm_args(args);
+		(void)stress_fs_temp_dir_rm_args(args);
 		free(mode_perms);
 		return ret;
 	}
@@ -331,7 +331,7 @@ static int stress_fallocate(stress_args_t *args)
 	if (fd_async != -1)
 		(void)close(fd_async);
 
-	(void)stress_temp_dir_rm_args(args);
+	(void)stress_fs_temp_dir_rm_args(args);
 	free(mode_perms);
 
 	return rc;

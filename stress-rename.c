@@ -228,10 +228,10 @@ static int stress_rename(stress_args_t *args)
 	(void)shim_memset(name1, 0, sizeof(name1));
 	(void)shim_memset(name2, 0, sizeof(name2));
 
-	if (stress_temp_dir_mk(args->name, args->pid, inst1) < 0)
+	if (stress_fs_temp_dir_mk(args->name, args->pid, inst1) < 0)
 		return EXIT_FAILURE;
-	if (stress_temp_dir_mk(args->name, args->pid, inst2) < 0) {
-		(void)stress_temp_dir_rm(args->name, args->pid, inst1);
+	if (stress_fs_temp_dir_mk(args->name, args->pid, inst2) < 0) {
+		(void)stress_fs_temp_dir_rm(args->name, args->pid, inst1);
 		return EXIT_FAILURE;
 	}
 
@@ -240,7 +240,7 @@ static int stress_rename(stress_args_t *args)
 	{
 		char tmp[PATH_MAX];
 
-		stress_temp_dir_args(args, tmp, sizeof(tmp));
+		stress_fs_temp_dir_args(args, tmp, sizeof(tmp));
 		tmp_fd = open(tmp, O_RDONLY | O_DIRECTORY);
 	}
 #endif
@@ -258,8 +258,8 @@ restart:
 		pr_err("%s: fopen failed, errno=%d: (%s)%s\n",
 			args->name, errno, strerror(errno),
 			stress_fs_type_get(oldname));
-		(void)stress_temp_dir_rm(args->name, args->pid, inst1);
-		(void)stress_temp_dir_rm(args->name, args->pid, inst2);
+		(void)stress_fs_temp_dir_rm(args->name, args->pid, inst1);
+		(void)stress_fs_temp_dir_rm(args->name, args->pid, inst2);
 #if defined(EXERCISE_RENAMEAT) ||	\
     defined(EXERCISE_RENAMEAT2)
 		if (tmp_fd >= 0)
@@ -378,8 +378,8 @@ restart:
 		(void)shim_unlink(oldname);
 	if (*newname)
 		(void)shim_unlink(newname);
-	(void)stress_temp_dir_rm(args->name, args->pid, inst1);
-	(void)stress_temp_dir_rm(args->name, args->pid, inst2);
+	(void)stress_fs_temp_dir_rm(args->name, args->pid, inst1);
+	(void)stress_fs_temp_dir_rm(args->name, args->pid, inst2);
 
 	return EXIT_SUCCESS;
 }

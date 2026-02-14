@@ -458,7 +458,7 @@ static int stress_module(stress_args_t *args)
 		"test_firmware"
 	};
 
-	ret = stress_temp_dir_mk_args(args);
+	ret = stress_fs_temp_dir_mk_args(args);
         if (ret < 0)
                 return stress_exit_status((int)-ret);
 
@@ -593,7 +593,7 @@ out:
 	if (fd >= 0)
 		(void)close(fd);
 
-	(void)stress_temp_dir_rm_args(args);
+	(void)stress_fs_temp_dir_rm_args(args);
 	return ret;
 }
 

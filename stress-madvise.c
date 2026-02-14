@@ -440,7 +440,7 @@ static int stress_madvise(stress_args_t *args)
 
 	(void)shim_memset(page, 0xa5, page_size);
 
-	ret = stress_temp_dir_mk_args(args);
+	ret = stress_fs_temp_dir_mk_args(args);
 	if (ret < 0) {
 		(void)munmap((void *)page, page_size);
 		return stress_exit_status(-ret);
@@ -454,7 +454,7 @@ static int stress_madvise(stress_args_t *args)
 		pr_fail("%s: open %s failed, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
 		(void)shim_unlink(filename);
-		(void)stress_temp_dir_rm_args(args);
+		(void)stress_fs_temp_dir_rm_args(args);
 		(void)munmap((void *)page, page_size);
 		return ret;
 	}
@@ -616,7 +616,7 @@ madv_free_out:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	(void)close(fd);
-	(void)stress_temp_dir_rm_args(args);
+	(void)stress_fs_temp_dir_rm_args(args);
 	(void)munmap((void *)page, page_size);
 
 #if defined(MADV_FREE)

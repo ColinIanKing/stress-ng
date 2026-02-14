@@ -167,7 +167,7 @@ static void stress_touch_dir_clean(stress_args_t *args)
 	const struct dirent *d;
 
 	shim_sync();
-	stress_temp_dir(tmp, sizeof(tmp), args->name,
+	stress_fs_temp_dir(tmp, sizeof(tmp), args->name,
 		args->pid, args->instance);
 	dir = opendir(tmp);
 
@@ -331,7 +331,7 @@ static int stress_touch(stress_args_t *args)
 	    (open_flags != 0))
 		pr_inf("%s: note: touch-opts are not used for creat touch method\n", args->name);
 
-	ret = stress_temp_dir_mk_args(args);
+	ret = stress_fs_temp_dir_mk_args(args);
 	if (ret < 0) {
 		(void)stress_lock_destroy(touch_lock);
 		(void)stress_sync_s_pids_munmap(s_pids, TOUCH_PROCS);
@@ -369,7 +369,7 @@ static int stress_touch(stress_args_t *args)
 
 	stress_kill_and_wait_many(args, s_pids, TOUCH_PROCS, SIGALRM, true);
 	stress_touch_dir_clean(args);
-	(void)stress_temp_dir_rm_args(args);
+	(void)stress_fs_temp_dir_rm_args(args);
 	(void)stress_lock_destroy(touch_lock);
 	(void)stress_sync_s_pids_munmap(s_pids, TOUCH_PROCS);
 

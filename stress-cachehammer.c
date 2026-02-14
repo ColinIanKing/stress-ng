@@ -105,7 +105,7 @@ static void stress_cachehammer_init(const uint32_t instances)
 	page = (uint8_t *)calloc(page_size, sizeof(*page));
 	if (!page)
 		goto err_nullstr;
-	if (stress_temp_dir(cachehammer_path, sizeof(cachehammer_path),
+	if (stress_fs_temp_dir(cachehammer_path, sizeof(cachehammer_path),
 			    "cachehammer", getpid(), 0) < 0)
 		goto err_free;
 	if (mkdir(cachehammer_path, S_IRWXU) < 0)

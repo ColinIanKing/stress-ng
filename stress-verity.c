@@ -93,7 +93,7 @@ static int stress_verity(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
-	ret = stress_temp_dir_mk_args(args);
+	ret = stress_fs_temp_dir_mk_args(args);
 	if (ret < 0)
 		return stress_exit_status(-ret);
 
@@ -294,7 +294,7 @@ clean:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	(void)shim_unlink(filename);
-	(void)stress_temp_dir_rm_args(args);
+	(void)stress_fs_temp_dir_rm_args(args);
 
 	return ret;
 }

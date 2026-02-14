@@ -121,7 +121,7 @@ static int stress_sync_file(stress_args_t *args)
 	if (stress_instance_zero(args))
 		stress_fs_usage_bytes(args, sync_file_bytes, sync_file_bytes_total);
 
-	ret = stress_temp_dir_mk_args(args);
+	ret = stress_fs_temp_dir_mk_args(args);
 	if (ret < 0)
 		return stress_exit_status(-ret);
 
@@ -137,7 +137,7 @@ static int stress_sync_file(stress_args_t *args)
 		ret = stress_exit_status(errno);
 		pr_fail("%s: open %s failed, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
-		(void)stress_temp_dir_rm_args(args);
+		(void)stress_fs_temp_dir_rm_args(args);
 		return ret;
 	}
 	stress_fs_file_rw_hint_short(fd);
@@ -259,7 +259,7 @@ static int stress_sync_file(stress_args_t *args)
 err:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)close(fd);
-	(void)stress_temp_dir_rm_args(args);
+	(void)stress_fs_temp_dir_rm_args(args);
 
 	return rc;
 }

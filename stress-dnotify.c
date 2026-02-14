@@ -448,8 +448,8 @@ static int stress_dnotify(stress_args_t *args)
 	if (stress_signal_handler(args->name, SIGIO, stress_signal_ignore_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 
-	stress_temp_dir_args(args, pathname, sizeof(pathname));
-	ret = stress_temp_dir_mk_args(args);
+	stress_fs_temp_dir_args(args, pathname, sizeof(pathname));
+	ret = stress_fs_temp_dir_mk_args(args);
 	if (ret < 0)
 		return stress_exit_status(-ret);
 
@@ -470,7 +470,7 @@ static int stress_dnotify(stress_args_t *args)
 
 tidy:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
-	(void)stress_temp_dir_rm_args(args);
+	(void)stress_fs_temp_dir_rm_args(args);
 
 	return rc;
 }

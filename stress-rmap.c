@@ -235,7 +235,7 @@ static int stress_rmap(stress_args_t *args)
 	/* Make sure this is killable by OOM killer */
 	stress_set_oom_adjustment(args, true);
 
-	rc = stress_temp_dir_mk_args(args);
+	rc = stress_fs_temp_dir_mk_args(args);
 	if (rc < 0) {
 		(void)stress_lock_destroy(counter_lock);
 		(void)stress_sync_s_pids_munmap(s_pids, rmap_procs);
@@ -250,7 +250,7 @@ static int stress_rmap(stress_args_t *args)
 		pr_err("%s: open %s failed, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
 		(void)shim_unlink(filename);
-		(void)stress_temp_dir_rm_args(args);
+		(void)stress_fs_temp_dir_rm_args(args);
 		(void)stress_lock_destroy(counter_lock);
 		(void)stress_sync_s_pids_munmap(s_pids, rmap_procs);
 
@@ -262,7 +262,7 @@ static int stress_rmap(stress_args_t *args)
 		pr_err("%s: fallocate failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		(void)close(fd);
-		(void)stress_temp_dir_rm_args(args);
+		(void)stress_fs_temp_dir_rm_args(args);
 		(void)stress_lock_destroy(counter_lock);
 		(void)stress_sync_s_pids_munmap(s_pids, rmap_procs);
 
@@ -353,7 +353,7 @@ cleanup:
 	}
 
 	(void)close(fd);
-	(void)stress_temp_dir_rm_args(args);
+	(void)stress_fs_temp_dir_rm_args(args);
 	(void)stress_lock_destroy(counter_lock);
 	(void)stress_sync_s_pids_munmap(s_pids, rmap_procs);
 

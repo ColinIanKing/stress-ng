@@ -320,7 +320,7 @@ static int stress_close(stress_args_t *args)
 
 #if defined(HAVE_FACCESSAT)
 	{
-		ret = stress_temp_dir_mk_args(args);
+		ret = stress_fs_temp_dir_mk_args(args);
 		if (ret < 0) {
 			rc = stress_exit_status(-ret);
 			goto tidy;
@@ -563,7 +563,7 @@ tidy:
 #if defined(HAVE_FACCESSAT)
 	if (file_fd >= 0)
 		(void)close(file_fd);
-	(void)stress_temp_dir_rm_args(args);
+	(void)stress_fs_temp_dir_rm_args(args);
 #else
 	UNEXPECTED
 #endif

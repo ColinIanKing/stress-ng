@@ -1089,10 +1089,10 @@ static int stress_open(stress_args_t *args)
 	if (sizeof(void *) == 4)
 		open_max = STRESS_MINIMUM(open_max, 65536);
 
-	ret = stress_temp_dir_mk_args(args);
+	ret = stress_fs_temp_dir_mk_args(args);
 	if (ret < 0)
 		return stress_exit_status(-ret);
-	(void)stress_temp_dir_args(args, temp_dir, sizeof(temp_dir));
+	(void)stress_fs_temp_dir_args(args, temp_dir, sizeof(temp_dir));
 
 	if (!stress_get_setting("open-max", &open_max)) {
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
@@ -1236,7 +1236,7 @@ close_all:
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	(void)stress_temp_dir_rm_args(args);
+	(void)stress_fs_temp_dir_rm_args(args);
 	(void)munmap((void *)fds, sz);
 	if (open_perms)
 		free(open_perms);

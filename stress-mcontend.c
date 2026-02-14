@@ -468,7 +468,7 @@ static int stress_mcontend(stress_args_t *args)
 	n_cpus = stress_affinity_cpus_get(&cpus, true);
 #endif
 
-	rc = stress_temp_dir_mk_args(args);
+	rc = stress_fs_temp_dir_mk_args(args);
 	if (rc < 0) {
 #if defined(HAVE_SCHED_SETAFFINITY)
 		stress_affinity_cpus_free(&cpus);
@@ -483,7 +483,7 @@ static int stress_mcontend(stress_args_t *args)
 		pr_inf("%s: open failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		(void)shim_unlink(filename);
-		(void)stress_temp_dir_rm_args(args);
+		(void)stress_fs_temp_dir_rm_args(args);
 #if defined(HAVE_SCHED_SETAFFINITY)
 		stress_affinity_cpus_free(&cpus);
 #endif
@@ -496,7 +496,7 @@ static int stress_mcontend(stress_args_t *args)
 		pr_inf("%s: mmap backing file write failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		(void)close(fd);
-		(void)stress_temp_dir_rm_args(args);
+		(void)stress_fs_temp_dir_rm_args(args);
 #if defined(HAVE_SCHED_SETAFFINITY)
 		stress_affinity_cpus_free(&cpus);
 #endif
@@ -516,7 +516,7 @@ static int stress_mcontend(stress_args_t *args)
 			args->name, page_size, stress_get_memfree_str(),
 			errno, strerror(errno));
 		(void)close(fd);
-		(void)stress_temp_dir_rm_args(args);
+		(void)stress_fs_temp_dir_rm_args(args);
 #if defined(HAVE_SCHED_SETAFFINITY)
 		stress_affinity_cpus_free(&cpus);
 #endif
@@ -530,7 +530,7 @@ static int stress_mcontend(stress_args_t *args)
 			errno, strerror(errno));
 		(void)munmap(data[0], page_size);
 		(void)close(fd);
-		(void)stress_temp_dir_rm_args(args);
+		(void)stress_fs_temp_dir_rm_args(args);
 #if defined(HAVE_SCHED_SETAFFINITY)
 		stress_affinity_cpus_free(&cpus);
 #endif
@@ -593,7 +593,7 @@ static int stress_mcontend(stress_args_t *args)
 	(void)munmap(data[0], page_size);
 	(void)munmap(data[1], page_size);
 
-	(void)stress_temp_dir_rm_args(args);
+	(void)stress_fs_temp_dir_rm_args(args);
 #if defined(HAVE_SCHED_SETAFFINITY)
 	stress_affinity_cpus_free(&cpus);
 #endif

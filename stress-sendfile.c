@@ -66,7 +66,7 @@ static int stress_sendfile(stress_args_t *args)
 	}
 	sz = (size_t)sendfile_size;
 
-	ret = stress_temp_dir_mk_args(args);
+	ret = stress_fs_temp_dir_mk_args(args);
 	if (ret < 0)
 		return stress_exit_status(-ret);
 
@@ -201,7 +201,7 @@ close_in:
 	(void)close(fdin);
 dir_out:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
-	(void)stress_temp_dir_rm_args(args);
+	(void)stress_fs_temp_dir_rm_args(args);
 
 	return rc;
 }

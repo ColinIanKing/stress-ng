@@ -294,13 +294,13 @@ static int stress_rlimit(stress_args_t *args)
 
 	(void)stress_fs_temp_filename_args(args,
 		filename, sizeof(filename), stress_mwc32());
-	ret = stress_temp_dir_mk_args(args);
+	ret = stress_fs_temp_dir_mk_args(args);
 	if (ret < 0)
 		return stress_exit_status(-ret);
 	if ((context.fd = creat(filename, S_IRUSR | S_IWUSR)) < 0) {
 		pr_fail("%s: creat %s failed, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
-		(void)stress_temp_dir_rm_args(args);
+		(void)stress_fs_temp_dir_rm_args(args);
 		return EXIT_FAILURE;
 	}
 	(void)shim_unlink(filename);
@@ -316,7 +316,7 @@ static int stress_rlimit(stress_args_t *args)
 	(void)stress_signal_restore(args->name, SIGXFSZ, &old_action_xfsz);
 	(void)stress_signal_restore(args->name, SIGSEGV, &old_action_segv);
 	(void)close(context.fd);
-	(void)stress_temp_dir_rm_args(args);
+	(void)stress_fs_temp_dir_rm_args(args);
 
 	return ret;
 }

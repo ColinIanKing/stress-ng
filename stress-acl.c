@@ -447,7 +447,7 @@ static int stress_acl(stress_args_t *args)
 	if (rc != EXIT_SUCCESS)
 		goto tidy_unmap_acls_tested;
 
-	stress_temp_dir_args(args, pathname, sizeof(pathname));
+	stress_fs_temp_dir_args(args, pathname, sizeof(pathname));
 	if (mkdir(pathname, S_IRUSR | S_IRWXU) < 0) {
 		if (errno != EEXIST) {
 			rc = stress_exit_status(errno);

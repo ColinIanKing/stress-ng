@@ -279,7 +279,7 @@ static int stress_access(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
-	ret = stress_temp_dir_mk_args(args);
+	ret = stress_fs_temp_dir_mk_args(args);
 	if (ret < 0) {
 		(void)stress_sync_s_pids_munmap(s_pids, STRESS_ACCESS_PROCS);
 		return stress_exit_status(-ret);
@@ -521,7 +521,7 @@ tidy:
 	}
 	(void)shim_unlink(filename2);
 	(void)shim_unlink(filename1);
-	(void)stress_temp_dir_rm_args(args);
+	(void)stress_fs_temp_dir_rm_args(args);
 	(void)stress_sync_s_pids_munmap(s_pids, STRESS_ACCESS_PROCS);
 
 	return rc;
