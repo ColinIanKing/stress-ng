@@ -147,7 +147,7 @@ static int stress_l1cache_info_ok(
 	 *  User didn't provide cache info, try and figure it
 	 *  out
 	 */
-	cpu_caches = stress_cpu_cache_get_all_details();
+	cpu_caches = stress_cpu_cache_details_get();
 	if (!cpu_caches)
 		goto bad_cache;
 

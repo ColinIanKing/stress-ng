@@ -937,7 +937,7 @@ static inline uint64_t get_stream_L3_size(stress_args_t *args)
 	if (UNLIKELY(numa_nodes < 1))
 		numa_nodes = 1;
 
-	cpu_caches = stress_cpu_cache_get_all_details();
+	cpu_caches = stress_cpu_cache_details_get();
 	if (!cpu_caches) {
 		if (!args->instance)
 			pr_inf("%s: using built-in defaults as unable to "

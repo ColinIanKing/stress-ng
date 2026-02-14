@@ -1249,12 +1249,12 @@ static int cpu_sort(const struct dirent **d1, const struct dirent **d2)
 }
 
 /*
- * stress_cpu_cache_get_all_details()
+ * stress_cpu_cache_details_get()
  * Obtain information on all cpus caches on the system.
  *
  * Returns: dynamically-allocated stress_cpu_cache_cpus_t object, or NULL on error.
  */
-stress_cpu_cache_cpus_t *stress_cpu_cache_get_all_details(void)
+stress_cpu_cache_cpus_t *stress_cpu_cache_details_get(void)
 {
 	int i, cpu_count;
 	stress_cpu_cache_cpus_t *cpus = NULL;
@@ -1314,12 +1314,12 @@ out:
 }
 #elif defined(__APPLE__)
 /*
- * stress_cpu_cache_get_all_details()
+ * stress_cpu_cache_details_get()
  * Obtain information on all cpus caches on the system.
  *
  * Returns: dynamically-allocated stress_cpu_cache_cpus_t object, or NULL on error.
  */
-stress_cpu_cache_cpus_t *stress_cpu_cache_get_all_details(void)
+stress_cpu_cache_cpus_t *stress_cpu_cache_details_get(void)
 {
 	int32_t i, cpu_count;
 	stress_cpu_cache_cpus_t *cpus = NULL;
@@ -1350,7 +1350,7 @@ out:
 	return cpus;
 }
 #elif defined(STRESS_ARCH_X86)
-stress_cpu_cache_cpus_t *stress_cpu_cache_get_all_details(void)
+stress_cpu_cache_cpus_t *stress_cpu_cache_details_get(void)
 {
 	uint32_t eax, ebx, ecx, edx;
 	int32_t i, cpu_count;
@@ -1386,7 +1386,7 @@ stress_cpu_cache_cpus_t *stress_cpu_cache_get_all_details(void)
 	return cpus;
 }
 #else
-stress_cpu_cache_cpus_t *stress_cpu_cache_get_all_details(void)
+stress_cpu_cache_cpus_t *stress_cpu_cache_details_get(void)
 {
 	return NULL;
 }
@@ -1436,7 +1436,7 @@ void stress_cpu_cache_llc_size_get(size_t *llc_size, size_t *cache_line_size)
 	*llc_size = 0;
 	*cache_line_size = 0;
 
-	cpu_caches = stress_cpu_cache_get_all_details();
+	cpu_caches = stress_cpu_cache_details_get();
 	if (UNLIKELY(!cpu_caches))
 		return;
 
@@ -1477,7 +1477,7 @@ void stress_cpu_cache_level_size_get(
 	*cache_size = 0;
 	*cache_line_size = 0;
 
-	cpu_caches = stress_cpu_cache_get_all_details();
+	cpu_caches = stress_cpu_cache_details_get();
 	if (UNLIKELY(!cpu_caches))
 		return;
 

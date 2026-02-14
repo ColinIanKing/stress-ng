@@ -3758,7 +3758,7 @@ static void stress_vm_get_cache_line_size(void)
 
 	stress_vm_cache_line_size = 64;	/* Default guess */
 
-	cpu_caches = stress_cpu_cache_get_all_details();
+	cpu_caches = stress_cpu_cache_details_get();
 	if (!cpu_caches)
 		return;
 	cache = stress_cpu_cache_get(cpu_caches, 1, CACHE_TYPE_DATA);

@@ -41,7 +41,7 @@ int stress_cache_alloc(const char *name)
 	if (UNLIKELY(numa_nodes < 1))
 		numa_nodes = 1;
 
-	cpu_caches = stress_cpu_cache_get_all_details();
+	cpu_caches = stress_cpu_cache_details_get();
 
 	if (g_shared->mem_cache.size > 0)
 		goto init_done;

@@ -72,7 +72,7 @@ static uint64_t get_L1_line_size(stress_args_t *args)
 	stress_cpu_cache_cpus_t *cpu_caches;
 	const stress_cpu_cache_t *cache = NULL;
 
-	cpu_caches = stress_cpu_cache_get_all_details();
+	cpu_caches = stress_cpu_cache_details_get();
 	if (!cpu_caches) {
 		if (!args->instance)
 			pr_inf("%s: using built-in defaults as unable to "
