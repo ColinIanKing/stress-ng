@@ -71,7 +71,7 @@ static size_t stress_munmap_stride(const size_t n)
 	register size_t p;
 
 	for (p = n + 1; ; p++) {
-		if (((p % n) != 0) && stress_is_prime64((uint64_t)p))
+		if (((p % n) != 0) && stress_prime64_check((uint64_t)p))
 			return p;
 	}
 }

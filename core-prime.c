@@ -24,11 +24,11 @@
 #include <math.h>
 
 /*
- *  stress_is_prime64()
+ *  stress_prime64_check()
  *      return true if 64 bit value n is prime
  *      http://en.wikipedia.org/wiki/Primality_test
  */
-bool CONST stress_is_prime64(const uint64_t n)
+bool CONST stress_prime64_check(const uint64_t n)
 {
 	register uint64_t i, max;
 	double max_d;
@@ -66,7 +66,7 @@ uint64_t stress_prime64_next_get(const uint64_t n)
 	for (i = 0; LIKELY(stress_continue_flag() && (i < 2000)); i++) {
 		p += 2;
 
-		if ((n % p) && stress_is_prime64(p))
+		if ((n % p) && stress_prime64_check(p))
 			return p;
 	}
 	/* Give up */
@@ -93,7 +93,7 @@ uint64_t stress_prime64_get(const uint64_t n)
 	for (i = 0; LIKELY(stress_continue_flag() && (i < 2000)); i++) {
 		p += 2;
 
-		if ((n % p) && stress_is_prime64(p))
+		if ((n % p) && stress_prime64_check(p))
 			return p;
 	}
 	/* Give up */

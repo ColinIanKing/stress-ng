@@ -71,7 +71,7 @@ static int hcreate_nonlibc(size_t nel)
 	if (nel < 3)
 		nel = 3;
 	for (nel |= 1; ; nel += 2) {
-		if (stress_is_prime64((uint64_t)nel))
+		if (stress_prime64_check((uint64_t)nel))
 			break;
 	}
 	htable = (hash_table_t *)calloc(nel, sizeof(*htable));
