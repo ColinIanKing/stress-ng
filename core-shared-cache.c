@@ -53,7 +53,7 @@ int stress_cache_alloc(const char *name)
 		goto init_done;
 	}
 
-	max_cache_level = stress_cpu_cache_get_max_level(cpu_caches);
+	max_cache_level = stress_cpu_cache_max_level_get(cpu_caches);
 	if (max_cache_level == 0) {
 		if (stress_warn_once())
 			pr_dbg("%s: using defaults, cannot determine cache level details\n", name);

@@ -62,7 +62,7 @@ typedef struct stress_cpus {
 
 /* CPU cache helpers */
 extern stress_cpu_cache_cpus_t *stress_cpu_cache_get_all_details(void);
-extern uint16_t stress_cpu_cache_get_max_level(const stress_cpu_cache_cpus_t *cpus);
+extern uint16_t stress_cpu_cache_max_level_get(const stress_cpu_cache_cpus_t *cpus);
 extern stress_cpu_cache_t *stress_cpu_cache_get(const stress_cpu_cache_cpus_t *cpus,
 	const uint16_t cache_level, const stress_cpu_cache_type_t cache_type);
 extern void stress_cpu_cache_free(stress_cpu_cache_cpus_t *cpus);

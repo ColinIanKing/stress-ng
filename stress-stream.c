@@ -944,7 +944,7 @@ static inline uint64_t get_stream_L3_size(stress_args_t *args)
 				"determine cache details\n", args->name);
 		goto report_size;
 	}
-	max_cache_level = stress_cpu_cache_get_max_level(cpu_caches);
+	max_cache_level = stress_cpu_cache_max_level_get(cpu_caches);
 
 	cache = stress_cpu_cache_get(cpu_caches, max_cache_level, CACHE_TYPE_DATA);
 	if (!cache) {

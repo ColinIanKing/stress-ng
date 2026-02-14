@@ -151,7 +151,7 @@ static int stress_l1cache_info_ok(
 	if (!cpu_caches)
 		goto bad_cache;
 
-	if (stress_cpu_cache_get_max_level(cpu_caches) < 1)
+	if (stress_cpu_cache_max_level_get(cpu_caches) < 1)
 		goto bad_cache_free;
 
 	cache = stress_cpu_cache_get(cpu_caches, 1, CACHE_TYPE_DATA);

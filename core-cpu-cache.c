@@ -122,13 +122,13 @@ static stress_cpu_cache_t * stress_cpu_cache_get_by_cpu(
 }
 
 /*
- * stress_cpu_cache_get_max_level()
+ * stress_cpu_cache_max_level_get()
  * @cpus: array of cpus to query.
  * Determine the maximum cache level available on the system.
  *
  * Returns: 1-index value denoting highest cache level, or 0 on error.
  */
-uint16_t stress_cpu_cache_get_max_level(const stress_cpu_cache_cpus_t *cpus)
+uint16_t stress_cpu_cache_max_level_get(const stress_cpu_cache_cpus_t *cpus)
 {
 	stress_cpu_cache_cpu_t    *cpu;
 	uint32_t  i;
@@ -1440,7 +1440,7 @@ void stress_cpu_cache_llc_size_get(size_t *llc_size, size_t *cache_line_size)
 	if (UNLIKELY(!cpu_caches))
 		return;
 
-	max_cache_level = stress_cpu_cache_get_max_level(cpu_caches);
+	max_cache_level = stress_cpu_cache_max_level_get(cpu_caches);
 	if (UNLIKELY(max_cache_level < 1))
 		goto free_cpu_caches;
 	cache = stress_cpu_cache_get(cpu_caches, max_cache_level, CACHE_TYPE_DATA);

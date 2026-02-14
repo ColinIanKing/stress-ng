@@ -139,7 +139,7 @@ static inline uint64_t get_prefetch_L3_size(stress_args_t *args)
 				"determine cache details\n", args->name);
 		return cache_size;
 	}
-	max_cache_level = stress_cpu_cache_get_max_level(cpu_caches);
+	max_cache_level = stress_cpu_cache_max_level_get(cpu_caches);
 	if ((max_cache_level > 0) && (max_cache_level < 3) && (!args->instance))
 		pr_inf("%s: no L3 cache, using L%" PRIu16 " size instead\n",
 			args->name, max_cache_level);
