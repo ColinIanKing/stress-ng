@@ -997,7 +997,7 @@ static size_t TARGET_CLONES stress_vm_prime_incdec(
 	static uint8_t val = 0;
 	register uint8_t *ptr = (uint8_t *)buf;
 	size_t bit_errors = 0, i;
-	const uint64_t prime = stress_get_prime64(sz + 4096);
+	const uint64_t prime = stress_prime64_get(sz + 4096);
 	register uint64_t j, c;
 
 #if SIZE_MAX > UINT32_MAX

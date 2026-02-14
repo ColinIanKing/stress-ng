@@ -250,7 +250,7 @@ static int stress_mmapcow_exercise(
 		break;
 	case 2:
 		/* Forward prime stride */
-		stride = stress_get_prime64(n_pages) * page_size;
+		stride = stress_prime64_get(n_pages) * page_size;
 		for (i = 0, offset = 0; stress_continue(args) && i < n_pages; i++) {
 			if (UNLIKELY(stress_mmapcow_modify_unmap(args, buf, *buf_size,
 					buf + offset, page_size, *flags, duration, count) < 0))

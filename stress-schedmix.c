@@ -154,7 +154,7 @@ redo:
 		break;
 	case 10:
 		for (i = 0; LIKELY(stress_continue(args) && (i < 10)); i++)
-			VOID_RET(uint64_t, stress_get_prime64(stress_mwc8()));
+			VOID_RET(uint64_t, stress_prime64_get(stress_mwc8()));
 		break;
 	case 11:
 		for (i = 0; LIKELY(stress_continue(args) && (i < 1000)); i++)
