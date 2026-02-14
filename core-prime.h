@@ -22,7 +22,7 @@
 #include "stress-ng.h"
 
 extern WARN_UNUSED bool stress_is_prime64(const uint64_t n);
-extern WARN_UNUSED uint64_t stress_get_next_prime64(const uint64_t n);
+extern WARN_UNUSED uint64_t stress_prime64_next_get(const uint64_t n);
 extern WARN_UNUSED uint64_t stress_prime64_get(const uint64_t n);
 
 #endif

@@ -221,7 +221,7 @@ static inline uint32_t value_map(const uint32_t x, register uint32_t y)
 static void *hash_create(const uint64_t n, const uint32_t x, const uint32_t y)
 {
 	sparse_hash_table_t *table;
-	uint64_t n_prime = (uint64_t)stress_get_next_prime64(n);
+	uint64_t n_prime = (uint64_t)stress_prime64_next_get(n);
 
 	(void)x;
 	(void)y;
@@ -360,7 +360,7 @@ static void OPTIMIZE3 hash_del(void *handle, const uint32_t x, const uint32_t y)
 static void *qhash_create(const uint64_t n, const uint32_t x, const uint32_t y)
 {
 	sparse_qhash_table_t *table;
-	const uint64_t n_prime = stress_get_next_prime64(n);
+	const uint64_t n_prime = stress_prime64_next_get(n);
 
 	(void)x;
 	(void)y;

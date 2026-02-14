@@ -427,7 +427,7 @@ static const stress_help_t help_generic[] = {
  */
 static int stress_stats_hash_table_alloc(const size_t n)
 {
-	stress_stats_hash_table_size = (size_t)stress_get_next_prime64((uint64_t)n);
+	stress_stats_hash_table_size = (size_t)stress_prime64_next_get((uint64_t)n);
 	stress_stats_hash_table = (stress_stats_t **)calloc(stress_stats_hash_table_size, sizeof(*stress_stats_hash_table));
 	if (!stress_stats_hash_table) {
 		pr_err("failed to allocate %zu sized stats hash table\n", stress_stats_hash_table_size);

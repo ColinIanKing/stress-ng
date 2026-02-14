@@ -130,7 +130,7 @@ static int stress_dentry_unlink(
 		}
 		break;
 	case ORDER_STRIDE:
-		prime = stress_get_next_prime64(n);
+		prime = stress_prime64_next_get(n);
 		for (i = 0, j = prime; i < n; i++, j += prime) {
 			const uint64_t k = j % n;
 			const uint64_t gray_code = (k >> 1) ^ k;

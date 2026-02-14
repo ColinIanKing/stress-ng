@@ -411,7 +411,7 @@ static int stress_tlb_shootdown(stress_args_t *args)
 		stress_sync_start_init(&s_pids[i]);
 
 	for (i = 0; i < tlb_procs; i++) {
-		const size_t stride = (137 + (size_t)stress_get_next_prime64((uint64_t)cache_lines)) << STRESS_CACHE_LINE_SHIFT;
+		const size_t stride = (137 + (size_t)stress_prime64_next_get((uint64_t)cache_lines)) << STRESS_CACHE_LINE_SHIFT;
 
 		s_pids[i].pid = fork();
 		if (s_pids[i].pid < 0) {
