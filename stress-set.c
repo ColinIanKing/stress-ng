@@ -300,7 +300,7 @@ static int stress_set(stress_args_t *args)
 			 *  Validate setreuid syscalls exercised to increase the current
 			 *  ruid and euid without CAP_SETUID capability cannot succeed
 			 */
-			if ((!cap_setuid) && (stress_get_unused_uid(&bad_uid) >= 0)) {
+			if ((!cap_setuid) && (stress_unused_uid_get(&bad_uid) >= 0)) {
 				if (setreuid(bad_uid, bad_uid) == 0) {
 					pr_fail("%s: setreuid failed, did not have privilege to set "
 						"ruid and euid, expected -EPERM, instead got errno=%d (%s)\n",

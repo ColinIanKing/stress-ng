@@ -1196,7 +1196,7 @@ static CONST int stress_uid_comp(const void *p1, const void *p2)
 }
 
 /*
- *  stress_get_unused_uid()
+ *  stress_unused_uid_get()
  *	find the lowest free unused UID greater than 250,
  *	returns -1 if it can't find one and uid is set to 0;
  *      if successful it returns 0 and sets uid to the free uid.
@@ -1205,7 +1205,7 @@ static CONST int stress_uid_comp(const void *p1, const void *p2)
  *	frequently. If the cached uid is in use it will
  *	perform the expensive lookup again.
  */
-int stress_get_unused_uid(uid_t *uid)
+int stress_unused_uid_get(uid_t *uid)
 {
 	static uid_t cached_uid = 0;
 	uid_t *uids;

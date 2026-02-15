@@ -64,7 +64,7 @@ extern WARN_UNUSED char *stress_const_optdup(const char *opt);
 extern size_t stress_exec_text_addr(char **start, char **end);
 extern WARN_UNUSED bool stress_is_dev_tty(const int fd);
 extern WARN_UNUSED bool stress_warn_once_hash(const char *filename, const int line);
-extern WARN_UNUSED int stress_get_unused_uid(uid_t *uid);
+extern WARN_UNUSED int stress_unused_uid_get(uid_t *uid);
 extern WARN_UNUSED int stress_kernel_release(const int major, const int minor,
 	const int patchlevel);
 extern WARN_UNUSED int stress_get_kernel_release(void);
