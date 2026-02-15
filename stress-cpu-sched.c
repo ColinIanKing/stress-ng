@@ -684,7 +684,7 @@ static int stress_cpu_sched_child(stress_args_t *args, void *context)
 	size_t cpu_sched_procs = DEFAULT_CPU_SCHED_PROCS;
 	stress_pid_t pids[MAX_CPU_SCHED_PROCS];
 	char exec_path[PATH_MAX];
-	char *exec_prog = stress_get_proc_self_exe(exec_path, sizeof(exec_path));
+	char *exec_prog = stress_proc_self_exe_get(exec_path, sizeof(exec_path));
 	const bool cap_sys_nice = stress_capabilities_check(SHIM_CAP_SYS_NICE);
 	const bool not_root = !stress_capabilities_check(SHIM_CAP_IS_ROOT);
 	uint32_t counter = 0;

@@ -75,7 +75,7 @@ extern WARN_UNUSED bool stress_redo_fork(stress_args_t *args, const int err);
 extern void stress_clear_warn_once(void);
 extern WARN_UNUSED size_t stress_flag_permutation(const int flags, int **permutations);
 extern WARN_UNUSED int stress_exit_status(const int err);
-extern WARN_UNUSED char *stress_get_proc_self_exe(char *path, const size_t path_len);
+extern WARN_UNUSED char *stress_proc_self_exe_get(char *path, const size_t path_len);
 extern WARN_UNUSED int stress_bsd_getsysctl(const char *name, void *ptr, size_t size);
 extern WARN_UNUSED uint64_t stress_bsd_getsysctl_uint64(const char *name);
 extern WARN_UNUSED uint32_t stress_bsd_getsysctl_uint32(const char *name);

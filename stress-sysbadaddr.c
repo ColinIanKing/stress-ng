@@ -574,7 +574,7 @@ static void bad_execve2(stress_bad_addr_t *ba, volatile uint64_t *counter)
 	if (ba->unreadable) {
 		char name[PATH_MAX];
 
-		if (stress_get_proc_self_exe(name, sizeof(name)) == 0) {
+		if (stress_proc_self_exe_get(name, sizeof(name)) == 0) {
 			(*counter)++;
 			VOID_RET(int, execve(name, (char * const *)ba->addr, NULL));
 		}
@@ -586,7 +586,7 @@ static void bad_execve3(stress_bad_addr_t *ba, volatile uint64_t *counter)
 	if (ba->unreadable) {
 		char name[PATH_MAX];
 
-		if (stress_get_proc_self_exe(name, sizeof(name)) == 0) {
+		if (stress_proc_self_exe_get(name, sizeof(name)) == 0) {
 			static char *newargv[] = { NULL, NULL };
 
 			(*counter)++;

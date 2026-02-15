@@ -254,7 +254,7 @@ static int stress_munmap(stress_args_t *args)
 	ctxt->count = 0.0;
 	ctxt->args = args;
 	ctxt->page_shift = stress_munmap_log2(args->page_size);
-	ctxt->exec_path = stress_get_proc_self_exe(exec_path, sizeof(exec_path));
+	ctxt->exec_path = stress_proc_self_exe_get(exec_path, sizeof(exec_path));
 	if (!ctxt->exec_path) {
 		pr_inf_skip("%s: skipping stressor, cannot determine child executable path\n",
 			args->name);

@@ -82,7 +82,7 @@ static int stress_spawn(stress_args_t *args)
 	/*
 	 *  Determine our own self as the executable, e.g. run stress-ng
 	 */
-	path = stress_get_proc_self_exe(exec_path, sizeof(exec_path));
+	path = stress_proc_self_exe_get(exec_path, sizeof(exec_path));
 	if (!path) {
 		if (stress_instance_zero(args))
 			pr_inf_skip("%s: skipping stressor, can't determine stress-ng "

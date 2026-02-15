@@ -1548,10 +1548,13 @@ int CONST stress_exit_status(const int err)
 }
 
 /*
- *  stress_get_proc_self_exe_path()
+ *  stress_proc_self_exe_path_get()
  *	get process' executable path via readlink
  */
-static char *stress_get_proc_self_exe_path(char *path, const char *proc_path, const size_t path_len)
+static char *stress_proc_self_exe_path_get(
+	char *path,
+	const char *proc_path,
+	const size_t path_len)
 {
 	ssize_t len;
 
@@ -1567,17 +1570,17 @@ static char *stress_get_proc_self_exe_path(char *path, const char *proc_path, co
 }
 
 /*
- *  stress_get_proc_self_exe()
+ *  stress_proc_self_exe_get()
  *  	determine the path to the executable, return NULL if not possible/failed
  */
-char *stress_get_proc_self_exe(char *path, const size_t path_len)
+char *stress_proc_self_exe_get(char *path, const size_t path_len)
 {
 #if defined(__linux__)
-	return stress_get_proc_self_exe_path(path, "/proc/self/exe", path_len);
+	return stress_proc_self_exe_path_get(path, "/proc/self/exe", path_len);
 #elif defined(__NetBSD__)
-	return stress_get_proc_self_exe_path(path, "/proc/curproc/exe", path_len);
+	return stress_proc_self_exe_path_get(path, "/proc/curproc/exe", path_len);
 #elif defined(__DragonFly__)
-	return stress_get_proc_self_exe_path(path, "/proc/curproc/file", path_len);
+	return stress_proc_self_exe_path_get(path, "/proc/curproc/file", path_len);
 #elif defined(__FreeBSD__)
 #if defined(CTL_KERN) &&	\
     defined(KERN_PROC) &&	\
@@ -1592,14 +1595,14 @@ char *stress_get_proc_self_exe(char *path, const size_t path_len)
 	ret = sysctl(mib, SIZEOF_ARRAY(mib), (void *)path, &tmp_path_len, NULL, 0);
 	if (ret < 0) {
 		/* fall back to procfs */
-		return stress_get_proc_self_exe_path(path, "/proc/curproc/file", path_len);
+		return stress_proc_self_exe_path_get(path, "/proc/curproc/file", path_len);
 	}
 	return path;
 #else
 	/* fall back to procfs */
 	if (UNLIKELY(!path))
 		return NULL;
-	return stress_get_proc_self_exe_path(path, "/proc/curproc/file", path_len);
+	return stress_proc_self_exe_path_get(path, "/proc/curproc/file", path_len);
 #endif
 #elif defined(__sun__) && 	\
       defined(HAVE_GETEXECNAME)
@@ -1607,7 +1610,7 @@ char *stress_get_proc_self_exe(char *path, const size_t path_len)
 
 	if (UNLIKELY(!path))
 		return NULL;
-	(void)stress_get_proc_self_exe_path;
+	(void)stress_proc_self_exe_path_get;
 
 	if (UNLIKELY(!execname))
 		return NULL;
@@ -1618,7 +1621,7 @@ char *stress_get_proc_self_exe(char *path, const size_t path_len)
 	if (UNLIKELY(!path))
 		return NULL;
 
-	(void)stress_get_proc_self_exe_path;
+	(void)stress_proc_self_exe_path_get;
 
 	/* this may return the wrong name if it's been argv modified */
 	(void)shim_strscpy(path, program_invocation_name, path_len);
@@ -1626,7 +1629,7 @@ char *stress_get_proc_self_exe(char *path, const size_t path_len)
 #else
 	if (UNLIKELY(!path))
 		return NULL;
-	(void)stress_get_proc_self_exe_path;
+	(void)stress_proc_self_exe_path_get;
 	(void)path;
 	(void)path_len;
 	return NULL;
