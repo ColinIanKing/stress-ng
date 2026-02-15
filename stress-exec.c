@@ -750,7 +750,7 @@ static int stress_exec(stress_args_t *args)
 
 	stress_ksm_memory_merge(1);
 
-	ld_library_path = stress_get_env_ld_library_path();
+	ld_library_path = stress_env_ld_library_path_get();
 
 	/*
 	 *  Determine our own self as the executable, e.g. run stress-ng

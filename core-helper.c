@@ -2003,10 +2003,10 @@ void NORETURN stress_no_return(void)
 }
 
 /*
- *  stress_get_env_ld_library_path()
+ *  stress_env_ld_library_path_get()
  *	get LD_LIBRARY_PATH so it can be preserved for exec() family calls
  */
-char *stress_get_env_ld_library_path(void)
+char *stress_env_ld_library_path_get(void)
 {
 	char *ld_library_path = NULL;
 	char *parent_ld_path;

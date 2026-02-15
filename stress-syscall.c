@@ -1657,7 +1657,7 @@ static int syscall_execve(void)
 		argv[0] = syscall_exec_prog;
 		argv[1] = "--exec-exit";
 		argv[2] = NULL;
-		env[0] = stress_get_env_ld_library_path();
+		env[0] = stress_env_ld_library_path_get();
 		env[1] = NULL;
 
 		syscall_execve_silence_stdio();
@@ -1707,7 +1707,7 @@ static int syscall_execveat(void)
 		argv[0] = syscall_exec_prog;
 		argv[1] = "--exec-exit";
 		argv[2] = NULL;
-		env[0] = stress_get_env_ld_library_path();
+		env[0] = stress_env_ld_library_path_get();
 		env[1] = NULL;
 
 		syscall_execve_silence_stdio();

@@ -76,7 +76,7 @@ static int stress_spawn(stress_args_t *args)
 		return EXIT_FAILURE;
 	}
 
-	ld_library_path = stress_get_env_ld_library_path();
+	ld_library_path = stress_env_ld_library_path_get();
 	env_new[0] = ld_library_path;
 
 	/*

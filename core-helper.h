@@ -90,7 +90,7 @@ extern uint64_t stress_get_machine_id(void);
 extern void stress_zero_metrics(stress_metrics_t *metrics, const size_t n);
 extern bool OPTIMIZE3 stress_data_is_not_zero(uint64_t *buffer, const size_t len);
 extern void NORETURN stress_no_return(void);
-extern WARN_UNUSED char *stress_get_env_ld_library_path(void);
+extern WARN_UNUSED char *stress_env_ld_library_path_get(void);
 extern void stress_set_make_it_fail(void);
 
 #endif

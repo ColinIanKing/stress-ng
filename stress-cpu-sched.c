@@ -657,7 +657,7 @@ again:
 		argv[2] = NULL;
 		argv[3] = NULL;
 
-		env[0] = stress_get_env_ld_library_path();
+		env[0] = stress_env_ld_library_path_get();
 		env[1] = NULL;
 
 		_exit(execve(exec_prog, argv, env));
