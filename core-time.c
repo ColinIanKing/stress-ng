@@ -29,10 +29,10 @@
 				/* Approx, for Gregorian calendar */
 
 /*
- *  stress_timeval_to_double()
+ *  stress_time_timeval_to_double()
  *      convert timeval to seconds as a double
  */
-double CONST OPTIMIZE3 stress_timeval_to_double(const struct timeval *tv)
+double CONST OPTIMIZE3 stress_time_timeval_to_double(const struct timeval *tv)
 {
 	return (double)tv->tv_sec + ((double)tv->tv_usec * ONE_MILLIONTH);
 }
@@ -48,7 +48,7 @@ static OPTIMIZE3 int stress_time_now_timeval(double *dnow)
 	if (UNLIKELY(gettimeofday(&now, NULL) < 0))
 		return -1;
 
-	*dnow = stress_timeval_to_double(&now);
+	*dnow = stress_time_timeval_to_double(&now);
 	return 0;
 }
 

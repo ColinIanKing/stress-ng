@@ -511,8 +511,8 @@ static int stress_x86syscall(stress_args_t *args)
 
 		if ((gettimeofday(&tv1, NULL) != -1) &&
 		    ((int)x86_64_syscall2(__NR_gettimeofday, (long)&tv2, (long)NULL) != -1)) {
-			const double td1 = stress_timeval_to_double(&tv1);
-			const double td2 = stress_timeval_to_double(&tv2);
+			const double td1 = stress_time_timeval_to_double(&tv1);
+			const double td2 = stress_time_timeval_to_double(&tv2);
 
 			if (td2 < td1) {
 				pr_fail("%s: gettimeofday syscall returned %.6f"
