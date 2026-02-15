@@ -241,9 +241,9 @@ static void stress_revio_opts(const char *opt_name, const char *opt_arg, stress_
 		}
 	}
 
-	stress_set_setting("revio", "revio-flags", TYPE_ID_INT, &revio_flags);
-	stress_set_setting("revio", "revio-oflags", TYPE_ID_INT, &revio_oflags);
-	stress_set_setting("revio", "revio-opts-set", TYPE_ID_BOOL, &opts_set);
+	stress_setting_set("revio", "revio-flags", TYPE_ID_INT, &revio_flags);
+	stress_setting_set("revio", "revio-oflags", TYPE_ID_INT, &revio_oflags);
+	stress_setting_set("revio", "revio-opts-set", TYPE_ID_BOOL, &opts_set);
 	free(str);
 }
 

@@ -214,10 +214,10 @@ void stress_setting_dbg(stress_args_t *args)
 }
 
 /*
- *  stress_set_setting_generic()
+ *  stress_setting_generic_set()
  *	set a new setting
  */
-static int stress_set_setting_generic(
+static int stress_setting_generic_set(
 	const char *stressor_name,
 	const char *name,
 	const stress_type_id_t type_id,
@@ -326,28 +326,28 @@ err:
 }
 
 /*
- *  stress_set_setting()
+ *  stress_setting_set()
  *	set a new setting
  */
-int stress_set_setting(
+int stress_setting_set(
 	const char *stressor_name,
 	const char *name,
 	const stress_type_id_t type_id,
 	const void *value)
 {
-	return stress_set_setting_generic(stressor_name, name, type_id, value, false);
+	return stress_setting_generic_set(stressor_name, name, type_id, value, false);
 }
 
 /*
- *  stress_set_setting_global()
+ *  stress_setting_global_set()
  *	set a new global setting;
  */
-int stress_set_setting_global(
+int stress_setting_global_set(
 	const char *name,
 	const stress_type_id_t type_id,
 	const void *value)
 {
-	return stress_set_setting_generic("global", name, type_id, value, true);
+	return stress_setting_generic_set("global", name, type_id, value, true);
 }
 
 /*
@@ -457,10 +457,10 @@ bool stress_get_setting(const char *name, void *value)
 }
 
 /*
- *  stress_set_setting_true()
+ *  stress_setting_set_true()
  *	create a setting of name name to true, ignore opt
  */
-int stress_set_setting_true(
+int stress_setting_set_true(
 	const char *stressor_name,
 	const char *name,
 	const char *opt)
@@ -468,5 +468,5 @@ int stress_set_setting_true(
         bool val = true;
 
         (void)opt;
-        return stress_set_setting(stressor_name, name, TYPE_ID_BOOL, &val);
+        return stress_setting_set(stressor_name, name, TYPE_ID_BOOL, &val);
 }
