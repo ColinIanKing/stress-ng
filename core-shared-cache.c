@@ -27,10 +27,10 @@
 #define MEM_CACHE_SIZE	(2 * MB)
 
 /*
- *  stress_cache_alloc()
+ *  stress_shared_cache_alloc()
  *	allocate shared cache buffer
  */
-int stress_cache_alloc(const char *name)
+int stress_shared_cache_alloc(const char *name)
 {
 	stress_cpu_cache_cpus_t *cpu_caches;
 	stress_cpu_cache_t *cache = NULL;
@@ -153,10 +153,10 @@ init_done:
 }
 
 /*
- *  stress_cache_free()
+ *  stress_shared_cache_free()
  *	free shared cache buffer
  */
-void stress_cache_free(void)
+void stress_shared_cache_free(void)
 {
 	if (g_shared->mem_cache.buffer)
 		(void)stress_munmap_anon_shared((void *)g_shared->mem_cache.buffer, g_shared->mem_cache.size);

@@ -21,7 +21,7 @@
 
 #include "stress-ng.h"
 
-extern WARN_UNUSED int stress_cache_alloc(const char *name);
-extern void stress_cache_free(void);
+extern WARN_UNUSED int stress_shared_cache_alloc(const char *name);
+extern void stress_shared_cache_free(void);
 
 #endif

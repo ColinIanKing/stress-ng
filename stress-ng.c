@@ -4273,7 +4273,7 @@ int main(int argc, char **argv, char **envp)
 	(void)stress_get_setting("cache-level", &g_shared->mem_cache.level);
 	g_shared->mem_cache.ways = 0;
 	(void)stress_get_setting("cache-ways", &g_shared->mem_cache.ways);
-	if (stress_cache_alloc("cache allocate") < 0) {
+	if (stress_shared_cache_alloc("shared cache allocate") < 0) {
 		ret = EXIT_FAILURE;
 		goto exit_shared_unmap;
 	}
@@ -4402,7 +4402,7 @@ exit_resctrl:
 	stress_stressors_deinit();
 	stress_stressors_free();
 	stress_cpuidle_free();
-	stress_cache_free();
+	stress_shared_cache_free();
 	stress_shared_unmap();
 	stress_settings_free();
 	stress_lock_mem_unmap();
