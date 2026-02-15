@@ -26,10 +26,10 @@ static stress_setting_t *setting_tail;	/* setting list tail */
 typedef void (*pr_func_t)(const char *fmt, ...) FORMAT(printf, 1, 2);
 
 /*
- *  stress_settings_free()
+ *  stress_setting_free()
  *	free the saved settings
  */
-void stress_settings_free(void)
+void stress_setting_free(void)
 {
 	stress_setting_t *setting = setting_head;
 
@@ -45,7 +45,7 @@ void stress_settings_free(void)
 	setting_tail = NULL;
 }
 
-static void stress_settings_show_setting(
+static void stress_setting_show_setting(
 	const stress_setting_t *setting,
 	const pr_func_t pr_func,
 	const bool show_type)
@@ -154,7 +154,7 @@ static int stress_setting_cmp(const void *p1, const void *p2)
 	return strcmp(s1->name, s2->name);
 }
 
-void stress_settings_show(void)
+void stress_setting_show(void)
 {
 	stress_setting_t *setting;
 	stress_setting_t **settings;
@@ -177,11 +177,11 @@ void stress_settings_show(void)
 	qsort(settings, n, sizeof(*settings), stress_setting_cmp);
 
 	for (i = 0; i < n; i++)
-		stress_settings_show_setting(settings[i], pr_inf, true);
+		stress_setting_show_setting(settings[i], pr_inf, true);
 	free(settings);
 }
 
-void stress_settings_dbg(stress_args_t *args)
+void stress_setting_dbg(stress_args_t *args)
 {
 	stress_setting_t *setting;
 	stress_setting_t **settings;
@@ -209,7 +209,7 @@ void stress_settings_dbg(stress_args_t *args)
 	qsort(settings, n, sizeof(*settings), stress_setting_cmp);
 
 	for (i = 0; i < n; i++)
-		stress_settings_show_setting(settings[i], pr_dbg, false);
+		stress_setting_show_setting(settings[i], pr_dbg, false);
 	free(settings);
 }
 
@@ -308,7 +308,7 @@ static int stress_set_setting_generic(
 		break;
 	}
 #if defined(DEBUG_SETTINGS)
-	stress_settings_show_setting(setting, pr_dbg, true);
+	stress_setting_show_setting(setting, pr_dbg, true);
 #endif
 
 	if (setting_tail) {
@@ -449,7 +449,7 @@ bool stress_get_setting(const char *name, void *value)
 				break;
 			}
 #if defined(DEBUG_SETTINGS)
-			stress_settings_show_setting(setting, pr_dbg, true);
+			stress_setting_show_setting(setting, pr_dbg, true);
 #endif
 		}
 	}

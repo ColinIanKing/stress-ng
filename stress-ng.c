@@ -1010,7 +1010,7 @@ static void NORETURN stress_usage(void)
 		"--fork 4 --timeout 10s\n\n"
 		"Note: sizes can be suffixed with B, K, M, G and times with "
 		"s, m, h, d, y\n", g_prog_name);
-	stress_settings_free();
+	stress_setting_free();
 	exit(EXIT_SUCCESS);
 }
 
@@ -1698,7 +1698,7 @@ static int MLOCKED_TEXT stress_run_child(
 		args->info = info;
 
 		if (instance == 0)
-			stress_settings_dbg(args);
+			stress_setting_dbg(args);
 		stress_set_oom_adjustment(args, false);
 
 		(void)shim_memset(*checksum, 0, sizeof(**checksum));
@@ -4229,7 +4229,7 @@ int main(int argc, char **argv, char **envp)
 		 *  unsupported then this is not an error.
 		 */
 		ret = unsupported ? EXIT_SUCCESS : EXIT_FAILURE;
-		stress_settings_show();
+		stress_setting_show();
 		goto exit_logging_close;
 	}
 
@@ -4393,7 +4393,7 @@ exit_resctrl:
 	stress_ftrace_stop();
 	stress_ftrace_free();
 
-	stress_settings_show();
+	stress_setting_show();
 	/*
 	 *  Tidy up
 	 */
@@ -4404,7 +4404,7 @@ exit_resctrl:
 	stress_cpuidle_free();
 	stress_shared_cache_free();
 	stress_shared_unmap();
-	stress_settings_free();
+	stress_setting_free();
 	stress_lock_mem_unmap();
 
 	/*
@@ -4442,7 +4442,7 @@ exit_stressors_free:
 	stress_stressors_free();
 
 exit_settings_free:
-	stress_settings_free();
+	stress_setting_free();
 
 exit_ret:
 	exit(ret);
