@@ -861,7 +861,7 @@ retry_bind:
 			goto err_close;
 		}
 		ret = recv(fd, output, DATA_LEN + tag_size , 0);
-		if (UNLIKELY(ret != DATA_LEN + tag_size)) {
+		if (UNLIKELY(ret != (ssize_t)(DATA_LEN + tag_size))) {
 			if (ret < 0) {
 				if (errno == EINTR)
 					break;
