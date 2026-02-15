@@ -190,7 +190,7 @@ static int stress_set(stress_args_t *args)
 			pid = getpgid(mypid);
 			if (pid != -1) {
 				if (!cap_root) {
-					const pid_t bad_pid = stress_get_unused_pid_racy(false);
+					const pid_t bad_pid = stress_unused_racy_pid_get(false);
 
 					/* Exercise invalid pgid */
 					VOID_RET(int, setpgid(mypid, bad_pid));

@@ -273,7 +273,7 @@ case_sched_fifo:
 
 			/* Exercise bad pid, ESRCH error */
 			(void)shim_memset(&param, 0, sizeof(param));
-			VOID_RET(int, sched_getparam(stress_get_unused_pid_racy(false), &param));
+			VOID_RET(int, sched_getparam(stress_unused_racy_pid_get(false), &param));
 
 			/* Exercise invalid sched_setparam syscall */
 			(void)shim_memset(&param, 0, sizeof(param));
@@ -290,14 +290,14 @@ case_sched_fifo:
 			 * don't own
 			 */
 			if (!root_or_nice_capability) {
-				VOID_RET(int, sched_setparam(stress_get_unused_pid_racy(false), &param));
+				VOID_RET(int, sched_setparam(stress_unused_racy_pid_get(false), &param));
 			}
 		}
 		/* Exercise with invalid PID */
 		VOID_RET(int, sched_getscheduler(-1));
 
 		/* Exercise with bad pid, ESRCH error */
-		VOID_RET(int, sched_getscheduler(stress_get_unused_pid_racy(false)));
+		VOID_RET(int, sched_getscheduler(stress_unused_racy_pid_get(false)));
 
 		(void)shim_memset(&param, 0, sizeof(param));
 		ret = sched_getparam(pid, &param);
@@ -346,7 +346,7 @@ case_sched_fifo:
 
 		/* Exercise bad pid, ESRCH error */
 		(void)shim_memset(&attr, 0, sizeof(attr));
-		VOID_RET(int, shim_sched_getattr(stress_get_unused_pid_racy(false),
+		VOID_RET(int, shim_sched_getattr(stress_unused_racy_pid_get(false),
 			&attr, sizeof(attr), 0));
 
 		/*

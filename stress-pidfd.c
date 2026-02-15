@@ -32,7 +32,7 @@ static const stress_help_t help[] = {
 static int stress_pidfd_open(const pid_t pid, const unsigned int flag)
 {
 	int fd;
-	const pid_t bad_pid = stress_get_unused_pid_racy(false);
+	const pid_t bad_pid = stress_unused_racy_pid_get(false);
 
 	/* Exercise pidfd_open with non-existent PID */
 	fd = shim_pidfd_open(bad_pid, 0);

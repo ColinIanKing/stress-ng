@@ -229,7 +229,7 @@ static void do_fcntl(
 		VOID_RET(int, fcntl(fd, F_SETOWN, INT_MIN));
 
 		/* This is intended to probably fail with -ESRCH */
-		VOID_RET(int, fcntl(fd, F_SETOWN, stress_get_unused_pid_racy(false)));
+		VOID_RET(int, fcntl(fd, F_SETOWN, stress_unused_racy_pid_get(false)));
 
 		/* And set back to current pid */
 		VOID_RET(int, fcntl(fd, F_SETOWN, args->pid));
@@ -281,7 +281,7 @@ static void do_fcntl(
 #if defined(F_OWNER_PID)
 		/* This is intended to probably fail with -ESRCH */
 		owner.type = (shim_pid_type)F_OWNER_PID;
-		owner.pid = stress_get_unused_pid_racy(false);
+		owner.pid = stress_unused_racy_pid_get(false);
 		VOID_RET(int, fcntl(fd, F_SETOWN_EX, &owner));
 
 		/* set to stressor's pid */

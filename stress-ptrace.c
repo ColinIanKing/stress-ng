@@ -183,7 +183,7 @@ again:
 
 			/* periodicially perform invalid ptrace calls */
 			if (UNLIKELY((i & 0x1ff) == 0)) {
-				const pid_t bad_pid = stress_get_unused_pid_racy(false);
+				const pid_t bad_pid = stress_unused_racy_pid_get(false);
 
 				/* exercise invalid options */
 				VOID_RET(long int, ptrace((shim_ptrace_request)~0L, pid, 0, PTRACE_O_TRACESYSGOOD));

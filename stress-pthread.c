@@ -286,7 +286,7 @@ static void *stress_pthread_func(void *parg)
 	/*
 	 *  Exercise with invalid tgid
 	 */
-	tgid_unused = stress_get_unused_pid_racy(false);
+	tgid_unused = stress_unused_racy_pid_get(false);
 	VOID_RET(int, shim_tgkill(tgid_unused, tid, 0));
 	VOID_RET(int, shim_tgkill(tgid, tgid_unused, 0));
 	VOID_RET(int, shim_tkill(tgid_unused, 0));

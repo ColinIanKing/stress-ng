@@ -68,7 +68,7 @@ extern WARN_UNUSED int stress_get_unused_uid(uid_t *uid);
 extern WARN_UNUSED int stress_kernel_release(const int major, const int minor,
 	const int patchlevel);
 extern WARN_UNUSED int stress_get_kernel_release(void);
-extern WARN_UNUSED pid_t stress_get_unused_pid_racy(const bool fork_test);
+extern WARN_UNUSED pid_t stress_unused_racy_pid_get(const bool fork_test);
 extern WARN_UNUSED size_t stress_hostname_length_get(void);
 extern WARN_UNUSED int stress_tty_width_get(void);
 extern WARN_UNUSED bool stress_redo_fork(stress_args_t *args, const int err);

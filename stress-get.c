@@ -364,7 +364,7 @@ static int stress_getpgid(stress_args_t *args)
 	/*
 	 *  Exercise with an possibly invalid pid
  	 */
-	pid = stress_get_unused_pid_racy(false);
+	pid = stress_unused_racy_pid_get(false);
 	VOID_RET(pid_t, getpgid(pid));
 #endif
 	(void)args;
@@ -387,7 +387,7 @@ static int stress_getpriority(stress_args_t *args)
 		 */
 		(void)getpriority((shim_priority_which_t)INT_MIN, 0);
 		(void)getpriority((shim_priority_which_t)INT_MAX, 0);
-		pid = stress_get_unused_pid_racy(false);
+		pid = stress_unused_racy_pid_get(false);
 		(void)getpriority((shim_priority_which_t)0, (id_t)pid);
 
 		errno = 0;
@@ -511,7 +511,7 @@ static int stress_prlimit(stress_args_t *args)
 
 	/* Invalid prlimit syscall and ignoring failure */
 	(void)prlimit(mypid, (shim_rlimit_resource_t)INT_MAX, NULL, &rlim);
-	pid = stress_get_unused_pid_racy(false);
+	pid = stress_unused_racy_pid_get(false);
 	(void)prlimit(pid, (shim_rlimit_resource_t)INT_MAX, NULL, &rlim);
 
 	if (i < SIZEOF_ARRAY(rlimits)) {
@@ -616,7 +616,7 @@ static int stress_getsid(stress_args_t *args)
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
-	pid = stress_get_unused_pid_racy(false);
+	pid = stress_unused_racy_pid_get(false);
 	VOID_RET(int, getsid(pid));
 #endif
 	(void)args;

@@ -1316,12 +1316,12 @@ int stress_get_kernel_release(void)
 }
 
 /*
- *  stress_get_unused_pid_racy()
+ *  stress_unused_racy_pid_get()
  *	try to find an unused pid. This is racy and may actually
  *	return pid that is unused at test time but will become
  *	used by the time the pid is accessed.
  */
-pid_t stress_get_unused_pid_racy(const bool fork_test)
+pid_t stress_unused_racy_pid_get(const bool fork_test)
 {
 #if defined(PID_MAX_LIMIT)
 	pid_t max_pid = STRESS_MAXIMUM(PID_MAX_LIMIT, 1024);

@@ -963,7 +963,7 @@ static int stress_prctl_child(
     defined(PR_SCHED_CORE_GET)
 	{
 		unsigned long int cookie = 0;
-		const pid_t bad_pid = stress_get_unused_pid_racy(false);
+		const pid_t bad_pid = stress_unused_racy_pid_get(false);
 
 		VOID_RET(int, prctl(PR_SCHED_CORE, PR_SCHED_CORE_GET, 0,
 				PR_SCHED_CORE_SCOPE_THREAD, &cookie));

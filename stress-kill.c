@@ -150,7 +150,7 @@ static int stress_kill(stress_args_t *args)
 			VOID_RET(int, kill(pid, SIGUSR1));
 		}
 
-		bad_pid = stress_get_unused_pid_racy(false);
+		bad_pid = stress_unused_racy_pid_get(false);
 		VOID_RET(int, kill(bad_pid, 0));
 
 		stress_bogo_inc(args);

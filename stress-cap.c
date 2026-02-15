@@ -113,7 +113,7 @@ static int stress_capgetset_pid(
 	 *  Exercise invalid pid
 	 */
 	uch.version = _LINUX_CAPABILITY_VERSION_3;
-	uch.pid = stress_get_unused_pid_racy(false);
+	uch.pid = stress_unused_racy_pid_get(false);
 	VOID_RET(int, capget(&uch, ucd));
 #else
 	UNEXPECTED
