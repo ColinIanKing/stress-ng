@@ -670,7 +670,7 @@ static char *stress_get_libc_version(void)
 void stress_buildinfo(void)
 {
 	if (g_opt_flags & OPT_FLAGS_BUILDINFO) {
-		pr_inf("compiler: %s\n", stress_get_compiler());
+		pr_inf("compiler: %s\n", stress_compiler_get());
 #if defined(HAVE_SOURCE_DATE_EPOCH)
 		pr_inf("SOURCE_DATE_EPOCH: " XSTR(HAVE_SOURCE_DATE_EPOCH) "\n");
 #endif
@@ -709,7 +709,7 @@ void stress_yaml_buildinfo(FILE *yaml)
 		return;
 
 	pr_yaml(yaml, "build-info:\n");
-	pr_yaml(yaml, "      compiler: '%s'\n", stress_get_compiler());
+	pr_yaml(yaml, "      compiler: '%s'\n", stress_compiler_get());
 #if defined(HAVE_SOURCE_DATE_EPOCH)
 	pr_yaml(yaml, "      source-date-epoch: " XSTR(HAVE_SOURCE_DATE_EPOCH) "\n");
 #endif
@@ -769,14 +769,14 @@ void stress_runinfo(void)
 		pr_dbg("system: %s %s %s %s %s, %s, %s, %s\n",
 			uts.sysname, uts.nodename, uts.release,
 			uts.version, uts.machine,
-			stress_get_compiler(),
+			stress_compiler_get(),
 			stress_get_libc_version(),
 			stress_endian_str());
 	}
 #else
 	pr_dbg("system: %s, %s, %s, %s\n",
 		stress_get_arch(),
-		stress_get_compiler(),
+		stress_compiler_get(),
 		stress_get_libc_version(),
 		stress_endian_str());
 #endif
@@ -849,7 +849,7 @@ void stress_yaml_runinfo(FILE *yaml)
 #else
 	pr_yaml(yaml, "      machine: '%s'\n", stress_get_arch());
 #endif
-	pr_yaml(yaml, "      compiler: '%s'\n", stress_get_compiler());
+	pr_yaml(yaml, "      compiler: '%s'\n", stress_compiler_get());
 	pr_yaml(yaml, "      libc: '%s'\n", stress_get_libc_version());
 #if defined(HAVE_SYS_SYSINFO_H) &&	\
     defined(HAVE_SYSINFO)
@@ -904,10 +904,10 @@ unsigned int stress_get_cpu(void)
 #define STRINGIFY(s) #s
 
 /*
- *  stress_get_compiler()
+ *  stress_compiler_get()
  *	return compiler info
  */
-const char *stress_get_compiler(void)
+const char *stress_compiler_get(void)
 {
 #if   defined(HAVE_COMPILER_ICC) &&	\
       defined(__INTEL_COMPILER) &&	\

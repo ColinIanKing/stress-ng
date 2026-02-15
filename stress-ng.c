@@ -885,7 +885,7 @@ static int stress_set_handler(const char *stress, const bool child)
 static void stress_version(void)
 {
 	(void)printf("%s, version " VERSION " (%s, %s)%s\n",
-		g_prog_name, stress_get_compiler(), stress_uname_info_get(),
+		g_prog_name, stress_compiler_get(), stress_uname_info_get(),
 		stress_is_dev_tty(STDOUT_FILENO) ? "" : " \U0001F4BB\U0001F525");
 }
 
@@ -2912,22 +2912,22 @@ static void stress_exclude_unimplemented(
 		if (info->unimplemented_reason) {
 			pr_inf_skip("%s %s: %s %s (%s)\n",
 				name, msg, stress_uname_info_get(),
-				stress_get_compiler(),
+				stress_compiler_get(),
 				info->unimplemented_reason);
 		} else {
 			pr_inf_skip("%s %s: %s %s\n",
 				name, msg, stress_uname_info_get(),
-				stress_get_compiler());
+				stress_compiler_get());
 		}
 	}
 #else
 	if (info->unimplemented_reason) {
 		pr_inf_skip("%s %s: %s (%s)\n",
-			name, msg, stress_get_compiler(),
+			name, msg, stress_compiler_get(),
 			info->unimplemented_reason);
 	} else {
 		pr_inf_skip("%s %s: %s\n",
-			name, msg, stress_get_compiler());
+			name, msg, stress_compiler_get());
 	}
 #endif
 }
