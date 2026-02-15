@@ -1410,10 +1410,10 @@ size_t stress_get_hostname_length(void)
 }
 
 /*
- *  stress_get_tty_width()
+ *  stress_tty_width_get()
  *	get tty column width
  */
-int stress_get_tty_width(void)
+int stress_tty_width_get(void)
 {
 	const int default_width = 80;
 #if defined(HAVE_WINSIZE) &&	\

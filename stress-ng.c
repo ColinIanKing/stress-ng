@@ -896,7 +896,7 @@ static void stress_version(void)
 static void stress_usage_help(const stress_help_t help_info[])
 {
 	size_t i;
-	const int cols = stress_get_tty_width();
+	const int cols = stress_tty_width_get();
 
 	for (i = 0; help_info[i].description; i++) {
 		char opt_s[10] = "";

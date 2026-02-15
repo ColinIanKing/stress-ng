@@ -70,7 +70,7 @@ extern WARN_UNUSED int stress_kernel_release(const int major, const int minor,
 extern WARN_UNUSED int stress_get_kernel_release(void);
 extern WARN_UNUSED pid_t stress_get_unused_pid_racy(const bool fork_test);
 extern WARN_UNUSED size_t stress_get_hostname_length(void);
-extern WARN_UNUSED int stress_get_tty_width(void);
+extern WARN_UNUSED int stress_tty_width_get(void);
 extern WARN_UNUSED bool stress_redo_fork(stress_args_t *args, const int err);
 extern void stress_clear_warn_once(void);
 extern WARN_UNUSED size_t stress_flag_permutation(const int flags, int **permutations);
