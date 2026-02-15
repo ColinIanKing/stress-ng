@@ -1997,7 +1997,7 @@ PRAGMA_UNROLL_N(8)
  *  stress_no_return
  *	function that does not return
  */
-void stress_no_return(void)
+void NORETURN stress_no_return(void)
 {
 	_exit(EXIT_FAILURE);
 }
