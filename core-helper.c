@@ -959,10 +959,10 @@ const char *stress_get_compiler(void)
 }
 
 /*
- *  stress_get_uname_info()
+ *  stress_uname_info_get()
  *	return uname information
  */
-const char *stress_get_uname_info(void)
+const char *stress_uname_info_get(void)
 {
 #if defined(HAVE_UNAME) &&	\
     defined(HAVE_SYS_UTSNAME_H)
