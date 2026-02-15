@@ -808,7 +808,7 @@ void stress_yaml_runinfo(FILE *yaml)
 #endif
 	time_t t;
 	struct tm *tm = NULL;
-	const size_t hostname_len = stress_get_hostname_length();
+	const size_t hostname_len = stress_hostname_length_get();
 	char *hostname;
 	const char *user = shim_getlogin();
 
@@ -1392,10 +1392,10 @@ pid_t stress_get_unused_pid_racy(const bool fork_test)
 }
 
 /*
- *  stress_get_hostname_length()
+ *  stress_hostname_length_get()
  *	return the maximum allowed hostname length
  */
-size_t stress_get_hostname_length(void)
+size_t stress_hostname_length_get(void)
 {
 #if defined(HOST_NAME_MAX)
 	return HOST_NAME_MAX + 1;
