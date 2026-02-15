@@ -1247,7 +1247,7 @@ void stress_vmstat_start(void)
 				g_shared->instance_count.reaped,
 				g_shared->instance_count.failed,
 				g_shared->instance_count.alarmed,
-				stress_duration_to_str(runtime, false, true));
+				stress_time_duration_to_str(runtime, false, true));
 		}
 #if defined(STRESS_RAPL)
 		if ((sleep_delay > 0) &&

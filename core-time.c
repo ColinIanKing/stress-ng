@@ -144,10 +144,10 @@ static inline void stress_format_time(
 }
 
 /*
- *  stress_duration_to_str
+ *  stress_time_duration_to_str
  *	duration in seconds to a human readable string
  */
-const char *stress_duration_to_str(const double duration, const bool int_secs, const bool report_secs)
+const char *stress_time_duration_to_str(const double duration, const bool int_secs, const bool report_secs)
 {
 	static char str[128];
 	char *ptr = str;
