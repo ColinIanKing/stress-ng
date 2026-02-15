@@ -53,7 +53,7 @@ static int stress_eventfd(stress_args_t *args)
 	int flags = 0, parent_cpu;
 	bool eventfd_nonblock = false;
 
-	(void)stress_get_setting("eventfd-nonblock", &eventfd_nonblock);
+	(void)stress_setting_get("eventfd-nonblock", &eventfd_nonblock);
 
 #if defined(EFD_CLOEXEC)
 	flags |= EFD_CLOEXEC;

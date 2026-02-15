@@ -163,8 +163,8 @@ static int stress_timer(stress_args_t *args)
 	(void)sigprocmask(SIG_SETMASK, &mask, NULL);
 
 	timer_rand = false;
-	(void)stress_get_setting("timer-rand", &timer_rand);
-	if (!stress_get_setting("timer-freq", &timer_freq)) {
+	(void)stress_setting_get("timer-rand", &timer_rand);
+	if (!stress_setting_get("timer-freq", &timer_freq)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			timer_freq = MAX_TIMER_FREQ;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

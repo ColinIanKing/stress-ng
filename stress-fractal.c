@@ -321,24 +321,24 @@ static int stress_fractal(stress_args_t *args)
 	size_t data_sz;
 	double rate, rows = 0.0, t, duration = 0.0;
 
-	(void)stress_get_setting("fractal-method", &fractal_method);
+	(void)stress_setting_get("fractal-method", &fractal_method);
 
 	info = stress_fractal_methods[fractal_method].info;
 	func = stress_fractal_methods[fractal_method].func;
 
-	if (!stress_get_setting("fractal-iterations", &info.iterations)) {
+	if (!stress_setting_get("fractal-iterations", &info.iterations)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			info.iterations = MAX_FRACTAL_ITERATIONS;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			info.iterations = MIN_FRACTAL_ITERATIONS;
 	}
-	if (!stress_get_setting("fractal-xsize", &info.xsize)) {
+	if (!stress_setting_get("fractal-xsize", &info.xsize)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			info.xsize = MAX_FRACTAL_XSIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			info.xsize = MIN_FRACTAL_XSIZE;
 	}
-	if (!stress_get_setting("fractal-ysize", &info.ysize)) {
+	if (!stress_setting_get("fractal-ysize", &info.ysize)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			info.ysize = MAX_FRACTAL_YSIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

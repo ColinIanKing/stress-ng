@@ -462,7 +462,7 @@ static int stress_mcontend(stress_args_t *args)
 	stress_numa_mask_t *numa_nodes = NULL;
 #endif
 
-	(void)stress_get_setting("mcontend-numa", &mcontend_numa);
+	(void)stress_setting_get("mcontend-numa", &mcontend_numa);
 
 #if defined(HAVE_SCHED_SETAFFINITY)
 	n_cpus = stress_affinity_cpus_get(&cpus, true);

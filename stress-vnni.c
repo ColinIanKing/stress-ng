@@ -535,8 +535,8 @@ static int stress_vnni(stress_args_t *args)
 	stress_uint8rnd4((uint8_t *)&c_init, sizeof(c_init));
 
 	vnni_intrinsic = false;
-	(void)stress_get_setting("vnni-method", &vnni_method);
-	(void)stress_get_setting("vnni-intrinsic", &vnni_intrinsic);
+	(void)stress_setting_get("vnni-method", &vnni_method);
+	(void)stress_setting_get("vnni-intrinsic", &vnni_intrinsic);
 
 	avx_capable = false;
 	for (i = 0; i < SIZEOF_ARRAY(stress_vnni_methods); i++) {

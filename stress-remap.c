@@ -156,8 +156,8 @@ static int stress_remap(stress_args_t *args)
 	int rc = EXIT_SUCCESS;
 	int metric;
 
-	(void)stress_get_setting("remap-mlock", &remap_mlock);
-	if (!stress_get_setting("remap-pages", &remap_pages)) {
+	(void)stress_setting_get("remap-mlock", &remap_mlock);
+	if (!stress_setting_get("remap-pages", &remap_pages)) {
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			remap_pages = MIN_REMAP_PAGES;
 	}

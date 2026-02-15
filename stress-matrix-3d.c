@@ -991,14 +991,14 @@ static int stress_matrix_3d(stress_args_t *args)
 
 	stress_signal_catch_sigill();
 
-	(void)stress_get_setting("matrix-3d-method", &matrix_3d_method);
-	(void)stress_get_setting("matrix-3d-zyx", &matrix_3d_zyx);
+	(void)stress_setting_get("matrix-3d-method", &matrix_3d_method);
+	(void)stress_setting_get("matrix-3d-zyx", &matrix_3d_zyx);
 
 	if (stress_instance_zero(args))
 		pr_dbg("%s: using method '%s' (%s)\n", args->name, matrix_3d_methods[matrix_3d_method].name,
 			matrix_3d_zyx ? "z by y by x" : "x by y by z");
 
-	if (!stress_get_setting("matrix-3d-size", &matrix_3d_size)) {
+	if (!stress_setting_get("matrix-3d-size", &matrix_3d_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			matrix_3d_size = MAX_MATRIX3D_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

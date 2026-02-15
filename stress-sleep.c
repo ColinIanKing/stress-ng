@@ -416,7 +416,7 @@ static int stress_sleep(stress_args_t *args)
 	static stress_ctxt_t ctxts[MAX_SLEEP];
 	int ret = EXIT_SUCCESS;
 
-	if (!stress_get_setting("sleep-max", &sleep_max)) {
+	if (!stress_setting_get("sleep-max", &sleep_max)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			sleep_max = MAX_SLEEP;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

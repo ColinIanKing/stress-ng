@@ -981,7 +981,7 @@ static void stress_get_cache_flags(const char *opt, uint32_t *cache_flags, uint3
 {
 	bool flag = false;
 
-	(void)stress_get_setting(opt, &flag);
+	(void)stress_setting_get(opt, &flag);
 	if (flag)
 		*cache_flags |= bitmask;
 }

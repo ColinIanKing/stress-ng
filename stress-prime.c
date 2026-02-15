@@ -158,9 +158,9 @@ static int OPTIMIZE3 stress_prime(stress_args_t *args)
 
 	mpz_inits(start, value, factorial, NULL);
 
-	(void)stress_get_setting("prime-method", &prime_method);
-	(void)stress_get_setting("prime-progress", &prime_progress);
-	(void)stress_get_setting("prime-start", &prime_start);
+	(void)stress_setting_get("prime-method", &prime_method);
+	(void)stress_setting_get("prime-progress", &prime_progress);
+	(void)stress_setting_get("prime-start", &prime_start);
 
 	if (prime_start) {
 		if (stress_prime_start(prime_start, start) < 0) {

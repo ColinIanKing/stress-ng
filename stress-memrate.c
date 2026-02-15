@@ -1095,12 +1095,12 @@ static int stress_memrate(stress_args_t *args)
 	context->memrate_flush = false;
 	context->memrate_method = 0; 	/* all */
 
-	(void)stress_get_setting("memrate-bytes", &context->memrate_bytes);
-	(void)stress_get_setting("memrate-discontiguous", &context->memrate_discontiguous);
-	(void)stress_get_setting("memrate-flush", &context->memrate_flush);
-	(void)stress_get_setting("memrate-rd-mbs", &context->memrate_rd_mbs);
-	(void)stress_get_setting("memrate-wr-mbs", &context->memrate_wr_mbs);
-	(void)stress_get_setting("memrate-method", &context->memrate_method);
+	(void)stress_setting_get("memrate-bytes", &context->memrate_bytes);
+	(void)stress_setting_get("memrate-discontiguous", &context->memrate_discontiguous);
+	(void)stress_setting_get("memrate-flush", &context->memrate_flush);
+	(void)stress_setting_get("memrate-rd-mbs", &context->memrate_rd_mbs);
+	(void)stress_setting_get("memrate-wr-mbs", &context->memrate_wr_mbs);
+	(void)stress_setting_get("memrate-method", &context->memrate_method);
 
 	if ((context->memrate_rd_mbs == 0ULL) && (context->memrate_wr_mbs == 0ULL)) {
 		pr_fail("%s: cannot use zero MB rates for read and write\n", args->name);

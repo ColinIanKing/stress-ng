@@ -237,7 +237,7 @@ static int OPTIMIZE_GOTO stress_goto(stress_args_t *args)
 		labels_backward[i] = default_labels[(MAX_LABELS + i - 1) % MAX_LABELS];
 	}
 
-	(void)stress_get_setting("goto-direction", &goto_direction);
+	(void)stress_setting_get("goto-direction", &goto_direction);
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);

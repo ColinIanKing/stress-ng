@@ -189,19 +189,19 @@ static int stress_stack_child(stress_args_t *args, void *context)
 
 	(void)context;
 
-	if (!stress_get_setting("stack-fill", &stack_fill)) {
+	if (!stress_setting_get("stack-fill", &stack_fill)) {
 		if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
 			stack_fill = true;
 	}
-	if (!stress_get_setting("stack-mlock", &stack_mlock)) {
+	if (!stress_setting_get("stack-mlock", &stack_mlock)) {
 		if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
 			stack_mlock = true;
 	}
-	if (!stress_get_setting("stack-pageout", &stack_pageout)) {
+	if (!stress_setting_get("stack-pageout", &stack_pageout)) {
 		if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
 			stack_pageout = true;
 	}
-	if (!stress_get_setting("stack-unmap", &stack_unmap)) {
+	if (!stress_setting_get("stack-unmap", &stack_unmap)) {
 		if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
 			stack_unmap = true;
 	}

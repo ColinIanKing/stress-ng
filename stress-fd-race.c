@@ -808,8 +808,8 @@ static int stress_fd_race(stress_args_t *args)
 	context.socket_fd_port = DEFAULT_SOCKET_FD_PORT;
 	context.current_fd = -1;
 
-	(void)stress_get_setting("fd-race-dev", &fd_race_dev);
-	(void)stress_get_setting("fd-race-proc", &fd_race_proc);
+	(void)stress_setting_get("fd-race-dev", &fd_race_dev);
+	(void)stress_setting_get("fd-race-proc", &fd_race_proc);
 
 	if (stress_signal_sigchld_handler(args) < 0)
 		return EXIT_NO_RESOURCE;

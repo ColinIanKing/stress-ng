@@ -278,18 +278,18 @@ static int stress_mmaphuge(stress_args_t *args)
 	context->sz = 16 * MB;
 	context->fd = -1;
 	context->mmaphuge_mmaps = MAX_MMAP_BUFS;
-	if (!stress_get_setting("mmaphuge-mmaps", &context->mmaphuge_mmaps)) {
+	if (!stress_setting_get("mmaphuge-mmaps", &context->mmaphuge_mmaps)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			context->mmaphuge_mmaps = MAX_MMAPHUGE_MMAPS;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			context->mmaphuge_mmaps = MIN_MMAPHUGE_MMAPS;
 	}
 	context->mmaphuge_file = false;
-	(void)stress_get_setting("mmaphuge-file", &context->mmaphuge_file);
+	(void)stress_setting_get("mmaphuge-file", &context->mmaphuge_file);
 	context->mmaphuge_numa = false;
-	(void)stress_get_setting("mmaphuge-numa", &context->mmaphuge_numa);
+	(void)stress_setting_get("mmaphuge-numa", &context->mmaphuge_numa);
 	context->mmaphuge_mlock = false;
-	(void)stress_get_setting("mmaphuge-mlock", &context->mmaphuge_mlock);
+	(void)stress_setting_get("mmaphuge-mlock", &context->mmaphuge_mlock);
 
 	context->bufs = (stress_mmaphuge_buf_t *)calloc(context->mmaphuge_mmaps, sizeof(*context->bufs));
 	if (!context->bufs) {

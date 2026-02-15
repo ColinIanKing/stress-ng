@@ -75,9 +75,9 @@ static int OPTIMIZE3 stress_udp_flood(stress_args_t *args)
 	uint64_t sendto_failed = 0, total_count;
 	int port_change = 0, seq_port = -1, rand_port = -1, reserved_port;
 
-	(void)stress_get_setting("udp-flood-domain", &udp_flood_domain);
-	(void)stress_get_setting("udp-flood-if", &udp_flood_if);
-	if (!stress_get_setting("udp-flood-max-size", &udp_flood_max_size)) {
+	(void)stress_setting_get("udp-flood-domain", &udp_flood_domain);
+	(void)stress_setting_get("udp-flood-if", &udp_flood_if);
+	if (!stress_setting_get("udp-flood-max-size", &udp_flood_max_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			udp_flood_max_size = MAX_UDP_FLOOD_MAX_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

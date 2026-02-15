@@ -692,7 +692,7 @@ static int stress_cpu_sched_child(stress_args_t *args, void *context)
 
 	(void)context;
 
-	if (!stress_get_setting("cpu-sched-procs", &cpu_sched_procs)) {
+	if (!stress_setting_get("cpu-sched-procs", &cpu_sched_procs)) {
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			cpu_sched_procs = MIN_CPU_SCHED_PROCS;
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)

@@ -296,8 +296,8 @@ static int OPTIMIZE3 stress_qsort(stress_args_t *args)
 
 	stress_signal_catch_sigill();
 
-	(void)stress_get_setting("qsort-method", &qsort_method);
-	if (!stress_get_setting("qsort-size", &qsort_size)) {
+	(void)stress_setting_get("qsort-method", &qsort_method);
+	if (!stress_setting_get("qsort-size", &qsort_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			qsort_size = MAX_QSORT_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

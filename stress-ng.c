@@ -586,7 +586,7 @@ static int stress_exclude(void)
 {
 	char *str, *token, *opt_exclude;
 
-	if (!stress_get_setting("exclude", &opt_exclude))
+	if (!stress_setting_get("exclude", &opt_exclude))
 		return 0;
 
 	for (str = opt_exclude; (token = strtok(str, ",")) != NULL; str = NULL) {
@@ -1850,9 +1850,9 @@ static void MLOCKED_TEXT stress_run(
 
 	time_start = stress_time_now();
 
-	(void)stress_get_setting("backoff", &backoff);
-	(void)stress_get_setting("ionice-class", &ionice_class);
-	(void)stress_get_setting("ionice-level", &ionice_level);
+	(void)stress_setting_get("backoff", &backoff);
+	(void)stress_setting_get("ionice-class", &ionice_class);
+	(void)stress_setting_get("ionice-level", &ionice_level);
 
 	if (opt_pause) {
 		static bool first_run = true;
@@ -3169,7 +3169,7 @@ static inline void stress_set_random_stressors(void)
 {
 	int32_t opt_random = 0;
 
-	(void)stress_get_setting("random", &opt_random);
+	(void)stress_setting_get("random", &opt_random);
 
 	if (g_opt_flags & OPT_FLAGS_RANDOM) {
 		int32_t n = opt_random;
@@ -3208,7 +3208,7 @@ static void stress_with(const int32_t instances)
 {
 	char *opt_with = NULL, *str, *token;
 
-	(void)stress_get_setting("with", &opt_with);
+	(void)stress_setting_get("with", &opt_with);
 
 	for (str = opt_with; (token = strtok(str, ",")) != NULL; str = NULL) {
 		stress_stressor_t *ss;
@@ -4064,7 +4064,7 @@ int main(int argc, char **argv, char **envp)
 	/*
 	 *  Load in job file options
 	 */
-	(void)stress_get_setting("job", &job_filename);
+	(void)stress_setting_get("job", &job_filename);
 	if (stress_job_parse_file(argc, argv, job_filename) < 0) {
 		ret = EXIT_FAILURE;
 		goto exit_stressors_free;
@@ -4089,7 +4089,7 @@ int main(int argc, char **argv, char **envp)
 		ret = EXIT_FAILURE;
 		goto exit_stressors_free;
 	}
-	(void)stress_get_setting("class", &opt_class);
+	(void)stress_setting_get("class", &opt_class);
 
 	if (opt_class &&
 	    !(g_opt_flags & (OPT_FLAGS_SEQUENTIAL | OPT_FLAGS_ALL | OPT_FLAGS_PERMUTE))) {
@@ -4125,7 +4125,7 @@ int main(int argc, char **argv, char **envp)
 	/*
 	 *  Setup logging
 	 */
-	if (stress_get_setting("log-file", &log_filename))
+	if (stress_setting_get("log-file", &log_filename))
 		pr_openlog(log_filename);
 	shim_openlog("stress-ng", 0, LOG_USER);
 	stress_log_args(argc, argv);
@@ -4184,9 +4184,9 @@ int main(int argc, char **argv, char **envp)
 	stress_process_dumpable(false);
 	stress_set_oom_adjustment(NULL, false);
 
-	(void)stress_get_setting("ionice-class", &ionice_class);
-	(void)stress_get_setting("ionice-level", &ionice_level);
-	(void)stress_get_setting("yaml", &yaml_filename);
+	(void)stress_setting_get("ionice-class", &ionice_class);
+	(void)stress_setting_get("ionice-level", &ionice_level);
+	(void)stress_setting_get("yaml", &yaml_filename);
 
 	stress_mlock_executable();
 
@@ -4268,11 +4268,11 @@ int main(int argc, char **argv, char **envp)
 	 *  Allocate shared cache memory
 	 */
 	g_shared->mem_cache.size = 0;
-	(void)stress_get_setting("cache-size", &g_shared->mem_cache.size);
+	(void)stress_setting_get("cache-size", &g_shared->mem_cache.size);
 	g_shared->mem_cache.level = DEFAULT_CACHE_LEVEL;
-	(void)stress_get_setting("cache-level", &g_shared->mem_cache.level);
+	(void)stress_setting_get("cache-level", &g_shared->mem_cache.level);
 	g_shared->mem_cache.ways = 0;
-	(void)stress_get_setting("cache-ways", &g_shared->mem_cache.ways);
+	(void)stress_setting_get("cache-ways", &g_shared->mem_cache.ways);
 	if (stress_shared_cache_alloc("shared cache allocate") < 0) {
 		ret = EXIT_FAILURE;
 		goto exit_shared_unmap;

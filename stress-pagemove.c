@@ -333,15 +333,15 @@ static int stress_pagemove(stress_args_t *args)
 
 	info.pagemove_mlock = false;
 	info.pagemove_numa = false;
-	if (!stress_get_setting("pagemove-mlock", &info.pagemove_mlock)) {
+	if (!stress_setting_get("pagemove-mlock", &info.pagemove_mlock)) {
 		if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
 			info.pagemove_mlock = true;
 	}
-	if (!stress_get_setting("pagemove-numa", &info.pagemove_numa)) {
+	if (!stress_setting_get("pagemove-numa", &info.pagemove_numa)) {
 		if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
 			info.pagemove_numa = true;
 	}
-	if (!stress_get_setting("pagemove-bytes", &pagemove_bytes_total)) {
+	if (!stress_setting_get("pagemove-bytes", &pagemove_bytes_total)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			pagemove_bytes_total = MAX_32;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

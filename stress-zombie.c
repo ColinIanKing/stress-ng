@@ -304,13 +304,13 @@ static int stress_zombie(stress_args_t *args)
 	int clone_flags = SHIM_CLONE_NEWIPC;
 	int (*clone_func)(void *) = stress_zombie_clone_cap_sys_admin;
 #endif
-	if (!stress_get_setting("zombie-max", &zombie_max)) {
+	if (!stress_setting_get("zombie-max", &zombie_max)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			zombie_max = MAX_ZOMBIES;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			zombie_max = MIN_ZOMBIES;
 	}
-	(void)stress_get_setting("zombie-clone", &zombie_clone);
+	(void)stress_setting_get("zombie-clone", &zombie_clone);
 	if (zombie_clone) {
 #if !defined(HAVE_LINUX_CLONE)
 		if (stress_instance_zero(args)) {

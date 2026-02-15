@@ -398,9 +398,9 @@ static int stress_madvise(stress_args_t *args)
 
 	(void)shim_memset(&ctxt, 0, sizeof(ctxt));
 	ctxt.madvise_bytes = DEFAULT_MADVISE_BYTES;
-	(void)stress_get_setting("madvise-bytes", &ctxt.madvise_bytes);
+	(void)stress_setting_get("madvise-bytes", &ctxt.madvise_bytes);
 	ctxt.madvise_bytes = (ctxt.madvise_bytes + page_size - 1) & ~(page_size - 1);
-	(void)stress_get_setting("madvise-hwpoison", &ctxt.hwpoison);
+	(void)stress_setting_get("madvise-hwpoison", &ctxt.hwpoison);
 
 	num_mem_retries = 0;
 #if defined(MADV_FREE)

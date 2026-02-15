@@ -425,7 +425,7 @@ static int stress_vecfp(stress_args_t *args)
 	}
 	stress_set_vma_anon_name(vecfp_init, sizeof(*vecfp_init), "vecfp-init-data");
 
-	(void)stress_get_setting("vecfp-method", &vecfp_method);
+	(void)stress_setting_get("vecfp-method", &vecfp_method);
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);

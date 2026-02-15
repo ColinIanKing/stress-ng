@@ -394,9 +394,9 @@ static int OPTIMIZE3 stress_far_branch(stress_args_t *args)
 	}
 	(void)shim_unlink(filename);
 
-	(void)stress_get_setting("far-branch-flush", &far_branch_flush);
-	(void)stress_get_setting("far-branch-pageout", &far_branch_pageout);
-	if (!stress_get_setting("far-branch-pages", &n_pages)) {
+	(void)stress_setting_get("far-branch-flush", &far_branch_flush);
+	(void)stress_setting_get("far-branch-pageout", &far_branch_pageout);
+	if (!stress_setting_get("far-branch-pages", &n_pages)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			n_pages = MAX_FAR_BRANCH_PAGES;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

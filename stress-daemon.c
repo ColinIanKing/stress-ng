@@ -166,7 +166,7 @@ static int stress_daemon(stress_args_t *args)
 	pid_t pid;
 	bool daemon_wait = false;
 
-	(void)stress_get_setting("daemon-wait", &daemon_wait);
+	(void)stress_setting_get("daemon-wait", &daemon_wait);
 
 	if (stress_signal_stop_stressing(args->name, SIGALRM) < 0)
 		return EXIT_FAILURE;

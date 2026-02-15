@@ -541,13 +541,13 @@ static int stress_workload(stress_args_t *args)
 	uint32_t i;
 #endif
 
-	(void)stress_get_setting("workload-dist", &workload_dist_idx);
-	(void)stress_get_setting("workload-load", &workload_load);
-	(void)stress_get_setting("workload-method", &workload_method_idx);
-	(void)stress_get_setting("workload-quanta-us", &workload_quanta_us);
-	(void)stress_get_setting("workload-sched", &workload_sched);
-	(void)stress_get_setting("workload-slice-us", &workload_slice_us);
-	(void)stress_get_setting("workload-threads", &workload_threads);
+	(void)stress_setting_get("workload-dist", &workload_dist_idx);
+	(void)stress_setting_get("workload-load", &workload_load);
+	(void)stress_setting_get("workload-method", &workload_method_idx);
+	(void)stress_setting_get("workload-quanta-us", &workload_quanta_us);
+	(void)stress_setting_get("workload-sched", &workload_sched);
+	(void)stress_setting_get("workload-slice-us", &workload_slice_us);
+	(void)stress_setting_get("workload-threads", &workload_threads);
 
 	workload_method = workload_methods[workload_method_idx].method;
 	workload_dist = workload_dists[workload_dist_idx].type;
@@ -555,7 +555,7 @@ static int stress_workload(stress_args_t *args)
 	if (stress_instance_zero(args)) {
 		uint32_t timer_slack_ns;
 
-		if (!stress_get_setting("timer-slack", &timer_slack_ns))
+		if (!stress_setting_get("timer-slack", &timer_slack_ns))
 			timer_slack_ns = 50000;
 
 		if (workload_quanta_us < timer_slack_ns / 1000) {

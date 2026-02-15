@@ -462,10 +462,10 @@ static int stress_module(stress_args_t *args)
         if (ret < 0)
                 return stress_exit_status((int)-ret);
 
-	(void)stress_get_setting("module-name", &module_name_cli);
-	(void)stress_get_setting("module-no-vermag", &module_no_vermag);
-	(void)stress_get_setting("module-no-modver", &module_no_modver);
-	(void)stress_get_setting("module-no-unload", &module_no_unload);
+	(void)stress_setting_get("module-name", &module_name_cli);
+	(void)stress_setting_get("module-no-vermag", &module_no_vermag);
+	(void)stress_setting_get("module-no-modver", &module_no_modver);
+	(void)stress_setting_get("module-no-unload", &module_no_unload);
 
 	if (module_no_vermag)
 		kernel_flags |= MODULE_INIT_IGNORE_VERMAGIC;

@@ -964,7 +964,7 @@ static int OPTIMIZE3 stress_sock_server(
 	uint32_t count = 0;
 #endif
 
-	if (!stress_get_setting("sock-msgs", &sock_msgs)) {
+	if (!stress_setting_get("sock-msgs", &sock_msgs)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			sock_msgs = MAX_SOCKET_MSGS;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
@@ -1369,20 +1369,20 @@ static int stress_sock(stress_args_t *args)
 	if (stress_signal_sigchld_handler(args) < 0)
 		return EXIT_NO_RESOURCE;
 
-	(void)stress_get_setting("sock-if", &sock_if);
-	(void)stress_get_setting("sock-domain", &sock_domain);
-	(void)stress_get_setting("sock-port", &sock_port);
-	(void)stress_get_setting("sock-zerocopy", &sock_zerocopy);
-	sock_opts = stress_get_setting("sock-opts", &idx) ?
+	(void)stress_setting_get("sock-if", &sock_if);
+	(void)stress_setting_get("sock-domain", &sock_domain);
+	(void)stress_setting_get("sock-port", &sock_port);
+	(void)stress_setting_get("sock-zerocopy", &sock_zerocopy);
+	sock_opts = stress_setting_get("sock-opts", &idx) ?
 		sock_options_opts[idx].optval : SOCKET_OPT_SEND;
 #if defined(SOCK_STREAM)
-	sock_type = stress_get_setting("sock-type", &idx) ?
+	sock_type = stress_setting_get("sock-type", &idx) ?
 		sock_options_types[idx].optval : SOCK_STREAM;
 #else
-	sock_type = stress_get_setting("sock-type", &idx) ?
+	sock_type = stress_setting_get("sock-type", &idx) ?
 		sock_options_types[idx].optval : 1;
 #endif
-	sock_protocol = stress_get_setting("sock-protocol", &idx) ?
+	sock_protocol = stress_setting_get("sock-protocol", &idx) ?
 		sock_options_protocols[idx].optval : IPPROTO_TCP;
 
 #if !defined(MSG_ZEROCOPY)

@@ -452,7 +452,7 @@ static int stress_funcret(stress_args_t *args)
 	size_t funcret_method = 0;
 	size_t i, j;
 
-	(void)stress_get_setting("funcret-method", &funcret_method);
+	(void)stress_setting_get("funcret-method", &funcret_method);
 
 	stress_zero_metrics(stress_funcret_metrics, NUM_STRESS_FUNCRET_METHODS);
 

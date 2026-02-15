@@ -448,8 +448,8 @@ static int stress_rawpkt(stress_args_t *args)
 	if (stress_signal_sigchld_handler(args) < 0)
 		return EXIT_NO_RESOURCE;
 
-	(void)stress_get_setting("rawpkt-port", &rawpkt_port);
-	if (!stress_get_setting("rawpkt-rxring", &rawpkt_rxring)) {
+	(void)stress_setting_get("rawpkt-port", &rawpkt_port);
+	if (!stress_setting_get("rawpkt-rxring", &rawpkt_rxring)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			rawpkt_rxring = 16;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

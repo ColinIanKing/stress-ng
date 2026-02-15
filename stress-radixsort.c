@@ -205,14 +205,14 @@ static int stress_radixsort(stress_args_t *args)
 
 	radixsort_func_t radixsort_func;
 
-	(void)stress_get_setting("radixsort-method", &radixsort_method);
+	(void)stress_setting_get("radixsort-method", &radixsort_method);
 
 	radixsort_func = stress_radixsort_methods[radixsort_method].radixsort_func;
 	if (stress_instance_zero(args))
 		pr_inf("%s: using method '%s'\n",
 			args->name, stress_radixsort_methods[radixsort_method].name);
 
-	if (!stress_get_setting("radixsort-size", &radixsort_size)) {
+	if (!stress_setting_get("radixsort-size", &radixsort_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			radixsort_size = MAX_RADIXSORT_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

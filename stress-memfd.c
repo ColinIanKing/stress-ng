@@ -194,10 +194,10 @@ static int stress_memfd_child(stress_args_t *args, void *context)
 
 	(void)context;
 
-	(void)stress_get_setting("memfd-madvise", &memfd_madvise);
-	(void)stress_get_setting("memfd-mlock", &memfd_mlock);
-	(void)stress_get_setting("memfd-numa", &memfd_numa);
-	(void)stress_get_setting("memfd-zap-pte", &memfd_zap_pte);
+	(void)stress_setting_get("memfd-madvise", &memfd_madvise);
+	(void)stress_setting_get("memfd-mlock", &memfd_mlock);
+	(void)stress_setting_get("memfd-numa", &memfd_numa);
+	(void)stress_setting_get("memfd-zap-pte", &memfd_zap_pte);
 
 #if !defined(HAVE_MADVISE)
 	if (memfd_madvise) {
@@ -220,7 +220,7 @@ static int stress_memfd_child(stress_args_t *args, void *context)
 	}
 #endif
 
-	if (!stress_get_setting("memfd-bytes", &memfd_bytes)) {
+	if (!stress_setting_get("memfd-bytes", &memfd_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			memfd_bytes = MAX_32;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
@@ -230,7 +230,7 @@ static int stress_memfd_child(stress_args_t *args, void *context)
 	if (memfd_bytes < MIN_MEMFD_BYTES)
 		memfd_bytes = MIN_MEMFD_BYTES;
 
-	if (!stress_get_setting("memfd-fds", &memfd_fds)) {
+	if (!stress_setting_get("memfd-fds", &memfd_fds)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			memfd_fds = MAX_MEMFD_FDS;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

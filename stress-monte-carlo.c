@@ -596,9 +596,9 @@ static int stress_monte_carlo(stress_args_t *args)
 	monte_carlo_samples = 100000;
 	monte_carlo_method = 0;
 	monte_carlo_rand = 0;
-	(void)stress_get_setting("monte-carlo-method", &monte_carlo_method);
-	(void)stress_get_setting("monte-carlo-rand", &monte_carlo_rand);
-	if (!stress_get_setting("monte-carlo-samples", &monte_carlo_samples)) {
+	(void)stress_setting_get("monte-carlo-method", &monte_carlo_method);
+	(void)stress_setting_get("monte-carlo-rand", &monte_carlo_rand);
+	if (!stress_setting_get("monte-carlo-samples", &monte_carlo_samples)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			monte_carlo_samples = MAX_MONTE_CARLO_SAMPLES;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

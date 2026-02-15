@@ -471,7 +471,7 @@ static int stress_clone_child(stress_args_t *args, void *context)
 	void *ptr;
 	stress_clone_shared_t *shared = (stress_clone_shared_t *)context;
 
-	if (!stress_get_setting("clone-max", &clone_max)) {
+	if (!stress_setting_get("clone-max", &clone_max)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			clone_max = MAX_CLONES;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

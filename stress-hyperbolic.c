@@ -265,7 +265,7 @@ static int stress_hyperbolic(stress_args_t *args)
 	size_t hyperbolic_method = 0;
 	int rc = EXIT_SUCCESS;
 
-	(void)stress_get_setting("hyperbolic-method", &hyperbolic_method);
+	(void)stress_setting_get("hyperbolic-method", &hyperbolic_method);
 
 	stress_zero_metrics(stress_hyperbolic_metrics, SIZEOF_ARRAY(stress_hyperbolic_metrics));
 

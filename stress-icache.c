@@ -177,7 +177,7 @@ static int stress_icache(stress_args_t *args)
 	uint32_t icache_pages = DEFAULT_ICACHE_PAGES;
 	size_t pages_size;
 
-	if (!stress_get_setting("icache-pages", &icache_pages)) {
+	if (!stress_setting_get("icache-pages", &icache_pages)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			icache_pages = MAX_ICACHE_PAGES;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

@@ -255,7 +255,7 @@ static int stress_userfaultfd_child(stress_args_t *args, void *context)
 	(void)context;
 	(void)shim_memset(stack, 0, sizeof(stack));
 
-	if (!stress_get_setting("userfaultfd-bytes", &userfaultfd_bytes_total)) {
+	if (!stress_setting_get("userfaultfd-bytes", &userfaultfd_bytes_total)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			userfaultfd_bytes_total = MAX_32;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

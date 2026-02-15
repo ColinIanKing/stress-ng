@@ -221,8 +221,8 @@ static int stress_tmpfs_child(stress_args_t *args, void *ctxt)
 		return EXIT_NO_RESOURCE;
 	}
 
-	(void)stress_get_setting("tmpfs-mmap-async", &tmpfs_mmap_async);
-	(void)stress_get_setting("tmpfs-mmap-file", &tmpfs_mmap_file);
+	(void)stress_setting_get("tmpfs-mmap-async", &tmpfs_mmap_async);
+	(void)stress_setting_get("tmpfs-mmap-file", &tmpfs_mmap_file);
 
 	ms_flags = tmpfs_mmap_async ? MS_ASYNC : MS_SYNC;
 

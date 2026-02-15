@@ -555,7 +555,7 @@ static int stress_bad_ioctl(stress_args_t *args)
 	dev_ioctl_info_head = NULL;
 	dev_ioctl_node = NULL;
 
-	(void)stress_get_setting("bad-ioctl-method", &bad_ioctl_method);
+	(void)stress_setting_get("bad-ioctl-method", &bad_ioctl_method);
 
 	stress_bad_ioctl_dev_dir(args, "/dev", 0);
 	dev_ioctl_node = dev_ioctl_info_head;

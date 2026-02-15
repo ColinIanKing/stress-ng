@@ -336,7 +336,7 @@ static int x86syscall_check_x86syscall_func(void)
 	size_t i;
 	bool exercise = false;
 
-	if (!stress_get_setting("x86syscall-func", &name))
+	if (!stress_setting_get("x86syscall-func", &name))
 		return 0;
 
 	for (i = 0; i < SIZEOF_ARRAY(x86syscalls); i++) {

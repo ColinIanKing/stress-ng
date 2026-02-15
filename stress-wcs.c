@@ -696,7 +696,7 @@ static int stress_wcs(stress_args_t *args)
 	if (SIZEOF_ARRAY(wcs_methods) < 2)
 		return stress_unimplemented(args);
 
-	(void)stress_get_setting("wcs-method", &wcs_method);
+	(void)stress_setting_get("wcs-method", &wcs_method);
 	wcs_method_info = &wcs_methods[wcs_method];
 	info.libc_func = wcs_method_info->libc_func;
 	info.str1 = str1;

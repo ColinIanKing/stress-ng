@@ -332,7 +332,7 @@ static int stress_link(stress_args_t *args)
 {
 	bool link_sync = false;
 
-	(void)stress_get_setting("link-sync", &link_sync);
+	(void)stress_setting_get("link-sync", &link_sync);
 	return stress_link_generic(args, link, "link", link_sync);
 }
 #endif
@@ -345,7 +345,7 @@ static int stress_symlink(stress_args_t *args)
 {
 	bool symlink_sync = false;
 
-	(void)stress_get_setting("symlink-sync", &symlink_sync);
+	(void)stress_setting_get("symlink-sync", &symlink_sync);
 	return stress_link_generic(args, symlink, "symlink", symlink_sync);
 }
 

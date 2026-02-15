@@ -511,12 +511,12 @@ static int stress_l1cache(stress_args_t *args)
 	l1cache_func_t stress_l1cache_func;
 	bool l1cache_mlock = false;
 
-	(void)stress_get_setting("l1cache-ways", &l1cache_ways);
-	(void)stress_get_setting("l1cache-size", &l1cache_size);
-	(void)stress_get_setting("l1cache-sets", &l1cache_sets);
-	(void)stress_get_setting("l1cache-line-size", &l1cache_line_size);
-	(void)stress_get_setting("l1cache-method", &l1cache_method);
-	(void)stress_get_setting("l1cache-mlock", &l1cache_mlock);
+	(void)stress_setting_get("l1cache-ways", &l1cache_ways);
+	(void)stress_setting_get("l1cache-size", &l1cache_size);
+	(void)stress_setting_get("l1cache-sets", &l1cache_sets);
+	(void)stress_setting_get("l1cache-line-size", &l1cache_line_size);
+	(void)stress_setting_get("l1cache-method", &l1cache_method);
+	(void)stress_setting_get("l1cache-mlock", &l1cache_mlock);
 
 	stress_l1cache_func = stress_l1cache_methods[l1cache_method].func[verify];
 

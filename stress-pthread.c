@@ -455,7 +455,7 @@ static int stress_pthread(stress_args_t *args)
 	(void)sigaddset(&set, SIGALRM);
 	(void)sigprocmask(SIG_BLOCK, &set, NULL);
 
-	if (!stress_get_setting("pthread-max", &pthread_max)) {
+	if (!stress_setting_get("pthread-max", &pthread_max)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			pthread_max = MAX_PTHREAD;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

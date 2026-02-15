@@ -1598,7 +1598,7 @@ static int stress_filerace(stress_args_t *args)
 	size_t i, children = 0;
 	size_t filerace_procs = DEFAULT_FILERACE_PROCS;
 
-	if (!stress_get_setting("filerace-procs", &filerace_procs)) {
+	if (!stress_setting_get("filerace-procs", &filerace_procs)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			filerace_procs = MAX_FILERACE_PROCS;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

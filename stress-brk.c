@@ -317,9 +317,9 @@ static int stress_brk(stress_args_t *args)
 	brk_context->brk_mlock = false;
 	brk_context->brk_notouch = false;
 
-	(void)stress_get_setting("brk-bytes", &brk_context->brk_bytes);
-	(void)stress_get_setting("brk-mlock", &brk_context->brk_mlock);
-	(void)stress_get_setting("brk-notouch", &brk_context->brk_notouch);
+	(void)stress_setting_get("brk-bytes", &brk_context->brk_bytes);
+	(void)stress_setting_get("brk-mlock", &brk_context->brk_mlock);
+	(void)stress_setting_get("brk-notouch", &brk_context->brk_notouch);
 
 #if !defined(MCL_FUTURE)
 	if (stress_instance_zero(args) && brk_context->brk_mlock) {

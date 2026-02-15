@@ -985,9 +985,9 @@ static int stress_epoll(stress_args_t *args)
 	int start_port, end_port, reserved_port;
 	int max_servers;
 
-	(void)stress_get_setting("epoll-domain", &epoll_domain);
-	(void)stress_get_setting("epoll-port", &epoll_port);
-	if (!stress_get_setting("epoll-sockets", &epoll_sockets)) {
+	(void)stress_setting_get("epoll-domain", &epoll_domain);
+	(void)stress_setting_get("epoll-port", &epoll_port);
+	if (!stress_setting_get("epoll-sockets", &epoll_sockets)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			epoll_sockets = MAX_EPOLL_SOCKETS;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

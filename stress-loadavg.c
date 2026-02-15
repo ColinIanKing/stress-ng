@@ -168,7 +168,7 @@ static int stress_loadavg(stress_args_t *args)
 	sigset_t set;
 
 
-	if (!stress_get_setting("loadavg-max", &loadavg_max)) {
+	if (!stress_setting_get("loadavg-max", &loadavg_max)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			loadavg_max = MAX_LOADAVG;	/* Stupidly high */
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

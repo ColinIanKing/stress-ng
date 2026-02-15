@@ -516,8 +516,8 @@ static int stress_switch(stress_args_t *args)
 		}
 	}
 
-	(void)stress_get_setting("switch-freq", &switch_freq);
-	(void)stress_get_setting("switch-method", &switch_method);
+	(void)stress_setting_get("switch-freq", &switch_freq);
+	(void)stress_setting_get("switch-method", &switch_method);
 
 	switch_delay = (switch_freq == 0) ? 0 : STRESS_NANOSECOND / switch_freq;
 	threshold = switch_freq / THRESH_FREQ;

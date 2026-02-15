@@ -259,7 +259,7 @@ static int stress_physpage(stress_args_t *args)
 	bool success = true;
 	bool physpage_mtrr = false;
 
-	(void)stress_get_setting("physpage-mtrr", &physpage_mtrr);
+	(void)stress_setting_get("physpage-mtrr", &physpage_mtrr);
 
 	fd_pm = open("/proc/self/pagemap", O_RDONLY);
 	if (fd_pm < 0) {

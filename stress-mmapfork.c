@@ -128,7 +128,7 @@ static int stress_mmapfork(stress_args_t *args)
 #endif
 	bool report_size = (stress_instance_zero(args));
 
-	if (!stress_get_setting("mmapfork-procs", &mmapfork_procs)) {
+	if (!stress_setting_get("mmapfork-procs", &mmapfork_procs)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			mmapfork_procs = MAX_MMAPFORK_PROCS;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
@@ -195,7 +195,7 @@ static int stress_mmapfork(stress_args_t *args)
 				}
 #endif
 				len_total = (size_t)info.freeram * (size_t)info.mem_unit;
-				if (!stress_get_setting("mmapfork-bytes", &len_total)) {
+				if (!stress_setting_get("mmapfork-bytes", &len_total)) {
 					if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 						len_total = MIN_MMAPFORK_BYTES;
 					if (g_opt_flags & OPT_FLAGS_MAXIMIZE)

@@ -1249,7 +1249,7 @@ static int stress_funccall(stress_args_t *args)
 
 	stress_zero_metrics(stress_funccall_metrics, NUM_STRESS_FUNCCALL_METHODS);
 
-	(void)stress_get_setting("funccall-method", &funccall_method);
+	(void)stress_setting_get("funccall-method", &funccall_method);
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);

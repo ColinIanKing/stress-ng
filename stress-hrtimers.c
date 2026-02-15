@@ -120,7 +120,7 @@ static int stress_hrtimer_process(stress_args_t *args)
 	(void)sigaddset(&mask, SIGINT);
 	(void)sigprocmask(SIG_SETMASK, &mask, NULL);
 	/* If sched is not set, use SCHED_RR as default */
-	if (!stress_get_setting("sched", &sched)) {
+	if (!stress_setting_get("sched", &sched)) {
 		VOID_RET(int, stress_sched_set(getpid(), SCHED_RR, UNDEFINED, true));
 	}
 
@@ -206,7 +206,7 @@ static int stress_hrtimers(stress_args_t *args)
 		goto tidy_s_pids;
 	}
 
-        (void)stress_get_setting("hrtimers-adjust", &hrtimers_adjust);
+        (void)stress_setting_get("hrtimers-adjust", &hrtimers_adjust);
 	ns_delay = hrtimers_adjust ? 1000 : -1;
 
 	for (i = 0; i < PROCS_MAX; i++) {

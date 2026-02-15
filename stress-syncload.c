@@ -300,8 +300,8 @@ static int stress_syncload(stress_args_t *args)
 
 	stress_signal_catch_sigill();
 
-	(void)stress_get_setting("syncload-msbusy", &syncload_msbusy);
-	(void)stress_get_setting("syncload-mssleep", &syncload_mssleep);
+	(void)stress_setting_get("syncload-msbusy", &syncload_msbusy);
+	(void)stress_setting_get("syncload-mssleep", &syncload_mssleep);
 
 	sec_busy = (double)syncload_msbusy / STRESS_DBL_MILLISECOND;
 	sec_sleep = (double)syncload_mssleep / STRESS_DBL_MILLISECOND;

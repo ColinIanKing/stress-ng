@@ -447,7 +447,7 @@ static int vdso_sym_list_check_vdso_func(stress_vdso_sym_t **list)
 	stress_vdso_sym_t *vs1;
 	char *name;
 
-	if (!stress_get_setting("vdso-func", &name))
+	if (!stress_setting_get("vdso-func", &name))
 		return 0;
 
 	for (vs1 = vdso_sym_list; vs1; vs1 = vs1->next) {

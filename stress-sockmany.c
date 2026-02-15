@@ -311,14 +311,14 @@ static int stress_sockmany(stress_args_t *args)
 	if (stress_signal_sigchld_handler(args) < 0)
 		return EXIT_NO_RESOURCE;
 
-	(void)stress_get_setting("sockmany-if", &sockmany_if);
-	if (!stress_get_setting("sockmany-max-size", &sockmany_max_size)) {
+	(void)stress_setting_get("sockmany-if", &sockmany_if);
+	if (!stress_setting_get("sockmany-max-size", &sockmany_max_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			sockmany_max_size = MAX_SOCKMANY_MAX_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			sockmany_max_size = MIN_SOCKMANY_MAX_SIZE;
 	}
-	(void)stress_get_setting("sockmany-port", &sockmany_port);
+	(void)stress_setting_get("sockmany-port", &sockmany_port);
 
 	if (sockmany_if) {
 		int ret;

@@ -189,9 +189,9 @@ int stress_sched_set(
 		if (!quiet)
 			pr_dbg("%s: setting scheduler class '%s'\n", prefix, sched_name);
 
-		(void)stress_get_setting("sched-period", &sched_period);
-		(void)stress_get_setting("sched-runtime", &sched_runtime);
-		(void)stress_get_setting("sched-deadline", &sched_deadline);
+		(void)stress_setting_get("sched-period", &sched_period);
+		(void)stress_setting_get("sched-runtime", &sched_runtime);
+		(void)stress_setting_get("sched-deadline", &sched_deadline);
 		if (sched_deadline == 0) {
 			attr.sched_runtime = 90000;
 			attr.sched_deadline = 100000;
@@ -307,8 +307,8 @@ int stress_sched_settings_apply(const bool quiet)
 	int32_t sched = UNDEFINED;
 	int32_t sched_prio = UNDEFINED;
 
-	(void)stress_get_setting("sched", &sched);
-	(void)stress_get_setting("sched-prio", &sched_prio);
+	(void)stress_setting_get("sched", &sched);
+	(void)stress_setting_get("sched-prio", &sched_prio);
 
 	return stress_sched_set(getpid(), (int)sched, sched_prio, quiet);
 }

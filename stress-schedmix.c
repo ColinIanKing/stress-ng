@@ -543,7 +543,7 @@ static int stress_schedmix(stress_args_t *args)
 	}
 #endif
 
-	if (!stress_get_setting("schedmix-procs", &schedmix_procs)) {
+	if (!stress_setting_get("schedmix-procs", &schedmix_procs)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			schedmix_procs = MAX_SCHEDMIX_PROCS;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

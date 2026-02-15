@@ -70,7 +70,7 @@ static int stress_schedpolicy(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 #endif
 
-	(void)stress_get_setting("schedpolicy-rand", &schedpolicy_rand);
+	(void)stress_setting_get("schedpolicy-rand", &schedpolicy_rand);
 
 	if (stress_sched_types_length == (0)) {
 		if (stress_instance_zero(args)) {

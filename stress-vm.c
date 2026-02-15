@@ -3560,15 +3560,15 @@ static int stress_vm_child(stress_args_t *args, void *ctxt)
 
 	stress_signal_catch_sigill();
 
-	(void)stress_get_setting("vm-discontiguous", &vm_discontiguous);
-	(void)stress_get_setting("vm-flush", &vm_flush);
+	(void)stress_setting_get("vm-discontiguous", &vm_discontiguous);
+	(void)stress_setting_get("vm-flush", &vm_flush);
 	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
 		vm_flush = true;
-	(void)stress_get_setting("vm-hang", &vm_hang);
-	(void)stress_get_setting("vm-keep", &vm_keep);
-	(void)stress_get_setting("vm-locked", &vm_locked);
-	(void)stress_get_setting("vm-populate", &vm_populate);
-	if (stress_get_setting("vm-madvise", &vm_madvise))
+	(void)stress_setting_get("vm-hang", &vm_hang);
+	(void)stress_setting_get("vm-keep", &vm_keep);
+	(void)stress_setting_get("vm-locked", &vm_locked);
+	(void)stress_setting_get("vm-populate", &vm_populate);
+	if (stress_setting_get("vm-madvise", &vm_madvise))
 		advice = vm_madvise_info[vm_madvise].advice;
 
 	if (vm_locked) {
@@ -3804,7 +3804,7 @@ static int stress_vm(stress_args_t *args)
 
 	stress_vm_get_cache_line_size();
 
-	(void)stress_get_setting("vm-numa", &context->vm_numa);
+	(void)stress_setting_get("vm-numa", &context->vm_numa);
 	if (context->vm_numa) {
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 		stress_numa_mask_and_node_alloc(args, &context->numa_nodes,
@@ -3819,10 +3819,10 @@ static int stress_vm(stress_args_t *args)
 	}
 	context->bit_error_count = (uint64_t *)MAP_FAILED;
 
-	(void)stress_get_setting("vm-method", &vm_method);
+	(void)stress_setting_get("vm-method", &vm_method);
 	context->vm_method = &vm_methods[vm_method];
 
-	if (!stress_get_setting("vm-bytes", &vm_total)) {
+	if (!stress_setting_get("vm-bytes", &vm_total)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			vm_total = MAX_32;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

@@ -502,10 +502,10 @@ redo:
 		}
 	}
 
-	(void)stress_get_setting("varyload-method", &varyload_method_idx);
-	(void)stress_get_setting("varyload-ms", &varyload_ms);
-	(void)stress_get_setting("varyload-sched", &varyload_sched);
-	(void)stress_get_setting("varyload-type", &varyload_type_idx);
+	(void)stress_setting_get("varyload-method", &varyload_method_idx);
+	(void)stress_setting_get("varyload-ms", &varyload_ms);
+	(void)stress_setting_get("varyload-sched", &varyload_sched);
+	(void)stress_setting_get("varyload-type", &varyload_type_idx);
 
 	varyload_method = workload_methods[varyload_method_idx].method;
 	varyload_type = varyload_types[varyload_type_idx].type;

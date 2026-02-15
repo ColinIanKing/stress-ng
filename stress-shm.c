@@ -368,12 +368,12 @@ static int stress_shm(stress_args_t *args)
 	size_t shm_posix_bytes, shm_posix_bytes_total = DEFAULT_SHM_POSIX_BYTES;
 	size_t shm_posix_objects = DEFAULT_SHM_POSIX_OBJECTS;
 
-	if (!stress_get_setting("shm-mlock", &shm_mlock)) {
+	if (!stress_setting_get("shm-mlock", &shm_mlock)) {
 		if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
 			shm_mlock = true;
 	}
 
-	if (!stress_get_setting("shm-bytes", &shm_posix_bytes_total)) {
+	if (!stress_setting_get("shm-bytes", &shm_posix_bytes_total)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			shm_posix_bytes_total = MAX_SHM_POSIX_BYTES;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
@@ -387,7 +387,7 @@ static int stress_shm(stress_args_t *args)
 	if (stress_instance_zero(args))
 		stress_usage_bytes(args, shm_posix_bytes, shm_posix_bytes * args->instances);
 
-	if (!stress_get_setting("shm-objs", &shm_posix_objects)) {
+	if (!stress_setting_get("shm-objs", &shm_posix_objects)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			shm_posix_objects = MAX_SHM_POSIX_OBJECTS;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

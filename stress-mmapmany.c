@@ -66,8 +66,8 @@ static int stress_mmapmany_child(stress_args_t *args, void *context)
 
 	(void)context;
 
-	(void)stress_get_setting("mmapmany-mlock", &mmapmany_mlock);
-	(void)stress_get_setting("mmapmany-numa", &mmapmany_numa);
+	(void)stress_setting_get("mmapmany-mlock", &mmapmany_mlock);
+	(void)stress_setting_get("mmapmany-numa", &mmapmany_numa);
 
 	mappings = (uint64_t **)calloc((size_t)max, sizeof(*mappings));
 	if (UNLIKELY(!mappings)) {

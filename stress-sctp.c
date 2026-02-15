@@ -648,16 +648,16 @@ static int stress_sctp(stress_args_t *args)
 	if (stress_signal_sigchld_handler(args) < 0)
 		return EXIT_NO_RESOURCE;
 
-	(void)stress_get_setting("sctp-domain", &sctp_domain);
-	(void)stress_get_setting("sctp-if", &sctp_if);
-	if (!stress_get_setting("sctp-max-size", &sctp_max_size)) {
+	(void)stress_setting_get("sctp-domain", &sctp_domain);
+	(void)stress_setting_get("sctp-if", &sctp_if);
+	if (!stress_setting_get("sctp-max-size", &sctp_max_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			sctp_max_size = MAX_SCTP_MAX_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			sctp_max_size = MIN_SCTP_MAX_SIZE;
 	}
-	(void)stress_get_setting("sctp-port", &sctp_port);
-	if (stress_get_setting("sctp-sched", &sctp_sched)) {
+	(void)stress_setting_get("sctp-port", &sctp_port);
+	if (stress_setting_get("sctp-sched", &sctp_sched)) {
 #if defined(HAVE_SCTP_SCHED_TYPE) &&	\
     defined(HAVE_SCTP_ASSOC_VALUE)
 		sctp_sched_type = stress_sctp_scheds[sctp_sched].sched_type;

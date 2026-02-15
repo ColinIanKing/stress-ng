@@ -526,11 +526,11 @@ static int stress_list(stress_args_t *args)
 
 	stress_zero_metrics(list_metrics, SIZEOF_ARRAY(list_metrics));
 
-	(void)stress_get_setting("list-method", &list_method);
+	(void)stress_setting_get("list-method", &list_method);
 	func = list_methods[list_method].func;
 	metrics = &list_metrics[list_method];
 
-	if (!stress_get_setting("list-size", &list_size)) {
+	if (!stress_setting_get("list-size", &list_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			list_size = MAX_LIST_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

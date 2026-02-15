@@ -400,7 +400,7 @@ static int stress_aiol(stress_args_t *args)
 
 	(void)shim_memset(&info, 0, sizeof(info));
 
-	if (!stress_get_setting("aiol-requests", &aiol_requests)) {
+	if (!stress_setting_get("aiol-requests", &aiol_requests)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			aiol_requests = MAX_AIO_LINUX_REQUESTS;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

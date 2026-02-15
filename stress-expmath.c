@@ -436,7 +436,7 @@ static int stress_expmath(stress_args_t *args)
 	size_t expmath_method = 0;
 	int rc = EXIT_SUCCESS;
 
-	(void)stress_get_setting("expmath-method", &expmath_method);
+	(void)stress_setting_get("expmath-method", &expmath_method);
 
 	stress_zero_metrics(stress_expmath_metrics, NUM_EXPMATH_METHODS);
 

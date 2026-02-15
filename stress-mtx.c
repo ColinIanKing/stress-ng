@@ -114,7 +114,7 @@ static int stress_mtx(stress_args_t *args)
 	uint64_t mtx_procs = DEFAULT_MTX_PROCS;
 	double duration = 0.0, count = 0.0, rate;
 
-	if (!stress_get_setting("mtx-procs", &mtx_procs)) {
+	if (!stress_setting_get("mtx-procs", &mtx_procs)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			mtx_procs = MAX_MTX_PROCS;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

@@ -325,13 +325,13 @@ static int stress_dentry(stress_args_t *args)
 	double rate;
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 
-	if (!stress_get_setting("dentries", &dentries)) {
+	if (!stress_setting_get("dentries", &dentries)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			dentries = MAX_DENTRIES;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			dentries = MIN_DENTRIES;
 	}
-	(void)stress_get_setting("dentry-order", &dentry_order);
+	(void)stress_setting_get("dentry-order", &dentry_order);
 
 	ret = stress_fs_temp_dir_make_args(args);
 	if (ret < 0)

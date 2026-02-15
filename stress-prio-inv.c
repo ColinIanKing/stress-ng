@@ -364,8 +364,8 @@ static int stress_prio_inv(stress_args_t *args)
 	child_info = prio_inv_info->child_info;
 	prio_inv_info->args = args;
 
-	(void)stress_get_setting("prio-inv-type", &prio_inv_type);
-	(void)stress_get_setting("prio-inv-policy", &prio_inv_policy);
+	(void)stress_setting_get("prio-inv-type", &prio_inv_type);
+	(void)stress_setting_get("prio-inv-policy", &prio_inv_policy);
 
 	policy_name = stress_prio_inv_policies[prio_inv_policy].option;
 	sched_policy = stress_prio_inv_policies[prio_inv_policy].value;

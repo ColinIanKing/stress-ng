@@ -182,7 +182,7 @@ static int stress_lease(stress_args_t *args)
 	uint64_t i, lease_breakers = DEFAULT_LEASE_BREAKERS;
 	double t1 = 0.0, t2 = 0.0, dt;
 
-	if (!stress_get_setting("lease-breakers", &lease_breakers)) {
+	if (!stress_setting_get("lease-breakers", &lease_breakers)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			lease_breakers = MAX_LEASE_BREAKERS;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

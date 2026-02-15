@@ -62,7 +62,7 @@ static int stress_ptr_chase(stress_args_t *args)
 	double metric, t_start, duration;
 	uint64_t counter;
 
-	if (!stress_get_setting("ptr-chase-pages", &ptr_chase_pages)) {
+	if (!stress_setting_get("ptr-chase-pages", &ptr_chase_pages)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			ptr_chase_pages = MAX_NEXT_PTRS_4K_PAGES;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

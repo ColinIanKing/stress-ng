@@ -110,7 +110,7 @@ static int stress_insertionsort(stress_args_t *args)
 	int ret;
 #endif
 
-	if (!stress_get_setting("insertionsort-size", &insertionsort_size)) {
+	if (!stress_setting_get("insertionsort-size", &insertionsort_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			insertionsort_size = MAX_INSERTIONSORT_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

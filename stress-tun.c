@@ -114,8 +114,8 @@ static int stress_tun(stress_args_t *args)
 	bool tun_tap = false;
 	const uint16_t modulo = (uint16_t)(args->instances & 0xffff) + 16;
 
-	(void)stress_get_setting("tun-port", &tun_port);
-	(void)stress_get_setting("tun-tap", &tun_tap);
+	(void)stress_setting_get("tun-port", &tun_port);
+	(void)stress_setting_get("tun-tap", &tun_tap);
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);

@@ -1674,7 +1674,7 @@ static int OPTIMIZE3 stress_cachehammer(stress_args_t *args)
 #endif
 
 	(void)shim_memset(numa_count, 0, sizeof(numa_count));
-	(void)stress_get_setting("cachehammer-numa", &cachehammer_numa);
+	(void)stress_setting_get("cachehammer-numa", &cachehammer_numa);
 
 	if (!*cachehammer_filename) {
 		pr_inf_skip("%s: shared file not created, skipping stressor\n",

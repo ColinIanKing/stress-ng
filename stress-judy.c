@@ -75,7 +75,7 @@ static int OPTIMIZE3 stress_judy(stress_args_t *args)
 		"delete",
 	};
 
-	if (!stress_get_setting("judy-size", &judy_size)) {
+	if (!stress_setting_get("judy-size", &judy_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			judy_size = MAX_JUDY_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

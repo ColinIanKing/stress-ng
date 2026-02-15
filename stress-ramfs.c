@@ -288,13 +288,13 @@ static int stress_ramfs_child(stress_args_t *args)
 	stress_parent_died_alarm();
 	(void)stress_sched_settings_apply(true);
 
-	if (!stress_get_setting("ramfs-size", &ramfs_size)) {
+	if (!stress_setting_get("ramfs-size", &ramfs_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			ramfs_size = MAX_RAMFS_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			ramfs_size = MIN_RAMFS_SIZE;
 	}
-	if (!stress_get_setting("ramfs-fill", &ramfs_fill)) {
+	if (!stress_setting_get("ramfs-fill", &ramfs_fill)) {
 		if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
 			ramfs_fill = true;
 	}

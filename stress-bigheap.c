@@ -147,14 +147,14 @@ static int stress_bigheap_child(stress_args_t *args, void *context)
 
 	(void)context;
 
-	(void)stress_get_setting("bigheap-mlock", &bigheap_mlock);
-	if (!stress_get_setting("bigheap-bytes", &bigheap_bytes)) {
+	(void)stress_setting_get("bigheap-mlock", &bigheap_mlock);
+	if (!stress_setting_get("bigheap-bytes", &bigheap_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			bigheap_bytes = MAX_BIGHEAP_BYTES;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			bigheap_bytes = MIN_BIGHEAP_BYTES;
 	}
-	if (!stress_get_setting("bigheap-growth", &bigheap_growth)) {
+	if (!stress_setting_get("bigheap-growth", &bigheap_growth)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			bigheap_growth = MAX_BIGHEAP_GROWTH;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

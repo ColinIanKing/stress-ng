@@ -1094,11 +1094,11 @@ static int stress_open(stress_args_t *args)
 		return stress_exit_status(-ret);
 	(void)stress_fs_temp_dir_args(args, temp_dir, sizeof(temp_dir));
 
-	if (!stress_get_setting("open-max", &open_max)) {
+	if (!stress_setting_get("open-max", &open_max)) {
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			open_max = 1;
 	}
-	(void)stress_get_setting("open-fd", &open_fd);
+	(void)stress_setting_get("open-fd", &open_fd);
 
 	/* Limit to maximum size_t allocation size */
 	if (open_max > (max_size - 1) / sizeof(*fds))

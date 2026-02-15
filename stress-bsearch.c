@@ -137,10 +137,10 @@ static int OPTIMIZE3 stress_bsearch(stress_args_t *args)
 	bsearch_func_t bsearch_func;
 	int rc = EXIT_SUCCESS;
 
-	(void)stress_get_setting("bsearch-method", &bsearch_method);
+	(void)stress_setting_get("bsearch-method", &bsearch_method);
 	bsearch_func = stress_bsearch_methods[bsearch_method].bsearch_func;
 
-	if (!stress_get_setting("bsearch-size", &bsearch_size)) {
+	if (!stress_setting_get("bsearch-size", &bsearch_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			bsearch_size = MAX_BSEARCH_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

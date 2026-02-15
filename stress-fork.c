@@ -488,15 +488,15 @@ static int stress_fork(stress_args_t *args)
 	int rc, mode = 0;
 	bool fork_vm = false, fork_unmap = false, fork_pageout = false;
 
-	(void)stress_get_setting("fork-unmap", &fork_unmap);
-	(void)stress_get_setting("fork-pageout", &fork_pageout);
-	(void)stress_get_setting("fork-vm", &fork_vm);
+	(void)stress_setting_get("fork-unmap", &fork_unmap);
+	(void)stress_setting_get("fork-pageout", &fork_pageout);
+	(void)stress_setting_get("fork-vm", &fork_vm);
 
 	mode = (fork_pageout ? STRESS_MODE_PAGEOUT : 0) |
 	       (fork_unmap ? STRESS_MODE_UNMAP : 0) |
 	       (fork_vm ? STRESS_MODE_FORK_VM : 0);
 
-	if (!stress_get_setting("fork-max", &fork_max)) {
+	if (!stress_setting_get("fork-max", &fork_max)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			fork_max = MAX_FORKS;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
@@ -555,7 +555,7 @@ static int stress_vfork(stress_args_t *args)
 	uint32_t vfork_max = DEFAULT_VFORKS;
 	int rc;
 
-	if (!stress_get_setting("vfork-max", &vfork_max)) {
+	if (!stress_setting_get("vfork-max", &vfork_max)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			vfork_max = MAX_VFORKS;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

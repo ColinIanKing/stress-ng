@@ -8668,8 +8668,8 @@ static void stress_syscall_report_syscall_top(stress_args_t *args)
 	size_t i, n, sort_index[STRESS_SYSCALLS_MAX];
 	size_t syscall_top = 10, syscall_rank = 1;
 
-	(void)stress_get_setting("syscall-top", &syscall_top);
-	(void)stress_get_setting("syscall-rank", &syscall_rank);
+	(void)stress_setting_get("syscall-top", &syscall_top);
+	(void)stress_setting_get("syscall-rank", &syscall_rank);
 
 	for (n = 0, i = 0; (i < STRESS_SYSCALLS_MAX); i++) {
 		if (syscall_stats[i].succeed)
@@ -8885,7 +8885,7 @@ static int stress_syscall(stress_args_t *args)
 	char exec_path[PATH_MAX];
 	const uint32_t rnd_filenum = stress_mwc32();
 
-	(void)stress_get_setting("syscall-method", &syscall_method);
+	(void)stress_setting_get("syscall-method", &syscall_method);
 
 	if (stress_instance_zero(args)) {
 		for (i = 0; i < SIZEOF_ARRAY(syscall_methods); i++) {

@@ -239,7 +239,7 @@ static int stress_aio(stress_args_t *args)
 	double t1 = 0.0, t2 = 0.0, dt, rate;
 	const char *fs_type;
 
-	if (!stress_get_setting("aio-requests", &opt_aio_requests)) {
+	if (!stress_setting_get("aio-requests", &opt_aio_requests)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			opt_aio_requests = MAX_AIO_REQUESTS;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

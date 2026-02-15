@@ -405,20 +405,20 @@ static int stress_dirdeep(stress_args_t *args)
 	uint64_t inodes_min;
 	uint64_t inodes_exercised;
 
-	(void)stress_get_setting("dirdeep-bytes", &dirdeep_bytes);
-	if (!stress_get_setting("dirdeep-dirs", &dirdeep_dirs)) {
+	(void)stress_setting_get("dirdeep-bytes", &dirdeep_bytes);
+	if (!stress_setting_get("dirdeep-dirs", &dirdeep_dirs)) {
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			dirdeep_dirs = 1;
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			dirdeep_dirs = sizeof(stress_dir_names) - 1;
 	}
-	if (!stress_get_setting("dirdeep-files", &dirdeep_files)) {
+	if (!stress_setting_get("dirdeep-files", &dirdeep_files)) {
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			dirdeep_files = 0;
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			dirdeep_files = 65535;
 	}
-	if (!stress_get_setting("dirdeep-inodes", &dirdeep_inodes)) {
+	if (!stress_setting_get("dirdeep-inodes", &dirdeep_inodes)) {
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			dirdeep_inodes = 0;
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)

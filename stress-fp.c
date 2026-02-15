@@ -680,7 +680,7 @@ static int stress_fp(stress_args_t *args)
 	stress_set_vma_anon_name(fp_data, mmap_size, "fp-data");
 	(void)stress_madvise_mergeable(fp_data, mmap_size);
 
-	(void)stress_get_setting("fp-method", &fp_method);
+	(void)stress_setting_get("fp-method", &fp_method);
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);

@@ -168,14 +168,14 @@ static int stress_bubblesort(stress_args_t *args)
 	int ret;
 #endif
 
-	(void)stress_get_setting("bubblesort-method", &bubblesort_method);
+	(void)stress_setting_get("bubblesort-method", &bubblesort_method);
 
 	bubblesort_func = stress_bubblesort_methods[bubblesort_method].bubblesort_func;
 	if (stress_instance_zero(args))
 		pr_inf("%s: using method '%s'\n",
 			args->name, stress_bubblesort_methods[bubblesort_method].name);
 
-	if (!stress_get_setting("bubblesort-size", &bubblesort_size)) {
+	if (!stress_setting_get("bubblesort-size", &bubblesort_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			bubblesort_size = MAX_BUBBLESORT_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

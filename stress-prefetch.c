@@ -399,7 +399,7 @@ static int stress_prefetch(stress_args_t *args)
 	bool check_prefetch_rate;
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 
-	(void)stress_get_setting("prefetch-method", &prefetch_method);
+	(void)stress_setting_get("prefetch-method", &prefetch_method);
 
 	if (!prefetch_methods[prefetch_method].available()) {
 		(void)pr_inf("%s: prefetch-method '%s' is not available on this CPU, skipping stressor\n",
@@ -412,7 +412,7 @@ static int stress_prefetch(stress_args_t *args)
 	check_prefetch_rate = prefetch_methods[prefetch_method].check_prefetch_rate;
 #endif
 
-	(void)stress_get_setting("prefetch-L3-size", &l3_data_size);
+	(void)stress_setting_get("prefetch-L3-size", &l3_data_size);
 	if (l3_data_size == 0)
 		l3_data_size = get_prefetch_L3_size(args);
 

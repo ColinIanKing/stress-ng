@@ -140,12 +140,12 @@ static int stress_ioport(stress_args_t *args)
 	double rate;
 	char msg[40];
 
-	(void)stress_get_setting("ioport-opts", &ioport_opt);
+	(void)stress_setting_get("ioport-opts", &ioport_opt);
 	flag = ioport_opts[ioport_opt].flag;
 	if (!flag)
 		flag = IOPORT_OPT_IN | IOPORT_OPT_OUT;
 
-	(void)stress_get_setting("ioport-port", &ioport_idx);
+	(void)stress_setting_get("ioport-port", &ioport_idx);
 	port = ioport_ports[ioport_idx].port;
 
 	ret = ioperm(port, 1, 1);

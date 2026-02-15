@@ -104,7 +104,7 @@ static int stress_mlockmany_child(stress_args_t *args, void *context)
 
 	(void)context;
 
-	if (!stress_get_setting("mlockmany-procs", &mlockmany_procs)) {
+	if (!stress_setting_get("mlockmany-procs", &mlockmany_procs)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			mlockmany_procs = MAX_MLOCKMANY_PROCS;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

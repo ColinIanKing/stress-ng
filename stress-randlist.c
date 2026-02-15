@@ -155,14 +155,14 @@ static int stress_randlist(stress_args_t *args)
 	size_t mmap_allocs = 0;
 	int rc = EXIT_SUCCESS;
 
-	(void)stress_get_setting("randlist-compact", &randlist_compact);
-	if (!stress_get_setting("randlist-items", &randlist_items)) {
+	(void)stress_setting_get("randlist-compact", &randlist_compact);
+	if (!stress_setting_get("randlist-items", &randlist_items)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			randlist_items = MAX_RANDLIST_ITEMS;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			randlist_items = MIN_RANDLIST_ITEMS;
 	}
-	if (!stress_get_setting("randlist-size", &randlist_size)) {
+	if (!stress_setting_get("randlist-size", &randlist_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			randlist_size = MAX_RANDLIST_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

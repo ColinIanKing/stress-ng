@@ -176,14 +176,14 @@ static int stress_heapsort(stress_args_t *args)
 	int ret;
 #endif
 
-	(void)stress_get_setting("heapsort-method", &heapsort_method);
+	(void)stress_setting_get("heapsort-method", &heapsort_method);
 
 	heapsort_func = stress_heapsort_methods[heapsort_method].heapsort_func;
 	if (stress_instance_zero(args))
 		pr_inf("%s: using method '%s'\n",
 			args->name, stress_heapsort_methods[heapsort_method].name);
 
-	if (!stress_get_setting("heapsort-size", &heapsort_size)) {
+	if (!stress_setting_get("heapsort-size", &heapsort_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			heapsort_size = MAX_HEAPSORT_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

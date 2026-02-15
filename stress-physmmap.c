@@ -186,7 +186,7 @@ static int stress_physmmap(stress_args_t *args)
 	bool mappable = false;
 	bool physmmap_read = false;
 
-	(void)stress_get_setting("physmmap-read", &physmmap_read);
+	(void)stress_setting_get("physmmap-read", &physmmap_read);
 
 	fd_mem = open("/dev/mem", O_RDONLY | O_SYNC);
 	if (fd_mem < 0) {

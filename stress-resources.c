@@ -80,17 +80,17 @@ static int stress_resources(stress_args_t *args)
 
 	stress_reources_pid = getpid();
 
-	if (!stress_get_setting("resources-mlock", &resources_mlock)) {
+	if (!stress_setting_get("resources-mlock", &resources_mlock)) {
 		if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
 			resources_mlock = true;
 	}
-	if (!stress_get_setting("resources-num", &resources_num)) {
+	if (!stress_setting_get("resources-num", &resources_num)) {
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			resources_num = MIN_RESOURCES_NUM;
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			resources_num = MAX_RESOURCES_NUM;
 	}
-	if (!stress_get_setting("resources-procs", &resources_procs)) {
+	if (!stress_setting_get("resources-procs", &resources_procs)) {
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			resources_procs = MIN_RESOURCES_PROCS;
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)

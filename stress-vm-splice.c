@@ -57,7 +57,7 @@ static int stress_vm_splice(stress_args_t *args)
 	uint64_t checkval = stress_mwc64();
 	uint64_t prime;
 
-	if (!stress_get_setting("vm-splice-bytes", &vm_splice_bytes_total)) {
+	if (!stress_setting_get("vm-splice-bytes", &vm_splice_bytes_total)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			vm_splice_bytes_total = MAX_VM_SPLICE_BYTES;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

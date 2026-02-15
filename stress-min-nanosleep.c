@@ -305,8 +305,8 @@ static int stress_min_nanosleep(stress_args_t *args)
 	const pid_t mypid = getpid();
 	nanosleep_delay_t *delay, *delay_head;
 
-	(void)stress_get_setting("min-nanosleep-max", &min_nanosleep_max);
-	(void)stress_get_setting("min-nanosleep-sched", &min_nanosleep_sched);
+	(void)stress_setting_get("min-nanosleep-max", &min_nanosleep_max);
+	(void)stress_setting_get("min-nanosleep-sched", &min_nanosleep_sched);
 
 	max_delay = stress_min_nanosleep_log2plus1(min_nanosleep_max);
 	if (max_delay > NANOSLEEP_MAX_SHIFT)

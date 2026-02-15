@@ -253,8 +253,8 @@ static int stress_rawudp(stress_args_t *args)
 	if (stress_signal_sigchld_handler(args) < 0)
 		return EXIT_NO_RESOURCE;
 
-	(void)stress_get_setting("rawudp-if", &rawudp_if);
-	(void)stress_get_setting("rawudp-port", &rawudp_port);
+	(void)stress_setting_get("rawudp-if", &rawudp_if);
+	(void)stress_setting_get("rawudp-port", &rawudp_port);
 
 	if (rawudp_if) {
 		int ret;

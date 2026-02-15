@@ -203,7 +203,7 @@ static int stress_rotate(stress_args_t *args)
 
 	stress_zero_metrics(stress_rotate_metrics, SIZEOF_ARRAY(stress_rotate_metrics));
 
-	(void)stress_get_setting("rotate-method", &rotate_method);
+	(void)stress_setting_get("rotate-method", &rotate_method);
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);

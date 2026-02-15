@@ -171,11 +171,11 @@ static int stress_lsearch(stress_args_t *args)
 	lfind_func_t lfind_func;
 	int rc = EXIT_SUCCESS;
 
-	(void)stress_get_setting("lsearch-method", &lsearch_method);
+	(void)stress_setting_get("lsearch-method", &lsearch_method);
 	lfind_func = stress_lsearch_methods[lsearch_method].lfind_func;
 	lsearch_func = stress_lsearch_methods[lsearch_method].lsearch_func;
 
-	if (!stress_get_setting("lsearch-size", &lsearch_size)) {
+	if (!stress_setting_get("lsearch-size", &lsearch_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			lsearch_size = MAX_LSEARCH_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

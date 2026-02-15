@@ -247,7 +247,7 @@ static int stress_affinity(stress_args_t *args)
 	const size_t info_sz = (sizeof(*info) + args->page_size) & ~(args->page_size - 1);
 	size_t affinity_procs = DEFAULT_AFFINITY_PROCS;
 
-	if (!stress_get_setting("affinity-procs", &affinity_procs)) {
+	if (!stress_setting_get("affinity-procs", &affinity_procs)) {
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			affinity_procs = MIN_AFFINITY_PROCS;
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -286,10 +286,10 @@ static int stress_affinity(stress_args_t *args)
 	info->affinity_sleep = 0;
 	info->cpus = (uint32_t)stress_get_processors_configured();
 
-	(void)stress_get_setting("affinity-delay", &info->affinity_delay);
-	(void)stress_get_setting("affinity-pin", &info->affinity_pin);
-	(void)stress_get_setting("affinity-rand", &info->affinity_rand);
-	(void)stress_get_setting("affinity-sleep", &info->affinity_sleep);
+	(void)stress_setting_get("affinity-delay", &info->affinity_delay);
+	(void)stress_setting_get("affinity-pin", &info->affinity_pin);
+	(void)stress_setting_get("affinity-rand", &info->affinity_rand);
+	(void)stress_setting_get("affinity-sleep", &info->affinity_sleep);
 
 	if ((g_opt_flags & OPT_FLAGS_AGGRESSIVE) &&
 	    (g_opt_flags & OPT_FLAGS_VERIFY) &&

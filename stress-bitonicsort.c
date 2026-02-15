@@ -134,7 +134,7 @@ static int OPTIMIZE3 stress_bitonicsort(stress_args_t *args)
 	int ret;
 #endif
 
-	if (!stress_get_setting("bitonicsort-size", &bitonicsort_size)) {
+	if (!stress_setting_get("bitonicsort-size", &bitonicsort_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			bitonicsort_size = MAX_BITONICSORT_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

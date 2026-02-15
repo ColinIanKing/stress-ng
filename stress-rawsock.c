@@ -317,7 +317,7 @@ static int stress_rawsock(stress_args_t *args)
 		pr_inf_skip("%s: failed to create rawsock lock, skipping stressor\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
-	(void)stress_get_setting("rawsock-port", &rawsock_port);
+	(void)stress_setting_get("rawsock-port", &rawsock_port);
 
 	rawsock_port += args->instance;
 	rawsock_port = stress_net_port_wraparound(rawsock_port);

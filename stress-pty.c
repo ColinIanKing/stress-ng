@@ -70,7 +70,7 @@ static int stress_pty(stress_args_t *args)
 	const pid_t pid = getpid();
 	int rc = EXIT_SUCCESS;
 
-	if (!stress_get_setting("pty-max", &pty_max)) {
+	if (!stress_setting_get("pty-max", &pty_max)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			pty_max = MAX_PTYS;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

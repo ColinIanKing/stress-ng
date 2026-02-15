@@ -60,7 +60,7 @@ static int stress_chdir(stress_args_t *args)
 	bool tidy_info = false;
 	double count = 0.0, duration = 0.0, rate, start_time;
 
-	if (!stress_get_setting("chdir-dirs", &chdir_dirs)) {
+	if (!stress_setting_get("chdir-dirs", &chdir_dirs)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			chdir_dirs = MAX_CHDIR_DIRS;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

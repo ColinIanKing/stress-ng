@@ -321,8 +321,8 @@ static int stress_touch(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
-	(void)stress_get_setting("touch-opts", &open_flags);
-	(void)stress_get_setting("touch-method", &touch_method);
+	(void)stress_setting_get("touch-opts", &open_flags);
+	(void)stress_setting_get("touch-method", &touch_method);
 
 	touch_method_type = touch_methods[touch_method].method_type;
 

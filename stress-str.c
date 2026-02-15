@@ -637,7 +637,7 @@ static int stress_str(stress_args_t *args)
 	const stress_str_method_info_t *str_method_info;
 	size_t i, j, str_method = 0;
 
-	(void)stress_get_setting("str-method", &str_method);
+	(void)stress_setting_get("str-method", &str_method);
 	str_method_info = &str_methods[str_method];
 
 	info.libc_func = str_method_info->libc_func;

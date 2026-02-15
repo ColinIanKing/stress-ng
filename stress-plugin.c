@@ -277,7 +277,7 @@ static int stress_plugin(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
-	(void)stress_get_setting("plugin-method", &plugin_method);
+	(void)stress_setting_get("plugin-method", &plugin_method);
 	if (!stress_plugin_methods) {
 		if (stress_instance_zero(args))
 			pr_inf("%s: no plugin methods found, need to specify a valid shared library with --plugin-so\n",

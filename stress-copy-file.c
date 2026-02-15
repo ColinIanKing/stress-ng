@@ -157,7 +157,7 @@ static int stress_copy_file(stress_args_t *args)
 	double duration = 0.0, bytes = 0.0, rate;
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 
-	if (!stress_get_setting("copy-file-bytes", &copy_file_bytes_total)) {
+	if (!stress_setting_get("copy-file-bytes", &copy_file_bytes_total)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			copy_file_bytes_total = MAX_COPY_FILE_BYTES;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

@@ -511,7 +511,7 @@ static int stress_fma(stress_args_t *args)
 	int rc = EXIT_SUCCESS;
 	size_t offset = 0;
 
-	(void)stress_get_setting("fma-libc", &fma_libc);
+	(void)stress_setting_get("fma-libc", &fma_libc);
 #if (defined(HAVE_FMA)  || defined(FP_FAST_FMA)) && 	\
     (defined(HAVE_FMAF) || defined(FP_FAST_FMAF))
 	fma_func_array = fma_libc ? stress_fma_libc_funcs : stress_fma_funcs;

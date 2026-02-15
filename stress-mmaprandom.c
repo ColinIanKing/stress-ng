@@ -2127,19 +2127,19 @@ static int stress_mmaprandom(stress_args_t *args)
 	ctxt->maxpages = MMAP_RANDOM_DEFAULT_MAX_PAGES;
 	ctxt->numa = false;
 
-	if (!stress_get_setting("mmaprandom-mappings", &ctxt->n_mr_nodes)) {
+	if (!stress_setting_get("mmaprandom-mappings", &ctxt->n_mr_nodes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			ctxt->n_mr_nodes = MMAP_RANDOM_MAX_MAPPINGS;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			ctxt->n_mr_nodes = MMAP_RANDOM_MIN_MAPPINGS;
 	}
-	if (!stress_get_setting("mmaprandom-maxpages", &ctxt->maxpages)) {
+	if (!stress_setting_get("mmaprandom-maxpages", &ctxt->maxpages)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			ctxt->maxpages = MMAP_RANDOM_MAX_MAXPAGES;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			ctxt->maxpages = MMAP_RANDOM_MIN_MAXPAGES;
 	}
-	(void)stress_get_setting("mmaprandom-numa", &ctxt->numa);
+	(void)stress_setting_get("mmaprandom-numa", &ctxt->numa);
 
 	if (ctxt->numa) {
 #if defined(HAVE_LINUX_MEMPOLICY_H)

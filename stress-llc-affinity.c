@@ -420,10 +420,10 @@ static int stress_llc_affinity(stress_args_t *args)
 
 	stress_signal_catch_sigill();
 
-	(void)stress_get_setting("llc-affinity-clflush", &llc_affinity_clflush);
-	(void)stress_get_setting("llc-affinity-mlock", &llc_affinity_mlock);
-	(void)stress_get_setting("llc-affinity-numa", &llc_affinity_numa);
-	(void)stress_get_setting("llc-affinity-size", &llc_affinity_size);
+	(void)stress_setting_get("llc-affinity-clflush", &llc_affinity_clflush);
+	(void)stress_setting_get("llc-affinity-mlock", &llc_affinity_mlock);
+	(void)stress_setting_get("llc-affinity-numa", &llc_affinity_numa);
+	(void)stress_setting_get("llc-affinity-size", &llc_affinity_size);
 
 	if (llc_affinity_size == 0) {
 		stress_cpu_cache_llc_size_get(&llc_affinity_size, &cache_line_size);

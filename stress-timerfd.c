@@ -136,10 +136,10 @@ static int stress_timerfd(stress_args_t *args)
 	struct pollfd *pollfds;
 #endif
 
-	(void)stress_get_setting("timerfd-rand", &timerfd_rand);
-	(void)stress_get_setting("timerfd-fds", &timerfd_fds);
+	(void)stress_setting_get("timerfd-rand", &timerfd_rand);
+	(void)stress_setting_get("timerfd-fds", &timerfd_fds);
 
-	if (!stress_get_setting("timerfd-freq", &timerfd_freq)) {
+	if (!stress_setting_get("timerfd-freq", &timerfd_freq)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			timerfd_freq = MAX_TIMERFD_FREQ;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

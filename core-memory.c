@@ -287,7 +287,7 @@ bool stress_low_memory(const size_t requested)
 		if (threshold < 0.0) {
 			size_t bytes = 0;
 
-			if (stress_get_setting("oom-avoid-bytes", &bytes)) {
+			if (stress_setting_get("oom-avoid-bytes", &bytes)) {
 				threshold = 100.0 * (double)bytes / (double)freemem;
 			} else {
 				/* Not specified, then default to 2.5% */
@@ -668,7 +668,7 @@ void stress_compact_memory(void)
 	if (compact_skip)
 		return;
 
-	(void)stress_get_setting("compact-memory", &compact_memory);
+	(void)stress_setting_get("compact-memory", &compact_memory);
 
 	if (!compact_memory)
 		return;
@@ -684,7 +684,7 @@ void stress_compact_memory(void)
 		}
 	}
 #else
-	stress_get_setting("compact-memory", &compact_memory);
+	stress_setting_get("compact-memory", &compact_memory);
 	if (compact_memory && !compact_skip) {
 		pr_inf("cannot compact memory on this system, "
 		       "disabling option --compact-memory\n");

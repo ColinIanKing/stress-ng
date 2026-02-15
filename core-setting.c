@@ -351,10 +351,10 @@ int stress_setting_global_set(
 }
 
 /*
- *  stress_get_setting()
+ *  stress_setting_get()
  *	get an existing setting
  */
-bool stress_get_setting(const char *name, void *value)
+bool stress_setting_get(const char *name, void *value)
 {
 	stress_setting_t *setting;
 	bool set = false;

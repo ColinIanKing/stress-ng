@@ -2215,7 +2215,7 @@ static int stress_regs(stress_args_t *args)
 	bool regs_bitflip = false;
 	void (*stress_regs_func)(stress_args_t *args, register uint64_t v);
 
-	(void)stress_get_setting("regs-bitflip", &regs_bitflip);
+	(void)stress_setting_get("regs-bitflip", &regs_bitflip);
 	stress_regs_func = regs_bitflip ? stress_regs_exercise_bitflip :
 					  stress_regs_exercise;
 

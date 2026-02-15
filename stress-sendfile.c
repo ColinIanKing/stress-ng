@@ -58,7 +58,7 @@ static int stress_sendfile(stress_args_t *args)
 	double duration = 0.0, bytes = 0.0, rate;
 	int metrics_count = 0;
 
-	if (!stress_get_setting("sendfile-size", &sendfile_size)) {
+	if (!stress_setting_get("sendfile-size", &sendfile_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			sendfile_size = MAX_SENDFILE_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

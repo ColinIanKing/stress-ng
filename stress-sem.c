@@ -213,13 +213,13 @@ static int stress_sem(stress_args_t *args)
 	double timedwait_count = 0;
 	double t, duration;
 
-	if (!stress_get_setting("sem-procs", &semaphore_posix_procs)) {
+	if (!stress_setting_get("sem-procs", &semaphore_posix_procs)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			semaphore_posix_procs = MAX_SEM_POSIX_PROCS;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			semaphore_posix_procs = MIN_SEM_POSIX_PROCS;
 	}
-	if (!stress_get_setting("sem-shared", &sem_shared)) {
+	if (!stress_setting_get("sem-shared", &sem_shared)) {
 		if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
 			sem_shared = true;
 	}

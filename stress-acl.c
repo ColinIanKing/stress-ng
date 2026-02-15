@@ -418,7 +418,7 @@ static int stress_acl(stress_args_t *args)
 		"nanoseconds to get an ACL",
 	};
 
-	(void)stress_get_setting("acl-rand", &acl_rand);
+	(void)stress_setting_get("acl-rand", &acl_rand);
 
 	acls = (acl_t *)stress_mmap_populate(NULL, acls_size,
 					PROT_READ | PROT_WRITE,

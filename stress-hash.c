@@ -682,7 +682,7 @@ static int OPTIMIZE3 stress_hash(stress_args_t *args)
 	stress_bucket_t bucket;
 	int rc = EXIT_SUCCESS;
 
-	(void)stress_get_setting("hash-method", &hash_method);
+	(void)stress_setting_get("hash-method", &hash_method);
 	hm = &hash_methods[hash_method];
 	hs = &hash_stats[hash_method];
 

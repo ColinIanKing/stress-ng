@@ -172,7 +172,7 @@ static int stress_dirmany(stress_args_t *args)
 	if (ret < 0)
 		return stress_exit_status(-ret);
 
-	if (!stress_get_setting("dirmany-bytes", &dirmany_bytes)) {
+	if (!stress_setting_get("dirmany-bytes", &dirmany_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			dirmany_bytes = (sizeof(dirmany_bytes) > 5) ? (off_t)(1 * TB) : ~(off_t)0;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

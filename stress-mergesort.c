@@ -273,14 +273,14 @@ static int stress_mergesort(stress_args_t *args)
 	int ret;
 #endif
 
-	(void)stress_get_setting("mergesort-method", &mergesort_method);
+	(void)stress_setting_get("mergesort-method", &mergesort_method);
 
 	mergesort_func = stress_mergesort_methods[mergesort_method].mergesort_func;
 	if (stress_instance_zero(args))
 		pr_inf("%s: using method '%s'\n",
 			args->name, stress_mergesort_methods[mergesort_method].name);
 
-	if (!stress_get_setting("mergesort-size", &mergesort_size)) {
+	if (!stress_setting_get("mergesort-size", &mergesort_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			mergesort_size = MAX_MERGESORT_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

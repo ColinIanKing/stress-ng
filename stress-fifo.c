@@ -235,14 +235,14 @@ static int stress_fifo(stress_args_t *args)
 	uint64_t ALIGN64 buf[MAX_FIFO_DATA_SIZE / sizeof(uint64_t)];
 	char msg[64];
 
-	if (!stress_get_setting("fifo-readers", &fifo_readers)) {
+	if (!stress_setting_get("fifo-readers", &fifo_readers)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			fifo_readers = MAX_FIFO_READERS;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			fifo_readers = MIN_FIFO_READERS;
 	}
 
-	if (!stress_get_setting("fifo-data-size", &fifo_data_size)) {
+	if (!stress_setting_get("fifo-data-size", &fifo_data_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			fifo_data_size = MAX_FIFO_DATA_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

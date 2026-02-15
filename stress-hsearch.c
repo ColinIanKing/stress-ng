@@ -170,11 +170,11 @@ static int OPTIMIZE3 stress_hsearch(stress_args_t *args)
 	hdestroy_func_t hdestroy_func;
 	size_t hsearch_method = 0;
 
-	(void)stress_get_setting("hsearch-method", &hsearch_method);
+	(void)stress_setting_get("hsearch-method", &hsearch_method);
 	hcreate_func = stress_hsearch_methods[hsearch_method].hcreate;
 	hsearch_func = stress_hsearch_methods[hsearch_method].hsearch;
 	hdestroy_func = stress_hsearch_methods[hsearch_method].hdestroy;
-	if (!stress_get_setting("hsearch-size", &hsearch_size)) {
+	if (!stress_setting_get("hsearch-size", &hsearch_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			hsearch_size = MAX_HSEARCH_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

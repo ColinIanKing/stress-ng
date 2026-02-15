@@ -426,17 +426,17 @@ static int stress_udp(stress_args_t *args)
 	if (stress_signal_sigchld_handler(args) < 0)
 		return EXIT_NO_RESOURCE;
 
-	(void)stress_get_setting("udp-if", &udp_if);
-	(void)stress_get_setting("udp-domain", &udp_domain);
-	(void)stress_get_setting("udp-port", &udp_port);
-	if (!stress_get_setting("udp-max-size", &udp_max_size)) {
+	(void)stress_setting_get("udp-if", &udp_if);
+	(void)stress_setting_get("udp-domain", &udp_domain);
+	(void)stress_setting_get("udp-port", &udp_port);
+	if (!stress_setting_get("udp-max-size", &udp_max_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			udp_max_size = MAX_UDP_MAX_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			udp_max_size = MIN_UDP_MAX_SIZE;
 	}
 #if defined(IPPROTO_UDPLITE)
-	(void)stress_get_setting("udp-lite", &udp_lite);
+	(void)stress_setting_get("udp-lite", &udp_lite);
 
 	udp_proto = udp_lite ? IPPROTO_UDPLITE : IPPROTO_UDP;
 
@@ -463,7 +463,7 @@ static int stress_udp(stress_args_t *args)
 		args->name, (int)args->pid, udp_port);
 
 #if defined(UDP_GRO)
-	(void)stress_get_setting("udp-gro", &udp_gro);
+	(void)stress_setting_get("udp-gro", &udp_gro);
 #endif
 	if (udp_if) {
 		int ret;

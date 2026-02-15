@@ -145,7 +145,7 @@ static stress_pci_info_t *stress_pci_info_get(void)
 	struct dirent **pci_list = NULL;
 	char *pci_dev = NULL;
 
-	(void)stress_get_setting("pci-dev", &pci_dev);
+	(void)stress_setting_get("pci-dev", &pci_dev);
 
 	if (pci_dev) {
 		char pci_path[PATH_MAX];
@@ -311,7 +311,7 @@ static int stress_pci(stress_args_t *args)
 	double t_start;
 	NOCLOBBER double t_delta;
 
-	(void)stress_get_setting("pci-ops-rate", &pci_ops_rate);
+	(void)stress_setting_get("pci-ops-rate", &pci_ops_rate);
 	t_delta = pci_ops_rate > 0 ? (double)args->instances / (double)pci_ops_rate : 0.0;
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);

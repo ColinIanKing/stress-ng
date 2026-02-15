@@ -94,7 +94,7 @@ static int OPTIMIZE3 stress_shellsort(stress_args_t *args)
 	int ret;
 #endif
 
-	if (!stress_get_setting("shellsort-size", &shellsort_size)) {
+	if (!stress_setting_get("shellsort-size", &shellsort_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			shellsort_size = MAX_SHELLSORT_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

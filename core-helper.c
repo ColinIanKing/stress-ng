@@ -327,7 +327,7 @@ void stress_set_timer_slack(void)
     defined(HAVE_PRCTL_TIMER_SLACK)
 	uint32_t timer_slack;
 
-	if (stress_get_setting("timer-slack", &timer_slack))
+	if (stress_setting_get("timer-slack", &timer_slack))
 		(void)prctl(PR_SET_TIMERSLACK, timer_slack);
 #else
 	UNEXPECTED

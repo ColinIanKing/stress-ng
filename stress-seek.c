@@ -90,12 +90,12 @@ static int stress_seek(stress_args_t *args)
 #if defined(FALLOC_FL_PUNCH_HOLE)
 	bool seek_punch = false;
 
-	(void)stress_get_setting("seek-punch", &seek_punch);
+	(void)stress_setting_get("seek-punch", &seek_punch);
 #endif
 	count = 0.0;
 	seek_count = 0.0;
 
-	if (!stress_get_setting("seek-size", &seek_size)) {
+	if (!stress_setting_get("seek-size", &seek_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			seek_size = MAXIMIZED_FILE_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

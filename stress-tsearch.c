@@ -55,7 +55,7 @@ static int stress_tsearch(stress_args_t *args)
 	double rate, duration = 0.0, count = 0.0, sorted = 0.0;
 	int rc = EXIT_SUCCESS;
 
-	if (!stress_get_setting("tsearch-size", &tsearch_size)) {
+	if (!stress_setting_get("tsearch-size", &tsearch_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			tsearch_size = MAX_TSEARCH_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

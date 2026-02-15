@@ -381,8 +381,8 @@ static int stress_msg(stress_args_t *args)
 	stress_msg_t ALIGN64 msg;
 	size_t j, n, msg_bytes = sizeof(msg.u.value);
 
-	(void)stress_get_setting("msg-types", &msg_types);
-	if (!stress_get_setting("msg-bytes", &msg_bytes)) {
+	(void)stress_setting_get("msg-types", &msg_types);
+	if (!stress_setting_get("msg-bytes", &msg_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			msg_bytes = MAX_MSG_BYTES;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

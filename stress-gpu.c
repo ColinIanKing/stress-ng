@@ -489,7 +489,7 @@ static int stress_gpu_supported(const char *name)
 	const char *gpu_devnode = default_gpu_devnode;
 	int fd;
 
-	(void)stress_get_setting("gpu-devnode", &gpu_devnode);
+	(void)stress_setting_get("gpu-devnode", &gpu_devnode);
 	fd = open(gpu_devnode, O_RDWR);
 	if (fd < 0) {
 		pr_inf_skip("%s: cannot open GPU device '%s', errno=%d (%s), skipping stressor\n",
@@ -580,12 +580,12 @@ static int stress_gpu_child(stress_args_t *args, void *context)
 	(void)setenv("MESA_SHADER_CACHE_DISABLE", "true", 1);
 	(void)setenv("MESA_LOG_FILE", "/dev/null", 1);
 
-	(void)stress_get_setting("gpu-devnode", &gpu_devnode);
-	(void)stress_get_setting("gpu-frag", &frag_n);
-	(void)stress_get_setting("gpu-xsize", &size_x);
-	(void)stress_get_setting("gpu-ysize", &size_y);
-	(void)stress_get_setting("gpu-tex-size", &texsize);
-	(void)stress_get_setting("gpu-upload", &uploads);
+	(void)stress_setting_get("gpu-devnode", &gpu_devnode);
+	(void)stress_setting_get("gpu-frag", &frag_n);
+	(void)stress_setting_get("gpu-xsize", &size_x);
+	(void)stress_setting_get("gpu-ysize", &size_y);
+	(void)stress_setting_get("gpu-tex-size", &texsize);
+	(void)stress_setting_get("gpu-upload", &uploads);
 
 	gpu_card = stress_gpu_card(gpu_devnode);
 

@@ -114,7 +114,7 @@ static int stress_msync(stress_args_t *args)
 	if (stress_signal_handler(args->name, SIGBUS, stress_sigbus_handler, NULL) < 0)
 		return EXIT_FAILURE;
 
-	if (!stress_get_setting("msync-bytes", &msync_bytes_total)) {
+	if (!stress_setting_get("msync-bytes", &msync_bytes_total)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			msync_bytes_total = MAXIMIZED_FILE_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

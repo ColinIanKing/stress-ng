@@ -339,7 +339,7 @@ static int stress_swap_child(stress_args_t *args, void *context)
 
 	(void)context;
 
-	if (!stress_get_setting("swap-self", &swap_self)) {
+	if (!stress_setting_get("swap-self", &swap_self)) {
 		if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
 			swap_self = true;
 	}

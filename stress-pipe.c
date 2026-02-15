@@ -548,8 +548,8 @@ static int stress_pipe(stress_args_t *args)
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 	bool pipe_vmsplice = false;
 
-	(void)stress_get_setting("pipe-vmsplice", &pipe_vmsplice);
-	if (!stress_get_setting("pipe-data-size", &pipe_data_size)) {
+	(void)stress_setting_get("pipe-vmsplice", &pipe_vmsplice);
+	if (!stress_setting_get("pipe-data-size", &pipe_data_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			pipe_data_size = MAX_PIPE_DATA_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
@@ -589,7 +589,7 @@ static int stress_pipe(stress_args_t *args)
 	{
 		size_t pipe_size = 0;
 
-		if (!stress_get_setting("pipe-size", &pipe_size)) {
+		if (!stress_setting_get("pipe-size", &pipe_size)) {
 			if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 				pipe_size = MAX_PIPE_SIZE;
 			if (g_opt_flags & OPT_FLAGS_MINIMIZE)

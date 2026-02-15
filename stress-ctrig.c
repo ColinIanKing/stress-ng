@@ -330,7 +330,7 @@ static int stress_ctrig(stress_args_t *args)
 	size_t ctrig_method = 0;
 	int rc = EXIT_SUCCESS;
 
-	(void)stress_get_setting("ctrig-method", &ctrig_method);
+	(void)stress_setting_get("ctrig-method", &ctrig_method);
 
 	stress_zero_metrics(stress_ctrig_metrics, SIZEOF_ARRAY(stress_ctrig_metrics));
 

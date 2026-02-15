@@ -130,9 +130,9 @@ static int stress_ring_pipe(stress_args_t *args)
 	ssize_t sret;
 	struct pollfd *poll_fds;
 
-	(void)stress_get_setting("ring-pipe-num", &ring_pipe_num);
-	(void)stress_get_setting("ring-pipe-size", &ring_pipe_size);
-	(void)stress_get_setting("ring-pipe-splice", &ring_pipe_splice);
+	(void)stress_setting_get("ring-pipe-num", &ring_pipe_num);
+	(void)stress_setting_get("ring-pipe-size", &ring_pipe_size);
+	(void)stress_setting_get("ring-pipe-splice", &ring_pipe_splice);
 
 	buf = (char *)stress_mmap_populate(NULL, (size_t)STRESS_RING_PIPE_SIZE_MAX,
 		PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);

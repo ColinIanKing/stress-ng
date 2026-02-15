@@ -201,7 +201,7 @@ static int stress_dccp_server(
 	double t1 = 0.0, t2 = 0.0, dt;
 	size_t dccp_msgs = DEFAULT_DCCP_MSGS;
 
-	if (!stress_get_setting("dccp-msgs", &dccp_msgs)) {
+	if (!stress_setting_get("dccp-msgs", &dccp_msgs)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			dccp_msgs = MAX_DCCP_MSGS;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
@@ -413,10 +413,10 @@ static int stress_dccp(stress_args_t *args)
 	if (stress_signal_sigchld_handler(args) < 0)
 		return EXIT_NO_RESOURCE;
 
-	(void)stress_get_setting("dccp-if", &dccp_if);
-	(void)stress_get_setting("dccp-port", &dccp_port);
-	(void)stress_get_setting("dccp-domain", &dccp_domain);
-	(void)stress_get_setting("dccp-opts", &dccp_opts);
+	(void)stress_setting_get("dccp-if", &dccp_if);
+	(void)stress_setting_get("dccp-port", &dccp_port);
+	(void)stress_setting_get("dccp-domain", &dccp_domain);
+	(void)stress_setting_get("dccp-opts", &dccp_opts);
 
 	if (dccp_if) {
 		int ret;

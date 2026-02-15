@@ -409,7 +409,7 @@ static int stress_malloc_child(stress_args_t *args, void *context)
 	if (stress_signal_handler(args->name, SIGSEGV, stress_malloc_sigsegv_handler, NULL) < 0)
 		return EXIT_FAILURE;
 
-	if (!stress_get_setting("malloc-pthreads", &malloc_pthreads)) {
+	if (!stress_setting_get("malloc-pthreads", &malloc_pthreads)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			malloc_pthreads = MAX_MALLOC_PTHREADS;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
@@ -492,7 +492,7 @@ static int stress_malloc(stress_args_t *args)
 	}
 
 	malloc_bytes = DEFAULT_MALLOC_BYTES;
-	if (!stress_get_setting("malloc-bytes", &malloc_bytes)) {
+	if (!stress_setting_get("malloc-bytes", &malloc_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			malloc_bytes = MAX_32;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
@@ -503,7 +503,7 @@ static int stress_malloc(stress_args_t *args)
 		malloc_bytes = MIN_MALLOC_BYTES;
 
 	malloc_max = DEFAULT_MALLOC_MAX;
-	if (!stress_get_setting("malloc-max", &malloc_max)) {
+	if (!stress_setting_get("malloc-max", &malloc_max)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			malloc_max = MAX_MALLOC_MAX;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
@@ -516,18 +516,18 @@ static int stress_malloc(stress_args_t *args)
 	{
 		size_t malloc_threshold = DEFAULT_MALLOC_THRESHOLD;
 
-		if (stress_get_setting("malloc-threshold", &malloc_threshold))
+		if (stress_setting_get("malloc-threshold", &malloc_threshold))
 			(void)mallopt(M_MMAP_THRESHOLD, (int)malloc_threshold);
 	}
 #endif
 
 	malloc_touch = false;
-	(void)stress_get_setting("malloc-touch", &malloc_touch);
+	(void)stress_setting_get("malloc-touch", &malloc_touch);
 	malloc_trim_opt = false;
-	(void)stress_get_setting("malloc-trim", &malloc_trim_opt);
+	(void)stress_setting_get("malloc-trim", &malloc_trim_opt);
 	malloc_mlock = false;
-	(void)stress_get_setting("malloc-mlock", &malloc_mlock);
-	(void)stress_get_setting("malloc-zerofree", &malloc_zerofree);
+	(void)stress_setting_get("malloc-mlock", &malloc_mlock);
+	(void)stress_setting_get("malloc-zerofree", &malloc_zerofree);
 	free_func = malloc_zerofree ? stress_malloc_zerofree : stress_malloc_free;
 
 	ret = stress_oomable_child(args, NULL, stress_malloc_child, STRESS_OOMABLE_NORMAL);

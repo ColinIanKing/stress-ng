@@ -4763,7 +4763,7 @@ static int stress_dev(stress_args_t *args)
 
 	(void)shim_memset(ret, 0, sizeof(ret));
 
-	(void)stress_get_setting("dev-file", &dev_file);
+	(void)stress_setting_get("dev-file", &dev_file);
 	if (dev_file) {
 		mode_t mode;
 		struct stat statbuf;

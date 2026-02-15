@@ -343,7 +343,7 @@ static int stress_metamix(stress_args_t *args)
 		goto tidy_s_pids;
 	}
 
-	(void)stress_get_setting("metamix-bytes", &metamix_bytes_total);
+	(void)stress_setting_get("metamix-bytes", &metamix_bytes_total);
 	metamix_bytes = metamix_bytes_total / args->instances;
 	if (metamix_bytes < MIN_METAMIX_BYTES) {
 		metamix_bytes = MIN_METAMIX_BYTES;

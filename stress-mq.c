@@ -116,7 +116,7 @@ static int stress_mq(stress_args_t *args)
 	}
 #endif
 
-	if (!stress_get_setting("mq-size", &mq_size)) {
+	if (!stress_setting_get("mq-size", &mq_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			mq_size = MAX_MQ_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

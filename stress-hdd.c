@@ -692,14 +692,14 @@ static int stress_hdd(stress_args_t *args)
 	double hdd_rdwr_bytes, hdd_rdwr_duration;
 	double rate;
 
-	(void)stress_get_setting("hdd-flags", &hdd_flags);
-	(void)stress_get_setting("hdd-oflags", &hdd_oflags);
-	(void)stress_get_setting("hdd-opts-set", &opts_set);
+	(void)stress_setting_get("hdd-flags", &hdd_flags);
+	(void)stress_setting_get("hdd-oflags", &hdd_oflags);
+	(void)stress_setting_get("hdd-opts-set", &opts_set);
 
 	flags = O_CREAT | O_RDWR | O_TRUNC | hdd_oflags;
 	fadvise_flags = hdd_flags & HDD_OPT_FADV_MASK;
 
-	if (!stress_get_setting("hdd-bytes", &hdd_bytes_total)) {
+	if (!stress_setting_get("hdd-bytes", &hdd_bytes_total)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			hdd_bytes_total = MAXIMIZED_FILE_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
@@ -726,7 +726,7 @@ static int stress_hdd(stress_args_t *args)
 	if (stress_instance_zero(args))
 		stress_fs_usage_bytes(args, hdd_bytes, hdd_bytes_total);
 
-	if (!stress_get_setting("hdd-write-size", &hdd_write_size)) {
+	if (!stress_setting_get("hdd-write-size", &hdd_write_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			hdd_write_size = MAX_HDD_WRITE_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

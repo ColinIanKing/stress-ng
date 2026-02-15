@@ -736,16 +736,16 @@ static int stress_exec(stress_args_t *args)
 	size_t arg_max, cache_max, stress_pid_hash_table_size;
 	char *str;
 
-	if (!stress_get_setting("exec-max", &exec_max)) {
+	if (!stress_setting_get("exec-max", &exec_max)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			exec_max = MAX_EXECS;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			exec_max = MIN_EXECS;
 	}
-	(void)stress_get_setting("exec-no-pthread", &exec_no_pthread);
-	if (stress_get_setting("exec-method", &exec_method_idx))
+	(void)stress_setting_get("exec-no-pthread", &exec_no_pthread);
+	if (stress_setting_get("exec-method", &exec_method_idx))
 		exec_method = stress_exec_methods[exec_method_idx].method;
-	if (stress_get_setting("exec-fork-method", &exec_fork_method_idx))
+	if (stress_setting_get("exec-fork-method", &exec_fork_method_idx))
 		exec_fork_method = stress_exec_fork_methods[exec_fork_method_idx].method;
 
 	stress_ksm_memory_merge(1);

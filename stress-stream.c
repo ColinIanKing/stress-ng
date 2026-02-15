@@ -914,7 +914,7 @@ static inline void *stress_stream_mmap(
 			size_t stream_madvise;
 			int advice = MADV_NORMAL;
 
-			if (stress_get_setting("stream-madvise", &stream_madvise))
+			if (stress_setting_get("stream-madvise", &stream_madvise))
 				advice = stream_madvise_info[stream_madvise].advice;
 
 			VOID_RET(int, madvise(ptr, (size_t)sz, advice));
@@ -1190,9 +1190,9 @@ static int stress_stream(stress_args_t *args)
 
 	stress_signal_catch_sigill();
 
-	(void)stress_get_setting("stream-discontiguous", &stream_discontiguous);
-	(void)stress_get_setting("stream-mlock", &stream_mlock);
-	(void)stress_get_setting("stream-prefetch", &stream_prefetch);
+	(void)stress_setting_get("stream-discontiguous", &stream_discontiguous);
+	(void)stress_setting_get("stream-mlock", &stream_mlock);
+	(void)stress_setting_get("stream-prefetch", &stream_prefetch);
 
 #if !defined(HAVE_PRAGMA_PREFETCH)
 	if (stream_prefetch) {
@@ -1201,12 +1201,12 @@ static int stress_stream(stress_args_t *args)
 	}
 #endif
 
-	if (stress_get_setting("stream-l3-size", &stream_L3_size))
+	if (stress_setting_get("stream-l3-size", &stream_L3_size))
 		L3 = stream_L3_size;
 	else
 		L3 = get_stream_L3_size(args);
 
-	(void)stress_get_setting("stream-index", &stream_index);
+	(void)stress_setting_get("stream-index", &stream_index);
 
 	/* Have to take a hunch and badly guess size */
 	if (!L3) {

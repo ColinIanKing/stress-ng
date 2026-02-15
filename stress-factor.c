@@ -47,7 +47,7 @@ static int OPTIMIZE3 stress_factor(stress_args_t *args)
 	uint64_t ops, factors;
 	mpz_t value, divisor, q, r, tmp;
 
-	if (!stress_get_setting("factor-digits", &factor_digits)) {
+	if (!stress_setting_get("factor-digits", &factor_digits)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			factor_digits = MAX_FACTOR_DIGITS;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

@@ -356,7 +356,7 @@ inline const char *stress_fs_temp_path_get(void)
 {
 	char *path;
 
-	if (!stress_get_setting("temp-path", &path))
+	if (!stress_setting_get("temp-path", &path))
 		return ".";
 	return path;
 }

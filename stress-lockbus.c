@@ -164,7 +164,7 @@ static void stress_lockbus_init(const uint32_t instances)
 	(void)instances;
 
 	lockbus_bytes = DEFAULT_LOCKBUS_BYTES;
-	(void)stress_get_setting("lockbus-bytes", &lockbus_bytes);
+	(void)stress_setting_get("lockbus-bytes", &lockbus_bytes);
 
 	lockbus_bytes = (lockbus_bytes + pages2_size - 1) & ~(pages2_size - 1);
 	lockbus_buffer_size = lockbus_bytes >> 1;
@@ -234,7 +234,7 @@ static int stress_lockbus(stress_args_t *args)
 	bool lockbus_nosplit = false;
 
 	do_sigill = false;
-	(void)stress_get_setting("lockbus-nosplit", &lockbus_nosplit);
+	(void)stress_setting_get("lockbus-nosplit", &lockbus_nosplit);
 
 	if (stress_signal_handler(args->name, SIGBUS, stress_sigbus_splitlock_handler, NULL) < 0)
 		return EXIT_FAILURE;

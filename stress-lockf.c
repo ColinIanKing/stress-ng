@@ -177,7 +177,7 @@ static int stress_lockf_contention(
 	int lockf_cmd;
 	int counter = 0;
 
-	(void)stress_get_setting("lockf-nonblock", &lockf_nonblock);
+	(void)stress_setting_get("lockf-nonblock", &lockf_nonblock);
 	lockf_cmd = lockf_nonblock ?  F_TLOCK : F_LOCK;
 	stress_mwc_reseed();
 

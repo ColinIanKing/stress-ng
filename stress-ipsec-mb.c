@@ -784,13 +784,13 @@ static int stress_ipsec_mb(stress_args_t *args)
 	size_t ipsec_mb_method = 0;
 	int ipsec_mb_jobs = 128;
 
-	if (!stress_get_setting("ipsec-mb-jobs", &ipsec_mb_jobs)) {
+	if (!stress_setting_get("ipsec-mb-jobs", &ipsec_mb_jobs)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			ipsec_mb_jobs = MAX_IPSEC_MB_JOBS;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			ipsec_mb_jobs = MIN_IPSEC_MB_JOBS;
 	}
-	(void)stress_get_setting("ipsec-mb-method", &ipsec_mb_method);
+	(void)stress_setting_get("ipsec-mb-method", &ipsec_mb_method);
 
 	if (imb_get_version() < IMB_VERSION(0, 51, 0)) {
 		if (stress_instance_zero(args))
@@ -822,7 +822,7 @@ static int stress_ipsec_mb(stress_args_t *args)
 		return EXIT_NOT_IMPLEMENTED;
 	}
 
-	if (stress_get_setting("ipsec-mb-feature", &ipsec_mb_feature)) {
+	if (stress_setting_get("ipsec-mb-feature", &ipsec_mb_feature)) {
 		const char *feature_name = mb_features[ipsec_mb_feature].name;
 
 		if (!mb_features[ipsec_mb_feature].supported) {

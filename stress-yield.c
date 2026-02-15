@@ -210,13 +210,13 @@ static int stress_yield(stress_args_t *args)
 	pid_t *pids;
 	size_t i, yield_sched = SIZE_MAX;
 
-	if (!stress_get_setting("yield-procs", &yield_procs)) {
+	if (!stress_setting_get("yield-procs", &yield_procs)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			yield_procs = MAX_YIELD_PROCS;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			yield_procs = MIN_YIELD_PROCS;
 	}
-	(void)stress_get_setting("yield-sched", &yield_sched);
+	(void)stress_setting_get("yield-sched", &yield_sched);
 
 #if defined(HAVE_SCHED_GETAFFINITY)
 	/*

@@ -83,7 +83,7 @@ static int OPTIMIZE3 stress_utime(stress_args_t *args)
 	double duration = 0.0, count = 0.0, rate;
 	int metrics_count = 0;
 
-	(void)stress_get_setting("utime-fsync", &utime_fsync);
+	(void)stress_setting_get("utime-fsync", &utime_fsync);
 
 	ret = stress_fs_temp_dir_make_args(args);
 	if (ret < 0)

@@ -275,7 +275,7 @@ static int stress_rdrand(stress_args_t *args)
 
 	(void)shim_memset(counters, 0, sizeof(counters));
 #if defined(HAVE_SEED_CAPABILITY)
-	(void)stress_get_setting("rdrand-seed", &rdrand_seed);
+	(void)stress_setting_get("rdrand-seed", &rdrand_seed);
 #endif
 
 #if defined(STRESS_ARCH_X86) &&		\

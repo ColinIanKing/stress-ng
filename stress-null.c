@@ -51,7 +51,7 @@ static int stress_null(stress_args_t *args)
 	int mmap_count = 0;
 #endif
 
-	(void)stress_get_setting("null-write", &null_write);
+	(void)stress_setting_get("null-write", &null_write);
 
 #if defined(O_APPEND)
 	fcntl_mask |= O_APPEND;

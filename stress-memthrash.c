@@ -1007,7 +1007,7 @@ static int stress_memthrash(stress_args_t *args)
 	}
 #endif
 
-	(void)stress_get_setting("memthrash-method", &memthrash_method);
+	(void)stress_setting_get("memthrash-method", &memthrash_method);
 	context.memthrash_method = &memthrash_methods[memthrash_method];
 
 	if (stress_instance_zero(args)) {

@@ -273,8 +273,8 @@ static int stress_mmapfixed(stress_args_t *args)
 	info.numa_nodes = NULL;
 #endif
 
-	(void)stress_get_setting("mmapfixed-mlock", &info.mmapfixed_mlock);
-	(void)stress_get_setting("mmapfixed-numa", &info.mmapfixed_numa);
+	(void)stress_setting_get("mmapfixed-mlock", &info.mmapfixed_mlock);
+	(void)stress_setting_get("mmapfixed-numa", &info.mmapfixed_numa);
 
 	if (info.mmapfixed_numa) {
 #if defined(HAVE_LINUX_MEMPOLICY_H)

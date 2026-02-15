@@ -263,9 +263,9 @@ static int stress_mmapfiles(stress_args_t *args)
 	mmapfile_info->numa_nodes = NULL;
 #endif
 
-	(void)stress_get_setting("mmapfiles-numa", &mmapfile_info->mmapfiles_numa);
-	(void)stress_get_setting("mmapfiles-populate", &mmapfile_info->mmapfiles_populate);
-	(void)stress_get_setting("mmapfiles-shared", &mmapfile_info->mmapfiles_shared);
+	(void)stress_setting_get("mmapfiles-numa", &mmapfile_info->mmapfiles_numa);
+	(void)stress_setting_get("mmapfiles-populate", &mmapfile_info->mmapfiles_populate);
+	(void)stress_setting_get("mmapfiles-shared", &mmapfile_info->mmapfiles_shared);
 
 	if (mmapfile_info->mmapfiles_numa) {
 #if defined(HAVE_LINUX_MEMPOLICY_H)

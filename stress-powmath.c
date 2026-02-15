@@ -627,7 +627,7 @@ static int stress_powmath(stress_args_t *args)
 	size_t powmath_method = 0;
 	int rc = EXIT_SUCCESS;
 
-	(void)stress_get_setting("powmath-method", &powmath_method);
+	(void)stress_setting_get("powmath-method", &powmath_method);
 
 	stress_zero_metrics(stress_powmath_metrics, SIZEOF_ARRAY(stress_powmath_metrics));
 

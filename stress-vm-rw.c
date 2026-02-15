@@ -376,7 +376,7 @@ static int stress_vm_rw(stress_args_t *args)
 	size_t vm_rw_bytes, vm_rw_bytes_total = DEFAULT_VM_RW_BYTES;
 	int rc;
 
-	if (!stress_get_setting("vm-rw-bytes", &vm_rw_bytes_total)) {
+	if (!stress_setting_get("vm-rw-bytes", &vm_rw_bytes_total)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			vm_rw_bytes_total = MAX_32;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

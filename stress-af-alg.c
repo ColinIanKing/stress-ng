@@ -1194,8 +1194,8 @@ static int stress_af_alg(stress_args_t *args)
 	size_t af_alf_type_index = 0;	/* all */
 	stress_crypto_type_t crypto_type;
 
-	(void)stress_get_setting("af-alg-dump", &af_alg_dump);
-	(void)stress_get_setting("af-alg-type", &af_alf_type_index);
+	(void)stress_setting_get("af-alg-dump", &af_alg_dump);
+	(void)stress_setting_get("af-alg-type", &af_alf_type_index);
 	crypto_type = crypto_type_info[af_alf_type_index].crypto_type;
 
 	if (stress_instance_zero(args)) {

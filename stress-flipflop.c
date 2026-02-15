@@ -213,14 +213,14 @@ static int stress_flipflop(stress_args_t *args)
 	char *flipflop_taskset1 = NULL, *flipflop_taskset2 = NULL;
 	const bool loop_until_max_ops = (args->bogo.max_ops > 0);
 
-	if (!stress_get_setting("flipflop-bits", &flipflop_bits)) {
+	if (!stress_setting_get("flipflop-bits", &flipflop_bits)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			flipflop_bits = MAX_FLIPFLOP_BITS;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			flipflop_bits = MIN_FLIPFLOP_BITS;
 	}
-	(void)stress_get_setting("flipflop-taskset1", &flipflop_taskset1);
-	(void)stress_get_setting("flipflop-taskset2", &flipflop_taskset2);
+	(void)stress_setting_get("flipflop-taskset1", &flipflop_taskset1);
+	(void)stress_setting_get("flipflop-taskset2", &flipflop_taskset2);
 
 	/* Should never happen, keeps static analyzer happy */
 	if (flipflop_bits < 1) {

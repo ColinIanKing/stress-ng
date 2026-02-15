@@ -1000,12 +1000,12 @@ static int stress_shm_sysv(stress_args_t *args)
 	size_t shm_sysv_bytes, shm_sysv_bytes_total = DEFAULT_SHM_SYSV_BYTES;
 	size_t shm_sysv_segments = DEFAULT_SHM_SYSV_SEGMENTS;
 
-	if (!stress_get_setting("shm-sysv-mlock", &shm_sysv_mlock)) {
+	if (!stress_setting_get("shm-sysv-mlock", &shm_sysv_mlock)) {
 		if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
 			shm_sysv_mlock = true;
 	}
 
-	if (!stress_get_setting("shm-sysv-bytes", &shm_sysv_bytes_total)) {
+	if (!stress_setting_get("shm-sysv-bytes", &shm_sysv_bytes_total)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			shm_sysv_bytes_total = MAX_SHM_SYSV_BYTES;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
@@ -1017,7 +1017,7 @@ static int stress_shm_sysv(stress_args_t *args)
 	if (stress_instance_zero(args))
 		stress_usage_bytes(args, shm_sysv_bytes, shm_sysv_bytes * args->instances);
 
-	if (!stress_get_setting("shm-sysv-segs", &shm_sysv_segments)) {
+	if (!stress_setting_get("shm-sysv-segs", &shm_sysv_segments)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			shm_sysv_segments = MAX_SHM_SYSV_SEGMENTS;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

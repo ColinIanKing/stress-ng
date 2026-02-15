@@ -750,8 +750,8 @@ static int stress_cacheline(stress_args_t *args)
 		}
 	}
 
-	(void)stress_get_setting("cacheline-affinity", &cacheline_affinity);
-	(void)stress_get_setting("cacheline-method", &cacheline_method);
+	(void)stress_setting_get("cacheline-affinity", &cacheline_affinity);
+	(void)stress_setting_get("cacheline-method", &cacheline_method);
 
 	if (stress_instance_zero(args)) {
 		pr_dbg("%s: using method '%s'\n", args->name, cacheline_methods[cacheline_method].name);

@@ -384,7 +384,7 @@ static int stress_vecshuf(stress_args_t *args)
 		stress_vecshuf_data[i].bytes = 0.0;
 	}
 
-	(void)stress_get_setting("vecshuf-method", &vecshuf_method);
+	(void)stress_setting_get("vecshuf-method", &vecshuf_method);
 
 	stress_vecshuf_set_data(data);
 

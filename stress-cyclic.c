@@ -638,12 +638,12 @@ static int stress_cyclic(stress_args_t *args)
 	char sched_ext_op[128];
 
 	timeout  = g_opt_timeout;
-	(void)stress_get_setting("cyclic-dist", &cyclic_dist);
-	(void)stress_get_setting("cyclic-method", &cyclic_method);
-	(void)stress_get_setting("cyclic-policy", &cyclic_policy);
-	(void)stress_get_setting("cyclic-prio", &cyclic_prio);
-	(void)stress_get_setting("cyclic-samples", &cyclic_samples);
-	(void)stress_get_setting("cyclic-sleep", &cyclic_sleep);
+	(void)stress_setting_get("cyclic-dist", &cyclic_dist);
+	(void)stress_setting_get("cyclic-method", &cyclic_method);
+	(void)stress_setting_get("cyclic-policy", &cyclic_policy);
+	(void)stress_setting_get("cyclic-prio", &cyclic_prio);
+	(void)stress_setting_get("cyclic-samples", &cyclic_samples);
+	(void)stress_setting_get("cyclic-sleep", &cyclic_sleep);
 
 	if (NUM_CYCLIC_POLICIES == 0) {
 		if (!args->instance) {

@@ -1128,7 +1128,7 @@ static int stress_iomix(stress_args_t *args)
 		goto tidy_s_pids;
 	}
 
-	if (!stress_get_setting("iomix-bytes", &iomix_bytes_u64)) {
+	if (!stress_setting_get("iomix-bytes", &iomix_bytes_u64)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			iomix_bytes_u64 = MAXIMIZED_FILE_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

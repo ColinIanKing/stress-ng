@@ -266,7 +266,7 @@ static int stress_fiemap(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
-	if (!stress_get_setting("fiemap-bytes", &fiemap_bytes_total)) {
+	if (!stress_setting_get("fiemap-bytes", &fiemap_bytes_total)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			fiemap_bytes_total = MAXIMIZED_FILE_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

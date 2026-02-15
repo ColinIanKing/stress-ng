@@ -1184,7 +1184,7 @@ static int stress_bitops(stress_args_t *args)
 
 	stress_zero_metrics(metrics, SIZEOF_ARRAY(metrics));
 
-	(void)stress_get_setting("bitops-method", &bitops_method);
+	(void)stress_setting_get("bitops-method", &bitops_method);
 
 	if (stress_instance_zero(args))
 		pr_dbg("%s: using method '%s'\n", args->name, bitops_methods[bitops_method].name);

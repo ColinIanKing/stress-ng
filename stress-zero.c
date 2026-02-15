@@ -79,7 +79,7 @@ static int stress_zero(stress_args_t *args)
 #else
 	const int flags = O_RDWR;
 #endif
-	(void)stress_get_setting("zero-read", &zero_read);
+	(void)stress_setting_get("zero-read", &zero_read);
 
 	rd_buffer = stress_mmap_populate(NULL, page_size,
 			PROT_READ | PROT_WRITE,

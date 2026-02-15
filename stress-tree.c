@@ -981,12 +981,12 @@ static int stress_tree(stress_args_t *args)
 		stress_tree_metrics[i].count = 0.0;
 	}
 
-	(void)stress_get_setting("tree-method", &tree_method);
+	(void)stress_setting_get("tree-method", &tree_method);
 
 	func = stress_tree_methods[tree_method].func;
 	metrics = &stress_tree_metrics[tree_method];
 
-	if (!stress_get_setting("tree-size", &tree_size)) {
+	if (!stress_setting_get("tree-size", &tree_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			tree_size = MAX_TREE_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

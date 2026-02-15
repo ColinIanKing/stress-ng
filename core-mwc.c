@@ -114,7 +114,7 @@ void stress_mwc_reseed(void)
 	if (g_opt_flags & OPT_FLAGS_SEED) {
 		uint64_t seed;
 
-		if (stress_get_setting("seed", &seed)) {
+		if (stress_setting_get("seed", &seed)) {
 			mwc.z = seed >> 32;
 			mwc.w = seed & 0xffffffff;
 			mwc_flush();

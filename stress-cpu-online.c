@@ -173,8 +173,8 @@ static int stress_cpu_online(stress_args_t *args)
 	double online_duration  = 0.0, online_count = 0.0;
 	double rate;
 
-	(void)stress_get_setting("cpu-online-affinity", &cpu_online_affinity);
-	(void)stress_get_setting("cpu-online-all", &cpu_online_all);
+	(void)stress_setting_get("cpu-online-affinity", &cpu_online_affinity);
+	(void)stress_setting_get("cpu-online-all", &cpu_online_all);
 
 	if (geteuid() != 0) {
 		if (stress_instance_zero(args))

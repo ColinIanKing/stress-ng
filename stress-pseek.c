@@ -397,11 +397,11 @@ static int stress_pseek(stress_args_t *args)
 	info.pseek_io_size = DEFAULT_PSEEKIO_IO_SIZE;
 	info.parent_pid = getpid();
 
-	if (!stress_get_setting("pseek-rand", &info.pseek_rand)) {
+	if (!stress_setting_get("pseek-rand", &info.pseek_rand)) {
 		if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
 			info.pseek_rand = true;
 	}
-	if (!stress_get_setting("pseek-io-size", &info.pseek_io_size)) {
+	if (!stress_setting_get("pseek-io-size", &info.pseek_io_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			info.pseek_io_size = MAX_PSEEKIO_IO_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

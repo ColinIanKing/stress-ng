@@ -91,7 +91,7 @@ static int stress_icmp_flood(stress_args_t *args)
 	uint32_t max_payload_size;
 	bool icmp_flood_max_size = false;
 
-	if (!stress_get_setting("icmp-flood-max-size", &icmp_flood_max_size)) {
+	if (!stress_setting_get("icmp-flood-max-size", &icmp_flood_max_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			icmp_flood_max_size = true;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

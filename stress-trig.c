@@ -358,7 +358,7 @@ static int stress_trig(stress_args_t *args)
 	size_t trig_method = 0;
 	int rc = EXIT_SUCCESS;
 
-	(void)stress_get_setting("trig-method", &trig_method);
+	(void)stress_setting_get("trig-method", &trig_method);
 
 	stress_zero_metrics(stress_trig_metrics, SIZEOF_ARRAY(stress_trig_metrics));
 

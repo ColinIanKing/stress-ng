@@ -299,16 +299,16 @@ static int stress_revio(stress_args_t *args)
 	bool opts_set = false;
 	double avg_extents = 0.0;
 
-	(void)stress_get_setting("revio-flags", &revio_flags);
-	(void)stress_get_setting("revio-oflags", &revio_oflags);
-	(void)stress_get_setting("revio-opts-set", &opts_set);
+	(void)stress_setting_get("revio-flags", &revio_flags);
+	(void)stress_setting_get("revio-oflags", &revio_oflags);
+	(void)stress_setting_get("revio-opts-set", &opts_set);
 
 	revio_flags |= REVIO_OPT_O_DIRECT;	/* HACK */
 
 	flags = O_CREAT | O_RDWR | O_TRUNC | revio_oflags;
 	fadvise_flags = revio_flags & REVIO_OPT_FADV_MASK;
 
-	if (!stress_get_setting("revio-bytes", &revio_bytes_total)) {
+	if (!stress_setting_get("revio-bytes", &revio_bytes_total)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			revio_bytes_total = MAXIMIZED_FILE_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

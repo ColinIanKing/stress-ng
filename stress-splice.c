@@ -166,7 +166,7 @@ static int stress_splice(stress_args_t *args)
 	ssize_t buffer_len;
 	double duration = 0.0, bytes = 0.0, rate;
 
-	if (!stress_get_setting("splice-bytes", &splice_bytes_total)) {
+	if (!stress_setting_get("splice-bytes", &splice_bytes_total)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			splice_bytes_total = MAX_SPLICE_BYTES;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

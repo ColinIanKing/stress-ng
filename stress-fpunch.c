@@ -296,7 +296,7 @@ static int stress_fpunch(stress_args_t *args)
 	stress_punch_buf_t *buf;
 	uint64_t punches, fpunch_bytes, fpunch_bytes_total = DEFAULT_FPUNCH_BYTES, max_punches;
 
-	if (!stress_get_setting("fpunch-bytes", &fpunch_bytes_total)) {
+	if (!stress_setting_get("fpunch-bytes", &fpunch_bytes_total)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			fpunch_bytes_total = MAX_FPUNCH_BYTES;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

@@ -402,7 +402,7 @@ static int stress_rawdev(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
-	(void)stress_get_setting("rawdev-method", &rawdev_method);
+	(void)stress_setting_get("rawdev-method", &rawdev_method);
 	func = rawdev_methods[rawdev_method].func;
 
 	fd = open(devpath, O_RDONLY | O_NONBLOCK);

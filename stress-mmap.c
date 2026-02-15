@@ -65,14 +65,14 @@ static void stress_mmap_stressful(const char *opt_name, const char *opt_arg, str
 	*type_id = TYPE_ID_SIZE_T;
 	*(size_t *)value = 0;
 
-	(void)stress_set_setting_true("mmap", "mmap-mergeable", opt_arg);
-	(void)stress_set_setting_true("mmap", "mmap-mprotect", opt_arg);
-	(void)stress_set_setting_true("mmap", "mmap-file", opt_arg);
-	(void)stress_set_setting_true("mmap", "mmap-odirect", opt_arg);
-	(void)stress_set_setting_true("mmap", "mmap-madvise", opt_arg);
-	(void)stress_set_setting_true("mmap", "mmap-mlock", opt_arg);
-	(void)stress_set_setting_true("mmap", "mmap-numa", opt_arg);
-	(void)stress_set_setting_true("mmap", "mmap-slow-munmap", opt_arg);
+	(void)stress_setting_set_true("mmap", "mmap-mergeable", opt_arg);
+	(void)stress_setting_set_true("mmap", "mmap-mprotect", opt_arg);
+	(void)stress_setting_set_true("mmap", "mmap-file", opt_arg);
+	(void)stress_setting_set_true("mmap", "mmap-odirect", opt_arg);
+	(void)stress_setting_set_true("mmap", "mmap-madvise", opt_arg);
+	(void)stress_setting_set_true("mmap", "mmap-mlock", opt_arg);
+	(void)stress_setting_set_true("mmap", "mmap-numa", opt_arg);
+	(void)stress_setting_set_true("mmap", "mmap-slow-munmap", opt_arg);
 }
 
 static const stress_opt_t opts[] = {
@@ -985,18 +985,18 @@ static int stress_mmap(stress_args_t *args)
 	context.numa_nodes = NULL;
 #endif
 
-	(void)stress_get_setting("mmap-async", &context.mmap_async);
-	(void)stress_get_setting("mmap-file", &context.mmap_file);
-	(void)stress_get_setting("mmap-osync", &mmap_osync);
-	(void)stress_get_setting("mmap-odirect", &mmap_odirect);
-	(void)stress_get_setting("mmap-madvise", &context.mmap_madvise);
-	(void)stress_get_setting("mmap-mergeable", &context.mmap_mergeable);
-	(void)stress_get_setting("mmap-mlock", &context.mmap_mlock);
-	(void)stress_get_setting("mmap-mmap2", &mmap_mmap2);
-	(void)stress_get_setting("mmap-mprotect", &context.mmap_mprotect);
-	(void)stress_get_setting("mmap-numa", &context.mmap_numa);
-	(void)stress_get_setting("mmap-slow-munmap", &context.mmap_slow_munmap);
-	(void)stress_get_setting("mmap-write-check", &context.mmap_write_check);
+	(void)stress_setting_get("mmap-async", &context.mmap_async);
+	(void)stress_setting_get("mmap-file", &context.mmap_file);
+	(void)stress_setting_get("mmap-osync", &mmap_osync);
+	(void)stress_setting_get("mmap-odirect", &mmap_odirect);
+	(void)stress_setting_get("mmap-madvise", &context.mmap_madvise);
+	(void)stress_setting_get("mmap-mergeable", &context.mmap_mergeable);
+	(void)stress_setting_get("mmap-mlock", &context.mmap_mlock);
+	(void)stress_setting_get("mmap-mmap2", &mmap_mmap2);
+	(void)stress_setting_get("mmap-mprotect", &context.mmap_mprotect);
+	(void)stress_setting_get("mmap-numa", &context.mmap_numa);
+	(void)stress_setting_get("mmap-slow-munmap", &context.mmap_slow_munmap);
+	(void)stress_setting_get("mmap-write-check", &context.mmap_write_check);
 
 	for (all_flags = 0, i = 0; i < SIZEOF_ARRAY(mmap_prot); i++)
 		all_flags |= mmap_prot[i];
@@ -1024,7 +1024,7 @@ static int stress_mmap(stress_args_t *args)
 	}
 
 	mmap_total = DEFAULT_MMAP_BYTES;
-	if (!stress_get_setting("mmap-bytes", &mmap_total)) {
+	if (!stress_setting_get("mmap-bytes", &mmap_total)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			mmap_total = MAX_32;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

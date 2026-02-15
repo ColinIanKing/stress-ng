@@ -523,7 +523,7 @@ static int stress_logmath(stress_args_t *args)
 	size_t logmath_method = 0;
 	int rc = EXIT_SUCCESS;
 
-	(void)stress_get_setting("logmath-method", &logmath_method);
+	(void)stress_setting_get("logmath-method", &logmath_method);
 
 	stress_zero_metrics(stress_logmath_metrics, SIZEOF_ARRAY(stress_logmath_metrics));
 

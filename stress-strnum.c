@@ -638,7 +638,7 @@ static int stress_strnum(stress_args_t *args)
 	size_t strnum_method = 0;	/* "all" */
 	int rc = EXIT_SUCCESS;
 
-	(void)stress_get_setting("strnum-method", &strnum_method);
+	(void)stress_setting_get("strnum-method", &strnum_method);
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);

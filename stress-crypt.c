@@ -138,7 +138,7 @@ static int stress_crypt(stress_args_t *args)
 	static struct crypt_data data;
 #endif
 
-	(void)stress_get_setting("crypt-method", &crypt_method);
+	(void)stress_setting_get("crypt-method", &crypt_method);
 
 	crypt_metrics = (stress_metrics_t *)calloc(SIZEOF_ARRAY(crypt_methods), sizeof(*crypt_metrics));
 	if (!crypt_metrics) {

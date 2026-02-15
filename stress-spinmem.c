@@ -247,10 +247,10 @@ static int stress_spinmem(stress_args_t *args)
 	int ret;
 #endif
 
-	(void)stress_get_setting("spinmem-affinity", &spinmem_affinity);
-	(void)stress_get_setting("spinmem-method", &spinmem_method);
-	(void)stress_get_setting("spinmem-numa", &spinmem_numa);
-	(void)stress_get_setting("spinmem-yield", &spinmem_yield);
+	(void)stress_setting_get("spinmem-affinity", &spinmem_affinity);
+	(void)stress_setting_get("spinmem-method", &spinmem_method);
+	(void)stress_setting_get("spinmem-numa", &spinmem_numa);
+	(void)stress_setting_get("spinmem-yield", &spinmem_yield);
 
 #if !defined(HAVE_SCHED_SETAFFINITY)
 	if ((spinmem_affinity) && (stress_instance_zero(args))) {

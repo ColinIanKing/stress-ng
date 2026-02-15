@@ -179,8 +179,8 @@ static int stress_mutex(stress_args_t *args)
 	if (stress_signal_sigchld_handler(args) < 0)
 		return EXIT_NO_RESOURCE;
 
-	(void)stress_get_setting("mutex-affinity", &mutex_affinity);
-	if (!stress_get_setting("mutex-procs", &mutex_procs)) {
+	(void)stress_setting_get("mutex-affinity", &mutex_affinity);
+	if (!stress_setting_get("mutex-procs", &mutex_procs)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			mutex_procs = MAX_MUTEX_PROCS;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

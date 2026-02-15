@@ -458,7 +458,7 @@ static int stress_opcode(stress_args_t *args)
 	/* Force pages resident */
 	(void)shim_memset(opcodes, 0x00, page_size * (PAGES + 2));
 
-	(void)stress_get_setting("opcode-method", &opcode_method);
+	(void)stress_setting_get("opcode-method", &opcode_method);
 	method = &stress_opcode_methods[opcode_method];
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);

@@ -328,7 +328,7 @@ static int stress_memcpy(stress_args_t *args)
 		memmove_check = memmove_no_check_func;
 	}
 
-	(void)stress_get_setting("memcpy-method", &memcpy_method);
+	(void)stress_setting_get("memcpy-method", &memcpy_method);
 	func = stress_memcpy_methods[memcpy_method].func;
 	stress_rndbuf(str3, MEMCPY_MEMSIZE);
 

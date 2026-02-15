@@ -575,7 +575,7 @@ static int stress_besselmath(stress_args_t *args)
 	size_t besselmath_method = 0;
 	int rc = EXIT_SUCCESS;
 
-	(void)stress_get_setting("besselmath-method", &besselmath_method);
+	(void)stress_setting_get("besselmath-method", &besselmath_method);
 
 	stress_zero_metrics(stress_besselmath_metrics, SIZEOF_ARRAY(stress_besselmath_methods));
 

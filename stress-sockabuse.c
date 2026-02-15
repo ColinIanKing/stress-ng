@@ -372,7 +372,7 @@ static int stress_sockabuse(stress_args_t *args)
 	if (stress_signal_sigchld_handler(args) < 0)
 		return EXIT_NO_RESOURCE;
 
-	(void)stress_get_setting("sockabuse-port", &sockabuse_port);
+	(void)stress_setting_get("sockabuse-port", &sockabuse_port);
 
 	sockabuse_port += args->instance;
 	sockabuse_port = stress_net_port_wraparound(sockabuse_port);

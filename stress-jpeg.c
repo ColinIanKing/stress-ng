@@ -364,25 +364,25 @@ static int stress_jpeg(stress_args_t *args)
 	double total_pixels = 0.0, t_start, duration, rate, ratio;
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 
-	if (!stress_get_setting("jpeg-width", &x_max)) {
+	if (!stress_setting_get("jpeg-width", &x_max)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			x_max = MAX_JPEG_WIDTH;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			x_max = MIN_JPEG_WIDTH;
 	}
-	if (!stress_get_setting("jpeg-height", &y_max)) {
+	if (!stress_setting_get("jpeg-height", &y_max)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			y_max = MAX_JPEG_HEIGHT;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			y_max = MIN_JPEG_HEIGHT;
 	}
-	if (!stress_get_setting("jpeg-quality", &jpeg_quality)) {
+	if (!stress_setting_get("jpeg-quality", &jpeg_quality)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			jpeg_quality = MAX_JPEG_QUALITY;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			jpeg_quality = MIN_JPEG_QUALITY;
 	}
-	(void)stress_get_setting("jpeg-image", &jpeg_image);
+	(void)stress_setting_get("jpeg-image", &jpeg_image);
 
 	rgb_size = (size_t)x_max * (size_t)y_max * 3;
 

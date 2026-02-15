@@ -569,13 +569,13 @@ static int stress_sem_sysv(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
-	if (!stress_get_setting("sem-sysv-procs", &semaphore_sysv_procs)) {
+	if (!stress_setting_get("sem-sysv-procs", &semaphore_sysv_procs)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			semaphore_sysv_procs = MAX_SEM_SYSV_PROCS;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			semaphore_sysv_procs = MIN_SEM_SYSV_PROCS;
 	}
-	(void)stress_get_setting("sem-sysv-setall", &semaphore_sysv_setall);
+	(void)stress_setting_get("sem-sysv-setall", &semaphore_sysv_setall);
 
 	if (stress_signal_handler(args->name, SIGCHLD, stress_signal_ignore_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;

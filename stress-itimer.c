@@ -66,7 +66,7 @@ static void stress_itimer_set(struct itimerval *timer)
 	double rate;
 	bool itimer_rand = false;
 
-	(void)stress_get_setting("itimer-rand", &itimer_rand);
+	(void)stress_setting_get("itimer-rand", &itimer_rand);
 
 	if (itimer_rand) {
 		/* Mix in some random variation */
@@ -138,7 +138,7 @@ static int stress_itimer(stress_args_t *args)
 	(void)sigaddset(&mask, SIGINT);
 	(void)sigprocmask(SIG_SETMASK, &mask, NULL);
 
-	if (!stress_get_setting("itimer-freq", &itimer_freq)) {
+	if (!stress_setting_get("itimer-freq", &itimer_freq)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			itimer_freq = MAX_ITIMER_FREQ;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

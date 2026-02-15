@@ -406,8 +406,8 @@ static int stress_sockfd(stress_args_t *args)
 	if (stress_signal_sigchld_handler(args) < 0)
 		return EXIT_NO_RESOURCE;
 
-	(void)stress_get_setting("sockfd-port", &socket_fd_port);
-	(void)stress_get_setting("sockfd-reuse", &socket_fd_reuse);
+	(void)stress_setting_get("sockfd-port", &socket_fd_port);
+	(void)stress_setting_get("sockfd-reuse", &socket_fd_reuse);
 
 #if !defined(HAVE_SELECT)
 	if ((socket_fd_reuse) && (stress_instance_zero(args)))

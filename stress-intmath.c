@@ -649,8 +649,8 @@ static int stress_intmath(stress_args_t *args)
 	size_t methods_max;
 	size_t i, j;
 
-	(void)stress_get_setting("intmath-method", &intmath_method);
-	(void)stress_get_setting("intmath-fast", &intmath_fast);
+	(void)stress_setting_get("intmath-method", &intmath_method);
+	(void)stress_setting_get("intmath-fast", &intmath_fast);
 
 #if !defined(HAVE_INT_FAST)
 	if (intmath_fast) {
@@ -721,7 +721,7 @@ static const char *stress_intmath_method(const size_t i)
 {
 	bool intmath_fast = false;
 
-	(void)stress_get_setting("intmath-fast", &intmath_fast);
+	(void)stress_setting_get("intmath-fast", &intmath_fast);
 
 	if (intmath_fast) {
 #if defined(HAVE_INT_FAST)

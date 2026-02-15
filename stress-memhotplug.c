@@ -252,7 +252,7 @@ static int stress_memhotplug(stress_args_t *args)
 	if (stress_signal_handler(args->name, SIGSEGV, stress_segv_handler, &old_action) < 0)
 		return EXIT_NO_RESOURCE;
 
-	(void)stress_get_setting("memhotplug-mmap", &memhotplug_mmap);
+	(void)stress_setting_get("memhotplug-mmap", &memhotplug_mmap);
 
 	dir = opendir(sys_memory_path);
 	if (!dir) {

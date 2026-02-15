@@ -989,13 +989,13 @@ static int stress_io_uring_child(stress_args_t *args, void *context)
 
 	io_uring_rand = false;
 
-	if (!stress_get_setting("io-uring-entries", &io_uring_entries)) {
+	if (!stress_setting_get("io-uring-entries", &io_uring_entries)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			io_uring_entries = MAX_IO_URING_ENTRIES;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			io_uring_entries = MIN_IO_URING_ENTRIES;
 	}
-	(void)stress_get_setting("io-uring-rand", &io_uring_rand);
+	(void)stress_setting_get("io-uring-rand", &io_uring_rand);
 
 	(void)shim_memset(&submit, 0, sizeof(submit));
 	(void)shim_memset(&io_uring_file, 0, sizeof(io_uring_file));

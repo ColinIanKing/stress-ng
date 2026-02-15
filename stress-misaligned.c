@@ -1312,7 +1312,7 @@ static int stress_misaligned(stress_args_t *args)
 	NOCLOBBER stress_numa_mask_t *numa_nodes = NULL;
 	int numa_loop;
 #endif
-	(void)stress_get_setting("misaligned-method", &misaligned_method);
+	(void)stress_setting_get("misaligned-method", &misaligned_method);
 
 	if (stress_signal_handler(args->name, SIGBUS, stress_misaligned_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;

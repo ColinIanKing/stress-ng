@@ -400,10 +400,10 @@ static int stress_mmapcow(stress_args_t *args)
 	bool mmapcow_mlock = false;
 	bool mmapcow_numa = false;
 
-	(void)stress_get_setting("mmapcow-fork", &mmapcow_fork);
-	(void)stress_get_setting("mmapcow-free", &mmapcow_free);
-	(void)stress_get_setting("mmapcow-mlock", &mmapcow_mlock);
-	(void)stress_get_setting("mmapcow-numa", &mmapcow_numa);
+	(void)stress_setting_get("mmapcow-fork", &mmapcow_fork);
+	(void)stress_setting_get("mmapcow-free", &mmapcow_free);
+	(void)stress_setting_get("mmapcow-mlock", &mmapcow_mlock);
+	(void)stress_setting_get("mmapcow-numa", &mmapcow_numa);
 
 	if (mmapcow_fork)
 		flags |= MMAPCOW_FORK;

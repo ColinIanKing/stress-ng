@@ -276,7 +276,7 @@ static void stress_mmaptorture_init(const uint32_t instances)
 	const size_t page_size = stress_get_page_size();
 
 	mmap_bytes = DEFAULT_MMAPTORTURE_BYTES;
-	if (!stress_get_setting("mmaptorture-bytes", &mmap_bytes)) {
+	if (!stress_setting_get("mmaptorture-bytes", &mmap_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			mmap_bytes = MAX_32;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
@@ -404,7 +404,7 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 	size_t i;
 	(void)context;
 
-	if (!stress_get_setting("mmaptorture-msync", &mmaptorture_msync)) {
+	if (!stress_setting_get("mmaptorture-msync", &mmaptorture_msync)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			mmaptorture_msync = MAX_MMAPTORTURE_MSYNC;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

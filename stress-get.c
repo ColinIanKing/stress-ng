@@ -1055,7 +1055,7 @@ static int stress_get(stress_args_t *args)
 	bool get_slow_sync = false;
 	size_t i = 0;
 
-	(void)stress_get_setting("get-slow-sync", &get_slow_sync);
+	(void)stress_setting_get("get-slow-sync", &get_slow_sync);
 
 #if defined(HAVE_SYS_TIMEX_H) &&	\
     (defined(HAVE_ADJTIMEX) || defined(HAVE_ADJTIME))

@@ -1368,16 +1368,16 @@ static int stress_sparsematrix(stress_args_t *args)
 		test_info[i].get_ops = 0;
 	}
 
-	(void)stress_get_setting("sparsematrix-method", &method);
+	(void)stress_setting_get("sparsematrix-method", &method);
 
-	if (!stress_get_setting("sparsematrix-size", &sparsematrix_size)) {
+	if (!stress_setting_get("sparsematrix-size", &sparsematrix_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			sparsematrix_size = MAX_SPARSEMATRIX_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			sparsematrix_size = MIN_SPARSEMATRIX_SIZE;
 	}
 
-	if (!stress_get_setting("sparsematrix-items", &sparsematrix_items)) {
+	if (!stress_setting_get("sparsematrix-items", &sparsematrix_items)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			sparsematrix_items = MAX_SPARSEMATRIX_ITEMS;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

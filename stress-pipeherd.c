@@ -98,13 +98,13 @@ static int stress_pipeherd(stress_args_t *args)
 	double t1, t2;
 #endif
 
-	if (!stress_get_setting("pipeherd-procs", &pipeherd_procs)) {
+	if (!stress_setting_get("pipeherd-procs", &pipeherd_procs)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			pipeherd_procs = MAX_PIPEHERD_PROCS;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			pipeherd_procs = MIN_PIPEHERD_PROCS;
 	}
-	if (!stress_get_setting("pipeherd-yield", &pipeherd_yield)) {
+	if (!stress_setting_get("pipeherd-yield", &pipeherd_yield)) {
 		if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
 			pipeherd_yield = true;
 	}

@@ -149,7 +149,7 @@ static int stress_numacopy(stress_args_t *args)
 	double duration = 0.0, rate = 0.0, max_rate, scale;
 	stress_numacopy_metric_t *metrics;
 
-	(void)stress_get_setting("numacopy-mode", &numacopy_mode_index);
+	(void)stress_setting_get("numacopy-mode", &numacopy_mode_index);
 	mode = stress_numacopy_modes[numacopy_mode_index].mode;
 
 	numa_nodes = stress_numa_mask_alloc();

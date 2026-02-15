@@ -372,7 +372,7 @@ static int stress_mpfr(stress_args_t *args)
 
 	stress_zero_metrics(metrics, SIZEOF_ARRAY(metrics));
 
-	if (!stress_get_setting("mpfr-precision", &mpfr_precision)) {
+	if (!stress_setting_get("mpfr-precision", &mpfr_precision)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			mpfr_precision = MAX_MPFR_PRECISION;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

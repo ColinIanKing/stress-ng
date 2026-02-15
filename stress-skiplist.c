@@ -215,7 +215,7 @@ static int OPTIMIZE3 stress_skiplist(stress_args_t *args)
 	uint32_t skiplist_size = DEFAULT_SKIPLIST_SIZE;
 	int rc = EXIT_FAILURE;
 
-	if (!stress_get_setting("skiplist-size", &skiplist_size)) {
+	if (!stress_setting_get("skiplist-size", &skiplist_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			skiplist_size = MAX_SKIPLIST_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

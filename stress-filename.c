@@ -730,7 +730,7 @@ static int stress_filename(stress_args_t *args)
 	uint8_t filename_opt = STRESS_FILENAME_PROBE;
 #endif
 
-	(void)stress_get_setting("filename-opts", &filename_opt);
+	(void)stress_setting_get("filename-opts", &filename_opt);
 
 	stress_fs_temp_dir_args(args, pathname, sizeof(pathname));
 	if (mkdir(pathname, S_IRWXU) < 0) {

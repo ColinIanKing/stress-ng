@@ -319,7 +319,7 @@ static int stress_chyperbolic(stress_args_t *args)
 	size_t chyperbolic_method = 0;
 	int rc = EXIT_SUCCESS;
 
-	(void)stress_get_setting("chyperbolic-method", &chyperbolic_method);
+	(void)stress_setting_get("chyperbolic-method", &chyperbolic_method);
 
 	stress_zero_metrics(stress_chyperbolic_metrics, SIZEOF_ARRAY(stress_chyperbolic_metrics));
 

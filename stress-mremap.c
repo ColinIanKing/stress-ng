@@ -214,7 +214,7 @@ static int stress_mremap_child(stress_args_t *args, void *context)
 #endif
 	(void)context;
 
-	if (!stress_get_setting("mremap-bytes", &mremap_bytes_total)) {
+	if (!stress_setting_get("mremap-bytes", &mremap_bytes_total)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			mremap_bytes_total = MAX_32;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
@@ -231,8 +231,8 @@ static int stress_mremap_child(stress_args_t *args, void *context)
 
 	new_sz = sz = mremap_bytes & ~(page_size - 1);
 
-	(void)stress_get_setting("mremap-mlock", &mremap_mlock);
-	(void)stress_get_setting("mremap-numa", &mremap_numa);
+	(void)stress_setting_get("mremap-mlock", &mremap_mlock);
+	(void)stress_setting_get("mremap-numa", &mremap_numa);
 
 	if (mremap_numa) {
 #if defined(HAVE_LINUX_MEMPOLICY_H)

@@ -334,7 +334,7 @@ static int stress_nop(stress_args_t *args)
 	NOCLOBBER bool do_random;
 	double duration = 0.0, count = 0.0, rate;
 
-	(void)stress_get_setting("nop-instr", &nop_instr);
+	(void)stress_setting_get("nop-instr", &nop_instr);
 	instr = &nop_instrs[nop_instr];
 
 	if (stress_signal_handler(args->name, SIGILL, stress_sigill_nop_handler, NULL) < 0)

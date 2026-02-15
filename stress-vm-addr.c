@@ -542,9 +542,9 @@ static int stress_vm_addr(stress_args_t *args)
 	context.vm_addr_mlock = false;
 	context.vm_addr_numa = false;
 
-	(void)stress_get_setting("vm-addr-mlock", &context.vm_addr_mlock);
-	(void)stress_get_setting("vm-addr-method", &vm_addr_method);
-	(void)stress_get_setting("vm-addr-numa", &context.vm_addr_numa);
+	(void)stress_setting_get("vm-addr-mlock", &context.vm_addr_mlock);
+	(void)stress_setting_get("vm-addr-method", &vm_addr_method);
+	(void)stress_setting_get("vm-addr-numa", &context.vm_addr_numa);
 
 	context.vm_addr_method = &vm_addr_methods[vm_addr_method];
 	context.bit_error_count = (uint64_t *)MAP_FAILED;

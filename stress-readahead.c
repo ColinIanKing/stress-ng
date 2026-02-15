@@ -106,7 +106,7 @@ static int stress_readahead(stress_args_t *args)
 	int generate_offsets = 0;
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 
-	if (!stress_get_setting("readahead-bytes", &readahead_bytes_total)) {
+	if (!stress_setting_get("readahead-bytes", &readahead_bytes_total)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			readahead_bytes_total = MAX_32;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

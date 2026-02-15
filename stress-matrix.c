@@ -1004,14 +1004,14 @@ static int stress_matrix(stress_args_t *args)
 
 	stress_signal_catch_sigill();
 
-	(void)stress_get_setting("matrix-method", &matrix_method);
-	(void)stress_get_setting("matrix-yx", &matrix_yx);
+	(void)stress_setting_get("matrix-method", &matrix_method);
+	(void)stress_setting_get("matrix-yx", &matrix_yx);
 
 	if (stress_instance_zero(args))
 		pr_dbg("%s: using method '%s' (%s)\n", args->name, matrix_methods[matrix_method].name,
 			matrix_yx ? "y by x" : "x by y");
 
-	if (!stress_get_setting("matrix-size", &matrix_size)) {
+	if (!stress_setting_get("matrix-size", &matrix_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			matrix_size = MAX_MATRIX_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

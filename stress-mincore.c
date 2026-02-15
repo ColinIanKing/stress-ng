@@ -108,7 +108,7 @@ static int stress_mincore(stress_args_t *args)
 	uint8_t *mapped, *unmapped, *fdmapped;
 	double duration = 0.0, count = 0.0, rate;
 
-	(void)stress_get_setting("mincore-random", &mincore_random);
+	(void)stress_setting_get("mincore-random", &mincore_random);
 
 	/* Don't worry if we can't map a page, it is not critical */
 	mapped = (uint8_t *)mmap(NULL, page_size, PROT_READ | PROT_WRITE,

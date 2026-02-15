@@ -1407,22 +1407,22 @@ static void stress_zlib_get_args(stress_zlib_args_t *params) {
 	params->stream_bytes = 0;
 	params->strategy = Z_DEFAULT_STRATEGY;
 
-	if (!stress_get_setting("zlib-level", &params->level)) {
+	if (!stress_setting_get("zlib-level", &params->level)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			params->level = Z_BEST_COMPRESSION;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			params->level = 0;
 	}
-	if (!stress_get_setting("zlib-mem-level", &params->mem_level)) {
+	if (!stress_setting_get("zlib-mem-level", &params->mem_level)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			params->mem_level = ZLIB_MAX_MEM_LEVEL;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			params->mem_level = ZLIB_MIN_MEM_LEVEL;
 	}
-	(void)stress_get_setting("zlib-method", &params->method);
-	(void)stress_get_setting("zlib-window-bits", &params->window_bits);
-	(void)stress_get_setting("zlib-stream-bytes", &params->stream_bytes);
-	(void)stress_get_setting("zlib-strategy", &params->strategy);
+	(void)stress_setting_get("zlib-method", &params->method);
+	(void)stress_setting_get("zlib-window-bits", &params->window_bits);
+	(void)stress_setting_get("zlib-stream-bytes", &params->stream_bytes);
+	(void)stress_setting_get("zlib-strategy", &params->strategy);
 }
 
 /*

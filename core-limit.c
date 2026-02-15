@@ -79,7 +79,7 @@ static void stress_limit_set(int resource, const char *opt)
 	uint64_t val = 0;
 
 	/* User optional override for a specific limit? */
-	if (opt && stress_get_setting(opt, &val) && (val > 0)) {
+	if (opt && stress_setting_get(opt, &val) && (val > 0)) {
 		rlim.rlim_cur = (rlim_t)val;
 		rlim.rlim_max = (rlim_t)val;
 		(void)setrlimit(resource, &rlim);
@@ -111,7 +111,7 @@ void stress_limit_max_set(void)
 		struct rlimit rlim;
 		uint64_t max_fd = 0;
 
-		(void)stress_get_setting("max-fd", &max_fd);
+		(void)stress_setting_get("max-fd", &max_fd);
 		if (max_fd != 0) {
 			rlim.rlim_cur = (rlim_t)(max_fd + 1);
 			rlim.rlim_max = (rlim_t)(max_fd + 1);
