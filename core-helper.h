@@ -86,7 +86,7 @@ extern WARN_UNUSED int stress_x86_readmsr64(const int cpu, const uint32_t reg,
 extern void stress_random_small_sleep(void);
 extern void stress_yield_sleep_ms(void);
 extern void stress_process_info(stress_args_t *args, const pid_t pid);
-extern uint64_t stress_get_machine_id(void);
+extern uint64_t stress_machine_id_get(void);
 extern void stress_zero_metrics(stress_metrics_t *metrics, const size_t n);
 extern bool OPTIMIZE3 stress_data_is_not_zero(uint64_t *buffer, const size_t len);
 extern void NORETURN stress_no_return(void);

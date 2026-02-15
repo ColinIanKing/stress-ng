@@ -137,7 +137,7 @@ void stress_mwc_reseed(void)
 		} u;
 		int i, n;
 		const uint64_t aux_rnd = stress_aux_random_seed();
-		const uint64_t id = stress_get_machine_id();
+		const uint64_t id = stress_machine_id_get();
 		const intptr_t p1 = (intptr_t)&mwc;
 		const intptr_t p2 = (intptr_t)&tv;
 

@@ -1900,10 +1900,10 @@ void stress_process_info(stress_args_t *args, const pid_t pid)
 }
 
 /*
- *  stress_get_machine_id()
+ *  stress_machine_id_get()
  *	try to get a unique 64 bit machine id number
  */
-uint64_t stress_get_machine_id(void)
+uint64_t stress_machine_id_get(void)
 {
 	uint64_t id = 0;
 
