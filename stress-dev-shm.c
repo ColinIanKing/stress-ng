@@ -43,8 +43,9 @@ typedef struct {
  */
 static inline int stress_dev_shm_child(
 	stress_args_t *args,
-	stress_dev_shm_context_t *context)
+	void *ctxt)
 {
+	stress_dev_shm_context_t *context = (stress_dev_shm_context_t *)ctxt;
 	int rc = EXIT_SUCCESS;
 	const int fd = context->fd;
 	const size_t page_size = args->page_size;
@@ -142,64 +143,6 @@ static inline int stress_dev_shm_child(
 	return rc;
 }
 
-static int stress_dev_shm_oomable_child(stress_args_t *args, void *ctxt)
-{
-	pid_t pid;
-	int rc = EXIT_SUCCESS;
-	stress_dev_shm_context_t *context = (stress_dev_shm_context_t *)ctxt;
-
-	while (stress_continue(args)) {
-again:
-		pid = fork();
-		if (pid < 0) {
-			if (stress_redo_fork(args, errno))
-				goto again;
-			if (!stress_continue(args))
-				goto finish;
-			pr_err("%s: fork failed, errno=%d: (%s)\n",
-				args->name, errno, strerror(errno));
-			/* Nope, give up! */
-			(void)close(context->fd);
-			return EXIT_FAILURE;
-		} else if (pid > 0) {
-			/* Parent */
-			pid_t ret;
-			int status = 0;
-
-			ret = shim_waitpid(pid, &status, 0);
-			if (ret < 0) {
-				if (errno != EINTR)
-					pr_dbg("%s: waitpid() on PID %" PRIdMAX " failed, errno=%d (%s)\n",
-						args->name, (intmax_t)pid, errno, strerror(errno));
-				stress_force_killed_bogo(args);
-				(void)stress_kill_pid_wait(pid, &status);
-			}
-			if (WIFSIGNALED(status)) {
-				if ((WTERMSIG(status) == SIGKILL) ||
-				    (WTERMSIG(status) == SIGBUS)) {
-					stress_log_system_mem_info();
-					pr_dbg("%s: assuming killed by OOM killer, "
-						"restarting again (instance %" PRIu32 ")\n",
-						args->name, args->instance);
-				}
-			}
-			if (WEXITSTATUS(status) != EXIT_SUCCESS)
-				rc = WEXITSTATUS(status);
-		} else {
-			/* Child, stress memory */
-			stress_proc_state_set(args->name, STRESS_STATE_RUN);
-			stress_make_it_fail_set();
-			stress_parent_died_alarm();
-			(void)stress_sched_settings_apply(true);
-
-			rc = stress_dev_shm_child(args, context);
-			_exit(rc);
-		}
-	}
-finish:
-	return rc;
-}
-
 /*
  *  stress_dev_shm()
  *	stress /dev/shm
@@ -257,7 +200,7 @@ static int stress_dev_shm(stress_args_t *args)
 	stress_sync_start_wait(args);
 	stress_proc_state_set(args->name, STRESS_STATE_RUN);
 
-	rc = stress_oomable_child(args, context, stress_dev_shm_oomable_child, STRESS_OOMABLE_NORMAL);
+	rc = stress_oomable_child(args, context, stress_dev_shm_child, STRESS_OOMABLE_NORMAL);
 
 	metric = 0;
 	stress_mmap_stats_report(args, &context->stats, &metric,
