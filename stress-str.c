@@ -208,8 +208,8 @@ static size_t stress_strlcpy(stress_args_t *args, stress_str_args_t *info)
 	const char *str1 = info->str1;
 	const char *str2 = info->str2;
 	char *strdst = info->strdst;
-	const size_t str_len1 = strlen(str1);
-	const size_t str_len2 = strlen(str2);
+	const size_t str_len1 = shim_strnlen(str1, info->len1);
+	const size_t str_len2 = shim_strnlen(str2, info->len2);
 	const size_t len1 = info->len1;
 	const size_t strdstlen = info->strdstlen;
 	register size_t i;
@@ -261,8 +261,8 @@ static size_t stress_strlcat(stress_args_t *args, stress_str_args_t *info)
 	const char *str1 = info->str1;
 	const char *str2 = info->str2;
 	char *strdst = info->strdst;
-	const size_t str_len1 = strlen(str1);
-	const size_t str_len2 = strlen(str2);
+	const size_t str_len1 = shim_strnlen(str1, info->len1);
+	const size_t str_len2 = shim_strnlen(str2, info->len2);
 	const size_t str_len = str_len1 + str_len2;
 	const size_t len1 = info->len1;
 	const size_t strdstlen = info->strdstlen;
