@@ -91,7 +91,7 @@ static int stress_filehole_write(
 	ret = pwrite(fd, buf, buf_len, offset);
 #else
 	if (lseek(fd, offset, SEEK_SET) < 0) {
-		pr_inf("%s: lseek at offset %jd failed, errno=%d (%s)\n",
+		pr_fail("%s: lseek at offset %jd failed, errno=%d (%s)\n",
 			args->name, (intmax_t)offset, errno, strerror(errno));
 		return ERR_FAIL;
 	}
@@ -105,7 +105,7 @@ static int stress_filehole_write(
 		case EINTR:
 			return ERR_SKIP;
 		default:
-			pr_inf("%s: write at offset %jd failed, errno=%d (%s)\n",
+			pr_fail("%s: write at offset %jd failed, errno=%d (%s)\n",
 				args->name, (intmax_t)offset, errno, strerror(errno));
 			return ERR_FAIL;
 		}
@@ -137,7 +137,7 @@ static int stress_filehole_read_check(
 		case EAGAIN:
 			return ERR_SKIP;
 		default:
-			pr_inf("%s: read at offset %jd failed, errno=%d (%s)\n",
+			pr_fail("%s: read at offset %jd failed, errno=%d (%s)\n",
 				args->name, (intmax_t)offset, err, strerror(err));
 			return ERR_FAIL;
 		}
@@ -162,7 +162,7 @@ static int stress_filehole_read(
 	ret = pread(fd, buf, buf_len, offset);
 #else
 	if (lseek(fd, offset, SEEK_SET) < 0) {
-		pr_inf("%s: lseek at offset %jd failed, errno=%d (%s)\n",
+		pr_fail("%s: lseek at offset %jd failed, errno=%d (%s)\n",
 			args->name, (intmax_t)offset, errno, strerror(errno));
 		return ERR_FAIL;
 	}
@@ -290,7 +290,7 @@ static int stress_filehole_io(
 	int ret;
 	size_t modes_index;
 	const size_t flags_index = stress_mwcsizemodn(SIZEOF_ARRAY(msync_flags));
-	void *ptr;
+	uint8_t *ptr;
 	uint8_t val;
 
 	val = stress_mwc8();
@@ -300,12 +300,23 @@ static int stress_filehole_io(
 	ret = stress_filehole_write(args, fd, buf, page_size, offset + page_size);
 	if (ret < 0)
 		return ret;
-	ptr = mmap(NULL, page_size, PROT_READ | PROT_WRITE,
+	ptr = (uint8_t *)mmap(NULL, page_size, PROT_READ | PROT_WRITE,
 			MAP_SHARED, fd, offset + page_size);
 	if (ptr != MAP_FAILED) {
-		(void)memset(ptr, 0xaa, page_size);
-		(void)shim_msync(ptr, page_size, msync_flags[flags_index]);
-		(void)munmap(ptr, page_size);
+		register size_t i;
+
+		for (i = 0; i < page_size; i++) {
+			if (UNLIKELY(ptr[i] != val)) {
+				pr_fail("%s: mmap'd read of file data failed at offset %jd, "
+					"got 0x%2.2x, expected 0x%2.2x\n",
+					args->name, offset + i, ptr[i], val);
+				(void)munmap((void *)ptr, page_size);
+				return ERR_FAIL;
+			}
+		}
+		(void)memset((void *)ptr, 0xaa, page_size);
+		(void)shim_msync((void *)ptr, page_size, msync_flags[flags_index]);
+		(void)munmap((void *)ptr, page_size);
 	}
 
 	modes_index = stress_mwcsizemodn(SIZEOF_ARRAY(fallocate_modes));
