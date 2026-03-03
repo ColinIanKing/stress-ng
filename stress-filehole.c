@@ -44,7 +44,10 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
-#if defined(HAVE_FALLOCATE)
+#if defined(HAVE_FALLOCATE) &&			\
+    ((defined(FALLOC_FL_KEEP_SIZE) &&		\
+      defined(FALLOC_FL_PUNCH_HOLE)) ||		\
+     (defined(FALLOC_FL_ZERO_RANGE)))		\
 
 #define ERR_SKIP			(-1)
 #define ERR_FAIL			(-2)
@@ -539,6 +542,6 @@ const stressor_info_t stress_filehole_info = {
 	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help,
-	.unimplemented_reason = "built without fallocate() support"
+	.unimplemented_reason = "built without fallocate() FALLOC_FL_PUNCH_HOLE or FALLOC_FL_ZERO_RANGE support"
 };
 #endif
