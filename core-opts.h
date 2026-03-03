@@ -504,6 +504,10 @@ typedef enum {
 	OPT_file_ioctl,
 	OPT_file_ioctl_ops,
 
+	OPT_filehole,
+	OPT_filehole_ops,
+	OPT_filehole_bytes,
+
 	OPT_filename,
 	OPT_filename_ops,
 	OPT_filename_opts,

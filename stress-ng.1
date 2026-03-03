@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, may be w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "27 February 2026"
+.TH STRESS-NG 1 "3 March 2026"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -3092,6 +3092,29 @@ FIONWRITE and FS_IOC_RESVSP ioctls if these are defined.
 .TP
 .B \-\-file\-ioctl\-ops N
 stop file\-ioctl workers after N file ioctl bogo operations.
+.RE
+.TP
+.B File hole and file extents stressor
+.RS 5
+.TQ
+.B \-\-filehole N
+start N workers that write data, create file holes and zero fill
+a 16 MB file.  Where available, this uses fallocate(2)
+FALLOC_FL_PUNCH_HOLE and FALLOC_FL_ZERO_RANGE as well as data writing
+to create holes and also write zero and write random data to the file.
+The data and holes are placed in the file in reverse order, then in
+random order then forward order to try and create muliple file
+extents. Every 1024 writes the data is fsync'd for periodic forced
+data flushing. Holes and data sizes are based on the page size.
+.TP
+.B \-\-filehole\-bytes N
+set maximum size of each file for each filehole worker process, the
+default is 16 MB. One can specify the size as % of free space on
+the file system or in units of Bytes, KBytes, MBytes and GBytes
+using the suffix b, k, m or g.
+.TP
+.B \-\-filehole\-ops N
+stop filehole workers after N rounds of bogo write/fallocate operations.
 .RE
 .TP
 .B Filename stressor

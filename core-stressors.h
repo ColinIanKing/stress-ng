@@ -104,6 +104,7 @@
 	MACRO(fiemap)		\
 	MACRO(fifo)		\
 	MACRO(file_ioctl)	\
+	MACRO(filehole)		\
 	MACRO(filename)		\
 	MACRO(filerace)		\
 	MACRO(flipflop)		\
