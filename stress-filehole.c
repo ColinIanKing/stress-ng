@@ -124,8 +124,10 @@ static int stress_filehole_write(
 	 *  Periodically sync data
 	 */
 	fsync_counter++;
-	if (fsync_counter > 1024)
+	if (fsync_counter > 8192) {
+		fsync_counter = 0;
 		(void)shim_fsync(fd);
+	}
 	return 0;
 }
 
