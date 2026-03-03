@@ -70,18 +70,6 @@ static const fallocate_mode_t fallocate_modes[] = {
 #endif
 };
 
-static const int msync_flags[] = {
-#if defined(MS_ASYNC)
-	MS_ASYNC,
-#endif
-#if defined(MS_SYNC)
-	MS_SYNC,
-#endif
-#if defined(MS_INVALIDATE)
-	MS_INVALIDATE,
-#endif
-};
-
 /*
  *  stress_filehole_write()
  *	write a page size of data
@@ -222,6 +210,18 @@ static int stress_filehole_io(
 	const off_t offset,
 	const bool verify)
 {
+	static const int msync_flags[] = {
+#if defined(MS_ASYNC)
+		MS_ASYNC,
+#endif
+#if defined(MS_SYNC)
+		MS_SYNC,
+#endif
+#if defined(MS_INVALIDATE)
+		MS_INVALIDATE,
+#endif
+	};
+
 	int ret;
 	size_t modes_index;
 	const size_t flags_index = stress_mwcsizemodn(SIZEOF_ARRAY(msync_flags));
@@ -239,7 +239,7 @@ static int stress_filehole_io(
 			MAP_SHARED, fd, offset + page_size);
 	if (ptr != MAP_FAILED) {
 		(void)memset(ptr, 0xaa, page_size);
-		(void)msync(ptr, page_size, msync_flags[flags_index]);
+		(void)shim_msync(ptr, page_size, msync_flags[flags_index]);
 		(void)munmap(ptr, page_size);
 	}
 
