@@ -122,6 +122,25 @@ static int stress_filehole_write(
 	return 0;
 }
 
+static int stress_filehole_read_check(
+	stress_args_t *args,
+	const off_t offset,
+	const ssize_t ret,
+	const int err)
+{
+	if (ret < 0) {
+		switch (err) {
+		case EAGAIN:
+			return ERR_SKIP;
+		default:
+			pr_inf("%s: read at offset %jd failed, errno=%d (%s)\n",
+				args->name, (intmax_t)offset, err, strerror(err));
+			return ERR_FAIL;
+		}
+	}
+	return 0;
+}
+
 /*
  *  stress_filehole_read()
  *	rwad a page size of data
@@ -145,18 +164,57 @@ static int stress_filehole_read(
 	}
 	ret = read(fd, buf, buf_len);
 #endif
-	if (ret < 0) {
-		switch (errno) {
-		case EAGAIN:
-			return ERR_SKIP;
-		default:
-			pr_inf("%s: write at offset %jd failed, errno=%d (%s)\n",
-				args->name, (intmax_t)offset, errno, strerror(errno));
-			return ERR_FAIL;
+	return stress_filehole_read_check(args, offset, ret, errno);
+}
+
+/*
+ *  stress_filehole_lseek_read()
+ *	random seek+reads, SEEK_SETs will read at any random position
+ *	whereas SEEK_DATA or SEEK_HOLE will seek to the positions that are
+ *	page aligned as that's where the holes and non-holes are aligned to.
+ */
+static void stress_filehole_lseek_read(
+	stress_args_t *args,
+	const int fd,
+	uint64_t *buf,
+	const size_t page_size,
+	off_t filehole_bytes,
+	const size_t pages)
+{
+	static const int seek_whences[] = {
+#if defined(SEEK_SET)
+		SEEK_SET,
+#endif
+#if defined(SEEK_DATA)
+		SEEK_DATA,
+#endif
+#if defined(SEEK_HOLE)
+		SEEK_HOLE,
+#endif
+	};
+	size_t i;
+	off_t offset;
+
+	if (UNLIKELY(SIZEOF_ARRAY(seek_whences) == 0))
+		return;
+
+	for  (i = 0; stress_continue(args) && (i < pages); i++) {
+		const int whence = seek_whences[stress_mwcsizemodn(SIZEOF_ARRAY(seek_whences))];
+		off_t offret;
+
+		offset = stress_mwc64modn((uint64_t)filehole_bytes);
+		offret = lseek(fd, offset, whence);
+		if (offret >= 0) {
+			ssize_t ret;
+
+			ret = read(fd, buf, page_size);
+			if (stress_filehole_read_check(args, offset, ret, errno) == ERR_FAIL)
+				return;
+			stress_bogo_inc(args);
 		}
 	}
-	return 0;
 }
+
 
 /*
  *  stress_filehole_zero()
@@ -273,50 +331,6 @@ static int stress_filehole_io(
 
 	modes_index = stress_mwcsizemodn(SIZEOF_ARRAY(fallocate_modes));
 	return stress_filehole_zero(args, fd, zero_buf, fallocate_modes[modes_index].mode, offset, page_size, false);
-}
-
-/*
- *  stress_filehole_lseek_read()
- *	random seek+reads, SEEK_SETs will read at any random position
- *	whereas SEEK_DATA or SEEK_HOLE will seek to the positions that are
- *	page aligned as that's where the holes and non-holes are aligned to.
- */
-static void stress_filehole_lseek_read(
-	stress_args_t *args,
-	const int fd,
-	uint64_t *buf,
-	const size_t page_size,
-	off_t filehole_bytes,
-	const size_t pages)
-{
-	static const int seek_whences[] = {
-#if defined(SEEK_SET)
-		SEEK_SET,
-#endif
-#if defined(SEEK_DATA)
-		SEEK_DATA,
-#endif
-#if defined(SEEK_HOLE)
-		SEEK_HOLE,
-#endif
-	};
-	size_t i;
-	off_t offset;
-
-
-	if (UNLIKELY(SIZEOF_ARRAY(seek_whences) == 0))
-		return;
-
-	for  (i = 0; stress_continue(args) && (i < pages); i++) {
-		const int whence = seek_whences[stress_mwcsizemodn(SIZEOF_ARRAY(seek_whences))];
-
-		offset = stress_mwc64modn((uint64_t)filehole_bytes);
-		if (lseek(fd, offset, whence) >= 0) {
-			if (stress_filehole_read(args, fd, buf, page_size, offset) == ERR_FAIL)
-				return;
-			stress_bogo_inc(args);
-		}
-	}
 }
 
 /*
