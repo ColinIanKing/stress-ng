@@ -272,6 +272,50 @@ static int stress_filehole_io(
 }
 
 /*
+ *  stress_filehole_lseek_read()
+ *	random seek+reads, SEEK_SETs will read at any random position
+ *	whereas SEEK_DATA or SEEK_HOLE will seek to the positions that are
+ *	page aligned as that's where the holes and non-holes are aligned to.
+ */
+static void stress_filehole_lseek_read(
+	stress_args_t *args,
+	const int fd,
+	uint64_t *buf,
+	const size_t page_size,
+	off_t filehole_bytes,
+	const size_t pages)
+{
+	static const int seek_whences[] = {
+#if defined(SEEK_SET)
+		SEEK_SET,
+#endif
+#if defined(SEEK_DATA)
+		SEEK_DATA,
+#endif
+#if defined(SEEK_HOLE)
+		SEEK_HOLE,
+#endif
+	};
+	size_t i;
+	off_t offset;
+
+
+	if (UNLIKELY(SIZEOF_ARRAY(seek_whences) == 0))
+		return;
+
+	for  (i = 0; stress_continue(args) && (i < pages); i++) {
+		const int whence = seek_whences[stress_mwcsizemodn(SIZEOF_ARRAY(seek_whences))];
+
+		offset = stress_mwc64modn((uint64_t)filehole_bytes);
+		if (lseek(fd, offset, whence) >= 0) {
+			if (stress_filehole_read(args, fd, buf, page_size, offset) == ERR_FAIL)
+				return;
+			stress_bogo_inc(args);
+		}
+	}
+}
+
+/*
  *  stress_filehole
  *	stress punching holes in files
  */
@@ -425,6 +469,10 @@ static int stress_filehole(stress_args_t *args)
 		extents = stress_fs_extents_get(fd);
 		extents_total += extents;
 		extents_count += 1.0;
+		/*
+		 *  Random positioned lseek reads on data/hole
+		 */
+		stress_filehole_lseek_read(args, fd, buf, page_size, filehole_bytes, pages);
 
 		/*
 		 *  Reverse file fill with random data
@@ -445,6 +493,11 @@ static int stress_filehole(stress_args_t *args)
 
 			stress_filehole_zero(args, fd, zero_buf, fallocate_modes[modes_index].mode, offset, page_size, false);
 		}
+
+		/*
+		 *  Random positioned lseek reads on data/hole
+		 */
+		stress_filehole_lseek_read(args, fd, buf, page_size, filehole_bytes, pages);
 	} while (stress_continue(args));
 
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
