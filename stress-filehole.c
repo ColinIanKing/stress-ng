@@ -122,6 +122,10 @@ static int stress_filehole_write(
 	return 0;
 }
 
+/*
+ *  stress_filehole_read_check()
+ *	check for fatal read errors and report them
+ */
 static int stress_filehole_read_check(
 	stress_args_t *args,
 	const off_t offset,
