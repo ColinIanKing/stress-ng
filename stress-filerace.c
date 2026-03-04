@@ -458,7 +458,7 @@ static void stress_filerace_fibmap(const int fd, const char *filename)
 #endif
 
 #if defined(HAVE_POSIX_FADVISE) && 	\
-    defined(POSIX_FADV_DONTNEED)
+    defined(SHIM_POSIX_FADV_DONTNEED)
 static void stress_filerace_posix_fadvise_dontneed_all(const int fd, const char *filename)
 {
 	struct stat buf;
@@ -466,37 +466,37 @@ static void stress_filerace_posix_fadvise_dontneed_all(const int fd, const char 
 	(void)filename;
 	if (fstat(fd, &buf) < 0)
 		return;
-	VOID_RET(int, posix_fadvise(fd, 0, (off_t)buf.st_size, POSIX_FADV_DONTNEED));
+	VOID_RET(int, shim_posix_fadvise(fd, 0, (off_t)buf.st_size, SHIM_POSIX_FADV_DONTNEED));
 }
 #endif
 
-#if defined(HAVE_POSIX_FADVISE) && 	\
-    defined(POSIX_FADV_NORMAL) &&	\
-    defined(POSIX_FADV_SEQUENTIAL) &&	\
-    defined(POSIX_FADV_RANDOM) &&	\
-    defined(POSIX_FADV_NOREUSE) &&	\
-    defined(POSIX_FADV_WILLNEED) &&	\
-    defined(POSIX_FADV_DONTNEED)
+#if defined(HAVE_POSIX_FADVISE) && 		\
+    defined(SHIM_POSIX_FADV_NORMAL) &&		\
+    defined(SHIM_POSIX_FADV_SEQUENTIAL) &&	\
+    defined(SHIM_POSIX_FADV_RANDOM) &&		\
+    defined(SHIM_POSIX_FADV_NOREUSE) &&		\
+    defined(SHIM_POSIX_FADV_WILLNEED) &&	\
+    defined(SHIM_POSIX_FADV_DONTNEED)
 static void stress_filerace_posix_fadvise(const int fd, const char *filename)
 {
 	static const int advice[] = {
-#if defined(POSIX_FADV_NORMAL)
-		POSIX_FADV_NORMAL,
+#if defined(SHIM_POSIX_FADV_NORMAL)
+		SHIM_POSIX_FADV_NORMAL,
 #endif
-#if defined(POSIX_FADV_SEQUENTIAL)
-		POSIX_FADV_SEQUENTIAL,
+#if defined(SHIM_POSIX_FADV_SEQUENTIAL)
+		SHIM_POSIX_FADV_SEQUENTIAL,
 #endif
-#if defined(POSIX_FADV_RANDOM)
-		POSIX_FADV_RANDOM,
+#if defined(SHIM_POSIX_FADV_RANDOM)
+		SHIM_POSIX_FADV_RANDOM,
 #endif
-#if defined(POSIX_FADV_NOREUSE)
-		POSIX_FADV_NOREUSE,
+#if defined(SHIM_POSIX_FADV_NOREUSE)
+		SHIM_POSIX_FADV_NOREUSE,
 #endif
-#if defined(POSIX_FADV_WILLNEED)
-		POSIX_FADV_WILLNEED,
+#if defined(SHIM_POSIX_FADV_WILLNEED)
+		SHIM_POSIX_FADV_WILLNEED,
 #endif
-#if defined(POSIX_FADV_DONTNEED)
-		POSIX_FADV_DONTNEED,
+#if defined(SHIM_POSIX_FADV_DONTNEED)
+		SHIM_POSIX_FADV_DONTNEED,
 #endif
 	};
 	const off_t offset = ((off_t)stress_mwc32()) & OFFSET_MASK;
@@ -504,7 +504,7 @@ static void stress_filerace_posix_fadvise(const int fd, const char *filename)
 	const int new_advice = advice[stress_mwc8modn((uint8_t)SIZEOF_ARRAY(advice))];
 
 	(void)filename;
-	VOID_RET(int, posix_fadvise(fd, offset, len, new_advice));
+	VOID_RET(int, shim_posix_fadvise(fd, offset, len, new_advice));
 }
 #endif
 
@@ -1221,16 +1221,16 @@ static const stress_filerace_fops_t stress_filerace_fops[] = {
 	stress_filerace_fibmap,
 #endif
 #if defined(HAVE_POSIX_FADVISE) && 	\
-    defined(POSIX_FADV_DONTNEED)
+    defined(SHIM_POSIX_FADV_DONTNEED)
 	stress_filerace_posix_fadvise_dontneed_all,
 #endif
-#if defined(HAVE_POSIX_FADVISE) && 	\
-    defined(POSIX_FADV_NORMAL) &&	\
-    defined(POSIX_FADV_SEQUENTIAL) &&	\
-    defined(POSIX_FADV_RANDOM) &&	\
-    defined(POSIX_FADV_NOREUSE) &&	\
-    defined(POSIX_FADV_WILLNEED) &&	\
-    defined(POSIX_FADV_DONTNEED)
+#if defined(HAVE_POSIX_FADVISE) && 		\
+    defined(SHIM_POSIX_FADV_NORMAL) &&		\
+    defined(SHIM_POSIX_FADV_SEQUENTIAL) &&	\
+    defined(SHIM_POSIX_FADV_RANDOM) &&		\
+    defined(SHIM_POSIX_FADV_NOREUSE) &&		\
+    defined(SHIM_POSIX_FADV_WILLNEED) &&	\
+    defined(SHIM_POSIX_FADV_DONTNEED)
 	stress_filerace_posix_fadvise,
 #endif
 #if defined(HAVE_POSIX_FALLOCATE)
