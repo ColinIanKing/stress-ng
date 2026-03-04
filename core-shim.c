@@ -33,6 +33,7 @@
 #include "stress-ng.h"
 #include "core-arch.h"
 #include "core-attribute.h"
+#include "core-asm-x86.h"
 #include "core-asm-riscv.h"
 #include "core-builtin.h"
 #include "core-cpu-cache.h"
@@ -179,7 +180,7 @@ int shim_sched_yield(void)
  *	wrapper for cacheflush(2), flush contents of
  *	instruction and/or data cache
  */
-int shim_cacheflush(char *addr, int nbytes, int cache)
+int OPTIMIZE3 shim_cacheflush(char *addr, int nbytes, int cache)
 {
 #if defined(HAVE_ASM_CACHECTL_H) &&	\
     defined(HAVE_CACHEFLUSH) && 	\
@@ -225,12 +226,15 @@ int shim_cacheflush(char *addr, int nbytes, int cache)
 	}
 #endif
 	return -1;
-#elif defined(HAVE_BUILTIN___CLEAR_CACHE)
-	/* More portable builtin */
-	(void)cache;
+#elif defined(HAVE_ASM_X86_CLFLUSH)
+	if ((cache == SHIM_DCACHE) && (stress_cpu_x86_has_clfsh())) {
+		register int i;
 
-	__builtin___clear_cache((void *)addr, (void *)(addr + nbytes));
-	return 0;
+		for (i = 0; i < nbytes; i += 64)
+			stress_asm_x86_clflush(addr + i);
+		return 0;
+	}
+	return (int)shim_enosys(0, addr, nbytes, cache);
 #elif defined(__NR_cacheflush) &&	\
       defined(HAVE_SYSCALL)
 	/* potentially incorrect args, needs per-arch fixing */
@@ -241,6 +245,17 @@ int shim_cacheflush(char *addr, int nbytes, int cache)
 #else
 	return (int)syscall(__NR_cacheflush, addr, nbytes, cache);
 #endif
+#elif defined(HAVE_ASM_CACHECTL_H) &&	\
+      defined(HAVE_CACHEFLUSH)
+	extern int cacheflush(void *addr, int nbytes, int cache);
+
+	return cacheflush((void *)addr, nbytes, cache);
+#elif defined(HAVE_BUILTIN___CLEAR_CACHE)
+	/* More portable builtin */
+	(void)cache;
+
+	__builtin___clear_cache((void *)addr, (void *)(addr + nbytes));
+	return 0;
 #else
 	return (int)shim_enosys(0, addr, nbytes, cache);
 #endif
