@@ -219,6 +219,42 @@ static void stress_filehole_lseek_read(
 	}
 }
 
+/*
+ *  stress_filehole_non_zeros_to_holes()
+ *	turn non-zero data to holes
+ */
+static void stress_filehole_non_zeros_to_holes(
+	const int fd,
+	uint64_t *buf,
+	const size_t page_size,
+	const off_t filehole_bytes)
+{
+#if defined(FALLOC_FL_KEEP_SIZE) &&	\
+    defined(FALLOC_FL_PUNCH_HOLE)
+	off_t offset;
+
+	for (offset = 0; offset < filehole_bytes; offset += page_size) {
+		ssize_t ret;
+
+#if defined(HAVE_PWRITE)
+		ret = pread(fd, buf, page_size, offset);
+#else
+		if (lseek(fd, offset, SEEK_SET) < 0)
+			continue;
+		ret = read(fd, buf, buf_len);
+#endif
+		if (ret != (ssize_t)page_size)
+			continue;
+		if (stress_data_is_not_zero(buf, page_size))
+			VOID_RET(int, fallocate(fd, FALLOC_FL_KEEP_SIZE | FALLOC_FL_PUNCH_HOLE, offset, page_size));
+	}
+#else
+	(void)fd;
+	(void)buf;
+	(void)page_size;
+	(void)filehold_bytes;
+#endif
+}
 
 /*
  *  stress_filehole_zero()
@@ -531,6 +567,11 @@ static int stress_filehole(stress_args_t *args)
 		 *  Random positioned lseek reads on data/hole
 		 */
 		stress_filehole_lseek_read(args, fd, buf, page_size, filehole_bytes, pages);
+
+		/*
+		 *  Turn non-zero data to holes
+		 */
+		stress_filehole_non_zeros_to_holes(fd, buf, page_size, filehole_bytes);
 	} while (stress_continue(args));
 
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
