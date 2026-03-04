@@ -437,9 +437,9 @@ static void *stress_fd_race_current(void *ptr)
 				VOID_RET(int, shim_fdatasync(fd));
 				break;
 #if defined(HAVE_POSIX_FADVISE) && 	\
-    defined(POSIX_FADV_NORMAL)
+    defined(SHIM_POSIX_FADV_NORMAL)
 			case 6:
-				VOID_RET(int, posix_fadvise(fd, 0, 1024, POSIX_FADV_NORMAL));
+				VOID_RET(int, shim_posix_fadvise(fd, 0, 1024, SHIM_POSIX_FADV_NORMAL));
 				break;
 #endif
 #if defined(HAVE_FLOCK) &&	\
