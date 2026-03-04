@@ -170,18 +170,18 @@ static int stress_readahead(stress_args_t *args)
 	(void)shim_unlink(filename);
 
 #if defined(HAVE_POSIX_FADVISE) &&	\
-    defined(POSIX_FADV_DONTNEED)
-	if (posix_fadvise(fd, 0, (off_t)readahead_bytes, POSIX_FADV_DONTNEED) < 0) {
+    defined(SHIM_POSIX_FADV_DONTNEED)
+	if (shim_posix_fadvise(fd, 0, (off_t)readahead_bytes, SHIM_POSIX_FADV_DONTNEED) < 0) {
 		pr_fail("%s: posix_fadvise failed, errno=%d (%s)%s\n",
 			args->name, errno, strerror(errno), fs_type);
 		goto close_finish;
 	}
 
 	/* Invalid lengths */
-	(void)posix_fadvise(fd, 0, (off_t)~0, POSIX_FADV_DONTNEED);
-	(void)posix_fadvise(fd, 0, (off_t)-1, POSIX_FADV_DONTNEED);
+	(void)shim_posix_fadvise(fd, 0, (off_t)~0, SHIM_POSIX_FADV_DONTNEED);
+	(void)shim_posix_fadvise(fd, 0, (off_t)-1, SHIM_POSIX_FADV_DONTNEED);
 	/* Invalid offset */
-	(void)posix_fadvise(fd, (off_t)-1, 1, POSIX_FADV_DONTNEED);
+	(void)shim_posix_fadvise(fd, (off_t)-1, 1, SHIM_POSIX_FADV_DONTNEED);
 #endif
 
 	/* Sequential Write */
@@ -290,8 +290,8 @@ PRAGMA_UNROLL_N(8)
 		}
 
 #if defined(HAVE_POSIX_FADVISE) &&	\
-    defined(POSIX_FADV_DONTNEED)
-		VOID_RET(int, posix_fadvise(fd, 0, (off_t)readahead_bytes, POSIX_FADV_DONTNEED));
+    defined(SHIM_POSIX_FADV_DONTNEED)
+		VOID_RET(int, shim_posix_fadvise(fd, 0, (off_t)readahead_bytes, SHIM_POSIX_FADV_DONTNEED));
 #endif
 
                 /* Exercise illegal fd */
