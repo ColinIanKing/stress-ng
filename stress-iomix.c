@@ -69,16 +69,8 @@ static void stress_iomix_fadvise_random_dontneed(
 	const off_t len)
 {
 #if defined(HAVE_POSIX_FADVISE) &&	\
-    (defined(POSIX_FADV_RANDOM) ||	\
-     defined(POSIX_FADV_DONTNEED))
-	int flag = 0;
-#if defined(POSIX_FADV_RANDOM)
-	flag |= POSIX_FADV_RANDOM;
-#endif
-#if defined(POSIX_FADV_DONTNEED)
-	flag |= POSIX_FADV_DONTNEED;
-#endif
-	(void)posix_fadvise(fd, offset, len, flag);
+    defined(SHIM_POSIX_FADV_DONTNEED)
+	(void)shim_posix_fadvise(fd, offset, len, SHIM_POSIX_FADV_DONTNEED);
 #else
 	(void)fd;
 	(void)offset;
@@ -153,9 +145,9 @@ static void stress_iomix_wr_seq_bursts(
 			return;
 		}
 #if defined(HAVE_POSIX_FADVISE) &&      \
-    defined(POSIX_FADV_SEQUENTIAL)
+    defined(SHIM_POSIX_FADV_SEQUENTIAL)
 		if (posn < iomix_bytes)
-			(void)posix_fadvise(fd, posn, iomix_bytes - posn, POSIX_FADV_SEQUENTIAL);
+			(void)shim_posix_fadvise(fd, posn, iomix_bytes - posn, SHIM_POSIX_FADV_SEQUENTIAL);
 #else
 		UNEXPECTED
 #endif
@@ -197,8 +189,8 @@ static void stress_iomix_wr_rnd_bursts(
 	const off_t iomix_bytes)
 {
 #if defined(HAVE_POSIX_FADVISE) &&      \
-    defined(POSIX_FADV_RANDOM)
-	(void)posix_fadvise(fd, 0, iomix_bytes, POSIX_FADV_RANDOM);
+    defined(SHIM_POSIX_FADV_RANDOM)
+	(void)shim_posix_fadvise(fd, 0, iomix_bytes, SHIM_POSIX_FADV_RANDOM);
 #else
 	UNEXPECTED
 #endif
@@ -263,9 +255,9 @@ static void stress_iomix_wr_seq_slow(
 			return;
 		}
 #if defined(HAVE_POSIX_FADVISE) &&      \
-    defined(POSIX_FADV_SEQUENTIAL)
+    defined(SHIM_POSIX_FADV_SEQUENTIAL)
 		if (posn < iomix_bytes)
-			(void)posix_fadvise(fd, posn, iomix_bytes - posn, POSIX_FADV_SEQUENTIAL);
+			(void)shim_posix_fadvise(fd, posn, iomix_bytes - posn, SHIM_POSIX_FADV_SEQUENTIAL);
 #else
 		UNEXPECTED
 #endif
@@ -321,9 +313,9 @@ static void stress_iomix_rd_seq_bursts(
 		}
 
 #if defined(HAVE_POSIX_FADVISE) &&      \
-    defined(POSIX_FADV_SEQUENTIAL)
+    defined(SHIM_POSIX_FADV_SEQUENTIAL)
 		if (posn < iomix_bytes)
-			(void)posix_fadvise(fd, posn, iomix_bytes - posn, POSIX_FADV_SEQUENTIAL);
+			(void)shim_posix_fadvise(fd, posn, iomix_bytes - posn, SHIM_POSIX_FADV_SEQUENTIAL);
 #else
 		UNEXPECTED
 #endif
@@ -422,9 +414,9 @@ static void stress_iomix_rd_seq_slow(
 			return;
 		}
 #if defined(HAVE_POSIX_FADVISE) &&      \
-    defined(POSIX_FADV_SEQUENTIAL)
+    defined(SHIM_POSIX_FADV_SEQUENTIAL)
 		if (posn < iomix_bytes)
-			(void)posix_fadvise(fd, posn, iomix_bytes - posn, POSIX_FADV_SEQUENTIAL);
+			(void)shim_posix_fadvise(fd, posn, iomix_bytes - posn, SHIM_POSIX_FADV_SEQUENTIAL);
 #else
 		UNEXPECTED
 #endif
@@ -506,7 +498,8 @@ static void stress_iomix_sync(
 }
 
 #if defined(HAVE_POSIX_FADVISE) &&	\
-    defined(POSIX_FADV_DONTNEED)
+    defined(SHIM_POSIX_FADV_NORMAL) &&	\
+    defined(SHIM_POSIX_FADV_DONTNEED)
 /*
  *  stress_iomix_bad_advise()
  *	bad fadvise hints
@@ -522,9 +515,9 @@ static void stress_iomix_bad_advise(
 	do {
 		off_t posn = stress_iomix_rnd_offset(iomix_bytes);
 
-		(void)posix_fadvise(fd, posn, 65536, POSIX_FADV_DONTNEED);
+		(void)shim_posix_fadvise(fd, posn, 65536, SHIM_POSIX_FADV_DONTNEED);
 		(void)shim_usleep(100000);
-		(void)posix_fadvise(fd, posn, 65536, POSIX_FADV_NORMAL);
+		(void)shim_posix_fadvise(fd, posn, 65536, SHIM_POSIX_FADV_NORMAL);
 		(void)shim_usleep(100000);
 	} while (stress_bogo_inc_lock(args, counter_lock, true));
 }
