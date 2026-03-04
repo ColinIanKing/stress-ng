@@ -286,6 +286,31 @@ typedef int64_t		shim_off64_t;
 #define SHIM_POSIX_MADV_DONTNEED POSIX_MADV_DONTNEED
 #endif
 
+/* POSIX fadvise advice */
+#if defined(POSIX_FADV_NORMAL)
+#define SHIM_POSIX_FADV_NORMAL		POSIX_FADV_NORMAL
+#endif
+
+#if defined(POSIX_FADV_SEQUENTIAL)
+#define SHIM_POSIX_FADV_SEQUENTIAL	POSIX_FADV_SEQUENTIAL
+#endif
+
+#if defined(POSIX_FADV_RANDOM)
+#define SHIM_POSIX_FADV_RANDOM		POSIX_FADV_RANDOM
+#endif
+
+#if defined(POSIX_FADV_NOREUSE)
+#define SHIM_POSIX_FADV_NOREUSE		POSIX_FADV_NOREUSE
+#endif
+
+#if defined(POSIX_FADV_WILLNEED)
+#define SHIM_POSIX_FADV_WILLNEED	POSIX_FADV_WILLNEED
+#endif
+
+#if defined(POSIX_FADV_DONTNEED)
+#define SHIM_POSIX_FADV_DONTNEED	POSIX_FADV_DONTNEED
+#endif
+
 /* timezone shim */
 #if defined(HAVE_TIMEZONE)
 typedef struct timezone shim_timezone_t;
@@ -561,6 +586,7 @@ extern int shim_sched_yield(void);
 extern int shim_cacheflush(char *addr, int nbytes, int cache);
 extern ssize_t shim_copy_file_range(int fd_in, shim_off64_t *off_in, int fd_out,
 	shim_off64_t *off_out, size_t len, unsigned int flags);
+extern int shim_posix_fadvise(int fd, off_t offset, off_t size, int advice);
 extern int shim_posix_fallocate(int fd, off_t offset, off_t len);
 extern int shim_fallocate(int fd, int mode, off_t offset, off_t len);
 extern int shim_gettid(void);

@@ -3205,3 +3205,40 @@ int shim_open_tree(int dirfd, const char *path, unsigned int flags)
 	return (int)shim_enosys(0, dirfd, path, flags);
 #endif
 }
+
+/*
+ *  shim_posix_fadvise()
+ *	shim wrapper for posix_fadvise()
+ */
+int shim_posix_fadvise(int fd, off_t offset, off_t size, int advice)
+{
+#if defined(HAVE_POSIX_FADVISE)
+	switch (advice) {
+#if defined(SHIM_POSIX_FADV_NORMAL)
+	case SHIM_POSIX_FADV_NORMAL:
+#endif
+#if defined(SHIM_POSIX_FADV_SEQUENTIAL)
+	case SHIM_POSIX_FADV_SEQUENTIAL:
+#endif
+#if defined(SHIM_POSIX_FADV_RANDOM)
+	case SHIM_POSIX_FADV_RANDOM:
+#endif
+#if defined(SHIM_POSIX_FADV_NOREUSE)
+	case SHIM_POSIX_FADV_NOREUSE:
+#endif
+#if defined(SHIM_POSIX_FADV_WILLNEED)
+	case  SHIM_POSIX_FADV_WILLNEED:
+#endif
+#if defined(SHIM_POSIX_FADV_DONTNEED)
+	case SHIM_POSIX_FADV_DONTNEED:
+#endif
+		return posix_fadvise(fd, offset, size, advice);
+	default:
+		break;
+	}
+	errno = EINVAL;
+	return -1;
+#else
+	return (int)shim_enosys(0, fd, offset, size, advice);
+#endif
+}
