@@ -583,7 +583,10 @@ void shim_flush_icache(void *begin, void *end)
       defined(HAVE_SYSCALL)
 	(void)syscall(__NR_riscv_flush_icache, begin, end, 0);
 #else
-	(void)shim_enosys(0, begin, end);
+	if (begin < end) {
+		if (shim_cacheflush(begin, (size_t)(end - begin), SHIM_ICACHE) < 0)
+			(void)shim_enosys(0, begin, end);
+	}
 #endif
 }
 
