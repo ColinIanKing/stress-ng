@@ -535,14 +535,15 @@ static int stress_filehole(stress_args_t *args)
 
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
 
-	extents = (extents_count > 0.0) ? extents_total / extents_count : extents;
-	stress_metrics_set(args, 0, "extents per file",
-		(double)extents, STRESS_METRIC_GEOMETRIC_MEAN);
-	stress_metrics_set(args, 1, "Mbytes per file (maximum)",
+	stress_metrics_set(args, 0, "Mbytes per file (maximum)",
 		max_size / (double)MB, STRESS_METRIC_GEOMETRIC_MEAN);
-	stress_metrics_set(args, 2, "blocks used per file (maximum)",
+	stress_metrics_set(args, 1, "blocks used per file (maximum)",
 		max_blks, STRESS_METRIC_GEOMETRIC_MEAN);
-
+	if (extents_count > 0.0) {
+		extents = extents_total / extents_count;
+		stress_metrics_set(args, 2, "extents per file",
+			(double)extents, STRESS_METRIC_GEOMETRIC_MEAN);
+	}
 tidy:
 	(void)shim_unlink(filename);
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
