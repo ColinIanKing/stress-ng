@@ -1231,13 +1231,13 @@ static void stress_fd_ftruncate(stress_fd_t *fd)
 		VOID_RET(int, ftruncate(fd->fd, 0));
 }
 
-#if defined(POSIX_FADV_RANDOM) &&	\
-    defined(HAVE_POSIX_FADVISE)
+#if defined(HAVE_POSIX_FADVISE) &&	\
+    defined(SHIM_POSIX_FADV_RANDOM)
 static void stress_fd_posix_fadvise(stress_fd_t *fd)
 {
-	(void)posix_fadvise(fd->fd, 0, 0, POSIX_FADV_RANDOM);
-	(void)posix_fadvise(fd->fd, 0, 1024, POSIX_FADV_RANDOM);
-	(void)posix_fadvise(fd->fd, 1024, 0, POSIX_FADV_RANDOM);
+	(void)shim_posix_fadvise(fd->fd, 0, 0, SHIM_POSIX_FADV_RANDOM);
+	(void)shim_posix_fadvise(fd->fd, 0, 1024, SHIM_POSIX_FADV_RANDOM);
+	(void)shim_posix_fadvise(fd->fd, 1024, 0, SHIM_POSIX_FADV_RANDOM);
 }
 #endif
 
