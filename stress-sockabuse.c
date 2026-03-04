@@ -155,8 +155,8 @@ static void stress_sockabuse_fd(const int fd)
 	if (LIKELY(nfd >= 0))
 		(void)close(nfd);
 #if defined(HAVE_POSIX_FADVISE) &&	\
-    defined(POSIX_FADV_RANDOM)
-	VOID_RET(int, posix_fadvise(fd, 0, 0, POSIX_FADV_RANDOM));
+    defined(SHIM_POSIX_FADV_RANDOM)
+	VOID_RET(int, shim_posix_fadvise(fd, 0, 0, SHIM_POSIX_FADV_RANDOM));
 #endif
 	VOID_RET(int, shim_sync_file_range(fd, 0, 1, 0));
 }
