@@ -103,7 +103,7 @@ static const stress_hdd_opts_t hdd_opts[] = {
 	{ "noatime",	HDD_OPT_O_NOATIME, 0, 0, O_NOATIME },
 #endif
 #if defined(HAVE_POSIX_FADVISE) &&	\
-    defined(POSIX_FADV_NORMAL)
+    defined(SHIM_POSIX_FADV_NORMAL)
 	{ "wr-seq",	HDD_OPT_WR_SEQ, HDD_OPT_WR_RND, 0, 0 },
 	{ "wr-rnd",	HDD_OPT_WR_RND, HDD_OPT_WR_SEQ, 0, 0 },
 	{ "rd-seq",	HDD_OPT_RD_SEQ, HDD_OPT_RD_RND, 0, 0 },
@@ -112,37 +112,37 @@ static const stress_hdd_opts_t hdd_opts[] = {
 		(HDD_OPT_FADV_SEQ | HDD_OPT_FADV_RND |
 		 HDD_OPT_FADV_NOREUSE | HDD_OPT_FADV_WILLNEED |
 		 HDD_OPT_FADV_DONTNEED),
-		POSIX_FADV_NORMAL, 0 },
+		SHIM_POSIX_FADV_NORMAL, 0 },
 #endif
 #if defined(HAVE_POSIX_FADVISE) &&	\
-    defined(POSIX_FADV_SEQUENTIAL)
+    defined(SHIM_POSIX_FADV_SEQUENTIAL)
 	{ "fadv-seq",	HDD_OPT_FADV_SEQ,
 		(HDD_OPT_FADV_NORMAL | HDD_OPT_FADV_RND),
-		POSIX_FADV_SEQUENTIAL, 0 },
+		SHIM_POSIX_FADV_SEQUENTIAL, 0 },
 #endif
 #if defined(HAVE_POSIX_FADVISE) &&	\
-    defined(POSIX_FADV_RANDOM)
+    defined(SHIM_POSIX_FADV_RANDOM)
 	{ "fadv-rnd",	HDD_OPT_FADV_RND,
 		(HDD_OPT_FADV_NORMAL | HDD_OPT_FADV_SEQ),
-		POSIX_FADV_RANDOM, 0 },
+		SHIM_POSIX_FADV_RANDOM, 0 },
 #endif
 #if defined(HAVE_POSIX_FADVISE) &&	\
-    defined(POSIX_FADV_NOREUSE)
+    defined(SHIM_POSIX_FADV_NOREUSE)
 	{ "fadv-noreuse", HDD_OPT_FADV_NOREUSE,
 		HDD_OPT_FADV_NORMAL,
-		POSIX_FADV_NOREUSE, 0 },
+		SHIM_POSIX_FADV_NOREUSE, 0 },
 #endif
 #if defined(HAVE_POSIX_FADVISE) &&	\
-    defined(POSIX_FADV_WILLNEED)
+    defined(SHIM_POSIX_FADV_WILLNEED)
 	{ "fadv-willneed", HDD_OPT_FADV_WILLNEED,
 		(HDD_OPT_FADV_NORMAL | HDD_OPT_FADV_DONTNEED),
-		POSIX_FADV_WILLNEED, 0 },
+		SHIM_POSIX_FADV_WILLNEED, 0 },
 #endif
 #if defined(HAVE_POSIX_FADVISE) &&	\
-    defined(POSIX_FADV_DONTNEED)
+    defined(SHIM_POSIX_FADV_DONTNEED)
 	{ "fadv-dontneed", HDD_OPT_FADV_DONTNEED,
 		(HDD_OPT_FADV_NORMAL | HDD_OPT_FADV_WILLNEED),
-		POSIX_FADV_DONTNEED, 0 },
+		SHIM_POSIX_FADV_DONTNEED, 0 },
 #endif
 #if defined(HAVE_FSYNC)
 	{ "fsync",	HDD_OPT_FSYNC, 0, 0, 0 },
@@ -617,9 +617,11 @@ static void stress_hdd_opts(const char *opt_name, const char *opt_arg, stress_ty
  */
 static int stress_hdd_advise(stress_args_t *args, const int fd, const int flags)
 {
-#if (defined(POSIX_FADV_SEQ) || defined(POSIX_FADV_RANDOM) ||		\
-     defined(POSIX_FADV_NOREUSE) || defined(POSIX_FADV_WILLNEED) ||	\
-     defined(POSIX_FADV_DONTNEED)) && 					\
+#if (defined(SHIM_POSIX_FADV_SEQ) ||		\
+     defined(SHIM_POSIX_FADV_RANDOM) ||		\
+     defined(SHIM_POSIX_FADV_NOREUSE) ||	\
+     defined(SHIM_POSIX_FADV_WILLNEED) ||	\
+     defined(SHIM_POSIX_FADV_DONTNEED)) && 	\
      defined(HAVE_POSIX_FADVISE)
 	size_t i;
 
@@ -628,7 +630,7 @@ static int stress_hdd_advise(stress_args_t *args, const int fd, const int flags)
 
 	for (i = 0; i < SIZEOF_ARRAY(hdd_opts); i++) {
 		if (hdd_opts[i].flag & flags) {
-			if (posix_fadvise(fd, 0, 0, hdd_opts[i].advice) < 0) {
+			if (shim_posix_fadvise(fd, 0, 0, hdd_opts[i].advice) < 0) {
 				pr_fail("%s: posix_fadvise failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				return -1;
