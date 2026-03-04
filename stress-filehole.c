@@ -498,7 +498,9 @@ static int stress_filehole(stress_args_t *args)
 		/*
 		 *  Random positioned write and fallocate
 		 */
-		(void)shim_posix_fadvise(fd, 0, filehole_bytes, POSIX_FADV_RANDOM);
+#if defined(SHIM_POSIX_FADV_RANDOM)
+		(void)shim_posix_fadvise(fd, 0, filehole_bytes, SHIM_POSIX_FADV_RANDOM);
+#endif
 		for  (i = 0; stress_continue(args) && (i < pages >> 2); i++) {
 			offset = stress_mwc64modn((uint64_t)filehole_bytes) & (~(uint64_t)(page_size - 1));
 			if (stress_filehole_io(args, fd, buf,  zero_buf,page_size, offset, verify) == ERR_FAIL)
@@ -509,7 +511,9 @@ static int stress_filehole(stress_args_t *args)
 		/*
 		 *  Forward file write and fallocate, makes some more holes
 		 */
-		(void)shim_posix_fadvise(fd, 0, filehole_bytes, POSIX_FADV_SEQUENTIAL);
+#if defined(SHIM_POSIX_FADV_SEQUENTIAL)
+		(void)shim_posix_fadvise(fd, 0, filehole_bytes, SHIM_POSIX_FADV_SEQUENTIAL);
+#endif
 		for (offset = 0; stress_continue(args) && (offset < filehole_bytes); offset += page_size) {
 			if (stress_filehole_io(args, fd, buf,  zero_buf,page_size, offset, verify) == ERR_FAIL)
 				break;
@@ -530,7 +534,9 @@ static int stress_filehole(stress_args_t *args)
 			/*
 			 *  Forwared fallocate holes
 			 */
-			(void)shim_posix_fadvise(fd, 0, filehole_bytes, POSIX_FADV_SEQUENTIAL);
+#if defined(SHIM_POSIX_FADV_SEQUENTIAL)
+			(void)shim_posix_fadvise(fd, 0, filehole_bytes, SHIM_POSIX_FADV_SEQUENTIAL);
+#endif
 			for (offset = 0; stress_continue(args) && (offset < filehole_bytes); offset += page_size) {
 				const size_t modes_index = stress_mwcsizemodn(SIZEOF_ARRAY(fallocate_modes));
 
@@ -545,7 +551,9 @@ static int stress_filehole(stress_args_t *args)
 		/*
 		 *  Random positioned lseek reads on data/hole
 		 */
-		(void)shim_posix_fadvise(fd, 0, filehole_bytes, POSIX_FADV_RANDOM);
+#if defined(SHIM_POSIX_FADV_RANDOM)
+		(void)shim_posix_fadvise(fd, 0, filehole_bytes, SHIM_POSIX_FADV_RANDOM);
+#endif
 		stress_filehole_lseek_read(args, fd, buf, page_size, filehole_bytes, pages);
 
 		/*
@@ -562,7 +570,9 @@ static int stress_filehole(stress_args_t *args)
 		/*
 		 *  Forward fallocate holes with gaps
 		 */
-		(void)shim_posix_fadvise(fd, 0, filehole_bytes, POSIX_FADV_SEQUENTIAL);
+#if defined(SHIM_POSIX_FADV_SEQUENTIAL)
+		(void)shim_posix_fadvise(fd, 0, filehole_bytes, SHIM_POSIX_FADV_SEQUENTIAL);
+#endif
 		for (offset = 0; stress_continue(args) && (offset < filehole_bytes); offset += (page_size + page_size)) {
 			size_t modes_index = stress_mwcsizemodn(SIZEOF_ARRAY(fallocate_modes));
 
@@ -572,13 +582,17 @@ static int stress_filehole(stress_args_t *args)
 		/*
 		 *  Random positioned lseek reads on data/hole
 		 */
-		(void)shim_posix_fadvise(fd, 0, filehole_bytes, POSIX_FADV_RANDOM);
+#if defined(SHIM_POSIX_FADV_RANDOM)
+		(void)shim_posix_fadvise(fd, 0, filehole_bytes, SHIM_POSIX_FADV_RANDOM);
+#endif
 		stress_filehole_lseek_read(args, fd, buf, page_size, filehole_bytes, pages);
 
 		/*
 		 *  Turn non-zero data to holes
 		 */
+#if defined(POSIX_FADV_DONTNEED)
 		(void)shim_posix_fadvise(fd, 0, filehole_bytes, POSIX_FADV_DONTNEED);
+#endif
 		stress_filehole_non_zeros_to_holes(args, fd, buf, page_size, filehole_bytes);
 	} while (stress_continue(args));
 
