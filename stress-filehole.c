@@ -224,6 +224,7 @@ static void stress_filehole_lseek_read(
  *	turn non-zero data to holes
  */
 static void stress_filehole_non_zeros_to_holes(
+	stress_args_t *args,
 	const int fd,
 	uint64_t *buf,
 	const size_t page_size,
@@ -233,7 +234,7 @@ static void stress_filehole_non_zeros_to_holes(
     defined(FALLOC_FL_PUNCH_HOLE)
 	off_t offset;
 
-	for (offset = 0; offset < filehole_bytes; offset += page_size) {
+	for (offset = 0; stress_continue(args) && (offset < filehole_bytes); offset += page_size) {
 		ssize_t ret;
 
 #if defined(HAVE_PWRITE)
@@ -571,7 +572,7 @@ static int stress_filehole(stress_args_t *args)
 		/*
 		 *  Turn non-zero data to holes
 		 */
-		stress_filehole_non_zeros_to_holes(fd, buf, page_size, filehole_bytes);
+		stress_filehole_non_zeros_to_holes(args, fd, buf, page_size, filehole_bytes);
 	} while (stress_continue(args));
 
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
