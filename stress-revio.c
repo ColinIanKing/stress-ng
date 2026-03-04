@@ -80,42 +80,42 @@ static const stress_revio_opts_t revio_opts[] = {
 	{ "noatime",	REVIO_OPT_O_NOATIME, 0, 0, O_NOATIME },
 #endif
 #if defined(HAVE_POSIX_FADVISE) &&	\
-    defined(POSIX_FADV_NORMAL)
+    defined(SHIM_POSIX_FADV_NORMAL)
 	{ "fadv-normal",REVIO_OPT_FADV_NORMAL,
 		(REVIO_OPT_FADV_SEQ | REVIO_OPT_FADV_RND |
 		 REVIO_OPT_FADV_NOREUSE | REVIO_OPT_FADV_WILLNEED |
 		 REVIO_OPT_FADV_DONTNEED),
-		POSIX_FADV_NORMAL, 0 },
+		SHIM_POSIX_FADV_NORMAL, 0 },
 #endif
 #if defined(HAVE_POSIX_FADVISE) &&	\
-    defined(POSIX_FADV_SEQUENTIAL)
+    defined(SHIM_POSIX_FADV_SEQUENTIAL)
 	{ "fadv-seq",	REVIO_OPT_FADV_SEQ,
 		(REVIO_OPT_FADV_NORMAL | REVIO_OPT_FADV_RND),
-		POSIX_FADV_SEQUENTIAL, 0 },
+		SHIM_POSIX_FADV_SEQUENTIAL, 0 },
 #endif
 #if defined(HAVE_POSIX_FADVISE) &&	\
-    defined(POSIX_FADV_RANDOM)
+    defined(SHIM_POSIX_FADV_RANDOM)
 	{ "fadv-rnd",	REVIO_OPT_FADV_RND,
 		(REVIO_OPT_FADV_NORMAL | REVIO_OPT_FADV_SEQ),
-		POSIX_FADV_RANDOM, 0 },
+		SHIM_POSIX_FADV_RANDOM, 0 },
 #endif
 #if defined(HAVE_POSIX_FADVISE) &&	\
-    defined(POSIX_FADV_NOREUSE)
+    defined(SHIM_POSIX_FADV_NOREUSE)
 	{ "fadv-noreuse", REVIO_OPT_FADV_NOREUSE,
 		REVIO_OPT_FADV_NORMAL,
-		POSIX_FADV_NOREUSE, 0 },
+		SHIM_POSIX_FADV_NOREUSE, 0 },
 #endif
 #if defined(HAVE_POSIX_FADVISE) &&	\
-    defined(POSIX_FADV_WILLNEED)
+    defined(SHIM_POSIX_FADV_WILLNEED)
 	{ "fadv-willneed", REVIO_OPT_FADV_WILLNEED,
 		(REVIO_OPT_FADV_NORMAL | REVIO_OPT_FADV_DONTNEED),
-		POSIX_FADV_WILLNEED, 0 },
+		SHIM_POSIX_FADV_WILLNEED, 0 },
 #endif
 #if defined(HAVE_POSIX_FADVISE) &&	\
-    defined(POSIX_FADV_DONTNEED)
+    defined(SHIM_POSIX_FADV_DONTNEED)
 	{ "fadv-dontneed", REVIO_OPT_FADV_DONTNEED,
 		(REVIO_OPT_FADV_NORMAL | REVIO_OPT_FADV_WILLNEED),
-		POSIX_FADV_DONTNEED, 0 },
+		SHIM_POSIX_FADV_DONTNEED, 0 },
 #endif
 #if defined(HAVE_FSYNC)
 	{ "fsync",	REVIO_OPT_FSYNC, 0, 0, 0 },
@@ -253,9 +253,11 @@ static void stress_revio_opts(const char *opt_name, const char *opt_arg, stress_
  */
 static int stress_revio_advise(stress_args_t *args, const int fd, const int flags)
 {
-#if (defined(POSIX_FADV_SEQ) || defined(POSIX_FADV_RANDOM) ||		\
-     defined(POSIX_FADV_NOREUSE) || defined(POSIX_FADV_WILLNEED) ||	\
-     defined(POSIX_FADV_DONTNEED)) &&					\
+#if (defined(SHIM_POSIX_FADV_SEQ) ||		\
+     defined(SHIM_POSIX_FADV_RANDOM) ||		\
+     defined(SHIM_POSIX_FADV_NOREUSE) ||	\
+     defined(SHIM_POSIX_FADV_WILLNEED) ||	\
+     defined(SHIM_POSIX_FADV_DONTNEED)) &&	\
     defined(HAVE_POSIX_FADVISE)
 	size_t i;
 
@@ -264,7 +266,7 @@ static int stress_revio_advise(stress_args_t *args, const int fd, const int flag
 
 	for (i = 0; LIKELY(stress_continue(args) && (i < SIZEOF_ARRAY(revio_opts))); i++) {
 		if (revio_opts[i].flag & flags) {
-			if (posix_fadvise(fd, 0, 0, revio_opts[i].advice) < 0) {
+			if (shim_posix_fadvise(fd, 0, 0, revio_opts[i].advice) < 0) {
 				pr_fail("%s: posix_fadvise failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				return -1;
