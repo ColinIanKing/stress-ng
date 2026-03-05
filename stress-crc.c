@@ -485,10 +485,10 @@ static int stress_crc(stress_args_t *args)
 	do {
 		for (i = 0; (i < N_CRC_METHODS) && stress_continue(args); i++) {
 			register uint64_t result;
-			register int j;
+			register int loop;
 			const double t = stress_time_now();
 
-			for (j = 0; (j < CRC_LOOPS); j++) {
+			for (loop = 0; (loop < CRC_LOOPS); loop++) {
 				result = stress_crc_methods[i].func();
 				if (UNLIKELY(result != stress_crc_methods[i].result)) {
 					const int hexwidth = stress_crc_methods[i].hexwidth;
