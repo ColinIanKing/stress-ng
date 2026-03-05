@@ -45,6 +45,33 @@ typedef struct {
 	const char 		*name;
 } stress_crc_method_t;
 
+static const stress_help_t help[] = {
+	{ NULL,	"crc N",	"start N workers performing Cyclic Rundundancy Check ops" },
+	{ NULL,	"crc-ops N",	"stop after N Cyclic Rundundancy Check bogo operations" },
+	{ NULL,	NULL,		 NULL }
+};
+
+#if defined(HAVE_BUILTIN_CRC8_DATA8) ||		\
+    defined(HAVE_BUILTIN_CRC16_DATA8) ||	\
+    defined(HAVE_BUILTIN_CRC16_DATA16) ||	\
+    defined(HAVE_BUILTIN_CRC32_DATA8) ||	\
+    defined(HAVE_BUILTIN_CRC32_DATA16) ||	\
+    defined(HAVE_BUILTIN_CRC64_DATA8) ||	\
+    defined(HAVE_BUILTIN_CRC32_DATA32) ||	\
+    defined(HAVE_BUILTIN_CRC64_DATA16) ||	\
+    defined(HAVE_BUILTIN_CRC64_DATA32) ||	\
+    defined(HAVE_BUILTIN_CRC64_DATA64) ||	\
+    defined(HAVE_BUILTIN_REV_CRC8_DATA8) ||	\
+    defined(HAVE_BUILTIN_REV_CRC16_DATA8) ||	\
+    defined(HAVE_BUILTIN_REV_CRC16_DATA16) ||	\
+    defined(HAVE_BUILTIN_REV_CRC32_DATA8) ||	\
+    defined(HAVE_BUILTIN_REV_CRC32_DATA16) ||	\
+    defined(HAVE_BUILTIN_REV_CRC64_DATA8) ||	\
+    defined(HAVE_BUILTIN_REV_CRC32_DATA32) ||	\
+    defined(HAVE_BUILTIN_REV_CRC64_DATA16) ||	\
+    defined(HAVE_BUILTIN_REV_CRC64_DATA32) ||	\
+    defined(HAVE_BUILTIN_REV_CRC64_DATA64)
+
 static const uint64_t crc_data[DATA_ITEMS] = {
 	0x9029e7092a29e4f2ULL, 0x8284f714361ded21ULL,
 	0x53f1642c5b7b96e1ULL, 0xf0c5c7d3ecd44d60ULL,
@@ -54,12 +81,6 @@ static const uint64_t crc_data[DATA_ITEMS] = {
 	0xc84278f4f2ba8574ULL, 0xa3428d78ba9d2a27ULL,
 	0x0d90fd0bb99f2103ULL, 0x1ae768700ef64c11ULL,
 	0x6e1287ff21e34e94ULL, 0xec142b9a0484d1b5ULL,
-};
-
-static const stress_help_t help[] = {
-	{ NULL,	"crc N",	"start N workers performing Cyclic Rundundancy Check ops" },
-	{ NULL,	"crc-ops N",	"stop after N Cyclic Rundundancy Check bogo operations" },
-	{ NULL,	NULL,		 NULL }
 };
 
 #if defined(HAVE_BUILTIN_CRC8_DATA8)
@@ -508,3 +529,15 @@ const stressor_info_t stress_crc_info = {
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };
+
+#else
+
+const stressor_info_t stress_crc_info = {
+	.stressor = stress_unimplemented,
+	.classifier = CLASS_CPU | CLASS_COMPUTE,
+	.verify = VERIFY_OPTIONAL,
+	.help = help,
+	.unimplemented_reason = "built without __builtin_crc functionality"
+};
+
+#endif
