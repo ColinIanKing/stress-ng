@@ -153,7 +153,8 @@ static int stress_loop(stress_args_t *args)
 	stress_proc_state_set(args->name, STRESS_STATE_RUN);
 
 	do {
-		int ctrl_dev, loop_dev;
+		int ctrl_dev;
+		int loop_dev;
 		void *ptr;
 		size_t i;
 		long int dev_num;
@@ -222,8 +223,44 @@ static int stress_loop(stress_args_t *args)
 			ioctl(loop_dev, LOOP_CLR_FD, bad_fd);
 
 		/*
-		 *  Associate loop device with backing storage
+		 *  Associate loop device with backing storage, first
+		 *  try O_DIRECT, if that fails, try without O_DIRECT
 		 */
+#if defined(F_GETFL) &&	\
+    defined(F_SETFL) &&	\
+    defined(O_DIRECT)
+		/*
+		 *  Twiddle O_DIRECT flag
+		 */
+		if (stress_mwc1()) {
+			/*
+			 *  Enable O_DIRECT, if this fails, disable it
+			 */
+			int flags;
+
+			flags = fcntl(backing_fd, F_GETFL);
+			if (flags >= 0) {
+				flags |= O_DIRECT;
+				VOID_RET(int, fcntl(backing_fd, F_SETFL, flags));
+			}
+			ret = ioctl(loop_dev, LOOP_SET_FD, backing_fd);
+			if (ret < 0) {
+				flags &= ~O_DIRECT;
+				VOID_RET(int, fcntl(backing_fd, F_SETFL, flags));
+			}
+		} else {
+			/*
+			 *  Disable O_DIRECT
+			 */
+			int flags;
+
+			flags = fcntl(backing_fd, F_GETFL);
+			if (flags >= 0) {
+				flags &= ~O_DIRECT;
+				VOID_RET(int, fcntl(backing_fd, F_SETFL, flags));
+			}
+		}
+#endif
 		ret = ioctl(loop_dev, LOOP_SET_FD, backing_fd);
 		if (ret < 0)
 			goto close_loop;
@@ -403,7 +440,7 @@ clr_loop:
 			ret = ioctl(loop_dev, LOOP_CLR_FD, backing_fd);
 			if (ret < 0) {
 				if (errno == EBUSY) {
-					(void)shim_usleep(10);
+					(void)shim_usleep(1000);
 				} else {
 					pr_fail("%s: failed to disassociate %s from backing store, "
 						"errno=%d (%s)\n",
