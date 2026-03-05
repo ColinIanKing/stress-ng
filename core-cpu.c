@@ -27,6 +27,36 @@
 #include <ximmintrin.h>
 #endif
 
+/*
+ *  STRESS_CPU_X86_HAS()
+ *	check if a CPU is a recognized x86 processor and has
+ *	specific CPUID flags. The check is only performance once,
+ *	subsequent checks return a cached value as the cpuid op
+ *	can be relatively expensive.
+ */
+#define STRESS_CPU_X86_HAS(name, EAX, EBX, ECX, EDX, chk)		\
+do {									\
+	static bool name ## _val = false;				\
+	static bool name ## _cached = false;				\
+									\
+	if (!name ## _cached) {						\
+		name ## _cached = true;					\
+									\
+		if (UNLIKELY(stress_cpu_is_x86())) {			\
+			uint32_t eax = EAX;				\
+			uint32_t ebx = EBX;				\
+			uint32_t ecx = ECX;				\
+			uint32_t edx = EDX;				\
+									\
+			stress_asm_x86_cpuid(eax, ebx, ecx, edx);	\
+			name ## _val = chk;				\
+		} else {						\
+			name ## _val = false;				\
+		}							\
+	}								\
+	return name ## _val;						\
+} while (0)
+
 #define X86_FP_DAZ		(0x0040UL)
 #define X86_FP_FTZ		(0x8000UL)
 
@@ -273,10 +303,10 @@
 #define CPUID_amd_addr_mask_ext_ECX (1U << 30)	/* EAX=0800000001 -> ECX */
 
 /*
- *  stress_cpu_is_x86()
+ *  stress_cpu_is_x86_test()
  *	Intel x86 test
  */
-bool stress_cpu_is_x86(void)
+static bool stress_cpu_is_x86_test(void)
 {
 #if defined(STRESS_ARCH_X86)
 	/*
@@ -372,18 +402,17 @@ bool stress_cpu_is_x86(void)
 	return false;
 }
 
-/*
- *  stress_cpu_x86_extended_features
- *	cpuid EAX=7, ECX=0: Extended Features
- */
-#if defined(STRESS_ARCH_X86)
-#define stress_cpu_x86_extended_features(ebx, ecx, edx)	\
-do {							\
-	uint32_t eax = 7;				\
-							\
-	stress_asm_x86_cpuid(eax, ebx, ecx, edx);	\
-} while (0)
-#endif
+bool stress_cpu_is_x86(void)
+{
+	static bool stress_cpu_is_x86_val = false;
+	static bool stress_cpu_is_x86_cached = false;
+
+	if (!stress_cpu_is_x86_cached) {
+		stress_cpu_is_x86_cached = true;
+		stress_cpu_is_x86_val = stress_cpu_is_x86_test();
+	}
+	return stress_cpu_is_x86_val;
+}
 
 /*
  *  stress_cpu_x86_has_clflushopt()
@@ -392,14 +421,7 @@ do {							\
 bool stress_cpu_x86_has_clflushopt(void)
 {
 #if defined(STRESS_ARCH_X86)
-	uint32_t ebx = 0, ecx = 0, edx = 0;
-
-	if (!stress_cpu_is_x86())
-		return false;
-
-	stress_cpu_x86_extended_features(ebx, ecx, edx);
-
-	return !!(ebx & CPUID_clflushopt_EBX);
+	STRESS_CPU_X86_HAS(__func__, 0x7, 0, 0, 0, !!(ebx & CPUID_clflushopt_EBX));
 #else
 	return false;
 #endif
@@ -412,14 +434,7 @@ bool stress_cpu_x86_has_clflushopt(void)
 bool stress_cpu_x86_has_clwb(void)
 {
 #if defined(STRESS_ARCH_X86)
-	uint32_t ebx = 0, ecx = 0, edx = 0;
-
-	if (!stress_cpu_is_x86())
-		return false;
-
-	stress_cpu_x86_extended_features(ebx, ecx, edx);
-
-	return !!(ebx & CPUID_clwb_EBX);
+	STRESS_CPU_X86_HAS(__func__, 0x7, 0, 0, 0, !!(ebx & CPUID_clwb_EBX));
 #else
 	return false;
 #endif
@@ -432,14 +447,7 @@ bool stress_cpu_x86_has_clwb(void)
 bool stress_cpu_x86_has_cldemote(void)
 {
 #if defined(STRESS_ARCH_X86)
-	uint32_t ebx = 0, ecx = 0, edx = 0;
-
-	if (!stress_cpu_is_x86())
-		return false;
-
-	stress_cpu_x86_extended_features(ebx, ecx, edx);
-
-	return !!(ecx & CPUID_cldemote_ECX);
+	STRESS_CPU_X86_HAS(__func__, 0x7, 0, 0, 0, !!(ecx & CPUID_cldemote_ECX));
 #else
 	return false;
 #endif
@@ -452,19 +460,11 @@ bool stress_cpu_x86_has_cldemote(void)
 bool stress_cpu_x86_has_prefetchwt1(void)
 {
 #if defined(STRESS_ARCH_X86)
-	uint32_t ebx = 0, ecx = 0, edx = 0;
-
-	if (!stress_cpu_is_x86())
-		return false;
-
-	stress_cpu_x86_extended_features(ebx, ecx, edx);
-
-	return !!(ecx & CPUID_prefetchwt1_ECX);
+	STRESS_CPU_X86_HAS(__func__, 0x7, 0, 0, 0, !!(ecx & CPUID_prefetchwt1_ECX));
 #else
 	return false;
 #endif
 }
-
 
 /*
  *  stress_cpu_x86_has_waitpkg()
@@ -473,14 +473,7 @@ bool stress_cpu_x86_has_prefetchwt1(void)
 bool stress_cpu_x86_has_waitpkg(void)
 {
 #if defined(STRESS_ARCH_X86)
-	uint32_t ebx = 0, ecx = 0, edx = 0;
-
-	if (!stress_cpu_is_x86())
-		return false;
-
-	stress_cpu_x86_extended_features(ebx, ecx, edx);
-
-	return !!(ecx & CPUID_waitpkg_ECX);
+	STRESS_CPU_X86_HAS(__func__, 0x7, 0, 0, 0, !!(ecx & CPUID_waitpkg_ECX));
 #else
 	return false;
 #endif
@@ -494,14 +487,7 @@ bool stress_cpu_x86_has_waitpkg(void)
 bool stress_cpu_x86_has_rdseed(void)
 {
 #if defined(STRESS_ARCH_X86)
-	uint32_t ebx = 0, ecx = 0, edx = 0;
-
-	if (!stress_cpu_is_x86())
-		return false;
-
-	stress_cpu_x86_extended_features(ebx, ecx, edx);
-
-	return !!(ebx & CPUID_rdseed_EBX);
+	STRESS_CPU_X86_HAS(__func__, 0x7, 0, 0, 0, !!(ebx & CPUID_rdseed_EBX));
 #else
 	return false;
 #endif
@@ -514,14 +500,7 @@ bool stress_cpu_x86_has_rdseed(void)
 bool stress_cpu_x86_has_syscall(void)
 {
 #if defined(STRESS_ARCH_X86)
-	uint32_t eax = 0x80000001, ebx = 0, ecx = 0, edx = 0;
-
-	if (!stress_cpu_is_x86())
-		return false;
-
-	stress_asm_x86_cpuid(eax, ebx, ecx, edx);
-
-	return !!(edx & CPUID_amd_syscall_EDX);
+	STRESS_CPU_X86_HAS(__func__, 0x80000001, 0, 0, 0, !!(edx & CPUID_amd_syscall_EDX));
 #else
 	return false;
 #endif
@@ -534,19 +513,11 @@ bool stress_cpu_x86_has_syscall(void)
 bool stress_cpu_x86_has_lahf_lm(void)
 {
 #if defined(STRESS_ARCH_X86)
-	uint32_t eax = 0x80000001, ebx = 0, ecx = 0, edx = 0;
-
-	if (!stress_cpu_is_x86())
-		return false;
-
-	stress_asm_x86_cpuid(eax, ebx, ecx, edx);
-
-	return !!(ecx & CPUID_amd_lahf_lm_ECX);
+	STRESS_CPU_X86_HAS(__func__, 0x80000001, 0, 0, 0, !!(ecx & CPUID_amd_lahf_lm_ECX));
 #else
 	return false;
 #endif
 }
-
 
 /*
  *  stress_cpu_x86_has_rdrand()
@@ -555,14 +526,7 @@ bool stress_cpu_x86_has_lahf_lm(void)
 bool stress_cpu_x86_has_rdrand(void)
 {
 #if defined(STRESS_ARCH_X86)
-	uint32_t eax = 0x1, ebx = 0, ecx = 0, edx = 0;
-
-	if (!stress_cpu_is_x86())
-		return false;
-
-	stress_asm_x86_cpuid(eax, ebx, ecx, edx);
-
-	return !!(ecx & CPUID_rdrnd_ECX);
+	STRESS_CPU_X86_HAS(__func__, 0x1, 0, 0, 0, !!(ecx & CPUID_rdrnd_ECX));
 #else
 	return false;
 #endif
@@ -575,14 +539,7 @@ bool stress_cpu_x86_has_rdrand(void)
 bool stress_cpu_x86_has_tsc(void)
 {
 #if defined(STRESS_ARCH_X86)
-	uint32_t eax = 0x1, ebx = 0, ecx = 0, edx = 0;
-
-	if (!stress_cpu_is_x86())
-		return false;
-
-	stress_asm_x86_cpuid(eax, ebx, ecx, edx);
-
-	return !!(edx & CPUID_tsc_EDX);
+	STRESS_CPU_X86_HAS(__func__, 0x1, 0, 0, 0, !!(edx & CPUID_tsc_EDX));
 #else
 	return false;
 #endif
@@ -592,38 +549,23 @@ bool stress_cpu_x86_has_tsc(void)
  *  stress_cpu_x86_has_rdtscp()
  *	does x86 cpu support rdtscp?
  */
-bool stress_cpu_x86_has_rdtscp(void)
+bool OPTIMIZE3 stress_cpu_x86_has_rdtscp(void)
 {
 #if defined(STRESS_ARCH_X86)
-	uint32_t eax = 0x80000001, ebx = 0, ecx = 0, edx = 0;
-
-	if (!stress_cpu_is_x86())
-		return false;
-
-	stress_asm_x86_cpuid(eax, ebx, ecx, edx);
-
-	return !!(edx & CPUID_amd_rdtscp_EDX);
+	STRESS_CPU_X86_HAS(__func__, 0x80000001, 0, 0, 0, !!(edx & CPUID_amd_rdtscp_EDX));
 #else
 	return false;
 #endif
 }
 
-
 /*
  *  stress_cpu_x86_has_msr()
  *	does x86 cpu support MSRs?
  */
-bool stress_cpu_x86_has_msr(void)
+bool OPTIMIZE3 stress_cpu_x86_has_msr(void)
 {
 #if defined(STRESS_ARCH_X86)
-	uint32_t eax = 0x1, ebx = 0, ecx = 0, edx = 0;
-
-	if (!stress_cpu_is_x86())
-		return false;
-
-	stress_asm_x86_cpuid(eax, ebx, ecx, edx);
-
-	return !!(edx & CPUID_msr_EDX);
+	STRESS_CPU_X86_HAS(__func__, 0x1, 0, 0, 0, !!(edx & CPUID_msr_EDX));
 #else
 	return false;
 #endif
@@ -633,17 +575,10 @@ bool stress_cpu_x86_has_msr(void)
  *  stress_cpu_x86_has_clfsh()
  *	does x86 cpu support clflush?
  */
-bool stress_cpu_x86_has_clfsh(void)
+bool OPTIMIZE3 stress_cpu_x86_has_clfsh(void)
 {
 #if defined(STRESS_ARCH_X86)
-	uint32_t eax = 0x1, ebx = 0, ecx = 0, edx = 0;
-
-	if (!stress_cpu_is_x86())
-		return false;
-
-	stress_asm_x86_cpuid(eax, ebx, ecx, edx);
-
-	return !!(edx & CPUID_clfsh_EDX);
+	STRESS_CPU_X86_HAS(__func__, 0x1, 0, 0, 0, !!(edx & CPUID_clfsh_EDX));
 #else
 	return false;
 #endif
@@ -653,17 +588,10 @@ bool stress_cpu_x86_has_clfsh(void)
  *  stress_cpu_x86_has_mmx()
  *	does x86 cpu support mmx?
  */
-bool stress_cpu_x86_has_mmx(void)
+bool OPTIMIZE3 stress_cpu_x86_has_mmx(void)
 {
 #if defined(STRESS_ARCH_X86)
-	uint32_t eax = 0x1, ebx = 0, ecx = 0, edx = 0;
-
-	if (!stress_cpu_is_x86())
-		return false;
-
-	stress_asm_x86_cpuid(eax, ebx, ecx, edx);
-
-	return !!(edx & CPUID_mmx_EDX);
+	STRESS_CPU_X86_HAS(__func__, 0x1, 0, 0, 0, !!(edx & CPUID_mmx_EDX));
 #else
 	return false;
 #endif
@@ -676,14 +604,7 @@ bool stress_cpu_x86_has_mmx(void)
 bool stress_cpu_x86_has_sse(void)
 {
 #if defined(STRESS_ARCH_X86)
-	uint32_t eax = 0x1, ebx = 0, ecx = 0, edx = 0;
-
-	if (!stress_cpu_is_x86())
-		return false;
-
-	stress_asm_x86_cpuid(eax, ebx, ecx, edx);
-
-	return !!(edx & CPUID_sse_EDX);
+	STRESS_CPU_X86_HAS(__func__, 0x1, 0, 0, 0, !!(edx & CPUID_sse_EDX));
 #else
 	return false;
 #endif
@@ -696,14 +617,7 @@ bool stress_cpu_x86_has_sse(void)
 bool stress_cpu_x86_has_sse2(void)
 {
 #if defined(STRESS_ARCH_X86)
-	uint32_t eax = 0x1, ebx = 0, ecx = 0, edx = 0;
-
-	if (!stress_cpu_is_x86())
-		return false;
-
-	stress_asm_x86_cpuid(eax, ebx, ecx, edx);
-
-	return !!(edx & CPUID_sse2_EDX);
+	STRESS_CPU_X86_HAS(__func__, 0x1, 0, 0, 0, !!(edx & CPUID_sse2_EDX));
 #else
 	return false;
 #endif
@@ -716,14 +630,7 @@ bool stress_cpu_x86_has_sse2(void)
 bool stress_cpu_x86_has_serialize(void)
 {
 #if defined(STRESS_ARCH_X86)
-	uint32_t eax = 0x7, ebx = 0, ecx = 0, edx = 0;
-
-	if (!stress_cpu_is_x86())
-		return false;
-
-	stress_asm_x86_cpuid(eax, ebx, ecx, edx);
-
-	return !!(edx & CPUID_serialize_EDX);
+	STRESS_CPU_X86_HAS(__func__, 0x7, 0, 0, 0, !!(edx & CPUID_serialize_EDX));
 #else
 	return false;
 #endif
@@ -736,14 +643,7 @@ bool stress_cpu_x86_has_serialize(void)
 bool stress_cpu_x86_has_avx_vnni(void)
 {
 #if defined(STRESS_ARCH_X86)
-	uint32_t eax = 0x7, ebx = 0, ecx = 1, edx = 0;
-
-	if (!stress_cpu_is_x86())
-		return false;
-
-	stress_asm_x86_cpuid(eax, ebx, ecx, edx);
-
-	return !!(eax & CPUID_avx_vnni_EAX);
+	STRESS_CPU_X86_HAS(__func__, 0x7, 0, 1, 0, !!(eax & CPUID_avx_vnni_EAX));
 #else
 	return false;
 #endif
@@ -756,14 +656,7 @@ bool stress_cpu_x86_has_avx_vnni(void)
 bool stress_cpu_x86_has_avx512_vl(void)
 {
 #if defined(STRESS_ARCH_X86)
-	uint32_t eax = 0x7, ebx = 0, ecx = 0, edx = 0;
-
-	if (!stress_cpu_is_x86())
-		return false;
-
-	stress_asm_x86_cpuid(eax, ebx, ecx, edx);
-
-	return !!(ebx & CPUID_avx512_vl_EBX);
+	STRESS_CPU_X86_HAS(__func__, 0x7, 0, 0, 0, !!(ebx & CPUID_avx512_vl_EBX));
 #else
 	return false;
 #endif
@@ -776,14 +669,7 @@ bool stress_cpu_x86_has_avx512_vl(void)
 bool stress_cpu_x86_has_avx512_vnni(void)
 {
 #if defined(STRESS_ARCH_X86)
-	uint32_t eax = 0x7, ebx = 0, ecx = 0, edx = 0;
-
-	if (!stress_cpu_is_x86())
-		return false;
-
-	stress_asm_x86_cpuid(eax, ebx, ecx, edx);
-
-	return !!(ecx & CPUID_avx512_vnni_ECX);
+	STRESS_CPU_X86_HAS(__func__, 0x7, 0, 0, 0, !!(ecx & CPUID_avx512_vnni_ECX));
 #else
 	return false;
 #endif
@@ -796,14 +682,20 @@ bool stress_cpu_x86_has_avx512_vnni(void)
 bool stress_cpu_x86_has_avx512_bw(void)
 {
 #if defined(STRESS_ARCH_X86)
-	uint32_t eax = 0x7, ebx = 0, ecx = 0, edx = 0;
+	STRESS_CPU_X86_HAS(__func__, 0x7, 0, 0, 0, !!(ebx & CPUID_avx512_bw_EBX));
+#else
+	return false;
+#endif
+}
 
-	if (!stress_cpu_is_x86())
-		return false;
-
-	stress_asm_x86_cpuid(eax, ebx, ecx, edx);
-
-	return !!(ebx & CPUID_avx512_bw_EBX);
+/*
+ *  stress_cpu_x86_has_movdiri()
+ *	does x86 cpu support movdiri
+ */
+bool stress_cpu_x86_has_movdiri(void)
+{
+#if defined(STRESS_ARCH_X86)
+	STRESS_CPU_X86_HAS(__func__, 0x7, 0, 0, 0, !!(ecx & CPUID_movdiri_ECX));
 #else
 	return false;
 #endif
@@ -843,24 +735,3 @@ void stress_cpu_fp_subnormals_enable(void)
 		_mm_setcsr(_mm_getcsr() & ~(X86_FP_DAZ | X86_FP_FTZ));
 #endif
 }
-
-/*
- *  stress_cpu_x86_has_movdiri()
- *	does x86 cpu support movdiri
- */
-bool stress_cpu_x86_has_movdiri(void)
-{
-#if defined(STRESS_ARCH_X86)
-	uint32_t eax = 0x7, ebx = 0, ecx = 0, edx = 0;
-
-	if (!stress_cpu_is_x86())
-		return false;
-
-	stress_asm_x86_cpuid(eax, ebx, ecx, edx);
-
-	return !!(ecx & CPUID_movdiri_ECX);
-#else
-	return false;
-#endif
-}
-
