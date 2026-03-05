@@ -306,7 +306,7 @@ do {									\
  *  stress_cpu_is_x86_test()
  *	Intel x86 test
  */
-static bool stress_cpu_is_x86_test(void)
+static OPTIMIZE3 bool stress_cpu_is_x86_test(void)
 {
 #if defined(STRESS_ARCH_X86)
 	/*
@@ -402,7 +402,7 @@ static bool stress_cpu_is_x86_test(void)
 	return false;
 }
 
-bool stress_cpu_is_x86(void)
+bool OPTIMIZE3 stress_cpu_is_x86(void)
 {
 	static bool stress_cpu_is_x86_val = false;
 	static bool stress_cpu_is_x86_cached = false;
@@ -418,7 +418,7 @@ bool stress_cpu_is_x86(void)
  *  stress_cpu_x86_has_clflushopt()
  *	does x86 cpu support clflushopt?
  */
-bool stress_cpu_x86_has_clflushopt(void)
+bool OPTIMIZE3 stress_cpu_x86_has_clflushopt(void)
 {
 #if defined(STRESS_ARCH_X86)
 	STRESS_CPU_X86_HAS(__func__, 0x7, 0, 0, 0, !!(ebx & CPUID_clflushopt_EBX));
@@ -431,7 +431,7 @@ bool stress_cpu_x86_has_clflushopt(void)
  *  stress_cpu_x86_has_clwb()
  *	does x86 cpu support clwb?
  */
-bool stress_cpu_x86_has_clwb(void)
+bool OPTIMIZE3 stress_cpu_x86_has_clwb(void)
 {
 #if defined(STRESS_ARCH_X86)
 	STRESS_CPU_X86_HAS(__func__, 0x7, 0, 0, 0, !!(ebx & CPUID_clwb_EBX));
@@ -444,7 +444,7 @@ bool stress_cpu_x86_has_clwb(void)
  *  stress_cpu_x86_has_cldemote()
  *	does x86 cpu support cldemote?
  */
-bool stress_cpu_x86_has_cldemote(void)
+bool OPTIMIZE3 stress_cpu_x86_has_cldemote(void)
 {
 #if defined(STRESS_ARCH_X86)
 	STRESS_CPU_X86_HAS(__func__, 0x7, 0, 0, 0, !!(ecx & CPUID_cldemote_ECX));
@@ -457,7 +457,7 @@ bool stress_cpu_x86_has_cldemote(void)
  *  stress_cpu_x86_has_prefetchwt1()
  *	does x86 cpu support prefetchwt1?
  */
-bool stress_cpu_x86_has_prefetchwt1(void)
+bool OPTIMIZE3 stress_cpu_x86_has_prefetchwt1(void)
 {
 #if defined(STRESS_ARCH_X86)
 	STRESS_CPU_X86_HAS(__func__, 0x7, 0, 0, 0, !!(ecx & CPUID_prefetchwt1_ECX));
@@ -470,7 +470,7 @@ bool stress_cpu_x86_has_prefetchwt1(void)
  *  stress_cpu_x86_has_waitpkg()
  *	does x86 cpu support waitpkg?
  */
-bool stress_cpu_x86_has_waitpkg(void)
+bool OPTIMIZE3 stress_cpu_x86_has_waitpkg(void)
 {
 #if defined(STRESS_ARCH_X86)
 	STRESS_CPU_X86_HAS(__func__, 0x7, 0, 0, 0, !!(ecx & CPUID_waitpkg_ECX));
@@ -484,7 +484,7 @@ bool stress_cpu_x86_has_waitpkg(void)
  *  stress_cpu_x86_has_rdseed()
  *	does x86 cpu support rdseed?
  */
-bool stress_cpu_x86_has_rdseed(void)
+bool OPTIMIZE3 stress_cpu_x86_has_rdseed(void)
 {
 #if defined(STRESS_ARCH_X86)
 	STRESS_CPU_X86_HAS(__func__, 0x7, 0, 0, 0, !!(ebx & CPUID_rdseed_EBX));
@@ -497,7 +497,7 @@ bool stress_cpu_x86_has_rdseed(void)
  *  stress_cpu_x86_has_syscall()
  *	does x86 cpu support syscall?
  */
-bool stress_cpu_x86_has_syscall(void)
+bool OPTIMIZE3 stress_cpu_x86_has_syscall(void)
 {
 #if defined(STRESS_ARCH_X86)
 	STRESS_CPU_X86_HAS(__func__, 0x80000001, 0, 0, 0, !!(edx & CPUID_amd_syscall_EDX));
@@ -510,7 +510,7 @@ bool stress_cpu_x86_has_syscall(void)
  *  stress_cpu_x86_has_lahf_lm()
  *	does x86 cpu support LAHFSAHF in long mode?
  */
-bool stress_cpu_x86_has_lahf_lm(void)
+bool OPTIMIZE3 stress_cpu_x86_has_lahf_lm(void)
 {
 #if defined(STRESS_ARCH_X86)
 	STRESS_CPU_X86_HAS(__func__, 0x80000001, 0, 0, 0, !!(ecx & CPUID_amd_lahf_lm_ECX));
@@ -523,7 +523,7 @@ bool stress_cpu_x86_has_lahf_lm(void)
  *  stress_cpu_x86_has_rdrand()
  *	does x86 cpu support rdrand?
  */
-bool stress_cpu_x86_has_rdrand(void)
+bool OPTIMIZE3 stress_cpu_x86_has_rdrand(void)
 {
 #if defined(STRESS_ARCH_X86)
 	STRESS_CPU_X86_HAS(__func__, 0x1, 0, 0, 0, !!(ecx & CPUID_rdrnd_ECX));
@@ -536,7 +536,7 @@ bool stress_cpu_x86_has_rdrand(void)
  *  stress_cpu_x86_has_tsc()
  *	does x86 cpu support tsc?
  */
-bool stress_cpu_x86_has_tsc(void)
+bool OPTIMIZE3 stress_cpu_x86_has_tsc(void)
 {
 #if defined(STRESS_ARCH_X86)
 	STRESS_CPU_X86_HAS(__func__, 0x1, 0, 0, 0, !!(edx & CPUID_tsc_EDX));
@@ -601,7 +601,7 @@ bool OPTIMIZE3 stress_cpu_x86_has_mmx(void)
  *  stress_cpu_x86_has_sse()
  *	does x86 cpu support sse?
  */
-bool stress_cpu_x86_has_sse(void)
+bool OPTIMIZE3 stress_cpu_x86_has_sse(void)
 {
 #if defined(STRESS_ARCH_X86)
 	STRESS_CPU_X86_HAS(__func__, 0x1, 0, 0, 0, !!(edx & CPUID_sse_EDX));
@@ -614,7 +614,7 @@ bool stress_cpu_x86_has_sse(void)
  *  stress_cpu_x86_has_sse2()
  *	does x86 cpu support sse?
  */
-bool stress_cpu_x86_has_sse2(void)
+bool OPTIMIZE3 stress_cpu_x86_has_sse2(void)
 {
 #if defined(STRESS_ARCH_X86)
 	STRESS_CPU_X86_HAS(__func__, 0x1, 0, 0, 0, !!(edx & CPUID_sse2_EDX));
@@ -627,7 +627,7 @@ bool stress_cpu_x86_has_sse2(void)
  *  stress_cpu_x86_has_serialize()
  *	does x86 cpu support serialize opcode?
  */
-bool stress_cpu_x86_has_serialize(void)
+bool OPTIMIZE3 stress_cpu_x86_has_serialize(void)
 {
 #if defined(STRESS_ARCH_X86)
 	STRESS_CPU_X86_HAS(__func__, 0x7, 0, 0, 0, !!(edx & CPUID_serialize_EDX));
@@ -640,7 +640,7 @@ bool stress_cpu_x86_has_serialize(void)
  *  stress_cpu_x86_has_avx_vnni()
  *	does x86 cpu support avx_vnni
  */
-bool stress_cpu_x86_has_avx_vnni(void)
+bool OPTIMIZE3 stress_cpu_x86_has_avx_vnni(void)
 {
 #if defined(STRESS_ARCH_X86)
 	STRESS_CPU_X86_HAS(__func__, 0x7, 0, 1, 0, !!(eax & CPUID_avx_vnni_EAX));
@@ -653,7 +653,7 @@ bool stress_cpu_x86_has_avx_vnni(void)
  *  stress_cpu_x86_has_avx512_vl()
  *	does x86 cpu support avx512_vl
  */
-bool stress_cpu_x86_has_avx512_vl(void)
+bool OPTIMIZE3 stress_cpu_x86_has_avx512_vl(void)
 {
 #if defined(STRESS_ARCH_X86)
 	STRESS_CPU_X86_HAS(__func__, 0x7, 0, 0, 0, !!(ebx & CPUID_avx512_vl_EBX));
@@ -666,7 +666,7 @@ bool stress_cpu_x86_has_avx512_vl(void)
  *  stress_cpu_x86_has_avx512_vnni()
  *	does x86 cpu support avx512_vnni
  */
-bool stress_cpu_x86_has_avx512_vnni(void)
+bool OPTIMIZE3 stress_cpu_x86_has_avx512_vnni(void)
 {
 #if defined(STRESS_ARCH_X86)
 	STRESS_CPU_X86_HAS(__func__, 0x7, 0, 0, 0, !!(ecx & CPUID_avx512_vnni_ECX));
@@ -679,7 +679,7 @@ bool stress_cpu_x86_has_avx512_vnni(void)
  *  stress_cpu_x86_has_avx512_bw()
  *	does x86 cpu support avx512_bw
  */
-bool stress_cpu_x86_has_avx512_bw(void)
+bool OPTIMIZE3 stress_cpu_x86_has_avx512_bw(void)
 {
 #if defined(STRESS_ARCH_X86)
 	STRESS_CPU_X86_HAS(__func__, 0x7, 0, 0, 0, !!(ebx & CPUID_avx512_bw_EBX));
@@ -692,7 +692,7 @@ bool stress_cpu_x86_has_avx512_bw(void)
  *  stress_cpu_x86_has_movdiri()
  *	does x86 cpu support movdiri
  */
-bool stress_cpu_x86_has_movdiri(void)
+bool OPTIMIZE3 stress_cpu_x86_has_movdiri(void)
 {
 #if defined(STRESS_ARCH_X86)
 	STRESS_CPU_X86_HAS(__func__, 0x7, 0, 0, 0, !!(ecx & CPUID_movdiri_ECX));
@@ -708,7 +708,7 @@ bool stress_cpu_x86_has_movdiri(void)
  *     these makes FP ops faster but not strictly IEEE compliant.
  *     See https://en.wikipedia.org/wiki/Subnormal_number
  */
-void stress_cpu_fp_subnormals_disable(void)
+void OPTIMIZE3 stress_cpu_fp_subnormals_disable(void)
 {
 #if defined(STRESS_ARCH_X86) &&		\
     defined(HAVE_IMMINTRIN_H) &&	\
@@ -725,7 +725,7 @@ void stress_cpu_fp_subnormals_disable(void)
  *     micro-ops from the Microcode Sequencer ROM. Enable them to
  *     be IEEE compliant and slower.
  */
-void stress_cpu_fp_subnormals_enable(void)
+void OPTIMIZE3 stress_cpu_fp_subnormals_enable(void)
 {
 #if defined(STRESS_ARCH_X86) &&		\
     defined(HAVE_IMMINTRIN_H) &&	\
