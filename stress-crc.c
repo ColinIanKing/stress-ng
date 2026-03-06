@@ -72,7 +72,7 @@ static const stress_help_t help[] = {
     defined(HAVE_BUILTIN_REV_CRC64_DATA32) ||	\
     defined(HAVE_BUILTIN_REV_CRC64_DATA64)
 
-static const uint64_t crc_data[DATA_ITEMS] = {
+static const uint64_t crc_data[DATA_ITEMS] ALIGN64 = {
 	0x9029e7092a29e4f2ULL, 0x8284f714361ded21ULL,
 	0x53f1642c5b7b96e1ULL, 0xf0c5c7d3ecd44d60ULL,
 	0x45f3a4e23d5767e0ULL, 0xadbee349c70a1957ULL,
