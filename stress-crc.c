@@ -39,6 +39,11 @@
 typedef uint64_t (*stress_crc_func_t)(void);
 
 typedef struct {
+	double duration;
+	double count;
+} crc_metrics_t;
+
+typedef struct {
 	stress_crc_func_t	func;
 	int			hexwidth;
 	uint64_t		result;
@@ -451,7 +456,7 @@ static int stress_crc(stress_args_t *args)
 	size_t i, j;
 	bool failed = false;
 
-	stress_metrics_t metrics[N_CRC_METHODS];
+	crc_metrics_t metrics[N_CRC_METHODS] ALIGN64;
 
 	for (i = 0; i < N_CRC_METHODS; i++) {
 		metrics[i].count = 0.0;
