@@ -87,9 +87,8 @@ static const uint64_t crc_data[DATA_ITEMS] ALIGN64 = {
 uint64_t OPTIMIZE3 stress_crc_crc8_data8(void)
 {
 	register int i;
-	uint8_t *data = (uint8_t *)crc_data;
-	uint8_t crc = 0;
-
+	register uint8_t *data = (uint8_t *)crc_data;
+	register uint8_t crc = 0;
 
 	for (i = 0; i < DATA_ITEMS8; i++)
 		crc = __builtin_crc8_data8(crc, data[i], 0x9bU);
@@ -101,9 +100,8 @@ uint64_t OPTIMIZE3 stress_crc_crc8_data8(void)
 uint64_t OPTIMIZE3 stress_crc_crc16_data8(void)
 {
 	register int i;
-	uint8_t *data = (uint8_t *)crc_data;
-	uint16_t crc = 0;
-
+	register uint8_t *data = (uint8_t *)crc_data;
+	register uint16_t crc = 0;
 
 	for (i = 0; i < DATA_ITEMS8; i++)
 		crc = __builtin_crc16_data8(crc, data[i], 0xed2fU);
@@ -115,9 +113,8 @@ uint64_t OPTIMIZE3 stress_crc_crc16_data8(void)
 uint64_t OPTIMIZE3 stress_crc_crc16_data16(void)
 {
 	register int i;
-	uint16_t *data = (uint16_t *)crc_data;
-	uint16_t crc = 0;
-
+	register uint16_t *data = (uint16_t *)crc_data;
+	register uint16_t crc = 0;
 
 	for (i = 0; i < DATA_ITEMS16; i++)
 		crc = __builtin_crc16_data16(crc, data[i], 0xed2fU);
@@ -129,9 +126,8 @@ uint64_t OPTIMIZE3 stress_crc_crc16_data16(void)
 uint64_t OPTIMIZE3 stress_crc_crc32_data8(void)
 {
 	register int i;
-	uint8_t *data = (uint8_t *)crc_data;
-	uint32_t crc = 0;
-
+	register uint8_t *data = (uint8_t *)crc_data;
+	register uint32_t crc = 0;
 
 	for (i = 0; i < DATA_ITEMS8; i++)
 		crc = __builtin_crc32_data8(crc, data[i], 0x973afb51UL);
@@ -143,9 +139,8 @@ uint64_t OPTIMIZE3 stress_crc_crc32_data8(void)
 uint64_t OPTIMIZE3 stress_crc_crc32_data16(void)
 {
 	register int i;
-	uint16_t *data = (uint16_t *)crc_data;
-	uint32_t crc = 0;
-
+	register uint16_t *data = (uint16_t *)crc_data;
+	register uint32_t crc = 0;
 
 	for (i = 0; i < DATA_ITEMS16; i++)
 		crc = __builtin_crc32_data16(crc, data[i], 0x973afb51UL);
@@ -160,7 +155,6 @@ uint64_t OPTIMIZE3 stress_crc_crc32_data32(void)
 	uint32_t *data = (uint32_t *)crc_data;
 	uint32_t crc = 0;
 
-
 	for (i = 0; i < DATA_ITEMS32; i++)
 		crc = __builtin_crc32_data32(crc, data[i], 0x973afb51UL);
 	return (uint64_t)crc;
@@ -172,9 +166,8 @@ uint64_t OPTIMIZE3 stress_crc_crc32_data32(void)
 uint64_t OPTIMIZE3 stress_crc_crc64_data8(void)
 {
 	register int i;
-	uint8_t *data = (uint8_t *)crc_data;
-	uint64_t crc = 0;
-
+	register uint8_t *data = (uint8_t *)crc_data;
+	register uint64_t crc = 0;
 
 	for (i = 0; i < DATA_ITEMS8; i++)
 		crc = __builtin_crc64_data8(crc, data[i], 0xa17870f5d4f51b49ULL);
@@ -186,9 +179,8 @@ uint64_t OPTIMIZE3 stress_crc_crc64_data8(void)
 uint64_t OPTIMIZE3 stress_crc_crc64_data16(void)
 {
 	register int i;
-	uint16_t *data = (uint16_t *)crc_data;
-	uint64_t crc = 0;
-
+	register uint16_t *data = (uint16_t *)crc_data;
+	register uint64_t crc = 0;
 
 	for (i = 0; i < DATA_ITEMS16; i++)
 		crc = __builtin_crc64_data16(crc, data[i], 0xa17870f5d4f51b49ULL);
@@ -200,9 +192,8 @@ uint64_t OPTIMIZE3 stress_crc_crc64_data16(void)
 uint64_t OPTIMIZE3 stress_crc_crc64_data32(void)
 {
 	register int i;
-	uint32_t *data = (uint32_t *)crc_data;
-	uint64_t crc = 0;
-
+	register uint32_t *data = (uint32_t *)crc_data;
+	register uint64_t crc = 0;
 
 	for (i = 0; i < DATA_ITEMS32; i++)
 		crc = __builtin_crc64_data32(crc, data[i], 0xa17870f5d4f51b49ULL);
@@ -214,9 +205,8 @@ uint64_t OPTIMIZE3 stress_crc_crc64_data32(void)
 uint64_t OPTIMIZE3 stress_crc_crc64_data64(void)
 {
 	register int i;
-	uint64_t *data = (uint64_t *)crc_data;
-	uint64_t crc = 0;
-
+	register uint64_t *data = (uint64_t *)crc_data;
+	register uint64_t crc = 0;
 
 	for (i = 0; i < DATA_ITEMS64; i++)
 		crc = __builtin_crc64_data64(crc, data[i], 0xa17870f5d4f51b49ULL);
@@ -229,9 +219,8 @@ uint64_t OPTIMIZE3 stress_crc_crc64_data64(void)
 uint64_t OPTIMIZE3 stress_crc_rev_crc8_data8(void)
 {
 	register int i;
-	uint8_t *data = (uint8_t *)crc_data;
-	uint8_t crc = 0;
-
+	register uint8_t *data = (uint8_t *)crc_data;
+	register uint8_t crc = 0;
 
 	for (i = 0; i < DATA_ITEMS8; i++)
 		crc = __builtin_rev_crc8_data8(crc, data[i], 0x9bU);
@@ -243,9 +232,8 @@ uint64_t OPTIMIZE3 stress_crc_rev_crc8_data8(void)
 uint64_t OPTIMIZE3 stress_crc_rev_crc16_data8(void)
 {
 	register int i;
-	uint8_t *data = (uint8_t *)crc_data;
-	uint16_t crc = 0;
-
+	register uint8_t *data = (uint8_t *)crc_data;
+	register uint16_t crc = 0;
 
 	for (i = 0; i < DATA_ITEMS8; i++)
 		crc = __builtin_rev_crc16_data8(crc, data[i], 0xed2fU);
@@ -257,9 +245,8 @@ uint64_t OPTIMIZE3 stress_crc_rev_crc16_data8(void)
 uint64_t OPTIMIZE3 stress_crc_rev_crc16_data16(void)
 {
 	register int i;
-	uint16_t *data = (uint16_t *)crc_data;
-	uint16_t crc = 0;
-
+	register uint16_t *data = (uint16_t *)crc_data;
+	register uint16_t crc = 0;
 
 	for (i = 0; i < DATA_ITEMS16; i++)
 		crc = __builtin_rev_crc16_data16(crc, data[i], 0xed2fU);
@@ -271,9 +258,8 @@ uint64_t OPTIMIZE3 stress_crc_rev_crc16_data16(void)
 uint64_t OPTIMIZE3 stress_crc_rev_crc32_data8(void)
 {
 	register int i;
-	uint8_t *data = (uint8_t *)crc_data;
-	uint32_t crc = 0;
-
+	register uint8_t *data = (uint8_t *)crc_data;
+	register uint32_t crc = 0;
 
 	for (i = 0; i < DATA_ITEMS8; i++)
 		crc = __builtin_rev_crc32_data8(crc, data[i], 0x973afb51UL);
@@ -285,9 +271,8 @@ uint64_t OPTIMIZE3 stress_crc_rev_crc32_data8(void)
 uint64_t OPTIMIZE3 stress_crc_rev_crc32_data16(void)
 {
 	register int i;
-	uint16_t *data = (uint16_t *)crc_data;
-	uint32_t crc = 0;
-
+	register uint16_t *data = (uint16_t *)crc_data;
+	register uint32_t crc = 0;
 
 	for (i = 0; i < DATA_ITEMS16; i++)
 		crc = __builtin_rev_crc32_data16(crc, data[i], 0x973afb51UL);
@@ -299,9 +284,8 @@ uint64_t OPTIMIZE3 stress_crc_rev_crc32_data16(void)
 uint64_t OPTIMIZE3 stress_crc_rev_crc32_data32(void)
 {
 	register int i;
-	uint32_t *data = (uint32_t *)crc_data;
-	uint32_t crc = 0;
-
+	register uint32_t *data = (uint32_t *)crc_data;
+	register uint32_t crc = 0;
 
 	for (i = 0; i < DATA_ITEMS32; i++)
 		crc = __builtin_rev_crc32_data32(crc, data[i], 0x973afb51UL);
@@ -314,9 +298,8 @@ uint64_t OPTIMIZE3 stress_crc_rev_crc32_data32(void)
 uint64_t OPTIMIZE3 stress_crc_rev_crc64_data8(void)
 {
 	register int i;
-	uint8_t *data = (uint8_t *)crc_data;
-	uint64_t crc = 0;
-
+	register uint8_t *data = (uint8_t *)crc_data;
+	register uint64_t crc = 0;
 
 	for (i = 0; i < DATA_ITEMS8; i++)
 		crc = __builtin_rev_crc64_data8(crc, data[i], 0xa17870f5d4f51b49ULL);
@@ -328,9 +311,8 @@ uint64_t OPTIMIZE3 stress_crc_rev_crc64_data8(void)
 uint64_t OPTIMIZE3 stress_crc_rev_crc64_data16(void)
 {
 	register int i;
-	uint16_t *data = (uint16_t *)crc_data;
-	uint64_t crc = 0;
-
+	register uint16_t *data = (uint16_t *)crc_data;
+	register uint64_t crc = 0;
 
 	for (i = 0; i < DATA_ITEMS16; i++)
 		crc = __builtin_rev_crc64_data16(crc, data[i], 0xa17870f5d4f51b49ULL);
@@ -342,9 +324,8 @@ uint64_t OPTIMIZE3 stress_crc_rev_crc64_data16(void)
 uint64_t OPTIMIZE3 stress_crc_rev_crc64_data32(void)
 {
 	register int i;
-	uint32_t *data = (uint32_t *)crc_data;
-	uint64_t crc = 0;
-
+	register uint32_t *data = (uint32_t *)crc_data;
+	register uint64_t crc = 0;
 
 	for (i = 0; i < DATA_ITEMS32; i++)
 		crc = __builtin_rev_crc64_data32(crc, data[i], 0xa17870f5d4f51b49ULL);
@@ -356,9 +337,8 @@ uint64_t OPTIMIZE3 stress_crc_rev_crc64_data32(void)
 uint64_t OPTIMIZE3 stress_crc_rev_crc64_data64(void)
 {
 	register int i;
-	uint64_t *data = (uint64_t *)crc_data;
-	uint64_t crc = 0;
-
+	register uint64_t *data = (uint64_t *)crc_data;
+	register uint64_t crc = 0;
 
 	for (i = 0; i < DATA_ITEMS64; i++)
 		crc = __builtin_rev_crc64_data64(crc, data[i], 0xa17870f5d4f51b49ULL);
