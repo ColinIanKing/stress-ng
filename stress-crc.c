@@ -83,7 +83,7 @@ static uint64_t stress_crc_crc8_data8(void)
 	register int i;
 	register uint8_t *data = (uint8_t *)crc_data;
 	register uint8_t crc = 0;
-	register uint8_t polynomial = 0x9bU;
+	register const uint8_t polynomial = 0x9bU;
 
 	for (i = 0; i < DATA_ITEMS8; i++) {
 		register int bit;
@@ -105,7 +105,7 @@ static uint64_t stress_crc_crc16_data8(void)
 {
 	register int i;
 	register uint8_t *data = (uint8_t *)crc_data;
-	register uint16_t crc = 0;
+	register const uint16_t crc = 0;
 
 	for (i = 0; i < DATA_ITEMS8; i++)
 		crc = __builtin_crc16_data8(crc, data[i], 0xed2fU);
@@ -117,7 +117,7 @@ static uint64_t stress_crc_crc16_data8(void)
 	register int i;
 	register uint8_t *data = (uint8_t *)crc_data;
 	register uint16_t crc = 0;
-	register uint16_t polynomial = 0xed2fU;
+	register const uint16_t polynomial = 0xed2fU;
 
 	for (i = 0; i < DATA_ITEMS8; i += 2) {
 		register int bit;
@@ -152,7 +152,7 @@ static uint64_t stress_crc_crc16_data16(void)
 	register int i;
 	register uint16_t *data = (uint16_t *)crc_data;
 	register uint16_t crc = 0;
-	register uint16_t polynomial = 0xed2fU;
+	register const uint16_t polynomial = 0xed2fU;
 
 	for (i = 0; i < DATA_ITEMS16; i++) {
 		register int bit;
@@ -186,7 +186,7 @@ static uint64_t stress_crc_crc32_data8(void)
 	register int i;
 	register uint8_t *data = (uint8_t *)crc_data;
 	register uint32_t crc = 0;
-	register uint32_t polynomial = 0x973afb51UL;
+	register const uint32_t polynomial = 0x973afb51UL;
 
 	for (i = 0; i < DATA_ITEMS8; i+= 4) {
 		register int bit;
@@ -223,7 +223,7 @@ static uint64_t stress_crc_crc32_data16(void)
 	register int i;
 	register uint16_t *data = (uint16_t *)crc_data;
 	register uint32_t crc = 0;
-	register uint32_t polynomial = 0x973afb51UL;
+	register const uint32_t polynomial = 0x973afb51UL;
 
 	for (i = 0; i < DATA_ITEMS16; i+= 2) {
 		register int bit;
@@ -258,7 +258,7 @@ static uint64_t stress_crc_crc32_data32(void)
 	register int i;
 	register uint32_t *data = (uint32_t *)crc_data;
 	register uint32_t crc = 0;
-	register uint32_t polynomial = 0x973afb51UL;
+	register const uint32_t polynomial = 0x973afb51UL;
 
 	for (i = 0; i < DATA_ITEMS32; i++) {
 		register int bit;
@@ -293,7 +293,7 @@ static uint64_t stress_crc_crc64_data8(void)
 	register int i;
 	register uint8_t *data = (uint8_t *)crc_data;
 	register uint64_t crc = 0;
-	register uint64_t polynomial = 0xa17870f5d4f51b49ULL;
+	register const uint64_t polynomial = 0xa17870f5d4f51b49ULL;
 
 	for (i = 0; i < DATA_ITEMS8; i += 8) {
 		register int bit;
@@ -334,7 +334,7 @@ static uint64_t stress_crc_crc64_data16(void)
 	register int i;
 	register uint16_t *data = (uint16_t *)crc_data;
 	register uint64_t crc = 0;
-	register uint64_t polynomial = 0xa17870f5d4f51b49ULL;
+	register const uint64_t polynomial = 0xa17870f5d4f51b49ULL;
 
 	for (i = 0; i < DATA_ITEMS16; i += 4) {
 		register int bit;
@@ -371,7 +371,7 @@ static uint64_t stress_crc_crc64_data32(void)
 	register int i;
 	register uint32_t *data = (uint32_t *)crc_data;
 	register uint64_t crc = 0;
-	register uint64_t polynomial = 0xa17870f5d4f51b49ULL;
+	register const uint64_t polynomial = 0xa17870f5d4f51b49ULL;
 
 	for (i = 0; i < DATA_ITEMS32; i += 2) {
 		register int bit;
@@ -406,7 +406,7 @@ static uint64_t stress_crc_crc64_data64(void)
 	register int i;
 	register uint64_t *data = (uint64_t *)crc_data;
 	register uint64_t crc = 0;
-	register uint64_t polynomial = 0xa17870f5d4f51b49ULL;
+	register const uint64_t polynomial = 0xa17870f5d4f51b49ULL;
 
 	for (i = 0; i < DATA_ITEMS64; i++) {
 		register int bit;
@@ -441,7 +441,7 @@ static uint64_t stress_crc_rev_crc8_data8(void)
 	register int i;
 	register uint8_t *data = (uint8_t *)crc_data;
 	register uint8_t crc = 0;
-	register uint8_t polynomial = stress_bitops_reverse8(0x9bU);
+	register const uint8_t polynomial = stress_bitops_reverse8(0x9bU);
 
 	for (i = 0; i < DATA_ITEMS8; i++) {
 		register int bit;
@@ -475,7 +475,7 @@ static uint64_t stress_crc_rev_crc16_data8(void)
 	register int i;
 	register uint8_t *data = (uint8_t *)crc_data;
 	register uint16_t crc = 0;
-	register uint16_t polynomial = stress_bitops_reverse16(0xed2fU);
+	register const uint16_t polynomial = stress_bitops_reverse16(0xed2fU);
 
 	for (i = 0; i < DATA_ITEMS8; i += 2) {
 		register int bit;
@@ -510,7 +510,7 @@ static uint64_t stress_crc_rev_crc16_data16(void)
 	register int i;
 	register uint16_t *data = (uint16_t *)crc_data;
 	register uint16_t crc = 0;
-	register uint16_t polynomial = stress_bitops_reverse16(0xed2fU);
+	register const uint16_t polynomial = stress_bitops_reverse16(0xed2fU);
 
 	for (i = 0; i < DATA_ITEMS16; i++) {
 		register int bit;
@@ -544,7 +544,7 @@ static uint64_t stress_crc_rev_crc32_data8(void)
 	register int i;
 	register uint8_t *data = (uint8_t *)crc_data;
 	register uint32_t crc = 0;
-	register uint32_t polynomial = stress_bitops_reverse32(0x973afb51UL);
+	register const uint32_t polynomial = stress_bitops_reverse32(0x973afb51UL);
 
 	for (i = 0; i < DATA_ITEMS8; i+= 4) {
 		register int bit;
@@ -581,7 +581,7 @@ static uint64_t stress_crc_rev_crc32_data16(void)
 	register int i;
 	register uint16_t *data = (uint16_t *)crc_data;
 	register uint32_t crc = 0;
-	register uint32_t polynomial = stress_bitops_reverse32(0x973afb51UL);
+	register const uint32_t polynomial = stress_bitops_reverse32(0x973afb51UL);
 
 	for (i = 0; i < DATA_ITEMS16; i+= 2) {
 		register int bit;
@@ -616,7 +616,7 @@ static uint64_t stress_crc_rev_crc32_data32(void)
 	register int i;
 	register uint32_t *data = (uint32_t *)crc_data;
 	register uint32_t crc = 0;
-	register uint32_t polynomial = stress_bitops_reverse32(0x973afb51UL);
+	register const uint32_t polynomial = stress_bitops_reverse32(0x973afb51UL);
 
 	for (i = 0; i < DATA_ITEMS32; i++) {
 		register int bit;
@@ -651,7 +651,7 @@ static uint64_t stress_crc_rev_crc64_data8(void)
 	register int i;
 	register uint8_t *data = (uint8_t *)crc_data;
 	register uint64_t crc = 0;
-	register uint64_t polynomial = stress_bitops_reverse64(0xa17870f5d4f51b49ULL);
+	register const uint64_t polynomial = stress_bitops_reverse64(0xa17870f5d4f51b49ULL);
 
 	for (i = 0; i < DATA_ITEMS8; i += 8) {
 		register int bit;
@@ -692,7 +692,7 @@ static uint64_t stress_crc_rev_crc64_data16(void)
 	register int i;
 	register uint16_t *data = (uint16_t *)crc_data;
 	register uint64_t crc = 0;
-	register uint64_t polynomial = stress_bitops_reverse64(0xa17870f5d4f51b49ULL);
+	register const uint64_t polynomial = stress_bitops_reverse64(0xa17870f5d4f51b49ULL);
 
 	for (i = 0; i < DATA_ITEMS16; i += 4) {
 		register int bit;
@@ -729,7 +729,7 @@ static uint64_t stress_crc_rev_crc64_data32(void)
 	register int i;
 	register uint32_t *data = (uint32_t *)crc_data;
 	register uint64_t crc = 0;
-	register uint64_t polynomial = stress_bitops_reverse64(0xa17870f5d4f51b49ULL);
+	register const uint64_t polynomial = stress_bitops_reverse64(0xa17870f5d4f51b49ULL);
 
 	for (i = 0; i < DATA_ITEMS32; i += 2) {
 		register int bit;
@@ -764,7 +764,7 @@ static uint64_t stress_crc_rev_crc64_data64(void)
 	register int i;
 	register uint64_t *data = (uint64_t *)crc_data;
 	register uint64_t crc = 0;
-	register uint64_t polynomial = stress_bitops_reverse64(0xa17870f5d4f51b49ULL);
+	register const uint64_t polynomial = stress_bitops_reverse64(0xa17870f5d4f51b49ULL);
 
 	for (i = 0; i < DATA_ITEMS64; i++) {
 		register int bit;
