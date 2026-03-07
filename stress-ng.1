@@ -2143,7 +2143,7 @@ from 2 to 1024 with a default of 16.
 .RS 5
 .TQ
 .B \-\-crc N
-start N workers that perform a range of CRC calculations on 64 bytes of
+start N workers that perform a range of CRC calculations on 1024 bits of
 data. The gcc __builtin_crc functions are used to perform the CRCs using the
 following forward and reversed CRCs:
 .sp
@@ -2152,34 +2152,34 @@ lB2 lB
 l lx.
 Method	Description
 crc8_data8	T{
-8 bit CRC with 8 bit data
+8 bit CRC with 128 \(mu 8 bit data
 T}
 crc16_data8	T{
-16 bit CRC with 8 bit data
+16 bit CRC with 128 \(mu 8 bit data
 T}
 crc16_data16	T{
-16 bit CRC with 16 bit data
+16 bit CRC with 64 \(mu 16 bit data
 T}
 crc32_data8	T{
-32 bit CRC with 8 bit data
+32 bit CRC with 128 \(mu 8 bit data
 T}
 crc32_data16	T{
-32 bit CRC with 16 bit data
+32 bit CRC with 64 \(mu 16 bit data
 T}
 crc32_data32	T{
-32 bit CRC with 32 bit data
+32 bit CRC with 32 \(mu 32 bit data
 T}
 crc64_data8	T{
-64 bit CRC with 8 bit data
+64 bit CRC with 128 \(mu 8 bit data
 T}
 crc64_data16	T{
-64 bit CRC with 16 bit data
+64 bit CRC with 64 \(mu 16 bit data
 T}
 crc64_data32	T{
-64 bit CRC with 32 bit data
+64 bit CRC with 32 \(mu 32 bit data
 T}
 crc64_data64	T{
-64 bit CRC with 64 bit data
+64 bit CRC with 16 \(mu 64 bit data
 T}
 .TE
 .TP
