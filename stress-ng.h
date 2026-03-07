@@ -264,7 +264,7 @@ typedef struct stress_stressor_info {
 	uint32_t status[STRESS_STRESSOR_STATUS_MAX];
 					/* number of instances that passed/failed/skipped */
 	struct {
-		uint8_t run;		/* ignore running the stressor, unsupported or excluded */
+		bool	run;		/* ignore running the stressor, unsupported or excluded */
 		bool	permute;	/* ignore flag, saved for permute */
 	} ignore;
 } stress_stressor_t;
