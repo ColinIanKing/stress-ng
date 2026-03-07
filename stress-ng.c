@@ -1750,9 +1750,10 @@ static int MLOCKED_TEXT stress_run_child(
 		stats->completed = true;
 		ok = (rc == EXIT_SUCCESS);
 		args->bogo.ci.run_ok = ok;
-		(*checksum)->data.ci.run_ok = ok;
+		(*checksum)->ci.run_ok = ok;
 		/* Ensure reserved padding is zero to not confuse checksum */
-		(void)shim_memset((*checksum)->data.pad, 0, sizeof((*checksum)->data.pad));
+		(void)shim_memset((*checksum)->pad1, 0, sizeof((*checksum)->pad1));
+		(void)shim_memset((*checksum)->pad2, 0, sizeof((*checksum)->pad2));
 
 		stress_proc_state_set(name, STRESS_STATE_STOP);
 		/*
@@ -1767,8 +1768,8 @@ static int MLOCKED_TEXT stress_run_child(
 				name);
 			rc = EXIT_METRICS_UNTRUSTWORTHY;
 		}
-		(*checksum)->data.ci.counter = args->bogo.ci.counter;
-		(*checksum)->hash = stress_hash_checksum(&((*checksum)->data.ci));
+		(*checksum)->ci.counter = args->bogo.ci.counter;
+		(*checksum)->hash = stress_hash_checksum(&((*checksum)->ci));
 		finish = stress_time_now();
 		if (g_opt_flags & OPT_FLAGS_STRESSOR_TIME)
 			stress_log_time(name, finish, "finish");
@@ -2159,25 +2160,25 @@ static void stress_metrics_check(bool *success)
 			}
 
 			(void)shim_memset(&stats_checksum, 0, sizeof(stats_checksum));
-			stats_checksum.data.ci.counter = stats->args.bogo.ci.counter;
-			stats_checksum.data.ci.run_ok = stats->args.bogo.ci.run_ok;
-			stats_checksum.hash = stress_hash_checksum(&stats_checksum.data.ci);
+			stats_checksum.ci.counter = stats->args.bogo.ci.counter;
+			stats_checksum.ci.run_ok = stats->args.bogo.ci.run_ok;
+			stats_checksum.hash = stress_hash_checksum(&stats_checksum.ci);
 
 			oom_message = stats->args.bogo.possibly_oom_killed ?
 				" (possibly terminated by out-of-memory killer)" : "";
 
-			if (stats->args.bogo.ci.counter != checksum->data.ci.counter) {
+			if (stats->args.bogo.ci.counter != checksum->ci.counter) {
 				pr_fail("%s instance %" PRId32 " corrupted bogo-ops counter, %" PRIu64 " vs %" PRIu64 "%s\n",
 					ss->stressor->name, j,
-					stats->args.bogo.ci.counter, checksum->data.ci.counter,
+					stats->args.bogo.ci.counter, checksum->ci.counter,
 					oom_message);
 				oom_message = "";
 				ok = false;
 			}
-			if (stats->args.bogo.ci.run_ok != checksum->data.ci.run_ok) {
+			if (stats->args.bogo.ci.run_ok != checksum->ci.run_ok) {
 				pr_fail("%s instance %" PRId32 " corrupted run flag, %d vs %d%s\n",
 					ss->stressor->name, j,
-					stats->args.bogo.ci.run_ok, checksum->data.ci.run_ok,
+					stats->args.bogo.ci.run_ok, checksum->ci.run_ok,
 					oom_message);
 				oom_message = "";
 				ok = false;

@@ -427,11 +427,10 @@ typedef struct {
  *  have got corrupted.
  */
 typedef struct {
-	struct {
-		stress_counter_info_t ci; /* Copy of stats counter info ci */
-		uint8_t	pad[32 - sizeof(stress_counter_info_t)]; /* Padding */
-	} data;
+	stress_counter_info_t ci; 	/* Copy of stats counter info ci */
+	uint8_t	pad1[64 - sizeof(stress_counter_info_t)]; /* Padding */
 	uint32_t hash;			/* Hash of data */
+	uint8_t	pad2[64 - sizeof(uint32_t)]; /* Padding */
 } stress_checksum_t;
 
 /*
