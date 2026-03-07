@@ -598,6 +598,7 @@ stress-ng has found various Kernel, QEMU bugs/regressions, and libc bugs; approp
 2026:
  * [f2fs: fix to avoid mapping wrong physical block for swapfile](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=5c145c03188bc9ba1c29e0bc4d527a5978fc47f9)
  * [mm/vmscan: fix demotion targets checks in reclaim/demotion](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=1aceed565ff172fc0331dd1d5e7e65139b711139)
+ * [scsi: storvsc: Fix scheduling while atomic on PREEMPT_RT](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=57297736c08233987e5d29ce6584c6ca2a831b12)
 
 ## Kernel improvements that used stress-ng
 
