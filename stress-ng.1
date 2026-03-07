@@ -2144,8 +2144,8 @@ from 2 to 1024 with a default of 16.
 .TQ
 .B \-\-crc N
 start N workers that perform a range of CRC calculations on 1024 bits of
-data. The gcc __builtin_crc functions are used to perform the CRCs using the
-following forward and reversed CRCs:
+data.  Where available the gcc __builtin_crc functions are used to calculate
+the CRCs. The following forward and reverse CRCs are exercised:
 .sp
 .TS
 lB2 lB

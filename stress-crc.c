@@ -18,13 +18,8 @@
  */
 #include "stress-ng.h"
 #include "core-arch.h"
+#include "core-bitops.h"
 #include "core-builtin.h"
-#include "core-madvise.h"
-#include "core-mmap.h"
-#include "core-put.h"
-#include "core-pragma.h"
-#include "core-signal.h"
-#include "core-target-clones.h"
 
 #define DATA_ITEMS	(16)
 #define DATA_ITEMS8	(DATA_ITEMS << 3)
@@ -56,27 +51,6 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		 NULL }
 };
 
-#if defined(HAVE_BUILTIN_CRC8_DATA8) ||		\
-    defined(HAVE_BUILTIN_CRC16_DATA8) ||	\
-    defined(HAVE_BUILTIN_CRC16_DATA16) ||	\
-    defined(HAVE_BUILTIN_CRC32_DATA8) ||	\
-    defined(HAVE_BUILTIN_CRC32_DATA16) ||	\
-    defined(HAVE_BUILTIN_CRC64_DATA8) ||	\
-    defined(HAVE_BUILTIN_CRC32_DATA32) ||	\
-    defined(HAVE_BUILTIN_CRC64_DATA16) ||	\
-    defined(HAVE_BUILTIN_CRC64_DATA32) ||	\
-    defined(HAVE_BUILTIN_CRC64_DATA64) ||	\
-    defined(HAVE_BUILTIN_REV_CRC8_DATA8) ||	\
-    defined(HAVE_BUILTIN_REV_CRC16_DATA8) ||	\
-    defined(HAVE_BUILTIN_REV_CRC16_DATA16) ||	\
-    defined(HAVE_BUILTIN_REV_CRC32_DATA8) ||	\
-    defined(HAVE_BUILTIN_REV_CRC32_DATA16) ||	\
-    defined(HAVE_BUILTIN_REV_CRC64_DATA8) ||	\
-    defined(HAVE_BUILTIN_REV_CRC32_DATA32) ||	\
-    defined(HAVE_BUILTIN_REV_CRC64_DATA16) ||	\
-    defined(HAVE_BUILTIN_REV_CRC64_DATA32) ||	\
-    defined(HAVE_BUILTIN_REV_CRC64_DATA64)
-
 static const uint64_t crc_data[DATA_ITEMS] ALIGN64 = {
 	0x9029e7092a29e4f2ULL, 0x8284f714361ded21ULL,
 	0x53f1642c5b7b96e1ULL, 0xf0c5c7d3ecd44d60ULL,
@@ -93,7 +67,7 @@ static const uint64_t crc_data[DATA_ITEMS] ALIGN64 = {
  *  stress_crc_crc8_data8()
  *  	8 bit crc with 8 bit data, Hamming distace 6
  */
-uint64_t OPTIMIZE3 stress_crc_crc8_data8(void)
+static uint64_t stress_crc_crc8_data8(void)
 {
 	register int i;
 	register uint8_t *data = (uint8_t *)crc_data;
@@ -103,6 +77,23 @@ uint64_t OPTIMIZE3 stress_crc_crc8_data8(void)
 		crc = __builtin_crc8_data8(crc, data[i], 0x9bU);
 	return (uint64_t)crc;
 }
+#else
+static uint64_t stress_crc_crc8_data8(void)
+{
+	register int i;
+	register uint8_t *data = (uint8_t *)crc_data;
+	register uint8_t crc = 0;
+	register uint8_t polynomial = 0x9bU;
+
+	for (i = 0; i < DATA_ITEMS8; i++) {
+		register int bit;
+
+		crc ^= data[i];
+		for (bit = 0; bit < 8; bit++)
+			crc = (crc & 0x80U) ? (crc << 1) ^ polynomial : (crc << 1);
+        }
+	return (uint64_t)crc;
+}
 #endif
 
 #if defined(HAVE_BUILTIN_CRC16_DATA8)
@@ -110,7 +101,7 @@ uint64_t OPTIMIZE3 stress_crc_crc8_data8(void)
  *  stress_crc_crc16_data8()
  *  	16 bit crc with 8 bit data, Hamming distace 10
  */
-uint64_t OPTIMIZE3 stress_crc_crc16_data8(void)
+static uint64_t stress_crc_crc16_data8(void)
 {
 	register int i;
 	register uint8_t *data = (uint8_t *)crc_data;
@@ -120,6 +111,24 @@ uint64_t OPTIMIZE3 stress_crc_crc16_data8(void)
 		crc = __builtin_crc16_data8(crc, data[i], 0xed2fU);
 	return (uint64_t)crc;
 }
+#else
+static uint64_t stress_crc_crc16_data8(void)
+{
+	register int i;
+	register uint8_t *data = (uint8_t *)crc_data;
+	register uint16_t crc = 0;
+	register uint16_t polynomial = 0xed2fU;
+
+	for (i = 0; i < DATA_ITEMS8; i += 2) {
+		register int bit;
+
+		crc ^= (uint16_t)data[i + 0] << 8 |
+		       (uint16_t)data[i + 1];
+		for (bit = 0; bit < 16; bit++)
+			crc = (crc & 0x8000U) ? (crc << 1) ^ polynomial : (crc << 1);
+        }
+	return (uint64_t)crc;
+}
 #endif
 
 #if defined(HAVE_BUILTIN_CRC16_DATA16)
@@ -127,7 +136,7 @@ uint64_t OPTIMIZE3 stress_crc_crc16_data8(void)
  *  stress_crc_crc16_data16()
  *  	16 bit crc with 16 bit data, Hamming distace 10
  */
-uint64_t OPTIMIZE3 stress_crc_crc16_data16(void)
+static uint64_t stress_crc_crc16_data16(void)
 {
 	register int i;
 	register uint16_t *data = (uint16_t *)crc_data;
@@ -137,6 +146,23 @@ uint64_t OPTIMIZE3 stress_crc_crc16_data16(void)
 		crc = __builtin_crc16_data16(crc, data[i], 0xed2fU);
 	return (uint64_t)crc;
 }
+#else
+static uint64_t stress_crc_crc16_data16(void)
+{
+	register int i;
+	register uint16_t *data = (uint16_t *)crc_data;
+	register uint16_t crc = 0;
+	register uint16_t polynomial = 0xed2fU;
+
+	for (i = 0; i < DATA_ITEMS16; i++) {
+		register int bit;
+
+		crc ^= data[i];
+		for (bit = 0; bit < 16; bit++)
+			crc = (crc & 0x8000U) ? (crc << 1) ^ polynomial : (crc << 1);
+        }
+	return (uint64_t)crc;
+}
 #endif
 
 #if defined(HAVE_BUILTIN_CRC32_DATA8)
@@ -144,7 +170,7 @@ uint64_t OPTIMIZE3 stress_crc_crc16_data16(void)
  *  stress_crc_crc32_data8()
  *  	32 bit crc with 8 bit data, Hamming distace 18
  */
-uint64_t OPTIMIZE3 stress_crc_crc32_data8(void)
+static uint64_t stress_crc_crc32_data8(void)
 {
 	register int i;
 	register uint8_t *data = (uint8_t *)crc_data;
@@ -154,6 +180,26 @@ uint64_t OPTIMIZE3 stress_crc_crc32_data8(void)
 		crc = __builtin_crc32_data8(crc, data[i], 0x973afb51UL);
 	return (uint64_t)crc;
 }
+#else
+static uint64_t stress_crc_crc32_data8(void)
+{
+	register int i;
+	register uint8_t *data = (uint8_t *)crc_data;
+	register uint32_t crc = 0;
+	register uint32_t polynomial = 0x973afb51UL;
+
+	for (i = 0; i < DATA_ITEMS8; i+= 4) {
+		register int bit;
+
+		crc ^= (uint32_t)data[i + 0] << 24 |
+		       (uint32_t)data[i + 1] << 16 |
+		       (uint32_t)data[i + 2] << 8 |
+		       (uint32_t)data[i + 3];
+		for (bit = 0; bit < 32; bit++)
+			crc = (crc & 0x80000000UL) ? (crc << 1) ^ polynomial : (crc << 1);
+        }
+	return (uint64_t)crc;
+}
 #endif
 
 #if defined(HAVE_BUILTIN_CRC32_DATA16)
@@ -161,7 +207,7 @@ uint64_t OPTIMIZE3 stress_crc_crc32_data8(void)
  *  stress_crc_crc32_data16()
  *  	32 bit crc with 16 bit data, Hamming distace 18
  */
-uint64_t OPTIMIZE3 stress_crc_crc32_data16(void)
+static uint64_t stress_crc_crc32_data16(void)
 {
 	register int i;
 	register uint16_t *data = (uint16_t *)crc_data;
@@ -171,6 +217,24 @@ uint64_t OPTIMIZE3 stress_crc_crc32_data16(void)
 		crc = __builtin_crc32_data16(crc, data[i], 0x973afb51UL);
 	return (uint64_t)crc;
 }
+#else
+static uint64_t stress_crc_crc32_data16(void)
+{
+	register int i;
+	register uint16_t *data = (uint16_t *)crc_data;
+	register uint32_t crc = 0;
+	register uint32_t polynomial = 0x973afb51UL;
+
+	for (i = 0; i < DATA_ITEMS16; i+= 2) {
+		register int bit;
+
+		crc ^= (uint32_t)data[i + 0] << 16 |
+		       (uint32_t)data[i + 1];
+		for (bit = 0; bit < 32; bit++)
+			crc = (crc & 0x80000000UL) ? (crc << 1) ^ polynomial : (crc << 1);
+        }
+	return (uint64_t)crc;
+}
 #endif
 
 #if defined(HAVE_BUILTIN_CRC32_DATA32)
@@ -178,7 +242,7 @@ uint64_t OPTIMIZE3 stress_crc_crc32_data16(void)
  *  stress_crc_crc32_data32()
  *  	32 bit crc with 32 bit data, Hamming distace 18
  */
-uint64_t OPTIMIZE3 stress_crc_crc32_data32(void)
+static uint64_t stress_crc_crc32_data32(void)
 {
 	register int i;
 	uint32_t *data = (uint32_t *)crc_data;
@@ -186,6 +250,23 @@ uint64_t OPTIMIZE3 stress_crc_crc32_data32(void)
 
 	for (i = 0; i < DATA_ITEMS32; i++)
 		crc = __builtin_crc32_data32(crc, data[i], 0x973afb51UL);
+	return (uint64_t)crc;
+}
+#else
+static uint64_t stress_crc_crc32_data32(void)
+{
+	register int i;
+	register uint32_t *data = (uint32_t *)crc_data;
+	register uint32_t crc = 0;
+	register uint32_t polynomial = 0x973afb51UL;
+
+	for (i = 0; i < DATA_ITEMS32; i++) {
+		register int bit;
+
+		crc ^= data[i];
+		for (bit = 0; bit < 32; bit++)
+			crc = (crc & 0x80000000UL) ? (crc << 1) ^ polynomial : (crc << 1);
+        }
 	return (uint64_t)crc;
 }
 #endif
@@ -196,7 +277,7 @@ uint64_t OPTIMIZE3 stress_crc_crc32_data32(void)
  *  stress_crc_crc64_data8()
  *  	64 bit crc with 8 bit data, Hamming distace 97(?)
  */
-uint64_t OPTIMIZE3 stress_crc_crc64_data8(void)
+static uint64_t stress_crc_crc64_data8(void)
 {
 	register int i;
 	register uint8_t *data = (uint8_t *)crc_data;
@@ -206,6 +287,30 @@ uint64_t OPTIMIZE3 stress_crc_crc64_data8(void)
 		crc = __builtin_crc64_data8(crc, data[i], 0xa17870f5d4f51b49ULL);
 	return crc;
 }
+#else
+static uint64_t stress_crc_crc64_data8(void)
+{
+	register int i;
+	register uint8_t *data = (uint8_t *)crc_data;
+	register uint64_t crc = 0;
+	register uint64_t polynomial = 0xa17870f5d4f51b49ULL;
+
+	for (i = 0; i < DATA_ITEMS8; i += 8) {
+		register int bit;
+
+		crc ^= (uint64_t)data[i + 0] << 56 |
+		       (uint64_t)data[i + 1] << 48 |
+		       (uint64_t)data[i + 2] << 40 |
+		       (uint64_t)data[i + 3] << 32 |
+		       (uint64_t)data[i + 4] << 24 |
+		       (uint64_t)data[i + 5] << 16 |
+		       (uint64_t)data[i + 6] << 8 |
+		       (uint64_t)data[i + 7];
+		for (bit = 0; bit < 64; bit++)
+			crc = (crc & 0x8000000000000000ULL) ? (crc << 1) ^ polynomial : (crc << 1);
+        }
+	return crc;
+}
 #endif
 
 #if defined(HAVE_BUILTIN_CRC64_DATA16)
@@ -213,7 +318,7 @@ uint64_t OPTIMIZE3 stress_crc_crc64_data8(void)
  *  stress_crc_crc64_data16()
  *  	64 bit crc with 16 bit data, Hamming distace 97(?)
  */
-uint64_t OPTIMIZE3 stress_crc_crc64_data16(void)
+static uint64_t stress_crc_crc64_data16(void)
 {
 	register int i;
 	register uint16_t *data = (uint16_t *)crc_data;
@@ -223,6 +328,26 @@ uint64_t OPTIMIZE3 stress_crc_crc64_data16(void)
 		crc = __builtin_crc64_data16(crc, data[i], 0xa17870f5d4f51b49ULL);
 	return crc;
 }
+#else
+static uint64_t stress_crc_crc64_data16(void)
+{
+	register int i;
+	register uint16_t *data = (uint16_t *)crc_data;
+	register uint64_t crc = 0;
+	register uint64_t polynomial = 0xa17870f5d4f51b49ULL;
+
+	for (i = 0; i < DATA_ITEMS16; i += 4) {
+		register int bit;
+
+		crc ^= (uint64_t)data[i + 0] << 48 |
+		       (uint64_t)data[i + 1] << 32 |
+		       (uint64_t)data[i + 2] << 16 |
+		       (uint64_t)data[i + 3];
+		for (bit = 0; bit < 64; bit++)
+			crc = (crc & 0x8000000000000000ULL) ? (crc << 1) ^ polynomial : (crc << 1);
+        }
+	return crc;
+}
 #endif
 
 #if defined(HAVE_BUILTIN_CRC64_DATA32)
@@ -230,7 +355,7 @@ uint64_t OPTIMIZE3 stress_crc_crc64_data16(void)
  *  stress_crc_crc64_data32()
  *  	64 bit crc with 32 bit data, Hamming distace 97(?)
  */
-uint64_t OPTIMIZE3 stress_crc_crc64_data32(void)
+static uint64_t stress_crc_crc64_data32(void)
 {
 	register int i;
 	register uint32_t *data = (uint32_t *)crc_data;
@@ -240,6 +365,24 @@ uint64_t OPTIMIZE3 stress_crc_crc64_data32(void)
 		crc = __builtin_crc64_data32(crc, data[i], 0xa17870f5d4f51b49ULL);
 	return crc;
 }
+#else
+static uint64_t stress_crc_crc64_data32(void)
+{
+	register int i;
+	register uint32_t *data = (uint32_t *)crc_data;
+	register uint64_t crc = 0;
+	register uint64_t polynomial = 0xa17870f5d4f51b49ULL;
+
+	for (i = 0; i < DATA_ITEMS32; i += 2) {
+		register int bit;
+
+		crc ^= (uint64_t)data[i + 0] << 32 |
+		       (uint64_t)data[i + 1];
+		for (bit = 0; bit < 64; bit++)
+			crc = (crc & 0x8000000000000000ULL) ? (crc << 1) ^ polynomial : (crc << 1);
+        }
+	return crc;
+}
 #endif
 
 #if defined(HAVE_BUILTIN_CRC64_DATA64)
@@ -247,7 +390,7 @@ uint64_t OPTIMIZE3 stress_crc_crc64_data32(void)
  *  stress_crc_crc64_data64()
  *  	64 bit crc with 64 bit data, Hamming distace 97(?)
  */
-uint64_t OPTIMIZE3 stress_crc_crc64_data64(void)
+static uint64_t stress_crc_crc64_data64(void)
 {
 	register int i;
 	register uint64_t *data = (uint64_t *)crc_data;
@@ -255,6 +398,23 @@ uint64_t OPTIMIZE3 stress_crc_crc64_data64(void)
 
 	for (i = 0; i < DATA_ITEMS64; i++)
 		crc = __builtin_crc64_data64(crc, data[i], 0xa17870f5d4f51b49ULL);
+	return crc;
+}
+#else
+static uint64_t stress_crc_crc64_data64(void)
+{
+	register int i;
+	register uint64_t *data = (uint64_t *)crc_data;
+	register uint64_t crc = 0;
+	register uint64_t polynomial = 0xa17870f5d4f51b49ULL;
+
+	for (i = 0; i < DATA_ITEMS64; i++) {
+		register int bit;
+
+		crc ^= data[i];
+		for (bit = 0; bit < 64; bit++)
+			crc = (crc & 0x8000000000000000ULL) ? (crc << 1) ^ polynomial : (crc << 1);
+        }
 	return crc;
 }
 #endif
@@ -265,7 +425,7 @@ uint64_t OPTIMIZE3 stress_crc_crc64_data64(void)
  *  stress_crc_rev_crc8_data8()
  *  	reverse 8 bit crc with 8 bit data, Hamming distace 6
  */
-uint64_t OPTIMIZE3 stress_crc_rev_crc8_data8(void)
+static uint64_t stress_crc_rev_crc8_data8(void)
 {
 	register int i;
 	register uint8_t *data = (uint8_t *)crc_data;
@@ -275,6 +435,23 @@ uint64_t OPTIMIZE3 stress_crc_rev_crc8_data8(void)
 		crc = __builtin_rev_crc8_data8(crc, data[i], 0x9bU);
 	return (uint64_t)crc;
 }
+#else
+static uint64_t stress_crc_rev_crc8_data8(void)
+{
+	register int i;
+	register uint8_t *data = (uint8_t *)crc_data;
+	register uint8_t crc = 0;
+	register uint8_t polynomial = stress_bitops_reverse8(0x9bU);
+
+	for (i = 0; i < DATA_ITEMS8; i++) {
+		register int bit;
+
+		crc ^= data[i];
+		for (bit = 0; bit < 8; bit++)
+			crc = (crc & 1) ? (crc >> 1) ^ polynomial : (crc >> 1);
+        }
+	return (uint64_t)crc;
+}
 #endif
 
 #if defined(HAVE_BUILTIN_REV_CRC16_DATA8)
@@ -282,7 +459,7 @@ uint64_t OPTIMIZE3 stress_crc_rev_crc8_data8(void)
  *  stress_crc_rev_crc16_data8()
  *  	reverse 16 bit crc with 8 bit data, Hamming distace 10
  */
-uint64_t OPTIMIZE3 stress_crc_rev_crc16_data8(void)
+static uint64_t stress_crc_rev_crc16_data8(void)
 {
 	register int i;
 	register uint8_t *data = (uint8_t *)crc_data;
@@ -292,6 +469,24 @@ uint64_t OPTIMIZE3 stress_crc_rev_crc16_data8(void)
 		crc = __builtin_rev_crc16_data8(crc, data[i], 0xed2fU);
 	return (uint64_t)crc;
 }
+#else
+static uint64_t stress_crc_rev_crc16_data8(void)
+{
+	register int i;
+	register uint8_t *data = (uint8_t *)crc_data;
+	register uint16_t crc = 0;
+	register uint16_t polynomial = stress_bitops_reverse16(0xed2fU);
+
+	for (i = 0; i < DATA_ITEMS8; i += 2) {
+		register int bit;
+
+		crc ^= (uint16_t)data[i + 0] |
+		       (uint16_t)data[i + 1] << 8;
+		for (bit = 0; bit < 16; bit++)
+			crc = (crc & 1) ? (crc >> 1) ^ polynomial : (crc >> 1);
+        }
+	return (uint64_t)crc;
+}
 #endif
 
 #if defined(HAVE_BUILTIN_REV_CRC16_DATA16)
@@ -299,7 +494,7 @@ uint64_t OPTIMIZE3 stress_crc_rev_crc16_data8(void)
  *  stress_crc_rev_crc16_data16()
  *  	reverse 16 bit crc with 16 bit data, Hamming distace 10
  */
-uint64_t OPTIMIZE3 stress_crc_rev_crc16_data16(void)
+static uint64_t stress_crc_rev_crc16_data16(void)
 {
 	register int i;
 	register uint16_t *data = (uint16_t *)crc_data;
@@ -309,6 +504,23 @@ uint64_t OPTIMIZE3 stress_crc_rev_crc16_data16(void)
 		crc = __builtin_rev_crc16_data16(crc, data[i], 0xed2fU);
 	return (uint64_t)crc;
 }
+#else
+static uint64_t stress_crc_rev_crc16_data16(void)
+{
+	register int i;
+	register uint16_t *data = (uint16_t *)crc_data;
+	register uint16_t crc = 0;
+	register uint16_t polynomial = stress_bitops_reverse16(0xed2fU);
+
+	for (i = 0; i < DATA_ITEMS16; i++) {
+		register int bit;
+
+		crc ^= data[i];
+		for (bit = 0; bit < 16; bit++)
+			crc = (crc & 1) ? (crc >> 1) ^ polynomial : (crc >> 1);
+        }
+	return (uint64_t)crc;
+}
 #endif
 
 #if defined(HAVE_BUILTIN_REV_CRC32_DATA8)
@@ -316,7 +528,7 @@ uint64_t OPTIMIZE3 stress_crc_rev_crc16_data16(void)
  *  stress_crc_rev_crc32_data8()
  *  	revsere 32 bit crc with 8 bit data, Hamming distace 18
  */
-uint64_t OPTIMIZE3 stress_crc_rev_crc32_data8(void)
+static uint64_t stress_crc_rev_crc32_data8(void)
 {
 	register int i;
 	register uint8_t *data = (uint8_t *)crc_data;
@@ -326,6 +538,26 @@ uint64_t OPTIMIZE3 stress_crc_rev_crc32_data8(void)
 		crc = __builtin_rev_crc32_data8(crc, data[i], 0x973afb51UL);
 	return (uint64_t)crc;
 }
+#else
+static uint64_t stress_crc_rev_crc32_data8(void)
+{
+	register int i;
+	register uint8_t *data = (uint8_t *)crc_data;
+	register uint32_t crc = 0;
+	register uint32_t polynomial = stress_bitops_reverse32(0x973afb51UL);
+
+	for (i = 0; i < DATA_ITEMS8; i+= 4) {
+		register int bit;
+
+		crc ^= (uint32_t)data[i + 0] |
+		       (uint32_t)data[i + 1] << 8 |
+		       (uint32_t)data[i + 2] << 16 |
+		       (uint32_t)data[i + 3] << 24;
+		for (bit = 0; bit < 32; bit++)
+			crc = (crc & 1) ? (crc >> 1) ^ polynomial : (crc >> 1);
+        }
+	return (uint64_t)crc;
+}
 #endif
 
 #if defined(HAVE_BUILTIN_REV_CRC32_DATA16)
@@ -333,7 +565,7 @@ uint64_t OPTIMIZE3 stress_crc_rev_crc32_data8(void)
  *  stress_crc_rev_crc32_data16()
  *  	revsere 32 bit crc with 16 bit data, Hamming distace 18
  */
-uint64_t OPTIMIZE3 stress_crc_rev_crc32_data16(void)
+static uint64_t stress_crc_rev_crc32_data16(void)
 {
 	register int i;
 	register uint16_t *data = (uint16_t *)crc_data;
@@ -343,6 +575,24 @@ uint64_t OPTIMIZE3 stress_crc_rev_crc32_data16(void)
 		crc = __builtin_rev_crc32_data16(crc, data[i], 0x973afb51UL);
 	return (uint64_t)crc;
 }
+#else
+static uint64_t stress_crc_rev_crc32_data16(void)
+{
+	register int i;
+	register uint16_t *data = (uint16_t *)crc_data;
+	register uint32_t crc = 0;
+	register uint32_t polynomial = stress_bitops_reverse32(0x973afb51UL);
+
+	for (i = 0; i < DATA_ITEMS16; i+= 2) {
+		register int bit;
+
+		crc ^= (uint32_t)data[i + 0] |
+		       (uint32_t)data[i + 1] << 16;
+		for (bit = 0; bit < 32; bit++)
+			crc = (crc & 1) ? (crc >> 1) ^ polynomial : (crc >> 1);
+        }
+	return (uint64_t)crc;
+}
 #endif
 
 #if defined(HAVE_BUILTIN_REV_CRC32_DATA32)
@@ -350,7 +600,7 @@ uint64_t OPTIMIZE3 stress_crc_rev_crc32_data16(void)
  *  stress_crc_rev_crc32_data32()
  *  	revsere 32 bit crc with 32 bit data, Hamming distace 18
  */
-uint64_t OPTIMIZE3 stress_crc_rev_crc32_data32(void)
+static uint64_t stress_crc_rev_crc32_data32(void)
 {
 	register int i;
 	register uint32_t *data = (uint32_t *)crc_data;
@@ -358,6 +608,23 @@ uint64_t OPTIMIZE3 stress_crc_rev_crc32_data32(void)
 
 	for (i = 0; i < DATA_ITEMS32; i++)
 		crc = __builtin_rev_crc32_data32(crc, data[i], 0x973afb51UL);
+	return (uint64_t)crc;
+}
+#else
+static uint64_t stress_crc_rev_crc32_data32(void)
+{
+	register int i;
+	register uint32_t *data = (uint32_t *)crc_data;
+	register uint32_t crc = 0;
+	register uint32_t polynomial = stress_bitops_reverse32(0x973afb51UL);
+
+	for (i = 0; i < DATA_ITEMS32; i++) {
+		register int bit;
+
+		crc ^= data[i];
+		for (bit = 0; bit < 32; bit++)
+			crc = (crc & 1) ? (crc >> 1) ^ polynomial : (crc >> 1);
+        }
 	return (uint64_t)crc;
 }
 #endif
@@ -368,7 +635,7 @@ uint64_t OPTIMIZE3 stress_crc_rev_crc32_data32(void)
  *  stress_crc_rev_crc64_data8()
  *  	revserse 64 bit crc with 8 bit data, Hamming distace 97(?)
  */
-uint64_t OPTIMIZE3 stress_crc_rev_crc64_data8(void)
+static uint64_t stress_crc_rev_crc64_data8(void)
 {
 	register int i;
 	register uint8_t *data = (uint8_t *)crc_data;
@@ -378,6 +645,30 @@ uint64_t OPTIMIZE3 stress_crc_rev_crc64_data8(void)
 		crc = __builtin_rev_crc64_data8(crc, data[i], 0xa17870f5d4f51b49ULL);
 	return crc;
 }
+#else
+static uint64_t stress_crc_rev_crc64_data8(void)
+{
+	register int i;
+	register uint8_t *data = (uint8_t *)crc_data;
+	register uint64_t crc = 0;
+	register uint64_t polynomial = stress_bitops_reverse64(0xa17870f5d4f51b49ULL);
+
+	for (i = 0; i < DATA_ITEMS8; i += 8) {
+		register int bit;
+
+		crc ^= (uint64_t)data[i + 0] |
+		       (uint64_t)data[i + 1] << 8 |
+		       (uint64_t)data[i + 2] << 16 |
+		       (uint64_t)data[i + 3] << 24 |
+		       (uint64_t)data[i + 4] << 32 |
+		       (uint64_t)data[i + 5] << 40 |
+		       (uint64_t)data[i + 6] << 48 |
+		       (uint64_t)data[i + 7] << 56;
+		for (bit = 0; bit < 64; bit++)
+			crc = (crc & 1) ? (crc >> 1) ^ polynomial : (crc >> 1);
+        }
+	return crc;
+}
 #endif
 
 #if defined(HAVE_BUILTIN_REV_CRC64_DATA16)
@@ -385,7 +676,7 @@ uint64_t OPTIMIZE3 stress_crc_rev_crc64_data8(void)
  *  stress_crc_rev_crc64_data16()
  *  	revserse 64 bit crc with 16 bit data, Hamming distace 97(?)
  */
-uint64_t OPTIMIZE3 stress_crc_rev_crc64_data16(void)
+static uint64_t stress_crc_rev_crc64_data16(void)
 {
 	register int i;
 	register uint16_t *data = (uint16_t *)crc_data;
@@ -395,6 +686,26 @@ uint64_t OPTIMIZE3 stress_crc_rev_crc64_data16(void)
 		crc = __builtin_rev_crc64_data16(crc, data[i], 0xa17870f5d4f51b49ULL);
 	return crc;
 }
+#else
+static uint64_t stress_crc_rev_crc64_data16(void)
+{
+	register int i;
+	register uint16_t *data = (uint16_t *)crc_data;
+	register uint64_t crc = 0;
+	register uint64_t polynomial = stress_bitops_reverse64(0xa17870f5d4f51b49ULL);
+
+	for (i = 0; i < DATA_ITEMS16; i += 4) {
+		register int bit;
+
+		crc ^= (uint64_t)data[i + 0] |
+		       (uint64_t)data[i + 1] << 16 |
+		       (uint64_t)data[i + 2] << 32 |
+		       (uint64_t)data[i + 3] << 48;
+		for (bit = 0; bit < 64; bit++)
+			crc = (crc & 1) ? (crc >> 1) ^ polynomial : (crc >> 1);
+        }
+	return crc;
+}
 #endif
 
 #if defined(HAVE_BUILTIN_REV_CRC64_DATA32)
@@ -402,7 +713,7 @@ uint64_t OPTIMIZE3 stress_crc_rev_crc64_data16(void)
  *  stress_crc_rev_crc64_data32()
  *  	revserse 64 bit crc with 32 bit data, Hamming distace 97(?)
  */
-uint64_t OPTIMIZE3 stress_crc_rev_crc64_data32(void)
+static uint64_t stress_crc_rev_crc64_data32(void)
 {
 	register int i;
 	register uint32_t *data = (uint32_t *)crc_data;
@@ -412,6 +723,24 @@ uint64_t OPTIMIZE3 stress_crc_rev_crc64_data32(void)
 		crc = __builtin_rev_crc64_data32(crc, data[i], 0xa17870f5d4f51b49ULL);
 	return crc;
 }
+#else
+static uint64_t stress_crc_rev_crc64_data32(void)
+{
+	register int i;
+	register uint32_t *data = (uint32_t *)crc_data;
+	register uint64_t crc = 0;
+	register uint64_t polynomial = stress_bitops_reverse64(0xa17870f5d4f51b49ULL);
+
+	for (i = 0; i < DATA_ITEMS32; i += 2) {
+		register int bit;
+
+		crc ^= (uint64_t)data[i + 0] |
+		       (uint64_t)data[i + 1] << 32;
+		for (bit = 0; bit < 64; bit++)
+			crc = (crc & 1) ? (crc >> 1) ^ polynomial : (crc >> 1);
+        }
+	return crc;
+}
 #endif
 
 #if defined(HAVE_BUILTIN_REV_CRC64_DATA64)
@@ -419,7 +748,7 @@ uint64_t OPTIMIZE3 stress_crc_rev_crc64_data32(void)
  *  stress_crc_rev_crc64_data64()
  *  	revserse 64 bit crc with 64 bit data, Hamming distace 97(?)
  */
-uint64_t OPTIMIZE3 stress_crc_rev_crc64_data64(void)
+static uint64_t stress_crc_rev_crc64_data64(void)
 {
 	register int i;
 	register uint64_t *data = (uint64_t *)crc_data;
@@ -429,74 +758,51 @@ uint64_t OPTIMIZE3 stress_crc_rev_crc64_data64(void)
 		crc = __builtin_rev_crc64_data64(crc, data[i], 0xa17870f5d4f51b49ULL);
 	return crc;
 }
+#else
+static uint64_t stress_crc_rev_crc64_data64(void)
+{
+	register int i;
+	register uint64_t *data = (uint64_t *)crc_data;
+	register uint64_t crc = 0;
+	register uint64_t polynomial = stress_bitops_reverse64(0xa17870f5d4f51b49ULL);
+
+	for (i = 0; i < DATA_ITEMS64; i++) {
+		register int bit;
+
+		crc ^= data[i];
+		for (bit = 0; bit < 64; bit++)
+			crc = (crc & 1) ? (crc >> 1) ^ polynomial : (crc >> 1);
+        }
+	return crc;
+}
 #endif
 #endif
 
 #if defined(STRESS_ARCH_LE)
 static const stress_crc_method_t stress_crc_methods[] = {
-#if defined(HAVE_BUILTIN_CRC8_DATA8)
 	{ stress_crc_crc8_data8,	2, 0x00000000000000b6ULL, "crc8_data8" },
-#endif
-#if defined(HAVE_BUILTIN_CRC16_DATA8)
 	{ stress_crc_crc16_data8,	4, 0x0000000000009877ULL, "crc16_data8" },
-#endif
-#if defined(HAVE_BUILTIN_CRC16_DATA16)
 	{ stress_crc_crc16_data16,	4, 0x0000000000008081ULL, "crc16_data16" },
-#endif
-#if defined(HAVE_BUILTIN_CRC32_DATA8)
 	{ stress_crc_crc32_data8,	8, 0x00000000682f174fULL, "crc32_data8" },
-#endif
-#if defined(HAVE_BUILTIN_CRC32_DATA16)
 	{ stress_crc_crc32_data16,	8, 0x00000000c16d11efULL, "crc32_data16" },
-#endif
-#if defined(HAVE_BUILTIN_CRC32_DATA32)
 	{ stress_crc_crc32_data32,	8, 0x000000005eb90bdeULL, "crc32_data32" },
-#endif
 #if CRC_64BIT
-#if defined(HAVE_BUILTIN_CRC64_DATA8)
 	{ stress_crc_crc64_data8,	16, 0xb983aacb1ba2159fULL, "crc64_data8" },
-#endif
-#if defined(HAVE_BUILTIN_CRC64_DATA16)
 	{ stress_crc_crc64_data16,	16, 0xd38077a8e61f358dULL, "crc64_data16" },
-#endif
-#if defined(HAVE_BUILTIN_CRC64_DATA32)
 	{ stress_crc_crc64_data32,	16, 0x7552ec85bdde72e5ULL, "crc64_data32" },
-#endif
-#if defined(HAVE_BUILTIN_CRC64_DATA64)
 	{ stress_crc_crc64_data64,	16, 0xa0f7e0ff180fe1e5ULL, "crc64_data64" },
 #endif
-#endif
-#if defined(HAVE_BUILTIN_REV_CRC8_DATA8)
 	{ stress_crc_rev_crc8_data8,	2, 0x0000000000000086ULL, "rev_crc8_data8" },
-#endif
-#if defined(HAVE_BUILTIN_REV_CRC16_DATA8)
 	{ stress_crc_rev_crc16_data8,	4, 0x00000000000097aaULL, "rev_crc16_data8" },
-#endif
-#if defined(HAVE_BUILTIN_REV_CRC16_DATA16)
 	{ stress_crc_rev_crc16_data16,	4, 0x00000000000097aaULL, "rev_crc16_data16" },
-#endif
-#if defined(HAVE_BUILTIN_REV_CRC32_DATA8)
 	{ stress_crc_rev_crc32_data8,	8, 0x000000001d8e0895ULL, "rev_crc32_data8" },
-#endif
-#if defined(HAVE_BUILTIN_REV_CRC32_DATA16)
 	{ stress_crc_rev_crc32_data16,	8, 0x000000001d8e0895ULL, "rev_crc32_data16" },
-#endif
-#if defined(HAVE_BUILTIN_REV_CRC32_DATA32)
 	{ stress_crc_rev_crc32_data32,	8, 0x000000001d8e0895ULL, "rev_crc32_data32" },
-#endif
 #if CRC_64BIT
-#if defined(HAVE_BUILTIN_REV_CRC64_DATA8)
 	{ stress_crc_rev_crc64_data8,	16, 0xb5fab4d316a5537bULL, "rev_crc64_data8" },
-#endif
-#if defined(HAVE_BUILTIN_REV_CRC64_DATA16)
 	{ stress_crc_rev_crc64_data16,	16, 0xb5fab4d316a5537bULL, "rev_crc64_data16" },
-#endif
-#if defined(HAVE_BUILTIN_REV_CRC64_DATA32)
 	{ stress_crc_rev_crc64_data32,	16, 0xb5fab4d316a5537bULL, "rev_crc64_data32" },
-#endif
-#if defined(HAVE_BUILTIN_REV_CRC64_DATA64)
 	{ stress_crc_rev_crc64_data64,	16, 0xb5fab4d316a5537bULL, "rev_crc64_data64" },
-#endif
 #endif
 };
 #else
@@ -574,6 +880,7 @@ static int stress_crc(stress_args_t *args)
 
 			stress_bogo_inc(args);
 crc_failed:
+			;
 		}
 	} while (!failed && stress_continue(args));
 
@@ -602,18 +909,6 @@ crc_failed:
 const stressor_info_t stress_crc_info = {
 	.stressor = stress_crc,
 	.classifier = CLASS_CPU | CLASS_COMPUTE,
-	.verify = VERIFY_OPTIONAL,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
-
-#else
-
-const stressor_info_t stress_crc_info = {
-	.stressor = stress_unimplemented,
-	.classifier = CLASS_CPU | CLASS_COMPUTE,
-	.verify = VERIFY_OPTIONAL,
-	.help = help,
-	.unimplemented_reason = "built without __builtin_crc functionality"
-};
-
-#endif
