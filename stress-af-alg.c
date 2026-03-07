@@ -285,22 +285,19 @@ retry_bind:
 		stress_rndbuf(key, (size_t)info->max_key_size);
 		if (UNLIKELY(setsockopt(sockfd, SOL_ALG, ALG_SET_KEY, key, (socklen_t)info->max_key_size) < 0)) {
 			free(key);
-			if (errno == ENOPROTOOPT) {
+			switch (errno) {
+			case ENOPROTOOPT:
+			case EINVAL:
+			case ENOSYS:
+				/* silently ignore bad key sizes or unimplemented alg */
 				rc = EXIT_SUCCESS;
 				goto err;
-			}
-			if (errno == EINVAL) {
-				rc = EXIT_SUCCESS;
+			default:
+				pr_fail("%s: %s (%s): setsockopt ALG_SET_KEY failed, errno=%d (%s)\n",
+					args->name, info->name, info->type, errno, strerror(errno));
+				rc = EXIT_FAILURE;
 				goto err;
 			}
-			if (errno == ENOSYS) {
-				rc = EXIT_SUCCESS;
-				goto err;
-			}
-			pr_fail("%s: %s (%s): setsockopt ALG_SET_KEY failed, errno=%d (%s)\n",
-				args->name, info->name, info->type, errno, strerror(errno));
-			rc = EXIT_FAILURE;
-			goto err;
 		}
 		free(key);
 #else
@@ -489,14 +486,19 @@ retry_bind:
 	stress_rndbuf(key, (size_t)info->max_key_size);
 	if (UNLIKELY(setsockopt(sockfd, SOL_ALG, ALG_SET_KEY, key, (socklen_t)info->max_key_size) < 0)) {
 		free(key);
-		if (errno == ENOPROTOOPT) {
+		switch (errno) {
+		case ENOPROTOOPT:
+		case EINVAL:
+		case ENOSYS:
+			/* silently ignore bad key sizes or unimplemented alg */
 			rc = EXIT_SUCCESS;
 			goto err;
-		}
-		pr_fail("%s: %s (%s): setsockopt ALG_SET_KEY failed, errno=%d (%s)\n",
+		default:
+			pr_fail("%s: %s (%s): setsockopt ALG_SET_KEY failed, errno=%d (%s)\n",
 			args->name, info->name, info->type, errno, strerror(errno));
-		rc = EXIT_FAILURE;
-		goto err;
+			rc = EXIT_FAILURE;
+			goto err;
+		}
 	}
 	free(key);
 #else
@@ -769,18 +771,23 @@ retry_bind:
 	}
 
 	stress_rndbuf(key, (size_t)max_key_size);
-
 	if (UNLIKELY(setsockopt(sockfd, SOL_ALG, ALG_SET_KEY, key, max_key_size) < 0)) {
-		/* silently ignore bad key sizes */
-		if ((errno == ENOPROTOOPT) || (errno == EINVAL)) {
+		free(key);
+		switch (errno) {
+		case ENOPROTOOPT:
+		case EINVAL:
+		case ENOSYS:
+			/* silently ignore bad key sizes or unimplemented alg */
 			rc = EXIT_SUCCESS;
 			goto err;
+		default:
+			pr_inf("%s: %s (%s): setsockopt ALG_SET_KEY failed, errno=%d (%s)\n",
+				args->name, info->name, info->type, errno, strerror(errno));
+			rc = EXIT_FAILURE;
+			goto err;
 		}
-		pr_inf("%s: %s (%s): setsockopt ALG_SET_KEY failed, errno=%d (%s)\n",
-			args->name, info->name, info->type, errno, strerror(errno));
-		rc = EXIT_FAILURE;
-		goto err;
 	}
+	free(key);
 
 	fd = accept(sockfd, NULL, 0);
 	if (fd < 0) {
@@ -960,8 +967,6 @@ err_abort:
 err_close:
 	(void)close(fd);
 err:
-	if (key)
-		free(key);
 	free(cbuf);
 	return rc;
 }
