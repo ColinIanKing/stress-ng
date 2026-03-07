@@ -293,6 +293,10 @@ retry_bind:
 				rc = EXIT_SUCCESS;
 				goto err;
 			}
+			if (errno == ENOSYS) {
+				rc = EXIT_SUCCESS;
+				goto err;
+			}
 			pr_fail("%s: %s (%s): setsockopt ALG_SET_KEY failed, errno=%d (%s)\n",
 				args->name, info->name, info->type, errno, strerror(errno));
 			rc = EXIT_FAILURE;
