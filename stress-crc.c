@@ -535,6 +535,9 @@ static int stress_crc(stress_args_t *args)
 	int rc = EXIT_SUCCESS;
 	size_t i, j;
 	bool failed = false;
+	double total_bits = 0.0;
+	double total_duration = 0.0;
+	double rate;
 
 	crc_metrics_t metrics[N_CRC_METHODS] ALIGN64;
 
@@ -563,25 +566,33 @@ static int stress_crc(stress_args_t *args)
 						hexwidth, hexwidth, result,
 						hexwidth, hexwidth, stress_crc_methods[i].result);
 					failed = true;
-					break;
+					goto crc_failed;
 				}
 			}
 			metrics[i].duration += stress_time_now() - t;
 			metrics[i].count += (double)CRC_LOOPS;
 
 			stress_bogo_inc(args);
+crc_failed:
 		}
 	} while (!failed && stress_continue(args));
 
 	for (i = 0, j = 0; i < N_CRC_METHODS; i++) {
 		if (metrics[i].duration > 0.0) {
 			char buf[64];
-			const double rate = metrics[i].count / metrics[i].duration;
+			rate = metrics[i].count / metrics[i].duration;
+
+			total_bits += (metrics[i].count * 1024.0);
+			total_duration += metrics[i].duration;
 
 			(void)snprintf(buf, sizeof(buf), "%s ops/sec", stress_crc_methods[i].name);
 			stress_metrics_set(args, j++, buf, rate, STRESS_METRIC_GEOMETRIC_MEAN);
+
 		}
 	}
+
+	rate = (total_duration > 0.0) ? total_bits / total_duration : 0.0;
+	stress_metrics_set(args, j, "Mbits/sec CRC'd", rate / 1000000.0, STRESS_METRIC_GEOMETRIC_MEAN);
 
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
 
