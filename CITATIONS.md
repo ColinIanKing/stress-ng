@@ -183,6 +183,7 @@
  * [FUKURO: An Agent-Driven Framework for Real-Time Remote Host Resource Managemen](https://rsisinternational.org/journals/ijriss/download_pdf.php?id=2021)
  * [GAL-MAD: Towards Explainable Anomaly Detection in Microservice Applications using Graph Attention Networks](https://www.arxiv.org/pdf/2504.00058)
  * [Graph Neural Networks for Anomaly Detection in Cloud Infrastructure](https://www.scirp.org/pdf/jcc_1733321.pdf)
+ * [Implementing Anomaly-Based Intrusion Detection for Resource-Constrained Devices in IoMT Networks](https://www.mdpi.com/1424-8220/25/4/1216)
  * [KernelSnitch: Side-Channel Attacks on Kernel Data Structures](https://www.ndss-symposium.org/wp-content/uploads/2025-223-paper.pdf)
  * [METRION: A Framework for Accurate Software Energy Measurement](https://arxiv.org/html/2512.06806v1)
  * [Non-Intrusive MLOps-Driven Performance Intelligence in Software Data Planes](https://arxiv.org/pdf/2506.17658)
@@ -207,12 +208,15 @@
  * [xPUE: Extending Power Usage Effectiveness Metrics for Cloud Infrastructures](https://arxiv.org/pdf/2503.07124)
 
 2026:
+ * [Battering RAM: Low-Cost Interposer Attacks on Confidential Computing via Dynamic Memory Aliasing](https://batteringram.eu/batteringram.pdf)
  * [Benchmarking of CPU-intensive Stream Data Processing in The Edge Computing Systems](https://arxiv.org/html/2505.07755v2)
  * [DPUConfig: Optimizing ML Inference in FPGAs Using Reinforcement Learning](https://arxiv.org/pdf/2602.12847)
  * [Enabling SLO-Aware 5G Multi-Access Edge Computing with SMEC](https://arxiv.org/html/2601.19162v1)
+ * [Graph Neural Networks for Anomaly Detection in Cloud Infrastructure](https://www.scirp.org/journal/paperinformation?paperid=146528)
  * [Object detection on low-compute edge SoCs: a reproducible benchmark and deployment guidelines](https://www.nature.com/articles/s41598-026-36862-y_reference.pdf)
  * [On-Device Deep Reinforcement Learning for Decentralized Task Offloading: Performance trade-offs in the training process](https://arxiv.org/html/2601.03976v1#S4)
  * [Performance evaluation of two-phase direct-to-chip liquid cooling combined with air cooling for data centers](https://www.sciencedirect.com/science/article/pii/S2214157X26000122#b47)
  * [Streamline: A Fast, Flushless Cache Covert-Channel Attack by Enabling Asynchronous Collusion](https://dl.acm.org/doi/epdf/10.1145/3445814.3446742)
  * [Testing Storage-System Correctness: Challenges, Fuzzing Limitations, and AI-Augmented Opportunities](https://arxiv.org/html/2602.02614v2)
+ * [UnICom: A Universally High-Performant I/O Completion Mechanism for Modern Computer Systems](https://www.usenix.org/system/files/fast26-pan.pdf)
  
