@@ -38,7 +38,6 @@ const stress_workload_method_t workload_methods[] = {
 	{ "all",	STRESS_WORKLOAD_METHOD_ALL },
 	{ "fma",	STRESS_WORKLOAD_METHOD_FMA },
 	{ "getpid",	STRESS_WORKLOAD_METHOD_GETPID },
-	{ "time",	STRESS_WORKLOAD_METHOD_TIME },
 	{ "inc64",	STRESS_WORKLOAD_METHOD_INC64 },
 	{ "memmove",	STRESS_WORKLOAD_METHOD_MEMMOVE },
 	{ "memread",	STRESS_WORKLOAD_METHOD_MEMREAD },
@@ -50,6 +49,7 @@ const stress_workload_method_t workload_methods[] = {
 	{ "random",	STRESS_WORKLOAD_METHOD_RANDOM },
 	{ "strnum",	STRESS_WORKLOAD_METHOD_STRNUM },
 	{ "sqrt",	STRESS_WORKLOAD_METHOD_SQRT },
+	{ "time",	STRESS_WORKLOAD_METHOD_TIME },
 	{ "vecfp",	STRESS_WORKLOAD_METHOD_VECFP },
 };
 
