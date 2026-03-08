@@ -51,6 +51,7 @@ const stress_workload_method_t workload_methods[] = {
 	{ "sqrt",	STRESS_WORKLOAD_METHOD_SQRT },
 	{ "time",	STRESS_WORKLOAD_METHOD_TIME },
 	{ "vecfp",	STRESS_WORKLOAD_METHOD_VECFP },
+	{ "vecint",	STRESS_WORKLOAD_METHOD_VECINT },
 };
 
 const char *stress_workload_method(const size_t i)
@@ -239,6 +240,58 @@ static void stress_workload_sqrt(const double v1, const double v2)
 	stress_put_double(r);
 }
 
+static void TARGET_CLONES stress_workload_vecint(void)
+{
+#if defined(HAVE_VECMATH)
+	/* Explicit vectorized version */
+	typedef union {
+		uint8_t v   ALIGNED(256) __attribute__ ((vector_size(sizeof(uint8_t) * 256)));
+		uint8_t f[256] ALIGNED(256);
+	} stress_vecint_uint8_64_t;
+
+	stress_vecint_uint8_64_t a, b;
+	uint8_t sum = 0;
+	static int v = 0;
+	register size_t i;
+
+	for (i = 0; i < 256; i++) {
+		a.f[i] = v;
+		b.f[i] = v * v;
+		v++;
+	}
+	a.v *= b.v;
+	a.v += b.v;
+
+	for (i = 0; i < 256; i++) {
+		sum += a.f[i];
+	}
+	stress_put_uint8(sum);
+#else
+	/* See how well compiler can vectorize version */
+        uint8_t a[256] ALIGNED(256);
+	uint8_t b[256] ALIGNED(256);
+	uint8_t sum = 0.0;
+	static int v = 0;
+	register size_t i;
+
+	for (i = 0; i < 256; i++) {
+		a[i] = v;
+		b[i] = v * v;
+		v++;
+	}
+	for (i = 0; i < 256; i++) {
+		a[i] *= b[i];
+	}
+	for (i = 0; i < 256; i++) {
+		a[i] += b[i];
+	}
+	for (i = 0; i < 256; i++) {
+		sum += a[i];
+	}
+	stress_put_uint8(sum);
+#endif
+}
+
 static void TARGET_CLONES stress_workload_vecfp(void)
 {
 #if defined(HAVE_VECMATH)
@@ -357,6 +410,10 @@ void stress_workload_waste_time(
 		while (stress_time_now() < t_end)
 			stress_workload_vecfp();
 		break;
+	case STRESS_WORKLOAD_METHOD_VECINT:
+		while (stress_time_now() < t_end)
+			stress_workload_vecint();
+		break;
 	case STRESS_WORKLOAD_METHOD_PROCNAME:
 		while (stress_time_now() < t_end)
 			stress_workload_procname(name);
@@ -405,6 +462,10 @@ void stress_workload_waste_time(
 			case STRESS_WORKLOAD_METHOD_VECFP:
 				stress_workload_vecfp();
 				break;
+			case STRESS_WORKLOAD_METHOD_VECINT:
+				stress_workload_vecint();
+				break;
+		break;
 			default:
 			case STRESS_WORKLOAD_METHOD_PROCNAME:
 				stress_workload_procname(name);
