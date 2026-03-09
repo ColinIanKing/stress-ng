@@ -40,24 +40,60 @@
 #define HAVE_RISCV_CBO_ZERO
 #endif
 
+#define CACHEHAMMER_METHOD_PERMUTE	(0)
+#define CACHEHAMMER_METHOD_RANDOM	(1)
+
 typedef void (*hammer_func_t)(stress_args_t *args, void *addr1, void *addr2,
 		       const bool is_bad_addr, const bool verify);
 
+typedef struct stress_cachehammer_context {
+	uint8_t *buffer;
+	uint8_t *local_buffer;
+	uint8_t *local_page;
+	uint8_t *bad_page;
+	uint8_t *file_page;
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+	stress_numa_mask_t *numa_mask;
+	stress_numa_mask_t *numa_nodes;
+	int numa_count[5];
+#endif
+	size_t local_buffer_size;
+	size_t func_index;
+	uint32_t mask;
+	uint32_t page_mask;
+	uint32_t valid;
+	uint32_t trapped;
+	bool cachehammer_numa;
+} stress_cachehammer_context_t;
+
 typedef struct {
 	char *name;
+	bool permute;
 	bool (*valid)(void);
 	hammer_func_t hammer;
 } stress_cachehammer_func_t;
 
 static const stress_help_t help[] = {
 	{ NULL,	"cachehammer N",	"start N CPU cache thrashing workers" },
+	{ NULL, "cachehammer-method",	"select hammering method [ permute | random ]" },
 	{ NULL,	"cachehammer-numa",	"move pages to randomly chosen NUMA nodes" },
 	{ NULL,	"cachehammer-ops N",	"stop after N cache bogo operations" },
 	{ NULL,	NULL,			NULL }
 };
 
+static const char *stress_cachehammer_methods[] = {
+	"permute",
+	"random",
+};
+
+static const char *stress_cachehammer_method(const size_t i)
+{
+        return (i < SIZEOF_ARRAY(stress_cachehammer_methods)) ? stress_cachehammer_methods[i] : NULL;
+}
+
 static const stress_opt_t opts[] = {
-	{ OPT_cachehammer_numa, "cachehammer-numa",  TYPE_ID_BOOL, 0, 1, NULL },
+        { OPT_cachehammer_method, "cachehammer-method", TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_cachehammer_method },
+	{ OPT_cachehammer_numa,   "cachehammer-numa",   TYPE_ID_BOOL, 0, 1, NULL },
 	END_OPT,
 };
 
@@ -84,6 +120,7 @@ static int msync_flags[] = {
 
 static char cachehammer_filename[PATH_MAX];
 static char cachehammer_path[PATH_MAX];
+static stress_cachehammer_context_t ctxt;
 
 static bool CONST hammer_valid(void)
 {
@@ -1496,94 +1533,94 @@ static void OPTIMIZE3 hammer_prefetchwt1(
 
 static const stress_cachehammer_func_t stress_cachehammer_funcs[] = {
 #if defined(HAVE_RISCV_CBO_ZERO)
-	{ "cbo_zero",	hammer_cbo_zero_valid,		hammer_cbo_zero },
+	{ "cbo_zero",	true,	hammer_cbo_zero_valid,		hammer_cbo_zero },
 #endif
 #if defined(HAVE_ASM_X86_CLDEMOTE)
-	{ "cldemote",	stress_cpu_x86_has_cldemote,	hammer_cldemote },
+	{ "cldemote",	true,	stress_cpu_x86_has_cldemote,	hammer_cldemote },
 #endif
 #if defined(HAVE_BUILTIN___CLEAR_CACHE)
-	{ "clearcache",	hammer_valid,			hammer_clearcache },
+	{ "clearcache",	true,	hammer_valid,			hammer_clearcache },
 #endif
 #if defined(HAVE_ASM_X86_CLFLUSH)
-	{ "clflush",	stress_cpu_x86_has_clfsh,	hammer_clflush },
+	{ "clflush",	true,	stress_cpu_x86_has_clfsh,	hammer_clflush },
 #endif
 #if defined(HAVE_ASM_X86_CLFLUSHOPT)
-	{ "clflushopt",	stress_cpu_x86_has_clflushopt,	hammer_clflushopt },
+	{ "clflushopt",	true,	stress_cpu_x86_has_clflushopt,	hammer_clflushopt },
 #endif
 #if defined(HAVE_ASM_X86_CLWB)
-	{ "clwb",	stress_cpu_x86_has_clwb,	hammer_clwb },
+	{ "clwb",	true,	stress_cpu_x86_has_clwb,	hammer_clwb },
 #endif
 #if defined(STRESS_ARCH_PPC) &&	\
     defined(HAVE_ASM_PPC_DCBST)
-	{ "dcbst",	hammer_valid,			hammer_ppc_dcbst },
+	{ "dcbst",	true,	hammer_valid,			hammer_ppc_dcbst },
 #endif
 #if defined(STRESS_ARCH_PPC) &&	\
     defined(HAVE_ASM_PPC_DCBT)
-	{ "dcbt",	hammer_valid,			hammer_ppc_dcbt },
+	{ "dcbt",	true,	hammer_valid,			hammer_ppc_dcbt },
 #endif
 #if defined(STRESS_ARCH_PPC) &&	\
     defined(HAVE_ASM_PPC_DCBTST)
-	{ "dcbtst",	hammer_valid,			hammer_ppc_dcbtst },
+	{ "dcbtst",	true,	hammer_valid,			hammer_ppc_dcbtst },
 #endif
 #if defined(STRESS_ARCH_PPC64) &&	\
     defined(HAVE_ASM_PPC64_DCBST)
-	{ "dcbst",	hammer_valid,			hammer_ppc64_dcbst },
+	{ "dcbst",	true,	hammer_valid,			hammer_ppc64_dcbst },
 #endif
 #if defined(STRESS_ARCH_PPC64) &&	\
     defined(HAVE_ASM_PPC64_DCBT)
-	{ "dcbt",	hammer_valid,			hammer_ppc64_dcbt },
+	{ "dcbt",	true,	hammer_valid,			hammer_ppc64_dcbt },
 #endif
 #if defined(STRESS_ARCH_PPC64) &&	\
     defined(HAVE_ASM_PPC64_DCBTST)
-	{ "dcbtst",	hammer_valid,			hammer_ppc64_dcbtst },
+	{ "dcbtst",	true,	hammer_valid,			hammer_ppc64_dcbtst },
 #endif
 #if defined(STRESS_ARCH_PPC64) &&	\
     defined(HAVE_ASM_PPC64_MSYNC)
-	{ "msync",	hammer_valid,			hammer_ppc64_msync },
+	{ "msync",	true,	hammer_valid,			hammer_ppc64_msync },
 #endif
-	{ "prefetch", 	hammer_valid,			hammer_prefetch },
+	{ "prefetch", 	true,	hammer_valid,			hammer_prefetch },
 #if defined(HAVE_ASM_X86_PREFETCHNTA)
-	{ "prefetchnta", stress_cpu_x86_has_sse,	hammer_prefetchnta },
+	{ "prefetchnta", true,	stress_cpu_x86_has_sse,		hammer_prefetchnta },
 #endif
 #if defined(HAVE_ASM_X86_PREFETCHT0)
-	{ "prefetcht0", stress_cpu_x86_has_sse,		hammer_prefetcht0 },
+	{ "prefetcht0", true,	stress_cpu_x86_has_sse,		hammer_prefetcht0 },
 #endif
 #if defined(HAVE_ASM_X86_PREFETCHT1)
-	{ "prefetcht1", stress_cpu_x86_has_sse,		hammer_prefetcht1 },
+	{ "prefetcht1", true,	stress_cpu_x86_has_sse,		hammer_prefetcht1 },
 #endif
 #if defined(HAVE_ASM_X86_PREFETCHT2)
-	{ "prefetcht2", stress_cpu_x86_has_sse,		hammer_prefetcht2 },
+	{ "prefetcht2", true,	stress_cpu_x86_has_sse,		hammer_prefetcht2 },
 #endif
 #if defined(HAVE_ASM_X86_PREFETCHW)
-	{ "prefetchw",	stress_cpu_x86_has_sse,		hammer_prefetchw },
+	{ "prefetchw",	true,	stress_cpu_x86_has_sse,		hammer_prefetchw },
 #endif
 #if defined(HAVE_ASM_X86_PREFETCHWT1)
-	{ "prefetchwt1", stress_cpu_x86_has_prefetchwt1, hammer_prefetchwt1 },
+	{ "prefetchwt1", true,	stress_cpu_x86_has_prefetchwt1, hammer_prefetchwt1 },
 #endif
-	{ "prefetch-read", hammer_valid,		hammer_prefetch_read },
-	{ "read",	hammer_valid,			hammer_read },
-	{ "read64",	hammer_valid,			hammer_read64 },
-	{ "read-write",	hammer_valid,			hammer_readwrite },
-	{ "read-write64", hammer_valid,			hammer_readwrite64 },
-	{ "write",	hammer_valid,			hammer_write },
+	{ "prefetch-read", true, hammer_valid,			hammer_prefetch_read },
+	{ "read",	true,	hammer_valid,			hammer_read },
+	{ "read64",	false,	hammer_valid,			hammer_read64 },
+	{ "read-write",	true,	hammer_valid,			hammer_readwrite },
+	{ "read-write64", true, hammer_valid,			hammer_readwrite64 },
+	{ "write",	true,	hammer_valid,			hammer_write },
 #if defined(HAVE_ASM_X86_CLFLUSH)
-	{ "write-clflush", stress_cpu_x86_has_clfsh,	hammer_write_clflush },
+	{ "write-clflush", true, stress_cpu_x86_has_clfsh,	hammer_write_clflush },
 #endif
 #if defined(HAVE_ASM_X86_CLFLUSHOPT)
-	{ "write-clflushopt", stress_cpu_x86_has_clflushopt, hammer_write_clflushopt },
+	{ "write-clflushopt", true, stress_cpu_x86_has_clflushopt, hammer_write_clflushopt },
 #endif
-	{ "write64",	hammer_valid,			hammer_write64 },
-	{ "write-read",	hammer_valid,			hammer_writeread },
-	{ "write-read64", hammer_valid,			hammer_writeread64 },
+	{ "write64",	false,	hammer_valid,			hammer_write64 },
+	{ "write-read",	true,	hammer_valid,			hammer_writeread },
+	{ "write-read64", true, hammer_valid,			hammer_writeread64 },
 };
 
 static stress_metrics_t cachehammer_metrics[N_FUNCS];
-static bool valid[N_FUNCS];
-static bool trapped[N_FUNCS];
-static size_t func_index;
 
 static void NORETURN MLOCKED_TEXT stress_cache_sighandler(int signum)
 {
+	if (ctxt.func_index < N_FUNCS)
+		ctxt.trapped |= (1U << ctxt.func_index);
+
 	stress_signal_siglongjmp(signum, jmp_env, 1);
 }
 
@@ -1594,14 +1631,14 @@ static void NORETURN MLOCKED_TEXT stress_cache_sighandler(int signum)
 static void stress_cache_hammer_flags_to_str(
 	char *buf,
 	size_t buf_len,
-	const bool flags[N_FUNCS])
+	const uint32_t flags)
 {
 	char *ptr = buf;
 	size_t i;
 
 	(void)shim_memset(buf, 0, buf_len);
 	for (i = 0; i < N_FUNCS; i++) {
-		if (flags[i]) {
+		if (flags & (1U << i)) {
 			const char *name = stress_cachehammer_funcs[i].name;
 			const size_t len = strlen(name);
 
@@ -1642,6 +1679,112 @@ static inline void stress_cachehammer_numa(
 }
 #endif
 
+static void OPTIMIZE3 stress_cachehammer_exercise(
+	stress_args_t *args,
+	stress_cachehammer_context_t *ctxt)
+{
+	register hammer_func_t hammer = stress_cachehammer_funcs[ctxt->func_index].hammer;
+	uint8_t *const buffer = g_shared->mem_cache.buffer;
+	size_t i;
+	uint32_t offset;
+	const size_t buffer_size = (size_t)g_shared->mem_cache.size;
+	uint8_t *addr1;
+	uint8_t *addr2;
+	const uint16_t rnd16 = stress_mwc16();
+	const uint8_t which = (rnd16 == 0x0008) ? 4 : rnd16 & 3;
+	const size_t loops = 8 + ((rnd16 >> 1) & 0x3f);
+	const double t_start = stress_time_now();
+
+	switch (which) {
+	case 0:
+		(*ctxt->file_page)++;
+#if defined(HAVE_MSYNC)
+		/*
+		 *  intentionally hit same page and
+		 *  cache line each time
+		 */
+		if (UNLIKELY((rnd16 == 0x0020) && SIZEOF_ARRAY(msync_flags) > 0)) {
+			const int flag = msync_flags[stress_mwc8modn(SIZEOF_ARRAY(msync_flags))];
+
+			(void)msync((void *)ctxt->file_page, args->page_size, flag);
+		}
+#endif
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+		stress_cachehammer_numa(args, 50, &ctxt->numa_count[0], ctxt->file_page,
+					ctxt->cachehammer_numa, ctxt->numa_mask, ctxt->numa_nodes);
+#endif
+		hammer(args, ctxt->file_page, ctxt->file_page + 64, false, false);
+		break;
+	case 1:
+	default:
+		offset = stress_mwc32modn((uint32_t)buffer_size);
+		addr1 = buffer + (offset & ctxt->mask);
+
+		addr2 = addr1;
+
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+		stress_cachehammer_numa(args, 20, &ctxt->numa_count[1], addr1,
+					ctxt->cachehammer_numa, ctxt->numa_mask, ctxt->numa_nodes);
+#endif
+		for (i = 0; i < loops; i++) {
+			addr2 += 64;
+			if (UNLIKELY(addr2 >= buffer + buffer_size))
+				addr2 = buffer;
+			hammer(args, addr1, addr2, false, false);
+			hammer(args, addr2, addr1, false, false);
+		}
+		break;
+	case 2:
+		offset = stress_mwc32modn((uint32_t)ctxt->local_buffer_size);
+		addr1 = ctxt->local_buffer + (offset & ctxt->mask);
+		addr2 = addr1;
+
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+		stress_cachehammer_numa(args, 20, &ctxt->numa_count[2], addr1,
+					ctxt->cachehammer_numa, ctxt->numa_mask, ctxt->numa_nodes);
+#endif
+		for (i = 0; i < loops; i++) {
+			addr2 += 64;
+			if (UNLIKELY(addr2 >= ctxt->local_buffer + ctxt->local_buffer_size))
+				addr2 = ctxt->local_buffer;
+			hammer(args, addr1, addr2, false, true);
+			hammer(args, addr2, addr1, false, true);
+		}
+		break;
+	case 3:
+		offset = stress_mwc32modn((uint32_t)args->page_size);
+		addr1 = ctxt->local_page + (offset & ctxt->page_mask);
+		addr2 = addr1;
+
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+		stress_cachehammer_numa(args, 20, &ctxt->numa_count[3], addr1,
+					ctxt->cachehammer_numa, ctxt->numa_mask, ctxt->numa_nodes);
+#endif
+		for (i = 0; i < loops; i++) {
+			addr2 += 64;
+			if (UNLIKELY(addr2 >= ctxt->local_page + args->page_size))
+				addr2 = ctxt->local_page;
+			hammer(args, addr1, addr2, false, true);
+			hammer(args, addr2, addr1, false, true);
+		}
+		break;
+	case 4:
+		offset = stress_mwc16();
+		addr1 = ctxt->bad_page + (offset & ctxt->page_mask);
+		offset += 64;
+		addr2 = ctxt->bad_page + (offset & ctxt->page_mask);
+
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+		stress_cachehammer_numa(args, 50, &ctxt->numa_count[4], addr1,
+					ctxt->cachehammer_numa, ctxt->numa_mask, ctxt->numa_nodes);
+#endif
+		hammer(args, addr1, addr2, true, false);
+		break;
+	}
+	cachehammer_metrics[ctxt->func_index].duration += stress_time_now() - t_start;
+	cachehammer_metrics[ctxt->func_index].count += 1.0;
+}
+
 /*
  *  stress_cachehammer
  *	stress cache by psuedo-random memory read/writes and
@@ -1651,48 +1794,75 @@ static inline void stress_cachehammer_numa(
 static int OPTIMIZE3 stress_cachehammer(stress_args_t *args)
 {
 	NOCLOBBER int ret = EXIT_SUCCESS, fd;
-	NOCLOBBER uint8_t *local_buffer, *local_page, *file_page, *bad_page;
 	uint8_t *const buffer = g_shared->mem_cache.buffer;
-	const size_t page_size = args->page_size;
 	const size_t buffer_size = (size_t)g_shared->mem_cache.size;
-	const size_t local_buffer_size = buffer_size * 4;
-	const uint32_t mask = ~0x3f;
-	const uint32_t page_mask = (uint32_t)((page_size - 1) & ~0x3f);
 	size_t i, j;
+	size_t cachehammer_method = CACHEHAMMER_METHOD_RANDOM;
 	NOCLOBBER size_t tries = 0;
 	char buf[1024];
-	NOCLOBBER bool cachehammer_numa = false;
-	static int numa_count[5];
 	double mantissa;
 	uint64_t exponent;
-#if defined(HAVE_LINUX_MEMPOLICY_H)
-	NOCLOBBER stress_numa_mask_t *numa_mask;
-	NOCLOBBER stress_numa_mask_t *numa_nodes;
+	int *permutations = NULL;
+	NOCLOBBER size_t n_permutations = 0;
+	NOCLOBBER size_t permutation = 0;
+	NOCLOBBER size_t max_flags = 0;
+	NOCLOBBER size_t permutations_exercised = 0;
 
-	numa_mask = NULL;
-	numa_nodes = NULL;
+	(void)shim_memset(&ctxt, 0, sizeof(ctxt));
+	ctxt.cachehammer_numa = false;
+	ctxt.local_buffer_size = buffer_size * 4;
+	ctxt.mask = ~0x3f;
+	ctxt.page_mask = (uint32_t)((args->page_size - 1) & ~0x3f);
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+	ctxt.numa_mask = NULL;
+	ctxt.numa_nodes = NULL;
+	(void)shim_memset(ctxt.numa_count, 0, sizeof(ctxt.numa_count));
 #endif
 
-	(void)shim_memset(numa_count, 0, sizeof(numa_count));
-	(void)stress_setting_get("cachehammer-numa", &cachehammer_numa);
+	(void)stress_setting_get("cachehammer-method", &cachehammer_method);
+	(void)stress_setting_get("cachehammer-numa", &ctxt.cachehammer_numa);
+
+	if (stress_instance_zero(args))
+		pr_inf("%s: using method '%s'\n", args->name,
+			stress_cachehammer_methods[cachehammer_method]);
 
 	if (!*cachehammer_filename) {
 		pr_inf_skip("%s: shared file not created, skipping stressor\n",
 			args->name);
 		return EXIT_NO_RESOURCE;
 	}
-	func_index = 0;
+
+	ctxt.trapped = 0;
 	for (i = 0; i < N_FUNCS; i++) {
-		valid[i] = stress_cachehammer_funcs[i].valid();
-		trapped[i] = false;
+		ctxt.valid |= stress_cachehammer_funcs[i].valid() ? 1U << i : 0;
 		cachehammer_metrics[i].duration = 0.0;
 		cachehammer_metrics[i].count = 0.0;
+	}
+
+	if (cachehammer_method == CACHEHAMMER_METHOD_PERMUTE) {
+		uint32_t flags = 0;
+
+		for (i = 0; i < N_FUNCS; i++) {
+			uint32_t mask = 1U << i;
+
+			if (stress_cachehammer_funcs[i].permute &&
+			    (ctxt.valid & mask)) {
+				flags |= mask;
+				max_flags = i;
+			} else {
+				ctxt.valid &= ~mask;
+			}
+		}
+		n_permutations = stress_flag_permutation((int)flags, &permutations);
+		if (stress_instance_zero(args))
+			pr_inf("%s: using a maxiumum of %zu cache operation permutations\n",
+				args->name, n_permutations);
 	}
 
 	if (stress_instance_zero(args)) {
 		pr_dbg("%s: using cache buffer size of %zuK\n",
 			args->name, buffer_size / 1024);
-		stress_cache_hammer_flags_to_str(buf, sizeof(buf), valid);
+		stress_cache_hammer_flags_to_str(buf, sizeof(buf), ctxt.valid);
 		if (*buf)
 			pr_inf("%s: using operations:%s\n", args->name, buf);
 	}
@@ -1703,12 +1873,18 @@ static int OPTIMIZE3 stress_cachehammer(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
-	if (stress_signal_handler(args->name, SIGSEGV, stress_cache_sighandler, NULL) < 0)
-		return EXIT_NO_RESOURCE;
-	if (stress_signal_handler(args->name, SIGBUS, stress_cache_sighandler, NULL) < 0)
-		return EXIT_NO_RESOURCE;
-	if (stress_signal_handler(args->name, SIGILL, stress_cache_sighandler, NULL) < 0)
-		return EXIT_NO_RESOURCE;
+	if (stress_signal_handler(args->name, SIGSEGV, stress_cache_sighandler, NULL) < 0) {
+		ret = EXIT_NO_RESOURCE;
+		goto free_permutations;
+	}
+	if (stress_signal_handler(args->name, SIGBUS, stress_cache_sighandler, NULL) < 0) {
+		ret = EXIT_NO_RESOURCE;
+		goto free_permutations;
+	}
+	if (stress_signal_handler(args->name, SIGILL, stress_cache_sighandler, NULL) < 0) {
+		ret = EXIT_NO_RESOURCE;
+		goto free_permutations;
+	}
 
 	/*
 	 *  map a page then unmap it, then we have an address
@@ -1716,27 +1892,28 @@ static int OPTIMIZE3 stress_cachehammer(stress_args_t *args)
 	 *  fails we have MAP_FAILED which too is an invalid
 	 *  bad address.
 	 */
-	bad_page = (uint8_t *)mmap(NULL, page_size, PROT_READ,
+	ctxt.bad_page = (uint8_t *)mmap(NULL, args->page_size, PROT_READ,
 		MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
-	if (bad_page == MAP_FAILED)
-		bad_page = buffer;	/* use something */
+	if (ctxt.bad_page == MAP_FAILED)
+		ctxt.bad_page = buffer;	/* use something */
 	else
-		(void)munmap((void *)bad_page, page_size);
+		(void)munmap((void *)ctxt.bad_page, args->page_size);
 
-	local_buffer = (uint8_t *)mmap(NULL, local_buffer_size, PROT_READ | PROT_WRITE,
+	ctxt.local_buffer = (uint8_t *)mmap(NULL, ctxt.local_buffer_size, PROT_READ | PROT_WRITE,
 				MAP_SHARED | MAP_ANONYMOUS, -1, 0);
-	if (local_buffer == MAP_FAILED) {
+	if (ctxt.local_buffer == MAP_FAILED) {
 		pr_inf_skip("%s: cannot mmap %zu bytes%s, skipping stressor\n",
-			args->name, local_buffer_size,
+			args->name, ctxt.local_buffer_size,
 			stress_memory_free_get());
-		return EXIT_NO_RESOURCE;
+		ret = EXIT_NO_RESOURCE;
+		goto free_permutations;
 	}
 
-	local_page = (uint8_t *)mmap(NULL, page_size, PROT_READ | PROT_WRITE,
+	ctxt.local_page = (uint8_t *)mmap(NULL, args->page_size, PROT_READ | PROT_WRITE,
 		MAP_ANONYMOUS | MAP_SHARED, -1, 0);
-	if (local_page == MAP_FAILED) {
+	if (ctxt.local_page == MAP_FAILED) {
 		pr_inf_skip("%s: cannot mmap %zu bytes%s, skipping stressor\n",
-			args->name, page_size,
+			args->name, args->page_size,
 			stress_memory_free_get());
 		ret = EXIT_NO_RESOURCE;
 		goto unmap_local_buffer;
@@ -1753,24 +1930,24 @@ static int OPTIMIZE3 stress_cachehammer(stress_args_t *args)
 		ret = EXIT_NO_RESOURCE;
 		goto unmap_local_page;
 	}
-	file_page = (uint8_t *)mmap(NULL, page_size, PROT_READ | PROT_WRITE,
+	ctxt.file_page = (uint8_t *)mmap(NULL, args->page_size, PROT_READ | PROT_WRITE,
 		MAP_SHARED, fd, 0);
-	if (file_page == MAP_FAILED) {
+	if (ctxt.file_page == MAP_FAILED) {
 		pr_inf_skip("%s: cannot mmap %zu bytes%s, skipping stressor\n",
-			args->name, page_size, stress_memory_free_get());
+			args->name, args->page_size, stress_memory_free_get());
 		ret = EXIT_NO_RESOURCE;
 		goto close_fd;
 	}
 
-	if (cachehammer_numa) {
+	if (ctxt.cachehammer_numa) {
 #if defined(HAVE_LINUX_MEMPOLICY_H)
-		stress_numa_mask_and_node_alloc(args, &numa_nodes, &numa_mask,
-						"--cachehammer-numa", &cachehammer_numa);
+		stress_numa_mask_and_node_alloc(args, &ctxt.numa_nodes, &ctxt.numa_mask,
+						"--cachehammer-numa", &ctxt.cachehammer_numa);
 #else
 		if (stress_instance_zero(args))
 			pr_inf("%s: --cachehammer numa selected but not supported by this system, disabling option\n",
 				args->name);
-		cachehammer_numa = false;
+		ctxt.cachehammer_numa = false;
 #endif
 	}
 
@@ -1780,127 +1957,66 @@ static int OPTIMIZE3 stress_cachehammer(stress_args_t *args)
 	stress_proc_state_set(args->name, STRESS_STATE_RUN);
 
 	(void)sigsetjmp(jmp_env, 1);
-	func_index = stress_mwc32modn((uint32_t)N_FUNCS);
+	ctxt.func_index = stress_mwc32modn((uint32_t)N_FUNCS);
+
 	while (stress_continue(args)) {
-		if (valid[func_index] && !trapped[func_index]) {
-			double t_start;
-			const uint16_t rnd16 = stress_mwc16();
-			const size_t loops = 8 + ((rnd16 >> 1) & 0x3f);
-			const uint8_t which = (rnd16 == 0x0008) ? 4 : rnd16 & 3;
-			register hammer_func_t hammer = stress_cachehammer_funcs[func_index].hammer;
+		uint32_t flags;
+		uint32_t mask;
 
-			uint32_t offset;
-			register uint8_t *addr1, *addr2;
-
-			t_start = stress_time_now();
-			switch (which) {
-			case 0:
-				(*file_page)++;
-#if defined(HAVE_MSYNC)
-				/*
-				 *  intentionally hit same page and
-				 *  cache line each time
-				 */
-				if (UNLIKELY((rnd16 == 0x0020) && SIZEOF_ARRAY(msync_flags) > 0)) {
-					const int flag = msync_flags[stress_mwc8modn(SIZEOF_ARRAY(msync_flags))];
-
-					(void)msync((void *)file_page, page_size, flag);
-				}
-#endif
-#if defined(HAVE_LINUX_MEMPOLICY_H)
-				stress_cachehammer_numa(args, 50, &numa_count[0], file_page,
-							cachehammer_numa, numa_mask, numa_nodes);
-#endif
-				hammer(args, file_page, file_page + 64, false, false);
-				break;
-			case 1:
-			default:
-				offset = stress_mwc32modn((uint32_t)buffer_size);
-				addr1 = buffer + (offset & mask);
-				addr2 = addr1;
-
-#if defined(HAVE_LINUX_MEMPOLICY_H)
-				stress_cachehammer_numa(args, 20, &numa_count[1], addr1,
-							cachehammer_numa, numa_mask, numa_nodes);
-#endif
-				for (i = 0; i < loops; i++) {
-					addr2 += 64;
-					if (UNLIKELY(addr2 >= buffer + buffer_size))
-						addr2 = buffer;
-					hammer(args, addr1, addr2, false, false);
-					hammer(args, addr2, addr1, false, false);
-				}
-				break;
-			case 2:
-				offset = stress_mwc32modn((uint32_t)local_buffer_size);
-				addr1 = local_buffer + (offset & mask);
-				addr2 = addr1;
-
-#if defined(HAVE_LINUX_MEMPOLICY_H)
-				stress_cachehammer_numa(args, 20, &numa_count[2], addr1,
-							cachehammer_numa, numa_mask, numa_nodes);
-#endif
-				for (i = 0; i < loops; i++) {
-					addr2 += 64;
-					if (UNLIKELY(addr2 >= local_buffer + local_buffer_size))
-						addr2 = local_buffer;
-					hammer(args, addr1, addr2, false, true);
-					hammer(args, addr2, addr1, false, true);
-				}
-				break;
-			case 3:
-				offset = stress_mwc32modn((uint32_t)page_size);
-				addr1 = local_page + (offset & page_mask);
-				addr2 = addr1;
-
-#if defined(HAVE_LINUX_MEMPOLICY_H)
-				stress_cachehammer_numa(args, 20, &numa_count[3], addr1,
-							cachehammer_numa, numa_mask, numa_nodes);
-#endif
-				for (i = 0; i < loops; i++) {
-					addr2 += 64;
-					if (UNLIKELY(addr2 >= local_page + page_size))
-						addr2 = local_page;
-					hammer(args, addr1, addr2, false, true);
-					hammer(args, addr2, addr1, false, true);
-				}
-				break;
-			case 4:
-				offset = stress_mwc16();
-				addr1 = bad_page + (offset & page_mask);
-				offset += 64;
-				addr2 = bad_page + (offset & page_mask);
-
-#if defined(HAVE_LINUX_MEMPOLICY_H)
-				stress_cachehammer_numa(args, 50, &numa_count[4], addr1,
-							cachehammer_numa, numa_mask, numa_nodes);
-#endif
-				hammer(args, addr1, addr2, true, false);
-				break;
-			}
-			cachehammer_metrics[func_index].duration += stress_time_now() - t_start;
-			cachehammer_metrics[func_index].count += 1.0;
-			tries = 0;
-			stress_bogo_inc(args);
-			func_index = stress_mwc32modn((uint32_t)N_FUNCS);
-		} else {
+		switch (cachehammer_method) {
+		case CACHEHAMMER_METHOD_PERMUTE:
 			tries++;
-			if (UNLIKELY(tries > N_FUNCS)) {
+			flags = (uint32_t)permutations[permutation];
+			permutation++;
+			if (permutation >= n_permutations)
+				permutation = 0;
+			if (tries >= n_permutations) {
 				pr_inf("%s: terminating early, cannot invoke any valid cache operations\n",
 					args->name);
-				break;
+				goto bail_out;
 			}
-			func_index++;
-			if (UNLIKELY(func_index >= N_FUNCS))
-				func_index = 0;
+
+			for (i = 0; i <= max_flags; i++) {
+				mask = 1U << i;
+				if ((flags & mask) && !(ctxt.trapped & mask)) {
+					ctxt.func_index = i;
+					stress_cachehammer_exercise(args, &ctxt);
+					stress_bogo_inc(args);
+					tries = 0;
+				}
+			}
+			permutations_exercised++;
+
+			break;
+		case CACHEHAMMER_METHOD_RANDOM:
+		default:
+			mask = 1U << ctxt.func_index;
+
+			if ((ctxt.valid & mask) && !(ctxt.trapped & mask)) {
+				stress_cachehammer_exercise(args, &ctxt);
+				tries = 0;
+				stress_bogo_inc(args);
+				ctxt.func_index = stress_mwc32modn((uint32_t)N_FUNCS);
+			} else {
+				tries++;
+				if (UNLIKELY(tries > N_FUNCS)) {
+					pr_inf("%s: terminating early, cannot invoke any valid cache operations\n",
+						args->name);
+					goto bail_out;
+				}
+				ctxt.func_index++;
+				if (UNLIKELY(ctxt.func_index >= N_FUNCS))
+					ctxt.func_index = 0;
+			}
 		}
 	}
+bail_out:
 
 	/*
 	 *  Hit an illegal instruction? report the disabled flags
 	 */
 	if (stress_instance_zero(args)) {
-		stress_cache_hammer_flags_to_str(buf, sizeof(buf), trapped);
+		stress_cache_hammer_flags_to_str(buf, sizeof(buf), ctxt.trapped);
 		if (*buf)
 			pr_inf("%s: disabled%s due to SIGBUS/SEGV/SIGILL\n", args->name, buf);
 	}
@@ -1909,6 +2025,13 @@ static int OPTIMIZE3 stress_cachehammer(stress_args_t *args)
 
 	mantissa = 1.0;
 	exponent = 0;
+
+	if ((cachehammer_method == CACHEHAMMER_METHOD_PERMUTE) &&
+	    (permutations_exercised < n_permutations)) {
+		pr_inf("%s: only %zu of %zu (%.2f%%) cache operation permutations exercised\n",
+			args->name, permutations_exercised, n_permutations,
+			(float)permutations_exercised * 100.0 / (float)n_permutations);
+	}
 
 	for (i = 0, j = 0; i < N_FUNCS; i++) {
 		if (cachehammer_metrics[i].duration > 0.0) {
@@ -1921,7 +2044,7 @@ static int OPTIMIZE3 stress_cachehammer(stress_args_t *args)
 			exponent += e;
 
 			(void)snprintf(msg, sizeof(msg), "%s cache bogo-ops/sec",
-				 stress_cachehammer_funcs[i].name);
+					stress_cachehammer_funcs[i].name);
 			stress_metrics_set(args, j, msg, rate, STRESS_METRIC_HARMONIC_MEAN);
 			j++;
 		}
@@ -1937,18 +2060,21 @@ static int OPTIMIZE3 stress_cachehammer(stress_args_t *args)
 	}
 
 #if defined(HAVE_LINUX_MEMPOLICY_H)
-        if (numa_mask)
-                stress_numa_mask_free(numa_mask);
-        if (numa_nodes)
-                stress_numa_mask_free(numa_nodes);
+        if (ctxt.numa_mask)
+                stress_numa_mask_free(ctxt.numa_mask);
+        if (ctxt.numa_nodes)
+                stress_numa_mask_free(ctxt.numa_nodes);
 #endif
-	(void)munmap((void *)file_page, page_size);
+	(void)munmap((void *)ctxt.file_page, args->page_size);
 close_fd:
 	(void)close(fd);
 unmap_local_page:
-	(void)munmap((void *)local_page, page_size);
+	(void)munmap((void *)ctxt.local_page, args->page_size);
 unmap_local_buffer:
-	(void)munmap((void *)local_buffer, local_buffer_size);
+	(void)munmap((void *)ctxt.local_buffer, ctxt.local_buffer_size);
+free_permutations:
+	if (permutations)
+		free(permutations);
 	return ret;
 }
 

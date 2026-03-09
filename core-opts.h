@@ -269,6 +269,7 @@ typedef enum {
 	OPT_cache_ways,
 
 	OPT_cachehammer,
+	OPT_cachehammer_method,
 	OPT_cachehammer_numa,
 	OPT_cachehammer_ops,
 

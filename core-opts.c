@@ -112,6 +112,7 @@ const struct option stress_long_options[] = {
 	{ "cache-sfence",	0,	0,	OPT_cache_sfence },
 	{ "cache-ways",		1,	0,	OPT_cache_ways },
 	{ "cachehammer",	1,	0,	OPT_cachehammer },
+	{ "cachehammer-method",	1,	0,	OPT_cachehammer_method },
 	{ "cachehammer-numa",	0,	0,	OPT_cachehammer_numa },
 	{ "cachehammer-ops",	1,	0,	OPT_cachehammer_ops },
 	{ "cacheline",		1,	0, 	OPT_cacheline },
