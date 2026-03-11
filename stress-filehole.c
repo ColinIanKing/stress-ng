@@ -35,12 +35,14 @@
 static const stress_help_t help[] = {
 	{ NULL,	"filehole N",		"start N workers punching holes in a 16MB file" },
 	{ NULL,	"filehole-bytes N",	"size of file being punched" },
+	{ NULL, "filehole-defrag",	"defragment file at end of each iteration" },
 	{ NULL,	"filehole-ops N",	"stop after N punch bogo operations" },
 	{ NULL,	NULL,			NULL }
 };
 
 static const stress_opt_t opts[] = {
-	{ OPT_filehole_bytes, "filehole-bytes", TYPE_ID_UINT64_BYTES_FS, MIN_FILEHOLE_BYTES, MAX_FILEHOLE_BYTES, NULL },
+	{ OPT_filehole_bytes,  "filehole-bytes",  TYPE_ID_UINT64_BYTES_FS, MIN_FILEHOLE_BYTES, MAX_FILEHOLE_BYTES, NULL },
+	{ OPT_filehole_defrag, "filehole-defrag", TYPE_ID_BOOL, 0, 1, NULL },
 	END_OPT,
 };
 
@@ -258,6 +260,73 @@ static void stress_filehole_non_zeros_to_holes(
 }
 
 /*
+ *  stress_filehole_defrag()
+ *	naive file defrag, read hole'd file and write out a
+ *	none-hole'd copy. This reduces the number of extents
+ *	of original. It's not perfect, but it's portable.
+ */
+static int stress_filehole_defrag(
+	const char *filename,
+	int *fd_in,
+	uint64_t *buf,
+	const size_t page_size)
+{
+	char filename_tmp[PATH_MAX + 5];
+	int fd_out;
+
+	if (lseek(*fd_in, 0, SEEK_SET) < 0) {
+		/* can't seek, abort no action */
+		return 0;
+	}
+
+	(void)snprintf(filename_tmp, sizeof(filename_tmp), "%s-tmp", filename);
+	if ((fd_out = open(filename_tmp, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
+		/* abort, force unlink just in case */
+		(void)unlink(filename_tmp);
+		return 0;
+	}
+	/*  do manual copy without holes */
+	for (;;) {
+		ssize_t nrd, nwr;
+
+		nrd = read(*fd_in, buf, page_size);
+		if (UNLIKELY(nrd == 0))
+			break;
+		if (UNLIKELY(nrd < 0)) {
+			/*
+			 *   copy failed, revert back to
+			 *   using original file
+			 */
+			(void)close(fd_out);
+			(void)unlink(filename_tmp);
+			return 0;
+		}
+		nwr = write(fd_out, buf, nrd);
+		if (UNLIKELY(nwr != (ssize_t)nrd)) {
+			/*
+			 *   copy failed, revert back to
+			 *   using original file
+			 */
+			(void)close(fd_out);
+			(void)unlink(filename_tmp);
+			return 0;
+		}
+	}
+	if (rename(filename_tmp, filename) < 0) {
+		/*
+		 *  rename failed, try to revert back to
+		 *  using original file
+		 */
+		(void)close(fd_out);
+		(void)unlink(filename_tmp);
+		return 0;
+	}
+	/* renamed, so use new file that was renamed */
+	(void)close(*fd_in);
+	*fd_in = fd_out;
+	return 0;
+}
+/*
  *  stress_filehole_zero()
  * 	fallocate a page sized chunk, if this fails, write zero's to it
  */
@@ -398,10 +467,11 @@ static int stress_filehole(stress_args_t *args)
 	uint64_t filehole_bytes_total = DEFAULT_FILEHOLE_BYTES;
 	const size_t page_size = args->page_size;
 	off_t offset, filehole_bytes;
-	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 	size_t pages;
 	double max_size, max_blks;
 	double extents_total, extents_count;
+	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
+	bool filehole_defrag = false;
 
 	if (!stress_setting_get("filehole-bytes", &filehole_bytes_total)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -421,6 +491,7 @@ static int stress_filehole(stress_args_t *args)
 			pr_inf("%s: --filehole-bytes too large, using %" PRIu64 " instead\n",
 				args->name, filehole_bytes_total);
 	}
+	(void)stress_setting_get("filehole-defrag", &filehole_defrag);
 
 	filehole_bytes = (off_t)(filehole_bytes_total / args->instances);
 	if (filehole_bytes < (off_t)MIN_FILEHOLE_BYTES)
@@ -593,6 +664,16 @@ static int stress_filehole(stress_args_t *args)
 #if defined(POSIX_FADV_DONTNEED)
 		(void)shim_posix_fadvise(fd, 0, filehole_bytes, POSIX_FADV_DONTNEED);
 #endif
+		/*
+		 *  Naive defrag mode
+		 */
+		if (filehole_defrag) {
+			if (stress_filehole_defrag(filename, &fd, buf, page_size) < 0) {
+				pr_fail("%s: defrag of '%s' failed, errno=%d (%s)\n",
+					args->name, filename, errno, strerror(errno));
+				break;
+			}
+		}
 		stress_filehole_non_zeros_to_holes(args, fd, buf, page_size, filehole_bytes);
 	} while (stress_continue(args));
 
@@ -617,7 +698,6 @@ tidy_temp:
 tidy_buf:
 	(void)munmap((void *)buf, page_size * 2);
 tidy_ret:
-
 	return rc;
 }
 

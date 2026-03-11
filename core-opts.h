@@ -511,6 +511,7 @@ typedef enum {
 	OPT_filehole,
 	OPT_filehole_ops,
 	OPT_filehole_bytes,
+	OPT_filehole_defrag,
 
 	OPT_filename,
 	OPT_filename_ops,

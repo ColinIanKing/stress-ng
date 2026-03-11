@@ -298,6 +298,7 @@ const struct option stress_long_options[] = {
 	{ "file-ioctl-ops",	1,	0,	OPT_file_ioctl_ops },
 	{ "filehole",		1,	0,	OPT_filehole },
 	{ "filehole-bytes",	1,	0,	OPT_filehole_bytes  },
+	{ "filehole-defrag",	0,	0,	OPT_filehole_defrag },
 	{ "filehole-ops",	1,	0,	OPT_filehole_ops },
 	{ "filename",		1,	0,	OPT_filename },
 	{ "filename-ops",	1,	0,	OPT_filename_ops },

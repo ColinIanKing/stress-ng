@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, may be w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "9 March 2026"
+.TH STRESS-NG 1 "11 March 2026"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -1323,7 +1323,7 @@ start N workers that sort 32 bit integers using bubblesort.
 .TP
 .B \-\-bubblesort\-method [ bubblesort\-fast | bubblesort\-naive ]
 select either a standard optimized implementation of bubblesort or a
-naive unoptimized implementation of bubblesort. The default is the standard
+na\[:i]ve unoptimized implementation of bubblesort. The default is the standard
 optimized version.
 .TP
 .B \-\-bubblesort\-ops N
@@ -3166,6 +3166,10 @@ default is 16 MB. One can specify the size as % of free space on
 the file system or in units of Bytes, KBytes, MBytes and GBytes
 using the suffix b, k, m or g.
 .TP
+.B \-\-filehole\-defrag
+perform a na\[:i]ve file defragment by copying a new version of
+the file to remove multiple extents and use the copy.
+.TP
 .B \-\-filehole\-ops N
 stop filehole workers after N rounds of bogo write/fallocate operations.
 .RE
@@ -3565,7 +3569,7 @@ point Mandelbrot set is computed with a maximum of 256 iterations
 per point in the iterative compute loop. The fractal is computed row
 by row with multiple rows shared amongst the N fractal stressor
 instances. Double precision floating point values are used for the
-points in the complex set of values. Naive computation is used with
+points in the complex set of values. Na\[:i]ve computation is used with
 no special algorithmic short-cuts or interpolation.
 .TP
 .B \-\-fractal\-iterations N
