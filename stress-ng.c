@@ -1509,7 +1509,7 @@ void stress_metrics_set_const_check(
 	if (!args)
 		return;
 
-	metrics = args->metrics;
+	metrics = &args->stats->metrics;
 	if (!metrics)
 		return;
 
@@ -1693,7 +1693,6 @@ static int MLOCKED_TEXT stress_run_child(
 		args->page_size = page_size;
 		args->time_end = g_opt_timeout ? stress_time_now() + (double)g_opt_timeout : DBL_MAX;
 		args->mapped = &g_shared->mapped;
-		args->metrics = &stats->metrics;
 		args->stats = stats;
 		args->info = info;
 

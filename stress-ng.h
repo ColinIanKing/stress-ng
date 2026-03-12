@@ -247,7 +247,6 @@ typedef struct {
 	size_t page_size;		/* page size */
 	double time_end;		/* when to end */
 	stress_mapped_t *mapped;	/* mmap'd pages, addr of g_shared mapped */
-	stress_metrics_data_t *metrics;	/* misc per stressor metrics */
 	struct stress_stats *stats; 	/* stressor stats */
 	const struct stressor_info *info; /* stressor info */
 } stress_args_t;
