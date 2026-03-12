@@ -485,7 +485,7 @@ static bool OPTIMIZE3 stress_strnum_sscanf_ld(stress_args_t *args, const stress_
     defined(HAVE_STRFROML)
 static inline ALWAYS_INLINE OPTIMIZE3 size_t stress_strnum_trunc_posn(const char *str, const int dec_pl)
 {
-	char *ptr;
+	const char *ptr;
 
 	ptr = strchr(str, '.');
 	if (LIKELY(ptr != NULL)) {
