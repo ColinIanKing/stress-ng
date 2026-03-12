@@ -224,7 +224,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_workload_strnum(
 	l = atol(buffer);
 	ll = atoll(buffer);
 	ld = (long double)i * (long double)l * (long double)ll;
-	(void)snprintf(buffer, buffer_len, "%Lf", ld * 1.0E-6);
+	(void)snprintf(buffer, buffer_len, "%Lf", ld * 1.0E-6L);
 	(void)sscanf(buffer, "%lf", &d);
 	stress_put_float((float)d);
 }
