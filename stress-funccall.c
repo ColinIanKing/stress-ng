@@ -1293,5 +1293,6 @@ const stressor_info_t stress_funccall_info = {
 	.classifier = CLASS_CPU,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.max_metrics_items = SIZEOF_ARRAY(stress_funccall_methods)
 };

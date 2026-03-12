@@ -1588,7 +1588,8 @@ const stressor_info_t stress_af_alg_info = {
 	.classifier = CLASS_CPU | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
-	.help = help
+	.help = help,
+	.max_metrics_items = 100,
 };
 
 #else

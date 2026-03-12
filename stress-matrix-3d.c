@@ -1042,7 +1042,8 @@ const stressor_info_t stress_matrix_3d_info = {
 	.classifier = CLASS_CPU | CLASS_FP | CLASS_CPU_CACHE | CLASS_MEMORY | CLASS_COMPUTE,
 	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
-	.help = help
+	.help = help,
+	.max_metrics_items = SIZEOF_ARRAY(matrix_3d_methods)
 };
 #else
 

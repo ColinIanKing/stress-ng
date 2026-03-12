@@ -1501,5 +1501,6 @@ const stressor_info_t stress_sparsematrix_info = {
 	.classifier = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY | CLASS_SEARCH,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.max_metrics_items = SIZEOF_ARRAY(sparsematrix_methods) * 2
 };

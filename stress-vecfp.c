@@ -498,7 +498,8 @@ const stressor_info_t stress_vecfp_info = {
 	.classifier = CLASS_CPU | CLASS_FP | CLASS_COMPUTE | CLASS_VECTOR,
 	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
-	.help = help
+	.help = help,
+	.max_metrics_items = SIZEOF_ARRAY(stress_vecfp_funcs)
 };
 #else
 

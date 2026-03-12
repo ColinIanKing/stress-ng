@@ -745,5 +745,6 @@ const stressor_info_t stress_intmath_info = {
 	.classifier = CLASS_CPU | CLASS_INTEGER | CLASS_COMPUTE,
 	.verify = VERIFY_ALWAYS,
 	.opts = opts,
-	.help = help
+	.help = help,
+	.max_metrics_items = SIZEOF_ARRAY(stress_intmath_methods)
 };

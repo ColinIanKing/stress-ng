@@ -443,7 +443,8 @@ const stressor_info_t stress_mpfr_info = {
 	.classifier = CLASS_CPU | CLASS_FP | CLASS_COMPUTE,
 	.verify = VERIFY_ALWAYS,
 	.opts = opts,
-	.help = help
+	.help = help,
+	.max_metrics_items = SIZEOF_ARRAY(stress_mpfr_methods)
 };
 
 #else

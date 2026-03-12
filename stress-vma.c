@@ -870,7 +870,8 @@ static int stress_vma(stress_args_t *args)
 const stressor_info_t stress_vma_info = {
 	.stressor = stress_vma,
 	.classifier = CLASS_VM,
-	.help = help
+	.help = help,
+	.max_metrics_items = STRESS_VMA_MAX
 };
 #else
 const stressor_info_t stress_vma_info = {

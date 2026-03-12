@@ -3967,5 +3967,6 @@ const stressor_info_t stress_vm_info = {
 	.classifier = CLASS_VM | CLASS_MEMORY | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
-	.help = help
+	.help = help,
+	.max_metrics_items = 12
 };

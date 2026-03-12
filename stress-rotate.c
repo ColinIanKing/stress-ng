@@ -245,5 +245,6 @@ const stressor_info_t stress_rotate_info = {
 	.classifier = CLASS_CPU | CLASS_INTEGER,
 	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
-	.help = help
+	.help = help,
+	.max_metrics_items = SIZEOF_ARRAY(stress_rotate_funcs)
 };

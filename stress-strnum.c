@@ -701,5 +701,6 @@ const stressor_info_t stress_strnum_info = {
 	.classifier = CLASS_CPU | CLASS_COMPUTE | CLASS_HOT,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.max_metrics_items = SIZEOF_ARRAY(stress_strnum_methods)
 };

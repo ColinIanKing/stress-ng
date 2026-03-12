@@ -924,7 +924,8 @@ const stressor_info_t stress_mmaptorture_info = {
 	.init = stress_mmaptorture_init,
 	.deinit = stress_mmaptorture_deinit,
 	.opts = opts,
-	.help = help
+	.help = help,
+	.max_metrics_items = 9
 };
 
 #else

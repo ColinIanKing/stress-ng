@@ -2085,7 +2085,8 @@ const stressor_info_t stress_cachehammer_info = {
 	.classifier = CLASS_CPU_CACHE,
 	.verify = VERIFY_ALWAYS,
 	.opts = opts,
-	.help = help
+	.help = help,
+	.max_metrics_items = SIZEOF_ARRAY(stress_cachehammer_funcs)
 };
 
 #else

@@ -187,9 +187,12 @@
 #endif
 
 /*
- *  Per stressor misc rate metrics
+ *  Per stressor misc rate metrics, default to
+ *  8 per stressor, any more need to be specified
+ *  using the stress_info_t max_metrics_items field
+ *  in each stressor
  */
-#define STRESS_MISC_METRICS_MAX			(96)
+#define STRESS_METRICS_ITEMS_DEFAULT_SIZE	(8)
 
 /* Process tracking info via pid */
 typedef struct stress_pid {
@@ -229,8 +232,6 @@ typedef struct {
 
 /* Per stressor metrics */
 typedef struct {
-	size_t max_metrics;
-	stress_metrics_item_t items[STRESS_MISC_METRICS_MAX];
 } stress_metrics_data_t;
 
 /* Run-time stressor args */
@@ -478,6 +479,7 @@ typedef struct stressor_info {
 	const stress_class_t classifier;/* stressor class */
 	const stress_verify_t verify;	/* verification mode */
 	const char *unimplemented_reason;	/* unsupported reason message */
+	size_t max_metrics_items;	/* zero = default to STRESS_METRICS_ITEMS_DEFAULT_SIZE */
 } stressor_info_t;
 
 /* gcc 4.7 and later support vector ops */
@@ -606,7 +608,10 @@ typedef struct stress_stats {
 	stress_checksum_t *checksum;	/* pointer to checksum data */
 	stress_interrupts_t interrupts[STRESS_INTERRUPTS_MAX];
 	stress_cstate_stats_t cstates;	/* cstate stats */
-	stress_metrics_data_t metrics;	/* misc metrics */
+	size_t num_metrics_items;	/* current number of metrics items */
+	size_t max_metrics_items;	/* maximum number of metrics items */
+	stress_metrics_item_t *metrics_items;	/* pointer to array of metrics items */
+	bool overflow_metrics_items;	/* overflowed index on metrics items */
 	double rusage_utime;		/* rusage user time */
 	double rusage_stime;		/* rusage system time */
 	double rusage_utime_total;	/* rusage user time */

@@ -2275,7 +2275,8 @@ const stressor_info_t stress_mmaprandom_info = {
 	.classifier = CLASS_VM | CLASS_OS,
 	.verify = VERIFY_NONE,
 	.opts = opts,
-	.help = help
+	.help = help,
+	.max_metrics_items = SIZEOF_ARRAY(mr_funcs)
 };
 
 #else

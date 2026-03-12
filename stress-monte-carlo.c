@@ -655,5 +655,7 @@ const stressor_info_t stress_monte_carlo_info = {
 	.opts = opts,
 	.classifier = CLASS_CPU | CLASS_COMPUTE,
 	.verify = VERIFY_NONE,
-	.help = help
+	.help = help,
+	.max_metrics_items = SIZEOF_ARRAY(rand_info) *
+			     SIZEOF_ARRAY(stress_monte_carlo_methods)
 };

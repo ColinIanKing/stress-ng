@@ -1054,7 +1054,8 @@ const stressor_info_t stress_matrix_info = {
 	.classifier = CLASS_CPU | CLASS_FP | CLASS_CPU_CACHE | CLASS_MEMORY | CLASS_COMPUTE | CLASS_HOT,
 	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
-	.help = help
+	.help = help,
+	.max_metrics_items = SIZEOF_ARRAY(matrix_methods)
 };
 
 #else

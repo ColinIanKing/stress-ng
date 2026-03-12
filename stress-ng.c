@@ -1503,30 +1503,32 @@ void stress_metrics_set_const_check(
 	const double value,
 	const int mean_type)
 {
-	stress_metrics_data_t *metrics;
+	stress_stats_t *stats;
 	stress_metrics_item_t *item;
 
 	if (!args)
 		return;
-
-	metrics = &args->stats->metrics;
-	if (!metrics)
+	if (!args->stats)
 		return;
+	stats = args->stats;
 
-	/* track max index requested */
-	if (idx > metrics->max_metrics)
-		metrics->max_metrics = idx;
-
-	if (idx >= STRESS_MISC_METRICS_MAX)
+	if (idx >= stats->max_metrics_items) {
+		stats->overflow_metrics_items = true;
+		pr_inf("HERE: %s overflowed index %zu\n", description, idx);
 		return;
+	}
+	if (idx + 1 >= stats->num_metrics_items)
+		stats->num_metrics_items = idx + 1;
 
-	item = &metrics->items[idx];
+	item = &stats->metrics_items[idx];
+
 	item->description = const_description ?
 		description :
 		stress_shared_heap_dup_const(description);
-	if (item->description)
+	if (item->description) {
 		item->value = value;
-	metrics->items[idx].mean_type = mean_type;
+		item->mean_type = mean_type;
+	}
 }
 
 #if defined(HAVE_GETRUSAGE)
@@ -2403,8 +2405,8 @@ static void stress_metrics_dump(FILE *yaml)
 			pr_yaml(yaml, "      max-rss: %ld\n", maxrss);
 		}
 
-		for (i = 0; i < SIZEOF_ARRAY(ss->stats[0]->metrics.items); i++) {
-			item = &ss->stats[0]->metrics.items[i];
+		for (i = 0; i < ss->stats[0]->num_metrics_items; i++) {
+			item = &ss->stats[0]->metrics_items[i];
 			description = item->description;
 
 			if (description) {
@@ -2414,7 +2416,7 @@ static void stress_metrics_dump(FILE *yaml)
 				for (j = 0; j < ss->instances; j++) {
 					const stress_stats_t *const stats = ss->stats[j];
 
-					total += stats->metrics.items[i].value;
+					total += stats->metrics_items[i].value;
 				}
 				metric = ss->completed_instances ? total / ss->completed_instances : 0.0;
 				if (g_opt_flags & OPT_FLAGS_SN) {
@@ -2440,12 +2442,13 @@ static void stress_metrics_dump(FILE *yaml)
 				continue;
 
 			name = ss->stressor->name;
-			if (ss->stats[0]->metrics.max_metrics > SIZEOF_ARRAY(ss->stats[0]->metrics.items))
-				pr_metrics("note: %zu metrics were set, only reporting first %zu metrics\n",
-					ss->stats[0]->metrics.max_metrics, SIZEOF_ARRAY(ss->stats[0]->metrics.items));
+			if (ss->stats[0]->overflow_metrics_items) {
+				pr_metrics("note: only reporting first %zu metrics\n",
+					ss->stats[0]->max_metrics_items);
+			}
 
-			for (i = 0; i < SIZEOF_ARRAY(ss->stats[0]->metrics.items); i++) {
-				item = &ss->stats[0]->metrics.items[i];
+			for (i = 0; i < ss->stats[0]->num_metrics_items; i++) {
+				item = &ss->stats[0]->metrics_items[i];
 				description = item->description;
 
 				if (description) {
@@ -2454,7 +2457,7 @@ static void stress_metrics_dump(FILE *yaml)
 					double n, sum, maximum = 0.0, total = 0.0;
 					const char *plural = (ss->completed_instances > 1) ? "s" : "";
 
-					switch (ss->stats[0]->metrics.items[i].mean_type) {
+					switch (ss->stats[0]->metrics_items[i].mean_type) {
 					case STRESS_METRIC_GEOMETRIC_MEAN:
 						exponent = 0;
 						mantissa = 1.0;
@@ -2464,7 +2467,7 @@ static void stress_metrics_dump(FILE *yaml)
 							int e;
 							const stress_stats_t *const stats = ss->stats[j];
 
-							item = &stats->metrics.items[i];
+							item = &stats->metrics_items[i];
 							if ((item->value > 0.0) || (item->value < 0.0)) {
 								const double f = frexp(item->value, &e);
 
@@ -2497,7 +2500,7 @@ static void stress_metrics_dump(FILE *yaml)
 						for (j = 0; j < ss->instances; j++) {
 							const stress_stats_t *const stats = ss->stats[j];
 
-							item = &stats->metrics.items[i];
+							item = &stats->metrics_items[i];
 							if ((item->value > 0.0) || (item->value < 0.0)) {
 								const double reciprocal = 1.0 / item->value;
 
@@ -2524,7 +2527,7 @@ static void stress_metrics_dump(FILE *yaml)
 						for (j = 0; j < ss->instances; j++) {
 							const stress_stats_t *const stats = ss->stats[j];
 
-							item = &stats->metrics.items[i];
+							item = &stats->metrics_items[i];
 							if (item->value > 0.0)
 								total += item->value;
 						}
@@ -2542,7 +2545,7 @@ static void stress_metrics_dump(FILE *yaml)
 						for (j = 0; j < ss->instances; j++) {
 							const stress_stats_t *const stats = ss->stats[j];
 
-							item = &stats->metrics.items[i];
+							item = &stats->metrics_items[i];
 							if ((item->value > 0.0) && (item->value > maximum))
 								maximum = item->value;
 						}
@@ -3106,6 +3109,36 @@ static inline void stressor_set_defaults(void)
 }
 
 /*
+ *  stressor_stats_size()
+ * 	calculate heap required for all stressor metrics and
+ * 	metrics descriptions for all stressors. 8 bytes per
+ * 	alloc is added for allocation alignment for 64 bit
+ * 	systems.
+ */
+static inline size_t stressor_stats_size(void)
+{
+	register size_t total = 0;
+	register stress_stressor_t *ss = stress_stressor_list.head;
+
+	while (ss) {
+		if (!ss->ignore.run) {
+			const size_t max_metrics_items = ss->stressor->info->max_metrics_items;
+			const size_t sz = 8 + ((max_metrics_items == 0) ?
+					STRESS_METRICS_ITEMS_DEFAULT_SIZE : max_metrics_items);
+
+			/* stress_metrics_item_t items for all metrics for all instances */
+			total += sizeof(stress_metrics_item_t) * ss->instances * sz;
+			/* description data for all metrics for all instances */
+			total += (8 + 64) * max_metrics_items;
+		}
+		ss = ss->next;
+	}
+
+	pr_inf("total metrics: %zu\n", total);
+	return total;
+}
+
+/*
  *  stress_exclude_pathological()
  *	Disable pathological stressors if user has not explicitly
  *	request them to be used. Let's play safe.
@@ -3138,7 +3171,7 @@ static inline void stress_exclude_pathological(void)
  *  stress_setup_stats_buffers()
  *	setup the stats data from the shared memory
  */
-static inline void stress_setup_stats_buffers(void)
+static inline int stress_setup_stats_buffers(void)
 {
 	stress_stressor_t *ss;
 	stress_stats_t *stats = g_shared->stats;
@@ -3151,14 +3184,24 @@ static inline void stress_setup_stats_buffers(void)
 
 		for (i = 0; i < ss->instances; i++, stats++) {
 			size_t j;
+			const size_t max_metrics_items = ss->stressor->info->max_metrics_items;
+			const size_t n = (max_metrics_items == 0) ?
+				STRESS_METRICS_ITEMS_DEFAULT_SIZE : max_metrics_items;
 
 			ss->stats[i] = stats;
-			for (j = 0; j < SIZEOF_ARRAY(stats->metrics.items); j++) {
-				stats->metrics.items[j].value = 0.0;
-				stats->metrics.items[j].description = NULL;
+			stats->num_metrics_items = 0;
+			stats->max_metrics_items = n;
+			stats->overflow_metrics_items = false;
+			stats->metrics_items = (stress_metrics_item_t *)stress_shared_heap_malloc(n * sizeof(*stats->metrics_items));
+			if (!stats->metrics_items)
+				return -1;
+			for (j = 0; j < n; j++) {
+				stats->metrics_items[j].value = 0.0;
+				stats->metrics_items[j].description = NULL;
 			}
 		}
 	}
+	return 0;
 }
 
 /*
@@ -4257,7 +4300,7 @@ int main(int argc, char **argv, char **envp)
 	/*
 	 *  And now shared memory is created, initialize pr_* lock mechanism
 	 */
-	if (!stress_shared_heap_init()) {
+	if (!stress_shared_heap_init(stressor_stats_size())) {
 		pr_err("failed to create shared heap\n");
 		ret = EXIT_FAILURE;
 		goto exit_shared_unmap;
@@ -4271,7 +4314,11 @@ int main(int argc, char **argv, char **envp)
 	/*
 	 *  Assign procs with shared stats memory
 	 */
-	stress_setup_stats_buffers();
+	if (stress_setup_stats_buffers() < 0) {
+		pr_err("failed to create shared statistics arrays\n");
+		ret = EXIT_FAILURE;
+		goto exit_lock_destroy;
+	}
 
 	/*
 	 *  Allocate shared cache memory

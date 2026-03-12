@@ -262,7 +262,8 @@ const stressor_info_t stress_crypt_info = {
 	.classifier = CLASS_CPU,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.max_metrics_items = SIZEOF_ARRAY(crypt_methods)
 };
 #else
 const stressor_info_t stress_crypt_info = {

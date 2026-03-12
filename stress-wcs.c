@@ -776,5 +776,5 @@ const stressor_info_t stress_wcs_info = {
 	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help,
-	.unimplemented_reason = "built without wchar.h or bsd/wchar.h"
+	.max_metrics_items = SIZEOF_ARRAY(wcs_methods)
 };

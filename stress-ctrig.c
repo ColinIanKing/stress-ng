@@ -377,7 +377,8 @@ const stressor_info_t stress_ctrig_info = {
 	.classifier = CLASS_CPU | CLASS_FP | CLASS_COMPUTE,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.max_metrics_items = SIZEOF_ARRAY(stress_ctrig_methods)
 };
 
 #else

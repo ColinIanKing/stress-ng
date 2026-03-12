@@ -910,5 +910,6 @@ const stressor_info_t stress_crc_info = {
 	.stressor = stress_crc,
 	.classifier = CLASS_CPU | CLASS_COMPUTE,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.max_metrics_items = SIZEOF_ARRAY(stress_crc_methods) + 1
 };

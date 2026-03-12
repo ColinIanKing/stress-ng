@@ -210,7 +210,8 @@ static int stress_regex(stress_args_t *args)
 const stressor_info_t stress_regex_info = {
 	.stressor = stress_regex,
 	.classifier = CLASS_CPU | CLASS_HOT,
-	.help = help
+	.help = help,
+	.max_metrics_items = SIZEOF_ARRAY(stress_posix_regex) + 2
 };
 #else
 

@@ -1226,5 +1226,6 @@ const stressor_info_t stress_bitops_info = {
 	.classifier = CLASS_CPU | CLASS_INTEGER | CLASS_COMPUTE,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.max_metrics_items = SIZEOF_ARRAY(bitops_methods)
 };

@@ -454,7 +454,9 @@ const stressor_info_t stress_timermix_info = {
 	.stressor = stress_timermix,
 	.classifier = CLASS_SIGNAL | CLASS_INTERRUPT | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.max_metrics_items = SIZEOF_ARRAY(timer_info) +
+			     SIZEOF_ARRAY(itimer_info)
 };
 #else
 const stressor_info_t stress_timermix_info = {

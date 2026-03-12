@@ -23,18 +23,6 @@
 #include "core-stressors.h"
 #include "core-shared-heap.h"
 
-/*
- *   The max heap size needs to be larger if we can't determine if strings
- *   being dup'd are literal strings. Literal string dups just use the
- *   literal string, non-literals (e.g. stack based) need to be dup'd from
- *   a shared memory heap.
- */
-#if defined(HAVE_BUILTIN_CONSTANT_P)
-#define STRESS_MAX_SHARED_HEAP_SIZE		(64 * KB) + 675
-#else
-#define STRESS_MAX_SHARED_HEAP_SIZE		(256 * KB)
-#endif
-
 /* Used just to determine number of stressors via STRESS_MAX */
 enum {
         STRESSORS(STRESSOR_ENUM)
@@ -50,15 +38,11 @@ typedef struct stress_shared_heap_str {
  *  stress_shared_heap_init()
  *	initialized shared heap
  */
-void *stress_shared_heap_init(void)
+void *stress_shared_heap_init(const size_t metrics_size)
 {
 	const size_t page_size = stress_memory_page_size_get();
+	size_t size = metrics_size;
 
-	/* Allocate enough heap for all stressor descriptions with 100% metrics allocated */
-	size_t size = (STRESS_MISC_METRICS_MAX * (32 + sizeof(void *)) * STRESS_MAX);
-
-	/* ensure size isn't stupidly large */
-	size = STRESS_MINIMUM(size, STRESS_MAX_SHARED_HEAP_SIZE);
 	/* and round up to multiple of pages */
 	size = (size + page_size - 1) & ~(page_size - 1);
 	g_shared->shared_heap.out_of_memory = false;

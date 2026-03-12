@@ -597,7 +597,8 @@ const stressor_info_t stress_dfp_info = {
 	.classifier = CLASS_CPU | CLASS_FP | CLASS_COMPUTE | CLASS_HOT,
 	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
-	.help = help
+	.help = help,
+	.max_metrics_items = SIZEOF_ARRAY(stress_dfp_funcs)
 };
 #else
 

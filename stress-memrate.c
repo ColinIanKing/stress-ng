@@ -1245,5 +1245,6 @@ const stressor_info_t stress_memrate_info = {
 	.stressor = stress_memrate,
 	.classifier = CLASS_MEMORY,
 	.opts = opts,
-	.help = help
+	.help = help,
+	.max_metrics_items = SIZEOF_ARRAY(memrate_info) + 3
 };
