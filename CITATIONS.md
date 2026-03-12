@@ -212,6 +212,7 @@
  * [Benchmarking of CPU-intensive Stream Data Processing in The Edge Computing Systems](https://arxiv.org/html/2505.07755v2)
  * [DPUConfig: Optimizing ML Inference in FPGAs Using Reinforcement Learning](https://arxiv.org/pdf/2602.12847)
  * [Enabling SLO-Aware 5G Multi-Access Edge Computing with SMEC](https://arxiv.org/html/2601.19162v1)
+ * [FlexServe: A Fast and Secure LLM Serving System for Mobile Devices with Flexible Resource Isolation](https://arxiv.org/html/2603.09046v1)
  * [Graph Neural Networks for Anomaly Detection in Cloud Infrastructure](https://www.scirp.org/journal/paperinformation?paperid=146528)
  * [Object detection on low-compute edge SoCs: a reproducible benchmark and deployment guidelines](https://www.nature.com/articles/s41598-026-36862-y_reference.pdf)
  * [On-Device Deep Reinforcement Learning for Decentralized Task Offloading: Performance trade-offs in the training process](https://arxiv.org/html/2601.03976v1#S4)
