@@ -462,6 +462,7 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 		NOCLOBBER pid_t pid = -1;
 		NOCLOBBER uint64_t total_bytes = 0;
 		off_t offset;
+		bool random_offset;
 
 		if (sigsetjmp(jmp_env, 1))
 			goto mappings_unmap;
@@ -493,6 +494,15 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 			mappings[n].offset = 0;
 		}
 
+		/*
+		 *  Either mmap each mapping to a random offset in the file
+		 *  or mmap each mapping to the same offset in the file to
+		 *  mix up 1-to-1 to many-to-1 page mappings
+		 */
+		random_offset = !!stress_mwc1();
+		if (!random_offset)
+			offset = stress_mwc64modn((uint64_t)mmap_bytes) & page_mask;
+
 		for (n = 0; n < MMAP_MAPPINGS_MAX; n++) {
 			int flag = 0, mmap_flag;
 
@@ -515,7 +525,8 @@ retry:
 				    mmap_flags[stress_mwc8modn(SIZEOF_ARRAY(mmap_flags))];
 
 			mmap_size = page_size * (1 + stress_mwc16modn(MMAP_SIZE_MAP));
-			offset = stress_mwc64modn((uint64_t)mmap_bytes) & page_mask;
+			if (random_offset)
+				offset = stress_mwc64modn((uint64_t)mmap_bytes) & page_mask;
 #if defined(HAVE_FALLOCATE)
 #if defined(FALLOC_FL_PUNCH_HOLE) &&	\
     defined(FALLOC_FL_KEEP_SIZE)
