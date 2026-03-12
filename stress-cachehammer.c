@@ -1679,11 +1679,9 @@ static inline void stress_cachehammer_numa(
 }
 #endif
 
-static void OPTIMIZE3 stress_cachehammer_exercise(
-	stress_args_t *args,
-	stress_cachehammer_context_t *ctxt)
+static void OPTIMIZE3 stress_cachehammer_exercise(stress_args_t *args)
 {
-	register hammer_func_t hammer = stress_cachehammer_funcs[ctxt->func_index].hammer;
+	register hammer_func_t hammer = stress_cachehammer_funcs[ctxt.func_index].hammer;
 	uint8_t *const buffer = g_shared->mem_cache.buffer;
 	size_t i;
 	uint32_t offset;
@@ -1697,7 +1695,7 @@ static void OPTIMIZE3 stress_cachehammer_exercise(
 
 	switch (which) {
 	case 0:
-		(*ctxt->file_page)++;
+		ctxt.file_page++;
 #if defined(HAVE_MSYNC)
 		/*
 		 *  intentionally hit same page and
@@ -1706,25 +1704,25 @@ static void OPTIMIZE3 stress_cachehammer_exercise(
 		if (UNLIKELY((rnd16 == 0x0020) && SIZEOF_ARRAY(msync_flags) > 0)) {
 			const int flag = msync_flags[stress_mwc8modn(SIZEOF_ARRAY(msync_flags))];
 
-			(void)msync((void *)ctxt->file_page, args->page_size, flag);
+			(void)msync((void *)ctxt.file_page, args->page_size, flag);
 		}
 #endif
 #if defined(HAVE_LINUX_MEMPOLICY_H)
-		stress_cachehammer_numa(args, 50, &ctxt->numa_count[0], ctxt->file_page,
-					ctxt->cachehammer_numa, ctxt->numa_mask, ctxt->numa_nodes);
+		stress_cachehammer_numa(args, 50, &ctxt.numa_count[0], ctxt.file_page,
+					ctxt.cachehammer_numa, ctxt.numa_mask, ctxt.numa_nodes);
 #endif
-		hammer(args, ctxt->file_page, ctxt->file_page + 64, false, false);
+		hammer(args, ctxt.file_page, ctxt.file_page + 64, false, false);
 		break;
 	case 1:
 	default:
 		offset = stress_mwc32modn((uint32_t)buffer_size);
-		addr1 = buffer + (offset & ctxt->mask);
+		addr1 = buffer + (offset & ctxt.mask);
 
 		addr2 = addr1;
 
 #if defined(HAVE_LINUX_MEMPOLICY_H)
-		stress_cachehammer_numa(args, 20, &ctxt->numa_count[1], addr1,
-					ctxt->cachehammer_numa, ctxt->numa_mask, ctxt->numa_nodes);
+		stress_cachehammer_numa(args, 20, &ctxt.numa_count[1], addr1,
+					ctxt.cachehammer_numa, ctxt.numa_mask, ctxt.numa_nodes);
 #endif
 		for (i = 0; i < loops; i++) {
 			addr2 += 64;
@@ -1735,54 +1733,54 @@ static void OPTIMIZE3 stress_cachehammer_exercise(
 		}
 		break;
 	case 2:
-		offset = stress_mwc32modn((uint32_t)ctxt->local_buffer_size);
-		addr1 = ctxt->local_buffer + (offset & ctxt->mask);
+		offset = stress_mwc32modn((uint32_t)ctxt.local_buffer_size);
+		addr1 = ctxt.local_buffer + (offset & ctxt.mask);
 		addr2 = addr1;
 
 #if defined(HAVE_LINUX_MEMPOLICY_H)
-		stress_cachehammer_numa(args, 20, &ctxt->numa_count[2], addr1,
-					ctxt->cachehammer_numa, ctxt->numa_mask, ctxt->numa_nodes);
+		stress_cachehammer_numa(args, 20, &ctxt.numa_count[2], addr1,
+					ctxt.cachehammer_numa, ctxt.numa_mask, ctxt.numa_nodes);
 #endif
 		for (i = 0; i < loops; i++) {
 			addr2 += 64;
-			if (UNLIKELY(addr2 >= ctxt->local_buffer + ctxt->local_buffer_size))
-				addr2 = ctxt->local_buffer;
+			if (UNLIKELY(addr2 >= ctxt.local_buffer + ctxt.local_buffer_size))
+				addr2 = ctxt.local_buffer;
 			hammer(args, addr1, addr2, false, true);
 			hammer(args, addr2, addr1, false, true);
 		}
 		break;
 	case 3:
 		offset = stress_mwc32modn((uint32_t)args->page_size);
-		addr1 = ctxt->local_page + (offset & ctxt->page_mask);
+		addr1 = ctxt.local_page + (offset & ctxt.page_mask);
 		addr2 = addr1;
 
 #if defined(HAVE_LINUX_MEMPOLICY_H)
-		stress_cachehammer_numa(args, 20, &ctxt->numa_count[3], addr1,
-					ctxt->cachehammer_numa, ctxt->numa_mask, ctxt->numa_nodes);
+		stress_cachehammer_numa(args, 20, &ctxt.numa_count[3], addr1,
+					ctxt.cachehammer_numa, ctxt.numa_mask, ctxt.numa_nodes);
 #endif
 		for (i = 0; i < loops; i++) {
 			addr2 += 64;
-			if (UNLIKELY(addr2 >= ctxt->local_page + args->page_size))
-				addr2 = ctxt->local_page;
+			if (UNLIKELY(addr2 >= ctxt.local_page + args->page_size))
+				addr2 = ctxt.local_page;
 			hammer(args, addr1, addr2, false, true);
 			hammer(args, addr2, addr1, false, true);
 		}
 		break;
 	case 4:
 		offset = stress_mwc16();
-		addr1 = ctxt->bad_page + (offset & ctxt->page_mask);
+		addr1 = ctxt.bad_page + (offset & ctxt.page_mask);
 		offset += 64;
-		addr2 = ctxt->bad_page + (offset & ctxt->page_mask);
+		addr2 = ctxt.bad_page + (offset & ctxt.page_mask);
 
 #if defined(HAVE_LINUX_MEMPOLICY_H)
-		stress_cachehammer_numa(args, 50, &ctxt->numa_count[4], addr1,
-					ctxt->cachehammer_numa, ctxt->numa_mask, ctxt->numa_nodes);
+		stress_cachehammer_numa(args, 50, &ctxt.numa_count[4], addr1,
+					ctxt.cachehammer_numa, ctxt.numa_mask, ctxt.numa_nodes);
 #endif
 		hammer(args, addr1, addr2, true, false);
 		break;
 	}
-	cachehammer_metrics[ctxt->func_index].duration += stress_time_now() - t_start;
-	cachehammer_metrics[ctxt->func_index].count += 1.0;
+	cachehammer_metrics[ctxt.func_index].duration += stress_time_now() - t_start;
+	cachehammer_metrics[ctxt.func_index].count += 1.0;
 }
 
 /*
@@ -1980,7 +1978,7 @@ static int OPTIMIZE3 stress_cachehammer(stress_args_t *args)
 				mask = 1U << i;
 				if ((flags & mask) && !(ctxt.trapped & mask)) {
 					ctxt.func_index = i;
-					stress_cachehammer_exercise(args, &ctxt);
+					stress_cachehammer_exercise(args);
 					stress_bogo_inc(args);
 					tries = 0;
 				}
@@ -1993,7 +1991,7 @@ static int OPTIMIZE3 stress_cachehammer(stress_args_t *args)
 			mask = 1U << ctxt.func_index;
 
 			if ((ctxt.valid & mask) && !(ctxt.trapped & mask)) {
-				stress_cachehammer_exercise(args, &ctxt);
+				stress_cachehammer_exercise(args);
 				tries = 0;
 				stress_bogo_inc(args);
 				ctxt.func_index = stress_mwc32modn((uint32_t)N_FUNCS);
@@ -2030,7 +2028,7 @@ bail_out:
 	    (permutations_exercised < n_permutations)) {
 		pr_inf("%s: only %zu of %zu (%.2f%%) cache operation permutations exercised\n",
 			args->name, permutations_exercised, n_permutations,
-			(float)permutations_exercised * 100.0 / (float)n_permutations);
+			(double)permutations_exercised * 100.0 / (double)n_permutations);
 	}
 
 	for (i = 0, j = 0; i < N_FUNCS; i++) {
