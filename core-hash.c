@@ -379,7 +379,7 @@ PRAGMA_UNROLL_N(4)
 uint32_t PURE OPTIMIZE3 stress_hash_coffin(const char *str)
 {
 	register uint32_t result = 0x55555555;
-
+PRAGMA_UNROLL_N(4)
 	while (*str) {
 		result ^= (uint8_t)*str++;
 		result = shim_rol32n(result, 5);
