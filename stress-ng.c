@@ -3149,7 +3149,6 @@ static inline size_t stressor_stats_size(void)
 		}
 		ss = ss->next;
 	}
-	pr_inf("total = %zu\n", total);
 	return total;
 }
 
