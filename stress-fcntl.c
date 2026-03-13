@@ -865,6 +865,16 @@ static int stress_fcntl(stress_args_t *args)
 				(void)shim_usleep(100000);
 				continue;
 			}
+			/*
+			 *  ENOENT can occur because other instances
+			 *  have completed and removed the file and the
+			 *  temp directory, so check if the directory has
+			 *  been removed and bail out.
+			 */
+			if ((errno == ENOENT) && (access(pathname, R_OK) == -1)) {
+				rc = EXIT_SUCCESS;
+				goto tidy;
+			}
 			pr_fail("%s: creat %s failed, errno=%d (%s)\n",
 				args->name, filename, errno, strerror(errno));
 			goto tidy;
