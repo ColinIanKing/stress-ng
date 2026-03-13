@@ -79,8 +79,12 @@ static int stress_sigpipe(stress_args_t *args)
 
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
 
-	/* simple sanity check */
-	if ((epipe_count > 0) && (stress_bogo_get(args) < 1)) {
+	/*
+	 *  simple sanity check, if EPIPE has occurred more than once
+	 *  then the bogo op counter should have incremented at least
+	 *  once
+	 */
+	if ((epipe_count > 1) && (stress_bogo_get(args) < 1)) {
 		pr_fail("%s: %" PRIu64 " writes occurred but got 0 SIGPIPE signals\n",
 			args->name, epipe_count);
 		rc = EXIT_FAILURE;
