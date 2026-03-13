@@ -86,9 +86,14 @@ static int stress_sendfile(stress_args_t *args)
 	ret = shim_fallocate(fdin, 0, (off_t)0, (off_t)sz);
 #endif
 	if (ret != 0) {
-		rc = stress_exit_status(errno);
-		pr_err("%s: fallocate failed, errno=%d (%s)\n",
-			args->name, errno, strerror(errno));
+		if (errno == EINTR) {
+			/* interrupted, bail out */
+			rc = EXIT_SUCCESS;
+		} else {
+			rc = stress_exit_status(errno);
+			pr_err("%s: fallocate failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
+		}
 		(void)shim_unlink(filename);
 		goto close_in;
 	}
