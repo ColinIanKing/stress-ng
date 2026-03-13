@@ -263,9 +263,9 @@ typedef struct {
 } stress_args_t;
 
 /* Run-time stressor descriptor list */
-typedef struct stress_stressor_info {
-	struct stress_stressor_info *next; /* next proc info struct in list */
-	struct stress_stressor_info *prev; /* prev proc info struct in list */
+typedef struct stress_stressor {
+	struct stress_stressor *next;	/* next proc info struct in list */
+	struct stress_stressor *prev;	/* prev proc info struct in list */
 	const struct stress *stressor;	/* stressor */
 	struct stress_stats **stats;	/* stressor stats info */
 	stress_metrics_info_t *metrics_info; /* per stressor metrics info */
