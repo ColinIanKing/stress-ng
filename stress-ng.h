@@ -192,6 +192,7 @@
  *  using the stress_info_t max_metrics_items field
  *  in each stressor
  */
+#define STRESS_METRICS_ITEMS_MAX		(1024)
 #define STRESS_METRICS_ITEMS_DEFAULT_SIZE	(8)
 
 /* Process tracking info via pid */
@@ -223,16 +224,25 @@ typedef struct {
 	void *page_wo;			/* mmap'd PROT_WO page */
 } stress_mapped_t;
 
-/* Individual metric */
+/*
+ *  Metric description, n per stressor, referenced by
+ *  stress_metrics_info_t
+ */
 typedef struct {
-	char *description;		/* description of metric */
-	double value;			/* value of metric */
+	char description[64];		/* description of metric */
 	int mean_type;			/* type of metric, geometric or harmonic mean */
-} stress_metrics_item_t;
+} stress_metrics_desc_t;
 
-/* Per stressor metrics */
-typedef struct {
-} stress_metrics_data_t;
+/*
+ *  Metrics info, 1 per stressor, referenced by
+ *  stress_stressor_t
+ */
+typedef struct stress_merics_info {
+	stress_metrics_desc_t *metrics_desc; /* per stressor metrics descriptions */
+	size_t num_metrics_items;	/* current number of metrics items */
+	size_t max_metrics_items;	/* maximum number of metrics items */
+	bool overflow_metrics_items;	/* overflowed index on metrics items */
+} stress_metrics_info_t;
 
 /* Run-time stressor args */
 typedef struct {
@@ -258,6 +268,7 @@ typedef struct stress_stressor_info {
 	struct stress_stressor_info *prev; /* prev proc info struct in list */
 	const struct stress *stressor;	/* stressor */
 	struct stress_stats **stats;	/* stressor stats info */
+	stress_metrics_info_t *metrics_info; /* per stressor metrics info */
 	int32_t completed_instances;	/* count of completed instances */
 	int32_t instances;		/* number of instances per stressor */
 	uint64_t bogo_max_ops;		/* max number of bogo ops, 0 = disabled */
@@ -592,10 +603,6 @@ typedef struct stress_stats {
 	double duration;		/* finish - start */
 	uint64_t counter_total;		/* counter total */
 	double duration_total;		/* wall clock duration */
-	stress_pid_t s_pid;		/* stressor pid */
-	bool sigalarmed;		/* set true if signalled with SIGALRM */
-	bool signalled;			/* set true if signalled with a kill */
-	bool completed;			/* true if stressor completed */
 #if defined(STRESS_PERF_STATS)
 	stress_perf_t sp;		/* perf counters */
 #endif
@@ -608,15 +615,16 @@ typedef struct stress_stats {
 	stress_checksum_t *checksum;	/* pointer to checksum data */
 	stress_interrupts_t interrupts[STRESS_INTERRUPTS_MAX];
 	stress_cstate_stats_t cstates;	/* cstate stats */
-	size_t num_metrics_items;	/* current number of metrics items */
-	size_t max_metrics_items;	/* maximum number of metrics items */
-	stress_metrics_item_t *metrics_items;	/* pointer to array of metrics items */
-	bool overflow_metrics_items;	/* overflowed index on metrics items */
 	double rusage_utime;		/* rusage user time */
 	double rusage_stime;		/* rusage system time */
 	double rusage_utime_total;	/* rusage user time */
 	double rusage_stime_total;	/* rusage system time */
 	long int rusage_maxrss;		/* rusage max RSS, 0 = unused */
+	stress_pid_t s_pid;		/* stressor pid */
+	double *metrics_values;		/* pointer to array of metrics values */
+	bool sigalarmed;		/* set true if signalled with SIGALRM */
+	bool signalled;			/* set true if signalled with a kill */
+	bool completed;			/* true if stressor completed */
 } stress_stats_t;
 
 /* Shared heap info */
@@ -720,6 +728,7 @@ typedef struct {
 	struct {
 		uint32_t ready;		/* incremented when rawsock stressor is ready */
 	} rawsock;
+	void *metrics_lock;		/* metrics lock */
 	stress_stats_t stats[];		/* Shared statistics */
 } stress_shared_t;
 
@@ -915,16 +924,9 @@ extern WARN_UNUSED int stress_parse_opts(int argc, char **argv, const bool jobmo
 extern void stress_shared_readonly(void);
 extern void stress_shared_unmap(void);
 extern void stress_log_system_mem_info(void);
-extern void stress_metrics_set_const_check(stress_args_t *args,
-	const size_t idx, char *description, const bool const_description, const double value, const int mean_type);
+extern void stress_metrics_set(stress_args_t *args, const char *description,
+	const double value, const int mean_type);
 extern WARN_UNUSED ssize_t stress_stressor_find(const char *name);
-#if defined(HAVE_BUILTIN_CONSTANT_P)
-#define stress_metrics_set(args, idx, description, value, mean_type)	\
-	stress_metrics_set_const_check(args, idx, description, __builtin_constant_p(description), value, mean_type)
-#else
-#define stress_metrics_set(args, idx, description, value, mean_type)	\
-	stress_metrics_set_const_check(args, idx, description, false, value, mean_type)
-#endif
 
 #if !defined(STRESS_CORE_SHIM) &&	\
     !defined(HAVE_PEDANTIC) &&		\

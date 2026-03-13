@@ -360,9 +360,9 @@ static int stress_rdrand(stress_args_t *args)
 		c = stress_bogo_get(args);
 		million_bits = ((double)c * 64.0 * 257.0) * ONE_MILLIONTH;
 		rate = (duration > 0.0) ? million_bits / duration : 0.0;
-		stress_metrics_set(args, 0, "million random bits read",
+		stress_metrics_set(args, "million random bits read",
 			million_bits, STRESS_METRIC_GEOMETRIC_MEAN);
-		stress_metrics_set(args, 1, "million random bits per sec",
+		stress_metrics_set(args, "million random bits per sec",
 			rate, STRESS_METRIC_HARMONIC_MEAN);
 	}
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);

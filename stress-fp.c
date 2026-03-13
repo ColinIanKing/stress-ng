@@ -867,7 +867,7 @@ static int stress_fp(stress_args_t *args)
 			const double rate = count / duration;
 
 			(void)snprintf(msg, sizeof(msg), "Mfp-ops per sec, %-20s", stress_fp_funcs[i].description);
-			stress_metrics_set(args, i - 1, msg,
+			stress_metrics_set(args, msg,
 				rate / 1000000.0, STRESS_METRIC_HARMONIC_MEAN);
 		}
 	}

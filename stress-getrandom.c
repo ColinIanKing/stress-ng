@@ -167,8 +167,7 @@ static int stress_getrandom(stress_args_t *args)
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
 
 	rate = (duration > 0.0) ? (8.0 * bytes) / duration : 0.0;
-	stress_metrics_set(args, 0, "getrandom bits per sec",
-		rate, STRESS_METRIC_HARMONIC_MEAN);
+	stress_metrics_set(args, "getrandom bits per sec", rate, STRESS_METRIC_HARMONIC_MEAN);
 
 	return EXIT_SUCCESS;
 }

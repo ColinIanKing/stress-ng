@@ -240,10 +240,10 @@ static int stress_lsearch(stress_args_t *args)
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
 
 	rate = (duration > 0.0) ? count / duration : 0.0;
-	stress_metrics_set(args, 0, "lsearch comparisons per sec",
+	stress_metrics_set(args, "lsearch comparisons per sec",
 		rate, STRESS_METRIC_HARMONIC_MEAN);
 	rate = (sorted > 0.0) ? count / sorted : 0.0;
-	stress_metrics_set(args, 1, "lsearch comparisons per item",
+	stress_metrics_set(args, "lsearch comparisons per item",
 		rate, STRESS_METRIC_HARMONIC_MEAN);
 
 	pr_dbg("%s: %.2f lsearch comparisons per sec\n", args->name, rate);

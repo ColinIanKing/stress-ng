@@ -202,10 +202,10 @@ bind_umount:
 	} while (stress_continue(args));
 
 	rate = (mount_count > 0.0) ? (double)mount_duration / mount_count : 0.0;
-	stress_metrics_set(args, 0, "microsecs per mount",
+	stress_metrics_set(args, "microsecs per mount",
 		rate * STRESS_DBL_MICROSECOND, STRESS_METRIC_HARMONIC_MEAN);
 	rate = (umount_count > 0.0) ? (double)umount_duration / umount_count : 0.0;
-	stress_metrics_set(args, 1, "microsecs per umount",
+	stress_metrics_set(args, "microsecs per umount",
 		rate * STRESS_DBL_MICROSECOND, STRESS_METRIC_HARMONIC_MEAN);
 
 	/* Remove path in child process just in case parent fails to reap it */

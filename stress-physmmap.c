@@ -303,9 +303,9 @@ done:
 			args->name, t2 - t1, total_pages, mappable_pages);
 	}
 
-	stress_metrics_set(args, 0, "/dev/mem mmaps succeed", (double)mmaps_succeed, STRESS_METRIC_TOTAL);
-	stress_metrics_set(args, 1, "/dev/mem mmaps failed", (double)mmaps_failed, STRESS_METRIC_TOTAL);
-	stress_metrics_set(args, 2, "/dev/mem pages mapped", (double)max_pages_mapped, STRESS_METRIC_TOTAL);
+	stress_metrics_set(args, "/dev/mem mmaps succeed", (double)mmaps_succeed, STRESS_METRIC_TOTAL);
+	stress_metrics_set(args, "/dev/mem mmaps failed", (double)mmaps_failed, STRESS_METRIC_TOTAL);
+	stress_metrics_set(args, "/dev/mem pages mapped", (double)max_pages_mapped, STRESS_METRIC_TOTAL);
 
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
 

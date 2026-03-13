@@ -197,7 +197,7 @@ static double stress_rotate_all(stress_args_t *args, const bool verify, bool *su
 static int stress_rotate(stress_args_t *args)
 {
 	size_t rotate_method = 0;	/* "all" */
-	size_t i, j;
+	size_t i;
 	bool success = true;
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 
@@ -213,15 +213,13 @@ static int stress_rotate(stress_args_t *args)
 		stress_rotate_call_method(args, rotate_method, verify, &success);
 	} while (stress_continue(args));
 
-	for (i = 1, j = 0; i < SIZEOF_ARRAY(stress_rotate_funcs); i++) {
+	for (i = 1; i < SIZEOF_ARRAY(stress_rotate_funcs); i++) {
 		if (stress_rotate_metrics[i].duration > 0.0) {
 			char msg[64];
 			const double rate = stress_rotate_metrics[i].count / stress_rotate_metrics[i].duration;
 
 			(void)snprintf(msg, sizeof(msg), "%s rotate ops per sec", stress_rotate_funcs[i].name);
-			stress_metrics_set(args, j, msg,
-				rate, STRESS_METRIC_HARMONIC_MEAN);
-			j++;
+			stress_metrics_set(args, msg, rate, STRESS_METRIC_HARMONIC_MEAN);
 		}
 	}
 

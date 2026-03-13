@@ -647,7 +647,7 @@ static int stress_intmath(stress_args_t *args)
 	const stress_intmath_method_t *methods;
 	size_t intmath_method = 0;	/* all */
 	size_t methods_max;
-	size_t i, j;
+	size_t i;
 
 	(void)stress_setting_get("intmath-method", &intmath_method);
 	(void)stress_setting_get("intmath-fast", &intmath_fast);
@@ -702,14 +702,13 @@ static int stress_intmath(stress_args_t *args)
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
 
-	for (i = 1, j = 0; i < methods_max; i++) {
+	for (i = 1; i < methods_max; i++) {
 		if (stress_intmath_metrics[i].duration > 0.0) {
 			const double rate = stress_intmath_metrics[i].count * methods[i].ops / stress_intmath_metrics[i].duration;
 			char msg[64];
 
 			(void)snprintf(msg, sizeof(msg), "%s M-ops per sec", methods[i].name);
-                        stress_metrics_set(args, j, msg, rate / 1000000.0, STRESS_METRIC_HARMONIC_MEAN);
-			j++;
+                        stress_metrics_set(args, msg, rate / 1000000.0, STRESS_METRIC_HARMONIC_MEAN);
 		}
 	}
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);

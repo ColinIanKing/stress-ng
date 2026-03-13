@@ -284,8 +284,7 @@ tidy:
 	(void)stress_fs_temp_dir_rm_args(args);
 
 	rate = (duration > 0.0) ? count / duration : 0.0;
-	stress_metrics_set(args, 0, "chdir calls per sec",
-		rate, STRESS_METRIC_HARMONIC_MEAN);
+	stress_metrics_set(args,  "chdir calls per sec", rate, STRESS_METRIC_HARMONIC_MEAN);
 err:
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
 	free(chdir_info);

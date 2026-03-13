@@ -263,10 +263,10 @@ static int stress_ring_pipe(stress_args_t *args)
 
 finish:
 	rate = (duration > 0.0) ? (double)stress_bogo_get(args) / duration : 0.0;
-	stress_metrics_set(args, 0, "pipe read+write calls per sec",
+	stress_metrics_set(args, "pipe read+write calls per sec",
 		rate, STRESS_METRIC_HARMONIC_MEAN);
 	rate = (duration > 0.0) ? (double)bytes / duration : 0.0;
-	stress_metrics_set(args, 1, "MB per sec data pipe write",
+	stress_metrics_set(args, "MB per sec data pipe write",
 		rate / (double)MB, STRESS_METRIC_HARMONIC_MEAN);
 
 err_deinit:

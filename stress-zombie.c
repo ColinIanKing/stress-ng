@@ -391,7 +391,7 @@ static int stress_zombie(stress_args_t *args)
 		}
 	} while (stress_continue(args));
 
-	stress_metrics_set(args, 0, "created zombies per stressor",
+	stress_metrics_set(args, "created zombies per stressor",
 		(double)max_zombies, STRESS_METRIC_HARMONIC_MEAN);
 
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);

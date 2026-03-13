@@ -322,7 +322,7 @@ static int stress_copy_file(stress_args_t *args)
 	rc = EXIT_SUCCESS;
 
 	rate = (duration > 0.0) ? bytes / duration : 0.0;
-	stress_metrics_set(args, 0, "MB per sec copy rate",
+	stress_metrics_set(args, "MB per sec copy rate",
 		rate / (double)MB, STRESS_METRIC_HARMONIC_MEAN);
 
 tidy_out:

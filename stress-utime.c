@@ -530,7 +530,7 @@ STRESS_PRAGMA_POP
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
 
 	rate = (duration > 0.0) ? count / duration : 0.0;
-	stress_metrics_set(args, 0, "utime calls per sec",
+	stress_metrics_set(args, "utime calls per sec",
 		rate, STRESS_METRIC_HARMONIC_MEAN);
 
 #if defined(O_DIRECTORY) &&	\

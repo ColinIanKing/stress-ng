@@ -324,10 +324,10 @@ next:
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
 
-	stress_metrics_set(args, 0, "million random bits read",
+	stress_metrics_set(args, "million random bits read",
 		bytes * 8.0 / 1000000.0, STRESS_METRIC_GEOMETRIC_MEAN);
 	rate = (duration > 0.0) ? bytes * 8.0 / duration : 0.0;
-	stress_metrics_set(args, 1, "million random bits per sec",
+	stress_metrics_set(args, "million random bits per sec",
 		rate / 1000000.0, STRESS_METRIC_HARMONIC_MEAN);
 
 	rc = EXIT_SUCCESS;

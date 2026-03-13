@@ -261,7 +261,7 @@ reap:
 			const double rate = (double)stress_bogo_get(args) / dt;
 
 			pr_dbg("%s: hrtimer signals at %.3f MHz\n", args->name, rate / 1000000.0);
-			stress_metrics_set(args, 0, "hrtimer signals per sec",
+			stress_metrics_set(args, "hrtimer signals per sec",
 				rate, STRESS_METRIC_HARMONIC_MEAN);
 		}
 	}

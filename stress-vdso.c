@@ -544,9 +544,9 @@ static int stress_vdso(stress_args_t *args)
 	if (dt > 0.0) {
 		const double ns = ((dt * (double)STRESS_NANOSECOND) / (double)counter) - overhead_ns;
 
-		stress_metrics_set(args, 0, "nanosecs per call (excluding test overhead)",
+		stress_metrics_set(args, "nanosecs per call (excluding test overhead)",
 			ns, STRESS_METRIC_HARMONIC_MEAN);
-		stress_metrics_set(args, 1, "nanosecs for test overhead",
+		stress_metrics_set(args, "nanosecs for test overhead",
 			overhead_ns, STRESS_METRIC_GEOMETRIC_MEAN);
 	}
 

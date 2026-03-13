@@ -187,10 +187,10 @@ static int stress_vm_splice(stress_args_t *args)
 	} while (stress_continue(args));
 
 	rate = (duration > 0.0) ? bytes / duration : 0.0;
-	stress_metrics_set(args, 0, "MB per sec vm-splice rate",
+	stress_metrics_set(args, "MB per sec vm-splice rate",
 		rate / (double)MB, STRESS_METRIC_HARMONIC_MEAN);
 	rate = (duration > 0.0) ? vm_splices / duration : 0.0;
-	stress_metrics_set(args, 1, "vm-splice calls per sec",
+	stress_metrics_set(args, "vm-splice calls per sec",
 		rate, STRESS_METRIC_HARMONIC_MEAN);
 
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);

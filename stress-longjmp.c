@@ -121,7 +121,7 @@ static int OPTIMIZE1 stress_longjmp(stress_args_t *args)
 		const double rate = (double)STRESS_NANOSECOND * t_total / (double)n;
 		pr_dbg("%s: about %.3f nanosecs per longjmp call\n",
 			args->name, rate);
-		stress_metrics_set(args, 0, "nanosecs per longjmp call",
+		stress_metrics_set(args, "nanosecs per longjmp call",
 			rate, STRESS_METRIC_HARMONIC_MEAN);
 	}
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);

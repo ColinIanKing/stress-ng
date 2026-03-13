@@ -638,12 +638,12 @@ reap:
 	} while (!locked && keep_running() && stress_continue(args));
 
 	average = (count > 0.0) ? duration / count : 0.0;
-	stress_metrics_set(args, 0, "nanosecs to start a pthread",
+	stress_metrics_set(args, "nanosecs to start a pthread",
 		average * STRESS_DBL_NANOSECOND, STRESS_METRIC_HARMONIC_MEAN);
 	(void)snprintf(msg, sizeof(msg), "%% of %" PRIu64 " pthreads created",
 		pthread_max * args->instances);
 	if (attempted > 0)
-		stress_metrics_set(args, 1, msg,
+		stress_metrics_set(args, msg,
 			100.0 * (double)(attempted - limited) / (double)attempted,
 			STRESS_METRIC_GEOMETRIC_MEAN);
 

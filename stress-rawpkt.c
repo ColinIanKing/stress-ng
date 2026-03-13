@@ -415,11 +415,11 @@ static int OPTIMIZE3 stress_rawpkt_server(
 
 	duration = stress_time_now() - t_start;
 	rate = (duration > 0.0) ? bytes / duration : 0.0;
-	stress_metrics_set(args, 0, "MB recv'd per sec",
+	stress_metrics_set(args, "MB recv'd per sec",
 		rate / (double)MB, STRESS_METRIC_HARMONIC_MEAN);
-	stress_metrics_set(args, 1, "packets sent",
+	stress_metrics_set(args, "packets sent",
 		(double)stress_bogo_get(args), STRESS_METRIC_TOTAL);
-	stress_metrics_set(args, 2, "packets received",
+	stress_metrics_set(args, "packets received",
 		(double)all_pkts, STRESS_METRIC_TOTAL);
 
 	stress_rawpkt_sockopts(fd);

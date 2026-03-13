@@ -391,7 +391,7 @@ tidy:
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
 
 	rate = (count > 0.0) ? duration / count : 0.0;
-	stress_metrics_set(args, 0, "nanoseconds per spin write/read",
+	stress_metrics_set(args, "nanoseconds per spin write/read",
                 rate * STRESS_DBL_NANOSECOND, STRESS_METRIC_HARMONIC_MEAN);
 
 	(void)munmap((void *)mapping, args->page_size);

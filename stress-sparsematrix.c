@@ -1457,8 +1457,7 @@ static int stress_sparsematrix(stress_args_t *args)
 
 			(void)snprintf(tmp, sizeof(tmp), "%s gets per sec", sparsematrix_methods[i].name);
 			rate = test_info[i].get_duration > 0.0 ? (double)test_info[i].get_ops / test_info[i].get_duration : 0.0;
-			stress_metrics_set(args, (i * 2) + 0, tmp,
-				rate, STRESS_METRIC_HARMONIC_MEAN);
+			stress_metrics_set(args, tmp, rate, STRESS_METRIC_HARMONIC_MEAN);
 
 			f = frexp((double)rate, &e);
 			puts_mantissa *= f;
@@ -1466,8 +1465,7 @@ static int stress_sparsematrix(stress_args_t *args)
 
 			(void)snprintf(tmp, sizeof(tmp), "%s puts per sec", sparsematrix_methods[i].name);
 			rate = test_info[i].put_duration > 0.0 ? (double)test_info[i].put_ops / test_info[i].put_duration : 0.0;
-			stress_metrics_set(args, (i * 2) + 1, tmp,
-				rate, STRESS_METRIC_HARMONIC_MEAN);
+			stress_metrics_set(args, tmp, rate, STRESS_METRIC_HARMONIC_MEAN);
 
 			f = frexp((double)rate, &e);
 			gets_mantissa *= f;

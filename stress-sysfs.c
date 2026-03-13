@@ -886,7 +886,7 @@ again:
 		args->name, hash_items, stress_bogo_get(args));
 
 	rate = (duration > 0.0) ? (double)ctxt->sysfs_files_opened / duration : 0.0;
-	stress_metrics_set(args, 0, "sysfs files exercised per sec",
+	stress_metrics_set(args, "sysfs files exercised per sec",
 		rate, STRESS_METRIC_HARMONIC_MEAN);
 
 finish:

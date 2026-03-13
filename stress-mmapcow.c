@@ -379,7 +379,7 @@ static int stress_mmapcow_child(stress_args_t *args, void *ctxt)
 	} while ((ret == EXIT_SUCCESS) && stress_continue(args));
 
 	rate = (count > 0) ? STRESS_DBL_NANOSECOND * (duration / count) : 0.0;
-	stress_metrics_set(args, 0, "nanosecs per page modification (includes page fault, estimated)", rate, STRESS_METRIC_HARMONIC_MEAN);
+	stress_metrics_set(args, "nanosecs per page modification (includes page fault, estimated)", rate, STRESS_METRIC_HARMONIC_MEAN);
 
 	stress_uint64_to_str(tmp, sizeof(tmp), max_buf_size, 0, true);
 	pr_dbg("%s: max mmap size: %zu x %zuK pages (%s)\n", args->name,

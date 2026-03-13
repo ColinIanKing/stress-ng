@@ -778,7 +778,7 @@ static int stress_ipsec_mb(stress_args_t *args)
 	IMB_MGR *mb_mgr = NULL;
 	uint64_t features;
 	uint8_t data[8192] ALIGNED(64);
-	size_t i, j;
+	size_t i;
 	bool got_features = false;
 	size_t ipsec_mb_feature = 0;
 	size_t ipsec_mb_method = 0;
@@ -857,7 +857,7 @@ static int stress_ipsec_mb(stress_args_t *args)
 	} while (stress_continue(args));
 
 	pr_block_begin();
-	for (i = 0, j = 0; i < SIZEOF_ARRAY(mb_features); i++) {
+	for (i = 0; i < SIZEOF_ARRAY(mb_features); i++) {
 		const ipsec_stats_t *stats = &mb_features[i].stats;
 
 		if (stats->duration > 0.0) {
@@ -869,8 +869,7 @@ static int stress_ipsec_mb(stress_args_t *args)
 				args->name, name, rate);
 
 			(void)snprintf(tmp, sizeof(tmp), "%s bogo ops per sec", name);
-			stress_metrics_set(args, j, tmp, rate, STRESS_METRIC_HARMONIC_MEAN);
-			j++;
+			stress_metrics_set(args, tmp, rate, STRESS_METRIC_HARMONIC_MEAN);
 		}
 	}
 	pr_block_end();

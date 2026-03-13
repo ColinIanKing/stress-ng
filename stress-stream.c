@@ -1165,7 +1165,7 @@ static int OPTIMIZE3 TARGET_CLONES stress_stream_verify(
 static int stress_stream(stress_args_t *args)
 {
 	stress_mmap_stats_t stats, stats_total;
-	int rc = EXIT_FAILURE, metric = 0;
+	int rc = EXIT_FAILURE;
 	double *a = (double *)MAP_FAILED, *b = (double *)MAP_FAILED, *c = (double *)MAP_FAILED;
 	size_t *idx1 = (size_t *)MAP_FAILED, *idx2 = (size_t *)MAP_FAILED, *idx3 = (size_t *)MAP_FAILED;
 	const double q = 3.0;
@@ -1328,11 +1328,11 @@ case_stream_index_1:
 		pr_inf("%s: memory rate: %.2f MB read/sec, %.2f MB write/sec, %.2f double precision Mflop/sec"
 			" (instance %" PRIu32 ")\n",
 			args->name, mb_rd_rate, mb_wr_rate, fp_rate, args->instance);
-		stress_metrics_set(args, metric++, "MB per sec memory read rate",
+		stress_metrics_set(args, "MB per sec memory read rate",
 			mb_rd_rate, STRESS_METRIC_HARMONIC_MEAN);
-		stress_metrics_set(args, metric++, "MB per sec memory write rate",
+		stress_metrics_set(args, "MB per sec memory write rate",
 			mb_wr_rate, STRESS_METRIC_HARMONIC_MEAN);
-		stress_metrics_set(args, metric++, "Mflop per sec (double precision) compute rate",
+		stress_metrics_set(args, "Mflop per sec (double precision) compute rate",
 			fp_rate, STRESS_METRIC_HARMONIC_MEAN);
 	} else {
 		if (stress_instance_zero(args))
@@ -1361,7 +1361,7 @@ case_stream_index_1:
 		stats_ok = false;
 
 	if (stats_ok) {
-		stress_mmap_stats_report(args, &stats_total, &metric,
+		stress_mmap_stats_report(args, &stats_total,
 			STRESS_MMAP_REPORT_FLAGS_TOTAL |
 			STRESS_MMAP_REPORT_FLAGS_SWAPPED |
 			STRESS_MMAP_REPORT_FLAGS_CONTIGUOUS);

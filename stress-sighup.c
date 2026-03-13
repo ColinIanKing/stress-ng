@@ -260,7 +260,7 @@ static int stress_sighup(stress_args_t *args)
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
 
 	rate = (sighup_info->count > 0.0) ? sighup_info->latency / sighup_info->count : 0.0;
-	stress_metrics_set(args, 0, "nanosec SIGHUP latency",
+	stress_metrics_set(args, "nanosec SIGHUP latency",
 		rate * STRESS_DBL_NANOSECOND, STRESS_METRIC_HARMONIC_MEAN);
 
 	(void)munmap((void *)sighup_info, sizeof(*sighup_info));

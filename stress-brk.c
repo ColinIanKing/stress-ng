@@ -342,10 +342,10 @@ static int stress_brk(stress_args_t *args)
 		args->name, brk_context->sbrk_expands, brk_context->sbrk_shrinks);
 
 	rate = (brk_context->sbrk_exp_count > 0.0) ? (double)brk_context->sbrk_exp_duration / brk_context->sbrk_exp_count : 0.0;
-	stress_metrics_set(args, 0, "nanosecs per sbrk page expand",
+	stress_metrics_set(args, "nanosecs per sbrk page expand",
 		rate * STRESS_DBL_NANOSECOND, STRESS_METRIC_HARMONIC_MEAN);
 	rate = (brk_context->sbrk_shr_count > 0.0) ? (double)brk_context->sbrk_shr_duration / brk_context->sbrk_shr_count : 0.0;
-	stress_metrics_set(args, 1, "nanosecs per sbrk page shrink",
+	stress_metrics_set(args, "nanosecs per sbrk page shrink",
 		rate * STRESS_DBL_NANOSECOND, STRESS_METRIC_HARMONIC_MEAN);
 
 	(void)stress_munmap_anon_shared((void *)brk_context, sizeof(*brk_context));

@@ -450,7 +450,7 @@ finish:
 	rc = EXIT_SUCCESS;
 
 	rate = (duration > 0.0) ? (double)state->ops * (double)state->bogo_ops / duration : 0.0;
-	stress_metrics_set(args, 0, "easy opcodes exercised per sec", rate, STRESS_METRIC_HARMONIC_MEAN);
+	stress_metrics_set(args, "easy opcodes exercised per sec", rate, STRESS_METRIC_HARMONIC_MEAN);
 err:
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
 

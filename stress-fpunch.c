@@ -440,7 +440,7 @@ static int stress_fpunch(stress_args_t *args)
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
 
 	extents = stress_fs_extents_get(fd);
-	stress_metrics_set(args, 0, "extents per file",
+	stress_metrics_set(args, "extents per file",
 		(double)extents, STRESS_METRIC_GEOMETRIC_MEAN);
 
 tidy:

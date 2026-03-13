@@ -323,9 +323,9 @@ static int stress_numacopy(stress_args_t *args)
 	numa_pages_memcpy *= (double)num_numa_nodes_squared;
 
 	rate = duration > 0.0 ? numa_pages_memset / duration : 0.0;
-	stress_metrics_set(args, 1, "numa_pages filled per sec", rate, STRESS_METRIC_GEOMETRIC_MEAN);
+	stress_metrics_set(args, "numa_pages filled per sec", rate, STRESS_METRIC_GEOMETRIC_MEAN);
 	rate = duration > 0.0 ? numa_pages_memcpy / duration : 0.0;
-	stress_metrics_set(args, 0, "pages copied per sec", rate, STRESS_METRIC_GEOMETRIC_MEAN);
+	stress_metrics_set(args, "pages copied per sec", rate, STRESS_METRIC_GEOMETRIC_MEAN);
 
 	rc = EXIT_SUCCESS;
 err:

@@ -621,7 +621,7 @@ static int stress_gpu_child(stress_args_t *args, void *context)
 
 		rate = (gpu_freq_count > 0) ? gpu_freq_sum / (double)gpu_freq_count : 0.0;
 		if (rate > 0.0)
-			stress_metrics_set(args, 0, "MHz GPU frequency",
+			stress_metrics_set(args, "MHz GPU frequency",
 					rate, STRESS_METRIC_HARMONIC_MEAN);
 	}
 #endif

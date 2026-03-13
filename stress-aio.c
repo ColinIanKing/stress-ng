@@ -369,9 +369,9 @@ finish:
 
 	dt = t2 - t1;
 	rate = (dt > 0.0) ? (double)total / dt : 0.0;
-	stress_metrics_set(args, 0, "async I/O signals per sec",
+	stress_metrics_set(args, "async I/O signals per sec",
 			rate, STRESS_METRIC_HARMONIC_MEAN);
-	stress_metrics_set(args, 1, "async I/O signals",
+	stress_metrics_set(args, "async I/O signals",
 			(double)total, STRESS_METRIC_TOTAL);
 	(void)stress_fs_temp_dir_rm_args(args);
 	return rc;

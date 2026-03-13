@@ -624,10 +624,10 @@ l2:
 	duration = stress_time_now() - t_start;
 
 	rate = (duration > 0.0) ? calls / duration : 0.0;
-	stress_metrics_set(args, 0, "function calls per sec",
+	stress_metrics_set(args, "function calls per sec",
 		rate, STRESS_METRIC_HARMONIC_MEAN);
 	rate = (calls > 0.0) ? duration / calls: 0.0;
-	stress_metrics_set(args, 1, "nanosecs per call/return",
+	stress_metrics_set(args, "nanosecs per call/return",
 		rate * STRESS_DBL_NANOSECOND, STRESS_METRIC_HARMONIC_MEAN);
 
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);

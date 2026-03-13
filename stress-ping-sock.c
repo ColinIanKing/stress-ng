@@ -155,11 +155,9 @@ static int stress_ping_sock(stress_args_t *args)
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
 
 	rate = (duration > 0.0) ? (double)stress_bogo_get(args) / duration : 0.0;
-	stress_metrics_set(args, 0, "ping sendto calls per sec",
-		rate, STRESS_METRIC_HARMONIC_MEAN);
+	stress_metrics_set(args, "ping sendto calls per sec", rate, STRESS_METRIC_HARMONIC_MEAN);
 	rate = (duration > 0.0) ? total / duration : 0.0;
-	stress_metrics_set(args, 1, "ping bytes per sec",
-		rate, STRESS_METRIC_HARMONIC_MEAN);
+	stress_metrics_set(args, "ping bytes per sec", rate, STRESS_METRIC_HARMONIC_MEAN);
 
 	(void)close(fd);
 

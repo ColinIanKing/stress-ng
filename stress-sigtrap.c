@@ -94,7 +94,7 @@ static int stress_sigtrap(stress_args_t *args)
 		return EXIT_FAILURE;
 	}
 	rate = (counter > 0) ? duration / (double)counter : 0.0;
-	stress_metrics_set(args, 0, "nanosecs to handle SIGTRAP",
+	stress_metrics_set(args, "nanosecs to handle SIGTRAP",
 		rate * STRESS_DBL_NANOSECOND, STRESS_METRIC_HARMONIC_MEAN);
 
 	return EXIT_SUCCESS;

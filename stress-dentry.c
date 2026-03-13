@@ -460,16 +460,16 @@ abort:
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
 
 	rate = (creat_count > 0.0) ? (double)creat_duration / creat_count : 0.0;
-	stress_metrics_set(args, 0, "nanosecs per file creation",
+	stress_metrics_set(args, "nanosecs per file creation",
 		rate * STRESS_DBL_NANOSECOND, STRESS_METRIC_HARMONIC_MEAN);
 	rate = (access_count > 0.0) ? (double)access_duration / access_count : 0.0;
-	stress_metrics_set(args, 1, "nanosecs per file access",
+	stress_metrics_set(args, "nanosecs per file access",
 		rate * STRESS_DBL_NANOSECOND, STRESS_METRIC_HARMONIC_MEAN);
 	rate = (bogus_access_count > 0.0) ? (double)bogus_access_duration / bogus_access_count : 0.0;
-	stress_metrics_set(args, 2, "nanosecs per bogus file access",
+	stress_metrics_set(args, "nanosecs per bogus file access",
 		rate * STRESS_DBL_NANOSECOND, STRESS_METRIC_HARMONIC_MEAN);
 	rate = (bogus_unlink_count > 0.0) ? (double)bogus_unlink_duration / bogus_unlink_count : 0.0;
-	stress_metrics_set(args, 3, "nanosecs per bogus file unlink",
+	stress_metrics_set(args, "nanosecs per bogus file unlink",
 		rate * STRESS_DBL_NANOSECOND, STRESS_METRIC_HARMONIC_MEAN);
 
 	/* force unlink of all files */

@@ -962,8 +962,7 @@ static inline int stress_matrix_exercise(
 			exponent += e;
 
 			(void)snprintf(msg, sizeof(msg), "%s matrix ops per sec", matrix_methods[i].name);
-			stress_metrics_set(args, j, msg,
-				rate, STRESS_METRIC_HARMONIC_MEAN);
+			stress_metrics_set(args, msg, rate, STRESS_METRIC_HARMONIC_MEAN);
 			j++;
 		}
 	}

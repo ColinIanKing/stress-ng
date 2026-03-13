@@ -260,7 +260,7 @@ static int stress_mmaphuge_child(stress_args_t *args, void *v_context)
 static int stress_mmaphuge(stress_args_t *args)
 {
 	stress_mmaphuge_context_t *context;
-	int ret, metric = 0;
+	int ret;
 
 	context = stress_mmap_anon_shared(sizeof(*context), PROT_READ | PROT_WRITE);
 	if (context == MAP_FAILED) {
@@ -376,8 +376,7 @@ static int stress_mmaphuge(stress_args_t *args)
 
 	ret = stress_oomable_child(args, (void *)context, stress_mmaphuge_child, STRESS_OOMABLE_QUIET);
 
-	metric = 0;
-        stress_mmap_stats_report(args, &context->stats, &metric,
+        stress_mmap_stats_report(args, &context->stats,
 			STRESS_MMAP_REPORT_FLAGS_TOTAL |
 			STRESS_MMAP_REPORT_FLAGS_SWAPPED |
 			STRESS_MMAP_REPORT_FLAGS_DIRTIED |

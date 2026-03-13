@@ -150,7 +150,6 @@ static inline int stress_dev_shm_child(
 static int stress_dev_shm(stress_args_t *args)
 {
 	int rc = EXIT_SUCCESS;
-	int metric;
 	char path[PATH_MAX];
 	stress_dev_shm_context_t *context;
 
@@ -202,8 +201,7 @@ static int stress_dev_shm(stress_args_t *args)
 
 	rc = stress_oomable_child(args, context, stress_dev_shm_child, STRESS_OOMABLE_NORMAL);
 
-	metric = 0;
-	stress_mmap_stats_report(args, &context->stats, &metric,
+	stress_mmap_stats_report(args, &context->stats,
 			STRESS_MMAP_REPORT_FLAGS_TOTAL |
 			STRESS_MMAP_REPORT_FLAGS_SWAPPED |
 			STRESS_MMAP_REPORT_FLAGS_DIRTIED);

@@ -289,7 +289,7 @@ static int stress_timermix(stress_args_t *args)
 #endif
 
 	int rc = EXIT_SUCCESS;
-	size_t i, j;
+	size_t i;
 	bool timer_created = false;
 	double t_start, duration = 0.0;
 
@@ -401,7 +401,6 @@ static int stress_timermix(stress_args_t *args)
 	duration = stress_time_now() - t_start;
 
 stop_timers:
-	j = 0;
 #if defined(EXERCISE_TIMER)
 	/* stop timers */
 	for (i = 0; i < SIZEOF_ARRAY(timer_info); i++) {
@@ -424,8 +423,7 @@ stop_timers:
 
 			(void)snprintf(str, sizeof(str), "%s ticks per sec", timer_info[i].clock_name);
 			rate = (duration > 0.0) ? (double)timer_info[i].count / duration : 0.0;
-			stress_metrics_set(args, j, str, rate, STRESS_METRIC_HARMONIC_MEAN);
-			j++;
+			stress_metrics_set(args, str, rate, STRESS_METRIC_HARMONIC_MEAN);
 		}
 	}
 #endif
@@ -441,8 +439,7 @@ stop_timers:
 
 		(void)snprintf(str, sizeof(str), "%s ticks per sec", itimer_info[i].itimer_name);
 		rate = (duration > 0.0) ? (double)itimer_info[i].count / duration : 0.0;
-		stress_metrics_set(args, j, str, rate, STRESS_METRIC_HARMONIC_MEAN);
-		j++;
+		stress_metrics_set(args, str, rate, STRESS_METRIC_HARMONIC_MEAN);
 	}
 #endif
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);

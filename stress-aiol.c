@@ -842,10 +842,10 @@ finish:
 free_memory:
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
 
-	stress_metrics_set(args, 0, "async I/O events completed",
+	stress_metrics_set(args, "async I/O events completed",
 		(double)info.aiol_completions, STRESS_METRIC_TOTAL);
 	rate = (duration > 0) ? (double)info.aiol_completions / duration : 0.0;
-	stress_metrics_set(args, 1, "async I/O events completed per sec",
+	stress_metrics_set(args, "async I/O events completed per sec",
 		rate, STRESS_METRIC_HARMONIC_MEAN);
 
 	stress_aiol_free(&info);

@@ -467,7 +467,7 @@ PRAGMA_UNROLL_N(4)
 
 	if ((iterations > 0) && (avg_extents > 0.0)) {
 		avg_extents /= (double)iterations;
-		stress_metrics_set(args, 0, "extents",
+		stress_metrics_set(args, "extents",
 			(double)avg_extents, STRESS_METRIC_GEOMETRIC_MEAN);
 	}
 

@@ -321,10 +321,10 @@ clean:
 	(void)stress_fs_temp_dir_rm_args(args);
 
 	rate = (mount_count > 0.0) ? (double)mount_duration / mount_count : 0.0;
-	stress_metrics_set(args, 0, "microsecs per mount",
+	stress_metrics_set(args, "microsecs per mount",
 		rate * STRESS_DBL_MICROSECOND, STRESS_METRIC_HARMONIC_MEAN);
 	rate = (umount_count > 0.0) ? (double)umount_duration / umount_count : 0.0;
-	stress_metrics_set(args, 1, "microsecs per umount",
+	stress_metrics_set(args, "microsecs per umount",
 		rate * STRESS_DBL_MICROSECOND, STRESS_METRIC_HARMONIC_MEAN);
 
 	return rc;

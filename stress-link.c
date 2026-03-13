@@ -307,7 +307,7 @@ err_unlink:
 
 	duration = stress_time_now() - t_start;
 	rate = (duration > 0.0) ? link_count / duration : 0.0;
-	stress_metrics_set(args, 0, "links created/removed per sec", rate, STRESS_METRIC_HARMONIC_MEAN);
+	stress_metrics_set(args, "links created/removed per sec", rate, STRESS_METRIC_HARMONIC_MEAN);
 
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
 

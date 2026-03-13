@@ -522,7 +522,7 @@ static void stress_vnni_all(stress_args_t *args)
  */
 static int stress_vnni(stress_args_t *args)
 {
-	size_t i, j, vnni_method = 0, intrinsic_count = 0;
+	size_t i, vnni_method = 0, intrinsic_count = 0;
 
 	stress_signal_catch_sigill();
 
@@ -584,7 +584,7 @@ static int stress_vnni(stress_args_t *args)
 
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
 
-	for (i = 1, j = 0; i < SIZEOF_ARRAY(stress_vnni_methods); i++) {
+	for (i = 1; i < SIZEOF_ARRAY(stress_vnni_methods); i++) {
 		if (stress_vnni_data[i].vnni_capable &&
 		    (stress_vnni_data[i].metrics.count > 0.0)) {
 			char buf[64];
@@ -592,9 +592,8 @@ static int stress_vnni(stress_args_t *args)
 				stress_vnni_data[i].metrics.count / stress_vnni_data[i].metrics.duration : 0.0;
 
 			(void)snprintf(buf, sizeof(buf), "%s ops per sec", stress_vnni_methods[i].name);
-			stress_metrics_set(args, j, buf,
+			stress_metrics_set(args, buf,
 				rate, STRESS_METRIC_HARMONIC_MEAN);
-			j++;
 		}
 	}
 

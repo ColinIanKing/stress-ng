@@ -3785,7 +3785,7 @@ static int stress_vm(stress_args_t *args)
 	uint64_t tmp_counter;
 	const size_t page_size = args->page_size;
 	size_t retries;
-	int err = 0, ret = EXIT_SUCCESS, metric;
+	int err = 0, ret = EXIT_SUCCESS;
 	size_t vm_method = 0;
 	size_t vm_total = DEFAULT_VM_BYTES;
 	stress_vm_context_t *context;
@@ -3907,27 +3907,26 @@ static int stress_vm(stress_args_t *args)
 	tmp_counter = stress_bogo_get(args) >> VM_BOGO_SHIFT;
 	stress_bogo_set(args, tmp_counter);
 
-	metric = 0;
 	if (context->mmap_count > 0) {
-		stress_metrics_set(args, metric++, "mmaps total", (double)context->mmap_count, STRESS_METRIC_GEOMETRIC_MEAN);
-		stress_metrics_set(args, metric++, "ms mmap min. duration",
+		stress_metrics_set(args, "mmaps total", (double)context->mmap_count, STRESS_METRIC_GEOMETRIC_MEAN);
+		stress_metrics_set(args, "ms mmap min. duration",
 			STRESS_DBL_MILLISECOND * context->mmap_duration_min, STRESS_METRIC_GEOMETRIC_MEAN);
-		stress_metrics_set(args, metric++, "ms mmap max. duration",
+		stress_metrics_set(args, "ms mmap max. duration",
 			STRESS_DBL_MILLISECOND * context->mmap_duration_max, STRESS_METRIC_GEOMETRIC_MEAN);
-		stress_metrics_set(args, metric++, "ms mmap avg. duration",
+		stress_metrics_set(args, "ms mmap avg. duration",
 			STRESS_DBL_MILLISECOND * context->mmap_duration_total / (double)context->mmap_count, STRESS_METRIC_GEOMETRIC_MEAN);
 	}
 	if (context->munmap_count > 0) {
-		stress_metrics_set(args, metric++, "munmaps total", (double)context->mmap_count, STRESS_METRIC_GEOMETRIC_MEAN);
-		stress_metrics_set(args, metric++, "ms munmap min. duration",
+		stress_metrics_set(args, "munmaps total", (double)context->mmap_count, STRESS_METRIC_GEOMETRIC_MEAN);
+		stress_metrics_set(args, "ms munmap min. duration",
 			STRESS_DBL_MILLISECOND * context->munmap_duration_min, STRESS_METRIC_GEOMETRIC_MEAN);
-		stress_metrics_set(args, metric++, "ms munmap max. duration",
+		stress_metrics_set(args, "ms munmap max. duration",
 			STRESS_DBL_MILLISECOND * context->munmap_duration_max, STRESS_METRIC_GEOMETRIC_MEAN);
-		stress_metrics_set(args, metric++, "ms munmap avg. duration",
+		stress_metrics_set(args, "ms munmap avg. duration",
 			STRESS_DBL_MILLISECOND * context->munmap_duration_total / (double)context->munmap_count, STRESS_METRIC_GEOMETRIC_MEAN);
 	}
 
-	stress_mmap_stats_report(args, &context->stats, &metric,
+	stress_mmap_stats_report(args, &context->stats,
 		STRESS_MMAP_REPORT_FLAGS_TOTAL |
 		STRESS_MMAP_REPORT_FLAGS_SWAPPED |
 		STRESS_MMAP_REPORT_FLAGS_DIRTIED |

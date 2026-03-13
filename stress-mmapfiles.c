@@ -283,16 +283,16 @@ static int stress_mmapfiles(stress_args_t *args)
 	ret = stress_oomable_child(args, (void *)mmapfile_info, stress_mmapfiles_child, STRESS_OOMABLE_NORMAL);
 
 	metric = (mmapfile_info->mmap_duration > 0.0) ? mmapfile_info->mmap_count / mmapfile_info->mmap_duration : 0.0;
-	stress_metrics_set(args, 0, "file mmaps per sec ", metric, STRESS_METRIC_HARMONIC_MEAN);
+	stress_metrics_set(args, "file mmaps per sec ", metric, STRESS_METRIC_HARMONIC_MEAN);
 	metric = (mmapfile_info->munmap_duration > 0.0) ? mmapfile_info->munmap_count / mmapfile_info->munmap_duration : 0.0;
-	stress_metrics_set(args, 1, "file munmap per sec", metric, STRESS_METRIC_HARMONIC_MEAN);
+	stress_metrics_set(args, "file munmap per sec", metric, STRESS_METRIC_HARMONIC_MEAN);
 
 	metric = (mmapfile_info->mmap_duration > 0.0) ? mmapfile_info->mmap_page_count / mmapfile_info->mmap_duration: 0.0;
-	stress_metrics_set(args, 2, "file pages mmap'd per sec", metric, STRESS_METRIC_HARMONIC_MEAN);
+	stress_metrics_set(args, "file pages mmap'd per sec", metric, STRESS_METRIC_HARMONIC_MEAN);
 	metric = (mmapfile_info->munmap_duration > 0.0) ? mmapfile_info->munmap_page_count / mmapfile_info->munmap_duration: 0.0;
-	stress_metrics_set(args, 3, "file pages munmap'd per sec", metric, STRESS_METRIC_HARMONIC_MEAN);
+	stress_metrics_set(args, "file pages munmap'd per sec", metric, STRESS_METRIC_HARMONIC_MEAN);
 	metric = (mmapfile_info->mmap_count > 0.0) ? mmapfile_info->mmap_page_count / mmapfile_info->mmap_count : 0.0;
-	stress_metrics_set(args, 4, "pages per mapping", metric, STRESS_METRIC_HARMONIC_MEAN);
+	stress_metrics_set(args, "pages per mapping", metric, STRESS_METRIC_HARMONIC_MEAN);
 
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 	if (mmapfile_info->numa_mask)

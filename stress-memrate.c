@@ -1074,7 +1074,7 @@ tidy:
  */
 static int stress_memrate(stress_args_t *args)
 {
-	int rc, flag, metric;
+	int rc, flag;
 	size_t i, memrate_stats_size;
 	stress_memrate_context_t *context;
 	double inverse_n, geomean, rd_mantissa, rd_n, wr_mantissa, wr_n;
@@ -1158,7 +1158,6 @@ static int stress_memrate(stress_args_t *args)
 	wr_mantissa = 1.0;
 	wr_exponent = 0;
 	wr_n = 0.0;
-	metric = 0;
 
 	for (i = 1; i < memrate_items; i++) {
 		if (!context->memrate_stats[i].valid)
@@ -1187,8 +1186,7 @@ static int stress_memrate(stress_args_t *args)
 			}
 
 			(void)snprintf(tmp, sizeof(tmp), "%s MB per sec", memrate_info[i].name);
-			stress_metrics_set(args, metric++, tmp,
-				rate, STRESS_METRIC_HARMONIC_MEAN);
+			stress_metrics_set(args, tmp, rate, STRESS_METRIC_HARMONIC_MEAN);
 
 		} else {
 			pr_inf("%s: %10.10s: interrupted early\n",
@@ -1213,7 +1211,7 @@ static int stress_memrate(stress_args_t *args)
 	}
 	pr_block_end();
 
-	stress_mmap_stats_report(args, &context->mmap_stats, &metric,
+	stress_mmap_stats_report(args, &context->mmap_stats,
 			STRESS_MMAP_REPORT_FLAGS_TOTAL |
 			STRESS_MMAP_REPORT_FLAGS_SWAPPED |
 			STRESS_MMAP_REPORT_FLAGS_CONTIGUOUS);

@@ -537,58 +537,48 @@ void stress_mmap_stats_sum(
 void stress_mmap_stats_report(
 	stress_args_t *args,
 	const stress_mmap_stats_t *stats,
-	int *metric_index,
 	int flags)
 {
 	if (stats->pages_mapped > 0) {
 		double pc;
 
-		if (flags & STRESS_MMAP_REPORT_FLAGS_TOTAL) {
-			stress_metrics_set(args, *metric_index, "pages mmapped", (double)stats->pages_mapped, STRESS_METRIC_GEOMETRIC_MEAN);
-			(*metric_index)++;
-		}
+		if (flags & STRESS_MMAP_REPORT_FLAGS_TOTAL)
+			stress_metrics_set(args, "pages mmapped", (double)stats->pages_mapped, STRESS_METRIC_GEOMETRIC_MEAN);
 
 		if (flags & STRESS_MMAP_REPORT_FLAGS_PRESENT) {
 			pc = 100.0 * (double)stats->pages_present / (double)stats->pages_mapped;
-			stress_metrics_set(args, *metric_index, "% pages present", pc, STRESS_METRIC_GEOMETRIC_MEAN);
-			(*metric_index)++;
+			stress_metrics_set(args, "% pages present", pc, STRESS_METRIC_GEOMETRIC_MEAN);
 		}
 
 		if (flags & STRESS_MMAP_REPORT_FLAGS_SWAPPED) {
 			pc = 100.0 * (double)stats->pages_swapped / (double)stats->pages_mapped;
-			stress_metrics_set(args, *metric_index, "% pages swapped", pc, STRESS_METRIC_GEOMETRIC_MEAN);
-			(*metric_index)++;
+			stress_metrics_set(args, "% pages swapped", pc, STRESS_METRIC_GEOMETRIC_MEAN);
 		}
 
 		if (flags & STRESS_MMAP_REPORT_FLAGS_DIRTIED) {
 			pc = 100.0 * (double)stats->pages_dirtied / (double)stats->pages_mapped;
-			stress_metrics_set(args, *metric_index, "% pages dirtied", pc, STRESS_METRIC_GEOMETRIC_MEAN);
-			(*metric_index)++;
+			stress_metrics_set(args, "% pages dirtied", pc, STRESS_METRIC_GEOMETRIC_MEAN);
 		}
 
 		if (flags & STRESS_MMAP_REPORT_FLAGS_EXCLUSIVE) {
 			pc = 100.0 * (double)stats->pages_exclusive / (double)stats->pages_mapped;
-			stress_metrics_set(args, *metric_index, "% pages exclusive", pc, STRESS_METRIC_GEOMETRIC_MEAN);
-			(*metric_index)++;
+			stress_metrics_set(args, "% pages exclusive", pc, STRESS_METRIC_GEOMETRIC_MEAN);
 		}
 
 		if (flags & STRESS_MMAP_REPORT_FLAGS_UKNOWN) {
 			pc = 100.0 * (double)stats->pages_unknown / (double)stats->pages_mapped;
-			stress_metrics_set(args, *metric_index, "% pages unknown", pc, STRESS_METRIC_GEOMETRIC_MEAN);
-			(*metric_index)++;
+			stress_metrics_set(args, "% pages unknown", pc, STRESS_METRIC_GEOMETRIC_MEAN);
 		}
 
 		if (flags & STRESS_MMAP_REPORT_FLAGS_NULL) {
 			pc = 100.0 * (double)stats->pages_null / (double)stats->pages_mapped;
-			stress_metrics_set(args, *metric_index, "% pages null", pc, STRESS_METRIC_GEOMETRIC_MEAN);
-			(*metric_index)++;
+			stress_metrics_set(args, "% pages null", pc, STRESS_METRIC_GEOMETRIC_MEAN);
 		}
 
 		if ((flags & STRESS_MMAP_REPORT_FLAGS_CONTIGUOUS) &&
 		    (stats->pages_null == 0) && (stats->pages_present > 0)) {
 			pc = 100.0 * (double)stats->pages_contiguous / (double)stats->pages_mapped;
-			stress_metrics_set(args, *metric_index, "% pages physically contiguous", pc, STRESS_METRIC_GEOMETRIC_MEAN);
-			(*metric_index)++;
+			stress_metrics_set(args, "% pages physically contiguous", pc, STRESS_METRIC_GEOMETRIC_MEAN);
 		}
 	}
 }

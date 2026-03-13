@@ -579,7 +579,7 @@ static int stress_monte_carlo(stress_args_t *args)
 	stress_metrics_t metrics[METHODS_MAX][RANDS_MAX];
 	stress_monte_carlo_result_t results[METHODS_MAX][RANDS_MAX];
 	bool rands_supported[RANDS_MAX];
-	size_t i, j, idx;
+	size_t i, j;
 
 	for (i = 0; i < RANDS_MAX; i++) {
 		rands_supported[i] = rand_info[i].supported();
@@ -617,7 +617,7 @@ static int stress_monte_carlo(stress_args_t *args)
 
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
 
-	for (idx = 0, i = 1; i < METHODS_MAX; i++) {
+	for (i = 1; i < METHODS_MAX; i++) {
 		for (j = 1; j < RANDS_MAX; j++) {
 			if (metrics[i][j].duration > 0.0) {
 				char buf[64];
@@ -625,8 +625,7 @@ static int stress_monte_carlo(stress_args_t *args)
 
 				(void)snprintf(buf, sizeof(buf), "samples/sec, %s using %s",
 					stress_monte_carlo_methods[i].name, rand_info[j].name);
-				stress_metrics_set(args, idx, buf, rate, STRESS_METRIC_GEOMETRIC_MEAN);
-				idx++;
+				stress_metrics_set(args, buf, rate, STRESS_METRIC_GEOMETRIC_MEAN);
 			}
 		}
 	}

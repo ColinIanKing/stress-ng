@@ -358,7 +358,7 @@ static int stress_mseal(stress_args_t *args)
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
 
 	rate = (mseal_duration > 0.0) ? mseal_count / mseal_duration : 0.0;
-	stress_metrics_set(args, 0, "mseal calls per sec", rate, STRESS_METRIC_HARMONIC_MEAN);
+	stress_metrics_set(args, "mseal calls per sec", rate, STRESS_METRIC_HARMONIC_MEAN);
 
 	/* This will fail if mseal works, ignore failure */
 	(void)munmap(mapping, mapping_size);

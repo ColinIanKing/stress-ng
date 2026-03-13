@@ -120,10 +120,10 @@ again:
 finish:
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
 
-	stress_metrics_set(args, 0, "child exited", (double)cld_exited, STRESS_METRIC_TOTAL);
-	stress_metrics_set(args, 1, "child killed", (double)cld_killed, STRESS_METRIC_TOTAL);
-	stress_metrics_set(args, 2, "child stopped", (double)cld_stopped, STRESS_METRIC_TOTAL);
-	stress_metrics_set(args, 3, "child continued", (double)cld_continued, STRESS_METRIC_TOTAL);
+	stress_metrics_set(args, "child exited", (double)cld_exited, STRESS_METRIC_TOTAL);
+	stress_metrics_set(args, "child killed", (double)cld_killed, STRESS_METRIC_TOTAL);
+	stress_metrics_set(args, "child stopped", (double)cld_stopped, STRESS_METRIC_TOTAL);
+	stress_metrics_set(args, "child continued", (double)cld_continued, STRESS_METRIC_TOTAL);
 
 #if !defined(__OpenBSD__)
 	/*

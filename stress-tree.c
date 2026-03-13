@@ -1208,8 +1208,7 @@ tidy:
 			int e;
 
 			(void)snprintf(msg, sizeof(msg), "%s tree operations per sec", stress_tree_methods[i].name);
-			stress_metrics_set(args, j, msg,
-				rate, STRESS_METRIC_HARMONIC_MEAN);
+			stress_metrics_set(args, msg, rate, STRESS_METRIC_HARMONIC_MEAN);
 
 			f = frexp(rate, &e);
 			mantissa *= f;

@@ -170,7 +170,7 @@ static int stress_mtx(stress_args_t *args)
 	mtx_destroy(&mtx);
 
 	rate = (count > 0.0) ? (duration / count) : 0.0;
-	stress_metrics_set(args, 0, "nanosecs per mtx",
+	stress_metrics_set(args, "nanosecs per mtx",
 		rate * STRESS_DBL_NANOSECOND, STRESS_METRIC_HARMONIC_MEAN);
 
 	return EXIT_SUCCESS;

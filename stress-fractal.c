@@ -388,11 +388,11 @@ static int stress_fractal(stress_args_t *args)
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
 
 	rate = (duration > 0.0) ? (rows * (double)info.xsize) / duration : 0.0;
-	stress_metrics_set(args, 0, "points per sec",
+	stress_metrics_set(args, "points per sec",
 		rate, STRESS_METRIC_HARMONIC_MEAN);
 
 	rate = (duration > 0.0) ? (rows / (double)info.ysize) / duration : 0.0;
-	stress_metrics_set(args, 1, "fractals per sec",
+	stress_metrics_set(args, "fractals per sec",
 		rate, STRESS_METRIC_HARMONIC_MEAN);
 
 	(void)munmap((void *)info.data, data_sz);

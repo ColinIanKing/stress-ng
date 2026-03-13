@@ -515,7 +515,7 @@ static int stress_list(stress_args_t *args)
 {
 	uint64_t v, list_size = DEFAULT_LIST_SIZE;
 	list_entry_t *entries, *entry, *entries_end;
-	size_t n, i, j, bit, list_method = 0;
+	size_t n, i, bit, list_method = 0;
 	NOCLOBBER int rc = EXIT_SUCCESS;
 	stress_metrics_t *metrics, list_metrics[SIZEOF_ARRAY(list_methods)];
 	stress_list_func func;
@@ -602,15 +602,13 @@ static int stress_list(stress_args_t *args)
 	do_jmp = false;
 tidy:
 #endif
-	for (i = 0, j = 0; i < SIZEOF_ARRAY(list_metrics); i++) {
+	for (i = 0; i < SIZEOF_ARRAY(list_metrics); i++) {
 		if ((list_metrics[i].duration > 0.0) && (list_metrics[i].count > 0.0)) {
 			char msg[64];
 			const double rate = list_metrics[i].count / list_metrics[i].duration;
 
 			(void)snprintf(msg, sizeof(msg), "%s searches per second", list_methods[i].name);
-			stress_metrics_set(args, j, msg,
-				rate, STRESS_METRIC_HARMONIC_MEAN);
-			j++;
+			stress_metrics_set(args, msg, rate, STRESS_METRIC_HARMONIC_MEAN);
 		}
 	}
 

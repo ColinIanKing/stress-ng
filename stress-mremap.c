@@ -357,7 +357,7 @@ deinit:
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
 
 	rate = (count > 0.0) ? duration / count : 0.0;
-	stress_metrics_set(args, 0, "nanosecs per mremap call",
+	stress_metrics_set(args, "nanosecs per mremap call",
 		rate * STRESS_DBL_NANOSECOND, STRESS_METRIC_HARMONIC_MEAN);
 
 #if defined(HAVE_LINUX_MEMPOLICY_H)

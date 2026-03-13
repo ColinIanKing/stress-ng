@@ -190,9 +190,9 @@ static int stress_regex(stress_args_t *args)
 			break;
 	} while (stress_continue(args));
 
-	stress_metrics_set(args, 0, "regcomp per sec",
+	stress_metrics_set(args, "regcomp per sec",
 		stress_regex_rate(comp_times, comp_count), STRESS_METRIC_HARMONIC_MEAN);
-	stress_metrics_set(args, 1, "regexec per sec",
+	stress_metrics_set(args, "regexec per sec",
 		stress_regex_rate(exec_times, exec_count), STRESS_METRIC_HARMONIC_MEAN);
 
 	for (i = 0; i < N_REGEXES; i++) {
@@ -201,7 +201,7 @@ static int stress_regex(stress_args_t *args)
 
 		rate = comp_times[i] > 0.0 ? (double)comp_count[i] / comp_times[i] : 0.0;
 		(void)snprintf(str, sizeof(str), "regcomp '%s' per sec", stress_posix_regex[i].description);
-		stress_metrics_set(args, i + 2, str, rate, STRESS_METRIC_HARMONIC_MEAN);
+		stress_metrics_set(args, str, rate, STRESS_METRIC_HARMONIC_MEAN);
 	}
 
 	return EXIT_SUCCESS;

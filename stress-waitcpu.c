@@ -285,7 +285,7 @@ static stress_waitcpu_method_t stress_waitcpu_method[] = {
 static int stress_waitcpu(stress_args_t *args)
 {
 	bool supported = false;
-	size_t i, j;
+	size_t i;
 	char str[16 * SIZEOF_ARRAY(stress_waitcpu_method)];
 #if defined(STRESS_ARCH_X86)
 	double nop_rate = -1.0;
@@ -340,7 +340,7 @@ static int stress_waitcpu(stress_args_t *args)
 
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
 
-	for (i = 0, j = 0; i < SIZEOF_ARRAY(stress_waitcpu_method); i++) {
+	for (i = 0; i < SIZEOF_ARRAY(stress_waitcpu_method); i++) {
 		double rate = 0.0;
 
 		if ((stress_waitcpu_method[i].duration > 0.0) &&
@@ -357,9 +357,7 @@ static int stress_waitcpu(stress_args_t *args)
 			char msg[64];
 
 			(void)snprintf(msg, sizeof(msg), "%s ops per sec", stress_waitcpu_method[i].name);
-			stress_metrics_set(args, j, msg,
-				rate, STRESS_METRIC_HARMONIC_MEAN);
-			j++;
+			stress_metrics_set(args, msg, rate, STRESS_METRIC_HARMONIC_MEAN);
 		}
 		stress_waitcpu_method[i].rate = rate;
 	}

@@ -587,14 +587,14 @@ static int stress_llc_affinity(stress_args_t *args)
 
 	writes /= (double)MB;
 	rate = write_duration > 0.0 ? (double)writes / write_duration : 0.0;
-	stress_metrics_set(args, 0, "MB per sec memory write rate",
+	stress_metrics_set(args, "MB per sec memory write rate",
 		rate, STRESS_METRIC_HARMONIC_MEAN);
 	reads /= (double)MB;
 	rate = read_duration > 0.0 ? (double)reads / read_duration : 0.0;
-	stress_metrics_set(args, 1, "MB per sec memory read rate",
+	stress_metrics_set(args, "MB per sec memory read rate",
 		rate, STRESS_METRIC_HARMONIC_MEAN);
 	rate = duration > 0.0 ? (double)affinity_changes / duration : 0.0;
-	stress_metrics_set(args, 2, "CPU affinity changes per sec",
+	stress_metrics_set(args, "CPU affinity changes per sec",
 		rate, STRESS_METRIC_HARMONIC_MEAN);
 
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);

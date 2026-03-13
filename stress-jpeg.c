@@ -478,10 +478,10 @@ static int stress_jpeg(stress_args_t *args)
 	duration = stress_time_now() - t_start;
 
 	rate = (duration > 0) ? total_pixels / duration : 0.0;
-	stress_metrics_set(args, 0, "megapixels compressed per sec",
+	stress_metrics_set(args, "megapixels compressed per sec",
 		rate / 1000000.0, STRESS_METRIC_HARMONIC_MEAN);
 	ratio = (size_uncompressed > 0) ? 100.0 * (double)size_compressed / (double)size_uncompressed : 0.0;
-	stress_metrics_set(args, 1, "% compression ratio",
+	stress_metrics_set(args, "% compression ratio",
 		ratio, STRESS_METRIC_HARMONIC_MEAN);
 
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);

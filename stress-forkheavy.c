@@ -287,7 +287,7 @@ static int stress_forkheavy(stress_args_t *args)
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
 
 	average = (metrics->count > 0.0) ? metrics->duration / metrics->count : 0.0;
-	stress_metrics_set(args, 0, "microsecs per fork" ,
+	stress_metrics_set(args, "microsecs per fork" ,
 		average * 1000000, STRESS_METRIC_HARMONIC_MEAN);
 
 	(void)stress_munmap_anon_shared((void *)metrics, sizeof(*metrics));

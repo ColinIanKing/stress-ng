@@ -146,14 +146,13 @@ static void stress_shm_metrics(
 	stress_args_t *args,
 	const double duration,
 	const double count,
-	const char *syscall_name,
-	const int idx)
+	const char *syscall_name)
 {
 	char buffer[40];
 	const double rate = (count > 0.0) ? (duration / count) : 0.0;
 
 	(void)snprintf(buffer, sizeof(buffer), "nanosecs per %s call", syscall_name);
-	stress_metrics_set(args, idx, buffer,
+	stress_metrics_set(args, buffer,
 		STRESS_DBL_NANOSECOND * rate, STRESS_METRIC_HARMONIC_MEAN);
 }
 
@@ -975,9 +974,9 @@ reap:
 	}
 	free(buffer);
 
-	stress_shm_metrics(args, shmget_duration, shmget_count, "shmget", 0);
-	stress_shm_metrics(args, shmat_duration, shmat_count, "shmat", 1);
-	stress_shm_metrics(args, shmdt_duration, shmdt_count, "shmdt", 2);
+	stress_shm_metrics(args, shmget_duration, shmget_count, "shmget");
+	stress_shm_metrics(args, shmat_duration, shmat_count, "shmat");
+	stress_shm_metrics(args, shmdt_duration, shmdt_count, "shmdt");
 	return rc;
 }
 

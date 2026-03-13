@@ -685,7 +685,7 @@ static size_t stress_wcs_all(stress_args_t *args, stress_wcs_args_t *info)
  */
 static int stress_wcs(stress_args_t *args)
 {
-	size_t i, j, wcs_method = 0;
+	size_t i, wcs_method = 0;
 	const stress_wcs_method_info_t *wcs_method_info;
 	wchar_t ALIGN64 str1[STR1LEN], ALIGN64 str2[STR2LEN];
 	wchar_t strdst[STRDSTLEN];
@@ -745,15 +745,14 @@ static int stress_wcs(stress_args_t *args)
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
 
 	/* dump metrics of methods except for first "all" method */
-	for (i = 1, j = 0; i < SIZEOF_ARRAY(metrics); i++) {
+	for (i = 1; i < SIZEOF_ARRAY(metrics); i++) {
 		if (metrics[i].duration > 0.0) {
 			char msg[64];
 			const double rate = metrics[i].count / metrics[i].duration;
 
 			(void)snprintf(msg, sizeof(msg), "%s calls per sec", wcs_methods[i].name);
-			stress_metrics_set(args, j, msg,
+			stress_metrics_set(args, msg,
 				rate, STRESS_METRIC_HARMONIC_MEAN);
-			j++;
 		}
 	}
 

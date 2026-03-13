@@ -174,13 +174,13 @@ static int stress_icmp_flood(stress_args_t *args)
 	sendto_ok = counter - sendto_fails;
 
 	rate = (duration > 0.0) ? (double)sendto_ok / duration : 0.0;
-	stress_metrics_set(args, 0, "sendto calls per sec",
+	stress_metrics_set(args, "sendto calls per sec",
 		rate, STRESS_METRIC_HARMONIC_MEAN);
 	rate = (duration > 0.0) ? bytes / duration : 0.0;
-	stress_metrics_set(args, 1, "MB written per sec",
+	stress_metrics_set(args, "MB written per sec",
 		rate / (double)MB, STRESS_METRIC_HARMONIC_MEAN);
 	rate = (counter > 0) ? 100.0 * (double)sendto_ok / (double)counter : 0.0;
-	stress_metrics_set(args, 2, "% successful sendto messages",
+	stress_metrics_set(args, "% successful sendto messages",
 		rate, STRESS_METRIC_TOTAL);
 
 	rc = EXIT_SUCCESS;

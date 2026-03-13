@@ -395,7 +395,7 @@ static double stress_vecfp_all(
 
 static int stress_vecfp(stress_args_t *args)
 {
-	size_t i, j, max_elements = 0, mmap_size;
+	size_t i, max_elements = 0, mmap_size;
 	stress_vecfp_init *vecfp_init;
 	size_t vecfp_method = 0;	/* "all" */
 	bool success = true;
@@ -463,7 +463,7 @@ static int stress_vecfp(stress_args_t *args)
 		stress_vecfp_call_method(args, vecfp_init, vecfp_method, &success);
 	} while (success && stress_continue(args));
 
-	for (i = 1, j = 0; i < SIZEOF_ARRAY(stress_vecfp_funcs); i++) {
+	for (i = 1; i < SIZEOF_ARRAY(stress_vecfp_funcs); i++) {
 		const double rate =
 			stress_vecfp_metrics[i].duration > 0.0 ?
 				(stress_vecfp_metrics[i].count / stress_vecfp_metrics[i].duration) / 1000000.0 : 0.0;
@@ -471,9 +471,7 @@ static int stress_vecfp(stress_args_t *args)
 			char buffer[64];
 
 			(void)snprintf(buffer, sizeof(buffer), "%s Mfp-ops/sec", stress_vecfp_funcs[i].name);
-			stress_metrics_set(args, j, buffer,
-				rate, STRESS_METRIC_HARMONIC_MEAN);
-			j++;
+			stress_metrics_set(args, buffer, rate, STRESS_METRIC_HARMONIC_MEAN);
 		}
 	}
 

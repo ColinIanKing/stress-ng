@@ -1243,9 +1243,8 @@ static bool stress_funccall_all(stress_args_t *args)
 static int stress_funccall(stress_args_t *args)
 {
 	size_t funccall_method = 0;
+	size_t i;
 	bool success;
-
-	size_t i, j;
 
 	stress_zero_metrics(stress_funccall_metrics, NUM_STRESS_FUNCCALL_METHODS);
 
@@ -1261,7 +1260,7 @@ static int stress_funccall(stress_args_t *args)
 
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
 
-	for (i = 1, j = 0; i < NUM_STRESS_FUNCCALL_METHODS; i++) {
+	for (i = 1; i < NUM_STRESS_FUNCCALL_METHODS; i++) {
 		const double rate = (stress_funccall_metrics[i].duration > 0) ?
 			stress_funccall_metrics[i].count / stress_funccall_metrics[i].duration : 0.0;
 
@@ -1270,8 +1269,7 @@ static int stress_funccall(stress_args_t *args)
 
 			(void)snprintf(msg, sizeof(msg), "%s function invocations per sec",
 					stress_funccall_methods[i].name);
-			stress_metrics_set(args, j, msg, rate, STRESS_METRIC_HARMONIC_MEAN);
-			j++;
+			stress_metrics_set(args, msg, rate, STRESS_METRIC_HARMONIC_MEAN);
 		}
 	}
 

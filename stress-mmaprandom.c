@@ -2244,7 +2244,7 @@ static int stress_mmaprandom(stress_args_t *args)
 		const double rate = duration > 0.0 ? ctxt->count[i] / duration: 0.0;
 
 		(void)snprintf(buf, sizeof(buf), "%s ops/sec", mr_funcs[i].name);
-		stress_metrics_set(args, i, buf, rate, STRESS_METRIC_HARMONIC_MEAN);
+		stress_metrics_set(args, buf, rate, STRESS_METRIC_HARMONIC_MEAN);
 	}
 
 	(void)stress_munmap_anon_shared((void *)ctxt->mr_nodes, mr_nodes_size);

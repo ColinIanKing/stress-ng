@@ -623,7 +623,7 @@ static bool stress_powmath_all(stress_args_t *args)
  */
 static int stress_powmath(stress_args_t *args)
 {
-	size_t i, j;
+	size_t i;
 	size_t powmath_method = 0;
 	int rc = EXIT_SUCCESS;
 
@@ -644,16 +644,14 @@ static int stress_powmath(stress_args_t *args)
 
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
 
-	for (i = 1, j = 0; i < SIZEOF_ARRAY(stress_powmath_metrics); i++) {
+	for (i = 1; i < SIZEOF_ARRAY(stress_powmath_metrics); i++) {
 		if (stress_powmath_metrics[i].duration > 0.0) {
 			char buf[80];
 			const double rate = (double)STRESS_POWMATH_LOOPS *
 				stress_powmath_metrics[i].count / stress_powmath_metrics[i].duration;
 
 			(void)snprintf(buf, sizeof(buf), "%s ops per second", stress_powmath_methods[i].name);
-			stress_metrics_set(args, j, buf,
-				rate, STRESS_METRIC_HARMONIC_MEAN);
-			j++;
+			stress_metrics_set(args, buf, rate, STRESS_METRIC_HARMONIC_MEAN);
 		}
 	}
 	return rc;

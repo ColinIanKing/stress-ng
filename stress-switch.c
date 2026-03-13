@@ -69,7 +69,7 @@ static void stress_switch_rate(
 	char msg[128];
 
 	(void)snprintf(msg, sizeof(msg), "nanosecs per context switch (%s method)", method);
-	stress_metrics_set(args, 0, msg,
+	stress_metrics_set(args, msg,
 		((t_end - t_start) * STRESS_NANOSECOND) / (double)counter,
 		STRESS_METRIC_HARMONIC_MEAN);
 }

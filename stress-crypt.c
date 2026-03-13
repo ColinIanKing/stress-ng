@@ -132,7 +132,7 @@ static int stress_crypt_id(
  */
 static int stress_crypt(stress_args_t *args)
 {
-	register size_t i, j;
+	register size_t i;
 	size_t crypt_method = 0;	/* all */
 #if defined(HAVE_CRYPT_R)
 	static struct crypt_data data;
@@ -239,7 +239,7 @@ static int stress_crypt(stress_args_t *args)
 
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
 
-	for (i = 1, j = 0; i < SIZEOF_ARRAY(crypt_methods); i++) {
+	for (i = 1; i < SIZEOF_ARRAY(crypt_methods); i++) {
 		const double duration = crypt_metrics[i].duration;
 		const double rate = duration > 0 ? crypt_metrics[i].count / duration : 0.0;
 
@@ -247,8 +247,7 @@ static int stress_crypt(stress_args_t *args)
 			char str[40];
 
 			(void)snprintf(str, sizeof(str), "%s encrypts per sec", crypt_methods[i].method);
-			stress_metrics_set(args, j, str, rate, STRESS_METRIC_HARMONIC_MEAN);
-			j++;
+			stress_metrics_set(args, str, rate, STRESS_METRIC_HARMONIC_MEAN);
 		}
 	}
 

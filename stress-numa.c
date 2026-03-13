@@ -725,16 +725,16 @@ static int stress_numa(stress_args_t *args)
 
 	metric = (duration > 0) ? ((double)stats_end.value[STRESS_NUMA_STAT_NUMA_HIT] -
 				 (double)stats_begin.value[STRESS_NUMA_STAT_NUMA_HIT]) / duration : 0.0;
-	stress_metrics_set(args, 0, "NUMA hits per sec", metric, STRESS_METRIC_GEOMETRIC_MEAN);
+	stress_metrics_set(args, "NUMA hits per sec", metric, STRESS_METRIC_GEOMETRIC_MEAN);
 
 	metric = (duration > 0) ? ((double)stats_end.value[STRESS_NUMA_STAT_NUMA_MISS] -
 				 (double)stats_begin.value[STRESS_NUMA_STAT_NUMA_MISS]) / duration : 0.0;
-	stress_metrics_set(args, 1, "NUMA misses per sec", metric, STRESS_METRIC_GEOMETRIC_MEAN);
+	stress_metrics_set(args, "NUMA misses per sec", metric, STRESS_METRIC_GEOMETRIC_MEAN);
 
 	/* total_nodes may be zero if we can't read /proc/self/numa_maps */
 	if (total_nodes > 0) {
 		metric = 100.0 * (double)correct_nodes / (double)total_nodes;
-		stress_metrics_set(args, 2, "% of checked pages on specified NUMA node", metric, STRESS_METRIC_GEOMETRIC_MEAN);
+		stress_metrics_set(args, "% of checked pages on specified NUMA node", metric, STRESS_METRIC_GEOMETRIC_MEAN);
 	}
 
 	rc = EXIT_SUCCESS;

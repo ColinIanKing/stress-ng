@@ -171,7 +171,7 @@ finish:
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
 
 	rate = (sigabrt_info->count > 0.0) ? sigabrt_info->latency / sigabrt_info->count : 0.0;
-	stress_metrics_set(args, 0, "nanosec SIGABRT latency",
+	stress_metrics_set(args, "nanosec SIGABRT latency",
 		rate * STRESS_DBL_NANOSECOND, STRESS_METRIC_HARMONIC_MEAN);
 
 sigabrt_info_munmap:

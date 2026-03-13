@@ -519,7 +519,7 @@ static bool stress_logmath_all(stress_args_t *args)
  */
 static int stress_logmath(stress_args_t *args)
 {
-	size_t i, j;
+	size_t i;
 	size_t logmath_method = 0;
 	int rc = EXIT_SUCCESS;
 
@@ -540,16 +540,15 @@ static int stress_logmath(stress_args_t *args)
 
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
 
-	for (i = 1, j = 0; i < SIZEOF_ARRAY(stress_logmath_metrics); i++) {
+	for (i = 1; i < SIZEOF_ARRAY(stress_logmath_metrics); i++) {
 		if (stress_logmath_metrics[i].duration > 0.0) {
 			char buf[80];
 			const double rate = (double)STRESS_LOGMATH_LOOPS *
 				stress_logmath_metrics[i].count / stress_logmath_metrics[i].duration;
 
 			(void)snprintf(buf, sizeof(buf), "%s ops per second", stress_logmath_methods[i].name);
-			stress_metrics_set(args, j, buf,
+			stress_metrics_set(args, buf,
 				rate, STRESS_METRIC_HARMONIC_MEAN);
-			j++;
 		}
 	}
 	return rc;

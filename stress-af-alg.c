@@ -1197,7 +1197,7 @@ static int stress_af_alg(stress_args_t *args)
 	NOCLOBBER int rc = EXIT_FAILURE;
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 	int retries = MAX_AF_ALG_RETRIES;
-	size_t proc_count, count, internal, idx;
+	size_t proc_count, count, internal;
 	bool af_alg_dump = false;
 	stress_crypto_info_t *info;
 	size_t af_alf_type_index = 0;	/* all */
@@ -1345,14 +1345,13 @@ deinit:
 	do_jmp = false;
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
 
-	for (idx = 0, info = crypto_info_list; info; info = info->next) {
+	for (info = crypto_info_list; info; info = info->next) {
 		if (info->metrics.duration > 0.0) {
 			const double rate = info->metrics.count / info->metrics.duration;
 			char str[64];
 
 			(void)snprintf(str, sizeof(str), "%s (%s) ops/sec", info->name, info->type);
-			stress_metrics_set(args, idx, str, rate, STRESS_METRIC_HARMONIC_MEAN);
-			idx++;
+			stress_metrics_set(args, str, rate, STRESS_METRIC_HARMONIC_MEAN);
 		}
 	}
 

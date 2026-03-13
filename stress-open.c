@@ -1245,7 +1245,7 @@ close_all:
 		(void)stress_kill_pid_wait(pid, NULL);
 
 	rate = (count > 0.0) ? duration / count: 0.0;
-	stress_metrics_set(args, 0, "nanosecs per open",
+	stress_metrics_set(args, "nanosecs per open",
 		rate * 1000000000.0, STRESS_METRIC_HARMONIC_MEAN);
 
 	return EXIT_SUCCESS;

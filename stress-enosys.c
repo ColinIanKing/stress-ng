@@ -4259,7 +4259,7 @@ again:
 
 	duration = stress_time_now() - t_start;
 	rate = (duration > 0.0) ? (double)syscalls / duration : 0.0;
-	stress_metrics_set(args, 0, "syscalls per second", rate, STRESS_METRIC_GEOMETRIC_MEAN);
+	stress_metrics_set(args, "syscalls per second", rate, STRESS_METRIC_GEOMETRIC_MEAN);
 
 deinit_free:
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);

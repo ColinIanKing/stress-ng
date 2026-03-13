@@ -1484,51 +1484,75 @@ static void NORETURN stress_child_atexit(void)
 }
 
 /*
- *  stress_metrics_set_const_check()
- *	set metrics with given description a value. If const_description is
- *	true then the description is a literal string and does not need
- *	to be dup'd from the shared memory heap, otherwise it's a stack
- *	based string and needs to be dup'd so it does not go out of scope.
- *
- *	Note that stress_shared_heap_dup_const will dup a string using
- *	special reserved shared heap that all stressors can access. The
- *	returned string must not be written to. It may even be a cached
- *	copy of another dup by another stressor process (to save memory).
+ *  stress_metrics_find()
+ *	search for metrics name description of type mean_type, if it
+ *	matches return the index into the metrics_desc array, otherwise
+ *	assign a new one. Returns -1 for failure.
  */
-void stress_metrics_set_const_check(
+static ssize_t stress_metrics_find(
+	stress_stressor_t *ss,
+	const char *description,
+	const int mean_type)
+{
+	size_t i;
+	stress_metrics_info_t *mi = ss->metrics_info;
+
+	if (UNLIKELY(stress_lock_acquire(g_shared->metrics_lock) < 0))
+		return (ssize_t)-1;
+
+	/* search for existing match.. */
+	for (i = 0; i < mi->num_metrics_items; i++) {
+		if ((mi->metrics_desc[i].mean_type == mean_type) &&
+		    (strcmp(mi->metrics_desc[i].description, description) == 0)) {
+			(void)stress_lock_release(g_shared->metrics_lock);
+			return (ssize_t)i;
+		}
+	}
+
+	/* check for overflow */
+	if (i >= mi->max_metrics_items) {
+		(void)stress_lock_release(g_shared->metrics_lock);
+		mi->overflow_metrics_items = true;
+		return (ssize_t)-1;
+	}
+
+	/* fill in new description */
+	(void)shim_strscpy(mi->metrics_desc[i].description, description, sizeof(mi->metrics_desc[i].description));
+	mi->metrics_desc[i].mean_type = mean_type;
+	mi->num_metrics_items++;
+	(void)stress_lock_release(g_shared->metrics_lock);
+
+	return (ssize_t)i;
+}
+
+/*
+ *  stress_metrics_set()
+ *	set metrics of a specific description and mean_type
+ *	of a stressor a metrics value.
+ */
+void stress_metrics_set(
 	stress_args_t *args,
-	const size_t idx,
-	char *description,
-	const bool const_description,
+	const char *description,
 	const double value,
 	const int mean_type)
 {
 	stress_stats_t *stats;
-	stress_metrics_item_t *item;
+	stress_stressor_t *ss;
+	ssize_t idx;
 
 	if (!args)
 		return;
-	if (!args->stats)
-		return;
 	stats = args->stats;
-
-	if (idx >= stats->max_metrics_items) {
-		stats->overflow_metrics_items = true;
-		pr_inf("HERE: %s overflowed index %zu\n", description, idx);
+	if (!stats)
 		return;
-	}
-	if (idx + 1 >= stats->num_metrics_items)
-		stats->num_metrics_items = idx + 1;
+	ss = stats->ss;
+	if (!ss)
+		return;
 
-	item = &stats->metrics_items[idx];
-
-	item->description = const_description ?
-		description :
-		stress_shared_heap_dup_const(description);
-	if (item->description) {
-		item->value = value;
-		item->mean_type = mean_type;
-	}
+	idx = stress_metrics_find(ss, description, mean_type);
+	if (idx < 0)
+		return;
+	stats->metrics_values[idx] = value;
 }
 
 #if defined(HAVE_GETRUSAGE)
@@ -2254,7 +2278,6 @@ static char *stress_description_yamlify(const char *description)
 static void stress_metrics_dump(FILE *yaml)
 {
 	stress_stressor_t *ss;
-	const stress_metrics_item_t *item;
 	const char *description;
 	bool misc_metrics = false;
 
@@ -2278,6 +2301,7 @@ static void stress_metrics_dump(FILE *yaml)
 	pr_yaml(yaml, "metrics:\n");
 
 	for (ss = stress_stressor_list.head; ss; ss = ss->next) {
+		stress_metrics_info_t *mi;
 		uint64_t c_total = 0;
 		double   r_total = 0.0, u_total = 0.0, s_total = 0.0;
 		long int maxrss = 0;
@@ -2405,25 +2429,20 @@ static void stress_metrics_dump(FILE *yaml)
 			pr_yaml(yaml, "      max-rss: %ld\n", maxrss);
 		}
 
-		for (i = 0; i < ss->stats[0]->num_metrics_items; i++) {
-			item = &ss->stats[0]->metrics_items[i];
-			description = item->description;
+		mi = ss->metrics_info;
+		for (i = 0; i < mi->num_metrics_items; i++) {
+			double metric, total = 0.0;
 
-			if (description) {
-				double metric, total = 0.0;
-
-				misc_metrics = true;
-				for (j = 0; j < ss->instances; j++) {
-					const stress_stats_t *const stats = ss->stats[j];
-
-					total += stats->metrics_items[i].value;
-				}
-				metric = ss->completed_instances ? total / ss->completed_instances : 0.0;
-				if (g_opt_flags & OPT_FLAGS_SN) {
-					pr_yaml(yaml, "      %s: %e\n", stress_description_yamlify(description), metric);
-				} else {
-					pr_yaml(yaml, "      %s: %f\n", stress_description_yamlify(description), metric);
-				}
+			description = mi->metrics_desc[i].description;
+			misc_metrics = true;
+			for (j = 0; j < ss->instances; j++) {
+				total += ss->stats[j]->metrics_values[i];
+			}
+			metric = ss->completed_instances ? total / ss->completed_instances : 0.0;
+			if (g_opt_flags & OPT_FLAGS_SN) {
+				pr_yaml(yaml, "      %s: %e\n", stress_description_yamlify(description), metric);
+			} else {
+				pr_yaml(yaml, "      %s: %f\n", stress_description_yamlify(description), metric);
 			}
 		}
 		pr_yaml(yaml, "\n");
@@ -2432,6 +2451,7 @@ static void stress_metrics_dump(FILE *yaml)
 	if (misc_metrics && !(g_opt_flags & OPT_FLAGS_METRICS_BRIEF)) {
 		pr_metrics("miscellaneous metrics:\n");
 		for (ss = stress_stressor_list.head; ss; ss = ss->next) {
+			stress_metrics_info_t *mi;
 			size_t i;
 			int32_t j;
 			const char *name;
@@ -2442,126 +2462,119 @@ static void stress_metrics_dump(FILE *yaml)
 				continue;
 
 			name = ss->stressor->name;
-			if (ss->stats[0]->overflow_metrics_items) {
+			mi = ss->metrics_info;
+			if (mi->overflow_metrics_items) {
 				pr_metrics("note: only reporting first %zu metrics\n",
-					ss->stats[0]->max_metrics_items);
+					mi->max_metrics_items);
 			}
 
-			for (i = 0; i < ss->stats[0]->num_metrics_items; i++) {
-				item = &ss->stats[0]->metrics_items[i];
-				description = item->description;
+			for (i = 0; i < mi->num_metrics_items; i++) {
+				int64_t exponent;
+				double geometric_mean, harmonic_mean, mantissa;
+				double n, sum, maximum = 0.0, total = 0.0;
+				const char *plural = (ss->completed_instances > 1) ? "s" : "";
 
-				if (description) {
-					int64_t exponent;
-					double geometric_mean, harmonic_mean, mantissa;
-					double n, sum, maximum = 0.0, total = 0.0;
-					const char *plural = (ss->completed_instances > 1) ? "s" : "";
+				description = mi->metrics_desc[i].description;
+				switch (mi->metrics_desc[i].mean_type) {
+				case STRESS_METRIC_GEOMETRIC_MEAN:
+					exponent = 0;
+					mantissa = 1.0;
+					n = 0.0;
 
-					switch (ss->stats[0]->metrics_items[i].mean_type) {
-					case STRESS_METRIC_GEOMETRIC_MEAN:
-						exponent = 0;
-						mantissa = 1.0;
-						n = 0.0;
+					for (j = 0; j < ss->instances; j++) {
+						int e;
+						const double value = ss->stats[j]->metrics_values[i];
 
-						for (j = 0; j < ss->instances; j++) {
-							int e;
-							const stress_stats_t *const stats = ss->stats[j];
+						if ((value > 0.0) || (value < 0.0)) {
+							const double f = frexp(value, &e);
 
-							item = &stats->metrics_items[i];
-							if ((item->value > 0.0) || (item->value < 0.0)) {
-								const double f = frexp(item->value, &e);
-
-								mantissa *= f;
-								exponent += e;
-								n += 1.0;
-							}
+							mantissa *= f;
+							exponent += e;
+							n += 1.0;
 						}
-						if (n > 0.0) {
-							const double inverse_n = 1.0 / (double)n;
-
-							geometric_mean = pow(mantissa, inverse_n) * pow(2.0, (double)exponent * inverse_n);
-						} else {
-							geometric_mean = 0.0;
-						}
-						if (g_opt_flags & OPT_FLAGS_SN) {
-							pr_metrics("%-13s %13.2e %s (geometric mean of %" PRId32 " instance%s)\n",
-								name, geometric_mean, description,
-								ss->completed_instances, plural);
-						} else {
-							pr_metrics("%-13s %13.2f %s (geometric mean of %" PRId32 " instance%s)\n",
-								name, geometric_mean, description,
-								ss->completed_instances, plural);
-						}
-						break;
-					case STRESS_METRIC_HARMONIC_MEAN:
-						sum = 0.0;
-						n = 0.0;
-
-						for (j = 0; j < ss->instances; j++) {
-							const stress_stats_t *const stats = ss->stats[j];
-
-							item = &stats->metrics_items[i];
-							if ((item->value > 0.0) || (item->value < 0.0)) {
-								const double reciprocal = 1.0 / item->value;
-
-								sum += reciprocal;
-								n += 1.0;
-							}
-						}
-						if (sum > 0.0) {
-							harmonic_mean = n / sum;
-						} else {
-							harmonic_mean = 0.0;
-						}
-						if (g_opt_flags & OPT_FLAGS_SN) {
-							pr_metrics("%-13s %13.2e %s (harmonic mean of %" PRId32 " instance%s)\n",
-								name, harmonic_mean, description,
-								ss->completed_instances, plural);
-						} else {
-							pr_metrics("%-13s %13.2f %s (harmonic mean of %" PRId32 " instance%s)\n",
-								name, harmonic_mean, description,
-								ss->completed_instances, plural);
-						}
-						break;
-					case STRESS_METRIC_TOTAL:
-						for (j = 0; j < ss->instances; j++) {
-							const stress_stats_t *const stats = ss->stats[j];
-
-							item = &stats->metrics_items[i];
-							if (item->value > 0.0)
-								total += item->value;
-						}
-						if (g_opt_flags & OPT_FLAGS_SN) {
-							pr_metrics("%-13s %13.2e %s (total of %" PRId32 " instance%s)\n",
-								name, total, description,
-								ss->completed_instances, plural);
-						} else {
-							pr_metrics("%-13s %13.2f %s (total of %" PRId32 " instance%s)\n",
-								name, total, description,
-								ss->completed_instances, plural);
-						}
-						break;
-					case STRESS_METRIC_MAXIMUM:
-						for (j = 0; j < ss->instances; j++) {
-							const stress_stats_t *const stats = ss->stats[j];
-
-							item = &stats->metrics_items[i];
-							if ((item->value > 0.0) && (item->value > maximum))
-								maximum = item->value;
-						}
-						if (g_opt_flags & OPT_FLAGS_SN) {
-							pr_metrics("%-13s %13.2e %s (maximum of %" PRId32 " instance%s)\n",
-								name, maximum, description,
-								ss->completed_instances, plural);
-						} else {
-							pr_metrics("%-13s %13.2f %s (maximum of %" PRId32 " instance%s)\n",
-								name, maximum, description,
-								ss->completed_instances, plural);
-						}
-						break;
-					default:
-						break;
 					}
+					if (n > 0.0) {
+						const double inverse_n = 1.0 / (double)n;
+
+						geometric_mean = pow(mantissa, inverse_n) * pow(2.0, (double)exponent * inverse_n);
+					} else {
+						geometric_mean = 0.0;
+					}
+					if (g_opt_flags & OPT_FLAGS_SN) {
+						pr_metrics("%-13s %13.2e %s (geometric mean of %" PRId32 " instance%s)\n",
+							name, geometric_mean, description,
+							ss->completed_instances, plural);
+					} else {
+						pr_metrics("%-13s %13.2f %s (geometric mean of %" PRId32 " instance%s)\n",
+							name, geometric_mean, description,
+							ss->completed_instances, plural);
+					}
+					break;
+				case STRESS_METRIC_HARMONIC_MEAN:
+					sum = 0.0;
+					n = 0.0;
+
+					for (j = 0; j < ss->instances; j++) {
+						const double value = ss->stats[j]->metrics_values[i];
+
+						if ((value > 0.0) || (value < 0.0)) {
+							const double reciprocal = 1.0 / value;
+
+							sum += reciprocal;
+							n += 1.0;
+						}
+					}
+					if (sum > 0.0) {
+						harmonic_mean = n / sum;
+					} else {
+						harmonic_mean = 0.0;
+					}
+					if (g_opt_flags & OPT_FLAGS_SN) {
+						pr_metrics("%-13s %13.2e %s (harmonic mean of %" PRId32 " instance%s)\n",
+							name, harmonic_mean, description,
+							ss->completed_instances, plural);
+					} else {
+						pr_metrics("%-13s %13.2f %s (harmonic mean of %" PRId32 " instance%s)\n",
+							name, harmonic_mean, description,
+							ss->completed_instances, plural);
+					}
+					break;
+				case STRESS_METRIC_TOTAL:
+					for (j = 0; j < ss->instances; j++) {
+						const double value = ss->stats[j]->metrics_values[i];
+
+						if (value > 0.0)
+							total += value;
+					}
+					if (g_opt_flags & OPT_FLAGS_SN) {
+						pr_metrics("%-13s %13.2e %s (total of %" PRId32 " instance%s)\n",
+							name, total, description,
+							ss->completed_instances, plural);
+					} else {
+						pr_metrics("%-13s %13.2f %s (total of %" PRId32 " instance%s)\n",
+							name, total, description,
+							ss->completed_instances, plural);
+					}
+					break;
+				case STRESS_METRIC_MAXIMUM:
+					for (j = 0; j < ss->instances; j++) {
+						const double value = ss->stats[j]->metrics_values[i];
+
+						if ((value > 0.0) && (value > maximum))
+							maximum = value;
+					}
+					if (g_opt_flags & OPT_FLAGS_SN) {
+						pr_metrics("%-13s %13.2e %s (maximum of %" PRId32 " instance%s)\n",
+							name, maximum, description,
+							ss->completed_instances, plural);
+					} else {
+						pr_metrics("%-13s %13.2f %s (maximum of %" PRId32 " instance%s)\n",
+							name, maximum, description,
+							ss->completed_instances, plural);
+					}
+					break;
+				default:
+					break;
 				}
 			}
 		}
@@ -3122,17 +3135,21 @@ static inline size_t stressor_stats_size(void)
 
 	while (ss) {
 		if (!ss->ignore.run) {
-			const size_t max_metrics_items = ss->stressor->info->max_metrics_items;
-			const size_t sz = 8 + ((max_metrics_items == 0) ?
-					STRESS_METRICS_ITEMS_DEFAULT_SIZE : max_metrics_items);
+			size_t n;
 
-			/* stress_metrics_item_t items for all metrics for all instances */
-			total += sizeof(stress_metrics_item_t) * ss->instances * sz;
-			/* description data for all metrics for all instances */
-			total += (8 + 64) * max_metrics_items;
+			n = ss->stressor->info->max_metrics_items;
+			n = (n == 0) ? STRESS_METRICS_ITEMS_DEFAULT_SIZE : n;
+
+			/* add in number of raw metrics for all instances and all metrics */
+			total += 8 + (sizeof(double) * ss->instances * n);
+			/* add in number of metrics descriptions for all metrics */
+			total += 8 + (sizeof(stress_metrics_desc_t) * n);
+			/* add in per stressor info, 1 per instance */
+			total += 8 + sizeof(stress_metrics_info_t);
 		}
 		ss = ss->next;
 	}
+	pr_inf("total = %zu\n", total);
 	return total;
 }
 
@@ -3175,27 +3192,41 @@ static inline int stress_setup_stats_buffers(void)
 	stress_stats_t *stats = g_shared->stats;
 
 	for (ss = stress_stressor_list.head; ss; ss = ss->next) {
+		size_t sz;
 		int32_t i;
+		stress_metrics_info_t *mi;
+		size_t n;
 
 		if (ss->ignore.run)
 			continue;
 
+		n = ss->stressor->info->max_metrics_items;
+		n = (n == 0) ? STRESS_METRICS_ITEMS_DEFAULT_SIZE : n;
+
+		mi = (stress_metrics_info_t *)stress_shared_heap_malloc(sizeof(*mi));
+		if (!mi)
+			return -1;
+		sz = n * sizeof(*mi->metrics_desc);
+		mi->metrics_desc = (stress_metrics_desc_t *)stress_shared_heap_malloc(sz);
+		if (!mi->metrics_desc)
+			return -1;
+		mi->num_metrics_items = 0;
+		mi->max_metrics_items = n;
+		mi->overflow_metrics_items = false;
+
 		for (i = 0; i < ss->instances; i++, stats++) {
 			size_t j;
-			const size_t max_metrics_items = ss->stressor->info->max_metrics_items;
-			const size_t n = (max_metrics_items == 0) ?
-				STRESS_METRICS_ITEMS_DEFAULT_SIZE : max_metrics_items;
 
 			ss->stats[i] = stats;
-			stats->num_metrics_items = 0;
-			stats->max_metrics_items = n;
-			stats->overflow_metrics_items = false;
-			stats->metrics_items = (stress_metrics_item_t *)stress_shared_heap_malloc(n * sizeof(*stats->metrics_items));
-			if (!stats->metrics_items)
+			ss->metrics_info = mi;
+			sz = n * sizeof(*stats->metrics_values);
+			stats->metrics_values = (double *)stress_shared_heap_malloc(sz);
+			if (!stats->metrics_values)
 				return -1;
 			for (j = 0; j < n; j++) {
-				stats->metrics_items[j].value = 0.0;
-				stats->metrics_items[j].description = NULL;
+				stats->metrics_values[j] = 0.0;
+				mi->metrics_desc[j].description[0] = '\0';
+				mi->metrics_desc[j].mean_type = 0;
 			}
 		}
 	}
@@ -3997,6 +4028,11 @@ static int stress_global_lock_create(void)
 		pr_err("failed to create net_port_map lock\n");
 		return -1;
 	}
+	g_shared->metrics_lock = stress_lock_create("metrics");
+	if (!g_shared->metrics_lock) {
+		pr_err("failed to create metrics lock\n");
+		return -1;
+	}
 	return 0;
 }
 
@@ -4006,6 +4042,8 @@ static int stress_global_lock_create(void)
  */
 static void stress_global_lock_destroy(void)
 {
+	if (g_shared->metrics_lock)
+		stress_lock_destroy(g_shared->metrics_lock);
 	if (g_shared->net_port_map.lock)
 		stress_lock_destroy(g_shared->net_port_map.lock);
 	if (g_shared->warn_once.lock)

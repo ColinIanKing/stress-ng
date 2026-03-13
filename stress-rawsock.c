@@ -258,7 +258,7 @@ static int OPTIMIZE3 stress_rawsock_server(stress_args_t *args, const pid_t pid)
 	}
 	duration = stress_time_now() - t_start;
 	rate = (duration > 0.0) ? bytes / duration : 0.0;
-	stress_metrics_set(args, 0, "MB recv'd per sec",
+	stress_metrics_set(args, "MB recv'd per sec",
 		rate / (double)MB, STRESS_METRIC_HARMONIC_MEAN);
 die:
 	(void)shim_waitpid(pid, &status, 0);

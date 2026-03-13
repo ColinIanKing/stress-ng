@@ -894,23 +894,23 @@ static int stress_mmaptorture(stress_args_t *args)
 	duration = stress_time_now() - t_start;
 
 	rate = (duration > 0.0) ? (double)mmap_stats->mmap_pages / duration : 0.0;
-	stress_metrics_set(args, 0, "pages mapped per sec", rate, STRESS_METRIC_HARMONIC_MEAN);
+	stress_metrics_set(args, "pages mapped per sec", rate, STRESS_METRIC_HARMONIC_MEAN);
 	rate = (duration > 0.0) ? (double)mmap_stats->sync_pages / duration : 0.0;
-	stress_metrics_set(args, 1, "pages synced per sec", rate, STRESS_METRIC_HARMONIC_MEAN);
+	stress_metrics_set(args, "pages synced per sec", rate, STRESS_METRIC_HARMONIC_MEAN);
 	rate = (duration > 0.0) ? (double)mmap_stats->lock_pages / duration : 0.0;
-	stress_metrics_set(args, 2, "pages locked per sec", rate, STRESS_METRIC_HARMONIC_MEAN);
+	stress_metrics_set(args, "pages locked per sec", rate, STRESS_METRIC_HARMONIC_MEAN);
 	rate = (duration > 0.0) ? (double)mmap_stats->mprotect_pages / duration : 0.0;
-	stress_metrics_set(args, 3, "pages mprotected per sec", rate, STRESS_METRIC_HARMONIC_MEAN);
+	stress_metrics_set(args, "pages mprotected per sec", rate, STRESS_METRIC_HARMONIC_MEAN);
 	rate = (duration > 0.0) ? (double)mmap_stats->madvise_pages / duration : 0.0;
-	stress_metrics_set(args, 4, "pages madvised per sec", rate, STRESS_METRIC_HARMONIC_MEAN);
+	stress_metrics_set(args, "pages madvised per sec", rate, STRESS_METRIC_HARMONIC_MEAN);
 	rate = (duration > 0.0) ? (double)mmap_stats->remapped_pages / duration : 0.0;
-	stress_metrics_set(args, 5, "pages remapped per sec", rate, STRESS_METRIC_HARMONIC_MEAN);
+	stress_metrics_set(args, "pages remapped per sec", rate, STRESS_METRIC_HARMONIC_MEAN);
 	rate = (duration > 0.0) ? (double)mmap_stats->mmap_retries / duration : 0.0;
-	stress_metrics_set(args, 6, "mmap retries per sec", rate, STRESS_METRIC_HARMONIC_MEAN);
+	stress_metrics_set(args, "mmap retries per sec", rate, STRESS_METRIC_HARMONIC_MEAN);
 	rate = (duration > 0.0) ? (double)mmap_stats->sigbus_traps / duration : 0.0;
-	stress_metrics_set(args, 7, "intentional SIGBUS signals per sec", rate, STRESS_METRIC_HARMONIC_MEAN);
+	stress_metrics_set(args, "intentional SIGBUS signals per sec", rate, STRESS_METRIC_HARMONIC_MEAN);
 	rate = (duration > 0.0) ? (double)mmap_stats->sigsegv_traps / duration : 0.0;
-	stress_metrics_set(args, 8, "intentional SIGSEGV signals per sec", rate, STRESS_METRIC_HARMONIC_MEAN);
+	stress_metrics_set(args, "intentional SIGSEGV signals per sec", rate, STRESS_METRIC_HARMONIC_MEAN);
 
 	(void)stress_munmap_anon_shared((void *)mmap_stats, sizeof(*mmap_stats));
 

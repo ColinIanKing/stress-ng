@@ -372,7 +372,7 @@ static int stress_rawdev(stress_args_t *args)
 	char *devpath, *buffer;
 	const char *path = stress_fs_temp_path_get();
 	size_t blks, blksz = 0, mmapsz;
-	size_t i, j, rawdev_method = 0;
+	size_t i, rawdev_method = 0;
 	const size_t page_size = args->page_size;
 	stress_rawdev_func func;
 	stress_metrics_t *metrics;
@@ -474,7 +474,7 @@ static int stress_rawdev(stress_args_t *args)
 
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
 
-	for (i = 0, j = 0; i < SIZEOF_ARRAY(rawdev_methods); i++) {
+	for (i = 0; i < SIZEOF_ARRAY(rawdev_methods); i++) {
 		const double duration = metrics[i].duration;
 
 		if (duration > 0.0) {
@@ -482,9 +482,8 @@ static int stress_rawdev(stress_args_t *args)
 			const double rate = (metrics[i].count / duration) / (double)MB;
 
 			(void)snprintf(str, sizeof(str), "MB per sec read rate (%s)", rawdev_methods[i].name);
-			stress_metrics_set(args, j, str,
+			stress_metrics_set(args, str,
 				rate, STRESS_METRIC_HARMONIC_MEAN);
-			j++;
 		}
 	}
 

@@ -635,7 +635,7 @@ static int stress_str(stress_args_t *args)
 	char ALIGN64 strdst[STRDSTLEN];
 	stress_str_args_t info;
 	const stress_str_method_info_t *str_method_info;
-	size_t i, j, str_method = 0;
+	size_t i, str_method = 0;
 
 	(void)stress_setting_get("str-method", &str_method);
 	str_method_info = &str_methods[str_method];
@@ -681,15 +681,14 @@ static int stress_str(stress_args_t *args)
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
 
 	/* dump metrics of methods except for first "all" method */
-	for (i = 1, j = 0; i < SIZEOF_ARRAY(metrics); i++) {
+	for (i = 1; i < SIZEOF_ARRAY(metrics); i++) {
 		if (metrics[i].duration > 0.0) {
 			char msg[64];
 			const double rate = metrics[i].count / metrics[i].duration;
 
 			(void)snprintf(msg, sizeof(msg), "%s calls per sec", str_methods[i].name);
-			stress_metrics_set(args, j, msg,
+			stress_metrics_set(args, msg,
 				rate, STRESS_METRIC_HARMONIC_MEAN);
-			j++;
 		}
 	}
 

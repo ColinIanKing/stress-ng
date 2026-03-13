@@ -1794,7 +1794,8 @@ static int OPTIMIZE3 stress_cachehammer(stress_args_t *args)
 	NOCLOBBER int ret = EXIT_SUCCESS, fd;
 	uint8_t *const buffer = g_shared->mem_cache.buffer;
 	const size_t buffer_size = (size_t)g_shared->mem_cache.size;
-	size_t i, j;
+	size_t i;
+	size_t j;
 	size_t cachehammer_method = CACHEHAMMER_METHOD_RANDOM;
 	NOCLOBBER size_t tries = 0;
 	char buf[1024];
@@ -2031,7 +2032,7 @@ bail_out:
 			(double)permutations_exercised * 100.0 / (double)n_permutations);
 	}
 
-	for (i = 0, j = 0; i < N_FUNCS; i++) {
+	for (j = 0, i = 0; i < N_FUNCS; i++) {
 		if (cachehammer_metrics[i].duration > 0.0) {
 			char msg[64];
 			int e;
@@ -2043,7 +2044,7 @@ bail_out:
 
 			(void)snprintf(msg, sizeof(msg), "%s cache bogo-ops/sec",
 					stress_cachehammer_funcs[i].name);
-			stress_metrics_set(args, j, msg, rate, STRESS_METRIC_HARMONIC_MEAN);
+			stress_metrics_set(args, msg, rate, STRESS_METRIC_HARMONIC_MEAN);
 			j++;
 		}
 	}

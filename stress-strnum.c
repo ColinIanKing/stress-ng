@@ -676,8 +676,7 @@ static int stress_strnum(stress_args_t *args)
 			const double rate = count / duration;
 
 			(void)snprintf(msg, sizeof(msg), "calls per sec, %-20s", stress_strnum_methods[i].description);
-			stress_metrics_set(args, i - 1, msg,
-				rate, STRESS_METRIC_HARMONIC_MEAN);
+			stress_metrics_set(args, msg, rate, STRESS_METRIC_HARMONIC_MEAN);
 		}
 	}
 

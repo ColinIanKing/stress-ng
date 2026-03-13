@@ -406,10 +406,10 @@ tidy:
 #endif
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
 	rate = (duration > 0.0) ? count / duration : 0.0;
-	stress_metrics_set(args, 0, "qsort comparisons per sec",
+	stress_metrics_set(args, "qsort comparisons per sec",
 		rate, STRESS_METRIC_HARMONIC_MEAN);
 	rate = (sorted > 0.0) ? count / sorted : 0.0;
-	stress_metrics_set(args, 1, "qsort comparisons per item",
+	stress_metrics_set(args, "qsort comparisons per item",
 		rate, STRESS_METRIC_HARMONIC_MEAN);
 
 	pr_dbg("%s: %.2f qsort comparisons per sec\n", args->name, rate);

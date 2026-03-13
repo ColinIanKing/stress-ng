@@ -412,7 +412,7 @@ static int stress_chattr(stress_args_t *args)
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
 
 	rate = (duration > 0.0) ? (double)chattr_count / duration : 0.0;
-	stress_metrics_set(args, 0, "successful chattr flags set per sec",
+	stress_metrics_set(args, "successful chattr flags set per sec",
 		rate, STRESS_METRIC_GEOMETRIC_MEAN);
 
 	(void)shim_unlink(filename);

@@ -118,7 +118,7 @@ static int stress_sigxfsz(stress_args_t *args)
 	} while (stress_continue(args));
 	t_delta = stress_time_now() - t_start;
 	rate = (t_delta > 0.0) ? (double)async_sigs / t_delta : 0.0;
-	stress_metrics_set(args, 0, "SIGXFSZ signals per sec",
+	stress_metrics_set(args, "SIGXFSZ signals per sec",
 		rate, STRESS_METRIC_HARMONIC_MEAN);
 
 	/*  And ignore IO signals from now on */

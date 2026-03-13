@@ -183,7 +183,7 @@ reap:
 		count += stress_sigrt_metrics[i].count;
 	}
 	rate = (count > 0.0) ? duration / count : 0.0;
-	stress_metrics_set(args, 0, "nanosecs between sigqueue and sigwaitinfo completion",
+	stress_metrics_set(args, "nanosecs between sigqueue and sigwaitinfo completion",
 		rate * STRESS_DBL_NANOSECOND, STRESS_METRIC_HARMONIC_MEAN);
 
 	free(s_pids);

@@ -1120,20 +1120,20 @@ finish:
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
 
 	rate = (hdd_read_duration > 0.0) ? hdd_read_bytes / hdd_read_duration : 0.0;
-	stress_metrics_set(args, 0, "MB/sec read rate",
+	stress_metrics_set(args, "MB/sec read rate",
 		rate / (double)MB, STRESS_METRIC_HARMONIC_MEAN);
 	rate = (hdd_write_duration > 0.0) ? hdd_write_bytes / hdd_write_duration : 0.0;
-	stress_metrics_set(args, 1, "MB/sec write rate",
+	stress_metrics_set(args, "MB/sec write rate",
 		rate / (double)MB, STRESS_METRIC_HARMONIC_MEAN);
 
 	hdd_rdwr_duration = hdd_read_duration + hdd_write_duration;
 	hdd_rdwr_bytes = hdd_read_bytes + hdd_write_bytes;
 
 	rate = (hdd_rdwr_duration > 0.0) ? hdd_rdwr_bytes / hdd_rdwr_duration : 0.0;
-	stress_metrics_set(args, 2, "MB/sec read/write combined rate",
+	stress_metrics_set(args, "MB/sec read/write combined rate",
 		rate / (double)MB, STRESS_METRIC_HARMONIC_MEAN);
 
-	stress_metrics_set(args, 3, "max extents per file",
+	stress_metrics_set(args, "max extents per file",
 		(double)max_extents, STRESS_METRIC_GEOMETRIC_MEAN);
 
 	free(alloc_buf);
