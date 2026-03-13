@@ -79,7 +79,7 @@ static int OPTIMIZE_GOTO stress_goto(stress_args_t *args)
 	int rc = EXIT_SUCCESS;
 	size_t goto_direction = STRESS_GOTO_RANDOM;
 	double t1, t2, duration, rate;
-	uint64_t lo, hi, bogo_counter;
+	uint64_t bogo_counter;
 
 	static const void ALIGN64 *default_labels[MAX_LABELS] = {
 		&&L0x000, &&L0x001, &&L0x002, &&L0x003, &&L0x004, &&L0x005, &&L0x006, &&L0x007,
@@ -414,19 +414,21 @@ L0x000:
 	t2 = stress_time_now();
 
 	bogo_counter = stress_bogo_get(args);
-	lo = bogo_counter - 1;
-	hi = bogo_counter + 1;
+	if (bogo_counter > 1) {
+		const uint64_t lo = bogo_counter - 1;
+		const uint64_t hi = bogo_counter + 1;
 
-	/*
-	 *  sanity check that every 64th goto got a correct number
-	 *  of execution hits.
-	 */
-	for (i = 0; i < SIZEOF_ARRAY(counters); i++) {
-		if ((counters[i] < lo) || (counters[i] > hi)) {
-			pr_fail("%s: goto label %zu execution count out by more than +/-1, "
-				"got %" PRIu64 ", expected between %" PRIu64 " and %" PRIu64 "\n",
-				args->name, i * 64, counters[i], lo, hi);
-			rc = EXIT_FAILURE;
+		/*
+		 *  sanity check that every 64th goto got a correct number
+		 *  of execution hits.
+		 */
+		for (i = 0; i < SIZEOF_ARRAY(counters); i++) {
+			if ((counters[i] < lo) || (counters[i] > hi)) {
+				pr_fail("%s: goto label %zu execution count out by more than +/-1, "
+					"got %" PRIu64 ", expected between %" PRIu64 " and %" PRIu64 "\n",
+					args->name, i * 64, counters[i], lo, hi);
+				rc = EXIT_FAILURE;
+			}
 		}
 	}
 
