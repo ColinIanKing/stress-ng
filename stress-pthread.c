@@ -523,6 +523,8 @@ static int stress_pthread(stress_args_t *args)
 		}
 
 		for (i = 0; i < pthread_max; i++) {
+			if (UNLIKELY(!(keep_running() && stress_continue(args))))
+				break;
 			pargs.data = (void *)&pthreads[i];
 
 			pthreads[i].t_create = stress_time_now();
@@ -545,8 +547,6 @@ static int stress_pthread(stress_args_t *args)
 			if (i + 1 > maximum)
 				maximum = i + 1;
 			stress_bogo_inc(args);
-			if (UNLIKELY(!(keep_running() && stress_continue(args))))
-				break;
 		}
 		attempted++;
 		ret = pthread_mutex_unlock(&mutex);
