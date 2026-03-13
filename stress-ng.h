@@ -237,7 +237,7 @@ typedef struct {
  *  Metrics info, 1 per stressor, referenced by
  *  stress_stressor_t
  */
-typedef struct stress_merics_info {
+typedef struct stress_metrics_info {
 	stress_metrics_desc_t *metrics_desc; /* per stressor metrics descriptions */
 	size_t num_metrics_items;	/* current number of metrics items */
 	size_t max_metrics_items;	/* maximum number of metrics items */
