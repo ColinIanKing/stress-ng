@@ -2752,12 +2752,12 @@ static void *stress_page_mmap(int prot, char *prot_str, size_t page_size)
 }
 
 /*
- *  stress_shared_map()
+ *  stress_shared_mmap()
  *	mmap shared region, with an extra page at the end
  *	that is marked read-only to stop accidental smashing
  *	from a run-away stack expansion
  */
-static inline void stress_shared_map(const int32_t num_procs)
+static inline void stress_shared_mmap(const int32_t num_procs)
 {
 	const size_t page_size = stress_memory_page_size_get();
 	size_t len = sizeof(stress_shared_t) +
@@ -4324,7 +4324,7 @@ int main(int argc, char **argv, char **envp)
 	 *  Allocate shared memory segment for shared data
 	 *  across all the child stressors
 	 */
-	stress_shared_map(stress_total_instances_get(stress_stressor_list.head));
+	stress_shared_mmap(stress_total_instances_get(stress_stressor_list.head));
 
 	if (stress_lock_mem_map() < 0) {
 		pr_err("failed to create shared heap\n");
