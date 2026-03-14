@@ -1323,10 +1323,10 @@ static void stress_aggressive_wait(
 #endif
 
 /*
- *  stress_wait_stressors()
+ *  stress_stressors_wait()
  * 	wait for stressor child processes
  */
-static void stress_wait_stressors(
+static void stress_stressors_wait(
 	stress_pid_t *s_pids_head,
 	const int32_t ticks_per_sec,
 	stress_list_item_t *stressors_list,
@@ -2018,7 +2018,7 @@ wait_for_stressors:
 	if (!(g_opt_flags & OPT_FLAGS_SYNC_START))
 		stress_start_timeout();
 #endif
-	stress_wait_stressors(s_pids_head, ticks_per_sec, stressors_list, success, resource_success, metrics_success);
+	stress_stressors_wait(s_pids_head, ticks_per_sec, stressors_list, success, resource_success, metrics_success);
 	time_finish = stress_time_now();
 
 	*duration += time_finish - time_start;
