@@ -753,7 +753,7 @@ extern volatile bool g_stress_continue_flag; /* false to exit stressor */
 extern jmp_buf g_error_env;		/* parsing error env */
 extern void *g_nowt;			/* void pointer to NULL */
 
-extern void stress_zero_bogo_max_ops(void);
+extern void stress_bogo_max_ops_zero(void);
 
 /*
  *  stress_continue_flag()
@@ -772,7 +772,7 @@ static inline void ALWAYS_INLINE stress_continue_set_flag(const bool setting)
 {
 	g_stress_continue_flag = setting;
 	if (!setting)
-		stress_zero_bogo_max_ops();
+		stress_bogo_max_ops_zero();
 }
 
 /*

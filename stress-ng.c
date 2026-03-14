@@ -607,11 +607,11 @@ static int stress_exclude(void)
 }
 
 /*
- *  stress_zero_bogo_max_ops()
+ *  stress_bogo_max_ops_zero()
  *	zero'ing all the bogo_max_ops stops all stressors
  *	that are checking on stress_continue()
  */
-void stress_zero_bogo_max_ops(void)
+void stress_bogo_max_ops_zero(void)
 {
 	stress_list_item_t *item;
 
@@ -718,7 +718,7 @@ static void MLOCKED_TEXT stress_sigalrm_handler(int signum)
 			*sigalarmed = true;
 		}
 	}
-	stress_zero_bogo_max_ops();
+	stress_bogo_max_ops_zero();
 
 	if (getpid() == main_pid) {
 		/* Parent */
