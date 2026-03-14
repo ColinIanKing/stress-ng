@@ -493,10 +493,10 @@ static inline uint32_t stress_hash_checksum(stress_counter_info_t *ci)
 }
 
 /*
- *  stress_ignore_stressor()
+ *  stress_stressor_ignore()
  *	remove stressor from stressor list
  */
-static inline void stress_ignore_stressor(stress_list_item_t *item, uint8_t reason)
+static inline void stress_stressor_ignore(stress_list_item_t *item, uint8_t reason)
 {
 	item->ignore.run = reason;
 }
@@ -598,7 +598,7 @@ static int stress_exclude(void)
 		}
 		for (item = stress_stressor_list.head; item; item = item->next) {
 			if (!stress_strcmp_munged(token, item->stressor->name)) {
-				stress_ignore_stressor(item, STRESS_STRESSOR_EXCLUDED);
+				stress_stressor_ignore(item, STRESS_STRESSOR_EXCLUDED);
 				break;
 			}
 		}
@@ -2972,7 +2972,7 @@ static inline void stress_exclude_unsupported(bool *unsupported)
 
 				if ((item->stressor == stressor) && item->instances &&
 					(stressor->info->supported(item->stressor->name) < 0)) {
-						stress_ignore_stressor(item, STRESS_STRESSOR_UNSUPPORTED);
+						stress_stressor_ignore(item, STRESS_STRESSOR_UNSUPPORTED);
 						*unsupported = true;
 				}
 			}
@@ -2986,7 +2986,7 @@ static inline void stress_exclude_unsupported(bool *unsupported)
 
 				if ((item->stressor == stressor) && item->instances) {
 					stress_exclude_unimplemented(item->stressor->name, stressor->info);
-					stress_ignore_stressor(item, STRESS_STRESSOR_UNSUPPORTED);
+					stress_stressor_ignore(item, STRESS_STRESSOR_UNSUPPORTED);
 					*unsupported = true;
 				}
 			}
@@ -3174,7 +3174,7 @@ static inline void stress_exclude_pathological(void)
 						"(enable it with the "
 						"--pathological option)\n", name);
 				}
-				stress_ignore_stressor(item, STRESS_STRESSOR_EXCLUDED);
+				stress_stressor_ignore(item, STRESS_STRESSOR_EXCLUDED);
 			}
 			item = next;
 		}
