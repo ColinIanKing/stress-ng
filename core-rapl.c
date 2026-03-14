@@ -299,19 +299,19 @@ int stress_rapl_power_stressor_get(stress_rapl_domain_t *rapl_domains, stress_ra
  *  stress_rapl_dump()
  *	dump rapl power measurements
  */
-void stress_rapl_dump(FILE *yaml, stress_stressor_t *stressors_list, stress_rapl_domain_t *rapl_domains)
+void stress_rapl_dump(FILE *yaml, stress_list_item_t *stressors_list, stress_rapl_domain_t *rapl_domains)
 {
 	bool no_rapl_stats = true;
-	stress_stressor_t *ss;
+	stress_list_item_t *item;
 
 	pr_yaml(yaml, "rapl-power-domains:\n");
 
-	for (ss = stressors_list; ss; ss = ss->next) {
+	for (item = stressors_list; item; item = item->next) {
 		bool dumped_heading = false;
 		bool print_nl = false;
 		stress_rapl_domain_t *rapl_domain;
 
-		if (ss->ignore.run)
+		if (item->ignore.run)
 			continue;
 
 		for (rapl_domain = rapl_domains; rapl_domain; rapl_domain = rapl_domain->next) {
@@ -324,8 +324,8 @@ void stress_rapl_dump(FILE *yaml, stress_stressor_t *stressors_list, stress_rapl
 			if (i >= STRESS_RAPL_DOMAINS_MAX)
 				continue;
 
-			for (j = 0; j < ss->instances; j++) {
-				double power = ss->stats[j]->rapl.power_watts[i];
+			for (j = 0; j < item->instances; j++) {
+				double power = item->stats[j]->rapl.power_watts[i];
 
 				if (power > 0.0) {
 					harmonic_total += 1.0 / power;
@@ -339,8 +339,8 @@ void stress_rapl_dump(FILE *yaml, stress_stressor_t *stressors_list, stress_rapl
 				if (!dumped_heading) {
 					dumped_heading = true;
 
-					pr_inf("%s:\n", ss->stressor->name);
-					pr_yaml(yaml, "    - stressor: %s\n", ss->stressor->name);
+					pr_inf("%s:\n", item->stressor->name);
+					pr_yaml(yaml, "    - stressor: %s\n", item->stressor->name);
                                 }
 
 				pr_inf(" %-19s %8.2f W\n", rapl_domain->domain_name, harmonic_mean);

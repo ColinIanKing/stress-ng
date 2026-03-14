@@ -32,6 +32,6 @@ extern cpu_cstate_t *stress_cpuidle_cstate_list_head(void);
 
 extern void stress_cpuidle_read_cstates_begin(stress_cstate_stats_t *cstate_stats);
 extern void stress_cpuidle_read_cstates_end(stress_cstate_stats_t *cstate_stats);
-extern void stress_cpuidle_dump(FILE *yaml, stress_stressor_t *stressors_list);
+extern void stress_cpuidle_dump(FILE *yaml, stress_list_item_t *stressors_list);
 
 #endif

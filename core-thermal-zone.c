@@ -235,14 +235,14 @@ static int stress_tz_compare(const void *p1, const void *p2)
  *  stress_tz_dump()
  *	dump thermal zone temperatures
  */
-void stress_tz_dump(FILE *yaml, stress_stressor_t *stressors_list)
+void stress_tz_dump(FILE *yaml, stress_list_item_t *stressors_list)
 {
 	bool no_tz_stats = true;
-	stress_stressor_t *ss;
+	stress_list_item_t *item;
 
 	pr_yaml(yaml, "thermal-zones:\n");
 
-	for (ss = stressors_list; ss; ss = ss->next) {
+	for (item = stressors_list; item; item = item->next) {
 		stress_tz_info_t *tz_info;
 		int32_t  j;
 		size_t i, n;
@@ -250,7 +250,7 @@ void stress_tz_dump(FILE *yaml, stress_stressor_t *stressors_list)
 		stress_tz_info_t **tz_infos;
 		bool print_nl = false;
 
-		if (ss->ignore.run)
+		if (item->ignore.run)
 			continue;
 
 		/* Find how many items in list */
@@ -276,9 +276,9 @@ void stress_tz_dump(FILE *yaml, stress_stressor_t *stressors_list)
 
 			tz_info = tz_infos[i];
 
-			for (j = 0; j < ss->instances; j++) {
+			for (j = 0; j < item->instances; j++) {
 				const uint64_t temp =
-					ss->stats[j]->tz.tz_stat[tz_info->index].temperature;
+					item->stats[j]->tz.tz_stat[tz_info->index].temperature;
 				/* Avoid crazy temperatures. e.g. > 250 C */
 				if (temp <= 250000) {
 					total += temp;
@@ -291,7 +291,7 @@ void stress_tz_dump(FILE *yaml, stress_stressor_t *stressors_list)
 				char tmp[64], *type;
 
 				if (!dumped_heading) {
-					const char *name = ss->stressor->name;
+					const char *name = item->stressor->name;
 
 					dumped_heading = true;
 					pr_inf("%s:\n", name);

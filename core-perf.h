@@ -45,7 +45,7 @@ extern int stress_perf_open(stress_perf_t *sp);
 extern int stress_perf_enable(stress_perf_t *sp);
 extern int stress_perf_disable(stress_perf_t *sp);
 extern int stress_perf_close(stress_perf_t *sp);
-extern void stress_perf_stat_dump(FILE *yaml, stress_stressor_t *procs_head,
+extern void stress_perf_stat_dump(FILE *yaml, stress_list_item_t *procs_head,
 	const double duration);
 extern void stress_perf_init(void);
 #endif

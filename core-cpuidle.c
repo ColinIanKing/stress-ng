@@ -284,13 +284,13 @@ void stress_cpuidle_read_cstates_end(stress_cstate_stats_t *cstate_stats)
 	stress_cpuidle_read_cstates(1, cstate_stats);
 }
 
-void stress_cpuidle_dump(FILE *yaml, stress_stressor_t *stressors_list)
+void stress_cpuidle_dump(FILE *yaml, stress_list_item_t *stressors_list)
 {
-	stress_stressor_t *ss;
+	stress_list_item_t *item;
 
 	pr_yaml(yaml, "C-states:\n");
 
-	for (ss = stressors_list; ss; ss = ss->next) {
+	for (item = stressors_list; item; item = item->next) {
 		size_t i;
 		int32_t j;
 		double residencies[STRESS_CSTATES_MAX];
@@ -299,17 +299,17 @@ void stress_cpuidle_dump(FILE *yaml, stress_stressor_t *stressors_list)
 		double c0_residency = 100.0;
 		bool valid = false;
 
-		if (ss->ignore.run)
+		if (item->ignore.run)
 			continue;
 
 		for (i = 0, cc = cpu_cstate_list; (i < STRESS_CSTATES_MAX) && cc; i++, cc = cc->next) {
 			double duration_us = 0.0;
 			double residency_us = 0.0;
 
-			for (j = 0; j < ss->instances; j++) {
-				duration_us += ss->stats[j]->cstates.time[i];
-				residency_us += ss->stats[j]->cstates.residency[i];
-				valid |= ss->stats[j]->cstates.valid;
+			for (j = 0; j < item->instances; j++) {
+				duration_us += item->stats[j]->cstates.time[i];
+				residency_us += item->stats[j]->cstates.residency[i];
+				valid |= item->stats[j]->cstates.valid;
 
 			}
 			residencies[i] = (duration_us > 0) ?
@@ -327,8 +327,8 @@ void stress_cpuidle_dump(FILE *yaml, stress_stressor_t *stressors_list)
 			 residencies[i] = 0.0;
 
 		if (valid) {
-			pr_inf("%s:\n", ss->stressor->name);
-			pr_yaml(yaml, "    - stressor: %s\n", ss->stressor->name);
+			pr_inf("%s:\n", item->stressor->name);
+			pr_yaml(yaml, "    - stressor: %s\n", item->stressor->name);
 
 			for (i = 0, cc = cpu_cstate_list; (i < STRESS_CSTATES_MAX) && cc; i++, cc = cc->next) {
 				const char *const notes = overflow[i] ? " (inaccurate)" : "";

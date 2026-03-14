@@ -52,7 +52,7 @@ typedef enum {
 /* settings for storing opt arg parsed data */
 typedef struct stress_setting {
 	struct stress_setting *next;	/* next setting in list */
-	stress_stressor_t *stressor;	/* stressor */
+	stress_list_item_t *item;	/* stressor list item */
 	const char *stressor_name;	/* name of stressor */
 	const char *name;		/* name of setting */
 	const void *opt;		/* optional opt pointer */

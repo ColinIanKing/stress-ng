@@ -210,17 +210,17 @@ static inline void stress_interrupt_tolower(char *str)
  *  stress_interrupts_dump()
  *	dump interrupts report
  */
-void stress_interrupts_dump(FILE *yaml, stress_stressor_t *stressors_list)
+void stress_interrupts_dump(FILE *yaml, stress_list_item_t *stressors_list)
 {
-	stress_stressor_t *ss;
+	stress_list_item_t *item;
 	size_t i;
 	bool pr_heading = false;
 
-	for (ss = stressors_list; ss; ss = ss->next) {
+	for (item = stressors_list; item; item = item->next) {
 		bool pr_nl = false;
 		bool pr_name = false;
 
-		if (ss->ignore.run)
+		if (item->ignore.run)
 			continue;
 
 		for (i = 0; i < SIZEOF_ARRAY(info); i++) {
@@ -228,10 +228,10 @@ void stress_interrupts_dump(FILE *yaml, stress_stressor_t *stressors_list)
 			int count = 0;
 			int32_t j;
 
-			for (j = 0; j < ss->instances; j++) {
+			for (j = 0; j < item->instances; j++) {
 				const int64_t delta =
-					ss->stats[j]->interrupts[i].count_stop -
-					ss->stats[j]->interrupts[i].count_start;
+					item->stats[j]->interrupts[i].count_stop -
+					item->stats[j]->interrupts[i].count_start;
 				if (delta > 0) {
 					total += delta;
 					count++;
@@ -240,7 +240,7 @@ void stress_interrupts_dump(FILE *yaml, stress_stressor_t *stressors_list)
 
 			if ((total > 0) && (count > 0)) {
 				char munged[64];
-				const char *name = ss->stressor->name;
+				const char *name = item->stressor->name;
 				const double average = round((double)total / (double)count);
 				const char *plural = average > 1.0 ? "s" : "";
 

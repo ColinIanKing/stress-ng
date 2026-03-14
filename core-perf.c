@@ -736,10 +736,10 @@ static const perf_relative_t perf_relatives[] = {
  *  stress_perf_stat_dump()
  *	emit perf statistics
  */
-void stress_perf_stat_dump(FILE *yaml, stress_stressor_t *stressors_list, const double duration)
+void stress_perf_stat_dump(FILE *yaml, stress_list_item_t *stressors_list, const double duration)
 {
 	bool no_perf_stats = true;
-	stress_stressor_t *ss;
+	stress_list_item_t *item;
 
 #if defined(HAVE_LOCALE_H)
 	(void)setlocale(LC_ALL, "");
@@ -747,16 +747,16 @@ void stress_perf_stat_dump(FILE *yaml, stress_stressor_t *stressors_list, const 
 
 	pr_yaml(yaml, "perfstats:\n");
 
-	for (ss = stressors_list; ss; ss = ss->next) {
+	for (item = stressors_list; item; item = item->next) {
 		int p;
 		uint64_t counter_totals[STRESS_PERF_MAX];
 		bool got_data = false;
 
-		if (ss->ignore.run)
+		if (item->ignore.run)
 			continue;
-		if (!ss->stats)
+		if (!item->stats)
 			continue;
-		if (!stress_perf_stat_succeeded(&ss->stats[0]->sp))
+		if (!stress_perf_stat_succeeded(&item->stats[0]->sp))
 			continue;
 
 		(void)shim_memset(counter_totals, 0, sizeof(counter_totals));
@@ -765,8 +765,8 @@ void stress_perf_stat_dump(FILE *yaml, stress_stressor_t *stressors_list, const 
 		for (p = 0; (p < STRESS_PERF_MAX) && perf_info[p].label; p++) {
 			int32_t j;
 
-			for (j = 0; j < ss->instances; j++) {
-				const uint64_t counter = ss->stats[j]->sp.perf_stat[p].counter;
+			for (j = 0; j < item->instances; j++) {
+				const uint64_t counter = item->stats[j]->sp.perf_stat[p].counter;
 
 				if (counter == STRESS_PERF_INVALID) {
 					counter_totals[p] = STRESS_PERF_INVALID;
@@ -780,8 +780,8 @@ void stress_perf_stat_dump(FILE *yaml, stress_stressor_t *stressors_list, const 
 		if (!got_data)
 			continue;
 
-		pr_inf("%s:\n", ss->stressor->name);
-		pr_yaml(yaml, "    - stressor: %s\n", ss->stressor->name);
+		pr_inf("%s:\n", item->stressor->name);
+		pr_yaml(yaml, "    - stressor: %s\n", item->stressor->name);
 		pr_yaml(yaml, "      duration: %f\n", duration);
 
 		for (p = 0; (p < STRESS_PERF_MAX) && perf_info[p].label; p++) {

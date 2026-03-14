@@ -234,7 +234,7 @@ static int stress_setting_generic_set(
 
 	setting->stressor_name = stressor_name;
 	setting->name = name;
-	setting->stressor = g_stressor_current;
+	setting->item = g_item_current;
 	setting->type_id = type_id;
 	setting->global = global;
 	if (!setting->name) {
@@ -359,9 +359,9 @@ bool stress_setting_get(const char *name, void *value)
 	bool found = false;
 
 	for (setting = setting_head; setting; setting = setting->next) {
-		if (setting->stressor == g_stressor_current)
+		if (setting->item == g_item_current)
 			found = true;
-		if (found && ((setting->stressor != g_stressor_current) && (!setting->global)))
+		if (found && ((setting->item != g_item_current) && (!setting->global)))
 			break;
 
 		if (!strcmp(setting->name, name)) {

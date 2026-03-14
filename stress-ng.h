@@ -235,7 +235,7 @@ typedef struct {
 
 /*
  *  Metrics info, 1 per stressor, referenced by
- *  stress_stressor_t
+ *  stress_list_item_t
  */
 typedef struct stress_metrics_info {
 	stress_metrics_desc_t *metrics_desc; /* per stressor metrics descriptions */
@@ -263,9 +263,9 @@ typedef struct {
 } stress_args_t;
 
 /* Run-time stressor descriptor list */
-typedef struct stress_stressor {
-	struct stress_stressor *next;	/* next proc info struct in list */
-	struct stress_stressor *prev;	/* prev proc info struct in list */
+typedef struct stress_list_item {
+	struct stress_list_item *next;	/* next proc info struct in list */
+	struct stress_list_item *prev;	/* prev proc info struct in list */
 	const struct stress *stressor;	/* stressor */
 	struct stress_stats **stats;	/* stressor stats info */
 	stress_metrics_info_t *metrics_info; /* per stressor metrics info */
@@ -278,7 +278,7 @@ typedef struct stress_stressor {
 		bool	run;		/* ignore running the stressor, unsupported or excluded */
 		bool	permute;	/* ignore flag, saved for permute */
 	} ignore;
-} stress_stressor_t;
+} stress_list_item_t;
 
 #include "core-version.h"
 #include "core-attribute.h"
@@ -597,7 +597,7 @@ typedef struct {
 /* Per stressor statistics and accounting info */
 typedef struct stress_stats {
 	struct stress_stats *hash_next;	/* next stats in hash table */
-	stress_stressor_t *ss;		/* stressor that this belongs to */
+	stress_list_item_t *item;	/* stressor list item this belongs to */
 	stress_args_t args;		/* stressor args */
 	double start;			/* wall clock start time */
 	double duration;		/* finish - start */
@@ -740,8 +740,8 @@ typedef struct stress {
 	char name[16];			/* stressor function name */
 } stress_t;
 
-/* Pointer to current running stressor proc info */
-extern stress_stressor_t *g_stressor_current;
+/* Pointer to current running stressor */
+extern stress_list_item_t *g_item_current;
 
 /* Various global option settings and flags */
 extern const char g_prog_name[];	/* Name of programme */
