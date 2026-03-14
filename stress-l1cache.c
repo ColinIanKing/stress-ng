@@ -377,7 +377,7 @@ static int OPTIMIZE3 stress_l1cache_random(
 	register volatile uint8_t *ptr = (volatile uint8_t *)cache_start;
 
 	(void)args;
-	stress_mwc_get_seed(&w, &z);
+	stress_mwc_seed_get(&w, &z);
 
 	/*
 	 * cycle around 2 x cache size to force evictions
@@ -423,7 +423,7 @@ static int OPTIMIZE3 stress_l1cache_random_and_verify(
 	register volatile uint8_t *ptr = (volatile uint8_t *)cache_start;
 
 	(void)args;
-	stress_mwc_get_seed(&w, &z);
+	stress_mwc_seed_get(&w, &z);
 
 	/*
 	 * cycle around 2 x cache size to force evictions

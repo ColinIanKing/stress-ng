@@ -1283,7 +1283,7 @@ case_stream_index_1:
 		break;
 	}
 
-	stress_mwc_get_seed(&w, &z);
+	stress_mwc_seed_get(&w, &z);
 
 	init_counter = 0;
 	init_counter_max = verify ? 1 : 64;

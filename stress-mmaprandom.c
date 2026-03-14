@@ -2233,7 +2233,7 @@ static int stress_mmaprandom(stress_args_t *args)
 		VOID_RET(int, stress_oomable_child(args, (void *)ctxt, stress_mmaprandom_child, STRESS_OOMABLE_QUIET));
 
 		/* Ensure child never restarts from same seed */
-		stress_mwc_get_seed(&w, &z);
+		stress_mwc_seed_get(&w, &z);
 		stress_mwc_set_seed(++w, --z);
 	}
 	duration = stress_time_now() - t;

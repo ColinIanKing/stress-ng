@@ -99,7 +99,7 @@ static int stress_env_child(stress_args_t *args, void *context)
 	stress_proc_state_set(args->name, STRESS_STATE_RUN);
 
 	env_max = stress_env_max();
-	stress_mwc_get_seed(&seed_w, &seed_z);
+	stress_mwc_seed_get(&seed_w, &seed_z);
 
 	do {
 		char name[64];
@@ -161,7 +161,7 @@ static int stress_env_child(stress_args_t *args, void *context)
 			}
 			i = 0;
 			env_max = stress_env_max();
-			stress_mwc_get_seed(&seed_w, &seed_z);
+			stress_mwc_seed_get(&seed_w, &seed_z);
 		} else {
 			i++;
 			stress_bogo_inc(args);

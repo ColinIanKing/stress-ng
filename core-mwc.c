@@ -197,10 +197,10 @@ void stress_mwc_set_seed(const uint32_t w, const uint32_t z)
 }
 
 /*
- *  stress_mwc_get_seed()
+ *  stress_mwc_seed_get()
  *      get mwc seeds
  */
-void stress_mwc_get_seed(uint32_t *w, uint32_t *z)
+void stress_mwc_seed_get(uint32_t *w, uint32_t *z)
 {
 	*w = mwc.w;
 	*z = mwc.z;
