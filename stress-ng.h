@@ -666,9 +666,9 @@ typedef struct {
 	struct {
 		uint8_t	*buffer;	/* Shared memory cache buffer */
 		uint64_t size;		/* buffer size in bytes */
+		uint32_t ways;		/* cache ways size */
 		uint16_t level;		/* 1=L1, 2=L2, 3=L3 */
 		uint16_t padding1;	/* alignment padding */
-		uint32_t ways;		/* cache ways size */
 	} mem_cache;
 	struct {
 		uint32_t hash[STRESS_WARN_HASH_MAX]; /* hash patterns */
@@ -702,8 +702,8 @@ typedef struct {
 #endif
 #if defined(STRESS_PERF_STATS)
 	struct {
-		bool no_perf;		/* true = Perf not available */
 		void *lock;		/* lock on no_perf updates */
+		bool no_perf;		/* true = Perf not available */
 	} perf;
 #endif
 #if defined(STRESS_THERMAL_ZONES)
