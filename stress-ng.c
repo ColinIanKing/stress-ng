@@ -92,7 +92,7 @@
 typedef void (*stress_signal_handler_t)(int signum);
 
 /* Map signals to handlers */
-typedef struct stress_signal_map {
+typedef struct {
 	int signum;			/* signal number */
 	stress_signal_handler_t handler;	/* signal handler */
 } stress_signal_map_t;
