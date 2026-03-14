@@ -325,10 +325,10 @@ static bool CONST stress_net_port_range_ok(const int start_port, const int end_p
 }
 
 /*
- *  stress_net_get_local_bind_ports()
+ *  stress_net_local_bind_ports_get()
  *	try to determine which ports are bind()ed
  */
-static void stress_net_get_local_bind_ports(uint8_t *bind_ports)
+static void stress_net_local_bind_ports_get(uint8_t *bind_ports)
 {
 #if defined(__linux__)
 	FILE *fp;
@@ -390,7 +390,7 @@ int stress_net_reserve_ports(
 		return -1;
 
 	(void)memset(bind_ports, 0, sizeof(bind_ports));
-	stress_net_get_local_bind_ports(bind_ports);
+	stress_net_local_bind_ports_get(bind_ports);
 
 	if (LIKELY(start_port == end_port)) {
 		int yield_count = 0;
