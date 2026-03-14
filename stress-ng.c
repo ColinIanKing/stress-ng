@@ -2995,10 +2995,10 @@ static inline void stress_exclude_unsupported(bool *unsupported)
 }
 
 /*
- *  stress_set_proc_limits()
+ *  stress_max_processes_limit_set()
  *	set maximum number of processes for specific stressors
  */
-static void stress_set_proc_limits(void)
+static void stress_max_processes_limit_set(void)
 {
 #if defined(RLIMIT_NPROC)
 	stress_list_item_t *item;
@@ -4306,7 +4306,7 @@ int main(int argc, char **argv, char **envp)
 	stress_exclude_unsupported(&unsupported);
 	stress_exclude_pathological();
 
-	stress_set_proc_limits();
+	stress_max_processes_limit_set();
 
 	if (!stress_stressor_list.head) {
 		pr_err("no stress workers invoked%s\n",
