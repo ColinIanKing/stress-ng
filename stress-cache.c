@@ -977,7 +977,7 @@ static void stress_cache_bzero(uint8_t *buffer, const uint64_t buffer_size)
 #endif
 }
 
-static void stress_get_cache_flags(const char *opt, uint32_t *cache_flags, uint32_t bitmask)
+static void stress_cache_flags_get(const char *opt, uint32_t *cache_flags, uint32_t bitmask)
 {
 	bool flag = false;
 
@@ -1058,17 +1058,17 @@ static int stress_cache(stress_args_t *args)
 		goto tidy_cpus;
 	}
 
-	(void)stress_get_cache_flags("cache-cldemote", &cache_flags, CACHE_FLAGS_CLDEMOTE);
-	(void)stress_get_cache_flags("cache-clflushopt", &cache_flags, CACHE_FLAGS_CLFLUSHOPT);
-	(void)stress_get_cache_flags("cache-enable-all", &cache_flags, CACHE_FLAGS_MASK);
-	(void)stress_get_cache_flags("cache-fence", &cache_flags, CACHE_FLAGS_FENCE);
-	(void)stress_get_cache_flags("cache-flush", &cache_flags, CACHE_FLAGS_CLFLUSH);
-	(void)stress_get_cache_flags("cache-no-affinity", &cache_flags, CACHE_FLAGS_NOAFF);
-	(void)stress_get_cache_flags("cache-prefetch", &cache_flags, CACHE_FLAGS_PREFETCH);
-	(void)stress_get_cache_flags("cache-sfence", &cache_flags, CACHE_FLAGS_SFENCE);
-	(void)stress_get_cache_flags("cache-clwb", &cache_flags, CACHE_FLAGS_CLWB);
-	(void)stress_get_cache_flags("cache-prefetchw", &cache_flags, CACHE_FLAGS_PREFETCHW);
-	(void)stress_get_cache_flags("cache-permute", &cache_flags, CACHE_FLAGS_PERMUTE);
+	(void)stress_cache_flags_get("cache-cldemote", &cache_flags, CACHE_FLAGS_CLDEMOTE);
+	(void)stress_cache_flags_get("cache-clflushopt", &cache_flags, CACHE_FLAGS_CLFLUSHOPT);
+	(void)stress_cache_flags_get("cache-enable-all", &cache_flags, CACHE_FLAGS_MASK);
+	(void)stress_cache_flags_get("cache-fence", &cache_flags, CACHE_FLAGS_FENCE);
+	(void)stress_cache_flags_get("cache-flush", &cache_flags, CACHE_FLAGS_CLFLUSH);
+	(void)stress_cache_flags_get("cache-no-affinity", &cache_flags, CACHE_FLAGS_NOAFF);
+	(void)stress_cache_flags_get("cache-prefetch", &cache_flags, CACHE_FLAGS_PREFETCH);
+	(void)stress_cache_flags_get("cache-sfence", &cache_flags, CACHE_FLAGS_SFENCE);
+	(void)stress_cache_flags_get("cache-clwb", &cache_flags, CACHE_FLAGS_CLWB);
+	(void)stress_cache_flags_get("cache-prefetchw", &cache_flags, CACHE_FLAGS_PREFETCHW);
+	(void)stress_cache_flags_get("cache-permute", &cache_flags, CACHE_FLAGS_PERMUTE);
 
 	if (stress_instance_zero(args))
 		pr_dbg("%s: using cache buffer size of %" PRIu64 "K\n",
