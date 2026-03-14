@@ -3359,10 +3359,10 @@ static void stress_classes_enable(const uint32_t classifier)
 }
 
 /*
- *  stress_parse_limit()
+ *  stress_limit_parse()
  *	parse rlimit resource values
  */
-static void stress_parse_limit(const char *opt, const char *option)
+static void stress_limit_parse(const char *opt, const char *option)
 {
 	const size_t page_size = stress_memory_page_size_get();
 	uint64_t u64 = stress_get_uint64_byte(opt);
@@ -3520,13 +3520,13 @@ next_opt:
 			stress_setting_global_set("job", TYPE_ID_STR, (void *)optarg);
 			break;
 		case OPT_limit_as:
-			stress_parse_limit(optarg, "limit-as");
+			stress_limit_parse(optarg, "limit-as");
 			break;
 		case OPT_limit_data:
-			stress_parse_limit(optarg, "limit-data");
+			stress_limit_parse(optarg, "limit-data");
 			break;
 		case OPT_limit_stack:
-			stress_parse_limit(optarg, "limit-stack");
+			stress_limit_parse(optarg, "limit-stack");
 			break;
 		case OPT_log_file:
 			stress_setting_global_set("log-file", TYPE_ID_STR, (void *)optarg);
