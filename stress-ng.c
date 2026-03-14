@@ -1264,11 +1264,11 @@ static stress_stats_t *stress_child_wait(
 #if defined(HAVE_SCHED_GETAFFINITY) &&	\
     NEED_GLIBC(2,3,0)
 /*
- *  stress_wait_aggressive()
+ *  stress_aggressive_wait()
  *	while waiting for stressors to complete add some aggressive
  *	CPU affinity changing to exercise the scheduler placement
  */
-static void stress_wait_aggressive(
+static void stress_aggressive_wait(
 	const int32_t ticks_per_sec,
 	stress_list_item_t *stressors_list,
 	bool *success,
@@ -1347,7 +1347,7 @@ static void stress_wait_stressors(
 	 *  try to thrash the system when in aggressive mode
 	 */
 	if (g_opt_flags & (OPT_FLAGS_AGGRESSIVE | OPT_FLAGS_TASKSET_RANDOM))
-		stress_wait_aggressive(ticks_per_sec, stressors_list, success, resource_success, metrics_success);
+		stress_aggressive_wait(ticks_per_sec, stressors_list, success, resource_success, metrics_success);
 #else
 	(void)ticks_per_sec;
 #endif
