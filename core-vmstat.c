@@ -453,10 +453,10 @@ static void stress_read_iostat(const char *iostat_name, stress_iostat_t *iostat)
 	(iostat_current.field - iostat_prev.field) : 0)
 
 /*
- *  stress_get_iostat()
+ *  stress_iostat_get()
  *	read and compute delta since last read of iostats
  */
-static void stress_get_iostat(const char *iostat_name, stress_iostat_t *iostat)
+static void stress_iostat_get(const char *iostat_name, stress_iostat_t *iostat)
 {
 	static stress_iostat_t iostat_prev;
 	stress_iostat_t iostat_current;
@@ -1050,7 +1050,7 @@ void stress_vmstat_start(void)
 	if (stress_iostat_iostat_name(iostat_name, sizeof(iostat_name)) == NULL)
 		iostat_sleep = 0;
 	if (iostat_delay)
-		stress_get_iostat(iostat_name, &iostat);
+		stress_iostat_get(iostat_name, &iostat);
 #endif
 
 #if defined(SCHED_DEADLINE)
@@ -1220,7 +1220,7 @@ void stress_vmstat_start(void)
 			double clk_scale = (iostat_delay > 0) ? 1.0 / iostat_delay : 0.0;
 			static uint32_t iostat_count = 0;
 
-			stress_get_iostat(iostat_name, &iostat);
+			stress_iostat_get(iostat_name, &iostat);
 
 			pr_block_begin();
 			if (iostat_count == 0)
