@@ -3038,12 +3038,12 @@ static inline void stress_append_stressor(stress_list_item_t *item)
 }
 
 /*
- *  stress_find_proc_info()
+ *  stress_list_item_find()
  *	find proc info that is associated with a specific
  *	stressor.  If it does not exist, create a new one
  *	and return that. Terminate if out of memory.
  */
-static stress_list_item_t *stress_find_proc_info(const stress_stressor_t *stressor)
+static stress_list_item_t *stress_list_item_find(const stress_stressor_t *stressor)
 {
 	stress_list_item_t *item;
 
@@ -3290,7 +3290,7 @@ static void stress_with(const int32_t instances)
 				"invalid --with option\n", token);
 			exit(EXIT_FAILURE);
 		}
-		item = stress_find_proc_info(&stressors[i]);
+		item = stress_list_item_find(&stressors[i]);
 		if (!item) {
 			(void)fprintf(stderr, "cannot %zu byte allocate stressor state info%s\n",
 				sizeof(*item), stress_memory_free_get());
@@ -3319,7 +3319,7 @@ static void stress_enable_all_stressors(const int32_t instances)
 		return;
 
 	for (i = 0; i < SIZEOF_ARRAY(stressors); i++) {
-		stress_list_item_t *item = stress_find_proc_info(&stressors[i]);
+		stress_list_item_t *item = stress_list_item_find(&stressors[i]);
 
 		if (!item) {
 			(void)fprintf(stderr, "cannot %zu byte allocate stressor state info%s\n",
@@ -3346,7 +3346,7 @@ static void stress_enable_classes(const uint32_t classifier)
 
 	for (i = 0; i < SIZEOF_ARRAY(stressors); i++) {
 		if (stressors[i].info->classifier & classifier) {
-			stress_list_item_t *item = stress_find_proc_info(&stressors[i]);
+			stress_list_item_t *item = stress_list_item_find(&stressors[i]);
 
 			if (g_opt_flags & OPT_FLAGS_SEQUENTIAL)
 				item->instances = opt_sequential;
@@ -3405,7 +3405,7 @@ next_opt:
 		for (i = 0; i < SIZEOF_ARRAY(stressors); i++) {
 			if (stressors[i].short_getopt == c) {
 				const char *name = stress_opt_name(c);
-				stress_list_item_t *item = stress_find_proc_info(&stressors[i]);
+				stress_list_item_t *item = stress_list_item_find(&stressors[i]);
 
 				g_item_current = item;
 				g_opt_flags |= OPT_FLAGS_SET;
