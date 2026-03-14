@@ -982,10 +982,10 @@ static void stress_stressor_usage_help(void)
 }
 
 /*
- *  stress_show_stressor_names()
+ *  stress_stressor_names_show()
  *	show stressor names
  */
-static inline void stress_show_stressor_names(void)
+static inline void stress_stressor_names_show(void)
 {
 	size_t i;
 
@@ -3639,7 +3639,7 @@ next_opt:
 				exit(EXIT_FAILURE);
 			break;
 		case OPT_stressors:
-			stress_show_stressor_names();
+			stress_stressor_names_show();
 			exit(EXIT_SUCCESS);
 		case OPT_taskset:
 			if (stress_affinity_cpu_set(optarg) < 0)
