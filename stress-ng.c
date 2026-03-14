@@ -1405,10 +1405,10 @@ static void MLOCKED_TEXT stress_terminate_handle(int signum)
 }
 
 /*
- *  stress_get_nth_stressor()
+ *  stress_nth_stressor_get()
  *	return nth stressor from list
  */
-static stress_list_item_t *stress_get_nth_stressor(const uint32_t n)
+static stress_list_item_t *stress_nth_stressor_get(const uint32_t n)
 {
 	stress_list_item_t *item = stress_stressor_list.head;
 	uint32_t i = 0;
@@ -3264,7 +3264,7 @@ static inline void stress_random_stressors_set(void)
 		/* create n randomly chosen stressors */
 		while (n > 0) {
 			const uint32_t i = stress_mwc32modn(n_procs);
-			stress_list_item_t *item = stress_get_nth_stressor(i);
+			stress_list_item_t *item = stress_nth_stressor_get(i);
 
 			if (!item)
 				continue;
