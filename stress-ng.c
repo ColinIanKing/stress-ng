@@ -3956,11 +3956,11 @@ static inline void stress_permute_run(
 }
 
 /*
- *  stress_mlock_executable()
+ *  stress_executable_mlock()
  *	try to mlock image into memory so it
  *	won't get swapped out
  */
-static inline void stress_mlock_executable(void)
+static inline void stress_executable_mlock(void)
 {
 #if defined(MLOCKED_SECTION)
 	extern void *__start_mlocked_text;
@@ -4275,7 +4275,7 @@ int main(int argc, char **argv, char **envp)
 	(void)stress_setting_get("ionice-level", &ionice_level);
 	(void)stress_setting_get("yaml", &yaml_filename);
 
-	stress_mlock_executable();
+	stress_executable_mlock();
 
 	/*
 	 *  Enable signal handers
