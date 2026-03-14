@@ -213,55 +213,55 @@ static const stress_opt_flag_t opt_flags[] = {
 	{ OPT_verify,		OPT_FLAGS_VERIFY, PR_LOG_FLAGS_FAIL },
 };
 
-static void MLOCKED_TEXT stress_handle_terminate(int signum);
+static void MLOCKED_TEXT stress_terminate_handle(int signum);
 
 static const stress_signal_map_t stress_signal_map[] = {
 	/* POSIX.1-1990 */
 #if defined(SIGHUP)
-	{ SIGHUP, 	stress_handle_terminate },
+	{ SIGHUP, 	stress_terminate_handle },
 #endif
 #if defined(SIGINT)
-	{ SIGINT,	stress_handle_terminate },
+	{ SIGINT,	stress_terminate_handle },
 #endif
 #if defined(SIGILL)
-	{ SIGILL,	stress_handle_terminate },
+	{ SIGILL,	stress_terminate_handle },
 #endif
 #if defined(SIGQUIT)
-	{ SIGQUIT,	stress_handle_terminate },
+	{ SIGQUIT,	stress_terminate_handle },
 #endif
 #if defined(SIGABRT)
-	{ SIGABRT,	stress_handle_terminate },
+	{ SIGABRT,	stress_terminate_handle },
 #endif
 #if defined(SIGFPE)
-	{ SIGFPE,	stress_handle_terminate },
+	{ SIGFPE,	stress_terminate_handle },
 #endif
 #if defined(SIGSEGV)
-	{ SIGSEGV,	stress_handle_terminate },
+	{ SIGSEGV,	stress_terminate_handle },
 #endif
 #if defined(SIGTERM)
-	{ SIGTERM,	stress_handle_terminate },
+	{ SIGTERM,	stress_terminate_handle },
 #endif
 #if defined(SIGXCPU)
-	{ SIGXCPU,	stress_handle_terminate },
+	{ SIGXCPU,	stress_terminate_handle },
 #endif
 #if defined(SIGXFSZ)
-	{ SIGXFSZ,	stress_handle_terminate },
+	{ SIGXFSZ,	stress_terminate_handle },
 #endif
 	/* Linux various */
 #if defined(SIGIOT)
-	{ SIGIOT,	stress_handle_terminate },
+	{ SIGIOT,	stress_terminate_handle },
 #endif
 #if defined(SIGSTKFLT)
-	{ SIGSTKFLT,	stress_handle_terminate },
+	{ SIGSTKFLT,	stress_terminate_handle },
 #endif
 #if defined(SIGPWR)
-	{ SIGPWR,	stress_handle_terminate },
+	{ SIGPWR,	stress_terminate_handle },
 #endif
 #if defined(SIGINFO)
-	{ SIGINFO,	stress_handle_terminate },
+	{ SIGINFO,	stress_terminate_handle },
 #endif
 #if defined(SIGVTALRM)
-	{ SIGVTALRM,	stress_handle_terminate },
+	{ SIGVTALRM,	stress_terminate_handle },
 #endif
 #if defined(SIGUSR1)
 	{ SIGUSR1,	SIG_IGN },
@@ -1365,10 +1365,10 @@ static void stress_stressors_wait(
 }
 
 /*
- *  stress_handle_terminate()
+ *  stress_terminate_handle()
  *	catch terminating signals
  */
-static void MLOCKED_TEXT stress_handle_terminate(int signum)
+static void MLOCKED_TEXT stress_terminate_handle(int signum)
 {
 	static char buf[128];
 	const int fd = (g_pr_log_flags & PR_LOG_FLAGS_STDERR) ?
