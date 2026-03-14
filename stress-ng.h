@@ -215,7 +215,7 @@ typedef struct {
 	bool run_ok;			/* stressor run w/o issues */
 	bool force_killed;		/* true if sent SIGKILL */
 	bool padding;			/* padding */
-} stress_counter_info_t;
+} stress_counter_t;
 
 /* Shared mmap'd pages */
 typedef struct {
@@ -248,7 +248,7 @@ typedef struct stress_metrics_info {
 typedef struct {
 	struct {
 		volatile uint64_t max_ops; /* max number of bogo ops */
-		stress_counter_info_t ci;  /* counter info struct */
+		stress_counter_t count;	/* counter info struct */
 		bool possibly_oom_killed;  /* was oom killed? */
 	} bogo;
 	const char *name;		/* stressor name */
@@ -438,9 +438,9 @@ typedef struct {
  *  have got corrupted.
  */
 typedef struct {
-	stress_counter_info_t ci; 	/* Copy of stats counter info ci */
-	uint8_t	pad1[64 - sizeof(stress_counter_info_t)]; /* Padding */
-	uint32_t hash;			/* Hash of data */
+	stress_counter_t count; /* Copy of stats counter info  */
+	uint8_t	pad1[64 - sizeof(stress_counter_t)]; /* Padding */
+	uint32_t hash;		/* Hash of data */
 	uint8_t	pad2[64 - sizeof(uint32_t)]; /* Padding */
 } stress_checksum_t;
 
@@ -785,11 +785,11 @@ static inline void ALWAYS_INLINE stress_continue_set_flag(const bool setting)
  */
 static inline void ALWAYS_INLINE stress_bogo_add(stress_args_t *args, const uint64_t inc)
 {
-	args->bogo.ci.counter_ready = false;
+	args->bogo.count.counter_ready = false;
 	stress_asm_mb();
-	args->bogo.ci.counter += inc;
+	args->bogo.count.counter += inc;
 	stress_asm_mb();
-	args->bogo.ci.counter_ready = true;
+	args->bogo.count.counter_ready = true;
 }
 
 /*
@@ -802,11 +802,11 @@ static inline void ALWAYS_INLINE stress_bogo_add(stress_args_t *args, const uint
  */
 static inline void ALWAYS_INLINE stress_bogo_inc(stress_args_t *args)
 {
-	args->bogo.ci.counter_ready = false;
+	args->bogo.count.counter_ready = false;
 	stress_asm_mb();
-	args->bogo.ci.counter++;
+	args->bogo.count.counter++;
 	stress_asm_mb();
-	args->bogo.ci.counter_ready = true;
+	args->bogo.count.counter_ready = true;
 }
 
 /*
@@ -815,7 +815,7 @@ static inline void ALWAYS_INLINE stress_bogo_inc(stress_args_t *args)
  */
 static inline uint64_t ALWAYS_INLINE stress_bogo_get(stress_args_t *args)
 {
-	return args->bogo.ci.counter;
+	return args->bogo.count.counter;
 }
 
 /*
@@ -824,7 +824,7 @@ static inline uint64_t ALWAYS_INLINE stress_bogo_get(stress_args_t *args)
  */
 static inline void ALWAYS_INLINE stress_bogo_ready(stress_args_t *args)
 {
-	args->bogo.ci.counter_ready = true;
+	args->bogo.count.counter_ready = true;
 }
 
 /*
@@ -837,11 +837,11 @@ static inline void ALWAYS_INLINE stress_bogo_ready(stress_args_t *args)
  */
 static inline void ALWAYS_INLINE stress_bogo_set(stress_args_t *args, const uint64_t val)
 {
-	args->bogo.ci.counter_ready = false;
+	args->bogo.count.counter_ready = false;
 	stress_asm_mb();
-	args->bogo.ci.counter = val;
+	args->bogo.count.counter = val;
 	stress_asm_mb();
-	args->bogo.ci.counter_ready = true;
+	args->bogo.count.counter_ready = true;
 }
 
 /*
@@ -852,14 +852,14 @@ static inline void ALWAYS_INLINE stress_bogo_set(stress_args_t *args, const uint
  */
 static inline void ALWAYS_INLINE stress_force_killed_bogo(stress_args_t *args)
 {
-	args->bogo.ci.force_killed = true;
+	args->bogo.count.force_killed = true;
 }
 
 /*
  *  stress_continue()
  *      returns true if we can keep on running a stressor
  */
-#define stress_continue(args) 	LIKELY(args->bogo.ci.counter < args->bogo.max_ops)
+#define stress_continue(args) 	LIKELY(args->bogo.count.counter < args->bogo.max_ops)
 
 /*
  *  stress_bogo_add_lock()

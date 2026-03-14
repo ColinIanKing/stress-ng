@@ -487,9 +487,9 @@ static inline void stress_stats_hash_table_add(stress_stats_t *stats)
  *  stress_hash_checksum()
  *	generate a hash of the checksum data
  */
-static inline uint32_t stress_hash_checksum(stress_counter_info_t *ci)
+static inline uint32_t stress_hash_checksum(stress_counter_t *count)
 {
-	return stress_hash_jenkin((uint8_t *)ci, sizeof(*ci));
+	return stress_hash_jenkin((uint8_t *)count, sizeof(*count));
 }
 
 /*
@@ -1711,7 +1711,7 @@ static int MLOCKED_TEXT stress_child_run(
 		/* note: set args in same order as stress_args_t */
 		args->bogo.max_ops = g_item_current->bogo_max_ops ?
 			g_item_current->bogo_max_ops : NEVER_END_OPS;
-		args->bogo.ci.counter = 0;
+		args->bogo.count.counter = 0;
 		args->bogo.possibly_oom_killed = false;
 		args->name = name;
 		args->instance = (uint32_t)instance;
@@ -1775,8 +1775,8 @@ static int MLOCKED_TEXT stress_child_run(
 #endif
 		stats->completed = true;
 		ok = (rc == EXIT_SUCCESS);
-		args->bogo.ci.run_ok = ok;
-		(*checksum)->ci.run_ok = ok;
+		args->bogo.count.run_ok = ok;
+		(*checksum)->count.run_ok = ok;
 		/* Ensure reserved padding is zero to not confuse checksum */
 		(void)shim_memset((*checksum)->pad1, 0, sizeof((*checksum)->pad1));
 		(void)shim_memset((*checksum)->pad2, 0, sizeof((*checksum)->pad2));
@@ -1787,15 +1787,15 @@ static int MLOCKED_TEXT stress_child_run(
 		 *  if not then flag up that the counter may
 		 *  be untrustyworthy
 		 */
-		if ((!args->bogo.ci.counter_ready) && (!args->bogo.ci.force_killed)) {
+		if ((!args->bogo.count.counter_ready) && (!args->bogo.count.force_killed)) {
 			pr_warn("%s: WARNING: bogo-ops counter in non-ready state, "
 				"metrics are untrustworthy (process may have been "
 				"terminated prematurely)\n",
 				name);
 			rc = EXIT_METRICS_UNTRUSTWORTHY;
 		}
-		(*checksum)->ci.counter = args->bogo.ci.counter;
-		(*checksum)->hash = stress_hash_checksum(&((*checksum)->ci));
+		(*checksum)->count.counter = args->bogo.count.counter;
+		(*checksum)->hash = stress_hash_checksum(&((*checksum)->count));
 		finish = stress_time_now();
 		if (g_opt_flags & OPT_FLAGS_STRESSOR_TIME)
 			stress_log_time(name, finish, "finish");
@@ -1812,7 +1812,7 @@ static int MLOCKED_TEXT stress_child_run(
 		(void)stress_tz_get_temperatures(&g_shared->tz_info, &stats->tz);
 #endif
 	stats->duration = (finish > 0.0) ? finish - stats->start : 0.0;
-	stats->counter_total += args->bogo.ci.counter;
+	stats->counter_total += args->bogo.count.counter;
 	stats->duration_total += stats->duration;
 
 	stress_rusage_stats_get(ticks_per_sec, stats);
@@ -1826,10 +1826,10 @@ static int MLOCKED_TEXT stress_child_run(
 	 * Apparently succeeded but terminated early?
 	 * Could be a bug, so report a warning
 	 */
-	if (args->bogo.ci.run_ok &&
+	if (args->bogo.count.run_ok &&
 	    (g_shared && !g_shared->caught_sigint) &&
 	    (run_duration < (double)g_opt_timeout) &&
-	    (!(g_item_current->bogo_max_ops && args->bogo.ci.counter >= g_item_current->bogo_max_ops))) {
+	    (!(g_item_current->bogo_max_ops && args->bogo.count.counter >= g_item_current->bogo_max_ops))) {
 		pr_warn("%s: WARNING: finished prematurely after just %s\n",
 			name, stress_time_duration_to_str(run_duration, true, true));
 	}
@@ -1920,8 +1920,8 @@ static void MLOCKED_TEXT stress_run(
 				goto abort;
 #endif
 			stress_sync_start_init(&stats->s_pid);
-			stats->args.bogo.ci.counter_ready = true;
-			stats->args.bogo.ci.counter = 0;
+			stats->args.bogo.count.counter_ready = true;
+			stats->args.bogo.count.counter = 0;
 			stats->checksum = *checksum;
 
 			stats->item = g_item_current;
@@ -2174,7 +2174,7 @@ static void stress_metrics_check(bool *success)
 			if (!stats->completed)
 				continue;
 
-			counter_check |= stats->args.bogo.ci.counter;
+			counter_check |= stats->args.bogo.count.counter;
 			if (stats->duration < min_run_time)
 				min_run_time = stats->duration;
 
@@ -2186,25 +2186,25 @@ static void stress_metrics_check(bool *success)
 			}
 
 			(void)shim_memset(&stats_checksum, 0, sizeof(stats_checksum));
-			stats_checksum.ci.counter = stats->args.bogo.ci.counter;
-			stats_checksum.ci.run_ok = stats->args.bogo.ci.run_ok;
-			stats_checksum.hash = stress_hash_checksum(&stats_checksum.ci);
+			stats_checksum.count.counter = stats->args.bogo.count.counter;
+			stats_checksum.count.run_ok = stats->args.bogo.count.run_ok;
+			stats_checksum.hash = stress_hash_checksum(&stats_checksum.count);
 
 			oom_message = stats->args.bogo.possibly_oom_killed ?
 				" (possibly terminated by out-of-memory killer)" : "";
 
-			if (stats->args.bogo.ci.counter != checksum->ci.counter) {
+			if (stats->args.bogo.count.counter != checksum->count.counter) {
 				pr_fail("%s instance %" PRId32 " corrupted bogo-ops counter, %" PRIu64 " vs %" PRIu64 "%s\n",
 					item->stressor->name, j,
-					stats->args.bogo.ci.counter, checksum->ci.counter,
+					stats->args.bogo.count.counter, checksum->count.counter,
 					oom_message);
 				oom_message = "";
 				ok = false;
 			}
-			if (stats->args.bogo.ci.run_ok != checksum->ci.run_ok) {
+			if (stats->args.bogo.count.run_ok != checksum->count.run_ok) {
 				pr_fail("%s instance %" PRId32 " corrupted run flag, %d vs %d%s\n",
 					item->stressor->name, j,
-					stats->args.bogo.ci.run_ok, checksum->ci.run_ok,
+					stats->args.bogo.count.run_ok, checksum->count.run_ok,
 					oom_message);
 				oom_message = "";
 				ok = false;
@@ -2328,7 +2328,7 @@ static void stress_metrics_dump(FILE *yaml)
 			if (stats->completed)
 				item->completed_instances++;
 
-			run_ok  |= stats->args.bogo.ci.run_ok;
+			run_ok  |= stats->args.bogo.count.run_ok;
 			c_total += stats->counter_total;
 			u_total += stats->rusage_utime_total;
 			s_total += stats->rusage_stime_total;
