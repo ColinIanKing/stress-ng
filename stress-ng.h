@@ -449,17 +449,17 @@ typedef struct {
  *  compiler does not compile away calculations
  */
 typedef union {
-	volatile uint8_t	uint8_val;
-	volatile uint16_t	uint16_val;
-	volatile uint32_t	uint32_val;
-	volatile uint64_t	uint64_val;
+	volatile void 		*void_ptr_val;
+	volatile long double	long_double_val;
+	volatile double		double_val;
+	volatile float		float_val;
 #if defined(HAVE_INT128_T)
 	volatile __uint128_t	uint128_val;
 #endif
-	volatile float		float_val;
-	volatile double		double_val;
-	volatile long double	long_double_val;
-	volatile void 		*void_ptr_val;
+	volatile uint64_t	uint64_val;
+	volatile uint32_t	uint32_val;
+	volatile uint16_t	uint16_val;
+	volatile uint8_t	uint8_val;
 } stress_put_val_t;
 
 typedef uint32_t stress_class_t;
