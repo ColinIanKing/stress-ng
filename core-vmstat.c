@@ -124,10 +124,10 @@ static int32_t raplstat_delay = 0;
 #if defined(__FreeBSD__) ||	\
     defined(__DragonFly__)
 /*
- *  freebsd_get_cpu_time()
+ *  freebsd_cpu_time_get()
  *	get user, system, idle times; FreeBSD variant
  */
-static void freebsd_get_cpu_time(
+static void freebsd_cpu_time_get(
 	uint64_t *user_time,
 	uint64_t *system_time,
 	uint64_t *idle_time)
@@ -165,7 +165,7 @@ static void freebsd_get_cpu_time(
 
 #if defined(__NetBSD__)
 /*
- *  freebsd_get_cpu_time()
+ *  freebsd_cpu_time_get()
  *	get user, system, idle times; NetBSD variant
  */
 static void netbsd_get_cpu_time(
@@ -717,7 +717,7 @@ static void stress_read_vmstat(stress_vmstat_t *vmstat)
 	vmstat->memory_free = (uint64_t)stress_bsd_getsysctl_uint32("vm.stats.vm.v_free_count");
 	vmstat->memory_cached = (uint64_t)stress_bsd_getsysctl_uint("vm.stats.vm.v_cache_count");
 
-	freebsd_get_cpu_time(&vmstat->user_time, &vmstat->system_time, &vmstat->idle_time);
+	freebsd_cpu_time_get(&vmstat->user_time, &vmstat->system_time, &vmstat->idle_time);
 
 #if defined(HAVE_SYS_VMMETER_H)
 	if (stress_bsd_getsysctl("vm.vmtotal", &t, sizeof(t)) == 0) {
