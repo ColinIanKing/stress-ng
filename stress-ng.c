@@ -3716,10 +3716,10 @@ next_opt:
 }
 
 /*
- *  stress_alloc_proc_stats()
+ *  stress_stats_alloc()
  *	allocate array of process stats based on n stats required
  */
-static void stress_alloc_proc_stats(
+static void stress_stats_alloc(
 	stress_stats_t ***stats,
 	const int32_t n)
 {
@@ -3765,7 +3765,7 @@ static void stress_setup_sequential(const uint32_t classifier, const int32_t ins
 		if (item->stressor->info->classifier & classifier)
 			item->instances = instances;
 		if (!item->ignore.run)
-			stress_alloc_proc_stats(&item->stats, item->instances);
+			stress_stats_alloc(&item->stats, item->instances);
 	}
 }
 
@@ -3792,7 +3792,7 @@ static void stress_setup_parallel(const uint32_t classifier, const int32_t insta
 		item->bogo_max_ops = item->instances ?
 			(item->bogo_max_ops + (item->instances - 1)) / item->instances : 0;
 		if (item->instances)
-			stress_alloc_proc_stats(&item->stats, item->instances);
+			stress_stats_alloc(&item->stats, item->instances);
 	}
 }
 
