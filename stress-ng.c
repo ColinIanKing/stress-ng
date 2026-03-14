@@ -2717,10 +2717,10 @@ void stress_system_memory_info_log(void)
 }
 
 /*
- *  stress_log_system_info()
+ *  stress_system_info_log()
  *	dump system info
  */
-static void stress_log_system_info(void)
+static void stress_system_info_log(void)
 {
 #if defined(HAVE_UNAME) && 		\
     defined(HAVE_SYS_UTSNAME_H) &&	\
@@ -4216,7 +4216,7 @@ int main(int argc, char **argv, char **envp)
 		pr_openlog(log_filename);
 	shim_openlog("stress-ng", 0, LOG_USER);
 	stress_args_log(argc, argv);
-	stress_log_system_info();
+	stress_system_info_log();
 	stress_system_memory_info_log();
 	stress_runinfo();
 	stress_buildinfo();
