@@ -488,7 +488,7 @@ again:
 			(void)stress_kill_pid_wait(pid, &status);
 			if (WIFSIGNALED(status)) {
 				if (WTERMSIG(status) == SIGKILL) {
-					stress_log_system_mem_info();
+					stress_system_memory_info_log();
 					pr_dbg("%s: assuming killed by OOM killer, "
 						"restarting again (instance %" PRIu32 ")\n",
 						args->name, args->instance);

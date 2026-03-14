@@ -923,7 +923,7 @@ static inline bool ALWAYS_INLINE stress_instance_zero(stress_args_t *args)
 extern WARN_UNUSED int stress_opts_parse(int argc, char **argv, const bool jobmode);
 extern void stress_shared_readonly(void);
 extern void stress_shared_unmap(void);
-extern void stress_log_system_mem_info(void);
+extern void stress_system_memory_info_log(void);
 extern void stress_metrics_set(stress_args_t *args, const char *description,
 	const double value, const int mean_type);
 extern WARN_UNUSED ssize_t stress_stressor_find(const char *name);

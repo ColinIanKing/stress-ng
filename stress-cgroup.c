@@ -640,7 +640,7 @@ again:
 					args->instance);
 				/* If we got killed by OOM killer, re-start */
 				if (WTERMSIG(status) == SIGKILL) {
-					stress_log_system_mem_info();
+					stress_system_memory_info_log();
 					pr_dbg("%s: assuming killed by OOM killer, "
 						"restarting again (instance %" PRIu32 ")\n",
 						args->name, args->instance);

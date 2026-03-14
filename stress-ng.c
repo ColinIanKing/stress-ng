@@ -2688,10 +2688,10 @@ static void stress_args_log(int argc, char **argv)
 }
 
 /*
- *  stress_log_system_mem_info()
+ *  stress_system_memory_info_log()
  *	dump system memory info
  */
-void stress_log_system_mem_info(void)
+void stress_system_memory_info_log(void)
 {
 #if defined(HAVE_SYS_SYSINFO_H) && \
     defined(HAVE_SYSINFO) && \
@@ -4217,7 +4217,7 @@ int main(int argc, char **argv, char **envp)
 	shim_openlog("stress-ng", 0, LOG_USER);
 	stress_args_log(argc, argv);
 	stress_log_system_info();
-	stress_log_system_mem_info();
+	stress_system_memory_info_log();
 	stress_runinfo();
 	stress_buildinfo();
 	stress_cpuidle_log_info();

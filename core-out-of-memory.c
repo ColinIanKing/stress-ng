@@ -347,7 +347,7 @@ rewait:
 				 *  by being OOM'd.
 				 */
 				if (g_opt_flags & OPT_FLAGS_OOMABLE) {
-					stress_log_system_mem_info();
+					stress_system_memory_info_log();
 					if (not_quiet)
 						pr_dbg("%s: %sPID %" PRIdMAX " killed by OOM "
 							"killer, bailing out "
@@ -359,7 +359,7 @@ rewait:
 					stress_fs_clean_dir(args->name, args->pid, args->instance);
 					return EXIT_SUCCESS;
 				} else {
-					stress_log_system_mem_info();
+					stress_system_memory_info_log();
 					if (not_quiet)
 						pr_dbg("%s: %sPID %" PRIdMAX " killed by OOM "
 							"killer, restarting again "

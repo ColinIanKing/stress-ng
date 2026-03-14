@@ -407,7 +407,7 @@ again:
 				/* If we got killed by OOM killer, re-start */
 				if (WTERMSIG(status) == SIGKILL) {
 					if (g_opt_flags & OPT_FLAGS_OOMABLE) {
-						stress_log_system_mem_info();
+						stress_system_memory_info_log();
 						pr_dbg("%s: assuming killed by OOM "
 							"killer, bailing out "
 							"(instance %" PRIu32 ")\n",
@@ -415,7 +415,7 @@ again:
 						rc = EXIT_SUCCESS;
 						goto finish;
 					} else {
-						stress_log_system_mem_info();
+						stress_system_memory_info_log();
 						pr_dbg("%s: assuming killed by OOM "
 							"killer, restarting again "
 							"(instance %" PRIu32 ")\n",

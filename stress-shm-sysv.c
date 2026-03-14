@@ -1102,7 +1102,7 @@ fork_again:
 			if (WIFSIGNALED(status)) {
 				if ((WTERMSIG(status) == SIGKILL) ||
 				    (WTERMSIG(status) == SIGBUS)) {
-					stress_log_system_mem_info();
+					stress_system_memory_info_log();
 					pr_dbg("%s: assuming PID %" PRIdMAX " killed by OOM killer, "
 						"restarting again (instance %" PRIu32 ")\n",
 						args->name, (intmax_t)pid, args->instance);
