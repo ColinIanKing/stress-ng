@@ -1030,12 +1030,12 @@ static const char PURE *stress_opt_name_find(const int opt_val)
 }
 
 /*
- *  stress_get_processors()
+ *  stress_processors_get()
  *	get number of processors, set count if <=0 as:
  *		count = 0 -> number of CPUs in system
  *		count < 0 -> number of CPUs online
  */
-static void stress_get_processors(int32_t *count)
+static void stress_processors_get(int32_t *count)
 {
 	if (*count == 0)
 		*count = stress_cpus_configured_get();
@@ -3410,7 +3410,7 @@ next_opt:
 				g_item_current = item;
 				g_opt_flags |= OPT_FLAGS_SET;
 				item->instances = stress_get_int32_instance_percent(optarg);
-				stress_get_processors(&item->instances);
+				stress_processors_get(&item->instances);
 				stress_check_max_stressors(name, item->instances);
 				goto next_opt;
 			}
@@ -3453,7 +3453,7 @@ next_opt:
 		case OPT_all:
 			g_opt_flags |= OPT_FLAGS_ALL;
 			opt_parallel= stress_get_int32_instance_percent(optarg);
-			stress_get_processors(&opt_parallel);
+			stress_processors_get(&opt_parallel);
 			stress_check_max_stressors("all", opt_parallel);
 			stress_setting_global_set("all", TYPE_ID_UINT32, &opt_parallel);
 			break;
@@ -3581,7 +3581,7 @@ next_opt:
 		case OPT_random:
 			g_opt_flags |= OPT_FLAGS_RANDOM;
 			i32 = stress_get_int32(optarg);
-			stress_get_processors(&i32);
+			stress_processors_get(&i32);
 			stress_check_max_stressors("random", i32);
 			stress_setting_global_set("random", TYPE_ID_INT32, &i32);
 			break;
@@ -3622,7 +3622,7 @@ next_opt:
 		case OPT_sequential:
 			g_opt_flags |= OPT_FLAGS_SEQUENTIAL;
 			opt_sequential = stress_get_int32_instance_percent(optarg);
-			stress_get_processors(&opt_sequential);
+			stress_processors_get(&opt_sequential);
 			stress_check_range("sequential", (uint64_t)opt_sequential,
 				MIN_SEQUENTIAL, MAX_SEQUENTIAL);
 			stress_setting_global_set("sequential", TYPE_ID_UINT32, &opt_sequential);
@@ -3630,7 +3630,7 @@ next_opt:
 		case OPT_permute:
 			g_opt_flags |= OPT_FLAGS_PERMUTE;
 			opt_permute = stress_get_int32_instance_percent(optarg);
-			stress_get_processors(&opt_permute);
+			stress_processors_get(&opt_permute);
 			stress_check_max_stressors("permute", opt_permute);
 			stress_setting_global_set("permute", TYPE_ID_UINT32, &opt_permute);
 			break;
