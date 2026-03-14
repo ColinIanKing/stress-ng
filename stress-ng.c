@@ -3023,7 +3023,11 @@ static void stress_max_processes_limit_set(void)
 #endif
 }
 
-static inline void stress_append_stressor(stress_list_item_t *item)
+/*
+ *  stress_list_item_append()
+ *	append a new stressor list item to stressor list
+ */
+static inline void stress_list_item_append(stress_list_item_t *item)
 {
 	item->prev = NULL;
 	item->next = NULL;
@@ -3062,7 +3066,7 @@ static stress_list_item_t *stress_list_item_find(const stress_stressor_t *stress
 	}
 	item->stressor = stressor;
 	item->ignore.run = STRESS_STRESSOR_NOT_IGNORED;
-	stress_append_stressor(item);
+	stress_list_item_append(item);
 
 	return item;
 }
