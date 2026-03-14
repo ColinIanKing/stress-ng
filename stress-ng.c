@@ -1558,10 +1558,10 @@ void stress_metrics_set(
 
 #if defined(HAVE_GETRUSAGE)
 /*
- *  stress_getrusage()
+ *  stress_rusage_get()
  *	accumulate rusgage stats
  */
-static void stress_getrusage(const int who, stress_stats_t *stats)
+static void stress_rusage_get(const int who, stress_stats_t *stats)
 {
 	struct rusage usage;
 
@@ -1589,8 +1589,8 @@ static void stress_get_usage_stats(const int32_t ticks_per_sec, stress_stats_t *
 
 	stats->rusage_utime = 0.0;
 	stats->rusage_stime = 0.0;
-	stress_getrusage(RUSAGE_SELF, stats);
-	stress_getrusage(RUSAGE_CHILDREN, stats);
+	stress_rusage_get(RUSAGE_SELF, stats);
+	stress_rusage_get(RUSAGE_CHILDREN, stats);
 #else
 	struct tms t;
 
