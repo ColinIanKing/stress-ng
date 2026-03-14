@@ -2886,7 +2886,7 @@ err_unmap_shared:
 
 /*
  *  stress_shared_readonly()
- *	unmap shared region
+ *	make global shared memory read-only
  */
 void stress_shared_readonly(void)
 {
