@@ -2643,10 +2643,10 @@ static void stress_times_dump(
 }
 
 /*
- *  stress_log_args()
+ *  stress_args_log()
  *	dump to syslog argv[]
  */
-static void stress_log_args(int argc, char **argv)
+static void stress_args_log(int argc, char **argv)
 {
 	size_t i, len, buflen, *arglen;
 	char *buf;
@@ -4215,7 +4215,7 @@ int main(int argc, char **argv, char **envp)
 	if (stress_setting_get("log-file", &log_filename))
 		pr_openlog(log_filename);
 	shim_openlog("stress-ng", 0, LOG_USER);
-	stress_log_args(argc, argv);
+	stress_args_log(argc, argv);
 	stress_log_system_info();
 	stress_log_system_mem_info();
 	stress_runinfo();
