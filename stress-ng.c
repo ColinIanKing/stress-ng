@@ -1633,10 +1633,10 @@ static void stress_log_time(const char *name, const double whence, const char *t
 }
 
 /*
- *  stress_run_child()
+ *  stress_child_run()
  *	invoke a stressor in a child process
  */
-static int MLOCKED_TEXT stress_run_child(
+static int MLOCKED_TEXT stress_child_run(
 	stress_checksum_t **checksum,
 	stress_stats_t *const stats,
 	const double fork_time_start,
@@ -1963,7 +1963,7 @@ again:
 
 				stress_make_it_fail_set();
 
-				rc = stress_run_child(checksum,
+				rc = stress_child_run(checksum,
 						stats, fork_time_start,
 						backoff, ticks_per_sec,
 						ionice_class, ionice_level,
