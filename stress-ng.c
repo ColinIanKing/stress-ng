@@ -1422,10 +1422,10 @@ static stress_list_item_t *stress_nth_stressor_get(const uint32_t n)
 }
 
 /*
- *  stress_get_num_stressors()
+ *  stress_stressors_number_get()
  *	return number of stressors and instances in stressor list
  */
-static inline void stress_get_num_stressors(uint32_t *n_stressors, uint32_t *n_instances)
+static inline void stress_stressors_number_get(uint32_t *n_stressors, uint32_t *n_instances)
 {
 	stress_list_item_t *item;
 
@@ -3246,7 +3246,7 @@ static inline void stress_random_stressors_set(void)
 		int32_t n = opt_random;
 		uint32_t n_procs, n_instances;
 
-		stress_get_num_stressors(&n_procs, &n_instances);
+		stress_stressors_number_get(&n_procs, &n_instances);
 
 		if (g_opt_flags & OPT_FLAGS_SET) {
 			(void)fprintf(stderr, "cannot specify random "
@@ -4404,7 +4404,7 @@ int main(int argc, char **argv, char **envp)
 	stress_config_check();
 	stress_resctrl_init();
 
-	stress_get_num_stressors(&n_stressors, &n_instances);
+	stress_stressors_number_get(&n_stressors, &n_instances);
 	if (stress_stats_hash_table_alloc(n_instances) < 0) {
 		ret = EXIT_FAILURE;
 		goto exit_resctrl;
