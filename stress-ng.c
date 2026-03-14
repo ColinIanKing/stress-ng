@@ -3306,10 +3306,10 @@ static void stress_with(const int32_t instances)
 }
 
 /*
- *  stress_stressors_enable_all()
+ *  stress_stressors_enable()
  *	enable all the stressors
  */
-static void stress_stressors_enable_all(const int32_t instances)
+static void stress_stressors_enable(const int32_t instances)
 {
 	size_t i;
 
@@ -4234,16 +4234,16 @@ int main(int argc, char **argv, char **envp)
 	 *  For random mode the stressors must be available
 	 */
 	if (g_opt_flags & OPT_FLAGS_RANDOM)
-		stress_stressors_enable_all(0);
+		stress_stressors_enable(0);
 	/*
 	 *  These two options enable all the stressors
 	 */
 	if (g_opt_flags & OPT_FLAGS_SEQUENTIAL)
-		stress_stressors_enable_all(opt_sequential);
+		stress_stressors_enable(opt_sequential);
 	if (g_opt_flags & OPT_FLAGS_ALL)
-		stress_stressors_enable_all(opt_parallel);
+		stress_stressors_enable(opt_parallel);
 	if (g_opt_flags & OPT_FLAGS_PERMUTE)
-		stress_stressors_enable_all(opt_permute);
+		stress_stressors_enable(opt_permute);
 	/*
 	 *  Discard stressors that we can't run
 	 */
