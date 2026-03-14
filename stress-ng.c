@@ -626,10 +626,10 @@ void stress_bogo_max_ops_zero(void)
 }
 
 /*
- *  stress_kill_stressors()
+ *  stress_stressors_kill()
  * 	kill stressor tasks using signal sig
  */
-static void stress_kill_stressors(const int sig, const bool force_sigkill)
+static void stress_stressors_kill(const int sig, const bool force_sigkill)
 {
 	int signum = sig;
 	stress_list_item_t *item;
@@ -698,7 +698,7 @@ static void MLOCKED_TEXT stress_sigint_handler(int signum)
 	stress_continue_set_flag(false);
 
 	/* Send alarm to all stressors */
-	stress_kill_stressors(SIGALRM, true);
+	stress_stressors_kill(SIGALRM, true);
 
 	errno = saved_errno;
 }
@@ -722,7 +722,7 @@ static void MLOCKED_TEXT stress_sigalrm_handler(int signum)
 
 	if (getpid() == main_pid) {
 		/* Parent */
-		stress_kill_stressors(SIGALRM, false);
+		stress_stressors_kill(SIGALRM, false);
 	} else {
 		/* Child */
 		stress_signal_stop_stressing_realarm(signum);
@@ -1221,7 +1221,7 @@ wexit_status_default:
 	}
 	if ((g_opt_flags & OPT_FLAGS_ABORT) && do_abort) {
 		stress_continue_set_flag(false);
-		stress_kill_stressors(SIGALRM, true);
+		stress_stressors_kill(SIGALRM, true);
 	}
 
 	stress_stressor_finished(&stats->s_pid.pid);
@@ -1391,13 +1391,13 @@ static void MLOCKED_TEXT stress_handle_terminate(int signum)
 		VOID_RET(ssize_t, write(fd, buf, shim_strnlen(buf, sizeof(buf))));
 		if (signum == SIGABRT)
 			stress_stack_backtrace();
-		stress_kill_stressors(SIGALRM, true);
+		stress_stressors_kill(SIGALRM, true);
 		_exit(EXIT_SIGNALED);
 	default:
 		/*
 		 *  Kill stressors
 		 */
-		stress_kill_stressors(SIGALRM, true);
+		stress_stressors_kill(SIGALRM, true);
 		break;
 	}
 
@@ -1950,7 +1950,7 @@ again:
 				}
 				pr_err("cannot fork, errno=%d (%s)\n",
 					errno, strerror(errno));
-				stress_kill_stressors(SIGALRM, false);
+				stress_stressors_kill(SIGALRM, false);
 				goto wait_for_stressors;
 			case 0:
 				/* Child */
@@ -1987,7 +1987,7 @@ again:
 				/* Forced early abort during startup? */
 				if (!stress_continue_flag()) {
 					pr_dbg("abort signal during startup, cleaning up\n");
-					stress_kill_stressors(SIGALRM, true);
+					stress_stressors_kill(SIGALRM, true);
 					goto wait_for_stressors;
 				}
 				break;
