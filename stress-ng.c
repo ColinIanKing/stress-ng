@@ -1809,7 +1809,7 @@ static int MLOCKED_TEXT stress_child_run(
 #endif
 #if defined(STRESS_THERMAL_ZONES)
 	if (g_opt_flags & OPT_FLAGS_THERMAL_ZONES)
-		(void)stress_tz_get_temperatures(&g_shared->tz_info, &stats->tz);
+		(void)stress_tz_temperatures_get(&g_shared->tz_info, &stats->tz);
 #endif
 	stats->duration = (finish > 0.0) ? finish - stats->start : 0.0;
 	stats->counter_total += args->bogo.count.counter;

@@ -175,10 +175,10 @@ void stress_tz_free(stress_tz_info_t **tz_info_list)
 }
 
 /*
- *  stress_tz_get_temperatures()
+ *  stress_tz_temperatures_get()
  *	collect valid thermal_zones details
  */
-int stress_tz_get_temperatures(stress_tz_info_t **tz_info_list, stress_tz_t *tz)
+int stress_tz_temperatures_get(stress_tz_info_t **tz_info_list, stress_tz_t *tz)
 {
         stress_tz_info_t *tz_info;
 
