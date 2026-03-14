@@ -3882,10 +3882,10 @@ static inline void stress_parallel_run(
 }
 
 /*
- *  stress_run_permute()
+ *  stress_permute_run()
  *	run stressors using permutations
  */
-static inline void stress_run_permute(
+static inline void stress_permute_run(
 	const int32_t ticks_per_sec,
 	double *duration,
 	bool *success,
@@ -4415,7 +4415,7 @@ int main(int argc, char **argv, char **envp)
 	if (g_opt_flags & OPT_FLAGS_SEQUENTIAL) {
 		stress_sequential_run(ticks_per_sec, n_stressors, &duration, &success, &resource_success, &metrics_success);
 	} else if (g_opt_flags & OPT_FLAGS_PERMUTE) {
-		stress_run_permute(ticks_per_sec, &duration, &success, &resource_success, &metrics_success);
+		stress_permute_run(ticks_per_sec, &duration, &success, &resource_success, &metrics_success);
 	} else {
 		stress_parallel_run(ticks_per_sec, n_stressors, &duration, &success, &resource_success, &metrics_success);
 	}
