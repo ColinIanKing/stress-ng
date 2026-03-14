@@ -202,10 +202,10 @@ int stress_rapl_domains_get(stress_rapl_domain_t **rapl_domains)
 }
 
 /*
- *  stress_rapl_get_power()
+ *  stress_rapl_power_get()
  *	get power discharge rate from system via the RAPL interface
  */
-static int stress_rapl_get_power(stress_rapl_domain_t *rapl_domains, const int which)
+static int stress_rapl_power_get(stress_rapl_domain_t *rapl_domains, const int which)
 {
 	stress_rapl_domain_t *rapl_domain;
 	int got_data = -1;
@@ -265,7 +265,7 @@ static int stress_rapl_get_power(stress_rapl_domain_t *rapl_domains, const int w
 
 int stress_rapl_power_raplstat_get(stress_rapl_domain_t *rapl_domains)
 {
-	return stress_rapl_get_power(rapl_domains, STRESS_RAPL_DATA_RAPLSTAT);
+	return stress_rapl_power_get(rapl_domains, STRESS_RAPL_DATA_RAPLSTAT);
 }
 
 /*
@@ -278,7 +278,7 @@ int stress_rapl_power_stressor_get(stress_rapl_domain_t *rapl_domains, stress_ra
 	size_t i;
 	stress_rapl_domain_t *rapl_domain;
 
-	ret = stress_rapl_get_power(rapl_domains, STRESS_RAPL_DATA_STRESSOR);
+	ret = stress_rapl_power_get(rapl_domains, STRESS_RAPL_DATA_STRESSOR);
 	if (!rapl)
 		return ret;
 
