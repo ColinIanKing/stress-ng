@@ -294,7 +294,7 @@ STRESSORS(STRESSOR_INFO)
  *  because name is munged to human readable form
  *  at start
  */
-static stress_t stressors[] = {
+static stress_stressor_t stressors[] = {
 	STRESSORS(STRESSOR_ELEM)
 };
 
@@ -2958,7 +2958,7 @@ static inline void stress_exclude_unsupported(bool *unsupported)
 	size_t i;
 
 	for (i = 0; i < SIZEOF_ARRAY(stressors); i++) {
-		const stress_t *stressor = &stressors[i];
+		const stress_stressor_t *stressor = &stressors[i];
 
 		if (!stressor->info)
 			continue;
@@ -3043,7 +3043,7 @@ static inline void stress_append_stressor(stress_list_item_t *item)
  *	stressor.  If it does not exist, create a new one
  *	and return that. Terminate if out of memory.
  */
-static stress_list_item_t *stress_find_proc_info(const stress_t *stressor)
+static stress_list_item_t *stress_find_proc_info(const stress_stressor_t *stressor)
 {
 	stress_list_item_t *item;
 

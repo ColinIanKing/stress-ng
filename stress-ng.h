@@ -266,7 +266,7 @@ typedef struct {
 typedef struct stress_list_item {
 	struct stress_list_item *next;	/* next proc info struct in list */
 	struct stress_list_item *prev;	/* prev proc info struct in list */
-	const struct stress *stressor;	/* stressor */
+	const struct stress_stressor_t *stressor; /* stressor */
 	struct stress_stats **stats;	/* stressor stats info */
 	stress_metrics_info_t *metrics_info; /* per stressor metrics info */
 	int32_t completed_instances;	/* count of completed instances */
@@ -733,12 +733,12 @@ typedef struct {
 } stress_shared_t;
 
 /* stress test metadata */
-typedef struct stress {
+typedef struct stress_stressor_t {
 	const stressor_info_t *info;	/* stress test info */
 	const short int short_getopt;	/* getopt short option */
 	const stress_op_t op;		/* ops option */
 	char name[16];			/* stressor function name */
-} stress_t;
+} stress_stressor_t;
 
 /* Pointer to current running stressor */
 extern stress_list_item_t *g_item_current;
