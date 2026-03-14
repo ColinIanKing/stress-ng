@@ -973,10 +973,10 @@ static void stress_vmstat_get(stress_vmstat_t *vmstat)
 
 #if defined(__linux__)
 /*
- *  stress_get_tz_info()
+ *  stress_tz_info_get()
  *	get temperature in degrees C from a thermal zone
  */
-static double stress_get_tz_info(const stress_tz_info_t *tz_info)
+static double stress_tz_info_get(const stress_tz_info_t *tz_info)
 {
 	double temp = 0.0;
 	FILE *fp;
@@ -1194,7 +1194,7 @@ void stress_vmstat_start(void)
 
 #if defined(__linux__)
 				for (ptr = therms, tz_info = g_shared->tz_info; tz_info; tz_info = tz_info->next) {
-					(void)snprintf(ptr, 8, " %6.2f", stress_get_tz_info(tz_info));
+					(void)snprintf(ptr, 8, " %6.2f", stress_tz_info_get(tz_info));
 					ptr += 7;
 				}
 #endif
