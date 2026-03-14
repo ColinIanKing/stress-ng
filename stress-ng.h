@@ -728,7 +728,9 @@ typedef struct {
 	struct {
 		uint32_t ready;		/* incremented when rawsock stressor is ready */
 	} rawsock;
-	void *metrics_lock;		/* metrics lock */
+	struct {
+		void *lock;		/* metrics lock */
+	} metrics;
 	stress_stats_t stats[];		/* Shared statistics */
 } stress_shared_t;
 

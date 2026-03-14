@@ -1498,21 +1498,21 @@ static ssize_t stress_metrics_find(
 	size_t i;
 	stress_metrics_info_t *mi = item->metrics_info;
 
-	if (UNLIKELY(stress_lock_acquire(g_shared->metrics_lock) < 0))
+	if (UNLIKELY(stress_lock_acquire(g_shared->metrics.lock) < 0))
 		return (ssize_t)-1;
 
 	/* search for existing match.. */
 	for (i = 0; i < mi->num_metrics_items; i++) {
 		if ((mi->metrics_desc[i].mean_type == mean_type) &&
 		    (strcmp(mi->metrics_desc[i].description, description) == 0)) {
-			(void)stress_lock_release(g_shared->metrics_lock);
+			(void)stress_lock_release(g_shared->metrics.lock);
 			return (ssize_t)i;
 		}
 	}
 
 	/* check for overflow */
 	if (i >= mi->max_metrics_items) {
-		(void)stress_lock_release(g_shared->metrics_lock);
+		(void)stress_lock_release(g_shared->metrics.lock);
 		mi->overflow_metrics_items = true;
 		return (ssize_t)-1;
 	}
@@ -1521,7 +1521,7 @@ static ssize_t stress_metrics_find(
 	(void)shim_strscpy(mi->metrics_desc[i].description, description, sizeof(mi->metrics_desc[i].description));
 	mi->metrics_desc[i].mean_type = mean_type;
 	mi->num_metrics_items++;
-	(void)stress_lock_release(g_shared->metrics_lock);
+	(void)stress_lock_release(g_shared->metrics.lock);
 
 	return (ssize_t)i;
 }
@@ -4031,8 +4031,8 @@ static int stress_global_lock_create(void)
 		pr_err("failed to create net_port_map lock\n");
 		return -1;
 	}
-	g_shared->metrics_lock = stress_lock_create("metrics");
-	if (!g_shared->metrics_lock) {
+	g_shared->metrics.lock = stress_lock_create("metrics");
+	if (!g_shared->metrics.lock) {
 		pr_err("failed to create metrics lock\n");
 		return -1;
 	}
@@ -4045,8 +4045,8 @@ static int stress_global_lock_create(void)
  */
 static void stress_global_lock_destroy(void)
 {
-	if (g_shared->metrics_lock)
-		stress_lock_destroy(g_shared->metrics_lock);
+	if (g_shared->metrics.lock)
+		stress_lock_destroy(g_shared->metrics.lock);
 	if (g_shared->net_port_map.lock)
 		stress_lock_destroy(g_shared->net_port_map.lock);
 	if (g_shared->warn_once.lock)
