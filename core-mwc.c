@@ -207,10 +207,10 @@ void stress_mwc_seed_get(uint32_t *w, uint32_t *z)
 }
 
 /*
- *  stress_mwc_default_seed()
+ *  stress_mwc_seed_default()
  *      set default mwc seed
  */
-void stress_mwc_default_seed(void)
+void stress_mwc_seed_default(void)
 {
 	stress_mwc_seed_set(STRESS_MWC_SEED_W, STRESS_MWC_SEED_Z);
 }
