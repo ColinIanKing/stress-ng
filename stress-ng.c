@@ -2025,10 +2025,10 @@ wait_for_stressors:
 }
 
 /*
- *  stress_show_stressors()
+ *  stress_stressors_show()
  *	show names of stressors that are going to be run
  */
-static int stress_show_stressors(void)
+static int stress_stressors_show(void)
 {
 	char *newstr, *str = NULL;
 	ssize_t len = 0;
@@ -4372,7 +4372,7 @@ int main(int argc, char **argv, char **envp)
 	/*
 	 *  Show the stressors we're going to run
 	 */
-	if (stress_show_stressors() < 0) {
+	if (stress_stressors_show() < 0) {
 		ret = EXIT_FAILURE;
 		goto exit_shared_unmap;
 	}
