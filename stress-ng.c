@@ -4054,7 +4054,7 @@ static void stress_global_lock_destroy(void)
 #endif
 }
 
-static inline void stress_fixup_stressor_names(void)
+static inline void stress_stressor_names_fixup(void)
 {
 	size_t i;
 
@@ -4088,7 +4088,7 @@ int main(int argc, char **argv, char **envp)
 	/* Enable stress-ng stack smashing message */
 	stress_stack_smash_check_flag_set(true);
 
-	stress_fixup_stressor_names();
+	stress_stressor_names_fixup();
 
 	stress_proc_name_init(argc, argv, envp);
 
