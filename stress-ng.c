@@ -732,10 +732,10 @@ static void MLOCKED_TEXT stress_sigalrm_handler(int signum)
 }
 
 /*
- *  stress_block_signals()
+ *  stress_signals_block()
  *	block signals
  */
-static void stress_block_signals(void)
+static void stress_signals_block(void)
 {
 	sigset_t set;
 
@@ -1662,13 +1662,13 @@ static int MLOCKED_TEXT stress_run_child(
 
 	if (stress_sched_settings_apply(true) < 0) {
 		rc = EXIT_NO_RESOURCE;
-		stress_block_signals();
+		stress_signals_block();
 		goto child_exit;
 	}
 	(void)atexit(stress_child_atexit);
 	if (stress_set_handler(name, true) < 0) {
 		rc = EXIT_FAILURE;
-		stress_block_signals();
+		stress_signals_block();
 		goto child_exit;
 	}
 	stress_parent_died_alarm();
@@ -1740,7 +1740,7 @@ static int MLOCKED_TEXT stress_run_child(
 
 		rc = info->stressor(args);
 		stress_sync_state_store(&stats->s_pid, STRESS_SYNC_START_FLAG_FINISHED);
-		stress_block_signals();
+		stress_signals_block();
 		(void)alarm(0);
 		if (g_opt_flags & OPT_FLAGS_INTERRUPTS) {
 			stress_interrupts_stop(stats->interrupts);
