@@ -483,7 +483,7 @@ typedef struct stressor_info {
 	int (*supported)(const char *name);	/* return 0 = supported, -1, not */
 	void (*init)(const uint32_t instances); /* stressor init, NULL = ignore */
 	void (*deinit)(void);		/* stressor de-init, NULL = ignore */
-	void (*set_default)(void);	/* default set-up */
+	void (*default_set)(void);	/* default set-up */
 	void (*set_limit)(uint64_t max);/* set limits */
 	const stress_opt_t *opts;	/* new option settings */
 	const stress_help_t *help;	/* stressor help options */

@@ -3121,8 +3121,8 @@ static inline void stress_stressor_defaults_set(void)
 	size_t i;
 
 	for (i = 0; i < SIZEOF_ARRAY(stressors); i++) {
-		if (stressors[i].info && stressors[i].info->set_default)
-			stressors[i].info->set_default();
+		if (stressors[i].info && stressors[i].info->default_set)
+			stressors[i].info->default_set();
 	}
 }
 
