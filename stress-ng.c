@@ -2912,10 +2912,10 @@ void stress_shared_unmap(void)
 }
 
 /*
- *  stress_exclude_unimplemented()
+ *  stress_unimplementd_exclude()
  *	report why an unimplemented stressor will be skipped
  */
-static void stress_exclude_unimplemented(
+static void stress_unimplementd_exclude(
 	const char *name,
 	const stressor_info_t *info)
 {
@@ -2985,7 +2985,7 @@ static inline void stress_exclude_unsupported(bool *unsupported)
 					continue;
 
 				if ((item->stressor == stressor) && item->instances) {
-					stress_exclude_unimplemented(item->stressor->name, stressor->info);
+					stress_unimplementd_exclude(item->stressor->name, stressor->info);
 					stress_stressor_ignore(item, STRESS_STRESSOR_UNSUPPORTED);
 					*unsupported = true;
 				}
