@@ -211,7 +211,7 @@ int stress_job_parse_file(
 			/* prepend -- to command to make them into stress-ng options */
 			(void)snprintf(tmp, len, "--%s", new_argv[1]);
 			new_argv[1] = tmp;
-			if (stress_parse_opts(new_argc, new_argv, true) != EXIT_SUCCESS) {
+			if (stress_opts_parse(new_argc, new_argv, true) != EXIT_SUCCESS) {
 				stress_parse_error(lineno, txt);
 				ret = -1;
 				free(tmp);

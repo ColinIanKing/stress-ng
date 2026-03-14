@@ -920,7 +920,7 @@ static inline bool ALWAYS_INLINE stress_instance_zero(stress_args_t *args)
 #define STRESS_METRIC_TOTAL		(0x3)
 #define STRESS_METRIC_MAXIMUM		(0x4)
 
-extern WARN_UNUSED int stress_parse_opts(int argc, char **argv, const bool jobmode);
+extern WARN_UNUSED int stress_opts_parse(int argc, char **argv, const bool jobmode);
 extern void stress_shared_readonly(void);
 extern void stress_shared_unmap(void);
 extern void stress_log_system_mem_info(void);

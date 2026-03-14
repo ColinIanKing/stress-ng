@@ -3378,10 +3378,10 @@ static void stress_limit_parse(const char *opt, const char *option)
 }
 
 /*
- *  stress_parse_opts
+ *  stress_opts_parse
  *	parse argv[] and set stress-ng options accordingly
  */
-int stress_parse_opts(int argc, char **argv, const bool jobmode)
+int stress_opts_parse(int argc, char **argv, const bool jobmode)
 {
 	optind = 0;
 
@@ -4128,7 +4128,7 @@ int main(int argc, char **argv, char **envp)
 		goto exit_settings_free;
 	}
 
-	ret = stress_parse_opts(argc, argv, false);
+	ret = stress_opts_parse(argc, argv, false);
 	if (ret != EXIT_SUCCESS)
 		goto exit_settings_free;
 
