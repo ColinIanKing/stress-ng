@@ -1582,7 +1582,7 @@ static void stress_rusage_get(const int who, stress_stats_t *stats)
 }
 #endif
 
-static void stress_get_usage_stats(const int32_t ticks_per_sec, stress_stats_t *stats)
+static void stress_rusage_stats_get(const int32_t ticks_per_sec, stress_stats_t *stats)
 {
 #if defined(HAVE_GETRUSAGE)
 	(void)ticks_per_sec;
@@ -1815,7 +1815,7 @@ static int MLOCKED_TEXT stress_run_child(
 	stats->counter_total += args->bogo.ci.counter;
 	stats->duration_total += stats->duration;
 
-	stress_get_usage_stats(ticks_per_sec, stats);
+	stress_rusage_stats_get(ticks_per_sec, stats);
 	pr_dbg("%s: [%" PRIdMAX "] exited (instance %" PRId32 " on CPU %u)\n",
 		name, (intmax_t)child_pid, instance, stress_cpu_get());
 
