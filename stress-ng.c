@@ -1461,10 +1461,10 @@ static void stress_stressors_free(void)
 }
 
 /*
- *  stress_get_total_instances()
+ *  stress_total_instances_get()
  *	deterimin number of runnable stressors from list
  */
-static int32_t stress_get_total_instances(stress_list_item_t *stressors_list)
+static int32_t stress_total_instances_get(stress_list_item_t *stressors_list)
 {
 	int32_t total_instances = 0;
 	stress_list_item_t *item;
@@ -4324,7 +4324,7 @@ int main(int argc, char **argv, char **envp)
 	 *  Allocate shared memory segment for shared data
 	 *  across all the child stressors
 	 */
-	stress_shared_map(stress_get_total_instances(stress_stressor_list.head));
+	stress_shared_map(stress_total_instances_get(stress_stressor_list.head));
 
 	if (stress_lock_mem_map() < 0) {
 		pr_err("failed to create shared heap\n");
