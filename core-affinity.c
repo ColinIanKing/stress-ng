@@ -84,10 +84,10 @@ static void stress_set_cpu_affinity_current(cpu_set_t *set)
 }
 
 /*
- *  stress_get_topology_set()
+ *  stress_topology_set_get()
  *	find cpus in a specific topology
  */
-static void stress_get_topology_set(
+static void stress_topology_set_get(
 	const char *topology_list,
 	const char *topology,
 	const char *arg,
@@ -252,16 +252,16 @@ int stress_affinity_parse_cpu(const char *arg, cpu_set_t *set, int *setbits)
 			}
 			continue;
 		} else if (!strncmp(token, "package", 7)) {
-			stress_get_topology_set("package_cpus_list", "package", token, set, setbits);
+			stress_topology_set_get("package_cpus_list", "package", token, set, setbits);
 			continue;
 		} else if (!strncmp(token, "cluster", 7)) {
-			stress_get_topology_set("cluster_cpus_list", "cluster", token, set, setbits);
+			stress_topology_set_get("cluster_cpus_list", "cluster", token, set, setbits);
 			continue;
 		} else if (!strncmp(token, "die", 3)) {
-			stress_get_topology_set("die_cpus_list", "die", token, set, setbits);
+			stress_topology_set_get("die_cpus_list", "die", token, set, setbits);
 			continue;
 		} else if (!strncmp(token, "core", 4)) {
-			stress_get_topology_set("core_cpus_list", "core", token, set, setbits);
+			stress_topology_set_get("core_cpus_list", "core", token, set, setbits);
 			continue;
 		}
 
