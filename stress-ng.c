@@ -3233,10 +3233,10 @@ static inline int stress_stats_buffers_setup(void)
 }
 
 /*
- *  stress_set_random_stressors()
+ *  stress_random_stressors_set()
  *	select stressors at random
  */
-static inline void stress_set_random_stressors(void)
+static inline void stress_random_stressors_set(void)
 {
 	int32_t opt_random = 0;
 
@@ -4256,7 +4256,7 @@ int main(int argc, char **argv, char **envp)
 	/*
 	 *  Setup random stressors if requested
 	 */
-	stress_set_random_stressors();
+	stress_random_stressors_set();
 
 	stress_ftrace_start();
 #if defined(STRESS_PERF_STATS) &&	\
