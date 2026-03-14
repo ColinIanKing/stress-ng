@@ -502,10 +502,10 @@ static inline void stress_stressor_ignore(stress_list_item_t *item, uint8_t reas
 }
 
 /*
- *  stress_get_class_id()
+ *  stress_class_id_get()
  *	find the class id of a given class name
  */
-static uint32_t PURE stress_get_class_id(const char *const str)
+static uint32_t PURE stress_class_id_get(const char *const str)
 {
 	size_t i;
 
@@ -527,7 +527,7 @@ static int stress_get_class(char *const class_str, uint32_t *opt_class)
 
 	*opt_class = 0;
 	for (str = class_str; (token = strtok(str, ",")) != NULL; str = NULL) {
-		uint32_t cl = stress_get_class_id(token);
+		uint32_t cl = stress_class_id_get(token);
 
 		if (!cl) {
 			size_t i;
@@ -536,7 +536,7 @@ static int stress_get_class(char *const class_str, uint32_t *opt_class)
 			if ((len > 1) && (token[len - 1] == '?')) {
 				token[len - 1] = '\0';
 
-				cl = stress_get_class_id(token);
+				cl = stress_class_id_get(token);
 				if (cl) {
 					size_t j;
 
