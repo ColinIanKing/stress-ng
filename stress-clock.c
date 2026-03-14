@@ -179,7 +179,7 @@ static int stress_clock(stress_args_t *args)
 	 * test run to ensure predictable repeatable
 	 * 'random' sleep duration timings
 	 */
-	stress_mwc_set_seed(0xf238, 0x1872);
+	stress_mwc_seed_set(0xf238, 0x1872);
 
 	stress_proc_state_set(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);

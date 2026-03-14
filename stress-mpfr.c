@@ -395,14 +395,14 @@ static int stress_mpfr(stress_args_t *args)
 		for (i = 0; LIKELY(stress_continue(args) && (i < SIZEOF_ARRAY(stress_mpfr_methods))); i++) {
 			double t1;
 
-			stress_mwc_set_seed(w, z);
+			stress_mwc_seed_set(w, z);
 			t1 = stress_time_now();
 			stress_mpfr_methods[i].mpfr_func(precision, &r0);
 			metrics[i].duration += stress_time_now() - t1;
 			metrics[i].count += 1.0;
 			stress_bogo_inc(args);
 
-			stress_mwc_set_seed(w, z);
+			stress_mwc_seed_set(w, z);
 			t1 = stress_time_now();
 			stress_mpfr_methods[i].mpfr_func(precision, &r1);
 			metrics[i].duration += stress_time_now() - t1;

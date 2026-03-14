@@ -125,7 +125,7 @@ static int stress_env_child(stress_args_t *args, void *context)
 		if ((i > env_max) || (ret < 0)) {
 			uint64_t j;
 
-			stress_mwc_set_seed(seed_w, seed_z);
+			stress_mwc_seed_set(seed_w, seed_z);
 
 			for (j = 0; j < i; j++) {
 				if (verify) {

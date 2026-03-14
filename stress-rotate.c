@@ -102,7 +102,7 @@ stress_ ## fname ## size(stress_args_t *args, const bool verify, bool *success)\
 	if (verify) {						\
 		type checksum1;					\
 								\
-		stress_mwc_set_seed(w, z);			\
+		stress_mwc_seed_set(w, z);			\
 		duration += stress_ ## fname ## size ## helper	\
 				(args, &checksum1);		\
 		if (UNLIKELY(checksum0 != checksum1)) {		\

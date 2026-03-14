@@ -411,7 +411,7 @@ static int stress_jpeg(stress_args_t *args)
 	}
 	stress_memory_anon_name_set(row_pointer, row_pointer_size, "row-pointers");
 
-	stress_mwc_set_seed(0xf1379ab2, 0x679ce25d);
+	stress_mwc_seed_set(0xf1379ab2, 0x679ce25d);
 
 	switch (jpeg_image_types[jpeg_image].type) {
 	default:

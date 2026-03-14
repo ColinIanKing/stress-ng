@@ -387,12 +387,12 @@ static int OPTIMIZE3 stress_l1cache_random(
 	for (i = 0; i < 1000000; i++) {
 		register size_t j;
 
-		stress_mwc_set_seed(w, z);
+		stress_mwc_seed_set(w, z);
 PRAGMA_UNROLL_N(2)
 		for (j = 0; j < loops; j++)
 			(void)*(ptr + stress_mwc32modn((uint32_t)cache_size));
 
-		stress_mwc_set_seed(w, z);
+		stress_mwc_seed_set(w, z);
 PRAGMA_UNROLL_N(2)
 		for (j = 0; j < loops; j++)
 			*(ptr + stress_mwc32modn((uint32_t)cache_size)) = (uint8_t)set;
@@ -433,17 +433,17 @@ static int OPTIMIZE3 stress_l1cache_random_and_verify(
 	for (i = 0; i < 1000000; i++) {
 		register size_t j;
 
-		stress_mwc_set_seed(w, z);
+		stress_mwc_seed_set(w, z);
 PRAGMA_UNROLL_N(2)
 		for (j = 0; j < loops; j++)
 			(void)*(ptr + stress_mwc32modn((uint32_t)cache_size));
 
-		stress_mwc_set_seed(w, z);
+		stress_mwc_seed_set(w, z);
 PRAGMA_UNROLL_N(2)
 		for (j = 0; j < loops; j++)
 			*(ptr + stress_mwc32modn((uint32_t)cache_size)) = (uint8_t)set;
 
-		stress_mwc_set_seed(w, z);
+		stress_mwc_seed_set(w, z);
 		for (j = 0; j < loops; j++) {
 			register const size_t idx = stress_mwc32modn((uint32_t)cache_size);
 

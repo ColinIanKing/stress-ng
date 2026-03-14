@@ -898,7 +898,7 @@ static int stress_hdd(stress_args_t *args)
 			const uint32_t w = stress_mwc32();
 			const uint32_t z = stress_mwc32();
 
-			stress_mwc_set_seed(w, z);
+			stress_mwc_seed_set(w, z);
 
 			for (i = 0; i < hdd_bytes; i += hdd_write_size) {
 				const uint64_t offset = (i == 0) ?
@@ -931,7 +931,7 @@ rnd_wr_retry:
 				if (offset > hdd_bytes_max)
 					hdd_bytes_max = offset;
 			}
-			stress_mwc_set_seed(w, z);
+			stress_mwc_seed_set(w, z);
 		}
 		/* Sequential Write */
 		if (hdd_flags & HDD_OPT_WR_SEQ) {

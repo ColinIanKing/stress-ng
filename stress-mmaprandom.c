@@ -2234,7 +2234,7 @@ static int stress_mmaprandom(stress_args_t *args)
 
 		/* Ensure child never restarts from same seed */
 		stress_mwc_seed_get(&w, &z);
-		stress_mwc_set_seed(++w, --z);
+		stress_mwc_seed_set(++w, --z);
 	}
 	duration = stress_time_now() - t;
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);

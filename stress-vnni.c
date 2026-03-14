@@ -529,7 +529,7 @@ static int stress_vnni(stress_args_t *args)
 	vnni_checksum_okay = true;
 	little_endian = stress_little_endian();
 
-	stress_mwc_set_seed(0x172fb3ea, 0xd9c02f73);
+	stress_mwc_seed_set(0x172fb3ea, 0xd9c02f73);
 	stress_uint8rnd4((uint8_t *)&a_init, sizeof(a_init));
 	stress_uint8rnd4((uint8_t *)&b_init, sizeof(b_init));
 	stress_uint8rnd4((uint8_t *)&c_init, sizeof(c_init));
