@@ -3949,7 +3949,7 @@ static inline void stress_permute_run(
 		run++;
 		pr_inf("starting %s, %zu of %zu (%.2f%%)%s%s\n",
 			str, run, num_perms,
-			(num_perms > 0) ?  100.0 * (double)run / (double)num_perms : 100.0,
+			100.0 * (double)run / (double)num_perms,
 			*finish ? ", finish at " : "",
 			finish);
 		stress_parallel_run(ticks_per_sec, n_stressors, duration, success, resource_success, metrics_success);
