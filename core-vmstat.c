@@ -937,10 +937,10 @@ static void stress_read_vmstat(stress_vmstat_t *vmstat)
 	(vmstat_current.field - vmstat_prev.field) : 0)
 
 /*
- *  stress_get_vmstat()
+ *  stress_vmstat_get()
  *	collect vmstat data, zero for initial read
  */
-static void stress_get_vmstat(stress_vmstat_t *vmstat)
+static void stress_vmstat_get(stress_vmstat_t *vmstat)
 {
 	static stress_vmstat_t vmstat_prev;
 	stress_vmstat_t vmstat_current;
@@ -1034,7 +1034,7 @@ void stress_vmstat_start(void)
 	stress_proc_name_set("stat [periodic]");
 
 	if (vmstat_delay)
-		stress_get_vmstat(&vmstat);
+		stress_vmstat_get(&vmstat);
 
 	if (thermalstat_delay) {
 		for (tz_info = g_shared->tz_info; tz_info; tz_info = tz_info->next)
@@ -1108,7 +1108,7 @@ void stress_vmstat_start(void)
 			static uint32_t vmstat_count = 0;
 			double total_ticks, percent;
 
-			stress_get_vmstat(&vmstat);
+			stress_vmstat_get(&vmstat);
 
 			pr_block_begin();
 			if (vmstat_count == 0)
