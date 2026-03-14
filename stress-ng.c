@@ -3157,11 +3157,11 @@ static inline size_t stressor_stats_size(void)
 }
 
 /*
- *  stress_exclude_pathological()
+ *  stress_pathological_exclude()
  *	Disable pathological stressors if user has not explicitly
  *	request them to be used. Let's play safe.
  */
-static inline void stress_exclude_pathological(void)
+static inline void stress_pathological_exclude(void)
 {
 	if (!(g_opt_flags & OPT_FLAGS_PATHOLOGICAL)) {
 		stress_list_item_t *item = stress_stressor_list.head;
@@ -4248,7 +4248,7 @@ int main(int argc, char **argv, char **envp)
 	 *  Discard stressors that we can't run
 	 */
 	stress_exclude_unsupported(&unsupported);
-	stress_exclude_pathological();
+	stress_pathological_exclude();
 	/*
 	 *  Throw away excluded stressors
 	 */
@@ -4308,7 +4308,7 @@ int main(int argc, char **argv, char **envp)
 	 *  excluded stressors, so exclude check again
 	 */
 	stress_exclude_unsupported(&unsupported);
-	stress_exclude_pathological();
+	stress_pathological_exclude();
 
 	stress_max_processes_limit_set();
 
