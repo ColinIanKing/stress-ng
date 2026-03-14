@@ -1015,10 +1015,10 @@ static void NORETURN stress_usage(void)
 }
 
 /*
- *  stress_opt_name()
+ *  stress_opt_name_find()
  *	find name associated with an option value
  */
-static const char PURE *stress_opt_name(const int opt_val)
+static const char PURE *stress_opt_name_find(const int opt_val)
 {
 	size_t i;
 
@@ -3404,7 +3404,7 @@ next_opt:
 
 		for (i = 0; i < SIZEOF_ARRAY(stressors); i++) {
 			if (stressors[i].short_getopt == c) {
-				const char *name = stress_opt_name(c);
+				const char *name = stress_opt_name_find(c);
 				stress_list_item_t *item = stress_list_item_find(&stressors[i]);
 
 				g_item_current = item;
@@ -3418,9 +3418,9 @@ next_opt:
 				uint64_t bogo_max_ops;
 
 				bogo_max_ops = stress_get_uint64(optarg);
-				stress_check_range(stress_opt_name(c), bogo_max_ops, MIN_OPS, MAX_OPS);
+				stress_check_range(stress_opt_name_find(c), bogo_max_ops, MIN_OPS, MAX_OPS);
 				/* We don't need to set this, but it may be useful */
-				stress_setting_global_set(stress_opt_name(c), TYPE_ID_UINT64, &bogo_max_ops);
+				stress_setting_global_set(stress_opt_name_find(c), TYPE_ID_UINT64, &bogo_max_ops);
 				if (g_item_current)
 					g_item_current->bogo_max_ops = bogo_max_ops;
 				goto next_opt;
@@ -3442,7 +3442,7 @@ next_opt:
 
 		for (i = 0; i < SIZEOF_ARRAY(opt_flags); i++) {
 			if (c == opt_flags[i].opt) {
-				stress_setting_global_set_true(stress_opt_name(c));
+				stress_setting_global_set_true(stress_opt_name_find(c));
 				g_opt_flags |= opt_flags[i].opt_flag;
 				g_pr_log_flags |= opt_flags[i].pr_log_flag;
 				goto next_opt;
