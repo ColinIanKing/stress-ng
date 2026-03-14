@@ -517,10 +517,10 @@ static uint32_t PURE stress_class_id_get(const char *const str)
 }
 
 /*
- *  stress_get_class()
+ *  stress_class_get()
  *	parse for allowed class types, return bit mask of types, 0 if error
  */
-static int stress_get_class(char *const class_str, uint32_t *opt_class)
+static int stress_class_get(char *const class_str, uint32_t *opt_class)
 {
 	char *str, *token;
 	int ret = 0;
@@ -3485,7 +3485,7 @@ next_opt:
 			stress_setting_global_set("cache-ways", TYPE_ID_UINT32, &u32);
 			break;
 		case OPT_class:
-			ret = stress_get_class(optarg, &u32);
+			ret = stress_class_get(optarg, &u32);
 			if (ret < 0)
 				return EXIT_FAILURE;
 			else if (ret > 0)
