@@ -2738,7 +2738,7 @@ static void stress_system_info_log(void)
 #endif
 }
 
-static void *stress_map_page(int prot, char *prot_str, size_t page_size)
+static void *stress_page_mmap(int prot, char *prot_str, size_t page_size)
 {
 	void *ptr;
 
@@ -2855,17 +2855,17 @@ STRESS_PRAGMA_POP
 	 *  to avoid later mmap failures on stressor child
 	 *  processes
 	 */
-	g_shared->mapped.page_none = stress_map_page(PROT_NONE, "PROT_NONE", page_size);
+	g_shared->mapped.page_none = stress_page_mmap(PROT_NONE, "PROT_NONE", page_size);
 	if (g_shared->mapped.page_none == MAP_FAILED)
 		goto err_unmap_checksums;
 	stress_memory_anon_name_set(g_shared->mapped.page_none, page_size, "mapped-none");
 
-	g_shared->mapped.page_ro = stress_map_page(PROT_READ, "PROT_READ", page_size);
+	g_shared->mapped.page_ro = stress_page_mmap(PROT_READ, "PROT_READ", page_size);
 	if (g_shared->mapped.page_ro == MAP_FAILED)
 		goto err_unmap_page_none;
 	stress_memory_anon_name_set(g_shared->mapped.page_ro, page_size, "mapped-ro");
 
-	g_shared->mapped.page_wo = stress_map_page(PROT_WRITE, "PROT_WRITE", page_size);
+	g_shared->mapped.page_wo = stress_page_mmap(PROT_WRITE, "PROT_WRITE", page_size);
 	if (g_shared->mapped.page_wo == MAP_FAILED)
 		goto err_unmap_page_ro;
 	stress_memory_anon_name_set(g_shared->mapped.page_wo, page_size, "mapped-wo");
