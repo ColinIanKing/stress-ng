@@ -837,10 +837,10 @@ static void MLOCKED_TEXT stress_stats_handler(int signum)
 #endif
 
 /*
- *  stress_set_handler()
+ *  stress_handler_set()
  *	set signal handler to catch SIGINT, SIGALRM, SIGHUP
  */
-static int stress_set_handler(const char *stress, const bool child)
+static int stress_handler_set(const char *stress, const bool child)
 {
 #if defined(SA_SIGINFO)
 	struct sigaction sa;
@@ -1666,7 +1666,7 @@ static int MLOCKED_TEXT stress_run_child(
 		goto child_exit;
 	}
 	(void)atexit(stress_child_atexit);
-	if (stress_set_handler(name, true) < 0) {
+	if (stress_handler_set(name, true) < 0) {
 		rc = EXIT_FAILURE;
 		stress_signals_block();
 		goto child_exit;
@@ -2000,7 +2000,7 @@ again:
 		}
 	}
 	if (!handler_set) {
-		(void)stress_set_handler("stress-ng", false);
+		(void)stress_handler_set("stress-ng", false);
 		handler_set = true;
 	}
 #if defined(STRESS_TERMINATE_PREMATURELY)
@@ -2011,7 +2011,7 @@ abort:
 
 wait_for_stressors:
 	if (!handler_set)
-		(void)stress_set_handler("stress-ng", false);
+		(void)stress_handler_set("stress-ng", false);
 	if (g_opt_flags & OPT_FLAGS_IGNITE_CPU)
 		stress_ignite_cpu_start();
 #if STRESS_FORCE_TIMEOUT_ALL
