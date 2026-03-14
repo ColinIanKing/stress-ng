@@ -628,10 +628,10 @@ static const char * CONST stress_endian_str(void)
 }
 
 /*
- *  stress_get_libc_version()
+ *  stress_libc_version_get()
  *	return human readable libc version (where possible)
  */
-static char *stress_get_libc_version(void)
+static char *stress_libc_version_get(void)
 {
 #if defined(__GLIBC__) &&	\
     defined(__GLIBC_MINOR__)
@@ -770,14 +770,14 @@ void stress_runinfo(void)
 			uts.sysname, uts.nodename, uts.release,
 			uts.version, uts.machine,
 			stress_compiler_get(),
-			stress_get_libc_version(),
+			stress_libc_version_get(),
 			stress_endian_str());
 	}
 #else
 	pr_dbg("system: %s, %s, %s, %s\n",
 		stress_get_arch(),
 		stress_compiler_get(),
-		stress_get_libc_version(),
+		stress_libc_version_get(),
 		stress_endian_str());
 #endif
 	if (stress_memory_info_get(&freemem, &totalmem, &freeswap, &totalswap) == 0) {
@@ -850,7 +850,7 @@ void stress_yaml_runinfo(FILE *yaml)
 	pr_yaml(yaml, "      machine: '%s'\n", stress_get_arch());
 #endif
 	pr_yaml(yaml, "      compiler: '%s'\n", stress_compiler_get());
-	pr_yaml(yaml, "      libc: '%s'\n", stress_get_libc_version());
+	pr_yaml(yaml, "      libc: '%s'\n", stress_libc_version_get());
 #if defined(HAVE_SYS_SYSINFO_H) &&	\
     defined(HAVE_SYSINFO)
 	(void)shim_memset(&info, 0, sizeof(info));
