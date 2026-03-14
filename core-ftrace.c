@@ -73,10 +73,10 @@ RB_PROTOTYPE(rb_tree, rb_node, rb, rb_node_cmp)
 RB_GENERATE(rb_tree, rb_node, rb, rb_node_cmp)
 
 /*
- *  stress_ftrace_get_debugfs_path()
+ *  stress_ftrace_debugfs_path_get()
  *	find debugfs mount path, returns NULL if not found
  */
-static char *stress_ftrace_get_debugfs_path(void)
+static char *stress_ftrace_debugfs_path_get(void)
 {
 	int i, n;
 	char *mnts[MAX_MOUNTS];
@@ -280,7 +280,7 @@ void stress_ftrace_add_pid(const pid_t pid)
 	if (!(g_opt_flags & OPT_FLAGS_FTRACE))
 		return;
 
-	path = stress_ftrace_get_debugfs_path();
+	path = stress_ftrace_debugfs_path_get();
 	if (!path)
 		return;
 
@@ -316,7 +316,7 @@ void stress_ftrace_start(void)
 		return;
 	}
 
-	path = stress_ftrace_get_debugfs_path();
+	path = stress_ftrace_debugfs_path_get();
 	if (!path) {
 		pr_inf("ftrace: cannot find a mounted debugfs\n");
 		return;
@@ -404,7 +404,7 @@ void stress_ftrace_stop(void)
 	if (!tracing_enabled)
 		return;
 
-	path = stress_ftrace_get_debugfs_path();
+	path = stress_ftrace_debugfs_path_get();
 	if (!path)
 		return;
 
