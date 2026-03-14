@@ -3112,11 +3112,11 @@ static void stress_stressors_deinit(void)
 }
 
 /*
- *  stressor_set_defaults()
+ *  stress_stressor_defaults_set()
  *	set up stressor default settings that can be overridden
  *	by user later on
  */
-static inline void stressor_set_defaults(void)
+static inline void stress_stressor_defaults_set(void)
 {
 	size_t i;
 
@@ -4114,7 +4114,7 @@ int main(int argc, char **argv, char **envp)
 	stress_mwc_reseed();
 
 	(void)stress_memory_page_size_get();
-	stressor_set_defaults();
+	stress_stressor_defaults_set();
 
 	if (stress_cpus_configured_get() < 0) {
 		pr_err("sysconf failed, number of cpus configured "
