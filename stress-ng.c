@@ -968,10 +968,10 @@ static void stress_verifiable(void)
 }
 
 /*
- *  stress_usage_help_stressors()
+ *  stress_stressor_usage_help()
  *	show per stressor help information
  */
-static void stress_usage_help_stressors(void)
+static void stress_stressor_usage_help(void)
 {
 	size_t i;
 
@@ -1005,7 +1005,7 @@ static void NORETURN stress_usage(void)
 	(void)printf("\ngeneral control options:\n");
 	stress_usage_help(help_generic);
 	(void)printf("\nstressor specific options:\n");
-	stress_usage_help_stressors();
+	stress_stressor_usage_help();
 	(void)printf("\nexample: %s --cpu 8 --iomix 4 --vm 2 --vm-bytes 128M "
 		"--fork 4 --timeout 10s\n\n"
 		"note: sizes can be suffixed with B, K, M, G and times with "
