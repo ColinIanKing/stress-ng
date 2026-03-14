@@ -3860,10 +3860,10 @@ static inline void stress_sequential_run(
 }
 
 /*
- *  stress_run_parallel()
+ *  stress_parallel_run()
  *	run stressors in parallel
  */
-static inline void stress_run_parallel(
+static inline void stress_parallel_run(
 	const int32_t ticks_per_sec,
 	const uint32_t n_stressors,
 	double *duration,
@@ -3948,7 +3948,7 @@ static inline void stress_run_permute(
 			(num_perms > 0) ?  100.0 * (double)run / (double)num_perms : 100.0,
 			*finish ? ", finish at " : "",
 			finish);
-		stress_run_parallel(ticks_per_sec, n_stressors, duration, success, resource_success, metrics_success);
+		stress_parallel_run(ticks_per_sec, n_stressors, duration, success, resource_success, metrics_success);
 	}
 	for (item = stress_stressor_list.head; item; item = item->next) {
 		item->ignore.permute = false;
@@ -4417,7 +4417,7 @@ int main(int argc, char **argv, char **envp)
 	} else if (g_opt_flags & OPT_FLAGS_PERMUTE) {
 		stress_run_permute(ticks_per_sec, &duration, &success, &resource_success, &metrics_success);
 	} else {
-		stress_run_parallel(ticks_per_sec, n_stressors, &duration, &success, &resource_success, &metrics_success);
+		stress_parallel_run(ticks_per_sec, n_stressors, &duration, &success, &resource_success, &metrics_success);
 	}
 
 	stress_stats_hash_table_free();
