@@ -3331,10 +3331,10 @@ static void stress_stressors_enable_all(const int32_t instances)
 }
 
 /*
- *  stress_enable_classes()
+ *  stress_classes_enable()
  *	enable stressors based on class
  */
-static void stress_enable_classes(const uint32_t classifier)
+static void stress_classes_enable(const uint32_t classifier)
 {
 	size_t i;
 
@@ -3492,7 +3492,7 @@ next_opt:
 				exit(EXIT_SUCCESS);
 			else {
 				stress_setting_global_set("class", TYPE_ID_UINT32, &u32);
-				stress_enable_classes(u32);
+				stress_classes_enable(u32);
 			}
 			break;
 		case OPT_compact_memory:
