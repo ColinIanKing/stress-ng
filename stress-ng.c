@@ -3182,10 +3182,10 @@ static inline void stress_exclude_pathological(void)
 }
 
 /*
- *  stress_setup_stats_buffers()
+ *  stress_stats_buffers_setup()
  *	setup the stats data from the shared memory
  */
-static inline int stress_setup_stats_buffers(void)
+static inline int stress_stats_buffers_setup(void)
 {
 	stress_list_item_t *item;
 	stress_stats_t *stats = g_shared->stats;
@@ -4349,7 +4349,7 @@ int main(int argc, char **argv, char **envp)
 	/*
 	 *  Assign procs with shared stats memory
 	 */
-	if (stress_setup_stats_buffers() < 0) {
+	if (stress_stats_buffers_setup() < 0) {
 		pr_err("failed to create shared statistics arrays\n");
 		ret = EXIT_FAILURE;
 		goto exit_lock_destroy;
