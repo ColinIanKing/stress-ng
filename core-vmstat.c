@@ -168,7 +168,7 @@ static void freebsd_cpu_time_get(
  *  freebsd_cpu_time_get()
  *	get user, system, idle times; NetBSD variant
  */
-static void netbsd_get_cpu_time(
+static void netbsd_cpu_time_get(
 	uint64_t *user_time,
 	uint64_t *system_time,
 	uint64_t *idle_time)
@@ -739,7 +739,7 @@ static void stress_read_vmstat(stress_vmstat_t *vmstat)
 #if defined(HAVE_UVM_UVM_EXTERN_H)
 	struct uvmexp_sysctl u;
 #endif
-	netbsd_get_cpu_time(&vmstat->user_time, &vmstat->system_time, &vmstat->idle_time);
+	netbsd_cpu_time_get(&vmstat->user_time, &vmstat->system_time, &vmstat->idle_time);
 #if defined(HAVE_UVM_UVM_EXTERN_H)
 	if (stress_bsd_getsysctl("vm.uvmexp2", &u, sizeof(u)) == 0) {
 		vmstat->memory_cached = u.filepages;	/* Guess */
