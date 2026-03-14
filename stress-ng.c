@@ -3014,10 +3014,10 @@ static void stress_max_processes_limit_set(void)
 			continue;
 
 		info = item->stressor->info;
-		if (info && info->set_limit && item->instances) {
+		if (info && info->limit_set && item->instances) {
 			const uint64_t max = (uint64_t)limit.rlim_cur / (uint64_t)item->instances;
 
-			info->set_limit(max);
+			info->limit_set(max);
 		}
 	}
 #endif
