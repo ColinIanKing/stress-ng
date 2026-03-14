@@ -3752,10 +3752,10 @@ static void stress_default_timeout_set(const uint64_t timeout)
 }
 
 /*
- *  stress_setup_sequential()
+ *  stress_sequentual_setup()
  *	setup for sequential --seq mode stressors
  */
-static void stress_setup_sequential(const uint32_t classifier, const int32_t instances)
+static void stress_sequentual_setup(const uint32_t classifier, const int32_t instances)
 {
 	stress_list_item_t *item;
 
@@ -4293,9 +4293,9 @@ int main(int argc, char **argv, char **envp)
 	 *  Setup stressor proc info
 	 */
 	if (g_opt_flags & OPT_FLAGS_SEQUENTIAL) {
-		stress_setup_sequential(opt_class, opt_sequential);
+		stress_sequentual_setup(opt_class, opt_sequential);
 	} else if (g_opt_flags & OPT_FLAGS_PERMUTE) {
-		stress_setup_sequential(opt_class, opt_permute);
+		stress_sequentual_setup(opt_class, opt_permute);
 	} else {
 		stress_setup_parallel(opt_class, opt_parallel);
 	}
