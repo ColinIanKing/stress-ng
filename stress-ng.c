@@ -3770,10 +3770,10 @@ static void stress_sequentual_setup(const uint32_t classifier, const int32_t ins
 }
 
 /*
- *  stress_setup_parallel()
+ *  stress_parallel_setup()
  *	setup for parallel mode stressors
  */
-static void stress_setup_parallel(const uint32_t classifier, const int32_t instances)
+static void stress_parallel_setup(const uint32_t classifier, const int32_t instances)
 {
 	stress_list_item_t *item;
 
@@ -4297,7 +4297,7 @@ int main(int argc, char **argv, char **envp)
 	} else if (g_opt_flags & OPT_FLAGS_PERMUTE) {
 		stress_sequentual_setup(opt_class, opt_permute);
 	} else {
-		stress_setup_parallel(opt_class, opt_parallel);
+		stress_parallel_setup(opt_class, opt_parallel);
 	}
 	/*
 	 *  Seq/parallel modes may have added in
