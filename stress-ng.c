@@ -3733,10 +3733,10 @@ static void stress_stats_alloc(
 }
 
 /*
- *  stress_set_default_timeout()
+ *  stress_default_timeout_set()
  *	set timeout to a default value if not already set
  */
-static void stress_set_default_timeout(const uint64_t timeout)
+static void stress_default_timeout_set(const uint64_t timeout)
 {
 	char *action;
 
@@ -3759,7 +3759,7 @@ static void stress_setup_sequential(const uint32_t classifier, const int32_t ins
 {
 	stress_list_item_t *item;
 
-	stress_set_default_timeout(60);
+	stress_default_timeout_set(60);
 
 	for (item = stress_stressor_list.head; item; item = item->next) {
 		if (item->stressor->info->classifier & classifier)
@@ -3777,7 +3777,7 @@ static void stress_setup_parallel(const uint32_t classifier, const int32_t insta
 {
 	stress_list_item_t *item;
 
-	stress_set_default_timeout(DEFAULT_TIMEOUT);
+	stress_default_timeout_set(DEFAULT_TIMEOUT);
 
 	for (item = stress_stressor_list.head; item; item = item->next) {
 		if (item->stressor->info->classifier & classifier)
