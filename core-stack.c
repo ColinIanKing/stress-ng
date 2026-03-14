@@ -153,12 +153,12 @@ void stress_stack_sigalt_disable(void)
 }
 
 /*
- *  stress_get_min_aux_sig_stack_size()
+ *  stress_min_aux_sig_stack_size_get()
  *	For ARM we should check AT_MINSIGSTKSZ as this
  *	also includes SVE register saving overhead
  *	https://blog.linuxplumbersconf.org/2017/ocw/system/presentations/4671/original/plumbers-dm-2017.pdf
  */
-static inline long int stress_get_min_aux_sig_stack_size(void)
+static inline long int stress_min_aux_sig_stack_size_get(void)
 {
 #if defined(HAVE_SYS_AUXV_H) && \
     defined(HAVE_GETAUXVAL) &&	\
@@ -191,7 +191,7 @@ size_t stress_stack_sigstksz(void)
 	if (LIKELY(sz > 0))
 		return (size_t)sz;
 
-	min = stress_get_min_aux_sig_stack_size();
+	min = stress_min_aux_sig_stack_size_get();
 #if defined(_SC_SIGSTKSZ)
 	tmp = sysconf(_SC_SIGSTKSZ);
 	if (tmp > 0)
@@ -223,7 +223,7 @@ size_t stress_stack_minsigstksz(void)
 	if (LIKELY(sz > 0))
 		return (size_t)sz;
 
-	min = stress_get_min_aux_sig_stack_size();
+	min = stress_min_aux_sig_stack_size_get();
 #if defined(_SC_MINSIGSTKSZ)
 	tmp = sysconf(_SC_MINSIGSTKSZ);
 	if (tmp > 0)
