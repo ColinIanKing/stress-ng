@@ -2720,7 +2720,7 @@ void stress_system_memory_info_log(void)
  *  stress_system_info_log()
  *	dump system info
  */
-static void stress_system_info_log(void)
+static inline void stress_system_info_log(void)
 {
 #if defined(HAVE_UNAME) && 		\
     defined(HAVE_SYS_UTSNAME_H) &&	\
@@ -3978,7 +3978,7 @@ static inline void stress_executable_mlock(void)
  *  stress_yaml_open()
  *	open YAML results file
  */
-static FILE *stress_yaml_open(const char *yaml_filename)
+static inline FILE *stress_yaml_open(const char *yaml_filename)
 {
 	FILE *yaml = NULL;
 
@@ -3998,7 +3998,7 @@ static FILE *stress_yaml_open(const char *yaml_filename)
  *  stress_yaml_close()
  *	close YAML results file
  */
-static void stress_yaml_close(FILE *yaml)
+static inline void stress_yaml_close(FILE *yaml)
 {
 	if (yaml) {
 		pr_yaml(yaml, "...\n");
