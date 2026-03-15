@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, may be w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "11 March 2026"
+.TH STRESS-NG 1 "15 March 2026"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -2197,8 +2197,9 @@ stop after N \(mu 64 rounds of CRC calculations
 .TQ
 .B \-\-crypt N
 start N workers that encrypt a 16 character random password using crypt(3).
-The password is encrypted using bcrypt bsdicrypt descrypt gost-yescrypt
-MD5 NT scrypt SHA-1 SHA-256 SHA-512 SunMD5 and yescrypt encryption methods.
+The password is encrypted using bcrypt, bsdicrypt, descrypt, gost-yescrypt,
+MD5, NT, scrypt, SHA-1, SHA-256, SHA-512, SunMD5 and yescrypt encryption
+methods.
 .TP
 .B \-\-crypt\-method method
 select the encryption method, may be one of: bcrypt, bsdicrypt, descrypt,
