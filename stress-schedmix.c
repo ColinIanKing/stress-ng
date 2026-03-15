@@ -60,7 +60,7 @@ static const stress_help_t help[] = {
 
 static const stress_opt_t opts[] = {
 	{ OPT_schedmix_cpumix, "schedmix-cpumix", TYPE_ID_BOOL, 0, 1, NULL },
-        { OPT_schedmix_procs,  "schedmix-procs",  TYPE_ID_SIZE_T, MIN_SCHEDMIX_PROCS, MAX_SCHEDMIX_PROCS, NULL },
+	{ OPT_schedmix_procs,  "schedmix-procs",  TYPE_ID_SIZE_T, MIN_SCHEDMIX_PROCS, MAX_SCHEDMIX_PROCS, NULL },
 	END_OPT,
 };
 
