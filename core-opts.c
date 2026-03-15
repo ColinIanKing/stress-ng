@@ -959,6 +959,7 @@ const struct option stress_long_options[] = {
 	{ "sched-reclaim",	0,	0,      OPT_sched_reclaim },
 	{ "sched-runtime",	1,	0,	OPT_sched_runtime },
 	{ "schedmix",		1,	0,	OPT_schedmix },
+	{ "schedmix-cpumix",	0,	0,	OPT_schedmix_cpumix },
 	{ "schedmix-ops",	1,	0,	OPT_schedmix_ops },
 	{ "schedmix-procs",	1,	0,	OPT_schedmix_procs },
 	{ "schedpolicy",	1,	0,	OPT_schedpolicy },

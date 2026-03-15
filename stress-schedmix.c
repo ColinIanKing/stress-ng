@@ -54,11 +54,13 @@ static const stress_help_t help[] = {
 	{ NULL,	"schedmix N",		"start N workers that exercise a mix of scheduling loads" },
 	{ NULL,	"schedmix-ops N",	"stop after N schedmix bogo operations" },
 	{ NULL, "schedmix-procs N",	"select number of schedmix child processes 1..64" },
+	{ NULL, "schedmix-cpumix",	"randomly mix child processes to different CPUs" },
 	{ NULL,	NULL,			NULL }
 };
 
 static const stress_opt_t opts[] = {
-        { OPT_schedmix_procs, "schedmix-procs", TYPE_ID_SIZE_T, MIN_SCHEDMIX_PROCS, MAX_SCHEDMIX_PROCS, NULL },
+	{ OPT_schedmix_cpumix, "schedmix-cpumix", TYPE_ID_BOOL, 0, 1, NULL },
+        { OPT_schedmix_procs,  "schedmix-procs",  TYPE_ID_SIZE_T, MIN_SCHEDMIX_PROCS, MAX_SCHEDMIX_PROCS, NULL },
 	END_OPT,
 };
 
@@ -78,6 +80,19 @@ typedef struct {
 static stress_schedmix_sem_t *schedmix_sem;
 #endif
 
+/*
+ *  stress_schedmix_setaffinity()
+ *	attempt to set CPU affinity of current process to cpu
+ *	and don't care if it fails
+ */
+static void stress_schedmix_setaffinity(const pid_t pid, const int cpu)
+{
+	cpu_set_t cpu_set;
+
+	CPU_ZERO(&cpu_set);
+	CPU_SET(cpu, &cpu_set);
+	VOID_RET(int, sched_setaffinity(pid, sizeof(cpu_set), &cpu_set));
+}
 static inline void stress_schedmix_waste_time(stress_args_t *args)
 {
 	int i, n, status;
@@ -324,9 +339,13 @@ static void MLOCKED_TEXT stress_schedmix_itimer_handler(int signum)
 }
 #endif
 
-static int stress_schedmix_child(stress_args_t *args)
+static int stress_schedmix_child(
+	stress_args_t *args,
+	const uint32_t n_cpus,
+	const uint32_t *cpus)
 {
 	int old_policy = -1, rc = EXIT_SUCCESS;
+	const pid_t child_pid = getpid();
 
 #if defined(HAVE_SETITIMER) &&	\
     defined(ITIMER_PROF)
@@ -485,6 +504,11 @@ case_sched_fifo:
 				rc = EXIT_FAILURE;
 			}
 		}
+		if (cpus) {
+			const uint32_t idx = stress_mwc32modn(n_cpus);
+
+			stress_schedmix_setaffinity(child_pid, cpus[idx]);
+		}
 		stress_schedmix_waste_time(args);
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
@@ -504,6 +528,13 @@ static int stress_schedmix(stress_args_t *args)
 	size_t schedmix_procs = DEFAULT_SCHEDMIX_PROCS;
 	int rc;
 	const int parent_cpu = stress_cpu_get();
+	uint32_t *cpus = NULL;
+	uint32_t n_cpus = 0;
+	bool schedmix_cpumix = false;
+
+	stress_setting_get("schedmix-cpumix", &schedmix_cpumix);
+	if (schedmix_cpumix)
+		n_cpus = stress_affinity_cpus_get(&cpus, true);
 
 	if (stress_sched_types_length == (0)) {
 		if (stress_instance_zero(args)) {
@@ -568,7 +599,7 @@ static int stress_schedmix(stress_args_t *args)
 			VOID_RET(int, shim_nice(stress_mwc8modn(7)));
 			stress_parent_died_alarm();
 			(void)stress_affinity_change_cpu(args, parent_cpu);
-			_exit(stress_schedmix_child(args));
+			_exit(stress_schedmix_child(args, n_cpus, cpus));
 		} else {
 			stress_sync_start_s_pid_list_add(&s_pids_head, &s_pids[i]);
 		}
@@ -595,6 +626,9 @@ static int stress_schedmix(stress_args_t *args)
 	rc = stress_kill_and_wait_many(args, s_pids, schedmix_procs, SIGALRM, true);
 
 	(void)stress_sync_s_pids_munmap(s_pids, MAX_SCHEDMIX_PROCS);
+
+	if (cpus)
+		free(cpus);
 
 	return rc;
 }

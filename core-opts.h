@@ -1345,6 +1345,7 @@ typedef enum {
 	OPT_sched_prio,
 
 	OPT_schedmix,
+	OPT_schedmix_cpumix,
 	OPT_schedmix_ops,
 	OPT_schedmix_procs,
 
