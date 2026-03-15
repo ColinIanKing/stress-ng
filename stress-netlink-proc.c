@@ -282,13 +282,13 @@ static int stress_netlink_proc(stress_args_t *args)
 const stressor_info_t stress_netlink_proc_info = {
 	.stressor = stress_netlink_proc,
 	.supported = stress_netlink_proc_supported,
-	.classifier = CLASS_SCHEDULER | CLASS_OS,
+	.classifier = CLASS_OS,
 	.help = help
 };
 #else
 const stressor_info_t stress_netlink_proc_info = {
 	.stressor = stress_unimplemented,
-	.classifier = CLASS_SCHEDULER | CLASS_OS,
+	.classifier = CLASS_OS,
 	.help = help,
 	.unimplemented_reason = "built without linux/connector.h, linux/netlink.h or linux/cn_proc.h support"
 };
