@@ -296,7 +296,7 @@ next:
 
 const stressor_info_t stress_fault_info = {
 	.stressor = stress_fault,
-	.classifier = CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS,
+	.classifier = CLASS_INTERRUPT | CLASS_OS,
 	.help = help
 };
 
@@ -304,7 +304,7 @@ const stressor_info_t stress_fault_info = {
 
 const stressor_info_t stress_fault_info = {
 	.stressor = stress_unimplemented,
-	.classifier = CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS,
+	.classifier = CLASS_INTERRUPT | CLASS_OS,
 	.help = help,
 	.unimplemented_reason = "built without siglongjmp support"
 };
