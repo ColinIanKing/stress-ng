@@ -109,7 +109,6 @@ static int stress_schedpolicy(stress_args_t *args)
 			old_policy = policy;
 		}
 
-
 		new_policy = stress_sched_types[policy].sched;
 		new_policy_name = stress_sched_types[policy].sched_name;
 
