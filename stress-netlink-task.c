@@ -355,14 +355,14 @@ static int stress_netlink_task(stress_args_t *args)
 const stressor_info_t stress_netlink_task_info = {
 	.stressor = stress_netlink_task,
 	.supported = stress_netlink_task_supported,
-	.classifier = CLASS_SCHEDULER | CLASS_OS,
+	.classifier = CLASS_OS,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else
 const stressor_info_t stress_netlink_task_info = {
 	.stressor = stress_unimplemented,
-	.classifier = CLASS_SCHEDULER | CLASS_OS,
+	.classifier = CLASS_OS,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without linux/connector.h, linux/netlink.h, linux/cn_proc.h, linux/taskstats.h or linux/genetlink.h support"
