@@ -87,12 +87,19 @@ static stress_schedmix_sem_t *schedmix_sem;
  */
 static void stress_schedmix_setaffinity(const pid_t pid, const int cpu)
 {
+#if defined(HAVE_SCHED_SETAFFINITY) && \
+    defined(HAVE_CPU_SET_T)
 	cpu_set_t cpu_set;
 
 	CPU_ZERO(&cpu_set);
 	CPU_SET(cpu, &cpu_set);
 	VOID_RET(int, sched_setaffinity(pid, sizeof(cpu_set), &cpu_set));
+#else
+	(void)pid;
+	(void)cpu;
+#endif
 }
+
 static inline void stress_schedmix_waste_time(stress_args_t *args)
 {
 	int i, n, status;
@@ -533,8 +540,16 @@ static int stress_schedmix(stress_args_t *args)
 	bool schedmix_cpumix = false;
 
 	stress_setting_get("schedmix-cpumix", &schedmix_cpumix);
-	if (schedmix_cpumix)
+	if (schedmix_cpumix) {
+#if defined(HAVE_SCHED_SETAFFINITY) && \
+    defined(HAVE_CPU_SET_T)
 		n_cpus = stress_affinity_cpus_get(&cpus, true);
+#else
+		if (stress_instance_zero(args))
+			pr_inf("%s: no support of setting CPU affinity, "
+			       "disabling option schedmix-cpumix\n", args->name);
+#endif
+	}
 
 	if (stress_sched_types_length == (0)) {
 		if (stress_instance_zero(args)) {
