@@ -539,7 +539,7 @@ static int stress_schedmix(stress_args_t *args)
 	uint32_t n_cpus = 0;
 	bool schedmix_cpumix = false;
 
-	stress_setting_get("schedmix-cpumix", &schedmix_cpumix);
+	(void)stress_setting_get("schedmix-cpumix", &schedmix_cpumix);
 	if (schedmix_cpumix) {
 #if defined(HAVE_SCHED_SETAFFINITY) && \
     defined(HAVE_CPU_SET_T)
@@ -557,20 +557,24 @@ static int stress_schedmix(stress_args_t *args)
 				"available, skipping stressor\n",
 				args->name);
 		}
-		return EXIT_NOT_IMPLEMENTED;
+		rc = EXIT_NOT_IMPLEMENTED;
+		goto free_cpus;
 	}
 
 #if defined(SCHED_FLAG_DL_OVERRUN) &&	\
     defined(SIGXCPU)
-	if (stress_signal_handler(args->name, SIGXCPU, stress_signal_ignore_handler, NULL) < 0)
-		return EXIT_FAILURE;
+	if (stress_signal_handler(args->name, SIGXCPU, stress_signal_ignore_handler, NULL) < 0) {
+		rc = EXIT_FAILURE;
+		goto free_cpus;
+	}
 #endif
 
 	s_pids = stress_sync_s_pids_mmap(MAX_SCHEDMIX_PROCS);
 	if (s_pids == MAP_FAILED) {
 		pr_inf_skip("%s: failed to mmap %d PIDs%s, skipping stressor\n",
 			args->name, MAX_SCHEDMIX_PROCS, stress_memory_free_get());
-		return EXIT_NO_RESOURCE;
+		rc = EXIT_NO_RESOURCE;
+		goto free_cpus;
 	}
 
 #if defined(HAVE_SCHEDMIX_SEM)
@@ -642,6 +646,7 @@ static int stress_schedmix(stress_args_t *args)
 
 	(void)stress_sync_s_pids_munmap(s_pids, MAX_SCHEDMIX_PROCS);
 
+free_cpus:
 	if (cpus)
 		free(cpus);
 
