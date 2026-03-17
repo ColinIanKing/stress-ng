@@ -152,7 +152,6 @@ static inline uint64_t ALWAYS_INLINE stress_asm_riscv_cl_size(void)
 #else
 	return 0U;
 #endif
-
 }
 
 /* #if defined(STRESS_ARCH_RISCV) */
