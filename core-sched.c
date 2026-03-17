@@ -38,25 +38,25 @@
 
 const stress_sched_types_t stress_sched_types[] = {
 #if defined(SCHED_BATCH)
-	{ SCHED_BATCH,		"batch" },
+	{ SCHED_BATCH,    "batch",    "SCHED_BATCH",    true },
 #endif
 #if defined(SCHED_DEADLINE)
-	{ SCHED_DEADLINE,	"deadline" },
+	{ SCHED_DEADLINE, "deadline", "SCHED_DEADLINE", true },
 #endif
 #if defined(SCHED_FIFO)
-	{ SCHED_FIFO,		"fifo" },
+	{ SCHED_FIFO,     "fifo",     "SCHED_FIFO",     true },
 #endif
 #if defined(SCHED_IDLE)
-	{ SCHED_IDLE,		"idle" },
+	{ SCHED_IDLE,     "idle",     "SCHED_IDLE",     false },
 #endif
 #if defined(SCHED_OTHER)
-	{ SCHED_OTHER,		"other" },
+	{ SCHED_OTHER,    "other",    "SCHED_OTHER",    true },
 #endif
 #if defined(SCHED_EXT)
-	{ SCHED_EXT,		"ext" },
+	{ SCHED_EXT,      "ext",      "SCHED_EXT",      false },
 #endif
 #if defined(SCHED_RR)
-	{ SCHED_RR,		"rr" },
+	{ SCHED_RR,       "rr",       "SCHED_RR",       true },
 #endif
 };
 

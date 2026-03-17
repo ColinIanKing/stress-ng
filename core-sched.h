@@ -45,6 +45,8 @@
 typedef struct {
 	const int sched;
 	const char *const sched_name;
+	const char *const sched_macro_name;
+	const bool check_getscheduler;
 } stress_sched_types_t;
 
 extern const stress_sched_types_t stress_sched_types[];

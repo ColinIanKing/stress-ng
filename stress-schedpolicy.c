@@ -46,11 +46,19 @@ static const stress_opt_t opts[] = {
 
 static int stress_schedpolicy(stress_args_t *args)
 {
-	int policy = args->instance % stress_sched_types_length;
+	size_t policy_index = (size_t)args->instance % stress_sched_types_length;
+	int new_policy = stress_sched_types[policy_index].sched;
 	int old_policy = -1, rc = EXIT_SUCCESS;
 	bool schedpolicy_rand = false;
 #if defined(_POSIX_PRIORITY_SCHEDULING)
 	const bool root_or_nice_capability = stress_capabilities_check(SHIM_CAP_SYS_NICE);
+#endif
+#if defined(SCHED_DEADLINE) &&		\
+    defined(HAVE_SCHED_GETATTR) &&	\
+    defined(HAVE_SCHED_SETATTR)
+	const double runtime = 0.90 * STRESS_DBL_NANOSECOND / (double)args->instances;
+	const double deadline = 0.95 * STRESS_DBL_NANOSECOND / (double)args->instances;
+	const double period = 1.00 * STRESS_DBL_NANOSECOND / (double)args->instances;
 #endif
 #if defined(HAVE_SCHED_GETATTR) && \
     defined(HAVE_SCHED_SETATTR)
@@ -59,16 +67,26 @@ static int stress_schedpolicy(stress_args_t *args)
 	uint32_t sched_util_max_value = 0;
 	int counter = 0;
 #endif
-
 #if defined(_POSIX_PRIORITY_SCHEDULING)
 	int n = 0;
 #endif
+	size_t i;
+	double t_start, duration;
+	const pid_t pid = getpid();
+	uint64_t *counters;
 
 #if defined(SCHED_FLAG_DL_OVERRUN) &&	\
     defined(SIGXCPU)
 	if (stress_signal_handler(args->name, SIGXCPU, stress_signal_ignore_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 #endif
+
+	counters = (uint64_t *)calloc(stress_sched_types_length, sizeof(*counters));
+	if (!counters) {
+		pr_inf_skip("%s: cannot allocate %zu 64 bit counters, skipping stressor\n",
+			args->name, stress_sched_types_length);
+		return EXIT_NO_RESOURCE;
+	}
 
 	(void)stress_setting_get("schedpolicy-rand", &schedpolicy_rand);
 
@@ -78,13 +96,18 @@ static int stress_schedpolicy(stress_args_t *args)
 				"available, skipping stressor\n",
 				args->name);
 		}
+		free(counters);
 		return EXIT_NOT_IMPLEMENTED;
 	}
+
+	for (i = 0; i < stress_sched_types_length; i++)
+		counters[i] = 0;
 
 	stress_proc_state_set(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
 	stress_proc_state_set(args->name, STRESS_STATE_RUN);
 
+	t_start = stress_time_now();
 	do {
 #if defined(HAVE_SCHED_GETATTR) &&	\
     defined(HAVE_SCHED_SETATTR)
@@ -94,8 +117,7 @@ static int stress_schedpolicy(stress_args_t *args)
 #endif
 		struct sched_param param;
 		int ret = 0;
-		int max_prio, min_prio, rng_prio, new_policy;
-		const pid_t pid = stress_mwc1() ? 0 : args->pid;
+		int max_prio, min_prio, rng_prio;
 		const char *new_policy_name;
 
 		/*
@@ -104,18 +126,19 @@ static int stress_schedpolicy(stress_args_t *args)
 		 */
 		if (schedpolicy_rand) {
 			do {
-				policy = stress_mwc8modn((uint8_t)stress_sched_types_length);
-			} while (policy == old_policy);
-			old_policy = policy;
+				policy_index = stress_mwcsizemodn(stress_sched_types_length);
+				new_policy = stress_sched_types[policy_index].sched;
+			} while (new_policy == old_policy);
+			old_policy = new_policy;
+		} else {
+			new_policy = stress_sched_types[policy_index].sched;
+			old_policy = new_policy;
 		}
-
-		new_policy = stress_sched_types[policy].sched;
-		new_policy_name = stress_sched_types[policy].sched_name;
+		new_policy_name = stress_sched_types[policy_index].sched_macro_name;
 
 		if (UNLIKELY(!stress_continue(args)))
 			break;
 
-		(void)shim_sched_yield();
 		errno = 0;
 
 		switch (new_policy) {
@@ -123,48 +146,64 @@ static int stress_schedpolicy(stress_args_t *args)
     defined(HAVE_SCHED_GETATTR) &&	\
     defined(HAVE_SCHED_SETATTR)
 		case SCHED_DEADLINE:
-			/*
-			 *  Only have 1 RT deadline instance running
-			 */
-			if (stress_instance_zero(args)) {
-				(void)shim_memset(&attr, 0, sizeof(attr));
-				attr.size = sizeof(attr);
+			(void)shim_memset(&param, 0, sizeof(param));
+			param.sched_priority = 0;
+#if defined(SCHED_OTHER)
+			(void)sched_setscheduler(pid, SCHED_OTHER, &param);
+#else
+			(void)sched_setscheduler(pid, new_policy, &param);
+#endif
+
+			(void)shim_memset(&attr, 0, sizeof(attr));
+			attr.size = sizeof(attr);
+			attr.sched_nice = 0;
+			attr.sched_priority = 0;
+			attr.sched_policy = SCHED_DEADLINE;
+			attr.sched_flags = 0;
 #if defined(SCHED_FLAG_DL_OVERRUN) &&	\
     defined(SIGXCPU)
-				attr.sched_flags = SCHED_FLAG_DL_OVERRUN;
-#else
-				attr.sched_flags = 0;
+			if (stress_mwc1())
+				attr.sched_flags |= SCHED_FLAG_DL_OVERRUN;
 #endif
-				attr.sched_nice = 0;
-				attr.sched_priority = 0;
-				attr.sched_policy = SCHED_DEADLINE;
-				/* runtime <= deadline <= period */
-				attr.sched_runtime = 64 * 1000000;
-				attr.sched_deadline = 128 * 1000000;
-				attr.sched_period = 256 * 1000000;
-
-				ret = shim_sched_setattr(0, &attr, 0);
-				break;
+#if defined(SCHED_FLAG_RESET_ON_FORK)
+			if (stress_mwc1())
+				attr.sched_flags |= SCHED_FLAG_RESET_ON_FORK;
+#endif
+#if defined(SCHED_FLAG_RECLAIM)
+			if (stress_mwc1())
+				attr.sched_flags |= SCHED_FLAG_RECLAIM;
+#endif
+#if defined(SCHED_FLAG_UTIL_CLAMP_MIN)
+			if (stress_mwc1()) {
+				attr.sched_flags |= SCHED_FLAG_UTIL_CLAMP_MIN;
+				attr.sched_util_min = 1;
 			}
-			goto case_sched_other;
+#endif
+#if defined(SCHED_FLAG_UTIL_CLAMP_MAX)
+			if (stress_mwc1()) {
+				attr.sched_flags |= SCHED_FLAG_UTIL_CLAMP_MAX;
+				attr.sched_util_max = 2 + (stress_mwc8() & 0x3f);
+			}
+#endif
+			attr.sched_runtime = (uint64_t)runtime;
+			if (attr.sched_runtime < 1024)
+				attr.sched_runtime = 1024;
+			attr.sched_deadline = (uint64_t)deadline;
+			if (attr.sched_deadline < 1050)
+				attr.sched_deadline = 1050;
+			attr.sched_period = (uint64_t)period;
+			if (attr.sched_period < 1100)
+				attr.sched_period = 1100;
+
+			ret = shim_sched_setattr(pid, &attr, 0);
+			break;
 #endif
 
-#if defined(SCHED_IDLE)
-		case SCHED_IDLE:
-#endif
 #if defined(SCHED_BATCH)
 		case SCHED_BATCH:
 #endif
-#if defined(SCHED_EXT)
-		case SCHED_EXT:
-#endif
 #if defined(SCHED_OTHER)
 		case SCHED_OTHER:
-#endif
-#if defined(SCHED_DEADLINE) &&		\
-    defined(HAVE_SCHED_GETATTR) &&	\
-    defined(HAVE_SCHED_SETATTR)
-case_sched_other:
 #endif
 			/* Exercise illegal policy */
 			(void)shim_memset(&param, 0, sizeof(param));
@@ -178,6 +217,7 @@ case_sched_other:
 			param.sched_priority = ~0;
 			VOID_RET(int, sched_setscheduler(pid, new_policy, &param));
 
+			errno = 0;
 			param.sched_priority = 0;
 			ret = sched_setscheduler(pid, new_policy, &param);
 
@@ -241,21 +281,32 @@ case_sched_fifo:
 				break;
 			}
 		} else {
-			ret = sched_getscheduler(pid);
-			if (UNLIKELY(ret < 0)) {
-				pr_fail("%s: sched_getscheduler failed, errno=%d (%s)\n",
+			for (i = 0; i < stress_sched_types_length; i++) {
+				if ((stress_sched_types[i].sched) == new_policy) {
+					counters[i]++;
+					break;
+				}
+			}
+
+			if (stress_sched_types[policy_index].check_getscheduler) {
+				ret = sched_getscheduler(pid) & 0xff;
+				if (UNLIKELY(ret < 0)) {
+					pr_fail("%s: sched_getscheduler failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
-			} else if (UNLIKELY(ret != stress_sched_types[policy].sched)) {
-				pr_fail("%s: sched_getscheduler "
-					"failed, PID %" PRIdMAX " has policy %d (%s) "
-					"but function returned %d (%s) instead\n",
-					args->name, (intmax_t)pid, new_policy,
-					new_policy_name, ret,
-					stress_sched_name_get(ret));
-				rc = EXIT_FAILURE;
-				break;
+				} else if (UNLIKELY(ret != new_policy)) {
+					pr_fail("%s: sched_getscheduler "
+						"failed, PID %" PRIdMAX " has policy %d (%s) "
+						"but sched_getscheduler returned %d (%s) instead\n",
+						args->name, (intmax_t)getpid(), new_policy,
+						new_policy_name, ret,
+						stress_sched_name_get(ret));
+					rc = EXIT_FAILURE;
+					break;
+				}
 			}
 		}
+
+
 #if defined(_POSIX_PRIORITY_SCHEDULING)
 		if (UNLIKELY(n++ >= 1024)) {
 			n = 0;
@@ -415,13 +466,27 @@ case_sched_fifo:
 #else
 		UNEXPECTED
 #endif
-		policy++;
-		if (UNLIKELY(policy >= (int)stress_sched_types_length))
-			policy = 0;
+		policy_index++;
+		if (UNLIKELY(policy_index >= stress_sched_types_length))
+			policy_index = 0;
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
 
+	duration = stress_time_now() - t_start;
+	if (duration > 0.0) {
+		for (i = 0; i < stress_sched_types_length; i++) {
+			if (counters[i] > 0) {
+				double rate = counters[i] / duration;
+				char buf[64];
+
+				(void)snprintf(buf, sizeof(buf), "%s schedules per sec", stress_sched_types[i].sched_macro_name);
+				stress_metrics_set(args, buf, rate, STRESS_METRIC_GEOMETRIC_MEAN);
+			}
+		}
+	}
+
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
+	free(counters);
 
 	return rc;
 }
