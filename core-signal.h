@@ -56,7 +56,6 @@ do {							\
         stress_no_return();				\
 } while (0)
 
-
 /*
  *  stress_signal_siglongjmp()
  *	perform siglongjmp, set do_jmp flag if non-null,
