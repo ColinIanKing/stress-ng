@@ -476,7 +476,7 @@ case_sched_fifo:
 	if (duration > 0.0) {
 		for (i = 0; i < stress_sched_types_length; i++) {
 			if (counters[i] > 0) {
-				double rate = counters[i] / duration;
+				const double rate = counters[i] / duration;
 				char buf[64];
 
 				(void)snprintf(buf, sizeof(buf), "%s schedules per sec", stress_sched_types[i].sched_macro_name);
