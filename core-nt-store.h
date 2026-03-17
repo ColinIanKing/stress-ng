@@ -68,7 +68,6 @@ static inline void ALWAYS_INLINE stress_nt_store128(__uint128_t *addr, register 
 #define HAVE_NT_STORE128
 #endif
 
-
 /*
  *  64 bit non-temporal stores
  */
