@@ -1350,6 +1350,7 @@ typedef enum {
 	OPT_schedmix_procs,
 
 	OPT_schedpolicy,
+	OPT_schedpolicy_cpumix,
 	OPT_schedpolicy_ops,
 	OPT_schedpolicy_rand,
 

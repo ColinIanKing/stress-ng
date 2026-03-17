@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, may be w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "15 March 2026"
+.TH STRESS-NG 1 "17 March 2026"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -8061,6 +8061,9 @@ policies out of SCHED_OTHER, SCHED_BATCH, SCHED_IDLE, SCHED_FIFO,
 SCHED_RR, SCHED_DEADLINE and SCHED_EXT. For the real time scheduling
 policies a random sched priority is selected between the minimum and
 maximum scheduling priority settings.
+.TP
+.B \-\-schedpolicy\-cpumix
+move child processes to randomly chosen CPUs for CPU mixing
 .TP
 .B \-\-schedpolicy\-ops N
 stop after N bogo scheduling policy changes.

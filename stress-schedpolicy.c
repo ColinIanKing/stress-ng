@@ -27,13 +27,15 @@
 
 static const stress_help_t help[] = {
 	{ NULL,	"schedpolicy N",	"start N workers that exercise scheduling policy" },
+	{ NULL,	"schedpolicy-cpumix",	"randomly mix schedpolicy processes to different CPUs" },
 	{ NULL,	"schedpolicy-ops N",	"stop after N scheduling policy bogo operations" },
 	{ NULL, "schedpolicy-rand",	"select scheduling policy randomly" },
 	{ NULL,	NULL,			NULL }
 };
 
 static const stress_opt_t opts[] = {
-	{ OPT_schedpolicy_rand,	"schedpolicy-rand", TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_schedpolicy_cpumix, "schedpolicy-cpumix", TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_schedpolicy_rand,	  "schedpolicy-rand",   TYPE_ID_BOOL, 0, 1, NULL },
 	END_OPT,
 };
 
@@ -49,8 +51,10 @@ static int stress_schedpolicy(stress_args_t *args)
 	size_t policy_index = (size_t)args->instance % stress_sched_types_length;
 	int new_policy = stress_sched_types[policy_index].sched;
 	int old_policy = -1, rc = EXIT_SUCCESS;
+	bool schedpolicy_cpumix = false;
 	bool schedpolicy_rand = false;
-#if defined(_POSIX_PRIORITY_SCHEDULING)
+#if defined(_POSIX_PRIORITY_SCHEDULING) || 	\
+    defined(HAVE_SCHED_SETATTR)
 	const bool root_or_nice_capability = stress_capabilities_check(SHIM_CAP_SYS_NICE);
 #endif
 #if defined(SCHED_DEADLINE) &&		\
@@ -74,7 +78,11 @@ static int stress_schedpolicy(stress_args_t *args)
 	double t_start, duration;
 	const pid_t pid = getpid();
 	uint64_t *counters;
-	const bool cap_sys_nice = stress_capabilities_check(SHIM_CAP_SYS_NICE);
+#if defined(HAVE_SCHED_SETAFFINITY) && \
+    defined(HAVE_CPU_SET_T)
+	uint32_t *cpus = NULL;
+	uint32_t n_cpus = 0;
+#endif
 
 #if defined(SCHED_FLAG_DL_OVERRUN) &&	\
     defined(SIGXCPU)
@@ -89,6 +97,18 @@ static int stress_schedpolicy(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
+	(void)stress_setting_get("schedpolicy-cpumix", &schedpolicy_cpumix);
+	if (schedpolicy_cpumix) {
+#if defined(HAVE_SCHED_SETAFFINITY) && \
+    defined(HAVE_CPU_SET_T)
+		n_cpus = stress_affinity_cpus_get(&cpus, true);
+#else
+		if (stress_instance_zero(args))
+			pr_inf("%s: no support of setting CPU affinity, "
+				"disabling option schedmix-cpumix\n", args->name);
+#endif
+	}
+
 	(void)stress_setting_get("schedpolicy-rand", &schedpolicy_rand);
 
 	if (stress_sched_types_length == (0)) {
@@ -98,6 +118,11 @@ static int stress_schedpolicy(stress_args_t *args)
 				args->name);
 		}
 		free(counters);
+#if defined(HAVE_SCHED_SETAFFINITY) && \
+    defined(HAVE_CPU_SET_T)
+		if (cpus)
+			free(cpus);
+#endif
 		return EXIT_NOT_IMPLEMENTED;
 	}
 
@@ -219,7 +244,7 @@ static int stress_schedpolicy(stress_args_t *args)
 			VOID_RET(int, sched_setscheduler(pid, new_policy, &param));
 
 #if defined(HAVE_SCHED_SETATTR)
-			if (cap_sys_nice && stress_mwc1()) {
+			if (root_or_nice_capability && stress_mwc1()) {
 				(void)shim_memset(&attr, 0, sizeof(attr));
 				attr.size = sizeof(attr);
 				attr.sched_policy = new_policy;
@@ -305,6 +330,17 @@ case_sched_fifo:
 				break;
 			}
 		} else {
+#if defined(HAVE_SCHED_SETAFFINITY) && \
+    defined(HAVE_CPU_SET_T)
+			if (cpus) {
+				const uint32_t idx = stress_mwc32modn(n_cpus);
+				cpu_set_t cpu_set;
+
+				CPU_ZERO(&cpu_set);
+				CPU_SET(cpus[idx], &cpu_set);
+				VOID_RET(int, sched_setaffinity(pid, sizeof(cpu_set), &cpu_set));
+			}
+#endif
 			for (i = 0; i < stress_sched_types_length; i++) {
 				if ((stress_sched_types[i].sched) == new_policy) {
 					counters[i]++;
@@ -511,6 +547,11 @@ case_sched_fifo:
 
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
 	free(counters);
+#if defined(HAVE_SCHED_SETAFFINITY) && \
+    defined(HAVE_CPU_SET_T)
+	if (cpus)
+		free(cpus);
+#endif
 
 	return rc;
 }
