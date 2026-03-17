@@ -43,11 +43,9 @@ extern uint16_t stress_mwc16(void);
 extern uint32_t stress_mwc32(void);
 extern uint64_t stress_mwc64(void);
 
-
 extern void stress_rndbuf(void *buf, const size_t len);
 extern void stress_rndstr(char *str, const size_t len);
 extern void stress_uint8rnd4(uint8_t *data, const size_t len);
-
 
 #if defined(HAVE_FAST_MODULO_REDUCTION)
 /*
