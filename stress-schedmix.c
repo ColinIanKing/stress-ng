@@ -52,9 +52,9 @@
 
 static const stress_help_t help[] = {
 	{ NULL,	"schedmix N",		"start N workers that exercise a mix of scheduling loads" },
+	{ NULL, "schedmix-cpumix",	"randomly mix child processes to different CPUs" },
 	{ NULL,	"schedmix-ops N",	"stop after N schedmix bogo operations" },
 	{ NULL, "schedmix-procs N",	"select number of schedmix child processes 1..64" },
-	{ NULL, "schedmix-cpumix",	"randomly mix child processes to different CPUs" },
 	{ NULL,	NULL,			NULL }
 };
 
