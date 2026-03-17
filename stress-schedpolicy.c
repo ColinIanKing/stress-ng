@@ -74,6 +74,7 @@ static int stress_schedpolicy(stress_args_t *args)
 	double t_start, duration;
 	const pid_t pid = getpid();
 	uint64_t *counters;
+	const bool cap_sys_nice = stress_capabilities_check(SHIM_CAP_SYS_NICE);
 
 #if defined(SCHED_FLAG_DL_OVERRUN) &&	\
     defined(SIGXCPU)
@@ -217,10 +218,33 @@ static int stress_schedpolicy(stress_args_t *args)
 			param.sched_priority = ~0;
 			VOID_RET(int, sched_setscheduler(pid, new_policy, &param));
 
-			errno = 0;
+#if defined(HAVE_SCHED_SETATTR)
+			if (cap_sys_nice && stress_mwc1()) {
+				(void)shim_memset(&attr, 0, sizeof(attr));
+				attr.size = sizeof(attr);
+				attr.sched_policy = new_policy;
+				attr.sched_nice = stress_mwc8modn(40) - 19;
+				attr.sched_flags = 0;
+#if defined(SCHED_FLAG_UTIL_CLAMP_MIN)
+				if (stress_mwc1()) {
+					attr.sched_flags |= SCHED_FLAG_UTIL_CLAMP_MIN;
+					attr.sched_util_min = 1;
+				}
+#endif
+#if defined(SCHED_FLAG_UTIL_CLAMP_MAX)
+				if (stress_mwc1()) {
+					attr.sched_flags |= SCHED_FLAG_UTIL_CLAMP_MAX;
+					attr.sched_util_max = 2 + (stress_mwc8() & 0x3f);
+				}
+#endif
+				errno = 0;
+				ret = shim_sched_setattr(pid, &attr, 0);
+				break;
+			}
+#endif
 			param.sched_priority = 0;
+			errno = 0;
 			ret = sched_setscheduler(pid, new_policy, &param);
-
 			break;
 #if defined(SCHED_RR)
 		case SCHED_RR:
