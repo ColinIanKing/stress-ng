@@ -64,7 +64,7 @@ static int stress_uprobe_write(const char *path, const int flags, const char *st
 {
 	int fd, rc = 0;
 
-	fd = open(path, flags, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
+	fd = open(path, flags, S_IRUSR | S_IWUSR);
 	if (UNLIKELY(fd < 0))
 		return -errno;
 	errno = 0;
