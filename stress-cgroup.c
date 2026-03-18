@@ -441,7 +441,7 @@ static void stress_cgroup_new_group(stress_args_t *args, const char *realpathnam
 
 		/* Parent, exercise child in the cgroup */
 		(void)snprintf(path, sizeof(path), "%s/stress-ng-%" PRIdMAX, realpathname, (intmax_t)pid);
-		if (mkdir(path, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP) < 0) {
+		if (mkdir(path, S_IRUSR | S_IWUSR) < 0) {
 			stress_kill_pid_wait(pid, &status);
 			(void)rmdir(path);	/* just in case */
 			return;
