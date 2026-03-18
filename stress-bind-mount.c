@@ -227,7 +227,7 @@ static int stress_bind_mount(stress_args_t *args)
 	stress_proc_state_set(args->name, STRESS_STATE_RUN);
 
 	(void)stress_fs_temp_dir(path, sizeof(path), args->name, getpid(), args->instance);
-	ret = mkdir(path, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
+	ret = mkdir(path, S_IRUSR | S_IWUSR);
 	if (ret < 0) {
 		(void)shim_rmdir(path);
 		pr_err("%s: mkdir %s failed, errno=%d (%s)\n",
