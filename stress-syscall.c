@@ -1090,7 +1090,7 @@ static int syscall_chmod(void)
 	t1 = syscall_time_now();
 	ret = chmod(syscall_filename, chmod_modes[i]);
 	t2 = syscall_time_now();
-	VOID_RET(int, chmod(syscall_filename, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP));
+	VOID_RET(int, chmod(syscall_filename, S_IRUSR | S_IWUSR));
 	return ret;
 }
 
@@ -1865,7 +1865,7 @@ static int syscall_fchmod(void)
 	t1 = syscall_time_now();
 	ret = fchmod(syscall_fd, chmod_mode);
 	t2 = syscall_time_now();
-	VOID_RET(int, fchmod(syscall_fd, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP));
+	VOID_RET(int, fchmod(syscall_fd, S_IRUSR | S_IWUSR));
 	return ret;
 }
 
@@ -1883,7 +1883,7 @@ static int syscall_fchmodat(void)
 	t1 = syscall_time_now();
 	ret = fchmodat(syscall_dir_fd, syscall_filename, chmod_mode, 0);
 	t2 = syscall_time_now();
-	VOID_RET(int, fchmodat(syscall_dir_fd, syscall_filename, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP, 0));
+	VOID_RET(int, fchmodat(syscall_dir_fd, syscall_filename, S_IRUSR | S_IWUSR, 0));
 	return ret;
 }
 #endif
@@ -1902,7 +1902,7 @@ static int syscall_fchmodat2(void)
 	t1 = syscall_time_now();
 	ret = fchmodat2(syscall_dir_fd, syscall_filename, chmod_mode, 0);
 	t2 = syscall_time_now();
-	VOID_RET(int, fchmodat2(syscall_dir_fd, syscall_filename, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP, 0));
+	VOID_RET(int, fchmodat2(syscall_dir_fd, syscall_filename, S_IRUSR | S_IWUSR, 0));
 	return ret;
 }
 #endif
