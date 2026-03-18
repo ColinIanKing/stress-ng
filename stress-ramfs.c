@@ -307,7 +307,7 @@ static int stress_ramfs_child(stress_args_t *args)
 
 	stress_fs_temp_dir(pathname, sizeof(pathname), args->name,
 		args->pid, args->instance);
-	if (mkdir(pathname, S_IRUSR | S_IWUSR | S_IXUSR | S_IRGRP | S_IWGRP) < 0) {
+	if (mkdir(pathname, S_IRUSR | S_IWUSR | S_IXUSR) < 0) {
 		pr_fail("%s: cannot mkdir %s, errno=%d (%s)\n",
 			args->name, pathname, errno, strerror(errno));
 		return EXIT_FAILURE;
