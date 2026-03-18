@@ -120,7 +120,7 @@ static bool stress_dirdeep_make(
 	if (!depth) {
 		int fd;
 
-		fd = creat(linkpath, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
+		fd = creat(linkpath, S_IRUSR | S_IWUSR);
 		if (fd < 0) {
 			pr_fail("%s: create %s failed, errno=%d (%s)\n",
 				args->name, linkpath, errno, strerror(errno));
