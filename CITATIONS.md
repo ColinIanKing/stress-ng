@@ -208,6 +208,7 @@
  * [xPUE: Extending Power Usage Effectiveness Metrics for Cloud Infrastructures](https://arxiv.org/pdf/2503.07124)
 
 2026:
+ * [AGMARL-DKS: An Adaptive Graph-Enhanced Multi-Agent Reinforcement Learning for Dynamic Kubernetes Scheduling](https://arxiv.org/html/2603.12031v1)
  * [Battering RAM: Low-Cost Interposer Attacks on Confidential Computing via Dynamic Memory Aliasing](https://batteringram.eu/batteringram.pdf)
  * [Benchmarking of CPU-intensive Stream Data Processing in The Edge Computing Systems](https://arxiv.org/html/2505.07755v2)
  * [Cross-Cache Attacks for the Linux Kernel via PCP Massaging](https://mbr.sh/files/papers/ndss2026_pcplost.pdf)
