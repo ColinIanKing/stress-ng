@@ -1372,8 +1372,7 @@ static void stress_stressors_wait(
 static void MLOCKED_TEXT stress_terminate_handle(int signum)
 {
 	static char buf[128];
-	const int fd = (g_pr_log_flags & PR_LOG_FLAGS_STDERR) ?
-			fileno(stderr) : fileno(stdout);
+	const int fd = pr_fd();
 	const int saved_errno = errno;
 
 	stress_continue_set_flag(false);
