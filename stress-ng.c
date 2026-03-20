@@ -3017,7 +3017,7 @@ static inline void stress_list_item_append(stress_list_item_t *item)
 	item->prev = NULL;
 	item->next = NULL;
 
-	/* Add to end of procs list */
+	/* Add to end of list */
 	if (stress_stressor_list.tail)
 		stress_stressor_list.tail->next = item;
 	else
@@ -3029,7 +3029,7 @@ static inline void stress_list_item_append(stress_list_item_t *item)
 
 /*
  *  stress_list_item_find()
- *	find proc info that is associated with a specific
+ *	find stressor item that is associated with a specific
  *	stressor.  If it does not exist, create a new one
  *	and return that. Terminate if out of memory.
  */
@@ -3716,7 +3716,7 @@ next_opt:
 
 /*
  *  stress_stats_alloc()
- *	allocate array of process stats based on n stats required
+ *	allocate array of stats based on n stats required
  */
 static void stress_stats_alloc(
 	stress_stats_t ***stats,
@@ -4291,7 +4291,7 @@ int main(int argc, char **argv, char **envp)
 	}
 
 	/*
-	 *  Setup stressor proc info
+	 *  Setup stressor info
 	 */
 	if (g_opt_flags & OPT_FLAGS_SEQUENTIAL) {
 		stress_sequentual_setup(opt_class, opt_sequential);
@@ -4348,7 +4348,7 @@ int main(int argc, char **argv, char **envp)
 	}
 
 	/*
-	 *  Assign procs with shared stats memory
+	 *  Assign stressors with shared stats memory
 	 */
 	if (stress_stats_buffers_setup() < 0) {
 		pr_err("failed to create shared statistics arrays\n");
