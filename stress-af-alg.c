@@ -598,7 +598,7 @@ retry_bind:
 				goto err_close;
 			}
 			pr_fail("%s: %s (%s): read failed, unexpected return "
-				"length, got %zd, expected %zd\n",
+				"length, got %zd, expected %zu\n",
 				args->name, info->name, info->type,
 				ret, (size_t)DATA_LEN);
 			rc = EXIT_FAILURE;
@@ -886,7 +886,7 @@ retry_bind:
 				goto err_close;
 			}
 			pr_fail("%s: %s (%s): read failed, unexpected return "
-				"length, got %zd, expected %zd\n",
+				"length, got %zd, expected %zu\n",
 				args->name, info->name, info->type,
 				ret, DATA_LEN + tag_size);
 			rc = EXIT_FAILURE;
