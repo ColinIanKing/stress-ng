@@ -790,7 +790,7 @@ int stress_parse_opt(const char *stressor_name, const char *opt_arg, const stres
 	case TYPE_ID_BOOL:
 		if (!opt_arg)
 			return stress_setting_set_true(stressor_name, opt_name, opt_arg);
-		setting.u.boolean = (bool)stress_get_uint8(opt_arg);
+		setting.u.boolean = stress_get_uint8(opt_arg) ? true : false;
 		stress_check_range(opt_name, (uint64_t)setting.u.boolean, min, max);
 		return stress_setting_set(stressor_name, opt_name, TYPE_ID_BOOL, &setting.u.boolean);
 	case TYPE_ID_CALLBACK:
