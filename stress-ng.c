@@ -287,9 +287,6 @@ enum {
 	STRESSORS(STRESSOR_ENUM)
 };
 
-/* Stressor extern info structs */
-STRESSORS(STRESSOR_INFO)
-
 /*
  *  Human readable stress test names, can't be const
  *  because name is munged to human readable form

@@ -421,6 +421,6 @@
 /*
  *  Declaration of stress_*_info object
  */
-#define STRESSOR_INFO(name)	extern stressor_info_t stress_ ## name ## _info;
+#define STRESSOR_INFO(name)	extern const stressor_info_t stress_ ## name ## _info;
 
 #endif

@@ -295,6 +295,7 @@ typedef struct stress_list_item {
 #include "core-mwc.h"
 #include "core-rapl.h"
 #include "core-sched.h"
+#include "core-stressors.h"
 #include "core-sync.h"
 #include "core-shim.h"
 #include "core-time.h"
@@ -492,6 +493,9 @@ typedef struct stressor_info {
 	const char *unimplemented_reason;	/* unsupported reason message */
 	size_t max_metrics_items;	/* zero = default to STRESS_METRICS_ITEMS_DEFAULT_SIZE */
 } stressor_info_t;
+
+/* stressor extern info structs */
+STRESSORS(STRESSOR_INFO)
 
 /* gcc 4.7 and later support vector ops */
 #if defined(HAVE_COMPILER_GCC_OR_MUSL) &&	\
