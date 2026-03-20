@@ -129,7 +129,7 @@ static void stress_topology_set_get(
 
 		if (strncmp(d->d_name, "cpu", 3))
 			continue;
-		if (!isdigit((unsigned char)d->d_name[3]))
+		if (!isdigit((int)d->d_name[3]))
 			continue;
 
 		(void)snprintf(filename, sizeof(filename), "%s/%s/topology/%s", path, d->d_name, topology_list);
@@ -388,7 +388,7 @@ int stress_affinity_cpu_set(const char *arg)
  */
 uint32_t stress_affinity_cpus_get(uint32_t **cpus, const bool use_affinity)
 {
-	int32_t i, n_cpus = stress_cpus_configured_get();
+	uint32_t i, n_cpus = (uint32_t)stress_cpus_configured_get();
 
 #if defined(HAVE_SCHED_GETAFFINITY) && \
     defined(HAVE_SCHED_SETAFFINITY) && \
@@ -396,7 +396,7 @@ uint32_t stress_affinity_cpus_get(uint32_t **cpus, const bool use_affinity)
 	if (use_affinity) {
 		/* if affinity has been set.. */
 		if (CPU_COUNT(&stress_affinity_cpu_set_val) > 0) {
-			int32_t n;
+			uint32_t n;
 
 			/* don't want to overrun the cpu set */
 			n_cpus = STRESS_MINIMUM(n_cpus, CPU_SETSIZE);
@@ -436,9 +436,9 @@ uint32_t stress_affinity_cpus_get(uint32_t **cpus, const bool use_affinity)
 	if (*cpus == NULL)
 		return 0;
 
-	for (i = 0; i < n_cpus; i++) {
+	for (i = 0; i < n_cpus; i++)
 		(*cpus)[i] = i;
-	}
+
 	return n_cpus;
 }
 
