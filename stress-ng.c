@@ -111,8 +111,9 @@ typedef struct {
 
 /* Per stressor linked list */
 typedef struct {
-	stress_list_item_t *head;
-	stress_list_item_t *tail;
+	stress_list_item_t *head;	/* list head */
+	stress_list_item_t *tail;	/* list tail */
+	size_t n_items;			/* total number of items in list */
 } stress_stressor_list_t;
 
 static stress_stressor_list_t stress_stressor_list;
@@ -1402,23 +1403,6 @@ static void MLOCKED_TEXT stress_terminate_handle(int signum)
 	}
 
 	errno = saved_errno;
-}
-
-/*
- *  stress_nth_stressor_get()
- *	return nth stressor from list
- */
-static stress_list_item_t *stress_nth_stressor_get(const uint32_t n)
-{
-	stress_list_item_t *item = stress_stressor_list.head;
-	uint32_t i = 0;
-
-	while (item && (i < n)) {
-		if (!item->ignore.run)
-			i++;
-		item = item->next;
-	}
-	return item;
 }
 
 /*
@@ -3039,6 +3023,7 @@ static inline void stress_list_item_append(stress_list_item_t *item)
 		stress_stressor_list.head = item;
 	item->prev = stress_stressor_list.tail;
 	stress_stressor_list.tail = item;
+	stress_stressor_list.n_items++;
 }
 
 /*
@@ -3248,9 +3233,22 @@ static inline void stress_random_stressors_set(void)
 
 	if (g_opt_flags & OPT_FLAGS_RANDOM) {
 		int32_t n = opt_random;
-		uint32_t n_procs, n_instances;
+		stress_list_item_t **items;
+		stress_list_item_t *item;
+		size_t n_items;
 
-		stress_stressors_number_get(&n_procs, &n_instances);
+		items = calloc(stress_stressor_list.n_items, sizeof(*items));
+		if (!items) {
+			(void)fprintf(stderr, "cannot allocate %zu stressor items\n",
+				stress_stressor_list.n_items);
+			exit(EXIT_FAILURE);
+		}
+
+		for (n_items = 0, item = stress_stressor_list.head;
+		     (n_items < stress_stressor_list.n_items) && item; item = item->next) {
+			if (!item->ignore.run)
+				items[n_items++] = item;
+		}
 
 		if (g_opt_flags & OPT_FLAGS_SET) {
 			(void)fprintf(stderr, "cannot specify random "
@@ -3259,7 +3257,7 @@ static inline void stress_random_stressors_set(void)
 			exit(EXIT_FAILURE);
 		}
 
-		if (!n_procs) {
+		if (!n_items) {
 			(void)fprintf(stderr,
 				"no stressors are available, unable to continue\n");
 			exit(EXIT_FAILURE);
@@ -3267,15 +3265,11 @@ static inline void stress_random_stressors_set(void)
 
 		/* create n randomly chosen stressors */
 		while (n > 0) {
-			const uint32_t i = stress_mwc32modn(n_procs);
-			stress_list_item_t *item = stress_nth_stressor_get(i);
-
-			if (!item)
-				continue;
-
-			item->instances++;
+			const uint32_t idx = stress_mwcsizemodn(n_items);
+			items[idx]->instances++;
 			n--;
 		}
+		free(items);
 	}
 }
 
@@ -4111,6 +4105,8 @@ int main(int argc, char **argv, char **envp)
 
 	stress_stressor_list.head = NULL;
 	stress_stressor_list.tail = NULL;
+	stress_stressor_list.n_items = 0;
+
 	stress_mwc_reseed();
 
 	(void)stress_memory_page_size_get();
