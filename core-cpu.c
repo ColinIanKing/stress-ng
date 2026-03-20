@@ -36,11 +36,11 @@
  */
 #define STRESS_CPU_X86_HAS(name, EAX, EBX, ECX, EDX, chk)		\
 do {									\
-	static bool name ## _val = false;				\
-	static bool name ## _cached = false;				\
+	static bool tmp ## name ## _val = false;			\
+	static bool tmp ## name ## _cached = false;			\
 									\
-	if (!name ## _cached) {						\
-		name ## _cached = true;					\
+	if (!tmp ## name ## _cached) {					\
+		tmp ## name ## _cached = true;				\
 									\
 		if (UNLIKELY(stress_cpu_is_x86())) {			\
 			uint32_t eax = EAX;				\
@@ -49,12 +49,12 @@ do {									\
 			uint32_t edx = EDX;				\
 									\
 			stress_asm_x86_cpuid(eax, ebx, ecx, edx);	\
-			name ## _val = chk;				\
+			tmp ## name ## _val = chk;			\
 		} else {						\
-			name ## _val = false;				\
+			tmp ## name ## _val = false;			\
 		}							\
 	}								\
-	return name ## _val;						\
+	return tmp ## name ## _val;					\
 } while (0)
 
 #define X86_FP_DAZ		(0x0040UL)
