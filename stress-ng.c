@@ -1448,12 +1448,12 @@ static void stress_stressors_free(void)
  *  stress_total_instances_get()
  *	deterimin number of runnable stressors from list
  */
-static int32_t stress_total_instances_get(stress_list_item_t *stressors_list)
+static inline size_t stress_total_instances_get(void)
 {
-	int32_t total_instances = 0;
+	size_t total_instances = 0;
 	stress_list_item_t *item;
 
-	for (item = stressors_list; item; item = item->next)
+	for (item = stress_stressor_list.head; item; item = item->next)
 		total_instances += item->instances;
 
 	return total_instances;
@@ -2741,11 +2741,12 @@ static void *stress_page_mmap(int prot, char *prot_str, size_t page_size)
  *	that is marked read-only to stop accidental smashing
  *	from a run-away stack expansion
  */
-static inline void stress_shared_mmap(const int32_t num_procs)
+static inline void stress_shared_mmap(void)
 {
+	const size_t n_instances = stress_total_instances_get();
 	const size_t page_size = stress_memory_page_size_get();
 	size_t len = sizeof(stress_shared_t) +
-		     (sizeof(stress_stats_t) * (size_t)num_procs);
+		     (sizeof(stress_stats_t) * (size_t)n_instances);
 	size_t sz = (len + (page_size << 1)) & ~(page_size - 1);
 #if defined(HAVE_MPROTECT) ||	\
     (defined(HAVE_MREMAP) && defined(MAP_FIXED))
@@ -2820,7 +2821,7 @@ STRESS_PRAGMA_POP
 	 *  memory segment so that we can sanity check these for
 	 *  any form of corruption
 	 */
-	len = sizeof(stress_checksum_t) * (size_t)num_procs;
+	len = sizeof(stress_checksum_t) * n_instances;
 	sz = (len + page_size) & ~(page_size - 1);
 	g_shared->checksum.checksums = (stress_checksum_t *)stress_mmap_anon_shared(sz, PROT_READ | PROT_WRITE);
 	if (g_shared->checksum.checksums == MAP_FAILED) {
@@ -4324,7 +4325,7 @@ int main(int argc, char **argv, char **envp)
 	 *  Allocate shared memory segment for shared data
 	 *  across all the child stressors
 	 */
-	stress_shared_mmap(stress_total_instances_get(stress_stressor_list.head));
+	stress_shared_mmap();
 
 	if (stress_lock_mem_map() < 0) {
 		pr_err("failed to create shared heap\n");
