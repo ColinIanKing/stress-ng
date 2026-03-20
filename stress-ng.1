@@ -9173,7 +9173,9 @@ T}
 start N workers that add and remove small randomly sized swap partitions
 (Linux only). Note that if too many swap partitions are added then the
 stressors may exit with exit code 3 (not enough resources). Requires
-CAP_SYS_ADMIN to run.
+CAP_SYS_ADMIN to run. The swap stressor also generates bogus swap headers
+to exercise the kernel swap header checks and hence warnings appear in
+the kernel log.
 .TP
 .B \-\-swap\-ops N
 stop the swap workers after N swapon/swapoff iterations.
