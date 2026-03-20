@@ -35,7 +35,7 @@ static const stress_help_t help[] = {
 
 struct stress_strnum_method;
 
-typedef bool (*stress_strnum_func_t)(stress_args_t *args, const struct stress_strnum_method *this);
+typedef bool (*stress_strnum_func_t)(stress_args_t *args, const struct stress_strnum_method *method);
 
 typedef struct stress_strnum_method {
 	const char *name;
@@ -43,7 +43,7 @@ typedef struct stress_strnum_method {
 	const stress_strnum_func_t func;
 } stress_strnum_method_t;
 
-static bool stress_strnum_all(stress_args_t *args, const stress_strnum_method_t *this);
+static bool stress_strnum_all(stress_args_t *args, const stress_strnum_method_t *method);
 
 static char stress_strnum_i_str[32] ALIGNED(16);
 static char stress_strnum_li_str[32] ALIGNED(16);
@@ -96,47 +96,47 @@ static void OPTIMIZE3 stress_strnum_set_values(void)
 	(void)snprintf(stress_strnum_long_double_str, sizeof(stress_strnum_long_double_str), "%.7Lf", stress_strnum_long_double);
 }
 
-static bool OPTIMIZE3 stress_strnum_atoi(stress_args_t *args, const stress_strnum_method_t *this)
+static bool OPTIMIZE3 stress_strnum_atoi(stress_args_t *args, const stress_strnum_method_t *method)
 {
 	int i;
 
 	i = atoi(stress_strnum_i_str);
 	if (UNLIKELY(i != stress_strnum_i)) {
 		pr_fail("%s: %s(%s) failed, got %d, expecting %d\n",
-			args->name, this->name, stress_strnum_i_str, i, stress_strnum_i);
+			args->name, method->name, stress_strnum_i_str, i, stress_strnum_i);
 		return false;
 	}
 	return true;
 }
 
-static bool OPTIMIZE3 stress_strnum_atol(stress_args_t *args, const stress_strnum_method_t *this)
+static bool OPTIMIZE3 stress_strnum_atol(stress_args_t *args, const stress_strnum_method_t *method)
 {
 	long int li;
 
 	li = atol(stress_strnum_li_str);
 	if (UNLIKELY(li != stress_strnum_li)) {
 		pr_fail("%s: %s(%s) failed, got %ld, expecting %ld\n",
-			args->name, this->name, stress_strnum_li_str, li, stress_strnum_li);
+			args->name, method->name, stress_strnum_li_str, li, stress_strnum_li);
 		return false;
 	}
 	return true;
 }
 
-static bool OPTIMIZE3 stress_strnum_atoll(stress_args_t *args, const stress_strnum_method_t *this)
+static bool OPTIMIZE3 stress_strnum_atoll(stress_args_t *args, const stress_strnum_method_t *method)
 {
 	long long int lli;
 
 	lli = atoll(stress_strnum_lli_str);
 	if (UNLIKELY(lli != stress_strnum_lli)) {
 		pr_fail("%s: %s(%s) failed, got %lld, expecting %lld\n",
-			args->name, this->name, stress_strnum_lli_str, lli, stress_strnum_lli);
+			args->name, method->name, stress_strnum_lli_str, lli, stress_strnum_lli);
 		return false;
 	}
 	return true;
 }
 
 #if defined(HAVE_STRTOUL)
-static bool OPTIMIZE3 stress_strnum_strtoul(stress_args_t *args, const stress_strnum_method_t *this)
+static bool OPTIMIZE3 stress_strnum_strtoul(stress_args_t *args, const stress_strnum_method_t *method)
 {
 	unsigned long int lu;
 
@@ -144,12 +144,12 @@ static bool OPTIMIZE3 stress_strnum_strtoul(stress_args_t *args, const stress_st
 	lu = strtoul(stress_strnum_lu_str, NULL, 10);
 	if (UNLIKELY(errno == ERANGE)) {
 		pr_fail("%s: %s(%s) failed, got error ERANGE\n",
-			args->name, this->name, stress_strnum_lu_str);
+			args->name, method->name, stress_strnum_lu_str);
 		return false;
 	}
 	if (UNLIKELY(lu != stress_strnum_lu)) {
 		pr_fail("%s: %s(%s) failed, got %lu, expecting %lu\n",
-			args->name, this->name, stress_strnum_lu_str, lu, stress_strnum_lu);
+			args->name, method->name, stress_strnum_lu_str, lu, stress_strnum_lu);
 		return false;
 	}
 	return true;
@@ -157,7 +157,7 @@ static bool OPTIMIZE3 stress_strnum_strtoul(stress_args_t *args, const stress_st
 #endif
 
 #if defined(HAVE_STRTOULL)
-static bool OPTIMIZE3 stress_strnum_strtoull(stress_args_t *args, const stress_strnum_method_t *this)
+static bool OPTIMIZE3 stress_strnum_strtoull(stress_args_t *args, const stress_strnum_method_t *method)
 {
 	unsigned long long int llu;
 
@@ -165,24 +165,24 @@ static bool OPTIMIZE3 stress_strnum_strtoull(stress_args_t *args, const stress_s
 	llu = strtoull(stress_strnum_llu_str, NULL, 10);
 	if (UNLIKELY(errno == ERANGE)) {
 		pr_fail("%s: %s(%s) failed, got error ERANGE\n",
-			args->name, this->name, stress_strnum_llu_str);
+			args->name, method->name, stress_strnum_llu_str);
 		return false;
 	}
 	if (UNLIKELY(llu != stress_strnum_llu)) {
 		pr_fail("%s: %s(%s) failed, got %llu, expecting %llu\n",
-			args->name, this->name, stress_strnum_llu_str, llu, stress_strnum_llu);
+			args->name, method->name, stress_strnum_llu_str, llu, stress_strnum_llu);
 		return false;
 	}
 	return true;
 }
 #endif
 
-static bool OPTIMIZE3 stress_strnum_sscanf_i(stress_args_t *args, const stress_strnum_method_t *this)
+static bool OPTIMIZE3 stress_strnum_sscanf_i(stress_args_t *args, const stress_strnum_method_t *method)
 {
 	int i;
 	int ret;
 
-	(void)this;
+	(void)method;
 
 	ret = sscanf(stress_strnum_i_str, "%d", &i);
 	if (UNLIKELY(ret != 1)) {
@@ -198,12 +198,12 @@ static bool OPTIMIZE3 stress_strnum_sscanf_i(stress_args_t *args, const stress_s
 	return true;
 }
 
-static bool OPTIMIZE3 stress_strnum_sscanf_li(stress_args_t *args, const stress_strnum_method_t *this)
+static bool OPTIMIZE3 stress_strnum_sscanf_li(stress_args_t *args, const stress_strnum_method_t *method)
 {
 	long int li;
 	int ret;
 
-	(void)this;
+	(void)method;
 
 	ret = sscanf(stress_strnum_li_str, "%ld", &li);
 	if (UNLIKELY(ret != 1)) {
@@ -219,12 +219,12 @@ static bool OPTIMIZE3 stress_strnum_sscanf_li(stress_args_t *args, const stress_
 	return true;
 }
 
-static bool OPTIMIZE3 stress_strnum_sscanf_lli(stress_args_t *args, const stress_strnum_method_t *this)
+static bool OPTIMIZE3 stress_strnum_sscanf_lli(stress_args_t *args, const stress_strnum_method_t *method)
 {
 	long long int lli;
 	int ret;
 
-	(void)this;
+	(void)method;
 
 	ret = sscanf(stress_strnum_lli_str, "%lld", &lli);
 	if (UNLIKELY(ret != 1)) {
@@ -240,12 +240,12 @@ static bool OPTIMIZE3 stress_strnum_sscanf_lli(stress_args_t *args, const stress
 	return true;
 }
 
-static bool OPTIMIZE3 stress_strnum_sscanf_u(stress_args_t *args, const stress_strnum_method_t *this)
+static bool OPTIMIZE3 stress_strnum_sscanf_u(stress_args_t *args, const stress_strnum_method_t *method)
 {
 	unsigned int u;
 	int ret;
 
-	(void)this;
+	(void)method;
 
 	ret = sscanf(stress_strnum_u_str, "%u", &u);
 	if (UNLIKELY(ret != 1)) {
@@ -261,12 +261,12 @@ static bool OPTIMIZE3 stress_strnum_sscanf_u(stress_args_t *args, const stress_s
 	return true;
 }
 
-static bool OPTIMIZE3 stress_strnum_sscanf_lu(stress_args_t *args, const stress_strnum_method_t *this)
+static bool OPTIMIZE3 stress_strnum_sscanf_lu(stress_args_t *args, const stress_strnum_method_t *method)
 {
 	unsigned long int lu;
 	int ret;
 
-	(void)this;
+	(void)method;
 
 	ret = sscanf(stress_strnum_lu_str, "%lu", &lu);
 	if (UNLIKELY(ret != 1)) {
@@ -282,12 +282,12 @@ static bool OPTIMIZE3 stress_strnum_sscanf_lu(stress_args_t *args, const stress_
 	return true;
 }
 
-static bool OPTIMIZE3 stress_strnum_sscanf_llu(stress_args_t *args, const stress_strnum_method_t *this)
+static bool OPTIMIZE3 stress_strnum_sscanf_llu(stress_args_t *args, const stress_strnum_method_t *method)
 {
 	unsigned long long int llu;
 	int ret;
 
-	(void)this;
+	(void)method;
 
 	ret = sscanf(stress_strnum_llu_str, "%llu", &llu);
 	if (UNLIKELY(ret != 1)) {
@@ -304,7 +304,7 @@ static bool OPTIMIZE3 stress_strnum_sscanf_llu(stress_args_t *args, const stress
 }
 
 #if defined(HAVE_STRTOF)
-static bool OPTIMIZE3 stress_strnum_strtof(stress_args_t *args, const stress_strnum_method_t *this)
+static bool OPTIMIZE3 stress_strnum_strtof(stress_args_t *args, const stress_strnum_method_t *method)
 {
 	float val;
 	const float precision = 1.0E-5;
@@ -312,7 +312,7 @@ static bool OPTIMIZE3 stress_strnum_strtof(stress_args_t *args, const stress_str
 	val = strtof(stress_strnum_float_str, NULL);
 	if (UNLIKELY(shim_fabsf(val - stress_strnum_float) > precision)) {
 		pr_fail("%s: %s(%s) failed, got %f, expecting %f\n",
-			args->name, this->name, stress_strnum_float_str, (double)val, (double)stress_strnum_float);
+			args->name, method->name, stress_strnum_float_str, (double)val, (double)stress_strnum_float);
 		return false;
 	}
 	return true;
@@ -320,7 +320,7 @@ static bool OPTIMIZE3 stress_strnum_strtof(stress_args_t *args, const stress_str
 #endif
 
 #if defined(HAVE_STRTOD)
-static bool OPTIMIZE3 stress_strnum_strtod(stress_args_t *args, const stress_strnum_method_t *this)
+static bool OPTIMIZE3 stress_strnum_strtod(stress_args_t *args, const stress_strnum_method_t *method)
 {
 	double val;
 	const double precision = 1.0E-5;
@@ -328,7 +328,7 @@ static bool OPTIMIZE3 stress_strnum_strtod(stress_args_t *args, const stress_str
 	val = strtod(stress_strnum_double_str, NULL);
 	if (UNLIKELY(shim_fabs(val - stress_strnum_double) > precision)) {
 		pr_fail("%s: %s(%s) failed, got %g, expecting %g\n",
-			args->name, this->name, stress_strnum_double_str, val, stress_strnum_double);
+			args->name, method->name, stress_strnum_double_str, val, stress_strnum_double);
 		return false;
 	}
 	return true;
@@ -336,7 +336,7 @@ static bool OPTIMIZE3 stress_strnum_strtod(stress_args_t *args, const stress_str
 #endif
 
 #if defined(HAVE_STRTOLD)
-static bool OPTIMIZE3 stress_strnum_strtold(stress_args_t *args, const stress_strnum_method_t *this)
+static bool OPTIMIZE3 stress_strnum_strtold(stress_args_t *args, const stress_strnum_method_t *method)
 {
 	long double val;
 	const long double precision = 1.0E-5L;
@@ -344,19 +344,19 @@ static bool OPTIMIZE3 stress_strnum_strtold(stress_args_t *args, const stress_st
 	val = strtold(stress_strnum_long_double_str, NULL);
 	if (UNLIKELY(shim_fabsl(val - stress_strnum_long_double) > precision)) {
 		pr_fail("%s: %s(%s) failed, got %Lf, expecting %Lf\n",
-			args->name, this->name, stress_strnum_long_double_str, val, stress_strnum_long_double);
+			args->name, method->name, stress_strnum_long_double_str, val, stress_strnum_long_double);
 		return false;
 	}
 	return true;
 }
 #endif
 
-static bool OPTIMIZE3 stress_strnum_snprintf_i(stress_args_t *args, const stress_strnum_method_t *this)
+static bool OPTIMIZE3 stress_strnum_snprintf_i(stress_args_t *args, const stress_strnum_method_t *method)
 {
 	char str[32];
 	int ret;
 
-	(void)this;
+	(void)method;
 
 	ret = snprintf(str, sizeof(str), "%d", stress_strnum_i);
 	if (UNLIKELY(ret < 0)) {
@@ -372,12 +372,12 @@ static bool OPTIMIZE3 stress_strnum_snprintf_i(stress_args_t *args, const stress
 	return true;
 }
 
-static bool OPTIMIZE3 stress_strnum_snprintf_li(stress_args_t *args, const stress_strnum_method_t *this)
+static bool OPTIMIZE3 stress_strnum_snprintf_li(stress_args_t *args, const stress_strnum_method_t *method)
 {
 	char str[32];
 	int ret;
 
-	(void)this;
+	(void)method;
 
 	ret = snprintf(str, sizeof(str), "%ld", stress_strnum_li);
 	if (UNLIKELY(ret < 0)) {
@@ -393,12 +393,12 @@ static bool OPTIMIZE3 stress_strnum_snprintf_li(stress_args_t *args, const stres
 	return true;
 }
 
-static bool OPTIMIZE3 stress_strnum_snprintf_lli(stress_args_t *args, const stress_strnum_method_t *this)
+static bool OPTIMIZE3 stress_strnum_snprintf_lli(stress_args_t *args, const stress_strnum_method_t *method)
 {
 	char str[32];
 	int ret;
 
-	(void)this;
+	(void)method;
 
 	ret = snprintf(str, sizeof(str), "%lld", stress_strnum_lli);
 	if (UNLIKELY(ret < 0)) {
@@ -414,13 +414,13 @@ static bool OPTIMIZE3 stress_strnum_snprintf_lli(stress_args_t *args, const stre
 	return true;
 }
 
-static bool OPTIMIZE3 stress_strnum_sscanf_f(stress_args_t *args, const stress_strnum_method_t *this)
+static bool OPTIMIZE3 stress_strnum_sscanf_f(stress_args_t *args, const stress_strnum_method_t *method)
 {
 	float val;
 	const float precision = 1.0E-4;
 	int ret;
 
-	(void)this;
+	(void)method;
 
 	ret = sscanf(stress_strnum_float_str, "%f", &val);
 	if (ret != 1) {
@@ -436,13 +436,13 @@ static bool OPTIMIZE3 stress_strnum_sscanf_f(stress_args_t *args, const stress_s
 	return true;
 }
 
-static bool OPTIMIZE3 stress_strnum_sscanf_d(stress_args_t *args, const stress_strnum_method_t *this)
+static bool OPTIMIZE3 stress_strnum_sscanf_d(stress_args_t *args, const stress_strnum_method_t *method)
 {
 	double val;
 	const double precision = 1.0E-6;
 	int ret;
 
-	(void)this;
+	(void)method;
 
 	ret = sscanf(stress_strnum_double_str, "%lf", &val);
 	if (UNLIKELY(ret != 1)) {
@@ -458,13 +458,13 @@ static bool OPTIMIZE3 stress_strnum_sscanf_d(stress_args_t *args, const stress_s
 	return true;
 }
 
-static bool OPTIMIZE3 stress_strnum_sscanf_ld(stress_args_t *args, const stress_strnum_method_t *this)
+static bool OPTIMIZE3 stress_strnum_sscanf_ld(stress_args_t *args, const stress_strnum_method_t *method)
 {
 	long double val;
 	const long double precision = 1.0E-6L;
 	int ret;
 
-	(void)this;
+	(void)method;
 
 	ret = sscanf(stress_strnum_long_double_str, "%Lf", &val);
 	if (UNLIKELY(ret != 1)) {
@@ -496,12 +496,12 @@ static inline ALWAYS_INLINE OPTIMIZE3 size_t stress_strnum_trunc_posn(const char
 #endif
 
 #if defined(HAVE_STRFROMF)
-static bool OPTIMIZE3 stress_strnum_strfromf(stress_args_t *args, const stress_strnum_method_t *this)
+static bool OPTIMIZE3 stress_strnum_strfromf(stress_args_t *args, const stress_strnum_method_t *method)
 {
 	size_t posn;
 	char str[32];
 
-	(void)this;
+	(void)method;
 
 	(void)strfromf(str, sizeof(str), "%.7f", stress_strnum_float);
 	posn = stress_strnum_trunc_posn(str, 4);
@@ -517,12 +517,12 @@ static bool OPTIMIZE3 stress_strnum_strfromf(stress_args_t *args, const stress_s
 #endif
 
 #if defined(HAVE_STRFROMD)
-static bool OPTIMIZE3 stress_strnum_strfromd(stress_args_t *args, const stress_strnum_method_t *this)
+static bool OPTIMIZE3 stress_strnum_strfromd(stress_args_t *args, const stress_strnum_method_t *method)
 {
 	size_t posn;
 	char str[32];
 
-	(void)this;
+	(void)method;
 
 	(void)strfromd(str, sizeof(str), "%.7g", stress_strnum_double);
 	posn = stress_strnum_trunc_posn(str, 6);
@@ -536,12 +536,12 @@ static bool OPTIMIZE3 stress_strnum_strfromd(stress_args_t *args, const stress_s
 #endif
 
 #if defined(HAVE_STRFROML)
-static bool OPTIMIZE3 stress_strnum_strfroml(stress_args_t *args, const stress_strnum_method_t *this)
+static bool OPTIMIZE3 stress_strnum_strfroml(stress_args_t *args, const stress_strnum_method_t *method)
 {
 	size_t posn;
 	char str[32];
 
-	(void)this;
+	(void)method;
 
 	(void)strfroml(str, sizeof(str), "%.7f", stress_strnum_long_double);
 	posn = stress_strnum_trunc_posn(str, 6);
@@ -623,11 +623,11 @@ static int OPTIMIZE3 stress_strnum_call_method(
 	return true;
 }
 
-static bool OPTIMIZE3 stress_strnum_all(stress_args_t *args, const stress_strnum_method_t *this)
+static bool OPTIMIZE3 stress_strnum_all(stress_args_t *args, const stress_strnum_method_t *method)
 {
 	size_t i;
 
-	(void)this;
+	(void)method;
 
 	for (i = 1; i < STRESS_NUM_STRNUM_METHODS; i++) {
 		if (!stress_strnum_call_method(args, i))
