@@ -23,7 +23,7 @@ typedef struct {
 	const size_t stride;		/* Bytes between each function */
 	const size_t len;		/* Length of return function */
 	const char *assembler;		/* Assembler */
-	const uint8_t opcodes[];	/* Opcodes of return function */
+	const uint8_t opcodes[8];	/* Opcodes of return function */
 } stress_ret_opcode_t;
 
 typedef void (*stress_ret_func_t)(void);
