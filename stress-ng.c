@@ -4056,6 +4056,10 @@ static void stress_global_lock_destroy(void)
 #endif
 }
 
+/*
+ *  stress_stressor_names_fixup()
+ *	replace '_' with '-' in stressor name
+ */
 static inline void stress_stressor_names_fixup(void)
 {
 	size_t i;
