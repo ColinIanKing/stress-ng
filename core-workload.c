@@ -207,7 +207,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_workload_read(void *buffer, const siz
 
 static void OPTIMIZE3 TARGET_CLONES stress_workload_strnum(
 	const double v,
-	void *buffer,
+	uint8_t *buffer,
 	const size_t buffer_len)
 {
 	long double ld;
@@ -217,15 +217,15 @@ static void OPTIMIZE3 TARGET_CLONES stress_workload_strnum(
 	long l;
 	long ll;
 
-	(void)snprintf(buffer, buffer_len, "%f", v);
-	(void)sscanf(buffer, "%f", &f);
-	(void)sscanf(buffer, "%Lf", &ld);
-	i = atoi(buffer);
-	l = atol(buffer);
-	ll = atoll(buffer);
+	(void)snprintf((char *)buffer, buffer_len, "%f", v);
+	(void)sscanf((char *)buffer, "%f", &f);
+	(void)sscanf((char *)buffer, "%Lf", &ld);
+	i = atoi((char *)buffer);
+	l = atol((char *)buffer);
+	ll = atoll((char *)buffer);
 	ld = (long double)i * (long double)l * (long double)ll;
-	(void)snprintf(buffer, buffer_len, "%Lf", ld * 1.0E-6L);
-	(void)sscanf(buffer, "%lf", &d);
+	(void)snprintf((char *)buffer, buffer_len, "%Lf", ld * 1.0E-6L);
+	(void)sscanf((char *)buffer, "%lf", &d);
 	stress_put_float((float)d);
 }
 
@@ -255,8 +255,8 @@ static void TARGET_CLONES stress_workload_vecint(void)
 	register size_t i;
 
 	for (i = 0; i < 256; i++) {
-		a.f[i] = v;
-		b.f[i] = v * v;
+		a.f[i] = (uint8_t)v;
+		b.f[i] = (uint8_t)(v * v);
 		v++;
 	}
 	a.v *= b.v;
@@ -275,8 +275,8 @@ static void TARGET_CLONES stress_workload_vecint(void)
 	register size_t i;
 
 	for (i = 0; i < 256; i++) {
-		a[i] = v;
-		b[i] = v * v;
+		a[i] = (uint8_t)v;
+		b[i] = (uint8_t)(v * v);
 		v++;
 	}
 	for (i = 0; i < 256; i++) {
@@ -465,7 +465,6 @@ void stress_workload_waste_time(
 			case STRESS_WORKLOAD_METHOD_VECINT:
 				stress_workload_vecint();
 				break;
-		break;
 			default:
 			case STRESS_WORKLOAD_METHOD_PROCNAME:
 				stress_workload_procname(name);
