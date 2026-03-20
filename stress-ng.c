@@ -4070,10 +4070,8 @@ static inline void stress_stressor_names_fixup(void)
 
 int main(int argc, char **argv, char **envp)
 {
+	size_t i;
 	double duration = 0.0;			/* stressor run time in secs */
-	bool success = true;
-	bool resource_success = true;
-	bool metrics_success = true;
 	FILE *yaml;				/* YAML output file */
 	char *yaml_filename = NULL;		/* YAML file name */
 	char *log_filename;			/* log filename */
@@ -4081,23 +4079,29 @@ int main(int argc, char **argv, char **envp)
 	int32_t ticks_per_sec;			/* clock ticks per second (jiffies) */
 	int32_t ionice_class = UNDEFINED;	/* ionice class */
 	int32_t ionice_level = UNDEFINED;	/* ionice level */
-	size_t i;
-	uint32_t opt_class = 0;
-	uint32_t n_stressors, n_instances;
+	uint32_t opt_class = 0;			/* stressor class option */
+	uint32_t n_stressors;			/* number of unique stressors */
+	uint32_t n_instances;			/* number of total instances */
 	const uint32_t cpus_online = (uint32_t)stress_cpus_online_get();
 	const uint32_t cpus_configured = (uint32_t)stress_cpus_configured_get();
-	int ret = EXIT_SUCCESS;
+	int ret = EXIT_SUCCESS;			/* assume return exit is successful */
 	bool unsupported = false;		/* true if stressors are unsupported */
+	bool success = true;			/* assume successful run */ 
+	bool resource_success = true;		/* assume we have enough resources */
+	bool metrics_success = true;		/* assume metrics are sane */
 
 	main_pid = getpid();
 
 	/* Enable stress-ng stack smashing message */
 	stress_stack_smash_check_flag_set(true);
 
+	/* Fix up human reasable stressor names */
 	stress_stressor_names_fixup();
 
+	/* Allow for process naming */
 	stress_proc_name_init(argc, argv, envp);
 
+	/* Error parsing/handling return point */
 	if (setjmp(g_error_env) == 1) {
 		ret = EXIT_FAILURE;
 		goto exit_ret;
@@ -4111,10 +4115,12 @@ int main(int argc, char **argv, char **envp)
 		goto exit_ret;
 	}
 
+	/* Main stressor list */
 	stress_stressor_list.head = NULL;
 	stress_stressor_list.tail = NULL;
 	stress_stressor_list.n_items = 0;
 
+	/* Set random seed */
 	stress_mwc_reseed();
 
 	(void)stress_memory_page_size_get();
@@ -4156,18 +4162,14 @@ int main(int argc, char **argv, char **envp)
 	if (g_opt_flags & OPT_FLAGS_KSM)
 		stress_memory_ksm_merge(1);
 
-	/*
-	 *  Load in job file options
-	 */
+	/* Load in job file options */
 	(void)stress_setting_get("job", &job_filename);
 	if (stress_job_parse_file(argc, argv, job_filename) < 0) {
 		ret = EXIT_FAILURE;
 		goto exit_stressors_free;
 	}
 
-	/*
-	 *  Sanity check minimize/maximize options
-	 */
+	/* Sanity check minimize/maximize options */
 	if ((g_opt_flags & OPT_FLAGS_MINMAX_MASK) == OPT_FLAGS_MINMAX_MASK) {
 		(void)fprintf(stderr, "maximize and minimize cannot "
 			"be used together\n");
@@ -4175,9 +4177,7 @@ int main(int argc, char **argv, char **envp)
 		goto exit_stressors_free;
 	}
 
-	/*
-	 *  Sanity check seq/all settings
-	 */
+	/* Sanity check seq/all settings */
 	if (stress_bitops_popcount64(g_opt_flags & (OPT_FLAGS_RANDOM | OPT_FLAGS_SEQUENTIAL | OPT_FLAGS_ALL | OPT_FLAGS_PERMUTE)) > 1) {
 		(void)fprintf(stderr, "cannot invoke --random, --sequential, --all or --permute "
 			"options together\n");
@@ -4194,9 +4194,7 @@ int main(int argc, char **argv, char **envp)
 		goto exit_stressors_free;
 	}
 
-	/*
-	 *  Sanity check mutually exclusive random seed flags
-	 */
+	/* Sanity check mutually exclusive random seed flags */
 	if ((g_opt_flags & (OPT_FLAGS_NO_RAND_SEED | OPT_FLAGS_SEED)) ==
 	    (OPT_FLAGS_NO_RAND_SEED | OPT_FLAGS_SEED)) {
 		(void)fprintf(stderr, "cannot invoke mutually exclusive "
@@ -4205,9 +4203,7 @@ int main(int argc, char **argv, char **envp)
 		goto exit_stressors_free;
 	}
 
-	/*
-	 *  Sanity check --with option
-	 */
+	/* Sanity check --with option */
 	if ((g_opt_flags & OPT_FLAGS_WITH) &&
 	    ((g_opt_flags & (OPT_FLAGS_SEQUENTIAL | OPT_FLAGS_ALL | OPT_FLAGS_PERMUTE)) == 0)) {
 		(void)fprintf(stderr, "the --with option also requires the --seq, --all or --permute options\n");
@@ -4215,14 +4211,15 @@ int main(int argc, char **argv, char **envp)
 		goto exit_stressors_free;
 	}
 
+	/* Allocate CPU C-states */
 	stress_cpuidle_init();
 
-	/*
-	 *  Setup logging
-	 */
+	/* Setup logging */
 	if (stress_setting_get("log-file", &log_filename))
 		pr_openlog(log_filename);
 	shim_openlog("stress-ng", 0, LOG_USER);
+
+	/* Log stressor run/system/configuration info */
 	stress_args_log(argc, argv);
 	stress_system_info_log();
 	stress_system_memory_info_log();
@@ -4234,36 +4231,28 @@ int main(int argc, char **argv, char **envp)
 		cpus_online, cpus_online == 1 ? "" : "s",
 		cpus_configured, cpus_configured == 1 ? "" : "s");
 
-	/*
-	 *  For random mode the stressors must be available
-	 */
+	/*For random mode the stressors must be available */
 	if (g_opt_flags & OPT_FLAGS_RANDOM)
 		stress_stressors_enable(0);
-	/*
-	 *  These two options enable all the stressors
-	 */
+	/* These options enable all the stressors */
 	if (g_opt_flags & OPT_FLAGS_SEQUENTIAL)
 		stress_stressors_enable(opt_sequential);
 	if (g_opt_flags & OPT_FLAGS_ALL)
 		stress_stressors_enable(opt_parallel);
 	if (g_opt_flags & OPT_FLAGS_PERMUTE)
 		stress_stressors_enable(opt_permute);
-	/*
-	 *  Discard stressors that we can't run
-	 */
+
+	/* Discard stressors that we can't run */
 	stress_exclude_unsupported(&unsupported);
 	stress_pathological_exclude();
-	/*
-	 *  Throw away excluded stressors
-	 */
+
+	/* Throw away excluded stressors */
 	if (stress_exclude() < 0) {
 		ret = EXIT_FAILURE;
 		goto exit_logging_close;
 	}
 
-	/*
-	 *  Setup random stressors if requested
-	 */
+	/* Setup random stressors if requested */
 	stress_random_stressors_set();
 
 	stress_ftrace_start();
@@ -4273,9 +4262,7 @@ int main(int argc, char **argv, char **envp)
 		stress_perf_init();
 #endif
 
-	/*
-	 *  Setup running environment
-	 */
+	/* Setup running environment */
 	stress_process_dumpable(false);
 	stress_set_oom_adjustment(NULL, false);
 
@@ -4285,9 +4272,7 @@ int main(int argc, char **argv, char **envp)
 
 	stress_executable_mlock();
 
-	/*
-	 *  Enable signal handers
-	 */
+	/* Enable signal handers */
 	for (i = 0; i < SIZEOF_ARRAY(stress_signal_map); i++) {
 		if (stress_signal_handler("stress-ng",
 				stress_signal_map[i].signum,
@@ -4297,9 +4282,7 @@ int main(int argc, char **argv, char **envp)
 		}
 	}
 
-	/*
-	 *  Setup stressor info
-	 */
+	/* Setup stressor info */
 	if (g_opt_flags & OPT_FLAGS_SEQUENTIAL) {
 		stress_sequentual_setup(opt_class, opt_sequential);
 	} else if (g_opt_flags & OPT_FLAGS_PERMUTE) {
@@ -4316,6 +4299,7 @@ int main(int argc, char **argv, char **envp)
 
 	stress_max_processes_limit_set();
 
+	/* Sanity check if we have any stressors to run */
 	if (!stress_stressor_list.head) {
 		pr_err("no stress workers invoked%s\n",
 			unsupported ? " (one or more were unsupported)" : "");
@@ -4340,32 +4324,25 @@ int main(int argc, char **argv, char **envp)
 		goto exit_lock_mem_unmap;
 	}
 
-	/*
-	 *  And now shared memory is created, initialize pr_* lock mechanism
-	 */
+	/* Now initialize pr_* lock mechanism */
 	if (!stress_shared_heap_init(stressor_stats_size())) {
 		pr_err("failed to create shared heap\n");
 		ret = EXIT_FAILURE;
 		goto exit_shared_unmap;
 	}
-
 	if (stress_global_lock_create() < 0) {
 		ret = EXIT_FAILURE;
 		goto exit_lock_destroy;
 	}
 
-	/*
-	 *  Assign stressors with shared stats memory
-	 */
+	/* Assign stressors with shared stats memory */
 	if (stress_stats_buffers_setup() < 0) {
 		pr_err("failed to create shared statistics arrays\n");
 		ret = EXIT_FAILURE;
 		goto exit_lock_destroy;
 	}
 
-	/*
-	 *  Allocate shared cache memory
-	 */
+	/* Allocate shared cache memory */
 	g_shared->mem_cache.size = 0;
 	(void)stress_setting_get("cache-size", &g_shared->mem_cache.size);
 	g_shared->mem_cache.level = DEFAULT_CACHE_LEVEL;
@@ -4377,23 +4354,20 @@ int main(int argc, char **argv, char **envp)
 		goto exit_shared_unmap;
 	}
 
-	/*
-	 *  Show the stressors we're going to run
-	 */
+	/* Show the stressors we're going to run */
 	if (stress_stressors_show() < 0) {
 		ret = EXIT_FAILURE;
 		goto exit_shared_unmap;
 	}
 
 #if defined(STRESS_THERMAL_ZONES)
-	/*
-	 *  Setup thermal zone data
-	 */
+	/* Setup thermal zone data */
 	if (g_opt_flags & OPT_FLAGS_TZ_INFO)
 		stress_tz_init(&g_shared->tz_info);
 #endif
 
 #if defined(STRESS_RAPL)
+	/* Get x86 RAPL domains */
 	if (g_opt_flags & OPT_FLAGS_RAPL_REQUIRED)
 		stress_rapl_domains_get(&g_shared->rapl_domains);
 #endif
@@ -4405,13 +4379,25 @@ int main(int argc, char **argv, char **envp)
 	if (g_opt_flags & OPT_FLAGS_THRASH)
 		stress_thrash_start();
 
+	/* Start --vmstat, --iostat, --thermalstat, --raplstat */
 	stress_vmstat_start();
+
+	/* Start S.M.A.R.T. stats */
 	stress_smart_start();
+
+	/* Start klog monitoring process */
 	stress_klog_start();
+
+	/* Sanity check clock source */
 	stress_clocksource_check();
+
+	/* Sanity check run time environment */
 	stress_config_check();
+
+	/* Initialized resource control */
 	stress_resctrl_init();
 
+	/* Allocate hash table for stats -> stressor mapping */
 	stress_stressors_number_get(&n_stressors, &n_instances);
 	if (stress_stats_hash_table_alloc(n_instances) < 0) {
 		ret = EXIT_FAILURE;
@@ -4420,6 +4406,7 @@ int main(int argc, char **argv, char **envp)
 
 	stress_setting_dbg("global");
 
+	/* And run stressors! */
 	if (g_opt_flags & OPT_FLAGS_SEQUENTIAL) {
 		stress_sequential_run(ticks_per_sec, n_stressors, &duration, &success, &resource_success, &metrics_success);
 	} else if (g_opt_flags & OPT_FLAGS_PERMUTE) {
@@ -4428,7 +4415,10 @@ int main(int argc, char **argv, char **envp)
 		stress_parallel_run(ticks_per_sec, n_stressors, &duration, &success, &resource_success, &metrics_success);
 	}
 
+	/* Free hash table */
 	stress_stats_hash_table_free();
+
+	/* Sanity check changes in clock source */
 	stress_clocksource_check();
 
 	/* Stop alarms */
@@ -4440,46 +4430,45 @@ int main(int argc, char **argv, char **envp)
 
 	yaml = stress_yaml_open(yaml_filename);
 
-	/*
-	 *  Dump metrics
-	 */
+	/* Dump metrics */
 	if (g_opt_flags & OPT_FLAGS_METRICS)
 		stress_metrics_dump(yaml);
 
+	/* Dump problematic interrupt counter info */
 	if (g_opt_flags & OPT_FLAGS_INTERRUPTS)
 		stress_interrupts_dump(yaml, stress_stressor_list.head);
 
 #if defined(STRESS_PERF_STATS) &&	\
     defined(HAVE_LINUX_PERF_EVENT_H)
-	/*
-	 *  Dump perf statistics
-	 */
+	/* Dump perf statistics */
 	if (g_opt_flags & OPT_FLAGS_PERF_STATS)
 		stress_perf_stat_dump(yaml, stress_stressor_list.head, duration);
 #endif
 
 #if defined(STRESS_THERMAL_ZONES)
-	/*
-	 *  Dump thermal zone measurements
-	 */
+	/* Dump thermal zone measurements */
 	if (g_opt_flags & OPT_FLAGS_THERMAL_ZONES)
 		stress_tz_dump(yaml, stress_stressor_list.head);
+	/* Free thermal zones */
 	if (g_opt_flags & OPT_FLAGS_TZ_INFO)
 		stress_tz_free(&g_shared->tz_info);
 #endif
+	/* Dump CPU idle info */
 	if (g_opt_flags & OPT_FLAGS_C_STATES)
 		stress_cpuidle_dump(yaml, stress_stressor_list.head);
 
 #if defined(STRESS_RAPL)
+	/* Dump RAPL power domain stats */
 	if (g_opt_flags & OPT_FLAGS_RAPL)
 		stress_rapl_dump(yaml, stress_stressor_list.head, g_shared->rapl_domains);
+	/* Free RAPL domains */
 	if (g_opt_flags & OPT_FLAGS_RAPL_REQUIRED)
 		stress_rapl_domains_free(g_shared->rapl_domains);
 #endif
-	/*
-	 *  Dump run times
-	 */
+	/* Dump run times */
 	stress_times_dump(yaml, ticks_per_sec, duration);
+
+	/* Log exit status */
 	stress_exit_status_summary();
 
 	pr_inf("%s run completed in %s\n",
@@ -4487,37 +4476,58 @@ int main(int argc, char **argv, char **envp)
 		stress_time_duration_to_str(duration, true, false));
 
 exit_resctrl:
+	/* Clean up resctrl */
 	stress_resctrl_deinit();
+
+	/* Stop kernel log process */
 	stress_klog_stop(&success);
+
+	/* Stop and log S.M.A.R.T. stats deltas */
 	stress_smart_stop();
+
+	/* Stop --vmstat, --iostat, --thermalstat, --raplstat */
 	stress_vmstat_stop();
+
+	/* Stop and free ftrace */
 	stress_ftrace_stop();
 	stress_ftrace_free();
 
+	/* Show various settings */
 	stress_setting_show();
-	/*
-	 *  Tidy up
-	 */
+
+	/* Free up global locks */
 	stress_global_lock_destroy();
+
+	/* Free shared heap */
 	stress_shared_heap_free();
+
+	/* Call per-stressor deinit functions */
 	stress_stressors_deinit();
+
+	/* Free stressor resources */
 	stress_stressors_free();
+
+	/* Free CPU C-States */
 	stress_cpuidle_free();
+
+	/* Free shared cache */
 	stress_shared_cache_free();
+
+	/* Unmap shared memory */
 	stress_shared_unmap();
+
+	/* Free option settings */
 	stress_setting_free();
+
+	/* Free lock mappings */
 	stress_lock_mem_unmap();
 
-	/*
-	 *  Close logs
-	 */
+	/* Close logs */
 	shim_closelog();
 	pr_closelog();
 	stress_yaml_close(yaml);
 
-	/*
-	 *  Done!
-	 */
+	/* Return exit status */
 	if (!success)
 		exit(EXIT_NOT_SUCCESS);
 	if (!resource_success)
@@ -4526,6 +4536,7 @@ exit_resctrl:
 		exit(EXIT_METRICS_UNTRUSTWORTHY);
 	exit(ret);
 
+	/* Error cleanup paths */
 exit_lock_destroy:
 	stress_global_lock_destroy();
 
