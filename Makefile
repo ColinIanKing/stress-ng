@@ -967,7 +967,8 @@ core-perf.o: core-perf.c core-perf-event.c config.h
 	$(PRE_V)$(CC) $(CFLAGS) -c -o $@ $<
 
 core-config.c: config.h
-	$(PRE_V)echo "extern const char stress_config[] = " > core-config.c
+	$(PRE_V)echo "extern const char stress_config[];" > core-config.c
+	$(PRE_V)echo "const char stress_config[] = " >> core-config.c
 	$(PRE_V)sed 's/.*/"&\\n"/' config.h >> core-config.c
 	$(PRE_V)echo ";" >> core-config.c
 
