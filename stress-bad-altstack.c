@@ -119,6 +119,7 @@ static int stress_bad_altstack_child(stress_args_t *args)
     defined(RLIMIT_CPU)
 	struct rlimit rlim;
 #endif
+	void *func_ptr = (void *)stress_stack_sigalt_no_check;
 
 	if (sigsetjmp(jmp_env, 1) != 0) {
 		/*
@@ -242,7 +243,7 @@ retry:
 			goto retry;
 		case 6:
 			/* Illegal text segment stack */
-			ret = stress_stack_sigalt_no_check((void *)stress_bad_altstack_signal_handler, STRESS_SIGSTKSZ);
+			ret = stress_stack_sigalt_no_check(func_ptr, STRESS_SIGSTKSZ);
 			if (ret == 0)
 				stress_bad_altstack_force_fault(stack);
 			goto retry;
