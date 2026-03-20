@@ -533,7 +533,7 @@ static void stress_bad_ioctl_dir(
 				dev_ioctl_node = node;
 				(void)shim_memset(node->exercised, 0, sizeof(node->exercised));
 				(void)stress_lock_release(lock);
-				stress_bad_ioctl_rw(args, false, -1);
+				stress_bad_ioctl_rw(args, false, (size_t)-1);
 			}
 		}
 		stress_bogo_inc(args);
