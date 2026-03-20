@@ -243,7 +243,7 @@ int stress_affinity_parse_cpu(const char *arg, cpu_set_t *set, int *setbits)
 				}
 			}
 			if (*setbits == 0) {
-				i = stress_mwc32modn((uint32_t)max_cpus);
+				i = (int)stress_mwc32modn((uint32_t)max_cpus);
 
 				if (!CPU_ISSET(i, set)) {
 					CPU_SET(i, set);
@@ -388,7 +388,7 @@ int stress_affinity_cpu_set(const char *arg)
  */
 uint32_t stress_affinity_cpus_get(uint32_t **cpus, const bool use_affinity)
 {
-	uint32_t i, n_cpus = stress_cpus_configured_get();
+	int32_t i, n_cpus = stress_cpus_configured_get();
 
 #if defined(HAVE_SCHED_GETAFFINITY) && \
     defined(HAVE_SCHED_SETAFFINITY) && \
@@ -396,7 +396,7 @@ uint32_t stress_affinity_cpus_get(uint32_t **cpus, const bool use_affinity)
 	if (use_affinity) {
 		/* if affinity has been set.. */
 		if (CPU_COUNT(&stress_affinity_cpu_set_val) > 0) {
-			uint32_t n;
+			int32_t n;
 
 			/* don't want to overrun the cpu set */
 			n_cpus = STRESS_MINIMUM(n_cpus, CPU_SETSIZE);
@@ -410,7 +410,7 @@ uint32_t stress_affinity_cpus_get(uint32_t **cpus, const bool use_affinity)
 				*cpus = NULL;
 				return 0;
 			}
-			*cpus = (uint32_t *)calloc(n, sizeof(**cpus));
+			*cpus = (uint32_t *)calloc((size_t)n, sizeof(**cpus));
 			if (*cpus == NULL)
 				return 0;
 
