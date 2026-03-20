@@ -154,7 +154,7 @@ static inline uint32_t CONST ALWAYS_INLINE stress_bitops_popcount64(const uint64
 static inline uint32_t CONST ALWAYS_INLINE stress_bitops_popcount32(const uint32_t val)
 {
 #if defined(HAVE_BUILTIN_POPCOUNT)
-	return  __builtin_popcount((unsigned int)val);
+	return  (uint32_t)__builtin_popcount((unsigned int)val);
 #else
 	/* Brian Kernighan's count bits */
 	register uint32_t j, v = val;
@@ -172,7 +172,7 @@ static inline uint32_t CONST ALWAYS_INLINE stress_bitops_popcount32(const uint32
 static inline uint32_t CONST ALWAYS_INLINE stress_bitops_parity32(const uint32_t val)
 {
 #if defined(HAVE_BUILTIN_PARITY)
-	return  __builtin_parity((unsigned int)val);
+	return  (uint32_t)__builtin_parity((unsigned int)val);
 #else
 	/* parity check */
 	register uint32_t v = val;
