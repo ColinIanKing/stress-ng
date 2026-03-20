@@ -958,7 +958,7 @@ static void stress_verifiable_mode(const stress_verify_t mode)
  *  stress_verfiable()
  *	show the stressors that have --verify ability
  */
-static void stress_verifiable(void)
+static inline void stress_verifiable(void)
 {
 	(void)printf("verification always enabled:\n");
 	stress_verifiable_mode(VERIFY_ALWAYS);
