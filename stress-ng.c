@@ -2231,6 +2231,10 @@ static void stress_metrics_check(bool *success)
 	}
 }
 
+/*
+ *  stress_description_yamlify()
+ *	convert decription into a YAML compliant field tag
+ */
 static char *stress_description_yamlify(const char *description)
 {
 	static char yamlified[40];
