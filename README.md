@@ -233,6 +233,12 @@ Build option: DEBUG, build with debug (-g) enabled:
     DEBUG=1 make
 ```
 
+Build option: BUILD_SMALL, build small (unoptimized) executable
+```
+    make clean
+    BUILD_SMALL=1 make
+```
+
 Build option: LTO, Link Time Optimization (~1-2% performance improvement on compute stressors):
 ```
     make clean

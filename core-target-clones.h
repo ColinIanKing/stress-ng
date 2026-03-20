@@ -24,6 +24,9 @@
 #if defined(HAVE_COMPILER_ICC)
 #undef HAVE_TARGET_CLONES
 #endif
+#if defined(HAVE_BUILD_SMALL)
+#undef HAVE_TARGET_CLONES
+#endif
 
 /* GCC5.0+ target_clones attribute, x86 */
 #if defined(STRESS_ARCH_X86) &&	\

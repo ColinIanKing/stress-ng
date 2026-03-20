@@ -78,10 +78,18 @@ VNNI_CFLAGS += $(filter-out $(VNNI_OFLAGS_REMOVE),$(CFLAGS))
 # Default -O2 if optimization level not defined
 #
 ifeq "$(findstring -O,$(CFLAGS))" ""
+ifeq ($(BUILD_SMALL),1)
+	override CFLAGS += -Os
+else
 	override CFLAGS += -O2
 endif
+endif
 ifeq "$(findstring -O,$(VNNI_CFLAGS))" ""
+ifeq ($(BUILD_SMALL),1)
+	override CFLAGS += -Os
+else
 	override VNNI_CFLAGS += -O2
+endif
 endif
 
 #
@@ -89,6 +97,13 @@ endif
 #
 ifeq ($(DEBUG),1)
 override CFLAGS += -g
+endif
+
+#
+# Small size build
+#
+ifeq ($(BUILD_SMALL),1)
+	override CFLAGS += -DHAVE_BUILD_SMALL
 endif
 
 #
@@ -152,11 +167,13 @@ endif
 #
 # Optimization flags
 #
+ifeq ($(BUILD_SMALL),1)
 ifneq ($(filter-out clang icc scan-build,$(COMPILER)),)
 override CFLAGS += $(foreach flag,-fipa-pta -fivopts,$(cc_supports_flag))
 override CFLAGS += $(foreach flag,-ftree-vectorize -ftree-slp-vectorize,$(cc_supports_flag))
 ifeq ($(filter $(MACHINE),ibms390 s390),)
 override CFLAGS += $(foreach flag,-fmodulo-sched,$(cc_supports_flag))
+endif
 endif
 endif
 
@@ -167,8 +184,10 @@ ifneq ($(filter-out clang icc pcc scan-build,$(COMPILER)),)
 override CFLAGS += $(foreach flag,-mrelax-cmpxchg-loop,$(cc_supports_flag))
 endif
 
+ifeq ($(BUILD_SMALL),1)
 ifeq ($(COMPILER),icx)
 override CFLAGS += -vec -ax
+endif
 endif
 
 
@@ -238,11 +257,13 @@ PRE_V=
 PRE_Q=@#
 endif
 
+ifeq ($(BUILD_SMALL),1)
 ifneq ($(PRESERVE_CFLAGS),1)
 ifeq ($(findstring icc,$(COMPILER)),icc)
 override CFLAGS += -no-inline-max-size -no-inline-max-total-size
 override CFLAGS += -axAVX,CORE-AVX2,CORE-AVX-I,CORE-AVX512,SSE2,SSE3,SSSE3,SSE4.1,SSE4.2,SANDYBRIDGE,SKYLAKE,SKYLAKE-AVX512,TIGERLAKE,SAPPHIRERAPIDS
 override CFLAGS += -ip -falign-loops -funroll-loops -ansi-alias -fma -qoverride-limits
+endif
 endif
 endif
 
