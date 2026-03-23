@@ -612,7 +612,7 @@ PRAGMA_UNROLL_N(4)
 		hash = v64 ^ shim_ror64n(hash, 16);
 	}
 	for (i = len & 7; i;) {
-		register uint8_t v8 = *(str++);
+		register uint8_t v8 = (uint8_t)*(str++);
 		i--;
 		hash = v8 ^ shim_ror64n(hash, 2);
 	}
@@ -639,7 +639,7 @@ PRAGMA_UNROLL_N(8)
 		hash = v32 ^ shim_ror32n(hash, 4);
 	}
 	for (i = len & 3; i;) {
-		register uint8_t v8 = *(str++);
+		register uint8_t v8 = (uint8_t)*(str++);
 		i--;
 		hash = v8 ^ shim_ror32n(hash, 1);
 	}
