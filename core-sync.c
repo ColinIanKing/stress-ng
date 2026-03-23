@@ -203,6 +203,8 @@ static OPTIMIZE3 pid_t stress_sync_order_pid_hash(const pid_t pid)
 		return (pid_t)stress_bitops_reverse32((uint64_t)pid);
 	case 8:
 		return (pid_t)stress_bitops_reverse64((uint64_t)pid);
+	default:
+		break;
 	}
 	return (pid_t)stress_bitops_reverse64((uint64_t)pid);
 }
