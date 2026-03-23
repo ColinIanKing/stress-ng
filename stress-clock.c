@@ -90,9 +90,6 @@ static const int clocks_nanosleep[] = {
 #if defined(CLOCK_MONOTONIC)
 	CLOCK_MONOTONIC,
 #endif
-#if defined(CLOCK_THREAD_CPUTIME_ID)
-	CLOCK_THREAD_CPUTIME_ID
-#endif
 };
 #endif
 
