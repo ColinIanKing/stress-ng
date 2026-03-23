@@ -156,6 +156,27 @@ static inline bool check_invalid_clock_id(const clockid_t id) {
 }
 #endif
 
+static inline bool aux_clock_nonfatal_error(const clockid_t id, int errnum)
+{
+	(void)id;
+	(void)errnum;
+
+#if defined(CLOCK_AUX)
+	if (id != CLOCK_AUX)
+		return false;
+
+	/* Old kernel or CONFIG_POSIX_AUX_CLOCKS is disabled */
+	if  (errnum == EINVAL)
+		return true;
+
+	/* Auxiliary clock is disabled */
+	if (errnum == ENODEV)
+		return true;
+#endif
+
+	return false;
+}
+
 #define FD_TO_CLOCKID(fd)	((~(clockid_t)(fd) << 3) | 3)
 
 /*
@@ -239,7 +260,8 @@ static int stress_clock(stress_args_t *args)
 				ret = shim_clock_getres(clocks[i].id, &t);
 				if (UNLIKELY((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY) &&
 					     (errno != EINVAL) &&
-					     (errno != ENOSYS))) {
+					     (errno != ENOSYS) &&
+					     !aux_clock_nonfatal_error(clocks[i].id, errno))) {
 					pr_fail("%s: clock_getres failed for timer '%s', errno=%d (%s)\n",
 							args->name, clocks[i].name, errno, strerror(errno));
 					rc = EXIT_FAILURE;
@@ -247,7 +269,8 @@ static int stress_clock(stress_args_t *args)
 				ret = shim_clock_gettime(clocks[i].id, &t);
 				if (UNLIKELY((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY) &&
 					     (errno != EINVAL) &&
-					     (errno != ENOSYS))) {
+					     (errno != ENOSYS) &&
+					     !aux_clock_nonfatal_error(clocks[i].id, errno))) {
 					pr_fail("%s: clock_gettime failed for timer '%s', errno=%d (%s)\n",
 						args->name, clocks[i].name, errno, strerror(errno));
 					rc = EXIT_FAILURE;
@@ -271,7 +294,8 @@ static int stress_clock(stress_args_t *args)
 				ret = shim_clock_gettime(clocks[i].id, &t1);
 				if (UNLIKELY((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY) &&
 					     (errno != EINVAL) &&
-					     (errno != ENOSYS))) {
+					     (errno != ENOSYS) &&
+					     !aux_clock_nonfatal_error(clocks[i].id, errno))) {
 					pr_fail("%s: clock_gettime failed for timer '%s', errno=%d (%s)\n",
 						args->name, clocks[i].name, errno, strerror(errno));
 					rc = EXIT_FAILURE;
@@ -418,7 +442,8 @@ static int stress_clock(stress_args_t *args)
 				ret = shim_clock_adjtime(clocks[i].id, &tx);
 				if (UNLIKELY(((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY) &&
 					     (errno != EINVAL) && (errno != ENOSYS) &&
-					     (errno != EPERM) && (errno != EOPNOTSUPP)))) {
+					     (errno != EPERM) && (errno != EOPNOTSUPP)) &&
+					     !aux_clock_nonfatal_error(clocks[i].id, errno))) {
 					pr_fail("%s: clock_adjtime failed for timer '%s', errno=%d (%s)\n",
 						args->name, clocks[i].name, errno, strerror(errno));
 					rc = EXIT_FAILURE;
