@@ -54,6 +54,469 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
+static const int sockabuse_domains[] = {
+#if defined(AF_UNIX)
+	AF_UNIX,
+#endif
+#if defined(AF_LOCAL)
+	AF_LOCAL,
+#endif
+#if defined(AF_INET)
+	AF_INET,
+#endif
+#if defined(AF_AX25)
+	AF_AX25,
+#endif
+#if defined(AF_IPX)
+	AF_IPX,
+#endif
+#if defined(AF_APPLETALK)
+	AF_APPLETALK,
+#endif
+#if defined(AF_NETROM)
+	AF_NETROM,
+#endif
+#if defined(AF_BRIDGE)
+	AF_BRIDGE,
+#endif
+#if defined(AF_ATMPVC)
+	AF_ATMPVC,
+#endif
+#if defined(AF_X25)
+	AF_X25,
+#endif
+#if defined(AF_INET6)
+	AF_INET6,
+#endif
+#if defined(AF_ROSE)
+	AF_ROSE,
+#endif
+#if defined(AF_DECnet)
+	AF_DECnet,
+#endif
+#if defined(AF_NETBEUI)
+	AF_NETBEUI,
+#endif
+#if defined(AF_SECURITY)
+	AF_SECURITY,
+#endif
+#if defined(AF_KEY)
+	AF_KEY,
+#endif
+#if defined(AF_NETLINK)
+	AF_NETLINK,
+#endif
+#if defined(AF_ROUTE)
+	AF_ROUTE,
+#endif
+#if defined(AF_PACKET)
+	AF_PACKET,
+#endif
+#if defined(AF_ASH)
+	AF_ASH,
+#endif
+#if defined(AF_ECONET)
+	AF_ECONET,
+#endif
+#if defined(AF_ATMSVC)
+	AF_ATMSVC,
+#endif
+#if defined(AF_RDS)
+	AF_RDS,
+#endif
+#if defined(AF_SNA)
+	AF_SNA,
+#endif
+#if defined(AF_IRDA)
+	AF_IRDA,
+#endif
+#if defined(AF_PPPOX)
+	AF_PPPOX,
+#endif
+#if defined(AF_WANPIPE)
+	AF_WANPIPE,
+#endif
+#if defined(AF_LLC)
+	AF_LLC,
+#endif
+#if defined(AF_IB)
+	AF_IB,
+#endif
+#if defined(AF_MPLS)
+	AF_MPLS,
+#endif
+#if defined(AF_CAN)
+	AF_CAN,
+#endif
+#if defined(AF_TIPC)
+	AF_TIPC,
+#endif
+#if defined(AF_BLUETOOTH)
+	AF_BLUETOOTH,
+#endif
+#if defined(AF_IUCV)
+	AF_IUCV,
+#endif
+#if defined(AF_RXRPC)
+	AF_RXRPC,
+#endif
+#if defined(AF_ISDN)
+	AF_ISDN,
+#endif
+#if defined(AF_PHONET)
+	AF_PHONET,
+#endif
+#if defined(AF_IEEE802154)
+	AF_IEEE802154,
+#endif
+#if defined(AF_CAIF)
+	AF_CAIF,
+#endif
+#if defined(AF_NFC)
+	AF_NFC,
+#endif
+#if defined(AF_VSOCK)
+	AF_VSOCK,
+#endif
+#if defined(AF_KCM)
+	AF_KCM,
+#endif
+#if defined(AF_QIPCRTR)
+	AF_QIPCRTR,
+#endif
+#if defined(AF_SMC)
+	AF_SMC,
+#endif
+#if defined(AF_XDP)
+	AF_XDP,
+#endif
+#if defined(AF_MCTP)
+	AF_MCTP,
+#endif
+};
+
+static const int sockabuse_types[] = {
+        SOCK_STREAM,
+        SOCK_DGRAM,
+        SOCK_RAW,
+        SOCK_RDM,
+        SOCK_SEQPACKET,
+        SOCK_DCCP,
+        SOCK_PACKET,
+};
+
+static const int sockabuse_sockopts[] = {
+#if defined(SO_ACCEPTCONN)
+	SO_ACCEPTCONN,
+#endif
+#if defined(SO_ATTACH_BPF)
+	SO_ATTACH_BPF,
+#endif
+#if defined(SO_ATTACH_FILTER)
+	SO_ATTACH_FILTER,
+#endif
+#if defined(SO_ATTACH_REUSEPORT_CBPF)
+	SO_ATTACH_REUSEPORT_CBPF,
+#endif
+#if defined(SO_ATTACH_REUSEPORT_EBPF)
+	SO_ATTACH_REUSEPORT_EBPF,
+#endif
+#if defined(SO_BINDTODEVICE)
+	SO_BINDTODEVICE,
+#endif
+#if defined(SO_BINDTOIFINDEX)
+	SO_BINDTOIFINDEX,
+#endif
+#if defined(SO_BPF_EXTENSIONS)
+	SO_BPF_EXTENSIONS,
+#endif
+#if defined(SO_BROADCAST)
+	SO_BROADCAST,
+#endif
+#if defined(SO_BSDCOMPAT)
+	SO_BSDCOMPAT,
+#endif
+#if defined(SO_BUF_LOCK)
+	SO_BUF_LOCK,
+#endif
+#if defined(SO_BUSY_POLL)
+	SO_BUSY_POLL,
+#endif
+#if defined(SO_BUSY_POLL_BUDGET)
+	SO_BUSY_POLL_BUDGET,
+#endif
+#if defined(SO_CNX_ADVICE)
+	SO_CNX_ADVICE,
+#endif
+#if defined(SO_COOKIE)
+	SO_COOKIE,
+#endif
+#if defined(SO_DEBUG)
+	SO_DEBUG,
+#endif
+#if defined(SO_DETACH_FILTER)
+	SO_DETACH_FILTER,
+#endif
+#if defined(SO_DETACH_REUSEPORT_BPF)
+	SO_DETACH_REUSEPORT_BPF,
+#endif
+#if defined(SO_DEVMEM_DMABUF)
+	SO_DEVMEM_DMABUF,
+#endif
+#if defined(SO_DEVMEM_DONTNEED)
+	SO_DEVMEM_DONTNEED,
+#endif
+#if defined(SO_DEVMEM_LINEAR)
+	SO_DEVMEM_LINEAR,
+#endif
+#if defined(SO_DOMAIN)
+	SO_DOMAIN,
+#endif
+#if defined(SO_DONTROUTE)
+	SO_DONTROUTE,
+#endif
+#if defined(SO_ERROR)
+	SO_ERROR,
+#endif
+#if defined(SO_INCOMING_CPU)
+	SO_INCOMING_CPU,
+#endif
+#if defined(SO_INCOMING_NAPI_ID)
+	SO_INCOMING_NAPI_ID,
+#endif
+#if defined(SO_INQ)
+	SO_INQ,
+#endif
+#if defined(SO_KEEPALIVE)
+	SO_KEEPALIVE,
+#endif
+#if defined(SO_LINGER)
+	SO_LINGER,
+#endif
+#if defined(SO_LOCK_FILTER)
+	SO_LOCK_FILTER,
+#endif
+#if defined(SO_MARK)
+	SO_MARK,
+#endif
+#if defined(SO_MAX_PACING_RATE)
+	SO_MAX_PACING_RATE,
+#endif
+#if defined(SO_MEMINFO)
+	SO_MEMINFO,
+#endif
+#if defined(SO_NETNS_COOKIE)
+	SO_NETNS_COOKIE,
+#endif
+#if defined(SO_NO_CHECK)
+	SO_NO_CHECK,
+#endif
+#if defined(SO_NOFCS)
+	SO_NOFCS,
+#endif
+#if defined(SO_OOBINLINE)
+	SO_OOBINLINE,
+#endif
+#if defined(SO_PASSCRED)
+	SO_PASSCRED,
+#endif
+#if defined(SO_PASSPIDFD)
+	SO_PASSPIDFD,
+#endif
+#if defined(SO_PASSRIGHTS)
+	SO_PASSRIGHTS,
+#endif
+#if defined(SO_PASSSEC)
+	SO_PASSSEC,
+#endif
+#if defined(SO_PEEK_OFF)
+	SO_PEEK_OFF,
+#endif
+#if defined(SO_PEERCRED)
+	SO_PEERCRED,
+#endif
+#if defined(SO_PEERGROUPS)
+	SO_PEERGROUPS,
+#endif
+#if defined(SO_PEERNAME)
+	SO_PEERNAME,
+#endif
+#if defined(SO_PEERPIDFD)
+	SO_PEERPIDFD,
+#endif
+#if defined(SO_PEERSEC)
+	SO_PEERSEC,
+#endif
+#if defined(SO_PREFER_BUSY_POLL)
+	SO_PREFER_BUSY_POLL,
+#endif
+#if defined(SO_PRIORITY)
+	SO_PRIORITY,
+#endif
+#if defined(SO_PROTOCOL)
+	SO_PROTOCOL,
+#endif
+#if defined(SO_RCVBUF)
+	SO_RCVBUF,
+#endif
+#if defined(SO_RCVBUFFORCE)
+	SO_RCVBUFFORCE,
+#endif
+#if defined(SO_RCVLOWAT)
+	SO_RCVLOWAT,
+#endif
+#if defined(SO_RCVMARK)
+	SO_RCVMARK,
+#endif
+#if defined(SO_RCVPRIORITY)
+	SO_RCVPRIORITY,
+#endif
+#if defined(SO_RCVTIMEO_NEW)
+	SO_RCVTIMEO_NEW,
+#endif
+#if defined(SO_RCVTIMEO_OLD)
+	SO_RCVTIMEO_OLD,
+#endif
+#if defined(SO_RESERVE_MEM)
+	SO_RESERVE_MEM,
+#endif
+#if defined(SO_REUSEADDR)
+	SO_REUSEADDR,
+#endif
+#if defined(SO_REUSEPORT)
+	SO_REUSEPORT,
+#endif
+#if defined(SO_RXQ_OVFL)
+	SO_RXQ_OVFL,
+#endif
+#if defined(SO_SECURITY_AUTHENTICATION)
+	SO_SECURITY_AUTHENTICATION,
+#endif
+#if defined(SO_SECURITY_ENCRYPTION_NETWORK)
+	SO_SECURITY_ENCRYPTION_NETWORK,
+#endif
+#if defined(SO_SECURITY_ENCRYPTION_TRANSPORT)
+	SO_SECURITY_ENCRYPTION_TRANSPORT,
+#endif
+#if defined(SO_SELECT_ERR_QUEUE)
+	SO_SELECT_ERR_QUEUE,
+#endif
+#if defined(SO_SNDBUF)
+	SO_SNDBUF,
+#endif
+#if defined(SO_SNDBUFFORCE)
+	SO_SNDBUFFORCE,
+#endif
+#if defined(SO_SNDLOWAT)
+	SO_SNDLOWAT,
+#endif
+#if defined(SO_SNDTIMEO_NEW)
+	SO_SNDTIMEO_NEW,
+#endif
+#if defined(SO_SNDTIMEO_OLD)
+	SO_SNDTIMEO_OLD,
+#endif
+#if defined(SO_TIMESTAMPING_NEW)
+	SO_TIMESTAMPING_NEW,
+#endif
+#if defined(SO_TIMESTAMPING_OLD)
+	SO_TIMESTAMPING_OLD,
+#endif
+#if defined(SO_TIMESTAMP_NEW)
+	SO_TIMESTAMP_NEW,
+#endif
+#if defined(SO_TIMESTAMPNS_NEW)
+	SO_TIMESTAMPNS_NEW,
+#endif
+#if defined(SO_TIMESTAMPNS_OLD)
+	SO_TIMESTAMPNS_OLD,
+#endif
+#if defined(SO_TIMESTAMP_OLD)
+	SO_TIMESTAMP_OLD,
+#endif
+#if defined(SO_TXREHASH)
+	SO_TXREHASH,
+#endif
+#if defined(SO_TXTIME)
+	SO_TXTIME,
+#endif
+#if defined(SO_TYPE)
+	SO_TYPE,
+#endif
+#if defined(SO_WIFI_STATUS)
+	SO_WIFI_STATUS,
+#endif
+#if defined(SO_ZEROCOPY)
+	SO_ZEROCOPY,
+#endif
+};
+
+static uint8_t sockabuse_domain_type_flags[SIZEOF_ARRAY(sockabuse_domains)];
+
+/*
+ *  stress_sockabuse_socket()
+ *	exercise various mix of socket domains, types and
+ *	protocols
+ */
+static void stress_sockabuse_socket(stress_args_t *args)
+{
+	static size_t i = 0;
+	size_t j;
+	int fd;
+	const int domain = sockabuse_domains[i];
+	uint8_t flag = sockabuse_domain_type_flags[i] & 0x7f;
+
+	if (UNLIKELY(SIZEOF_ARRAY(sockabuse_types) < 1))
+		return;
+
+	for (j = 0; j < SIZEOF_ARRAY(sockabuse_types); j++) {
+		if (!stress_continue(args))
+			return;
+		if (flag & (1U << j)) {
+			const int type = sockabuse_types[j];
+
+			fd = socket(domain, type, 0);
+			if (fd < 0) {
+				flag &= ~(1U << j);
+			} else {
+				(void)shutdown(fd, SHUT_RDWR);
+				(void)close(fd);
+			}
+			fd = socket(domain, type, (int)stress_mwc8());
+			if (fd != -1) {
+				(void)shutdown(fd, SHUT_RDWR);
+				(void)close(fd);
+			}
+		}
+	}
+	sockabuse_domain_type_flags[i] = flag;
+
+	i++;
+	if (i >= SIZEOF_ARRAY(sockabuse_domains))
+		i = 0;
+}
+
+static void stress_sockabuse_sockopts(const int fd)
+{
+#if defined(SOL_SOCKET)
+	static size_t i = 0;
+	char buf[1024];
+	socklen_t len;
+
+	if (UNLIKELY(SIZEOF_ARRAY(sockabuse_sockopts) < 1))
+		return;
+
+	len = 1024;
+	(void)getsockopt(fd, SOL_SOCKET, sockabuse_sockopts[i], buf, &len);
+
+	i++;
+	if (i >= SIZEOF_ARRAY(sockabuse_sockopts))
+		i = 0;
+#else
+	(void)fd;
+#endif
+}
+
 /*
  *  stress_sockabuse_fd
  *	exercise and abuse the fd
@@ -216,6 +679,7 @@ retry:
 		}
 
 		stress_sockabuse_fd(fd);
+		stress_sockabuse_sockopts(fd);
 
 		(void)shutdown(fd, SHUT_RDWR);
 		(void)close(fd);
@@ -344,8 +808,10 @@ static int stress_sockabuse_server(
 			}
 		}
 		stress_bogo_inc(args);
+		stress_sockabuse_sockopts(fd);
 		stress_sockabuse_fd(fd);
 		(void)close(fd);
+		stress_sockabuse_socket(args);
 	} while (stress_continue(args));
 	t2 = stress_time_now();
 
@@ -368,6 +834,8 @@ static int stress_sockabuse(stress_args_t *args)
 	pid_t pid, mypid = getpid();
 	int sockabuse_port = DEFAULT_SOCKABUSE_PORT;
 	int rc = EXIT_SUCCESS, reserved_port, parent_cpu;
+
+	(void)shim_memset(sockabuse_domain_type_flags, 0xff, sizeof(sockabuse_domain_type_flags));
 
 	if (stress_signal_sigchld_handler(args) < 0)
 		return EXIT_NO_RESOURCE;
