@@ -75,10 +75,10 @@ static const stress_clock_info_t clocks[] = {
 	CLOCK_INFO(CLOCK_THREAD_CPUTIME_ID),
 #endif
 #if defined(CLOCK_TAI)
-	CLOCK_INFO(CLOCK_TAI)
+	CLOCK_INFO(CLOCK_TAI),
 #endif
 #if defined(CLOCK_AUX)
-	CLOCK_INFO(CLOCK_AUX)
+	CLOCK_INFO(CLOCK_AUX),
 #endif
 };
 
