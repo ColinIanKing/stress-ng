@@ -91,6 +91,9 @@ static const int clocks_nanosleep[] = {
 #if defined(CLOCK_MONOTONIC)
 	CLOCK_MONOTONIC,
 #endif
+#if defined(CLOCK_AUX)
+	CLOCK_AUX,
+#endif
 };
 #endif
 
@@ -172,6 +175,10 @@ static inline bool aux_clock_nonfatal_error(const clockid_t id, int errnum)
 
 	/* Auxiliary clock is disabled */
 	if (errnum == ENODEV)
+		return true;
+
+	/* clock_nanosleep() not implemented */
+	if (errnum == EOPNOTSUPP)
 		return true;
 #endif
 
@@ -400,7 +407,7 @@ static int stress_clock(stress_args_t *args)
 				 */
 				ret = clock_nanosleep(clocks_nanosleep[i], TIMER_ABSTIME, &t, NULL);
 				if (UNLIKELY((ret != 0) && (g_opt_flags & OPT_FLAGS_VERIFY))) {
-					if (ret != EINTR) {
+					if (ret != EINTR && !aux_clock_nonfatal_error(clocks_nanosleep[i], ret)) {
 						pr_fail("%s: clock_nanosleep failed for timer '%s', errno=%d (%s)\n",
 							args->name,
 							stress_clock_name(clocks_nanosleep[i]),
