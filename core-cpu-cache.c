@@ -577,7 +577,7 @@ static int stress_cpu_cache_get_x86(stress_cpu_cache_cpu_t *cpu)
 	/* Currently only handle modern CPUs with cpuid eax = 4 */
 	if (edx & (1U << 28)) {
 		uint32_t subleaf;
-		int i;
+		size_t i;
 
 		/* Gather max number of cache entries */
 		for (i = 0, subleaf = 0; subleaf < 0xff; subleaf++) {
@@ -601,7 +601,7 @@ static int stress_cpu_cache_get_x86(stress_cpu_cache_cpu_t *cpu)
 		cpu->caches = (stress_cpu_cache_t *)calloc(i, sizeof(*(cpu->caches)));
 		if (UNLIKELY(!cpu->caches)) {
 			pr_err("failed to allocate %zu bytes for cpu caches\n",
-			i * sizeof(*(cpu->caches)));
+				i * sizeof(*(cpu->caches)));
 			return 0;
 		}
 
@@ -641,8 +641,8 @@ static int stress_cpu_cache_get_x86(stress_cpu_cache_cpu_t *cpu)
 					(ecx + 1));
 			i++;
 		}
-		cpu->cache_count = i;
-		return i;
+		cpu->cache_count = (uint32_t)i;
+		return (int)i;
 	}
 	return 0;
 }
@@ -981,7 +981,7 @@ out:
  */
 static int index_filter(const struct dirent *d)
 {
-	return ((strncmp(d->d_name, "index", 5) == 0) && isdigit((unsigned char)d->d_name[5]));
+	return ((strncmp(d->d_name, "index", 5) == 0) && isdigit((int)d->d_name[5]));
 }
 #endif
 
