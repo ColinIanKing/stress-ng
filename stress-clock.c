@@ -374,12 +374,12 @@ static int stress_clock(stress_args_t *args)
 				 *  clock_nanosleep() to return immediately
 				 */
 				ret = clock_nanosleep(clocks_nanosleep[i], TIMER_ABSTIME, &t, NULL);
-				if (UNLIKELY((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY))) {
-					if (errno != EINTR) {
+				if (UNLIKELY((ret != 0) && (g_opt_flags & OPT_FLAGS_VERIFY))) {
+					if (ret != EINTR) {
 						pr_fail("%s: clock_nanosleep failed for timer '%s', errno=%d (%s)\n",
 							args->name,
 							stress_clock_name(clocks_nanosleep[i]),
-							errno, strerror(errno));
+							ret, strerror(ret));
 						rc = EXIT_FAILURE;
 					}
 				}
