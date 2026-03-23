@@ -20,6 +20,7 @@
 #include "core-attribute.h"
 #include "core-builtin.h"
 #include "core-capabilities.h"
+#include "core-clocks.h"
 
 #include <time.h>
 

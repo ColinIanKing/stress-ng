@@ -22,6 +22,7 @@
 #include "core-builtin.h"
 #include "core-io-priority.h"
 #include "core-signal.h"
+#include "core-clocks.h"
 
 #include <math.h>
 #include <sched.h>
