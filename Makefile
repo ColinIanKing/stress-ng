@@ -325,6 +325,7 @@ HEADERS = \
 	core-bitops.h \
 	core-builtin.h \
 	core-capabilities.h \
+	core-clocks.h \
 	core-clocksource.h \
 	core-config-check.h \
 	core-cpu.h \
