@@ -699,8 +699,8 @@ Pierre Ducroquet, Piyush Goyal, Pranav P, Ralf Ramsauer, Rosen Penev,
 Rulin Huang, Sascha Hauer, Sergey Fedorov, Sergey Matyukevich,
 Shifrin Dmitry, Shoily Rahman, Siddhesh Poyarekar, Steven Hahn,
 Stian Onarheim, Thadeu Lima de Souza Cascardo, Thia Wyrod,
-Thinh Tran, Tim Gardner, Tim Gates, Tim Orling, Tommi Rantala,
-Witold Baryluk, Yiwei Lin, Yong-Xuan Wang, Zhiyi Sun, Zong Li.
+Thinh Tran, Thomas Weißschuh, Tim Gardner, Tim Gates, Tim Orling,
+Tommi Rantala, Witold Baryluk, Yiwei Lin, Yong-Xuan Wang, Zhiyi Sun, Zong Li.
 
 ## Static Analysis
 
