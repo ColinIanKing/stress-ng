@@ -1695,7 +1695,7 @@ static void OPTIMIZE3 stress_cachehammer_exercise(stress_args_t *args)
 
 	switch (which) {
 	case 0:
-		ctxt.file_page++;
+		(*ctxt.file_page)++;
 #if defined(HAVE_MSYNC)
 		/*
 		 *  intentionally hit same page and
