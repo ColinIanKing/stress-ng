@@ -69,6 +69,93 @@ static const stress_help_t help[] = {
 #define VEC_VNNI128_BYTES	(VEC_VNNI128_BITS >> 3)
 #define VEC_VNNI128_LOOPS	(VEC_SIZE_BYTES / VEC_VNNI128_BYTES)
 
+#if defined(STRESS_ARCH_X86_64) &&	\
+    defined(HAVE_IMMINTRIN_H) &&	\
+    defined(HAVE_MM512_LOADU_SI512) &&	\
+    defined(HAVE_MM512_ADD_EPI8) &&	\
+    defined(HAVE_MM512_STOREU_SI512)
+#define HAVE_STRESS_VNNI_VPADDB512
+#endif
+
+#if defined(STRESS_ARCH_X86_64) &&	\
+    defined(HAVE_IMMINTRIN_H) &&	\
+    defined(HAVE_MM256_LOADU_SI256) &&	\
+    defined(HAVE_MM256_ADD_EPI8) &&	\
+    defined(HAVE_MM256_STOREU_SI256) &&	\
+    defined(HAVE_TARGET_CLONES_AVXVNNI)
+#define HAVE_STRESS_VNNI_VPADDB256
+#endif
+
+#if defined(STRESS_ARCH_X86_64) && 	\
+    defined(HAVE_IMMINTRIN_H) &&	\
+    defined(HAVE_MM_LOADU_SI128) &&	\
+    defined(HAVE_MM_ADD_EPI8) &&	\
+    defined(HAVE_MM_STOREU_SI128) &&	\
+    defined(HAVE_TARGET_CLONES_AVXVNNI)
+#define HAVE_STRESS_VNNI_VPADDB128
+#endif
+
+#if defined(STRESS_ARCH_X86_64) &&	\
+    defined(HAVE_IMMINTRIN_H) &&	\
+    defined(HAVE_MM512_LOADU_SI512) &&	\
+    defined(HAVE_MM512_DPBUSD_EPI32) &&	\
+    defined(HAVE_MM512_STOREU_SI512)
+#define HAVE_STRESS_VNNI_VPDPBUSD512
+#endif
+
+#if defined(STRESS_ARCH_X86_64) &&	\
+    defined(HAVE_IMMINTRIN_H) &&	\
+    defined(HAVE_MM256_LOADU_SI256) &&	\
+    defined(HAVE_MM256_DPBUSD_EPI32) &&	\
+    defined(HAVE_MM256_STOREU_SI256) &&	\
+    defined(HAVE_TARGET_CLONES_AVXVNNI)
+#define HAVE_STRESS_VNNI_VPDPBUSD256
+#endif
+
+#if defined(STRESS_ARCH_X86_64) &&	\
+    defined(HAVE_IMMINTRIN_H) &&	\
+    defined(HAVE_MM_LOADU_SI128) &&	\
+    defined(HAVE_MM_DPBUSD_EPI32) &&	\
+    defined(HAVE_MM_STOREU_SI128) &&	\
+    defined(HAVE_TARGET_CLONES_AVXVNNI)
+#define HAVE_STRESS_VNNI_VPDPBUSD128
+#endif
+
+#if defined(STRESS_ARCH_X86_64) &&	\
+    defined(HAVE_IMMINTRIN_H) &&	\
+    defined(HAVE_MM512_LOADU_SI512) &&	\
+    defined(HAVE_MM512_DPWSSD_EPI32) &&	\
+    defined(HAVE_MM512_STOREU_SI512)
+#define HAVE_STRESS_VNNI_VPDPWSSD512
+#endif
+
+#if defined(STRESS_ARCH_X86_64) &&	\
+    defined(HAVE_IMMINTRIN_H) &&	\
+    defined(HAVE_MM256_LOADU_SI256) &&	\
+    defined(HAVE_MM256_DPWSSD_EPI32) &&	\
+    defined(HAVE_MM256_STOREU_SI256) &&	\
+    defined(HAVE_TARGET_CLONES_AVXVNNI)
+#define HAVE_STRESS_VNNI_VPDPWSSD256
+#endif
+
+#if defined(STRESS_ARCH_X86_64) &&	\
+    defined(HAVE_IMMINTRIN_H) &&	\
+    defined(HAVE_MM_LOADU_SI128) &&	\
+    defined(HAVE_MM_DPWSSD_EPI32) &&	\
+    defined(HAVE_MM_STOREU_SI128) &&	\
+    defined(HAVE_TARGET_CLONES_AVXVNNI)
+#define HAVE_STRESS_VNNI_VPDPWSSD128
+#endif
+
+#if defined(HAVE_STRESS_VNNI_VPADDB512)	||	\
+    defined(HAVE_STRESS_VNNI_VPADDB256) ||	\
+    defined(HAVE_STRESS_VNNI_VPADDB128) ||	\
+    defined(HAVE_STRESS_VNNI_VPDPBUSD512) ||	\
+    defined(HAVE_STRESS_VNNI_VPDPBUSD256) ||	\
+    defined(HAVE_STRESS_VNNI_VPDPBUSD128) ||	\
+    defined(HAVE_STRESS_VNNI_VPDPWSSD512) ||	\
+    defined(HAVE_STRESS_VNNI_VPDPWSSD256) ||	\
+    defined(HAVE_STRESS_VNNI_VPDPWSSD128)
 #if defined(HAVE_M128I_U)
 typedef __m128i_u shim_m128i_u;
 #else
@@ -79,6 +166,7 @@ typedef uint64_t shim_m128i_u __attribute__ ((__vector_size__ (16)));
 typedef __m256i_u shim_m256i_u;
 #else
 typedef uint64_t shim_m256i_u __attribute__ ((__vector_size__ (32)));
+#endif
 #endif
 
 static uint8_t a_init[VEC_SIZE_BYTES] ALIGNED(8);
@@ -122,12 +210,7 @@ static uint32_t OPTIMIZE3 stress_vnni_checksum(void)
 	return sum;
 }
 
-#if defined(STRESS_ARCH_X86_64) &&	\
-    defined(HAVE_IMMINTRIN_H) &&	\
-    defined(HAVE_MM512_LOADU_SI512) &&	\
-    defined(HAVE_MM512_ADD_EPI8) &&	\
-    defined(HAVE_MM512_STOREU_SI512)
-#define HAVE_STRESS_VNNI_VPADDB512
+#if defined(HAVE_STRESS_VNNI_VPADDB512)
 static void TARGET_AVX512BW OPTIMIZE3 stress_vnni_vpaddb512(stress_args_t *args)
 {
 	register int i;
@@ -146,13 +229,7 @@ PRAGMA_UNROLL_N(VEC_VNNI512_LOOPS)
 }
 #endif
 
-#if defined(STRESS_ARCH_X86_64) &&	\
-    defined(HAVE_IMMINTRIN_H) &&	\
-    defined(HAVE_MM256_LOADU_SI256) &&	\
-    defined(HAVE_MM256_ADD_EPI8) &&	\
-    defined(HAVE_MM256_STOREU_SI256) &&	\
-    defined(HAVE_TARGET_CLONES_AVXVNNI)
-#define HAVE_STRESS_VNNI_VPADDB256
+#if defined(HAVE_STRESS_VNNI_VPADDB256)
 static void TARGET_AVXVNNI OPTIMIZE3 stress_vnni_vpaddb256(stress_args_t *args)
 {
 	register int i;
@@ -171,13 +248,7 @@ PRAGMA_UNROLL_N(VEC_VNNI256_LOOPS)
 }
 #endif
 
-#if defined(STRESS_ARCH_X86_64) && 	\
-    defined(HAVE_IMMINTRIN_H) &&	\
-    defined(HAVE_MM_LOADU_SI128) &&	\
-    defined(HAVE_MM_ADD_EPI8) &&	\
-    defined(HAVE_MM_STOREU_SI128) &&	\
-    defined(HAVE_TARGET_CLONES_AVXVNNI)
-#define HAVE_STRESS_VNNI_VPADDB128
+#if defined(HAVE_STRESS_VNNI_VPADDB128)
 static void TARGET_AVXVNNI OPTIMIZE3 stress_vnni_vpaddb128(stress_args_t *args)
 {
 	register int i;
@@ -207,12 +278,7 @@ PRAGMA_UNROLL_N(8)
 		result[i] = (uint8_t)((int16_t)(int8_t)a_init[i] + (int16_t)(int8_t)b_init[i]);
 }
 
-#if defined(STRESS_ARCH_X86_64) &&	\
-    defined(HAVE_IMMINTRIN_H) &&	\
-    defined(HAVE_MM512_LOADU_SI512) &&	\
-    defined(HAVE_MM512_DPBUSD_EPI32) &&	\
-    defined(HAVE_MM512_STOREU_SI512)
-#define HAVE_STRESS_VNNI_VPDPBUSD512
+#if defined(HAVE_STRESS_VNNI_VPDPBUSD512)
 static void TARGET_AVX512VNNI OPTIMIZE3 stress_vnni_vpdpbusd512(stress_args_t *args)
 {
 	register int i;
@@ -232,13 +298,7 @@ PRAGMA_UNROLL_N(VEC_VNNI512_LOOPS)
 }
 #endif
 
-#if defined(STRESS_ARCH_X86_64) &&	\
-    defined(HAVE_IMMINTRIN_H) &&	\
-    defined(HAVE_MM256_LOADU_SI256) &&	\
-    defined(HAVE_MM256_DPBUSD_EPI32) &&	\
-    defined(HAVE_MM256_STOREU_SI256) &&	\
-    defined(HAVE_TARGET_CLONES_AVXVNNI)
-#define HAVE_STRESS_VNNI_VPDPBUSD256
+#if defined(HAVE_STRESS_VNNI_VPDPBUSD256)
 static void TARGET_AVXVNNI OPTIMIZE3 stress_vnni_vpdpbusd256(stress_args_t *args)
 {
 	register int i;
@@ -258,13 +318,7 @@ PRAGMA_UNROLL_N(VEC_VNNI256_LOOPS)
 }
 #endif
 
-#if defined(STRESS_ARCH_X86_64) &&	\
-    defined(HAVE_IMMINTRIN_H) &&	\
-    defined(HAVE_MM_LOADU_SI128) &&	\
-    defined(HAVE_MM_DPBUSD_EPI32) &&	\
-    defined(HAVE_MM_STOREU_SI128) &&	\
-    defined(HAVE_TARGET_CLONES_AVXVNNI)
-#define HAVE_STRESS_VNNI_VPDPBUSD128
+#if defined(HAVE_STRESS_VNNI_VPDPBUSD128)
 static void TARGET_AVXVNNI OPTIMIZE3 stress_vnni_vpdpbusd128(stress_args_t *args)
 {
 	register int i;
@@ -302,12 +356,7 @@ static void TARGET_CLONES OPTIMIZE3 stress_vnni_vpdpbusd(stress_args_t *args)
 	}
 }
 
-#if defined(STRESS_ARCH_X86_64) &&	\
-    defined(HAVE_IMMINTRIN_H) &&	\
-    defined(HAVE_MM512_LOADU_SI512) &&	\
-    defined(HAVE_MM512_DPWSSD_EPI32) &&	\
-    defined(HAVE_MM512_STOREU_SI512)
-#define HAVE_STRESS_VNNI_VPDPWSSD512
+#if defined(HAVE_STRESS_VNNI_VPDPWSSD512)
 static void TARGET_AVX512VNNI OPTIMIZE3 stress_vnni_vpdpwssd512(stress_args_t *args)
 {
 	register int i;
@@ -327,13 +376,7 @@ PRAGMA_UNROLL_N(VEC_VNNI512_LOOPS)
 }
 #endif
 
-#if defined(STRESS_ARCH_X86_64) &&	\
-    defined(HAVE_IMMINTRIN_H) &&	\
-    defined(HAVE_MM256_LOADU_SI256) &&	\
-    defined(HAVE_MM256_DPWSSD_EPI32) &&	\
-    defined(HAVE_MM256_STOREU_SI256) &&	\
-    defined(HAVE_TARGET_CLONES_AVXVNNI)
-#define HAVE_STRESS_VNNI_VPDPWSSD256
+#if defined(HAVE_STRESS_VNNI_VPDPWSSD256)
 static void TARGET_AVXVNNI OPTIMIZE3 stress_vnni_vpdpwssd256(stress_args_t *args)
 {
 	register int i;
@@ -353,13 +396,7 @@ PRAGMA_UNROLL_N(VEC_VNNI256_LOOPS)
 }
 #endif
 
-#if defined(STRESS_ARCH_X86_64) &&	\
-    defined(HAVE_IMMINTRIN_H) &&	\
-    defined(HAVE_MM_LOADU_SI128) &&	\
-    defined(HAVE_MM_DPWSSD_EPI32) &&	\
-    defined(HAVE_MM_STOREU_SI128) &&	\
-    defined(HAVE_TARGET_CLONES_AVXVNNI)
-#define HAVE_STRESS_VNNI_VPDPWSSD128
+#if defined(HAVE_STRESS_VNNI_VPDPWSSD128)
 static void TARGET_AVXVNNI OPTIMIZE3 stress_vnni_vpdpwssd128(stress_args_t *args)
 {
 	register int i;
