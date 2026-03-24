@@ -39,7 +39,6 @@ static const stress_help_t help[] = {
 };
 
 #if defined(HAVE_TERMIOS_H) &&	\
-    defined(HAVE_TERMIO_H) && \
     defined(HAVE_PTSNAME)
 
 typedef struct {
@@ -56,7 +55,6 @@ static const stress_opt_t opts[] = {
 };
 
 #if defined(HAVE_TERMIOS_H) &&	\
-    defined(HAVE_TERMIO_H) &&	\
     defined(HAVE_PTSNAME)
 
 /*
@@ -297,7 +295,8 @@ static int stress_pty(stress_args_t *args)
 			}
 #endif
 
-#if defined(TCGETA) &&	\
+#if defined(HAVE_TERMIO_H) &&	\
+    defined(TCGETA) &&		\
     defined(TCSETA)
 			{
 				struct termio io;
@@ -318,7 +317,8 @@ static int stress_pty(stress_args_t *args)
 			}
 #endif
 
-#if defined(TCGETA) &&	\
+#if defined(HAVE_TERMIO_H) &&	\
+    defined(TCGETA) &&		\
     defined(TCSETAW)
 			{
 				struct termio io;
@@ -339,7 +339,8 @@ static int stress_pty(stress_args_t *args)
 			}
 #endif
 
-#if defined(TCGETA) &&	\
+#if defined(HAVE_TERMIO_H) &&	\
+    defined(TCGETA) &&		\
     defined(TCSETAF)
 			{
 				struct termio io;
