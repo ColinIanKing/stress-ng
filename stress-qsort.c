@@ -69,7 +69,9 @@ static void MLOCKED_TEXT stress_qsort_handler(int signum)
 #endif
 
 static const stress_qsort_method_t stress_qsort_methods[] = {
+#if defined(HAVE_QSORT)
 	{ "qsort-libc",		qsort },
+#endif
 	{ "qsort-bm",		qsort_bm },
 };
 

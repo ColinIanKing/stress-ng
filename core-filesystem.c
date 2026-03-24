@@ -1377,7 +1377,7 @@ void stress_fs_close_fds(int *fds, const size_t n)
 	if (UNLIKELY(n < 1))
 		return;
 
-	qsort(fds, n, sizeof(*fds), stress_sort_cmp_fwd_int);
+	shim_qsort(fds, n, sizeof(*fds), stress_sort_cmp_fwd_int);
 	for (j = 0; j < n - 1; j++) {
 		if (fds[j] >= 0)
 			break;

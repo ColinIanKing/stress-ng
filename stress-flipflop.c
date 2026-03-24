@@ -25,6 +25,7 @@
 #include "core-builtin.h"
 #include "core-mmap.h"
 #include "core-pthread.h"
+#include "core-sort.h"
 #include "core-time.h"
 
 #include <sched.h>
@@ -331,7 +332,7 @@ static int stress_flipflop(stress_args_t *args)
 	}
 
 	if (stress_instance_zero(args)) {
-		qsort(dist, 2 * flipflop_bits, sizeof(uint64_t), stress_flipflop_uint64_cmp);
+		shim_qsort(dist, 2 * flipflop_bits, sizeof(uint64_t), stress_flipflop_uint64_cmp);
 
 		pr_inf("%s: ran for %.2lfs loops/tries/successes = %" PRIu64 " / %" PRIu64
 			" (%2.02lf%%) / %" PRIu64 " (%2.02lf%%)\n",

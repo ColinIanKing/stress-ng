@@ -38,6 +38,20 @@ extern stress_sort_copy_func_t stress_sort_copy_func(const size_t size);
 extern void qsort_bm(void *base, size_t n, size_t es,
 	int (*cmp)(const void *, const void*));
 
+#if defined(HAVE_QSORT)
+static inline void shim_qsort(void *base, size_t n, size_t es,
+	int (*cmp)(const void *, const void*))
+{
+	qsort(base, n, es, cmp);
+}
+#else
+static inline void shim_qsort(void *base, size_t n, size_t es,
+	int (*cmp)(const void *, const void*))
+{
+	qsort_bm(base, n, es, cmp);
+}
+#endif
+
 static inline ALWAYS_INLINE CONST int stress_sort_cmp_str(const void *p1, const void *p2)
 {
 	return strcmp(*(const char * const *)p1, *(const char * const *)p2);

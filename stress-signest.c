@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-mmap.h"
+#include "core-sort.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"signest N",	 "start N workers generating nested signals" },
@@ -295,7 +296,7 @@ static int stress_signest(stress_args_t *args)
 #endif
 
 	/* Remove any duplicate signals */
-	qsort(signals, max_signals, sizeof(stress_signal_t), stress_signest_cmp);
+	shim_qsort(signals, max_signals, sizeof(stress_signal_t), stress_signest_cmp);
 	for (i = 0; i < max_signals - 1; i++) {
 		if (signals[i].signum == signals[i + 1].signum) {
 			size_t j;
@@ -374,7 +375,7 @@ finish:
 		}
 	}
 
-	qsort(signals, max_signals, sizeof(stress_signal_t), stress_signest_cmp);
+	shim_qsort(signals, max_signals, sizeof(stress_signal_t), stress_signest_cmp);
 	if (stress_instance_zero(args)) {
 		buf = (char *)calloc(sz, sizeof(*buf));
 		if (buf) {

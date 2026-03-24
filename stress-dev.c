@@ -26,6 +26,7 @@
 #include "core-pthread.h"
 #include "core-pragma.h"
 #include "core-put.h"
+#include "core-sort.h"
 #include "core-try-open.h"
 
 #include <ctype.h>
@@ -4592,7 +4593,7 @@ static void stress_dev_infos_mixup(dev_info_t **dev_info_list, const size_t dev_
 		dev_info_sorted[i] = dev;
 		dev = dev->next;
 	}
-	qsort(dev_info_sorted, dev_info_list_len, sizeof(dev_info_t *), dev_info_rnd_id_cmp);
+	shim_qsort(dev_info_sorted, dev_info_list_len, sizeof(dev_info_t *), dev_info_rnd_id_cmp);
 
 	/* rebuild list based on randomized sorted rnd_id */
 	*dev_info_list = NULL;

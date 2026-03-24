@@ -25,6 +25,7 @@
 #include "core-hash.h"
 #include "core-numa.h"
 #include "core-pragma.h"
+#include "core-sort.h"
 
 #include <pwd.h>
 #include <sys/ioctl.h>
@@ -1241,7 +1242,7 @@ int stress_unused_uid_get(uid_t *uid)
 		endpwent();
 		n = i;
 
-		qsort(uids, n, sizeof(*uids), stress_uid_comp);
+		shim_qsort(uids, n, sizeof(*uids), stress_uid_comp);
 
 		/* Look for a suitable gap from uid 250 upwards */
 		for (i = 0; i < n - 1; i++) {

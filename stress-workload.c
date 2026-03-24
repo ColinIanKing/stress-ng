@@ -30,6 +30,7 @@
 #include "core-pthread.h"
 #include "core-put.h"
 #include "core-sched.h"
+#include "core-sort.h"
 #include "core-target-clones.h"
 #include "core-vecmath.h"
 #include "core-workload.h"
@@ -450,7 +451,7 @@ static int stress_workload_exercise(
 		break;
 	}
 
-	qsort(workload, max_quanta, sizeof(*workload), stress_workload_cmp);
+	shim_qsort(workload, max_quanta, sizeof(*workload), stress_workload_cmp);
 
 	t_begin = stress_time_now();
 	t_end = t_begin + ((double)workload_slice_us * scale_us_to_sec);

@@ -24,6 +24,7 @@
 #include "core-lock.h"
 #include "core-mmap.h"
 #include "core-signal.h"
+#include "core-sort.h"
 
 #include <math.h>
 #include <sched.h>
@@ -481,7 +482,7 @@ static void stress_rt_stats(stress_rt_stats_t *rt_stats)
 	if (rt_stats->index)
 		rt_stats->latency_mean /= (double)rt_stats->index;
 
-	qsort(rt_stats->latencies, rt_stats->index, sizeof(*(rt_stats->latencies)), stress_cyclic_cmp);
+	shim_qsort(rt_stats->latencies, rt_stats->index, sizeof(*(rt_stats->latencies)), stress_cyclic_cmp);
 
 	current = rt_stats->latency_mode = rt_stats->latencies[0];
 

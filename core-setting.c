@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-setting.h"
+#include "core-sort.h"
 
 static stress_setting_t *setting_head;	/* setting list head */
 static stress_setting_t *setting_tail;	/* setting list tail */
@@ -174,7 +175,7 @@ void stress_setting_show(void)
 	for (i = 0, setting = setting_head; setting; setting = setting->next, i++)
 		settings[i] = setting;
 
-	qsort(settings, n, sizeof(*settings), stress_setting_cmp);
+	shim_qsort(settings, n, sizeof(*settings), stress_setting_cmp);
 
 	for (i = 0; i < n; i++)
 		stress_setting_show_setting(settings[i], pr_inf, true);
@@ -204,7 +205,7 @@ void stress_setting_dbg(const char *name)
 		if (strcmp(setting->stressor_name, name) == 0)
 			settings[i++] = setting;
 	}
-	qsort(settings, n, sizeof(*settings), stress_setting_cmp);
+	shim_qsort(settings, n, sizeof(*settings), stress_setting_cmp);
 
 	for (i = 0; i < n; i++)
 		stress_setting_show_setting(settings[i], pr_dbg, false);

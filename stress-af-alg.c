@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-attribute.h"
 #include "core-builtin.h"
+#include "core-sort.h"
 
 #include <sys/socket.h>
 
@@ -1143,7 +1144,7 @@ static void stress_af_alg_sort_crypto(void)
 		array[i] = ci;
 	}
 
-	qsort(array, n, sizeof(*array), stress_af_alg_cmp_crypto);
+	shim_qsort(array, n, sizeof(*array), stress_af_alg_cmp_crypto);
 
 	for (i = 0; i < n - 1; i++) {
 		array[i]->next = array[i + 1];

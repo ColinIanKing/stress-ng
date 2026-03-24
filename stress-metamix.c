@@ -22,6 +22,7 @@
 #include "core-killpid.h"
 #include "core-mmap.h"
 #include "core-signal.h"
+#include "core-sort.h"
 
 #define MIN_METAMIX_BYTES		(512)
 #define MAX_METAMIX_BYTES		(MAX_FILE_LIMIT)
@@ -222,7 +223,7 @@ static int stress_metamix_file(
 #endif
 
 	/* Re-order seek position in quasi-random order */
-	qsort((void *)file_info, n, sizeof(file_info_t), stress_metamix_cmp);
+	shim_qsort((void *)file_info, n, sizeof(file_info_t), stress_metamix_cmp);
 
 	fd = open(filename, O_RDONLY);
 	if (UNLIKELY(fd < 0)) {

@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-builtin.h"
+#include "core-sort.h"
 #include "core-thermal-zone.h"
 
 #include <ctype.h>
@@ -268,7 +269,7 @@ void stress_tz_dump(FILE *yaml, stress_list_item_t *stressors_list)
 		for (n = 0, tz_info = g_shared->tz_info; tz_info; tz_info = tz_info->next, n++)
 			tz_infos[n] = tz_info;
 
-		qsort(tz_infos, n, sizeof(*tz_infos), stress_tz_compare);
+		shim_qsort(tz_infos, n, sizeof(*tz_infos), stress_tz_compare);
 
 		for (i = 0; i < n; i++) {
 			uint64_t total = 0;
