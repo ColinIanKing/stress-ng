@@ -35,6 +35,9 @@ extern uint64_t stress_sort_compares ALIGN64;
 extern stress_sort_swap_func_t stress_sort_swap_func(const size_t size);
 extern stress_sort_copy_func_t stress_sort_copy_func(const size_t size);
 
+extern void qsort_bm(void *base, size_t n, size_t es,
+	int (*cmp)(const void *, const void*));
+
 static inline ALWAYS_INLINE CONST int stress_sort_cmp_str(const void *p1, const void *p2)
 {
 	return strcmp(*(const char * const *)p1, *(const char * const *)p2);

@@ -21,6 +21,8 @@
 #include "core-pragma.h"
 #include "core-target-clones.h"
 
+#define THRESH	(63)
+
 uint64_t stress_sort_compares ALIGN64;
 
 /*
@@ -249,4 +251,119 @@ stress_sort_copy_func_t stress_sort_copy_func(const size_t size)
 		break;
 	}
 	return sort_copy;
+}
+
+static inline size_t qsort_bm_minimum(const size_t x, const size_t y)
+{
+	return x <= y ? x : y;
+}
+
+static inline uint8_t ALWAYS_INLINE *qsort_bm_med3(
+	uint8_t *a,
+	uint8_t *b,
+	uint8_t *c,
+	int (*cmp)(const void *, const void*))
+{
+	return (cmp(a, b) < 0) ?
+		((cmp(b, c) < 0) ? b : (cmp(a, c) < 0) ? c : a) :
+		((cmp(b, c) > 0) ? b : (cmp(a, c) > 0) ? c : a);
+}
+
+static inline void ALWAYS_INLINE qsort_bm_swap(
+	uint8_t *a,
+	uint8_t *b,
+	size_t n)
+{
+	register uint8_t * RESTRICT pi = (uint8_t *)a;
+	register uint8_t * RESTRICT pj = (uint8_t *)b;
+
+PRAGMA_UNROLL_N(4)
+	do {
+		register uint8_t tmp;
+
+		tmp = *pi;
+		*pi++ = *pj;
+		*pj++ = tmp;
+	} while ((n -= sizeof(uint8_t)) > 0);
+}
+
+/*
+ *  Bentley and MacIlroy’s quicksort, v2
+ *  https://web.ecs.syr.edu/~royer/cis675/slides/07engSort.pdf
+ */
+void TARGET_CLONES OPTIMIZE3 qsort_bm(
+	void *base,
+	const size_t n,
+	const size_t es,
+	int (*cmp)(const void *, const void*))
+{
+	register uint8_t *a = (uint8_t *)base;
+	uint8_t *pa, *pb, *pc, *pd, *pm, *pn, *pv;
+	size_t s;
+
+	if (n < THRESH) {
+		for (pm = a + es; pm < a + (n * es); pm += es) {
+			register uint8_t *p;
+
+			for (p = pm; (p > a) && (cmp(p - es, p) > 0); p -= es) {
+				qsort_bm_swap(p, p - es, es);
+			}
+		}
+		return;
+	}
+	pm = a + (n >> 1) * es;
+	if (n > THRESH) {
+		register uint8_t *p = a;
+
+		pn = a + (n - 1) * es;
+		if (n > 63) {
+			s = (n >> 3) * es;
+			p = qsort_bm_med3(p, p + s, p + (s << 1), cmp);
+			pm = qsort_bm_med3(pm - s, pm, pm + s, cmp);
+			pn = qsort_bm_med3(pn - (s << 1), pn - s, pn, cmp);
+		}
+		pm = qsort_bm_med3(p, pm, pn, cmp);
+	}
+
+	pv = a;
+	qsort_bm_swap(pv, pm, es);
+
+	pa = pb = a;
+	pc = pd = a + (n - 1) * es;
+	for (;;) {
+		int r;
+
+		while ((pb <= pc) && (r = cmp(pb, pv)) <= 0) {
+			if (r == 0) {
+				qsort_bm_swap(pa, pb, es);
+				pa += es;
+			}
+			pb += es;
+		}
+		while ((pb <= pc) && (r = cmp(pc, pv)) >= 0) {
+			if (r == 0) {
+				qsort_bm_swap(pc, pd, es);
+				pd -= es;
+			}
+			pc -= es;
+		}
+		if (pb > pc)
+			break;
+		qsort_bm_swap(pb, pc, es);
+		pb += es;
+		pc -= es;
+	}
+	pn = a + (n * es);
+	s = qsort_bm_minimum(pa - a, pb - pa);
+	if (s > 0)
+		qsort_bm_swap(a, pb - s, s);
+	s = qsort_bm_minimum(pd - pc, pn - pd - es);
+	if (s > 0)
+		qsort_bm_swap(pb, pn-s, s);
+	s = pb - pa;
+	if (s > es)
+		qsort_bm(a, s / es, es, cmp);
+	s = pd - pc;
+	if (s > es)
+		qsort_bm(pn - s, s / es, es, cmp);
 }
