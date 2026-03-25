@@ -173,57 +173,46 @@ static void *stress_pthread_func(void *c)
 			}
 		}
 
-		eintr = false;
 		stress_sleep_time_now(&t1);
 		if (UNLIKELY(!stress_continue_flag()))
 			break;
 		tv.tv_sec = 0;
 		tv.tv_nsec = 1;
-		if (UNLIKELY(nanosleep(&tv, NULL) < 0)) {
-			eintr |= (errno == EINTR);
+		if (UNLIKELY(nanosleep(&tv, NULL) < 0))
 			break;
-		}
 
 		if (UNLIKELY(!stress_continue_flag()))
 			break;
 		tv.tv_sec = 0;
 		tv.tv_nsec = 10;
-		if (UNLIKELY(nanosleep(&tv, NULL) < 0)) {
-			eintr |= (errno == EINTR);
+		if (UNLIKELY(nanosleep(&tv, NULL) < 0))
 			break;
-		}
 
 		if (UNLIKELY(!stress_continue_flag()))
 			break;
 		tv.tv_sec = 0;
 		tv.tv_nsec = 100;
-		if (UNLIKELY(nanosleep(&tv, NULL) < 0)) {
-			eintr |= (errno == EINTR);
+		if (UNLIKELY(nanosleep(&tv, NULL) < 0))
 			break;
-		}
 
 		if (UNLIKELY(!stress_continue_flag()))
 			break;
 		tv.tv_sec = 0;
 		tv.tv_nsec = 1000;
-		if (UNLIKELY(nanosleep(&tv, NULL) < 0)) {
-			eintr |= (errno == EINTR);
+		if (UNLIKELY(nanosleep(&tv, NULL) < 0))
 			break;
-		}
 
 		if (UNLIKELY(!stress_continue_flag()))
 			break;
 		tv.tv_sec = 0;
 		tv.tv_nsec = 10000;
-		if (UNLIKELY(nanosleep(&tv, NULL) < 0)) {
-			eintr |= (errno == EINTR);
+		if (UNLIKELY(nanosleep(&tv, NULL) < 0))
 			break;
-		}
 
 		stress_sleep_time_now(&t2);
 		delta = stress_time_delta(&t1, &t2);
 		/* don't check for clock warping */
-		if (!eintr && (delta > 0.0)) {
+		if (delta > 0.0) {
 			expected = (1.0 + 10.0 + 100.0 + 1000.0 + 10000.0);
 			if (UNLIKELY(delta < expected / STRESS_DBL_NANOSECOND)) {
 				pr_fail("%s: nanosleeps for %.f nanosecs took less than %.2f nanosecs to complete\n",
@@ -232,47 +221,36 @@ static void *stress_pthread_func(void *c)
 			}
 		}
 
-		eintr = false;
 		stress_sleep_time_now(&t1);
 		if (UNLIKELY(!stress_continue_flag()))
 			break;
-		if (UNLIKELY(shim_usleep(1) < 0)) {
-			eintr |= (errno == EINTR);
+		if (UNLIKELY(shim_usleep(1) < 0))
 			break;
-		}
 
 		if (UNLIKELY(!stress_continue_flag()))
 			break;
-		if (UNLIKELY(shim_usleep(10) < 0)) {
-			eintr |= (errno == EINTR);
+		if (UNLIKELY(shim_usleep(10) < 0))
 			break;
-		}
 
 		if (UNLIKELY(!stress_continue_flag()))
 			break;
-		if (UNLIKELY(shim_usleep(100) < 0)) {
-			eintr |= (errno == EINTR);
+		if (UNLIKELY(shim_usleep(100) < 0))
 			break;
-		}
 
 		if (UNLIKELY(!stress_continue_flag()))
 			break;
-		if (UNLIKELY(shim_usleep(1000) < 0)) {
-			eintr |= (errno == EINTR);
+		if (UNLIKELY(shim_usleep(1000) < 0))
 			break;
-		}
 
 		if (UNLIKELY(!stress_continue_flag()))
 			break;
-		if (UNLIKELY(shim_usleep(10000) < 0)) {
-			eintr |= (errno == EINTR);
+		if (UNLIKELY(shim_usleep(10000) < 0))
 			break;
-		}
 
 		stress_sleep_time_now(&t2);
 		delta = stress_time_delta(&t1, &t2);
 		expected = (1.0 + 10.0 + 100.0 + 1000.0 + 10000.0);
-		if (!eintr && UNLIKELY(delta < expected / STRESS_DBL_MICROSECOND)) {
+		if (UNLIKELY(delta < expected / STRESS_DBL_MICROSECOND)) {
 			pr_fail("%s: usleeps for %.f microsecs took less than %.2f microsecs to complete\n",
 				args->name, expected, delta * STRESS_DBL_MICROSECOND);
 			ctxt->underruns++;
@@ -324,64 +302,52 @@ static void *stress_pthread_func(void *c)
 				args->name, expected, delta * STRESS_DBL_NANOSECOND);
 			ctxt->underruns++;
 		}
-
 skip_pselect:
 #endif
 
 #if defined(HAVE_SYS_SELECT_H) &&	\
     defined(HAVE_SELECT)
-		eintr = false;
 		stress_sleep_time_now(&t1);
 
 		if (UNLIKELY(!stress_continue_flag()))
 			break;
 		timeout.tv_sec = 0;
 		timeout.tv_usec = 1;
-		if (UNLIKELY(select(0, NULL, NULL, NULL, &timeout) < 0)) {
-			eintr |= (errno == EINTR);
+		if (UNLIKELY(select(0, NULL, NULL, NULL, &timeout) < 0))
 			break;
-		}
 
 		if (UNLIKELY(!stress_continue_flag()))
 			break;
 		timeout.tv_sec = 0;
 		timeout.tv_usec = 10;
-		if (UNLIKELY(select(0, NULL, NULL, NULL, &timeout) < 0)) {
-			eintr |= (errno == EINTR);
+		if (UNLIKELY(select(0, NULL, NULL, NULL, &timeout) < 0))
 			break;
-		}
 
 		if (UNLIKELY(!stress_continue_flag()))
 			break;
 		timeout.tv_sec = 0;
 		timeout.tv_usec = 100;
-		if (UNLIKELY(select(0, NULL, NULL, NULL, &timeout) < 0)) {
-			eintr |= (errno == EINTR);
+		if (UNLIKELY(select(0, NULL, NULL, NULL, &timeout) < 0))
 			break;
-		}
 
 		if (UNLIKELY(!stress_continue_flag()))
 			break;
 		timeout.tv_sec = 0;
 		timeout.tv_usec = 1000;
-		if (UNLIKELY(select(0, NULL, NULL, NULL, &timeout) < 0)) {
-			eintr |= (errno == EINTR);
+		if (UNLIKELY(select(0, NULL, NULL, NULL, &timeout) < 0))
 			break;
-		}
 
 		if (UNLIKELY(!stress_continue_flag()))
 			break;
 		timeout.tv_sec = 0;
 		timeout.tv_usec = 10000;
-		if (UNLIKELY(select(0, NULL, NULL, NULL, &timeout) < 0)) {
-			eintr |= (errno == EINTR);
+		if (UNLIKELY(select(0, NULL, NULL, NULL, &timeout) < 0))
 			break;
-		}
 
 		stress_sleep_time_now(&t2);
 		delta = stress_time_delta(&t1, &t2);
 		expected = (1.0 + 10.0 + 100.0 + 1000.0 + 10000.0);
-		if (!eintr && UNLIKELY(delta < expected / STRESS_DBL_MICROSECOND)) {
+		if (UNLIKELY(delta < expected / STRESS_DBL_MICROSECOND)) {
 			pr_fail("%s: selects for %.f microsecs took less than %.2f microsecs to complete\n",
 				args->name, expected, delta * STRESS_DBL_MICROSECOND);
 			ctxt->underruns++;
