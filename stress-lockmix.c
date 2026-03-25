@@ -20,10 +20,15 @@
 #include "core-affinity.h"
 #include "core-builtin.h"
 #include "core-killpid.h"
+#include "core-signal.h"
 
 #if defined(HAVE_SYS_FILE_H)
 #include <sys/file.h>
 #endif
+
+#include <time.h>
+
+#define LOCKMIX_TIMEOUT_MS	(2)
 
 static const stress_help_t help[] = {
 	{ NULL,	"lockmix N",	 "start N workers locking a file via flock, locka, lockf and ofd locks" },
@@ -72,6 +77,19 @@ static const stress_help_t help[] = {
 #define LOCKMIX_TYPE_LOCKA	(1)	/* locka */
 #define LOCKMIX_TYPE_LOCKF	(2)	/* lockf */
 #define LOCKMIX_TYPE_LOCKOFD	(3)	/* lockofd */
+
+#if defined(HAVE_LIB_RT) &&		\
+    defined(HAVE_TIMER_CREATE) &&	\
+    defined(HAVE_TIMER_DELETE)
+#define LOCKMIX_USE_TIMER
+static timer_t timerid;
+static bool timerid_valid;
+#endif
+#if defined(HAVE_SETITIMER) &&	\
+    defined(ITIMER_PROF)
+#define LOCKMIX_USE_ITIMER
+static bool itimer_valid;
+#endif
 
 typedef struct lockmix_info {
 	struct lockmix_info *next;
@@ -273,6 +291,79 @@ static int stress_lockmix_unlock(stress_args_t *args, const int fd)
 	return 0;
 }
 
+static void stress_lockmix_timer_set(const long int millisec)
+{
+#if defined(LOCKMIX_USE_TIMER)
+	if (timerid_valid) {
+		struct itimerspec timer;
+
+		timer.it_value.tv_sec = (time_t)0;
+		timer.it_value.tv_nsec = (long int)millisec * 1000000;
+		timer.it_interval.tv_sec = timer.it_value.tv_sec;
+		timer.it_interval.tv_nsec = timer.it_value.tv_nsec;
+
+		if (timer_settime(timerid, 0, &timer, NULL) == 0)
+			return;
+	}
+#endif
+#if defined(LOCKMIX_USE_ITIMER)
+	if (itimer_valid) {
+		struct itimerval itimer;
+
+		itimer.it_value.tv_sec = (time_t)0;
+		itimer.it_value.tv_usec = (suseconds_t)millisec * 1000;
+		itimer.it_interval.tv_sec = (time_t)0;
+		itimer.it_interval.tv_usec = (suseconds_t)millisec * 1000;
+
+		if (setitimer(ITIMER_PROF, &itimer, NULL) == 0)
+			return;
+	}
+#endif
+}
+
+static void stress_lockmix_timer_create(stress_args_t *args)
+{
+#if defined(LOCKMIX_USE_TIMER)
+	if (stress_signal_handler(args->name, SIGRTMIN, stress_signal_ignore_handler, NULL) == 0) {
+		struct sigevent sev;
+
+		(void)shim_memset(&sev, 0, sizeof(sev));
+		sev.sigev_notify = SIGEV_SIGNAL;
+		sev.sigev_signo = SIGRTMIN;
+		sev.sigev_value.sival_ptr = &timerid;
+
+		timerid_valid = false;
+		timerid = (timer_t)-1;
+
+		if (timer_create(CLOCK_REALTIME, &sev, &timerid) == 0) {
+			timerid_valid = true;
+			return;
+		}
+	}
+#endif
+#if defined(LOCKMIX_USE_ITIMER)
+	if (stress_signal_handler(args->name, SIGPROF, stress_signal_ignore_handler, NULL) == 0) {
+		itimer_valid = true;
+		return;
+	}
+#endif
+}
+
+static void stress_lockmix_timer_delete(void)
+{
+#if defined(LOCKMIX_USE_TIMER)
+	if (timerid_valid) {
+		stress_lockmix_timer_set(0);
+		timer_delete(timerid);
+	}
+#endif
+#if defined(LOCKMIX_USE_ITIMER)
+	if (itimer_valid) {
+		stress_lockmix_timer_set(0);
+	}
+#endif
+}
+
 /*
  *  stress_lockmix_contention()
  *	hammer advisory lock/unlock to create some file lock contention
@@ -314,8 +405,12 @@ static int stress_lockmix_contention(
 		switch (type) {
 #if defined(HAVE_LOCKMIX_FLOCK)
 		case LOCKMIX_TYPE_FLOCK:
-			if (flock(fd, LOCK_EX) < 0)
+			stress_lockmix_timer_set(LOCKMIX_TIMEOUT_MS);
+			if (flock(fd, LOCK_EX) < 0) {
+				stress_lockmix_timer_set(0);
 				continue;
+			}
+			stress_lockmix_timer_set(0);
 			break;
 #endif
 #if defined(HAVE_LOCKMIX_LOCKA)
@@ -328,20 +423,27 @@ static int stress_lockmix_contention(
 
 			if (UNLIKELY(!stress_continue_flag()))
 				break;
+			stress_lockmix_timer_set(LOCKMIX_TIMEOUT_MS);
 			rc = fcntl(fd, F_SETLK, &f);
-			if (rc < 0)
+			if (rc < 0) {
+				stress_lockmix_timer_set(0);
 				continue;
+			}
+			stress_lockmix_timer_set(0);
 			break;
 #endif
 #if defined(HAVE_LOCKMIX_LOCKF)
 		case LOCKMIX_TYPE_LOCKF:
 			if (lseek(fd, offset, SEEK_SET) != (off_t)-1) {
+				stress_lockmix_timer_set(LOCKMIX_TIMEOUT_MS);
 				rc = lockf(fd, F_LOCK, LOCK_SIZE);
 				if (rc < 0) {
+					stress_lockmix_timer_set(0);
 					if (UNLIKELY(stress_lockmix_unlock(args, fd) < 0))
 						return -1;
 					continue;
 				}
+				stress_lockmix_timer_set(0);
 			}
 			break;
 #endif
@@ -355,9 +457,13 @@ static int stress_lockmix_contention(
 
 			if (UNLIKELY(!stress_continue_flag()))
 				break;
+			stress_lockmix_timer_set(LOCKMIX_TIMEOUT_MS);
 			rc = fcntl(fd, F_OFD_SETLK, &f);
-			if (rc < 0)
+			if (rc < 0) {
+				stress_lockmix_timer_set(0);
 				continue;
+			}
+			stress_lockmix_timer_set(0);
 			break;
 #endif
 		default:
@@ -496,6 +602,8 @@ redo:
 	if (stress_instance_zero(args))
 		stress_fs_usage_bytes(args, LOCK_FILE_SIZE, LOCK_FILE_SIZE * args->instances);
 
+	stress_lockmix_timer_create(args);
+
 	stress_proc_state_set(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
 	stress_proc_state_set(args->name, STRESS_STATE_RUN);
@@ -528,6 +636,8 @@ again:
 		ret = EXIT_SUCCESS;
 tidy:
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
+
+	stress_lockmix_timer_delete();
 
 	if (cpid > 1)
 		stress_kill_and_wait(args, cpid, SIGALRM, true);
