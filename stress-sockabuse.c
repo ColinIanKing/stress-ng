@@ -204,7 +204,8 @@ static const int sockabuse_types[] = {
     defined(__NetBSD__) ||	\
     defined(__OpenBSD__) ||	\
     defined(__DragonFly__) ||	\
-    defined(__sun__)
+    defined(__sun__) ||		\
+    defined(__APPLE__)
         SOCK_RDM,
 #endif
         SOCK_SEQPACKET,
