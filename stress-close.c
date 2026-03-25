@@ -192,6 +192,8 @@ static void *stress_close_func(void *arg)
 			if ((valid_fd == -1) && (fds[i] > FDS_START))
 				valid_fd = fds[i];
 		}
+		for (; i < FDS_TO_DUP; i++)
+			fds[i] = -1;
 
 		(void)shim_usleep_interruptible(delay);
 		if (fd != -1)
