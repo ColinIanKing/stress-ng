@@ -211,6 +211,7 @@
  * [AGMARL-DKS: An Adaptive Graph-Enhanced Multi-Agent Reinforcement Learning for Dynamic Kubernetes Scheduling](https://arxiv.org/html/2603.12031v1)
  * [Battering RAM: Low-Cost Interposer Attacks on Confidential Computing via Dynamic Memory Aliasing](https://batteringram.eu/batteringram.pdf)
  * [Benchmarking of CPU-intensive Stream Data Processing in The Edge Computing Systems](https://arxiv.org/html/2505.07755v2)
+ * [CINERGY: Deterministic Power Monitoring for Carbon Accounting in the Cloud](https://hal.science/hal-05551692v1/file/Cinergy.pdf)
  * [Cross-Cache Attacks for the Linux Kernel via PCP Massaging](https://mbr.sh/files/papers/ndss2026_pcplost.pdf)
  * [DPUConfig: Optimizing ML Inference in FPGAs Using Reinforcement Learning](https://arxiv.org/pdf/2602.12847)
  * [Enabling SLO-Aware 5G Multi-Access Edge Computing with SMEC](https://arxiv.org/html/2601.19162v1)
