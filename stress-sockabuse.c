@@ -201,8 +201,10 @@ static const int sockabuse_types[] = {
         SOCK_RAW,
         SOCK_RDM,
         SOCK_SEQPACKET,
+#if defined(__linux__)
         SOCK_DCCP,
         SOCK_PACKET,
+#endif
 };
 
 static const int sockabuse_sockopts[] = {
