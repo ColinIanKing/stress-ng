@@ -319,6 +319,7 @@ static void stress_lockmix_timer_set(const long int millisec)
 			return;
 	}
 #endif
+	(void)millisec;
 }
 
 static void stress_lockmix_timer_create(stress_args_t *args)
