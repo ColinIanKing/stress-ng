@@ -81,6 +81,16 @@ static const stress_opt_t opts[] = {
 
 static double rate_ns;
 
+static const int stress_timerfd_clockids[] = {
+	CLOCK_REALTIME,		/* assume we REALTIME clock */
+#if defined(CLOCK_MONOTONIC)
+	CLOCK_MONOTONIC,
+#endif
+#if defined(CLOCK_BOOTTIME)
+	CLOCK_BOOTTIME,
+#endif
+};
+
 /*
  *  stress_timerfd_set()
  *	set timerfd, ensure it is never zero
@@ -186,13 +196,20 @@ static int stress_timerfd(stress_args_t *args)
 #endif
 
 	for (i = 0; i < timerfd_fds; i++) {
+		const size_t idx = stress_mwcsizemodn(SIZEOF_ARRAY(stress_timerfd_clockids));
+		int clockid = stress_timerfd_clockids[idx];
 #if defined(USE_SELECT)
 		/* In select mode we must never exceed the FD_SETSIZE */
 		if (max_timerfd >= FD_SETSIZE - 1)
 			continue;
 #endif
-		timerfds[i] = timerfd_create(CLOCK_REALTIME, 0);
+retry:
+		timerfds[i] = timerfd_create(clockid, 0);
 		if (timerfds[i] < 0) {
+			if (clockid != CLOCK_REALTIME) {
+				clockid = CLOCK_REALTIME;
+				goto retry;
+			}
 			if ((errno != EMFILE) &&
 			    (errno != ENFILE) &&
 			    (errno != ENOMEM)) {
