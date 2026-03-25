@@ -3122,7 +3122,7 @@ static inline void stress_stressor_defaults_set(void)
 static inline size_t stressor_stats_size(void)
 {
 	register size_t total = 0;
-	register stress_list_item_t *item = stress_stressor_list.head;
+	register stress_list_item_t *item;
 
 	for (item = stress_stressor_list.head; item; item = item->next) {
 		if (!item->ignore.run) {
