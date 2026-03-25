@@ -199,7 +199,12 @@ static const int sockabuse_types[] = {
         SOCK_STREAM,
         SOCK_DGRAM,
         SOCK_RAW,
-#if !defined(__HAIKU__)
+#if defined(__linux__) ||	\
+    defined(__FreeBSD__) ||	\
+    defined(__NetBSD__) ||	\
+    defined(__OpenBSD__) ||	\
+    defined(__DragonFly__) ||	\
+    defined(__sun__)
         SOCK_RDM,
 #endif
         SOCK_SEQPACKET,
