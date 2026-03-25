@@ -49,8 +49,9 @@ static const stress_opt_t opts[] = {
 static int stress_schedpolicy(stress_args_t *args)
 {
 	size_t policy_index = (size_t)args->instance % stress_sched_types_length;
-	int new_policy = stress_sched_types[policy_index].sched;
-	int old_policy = -1, rc = EXIT_SUCCESS;
+	int new_policy;
+	int old_policy = -1;
+	int rc = EXIT_SUCCESS;
 	bool schedpolicy_cpumix = false;
 	bool schedpolicy_rand = false;
 #if defined(_POSIX_PRIORITY_SCHEDULING) || 	\
