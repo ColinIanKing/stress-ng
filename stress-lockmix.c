@@ -348,6 +348,7 @@ static void stress_lockmix_timer_create(stress_args_t *args)
 		return;
 	}
 #endif
+	(void)args;
 }
 
 static void stress_lockmix_timer_delete(void)
