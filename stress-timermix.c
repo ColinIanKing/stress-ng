@@ -87,6 +87,8 @@ static stress_timer_info_t timer_info[] = {
 #endif
 };
 
+#define TIMER_INFO_SIZE	(SIZEOF_ARRAY(timer_info))
+
 /*
  *  stress_timermix_timer_set()
  *	set timer, ensure it is never zero
@@ -184,6 +186,8 @@ cancel:
 	}
 	errno = saved_errno;
 }
+#else
+#define TIMER_INFO_SIZE	(0)
 #endif
 
 #if defined(EXERCISE_ITIMER)
@@ -208,6 +212,8 @@ static stress_itimer_info_t itimer_info[] = {
 	{ ITIMER_PROF,		"ITIMER_PROF",		SIGPROF, 0 },
 #endif
 };
+
+#define ITIMER_INFO_SIZE	(SIZEOF_ARRAY(itimer_info))
 
 static double rate_us;
 
@@ -269,6 +275,8 @@ cancel:
 		(void)setitimer(itimer_info[i].itimer_id, &timer, NULL);
 }
 
+#else
+#define ITIMER_INFO_SIZE	(0)
 #endif
 
 #if defined(EXERCISE_TIMER) ||	\
@@ -452,8 +460,7 @@ const stressor_info_t stress_timermix_info = {
 	.classifier = CLASS_SIGNAL | CLASS_INTERRUPT | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
-	.max_metrics_items = SIZEOF_ARRAY(timer_info) +
-			     SIZEOF_ARRAY(itimer_info)
+	.max_metrics_items = TIMER_INFO_SIZE + ITIMER_INFO_SIZE
 };
 #else
 const stressor_info_t stress_timermix_info = {
