@@ -96,6 +96,7 @@ static int stress_bind_mount_exercise(stress_args_t *args, const char *path)
     defined(HAVE_MOVE_MOUNT) &&	\
     defined(HAVE_SYS_MOUNT_H)
 		int fd;
+		int err;
 #endif
 
 		t = stress_time_now();
@@ -110,7 +111,9 @@ static int stress_bind_mount_exercise(stress_args_t *args, const char *path)
 			return EXIT_NO_RESOURCE;
 		}
 		rc = move_mount(fd, "", AT_FDCWD, path, MOVE_MOUNT_F_EMPTY_PATH);
+		err = errno;
 		(void)close(fd);
+		errno = err;
 #else
 		rc = mount(bind_to_path, path, "", MS_BIND | MS_REC, NULL);
 #endif
