@@ -199,7 +199,9 @@ static const int sockabuse_types[] = {
         SOCK_STREAM,
         SOCK_DGRAM,
         SOCK_RAW,
+#if !defined(__HAIKU__)
         SOCK_RDM,
+#endif
         SOCK_SEQPACKET,
 #if defined(__linux__)
         SOCK_DCCP,
