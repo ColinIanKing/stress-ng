@@ -987,6 +987,62 @@ static void stress_cache_flags_get(const char *opt, uint32_t *cache_flags, uint3
 }
 
 /*
+ *  stress_cache_swap()
+ *	swap two int values
+ */
+static inline ALWAYS_INLINE void stress_cache_swap(int *v1, int *v2)
+{
+	register int tmp;
+
+	tmp = *v1;
+	*v1 = *v2;
+	*v2 = tmp;
+}
+
+/*
+ *  stress_cache_reverse
+ *  	reverse int array of perms from begin to end
+ */
+static inline ALWAYS_INLINE void stress_cache_reverse(
+	int *perms,
+	register size_t begin,
+	register size_t end)
+{
+	while (LIKELY(begin < end)) {
+		stress_cache_swap(perms + begin, perms + end);
+		begin++;
+		end--;
+	}
+}
+
+/*
+ *  stress_cache_permute()
+ *	generate next permutation of int array of perms
+ */
+static void OPTIMIZE3 stress_cache_permute(int *perms_init, int *perms, const int n)
+{
+	int i, j;
+
+	if (UNLIKELY(n < 2))
+		return;
+
+	for (i = n - 2; (i >= 0) && (perms[i] >= perms[i + 1]); i--)
+		;
+
+	if (i < 0) {
+		for (i = 0; i < n; i++)
+			perms[i] = perms_init[i];
+		return;
+	}
+
+	for (j = n - 1; perms[j] <= perms[i]; j--)
+		;
+
+	stress_cache_swap(perms + i, perms + j);
+	stress_cache_reverse(perms, i + 1, n - 1);
+}
+
+/*
  *  stress_cache()
  *	stress cache by psuedo-random memory read/writes and
  *	if possible change CPU affinity to try to cause
@@ -1007,15 +1063,19 @@ static int stress_cache(stress_args_t *args)
 	NOCLOBBER uint32_t cache_flags_mask = CACHE_FLAGS_MASK;
 	NOCLOBBER uint32_t ignored_flags = 0;
 	NOCLOBBER uint32_t total = 0;
-	NOCLOBBER size_t n_flags, idx_flags = 0;
+	NOCLOBBER size_t n_flags, perms_idx = 0;
+	NOCLOBBER size_t perms_total = 0;
+	NOCLOBBER size_t perms_max = 1;
+	const size_t n_flag_bits = sizeof(masked_flags) * 8;
 	int ret = EXIT_SUCCESS;
-	int *flag_permutations = NULL;
+	int perms[n_flag_bits];
+	int perms_init[n_flag_bits];
 	uint8_t *const buffer = g_shared->mem_cache.buffer;
 	const uint64_t buffer_size = g_shared->mem_cache.size;
 	uint64_t i = stress_mwc64modn(buffer_size);
 	uint64_t k = i + (buffer_size >> 1);
 	NOCLOBBER uint64_t r = 0;
-	uint64_t inc = (buffer_size >> 2) + 1;
+	const uint64_t inc = (buffer_size >> 2) + 1;
 	NOCLOBBER void *bad_addr;
 	size_t j;
 	stress_metrics_t metrics[STRESS_CACHE_MAX];
@@ -1215,10 +1275,14 @@ static int stress_cache(stress_args_t *args)
 	stress_proc_state_set(args->name, STRESS_STATE_RUN);
 
 	if (masked_flags) {
-		n_flags = stress_flag_permutation(masked_flags, &flag_permutations);
-		if ((n_flags > 0) && (stress_instance_zero(args)))
-			pr_inf("%s: %zu permutations of cache flags being exercised\n",
-				args->name, n_flags);
+		for (n_flags = 0, j = 0; j < n_flag_bits; j++) {
+			if (masked_flags & 1U << j) {
+				perms[n_flags] = j;
+				perms_init[n_flags] = j; /* keep a copy */
+				n_flags++;
+				perms_max *= n_flags;
+			}
+		}
 	}
 
 	do {
@@ -1239,10 +1303,15 @@ static int stress_cache(stress_args_t *args)
 		case STRESS_CACHE_MIXED_OPS:
 		default:
 			if ((masked_flags) && (n_flags > 0)) {
-				cache_mixed_ops_funcs[flag_permutations[idx_flags]](args, inc, r, &i, &k, &metrics[STRESS_CACHE_MIXED_OPS]);
-				idx_flags++;
-				if (idx_flags >= n_flags)
-					idx_flags = 0;
+				cache_mixed_ops_funcs[perms[perms_idx]](args, inc, r, &i, &k, &metrics[STRESS_CACHE_MIXED_OPS]);
+				perms_idx++;
+				if (perms_idx >= n_flags) {
+					perms_idx = 0;
+					stress_cache_permute(perms_init, perms, n_flags);
+				}
+				perms_total++;
+				if (perms_total > perms_max)
+					perms_total = perms_max;
 
 			} else {
 				flags = masked_flags ? masked_flags : ((stress_mwc32() & CACHE_FLAGS_MASK) & masked_flags);
@@ -1366,6 +1435,11 @@ next:
 
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
 
+	if ((n_flags > 0) && (stress_instance_zero(args)))
+		pr_inf("%s: %zu of %zu (%.2f%%) unique permutations of cache flags fully exercised\n",
+			args->name, perms_total, perms_max,
+			(double)perms_total * 100.0 / (double)perms_max);
+
 	for (j = 0; j < SIZEOF_ARRAY(metrics); j++) {
 		const double rate = metrics[j].duration > 0.0 ?
 			metrics[j].count / metrics[j].duration : 0.0;
@@ -1377,8 +1451,6 @@ next:
 			pr_dbg("%s: %.2f %s\n", args->name, rate, metrics_description[j]);
 	}
 tidy_cpus:
-	if (flag_permutations)
-		free(flag_permutations);
 #if defined(HAVE_SCHED_GETAFFINITY) &&	\
     defined(HAVE_SCHED_SETAFFINITY) &&	\
     defined(HAVE_SCHED_GETCPU)
