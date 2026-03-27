@@ -97,7 +97,7 @@ static int stress_fsize_boundary(
 		return rc;
 
 	off = (off_t)old_rlim->rlim_max;
-	new_rlim.rlim_max = off;
+	new_rlim.rlim_max = old_rlim->rlim_max;
 	new_rlim.rlim_cur = offset;
 
 	if (setrlimit(RLIMIT_FSIZE, &new_rlim) < 0) {
@@ -180,7 +180,7 @@ static int stress_fsize(stress_args_t *args)
 	int fd, ret, rc = EXIT_SUCCESS;
 	struct rlimit old_rlim;
 	rlim_t max;
-	const off_t max_offset = stress_fsize_max_off_t();
+	off_t max_offset;
 	double t, duration, rate;
 
 	/* this should work */
@@ -189,6 +189,12 @@ static int stress_fsize(stress_args_t *args)
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
+
+	/* Determine the maximum allowed offset */
+	max_offset = stress_fsize_max_off_t();
+	if (max_offset > (off_t)old_rlim.rlim_max)
+		max_offset = (off_t)old_rlim.rlim_max;
+
 	if (stress_signal_handler(args->name, SIGXFSZ, stress_fsize_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 
