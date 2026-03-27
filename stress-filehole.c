@@ -511,7 +511,7 @@ static int stress_filehole(stress_args_t *args)
 		rc = EXIT_NO_RESOURCE;
 		goto tidy_ret;
 	}
-	zero_buf = (uint64_t *)(((uintptr_t *)buf) + page_size);
+	zero_buf = buf + (page_size / sizeof(uint64_t));
 	pages = (size_t)(filehole_bytes / page_size);
 
 	stress_memory_anon_name_set(buf, page_size, "filehole-buffer");
