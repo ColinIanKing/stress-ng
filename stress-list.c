@@ -340,7 +340,7 @@ static int OPTIMIZE3 stress_list_circleq(
 	metrics->duration += stress_time_now() - t;
 	metrics->count += (double)(entry - entries);
 
-	while ((entry = (list_entry_t *)CIRCLEQ_FIRST(&head)) != (list_entry_t *)&head) {
+	while ((entry = (list_entry_t *)CIRCLEQ_FIRST(&head)) != (list_entry_t *)(void *)&head) {
 		CIRCLEQ_REMOVE(&head, entry, u.circleq_entries);
 	}
 	CIRCLEQ_INIT(&head);
