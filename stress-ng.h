@@ -26,10 +26,6 @@
 #define _GNU_SOURCE
 #endif
 
-#ifndef _LARGEFILE_SOURCE
-#define _LARGEFILE_SOURCE	(1)
-#endif
-
 #ifdef _FILE_OFFSET_BITS
 #undef _FILE_OFFSET_BITS
 #endif
