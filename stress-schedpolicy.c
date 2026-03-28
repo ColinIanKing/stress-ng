@@ -321,6 +321,7 @@ case_sched_fifo:
 				     (errno != EINVAL) &&
 				     (errno != EINTR) &&
 				     (errno != ENOSYS) &&
+				     (errno != E2BIG) &&
 				     (errno != EBUSY))) {
 				pr_fail("%s: sched_setscheduler "
 					"failed, errno=%d (%s) "
