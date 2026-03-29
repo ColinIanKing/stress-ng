@@ -630,7 +630,7 @@ static int stress_schedmix(stress_args_t *args)
 	stress_proc_state_set(args->name, STRESS_STATE_RUN);
 
 	do {
-		if (schedmix_cpumix) {
+		if (schedmix_cpumix && cpus) {
 			const uint32_t idx = stress_mwc32modn(n_cpus);
 			i = stress_mwcsizemodn(schedmix_procs);
 
