@@ -630,7 +630,16 @@ static int stress_schedmix(stress_args_t *args)
 	stress_proc_state_set(args->name, STRESS_STATE_RUN);
 
 	do {
-		(void)shim_pause();
+		if (schedmix_cpumix) {
+			const uint32_t idx = stress_mwc32modn(n_cpus);
+			i = stress_mwcsizemodn(schedmix_procs);
+
+			stress_schedmix_setaffinity(s_pids[i].pid, cpus[idx]);
+			if (stress_continue(args))
+				stress_random_small_sleep();
+		} else {
+			(void)shim_pause();
+		}
 	} while (stress_continue(args));
 
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
