@@ -349,6 +349,10 @@ static const stress_fs_name_t stress_fs_names[] = {
 	{ 0x54190100,		"ufs" },	/* byteswapped */
 	{ 0x0f242697,		"ufs-bw" },
 	{ 0x19540119,		"ufs2" },
+	{ 0x42465331,		"befs1" },
+	{ 0xdd121031,		"befs2" },
+	{ 0x15b6830e,		"befs3" },
+	{ 0x786f4256,		"vboxfs" },
 };
 
 #endif
