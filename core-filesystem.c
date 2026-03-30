@@ -345,7 +345,12 @@ static const stress_fs_name_t stress_fs_names[] = {
 #endif
 	{ 0x2fc12fc1,		"zfs" },
 	{ 0x53464846,		"wsl" },
+	{ 0x00011954,		"ufs" },
+	{ 0x54190100,		"ufs" },	/* byteswapped */
+	{ 0x0f242697,		"ufs-bw" },
+	{ 0x19540119,		"ufs2" },
 };
+
 #endif
 
 /*
