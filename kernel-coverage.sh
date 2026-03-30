@@ -85,6 +85,10 @@ mount_filesystem()
 	rm -f ${FSIMAGE}
 	COUNT=4000
 	case $1 in
+		nfs)	MKFS_CMD="true"
+			MKFS_ARGS=""
+			MNT_CMD="sudo mount localhost:/nfs ${MNT}"
+			;;
 		ext2)	MKFS_CMD="mkfs.ext2"
 			MKFS_ARGS="-F ${FSIMAGE}"
 			MNT_CMD="sudo mount -o loop ${FSIMAGE} ${MNT}"
@@ -350,7 +354,7 @@ fi
 DURATION=180
 do_stress --dev 32
 
-for FS in bfs btrfs ext2 ext3 ext4 exfat f2fs fat hfs hfsplus jfs minix1 minix2 minix3 nilfs ntfs overlay ramfs reiserfs tmpfs ubifs udf vfat xfs
+for FS in bfs btrfs ext2 ext3 ext4 exfat f2fs fat hfs hfsplus jfs minix1 minix2 minix3 nfs nilfs ntfs overlay ramfs reiserfs tmpfs ubifs udf vfat xfs
 do
 	if mount_filesystem $FS; then
 		MNTDEV=$(findmnt -T $MNT -o SOURCE  --verbose -n)
