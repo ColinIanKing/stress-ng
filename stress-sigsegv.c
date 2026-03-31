@@ -66,7 +66,7 @@ static volatile int code;
     defined(__sun__)
 #define MAX_MASK_SHIFT	(46)
 #else
-#define MAX_MASK_SHIFT	(50)
+#define MAX_MASK_SHIFT	(49)
 #endif
 
 /*
