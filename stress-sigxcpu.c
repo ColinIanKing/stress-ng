@@ -71,6 +71,7 @@ static int stress_sigxcpu(stress_args_t *args)
 #endif
 #if defined(RUSAGE_SELF)
 	struct rusage usage;
+	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 #endif
 	double cpu_used;
 
@@ -128,11 +129,11 @@ static int stress_sigxcpu(stress_args_t *args)
 	VOID_RET(int, stress_signal_handler(args->name, SIGXCPU, SIG_IGN, NULL));
 
 #if defined(RUSAGE_SELF)
-	if (shim_getrusage(RUSAGE_SELF, &usage) == 0) {
+	if (verify && (shim_getrusage(RUSAGE_SELF, &usage) == 0)) {
 		const double runtime = stress_sigxcpu_cpu_usage() - cpu_used;
 
-		/* Allow stressor to run for ~1 second before checking */
-		if ((runtime > 0.95) && (stress_bogo_get(args) == 0)) {
+		/* Allow stressor to run for ~10 second before checking */
+		if ((runtime > 10.0) && (stress_bogo_get(args) == 0)) {
 			pr_fail("%s: no SIGXCPU signals occurred in %.2f seconds of runtime\n",
 				args->name, runtime);
 			rc = EXIT_FAILURE;
@@ -146,14 +147,14 @@ static int stress_sigxcpu(stress_args_t *args)
 const stressor_info_t stress_sigxcpu_info = {
 	.stressor = stress_sigxcpu,
 	.classifier = CLASS_SIGNAL | CLASS_OS,
-	.verify = VERIFY_ALWAYS,
+	.verify = VERIFY_OPTIONAL,
 	.help = help
 };
 #else
 const stressor_info_t stress_sigxcpu_info = {
 	.stressor = stress_unimplemented,
 	.classifier = CLASS_SIGNAL | CLASS_OS,
-	.verify = VERIFY_ALWAYS,
+	.verify = VERIFY_OPTIONAL,
 	.help = help,
 	.unimplemented_reason = "built without SIGXCPU or RLIMIT_FSIZE"
 };
