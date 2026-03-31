@@ -2337,7 +2337,7 @@ static void stress_metrics_dump(FILE *yaml)
 		/* Total usr + sys time of all procs */
 		bogo_rate_r_time = (r_total > 0.0) ? (double)c_total / r_total : 0.0;
 		{
-			double us_total = u_time + s_time;
+			const double us_total = u_time + s_time;
 
 			bogo_rate = (us_total > 0.0) ? (double)c_total / us_total : 0.0;
 		}
