@@ -25,8 +25,9 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
-#if defined(SIGXCPU) &&	\
-    defined(RLIMIT_CPU)
+#if defined(SIGXCPU) &&		\
+    (defined(RLIMIT_CPU) ||	\
+     defined(RLIMIT_RTTIME))
 
 static stress_args_t *sigxcpu_args;
 
@@ -40,6 +41,21 @@ static void MLOCKED_TEXT stress_sigxcpu_handler(int signum)
 		stress_bogo_inc(sigxcpu_args);
 }
 
+static double stress_sigxcpu_cpu_usage(void)
+{
+#if defined(RUSAGE_SELF)
+	struct rusage usage;
+
+	if (shim_getrusage(RUSAGE_SELF, &usage) == 0) {
+		return (double)usage.ru_utime.tv_sec +
+		       (((double)usage.ru_utime.tv_usec) / STRESS_DBL_MICROSECOND) +
+		       (double)usage.ru_stime.tv_sec +
+	               (((double)usage.ru_stime.tv_usec) / STRESS_DBL_MICROSECOND);
+	}
+#endif
+	return 0.0;
+}
+
 /*
  *  stress_sigxcpu
  *	stress SIGXCPU signal generation
@@ -47,37 +63,82 @@ static void MLOCKED_TEXT stress_sigxcpu_handler(int signum)
 static int stress_sigxcpu(stress_args_t *args)
 {
 	int rc = EXIT_SUCCESS;
-	struct rlimit limit;
+#if defined(RLIMIT_CPU)
+	struct rlimit limit_cpu;
+#endif
+#if defined(RLIMIT_RTTIME)
+	struct rlimit limit_rttime;
+#endif
+#if defined(RUSAGE_SELF)
+	struct rusage usage;
+#endif
+	double cpu_used;
 
 	sigxcpu_args = args;
 
 	if (stress_signal_handler(args->name, SIGXCPU, stress_sigxcpu_handler, NULL) < 0)
 		return EXIT_FAILURE;
 
-	if (getrlimit(RLIMIT_CPU, &limit) < 0) {
-		pr_inf("%s: getrlimit failed, errno=%d (%s), skipping stressor\n",
+#if defined(RLIMIT_CPU)
+	if (getrlimit(RLIMIT_CPU, &limit_cpu) < 0) {
+		pr_inf("%s: getrlimit RLIMIT_CPU failed, errno=%d (%s), skipping stressor\n",
 			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
+#endif
+#if defined(RLIMIT_RTTIME)
+	if (getrlimit(RLIMIT_CPU, &limit_rttime) < 0) {
+		pr_inf("%s: getrlimit RLIMIT_RTTIME failed, errno=%d (%s), skipping stressor\n",
+			args->name, errno, strerror(errno));
+		return EXIT_NO_RESOURCE;
+	}
+#endif
 
 	stress_proc_state_set(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
 	stress_proc_state_set(args->name, STRESS_STATE_RUN);
 
+	cpu_used = stress_sigxcpu_cpu_usage();
+
 	do {
-		limit.rlim_cur = 0;
-		if (setrlimit(RLIMIT_CPU, &limit) < 0) {
-			pr_inf("%s: setrlimit failed, errno=%d (%s)\n",
+#if defined(RLIMIT_CPU)
+		limit_cpu.rlim_cur = 0;
+		if (setrlimit(RLIMIT_CPU, &limit_cpu) < 0) {
+			pr_inf("%s: setrlimit RLIMIT_CPU failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			rc = EXIT_FAILURE;
 			break;
 		}
+		(void)shim_sched_yield();
+#endif
+#if defined(RLIMIT_RTTIME)
+		limit_rttime.rlim_cur = 0;
+		if (setrlimit(RLIMIT_RTTIME, &limit_rttime) < 0) {
+			pr_inf("%s: setrlimit RLIMIT_RTTIME failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
+			rc = EXIT_FAILURE;
+			break;
+		}
+#endif
 		(void)shim_sched_yield();
 	} while (stress_continue(args));
 
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
 
 	VOID_RET(int, stress_signal_handler(args->name, SIGXCPU, SIG_IGN, NULL));
+
+#if defined(RUSAGE_SELF)
+	if (shim_getrusage(RUSAGE_SELF, &usage) == 0) {
+		const double runtime = stress_sigxcpu_cpu_usage() - cpu_used;
+
+		/* Allow stressor to run for ~1 second before checking */
+		if ((runtime > 0.95) && (stress_bogo_get(args) == 0)) {
+			pr_fail("%s: no SIGXCPU signals occurred in %.2f seconds of runtime\n",
+				args->name, runtime);
+			rc = EXIT_FAILURE;
+		}
+	}
+#endif
 
 	return rc;
 }
