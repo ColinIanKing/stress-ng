@@ -461,7 +461,7 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 		NOCLOBBER size_t n, mmap_size;
 		NOCLOBBER pid_t pid = -1;
 		NOCLOBBER uint64_t total_bytes = 0;
-		off_t offset;
+		NOCLOBBER off_t offset;
 		bool random_offset;
 
 		if (sigsetjmp(jmp_env, 1))
