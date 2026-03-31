@@ -2467,10 +2467,10 @@ static void stress_metrics_dump(FILE *yaml)
 					n = 0.0;
 
 					for (j = 0; j < item->instances; j++) {
-						int e;
 						const double value = item->stats[j]->metrics_values[i];
 
 						if ((value > 0.0) || (value < 0.0)) {
+							int e;
 							const double f = frexp(value, &e);
 
 							mantissa *= f;
