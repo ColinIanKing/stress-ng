@@ -39,6 +39,14 @@ Linux systems to make the stressors unkillable in low memory situations, so use
 this judiciously. With the appropriate privilege, stress-ng can allow the ionice
 class and ionice levels to be adjusted, again, this should be used with care.
 
+## Sponsoring the project
+
+stress-ng is free and will always be free. Sponsoring the project is a great
+way to help pay for the running costs (hardware, power, etc) to support the
+development process.
+
+Sponsor link: https://github.com/sponsors/ColinIanKing
+
 ## Running latest stress-ng snapshot in a container
 
 ```bash
