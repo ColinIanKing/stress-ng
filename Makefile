@@ -18,9 +18,9 @@
 #
 
 #
-# Codename "malevolent memory masher"
+# Codename "systemic system smasher"
 #
-VERSION=0.20.01
+VERSION=0.21.00
 
 #
 # Determine supported toolchains
