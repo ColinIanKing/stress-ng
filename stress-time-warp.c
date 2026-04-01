@@ -213,7 +213,7 @@ static int stress_time_warp(stress_args_t *args)
 		ret = clocks[i].gettime(clocks[i].id, &stress_times[i].ts_init);
 		if (ret == 0) {
 			stress_times[i].ts_prev = stress_times[i].ts_init;
-		} else if (UNLIKELY((errno != EINVAL) && (errno != ENOSYS))) {
+		} else if (UNLIKELY((errno != EINVAL) && (errno != ENOSYS) && (errno != ENODEV))) {
 			pr_fail("%s: %s failed, errno=%d (%s)\n",
 				args->name, clocks[i].name, errno, strerror(errno));
 			stress_times[i].failed = true;
@@ -235,7 +235,7 @@ static int stress_time_warp(stress_args_t *args)
 				stress_times[i].warped +=
 					stress_time_warp_lt(&ts, &stress_times[i].ts_prev);
 				stress_times[i].ts_prev = ts;
-			} else if (UNLIKELY((errno != EINVAL) && (errno != ENOSYS))) {
+			} else if (UNLIKELY((errno != EINVAL) && (errno != ENOSYS) && (errno != ENODEV))) {
 				pr_fail("%s: %s failed, errno=%d (%s)\n",
 					args->name, clocks[i].name, errno, strerror(errno));
 				stress_times[i].failed = true;
