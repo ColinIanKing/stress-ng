@@ -614,6 +614,7 @@ stress-ng has found various Kernel, QEMU bugs/regressions, and libc bugs; approp
  * [mm/vmscan: fix demotion targets checks in reclaim/demotion](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=1aceed565ff172fc0331dd1d5e7e65139b711139)
  * [scsi: storvsc: Fix scheduling while atomic on PREEMPT_RT](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=57297736c08233987e5d29ce6584c6ca2a831b12)
  * [sched/deadline: Fix missing ENQUEUE_REPLENISH during PI de-boosting](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=d658686a1331db3bb108ca079d76deb3208ed949)
+ * [Resolute kernel 7.0-10 kernel hangs on chattr stress test](https://bugs.launchpad.net/ubuntu/+source/linux/+bug/2147007)
 
 ## Kernel improvements that used stress-ng
 
