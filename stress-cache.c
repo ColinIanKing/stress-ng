@@ -1302,7 +1302,7 @@ static int stress_cache(stress_args_t *args)
 		switch (r) {
 		case STRESS_CACHE_MIXED_OPS:
 		default:
-			if ((masked_flags) && (n_flags > 0)) {
+			if ((cache_flags & CACHE_FLAGS_PERMUTE) && (masked_flags) && (n_flags > 0)) {
 				cache_mixed_ops_funcs[perms[perms_idx]](args, inc, r, &i, &k, &metrics[STRESS_CACHE_MIXED_OPS]);
 				perms_idx++;
 				if (perms_idx >= n_flags) {
@@ -1435,7 +1435,7 @@ next:
 
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
 
-	if ((n_flags > 0) && (stress_instance_zero(args)))
+	if ((cache_flags & CACHE_FLAGS_PERMUTE) && (n_flags > 0) && (stress_instance_zero(args)))
 		pr_inf("%s: %zu of %zu (%.2f%%) unique permutations of cache flags fully exercised\n",
 			args->name, perms_total, perms_max,
 			(double)perms_total * 100.0 / (double)perms_max);
