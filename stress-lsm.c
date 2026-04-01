@@ -39,7 +39,7 @@ static const stress_help_t help[] = {
  *  shim_lsm_list_modules()
  *	shim system call wrapper for lsm_list_modules()
  */
-static int shim_lsm_list_modules(uint64_t *ids, size_t *size, uint32_t flags)
+static int shim_lsm_list_modules(uint64_t *ids, uint32_t *size, uint32_t flags)
 {
 	return (int)syscall(__NR_lsm_list_modules, ids, size, flags);
 }
@@ -48,7 +48,7 @@ static int shim_lsm_list_modules(uint64_t *ids, size_t *size, uint32_t flags)
  *  shim_lsm_get_self_attr
  *	shim system call wrapper for lsm_get_self_attr()
  */
-static int shim_lsm_get_self_attr(unsigned int attr, struct lsm_ctx *ctx, size_t *size, uint32_t flags)
+static int shim_lsm_get_self_attr(unsigned int attr, struct lsm_ctx *ctx, uint32_t *size, uint32_t flags)
 {
 	return (int)syscall(__NR_lsm_get_self_attr, attr, ctx, size, flags);
 }
@@ -57,7 +57,7 @@ static int shim_lsm_get_self_attr(unsigned int attr, struct lsm_ctx *ctx, size_t
  *  shim_lsm_set_self_attr
  *	shim system call wrapper for lsm_set_self_attr()
  */
-static int shim_lsm_set_self_attr(unsigned int attr, struct lsm_ctx *ctx, size_t size, uint32_t flags)
+static int shim_lsm_set_self_attr(unsigned int attr, struct lsm_ctx *ctx, uint32_t size, uint32_t flags)
 {
 	return (int)syscall(__NR_lsm_set_self_attr, attr, ctx, size, flags);
 }
@@ -70,7 +70,7 @@ static int stress_lsm(stress_args_t *args)
 {
 	void *buf;
 	int rc = EXIT_SUCCESS;
-	const size_t buf_size = args->page_size * 8;
+	const size_t buf_size = args->page_size * 32;
 	bool lsm_id_undef = false, lsm_id_reserved = false, lsm_id_defined = false;
 	double list_duration = 0.0, list_count = 0.0;
 	double get_duration = 0.0, get_count = 0.0;
@@ -113,12 +113,13 @@ static int stress_lsm(stress_args_t *args)
 	stress_proc_state_set(args->name, STRESS_STATE_RUN);
 
 	do {
-		size_t size, j;
+		size_t j;
+		uint32_t size;
 		int i, ret;
 		uint64_t *ids = (uint64_t *)buf;
 		double t;
 
-		size = buf_size;
+		size = (uint32_t)buf_size;
 		t = stress_time_now();
 		ret = shim_lsm_list_modules(ids, &size, 0);
 		if (LIKELY(ret >= 0)) {
@@ -138,7 +139,7 @@ static int stress_lsm(stress_args_t *args)
 		}
 
 		/* exercise invalid flags */
-		size = 1;
+		size = 1U;
 		ret = shim_lsm_list_modules(ids, &size, ~0);
 		if (UNLIKELY((ret >= 0) || ((ret < 0) && (errno != EINVAL)))) {
 			pr_fail("%s: lsm_list_modules call with invalid flags should return -1, got %d, errno=%d (%s) instead\n",
@@ -147,7 +148,7 @@ static int stress_lsm(stress_args_t *args)
 		}
 
 		/* exercise NULL ids */
-		size = 1;
+		size = 1U;
 		ret = shim_lsm_list_modules(NULL, &size, 0);
 		if (UNLIKELY((ret >= 0) || ((ret < 0) && (errno != E2BIG)))) {
 			pr_fail("%s: lsm_list_modules call with NULL ids should return -1, got %d, errno=%d (%s) instead\n",
@@ -160,7 +161,7 @@ static int stress_lsm(stress_args_t *args)
 			struct lsm_ctx *ctx_end = (struct lsm_ctx *)((uintptr_t)buf + buf_size);
 			struct lsm_ctx tmp_ctx ALIGNED(8);
 
-			size = buf_size;
+			size = (uint32_t)buf_size;
 			t = stress_time_now();
 
 			ret = shim_lsm_get_self_attr(attr[j], ctx, &size, 0);
@@ -184,7 +185,7 @@ static int stress_lsm(stress_args_t *args)
 
 			/* exercise invalid attr */
 			ctx = (struct lsm_ctx *)buf;
-			size = buf_size;
+			size = (uint32_t)buf_size;
 			ret = shim_lsm_get_self_attr(~0, ctx, &size, 0);
 			if (UNLIKELY((ret >= 0) || ((ret < 0) && (errno != EOPNOTSUPP)))) {
 				pr_fail("%s: lsm_get_self_attr call with invalid attr should return -1, got %d, errno=%d (%s) instead\n",
@@ -193,7 +194,7 @@ static int stress_lsm(stress_args_t *args)
 			}
 
 			/* exercise invalid ctx */
-			size = buf_size;
+			size = (uint32_t)buf_size;
 			ret = shim_lsm_get_self_attr(attr[j], (struct lsm_ctx *)~(uintptr_t)0, &size, 0);
 			if (UNLIKELY((ret >= 0) || ((ret < 0) && (errno != EFAULT)))) {
 				pr_fail("%s: lsm_get_self_attr call with NULL ctx should return -1, got %d, errno=%d (%s) instead\n",
@@ -202,7 +203,7 @@ static int stress_lsm(stress_args_t *args)
 			}
 
 			/* exercise invalid flags */
-			size = buf_size;
+			size = (uint32_t)buf_size;
 			ret = shim_lsm_get_self_attr(attr[j], ctx, &size, ~0);
 			if (UNLIKELY((ret >= 0) || ((ret < 0) && (errno != EINVAL)))) {
 				pr_fail("%s: lsm_get_self_attr call with invalid flags should return -1, got %d, errno=%d (%s) instead\n",
