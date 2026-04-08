@@ -194,58 +194,6 @@ static int stress_flock_child(
 		UNEXPECTED
 #endif
 
-#if defined(LOCK_MAND) &&	\
-    defined(LOCK_READ)
-		if (UNLIKELY(!stress_continue(args)))
-			break;
-
-		t = stress_time_now();
-		if (flock(fd1, LOCK_MAND | LOCK_READ) == 0) {
-			lock_duration += stress_time_now() - t;
-			lock_count += 1.0;
-
-			cont = stress_continue(args);
-			if (LIKELY(cont))
-				stress_bogo_inc(args);
-
-			t = stress_time_now();
-			if (LIKELY(flock(fd1, LOCK_UN) == 0)) {
-				unlock_duration += stress_time_now() - t;
-				unlock_count += 1.0;
-			}
-			if (UNLIKELY(!cont))
-				break;
-		}
-#else
-		UNEXPECTED
-#endif
-
-#if defined(LOCK_MAND) &&	\
-    defined(LOCK_WRITE)
-		if (UNLIKELY(!stress_continue(args)))
-			break;
-
-		t = stress_time_now();
-		if (flock(fd1, LOCK_MAND | LOCK_WRITE) == 0) {
-			lock_duration += stress_time_now() - t;
-			lock_count += 1.0;
-
-			cont = stress_continue(args);
-			if (LIKELY(cont))
-				stress_bogo_inc(args);
-
-			t = stress_time_now();
-			if (LIKELY(flock(fd1, LOCK_UN) == 0)) {
-				unlock_duration += stress_time_now() - t;
-				unlock_count += 1.0;
-			}
-			if (UNLIKELY(!cont))
-				break;
-		}
-#else
-		UNEXPECTED
-#endif
-
 #if defined(LOCK_EX) &&		\
     defined(LOCK_SH)
 		if (UNLIKELY(!stress_continue(args)))
