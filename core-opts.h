@@ -1331,6 +1331,10 @@ typedef enum {
 	OPT_rmap_ops,
 	OPT_rmap_procs,
 
+	OPT_rofs,
+	OPT_rofs_dir,
+	OPT_rofs_ops,
+
 	OPT_rotate,
 	OPT_rotate_method,
 	OPT_rotate_ops,

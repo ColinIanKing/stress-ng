@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, may be w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "17 March 2026"
+.TH STRESS-NG 1 "8 April 2026"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -7948,6 +7948,22 @@ stop after N bogo rmap memory writes/reads.
 .B \-\-rmap\-procs N
 specify the number of processes per worker to exercise the reverse mapping. The
 range is 8 to 256, with a default of 16.
+.RE
+.TP
+.B Read-only file system stressor
+.RS 5
+.TQ
+.B \-\-rofs N
+start N workers that exercise read-only mounted file systems. By default this
+will try and exercise all mounted read-only file systems with access(2), read(2),
+lstat(2), listxattr(2), mmap(2), lseek(2), flock(2) and statx(2) system calls.
+.TP
+.B \-\-rofs\-dir directory
+specify a directory where a read-only file system is mounted, this overrides the
+default to find mounted read-only file systems.
+.TP
+.B \-\-rofs\-ops N
+stop after N read-only file system bogo-operations.
 .RE
 .TP
 .B 1 bit rotation stressor

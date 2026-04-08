@@ -731,6 +731,7 @@ STRESS_SRC = \
 	stress-ring-pipe.c \
 	stress-rlimit.c \
 	stress-rmap.c \
+	stress-rofs.c \
 	stress-rotate.c \
 	stress-rseq.c \
 	stress-rtc.c \

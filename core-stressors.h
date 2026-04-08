@@ -278,6 +278,7 @@
 	MACRO(ring_pipe)	\
 	MACRO(rlimit)		\
 	MACRO(rmap)		\
+	MACRO(rofs)		\
 	MACRO(rotate)		\
 	MACRO(rseq)		\
 	MACRO(rtc)		\
