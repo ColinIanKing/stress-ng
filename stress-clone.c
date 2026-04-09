@@ -78,7 +78,7 @@ static stress_clone_list_t clones;
 
 static size_t flag_count;
 static int *flag_perms;
-static const unsigned int all_flags =
+static const uint64_t all_flags =
 #if defined(CLONE_FS)
 	CLONE_FS |
 #endif
@@ -108,6 +108,9 @@ static const unsigned int all_flags =
 #endif
 #if defined(CLONE_FILES)
 	CLONE_FILES |
+#endif
+#if defined(CLONE_NNP)
+	CLONE_NNP |
 #endif
 	0;
 
@@ -207,6 +210,9 @@ static const uint64_t flags[] = {
 #endif
 #if defined(CLONE_NEWTIME)
 	CLONE_NEWTIME,
+#endif
+#if defined(CLONE_NNP)
+	CLONE_NNP,
 #endif
 };
 
@@ -543,15 +549,17 @@ static int stress_clone_child(stress_args_t *args, void *context)
 				}
 			} else {
 				char *stack_top = (char *)stress_stack_top((char *)clone_info->stack, CLONE_STACK_SIZE);
+				int clone_flag = (int)(flag & 0xffffffffUL);
+
 #if defined(__FreeBSD_kernel__) || 	\
     defined(__NetBSD__)
 				shared->metrics.t_start = stress_time_now();
 				clone_info->pid = clone(clone_func,
-					stress_align_stack(stack_top), (int)flag, &clone_arg);
+					stress_align_stack(stack_top), clone_flag, &clone_arg);
 #else
 				shared->metrics.t_start = stress_time_now();
 				clone_info->pid = clone(clone_func,
-					stress_align_stack(stack_top), (int)flag, &clone_arg, &parent_tid,
+					stress_align_stack(stack_top), clone_flag, &clone_arg, &parent_tid,
 					NULL, &child_tid);
 #endif
 			}
