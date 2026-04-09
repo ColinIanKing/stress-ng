@@ -35,7 +35,6 @@ static const stress_help_t help[] = {
  */
 static int stress_idle_page_supported(const char *name)
 {
-
 	if (!stress_capabilities_check(SHIM_CAP_SYS_RESOURCE)) {
 		pr_inf_skip("%s stressor will be skipped, "
 			"need to be running with CAP_SYS_RESOURCE "
