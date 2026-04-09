@@ -112,6 +112,9 @@ static const uint64_t all_flags =
 #if defined(CLONE_NNP)
 	CLONE_NNP |
 #endif
+#if defined(CLONE_PIDFD_AUTOKILL)
+	CLONE_PIDFD_AUTOKILL |
+#endif
 	0;
 
 
@@ -213,6 +216,9 @@ static const uint64_t flags[] = {
 #endif
 #if defined(CLONE_NNP)
 	CLONE_NNP,
+#endif
+#if defined(CLONE_PIDFD_AUTOKILL)
+	CLONE_PIDFD_AUTOKILL,
 #endif
 };
 
