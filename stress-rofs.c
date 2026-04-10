@@ -551,7 +551,7 @@ static int stress_rofs_file_invalid_open_close(
 	(*count) += 1.0;
 
 	fd = open(path, flags[idx], 0007);
-	if (fd) {
+	if (fd >= 0) {
 		ssize_t lret;
 		char data[1];
 
