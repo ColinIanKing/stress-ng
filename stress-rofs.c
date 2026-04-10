@@ -79,7 +79,10 @@ typedef struct stress_rofs_metric {
  *  stres_rofs_file_open()
  *	open a file, read-only
  */
-static int stres_rofs_file_open(stress_args_t *args, const char *path)
+static int stres_rofs_file_open(
+	stress_args_t *args,
+	const char *path,
+	stress_rofs_info_t *info)
 {
 	int fd;
 
@@ -90,6 +93,10 @@ static int stres_rofs_file_open(stress_args_t *args, const char *path)
 		case EACCES:
 		case ENOMEM:
 			return -1;
+		case ENOENT:
+			if (info->statbuf.st_mode & S_IFLNK)
+				return -1;
+			break;
 		default:
 			pr_fail("%s: open on '%s' failed, errno=%d (%s)\n",
 				args->name, path, errno, strerror(errno));
@@ -194,8 +201,9 @@ static int stress_rofs_file_mmap(
 	int fd;
 	size_t i;
 	const size_t page_size = args->page_size;
-	struct stat *statbuf = &info->statbuf;
-	const size_t size = (size_t)statbuf->st_size;
+	const off_t size = (off_t)((info->statbuf.st_size > 0) ? info->statbuf.st_size : 0);
+	const off_t mask = ~(off_t)(page_size - 1);
+	size_t n_mmaps;
 
 	/* try just regular files */
 	if (!(info->statbuf.st_mode & (S_IFREG)))
@@ -204,27 +212,32 @@ static int stress_rofs_file_mmap(
 	if (size == 0)
 		return 0;
 
-	fd = stres_rofs_file_open(args, path);
+	fd = stres_rofs_file_open(args, path, info);
 	if (fd < 0)
 		return -1;
+
+	n_mmaps = (size >> 1) / page_size;
+	if (n_mmaps < 1)
+		n_mmaps = 1;
+	if (n_mmaps > 8)
+		n_mmaps = 8;
 
 	/*
 	 *  mmap file in page size hunks and read data
 	 */
-	for (i = 0; stress_continue(args) && (i < size); i += page_size) {
-		size_t mmap_size = (size - i);
+	for (i = 0; stress_continue(args) && (i < n_mmaps); i++) {
+		const size_t rand_off = (off_t)((size > 0) ? stress_mwc64modn((uint64_t)size) : 0);
 
-		mmap_size = (mmap_size > page_size) ? page_size : mmap_size;
-		data = (char *)mmap(NULL, mmap_size, PROT_READ, MAP_PRIVATE, fd, (off_t)i);
+		data = (char *)mmap(NULL, page_size, PROT_READ, MAP_PRIVATE, fd, rand_off & mask);
 		if (data != MAP_FAILED) {
-			register const char *ptr_end = data + mmap_size;
+			register const char *ptr_end = data + page_size;
 			register volatile char *ptr;
 
 			(*count) += 1.0;
 			for (ptr = data; ptr < ptr_end; ptr++)
 				(void)*ptr;
 
-			(void)munmap((void *)data, mmap_size);
+			(void)munmap((void *)data, page_size);
 		}
 	}
 
@@ -245,6 +258,98 @@ static int stress_rofs_file_mmap(
 	return 0;
 }
 
+typedef off_t (*stress_rofs_lseek_func_t)(const int fd, const off_t size,
+					  const off_t curr_off, const off_t rand_off);
+
+static off_t stress_rofs_lseek_set(
+	const int fd,
+	const off_t size,
+	const off_t curr_off,
+	const off_t rand_off)
+{
+	(void)size;
+	(void)curr_off;
+
+	return lseek(fd, rand_off, SEEK_SET);
+}
+
+static off_t stress_rofs_lseek_cur(
+	const int fd,
+	const off_t size,
+	const off_t curr_off,
+	const off_t rand_off)
+{
+	(void)size;
+
+	return lseek(fd, rand_off - curr_off, SEEK_CUR);
+}
+
+static off_t stress_rofs_lseek_end(
+	const int fd,
+	const off_t size,
+	const off_t curr_off,
+	const off_t rand_off)
+{
+	(void)size;
+	(void)curr_off;
+
+	return lseek(fd, size - rand_off, SEEK_CUR);
+}
+
+#if defined(SEEK_HOLE)
+static off_t stress_rofs_lseek_hole(
+	const int fd,
+	const off_t size,
+	const off_t curr_off,
+	const off_t rand_off)
+{
+	(void)size;
+	(void)curr_off;
+
+	return lseek(fd, rand_off, SEEK_HOLE);
+}
+#endif
+
+#if defined(SEEK_DATA)
+static off_t stress_rofs_lseek_data(
+	const int fd,
+	const off_t size,
+	const off_t curr_off,
+	const off_t rand_off)
+{
+	(void)size;
+	(void)curr_off;
+
+	return lseek(fd, rand_off, SEEK_DATA);
+}
+#endif
+
+static const stress_rofs_lseek_func_t stress_rofs_lseek_funcs[] = {
+	stress_rofs_lseek_set,
+	stress_rofs_lseek_cur,
+	stress_rofs_lseek_end,
+#if defined(SEEK_HOLE)
+	stress_rofs_lseek_hole,
+#endif
+#if defined(SEEK_DATA)
+	stress_rofs_lseek_data,
+#endif
+};
+
+static off_t stress_rofs_lseek(const int fd, stress_rofs_info_t *info)
+{
+	off_t size = info->statbuf.st_size;
+	off_t curr_off = lseek(fd, 0, SEEK_CUR);
+	off_t rand_off;
+	size_t rnd = stress_mwcsizemodn(SIZEOF_ARRAY(stress_rofs_lseek_funcs));
+
+	size = (off_t)((info->statbuf.st_size > 0) ? info->statbuf.st_size : 0);
+	curr_off = (curr_off > 0) ? curr_off : 0;
+	rand_off = (off_t)((size > 0) ? stress_mwc64modn((uint64_t)size) : 0);
+
+	return stress_rofs_lseek_funcs[rnd](fd, size, curr_off, rand_off);
+}
+
 /*
  *  stress_rofs_file_read()
  *	random positioned 512 byte reads
@@ -258,20 +363,16 @@ static int stress_rofs_file_read(
 	int fd;
 	int i;
 	char buffer[READ_BUF_SIZE] ALIGN64;
-	const off_t size = info->statbuf.st_size;
 
-	(void)info;
-
-	fd = stres_rofs_file_open(args, path);
+	fd = stres_rofs_file_open(args, path, info);
 	if (fd < 0)
 		return -1;
 
 	for (i = 0; stress_continue(args) && (i < 32); i++) {
 		ssize_t ret;
-		const off_t offset = (size > 0) ?
-			(off_t)stress_mwc64modn((uint64_t)size) : 0;
 
-		VOID_RET(off_t, lseek(fd, offset, SEEK_SET));
+		(void)stress_rofs_lseek(fd, info);
+
 		ret = read(fd, buffer, READ_BUF_SIZE);
 		if ((ret > 0) && (ret <= READ_BUF_SIZE))
 			(*count) += 1.0;
@@ -296,7 +397,7 @@ static int stress_rofs_file_lseek(
 	off_t seeks = offset >> 9;
 	off_t i;
 
-	fd = stres_rofs_file_open(args, path);
+	fd = stres_rofs_file_open(args, path, info);
 	if (fd < 0)
 		return -1;
 
@@ -368,7 +469,7 @@ static int stress_rofs_file_flock(
 	(void)info;
 	(void)args;
 
-	fd = stres_rofs_file_open(args, path);
+	fd = stres_rofs_file_open(args, path, info);
 	if (fd < 0)
 		return -1;
 
@@ -395,7 +496,7 @@ static int stress_rofs_file_open_close(
 
 	(void)info;
 
-	fd = stres_rofs_file_open(args, path);
+	fd = stres_rofs_file_open(args, path, info);
 	if (fd < 0)
 		return -1;
 	(*count) += 1.0;
