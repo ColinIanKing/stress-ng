@@ -98,10 +98,11 @@ static int stres_rofs_file_open(
 				return -1;
 			break;
 		default:
-			pr_fail("%s: open on '%s' failed, errno=%d (%s)\n",
-				args->name, path, errno, strerror(errno));
-			return -1;
+			break;
 		}
+		pr_fail("%s: open on '%s' failed, errno=%d (%s)\n",
+			args->name, path, errno, strerror(errno));
+		return -1;
 	}
 	return fd;
 }
@@ -440,11 +441,16 @@ static int stress_rofs_file_listxattr(
 		case ENOSYS:
 		case EOPNOTSUPP:
 			return 0;
+		case ENOENT:
+			if (info->statbuf.st_mode & S_IFLNK)
+				return 0;
+			break;
 		default:
-			pr_fail("%s: listxattr on '%s' failed, errno=%d (%s)\n",
-				args->name, path, errno, strerror(errno));
-			return -1;
+			break;
 		}
+		pr_fail("%s: listxattr on '%s' failed, errno=%d (%s)\n",
+			args->name, path, errno, strerror(errno));
+		return -1;
 	}
 	return 0;
 }
