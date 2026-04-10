@@ -94,7 +94,7 @@ static int stres_rofs_file_open(
 		case ENOMEM:
 			return -1;
 		case ENOENT:
-			if (info->statbuf.st_mode & S_IFLNK)
+			if ((info->statbuf.st_mode & S_IFMT) == S_IFLNK)
 				return -1;
 			break;
 		default:
@@ -167,7 +167,7 @@ static int stress_rofs_file_access(
 	if (access(path, W_OK) == 0) {
 		int fd;
 
-		if (!(info->statbuf.st_mode & S_IFLNK)) {
+		if ((info->statbuf.st_mode & S_IFMT) != S_IFLNK) {
 			/*
 			 *  Potential Time of check time of use
 			 *  issue here, but we're now trying to
@@ -207,7 +207,7 @@ static int stress_rofs_file_mmap(
 	size_t n_mmaps;
 
 	/* try just regular files */
-	if (!(info->statbuf.st_mode & (S_IFREG)))
+	if ((info->statbuf.st_mode & S_IFMT) != S_IFREG)
 		return 0;
 
 	if (size == 0)
@@ -442,7 +442,7 @@ static int stress_rofs_file_listxattr(
 		case EOPNOTSUPP:
 			return 0;
 		case ENOENT:
-			if (info->statbuf.st_mode & S_IFLNK)
+			if ((info->statbuf.st_mode & S_IFMT) == S_IFLNK)
 				return 0;
 			break;
 		default:
@@ -489,10 +489,10 @@ static int stress_rofs_file_flock(
 #endif
 
 /*
- *  stress_rofs_file_open_close()
- *	exercise file open/close
+ *  stress_rofs_file_valid_open_close()
+ *	exercise valid_file open/close
  */
-static int stress_rofs_file_open_close(
+static int stress_rofs_file_valid_open_close(
 	stress_args_t *args,
 	const char *path,
 	double *count,
@@ -510,9 +510,82 @@ static int stress_rofs_file_open_close(
 	return 0;
 }
 
+/*
+ *  stress_rofs_file_invalid_open_close()
+ *	exercise invalid file open/close
+ */
+static int stress_rofs_file_invalid_open_close(
+	stress_args_t *args,
+	const char *path,
+	double *count,
+	stress_rofs_info_t *info)
+{
+	static const int flags[] = {
+		O_CREAT | O_RDWR,
+		O_RDWR,
+		O_APPEND,
+#if defined(O_SYNC)
+		O_SYNC,
+#endif
+#if defined(O_DIRECT)
+		O_DIRECT,
+#endif
+#if defined(O_DSYNC)
+		O_DSYNC,
+#endif
+#if defined(O_EXCL)
+		O_CREAT | O_RDWR | O_EXCL,
+#endif
+#if defined(O_TRUNC) && 0
+		O_CREAT | O_RDWR | O_TRUNC,
+#endif
+	};
+	int fd;
+	int idx = stress_mwcsizemodn(SIZEOF_ARRAY(flags));
+
+	if ((info->statbuf.st_mode & S_IFMT) == S_IFLNK)
+		return 0;
+	if ((info->statbuf.st_mode & S_IFMT) != S_IFREG)
+		return 0;
+
+	(*count) += 1.0;
+
+	fd = open(path, flags[idx], 0007);
+	if (fd) {
+		ssize_t lret;
+		char data[1];
+
+		if (lseek(fd, 0, SEEK_SET) != 0) {
+			(void)close(fd);
+			return 0;
+		}
+
+		lret = read(fd, data, sizeof(data));
+		if (lret != sizeof(data)) {
+			(void)close(fd);
+			return 0;
+		}
+
+		if (lseek(fd, 0, SEEK_SET) != 0) {
+			(void)close(fd);
+			return 0;
+		}
+		lret = write(fd, data, sizeof(data));
+		if (lret != -1) {
+			pr_inf("%s read-only file '%s' is writable\n",
+				args->name, path);
+			(void)close(fd);
+			return -1;
+		}
+		(void)close(fd);
+	}
+	return 0;
+}
+
 static const stress_rofs_method_t  stress_rofs_methods[] = {
 	{ "lstat",		stress_rofs_file_lstat },
-	{ "open/close",		stress_rofs_file_open_close },
+	{ "valid open/close",	stress_rofs_file_valid_open_close },
+	{ "invalid open/close",	stress_rofs_file_invalid_open_close },
 #if defined(AT_EMPTY_PATH) &&   \
     defined(AT_SYMLINK_NOFOLLOW)
 	{ "statx",		stress_rofs_file_statx },
