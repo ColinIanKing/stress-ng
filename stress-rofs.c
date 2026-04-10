@@ -70,11 +70,6 @@ typedef struct stress_rofs_method {
 	stress_rofs_file_func_t func;
 } stress_rofs_method_t;
 
-typedef struct stress_rofs_metric {
-	double count;
-	double duration;
-} stress_rofs_metric_t;
-
 /*
  *  stres_rofs_file_open()
  *	open a file, read-only
@@ -607,7 +602,7 @@ static const stress_rofs_method_t  stress_rofs_methods[] = {
 #endif
 };
 
-static stress_rofs_metric_t stress_rofs_metrics[SIZEOF_ARRAY(stress_rofs_methods)];
+static stress_metrics_t stress_rofs_metrics[SIZEOF_ARRAY(stress_rofs_methods)];
 
 static int stress_rofs_scandir(stress_args_t *args, const char *path, stress_rofs_info_t *dir_info)
 {
