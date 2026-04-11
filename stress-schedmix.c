@@ -100,7 +100,10 @@ static void stress_schedmix_setaffinity(const pid_t pid, const int cpu)
 #endif
 }
 
-static inline void stress_schedmix_waste_time(stress_args_t *args)
+static inline void stress_schedmix_waste_time(
+	stress_args_t *args,
+	const uint32_t n_cpus,
+	const uint32_t *cpus)
 {
 	int i, n, status;
 	pid_t pid;
@@ -129,7 +132,7 @@ static inline void stress_schedmix_waste_time(stress_args_t *args)
 	sigset_t sigmask;
 #endif
 redo:
-	n = stress_mwc8modn(27);
+	n = stress_mwc8modn(28);
 	switch (n) {
 	case 0:
 		(void)shim_sched_yield();
@@ -308,6 +311,18 @@ redo:
 		}
 		break;
 #endif
+	case 27:
+		if (cpus) {
+			const pid_t pid = getpid();
+
+			n = stress_mwc8modn(32);
+			for (i = 0; LIKELY(stress_continue(args) && (i < n)); i++) {
+				const uint32_t idx = stress_mwc32modn(n_cpus);
+
+				stress_schedmix_setaffinity(pid, cpus[idx]);
+			}
+		}
+		break;
 	default:
 		goto redo;
 	}
@@ -516,7 +531,7 @@ case_sched_fifo:
 
 			stress_schedmix_setaffinity(child_pid, cpus[idx]);
 		}
-		stress_schedmix_waste_time(args);
+		stress_schedmix_waste_time(args, n_cpus, cpus);
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
 
