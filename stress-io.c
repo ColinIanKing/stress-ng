@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-filesystem.h"
 #include "core-mounts.h"
 
 #define MAX_MNTS	(256)
@@ -76,6 +77,8 @@ static int stress_io(stress_args_t *args)
 
 	}
 	(void)shim_unlink(filename);
+
+	stress_fs_file_rw_hint_short(fd_tmp);
 
 	n_mnts = stress_mount_get(mnts, MAX_MNTS);
 	for (i = 0; i < n_mnts; i++)
