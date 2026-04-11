@@ -643,7 +643,7 @@ static int stress_rofs_scandir(stress_args_t *args, const char *path, stress_rof
 		info = calloc(1, sizeof(*info));
 		if (!info)
 			break;
-		(void)strlcpy(info->d_name, de->d_name, sizeof(info->d_name));
+		(void)shim_strscpy(info->d_name, de->d_name, sizeof(info->d_name));
 		info->next = head;
 		head = info;
 	}
@@ -779,8 +779,8 @@ static int stress_rofs(stress_args_t *args)
 		if (str) {
 			for (j = 0; j < n_paths; j++)  {
 				if (j > 0)
-					strlcat(str, ", ", n);
-				strlcat(str, paths[j], n);
+					shim_strlcat(str, ", ", n);
+				shim_strlcat(str, paths[j], n);
 			}
 			pr_inf("%s: exercising %s\n", args->name, str);
 			free(str);
