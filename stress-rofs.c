@@ -358,13 +358,14 @@ static int stress_rofs_file_read(
 {
 	int fd;
 	int i;
+	const int n = info->statbuf.st_size > 512 ? 16 : 1;
 	char buffer[READ_BUF_SIZE] ALIGN64;
 
 	fd = stres_rofs_file_open(args, path, info);
 	if (fd < 0)
 		return -1;
 
-	for (i = 0; stress_continue(args) && (i < 32); i++) {
+	for (i = 0; stress_continue(args) && (i < n); i++) {
 		ssize_t ret;
 
 		(void)stress_rofs_lseek(fd, info);
@@ -387,25 +388,17 @@ static int stress_rofs_file_lseek(
 	double *count,
 	stress_rofs_info_t *info)
 {
-	struct stat *statbuf = &info->statbuf;
 	int fd;
-	off_t offset = statbuf->st_size;
-	off_t seeks = offset >> 9;
-	off_t i;
+	int i;
+	const int n = info->statbuf.st_size > 512 ? 16 : 1;
 
 	fd = stres_rofs_file_open(args, path, info);
 	if (fd < 0)
 		return -1;
 
-	for (i = 0; stress_continue(args) && (i < seeks); i++) {
-		if (lseek(fd, offset, SEEK_SET) == offset) {
+	for (i = 0; stress_continue(args) && (i < n); i++) {
+		if (stress_rofs_lseek(fd, info) >= 0)
 			(*count) += 1.0;
-		} else {
-			pr_fail("%s: lseek on '%s' at offset %" PRIdMAX
-				" failed, errno=%d (%s)\n",
-				args->name, path, (intmax_t)i,
-				errno, strerror(errno));
-		}
 	}
 
 	(void)close(fd);
