@@ -677,9 +677,7 @@ static int stress_rofs_scandir(stress_args_t *args, const char *path, stress_rof
 		t = stress_time_now();
 		for (info = head; info; info = info->next, n = n + 1.0) {
 			(void)snprintf(new_path, sizeof(new_path), "%s/%s", path, info->d_name);
-
 			func(args, new_path, &n, info);
-
 			stress_rofs_metrics[i].duration += stress_time_now() - t;
 			stress_rofs_metrics[i].count += n;
 		}
@@ -808,11 +806,14 @@ static int stress_rofs(stress_args_t *args)
 	stress_proc_state_set(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
 	stress_proc_state_set(args->name, STRESS_STATE_RUN);
+
+	j = args->instance % (int)n_paths;
 	do {
-		for (j = 0; j < n_paths; j++) {
-			if (stress_rofs_scandir(args, paths[j], NULL) < 0)
-				break;
-		}
+		if (j >= n_paths)
+			j = 0;
+		if (stress_rofs_scandir(args, paths[j], NULL) < 0)
+			break;
+		j++;
 	} while (stress_continue(args));
 
 	ret = EXIT_SUCCESS;
