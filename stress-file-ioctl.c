@@ -198,6 +198,9 @@ static void stress_file_ioctl_ext(const int fd)
 		VOID_RET(int, ioctl(fd, EXT4_IOC_GETSTATE, &state));
 	}
 #endif
+#if defined(EXT4_IOC_PRECACHE_EXTENTS)
+	VOID_RET(int, ioctl(fd, EXT4_IOC_PRECACHE_EXTENTS, 0));
+#endif
 }
 
 static void stress_file_ioctl_nilfs(const int fd)
