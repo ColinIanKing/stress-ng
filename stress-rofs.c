@@ -570,6 +570,30 @@ static int stress_rofs_file_invalid_open_close(
 	return 0;
 }
 
+/*
+ *  stress_rofs_file_fsync()
+ *	exercise (invalid) fsync
+ */
+static int stress_rofs_file_fsync(
+	stress_args_t *args,
+	const char *path,
+	double *count,
+	stress_rofs_info_t *info)
+{
+	int fd;
+
+	(void)info;
+
+	fd = stres_rofs_file_open(args, path, info);
+	if (fd < 0)
+		return -1;
+	fsync(fd);
+
+	(*count) += 1.0;
+	(void)close(fd);
+	return 0;
+}
+
 static const stress_rofs_method_t  stress_rofs_methods[] = {
 	{ "lstat",		stress_rofs_file_lstat },
 	{ "valid open/close",	stress_rofs_file_valid_open_close },
@@ -593,6 +617,7 @@ static const stress_rofs_method_t  stress_rofs_methods[] = {
     defined(LOCK_UN)
 	{ "flock",      stress_rofs_file_flock },
 #endif
+	{ "fsync",	stress_rofs_file_fsync },
 };
 
 static stress_metrics_t stress_rofs_metrics[SIZEOF_ARRAY(stress_rofs_methods)];
@@ -820,5 +845,6 @@ const stressor_info_t stress_rofs_info = {
 	.classifier = CLASS_FILESYSTEM | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.max_metrics_items = 11,
 };
