@@ -20,6 +20,12 @@
 #include "core-attribute.h"
 #include "core-mounts.h"
 
+#if defined(HAVE_LINUX_FS_H)
+#include <linux/fs.h>
+#endif
+
+#include <sys/ioctl.h>
+
 #if defined(HAVE_SYS_FILE_H)
 #include <sys/file.h>
 #endif
@@ -594,6 +600,114 @@ static int stress_rofs_file_fsync(
 	return 0;
 }
 
+typedef int (*stress_rofs_file_ioctl_func_t)(const int fd);
+
+#if defined(FS_IOC_GETVERSION)
+static int stress_rofs_file_ioctl_ioc_get_version(const int fd)
+{
+	int version;
+
+	return ioctl(fd, FS_IOC_GETVERSION, &version);
+}
+#endif
+
+#if defined(FS_IOC_GETFSLABEL) &&	\
+    defined(FSLABEL_MAX)
+static int stress_rofs_file_ioctl_ioc_getfslabel(const int fd)
+{
+	char label[FSLABEL_MAX];
+
+	return ioctl(fd, FS_IOC_GETFSLABEL, label);
+}
+#endif
+
+#if defined(FS_IOC_GETFLAGS)
+static int stress_rofs_file_ioctl_ioc_getflags(const int fd)
+{
+	int attr = 0;
+
+	return ioctl(fd, FS_IOC_GETFLAGS, &attr);
+}
+#endif
+
+#if defined(FIGETBSZ)
+static int stress_rofs_file_ioctl_figetbsz(const int fd)
+{
+	int isz;
+
+	return ioctl(fd, FIGETBSZ, &isz);
+}
+#endif
+
+#if defined(FIONREAD)
+static int stress_rofs_file_ioctl_fionread(const int fd)
+{
+	int isz;
+
+	return ioctl(fd, FIONREAD, &isz);
+}
+#endif
+
+#if defined(FIOQSIZE)
+static int stress_rofs_file_ioctl_fioqsize(const int fd)
+{
+	shim_loff_t sz;
+
+	return ioctl(fd, FIOQSIZE, &sz);
+}
+#endif
+
+static const stress_rofs_file_ioctl_func_t stress_rofs_file_ioctl_funcs[] = {
+#if defined(FS_IOC_GETVERSION)
+	stress_rofs_file_ioctl_ioc_get_version,
+#endif
+#if defined(FS_IOC_GETFSLABEL) &&	\
+    defined(FSLABEL_MAX)
+	stress_rofs_file_ioctl_ioc_getfslabel,
+#endif
+#if defined(FS_IOC_GETFLAGS)
+	stress_rofs_file_ioctl_ioc_getflags,
+#endif
+#if defined(FIGETBSZ)
+	stress_rofs_file_ioctl_figetbsz,
+#endif
+#if defined(FIONREAD)
+	stress_rofs_file_ioctl_fionread,
+#endif
+#if defined(FIOQSIZE)
+	stress_rofs_file_ioctl_fioqsize,
+#endif
+};
+
+/*
+ *  stress_rofs_file_ioctl()
+ *	exercise various randomly selected ioctl calls
+ */
+static int stress_rofs_file_ioctl(
+	stress_args_t *args,
+	const char *path,
+	double *count,
+	stress_rofs_info_t *info)
+{
+	int fd;
+	const size_t n_ioctl_funcs = SIZEOF_ARRAY(stress_rofs_file_ioctl_funcs);
+	size_t idx;
+
+	if (n_ioctl_funcs < 1)
+		return 0;
+
+	fd = stres_rofs_file_open(args, path, info);
+	if (fd < 0)
+		return -1;
+
+	idx = stress_mwcsizemodn(n_ioctl_funcs);
+	if (stress_rofs_file_ioctl_funcs[idx](fd) == 0)
+		(*count) += 1.0;
+
+	(void)close(fd);
+	return 0;
+}
+
 static const stress_rofs_method_t  stress_rofs_methods[] = {
 	{ "lstat",		stress_rofs_file_lstat },
 	{ "valid open/close",	stress_rofs_file_valid_open_close },
@@ -618,6 +732,7 @@ static const stress_rofs_method_t  stress_rofs_methods[] = {
 	{ "flock",      stress_rofs_file_flock },
 #endif
 	{ "fsync",	stress_rofs_file_fsync },
+	{ "ioctl",	stress_rofs_file_ioctl },
 };
 
 static stress_metrics_t stress_rofs_metrics[SIZEOF_ARRAY(stress_rofs_methods)];
@@ -847,5 +962,5 @@ const stressor_info_t stress_rofs_info = {
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
-	.max_metrics_items = 11,
+	.max_metrics_items = 12,
 };
