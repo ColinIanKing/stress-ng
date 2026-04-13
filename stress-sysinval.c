@@ -2564,7 +2564,7 @@ static void syscall_permute(
 	size_t num_values;
 
 	if (UNLIKELY(stress_time_now() > args->time_end))
-		_exit(EXIT_SUCCESS);
+		return;
 
 	/* all args now permuted, do the call */
 	if (arg_num >= stress_syscall_arg->num_args) {
@@ -2637,6 +2637,8 @@ static void syscall_permute(
 	 *  specific argument
 	 */
 	for (i = 0; i < num_values; i++) {
+		if (UNLIKELY(stress_time_now() > args->time_end))
+			return;
 		current_context->args[arg_num] = values[i];
 		syscall_permute(args, arg_num + 1, stress_syscall_arg->arg_bitmasks[arg_num], stress_syscall_arg, syscall_exercised);
 		current_context->args[arg_num] = 0;
@@ -2659,6 +2661,9 @@ static inline int stress_do_syscall(stress_args_t *args)
 
 	if (stress_capabilities_drop(args->name) < 0)
 		return EXIT_NO_RESOURCE;
+
+	if (UNLIKELY(stress_time_now() > args->time_end))
+		return 0;
 
 	pid = fork();
 	if (pid < 0) {
@@ -2689,7 +2694,7 @@ static inline int stress_do_syscall(stress_args_t *args)
 		(void)stress_sched_settings_apply(true);
 		stress_mwc_reseed();
 
-		while (stress_continue_flag()) {
+		while (stress_continue(args)) {
 			const size_t sz = SIZEOF_ARRAY(reorder);
 
 			for (i = 0; i < SIZEOF_ARRAY(reorder); i++)
@@ -2716,6 +2721,9 @@ static inline int stress_do_syscall(stress_args_t *args)
 
 			for (i = 0; LIKELY(stress_continue(args) && (i < SYSCALL_ARGS_SIZE)); i++) {
 				register const size_t j = reorder[i];
+
+				if (UNLIKELY(stress_time_now() > args->time_end))
+					_exit(EXIT_SUCCESS);
 
 				(void)shim_memset(current_context->args, 0, sizeof(current_context->args));
 				current_context->syscall = stress_syscall_args[j].syscall;
