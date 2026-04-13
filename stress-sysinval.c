@@ -2777,7 +2777,8 @@ static int stress_sysinval_child(stress_args_t *args, void *context)
 	do {
 		(void)stress_mwc32();
 		stress_do_syscall(args);
-	} while (stress_continue(args));
+	} while (stress_continue(args) &&
+		 LIKELY(stress_time_now() <= args->time_end));
 
 	return EXIT_SUCCESS;
 }
