@@ -108,7 +108,8 @@ extern WARN_UNUSED const char *stress_arch_get(void);
 #endif
 
 /* Arch specific OR1K */
-#if defined(__OR1K__)
+#if defined(__or1k__) ||	\
+    defined(__OR1K__)
 #define STRESS_ARCH_OR1K	(1)
 #define STRESS_OPCODE_SIZE	(32)
 #define STRESS_OPCODE_MASK	(0xffffffffUL)
