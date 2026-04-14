@@ -315,6 +315,7 @@ HEADERS = \
 	core-asm-arm.h \
 	core-asm-generic.h \
 	core-asm-loong64.h \
+	core-asm-openrisc.h \
 	core-asm-ppc64.h \
 	core-asm-riscv.h \
 	core-asm-s390.h \

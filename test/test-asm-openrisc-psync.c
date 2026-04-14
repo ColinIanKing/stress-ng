@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2026      Colin Ian King.
+ * Copyright (C) 2026      Colin Ian King
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -16,28 +16,15 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
-#ifndef CORE_ASM_OPENRISC_H
-#define CORE_ASM_OPENRISC_H
 
-#include "core-arch.h"
-#include "core-attribute.h"
-
-#if defined(STRESS_ARCH_OR1K)
-
-#if defined(HAVE_ASM_OPENRISC_MSYNC)
-static inline void ALWAYS_INLINE stress_asm_openrisc_msync(void)
-{
-	__asm__ __volatile__("l.msync;\n");
-}
-#endif
-
-#if defined(HAVE_ASM_OPENRISC_PSYNC)
-static inline void ALWAYS_INLINE stress_asm_openrisc_psync(void)
+#if defined(__or1k__) ||	\
+    defined(__OR1K__)
+int main(void)
 {
 	__asm__ __volatile__("l.psync;\n");
+
+	return 0;
 }
-#endif
-
-#endif
-
+#else
+#error not openrisc so no l.psync instruction
 #endif
