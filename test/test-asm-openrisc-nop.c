@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024-2026 Colin Ian King.
+ * Copyright (C) 2026      Colin Ian King
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -16,41 +16,15 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
-#ifndef CORE_ASM_GENERIC_H
-#define CORE_ASM_GENERIC_H
 
-#include "core-arch.h"
-
-static inline void ALWAYS_INLINE stress_asm_nop(void)
+#if defined(__or1k__) ||	\
+    defined(__OR1K__)
+int main(void)
 {
-#if defined(HAVE_ASM_NOP)
-#if defined(STRESS_ARCH_KVX)
-	/*
-	 * Extra ;; required for KVX to indicate end of
-	 * a VLIW instruction bundle
-	 */
-	__asm__ __volatile__("nop\n;;\n");
-#else
-	__asm__ __volatile__("nop;\n");
-#endif
-#elif defined(HAVE_ASM_OPENRISC_NOP)
-#define HAVE_ASM_NOP
 	__asm__ __volatile__("l.nop;\n");
-#endif
-}
 
-static inline void ALWAYS_INLINE stress_asm_mb(void)
-{
-#if defined(HAVE_ASM_MB)
-        __asm__ __volatile__("" ::: "memory");
-#endif
+	return 0;
 }
-
-static inline void ALWAYS_INLINE stress_asm_nothing(void)
-{
-#if defined(HAVE_ASM_NOTHING)
-	__asm__ __volatile__("");
-#endif
-}
-
+#else
+#error not openrisc so no l.nop instruction
 #endif
