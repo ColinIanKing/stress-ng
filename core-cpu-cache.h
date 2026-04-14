@@ -21,6 +21,7 @@
 
 #include <stdarg.h>
 
+#include "core-asm-openrisc.h"
 #include "core-asm-ppc64.h"
 #include "core-asm-riscv.h"
 #include "core-asm-sparc.h"
@@ -147,6 +148,13 @@ static inline void shim_builtin_prefetch(const void *addr, ...)
  */
 static inline void ALWAYS_INLINE shim_mfence(void)
 {
+#if defined(STRESS_ARCH_OR1K) &&	\
+    defined(HAVE_ASM_OPENRISC_MSYNC) &&	\
+    !defined(HAVE_SHIM_MSYNC)
+#define HAVE_SHIM_MFENCE
+	stress_asm_openrisc_msync();
+#endif
+
 #if defined(STRESS_ARCH_RISCV) &&	\
     defined(HAVE_ASM_RISCV_FENCE) &&	\
     !defined(HAVE_SHIM_MFENCE)
