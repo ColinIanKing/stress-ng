@@ -20,6 +20,7 @@
 #include "core-arch.h"
 #include "core-asm-arm.h"
 #include "core-asm-loong64.h"
+#include "core-asm-openrisc.h"
 #include "core-asm-ppc64.h"
 #include "core-asm-riscv.h"
 #include "core-asm-x86.h"
@@ -167,6 +168,25 @@ static void stress_waitcpu_x86_umwait1(void)
 
 #endif
 
+#if defined(STRESS_ARCH_OR1K)
+static bool stress_waitcpu_openrisc_supported(void)
+{
+#if defined(HAVE_ASM_OPENRISC_MSYNC)
+	return true;
+#else
+	return false;
+#endif
+}
+
+#if defined(HAVE_ASM_OPENRISC_PSYNC)
+static void stress_waitcpu_openrisc_psync(void)
+{
+	/* cause a wait by syncing pipeline */
+	stress_asm_openrisc_psync();
+}
+#endif
+#endif
+
 #if defined(STRESS_ARCH_PPC64)
 static bool stress_waitcpu_ppc64_supported(void)
 {
@@ -260,6 +280,10 @@ static stress_waitcpu_method_t stress_waitcpu_method[] = {
 #endif
 #if defined(HAVE_ASM_ARM_YIELD)
 	{ "yield",	stress_waitcpu_arm_yield,	stress_waitcpu_arm_yield_supported,	false, 0.0, 0.0, 0.0 },
+#endif
+#if defined(STRESS_ARCH_OR1K) &&	\
+    defined(HAVE_ASM_OPENRISC_PSYNC)
+	{ "psync",	stress_waitcpu_openrisc_psync,	stress_waitcpu_openrisc_supported,	false, 0.0, 0.0, 0.0 },
 #endif
 #if defined(STRESS_ARCH_PPC64)
 	{ "mdoio",	stress_waitcpu_ppc64_mdoio,	stress_waitcpu_ppc64_supported,		false, 0.0, 0.0, 0.0 },
