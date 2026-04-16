@@ -1661,6 +1661,7 @@ int stress_fs_drop_caches(const int flags)
 	    (flags > STRESS_DROP_CACHE_ALL))
 		return -1;
 
+	(void)sync();
 	(void)snprintf(buf, sizeof(buf), "%1d", flags);
 	return (int)stress_fs_file_write("/proc/sys/vm/drop_caches", buf, 1);
 #else
