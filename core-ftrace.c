@@ -101,7 +101,6 @@ static char *stress_ftrace_debugfs_path_get(void)
 		}
 	}
 	stress_mount_free(mnts, n);
-
 	return NULL;
 }
 
@@ -324,7 +323,8 @@ void stress_ftrace_start(void)
 
 	(void)snprintf(filename, sizeof(filename), "%s/tracing/function_profile_enabled", path);
 	if (stress_fs_file_write(filename, "0", 1) < 0) {
-		pr_inf("ftrace: cannot enable function profiling, cannot write to '%s', errno=%d (%s)\n",
+		pr_inf("ftrace: cannot enable function profiling, cannot write to '%s', errno=%d (%s), "
+			"ensure CONFIG_FUNCTION_PROFILER=y\n",
 			filename, errno, strerror(errno));
 		return;
 	}
@@ -332,7 +332,8 @@ void stress_ftrace_start(void)
 	stress_ftrace_add_pid(getpid());
 	(void)snprintf(filename, sizeof(filename), "%s/tracing/function_profile_enabled", path);
 	if (stress_fs_file_write(filename, "1", 1) < 0) {
-		pr_inf("ftrace: cannot enable function profiling, cannot write to '%s', errno=%d (%s)\n",
+		pr_inf("ftrace: cannot enable function profiling, cannot write to '%s', errno=%d (%s), "
+			"ensure CONFIG_FUNCTION_PROFILER=y\n",
 			filename, errno, strerror(errno));
 		return;
 	}
@@ -436,7 +437,8 @@ void stress_ftrace_start(void)
 {
 	if (!(g_opt_flags & OPT_FLAGS_FTRACE))
 		return;
-	pr_inf("ftrace: this option is not implemented on this system: %s %s\n",
+	pr_inf("ftrace: this option is not implemented on this system: %s %s, "
+		"requires CONFIG_FUNCTION_PROFILER=y and sys/tree.h",
 		stress_uname_info_get(), stress_compiler_get());
 }
 
