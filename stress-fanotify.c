@@ -98,6 +98,15 @@ static const unsigned int fan_stress_settings[] = {
 #if defined(FAN_EVENT_ON_CHILD)
 	FAN_EVENT_ON_CHILD,
 #endif
+#if defined(FAN_FS_ERROR)
+	FAN_FS_ERROR,
+#endif
+#if defined(FAN_MNT_ATTACH)
+	FAN_MNT_ATTACH,
+#endif
+#if defined(FAN_MNT_DETACH)
+	FAN_MNT_DETACH,
+#endif
 #if defined(FAN_MODIFY)
 	FAN_MODIFY,
 #endif
