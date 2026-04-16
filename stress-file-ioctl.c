@@ -201,6 +201,26 @@ static void stress_file_ioctl_ext(const int fd)
 #if defined(EXT4_IOC_PRECACHE_EXTENTS)
 	VOID_RET(int, ioctl(fd, EXT4_IOC_PRECACHE_EXTENTS, 0));
 #endif
+#if defined(EXT4_IOC_GETFSUUID)
+	{
+		struct shim_fsuuid {
+			uint32_t fsu_len;
+			uint32_t fsu_flags;
+			uint8_t fsu_uuid[16];
+		};
+
+		int ret;
+		struct shim_fsuuid fsuuid;
+
+		(void)memset(&fsuuid, 0, sizeof(fsuuid));
+		write(1, "here\n", 5);
+		ret = ioctl(fd, EXT4_IOC_GETFSUUID, &fsuuid);
+		if ((ret == 0) && (fsuuid.fsu_len <= sizeof(fsuuid.fsu_uuid))) {
+			VOID_RET(int, ioctl(fd, EXT4_IOC_GETFSUUID, &fsuuid));
+			pr_inf("UUID: <%16.16s>\n", fsuuid.fsu_uuid);
+		}
+	}
+#endif
 }
 
 static void stress_file_ioctl_nilfs(const int fd)
