@@ -1385,6 +1385,9 @@ static int stress_sock(stress_args_t *args)
 	sock_protocol = stress_setting_get("sock-protocol", &idx) ?
 		sock_options_protocols[idx].optval : IPPROTO_TCP;
 
+	if (sock_domain == AF_UNIX)
+		sock_protocol = 0;
+
 #if !defined(MSG_ZEROCOPY)
 	if (sock_zerocopy)
 		pr_inf("sock: cannot enable sock-zerocopy, MSG_ZEROCOPY is not available\n");
