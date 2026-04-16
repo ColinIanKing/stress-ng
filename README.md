@@ -618,6 +618,7 @@ stress-ng has found various Kernel, QEMU bugs/regressions, and libc bugs; approp
  * [sched/fair: Fix zero_vruntime tracking fix](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=1319ea57529e131822bab56bf417c8edc2db9ae8)
  * [sched/debug: Fix avg_vruntime() usage](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=e08d007f9d813616ce7093600bc4fdb9c9d81d89)
  * [mm: filemap: fix nr_pages calculation overflow in filemap_map_pages()](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=f58df566524ebcdfa394329c64f47e3c9257516e)
+ * [null pointer reference in gfs2 when using chattr](https://bugs.launchpad.net/ubuntu/+source/linux/+bug/2148595)
 
 ## Kernel improvements that used stress-ng
 
