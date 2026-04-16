@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-builtin.h"
+#include "core-filesystem.h"
 
 #if defined(HAVE_MACH_MACH_H)
 #include <mach/mach.h>
@@ -334,9 +335,11 @@ update:
 		prev_freemem = freemem;
 		prev_freeswap = freeswap;
 
-		/* low memory? automatically enable ksm memory merging */
-		if (low_memory)
+		/* low memory? drop caches and automatically enable ksm memory merging */
+		if (low_memory) {
+			stress_fs_drop_caches(3);
 			stress_memory_ksm_merge(1);
+		}
 	}
 	return low_memory;
 }
