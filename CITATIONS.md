@@ -221,7 +221,9 @@
  * [Object detection on low-compute edge SoCs: a reproducible benchmark and deployment guidelines](https://www.nature.com/articles/s41598-026-36862-y_reference.pdf)
  * [On-Device Deep Reinforcement Learning for Decentralized Task Offloading: Performance trade-offs in the training process](https://arxiv.org/html/2601.03976v1#S4)
  * [Performance evaluation of two-phase direct-to-chip liquid cooling combined with air cooling for data centers](https://www.sciencedirect.com/science/article/pii/S2214157X26000122#b47)
+ * [Shape and Substance: Dual-Layer Side-Channel Attacks on Local Vision-Language Models](https://arxiv.org/html/2603.25403v1)
  * [Streamline: A Fast, Flushless Cache Covert-Channel Attack by Enabling Asynchronous Collusion](https://dl.acm.org/doi/epdf/10.1145/3445814.3446742)
  * [Testing Storage-System Correctness: Challenges, Fuzzing Limitations, and AI-Augmented Opportunities](https://arxiv.org/html/2602.02614v2)
+ * [TORAI: Multi-source Root Cause Analysis for Blind Spots in Microservice Service Call Graph](https://arxiv.org/html/2604.13522v1)
  * [UnICom: A Universally High-Performant I/O Completion Mechanism for Modern Computer Systems](https://www.usenix.org/system/files/fast26-pan.pdf)
  
