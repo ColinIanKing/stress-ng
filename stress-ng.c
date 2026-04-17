@@ -116,6 +116,12 @@ typedef struct {
 	size_t n_items;			/* total number of items in list */
 } stress_stressor_list_t;
 
+/* hash table of stats */
+typedef struct {
+	stress_stats_t **table;		/* hash table */
+	size_t size;			/* hash table size */
+} stress_stats_hash_t;
+
 static stress_stressor_list_t stress_stressor_list;
 
 /* Various option settings and flags */
@@ -151,8 +157,8 @@ typedef struct {
 static stress_sigalrm_info_t sigalrm_info;
 #endif
 
-static stress_stats_t **stress_stats_hash_table;
-static size_t stress_stats_hash_table_size;
+/* stats hash table for fast stats lookup */
+static stress_stats_hash_t stress_stats_hash;
 
 /*
  *  optarg option to global setting option flags
@@ -425,10 +431,10 @@ static const stress_help_t help_generic[] = {
  */
 static int stress_stats_hash_table_alloc(const size_t n)
 {
-	stress_stats_hash_table_size = (size_t)stress_prime64_next_get((uint64_t)n);
-	stress_stats_hash_table = (stress_stats_t **)calloc(stress_stats_hash_table_size, sizeof(*stress_stats_hash_table));
-	if (!stress_stats_hash_table) {
-		pr_err("failed to allocate %zu sized stats hash table\n", stress_stats_hash_table_size);
+	stress_stats_hash.size = (size_t)stress_prime64_next_get((uint64_t)n);
+	stress_stats_hash.table = (stress_stats_t **)calloc(stress_stats_hash.size, sizeof(*stress_stats_hash.table));
+	if (!stress_stats_hash.table) {
+		pr_err("failed to allocate %zu sized stats hash table\n", stress_stats_hash.size);
 		return -1;
 	}
 	return 0;
@@ -440,9 +446,9 @@ static int stress_stats_hash_table_alloc(const size_t n)
  */
 static inline void stress_stats_hash_table_free(void)
 {
-	free(stress_stats_hash_table);
-	stress_stats_hash_table = NULL;
-	stress_stats_hash_table_size = 0;
+	free(stress_stats_hash.table);
+	stress_stats_hash.table = NULL;
+	stress_stats_hash.size = 0;
 }
 
 /*
@@ -451,7 +457,7 @@ static inline void stress_stats_hash_table_free(void)
  */
 static inline size_t stress_stats_pid_to_hash(const pid_t pid)
 {
-	return (size_t)pid % stress_stats_hash_table_size;
+	return (size_t)pid % stress_stats_hash.size;
 }
 
 /*
@@ -461,7 +467,7 @@ static inline size_t stress_stats_pid_to_hash(const pid_t pid)
 static inline stress_stats_t *stress_stats_pid_find(const pid_t pid)
 {
 	const size_t hash = stress_stats_pid_to_hash(pid);
-	register stress_stats_t *stats = stress_stats_hash_table[hash];
+	register stress_stats_t *stats = stress_stats_hash.table[hash];
 
 	while (stats && (stats->s_pid.pid != pid))
 		stats = stats->hash_next;
@@ -477,8 +483,8 @@ static inline void stress_stats_hash_table_add(stress_stats_t *stats)
 {
 	const size_t hash = stress_stats_pid_to_hash(stats->s_pid.pid);
 
-	stats->hash_next = stress_stats_hash_table[hash];
-	stress_stats_hash_table[hash] = stats;
+	stats->hash_next = stress_stats_hash.table[hash];
+	stress_stats_hash.table[hash] = stats;
 }
 
 /*
