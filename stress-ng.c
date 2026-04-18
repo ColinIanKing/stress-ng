@@ -500,7 +500,7 @@ static inline uint32_t stress_hash_checksum(stress_counter_t *count)
  *  stress_stressor_ignore()
  *	remove stressor from stressor list
  */
-static inline void stress_stressor_ignore(stress_list_item_t *item, uint8_t reason)
+static inline void stress_stressor_ignore(stress_list_item_t *item, const uint8_t reason)
 {
 	item->ignore.run = reason;
 }
