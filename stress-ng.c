@@ -2728,7 +2728,10 @@ static inline void stress_system_info_log(void)
 #endif
 }
 
-static void *stress_page_mmap(int prot, char *prot_str, size_t page_size)
+static void *stress_page_mmap(
+	const int prot,
+	const char *prot_str,
+	const size_t page_size)
 {
 	void *ptr;
 
