@@ -749,7 +749,7 @@ static void stress_signals_block(void)
 
 #if defined(SA_SIGINFO)
 static void MLOCKED_TEXT stress_sigalrm_action_handler(
-	int signum,
+	const int signum,
 	siginfo_t *info,
 	void *ucontext)
 {
