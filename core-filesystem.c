@@ -515,15 +515,16 @@ int stress_fs_nonblocking_set(const int fd)
  *	encode 64 bit hash of filename into a unique base 36
  *	filename of up to 13 chars long + 1 char eos
  */
-static inline void OPTIMIZE3 stress_fs_base36_encode_uint64(char dst[14], uint64_t val)
+static inline void OPTIMIZE3 stress_fs_base36_encode_uint64(char dst[14], const uint64_t val)
 {
 	static const char b36[] = "abcdefghijklmnopqrstuvwxyz0123456789";
 	const int b = 36;
-	char *ptr = dst;
+	register char *ptr = dst;
+	register uint64_t v = val;
 
-	while (val) {
-		*ptr++ = b36[val % b];
-		val /= b;
+	while (v) {
+		*ptr++ = b36[v % b];
+		v /= b;
 	}
 	*ptr = '\0';
 }
