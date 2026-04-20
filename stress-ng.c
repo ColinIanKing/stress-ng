@@ -4330,12 +4330,13 @@ int main(int argc, char **argv, char **envp)
 		goto exit_lock_mem_unmap;
 	}
 
-	/* Now initialize pr_* lock mechanism */
 	if (!stress_shared_heap_init(stressor_stats_size())) {
 		pr_err("failed to create shared heap\n");
 		ret = EXIT_FAILURE;
 		goto exit_shared_unmap;
 	}
+
+	/* Now initialize pr_* lock mechanism */
 	if (stress_global_lock_create() < 0) {
 		ret = EXIT_FAILURE;
 		goto exit_lock_destroy;
