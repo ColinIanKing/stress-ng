@@ -340,7 +340,7 @@ static const stress_rofs_lseek_func_t stress_rofs_lseek_funcs[] = {
 
 static off_t stress_rofs_lseek(const int fd, stress_rofs_info_t *info)
 {
-	off_t size = info->statbuf.st_size;
+	off_t size;
 	off_t curr_off = lseek(fd, 0, SEEK_CUR);
 	off_t rand_off;
 	size_t rnd = stress_mwcsizemodn(SIZEOF_ARRAY(stress_rofs_lseek_funcs));
