@@ -41,7 +41,7 @@ typedef struct stress_shared_heap_str {
 void *stress_shared_heap_init(const size_t metrics_size)
 {
 	const size_t page_size = stress_memory_page_size_get();
-	size_t size = metrics_size;
+	size_t size = (metrics_size > 0) ? metrics_size : 1;	/* at least one metric */
 
 	/* and round up to multiple of pages */
 	size = (size + page_size - 1) & ~(page_size - 1);
