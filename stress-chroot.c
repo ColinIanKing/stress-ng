@@ -74,7 +74,7 @@ static int stress_chroot_supported(const char *name)
 	return 0;
 }
 
-static ino_t chroot_inode(const char *path)
+static ino_t stress_chroot_inode(const char *path)
 {
 	struct stat statbuf;
 
@@ -83,12 +83,12 @@ static ino_t chroot_inode(const char *path)
 	return statbuf.st_ino;
 }
 
-static int chroot_up(void)
+static int stress_chroot_up(void)
 {
 	int i;
 	ino_t previous;
 
-	previous = chroot_inode(".");
+	previous = stress_chroot_inode(".");
 	if (previous == (ino_t)-1)
 		return -1;
 
@@ -97,7 +97,7 @@ static int chroot_up(void)
 
 		if (chdir("..") < 0)
 			return -1;
-		current = chroot_inode(".");
+		current = stress_chroot_inode(".");
 		if (current == (ino_t)-1)
 			return -1;
 		if (current == previous)
@@ -328,11 +328,11 @@ static int stress_chroot_test8(chroot_shared_data_t *data)
 	const int rc = EXIT_SUCCESS;
 	ino_t inode;
 
-	if (chroot_up() < 0)
+	if (stress_chroot_up() < 0)
 		return rc;
 	if (chroot(".") < 0)
 		return rc;
-	inode = chroot_inode(".");
+	inode = stress_chroot_inode(".");
 	if (inode == (ino_t)-1)
 		return rc;
 	if (inode == data->rootpath_inode)
@@ -357,11 +357,11 @@ static int stress_chroot_test9(chroot_shared_data_t *data)
 		return rc;
 	if ((data->cwd_fd != -1) && (fchdir(data->cwd_fd) < 0))
 		return rc;
-	if (chroot_up() < 0)
+	if (stress_chroot_up() < 0)
 		return rc;
 	if (chroot(".") < 0)
 		return rc;
-	inode = chroot_inode(".");
+	inode = stress_chroot_inode(".");
 	if (inode == (ino_t)-1)
 		return rc;
 	if (inode == data->rootpath_inode)
@@ -426,7 +426,7 @@ static int stress_chroot(stress_args_t *args)
 	stress_memory_anon_name_set(data, sizeof(*data), "metrics");
 	stress_zero_metrics(&data->metrics, 1);
 	data->args = args;
-	data->rootpath_inode = chroot_inode("/");
+	data->rootpath_inode = stress_chroot_inode("/");
 	data->cwd_fd = -1;
 
 	stress_rndstr(longpath, sizeof(longpath));
