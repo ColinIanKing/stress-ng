@@ -96,10 +96,8 @@ static int stress_fsize_boundary(
 	if (offset < 1)
 		return rc;
 
-	off = (off_t)old_rlim->rlim_max;
 	new_rlim.rlim_max = old_rlim->rlim_max;
 	new_rlim.rlim_cur = offset;
-
 	if (setrlimit(RLIMIT_FSIZE, &new_rlim) < 0) {
 		pr_fail("%s: failed to set RLIMIT_FSIZE to %" PRIdMAX " (0x%" PRIxMAX "), errno=%d (%s)\n",
 			args->name, (intmax_t)new_rlim.rlim_cur, (uintmax_t)new_rlim.rlim_cur,
