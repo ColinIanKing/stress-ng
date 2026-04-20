@@ -69,6 +69,7 @@ static int OPTIMIZE3 stress_utime(stress_args_t *args)
     defined(UTIME_NOW)
 	char path[PATH_MAX];
 #endif
+	int bad_fd = stress_fs_bad_fd_get();
 	int dir_fd = -1;
 	int rc = EXIT_SUCCESS;
 	char filename[PATH_MAX];
@@ -251,7 +252,7 @@ static int OPTIMIZE3 stress_utime(stress_args_t *args)
 		ts[0].tv_nsec = 0;
 		ts[1].tv_sec = UTIME_NOW;
 		ts[1].tv_nsec = 0;
-		VOID_RET(int, futimens(-1, ts));
+		VOID_RET(int, futimens(bad_fd, ts));
 
 #if defined(UTIME_NOW)
 		ts[0].tv_sec = UTIME_NOW;
