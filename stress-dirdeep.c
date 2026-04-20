@@ -488,7 +488,7 @@ static int stress_dirdeep(stress_args_t *args)
 		(inodes_start == 0) ? " (estimated)" : "");
 
 	if (stress_instance_zero(args) && (inodes_exercised < dirdeep_inodes))
-		pr_inf("%s: note: specifying a larger --dirdeep or --dirdeep-dirs settings or "
+		pr_inf("%s: note: specifying larger --dirdeep or --dirdeep-dirs settings or "
 			"running the stressor for longer will use more "
 			"inodes\n", args->name);
 
