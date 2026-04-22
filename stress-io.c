@@ -91,6 +91,7 @@ static int stress_io(stress_args_t *args)
 	stress_proc_state_set(args->name, STRESS_STATE_RUN);
 
 	do {
+#if defined (HAVE_SYNCFS)
 		stess_io_write(fd_tmp);
 		if (stress_mwc1()) {
 			shim_fsync(fd_tmp);
@@ -101,6 +102,7 @@ static int stress_io(stress_args_t *args)
 		}
 
 		stess_io_write(fd_tmp);
+#endif
 		shim_sync();
 #if defined(HAVE_SYNCFS)
 
@@ -158,11 +160,11 @@ tidy:
 
 	stress_fs_close_fds(fds, n_mnts);
 	stress_mount_free(mnts, n_mnts);
+	(void)close(fd_tmp);
 #else
 	UNEXPECTED
 #endif
 
-	(void)close(fd_tmp);
 tidy_dir:
 	(void)stress_fs_temp_dir_rm_args(args);
 
