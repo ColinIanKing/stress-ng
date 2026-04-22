@@ -29,6 +29,7 @@ static const stress_help_t help[] = {
 	{ NULL,	 NULL,		NULL }
 };
 
+#if defined(HAVE_SYNCFS)
 /*
  *  stess_io_write()
  *	write a 32 bit random value to bytes  0..3 of file
@@ -40,6 +41,7 @@ static void stess_io_write(const int fd)
 	VOID_RET(off_t, lseek(fd, 0, SEEK_SET));
 	VOID_RET(ssize_t, write(fd, &data, sizeof(data)));
 }
+#endif
 
 /*
  *  stress on sync()
@@ -48,8 +50,8 @@ static void stess_io_write(const int fd)
 static int stress_io(stress_args_t *args)
 {
 	int rc = EXIT_SUCCESS;
-	int ret;
 #if defined(HAVE_SYNCFS)
+	int ret;
 	int i;
 	int fd_dir;
 	int fd_tmp;
@@ -161,12 +163,12 @@ tidy:
 	stress_fs_close_fds(fds, n_mnts);
 	stress_mount_free(mnts, n_mnts);
 	(void)close(fd_tmp);
+tidy_dir:
+	(void)stress_fs_temp_dir_rm_args(args);
 #else
 	UNEXPECTED
 #endif
 
-tidy_dir:
-	(void)stress_fs_temp_dir_rm_args(args);
 
 	return rc;
 }
