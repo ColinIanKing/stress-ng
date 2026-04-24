@@ -21,6 +21,7 @@
 #include "core-affinity.h"
 #include "core-builtin.h"
 #include "core-cpu-cache.h"
+#include "core-interrupts.h"
 #include "core-killpid.h"
 #include "core-out-of-memory.h"
 #include "core-pragma.h"
@@ -44,66 +45,6 @@ static const stress_help_t help[] = {
 #define MMAP_FD_PAGES		(4)
 #define STRESS_CACHE_LINE_SHIFT	(6)	/* Typical 64 byte size */
 #define STRESS_CACHE_LINE_SIZE	(1 << STRESS_CACHE_LINE_SHIFT)
-
-/*
- * stress_tlb_interrupts()
- *	parse /proc/interrupts for per CPU TLB shootdown count
- */
-static uint64_t stress_tlb_interrupts(void)
-{
-#if defined(__linux__)
-	FILE *fp;
-	char buffer[8192];
-	uint64_t total = 0;
-
-	fp = fopen("/proc/interrupts", "r");
-	if (!fp)
-		return 0ULL;
-
-	(void)shim_memset(buffer, 0, sizeof(buffer));
-	while (fgets(buffer, sizeof(buffer), fp) != NULL) {
-		char *ptr;
-		char *eptr;
-
-		ptr = strstr(buffer, "TLB:");
-		if (!ptr)
-			continue;
-
-		ptr += 4; /* skip over TLB: */
-		while (*ptr) {
-			long long val;
-
-			/* skip over spaces */
-			while (*ptr == ' ')
-				ptr++;
-			/* end of string? */
-			if (!*ptr)
-				break;
-			/* not a digit? */
-			if (!isdigit((int)*ptr))
-				break;
-
-			eptr = NULL;
-			val = strtoll(ptr, &eptr, 10);
-			/* no number parsed? */
-			if (!eptr)
-				break;
-			/* should be positive */
-			if (val < 0)
-				break;
-			/* sum per CPU TLB shootdown count */
-			total += (uint64_t)val;
-			ptr = eptr;
-		}
-		break;
-	}
-	(void)fclose(fp);
-
-	return total;
-#else
-	return 0ULL;
-#endif
-}
 
 /*
  *  stress_tlb_shootdown_read_mem()
@@ -405,7 +346,7 @@ static int stress_tlb_shootdown(stress_args_t *args)
 		stress_memory_usage_get(args, mmap_size, mmap_size * args->instances);
 
 	t_begin = stress_time_now();
-	tlb_begin = stress_tlb_interrupts();
+	tlb_begin = stress_interrupts_tlb();
 
 	for (i = 0; i < tlb_procs; i++)
 		stress_sync_start_init(&s_pids[i]);
@@ -488,7 +429,7 @@ static int stress_tlb_shootdown(stress_args_t *args)
 	} while (stress_continue(args));
 
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
-	tlb_end = stress_tlb_interrupts();
+	tlb_end = stress_interrupts_tlb();
 	duration = stress_time_now() - t_begin;
 
 	rate = (duration > 0.0) ? (double)(tlb_end - tlb_begin) / duration : 0.0;

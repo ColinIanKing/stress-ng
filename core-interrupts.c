@@ -18,6 +18,7 @@
  */
 #include "stress-ng.h"
 #include "core-arch.h"
+#include "core-builtin.h"
 #include "core-interrupts.h"
 
 #include <ctype.h>
@@ -267,3 +268,65 @@ void stress_interrupts_dump(FILE *yaml, stress_list_item_t *stressors_list)
 			pr_yaml(yaml, "\n");
 	}
 }
+
+
+/*
+ * stress_interrupts_tlb()
+ *	parse /proc/interrupts for per CPU TLB shootdown count
+ */
+uint64_t stress_interrupts_tlb(void)
+{
+#if defined(__linux__)
+	FILE *fp;
+	char buffer[8192];
+	uint64_t total = 0;
+
+	fp = fopen("/proc/interrupts", "r");
+	if (!fp)
+		return 0ULL;
+
+	(void)shim_memset(buffer, 0, sizeof(buffer));
+	while (fgets(buffer, sizeof(buffer), fp) != NULL) {
+		char *ptr;
+		char *eptr;
+
+		ptr = strstr(buffer, "TLB:");
+		if (!ptr)
+			continue;
+
+		ptr += 4; /* skip over TLB: */
+		while (*ptr) {
+			long long val;
+
+			/* skip over spaces */
+			while (*ptr == ' ')
+				ptr++;
+			/* end of string? */
+			if (!*ptr)
+				break;
+			/* not a digit? */
+			if (!isdigit((int)*ptr))
+				break;
+
+			eptr = NULL;
+			val = strtoll(ptr, &eptr, 10);
+			/* no number parsed? */
+			if (!eptr)
+				break;
+			/* should be positive */
+			if (val < 0)
+				break;
+			/* sum per CPU TLB shootdown count */
+			total += (uint64_t)val;
+			ptr = eptr;
+		}
+		break;
+	}
+	(void)fclose(fp);
+
+	return total;
+#else
+	return 0ULL;
+#endif
+}
+
