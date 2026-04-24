@@ -806,6 +806,7 @@ STRESS_SRC = \
 	stress-timerfd.c \
 	stress-timermix.c \
 	stress-time-warp.c \
+	stress-tlb-numa.c \
 	stress-tlb-shootdown.c \
 	stress-tmpfs.c \
 	stress-touch.c \

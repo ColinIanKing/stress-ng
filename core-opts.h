@@ -1681,6 +1681,10 @@ typedef enum {
 	OPT_time_warp,
 	OPT_time_warp_ops,
 
+	OPT_tlb_numa,
+	OPT_tlb_numa_entries,
+	OPT_tlb_numa_ops,
+
 	OPT_tlb_shootdown,
 	OPT_tlb_shootdown_ops,
 

@@ -701,6 +701,144 @@ bool OPTIMIZE3 stress_cpu_x86_has_movdiri(void)
 #endif
 }
 
+#if defined(STRESS_ARCH_X86)
+/*
+ *  stress_cpu_x86_dtlb_size_for_4k_pages()
+ *	return largest data (or shared) TLB for 4K pages
+ */
+static void stress_cpu_x86_dtlb_size_for_4k_pages(
+	const uint8_t descriptor,
+	uint32_t *entries,
+	uint8_t *level)
+{
+	/* see https://www.felixcloutier.com/x86/cpuid#tbl-3-12 */
+	switch (descriptor) {
+	case 0x03:
+		*entries = 64;
+		*level = 1;
+		break;
+	case 0x4f:
+		*entries = 32;
+		*level = 1;
+		break;
+	case 0x50:
+		*entries = 64;
+		*level = 1;
+		break;
+	case 0x51:
+		*entries = 128;
+		*level = 1;
+		break;
+	case 0x52:
+		*entries = 256;
+		*level = 1;
+		break;
+	case 0x57:
+		*entries = 16;
+		*level = 1;
+		break;
+	case 0x5b:
+		*entries = 64;
+		*level = 1;
+		break;
+	case 0x5c:
+		*entries = 128;
+		*level = 1;
+		break;
+	case 0x5d:
+		*entries = 256;
+		*level = 1;
+		break;
+	case 0x64:
+		*entries = 512;
+		*level = 1;
+		break;
+	case 0xb3:
+		*entries = 128;
+		*level = 1;
+		break;
+	case 0xb4:
+		*entries = 256;
+		*level = 1;
+		break;
+	case 0xba:
+		*entries = 64;
+		*level = 1;
+		break;
+	case 0xc0:
+		*entries = 8;
+		*level = 1;
+		break;
+	case 0xc1:
+		*entries = 1024;
+		*level = 2;
+		break;
+	case 0xc2:
+		*entries = 16;
+		*level = 1;
+		break;
+	case 0xc3:
+		*entries = 1536;
+		*level = 2;
+		break;
+	case 0xca:
+		*entries = 512;
+		*level = 2;
+		break;
+	default:
+		break;
+	}
+}
+
+/*
+ *  stress_cpu_x86_dtlb_size_for_4k_pages_reg
+ *	return largest data (or shared) TLB for 4K pages for given register
+ */
+static void stress_cpu_x86_dtlb_size_for_4k_pages_reg(
+	uint32_t reg,
+	uint32_t *entries,
+	uint8_t *level)
+{
+	int i;
+
+	if (reg == 0x80000000)
+		return;
+
+	for (i = 0; i < 4; i++) {
+		uint32_t new_entries = 0;
+		uint8_t new_level;
+
+		stress_cpu_x86_dtlb_size_for_4k_pages(reg & 0xff, &new_entries, &new_level);
+		if (new_entries > *entries) {
+			*entries = new_entries;
+			*level = new_level;
+		}
+		reg >>= 8;
+	}
+}
+#endif
+
+/*
+ *  stress_cpu_x86_dtlb_entries()
+ *
+ */
+void stress_cpu_x86_dtlb_entries(uint32_t *entries, uint8_t *level)
+{
+#if defined(STRESS_ARCH_X86)
+	uint32_t eax, ebx, ecx, edx;
+
+	*entries = 0;
+	*level = 0;
+
+	eax = 2; ebx = 0; ecx = 0; edx = 0;
+	stress_asm_x86_cpuid(eax, ebx, ecx, edx);
+	stress_cpu_x86_dtlb_size_for_4k_pages_reg(eax, entries, level);
+	stress_cpu_x86_dtlb_size_for_4k_pages_reg(ebx, entries, level);
+	stress_cpu_x86_dtlb_size_for_4k_pages_reg(ecx, entries, level);
+	stress_cpu_x86_dtlb_size_for_4k_pages_reg(edx, entries, level);
+#endif
+}
+
 /*
  *  stress_cpu_fp_subnormals_disable
  *     Floating Point subnormals can be expensive and require

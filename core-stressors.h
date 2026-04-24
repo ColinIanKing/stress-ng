@@ -353,6 +353,7 @@
 	MACRO(timerfd)		\
 	MACRO(timermix)		\
 	MACRO(time_warp)	\
+	MACRO(tlb_numa)		\
 	MACRO(tlb_shootdown)	\
 	MACRO(tmpfs)		\
 	MACRO(touch)		\
