@@ -313,8 +313,7 @@ redo:
 #endif
 	case 27:
 		if (cpus) {
-			const pid_t pid = getpid();
-
+			pid = getpid();
 			n = stress_mwc8modn(32);
 			for (i = 0; LIKELY(stress_continue(args) && (i < n)); i++) {
 				const uint32_t idx = stress_mwc32modn(n_cpus);
