@@ -54,11 +54,7 @@ static const stress_opt_t opts[] = {
 };
 
 #if defined(HAVE_SCHED_GETAFFINITY) && 	\
-    defined(__NR_get_mempolicy) &&	\
-    defined(__NR_mbind) &&		\
-    defined(__NR_migrate_pages) &&	\
-    defined(__NR_move_pages) &&		\
-    defined(__NR_set_mempolicy)
+    defined(__NR_mbind)
 
 typedef struct {
 	size_t page_size;			/* size of a page */
