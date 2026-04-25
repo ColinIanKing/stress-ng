@@ -255,10 +255,7 @@ static stress_perf_info_t perf_info[STRESS_PERF_MAX] = {
 	PERF_INFO_TP("raw_syscalls/sys_enter",		"System Call Enter"),
 	PERF_INFO_TP("raw_syscalls/sys_exit",		"System Call Exit"),
 
-	/* This perf metric causes 5.4+ kernel hangs, disable it for now */
-#if 1
 	PERF_INFO_TP("tlb/tlb_flush",			"TLB Flushes"),
-#endif
 	PERF_INFO_TP("swiotlb/swiotlb_bounced",		"Software I/O TLB Bounces"),
 
 	PERF_INFO_TP("kmem/kmalloc",			"Kmalloc"),
@@ -270,13 +267,15 @@ static stress_perf_info_t perf_info[STRESS_PERF_MAX] = {
 	PERF_INFO_TP("kmem/mm_page_alloc",		"MM Page Alloc"),
 	PERF_INFO_TP("kmem/mm_page_free",		"MM Page Free"),
 
+	PERF_INFO_TP("ksm/ksm_merge_one_page",		"KSM merge one page"),
+	PERF_INFO_TP("ksm/ksm_merge_with_ksm_page",	"KSM merge with KSM page"),
+
 	PERF_INFO_TP("mmap_lock/mmap_lock_start_locking","MMAP lock start"),
 	PERF_INFO_TP("mmap_lock/mmap_lock_released",	"MMAP lock release"),
 	PERF_INFO_TP("mmap_lock/mmap_lock_acquire_returned","MMAP lock acquire"),
 
 	PERF_INFO_TP("rcu/rcu_utilization",		"RCU Utilization"),
 	PERF_INFO_TP("rcu/rcu_stall_warning",		"RCU Stall Warning"),
-	PERF_INFO_TP("rcu/rcu_preempt_task",		"RCU Preempt Task"),
 
 	PERF_INFO_TP("sched/sched_migrate_task",	"Sched Migrate Task"),
 	PERF_INFO_TP("sched/sched_move_numa",		"Sched Move NUMA"),
@@ -319,10 +318,9 @@ static stress_perf_info_t perf_info[STRESS_PERF_MAX] = {
 	PERF_INFO_TP("irq_vectors/thermal_apic_entry",	"Thermal APIC Entry"),
 
 	PERF_INFO_TP("block/block_bio_complete",	"Block BIO Complete"),
-#if 1
+
 	PERF_INFO_TP("iomap/iomap_readpage",		"IOMAP Read Page"),
 	PERF_INFO_TP("iomap/iomap_writepage",		"IOMAP Write Page"),
-#endif
 
 	PERF_INFO_TP("io_uring/io_uring_submit_sqe",	"IO uring submit SQE"),
 	PERF_INFO_TP("io_uring/io_uring_submit_req",	"IO uring submit REQ"),
@@ -346,6 +344,8 @@ static stress_perf_info_t perf_info[STRESS_PERF_MAX] = {
 
 	PERF_INFO_TP("qdisc/qdisc_enqueue",		"Qdisc Enqueue"),
 	PERF_INFO_TP("qdisc/qdisc_dequeue",		"Qdisc Dequeue"),
+
+	PERF_INFO_TP("workqueue/workqueue_queue_work",	"Workqueue Queue Work"),
 
 	PERF_INFO_TP("msr/read_msr",			"MSR read"),
 	PERF_INFO_TP("msr/write_msr",			"MSR write"),
