@@ -419,7 +419,7 @@ static int stress_tlb_numa(stress_args_t *args)
 
 	tlb_numa.args = args;
 	tlb_numa.page_size = args->page_size;
-	tlb_numa.mmap_pages = tlb_entries > 1 ? tlb_entries: DEFAULT_TLB_NUMA_ENTRIES;
+	tlb_numa.mmap_pages = tlb_entries;
 	tlb_numa.mmap_size = args->page_size * tlb_numa.mmap_pages * 2;
 	tlb_numa.cpus = (uint32_t)stress_cpus_configured_get();
 
