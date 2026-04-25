@@ -53,7 +53,7 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
-#if defined(HAVE_SCHED_GETAFFINITY) && 	\
+#if defined(HAVE_SCHED_SETAFFINITY) && 	\
     defined(__NR_mbind)
 
 typedef struct {
@@ -579,6 +579,6 @@ const stressor_info_t stress_tlb_numa_info = {
 	.classifier = CLASS_MEMORY,
 	.help = help,
 	.opts = opts,
-	.unimplemented_reason = "built without sched_getaffinity(), mprotect() or NUMA system calls"
+	.unimplemented_reason = "built without sched_setaffinity(), mprotect() or NUMA system calls"
 };
 #endif
