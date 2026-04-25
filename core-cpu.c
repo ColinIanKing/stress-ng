@@ -753,6 +753,10 @@ static void stress_cpu_x86_dtlb_size_for_4k_pages(
 		*entries = 512;
 		*level = 1;
 		break;
+	case 0xa0:
+		*entries = 32;
+		*level = 1;
+		break;
 	case 0xb3:
 		*entries = 128;
 		*level = 1;
