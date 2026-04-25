@@ -62,6 +62,7 @@ typedef struct {
 	size_t mmap_pages;			/* number of page mappings */
 	uint8_t **pages1;			/* pages array #1 */
 	uint8_t **pages2;			/* pages array #2 */
+	void *lock;				/* bogo op lock */
 	stress_args_t *args;			/* args */
 	uint32_t cpus;				/* number of CPUs */
 	stress_numa_mask_t *numa_mask1;		/* numa mask for pthread 1 */
@@ -130,8 +131,9 @@ static void *stress_tlb_numa_mmap(
 	do {
 		mem = mmap(addr, length, prot, flags, fd, offset);
 		if (LIKELY((void *)mem != MAP_FAILED)) {
-#if defined(MADV_NOHUGEPAGE)
-			(void)shim_madvise(mem, length, MADV_NOHUGEPAGE);
+#if defined(HAVE_MADVISE) &&	\
+    defined(SHIM_MADV_NOHUGEPAGE)
+			(void)shim_madvise(mem, length, SHIM_MADV_NOHUGEPAGE);
 #endif
 			stress_memory_anon_name_set(mem, length, "tlb-shootdown-buffer");
 			return mem;
@@ -184,10 +186,10 @@ static void OPTIMIZE3 *stress_tlb_pthread1(void *parg)
 	stress_tlb_numa_t *tlb_numa = (stress_tlb_numa_t *)parg;
 	long int node = 0;
 	const size_t page_size = tlb_numa->page_size;
-	const size_t size = page_size * 2;
 
 	do {
 		uint8_t *addr;
+		const size_t size = page_size * (2 + (stress_mwc8() & 0xf));
 
 		addr = (uint8_t *)stress_mmap_populate(NULL, size,
 				PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_SHARED, -1, 0);
@@ -203,8 +205,9 @@ static void OPTIMIZE3 *stress_tlb_pthread1(void *parg)
 		stress_tlb_numa_mbind(tlb_numa, node, tlb_numa->numa_mask1, tlb_numa->pages2);
 
 		if (addr != MAP_FAILED) {
-#if defined(MADV_PAGEOUT)
-			(void)madvise((void *)addr, size, MADV_PAGEOUT);
+#if defined(HAVE_MADVISE) &&	\
+    defined(SHIM_MADV_PAGEOUT)
+			(void)shim_madvise((void *)addr, size, SHIM_MADV_PAGEOUT);
 #endif
 			(void)munmap((void *)addr, size);
 		}
@@ -214,6 +217,7 @@ static void OPTIMIZE3 *stress_tlb_pthread1(void *parg)
                 if (node < 0)
                         node = 0;
 		stress_tlb_numa_mbind(tlb_numa, node, tlb_numa->numa_mask1, tlb_numa->pages1);
+		stress_bogo_inc_lock(tlb_numa->args, tlb_numa->lock, 1);
 	} while (stress_continue(tlb_numa->args));
 
 	return &g_nowt;
@@ -228,10 +232,10 @@ static void OPTIMIZE3 *stress_tlb_pthread2(void *parg)
 	stress_tlb_numa_t *tlb_numa = (stress_tlb_numa_t *)parg;
 	long int node = 0;
 	const size_t page_size = tlb_numa->page_size;
-	const size_t size = page_size * 2;
 
 	do {
 		uint8_t *addr;
+		const size_t size = page_size * (2 + (stress_mwc8() & 0xf));
 
 		addr = (uint8_t *)stress_mmap_populate(NULL, size,
 				PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_SHARED, -1, 0);
@@ -247,8 +251,9 @@ static void OPTIMIZE3 *stress_tlb_pthread2(void *parg)
 		stress_tlb_numa_mbind(tlb_numa, node, tlb_numa->numa_mask2, tlb_numa->pages1);
 
 		if (addr != MAP_FAILED) {
-#if defined(MADV_PAGEOUT)
-			(void)madvise((void *)addr, size, MADV_PAGEOUT);
+#if defined(HAVE_MADVISE) &&	\
+    defined(SHIM_MADV_PAGEOUT)
+			(void)shim_madvise((void *)addr, size, SHIM_MADV_PAGEOUT);
 #endif
 			(void)munmap((void *)addr, size);
 		}
@@ -258,6 +263,7 @@ static void OPTIMIZE3 *stress_tlb_pthread2(void *parg)
                 if (node < 0)
                         node = 0;
 		stress_tlb_numa_change_cpu(tlb_numa->cpus);
+		stress_bogo_inc_lock(tlb_numa->args, tlb_numa->lock, 1);
 	} while (stress_continue(tlb_numa->args));
 
 	return &g_nowt;
@@ -445,6 +451,15 @@ static int stress_tlb_numa(stress_args_t *args)
 		goto free_numa_mask_ff;
 	}
 
+	tlb_numa.lock = stress_lock_create("bogo-op-lock");
+	if (!tlb_numa.lock) {
+		pr_inf_skip("%s: bogo-op lock create, skipping stressor\n", args->name);
+		(void)munmap((void *)mmap2, tlb_numa.mmap_size);
+		(void)munmap((void *)mmap1, tlb_numa.mmap_size);
+		rc = EXIT_NO_RESOURCE;
+		goto free_numa_mask_ff;
+	}
+
 	/*
 	 *  Ensure mappings are populated
 	 */
@@ -496,12 +511,12 @@ static int stress_tlb_numa(stress_args_t *args)
 		stress_tlb_numa_change_cpu(tlb_numa.cpus);
 
 		if (addr != MAP_FAILED) {
-#if defined(MADV_PAGEOUT)
-			(void)madvise((void *)addr, size, MADV_PAGEOUT);
+#if defined(HAVE_MADVISE) &&	\
+    defined(SHIM_MADV_PAGEOUT)
+			(void)shim_madvise((void *)addr, size, SHIM_MADV_PAGEOUT);
 #endif
 			(void)munmap((void *)addr, size);
 		}
-		stress_bogo_inc(args);
 	} while (stress_continue(args));
 
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
@@ -522,6 +537,7 @@ err_reap:
 	stress_tlb_numa_pages_munmap(tlb_numa.pages2, tlb_numa.mmap_pages, tlb_numa.page_size);
 	stress_tlb_numa_pages_munmap(tlb_numa.pages1, tlb_numa.mmap_pages, tlb_numa.page_size);
 
+	stress_lock_destroy(tlb_numa.lock);
 free_numa_mask_ff:
 	stress_numa_mask_free(tlb_numa.numa_mask_ff);
 free_numa_mask2:
