@@ -395,18 +395,18 @@ static int stress_tlb_numa(stress_args_t *args)
 		if (x86_tlb_entries > 0) {
 			tlb_entries = (size_t)x86_tlb_entries;
 			if (stress_instance_zero(args)) {
-				pr_inf("%s: detected %zu L%" PRIu8 " data cache entries\n",
+				pr_inf("%s: detected %zu L%" PRIu8 " data TLB entries\n",
 					args->name, tlb_entries, x86_tlb_level);
 			}
 		} else {
 			if (stress_instance_zero(args)) {
-				pr_inf("%s: defaulting to %zu data cache entries\n",
+				pr_inf("%s: defaulting to %zu data TLB entries\n",
 					args->name, tlb_entries);
 			}
 		}
 #else
 		if (stress_instance_zero(args)) {
-			pr_inf("%s: defaulting to %zu data cache entries\n",
+			pr_inf("%s: defaulting to %zu data TLB entries\n",
 				args->name, tlb_entries);
 		}
 #endif
@@ -415,7 +415,7 @@ static int stress_tlb_numa(stress_args_t *args)
 	tlb_entries = (tlb_entries < MIN_TLB_NUMA_ENTRIES) ? MIN_TLB_NUMA_ENTRIES : tlb_entries;
 
 	if (stress_instance_zero(args))
-		pr_inf("%s: using %zu TLB entries per instance\n", args->name, tlb_entries);
+		pr_inf("%s: using %zu data TLB entries per instance\n", args->name, tlb_entries);
 
 	tlb_numa.args = args;
 	tlb_numa.page_size = args->page_size;
