@@ -711,6 +711,9 @@ static void stress_cpu_x86_dtlb_size_for_4k_pages(
 	uint32_t *entries,
 	uint8_t *level)
 {
+	uint32_t eax, ebx, ecx, edx;
+	uint32_t levels, max_levels;
+
 	/* see https://www.felixcloutier.com/x86/cpuid#tbl-3-12 */
 	switch (descriptor) {
 	case 0x03:
@@ -789,6 +792,35 @@ static void stress_cpu_x86_dtlb_size_for_4k_pages(
 		*entries = 512;
 		*level = 2;
 		break;
+	case 0xfe:
+		eax = 0x18; ebx = 0; ecx = 0; edx = 0;
+		stress_asm_x86_cpuid(eax, ebx, ecx, edx);
+		max_levels = eax;
+
+		for (levels = 1; levels <= max_levels; levels++) {
+			/*
+			 * get Deterministic Address Translation
+			 * Parameters for sub leaves
+			 */
+			eax = 0x18; ebx = 0; ecx = levels; edx = 0;
+			stress_asm_x86_cpuid(eax, ebx, ecx, edx);
+			if (ebx & 1) {
+				/* 4K page */
+				switch (edx & 0x1f) {
+				case 0x01: /* Data TLB */
+				case 0x03: /* Unified TLB */
+				case 0x04: /* Load only TLB */
+				case 0x05: /* Store only TLB */
+					*level = (edx >> 5) & 0x7;
+					/* Base TLB entries on number of sets */
+					*entries = ecx;
+					break;
+				default:   /* Ignore ITLB etc */
+					break;
+				}
+			}
+		}
+		break;
 	default:
 		break;
 	}
@@ -810,7 +842,7 @@ static void stress_cpu_x86_dtlb_size_for_4k_pages_reg(
 
 	for (i = 0; i < 4; i++) {
 		uint32_t new_entries = 0;
-		uint8_t new_level;
+		uint8_t new_level = 0;
 
 		stress_cpu_x86_dtlb_size_for_4k_pages(reg & 0xff, &new_entries, &new_level);
 		if (new_entries > *entries) {
