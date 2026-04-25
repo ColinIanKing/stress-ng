@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, may be w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "24 April 2026"
+.TH STRESS-NG 1 "25 April 2026"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -9516,8 +9516,9 @@ of 512 entries. Note that this stressor can be used on non-NUMA systems.
 specify the number of TLB entries to override the default.
 .TP
 .B \-\-tlb\-ops N
-stop after N tlb bogo operations. This may not relate to any real
-TLB throughput metric. For reliable metrics, use the \-\-metrics option.
+stop after N tlb pthread loop operations. This may not necessary relate to
+any real TLB throughput metric. For reliable metrics, use the \-\-metrics
+option.
 .RE
 .TP
 .B Translation lookaside buffer shootdowns stressor
