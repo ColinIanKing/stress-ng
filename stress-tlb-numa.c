@@ -175,10 +175,10 @@ static inline void OPTIMIZE3 stress_tlb_numa_mbind(
 {
 	size_t i;
 
-	for (i = 0; i < tlb_numa->mmap_pages; i++) {
-                shim_memset(numa_mask->mask, 0x00, numa_mask->mask_size);
-                STRESS_SETBIT(numa_mask->mask, node);
+	shim_memset(numa_mask->mask, 0x00, numa_mask->mask_size);
+	STRESS_SETBIT(numa_mask->mask, node);
 
+	for (i = 0; i < tlb_numa->mmap_pages; i++) {
 		/* 1 in 16 pages get mbind'd */
 		if (stress_mwc8() > 240) {
 			(void)shim_mbind((void *)pages[i], tlb_numa->page_size, MPOL_BIND, numa_mask->mask,
