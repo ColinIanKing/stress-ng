@@ -44,6 +44,7 @@
 static const stress_help_t help[] = {
 	{ NULL,	"tlb-numa N",         "start N workers that force TLB shootdowns on NUMA systems" },
 	{ NULL, "tlb-numa-entires N", "select number of TLB page entries per instance to use (default 512)" },
+	{ NULL,	"tlb-nuna-nombind",   "disable setting NUMA policy on pages" },
 	{ NULL,	"tlb-nuna-nopageout", "disable paging out randomly selected pages" },
 	{ NULL,	"tlb-numa-ops N",     "stop after N TLB shootdown bogo ops" },
 	{ NULL,	NULL,                 NULL }
@@ -51,6 +52,7 @@ static const stress_help_t help[] = {
 
 static const stress_opt_t opts[] = {
 	{ OPT_tlb_numa_entries,   "tlb-numa-entries",   TYPE_ID_UINT32, MIN_TLB_NUMA_ENTRIES, MAX_TLB_NUMA_ENTRIES, NULL },
+	{ OPT_tlb_numa_nombind,   "tlb-numa-nombind",   TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_tlb_numa_nopageout, "tlb-numa-nopageout", TYPE_ID_BOOL, 0, 1, NULL },
 	END_OPT,
 };
@@ -67,11 +69,13 @@ typedef struct {
 	void *lock;				/* bogo op lock */
 	stress_args_t *args;			/* args */
 	uint32_t cpus;				/* number of CPUs */
-	stress_numa_mask_t *numa_mask1;		/* numa mask for pthread 1 */
-	stress_numa_mask_t *numa_mask2;		/* numa mask for pthread 2 */
-	stress_numa_mask_t *numa_mask_ff;	/* numa mask, all bits set */
-	stress_numa_mask_t *numa_nodes;		/* numa nodes available */
-	bool nopageout;				/* don't page-out pages */
+	stress_numa_mask_t *numa_mask0;		/* NUMA mask for main instance */
+	stress_numa_mask_t *numa_mask1;		/* NUMA mask for pthread 1 */
+	stress_numa_mask_t *numa_mask2;		/* NUMA mask for pthread 2 */
+	stress_numa_mask_t *numa_mask_ff;	/* NUMA mask, all bits set */
+	stress_numa_mask_t *numa_nodes;		/* NUMA nodes available */
+	bool nombind;				/* disable NUMA mem policy */
+	bool nopageout;				/* disable paging-out pages */
 } stress_tlb_numa_t;
 
 typedef struct {
@@ -167,6 +171,15 @@ static void *stress_tlb_numa_mmap(
 }
 
 /*
+ *  stress_tlb_numa_mbind_do()
+ *	1 in 16 return true
+ */
+static inline bool stress_tlb_numa_mbind_do(void)
+{
+	return stress_mwc8() > 240;
+}
+
+/*
  *  stress_tlb_numa_mbind()
  *	mbind pages to a NUMA node
  */
@@ -182,8 +195,7 @@ static inline void OPTIMIZE3 stress_tlb_numa_mbind(
 	STRESS_SETBIT(numa_mask->mask, node);
 
 	for (i = 0; i < tlb_numa->mmap_pages; i++) {
-		/* 1 in 16 pages get mbind'd */
-		if (stress_mwc8() > 240) {
+		if (stress_tlb_numa_mbind_do()) {
 			(void)shim_mbind((void *)pages[i], tlb_numa->page_size, MPOL_BIND, numa_mask->mask,
 					numa_mask->max_nodes, MPOL_MF_STRICT);
 		}
@@ -213,10 +225,12 @@ static void OPTIMIZE3 *stress_tlb_pthread1(void *parg)
 		}
 
 		stress_tlb_numa_change_cpu(tlb_numa->cpus, &prev_cpu);
-		node = stress_numa_next_node(node, tlb_numa->numa_nodes);
-                if (node < 0)
-                        node = 0;
-		stress_tlb_numa_mbind(tlb_numa, node, tlb_numa->numa_mask1, tlb_numa->pages2);
+		if (!tlb_numa->nombind) {
+			node = stress_numa_next_node(node, tlb_numa->numa_nodes);
+			if (node < 0)
+				node = 0;
+			stress_tlb_numa_mbind(tlb_numa, node, tlb_numa->numa_mask1, tlb_numa->pages2);
+		}
 
 		if (addr != MAP_FAILED) {
 #if defined(HAVE_MADVISE) &&	\
@@ -227,11 +241,13 @@ static void OPTIMIZE3 *stress_tlb_pthread1(void *parg)
 			(void)munmap((void *)addr, size);
 		}
 
-		stress_tlb_numa_change_cpu(tlb_numa->cpus, &prev_cpu);
-		node = stress_numa_next_node(node, tlb_numa->numa_nodes);
-                if (node < 0)
-                        node = 0;
-		stress_tlb_numa_mbind(tlb_numa, node, tlb_numa->numa_mask1, tlb_numa->pages1);
+		if (!tlb_numa->nombind) {
+			stress_tlb_numa_change_cpu(tlb_numa->cpus, &prev_cpu);
+			node = stress_numa_next_node(node, tlb_numa->numa_nodes);
+			if (node < 0)
+				node = 0;
+			stress_tlb_numa_mbind(tlb_numa, node, tlb_numa->numa_mask1, tlb_numa->pages1);
+		}
 		stress_bogo_inc_lock(tlb_numa->args, tlb_numa->lock, 1);
 	} while (stress_continue(tlb_numa->args));
 
@@ -260,11 +276,13 @@ static void OPTIMIZE3 *stress_tlb_pthread2(void *parg)
 			*(addr + page_size) = 0xa5;
 		}
 
-		stress_tlb_numa_change_cpu(tlb_numa->cpus, &prev_cpu);
-		node = stress_numa_next_node(node, tlb_numa->numa_nodes);
-                if (node < 0)
-                        node = 0;
-		stress_tlb_numa_mbind(tlb_numa, node, tlb_numa->numa_mask2, tlb_numa->pages1);
+		if (!tlb_numa->nombind) {
+			stress_tlb_numa_change_cpu(tlb_numa->cpus, &prev_cpu);
+			node = stress_numa_next_node(node, tlb_numa->numa_nodes);
+			if (node < 0)
+				node = 0;
+			stress_tlb_numa_mbind(tlb_numa, node, tlb_numa->numa_mask2, tlb_numa->pages1);
+		}
 
 		if (addr != MAP_FAILED) {
 #if defined(HAVE_MADVISE) &&	\
@@ -275,11 +293,13 @@ static void OPTIMIZE3 *stress_tlb_pthread2(void *parg)
 			(void)munmap((void *)addr, size);
 		}
 
-		stress_tlb_numa_mbind(tlb_numa, node, tlb_numa->numa_mask2, tlb_numa->pages2);
-		node = stress_numa_next_node(node, tlb_numa->numa_nodes);
-                if (node < 0)
-                        node = 0;
-		stress_tlb_numa_change_cpu(tlb_numa->cpus, &prev_cpu);
+		if (!tlb_numa->nombind) {
+			stress_tlb_numa_change_cpu(tlb_numa->cpus, &prev_cpu);
+			stress_tlb_numa_mbind(tlb_numa, node, tlb_numa->numa_mask2, tlb_numa->pages2);
+			node = stress_numa_next_node(node, tlb_numa->numa_nodes);
+			if (node < 0)
+				node = 0;
+		}
 		stress_bogo_inc_lock(tlb_numa->args, tlb_numa->lock, 1);
 	} while (stress_continue(tlb_numa->args));
 
@@ -360,6 +380,7 @@ static int stress_tlb_numa(stress_args_t *args)
 	uint32_t prev_cpu = 0;
 	uint8_t	*mmap1;
 	uint8_t *mmap2;
+	long int node = 0;
 
 #if defined(STRESS_ARCH_X86)
 	uint32_t x86_tlb_entries;
@@ -367,6 +388,7 @@ static int stress_tlb_numa(stress_args_t *args)
 #endif
 
 	(void)shim_memset(&tlb_numa, 0, sizeof(tlb_numa));
+	(void)stress_setting_get("tlb-numa-nombind", &tlb_numa.nombind);
 	(void)stress_setting_get("tlb-numa-nopageout", &tlb_numa.nopageout);
 
 	if (!stress_setting_get("tlb-numa-entries", &tlb_entries)) {
@@ -434,11 +456,17 @@ static int stress_tlb_numa(stress_args_t *args)
 		rc = EXIT_NO_RESOURCE;
 		goto free_numa_nodes;
 	}
+	tlb_numa.numa_mask0 = stress_numa_mask_alloc();
+	if (!tlb_numa.numa_mask0) {
+		pr_inf_skip("%s: no NUMA nodes found, skipping stressor\n", args->name);
+		rc = EXIT_NO_RESOURCE;
+		goto free_numa_nodes;
+	}
 	tlb_numa.numa_mask1 = stress_numa_mask_alloc();
 	if (!tlb_numa.numa_mask1) {
 		pr_inf_skip("%s: no NUMA nodes found, skipping stressor\n", args->name);
 		rc = EXIT_NO_RESOURCE;
-		goto free_numa_nodes;
+		goto free_numa_mask0;
 	}
 	tlb_numa.numa_mask2 = stress_numa_mask_alloc();
 	if (!tlb_numa.numa_mask2) {
@@ -530,6 +558,15 @@ static int stress_tlb_numa(stress_args_t *args)
 		}
 
 		stress_tlb_numa_change_cpu(tlb_numa.cpus, &prev_cpu);
+		if (!tlb_numa.nombind && stress_tlb_numa_mbind_do()) {
+			node = stress_numa_next_node(node, tlb_numa.numa_nodes);
+			if (node < 0)
+				node = 0;
+			shim_memset(tlb_numa.numa_mask0->mask, 0x00, tlb_numa.numa_mask0->mask_size);
+			STRESS_SETBIT(tlb_numa.numa_mask0->mask, node);
+			(void)shim_mbind((void *)addr, size, MPOL_BIND, tlb_numa.numa_mask0->mask,
+					tlb_numa.numa_mask0->max_nodes, MPOL_MF_STRICT);
+		}
 
 		if (addr != MAP_FAILED) {
 #if defined(HAVE_MADVISE) &&	\
@@ -566,6 +603,8 @@ free_numa_mask2:
 	stress_numa_mask_free(tlb_numa.numa_mask2);
 free_numa_mask1:
 	stress_numa_mask_free(tlb_numa.numa_mask1);
+free_numa_mask0:
+	stress_numa_mask_free(tlb_numa.numa_mask0);
 free_numa_nodes:
 	stress_numa_mask_free(tlb_numa.numa_nodes);
 free_pages2:

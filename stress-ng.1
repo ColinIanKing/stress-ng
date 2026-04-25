@@ -9515,6 +9515,10 @@ of 512 entries. Note that this stressor can be used on non-NUMA systems.
 .B \-\-tlb\-numa\-entries N
 specify the number of TLB entries to override the default.
 .TP
+.B \-\-tlb\-numa\-nombind
+disable NUMA memory policy changes that move pages to NUMA nodes
+using mbind(2).
+.TP
 .B \-\-tlb\-numa\-nopageout
 disable randomized page-outs of mmap'd pages. This reduces the number of
 TLB shootdowns.

@@ -1683,6 +1683,7 @@ typedef enum {
 
 	OPT_tlb_numa,
 	OPT_tlb_numa_entries,
+	OPT_tlb_numa_nombind,
 	OPT_tlb_numa_nopageout,
 	OPT_tlb_numa_ops,
 
