@@ -101,10 +101,20 @@ static void stress_tlb_numa_shuffle_pages(
  *  stress_tlb_numa_change_cpu()
  *	randomly change CPU affinity
  */
-static void stress_tlb_numa_change_cpu(const uint32_t cpus)
+static void stress_tlb_numa_change_cpu(const uint32_t cpus, uint32_t *prev_cpu)
 {
 	cpu_set_t mask;
-	const uint32_t cpu = stress_mwc32modn(cpus);
+	uint32_t cpu;
+
+	/*
+	 *  find random cpu that's not the same as previous
+	 *  only if we have more than 1 cpu
+	 */
+	do {
+		cpu = stress_mwc32modn(cpus);
+	} while ((cpus > 1) && (cpu == *prev_cpu));
+
+	*prev_cpu = cpu;
 
 	CPU_ZERO(&mask);
 	CPU_SET(cpu, &mask);
@@ -186,6 +196,7 @@ static void OPTIMIZE3 *stress_tlb_pthread1(void *parg)
 	stress_tlb_numa_t *tlb_numa = (stress_tlb_numa_t *)parg;
 	long int node = 0;
 	const size_t page_size = tlb_numa->page_size;
+	uint32_t prev_cpu = 0;
 
 	do {
 		uint8_t *addr;
@@ -198,7 +209,7 @@ static void OPTIMIZE3 *stress_tlb_pthread1(void *parg)
 			*(addr + page_size) = 0xa5;
 		}
 
-		stress_tlb_numa_change_cpu(tlb_numa->cpus);
+		stress_tlb_numa_change_cpu(tlb_numa->cpus, &prev_cpu);
 		node = stress_numa_next_node(node, tlb_numa->numa_nodes);
                 if (node < 0)
                         node = 0;
@@ -212,7 +223,7 @@ static void OPTIMIZE3 *stress_tlb_pthread1(void *parg)
 			(void)munmap((void *)addr, size);
 		}
 
-		stress_tlb_numa_change_cpu(tlb_numa->cpus);
+		stress_tlb_numa_change_cpu(tlb_numa->cpus, &prev_cpu);
 		node = stress_numa_next_node(node, tlb_numa->numa_nodes);
                 if (node < 0)
                         node = 0;
@@ -232,6 +243,7 @@ static void OPTIMIZE3 *stress_tlb_pthread2(void *parg)
 	stress_tlb_numa_t *tlb_numa = (stress_tlb_numa_t *)parg;
 	long int node = 0;
 	const size_t page_size = tlb_numa->page_size;
+	uint32_t prev_cpu = 0;
 
 	do {
 		uint8_t *addr;
@@ -244,7 +256,7 @@ static void OPTIMIZE3 *stress_tlb_pthread2(void *parg)
 			*(addr + page_size) = 0xa5;
 		}
 
-		stress_tlb_numa_change_cpu(tlb_numa->cpus);
+		stress_tlb_numa_change_cpu(tlb_numa->cpus, &prev_cpu);
 		node = stress_numa_next_node(node, tlb_numa->numa_nodes);
                 if (node < 0)
                         node = 0;
@@ -262,7 +274,7 @@ static void OPTIMIZE3 *stress_tlb_pthread2(void *parg)
 		node = stress_numa_next_node(node, tlb_numa->numa_nodes);
                 if (node < 0)
                         node = 0;
-		stress_tlb_numa_change_cpu(tlb_numa->cpus);
+		stress_tlb_numa_change_cpu(tlb_numa->cpus, &prev_cpu);
 		stress_bogo_inc_lock(tlb_numa->args, tlb_numa->lock, 1);
 	} while (stress_continue(tlb_numa->args));
 
@@ -340,6 +352,7 @@ static int stress_tlb_numa(stress_args_t *args)
 	stress_tlb_numa_t tlb_numa;
 	stress_tlb_numa_pthread_t pthreads[TLB_NUMA_PTHREADS];
 	size_t i;
+	uint32_t prev_cpu = 0;
 	uint8_t	*mmap1;
 	uint8_t *mmap2;
 
@@ -508,7 +521,7 @@ static int stress_tlb_numa(stress_args_t *args)
 			*(addr + tlb_numa.page_size) = 0xa5;
 		}
 
-		stress_tlb_numa_change_cpu(tlb_numa.cpus);
+		stress_tlb_numa_change_cpu(tlb_numa.cpus, &prev_cpu);
 
 		if (addr != MAP_FAILED) {
 #if defined(HAVE_MADVISE) &&	\
