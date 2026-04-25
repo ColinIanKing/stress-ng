@@ -248,8 +248,7 @@ static void OPTIMIZE3 *stress_tlb_pthread1(void *parg)
 				node = 0;
 			stress_tlb_numa_mbind(tlb_numa, node, tlb_numa->numa_mask1, tlb_numa->pages1);
 		}
-		stress_bogo_inc_lock(tlb_numa->args, tlb_numa->lock, 1);
-	} while (stress_continue(tlb_numa->args));
+	} while (stress_bogo_inc_lock(tlb_numa->args, tlb_numa->lock, true));
 
 	return &g_nowt;
 }
@@ -300,8 +299,7 @@ static void OPTIMIZE3 *stress_tlb_pthread2(void *parg)
 			if (node < 0)
 				node = 0;
 		}
-		stress_bogo_inc_lock(tlb_numa->args, tlb_numa->lock, 1);
-	} while (stress_continue(tlb_numa->args));
+	} while (stress_bogo_inc_lock(tlb_numa->args, tlb_numa->lock, true));
 
 	return &g_nowt;
 }
