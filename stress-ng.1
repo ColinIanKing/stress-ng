@@ -9515,6 +9515,10 @@ of 512 entries. Note that this stressor can be used on non-NUMA systems.
 .B \-\-tlb\-numa\-entries N
 specify the number of TLB entries to override the default.
 .TP
+.B \-\-tlb\-numa\-nopageout
+disable randomized page-outs of mmap'd pages. This reduces the number of
+TLB shootdowns.
+.TP
 .B \-\-tlb\-ops N
 stop after N tlb pthread loop operations. This may not necessary relate to
 any real TLB throughput metric. For reliable metrics, use the \-\-metrics

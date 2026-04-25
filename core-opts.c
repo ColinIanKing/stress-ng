@@ -1201,6 +1201,7 @@ const struct option stress_long_options[] = {
 	{ "time-warp-ops",	1,	0,	OPT_time_warp_ops },
 	{ "tlb-numa",		1,	0,	OPT_tlb_numa },
 	{ "tlb-numa-entries",	1,	0,	OPT_tlb_numa_entries },
+	{ "tlb-numa-nopageout",	0,	0,	OPT_tlb_numa_nopageout },
 	{ "tlb-numa-ops",	1,	0,	OPT_tlb_numa_ops },
 	{ "tlb-shootdown",	1,	0,	OPT_tlb_shootdown },
 	{ "tlb-shootdown-ops",	1,	0,	OPT_tlb_shootdown_ops },

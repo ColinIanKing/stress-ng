@@ -44,12 +44,14 @@
 static const stress_help_t help[] = {
 	{ NULL,	"tlb-numa N",         "start N workers that force TLB shootdowns on NUMA systems" },
 	{ NULL, "tlb-numa-entires N", "select number of TLB page entries per instance to use (default 512)" },
+	{ NULL,	"tlb-nuna-nopageout", "disable paging out randomly selected pages" },
 	{ NULL,	"tlb-numa-ops N",     "stop after N TLB shootdown bogo ops" },
 	{ NULL,	NULL,                 NULL }
 };
 
 static const stress_opt_t opts[] = {
-	{ OPT_tlb_numa_entries, "tlb-numa-entries", TYPE_ID_UINT32, MIN_TLB_NUMA_ENTRIES, MAX_TLB_NUMA_ENTRIES, NULL },
+	{ OPT_tlb_numa_entries,   "tlb-numa-entries",   TYPE_ID_UINT32, MIN_TLB_NUMA_ENTRIES, MAX_TLB_NUMA_ENTRIES, NULL },
+	{ OPT_tlb_numa_nopageout, "tlb-numa-nopageout", TYPE_ID_BOOL, 0, 1, NULL },
 	END_OPT,
 };
 
@@ -69,6 +71,7 @@ typedef struct {
 	stress_numa_mask_t *numa_mask2;		/* numa mask for pthread 2 */
 	stress_numa_mask_t *numa_mask_ff;	/* numa mask, all bits set */
 	stress_numa_mask_t *numa_nodes;		/* numa nodes available */
+	bool nopageout;				/* don't page-out pages */
 } stress_tlb_numa_t;
 
 typedef struct {
@@ -218,7 +221,8 @@ static void OPTIMIZE3 *stress_tlb_pthread1(void *parg)
 		if (addr != MAP_FAILED) {
 #if defined(HAVE_MADVISE) &&	\
     defined(SHIM_MADV_PAGEOUT)
-			(void)shim_madvise((void *)addr, size, SHIM_MADV_PAGEOUT);
+			if (!tlb_numa->nopageout)
+				(void)shim_madvise((void *)addr, size, SHIM_MADV_PAGEOUT);
 #endif
 			(void)munmap((void *)addr, size);
 		}
@@ -265,7 +269,8 @@ static void OPTIMIZE3 *stress_tlb_pthread2(void *parg)
 		if (addr != MAP_FAILED) {
 #if defined(HAVE_MADVISE) &&	\
     defined(SHIM_MADV_PAGEOUT)
-			(void)shim_madvise((void *)addr, size, SHIM_MADV_PAGEOUT);
+			if (!tlb_numa->nopageout)
+				(void)shim_madvise((void *)addr, size, SHIM_MADV_PAGEOUT);
 #endif
 			(void)munmap((void *)addr, size);
 		}
@@ -360,6 +365,9 @@ static int stress_tlb_numa(stress_args_t *args)
 	uint32_t x86_tlb_entries;
 	uint8_t x86_tlb_level;
 #endif
+
+	(void)shim_memset(&tlb_numa, 0, sizeof(tlb_numa));
+	(void)stress_setting_get("tlb-numa-nopageout", &tlb_numa.nopageout);
 
 	if (!stress_setting_get("tlb-numa-entries", &tlb_entries)) {
 #if defined(STRESS_ARCH_X86)
@@ -526,7 +534,8 @@ static int stress_tlb_numa(stress_args_t *args)
 		if (addr != MAP_FAILED) {
 #if defined(HAVE_MADVISE) &&	\
     defined(SHIM_MADV_PAGEOUT)
-			(void)shim_madvise((void *)addr, size, SHIM_MADV_PAGEOUT);
+			if (!tlb_numa.nopageout)
+				(void)shim_madvise((void *)addr, size, SHIM_MADV_PAGEOUT);
 #endif
 			(void)munmap((void *)addr, size);
 		}
