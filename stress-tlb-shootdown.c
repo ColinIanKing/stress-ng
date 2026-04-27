@@ -459,12 +459,14 @@ err_free_cpus:
 const stressor_info_t stress_tlb_shootdown_info = {
 	.stressor = stress_tlb_shootdown,
 	.classifier = CLASS_OS | CLASS_MEMORY,
+	.verify = VERIFY_NONE,
 	.help = help
 };
 #else
 const stressor_info_t stress_tlb_shootdown_info = {
 	.stressor = stress_unimplemented,
 	.classifier = CLASS_OS | CLASS_MEMORY,
+	.verify = VERIFY_NONE,
 	.help = help,
 	.unimplemented_reason = "built without sched_getaffinity() or mprotect() system calls"
 };
