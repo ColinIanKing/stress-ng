@@ -672,7 +672,7 @@ free_pages1:
 
 const stressor_info_t stress_tlb_numa_info = {
 	.stressor = stress_tlb_numa,
-	.classifier = CLASS_MEMORY,
+	.classifier = CLASS_TLB | CLASS_MEMORY,
 	.verify = VERIFY_NONE,
 	.help = help,
 	.opts = opts
@@ -680,7 +680,7 @@ const stressor_info_t stress_tlb_numa_info = {
 #else
 const stressor_info_t stress_tlb_numa_info = {
 	.stressor = stress_unimplemented,
-	.classifier = CLASS_MEMORY,
+	.classifier = CLASS_TLB | CLASS_MEMORY,
 	.verify = VERIFY_NONE,
 	.help = help,
 	.opts = opts,

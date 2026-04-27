@@ -420,6 +420,7 @@ do {				\
 #define CLASS_SIGNAL		STRESS_BIT_UL(21)	/* software signals */
 #define CLASS_VECTOR		STRESS_BIT_UL(22)	/* Vector math operations */
 #define CLASS_VM		STRESS_BIT_UL(23)	/* VM stress, big memory, swapping */
+#define CLASS_TLB		STRESS_BIT_UL(24)	/* TLB stressors */
 
 /* Help information for options */
 typedef struct {
