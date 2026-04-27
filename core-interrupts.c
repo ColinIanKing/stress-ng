@@ -278,8 +278,7 @@ static void stress_interrupts_parse_field(
 	const char *field,
 	uint64_t *total)
 {
-	char *ptr;
-	char *eptr;
+	const char *ptr;
 
 	ptr = strstr(str, field);
 	if (!ptr)
@@ -291,6 +290,7 @@ static void stress_interrupts_parse_field(
 		ptr++;
 
 	while (*ptr) {
+		char *eptr;
 		long long val;
 
 		/* skip over spaces */
