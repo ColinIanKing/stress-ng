@@ -340,7 +340,7 @@ static void OPTIMIZE3 *stress_tlb_pthread3(void *parg)
 			}
 
 			stress_tlb_numa_change_cpu(tlb_numa->cpus, &prev_cpu);
-			
+
 			/* unmap even pages */
 			ptr = mmap3;
 			ptr_end = mmap3 + size;
