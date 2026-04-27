@@ -872,6 +872,9 @@ void stress_cpu_x86_dtlb_entries(uint32_t *entries, uint8_t *level)
 	stress_cpu_x86_dtlb_size_for_4k_pages_reg(ebx, entries, level);
 	stress_cpu_x86_dtlb_size_for_4k_pages_reg(ecx, entries, level);
 	stress_cpu_x86_dtlb_size_for_4k_pages_reg(edx, entries, level);
+#else
+	(void)entries;
+	(void)level;
 #endif
 }
 
