@@ -18,6 +18,7 @@
  */
 #include "stress-ng.h"
 #include "core-attribute.h"
+#include "core-mmap.h"
 #include "core-mounts.h"
 
 #if defined(HAVE_LINUX_FS_H)
@@ -246,7 +247,7 @@ static int stress_rofs_file_mmap(
 	/*
 	 *  check that write mmapping fails on read-only file
 	 */
-	data = (char *)mmap(NULL, (size_t)size, PROT_WRITE, MAP_SHARED | MAP_POPULATE, fd, 0);
+	data = (char *)stress_mmap_populate(NULL, (size_t)size, PROT_WRITE, MAP_SHARED, fd, 0);
 	if (data != MAP_FAILED) {
 		pr_inf("%s: mmap on '%s' using PROT_WRITE unexpectedly succeeded\n",
 			args->name, path);
