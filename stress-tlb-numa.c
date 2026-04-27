@@ -39,8 +39,6 @@
 #define MAX_TLB_NUMA_ENTRIES		(1024 * 1024)
 #define DEFAULT_TLB_NUMA_ENTRIES	(512)
 
-#define TLB_NUMA_PTHREADS		(2)	/* Do not change */
-
 static const stress_help_t help[] = {
 	{ NULL,	"tlb-numa N",         "start N workers that force TLB shootdowns on NUMA systems" },
 	{ NULL, "tlb-numa-entires N", "select number of TLB page entries per instance to use (default 512)" },
@@ -59,6 +57,8 @@ static const stress_opt_t opts[] = {
 
 #if defined(HAVE_SCHED_SETAFFINITY) && 	\
     defined(__NR_mbind)
+
+typedef void * (*stress_tlb_pthread_t)(void *parg);
 
 typedef struct {
 	size_t page_size;			/* size of a page */
@@ -82,7 +82,6 @@ typedef struct {
 	pthread_t	pthread;		/* pthread */
 	int		ret;			/* pthread create return */
 } stress_tlb_numa_pthread_t;
-
 
 /*
  *  stress_tlb_numa_shuffle_pages()
@@ -305,6 +304,57 @@ static void OPTIMIZE3 *stress_tlb_pthread2(void *parg)
 }
 
 /*
+ *  stress_tlb_pthread3()
+ *  	pthread3, exercise mmapping and many munmappings
+ */
+static void OPTIMIZE3 *stress_tlb_pthread3(void *parg)
+{
+	stress_tlb_numa_t *tlb_numa = (stress_tlb_numa_t *)parg;
+	const size_t page_size = tlb_numa->page_size;
+	const size_t page_size2 = 2 * page_size;
+	uint32_t prev_cpu = 0;
+
+	do {
+		uint8_t *mmap3;
+		const size_t n_pages = stress_mwc8modn(32) + 3;
+		const size_t size = n_pages * page_size;
+
+		mmap3 = mmap(NULL, size, PROT_READ | PROT_WRITE,
+				MAP_ANONYMOUS | MAP_SHARED, -1, 0);
+		if (UNLIKELY(mmap3 == MAP_FAILED)) {
+			stress_random_small_sleep();
+			continue;
+		} else {
+			uint8_t *ptr, *ptr_end;
+
+			stress_mmap_set_light(mmap3, size, page_size);
+
+			stress_tlb_numa_change_cpu(tlb_numa->cpus, &prev_cpu);
+
+			/* unmap odd pages */
+			ptr = mmap3 + page_size;
+			ptr_end = mmap3 + size;
+			while (ptr < ptr_end) {
+				(void)munmap((void *)ptr, page_size);
+				ptr += page_size2;
+			}
+
+			stress_tlb_numa_change_cpu(tlb_numa->cpus, &prev_cpu);
+			
+			/* unmap even pages */
+			ptr = mmap3;
+			ptr_end = mmap3 + size;
+			while (ptr < ptr_end) {
+				(void)munmap((void *)ptr, page_size);
+				ptr += page_size2;
+			}
+		}
+	} while (stress_bogo_inc_lock(tlb_numa->args, tlb_numa->lock, true));
+
+	return &g_nowt;
+}
+
+/*
  *  stress_tlb_numa_pages()
  *	unmap every other page to break mmap mmapping into pages
  */
@@ -360,6 +410,14 @@ static void OPTIMIZE3 stress_tlb_numa_pages_fill(
 		val++;
 	}
 }
+
+static stress_tlb_pthread_t stress_tlb_pthreads[] = {
+	stress_tlb_pthread1,
+	stress_tlb_pthread2,
+	stress_tlb_pthread3,
+};
+
+#define TLB_NUMA_PTHREADS	SIZEOF_ARRAY(stress_tlb_pthreads)
 
 /*
  *  stress_tlb_numa()
@@ -527,8 +585,7 @@ static int stress_tlb_numa(stress_args_t *args)
 
 	for (i = 0; i < TLB_NUMA_PTHREADS; i++) {
 		pthreads[i].ret = pthread_create(&pthreads[i].pthread, NULL,
-				(i & 1) ? stress_tlb_pthread1 : stress_tlb_pthread2,
-                                (void *)&tlb_numa);
+				stress_tlb_pthreads[i], (void *)&tlb_numa);
 		if (UNLIKELY(pthreads[i].ret)) {
 			pr_fail("%s: pthread_create failed, errno=%d (%s)\n",
 				args->name, pthreads[i].ret, strerror(pthreads[i].ret));
