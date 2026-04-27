@@ -639,7 +639,7 @@ static int stress_tlb_numa(stress_args_t *args)
 		stress_metrics_set(args, "TLB shootdowns/sec", rate, STRESS_METRIC_GEOMETRIC_MEAN);
 	rate = (duration > 0.0) ? (double)(ipi_end - ipi_begin) / duration : 0.0;
 	if (rate > 0.0)
-		stress_metrics_set(args, "IPI/sec", rate, STRESS_METRIC_GEOMETRIC_MEAN);
+		stress_metrics_set(args, "IPIs/sec", rate, STRESS_METRIC_GEOMETRIC_MEAN);
 
 
 err_reap:

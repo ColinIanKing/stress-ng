@@ -338,6 +338,7 @@ void stress_interrupts_tlb(uint64_t *total_tlb, uint64_t *total_ipi)
 	while (fgets(buffer, sizeof(buffer), fp) != NULL) {
 		stress_interrupts_parse_field(buffer, "TLB", total_tlb);
 		stress_interrupts_parse_field(buffer, "IPI", total_ipi);
+		stress_interrupts_parse_field(buffer, "CAL", total_ipi);
 	}
 	(void)fclose(fp);
 #else
