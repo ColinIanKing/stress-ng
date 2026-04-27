@@ -269,64 +269,80 @@ void stress_interrupts_dump(FILE *yaml, stress_list_item_t *stressors_list)
 	}
 }
 
+/*
+ *  stress_interrupts_parse_field()
+ *	parse a single /proc/interrupts field for a value, summate the total
+ */
+static void stress_interrupts_parse_field(
+	const char *str,
+	const char *field,
+	uint64_t *total)
+{
+	char *ptr;
+	char *eptr;
+
+	ptr = strstr(str, field);
+	if (!ptr)
+		return;
+
+	ptr += strlen(field); /* skip over field */
+
+	while (*ptr != ' ')
+		ptr++;
+
+	while (*ptr) {
+		long long val;
+
+		/* skip over spaces */
+		while (*ptr == ' ')
+			ptr++;
+		/* end of string? */
+		if (!*ptr)
+			break;
+		/* not a digit? */
+		if (!isdigit((int)*ptr))
+			break;
+
+		eptr = NULL;
+		val = strtoll(ptr, &eptr, 10);
+		/* no number parsed? */
+		if (!eptr)
+			break;
+		/* should be positive */
+		if (val < 0)
+			break;
+		/* sum per CPU TLB shootdown count */
+		*total += (uint64_t)val;
+		ptr = eptr;
+	}
+}
 
 /*
  * stress_interrupts_tlb()
- *	parse /proc/interrupts for per CPU TLB shootdown count
+ *	parse /proc/interrupts for per CPU TLB shootdown and IPI count
  */
-uint64_t stress_interrupts_tlb(void)
+void stress_interrupts_tlb(uint64_t *total_tlb, uint64_t *total_ipi)
 {
 #if defined(__linux__)
 	FILE *fp;
 	char buffer[8192];
-	uint64_t total = 0;
+
+	*total_tlb = 0ULL;
+	*total_ipi = 0ULL;
 
 	fp = fopen("/proc/interrupts", "r");
 	if (!fp)
-		return 0ULL;
+		return;
 
 	(void)shim_memset(buffer, 0, sizeof(buffer));
 	while (fgets(buffer, sizeof(buffer), fp) != NULL) {
-		char *ptr;
-		char *eptr;
-
-		ptr = strstr(buffer, "TLB:");
-		if (!ptr)
-			continue;
-
-		ptr += 4; /* skip over TLB: */
-		while (*ptr) {
-			long long val;
-
-			/* skip over spaces */
-			while (*ptr == ' ')
-				ptr++;
-			/* end of string? */
-			if (!*ptr)
-				break;
-			/* not a digit? */
-			if (!isdigit((int)*ptr))
-				break;
-
-			eptr = NULL;
-			val = strtoll(ptr, &eptr, 10);
-			/* no number parsed? */
-			if (!eptr)
-				break;
-			/* should be positive */
-			if (val < 0)
-				break;
-			/* sum per CPU TLB shootdown count */
-			total += (uint64_t)val;
-			ptr = eptr;
-		}
-		break;
+		stress_interrupts_parse_field(buffer, "TLB", total_tlb);
+		stress_interrupts_parse_field(buffer, "IPI", total_ipi);
 	}
 	(void)fclose(fp);
-
-	return total;
 #else
-	return 0ULL;
+	*total_tlb = 0;
+	*total_pip = 0;
 #endif
 }
 

@@ -24,6 +24,6 @@ extern void stress_interrupts_stop(stress_interrupts_t *counters);
 extern void stress_interrupts_check_failure(const char *name,
 	stress_interrupts_t *counters, uint32_t instance, int *rc);
 extern void stress_interrupts_dump(FILE *yaml, stress_list_item_t *stressors_list);
-extern uint64_t stress_interrupts_tlb(void);
+extern void stress_interrupts_tlb(uint64_t *total_tlb, uint64_t *total_ipi);
 
 #endif

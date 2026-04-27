@@ -260,6 +260,7 @@ static int stress_tlb_shootdown(stress_args_t *args)
 {
 	double rate, t_begin, duration;
 	uint64_t tlb_begin, tlb_end;
+	uint64_t ipi_begin, ipi_end;
 	const size_t page_size = args->page_size;
 	const size_t page_mask = ~(page_size - 1);
 	const size_t mmap_size = page_size * MMAP_PAGES;
@@ -346,7 +347,7 @@ static int stress_tlb_shootdown(stress_args_t *args)
 		stress_memory_usage_get(args, mmap_size, mmap_size * args->instances);
 
 	t_begin = stress_time_now();
-	tlb_begin = stress_interrupts_tlb();
+	stress_interrupts_tlb(&tlb_begin, &ipi_begin);
 
 	for (i = 0; i < tlb_procs; i++)
 		stress_sync_start_init(&s_pids[i]);
@@ -429,12 +430,15 @@ static int stress_tlb_shootdown(stress_args_t *args)
 	} while (stress_continue(args));
 
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
-	tlb_end = stress_interrupts_tlb();
+	stress_interrupts_tlb(&tlb_end, &ipi_end);
 	duration = stress_time_now() - t_begin;
 
 	rate = (duration > 0.0) ? (double)(tlb_end - tlb_begin) / duration : 0.0;
 	if (rate > 0.0)
 		stress_metrics_set(args, "TLB shootdowns/sec", rate, STRESS_METRIC_GEOMETRIC_MEAN);
+	rate = (duration > 0.0) ? (double)(ipi_end - ipi_begin) / duration : 0.0;
+	if (rate > 0.0)
+		stress_metrics_set(args, "IPI/sec", rate, STRESS_METRIC_GEOMETRIC_MEAN);
 
 	stress_kill_and_wait_many(args, s_pids, tlb_procs, SIGALRM, true);
 

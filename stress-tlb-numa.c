@@ -311,11 +311,11 @@ static void OPTIMIZE3 *stress_tlb_pthread3(void *parg)
 {
 	stress_tlb_numa_t *tlb_numa = (stress_tlb_numa_t *)parg;
 	const size_t page_size = tlb_numa->page_size;
-	const size_t page_size2 = 2 * page_size;
 	uint32_t prev_cpu = 0;
 
 	do {
 		uint8_t *mmap3;
+		uint8_t *pages[35];
 		const size_t n_pages = stress_mwc8modn(32) + 3;
 		const size_t size = n_pages * page_size;
 
@@ -325,29 +325,25 @@ static void OPTIMIZE3 *stress_tlb_pthread3(void *parg)
 			stress_random_small_sleep();
 			continue;
 		} else {
-			uint8_t *ptr, *ptr_end;
+			register size_t i;
+			uint8_t *ptr = mmap3;
+
+			for (i = 0, ptr = mmap3; i < n_pages; i++, ptr += page_size)
+				pages[i] = ptr;
 
 			stress_mmap_set_light(mmap3, size, page_size);
 
 			stress_tlb_numa_change_cpu(tlb_numa->cpus, &prev_cpu);
 
 			/* unmap odd pages */
-			ptr = mmap3 + page_size;
-			ptr_end = mmap3 + size;
-			while (ptr < ptr_end) {
-				(void)munmap((void *)ptr, page_size);
-				ptr += page_size2;
-			}
+			for (i = 1; i < n_pages; i += 2)
+				(void)munmap((void *)pages[i], page_size);
 
 			stress_tlb_numa_change_cpu(tlb_numa->cpus, &prev_cpu);
 
 			/* unmap even pages */
-			ptr = mmap3;
-			ptr_end = mmap3 + size;
-			while (ptr < ptr_end) {
-				(void)munmap((void *)ptr, page_size);
-				ptr += page_size2;
-			}
+			for (i = 0; i < n_pages; i += 2)
+				(void)munmap((void *)pages[i], page_size);
 		}
 	} while (stress_bogo_inc_lock(tlb_numa->args, tlb_numa->lock, true));
 
@@ -427,6 +423,7 @@ static int stress_tlb_numa(stress_args_t *args)
 {
 	double rate, t_begin, duration;
 	uint64_t tlb_begin, tlb_end;
+	uint64_t ipi_begin, ipi_end;
 	size_t tlb_entries = DEFAULT_TLB_NUMA_ENTRIES;
 	size_t size;
 	int rc = EXIT_SUCCESS;
@@ -595,7 +592,7 @@ static int stress_tlb_numa(stress_args_t *args)
 	}
 
 	t_begin = stress_time_now();
-	tlb_begin = stress_interrupts_tlb();
+	stress_interrupts_tlb(&tlb_begin, &ipi_begin);
 
 	stress_proc_state_set(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
@@ -634,12 +631,15 @@ static int stress_tlb_numa(stress_args_t *args)
 	} while (stress_continue(args));
 
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
-	tlb_end = stress_interrupts_tlb();
+	stress_interrupts_tlb(&tlb_end, &ipi_end);
 	duration = stress_time_now() - t_begin;
 
 	rate = (duration > 0.0) ? (double)(tlb_end - tlb_begin) / duration : 0.0;
 	if (rate > 0.0)
 		stress_metrics_set(args, "TLB shootdowns/sec", rate, STRESS_METRIC_GEOMETRIC_MEAN);
+	rate = (duration > 0.0) ? (double)(ipi_end - ipi_begin) / duration : 0.0;
+	if (rate > 0.0)
+		stress_metrics_set(args, "IPI/sec", rate, STRESS_METRIC_GEOMETRIC_MEAN);
 
 
 err_reap:
