@@ -116,6 +116,7 @@
 	MACRO(forkheavy)	\
 	MACRO(fp)		\
 	MACRO(fp_error)		\
+	MACRO(fp_misc)		\
 	MACRO(fpunch)		\
 	MACRO(fractal)		\
 	MACRO(fsize)		\

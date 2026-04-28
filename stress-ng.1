@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, may be w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "27 April 2026"
+.TH STRESS-NG 1 "28 April 2026"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -3538,6 +3538,21 @@ checked.
 .TP
 .B \-\-fp\-error\-ops N
 stop after N bogo floating point exceptions.
+.RE
+.TP
+.B Miscellaneous floating point math macro operations
+.RS 5
+.TQ
+.B \-\-fp\-misc N
+start N workers that exercise the following libm floating point macros:
+fpclassify(3), isgreater(3), isgreaterequal(3), isless(3), islessequal(3),
+islessgreater(3), isunordered(3), isfinite(3), isnormal(3), isnan(3),
+isinf(3) and signbit(3). Float, double and long double floating
+point values are operated upon using normal, infinite and non-a-number
+(nan) values.
+.TP
+.B \-\-fp\-misc\-ops N
+stop after N bogo floating point math macro operations.
 .RE
 .TP
 .B File punch and hole filling stressor

@@ -570,6 +570,7 @@ STRESS_SRC = \
 	stress-forkheavy.c \
 	stress-fp.c \
 	stress-fp-error.c \
+	stress-fp-misc.c \
 	stress-fpunch.c \
 	stress-fractal.c \
 	stress-fsize.c \
