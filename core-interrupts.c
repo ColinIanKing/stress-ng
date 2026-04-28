@@ -269,6 +269,7 @@ void stress_interrupts_dump(FILE *yaml, stress_list_item_t *stressors_list)
 	}
 }
 
+#if defined(__linux__)
 /*
  *  stress_interrupts_parse_field()
  *	parse a single /proc/interrupts field for a value, summate the total
@@ -316,6 +317,7 @@ static void stress_interrupts_parse_field(
 		ptr = eptr;
 	}
 }
+#endif
 
 /*
  * stress_interrupts_tlb()
@@ -343,7 +345,7 @@ void stress_interrupts_tlb(uint64_t *total_tlb, uint64_t *total_ipi)
 	(void)fclose(fp);
 #else
 	*total_tlb = 0;
-	*total_pip = 0;
+	*total_ipi = 0;
 #endif
 }
 
