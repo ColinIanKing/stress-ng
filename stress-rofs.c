@@ -31,6 +31,14 @@
 #include <sys/file.h>
 #endif
 
+#if defined(HAVE_LINUX_MAGIC_H)
+#include <linux/magic.h>
+#endif
+
+#if !defined(CONFIGFS_MAGIC)
+#define CONFIGFS_MAGIC	0x62656570
+#endif
+
 #if defined(HAVE_SYS_VFS_H) &&  	\
     defined(HAVE_SYS_STATVFS_H) &&	\
     defined(HAVE_STATFS) &&     	\
@@ -879,6 +887,8 @@ static int stress_rofs(stress_args_t *args)
 			if (access(mnts[j], R_OK) != 0)
 				continue;
 			if (statfs(mnts[j], &statfsbuf) != 0)
+				continue;
+			if (statfsbuf.f_type == CONFIGFS_MAGIC)
 				continue;
 
 			if (statfsbuf.f_flags & ST_RDONLY)
