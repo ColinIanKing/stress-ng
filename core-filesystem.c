@@ -66,6 +66,10 @@
 #include <linux/magic.h>
 #endif
 
+#if !defined(CONFIGFS_MAGIC)
+#define CONFIGFS_MAGIC  0x62656570
+#endif
+
 typedef struct {
 	const unsigned long int	fs_magic;
 	const char *		fs_name;
@@ -91,6 +95,9 @@ static const stress_fs_name_t stress_fs_names[] = {
 #endif
 #if defined(CODA_SUPER_MAGIC)
 	{ CODA_SUPER_MAGIC,	"coda" },
+#endif
+#if defined(CONFIGFS_MAGIC)
+	{ CONFIGFS_MAGIC,	"configfs" },
 #endif
 #if defined(CRAMFS_MAGIC)
 	{ CRAMFS_MAGIC,		"cramfs" },
