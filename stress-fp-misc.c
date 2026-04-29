@@ -1240,7 +1240,7 @@ static double stess_fp_misc_rand_double(void)
 	return (double)stress_mwc64() / (0.1 + (double)stress_mwc64());
 }
 
-static double stess_fp_misc_rand_long_double(void)
+static long double stess_fp_misc_rand_long_double(void)
 {
 	return (long double)stress_mwc64() / (0.1L + (long double)stress_mwc64());
 }
@@ -1269,15 +1269,15 @@ static int stress_fp_misc(stress_args_t *args)
 
 	fp_float_nan = NAN;
 	fp_float_inf = INFINITY;
-	fp_float_zero = 0.0;
+	fp_float_zero = 0.0f;
 
-	fp_double_nan = NAN;
-	fp_double_inf = INFINITY;
+	fp_double_nan = (double)NAN;
+	fp_double_inf = (double)INFINITY;
 	fp_double_zero = 0.0;
 
-	fp_long_double_nan = NAN;
-	fp_long_double_inf = INFINITY;
-	fp_long_double_zero = 0.0;
+	fp_long_double_nan = (long double)NAN;
+	fp_long_double_inf = (long double)INFINITY;
+	fp_long_double_zero = 0.0L;
 
 	stress_proc_state_set(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
