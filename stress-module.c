@@ -446,7 +446,7 @@ static int stress_module(stress_args_t *args)
 	bool module_no_vermag = false;
 	bool module_no_modver = false;
 	const char *module_name_cli = NULL;
-	const char *module_name;
+	const char *module_name = "";
 	const char *finit_args1 = "";
 	unsigned int kernel_flags = 0;
 	struct stat statbuf;
