@@ -168,7 +168,7 @@ static int stress_cpu_online(stress_args_t *args)
 	bool child_affinity = true;
 	int rc = EXIT_SUCCESS;
 	int fds[2] = { -1, -1 };
-	pid_t pid;
+	pid_t pid = -1;
 	double offline_duration = 0.0, offline_count = 0.0;
 	double online_duration  = 0.0, online_count = 0.0;
 	double rate;
@@ -398,7 +398,8 @@ static int stress_cpu_online(stress_args_t *args)
 			(void)close(fds[0]);
 		if (fds[1] != -1)
 			(void)close(fds[1]);
-		(void)stress_kill_and_wait(args, pid, SIGKILL, false);
+		if (pid != -1)
+			(void)stress_kill_and_wait(args, pid, SIGKILL, false);
 	}
 
 	/*
