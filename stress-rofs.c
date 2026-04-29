@@ -812,7 +812,7 @@ static int stress_rofs_scandir(stress_args_t *args, const char *path, stress_rof
 
 	stress_bogo_inc(args);
 
-	for (info = head; info; info = info->next, n = n + 1.0) {
+	for (info = head; info; info = info->next) {
 		if ((info->statbuf.st_mode & S_IFMT) == S_IFDIR) {
 			(void)snprintf(new_path, sizeof(new_path), "%s/%s", path, info->d_name);
 			if (stress_rofs_scandir(args, new_path, info) < 0)
