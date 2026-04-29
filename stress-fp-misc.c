@@ -1116,117 +1116,117 @@ static bool OPTIMIZE3 stress_fp_misc_signbit_long_double(stress_args_t *args)
 
 static const stress_fp_misc_methods_t stress_fp_misc_methods[] = {
 #if defined(isgreater)
-	{ stress_fp_misc_isgreater_float,		"isgreater_float",	4 },
+	{ stress_fp_misc_isgreater_float,		"isgreater-float",	4 },
 #endif
 #if defined(isgreaterequal)
-	{ stress_fp_misc_isgreaterequal_float,		"isgreaterequal_float",	4 },
+	{ stress_fp_misc_isgreaterequal_float,		"isgreaterequal-float",	4 },
 #endif
 #if defined(isless)
-	{ stress_fp_misc_isless_float,			"isless_float",		4 },
+	{ stress_fp_misc_isless_float,			"isless-float",		4 },
 #endif
 #if defined(islessequal)
-	{ stress_fp_misc_islessequal_float,		"islessequal_float",	4 },
+	{ stress_fp_misc_islessequal_float,		"islessequal-float",	4 },
 #endif
 #if defined(islessgreater)
-	{ stress_fp_misc_islessgreater_float,		"islessgreater_float",	5 },
+	{ stress_fp_misc_islessgreater_float,		"islessgreater-float",	5 },
 #endif
 #if defined(isunordered)
-	{ stress_fp_misc_isunorderd_float, 		"isunordered_float",	4 },
+	{ stress_fp_misc_isunorderd_float, 		"isunordered-float",	4 },
 #endif
 #if defined(fpclassify)
-	{ stress_fp_misc_fpclassify_float,		"fpclassify_float",	3 },
+	{ stress_fp_misc_fpclassify_float,		"fpclassify-float",	3 },
 #endif
 #if defined(isfinite)
-	{ stress_fp_misc_isfinite_float, 		"isfinity_float",	2 },
+	{ stress_fp_misc_isfinite_float, 		"isfinity-float",	2 },
 #endif
 #if defined(isnormal)
-	{ stress_fp_misc_isnormal_float,		"isnormal_float",	2 },
+	{ stress_fp_misc_isnormal_float,		"isnormal-float",	2 },
 #endif
 #if defined(isnan)
-	{ stress_fp_misc_isnan_float,			"isnan_float",		2 },
+	{ stress_fp_misc_isnan_float,			"isnan-float",		2 },
 #endif
 #if defined(isinf) &&	\
     !defined(__PCC__)
-	{ stress_fp_misc_isinf_float,			"isinf_float",		2 },
+	{ stress_fp_misc_isinf_float,			"isinf-float",		2 },
 #endif
 #if defined(signbit)
-	{ stress_fp_misc_signbit_float,			"signbit_float",	6 },
+	{ stress_fp_misc_signbit_float,			"signbit-float",	6 },
 #endif
 
 #if defined(isgreater)
-	{ stress_fp_misc_isgreater_double,		"isgreater_double",	4 },
+	{ stress_fp_misc_isgreater_double,		"isgreater-double",	4 },
 #endif
 #if defined(isgreaterequal)
-	{ stress_fp_misc_isgreaterequal_double,		"isgreaterequal_double",4 },
+	{ stress_fp_misc_isgreaterequal_double,		"isgreaterequal-double",4 },
 #endif
 #if defined(isless)
-	{ stress_fp_misc_isless_double,			"isless_double",	4 },
+	{ stress_fp_misc_isless_double,			"isless-double",	4 },
 #endif
 #if defined(islessequal)
-	{ stress_fp_misc_islessequal_double,		"islessequal_double",	4 },
+	{ stress_fp_misc_islessequal_double,		"islessequal-double",	4 },
 #endif
 #if defined(islessgreater)
-	{ stress_fp_misc_islessgreater_double,		"islessgreater_double",	5 },
+	{ stress_fp_misc_islessgreater_double,		"islessgreater-double",	5 },
 #endif
 #if defined(isunordered)
-	{ stress_fp_misc_isunorderd_double, 		"isunordered_double",	4 },
+	{ stress_fp_misc_isunorderd_double, 		"isunordered-double",	4 },
 #endif
 #if defined(fpclassify)
-	{ stress_fp_misc_fpclassify_double,		"fpclassify_double",	3 },
+	{ stress_fp_misc_fpclassify_double,		"fpclassify-double",	3 },
 #endif
 #if defined(isfinite)
-	{ stress_fp_misc_isfinite_double, 		"isfinity_double",	2 },
+	{ stress_fp_misc_isfinite_double, 		"isfinity-double",	2 },
 #endif
 #if defined(isnormal)
-	{ stress_fp_misc_isnormal_double,		"isnormal_double",	2 },
+	{ stress_fp_misc_isnormal_double,		"isnormal-double",	2 },
 #endif
 #if defined(isnan)
-	{ stress_fp_misc_isnan_double,			"isnan_double",		2 },
+	{ stress_fp_misc_isnan_double,			"isnan-double",		2 },
 #endif
 #if defined(isinf) &&	\
     !defined(__PCC__)
-	{ stress_fp_misc_isinf_double,			"isinf_double",		2 },
+	{ stress_fp_misc_isinf_double,			"isinf-double",		2 },
 #endif
 #if defined(signbit)
-	{ stress_fp_misc_signbit_double,		"signbit_double",	6 },
+	{ stress_fp_misc_signbit_double,		"signbit-double",	6 },
 #endif
 
 #if defined(isgreater)
-	{ stress_fp_misc_isgreater_long_double,		"isgreater_long_double", 4 },
+	{ stress_fp_misc_isgreater_long_double,		"isgreater-long-double", 4 },
 #endif
 #if defined(isgreaterequal)
-	{ stress_fp_misc_isgreaterequal_long_double,	"isgreaterequal_long_double", 4 },
+	{ stress_fp_misc_isgreaterequal_long_double,	"isgreaterequal-long-double", 4 },
 #endif
 #if defined(isless)
-	{ stress_fp_misc_isless_long_double,		"isless_long_double",	4 },
+	{ stress_fp_misc_isless_long_double,		"isless-long-double",	4 },
 #endif
 #if defined(islessequal)
-	{ stress_fp_misc_islessequal_long_double,	"islessequal_long_double", 4 },
+	{ stress_fp_misc_islessequal_long_double,	"islessequal-long-double", 4 },
 #endif
 #if defined(islessgreater)
-	{ stress_fp_misc_islessgreater_long_double,	"islessgreater_long_double", 5 },
+	{ stress_fp_misc_islessgreater_long_double,	"islessgreater-long-double", 5 },
 #endif
 #if defined(isunordered)
-	{ stress_fp_misc_isunorderd_long_double, 	"isunordered_long_double", 4 },
+	{ stress_fp_misc_isunorderd_long_double, 	"isunordered-long-double", 4 },
 #endif
 #if defined(fpclassify)
-	{ stress_fp_misc_fpclassify_long_double,	"fpclassify_long_double", 3 },
+	{ stress_fp_misc_fpclassify_long_double,	"fpclassify-long-double", 3 },
 #endif
 #if defined(isfinite)
-	{ stress_fp_misc_isfinite_long_double, 		"isfinity_long_double",	2 },
+	{ stress_fp_misc_isfinite_long_double, 		"isfinity-long-double",	2 },
 #endif
 #if defined(isnormal)
-	{ stress_fp_misc_isnormal_long_double,		"isnormal_long_double",	2 },
+	{ stress_fp_misc_isnormal_long_double,		"isnormal-long-double",	2 },
 #endif
 #if defined(isnan)
-	{ stress_fp_misc_isnan_long_double,		"isnan_long_double",	2 },
+	{ stress_fp_misc_isnan_long_double,		"isnan-long-double",	2 },
 #endif
 #if defined(isinf) &&	\
     !defined(__PCC__)
-	{ stress_fp_misc_isinf_long_double,		"isinf_long_double",	2 },
+	{ stress_fp_misc_isinf_long_double,		"isinf-long-double",	2 },
 #endif
 #if defined(signbit)
-	{ stress_fp_misc_signbit_long_double,		"signbit_long_double",	6 },
+	{ stress_fp_misc_signbit_long_double,		"signbit-long-double",	6 },
 #endif
 };
 
