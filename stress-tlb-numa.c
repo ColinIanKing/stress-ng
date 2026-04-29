@@ -56,6 +56,7 @@ static const stress_opt_t opts[] = {
 };
 
 #if defined(HAVE_SCHED_SETAFFINITY) && 	\
+    defined(HAVE_LIB_PTHREAD) &&	\
     defined(__NR_mbind)
 
 typedef void * (*stress_tlb_pthread_t)(void *parg);
