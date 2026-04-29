@@ -764,7 +764,10 @@ static int stress_rofs_scandir(stress_args_t *args, const char *path, stress_rof
 
 	dp = opendir(path);
 	if (!dp) {
-		pr_fail("%s: path '%s' is not accessable\n", args->name, path);
+		if (errno == EACCES)
+			return 0;
+		pr_fail("%s: path '%s' is not accessable, errno=%d (%s)\n",
+			args->name, path, errno, strerror(errno));
 		return -1;
 	}
 
