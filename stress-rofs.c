@@ -65,7 +65,7 @@
 
 static const stress_help_t help[] = {
 	{ NULL,	"rofs N",	  "start N workers exercising read-only filesystem" },
-	{ NULL,	"rofs-dir path",  "specify mount poit of read-only filesystem" },
+	{ NULL,	"rofs-dir path",  "specify mount point of read-only filesystem" },
 	{ NULL,	"rofs-ops N",	  "stop after N rofs bogo operations" },
 	{ NULL,	NULL,		  NULL }
 };
@@ -766,7 +766,7 @@ static int stress_rofs_scandir(stress_args_t *args, const char *path, stress_rof
 	if (!dp) {
 		if (errno == EACCES)
 			return 0;
-		pr_fail("%s: path '%s' is not accessable, errno=%d (%s)\n",
+		pr_fail("%s: path '%s' is not accessible, errno=%d (%s)\n",
 			args->name, path, errno, strerror(errno));
 		return -1;
 	}
@@ -864,7 +864,7 @@ static int stress_rofs(stress_args_t *args)
 	if (stress_setting_get("rofs-dir", &paths[n_paths])) {
 		/* rofs-dir provided, check if exists, readable, not-writable */
 		if (access(paths[n_paths], F_OK) != 0) {
-			pr_inf("%s: rofs-dir '%s' is not accessable, errno=%d (%s), skipping stressor\n",
+			pr_inf("%s: rofs-dir '%s' is not accessible, errno=%d (%s), skipping stressor\n",
 				args->name, paths[n_paths], errno, strerror(errno));
 			return EXIT_NO_RESOURCE;
 		}
