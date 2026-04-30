@@ -292,9 +292,7 @@ endif
 #
 # Finalize flags
 #
-
 override CXXFLAGS += $(CFLAGS)
-
 override CXXFLAGS := $(CXXFLAGS)
 override CPPFLAGS := $(CPPFLAGS)
 override LDFLAGS := $(LDFLAGS)
