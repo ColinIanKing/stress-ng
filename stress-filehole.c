@@ -603,7 +603,7 @@ static int stress_filehole(stress_args_t *args)
 			}
 		} else {
 			/*
-			 *  Forwared fallocate holes
+			 *  Forward fallocate holes
 			 */
 #if defined(SHIM_POSIX_FADV_SEQUENTIAL)
 			(void)shim_posix_fadvise(fd, 0, filehole_bytes, SHIM_POSIX_FADV_SEQUENTIAL);
