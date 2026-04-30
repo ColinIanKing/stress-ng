@@ -209,6 +209,7 @@
 
 2026:
  * [AGMARL-DKS: An Adaptive Graph-Enhanced Multi-Agent Reinforcement Learning for Dynamic Kubernetes Scheduling](https://arxiv.org/html/2603.12031v1)
+ * [Architectural Isolation as a Timing Safety Primitive for Edge AI Medical Devices: Controlled Experimental Evidence on a Shared-Silicon Platform](https://arxiv.org/html/2604.23831v1)
  * [Battering RAM: Low-Cost Interposer Attacks on Confidential Computing via Dynamic Memory Aliasing](https://batteringram.eu/batteringram.pdf)
  * [Benchmarking of CPU-intensive Stream Data Processing in The Edge Computing Systems](https://arxiv.org/html/2505.07755v2)
  * [Causal Inference for Quantifying Noisy Neighbor Effects in Multi-Tenant Cloud Environments](https://arxiv.org/html/2604.03145v1)
