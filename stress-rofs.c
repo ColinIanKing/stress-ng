@@ -175,9 +175,10 @@ static int stress_rofs_file_access(
 	(void)info;
 
 	if (access(path, W_OK) == 0) {
-		int fd;
 
 		if ((info->statbuf.st_mode & S_IFMT) != S_IFLNK) {
+			int fd;
+
 			/*
 			 *  Potential Time of check time of use
 			 *  issue here, but we're now trying to
@@ -754,7 +755,6 @@ static int stress_rofs_scandir(stress_args_t *args, const char *path, stress_rof
 	size_t i;
 	stress_rofs_info_t *head = NULL;
 	stress_rofs_info_t *info;
-	double t;
 	double n;
 	char new_path[PATH_MAX + 256];
 	int write_count;
@@ -799,6 +799,7 @@ static int stress_rofs_scandir(stress_args_t *args, const char *path, stress_rof
 
 	for (i = 0; stress_continue(args) && (i < SIZEOF_ARRAY(stress_rofs_methods)); i++) {
 		const stress_rofs_file_func_t func = stress_rofs_methods[i].func;
+		double t;
 
 		n = 0.0;
 		t = stress_time_now();
