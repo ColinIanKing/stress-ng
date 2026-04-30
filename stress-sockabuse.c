@@ -472,7 +472,6 @@ static void stress_sockabuse_socket(stress_args_t *args)
 {
 	static size_t i = 0;
 	size_t j;
-	int fd;
 	const int domain = sockabuse_domains[i];
 	uint8_t flag = sockabuse_domain_type_flags[i] & 0x7f;
 
@@ -484,6 +483,7 @@ static void stress_sockabuse_socket(stress_args_t *args)
 			return;
 		if (flag & (1U << j)) {
 			const int type = sockabuse_types[j];
+			int fd;
 
 			fd = socket(domain, type, 0);
 			if (fd < 0) {
