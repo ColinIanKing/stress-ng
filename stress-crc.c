@@ -65,7 +65,7 @@ static const uint64_t stress_crc_data[DATA_ITEMS] ALIGN64 = {
 #if defined(HAVE_BUILTIN_CRC8_DATA8)
 /*
  *  stress_crc_crc8_data8()
- *  	8 bit crc with 8 bit data, Hamming distace 6
+ *  	8 bit crc with 8 bit data, Hamming distance 6
  */
 static uint64_t stress_crc_crc8_data8(register const uint64_t crc_data[DATA_ITEMS])
 {
@@ -99,7 +99,7 @@ static uint64_t stress_crc_crc8_data8(register const uint64_t crc_data[DATA_ITEM
 #if defined(HAVE_BUILTIN_CRC16_DATA8)
 /*
  *  stress_crc_crc16_data8()
- *  	16 bit crc with 8 bit data, Hamming distace 10
+ *  	16 bit crc with 8 bit data, Hamming distance 10
  */
 static uint64_t stress_crc_crc16_data8(register const uint64_t crc_data[DATA_ITEMS])
 {
@@ -134,7 +134,7 @@ static uint64_t stress_crc_crc16_data8(register const uint64_t crc_data[DATA_ITE
 #if defined(HAVE_BUILTIN_CRC16_DATA16)
 /*
  *  stress_crc_crc16_data16()
- *  	16 bit crc with 16 bit data, Hamming distace 10
+ *  	16 bit crc with 16 bit data, Hamming distance 10
  */
 static uint64_t stress_crc_crc16_data16(register const uint64_t crc_data[DATA_ITEMS])
 {
@@ -168,7 +168,7 @@ static uint64_t stress_crc_crc16_data16(register const uint64_t crc_data[DATA_IT
 #if defined(HAVE_BUILTIN_CRC32_DATA8)
 /*
  *  stress_crc_crc32_data8()
- *  	32 bit crc with 8 bit data, Hamming distace 18
+ *  	32 bit crc with 8 bit data, Hamming distance 18
  */
 static uint64_t stress_crc_crc32_data8(register const uint64_t crc_data[DATA_ITEMS])
 {
@@ -205,7 +205,7 @@ static uint64_t stress_crc_crc32_data8(register const uint64_t crc_data[DATA_ITE
 #if defined(HAVE_BUILTIN_CRC32_DATA16)
 /*
  *  stress_crc_crc32_data16()
- *  	32 bit crc with 16 bit data, Hamming distace 18
+ *  	32 bit crc with 16 bit data, Hamming distance 18
  */
 static uint64_t stress_crc_crc32_data16(register const uint64_t crc_data[DATA_ITEMS])
 {
@@ -240,7 +240,7 @@ static uint64_t stress_crc_crc32_data16(register const uint64_t crc_data[DATA_IT
 #if defined(HAVE_BUILTIN_CRC32_DATA32)
 /*
  *  stress_crc_crc32_data32()
- *  	32 bit crc with 32 bit data, Hamming distace 18
+ *  	32 bit crc with 32 bit data, Hamming distance 18
  */
 static uint64_t stress_crc_crc32_data32(register const uint64_t crc_data[DATA_ITEMS])
 {
@@ -275,7 +275,7 @@ static uint64_t stress_crc_crc32_data32(register const uint64_t crc_data[DATA_IT
 #if defined(HAVE_BUILTIN_CRC64_DATA8)
 /*
  *  stress_crc_crc64_data8()
- *  	64 bit crc with 8 bit data, Hamming distace 97(?)
+ *  	64 bit crc with 8 bit data, Hamming distance 97(?)
  */
 static uint64_t stress_crc_crc64_data8(register const uint64_t crc_data[DATA_ITEMS])
 {
@@ -316,7 +316,7 @@ static uint64_t stress_crc_crc64_data8(register const uint64_t crc_data[DATA_ITE
 #if defined(HAVE_BUILTIN_CRC64_DATA16)
 /*
  *  stress_crc_crc64_data16()
- *  	64 bit crc with 16 bit data, Hamming distace 97(?)
+ *  	64 bit crc with 16 bit data, Hamming distance 97(?)
  */
 static uint64_t stress_crc_crc64_data16(register const uint64_t crc_data[DATA_ITEMS])
 {
@@ -353,7 +353,7 @@ static uint64_t stress_crc_crc64_data16(register const uint64_t crc_data[DATA_IT
 #if defined(HAVE_BUILTIN_CRC64_DATA32)
 /*
  *  stress_crc_crc64_data32()
- *  	64 bit crc with 32 bit data, Hamming distace 97(?)
+ *  	64 bit crc with 32 bit data, Hamming distance 97(?)
  */
 static uint64_t stress_crc_crc64_data32(register const uint64_t crc_data[DATA_ITEMS])
 {
@@ -388,7 +388,7 @@ static uint64_t stress_crc_crc64_data32(register const uint64_t crc_data[DATA_IT
 #if defined(HAVE_BUILTIN_CRC64_DATA64)
 /*
  *  stress_crc_crc64_data64()
- *  	64 bit crc with 64 bit data, Hamming distace 97(?)
+ *  	64 bit crc with 64 bit data, Hamming distance 97(?)
  */
 static uint64_t stress_crc_crc64_data64(register const uint64_t crc_data[DATA_ITEMS])
 {
@@ -423,7 +423,7 @@ static uint64_t stress_crc_crc64_data64(register const uint64_t crc_data[DATA_IT
 #if defined(HAVE_BUILTIN_REV_CRC8_DATA8)
 /*
  *  stress_crc_rev_crc8_data8()
- *  	reverse 8 bit crc with 8 bit data, Hamming distace 6
+ *  	reverse 8 bit crc with 8 bit data, Hamming distance 6
  */
 static uint64_t stress_crc_rev_crc8_data8(register const uint64_t crc_data[DATA_ITEMS])
 {
@@ -457,7 +457,7 @@ static uint64_t stress_crc_rev_crc8_data8(register const uint64_t crc_data[DATA_
 #if defined(HAVE_BUILTIN_REV_CRC16_DATA8)
 /*
  *  stress_crc_rev_crc16_data8()
- *  	reverse 16 bit crc with 8 bit data, Hamming distace 10
+ *  	reverse 16 bit crc with 8 bit data, Hamming distance 10
  */
 static uint64_t stress_crc_rev_crc16_data8(register const uint64_t crc_data[DATA_ITEMS])
 {
@@ -492,7 +492,7 @@ static uint64_t stress_crc_rev_crc16_data8(register const uint64_t crc_data[DATA
 #if defined(HAVE_BUILTIN_REV_CRC16_DATA16)
 /*
  *  stress_crc_rev_crc16_data16()
- *  	reverse 16 bit crc with 16 bit data, Hamming distace 10
+ *  	reverse 16 bit crc with 16 bit data, Hamming distance 10
  */
 static uint64_t stress_crc_rev_crc16_data16(register const uint64_t crc_data[DATA_ITEMS])
 {
@@ -526,7 +526,7 @@ static uint64_t stress_crc_rev_crc16_data16(register const uint64_t crc_data[DAT
 #if defined(HAVE_BUILTIN_REV_CRC32_DATA8)
 /*
  *  stress_crc_rev_crc32_data8()
- *  	revsere 32 bit crc with 8 bit data, Hamming distace 18
+ *  	revsere 32 bit crc with 8 bit data, Hamming distance 18
  */
 static uint64_t stress_crc_rev_crc32_data8(register const uint64_t crc_data[DATA_ITEMS])
 {
@@ -563,7 +563,7 @@ static uint64_t stress_crc_rev_crc32_data8(register const uint64_t crc_data[DATA
 #if defined(HAVE_BUILTIN_REV_CRC32_DATA16)
 /*
  *  stress_crc_rev_crc32_data16()
- *  	revsere 32 bit crc with 16 bit data, Hamming distace 18
+ *  	revsere 32 bit crc with 16 bit data, Hamming distance 18
  */
 static uint64_t stress_crc_rev_crc32_data16(register const uint64_t crc_data[DATA_ITEMS])
 {
@@ -598,7 +598,7 @@ static uint64_t stress_crc_rev_crc32_data16(register const uint64_t crc_data[DAT
 #if defined(HAVE_BUILTIN_REV_CRC32_DATA32)
 /*
  *  stress_crc_rev_crc32_data32()
- *  	revsere 32 bit crc with 32 bit data, Hamming distace 18
+ *  	revsere 32 bit crc with 32 bit data, Hamming distance 18
  */
 static uint64_t stress_crc_rev_crc32_data32(register const uint64_t crc_data[DATA_ITEMS])
 {
@@ -633,7 +633,7 @@ static uint64_t stress_crc_rev_crc32_data32(register const uint64_t crc_data[DAT
 #if defined(HAVE_BUILTIN_REV_CRC64_DATA8)
 /*
  *  stress_crc_rev_crc64_data8()
- *  	revserse 64 bit crc with 8 bit data, Hamming distace 97(?)
+ *  	reverse 64 bit crc with 8 bit data, Hamming distance 97(?)
  */
 static uint64_t stress_crc_rev_crc64_data8(register const uint64_t crc_data[DATA_ITEMS])
 {
@@ -674,7 +674,7 @@ static uint64_t stress_crc_rev_crc64_data8(register const uint64_t crc_data[DATA
 #if defined(HAVE_BUILTIN_REV_CRC64_DATA16)
 /*
  *  stress_crc_rev_crc64_data16()
- *  	revserse 64 bit crc with 16 bit data, Hamming distace 97(?)
+ *  	reverse 64 bit crc with 16 bit data, Hamming distance 97(?)
  */
 static uint64_t stress_crc_rev_crc64_data16(register const uint64_t crc_data[DATA_ITEMS])
 {
@@ -711,7 +711,7 @@ static uint64_t stress_crc_rev_crc64_data16(register const uint64_t crc_data[DAT
 #if defined(HAVE_BUILTIN_REV_CRC64_DATA32)
 /*
  *  stress_crc_rev_crc64_data32()
- *  	revserse 64 bit crc with 32 bit data, Hamming distace 97(?)
+ *  	reverse 64 bit crc with 32 bit data, Hamming distance 97(?)
  */
 static uint64_t stress_crc_rev_crc64_data32(register const uint64_t crc_data[DATA_ITEMS])
 {
@@ -746,7 +746,7 @@ static uint64_t stress_crc_rev_crc64_data32(register const uint64_t crc_data[DAT
 #if defined(HAVE_BUILTIN_REV_CRC64_DATA64)
 /*
  *  stress_crc_rev_crc64_data64()
- *  	revserse 64 bit crc with 64 bit data, Hamming distace 97(?)
+ *  	reverse 64 bit crc with 64 bit data, Hamming distance 97(?)
  */
 static uint64_t stress_crc_rev_crc64_data64(register const uint64_t crc_data[DATA_ITEMS])
 {
