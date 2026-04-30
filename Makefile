@@ -18,9 +18,9 @@
 #
 
 #
-# Codename "systemic system smasher"
+# Codename "mayday machine masher"
 #
-VERSION=0.21.00
+VERSION=0.21.01
 
 #
 # Determine supported toolchains
