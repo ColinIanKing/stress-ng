@@ -199,13 +199,13 @@ static void stress_filehole_lseek_read(
 #endif
 	};
 	size_t i;
-	off_t offset;
 
 	if (UNLIKELY(SIZEOF_ARRAY(seek_whences) == 0))
 		return;
 
 	for  (i = 0; stress_continue(args) && (i < pages); i++) {
 		const int whence = seek_whences[stress_mwcsizemodn(SIZEOF_ARRAY(seek_whences))];
+		off_t offset;
 		off_t offret;
 
 		offset = stress_mwc64modn((uint64_t)filehole_bytes);
