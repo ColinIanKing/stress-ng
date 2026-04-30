@@ -316,7 +316,6 @@ static void OPTIMIZE3 *stress_tlb_pthread3(void *parg)
 
 	do {
 		uint8_t *mmap3;
-		uint8_t *pages[35];
 		const size_t n_pages = stress_mwc8modn(32) + 3;
 		const size_t size = n_pages * page_size;
 
@@ -328,6 +327,7 @@ static void OPTIMIZE3 *stress_tlb_pthread3(void *parg)
 		} else {
 			register size_t i;
 			uint8_t *ptr = mmap3;
+			uint8_t *pages[35];
 
 			for (i = 0, ptr = mmap3; i < n_pages; i++, ptr += page_size)
 				pages[i] = ptr;
