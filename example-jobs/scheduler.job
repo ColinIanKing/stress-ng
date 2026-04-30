@@ -80,7 +80,7 @@ affinity-rand		# switch affinity randomly
 #   clone  thread  is  reaped  and  a new clone is then created in a
 #   first-in first-out manner, and then repeated.   A  random  clone
 #   flag  is  selected  for  each clone to try to exercise different
-#   clone operarions.  The clone stressor is a Linux only option.
+#   clone operations.  The clone stressor is a Linux only option.
 #
 clone 0			# 0 means 1 stressor per CPU
 # clone-ops 1000000	# stop after 1000000 bogo ops
@@ -366,7 +366,7 @@ wait 0			# 0 means 1 stressor per CPU
 #
 # yield stressor options:
 #   start N workers that call sched_yield(2). This stressor  ensures
-#   that at least 2 child processes per CPU exercice shield_yield(2)
+#   that at least 2 child processes per CPU exercise shield_yield(2)
 #   no matter how many workers are specified, thus  always  ensuring
 #   rapid context switching.
 #
