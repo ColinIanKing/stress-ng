@@ -225,7 +225,6 @@ static int stress_resctrl_parse_instance_list(
 	stress_partition_info_t *partition)
 {
 	char *ptr = list;
-	char saved;
 
 	if (stress_resctrl_check_index(idx) < 0)
 		return -1;
@@ -247,6 +246,7 @@ static int stress_resctrl_parse_instance_list(
 			if (!*ptr)
 				break;
 		} else if (*ptr == '-') {
+			char saved;
 			bool done = false;
 			/* range in comma list */
 
