@@ -8638,7 +8638,7 @@ static int cmp_syscall_average(const void *p1, const void *p2)
 }
 
 /*
- *  Rank top results by minumum duration
+ *  Rank top results by minimum duration
  */
 static int cmp_syscall_min(const void *p1, const void *p2)
 {
