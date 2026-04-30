@@ -202,9 +202,9 @@ static void stress_spinmem_numa(
         stress_numa_mask_t *numa_mask,
         stress_numa_mask_t *numa_nodes)
 {
-	static int numa_count = 0;
-
 	if (spinmem_numa && numa_mask && numa_nodes) {
+		static int numa_count = 0;
+
 		numa_count++;
 		if (numa_count > max) {
 			stress_numa_randomize_pages(args, numa_nodes,
