@@ -73,7 +73,6 @@ int main(void)
 
 	if (pair.value & RISCV_HWPROBE_EXT_ZICBOM) {
 		uint64_t block_size;
-		int i;
 
 		pair.key = RISCV_HWPROBE_KEY_ZICBOM_BLOCK_SIZE;
 
@@ -81,6 +80,8 @@ int main(void)
 		block_size = pair.value;
 
 		if (block_size > 0) {
+			int i;
+
 			for (i = 0; i < 4096 / block_size; i++)
 				cbo_flush(&mem[i * block_size]);
 		}
