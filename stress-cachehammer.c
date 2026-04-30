@@ -1854,7 +1854,7 @@ static int OPTIMIZE3 stress_cachehammer(stress_args_t *args)
 		}
 		n_permutations = stress_flag_permutation((int)flags, &permutations);
 		if (stress_instance_zero(args))
-			pr_inf("%s: using a maxiumum of %zu cache operation permutations\n",
+			pr_inf("%s: using a maximum of %zu cache operation permutations\n",
 				args->name, n_permutations);
 	}
 
