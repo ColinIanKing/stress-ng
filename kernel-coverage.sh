@@ -85,7 +85,7 @@ mount_filesystem()
 	COUNT=4000
 	case $1 in
 		ocfs)	MKFS_CMD="mkfs.ocfs2"
-			MKFS_ARGS="-M local -F ${FSIMAFE}"
+			MKFS_ARGS="-M local -F ${FSIMAGE}"
 			MNT_CMD="sudo mount -o loop ${FSIMAGE} ${MNT}"
 			dd if=/dev/zero of=${FSIMAGE} bs=1M count=${COUNT}
 			;;
