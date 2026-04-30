@@ -22,7 +22,6 @@ export PATH=$PATH:/usr/bin:/usr/sbin
 PERF_PARANOID=/proc/sys/kernel/perf_event_paranoid
 SWAP=/tmp/swap.img
 FSIMAGE=/tmp/fs.img
-MNT=/tmp/mnt
 LOG=stress-ng-$(date '+%Y%m%d-%H%M').log
 echo "Logging to $LOG"
 
@@ -85,9 +84,14 @@ mount_filesystem()
 	rm -f ${FSIMAGE}
 	COUNT=4000
 	case $1 in
+		ocfs)	MKFS_CMD="mkfs.ocfs2"
+			MKFS_ARGS="-M local -F ${FSIMAFE}"
+			MNT_CMD="sudo mount -o loop ${FSIMAGE} ${MNT}"
+			dd if=/dev/zero of=${FSIMAGE} bs=1M count=${COUNT}
+			;;
 		nfs)	MKFS_CMD="true"
 			MKFS_ARGS=""
-			MNT_CMD="sudo mount localhost:/nfs ${MNT}"
+			MNT_CMD="sudo mount localhost:/var/nfs/export ${MNT}"
 			;;
 		ext2)	MKFS_CMD="mkfs.ext2"
 			MKFS_ARGS="-F ${FSIMAGE}"
@@ -304,6 +308,18 @@ do_stress()
 	if grep -q "\-\-oom\-pipe" <<< "$*"; then
 		ARGS="$ARGS --oomable"
 	fi
+	if [ "$FS" == "hfs" ]; then
+		ARGS="$ARGS -x chattr,filerace"
+	fi
+	if [ "$FS" == "hfsplus" ]; then
+		ARGS="$ARGS -x chattr,filerace"
+	fi
+	if [ "$FS" == "ext4" ]; then
+		ARGS="$ARGS -x xattr"
+	fi
+	if [ "$FS" == "ext3" ]; then
+		ARGS="$ARGS -x xattr"
+	fi
 	echo "STARTED:  $(date '+%F %X') using $* $ARGS" >> $LOG
 	sync
 	echo running $* $ARGS
@@ -351,11 +367,15 @@ sudo lcov --zerocounters
 if [ -f	/sys/kernel/debug/tracing/trace_stat/branch_all ]; then
 	sudo cat  /sys/kernel/debug/tracing/trace_stat/branch_all > branch_all.start
 fi
+
+DURATION=600
+do_stress --rofs -1 --iostat 1
 DURATION=180
 do_stress --dev 32
 
-for FS in bfs btrfs ext2 ext3 ext4 exfat f2fs fat hfs hfsplus jfs minix1 minix2 minix3 nfs nilfs ntfs overlay ramfs reiserfs tmpfs ubifs udf vfat xfs
+for FS in ocfs ext4 bfs btrfs ext2 ext3 exfat f2fs fat hfs hfsplus jfs minix1 minix2 minix3 nfs nilfs ntfs overlay ramfs reiserfs tmpfs ubifs udf vfat xfs
 do
+	MNT=/tmp/sng-mnt-$FS
 	if mount_filesystem $FS; then
 		MNTDEV=$(findmnt -T $MNT -o SOURCE  --verbose -n)
 		MNTDEVBASE=$(basename $MNTDEV)
