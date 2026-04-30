@@ -454,7 +454,7 @@ int stress_mmap_stats(void *addr, const size_t length, stress_mmap_stats_t *stat
 #if defined(__linux__)
 	int fd;
 	const size_t page_size = stress_memory_page_size_get();
-	uintptr_t virt_addr, phys_addr, prev_phys_addr = PHYS_ADDR_UNKNOWN;
+	uintptr_t virt_addr, prev_phys_addr = PHYS_ADDR_UNKNOWN;
 	const uintptr_t virt_begin = (uintptr_t)addr;
 	const uintptr_t virt_end = virt_begin + length;
 	off_t offset = (off_t)(sizeof(uint64_t) * (virt_begin / page_size));
@@ -482,7 +482,8 @@ int stress_mmap_stats(void *addr, const size_t length, stress_mmap_stats_t *stat
 			if (info & STRESS_PAGE_SWAPPED)
 				stats->pages_swapped++;
 			if (info & STRESS_PAGE_PRESENT) {
-				phys_addr = (info & STRESS_PAGE_PFN_MASK) * page_size;
+				const uintptr_t phys_addr = (info & STRESS_PAGE_PFN_MASK) * page_size;
+
 				if (phys_addr == 0)
 					stats->pages_null++;
 				else if ((prev_phys_addr == PHYS_ADDR_UNKNOWN) && (phys_addr != 0)) {
