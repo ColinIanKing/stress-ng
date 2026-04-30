@@ -143,7 +143,6 @@ static int stress_rawdev_wiggle(
 	stress_metrics_t *metrics)
 {
 	size_t i;
-	ssize_t ret;
 
 	for (i = shift_ul(blks, 8); LIKELY((i < blks) && stress_continue(args)); i += shift_ul(blks, 8)) {
 		unsigned long int j;
@@ -151,6 +150,7 @@ static int stress_rawdev_wiggle(
 		for (j = 0; LIKELY((j < shift_ul(blks, 8)) && stress_continue(args)); j += shift_ul(blks, 10)) {
 			const off_t offset = (off_t)(i - j) * (off_t)blksz;
 			const double t = stress_time_now();
+			ssize_t ret;
 
 			ret = pread(fd, buffer, blksz, offset);
 			if (UNLIKELY(ret < 0)) {
