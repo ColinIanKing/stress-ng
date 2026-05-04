@@ -55,8 +55,6 @@
 
 #include <arpa/inet.h>
 
-#define DEFAULT_RAWPKT_PORT	(14000)
-
 #if !defined(SOL_UDP)
 #define SOL_UDP 	(17)
 #endif

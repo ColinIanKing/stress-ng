@@ -37,8 +37,6 @@
 
 #include <arpa/inet.h>
 
-#define DEFAULT_RAWUDP_PORT	(13000)
-
 #if !defined(SOL_UDP)
 #define SOL_UDP 	(17)
 #endif

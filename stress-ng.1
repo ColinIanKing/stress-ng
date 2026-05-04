@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, may be w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "28 April 2026"
+.TH STRESS-NG 1 "4 May 2026"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -2374,7 +2374,7 @@ socket connect and disconnects.
 .TP
 .B \-\-dccp\-port P
 start DCCP at port P. For N dccp worker processes, ports P to P \(pl (N \(mi 1) are
-used (wrapped to keep in range of 1024 to 65535). The default port is port 10000.
+used (wrapped to keep in range of 1024 to 65535). The default port is port 49152.
 .TP
 .B \-\-dccp\-ops N
 stop dccp stress workers after N bogo operations.
@@ -2779,7 +2779,7 @@ stop epoll workers after N bogo operations.
 .B \-\-epoll\-port P
 start at socket port P. For N epoll worker processes, ports P to (P \(mu 4) \(mi 1
 are used for ipv4, ipv6 domains and ports P to P \(mi 1 are used for the unix
-domain. Ports wrapped to keep in range of 1024 to 65535. The default port is port 6000.
+domain. Ports wrapped to keep in range of 1024 to 65535. The default port is port 49408.
 .TP
 .B \-\-epoll\-sockets N
 specify the maximum number of concurrently open sockets allowed in the server.
@@ -7706,7 +7706,7 @@ stop rawpkt workers after N packets from the sender process are received.
 .TP
 .B \-\-rawpkt\-port N
 start at port P. For N rawpkt worker processes, ports P to P \(pl (N \(mi 1) are
-used (wrapped to keep in range of 1024 to 65535). The default port is port 14000.
+used (wrapped to keep in range of 1024 to 65535). The default port is port 49920.
 .TP
 .B \-\-rawpkt\-rxring N
 setup raw packets with RX ring with N number of blocks, this selects TPACKET_V. N must
@@ -7729,7 +7729,7 @@ stop rawudp workers after N packets are received.
 .TP
 .B \-\-rawudp\-port N
 start at port P. For N rawudp worker processes, ports P to P \(pl (N \(mi 1) are
-used (wrapped to keep in range of 1024 to 65535). The default port is port 13000.
+used (wrapped to keep in range of 1024 to 65535). The default port is port 50176.
 .RE
 .TP
 .B Random number generator stressor
@@ -8130,7 +8130,7 @@ stop sctp workers after N bogo operations.
 .TP
 .B \-\-sctp\-port P
 start at sctp port P. For N sctp worker processes, ports P to P \(pl (N \(mi 1) are
-used (wrapped to keep in range of 1024 to 65535). The default port is port 9000.
+used (wrapped to keep in range of 1024 to 65535). The default port is port 50176.
 .TP
 .B \-\-sctp\-sched [ fc | fcfs | prio | rr | wfq ]
 specify SCTP scheduler, one of fc (fair capacity), fcfs (first come first
@@ -8698,7 +8698,7 @@ Linux systems that support this system call.
 .TP
 .B \-\-sock\-port P
 start at socket port P. For N socket worker processes, ports P to P \(pl (N \(mi 1) are
-used (wrapped to keep in range of 1024 to 65535). The default port is port 2000.
+used (wrapped to keep in range of 1024 to 65535). The default port is port 50944.
 .TP
 .B \-\-sock\-protocol P
 Use the specified protocol P, default is tcp. Options are tcp and mptcp (if
@@ -8725,7 +8725,7 @@ stop after N iterations of the socket abusing stressor loop.
 .TP
 .B \-\-sockabuse\-port P
 start at socket port P. For N sockabuse worker processes, ports P to P \(pl (N \(mi 1) are
-used (wrapped to keep in range of 1024 to 65535). The default port is port 12000.
+used (wrapped to keep in range of 1024 to 65535). The default port is port 51200.
 .RE
 .TP
 .B Socket diagnostic stressor (Linux)
@@ -8756,7 +8756,7 @@ stop sockfd stress workers after N bogo operations.
 .TP
 .B \-\-sockfd\-port P
 start at socket port P. For N sockfd worker processes, ports P to P \(pl (N \(mi 1) are
-used (wrapped to keep in range of 1024 to 65535). The default port is port 8000.
+used (wrapped to keep in range of 1024 to 65535). The default port is port 51456.
 .TP
 .B \-\-sockfd\-reuse
 reuse the file descriptor by passing it back from the receiver to the
@@ -8783,7 +8783,7 @@ stop after N connections.
 .TP
 .B \-\-sockmany\-port P
 start at socket port P. For N sockmany worker processes, ports P to P \(pl (N \(mi 1) are
-used (wrapped to keep in range of 1024 to 65535). The default port is port 11000.
+used (wrapped to keep in range of 1024 to 65535). The default port is port 51712.
 .RE
 .TP
 .B Socket I/O stressor
@@ -9758,7 +9758,7 @@ stop after N iterations of creating/sending/receiving/destroying a tunnel.
 .TP
 .B \-\-tun\-port P
 start at port P. For N tun worker processes, ports P to P \(pl (N \(pl 16) \(mi 1 are
-used (wrapped to keep in range of 1024 to 65535). The default port is port 2000.
+used (wrapped to keep in range of 1024 to 65535). The default port is port 51968.
 .TP
 .B \-\-tun\-tap
 use network tap device using level 2 frames (bridging) rather than a tun device
@@ -9797,7 +9797,7 @@ stop udp stress workers after N bogo operations.
 .TP
 .B \-\-udp\-port P
 start at port P. For N udp worker processes, ports P to P \(pl (N \(mi 1) are
-used (wrapped to keep in range of 1024 to 65535). The default port is port 7000.
+used (wrapped to keep in range of 1024 to 65535). The default port is port 52224.
 .RE
 .TP
 .B UDP flooding stressor

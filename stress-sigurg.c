@@ -54,8 +54,6 @@ UNEXPECTED
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-#define DEFAULT_SOCKET_PORT	(16000)
-
 #if !defined(IPPROTO_TCP)
 #define IPPROTO_TCP		(0)
 #endif
@@ -283,7 +281,7 @@ die:
 static int stress_sigurg(stress_args_t *args)
 {
 	pid_t pid, mypid = getpid();
-	int sock_port = DEFAULT_SOCKET_PORT;
+	int sock_port = DEFAULT_SIGURG_PORT;
 	int rc = EXIT_SUCCESS, reserved_port, parent_cpu;
 
 	s_args = args;

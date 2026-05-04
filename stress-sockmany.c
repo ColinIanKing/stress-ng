@@ -33,7 +33,6 @@ UNEXPECTED
 
 #include <netinet/in.h>
 
-#define DEFAULT_SOCKET_MANY_PORT 	(11000)
 #define SOCKET_MANY_FDS			(100000)
 
 #define MIN_SOCKMANY_MAX_SIZE		(1)

@@ -42,8 +42,6 @@
 #error cannot have both HAVE_SYS_XATTR_H and HAVE_ATTR_XATTR_H
 #endif
 
-#define DEFAULT_SOCKABUSE_PORT	(12000)
-
 #define MSGVEC_SIZE		(4)
 #define SOCKET_BUF		(8192)	/* Socket I/O buffer size */
 

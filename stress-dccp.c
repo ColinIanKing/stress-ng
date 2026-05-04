@@ -38,8 +38,6 @@
 
 #define DCCP_BUF		(1024)	/* DCCP I/O buffer size */
 
-#define DEFAULT_DCCP_PORT	(10000)
-
 #define MIN_DCCP_MSGS		(1)
 #define MAX_DCCP_MSGS		(10000000)
 #define DEFAULT_DCCP_MSGS	(10000)

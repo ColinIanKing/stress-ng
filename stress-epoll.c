@@ -33,8 +33,6 @@
 #include <sys/epoll.h>
 #endif
 
-#define DEFAULT_EPOLL_PORT	(6000)
-
 #define MAX_EPOLL_EVENTS 	(1024)
 #define MAX_SERVERS		(4)
 #define MIN_EPOLL_SOCKETS	(64)

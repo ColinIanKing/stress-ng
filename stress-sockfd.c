@@ -35,8 +35,6 @@
 UNEXPECTED
 #endif
 
-#define DEFAULT_SOCKET_FD_PORT	(8000)
-
 static const stress_help_t help[] = {
 	{ NULL,	"sockfd N",	 "start N workers sending file descriptors over sockets" },
 	{ NULL,	"sockfd-ops N",	 "stop after N sockfd bogo operations" },

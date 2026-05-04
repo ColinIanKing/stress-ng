@@ -62,8 +62,6 @@ UNEXPECTED
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-#define DEFAULT_SOCKET_PORT	(2000)
-
 #define MIN_SOCKET_MSGS		(1)
 #define MAX_SOCKET_MSGS		(10000000)
 #define DEFAULT_SOCKET_MSGS	(5000)

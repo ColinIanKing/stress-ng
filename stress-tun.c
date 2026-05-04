@@ -48,8 +48,6 @@ UNEXPECTED
 
 #define PACKETS_TO_SEND		(64)
 
-#define DEFAULT_TUN_PORT	(2000)
-
 static const stress_help_t help[] = {
 	{ NULL,	"tun N",	"start N workers exercising tun interface" },
 	{ NULL,	"tun-ops N",	"stop after N tun bogo operations" },

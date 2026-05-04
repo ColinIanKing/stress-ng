@@ -44,7 +44,6 @@
 UNEXPECTED
 #endif
 
-#define DEFAULT_SOCKET_FD_PORT	(15000)
 #define MAX_PTHREADS		(4)
 
 /* list entry of filename and open flags */
@@ -807,7 +806,7 @@ static int stress_fd_race(stress_args_t *args)
 	context.args = args;
 	context.pid = getpid();
 	context.max_fd = (ssize_t)stress_fs_file_limit_get();
-	context.socket_fd_port = DEFAULT_SOCKET_FD_PORT;
+	context.socket_fd_port = DEFAULT_SOCKET_FD_RACE_PORT;
 	context.current_fd = -1;
 
 	(void)stress_setting_get("fd-race-dev", &fd_race_dev);

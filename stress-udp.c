@@ -47,8 +47,6 @@ UNEXPECTED
 
 #include <netinet/in.h>
 
-#define DEFAULT_UDP_PORT	(7000)
-
 #define MIN_UDP_MAX_SIZE	(16)
 #define MAX_UDP_MAX_SIZE	(65507)
 #define DEFAULT_UDP_MAX_SIZE	(1024)
