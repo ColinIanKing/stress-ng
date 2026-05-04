@@ -220,6 +220,15 @@ static int OPTIMIZE3 stress_sockmany_server(
 		(void)setsockopt(fd, IPPROTO_TCP, TCP_SYNCNT, &tcp_syn_retries, sizeof(tcp_syn_retries));
 	}
 #endif
+#if defined(SOL_TCP) &&		\
+    defined(TCP_USER_TIMEOUT)
+	{
+		int timeout_ms = 500;
+
+		(void)setsockopt(fd, SOL_TCP, TCP_USER_TIMEOUT, &timeout_ms, sizeof(timeout_ms));
+	}
+#endif
+
 	if (stress_net_sockaddr_if_set(args->name, args->instance, mypid,
 				       AF_INET, sockmany_port, sockmany_if,
 				       &addr, &addr_len, NET_ADDR_ANY) < 0) {
