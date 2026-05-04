@@ -31,6 +31,8 @@
 UNEXPECTED
 #endif
 
+#include <netinet/in.h>
+
 #define DEFAULT_SOCKET_MANY_PORT 	(11000)
 #define SOCKET_MANY_FDS			(100000)
 
@@ -196,7 +198,8 @@ static int OPTIMIZE3 stress_sockmany_server(
 			args->name, errno, strerror(errno));
 		goto die;
 	}
-#if defined(SOL_SOCKET)
+#if defined(SOL_SOCKET) &&	\
+    defined(SO_REUSEADDR)
 	{
 		int so_reuseaddr = 1;
 
@@ -209,7 +212,14 @@ static int OPTIMIZE3 stress_sockmany_server(
 		}
 	}
 #endif
+#if defined(IPPROTO_TCP) &&	\
+    defined(TCP_SYNCNT)
+	{
+		int tcp_syn_retries = 2;
 
+		(void)setsockopt(fd, IPPROTO_TCP, TCP_SYNCNT, &tcp_syn_retries, sizeof(tcp_syn_retries));
+	}
+#endif
 	if (stress_net_sockaddr_if_set(args->name, args->instance, mypid,
 				       AF_INET, sockmany_port, sockmany_if,
 				       &addr, &addr_len, NET_ADDR_ANY) < 0) {
