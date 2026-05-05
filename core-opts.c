@@ -242,6 +242,8 @@ const struct option stress_long_options[] = {
 	{ "epoll-ops",		1,	0,	OPT_epoll_ops },
 	{ "epoll-port",		1,	0,	OPT_epoll_port },
 	{ "epoll-sockets",	1,	0,	OPT_epoll_sockets },
+	{ "eth-sniff",		1,	0,	OPT_eth_sniff },
+	{ "eth-sniff-ops",	1,	0,	OPT_eth_sniff_ops },
 	{ "eventfd",		1,	0,	OPT_eventfd },
 	{ "eventfd-nonblock",	0,	0,	OPT_eventfd_nonblock },
 	{ "eventfd-ops",	1,	0,	OPT_eventfd_ops },

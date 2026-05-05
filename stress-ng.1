@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, may be w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "4 May 2026"
+.TH STRESS-NG 1 "5 May 2026"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -2785,6 +2785,18 @@ domain. Ports wrapped to keep in range of 1024 to 65535. The default port is por
 specify the maximum number of concurrently open sockets allowed in the server.
 Setting a high value impacts on memory usage and may trigger out of memory
 conditions.
+.RE
+.TP
+.B Ethernet Packet Sniffer
+.RS 5
+.TQ
+.B \-\-eth\-sniff N
+start N stressors that sniff ethernet packets. The \-\-metrics option will
+show the data count in kilobytes of commonly used IPv4 and IPv6 protocols.
+Linux only and requires CAP_NET_RAW capability.
+.TP
+.B \-\-eth\-sniff\-ops N
+stop after N bogo ethernet packet sniffs.
 .RE
 .TP
 .B Event file descriptor (eventfd) stressor

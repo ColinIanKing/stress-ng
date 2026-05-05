@@ -540,6 +540,7 @@ STRESS_SRC = \
 	stress-enosys.c \
 	stress-env.c \
 	stress-epoll.c \
+	stress-eth-sniff.c \
 	stress-eventfd.c \
 	stress-exec.c \
 	stress-exit-group.c \

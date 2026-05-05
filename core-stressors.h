@@ -88,6 +88,7 @@
 	MACRO(enosys)		\
 	MACRO(env)		\
 	MACRO(epoll)		\
+	MACRO(eth_sniff)	\
 	MACRO(eventfd) 		\
 	MACRO(exec)		\
 	MACRO(exit_group)	\

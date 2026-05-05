@@ -439,6 +439,9 @@ typedef enum {
 	OPT_epoll_port,
 	OPT_epoll_sockets,
 
+	OPT_eth_sniff,
+	OPT_eth_sniff_ops,
+
 	OPT_eventfd,
 	OPT_eventfd_nonblock,
 	OPT_eventfd_ops,
