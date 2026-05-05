@@ -415,8 +415,12 @@ int stress_signal_handler(
  */
 static void MLOCKED_TEXT stress_sigchld_helper_handler(int signum)
 {
-	if (signum == SIGCHLD)
-		stress_continue_set_flag(false);
+	if (signum == SIGCHLD) {
+		stress_args_t *args = stress_args_pid_find(getpid());
+
+		if (args)
+			stress_bogo_stop(args);
+	}
 }
 
 /*

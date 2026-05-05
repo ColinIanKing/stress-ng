@@ -477,6 +477,19 @@ static inline stress_stats_t *stress_stats_pid_find(const pid_t pid)
 }
 
 /*
+ *  stress_args_pid_find()
+ *	return args of a given stressor pid, NULL if can't find
+ */
+stress_args_t *stress_args_pid_find(const pid_t pid)
+{
+	stress_stats_t *stats = stress_stats_pid_find(pid);
+
+	if (!stats)
+		return NULL;
+	return &stats->args;
+}
+
+/*
  *  stress_stats_hash_table_add()
  *	add stats to the stress_stats hash table
  */
@@ -622,10 +635,10 @@ void stress_bogo_max_ops_zero(void)
 
 	for (item = stress_stressor_list.head; item; item = item->next) {
 		if (!item->ignore.run) {
-			int32_t i;
+			register int32_t i;
 
 			for (i = 0; i < item->instances; i++)
-				item->stats[i]->args.bogo.max_ops = 0;
+				stress_bogo_stop(&item->stats[i]->args);
 		}
 	}
 }
@@ -1185,7 +1198,7 @@ static void stress_wait_status(
 		break;
 	case EXIT_NOT_IMPLEMENTED:
 		item->status[STRESS_STRESSOR_STATUS_SKIPPED]++;
-		do_abort = true;
+		do_abort = false;
 		break;
 	case EXIT_SIGNALED:
 		item->status[STRESS_STRESSOR_STATUS_FAILED]++;

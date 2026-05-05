@@ -757,6 +757,7 @@ extern jmp_buf g_error_env;		/* parsing error env */
 extern void *g_nowt;			/* void pointer to NULL */
 
 extern void stress_bogo_max_ops_zero(void);
+extern stress_args_t *stress_args_pid_find(const pid_t pid);
 
 /*
  *  stress_continue_flag()
@@ -776,6 +777,15 @@ static inline void ALWAYS_INLINE stress_continue_set_flag(const bool setting)
 	g_stress_continue_flag = setting;
 	if (!setting)
 		stress_bogo_max_ops_zero();
+}
+
+/*
+ *  stress_bogo_stop()
+ *	stop a stressor by setting the bogo max_ops to zero
+ */
+static inline void ALWAYS_INLINE stress_bogo_stop(stress_args_t *args)
+{
+	args->bogo.max_ops = 0ULL;
 }
 
 /*
