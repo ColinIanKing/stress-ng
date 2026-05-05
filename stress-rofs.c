@@ -458,7 +458,7 @@ static int stress_rofs_file_listxattr(
 	else {
 		switch (errno) {
 		case ENOSYS:
-		case EOPNOTSUPP:
+		case ENOTSUP:
 			return 0;
 		case ENOENT:
 			if ((info->statbuf.st_mode & S_IFMT) == S_IFLNK)
