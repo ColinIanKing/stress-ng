@@ -245,6 +245,21 @@ static int stress_rofs_file_mmap(
 			register const char *ptr_end = data + page_size;
 			register volatile char *ptr;
 
+#if defined(__CYGWIN__)
+			/*
+			 * Due to the incompatibility of Windows file to
+			 * memory mapping with POSIX, Cygwin's
+			 * sysconf(_SC_PAGESIZE) returns the allocation
+			 * granularity of 64KiB instead of the real page
+			 * size of 4KiB. Unfortunately the end of the file
+			 * is mapped with 4KiB granularity. See also
+			 * https://sourceware.org/pipermail/cygwin-developers/2020-July/011913.html
+			 *
+			 * Don't access memory beyond EOF
+			 */
+			if ((size - (rand_off & mask)) < page_size)
+				ptr_end = data + (size - (rand_off & mask));
+#endif
 			(*count) += 1.0;
 			for (ptr = data; ptr < ptr_end; ptr++)
 				(void)*ptr;
