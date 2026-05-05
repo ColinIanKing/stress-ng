@@ -637,6 +637,7 @@ static int open_direct(
 {
 	char filename[PATH_MAX];
 	int fd;
+	int saved_errno;
 	double t;
 
 	(void)snprintf(filename, sizeof(filename), "%s/stress-open-%" PRIdMAX "-%" PRIu32,
@@ -644,6 +645,7 @@ static int open_direct(
 
 	t = stress_time_now();
 	fd = open(filename, O_RDWR | O_CREAT | O_TRUNC | O_DIRECT, S_IRUSR | S_IWUSR);
+	saved_errno = errno;
 	if (LIKELY(fd >= 0)) {
 		(*duration) += stress_time_now() - t;
 		(*count) += 1.0;
@@ -658,6 +660,8 @@ static int open_direct(
 		}
 	}
 	(void)shim_unlink(filename);
+
+	errno = saved_errno;
 	return fd;
 }
 #endif
