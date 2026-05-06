@@ -1212,7 +1212,7 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 	/* OpenRISC 1000 only */
 #endif
 #if DEFSYS(pause)
-	/* { SYS(pause), 0, { 0, 0, 0, 0, 0, 0 } }, */
+	{ SYS(pause), 0, { 0, 0, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(pciconfig_iobase)
 	/* { SYS(pciconfig_iobase), 3, { ARG_UINT, ARG_UINT, ARG_UINT, 0, 0, 0 } }, */
