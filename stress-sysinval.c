@@ -51,6 +51,8 @@ static const stress_help_t help[] = {
 #define MAX_CRASHES		(100000)
 #define SYSCALL_TIMEOUT_USEC	(1000)	/* Timeout syscalls duration */
 
+#define MAX_SYSCALL_ARGS	(6)
+
 /*
  *  tuple of system call number and stringified system call
  */
@@ -129,7 +131,7 @@ typedef struct {
 	const unsigned long int syscall;	/* system call number */
 	const char *name;			/* text name of system call */
 	const int num_args;			/* number of arguments */
-	unsigned long int arg_bitmasks[6];	/* semantic info about each argument */
+	unsigned long int arg_bitmasks[MAX_SYSCALL_ARGS]; /* semantic info about each argument */
 } stress_syscall_arg_t;
 
 /*
@@ -154,7 +156,7 @@ typedef struct stress_syscall_args_hash {
 	struct stress_syscall_args_hash *next;	/* next item in list */
 	unsigned long int hash;		/* has of system call and args */
 	unsigned long int syscall;	/* system call number */
-	unsigned long int args[6];	/* arguments */
+	unsigned long int args[MAX_SYSCALL_ARGS]; /* arguments */
 	uint8_t	 type;			/* type of failure */
 } stress_syscall_arg_hash_t;
 
@@ -2061,7 +2063,7 @@ typedef struct {
 	volatile uint64_t skip_errno_zero;
 	volatile uint64_t skip_timed_out;
 	uint64_t crash_count[SYSCALL_ARGS_SIZE];
-	unsigned long int args[6];
+	unsigned long int args[MAX_SYSCALL_ARGS];
 	unsigned char filler[4096];
 	struct {
 		mode_t mode;
@@ -2345,7 +2347,7 @@ static const stress_syscall_arg_values_t arg_values[] = {
  */
 static unsigned long int stress_syscall_hash(
 	const unsigned long int syscall_num,
-	const unsigned long int args[6])
+	const unsigned long int args[MAX_SYSCALL_ARGS])
 {
 	unsigned long int hash = syscall_num;
 
