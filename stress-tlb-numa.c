@@ -326,7 +326,7 @@ static void OPTIMIZE3 *stress_tlb_pthread3(void *parg)
 			continue;
 		} else {
 			register size_t i;
-			uint8_t *ptr = mmap3;
+			uint8_t *ptr;
 			uint8_t *pages[35];
 
 			for (i = 0, ptr = mmap3; i < n_pages; i++, ptr += page_size)
