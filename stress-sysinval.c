@@ -131,7 +131,7 @@ typedef struct {
 	const unsigned long int syscall;	/* system call number */
 	const char *name;			/* text name of system call */
 	const int num_args;			/* number of arguments */
-	unsigned long int arg_bitmasks[MAX_SYSCALL_ARGS]; /* semantic info about each argument */
+	uint32_t arg_bitmasks[MAX_SYSCALL_ARGS]; /* semantic info about each argument */
 } stress_syscall_arg_t;
 
 /*
@@ -142,7 +142,7 @@ typedef struct {
  *  permutations
  */
 typedef struct {
-	unsigned long int bitmask;	/* bitmask representing arg type */
+	uint32_t bitmask;		/* bitmask representing arg type */
 	size_t num_values;		/* number of different invalid values */
 	unsigned long int *values;	/* invalid values */
 } stress_syscall_arg_values_t;
@@ -2545,7 +2545,7 @@ timed_out:
 static void syscall_permute(
 	stress_args_t *args,
 	const int arg_num,
-	const unsigned long int arg_bitmask,
+	const uint32_t arg_bitmask,
 	const stress_syscall_arg_t *stress_syscall_arg,
 	volatile bool *syscall_exercised)
 {
@@ -2617,7 +2617,7 @@ static void syscall_permute(
 	 *  This should not fail!
 	 */
 	if (UNLIKELY(!num_values)) {
-		pr_dbg("%s: argument %d has bad bitmask %lx\n", args->name, arg_num, arg_bitmask);
+		pr_dbg("%s: argument %d has bad bitmask %" PRIx32 "\n", args->name, arg_num, arg_bitmask);
 		current_context->args[arg_num] = 0;
 		return;
 	}
