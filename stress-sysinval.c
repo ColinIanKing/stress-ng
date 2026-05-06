@@ -2935,7 +2935,6 @@ static int stress_sysinval(stress_args_t *args)
 	for (i = 0; i < SYSCALL_ARGS_SIZE; i++) {
 		const unsigned long int syscall_num = stress_syscall_args[i].syscall;
 		size_t exercised = 0, unique = 0;
-		size_t j;
 
 		for (j = 0; j < SYSCALL_ARGS_SIZE; j++) {
 			if (syscall_num == stress_syscall_args[j].syscall) {
