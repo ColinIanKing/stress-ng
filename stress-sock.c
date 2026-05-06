@@ -310,7 +310,7 @@ static void stress_sock_ioctl(
  *  stress_sock_invalid_recv()
  *	exercise invalid recv* calls
  */
-static void stress_sock_invalid_recv(const int fd, const int opt)
+static void stress_sock_invalid_recv(const int fd, const int bad_fd, const int opt)
 {
 	char ALIGN64 buf[16];
 #if defined(HAVE_RECVMSG) ||	\
@@ -331,7 +331,7 @@ static void stress_sock_invalid_recv(const int fd, const int opt)
 		VOID_RET(ssize_t, recv(fd, buf, sizeof(buf), ~0));
 
 		/* exercise invalid fd */
-		VOID_RET(ssize_t, recv(~0, buf, sizeof(buf), 0));
+		VOID_RET(ssize_t, recv(bad_fd, buf, sizeof(buf), 0));
 		break;
 #if defined(HAVE_RECVMSG)
 	case SOCKET_OPT_RECVMSG:
@@ -345,7 +345,7 @@ static void stress_sock_invalid_recv(const int fd, const int opt)
 		VOID_RET(ssize_t, recvmsg(fd, &msg, ~0));
 
 		/* exercise invalid fd */
-		VOID_RET(ssize_t, recvmsg(~0, &msg, 0));
+		VOID_RET(ssize_t, recvmsg(bad_fd, &msg, 0));
 		break;
 #endif
 #if defined(HAVE_RECVMMSG)
@@ -360,12 +360,12 @@ static void stress_sock_invalid_recv(const int fd, const int opt)
 		VOID_RET(ssize_t, recvmmsg(fd, msgvec, MSGVEC_SIZE, ~0, NULL));
 
 		/* exercise invalid fd */
-		VOID_RET(ssize_t, recvmmsg(~0, msgvec, MSGVEC_SIZE, 0, NULL));
+		VOID_RET(ssize_t, recvmmsg(bad_fd, msgvec, MSGVEC_SIZE, 0, NULL));
 
 		/* exercise invalid timespec */
 		ts.tv_sec = 0;
 		ts.tv_nsec = 0;
-		VOID_RET(ssize_t, recvmmsg(~0, msgvec, MSGVEC_SIZE, 0, &ts));
+		VOID_RET(ssize_t, recvmmsg(bad_fd, msgvec, MSGVEC_SIZE, 0, &ts));
 		break;
 #endif
 	default:
@@ -501,6 +501,7 @@ static int OPTIMIZE3 stress_sock_client(
 	size_t n_ctrls;
 	char **ctrls;
 	int recvflag = 0, rc = EXIT_FAILURE;
+	int bad_fd = stress_fs_bad_fd_get();
 	uint64_t inq_bytes = 0, inq_samples = 0;
 	uint32_t count = 0;
 
@@ -520,7 +521,7 @@ retry:
 			goto free_controls;
 
 		/* Exercise illegal socket family  */
-		fd = socket(~0, sock_type, sock_protocol);
+		fd = socket(bad_fd, sock_type, sock_protocol);
 		if (UNLIKELY(fd >= 0))
 			(void)close(fd);
 
@@ -824,7 +825,7 @@ retry:
 #endif
 			/*  Periodically exercise invalid recv calls */
 			if (UNLIKELY((count & 0x7ff) == 0))
-				stress_sock_invalid_recv(fd, opt);
+				stress_sock_invalid_recv(fd, bad_fd, opt);
 
 			/*
 			 *  Receive using equivalent receive method
