@@ -925,9 +925,19 @@ int stress_fs_bad_fd_get(void)
 	}
 #elif defined(F_GETFL)
 	int i;
+#if defined(_SC_OPEN_MAX)
+	int open_max = (int)sysconf(_SC_OPEN_MAX);
+#else
+	int open_max = INT_MAX;
+#endif
 
-	for (i = 2048; i > fileno(stdout); i--) {
-		if (fcntl((int)i, F_GETFL) == -1)
+	for (i = 2048; i > fileno(stdout); i--, open_max--) {
+		errno = 0;
+		if ((fcntl((int)open_max, F_GETFL) == -1) && (errno == EBADF))
+			return open_max;
+
+		errno = 0;
+		if ((fcntl((int)i, F_GETFL) == -1) && (errno == EBADF))
 			return i;
 	}
 #else

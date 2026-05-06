@@ -132,8 +132,10 @@ static int stress_eth_sniff(stress_args_t *args)
 
 	fd = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
 	if (fd < 0) {
-		pr_inf("%s: socket failed: errno=%d (%s)\n",
+		pr_inf_skip("%s: socket failed: errno=%d (%s), skipping stressor\n",
 			args->name, errno, strerror(errno));
+		(void)munmap((void *)buf, buf_size);
+		return EXIT_NO_RESOURCE;
 	}
 
 	t = stress_time_now();
@@ -170,6 +172,8 @@ static int stress_eth_sniff(stress_args_t *args)
 		stress_eth_sniff_metrics(args, "IPv4", ipv4_proto);
 		stress_eth_sniff_metrics(args, "IPv6", ipv6_proto);
 	}
+	(void)munmap((void *)buf, buf_size);
+
 	return EXIT_SUCCESS;
 }
 
