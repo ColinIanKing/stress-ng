@@ -2205,41 +2205,80 @@ static void NORETURN func_exit(void)
  *  Various invalid argument values
  */
 static unsigned long int none_values[] = { 0 };
+
 static unsigned long int mode_values[] = {
 	(unsigned long int)-1, INT_MAX, (unsigned long int)INT_MIN,
 	~(unsigned long int)0, 1ULL << 20,
 };
+
 static unsigned long int access_mode_values[] = {
-	(unsigned long int)~(F_OK | R_OK | W_OK | X_OK)
+	(unsigned long int)~(F_OK | R_OK | W_OK | X_OK),
 };
+
 static long int sockfds[] = {
-	/* sockfd */ 0, 0, -1, INT_MAX, INT_MIN, ~(long int)0
+	0, /* sock_fd */
+	0,
+	-1,
+	INT_MAX,
+	INT_MIN,
+	~(long int)0,
 };
+
 static long int fds[] = {
-	/* fd */ 0, -1, INT_MAX, INT_MIN, ~(long int)0
+	0, /* fd */
+	-1,
+	INT_MAX,
+	INT_MIN,
+	~(long int)0,
 };
+
 static long int dirfds[] = {
-	-1, AT_FDCWD, INT_MIN, ~(long int)0
+	-1,
+	AT_FDCWD,
+	INT_MIN,
+	INT_MAX,
+	~(long int)0,
 };
+
 static long int clockids[] = {
-	-1, INT_MAX, INT_MIN, ~(long int)0, SHR_UL(0xfe23ULL, 18)
+	-1,
+	INT_MAX,
+	INT_MIN,
+	~(long int)0,
+	SHR_UL(0xfe23ULL, 18),
 };
+
 static long int sockaddrs[] = {
-	/*small_ptr*/ 0, /*page_ptr*/ 0, 0, -1, INT_MAX, INT_MIN
+	0, /* small_ptr */
+	0, /* page_ptr */
+	0,
+	-1, /* invalid */
+	INT_MAX,
+	INT_MIN,
 };
+
 static unsigned long int brk_addrs[] = {
-	0, (unsigned long int)-1, INT_MAX, (unsigned long int)INT_MIN,
-	~(unsigned long int)0, 4096
+	0,
+	(unsigned long int)-1,
+	INT_MAX,
+	(unsigned long int)INT_MIN,
+	~(unsigned long int)0,
+	4096,
 };
+
 static unsigned long int empty_filenames[] = {
-	(unsigned long int)"", (unsigned long int)NULL
+	(unsigned long int)"",
+	(unsigned long int)NULL,
 };
+
 static unsigned long int zero_filenames[] = {
-	(unsigned long int)"/dev/zero"
+	(unsigned long int)"/dev/zero",
 };
+
 static unsigned long int null_filenames[] = {
-	(unsigned long int)"/dev/null"
+	(unsigned long int)"/dev/null",
 };
+
 static long int flags[] = {
 	-1, -2, INT_MIN, SHR_UL(0xffffULL, 20),
 	0x00000001, 0x00000002, 0x00000004, 0x00000008,
@@ -2249,60 +2288,109 @@ static long int flags[] = {
 	0x00010000, 0x00020000, 0x00040000, 0x00080000,
 	0x00100000, 0x00200000, 0x00400000, 0x00800000,
 	0x01000000, 0x02000000, 0x04000000, 0x08000000,
-	0x10000000, 0x20000000, 0x40000000, 0x80000000
+	0x10000000, 0x20000000, 0x40000000, 0x80000000,
 };
+
 static unsigned long int lengths[] = {
-	(unsigned long int)-1, (unsigned long int)-2,
-	(unsigned long int)INT_MIN, INT_MAX,
-	~(unsigned long int)0, -SHR_UL(1, 31)
+	(unsigned long int)-1,
+	(unsigned long int)-2,
+	(unsigned long int)INT_MIN,
+	(unsigned long int)INT_MAX,
+	~(unsigned long int)0,
+	(unsigned long int)-SHR_UL(1, 31),
 };
+
 static long int ints[] = {
-	0, -1, -2, INT_MIN, INT_MAX, SHR_UL(0xff, 30), SHR_UL(1, 30),
-	(long int)-SHR_UL(0xff, 30), (long int)-SHR_UL(1, 30)
+	(long int)0,
+	(long int)-1,
+	(long int)-2,
+	(long int)INT_MIN,
+	(long int)INT_MAX,
+	(long int)SHR_UL(0xff, 30),
+	(long int)SHR_UL(1, 30),
+	(long int)-SHR_UL(0xff, 30),
+	(long int)-SHR_UL(1, 30),
 };
+
 static unsigned long int uints[] = {
-	INT_MAX, SHR_UL(0xff, 30), -SHR_UL(0xff, 30), ~(unsigned long int)0
+	(unsigned long int)INT_MAX,
+	(unsigned long int)SHR_UL(0xff, 30),
+	(unsigned long int)-SHR_UL(0xff, 30),
+	(unsigned long int)~0,
 };
+
 static unsigned long int func_ptrs[] = {
-	(unsigned long int)func_exit
+	(unsigned long int)func_exit,
 };
+
 static unsigned long int ptrs[] = {
-	/*small_ptr*/ 0, /*page_ptr*/ 0, 0, (unsigned long int)-1,
-	INT_MAX, (unsigned long int)INT_MIN, (unsigned long int)~4096L
+	0, /* small_ptr */
+	0, /* page_ptr */
+	0,
+	(unsigned long int)-1,
+	(unsigned long int)INT_MAX,
+	(unsigned long int)INT_MIN,
+	(unsigned long int)~4096L,
 };
+
 static unsigned long int ptrs_wr[] = {
-	/*small_ptr_wr*/ 0, /*page_ptr_wr*/ 0, 0,
-	(unsigned long int)-1, INT_MAX, (unsigned long int)INT_MIN,
-	(unsigned long int)~4096L
+	0, /* small_ptr */
+	0, /* page_ptr */
+	0,
+	(unsigned long int)-1,
+	(unsigned long int)INT_MAX,
+	(unsigned long int)INT_MIN,
+	(unsigned long int)~4096L,
 };
+
 static unsigned long int futex_ptrs[] = {
-	/*small_ptr*/ 0, /*page_ptr*/ 0
+	0, /* small_ptr */
+	0, /* page_ptr */
 };
+
 static unsigned long int non_null_ptrs[] = {
-	/*small_ptr*/ 0, /*page_ptr*/ 0, (unsigned long int)-1,
-	INT_MAX, (unsigned long int)INT_MIN, (unsigned long int)~4096L
+	0, /* small_ptr */
+	0, /* page_ptr */
+	(unsigned long int)-1,
+	(unsigned long int)INT_MAX,
+	(unsigned long int)INT_MIN,
+	(unsigned long int)~4096L,
 };
+
 static long int socklens[] = {
-	0, -1, INT_MAX, INT_MIN, 8192
+	0,
+	-1,
+	INT_MAX,
+	INT_MIN,
+	8192,
 };
+
 static unsigned long int timeouts[] = {
 	0
 };
+
 static pid_t pids[] = {
-	INT_MIN, -1, INT_MAX, ~0
+	(pid_t)INT_MIN,
+	(pid_t)-1,
+	(pid_t)INT_MAX,
+	(pid_t)~0,
 };
+
 static gid_t gids[] = {
-	(gid_t)~0L, INT_MAX
+	(gid_t)~0L, INT_MAX,
 };
+
 static uid_t uids[] = {
-	(uid_t)~0L, INT_MAX
+	(uid_t)~0L, INT_MAX,
 };
 
 /*
  *  Misc per system-call args
  */
 static char *add_key_types[] = { "key_ring" };
+
 static char *add_key_descrs[] = { "." };
+
 static unsigned long int bpf_cmds[] = {
 	0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
 	0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
@@ -2311,7 +2399,16 @@ static unsigned long int bpf_cmds[] = {
 	0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27,
 	0x28, 0x29, 0x2a, 0x2b, 0x2c, 0x2d, 0x2e, 0x2f,
 };
-static int bpf_lengths[] = { 0, 16, 256, 1024, 4096, 65536, 1024 * 1024 };
+
+static int bpf_lengths[] = {
+	0,
+	16,
+	256,
+	1024,
+	4096,
+	65536,
+	1024 * 1024,
+};
 
 /*
  *  mapping of invalid arg types to invalid arg values
