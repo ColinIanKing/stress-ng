@@ -42,6 +42,10 @@
 #define BUF_ALIGNMENT		(4096)
 #define HDD_IO_VEC_MAX		(16)		/* Must be power of 2 */
 
+#define MIN_HDD_SLEEP		(0)
+#define MAX_HDD_SLEEP		(3600)
+#define DEFAULT_HDD_SLEEP	(INT_MAX)
+
 /* Write and read stress modes */
 #define HDD_OPT_WR_SEQ		(0x00000001)
 #define HDD_OPT_WR_RND		(0x00000002)
@@ -85,6 +89,7 @@ static const stress_help_t help[] = {
 	{ NULL,	"hdd-bytes N",		"write N bytes per hdd worker (default is 1GB)" },
 	{ NULL,	"hdd-ops N",		"stop after N hdd bogo operations" },
 	{ NULL,	"hdd-opts list",	"specify list of various stressor options" },
+	{ NULL,	"hdd-sleep N",		"sleep N seconds after each read/write cycle (default is off)" },
 	{ NULL,	"hdd-write-size N",	"set the default write size to N bytes" },
 	{ NULL, NULL,			NULL }
 };
@@ -685,6 +690,7 @@ static int stress_hdd(stress_args_t *args)
 	size_t opt_index = 0, max_extents = 0;
 	uint64_t hdd_bytes, hdd_bytes_total = DEFAULT_HDD_BYTES;
 	uint64_t hdd_write_size = DEFAULT_HDD_WRITE_SIZE;
+	unsigned int hdd_sleep = DEFAULT_HDD_SLEEP;
 	const uint32_t instance = args->instance;
 	int hdd_flags = 0, hdd_oflags = 0;
 	int flags, fadvise_flags;
@@ -697,6 +703,7 @@ static int stress_hdd(stress_args_t *args)
 	(void)stress_setting_get("hdd-flags", &hdd_flags);
 	(void)stress_setting_get("hdd-oflags", &hdd_oflags);
 	(void)stress_setting_get("hdd-opts-set", &opts_set);
+	(void)stress_setting_get("hdd-sleep", &hdd_sleep);
 
 	flags = O_CREAT | O_RDWR | O_TRUNC | hdd_oflags;
 	fadvise_flags = hdd_flags & HDD_OPT_FADV_MASK;
@@ -1112,6 +1119,13 @@ rnd_rd_retry:
 			max_extents = extents;
 
 		(void)close(fd);
+
+		if (hdd_sleep == 0) {
+			while (stress_continue(args))
+				(void)sleep(3600);
+		} else if (hdd_sleep != DEFAULT_HDD_SLEEP) {
+			(void)sleep(hdd_sleep);
+		}
 	} while (stress_continue(args));
 
 yielded:
@@ -1144,6 +1158,7 @@ finish:
 static const stress_opt_t opts[] = {
 	{ OPT_hdd_bytes,      "hdd-bytes",      TYPE_ID_UINT64_BYTES_FS, MIN_HDD_BYTES, MAX_HDD_BYTES, NULL },
 	{ OPT_hdd_opts,       "hdd-opts",       TYPE_ID_CALLBACK, 0, 0, (void *)stress_hdd_opts },
+	{ OPT_hdd_sleep,      "hdd-sleep",	TYPE_ID_UINT, MIN_HDD_SLEEP, MAX_HDD_SLEEP, NULL },
 	{ OPT_hdd_write_size, "hdd-write-size", TYPE_ID_UINT64_BYTES_FS, MIN_HDD_WRITE_SIZE, MAX_HDD_WRITE_SIZE, NULL },
 	END_OPT,
 };

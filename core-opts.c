@@ -392,6 +392,7 @@ const struct option stress_long_options[] = {
 	{ "hdd-bytes",		1,	0,	OPT_hdd_bytes },
 	{ "hdd-ops",		1,	0,	OPT_hdd_ops },
 	{ "hdd-opts",		1,	0,	OPT_hdd_opts },
+	{ "hdd-sleep",		1,	0,	OPT_hdd_sleep },
 	{ "hdd-write-size", 	1,	0,	OPT_hdd_write_size },
 	{ "heapsort",		1,	0,	OPT_heapsort },
 	{ "heapsort-method",	1,	0,	OPT_heapsort_method },

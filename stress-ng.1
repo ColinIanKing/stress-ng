@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, may be w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "5 May 2026"
+.TH STRESS-NG 1 "7 May 2026"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -4024,6 +4024,10 @@ exclusive, for example fadv-willneed cannot be used with fadv-dontneed.
 .TP
 .B \-\-hdd\-ops N
 stop hdd stress workers after N bogo operations.
+.TP
+.B \-\-hdd\-sleep N
+sleep for N seconds after each round of hdd I/O operations. A value of zero
+will sleep forever. Range 0..3600.
 .TP
 .B \-\-hdd\-write\-size N
 specify size of each write in bytes. Size can be from 1 byte to 4 MB.

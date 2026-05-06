@@ -631,6 +631,7 @@ typedef enum {
 	OPT_hdd_bytes,
 	OPT_hdd_ops,
 	OPT_hdd_opts,
+	OPT_hdd_sleep,
 	OPT_hdd_write_size,
 
 	OPT_heapsort,
