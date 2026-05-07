@@ -3402,6 +3402,7 @@ static void stress_limit_parse(const char *opt, const char *option)
 static const stress_opt_t main_opts[] = {
 	{ OPT_backoff,        "backoff",         TYPE_ID_INT64, 0, 10000000, NULL },
 	{ OPT_cache_level,    "cache-level",     TYPE_ID_INT16, 1, 5, NULL },
+	{ OPT_cache_size,     "cache-size",      TYPE_ID_UINT64_BYTES_VM, 1 * KB, 4 * GB, NULL },
 	{ OPT_cache_ways,     "cache-ways",      TYPE_ID_UINT32, 1, 1024, NULL },
 	{ OPT_compact_memory, "compact-memory",  TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_exclude,	      "exclude",         TYPE_ID_STR, 0, 0, NULL },
@@ -3497,14 +3498,6 @@ next_opt:
 			stress_processors_get(&opt_parallel);
 			stress_check_max_stressors("all", opt_parallel);
 			stress_setting_global_set("all", TYPE_ID_UINT32, &opt_parallel);
-			break;
-		case OPT_cache_size:
-			/* 1K..4GB should be enough range  */
-			u64 = stress_get_uint64_byte(optarg);
-			stress_check_range_bytes("cache-size", u64, 1 * KB, 4 * GB);
-			/* round down to 64 byte boundary */
-			u64 &= ~(uint64_t)63;
-			stress_setting_global_set("cache-size", TYPE_ID_UINT64, &u64);
 			break;
 		case OPT_class:
 			ret = stress_class_get(optarg, &u32);
@@ -4343,6 +4336,8 @@ int main(int argc, char **argv, char **envp)
 	/* Allocate shared cache memory */
 	g_shared->mem_cache.size = 0;
 	(void)stress_setting_get("cache-size", &g_shared->mem_cache.size);
+	/* round down to 64 byte boundary */
+	g_shared->mem_cache.size &= ~(uint64_t)63;
 	g_shared->mem_cache.level = DEFAULT_CACHE_LEVEL;
 	(void)stress_setting_get("cache-level", &g_shared->mem_cache.level);
 	g_shared->mem_cache.ways = 0;
