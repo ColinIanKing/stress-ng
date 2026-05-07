@@ -3409,7 +3409,7 @@ static const stress_opt_t main_opts[] = {
 	{ OPT_job,	      "job",             TYPE_ID_STR, 0, 0, NULL },
 	{ OPT_log_file,       "log-file",        TYPE_ID_STR, 0, 0, NULL },
 	{ OPT_pause,          "pause",           TYPE_ID_UINT, 0, INT_MAX, NULL },
-	{ OPT_sched_runtime,  "sched-runtime",	 TYPE_ID_UINT64, 0, ~0ULL, NULL },
+	{ OPT_sched_runtime,  "sched-runtime",	 TYPE_ID_UINT64, 0, 1000000000000000ULL, NULL },
 	{ OPT_temp_path,      "temp-path",       TYPE_ID_STR, 0, 0, NULL },
 	{ OPT_yaml,           "yaml",            TYPE_ID_STR, 0, 0, NULL },
 	END_OPT,
