@@ -3409,7 +3409,9 @@ static const stress_opt_t main_opts[] = {
 	{ OPT_job,	      "job",             TYPE_ID_STR, 0, 0, NULL },
 	{ OPT_log_file,       "log-file",        TYPE_ID_STR, 0, 0, NULL },
 	{ OPT_pause,          "pause",           TYPE_ID_UINT, 0, INT_MAX, NULL },
+	{ OPT_sched_deadline, "sched-deadline",  TYPE_ID_UINT64, 0, 1000000000000000ULL, NULL },
 	{ OPT_sched_runtime,  "sched-runtime",	 TYPE_ID_UINT64, 0, 1000000000000000ULL, NULL },
+	{ OPT_sched_period,   "sched-period",    TYPE_ID_UINT64, 0, 1000000000000000ULL, NULL },
 	{ OPT_temp_path,      "temp-path",       TYPE_ID_STR, 0, 0, NULL },
 	{ OPT_yaml,           "yaml",            TYPE_ID_STR, 0, 0, NULL },
 	END_OPT,
@@ -3596,14 +3598,6 @@ next_opt:
 		case OPT_sched_prio:
 			i32 = stress_get_int32(optarg);
 			stress_setting_global_set("sched-prio", TYPE_ID_INT32, &i32);
-			break;
-		case OPT_sched_period:
-			u64 = stress_get_uint64(optarg);
-			stress_setting_global_set("sched-period", TYPE_ID_UINT64, &u64);
-			break;
-		case OPT_sched_deadline:
-			u64 = stress_get_uint64(optarg);
-			stress_setting_global_set("sched-deadline", TYPE_ID_UINT64, &u64);
 			break;
 		case OPT_sched_reclaim:
 			g_opt_flags |= OPT_FLAGS_SCHED_RECLAIM;
