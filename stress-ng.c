@@ -3403,7 +3403,7 @@ static const stress_opt_t main_opts[] = {
 	{ OPT_backoff,        "backoff",         TYPE_ID_INT64, 0, 10000000, NULL },
 	{ OPT_cache_level,    "cache-level",     TYPE_ID_INT16, 1, 5, NULL },
 	{ OPT_cache_ways,     "cache-ways",      TYPE_ID_UINT32, 1, 1024, NULL },
-	{ OPT_compact_memory, "compact-mempory", TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_compact_memory, "compact-memory",  TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_exclude,	      "exclude",         TYPE_ID_STR, 0, 0, NULL },
 	{ OPT_job,	      "job",             TYPE_ID_STR, 0, 0, NULL },
 	{ OPT_log_file,       "log-file",        TYPE_ID_STR, 0, 0, NULL },
