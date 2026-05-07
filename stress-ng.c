@@ -3399,6 +3399,20 @@ static void stress_limit_parse(const char *opt, const char *option)
 	stress_setting_global_set(option, TYPE_ID_UINT64, &u64);
 }
 
+static const stress_opt_t main_opts[] = {
+	{ OPT_backoff,        "backoff",         TYPE_ID_INT64, 0, 10000000, NULL },
+	{ OPT_cache_level,    "cache-level",     TYPE_ID_INT16, 1, 5, NULL },
+	{ OPT_cache_ways,     "cache-ways",      TYPE_ID_UINT32, 1, 1024, NULL },
+	{ OPT_compact_memory, "compact-mempory", TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_exclude,	      "exclude",         TYPE_ID_STR, 0, 0, NULL },
+	{ OPT_job,	      "job",             TYPE_ID_STR, 0, 0, NULL },
+	{ OPT_log_file,       "log-file",        TYPE_ID_STR, 0, 0, NULL },
+	{ OPT_pause,          "pause",           TYPE_ID_UINT, 0, INT_MAX, NULL },
+	{ OPT_temp_path,      "temp-path",       TYPE_ID_STR, 0, 0, NULL },
+	{ OPT_yaml,           "yaml",            TYPE_ID_STR, 0, 0, NULL },
+	END_OPT,
+};
+
 /*
  *  stress_opts_parse
  *	parse argv[] and set stress-ng options accordingly
@@ -3408,12 +3422,9 @@ int stress_opts_parse(int argc, char **argv, const bool jobmode)
 	optind = 0;
 
 	for (;;) {
-		int64_t i64;
 		int32_t i32;
 		uint32_t u32;
 		uint64_t u64, max_fds;
-		int16_t i16;
-		bool b;
 		int c, option_index, ret;
 		size_t i;
 
@@ -3448,8 +3459,8 @@ next_opt:
 				goto next_opt;
 			}
 			if (stressors[i].info->opts) {
-				size_t j;
 				const stressor_info_t *info = stressors[i].info;
+				size_t j;
 
 				for (j = 0; info->opts[j].opt_name; j++) {
 					if (info->opts[j].opt == c) {
@@ -3459,6 +3470,14 @@ next_opt:
 						goto next_opt;
 					}
 				}
+			}
+		}
+		for (i = 0; main_opts[i].opt_name; i++) {
+			if (c == main_opts[i].opt) {
+				ret = stress_parse_opt("global", optarg, &main_opts[i]);
+				if (ret < 0)
+					return EXIT_FAILURE;
+				goto next_opt;
 			}
 		}
 
@@ -3487,25 +3506,6 @@ next_opt:
 			u64 &= ~(uint64_t)63;
 			stress_setting_global_set("cache-size", TYPE_ID_UINT64, &u64);
 			break;
-		case OPT_backoff:
-			i64 = (int64_t)stress_get_uint64(optarg);
-			stress_setting_global_set("backoff", TYPE_ID_INT64, &i64);
-			break;
-		case OPT_cache_level:
-			/*
-			 * Note: Overly high values will be caught in the
-			 * caching code.
-			 */
-			ret = atoi(optarg);
-			if ((ret <= 0) || (ret > 3))
-				ret = DEFAULT_CACHE_LEVEL;
-			i16 = (int16_t)ret;
-			stress_setting_global_set("cache-level", TYPE_ID_INT16, &i16);
-			break;
-		case OPT_cache_ways:
-			u32 = stress_get_uint32(optarg);
-			stress_setting_global_set("cache-ways", TYPE_ID_UINT32, &u32);
-			break;
 		case OPT_class:
 			ret = stress_class_get(optarg, &u32);
 			if (ret < 0)
@@ -3517,16 +3517,9 @@ next_opt:
 				stress_classes_enable(u32);
 			}
 			break;
-		case OPT_compact_memory:
-			b = true;
-			stress_setting_global_set("compact-memory", TYPE_ID_BOOL, &b);
-			break;
 		case OPT_config:
 			printf("config:\n%s", stress_config);
 			exit(EXIT_SUCCESS);
-		case OPT_exclude:
-			stress_setting_global_set("exclude", TYPE_ID_STR, (void *)optarg);
-			break;
 		case OPT_help:
 			stress_usage();
 			break;
@@ -3538,9 +3531,6 @@ next_opt:
 			i32 = stress_get_int32(optarg);
 			stress_setting_global_set("ionice-level", TYPE_ID_INT32, &i32);
 			break;
-		case OPT_job:
-			stress_setting_global_set("job", TYPE_ID_STR, (void *)optarg);
-			break;
 		case OPT_limit_as:
 			stress_limit_parse(optarg, "limit-as");
 			break;
@@ -3549,9 +3539,6 @@ next_opt:
 			break;
 		case OPT_limit_stack:
 			stress_limit_parse(optarg, "limit-stack");
-			break;
-		case OPT_log_file:
-			stress_setting_global_set("log-file", TYPE_ID_STR, (void *)optarg);
 			break;
 		case OPT_max_fd:
 			max_fds = (uint64_t)stress_fs_file_limit_get();
@@ -3587,10 +3574,6 @@ next_opt:
 				stress_setting_global_set_true("oom-avoid");
 				g_opt_flags |= OPT_FLAGS_OOM_AVOID;
 			}
-			break;
-		case OPT_pause:
-			opt_pause = stress_get_uint(optarg);
-			stress_setting_global_set("pause", TYPE_ID_UINT, &opt_pause);
 			break;
 		case OPT_query:
 			if (!jobmode)
@@ -3667,9 +3650,6 @@ next_opt:
 			if (stress_affinity_cpu_set(optarg) < 0)
 				exit(EXIT_FAILURE);
 			break;
-		case OPT_temp_path:
-			stress_setting_global_set("temp-path", TYPE_ID_STR, optarg);
-			break;
 		case OPT_timeout:
 			g_opt_timeout = stress_get_uint64_time(optarg);
 			stress_setting_global_set("timeout", TYPE_ID_UINT64, &g_opt_timeout);
@@ -3706,9 +3686,6 @@ next_opt:
 		case OPT_with:
 			g_opt_flags |= (OPT_FLAGS_WITH | OPT_FLAGS_SET);
 			stress_setting_global_set("with", TYPE_ID_STR, (void *)optarg);
-			break;
-		case OPT_yaml:
-			stress_setting_global_set("yaml", TYPE_ID_STR, (void *)optarg);
 			break;
 		default:
 			if (!jobmode)
