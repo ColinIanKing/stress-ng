@@ -1673,7 +1673,7 @@ static int MLOCKED_TEXT stress_child_run(
 	}
 	stress_parent_died_alarm();
 	stress_process_dumpable(false);
-	stress_timer_slack_set();
+	stress_timer_slack_set(false);
 
 	if (g_opt_flags & OPT_FLAGS_KSM)
 		stress_memory_ksm_merge(1);
@@ -3413,6 +3413,7 @@ static const stress_opt_t main_opts[] = {
 	{ OPT_sched_runtime,  "sched-runtime",	 TYPE_ID_UINT64, 0, 1000000000000000ULL, NULL },
 	{ OPT_sched_period,   "sched-period",    TYPE_ID_UINT64, 0, 1000000000000000ULL, NULL },
 	{ OPT_temp_path,      "temp-path",       TYPE_ID_STR, 0, 0, NULL },
+	{ OPT_timer_slack,    "timer-slack",     TYPE_ID_UINT32, 0, 0xffffffffULL, NULL },
 	{ OPT_yaml,           "yaml",            TYPE_ID_STR, 0, 0, NULL },
 	END_OPT,
 };
@@ -3637,9 +3638,6 @@ next_opt:
 		case OPT_timeout:
 			g_opt_timeout = stress_get_uint64_time(optarg);
 			stress_setting_global_set("timeout", TYPE_ID_UINT64, &g_opt_timeout);
-			break;
-		case OPT_timer_slack:
-			(void)stress_timer_slack_ns_set(optarg);
 			break;
 		case OPT_version:
 			stress_version();
@@ -4232,6 +4230,9 @@ int main(int argc, char **argv, char **envp)
 		ret = EXIT_FAILURE;
 		goto exit_logging_close;
 	}
+
+	/* Set timer slack */
+	stress_timer_slack_set(true);
 
 	/* Setup random stressors if requested */
 	stress_random_stressors_set();

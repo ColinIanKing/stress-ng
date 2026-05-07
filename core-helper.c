@@ -298,38 +298,21 @@ int stress_process_dumpable(const bool dumpable)
 }
 
 /*
- *  stress_timer_slack_ns_set()
- *	set timer slack in nanoseconds
- */
-int stress_timer_slack_ns_set(const char *opt)
-{
-#if defined(HAVE_PRCTL_TIMER_SLACK)
-	uint32_t timer_slack;
-
-	timer_slack = stress_get_uint32(opt);
-	if (UNLIKELY(timer_slack == 0))
-		pr_inf("note: setting timer_slack to 0 resets it to the default of 50,000 ns\n");
-	(void)stress_setting_set("global", "timer-slack", TYPE_ID_UINT32, &timer_slack);
-#else
-	UNEXPECTED
-	(void)opt;
-#endif
-	return 0;
-}
-
-/*
  *  stress_timer_slack_set()
  *	set timer slack
  */
-void stress_timer_slack_set(void)
+void stress_timer_slack_set(const bool check_zero)
 {
 #if defined(HAVE_PRCTL) && 		\
     defined(HAVE_SYS_PRCTL_H) &&	\
     defined(HAVE_PRCTL_TIMER_SLACK)
 	uint32_t timer_slack;
 
-	if (stress_setting_get("timer-slack", &timer_slack))
+	if (stress_setting_get("timer-slack", &timer_slack)) {
+		if (check_zero && (timer_slack == 0))
+			pr_inf("note: setting timer_slack to 0 resets it to the default of 50,000 ns\n");
 		(void)prctl(PR_SET_TIMERSLACK, timer_slack);
+	}
 #else
 	UNEXPECTED
 #endif
