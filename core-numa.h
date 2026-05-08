@@ -92,7 +92,7 @@ extern long int stress_numa_mask_nodes_get(stress_numa_mask_t *numa_mask);
 extern long stress_numa_next_node(const long int node,
 	stress_numa_mask_t *numa_nodes);
 extern long int stress_numa_nodes(void);
-extern int stress_set_mbind(const char *arg);
+extern int stress_set_mbind(void);
 extern stress_numa_mask_t *stress_numa_mask_alloc(void);
 extern void stress_numa_mask_and_node_alloc(stress_args_t *args,
 	stress_numa_mask_t **numa_nodes, stress_numa_mask_t **numa_mask,

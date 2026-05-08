@@ -393,16 +393,19 @@ static long int stress_parse_node(const char *const str)
  *
  * Returns: 0 - OK
  */
-int stress_set_mbind(const char *arg)
+int stress_set_mbind(void)
 {
-	char *str, *ptr, *token;
+	char *str, *ptr, *token, *mbind;
 	long int max_node;
 	unsigned long int *nodemask;
 	const size_t nodemask_bits = sizeof(*nodemask) * 8;
 	size_t nodemask_sz;
 
+	if (!stress_setting_get("mbind", &mbind))
+		return 0;
+
 	if (stress_numa_count_mem_nodes(&max_node) < 1) {
-		(void)fprintf(stderr, "no NUMA nodes found, ignoring --mbind setting '%s'\n", arg);
+		(void)fprintf(stderr, "no NUMA nodes found, ignoring --mbind setting '%s'\n", mbind);
 		return 0;
 	}
 
@@ -413,9 +416,9 @@ int stress_set_mbind(const char *arg)
 		_exit(EXIT_FAILURE);
 	}
 
-	str = stress_const_optdup(arg);
+	str = stress_const_optdup(mbind);
 	if (!str) {
-		(void)fprintf(stderr, "out of memory duplicating argument '%s'\n", arg);
+		(void)fprintf(stderr, "out of memory duplicating argument '%s'\n", mbind);
 		free(nodemask);
 		_exit(EXIT_FAILURE);
 	}

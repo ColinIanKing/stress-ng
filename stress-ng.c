@@ -3410,6 +3410,7 @@ static const stress_opt_t main_opts[] = {
 	{ OPT_iostat,         "iostat",          TYPE_ID_INT32, 1, 3600, NULL },
 	{ OPT_job,	      "job",             TYPE_ID_STR, 0, 0, NULL },
 	{ OPT_log_file,       "log-file",        TYPE_ID_STR, 0, 0, NULL },
+	{ OPT_mbind,          "mbind",           TYPE_ID_STR, 0, 0, NULL },
 	{ OPT_no_madvise,     "no-madvise",      TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_pause,          "pause",           TYPE_ID_UINT, 0, INT_MAX, NULL },
 	{ OPT_quiet,          "quiet",           TYPE_ID_BOOL, 0, 1, NULL },
@@ -3552,11 +3553,6 @@ next_opt:
 				"cannot determine maximum file descriptor limit");
 			stress_check_range(optarg, u64, 8, max_fds);
 			stress_setting_global_set("max-fd", TYPE_ID_UINT64, &u64);
-			break;
-		case OPT_mbind:
-			if (stress_set_mbind(optarg) < 0)
-				exit(EXIT_FAILURE);
-			stress_setting_global_set("mbind", TYPE_ID_STR, (void *)optarg);
 			break;
 		case OPT_oom_avoid_bytes:
 			{
@@ -4124,6 +4120,12 @@ int main(int argc, char **argv, char **envp)
 		g_pr_log_flags &= ~(PR_LOG_FLAGS_ALL);
 	if (stress_setting_get("seed", &seed)) {
 		g_opt_flags |= OPT_FLAGS_SEED;
+	}
+
+	/* --mbind */
+	if (stress_set_mbind() < 0) {
+		ret = EXIT_FAILURE;
+		goto exit_stressors_free;
 	}
 
 	/* Load in job file options */
