@@ -79,6 +79,7 @@ static void stress_setting_show_setting(
 			setting->u.int32, show_type ? " (int32_t)" : "");
 		break;
 	case TYPE_ID_UINT64:
+	case TYPE_ID_UINT64_TIME:
 		pr_func(" %-20.20s %" PRIu64 "%s\n", setting->name,
 			setting->u.uint64, show_type ? " (uint64_t)" : "");
 		break;
@@ -269,6 +270,7 @@ static int stress_setting_generic_set(
 	case TYPE_ID_UINT64_BYTES:
 	case TYPE_ID_UINT64_BYTES_FS:
 	case TYPE_ID_UINT64_BYTES_VM:
+	case TYPE_ID_UINT64_TIME:
 		setting->u.uint64 = *(const uint64_t *)value;
 		break;
 	case TYPE_ID_INT64:
@@ -399,6 +401,7 @@ bool stress_setting_get(const char *name, void *value)
 			case TYPE_ID_UINT64_BYTES:
 			case TYPE_ID_UINT64_BYTES_FS:
 			case TYPE_ID_UINT64_BYTES_VM:
+			case TYPE_ID_UINT64_TIME:
 				set = true;
 				*(uint64_t *)value = setting->u.uint64;
 				break;

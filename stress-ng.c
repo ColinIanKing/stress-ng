@@ -3406,6 +3406,7 @@ static const stress_opt_t main_opts[] = {
 	{ OPT_status,         "status",          TYPE_ID_INT32, 1, 3600, NULL },
 	{ OPT_temp_path,      "temp-path",       TYPE_ID_STR, 0, 0, NULL },
 	{ OPT_thermalstat,    "thermalstat",     TYPE_ID_INT32, 1, 3600, NULL },
+	{ OPT_timeout,        "timeout",         TYPE_ID_UINT64_TIME, 0, 0xffffffffffffffffULL, NULL },
 	{ OPT_timer_slack,    "timer-slack",     TYPE_ID_UINT32, 0, 0xffffffffULL, NULL },
 	{ OPT_vmstat,         "vmstat",          TYPE_ID_INT32, 1, 3600, NULL },
 	{ OPT_vmstat_units,   "vmstat-units",    TYPE_ID_STR, 0, 0, NULL },
@@ -3594,10 +3595,6 @@ next_opt:
 		case OPT_taskset:
 			if (stress_affinity_cpu_set(optarg) < 0)
 				exit(EXIT_FAILURE);
-			break;
-		case OPT_timeout:
-			g_opt_timeout = stress_get_uint64_time(optarg);
-			stress_setting_global_set("timeout", TYPE_ID_UINT64, &g_opt_timeout);
 			break;
 		case OPT_version:
 			stress_version();
@@ -4084,6 +4081,7 @@ int main(int argc, char **argv, char **envp)
 	if (g_opt_flags & OPT_FLAGS_KSM)
 		stress_memory_ksm_merge(1);
 
+	(void)stress_setting_get("timeout", &g_opt_timeout);
 	(void)stress_setting_get("no-madvise", &no_madvise);
 	if (no_madvise)
 		g_opt_flags &= ~OPT_FLAGS_MMAP_MADVISE;

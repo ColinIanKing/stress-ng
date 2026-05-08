@@ -668,6 +668,7 @@ uint64_t stress_get_uint64_time(const char *const str)
 		{ 'd',  24ULL * 3600 },		/* days */
 		{ 'w',  24ULL * 3600 * 7 },	/* weeks */
 		{ 'y',  31536000 },		/* years */
+		{ 0,    0 },
 	};
 
 	return stress_get_uint64_scale(str, time_scales, "time");
@@ -718,6 +719,10 @@ int stress_parse_opt(const char *stressor_name, const char *opt_arg, const stres
 		setting.u.uint64 = stress_get_uint64(opt_arg);
 		stress_check_range(opt_name, setting.u.uint64, min, max);
 		return stress_setting_set(stressor_name, opt_name, TYPE_ID_UINT64, &setting.u.uint64);
+	case TYPE_ID_UINT64_TIME:
+		setting.u.uint64 = stress_get_uint64_time(opt_arg);
+		stress_check_range(opt_name, setting.u.uint64, min, max);
+		return stress_setting_set(stressor_name, opt_name, TYPE_ID_UINT64_TIME, &setting.u.uint64);
 	case TYPE_ID_UINT64_BYTES:
 		/* uint64 in bytes units, generic */
 		setting.u.uint64 = stress_get_uint64_byte(opt_arg);
