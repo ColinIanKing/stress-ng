@@ -3408,6 +3408,7 @@ static const stress_opt_t main_opts[] = {
 	{ OPT_exclude,	      "exclude",         TYPE_ID_STR, 0, 0, NULL },
 	{ OPT_job,	      "job",             TYPE_ID_STR, 0, 0, NULL },
 	{ OPT_log_file,       "log-file",        TYPE_ID_STR, 0, 0, NULL },
+	{ OPT_no_madvise,     "no-madvise",      TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_pause,          "pause",           TYPE_ID_UINT, 0, INT_MAX, NULL },
 	{ OPT_sched_deadline, "sched-deadline",  TYPE_ID_UINT64, 0, 1000000000000000ULL, NULL },
 	{ OPT_sched_runtime,  "sched-runtime",	 TYPE_ID_UINT64, 0, 1000000000000000ULL, NULL },
@@ -3548,10 +3549,6 @@ next_opt:
 			if (stress_set_mbind(optarg) < 0)
 				exit(EXIT_FAILURE);
 			stress_setting_global_set("mbind", TYPE_ID_STR, (void *)optarg);
-			break;
-		case OPT_no_madvise:
-			g_opt_flags &= ~OPT_FLAGS_MMAP_MADVISE;
-			stress_setting_global_set_true("no-madvise");
 			break;
 		case OPT_oom_avoid_bytes:
 			{
@@ -4068,6 +4065,7 @@ int main(int argc, char **argv, char **envp)
 	bool success = true;			/* assume successful run */ 
 	bool resource_success = true;		/* assume we have enough resources */
 	bool metrics_success = true;		/* assume metrics are sane */
+	bool no_madvise = false;		/* don't disable madvise */
 
 	main_pid = getpid();
 
@@ -4140,6 +4138,10 @@ int main(int argc, char **argv, char **envp)
 
 	if (g_opt_flags & OPT_FLAGS_KSM)
 		stress_memory_ksm_merge(1);
+
+	(void)stress_setting_get("no-madvise", &no_madvise);
+	if (no_madvise)
+		g_opt_flags &= ~OPT_FLAGS_MMAP_MADVISE;
 
 	/* Load in job file options */
 	(void)stress_setting_get("job", &job_filename);
