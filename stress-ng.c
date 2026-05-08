@@ -3415,6 +3415,7 @@ static const stress_opt_t main_opts[] = {
 	{ OPT_sched_deadline, "sched-deadline",  TYPE_ID_UINT64, 0, 1000000000000000ULL, NULL },
 	{ OPT_sched_runtime,  "sched-runtime",	 TYPE_ID_UINT64, 0, 1000000000000000ULL, NULL },
 	{ OPT_sched_period,   "sched-period",    TYPE_ID_UINT64, 0, 1000000000000000ULL, NULL },
+	{ OPT_seed,           "seed",            TYPE_ID_UINT64, 0, 0xffffffffffffffffULL, NULL },
 	{ OPT_temp_path,      "temp-path",       TYPE_ID_STR, 0, 0, NULL },
 	{ OPT_timer_slack,    "timer-slack",     TYPE_ID_UINT32, 0, 0xffffffffULL, NULL },
 	{ OPT_yaml,           "yaml",            TYPE_ID_STR, 0, 0, NULL },
@@ -3594,11 +3595,6 @@ next_opt:
 		case OPT_sched_prio:
 			i32 = stress_get_int32(optarg);
 			stress_setting_global_set("sched-prio", TYPE_ID_INT32, &i32);
-			break;
-		case OPT_seed:
-			u64 = stress_get_uint64(optarg);
-			g_opt_flags |= OPT_FLAGS_SEED;
-			stress_setting_global_set("seed", TYPE_ID_UINT64, &u64);
 			break;
 		case OPT_sequential:
 			g_opt_flags |= OPT_FLAGS_SEQUENTIAL;
@@ -4052,6 +4048,7 @@ int main(int argc, char **argv, char **envp)
 	uint32_t opt_class = 0;			/* stressor class option */
 	uint32_t n_stressors;			/* number of unique stressors */
 	uint32_t n_instances;			/* number of total instances */
+	uint64_t seed;				/* temp seed value */
 	const uint32_t cpus_online = (uint32_t)stress_cpus_online_get();
 	const uint32_t cpus_configured = (uint32_t)stress_cpus_configured_get();
 	int ret = EXIT_SUCCESS;			/* assume return exit is successful */
@@ -4141,6 +4138,9 @@ int main(int argc, char **argv, char **envp)
 	(void)stress_setting_get("quiet", &quiet);
 	if (quiet)
 		g_pr_log_flags &= ~(PR_LOG_FLAGS_ALL);
+	if (stress_setting_get("seed", &seed)) {
+		g_opt_flags |= OPT_FLAGS_SEED;
+	}
 
 	/* Load in job file options */
 	(void)stress_setting_get("job", &job_filename);
