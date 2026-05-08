@@ -3410,6 +3410,7 @@ static const stress_opt_t main_opts[] = {
 	{ OPT_log_file,       "log-file",        TYPE_ID_STR, 0, 0, NULL },
 	{ OPT_no_madvise,     "no-madvise",      TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_pause,          "pause",           TYPE_ID_UINT, 0, INT_MAX, NULL },
+	{ OPT_quiet,          "quiet",           TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_sched_deadline, "sched-deadline",  TYPE_ID_UINT64, 0, 1000000000000000ULL, NULL },
 	{ OPT_sched_runtime,  "sched-runtime",	 TYPE_ID_UINT64, 0, 1000000000000000ULL, NULL },
 	{ OPT_sched_period,   "sched-period",    TYPE_ID_UINT64, 0, 1000000000000000ULL, NULL },
@@ -3573,10 +3574,6 @@ next_opt:
 			if (!jobmode)
 				(void)printf("try '%s --help' or 'man stress-ng' for more information.\n", g_prog_name);
 			return EXIT_FAILURE;
-		case OPT_quiet:
-			g_pr_log_flags &= ~(PR_LOG_FLAGS_ALL);
-			stress_setting_global_set_true("quiet");
-			break;
 		case OPT_random:
 			g_opt_flags |= OPT_FLAGS_RANDOM;
 			i32 = stress_get_int32(optarg);
@@ -4066,6 +4063,7 @@ int main(int argc, char **argv, char **envp)
 	bool resource_success = true;		/* assume we have enough resources */
 	bool metrics_success = true;		/* assume metrics are sane */
 	bool no_madvise = false;		/* don't disable madvise */
+	bool quiet = false;			/* --quiet option */
 
 	main_pid = getpid();
 
@@ -4142,6 +4140,10 @@ int main(int argc, char **argv, char **envp)
 	(void)stress_setting_get("no-madvise", &no_madvise);
 	if (no_madvise)
 		g_opt_flags &= ~OPT_FLAGS_MMAP_MADVISE;
+
+	(void)stress_setting_get("quiet", &quiet);
+	if (quiet)
+		g_pr_log_flags &= ~(PR_LOG_FLAGS_ALL);
 
 	/* Load in job file options */
 	(void)stress_setting_get("job", &job_filename);
