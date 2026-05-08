@@ -3381,25 +3381,6 @@ static void stress_classes_enable(const uint32_t classifier)
 	}
 }
 
-/*
- *  stress_limit_parse()
- *	parse rlimit resource values
- */
-static void stress_limit_parse(const char *opt, const char *option)
-{
-	const size_t page_size = stress_memory_page_size_get();
-	uint64_t u64 = stress_get_uint64_byte(opt);
-
-	/* round down to page boundary */
-	u64 &= ~(uint64_t)(page_size - 1);
-	if (sizeof(rlim_t) <= 4) {
-		stress_check_range_bytes(option, u64, 1 * MB, (uint64_t)~(uint32_t)(page_size - 1));
-	} else {
-		stress_check_range_bytes(option, u64, 1 * MB, ~(uint64_t)(page_size - 1));
-	}
-	stress_setting_global_set(option, TYPE_ID_UINT64, &u64);
-}
-
 static const stress_opt_t main_opts[] = {
 	{ OPT_backoff,        "backoff",         TYPE_ID_INT64, 0, 10000000, NULL },
 	{ OPT_cache_level,    "cache-level",     TYPE_ID_INT16, 1, 5, NULL },
@@ -3409,6 +3390,9 @@ static const stress_opt_t main_opts[] = {
 	{ OPT_exclude,	      "exclude",         TYPE_ID_STR, 0, 0, NULL },
 	{ OPT_iostat,         "iostat",          TYPE_ID_INT32, 1, 3600, NULL },
 	{ OPT_job,	      "job",             TYPE_ID_STR, 0, 0, NULL },
+	{ OPT_limit_as,       "limit-as",        TYPE_ID_UINT64_BYTES, 1 * MB, RLIM_INFINITY, NULL },
+	{ OPT_limit_data,     "limit-data",      TYPE_ID_UINT64_BYTES, 1 * MB, RLIM_INFINITY, NULL },
+	{ OPT_limit_stack,    "limit-stack",     TYPE_ID_UINT64_BYTES, 1 * MB, RLIM_INFINITY, NULL },
 	{ OPT_log_file,       "log-file",        TYPE_ID_STR, 0, 0, NULL },
 	{ OPT_mbind,          "mbind",           TYPE_ID_STR, 0, 0, NULL },
 	{ OPT_no_madvise,     "no-madvise",      TYPE_ID_BOOL, 0, 1, NULL },
@@ -3538,15 +3522,6 @@ next_opt:
 		case OPT_ionice_level:
 			i32 = stress_get_int32(optarg);
 			stress_setting_global_set("ionice-level", TYPE_ID_INT32, &i32);
-			break;
-		case OPT_limit_as:
-			stress_limit_parse(optarg, "limit-as");
-			break;
-		case OPT_limit_data:
-			stress_limit_parse(optarg, "limit-data");
-			break;
-		case OPT_limit_stack:
-			stress_limit_parse(optarg, "limit-stack");
 			break;
 		case OPT_max_fd:
 			max_fds = (uint64_t)stress_fs_file_limit_get();

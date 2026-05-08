@@ -718,15 +718,20 @@ int stress_parse_opt(const char *stressor_name, const char *opt_arg, const stres
 		setting.u.uint64 = stress_get_uint64(opt_arg);
 		stress_check_range(opt_name, setting.u.uint64, min, max);
 		return stress_setting_set(stressor_name, opt_name, TYPE_ID_UINT64, &setting.u.uint64);
+	case TYPE_ID_UINT64_BYTES:
+		/* uint64 in bytes units, generic */
+		setting.u.uint64 = stress_get_uint64_byte(opt_arg);
+		stress_check_range_bytes(opt_name, (uint64_t)setting.u.uint64, min, max);
+		return stress_setting_set(stressor_name, opt_name, TYPE_ID_UINT64_BYTES, &setting.u.uint64);
 	case TYPE_ID_UINT64_BYTES_FS:
-		/* uint64 in bytes units */
+		/* uint64 in file system bytes units */
 		setting.u.uint64 = stress_get_uint64_byte_filesystem(opt_arg, 1, &percentage);
 		if (percentage)
 			return stress_setting_set(stressor_name, opt_name, TYPE_ID_UINT64_BYTES_FS_PERCENT, &setting.u.uint64);
 		stress_check_range_bytes(opt_name, (uint64_t)setting.u.uint64, min, max);
 		return stress_setting_set(stressor_name, opt_name, TYPE_ID_UINT64_BYTES_FS, &setting.u.uint64);
 	case TYPE_ID_UINT64_BYTES_VM:
-		/* uint64 in bytes units */
+		/* uint64 in virtual memory bytes units */
 		setting.u.uint64 = stress_get_uint64_byte_memory(opt_arg, 1);
 		stress_check_range_bytes(opt_name, (uint64_t)setting.u.uint64, min, max);
 		return stress_setting_set(stressor_name, opt_name, TYPE_ID_UINT64_BYTES_VM, &setting.u.uint64);
@@ -738,15 +743,20 @@ int stress_parse_opt(const char *stressor_name, const char *opt_arg, const stres
 		setting.u.size = (size_t)stress_get_uint64(opt_arg);
 		stress_check_range(opt_name, (uint64_t)setting.u.size, min, max);
 		return stress_setting_set(stressor_name, opt_name, TYPE_ID_SIZE_T, &setting.u.size);
+	case TYPE_ID_SIZE_T_BYTES:
+		/* size_t in butess units, generic */
+		setting.u.size = (size_t)stress_get_uint64_byte(opt_arg);
+		stress_check_range(opt_name, (uint64_t)setting.u.size, min, max);
+		return stress_setting_set(stressor_name, opt_name, TYPE_ID_SIZE_T_BYTES, &setting.u.size);
 	case TYPE_ID_SIZE_T_BYTES_FS:
-		/* size_t in bytes units */
+		/* size_t in file system bytes units */
 		setting.u.size = (size_t)stress_get_uint64_byte_filesystem(opt_arg, 1, &percentage);
 		if (percentage)
 			return stress_setting_set(stressor_name, opt_name, TYPE_ID_SIZE_T_BYTES_FS_PERCENT, &setting.u.size);
 		stress_check_range(opt_name, (uint64_t)setting.u.size, min, max);
 		return stress_setting_set(stressor_name, opt_name, TYPE_ID_SIZE_T_BYTES_FS, &setting.u.size);
 	case TYPE_ID_SIZE_T_BYTES_VM:
-		/* size_t in bytes units */
+		/* size_t in virtual memory bytes units */
 		setting.u.size = (size_t)stress_get_uint64_byte_memory(opt_arg, 1);
 		stress_check_range(opt_name, (uint64_t)setting.u.size, min, max);
 		return stress_setting_set(stressor_name, opt_name, TYPE_ID_SIZE_T_BYTES_VM, &setting.u.size);

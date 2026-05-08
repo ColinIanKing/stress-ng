@@ -30,11 +30,13 @@ typedef enum {
 	TYPE_ID_INT32,			/* int32_t */
 	TYPE_ID_UINT64,			/* uint64_t */
 	TYPE_ID_UINT64_BYTES_FS_PERCENT,/* uint64_t in % units, file system */
+	TYPE_ID_UINT64_BYTES,		/* uint64_t in bytes units, generic */
 	TYPE_ID_UINT64_BYTES_FS,	/* uint64_t in bytes units, file system */
 	TYPE_ID_UINT64_BYTES_VM,	/* uint64_t in bytes units, memory */
 	TYPE_ID_INT64,			/* int64_t */
 	TYPE_ID_SIZE_T,			/* size_t */
 	TYPE_ID_SIZE_T_BYTES_FS_PERCENT,/* size_t in % units, file system */
+	TYPE_ID_SIZE_T_BYTES,		/* size_t in bytes units, generic */
 	TYPE_ID_SIZE_T_BYTES_FS,	/* size_t in bytes units, file system */
 	TYPE_ID_SIZE_T_BYTES_VM,	/* size_t in bytes units, memory */
 	TYPE_ID_SSIZE_T,		/* ssize_t */

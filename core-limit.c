@@ -80,6 +80,10 @@ static void stress_limit_set(int resource, const char *opt)
 
 	/* User optional override for a specific limit? */
 	if (opt && stress_setting_get(opt, &val) && (val > 0)) {
+		/* round down to page boundary */
+		const size_t page_size = stress_memory_page_size_get();
+
+		val &= ~(uint64_t)(page_size - 1);
 		rlim.rlim_cur = (rlim_t)val;
 		rlim.rlim_max = (rlim_t)val;
 		(void)setrlimit(resource, &rlim);
