@@ -3424,6 +3424,7 @@ static const stress_opt_t main_opts[] = {
 	{ OPT_thermalstat,    "thermalstat",     TYPE_ID_INT32, 1, 3600, NULL },
 	{ OPT_timer_slack,    "timer-slack",     TYPE_ID_UINT32, 0, 0xffffffffULL, NULL },
 	{ OPT_vmstat,         "vmstat",          TYPE_ID_INT32, 1, 3600, NULL },
+	{ OPT_vmstat_units,   "vmstat-units",    TYPE_ID_STR, 0, 0, NULL },
 	{ OPT_yaml,           "yaml",            TYPE_ID_STR, 0, 0, NULL },
 	END_OPT,
 };
@@ -3629,9 +3630,6 @@ next_opt:
 		case OPT_verifiable:
 			stress_verifiable();
 			exit(EXIT_SUCCESS);
-		case OPT_vmstat_units:
-			stress_set_vmstat_units(optarg);
-			break;
 		case OPT_with:
 			g_opt_flags |= (OPT_FLAGS_WITH | OPT_FLAGS_SET);
 			stress_setting_global_set("with", TYPE_ID_STR, (void *)optarg);

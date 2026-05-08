@@ -187,13 +187,6 @@ static void netbsd_cpu_time_get(
 }
 #endif
 
-void stress_set_vmstat_units(const char *const opt)
-{
-	vmstat_units_kb = stress_get_uint64_byte_scale(opt) / 1024;
-	if (UNLIKELY(!vmstat_units_kb))
-		vmstat_units_kb = 1;
-}
-
 /*
  *  stress_find_mount_dev()
  *	find the path of the device that the file is located on
@@ -945,12 +938,18 @@ void stress_vmstat_start(void)
 	stress_iostat_t iostat;
 #endif
 	bool thermalstat_zero = true;
+	char *vmstat_units = NULL;
 
 	(void)stress_setting_get("iostat", &iostat_delay);
 	(void)stress_setting_get("raplstat", &raplstat_delay);
 	(void)stress_setting_get("status", &status_delay);
 	(void)stress_setting_get("thermalstat", &thermalstat_delay);
 	(void)stress_setting_get("vmstat", &vmstat_delay);
+	if (stress_setting_get("vmstat-units", &vmstat_units)) {
+		vmstat_units_kb = stress_get_uint64_byte_scale(vmstat_units) / 1024;
+		if (UNLIKELY(!vmstat_units_kb))
+			vmstat_units_kb = 1;
+	}
 
 	if ((vmstat_delay == 0) &&
 	    (thermalstat_delay == 0) &&
