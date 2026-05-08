@@ -199,6 +199,7 @@ static const stress_opt_flag_t opt_flags[] = {
 	{ OPT_progress,		OPT_FLAGS_PROGRESS, 0 },
 	{ OPT_randprocname,	OPT_FLAGS_RANDPROCNAME, 0 },
 	{ OPT_rapl,		OPT_FLAGS_RAPL | OPT_FLAGS_RAPL_REQUIRED, 0 },
+	{ OPT_sched_reclaim,	OPT_FLAGS_SCHED_RECLAIM, 0 },
 	{ OPT_settings,		OPT_FLAGS_SETTINGS, 0 },
 	{ OPT_skip_silent,	0, PR_LOG_FLAGS_SKIP_SILENT },
 	{ OPT_smart,		OPT_FLAGS_SMART, 0 },
@@ -3593,10 +3594,6 @@ next_opt:
 		case OPT_sched_prio:
 			i32 = stress_get_int32(optarg);
 			stress_setting_global_set("sched-prio", TYPE_ID_INT32, &i32);
-			break;
-		case OPT_sched_reclaim:
-			g_opt_flags |= OPT_FLAGS_SCHED_RECLAIM;
-			stress_setting_global_set_true("sched-reclaim");
 			break;
 		case OPT_seed:
 			u64 = stress_get_uint64(optarg);
