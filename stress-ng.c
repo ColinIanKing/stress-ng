@@ -3407,17 +3407,22 @@ static const stress_opt_t main_opts[] = {
 	{ OPT_cache_ways,     "cache-ways",      TYPE_ID_UINT32, 1, 1024, NULL },
 	{ OPT_compact_memory, "compact-memory",  TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_exclude,	      "exclude",         TYPE_ID_STR, 0, 0, NULL },
+	{ OPT_iostat,         "iostat",          TYPE_ID_INT32, 1, 3600, NULL },
 	{ OPT_job,	      "job",             TYPE_ID_STR, 0, 0, NULL },
 	{ OPT_log_file,       "log-file",        TYPE_ID_STR, 0, 0, NULL },
 	{ OPT_no_madvise,     "no-madvise",      TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_pause,          "pause",           TYPE_ID_UINT, 0, INT_MAX, NULL },
 	{ OPT_quiet,          "quiet",           TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_raplstat,       "raplstat",        TYPE_ID_INT32, 1, 3600, NULL },
 	{ OPT_sched_deadline, "sched-deadline",  TYPE_ID_UINT64, 0, 1000000000000000ULL, NULL },
 	{ OPT_sched_runtime,  "sched-runtime",	 TYPE_ID_UINT64, 0, 1000000000000000ULL, NULL },
 	{ OPT_sched_period,   "sched-period",    TYPE_ID_UINT64, 0, 1000000000000000ULL, NULL },
 	{ OPT_seed,           "seed",            TYPE_ID_UINT64, 0, 0xffffffffffffffffULL, NULL },
+	{ OPT_status,         "status",          TYPE_ID_INT32, 1, 3600, NULL },
 	{ OPT_temp_path,      "temp-path",       TYPE_ID_STR, 0, 0, NULL },
+	{ OPT_thermalstat,    "thermalstat",     TYPE_ID_INT32, 1, 3600, NULL },
 	{ OPT_timer_slack,    "timer-slack",     TYPE_ID_UINT32, 0, 0xffffffffULL, NULL },
+	{ OPT_vmstat,         "vmstat",          TYPE_ID_INT32, 1, 3600, NULL },
 	{ OPT_yaml,           "yaml",            TYPE_ID_STR, 0, 0, NULL },
 	END_OPT,
 };
@@ -3611,10 +3616,6 @@ next_opt:
 			stress_check_max_stressors("permute", opt_permute);
 			stress_setting_global_set("permute", TYPE_ID_UINT32, &opt_permute);
 			break;
-		case OPT_status:
-			if (stress_set_status(optarg) < 0)
-				exit(EXIT_FAILURE);
-			break;
 		case OPT_stressors:
 			stress_stressor_names_show();
 			exit(EXIT_SUCCESS);
@@ -3632,25 +3633,8 @@ next_opt:
 		case OPT_verifiable:
 			stress_verifiable();
 			exit(EXIT_SUCCESS);
-		case OPT_vmstat:
-			if (stress_set_vmstat(optarg) < 0)
-				exit(EXIT_FAILURE);
-			break;
 		case OPT_vmstat_units:
 			stress_set_vmstat_units(optarg);
-			break;
-		case OPT_thermalstat:
-			if (stress_set_thermalstat(optarg) < 0)
-				exit(EXIT_FAILURE);
-			break;
-		case OPT_iostat:
-			if (stress_set_iostat(optarg) < 0)
-				exit(EXIT_FAILURE);
-			break;
-		case OPT_raplstat:
-			if (stress_set_raplstat(optarg) < 0)
-				exit(EXIT_FAILURE);
-			g_opt_flags |= OPT_FLAGS_RAPL_REQUIRED;
 			break;
 		case OPT_with:
 			g_opt_flags |= (OPT_FLAGS_WITH | OPT_FLAGS_SET);

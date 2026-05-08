@@ -187,78 +187,11 @@ static void netbsd_cpu_time_get(
 }
 #endif
 
-/*
- *  stress_set_generic_stat()
- *	parse and check op for valid time range
- */
-static int stress_set_generic_stat(
-	const char *const opt,
-	const char *name,
-	int32_t *delay)
-{
-	const uint64_t delay64 = stress_get_uint64_time(opt);
-
-        if (UNLIKELY((delay64 < 1) || (delay64 > 3600))) {
-                (void)fprintf(stderr, "%s must in the range 1 to 3600 seconds.\n", name);
-                _exit(EXIT_FAILURE);
-        }
-	*delay = (int32_t)(delay64 & 0x7fffffff);
-	stress_setting_global_set(name, TYPE_ID_INT32, delay);
-
-	return 0;
-}
-
-/*
- *  stress_set_status()
- *	parse --status option
- */
-int stress_set_status(const char *const opt)
-{
-	return stress_set_generic_stat(opt, "status", &status_delay);
-}
-
-/*
- *  stress_set_vmstat()
- *	parse --vmstat option
- */
-int stress_set_vmstat(const char *const opt)
-{
-	return stress_set_generic_stat(opt, "vmstat", &vmstat_delay);
-}
-
 void stress_set_vmstat_units(const char *const opt)
 {
 	vmstat_units_kb = stress_get_uint64_byte_scale(opt) / 1024;
 	if (UNLIKELY(!vmstat_units_kb))
 		vmstat_units_kb = 1;
-}
-
-/*
- *  stress_set_thermalstat()
- *	parse --thermalstat option
- */
-int stress_set_thermalstat(const char *const opt)
-{
-	g_opt_flags |= OPT_FLAGS_TZ_INFO;
-	return stress_set_generic_stat(opt, "thermalstat", &thermalstat_delay);
-}
-
-/*
- *  stress_set_iostat()
- *	parse --iostat option
- */
-int stress_set_iostat(const char *const opt)
-{
-	return stress_set_generic_stat(opt, "iostat", &iostat_delay);
-}
-
-/*
- *  stress_set_raplstat()
- *	parse --raplstat option
- */
-int stress_set_raplstat(const char *const opt)
-{
-	return stress_set_generic_stat(opt, "raplstat", &raplstat_delay);
 }
 
 /*
@@ -1012,6 +945,12 @@ void stress_vmstat_start(void)
 	stress_iostat_t iostat;
 #endif
 	bool thermalstat_zero = true;
+
+	(void)stress_setting_get("iostat", &iostat_delay);
+	(void)stress_setting_get("raplstat", &raplstat_delay);
+	(void)stress_setting_get("status", &status_delay);
+	(void)stress_setting_get("thermalstat", &thermalstat_delay);
+	(void)stress_setting_get("vmstat", &vmstat_delay);
 
 	if ((vmstat_delay == 0) &&
 	    (thermalstat_delay == 0) &&
