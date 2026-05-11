@@ -4067,8 +4067,8 @@ int main(int argc, char **argv, char **envp)
 	if (g_opt_flags & OPT_FLAGS_KSM)
 		stress_memory_ksm_merge(1);
 
-	(void)stress_setting_get("ionice-class", &optstr);
-	ionice_class = stress_io_priority_ionice_class_get(optstr);
+	if (stress_setting_get("ionice-class", &optstr))
+		ionice_class = stress_io_priority_ionice_class_get(optstr);
 	(void)stress_setting_get("ionice-level", &ionice_level);
 	if (stress_io_priority_set(ionice_class, ionice_level) < 0) {
 		ret = EXIT_FAILURE;
