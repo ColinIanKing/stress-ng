@@ -169,7 +169,7 @@
  * [A measurement-based approach to analyze the power consumption of the softwarized 5G core](https://arxiv.org/pdf/2502.13879)
  * [Adaptive Machine Learning for Resource-Constrained Environments](https://arxiv.org/pdf/2503.18634)
  * [Anomaly-Based Intrusion Detection for IoMT Networks: Design, Implementation, Dataset Generation, and ML Algorithms Evaluation](https://gala.gre.ac.uk/id/eprint/50712/1/50712%20MANTAS_Anomaly-Based_Intrusion_Detection_For_IoMT_Networks_Design_Implementation_Dataset%20Generation_And_ML_Algorithms_Evaluations_%28OA%29_2025.pdf)
- * [ASTREA: Introducing Agentic Intelligence for Orbital Themral Autonomy](https://arxiv.org/html/2509.13380v2)
+ * [ASTREA: Introducing Agentic Intelligence for Orbital Thermal Autonomy](https://arxiv.org/html/2509.13380v1)
  * [AUTOGUARDX: A Comprehensive Cybersecurity Framework for Connected Vehicles](https://arxiv.org/pdf/2508.18155)
  * [Benchmarking of CPU-intensive Stream Data Processing in The Edge Computing Systems](https://arxiv.org/html/2505.07755v1)
  * [CINERGY: Reasoning over the Worst Case Power Consumption of Cloud Virtual Machines](https://hal.science/hal-04981001/document)
@@ -208,6 +208,7 @@
  * [xPUE: Extending Power Usage Effectiveness Metrics for Cloud Infrastructures](https://arxiv.org/pdf/2503.07124)
 
 2026:
+ * [A Scalable Digital Twin Framework for Energy Optimization in Data Centers](https://arxiv.org/html/2605.05581v1)
  * [AGMARL-DKS: An Adaptive Graph-Enhanced Multi-Agent Reinforcement Learning for Dynamic Kubernetes Scheduling](https://arxiv.org/html/2603.12031v1)
  * [Architectural Isolation as a Timing Safety Primitive for Edge AI Medical Devices: Controlled Experimental Evidence on a Shared-Silicon Platform](https://arxiv.org/html/2604.23831v1)
  * [Battering RAM: Low-Cost Interposer Attacks on Confidential Computing via Dynamic Memory Aliasing](https://batteringram.eu/batteringram.pdf)
@@ -227,9 +228,9 @@
  * [PTEMagnet: Fine-Grained Physical Memory Reservation for Faster Page Walks in Public Clouds](https://dl.acm.org/doi/epdf/10.1145/3445814.3446704)
  * [Scheduling Analysis of UAV Flight Control Workloads using Raspberry Pi 5 Using PREEMPT_RT Linux](https://arxiv.org/html/2604.19275v1)
  * [Shape and Substance: Dual-Layer Side-Channel Attacks on Local Vision-Language Models](https://arxiv.org/html/2603.25403v1)
+ * [SREGym: A Live Benchmark for AI SRE Agents with High-Fidelity Failure Scenarios](https://arxiv.org/html/2605.07161v1)
  * [Streamline: A Fast, Flushless Cache Covert-Channel Attack by Enabling Asynchronous Collusion](https://dl.acm.org/doi/epdf/10.1145/3445814.3446742)
  * [Testing Storage-System Correctness: Challenges, Fuzzing Limitations, and AI-Augmented Opportunities](https://arxiv.org/html/2602.02614v2)
  * [TORAI: Multi-source Root Cause Analysis for Blind Spots in Microservice Service Call Graph](https://arxiv.org/html/2604.13522v1)
  * [UnICom: A Universally High-Performant I/O Completion Mechanism for Modern Computer Systems](https://www.usenix.org/system/files/fast26-pan.pdf)
  * [Verification and Validation (V&V)-in-the-Loop for RISC-V Design: The Holistic Vision of BZL](https://arxiv.org/html/2604.27013v1)
- 
