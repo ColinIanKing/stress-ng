@@ -543,9 +543,12 @@ long int CONST stress_numa_nodes(void)
 	return 1;
 }
 
-int stress_set_mbind(const char *arg)
+int stress_set_mbind(void)
 {
-	(void)arg;
+	char *mbind;
+
+	if (!stress_setting_get("mbind", &mbind))
+		return 0;
 
 	(void)fprintf(stderr, "%s: setting NUMA memory policy binding not supported\n", option);
 	_exit(EXIT_FAILURE);
