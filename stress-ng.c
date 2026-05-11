@@ -130,6 +130,8 @@ static bool *sigalarmed = NULL;			/* pointer to stressor stats->sigalarmed */
 static int32_t opt_sequential = DEFAULT_SEQUENTIAL; /* # of sequential stressors */
 static int32_t opt_parallel = DEFAULT_PARALLEL;	/* # of parallel stressors */
 static int32_t opt_permute = DEFAULT_PARALLEL;	/* # of permuted stressors */
+static int32_t ionice_class = UNDEFINED;	/* ionice class */
+static int32_t ionice_level = UNDEFINED;	/* ionice level */
 static unsigned int opt_pause = 0;		/* pause between stressor invocations */
 
 /* Globals */
@@ -138,6 +140,7 @@ uint64_t g_opt_timeout = TIMEOUT_NOT_SET;	/* timeout in seconds */
 uint64_t g_opt_flags = OPT_FLAGS_MMAP_MADVISE;	/* enable madvise by default */
 uint32_t g_pr_log_flags = PR_LOG_FLAGS_ERROR |	/* default pr_log flags */
 		          PR_LOG_FLAGS_INFO;
+
 volatile bool g_stress_continue_flag = true;	/* false to exit stressor */
 const char g_prog_name[] = "stress-ng";		/* Name of programme*/
 stress_shared_t *g_shared;			/* shared memory */
@@ -1643,8 +1646,6 @@ static int MLOCKED_TEXT stress_child_run(
 	const double fork_time_start,
 	const int64_t backoff,
 	const int32_t ticks_per_sec,
-	const int32_t ionice_class,
-	const int32_t ionice_level,
 	const int32_t instance,
 	const int32_t started_instances,
 	const size_t page_size,
@@ -1682,7 +1683,7 @@ static int MLOCKED_TEXT stress_child_run(
 	stress_proc_state_set(name, STRESS_STATE_INIT);
 	stress_mwc_reseed();
 	stress_limit_max_set();
-	stress_io_priority_set(ionice_class, ionice_level);
+	(void)stress_io_priority_set(ionice_class, ionice_level);
 	(void)umask(0077);
 
 	pr_dbg("%s: [%" PRIdMAX "] started (instance %" PRId32 " on CPU %u)\n",
@@ -1871,16 +1872,12 @@ static void MLOCKED_TEXT stress_run(
 	int32_t started_instances = 0;
 	const size_t page_size = stress_memory_page_size_get();
 	int64_t backoff = DEFAULT_BACKOFF;
-	int32_t ionice_class = UNDEFINED;
-	int32_t ionice_level = UNDEFINED;
 	bool handler_set = false;
 	stress_pid_t *s_pids_head = NULL;
 
 	time_start = stress_time_now();
 
 	(void)stress_setting_get("backoff", &backoff);
-	(void)stress_setting_get("ionice-class", &ionice_class);
-	(void)stress_setting_get("ionice-level", &ionice_level);
 
 	if (opt_pause) {
 		static bool first_run = true;
@@ -1967,7 +1964,6 @@ again:
 				rc = stress_child_run(checksum,
 						stats, fork_time_start,
 						backoff, ticks_per_sec,
-						ionice_class, ionice_level,
 						j, started_instances,
 						page_size, child_pid);
 				if (g_opt_flags & OPT_FLAGS_C_STATES)
@@ -3388,6 +3384,8 @@ static const stress_opt_t main_opts[] = {
 	{ OPT_cache_ways,     "cache-ways",      TYPE_ID_UINT32, 1, 1024, NULL },
 	{ OPT_compact_memory, "compact-memory",  TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_exclude,	      "exclude",         TYPE_ID_STR, 0, 0, NULL },
+	{ OPT_ionice_class,   "ionice-class",    TYPE_ID_STR, 0, 0, NULL },
+	{ OPT_ionice_level,   "ionice-level",    TYPE_ID_INT32, 0, 99999, NULL }, /* FIXME */
 	{ OPT_iostat,         "iostat",          TYPE_ID_INT32, 1, 3600, NULL },
 	{ OPT_job,	      "job",             TYPE_ID_STR, 0, 0, NULL },
 	{ OPT_limit_as,       "limit-as",        TYPE_ID_UINT64_BYTES, 1 * MB, RLIM_INFINITY, NULL },
@@ -3515,14 +3513,6 @@ next_opt:
 			exit(EXIT_SUCCESS);
 		case OPT_help:
 			stress_usage();
-			break;
-		case OPT_ionice_class:
-			i32 = stress_io_priority_ionice_class_get(optarg);
-			stress_setting_global_set("ionice-class", TYPE_ID_INT32, &i32);
-			break;
-		case OPT_ionice_level:
-			i32 = stress_get_int32(optarg);
-			stress_setting_global_set("ionice-level", TYPE_ID_INT32, &i32);
 			break;
 		case OPT_max_fd:
 			max_fds = (uint64_t)stress_fs_file_limit_get();
@@ -3993,8 +3983,6 @@ int main(int argc, char **argv, char **envp)
 	char *log_filename;			/* log filename */
 	char *job_filename = NULL;		/* job filename */
 	int32_t ticks_per_sec;			/* clock ticks per second (jiffies) */
-	int32_t ionice_class = UNDEFINED;	/* ionice class */
-	int32_t ionice_level = UNDEFINED;	/* ionice level */
 	uint32_t opt_class = 0;			/* stressor class option */
 	uint32_t n_stressors;			/* number of unique stressors */
 	uint32_t n_instances;			/* number of total instances */
@@ -4008,6 +3996,7 @@ int main(int argc, char **argv, char **envp)
 	bool metrics_success = true;		/* assume metrics are sane */
 	bool no_madvise = false;		/* don't disable madvise */
 	bool quiet = false;			/* --quiet option */
+	char *optstr;				/* option string */
 
 	main_pid = getpid();
 
@@ -4046,16 +4035,14 @@ int main(int argc, char **argv, char **envp)
 	stress_stressor_defaults_set();
 
 	if (stress_cpus_configured_get() < 0) {
-		pr_err("sysconf failed, number of cpus configured "
-			"unknown, errno=%d: (%s)\n",
+		pr_err("sysconf failed, number of cpus configured unknown, errno=%d: (%s)\n",
 			errno, strerror(errno));
 		ret = EXIT_FAILURE;
 		goto exit_settings_free;
 	}
 	ticks_per_sec = stress_ticks_per_second_get();
 	if (ticks_per_sec < 0) {
-		pr_err("sysconf failed, clock ticks per second "
-			"unknown, errno=%d (%s)\n",
+		pr_err("sysconf failed, clock ticks per second unknown, errno=%d (%s)\n",
 			errno, strerror(errno));
 		ret = EXIT_FAILURE;
 		goto exit_settings_free;
@@ -4067,8 +4054,7 @@ int main(int argc, char **argv, char **envp)
 
 	if ((g_pr_log_flags & (PR_LOG_FLAGS_STDERR | PR_LOG_FLAGS_STDOUT)) ==
 	    (PR_LOG_FLAGS_STDERR | PR_LOG_FLAGS_STDOUT)) {
-		(void)fprintf(stderr, "stderr and stdout cannot "
-			"be used together\n");
+		(void)pr_err("stderr and stdout cannot be used together\n");
 		ret = EXIT_FAILURE;
 		goto exit_stressors_free;
 	}
@@ -4080,6 +4066,14 @@ int main(int argc, char **argv, char **envp)
 
 	if (g_opt_flags & OPT_FLAGS_KSM)
 		stress_memory_ksm_merge(1);
+
+	(void)stress_setting_get("ionice-class", &optstr);
+	ionice_class = stress_io_priority_ionice_class_get(optstr);
+	(void)stress_setting_get("ionice-level", &ionice_level);
+	if (stress_io_priority_set(ionice_class, ionice_level) < 0) {
+		ret = EXIT_FAILURE;
+		goto exit_stressors_free;
+	}
 
 	(void)stress_setting_get("timeout", &g_opt_timeout);
 	(void)stress_setting_get("no-madvise", &no_madvise);
@@ -4206,8 +4200,6 @@ int main(int argc, char **argv, char **envp)
 	stress_process_dumpable(false);
 	stress_set_oom_adjustment(NULL, false);
 
-	(void)stress_setting_get("ionice-class", &ionice_class);
-	(void)stress_setting_get("ionice-level", &ionice_level);
 	(void)stress_setting_get("yaml", &yaml_filename);
 
 	stress_executable_mlock();
