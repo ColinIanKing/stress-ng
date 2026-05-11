@@ -382,8 +382,18 @@ static int stress_timermix(stress_args_t *args)
 	stress_timermix_itimer_set(&itimer);
 	for (i = 0; i < SIZEOF_ARRAY(itimer_info); i++) {
 		if (setitimer(itimer_info[i].itimer_id, &itimer, NULL) < 0) {
-			pr_fail("%s: setitimer failed, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
+#if defined(__CYGWIN__)
+			/*
+			 *  Cygwin don't currently support SIGVTALRM or
+			 *  SIGPROF so silently ignore EINVALs on these
+			 *  for now.
+			 *  https://github.com/ColinIanKing/stress-ng/issues/618
+			 */
+			if (errno == EINVAL)
+				continue;
+#endif
+			pr_fail("%s: setitimer using %s failed, errno=%d (%s)\n",
+				args->name, itimer_info[i].itimer_name, errno, strerror(errno));
 			rc = EXIT_FAILURE;
 			goto stop_timers;
 		}
