@@ -1912,7 +1912,6 @@ static void MLOCKED_TEXT stress_run(
 			int rc;
 			stress_stats_t *const stats = g_item_current->stats[j];
 
-
 #if defined(STRESS_TERMINATE_PREMATURELY)
 			if (g_opt_timeout && (stress_time_now() - time_start > (double)g_opt_timeout))
 				goto abort;
@@ -1921,7 +1920,6 @@ static void MLOCKED_TEXT stress_run(
 			stats->args.bogo.count.counter_ready = true;
 			stats->args.bogo.count.counter = 0;
 			stats->checksum = *checksum;
-
 			stats->item = g_item_current;
 			stats->s_pid.reaped = false;
 			stats->s_pid.wait_status = 0;
@@ -2823,7 +2821,6 @@ STRESS_PRAGMA_POP
 		(void)munmap(last_page, page_size);
 		new_last_page = mmap(last_page, page_size, PROT_NONE,
 			MAP_SHARED | MAP_ANON | MAP_FIXED, -1, 0);
-
 		/* Failed, retry read-only */
 		if (new_last_page == MAP_FAILED)
 			new_last_page = mmap(last_page, page_size, PROT_READ,
@@ -2835,7 +2832,6 @@ STRESS_PRAGMA_POP
 			stress_memory_anon_name_set(last_page, page_size,  "g_shared_guard");
 	}
 #endif
-
 	/*
 	 *  copy of checksums and run data in a different shared
 	 *  memory segment so that we can sanity check these for
@@ -3483,7 +3479,6 @@ next_opt:
 				goto next_opt;
 			}
 		}
-
 		for (i = 0; i < SIZEOF_ARRAY(opt_flags); i++) {
 			if (c == opt_flags[i].opt) {
 				stress_setting_global_set_true(stress_opt_name_find(c));
