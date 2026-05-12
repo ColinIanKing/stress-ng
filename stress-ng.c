@@ -3385,7 +3385,7 @@ static const stress_opt_t main_opts[] = {
 	{ OPT_compact_memory, "compact-memory",  TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_exclude,	      "exclude",         TYPE_ID_STR, 0, 0, NULL },
 	{ OPT_ionice_class,   "ionice-class",    TYPE_ID_STR, 0, 0, NULL },
-	{ OPT_ionice_level,   "ionice-level",    TYPE_ID_INT32, 0, 99999, NULL }, /* FIXME */
+	{ OPT_ionice_level,   "ionice-level",    TYPE_ID_INT32, 0, 7, NULL },
 	{ OPT_iostat,         "iostat",          TYPE_ID_INT32, 1, 3600, NULL },
 	{ OPT_job,	      "job",             TYPE_ID_STR, 0, 0, NULL },
 	{ OPT_limit_as,       "limit-as",        TYPE_ID_UINT64_BYTES, 1 * MB, RLIM_INFINITY, NULL },
