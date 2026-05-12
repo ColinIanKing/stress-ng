@@ -269,10 +269,10 @@ int PURE stress_sched_set(
 #endif
 
 /*
- *  stess_sched_opt_get()
- *	get scheduler policy
+ *  stress_sched_find()
+ *	find scheduling type based on human readable name
  */
-int32_t stress_sched_opt_get(const char *const str)
+static int stress_sched_find(const char *const str)
 {
 	size_t i;
 
@@ -280,6 +280,19 @@ int32_t stress_sched_opt_get(const char *const str)
 		if (!strcmp(stress_sched_types[i].sched_name, str))
 			return stress_sched_types[i].sched;
 	}
+	return UNDEFINED;
+}
+
+/*
+ *  stess_sched_parse()
+ *	parse scheduler policy
+ */
+int stress_sched_parse(const char *const str)
+{
+	size_t i;
+
+	if (stress_sched_find(str) != UNDEFINED)
+		return 0;
 	if (strcmp("which", str))
 		(void)fprintf(stderr, "invalid sched option: %s\n", str);
 	if (stress_sched_types_length == (0)) {
@@ -291,8 +304,7 @@ int32_t stress_sched_opt_get(const char *const str)
 		}
 		(void)fprintf(stderr, "\n");
 	}
-	_exit(EXIT_FAILURE);
-	return 0;
+	return -1;
 }
 
 /*
@@ -304,13 +316,15 @@ int32_t stress_sched_opt_get(const char *const str)
  */
 int stress_sched_settings_apply(const bool quiet)
 {
-	int32_t sched = UNDEFINED;
+	char *sched_str;
+	int sched = UNDEFINED;
 	int32_t sched_prio = UNDEFINED;
 
-	(void)stress_setting_get("sched", &sched);
+	if (stress_setting_get("sched", &sched_str))
+		sched = stress_sched_find(sched_str);
 	(void)stress_setting_get("sched-prio", &sched_prio);
 
-	return stress_sched_set(getpid(), (int)sched, sched_prio, quiet);
+	return stress_sched_set(getpid(), sched, sched_prio, quiet);
 }
 
 /*

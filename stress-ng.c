@@ -1662,8 +1662,8 @@ static int MLOCKED_TEXT stress_child_run(
 	stress_proc_state_set(name, STRESS_STATE_START);
 	g_shared->instance_count.started++;
 
-	if (stress_sched_settings_apply(true) < 0) {
-		rc = EXIT_NO_RESOURCE;
+	if (stress_sched_settings_apply(false) < 0) {
+		rc = EXIT_FAILURE;
 		stress_signals_block();
 		goto child_exit;
 	}
@@ -3397,6 +3397,7 @@ static const stress_opt_t main_opts[] = {
 	{ OPT_pause,          "pause",           TYPE_ID_UINT, 0, INT_MAX, NULL },
 	{ OPT_quiet,          "quiet",           TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_raplstat,       "raplstat",        TYPE_ID_INT32, 1, 3600, NULL },
+	{ OPT_sched,          "sched",           TYPE_ID_STR, 0, 0, NULL },
 	{ OPT_sched_deadline, "sched-deadline",  TYPE_ID_UINT64, 0, 1000000000000000ULL, NULL },
 	{ OPT_sched_runtime,  "sched-runtime",	 TYPE_ID_UINT64, 0, 1000000000000000ULL, NULL },
 	{ OPT_sched_period,   "sched-period",    TYPE_ID_UINT64, 0, 1000000000000000ULL, NULL },
@@ -3555,10 +3556,6 @@ next_opt:
 			if (stress_resctrl_parse(optarg) < 0)
 				return EXIT_FAILURE;
 			stress_setting_global_set("resctrl", TYPE_ID_STR, optarg);
-			break;
-		case OPT_sched:
-			i32 = stress_sched_opt_get(optarg);
-			stress_setting_global_set("sched", TYPE_ID_INT32, &i32);
 			break;
 		case OPT_sched_prio:
 			i32 = stress_get_int32(optarg);
@@ -4073,6 +4070,13 @@ int main(int argc, char **argv, char **envp)
 	if (stress_io_priority_set(ionice_class, ionice_level) < 0) {
 		ret = EXIT_FAILURE;
 		goto exit_stressors_free;
+	}
+
+	if (stress_setting_get("sched", &optstr)) {
+		if (stress_sched_parse(optstr) < 0) {
+			ret = EXIT_FAILURE;
+			goto exit_stressors_free;
+		}
 	}
 
 	(void)stress_setting_get("timeout", &g_opt_timeout);
