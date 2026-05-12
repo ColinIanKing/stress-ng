@@ -4065,12 +4065,10 @@ int main(int argc, char **argv, char **envp)
 		ret = EXIT_FAILURE;
 		goto exit_stressors_free;
 	}
-
-	if (stress_setting_get("sched", &optstr)) {
-		if (stress_sched_parse(optstr) < 0) {
-			ret = EXIT_FAILURE;
-			goto exit_stressors_free;
-		}
+	if (stress_setting_get("sched", &optstr) &&
+	    (stress_sched_parse(optstr) < 0)) {
+		ret = EXIT_FAILURE;
+		goto exit_stressors_free;
 	}
 	if (stress_setting_get("taskset", &optstr) &&
 	    (stress_affinity_cpu_set(optstr) < 0)) {
@@ -4081,20 +4079,16 @@ int main(int argc, char **argv, char **envp)
 	(void)stress_setting_get("no-madvise", &no_madvise);
 	if (no_madvise)
 		g_opt_flags &= ~OPT_FLAGS_MMAP_MADVISE;
-
 	(void)stress_setting_get("quiet", &quiet);
 	if (quiet)
 		g_pr_log_flags &= ~(PR_LOG_FLAGS_ALL);
-	if (stress_setting_get("seed", &seed)) {
+	if (stress_setting_get("seed", &seed))
 		g_opt_flags |= OPT_FLAGS_SEED;
-	}
-
 	/* --mbind */
 	if (stress_set_mbind() < 0) {
 		ret = EXIT_FAILURE;
 		goto exit_stressors_free;
 	}
-
 	/* Load in job file options */
 	(void)stress_setting_get("job", &job_filename);
 	if (stress_job_parse_file(argc, argv, job_filename) < 0) {
