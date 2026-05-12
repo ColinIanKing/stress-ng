@@ -3401,6 +3401,7 @@ static const stress_opt_t main_opts[] = {
 	{ OPT_sched_deadline, "sched-deadline",  TYPE_ID_UINT64, 0, 1000000000000000ULL, NULL },
 	{ OPT_sched_runtime,  "sched-runtime",	 TYPE_ID_UINT64, 0, 1000000000000000ULL, NULL },
 	{ OPT_sched_period,   "sched-period",    TYPE_ID_UINT64, 0, 1000000000000000ULL, NULL },
+	{ OPT_sched_prio,     "sched-prio",      TYPE_ID_INT32, 1, 99, NULL },
 	{ OPT_seed,           "seed",            TYPE_ID_UINT64, 0, 0xffffffffffffffffULL, NULL },
 	{ OPT_status,         "status",          TYPE_ID_INT32, 1, 3600, NULL },
 	{ OPT_temp_path,      "temp-path",       TYPE_ID_STR, 0, 0, NULL },
@@ -3556,10 +3557,6 @@ next_opt:
 			if (stress_resctrl_parse(optarg) < 0)
 				return EXIT_FAILURE;
 			stress_setting_global_set("resctrl", TYPE_ID_STR, optarg);
-			break;
-		case OPT_sched_prio:
-			i32 = stress_get_int32(optarg);
-			stress_setting_global_set("sched-prio", TYPE_ID_INT32, &i32);
 			break;
 		case OPT_sequential:
 			g_opt_flags |= OPT_FLAGS_SEQUENTIAL;
