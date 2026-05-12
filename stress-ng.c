@@ -3404,6 +3404,7 @@ static const stress_opt_t main_opts[] = {
 	{ OPT_sched_prio,     "sched-prio",      TYPE_ID_INT32, 1, 99, NULL },
 	{ OPT_seed,           "seed",            TYPE_ID_UINT64, 0, 0xffffffffffffffffULL, NULL },
 	{ OPT_status,         "status",          TYPE_ID_INT32, 1, 3600, NULL },
+	{ OPT_taskset,        "taskset",         TYPE_ID_STR, 0, 0, NULL },
 	{ OPT_temp_path,      "temp-path",       TYPE_ID_STR, 0, 0, NULL },
 	{ OPT_thermalstat,    "thermalstat",     TYPE_ID_INT32, 1, 3600, NULL },
 	{ OPT_timeout,        "timeout",         TYPE_ID_UINT64_TIME, 0, 0xffffffffffffffffULL, NULL },
@@ -3576,10 +3577,6 @@ next_opt:
 		case OPT_stressors:
 			stress_stressor_names_show();
 			exit(EXIT_SUCCESS);
-		case OPT_taskset:
-			if (stress_affinity_cpu_set(optarg) < 0)
-				exit(EXIT_FAILURE);
-			break;
 		case OPT_version:
 			stress_version();
 			exit(EXIT_SUCCESS);
@@ -4075,7 +4072,11 @@ int main(int argc, char **argv, char **envp)
 			goto exit_stressors_free;
 		}
 	}
-
+	if (stress_setting_get("taskset", &optstr) &&
+	    (stress_affinity_cpu_set(optstr) < 0)) {
+		ret = EXIT_FAILURE;
+		goto exit_stressors_free;
+	}
 	(void)stress_setting_get("timeout", &g_opt_timeout);
 	(void)stress_setting_get("no-madvise", &no_madvise);
 	if (no_madvise)
