@@ -539,52 +539,6 @@ static uint32_t PURE stress_class_id_get(const char *const str)
 }
 
 /*
- *  stress_class_get()
- *	parse for allowed class types, return bit mask of types, 0 if error
- */
-static int stress_class_get(char *const class_str, uint32_t *opt_class)
-{
-	char *str, *token;
-	int ret = 0;
-
-	*opt_class = 0;
-	for (str = class_str; (token = strtok(str, ",")) != NULL; str = NULL) {
-		uint32_t cl = stress_class_id_get(token);
-
-		if (!cl) {
-			size_t i;
-			const size_t len = strlen(token);
-
-			if ((len > 1) && (token[len - 1] == '?')) {
-				token[len - 1] = '\0';
-
-				cl = stress_class_id_get(token);
-				if (cl) {
-					size_t j;
-
-					(void)printf("class '%s' stressors:",
-						token);
-					for (j = 0; j < SIZEOF_ARRAY(stressors); j++) {
-						if (stressors[j].info->classifier & cl)
-							(void)printf(" %s", stressors[j].name);
-					}
-					(void)printf("\n");
-					return 1;
-				}
-			}
-			(void)fprintf(stderr, "unknown class: '%s', "
-				"available classes:", token);
-			for (i = 0; i < SIZEOF_ARRAY(stress_classes); i++)
-				(void)fprintf(stderr, " %s", stress_classes[i].name);
-			(void)fprintf(stderr, "\n\n");
-			return -1;
-		}
-		*opt_class |= cl;
-	}
-	return ret;
-}
-
-/*
  *  stress_stressor_find()
  *	return of stressor that matches
  *	the given stressor name, return -1;
@@ -3373,11 +3327,65 @@ static void stress_classes_enable(const uint32_t classifier)
 	}
 }
 
+/*
+ *  stress_class_get()
+ *	parse for allowed class types, return bit mask of types in
+ *	opt_class. Return 0 for OK, -1 for terminate.
+ */
+static int stress_class_get(uint32_t *opt_class, int *ret)
+{
+	char *str, *token, *class_str = NULL;
+	*ret = EXIT_SUCCESS;
+
+	*opt_class = 0;
+	if (!stress_setting_get("class", &class_str))
+		return 0;
+
+	*opt_class = 0;
+	for (str = class_str; (token = strtok(str, ",")) != NULL; str = NULL) {
+		uint32_t cl = stress_class_id_get(token);
+
+		if (!cl) {
+			size_t i;
+			const size_t len = strlen(token);
+
+			if ((len > 1) && (token[len - 1] == '?')) {
+				token[len - 1] = '\0';
+
+				cl = stress_class_id_get(token);
+				if (cl) {
+					size_t j;
+
+					(void)printf("class '%s' stressors:",
+						token);
+					for (j = 0; j < SIZEOF_ARRAY(stressors); j++) {
+						if (stressors[j].info->classifier & cl)
+							(void)printf(" %s", stressors[j].name);
+					}
+					(void)printf("\n");
+					return -1;
+				}
+			}
+			(void)fprintf(stderr, "unknown class: '%s', "
+				"available classes:", token);
+			for (i = 0; i < SIZEOF_ARRAY(stress_classes); i++)
+				(void)fprintf(stderr, " %s", stress_classes[i].name);
+			(void)fprintf(stderr, "\n\n");
+			*ret = EXIT_FAILURE;
+			return -1;
+		}
+		*opt_class |= cl;
+	}
+	stress_classes_enable(*opt_class);
+	return 0;
+}
+
 static const stress_opt_t main_opts[] = {
 	{ OPT_backoff,        "backoff",         TYPE_ID_INT64, 0, 10000000, NULL },
 	{ OPT_cache_level,    "cache-level",     TYPE_ID_INT16, 1, 5, NULL },
 	{ OPT_cache_size,     "cache-size",      TYPE_ID_UINT64_BYTES_VM, 1 * KB, 4 * GB, NULL },
 	{ OPT_cache_ways,     "cache-ways",      TYPE_ID_UINT32, 1, 1024, NULL },
+	{ OPT_class,          "class",           TYPE_ID_STR, 0, 0, NULL },
 	{ OPT_compact_memory, "compact-memory",  TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_exclude,	      "exclude",         TYPE_ID_STR, 0, 0, NULL },
 	{ OPT_ionice_class,   "ionice-class",    TYPE_ID_STR, 0, 0, NULL },
@@ -3422,7 +3430,6 @@ int stress_opts_parse(int argc, char **argv, const bool jobmode)
 
 	for (;;) {
 		int32_t i32;
-		uint32_t u32;
 		uint64_t u64, max_fds;
 		int c, option_index, ret;
 		size_t i;
@@ -3495,17 +3502,6 @@ next_opt:
 			stress_processors_get(&opt_parallel);
 			stress_check_max_stressors("all", opt_parallel);
 			stress_setting_global_set("all", TYPE_ID_UINT32, &opt_parallel);
-			break;
-		case OPT_class:
-			ret = stress_class_get(optarg, &u32);
-			if (ret < 0)
-				return EXIT_FAILURE;
-			else if (ret > 0)
-				exit(EXIT_SUCCESS);
-			else {
-				stress_setting_global_set("class", TYPE_ID_UINT32, &u32);
-				stress_classes_enable(u32);
-			}
 			break;
 		case OPT_config:
 			printf("config:\n%s", stress_config);
@@ -3965,7 +3961,7 @@ int main(int argc, char **argv, char **envp)
 	char *log_filename;			/* log filename */
 	char *job_filename = NULL;		/* job filename */
 	int32_t ticks_per_sec;			/* clock ticks per second (jiffies) */
-	uint32_t opt_class = 0;			/* stressor class option */
+	uint32_t opt_class;			/* stressor class option */
 	uint32_t n_stressors;			/* number of unique stressors */
 	uint32_t n_instances;			/* number of total instances */
 	uint64_t seed;				/* temp seed value */
@@ -4049,6 +4045,9 @@ int main(int argc, char **argv, char **envp)
 	if (g_opt_flags & OPT_FLAGS_KSM)
 		stress_memory_ksm_merge(1);
 
+	if (stress_class_get(&opt_class, &ret) < 0)
+		goto exit_stressors_free;
+
 	if (stress_setting_get("ionice-class", &optstr))
 		ionice_class = stress_io_priority_ionice_class_get(optstr);
 	(void)stress_setting_get("ionice-level", &ionice_level);
@@ -4107,8 +4106,6 @@ int main(int argc, char **argv, char **envp)
 		ret = EXIT_FAILURE;
 		goto exit_stressors_free;
 	}
-	(void)stress_setting_get("class", &opt_class);
-
 	if (opt_class &&
 	    !(g_opt_flags & (OPT_FLAGS_SEQUENTIAL | OPT_FLAGS_ALL | OPT_FLAGS_PERMUTE))) {
 		(void)fprintf(stderr, "class option is only used with "
