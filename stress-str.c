@@ -498,7 +498,7 @@ static size_t stress_strncmp(stress_args_t *args, stress_str_args_t *info)
 		STRCHK(info, 0 != test_strncmp(str1, str1 + i, len1 - i));
 		STRCHK(info, 0 == test_strncmp(str1 + i, str1 + i, len1 - i));
 
-		STRCHK(info, 0 != test_strncmp(str1 + i, str2, len2 - i));
+		STRCHK(info, 0 != test_strncmp(str1 + i, str2, len1 - i));
 		STRCHK(info, 0 != test_strncmp(str2, str1 + i, len2));
 	}
 	stress_bogo_add(args, 9);
