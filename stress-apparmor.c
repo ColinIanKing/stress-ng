@@ -627,7 +627,8 @@ static int apparmor_stress_corruption(stress_args_t *args)
 			j++;
 			if ((errno != EPROTO) &&
 			    (errno != EPROTONOSUPPORT) &&
-			     errno != ENOENT) {
+			    (errno != ENOENT) &&
+			    (errno != EEXIST)) {
 				pr_inf("%s: aa_kernel_interface_replace_policy() failed, "
 					"errno=%d (%s)\n", args->name, errno,
 					strerror(errno));
