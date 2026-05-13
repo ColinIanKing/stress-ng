@@ -201,11 +201,11 @@ static size_t stress_wcsncasecmp(stress_args_t *args, stress_wcs_args_t *info)
 		WCSCHK(info, 0 != test_wcsncasecmp(str2, str1, len2));
 		WCSCHK(info, 0 != test_wcsncasecmp(str1, str2, len1));
 
-		WCSCHK(info, 0 != test_wcsncasecmp(str1 + i, str1, len1));
-		WCSCHK(info, 0 != test_wcsncasecmp(str1, str1 + i, len1));
-		WCSCHK(info, 0 == test_wcsncasecmp(str1 + i, str1 + i, len1));
+		WCSCHK(info, 0 != test_wcsncasecmp(str1 + i, str1, len1 - i));
+		WCSCHK(info, 0 != test_wcsncasecmp(str1, str1 + i, len1 - i));
+		WCSCHK(info, 0 == test_wcsncasecmp(str1 + i, str1 + i, len1 - i));
 
-		WCSCHK(info, 0 != test_wcsncasecmp(str1 + i, str2, len1));
+		WCSCHK(info, 0 != test_wcsncasecmp(str1 + i, str2, len1 - i));
 		WCSCHK(info, 0 != test_wcsncasecmp(str2, str1 + i, len2));
 	}
 	stress_bogo_add(args, 9);
@@ -493,11 +493,11 @@ static size_t stress_wcsncmp(stress_args_t *args, stress_wcs_args_t *info)
 		WCSCHK(info, 0 != test_wcsncmp(str2, str1, len2));
 		WCSCHK(info, 0 != test_wcsncmp(str1, str2, len1));
 
-		WCSCHK(info, 0 != test_wcsncmp(str1 + i, str1, len1));
-		WCSCHK(info, 0 != test_wcsncmp(str1, str1 + i, len1));
-		WCSCHK(info, 0 == test_wcsncmp(str1 + i, str1 + i, len1));
+		WCSCHK(info, 0 != test_wcsncmp(str1 + i, str1, len1 - i));
+		WCSCHK(info, 0 != test_wcsncmp(str1, str1 + i, len1 - i));
+		WCSCHK(info, 0 == test_wcsncmp(str1 + i, str1 + i, len1 - i));
 
-		WCSCHK(info, 0 != test_wcsncmp(str1 + i, str2, len2));
+		WCSCHK(info, 0 != test_wcsncmp(str1 + i, str2, len1 - i));
 		WCSCHK(info, 0 != test_wcsncmp(str2, str1 + i, len2));
 	}
 	stress_bogo_add(args, 9);
