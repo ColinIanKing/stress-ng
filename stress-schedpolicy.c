@@ -308,8 +308,7 @@ case_sched_fifo:
 			ret = sched_setscheduler(pid, new_policy, &param);
 			break;
 		default:
-			/* Should never get here */
-			break;
+			goto next_policy;
 		}
 		if (ret < 0) {
 			/*
@@ -528,10 +527,11 @@ case_sched_fifo:
 #else
 		UNEXPECTED
 #endif
+		stress_bogo_inc(args);
+next_policy:
 		policy_index++;
 		if (UNLIKELY(policy_index >= stress_sched_types_length))
 			policy_index = 0;
-		stress_bogo_inc(args);
 	} while (stress_continue(args));
 
 	duration = stress_time_now() - t_start;
