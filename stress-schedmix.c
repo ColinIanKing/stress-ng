@@ -503,8 +503,7 @@ case_sched_fifo:
 			ret = sched_setscheduler(pid, new_policy, &param);
 			break;
 		default:
-			/* Should never get here */
-			break;
+			goto next;
 		}
 		if (UNLIKELY(ret < 0)) {
 			/*
@@ -525,13 +524,14 @@ case_sched_fifo:
 				rc = EXIT_FAILURE;
 			}
 		}
+		stress_schedmix_waste_time(args, n_cpus, cpus);
+		stress_bogo_inc(args);
+next:
 		if (cpus) {
 			const uint32_t idx = stress_mwc32modn(n_cpus);
 
 			stress_schedmix_setaffinity(child_pid, cpus[idx]);
 		}
-		stress_schedmix_waste_time(args, n_cpus, cpus);
-		stress_bogo_inc(args);
 	} while (stress_continue(args));
 
 #if defined(HAVE_SETITIMER) &&	\
