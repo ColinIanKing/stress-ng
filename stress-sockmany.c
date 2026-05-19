@@ -138,7 +138,8 @@ retry:
 				(void)close(fds[i]);
 
 				/* Run out of resources? */
-				if (save_errno == EADDRNOTAVAIL)
+				if ((save_errno == EADDRNOTAVAIL) ||
+				    (save_errno == ECONNREFUSED))
 					break;
 
 				(void)shim_usleep(10000);
