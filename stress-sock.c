@@ -975,6 +975,7 @@ static int OPTIMIZE3 stress_sock_server(
 		goto die;
 	}
 
+retry:
 	if ((fd = socket(sock_domain, sock_type, sock_protocol)) < 0) {
 		rc = stress_exit_status(errno);
 		pr_fail("%s: socket failed, errno=%d (%s)\n",
@@ -1042,6 +1043,15 @@ static int OPTIMIZE3 stress_sock_server(
 #endif
 
 	if (bind(fd, addr, addr_len) < 0) {
+		if (LIKELY(errno == EADDRINUSE)) {
+			if (stress_continue(args)) {
+				(void)close(fd);
+				stress_random_small_sleep();
+				goto retry;
+			}
+			rc = EXIT_NO_RESOURCE;
+			goto die_close;
+		}
 		rc = stress_exit_status(errno);
 		pr_fail("%s: bind failed on port %d, errno=%d (%s)\n",
 			args->name, sock_port, errno, strerror(errno));
