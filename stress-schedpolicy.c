@@ -232,10 +232,8 @@ static int stress_schedpolicy(stress_args_t *args)
 			errno = 0;
 			ret = shim_sched_setattr(pid, &attr, 0);
 			if ((ret < 0) && (errno == EOPNOTSUPP)) {
-				if (use_clamp) {
-					/* Disable clamping for next time */
-					use_clamp = false;
-				}
+				/* Disable clamping for next time */
+				use_clamp = false;
 				goto next_policy;
 			}
 			break;
@@ -281,10 +279,8 @@ static int stress_schedpolicy(stress_args_t *args)
 				errno = 0;
 				ret = shim_sched_setattr(pid, &attr, 0);
 				if ((ret < 0) && (errno == EOPNOTSUPP)) {
-					if (use_clamp) {
-						/* Disable clamping for next time */
-						use_clamp = false;
-					}
+					/* Disable clamping for next time */
+					use_clamp = false;
 					goto next_policy;
 				}
 				break;
