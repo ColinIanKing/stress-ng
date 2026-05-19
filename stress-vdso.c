@@ -370,12 +370,12 @@ static void vdso_sym_list_free(stress_vdso_sym_t **list)
  *  remove_sym
  *	find and remove a symbol from the symbol list
  */
-static void remove_sym(stress_vdso_sym_t **list, stress_vdso_sym_t *dup)
+static void remove_sym(stress_vdso_sym_t **list, stress_vdso_sym_t *sym)
 {
 	while (*list) {
-		if (*list == dup) {
-			*list = dup->next;
-			free(dup);
+		if (*list == sym) {
+			*list = sym->next;
+			free(sym);
 			return;
 		}
 		list = &(*list)->next;
