@@ -191,6 +191,8 @@ static int OPTIMIZE3 stress_sockmany_server(
 		rc = EXIT_FAILURE;
 		goto die;
 	}
+
+retry:
 	if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
 		rc = stress_exit_status(errno);
 		pr_fail("%s: socket failed, errno=%d (%s)\n",
@@ -235,6 +237,15 @@ static int OPTIMIZE3 stress_sockmany_server(
 		goto die_close;
 	}
 	if (bind(fd, addr, addr_len) < 0) {
+		if (LIKELY(errno == EADDRINUSE)) {
+			if (stress_continue(args)) {
+				(void)close(fd);
+				stress_random_small_sleep();
+				goto retry;
+			}
+			rc = EXIT_NO_RESOURCE;
+			goto die_close;
+		}
 		rc = stress_exit_status(errno);
 		pr_fail("%s: bind failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
