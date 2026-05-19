@@ -61,7 +61,7 @@
 #define CBD_LBA_HIGH		(0xc2)
 #define CBD_DEVICE		(0x00) /* all zero */
 #define CBD_COMMAND		(0xb0) /* command: read smart log */
-#define CBD_RESVERVED		(0x00) /* N/A */
+#define CBD_RESERVED		(0x00) /* N/A */
 #define CBD_CONTROL		(0x00)
 
 #define ATTR_FLAG_WARRANTY	(0x01)
@@ -211,7 +211,7 @@ static uint8_t cdb[] = {
 	CBD_LBA_HIGH,
 	CBD_DEVICE,
 	CBD_COMMAND,
-	CBD_RESVERVED,
+	CBD_RESERVED,
 	CBD_CONTROL
 };
 
