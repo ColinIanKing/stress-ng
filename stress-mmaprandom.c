@@ -1528,7 +1528,6 @@ static void stress_mmaprandom_mprotect(mr_ctxt_t *ctxt, const int idx)
 			return;
 	}
 
-
 	if (LIKELY(mprotect(mr_node->mmap_addr, mr_node->mmap_size, prot_flag) == 0)) {
 		mr_node->mmap_prot = prot_flag;
 		ctxt->count[idx] += 1.0;
