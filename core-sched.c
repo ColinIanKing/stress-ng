@@ -289,8 +289,6 @@ static int stress_sched_find(const char *const str)
  */
 int stress_sched_parse(const char *const str)
 {
-	size_t i;
-
 	if (stress_sched_find(str) != UNDEFINED)
 		return 0;
 	if (strcmp("which", str))
@@ -298,6 +296,8 @@ int stress_sched_parse(const char *const str)
 	if (stress_sched_types_length == (0)) {
 		(void)fprintf(stderr, "no scheduler options are available\n");
 	} else {
+		size_t i;
+
 		(void)fprintf(stderr, "available scheduler options are:");
 		for (i = 0; i < stress_sched_types_length; i++) {
 			(void)fprintf(stderr, " %s", stress_sched_types[i].sched_name);
