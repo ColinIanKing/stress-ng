@@ -3541,7 +3541,7 @@ next_opt:
 			return EXIT_FAILURE;
 		case OPT_random:
 			g_opt_flags |= OPT_FLAGS_RANDOM;
-			i32 = stress_get_int32(optarg);
+			i32 = stress_get_int32_instance_percent(optarg);
 			stress_processors_get(&i32);
 			stress_check_max_stressors("random", i32);
 			stress_setting_global_set("random", TYPE_ID_INT32, &i32);
