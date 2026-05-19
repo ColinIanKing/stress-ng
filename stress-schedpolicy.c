@@ -144,7 +144,9 @@ static int stress_schedpolicy(stress_args_t *args)
 #endif
 		struct sched_param param;
 		int ret = 0;
-#if defined(SCHED_DEADLINE) &&		\
+#if (defined(SCHED_DEADLINE) || 	\
+     defined(SCHED_BATCH) || 		\
+     defined(SCHED_OTHER)) &&		\
     defined(HAVE_SCHED_GETATTR) &&	\
     defined(HAVE_SCHED_SETATTR)
 		static bool use_clamp = true;
@@ -265,19 +267,26 @@ static int stress_schedpolicy(stress_args_t *args)
 				attr.sched_nice = stress_mwc8modn(40) - 19;
 				attr.sched_flags = 0;
 #if defined(SCHED_FLAG_UTIL_CLAMP_MIN)
-				if (stress_mwc1()) {
+				if (use_clamp && stress_mwc1()) {
 					attr.sched_flags |= SCHED_FLAG_UTIL_CLAMP_MIN;
 					attr.sched_util_min = 1;
 				}
 #endif
 #if defined(SCHED_FLAG_UTIL_CLAMP_MAX)
-				if (stress_mwc1()) {
+				if (use_clamp && stress_mwc1()) {
 					attr.sched_flags |= SCHED_FLAG_UTIL_CLAMP_MAX;
 					attr.sched_util_max = 2 + (stress_mwc8() & 0x3f);
 				}
 #endif
 				errno = 0;
 				ret = shim_sched_setattr(pid, &attr, 0);
+				if ((ret < 0) && (errno == EOPNOTSUPP)) {
+					if (use_clamp) {
+						/* Disable clamping for next time */
+						use_clamp = false;
+					}
+					goto next_policy;
+				}
 				break;
 			}
 #endif
@@ -521,7 +530,7 @@ case_sched_fifo:
 		attr.size = sizeof(attr);
 		ret = shim_sched_setattr(pid, &attr, 0);
 		if (UNLIKELY(ret < 0)) {
-			if (errno != ENOSYS) {
+			if ((errno != EOPNOTSUPP) && (errno != ENOSYS)) {
 				pr_fail("%s: sched_setattr failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				rc = EXIT_FAILURE;
