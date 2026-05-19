@@ -96,7 +96,7 @@ static void stress_thrash_state(const char *state)
 static size_t stress_thrash_read_proc_maps(
 	const pid_t pid,
 	stress_proc_maps_t *proc_maps,
-	size_t max_maps)
+	const size_t max_maps)
 {
 	FILE *fp;
 	size_t n = 0;
