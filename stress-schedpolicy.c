@@ -153,7 +153,7 @@ static int stress_schedpolicy(stress_args_t *args)
 #endif
 		int max_prio, min_prio, rng_prio;
 		const char *new_policy_name;
-		const char *syscall = "unknown";
+		const char *syscall_name = "unknown";
 
 		/*
 		 *  find a new randomized policy that is not the same
@@ -228,7 +228,7 @@ static int stress_schedpolicy(stress_args_t *args)
 			if (attr.sched_period < 1100)
 				attr.sched_period = 1100;
 
-			syscall = "sched_setattr";
+			syscall_name = "sched_setattr";
 			errno = 0;
 			ret = shim_sched_setattr(pid, &attr, 0);
 			if ((ret < 0) && (errno == EOPNOTSUPP)) {
@@ -287,7 +287,7 @@ static int stress_schedpolicy(stress_args_t *args)
 			}
 #endif
 			param.sched_priority = 0;
-			syscall = "sched_setscheduler";
+			syscall_name = "sched_setscheduler";
 			errno = 0;
 			ret = sched_setscheduler(pid, new_policy, &param);
 			break;
@@ -324,7 +324,7 @@ case_sched_fifo:
 				break;
 			}
 			param.sched_priority = (int)stress_mwc32modn(rng_prio) + min_prio;
-			syscall = "sched_setscheduler";
+			syscall_name = "sched_setscheduler";
 			errno = 0;
 			ret = sched_setscheduler(pid, new_policy, &param);
 			break;
@@ -345,7 +345,7 @@ case_sched_fifo:
 				     (errno != EBUSY))) {
 				pr_fail("%s: %s failed, errno=%d (%s) "
 					"for scheduler policy %s\n",
-					args->name, syscall, errno, strerror(errno),
+					args->name, syscall_name, errno, strerror(errno),
 					new_policy_name);
 				rc = EXIT_FAILURE;
 				break;
