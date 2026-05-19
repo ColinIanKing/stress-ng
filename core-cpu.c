@@ -23,6 +23,8 @@
 #include "core-builtin.h"
 #include "core-cpu.h"
 
+#include <sched.h>
+
 #if defined(XMMINTRIN_H)
 #include <ximmintrin.h>
 #endif
@@ -829,6 +831,7 @@ static void stress_cpu_x86_dtlb_size_for_4k_pages(
 /*
  *  stress_cpu_x86_dtlb_size_for_4k_pages_reg
  *	return largest data (or shared) TLB for 4K pages for given register
+ * 	for all CPUs
  */
 static void stress_cpu_x86_dtlb_size_for_4k_pages_reg(
 	uint32_t reg,
@@ -836,21 +839,48 @@ static void stress_cpu_x86_dtlb_size_for_4k_pages_reg(
 	uint8_t *level)
 {
 	int i;
+#if defined(HAVE_SCHED_SETAFFINITY)
+	uint32_t cpu, cpus;
+	cpu_set_t mask;
+#endif
 
 	if (reg == 0x80000000)
 		return;
+
+#if defined(HAVE_SCHED_SETAFFINITY)
+	cpus = stress_cpus_configured_get();
+#endif
 
 	for (i = 0; i < 4; i++) {
 		uint32_t new_entries = 0;
 		uint8_t new_level = 0;
 
+#if defined(HAVE_SCHED_SETAFFINITY)
+		for (cpu = 0; cpu < cpus; cpu++) {
+			CPU_ZERO(&mask);
+			CPU_SET(cpu, &mask);
+
+			(void)sched_setaffinity(0, sizeof(mask), &mask);
+			stress_cpu_x86_dtlb_size_for_4k_pages(reg & 0xff, &new_entries, &new_level);
+			if (new_entries > *entries) {
+				*entries = new_entries;
+				*level = new_level;
+			}
+		}
+#else
 		stress_cpu_x86_dtlb_size_for_4k_pages(reg & 0xff, &new_entries, &new_level);
 		if (new_entries > *entries) {
 			*entries = new_entries;
 			*level = new_level;
 		}
+#endif
 		reg >>= 8;
 	}
+#if defined(HAVE_SCHED_SETAFFINITY)
+	CPU_ZERO(&mask);
+	CPU_SET(0, &mask);
+	(void)sched_setaffinity(0, sizeof(mask), &mask);
+#endif
 }
 #endif
 
