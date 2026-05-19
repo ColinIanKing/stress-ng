@@ -156,20 +156,6 @@ static int stress_sysinfo(stress_args_t *args)
 				ret = fstatfs(fd, &statfs_buf);
 				if (UNLIKELY(ret < 0))
 					continue;
-				if (UNLIKELY((ret < 0) && (verify))) {
-					if ((errno != ENOSYS) &&
-					    (errno != EOVERFLOW) &&
-					    (errno != EACCES) &&
-					    (errno != ENOTCONN) &&
-					    (errno != EPERM)) {
-						pr_fail("%s: fstatfs on %s failed, errno=%d (%s)\n",
-							args->name, mnts[i], errno,
-							strerror(errno));
-						rc = EXIT_FAILURE;
-						(void)close(fd);
-						break;
-					}
-				}
 				(void)close(fd);
 
 				/*
