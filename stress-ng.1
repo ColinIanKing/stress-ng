@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, may be w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "7 May 2026"
+.TH STRESS-NG 1 "19 May 2026"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -86,7 +86,7 @@ with this option any successful nice(2) call will attempt to also set the
 /proc/self/autogroup setting to the niceness level of the calling process. This
 is a Linux only option for the CFS scheduler when CONFIG_SCHED_AUTOGROUP is
 enabled, see sched(7) for more details on how this affects interactive scheduling
-behaviour.
+behaviour. Linux only.
 .TP
 .B \-b N, \-\-backoff N
 wait N microseconds between the start of each stress worker process. This
