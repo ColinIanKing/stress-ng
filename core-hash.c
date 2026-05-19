@@ -151,7 +151,7 @@ PRAGMA_UNROLL_N(4)
  *  stress_hash_murmur_32_scramble
  *	helper to scramble bits
  */
-static inline uint32_t PURE OPTIMIZE3 stress_hash_murmur_32_scramble(uint32_t k)
+static inline uint32_t PURE OPTIMIZE3 stress_hash_murmur_32_scramble(register uint32_t k)
 {
 	k *= 0xcc9e2d51;
 	k = (k << 15) | (k >> 17);
