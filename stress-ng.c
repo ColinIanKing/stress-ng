@@ -3380,6 +3380,33 @@ static int stress_class_get(uint32_t *opt_class, int *ret)
 	return 0;
 }
 
+/*
+ *  stress_oom_avoid_bytes_check()
+ *  	check if oom-avoid-bytes option is too large and adjust
+ *  	down to 50% of free memory
+ */
+static void stress_oom_avoid_bytes_check(void)
+{
+	size_t shmall, freemem, totalmem, freeswap, totalswap, bytes;
+	static const char *setting = "oom-avoid-bytes";
+
+	if (!stress_setting_get(setting, &bytes))
+		return;
+
+	stress_memory_limits_get(&shmall, &freemem, &totalmem, &freeswap, &totalswap);
+	if ((freemem > 0) && (bytes > freemem / 2)) {
+		char buf[32];
+
+		bytes = freemem / 2;
+		pr_inf("option --oom-avoid-bytes too large, limiting to "
+			"50%% (%s) of free memory\n",
+			stress_uint64_to_str(buf, sizeof(buf), (uint64_t)bytes, 1, true));
+	}
+	stress_setting_global_set(setting, TYPE_ID_SIZE_T, &bytes);
+	stress_setting_global_set_true("oom-avoid");
+	g_opt_flags |= OPT_FLAGS_OOM_AVOID;
+}
+
 static const stress_opt_t main_opts[] = {
 	{ OPT_backoff,        "backoff",         TYPE_ID_INT64, 0, 10000000, NULL },
 	{ OPT_cache_level,    "cache-level",     TYPE_ID_INT16, 1, 5, NULL },
@@ -3398,6 +3425,7 @@ static const stress_opt_t main_opts[] = {
 	{ OPT_log_file,       "log-file",        TYPE_ID_STR, 0, 0, NULL },
 	{ OPT_mbind,          "mbind",           TYPE_ID_STR, 0, 0, NULL },
 	{ OPT_no_madvise,     "no-madvise",      TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_oom_avoid_bytes,"oom-avoid-bytes", TYPE_ID_SIZE_T_BYTES_VM, 4096, 0xffffffffffffffffULL, NULL },
 	{ OPT_pause,          "pause",           TYPE_ID_UINT, 0, INT_MAX, NULL },
 	{ OPT_quiet,          "quiet",           TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_raplstat,       "raplstat",        TYPE_ID_INT32, 1, 3600, NULL },
@@ -3515,25 +3543,6 @@ next_opt:
 				"cannot determine maximum file descriptor limit");
 			stress_check_range(optarg, u64, 8, max_fds);
 			stress_setting_global_set("max-fd", TYPE_ID_UINT64, &u64);
-			break;
-		case OPT_oom_avoid_bytes:
-			{
-				size_t shmall, freemem, totalmem, freeswap, totalswap, bytes;
-
-				bytes = (size_t)stress_get_uint64_byte_memory(optarg, 1);
-				stress_memory_limits_get(&shmall, &freemem, &totalmem, &freeswap, &totalswap);
-				if ((freemem > 0) && (bytes > freemem / 2)) {
-					char buf[32];
-
-					bytes = freemem / 2;
-					pr_inf("option --oom-avoid-bytes too large, limiting to "
-						"50%% (%s) of free memory\n",
-						stress_uint64_to_str(buf, sizeof(buf), (uint64_t)bytes, 1, true));
-				}
-				stress_setting_global_set("oom-avoid-bytes", TYPE_ID_SIZE_T, &bytes);
-				stress_setting_global_set_true("oom-avoid");
-				g_opt_flags |= OPT_FLAGS_OOM_AVOID;
-			}
 			break;
 		case OPT_query:
 			if (!jobmode)
@@ -4044,6 +4053,8 @@ int main(int argc, char **argv, char **envp)
 
 	if (g_opt_flags & OPT_FLAGS_KSM)
 		stress_memory_ksm_merge(1);
+
+	stress_oom_avoid_bytes_check();
 
 	if (stress_class_get(&opt_class, &ret) < 0)
 		goto exit_stressors_free;
