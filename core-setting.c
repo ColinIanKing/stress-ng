@@ -227,24 +227,36 @@ static int stress_setting_generic_set(
 	const bool global)
 {
 	stress_setting_t *setting;
+	bool new_setting = true;
 
 	if (!value) {
 		(void)fprintf(stderr, "invalid setting '%s' value address (null)\n", name);
 		_exit(EXIT_NOT_SUCCESS);
 	}
-	setting = (stress_setting_t *)calloc(1, sizeof *setting);
-	if (UNLIKELY(!setting))
-		goto err;
+	if (!name) {
+		(void)fprintf(stderr, "invalid setting name (null)\n");
+		_exit(EXIT_NOT_SUCCESS);
+	}
+
+	for (setting = setting_head; setting; setting = setting->next) {
+		if ((strcmp(setting->stressor_name, stressor_name) == 0) &&
+		    (strcmp(setting->name, name) == 0)) {
+			new_setting = false;
+			break;
+		}
+	}
+
+	if (!setting) {
+		setting = (stress_setting_t *)calloc(1, sizeof *setting);
+		if (UNLIKELY(!setting))
+			goto err;
+	}
 
 	setting->stressor_name = stressor_name;
 	setting->name = name;
 	setting->item = g_item_current;
 	setting->type_id = type_id;
 	setting->global = global;
-	if (!setting->name) {
-		free(setting);
-		goto err;
-	}
 
 	switch (type_id) {
 	case TYPE_ID_UINT8:
@@ -316,12 +328,14 @@ static int stress_setting_generic_set(
 	stress_setting_show_setting(setting, pr_dbg, true);
 #endif
 
-	if (setting_tail) {
-		setting_tail->next = setting;
-	} else {
-		setting_head = setting;
+	if (new_setting) {
+		if (setting_tail) {
+			setting_tail->next = setting;
+		} else {
+			setting_head = setting;
+		}
+		setting_tail = setting;
 	}
-	setting_tail = setting;
 
 	return 0;
 err:
