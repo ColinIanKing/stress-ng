@@ -314,7 +314,7 @@ void stress_timer_slack_set(const bool check_zero)
 		(void)prctl(PR_SET_TIMERSLACK, timer_slack);
 	}
 #else
-	UNEXPECTED
+	(void)check_zero;
 #endif
 }
 
