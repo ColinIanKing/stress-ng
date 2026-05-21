@@ -3423,6 +3423,7 @@ static const stress_opt_t main_opts[] = {
 	{ OPT_limit_data,     "limit-data",      TYPE_ID_UINT64_BYTES, 1 * MB, RLIM_INFINITY, NULL },
 	{ OPT_limit_stack,    "limit-stack",     TYPE_ID_UINT64_BYTES, 1 * MB, RLIM_INFINITY, NULL },
 	{ OPT_log_file,       "log-file",        TYPE_ID_STR, 0, 0, NULL },
+	{ OPT_max_fd,         "max-fd",          TYPE_ID_CALLBACK, 16, 0xffffffffffffffffULL, stress_fs_max_fd },
 	{ OPT_mbind,          "mbind",           TYPE_ID_STR, 0, 0, NULL },
 	{ OPT_no_madvise,     "no-madvise",      TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_oom_avoid_bytes,"oom-avoid-bytes", TYPE_ID_SIZE_T_BYTES_VM, 4096, 0xffffffffffffffffULL, NULL },
@@ -3458,7 +3459,6 @@ int stress_opts_parse(int argc, char **argv, const bool jobmode)
 
 	for (;;) {
 		int32_t i32;
-		uint64_t u64, max_fds;
 		int c, option_index, ret;
 		size_t i;
 
@@ -3536,13 +3536,6 @@ next_opt:
 			exit(EXIT_SUCCESS);
 		case OPT_help:
 			stress_usage();
-			break;
-		case OPT_max_fd:
-			max_fds = (uint64_t)stress_fs_file_limit_get();
-			u64 = stress_get_uint64_percent(optarg, 1, max_fds, NULL,
-				"cannot determine maximum file descriptor limit");
-			stress_check_range(optarg, u64, 8, max_fds);
-			stress_setting_global_set("max-fd", TYPE_ID_UINT64, &u64);
 			break;
 		case OPT_query:
 			if (!jobmode)

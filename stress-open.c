@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-builtin.h"
+#include "core-filesystem.h"
 #include "core-killpid.h"
 
 #if defined(HAVE_LINUX_OPENAT2_H)
@@ -147,48 +148,9 @@ static const int open_flags[] = {
 #endif
 };
 
-static size_t stress_get_max_fds(void)
-{
-	const size_t max_size = (size_t)-1;
-	size_t max_fds = 0;
-
-#if defined(RLIMIT_NOFILE)
-	struct rlimit rlim;
-
-	if (getrlimit(RLIMIT_NOFILE, &rlim) == 0) {
-		struct rlimit new_rlim = rlim;
-
-		new_rlim.rlim_cur = new_rlim.rlim_max;
-		if (setrlimit(RLIMIT_NOFILE, &new_rlim) == 0) {
-			max_fds = stress_fs_max_file_limit_get();
-			(void)setrlimit(RLIMIT_NOFILE, &rlim);
-		}
-	}
-#endif
-
-	if (max_fds == 0)
-		max_fds = stress_fs_max_file_limit_get();
-	if (max_fds > max_size)
-		max_fds = max_size;
-
-	return max_fds;
-}
-
-static void stress_open_max(const char *opt_name, const char *opt_arg, stress_type_id_t *type_id, void *value)
-{
-	size_t *open_max = (size_t *)value;
-	const size_t max_fds = stress_get_max_fds();
-
-	(void)opt_name;
-
-	*type_id = TYPE_ID_SIZE_T;
-	*open_max = (size_t)stress_get_uint64_percent(opt_arg, 1, (uint64_t)max_fds, NULL,
-                        "cannot determine maximum number of file descriptors");
-}
-
 static const stress_opt_t opts[] = {
 	{ OPT_open_fd,  "open-fd",  TYPE_ID_BOOL, 0, 1, NULL },
-	{ OPT_open_max,	"open-max", TYPE_ID_CALLBACK, 0, 1, (void *)stress_open_max },
+	{ OPT_open_max,	"open-max", TYPE_ID_CALLBACK, 0, 1, (void *)stress_fs_max_fd },
 	END_OPT,
 };
 
@@ -1076,8 +1038,8 @@ static int stress_open(stress_args_t *args)
 {
 	int *fds, ret;
 	char path[PATH_MAX], temp_dir[PATH_MAX];
-	const size_t max_size = (size_t)-1;
-	size_t open_max = stress_fs_max_file_limit_get();
+	const uint64_t max_size = (uint64_t)-1LL;
+	uint64_t open_max = stress_fs_max_file_limit_get();
 	size_t i, sz;
 	pid_t pid = -1;
 	const pid_t mypid = getpid();
@@ -1113,13 +1075,13 @@ static int stress_open(stress_args_t *args)
 	if (open_max < 1)
 		open_max = 1;
 
-	sz = open_max * sizeof(*fds);
+	sz = (size_t)open_max * sizeof(*fds);
 	fds = (int *)mmap(NULL, sz, PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (fds == MAP_FAILED) {
 		/* shrink */
 		open_max = 1024 * 1024;
-		sz = open_max * sizeof(*fds);
+		sz = (size_t)open_max * sizeof(*fds);
 		fds = (int *)mmap(NULL, sz, PROT_READ | PROT_WRITE,
 				MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 		if (fds == MAP_FAILED) {

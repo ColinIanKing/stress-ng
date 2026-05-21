@@ -54,7 +54,9 @@ extern ssize_t stress_fs_file_write(const char *path, const char *buf,
 extern ssize_t stress_fs_discard(const char *path);
 extern WARN_UNUSED ssize_t stress_fs_file_read(const char *path, char *buf,
 	const size_t buf_len);
-extern WARN_UNUSED size_t stress_fs_max_file_limit_get(void);
+extern WARN_UNUSED uint64_t stress_fs_max_file_limit_get(void);
+extern void stress_fs_max_fd(const char *opt_name, const char *opt_arg,
+	stress_type_id_t *type_id, void *value);
 extern WARN_UNUSED size_t stress_fs_file_limit_get(void);
 extern WARN_UNUSED int stress_fs_bad_fd_get(void);
 extern WARN_UNUSED bool stress_fs_pipe_check(const int fd);

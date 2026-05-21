@@ -791,44 +791,131 @@ ssize_t stress_fs_file_read(
 }
 
 /*
+ * stress_fs_max_file_rlimit()
+ *	binary chop to find largest rlimit NOFILE
+ */
+static uint64_t stress_fs_max_file_rlimit(void)
+{
+#if defined(RLIMIT_NOFILE)
+	struct rlimit rlim_orig;
+	struct rlimit rlim;
+	rlim_t min = 64;
+	rlim_t max = RLIM_INFINITY / 2;
+	rlim_t cur;
+	rlim_t prev_cur = 0;
+	int i;
+
+#if defined(__linux__)
+	{
+		uint64_t val;
+		char buf[64];
+
+		if (stress_fs_file_read("/proc/sys/fs/file-max", buf, sizeof(buf)) > 0) {
+			errno = 0;
+			if ((sscanf(buf, "%" SCNu64, &val) == 1) && (errno == 0))
+				max = (rlim_t)val;
+		}
+	}
+#endif
+	if (getrlimit(RLIMIT_NOFILE, &rlim_orig) < 0)
+		return 0ULL;
+
+	for (i = 0; i <= 64; i++) {
+		cur = min + (max - min) / 2;
+
+		/* Try rlim cur AND max in case we can push both up */
+		rlim.rlim_cur = cur;
+		rlim.rlim_max = cur;
+		if (setrlimit(RLIMIT_NOFILE, &rlim) == 0) {
+			min = cur;
+		} else {
+			/* Try just limi cur */
+			rlim.rlim_cur = cur;
+			rlim.rlim_max = rlim_orig.rlim_max;
+			if (setrlimit(RLIMIT_NOFILE, &rlim) == 0) {
+				min = cur;
+			} else {
+				max = cur;
+			}
+		}
+		/* No change, we got the best max setting */
+		if (cur == prev_cur)
+			return cur;
+		prev_cur = cur;
+	}
+#endif
+	return 0ULL;
+}
+
+/*
  *  stress_fs_max_file_limit_get()
  *	get max number of files that the current
  *	process can open not counting the files that
  *	may already been opened.
  */
-size_t stress_fs_max_file_limit_get(void)
+uint64_t stress_fs_max_file_limit_get(void)
 {
+	uint64_t max_fd = 0;
+	uint64_t rlimit_fd;
 #if defined(HAVE_GETDTABLESIZE)
 	int tablesize;
 #endif
-#if defined(RLIMIT_NOFILE)
-	struct rlimit rlim;
-#endif
-	size_t max_rlim = SIZE_MAX;
-	size_t max_sysconf;
 
-#if defined(HAVE_GETDTABLESIZE)
-	/* try the simple way first */
-	tablesize = getdtablesize();
-	if (tablesize > 0)
-		return (size_t)tablesize;
-#endif
-#if defined(RLIMIT_NOFILE)
-	if (!getrlimit(RLIMIT_NOFILE, &rlim))
-		max_rlim = (size_t)rlim.rlim_cur;
-#endif
+	rlimit_fd = stress_fs_max_file_rlimit();
+	if (rlimit_fd > max_fd)
+		max_fd = rlimit_fd;
+
 #if defined(_SC_OPEN_MAX)
 	{
 		const long int open_max = sysconf(_SC_OPEN_MAX);
 
-		max_sysconf = (open_max > 0) ? (size_t)open_max : SIZE_MAX;
+		if ((open_max > 0) && ((uint64_t)open_max > max_fd))
+			max_fd = (uint64_t)open_max;
 	}
 #else
-	max_sysconf = SIZE_MAX;
-	UNEXPECTED
+	/* got nothing, try SIZE_MAX */
+	if (max_fd == 0)
+		max_fd = SIZE_MAX;
 #endif
-	/* return the lowest of these two */
-	return STRESS_MINIMUM(max_rlim, max_sysconf);
+
+#if defined(HAVE_GETDTABLESIZE)
+	/* constrain down to tablesize */
+	tablesize = getdtablesize();
+	if ((tablesize > 0) && ((uint64_t)tablesize < max_fd))
+		max_fd = (uint64_t)tablesize;
+#endif
+
+	return max_fd;
+}
+
+/*
+ *  stress_fs_max_fd()
+ *	parse maximum file descriptor limit option
+ */
+void stress_fs_max_fd(
+	const char *opt_name,
+	const char *opt_arg,
+	stress_type_id_t *type_id,
+	void *value)
+{
+        uint64_t *open_max = (uint64_t *)value;
+        const uint64_t max_fds = stress_fs_max_file_limit_get();
+
+        (void)opt_name;
+
+        *type_id = TYPE_ID_UINT64;
+        *open_max = (size_t)stress_get_uint64_percent(opt_arg, 1, max_fds, NULL,
+                        "cannot determine maximum number of file descriptors");
+	if (*open_max < 4) {
+		*open_max = 16;
+		pr_inf("setting %s value %s too small, defaulting to lower limit %" PRIu64 "\n",
+			opt_name, opt_arg, *open_max);
+	}
+	if (*open_max > max_fds) {
+		*open_max = max_fds;
+		pr_inf("setting %s value %s too large, defaulting to upper limit %" PRIu64 "\n",
+			opt_name, opt_arg, *open_max);
+	}
 }
 
 /*

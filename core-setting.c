@@ -277,10 +277,10 @@ static int stress_setting_generic_set(
 	case TYPE_ID_INT32:
 		setting->u.int32 = *(const int32_t *)value;
 		break;
-	case TYPE_ID_UINT64_BYTES_FS_PERCENT:
 	case TYPE_ID_UINT64:
 	case TYPE_ID_UINT64_BYTES:
 	case TYPE_ID_UINT64_BYTES_FS:
+	case TYPE_ID_UINT64_BYTES_FS_PERCENT:
 	case TYPE_ID_UINT64_BYTES_VM:
 	case TYPE_ID_UINT64_TIME:
 		setting->u.uint64 = *(const uint64_t *)value;
