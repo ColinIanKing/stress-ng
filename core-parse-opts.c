@@ -583,10 +583,10 @@ uint64_t stress_get_uint64_percent(
 }
 
 /*
- *  stress_get_int32_instance_percent()
+ *  stress_get_int32_instance_percent_generic()
  *	get instance by number or by percentage
  */
-int32_t stress_get_int32_instance_percent(const char *const str)
+static int32_t stress_get_int32_instance_percent_generic(const char *const str)
 {
 	const size_t len = strlen(str);
 
@@ -619,6 +619,22 @@ int32_t stress_get_int32_instance_percent(const char *const str)
 		}
 	}
 	return stress_get_int32(str);
+}
+
+/*
+ *  stress_get_int32_instance_percent_generic()
+ *	get instance by number or by percentage
+ */
+int32_t stress_get_int32_instance_percent(const char *const str)
+{
+	const int32_t val = stress_get_int32_instance_percent_generic(str);
+
+	if (val == 0)
+                return stress_cpus_configured_get();
+        else if (val < 0)
+                return stress_cpus_online_get();
+	else
+		return val;
 }
 
 /*

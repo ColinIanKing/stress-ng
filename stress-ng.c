@@ -74,8 +74,6 @@
 #include <linux/fs.h>
 #endif
 
-#define MIN_SEQUENTIAL		(0)
-#define MAX_SEQUENTIAL		(1000000)
 #define DEFAULT_SEQUENTIAL	(0)	/* Disabled */
 #define DEFAULT_PARALLEL	(0)	/* Disabled */
 #define DEFAULT_TIMEOUT		(60 * 60 * 24)
@@ -1003,20 +1001,6 @@ static const char PURE *stress_opt_name_find(const int opt_val)
 			return stress_long_options[i].name;
 
 	return "unknown";
-}
-
-/*
- *  stress_processors_get()
- *	get number of processors, set count if <=0 as:
- *		count = 0 -> number of CPUs in system
- *		count < 0 -> number of CPUs online
- */
-static void stress_processors_get(int32_t *count)
-{
-	if (*count == 0)
-		*count = stress_cpus_configured_get();
-	else if (*count < 0)
-		*count = stress_cpus_online_get();
 }
 
 /*
@@ -3427,7 +3411,7 @@ static void stress_stressor_option(const char *opt, const uint64_t opt_flag, int
 }
 
 static const stress_opt_t main_opts[] = {
-	{ OPT_all,            "all",             TYPE_ID_INT32_CPU_PERCENT, 1, STRESS_PROCS_MAX, NULL },
+	{ OPT_all,            "all",             TYPE_ID_INT32_CPU_PERCENT, -STRESS_PROCS_MAX, STRESS_PROCS_MAX, NULL },
 	{ OPT_backoff,        "backoff",         TYPE_ID_INT64, 0, 10000000, NULL },
 	{ OPT_cache_level,    "cache-level",     TYPE_ID_INT16, 1, 5, NULL },
 	{ OPT_cache_size,     "cache-size",      TYPE_ID_UINT64_BYTES_VM, 1 * KB, 4 * GB, NULL },
@@ -3448,10 +3432,10 @@ static const stress_opt_t main_opts[] = {
 	{ OPT_no_madvise,     "no-madvise",      TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_oom_avoid_bytes,"oom-avoid-bytes", TYPE_ID_SIZE_T_BYTES_VM, 4096, 0xffffffffffffffffULL, NULL },
 	{ OPT_pause,          "pause",           TYPE_ID_UINT, 0, INT_MAX, NULL },
-	{ OPT_permute,        "permute",         TYPE_ID_INT32_CPU_PERCENT, 1, STRESS_PROCS_MAX, NULL },
+	{ OPT_permute,        "permute",         TYPE_ID_INT32_CPU_PERCENT, -STRESS_PROCS_MAX, STRESS_PROCS_MAX, NULL },
 	{ OPT_quiet,          "quiet",           TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_raplstat,       "raplstat",        TYPE_ID_INT32, 1, 3600, NULL },
-	{ OPT_random,         "random",          TYPE_ID_INT32_CPU_PERCENT, 1, STRESS_PROCS_MAX, NULL },
+	{ OPT_random,         "random",          TYPE_ID_INT32_CPU_PERCENT, -STRESS_PROCS_MAX, STRESS_PROCS_MAX, NULL },
 	{ OPT_resctrl,        "resctrl",         TYPE_ID_STR, 0, 0, NULL },
 	{ OPT_sched,          "sched",           TYPE_ID_STR, 0, 0, NULL },
 	{ OPT_sched_deadline, "sched-deadline",  TYPE_ID_UINT64, 0, 1000000000000000ULL, NULL },
@@ -3459,7 +3443,7 @@ static const stress_opt_t main_opts[] = {
 	{ OPT_sched_period,   "sched-period",    TYPE_ID_UINT64, 0, 1000000000000000ULL, NULL },
 	{ OPT_sched_prio,     "sched-prio",      TYPE_ID_INT32, 1, 99, NULL },
 	{ OPT_seed,           "seed",            TYPE_ID_UINT64, 0, 0xffffffffffffffffULL, NULL },
-	{ OPT_sequential,     "sequential",      TYPE_ID_INT32_CPU_PERCENT, 1, STRESS_PROCS_MAX, NULL },
+	{ OPT_sequential,     "sequential",      TYPE_ID_INT32_CPU_PERCENT, -STRESS_PROCS_MAX, STRESS_PROCS_MAX, NULL },
 	{ OPT_status,         "status",          TYPE_ID_INT32, 1, 3600, NULL },
 	{ OPT_taskset,        "taskset",         TYPE_ID_STR, 0, 0, NULL },
 	{ OPT_temp_path,      "temp-path",       TYPE_ID_STR, 0, 0, NULL },
@@ -3500,7 +3484,6 @@ next_opt:
 				g_item_current = item;
 				g_opt_flags |= OPT_FLAGS_SET;
 				item->instances = stress_get_int32_instance_percent(optarg);
-				stress_processors_get(&item->instances);
 				stress_check_max_stressors(name, item->instances);
 				goto next_opt;
 			}
