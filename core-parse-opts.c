@@ -715,6 +715,10 @@ int stress_parse_opt(const char *stressor_name, const char *opt_arg, const stres
 		setting.u.int32 = stress_get_int32(opt_arg);
 		stress_check_signed_range(opt_name, (int64_t)setting.u.int32, (int64_t)min, (int64_t)max);
 		return stress_setting_set(stressor_name, opt_name, TYPE_ID_INT32, &setting.u.int32);
+	case TYPE_ID_INT32_CPU_PERCENT:
+		setting.u.int32 = stress_get_int32_instance_percent(optarg);
+		stress_check_signed_range(opt_name, (int64_t)setting.u.int32, (int64_t)min, (int64_t)max);
+		return stress_setting_set(stressor_name, opt_name, TYPE_ID_INT32, &setting.u.int32);
 	case TYPE_ID_UINT64:
 		setting.u.uint64 = stress_get_uint64(opt_arg);
 		stress_check_range(opt_name, setting.u.uint64, min, max);

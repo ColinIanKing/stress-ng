@@ -3244,30 +3244,40 @@ static inline void stress_random_stressors_set(void)
 	}
 }
 
-static void stress_with(const int32_t instances)
+static bool stress_with(const int32_t instances)
 {
-	char *opt_with = NULL, *str, *token;
+	char *opt_with = NULL, *dup_with, *str, *token;
 
-	(void)stress_setting_get("with", &opt_with);
+	if (!stress_setting_get("with", &opt_with))
+		return false;
 
-	for (str = opt_with; (token = strtok(str, ",")) != NULL; str = NULL) {
+	dup_with = stress_const_optdup(opt_with);
+	if (!dup_with)
+		exit(EXIT_FAILURE);
+
+	g_opt_flags |= (OPT_FLAGS_WITH | OPT_FLAGS_SET);
+
+	for (str = dup_with; (token = strtok(str, ",")) != NULL; str = NULL) {
 		stress_list_item_t *item;
 		const ssize_t i = stress_stressor_find(token);
 
 		if (i < 0) {
 			(void)fprintf(stderr, "unknown stressor: '%s', "
 				"invalid --with option\n", token);
+			free(dup_with);
 			exit(EXIT_FAILURE);
 		}
 		item = stress_list_item_find(&stressors[i]);
 		if (!item) {
 			(void)fprintf(stderr, "cannot %zu byte allocate stressor state info%s\n",
 				sizeof(*item), stress_memory_free_get());
+			free(dup_with);
 			exit(EXIT_FAILURE);
 		}
 		item->instances = instances;
 	}
-	return;
+	free(dup_with);
+	return true;
 }
 
 /*
@@ -3278,10 +3288,9 @@ static void stress_stressors_enable(const int32_t instances)
 {
 	size_t i;
 
-	if (g_opt_flags & OPT_FLAGS_WITH) {
-		stress_with(instances);
+	/* --with option enabled? */
+	if (stress_with(instances))
 		return;
-	}
 
 	/* Don't enable all if some stressors are set */
 	if (g_opt_flags & OPT_FLAGS_SET)
@@ -3407,7 +3416,18 @@ static void stress_oom_avoid_bytes_check(void)
 	g_opt_flags |= OPT_FLAGS_OOM_AVOID;
 }
 
+static void stress_stressor_option(const char *opt, const uint64_t opt_flag, int32_t *value)
+{
+	int32_t v = 0;
+
+	if (stress_setting_get(opt, &v))
+		g_opt_flags |= opt_flag;
+	if (value)
+		*value = v;
+}
+
 static const stress_opt_t main_opts[] = {
+	{ OPT_all,            "all",             TYPE_ID_INT32_CPU_PERCENT, 1, STRESS_PROCS_MAX, NULL },
 	{ OPT_backoff,        "backoff",         TYPE_ID_INT64, 0, 10000000, NULL },
 	{ OPT_cache_level,    "cache-level",     TYPE_ID_INT16, 1, 5, NULL },
 	{ OPT_cache_size,     "cache-size",      TYPE_ID_UINT64_BYTES_VM, 1 * KB, 4 * GB, NULL },
@@ -3428,8 +3448,10 @@ static const stress_opt_t main_opts[] = {
 	{ OPT_no_madvise,     "no-madvise",      TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_oom_avoid_bytes,"oom-avoid-bytes", TYPE_ID_SIZE_T_BYTES_VM, 4096, 0xffffffffffffffffULL, NULL },
 	{ OPT_pause,          "pause",           TYPE_ID_UINT, 0, INT_MAX, NULL },
+	{ OPT_permute,        "permute",         TYPE_ID_INT32_CPU_PERCENT, 1, STRESS_PROCS_MAX, NULL },
 	{ OPT_quiet,          "quiet",           TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_raplstat,       "raplstat",        TYPE_ID_INT32, 1, 3600, NULL },
+	{ OPT_random,         "random",          TYPE_ID_INT32_CPU_PERCENT, 1, STRESS_PROCS_MAX, NULL },
 	{ OPT_resctrl,        "resctrl",         TYPE_ID_STR, 0, 0, NULL },
 	{ OPT_sched,          "sched",           TYPE_ID_STR, 0, 0, NULL },
 	{ OPT_sched_deadline, "sched-deadline",  TYPE_ID_UINT64, 0, 1000000000000000ULL, NULL },
@@ -3437,6 +3459,7 @@ static const stress_opt_t main_opts[] = {
 	{ OPT_sched_period,   "sched-period",    TYPE_ID_UINT64, 0, 1000000000000000ULL, NULL },
 	{ OPT_sched_prio,     "sched-prio",      TYPE_ID_INT32, 1, 99, NULL },
 	{ OPT_seed,           "seed",            TYPE_ID_UINT64, 0, 0xffffffffffffffffULL, NULL },
+	{ OPT_sequential,     "sequential",      TYPE_ID_INT32_CPU_PERCENT, 1, STRESS_PROCS_MAX, NULL },
 	{ OPT_status,         "status",          TYPE_ID_INT32, 1, 3600, NULL },
 	{ OPT_taskset,        "taskset",         TYPE_ID_STR, 0, 0, NULL },
 	{ OPT_temp_path,      "temp-path",       TYPE_ID_STR, 0, 0, NULL },
@@ -3445,6 +3468,7 @@ static const stress_opt_t main_opts[] = {
 	{ OPT_timer_slack,    "timer-slack",     TYPE_ID_UINT32, 0, 0xffffffffULL, NULL },
 	{ OPT_vmstat,         "vmstat",          TYPE_ID_INT32, 1, 3600, NULL },
 	{ OPT_vmstat_units,   "vmstat-units",    TYPE_ID_STR, 0, 0, NULL },
+	{ OPT_with,           "with",            TYPE_ID_STR, 0, 0, NULL },
 	{ OPT_yaml,           "yaml",            TYPE_ID_STR, 0, 0, NULL },
 	END_OPT,
 };
@@ -3458,7 +3482,6 @@ int stress_opts_parse(int argc, char **argv, const bool jobmode)
 	optind = 0;
 
 	for (;;) {
-		int32_t i32;
 		int c, option_index, ret;
 		size_t i;
 
@@ -3523,14 +3546,8 @@ next_opt:
 			}
 		}
 
+		/* only act on options that are special cases */
 		switch (c) {
-		case OPT_all:
-			g_opt_flags |= OPT_FLAGS_ALL;
-			opt_parallel= stress_get_int32_instance_percent(optarg);
-			stress_processors_get(&opt_parallel);
-			stress_check_max_stressors("all", opt_parallel);
-			stress_setting_global_set("all", TYPE_ID_UINT32, &opt_parallel);
-			break;
 		case OPT_config:
 			printf("config:\n%s", stress_config);
 			exit(EXIT_SUCCESS);
@@ -3541,28 +3558,6 @@ next_opt:
 			if (!jobmode)
 				(void)printf("try '%s --help' or 'man stress-ng' for more information.\n", g_prog_name);
 			return EXIT_FAILURE;
-		case OPT_random:
-			g_opt_flags |= OPT_FLAGS_RANDOM;
-			i32 = stress_get_int32_instance_percent(optarg);
-			stress_processors_get(&i32);
-			stress_check_max_stressors("random", i32);
-			stress_setting_global_set("random", TYPE_ID_INT32, &i32);
-			break;
-		case OPT_sequential:
-			g_opt_flags |= OPT_FLAGS_SEQUENTIAL;
-			opt_sequential = stress_get_int32_instance_percent(optarg);
-			stress_processors_get(&opt_sequential);
-			stress_check_range("sequential", (uint64_t)opt_sequential,
-				MIN_SEQUENTIAL, MAX_SEQUENTIAL);
-			stress_setting_global_set("sequential", TYPE_ID_UINT32, &opt_sequential);
-			break;
-		case OPT_permute:
-			g_opt_flags |= OPT_FLAGS_PERMUTE;
-			opt_permute = stress_get_int32_instance_percent(optarg);
-			stress_processors_get(&opt_permute);
-			stress_check_max_stressors("permute", opt_permute);
-			stress_setting_global_set("permute", TYPE_ID_UINT32, &opt_permute);
-			break;
 		case OPT_stressors:
 			stress_stressor_names_show();
 			exit(EXIT_SUCCESS);
@@ -3572,10 +3567,6 @@ next_opt:
 		case OPT_verifiable:
 			stress_verifiable();
 			exit(EXIT_SUCCESS);
-		case OPT_with:
-			g_opt_flags |= (OPT_FLAGS_WITH | OPT_FLAGS_SET);
-			stress_setting_global_set("with", TYPE_ID_STR, (void *)optarg);
-			break;
 		default:
 			if (!jobmode)
 				(void)printf("unknown option (%d)\n",c);
@@ -4048,6 +4039,11 @@ int main(int argc, char **argv, char **envp)
 		stress_memory_ksm_merge(1);
 
 	stress_oom_avoid_bytes_check();
+
+	stress_stressor_option("all", OPT_FLAGS_ALL, &opt_parallel);
+	stress_stressor_option("permute", OPT_FLAGS_PERMUTE, &opt_permute);
+	stress_stressor_option("random", OPT_FLAGS_RANDOM, NULL);
+	stress_stressor_option("sequential", OPT_FLAGS_SEQUENTIAL, &opt_sequential);
 
 	if (stress_class_get(&opt_class, &ret) < 0)
 		goto exit_stressors_free;

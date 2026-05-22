@@ -75,6 +75,7 @@ static void stress_setting_show_setting(
 			setting->u.uint32, show_type ? " (uint32_t)" : "");
 		break;
 	case TYPE_ID_INT32:
+	case TYPE_ID_INT32_CPU_PERCENT:
 		pr_func(" %-20.20s %" PRId32 "%s\n", setting->name,
 			setting->u.int32, show_type ? " (int32_t)" : "");
 		break;
@@ -274,6 +275,9 @@ static int stress_setting_generic_set(
 	case TYPE_ID_UINT32:
 		setting->u.uint32 = *(const uint32_t *)value;
 		break;
+	case TYPE_ID_INT32_CPU_PERCENT:
+		setting->u.uint32 = *(const uint32_t *)value;
+		break;
 	case TYPE_ID_INT32:
 		setting->u.int32 = *(const int32_t *)value;
 		break;
@@ -410,6 +414,10 @@ bool stress_setting_get(const char *name, void *value)
 				*(uint32_t *)value = setting->u.uint32;
 				break;
 			case TYPE_ID_INT32:
+				set = true;
+				*(int32_t *)value = setting->u.int32;
+				break;
+			case TYPE_ID_INT32_CPU_PERCENT:
 				set = true;
 				*(int32_t *)value = setting->u.int32;
 				break;
