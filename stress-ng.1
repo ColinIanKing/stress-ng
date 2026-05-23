@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, may be w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "19 May 2026"
+.TH STRESS-NG 1 "23 May 2026"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -6726,6 +6726,34 @@ data to and from all the other NUMA nodes. The number of pages copied
 for each combination of node to node copy is output at the end of the
 run. The local node copies should be faster than the distant node copies.
 The stressor exercises NUMA node memory bus interconnect.
+.TP
+.B \-\-numacopy\-affinity [ next | none | node | prev | random ]
+select the CPU affinity of copying process relative to the NODE where
+data is being copied from. This occurs 20 times per second.
+The option are described below:
+.sp
+.TS
+lB2 lB
+l lx.
+Option	Description
+next	T{
+move process to a CPU associated with the next NUMA node. If there
+is no next node, use random CPU selection.
+T}
+none	T{
+no process moving (default option)
+T}
+node	T{
+move process to a CPU associated with the source NODE.
+T}
+prev	T{
+move process to a CPU associated with the previous NUMA node. If there
+is no previous node, use random CPU selection.
+T}
+random	T{
+move process to any random CPU.
+T}
+.TE
 .TP
 .B \-\-numacopy\-mode [ bind | interleave | preferred | weighted-interleave ]
 select mbind mode options, see mbind(2) for an explanation of these modes.

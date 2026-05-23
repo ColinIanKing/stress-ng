@@ -758,6 +758,7 @@ const struct option stress_long_options[] = {
 	{ "numa-shuffle-addr",	0,	0,	OPT_numa_shuffle_addr },
 	{ "numa-shuffle-node",	0,	0,	OPT_numa_shuffle_node },
 	{ "numacopy",		1,	0,	OPT_numacopy },
+	{ "numacopy-affinity",  1,	0,	OPT_numacopy_affinity },
 	{ "numacopy-mode",	1,	0,	OPT_numacopy_mode },
 	{ "numacopy-ops",	1,	0,	OPT_numacopy_ops },
 	{ "oomable",		0,	0,	OPT_oomable },

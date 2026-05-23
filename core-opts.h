@@ -1096,6 +1096,7 @@ typedef enum {
 	OPT_numa_shuffle_node,
 
 	OPT_numacopy,
+	OPT_numacopy_affinity,
 	OPT_numacopy_mode,
 	OPT_numacopy_ops,
 
