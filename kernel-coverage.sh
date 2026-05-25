@@ -684,6 +684,9 @@ do_stress --null -1 --null-write
 do_stress --numa -1 --numa-shuffle-addr
 do_stress --numa -1 --numa-shuffle-node
 
+do_stress --numacopy -1 --numacopy-affinity prev
+do_stress --numacopy -1 --numacopy-affinity random
+
 do_stress --open -1 --open-fd
 do_stress --open -1 --open-max 100000
 
