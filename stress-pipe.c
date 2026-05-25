@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-affinity.h"
 #include "core-builtin.h"
+#include "core-filesystem.h"
 #include "core-mmap.h"
 #include "core-signal.h"
 
@@ -735,12 +736,27 @@ finish:
 	return rc;
 }
 
+/*
+ *   stress_pipe_data_size
+ *   	parse --pipe-data-size, check for variable min/max sizes
+ */
+static void stress_pipe_data_size(const char *opt_name, const char *opt_arg, stress_type_id_t *type_id, void *value)
+{
+	const size_t min_pipe_size = stress_memory_page_size_get();
+	const size_t max_pipe_size = stress_fs_max_pipe_size_get();
+	const size_t pipe_size = (size_t)stress_get_uint64_byte_memory(opt_arg, 1);
+
+	stress_check_range(opt_name, (uint64_t)pipe_size, min_pipe_size, max_pipe_size);
+        *type_id = TYPE_ID_SIZE_T_BYTES_VM;
+	*(size_t *)value = (size_t)pipe_size;
+}
+
 static const stress_opt_t opts[] = {
 #if defined(F_SETPIPE_SZ)
 	{ OPT_pipe_size,      "pipe-size",      TYPE_ID_SIZE_T_BYTES_VM, MIN_PIPE_SIZE, MAX_PIPE_SIZE, NULL },
 #endif
 	/* FIXME: was min = 8, max = stress_memory_page_size_get() */
-	{ OPT_pipe_data_size, "pipe-data-size", TYPE_ID_SIZE_T_BYTES_VM, MIN_PIPE_DATA_SIZE, MAX_PIPE_DATA_SIZE, NULL },
+	{ OPT_pipe_data_size, "pipe-data-size", TYPE_ID_CALLBACK, 0, 0, (void *)stress_pipe_data_size },
 	{ OPT_pipe_vmsplice,  "pipe-vmsplice",  TYPE_ID_BOOL, 0, 1, NULL },
 	END_OPT,
 };
