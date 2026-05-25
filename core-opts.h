@@ -1163,8 +1163,10 @@ typedef enum {
 
 	OPT_pipe_data_size,
 	OPT_pipe_ops,
+	OPT_pipe_readers,
 	OPT_pipe_size,
 	OPT_pipe_vmsplice,
+	OPT_pipe_writers,
 
 	OPT_pipeherd,
 	OPT_pipeherd_ops,

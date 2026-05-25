@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, may be w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "23 May 2026"
+.TH STRESS-NG 1 "25 May 2026"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -7008,10 +7008,8 @@ pipe writer and pipe reader processes. The default size is the page size.
 .B \-\-pipe\-ops N
 stop pipe stress workers after N bogo pipe write operations.
 .TP
-.B \-\-pipe\-vmsplice
-use vmsplice(2) to splice data pages to/from pipe. Requires pipe packet
-mode using O_DIRECT and buffer twice the size of the pipe to ensure verification
-data sequences.
+.B \-\-pipe\-readers N
+specify number of child reader processes reading on the pipe, default is 1.
 .TP
 .B \-\-pipe\-size N
 specifies the size of the pipe in bytes (for systems that support the
@@ -7019,6 +7017,14 @@ F_SETPIPE_SZ fcntl() command). Setting a small pipe size will cause the pipe
 to fill and block more frequently, hence increasing the context switch rate
 between the pipe writer and the pipe reader processes. As of version 0.15.11 the
 default size is 4096 bytes.
+.TP
+.B \-\-pipe\-writers N
+specify number of child writer processes writing on the pipe, default is 1.
+.TP
+.B \-\-pipe\-vmsplice
+use vmsplice(2) to splice data pages to/from pipe. Requires pipe packet
+mode using O_DIRECT and buffer twice the size of the pipe to ensure verification
+data sequences.
 .RE
 .TP
 .B Shared pipe stressor

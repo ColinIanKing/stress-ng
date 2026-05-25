@@ -813,10 +813,12 @@ const struct option stress_long_options[] = {
 	{ "pipe",		1,	0,	OPT_pipe },
 	{ "pipe-data-size",	1,	0,	OPT_pipe_data_size },
 	{ "pipe-ops",		1,	0,	OPT_pipe_ops },
+	{ "pipe-readers",	1,	0,	OPT_pipe_readers },
 #if defined(F_SETPIPE_SZ)
 	{ "pipe-size",		1,	0,	OPT_pipe_size },
 #endif
 	{ "pipe-vmsplice",	0,	0,	OPT_pipe_vmsplice },
+	{ "pipe-writers",	1,	0,	OPT_pipe_writers },
 	{ "pipeherd",		1,	0,	OPT_pipeherd },
 	{ "pipeherd-ops",	1,	0,	OPT_pipeherd_ops },
 	{ "pipeherd-procs",	1,	0,	OPT_pipeherd_procs },
