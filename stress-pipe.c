@@ -26,11 +26,7 @@
 
 #include <sys/ioctl.h>
 
-#define MIN_PIPE_SIZE		(4096)
-#define MAX_PIPE_SIZE		(1024 * 1024)
-
 #define MIN_PIPE_DATA_SIZE	(8)
-#define MAX_PIPE_DATA_SIZE	(4096)
 
 static const stress_help_t help[] = {
 	{ "p N", "pipe N",		"start N workers exercising pipe I/O" },
@@ -552,7 +548,7 @@ static int stress_pipe(stress_args_t *args)
 	(void)stress_setting_get("pipe-vmsplice", &pipe_vmsplice);
 	if (!stress_setting_get("pipe-data-size", &pipe_data_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			pipe_data_size = MAX_PIPE_DATA_SIZE;
+			pipe_data_size = stress_memory_page_size_get();
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			pipe_data_size = MIN_PIPE_DATA_SIZE;
 	}
@@ -592,9 +588,9 @@ static int stress_pipe(stress_args_t *args)
 
 		if (!stress_setting_get("pipe-size", &pipe_size)) {
 			if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-				pipe_size = MAX_PIPE_SIZE;
+				pipe_size = stress_fs_max_pipe_size_get();
 			if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-				pipe_size = MIN_PIPE_SIZE;
+				pipe_size = stress_memory_page_size_get();
 		}
 		if (pipe_size > 0) {
 			pipe_change_size(args, pipefds[0], pipe_size);
