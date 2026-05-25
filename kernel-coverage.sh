@@ -694,6 +694,9 @@ do_stress --pipe -1 --pipe-size 64K
 do_stress --pipe -1 --pipe-size 1M
 do_stress --pipe -1 --pipe-data-size 64
 do_stress --pipe -1 --pipe-vmsplice
+do_stress --pipe -1 --pipe-readers 64
+do_stress --pipe -1 --pipe-writers 64
+do_stress --pipe -1 --pipe-readers 64 --pipe-writers 64
 
 do_stress --pipeherd 1 --pipeherd-yield
 
