@@ -1085,7 +1085,7 @@ static int stress_open(stress_args_t *args)
 		fds = (int *)mmap(NULL, sz, PROT_READ | PROT_WRITE,
 				MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 		if (fds == MAP_FAILED) {
-			pr_inf_skip("%s: cannot mmap %zu file descriptors%s, "
+			pr_inf_skip("%s: cannot mmap %" PRIu64 " file descriptors%s, "
 				"errno=%d (%s), skipping stressor\n",
 				args->name, open_max, stress_memory_free_get(),
 				errno, strerror(errno));
@@ -1093,7 +1093,7 @@ static int stress_open(stress_args_t *args)
 		}
 	}
 	if (!args->instance)
-		pr_inf("%s: using a maximum of %zu file descriptors\n", args->name, open_max);
+		pr_inf("%s: using a maximum of %" PRIu64 " file descriptors\n", args->name, open_max);
 	stress_memory_anon_name_set(fds, sz, "fds");
 
 	if (open_fd) {
