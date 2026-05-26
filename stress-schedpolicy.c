@@ -46,6 +46,14 @@ static const stress_opt_t opts[] = {
      !defined(__HAIKU__) &&						\
      !defined(__serenity__)
 
+#if (defined(SCHED_DEADLINE) || 	\
+     defined(SCHED_BATCH) || 		\
+     defined(SCHED_OTHER)) &&		\
+     (defined(HAVE_SCHED_GETATTR) ||	\
+      defined(HAVE_SCHED_SETATTR))
+#define USE_CLAMP
+#endif
+
 static int stress_schedpolicy(stress_args_t *args)
 {
 	size_t policy_index = (size_t)args->instance % stress_sched_types_length;
@@ -144,16 +152,14 @@ static int stress_schedpolicy(stress_args_t *args)
 #endif
 		struct sched_param param;
 		int ret = 0;
-#if (defined(SCHED_DEADLINE) || 	\
-     defined(SCHED_BATCH) || 		\
-     defined(SCHED_OTHER)) &&		\
-    defined(HAVE_SCHED_GETATTR) &&	\
-    defined(HAVE_SCHED_SETATTR)
-		static bool use_clamp = true;
-#endif
 		int max_prio, min_prio, rng_prio;
 		const char *new_policy_name;
 		const char *syscall_name = "unknown";
+#if defined(USE_CLAMP)
+		static bool use_clamp = true;
+
+		(void)use_clamp;
+#endif
 
 		/*
 		 *  find a new randomized policy that is not the same
@@ -206,13 +212,15 @@ static int stress_schedpolicy(stress_args_t *args)
 			if (stress_mwc1())
 				attr.sched_flags |= SCHED_FLAG_RECLAIM;
 #endif
-#if defined(SCHED_FLAG_UTIL_CLAMP_MIN)
+#if defined(SCHED_FLAG_UTIL_CLAMP_MIN) &&	\
+    defined(USE_CLAMP)
 			if (use_clamp && stress_mwc1()) {
 				attr.sched_flags |= SCHED_FLAG_UTIL_CLAMP_MIN;
 				attr.sched_util_min = 1;
 			}
 #endif
-#if defined(SCHED_FLAG_UTIL_CLAMP_MAX)
+#if defined(SCHED_FLAG_UTIL_CLAMP_MAX) &&	\
+    defined(USE_CLAMP)
 			if (use_clamp && stress_mwc1()) {
 				attr.sched_flags |= SCHED_FLAG_UTIL_CLAMP_MAX;
 				attr.sched_util_max = 2 + (stress_mwc8() & 0x3f);
@@ -232,8 +240,10 @@ static int stress_schedpolicy(stress_args_t *args)
 			errno = 0;
 			ret = shim_sched_setattr(pid, &attr, 0);
 			if ((ret < 0) && (errno == EOPNOTSUPP)) {
+#if defined(USE_CLAMP)
 				/* Disable clamping for next time */
 				use_clamp = false;
+#endif
 				goto next_policy;
 			}
 			break;
@@ -264,13 +274,15 @@ static int stress_schedpolicy(stress_args_t *args)
 				attr.sched_policy = new_policy;
 				attr.sched_nice = stress_mwc8modn(40) - 19;
 				attr.sched_flags = 0;
-#if defined(SCHED_FLAG_UTIL_CLAMP_MIN)
+#if defined(SCHED_FLAG_UTIL_CLAMP_MIN) &&	\
+    defined(USE_CLAMP)
 				if (use_clamp && stress_mwc1()) {
 					attr.sched_flags |= SCHED_FLAG_UTIL_CLAMP_MIN;
 					attr.sched_util_min = 1;
 				}
 #endif
-#if defined(SCHED_FLAG_UTIL_CLAMP_MAX)
+#if defined(SCHED_FLAG_UTIL_CLAMP_MAX) &&	\
+    defined(USE_CLAMP)
 				if (use_clamp && stress_mwc1()) {
 					attr.sched_flags |= SCHED_FLAG_UTIL_CLAMP_MAX;
 					attr.sched_util_max = 2 + (stress_mwc8() & 0x3f);
@@ -279,8 +291,10 @@ static int stress_schedpolicy(stress_args_t *args)
 				errno = 0;
 				ret = shim_sched_setattr(pid, &attr, 0);
 				if ((ret < 0) && (errno == EOPNOTSUPP)) {
+#if defined(USE_CLAMP)
 					/* Disable clamping for next time */
 					use_clamp = false;
+#endif
 					goto next_policy;
 				}
 				break;
