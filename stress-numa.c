@@ -246,7 +246,7 @@ static int stress_numa(stress_args_t *args)
 		char str[32];
 
 		stress_uint64_to_str(str, sizeof(str), (uint64_t)numa_bytes, 1, true);
-		pr_inf("%s: system has %ld of a maximum %ld memory NUMA nodes. Using %s mappings for each instance.\n",
+		pr_inf("%s: system has %ld of a maximum %ld memory NUMA nodes, using %s mappings for each instance.\n",
 			args->name, numa_mask->nodes, numa_mask->max_nodes, str);
 	}
 
