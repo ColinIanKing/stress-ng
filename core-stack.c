@@ -245,7 +245,10 @@ size_t stress_stack_minsigstksz(void)
 #if defined(HAVE_COMPILER_GCC_OR_MUSL) &&	\
     !defined(HAVE_COMPILER_CLANG) &&		\
     defined(HAVE_WEAK_ATTRIBUTE)
+
+#if !defined(__NetBSD__)
 extern void __stack_chk_fail(void);
+#endif
 
 NORETURN WEAK void __stack_chk_fail(void)
 {
