@@ -1563,10 +1563,12 @@ void stress_fs_chattr_flags_unset(const char *pathname)
  */
 static int CONST OPTIMIZE3 stress_fs_dirent_filter_dotty(const struct dirent *d)
 {
-	if (d->d_name[0] == '.') {
-		if (d->d_name[1] == '\0')
+	const char *d_name = d->d_name;
+
+	if (d_name[0] == '.') {
+		if (d_name[1] == '\0')
 			return 0;
-		if ((d->d_name[1] == '.') && LIKELY((d->d_name[2] == '\0')))
+		if ((d_name[1] == '.') && LIKELY((d_name[2] == '\0')))
 			return 0;
 	}
 	return 1;
