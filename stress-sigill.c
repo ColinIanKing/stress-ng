@@ -297,6 +297,8 @@ static int stress_sigill(stress_args_t *args)
 				case __ILL_BNDMOD:
 					break;
 #endif
+				case 0x80:
+					break;
 				default:
 					pr_fail("%s: unexpecting SIGILL si_code %d\n",
 						args->name, code);
