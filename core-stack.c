@@ -246,7 +246,8 @@ size_t stress_stack_minsigstksz(void)
     !defined(HAVE_COMPILER_CLANG) &&		\
     defined(HAVE_WEAK_ATTRIBUTE)
 
-#if !defined(__NetBSD__)
+#if !defined(__NetBSD__) &&	\
+    !defined(__CYGWIN__)
 extern void __stack_chk_fail(void);
 #endif
 
