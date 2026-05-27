@@ -381,8 +381,10 @@ static int stress_numanode_cpus(
 			}
 		}
 		numa_cpus[node].cpus = calloc((size_t)count, sizeof(*numa_cpus[node].cpus));
-		if (!numa_cpus[node].cpus)
+		if (!numa_cpus[node].cpus) {
+			free(cpus);
 			return -1;
+		}
 		numa_cpus[node].count = (size_t)count;
 		for (cpu = 0; cpu < count; cpu++)
 			numa_cpus[node].cpus[cpu] = cpus[cpu];
