@@ -353,7 +353,6 @@ static int stress_numanode_cpus(
 
 		count = 0;
 		ptr = buffer;
-		cpu_begin = -1;
 		cpu_end = -1;
 		while (*ptr) {
 			if (!isdigit((int)*ptr))
