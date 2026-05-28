@@ -138,12 +138,12 @@ static void stress_splice_looped_pipe(
 	if (UNLIKELY(!*use_splice_loop))
 		return;
 
-	ret = splice(fds3[0], 0, fds4[1], 0, 4096, stress_splice_flag());
+	ret = splice(fds3[0], NULL, fds4[1], NULL, 4096, stress_splice_flag());
 	if (UNLIKELY(ret < 0)) {
 		*use_splice_loop = false;
 		return;
 	}
-	ret = splice(fds4[0], 0, fds3[1], 0, 4096, stress_splice_flag());
+	ret = splice(fds4[0], NULL, fds3[1], NULL, 4096, stress_splice_flag());
 	if (UNLIKELY(ret < 0)) {
 		*use_splice_loop = false;
 		return;
