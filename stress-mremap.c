@@ -115,7 +115,7 @@ static int try_remap(
 #endif
 		if (UNLIKELY(!stress_continue_flag())) {
 			(void)stress_munmap_force(*buf, old_sz);
-			*buf = 0;
+			*buf = NULL;
 			return 0;
 		}
 		if (UNLIKELY(metrics_counter == 0))
