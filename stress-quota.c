@@ -264,7 +264,7 @@ static int do_quotas(stress_args_t *args, stress_dev_info_t *const dev)
 	if (LIKELY(stress_continue_flag())) {
 		err = do_quotactl(args, "Q_SYNC", &status,
 			SHIM_QCMD(Q_SYNC, USRQUOTA),
-			dev, 0, 0);
+			dev, 0, (caddr_t)NULL);
 		if (err == EPERM)
 			return err;
 	}
