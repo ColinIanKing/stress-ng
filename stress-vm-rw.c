@@ -159,7 +159,7 @@ redo_rd1:
 	}
 cleanup:
 	/* Tell parent we're done */
-	msg_wr.addr = 0;
+	msg_wr.addr = NULL;
 	msg_wr.val = 0;
 	if (UNLIKELY(write(ctxt->pipe_wr[1], &msg_wr, sizeof(msg_wr)) <= 0)) {
 		if (errno != EBADF)
