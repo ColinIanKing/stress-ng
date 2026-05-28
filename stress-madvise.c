@@ -606,7 +606,7 @@ madv_free_out:
 		 * Some systems allow zero sized page zero madvise
 		 * to see if that madvice is implemented, so try this
 		 */
-		(void)madvise(0, 0, stress_advice_check(madvise_options[advice]));
+		(void)madvise(NULL, 0, stress_advice_check(madvise_options[advice]));
 		advice++;
 		advice = (advice >= madvise_options_elements) ? 0: advice;
 
