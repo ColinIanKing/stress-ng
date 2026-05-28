@@ -78,7 +78,7 @@ static uint64_t OPTIMIZE3 TARGET_CLONES insertionsort_rev(int32_t *base, size_t 
 }
 
 static const stress_opt_t opts[] = {
-	{ OPT_insertionsort_size, "insertionsort-size", TYPE_ID_UINT64, MIN_INSERTIONSORT_SIZE, MAX_INSERTIONSORT_SIZE, 0 },
+	{ OPT_insertionsort_size, "insertionsort-size", TYPE_ID_UINT64, MIN_INSERTIONSORT_SIZE, MAX_INSERTIONSORT_SIZE, NULL },
 	END_OPT,
 };
 
