@@ -668,7 +668,7 @@ static void OPTIMIZE3 stress_mmaprandom_mmap_invalid(mr_ctxt_t *ctxt, const int 
 	int prot, flags, fd;
 	int mask;
 
-	hint = (state &  0x0001) ? MAP_FAILED : 0;
+	hint = (state &  0x0001) ? MAP_FAILED : NULL;
 	len = (state & 0x0002) ? 0 : ~(size_t)0;
 	prot = (state & 0x0004) ? 0 : PROT_READ;
 	prot |= (state & 0x0008) ? 0 : PROT_WRITE;
