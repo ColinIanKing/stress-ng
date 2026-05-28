@@ -2686,12 +2686,13 @@ static int syscall_inotify_rm_watch(void)
 static int syscall_io_cancel(void)
 {
 	int ret;
-	io_context_t ctx = 0;
+	io_context_t ctx;
 	struct iocb cb[1];
 	struct iocb *cbs[1];
 	struct io_event event;
 	uint32_t buffer[128];
 
+	(void)shim_memset(&ctx, 0, sizeof(ctx));
 	ret = (int)syscall(__NR_io_setup, 1, &ctx);
 	if (ret < 0)
 		return -1;
@@ -2730,8 +2731,9 @@ static int syscall_io_cancel(void)
 static int syscall_io_destroy(void)
 {
 	int ret;
-	io_context_t ctx = 0;
+	io_context_t ctx;
 
+	(void)shim_memset(&ctx, 0, sizeof(ctx));
 	ret = (int)syscall(__NR_io_setup, 1, &ctx);
 	if (ret < 0)
 		return -1;
@@ -2752,10 +2754,11 @@ static int syscall_io_destroy(void)
 static int syscall_io_getevents(void)
 {
 	int ret;
-	io_context_t ctx = 0;
+	io_context_t ctx;
 	struct io_event events;
 	struct timespec timeout;
 
+	(void)shim_memset(&ctx, 0, sizeof(ctx));
 	ret = (int)syscall(__NR_io_setup, 1, &ctx);
 	if (ret < 0)
 		return -1;
@@ -2779,10 +2782,11 @@ static int syscall_io_getevents(void)
 static int syscall_io_pgetevents(void)
 {
 	int ret;
-	io_context_t ctx = 0;
+	io_context_t ctx;
 	struct io_event events;
 	struct timespec timeout;
 
+	(void)shim_memset(&ctx, 0, sizeof(ctx));
 	ret = (int)syscall(__NR_io_setup, 1, &ctx);
 	if (ret < 0)
 		return -1;
@@ -2837,8 +2841,9 @@ static int syscall_ioprio_set(void)
 static int syscall_io_setup(void)
 {
 	int ret;
-	io_context_t ctx = 0;
+	io_context_t ctx;
 
+	(void)shim_memset(&ctx, 0, sizeof(ctx));
 	t1 = syscall_time_now();
 	ret = (int)syscall(__NR_io_setup, 1, &ctx);
 	t2 = syscall_time_now();
@@ -2859,11 +2864,12 @@ static int syscall_io_setup(void)
 static int syscall_io_submit(void)
 {
 	int ret, i;
-	io_context_t ctx = 0;
+	io_context_t ctx;
 	struct iocb cb[1];
 	struct iocb *cbs[1];
 	uint32_t buffer[128];
 
+	(void)shim_memset(&ctx, 0, sizeof(ctx));
 	ret = (int)syscall(__NR_io_setup, 1, &ctx);
 	if (ret < 0)
 		return -1;
