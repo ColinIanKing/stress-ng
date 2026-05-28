@@ -52,7 +52,7 @@ typedef struct {
 extern const stress_sched_types_t stress_sched_types[];
 extern const size_t stress_sched_types_length;
 
-extern const char *stress_sched_name_get(const int sched) RETURNS_NONNULL;
+extern const char PURE *stress_sched_name_get(const int sched) RETURNS_NONNULL;
 extern WARN_UNUSED int stress_sched_set(const pid_t pid, const int sched,
 	const int sched_priority, const bool quiet);
 extern WARN_UNUSED int stress_sched_parse(const char *const str);
