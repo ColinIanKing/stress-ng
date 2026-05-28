@@ -308,7 +308,7 @@ retry_bind:
 #endif
 	}
 
-	fd = accept(sockfd, NULL, 0);
+	fd = accept(sockfd, NULL, NULL);
 	if (UNLIKELY(fd < 0)) {
 		if (errno == EINTR) {
 			rc = EXIT_SUCCESS;
@@ -508,7 +508,7 @@ retry_bind:
 	goto err;
 #endif
 
-	fd = accept(sockfd, NULL, 0);
+	fd = accept(sockfd, NULL, NULL);
 	if (fd < 0) {
 		pr_fail("%s: %s (%s): accept failed, errno=%d (%s)\n",
 			args->name, info->name, info->type, errno, strerror(errno));
@@ -790,7 +790,7 @@ retry_bind:
 	}
 	free(key);
 
-	fd = accept(sockfd, NULL, 0);
+	fd = accept(sockfd, NULL, NULL);
 	if (fd < 0) {
 		pr_fail("%s: %s (%s): accept failed, errno=%d (%s)\n",
 			args->name, info->name, info->type, errno, strerror(errno));
@@ -1038,7 +1038,7 @@ retry_bind:
 		goto err;
 	}
 
-	fd = accept(sockfd, NULL, 0);
+	fd = accept(sockfd, NULL, NULL);
 	if (UNLIKELY(fd < 0)) {
 		pr_fail("%s: %s (%s): accept failed, errno=%d (%s)\n",
 			args->name, info->name, info->type,
