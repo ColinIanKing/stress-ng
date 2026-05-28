@@ -445,7 +445,7 @@ retry:
 			ssize_t n;
 
 			n = sctp_recvmsg(fd, buf, sizeof(buf),
-				NULL, 0, &sndrcvinfo, &flags);
+				NULL, NULL, &sndrcvinfo, &flags);
 			if (UNLIKELY(n <= 0))
 				break;
 			if (n >= (ssize_t)sizeof(pid_t)) {
