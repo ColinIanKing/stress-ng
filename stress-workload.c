@@ -67,7 +67,7 @@ typedef struct {
 	stress_workload_info_t *info;	/* generic workload info */
 } stress_workload_thread_t;
 
-stress_workload_thread_t stress_workload_threads[WORKLOAD_THREADS_MAX];
+static stress_workload_thread_t stress_workload_threads[WORKLOAD_THREADS_MAX];
 #endif
 
 #define NUM_BUCKETS	(20)
