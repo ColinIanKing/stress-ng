@@ -1773,7 +1773,7 @@ static void stress_fd_recvfrom(stress_fd_t *fd)
 	if (fd->flags & (FD_FLAG_RECV | FD_FLAG_READ)) {
 		char buf[16];
 
-		VOID_RET(ssize_t, recvfrom(fd->fd, buf, sizeof(buf), MSG_DONTWAIT, NULL, 0));
+		VOID_RET(ssize_t, recvfrom(fd->fd, buf, sizeof(buf), MSG_DONTWAIT, NULL, NULL));
 	}
 }
 #endif
