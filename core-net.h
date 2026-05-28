@@ -67,12 +67,12 @@ extern WARN_UNUSED int stress_net_sockaddr_set(const char *name, const uint32_t 
 extern void stress_net_sockaddr_port_set(const int domain, const int port,
 	struct sockaddr *sockaddr);
 extern int stress_net_interface_exists(const char *interface, const int domain, struct sockaddr *addr);
-extern WARN_UNUSED const char *stress_net_domain(const int domain);
+extern CONST WARN_UNUSED const char *stress_net_domain(const int domain);
 
 extern WARN_UNUSED int stress_net_reserve_ports(stress_args_t *args,
 		const int start_port, const int end_port);
 extern void stress_net_release_ports(const int start_port, const int end_port);
-extern WARN_UNUSED uint16_t stress_net_ipv4_checksum(uint16_t *ptr, const size_t sz);
+extern CONST WARN_UNUSED uint16_t stress_net_ipv4_checksum(uint16_t *ptr, const size_t sz);
 extern WARN_UNUSED int stress_net_port_wraparound(const int port);
 
 #endif
