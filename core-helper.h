@@ -48,7 +48,7 @@ extern size_t stress_munge_underscore(char *dst, const char *src, size_t len);
 extern WARN_UNUSED int stress_strcmp_munged(const char *s1, const char *s2);
 extern WARN_UNUSED uint64_t stress_uint64_zero_get(void);
 extern WARN_UNUSED void *stress_null_get(void);
-extern WARN_UNUSED bool stress_little_endian(void);
+extern CONST WARN_UNUSED bool stress_little_endian(void);
 extern void stress_buildinfo(void);
 extern void stress_yaml_buildinfo(FILE *yaml);
 extern void stress_runinfo(void);
@@ -56,7 +56,7 @@ extern void stress_yaml_runinfo(FILE *yaml);
 extern WARN_UNUSED unsigned int stress_cpu_get(void);
 extern WARN_UNUSED const char *stress_compiler_get(void) RETURNS_NONNULL;
 extern WARN_UNUSED const char *stress_uname_info_get(void) RETURNS_NONNULL;
-extern WARN_UNUSED int stress_unimplemented(stress_args_t *args);
+extern CONST WARN_UNUSED int stress_unimplemented(stress_args_t *args);
 extern char *stress_uint64_to_str(char *str, size_t len, const uint64_t val,
 	const int precisionm, const bool no_zero);
 extern WARN_UNUSED char *stress_const_optdup(const char *opt);
@@ -64,7 +64,7 @@ extern size_t stress_exec_text_addr(char **start, char **end);
 extern WARN_UNUSED bool stress_is_dev_tty(const int fd);
 extern WARN_UNUSED bool stress_warn_once_hash(const char *filename, const int line);
 extern WARN_UNUSED int stress_unused_uid_get(uid_t *uid);
-extern WARN_UNUSED int stress_kernel_release(const int major, const int minor,
+extern CONST WARN_UNUSED int stress_kernel_release(const int major, const int minor,
 	const int patchlevel);
 extern WARN_UNUSED int stress_kernel_release_get(void);
 extern WARN_UNUSED pid_t stress_unused_racy_pid_get(const bool fork_test);
@@ -73,7 +73,7 @@ extern WARN_UNUSED int stress_tty_width_get(void);
 extern WARN_UNUSED bool stress_redo_fork(stress_args_t *args, const int err);
 extern void stress_clear_warn_once(void);
 extern WARN_UNUSED size_t stress_flag_permutation(const int flags, int **permutations);
-extern WARN_UNUSED int stress_exit_status(const int err);
+extern CONST WARN_UNUSED int stress_exit_status(const int err);
 extern WARN_UNUSED char *stress_proc_self_exe_get(char *path, const size_t path_len);
 extern WARN_UNUSED int stress_bsd_getsysctl(const char *name, void *ptr, size_t size);
 extern WARN_UNUSED uint64_t stress_bsd_getsysctl_uint64(const char *name);

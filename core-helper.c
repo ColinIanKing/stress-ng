@@ -1707,7 +1707,7 @@ int stress_bsd_getsysctl_int(const char *name)
 }
 #else
 
-int CONST stress_bsd_getsysctl(const char *name, void *ptr, size_t size)
+int stress_bsd_getsysctl(const char *name, void *ptr, size_t size)
 {
 	(void)name;
 	(void)ptr;
@@ -1716,28 +1716,28 @@ int CONST stress_bsd_getsysctl(const char *name, void *ptr, size_t size)
 	return 0;
 }
 
-uint64_t CONST stress_bsd_getsysctl_uint64(const char *name)
+uint64_t stress_bsd_getsysctl_uint64(const char *name)
 {
 	(void)name;
 
 	return 0ULL;
 }
 
-uint32_t CONST stress_bsd_getsysctl_uint32(const char *name)
+uint32_t stress_bsd_getsysctl_uint32(const char *name)
 {
 	(void)name;
 
 	return 0UL;
 }
 
-unsigned int CONST stress_bsd_getsysctl_uint(const char *name)
+unsigned int stress_bsd_getsysctl_uint(const char *name)
 {
 	(void)name;
 
 	return 0;
 }
 
-int CONST stress_bsd_getsysctl_int(const char *name)
+int stress_bsd_getsysctl_int(const char *name)
 {
 	(void)name;
 
