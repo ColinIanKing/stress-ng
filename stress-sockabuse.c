@@ -622,7 +622,7 @@ static void stress_sockabuse_fd(const int fd)
 	if (ptr != MAP_FAILED)
 		(void)munmap(ptr, 4096);
 	nfd = dup(fd);
-	VOID_RET(ssize_t, shim_copy_file_range(fd, 0, nfd, 0, 16, 0));
+	VOID_RET(ssize_t, shim_copy_file_range(fd, NULL, nfd, NULL, 16, 0));
 	if (LIKELY(nfd >= 0))
 		(void)close(nfd);
 #if defined(HAVE_POSIX_FADVISE) &&	\
