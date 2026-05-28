@@ -136,7 +136,7 @@ static int stress_reboot(stress_args_t *args)
 			/* don't worry about failure */
 		}
 #endif
-		ret = shim_reboot(0, 0, (int)SHIM_LINUX_REBOOT_CMD_RESTART, 0);
+		ret = shim_reboot(0, 0, (int)SHIM_LINUX_REBOOT_CMD_RESTART, NULL);
 		if (ret < 0) {
 			if (reboot_capable) {
 				if (errno == EPERM) {
@@ -158,7 +158,7 @@ static int stress_reboot(stress_args_t *args)
 			}
 		}
 
-		ret = shim_reboot(0, 0, (int)SHIM_LINUX_REBOOT_CMD_SW_SUSPEND, 0);
+		ret = shim_reboot(0, 0, (int)SHIM_LINUX_REBOOT_CMD_SW_SUSPEND, NULL);
 		if (ret < 0) {
 			if (reboot_capable) {
 				if (errno == EPERM) {
