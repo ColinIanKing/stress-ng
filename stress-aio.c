@@ -203,7 +203,7 @@ static int issue_aio_sync_request(
 		io_req->request = 0;
 		io_req->status = EINPROGRESS;
 		io_req->aiocb.aio_fildes = fd;
-		io_req->aiocb.aio_buf = 0;
+		io_req->aiocb.aio_buf = NULL;
 		io_req->aiocb.aio_nbytes = 0;
 		io_req->aiocb.aio_reqprio = 0;
 		io_req->aiocb.aio_offset = 0;
