@@ -232,7 +232,7 @@ static int stress_ring_pipe(stress_args_t *args)
 						int flag = 0;
 #endif
 						t = stress_time_now();
-						sret = splice(pipe_fds[i].fds[0], 0, pipe_fds[j].fds[1], 0,
+						sret = splice(pipe_fds[i].fds[0], NULL, pipe_fds[j].fds[1], NULL,
 							      ring_pipe_size, flag);
 						if (UNLIKELY(sret < 0)) {
 							pr_inf("%s: splice failed, errno=%d (%s)\n",
