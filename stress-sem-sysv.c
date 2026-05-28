@@ -54,7 +54,7 @@ typedef union stress_semun {
 
 static const stress_opt_t opts[] = {
 	{ OPT_sem_sysv_procs,  "sem-sysv-procs",  TYPE_ID_UINT64, MIN_SEM_SYSV_PROCS, MAX_SEM_SYSV_PROCS, NULL },
-	{ OPT_sem_sysv_setall, "sem-sysv-setall", TYPE_ID_BOOL, 0, 1, 0 },
+	{ OPT_sem_sysv_setall, "sem-sysv-setall", TYPE_ID_BOOL, 0, 1, NULL },
 	END_OPT,
 };
 
