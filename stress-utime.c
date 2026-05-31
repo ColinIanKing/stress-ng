@@ -296,9 +296,9 @@ static int OPTIMIZE3 stress_utime(stress_args_t *args)
 #endif
 
 		/* Exercise with time outside of UNIX EPOCH  */
-		ts[0].tv_sec = (time_t)2147558400; /* Wednesday 20 January 2038 */
+		ts[0].tv_sec = (time_t)2147558400UL; /* Wednesday 20 January 2038 */
 		ts[0].tv_nsec = 0;
-		ts[1].tv_sec = (time_t)2147558400;
+		ts[1].tv_sec = (time_t)2147558400UL;
 		ts[1].tv_nsec = 0;
 		VOID_RET(int, futimens(fd, ts));
 
