@@ -195,29 +195,29 @@ static int OPTIMIZE3 stress_utime(stress_args_t *args)
 
 #if defined(HAVE_UTIMES) &&	\
     defined(LONG_MAX) &&	\
-    (LONG_MAX > 4354819200)
+    (LONG_MAX > 4354819200UL)
 		/* Exercise with time outside FAT time range */
-		timevals[0].tv_sec = (time_t)4354819200; /* Monday, 1 January 2108 00:00:00 */
+		timevals[0].tv_sec = (time_t)4354819200UL; /* Monday, 1 January 2108 00:00:00 */
 		timevals[0].tv_usec = 0;
-		timevals[1].tv_sec = (time_t)4354819200;
+		timevals[1].tv_sec = (time_t)4354819200UL;
 		timevals[1].tv_usec = 0;
 		VOID_RET(int, utimes(filename, timevals));
 #endif
 
 #if defined(HAVE_UTIMES)
 		/* Exercise with time outside of UNIX EPOCH  */
-		timevals[0].tv_sec = (time_t)2147558400; /* Wednesday 20 January 2038 */
+		timevals[0].tv_sec = (time_t)2147558400UL; /* Wednesday 20 January 2038 */
 		timevals[0].tv_usec = 0;
-		timevals[1].tv_sec = (time_t)2147558400;
+		timevals[1].tv_sec = (time_t)2147558400UL;
 		timevals[1].tv_usec = 0;
 		VOID_RET(int, utimes(filename, timevals));
 #endif
 
 #if defined(HAVE_UTIMES)
 		/* Exercise with time before of UNIX EPOCH  */
-		timevals[0].tv_sec = (time_t)0x7fffffff;
+		timevals[0].tv_sec = (time_t)0x7fffffffUL;
 		timevals[0].tv_usec = 0;
-		timevals[1].tv_sec = (time_t)0x7fffffff;
+		timevals[1].tv_sec = (time_t)0x7fffffffUL;
 		timevals[1].tv_usec = 0;
 		VOID_RET(int, utimes(filename, timevals));
 #endif
@@ -286,11 +286,11 @@ static int OPTIMIZE3 stress_utime(stress_args_t *args)
 		ts[1].tv_nsec = 0;
 		VOID_RET(int, futimens(fd, ts));
 
-#if defined(LONG_MAX) && (LONG_MAX > 4354819200)
+#if defined(LONG_MAX) && (LONG_MAX > 4354819200UL)
 		/* Exercise with time outside FAT time range */
-		ts[0].tv_sec = (time_t)4354819200; /* Monday, 1 January 2108 00:00:00 */
+		ts[0].tv_sec = (time_t)4354819200UL; /* Monday, 1 January 2108 00:00:00 */
 		ts[0].tv_nsec = 0;
-		ts[1].tv_sec = (time_t)4354819200;
+		ts[1].tv_sec = (time_t)4354819200UL;
 		ts[1].tv_nsec = 0;
 		VOID_RET(int, futimens(fd, ts));
 #endif
@@ -303,9 +303,9 @@ static int OPTIMIZE3 stress_utime(stress_args_t *args)
 		VOID_RET(int, futimens(fd, ts));
 
 		/* Exercise with time before of UNIX EPOCH  */
-		ts[0].tv_sec = (time_t)0x7fffffff;
+		ts[0].tv_sec = (time_t)0x7fffffffUL;
 		ts[0].tv_nsec = 0;
-		ts[1].tv_sec = (time_t)0x7fffffff;
+		ts[1].tv_sec = (time_t)0x7fffffffUL;
 		ts[1].tv_nsec = 0;
 		VOID_RET(int, futimens(fd, ts));
 #else
