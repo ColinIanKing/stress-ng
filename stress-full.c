@@ -140,7 +140,7 @@ try_read:
 #if defined(HAVE_PREAD)
 		{
 			const off_t offset = (sizeof(offset) == sizeof(uint64_t)) ?
-				(off_t)(stress_mwc64() & 0x7fffffffffffffff) :
+				(off_t)(stress_mwc64() & 0x7fffffffffffffffULL) :
 				(off_t)(stress_mwc32() & 0x7fffffffUL);
 			ret = pread(fd, buffer, buffer_size, offset);
 			if (UNLIKELY(ret < 0)) {
