@@ -3169,7 +3169,7 @@ a 16 MB file.  Where available, this uses fallocate(2)
 FALLOC_FL_PUNCH_HOLE and FALLOC_FL_ZERO_RANGE as well as data writing
 to create holes and also write zero and write random data to the file.
 The data and holes are placed in the file in reverse order, then in
-random order then forward order to try and create muliple file
+random order then forward order to try and create multiple file
 extents. Every 1024 writes the data is fsync'd for periodic forced
 data flushing. Holes and data sizes are based on the page size.
 .TP
