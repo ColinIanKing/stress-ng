@@ -889,7 +889,7 @@ static void stress_usage_help(const stress_help_t help_info[])
 				space = ptr;
 			wd++;
 			if (wd >= cols - 30) {
-				const size_t n = (size_t)(space - start);
+				const size_t n = space ? (size_t)(space - start) : (size_t)(ptr - start);
 
 				if (!first)
 					(void)printf("%-30s", "");
