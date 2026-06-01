@@ -208,6 +208,7 @@
  * [xPUE: Extending Power Usage Effectiveness Metrics for Cloud Infrastructures](https://arxiv.org/pdf/2503.07124)
 
 2026:
+ * [A Methodology to Assess Power Modeling in Energy-Aware Federated Learning on Heterogeneous Mobile Devices](https://arxiv.org/html/2605.27601v1)
  * [A Scalable Digital Twin Framework for Energy Optimization in Data Centers](https://arxiv.org/html/2605.05581v1)
  * [AGMARL-DKS: An Adaptive Graph-Enhanced Multi-Agent Reinforcement Learning for Dynamic Kubernetes Scheduling](https://arxiv.org/html/2603.12031v1)
  * [Architecture Dependent Temporal Observability Under Deployment Interference in Edge Inference Systems](https://arxiv.org/html/2605.17701v1)
