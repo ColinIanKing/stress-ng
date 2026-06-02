@@ -1,3 +1,9 @@
+stress-ng (0.21.02-1) unstable; urgency=medium
+
+  * Sync to upstream version 0.21.02
+
+ -- Colin Ian King <colin.i.king@gmail.com>  Tue, 2 Jun  2026 09:37:11 +0100
+
 stress-ng (0.21.01-1) unstable; urgency=medium
 
   * Sync to upstream version 0.21.01
