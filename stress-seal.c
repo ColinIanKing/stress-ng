@@ -232,9 +232,23 @@ static int stress_seal(stress_args_t *args)
 
 #if defined(F_SEAL_FUTURE_WRITE)
 		/*
-		 *  And try (and ignore error) from a F_SEAL_FUTURE_WRITE
+		 *  Try to F_SEAL_FUTURE_WRITE a file and check if mmap
+		 *  on it will fail
 		 */
-		VOID_RET(int, fcntl(fd, F_ADD_SEALS, F_SEAL_FUTURE_WRITE));
+		if (fcntl(fd, F_ADD_SEALS, F_SEAL_FUTURE_WRITE) == 0) {
+			/*
+			 *  mmap file, sealing it should not succeed
+			 */
+			ptr = (uint8_t *)mmap(NULL, (size_t)sz, PROT_WRITE, MAP_SHARED,
+				fd, 0);
+			if (UNLIKELY(ptr != MAP_FAILED)) {
+				(void)stress_munmap_force((void *)ptr, (size_t)sz);
+				pr_fail("%s: mmap of %jd bytes failed%s on sealed file unexpectedly succeeded\n",
+					args->name, (intmax_t)sz, stress_memory_free_get());
+				(void)close(fd);
+				goto err;
+			}
+		}
 #endif
 next:
 		(void)close(fd);
@@ -244,7 +258,8 @@ next:
 
 	rc = EXIT_SUCCESS;
 err:
-	(void)munmap((void *)buf, page_size);
+	if (buf != MAP_FAILED)
+		(void)munmap((void *)buf, page_size);
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
 
 	return rc;
