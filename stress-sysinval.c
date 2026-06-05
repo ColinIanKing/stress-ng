@@ -2096,6 +2096,7 @@ static unsigned long int access_mode_values[] = {
 
 static long int sockfds[] = {
 	0, /* sock_fd */
+	0, /* bad_fd */
 	0,
 	-1,
 	INT_MAX,
@@ -2105,6 +2106,7 @@ static long int sockfds[] = {
 
 static long int fds[] = {
 	0, /* fd */
+	0, /* bad_fd */
 	-1,
 	INT_MAX,
 	INT_MIN,
@@ -2112,6 +2114,7 @@ static long int fds[] = {
 };
 
 static long int dirfds[] = {
+	0, /* bad_fd */
 	-1,
 	AT_FDCWD,
 	INT_MIN,
@@ -2781,6 +2784,7 @@ static int stress_sysinval(stress_args_t *args)
 {
 	struct stat statbuf;
 	int ret, rc = EXIT_NO_RESOURCE;
+	const int bad_fd = stress_fs_bad_fd_get();
 	size_t i, j;
 	uint64_t syscalls_exercised, syscalls_unique, syscalls_crashed;
 	const size_t page_size = args->page_size;
@@ -2808,7 +2812,10 @@ static int stress_sysinval(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
+	dirfds[0] = bad_fd;
+
 	sockfds[0] = socket(AF_UNIX, SOCK_STREAM, 0);
+	sockfds[1] = bad_fd;
 
 	ret = stress_fs_temp_dir_make_args(args);
 	if (ret < 0)
@@ -2823,6 +2830,7 @@ static int stress_sysinval(stress_args_t *args)
 		goto err_dir;
 	}
 	(void)shim_unlink(filename);
+	fds[1] = bad_fd;
 
 	stress_syscall_exercised =
 		(bool *)mmap(NULL, stress_syscall_exercised_sz,
