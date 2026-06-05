@@ -109,7 +109,7 @@ static int stress_seal(stress_args_t *args)
 			(void)munmap((void *)buf, page_size);
 			return EXIT_FAILURE;
 		}
-
+		errno = 0;
 		if (UNLIKELY(ftruncate(fd, sz) < 0)) {
 			pr_fail("%s: ftruncate failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
@@ -133,6 +133,7 @@ static int stress_seal(stress_args_t *args)
 			(void)close(fd);
 			goto err;
 		}
+		errno = 0;
 		ret = ftruncate(fd, 0);
 		if (UNLIKELY((ret == 0) || ((ret < 0) && (errno != EPERM)))) {
 			pr_fail("%s: ftruncate did not fail with EPERM as expected, errno=%d (%s)\n",
@@ -150,6 +151,7 @@ static int stress_seal(stress_args_t *args)
 			(void)close(fd);
 			goto err;
 		}
+		errno = 0;
 		ret = ftruncate(fd, sz + 1);
 		if (UNLIKELY((ret == 0) || ((ret < 0) && (errno != EPERM)))) {
 			pr_fail("%s: ftruncate did not fail with EPERM as expected, errno=%d (%s)\n",
@@ -174,6 +176,7 @@ static int stress_seal(stress_args_t *args)
 			goto err;
 		}
 		(void)shim_memset(ptr, 0xea, page_size);
+		errno = 0;
 		ret = fcntl(fd, F_ADD_SEALS, F_SEAL_WRITE);
 		if (UNLIKELY((ret == 0) || ((ret < 0) && (errno != EBUSY)))) {
 			pr_fail("%s: fcntl F_ADD_SEALS F_SEAL_WRITE did not fail with EBUSY as expected, errno=%d (%s)\n",
@@ -196,6 +199,7 @@ static int stress_seal(stress_args_t *args)
 			(void)close(fd);
 			goto err;
 		}
+		errno = 0;
 		wret = write(fd, buf, page_size);
 		if (UNLIKELY((wret == 0) || ((wret < 0) && (errno != EPERM)))) {
 			pr_fail("%s: write on sealed file did not fail with EPERM as expected, errno=%d (%s)\n",
@@ -204,10 +208,34 @@ static int stress_seal(stress_args_t *args)
 			goto err;
 		}
 
+#if defined(F_SEAL_EXEC)
+		/*
+		 *  Now write seal the file, no more writes allowed
+		 */
+		if (UNLIKELY(fcntl(fd, F_ADD_SEALS, F_SEAL_EXEC) < 0)) {
+			if (errno == EBUSY)
+				goto next;
+			pr_fail("%s: fcntl F_ADD_SEALS F_SEAL_EXEC failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
+			(void)close(fd);
+			goto err;
+		}
+		errno = 0;
+		ret = fchmod(fd, S_IXUSR | S_IWUSR | S_IRUSR);
+		if (UNLIKELY((ret == 0) || ((ret < 0) && (errno != EPERM)))) {
+			pr_fail("%s: write on sealed file did not fail with EPERM as expected, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
+			(void)close(fd);
+			goto err;
+		}
+#endif
+
+#if defined(F_SEAL_FUTURE_WRITE)
 		/*
 		 *  And try (and ignore error) from a F_SEAL_FUTURE_WRITE
 		 */
 		VOID_RET(int, fcntl(fd, F_ADD_SEALS, F_SEAL_FUTURE_WRITE));
+#endif
 next:
 		(void)close(fd);
 
