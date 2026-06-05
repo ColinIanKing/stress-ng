@@ -240,3 +240,5 @@
  * [TORAI: Multi-source Root Cause Analysis for Blind Spots in Microservice Service Call Graph](https://arxiv.org/html/2604.13522v1)
  * [UnICom: A Universally High-Performant I/O Completion Mechanism for Modern Computer Systems](https://www.usenix.org/system/files/fast26-pan.pdf)
  * [Verification and Validation (V&V)-in-the-Loop for RISC-V Design: The Holistic Vision of BZL](https://arxiv.org/html/2604.27013v1)
+ * [Wire-Level Interrupt-to-Decision Latency of On-Sensor MLC versus Host Inference on the NVIDIA Jetson Orin Nano: A Pre-Registered Measurement Study](https://arxiv.org/pdf/2606.00524)
+
