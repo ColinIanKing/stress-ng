@@ -172,6 +172,6 @@ const stressor_info_t stress_acct_info = {
 	.verify = VERIFY_NONE,
 	.help = help,
 	.supported = stress_acct_supported,
-	.unimplemented_reason = "built without acct() or sys/acct.h or struct acct_v3  support"
+	.unimplemented_reason = "built without acct() or sys/acct.h or struct acct_v3 support"
 };
 #endif
