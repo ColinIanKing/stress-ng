@@ -34,8 +34,8 @@
 #define MAX_ACCT_FILESIZE	((off_t)(16 * MB))
 
 static const stress_help_t help[] = {
-	{ NULL,	"acct N",		"start N workers punching holes in a 16MB file" },
-	{ NULL,	"acct-ops N",		"stop after N punch bogo operations" },
+	{ NULL,	"acct N",		"start N workers exercising process accouting" },
+	{ NULL,	"acct-ops N",		"stop after reading N process exiting accounting records" },
 	{ NULL,	NULL,			NULL }
 };
 
