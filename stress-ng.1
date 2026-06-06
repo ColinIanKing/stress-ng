@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, may be w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "28 May 2026"
+.TH STRESS-NG 1 "6 June 2026"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -821,7 +821,20 @@ of the file using access(2) and faccessat(2) are sane.
 stop access workers after N bogo access sanity checks.
 .RE
 .TP
-.B POSIX Access Control List Stressor
+.B Process Accounting stressor
+.RS 5
+.TQ
+.B \-\-acct N
+start N workers that exercise the acct(2) accounting interface. An accounting
+file is opened and a child pocess is created and exited with the accounting data
+being read and sanity checked. The accounting file is limited to a maximum of
+16MB in size. Linux only and requires CAP_SYS_PACCT capabilities.
+.TP
+.B \-\-acct\-ops N
+stop after N bogo accounting records are read.
+.RE
+.TP
+.B POSIX Access Control List stressor
 .RS 5
 .TQ
 .B \-\-acl N
@@ -3588,7 +3601,7 @@ using the suffix b, k, m or g.
 stop fpunch workers after N punch and fill bogo operations.
 .RE
 .TP
-.B Fractal Stressor
+.B Fractal stressor
 .RS 5
 .TQ
 .B \-\-fractal N

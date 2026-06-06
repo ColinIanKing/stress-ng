@@ -27,6 +27,7 @@
 #define STRESSORS(MACRO)	\
 	MACRO(access) 		\
 	MACRO(acl)		\
+	MACRO(acct)		\
 	MACRO(af_alg) 		\
 	MACRO(affinity) 	\
 	MACRO(aio) 		\

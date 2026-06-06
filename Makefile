@@ -479,6 +479,7 @@ CORE_SRC_GEN = \
 STRESS_SRC = \
 	stress-access.c \
 	stress-acl.c \
+	stress-acct.c \
 	stress-affinity.c \
 	stress-af-alg.c \
 	stress-aio.c \

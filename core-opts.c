@@ -28,6 +28,8 @@ const struct option stress_long_options[] = {
 	{ "acl",		1,	NULL,	OPT_acl },
 	{ "acl-ops",		1,	NULL,	OPT_acl_ops },
 	{ "acl-rand",		0,	NULL,	OPT_acl_rand },
+	{ "acct",		1,	NULL,	OPT_acct },
+	{ "acct-ops",		1,	NULL,	OPT_acct_ops },
 	{ "af-alg",		1,	NULL,	OPT_af_alg },
 	{ "af-alg-dump",	0,	NULL,	OPT_af_alg_dump },
 	{ "af-alg-ops",		1,	NULL,	OPT_af_alg_ops },

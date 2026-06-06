@@ -165,6 +165,9 @@ typedef enum {
 	OPT_acl_ops,
 	OPT_acl_rand,
 
+	OPT_acct,
+	OPT_acct_ops,
+
 	OPT_affinity,
 	OPT_affinity_delay,
 	OPT_affinity_ops,
