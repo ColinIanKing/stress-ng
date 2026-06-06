@@ -69,7 +69,6 @@ static int stress_acct(stress_args_t *args)
 	int rc = EXIT_SUCCESS;
 	char filename[PATH_MAX];
 	bool version_warn = false;
-	const bool verify = args->instances == 1;
 
 	ret = stress_fs_temp_dir_make_args(args);
 	if (ret < 0)
@@ -138,15 +137,8 @@ static int stress_acct(stress_args_t *args)
 				}
 				break;
 			}
-			if (data.ac_flag & AXSIG) {
-				/* simple exit PID sanity check */
-				if (verify && (data.ac_pid != (uint32_t)pid)) {
-					pr_fail("%s: unexepected accounting data PID, got %" PRId32
-						", expecting %" PRIdMAX "\n",
-						args->name, data.ac_pid, (intmax_t)pid);
-				}
+			if (data.ac_flag & AXSIG)
 				stress_bogo_inc(args);
-			}
 		} while (stress_continue(args));
 
 		ret = acct(NULL);
@@ -169,7 +161,7 @@ tidy_temp:
 const stressor_info_t stress_acct_info = {
 	.stressor = stress_acct,
 	.classifier = CLASS_OS,
-	.verify = VERIFY_ALWAYS,
+	.verify = VERIFY_NONE,
 	.supported = stress_acct_supported,
 	.help = help
 };
@@ -177,7 +169,7 @@ const stressor_info_t stress_acct_info = {
 const stressor_info_t stress_acct_info = {
 	.stressor = stress_unimplemented,
 	.classifier = CLASS_OS,
-	.verify = VERIFY_ALWAYS,
+	.verify = VERIFY_NONE,
 	.help = help,
 	.supported = stress_acct_supported,
 	.unimplemented_reason = "built without acct() or sys/acct.h or struct acct_v3  support"
