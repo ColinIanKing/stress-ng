@@ -169,6 +169,7 @@
  * [A measurement-based approach to analyze the power consumption of the softwarized 5G core](https://arxiv.org/pdf/2502.13879)
  * [Adaptive Machine Learning for Resource-Constrained Environments](https://arxiv.org/pdf/2503.18634)
  * [Anomaly-Based Intrusion Detection for IoMT Networks: Design, Implementation, Dataset Generation, and ML Algorithms Evaluation](https://gala.gre.ac.uk/id/eprint/50712/1/50712%20MANTAS_Anomaly-Based_Intrusion_Detection_For_IoMT_Networks_Design_Implementation_Dataset%20Generation_And_ML_Algorithms_Evaluations_%28OA%29_2025.pdf)
+ * [Architecture Dependent Temporal Observability Under Deployment Interference in Edge Inference Systems](https://arxiv.org/html/2605.17701v1)
  * [ASTREA: Introducing Agentic Intelligence for Orbital Thermal Autonomy](https://arxiv.org/html/2509.13380v1)
  * [AUTOGUARDX: A Comprehensive Cybersecurity Framework for Connected Vehicles](https://arxiv.org/pdf/2508.18155)
  * [Benchmarking of CPU-intensive Stream Data Processing in The Edge Computing Systems](https://arxiv.org/html/2505.07755v1)
@@ -208,6 +209,7 @@
  * [xPUE: Extending Power Usage Effectiveness Metrics for Cloud Infrastructures](https://arxiv.org/pdf/2503.07124)
 
 2026:
+ * [A Low-Latency Semantic State Estimator using Latent Predictive Learning for Dynamic Network Monitoring and Orchestration](https://arxiv.org/html/2606.08869v1)
  * [A Methodology to Assess Power Modeling in Energy-Aware Federated Learning on Heterogeneous Mobile Devices](https://arxiv.org/html/2605.27601v1)
  * [A Scalable Digital Twin Framework for Energy Optimization in Data Centers](https://arxiv.org/html/2605.05581v1)
  * [AGMARL-DKS: An Adaptive Graph-Enhanced Multi-Agent Reinforcement Learning for Dynamic Kubernetes Scheduling](https://arxiv.org/html/2603.12031v1)
