@@ -60,7 +60,7 @@ static void MLOCKED_TEXT OPTIMIZE3 stress_sigvtalrm_handler(int sig)
 		if (stress_continue(s_args))
 			return;
 	}
-	
+
 	/* Cancel timer if we detect no more runs */
 	(void)shim_memset(&timer, 0, sizeof(timer));
 	(void)setitimer(ITIMER_VIRTUAL, &timer, NULL);
