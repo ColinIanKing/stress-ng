@@ -684,9 +684,9 @@ static int stress_filehole(stress_args_t *args)
 	stress_metrics_set(args, "blocks used per file (maximum)",
 		max_blks, STRESS_METRIC_GEOMETRIC_MEAN);
 	if (extents_count > 0.0) {
-		extents = extents_total / extents_count;
-		stress_metrics_set(args, "extents per file",
-			(double)extents, STRESS_METRIC_GEOMETRIC_MEAN);
+		const double metric = extents_total / extents_count;
+
+		stress_metrics_set(args, "extents per file", metric, STRESS_METRIC_GEOMETRIC_MEAN);
 	}
 tidy:
 	(void)shim_unlink(filename);
