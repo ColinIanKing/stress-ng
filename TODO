@@ -27,4 +27,6 @@ clone: add CLONE_AUTOREAP
 Add features fields per stressor to report what features are being exercised
 Exported kernel symbols
 
+Add memory fragmentation stressor + memory fragmentation metric
+
 
