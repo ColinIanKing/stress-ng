@@ -3945,7 +3945,7 @@ int main(int argc, char **argv, char **envp)
 	const uint32_t cpus_configured = (uint32_t)stress_cpus_configured_get();
 	int ret = EXIT_SUCCESS;			/* assume return exit is successful */
 	bool unsupported = false;		/* true if stressors are unsupported */
-	bool success = true;			/* assume successful run */ 
+	bool success = true;			/* assume successful run */
 	bool resource_success = true;		/* assume we have enough resources */
 	bool metrics_success = true;		/* assume metrics are sane */
 	bool no_madvise = false;		/* don't disable madvise */

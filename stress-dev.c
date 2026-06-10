@@ -4811,7 +4811,7 @@ static int stress_dev(stress_args_t *args)
 		goto deinit;
 	}
 	stress_memory_anon_name_set(mmap_dev_states, mmap_dev_states_size, "dev-states");
-	
+
 	stress_dev_info_list_state_init(dev_info_list, mmap_dev_states);
 
 	stress_proc_state_set(args->name, STRESS_STATE_SYNC_WAIT);

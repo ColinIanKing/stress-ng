@@ -104,7 +104,7 @@ static int stress_time_warp_rusage(clockid_t clockid, struct timespec *ts)
 	if (LIKELY(ret == 0)) {
 		const long int usec = (usage.ru_utime.tv_usec + usage.ru_stime.tv_usec);
 
-		ts->tv_sec = usage.ru_utime.tv_sec + usage.ru_stime.tv_sec + 
+		ts->tv_sec = usage.ru_utime.tv_sec + usage.ru_stime.tv_sec +
 				(usec / 1000000);
 		ts->tv_nsec = 1000 * (usec % 1000000);
 	}

@@ -193,7 +193,6 @@ static int stress_getdents_dir(
 
 			if ((d->d_reclen <= 0) || (ptr + d->d_reclen > end))
 				break;
-		       
 			d_type = (unsigned char)*((char *)ptr + d->d_reclen - 1);
 			if (d_type == SHIM_DT_DIR &&
 			    !stress_fs_filename_dotty(d->d_name)) {

@@ -784,7 +784,7 @@ again:
 				goto finish;
 			} else if (s_pids[i].pid == 0) {
 				s_pids[i].pid = getpid();
-	
+
 				stress_proc_state_set(args->name, STRESS_STATE_SYNC_WAIT);
 				stress_sync_start_wait_s_pid(&s_pids[i]);
 				stress_proc_state_set(args->name, STRESS_STATE_RUN);

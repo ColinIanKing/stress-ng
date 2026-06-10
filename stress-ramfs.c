@@ -385,7 +385,6 @@ static int stress_ramfs_child(stress_args_t *args)
 		}
 		(void)close(fd_mnt);
 		(void)close(fd);
-	
 #else
 		(void)snprintf(opt, sizeof(opt), "size=%" PRIu64, ramfs_size);
 		if (mount("", realpathname, fs, 0, opt) < 0) {

@@ -429,7 +429,7 @@ static int stress_module_open(stress_args_t *args, int mod_type)
 	fd_in = open(modname, O_RDONLY | O_CLOEXEC);
 	(void)unlink(modname);
 	lzma_end(&strm);
-	
+
 	return fd_in;
 #else
 	return -1;
