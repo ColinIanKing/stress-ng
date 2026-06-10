@@ -71,33 +71,35 @@ static int stress_binderfs_supported(const char *name)
     defined(HAVE_FSMOUNT) &&		\
     defined(HAVE_MOVE_MOUNT) &&		\
     defined(HAVE_SYS_MOUNT_H)
-	int fd, fd_mnt;
+	{
+		int fd, fd_mnt;
 
-	fd = fsopen("binder", FSOPEN_CLOEXEC);
-	if (fd < 0)
-		goto unsupported;
-	if (fsconfig(fd, FSCONFIG_SET_STRING, "source", "binder", 0) < 0) {
-		(void)close(fd);
-		goto unsupported;
-	}
-	if (fsconfig(fd, FSCONFIG_CMD_CREATE, NULL, NULL, 0) < 0) {
-		(void)close(fd);
-		goto unsupported;
-	}
-	fd_mnt = fsmount(fd, FSMOUNT_CLOEXEC, 0);
-	if (fd_mnt < 0) {
-		(void)close(fd);
-		goto unsupported;
-	}
-	if (move_mount(fd_mnt, "", AT_FDCWD, path, MOVE_MOUNT_F_EMPTY_PATH) < 0) {
+		fd = fsopen("binder", FSOPEN_CLOEXEC);
+		if (fd < 0)
+			goto unsupported;
+		if (fsconfig(fd, FSCONFIG_SET_STRING, "source", "binder", 0) < 0) {
+			(void)close(fd);
+			goto unsupported;
+		}
+		if (fsconfig(fd, FSCONFIG_CMD_CREATE, NULL, NULL, 0) < 0) {
+			(void)close(fd);
+			goto unsupported;
+		}
+		fd_mnt = fsmount(fd, FSMOUNT_CLOEXEC, 0);
+		if (fd_mnt < 0) {
+			(void)close(fd);
+			goto unsupported;
+		}
+		if (move_mount(fd_mnt, "", AT_FDCWD, path, MOVE_MOUNT_F_EMPTY_PATH) < 0) {
+			(void)close(fd_mnt);
+			(void)close(fd);
+			goto unsupported;
+		}
 		(void)close(fd_mnt);
 		(void)close(fd);
-		goto unsupported;
+		(void)umount(path);
+		(void)rmdir(path);
 	}
-	(void)close(fd_mnt);
-	(void)close(fd);
-	(void)umount(path);
-	(void)rmdir(path);
 	return 0;
 #else
 	if (mount("binder", path, "binder", 0, 0) < 0)
