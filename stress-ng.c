@@ -2102,7 +2102,7 @@ static void stress_metrics_check(bool *success)
 			const stress_stats_t *const stats = item->stats[j];
 			const stress_checksum_t *checksum = stats->checksum;
 			stress_checksum_t stats_checksum;
-			char *oom_message;
+			const char *oom_message;
 
 			if (!stats->completed)
 				continue;
@@ -3600,7 +3600,7 @@ static void stress_stats_alloc(
  */
 static void stress_default_timeout_set(const uint64_t timeout)
 {
-	char *action;
+	const char *action;
 
 	if (g_opt_timeout == TIMEOUT_NOT_SET) {
 		g_opt_timeout = timeout;
