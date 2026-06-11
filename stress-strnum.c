@@ -691,7 +691,7 @@ static const char *stress_strnum_method(const size_t i)
 }
 
 static const stress_opt_t opts[] = {
-	{ OPT_strnum_method, "strnum-method", TYPE_ID_SIZE_T_METHOD, 0, 1, (void *)stress_strnum_method },
+	{ OPT_strnum_method, "strnum-method", TYPE_ID_SIZE_T_METHOD, 0, 1, stress_strnum_method },
 	END_OPT,
 };
 
