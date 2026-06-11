@@ -1080,7 +1080,7 @@ static int stress_cache(stress_args_t *args)
 	size_t j;
 	stress_metrics_t metrics[STRESS_CACHE_MAX];
 
-	static char *const metrics_description[] = {
+	static const char * const metrics_description[] = {
 		"cache ops per second",
 		"shared cache reads per second",
 		"shared cache writes per second",
