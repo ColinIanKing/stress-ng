@@ -307,7 +307,7 @@ static bool OPTIMIZE3 stress_strnum_sscanf_llu(stress_args_t *args, const stress
 static bool OPTIMIZE3 stress_strnum_strtof(stress_args_t *args, const stress_strnum_method_t *method)
 {
 	float val;
-	const float precision = 1.0E-5;
+	const float precision = 1.0E-5f;
 
 	val = strtof(stress_strnum_float_str, NULL);
 	if (UNLIKELY(shim_fabsf(val - stress_strnum_float) > precision)) {
@@ -417,7 +417,7 @@ static bool OPTIMIZE3 stress_strnum_snprintf_lli(stress_args_t *args, const stre
 static bool OPTIMIZE3 stress_strnum_sscanf_f(stress_args_t *args, const stress_strnum_method_t *method)
 {
 	float val;
-	const float precision = 1.0E-4;
+	const float precision = 1.0E-4f;
 	int ret;
 
 	(void)method;
