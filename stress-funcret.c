@@ -488,7 +488,7 @@ static const char *stress_funcret_method(const size_t i)
 }
 
 static const stress_opt_t opts[] = {
-	{ OPT_funcret_method, "funcret_method", TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_funcret_method },
+	{ OPT_funcret_method, "funcret_method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_funcret_method },
 	END_OPT,
 };
 
