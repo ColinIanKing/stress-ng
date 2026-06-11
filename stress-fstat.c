@@ -292,7 +292,7 @@ static int stress_fstat(stress_args_t *args)
 	bool stat_some;
 	const uid_t euid = geteuid();
 	DIR *dp;
-	char *fstat_dir = "/dev";
+	const char *fstat_dir = "/dev";
 
 	(void)stress_setting_get("fstat-dir", &fstat_dir);
 
