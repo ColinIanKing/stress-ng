@@ -92,7 +92,7 @@ static const char *stress_cachehammer_method(const size_t i)
 }
 
 static const stress_opt_t opts[] = {
-        { OPT_cachehammer_method, "cachehammer-method", TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_cachehammer_method },
+        { OPT_cachehammer_method, "cachehammer-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_cachehammer_method },
 	{ OPT_cachehammer_numa,   "cachehammer-numa",   TYPE_ID_BOOL, 0, 1, NULL },
 	END_OPT,
 };
