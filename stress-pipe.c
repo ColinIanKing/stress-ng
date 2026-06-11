@@ -884,10 +884,10 @@ static void stress_pipe_data_size(const char *opt_name, const char *opt_arg, str
 }
 
 static const stress_opt_t opts[] = {
-	{ OPT_pipe_data_size, "pipe-data-size", TYPE_ID_CALLBACK, 0, 0, (void *)stress_pipe_data_size },
+	{ OPT_pipe_data_size, "pipe-data-size", TYPE_ID_CALLBACK, 0, 0, stress_pipe_data_size },
 	{ OPT_pipe_readers,   "pipe-readers",   TYPE_ID_SIZE_T, MIN_PIPE_PROCS, MAX_PIPE_PROCS, NULL },
 #if defined(F_SETPIPE_SZ)
-	{ OPT_pipe_size,      "pipe-size",      TYPE_ID_CALLBACK, 0, 0, (void *)stress_pipe_size },
+	{ OPT_pipe_size,      "pipe-size",      TYPE_ID_CALLBACK, 0, 0, stress_pipe_size },
 #endif
 	{ OPT_pipe_vmsplice,  "pipe-vmsplice",  TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_pipe_writers,   "pipe-writers",   TYPE_ID_SIZE_T, MIN_PIPE_PROCS, MAX_PIPE_PROCS, NULL },
