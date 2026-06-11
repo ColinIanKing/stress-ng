@@ -53,10 +53,10 @@ typedef struct {
 } stress_prefetch_info_t;
 
 typedef struct {
-	char *name;
-	int method;
+	const char *name;
+	const int method;
 	bool (*available)(void);
-	bool check_prefetch_rate;
+	const bool check_prefetch_rate;
 } stress_prefetch_method_t;
 
 #define STRESS_PREFETCH_BUILTIN            (0)
