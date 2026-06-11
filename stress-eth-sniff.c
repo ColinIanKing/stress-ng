@@ -64,8 +64,8 @@ static int stress_eth_sniff_supported(const char *name)
 #define PROTO_MAX	(256)
 
 typedef struct common_proto {
-	uint8_t proto;		/* protocol number */
-	char *name;		/* name of protocol */
+	const uint8_t proto;	/* protocol number */
+	const char *name;	/* name of protocol */
 } common_proto_t;
 
 /* commonly used protocols */
