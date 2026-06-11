@@ -157,7 +157,7 @@ void stress_klog_start(void)
 			uint64_t timestamp;
 			char *ptr;
 			char ts[32];
-			char *msg;
+			const char *msg;
 			bool dump_procs = false;
 
 			ptr = strchr(buf, '\n');
