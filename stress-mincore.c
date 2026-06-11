@@ -74,7 +74,7 @@ static void stress_mincore_expect(
 	const int ret_expected,	/* expected return value */
 	const int err,		/* returned errno */
 	const int err_expected,	/* expected errno */
-	char *msg,		/* test message */
+	const char *msg,	/* test message */
 	int *rc)		/* return code */
 {
 	if (LIKELY(ret == ret_expected)) {
