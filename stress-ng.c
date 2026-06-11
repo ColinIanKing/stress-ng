@@ -3532,7 +3532,9 @@ next_opt:
 		/* only act on options that are special cases */
 		switch (c) {
 		case OPT_config:
-			printf("config:\n%s", stress_config);
+			printf("config:\n");
+			for (i = 0; stress_config[i]; i++)
+				printf("%s\n", stress_config[i]);
 			exit(EXIT_SUCCESS);
 		case OPT_help:
 			stress_usage();

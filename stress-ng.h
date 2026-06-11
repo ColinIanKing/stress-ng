@@ -520,7 +520,7 @@ STRESSORS(STRESSOR_INFO)
 /* use syscall if we can, fallback to vfork otherwise */
 #define shim_vfork()		g_shared->vfork()
 
-extern const char stress_config[];
+extern const char * const stress_config[];
 
 /* Memory size constants */
 #define KB			(1ULL << 10)
