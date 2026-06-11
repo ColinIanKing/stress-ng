@@ -43,7 +43,7 @@ static void stress_mseal_mapping_size(size_t *size)
 static int stress_mseal_expect_addr(
 	stress_args_t *args,
 	void *addr,
-	char *msg,
+	const char *msg,
 	void *expect_addr,
 	int expect_errno)
 {
@@ -63,7 +63,7 @@ static int stress_mseal_expect_addr(
 static int stress_mseal_expect_error(
 	stress_args_t *args,
 	int ret,
-	char *msg,
+	const char *msg,
 	int expect_ret,
 	int expect_errno)
 {
