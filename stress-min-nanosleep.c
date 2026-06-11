@@ -440,7 +440,7 @@ err:
 			"sleep ns", "min ns", "max ns", "mean ns");
 		for (i = 0; i <= max_delay; i++) {
 			nanosleep_delay_t result;
-			char *notes = "";
+			const char *notes = "";
 
 			stress_min_nanosleep_init_delay(&result, delays[0].delay[i].nsec);
 
