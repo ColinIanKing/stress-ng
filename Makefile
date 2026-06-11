@@ -131,7 +131,7 @@ PEDANTIC_FLAGS := \
 	-Wmaybe-uninitialized -Wshadow -Wdouble-promotion \
 	-Wcast-align=strict -Wduplicated-cond -Warith-conversion \
 	-Wtrailing-whitespace -Wleading-whitespace \
-	-Wduplicated-branches \
+	-Wduplicated-branches -Wconstant-logical-operand \
 	-DHAVE_PEDANTIC
 endif
 override CFLAGS += $(foreach flag,$(PEDANTIC_FLAGS),$(cc_supports_flag))
