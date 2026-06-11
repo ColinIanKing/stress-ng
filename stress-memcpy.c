@@ -35,7 +35,7 @@ static const stress_help_t help[] = {
 };
 
 static const char *s_args_name = "";
-static char *s_method_name = "";
+static const char *s_method_name = "";
 
 typedef void (*stress_memcpy_func)(uint8_t *str1, uint8_t *str2, uint8_t *str3);
 
