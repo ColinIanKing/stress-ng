@@ -67,7 +67,7 @@ typedef struct stress_cachehammer_context {
 } stress_cachehammer_context_t;
 
 typedef struct {
-	char *name;
+	const char *name;
 	bool permute;
 	bool (*valid)(void);
 	hammer_func_t hammer;
