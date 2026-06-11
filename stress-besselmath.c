@@ -606,7 +606,7 @@ static int stress_besselmath(stress_args_t *args)
 }
 
 static const stress_opt_t opts[] = {
-	{ OPT_besselmath_method, "besselmath-method", TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_besselmath_method },
+	{ OPT_besselmath_method, "besselmath-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_besselmath_method },
 	END_OPT,
 };
 
@@ -622,7 +622,7 @@ const stressor_info_t stress_besselmath_info = {
 #else
 
 static const stress_opt_t opts[] = {
-	{ OPT_besselmath_method, "besselmath-method", TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_unimplemented_method },
+	{ OPT_besselmath_method, "besselmath-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_unimplemented_method },
 	END_OPT,
 };
 
