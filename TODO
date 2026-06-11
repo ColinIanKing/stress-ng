@@ -29,4 +29,5 @@ Exported kernel symbols
 
 Add memory fragmentation stressor + memory fragmentation metric
 
+Add trustyworthy bogo-ops performance notes
 
