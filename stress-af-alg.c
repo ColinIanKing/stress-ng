@@ -78,7 +78,7 @@ static const char *stress_af_alg_types(const size_t i)
 
 static const stress_opt_t opts[] = {
 	{ OPT_af_alg_dump, "af-alg-dump", TYPE_ID_BOOL, 0, 1, NULL },
-	{ OPT_af_alg_type, "af-alg-type",  TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_af_alg_types },
+	{ OPT_af_alg_type, "af-alg-type",  TYPE_ID_SIZE_T_METHOD, 0, 0, stress_af_alg_types },
 	END_OPT,
 };
 
