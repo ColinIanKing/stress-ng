@@ -302,7 +302,7 @@ static inline int stress_rtc_proc(stress_args_t *args)
 {
 	ssize_t ret;
 	char buf[4096];
-	static char *path = "/proc/driver/rtc";
+	static const char *path = "/proc/driver/rtc";
 
 	ret = stress_fs_file_read(path, buf, sizeof(buf));
 	if (ret < 0) {
