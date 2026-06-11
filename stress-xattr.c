@@ -506,7 +506,7 @@ static int stress_xattr(stress_args_t *args)
 #endif
 
 		for (j = 0; j < i; j++) {
-			char *errmsg;
+			const char *errmsg;
 
 			(void)snprintf(attrname, sizeof(attrname), "user.var_%d", j);
 
