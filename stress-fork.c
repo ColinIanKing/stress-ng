@@ -292,7 +292,7 @@ static int stress_fork_fn(
 	j = args->instance;
 	do {
 		NOCLOBBER uint32_t i, n;
-		NOCLOBBER char *fork_fn_name;
+		NOCLOBBER const char *fork_fn_name;
 
 		(void)shim_memset(info, 0, sizeof(info));
 
