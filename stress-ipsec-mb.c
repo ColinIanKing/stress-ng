@@ -86,8 +86,8 @@ typedef void (*ipsec_func_t)(
 typedef void (*init_func_t)(IMB_MGR *p_mgr);
 
 typedef struct {
-	ipsec_func_t	func;
-	char 		*name;
+	const ipsec_func_t func;
+	const char 	*name;
 } stress_ipsec_funcs_t;
 
 typedef struct {
