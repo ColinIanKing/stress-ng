@@ -888,7 +888,7 @@ static inline uint32_t stress_memthrash_optimal(
 	return 1;
 }
 
-static inline char *plural(uint32_t n)
+static inline const char *plural(const uint32_t n)
 {
 	return n > 1 ? "s" : "";
 }
