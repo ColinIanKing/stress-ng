@@ -95,7 +95,7 @@ typedef struct {
  *  stress_sigfpe_errstr()
  *	convert sigfpe error code to string
  */
-static char *stress_sigfpe_errstr(const int err)
+static const char *stress_sigfpe_errstr(const int err)
 {
 	switch (err) {
 #if defined(FPE_INTDIV)
@@ -140,7 +140,7 @@ static char *stress_sigfpe_errstr(const int err)
  *  stress_sigill_errstr()
  *	convert sigill error code to string
  */
-static char *stress_sigill_errstr(const int err)
+static const char *stress_sigill_errstr(const int err)
 {
 	switch (err) {
 #if defined(ILL_ILLOPC)
