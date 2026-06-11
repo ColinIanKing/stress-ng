@@ -116,7 +116,7 @@ static int stress_fd_fork(stress_args_t *args)
 	size_t fd_fork_file = STRESS_FD_ZERO;
 	stress_fd_close_info_t *info;
 	double rate, t_start = -1.0, t_max = -1.0;
-	char *filename;
+	const char *filename;
 
 	if (!stress_setting_get("fd-fork-fds", &fd_fork_fds)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
