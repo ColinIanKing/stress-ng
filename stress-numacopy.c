@@ -108,8 +108,8 @@ static const char *stress_numacopy_affinity(const size_t i)
 }
 
 static const stress_opt_t opts[] = {
-	{ OPT_numacopy_affinity, "numacopy-affinity", TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_numacopy_affinity },
-	{ OPT_numacopy_mode,     "numacopy-mode",     TYPE_ID_SIZE_T_METHOD, 0, 0, (void *)stress_numacopy_mode },
+	{ OPT_numacopy_affinity, "numacopy-affinity", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_numacopy_affinity },
+	{ OPT_numacopy_mode,     "numacopy-mode",     TYPE_ID_SIZE_T_METHOD, 0, 0, stress_numacopy_mode },
 	END_OPT,
 };
 
