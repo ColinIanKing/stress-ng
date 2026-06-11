@@ -512,7 +512,7 @@ void stress_smart_stop(void)
 			}
 		} else {
 			if (devs == 0) {
-				char *extra;
+				const char *extra;
 
 				if (stress_capabilities_check(SHIM_CAP_IS_ROOT)) {
 					extra = "";
