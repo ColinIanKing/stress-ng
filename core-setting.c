@@ -224,8 +224,7 @@ static int stress_setting_generic_set(
 	const char *stressor_name,
 	const char *name,
 	const stress_type_id_t type_id,
-	const void *value,
-	const bool global)
+	const void *value)
 {
 	stress_setting_t *setting;
 	bool new_setting = true;
@@ -257,7 +256,7 @@ static int stress_setting_generic_set(
 	setting->name = name;
 	setting->item = g_item_current;
 	setting->type_id = type_id;
-	setting->global = global;
+	setting->global = !strcmp(stressor_name, "global");
 
 	switch (type_id) {
 	case TYPE_ID_UINT8:
@@ -360,7 +359,7 @@ int stress_setting_set(
 	const stress_type_id_t type_id,
 	const void *value)
 {
-	return stress_setting_generic_set(stressor_name, name, type_id, value, false);
+	return stress_setting_generic_set(stressor_name, name, type_id, value);
 }
 
 /*
@@ -372,7 +371,7 @@ int stress_setting_global_set(
 	const stress_type_id_t type_id,
 	const void *value)
 {
-	return stress_setting_generic_set("global", name, type_id, value, true);
+	return stress_setting_generic_set("global", name, type_id, value);
 }
 
 /*
