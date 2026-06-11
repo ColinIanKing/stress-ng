@@ -63,7 +63,7 @@ void stress_processes_dump(void)
 		char cmd[4096];
 		char state[16];
 		char name[32];
-		char *p_name;
+		const char *p_name;
 		pid_t pid, ppid;
 		ssize_t ret;
 		long val;
