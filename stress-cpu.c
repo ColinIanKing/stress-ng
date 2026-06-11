@@ -865,25 +865,25 @@ STRESS_CPU_INT(uint8_t, 8, \
 
 #define FLOAT_OPS(type, a, b, c, d, f_sin, f_cos)	\
 	do {						\
-		a = a + b;				\
-		b = a * c;				\
-		c = a - b;				\
-		d = a / (type)8.1;			\
+		a = (type)(a + b);			\
+		b = (type)(a * c);			\
+		c = (type)(a - b);			\
+		d = (type)(a / (type)8.1);		\
 		FLOAT_THRESH(d, type);			\
-		a = c / (type)5.1923;			\
+		a = (type)(c / (type)5.1923);		\
 		FLOAT_THRESH(a, type);			\
 		FLOAT_THRESH(c, type);			\
-		b = c + a;				\
-		c = b * (type)f_sin(b);			\
-		d = d + b + (type)f_sin(a);		\
-		a = (type)f_cos(b + c);			\
-		b = b * c;				\
-		c = c + (type)1.5;			\
-		d = d - (type)f_sin(c);			\
-		a = a * (type)f_cos(b);			\
-		b = b + (type)f_cos(c);			\
-		c = (type)f_sin(a + b) / (type)2.344;	\
-		b = d - (type)0.5;			\
+		b = (type)(c + a);			\
+		c = (type)(b * (type)f_sin(b));		\
+		d = (type)(d + b + (type)f_sin(a));	\
+		a = (type)f_cos(((type)(b + c)));	\
+		b = (type)(b * c);			\
+		c = (type)(c + (type)1.5);		\
+		d = (type)(d - (type)f_sin(c));		\
+		a = (type)(a * (type)f_cos(b));		\
+		b = (type)(b + (type)f_cos(c));		\
+		c = (type)(f_sin(((type)(a + b))) / (type)2.344); \
+		b = (type)(d - (type)0.5);		\
 	} while (0)
 
 /*
@@ -907,48 +907,163 @@ static int OPTIMIZE3 TARGET_CLONES stress_cpu_ ## fp_name(const char *name)\
 		FLOAT_OPS(type, a, b, c, d,		\
 			f_sin, f_cos);			\
 	}						\
-	r = a + b + c + d;				\
+	r = (type)(a + b + c + d);			\
 	stress_put_double((double)r);			\
 	return EXIT_SUCCESS;				\
 }
+
+#if defined(HAVE_Decimal32) &&	\
+    !defined(HAVE_COMPILER_CLANG)
+static inline _Decimal32 shim_sinDecimal32(_Decimal32 x)
+{
+	return (_Decimal32)shim_sinf((float)x);
+}
+
+static inline _Decimal32 shim_cosDecimal32(_Decimal32 x)
+{
+	return (_Decimal32)shim_cosf((float)x);
+}
+#endif
+
+#if defined(HAVE_Decimal64) &&	\
+    !defined(HAVE_COMPILER_CLANG)
+static inline _Decimal64 shim_sinDecimal64(_Decimal64 x)
+{
+	return (_Decimal64)shim_sin((double)x);
+}
+
+static inline _Decimal64 shim_cosDecimal64(_Decimal64 x)
+{
+	return (_Decimal64)shim_cos((double)x);
+}
+#endif
+
+#if defined(HAVE_Decimal128) &&	\
+    !defined(HAVE_COMPILER_CLANG)
+static inline _Decimal128 shim_sinDecimal128(_Decimal128 x)
+{
+	return (_Decimal128)shim_sinl((long double)x);
+}
+
+static inline _Decimal128 shim_cosDecimal128(_Decimal128 x)
+{
+	return (_Decimal128)shim_cosl((long double)x);
+}
+#endif
+
+#if defined(HAVE_fp16) &&	\
+    !defined(HAVE_COMPILER_CLANG)
+static inline __fp16 shim_sinfp16(__fp16 x)
+{
+	return (__fp16)shim_sinf((float)x);
+}
+
+static inline __fp16 shim_cosfp16(__fp16 x)
+{
+	return (__fp16)shim_cosf((float)x);
+}
+#endif
+
+#if defined(HAVE_Float32) &&	\
+    !defined(HAVE_COMPILER_CLANG)
+static inline _Float32 shim_sinFloat32(_Float32 x)
+{
+	return (_Float32)shim_sin((double)x);
+}
+
+static inline _Float32 shim_cosFloat32(_Float32 x)
+{
+	return (_Float32)shim_cos((double)x);
+}
+#endif
+
+#if defined(HAVE_Float64) &&	\
+    !defined(HAVE_COMPILER_CLANG)
+static inline _Float64 shim_sinFloat64(_Float64 x)
+{
+	return (_Float64)shim_sin((double)x);
+}
+
+static inline _Float64 shim_cosFloat64(_Float64 x)
+{
+	return (_Float64)shim_cos((double)x);
+}
+#endif
+
+#if defined(HAVE__float80) &&	\
+    !defined(HAVE_COMPILER_CLANG)
+static inline __float80 shim_sinfloat80(__float80 x)
+{
+	return (__float80)shim_sin((double)x);
+}
+
+static inline __float80 shim_cosfloat80(__float80 x)
+{
+	return (__float80)shim_cos((double)x);
+}
+#endif
+
+#if defined(HAVE__float128) &&	\
+    !defined(HAVE_COMPILER_CLANG)
+static inline __float128 shim_sinfloat128(__float128 x)
+{
+	return (__float128)shim_sin((double)x);
+}
+
+static inline __float128 shim_cosfloat128(__float128 x)
+{
+	return (__float128)shim_cos((double)x);
+}
+#elif defined(HAVE_Float128) &&	\
+    !defined(HAVE_COMPILER_CLANG)
+static inline _Float128 shim_sinFloat128(_Float128 x)
+{
+	return (_Float128)shim_sin((double)x);
+}
+
+static inline _Float128 shim_cosFloat128(_Float128 x)
+{
+	return (_Float128)shim_cos((double)x);
+}
+#endif
 
 STRESS_CPU_FP(float, float, shim_sinf, shim_cosf)
 STRESS_CPU_FP(double, double, shim_sin, shim_cos)
 STRESS_CPU_FP(long double, longdouble, shim_sinl, shim_cosl)
 #if defined(HAVE_Decimal32) &&	\
     !defined(HAVE_COMPILER_CLANG)
-STRESS_CPU_FP(_Decimal32, decimal32, shim_sinf, shim_cosf)
+STRESS_CPU_FP(_Decimal32, decimal32, shim_sinDecimal32, shim_cosDecimal32)
 #endif
 #if defined(HAVE_Decimal64) &&	\
     !defined(HAVE_COMPILER_CLANG)
-STRESS_CPU_FP(_Decimal64, decimal64, shim_sin, shim_cos)
+STRESS_CPU_FP(_Decimal64, decimal64, shim_sinDecimal64, shim_cosDecimal64)
 #endif
 #if defined(HAVE_Decimal128) &&	\
     !defined(HAVE_COMPILER_CLANG)
-STRESS_CPU_FP(_Decimal128, decimal128, shim_sinl, shim_cosl)
+STRESS_CPU_FP(_Decimal128, decimal128, shim_sinDecimal128, shim_cosDecimal128)
 #endif
 #if defined(HAVE_fp16) &&	\
     !defined(HAVE_COMPILER_CLANG)
-STRESS_CPU_FP(__fp16, float16, shim_sin, shim_cos)
+STRESS_CPU_FP(__fp16, float16, shim_sinfp16, shim_cosfp16)
 #endif
 #if defined(HAVE_Float32) &&	\
     !defined(HAVE_COMPILER_CLANG)
-STRESS_CPU_FP(_Float32, float32, shim_sin, shim_cos)
+STRESS_CPU_FP(_Float32, float32, shim_sinFloat32, shim_cosFloat32)
 #endif
 #if defined(HAVE_Float64) &&	\
     !defined(HAVE_COMPILER_CLANG)
-STRESS_CPU_FP(_Float64, float64, shim_sin, shim_cos)
+STRESS_CPU_FP(_Float64, float64, shim_sinFloat64, shim_cosFloat64)
 #endif
 #if defined(HAVE__float80) &&	\
     !defined(HAVE_COMPILER_CLANG)
-STRESS_CPU_FP(__float80, float80, shim_sinl, shim_cosl)
+STRESS_CPU_FP(__float80, float80, shim_sinfloat80, shim_cosfloat80)
 #endif
 #if defined(HAVE__float128) &&	\
     !defined(HAVE_COMPILER_CLANG)
-STRESS_CPU_FP(__float128, float128, shim_sinl, shim_cosl)
+STRESS_CPU_FP(__float128, float128, shim_sinfloat128, shim_cosfloat128)
 #elif defined(HAVE_Float128) &&	\
     !defined(HAVE_COMPILER_CLANG)
-STRESS_CPU_FP(_Float128, float128, shim_sinl, shim_cosl)
+STRESS_CPU_FP(_Float128, float128, shim_sinFloat128, shim_cosFloat128)
 #endif
 
 /* Append floating point literal specifier to literal value */
@@ -1140,7 +1255,7 @@ STRESS_CPU_INT_FP(__uint128_t, 128, _Decimal32, decimal32,
 	STRESS_UINT128(0x132af604d8b9183a,0x5e3af8fa7a663d74),
 	STRESS_UINT128(0x0062f086e6160e4e,0x0d84c9f800365858),
 	STRESS_UINT128(C1, C1), STRESS_UINT128(C2, C2), STRESS_UINT128(C3, C3),
-	(_Decimal32)shim_sinf, (_Decimal32)shim_cosf)
+	(_Decimal32)shim_sinDecimal32, (_Decimal32)shim_cosDecimal32)
 #endif
 #if defined(HAVE_Decimal64) &&	\
     !defined(HAVE_COMPILER_CLANG)
@@ -1148,7 +1263,7 @@ STRESS_CPU_INT_FP(__uint128_t, 128, _Decimal64, decimal64,
 	STRESS_UINT128(0x132af604d8b9183a,0x5e3af8fa7a663d74),
 	STRESS_UINT128(0x0062f086e6160e4e,0x0d84c9f800365858),
 	STRESS_UINT128(C1, C1), STRESS_UINT128(C2, C2), STRESS_UINT128(C3, C3),
-	(_Decimal64)shim_sin, (_Decimal64)shim_cos)
+	(_Decimal64)shim_sinDecimal64, (_Decimal64)shim_cosDecimal64)
 #endif
 #if defined(HAVE_Decimal128) &&	\
     !defined(HAVE_COMPILER_CLANG)
@@ -1156,7 +1271,7 @@ STRESS_CPU_INT_FP(__uint128_t, 128, _Decimal128, decimal128,
 	STRESS_UINT128(0x132af604d8b9183a,0x5e3af8fa7a663d74),
 	STRESS_UINT128(0x0062f086e6160e4e,0x0d84c9f800365858),
 	STRESS_UINT128(C1, C1), STRESS_UINT128(C2, C2), STRESS_UINT128(C3, C3),
-	(_Decimal128)shim_sinl, (_Decimal128)shim_cosl)
+	(_Decimal128)shim_sinDecimal128, (_Decimal128)shim_cosDecimal128)
 #endif
 #endif
 
