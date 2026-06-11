@@ -408,7 +408,7 @@ static int stress_llc_affinity(stress_args_t *args)
 	bool llc_affinity_mlock = false;
 	bool llc_affinity_clflush = false;
 	bool llc_affinity_numa = false;
-	char *clflush_op = NULL;
+	const char *clflush_op = NULL;
 	long int n_numa_nodes = stress_numa_nodes();
 #if defined(HAVE_LINUX_MEMPOLICY_H)
         stress_numa_mask_t *numa_mask = NULL;
