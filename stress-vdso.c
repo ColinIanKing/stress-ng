@@ -57,7 +57,7 @@ typedef int (*stress_vdso_func_t)(void *);
  */
 typedef struct stress_wrap_func {
 	const stress_vdso_func_t func;	/* Wrapper function */
-	char *name;			/* Function name */
+	const char *name;		/* Function name */
 } stress_wrap_func_t;
 
 /*
