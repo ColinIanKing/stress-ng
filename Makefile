@@ -18,9 +18,9 @@
 #
 
 #
-# Codename "proficient process pulverizer"
+# Codename "meticulous memory masher"
 #
-VERSION=0.21.02
+VERSION=0.21.03
 
 #
 # Determine supported toolchains
