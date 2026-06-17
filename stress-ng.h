@@ -476,8 +476,8 @@ typedef enum {
 } stress_verify_t;
 
 typedef enum {
-	STRESS_EX_TYPE_END     = 0x00,
-	STRESS_EX_TYPE_SYSCALL = 0x01,
+	STRESS_EX_TYPE_SYSCALL = 0x00,
+	STRESS_EX_TYPE_END =     0x01,
 } stress_exercise_type_t;
 
 /* Used as an array to indicate what the stressor exercises */
@@ -485,9 +485,6 @@ typedef struct stress_exercises {
 	stress_exercise_type_t type;
 	const char *name;
 } stress_exercises_t;
-
-#define STRESS_EX_TYPE_END	(0x00)
-#define STRESS_EX_TYPE_SYSCALL	(0x01)
 
 #define STRESS_EX_SYSCALL(name)	{ STRESS_EX_TYPE_SYSCALL, name }
 #define STRESS_EX_END		{ STRESS_EX_TYPE_END, NULL }

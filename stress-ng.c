@@ -48,6 +48,7 @@
 #include "core-shared-heap.h"
 #include "core-signal.h"
 #include "core-smart.h"
+#include "core-sort.h"
 #include "core-stressors.h"
 #include "core-syslog.h"
 #include "core-thermal-zone.h"
@@ -172,6 +173,7 @@ static const stress_opt_flag_t opt_flags[] = {
 	{ OPT_c_states,		OPT_FLAGS_C_STATES, 0 },
 	{ OPT_change_cpu,	OPT_FLAGS_CHANGE_CPU, 0 },
 	{ OPT_dry_run,		OPT_FLAGS_DRY_RUN, 0 },
+	{ OPT_exercised,	OPT_FLAGS_EXERCISED, 0 },
 	{ OPT_ftrace,		OPT_FLAGS_FTRACE, 0 },
 	{ OPT_ignite_cpu,	OPT_FLAGS_IGNITE_CPU, 0 },
 	{ OPT_interrupts,	OPT_FLAGS_INTERRUPTS, 0 },
@@ -2210,6 +2212,100 @@ static char *stress_description_yamlify(const char *description)
 }
 
 /*
+ *  stress_exercise_type_str()
+ *  	return human readable string of type
+ */
+static const char *stress_exercise_type_str(const stress_exercise_type_t type)
+{
+	switch (type) {
+	case STRESS_EX_TYPE_SYSCALL:
+		return "syscall";
+	case STRESS_EX_TYPE_END:
+	default:
+		break;
+	}
+	return "unknown";
+}
+
+/*
+ *  stress_exercise_dump()
+ *	output stressor exercised items
+ */
+static void stress_exercise_dump(FILE *yaml)
+{
+	stress_list_item_t *item;
+
+	pr_block_begin();
+	pr_inf("exercised:\n");
+	pr_yaml(yaml, "exercised:\n");
+	for (item = stress_stressor_list.head; item; item = item->next) {
+		stress_exercise_type_t type;
+		const char *name = item->stressor->name;
+
+		pr_inf(" %s:\n", name);
+		pr_yaml(yaml, "    - stressor: %s\n", name);
+		for (type = STRESS_EX_TYPE_SYSCALL; type < STRESS_EX_TYPE_END; type++) {
+			const stress_exercises_t * const exercises = item->stressor->info->exercises;
+
+			if (item->stressor->info->exercises) {
+				size_t len = 1;
+				size_t n;
+				size_t i;
+				char *str;
+				char **array;
+
+				/* string long enough for the YAML text */
+				for (n = 0; exercises[n].name; n++)
+					len += strlen(exercises[n].name) + 4;
+
+				if (n == 0) {
+					pr_yaml(yaml, "      %s: []\n", stress_exercise_type_str(type));
+					continue;
+				}
+
+				array = calloc(n, sizeof(*array));
+				if (!array)
+					continue;
+
+				for (i = 0; i < n; i++)
+					array[i] = shim_unconstify_ptr(exercises[i].name);
+
+				shim_qsort(array, n, sizeof(*array), stress_sort_cmp_str);
+
+				str = calloc(len, sizeof(*str));
+				if (!str) {
+					free(array);
+					continue;
+				}
+				for (i = 0; i < n; i++) {
+					shim_strlcat(str, " ", len);
+					shim_strlcat(str, array[i], len);
+				}
+				pr_inf("  %s:%s\n", stress_exercise_type_str(type), str);
+
+				shim_strscpy(str, "[", len);
+				for (i = 0; i < n; i++) {
+					if (i > 0)
+						shim_strlcat(str, ",", len);
+					shim_strlcat(str, "'", len);
+					shim_strlcat(str, array[i], len);
+					shim_strlcat(str, "'", len);
+				}
+				shim_strlcat(str, "]", len);
+				pr_yaml(yaml, "      %s: %s\n", stress_exercise_type_str(type), str);
+
+				free(str);
+				free(array);
+			} else {
+				pr_yaml(yaml, "      %s: []\n", stress_exercise_type_str(type));
+			}
+		}
+		pr_yaml(yaml, "\n");
+	}
+	pr_block_end();
+}
+
+/*
  *  stress_metrics_dump()
  *	output metrics
  */
@@ -3380,21 +3476,6 @@ static int stress_class_get(uint32_t *opt_class, int *ret)
 }
 
 /*
- *  stress_exercise_type_str()
- *  	return human readable string of type
- */
-static const char *stress_exercise_type_str(const stress_exercise_type_t type)
-{
-	switch (type) {
-	case STRESS_EX_TYPE_SYSCALL:
-		return "syscall";
-	default:
-		break;
-	}
-	return "unknown";
-}
-
-/*
  *  stress_exercises_get()
  *	parse for exercises option that matches type
  *	and a name in the opt string list
@@ -4420,6 +4501,10 @@ int main(int argc, char **argv, char **envp)
 		stress_thrash_stop();
 
 	yaml = stress_yaml_open(yaml_filename);
+
+	/* Show what's been exercised */
+	if (g_opt_flags & OPT_FLAGS_EXERCISED)
+		stress_exercise_dump(yaml);
 
 	/* Dump metrics */
 	if (g_opt_flags & OPT_FLAGS_METRICS)

@@ -81,7 +81,7 @@
 #define OPT_FLAGS_RANDPROCNAME	 STRESS_BIT_ULL(49)	/* --randprocname */
 #define OPT_FLAGS_OOM_NO_CHILD	 STRESS_BIT_ULL(50)	/* --oom-no-child */
 #define OPT_FLAGS_MAKE_IT_FAIL	 STRESS_BIT_ULL(51)	/* --make-it-fail */
-#define OPT_FLAGS_SPARE_52	 STRESS_BIT_ULL(52)
+#define OPT_FLAGS_EXERCISED	 STRESS_BIT_ULL(52)	/* --exercised */
 #define OPT_FLAGS_SPARE_53	 STRESS_BIT_ULL(53)
 #define OPT_FLAGS_SPARE_54	 STRESS_BIT_ULL(54)
 #define OPT_FLAGS_SPARE_55	 STRESS_BIT_ULL(55)
@@ -456,6 +456,7 @@ typedef enum {
 	OPT_exec_no_pthread,
 	OPT_exec_ops,
 
+	OPT_exercised,
 	OPT_exercise_syscall,
 
 	OPT_exit_group,
