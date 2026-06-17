@@ -244,10 +244,10 @@ reap:
 	(void)shim_unlink(filename);
 	(void)stress_fs_temp_dir_rm_args(args);
 
-	pr_dbg("%s: %" PRIu64 " lease sigio interrupts caught\n", args->name, lease_sigio);
+	pr_dbg("%s: %" PRIu64 " lease SIGIO interrupts caught\n", args->name, lease_sigio);
 	dt = t2 - t1;
 	if (dt > 0.0) {
-		stress_metrics_set(args, "lease sigio interrupts per sec",
+		stress_metrics_set(args, "lease SIGIO interrupts per sec",
 			(double)lease_sigio / dt, STRESS_METRIC_HARMONIC_MEAN);
 	}
 
