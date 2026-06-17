@@ -1469,12 +1469,17 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_misaligned_info = {
 	.stressor = stress_misaligned,
 	.classifier = CLASS_CPU_CACHE | CLASS_MEMORY,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 
 #else

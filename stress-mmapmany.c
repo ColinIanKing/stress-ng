@@ -185,10 +185,17 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("mmap"),
+	STRESS_EX_SYSCALL("munmap"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_mmapmany_info = {
 	.stressor = stress_mmapmany,
 	.classifier = CLASS_VM | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };

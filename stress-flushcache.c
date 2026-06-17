@@ -393,12 +393,17 @@ static int stress_flushcache(stress_args_t *args)
 	return ret;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_flushcache_info = {
 	.stressor = stress_flushcache,
 	.classifier = CLASS_CPU_CACHE,
 	.supported = stress_asm_ret_supported,
 	.opts = opts,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_flushcache_info = {

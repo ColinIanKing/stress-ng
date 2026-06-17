@@ -379,12 +379,21 @@ static int stress_mremap(stress_args_t *args)
 	return stress_oomable_child(args, NULL, stress_mremap_child, STRESS_OOMABLE_NORMAL);
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("madvise"),
+	STRESS_EX_SYSCALL("mmap"),
+	STRESS_EX_SYSCALL("mremap"),
+	STRESS_EX_SYSCALL("munmap"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_mremap_info = {
 	.stressor = stress_mremap,
 	.classifier = CLASS_VM | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_mremap_info = {

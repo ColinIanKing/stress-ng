@@ -337,13 +337,19 @@ static int stress_ioport(stress_args_t *args)
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("ioperm"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_ioport_info = {
 	.stressor = stress_ioport,
 	.supported = stress_ioport_supported,
 	.classifier = CLASS_CPU,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_ioport_info = {

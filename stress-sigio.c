@@ -252,11 +252,21 @@ err:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("read"),
+#if defined(__linux__)
+        STRESS_EX_SYSCALL("rt_sigreturn"),
+#endif
+	STRESS_EX_SYSCALL("write"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_sigio_info = {
 	.stressor = stress_sigio,
 	.classifier = CLASS_SIGNAL | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_sigio_info = {

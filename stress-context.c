@@ -249,11 +249,16 @@ fail:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_context_info = {
 	.stressor = stress_context,
 	.classifier = CLASS_MEMORY | CLASS_CPU,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_context_info = {

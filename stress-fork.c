@@ -584,12 +584,26 @@ static const stress_opt_t vfork_opts[] = {
 	END_OPT,
 };
 
+
+static const stress_exercises_t fork_exercises[] = {
+	STRESS_EX_SYSCALL("fork"),
+	STRESS_EX_SYSCALL("waitpid"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_fork_info = {
 	.stressor = stress_fork,
 	.classifier = CLASS_SCHEDULER | CLASS_OS,
 	.opts = fork_opts,
 	.verify = VERIFY_OPTIONAL,
-	.help = fork_help
+	.help = fork_help,
+	.exercises = fork_exercises,
+};
+
+static const stress_exercises_t vfork_exercises[] = {
+	STRESS_EX_SYSCALL("vfork"),
+	STRESS_EX_SYSCALL("waitpid"),
+	STRESS_EX_END,
 };
 
 const stressor_info_t stress_vfork_info = {
@@ -597,5 +611,6 @@ const stressor_info_t stress_vfork_info = {
 	.classifier = CLASS_SCHEDULER | CLASS_OS,
 	.opts = vfork_opts,
 	.verify = VERIFY_OPTIONAL,
-	.help = vfork_help
+	.help = vfork_help,
+	.exercises = vfork_exercises,
 };

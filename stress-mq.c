@@ -528,12 +528,27 @@ finish:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("mq_close"),
+	STRESS_EX_SYSCALL("mq_getattr"),
+	STRESS_EX_SYSCALL("mq_notify"),
+	STRESS_EX_SYSCALL("mq_open"),
+	STRESS_EX_SYSCALL("mq_receive"),
+	STRESS_EX_SYSCALL("mq_send"),
+	STRESS_EX_SYSCALL("mq_setattr"),
+	STRESS_EX_SYSCALL("mq_timedreceive"),
+	STRESS_EX_SYSCALL("mq_timedsend"),
+	STRESS_EX_SYSCALL("mq_unlink"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_mq_info = {
 	.stressor = stress_mq,
 	.classifier = CLASS_SCHEDULER | CLASS_OS | CLASS_IPC,
 	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_mq_info = {

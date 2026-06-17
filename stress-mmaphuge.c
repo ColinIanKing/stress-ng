@@ -399,12 +399,20 @@ static int stress_mmaphuge(stress_args_t *args)
 	return ret;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("madvise"),
+	STRESS_EX_SYSCALL("mmap"),
+	STRESS_EX_SYSCALL("munmap"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_mmaphuge_info = {
 	.stressor = stress_mmaphuge,
 	.classifier = CLASS_VM | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 
 #else

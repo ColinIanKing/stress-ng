@@ -559,16 +559,25 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_logmath_info = {
 	.stressor = stress_logmath,
 	.classifier = CLASS_CPU |  CLASS_FP | CLASS_COMPUTE,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
-	.max_metrics_items = SIZEOF_ARRAY(stress_logmath_methods)
+	.max_metrics_items = SIZEOF_ARRAY(stress_logmath_methods),
+	.exercises = exercises,
 };
 
 #else
+
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_END,
+};
 
 static void stress_logmath_method(const char *opt_name, const char *opt_arg, stress_type_id_t *type_id, void *value)
 {
@@ -587,7 +596,8 @@ const stressor_info_t stress_logmath_info = {
 	.classifier = CLASS_CPU | CLASS_FP | CLASS_COMPUTE,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 
 #endif

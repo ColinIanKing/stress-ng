@@ -768,12 +768,19 @@ tidy:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("fanotify_init"),
+	STRESS_EX_SYSCALL("fanotify_mark"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_fanotify_info = {
 	.stressor = stress_fanotify,
 	.supported = stress_fanotify_supported,
 	.classifier = CLASS_FILESYSTEM | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_fanotify_info = {

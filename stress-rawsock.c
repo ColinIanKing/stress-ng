@@ -344,6 +344,14 @@ static int stress_rawsock(stress_args_t *args)
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("close"),
+	STRESS_EX_SYSCALL("socket"),
+	STRESS_EX_SYSCALL("sendto"),
+	STRESS_EX_SYSCALL("recvfrom"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_rawsock_info = {
 	.stressor = stress_rawsock,
 	.classifier = CLASS_NETWORK | CLASS_OS,
@@ -353,6 +361,7 @@ const stressor_info_t stress_rawsock_info = {
 	.help = help,
 	.init = stress_rawsock_init,
 	.deinit = stress_rawsock_deinit,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_rawsock_info = {

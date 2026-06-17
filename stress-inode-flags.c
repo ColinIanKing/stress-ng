@@ -423,10 +423,23 @@ tidy_lock:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("ioctl"),
+	STRESS_EX_SYSCALL("fsync"),
+#if defined(__NR_file_getattr)
+	STRESS_EX_SYSCALL("file_getattr"),
+#endif
+#if defined(__NR_file_setattr)
+	STRESS_EX_SYSCALL("file_setattr"),
+#endif
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_inode_flags_info = {
 	.stressor = stress_inode_flags,
 	.classifier = CLASS_OS | CLASS_FILESYSTEM,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_inode_flags_info = {

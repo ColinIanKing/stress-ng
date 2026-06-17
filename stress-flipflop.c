@@ -372,12 +372,17 @@ free_dist:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_flipflop_info = {
 	.stressor = stress_flipflop,
 	.classifier = CLASS_SCHEDULER | CLASS_OS | CLASS_HOT,
 	.verify = VERIFY_NONE,
 	.opts = opts,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 
 #else

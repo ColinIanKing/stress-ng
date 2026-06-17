@@ -231,10 +231,16 @@ static int stress_membarrier(stress_args_t *args)
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("membarrier"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_membarrier_info = {
 	.stressor = stress_membarrier,
 	.classifier = CLASS_CPU_CACHE | CLASS_MEMORY,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_membarrier_info = {

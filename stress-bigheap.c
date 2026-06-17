@@ -336,12 +336,20 @@ static int stress_bigheap(stress_args_t *args)
 	return stress_oomable_child(args, NULL, stress_bigheap_child, STRESS_OOMABLE_NORMAL);
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("brk"),
+	STRESS_EX_SYSCALL("sbrk"),
+	STRESS_EX_SYSCALL("mmap"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_bigheap_info = {
 	.stressor = stress_bigheap,
 	.classifier = CLASS_OS | CLASS_VM,
 	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 
 #else

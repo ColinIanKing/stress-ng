@@ -95,9 +95,19 @@ static int stress_sigpipe(stress_args_t *args)
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+#if defined(__linux__)
+	STRESS_EX_SYSCALL("rt_sigreturn"),
+#endif
+
+	STRESS_EX_SYSCALL("write"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_sigpipe_info = {
 	.stressor = stress_sigpipe,
 	.classifier = CLASS_SIGNAL | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };

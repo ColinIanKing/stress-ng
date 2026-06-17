@@ -3292,6 +3292,20 @@ static void stress_stressors_enable(const int32_t instances)
 	}
 }
 
+static void stress_stressor_enable(stress_stressor_t *stressor)
+{
+	stress_list_item_t *item = stress_list_item_find(stressor);
+
+	if (item) {
+		if (g_opt_flags & OPT_FLAGS_SEQUENTIAL)
+			item->instances = opt_sequential;
+		else if (g_opt_flags & OPT_FLAGS_ALL)
+			item->instances = opt_parallel;
+		else if (g_opt_flags & OPT_FLAGS_PERMUTE)
+			item->instances = opt_permute;
+	}
+}
+
 /*
  *  stress_classes_enable()
  *	enable stressors based on class
@@ -3307,16 +3321,8 @@ static void stress_classes_enable(const uint32_t classifier)
 	g_opt_flags |= OPT_FLAGS_SET;
 
 	for (i = 0; i < SIZEOF_ARRAY(stressors); i++) {
-		if (stressors[i].info->classifier & classifier) {
-			stress_list_item_t *item = stress_list_item_find(&stressors[i]);
-
-			if (g_opt_flags & OPT_FLAGS_SEQUENTIAL)
-				item->instances = opt_sequential;
-			else if (g_opt_flags & OPT_FLAGS_ALL)
-				item->instances = opt_parallel;
-			else if (g_opt_flags & OPT_FLAGS_PERMUTE)
-				item->instances = opt_permute;
-		}
+		if (stressors[i].info->classifier & classifier)
+			stress_stressor_enable(&stressors[i]);
 	}
 }
 
@@ -3328,8 +3334,8 @@ static void stress_classes_enable(const uint32_t classifier)
 static int stress_class_get(uint32_t *opt_class, int *ret)
 {
 	char *str, *token, *class_str = NULL;
-	*ret = EXIT_SUCCESS;
 
+	*ret = EXIT_SUCCESS;
 	*opt_class = 0;
 	if (!stress_setting_get("class", &class_str))
 		return 0;
@@ -3374,6 +3380,78 @@ static int stress_class_get(uint32_t *opt_class, int *ret)
 }
 
 /*
+ *  stress_exercise_type_str()
+ *  	return human readable string of type
+ */
+static const char *stress_exercise_type_str(const stress_exercise_type_t type)
+{
+	switch (type) {
+	case STRESS_EX_TYPE_SYSCALL:
+		return "syscall";
+	default:
+		break;
+	}
+	return "unknown";
+}
+
+/*
+ *  stress_exercises_get()
+ *	parse for exercises option that matches type
+ *	and a name in the opt string list
+ */
+static int stress_exercises_get(
+	const char *opt,
+	const stress_exercise_type_t type,
+	int *ret)
+{
+	char *str = NULL, *token, *opt_str;
+
+	*ret = EXIT_SUCCESS;
+	if (!stress_setting_get(opt, &str))
+		return 0;
+	opt_str = strdup(str);
+	if (!opt_str) {
+		(void)fprintf(stderr, "cannot duplicate string for %s, out of memory\n", opt);
+		*ret = EXIT_FAILURE;
+		return -1;
+	}
+
+	for (str = opt_str; (token = strtok(str, ",")) != NULL; str = NULL) {
+		size_t i;
+		bool mismatch = true;
+
+		for (i = 0; i < SIZEOF_ARRAY(stressors); i++) {
+			const stress_exercises_t * const exercises = stressors[i].info->exercises;
+			size_t j;
+
+			if (!exercises)
+				continue;
+
+			for (j = 0; exercises[j].name; j++) {
+				if ((exercises[j].type == type) &&
+				    !strcmp(exercises[j].name, token)) {
+					stress_stressor_enable(&stressors[i]);
+
+					/* This indicates some stressors are set */
+					g_opt_flags |= OPT_FLAGS_SET;
+					mismatch = false;
+					break;
+				}
+			}
+		}
+		if (mismatch) {
+			fprintf(stderr, "exercise-%s: option '%s' not found\n",
+				stress_exercise_type_str(type), token);
+			*ret = EXIT_FAILURE;
+			free(opt_str);
+			return -1;
+		}
+	}
+	free(opt_str);
+	return 0;
+}
+
+/*
  *  stress_oom_avoid_bytes_check()
  *  	check if oom-avoid-bytes option is too large and adjust
  *  	down to 50% of free memory
@@ -3411,49 +3489,50 @@ static void stress_stressor_option(const char *opt, const uint64_t opt_flag, int
 }
 
 static const stress_opt_t main_opts[] = {
-	{ OPT_all,            "all",             TYPE_ID_INT32_CPU_PERCENT, -STRESS_PROCS_MAX, STRESS_PROCS_MAX, NULL },
-	{ OPT_backoff,        "backoff",         TYPE_ID_INT64, 0, 10000000, NULL },
-	{ OPT_cache_level,    "cache-level",     TYPE_ID_INT16, 1, 5, NULL },
-	{ OPT_cache_size,     "cache-size",      TYPE_ID_UINT64_BYTES_VM, 1 * KB, 4 * GB, NULL },
-	{ OPT_cache_ways,     "cache-ways",      TYPE_ID_UINT32, 1, 1024, NULL },
-	{ OPT_class,          "class",           TYPE_ID_STR, 0, 0, NULL },
-	{ OPT_compact_memory, "compact-memory",  TYPE_ID_BOOL, 0, 1, NULL },
-	{ OPT_exclude,	      "exclude",         TYPE_ID_STR, 0, 0, NULL },
-	{ OPT_ionice_class,   "ionice-class",    TYPE_ID_STR, 0, 0, NULL },
-	{ OPT_ionice_level,   "ionice-level",    TYPE_ID_INT32, 0, 7, NULL },
-	{ OPT_iostat,         "iostat",          TYPE_ID_INT32, 1, 3600, NULL },
-	{ OPT_job,	      "job",             TYPE_ID_STR, 0, 0, NULL },
-	{ OPT_limit_as,       "limit-as",        TYPE_ID_UINT64_BYTES, 1 * MB, RLIM_INFINITY, NULL },
-	{ OPT_limit_data,     "limit-data",      TYPE_ID_UINT64_BYTES, 1 * MB, RLIM_INFINITY, NULL },
-	{ OPT_limit_stack,    "limit-stack",     TYPE_ID_UINT64_BYTES, 1 * MB, RLIM_INFINITY, NULL },
-	{ OPT_log_file,       "log-file",        TYPE_ID_STR, 0, 0, NULL },
-	{ OPT_max_fd,         "max-fd",          TYPE_ID_CALLBACK, 16, 0xffffffffffffffffULL, stress_fs_max_fd },
-	{ OPT_mbind,          "mbind",           TYPE_ID_STR, 0, 0, NULL },
-	{ OPT_no_madvise,     "no-madvise",      TYPE_ID_BOOL, 0, 1, NULL },
-	{ OPT_oom_avoid_bytes,"oom-avoid-bytes", TYPE_ID_SIZE_T_BYTES_VM, 4096, 0xffffffffffffffffULL, NULL },
-	{ OPT_pause,          "pause",           TYPE_ID_UINT, 0, INT_MAX, NULL },
-	{ OPT_permute,        "permute",         TYPE_ID_INT32_CPU_PERCENT, -STRESS_PROCS_MAX, STRESS_PROCS_MAX, NULL },
-	{ OPT_quiet,          "quiet",           TYPE_ID_BOOL, 0, 1, NULL },
-	{ OPT_raplstat,       "raplstat",        TYPE_ID_INT32, 1, 3600, NULL },
-	{ OPT_random,         "random",          TYPE_ID_INT32_CPU_PERCENT, -STRESS_PROCS_MAX, STRESS_PROCS_MAX, NULL },
-	{ OPT_resctrl,        "resctrl",         TYPE_ID_STR, 0, 0, NULL },
-	{ OPT_sched,          "sched",           TYPE_ID_STR, 0, 0, NULL },
-	{ OPT_sched_deadline, "sched-deadline",  TYPE_ID_UINT64, 0, 1000000000000000ULL, NULL },
-	{ OPT_sched_runtime,  "sched-runtime",	 TYPE_ID_UINT64, 0, 1000000000000000ULL, NULL },
-	{ OPT_sched_period,   "sched-period",    TYPE_ID_UINT64, 0, 1000000000000000ULL, NULL },
-	{ OPT_sched_prio,     "sched-prio",      TYPE_ID_INT32, 1, 99, NULL },
-	{ OPT_seed,           "seed",            TYPE_ID_UINT64, 0, 0xffffffffffffffffULL, NULL },
-	{ OPT_sequential,     "sequential",      TYPE_ID_INT32_CPU_PERCENT, -STRESS_PROCS_MAX, STRESS_PROCS_MAX, NULL },
-	{ OPT_status,         "status",          TYPE_ID_INT32, 1, 3600, NULL },
-	{ OPT_taskset,        "taskset",         TYPE_ID_STR, 0, 0, NULL },
-	{ OPT_temp_path,      "temp-path",       TYPE_ID_STR, 0, 0, NULL },
-	{ OPT_thermalstat,    "thermalstat",     TYPE_ID_INT32, 1, 3600, NULL },
-	{ OPT_timeout,        "timeout",         TYPE_ID_UINT64_TIME, 0, 0xffffffffffffffffULL, NULL },
-	{ OPT_timer_slack,    "timer-slack",     TYPE_ID_UINT32, 0, 0xffffffffULL, NULL },
-	{ OPT_vmstat,         "vmstat",          TYPE_ID_INT32, 1, 3600, NULL },
-	{ OPT_vmstat_units,   "vmstat-units",    TYPE_ID_STR, 0, 0, NULL },
-	{ OPT_with,           "with",            TYPE_ID_STR, 0, 0, NULL },
-	{ OPT_yaml,           "yaml",            TYPE_ID_STR, 0, 0, NULL },
+	{ OPT_all,              "all",              TYPE_ID_INT32_CPU_PERCENT, -STRESS_PROCS_MAX, STRESS_PROCS_MAX, NULL },
+	{ OPT_backoff,          "backoff",          TYPE_ID_INT64, 0, 10000000, NULL },
+	{ OPT_cache_level,      "cache-level",      TYPE_ID_INT16, 1, 5, NULL },
+	{ OPT_cache_size,       "cache-size",       TYPE_ID_UINT64_BYTES_VM, 1 * KB, 4 * GB, NULL },
+	{ OPT_cache_ways,       "cache-ways",       TYPE_ID_UINT32, 1, 1024, NULL },
+	{ OPT_class,            "class",            TYPE_ID_STR, 0, 0, NULL },
+	{ OPT_compact_memory,   "compact-memory",   TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_exclude,	        "exclude",          TYPE_ID_STR, 0, 0, NULL },
+	{ OPT_exercise_syscall, "exercise-syscall", TYPE_ID_STR, 0, 0, NULL },
+	{ OPT_ionice_class,     "ionice-class",     TYPE_ID_STR, 0, 0, NULL },
+	{ OPT_ionice_level,     "ionice-level",     TYPE_ID_INT32, 0, 7, NULL },
+	{ OPT_iostat,           "iostat",           TYPE_ID_INT32, 1, 3600, NULL },
+	{ OPT_job,	        "job",              TYPE_ID_STR, 0, 0, NULL },
+	{ OPT_limit_as,         "limit-as",         TYPE_ID_UINT64_BYTES, 1 * MB, RLIM_INFINITY, NULL },
+	{ OPT_limit_data,       "limit-data",       TYPE_ID_UINT64_BYTES, 1 * MB, RLIM_INFINITY, NULL },
+	{ OPT_limit_stack,      "limit-stack",      TYPE_ID_UINT64_BYTES, 1 * MB, RLIM_INFINITY, NULL },
+	{ OPT_log_file,         "log-file",         TYPE_ID_STR, 0, 0, NULL },
+	{ OPT_max_fd,           "max-fd",           TYPE_ID_CALLBACK, 16, 0xffffffffffffffffULL, stress_fs_max_fd },
+	{ OPT_mbind,            "mbind",            TYPE_ID_STR, 0, 0, NULL },
+	{ OPT_no_madvise,       "no-madvise",       TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_oom_avoid_bytes,  "oom-avoid-bytes",  TYPE_ID_SIZE_T_BYTES_VM, 4096, 0xffffffffffffffffULL, NULL },
+	{ OPT_pause,            "pause",            TYPE_ID_UINT, 0, INT_MAX, NULL },
+	{ OPT_permute,          "permute",          TYPE_ID_INT32_CPU_PERCENT, -STRESS_PROCS_MAX, STRESS_PROCS_MAX, NULL },
+	{ OPT_quiet,            "quiet",            TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_raplstat,         "raplstat",         TYPE_ID_INT32, 1, 3600, NULL },
+	{ OPT_random,           "random",           TYPE_ID_INT32_CPU_PERCENT, -STRESS_PROCS_MAX, STRESS_PROCS_MAX, NULL },
+	{ OPT_resctrl,          "resctrl",          TYPE_ID_STR, 0, 0, NULL },
+	{ OPT_sched,            "sched",            TYPE_ID_STR, 0, 0, NULL },
+	{ OPT_sched_deadline,   "sched-deadline",   TYPE_ID_UINT64, 0, 1000000000000000ULL, NULL },
+	{ OPT_sched_runtime,    "sched-runtime",    TYPE_ID_UINT64, 0, 1000000000000000ULL, NULL },
+	{ OPT_sched_period,     "sched-period",     TYPE_ID_UINT64, 0, 1000000000000000ULL, NULL },
+	{ OPT_sched_prio,       "sched-prio",       TYPE_ID_INT32, 1, 99, NULL },
+	{ OPT_seed,             "seed",             TYPE_ID_UINT64, 0, 0xffffffffffffffffULL, NULL },
+	{ OPT_sequential,       "sequential",       TYPE_ID_INT32_CPU_PERCENT, -STRESS_PROCS_MAX, STRESS_PROCS_MAX, NULL },
+	{ OPT_status,           "status",           TYPE_ID_INT32, 1, 3600, NULL },
+	{ OPT_taskset,          "taskset",          TYPE_ID_STR, 0, 0, NULL },
+	{ OPT_temp_path,        "temp-path",        TYPE_ID_STR, 0, 0, NULL },
+	{ OPT_thermalstat,      "thermalstat",      TYPE_ID_INT32, 1, 3600, NULL },
+	{ OPT_timeout,          "timeout",          TYPE_ID_UINT64_TIME, 0, 0xffffffffffffffffULL, NULL },
+	{ OPT_timer_slack,      "timer-slack",      TYPE_ID_UINT32, 0, 0xffffffffULL, NULL },
+	{ OPT_vmstat,           "vmstat",           TYPE_ID_INT32, 1, 3600, NULL },
+	{ OPT_vmstat_units,     "vmstat-units",     TYPE_ID_STR, 0, 0, NULL },
+	{ OPT_with,             "with",             TYPE_ID_STR, 0, 0, NULL },
+	{ OPT_yaml,             "yaml",             TYPE_ID_STR, 0, 0, NULL },
 	END_OPT,
 };
 
@@ -4029,6 +4108,9 @@ int main(int argc, char **argv, char **envp)
 	stress_stressor_option("permute", OPT_FLAGS_PERMUTE, &opt_permute);
 	stress_stressor_option("random", OPT_FLAGS_RANDOM, NULL);
 	stress_stressor_option("sequential", OPT_FLAGS_SEQUENTIAL, &opt_sequential);
+
+	if (stress_exercises_get("exercise-syscall", STRESS_EX_TYPE_SYSCALL, &ret) < 0)
+		goto exit_stressors_free;
 
 	if (stress_class_get(&opt_class, &ret) < 0)
 		goto exit_stressors_free;

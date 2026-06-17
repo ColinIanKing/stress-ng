@@ -204,11 +204,17 @@ finish:
 	return EXIT_SUCCESS;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("ptrace"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_ptrace_info = {
 	.stressor = stress_ptrace,
 	.classifier = CLASS_OS,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_ptrace_info = {

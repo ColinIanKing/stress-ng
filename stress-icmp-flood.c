@@ -193,13 +193,21 @@ err:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("socket"),
+	STRESS_EX_SYSCALL("setsockopt"),
+	STRESS_EX_SYSCALL("sendto"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_icmp_flood_info = {
 	.stressor = stress_icmp_flood,
 	.supported = stress_icmp_flood_supported,
 	.classifier = CLASS_OS | CLASS_NETWORK,
 	.verify = VERIFY_ALWAYS,
 	.opts = opts,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_icmp_flood_info = {

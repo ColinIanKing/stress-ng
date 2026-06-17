@@ -189,11 +189,18 @@ static int stress_cap(stress_args_t *args)
 	return EXIT_SUCCESS;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("capget"),
+	STRESS_EX_SYSCALL("capset"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_cap_info = {
 	.stressor = stress_cap,
 	.classifier = CLASS_OS,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_cap_info = {

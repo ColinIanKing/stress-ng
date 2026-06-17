@@ -179,12 +179,19 @@ static int stress_klog(stress_args_t *args)
 	return EXIT_SUCCESS;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("syslog"),
+	STRESS_EX_SYSCALL("klogctl"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_klog_info = {
 	.stressor = stress_klog,
 	.classifier = CLASS_OS,
 	.help = help,
 	.verify = VERIFY_ALWAYS,
-	.supported = stress_klog_supported
+	.supported = stress_klog_supported,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_klog_info = {

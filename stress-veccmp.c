@@ -288,11 +288,16 @@ PRAGMA_UNROLL_N(8)
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_veccmp_info = {
 	.stressor = stress_veccmp,
 	.classifier = CLASS_CPU | CLASS_INTEGER | CLASS_COMPUTE | CLASS_VECTOR | CLASS_HOT,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_veccmp_info = {

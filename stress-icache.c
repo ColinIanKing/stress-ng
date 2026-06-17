@@ -214,12 +214,21 @@ static int stress_icache(stress_args_t *args)
 	return ret;
 }
 
+static const stress_exercises_t exercises[] = {
+#if defined(MADV_NOHUGEPAGE)
+	STRESS_EX_SYSCALL("madvise"),
+#endif
+	STRESS_EX_SYSCALL("mprotect"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_icache_info = {
 	.stressor = stress_icache,
 	.classifier = CLASS_CPU_CACHE,
 	.supported = stress_asm_ret_supported,
 	.opts = opts,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_icache_info = {

@@ -305,10 +305,17 @@ static int stress_mmapfiles(stress_args_t *args)
 	return ret;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("mmap"),
+	STRESS_EX_SYSCALL("munmap"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_mmapfiles_info = {
 	.stressor = stress_mmapfiles,
 	.classifier = CLASS_VM | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
 	.opts = opts,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };

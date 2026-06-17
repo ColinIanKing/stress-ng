@@ -339,11 +339,18 @@ tidy_fd:
 	return ret;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("tee"),
+	STRESS_EX_SYSCALL("splice"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_tee_info = {
 	.stressor = stress_tee,
 	.classifier = CLASS_PIPE_IO | CLASS_OS | CLASS_SCHEDULER,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_tee_info = {

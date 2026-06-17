@@ -2077,6 +2077,13 @@ free_permutations:
 	return ret;
 }
 
+static const stress_exercises_t exercises[] = {
+#if defined(HAVE_MSYNC)
+	STRESS_EX_SYSCALL("msync"),
+#endif
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_cachehammer_info = {
 	.stressor = stress_cachehammer,
 	.init = stress_cachehammer_init,
@@ -2085,7 +2092,8 @@ const stressor_info_t stress_cachehammer_info = {
 	.verify = VERIFY_ALWAYS,
 	.opts = opts,
 	.help = help,
-	.max_metrics_items = SIZEOF_ARRAY(stress_cachehammer_funcs)
+	.max_metrics_items = SIZEOF_ARRAY(stress_cachehammer_funcs),
+	.exercises = exercises,
 };
 
 #else

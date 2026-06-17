@@ -478,12 +478,19 @@ tidy:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("quotactl"),
+	STRESS_EX_SYSCALL("quotactl_fd"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_quota_info = {
 	.stressor = stress_quota,
 	.supported = stress_quota_supported,
 	.classifier = CLASS_OS,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_quota_info = {

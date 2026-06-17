@@ -407,13 +407,18 @@ static int stress_rdrand(stress_args_t *args)
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_rdrand_info = {
 	.stressor = stress_rdrand,
 	.supported = stress_rdrand_supported,
 	.opts = opts,
 	.classifier = CLASS_CPU,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 

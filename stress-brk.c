@@ -353,11 +353,22 @@ static int stress_brk(stress_args_t *args)
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("brk"),
+	STRESS_EX_SYSCALL("sbrk"),
+#if defined(HAVE_MADVISE) &&	\
+    defined(MADV_MERGEABLE)
+	STRESS_EX_SYSCALL("madvise"),
+#endif
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_brk_info = {
 	.stressor = stress_brk,
 	.supported = stress_brk_supported,
 	.classifier = CLASS_OS | CLASS_VM,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };

@@ -390,11 +390,17 @@ close_done:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("splice"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_splice_info = {
 	.stressor = stress_splice,
 	.classifier = CLASS_PIPE_IO | CLASS_OS,
 	.opts = opts,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_splice_info = {

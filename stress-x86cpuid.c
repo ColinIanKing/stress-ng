@@ -248,11 +248,16 @@ PRAGMA_UNROLL_N(8)
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_x86cpuid_info = {
 	.stressor = stress_x86cpuid,
 	.classifier = CLASS_CPU,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 

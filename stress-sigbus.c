@@ -274,7 +274,6 @@ static int stress_sigbus(stress_args_t *args)
 						     "popf;\n");
 #endif
 			}
-
 			/* Access un-backed file mmapping */
 			(*(ptr + page_size))++;
 		}
@@ -293,13 +292,21 @@ tidy_dir:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+#if defined(__linux__)
+	STRESS_EX_SYSCALL("rt_sigreturn"),
+#endif
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_sigbus_info = {
 	.stressor = stress_sigbus,
 	.classifier = CLASS_SIGNAL | CLASS_OS,
 #if defined(SA_SIGINFO)
 	.verify = VERIFY_OPTIONAL,
 #endif
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 
 #else

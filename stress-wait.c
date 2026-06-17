@@ -395,11 +395,27 @@ tidy:
 	return ret;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("wait"),
+#if defined(HAVE_WAIT3)
+	STRESS_EX_SYSCALL("wait3"),
+#endif
+#if defined(HAVE_WAIT4)
+	STRESS_EX_SYSCALL("wait4"),
+#endif
+#if defined(HAVE_WAITID)
+	STRESS_EX_SYSCALL("waitid"),
+#endif
+	STRESS_EX_SYSCALL("waitpid"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_wait_info = {
 	.stressor = stress_wait,
 	.classifier = CLASS_SCHEDULER | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_wait_info = {

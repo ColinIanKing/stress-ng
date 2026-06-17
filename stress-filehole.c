@@ -701,12 +701,25 @@ tidy_ret:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("fallocate"),
+#if defined(HAVE_PWRITE)
+	STRESS_EX_SYSCALL("pread"),
+	STRESS_EX_SYSCALL("pwrite"),
+#else
+	STRESS_EX_SYSCALL("read"),
+	STRESS_EX_SYSCALL("write"),
+#endif
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_filehole_info = {
 	.stressor = stress_filehole,
 	.classifier = CLASS_FILESYSTEM | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_filehole_info = {

@@ -529,12 +529,20 @@ unmap_prio_inv_info:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("getrusage"),
+	STRESS_EX_SYSCALL("setpriority"),
+	STRESS_EX_SYSCALL("sched_setscheduler"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_prio_inv_info = {
 	.stressor = stress_prio_inv,
 	.classifier = CLASS_OS | CLASS_SCHEDULER,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_prio_inv_info = {

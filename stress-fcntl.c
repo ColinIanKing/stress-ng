@@ -912,9 +912,15 @@ tidy:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("fcntl"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_fcntl_info = {
 	.stressor = stress_fcntl,
 	.classifier = CLASS_FILESYSTEM | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };

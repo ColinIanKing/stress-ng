@@ -335,11 +335,19 @@ err:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("fallocate"),
+	STRESS_EX_SYSCALL("ftruncate"),
+	STRESS_EX_SYSCALL("setrlimit"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_fsize_info = {
 	.stressor = stress_fsize,
 	.classifier = CLASS_FILESYSTEM | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_fsize_info = {

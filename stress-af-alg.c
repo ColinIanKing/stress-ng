@@ -1581,6 +1581,16 @@ static void stress_af_alg_deinit(void)
 	crypto_info_list = NULL;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("accept"),
+	STRESS_EX_SYSCALL("bind"),
+	STRESS_EX_SYSCALL("recv"),
+	STRESS_EX_SYSCALL("send"),
+	STRESS_EX_SYSCALL("setsockopt"),
+	STRESS_EX_SYSCALL("socket"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_af_alg_info = {
 	.stressor = stress_af_alg,
 	.init = stress_af_alg_init,
@@ -1590,6 +1600,7 @@ const stressor_info_t stress_af_alg_info = {
 	.verify = VERIFY_OPTIONAL,
 	.help = help,
 	.max_metrics_items = 100,
+	.exercises = exercises,
 };
 
 #else

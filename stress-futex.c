@@ -193,11 +193,23 @@ finish:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("futex"),
+	STRESS_EX_SYSCALL("futex_wait"),
+#if defined(FUTEX_32) &&		\
+    defined(CLOCK_MONOTONIC)
+	STRESS_EX_SYSCALL("futex_waitv"),
+#endif
+	STRESS_EX_SYSCALL("futex_wake"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_futex_info = {
 	.stressor = stress_futex,
 	.classifier = CLASS_SCHEDULER | CLASS_OS | CLASS_IPC,
 	.verify = VERIFY_OPTIONAL,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_futex_info = {

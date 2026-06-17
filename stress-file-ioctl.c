@@ -780,9 +780,15 @@ tidy:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("ioctl"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_file_ioctl_info = {
 	.stressor = stress_file_ioctl,
 	.classifier = CLASS_FILESYSTEM | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };

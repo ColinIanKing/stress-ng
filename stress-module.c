@@ -598,12 +598,19 @@ out:
 	return ret;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("finit_module"),
+	STRESS_EX_SYSCALL("delete_module"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_module_info = {
 	.stressor = stress_module,
 	.classifier = CLASS_OS,
 	.opts = opts,
 	.supported = stress_module_supported,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 
 #else

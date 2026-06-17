@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, may be w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "6 June 2026"
+.TH STRESS-NG 1 "17 June 2026"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -130,6 +130,11 @@ print out the configuration used to build stress\-ng.
 .TP
 .B \-n, \-\-dry\-run
 parse options, but do not run stress tests. A no-op.
+.TP
+.B \-\-exercise\-syscall list
+enable stressors that exercises the one or more system calls specified in
+the given list. Use the \-\-all, \-\-permute or \-\-seq options to
+specify how to run the stessors.
 .TP
 .B \-\-ftrace
 enable kernel function call tracing (Linux only). This will use the

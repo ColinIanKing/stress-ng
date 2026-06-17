@@ -651,12 +651,29 @@ static int stress_clone(stress_args_t *args)
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("clone"),
+#if defined(__NR_exit) && \
+    defined(HAVE_SYSCALL)
+	STRESS_EX_SYSCALL("exit"),
+#endif
+#if defined(HAVE_SETNS)
+	STRESS_EX_SYSCALL("setns"),
+#endif
+#if defined(HAVE_MODIFY_LDT) &&	\
+    defined(__NR_modify_ldt)
+	STRESS_EX_SYSCALL("modify_ldt"),
+#endif
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_clone_info = {
 	.stressor = stress_clone,
 	.classifier = CLASS_SCHEDULER | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_clone_info = {

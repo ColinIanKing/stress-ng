@@ -459,10 +459,15 @@ err:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_easy_opcode_info = {
 	.stressor = stress_easy_opcode,
 	.classifier = CLASS_CPU,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 

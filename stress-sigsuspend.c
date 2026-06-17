@@ -131,9 +131,18 @@ reap:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+#if defined(__linux__)
+	STRESS_EX_SYSCALL("rt_sigreturn"),
+#endif
+	STRESS_EX_SYSCALL("kill"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_sigsuspend_info = {
 	.stressor = stress_sigsuspend,
 	.classifier = CLASS_SIGNAL | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };

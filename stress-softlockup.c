@@ -373,12 +373,18 @@ finish:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("sched_setscheduler"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_softlockup_info = {
 	.stressor = stress_softlockup,
 	.supported = stress_softlockup_supported,
 	.classifier = CLASS_SCHEDULER,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_softlockup_info = {

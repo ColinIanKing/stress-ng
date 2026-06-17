@@ -518,10 +518,20 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("bind"),
+	STRESS_EX_SYSCALL("close"),
+	STRESS_EX_SYSCALL("recvfrom"),
+	STRESS_EX_SYSCALL("sendto"),
+	STRESS_EX_SYSCALL("socket"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_udp_info = {
 	.stressor = stress_udp,
 	.classifier = CLASS_NETWORK | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };

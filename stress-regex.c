@@ -207,11 +207,16 @@ static int stress_regex(stress_args_t *args)
 	return EXIT_SUCCESS;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_regex_info = {
 	.stressor = stress_regex,
 	.classifier = CLASS_CPU | CLASS_HOT,
 	.help = help,
-	.max_metrics_items = SIZEOF_ARRAY(stress_posix_regex) + 2
+	.max_metrics_items = SIZEOF_ARRAY(stress_posix_regex) + 2,
+	.exercises = exercises,
 };
 #else
 

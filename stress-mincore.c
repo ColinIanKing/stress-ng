@@ -303,12 +303,21 @@ err:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("mincore"),
+#if defined(MS_ASYNC)
+	STRESS_EX_SYSCALL("msync"),
+#endif
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_mincore_info = {
 	.stressor = stress_mincore,
 	.classifier = CLASS_OS | CLASS_MEMORY,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_mincore_info = {

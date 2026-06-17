@@ -213,12 +213,20 @@ static int OPTIMIZE3 stress_udp_flood(stress_args_t *args)
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("close"),
+	STRESS_EX_SYSCALL("sendto"),
+	STRESS_EX_SYSCALL("socket"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_udp_flood_info = {
 	.stressor = stress_udp_flood,
 	.classifier = CLASS_NETWORK | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_udp_flood_info = {

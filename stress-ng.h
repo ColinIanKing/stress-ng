@@ -475,6 +475,23 @@ typedef enum {
 	VERIFY_ALWAYS   = 0x02,		/* verification always enabled */
 } stress_verify_t;
 
+typedef enum {
+	STRESS_EX_TYPE_END     = 0x00,
+	STRESS_EX_TYPE_SYSCALL = 0x01,
+} stress_exercise_type_t;
+
+/* Used as an array to indicate what the stressor exercises */
+typedef struct stress_exercises {
+	stress_exercise_type_t type;
+	const char *name;
+} stress_exercises_t;
+
+#define STRESS_EX_TYPE_END	(0x00)
+#define STRESS_EX_TYPE_SYSCALL	(0x01)
+
+#define STRESS_EX_SYSCALL(name)	{ STRESS_EX_TYPE_SYSCALL, name }
+#define STRESS_EX_END		{ STRESS_EX_TYPE_END, NULL }
+
 /* Per stressor information, as defined in every stressor source */
 typedef struct stressor_info {
 	int (*stressor)(stress_args_t *args);	/* stressor function */
@@ -485,6 +502,7 @@ typedef struct stressor_info {
 	void (*limit_set)(uint64_t max);/* set limits */
 	const stress_opt_t *opts;	/* new option settings */
 	const stress_help_t *help;	/* stressor help options */
+	const stress_exercises_t *exercises; /* list of what is exercised */
 	const stress_class_t classifier;/* stressor class */
 	const stress_verify_t verify;	/* verification mode */
 	const char *unimplemented_reason;	/* unsupported reason message */

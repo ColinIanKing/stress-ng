@@ -311,11 +311,21 @@ tidy_dir:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("fork"),
+	STRESS_EX_SYSCALL("msync"),
+	STRESS_EX_SYSCALL("sigaction"),
+	STRESS_EX_SYSCALL("sigaltstack"),
+	STRESS_EX_SYSCALL("waitpid"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_stackmmap_info = {
 	.stressor = stress_stackmmap,
 	.classifier = CLASS_VM | CLASS_MEMORY,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_stackmmap_info = {

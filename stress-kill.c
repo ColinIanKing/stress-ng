@@ -172,9 +172,15 @@ static int stress_kill(stress_args_t *args)
 	return EXIT_SUCCESS;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("kill"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_kill_info = {
 	.stressor = stress_kill,
 	.classifier = CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS,
 	.verify = VERIFY_OPTIONAL,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };

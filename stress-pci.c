@@ -388,11 +388,19 @@ static int stress_pci(stress_args_t *args)
 	return EXIT_SUCCESS;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("stat"),
+	STRESS_EX_SYSCALL("mmap"),
+	STRESS_EX_SYSCALL("munmap"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_pci_info = {
 	.stressor = stress_pci,
 	.classifier = CLASS_OS,
 	.opts = opts,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_pci_info = {

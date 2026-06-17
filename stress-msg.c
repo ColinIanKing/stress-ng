@@ -473,12 +473,21 @@ cleanup:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("msgctl"),
+	STRESS_EX_SYSCALL("msgget"),
+	STRESS_EX_SYSCALL("msgsnd"),
+	STRESS_EX_SYSCALL("msgrcv"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_msg_info = {
 	.stressor = stress_msg,
 	.classifier = CLASS_SCHEDULER | CLASS_OS | CLASS_IPC,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_msg_info = {

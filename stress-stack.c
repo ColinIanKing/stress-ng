@@ -314,12 +314,18 @@ static int stress_stack(stress_args_t *args)
 	return stress_oomable_child(args, NULL, stress_stack_child, STRESS_OOMABLE_NORMAL);
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("sigaction"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_stack_info = {
 	.stressor = stress_stack,
 	.classifier = CLASS_VM | CLASS_MEMORY,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 
 #else

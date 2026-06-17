@@ -3961,11 +3961,24 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("madvise"),
+	STRESS_EX_SYSCALL("mmap"),
+#if defined(HAVE_MPROTECT) &&	\
+    defined(PROT_NONE) &&	\
+    defined(STRESS_VM_END_PAGE_PROTECT)
+	STRESS_EX_SYSCALL("mprotect"),
+#endif
+	STRESS_EX_SYSCALL("munmap"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_vm_info = {
 	.stressor = stress_vm,
 	.classifier = CLASS_VM | CLASS_MEMORY | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help,
-	.max_metrics_items = 12
+	.max_metrics_items = 12,
+	.exercises = exercises,
 };

@@ -238,10 +238,20 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("chdir"),
+	STRESS_EX_SYSCALL("dup"),
+	STRESS_EX_SYSCALL("fork"),
+	STRESS_EX_SYSCALL("setsid"),
+	STRESS_EX_SYSCALL("signal"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_daemon_info = {
 	.stressor = stress_daemon,
 	.classifier = CLASS_SCHEDULER | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };

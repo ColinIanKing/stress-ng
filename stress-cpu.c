@@ -3327,10 +3327,15 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_cpu_info = {
 	.stressor = stress_cpu,
 	.classifier = CLASS_CPU | CLASS_COMPUTE,
 	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };

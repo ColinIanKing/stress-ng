@@ -137,12 +137,17 @@ abort:
 	return EXIT_SUCCESS;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_factor_info = {
 	.stressor = stress_factor,
 	.classifier = CLASS_CPU | CLASS_INTEGER | CLASS_COMPUTE,
 	.verify = VERIFY_ALWAYS,
 	.opts = opts,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 
 #else

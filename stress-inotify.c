@@ -1028,11 +1028,37 @@ static int stress_inotify(stress_args_t *args)
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+#if defined(IN_ATTRIB)
+	STRESS_EX_SYSCALL("chmod"),
+#endif
+	STRESS_EX_SYSCALL("close"),
+#if defined(IN_CREATE)
+	STRESS_EX_SYSCALL("creat"),
+#endif
+	STRESS_EX_SYSCALL("inotify_add_watch"),
+	STRESS_EX_SYSCALL("inotify_init1"),
+	STRESS_EX_SYSCALL("inotify_init1"),
+	STRESS_EX_SYSCALL("inotify_rm_watch"),
+	STRESS_EX_SYSCALL("ioctl"),
+#if defined(HAVE_EPOLL_CREATE1)
+	STRESS_EX_SYSCALL("epoll_create1"),
+#endif
+	STRESS_EX_SYSCALL("mkdir"),
+	STRESS_EX_SYSCALL("open"),
+	STRESS_EX_SYSCALL("read"),
+	STRESS_EX_SYSCALL("rmdir"),
+	STRESS_EX_SYSCALL("select"),
+	STRESS_EX_SYSCALL("unlink"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_inotify_info = {
 	.stressor = stress_inotify,
 	.classifier = CLASS_FILESYSTEM | CLASS_OS,
 	.verify = VERIFY_OPTIONAL,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_inotify_info = {

@@ -546,10 +546,18 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("lseek"),
+	STRESS_EX_SYSCALL("read"),
+	STRESS_EX_SYSCALL("write"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_pseek_info = {
 	.stressor = stress_pseek,
 	.classifier = CLASS_IO | CLASS_FILESYSTEM | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };

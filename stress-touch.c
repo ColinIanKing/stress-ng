@@ -376,10 +376,20 @@ static int stress_touch(stress_args_t *args)
 	return EXIT_SUCCESS;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("close"),
+	STRESS_EX_SYSCALL("creat"),
+	STRESS_EX_SYSCALL("open"),
+	STRESS_EX_SYSCALL("stat"),
+	STRESS_EX_SYSCALL("unlink"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_touch_info = {
 	.stressor = stress_touch,
 	.classifier = CLASS_FILESYSTEM | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };

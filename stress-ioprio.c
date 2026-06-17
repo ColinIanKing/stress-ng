@@ -265,11 +265,20 @@ cleanup_dir:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("fsync"),
+	STRESS_EX_SYSCALL("ioprio_get"),
+	STRESS_EX_SYSCALL("ioprio_set"),
+	STRESS_EX_SYSCALL("pwritev"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_ioprio_info = {
 	.stressor = stress_ioprio,
 	.classifier = CLASS_FILESYSTEM | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_ioprio_info = {

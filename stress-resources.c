@@ -215,7 +215,6 @@ static int stress_resources(stress_args_t *args)
 	return EXIT_SUCCESS;
 }
 
-
 static const stress_opt_t opts[] = {
 	{ OPT_resources_mlock, "resources-mlock", TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_resources_num,   "resources-num",   TYPE_ID_SIZE_T, MIN_RESOURCES_NUM, MAX_RESOURCES_NUM, NULL },
@@ -223,9 +222,17 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("fork"),
+	STRESS_EX_SYSCALL("sched_yield"),
+	STRESS_EX_SYSCALL("waitpid"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_resources_info = {
 	.stressor = stress_resources,
 	.classifier = CLASS_MEMORY | CLASS_OS,
 	.opts = opts,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };

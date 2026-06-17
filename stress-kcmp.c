@@ -354,11 +354,17 @@ finish:
 	return ret;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("kcmp"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_kcmp_info = {
 	.stressor = stress_kcmp,
 	.classifier = CLASS_OS,
 	.verify = VERIFY_OPTIONAL,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_kcmp_info = {

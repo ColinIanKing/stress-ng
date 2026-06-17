@@ -172,12 +172,18 @@ static int stress_getrandom(stress_args_t *args)
 	return EXIT_SUCCESS;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("getrandom"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_getrandom_info = {
 	.stressor = stress_getrandom,
 	.supported = stress_getrandom_supported,
 	.classifier = CLASS_OS | CLASS_CPU,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_getrandom_info = {

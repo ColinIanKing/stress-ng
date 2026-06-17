@@ -246,9 +246,17 @@ static int stress_session(stress_args_t *args)
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("getpid"),
+	STRESS_EX_SYSCALL("getsid"),
+	STRESS_EX_SYSCALL("vhangup"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_session_info = {
 	.stressor = stress_session,
 	.classifier = CLASS_SCHEDULER | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
-	.help = session_help
+	.help = session_help,
+	.exercises = exercises,
 };

@@ -180,9 +180,18 @@ sigabrt_info_munmap:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("raise"),
+#if defined(__linux__)
+	STRESS_EX_SYSCALL("rt_sigreturn"),
+#endif
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_sigabrt_info = {
 	.stressor = stress_sigabrt,
 	.classifier = CLASS_SIGNAL | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };

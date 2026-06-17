@@ -537,12 +537,17 @@ static int stress_malloc(stress_args_t *args)
 	return ret;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_malloc_info = {
 	.stressor = stress_malloc,
 	.classifier = CLASS_CPU_CACHE | CLASS_MEMORY | CLASS_VM | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 
 #else

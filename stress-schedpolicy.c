@@ -592,12 +592,32 @@ next_policy:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+#if defined(HAVE_SCHED_GETATTR)
+	STRESS_EX_SYSCALL("sched_getattr"),
+#endif
+#if defined(HAVE_SCHED_SETATTR)
+	STRESS_EX_SYSCALL("sched_setattr"),
+#endif
+#if defined(HAVE_SCHED_SETAFFINITY)
+	STRESS_EX_SYSCALL("sched_setaffinity"),
+#endif
+	STRESS_EX_SYSCALL("sched_setscheduler"),
+#if defined(SCHED_RR) ||	\
+    defined(SCHED_FIFO)
+	STRESS_EX_SYSCALL("sched_get_priority_min"),
+	STRESS_EX_SYSCALL("sched_get_priority_max"),
+#endif
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_schedpolicy_info = {
 	.stressor = stress_schedpolicy,
 	.classifier = CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_schedpolicy_info = {

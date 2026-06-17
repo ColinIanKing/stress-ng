@@ -268,9 +268,24 @@ static int stress_sighup(stress_args_t *args)
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("fork"),
+	STRESS_EX_SYSCALL("kill"),
+	STRESS_EX_SYSCALL("pipe"),
+	STRESS_EX_SYSCALL("raise"),
+	STRESS_EX_SYSCALL("read"),
+#if defined(__linux__)
+	STRESS_EX_SYSCALL("rt_sigreturn"),
+#endif
+	STRESS_EX_SYSCALL("waitpid"),
+	STRESS_EX_SYSCALL("write"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_sighup_info = {
 	.stressor = stress_sighup,
 	.classifier = CLASS_SIGNAL | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };

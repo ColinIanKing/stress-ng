@@ -480,11 +480,21 @@ finish:
 	return rc;
 }
 
-
 static const stress_opt_t opts[] = {
 	{ OPT_revio_bytes, "revio-bytes", TYPE_ID_UINT64_BYTES_VM, MIN_REVIO_BYTES, MAX_REVIO_BYTES, NULL },
 	{ OPT_revio_opts,  "revio-opts",  TYPE_ID_CALLBACK, 0, 0, stress_revio_opts },
 	END_OPT,
+};
+
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("close"),
+	STRESS_EX_SYSCALL("lseek"),
+	STRESS_EX_SYSCALL("open"),
+#if defined(HAVE_POSIX_FADVISE)
+	STRESS_EX_SYSCALL("posix_fadvise"),
+#endif
+	STRESS_EX_SYSCALL("write"),
+	STRESS_EX_END,
 };
 
 const stressor_info_t stress_revio_info = {
@@ -492,5 +502,6 @@ const stressor_info_t stress_revio_info = {
 	.classifier = CLASS_IO | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };

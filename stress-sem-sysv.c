@@ -612,6 +612,14 @@ reap:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("semctl"),
+	STRESS_EX_SYSCALL("semget"),
+	STRESS_EX_SYSCALL("semop"),
+	STRESS_EX_SYSCALL("semtimedop"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_sem_sysv_info = {
 	.stressor = stress_sem_sysv,
 	.init = stress_semaphore_sysv_init,
@@ -619,7 +627,8 @@ const stressor_info_t stress_sem_sysv_info = {
 	.classifier = CLASS_OS | CLASS_SCHEDULER | CLASS_IPC,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_sem_sysv_info = {

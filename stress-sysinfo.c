@@ -270,9 +270,26 @@ static int stress_sysinfo(stress_args_t *args)
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+#if defined(HAVE_SYS_SYSINFO_H) &&	\
+    defined(HAVE_SYSINFO) &&		\
+    defined(HAVE_SYS_STATFS_H)
+	STRESS_EX_SYSCALL("fstatfs"),
+	STRESS_EX_SYSCALL("statfs"),
+	STRESS_EX_SYSCALL("sysinfo"),
+#endif
+#if defined(HAVE_SYS_STATVFS_H)
+	STRESS_EX_SYSCALL("statvfs"),
+#endif
+	STRESS_EX_SYSCALL("stat"),
+	STRESS_EX_SYSCALL("ustat"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_sysinfo_info = {
 	.stressor = stress_sysinfo,
 	.classifier = CLASS_OS,
 	.verify = VERIFY_OPTIONAL,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };

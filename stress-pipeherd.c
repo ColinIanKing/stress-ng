@@ -238,10 +238,18 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("pipe"),
+	STRESS_EX_SYSCALL("read"),
+	STRESS_EX_SYSCALL("write"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_pipeherd_info = {
 	.stressor = stress_pipeherd,
 	.classifier = CLASS_PIPE_IO | CLASS_MEMORY | CLASS_OS | CLASS_IPC,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };

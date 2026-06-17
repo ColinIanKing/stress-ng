@@ -338,12 +338,23 @@ tidy_dir:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("copy_file_range"),
+#if defined(HAVE_LSEEK64)
+	STRESS_EX_SYSCALL("lseek64"),
+#else
+	STRESS_EX_SYSCALL("lseek"),
+#endif
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_copy_file_info = {
 	.stressor = stress_copy_file,
 	.classifier = CLASS_FILESYSTEM | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_copy_file_info = {

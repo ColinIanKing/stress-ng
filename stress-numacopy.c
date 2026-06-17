@@ -647,12 +647,23 @@ deinit:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+#if defined(HAVE_SCHED_GETAFFINITY)
+	STRESS_EX_SYSCALL("sched_getaffinity"),
+#endif
+#if defined(HAVE_SCHED_SETAFFINITY)
+	STRESS_EX_SYSCALL("sched_setaffinity"),
+#endif
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_numacopy_info = {
 	.stressor = stress_numacopy,
 	.classifier = CLASS_CPU | CLASS_MEMORY | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
 	.opts = opts,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_numacopy_info = {

@@ -535,12 +535,30 @@ err:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("close"),
+	STRESS_EX_SYSCALL("fallocate"),
+	STRESS_EX_SYSCALL("fchmod"),
+	STRESS_EX_SYSCALL("fchown"),
+	STRESS_EX_SYSCALL("ftruncate"),
+	STRESS_EX_SYSCALL("fstat"),
+	STRESS_EX_SYSCALL("fsync"),
+	STRESS_EX_SYSCALL("lseek"),
+	STRESS_EX_SYSCALL("madvise"),
+	STRESS_EX_SYSCALL("mmap"),
+	STRESS_EX_SYSCALL("msymc"),
+	STRESS_EX_SYSCALL("munmap"),
+	STRESS_EX_SYSCALL("shm_open"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_shm_info = {
 	.stressor = stress_shm,
 	.classifier = CLASS_VM | CLASS_OS | CLASS_IPC,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_shm_info = {

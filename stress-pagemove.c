@@ -385,12 +385,19 @@ static int stress_pagemove(stress_args_t *args)
 	return stress_oomable_child(args, &info, stress_pagemove_child, STRESS_OOMABLE_NORMAL);
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("mprotect"),
+	STRESS_EX_SYSCALL("mremap"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_pagemove_info = {
 	.stressor = stress_pagemove,
 	.classifier = CLASS_VM | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_pagemove_info = {

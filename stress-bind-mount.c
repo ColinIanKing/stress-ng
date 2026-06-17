@@ -250,12 +250,26 @@ static int stress_bind_mount(stress_args_t *args)
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+#if defined(HAVE_OPEN_TREE) &&	\
+    defined(HAVE_MOVE_MOUNT) &&	\
+    defined(HAVE_SYS_MOUNT_H)
+	STRESS_EX_SYSCALL("open_tree"),
+	STRESS_EX_SYSCALL("move_mount"),
+#else
+	STRESS_EX_SYSCALL("mount"),
+#endif
+	STRESS_EX_SYSCALL("umount"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_bind_mount_info = {
 	.stressor = stress_bind_mount,
 	.classifier = CLASS_FILESYSTEM | CLASS_OS | CLASS_PATHOLOGICAL,
 	.verify = VERIFY_ALWAYS,
 	.supported = stress_bind_mount_supported,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_bind_mount_info = {

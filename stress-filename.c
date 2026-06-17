@@ -1002,10 +1002,19 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("stat"),
+	STRESS_EX_SYSCALL("creat"),
+	STRESS_EX_SYSCALL("close"),
+	STRESS_EX_SYSCALL("unlink"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_filename_info = {
 	.stressor = stress_filename,
 	.classifier = CLASS_FILESYSTEM | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };

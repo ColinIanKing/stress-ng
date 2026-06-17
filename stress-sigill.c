@@ -338,13 +338,19 @@ static int stress_sigill(stress_args_t *args)
 	return EXIT_SUCCESS;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("sigaction"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_sigill_info = {
 	.stressor = stress_sigill,
 	.classifier = CLASS_SIGNAL | CLASS_OS,
 #if defined(SA_SIGINFO)
 	.verify = VERIFY_OPTIONAL,
 #endif
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 
 #else

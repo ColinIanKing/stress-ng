@@ -284,9 +284,17 @@ tidy:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("chown"),
+	STRESS_EX_SYSCALL("fhown"),
+	STRESS_EX_SYSCALL("lchown"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_chown_info = {
 	.stressor = stress_chown,
 	.classifier = CLASS_FILESYSTEM | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };

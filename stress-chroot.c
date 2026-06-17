@@ -512,12 +512,18 @@ tidy_ret:
 	return ret;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("chroot"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_chroot_info = {
 	.stressor = stress_chroot,
 	.supported = stress_chroot_supported,
 	.classifier = CLASS_OS,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 

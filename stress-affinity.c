@@ -342,6 +342,13 @@ static int stress_affinity(stress_args_t *args)
 	return EXIT_SUCCESS;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("sched_getaffinity"),
+	STRESS_EX_SYSCALL("sched_setaffinity"),
+	STRESS_EX_SYSCALL("sched_yield"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_affinity_info = {
 	.stressor = stress_affinity,
 	.classifier = CLASS_SCHEDULER,
@@ -349,6 +356,7 @@ const stressor_info_t stress_affinity_info = {
 	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_affinity_info = {

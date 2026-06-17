@@ -608,11 +608,16 @@ finish:
 	return EXIT_SUCCESS;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_priv_instr_info = {
 	.stressor = stress_priv_instr,
 	.classifier = CLASS_CPU,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 
 #else

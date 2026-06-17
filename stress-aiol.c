@@ -853,12 +853,27 @@ free_memory:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+#if defined(__NR_io_cancel)
+	STRESS_EX_SYSCALL("io_cancel"),
+#endif
+#if defined(__NR_io_pgetevents)
+	STRESS_EX_SYSCALL("io_pgetevents"),
+#endif
+	STRESS_EX_SYSCALL("io_setup"),
+	STRESS_EX_SYSCALL("io_submit"),
+	STRESS_EX_SYSCALL("io_destroy"),
+	STRESS_EX_SYSCALL("io_getevents"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_aiol_info = {
 	.stressor = stress_aiol,
 	.classifier = CLASS_IO | CLASS_INTERRUPT | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_aiol_info = {

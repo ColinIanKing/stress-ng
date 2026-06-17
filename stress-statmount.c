@@ -211,11 +211,19 @@ static int stress_statmount(stress_args_t *args)
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("listmount"),
+	STRESS_EX_SYSCALL("statmount"),
+	STRESS_EX_SYSCALL("statx"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_statmount_info = {
 	.stressor = stress_statmount,
 	.classifier = CLASS_FILESYSTEM | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_statmount_info = {

@@ -493,12 +493,22 @@ tidy_kvm_fd:
 	return EXIT_SUCCESS;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("close"),
+	STRESS_EX_SYSCALL("ioctl"),
+	STRESS_EX_SYSCALL("mmap"),
+	STRESS_EX_SYSCALL("open"),
+	STRESS_EX_SYSCALL("munmap"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_kvm_info = {
 	.stressor = stress_kvm,
 	.classifier = CLASS_DEV | CLASS_OS,
 	.supported = stress_kvm_supported,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_kvm_info = {

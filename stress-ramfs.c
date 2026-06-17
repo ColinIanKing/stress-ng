@@ -485,13 +485,40 @@ finish:
 	return EXIT_SUCCESS;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("fstat"),
+#if defined(HAVE_FSOPEN) &&		\
+    defined(HAVE_FSCONFIG) &&		\
+    defined(HAVE_FSMOUNT) &&		\
+    defined(HAVE_MOVE_MOUNT) &&		\
+    defined(HAVE_SYS_MOUNT_H)
+	STRESS_EX_SYSCALL("fsopen"),
+	STRESS_EX_SYSCALL("fsconfig"),
+	STRESS_EX_SYSCALL("fsmount"),
+	STRESS_EX_SYSCALL("move_mount"),
+#else
+	STRESS_EX_SYSCALL("mount"),
+#endif
+	STRESS_EX_SYSCALL("lstat"),
+	STRESS_EX_SYSCALL("mkdir"),
+	STRESS_EX_SYSCALL("symlink"),
+	STRESS_EX_SYSCALL("unlink"),
+	STRESS_EX_SYSCALL("umount"),
+#if defined(HAVE_UMOUNT2) &&	\
+    defined(MNT_FORCE)
+	STRESS_EX_SYSCALL("umount2"),
+#endif
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_ramfs_info = {
 	.stressor = stress_ramfs_mount,
 	.classifier = CLASS_OS,
 	.opts = opts,
 	.supported = stress_ramfs_supported,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_ramfs_info = {

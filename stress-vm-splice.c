@@ -204,12 +204,18 @@ static int stress_vm_splice(stress_args_t *args)
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("vmsplice"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_vm_splice_info = {
 	.stressor = stress_vm_splice,
 	.classifier = CLASS_VM | CLASS_PIPE_IO | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_vm_splice_info = {

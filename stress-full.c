@@ -235,11 +235,23 @@ fail:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("close"),
+	STRESS_EX_SYSCALL("fstat"),
+	STRESS_EX_SYSCALL("ioctl"),
+	STRESS_EX_SYSCALL("mmap"),
+	STRESS_EX_SYSCALL("msync"),
+	STRESS_EX_SYSCALL("open"),
+	STRESS_EX_SYSCALL("write"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_full_info = {
 	.stressor = stress_full,
 	.classifier = CLASS_DEV | CLASS_MEMORY | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_full_info = {

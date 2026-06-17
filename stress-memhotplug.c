@@ -359,12 +359,19 @@ finish:
 	return EXIT_SUCCESS;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("mmap"),
+	STRESS_EX_SYSCALL("munmap"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_memhotplug_info = {
 	.stressor = stress_memhotplug,
 	.classifier = CLASS_OS,
 	.opts = opts,
 	.supported = stress_memhotplug_supported,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_memhotplug_info = {

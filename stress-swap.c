@@ -568,13 +568,27 @@ static int stress_swap(stress_args_t *args)
 	return ret;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("close"),
+	STRESS_EX_SYSCALL("lseek"),
+	STRESS_EX_SYSCALL("madvise"),
+	STRESS_EX_SYSCALL("mmap"),
+	STRESS_EX_SYSCALL("munmap"),
+	STRESS_EX_SYSCALL("open"),
+	STRESS_EX_SYSCALL("swapoff"),
+	STRESS_EX_SYSCALL("swapon"),
+	STRESS_EX_SYSCALL("write"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_swap_info = {
 	.stressor = stress_swap,
 	.supported = stress_swap_supported,
 	.classifier = CLASS_VM | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_swap_info = {

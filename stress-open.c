@@ -1220,10 +1220,29 @@ close_all:
 	return EXIT_SUCCESS;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("dup"),
+#if defined(HAVE_FUTIMES)
+	STRESS_EX_SYSCALL("futimes"),
+#endif
+	STRESS_EX_SYSCALL("open"),
+#if defined(HAVE_OPENAT)
+	STRESS_EX_SYSCALL("openat"),
+#endif
+#if defined(HAVE_OPENAT2)
+	STRESS_EX_SYSCALL("openat2"),
+#endif
+#if defined(HAVE_POSIX_OPENPT)
+	STRESS_EX_SYSCALL("openpt"),
+#endif
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_open_info = {
 	.stressor = stress_open,
 	.classifier = CLASS_FILESYSTEM | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
 	.opts = opts,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };

@@ -1286,11 +1286,16 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_funccall_info = {
 	.stressor = stress_funccall,
 	.classifier = CLASS_CPU,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
-	.max_metrics_items = SIZEOF_ARRAY(stress_funccall_methods)
+	.max_metrics_items = SIZEOF_ARRAY(stress_funccall_methods),
+	.exercises = exercises,
 };

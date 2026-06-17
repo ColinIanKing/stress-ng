@@ -319,11 +319,17 @@ err_free_s_pids:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("flock"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_flock_info = {
 	.stressor = stress_flock,
 	.classifier = CLASS_FILESYSTEM | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_flock_info = {

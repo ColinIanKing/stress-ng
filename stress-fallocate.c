@@ -337,12 +337,23 @@ static int stress_fallocate(stress_args_t *args)
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+#if defined(HAVE_POSIX_FALLOCATE)
+	STRESS_EX_SYSCALL("posix_fallocate"),
+#endif
+	STRESS_EX_SYSCALL("fallocate"),
+	STRESS_EX_SYSCALL("ftruncate"),
+	STRESS_EX_SYSCALL("fsync"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_fallocate_info = {
 	.stressor = stress_fallocate,
 	.classifier = CLASS_FILESYSTEM | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_fallocate_info = {

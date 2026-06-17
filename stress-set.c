@@ -315,29 +315,35 @@ static int stress_set(stress_args_t *args)
 		UNEXPECTED
 #endif
 
-#if defined(HAVE_SETREGID)
-#if defined(HAVE_GETRESGID)
+#if defined(HAVE_SETRESGID)
+#if defined(HAVE_GETREGID)
 		{
 			gid_t rgid = (gid_t)-1;
 			gid_t egid = (gid_t)-1;
 			gid_t sgid = (gid_t)-1;
 
-			ret = getresgid(&rgid, &egid, &sgid);
+			ret = getregid(&rgid, &egid, &sgid);
 			if (ret == 0) {
-				VOID_RET(int, setregid(rgid, egid));
-				VOID_RET(int, setregid((gid_t)-1, egid));
-				VOID_RET(int, setregid(rgid, (gid_t)-1));
+				VOID_RET(int, setresgid(rgid, egid, sgid));
+				VOID_RET(int, setresgid(rgid, egid, (gid_t)-1));
+				VOID_RET(int, setresgid(rgid, (gid_t)-1), sgid);
+				VOID_RET(int, setresgid(rgid, (gid_t)-1), (gid_t)-1);
+				VOID_RET(int, setresgid((gid_t)-1, egid, sgid));
+				VOID_RET(int, setresgid((gid_t)-1, egid, (gid_t)-1));
+				VOID_RET(int, setresgid((gid_t)-1, (gid_t)-1), sgid);
+				VOID_RET(int, setresgid((gid_t)-1, (gid_t)-1), (gid_t)-1);
 
-				if (geteuid() != 0) {
-					VOID_RET(int, setregid((gid_t)-2, egid));
-					VOID_RET(int, setregid(rgid, (gid_t)-2));
+				if (getregid() != 0) {
+					VOID_RET(int, setresgid((gid_t)-2, egid, sgid));
+					VOID_RET(int, setresgid(rgid, (gid_t)-2), sgid);
+					VOID_RET(int, setresgid(rgid, egid, (gid_t)-2));
 				}
 			}
 		}
 #else
 		UNEXPECTED
 #endif
-		VOID_RET(int, setregid((gid_t)-1, (gid_t)-1));
+		VOID_RET(int, setresgid((gid_t)-1, (gid_t)-1, (gid_t)-1));
 #else
 		UNEXPECTED
 #endif
@@ -573,9 +579,63 @@ static int stress_set(stress_args_t *args)
 	return EXIT_SUCCESS;
 }
 
+static const stress_exercises_t exercises[] = {
+#if defined(HAVE_GETDOMAINNAME) &&	\
+    defined(HAVE_SETDOMAINNAME)
+	STRESS_EX_SYSCALL("setdomainname"),
+#endif
+#if defined(HAVE_SETFSGID) &&   \
+    defined(HAVE_SYS_FSUID_H)
+	STRESS_EX_SYSCALL("setfsgid"),
+#endif
+#if defined(HAVE_SETFSUID) && 	\
+    defined(HAVE_SYS_FSUID_H)
+	STRESS_EX_SYSCALL("setfsuid"),
+#endif
+	STRESS_EX_SYSCALL("setgid"),
+	STRESS_EX_SYSCALL("sethostname"),
+#if defined(HAVE_GETPGID) &&	\
+    defined(HAVE_SETPGID)
+	STRESS_EX_SYSCALL("setpgid"),
+#endif
+#if defined(HAVE_GETPGRP) &&	\
+    defined(HAVE_SETPGRP)
+	STRESS_EX_SYSCALL("setpgrp"),
+#endif
+	STRESS_EX_SYSCALL("setsid"),
+#if defined(HAVE_GETRESGID) &&	\
+    defined(HAVE_SETREGID)
+	STRESS_EX_SYSCALL("setregid"),
+#endif
+#if defined(HAVE_GETREGID) &&	\
+    defined(HAVE_SETRESGID)
+	STRESS_EX_SYSCALL("setresgid"),
+#endif
+#if defined(HAVE_GETRESUID) &&	\
+    defined(HAVE_SETRESUID)
+	STRESS_EX_SYSCALL("setresuid"),
+#endif
+#if defined(HAVE_SETREUID)
+	STRESS_EX_SYSCALL("setreuid"),
+#endif
+#if defined(HAVE_GETTIMEOFDAY) &&	\
+    defined(HAVE_SETTIMEOFDAY)
+	STRESS_EX_SYSCALL("settimeofday"),
+#endif
+	STRESS_EX_SYSCALL("setrlimit"),
+	STRESS_EX_SYSCALL("setuid"),
+#if defined(__NR_sgetmask) &&	\
+    defined(__NR_ssetmask)
+	STRESS_EX_SYSCALL("ssetmask"),
+#endif
+	STRESS_EX_SYSCALL("stime"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_set_info = {
 	.stressor = stress_set,
 	.classifier = CLASS_OS,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };

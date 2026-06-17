@@ -601,11 +601,20 @@ static int stress_mcontend(stress_args_t *args)
 	return EXIT_SUCCESS;
 }
 
+static const stress_exercises_t exercises[] = {
+#if defined(HAVE_SCHED_SETAFFINITY)
+	STRESS_EX_SYSCALL("sched_affinity"),
+#endif
+	STRESS_EX_SYSCALL("msync"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_mcontend_info = {
 	.stressor = stress_mcontend,
 	.classifier = CLASS_MEMORY,
 	.opts = opts,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_mcontend_info = {

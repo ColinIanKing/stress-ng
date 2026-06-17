@@ -281,7 +281,7 @@ static int stress_cpu_sched_setscheduler(const pid_t pid)
 
 	switch (policy_masked) {
 #if defined(SCHED_DEADLINE) &&	\
-    defined(HAVE_SCHED_GETATTR)
+    defined(HAVE_SCHED_SETATTR)
 	case SCHED_DEADLINE:
 		rndtime = (uint64_t)stress_mwc8modn(64) + 32;
 
@@ -932,12 +932,50 @@ static int stress_cpu_sched(stress_args_t *args)
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("getcpu"),
+#if defined(__linux__) &&		\
+    defined(HAVE_GETPRIORITY) &&	\
+    defined(HAVE_SETPRIORITY) && 	\
+    defined(PRIO_PROCESS)
+	STRESS_EX_SYSCALL("getpriority"),
+	STRESS_EX_SYSCALL("setpriority"),
+#else
+	STRESS_EX_SYSCALL("nice"),
+#endif
+#if defined(HAVE_SET_MEMPOLICY)
+#endif
+	STRESS_EX_SYSCALL("nanosleep"),
+#if defined(SCHED_FIFO) ||	\
+    defined(SCHED_RR)
+	STRESS_EX_SYSCALL("sched_get_priority_min"),
+	STRESS_EX_SYSCALL("sched_get_priority_max"),
+#endif
+	STRESS_EX_SYSCALL("sched_getaffinity"),
+	STRESS_EX_SYSCALL("sched_setaffinity"),
+#if defined(SCHED_DEADLINE) &&	\
+    defined(HAVE_SCHED_SETATTR)
+	STRESS_EX_SYSCALL("sched_setattr"),
+#endif
+	STRESS_EX_SYSCALL("sched_setscheduler"),
+	STRESS_EX_SYSCALL("set_mempolicy"),
+	STRESS_EX_SYSCALL("sched_yield"),
+	STRESS_EX_SYSCALL("sleep"),
+#if defined(HAVE_TIMER_CLOCK_REALTIME)
+	STRESS_EX_SYSCALL("timer_create"),
+	STRESS_EX_SYSCALL("timer_delete"),
+	STRESS_EX_SYSCALL("timer_settime"),
+#endif
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_cpu_sched_info = {
 	.stressor = stress_cpu_sched,
 	.classifier = CLASS_SCHEDULER | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
 	.opts = opts,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 
 #else

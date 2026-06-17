@@ -367,12 +367,18 @@ tidy:
 	return ret;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("nanosleep"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_nanosleep_info = {
 	.stressor = stress_nanosleep,
 	.classifier = CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_nanosleep_info = {

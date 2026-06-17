@@ -526,11 +526,27 @@ static int stress_mlock(stress_args_t *args)
 	return stress_oomable_child(args, NULL, stress_mlock_child, STRESS_OOMABLE_NORMAL);
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("mlock"),
+#if defined(HAVE_MLOCK)
+	STRESS_EX_SYSCALL("mlock2"),
+#endif
+#if defined(HAVE_MLOCKALL)
+	STRESS_EX_SYSCALL("mlockall"),
+#endif
+	STRESS_EX_SYSCALL("munlock"),
+#if defined(HAVE_MUNLOCKALL)
+	STRESS_EX_SYSCALL("munlockall"),
+#endif
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_mlock_info = {
 	.stressor = stress_mlock,
 	.classifier = CLASS_VM | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_mlock_info = {

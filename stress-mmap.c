@@ -1153,12 +1153,31 @@ redo:
 	return ret;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("mmap"),
+#if defined(HAVE_MMAP2) &&	\
+    defined(HAVE_SYSCALL) &&	\
+    defined(__NR_mmap2)
+	STRESS_EX_SYSCALL("mmap2"),
+#endif
+	STRESS_EX_SYSCALL("munamp"),
+#if defined(HAVE_MPROTECT)
+	STRESS_EX_SYSCALL("mprotect"),
+#endif
+#if defined(HAVE_MQUERY) &&	\
+    defined(MAP_FIXED)
+	STRESS_EX_SYSCALL("mquery"),
+#endif
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_mmap_info = {
 	.stressor = stress_mmap,
 	.classifier = CLASS_VM | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 
 #else

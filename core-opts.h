@@ -456,6 +456,8 @@ typedef enum {
 	OPT_exec_no_pthread,
 	OPT_exec_ops,
 
+	OPT_exercise_syscall,
+
 	OPT_exit_group,
 	OPT_exit_group_ops,
 

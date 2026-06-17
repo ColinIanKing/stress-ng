@@ -378,12 +378,19 @@ finish:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("futex"),
+	STRESS_EX_SYSCALL("rt_sigqueueinfo"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_aio_info = {
 	.stressor = stress_aio,
 	.classifier = CLASS_IO | CLASS_INTERRUPT | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_aio_info = {

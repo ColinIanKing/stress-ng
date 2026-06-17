@@ -220,11 +220,16 @@ static int stress_fp_error(stress_args_t *args)
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_fp_error_info = {
 	.stressor = stress_fp_error,
 	.classifier = CLASS_CPU | CLASS_FP,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_fp_error_info = {

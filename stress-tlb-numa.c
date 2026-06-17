@@ -671,12 +671,25 @@ free_pages1:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("mbind"),
+#if defined(HAVE_MADVISE)
+	STRESS_EX_SYSCALL("madvise"),
+#endif
+	STRESS_EX_SYSCALL("mmap"),
+	STRESS_EX_SYSCALL("munmap"),
+	STRESS_EX_SYSCALL("sched_setaffinity"),
+	STRESS_EX_SYSCALL("sched_yield"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_tlb_numa_info = {
 	.stressor = stress_tlb_numa,
 	.classifier = CLASS_TLB | CLASS_MEMORY,
 	.verify = VERIFY_NONE,
 	.help = help,
-	.opts = opts
+	.opts = opts,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_tlb_numa_info = {

@@ -866,11 +866,28 @@ static int stress_vma(stress_args_t *args)
 	return ret;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("mmap"),
+	STRESS_EX_SYSCALL("munmap"),
+	STRESS_EX_SYSCALL("mlock"),
+	STRESS_EX_SYSCALL("munlock"),
+#if defined(HAVE_MADVISE)
+	STRESS_EX_SYSCALL("madvise"),
+#endif
+#if defined(HAVE_MINCORE)
+	STRESS_EX_SYSCALL("mincore"),
+#endif
+	STRESS_EX_SYSCALL("mprotect"),
+	STRESS_EX_SYSCALL("msync"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_vma_info = {
 	.stressor = stress_vma,
 	.classifier = CLASS_VM,
 	.help = help,
-	.max_metrics_items = STRESS_VMA_MAX
+	.max_metrics_items = STRESS_VMA_MAX,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_vma_info = {

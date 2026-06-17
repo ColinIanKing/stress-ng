@@ -349,12 +349,19 @@ static int stress_yield(stress_args_t *args)
 	return EXIT_SUCCESS;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("sched_setscheduler"),
+	STRESS_EX_SYSCALL("sched_yield"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_yield_info = {
 	.stressor = stress_yield,
 	.classifier = CLASS_SCHEDULER | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
-	.help = help
+	.help = help,
+	.exercises = exercises
 };
 #else
 const stressor_info_t stress_yield_info = {

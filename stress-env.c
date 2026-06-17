@@ -176,6 +176,10 @@ reap:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_END,
+};
+
 /*
  *  stress_env()
  *	stress environment variables
@@ -189,5 +193,6 @@ const stressor_info_t stress_env_info = {
 	.stressor = stress_env,
 	.classifier = CLASS_OS | CLASS_VM,
 	.verify = VERIFY_OPTIONAL,
-	.help = help
+	.help = help,
+	.exercises = exercises
 };

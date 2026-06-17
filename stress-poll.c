@@ -440,13 +440,29 @@ tidy:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("poll"),
+#if defined(HAVE_PPOLL)
+	STRESS_EX_SYSCALL("ppoll"),
+#endif
+#if defined(HAVE_SYS_SELECT_H) &&	\
+    defined(HAVE_SELECT)
+	STRESS_EX_SYSCALL("select"),
+#endif
+#if defined(HAVE_SYS_SELECT_H) &&	\
+    defined(HAVE_SELECT)
+	STRESS_EX_SYSCALL("pselect"),
+#endif
+	STRESS_EX_END,
+};
 
 const stressor_info_t stress_poll_info = {
 	.stressor = stress_poll,
 	.classifier = CLASS_SCHEDULER | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_poll_info = {

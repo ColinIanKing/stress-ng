@@ -279,11 +279,17 @@ static int stress_netlink_proc(stress_args_t *args)
 	return EXIT_SUCCESS;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("recv"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_netlink_proc_info = {
 	.stressor = stress_netlink_proc,
 	.supported = stress_netlink_proc_supported,
 	.classifier = CLASS_OS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_netlink_proc_info = {

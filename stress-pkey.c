@@ -158,10 +158,20 @@ static int stress_pkey(stress_args_t *args)
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("pkey_alloc"),
+	STRESS_EX_SYSCALL("pkey_free"),
+	STRESS_EX_SYSCALL("pkey_get"),
+	STRESS_EX_SYSCALL("pkey_mprotect"),
+	STRESS_EX_SYSCALL("pkey_set"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_pkey_info = {
 	.stressor = stress_pkey,
 	.classifier = CLASS_OS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_pkey_info = {

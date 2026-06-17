@@ -133,11 +133,27 @@ tidy_dir:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+#if defined(HAVE_PWRITE)
+	STRESS_EX_SYSCALL("pwrite"),
+#else
+	STRESS_EX_SYSCALL("lseek"),
+	STRESS_EX_SYSCALL("write"),
+#endif
+	STRESS_EX_SYSCALL("setrlimit"),
+#if defined(__linux__)
+	STRESS_EX_SYSCALL("sigreturn"),
+#endif
+
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_sigxfsz_info = {
 	.stressor = stress_sigxfsz,
 	.classifier = CLASS_SIGNAL | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_sigxfsz_info = {

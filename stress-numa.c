@@ -760,12 +760,24 @@ deinit:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("getcpu"),
+	STRESS_EX_SYSCALL("get_mempolicy"),
+	STRESS_EX_SYSCALL("mbind"),
+	STRESS_EX_SYSCALL("migrate_pages"),
+	STRESS_EX_SYSCALL("move_pages"),
+	STRESS_EX_SYSCALL("set_mempolicy"),
+	STRESS_EX_SYSCALL("set_mempolicy_home_node"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_numa_info = {
 	.stressor = stress_numa,
 	.classifier = CLASS_CPU | CLASS_MEMORY | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
 	.opts = opts,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_numa_info = {

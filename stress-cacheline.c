@@ -815,6 +815,10 @@ finish:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_END,
+};
+
 static const stress_opt_t opts[] = {
 	{ OPT_cacheline_affinity, "cacheline-affinity", TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_cacheline_method,   "cacheline-method",   TYPE_ID_SIZE_T_METHOD, 0, 0, stress_cacheline_method },
@@ -828,5 +832,6 @@ const stressor_info_t stress_cacheline_info = {
 	.opts = opts,
 	.init = stress_cacheline_init,
 	.deinit = stress_cacheline_deinit,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };

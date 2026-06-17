@@ -264,12 +264,23 @@ err:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("fallocate"),
+#if defined(HAVE_FDATASYNC)
+	STRESS_EX_SYSCALL("fdatasync"),
+#endif
+	STRESS_EX_SYSCALL("ftruncate"),
+	STRESS_EX_SYSCALL("sync_file_range"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_sync_file_info = {
 	.stressor = stress_sync_file,
 	.classifier = CLASS_IO | CLASS_FILESYSTEM | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_sync_file_info = {

@@ -287,11 +287,17 @@ static int stress_handle(stress_args_t *args)
 	return ret;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("name_to_handle_at"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_handle_info = {
 	.stressor = stress_handle,
 	.classifier = CLASS_FILESYSTEM | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_handle_info = {

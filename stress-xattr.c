@@ -617,11 +617,42 @@ out_free:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("flistxattr"),
+	STRESS_EX_SYSCALL("fremovexattr"),
+	STRESS_EX_SYSCALL("fsetxattr"),
+	STRESS_EX_SYSCALL("listxattr"),
+#if defined(HAVE_LISTXATTRAT) &&	\
+    defined(AT_FDCWD)
+	STRESS_EX_SYSCALL("listxattrat"),
+#endif
+#if defined(HAVE_LLISTXATTR)
+	STRESS_EX_SYSCALL("llistxattr"),
+#endif
+#if defined(HAVE_LREMOVEXATTR)
+	STRESS_EX_SYSCALL("lremovexattr"),
+#endif
+#if defined(HAVE_REMOVEXATTRAT) &&	\
+    defined(AT_FDCWD)
+	STRESS_EX_SYSCALL("lremovexattrat"),
+#endif
+#if defined(HAVE_LSETXATTR)
+	STRESS_EX_SYSCALL("lsetxattr"),
+#endif
+	STRESS_EX_SYSCALL("setxattr"),
+#if defined(HAVE_SETXATTRAT) &&	\
+    defined(AT_FDCWD)
+	STRESS_EX_SYSCALL("setxattrat"),
+#endif
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_xattr_info = {
 	.stressor = stress_xattr,
 	.classifier = CLASS_FILESYSTEM | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_xattr_info = {

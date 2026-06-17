@@ -888,12 +888,17 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_ipsec_mb_info = {
 	.stressor = stress_ipsec_mb,
 	.supported = stress_ipsec_mb_supported,
 	.opts = opts,
 	.classifier = CLASS_CPU | CLASS_INTEGER | CLASS_COMPUTE,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 
@@ -918,6 +923,6 @@ const stressor_info_t stress_ipsec_mb_info = {
 	.opts = opts,
 	.classifier = CLASS_CPU | CLASS_INTEGER | CLASS_COMPUTE,
 	.help = help,
-	.unimplemented_reason = "built on non-x86-64 without IPSec MB library"
+	.unimplemented_reason = "built on non-x86-64 without IPSec MB library",
 };
 #endif

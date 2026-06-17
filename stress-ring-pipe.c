@@ -285,12 +285,24 @@ err_ret:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+#if defined(HAVE_POLL_H) &&	\
+    defined(HAVE_POLL)
+	STRESS_EX_SYSCALL("fcntl"),
+#endif
+	STRESS_EX_SYSCALL("poll"),
+	STRESS_EX_SYSCALL("read"),
+	STRESS_EX_SYSCALL("write"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_ring_pipe_info = {
 	.stressor = stress_ring_pipe,
 	.classifier = CLASS_PIPE_IO | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_NONE,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 
 #else

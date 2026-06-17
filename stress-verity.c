@@ -299,13 +299,21 @@ clean:
 	return ret;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("ioctl"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_verity_info = {
 	.stressor = stress_verity,
 	.classifier = CLASS_FILESYSTEM | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
+
 #else
+
 const stressor_info_t stress_verity_info = {
 	.stressor = stress_unimplemented,
 	.classifier = CLASS_FILESYSTEM | CLASS_OS,

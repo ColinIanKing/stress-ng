@@ -386,10 +386,19 @@ static int stress_sockpair(stress_args_t *args)
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("close"),
+	STRESS_EX_SYSCALL("read"),
+	STRESS_EX_SYSCALL("socketpair"),
+	STRESS_EX_SYSCALL("write"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_sockpair_info = {
 	.stressor = stress_sockpair,
 	.classifier = CLASS_NETWORK | CLASS_OS,
 	.verify = VERIFY_OPTIONAL,
 	.opts = opts,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };

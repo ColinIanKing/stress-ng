@@ -983,10 +983,29 @@ static int stress_procfs(stress_args_t *args)
 	return EXIT_SUCCESS;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("close"),
+	STRESS_EX_SYSCALL("fstat"),
+	STRESS_EX_SYSCALL("ioctl"),
+	STRESS_EX_SYSCALL("lseek"),
+	STRESS_EX_SYSCALL("mmap"),
+	STRESS_EX_SYSCALL("munmap"),
+	STRESS_EX_SYSCALL("open"),
+#if defined(HAVE_POLL)
+	STRESS_EX_SYSCALL("poll"),
+#endif
+#if defined(HAVE_POLL)
+	STRESS_EX_SYSCALL("ppoll"),
+#endif
+	STRESS_EX_SYSCALL("read"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_procfs_info = {
 	.stressor = stress_procfs,
 	.classifier = CLASS_FILESYSTEM | CLASS_OS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_procfs_info = {

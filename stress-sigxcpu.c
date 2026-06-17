@@ -144,11 +144,22 @@ static int stress_sigxcpu(stress_args_t *args)
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("getrusage"),
+	STRESS_EX_SYSCALL("setrlimit"),
+	STRESS_EX_SYSCALL("sched_yield"),
+#if defined(__linux__)
+	STRESS_EX_SYSCALL("sigreturn"),
+#endif
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_sigxcpu_info = {
 	.stressor = stress_sigxcpu,
 	.classifier = CLASS_SIGNAL | CLASS_OS,
 	.verify = VERIFY_OPTIONAL,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_sigxcpu_info = {

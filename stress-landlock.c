@@ -564,12 +564,20 @@ err:
 	return EXIT_SUCCESS;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("landlock_add_rule"),
+	STRESS_EX_SYSCALL("landlock_create_ruleset"),
+	STRESS_EX_SYSCALL("landlock_restrict_self"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_landlock_info = {
 	.stressor = stress_landlock,
 	.classifier = CLASS_OS,
 	.supported = stress_landlock_supported,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_landlock_info = {

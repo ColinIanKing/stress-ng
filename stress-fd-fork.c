@@ -286,10 +286,18 @@ tidy_fds:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("dup"),
+	STRESS_EX_SYSCALL("close"),
+	STRESS_EX_SYSCALL("fork"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_fd_fork_info = {
 	.stressor = stress_fd_fork,
 	.classifier = CLASS_FILESYSTEM | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };

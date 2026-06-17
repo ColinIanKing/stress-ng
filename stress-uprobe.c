@@ -286,11 +286,25 @@ terminate:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("close"),
+	STRESS_EX_SYSCALL("getpid"),
+	STRESS_EX_SYSCALL("open"),
+	STRESS_EX_SYSCALL("read"),
+	STRESS_EX_SYSCALL("sched_yield"),
+#if defined(HAVE_SELECT)
+	STRESS_EX_SYSCALL("select"),
+#endif
+	STRESS_EX_SYSCALL("write"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_uprobe_info = {
 	.stressor = stress_uprobe,
 	.classifier = CLASS_CPU,
 	.supported = stress_uprobe_supported,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_uprobe_info = {

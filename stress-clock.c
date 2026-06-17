@@ -601,11 +601,54 @@ static int stress_clock(stress_args_t *args)
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+#if defined(CLOCK_THREAD_CPUTIME_ID) && \
+    defined(HAVE_CLOCK_GETTIME)
+	STRESS_EX_SYSCALL("clock_gettime"),
+#endif
+#if defined(CLOCK_THREAD_CPUTIME_ID) && \
+    defined(HAVE_CLOCK_SETTIME)
+	STRESS_EX_SYSCALL("clock_settime"),
+#endif
+#if defined(HAVE_CLOCK_GETRES)
+	STRESS_EX_SYSCALL("clock_getres"),
+#endif
+#if defined(HAVE_CLOCK_NANOSLEEP) &&	\
+    defined(TIMER_ABSTIME)
+	STRESS_EX_SYSCALL("clock_nanosleep"),
+#endif
+#if defined(__NR_clock_adjtime) &&	\
+    defined(HAVE_TIMEX) &&		\
+    defined(HAVE_SYS_TIMEX_H) &&	\
+    defined(CLOCK_THREAD_CPUTIME_ID) &&	\
+    defined(ADJ_SETOFFSET)
+	STRESS_EX_SYSCALL("clock_adjtime"),
+#endif
+#if defined(HAVE_TIMER_CREATE) &&	\
+    defined(HAVE_TIMER_DELETE) &&	\
+    defined(HAVE_TIMER_GETTIME) &&	\
+    defined(HAVE_TIMER_GETOVERRUN) &&	\
+    defined(HAVE_TIMER_SETTIME)
+	STRESS_EX_SYSCALL("timer_create"),
+	STRESS_EX_SYSCALL("timer_delete"),
+	STRESS_EX_SYSCALL("timer_gettime"),
+	STRESS_EX_SYSCALL("timer_getoverrun"),
+	STRESS_EX_SYSCALL("timer_settime"),
+#endif
+#if defined(__linux__) &&		\
+    defined(HAVE_POLL_H) &&		\
+    defined(HAVE_POLL)
+	STRESS_EX_SYSCALL("poll"),
+#endif
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_clock_info = {
 	.stressor = stress_clock,
 	.classifier = CLASS_INTERRUPT | CLASS_OS,
 	.verify = VERIFY_OPTIONAL,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_clock_info = {

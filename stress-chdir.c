@@ -292,10 +292,18 @@ err:
 	return ret;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("chdir"),
+	STRESS_EX_SYSCALL("fchdir"),
+	STRESS_EX_SYSCALL("fchmod"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_chdir_info = {
 	.stressor = stress_chdir,
 	.classifier = CLASS_FILESYSTEM | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };

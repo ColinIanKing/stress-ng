@@ -557,12 +557,26 @@ static int stress_vdso(stress_args_t *args)
 	return EXIT_SUCCESS;
 }
 
+static const stress_exercises_t exercises[] = {
+#if defined(HAVE_CLOCK_GETTIME)
+	STRESS_EX_SYSCALL("clock_gettime"),
+#endif
+#if defined(HAVE_CLOCK_GETRES)
+	STRESS_EX_SYSCALL("clock_getres"),
+#endif
+	STRESS_EX_SYSCALL("getcpu"),
+	STRESS_EX_SYSCALL("gettimeofday"),
+	STRESS_EX_SYSCALL("time"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_vdso_info = {
 	.stressor = stress_vdso,
 	.supported = stress_vdso_supported,
 	.classifier = CLASS_OS,
 	.opts = opts,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_vdso_info = {

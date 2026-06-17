@@ -723,10 +723,15 @@ exit_free_buffer:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_workload_info = {
 	.stressor = stress_workload,
 	.classifier = CLASS_SCHEDULER | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };

@@ -2245,12 +2245,17 @@ static int stress_regs(stress_args_t *args)
 	return stress_regs_success ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_regs_info = {
 	.stressor = stress_regs,
 	.verify = VERIFY_ALWAYS,
 	.classifier = CLASS_CPU,
 	.help = help,
 	.opts = opts,
+	.exercises = exercises,
 };
 
 #else

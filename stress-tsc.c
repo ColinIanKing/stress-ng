@@ -717,6 +717,10 @@ static int stress_tsc_supported(const char *name)
 	return -1;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_tsc_info = {
 	.stressor = stress_unimplemented,
 	.supported = stress_tsc_supported,
@@ -724,6 +728,7 @@ const stressor_info_t stress_tsc_info = {
 	.verify = VERIFY_OPTIONAL,
 	.opts = opts,
 	.help = help,
-	.unimplemented_reason = "built without RISC-V rdtime, x86 rdtsc, s390 stck instructions or powerpc __ppc_get_timebase()"
+	.unimplemented_reason = "built without RISC-V rdtime, x86 rdtsc, s390 stck instructions or powerpc __ppc_get_timebase()",
+	.exercises = exercises,
 };
 #endif

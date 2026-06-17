@@ -273,11 +273,26 @@ static int stress_time_warp(stress_args_t *args)
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+#if defined(HAVE_GETRUSAGE)
+	STRESS_EX_SYSCALL("getrusage"),
+#endif
+	STRESS_EX_SYSCALL("gettimeofday"),
+#if defined(HAVE_TIME)
+	STRESS_EX_SYSCALL("time"),
+#endif
+#if (defined(HAVE_LIB_RT) && defined(HAVE_CLOCK_GETTIME))
+	STRESS_EX_SYSCALL("clock_gettime"),
+#endif
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_time_warp_info = {
 	.stressor = stress_time_warp,
 	.classifier = CLASS_OS,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_time_warp_info = {

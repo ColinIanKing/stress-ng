@@ -432,9 +432,19 @@ tidy_mmap:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("dup"),
+	STRESS_EX_SYSCALL("dup2"),
+#if defined(HAVE_DUP3)
+	STRESS_EX_SYSCALL("dup3"),
+#endif
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_dup_info = {
 	.stressor = stress_dup,
 	.classifier = CLASS_FILESYSTEM | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };

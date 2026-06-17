@@ -631,11 +631,26 @@ madv_free_out:
 	return EXIT_SUCCESS;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("madvise"),
+	STRESS_EX_SYSCALL("mincore"),
+#if defined(_POSIX_MEMLOCK_RANGE) &&	\
+    defined(HAVE_MLOCK) &&		\
+    (defined(MADV_REMOVE) || defined(MADV_DONTNEED))
+	STRESS_EX_SYSCALL("mlock"),
+	STRESS_EX_SYSCALL("munlock"),
+#endif
+	STRESS_EX_SYSCALL("mmap"),
+	STRESS_EX_SYSCALL("munmap"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_madvise_info = {
 	.stressor = stress_madvise,
 	.classifier = CLASS_VM | CLASS_OS,
 	.opts = opts,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_madvise_info = {

@@ -158,12 +158,18 @@ tidy_temp:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("acct"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_acct_info = {
 	.stressor = stress_acct,
 	.classifier = CLASS_OS,
 	.verify = VERIFY_NONE,
 	.supported = stress_acct_supported,
-	.help = help
+	.help = help,
+	.exercises = exercises
 };
 #else
 const stressor_info_t stress_acct_info = {

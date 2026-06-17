@@ -494,13 +494,19 @@ static int stress_rawdev(stress_args_t *args)
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("pread"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_rawdev_info = {
 	.stressor = stress_rawdev,
 	.supported = stress_rawdev_supported,
 	.classifier = CLASS_IO,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_rawdev_info = {

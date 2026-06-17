@@ -442,12 +442,17 @@ L0x000:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_goto_info = {
 	.stressor = stress_goto,
 	.classifier = CLASS_CPU,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_goto_info = {

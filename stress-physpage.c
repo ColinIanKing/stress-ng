@@ -319,13 +319,20 @@ static int stress_physpage(stress_args_t *args)
 	return success ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("mmap"),
+	STRESS_EX_SYSCALL("munmap"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_physpage_info = {
 	.stressor = stress_physpage,
 	.supported = stress_physpage_supported,
 	.opts = opts,
 	.classifier = CLASS_VM,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_physpage_info = {

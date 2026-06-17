@@ -141,9 +141,20 @@ finish:
 	return EXIT_SUCCESS;
 }
 
+
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("kill"),
+#if defined(__linux__)
+	STRESS_EX_SYSCALL("rt_sigreturn"),
+#endif
+	STRESS_EX_SYSCALL("waitpid"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_sigchld_info = {
 	.stressor = stress_sigchld,
 	.classifier = CLASS_SIGNAL | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };

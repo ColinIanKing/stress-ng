@@ -1244,10 +1244,43 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
+static const stress_exercises_t exercises[] = {
+#if defined(__linux__) &&	\
+    defined(__NR_cachestat)
+	STRESS_EX_SYSCALL("cachestat"),
+#endif
+#if defined(HAVE_COPY_FILE_RANGE)
+	STRESS_EX_SYSCALL("copy_file_range"),
+#endif
+	STRESS_EX_SYSCALL("fsync"),
+	STRESS_EX_SYSCALL("fdatasync"),
+#if defined(__linux__)
+	STRESS_EX_SYSCALL("ioctl"),
+#endif
+	STRESS_EX_SYSCALL("lseek"),
+#if defined(HAVE_POSIX_FADVISE)
+	STRESS_EX_SYSCALL("posix_fadvise"),
+#endif
+	STRESS_EX_SYSCALL("read"),
+#if defined(HAVE_READAHEAD)
+	STRESS_EX_SYSCALL("readahead"),
+#endif
+#if defined(HAVE_SENDFILE)
+	STRESS_EX_SYSCALL("sendfile"),
+#endif
+	STRESS_EX_SYSCALL("sync"),
+#if defined(HAVE_SYNC_FILE_RANGE)
+	STRESS_EX_SYSCALL("sync_file_range"),
+#endif
+	STRESS_EX_SYSCALL("write"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_iomix_info = {
 	.stressor = stress_iomix,
 	.classifier = CLASS_FILESYSTEM | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };

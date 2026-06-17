@@ -310,13 +310,22 @@ reap:
 	return EXIT_SUCCESS;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("exit"),
+	STRESS_EX_SYSCALL("fork"),
+	STRESS_EX_SYSCALL("mmap"),
+	STRESS_EX_SYSCALL("munmap"),
+	STRESS_EX_SYSCALL("waitpid"),
+	STRESS_EX_END,
+};
 
 const stressor_info_t stress_mmapfork_info = {
 	.stressor = stress_mmapfork,
 	.classifier = CLASS_SCHEDULER | CLASS_VM | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_mmapfork_info = {

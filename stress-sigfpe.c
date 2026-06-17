@@ -388,11 +388,16 @@ static int stress_sigfpe(stress_args_t *args)
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_sigfpe_info = {
 	.stressor = stress_sigfpe,
 	.classifier = CLASS_SIGNAL | CLASS_OS,
 	.verify = VERIFY_OPTIONAL,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_sigfpe_info = {

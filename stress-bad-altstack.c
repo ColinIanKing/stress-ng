@@ -457,11 +457,17 @@ finish:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("sigaltstack"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_bad_altstack_info = {
 	.stressor = stress_bad_altstack,
 	.classifier = CLASS_VM | CLASS_MEMORY | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_bad_altstack_info = {

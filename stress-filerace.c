@@ -1165,9 +1165,7 @@ static const stress_filerace_fops_t stress_filerace_fops[] = {
 #endif
 	stress_filerace_fchmod,
 	stress_filerace_fchown,
-#if defined(F_GETFL)
 	stress_filerace_fcntl,
-#endif
 #if defined(HAVE_FSYNC)
 	stress_filerace_fsync,
 #endif
@@ -1663,10 +1661,95 @@ tidy_dir:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("access"),
+	STRESS_EX_SYSCALL("chdir"),
+	STRESS_EX_SYSCALL("chmod"),
+	STRESS_EX_SYSCALL("chown"),
+	STRESS_EX_SYSCALL("creat"),
+#if defined(HAVE_FACCESSAT)
+	STRESS_EX_SYSCALL("faccessat"),
+#endif
+#if defined(HAVE_FALLOCATE)
+	STRESS_EX_SYSCALL("fallocate"),
+#endif
+	STRESS_EX_SYSCALL("fchdir"),
+	STRESS_EX_SYSCALL("fchmod"),
+	STRESS_EX_SYSCALL("fchown"),
+#if defined(F_GETFL)
+	STRESS_EX_SYSCALL("fcntl"),
+#endif
+#if defined(HAVE_FDATASYNC)
+	STRESS_EX_SYSCALL("fdatasync"),
+#endif
+#if defined(HAVE_FLOCK)
+	STRESS_EX_SYSCALL("flock"),
+#endif
+	STRESS_EX_SYSCALL("fstat"),
+#if defined(HAVE_FSYNC)
+	STRESS_EX_SYSCALL("fsync"),
+#endif
+	STRESS_EX_SYSCALL("ftruncate"),
+#if defined(HAVE_FUTIMES)
+	STRESS_EX_SYSCALL("futimes"),
+#endif
+#if defined(__linux__) &&	\
+    defined(__NR_getdents)
+	STRESS_EX_SYSCALL("getdents"),
+#endif
+	STRESS_EX_SYSCALL("lchown"),
+#if defined(HAVE_LOCKF)
+	STRESS_EX_SYSCALL("lockf"),
+#endif
+	STRESS_EX_SYSCALL("lseek"),
+	STRESS_EX_SYSCALL("lstat"),
+#if defined(HAVE_NAME_TO_HANDLE_AT)
+	STRESS_EX_SYSCALL("name_to_handle_at"),
+#endif
+	STRESS_EX_SYSCALL("open"),
+#if defined(HAVE_POSIX_FADVISE)
+	STRESS_EX_SYSCALL("posix_fadvise"),
+#endif
+#if defined(HAVE_POSIX_FALLOCATE)
+	STRESS_EX_SYSCALL("posix_fallocate"),
+#endif
+#if defined(HAVE_PREAD)
+	STRESS_EX_SYSCALL("pread"),
+#endif
+#if defined(HAVE_PWRITE)
+	STRESS_EX_SYSCALL("pwrite"),
+#endif
+	STRESS_EX_SYSCALL("read"),
+#if defined(HAVE_READAHEAD)
+	STRESS_EX_SYSCALL("readahead"),
+#endif
+	STRESS_EX_SYSCALL("readlink"),
+#if defined(HAVE_READLINKAT)
+	STRESS_EX_SYSCALL("readlinkat"),
+#endif
+	STRESS_EX_SYSCALL("rename"),
+	STRESS_EX_SYSCALL("rmdir"),
+#if defined(HAVE_SENDFILE)
+	STRESS_EX_SYSCALL("sendfile"),
+#endif
+	STRESS_EX_SYSCALL("stat"),
+#if defined(HAVE_STATX)
+	STRESS_EX_SYSCALL("statx"),
+#endif
+	STRESS_EX_SYSCALL("truncate"),
+	STRESS_EX_SYSCALL("unlink"),
+#if defined(HAVE_UTIMES)
+	STRESS_EX_SYSCALL("utimes"),
+#endif
+	STRESS_EX_SYSCALL("write"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_filerace_info = {
 	.stressor = stress_filerace,
 	.classifier = CLASS_FILESYSTEM | CLASS_OS,
 	.verify = VERIFY_NONE,
 	.opts = opts,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };

@@ -503,10 +503,32 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("creat"),
+	STRESS_EX_SYSCALL("fsync"),
+#if defined(HAVE_FUTIMENS)
+	STRESS_EX_SYSCALL("futimens"),
+#endif
+#if defined(HAVE_LINKAT) &&	\
+    defined(O_DIRECTORY)
+	STRESS_EX_SYSCALL("linkat"),
+	STRESS_EX_SYSCALL("unlinkat"),
+#endif
+	STRESS_EX_SYSCALL("mkdir"),
+#if defined(HAVE_SYNCFS)
+	STRESS_EX_SYSCALL("syncfs"),
+#else
+	STRESS_EX_SYSCALL("sync"),
+#endif
+	STRESS_EX_SYSCALL("symlink"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_dirdeep_info = {
 	.stressor = stress_dirdeep,
 	.classifier = CLASS_FILESYSTEM | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };

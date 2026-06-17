@@ -349,13 +349,29 @@ static int stress_symlink(stress_args_t *args)
 	return stress_link_generic(args, symlink, "symlink", symlink_sync);
 }
 
+
+
 #if !defined(__HAIKU__)
+
+static const stress_exercises_t exercises_link[] = {
+	STRESS_EX_SYSCALL("link"),
+	STRESS_EX_SYSCALL("readlink"),
+#if defined(O_DIRECTORY) &&	\
+    defined(HAVE_LIBGEN_H) &&	\
+    defined(HAVE_READLINKAT)
+	STRESS_EX_SYSCALL("readlinkat"),
+#endif
+	STRESS_EX_SYSCALL("unlink"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_link_info = {
 	.stressor = stress_link,
 	.classifier = CLASS_FILESYSTEM | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
 	.opts = opts,
-	.help = hardlink_help
+	.help = hardlink_help,
+	.exercises = exercises_link,
 };
 #else
 const stressor_info_t stress_link_info = {
@@ -368,10 +384,23 @@ const stressor_info_t stress_link_info = {
 };
 #endif
 
+static const stress_exercises_t exercises_symlink[] = {
+	STRESS_EX_SYSCALL("readlink"),
+#if defined(O_DIRECTORY) &&	\
+    defined(HAVE_LIBGEN_H) &&	\
+    defined(HAVE_READLINKAT)
+	STRESS_EX_SYSCALL("readlinkat"),
+#endif
+	STRESS_EX_SYSCALL("symlink"),
+	STRESS_EX_SYSCALL("unlink"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_symlink_info = {
 	.stressor = stress_symlink,
 	.classifier = CLASS_FILESYSTEM | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
 	.opts = opts,
 	.help = symlink_help,
+	.exercises = exercises_symlink,
 };

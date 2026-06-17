@@ -2269,13 +2269,50 @@ unmap_ctxt:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("close"),
+	STRESS_EX_SYSCALL("fork"),
+	STRESS_EX_SYSCALL("madvise"),
+	STRESS_EX_SYSCALL("fallocate"),
+	STRESS_EX_SYSCALL("mprotect"),
+#if defined(HAVE_MLOCK)
+	STRESS_EX_SYSCALL("mlock"),
+#endif
+	STRESS_EX_SYSCALL("mmap"),
+#if defined(HAVE_MREMAP)
+	STRESS_EX_SYSCALL("mremap"),
+#endif
+#if defined(HAVE_MSYNC)
+	STRESS_EX_SYSCALL("msync"),
+#endif
+#if defined(HAVE_MUNLOCK)
+	STRESS_EX_SYSCALL("munlock"),
+#endif
+	STRESS_EX_SYSCALL("munmap"),
+#if defined(HAVE_LIB_RT) &&     \
+    defined(HAVE_SHM_OPEN) &&   \
+    defined(HAVE_SHM_UNLINK)
+	STRESS_EX_SYSCALL("shm_open"),
+	STRESS_EX_SYSCALL("shm_unlink"),
+#endif
+#if defined(HAVE_SYS_SHM_H)
+	STRESS_EX_SYSCALL("shmat"),
+	STRESS_EX_SYSCALL("shmget"),
+	STRESS_EX_SYSCALL("shmctl"),
+#endif
+#if defined(HAVE_SYS_SHM_H)
+#endif
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_mmaprandom_info = {
 	.stressor = stress_mmaprandom,
 	.classifier = CLASS_VM | CLASS_OS,
 	.verify = VERIFY_NONE,
 	.opts = opts,
 	.help = help,
-	.max_metrics_items = SIZEOF_ARRAY(mr_funcs)
+	.max_metrics_items = SIZEOF_ARRAY(mr_funcs),
+	.exercises = exercises,
 };
 
 #else

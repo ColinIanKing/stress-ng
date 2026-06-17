@@ -315,13 +315,20 @@ done:
 	return EXIT_SUCCESS;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("mmap"),
+	STRESS_EX_SYSCALL("munmap"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_physmmap_info = {
 	.stressor = stress_physmmap,
 	.supported = stress_physmmap_supported,
 	.classifier = CLASS_VM,
 	.verify = VERIFY_NONE,
 	.opts = opts,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_physmmap_info = {

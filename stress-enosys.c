@@ -4267,10 +4267,17 @@ deinit_free:
 
 	return rc;
 }
+
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("syscall"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_enosys_info = {
 	.stressor = stress_enosys,
 	.classifier = CLASS_OS,
-	.help = help
+	.help = help,
+	.exercises = exercises
 };
 #else
 const stressor_info_t stress_enosys_info = {

@@ -344,10 +344,19 @@ static int stress_syncload(stress_args_t *args)
 	return EXIT_SUCCESS;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("gettimeofday"),
+	STRESS_EX_SYSCALL("nanosleep"),
+	STRESS_EX_SYSCALL("nice"),
+	STRESS_EX_SYSCALL("sched_yield"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_syncload_info = {
 	.stressor = stress_syncload,
 	.classifier = CLASS_CPU,
 	.opts = opts,
 	.init = stress_syncload_init,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };

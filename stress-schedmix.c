@@ -676,12 +676,42 @@ free_cpus:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("fork"),
+#if defined(HAVE_GETRUSAGE)
+	STRESS_EX_SYSCALL("getrusage"),
+#endif
+	STRESS_EX_SYSCALL("gettimeofday"),
+	STRESS_EX_SYSCALL("nanosleep"),
+#if defined(HAVE_SYS_SELECT_H) &&       \
+    defined(HAVE_PSELECT) &&		\
+    defined(FD_SETSIZE)
+	STRESS_EX_SYSCALL("pselect"),
+#endif
+	STRESS_EX_SYSCALL("sched_setaffinity"),
+	STRESS_EX_SYSCALL("sched_yield"),
+#if defined(HAVE_SYS_SELECT_H) &&       \
+    defined(HAVE_SELECT)
+	STRESS_EX_SYSCALL("select"),
+#endif
+#if defined(HAVE_SCHEDMIX_SEM)
+	STRESS_EX_SYSCALL("clock_gettime"),
+	STRESS_EX_SYSCALL("sem_timedwait"),
+	STRESS_EX_SYSCALL("sem_post"),
+#endif
+	STRESS_EX_SYSCALL("sleep"),
+	STRESS_EX_SYSCALL("times"),
+	STRESS_EX_SYSCALL("waitpid"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_schedmix_info = {
 	.stressor = stress_schedmix,
 	.classifier = CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_schedmix_info = {

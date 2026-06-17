@@ -254,12 +254,20 @@ reap:
 	return ret;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("close"),
+	STRESS_EX_SYSCALL("fcntl"),
+	STRESS_EX_SYSCALL("open"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_lease_info = {
 	.stressor = stress_lease,
 	.classifier = CLASS_FILESYSTEM | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_lease_info = {

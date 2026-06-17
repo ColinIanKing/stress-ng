@@ -1158,12 +1158,29 @@ fork_again:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+#if defined(__NR_get_mempolicy)
+	STRESS_EX_SYSCALL("get_mempolicy"),
+#endif
+	STRESS_EX_SYSCALL("madvise"),
+	STRESS_EX_SYSCALL("msync"),
+#if defined(__NR_get_mempolicy)
+	STRESS_EX_SYSCALL("set_mempolicy"),
+#endif
+	STRESS_EX_SYSCALL("shmat"),
+	STRESS_EX_SYSCALL("shmctl"),
+	STRESS_EX_SYSCALL("shmdt"),
+	STRESS_EX_SYSCALL("shmget"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_shm_sysv_info = {
 	.stressor = stress_shm_sysv,
 	.classifier = CLASS_VM | CLASS_OS | CLASS_IPC,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_shm_sysv_info = {

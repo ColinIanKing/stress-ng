@@ -1288,11 +1288,17 @@ finish:
 	return EXIT_SUCCESS;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("prctl"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_prctl_info = {
 	.stressor = stress_prctl,
 	.classifier = CLASS_OS,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_prctl_info = {

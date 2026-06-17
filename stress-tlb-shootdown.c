@@ -444,8 +444,7 @@ static int stress_tlb_shootdown(stress_args_t *args)
 
 	(void)munmap((void *)mem, mmap_size);
 err_munmap_memfd:
-#if defined(HAVE_MADVISE) &&	\
-    defined(MADV_DONTNEED)
+#if defined(HAVE_MADVISE)
 	(void)munmap((void *)memfd, mmapfd_size);
 err_close:
 	(void)close(fd);
@@ -460,11 +459,25 @@ err_free_cpus:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+#if defined(HAVE_MADVISE) &&	\
+    defined(SHIM_MADV_DONTNEED)
+	STRESS_EX_SYSCALL("madvise"),
+	STRESS_EX_SYSCALL("msync"),
+#endif
+	STRESS_EX_SYSCALL("mmap"),
+	STRESS_EX_SYSCALL("mprotect"),
+	STRESS_EX_SYSCALL("munmap"),
+	STRESS_EX_SYSCALL("sched_setaffinity"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_tlb_shootdown_info = {
 	.stressor = stress_tlb_shootdown,
 	.classifier = CLASS_TLB | CLASS_MEMORY,
 	.verify = VERIFY_NONE,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_tlb_shootdown_info = {

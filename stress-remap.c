@@ -347,12 +347,18 @@ PRAGMA_UNROLL_N(4)
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("remap_file_pages"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_remap_info = {
 	.stressor = stress_remap,
 	.opts = opts,
 	.classifier = CLASS_MEMORY | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_remap_info = {

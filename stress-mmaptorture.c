@@ -917,6 +917,31 @@ static int stress_mmaptorture(stress_args_t *args)
 	return ret;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("ftruncate"),
+	STRESS_EX_SYSCALL("mincore"),
+#if defined(HAVE_MSYNC)
+	STRESS_EX_SYSCALL("msync"),
+#endif
+#if defined(HAVE_MPROTECT)
+	STRESS_EX_SYSCALL("mprotect"),
+#endif
+	STRESS_EX_SYSCALL("mlock"),
+#if defined(HAVE_MLOCKALL)
+	STRESS_EX_SYSCALL("mlockall"),
+#endif
+	STRESS_EX_SYSCALL("mmap"),
+	STRESS_EX_SYSCALL("munmap"),
+#if defined(HAVE_MSEAL)
+	STRESS_EX_SYSCALL("mseal"),
+#endif
+	STRESS_EX_SYSCALL("munlock"),
+#if defined(HAVE_MUNLOCKALL)
+	STRESS_EX_SYSCALL("munlockall"),
+#endif
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_mmaptorture_info = {
 	.stressor = stress_mmaptorture,
 	.classifier = CLASS_VM | CLASS_OS,
@@ -925,7 +950,8 @@ const stressor_info_t stress_mmaptorture_info = {
 	.deinit = stress_mmaptorture_deinit,
 	.opts = opts,
 	.help = help,
-	.max_metrics_items = 9
+	.max_metrics_items = 9,
+	.exercises = exercises,
 };
 
 #else

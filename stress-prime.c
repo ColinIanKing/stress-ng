@@ -252,12 +252,17 @@ finish:
 	return EXIT_SUCCESS;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_prime_info = {
 	.stressor = stress_prime,
 	.classifier = CLASS_CPU | CLASS_INTEGER | CLASS_COMPUTE,
 	.opts = opts,
 	.verify = VERIFY_NONE,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 
 #else

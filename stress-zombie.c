@@ -417,10 +417,20 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
+static const stress_exercises_t exercises[] = {
+#if defined(HAVE_LINUX_CLONE)
+	STRESS_EX_SYSCALL("clone"),
+#else
+	STRESS_EX_SYSCALL("fork"),
+#endif
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_zombie_info = {
 	.stressor = stress_zombie,
 	.classifier = CLASS_SCHEDULER | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };

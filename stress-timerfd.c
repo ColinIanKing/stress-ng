@@ -428,12 +428,33 @@ dir_rm:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("close"),
+#if defined(HAVE_SYS_TIMERFD_H) &&	\
+    defined(TFD_IOC_SET_TICKS)
+	STRESS_EX_SYSCALL("ioctl"),
+#endif
+#if defined(USE_POLL)
+	STRESS_EX_SYSCALL("poll"),
+#endif
+	STRESS_EX_SYSCALL("read"),
+#if defined(USE_SELECT)
+	STRESS_EX_SYSCALL("select"),
+#endif
+	STRESS_EX_SYSCALL("timerfd_create"),
+	STRESS_EX_SYSCALL("timerfd_gettime"),
+	STRESS_EX_SYSCALL("timerfd_settime"),
+
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_timerfd_info = {
 	.stressor = stress_timerfd,
 	.classifier = CLASS_INTERRUPT | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
 	.opts = opts,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_timerfd_info = {
@@ -442,6 +463,6 @@ const stressor_info_t stress_timerfd_info = {
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
-	.unimplemented_reason = "built without sys/timerfd.h, timerfd_create(), timerfd_settime(), timerfd_setime, select() or poll()"
+	.unimplemented_reason = "built without sys/timerfd.h, timerfd_create(), timerfd_gettime(), timerfd_settime(), select() or poll()"
 };
 #endif

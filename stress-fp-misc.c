@@ -1327,11 +1327,16 @@ fp_fail:
 	return EXIT_SUCCESS;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_fp_misc_info = {
 	.stressor = stress_fp_misc,
 	.classifier = CLASS_CPU | CLASS_FP | CLASS_COMPUTE,
 	.verify = VERIFY_ALWAYS,
 	.max_metrics_items = SIZEOF_ARRAY(stress_fp_misc_methods),
 	.supported = stress_fp_misc_supported,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };

@@ -347,9 +347,26 @@ err:
 
 	return rc;
 }
+
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("close"),
+	STRESS_EX_SYSCALL("ioctl"),
+	STRESS_EX_SYSCALL("lseek"),
+	STRESS_EX_SYSCALL("open"),
+	STRESS_EX_SYSCALL("mmap"),
+	STRESS_EX_SYSCALL("munmap"),
+	STRESS_EX_SYSCALL("read"),
+#if defined(HAVE_SELECT)
+	STRESS_EX_SYSCALL("select"),
+#endif
+	STRESS_EX_SYSCALL("write"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_urandom_info = {
 	.stressor = stress_urandom,
 	.classifier = CLASS_DEV | CLASS_OS,
 	.verify = VERIFY_OPTIONAL,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };

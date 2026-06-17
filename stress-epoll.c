@@ -1094,13 +1094,38 @@ reap:
 
 	return rc;
 }
+
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("accept"),
+	STRESS_EX_SYSCALL("bind"),
+	STRESS_EX_SYSCALL("connect"),
+#if defined(__NR_epoll_pwait2) &&	\
+    defined(HAVE_SYSCALL)
+	STRESS_EX_SYSCALL("epoll_pwait2"),
+#endif
+	STRESS_EX_SYSCALL("epoll_pwait"),
+	STRESS_EX_SYSCALL("epoll_wait"),
+#if defined(HAVE_EPOLL_CREATE1)
+	STRESS_EX_SYSCALL("epoll_create1"),
+#else
+	STRESS_EX_SYSCALL("epoll_create"),
+#endif
+	STRESS_EX_SYSCALL("listen"),
+	STRESS_EX_SYSCALL("recv"),
+	STRESS_EX_SYSCALL("socket"),
+	STRESS_EX_SYSCALL("send"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_epoll_info = {
 	.stressor = stress_epoll,
 	.classifier = CLASS_NETWORK | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
+
 #else
 const stressor_info_t stress_epoll_info = {
 	.stressor = stress_unimplemented,

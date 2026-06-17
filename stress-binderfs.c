@@ -332,12 +332,30 @@ clean:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("ioctl"),
+#if defined(HAVE_FSOPEN) &&		\
+    defined(HAVE_FSCONFIG) &&		\
+    defined(HAVE_FSMOUNT) &&		\
+    defined(HAVE_MOVE_MOUNT) &&		\
+    defined(HAVE_SYS_MOUNT_H)
+	STRESS_EX_SYSCALL("fsconfig"),
+	STRESS_EX_SYSCALL("fsmount"),
+	STRESS_EX_SYSCALL("fsopen"),
+#else
+	STRESS_EX_SYSCALL("mount"),
+#endif
+	STRESS_EX_SYSCALL("umount"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_binderfs_info = {
 	.stressor = stress_binderfs,
 	.supported = stress_binderfs_supported,
 	.classifier = CLASS_FILESYSTEM | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_binderfs_info = {

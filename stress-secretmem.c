@@ -215,11 +215,20 @@ static int stress_secretmem(stress_args_t *args)
 	return stress_oomable_child(args, NULL, stress_secretmem_child, STRESS_OOMABLE_QUIET);
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("madvise"),
+	STRESS_EX_SYSCALL("memfd_secret"),
+	STRESS_EX_SYSCALL("mmap"),
+	STRESS_EX_SYSCALL("munmap"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_secretmem_info = {
 	.stressor = stress_secretmem,
 	.classifier = CLASS_CPU,
 	.help = help,
-	.supported = stress_secretmem_supported
+	.supported = stress_secretmem_supported,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_secretmem_info = {

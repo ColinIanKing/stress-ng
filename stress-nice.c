@@ -209,11 +209,28 @@ static int stress_nice(stress_args_t *args)
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("fork"),
+#if defined(HAVE_GETPRIORITY)
+	STRESS_EX_SYSCALL("getpriority"),
+#endif
+#if defined(RLIMIT_NICE)
+	STRESS_EX_SYSCALL("getrlimit"),
+#endif
+	STRESS_EX_SYSCALL("nice"),
+#if defined(HAVE_SETPRIORITY)
+	STRESS_EX_SYSCALL("setpriority"),
+#endif
+	STRESS_EX_SYSCALL("waitpid"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_nice_info = {
 	.stressor = stress_nice,
 	.classifier = CLASS_SCHEDULER | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 
 #else

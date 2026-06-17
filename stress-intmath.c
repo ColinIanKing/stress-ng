@@ -739,11 +739,16 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_intmath_info = {
 	.stressor = stress_intmath,
 	.classifier = CLASS_CPU | CLASS_INTEGER | CLASS_COMPUTE,
 	.verify = VERIFY_ALWAYS,
 	.opts = opts,
 	.help = help,
-	.max_metrics_items = SIZEOF_ARRAY(stress_intmath_methods)
+	.max_metrics_items = SIZEOF_ARRAY(stress_intmath_methods),
+	.exercises = exercises,
 };

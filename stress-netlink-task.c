@@ -352,12 +352,19 @@ static int stress_netlink_task(stress_args_t *args)
 	return EXIT_SUCCESS;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("recvfrom"),
+	STRESS_EX_SYSCALL("sendto"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_netlink_task_info = {
 	.stressor = stress_netlink_task,
 	.supported = stress_netlink_task_supported,
 	.classifier = CLASS_OS,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_netlink_task_info = {

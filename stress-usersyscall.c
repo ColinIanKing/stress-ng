@@ -361,12 +361,21 @@ err:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("prctl"),
+#if defined(__linux__)
+	STRESS_EX_SYSCALL("sigreturn"),
+#endif
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_usersyscall_info = {
 	.stressor = stress_usersyscall,
 	.classifier = CLASS_OS,
 	.supported = stress_supported,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 
 #else

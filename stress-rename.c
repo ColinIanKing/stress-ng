@@ -384,9 +384,29 @@ restart:
 	return EXIT_SUCCESS;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("close"),
+#if defined(EXERCISE_RENAMEAT)
+	STRESS_EX_SYSCALL("fynsc"),
+#endif
+	STRESS_EX_SYSCALL("open"),
+#if defined(HAVE_OPENAT)
+	STRESS_EX_SYSCALL("openat"),
+#endif
+	STRESS_EX_SYSCALL("rename"),
+#if defined(HAVE_RENAMEAT)
+	STRESS_EX_SYSCALL("renameat"),
+#endif
+#if defined(HAVE_RENAMEAT2)
+	STRESS_EX_SYSCALL("renameat2"),
+#endif
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_rename_info = {
 	.stressor = stress_rename,
 	.classifier = CLASS_FILESYSTEM | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };

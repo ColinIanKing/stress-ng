@@ -275,12 +275,17 @@ static int stress_smi(stress_args_t *args)
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_smi_info = {
 	.stressor = stress_smi,
 	.classifier = CLASS_CPU | CLASS_PATHOLOGICAL,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
-	.supported = stress_smi_supported
+	.supported = stress_smi_supported,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_smi_info = {

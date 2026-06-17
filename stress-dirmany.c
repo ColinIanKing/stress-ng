@@ -243,10 +243,25 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("close"),
+	STRESS_EX_SYSCALL("fsync"),
+#if defined(HAVE_POSIX_FALLOCATE)
+	STRESS_EX_SYSCALL("posix_fallocate"),
+#else
+	STRESS_EX_SYSCALL("fallocate"),
+#endif
+	STRESS_EX_SYSCALL("open"),
+	STRESS_EX_SYSCALL("stat"),
+	STRESS_EX_SYSCALL("unlink"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_dirmany_info = {
 	.stressor = stress_dirmany,
 	.classifier = CLASS_FILESYSTEM | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };

@@ -593,6 +593,11 @@ exit_free_pids:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("kill"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_varyload_info = {
 	.stressor = stress_varyload,
 	.classifier = CLASS_SCHEDULER | CLASS_OS,
@@ -600,5 +605,6 @@ const stressor_info_t stress_varyload_info = {
 	.init = stress_varyload_init,
 	.deinit = stress_varyload_deinit,
 	.opts = opts,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };

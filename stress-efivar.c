@@ -573,12 +573,17 @@ finish:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_efivar_info = {
 	.stressor = stress_efivar,
 	.supported = stress_efivar_supported,
 	.classifier = CLASS_OS,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 static int stress_efivar_supported(const char *name)

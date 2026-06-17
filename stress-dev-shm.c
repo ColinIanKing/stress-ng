@@ -215,11 +215,21 @@ unmap_context:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("fallocate"),
+	STRESS_EX_SYSCALL("ftruncate"),
+	STRESS_EX_SYSCALL("mmap"),
+	STRESS_EX_SYSCALL("msync"),
+	STRESS_EX_SYSCALL("munmap"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_dev_shm_info = {
 	.stressor = stress_dev_shm,
 	.classifier = CLASS_VM | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_dev_shm_info = {

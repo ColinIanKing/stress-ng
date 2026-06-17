@@ -527,6 +527,19 @@ tidy:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("access"),
+	STRESS_EX_SYSCALL("chmod"),
+	STRESS_EX_SYSCALL("fchmod"),
+#if defined(HAVE_FACCESSAT)
+	STRESS_EX_SYSCALL("faccessat"),
+#endif
+#if defined(HAVE_FACCESSAT2)
+	STRESS_EX_SYSCALL("faccessat2"),
+#endif
+	STRESS_EX_END,
+};
+
 static const stress_help_t help[] = {
 	{ NULL,	"access N",	"start N workers that stress file access permissions" },
 	{ NULL,	"access-ops N",	"stop after N file access bogo operations" },
@@ -537,5 +550,6 @@ const stressor_info_t stress_access_info = {
 	.stressor = stress_access,
 	.classifier = CLASS_FILESYSTEM | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };

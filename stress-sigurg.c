@@ -339,11 +339,21 @@ finish:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+#if defined(__linux__)
+	STRESS_EX_SYSCALL("rt_sigreturn"),
+#endif
+	STRESS_EX_SYSCALL("send"),
+	STRESS_EX_SYSCALL("recv"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_sigurg_info = {
 	.stressor = stress_sigurg,
 	.classifier = CLASS_SIGNAL | CLASS_NETWORK | CLASS_OS,
 	.verify = VERIFY_NONE,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 
 #else

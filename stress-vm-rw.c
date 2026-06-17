@@ -432,12 +432,19 @@ again:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("process_vm_readv"),
+	STRESS_EX_SYSCALL("process_vm_writev"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_vm_rw_info = {
 	.stressor = stress_vm_rw,
 	.classifier = CLASS_VM | CLASS_MEMORY | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_vm_rw_info = {

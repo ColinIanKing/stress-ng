@@ -195,9 +195,15 @@ again:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("alarm"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_alarm_info = {
 	.stressor = stress_alarm,
 	.classifier = CLASS_SIGNAL | CLASS_INTERRUPT | CLASS_OS,
 	.verify = VERIFY_OPTIONAL,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };

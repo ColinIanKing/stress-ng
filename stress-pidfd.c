@@ -246,12 +246,20 @@ finish:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("fstat"),
+	STRESS_EX_SYSCALL("pidfd_open"),
+	STRESS_EX_SYSCALL("pidfd_send_signal"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_pidfd_info = {
 	.stressor = stress_pidfd,
 	.classifier = CLASS_INTERRUPT | CLASS_OS,
 	.supported = stress_pidfd_supported,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 

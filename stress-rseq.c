@@ -262,11 +262,16 @@ err:
 	return ret;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_rseq_info = {
 	.stressor = stress_rseq,
 	.supported = stress_rseq_supported,
 	.classifier = CLASS_CPU,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_rseq_info = {

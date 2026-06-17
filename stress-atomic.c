@@ -539,11 +539,16 @@ static int stress_atomic(stress_args_t *args)
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_atomic_info = {
 	.stressor = stress_atomic,
 	.classifier = CLASS_CPU | CLASS_MEMORY,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 
 #else

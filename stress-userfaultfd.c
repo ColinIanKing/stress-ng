@@ -495,13 +495,24 @@ static int stress_userfaultfd(stress_args_t *args)
 	return stress_oomable_child(args, NULL, stress_userfaultfd_child, STRESS_OOMABLE_NORMAL);
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("ioctl"),
+	STRESS_EX_SYSCALL("madvise"),
+	STRESS_EX_SYSCALL("mmap"),
+	STRESS_EX_SYSCALL("mummap"),
+	STRESS_EX_SYSCALL("poll"),
+	STRESS_EX_SYSCALL("userfaultfd"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_userfaultfd_info = {
 	.stressor = stress_userfaultfd,
 	.classifier = CLASS_VM | CLASS_OS,
 	.opts = opts,
 	.supported = stress_userfaultfd_supported,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_userfaultfd_info = {

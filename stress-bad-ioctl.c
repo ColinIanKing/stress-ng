@@ -657,11 +657,18 @@ again:
 
 	return rc;
 }
+
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("ioctl"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_bad_ioctl_info = {
 	.stressor = stress_bad_ioctl,
 	.classifier = CLASS_DEV | CLASS_OS | CLASS_PATHOLOGICAL,
 	.opts = opts,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_bad_ioctl_info = {

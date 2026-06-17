@@ -342,10 +342,16 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("vfork"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_vforkmany_info = {
 	.stressor = stress_vforkmany,
 	.classifier = CLASS_SCHEDULER | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };

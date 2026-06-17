@@ -929,12 +929,49 @@ tidy_dir:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("accept"),
+	STRESS_EX_SYSCALL("bind"),
+	STRESS_EX_SYSCALL("connect"),
+	STRESS_EX_SYSCALL("dup"),
+	STRESS_EX_SYSCALL("faccessat"),
+	STRESS_EX_SYSCALL("fcntl"),
+	STRESS_EX_SYSCALL("fdatasync"),
+#if defined(HAVE_FLOCK) &&	\
+    defined(LOCK_UN)
+	STRESS_EX_SYSCALL("flock"),
+#endif
+	STRESS_EX_SYSCALL("fstat"),
+	STRESS_EX_SYSCALL("fstatat"),
+	STRESS_EX_SYSCALL("fsync"),
+#if defined(FIONREAD)
+	STRESS_EX_SYSCALL("ioctl"),
+#endif
+	STRESS_EX_SYSCALL("listen"),
+	STRESS_EX_SYSCALL("lseek"),
+#if defined(HAVE_POLL_H) &&	\
+    defined(HAVE_POLL)
+	STRESS_EX_SYSCALL("poll"),
+#endif
+#if defined(HAVE_POSIX_FADVISE) && 	\
+    defined(SHIM_POSIX_FADV_NORMAL)
+	STRESS_EX_SYSCALL("posix_fadvise"),
+#endif
+#if defined(HAVE_SYS_SELECT_H) &&       \
+    defined(HAVE_SELECT)
+	STRESS_EX_SYSCALL("select"),
+#endif
+	STRESS_EX_SYSCALL("socket"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_fd_race_info = {
 	.stressor = stress_fd_race,
 	.classifier = CLASS_OS,
 	.verify = VERIFY_ALWAYS,
 	.opts = opts,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_fd_race_info = {

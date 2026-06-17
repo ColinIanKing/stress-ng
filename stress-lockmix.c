@@ -651,11 +651,27 @@ tidy:
 
 	return ret;
 }
+
+static const stress_exercises_t exercises[] = {
+#if defined(HAVE_LOCKMIX_LOCKF)
+	STRESS_EX_SYSCALL("lockf"),
+#endif
+#if defined(HAVE_LOCKMIX_FLOCK)
+	STRESS_EX_SYSCALL("flock"),
+#endif
+#if defined(HAVE_LOCKMIX_LOCKA) || \
+    defined(HAVE_LOCKMIX_LOCKOFD)
+	STRESS_EX_SYSCALL("fcntl"),
+#endif
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_lockmix_info = {
 	.stressor = stress_lockmix,
 	.classifier = CLASS_FILESYSTEM | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_lockmix_info = {

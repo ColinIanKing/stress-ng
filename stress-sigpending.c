@@ -94,9 +94,17 @@ static int stress_sigpending(stress_args_t *args)
 	return EXIT_SUCCESS;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("kill"),
+	STRESS_EX_SYSCALL("sigpending"),
+	STRESS_EX_SYSCALL("sigprocmask"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_sigpending_info = {
 	.stressor = stress_sigpending,
 	.classifier = CLASS_SIGNAL | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };

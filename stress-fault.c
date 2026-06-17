@@ -294,10 +294,21 @@ next:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("mmap"),
+	STRESS_EX_SYSCALL("munmap"),
+#if defined(HAVE_MADVISE) &&	\
+    (defined(MADV_DONTNEED) || defined(MADV_PAGEOUT))
+	STRESS_EX_SYSCALL("madvise"),
+#endif
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_fault_info = {
 	.stressor = stress_fault,
 	.classifier = CLASS_INTERRUPT | CLASS_OS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 
 #else

@@ -382,11 +382,23 @@ static int stress_rtc(stress_args_t *args)
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("close"),
+	STRESS_EX_SYSCALL("ioctl"),
+	STRESS_EX_SYSCALL("open"),
+#if defined(HAVE_SYS_SELECT_H) &&	\
+    defined(HAVE_SELECT)
+	STRESS_EX_SYSCALL("select"),
+#endif
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_rtc_info = {
 	.stressor = stress_rtc,
 	.classifier = CLASS_OS,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_rtc_info = {

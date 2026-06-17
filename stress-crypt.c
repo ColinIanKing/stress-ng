@@ -256,13 +256,18 @@ static int stress_crypt(stress_args_t *args)
 	return EXIT_SUCCESS;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_crypt_info = {
 	.stressor = stress_crypt,
 	.classifier = CLASS_CPU,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
-	.max_metrics_items = SIZEOF_ARRAY(crypt_methods)
+	.max_metrics_items = SIZEOF_ARRAY(crypt_methods),
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_crypt_info = {

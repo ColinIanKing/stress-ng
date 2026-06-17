@@ -283,12 +283,17 @@ static int stress_mutex(stress_args_t *args)
 	return EXIT_SUCCESS;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_mutex_info = {
 	.stressor = stress_mutex,
 	.classifier = CLASS_OS | CLASS_SCHEDULER,
 	.verify = VERIFY_ALWAYS,
 	.opts = opts,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_mutex_info = {

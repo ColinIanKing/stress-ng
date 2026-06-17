@@ -273,12 +273,22 @@ static int stress_timer(stress_args_t *args)
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("nanosleep"),
+	STRESS_EX_SYSCALL("timer_create"),
+	STRESS_EX_SYSCALL("timer_delete"),
+	STRESS_EX_SYSCALL("timer_getoverrun"),
+	STRESS_EX_SYSCALL("timer_settime"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_timer_info = {
 	.stressor = stress_timer,
 	.classifier = CLASS_SIGNAL | CLASS_INTERRUPT | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_timer_info = {

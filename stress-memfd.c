@@ -580,12 +580,22 @@ static int stress_memfd(stress_args_t *args)
 	return stress_oomable_child(args, NULL, stress_memfd_child, STRESS_OOMABLE_NORMAL);
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("madvise"),
+	STRESS_EX_SYSCALL("memfd_create"),
+	STRESS_EX_SYSCALL("ftruncate"),
+	STRESS_EX_SYSCALL("mmap"),
+	STRESS_EX_SYSCALL("munmap"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_memfd_info = {
 	.stressor = stress_memfd,
 	.classifier = CLASS_OS | CLASS_MEMORY,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_memfd_info = {

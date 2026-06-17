@@ -395,10 +395,20 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("lseek"),
+#if defined(HAVE_OFF64_T) &&	\
+    defined(HAVE_LSEEK64)
+	STRESS_EX_SYSCALL("lseek64"),
+#endif
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_seek_info = {
 	.stressor = stress_seek,
 	.classifier = CLASS_IO | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };

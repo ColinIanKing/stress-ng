@@ -132,12 +132,19 @@ static int stress_spawn(stress_args_t *args)
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("posix_spawn"),
+	STRESS_EX_SYSCALL("waitpid"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_spawn_info = {
 	.stressor = stress_spawn,
 	.supported = stress_spawn_supported,
 	.classifier = CLASS_SCHEDULER | CLASS_OS,
 	.verify = VERIFY_OPTIONAL,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_spawn_info = {

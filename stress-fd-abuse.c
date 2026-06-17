@@ -1021,7 +1021,8 @@ static void stress_fd_dup2(stress_fd_t *fd)
 		(void)close(fd2);
 }
 
-#if defined(O_CLOEXEC)
+#if defined(HAVE_DUP3) &&	\
+    defined(O_CLOEXEC)
 static void stress_fd_dup3(stress_fd_t *fd)
 {
 	int fd2;
@@ -1899,7 +1900,8 @@ static const fd_func_t fd_funcs[] = {
 	stress_fd_lseek,
 	stress_fd_dup,
 	stress_fd_dup2,
-#if defined(O_CLOEXEC)
+#if defined(HAVE_DUP3) &&	\
+    defined(O_CLOEXEC)
 	stress_fd_dup3,
 #endif
 	stress_fd_bind_af_inet,
@@ -2185,9 +2187,87 @@ static int stress_fd_abuse(stress_args_t *args)
 	return rc;
 }
 
+
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("bind"),
+	STRESS_EX_SYSCALL("creat"),
+	STRESS_EX_SYSCALL("dup"),
+	STRESS_EX_SYSCALL("dup2"),
+#if defined(HAVE_DUP3) &&	\
+    defined(O_CLOEXEC)
+	STRESS_EX_SYSCALL("dup3"),
+#endif
+#if defined(HAVE_SYS_EPOLL_H) &&	\
+    defined(HAVE_EPOLL_CREATE)
+	STRESS_EX_SYSCALL("epoll_create"),
+#endif
+#if defined(HAVE_EVENTFD) &&	\
+    defined(HAVE_SYS_EVENTFD_H)
+	STRESS_EX_SYSCALL("eventfd"),
+#endif
+#if defined(HAVE_SYS_INOTIFY_H)
+	STRESS_EX_SYSCALL("inotify_init"),
+#endif
+#if defined(IN_MASK_CREATE) &&  \
+    defined(IN_MASK_ADD)
+	STRESS_EX_SYSCALL("inotify_add_watch"),
+#endif
+	STRESS_EX_SYSCALL("lseek"),
+#if defined(HAVE_MEMFD_CREATE)
+	STRESS_EX_SYSCALL("memfd_create"),
+#endif
+#if defined(__NR_memfd_secret)
+	STRESS_EX_SYSCALL("memfd_secret"),
+#endif
+	STRESS_EX_SYSCALL("mmap"),
+	STRESS_EX_SYSCALL("open"),
+#if defined(O_NONBLOCK) &&	\
+    defined(O_DIRECTORY) &&	\
+    defined(HAVE_OPENAT)
+	STRESS_EX_SYSCALL("openat"),
+#endif
+#if defined(HAVE_PIDFD_OPEN)
+	STRESS_EX_SYSCALL("pidfd_open"),
+#endif
+	STRESS_EX_SYSCALL("pipe"),
+#if defined(HAVE_PIPE2)
+	STRESS_EX_SYSCALL("pipe2"),
+#endif
+#if defined(POLLIN) &&	\
+    defined(POLLOUT)
+	STRESS_EX_SYSCALL("poll"),
+#endif
+#if defined(HAVE_PPOLL) &&	\
+    defined(POLLIN) &&		\
+    defined(POLLOUT)
+	STRESS_EX_SYSCALL("ppoll"),
+#endif
+#if defined(HAVE_PSELECT)
+	STRESS_EX_SYSCALL("pselect"),
+#endif
+	STRESS_EX_SYSCALL("select"),
+#if defined(SOL_SOCKET)
+	STRESS_EX_SYSCALL("setsockopt"),
+#endif
+	STRESS_EX_SYSCALL("socket"),
+	STRESS_EX_SYSCALL("socketpair"),
+#if defined(HAVE_SYS_TIMERFD_H) &&	\
+    defined(HAVE_TIMERFD_CREATE) &&	\
+    defined(HAVE_TIMERFD_GETTIME) &&	\
+    defined(HAVE_TIMERFD_SETTIME) &&	\
+    defined(CLOCK_REALTIME)
+	STRESS_EX_SYSCALL("timerfd_create"),
+#endif
+#if defined(HAVE_USERFAULTFD)
+	STRESS_EX_SYSCALL("userfaultfd"),
+#endif
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_fd_abuse_info = {
 	.stressor = stress_fd_abuse,
 	.classifier = CLASS_OS,
 	.verify = VERIFY_NONE,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };

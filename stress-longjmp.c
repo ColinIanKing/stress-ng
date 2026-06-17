@@ -129,9 +129,14 @@ static int OPTIMIZE1 stress_longjmp(stress_args_t *args)
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_longjmp_info = {
 	.stressor = stress_longjmp,
 	.classifier = CLASS_CPU | CLASS_HOT,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };

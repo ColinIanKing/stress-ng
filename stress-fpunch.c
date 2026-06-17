@@ -458,12 +458,29 @@ tidy_s_pids:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("fallocate"),
+	STRESS_EX_SYSCALL("ftruncate"),
+#if defined(HAVE_PREAD)
+	STRESS_EX_SYSCALL("pread"),
+#else
+	STRESS_EX_SYSCALL("read"),
+#endif
+#if defined(HAVE_PWRITE)
+	STRESS_EX_SYSCALL("pwrite"),
+#else
+	STRESS_EX_SYSCALL("write"),
+#endif
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_fpunch_info = {
 	.stressor = stress_fpunch,
 	.classifier = CLASS_FILESYSTEM | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_fpunch_info = {

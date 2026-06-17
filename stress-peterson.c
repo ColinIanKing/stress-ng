@@ -282,12 +282,17 @@ static int stress_peterson(stress_args_t *args)
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_peterson_info = {
 	.stressor = stress_peterson,
 	.classifier = CLASS_CPU_CACHE | CLASS_IPC,
 	.verify = VERIFY_ALWAYS,
 	.supported = stress_peterson_supported,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 
 #else

@@ -437,13 +437,18 @@ static int stress_mpfr(stress_args_t *args)
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_mpfr_info = {
 	.stressor = stress_mpfr,
 	.classifier = CLASS_CPU | CLASS_FP | CLASS_COMPUTE,
 	.verify = VERIFY_ALWAYS,
 	.opts = opts,
 	.help = help,
-	.max_metrics_items = SIZEOF_ARRAY(stress_mpfr_methods)
+	.max_metrics_items = SIZEOF_ARRAY(stress_mpfr_methods),
+	.exercises = exercises,
 };
 
 #else

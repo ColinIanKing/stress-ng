@@ -289,11 +289,21 @@ static int stress_mknod(stress_args_t *args)
 	return EXIT_SUCCESS;
 }
 
+static const stress_exercises_t exercises[] = {
+#if defined(HAVE_MKNODAT)
+	STRESS_EX_SYSCALL("mknodat"),
+#endif
+	STRESS_EX_SYSCALL("mknod"),
+	STRESS_EX_SYSCALL("unlink"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_mknod_info = {
 	.stressor = stress_mknod,
 	.classifier = CLASS_FILESYSTEM | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_mknod_info = {

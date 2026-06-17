@@ -1228,7 +1228,6 @@ static const char *stress_memmap_method(const size_t i)
         return (i < SIZEOF_ARRAY(memrate_info)) ? memrate_info[i].name : NULL;
 }
 
-
 static const stress_opt_t opts[] = {
 	{ OPT_memrate_bytes,         "memrate-bytes",  TYPE_ID_UINT64_BYTES_VM, MIN_MEMRATE_BYTES, MAX_MEMRATE_BYTES, NULL },
 	{ OPT_memrate_discontiguous, "memrate-discontiguous", TYPE_ID_BOOL, 0, 1, NULL },
@@ -1239,10 +1238,15 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_memrate_info = {
 	.stressor = stress_memrate,
 	.classifier = CLASS_MEMORY,
 	.opts = opts,
 	.help = help,
-	.max_metrics_items = SIZEOF_ARRAY(memrate_info) + 3
+	.max_metrics_items = SIZEOF_ARRAY(memrate_info) + 3,
+	.exercises = exercises,
 };

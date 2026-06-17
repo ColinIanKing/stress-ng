@@ -666,12 +666,32 @@ finish:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("read"),
+	STRESS_EX_SYSCALL("write"),
+#if defined(HAVE_FSOPEN) &&	\
+    defined(HAVE_FSCONFIG) &&	\
+    defined(HAVE_FSMOUNT) &&	\
+    defined(HAVE_MOVE_MOUNT) &&	\
+    defined(HAVE_SYS_MOUNT_H)
+	STRESS_EX_SYSCALL("fsopen"),
+	STRESS_EX_SYSCALL("fsconfig"),
+	STRESS_EX_SYSCALL("fsmount"),
+	STRESS_EX_SYSCALL("move_mount"),
+#else
+	STRESS_EX_SYSCALL("mount"),
+#endif
+	STRESS_EX_SYSCALL("umount"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_cgroup_info = {
 	.stressor = stress_cgroup_mount,
 	.classifier = CLASS_OS,
 	.supported = stress_cgroup_supported,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_cgroup_info = {

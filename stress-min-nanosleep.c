@@ -485,6 +485,13 @@ err:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("clock_gettime"),
+	STRESS_EX_SYSCALL("nanosleep"),
+	STRESS_EX_SYSCALL("sched_setscheduler"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_min_nanosleep_info = {
 	.stressor = stress_min_nanosleep,
 	.init = stress_min_nanosleep_init,
@@ -492,7 +499,8 @@ const stressor_info_t stress_min_nanosleep_info = {
 	.classifier = CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
 	.opts = opts,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_min_nanosleep_info = {

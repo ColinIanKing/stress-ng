@@ -359,13 +359,18 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_chyperbolic_info = {
 	.stressor = stress_chyperbolic,
 	.classifier = CLASS_CPU | CLASS_FP | CLASS_COMPUTE,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
-	.max_metrics_items = 9
+	.max_metrics_items = 9,
+	.exercises = exercises,
 };
 
 #else

@@ -431,10 +431,25 @@ finish:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("accept"),
+	STRESS_EX_SYSCALL("bind"),
+	STRESS_EX_SYSCALL("close"),
+	STRESS_EX_SYSCALL("connect"),
+	STRESS_EX_SYSCALL("getsockname"),
+	STRESS_EX_SYSCALL("listen"),
+	STRESS_EX_SYSCALL("recv"),
+	STRESS_EX_SYSCALL("send"),
+	STRESS_EX_SYSCALL("shutdown"),
+	STRESS_EX_SYSCALL("socket"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_sockmany_info = {
 	.stressor = stress_sockmany,
 	.classifier = CLASS_NETWORK | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };

@@ -1131,12 +1131,19 @@ static int stress_io_uring(stress_args_t *args)
 	return stress_oomable_child(args, NULL, stress_io_uring_child, STRESS_OOMABLE_NORMAL);
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("io_uring_setup"),
+	STRESS_EX_SYSCALL("io_uring_enter"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_io_uring_info = {
 	.stressor = stress_io_uring,
 	.classifier = CLASS_IO | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_io_uring_info = {

@@ -547,12 +547,31 @@ STRESS_PRAGMA_POP
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("fsync"),
+#if defined(HAVE_FUTIMENS)
+	STRESS_EX_SYSCALL("futimens"),
+#endif
+	STRESS_EX_SYSCALL("gettimeofday"),
+#if defined(HAVE_UTIME)
+	STRESS_EX_SYSCALL("utime"),
+#endif
+#if defined(HAVE_UTIMES)
+	STRESS_EX_SYSCALL("utimes"),
+#endif
+#if defined(HAVE_UTIMENSAT)
+	STRESS_EX_SYSCALL("utimensat"),
+#endif
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_utime_info = {
 	.stressor = stress_utime,
 	.classifier = CLASS_FILESYSTEM | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
-	.help = help
+	.help = help,
+	.exercises = exercises
 };
 
 #else

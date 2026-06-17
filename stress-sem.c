@@ -309,6 +309,17 @@ static int stress_sem(stress_args_t *args)
 	return EXIT_SUCCESS;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("sem_destroy"),
+	STRESS_EX_SYSCALL("sem_getvalue"),
+	STRESS_EX_SYSCALL("sem_init"),
+	STRESS_EX_SYSCALL("sem_post"),
+	STRESS_EX_SYSCALL("sem_timedwait"),
+	STRESS_EX_SYSCALL("sem_trywait"),
+	STRESS_EX_SYSCALL("sem_wait"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_sem_info = {
 	.stressor = stress_sem,
 	.classifier = CLASS_OS | CLASS_SCHEDULER | CLASS_IPC,
@@ -316,7 +327,8 @@ const stressor_info_t stress_sem_info = {
 	.verify = VERIFY_ALWAYS,
 	.init = stress_sem_init,
 	.deinit = stress_sem_deinit,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_sem_info = {

@@ -175,7 +175,6 @@ static int stress_rofs_file_access(
 	(void)info;
 
 	if (access(path, W_OK) == 0) {
-
 		if ((info->statbuf.st_mode & S_IFMT) != S_IFLNK) {
 			int fd;
 
@@ -994,6 +993,23 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("access"),
+	STRESS_EX_SYSCALL("fsync"),
+	STRESS_EX_SYSCALL("ioctl"),
+	STRESS_EX_SYSCALL("lseek"),
+	STRESS_EX_SYSCALL("lstat"),
+	STRESS_EX_SYSCALL("mmap"),
+	STRESS_EX_SYSCALL("munmap"),
+	STRESS_EX_SYSCALL("open"),
+	STRESS_EX_SYSCALL("read"),
+#if defined(AT_EMPTY_PATH) &&   \
+    defined(AT_SYMLINK_NOFOLLOW)
+	STRESS_EX_SYSCALL("statx"),
+#endif
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_rofs_info = {
 	.stressor = stress_rofs,
 	.classifier = CLASS_FILESYSTEM | CLASS_OS,
@@ -1001,4 +1017,5 @@ const stressor_info_t stress_rofs_info = {
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.max_metrics_items = 12,
+	.exercises = exercises,
 };

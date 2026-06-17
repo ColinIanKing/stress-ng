@@ -465,12 +465,22 @@ stop_timers:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("timer_create"),
+	STRESS_EX_SYSCALL("timer_delete"),
+	STRESS_EX_SYSCALL("timer_settime"),
+	STRESS_EX_SYSCALL("setitimer"),
+	STRESS_EX_SYSCALL("sched_yield"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_timermix_info = {
 	.stressor = stress_timermix,
 	.classifier = CLASS_SIGNAL | CLASS_INTERRUPT | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
-	.max_metrics_items = TIMER_INFO_SIZE + ITIMER_INFO_SIZE
+	.max_metrics_items = TIMER_INFO_SIZE + ITIMER_INFO_SIZE,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_timermix_info = {

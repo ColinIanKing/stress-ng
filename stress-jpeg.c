@@ -497,12 +497,17 @@ static int stress_jpeg(stress_args_t *args)
 	return EXIT_SUCCESS;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_jpeg_info = {
 	.stressor = stress_jpeg,
 	.classifier = CLASS_CPU | CLASS_COMPUTE,
 	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_jpeg_info = {

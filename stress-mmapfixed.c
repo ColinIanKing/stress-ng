@@ -311,10 +311,25 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("madvise"),
+	STRESS_EX_SYSCALL("mincore"),
+	STRESS_EX_SYSCALL("mmap"),
+#if defined(HAVE_MREMAP) &&	\
+    NEED_GLIBC(2,4,0) && 	\
+    defined(MREMAP_FIXED) &&	\
+    defined(MREMAP_MAYMOVE)
+	STRESS_EX_SYSCALL("mremap"),
+#endif
+	STRESS_EX_SYSCALL("munmap"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_mmapfixed_info = {
 	.stressor = stress_mmapfixed,
 	.classifier = CLASS_VM | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };

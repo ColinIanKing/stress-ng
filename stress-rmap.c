@@ -360,10 +360,15 @@ cleanup:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_rmap_info = {
 	.stressor = stress_rmap,
 	.classifier = CLASS_OS | CLASS_MEMORY,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.opts = opts,
+	.exercises = exercises,
 };

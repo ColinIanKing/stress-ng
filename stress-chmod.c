@@ -365,9 +365,22 @@ tidy:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("chmod"),
+	STRESS_EX_SYSCALL("fchmod"),
+#if defined(HAVE_FCHMODAT)
+	STRESS_EX_SYSCALL("fchmodat"),
+#endif
+#if defined(HAVE_FCHMODAT2)
+	STRESS_EX_SYSCALL("fchmodat2"),
+#endif
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_chmod_info = {
 	.stressor = stress_chmod,
 	.classifier = CLASS_FILESYSTEM | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };

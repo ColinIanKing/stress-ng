@@ -205,9 +205,19 @@ finish:
 	return EXIT_SUCCESS;
 }
 
+static const stress_exercises_t exercises[] = {
+#if defined(HAVE_MPROTECT) &&	\
+    defined(PROT_READ)
+	STRESS_EX_SYSCALL("mprotect"),
+#endif
+	STRESS_EX_SYSCALL("munmap"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_vm_segv_info = {
 	.stressor = stress_vm_segv,
 	.classifier = CLASS_VM | CLASS_MEMORY | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };

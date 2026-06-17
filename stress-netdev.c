@@ -270,11 +270,17 @@ static int stress_netdev(stress_args_t *args)
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("ioctl"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_netdev_info = {
 	.stressor = stress_netdev,
 	.classifier = CLASS_NETWORK,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_netdev_info = {

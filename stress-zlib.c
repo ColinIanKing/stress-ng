@@ -1873,12 +1873,17 @@ again:
 	return ret;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_zlib_info = {
 	.stressor = stress_zlib,
 	.classifier = CLASS_CPU | CLASS_CPU_CACHE | CLASS_MEMORY | CLASS_COMPUTE,
 	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_zlib_info = {

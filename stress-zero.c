@@ -284,9 +284,15 @@ static int stress_zero(stress_args_t *args)
 	return rc;
 }
 
+
 static const stress_opt_t opts[] = {
         { OPT_zero_read, "zero-read", TYPE_ID_BOOL, 0, 1, NULL },
 	END_OPT,
+};
+
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("read"),
+	STRESS_EX_END,
 };
 
 const stressor_info_t stress_zero_info = {
@@ -294,5 +300,6 @@ const stressor_info_t stress_zero_info = {
 	.classifier = CLASS_DEV | CLASS_MEMORY | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
 	.opts = opts,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };

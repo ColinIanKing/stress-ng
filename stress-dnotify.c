@@ -85,7 +85,7 @@ typedef struct {
  *	required dnotify event flags 'flags'.
  */
 static int dnotify_exercise(
-	stress_args_t *args,	/* Stressor args */
+	stress_args_t *args,		/* Stressor args */
 	const char *filename,		/* Filename in test */
 	const char *watchname,		/* File or directory to watch using dnotify */
 	const stress_dnotify_helper func,/* Helper func */
@@ -474,12 +474,26 @@ tidy:
 
 	return rc;
 }
+
+
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("chmod"),
+	STRESS_EX_SYSCALL("close"),
+	STRESS_EX_SYSCALL("fcntl"),
+	STRESS_EX_SYSCALL("open"),
+	STRESS_EX_SYSCALL("rename"),
+	STRESS_EX_SYSCALL("unlink"),
+	STRESS_EX_SYSCALL("write"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_dnotify_info = {
 	.stressor = stress_dnotify,
 	.classifier = CLASS_FILESYSTEM | CLASS_OS,
 	.supported = stress_dnotify_supported,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_dnotify_info = {

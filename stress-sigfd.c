@@ -194,11 +194,23 @@ finish:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("read"),
+#if defined(__linux__)
+	STRESS_EX_SYSCALL("rt_sigreturn"),
+#endif
+	STRESS_EX_SYSCALL("signalfd"),
+	STRESS_EX_SYSCALL("sigprocmask"),
+	STRESS_EX_SYSCALL("sigqueue"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_sigfd_info = {
 	.stressor = stress_sigfd,
 	.classifier = CLASS_SIGNAL | CLASS_OS,
 	.verify = VERIFY_OPTIONAL,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_sigfd_info = {

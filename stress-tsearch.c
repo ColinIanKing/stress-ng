@@ -151,12 +151,17 @@ abort:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_tsearch_info = {
 	.stressor = stress_tsearch,
 	.classifier = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY | CLASS_SEARCH,
 	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 
 #else
@@ -167,7 +172,7 @@ const stressor_info_t stress_tsearch_info = {
 	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help,
-	.unimplemented_reason = "built without libc tsearch() support"
+	.unimplemented_reason = "built without libc tsearch() support",
 };
 
 #endif

@@ -192,11 +192,21 @@ reap:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+#if defined(__linux__)
+	STRESS_EX_SYSCALL("rt_sigreturn"),
+#endif
+	STRESS_EX_SYSCALL("sigqueue"),
+	STRESS_EX_SYSCALL("sigwaitinfo"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_sigrt_info = {
 	.stressor = stress_sigrt,
 	.classifier = CLASS_SIGNAL | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_sigrt_info = {

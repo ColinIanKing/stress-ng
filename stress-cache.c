@@ -1460,11 +1460,19 @@ tidy_cpus:
 	return ret;
 }
 
+static const stress_exercises_t exercises[] = {
+#if defined(__NR_cacheflush)
+	STRESS_EX_SYSCALL("cacheflush"),
+#endif
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_cache_info = {
 	.stressor = stress_cache,
 	.classifier = CLASS_CPU_CACHE,
 	.opts = opts,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 
 #else

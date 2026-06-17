@@ -315,13 +315,24 @@ finish:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("bind"),
+	STRESS_EX_SYSCALL("close"),
+	STRESS_EX_SYSCALL("socket"),
+	STRESS_EX_SYSCALL("setsockopt"),
+	STRESS_EX_SYSCALL("sendto"),
+	STRESS_EX_SYSCALL("recv"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_rawudp_info = {
 	.stressor = stress_rawudp,
 	.classifier = CLASS_NETWORK | CLASS_OS,
 	.opts = opts,
 	.supported = stress_rawudp_supported,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_rawudp_info = {

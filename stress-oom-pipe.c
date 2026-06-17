@@ -242,11 +242,20 @@ static int stress_oom_pipe(stress_args_t *args)
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("fcntl"),
+	STRESS_EX_SYSCALL("pipe"),
+	STRESS_EX_SYSCALL("read"),
+	STRESS_EX_SYSCALL("write"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_oom_pipe_info = {
 	.stressor = stress_oom_pipe,
 	.classifier = CLASS_MEMORY | CLASS_OS | CLASS_PATHOLOGICAL,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_oom_pipe_info = {

@@ -572,12 +572,59 @@ tidy:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("close"),
+	STRESS_EX_SYSCALL("dup"),
+	STRESS_EX_SYSCALL("dup2"),
+#if defined(HAVE_SYS_EPOLL_H)
+	STRESS_EX_SYSCALL("epoll_create"),
+#endif
+#if defined(HAVE_SYS_EVENTFD_H) &&	\
+    defined(HAVE_EVENTFD) &&		\
+    NEED_GLIBC(2,8,0)
+	STRESS_EX_SYSCALL("eventfd"),
+#endif
+#if defined(HAVE_FACCESSAT)
+	STRESS_EX_SYSCALL("faccessat"),
+#endif
+#if defined(HAVE_SYS_FANOTIFY_H) &&	\
+    defined(HAVE_FANOTIFY)
+	STRESS_EX_SYSCALL("fanotify_init"),
+#endif
+	STRESS_EX_SYSCALL("fstat"),
+#if defined(HAVE_INOTIFY) &&		\
+    defined(HAVE_SYS_INOTIFY_H)
+	STRESS_EX_SYSCALL("inotify_init"),
+#endif
+	STRESS_EX_SYSCALL("open"),
+	STRESS_EX_SYSCALL("pipe"),
+#if defined(HAVE_LIB_RT) &&	\
+    defined(HAVE_SHM_OPEN) &&	\
+    defined(HAVE_SHM_UNLINK)
+	STRESS_EX_SYSCALL("shm_open"),
+	STRESS_EX_SYSCALL("unlink"),
+#endif
+#if defined(HAVE_SYS_SIGNALFD_H) &&     \
+    NEED_GLIBC(2,8,0) &&                \
+    defined(HAVE_SIGQUEUE) &&		\
+    defined(SIGRTMIN)
+	STRESS_EX_SYSCALL("signalfd"),
+#endif
+	STRESS_EX_SYSCALL("socket"),
+#if defined(HAVE_USERFAULTFD) &&	\
+    defined(HAVE_LINUX_USERFAULTFD_H)
+	STRESS_EX_SYSCALL("userfaultfd"),
+#endif
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_close_info = {
 	.stressor = stress_close,
 	.classifier = CLASS_OS,
 	.verify = VERIFY_ALWAYS,
 	.opts = opts,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_close_info = {

@@ -412,11 +412,21 @@ tidy:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("add_key"),
+	STRESS_EX_SYSCALL("keyctl"),
+#if defined(HAVE_REQUEST_KEY)
+	STRESS_EX_SYSCALL("request_key"),
+#endif
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_key_info = {
 	.stressor = stress_key,
 	.classifier = CLASS_OS,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_key_info = {

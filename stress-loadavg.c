@@ -293,11 +293,21 @@ static int stress_loadavg(stress_args_t *args)
 	return EXIT_SUCCESS;
 }
 
+static const stress_exercises_t exercises[] = {
+#if defined(LOADAVG_IO)
+	STRESS_EX_SYSCALL("lseek"),
+	STRESS_EX_SYSCALL("write"),
+#endif
+	STRESS_EX_SYSCALL("sched_yield"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_loadavg_info = {
 	.stressor = stress_loadavg,
 	.classifier = CLASS_SCHEDULER | CLASS_OS,
 	.opts = opts,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_loadavg_info = {

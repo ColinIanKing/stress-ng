@@ -246,10 +246,18 @@ err:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("lsm_get_self_attr"),
+	STRESS_EX_SYSCALL("lsm_list_modules"),
+	STRESS_EX_SYSCALL("lsm_set_self_attr"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_lsm_info = {
 	.stressor = stress_lsm,
 	.classifier = CLASS_OS | CLASS_SECURITY,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_lsm_info = {

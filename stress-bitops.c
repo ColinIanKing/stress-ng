@@ -1220,11 +1220,16 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_bitops_info = {
 	.stressor = stress_bitops,
 	.classifier = CLASS_CPU | CLASS_INTEGER | CLASS_COMPUTE,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
-	.max_metrics_items = SIZEOF_ARRAY(bitops_methods)
+	.max_metrics_items = SIZEOF_ARRAY(bitops_methods),
+	.exercises = exercises,
 };

@@ -400,6 +400,10 @@ static int stress_fractal(stress_args_t *args)
 	return EXIT_SUCCESS;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_fractal_info = {
 	.stressor = stress_fractal,
 	.classifier = CLASS_CPU | CLASS_FP | CLASS_COMPUTE,
@@ -407,5 +411,6 @@ const stressor_info_t stress_fractal_info = {
 	.deinit = stress_fractal_deinit,
 	.verify = VERIFY_NONE,
 	.opts = opts,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };

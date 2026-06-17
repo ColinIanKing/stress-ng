@@ -474,12 +474,19 @@ static int stress_seccomp(stress_args_t *args)
 	return EXIT_SUCCESS;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("prctl"),
+	STRESS_EX_SYSCALL("seccomp"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_seccomp_info = {
 	.stressor = stress_seccomp,
 	.supported = stress_seccomp_supported,
 	.classifier = CLASS_OS,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_seccomp_info = {

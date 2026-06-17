@@ -348,11 +348,22 @@ static int stress_getdent(stress_args_t *args)
 	return EXIT_SUCCESS;
 }
 
+static const stress_exercises_t exercises[] = {
+#if defined(HAVE_GETDENTS)
+	STRESS_EX_SYSCALL("getdents"),
+#endif
+#if defined(HAVE_GETDENTS64)
+	STRESS_EX_SYSCALL("getdents64"),
+#endif
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_getdent_info = {
 	.stressor = stress_getdent,
 	.classifier = CLASS_FILESYSTEM | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_getdent_info = {

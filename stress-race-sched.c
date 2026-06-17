@@ -459,12 +459,22 @@ static int stress_race_sched(stress_args_t *args)
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("fork"),
+	STRESS_EX_SYSCALL("sched_getaffinity"),
+	STRESS_EX_SYSCALL("sched_setaffinity"),
+	STRESS_EX_SYSCALL("sched_yield"),
+	STRESS_EX_SYSCALL("waitpid"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_race_sched_info = {
 	.stressor = stress_race_sched,
 	.classifier = CLASS_SCHEDULER | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 
 #else

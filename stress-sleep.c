@@ -463,12 +463,24 @@ tidy:
 	return ret;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("nanosleep"),
+#if defined(HAVE_PSELECT)
+	STRESS_EX_SYSCALL("pselect"),
+#endif
+#if defined(HAVE_SELECT)
+	STRESS_EX_SYSCALL("select"),
+#endif
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_sleep_info = {
 	.stressor = stress_sleep,
 	.classifier = CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_sleep_info = {

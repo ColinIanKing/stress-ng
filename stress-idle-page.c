@@ -126,11 +126,19 @@ next:
 	return EXIT_SUCCESS;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("lseek"),
+	STRESS_EX_SYSCALL("read"),
+	STRESS_EX_SYSCALL("write"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_idle_page_info = {
 	.stressor = stress_idle_page,
 	.supported = stress_idle_page_supported,
 	.classifier = CLASS_OS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_idle_page_info = {

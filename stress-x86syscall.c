@@ -528,13 +528,39 @@ static int stress_x86syscall(stress_args_t *args)
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+#if defined(__NR_getcpu)
+	STRESS_EX_SYSCALL("getcpu"),
+#endif
+#if defined(__NR_geteuid)
+	STRESS_EX_SYSCALL("geteuid"),
+#endif
+#if defined(__NR_getgid)
+	STRESS_EX_SYSCALL("getgid"),
+#endif
+#if defined(__NR_getpid)
+	STRESS_EX_SYSCALL("getpid"),
+#endif
+#if defined(__NR_gettimeofday)
+	STRESS_EX_SYSCALL("gettimeofday"),
+#endif
+#if defined(__NR_getuid)
+	STRESS_EX_SYSCALL("getuid"),
+#endif
+#if defined(__NR_time)
+	STRESS_EX_SYSCALL("time"),
+#endif
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_x86syscall_info = {
 	.stressor = stress_x86syscall,
 	.classifier = CLASS_OS,
 	.supported = stress_x86syscall_supported,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_x86syscall_info = {

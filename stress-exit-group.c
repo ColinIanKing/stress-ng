@@ -246,11 +246,24 @@ again:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+#if defined(__NR_exit_group) && \
+    defined(HAVE_SYSCALL)
+	STRESS_EX_SYSCALL("exit_group"),
+#else
+	STRESS_EX_SYSCALL("exit"),
+#endif
+	STRESS_EX_SYSCALL("fork"),
+	STRESS_EX_SYSCALL("waitpid"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_exit_group_info = {
 	.stressor = stress_exit_group,
 	.classifier = CLASS_SCHEDULER | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_exit_group_info = {

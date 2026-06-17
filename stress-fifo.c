@@ -356,12 +356,26 @@ tidy_pids:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("mkfifo"),
+	STRESS_EX_SYSCALL("read"),
+#if defined(HAVE_POLL_H) && 	\
+    defined(HAVE_POLL)
+	STRESS_EX_SYSCALL("poll"),
+#elif defined(HAVE_SELECT)
+	STRESS_EX_SYSCALL("select"),
+#endif
+	STRESS_EX_SYSCALL("write"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_fifo_info = {
 	.stressor = stress_fifo,
 	.classifier = CLASS_PIPE_IO | CLASS_OS | CLASS_SCHEDULER | CLASS_IPC,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_fifo_info = {

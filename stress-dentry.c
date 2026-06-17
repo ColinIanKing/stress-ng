@@ -485,10 +485,35 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("access"),
+	STRESS_EX_SYSCALL("close"),
+	STRESS_EX_SYSCALL("fstat"),
+#if defined(HAVE_FLOCK) &&	\
+    defined(LOCK_EX) &&		\
+    defined(LOCK_UN)
+	STRESS_EX_SYSCALL("flock"),
+#endif
+#if defined(HAVE_FUTIMENS) &&	\
+    defined(UTIME_NOW)
+	STRESS_EX_SYSCALL("futimens"),
+#endif
+	STRESS_EX_SYSCALL("lseek"),
+	STRESS_EX_SYSCALL("open"),
+	STRESS_EX_SYSCALL("sync"),
+	STRESS_EX_SYSCALL("unlink"),
+#if defined(HAVE_UTIME_H)
+	STRESS_EX_SYSCALL("utime"),
+#endif
+	STRESS_EX_SYSCALL("write"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_dentry_info = {
 	.stressor = stress_dentry,
 	.classifier = CLASS_FILESYSTEM | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };

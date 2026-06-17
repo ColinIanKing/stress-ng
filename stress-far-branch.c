@@ -652,13 +652,20 @@ cleanup:
 	return EXIT_SUCCESS;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("mmap"),
+	STRESS_EX_SYSCALL("munmap"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_far_branch_info = {
 	.stressor = stress_far_branch,
 	.classifier = CLASS_CPU_CACHE,
 	.verify = VERIFY_ALWAYS,
 	.supported = stress_asm_ret_supported,
 	.opts = opts,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_far_branch_info = {

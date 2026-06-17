@@ -337,12 +337,23 @@ finish:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+#if defined(HAVE_POSIX_FADVISE) &&	\
+    defined(SHIM_POSIX_FADV_DONTNEED)
+	STRESS_EX_SYSCALL("posix_fadvise"),
+#endif
+	STRESS_EX_SYSCALL("pread"),
+	STRESS_EX_SYSCALL("readahead"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_readahead_info = {
 	.stressor = stress_readahead,
 	.classifier = CLASS_IO | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_readahead_info = {

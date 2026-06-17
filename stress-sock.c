@@ -1513,10 +1513,32 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
+static const stress_exercises_t exercises[] = {
+#if defined(HAVE_ACCEPT4)
+	STRESS_EX_SYSCALL("accept4"),
+#endif
+	STRESS_EX_SYSCALL("accept"),
+	STRESS_EX_SYSCALL("bind"),
+	STRESS_EX_SYSCALL("close"),
+	STRESS_EX_SYSCALL("connect"),
+	STRESS_EX_SYSCALL("getpeername"),
+	STRESS_EX_SYSCALL("getsockname"),
+	STRESS_EX_SYSCALL("getsockopt"),
+	STRESS_EX_SYSCALL("ioctl"),
+	STRESS_EX_SYSCALL("listen"),
+	STRESS_EX_SYSCALL("mmap"),
+	STRESS_EX_SYSCALL("munmap"),
+	STRESS_EX_SYSCALL("setsockopt"),
+	STRESS_EX_SYSCALL("shutdown"),
+	STRESS_EX_SYSCALL("socket"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_sock_info = {
 	.stressor = stress_sock,
 	.classifier = CLASS_NETWORK | CLASS_OS | CLASS_IPC,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };

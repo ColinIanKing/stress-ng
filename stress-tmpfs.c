@@ -454,12 +454,38 @@ static int stress_tmpfs(stress_args_t *args)
 
 	return ret;
 }
+
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("close"),
+#if (defined(HAVE_SYS_XATTR_H) ||       \
+     defined(HAVE_ATTR_XATTR_H)) &&     \
+    defined(HAVE_FREMOVEXATTR) &&       \
+    defined(HAVE_FSETXATTR)
+	STRESS_EX_SYSCALL("fremovexattr"),
+	STRESS_EX_SYSCALL("fstetxattr"),
+#endif
+	STRESS_EX_SYSCALL("fsync"),
+	STRESS_EX_SYSCALL("lseek"),
+	STRESS_EX_SYSCALL("madvise"),
+	STRESS_EX_SYSCALL("mincore"),
+	STRESS_EX_SYSCALL("mmap"),
+	STRESS_EX_SYSCALL("msync"),
+	STRESS_EX_SYSCALL("munmap"),
+	STRESS_EX_SYSCALL("open"),
+	STRESS_EX_SYSCALL("read"),
+	STRESS_EX_SYSCALL("statfs"),
+	STRESS_EX_SYSCALL("unlink"),
+	STRESS_EX_SYSCALL("write"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_tmpfs_info = {
 	.stressor = stress_tmpfs,
 	.classifier = CLASS_MEMORY | CLASS_VM | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_tmpfs_info = {

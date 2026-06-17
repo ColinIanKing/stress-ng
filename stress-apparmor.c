@@ -750,12 +750,17 @@ err_free_s_pids:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_apparmor_info = {
 	.stressor = stress_apparmor,
 	.supported = stress_apparmor_supported,
 	.classifier = CLASS_OS | CLASS_SECURITY,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 
 #else

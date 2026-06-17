@@ -606,12 +606,18 @@ static int stress_llc_affinity(stress_args_t *args)
 	return EXIT_SUCCESS;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("sched_setaffinity"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_llc_affinity_info = {
 	.stressor = stress_llc_affinity,
 	.classifier = CLASS_CPU_CACHE,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 
 #else

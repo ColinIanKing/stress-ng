@@ -280,11 +280,22 @@ static int stress_mlockmany(stress_args_t *args)
 	return stress_oomable_child(args, NULL, stress_mlockmany_child, STRESS_OOMABLE_NORMAL);
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("mlock"),
+	STRESS_EX_SYSCALL("mlockall"),
+	STRESS_EX_SYSCALL("mmap"),
+	STRESS_EX_SYSCALL("munlock"),
+	STRESS_EX_SYSCALL("munlockall"),
+	STRESS_EX_SYSCALL("munmap"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_mlockmany_info = {
 	.stressor = stress_mlockmany,
 	.classifier = CLASS_VM | CLASS_OS | CLASS_PATHOLOGICAL,
 	.opts = opts,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 
 #else

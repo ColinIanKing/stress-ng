@@ -270,11 +270,17 @@ tidy_s_pids:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("mprotect"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_mprotect_info = {
 	.stressor = stress_mprotect,
 	.classifier = CLASS_VM | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_mprotect_info = {

@@ -4922,11 +4922,18 @@ deinit:
 
 	return rc;
 }
+
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("ioctl"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_dev_info = {
 	.stressor = stress_dev,
 	.classifier = CLASS_DEV | CLASS_OS,
 	.opts = opts,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_dev_info = {

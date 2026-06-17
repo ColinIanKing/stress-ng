@@ -915,11 +915,32 @@ exit_no_sysfs_entries:
 	goto exit_free;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("close"),
+	STRESS_EX_SYSCALL("fstat"),
+	STRESS_EX_SYSCALL("ioctl"),
+	STRESS_EX_SYSCALL("lseek"),
+	STRESS_EX_SYSCALL("mmap"),
+	STRESS_EX_SYSCALL("mumap"),
+	STRESS_EX_SYSCALL("open"),
+#if defined(HAVE_POLL_H) &&	\
+    defined(HAVE_POLL)
+	STRESS_EX_SYSCALL("poll"),
+#endif
+#if defined(HAVE_PPOLL)
+	STRESS_EX_SYSCALL("ppoll"),
+#endif
+	STRESS_EX_SYSCALL("read"),
+	STRESS_EX_SYSCALL("select"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_sysfs_info = {
 	.stressor = stress_sysfs,
 	.classifier = CLASS_OS,
 	.verify = VERIFY_OPTIONAL,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_sysfs_info = {

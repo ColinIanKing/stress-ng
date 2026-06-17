@@ -492,13 +492,36 @@ tidy:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("close"),
+	STRESS_EX_SYSCALL("ioctl"),
+#if defined(HAVE_FALLOCATE)
+	STRESS_EX_SYSCALL("fallocate"),
+#endif
+#if defined(F_GETFL) &&	\
+    defined(F_SETFL) &&	\
+    defined(O_DIRECT)
+	STRESS_EX_SYSCALL("fcntl"),
+#endif
+	STRESS_EX_SYSCALL("ftruncate"),
+	STRESS_EX_SYSCALL("lseek"),
+	STRESS_EX_SYSCALL("open"),
+	STRESS_EX_SYSCALL("mmap"),
+#if defined(MS_ASYNC)
+	STRESS_EX_SYSCALL("msync"),
+#endif
+	STRESS_EX_SYSCALL("munmap"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_loop_info = {
 	.stressor = stress_loop,
 	.supported = stress_loop_supported,
 	.classifier = CLASS_OS | CLASS_DEV,
 	.verify = VERIFY_ALWAYS,
 	.opts = opts,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 

@@ -178,12 +178,17 @@ abort:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_judy_info = {
 	.stressor = stress_judy,
 	.classifier = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY,
 	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_judy_info = {

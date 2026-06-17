@@ -577,13 +577,20 @@ tidy:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("sigaction"),
+	STRESS_EX_SYSCALL("sigprocmask"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_sigsegv_info = {
 	.stressor = stress_sigsegv,
 	.classifier = CLASS_SIGNAL | CLASS_OS,
 #if defined(SA_SIGINFO)
 	.verify = VERIFY_OPTIONAL,
 #endif
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 
 #else

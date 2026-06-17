@@ -47,8 +47,9 @@ static const stress_opt_t opts[] = {
  */
 static inline void stress_cpu_online_set_affinity(const uint32_t cpu)
 {
-#if defined(HAVE_SCHED_GETAFFINITY) &&	\
+#if defined(HAVE_SCHED_GETAFFINITY) && \
     defined(HAVE_SCHED_SETAFFINITY)
+
 	cpu_set_t mask;
 
 	CPU_ZERO(&mask);
@@ -421,13 +422,21 @@ static int stress_cpu_online(stress_args_t *args)
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+#if defined(HAVE_SCHED_SETAFFINITY)
+	STRESS_EX_SYSCALL("sched_setaffinity"),
+#endif
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_cpu_online_info = {
 	.stressor = stress_cpu_online,
 	.supported = stress_cpu_online_supported,
 	.classifier = CLASS_CPU | CLASS_OS | CLASS_PATHOLOGICAL,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_cpu_online_info = {

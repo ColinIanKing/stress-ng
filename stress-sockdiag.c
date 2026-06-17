@@ -330,11 +330,20 @@ static int stress_sockdiag(stress_args_t *args)
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("close"),
+	STRESS_EX_SYSCALL("recvmsg"),
+	STRESS_EX_SYSCALL("sendmsg"),
+	STRESS_EX_SYSCALL("socket"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_sockdiag_info = {
 	.stressor = stress_sockdiag,
 	.classifier = CLASS_NETWORK | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_sockdiag_info = {

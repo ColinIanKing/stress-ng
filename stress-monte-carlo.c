@@ -649,6 +649,10 @@ static int stress_monte_carlo(stress_args_t *args)
 	return EXIT_SUCCESS;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_monte_carlo_info = {
 	.stressor = stress_monte_carlo,
 	.opts = opts,
@@ -656,5 +660,6 @@ const stressor_info_t stress_monte_carlo_info = {
 	.verify = VERIFY_NONE,
 	.help = help,
 	.max_metrics_items = SIZEOF_ARRAY(rand_info) *
-			     SIZEOF_ARRAY(stress_monte_carlo_methods)
+			     SIZEOF_ARRAY(stress_monte_carlo_methods),
+	.exercises = exercises,
 };

@@ -132,12 +132,18 @@ static int stress_personality(stress_args_t *args)
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("personality"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_personality_info = {
 	.stressor = stress_personality,
 	.classifier = CLASS_OS,
 	.verify = VERIFY_ALWAYS,
 	.supported = stress_personality_supported,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_personality_info = {

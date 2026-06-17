@@ -565,10 +565,28 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
+static const stress_exercises_t exercises[] = {
+#if defined(HAVE_FLOCK) &&	\
+    defined(LOCK_EX) &&		\
+    defined(LOCK_UN) &&		\
+    defined(O_DIRECTORY)
+	STRESS_EX_SYSCALL("flock"),
+#endif
+	STRESS_EX_SYSCALL("mkdir"),
+#if defined(HAVE_MKDIRAT)
+	STRESS_EX_SYSCALL("mkdirat"),
+#endif
+	STRESS_EX_SYSCALL("rename"),
+	STRESS_EX_SYSCALL("rmdir"),
+	STRESS_EX_SYSCALL("unlink"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_dir_info = {
 	.stressor = stress_dir,
 	.classifier = CLASS_FILESYSTEM | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };

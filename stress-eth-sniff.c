@@ -177,12 +177,19 @@ static int stress_eth_sniff(stress_args_t *args)
 	return EXIT_SUCCESS;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("socket"),
+	STRESS_EX_SYSCALL("recvfrom"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_eth_sniff_info = {
 	.stressor = stress_eth_sniff,
 	.classifier = CLASS_NETWORK | CLASS_OS,
 	.supported = stress_eth_sniff_supported,
 	.verify = VERIFY_NONE,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_eth_sniff_info = {

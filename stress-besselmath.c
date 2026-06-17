@@ -610,13 +610,18 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_besselmath_info = {
 	.stressor = stress_besselmath,
 	.classifier = CLASS_CPU | CLASS_FP |CLASS_COMPUTE,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
-	.max_metrics_items = SIZEOF_ARRAY(stress_besselmath_methods)
+	.max_metrics_items = SIZEOF_ARRAY(stress_besselmath_methods),
+	.exercises = exercises,
 };
 
 #else

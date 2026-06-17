@@ -270,11 +270,22 @@ tidy_s_pids:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("fork"),
+	STRESS_EX_SYSCALL("sched_getscheduler"),
+	STRESS_EX_SYSCALL("sched_setscheduler"),
+	STRESS_EX_SYSCALL("sched_yield"),
+	STRESS_EX_SYSCALL("nice"),
+	STRESS_EX_SYSCALL("wait"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_resched_info = {
 	.stressor = stress_resched,
 	.classifier = CLASS_SCHEDULER | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 
 #else

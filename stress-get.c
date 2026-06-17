@@ -836,7 +836,7 @@ static int stress_lookup_dcookie(stress_args_t *args)
 	return EXIT_SUCCESS;
 }
 
-static int stress_nslist(stress_args_t *args)
+static int stress_listns(stress_args_t *args)
 {
 	static const int ns_types[] = {
 		0,		/* ALL */
@@ -1033,7 +1033,7 @@ static const stress_get_func_t stress_get_funcs[] = {
 	stress_gettimeofday,
 	stress_getuid,
 	stress_lookup_dcookie,
-	stress_nslist,
+	stress_listns,
 	stress_prlimit,
 	stress_sgetmask,
 	stress_statfs,
@@ -1096,12 +1096,96 @@ static int stress_get(stress_args_t *args)
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+#if defined(HAVE_SYS_TIMEX_H) &&	\
+    defined(HAVE_ADJTIME)
+	STRESS_EX_SYSCALL("adjtime"),
+#endif
+#if defined(HAVE_SYS_TIMEX_H) &&	\
+    defined(HAVE_ADJTIMEX)
+	STRESS_EX_SYSCALL("adjtimex"),
+#endif
+	STRESS_EX_SYSCALL("getcwd"),
+#if defined(HAVE_GETDOMAINNAME)
+	STRESS_EX_SYSCALL("getdomainname"),
+#endif
+#if defined(HAVE_GETDTABLESIZE)
+	STRESS_EX_SYSCALL("getdtablesize"),
+#endif
+	STRESS_EX_SYSCALL("getegid"),
+	STRESS_EX_SYSCALL("geteuid"),
+	STRESS_EX_SYSCALL("getgid"),
+#if defined(HAVE_GETHOSTNAME)
+	STRESS_EX_SYSCALL("gethostname"),
+#endif
+#if defined(HAVE_GETPGID)
+	STRESS_EX_SYSCALL("getpgid"),
+#endif
+#if defined(HAVE_GETPGRP)
+	STRESS_EX_SYSCALL("getpgrp"),
+#endif
+	STRESS_EX_SYSCALL("getppid"),
+#if defined(HAVE_GETPRIORITY)
+	STRESS_EX_SYSCALL("getpriority"),
+#endif
+#if defined(HAVE_GETRESGID)
+	STRESS_EX_SYSCALL("getresgid"),
+#endif
+#if defined(HAVE_GETRESUID)
+	STRESS_EX_SYSCALL("getresuid"),
+#endif
+	STRESS_EX_SYSCALL("getrlimit"),
+	STRESS_EX_SYSCALL("getrusage"),
+#if defined(HAVE_GETSID)
+	STRESS_EX_SYSCALL("getsid"),
+#endif
+#if defined(HAVE_GETTID)
+	STRESS_EX_SYSCALL("gettid"),
+#endif
+#if defined(HAVE_GETTIMEOFDAY)
+	STRESS_EX_SYSCALL("gettimeofday"),
+#endif
+	STRESS_EX_SYSCALL("getuid"),
+#if defined(HAVE_LOOKUP_DCOOKIE)
+	STRESS_EX_SYSCALL("lookup_dcookie"),
+#endif
+#if defined(HAVE_LISTNS)
+	STRESS_EX_SYSCALL("listns"),
+#endif
+#if defined(__NR_sgetmask)
+	STRESS_EX_SYSCALL("sgetmask"),
+#endif
+#if defined(HAVE_SYS_VFS_H) &&	\
+    defined(HAVE_STATFS) &&	\
+    defined(__linux__)
+	STRESS_EX_SYSCALL("statfs"),
+#endif
+#if defined(HAVE_SYS_STATVFS_H)
+	STRESS_EX_SYSCALL("statvfs"),
+#endif
+#if defined(HAVE_LINUX_SYSCTL_H) &&	\
+    defined(__NR__sysctl) &&		\
+    defined(HAVE_SYSCALL)
+	STRESS_EX_SYSCALL("sysctl"),
+#endif
+#if defined(__NR_sysfs)
+	STRESS_EX_SYSCALL("sysfs"),
+#endif
+	STRESS_EX_SYSCALL("time"),
+#if defined(HAVE_UNAME) &&	\
+    defined(HAVE_SYS_UTSNAME_H)
+	STRESS_EX_SYSCALL("uname"),
+#endif
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_get_info = {
 	.stressor = stress_get,
 	.classifier = CLASS_OS,
 	.verify = VERIFY_OPTIONAL,
 	.opts = opts,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 
 #else

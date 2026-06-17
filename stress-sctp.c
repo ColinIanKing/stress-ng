@@ -734,12 +734,27 @@ finish:
 	return ret;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("bind"),
+	STRESS_EX_SYSCALL("close"),
+	STRESS_EX_SYSCALL("connect"),
+	STRESS_EX_SYSCALL("getsockopt"),
+	STRESS_EX_SYSCALL("listen"),
+	STRESS_EX_SYSCALL("recvmsg"),
+	STRESS_EX_SYSCALL("sendmsg"),
+	STRESS_EX_SYSCALL("setsockopt"),
+	STRESS_EX_SYSCALL("shutdown"),
+	STRESS_EX_SYSCALL("socket"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_sctp_info = {
 	.stressor = stress_sctp,
 	.classifier = CLASS_NETWORK,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_sctp_info = {

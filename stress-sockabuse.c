@@ -902,10 +902,65 @@ finish:
 	return rc;
 }
 
-
 static const stress_opt_t opts[] = {
 	{ OPT_sockabuse_port, "sockabuse-port", TYPE_ID_INT_PORT, MIN_PORT, MAX_PORT, NULL },
 	END_OPT,
+};
+
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("accept"),
+	STRESS_EX_SYSCALL("bind"),
+	STRESS_EX_SYSCALL("close"),
+	STRESS_EX_SYSCALL("copy_file_range"),
+	STRESS_EX_SYSCALL("connect"),
+	STRESS_EX_SYSCALL("dup"),
+	STRESS_EX_SYSCALL("fallocate"),
+	STRESS_EX_SYSCALL("fchdir"),
+	STRESS_EX_SYSCALL("fchmod"),
+	STRESS_EX_SYSCALL("fchown"),
+	STRESS_EX_SYSCALL("fcntl"),
+	STRESS_EX_SYSCALL("fdatasync"),
+#if (defined(HAVE_SYS_XATTR_H) ||       \
+     defined(HAVE_ATTR_XATTR_H)) &&     \
+    defined(HAVE_FLISTXATTR)
+	STRESS_EX_SYSCALL("flistxattr"),
+#endif
+#if defined(HAVE_FLOCK) &&      \
+    defined(LOCK_UN)
+	STRESS_EX_SYSCALL("flock"),
+#endif
+#if (defined(HAVE_SYS_XATTR_H) ||	\
+     defined(HAVE_ATTR_XATTR_H)) &&	\
+    defined(HAVE_SETXATTR) &&		\
+    defined(XATTR_CREATE)
+	STRESS_EX_SYSCALL("fsetxattr"),
+#endif
+	STRESS_EX_SYSCALL("fstat"),
+	STRESS_EX_SYSCALL("fsync"),
+	STRESS_EX_SYSCALL("fsync"),
+	STRESS_EX_SYSCALL("ftruncate"),
+#if defined(HAVE_FUTIMENS)
+	STRESS_EX_SYSCALL("futimens"),
+#endif
+	STRESS_EX_SYSCALL("getpeername"),
+	STRESS_EX_SYSCALL("getsockname"),
+	STRESS_EX_SYSCALL("getsockopt"),
+	STRESS_EX_SYSCALL("ioctl"),
+	STRESS_EX_SYSCALL("listen"),
+	STRESS_EX_SYSCALL("lseek"),
+	STRESS_EX_SYSCALL("mmap"),
+	STRESS_EX_SYSCALL("munamp"),
+	STRESS_EX_SYSCALL("pidfd_send_signal"),
+#if defined(HAVE_POSIX_FADVISE)
+	STRESS_EX_SYSCALL("posix_fadvise"),
+#endif
+	STRESS_EX_SYSCALL("recv"),
+	STRESS_EX_SYSCALL("send"),
+	STRESS_EX_SYSCALL("setsockopt"),
+	STRESS_EX_SYSCALL("shutdown"),
+	STRESS_EX_SYSCALL("socket"),
+	STRESS_EX_SYSCALL("sync_file_range"),
+	STRESS_EX_END,
 };
 
 const stressor_info_t stress_sockabuse_info = {
@@ -913,5 +968,6 @@ const stressor_info_t stress_sockabuse_info = {
 	.classifier = CLASS_NETWORK | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };

@@ -457,13 +457,18 @@ unmap_local_buffer:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_lockbus_info = {
 	.stressor = stress_lockbus,
 	.classifier = CLASS_CPU_CACHE | CLASS_MEMORY,
 	.opts = opts,
 	.help = help,
 	.init = stress_lockbus_init,
-	.deinit = stress_lockbus_deinit
+	.deinit = stress_lockbus_deinit,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_lockbus_info = {

@@ -175,9 +175,21 @@ tidy_dir:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+#if defined(HAVE_SYNCFS)
+	STRESS_EX_SYSCALL("fsync"),
+	STRESS_EX_SYSCALL("fsyncdatasync"),
+	STRESS_EX_SYSCALL("lseek"),
+	STRESS_EX_SYSCALL("write"),
+#endif
+	STRESS_EX_SYSCALL("sync"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_io_info = {
 	.stressor = stress_io,
 	.classifier = CLASS_FILESYSTEM | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };

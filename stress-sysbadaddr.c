@@ -430,7 +430,6 @@ static void bad_clock_settime(stress_bad_addr_t *ba, volatile uint64_t *counter)
 
 #if defined(HAVE_CLONE) && 	\
     defined(__linux__)
-
 static int clone_func(void *ptr)
 {
 	(void)ptr;
@@ -1366,7 +1365,7 @@ static void bad_mseal(stress_bad_addr_t *ba, volatile uint64_t *counter)
 }
 #endif
 
-#if defined(HAVE_MLOCK)
+#if defined(HAVE_MUNLOCK)
 static void bad_munlock(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	(*counter)++;
@@ -2671,8 +2670,236 @@ cleanup:
 	return ret;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("bind"),
+	STRESS_EX_SYSCALL("chdir"),
+	STRESS_EX_SYSCALL("chmod"),
+	STRESS_EX_SYSCALL("chown"),
+#if defined(HAVE_CHROOT)
+	STRESS_EX_SYSCALL("chroot"),
+#endif
+#if defined(HAVE_CLOCK_GETRES) &&	\
+    defined(CLOCK_REALTIME)
+	STRESS_EX_SYSCALL("clock_getres"),
+#endif
+#if defined(HAVE_CLOCK_GETTIME) &&	\
+    defined(CLOCK_REALTIME)
+	STRESS_EX_SYSCALL("clock_gettime"),
+#endif
+#if defined(HAVE_CLOCK_NANOSLEEP) &&	\
+    defined(CLOCK_REALTIME)
+	STRESS_EX_SYSCALL("clock_nanosleep"),
+#endif
+#if defined(CLOCK_THREAD_CPUTIME_ID) &&	\
+    defined(HAVE_CLOCK_SETTIME)
+	STRESS_EX_SYSCALL("clock_settime"),
+#endif
+#if defined(HAVE_CLONE) && 	\
+    defined(__linux__)
+	STRESS_EX_SYSCALL("clone"),
+#endif
+	STRESS_EX_SYSCALL("connect"),
+#if defined(HAVE_COPY_FILE_RANGE)
+	STRESS_EX_SYSCALL("copy_file_range"),
+#endif
+	STRESS_EX_SYSCALL("execve"),
+#if defined(HAVE_FACCESSAT)
+	STRESS_EX_SYSCALL("faccessat"),
+#endif
+#if defined(HAVE_FLISTXATTR) &&	\
+    (defined(HAVE_SYS_XATTR_H) || defined(HAVE_ATTR_XATTR_H))
+	STRESS_EX_SYSCALL("flistxattr"),
+#endif
+	STRESS_EX_SYSCALL("fstat"),
+	STRESS_EX_SYSCALL("getcpu"),
+	STRESS_EX_SYSCALL("getcwd"),
+#if defined(HAVE_GETDOMAINNAME)
+	STRESS_EX_SYSCALL("getdomainname"),
+#endif
+#if defined(HAVE_GETGROUPS)
+	STRESS_EX_SYSCALL("getgroups"),
+#endif
+#if defined(HAVE_GETHOSTNAME)
+	STRESS_EX_SYSCALL("gethostname"),
+#endif
+#if defined(HAVE_GETITIMER)
+	STRESS_EX_SYSCALL("getitimer"),
+#endif
+	STRESS_EX_SYSCALL("getpeername"),
+	STRESS_EX_SYSCALL("get_mempolicy"),
+	STRESS_EX_SYSCALL("getrandom"),
+#if defined(HAVE_GETRESGID)
+	STRESS_EX_SYSCALL("getresgid"),
+#endif
+#if defined(HAVE_GETRESUID)
+	STRESS_EX_SYSCALL("getresuid"),
+#endif
+	STRESS_EX_SYSCALL("getrlimit"),
+#if defined(HAVE_GETRUSAGE) &&	\
+    defined(RUSAGE_SELF)
+	STRESS_EX_SYSCALL("getrusage"),
+#endif
+	STRESS_EX_SYSCALL("getsockname"),
+	STRESS_EX_SYSCALL("gettimeofday"),
+#if defined(HAVE_GETXATTR) &&	\
+    (defined(HAVE_SYS_XATTR_H) || defined(HAVE_ATTR_XATTR_H))
+	STRESS_EX_SYSCALL("getxattr"),
+#endif
+	STRESS_EX_SYSCALL("ioctl"),
+	STRESS_EX_SYSCALL("lchown"),
+	STRESS_EX_SYSCALL("link"),
+#if defined(HAVE_LGETXATTR) &&	\
+    (defined(HAVE_SYS_XATTR_H) || defined(HAVE_ATTR_XATTR_H))
+	STRESS_EX_SYSCALL("lgetxattr"),
+#endif
+#if defined(HAVE_LISTXATTR) &&	\
+    (defined(HAVE_SYS_XATTR_H) || defined(HAVE_ATTR_XATTR_H))
+	STRESS_EX_SYSCALL("listxattr"),
+#endif
+#if defined(HAVE_LLISTXATTR) &&	\
+    (defined(HAVE_SYS_XATTR_H) || defined(HAVE_ATTR_XATTR_H))
+	STRESS_EX_SYSCALL("llistxattr"),
+#endif
+#if defined(HAVE_LREMOVEXATTR) &&	\
+    (defined(HAVE_SYS_XATTR_H) || defined(HAVE_ATTR_XATTR_H))
+	STRESS_EX_SYSCALL("lremovexattr"),
+#endif
+#if defined(__NR_lsm_get_self_attr)
+	STRESS_EX_SYSCALL("lsm_get_self_attr"),
+#endif
+#if defined(__NR_lsm_set_self_attr)
+	STRESS_EX_SYSCALL("lsm_set_self_attr"),
+#endif
+#if defined(__NR_lsm_list_modules)
+	STRESS_EX_SYSCALL("lsm_list_modules"),
+#endif
+	STRESS_EX_SYSCALL("lstat"),
+#if defined(HAVE_MADVISE)
+	STRESS_EX_SYSCALL("madvise"),
+#endif
+#if defined(HAVE_MEMFD_CREATE)
+	STRESS_EX_SYSCALL("memfd_create"),
+#endif
+	STRESS_EX_SYSCALL("migrate_pages"),
+	STRESS_EX_SYSCALL("mincore"),
+#if defined(HAVE_MLOCK)
+	STRESS_EX_SYSCALL("mlock"),
+#endif
+#if defined(HAVE_MLOCK2)
+	STRESS_EX_SYSCALL("mlock2"),
+#endif
+#if defined(__NR_move_pages)
+	STRESS_EX_SYSCALL("move_pages"),
+#endif
+#if defined(__NR_seal)
+	STRESS_EX_SYSCALL("seal"),
+#endif
+#if defined(HAVE_MUNLOCK)
+	STRESS_EX_SYSCALL("munlock"),
+#endif
+#if defined(HAVE_MSYNC)
+	STRESS_EX_SYSCALL("msync"),
+#endif
+#if defined(HAVE_NANOSLEEP)
+	STRESS_EX_SYSCALL("nanosleep"),
+#endif
+	STRESS_EX_SYSCALL("open"),
+	STRESS_EX_SYSCALL("pipe"),
+#if defined(HAVE_PREAD)
+	STRESS_EX_SYSCALL("pread"),
+#endif
+#if defined(HAVE_SYS_UIO_H) &&	\
+    defined(HAVE_PREADV)
+	STRESS_EX_SYSCALL("preadv"),
+#endif
+#if defined(HAVE_SYS_UIO_H) &&	\
+    defined(HAVE_PREADV2)
+	STRESS_EX_SYSCALL("preadv2"),
+#endif
+#if defined(HAVE_PTRACE) && 	\
+    defined(PTRACE_GETREGS)
+	STRESS_EX_SYSCALL("ptrace"),
+#endif
+#if defined(HAVE_POLL_H) &&	\
+    defined(HAVE_POLL)
+	STRESS_EX_SYSCALL("poll"),
+#endif
+#if defined(HAVE_POLL_H) &&	\
+    defined(HAVE_PPOLL)
+	STRESS_EX_SYSCALL("ppoll"),
+#endif
+#if defined(HAVE_PWRITE)
+	STRESS_EX_SYSCALL("pwrite"),
+#endif
+#if defined(HAVE_SYS_UIO_H) &&	\
+    defined(HAVE_PWRITEV)
+	STRESS_EX_SYSCALL("pwritev"),
+#endif
+#if defined(HAVE_SYS_UIO_H) &&	\
+    defined(HAVE_PWRITEV2)
+	STRESS_EX_SYSCALL("pwritev2"),
+#endif
+	STRESS_EX_SYSCALL("read"),
+	STRESS_EX_SYSCALL("readlink"),
+#if defined(HAVE_SYS_UIO_H) &&	\
+    defined(HAVE_READV)
+	STRESS_EX_SYSCALL("readv"),
+#endif
+#if defined(HAVE_REMOVEXATTR) &&	\
+    (defined(HAVE_SYS_XATTR_H) || defined(HAVE_ATTR_XATTR_H))
+	STRESS_EX_SYSCALL("removexattr"),
+#endif
+	STRESS_EX_SYSCALL("rename"),
+#if defined(HAVE_SCHED_GETAFFINITY)
+	STRESS_EX_SYSCALL("sched_getaffinity"),
+#endif
+#if defined(HAVE_SELECT)
+	STRESS_EX_SYSCALL("select"),
+#endif
+#if defined(HAVE_SETITIMER)
+	STRESS_EX_SYSCALL("setitimer"),
+#endif
+	STRESS_EX_SYSCALL("setrlimit"),
+	STRESS_EX_SYSCALL("stat"),
+#if defined(HAVE_STATFS)
+	STRESS_EX_SYSCALL("statfs"),
+#endif
+#if defined(HAVE_SYS_SYSINFO_H) && 	\
+    defined(HAVE_SYSINFO)
+	STRESS_EX_SYSCALL("sysinfo"),
+#endif
+	STRESS_EX_SYSCALL("time"),
+#if defined(HAVE_LIB_RT) &&	\
+    defined(HAVE_TIMER_CREATE)
+	STRESS_EX_SYSCALL("timer_create"),
+#endif
+	STRESS_EX_SYSCALL("times"),
+	STRESS_EX_SYSCALL("truncate"),
+#if defined(HAVE_UNAME) &&	\
+    defined(HAVE_SYS_UTSNAME_H)
+	STRESS_EX_SYSCALL("uname"),
+#endif
+	STRESS_EX_SYSCALL("ustat"),
+#if defined(HAVE_UTIME_H)
+	STRESS_EX_SYSCALL("utime"),
+#endif
+#if defined(HAVE_UTIMES)
+	STRESS_EX_SYSCALL("utimes"),
+#endif
+	STRESS_EX_SYSCALL("wait"),
+	STRESS_EX_SYSCALL("waitpid"),
+	STRESS_EX_SYSCALL("waitid"),
+	STRESS_EX_SYSCALL("write"),
+#if defined(HAVE_SYS_UIO_H) &&	\
+    defined(HAVE_WRITEV)
+	STRESS_EX_SYSCALL("writev"),
+#endif
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_sysbadaddr_info = {
 	.stressor = stress_sysbadaddr,
 	.classifier = CLASS_OS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };

@@ -367,10 +367,16 @@ static int stress_mseal(stress_args_t *args)
 	return EXIT_SUCCESS;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("mseal"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_mseal_info = {
 	.stressor = stress_mseal,
 	.supported = stress_mseal_supported,
 	.classifier = CLASS_VM | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };

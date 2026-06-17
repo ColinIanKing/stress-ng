@@ -9074,9 +9074,980 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
+static const stress_exercises_t exercises[] = {
+#if defined(HAVE_SYSCALL_ACCEPT)
+	STRESS_EX_SYSCALL("accept"),
+#endif
+#if defined(HAVE_SYSCALL_ACCEPT4)
+	STRESS_EX_SYSCALL("accept4"),
+#endif
+#if defined(HAVE_SYSCALL_ACCESS)
+	STRESS_EX_SYSCALL("access"),
+#endif
+	/* syscall_acct, ignore, don't want to interfere with process accounting */
+#if defined(HAVE_SYSCALL_ADD_KEY)
+	STRESS_EX_SYSCALL("add_key"),
+#endif
+	/* syscall_adjtimex, ignore, don't want to adjust system time */
+#if defined(HAVE_SYSCALL_ALARM)
+	STRESS_EX_SYSCALL("alarm"),
+#endif
+	/* syscall_arch_prctl, ignored */
+#if defined(HAVE_SYSCALL_BIND)
+	STRESS_EX_SYSCALL("bind"),
+#endif
+	/* syscall_bpf, ignore for now */
+#if defined(HAVE_SYSCALL_BRK)
+	STRESS_EX_SYSCALL("brk"),
+#endif
+#if defined(HAVE_SYSCALL_CACHEFLUSH)
+	STRESS_EX_SYSCALL("cacheflush"),
+#endif
+#if defined(HAVE_SYSCALL_CAPGET)
+	STRESS_EX_SYSCALL("capget"),
+#endif
+#if defined(HAVE_SYSCALL_CAPSET)
+	STRESS_EX_SYSCALL("capset"),
+#endif
+#if defined(HAVE_SYSCALL_CHDIR)
+	STRESS_EX_SYSCALL("chdir"),
+#endif
+#if defined(HAVE_SYSCALL_CHMOD)
+	STRESS_EX_SYSCALL("chmod"),
+#endif
+#if defined(HAVE_SYSCALL_CHOWN)
+	STRESS_EX_SYSCALL("chown"),
+#endif
+#if defined(HAVE_SYSCALL_CHROOT)
+	STRESS_EX_SYSCALL("chroot"),
+#endif
+#if defined(HAVE_SYSCALL_CLOCK_ADJTIME)
+	STRESS_EX_SYSCALL("clock_adjtime"),
+#endif
+#if defined(HAVE_SYSCALL_CLOCK_GETRES)
+	STRESS_EX_SYSCALL("clock_getres"),
+#endif
+#if defined(HAVE_SYSCALL_CLOCK_GETTIME)
+	STRESS_EX_SYSCALL("clock_gettime"),
+#endif
+#if defined(HAVE_SYSCALL_CLOCK_NANOSLEEP)
+	STRESS_EX_SYSCALL("clock_nanosleep"),
+#endif
+#if defined(HAVE_SYSCALL_CLOCK_SETTIME)
+	STRESS_EX_SYSCALL("clock_settime"),
+#endif
+#if defined(HAVE_SYSCALL_CLONE)
+	STRESS_EX_SYSCALL("clone"),
+#endif
+#if defined(HAVE_SYSCALL_CLONE3)
+	STRESS_EX_SYSCALL("clone3"),
+#endif
+#if defined(HAVE_SYSCALL_CLOSE)
+	STRESS_EX_SYSCALL("close"),
+#endif
+#if defined(HAVE_SYSCALL_CONNECT)
+	STRESS_EX_SYSCALL("connect"),
+#endif
+#if defined(HAVE_SYSCALL_COPY_FILE_RANGE)
+	STRESS_EX_SYSCALL("copy_file_range"),
+#endif
+#if defined(HAVE_SYSCALL_CREAT)
+	STRESS_EX_SYSCALL("creat"),
+#endif
+	/* syscall_create_module, ignore */
+	/* syscall_delete_module. ignore */
+#if defined(HAVE_SYSCALL_DUP2)
+	STRESS_EX_SYSCALL("dup"),
+#endif
+#if defined(HAVE_SYSCALL_DUP2)
+	STRESS_EX_SYSCALL("dup2"),
+#endif
+#if defined(HAVE_SYSCALL_DUP3)
+	STRESS_EX_SYSCALL("dup3"),
+#endif
+#if defined(HAVE_SYSCALL_EPOLL_CREATE)
+	STRESS_EX_SYSCALL("epoll_create"),
+#endif
+#if defined(HAVE_SYSCALL_EPOLL_CREATE1)
+	STRESS_EX_SYSCALL("epoll_create1"),
+#endif
+#if defined(HAVE_SYSCALL_EPOLL_CTL)
+	STRESS_EX_SYSCALL("epoll_ctl"),
+#endif
+#if defined(HAVE_SYSCALL_EPOLL_PWAIT)
+	STRESS_EX_SYSCALL("epoll_pwait"),
+#endif
+#if defined(HAVE_SYSCALL_EPOLL_WAIT)
+	STRESS_EX_SYSCALL("epoll_wait"),
+#endif
+#if defined(HAVE_SYSCALL_EVENTFD)
+	STRESS_EX_SYSCALL("eventfd"),
+#endif
+#if defined(HAVE_SYSCALL_EVENTFD2)
+	STRESS_EX_SYSCALL("eventfd2"),	/* not yet implemented */
+#endif
+#if defined(HAVE_SYSCALL_EXECVE)
+	STRESS_EX_SYSCALL("execve"),
+#endif
+#if defined(HAVE_SYSCALL_EXECVEAT)
+	STRESS_EX_SYSCALL("execveat"),
+#endif
+#if defined(HAVE_SYSCALL_EXIT)
+	STRESS_EX_SYSCALL("exit"),
+#endif
+	/* syscall_exit_group */
+#if defined(HAVE_SYSCALL_FACCESSAT)
+	STRESS_EX_SYSCALL("faccessat"),
+#endif
+#if defined(HAVE_SYSCALL_FALLOCATE)
+	STRESS_EX_SYSCALL("fallocate"),
+#endif
+#if defined(HAVE_SYSCALL_FANOTIFY_INIT)
+	STRESS_EX_SYSCALL("fanotify_init"),
+#endif
+#if defined(HAVE_SYSCALL_FANOTIFY_MARK)
+	STRESS_EX_SYSCALL("fanotify_mark"),
+#endif
+#if defined(HAVE_SYSCALL_FCHDIR)
+	STRESS_EX_SYSCALL("fchdir"),
+#endif
+#if defined(HAVE_SYSCALL_FCHMOD)
+	STRESS_EX_SYSCALL("fchmod"),
+#endif
+#if defined(HAVE_SYSCALL_FCHMODAT)
+	STRESS_EX_SYSCALL("fchmodat"),
+#endif
+#if defined(HAVE_SYSCALL_FCHMODAT2)
+	STRESS_EX_SYSCALL("fchmodat2"),
+#endif
+#if defined(HAVE_SYSCALL_FCHOWN)
+	STRESS_EX_SYSCALL("fchown"),
+#endif
+#if defined(HAVE_SYSCALL_FCHOWNAT)
+	STRESS_EX_SYSCALL("fchownat"),
+#endif
+#if defined(HAVE_SYSCALL_FCNTL)
+	STRESS_EX_SYSCALL("fcntl"),
+#endif
+#if defined(HAVE_SYSCALL_FDATASYNC)
+	STRESS_EX_SYSCALL("fdatasync"),
+#endif
+#if defined(HAVE_SYSCALL_FGETXATTR)
+	STRESS_EX_SYSCALL("fgetxattr"),
+#endif
+	/* syscall_finit_module, */
+#if defined(HAVE_SYSCALL_FLISTXATTR)
+	STRESS_EX_SYSCALL("flistxattr"),
+#endif
+#if defined(HAVE_SYSCALL_FLOCK)
+	STRESS_EX_SYSCALL("flock"),
+#endif
+#if defined(HAVE_SYSCALL_FORK)
+	STRESS_EX_SYSCALL("fork"),
+#endif
+#if defined(HAVE_SYSCALL_FREMOVEXATTR)
+	STRESS_EX_SYSCALL("fremovexattr"),
+#endif
+	/* syscall_fsconfig, ignored */
+#if defined(HAVE_SYSCALL_FSETXATTR)
+	STRESS_EX_SYSCALL("fsetxattr"),
+#endif
+	/* syscall_fsmount, ignored */
+	/* syscall_fsopen, ignored */
+	/* syscall_fspick, ignored */
+#if defined(HAVE_SYSCALL_FSTAT)
+	STRESS_EX_SYSCALL("fstat"),
+#endif
+#if defined(HAVE_SYSCALL_FSTATAT)
+	STRESS_EX_SYSCALL("fstatat"),
+#endif
+#if defined(HAVE_SYSCALL_FSTATFS)
+	STRESS_EX_SYSCALL("fstatfs"),
+#endif
+#if defined(HAVE_SYSCALL_FSYNC)
+	STRESS_EX_SYSCALL("fsync"),
+#endif
+#if defined(HAVE_SYSCALL_FTRUNCATE)
+	STRESS_EX_SYSCALL("ftruncate"),
+#endif
+	/* syscall_futex, */
+#if defined(HAVE_SYSCALL_FUTIMES)
+	STRESS_EX_SYSCALL("futimes"),
+#endif
+#if defined(HAVE_SYSCALL_FUTIMESAT)
+	STRESS_EX_SYSCALL("futimesat"),
+#endif
+#if defined(HAVE_SYSCALL_GETCPU)
+	STRESS_EX_SYSCALL("getcpu"),
+#endif
+#if defined(HAVE_SYSCALL_GETCWD)
+	STRESS_EX_SYSCALL("getcwd"),
+#endif
+#if defined(HAVE_SYSCALL_GETDENTS)
+	STRESS_EX_SYSCALL("getdents"),
+#endif
+#if defined(HAVE_SYSCALL_GETEGID)
+	STRESS_EX_SYSCALL("getegid"),
+#endif
+#if defined(HAVE_SYSCALL_GETEUID)
+	STRESS_EX_SYSCALL("geteuid"),
+#endif
+#if defined(HAVE_SYSCALL_GETGID)
+	STRESS_EX_SYSCALL("getgid"),
+#endif
+#if defined(HAVE_SYSCALL_GETGROUPS)
+	STRESS_EX_SYSCALL("getgroups"),
+#endif
+#if defined(HAVE_SYSCALL_GETITIMER)
+	STRESS_EX_SYSCALL("getitimer"),
+#endif
+#if defined(HAVE_SYSCALL_GET_MEMPOLICY)
+	STRESS_EX_SYSCALL("get_mempolicy"),
+#endif
+#if defined(HAVE_SYSCALL_GETPEERNAME)
+	STRESS_EX_SYSCALL("getpeername"),
+#endif
+#if defined(HAVE_SYSCALL_GETPGID)
+	STRESS_EX_SYSCALL("getpgid"),
+#endif
+#if defined(HAVE_SYSCALL_GETPGRP)
+	STRESS_EX_SYSCALL("getpgrp"),
+#endif
+#if defined(HAVE_SYSCALL_GETPID)
+	STRESS_EX_SYSCALL("getpid"),
+#endif
+#if defined(HAVE_SYSCALL_GETPPID)
+	STRESS_EX_SYSCALL("getppid"),
+#endif
+#if defined(HAVE_SYSCALL_GETPRIORITY)
+	STRESS_EX_SYSCALL("getpriority"),
+#endif
+#if defined(HAVE_SYSCALL_GETRANDOM)
+	STRESS_EX_SYSCALL("getrandom"),
+#endif
+#if defined(HAVE_SYSCALL_GETRESGID)
+	STRESS_EX_SYSCALL("getresgid"),
+#endif
+#if defined(HAVE_SYSCALL_GETRESUID)
+	STRESS_EX_SYSCALL("getresuid"),
+#endif
+#if defined(HAVE_SYSCALL_GETRLIMIT)
+	STRESS_EX_SYSCALL("getrlimit"),
+#endif
+#if defined(HAVE_SYSCALL_GET_ROBUST_LIST)
+	STRESS_EX_SYSCALL("get_robust_list"),
+#endif
+#if defined(HAVE_SYSCALL_GETRUSAGE)
+	STRESS_EX_SYSCALL("getrusage"),
+#endif
+#if defined(HAVE_SYSCALL_GETSID)
+	STRESS_EX_SYSCALL("getsid"),
+#endif
+#if defined(HAVE_SYSCALL_GETSOCKNAME)
+	STRESS_EX_SYSCALL("getsockname"),
+#endif
+#if defined(HAVE_SYSCALL_GETSOCKOPT)
+	STRESS_EX_SYSCALL("getsockopt"),
+#endif
+#if defined(HAVE_SYSCALL_GET_THREAD_AREA)
+	STRESS_EX_SYSCALL("get_thread_area"),
+#endif
+#if defined(HAVE_SYSCALL_GETTID)
+	STRESS_EX_SYSCALL("gettid"),
+#endif
+#if defined(HAVE_SYSCALL_GETTIMEOFDAY)
+	STRESS_EX_SYSCALL("gettimeofday"),
+#endif
+#if defined(HAVE_SYSCALL_GETUID)
+	STRESS_EX_SYSCALL("getuid"),
+#endif
+#if defined(HAVE_SYSCALL_GETXATTR)
+	STRESS_EX_SYSCALL("getxattr"),
+#endif
+	/* syscall_init_module, */
+#if defined(HAVE_SYSCALL_INOTIFY_ADD_WATCH)
+	STRESS_EX_SYSCALL("inotify_add_watch"),
+#endif
+#if defined(HAVE_SYSCALL_INOTIFY_INIT)
+	STRESS_EX_SYSCALL("inotify_init"),
+#endif
+#if defined(HAVE_SYSCALL_INOTIFY_INIT1)
+	STRESS_EX_SYSCALL("inotify_init1"),
+#endif
+#if defined(HAVE_SYSCALL_INOTIFY_RM_WATCH)
+	STRESS_EX_SYSCALL("inotify_rm_watch"),
+#endif
+#if defined(HAVE_SYSCALL_IO_CANCEL)
+	STRESS_EX_SYSCALL("io_cancel"),
+#endif
+#if defined(HAVE_SYSCALL_IO_DESTROY)
+	STRESS_EX_SYSCALL("io_destroy"),
+#endif
+#if defined(HAVE_SYSCALL_IO_GETEVENTS)
+	STRESS_EX_SYSCALL("io_getevents"),
+#endif
+#if defined(HAVE_SYSCALL_IO_PGETEVENTS)
+	STRESS_EX_SYSCALL("io_pgetevents"),
+#endif
+#if defined(HAVE_SYSCALL_IOPRIO_GET)
+	STRESS_EX_SYSCALL("ioprio_get"),
+#endif
+#if defined(HAVE_SYSCALL_IOPRIO_SET)
+	STRESS_EX_SYSCALL("ioprio_set"),
+#endif
+#if defined(HAVE_SYSCALL_IO_SETUP)
+	STRESS_EX_SYSCALL("io_setup"),
+#endif
+#if defined(HAVE_SYSCALL_IO_SUBMIT)
+	STRESS_EX_SYSCALL("io_submit"),
+#endif
+	/* syscall_io_uring_enter, */
+	/* syscall_io_uring_register, */
+#if defined(HAVE_SYSCALL_IO_URING_SETUP)
+	STRESS_EX_SYSCALL("io_uring_setup"),
+#endif
+#if defined(HAVE_SYSCALL_IOPERM)
+	STRESS_EX_SYSCALL("ioperm"),
+#endif
+#if defined(HAVE_SYSCALL_IOPL)
+	STRESS_EX_SYSCALL("iopl"),
+#endif
+#if defined(HAVE_SYSCALL_IOCTL)
+	STRESS_EX_SYSCALL("ioctl"),
+#endif
+	/* syscall_ipc, ignored */
+#if defined(HAVE_SYSCALL_KCMP)
+	STRESS_EX_SYSCALL("kcmp"),
+#endif
+	/* syscall_kexec_file_load, ignored */
+	/* syscall_kexec_load, ignored */
+#if defined(HAVE_SYSCALL_KEYCTL)
+	STRESS_EX_SYSCALL("keyctl"),
+#endif
+#if defined(HAVE_SYSCALL_KILL)
+	STRESS_EX_SYSCALL("kill"),
+#endif
+#if defined(HAVE_SYSCALL_LCHOWN)
+	STRESS_EX_SYSCALL("lchown"),
+#endif
+#if defined(HAVE_SYSCALL_LGETXATTR)
+	STRESS_EX_SYSCALL("lgetxattr"),
+#endif
+#if defined(HAVE_SYSCALL_LINK)
+	STRESS_EX_SYSCALL("link"),
+#endif
+#if defined(HAVE_SYSCALL_LINKAT)
+	STRESS_EX_SYSCALL("linkat"),
+#endif
+#if defined(HAVE_SYSCALL_LISTEN)
+	STRESS_EX_SYSCALL("listen"),
+#endif
+#if defined(HAVE_SYSCALL_LISTXATTR)
+	STRESS_EX_SYSCALL("listxattr"),
+#endif
+#if defined(HAVE_SYSCALL_LLISTXATTR)
+	STRESS_EX_SYSCALL("llistxattr"),
+#endif
+#if defined(HAVE_SYSCALL_LOOKUP_DCOOKIE)
+	STRESS_EX_SYSCALL("lookup_dcookie"),
+#endif
+#if defined(HAVE_SYSCALL_LREMOVEXATTR)
+	STRESS_EX_SYSCALL("lremovexattr"),
+#endif
+#if defined(HAVE_SYSCALL_LSEEK)
+	STRESS_EX_SYSCALL("lseek"),
+#endif
+#if defined(HAVE_SYSCALL_LSETXATTR)
+	STRESS_EX_SYSCALL("lsetxattr"),
+#endif
+#if defined(HAVE_SYSCALL_LSTAT)
+	STRESS_EX_SYSCALL("lstat"),
+#endif
+#if defined(HAVE_SYSCALL_LSM_GET_SELF_ATTR)
+	STRESS_EX_SYSCALL("lsm_get_self_attr"),
+#endif
+#if defined(HAVE_SYSCALL_LSM_LIST_MODULES)
+	STRESS_EX_SYSCALL("lsm_list_modules"),
+#endif
+#if defined(HAVE_SYSCALL_MADVISE)
+	STRESS_EX_SYSCALL("madvise"),
+#endif
+#if defined(HAVE_SYSCALL_MAP_SHADOW_STACK)
+	STRESS_EX_SYSCALL("map_shadow_stack"),
+#endif
+#if defined(HAVE_SYSCALL_MBIND)
+	STRESS_EX_SYSCALL("mbind"),
+#endif
+	/* syscall_memory_ordering, SPARC only */
+#if defined(HAVE_SYSCALL_MEMBARRIER)
+	STRESS_EX_SYSCALL("membarrier"),
+#endif
+#if defined(HAVE_SYSCALL_MEMFD_CREATE)
+	STRESS_EX_SYSCALL("memfd_create"),
+#endif
+#if defined(HAVE_SYSCALL_MIGRATE_PAGES)
+	STRESS_EX_SYSCALL("migrate_pages"),
+#endif
+#if defined(HAVE_SYSCALL_MINCORE)
+	STRESS_EX_SYSCALL("mincore"),
+#endif
+#if defined(HAVE_SYSCALL_MKDIR)
+	STRESS_EX_SYSCALL("mkdir"),
+#endif
+#if defined(HAVE_SYSCALL_MKDIRAT)
+	STRESS_EX_SYSCALL("mkdirat"),
+#endif
+#if defined(HAVE_SYSCALL_MKNOD)
+	STRESS_EX_SYSCALL("mknod"),
+#endif
+#if defined(HAVE_SYSCALL_MKNODAT)
+	STRESS_EX_SYSCALL("mknodat"),
+#endif
+#if defined(HAVE_SYSCALL_MLOCK)
+	STRESS_EX_SYSCALL("mlock"),
+#endif
+#if defined(HAVE_SYSCALL_MLOCK2)
+	STRESS_EX_SYSCALL("mlock2"),
+#endif
+#if defined(HAVE_SYSCALL_MLOCKALL)
+	STRESS_EX_SYSCALL("mlockall"),
+#endif
+#if defined(HAVE_SYSCALL_MMAP)
+	STRESS_EX_SYSCALL("mmap"),
+#endif
+	/* syscall_modify_ldt, too risky */
+	/* syscall_mount, ignored */
+	/* syscall_move_mount, ignored */
+#if defined(HAVE_SYSCALL_MOVE_PAGES)
+	STRESS_EX_SYSCALL("move_pages"),
+#endif
+#if defined(HAVE_SYSCALL_MPROTECT)
+	STRESS_EX_SYSCALL("mprotect"),
+#endif
+#if defined(HAVE_SYSCALL_MQ_CLOSE)
+	STRESS_EX_SYSCALL("mq_close"),
+#endif
+#if defined(HAVE_SYSCALL_MQ_GETATTR)
+	STRESS_EX_SYSCALL("mq_getattr"),
+#endif
+#if defined(HAVE_SYSCALL_MQ_NOTIFY)
+	STRESS_EX_SYSCALL("mq_notify"),
+#endif
+#if defined(HAVE_SYSCALL_MQ_OPEN)
+	STRESS_EX_SYSCALL("mq_open"),
+#endif
+#if defined(HAVE_SYSCALL_MQ_SETATTR)
+	STRESS_EX_SYSCALL("mq_setattr"),
+#endif
+#if defined(HAVE_SYSCALL_MQ_TIMEDRECEIVE)
+	STRESS_EX_SYSCALL("mq_timedreceive"),
+#endif
+#if defined(HAVE_SYSCALL_MQ_TIMEDSEND)
+	STRESS_EX_SYSCALL("mq_timedsend"),
+#endif
+#if defined(HAVE_SYSCALL_MQ_UNLINK)
+	STRESS_EX_SYSCALL("mq_unlink"),
+#endif
+#if defined(HAVE_SYSCALL_MREMAP)
+	STRESS_EX_SYSCALL("mremap"),
+#endif
+#if defined(HAVE_SYSCALL_MSGCTL)
+	STRESS_EX_SYSCALL("msgctl"),
+#endif
+#if defined(HAVE_SYSCALL_MSGGET)
+	STRESS_EX_SYSCALL("msgget"),
+#endif
+#if defined(HAVE_SYSCALL_MSGRCV)
+	STRESS_EX_SYSCALL("msgrcv"),
+#endif
+#if defined(HAVE_SYSCALL_MSGSND)
+	STRESS_EX_SYSCALL("msgsnd"),
+#endif
+#if defined(HAVE_SYSCALL_MSYNC)
+	STRESS_EX_SYSCALL("msync"),
+#endif
+#if defined(HAVE_SYSCALL_MUNLOCK)
+	STRESS_EX_SYSCALL("munlock"),
+#endif
+#if defined(HAVE_SYSCALL_MUNLOCKALL)
+	STRESS_EX_SYSCALL("munlockall"),
+#endif
+#if defined(HAVE_SYSCALL_MUNMAP)
+	STRESS_EX_SYSCALL("munmap"),
+#endif
+#if defined(HAVE_SYSCALL_NAME_TO_HANDLE_AT)
+	STRESS_EX_SYSCALL("name_to_handle_at"),
+#endif
+#if defined(HAVE_SYSCALL_NANOSLEEP)
+	STRESS_EX_SYSCALL("nanosleep"),
+#endif
+	/* syscall_nfsservctl, ignored */
+#if defined(HAVE_SYSCALL_NICE)
+	STRESS_EX_SYSCALL("nice"),
+#endif
+#if defined(HAVE_SYSCALL_OPEN)
+	STRESS_EX_SYSCALL("open"),
+#endif
+#if defined(HAVE_SYSCALL_OPENAT)
+	STRESS_EX_SYSCALL("openat"),
+#endif
+#if defined(HAVE_OPEN_BY_HANDLE_AT)
+	STRESS_EX_SYSCALL("open_by_handle_at"),
+#endif
+	/* syscall_open_tree, ignored */
+#if defined(HAVE_SYSCALL_PAUSE)
+	STRESS_EX_SYSCALL("pause"),
+#endif
+	/* syscall_perf_event_open, may clash with --perf, ignore */
+#if defined(HAVE_SYSCALL_PERSONALITY)
+	STRESS_EX_SYSCALL("personality"),
+#endif
+#if defined(HAVE_SYSCALL_PIDFD_OPEN)
+	STRESS_EX_SYSCALL("pidfd_open"),
+#endif
+#if defined(HAVE_SYSCALL_PIDFD_SEND_SIGNAL)
+	STRESS_EX_SYSCALL("pidfd_send_signal"),
+#endif
+#if defined(HAVE_SYSCALL_PIPE)
+	STRESS_EX_SYSCALL("pipe"),
+#endif
+#if defined(HAVE_SYSCALL_PIPE2)
+	STRESS_EX_SYSCALL("pipe2"),
+#endif
+	/* syscall_pivot_root, ignored for now */
+#if defined(HAVE_SYSCALL_PKEY_ALLOC)
+	STRESS_EX_SYSCALL("pkey_alloc"),
+#endif
+#if defined(HAVE_SYSCALL_PKEY_FREE)
+	STRESS_EX_SYSCALL("pkey_free"),
+#endif
+#if defined(HAVE_SYSCALL_PKEY_GET)
+	STRESS_EX_SYSCALL("pkey_get"),
+#endif
+#if defined(HAVE_SYSCALL_PKEY_MPROTECT)
+	STRESS_EX_SYSCALL("pkey_mprotect"),
+#endif
+#if defined(HAVE_SYSCALL_PKEY_SET)
+	STRESS_EX_SYSCALL("pkey_set"),
+#endif
+#if defined(HAVE_SYSCALL_POLL)
+	STRESS_EX_SYSCALL("poll"),
+#endif
+#if defined(HAVE_SYSCALL_PPOLL)
+	STRESS_EX_SYSCALL("ppoll"),
+#endif
+#if defined(HAVE_SYSCALL_PRCTL)
+	STRESS_EX_SYSCALL("prctl"),
+#endif
+#if defined(HAVE_SYSCALL_PREAD)
+	STRESS_EX_SYSCALL("pread"),
+#endif
+#if defined(HAVE_SYSCALL_PREADV)
+	STRESS_EX_SYSCALL("preadv"),
+#endif
+#if defined(HAVE_SYSCALL_PREADV2)
+	STRESS_EX_SYSCALL("preadv2"),
+#endif
+#if defined(HAVE_SYSCALL_PRLIMIT)
+	STRESS_EX_SYSCALL("prlimit"),
+#endif
+#if defined(HAVE_SYSCALL_PROCESS_VM_READV)
+	STRESS_EX_SYSCALL("process_vm_readv"),
+#endif
+#if defined(HAVE_SYSCALL_PROCESS_VM_WRITEV)
+	STRESS_EX_SYSCALL("process_vm_writev"),
+#endif
+#if defined(HAVE_SYSCALL_PSELECT)
+	STRESS_EX_SYSCALL("pselect"),
+#endif
+	/* syscall_ptrace, */
+#if defined(HAVE_SYSCALL_PWRITE)
+	STRESS_EX_SYSCALL("pwrite"),
+#endif
+#if defined(HAVE_SYSCALL_PWRITEV)
+	STRESS_EX_SYSCALL("pwritev"),
+#endif
+#if defined(HAVE_SYSCALL_PWRITEV2)
+	STRESS_EX_SYSCALL("pwritev2"),
+#endif
+#if defined(HAVE_SYSCALL_QUOTACTL)
+	STRESS_EX_SYSCALL("quotactl"),
+#endif
+#if defined(HAVE_SYSCALL_QUOTACTL_FD)
+	STRESS_EX_SYSCALL("quotactl_fd"),
+#endif
+#if defined(HAVE_SYSCALL_READ)
+	STRESS_EX_SYSCALL("read"),
+#endif
+#if defined(HAVE_SYSCALL_READAHEAD)
+	STRESS_EX_SYSCALL("readahead"),
+#endif
+	/* syscall_readdir, ancient, ignore */
+#if defined(HAVE_SYSCALL_READLINK)
+	STRESS_EX_SYSCALL("readlink"),
+#endif
+#if defined(HAVE_SYSCALL_READLINKAT)
+	STRESS_EX_SYSCALL("readlinkat"),
+#endif
+#if defined(HAVE_SYSCALL_READV)
+	STRESS_EX_SYSCALL("readv"),
+#endif
+	/* syscall_reboot, ignore */
+#if defined(HAVE_SYSCALL_RECV)
+	STRESS_EX_SYSCALL("recv"),
+#endif
+#if defined(HAVE_SYSCALL_RECVFROM)
+	STRESS_EX_SYSCALL("recvfrom"),
+#endif
+#if defined(HAVE_SYSCALL_RECVMMSG)
+	STRESS_EX_SYSCALL("recvmmsg"),
+#endif
+#if defined(HAVE_SYSCALL_RECVMSG)
+	STRESS_EX_SYSCALL("recvmsg"),
+#endif
+#if defined(HAVE_SYSCALL_RFORK)
+	STRESS_EX_SYSCALL("rfork"),
+#endif
+#if defined(HAVE_SYSCALL_REMAP_FILE_PAGES)
+	STRESS_EX_SYSCALL("remap_file_pages"),
+#endif
+#if defined(HAVE_SYSCALL_REMOVEXATTR)
+	STRESS_EX_SYSCALL("removexattr"),
+#endif
+#if defined(HAVE_SYSCALL_RENAME)
+	STRESS_EX_SYSCALL("rename"),
+#endif
+#if defined(HAVE_SYSCALL_RENAMEAT)
+	STRESS_EX_SYSCALL("renameat"),
+#endif
+#if defined(HAVE_SYSCALL_RENAMEAT2)
+	STRESS_EX_SYSCALL("renameat2"),
+#endif
+#if defined(HAVE_SYSCALL_REQUEST_KEY)
+	STRESS_EX_SYSCALL("request_key"),
+#endif
+#if defined(HAVE_SYSCALL_RESTART_SYSCALL)
+	STRESS_EX_SYSCALL("restart_syscall"),
+#endif
+#if defined(HAVE_SYSCALL_RISCV_FLUSH_ICACHE)
+	STRESS_EX_SYSCALL("riscv_flush_icache"),
+#endif
+#if defined(HAVE_SYSCALL_RISCV_HWPROBE)
+	STRESS_EX_SYSCALL("riscv_hwprobe"),
+#endif
+#if defined(HAVE_SYSCALL_RMDIR)
+	STRESS_EX_SYSCALL("rmdir"),
+#endif
+#if defined(HAVE_SYSCALL_RSEQ)
+	STRESS_EX_SYSCALL("rseq"),
+#endif
+#if defined(HAVE_SYSCALL_SCHED_GETAFFINITY)
+	STRESS_EX_SYSCALL("sched_getaffinity"),
+#endif
+#if defined(HAVE_SYSCALL_SCHED_GETATTR)
+	STRESS_EX_SYSCALL("sched_getattr"),
+#endif
+#if defined(HAVE_SYSCALL_SCHED_GETPARAM)
+	STRESS_EX_SYSCALL("sched_getparam"),
+#endif
+#if defined(HAVE_SYSCALL_SCHED_GET_PRIORITY_MAX)
+	STRESS_EX_SYSCALL("sched_get_priority_max"),
+#endif
+#if defined(HAVE_SYSCALL_SCHED_GET_PRIORITY_MIN)
+	STRESS_EX_SYSCALL("sched_get_priority_min"),
+#endif
+#if defined(HAVE_SYSCALL_SCHED_GETSCHEDULER)
+	STRESS_EX_SYSCALL("sched_getscheduler"),
+#endif
+#if defined(HAVE_SYSCALL_SCHED_RR_GET_INTERVAL)
+	STRESS_EX_SYSCALL("sched_rr_get_interval"),
+#endif
+#if defined(HAVE_SYSCALL_SCHED_SETAFFINITY)
+	STRESS_EX_SYSCALL("sched_setaffinity"),
+#endif
+#if defined(HAVE_SYSCALL_SCHED_SETATTR)
+	STRESS_EX_SYSCALL("sched_setattr"),
+#endif
+#if defined(HAVE_SYSCALL_SCHED_SETPARAM)
+	STRESS_EX_SYSCALL("sched_setparam"),
+#endif
+#if defined(HAVE_SYSCALL_SCHED_SETSCHEDULER)
+	STRESS_EX_SYSCALL("sched_setscheduler"),
+#endif
+#if defined(HAVE_SYSCALL_SCHED_YIELD)
+	STRESS_EX_SYSCALL("sched_yield"),
+#endif
+#if defined(HAVE_SYSCALL_SECCOMP)
+	STRESS_EX_SYSCALL("seccomp"),
+#endif
+#if defined(HAVE_SYSCALL_SELECT)
+	STRESS_EX_SYSCALL("select"),
+#endif
+#if defined(HAVE_SYSCALL_SEMCTL)
+	STRESS_EX_SYSCALL("semctl"),
+#endif
+#if defined(HAVE_SYSCALL_SEMGET)
+	STRESS_EX_SYSCALL("semget"),
+#endif
+#if defined(HAVE_SYSCALL_SEMOP)
+	STRESS_EX_SYSCALL("semop"),
+#endif
+#if defined(HAVE_SYSCALL_SEMTIMEDOP)
+	STRESS_EX_SYSCALL("semtimedop"),
+#endif
+#if defined(HAVE_SYSCALL_SENDFILE)
+	STRESS_EX_SYSCALL("sendfile"),
+#endif
+#if defined(HAVE_SYSCALL_SEND)
+	STRESS_EX_SYSCALL("send"),
+#endif
+#if defined(HAVE_SYSCALL_SENDMMSG)
+	STRESS_EX_SYSCALL("sendmmsg"),
+#endif
+#if defined(HAVE_SYSCALL_SENDMSG)
+	STRESS_EX_SYSCALL("sendmsg"),
+#endif
+#if defined(HAVE_SYSCALL_SENDTO)
+	STRESS_EX_SYSCALL("sendto"),
+#endif
+	/* syscall_setdomainname, */
+	/* syscall_setfsgid, */
+	/* syscall_setfsuid, */
+#if defined(HAVE_SYSCALL_SETGID)
+	STRESS_EX_SYSCALL("setgid"),
+#endif
+	/* syscall_setgroups, */
+	/* syscall_sethostname, */
+#if defined(HAVE_SYSCALL_SETITIMER)
+	STRESS_EX_SYSCALL("setitimer"),
+#endif
+#if defined(HAVE_SYSCALL_SET_MEMPOLICY)
+	STRESS_EX_SYSCALL("set_mempolicy"),
+#endif
+#if defined(HAVE_SYSCALL_SETPGID)
+	STRESS_EX_SYSCALL("setpgid"),
+#endif
+#if defined(HAVE_SYSCALL_SETPRIORITY)
+	STRESS_EX_SYSCALL("setpriority"),
+#endif
+#if defined(HAVE_SYSCALL_SETREGID)
+	STRESS_EX_SYSCALL("setregid"),
+#endif
+#if defined(HAVE_SYSCALL_SETRESGID)
+	STRESS_EX_SYSCALL("setresgid"),
+#endif
+#if defined(HAVE_SYSCALL_SETRESUID)
+	STRESS_EX_SYSCALL("setresuid"),
+#endif
+#if defined(HAVE_SYSCALL_SETREUID)
+	STRESS_EX_SYSCALL("setreuid"),
+#endif
+#if defined(HAVE_SYSCALL_SETRLIMIT)
+	STRESS_EX_SYSCALL("setrlimit"),
+#endif
+#if defined(HAVE_SYSCALL_SET_ROBUST_LIST)
+	STRESS_EX_SYSCALL("set_robust_list"),
+#endif
+#if defined(HAVE_SYSCALL_SETSID)
+	STRESS_EX_SYSCALL("setsid"),
+#endif
+#if defined(HAVE_SYSCALL_SETSOCKOPT)
+	STRESS_EX_SYSCALL("setsockopt"),
+#endif
+	/* syscall_set_thread_area, ignore */
+	/* syscall_set_tid_address, ignore */
+	/* syscall_settimeofday, ignore, don't modify time of day */
+#if defined(HAVE_SYSCALL_SETUID)
+	STRESS_EX_SYSCALL("setuid"),
+#endif
+#if defined(HAVE_SYSCALL_SETXATTR)
+	STRESS_EX_SYSCALL("setxattr"),
+#endif
+#if defined(HAVE_SYSCALL_SHMAT)
+	STRESS_EX_SYSCALL("shmat"),
+#endif
+#if defined(HAVE_SYSCALL_SHMCTL)
+	STRESS_EX_SYSCALL("shmctl"),
+#endif
+#if defined(HAVE_SYSCALL_SHMDT)
+	STRESS_EX_SYSCALL("shmdt"),
+#endif
+#if defined(HAVE_SYSCALL_SHMGET)
+	STRESS_EX_SYSCALL("shmget"),
+#endif
+#if defined(HAVE_SYSCALL_SHUTDOWN)
+	STRESS_EX_SYSCALL("shutdown"),
+#endif
+#if defined(HAVE_SYSCALL_SIGACTION)
+	STRESS_EX_SYSCALL("sigaction"),
+#endif
+#if defined(HAVE_SYSCALL_SIGALTSTACK)
+	STRESS_EX_SYSCALL("sigaltstack"),
+#endif
+#if defined(HAVE_SYSCALL_SIGNAL)
+	STRESS_EX_SYSCALL("signal"),
+#endif
+#if defined(HAVE_SYSCALL_SIGNALFD)
+	STRESS_EX_SYSCALL("signalfd"),
+#endif
+#if defined(HAVE_SYSCALL_SIGPENDING)
+	STRESS_EX_SYSCALL("sigpending"),
+#endif
+#if defined(HAVE_SYSCALL_SIGPROCMASK)
+	STRESS_EX_SYSCALL("sigprocmask"),
+#endif
+#if defined(HAVE_SYSCALL_SIGRETURN)
+	STRESS_EX_SYSCALL("sigreturn"),
+#endif
+#if defined(HAVE_SYSCALL_SIGSUSPEND)
+	STRESS_EX_SYSCALL("sigsuspend"),
+#endif
+#if defined(HAVE_SYSCALL_SOCKET)
+	STRESS_EX_SYSCALL("socket"),
+#endif
+#if defined(HAVE_SYSCALL_SOCKETPAIR)
+	STRESS_EX_SYSCALL("socketpair"),
+#endif
+#if defined(HAVE_SYSCALL_SPLICE)
+	STRESS_EX_SYSCALL("splice"),
+#endif
+#if defined(HAVE_SYSCALL_STAT)
+	STRESS_EX_SYSCALL("stat"),
+#endif
+#if defined(HAVE_SYSCALL_STATFS)
+	STRESS_EX_SYSCALL("statfs"),
+#endif
+#if defined(HAVE_SYSCALL_STATX)
+	STRESS_EX_SYSCALL("statx"),
+#endif
+	/* syscall_swapoff, */
+	/* syscall_swapon, */
+#if defined(HAVE_SYSCALL_SYMLINK)
+	STRESS_EX_SYSCALL("symlink"),
+#endif
+#if defined(HAVE_SYSCALL_SYMLINKAT)
+	STRESS_EX_SYSCALL("symlinkat"),
+#endif
+#if defined(HAVE_SYSCALL_SYNC)
+	STRESS_EX_SYSCALL("sync"),
+#endif
+#if defined(HAVE_SYSCALL_SYNC_FILE_RANGE)
+	STRESS_EX_SYSCALL("sync_file_range"),
+#endif
+#if defined(HAVE_SYSCALL_SYNCFS)
+	STRESS_EX_SYSCALL("syncfs"),
+#endif
+	/* STRESS_EX_SYSCALL("sysctl"), deprecated */
+	/* STRESS_EX_SYSCALL("sysfs"), obsolete */
+#if defined(HAVE_SYSCALL_SYSINFO)
+	STRESS_EX_SYSCALL("sysinfo"),
+#endif
+#if defined(HAVE_SYSCALL_SYSLOG)
+	STRESS_EX_SYSCALL("syslog"),
+#endif
+#if defined(HAVE_SYSCALL_TEE)
+	STRESS_EX_SYSCALL("tee"),
+#endif
+	/* syscall_tgkill, */
+#if defined(HAVE_SYSCALL_TIME)
+	STRESS_EX_SYSCALL("time"),
+#endif
+#if defined(HAVE_SYSCALL_TIMER_CREATE)
+	STRESS_EX_SYSCALL("timer_create"),
+#endif
+#if defined(HAVE_SYSCALL_TIMER_DELETE)
+	STRESS_EX_SYSCALL("timer_delete"),
+#endif
+#if defined(HAVE_SYSCALL_TIMERFD_CREATE)
+	STRESS_EX_SYSCALL("timerfd_create"),
+#endif
+#if defined(HAVE_SYSCALL_TIMERFD_GETTIME)
+	STRESS_EX_SYSCALL("timerfd_gettime"),
+#endif
+#if defined(HAVE_SYSCALL_TIMERFD_SETTIME)
+	STRESS_EX_SYSCALL("timerfd_settime"),
+#endif
+#if defined(HAVE_SYSCALL_TIMER_GETOVERRUN)
+	STRESS_EX_SYSCALL("timer_getoverrun"),
+#endif
+#if defined(HAVE_SYSCALL_TIMER_GETTIME)
+	STRESS_EX_SYSCALL("timer_gettime"),
+#endif
+#if defined(HAVE_SYSCALL_TIMER_SETTIME)
+	STRESS_EX_SYSCALL("timer_settime"),
+#endif
+#if defined(HAVE_SYSCALL_TIMES)
+	STRESS_EX_SYSCALL("times"),
+#endif
+	/* syscall_tkill, obsolete */
+#if defined(HAVE_SYSCALL_TRUNCATE)
+	STRESS_EX_SYSCALL("truncate"),
+#endif
+#if defined(HAVE_SYSCALL_UMASK)
+	STRESS_EX_SYSCALL("umask"),
+#endif
+	/* syscall_umount, ignored */
+	/* syscall_umount2, ignored */
+#if defined(HAVE_SYSCALL_UNAME)
+	STRESS_EX_SYSCALL("uname"),
+#endif
+#if defined(HAVE_SYSCALL_UNLINK)
+	STRESS_EX_SYSCALL("unlink"),
+#endif
+#if defined(HAVE_SYSCALL_UNLINKAT)
+	STRESS_EX_SYSCALL("unlinkat"),
+#endif
+#if defined(HAVE_SYSCALL_UNSHARE)
+	STRESS_EX_SYSCALL("unshare"),
+#endif
+#if defined(HAVE_SYSCALL_USERFAULTFD)
+	STRESS_EX_SYSCALL("userfaultfd"),
+#endif
+#if defined(HAVE_SYSCALL_UTIME)
+	STRESS_EX_SYSCALL("utime"),
+#endif
+#if defined(HAVE_SYSCALL_UTIMENSAT)
+	STRESS_EX_SYSCALL("utimensat"),
+#endif
+#if defined(HAVE_SYSCALL_UTIMES)
+	STRESS_EX_SYSCALL("utimes"),
+#endif
+#if defined(HAVE_SYSCALL_VFORK)
+	STRESS_EX_SYSCALL("vfork"),
+#endif
+	/* syscall_vhangup, */
+	/* syscall_vm86, x86 32 bit only, ignore */
+#if defined(HAVE_SYSCALL_VMSPLICE)
+	STRESS_EX_SYSCALL("vmsplice"),
+#endif
+#if defined(HAVE_SYSCALL_WAIT)
+	STRESS_EX_SYSCALL("wait"),
+#endif
+#if defined(HAVE_SYSCALL_WAIT3)
+	STRESS_EX_SYSCALL("wait3"),
+#endif
+#if defined(HAVE_SYSCALL_WAIT4)
+	STRESS_EX_SYSCALL("wait4"),
+#endif
+#if defined(HAVE_SYSCALL_WAITID)
+	STRESS_EX_SYSCALL("waitid"),
+#endif
+#if defined(HAVE_SYSCALL_WAITPID)
+	STRESS_EX_SYSCALL("waitpid"),
+#endif
+#if defined(HAVE_SYSCALL_WRITE)
+	STRESS_EX_SYSCALL("write"),
+#endif
+#if defined(HAVE_SYSCALL_WRITEV)
+	STRESS_EX_SYSCALL("writev"),
+#endif
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_syscall_info = {
 	.stressor = stress_syscall,
 	.classifier = CLASS_OS,
 	.opts = opts,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };

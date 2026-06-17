@@ -422,10 +422,23 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
+static const stress_exercises_t exercises[] = {
+	/*
+#if defined(HAVE_SCHED_SETAFFINITY)
+	STRESS_EX_SYSCALL("sched_setaffinity"),
+#endif
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+	STRESS_EX_SYSCALL("mbind"),
+#endif
+	*/
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_spinmem_info = {
 	.stressor = stress_spinmem,
 	.classifier = CLASS_CPU | CLASS_MEMORY | CLASS_CPU_CACHE,
 	.verify = VERIFY_NONE,
 	.opts = opts,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };

@@ -164,12 +164,18 @@ static int stress_ping_sock(stress_args_t *args)
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("sendto"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_ping_sock_info = {
 	.stressor = stress_ping_sock,
 	.classifier = CLASS_NETWORK | CLASS_OS,
 	.supported = stress_rawsock_supported,
 	.opts = opts,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 #else
 const stressor_info_t stress_ping_sock_info = {

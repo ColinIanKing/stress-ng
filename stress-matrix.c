@@ -1048,13 +1048,18 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_matrix_info = {
 	.stressor = stress_matrix,
 	.classifier = CLASS_CPU | CLASS_FP | CLASS_CPU_CACHE | CLASS_MEMORY | CLASS_COMPUTE | CLASS_HOT,
 	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help,
-	.max_metrics_items = SIZEOF_ARRAY(matrix_methods)
+	.max_metrics_items = SIZEOF_ARRAY(matrix_methods),
+	.exercises = exercises,
 };
 
 #else

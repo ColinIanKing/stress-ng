@@ -454,7 +454,6 @@ static inline int stress_do_exec(stress_exec_context_t *context)
 #endif
 }
 
-
 static int stress_exec_child(void *arg)
 {
 	stress_exec_context_t *argp = (stress_exec_context_t *)arg;
@@ -1006,11 +1005,25 @@ err_free_ld_library_path:
 	return rc;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("execve"),
+#if defined(HAVE_EXECVEAT) &&	\
+    defined(O_PATH)
+	STRESS_EX_SYSCALL("execveat"),
+#endif
+#if defined(HAVE_FEXECVE) &&	\
+    defined(O_PATH)
+	STRESS_EX_SYSCALL("fexecve"),
+#endif
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_exec_info = {
 	.stressor = stress_exec,
 	.supported = stress_exec_supported,
 	.classifier = CLASS_SCHEDULER | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
