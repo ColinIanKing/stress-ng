@@ -381,6 +381,10 @@ finish:
 static const stress_exercises_t exercises[] = {
 	STRESS_EX_SYSCALL("futex"),
 	STRESS_EX_SYSCALL("rt_sigqueueinfo"),
+
+#if defined(HAVE_LIB_RT)
+	STRESS_EX_LIBRARY("rt"),
+#endif
 	STRESS_EX_END,
 };
 

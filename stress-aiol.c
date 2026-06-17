@@ -864,6 +864,9 @@ static const stress_exercises_t exercises[] = {
 	STRESS_EX_SYSCALL("io_submit"),
 	STRESS_EX_SYSCALL("io_destroy"),
 	STRESS_EX_SYSCALL("io_getevents"),
+
+	STRESS_EX_LIBRARY("aio"),
+
 	STRESS_EX_END,
 };
 

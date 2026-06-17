@@ -601,6 +601,10 @@ out:
 static const stress_exercises_t exercises[] = {
 	STRESS_EX_SYSCALL("finit_module"),
 	STRESS_EX_SYSCALL("delete_module"),
+
+#if defined(HAVE_LZMA_H)
+        STRESS_EX_LIBRARY("lzma"),
+#endif
 	STRESS_EX_END,
 };
 

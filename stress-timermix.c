@@ -471,6 +471,11 @@ static const stress_exercises_t exercises[] = {
 	STRESS_EX_SYSCALL("timer_settime"),
 	STRESS_EX_SYSCALL("setitimer"),
 	STRESS_EX_SYSCALL("sched_yield"),
+
+#if defined(HAVE_LIB_RT)
+	STRESS_EX_LIBRARY("rt"),
+#endif
+
 	STRESS_EX_END,
 };
 

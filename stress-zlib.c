@@ -1874,6 +1874,8 @@ again:
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_LIBRARY("m"),
+	STRESS_EX_LIBRARY("z"),
 	STRESS_EX_END,
 };
 

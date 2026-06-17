@@ -2220,6 +2220,8 @@ static const char *stress_exercise_type_str(const stress_exercise_type_t type)
 	switch (type) {
 	case STRESS_EX_TYPE_SYSCALL:
 		return "syscall";
+	case STRESS_EX_TYPE_LIBRARY:
+		return "library";
 	case STRESS_EX_TYPE_END:
 	default:
 		break;
@@ -2255,8 +2257,12 @@ static void stress_exercise_dump(FILE *yaml)
 				char **array;
 
 				/* string long enough for the YAML text */
-				for (n = 0; exercises[n].name; n++)
-					len += strlen(exercises[n].name) + 4;
+				for (n = 0, i = 0; exercises[i].name; i++) {
+					if (exercises[i].type == type) {
+						len += strlen(exercises[i].name) + 4;
+						n++;
+					}
+				}
 
 				if (n == 0) {
 					pr_yaml(yaml, "      %s: []\n", stress_exercise_type_str(type));
@@ -2267,8 +2273,12 @@ static void stress_exercise_dump(FILE *yaml)
 				if (!array)
 					continue;
 
-				for (i = 0; i < n; i++)
-					array[i] = shim_unconstify_ptr(exercises[i].name);
+				for (n = 0, i = 0; exercises[i].name; i++) {
+					if (exercises[i].type == type) {
+						array[n] = shim_unconstify_ptr(exercises[i].name);
+						n++;
+					}
+				}
 
 				shim_qsort(array, n, sizeof(*array), stress_sort_cmp_str);
 
@@ -3578,6 +3588,7 @@ static const stress_opt_t main_opts[] = {
 	{ OPT_class,            "class",            TYPE_ID_STR, 0, 0, NULL },
 	{ OPT_compact_memory,   "compact-memory",   TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_exclude,	        "exclude",          TYPE_ID_STR, 0, 0, NULL },
+	{ OPT_exercise_library, "exercise-library", TYPE_ID_STR, 0, 0, NULL },
 	{ OPT_exercise_syscall, "exercise-syscall", TYPE_ID_STR, 0, 0, NULL },
 	{ OPT_ionice_class,     "ionice-class",     TYPE_ID_STR, 0, 0, NULL },
 	{ OPT_ionice_level,     "ionice-level",     TYPE_ID_INT32, 0, 7, NULL },
@@ -4191,6 +4202,8 @@ int main(int argc, char **argv, char **envp)
 	stress_stressor_option("sequential", OPT_FLAGS_SEQUENTIAL, &opt_sequential);
 
 	if (stress_exercises_get("exercise-syscall", STRESS_EX_TYPE_SYSCALL, &ret) < 0)
+		goto exit_stressors_free;
+	if (stress_exercises_get("exercise-library", STRESS_EX_TYPE_LIBRARY, &ret) < 0)
 		goto exit_stressors_free;
 
 	if (stress_class_get(&opt_class, &ret) < 0)

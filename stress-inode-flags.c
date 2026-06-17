@@ -432,6 +432,11 @@ static const stress_exercises_t exercises[] = {
 #if defined(__NR_file_setattr)
 	STRESS_EX_SYSCALL("file_setattr"),
 #endif
+
+#if defined(HAVE_LIB_PTHREAD)
+	STRESS_EX_LIBRARY("pthread"),
+#endif
+
 	STRESS_EX_END,
 };
 

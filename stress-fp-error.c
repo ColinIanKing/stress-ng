@@ -221,6 +221,8 @@ static int stress_fp_error(stress_args_t *args)
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_LIBRARY("m"),
+
 	STRESS_EX_END,
 };
 

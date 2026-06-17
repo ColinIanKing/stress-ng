@@ -745,6 +745,8 @@ static const stress_exercises_t exercises[] = {
 	STRESS_EX_SYSCALL("setsockopt"),
 	STRESS_EX_SYSCALL("shutdown"),
 	STRESS_EX_SYSCALL("socket"),
+
+	STRESS_EX_LIBRARY("sctp"),
 	STRESS_EX_END,
 };
 

@@ -1742,6 +1742,8 @@ static const stress_exercises_t exercises[] = {
 	STRESS_EX_SYSCALL("utimes"),
 #endif
 	STRESS_EX_SYSCALL("write"),
+
+	STRESS_EX_LIBRARY("acl"),
 	STRESS_EX_END,
 };
 

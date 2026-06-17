@@ -541,6 +541,11 @@ static const stress_exercises_t exercises[] = {
 	/* Default */
 	STRESS_EX_SYSCALL("read"),
 	STRESS_EX_SYSCALL("write"),
+
+#if defined(HAVE_LIB_RT)
+	STRESS_EX_LIBRARY("rt"),
+#endif
+
 	STRESS_EX_END,
 };
 

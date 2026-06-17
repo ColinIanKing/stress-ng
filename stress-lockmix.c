@@ -663,6 +663,11 @@ static const stress_exercises_t exercises[] = {
     defined(HAVE_LOCKMIX_LOCKOFD)
 	STRESS_EX_SYSCALL("fcntl"),
 #endif
+
+#if defined(HAVE_LIB_RT)
+	STRESS_EX_LIBRARY("rt"),
+#endif
+
 	STRESS_EX_END,
 };
 

@@ -443,6 +443,7 @@ tidy:
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_LIBRARY("bsd"),
 	STRESS_EX_END,
 };
 

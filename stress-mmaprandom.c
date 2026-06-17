@@ -2300,8 +2300,11 @@ static const stress_exercises_t exercises[] = {
 	STRESS_EX_SYSCALL("shmget"),
 	STRESS_EX_SYSCALL("shmctl"),
 #endif
-#if defined(HAVE_SYS_SHM_H)
+
+#if defined(HAVE_LIB_RT)
+	STRESS_EX_LIBRARY("rt"),
 #endif
+
 	STRESS_EX_END,
 };
 

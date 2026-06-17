@@ -373,6 +373,10 @@ free_dist:
 }
 
 static const stress_exercises_t exercises[] = {
+#if defined(HAVE_LIB_PTHREAD)
+        STRESS_EX_LIBRARY("pthread"),
+#endif
+
 	STRESS_EX_END,
 };
 

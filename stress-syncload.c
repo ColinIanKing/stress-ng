@@ -349,6 +349,9 @@ static const stress_exercises_t exercises[] = {
 	STRESS_EX_SYSCALL("nanosleep"),
 	STRESS_EX_SYSCALL("nice"),
 	STRESS_EX_SYSCALL("sched_yield"),
+
+	STRESS_EX_LIBRARY("m"),
+
 	STRESS_EX_END,
 };
 

@@ -317,6 +317,11 @@ static const stress_exercises_t exercises[] = {
 	STRESS_EX_SYSCALL("sem_timedwait"),
 	STRESS_EX_SYSCALL("sem_trywait"),
 	STRESS_EX_SYSCALL("sem_wait"),
+
+#if defined(HAVE_LIB_PTHREAD)
+        STRESS_EX_LIBRARY("pthread"),
+#endif
+
 	STRESS_EX_END,
 };
 

@@ -438,6 +438,8 @@ static int stress_mpfr(stress_args_t *args)
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_LIBRARY("gmp"),
+	STRESS_EX_LIBRARY("mpfr"),
 	STRESS_EX_END,
 };
 

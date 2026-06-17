@@ -576,6 +576,8 @@ const stressor_info_t stress_logmath_info = {
 #else
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_LIBRARY("m"),
+
 	STRESS_EX_END,
 };
 

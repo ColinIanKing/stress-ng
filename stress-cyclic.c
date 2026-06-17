@@ -992,6 +992,7 @@ static const stress_opt_t opts[] = {
 
 static const stress_exercises_t exercises[] = {
 	STRESS_EX_SYSCALL("sched_setscheduler"),
+	STRESS_EX_LIBRARY("md"),
 	STRESS_EX_END,
 };
 

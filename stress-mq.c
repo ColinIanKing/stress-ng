@@ -539,6 +539,11 @@ static const stress_exercises_t exercises[] = {
 	STRESS_EX_SYSCALL("mq_timedreceive"),
 	STRESS_EX_SYSCALL("mq_timedsend"),
 	STRESS_EX_SYSCALL("mq_unlink"),
+
+#if defined(HAVE_LIB_RT)
+	STRESS_EX_LIBRARY("rt"),
+#endif
+
 	STRESS_EX_END,
 };
 

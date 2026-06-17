@@ -615,6 +615,14 @@ static const stress_exercises_t exercises[] = {
     defined(HAVE_LINUX_USERFAULTFD_H)
 	STRESS_EX_SYSCALL("userfaultfd"),
 #endif
+
+#if defined(HAVE_LIB_PTHREAD)
+	STRESS_EX_LIBRARY("pthread"),
+#endif
+#if defined(HAVE_LIB_RT)
+	STRESS_EX_LIBRARY("rt"),
+#endif
+
 	STRESS_EX_END,
 };
 

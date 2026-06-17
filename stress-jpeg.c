@@ -498,6 +498,8 @@ static int stress_jpeg(stress_args_t *args)
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_LIBRARY("jpeg"),
+	STRESS_EX_LIBRARY("m"),
 	STRESS_EX_END,
 };
 

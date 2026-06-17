@@ -549,6 +549,11 @@ static const stress_exercises_t exercises[] = {
 	STRESS_EX_SYSCALL("msymc"),
 	STRESS_EX_SYSCALL("munmap"),
 	STRESS_EX_SYSCALL("shm_open"),
+
+#if defined(HAVE_LIB_RT)
+	STRESS_EX_LIBRARY("rt"),
+#endif
+
 	STRESS_EX_END,
 };
 

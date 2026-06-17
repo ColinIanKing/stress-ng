@@ -458,6 +458,10 @@ unmap_local_buffer:
 }
 
 static const stress_exercises_t exercises[] = {
+#if defined(HAVE_LIB_RT)
+	STRESS_EX_LIBRARY("rt"),
+#endif
+
 	STRESS_EX_END,
 };
 

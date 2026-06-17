@@ -255,6 +255,11 @@ static const stress_exercises_t exercises[] = {
 #endif
 	STRESS_EX_SYSCALL("fork"),
 	STRESS_EX_SYSCALL("waitpid"),
+
+#if defined(HAVE_LIB_PTHREAD)
+	STRESS_EX_LIBRARY("pthread"),
+#endif
+
 	STRESS_EX_END,
 };
 

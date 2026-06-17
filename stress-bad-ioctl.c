@@ -660,6 +660,11 @@ again:
 
 static const stress_exercises_t exercises[] = {
 	STRESS_EX_SYSCALL("ioctl"),
+
+#if defined(HAVE_LIB_PTHREAD)
+	STRESS_EX_LIBRARY("pthread"),
+#endif
+
 	STRESS_EX_END,
 };
 

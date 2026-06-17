@@ -284,6 +284,11 @@ static const stress_exercises_t exercises[] = {
 #if (defined(HAVE_LIB_RT) && defined(HAVE_CLOCK_GETTIME))
 	STRESS_EX_SYSCALL("clock_gettime"),
 #endif
+
+#if defined(HAVE_LIB_RT)
+	STRESS_EX_LIBRARY("rt"),
+#endif
+
 	STRESS_EX_END,
 };
 

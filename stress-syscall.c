@@ -10041,6 +10041,11 @@ static const stress_exercises_t exercises[] = {
 #if defined(HAVE_SYSCALL_WRITEV)
 	STRESS_EX_SYSCALL("writev"),
 #endif
+
+#if defined(HAVE_LIB_RT)
+	STRESS_EX_LIBRARY("rt"),
+#endif
+
 	STRESS_EX_END,
 };
 

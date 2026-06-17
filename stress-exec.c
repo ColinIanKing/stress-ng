@@ -1015,6 +1015,11 @@ static const stress_exercises_t exercises[] = {
     defined(O_PATH)
 	STRESS_EX_SYSCALL("fexecve"),
 #endif
+
+#if defined(HAVE_LIB_PTHREAD)
+	STRESS_EX_LIBRARY("pthread"),
+#endif
+
 	STRESS_EX_END,
 };
 
