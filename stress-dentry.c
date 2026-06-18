@@ -486,6 +486,8 @@ static const stress_opt_t opts[] = {
 };
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("directory"),
+
 	STRESS_EX_SYSCALL("access"),
 	STRESS_EX_SYSCALL("close"),
 	STRESS_EX_SYSCALL("fstat"),
