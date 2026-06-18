@@ -631,6 +631,8 @@ static const stress_opt_t opts[] = {
 };
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("cpu-bit"),
+
 	STRESS_EX_SYSCALL("madvise"),
 	STRESS_EX_SYSCALL("mmap"),
 	STRESS_EX_SYSCALL("munmap"),

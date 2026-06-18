@@ -154,7 +154,10 @@ cipher	T{
 cipher computation
 T}
 cpu-shift	T{
-cpu left/right shift/rotate operarions
+CPU left/right shift/rotate operarions
+T}
+cpu-bit	T{
+CPU logical bit-wise operarions (and, or, xor, not)
 T}
 crypto	T{
 cryptography computation
@@ -673,7 +676,7 @@ select the deadline parameter for deadline scheduler (only on Linux). The defaul
 value is 100000 (in nanoseconds).
 .TP
 .B \-\-sched\-reclaim
-use cpu bandwidth reclaim feature for deadline scheduler (only on Linux).
+use CPU bandwidth reclaim feature for deadline scheduler (only on Linux).
 .TP
 .B \-\-seed N
 set the random number to generate a seed with a 64 bit value. Allows stressors to
@@ -848,7 +851,7 @@ and system information.
 .TP
 .B \-\-vmstat S
 every S seconds show statistics about processes, memory, paging, block I/O,
-interrupts, context switches, disks and cpu activity. The output is similar
+interrupts, context switches, disks and CPU activity. The output is similar
 to the output from the vmstat(8) utility. Not fully supported on various
 UNIX systems.
 .TP
@@ -872,7 +875,7 @@ another (sequentially) for 1 minute per stressor use:
 specify a list of one or more stressors to exclude (that is, do not run them).
 This is useful to exclude specific stressors when one selects many stressors
 to run using the \-\-class option, \-\-sequential, \-\-all and \-\-random
-options. Example, run the cpu class stressors concurrently and exclude the
+options. Example, run the CPU class stressors concurrently and exclude the
 numa and search stressors:
 .PP
 .in +10n
@@ -1547,7 +1550,7 @@ lB2 lB
 l lx.
 Method	Description
 all	T{
-iterate over all the below cpu stress methods.
+iterate over all the below CPU stress methods.
 T}
 adjacent	T{
 increment a specific byte in a cacheline and read the adjacent byte, check for
@@ -1834,7 +1837,7 @@ employ CPU frequency scaling and so heavier loads produce an increased CPU
 frequency and greater CPU bogo operations.
 
 Note: This option only applies to the \-\-cpu stressor option and not to
-all of the cpu class of stressors.
+all of the CPU class of stressors.
 .TP
 .B \-\-cpu\-load\-slice S
 note: this option is only useful when \-\-cpu\-load is less than 100%. The
@@ -1852,19 +1855,19 @@ the CPU is also cycled, so this is a good mechanism to exercise the scheduler,
 frequency scaling and passive/active thermal cooling mechanisms.
 
 Note: This option only applies to the \-\-cpu stressor option and not to
-all of the cpu class of stressors.
+all of the CPU class of stressors.
 .TP
 .B \-\-cpu\-method method
-specify a cpu stress method. By default, all the stress methods are exercised
+specify a CPU stress method. By default, all the stress methods are exercised
 sequentially, however one can specify just one method to be used if required.
-Available cpu stress methods are described as follows:
+Available CPU stress methods are described as follows:
 .sp
 .TS
 lB2 lB
 l lx.
 Method	Description
 all	T{
-iterate over all the below cpu stress methods
+iterate over all the below CPU stress methods
 T}
 ackermann	T{
 Ackermann function: compute A(3, 7), where:
@@ -1872,7 +1875,7 @@ Ackermann function: compute A(3, 7), where:
  A(m \(mi 1, 1) if m > 0 and n \(eq 0;
  A(m \(mi 1, A(m, n \(mi 1)) if m > 0 and n > 0
 .br
-For other recursive methods, refer to the hanoi cpu stress method.
+For other recursive methods, refer to the hanoi CPU stress method.
 T}
 apery	T{
 calculate Apery's constant \[*z](3); the sum of 1/(n \[ua] 3) to a precision of 1.0x10\[ua]14
@@ -1998,7 +2001,7 @@ parity bits are computed as:
 T}
 hanoi	T{
 solve a 21 disc Towers of Hanoi stack using the recursive solution. For
-other recursive methods, refer to the ackermann cpu stress method.
+other recursive methods, refer to the ackermann CPU stress method.
 T}
 hyperbolic	T{
 compute sinh(\(*h) \(mu cosh(\(*h) \(pl sinh(2\(*h) \(pl cosh(3\(*h) for float,
@@ -2183,7 +2186,7 @@ mixes found in these use cases.
 .RE
 .TP
 .B \-\-cpu\-old\-metrics
-as of version V0.14.02 the cpu stressor now normalizes each of the cpu
+as of version V0.14.02 the CPU stressor now normalizes each of the CPU
 stressor method bogo-op counters to try and ensure a similar bogo-op rate
 for all the methods to avoid the shorter running (and faster) methods from
 skewing the bogo-op rates when using the default "all" method.
@@ -2193,7 +2196,7 @@ significantly as the original bogo-op counter rates. To disable the normalizatio
 and fall back to the original metrics, use this option.
 .TP
 .B \-\-cpu\-ops N
-stop cpu stress workers after N bogo operations.
+stop CPU stress workers after N bogo operations.
 .RE
 .TP
 .B CPU onlining stressor
@@ -5526,7 +5529,7 @@ stop memhotplug stressors after N memory offline and online bogo operations.
 .B \-\-memrate N
 start N workers that exercise a buffer with 1024, 512, 256, 128, 64, 32, 16 and
 8 bit reads and writes. 1024, 512 and 256 reads and writes are available with
-compilers that support integer vectors. x86-64 cpus that support uncached
+compilers that support integer vectors. x86-64 CPUs that support uncached
 (non-temporal "nt") writes also exercise 128, 64 and 32 writes providing
 higher write rates than the normal cached writes. x86-64 also exercises repeated
 string stores using 64, 32, 16 and 8 bit writes. CPUs that support prefetching
@@ -6737,7 +6740,7 @@ stop the taskstats netlink connector stressors after N bogo ops.
 .RS 5
 .TQ
 .B \-\-nice N
-start N cpu consuming workers that exercise the available nice levels. Each
+start N CPU consuming workers that exercise the available nice levels. Each
 iteration forks off a child process that runs through all the nice levels
 running a busy loop for 0.1 seconds per level and then exits.
 .TP
@@ -6749,7 +6752,7 @@ stop after N nice bogo nice loops
 .RS 5
 .TQ
 .B \-\-nop N
-start N workers that consume cpu cycles issuing no-op instructions. This
+start N workers that consume CPU cycles issuing no-op instructions. This
 stressor is available if the assembler supports the "nop" instruction.
 .TP
 .B \-\-nop\-instr INSTR
@@ -11543,15 +11546,15 @@ for 1 hour. Thus each stressor uses 10% of the available memory.
 .LP
 \f[CR]stress\-ng \-\-vm 50% -t 1h\f[]
 .IP
-run virtual memory stressors on 50% of the number of online cpus for 1 hour.
+run virtual memory stressors on 50% of the number of online CPUs for 1 hour.
 .LP
 \f[CR]stress\-ng \-\-vm 200% -t 1h\f[]
 .IP
-run virtual memory stressors on 2 times the number of online cpus for 1 hour.
+run virtual memory stressors on 2 times the number of online CPUs for 1 hour.
 .LP
 \f[CR]stress\-ng \-\-cpu 4 \-\-io 2 \-\-vm 1 \-\-vm\-bytes 1G \-\-timeout 60s\f[]
 .IP
-runs for 60 seconds with 4 cpu stressors, 2 io stressors and 1 vm stressor
+runs for 60 seconds with 4 CPU stressors, 2 io stressors and 1 vm stressor
 using 1 GB of virtual memory.
 .LP
 \f[CR]stress\-ng \-\-iomix 2 \-\-iomix\-bytes 10% -t 10m\f[]
@@ -11567,9 +11570,9 @@ after another, for 1 minute per stressor.
 .LP
 \f[CR]stress\-ng --trig 25% --fp 50% --fma 25% -t 5m --verify\f[]
 .IP
-run trigonometric function stressor on 25% of the online cpus, floating point
-stressor on 50% of the online cpus and fused\-multiple\-add stressor on 25% of
-the online cpus for 5 minutes and enable verification of results.
+run trigonometric function stressor on 25% of the online CPUs, floating point
+stressor on 50% of the online CPUs and fused\-multiple\-add stressor on 25% of
+the online CPUs for 5 minutes and enable verification of results.
 .LP
 \f[CR]stress\-ng \-\-with cpu,matrix,vecmath,fp \-\-permute 5 \-t 10s\f[]
 .IP
