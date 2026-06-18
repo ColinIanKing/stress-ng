@@ -312,6 +312,15 @@ static int shim_emulate_fallocate(int fd, off_t offset, off_t len)
 			return -1;
 		}
 	}
+	if (n > 0) {
+		/*
+		 * If we exited the loop but still have data left (n > 0),
+	         * it means we were interrupted by stress_continue_flag
+		 * being set to false. Return EINTR instead of success.
+		 */
+		errno = EINTR;
+		return -1;
+	}
 	return 0;
 }
 

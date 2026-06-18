@@ -144,7 +144,7 @@ static int stress_fsize_boundary(
 			errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
-	if (!sigxfsz && !stress_fsize_reported(off, FSIZE_TYPE_SIGXFSZ)) {
+	if ((errno != EINTR) && !sigxfsz && !stress_fsize_reported(off, FSIZE_TYPE_SIGXFSZ)) {
 		pr_inf("%s: did not get expected SIGXFSZ signal at offset %" PRIdMAX " (0x%" PRIxMAX ")\n",
 			args->name, (intmax_t)off, (uintmax_t)off);
 		return EXIT_FAILURE;

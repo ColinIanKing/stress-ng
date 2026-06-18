@@ -1165,6 +1165,9 @@ static int stress_iomix(stress_args_t *args)
 #endif
 		if (UNLIKELY(ret < 0)) {
 			switch (errno) {
+			case EINTR:
+				goto tidy;
+				break;
 			case EFBIG:
 			case ENOSPC:
 				if (iomix_bytes > (off_t)MIN_IOMIX_BYTES) {

@@ -338,7 +338,10 @@ static int stress_mmaphuge(stress_args_t *args)
 		 *  Allocate a 16 MB aligned chunk of data.
 		 */
 		if (shim_fallocate(context->fd, 0, 0, (off_t)context->sz) < 0) {
-			rc = stress_exit_status(errno);
+			if (errno == EINTR)
+				rc = EXIT_NO_RESOURCE;
+			else
+				rc = stress_exit_status(errno);
 			pr_fail("%s: fallocate of %zu MB failed, errno=%d (%s)\n",
 				args->name, (size_t)(context->sz / MB), errno, strerror(errno));
 			(void)close(context->fd);

@@ -104,7 +104,7 @@ static int stress_fiemap_writer(
 		offset = stress_mwc64modn(len);
 		if (UNLIKELY(shim_fallocate(fd, FALLOC_FL_PUNCH_HOLE |
 					    FALLOC_FL_KEEP_SIZE, (off_t)offset, 8192) < 0)) {
-			if (errno == ENOSPC)
+			if ((errno == ENOSPC) || (errno == EINTR))
 				continue;
 			if (errno == EOPNOTSUPP)
 				punch_hole = false;
