@@ -576,6 +576,10 @@ const stressor_info_t stress_logmath_info = {
 #else
 
 static const stress_exercises_t exercises[] = {
+#if defined(HAVE_COMPLEX_H)
+	STRESS_EX_FEATURE("fp-complex"),
+#endif
+
 	STRESS_EX_LIBRARY("m"),
 
 	STRESS_EX_END,
