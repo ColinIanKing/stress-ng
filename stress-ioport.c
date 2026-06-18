@@ -338,6 +338,7 @@ static int stress_ioport(stress_args_t *args)
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("cpu-opcode"),
 	STRESS_EX_SYSCALL("ioperm"),
 	STRESS_EX_END,
 };

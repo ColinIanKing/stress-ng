@@ -718,6 +718,7 @@ static int stress_tsc_supported(const char *name)
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("cpu-opcode"),
 	STRESS_EX_FEATURE("timer"),
 
 	STRESS_EX_END,
