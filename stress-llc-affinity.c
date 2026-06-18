@@ -607,6 +607,8 @@ static int stress_llc_affinity(stress_args_t *args)
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("memory-bus"),
+
 	STRESS_EX_SYSCALL("sched_setaffinity"),
 	STRESS_EX_END,
 };

@@ -459,6 +459,7 @@ unmap_local_buffer:
 
 static const stress_exercises_t exercises[] = {
 	STRESS_EX_FEATURE("d-cache"),
+	STRESS_EX_FEATURE("memory-bus"),
 
 #if defined(HAVE_LIB_RT)
 	STRESS_EX_LIBRARY("rt"),

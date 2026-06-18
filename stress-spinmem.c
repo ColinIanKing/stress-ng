@@ -424,6 +424,7 @@ static const stress_opt_t opts[] = {
 
 static const stress_exercises_t exercises[] = {
 	STRESS_EX_FEATURE("ipc"),
+	STRESS_EX_FEATURE("memory-bus"),
 
 	/*
 #if defined(HAVE_SCHED_SETAFFINITY)

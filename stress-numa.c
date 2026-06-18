@@ -761,6 +761,8 @@ deinit:
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("memory-bus"),
+
 	STRESS_EX_SYSCALL("getcpu"),
 	STRESS_EX_SYSCALL("get_mempolicy"),
 	STRESS_EX_SYSCALL("mbind"),
