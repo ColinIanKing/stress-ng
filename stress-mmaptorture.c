@@ -918,6 +918,8 @@ static int stress_mmaptorture(stress_args_t *args)
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("tlb"),
+
 	STRESS_EX_SYSCALL("ftruncate"),
 	STRESS_EX_SYSCALL("mincore"),
 #if defined(HAVE_MSYNC)

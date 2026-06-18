@@ -672,6 +672,8 @@ free_pages1:
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("tlb"),
+
 	STRESS_EX_SYSCALL("mbind"),
 #if defined(HAVE_MADVISE)
 	STRESS_EX_SYSCALL("madvise"),

@@ -460,6 +460,8 @@ err_free_cpus:
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("tlb"),
+
 #if defined(HAVE_MADVISE) &&	\
     defined(SHIM_MADV_DONTNEED)
 	STRESS_EX_SYSCALL("madvise"),
