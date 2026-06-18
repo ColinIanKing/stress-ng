@@ -274,6 +274,8 @@ static int stress_timer(stress_args_t *args)
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("timer"),
+
 	STRESS_EX_SYSCALL("nanosleep"),
 	STRESS_EX_SYSCALL("timer_create"),
 	STRESS_EX_SYSCALL("timer_delete"),

@@ -1055,6 +1055,10 @@ static const stress_opt_t opts[] = {
 };
 
 static const stress_exercises_t exercises[] = {
+#if defined(MEM_LOCK)
+	STRESS_EX_FEATURE("atomic"),
+#endif
+
 #if defined(HAVE_LIB_PTHREAD)
 	STRESS_EX_LIBRARY("pthread"),
 #endif

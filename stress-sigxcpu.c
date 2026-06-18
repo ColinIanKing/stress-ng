@@ -145,6 +145,8 @@ static int stress_sigxcpu(stress_args_t *args)
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("stack"),
+
 	STRESS_EX_SYSCALL("getrusage"),
 	STRESS_EX_SYSCALL("setrlimit"),
 	STRESS_EX_SYSCALL("sched_yield"),

@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, may be w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "17 June 2026"
+.TH STRESS-NG 1 "18 June 2026"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -133,6 +133,63 @@ parse options, but do not run stress tests. A no-op.
 .TP
 .B \-\-exercised
 show the system calls exercised by the core of each stressor
+.TP
+.B \-\-exercise\-feature list
+enable stressors that exercises the one or more stressor features specified in
+the given list. Use the \-\-all, \-\-permute or \-\-seq options to
+specify how to run the stessors. For example: \f[CR]\-\-exercise\-features branch,registers\f[]
+to exercise branching and processor registers. The features available are as follows:
+.sp
+.TS
+lB lB
+l lx.
+Feature	Explanation
+atomic	T{
+atomic operations 
+T}
+branch	T{
+intensive branch operations
+T}
+cipher	T{
+cipher computation
+T}
+crypto	T{
+cryptography computation
+T}
+d-cache	T{
+data cache operations
+T}
+frontend-decoder	T{
+exercise CPU instruction frontend decoder
+T}
+hash	T{
+hash computation
+T}
+i-cache	T{
+instuction cache operations
+T}
+ipc	T{
+inter-process communication primitives
+T}
+oom	T{
+force out-of-memory failures
+T}
+registers	T{
+CPU registers exercising
+T}
+stack	T{
+process stack memory operations
+T}
+string	T{
+string operations
+T}
+timer	T{
+clocks, alarms and timers exercising
+T}
+virt	T{
+virtual machine operations
+T}
+.TE
 .TP
 .B \-\-exercise\-library list
 enable stressors that exercises the one or more libraries specified in

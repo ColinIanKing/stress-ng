@@ -457,6 +457,7 @@ typedef enum {
 	OPT_exec_ops,
 
 	OPT_exercised,
+	OPT_exercise_feature,
 	OPT_exercise_library,
 	OPT_exercise_syscall,
 

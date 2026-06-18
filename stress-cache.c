@@ -1461,6 +1461,8 @@ tidy_cpus:
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("d-cache"),
+
 #if defined(__NR_cacheflush)
 	STRESS_EX_SYSCALL("cacheflush"),
 #endif

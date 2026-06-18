@@ -268,6 +268,8 @@ static int stress_dekker(stress_args_t *args)
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("ipc"),
+
 	STRESS_EX_END,
 };
 

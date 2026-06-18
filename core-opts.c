@@ -257,6 +257,7 @@ const struct option stress_long_options[] = {
 	{ "exec-no-pthread",	0,	NULL,	OPT_exec_no_pthread },
 	{ "exec-ops",		1,	NULL,	OPT_exec_ops },
 	{ "exercised",		0,	NULL,	OPT_exercised },
+	{ "exercise-feature",	1,	NULL,	OPT_exercise_feature },
 	{ "exercise-library",	1,	NULL,	OPT_exercise_library },
 	{ "exercise-syscall",	1,	NULL,	OPT_exercise_syscall },
 	{ "exit-group",		1,	NULL,	OPT_exit_group },

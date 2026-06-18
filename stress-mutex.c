@@ -284,6 +284,8 @@ static int stress_mutex(stress_args_t *args)
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("ipc"),
+
 #if defined(HAVE_LIB_PTHREAD)
 	STRESS_EX_LIBRARY("pthread"),
 #endif

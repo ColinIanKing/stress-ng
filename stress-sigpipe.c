@@ -96,6 +96,8 @@ static int stress_sigpipe(stress_args_t *args)
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("stack"),
+
 #if defined(__linux__)
 	STRESS_EX_SYSCALL("rt_sigreturn"),
 #endif

@@ -2078,6 +2078,8 @@ free_permutations:
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("d-cache"),
+
 #if defined(HAVE_MSYNC)
 	STRESS_EX_SYSCALL("msync"),
 #endif

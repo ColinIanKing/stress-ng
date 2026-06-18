@@ -458,6 +458,8 @@ unmap_local_buffer:
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("d-cache"),
+
 #if defined(HAVE_LIB_RT)
 	STRESS_EX_LIBRARY("rt"),
 #endif

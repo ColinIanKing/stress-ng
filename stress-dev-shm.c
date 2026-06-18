@@ -216,6 +216,8 @@ unmap_context:
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("oom"),
+
 	STRESS_EX_SYSCALL("fallocate"),
 	STRESS_EX_SYSCALL("ftruncate"),
 	STRESS_EX_SYSCALL("mmap"),

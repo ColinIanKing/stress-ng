@@ -276,6 +276,8 @@ static int stress_smi(stress_args_t *args)
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("registers"),
+
 	STRESS_EX_END,
 };
 

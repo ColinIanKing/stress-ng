@@ -429,6 +429,8 @@ dir_rm:
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("timer"),
+
 	STRESS_EX_SYSCALL("close"),
 #if defined(HAVE_SYS_TIMERFD_H) &&	\
     defined(TFD_IOC_SET_TICKS)

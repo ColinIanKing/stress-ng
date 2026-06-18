@@ -486,6 +486,8 @@ err:
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("timer"),
+
 	STRESS_EX_SYSCALL("clock_gettime"),
 	STRESS_EX_SYSCALL("nanosleep"),
 	STRESS_EX_SYSCALL("sched_setscheduler"),

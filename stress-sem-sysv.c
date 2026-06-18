@@ -613,6 +613,8 @@ reap:
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("ipc"),
+
 	STRESS_EX_SYSCALL("semctl"),
 	STRESS_EX_SYSCALL("semget"),
 	STRESS_EX_SYSCALL("semop"),

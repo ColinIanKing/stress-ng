@@ -400,6 +400,8 @@ static int stress_mmaphuge(stress_args_t *args)
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("oom"),
+
 	STRESS_EX_SYSCALL("madvise"),
 	STRESS_EX_SYSCALL("mmap"),
 	STRESS_EX_SYSCALL("munmap"),

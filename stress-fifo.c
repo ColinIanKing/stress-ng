@@ -357,6 +357,8 @@ tidy_pids:
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("ipc"),
+
 	STRESS_EX_SYSCALL("mkfifo"),
 	STRESS_EX_SYSCALL("read"),
 #if defined(HAVE_POLL_H) && 	\

@@ -354,6 +354,8 @@ static int stress_brk(stress_args_t *args)
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("oom"),
+
 	STRESS_EX_SYSCALL("brk"),
 	STRESS_EX_SYSCALL("sbrk"),
 #if defined(HAVE_MADVISE) &&	\

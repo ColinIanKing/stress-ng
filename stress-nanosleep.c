@@ -368,6 +368,8 @@ tidy:
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("timer"),
+
 	STRESS_EX_SYSCALL("nanosleep"),
 
 #if defined(HAVE_LIB_PTHREAD)

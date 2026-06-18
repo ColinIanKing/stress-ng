@@ -2222,6 +2222,8 @@ static const char *stress_exercise_type_str(const stress_exercise_type_t type)
 		return "syscall";
 	case STRESS_EX_TYPE_LIBRARY:
 		return "library";
+	case STRESS_EX_TYPE_FEATURE:
+		return "feature";
 	case STRESS_EX_TYPE_END:
 	default:
 		break;
@@ -2246,7 +2248,7 @@ static void stress_exercise_dump(FILE *yaml)
 
 		pr_inf(" %s:\n", name);
 		pr_yaml(yaml, "    - stressor: %s\n", name);
-		for (type = STRESS_EX_TYPE_SYSCALL; type < STRESS_EX_TYPE_END; type++) {
+		for (type = STRESS_EX_TYPE_BEGIN; type < STRESS_EX_TYPE_END; type++) {
 			const stress_exercises_t * const exercises = item->stressor->info->exercises;
 
 			if (item->stressor->info->exercises) {
@@ -3588,6 +3590,7 @@ static const stress_opt_t main_opts[] = {
 	{ OPT_class,            "class",            TYPE_ID_STR, 0, 0, NULL },
 	{ OPT_compact_memory,   "compact-memory",   TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_exclude,	        "exclude",          TYPE_ID_STR, 0, 0, NULL },
+	{ OPT_exercise_feature, "exercise-feature", TYPE_ID_STR, 0, 0, NULL },
 	{ OPT_exercise_library, "exercise-library", TYPE_ID_STR, 0, 0, NULL },
 	{ OPT_exercise_syscall, "exercise-syscall", TYPE_ID_STR, 0, 0, NULL },
 	{ OPT_ionice_class,     "ionice-class",     TYPE_ID_STR, 0, 0, NULL },
@@ -4204,6 +4207,8 @@ int main(int argc, char **argv, char **envp)
 	if (stress_exercises_get("exercise-syscall", STRESS_EX_TYPE_SYSCALL, &ret) < 0)
 		goto exit_stressors_free;
 	if (stress_exercises_get("exercise-library", STRESS_EX_TYPE_LIBRARY, &ret) < 0)
+		goto exit_stressors_free;
+	if (stress_exercises_get("exercise-feature", STRESS_EX_TYPE_FEATURE, &ret) < 0)
 		goto exit_stressors_free;
 
 	if (stress_class_get(&opt_class, &ret) < 0)

@@ -602,6 +602,8 @@ static int stress_clock(stress_args_t *args)
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("timer"),
+
 #if defined(CLOCK_THREAD_CPUTIME_ID) && \
     defined(HAVE_CLOCK_GETTIME)
 	STRESS_EX_SYSCALL("clock_gettime"),

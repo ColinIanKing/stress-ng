@@ -177,6 +177,8 @@ reap:
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("oom"),
+
 	STRESS_EX_END,
 };
 

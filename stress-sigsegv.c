@@ -578,6 +578,8 @@ tidy:
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("stack"),
+
 	STRESS_EX_SYSCALL("sigaction"),
 	STRESS_EX_SYSCALL("sigprocmask"),
 	STRESS_EX_END,

@@ -312,6 +312,8 @@ tidy_dir:
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("stack"),
+
 	STRESS_EX_SYSCALL("fork"),
 	STRESS_EX_SYSCALL("msync"),
 	STRESS_EX_SYSCALL("sigaction"),

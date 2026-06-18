@@ -384,6 +384,8 @@ static const stress_opt_t opts[] = {
 };
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("frontend-decoder"),
+
 	STRESS_EX_END,
 };
 

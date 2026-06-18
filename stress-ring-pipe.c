@@ -286,6 +286,8 @@ err_ret:
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("ipc"),
+
 #if defined(HAVE_POLL_H) &&	\
     defined(HAVE_POLL)
 	STRESS_EX_SYSCALL("fcntl"),

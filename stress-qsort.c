@@ -292,6 +292,8 @@ static const stress_opt_t opts[] = {
 };
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("d-cache"),
+
 	STRESS_EX_END,
 };
 

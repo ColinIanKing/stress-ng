@@ -1582,6 +1582,10 @@ static void stress_af_alg_deinit(void)
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("cipher"),
+	STRESS_EX_FEATURE("crypto"),
+	STRESS_EX_FEATURE("hash"),
+
 	STRESS_EX_SYSCALL("accept"),
 	STRESS_EX_SYSCALL("bind"),
 	STRESS_EX_SYSCALL("recv"),
