@@ -4142,31 +4142,31 @@ static const stress_exercises_t exercises[] = {
 	STRESS_EX_SYSCALL("sigaction"),
 #endif
 #if DEFSYS(rt_sigaction)
-	STRESS_EX_SYSCALL("rt_sigaction"),
+	STRESS_EX_SYSCALL("sigaction"),
 #endif
 #if DEFSYS(rt_sigpending)
-	STRESS_EX_SYSCALL("rt_sigpending"),
+	STRESS_EX_SYSCALL("sigpending"),
 #endif
 #if DEFSYS(rt_sigprocmask)
-	STRESS_EX_SYSCALL("rt_sigprocmask"),
+	STRESS_EX_SYSCALL("sigprocmask"),
 #endif
 #if DEFSYS(rt_sigqueueinfo)
-	STRESS_EX_SYSCALL("rt_sigqueueinfo"),
+	STRESS_EX_SYSCALL("sigqueueinfo"),
 #endif
 #if DEFSYS(rt_sigreturn)
-	STRESS_EX_SYSCALL("rt_sigreturn"),
+	STRESS_EX_SYSCALL("sigreturn"),
 #endif
 #if DEFSYS(rt_sigsuspend)
-	STRESS_EX_SYSCALL("rt_sigsuspend"),
+	STRESS_EX_SYSCALL("sigsuspend"),
 #endif
 #if DEFSYS(rt_sigtimedwait)
-	STRESS_EX_SYSCALL("rt_sigtimedwait"),
+	STRESS_EX_SYSCALL("sigtimedwait"),
 #endif
 #if DEFSYS(rt_sigtimedwait_64)
-	STRESS_EX_SYSCALL("rt_sigtimedwait_64"),
+	STRESS_EX_SYSCALL("sigtimedwait_64"),
 #endif
 #if DEFSYS(rt_tgsigqueueinfo)
-	STRESS_EX_SYSCALL("rt_tgsigqueueinfo"),
+	STRESS_EX_SYSCALL("tgsigqueueinfo"),
 #endif
 #if DEFSYS(rtas)
 	STRESS_EX_SYSCALL("rtas"),

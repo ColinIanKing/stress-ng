@@ -99,7 +99,7 @@ static const stress_exercises_t exercises[] = {
 	STRESS_EX_FEATURE("stack"),
 
 #if defined(__linux__)
-	STRESS_EX_SYSCALL("rt_sigreturn"),
+	STRESS_EX_SYSCALL("sigreturn"),
 #endif
 
 	STRESS_EX_SYSCALL("write"),

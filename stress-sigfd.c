@@ -199,7 +199,7 @@ static const stress_exercises_t exercises[] = {
 
 	STRESS_EX_SYSCALL("read"),
 #if defined(__linux__)
-	STRESS_EX_SYSCALL("rt_sigreturn"),
+	STRESS_EX_SYSCALL("sigreturn"),
 #endif
 	STRESS_EX_SYSCALL("signalfd"),
 	STRESS_EX_SYSCALL("sigprocmask"),
