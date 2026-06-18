@@ -740,10 +740,13 @@ static const stress_opt_t opts[] = {
 };
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("cpu-shift"),
+
 #if defined(HAVE_XXHASH_H) &&	\
     defined(HAVE_LIB_XXHASH)
 	STRESS_EX_LIBRARY("xxhash"),
 #endif
+
 	STRESS_EX_END,
 };
 
