@@ -136,9 +136,10 @@ show the system calls exercised by the core of each stressor
 .TP
 .B \-\-exercise\-feature list
 enable stressors that exercises one or more stressor features specified in
-the given list. Use the \-\-all, \-\-permute or \-\-seq options to
-specify how to run the stessors. For example: \f[CR]\-\-exercise\-features branch,registers\f[]
-to exercise branching and processor registers. The features available are as follows:
+the given list, for example: \f[CR]\-\-exercise\-features branch,registers\f[]
+to exercise branching and processor registers.
+Use the \-\-all, \-\-permute or \-\-seq options to specify how to run the stessors. 
+The features available are as follows:
 .sp
 .TS
 lB lB
@@ -223,14 +224,88 @@ T}
 .TP
 .B \-\-exercise\-library list
 enable stressors that exercises one or more libraries specified in
-the given list. Use the \-\-all, \-\-permute or \-\-seq options to
-specify how to run the stessors. For example: \f[CR]\-\-exercise\-library pthread,z\f[]
+the given list, for example: \f[CR]\-\-exercise\-library pthread,z\f[]
 for libpthread and libz libraries.
+Use the \-\-all, \-\-permute or \-\-seq options to specify how to run the stessors. 
+The libraries available are as follows:
+.sp
+.TS
+lB lB
+l lx.
+Library	Explanation
+acl	T{
+libacl (access control lists)
+T}
+aio	T{
+libaio (asynchronous I/O)
+T}
+apparmor	T{
+libapparmor (AppArmor)
+T}
+bsd	T{
+libbsd (various BSD C library functions)
+T}
+crypt	T{
+libcrypt (crypto library)
+T}
+dl	T{
+libdl (dynamic object linking)
+T}
+egl	T{
+libegl (vendor-neutral dispatch layer for arbitrating OpenGL API calls)
+T}
+gbm	T{
+libgbm (generic buffer management API)
+T}
+glesv2	T{
+libglesv2 (OpenGL ES 2.0)
+T}
+gmp	T{
+libgmp (GNU multi-precision numbers)
+T}
+IPSec_MB	T{
+libIPSec_MB (Intel \*R Multi-Buffer Crypto for IPSec)
+T}
+jpeg	T{
+libjpeg (JPEG image codec)
+T}
+judy	T{
+libjudy (dynamic arrays)
+T}
+lzma	T{
+liblzma (lzma compression/decompression)
+T}
+m	T{
+libm (math functions)
+T}
+md	T{
+libmd (BSD message digest)
+T}
+mpfr	T{
+libmpfr (GNU multi-precision floating-point)
+T}
+pthread	T{
+libpthread (POSIX threading)
+T}
+rt	T{
+librt (POSIX real-time)
+T}
+sctp	T{
+libsctp (SCTP socket interface)
+T}
+xxhash	T{
+libxxhash (extremely fast hash)
+T}
+z	T{
+libz (z compression/decompression)
+T}
+.TE
 .TP
 .B \-\-exercise\-syscall list
 enable stressors that exercises one or more system calls specified in
-the given list. Use the \-\-all, \-\-permute or \-\-seq options to
-specify how to run the stessors.
+the given list, for example: \f[CR]\-\-exercise\-syscall mmap,fork\f[]
+for the mmap and fork system calls.
+Use the \-\-all, \-\-permute or \-\-seq options to specify how to run the stessors.
 .TP
 .B \-\-ftrace
 enable kernel function call tracing (Linux only). This will use the
