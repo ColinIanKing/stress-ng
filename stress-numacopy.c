@@ -649,6 +649,7 @@ deinit:
 
 static const stress_exercises_t exercises[] = {
 	STRESS_EX_FEATURE("memory-bus"),
+	STRESS_EX_FEATURE("memory-copy"),
 
 #if defined(HAVE_SCHED_GETAFFINITY)
 	STRESS_EX_SYSCALL("sched_getaffinity"),
