@@ -254,6 +254,7 @@ finish:
 
 static const stress_exercises_t exercises[] = {
 	STRESS_EX_FEATURE("d-cache"),
+	STRESS_EX_FEATURE("integer"),
 
 	STRESS_EX_LIBRARY("gmp"),
 	STRESS_EX_LIBRARY("mpfr"),
