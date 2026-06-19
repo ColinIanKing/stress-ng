@@ -700,14 +700,22 @@ static int stress_tsc(stress_args_t *args)
 	return ret;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("cpu-opcode"),
+	STRESS_EX_FEATURE("timer"),
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_tsc_info = {
 	.stressor = stress_tsc,
 	.supported = stress_tsc_supported,
 	.classifier = CLASS_CPU,
 	.verify = VERIFY_OPTIONAL,
 	.opts = opts,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
+
 #else
 
 static int stress_tsc_supported(const char *name)
@@ -717,12 +725,6 @@ static int stress_tsc_supported(const char *name)
 	return -1;
 }
 
-static const stress_exercises_t exercises[] = {
-	STRESS_EX_FEATURE("cpu-opcode"),
-	STRESS_EX_FEATURE("timer"),
-
-	STRESS_EX_END,
-};
 
 const stressor_info_t stress_tsc_info = {
 	.stressor = stress_unimplemented,
@@ -732,6 +734,5 @@ const stressor_info_t stress_tsc_info = {
 	.opts = opts,
 	.help = help,
 	.unimplemented_reason = "built without RISC-V rdtime, x86 rdtsc, s390 stck instructions or powerpc __ppc_get_timebase()",
-	.exercises = exercises,
 };
 #endif
