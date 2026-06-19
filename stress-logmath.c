@@ -560,6 +560,13 @@ static const stress_opt_t opts[] = {
 };
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("fp"),
+#if defined(HAVE_COMPLEX_H)
+	STRESS_EX_FEATURE("fp-complex"),
+#endif
+
+	STRESS_EX_LIBRARY("m"),
+
 	STRESS_EX_END,
 };
 
@@ -574,17 +581,6 @@ const stressor_info_t stress_logmath_info = {
 };
 
 #else
-
-static const stress_exercises_t exercises[] = {
-	STRESS_EX_FEATURE("fp"),
-#if defined(HAVE_COMPLEX_H)
-	STRESS_EX_FEATURE("fp-complex"),
-#endif
-
-	STRESS_EX_LIBRARY("m"),
-
-	STRESS_EX_END,
-};
 
 static void stress_logmath_method(const char *opt_name, const char *opt_arg, stress_type_id_t *type_id, void *value)
 {
@@ -604,7 +600,6 @@ const stressor_info_t stress_logmath_info = {
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
-	.exercises = exercises,
 };
 
 #endif
