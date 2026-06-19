@@ -611,6 +611,8 @@ static const stress_opt_t opts[] = {
 };
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("fp"),
+
 	STRESS_EX_LIBRARY("m"),
 
 	STRESS_EX_END,
@@ -618,7 +620,7 @@ static const stress_exercises_t exercises[] = {
 
 const stressor_info_t stress_besselmath_info = {
 	.stressor = stress_besselmath,
-	.classifier = CLASS_CPU | CLASS_FP |CLASS_COMPUTE,
+	.classifier = CLASS_CPU | CLASS_FP | CLASS_COMPUTE,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,

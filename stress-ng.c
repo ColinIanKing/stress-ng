@@ -4108,7 +4108,7 @@ int main(int argc, char **argv, char **envp)
 {
 	size_t i;
 	double duration = 0.0;			/* stressor run time in secs */
-	FILE *yaml;				/* YAML output file */
+	FILE *yaml = NULL;			/* YAML output file */
 	char *yaml_filename = NULL;		/* YAML file name */
 	char *log_filename;			/* log filename */
 	char *job_filename = NULL;		/* job filename */
@@ -4144,8 +4144,6 @@ int main(int argc, char **argv, char **envp)
 		ret = EXIT_FAILURE;
 		goto exit_ret;
 	}
-
-	yaml = NULL;
 
 	/* --exec stressor uses this to exec itself and then exit early */
 	if ((argc == 2) && !strcmp(argv[1], "--exec-exit")) {

@@ -3330,10 +3330,11 @@ static const stress_opt_t opts[] = {
 static const stress_exercises_t exercises[] = {
 	STRESS_EX_FEATURE("cpu-bit"),
 	STRESS_EX_FEATURE("cpu-shift"),
-	STRESS_EX_FEATURE("registers"),
+	STRESS_EX_FEATURE("fp"),
 #if defined(HAVE_COMPLEX_H)
 	STRESS_EX_FEATURE("fp-complex"),
 #endif
+	STRESS_EX_FEATURE("registers"),
 
 	STRESS_EX_LIBRARY("m"),
 
