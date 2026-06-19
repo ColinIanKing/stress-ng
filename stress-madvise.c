@@ -632,6 +632,10 @@ madv_free_out:
 }
 
 static const stress_exercises_t exercises[] = {
+#if defined(MADV_PAGEOUT)
+	STRESS_EX_FEATURE("swap"),
+#endif
+
 	STRESS_EX_SYSCALL("madvise"),
 	STRESS_EX_SYSCALL("mincore"),
 #if defined(_POSIX_MEMLOCK_RANGE) &&	\

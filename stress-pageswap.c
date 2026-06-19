@@ -195,6 +195,8 @@ static int stress_pageswap(stress_args_t *args)
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("swap"),
+
 	STRESS_EX_SYSCALL("madvise"),
 	STRESS_EX_SYSCALL("mincore"),
 	STRESS_EX_SYSCALL("mmap"),

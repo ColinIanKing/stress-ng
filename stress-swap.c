@@ -569,6 +569,8 @@ static int stress_swap(stress_args_t *args)
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("swap"),
+
 	STRESS_EX_SYSCALL("close"),
 	STRESS_EX_SYSCALL("lseek"),
 	STRESS_EX_SYSCALL("madvise"),
