@@ -3885,9 +3885,9 @@ stop the funcret workers after N bogo function call operations.
 .TP
 .B \-\-funcret\-method method
 specify the method of funcret argument type to be used. The
-default is uint64_t but can be one of uint8 uint16 uint32 uint64 uint128
+default is 'all' but can be one of uint8 uint16 uint32 uint64 uint128
 float double longdouble float80 float128 decimal32 decimal64 decimal128
-uint8x32 uint8x128 uint64x128.
+uint8x32 uint8x128 uint64x128 cfloat cdouble clongdouble.
 .RE
 .TP
 .B Fast mutex (futex) stressor

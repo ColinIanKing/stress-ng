@@ -63,6 +63,12 @@ static const stress_help_t help[] = {
 
 typedef long double 	stress_long_double_t;
 
+#if defined(HAVE_COMPLEX_H)
+typedef complex float		stress_complex_float_t;
+typedef complex double		stress_complex_double_t;
+typedef complex long double	stress_complex_long_double_t;
+#endif
+
 typedef struct {
 	uint8_t		data[32];	/* cppcheck-suppress unusedStructMember */
 } stress_uint8x32_t;
@@ -74,6 +80,7 @@ typedef struct {
 typedef struct {
 	uint64_t	data[128];	/* cppcheck-suppress unusedStructMember */
 } stress_uint64x128_t;
+
 
 #define stress_funcret1(type)					\
 static type NOINLINE stress_funcret_ ## type ## 1(type a);	\
@@ -234,6 +241,20 @@ stress_funcret1(stress_uint64x128_t)
 stress_funcret_deep1(stress_uint64x128_t)
 stress_funcret_deeper1(stress_uint64x128_t)
 
+#if defined(HAVE_COMPLEX_H)
+stress_funcret1(stress_complex_float_t)
+stress_funcret_deep1(stress_complex_float_t)
+stress_funcret_deeper1(stress_complex_float_t)
+
+stress_funcret1(stress_complex_double_t)
+stress_funcret_deep1(stress_complex_double_t)
+stress_funcret_deeper1(stress_complex_double_t)
+
+stress_funcret1(stress_complex_long_double_t)
+stress_funcret_deep1(stress_complex_long_double_t)
+stress_funcret_deeper1(stress_complex_long_double_t)
+#endif
+
 static void stress_funcret_setvar(void *ptr, const size_t size)
 {
 	register size_t i;
@@ -251,6 +272,9 @@ static void stress_funcret_setvar(void *ptr, const size_t size)
 #define cmp_mem(a, b, type)	shim_memcmp(&a.data, &b.data, sizeof(a.data))
 #define cmp_type(a, b, type)	(a != b)
 #define cmp_fp(a, b, type)	(fabs((double)(a - b)) > 0.0001 * fmax(fabs((double)a), fabs((double)b)))
+
+#define CMAX(x, y)		(double)csqrt((x * x) + (y * y))
+#define cmp_cfp(a, b, type)	(cabs((complex double)(a - b)) > 0.0001 * CMAX(a, b))
 
 #define stress_funcret_type(type, cmp)					\
 static bool NOINLINE stress_funcret_ ## type(stress_args_t *args);\
@@ -344,6 +368,12 @@ stress_funcret_type(stress_uint8x32_t, cmp_mem)
 stress_funcret_type(stress_uint8x128_t, cmp_mem)
 stress_funcret_type(stress_uint64x128_t, cmp_mem)
 
+#if defined(HAVE_COMPLEX_H)
+stress_funcret_type(stress_complex_float_t, cmp_cfp)
+stress_funcret_type(stress_complex_double_t, cmp_cfp)
+stress_funcret_type(stress_complex_long_double_t, cmp_cfp)
+#endif
+
 static bool stress_funcret_all(stress_args_t *args);
 
 /*
@@ -408,6 +438,11 @@ static const stress_funcret_method_info_t stress_funcret_methods[] = {
 	{ "uint8x32",	stress_funcret_stress_uint8x32_t },
 	{ "uint8x128",	stress_funcret_stress_uint8x128_t },
 	{ "uint64x128",	stress_funcret_stress_uint64x128_t },
+#if defined(HAVE_COMPLEX_H)
+	{ "cfloat",	stress_funcret_stress_complex_float_t },
+	{ "cdouble",	stress_funcret_stress_complex_double_t },
+	{ "clongdouble", stress_funcret_stress_complex_long_double_t },
+#endif
 };
 
 #define NUM_STRESS_FUNCRET_METHODS	(SIZEOF_ARRAY(stress_funcret_methods))
@@ -488,11 +523,12 @@ static const char *stress_funcret_method(const size_t i)
 }
 
 static const stress_opt_t opts[] = {
-	{ OPT_funcret_method, "funcret_method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_funcret_method },
+	{ OPT_funcret_method, "funcret-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_funcret_method },
 	END_OPT,
 };
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("cfp"),
 	STRESS_EX_FEATURE("fp"),
 	STRESS_EX_FEATURE("stack"),
 
