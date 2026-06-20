@@ -611,6 +611,7 @@ stress-ng has found various Kernel, QEMU bugs/regressions, and libc bugs; approp
 
 2026:
  * [f2fs: fix to avoid mapping wrong physical block for swapfile](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=5c145c03188bc9ba1c29e0bc4d527a5978fc47f9)
+ * [fs/pipe: reduce pipe->mutex contention by pre-allocating outside the lock](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=99f414273beda01a86c2fb66c2155da61335fa59)
  * [mm/vmscan: fix demotion targets checks in reclaim/demotion](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=1aceed565ff172fc0331dd1d5e7e65139b711139)
  * [scsi: storvsc: Fix scheduling while atomic on PREEMPT_RT](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=57297736c08233987e5d29ce6584c6ca2a831b12)
  * [tools/sched_ext: Fix off-by-one in scx_sdt payload zeroing](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=a3c3fb2f86f8a1f266747622037f90eab58186ad)
@@ -618,9 +619,11 @@ stress-ng has found various Kernel, QEMU bugs/regressions, and libc bugs; approp
  * [sched/deadline: Fix missing ENQUEUE_REPLENISH during PI de-boosting](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=d658686a1331db3bb108ca079d76deb3208ed949)
  * [sched/fair: Fix zero_vruntime tracking fix](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=1319ea57529e131822bab56bf417c8edc2db9ae8)
  * [sched/debug: Fix avg_vruntime() usage](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=e08d007f9d813616ce7093600bc4fdb9c9d81d89)
+ * [memcg: multi objcg charge support](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=29a1ea41456b79d657e5f5deced1239477d03af1)
  * [mm: filemap: fix nr_pages calculation overflow in filemap_map_pages()](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=f58df566524ebcdfa394329c64f47e3c9257516e)
- * [mm/vmstat: fix vmstat_shepherd double-scheduling vmstat_update](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?2b19bf05719b73f7d04d7d27ec423b459b868852)
+ * [mm/vmstat: fix vmstat_shepherd double-scheduling vmstat_update](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=2b19bf05719b73f7d04d7d27ec423b459b868852)
  * [null pointer reference in gfs2 when using chattr](https://bugs.launchpad.net/ubuntu/+source/linux/+bug/2148595)
+ * [wifi: rtw89: phy: increase RF calibration timeouts for USB transport](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=5055188134c3cc755333fa19e5b8a0f3cb6fbb9a)
 
 ## Kernel improvements that used stress-ng
 
