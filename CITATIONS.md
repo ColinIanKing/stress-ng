@@ -223,6 +223,7 @@
  * [Colored Huge Pages: A Hardware-Software Approach for Enhanced Isolation and Performance](https://past.date-conference.com/proceedings-archive/2026/DATA/1222.pdf)
  * [Cross-Cache Attacks for the Linux Kernel via PCP Massaging](https://mbr.sh/files/papers/ndss2026_pcplost.pdf)
  * [DPUConfig: Optimizing ML Inference in FPGAs Using Reinforcement Learning](https://arxiv.org/pdf/2602.12847)
+ * [Edge-Inference Governors Need Memory-Clock State](https://arxiv.org/html/2606.16106)
  * [Enabling SLO-Aware 5G Multi-Access Edge Computing with SMEC](https://arxiv.org/html/2601.19162v1)
  * [FlexServe: A Fast and Secure LLM Serving System for Mobile Devices with Flexible Resource Isolation](https://arxiv.org/html/2603.09046v1)
  * [Graph Neural Networks for Anomaly Detection in Cloud Infrastructure](https://www.scirp.org/journal/paperinformation?paperid=146528)
