@@ -265,6 +265,9 @@ err:
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("kmem-cache-alloc"),
+	STRESS_EX_FEATURE("writeback-dirty-inode"),
+
 	STRESS_EX_SYSCALL("fallocate"),
 #if defined(HAVE_FDATASYNC)
 	STRESS_EX_SYSCALL("fdatasync"),

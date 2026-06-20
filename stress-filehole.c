@@ -702,6 +702,10 @@ tidy_ret:
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("filemap-page-cache"),
+	STRESS_EX_FEATURE("writeback-dirty-folio"),
+	STRESS_EX_FEATURE("writeback-dirty-inode"),
+
 	STRESS_EX_SYSCALL("fallocate"),
 #if defined(HAVE_PWRITE)
 	STRESS_EX_SYSCALL("pread"),

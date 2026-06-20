@@ -361,6 +361,10 @@ cleanup:
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("page-faults-major"),
+	STRESS_EX_FEATURE("page-faults-minor"),
+	STRESS_EX_FEATURE("page-faults-user"),
+
 	STRESS_EX_END,
 };
 

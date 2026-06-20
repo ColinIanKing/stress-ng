@@ -933,6 +933,8 @@ static int stress_cpu_sched(stress_args_t *args)
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("lock-contention"),
+
 	STRESS_EX_SYSCALL("getcpu"),
 #if defined(__linux__) &&		\
     defined(HAVE_GETPRIORITY) &&	\

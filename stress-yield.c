@@ -350,6 +350,7 @@ static int stress_yield(stress_args_t *args)
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("rcu-utilization"),
 	STRESS_EX_SYSCALL("sched_setscheduler"),
 	STRESS_EX_SYSCALL("sched_yield"),
 	STRESS_EX_END,

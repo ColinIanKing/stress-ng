@@ -855,6 +855,7 @@ free_memory:
 
 static const stress_exercises_t exercises[] = {
 	STRESS_EX_FEATURE("async-io"),
+	STRESS_EX_FEATURE("writeback-dirty-inode"),
 
 #if defined(__NR_io_cancel)
 	STRESS_EX_SYSCALL("io_cancel"),

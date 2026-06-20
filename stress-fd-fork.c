@@ -287,6 +287,9 @@ tidy_fds:
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("page-faults-minor"),
+	STRESS_EX_FEATURE("page-faults-user"),
+
 	STRESS_EX_SYSCALL("dup"),
 	STRESS_EX_SYSCALL("close"),
 	STRESS_EX_SYSCALL("fork"),

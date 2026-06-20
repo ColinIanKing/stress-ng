@@ -653,6 +653,9 @@ static int stress_clone(stress_args_t *args)
 
 static const stress_exercises_t exercises[] = {
 	STRESS_EX_FEATURE("oom"),
+	STRESS_EX_FEATURE("page-faults-minor"),
+	STRESS_EX_FEATURE("page-faults-user"),
+	STRESS_EX_FEATURE("page-faults-kernel"),
 
 	STRESS_EX_SYSCALL("clone"),
 #if defined(__NR_exit) && \

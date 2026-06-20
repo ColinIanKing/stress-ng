@@ -403,6 +403,8 @@ static int stress_mmaphuge(stress_args_t *args)
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("maple-tree-read"),
+	STRESS_EX_FEATURE("mmap-lock"),
 	STRESS_EX_FEATURE("oom"),
 
 	STRESS_EX_SYSCALL("madvise"),

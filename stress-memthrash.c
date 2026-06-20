@@ -1058,6 +1058,8 @@ static const stress_exercises_t exercises[] = {
 #if defined(MEM_LOCK)
 	STRESS_EX_FEATURE("atomic"),
 #endif
+	STRESS_EX_FEATURE("d-cache-miss"),
+	STRESS_EX_FEATURE("d-cache-ll-write"),
 	STRESS_EX_FEATURE("tlb"),
 	STRESS_EX_FEATURE("memory-bus"),
 

@@ -2671,6 +2671,8 @@ cleanup:
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("page-faults-kernel"),
+
 	STRESS_EX_SYSCALL("bind"),
 	STRESS_EX_SYSCALL("chdir"),
 	STRESS_EX_SYSCALL("chmod"),

@@ -424,6 +424,9 @@ static const stress_opt_t opts[] = {
 };
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("filemap-page-cache"),
+	STRESS_EX_FEATURE("writeback-dirty-folio"),
+
 	STRESS_EX_SYSCALL("close"),
 	STRESS_EX_SYSCALL("fdatasync"),
 	STRESS_EX_SYSCALL("lseek"),

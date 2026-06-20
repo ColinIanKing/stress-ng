@@ -1029,6 +1029,8 @@ static int stress_inotify(stress_args_t *args)
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("kmem-cache-alloc"),
+
 #if defined(IN_ATTRIB)
 	STRESS_EX_SYSCALL("chmod"),
 #endif

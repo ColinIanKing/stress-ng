@@ -2189,6 +2189,8 @@ static int stress_fd_abuse(stress_args_t *args)
 
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("writeback-dirty-inode"),
+
 	STRESS_EX_SYSCALL("bind"),
 	STRESS_EX_SYSCALL("creat"),
 	STRESS_EX_SYSCALL("dup"),

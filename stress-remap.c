@@ -348,6 +348,14 @@ PRAGMA_UNROLL_N(4)
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("maple-tree-write"),
+	STRESS_EX_FEATURE("maple-tree-read"),
+	STRESS_EX_FEATURE("writeback-dirty-inode"),
+
+	STRESS_EX_FEATURE("d-cache-read-miss"),
+	STRESS_EX_FEATURE("mmap-lock"),
+	STRESS_EX_FEATURE("tlb-flush"),
+
 	STRESS_EX_SYSCALL("remap_file_pages"),
 	STRESS_EX_END,
 };

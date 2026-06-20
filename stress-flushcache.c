@@ -395,6 +395,7 @@ static int stress_flushcache(stress_args_t *args)
 
 static const stress_exercises_t exercises[] = {
 	STRESS_EX_FEATURE("d-cache"),
+	STRESS_EX_FEATURE("d-cache-read-miss"),
 	STRESS_EX_FEATURE("i-cache"),
 
 	STRESS_EX_END,

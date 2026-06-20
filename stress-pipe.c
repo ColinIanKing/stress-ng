@@ -895,7 +895,10 @@ static const stress_opt_t opts[] = {
 };
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("context-switches"),
+	STRESS_EX_FEATURE("d-cache-ll-write"),
 	STRESS_EX_FEATURE("ipc"),
+	STRESS_EX_FEATURE("tlb-flush"),
 
 	STRESS_EX_SYSCALL("fcntl"),
 	STRESS_EX_SYSCALL("pipe"),

@@ -338,6 +338,9 @@ static int stress_fallocate(stress_args_t *args)
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("filemap-page-cache"),
+	STRESS_EX_FEATURE("writeback-dirty-folio"),
+
 #if defined(HAVE_POSIX_FALLOCATE)
 	STRESS_EX_SYSCALL("posix_fallocate"),
 #endif

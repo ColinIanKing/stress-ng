@@ -1097,6 +1097,8 @@ static int stress_get(stress_args_t *args)
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("page-faults-kernel"),
+
 #if defined(HAVE_SYS_TIMEX_H) &&	\
     defined(HAVE_ADJTIME)
 	STRESS_EX_SYSCALL("adjtime"),

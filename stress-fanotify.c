@@ -769,6 +769,9 @@ tidy:
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("filemap-page-cache"),
+	STRESS_EX_FEATURE("writeback-dirty-folio"),
+
 	STRESS_EX_SYSCALL("fanotify_init"),
 	STRESS_EX_SYSCALL("fanotify_mark"),
 	STRESS_EX_END,

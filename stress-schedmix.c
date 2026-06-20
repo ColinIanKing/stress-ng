@@ -677,6 +677,8 @@ free_cpus:
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("rcu-utilization"),
+
 	STRESS_EX_SYSCALL("fork"),
 #if defined(HAVE_GETRUSAGE)
 	STRESS_EX_SYSCALL("getrusage"),

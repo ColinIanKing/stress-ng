@@ -271,6 +271,8 @@ tidy_s_pids:
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("page-faults-kernel"),
+
 	STRESS_EX_SYSCALL("fork"),
 	STRESS_EX_SYSCALL("sched_getscheduler"),
 	STRESS_EX_SYSCALL("sched_setscheduler"),

@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, may be w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "19 June 2026"
+.TH STRESS-NG 1 "20 June 2026"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -154,6 +154,9 @@ T}
 branch	T{
 intensive branch operations
 T}
+branch-miss	T{
+CPU branch misses
+T}
 cipher	T{
 cipher computation
 T}
@@ -175,11 +178,41 @@ T}
 d-cache	T{
 data cache operations
 T}
+d-cache-l1-read	T{
+data cache level 1 read operations
+T}
+d-cache-l1-write	T{
+data cache level 1 write operations
+T}
+d-cache-ll-read	T{
+data cache lowest level read operations
+T}
+d-cache-ll-write	T{
+data cache lowest level write operations
+T}
+d-cache-miss	T{
+data cache miss (read or write)
+T}
+d-cache-read-miss	T{
+data cache read miss
+T{
+d-cache-write-miss	T{
+data cache write miss
+T}
+d-tlb-read-miss	T{
+data cache TLB (translation lookaside buffer) read miss
+T}
+d-tlb-write-miss	T{
+data cache TLB (translation lookaside buffer) write miss
+T}
 directory	T{
 file system directory operations
 T}
 frontend-decoder	T{
 exercise CPU instruction frontend decoder
+T}
+filemap-page-cache	T{
+kernel filemap page cache hit/miss
 T}
 fp	T{
 floating point operations
@@ -196,11 +229,26 @@ T}
 i-cache	T{
 instuction cache operations
 T}
+i-tlb-read-miss	T{
+instruction cache TLB (translation lookaside buffer) read miss
+T}
 integer	T{
 integer operations
 T}
 ipc	T{
 inter-process communication primitives
+T}
+kmalloc	T{
+kernel physical contiguous memory allocation
+T}
+lock-contention	T{
+kernel lock contention
+T}
+maple-tree-read	T{
+kernel maple tree read (non-overlapping data range tree)
+T}
+maple-tree-write	T{
+kernel maple tree write (non-overlapping data range tree)
 T}
 memory-bus	T{
 potentially heavy memory bus exercising
@@ -211,8 +259,23 @@ T}
 memory-copy	T{
 memory copy operations
 T}
+mmap-lock	T{
+kernel memory mapping lock
+T}
 oom	T{
 force out-of-memory failures
+T}
+page-faults-kernel	T{
+kernel space  page faults 
+T}
+page-faults-major	T{
+user space major page faults 
+T}
+page-faults-minor	T{
+user space minor page faults 
+T}
+page-faults-user	T{
+user space page faults 
 T}
 registers	T{
 CPU registers exercising
@@ -232,8 +295,17 @@ T}
 tlb	T{
 translation lookaside buffer exercising
 T}
+tlb-flush	T{
+translation lookaside buffer flushes
+T}
 virt	T{
 virtual machine operations
+T}
+writeback-dirty-folio	T{
+dirty file folio pages written back to storage
+T}
+writeback-dirty-inode	T{
+dirty file inodes written back to storage
 T}
 .TE
 .TP

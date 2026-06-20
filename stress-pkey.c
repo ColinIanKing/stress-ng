@@ -159,6 +159,10 @@ static int stress_pkey(stress_args_t *args)
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("maple-tree-write"),
+	STRESS_EX_FEATURE("mmap-lock"),
+	STRESS_EX_FEATURE("tlb-flush"),
+
 	STRESS_EX_SYSCALL("pkey_alloc"),
 	STRESS_EX_SYSCALL("pkey_free"),
 	STRESS_EX_SYSCALL("pkey_get"),

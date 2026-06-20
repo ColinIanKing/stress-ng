@@ -310,7 +310,10 @@ static int stress_sem(stress_args_t *args)
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("context-switches"),
+	STRESS_EX_FEATURE("d-cache-read-miss"),
 	STRESS_EX_FEATURE("ipc"),
+	STRESS_EX_SYSCALL("rcu-utilization"),
 
 	STRESS_EX_SYSCALL("sem_destroy"),
 	STRESS_EX_SYSCALL("sem_getvalue"),

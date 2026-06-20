@@ -338,6 +338,8 @@ finish:
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("kmem-cache-alloc"),
+
 #if defined(HAVE_POSIX_FADVISE) &&	\
     defined(SHIM_POSIX_FADV_DONTNEED)
 	STRESS_EX_SYSCALL("posix_fadvise"),

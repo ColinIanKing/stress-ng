@@ -208,6 +208,8 @@ static int stress_regex(stress_args_t *args)
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("d-cache-l1-read"),
+	STRESS_EX_FEATURE("d-cache-read-miss"),
 	STRESS_EX_FEATURE("string"),
 
 	STRESS_EX_END,

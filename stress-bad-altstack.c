@@ -458,6 +458,8 @@ finish:
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("d-cache-write-miss"),
+	STRESS_EX_FEATURE("page-faults-kernel"),
 	STRESS_EX_FEATURE("stack"),
 
 	STRESS_EX_SYSCALL("sigaltstack"),

@@ -781,7 +781,10 @@ tidy:
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("writeback-dirty-inode"),
+
 	STRESS_EX_SYSCALL("ioctl"),
+
 	STRESS_EX_END,
 };
 

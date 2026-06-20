@@ -2270,6 +2270,8 @@ unmap_ctxt:
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("writeback-dirty-inode"),
+
 	STRESS_EX_SYSCALL("close"),
 	STRESS_EX_SYSCALL("fork"),
 	STRESS_EX_SYSCALL("madvise"),

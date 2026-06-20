@@ -226,6 +226,7 @@ finish:
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("context-switches"),
 	STRESS_EX_FEATURE("stack"),
 
 #if defined(__linux__)

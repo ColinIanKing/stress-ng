@@ -194,6 +194,8 @@ finish:
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("d-cache-ll-read"),
+
 	STRESS_EX_SYSCALL("futex"),
 	STRESS_EX_SYSCALL("futex_wait"),
 #if defined(FUTEX_32) &&		\

@@ -300,6 +300,8 @@ clean:
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("kmem-cache-alloc"),
+
 	STRESS_EX_SYSCALL("ioctl"),
 	STRESS_EX_END,
 };

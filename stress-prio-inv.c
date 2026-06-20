@@ -530,6 +530,8 @@ unmap_prio_inv_info:
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("context-switches"),
+
 	STRESS_EX_SYSCALL("getrusage"),
 	STRESS_EX_SYSCALL("setpriority"),
 	STRESS_EX_SYSCALL("sched_setscheduler"),

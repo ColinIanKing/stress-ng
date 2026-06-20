@@ -1164,6 +1164,8 @@ static const stress_opt_t opts[] = {
 };
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("kmem-cache-alloc"),
+
 	STRESS_EX_SYSCALL("close"),
 	STRESS_EX_SYSCALL("open"),
 	STRESS_EX_SYSCALL("read"),

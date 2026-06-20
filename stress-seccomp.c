@@ -475,6 +475,8 @@ static int stress_seccomp(stress_args_t *args)
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("page-faults-kernel"),
+
 	STRESS_EX_SYSCALL("prctl"),
 	STRESS_EX_SYSCALL("seccomp"),
 	STRESS_EX_END,

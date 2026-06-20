@@ -1154,6 +1154,8 @@ redo:
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("lock-contention"),
+
 	STRESS_EX_SYSCALL("mmap"),
 #if defined(HAVE_MMAP2) &&	\
     defined(HAVE_SYSCALL) &&	\

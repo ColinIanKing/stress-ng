@@ -528,6 +528,7 @@ static const stress_opt_t opts[] = {
 };
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("d-tlb-read-miss"),
 	STRESS_EX_FEATURE("cfp"),
 	STRESS_EX_FEATURE("fp"),
 	STRESS_EX_FEATURE("integer"),
