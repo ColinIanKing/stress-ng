@@ -401,7 +401,7 @@ static int stress_sigsegv(stress_args_t *args)
 			fault_addr = ADDR_PAGE_MASK(fault_addr, args->page_size)
 #endif
 			if (UNLIKELY(verify && (code != 128) && expected_addr && fault_addr &&
-#if defined(__CYGWIN__)	
+#if defined(__CYGWIN__)
 				     /* Windows may return -1 if very large addresses are used. */
 				     (fault_addr != (void *)(uintptr_t)-1) &&
 #endif
