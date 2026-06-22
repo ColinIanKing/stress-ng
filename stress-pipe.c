@@ -677,7 +677,8 @@ static int stress_pipe(stress_args_t *args)
 			stress_memory_free_get(), errno, strerror(errno));
 		(void)close(pipefds[0]);
 		(void)close(pipefds[1]);
-		return EXIT_NO_RESOURCE;
+		rc = EXIT_NO_RESOURCE;
+		goto unmap_pipe_writes;
 	}
 	stress_memory_anon_name_set(buf_rd, buf_rd_size, "read-buffer");
 
@@ -694,7 +695,8 @@ static int stress_pipe(stress_args_t *args)
 		(void)munmap((void *)buf_rd, buf_rd_size);
 		(void)close(pipefds[0]);
 		(void)close(pipefds[1]);
-		return EXIT_NO_RESOURCE;
+		rc = EXIT_NO_RESOURCE;
+		goto unmap_pipe_writes;
 	}
 	stress_memory_anon_name_set(buf_wr, buf_wr_size, "write-buffer");
 	stress_rndbuf(buf_wr, buf_wr_size);
@@ -715,11 +717,11 @@ fork_rd_again:
 			(void)munmap((void *)buf_wr, buf_wr_size);
 			(void)munmap((void *)buf_rd, buf_rd_size);
 			if (UNLIKELY(!stress_continue(args)))
-				goto finish;
+				goto unmap_pipe_writes;
 			pr_fail("%s: fork failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			rc = EXIT_FAILURE;
-			goto finish;
+			goto unmap_pipe_writes;
 		} else if (rd_pids[i] == 0) {
 			int ret;
 
@@ -762,7 +764,7 @@ fork_wr_again:
 			(void)munmap((void *)buf_wr, buf_wr_size);
 			(void)munmap((void *)buf_rd, buf_rd_size);
 			if (UNLIKELY(!stress_continue(args)))
-				goto finish;
+				goto unmap_pipe_writes;
 			pr_fail("%s: fork failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			rc = EXIT_FAILURE;
