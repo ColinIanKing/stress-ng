@@ -183,7 +183,7 @@ static void stress_illegal_op(void)
 
 static sigjmp_buf jmp_env;
 #if defined(SA_SIGINFO)
-static volatile void *fault_addr;
+static void * volatile fault_addr;
 static volatile int signo;
 static volatile int code;
 #endif

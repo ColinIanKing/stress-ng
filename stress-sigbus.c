@@ -37,8 +37,8 @@ static const stress_help_t help[] = {
 
 static sigjmp_buf jmp_env;
 #if defined(SA_SIGINFO)
-static volatile void *fault_addr;
-static volatile void *expected_addr;
+static void * volatile fault_addr;
+static void * volatile expected_addr;
 static volatile int signo;
 static volatile int code;
 #endif
