@@ -1131,6 +1131,9 @@ typedef enum {
 	OPT_open_max,
 	OPT_open_ops,
 
+	OPT_ovpn,
+	OPT_ovpn_ops,
+
 	OPT_page_in,
 
 	OPT_pathological,

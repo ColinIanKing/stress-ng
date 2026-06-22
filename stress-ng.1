@@ -7258,6 +7258,29 @@ maximum per-process open file system limit.
 stop the open stress workers after N bogo open operations.
 .RE
 .TP
+.B OpenVPN DCO kernel driver stressor (Linux)
+.RS 5
+.TQ
+.B \-\-ovpn N
+start N workers that exercise the in-kernel OpenVPN data channel offload (ovpn)
+driver via its generic netlink API. Each worker creates an ovpn network interface
+and repeatedly issues a random mix of netlink commands against it: new peer, set
+peer, get peer, delete peer, new key, delete key, get key, swap keys, and connect.
+Keys are generated at runtime using
+.BR getrandom (2).
+Each successfully completed command loop is counted as one bogo op. This stressor
+requires the
+.B ovpn
+kernel module to be loaded,
+.B libnl\-3
+to be present at build time, and
+.B CAP_NET_ADMIN
+capability.
+.TP
+.B \-\-ovpn\-ops N
+stop the ovpn stressors after N bogo ops.
+.RE
+.TP
 .B Page table and TLB stressor
 .RS 5
 .TQ

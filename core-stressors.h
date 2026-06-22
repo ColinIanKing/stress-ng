@@ -233,6 +233,7 @@
 	MACRO(oom_pipe)		\
 	MACRO(opcode)		\
 	MACRO(open)		\
+	MACRO(ovpn)		\
 	MACRO(pagemove)		\
 	MACRO(pageswap)		\
 	MACRO(pci)		\
