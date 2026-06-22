@@ -785,6 +785,8 @@ const struct option stress_long_options[] = {
 	{ "open-fd",		0,	NULL,	OPT_open_fd },
 	{ "open-max",		1,	NULL,	OPT_open_max },
 	{ "open-ops",		1,	NULL,	OPT_open_ops },
+	{ "ovpn",		1,	NULL,	OPT_ovpn },
+	{ "ovpn-ops",		1,	NULL,	OPT_ovpn_ops },
 	{ "page-in",		0,	NULL,	OPT_page_in },
 	{ "pagemove",		1,	NULL,	OPT_pagemove },
 	{ "pagemove-bytes",	1,	NULL,	OPT_pagemove_bytes },
