@@ -3516,6 +3516,67 @@ static int stress_exercises_get(
 	*ret = EXIT_SUCCESS;
 	if (!stress_setting_get(opt, &str))
 		return 0;
+
+	if (!strcmp(str, "?")) {
+		size_t j;
+
+		pr_inf("%s:\n", stress_exercise_type_str(type));
+
+		for (j = 0; j < SIZEOF_ARRAY(stressors); j++) {
+			const stress_stressor_t *stressor = &stressors[j];
+			const stress_exercises_t * const exercises = stressor->info->exercises;
+
+
+			if (stressor->info->exercises) {
+				size_t len = 1;
+				size_t n;
+				size_t i;
+				char *str;
+				char **array;
+
+				/* string long enough for the text */
+				for (n = 0, i = 0; exercises[i].name; i++) {
+					if (exercises[i].type == type) {
+						len += strlen(exercises[i].name) + 2;
+						n++;
+					}
+				}
+
+				if (n == 0)
+					continue;
+
+				array = calloc(n, sizeof(*array));
+				if (!array)
+					continue;
+
+				for (n = 0, i = 0; exercises[i].name; i++) {
+					if (exercises[i].type == type) {
+						array[n] = shim_unconstify_ptr(exercises[i].name);
+						n++;
+					}
+				}
+
+				shim_qsort(array, n, sizeof(*array), stress_sort_cmp_str);
+
+				str = calloc(len, sizeof(*str));
+				if (!str) {
+					free(array);
+					continue;
+				}
+				for (i = 0; i < n; i++) {
+					shim_strlcat(str, " ", len);
+					shim_strlcat(str, array[i], len);
+				}
+				pr_inf("  %s:%s\n", stressor->name, str);
+
+				free(str);
+				free(array);
+			}
+		}
+		*ret = EXIT_SUCCESS;
+		return -1;
+	}
+
 	opt_str = strdup(str);
 	if (!opt_str) {
 		(void)fprintf(stderr, "cannot duplicate string for %s, out of memory\n", opt);

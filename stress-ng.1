@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, may be w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "20 June 2026"
+.TH STRESS-NG 1 "22 June 2026"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -145,6 +145,9 @@ The features available are as follows:
 lB lB
 l lx.
 Feature	Explanation
+\\?	T{
+show per stressor features
+T}
 async-io	T{
 asynchronous file I/O operations
 T}
@@ -320,6 +323,9 @@ The libraries available are as follows:
 lB lB
 l lx.
 Library	Explanation
+\\?	T{
+show per stressor libraries used
+T}
 acl	T{
 libacl (access control lists)
 T}
@@ -391,7 +397,8 @@ T}
 .B \-\-exercise\-syscall list
 enable stressors that exercises one or more system calls specified in
 the given list, for example: \f[CR]\-\-exercise\-syscall mmap,fork\f[]
-for the mmap and fork system calls.
+for the mmap and fork system calls. Using \\? as the list option will
+show system calls used by each stressor.
 Use the \-\-all, \-\-permute or \-\-seq options to specify how to run the stessors.
 .TP
 .B \-\-ftrace
