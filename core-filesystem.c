@@ -812,8 +812,12 @@ static uint64_t stress_fs_max_file_rlimit(void)
 
 		if (stress_fs_file_read("/proc/sys/fs/file-max", buf, sizeof(buf)) > 0) {
 			errno = 0;
-			if ((sscanf(buf, "%" SCNu64, &val) == 1) && (errno == 0))
-				max = (rlim_t)val;
+			if ((sscanf(buf, "%" SCNu64, &val) == 1) && (errno == 0)) {
+				if (val < RLIM_INFINITY)
+					max = (rlim_t)val;
+				else
+					max = ((~(rlim_t)0) - 1);
+			}
 		}
 	}
 #endif
@@ -821,6 +825,9 @@ static uint64_t stress_fs_max_file_rlimit(void)
 		return 0ULL;
 
 	for (i = 0; i <= 64; i++) {
+		/* unlikely! */
+		if (min > max)
+			return min;
 		cur = min + (max - min) / 2;
 
 		/* Try rlim cur AND max in case we can push both up */
