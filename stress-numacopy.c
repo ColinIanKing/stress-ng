@@ -361,6 +361,13 @@ static int stress_numanode_cpus(
 			while (isdigit((int)*ptr))
 				ptr++;
 			cpu_begin = atoi(numptr);
+			if ((cpu_begin < 0) || (cpu_begin >= (int)max_cpus)) {
+				pr_inf_skip("%s: bad cpu value %s in '%s', skipping stressor\n",
+					args->name, numptr, path);
+				free(cpus);
+				return -1;
+			}
+
 			if (*ptr == '\0' || *ptr == ',') {
 				cpu_end = cpu_begin;
 			} else if (*ptr == '-') {
@@ -370,8 +377,15 @@ static int stress_numanode_cpus(
 
 				while (isdigit((int)*ptr))
 					ptr++;
-				if (ptr > numptr)
+				if (ptr > numptr) {
 					cpu_end = atoi(numptr);
+					if ((cpu_end < 0) || (cpu_end >= (int)max_cpus)) {
+						pr_inf_skip("%s: bad cpu value %s in '%s', skipping stressor\n",
+							args->name, numptr, path);
+						free(cpus);
+						return -1;
+					}
+				}
 			}
 			for (cpu = cpu_begin; cpu <= cpu_end; cpu++) {
 				if (cpu >= max_cpus)
