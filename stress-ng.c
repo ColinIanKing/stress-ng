@@ -2238,6 +2238,17 @@ static const char *stress_exercise_type_str(const stress_exercise_type_t type)
 static void stress_exercise_dump(FILE *yaml)
 {
 	stress_list_item_t *item;
+	size_t count = 0;
+
+	for (item = stress_stressor_list.head; item; item = item->next) {
+		if ((item->ignore.run) || (item->status[STRESS_STRESSOR_STATUS_SKIPPED]))
+			continue;
+		count++;
+	}
+
+	/* nothing exercised? */
+	if (!count)
+		return;
 
 	pr_block_begin();
 	pr_inf("exercised:\n");
@@ -2245,6 +2256,9 @@ static void stress_exercise_dump(FILE *yaml)
 	for (item = stress_stressor_list.head; item; item = item->next) {
 		stress_exercise_type_t type;
 		const char *name = item->stressor->name;
+
+		if ((item->ignore.run) || (item->status[STRESS_STRESSOR_STATUS_SKIPPED]))
+			continue;
 
 		pr_inf(" %s:\n", name);
 		pr_yaml(yaml, "    - stressor: %s\n", name);
