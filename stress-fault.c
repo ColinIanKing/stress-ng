@@ -62,6 +62,8 @@ static int stress_fault(stress_args_t *args)
 	char *start, *end;
 	const size_t len = stress_exec_text_addr(&start, &end);
 	const size_t page_size = args->page_size;
+	const size_t file_size = page_size * 64;
+	uint8_t buffer[page_size];
 	void *mapto;
 #if defined(HAVE_GETRUSAGE) &&		\
     defined(RUSAGE_SELF) &&		\
@@ -70,6 +72,8 @@ static int stress_fault(stress_args_t *args)
 #endif
 	NOCLOBBER double duration = 0.0, count = 0.0;
 	NOCLOBBER int rc = EXIT_SUCCESS;
+
+	stress_uint8rnd4(buffer, page_size);
 
 	ret = stress_fs_temp_dir_make_args(args);
 	if (ret < 0)
@@ -101,6 +105,7 @@ static int stress_fault(stress_args_t *args)
 	do {
 		int fd = -1;
 		uint8_t *ptr;
+		volatile uint8_t *vptr;
 		double t;
 
 		ret = sigsetjmp(jmp_env, 1);
@@ -121,40 +126,26 @@ static int stress_fault(stress_args_t *args)
 			rc = EXIT_FAILURE;
 			break;
 		}
-#if defined(HAVE_POSIX_FALLOCATE)
-		ret = shim_posix_fallocate(fd, 0, 1);
-		if (ret != 0) {
-			if ((ret == ENOSPC) || (ret == EINTR)) {
+
+redo:
+		if (stress_continue_flag() && (write(fd, buffer, sizeof(buffer)) < 0)) {
+			if ((errno == EAGAIN) || (errno == EINTR))
+				goto redo;
+			if (errno == ENOSPC) {
 				(void)close(fd);
-				continue;	/* Try again */
+				continue;
 			}
 			(void)close(fd);
-			/* posix_fallocate errno is in ret */
-			pr_fail("%s: posix_fallocate failed, errno=%d (%s)\n",
-				args->name, ret, strerror(ret));
+			pr_fail("%s: write failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			rc = EXIT_FAILURE;
 			break;
 		}
-#else
-		{
-			char buffer[1] = { 0 };
-
-redo:
-			if (stress_continue_flag() &&
-			    (write(fd, buffer, sizeof(buffer)) < 0)) {
-				if ((errno == EAGAIN) || (errno == EINTR))
-					goto redo;
-				if (errno == ENOSPC) {
-					(void)close(fd);
-					continue;
-				}
-				(void)close(fd);
-				pr_fail("%s: write failed, errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
-				rc = EXIT_FAILURE;
-				break;
-			}
-		}
+#if defined(SHIM_POSIX_FADV_DONTNEED) &&	\
+    defined(HAVE_POSIX_FADVISE)
+		/* Force major page faults */
+		(void)fdatasync(fd);
+		(void)posix_fadvise(fd, 0, file_size, SHIM_POSIX_FADV_DONTNEED);
 #endif
 		ret = sigsetjmp(jmp_env, 1);
 		if (ret) {
@@ -171,8 +162,7 @@ redo:
 		 */
 		if (i & 1)
 			(void)shim_unlink(filename);
-
-		ptr = (uint8_t *)mmap(NULL, 1, PROT_READ | PROT_WRITE,
+		ptr = (uint8_t *)mmap(NULL, page_size, PROT_READ | PROT_WRITE,
 			MAP_SHARED, fd, 0);
 		if (ptr == MAP_FAILED) {
 			if ((errno == EAGAIN) ||
@@ -181,25 +171,29 @@ redo:
 				(void)close(fd);
 				goto next;
 			}
-			pr_err("%s: mmap of 1 byte failed%s, errno=%d (%s)\n",
+			pr_err("%s: mmap of a page failed%s, errno=%d (%s)\n",
 				args->name, stress_memory_free_get(),
 				errno, strerror(errno));
 			(void)close(fd);
 			break;
 
 		}
+		vptr = (volatile uint8_t *)ptr;
+		stress_put_uint8(*vptr);
+
 		(void)close(fd);
 		t = stress_time_now();
-		*ptr = 0;	/* Cause the page fault */
+		*vptr = 0xff;		/* Cause the page fault */
 		duration += stress_time_now() - t;
 		count += 1.0;
 
 		stress_memory_anon_name_set(ptr, page_size, "page-fault-major");
+
 #if defined(HAVE_MADVISE) &&	\
     defined(MADV_DONTNEED)
 		if (madvise((void *)ptr, page_size, MADV_DONTNEED) == 0) {
 			t = stress_time_now();
-			*ptr = 0;	/* Cause the page fault */
+			*vptr ^= 0xff;	/* Cause the page fault */
 			duration += stress_time_now() - t;
 			count += 1.0;
 		}
@@ -209,11 +203,13 @@ redo:
     defined(MADV_PAGEOUT)
 		if (madvise((void *)ptr, page_size, MADV_PAGEOUT) == 0) {
 			t = stress_time_now();
-			*ptr = 0;	/* Cause the page fault */
+			*vptr ^= 0xff;	/* Cause the page fault */
 			duration += stress_time_now() - t;
 			count += 1.0;
 		}
 #endif
+		stress_put_uint8(*vptr);
+
 		if (stress_munmap_force((void *)ptr, page_size) < 0) {
 			pr_err("%s: munmap failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
