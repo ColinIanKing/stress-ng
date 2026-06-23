@@ -423,7 +423,10 @@ static int stress_chattr(stress_args_t *args)
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("io-write"),
+
 	STRESS_EX_SYSCALL("ioctl"),
+
 	STRESS_EX_END,
 };
 

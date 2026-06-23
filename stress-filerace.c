@@ -1663,6 +1663,7 @@ tidy_dir:
 
 static const stress_exercises_t exercises[] = {
 	STRESS_EX_FEATURE("filemap-page-cache"),
+	STRESS_EX_FEATURE("io-write"),
 	STRESS_EX_FEATURE("page-faults-major"),
 
 	STRESS_EX_SYSCALL("access"),

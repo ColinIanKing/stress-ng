@@ -459,6 +459,9 @@ tidy_s_pids:
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("io-read"),
+	STRESS_EX_FEATURE("io-write"),
+
 	STRESS_EX_SYSCALL("fallocate"),
 	STRESS_EX_SYSCALL("ftruncate"),
 #if defined(HAVE_PREAD)

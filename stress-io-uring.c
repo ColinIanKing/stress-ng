@@ -1132,6 +1132,7 @@ static int stress_io_uring(stress_args_t *args)
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("io-write"),
 	STRESS_EX_FEATURE("writeback-dirty-inode"),
 
 	STRESS_EX_SYSCALL("io_uring_setup"),

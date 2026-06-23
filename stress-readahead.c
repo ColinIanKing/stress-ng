@@ -338,6 +338,7 @@ finish:
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("io-read"),
 	STRESS_EX_SYSCALL("kmem-cache-alloc"),
 
 #if defined(HAVE_POSIX_FADVISE) &&	\
