@@ -768,7 +768,7 @@ fork_wr_again:
 			pr_fail("%s: fork failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			rc = EXIT_FAILURE;
-			goto finish;
+			goto unmap_pipe_writes;
 		} else if (wr_pids[i] == 0) {
 			double t;
 			int ret;
