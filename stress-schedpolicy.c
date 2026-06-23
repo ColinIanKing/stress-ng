@@ -594,6 +594,7 @@ next_policy:
 
 static const stress_exercises_t exercises[] = {
 	STRESS_EX_FEATURE("bogo-ops-stable"),
+	STRESS_EX_FEATURE("hot-package"),
 
 #if defined(HAVE_SCHED_GETATTR)
 	STRESS_EX_SYSCALL("sched_getattr"),
@@ -610,6 +611,7 @@ static const stress_exercises_t exercises[] = {
 	STRESS_EX_SYSCALL("sched_get_priority_min"),
 	STRESS_EX_SYSCALL("sched_get_priority_max"),
 #endif
+
 	STRESS_EX_END,
 };
 

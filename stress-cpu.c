@@ -3335,6 +3335,7 @@ static const stress_exercises_t exercises[] = {
 #if defined(HAVE_COMPLEX_H)
 	STRESS_EX_FEATURE("fp-complex"),
 #endif
+	STRESS_EX_FEATURE("hot-package"),
 	STRESS_EX_FEATURE("integer"),
 	STRESS_EX_FEATURE("registers"),
 

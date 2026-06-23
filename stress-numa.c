@@ -763,6 +763,7 @@ deinit:
 static const stress_exercises_t exercises[] = {
 	STRESS_EX_FEATURE("d-cache-l1-read"),
 	STRESS_EX_FEATURE("d-cache-l1-write"),
+	STRESS_EX_FEATURE("hot-package"),
 	STRESS_EX_FEATURE("memory-bus"),
 
 	STRESS_EX_SYSCALL("getcpu"),

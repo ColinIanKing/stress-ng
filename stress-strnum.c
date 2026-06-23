@@ -698,6 +698,7 @@ static const stress_opt_t opts[] = {
 static const stress_exercises_t exercises[] = {
 	STRESS_EX_FEATURE("d-tlb-write-miss"),
 	STRESS_EX_FEATURE("fp"),
+	STRESS_EX_FEATURE("hot-package"),
 	STRESS_EX_FEATURE("integer"),
 	STRESS_EX_FEATURE("string"),
 

@@ -133,8 +133,11 @@ static int stress_spawn(stress_args_t *args)
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("hot-package"),
+
 	STRESS_EX_SYSCALL("posix_spawn"),
 	STRESS_EX_SYSCALL("waitpid"),
+
 	STRESS_EX_END,
 };
 

@@ -434,6 +434,7 @@ again:
 
 static const stress_exercises_t exercises[] = {
 	STRESS_EX_FEATURE("d-cache-write-miss"),
+	STRESS_EX_FEATURE("hot-package"),
 
 	STRESS_EX_SYSCALL("process_vm_readv"),
 	STRESS_EX_SYSCALL("process_vm_writev"),

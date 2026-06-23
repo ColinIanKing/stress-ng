@@ -677,8 +677,9 @@ free_cpus:
 }
 
 static const stress_exercises_t exercises[] = {
-	STRESS_EX_SYSCALL("rcu-utilization"),
+	STRESS_EX_FEATURE("hot-package"),
 
+	STRESS_EX_SYSCALL("rcu-utilization"),
 	STRESS_EX_SYSCALL("fork"),
 #if defined(HAVE_GETRUSAGE)
 	STRESS_EX_SYSCALL("getrusage"),
@@ -704,6 +705,7 @@ static const stress_exercises_t exercises[] = {
 	STRESS_EX_SYSCALL("sleep"),
 	STRESS_EX_SYSCALL("times"),
 	STRESS_EX_SYSCALL("waitpid"),
+
 	STRESS_EX_END,
 };
 

@@ -1006,6 +1006,8 @@ err_free_ld_library_path:
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("hot-package"),
+
 	STRESS_EX_SYSCALL("execve"),
 #if defined(HAVE_EXECVEAT) &&	\
     defined(O_PATH)
