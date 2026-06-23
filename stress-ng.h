@@ -615,6 +615,12 @@ typedef struct {
 	double residency[STRESS_CSTATES_MAX];
 } stress_cstate_stats_t;
 
+/* Per stressor instance I/O read/write stats */
+typedef struct {
+	uint64_t read_bytes;		/* bytes read */
+	uint64_t write_bytes;		/* bytes written */
+} stress_io_stats_t;
+
 /* Per stressor statistics and accounting info */
 typedef struct stress_stats {
 	struct stress_stats *hash_next;	/* next stats in hash table */
@@ -636,6 +642,7 @@ typedef struct stress_stats {
 	stress_checksum_t *checksum;	/* pointer to checksum data */
 	stress_interrupts_t interrupts[STRESS_INTERRUPTS_MAX];
 	stress_cstate_stats_t cstates;	/* cstate stats */
+	stress_io_stats_t io_stats;	/* io read/write stats */
 	double rusage_utime;		/* rusage user time */
 	double rusage_stime;		/* rusage system time */
 	double rusage_utime_total;	/* rusage user time */

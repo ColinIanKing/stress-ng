@@ -82,7 +82,7 @@
 #define OPT_FLAGS_OOM_NO_CHILD	 STRESS_BIT_ULL(50)	/* --oom-no-child */
 #define OPT_FLAGS_MAKE_IT_FAIL	 STRESS_BIT_ULL(51)	/* --make-it-fail */
 #define OPT_FLAGS_EXERCISED	 STRESS_BIT_ULL(52)	/* --exercised */
-#define OPT_FLAGS_SPARE_53	 STRESS_BIT_ULL(53)
+#define OPT_FLAGS_IOS		 STRESS_BIT_ULL(53)	/* --ios */
 #define OPT_FLAGS_SPARE_54	 STRESS_BIT_ULL(54)
 #define OPT_FLAGS_SPARE_55	 STRESS_BIT_ULL(55)
 
@@ -706,6 +706,8 @@ typedef enum {
 	OPT_ioprio_ops,
 
 	OPT_io_ops,
+
+	OPT_ios,
 
 	OPT_io_uring,
 	OPT_io_uring_entries,

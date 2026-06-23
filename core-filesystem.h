@@ -79,4 +79,6 @@ extern void stress_fs_chattr_flags_unset(const char *pathname);
 extern void stress_fs_clean_dir(const char *name, const pid_t pid,
 	const uint32_t instance);
 extern int stress_fs_drop_caches(const int flags);
+extern void stress_fs_io_stats_begin(stress_io_stats_t *io_stats);
+extern void stress_fs_io_stats_end(stress_io_stats_t *io_stats);
 #endif

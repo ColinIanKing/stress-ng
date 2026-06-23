@@ -177,6 +177,7 @@ static const stress_opt_flag_t opt_flags[] = {
 	{ OPT_ftrace,		OPT_FLAGS_FTRACE, 0 },
 	{ OPT_ignite_cpu,	OPT_FLAGS_IGNITE_CPU, 0 },
 	{ OPT_interrupts,	OPT_FLAGS_INTERRUPTS, 0 },
+	{ OPT_ios,		OPT_FLAGS_IOS, 0 },
 	{ OPT_keep_files, 	OPT_FLAGS_KEEP_FILES, 0 },
 	{ OPT_keep_name, 	OPT_FLAGS_KEEP_NAME, 0 },
 	{ OPT_klog_check,	OPT_FLAGS_KLOG_CHECK, 0 },
@@ -1896,6 +1897,8 @@ again:
 				stats->s_pid.pid = child_pid;
 				if (g_opt_flags & OPT_FLAGS_C_STATES)
 					stress_cpuidle_read_cstates_begin(&stats->cstates);
+				if (g_opt_flags & OPT_FLAGS_IOS)
+					stress_fs_io_stats_begin(&stats->io_stats);
 
 				stress_make_it_fail_set();
 
@@ -1906,6 +1909,8 @@ again:
 						page_size, child_pid);
 				if (g_opt_flags & OPT_FLAGS_C_STATES)
 					stress_cpuidle_read_cstates_end(&stats->cstates);
+				if (g_opt_flags & OPT_FLAGS_IOS)
+					stress_fs_io_stats_end(&stats->io_stats);
 				_exit(rc);
 			default:
 				if (pid > -1) {
@@ -2638,6 +2643,58 @@ static void stress_metrics_dump(FILE *yaml)
 				}
 			}
 		}
+	}
+	pr_block_end();
+}
+
+/*
+ *  stress_ios_dump()
+ *	output I/O stats
+ */
+static void stress_ios_dump(FILE *yaml)
+{
+	stress_list_item_t *item;
+
+	pr_block_begin();
+	pr_yaml(yaml, "io-stats:\n");
+	for (item = stress_stressor_list.head; item; item = item->next) {
+		const char *name;
+		int32_t i;
+		double read_bytes = 0.0;
+		double write_bytes = 0.0;
+		double duration = 0.0;
+
+		if (item->ignore.run || item->ignore.permute)
+			continue;
+		if (!item->stats)
+			continue;
+
+		for (i = 0; i < item->instances; i++) {
+                        const stress_stats_t *const stats = item->stats[i];
+
+			duration += stats->duration;
+			read_bytes += (double)stats->io_stats.read_bytes;
+			write_bytes += (double)stats->io_stats.write_bytes;
+		}
+
+		name = item->stressor->name;
+		pr_inf("%s: \n", name);
+		pr_yaml(yaml, "    - stressor: %s\n", name);
+
+		read_bytes = duration > 0.0 ? (read_bytes / duration) / 1024.0 : 0.0;
+		write_bytes = duration > 0.0 ? (write_bytes / duration) / 1024.0 : 0.0;
+		if (g_opt_flags & OPT_FLAGS_SN) {
+			pr_yaml(yaml, "      read-kilobytes-per-sec: %e\n", read_bytes);
+			pr_yaml(yaml, "      write-kilobytes-per-sec: %e\n", write_bytes);
+			pr_inf(" read:  %13.7e K/s\n", read_bytes);
+			pr_inf(" write: %13.7e K/s\n", write_bytes);
+		} else {
+			pr_yaml(yaml, "      read-kilobytes-per-sec: %f\n", read_bytes);
+			pr_yaml(yaml, "      write-kilobytes-per-sec: %f\n", write_bytes);
+			pr_inf(" read:  %13.2f K/s\n", read_bytes);
+			pr_inf(" write: %13.2f K/s\n", write_bytes);
+		}
+		pr_yaml(yaml, "\n");
 	}
 	pr_block_end();
 }
@@ -4600,6 +4657,9 @@ int main(int argc, char **argv, char **envp)
 	/* Dump metrics */
 	if (g_opt_flags & OPT_FLAGS_METRICS)
 		stress_metrics_dump(yaml);
+
+	if (g_opt_flags & OPT_FLAGS_IOS)
+		stress_ios_dump(yaml);
 
 	/* Dump problematic interrupt counter info */
 	if (g_opt_flags & OPT_FLAGS_INTERRUPTS)

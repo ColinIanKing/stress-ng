@@ -1784,3 +1784,58 @@ int stress_fs_drop_caches(const int flags)
 	return 0;
 #endif
 }
+
+/*
+ *  stress_fs_io_stats_read()
+ *	read per process I/O stats
+ */
+static void stress_fs_io_stats_read(const int which, stress_io_stats_t *io_stats)
+{
+#if defined(__linux__)
+	FILE *fp;
+	char buffer[256];
+	uint64_t val;
+	stress_io_stats_t new_stats;
+
+	(void)shim_memset(&new_stats, 0, sizeof(new_stats));
+
+	fp = fopen("/proc/self/io", "r");
+	if (!fp)
+		return;
+
+	while (fscanf(fp, "%255s %" SCNu64,  buffer, &val) == 2) {
+		if (!strcmp(buffer, "read_bytes:"))
+			new_stats.read_bytes = val;
+		else if (!strcmp(buffer, "write_bytes:"))
+			new_stats.write_bytes = val;
+	}
+	(void)fclose(fp);
+
+	if (which == 0) {
+		(void)shim_memcpy(io_stats, &new_stats, sizeof(*io_stats));
+	} else {
+		io_stats->read_bytes = new_stats.read_bytes - io_stats->read_bytes;
+		io_stats->write_bytes = new_stats.write_bytes - io_stats->write_bytes;
+	}
+#else
+	(void)shim_memset(io_stats, 0, sizeof(*io_stats));
+#endif
+}
+
+/*
+ *  stress_fs_io_stats_begin()
+ *	get io stats at beginning of stress run
+ */
+void stress_fs_io_stats_begin(stress_io_stats_t *io_stats)
+{
+	stress_fs_io_stats_read(0, io_stats);
+}
+
+/*
+ *  stress_fs_io_stats_begin()
+ *	get io stats at end of stress run
+ */
+void stress_fs_io_stats_end(stress_io_stats_t *io_stats)
+{
+	stress_fs_io_stats_read(1, io_stats);
+}

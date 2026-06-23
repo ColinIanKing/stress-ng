@@ -438,6 +438,7 @@ const struct option stress_long_options[] = {
 	{ "intmath-ops",	1,	NULL,	OPT_intmath_ops },
 	{ "io",			1,	NULL,	OPT_io },
 	{ "io-ops",		1,	NULL,	OPT_io_ops },
+	{ "ios",		0,	NULL,	OPT_ios },
 	{ "iomix",		1,	NULL,	OPT_iomix },
 	{ "iomix-bytes",	1,	NULL,	OPT_iomix_bytes },
 	{ "iomix-ops",		1,	NULL,	OPT_iomix_ops },
