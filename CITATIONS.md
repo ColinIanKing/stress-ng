@@ -237,6 +237,7 @@
  * [Runtime-Orchestrated Second-Order Optimization for Scalable LLM Training](https://arxiv.org/html/2605.16184v1)
  * [Scheduling Analysis of UAV Flight Control Workloads using Raspberry Pi 5 Using PREEMPT_RT Linux](https://arxiv.org/html/2604.19275v1)
  * [Shape and Substance: Dual-Layer Side-Channel Attacks on Local Vision-Language Models](https://arxiv.org/html/2603.25403v1)
+ * [Solyx AI Grid: Hardware-Telemetry-Aware Routing Across Geographically Distributed GPU Clusters](https://arxiv.org/html/2606.15050v1)
  * [SREGym: A Live Benchmark for AI SRE Agents with High-Fidelity Failure Scenarios](https://arxiv.org/html/2605.07161v1)
  * [Streamline: A Fast, Flushless Cache Covert-Channel Attack by Enabling Asynchronous Collusion](https://dl.acm.org/doi/epdf/10.1145/3445814.3446742)
  * [Testing Storage-System Correctness: Challenges, Fuzzing Limitations, and AI-Augmented Opportunities](https://arxiv.org/html/2602.02614v2)
