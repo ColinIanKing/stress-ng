@@ -580,6 +580,8 @@ static int stress_set(stress_args_t *args)
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("bogo-ops-stable"),
+
 #if defined(HAVE_GETDOMAINNAME) &&	\
     defined(HAVE_SETDOMAINNAME)
 	STRESS_EX_SYSCALL("setdomainname"),

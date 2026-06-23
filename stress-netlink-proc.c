@@ -281,6 +281,7 @@ static int stress_netlink_proc(stress_args_t *args)
 
 static const stress_exercises_t exercises[] = {
 	STRESS_EX_SYSCALL("recv"),
+
 	STRESS_EX_END,
 };
 

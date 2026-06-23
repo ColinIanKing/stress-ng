@@ -320,11 +320,13 @@ static int stress_physpage(stress_args_t *args)
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("bogo-ops-stable"),
 	STRESS_EX_FEATURE("d-cache-ll-write"),
 	STRESS_EX_FEATURE("mmap-lock"),
 
 	STRESS_EX_SYSCALL("mmap"),
 	STRESS_EX_SYSCALL("munmap"),
+
 	STRESS_EX_END,
 };
 

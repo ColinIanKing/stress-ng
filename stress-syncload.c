@@ -345,6 +345,8 @@ static int stress_syncload(stress_args_t *args)
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("bogo-ops-stable"),
+
 	STRESS_EX_SYSCALL("gettimeofday"),
 	STRESS_EX_SYSCALL("nanosleep"),
 	STRESS_EX_SYSCALL("nice"),

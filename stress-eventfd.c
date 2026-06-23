@@ -252,6 +252,8 @@ exit_parent:
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("bogo-ops-stable"),
+
 	STRESS_EX_SYSCALL("eventfd"),
 	STRESS_EX_SYSCALL("read"),
 	STRESS_EX_SYSCALL("write"),

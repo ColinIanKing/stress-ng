@@ -247,6 +247,8 @@ again:
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("bogo-ops-stable"),
+
 #if defined(__NR_exit_group) && \
     defined(HAVE_SYSCALL)
 	STRESS_EX_SYSCALL("exit_group"),

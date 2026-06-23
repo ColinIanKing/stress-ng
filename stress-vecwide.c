@@ -281,6 +281,7 @@ static int stress_vecwide(stress_args_t *args)
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("bogo-ops-stable"),
 	STRESS_EX_FEATURE("cpu-vector"),
 	STRESS_EX_FEATURE("integer"),
 	STRESS_EX_FEATURE("registers"),

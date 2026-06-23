@@ -194,6 +194,8 @@ err:
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("bogo-ops-stable"),
+
 	STRESS_EX_SYSCALL("socket"),
 	STRESS_EX_SYSCALL("setsockopt"),
 	STRESS_EX_SYSCALL("sendto"),

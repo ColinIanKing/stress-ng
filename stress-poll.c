@@ -441,6 +441,8 @@ tidy:
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("bogo-ops-stable"),
+
 	STRESS_EX_SYSCALL("poll"),
 #if defined(HAVE_PPOLL)
 	STRESS_EX_SYSCALL("ppoll"),
@@ -453,6 +455,7 @@ static const stress_exercises_t exercises[] = {
     defined(HAVE_SELECT)
 	STRESS_EX_SYSCALL("pselect"),
 #endif
+
 	STRESS_EX_END,
 };
 

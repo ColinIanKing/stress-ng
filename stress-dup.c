@@ -433,6 +433,8 @@ tidy_mmap:
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("bogo-ops-stable"),
+
 	STRESS_EX_SYSCALL("dup"),
 	STRESS_EX_SYSCALL("dup2"),
 #if defined(HAVE_DUP3)

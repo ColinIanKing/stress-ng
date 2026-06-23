@@ -247,9 +247,12 @@ static int stress_session(stress_args_t *args)
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("bogo-ops-stable"),
+
 	STRESS_EX_SYSCALL("getpid"),
 	STRESS_EX_SYSCALL("getsid"),
 	STRESS_EX_SYSCALL("vhangup"),
+
 	STRESS_EX_END,
 };
 

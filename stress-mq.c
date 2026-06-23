@@ -529,6 +529,8 @@ finish:
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("bogo-ops-stable"),
+
 	STRESS_EX_SYSCALL("mq_close"),
 	STRESS_EX_SYSCALL("mq_getattr"),
 	STRESS_EX_SYSCALL("mq_notify"),

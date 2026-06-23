@@ -316,9 +316,12 @@ done:
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("bogo-ops-stable"),
 	STRESS_EX_FEATURE("d-tlb-read-miss"),
+
 	STRESS_EX_SYSCALL("mmap"),
 	STRESS_EX_SYSCALL("munmap"),
+
 	STRESS_EX_END,
 };
 

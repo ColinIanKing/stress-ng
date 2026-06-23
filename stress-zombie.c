@@ -418,11 +418,14 @@ static const stress_opt_t opts[] = {
 };
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("bogo-ops-stable"),
+
 #if defined(HAVE_LINUX_CLONE)
 	STRESS_EX_SYSCALL("clone"),
 #else
 	STRESS_EX_SYSCALL("fork"),
 #endif
+
 	STRESS_EX_END,
 };
 

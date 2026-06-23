@@ -249,6 +249,7 @@ PRAGMA_UNROLL_N(8)
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("bogo-ops-stable"),
 	STRESS_EX_FEATURE("cpu-opcode"),
 	STRESS_EX_FEATURE("registers"),
 

@@ -383,6 +383,8 @@ static int stress_rtc(stress_args_t *args)
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("bogo-ops-stable"),
+
 	STRESS_EX_SYSCALL("close"),
 	STRESS_EX_SYSCALL("ioctl"),
 	STRESS_EX_SYSCALL("open"),
@@ -390,6 +392,7 @@ static const stress_exercises_t exercises[] = {
     defined(HAVE_SELECT)
 	STRESS_EX_SYSCALL("select"),
 #endif
+
 	STRESS_EX_END,
 };
 

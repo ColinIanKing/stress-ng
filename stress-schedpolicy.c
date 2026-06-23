@@ -593,6 +593,8 @@ next_policy:
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("bogo-ops-stable"),
+
 #if defined(HAVE_SCHED_GETATTR)
 	STRESS_EX_SYSCALL("sched_getattr"),
 #endif

@@ -247,6 +247,8 @@ err:
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("bogo-ops-stable"),
+
 	STRESS_EX_SYSCALL("lsm_get_self_attr"),
 	STRESS_EX_SYSCALL("lsm_list_modules"),
 	STRESS_EX_SYSCALL("lsm_set_self_attr"),

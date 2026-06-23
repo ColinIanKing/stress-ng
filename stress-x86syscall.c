@@ -529,6 +529,8 @@ static int stress_x86syscall(stress_args_t *args)
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("bogo-ops-stable"),
+
 #if defined(__NR_getcpu)
 	STRESS_EX_SYSCALL("getcpu"),
 #endif
@@ -550,6 +552,7 @@ static const stress_exercises_t exercises[] = {
 #if defined(__NR_time)
 	STRESS_EX_SYSCALL("time"),
 #endif
+
 	STRESS_EX_END,
 };
 

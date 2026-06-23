@@ -1159,6 +1159,7 @@ fork_again:
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("bogo-ops-stable"),
 	STRESS_EX_FEATURE("page-faults-kernel"),
 
 #if defined(__NR_get_mempolicy)

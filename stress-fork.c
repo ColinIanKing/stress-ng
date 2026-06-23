@@ -588,6 +588,7 @@ static const stress_opt_t vfork_opts[] = {
 static const stress_exercises_t fork_exercises[] = {
 	STRESS_EX_SYSCALL("fork"),
 	STRESS_EX_SYSCALL("waitpid"),
+
 	STRESS_EX_END,
 };
 
@@ -601,8 +602,11 @@ const stressor_info_t stress_fork_info = {
 };
 
 static const stress_exercises_t vfork_exercises[] = {
+	STRESS_EX_FEATURE("bogo-ops-stable"),
+
 	STRESS_EX_SYSCALL("vfork"),
 	STRESS_EX_SYSCALL("waitpid"),
+
 	STRESS_EX_END,
 };
 
