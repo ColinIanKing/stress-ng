@@ -320,7 +320,10 @@ err_free_s_pids:
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("file-lock"),
+
 	STRESS_EX_SYSCALL("flock"),
+
 	STRESS_EX_END,
 };
 
