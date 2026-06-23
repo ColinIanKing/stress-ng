@@ -813,10 +813,8 @@ static uint64_t stress_fs_max_file_rlimit(void)
 		if (stress_fs_file_read("/proc/sys/fs/file-max", buf, sizeof(buf)) > 0) {
 			errno = 0;
 			if ((sscanf(buf, "%" SCNu64, &val) == 1) && (errno == 0)) {
-				if (val < RLIM_INFINITY)
+				if (val < (uint64_t)max)
 					max = (rlim_t)val;
-				else
-					max = ((~(rlim_t)0) - 1);
 			}
 		}
 	}
