@@ -315,6 +315,7 @@
 	MACRO(sigq)		\
 	MACRO(sigrt)		\
 	MACRO(sigsegv)		\
+	MACRO(sigstop)		\
 	MACRO(sigsuspend)	\
 	MACRO(sigtrap)		\
 	MACRO(sigurg)		\

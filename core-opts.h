@@ -1492,6 +1492,9 @@ typedef enum {
 	OPT_sigsegv,
 	OPT_sigsegv_ops,
 
+	OPT_sigstop,
+	OPT_sigstop_ops,
+
 	OPT_sigsuspend,
 	OPT_sigsuspend_ops,
 

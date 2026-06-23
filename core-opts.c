@@ -1062,6 +1062,8 @@ const struct option stress_long_options[] = {
 	{ "sigrt-ops",		1,	NULL,	OPT_sigrt_ops },
 	{ "sigsegv",		1,	NULL,	OPT_sigsegv },
 	{ "sigsegv-ops",	1,	NULL,	OPT_sigsegv_ops },
+	{ "sigstop",		1,	NULL,	OPT_sigstop },
+	{ "sigstop-ops",	1,	NULL,	OPT_sigstop_ops },
 	{ "sigsuspend",		1,	NULL,	OPT_sigsuspend },
 	{ "sigsuspend-ops",	1,	NULL,	OPT_sigsuspend_ops },
 	{ "sigtrap",		1,	NULL,	OPT_sigtrap },

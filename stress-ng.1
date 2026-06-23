@@ -8897,6 +8897,18 @@ illegal interrupts or access to x86 time stamp counter.
 stop sigsegv stress workers after N bogo segmentation faults.
 .RE
 .TP
+.B SIGSTOP stressor
+.RS 5
+.TQ
+.B \-\-sigstop N
+start N workers that have a child process that stops itself with SIGSTOP
+and a parent process that detects this with a SIGCHLD so that it can resume
+the child with a SIGCONT signal.
+.TP
+.B \-\-sigstop\-ops N
+stop after N kills using SIGSTOP and SIGCONT
+.RE
+.TP
 .B Waiting for process signals stressor
 .RS 5
 .TQ
