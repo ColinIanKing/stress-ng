@@ -387,6 +387,7 @@ _stress_ng()
 	'--resources-mlock' | \
 	'--ring-pipe-splice' | \
 	'--sched-reclaim' | \
+	'--schedmix-cpumix' | \
 	'--schedpolicy-rand' | \
 	'--seek-punch' | \
 	'--sem-shared' | \
