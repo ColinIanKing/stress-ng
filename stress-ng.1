@@ -136,7 +136,7 @@ print out the configuration used to build stress\-ng.
 parse options, but do not run stress tests. A no-op.
 .TP
 .B \-\-exercised
-show the system calls exercised by the core of each stressor
+show the features, libraries and system calls exercised by the core of each stressor
 .TP
 .B \-\-exercise\-feature list
 enable stressors that exercises one or more stressor features specified in
@@ -1028,6 +1028,13 @@ performing clean up (such as removing hundreds of test file) it may take a
 while to finally terminate. A 0 timeout will run stress\-ng forever with
 no timeout. The default timeout is 24 hours.
 .TP
+.B \-\-timer\-slack N
+adjust the per process timer slack to N nanoseconds (Linux only). Increasing
+the timer slack allows the kernel to coalesce timer events by adding some
+fuzziness to timer expiration times and hence reduce wakeups. Conversely,
+decreasing the timer slack will increase wakeups. A value of 0 for the
+timer\-slack will set the system default of 50000 nanoseconds.
+.TP
 .B \-\-times
 show the cumulative user and system times of all the child processes at the
 end of the stress run. The percentage of utilisation of available CPU time is
@@ -1036,13 +1043,6 @@ also calculated from the number of on-line CPUs in the system.
 .B \-\-timestamp
 add a timestamp in hours, minutes, seconds and hundredths of a second to the
 log output.
-.TP
-.B \-\-timer\-slack N
-adjust the per process timer slack to N nanoseconds (Linux only). Increasing
-the timer slack allows the kernel to coalesce timer events by adding some
-fuzziness to timer expiration times and hence reduce wakeups. Conversely,
-decreasing the timer slack will increase wakeups. A value of 0 for the
-timer\-slack will set the system default of 50000 nanoseconds.
 .TP
 .B \-\-tz
 collect temperatures from the available thermal zones on the machine (Linux
