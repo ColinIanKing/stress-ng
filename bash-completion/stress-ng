@@ -341,8 +341,7 @@ _stress_ng()
 	'--mmaphuge-numa' | \
 	'--mmapmany-mlock' | \
 	'--mmapmany-numa' | \
-	'--mmaprandom-mappings' | \
-	'--mmaprandom-maxpages' | \
+	'--mmaprandom-numa' | \
 	'--module-no-modver' | \
 	'--module-no-unload' | \
 	'--module-no-vermag' | \
