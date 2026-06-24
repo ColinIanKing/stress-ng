@@ -198,8 +198,8 @@ _stress_ng()
 	'--cache-sfence' | \
 	'--cachehammer-numa' | \
 	'--cacheline-affinity' | \
-	'--compact-memory' | \
 	'--change-cpu' | \
+	'--compact-memory' | \
 	'--config' | \
 	'--cpu-online-affinity,' | \
 	'--cpu-online-all' | \
@@ -207,6 +207,7 @@ _stress_ng()
 	'--dry-run' | \
 	'--eventfd-nonblock' | \
 	'--exec-no-pthread' | \
+	'--exercised' | \
 	'--far-branch-flush' | \
 	'--far-branch-pageout' | \
 	'--fd-race-dev' | \
@@ -224,6 +225,7 @@ _stress_ng()
 	'--interrupts' | \
 	'--intmath-fast' | \
 	'--io-uring-rand' | \
+	'--ios' | \
 	'--itimer-rand' | \
 	'--keep-files' | \
 	'--keep-name' | \
@@ -304,8 +306,8 @@ _stress_ng()
 	'--numa-shuffle-addr' | \
 	'--numa-shuffle-node' | \
 	'--oomable' | \
-	'--oom-no-child' | \
 	'--oom-avoid' | \
+	'--oom-no-child' | \
 	'--open-fd' | \
 	'--page-in' | \
 	'--pagemove-mlock' | \
@@ -364,13 +366,13 @@ _stress_ng()
 	'--sync-start' | \
 	'--syslog' | \
 	'--taskset-random' | \
+	'--thrash' | \
 	'--timer-rand' | \
 	'--timerfd-rand' | \
 	'--tmpfs-mmap-async' | \
 	'--tmpfs-mmap-file' | \
 	'--tsc-lfence' | \
 	'--tsc-rdtscp' | \
-	'--thrash' | \
 	'--times' | \
 	'--timestamp' | \
 	'--tz' | \
