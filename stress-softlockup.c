@@ -374,8 +374,10 @@ finish:
 }
 
 static const stress_exercises_t exercises[] = {
+#if defined(HAVE_X86_REP_STOSB)
 	STRESS_EX_FEATURE("memory-loads"),
 	STRESS_EX_FEATURE("memory-stores"),
+#endif
 
 	STRESS_EX_SYSCALL("sched_setscheduler"),
 
