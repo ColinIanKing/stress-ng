@@ -1043,7 +1043,7 @@ static int stress_buddystat(
 	}
 	(void)fclose(fp);
 
-	return 0;
+	return *strbuf ? 0 : -1;
 }
 #else
 static int stress_buddystat(
