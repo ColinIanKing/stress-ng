@@ -198,6 +198,7 @@ _stress_ng()
 	'--ipsec-mb-feature' | \
 	'--jpeg-image' | \
 	'--min-nanosleep-sched' | \
+	'--monte-carlo-rand' | \
 	'--sock-opts' | \
 	'--sock-type' | \
 	'--sock-protocol' | \
