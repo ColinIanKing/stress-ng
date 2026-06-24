@@ -264,6 +264,7 @@ _stress_ng()
 	'--get-slow-sync' | \
 	'--hrtimers-adjust' | \
 	'--help' | \
+	'--icmp-flood-max-size' | \
 	'--ignite-cpu' | \
 	'--interrupts' | \
 	'--intmath-fast' | \
