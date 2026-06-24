@@ -215,7 +215,8 @@ _stress_ng()
 	'--varyload-type' | \
 	'--vm-madvise' | \
 	'--workload-dist' | \
-	'--workload-sched')
+	'--workload-sched' | \
+	'--yield-sched')
                 local options=$($1 $prev which 2>&1 | cut -d':' -f2)
                 COMPREPLY=( $(compgen -W "$options" -- $cur) )
                 return 0
