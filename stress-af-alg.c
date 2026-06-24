@@ -1589,6 +1589,8 @@ static const stress_exercises_t exercises[] = {
 	STRESS_EX_FEATURE("crypto"),
 	STRESS_EX_FEATURE("hash"),
 	STRESS_EX_FEATURE("hot-package"),
+	STRESS_EX_FEATURE("power-core"),
+	STRESS_EX_FEATURE("power-package"),
 
 	STRESS_EX_SYSCALL("accept"),
 	STRESS_EX_SYSCALL("bind"),

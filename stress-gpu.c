@@ -649,6 +649,7 @@ static int stress_gpu(stress_args_t *args)
 static const stress_exercises_t exercises[] = {
 	STRESS_EX_FEATURE("bogo-ops-stable"),
 	STRESS_EX_FEATURE("page-faults-major"),
+	STRESS_EX_FEATURE("power-uncore"),
 
 	STRESS_EX_LIBRARY("egl"),
 	STRESS_EX_LIBRARY("gbm"),

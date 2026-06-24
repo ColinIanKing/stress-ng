@@ -350,6 +350,8 @@ err:
 
 static const stress_exercises_t exercises[] = {
 	STRESS_EX_FEATURE("hot-package"),
+	STRESS_EX_FEATURE("power-core"),
+	STRESS_EX_FEATURE("power-package"),
 
 	STRESS_EX_SYSCALL("close"),
 	STRESS_EX_SYSCALL("ioctl"),
