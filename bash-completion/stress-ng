@@ -212,6 +212,7 @@ _stress_ng()
 	'--syscall-rank' | \
 	'--revio-opts' | \
 	'--touch-opts' | \
+	'--varyload-type' | \
 	'--vm-madvise')
                 local options=$($1 $prev which 2>&1 | cut -d':' -f2)
                 COMPREPLY=( $(compgen -W "$options" -- $cur) )
