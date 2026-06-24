@@ -195,6 +195,7 @@ _stress_ng()
 	'--filename-opts' | \
 	'--hdd-opts' | \
 	'--ioport-opts' | \
+	'--ipsec-mb-feature' | \
 	'--sock-opts' | \
 	'--sock-type' | \
 	'--sock-protocol' | \
