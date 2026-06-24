@@ -196,6 +196,7 @@ _stress_ng()
 	'--hdd-opts' | \
 	'--ioport-opts' | \
 	'--ipsec-mb-feature' | \
+	'--jpeg-image' | \
 	'--sock-opts' | \
 	'--sock-type' | \
 	'--sock-protocol' | \
