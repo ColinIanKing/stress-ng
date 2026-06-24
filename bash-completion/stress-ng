@@ -245,6 +245,7 @@ _stress_ng()
 	'--far-branch-pageout' | \
 	'--fd-race-dev' | \
 	'--fd-race-proc' | \
+	'--filehole-defrag' | \
 	'--fma-libc' | \
 	'--fork-pageout' | \
 	'--fork-unmap' | \
