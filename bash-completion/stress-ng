@@ -403,7 +403,6 @@ _stress_ng()
 	'--sock-nodelay' | \
 	'--sock-zerocopy' | \
 	'--sockfd-reuse' | \
-	'--sparsematrix-method' | \
 	'--spinmem-affinity' | \
 	'--spinmem-numa' | \
 	'--spinmem-yield' | \
