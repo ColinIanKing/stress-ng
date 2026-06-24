@@ -104,6 +104,10 @@ _stress_ng()
                 COMPREPLY=( $(compgen -W "$devs" -- $cur) )
                 return 0
                 ;;
+	'--ioport-port')
+                COMPREPLY=( $(compgen -W "post vga-dac-r bochs-debug" -- $cur) )
+                return 0
+                ;;
 	'--bad-ioctl-method' | \
 	'--besselmath-method' | \
 	'--bitops-method' | \
@@ -190,6 +194,7 @@ _stress_ng()
 	'--dccp-opts' | \
 	'--filename-opts' | \
 	'--hdd-opts' | \
+	'--ioport-opts' | \
 	'--sock-opts' | \
 	'--sock-type' | \
 	'--sock-protocol' | \
