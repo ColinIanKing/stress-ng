@@ -209,6 +209,7 @@ _stress_ng()
 	'--sock-type' | \
 	'--sock-protocol' | \
 	'--stream-madvise' | \
+	'--syscall-rank' | \
 	'--revio-opts' | \
 	'--touch-opts' | \
 	'--vm-madvise')
