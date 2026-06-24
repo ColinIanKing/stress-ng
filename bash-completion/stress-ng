@@ -192,6 +192,7 @@ _stress_ng()
                 ;;
 	'--cyclic-policy' | \
 	'--dccp-opts' | \
+	'--dentry-order' | \
 	'--filename-opts' | \
 	'--hdd-opts' | \
 	'--ioport-opts' | \
@@ -207,18 +208,10 @@ _stress_ng()
 	'--sock-opts' | \
 	'--sock-type' | \
 	'--sock-protocol' | \
+	'--stream-madvise' | \
 	'--revio-opts' | \
-	'--touch-opts')
-                local options=$($1 $prev which 2>&1 | cut -d':' -f2)
-                COMPREPLY=( $(compgen -W "$options" -- $cur) )
-                return 0
-                ;;
-	'--dentry-order')
-                local options=$($1 $prev which 2>&1 | cut -d':' -f2)
-                COMPREPLY=( $(compgen -W "$options" -- $cur) )
-                return 0
-                ;;
-	'--stream-madvise' | '--vm-madvise')
+	'--touch-opts' | \
+	'--vm-madvise')
                 local options=$($1 $prev which 2>&1 | cut -d':' -f2)
                 COMPREPLY=( $(compgen -W "$options" -- $cur) )
                 return 0
