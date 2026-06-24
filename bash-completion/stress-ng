@@ -197,6 +197,7 @@ _stress_ng()
 	'--ioport-opts' | \
 	'--ipsec-mb-feature' | \
 	'--jpeg-image' | \
+	'--min-nanosleep-sched' | \
 	'--sock-opts' | \
 	'--sock-type' | \
 	'--sock-protocol' | \
@@ -311,7 +312,6 @@ _stress_ng()
 	'--metrics' | \
 	'--metrics-brief' | \
 	'--mincore-random' | \
-	'--min-nanosleep-sched,' | \
 	'--minimize' | \
 	'--mmap-async' | \
 	'--mmap-file' | \
