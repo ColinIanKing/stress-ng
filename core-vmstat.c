@@ -21,6 +21,7 @@
 #include "core-builtin.h"
 #include "core-cpu-freq.h"
 #include "core-killpid.h"
+#include "core-memory.h"
 #include "core-pragma.h"
 #include "core-rapl.h"
 #include "core-thermal-zone.h"
@@ -114,11 +115,12 @@ typedef struct {
 
 static uint64_t vmstat_units_kb = 1;	/* kilobytes */
 
-static int32_t status_delay = 0;
-static int32_t vmstat_delay = 0;
-static int32_t thermalstat_delay = 0;
+static int32_t buddystat_delay = 0;
 static int32_t iostat_delay = 0;
 static int32_t raplstat_delay = 0;
+static int32_t status_delay = 0;
+static int32_t thermalstat_delay = 0;
+static int32_t vmstat_delay = 0;
 
 
 #if defined(__FreeBSD__) ||	\
@@ -434,10 +436,14 @@ static bool stress_next_field(char **str)
  *  stress_read_vmstat()
  *	read vmstat statistics
  */
-static void stress_read_vmstat(stress_vmstat_t *vmstat)
+static void stress_read_vmstat(
+	stress_vmstat_t *vmstat,
+	const size_t page_size)
 {
 	FILE *fp;
 	char buffer[1024];
+
+	(void)page_size;
 
 	fp = fopen("/proc/stat", "r");
 	if (fp) {
@@ -624,11 +630,15 @@ static void stress_read_vmstat(stress_vmstat_t *vmstat)
  *  stress_read_vmstat()
  *	read vmstat statistics, FreeBSD variant, partially implemented
  */
-static void stress_read_vmstat(stress_vmstat_t *vmstat)
+static void stress_read_vmstat(
+	stress_vmstat_t *vmstat,
+	const size_t page_size)
 {
 #if defined(HAVE_SYS_VMMETER_H)
 	struct vmtotal t;
 #endif
+
+	(void)page_size;
 
 	vmstat->interrupt = stress_bsd_getsysctl_uint64("vm.stats.sys.v_intr");
 	vmstat->context_switch = stress_bsd_getsysctl_uint64("vm.stats.sys.v_swtch");
@@ -657,7 +667,9 @@ static void stress_read_vmstat(stress_vmstat_t *vmstat)
  *  stress_read_vmstat()
  *	read vmstat statistics, NetBSD variant, partially implemented
  */
-static void stress_read_vmstat(stress_vmstat_t *vmstat)
+static void stress_read_vmstat(
+	stress_vmstat_t *vmstat,
+	const size_t page_size)
 {
 #if defined(HAVE_SYS_VMMETER_H)
 	struct vmtotal t;
@@ -665,6 +677,9 @@ static void stress_read_vmstat(stress_vmstat_t *vmstat)
 #if defined(HAVE_UVM_UVM_EXTERN_H)
 	struct uvmexp_sysctl u;
 #endif
+
+	(void)page_size;
+
 	netbsd_cpu_time_get(&vmstat->user_time, &vmstat->system_time, &vmstat->idle_time);
 #if defined(HAVE_UVM_UVM_EXTERN_H)
 	if (stress_bsd_getsysctl("vm.uvmexp2", &u, sizeof(u)) == 0) {
@@ -690,7 +705,9 @@ static void stress_read_vmstat(stress_vmstat_t *vmstat)
  *  stress_read_vmstat()
  *	read vmstat statistics, OS X variant, partially implemented
  */
-static void stress_read_vmstat(stress_vmstat_t *vmstat)
+static void stress_read_vmstat(
+	stress_vmstat_t *vmstat,
+	const size_t page_size)
 {
 	int mib[2];
 	struct uvmexp u;
@@ -743,13 +760,14 @@ static void stress_read_vmstat(stress_vmstat_t *vmstat)
  *  stress_read_vmstat()
  *	read vmstat statistics, OS X variant, partially implemented
  */
-static void stress_read_vmstat(stress_vmstat_t *vmstat)
+static void stress_read_vmstat(
+	stress_vmstat_t *vmstat,
+	const size_t page_size)
 {
 	vm_statistics64_data_t vm_stat;
 	struct xsw_usage xsu;
 	const mach_port_t host = mach_host_self();
 	natural_t count = HOST_VM_INFO64_COUNT;
-	const size_t page_size = stress_memory_page_size_get();
 	int ret;
 
 	(void)shim_memset(&vm_stat, 0, sizeof(vmstat));
@@ -851,9 +869,12 @@ static void stress_read_vmstat(stress_vmstat_t *vmstat)
  *  stress_read_vmstat()
  *	read vmstat statistics, no-op
  */
-static void stress_read_vmstat(stress_vmstat_t *vmstat)
+static void stress_read_vmstat(
+	stress_vmstat_t *vmstat,
+	const size_t page_size)
 {
-	(void)vmstat;
+	 (void)vmstat;
+	 (void)page_size;
 }
 #endif
 
@@ -866,14 +887,16 @@ static void stress_read_vmstat(stress_vmstat_t *vmstat)
  *  stress_vmstat_get()
  *	collect vmstat data, zero for initial read
  */
-static void stress_vmstat_get(stress_vmstat_t *vmstat)
+static void stress_vmstat_get(
+	stress_vmstat_t *vmstat,
+	const size_t page_size)
 {
 	static stress_vmstat_t vmstat_prev;
 	stress_vmstat_t vmstat_current;
 
 	(void)shim_memset(&vmstat_current, 0, sizeof(vmstat_current));
 	(void)shim_memset(vmstat, 0, sizeof(*vmstat));
-	stress_read_vmstat(&vmstat_current);
+	stress_read_vmstat(&vmstat_current, page_size);
 	STRESS_VMSTAT_COPY(procs_running);
 	STRESS_VMSTAT_COPY(procs_blocked);
 	STRESS_VMSTAT_COPY(swap_total);
@@ -921,6 +944,121 @@ static double stress_tz_info_get(const stress_tz_info_t *tz_info)
 }
 #endif
 
+#if defined(__linux__)
+static int stress_buddystat(
+	char *strbuf,
+	const size_t strbuf_len,
+	const size_t page_size)
+{
+	FILE *fp;
+	char buffer[4096];
+
+	static const char *type[] = {
+		"DMA ",
+		"DMA32 ",
+		"Normal ",
+	};
+
+	if (UNLIKELY(!strbuf || (strbuf_len < 1)))
+		return -1;
+
+	*strbuf = '\0';
+
+	fp = fopen("/proc/buddyinfo", "r");
+	if (!fp)
+		return -1;
+
+	while (fgets(buffer, sizeof(buffer) - 1, fp) != NULL) {
+		char *ptr;
+		size_t i;
+
+		for (i = 0; i < 3; i++) {
+			unsigned long order;
+			double total = 0.0;
+			double total_free;
+			double percent_total = 0.0;
+			int n;
+			char *match;
+			char numbuf[20];
+
+			match = strstr(buffer, type[i]);
+			if (!match)
+				continue;
+
+			/* Scan #1, get total */
+			for (order = 1, ptr = match; *ptr; order <<= 1) {
+				uint64_t val;
+
+				while (*ptr && *ptr != ' ')
+					ptr++;
+				if (!*ptr)
+					break;
+				while (*ptr && *ptr == ' ')
+					ptr++;
+				if (!*ptr)
+					break;
+				if ((sscanf(ptr, "%" SCNu64, &val) != 1) || (errno != 0))
+					break;
+				total += (double)val * (double)order;
+			}
+
+			/* Skip of zero total */
+			if (total <= 0.0)
+				continue;
+
+			/* Scan #2, get total */
+			total_free = total;
+			for (n = 0, order = 1, ptr = match; *ptr; order <<= 1, n++) {
+				uint64_t val;
+				double percent;
+
+				while (*ptr && *ptr != ' ')
+					ptr++;
+				if (!*ptr)
+					break;
+				while (*ptr && *ptr == ' ')
+					ptr++;
+				if (!*ptr)
+					break;
+				if ((sscanf(ptr, "%" SCNu64, &val) != 1) || (errno != 0))
+					break;
+
+				percent = 100.0 - (100.0 * total_free / total);
+				total_free -= (double)val * (double)order;
+				percent_total += percent;
+			}
+			/* Skip of no orders processed */
+			if (!n)
+				continue;
+			if (i)
+				(void)shim_strlcat(strbuf, ",", strbuf_len);
+
+			total *= (double)page_size;
+			(void)snprintf(buffer, sizeof(buffer), " %s %7s %5.1f%%",
+					type[i],
+					stress_uint64_to_str(numbuf, sizeof(numbuf), (uint64_t)total, 2, false),
+					percent_total / (double)n);
+			(void)strlcat(strbuf, buffer, strbuf_len);
+		}
+	}
+	(void)fclose(fp);
+
+	return 0;
+}
+#else
+static int stress_buddystat(
+	char *strbuf,
+	const size_t strbuf_len,
+	const size_t page_size)
+{
+	(void)strbuf;
+	(void)strbuf_len;
+	(void)page_size;
+
+	return -1;
+}
+#endif
+
 /*
  *  stress_vmstat_start()
  *	start vmstat statistics (1 per second)
@@ -930,7 +1068,14 @@ void stress_vmstat_start(void)
 	stress_vmstat_t vmstat;
 	size_t tz_num = 0;
 	stress_tz_info_t *tz_info;
-	int32_t vmstat_sleep, thermalstat_sleep, iostat_sleep, status_sleep, raplstat_sleep;
+	int32_t buddystat_sleep;
+	int32_t iostat_sleep;
+	int32_t raplstat_sleep;
+	int32_t status_sleep;
+	int32_t thermalstat_sleep;
+	int32_t vmstat_sleep;
+	const size_t page_size = stress_memory_page_size_get();
+
 	double t1, t2, t_start;
 #if defined(HAVE_SYS_SYSMACROS_H) &&	\
     defined(__linux__)
@@ -940,6 +1085,7 @@ void stress_vmstat_start(void)
 	bool thermalstat_zero = true;
 	char *vmstat_units = NULL;
 
+	(void)stress_setting_get("buddystat", &buddystat_delay);
 	(void)stress_setting_get("iostat", &iostat_delay);
 	(void)stress_setting_get("raplstat", &raplstat_delay);
 	(void)stress_setting_get("status", &status_delay);
@@ -951,18 +1097,20 @@ void stress_vmstat_start(void)
 			vmstat_units_kb = 1;
 	}
 
-	if ((vmstat_delay == 0) &&
-	    (thermalstat_delay == 0) &&
+	if ((buddystat_delay == 0) &&
 	    (iostat_delay == 0) &&
+	    (raplstat_delay == 0) &&
 	    (status_delay == 0) &&
-	    (raplstat_delay == 0))
+	    (thermalstat_delay == 0) &&
+	    (vmstat_delay == 0))
 		return;
 
-	vmstat_sleep = vmstat_delay;
-	thermalstat_sleep = thermalstat_delay;
+	buddystat_sleep = buddystat_delay;
 	iostat_sleep = iostat_delay;
-	status_sleep = status_delay;
 	raplstat_sleep = raplstat_delay;
+	status_sleep = status_delay;
+	thermalstat_sleep = thermalstat_delay;
+	vmstat_sleep = vmstat_delay;
 
 	vmstat_pid = fork();
 	if ((vmstat_pid < 0) || (vmstat_pid > 0))
@@ -972,7 +1120,7 @@ void stress_vmstat_start(void)
 	stress_proc_name_set("stat [periodic]");
 
 	if (vmstat_delay)
-		stress_vmstat_get(&vmstat);
+		stress_vmstat_get(&vmstat, page_size);
 
 	if (thermalstat_delay) {
 		for (tz_info = g_shared->tz_info; tz_info; tz_info = tz_info->next)
@@ -1002,19 +1150,21 @@ void stress_vmstat_start(void)
 		int32_t sleep_delay = INT_MAX;
 		double delta;
 
-		if (vmstat_delay > 0)
-			sleep_delay = STRESS_MINIMUM(vmstat_delay, sleep_delay);
-		if (thermalstat_delay > 0)
-			sleep_delay = thermalstat_zero ? 0 : STRESS_MINIMUM(thermalstat_delay, sleep_delay);
 #if defined(HAVE_SYS_SYSMACROS_H) &&	\
     defined(__linux__)
 		if (iostat_delay > 0)
 			sleep_delay = STRESS_MINIMUM(iostat_delay, sleep_delay);
 #endif
-		if (status_delay > 0)
-			sleep_delay = STRESS_MINIMUM(status_delay, sleep_delay);
+		if (buddystat_delay > 0)
+			sleep_delay = STRESS_MINIMUM(buddystat_delay, sleep_delay);
 		if (raplstat_delay > 0)
 			sleep_delay = STRESS_MINIMUM(raplstat_delay, sleep_delay);
+		if (status_delay > 0)
+			sleep_delay = STRESS_MINIMUM(status_delay, sleep_delay);
+		if (thermalstat_delay > 0)
+			sleep_delay = thermalstat_zero ? 0 : STRESS_MINIMUM(thermalstat_delay, sleep_delay);
+		if (vmstat_delay > 0)
+			sleep_delay = STRESS_MINIMUM(vmstat_delay, sleep_delay);
 		t1 += sleep_delay;
 		t2 = stress_time_now();
 
@@ -1025,28 +1175,31 @@ void stress_vmstat_start(void)
 			(void)shim_nanosleep_uint64(nsec);
 		}
 
-		vmstat_sleep -= sleep_delay;
+		buddystat_sleep -= sleep_delay;
 		iostat_sleep -= sleep_delay;
-		status_sleep -= sleep_delay;
 		raplstat_sleep -= sleep_delay;
+		status_sleep -= sleep_delay;
 		thermalstat_sleep -= sleep_delay;
+		vmstat_sleep -= sleep_delay;
 
-		if ((vmstat_delay > 0) && (vmstat_sleep <= 0))
-			vmstat_sleep = vmstat_delay;
+		if ((buddystat_delay > 0) && (buddystat_sleep <= 0))
+			buddystat_sleep = buddystat_delay;
 		if ((iostat_delay > 0) && (iostat_sleep <= 0))
 			iostat_sleep = iostat_delay;
-		if ((status_delay > 0) && (status_sleep <= 0))
-			status_sleep = status_delay;
 		if ((raplstat_delay > 0) && (raplstat_sleep <= 0))
 			raplstat_sleep = raplstat_delay;
+		if ((status_delay > 0) && (status_sleep <= 0))
+			status_sleep = status_delay;
 		if ((thermalstat_delay > 0) && (thermalstat_sleep <= 0))
 			thermalstat_sleep = thermalstat_delay;
+		if ((vmstat_delay > 0) && (vmstat_sleep <= 0))
+			vmstat_sleep = vmstat_delay;
 
 		if ((sleep_delay > 0) && (vmstat_sleep == vmstat_delay)) {
 			static uint32_t vmstat_count = 0;
 			double total_ticks, percent;
 
-			stress_vmstat_get(&vmstat);
+			stress_vmstat_get(&vmstat, page_size);
 
 			pr_block_begin();
 			if (vmstat_count == 0)
@@ -1232,6 +1385,12 @@ void stress_vmstat_start(void)
 			}
 		}
 #endif
+		if ((sleep_delay > 0) && (buddystat_sleep == buddystat_delay)) {
+			char buf[80];
+
+			if (stress_buddystat(buf, sizeof(buf), page_size) == 0) 
+				pr_inf("buddystat: %s\n", buf);
+		}
 	}
 	_exit(0);
 }

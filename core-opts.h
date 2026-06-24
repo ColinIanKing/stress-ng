@@ -249,6 +249,8 @@ typedef enum {
 	OPT_bubblesort_ops,
 	OPT_bubblesort_size,
 
+	OPT_buddystat,
+
 	OPT_buildinfo,
 
 	OPT_c_states,

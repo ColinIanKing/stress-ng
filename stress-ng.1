@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, may be w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "23 June 2026"
+.TH STRESS-NG 1 "24 June 2026"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -91,6 +91,10 @@ behaviour. Linux only.
 .B \-b N, \-\-backoff N
 wait N microseconds between the start of each stress worker process. This
 allows one to ramp up the stress tests over time.
+.TP
+.B \-\-buddystat S
+every S seconds show buddy allocator free memory sizes and percentage estimation
+of fragmentation for memory regions zones. Linux only.
 .TP
 .B \-\-buildinfo
 report build information such as build date and time, compiler used,

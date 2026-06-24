@@ -95,6 +95,7 @@ const struct option stress_long_options[] = {
 	{ "bubblesort-method",	1,	NULL,	OPT_bubblesort_method },
 	{ "bubblesort-ops",	1,	NULL,	OPT_bubblesort_ops },
 	{ "bubblesort-size",	1,	NULL,	OPT_bubblesort_size },
+	{ "buddystat",		1,	NULL,	OPT_buddystat },
 	{ "buildinfo",		0,	NULL,	OPT_buildinfo },
 	{ "c-states",		0,	NULL,	OPT_c_states },
 	{ "cache",		1,	NULL,	OPT_cache },

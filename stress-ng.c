@@ -345,6 +345,7 @@ static const stress_help_t help_generic[] = {
 	{ NULL,		"aggressive",		"enable all aggressive options" },
 	{ "a N",	"all N",		"start N workers of each stress test" },
 	{ "b N",	"backoff N",		"wait of N microseconds before work starts" },
+	{ NULL,		"buddystat S",		"show Linux buddy allocator info every S seconds" },
 	{ NULL,		"change-cpu",		"force child processes to use different CPU to that of parent" },
 	{ NULL,		"class name",		"specify a class of stressors, use with --sequential" },
 	{ "n",		"dry-run",		"do not run" },
@@ -3716,6 +3717,7 @@ static void stress_stressor_option(const char *opt, const uint64_t opt_flag, int
 static const stress_opt_t main_opts[] = {
 	{ OPT_all,              "all",              TYPE_ID_INT32_CPU_PERCENT, -STRESS_PROCS_MAX, STRESS_PROCS_MAX, NULL },
 	{ OPT_backoff,          "backoff",          TYPE_ID_INT64, 0, 10000000, NULL },
+	{ OPT_buddystat,        "buddystat",        TYPE_ID_INT32, 1, 3600, NULL },
 	{ OPT_cache_level,      "cache-level",      TYPE_ID_INT16, 1, 5, NULL },
 	{ OPT_cache_size,       "cache-size",       TYPE_ID_UINT64_BYTES_VM, 1 * KB, 4 * GB, NULL },
 	{ OPT_cache_ways,       "cache-ways",       TYPE_ID_UINT32, 1, 1024, NULL },
