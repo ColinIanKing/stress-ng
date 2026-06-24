@@ -258,6 +258,8 @@ static const stress_exercises_t exercises[] = {
 	STRESS_EX_FEATURE("d-cache-l1-write"),
 	STRESS_EX_FEATURE("hot-package"),
 	STRESS_EX_FEATURE("integer"),
+	STRESS_EX_FEATURE("memory-loads"),
+	STRESS_EX_FEATURE("memory-stores"),
 
 	STRESS_EX_LIBRARY("gmp"),
 	STRESS_EX_LIBRARY("mpfr"),

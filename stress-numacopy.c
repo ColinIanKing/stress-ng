@@ -665,6 +665,7 @@ static const stress_exercises_t exercises[] = {
 	STRESS_EX_FEATURE("d-tlb-read-miss"),
 	STRESS_EX_FEATURE("memory-bus"),
 	STRESS_EX_FEATURE("memory-copy"),
+	STRESS_EX_FEATURE("memory-stores"),
 
 #if defined(HAVE_SCHED_GETAFFINITY)
 	STRESS_EX_SYSCALL("sched_getaffinity"),

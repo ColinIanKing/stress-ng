@@ -891,8 +891,10 @@ static const stress_opt_t opts[] = {
 
 static const stress_exercises_t exercises[] = {
 	STRESS_EX_FEATURE("bogo-ops-stable"),
+	STRESS_EX_FEATURE("cpu-instructions"),
 	STRESS_EX_FEATURE("hot-package"),
 	STRESS_EX_FEATURE("fp"),
+	STRESS_EX_FEATURE("memory-loads"),
 
 	STRESS_EX_END,
 };

@@ -257,8 +257,10 @@ static int stress_crypt(stress_args_t *args)
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("cpu-instructions"),
 	STRESS_EX_FEATURE("crypto"),
 	STRESS_EX_FEATURE("hot-package"),
+	STRESS_EX_FEATURE("memory-loads"),
 
 	STRESS_EX_LIBRARY("crypt"),
 

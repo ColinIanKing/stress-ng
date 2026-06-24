@@ -341,6 +341,7 @@ finish:
 
 static const stress_exercises_t exercises[] = {
 	STRESS_EX_FEATURE("hot-package"),
+	STRESS_EX_FEATURE("memory-stores"),
 	STRESS_EX_FEATURE("stack"),
 
 #if defined(__linux__)

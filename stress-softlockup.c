@@ -374,7 +374,11 @@ finish:
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("memory-loads"),
+	STRESS_EX_FEATURE("memory-stores"),
+
 	STRESS_EX_SYSCALL("sched_setscheduler"),
+
 	STRESS_EX_END,
 };
 

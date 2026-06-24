@@ -289,10 +289,12 @@ PRAGMA_UNROLL_N(8)
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("cpu-instructions"),
 	STRESS_EX_FEATURE("cpu-vector"),
 	STRESS_EX_FEATURE("i-tlb-read-miss"),
 	STRESS_EX_FEATURE("integer"),
 	STRESS_EX_FEATURE("memory-cmp"),
+	STRESS_EX_FEATURE("memory-loads"),
 	STRESS_EX_FEATURE("registers"),
 
 	STRESS_EX_END,

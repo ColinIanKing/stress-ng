@@ -373,8 +373,10 @@ free_dist:
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("cpu-instructions"),
 	STRESS_EX_FEATURE("hot-package"),
 	STRESS_EX_FEATURE("ipc"),
+	STRESS_EX_FEATURE("memory-loads"),
 
 #if defined(HAVE_LIB_PTHREAD)
         STRESS_EX_LIBRARY("pthread"),
