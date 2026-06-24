@@ -32,6 +32,21 @@ _stress_ng()
                 compopt -o nosort
                 return 0
                 ;;
+	'--exercise-feature')
+		local features=$($1 --exercise-feature '?' --log-brief 2>&1 | cut -d':' -f2- | tr ' ' '\n' | sort | uniq | tr '\n' ' ')
+                COMPREPLY=( $(compgen -W "$features" -- $cur) )
+                return 0
+                ;;
+	'--exercise-library')
+		local libraries=$($1 --exercise-library '?' --log-brief 2>&1 | cut -d':' -f2- | tr ' ' '\n' | sort | uniq | tr '\n' ' ')
+                COMPREPLY=( $(compgen -W "$libraries" -- $cur) )
+                return 0
+                ;;
+	'--exercise-syscall')
+		local syscalls=$($1 --exercise-syscall '?' --log-brief 2>&1 | cut -d':' -f2- | tr ' ' '\n' | sort | uniq | tr '\n' ' ')
+                COMPREPLY=( $(compgen -W "$syscalls" -- $cur) )
+                return 0
+                ;;
         '--ionice-class')
                 local classes=$($1 --ionice-class which 2>&1 | cut -d':' -f2)
                 COMPREPLY=( $(compgen -W "$classes" -- $cur) )
@@ -57,6 +72,15 @@ _stress_ng()
 	'--exclude')
 		local stressors=$($1 --stressors)
                 COMPREPLY=( $(compgen -W "$stressors" $cur) )
+                return 0
+                ;;
+	'--with')
+		local stressors=$($1 --stressors)
+                COMPREPLY=( $(compgen -W "$stressors" $cur) )
+                return 0
+                ;;
+	'--vmstat-units')
+                COMPREPLY=( $(compgen -W "k m g t p e" -- $cur) )
                 return 0
                 ;;
         '--zlib-level')
