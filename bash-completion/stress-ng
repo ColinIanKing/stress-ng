@@ -95,6 +95,10 @@ _stress_ng()
                 COMPREPLY=( $(compgen -W "null random stdin stdout zero" -- $cur) )
                 return 0
                 ;;
+	'--goto-direction')
+                COMPREPLY=( $(compgen -W "forward backward random" -- $cur) )
+                return 0
+                ;;
 	'--bad-ioctl-method' | \
 	'--besselmath-method' | \
 	'--bitops-method' | \
