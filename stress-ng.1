@@ -870,8 +870,8 @@ The 3 stream stressor instances are run where stream stressor instances 0 to 1 u
 .RS
 .sp 1
 .EX
-\f[CR]sudo stress-ng --resctrl p1=1:l3:7:10,p2=1:ff8:90,\\
-stream=0-1@p1,stream=2@p2 --stream 3\f[]
+\f[CR]sudo stress-ng \-\-resctrl p1=1:l3:7:10,p2=1:ff8:90,\\
+stream=0-1@p1,stream=2@p2 \-\-stream 3\f[]
 .EE
 .PP
 Note that invalid resctrl parameters applied to the resctrl sysfs will
@@ -11804,7 +11804,7 @@ available file system space.
 run 8 instances of cpu, matrix, vecmath and fp stressors sequentially one
 after another, for 1 minute per stressor.
 .LP
-\f[CR]stress\-ng --trig 25% --fp 50% --fma 25% -t 5m --verify\f[]
+\f[CR]stress\-ng \-\-trig 25% \-\-fp 50% \-\-fma 25% \-t 5m \-\-verify\f[]
 .IP
 run trigonometric function stressor on 25% of the online CPUs, floating point
 stressor on 50% of the online CPUs and fused\-multiple\-add stressor on 25% of
@@ -11914,6 +11914,19 @@ run 3 instances of the CPU stressor and pin them to CPUs 0, 2 and 3.
 \f[CR]stress\-ng \-\-taskset odd \-\-cpu 32\f[]
 .IP
 run 32 instances of the CPU stressor and pin them to odd numbered CPUs.
+.LP
+\f[CR]stress\-ng \-\-exercise\-feature memory\-copy,memory\-cmp \-\-seq 1 \-t 10\f[]
+.IP
+run 1 instance of all stessors (for 10 seconds each) that are known exercise
+memory copies and memory comparisons.
+.LP
+\f[CR]stress\-ng \-\-exercise\-syscall select,poll \-\-all 4 -t 60\f[]
+.IP
+run 4 instances of all stressors that exercise select and poll system calls.
+.LP
+\f[CR]stress-ng \-\-exercise\-syscall \\?\[f]
+.IP
+report the system calls used by all stressors.
 .SH EXIT STATUS
 .TS
 cBw(10) lBx
