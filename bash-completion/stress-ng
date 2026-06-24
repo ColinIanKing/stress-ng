@@ -199,6 +199,8 @@ _stress_ng()
 	'--jpeg-image' | \
 	'--min-nanosleep-sched' | \
 	'--monte-carlo-rand' | \
+	'--numacopy-affinity' | \
+	'--numacopy-mode' | \
 	'--sock-opts' | \
 	'--sock-type' | \
 	'--sock-protocol' | \
