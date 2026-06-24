@@ -4248,6 +4248,7 @@ int main(int argc, char **argv, char **envp)
 	uint32_t opt_class;			/* stressor class option */
 	uint32_t n_stressors;			/* number of unique stressors */
 	uint32_t n_instances;			/* number of total instances */
+	int32_t discarded;			/* thermalstat delay, discarded */
 	uint64_t seed;				/* temp seed value */
 	const uint32_t cpus_online = (uint32_t)stress_cpus_online_get();
 	const uint32_t cpus_configured = (uint32_t)stress_cpus_configured_get();
@@ -4343,6 +4344,9 @@ int main(int argc, char **argv, char **envp)
 
 	if (stress_class_get(&opt_class, &ret) < 0)
 		goto exit_stressors_free;
+
+	if (stress_setting_get("thermalstat", &discarded))
+		g_opt_flags |= OPT_FLAGS_TZ_INFO;
 
 	if (stress_setting_get("ionice-class", &optstr))
 		ionice_class = stress_io_priority_ionice_class_get(optstr);
