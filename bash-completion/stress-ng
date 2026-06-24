@@ -420,6 +420,8 @@ _stress_ng()
 	'--thrash' | \
 	'--timer-rand' | \
 	'--timerfd-rand' | \
+	'--tlb-numa-nombind' | \
+	'--tlb-numa-nopageout' | \
 	'--tmpfs-mmap-async' | \
 	'--tmpfs-mmap-file' | \
 	'--tsc-lfence' | \
