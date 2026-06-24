@@ -99,6 +99,11 @@ _stress_ng()
                 COMPREPLY=( $(compgen -W "forward backward random" -- $cur) )
                 return 0
                 ;;
+        '--gpu-devnode')
+		local devs=$(find /dev/dri/ -type c)
+                COMPREPLY=( $(compgen -W "$devs" -- $cur) )
+                return 0
+                ;;
 	'--bad-ioctl-method' | \
 	'--besselmath-method' | \
 	'--bitops-method' | \
