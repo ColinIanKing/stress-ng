@@ -327,8 +327,8 @@ _stress_ng()
 	'--mmap-stressful' | \
 	'--mmap-write-check' | \
 	'--mmapaddr-mlock' | \
-	'--mmapcow-free' | \
 	'--mmapcow-fork' | \
+	'--mmapcow-free' | \
 	'--mmapcow-mlock' | \
 	'--mmapcow-numa' | \
 	'--mmapfiles-numa' | \
