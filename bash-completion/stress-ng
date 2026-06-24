@@ -96,6 +96,7 @@ _stress_ng()
 	'--bitops-method' | \
 	'--bsearch-method' | \
 	'--bubblesort-method' | \
+	'--cachehammer-method' | \
 	'--cacheline-method' | \
 	'--chyperbolic-method' | \
 	'--cpu-method' | \
