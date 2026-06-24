@@ -318,8 +318,8 @@ _stress_ng()
 	'--mmap-madvise' | \
 	'--mmap-mergeable' | \
 	'--mmap-mlock' | \
-	'--mmap-mprotect' | \
 	'--mmap-mmap2' | \
+	'--mmap-mprotect' | \
 	'--mmap-numa' | \
 	'--mmap-odirect' | \
 	'--mmap-osync' | \
