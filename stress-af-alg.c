@@ -65,9 +65,10 @@ static const stress_crypto_type_info_t crypto_type_info[] = {
 };
 
 static const stress_help_t help[] = {
-	{ NULL,	"af-alg N",	"start N workers that stress AF_ALG socket domain" },
-	{ NULL,	"af-alg-dump",	"dump internal list from /proc/crypto to stdout" },
-	{ NULL,	"af-alg-ops N",	"stop after N af-alg bogo operations" },
+	{ NULL,	"af-alg N",         "start N workers that stress AF_ALG socket domain" },
+	{ NULL,	"af-alg-dump",      "dump internal list from /proc/crypto to stdout" },
+	{ NULL,	"af-alg-ops N",     "stop after N af-alg bogo operations" },
+	{ NULL, "af-alg-type type", "crypto type [ all | ahash | shash | skcipher | rng | aead ]" },
 	{ NULL, NULL,		NULL }
 };
 
