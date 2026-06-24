@@ -203,6 +203,7 @@ _stress_ng()
 	'--numacopy-mode' | \
 	'--prio-inv-type' | \
 	'--prio-inv-policy' | \
+	'--sctp-sched' | \
 	'--sock-opts' | \
 	'--sock-type' | \
 	'--sock-protocol' | \
