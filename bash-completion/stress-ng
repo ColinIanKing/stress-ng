@@ -201,6 +201,8 @@ _stress_ng()
 	'--monte-carlo-rand' | \
 	'--numacopy-affinity' | \
 	'--numacopy-mode' | \
+	'--prio-inv-type' | \
+	'--prio-inv-policy' | \
 	'--sock-opts' | \
 	'--sock-type' | \
 	'--sock-protocol' | \
