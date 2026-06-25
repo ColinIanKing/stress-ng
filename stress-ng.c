@@ -3599,11 +3599,9 @@ static int stress_exercises_get(
 		size_t j;
 
 		pr_inf("%s:\n", stress_exercise_type_str(type));
-
 		for (j = 0; j < SIZEOF_ARRAY(stressors); j++) {
 			const stress_stressor_t *stressor = &stressors[j];
 			const stress_exercises_t * const exercises = stressor->info->exercises;
-
 
 			if (stressor->info->exercises) {
 				size_t len = 1;
