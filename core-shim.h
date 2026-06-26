@@ -582,6 +582,21 @@ static inline ALWAYS_INLINE CONST void *shim_unconstify_ptr(const void *ptr)
 	return su.ptr;
 }
 
+/*
+ *  shim_unvolatile_ptr()
+ * 	dirty hack to turn a void unvolatile * ptr into a void * ptr
+ */
+static inline ALWAYS_INLINE void * shim_unvolatile_ptr(void volatile * ptr)
+{
+	union stress_unvolatile {
+		void volatile * vptr;
+		void *ptr;
+	} su;
+
+	su.vptr = ptr;
+	return su.ptr;
+}
+
 extern int shim_sched_yield(void);
 extern int shim_cacheflush(char *addr, int nbytes, int cache);
 extern ssize_t shim_copy_file_range(int fd_in, shim_off64_t *off_in, int fd_out,
