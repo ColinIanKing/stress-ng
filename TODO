@@ -27,10 +27,9 @@ clone: add CLONE_AUTOREAP
 Exported kernel symbols
 
 Features:
-  syscall rate
-  heavy load
   memory wait
   streaming io
   streaming memory
   chaos generation
+  float32, float64, float80 etc, decimal, etc
   
