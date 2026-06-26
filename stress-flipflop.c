@@ -379,6 +379,7 @@ static const stress_exercises_t exercises[] = {
 	STRESS_EX_FEATURE("memory-loads"),
 	STRESS_EX_FEATURE("power-core"),
 	STRESS_EX_FEATURE("power-package"),
+	STRESS_EX_FEATURE("user-time"),
 
 #if defined(HAVE_LIB_PTHREAD)
         STRESS_EX_LIBRARY("pthread"),

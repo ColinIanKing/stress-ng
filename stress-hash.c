@@ -745,6 +745,7 @@ static const stress_exercises_t exercises[] = {
 	STRESS_EX_FEATURE("cpu-shift"),
 	STRESS_EX_FEATURE("integer"),
 	STRESS_EX_FEATURE("memory-loads"),
+	STRESS_EX_FEATURE("user-time"),
 
 #if defined(HAVE_XXHASH_H) &&	\
     defined(HAVE_LIB_XXHASH)

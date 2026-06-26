@@ -289,6 +289,7 @@ static const stress_exercises_t exercises[] = {
 	STRESS_EX_FEATURE("d-tlb-write-miss"),
 	STRESS_EX_FEATURE("ipc"),
 	STRESS_EX_FEATURE("memory-loads"),
+	STRESS_EX_FEATURE("user-time"),
 
 	STRESS_EX_END,
 };

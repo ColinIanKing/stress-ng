@@ -558,6 +558,8 @@ static int stress_vdso(stress_args_t *args)
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("user-time"),
+
 #if defined(HAVE_CLOCK_GETTIME)
 	STRESS_EX_SYSCALL("clock_gettime"),
 #endif
@@ -567,6 +569,7 @@ static const stress_exercises_t exercises[] = {
 	STRESS_EX_SYSCALL("getcpu"),
 	STRESS_EX_SYSCALL("gettimeofday"),
 	STRESS_EX_SYSCALL("time"),
+
 	STRESS_EX_END,
 };
 

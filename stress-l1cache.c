@@ -582,6 +582,7 @@ static int stress_l1cache(stress_args_t *args)
 
 static const stress_exercises_t exercises[] = {
 	STRESS_EX_FEATURE("d-cache"),
+	STRESS_EX_FEATURE("user-time"),
 
 	STRESS_EX_END,
 };

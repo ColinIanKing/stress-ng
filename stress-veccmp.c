@@ -296,6 +296,7 @@ static const stress_exercises_t exercises[] = {
 	STRESS_EX_FEATURE("memory-cmp"),
 	STRESS_EX_FEATURE("memory-loads"),
 	STRESS_EX_FEATURE("registers"),
+	STRESS_EX_FEATURE("user-time"),
 
 	STRESS_EX_END,
 };

@@ -464,6 +464,7 @@ static const stress_exercises_t exercises[] = {
 	STRESS_EX_FEATURE("cpu-opcode"),
 	STRESS_EX_FEATURE("frontend-decoder"),
 	STRESS_EX_FEATURE("registers"),
+	STRESS_EX_FEATURE("user-time"),
 
 	STRESS_EX_END,
 };

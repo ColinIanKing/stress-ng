@@ -666,6 +666,7 @@ static const stress_exercises_t exercises[] = {
 	STRESS_EX_FEATURE("memory-bus"),
 	STRESS_EX_FEATURE("memory-copy"),
 	STRESS_EX_FEATURE("memory-stores"),
+	STRESS_EX_FEATURE("user-time"),
 
 #if defined(HAVE_SCHED_GETAFFINITY)
 	STRESS_EX_SYSCALL("sched_getaffinity"),
@@ -673,6 +674,7 @@ static const stress_exercises_t exercises[] = {
 #if defined(HAVE_SCHED_SETAFFINITY)
 	STRESS_EX_SYSCALL("sched_setaffinity"),
 #endif
+
 	STRESS_EX_END,
 };
 

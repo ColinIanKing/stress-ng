@@ -1497,11 +1497,13 @@ err:
 static const stress_exercises_t exercises[] = {
 	STRESS_EX_FEATURE("d-cache"),
 	STRESS_EX_FEATURE("memory-cmp"),
+	STRESS_EX_FEATURE("user-time"),
 
 	STRESS_EX_LIBRARY("bsd"),
 #if defined(HAVE_JUDY_H)
 	STRESS_EX_LIBRARY("judy"),
 #endif
+
 	STRESS_EX_END,
 };
 
