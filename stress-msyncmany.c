@@ -162,7 +162,7 @@ static int stress_msyncmany(stress_args_t *args)
 
 static const stress_exercises_t exercises[] = {
 	STRESS_EX_FEATURE("d-cache-miss"),
-	STRESS_EX_SYSCALL("kmem-cache-alloc"),
+	STRESS_EX_FEATURE("kmem-cache-alloc"),
 	STRESS_EX_FEATURE("page-faults-minor"),
 
 	STRESS_EX_SYSCALL("msync"),

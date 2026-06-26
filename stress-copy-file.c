@@ -341,7 +341,7 @@ tidy_dir:
 static const stress_exercises_t exercises[] = {
 	STRESS_EX_FEATURE("filemap-page-cache"),
 	STRESS_EX_FEATURE("io-write"),
-	STRESS_EX_SYSCALL("kmem-cache-alloc"),
+	STRESS_EX_FEATURE("kmem-cache-alloc"),
 	STRESS_EX_FEATURE("writeback-dirty-folio"),
 
 	STRESS_EX_SYSCALL("copy_file_range"),
