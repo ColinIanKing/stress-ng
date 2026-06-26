@@ -3580,6 +3580,67 @@ static int stress_class_get(uint32_t *opt_class, int *ret)
 }
 
 /*
+ *  stess_exercises_detail_show()
+ *	show per stressor exercising details
+ */
+static void stess_exercises_detail_show(const stress_exercise_type_t type)
+{
+	size_t j;
+
+	pr_inf("%s:\n", stress_exercise_type_str(type));
+	for (j = 0; j < SIZEOF_ARRAY(stressors); j++) {
+		const stress_stressor_t *stressor = &stressors[j];
+		const stress_exercises_t * const exercises = stressor->info->exercises;
+
+		if (stressor->info->exercises) {
+			size_t len = 1;
+			size_t n;
+			size_t i;
+			char *newstr;
+			char **array;
+
+			/* string long enough for the text */
+			for (n = 0, i = 0; exercises[i].name; i++) {
+				if (exercises[i].type == type) {
+					len += strlen(exercises[i].name) + 2;
+					n++;
+				}
+			}
+
+			if (n == 0)
+				continue;
+
+			array = calloc(n, sizeof(*array));
+			if (!array)
+				continue;
+
+			for (n = 0, i = 0; exercises[i].name; i++) {
+				if (exercises[i].type == type) {
+					array[n] = shim_unconstify_ptr(exercises[i].name);
+					n++;
+				}
+			}
+
+			shim_qsort(array, n, sizeof(*array), stress_sort_cmp_str);
+
+			newstr = calloc(len, sizeof(*newstr));
+			if (!newstr) {
+				free(array);
+				continue;
+			}
+			for (i = 0; i < n; i++) {
+				shim_strlcat(newstr, " ", len);
+				shim_strlcat(newstr, array[i], len);
+			}
+			pr_inf("  %s:%s\n", stressor->name, newstr);
+
+			free(newstr);
+			free(array);
+		}
+	}
+}
+
+/*
  *  stress_exercises_get()
  *	parse for exercises option that matches type
  *	and a name in the opt string list
@@ -3596,59 +3657,7 @@ static int stress_exercises_get(
 		return 0;
 
 	if (!strcmp(str, "?")) {
-		size_t j;
-
-		pr_inf("%s:\n", stress_exercise_type_str(type));
-		for (j = 0; j < SIZEOF_ARRAY(stressors); j++) {
-			const stress_stressor_t *stressor = &stressors[j];
-			const stress_exercises_t * const exercises = stressor->info->exercises;
-
-			if (stressor->info->exercises) {
-				size_t len = 1;
-				size_t n;
-				size_t i;
-				char *newstr;
-				char **array;
-
-				/* string long enough for the text */
-				for (n = 0, i = 0; exercises[i].name; i++) {
-					if (exercises[i].type == type) {
-						len += strlen(exercises[i].name) + 2;
-						n++;
-					}
-				}
-
-				if (n == 0)
-					continue;
-
-				array = calloc(n, sizeof(*array));
-				if (!array)
-					continue;
-
-				for (n = 0, i = 0; exercises[i].name; i++) {
-					if (exercises[i].type == type) {
-						array[n] = shim_unconstify_ptr(exercises[i].name);
-						n++;
-					}
-				}
-
-				shim_qsort(array, n, sizeof(*array), stress_sort_cmp_str);
-
-				newstr = calloc(len, sizeof(*str));
-				if (!newstr) {
-					free(array);
-					continue;
-				}
-				for (i = 0; i < n; i++) {
-					shim_strlcat(newstr, " ", len);
-					shim_strlcat(newstr, array[i], len);
-				}
-				pr_inf("  %s:%s\n", stressor->name, newstr);
-
-				free(newstr);
-				free(array);
-			}
-		}
+		stess_exercises_detail_show(type);
 		*ret = EXIT_SUCCESS;
 		return -1;
 	}
