@@ -3640,8 +3640,8 @@ static int stress_exercises_get(
 					continue;
 				}
 				for (i = 0; i < n; i++) {
-					shim_strlcat(str, " ", len);
-					shim_strlcat(str, array[i], len);
+					shim_strlcat(newstr, " ", len);
+					shim_strlcat(newstr, array[i], len);
 				}
 				pr_inf("  %s:%s\n", stressor->name, newstr);
 
