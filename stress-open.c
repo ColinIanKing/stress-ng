@@ -1222,6 +1222,7 @@ close_all:
 
 static const stress_exercises_t exercises[] = {
 	STRESS_EX_FEATURE("io-thermal"),
+	STRESS_EX_FEATURE("io-wait"),
 	STRESS_EX_FEATURE("writeback-dirty-inode"),
 
 	STRESS_EX_SYSCALL("dup"),

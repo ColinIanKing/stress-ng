@@ -424,6 +424,8 @@ tidy_lock:
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("io-wait"),
+
 	STRESS_EX_SYSCALL("ioctl"),
 	STRESS_EX_SYSCALL("fsync"),
 #if defined(__NR_file_getattr)

@@ -481,6 +481,7 @@ tidy:
 static const stress_exercises_t exercises[] = {
 	STRESS_EX_SYSCALL("quotactl"),
 	STRESS_EX_SYSCALL("quotactl_fd"),
+
 	STRESS_EX_END,
 };
 

@@ -177,6 +177,7 @@ tidy_dir:
 
 static const stress_exercises_t exercises[] = {
 	STRESS_EX_FEATURE("io-thermal"),
+	STRESS_EX_FEATURE("io-wait"),
 
 #if defined(HAVE_SYNCFS)
 	STRESS_EX_SYSCALL("fsync"),

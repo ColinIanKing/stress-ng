@@ -366,6 +366,8 @@ tidy:
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("io-wait"),
+
 	STRESS_EX_SYSCALL("chmod"),
 	STRESS_EX_SYSCALL("fchmod"),
 #if defined(HAVE_FCHMODAT)
@@ -374,6 +376,7 @@ static const stress_exercises_t exercises[] = {
 #if defined(HAVE_FCHMODAT2)
 	STRESS_EX_SYSCALL("fchmodat2"),
 #endif
+
 	STRESS_EX_END,
 };
 

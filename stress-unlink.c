@@ -299,12 +299,15 @@ metrics_free:
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("io-wait"),
+
 	STRESS_EX_SYSCALL("close"),
 	STRESS_EX_SYSCALL("fsync"),
 	STRESS_EX_SYSCALL("fdatasync"),
 	STRESS_EX_SYSCALL("open"),
 	STRESS_EX_SYSCALL("link"),
 	STRESS_EX_SYSCALL("unlink"),
+
 	STRESS_EX_END,
 };
 

@@ -567,6 +567,7 @@ static const stress_opt_t opts[] = {
 
 static const stress_exercises_t exercises[] = {
 	STRESS_EX_FEATURE("directory"),
+	STRESS_EX_FEATURE("io-wait"),
 
 #if defined(HAVE_FLOCK) &&	\
     defined(LOCK_EX) &&		\

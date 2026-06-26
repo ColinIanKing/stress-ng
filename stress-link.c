@@ -388,6 +388,8 @@ const stressor_info_t stress_link_info = {
 #endif
 
 static const stress_exercises_t exercises_symlink[] = {
+	STRESS_EX_FEATURE("io-wait"),
+
 	STRESS_EX_SYSCALL("readlink"),
 #if defined(O_DIRECTORY) &&	\
     defined(HAVE_LIBGEN_H) &&	\
@@ -396,6 +398,7 @@ static const stress_exercises_t exercises_symlink[] = {
 #endif
 	STRESS_EX_SYSCALL("symlink"),
 	STRESS_EX_SYSCALL("unlink"),
+
 	STRESS_EX_END,
 };
 
