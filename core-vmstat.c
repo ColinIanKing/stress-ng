@@ -1388,7 +1388,7 @@ void stress_vmstat_start(void)
 		if ((sleep_delay > 0) && (buddystat_sleep == buddystat_delay)) {
 			char buf[80];
 
-			if (stress_buddystat(buf, sizeof(buf), page_size) == 0) 
+			if (stress_buddystat(buf, sizeof(buf), page_size) == 0)
 				pr_inf("buddystat: %s\n", buf);
 		}
 	}
