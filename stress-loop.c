@@ -495,6 +495,7 @@ tidy:
 static const stress_exercises_t exercises[] = {
 	STRESS_EX_FEATURE("filemap-page-cache"),
 	STRESS_EX_FEATURE("writeback-dirty-folio"),
+	STRESS_EX_FEATURE("io-thermal"),
 
 	STRESS_EX_SYSCALL("close"),
 	STRESS_EX_SYSCALL("ioctl"),
@@ -514,6 +515,7 @@ static const stress_exercises_t exercises[] = {
 	STRESS_EX_SYSCALL("msync"),
 #endif
 	STRESS_EX_SYSCALL("munmap"),
+
 	STRESS_EX_END,
 };
 

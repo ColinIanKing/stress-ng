@@ -290,11 +290,14 @@ static int stress_mknod(stress_args_t *args)
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("io-thermal"),
+
 #if defined(HAVE_MKNODAT)
 	STRESS_EX_SYSCALL("mknodat"),
 #endif
 	STRESS_EX_SYSCALL("mknod"),
 	STRESS_EX_SYSCALL("unlink"),
+
 	STRESS_EX_END,
 };
 

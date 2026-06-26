@@ -1254,6 +1254,7 @@ static const stress_opt_t opts[] = {
 
 static const stress_exercises_t exercises[] = {
 	STRESS_EX_FEATURE("io-write"),
+	STRESS_EX_FEATURE("io-thermal"),
 
 #if defined(__linux__) &&	\
     defined(__NR_cachestat)

@@ -1221,6 +1221,7 @@ close_all:
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("io-thermal"),
 	STRESS_EX_FEATURE("writeback-dirty-inode"),
 
 	STRESS_EX_SYSCALL("dup"),
@@ -1237,6 +1238,7 @@ static const stress_exercises_t exercises[] = {
 #if defined(HAVE_POSIX_OPENPT)
 	STRESS_EX_SYSCALL("openpt"),
 #endif
+
 	STRESS_EX_END,
 };
 

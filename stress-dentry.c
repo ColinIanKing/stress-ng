@@ -488,6 +488,7 @@ static const stress_opt_t opts[] = {
 static const stress_exercises_t exercises[] = {
 	STRESS_EX_FEATURE("d-cache-ll-read"),
 	STRESS_EX_FEATURE("directory"),
+	STRESS_EX_FEATURE("io-thermal"),
 
 	STRESS_EX_SYSCALL("access"),
 	STRESS_EX_SYSCALL("close"),
