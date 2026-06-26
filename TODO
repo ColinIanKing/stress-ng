@@ -24,10 +24,13 @@ map_shadow_stack()
 IP_LOCAL_PORT_RANGE https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=91d0b78c5177f3e42a4d8738af8ac19c3a90d002
 clone: add CLONE_AUTOREAP
 
-Add features fields per stressor to report what features are being exercised
 Exported kernel symbols
 
-Add memory fragmentation stressor + memory fragmentation metric
-
-Add trustyworthy bogo-ops performance notes
-
+Features:
+  syscall rate
+  heavy load
+  memory wait
+  streaming io
+  streaming memory
+  chaos generation
+  
