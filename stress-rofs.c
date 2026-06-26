@@ -18,6 +18,7 @@
  */
 #include "stress-ng.h"
 #include "core-attribute.h"
+#include "core-ioctl.h"
 #include "core-mmap.h"
 #include "core-mounts.h"
 
@@ -624,12 +625,15 @@ static int stress_rofs_file_fsync(
 	return 0;
 }
 
-typedef int (*stress_rofs_file_ioctl_func_t)(const int fd);
+typedef int (*stress_rofs_file_ioctl_func_t)(stress_args_t *args, const int fd);
 
 #if defined(FS_IOC_GETVERSION)
-static int stress_rofs_file_ioctl_ioc_get_version(const int fd)
+static int stress_rofs_file_ioctl_ioc_get_version(stress_args_t *args, const int fd)
 {
 	int version;
+
+	if (stress_ioctl_get_check(fd, FS_IOC_GETVERSION, sizeof(int)) < 0)
+		pr_fail("%s: ioctl FS_IOC_GETVERSION failed, not getting value reliably\n", args->name);
 
 	return ioctl(fd, FS_IOC_GETVERSION, &version);
 }
@@ -637,45 +641,59 @@ static int stress_rofs_file_ioctl_ioc_get_version(const int fd)
 
 #if defined(FS_IOC_GETFSLABEL) &&	\
     defined(FSLABEL_MAX)
-static int stress_rofs_file_ioctl_ioc_getfslabel(const int fd)
+static int stress_rofs_file_ioctl_ioc_getfslabel(stress_args_t *args, const int fd)
 {
 	char label[FSLABEL_MAX];
+
+	(void)args;
 
 	return ioctl(fd, FS_IOC_GETFSLABEL, label);
 }
 #endif
 
 #if defined(FS_IOC_GETFLAGS)
-static int stress_rofs_file_ioctl_ioc_getflags(const int fd)
+static int stress_rofs_file_ioctl_ioc_getflags(stress_args_t *args, const int fd)
 {
 	int attr = 0;
+
+	if (stress_ioctl_get_check(fd, FS_IOC_GETFLAGS, sizeof(int)) < 0)
+		pr_fail("%s: ioctl FS_IOC_GETFLAGS failed, not getting value reliably\n", args->name);
 
 	return ioctl(fd, FS_IOC_GETFLAGS, &attr);
 }
 #endif
 
 #if defined(FIGETBSZ)
-static int stress_rofs_file_ioctl_figetbsz(const int fd)
+static int stress_rofs_file_ioctl_figetbsz(stress_args_t *args, const int fd)
 {
 	int isz;
+
+	if (stress_ioctl_get_check(fd, FIGETBSZ, sizeof(int)) < 0)
+		pr_fail("%s: ioctl FIGETBSZ failed, not getting value reliably\n", args->name);
 
 	return ioctl(fd, FIGETBSZ, &isz);
 }
 #endif
 
 #if defined(FIONREAD)
-static int stress_rofs_file_ioctl_fionread(const int fd)
+static int stress_rofs_file_ioctl_fionread(stress_args_t *args, const int fd)
 {
 	int isz;
+
+	if (stress_ioctl_get_check(fd, FIONREAD, sizeof(int)) < 0)
+		pr_fail("%s: ioctl FIONREAD failed, not getting value reliably\n", args->name);
 
 	return ioctl(fd, FIONREAD, &isz);
 }
 #endif
 
 #if defined(FIOQSIZE)
-static int stress_rofs_file_ioctl_fioqsize(const int fd)
+static int stress_rofs_file_ioctl_fioqsize(stress_args_t *args, const int fd)
 {
 	shim_loff_t sz;
+
+	if (stress_ioctl_get_check(fd, FIOQSIZE, sizeof(shim_loff_t)) < 0)
+		pr_fail("%s: ioctl FIOQSIZE failed, not getting value reliably\n", args->name);
 
 	return ioctl(fd, FIOQSIZE, &sz);
 }
@@ -725,7 +743,7 @@ static int stress_rofs_file_ioctl(
 		return -1;
 
 	idx = stress_mwcsizemodn(n_ioctl_funcs);
-	if (stress_rofs_file_ioctl_funcs[idx](fd) == 0)
+	if (stress_rofs_file_ioctl_funcs[idx](args, fd) == 0)
 		(*count) += 1.0;
 
 	(void)close(fd);

@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-builtin.h"
+#include "core-ioctl.h"
 #include "core-net.h"
 
 #include <sys/ioctl.h>
@@ -160,9 +161,8 @@ static int OPTIMIZE3 stress_udp_flood(stress_args_t *args)
 
 #if defined(SIOCOUTQ)
 		if (UNLIKELY((seq_port & 0x1f) == 0)) {
-			int pending;
-
-			VOID_RET(int, ioctl(fd, SIOCOUTQ, &pending));
+			if (stress_ioctl_get_check(fd, SIOCOUTQ, sizeof(int)) < 0)
+				pr_fail("%s: ioctl SIOCOUTQ failed, not getting value reliably\n", args->name);
 		}
 #else
 		UNEXPECTED

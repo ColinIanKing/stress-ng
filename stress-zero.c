@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-helper.h"
+#include "core-ioctl.h"
 #include "core-madvise.h"
 #include "core-mmap.h"
 #include "core-pragma.h"
@@ -254,19 +255,13 @@ static int stress_zero(stress_args_t *args)
 			}
 #endif
 #if defined(FIONREAD)
-			{
-				int isz = 0;
-
-				/* Should be inappropriate ioctl */
-				VOID_RET(int, ioctl(fd, FIONREAD, &isz));
-			}
+			/* Should be inappropriate ioctl */
+			if (stress_ioctl_get_check(fd, FIONREAD, sizeof(int)) < 0)
+				pr_fail("%s: ioctl FIONREAD failed, not getting value reliably\n", args->name);
 #endif
 #if defined(FIGETBSZ)
-			{
-				int isz = 0;
-
-				VOID_RET(int, ioctl(fd, FIGETBSZ, &isz));
-			}
+			if (stress_ioctl_get_check(fd, FIGETBSZ, sizeof(int)) < 0)
+				pr_fail("%s: ioctl FIGETBSZ failed, not getting value reliably\n", args->name);
 #endif
 			stress_bogo_inc(args);
 		} while ((rc == EXIT_SUCCESS) && stress_continue(args));

@@ -22,6 +22,7 @@
 #include "core-attribute.h"
 #include "core-builtin.h"
 #include "core-killpid.h"
+#include "core-ioctl.h"
 #include "core-madvise.h"
 #include "core-mmap.h"
 #include "core-net.h"
@@ -213,6 +214,7 @@ static char **stress_get_congestion_controls(const int sock_domain, size_t *n_ct
  *	exercise various ioctl commands
  */
 static void stress_sock_ioctl(
+	stress_args_t *args,
 	const int fd,
 	const int sock_domain,
 	const bool rt)
@@ -226,10 +228,13 @@ static void stress_sock_ioctl(
 		int ret, own;
 
 		ret = ioctl(fd, FIOGETOWN, &own);
+		if (ret == 0) {
+			if (stress_ioctl_get_check(fd, FIOGETOWN, sizeof(int)) < 0)
+				pr_fail("%s: ioctl FIOGETOWN failed, not getting value reliably\n", args->name);
 #if defined(FIOSETOWN)
-		if (ret == 0)
 			VOID_RET(int, ioctl(fd, FIOSETOWN, &own));
 #endif
+		}
 		(void)ret;
 	}
 #endif
@@ -239,10 +244,13 @@ static void stress_sock_ioctl(
 		int ret, own;
 
 		ret = ioctl(fd, SIOCGPGRP, &own);
+		if (ret == 0) {
+			if (stress_ioctl_get_check(fd, SIOCGPGRP, sizeof(int)) < 0)
+				pr_fail("%s: ioctl SIOCGPGRP failed, not getting value reliably\n", args->name);
 #if defined(SIOCSPGRP)
-		if (ret == 0)
 			VOID_RET(int, ioctl(fd, SIOCSPGRP, &own));
 #endif
+		}
 		(void)ret;
 	}
 #endif
@@ -808,9 +816,12 @@ retry:
 			 *  performance.
 			 */
 			if (UNLIKELY((count & 0x3ff) == 0)) {
+#if defined(SIOCINQ)
 				int val;
+#endif
 
-				VOID_RET(int, ioctl(fd, FIONREAD, &val));
+				if (stress_ioctl_get_check(fd, FIONREAD, sizeof(int)) < 0)
+					pr_fail("%s: ioctl FIONREAD failed, not getting value reliably\n", args->name);
 #if defined(SIOCINQ)
 				if (LIKELY(ioctl(fd, SIOCINQ, &val) == 0)) {
 					inq_bytes += val;
@@ -818,8 +829,8 @@ retry:
 				}
 #endif
 #if defined(SIOCATMARK)
-				/* and exercise SIOCATMARK */
-				VOID_RET(int, ioctl(fd, SIOCATMARK, &val));
+				if (stress_ioctl_get_check(fd, SIOCATMARK, sizeof(int)) < 0)
+					pr_fail("%s: ioctl SIOCATMARK failed, not getting value reliably\n", args->name);
 #endif
 			}
 #endif
@@ -884,7 +895,7 @@ retry:
 			count++;
 		} while (stress_continue(args));
 
-		stress_sock_ioctl(fd, sock_domain, rt);
+		stress_sock_ioctl(args, fd, sock_domain, rt);
 #if defined(AF_INET) && 	\
     defined(IPPROTO_IP)	&&	\
     defined(IP_MTU)
@@ -1289,7 +1300,7 @@ retry_sendmmsg:
 			}
 			count++;
 #endif
-			stress_sock_ioctl(fd, sock_domain, rt);
+			stress_sock_ioctl(args, fd, sock_domain, rt);
 			stress_fs_fdinfo_read(self, sfd);
 
 			(void)close(sfd);

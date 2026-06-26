@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-builtin.h"
+#include "core-ioctl.h"
 #include "core-filesystem.h"
 #include "core-killpid.h"
 #include "core-mmap.h"
@@ -733,6 +734,10 @@ static void stress_iomix_inode_ioctl(
 
 	if (UNLIKELY(!stress_continue(args)))
 		return;
+
+	if (stress_ioctl_get_check(fd, FS_IOC_GETFLAGS, sizeof(int)) < 0)
+		pr_fail("%s: ioctl Fs_IOC_GETFLAGS, failed, not getting flags reliably\n", args->name);
+
 
 	ret = ioctl(fd, FS_IOC_GETFLAGS, &attr);
 	if (UNLIKELY(ret < 0))

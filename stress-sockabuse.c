@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-affinity.h"
 #include "core-builtin.h"
+#include "core-ioctl.h"
 #include "core-killpid.h"
 #include "core-net.h"
 #include "core-signal.h"
@@ -529,7 +530,7 @@ static void stress_sockabuse_sockopts(const int fd)
  *  stress_sockabuse_fd
  *	exercise and abuse the fd
  */
-static void stress_sockabuse_fd(const int fd)
+static void stress_sockabuse_fd(stress_args_t *args, const int fd)
 {
 	const uid_t uid = getuid();
 	const gid_t gid = getgid();
@@ -601,12 +602,10 @@ static void stress_sockabuse_fd(const int fd)
 	addrlen = sizeof(addr);
 	VOID_RET(int, getpeername(fd, &addr, &addrlen));
 #if defined(FIONREAD)
-	{
-		int n;
-
-		VOID_RET(int, ioctl(fd, FIONREAD, &n));
-	}
+	if (stress_ioctl_get_check(fd, FIONREAD, sizeof(int)) < 0)
+		pr_fail("%s: ioctl FIONREAD failed, not getting value reliably\n", args->name);
 #else
+	(void)args;
 	UNEXPECTED
 #endif
 #if defined(SEEK_SET)
@@ -686,7 +685,7 @@ retry:
 					args->name, errno, strerror(errno));
 		}
 
-		stress_sockabuse_fd(fd);
+		stress_sockabuse_fd(args, fd);
 		stress_sockabuse_sockopts(fd);
 
 		(void)shutdown(fd, SHUT_RDWR);
@@ -763,7 +762,7 @@ static int stress_sockabuse_server(
 				args->name, errno, strerror(errno));
 			rc = EXIT_FAILURE;
 
-			stress_sockabuse_fd(fd);
+			stress_sockabuse_fd(args, fd);
 			(void)close(fd);
 			continue;
 		}
@@ -805,19 +804,19 @@ static int stress_sockabuse_server(
 					if ((errno != EINTR) && (errno != EPIPE))
 						pr_fail("%s: send failed, errno=%d (%s)\n",
 							args->name, errno, strerror(errno));
-					stress_sockabuse_fd(sfd);
+					stress_sockabuse_fd(args, sfd);
 					(void)close(sfd);
 					break;
 				} else {
 					msgs++;
 				}
-				stress_sockabuse_fd(sfd);
+				stress_sockabuse_fd(args, sfd);
 				(void)close(sfd);
 			}
 		}
 		stress_bogo_inc(args);
 		stress_sockabuse_sockopts(fd);
-		stress_sockabuse_fd(fd);
+		stress_sockabuse_fd(args, fd);
 		(void)close(fd);
 		stress_sockabuse_socket(args);
 	} while (stress_continue(args));

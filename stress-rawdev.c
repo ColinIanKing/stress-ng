@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-ioctl.h"
 #include "core-mmap.h"
 #include "core-vmstat.h"
 
@@ -419,6 +420,9 @@ static int stress_rawdev(stress_args_t *args)
 		(void)close(fd);
 		free(metrics);
 		return EXIT_NO_RESOURCE;
+	} else {
+		if (stress_ioctl_get_check(fd, BLKGETSIZE, sizeof(size_t)) < 0)
+			pr_fail("%s: ioctl BLKGETSIZE failed, not getting value reliably\n", args->name);
 	}
 	ret = ioctl(fd, BLKSSZGET, &blksz);
 	if (ret < 0) {
@@ -427,6 +431,9 @@ static int stress_rawdev(stress_args_t *args)
 		(void)close(fd);
 		free(metrics);
 		return EXIT_NO_RESOURCE;
+	} else {
+		if (stress_ioctl_get_check(fd, BLKSSZGET, sizeof(size_t)) < 0)
+			pr_fail("%s: ioctl BLKSSZGET failed, not getting value reliably\n", args->name);
 	}
 	/* Truncate if blksize looks too big */
 	if (blksz > MAX_BLKSZ)

@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-builtin.h"
+#include "core-ioctl.h"
 
 #include <sys/ioctl.h>
 
@@ -155,6 +156,8 @@ static inline int stress_rtc_dev(stress_args_t *args)
 			}
 		} else {
 #if defined(RTC_EPOCH_SET)
+			if (stress_ioctl_get_check(fd, RTC_EPOCH_READ, sizeof(unsigned long int)) < 0)
+				pr_fail("%s: ioctl RTC_EPOCH_READ failed, not getting value reliably\n", args->name);
 			VOID_RET(int, ioctl(fd, RTC_EPOCH_SET, tmp));
 #endif
 		}
@@ -174,9 +177,11 @@ static inline int stress_rtc_dev(stress_args_t *args)
 			}
 #if defined(RTC_IRQP_SET)
 		} else {
+			if (stress_ioctl_get_check(fd, RTC_IRQP_READ, sizeof(unsigned long int)) < 0)
+				pr_fail("%s: ioctl RTC_IRQP_READ failed, not getting value reliably\n", args->name);
 			VOID_RET(int, ioctl(fd, RTC_IRQP_SET, tmp));
-#endif
 		}
+#endif
 	}
 #endif
 
@@ -210,6 +215,9 @@ static inline int stress_rtc_dev(stress_args_t *args)
 					args->name, errno, strerror(errno));
 				goto err;
 			}
+		} else {
+			if (stress_ioctl_get_check(fd, RTC_VL_READ, sizeof(unsigned long int)) < 0)
+				pr_fail("%s: ioctl RTC_VL_READ failed, not getting value reliably\n", args->name);
 		}
 	}
 #endif

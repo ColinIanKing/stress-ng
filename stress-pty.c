@@ -16,6 +16,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-ioctl.h"
 
 #include <sys/ioctl.h>
 
@@ -403,7 +404,11 @@ static int stress_pty(stress_args_t *args)
 					pr_fail("%s: ioctl FIONREAD on follower pty failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 					rc = EXIT_FAILURE;
+				} else {
+					if (stress_ioctl_get_check(ptys[i].follower, FIONREAD, sizeof(int)) < 0)
+						pr_fail("%s: ioctl FIONREAD failed, not getting value reliably\n", args->name);
 				}
+
 			}
 #endif
 
@@ -416,6 +421,9 @@ static int stress_pty(stress_args_t *args)
 					pr_fail("%s: ioctl TIOCINQ on follower pty failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 					rc = EXIT_FAILURE;
+				} else {
+					if (stress_ioctl_get_check(ptys[i].follower, TIOCINQ, sizeof(int)) < 0)
+						pr_fail("%s: ioctl TIOCINQ failed, not getting value reliably\n", args->name);
 				}
 			}
 #endif
@@ -429,6 +437,9 @@ static int stress_pty(stress_args_t *args)
 					pr_fail("%s: ioctl TIOCOUTQ on follower pty failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 					rc = EXIT_FAILURE;
+				} else {
+					if (stress_ioctl_get_check(ptys[i].follower, TIOCOUTQ, sizeof(int)) < 0)
+						pr_fail("%s: ioctl TIOCOUTQ failed, not getting value reliably\n", args->name);
 				}
 			}
 #endif
@@ -439,8 +450,11 @@ static int stress_pty(stress_args_t *args)
 				int ret, locked = 0;
 
 				ret = ioctl(ptys[i].leader, TIOCGPTLCK, &locked);
-				if (ret == 0)
+				if (ret == 0) {
 					ret = ioctl(ptys[i].leader, TIOCSPTLCK, &locked);
+					if (stress_ioctl_get_check(ptys[i].follower, TIOCGPTLCK, sizeof(int)) < 0)
+						pr_fail("%s: ioctl TIOCGPTLCK failed, not getting value reliably\n", args->name);
+				}
 
 				(void)ret;
 			}
@@ -461,8 +475,15 @@ static int stress_pty(stress_args_t *args)
 				int val, ret;
 
 				ret = ioctl(ptys[i].leader, TIOCGPKT, &val);
-				if (ret == 0)
+				if (ret == 0) {
+					if (stress_ioctl_get_check(ptys[i].follower, TIOCGPKT, sizeof(int)) < 0)
+						pr_fail("%s: ioctl TIOCGPKT failed, not getting value reliably\n", args->name);
 					ret = ioctl(ptys[i].leader, TIOCPKT, &val);
+					if (ret == 0) {
+						if (stress_ioctl_get_check(ptys[i].follower, TIOCGPKT, sizeof(int)) < 0)
+							pr_fail("%s: ioctl TIOCGPKT failed, not getting value reliably\n", args->name);
+					}
+				}
 				(void)ret;
 			}
 #endif

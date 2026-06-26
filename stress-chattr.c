@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-ioctl.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"chattr N",	"start N workers thrashing chattr file mode bits " },
@@ -150,6 +151,8 @@ static int do_chattr(
 			rc = EXIT_NO_RESOURCE;
 			goto tidy_fd;
 		}
+		if (stress_ioctl_get_check(fd, SHIM_EXT2_IOC_GETFLAGS, sizeof(unsigned long int)) < 0)
+			pr_fail("%s: ioctl SHIM_EXT2_IOC_GETFLAGS failed, not getting value reliably\n", args->name);
 
 		if (UNLIKELY(!stress_continue(args)))
 			goto tidy_fd;

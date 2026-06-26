@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-affinity.h"
 #include "core-builtin.h"
+#include "core-ioctl.h"
 #include "core-killpid.h"
 #include "core-net.h"
 #include "core-signal.h"
@@ -366,6 +367,8 @@ again:
 				int pending;
 
 				(void)ioctl(sfd, SIOCOUTQ, &pending);
+				if (stress_ioctl_get_check(sfd, SIOCOUTQ, sizeof(int)) < 0)
+					pr_fail("%s: ioctl SIOCOUTQ failed, not getting value reliably\n", args->name);
 			}
 #endif
 			(void)close(sfd);

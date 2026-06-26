@@ -21,6 +21,7 @@
 #include "core-affinity.h"
 #include "core-builtin.h"
 #include "core-capabilities.h"
+#include "core-ioctl.h"
 #include "core-killpid.h"
 #include "core-net.h"
 #include "core-signal.h"
@@ -309,9 +310,9 @@ static void NORETURN OPTIMIZE3 stress_rawpkt_client(
 #if defined(SIOCOUTQ)
 		/* Occasionally exercise SIOCOUTQ */
 		if (UNLIKELY((id & 0xff) == 0)) {
-			int queued;
+			if (stress_ioctl_get_check(fd, SIOCOUTQ, sizeof(int)) < 0)
+				pr_fail("%s: ioctl SIOCOUTQ failed, not getting value reliably\n", args->name);
 
-			VOID_RET(int, ioctl(fd, SIOCOUTQ, &queued));
 		}
 #endif
 	} while (stress_continue(args));
@@ -404,9 +405,8 @@ static int OPTIMIZE3 stress_rawpkt_server(
 #if defined(SIOCINQ)
 		/* Exercise SIOCINQ */
 		if (UNLIKELY((all_pkts & 0xff) == 0)) {
-			int queued;
-
-			VOID_RET(int, ioctl(fd, SIOCINQ, &queued));
+			if (stress_ioctl_get_check(fd, SIOCINQ, sizeof(int)) < 0)
+				pr_fail("%s: ioctl SIOCINQ failed, not getting value reliably\n", args->name);
 		}
 #endif
 	} while (stress_continue(args));

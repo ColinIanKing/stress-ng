@@ -21,6 +21,7 @@
 #include "core-builtin.h"
 #include "core-capabilities.h"
 #include "core-hash.h"
+#include "core-ioctl.h"
 #include "core-killpid.h"
 #include "core-mmap.h"
 #include "core-pthread.h"
@@ -347,20 +348,14 @@ static inline bool stress_sys_rw(stress_ctxt_t *ctxt)
 		 *  simple ioctls
 		 */
 #if defined(FIGETBSZ)
-		{
-			int isz;
-
-			VOID_RET(int, ioctl(fd, FIGETBSZ, &isz));
-		}
+		if (stress_ioctl_get_check(fd, FIGETBSZ, sizeof(int)) < 0)
+			pr_fail("%s: ioctl FIGETBSZ failed, not getting value reliably\n", args->name);
 #else
 		UNEXPECTED
 #endif
 #if defined(FIONREAD)
-		{
-			int isz;
-
-			VOID_RET(int, ioctl(fd, FIONREAD , &isz));
-		}
+		if (stress_ioctl_get_check(fd, FIONREAD, sizeof(int)) < 0)
+			pr_fail("%s: ioctl FIONREAD failed, not getting value reliably\n", args->name);
 #else
 		UNEXPECTED
 #endif

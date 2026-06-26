@@ -21,6 +21,7 @@
 #include "core-attribute.h"
 #include "core-builtin.h"
 #include "core-helper.h"
+#include "core-ioctl.h"
 #include "core-madvise.h"
 #include "core-mmap.h"
 #include "core-put.h"
@@ -213,9 +214,9 @@ try_read:
 #endif
 #if defined(FIGETBSZ)
 		{
-			int isz = 0;
+			if (stress_ioctl_get_check(fd, FIGETBSZ, sizeof(int)) < 0)
+				pr_fail("%s: ioctl FIGETBSZ failed, not getting flags reliably\n", args->name);
 
-			VOID_RET(int, ioctl(fd, FIGETBSZ, &isz));
 		}
 #endif
 		(void)close(fd);

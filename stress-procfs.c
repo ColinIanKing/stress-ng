@@ -23,6 +23,7 @@
 #include "core-builtin.h"
 #include "core-capabilities.h"
 #include "core-hash.h"
+#include "core-ioctl.h"
 #include "core-mmap.h"
 #include "core-pthread.h"
 #include "core-put.h"
@@ -589,12 +590,12 @@ mmap_test:
 
 #if defined(FIONREAD)
 		{
-			int nbytes;
+			/* ioctl(), bytes ready to read */
+			if (stress_ioctl_get_check(fd, FIONREAD, sizeof(int)) < 0) {
+				pr_fail("%s: ioctl FIONREAD failed on %s, not getting value reliably\n",
+					ctxt->args->name, path);
+			}
 
-			/*
-			 *  ioctl(), bytes ready to read
-			 */
-			VOID_RET(int, ioctl(fd, FIONREAD, &nbytes));
 		}
 		if ((stress_time_now() - t_start) > threshold)
 			goto timeout_close;

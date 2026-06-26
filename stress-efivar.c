@@ -21,6 +21,7 @@
 #include "core-attribute.h"
 #include "core-builtin.h"
 #include "core-capabilities.h"
+#include "core-ioctl.h"
 #include "core-killpid.h"
 #include "core-madvise.h"
 #include "core-out-of-memory.h"
@@ -139,6 +140,7 @@ static void efi_lseek_read(const int fd, const off_t offset, const int whence)
 
 static void stress_efi_sysfs_fd(
 	stress_args_t *args,
+	const char *filename,
 	const int fd,
 	const ssize_t n)
 {
@@ -177,6 +179,9 @@ static void stress_efi_sysfs_fd(
 		int isz;
 
 		VOID_RET(int, ioctl(fd, FIGETBSZ, &isz));
+		if (stress_ioctl_get_check(fd, FIGETBSZ, sizeof(int)) < 0)
+			pr_fail("%s: ioctl FIGETBSZ on %s, failed, not getting flags reliably\n",
+				args->name, filename);
 	}
 #endif
 #if defined(FIONREAD)
@@ -184,6 +189,9 @@ static void stress_efi_sysfs_fd(
 		int isz;
 
 		VOID_RET(int, ioctl(fd, FIONREAD, &isz));
+		if (stress_ioctl_get_check(fd, FIONREAD, sizeof(int)) < 0)
+			pr_fail("%s: ioctl FIONREAD on %s failed, not getting flags reliably\n",
+				args->name, filename);
 	}
 #endif
 }
@@ -237,7 +245,7 @@ static int efi_get_data(
 		(*duration) += stress_time_now() - t;
 		(*count) += 1.0;
 	}
-	stress_efi_sysfs_fd(args, fd, n);
+	stress_efi_sysfs_fd(args, filename, fd, n);
 
 err_vars:
 	(void)close(fd);
@@ -289,7 +297,7 @@ static int efi_read_variable(
 	(*count) += 1.0;
 
 	(void)stress_fs_fdinfo_read(pid, fd);
-	stress_efi_sysfs_fd(args, fd, n);
+	stress_efi_sysfs_fd(args, filename, fd, n);
 
 #if defined(FS_IOC_GETFLAGS) &&	\
     defined(FS_IOC_SETFLAGS)
@@ -302,6 +310,9 @@ static int efi_read_variable(
 	}
 
 	VOID_RET(int, ioctl(fd, FS_IOC_SETFLAGS, &flags));
+	if (stress_ioctl_get_check(fd, FS_IOC_SETFLAGS, sizeof(int)) < 0)
+		pr_fail("%s: ioctl FS_IOC_GETFLAGS on %s failed, not getting flags reliably\n",
+			args->name, filename);
 #endif
 
 err_efi_vars:

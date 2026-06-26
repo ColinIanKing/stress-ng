@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-builtin.h"
 #include "core-capabilities.h"
+#include "core-ioctl.h"
 #include "core-killpid.h"
 #include "core-mounts.h"
 #include "core-signal.h"
@@ -700,14 +701,14 @@ static int stress_fanotify(stress_args_t *args)
 
 #if defined(FIONREAD)
 			{
-				int isz;
-
 				/*
 				 *  Force kernel to determine number
 				 *  of bytes that are ready to be read
 				 *  for some extra stress
 				 */
-				VOID_RET(int, ioctl(fan_fd1, FIONREAD, &isz));
+				if (stress_ioctl_get_check(fan_fd1, FIONREAD, sizeof(int)) < 0)
+					pr_fail("%s: ioctl FIONREAD failed, not getting flags reliably\n",
+						args->name);
 			}
 #endif
 			if (FD_ISSET(fan_fd1, &rfds))

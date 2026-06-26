@@ -339,6 +339,7 @@ HEADERS = \
 	core-ignite-cpu.h \
 	core-interrupts.h \
 	core-io-priority.h \
+	core-ioctl.h \
 	core-job.h \
 	core-helper.h \
 	core-killpid.h \
@@ -425,6 +426,7 @@ CORE_SRC = \
 	core-interrupts.c \
 	core-io-uring.c \
 	core-io-priority.c \
+	core-ioctl.c \
 	core-job.c \
 	core-killpid.c \
 	core-klog.c \

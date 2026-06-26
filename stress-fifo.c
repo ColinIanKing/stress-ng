@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-builtin.h"
+#include "core-ioctl.h"
 #include "core-killpid.h"
 
 #include <sys/ioctl.h>
@@ -171,9 +172,8 @@ redo_select:
 #endif
 #if defined(FIONREAD)
 		if ((count & 0xff) == 0) {
-			int isz = 0;
-
-			VOID_RET(int, ioctl(fd, FIONREAD, &isz));
+			if (stress_ioctl_get_check(fd, FIONREAD, sizeof(int)) < 0)
+				pr_fail("%s: ioctl FIONREAD failed, not getting value reliably\n", args->name);
 		}
 #else
 		UNEXPECTED

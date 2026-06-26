@@ -22,6 +22,7 @@
 #include "core-builtin.h"
 #include "core-capabilities.h"
 #include "core-hash.h"
+#include "core-ioctl.h"
 #include "core-killpid.h"
 #include "core-lock.h"
 #include "core-out-of-memory.h"
@@ -172,12 +173,11 @@ static int OPTIMIZE3 stress_rawsock_client(stress_args_t *args, const int rawsoc
 #if defined(SIOCOUTQ)
 		/* Occasionally exercise SIOCOUTQ */
 		if (UNLIKELY((pkt.data & 0xff) == 0)) {
-			int queued;
-
 			if (UNLIKELY(!stress_continue(args)))
 				break;
 
-			VOID_RET(int, ioctl(fd, SIOCOUTQ, &queued));
+			if (stress_ioctl_get_check(fd, SIOCOUTQ, sizeof(int)) < 0)
+				pr_fail("%s: ioctl SIOCOUTQ failed, not getting value reliably\n", args->name);
 		}
 #endif
 	}
@@ -246,12 +246,11 @@ static int OPTIMIZE3 stress_rawsock_server(stress_args_t *args, const pid_t pid)
 #if defined(SIOCINQ)
 		/* Occasionally exercise SIOCINQ */
 		if (UNLIKELY((pkt.data & 0xfff) == 0)) {
-			int queued;
-
 			if (UNLIKELY(!stress_continue(args)))
 				break;
 
-			VOID_RET(int, ioctl(fd, SIOCINQ, &queued));
+			if (stress_ioctl_get_check(fd, SIOCINQ, sizeof(int)) < 0)
+				pr_fail("%s: ioctl SIOCINQ failed, not getting value reliably\n", args->name);
 		}
 #endif
 		stress_bogo_inc(args);
