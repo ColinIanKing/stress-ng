@@ -121,6 +121,13 @@ typedef struct {
 	size_t size;			/* hash table size */
 } stress_stats_hash_t;
 
+/* binary tree of sorted feature names */
+typedef struct stress_feature_tree {
+	struct stress_feature_tree *left;
+	struct stress_feature_tree *right;
+	const char *name;		/* feature name */
+} stress_feature_tree_t;
+
 static stress_stressor_list_t stress_stressor_list;
 
 /* Various option settings and flags */
@@ -3580,10 +3587,132 @@ static int stress_class_get(uint32_t *opt_class, int *ret)
 }
 
 /*
+ *  stress_feature_tree_insert()
+ *	insert node into tree
+ */
+static void OPTIMIZE3 stress_feature_tree_insert(
+	stress_feature_tree_t **head,
+	stress_feature_tree_t *node)
+{
+	while (*head) {
+		const int cmp = strcmp(node->name, (*head)->name);
+
+		head = (cmp < 0) ? &(*head)->left : &(*head)->right;
+	}
+	*head = node;
+}
+
+/*
+ *  stress_feature_tree_insert()
+ *	find node name in tree
+ */
+static stress_feature_tree_t * OPTIMIZE3 stress_feature_tree_find(
+	stress_feature_tree_t *head,
+	const char *name)
+{
+	while (head) {
+		const int cmp = strcmp(name, head->name);
+
+		if (UNLIKELY(cmp == 0))
+			return head;
+		head = (cmp < 0) ? head->left : head->right;
+	}
+	return NULL;
+}
+
+/*
+ *  stress_feature_tree_str()
+ *	in-order tree traverse gathering up name in str
+ */
+static void OPTIMIZE3 stress_feature_tree_str(
+	const stress_feature_tree_t *node,
+	char *str,
+	const size_t len)
+{
+	if (!node)
+		return;
+	stress_feature_tree_str(node->left, str, len);
+	shim_strlcat(str, " ", len);
+	shim_strlcat(str, node->name, len);
+	stress_feature_tree_str(node->right, str, len);
+}
+
+/*
+ *  stress_feature_tree_free
+ *	tree free
+ */
+static void OPTIMIZE3 stress_feature_tree_free(
+	stress_feature_tree_t *node)
+{
+	if (node) {
+		stress_feature_tree_free(node->left);
+		stress_feature_tree_free(node->right);
+		node->left = NULL;
+		node->right = NULL;
+	}
+}
+
+/*
+ *  stress_exercises_features_unique()
+ *	gather up and report unique feature names in
+ *	alphabetical order
+ */
+static void stress_exercises_features_unique(
+	const char *opt,
+	const char *feature,
+	const stress_exercise_type_t type)
+{
+	size_t i;
+	size_t n_features = 0;
+	size_t len = 1;
+	char *str = NULL;
+
+	stress_feature_tree_t *root = NULL;
+
+	for (i = 0; i < SIZEOF_ARRAY(stressors); i++) {
+		const stress_stressor_t *stressor = &stressors[i];
+		const stress_exercises_t * const exercises = stressor->info->exercises;
+		const char *name;
+		size_t j;
+
+		if (!exercises)
+			continue;
+
+		for (j = 0; (name = exercises[j].name) != NULL; j++) {
+			if ((exercises[j].type == type) &&
+			    (stress_feature_tree_find(root, name) == NULL)) {
+				stress_feature_tree_t *node;
+
+				node = calloc(1, sizeof(*node));
+				if (!node)
+					break;
+				node->name = name;
+				stress_feature_tree_insert(&root, node);
+				n_features++;
+				len += strlen(name) + 1;
+			}
+		}
+	}
+
+	str = calloc(len, sizeof(*str));
+	if (!str) {
+		fprintf(stderr, "option %s feature '%s' not known\n", opt, feature);
+		return;
+	}
+
+	stress_feature_tree_str(root, str, len);
+	stress_feature_tree_free(root);
+
+	fprintf(stderr, "option %s feature '%s' not known, choices are:%s\n", opt, feature, str);
+	free(str);
+}
+
+/*
  *  stess_exercises_detail_show()
  *	show per stressor exercising details
  */
-static void stess_exercises_detail_show(const stress_exercise_type_t type)
+static void stess_exercises_detail_show(
+	const stress_exercise_type_t type)
 {
 	size_t j;
 
@@ -3693,8 +3822,7 @@ static int stress_exercises_get(
 			}
 		}
 		if (mismatch) {
-			fprintf(stderr, "exercise-%s: option '%s' not found\n",
-				stress_exercise_type_str(type), token);
+			stress_exercises_features_unique(opt, token, type);
 			*ret = EXIT_FAILURE;
 			free(opt_str);
 			return -1;
