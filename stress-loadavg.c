@@ -294,6 +294,8 @@ static int stress_loadavg(stress_args_t *args)
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("load-average"),
+
 #if defined(LOADAVG_IO)
 	STRESS_EX_SYSCALL("lseek"),
 	STRESS_EX_SYSCALL("write"),

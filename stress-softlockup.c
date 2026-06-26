@@ -374,6 +374,7 @@ finish:
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("load-average"),
 #if defined(HAVE_X86_REP_STOSB)
 	STRESS_EX_FEATURE("memory-loads"),
 	STRESS_EX_FEATURE("memory-stores"),

@@ -305,6 +305,7 @@ static const stress_opt_t opts[] = {
 
 static const stress_exercises_t exercises[] = {
 	STRESS_EX_FEATURE("d-cache-miss"),
+	STRESS_EX_FEATURE("load-average"),
 	STRESS_EX_FEATURE("lock-contention"),
 	STRESS_EX_FEATURE("oom"),
 	STRESS_EX_FEATURE("system-time"),

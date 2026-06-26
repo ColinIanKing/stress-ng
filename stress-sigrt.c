@@ -194,6 +194,7 @@ reap:
 
 static const stress_exercises_t exercises[] = {
 	STRESS_EX_FEATURE("context-switches"),
+	STRESS_EX_FEATURE("load-average"),
 	STRESS_EX_FEATURE("stack"),
 
 #if defined(__linux__)
@@ -201,6 +202,7 @@ static const stress_exercises_t exercises[] = {
 #endif
 	STRESS_EX_SYSCALL("sigqueue"),
 	STRESS_EX_SYSCALL("sigwaitinfo"),
+
 	STRESS_EX_END,
 };
 
