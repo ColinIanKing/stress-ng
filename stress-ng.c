@@ -3607,7 +3607,7 @@ static int stress_exercises_get(
 				size_t len = 1;
 				size_t n;
 				size_t i;
-				char *str;
+				char *newstr;
 				char **array;
 
 				/* string long enough for the text */
@@ -3634,8 +3634,8 @@ static int stress_exercises_get(
 
 				shim_qsort(array, n, sizeof(*array), stress_sort_cmp_str);
 
-				str = calloc(len, sizeof(*str));
-				if (!str) {
+				newstr = calloc(len, sizeof(*str));
+				if (!newstr) {
 					free(array);
 					continue;
 				}
@@ -3643,9 +3643,9 @@ static int stress_exercises_get(
 					shim_strlcat(str, " ", len);
 					shim_strlcat(str, array[i], len);
 				}
-				pr_inf("  %s:%s\n", stressor->name, str);
+				pr_inf("  %s:%s\n", stressor->name, newstr);
 
-				free(str);
+				free(newstr);
 				free(array);
 			}
 		}
