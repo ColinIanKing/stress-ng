@@ -1289,7 +1289,10 @@ finish:
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("vmalloc"),
+
 	STRESS_EX_SYSCALL("prctl"),
+
 	STRESS_EX_END,
 };
 

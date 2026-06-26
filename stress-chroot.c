@@ -513,7 +513,10 @@ tidy_ret:
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("vmalloc"),
+
 	STRESS_EX_SYSCALL("chroot"),
+
 	STRESS_EX_END,
 };
 

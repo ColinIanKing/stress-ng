@@ -603,6 +603,7 @@ const stressor_info_t stress_fork_info = {
 
 static const stress_exercises_t vfork_exercises[] = {
 	STRESS_EX_FEATURE("bogo-ops-stable"),
+	STRESS_EX_FEATURE("vmalloc"),
 
 	STRESS_EX_SYSCALL("vfork"),
 	STRESS_EX_SYSCALL("waitpid"),

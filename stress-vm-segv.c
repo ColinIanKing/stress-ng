@@ -206,11 +206,14 @@ finish:
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("vmalloc"),
+
 #if defined(HAVE_MPROTECT) &&	\
     defined(PROT_READ)
 	STRESS_EX_SYSCALL("mprotect"),
 #endif
 	STRESS_EX_SYSCALL("munmap"),
+
 	STRESS_EX_END,
 };
 

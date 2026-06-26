@@ -223,9 +223,12 @@ static const stress_opt_t opts[] = {
 };
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("vmalloc"),
+
 	STRESS_EX_SYSCALL("fork"),
 	STRESS_EX_SYSCALL("sched_yield"),
 	STRESS_EX_SYSCALL("waitpid"),
+
 	STRESS_EX_END,
 };
 

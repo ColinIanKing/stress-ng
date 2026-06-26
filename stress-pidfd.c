@@ -247,9 +247,12 @@ finish:
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("vmalloc"),
+
 	STRESS_EX_SYSCALL("fstat"),
 	STRESS_EX_SYSCALL("pidfd_open"),
 	STRESS_EX_SYSCALL("pidfd_send_signal"),
+
 	STRESS_EX_END,
 };
 
