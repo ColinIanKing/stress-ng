@@ -398,6 +398,7 @@ static const stress_opt_t opts[] = {
 static const stress_exercises_t exercises[] = {
 	STRESS_EX_FEATURE("io-write"),
 	STRESS_EX_FEATURE("writeback-dirty-inode"),
+	STRESS_EX_FEATURE("syscall-rate"),
 
 	STRESS_EX_SYSCALL("lseek"),
 #if defined(HAVE_OFF64_T) &&	\

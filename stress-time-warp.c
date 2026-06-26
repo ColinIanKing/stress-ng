@@ -274,6 +274,7 @@ static int stress_time_warp(stress_args_t *args)
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("syscall-rate"),
 	STRESS_EX_FEATURE("timer"),
 
 #if defined(HAVE_GETRUSAGE)

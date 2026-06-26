@@ -97,6 +97,7 @@ static int stress_sigpending(stress_args_t *args)
 static const stress_exercises_t exercises[] = {
 	STRESS_EX_FEATURE("bogo-ops-stable"),
 	STRESS_EX_FEATURE("stack"),
+	STRESS_EX_FEATURE("syscall-rate"),
 
 	STRESS_EX_SYSCALL("kill"),
 	STRESS_EX_SYSCALL("sigpending"),

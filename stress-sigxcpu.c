@@ -148,6 +148,7 @@ static const stress_exercises_t exercises[] = {
 	STRESS_EX_FEATURE("bogo-ops-stable"),
 	STRESS_EX_SYSCALL("rcu-utilization"),
 	STRESS_EX_FEATURE("stack"),
+	STRESS_EX_FEATURE("syscall-rate"),
 
 	STRESS_EX_SYSCALL("getrusage"),
 	STRESS_EX_SYSCALL("setrlimit"),
@@ -155,6 +156,7 @@ static const stress_exercises_t exercises[] = {
 #if defined(__linux__)
 	STRESS_EX_SYSCALL("sigreturn"),
 #endif
+
 	STRESS_EX_END,
 };
 

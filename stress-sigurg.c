@@ -343,12 +343,14 @@ static const stress_exercises_t exercises[] = {
 	STRESS_EX_FEATURE("hot-package"),
 	STRESS_EX_FEATURE("memory-stores"),
 	STRESS_EX_FEATURE("stack"),
+	STRESS_EX_FEATURE("syscall-rate"),
 
 #if defined(__linux__)
 	STRESS_EX_SYSCALL("sigreturn"),
 #endif
 	STRESS_EX_SYSCALL("send"),
 	STRESS_EX_SYSCALL("recv"),
+
 	STRESS_EX_END,
 };
 

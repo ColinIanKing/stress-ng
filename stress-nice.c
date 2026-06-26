@@ -211,6 +211,7 @@ static int stress_nice(stress_args_t *args)
 
 static const stress_exercises_t exercises[] = {
 	STRESS_EX_FEATURE("bogo-ops-stable"),
+	STRESS_EX_FEATURE("syscall-rate"),
 
 	STRESS_EX_SYSCALL("fork"),
 #if defined(HAVE_GETPRIORITY)

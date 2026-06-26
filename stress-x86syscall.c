@@ -531,6 +531,7 @@ static int stress_x86syscall(stress_args_t *args)
 static const stress_exercises_t exercises[] = {
 	STRESS_EX_FEATURE("bogo-ops-stable"),
 	STRESS_EX_FEATURE("hot-package"),
+	STRESS_EX_FEATURE("syscall-rate"),
 
 #if defined(__NR_getcpu)
 	STRESS_EX_SYSCALL("getcpu"),
