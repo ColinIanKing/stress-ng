@@ -1013,6 +1013,7 @@ static const stress_opt_t opts[] = {
 
 static const stress_exercises_t exercises[] = {
 	STRESS_EX_FEATURE("directory"),
+	STRESS_EX_FEATURE("system-time"),
 
 	STRESS_EX_SYSCALL("access"),
 	STRESS_EX_SYSCALL("fsync"),
@@ -1027,6 +1028,7 @@ static const stress_exercises_t exercises[] = {
     defined(AT_SYMLINK_NOFOLLOW)
 	STRESS_EX_SYSCALL("statx"),
 #endif
+	
 	STRESS_EX_END,
 };
 

@@ -380,10 +380,13 @@ static int stress_mremap(stress_args_t *args)
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("system-time"),
+
 	STRESS_EX_SYSCALL("madvise"),
 	STRESS_EX_SYSCALL("mmap"),
 	STRESS_EX_SYSCALL("mremap"),
 	STRESS_EX_SYSCALL("munmap"),
+
 	STRESS_EX_END,
 };
 

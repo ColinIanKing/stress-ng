@@ -413,11 +413,14 @@ tidy:
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("system-time"),
+
 	STRESS_EX_SYSCALL("add_key"),
 	STRESS_EX_SYSCALL("keyctl"),
 #if defined(HAVE_REQUEST_KEY)
 	STRESS_EX_SYSCALL("request_key"),
 #endif
+
 	STRESS_EX_END,
 };
 

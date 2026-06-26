@@ -488,6 +488,8 @@ finish:
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("system-time"),
+
 	STRESS_EX_SYSCALL("accept"),
 	STRESS_EX_SYSCALL("bind"),
 	STRESS_EX_SYSCALL("close"),
@@ -501,6 +503,7 @@ static const stress_exercises_t exercises[] = {
 	STRESS_EX_SYSCALL("setsockopt"),
 	STRESS_EX_SYSCALL("shutdown"),
 	STRESS_EX_SYSCALL("socket"),
+
 	STRESS_EX_END,
 };
 

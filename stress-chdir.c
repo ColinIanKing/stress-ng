@@ -293,9 +293,12 @@ err:
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("system-time"),
+
 	STRESS_EX_SYSCALL("chdir"),
 	STRESS_EX_SYSCALL("fchdir"),
 	STRESS_EX_SYSCALL("fchmod"),
+
 	STRESS_EX_END,
 };
 

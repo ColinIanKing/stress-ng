@@ -583,9 +583,12 @@ clean:
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("system-time"),
+
 	STRESS_EX_SYSCALL("close"),
 	STRESS_EX_SYSCALL("open"),
 	STRESS_EX_SYSCALL("ioctl"),
+
 	STRESS_EX_END,
 };
 

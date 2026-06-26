@@ -353,6 +353,7 @@ static const stress_exercises_t exercises[] = {
 	STRESS_EX_FEATURE("maple-tree-write"),
 	STRESS_EX_FEATURE("maple-tree-read"),
 	STRESS_EX_FEATURE("mmap-lock"),
+	STRESS_EX_FEATURE("system-time"),
 	STRESS_EX_FEATURE("tlb-flush"),
 	STRESS_EX_FEATURE("writeback-dirty-inode"),
 

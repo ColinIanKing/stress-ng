@@ -353,8 +353,11 @@ static int stress_netlink_task(stress_args_t *args)
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("system-time"),
+
 	STRESS_EX_SYSCALL("recvfrom"),
 	STRESS_EX_SYSCALL("sendto"),
+
 	STRESS_EX_END,
 };
 

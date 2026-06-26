@@ -281,12 +281,15 @@ static int stress_mlockmany(stress_args_t *args)
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("system-time"),
+
 	STRESS_EX_SYSCALL("mlock"),
 	STRESS_EX_SYSCALL("mlockall"),
 	STRESS_EX_SYSCALL("mmap"),
 	STRESS_EX_SYSCALL("munlock"),
 	STRESS_EX_SYSCALL("munlockall"),
 	STRESS_EX_SYSCALL("munmap"),
+
 	STRESS_EX_END,
 };
 

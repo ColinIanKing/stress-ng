@@ -195,6 +195,7 @@ finish:
 
 static const stress_exercises_t exercises[] = {
 	STRESS_EX_FEATURE("d-cache-ll-read"),
+	STRESS_EX_FEATURE("system-time"),
 
 	STRESS_EX_SYSCALL("futex"),
 	STRESS_EX_SYSCALL("futex_wait"),
@@ -203,6 +204,7 @@ static const stress_exercises_t exercises[] = {
 	STRESS_EX_SYSCALL("futex_waitv"),
 #endif
 	STRESS_EX_SYSCALL("futex_wake"),
+
 	STRESS_EX_END,
 };
 

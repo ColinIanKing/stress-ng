@@ -528,7 +528,10 @@ tidy_unmap_acls:
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("system-time"),
+
 	STRESS_EX_LIBRARY("acl"),
+
 	STRESS_EX_END,
 };
 

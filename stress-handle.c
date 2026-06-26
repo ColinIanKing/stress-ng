@@ -288,7 +288,10 @@ static int stress_handle(stress_args_t *args)
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("system-time"),
+
 	STRESS_EX_SYSCALL("name_to_handle_at"),
+
 	STRESS_EX_END,
 };
 

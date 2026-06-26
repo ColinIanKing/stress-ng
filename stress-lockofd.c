@@ -327,6 +327,7 @@ tidy:
 
 static const stress_exercises_t exercises[] = {
 	STRESS_EX_FEATURE("file-lock"),
+	STRESS_EX_FEATURE("system-time"),
 
 	STRESS_EX_SYSCALL("fcntl"),
 

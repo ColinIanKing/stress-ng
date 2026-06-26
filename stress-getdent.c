@@ -349,12 +349,15 @@ static int stress_getdent(stress_args_t *args)
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("system-time"),
+
 #if defined(HAVE_GETDENTS)
 	STRESS_EX_SYSCALL("getdents"),
 #endif
 #if defined(HAVE_GETDENTS64)
 	STRESS_EX_SYSCALL("getdents64"),
 #endif
+
 	STRESS_EX_END,
 };
 

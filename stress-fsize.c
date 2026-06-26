@@ -336,9 +336,12 @@ err:
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("system-time"),
+
 	STRESS_EX_SYSCALL("fallocate"),
 	STRESS_EX_SYSCALL("ftruncate"),
 	STRESS_EX_SYSCALL("setrlimit"),
+
 	STRESS_EX_END,
 };
 

@@ -391,9 +391,11 @@ static const stress_exercises_t exercises[] = {
 	STRESS_EX_FEATURE("tlb"),
 	STRESS_EX_FEATURE("power-core"),
 	STRESS_EX_FEATURE("power-package"),
+	STRESS_EX_FEATURE("system-time"),
 
 	STRESS_EX_SYSCALL("mprotect"),
 	STRESS_EX_SYSCALL("mremap"),
+
 	STRESS_EX_END,
 };
 

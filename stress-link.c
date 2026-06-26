@@ -354,6 +354,8 @@ static int stress_symlink(stress_args_t *args)
 #if !defined(__HAIKU__)
 
 static const stress_exercises_t exercises_link[] = {
+	STRESS_EX_FEATURE("system-time"),
+
 	STRESS_EX_SYSCALL("link"),
 	STRESS_EX_SYSCALL("readlink"),
 #if defined(O_DIRECTORY) &&	\
@@ -362,6 +364,7 @@ static const stress_exercises_t exercises_link[] = {
 	STRESS_EX_SYSCALL("readlinkat"),
 #endif
 	STRESS_EX_SYSCALL("unlink"),
+
 	STRESS_EX_END,
 };
 

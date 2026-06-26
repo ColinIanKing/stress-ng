@@ -751,7 +751,10 @@ err_free_s_pids:
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("system-time"),
+
 	STRESS_EX_LIBRARY("apparmor"),
+
 	STRESS_EX_END,
 };
 

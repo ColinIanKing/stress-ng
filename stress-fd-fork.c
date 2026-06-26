@@ -291,10 +291,12 @@ static const stress_exercises_t exercises[] = {
 	STRESS_EX_FEATURE("hot-package"),
 	STRESS_EX_FEATURE("page-faults-minor"),
 	STRESS_EX_FEATURE("page-faults-user"),
+	STRESS_EX_FEATURE("system-time"),
 
 	STRESS_EX_SYSCALL("dup"),
 	STRESS_EX_SYSCALL("close"),
 	STRESS_EX_SYSCALL("fork"),
+
 	STRESS_EX_END,
 };
 

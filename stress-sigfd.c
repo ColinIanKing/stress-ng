@@ -196,6 +196,7 @@ finish:
 
 static const stress_exercises_t exercises[] = {
 	STRESS_EX_FEATURE("stack"),
+	STRESS_EX_FEATURE("system-time"),
 
 	STRESS_EX_SYSCALL("read"),
 #if defined(__linux__)
@@ -204,6 +205,7 @@ static const stress_exercises_t exercises[] = {
 	STRESS_EX_SYSCALL("signalfd"),
 	STRESS_EX_SYSCALL("sigprocmask"),
 	STRESS_EX_SYSCALL("sigqueue"),
+
 	STRESS_EX_END,
 };
 

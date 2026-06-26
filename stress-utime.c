@@ -548,6 +548,8 @@ STRESS_PRAGMA_POP
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("system-time"),
+
 	STRESS_EX_SYSCALL("fsync"),
 #if defined(HAVE_FUTIMENS)
 	STRESS_EX_SYSCALL("futimens"),
@@ -562,6 +564,7 @@ static const stress_exercises_t exercises[] = {
 #if defined(HAVE_UTIMENSAT)
 	STRESS_EX_SYSCALL("utimensat"),
 #endif
+
 	STRESS_EX_END,
 };
 

@@ -180,8 +180,11 @@ static int stress_klog(stress_args_t *args)
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("system-time"),
+
 	STRESS_EX_SYSCALL("syslog"),
 	STRESS_EX_SYSCALL("klogctl"),
+
 	STRESS_EX_END,
 };
 

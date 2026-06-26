@@ -136,6 +136,7 @@ tidy_dir:
 static const stress_exercises_t exercises[] = {
 	STRESS_EX_FEATURE("bogo-ops-stable"),
 	STRESS_EX_FEATURE("stack"),
+	STRESS_EX_FEATURE("system-time"),
 
 #if defined(HAVE_PWRITE)
 	STRESS_EX_SYSCALL("pwrite"),

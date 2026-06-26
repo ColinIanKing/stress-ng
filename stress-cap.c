@@ -190,8 +190,11 @@ static int stress_cap(stress_args_t *args)
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("system-time"),
+
 	STRESS_EX_SYSCALL("capget"),
 	STRESS_EX_SYSCALL("capset"),
+
 	STRESS_EX_END,
 };
 

@@ -528,6 +528,7 @@ static int stress_mlock(stress_args_t *args)
 
 static const stress_exercises_t exercises[] = {
 	STRESS_EX_FEATURE("oom"),
+	STRESS_EX_FEATURE("system-time"),
 
 	STRESS_EX_SYSCALL("mlock"),
 #if defined(HAVE_MLOCK)

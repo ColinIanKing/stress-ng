@@ -98,12 +98,14 @@ static int stress_sigpipe(stress_args_t *args)
 static const stress_exercises_t exercises[] = {
 	STRESS_EX_FEATURE("bogo-ops-stable"),
 	STRESS_EX_FEATURE("stack"),
+	STRESS_EX_FEATURE("system-time"),
 
 #if defined(__linux__)
 	STRESS_EX_SYSCALL("sigreturn"),
 #endif
 
 	STRESS_EX_SYSCALL("write"),
+
 	STRESS_EX_END,
 };
 

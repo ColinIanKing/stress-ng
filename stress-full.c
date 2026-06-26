@@ -237,6 +237,8 @@ fail:
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("system-time"),
+
 	STRESS_EX_SYSCALL("close"),
 	STRESS_EX_SYSCALL("fstat"),
 	STRESS_EX_SYSCALL("ioctl"),
@@ -244,6 +246,7 @@ static const stress_exercises_t exercises[] = {
 	STRESS_EX_SYSCALL("msync"),
 	STRESS_EX_SYSCALL("open"),
 	STRESS_EX_SYSCALL("write"),
+
 	STRESS_EX_END,
 };
 

@@ -768,6 +768,7 @@ static const stress_exercises_t exercises[] = {
 	STRESS_EX_FEATURE("memory-bus"),
 	STRESS_EX_FEATURE("memory-loads"),
 	STRESS_EX_FEATURE("memory-stores"),
+	STRESS_EX_FEATURE("system-time"),
 
 	STRESS_EX_SYSCALL("getcpu"),
 	STRESS_EX_SYSCALL("get_mempolicy"),
@@ -776,6 +777,7 @@ static const stress_exercises_t exercises[] = {
 	STRESS_EX_SYSCALL("move_pages"),
 	STRESS_EX_SYSCALL("set_mempolicy"),
 	STRESS_EX_SYSCALL("set_mempolicy_home_node"),
+
 	STRESS_EX_END,
 };
 

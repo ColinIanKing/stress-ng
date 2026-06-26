@@ -212,9 +212,12 @@ static int stress_statmount(stress_args_t *args)
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("system-time"),
+
 	STRESS_EX_SYSCALL("listmount"),
 	STRESS_EX_SYSCALL("statmount"),
 	STRESS_EX_SYSCALL("statx"),
+
 	STRESS_EX_END,
 };
 
