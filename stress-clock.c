@@ -604,6 +604,7 @@ static int stress_clock(stress_args_t *args)
 static const stress_exercises_t exercises[] = {
 	STRESS_EX_FEATURE("bogo-ops-stable"),
 	STRESS_EX_FEATURE("hot-package"),
+	STRESS_EX_FEATURE("interrupt"),
 	STRESS_EX_FEATURE("timer"),
 
 #if defined(CLOCK_THREAD_CPUTIME_ID) && \
@@ -648,6 +649,7 @@ static const stress_exercises_t exercises[] = {
 #if defined(HAVE_LIB_RT)
 	STRESS_EX_LIBRARY("rt"),
 #endif
+
 	STRESS_EX_END,
 };
 

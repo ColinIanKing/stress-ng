@@ -934,6 +934,7 @@ static int stress_cpu_sched(stress_args_t *args)
 
 static const stress_exercises_t exercises[] = {
 	STRESS_EX_FEATURE("cpu-migrations"),
+	STRESS_EX_FEATURE("interrupt"),
 	STRESS_EX_FEATURE("load-average"),
 	STRESS_EX_FEATURE("lock-contention"),
 

@@ -429,6 +429,7 @@ dir_rm:
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("interrupt"),
 	STRESS_EX_FEATURE("timer"),
 
 	STRESS_EX_SYSCALL("close"),

@@ -411,6 +411,7 @@ static const stress_exercises_t exercises[] = {
 	STRESS_EX_SYSCALL("waitid"),
 #endif
 	STRESS_EX_SYSCALL("waitpid"),
+
 	STRESS_EX_END,
 };
 

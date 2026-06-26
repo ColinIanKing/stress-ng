@@ -673,6 +673,7 @@ free_pages1:
 
 static const stress_exercises_t exercises[] = {
 	STRESS_EX_FEATURE("d-cache-read-miss"),
+	STRESS_EX_FEATURE("interrupt"),
 	STRESS_EX_FEATURE("tlb"),
 
 	STRESS_EX_SYSCALL("mbind"),
