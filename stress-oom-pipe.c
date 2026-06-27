@@ -243,6 +243,7 @@ static int stress_oom_pipe(stress_args_t *args)
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("chaotic-load"),
 	STRESS_EX_FEATURE("oom"),
 	STRESS_EX_FEATURE("system-time"),
 

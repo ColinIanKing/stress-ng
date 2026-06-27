@@ -458,6 +458,7 @@ unmap_local_buffer:
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("chaotic-load"),
 	STRESS_EX_FEATURE("d-cache"),
 	STRESS_EX_FEATURE("memory-bus"),
 #if !defined(STRESS_ARCH_M68K)

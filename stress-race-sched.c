@@ -460,11 +460,14 @@ static int stress_race_sched(stress_args_t *args)
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("chaotic-load"),
+
 	STRESS_EX_SYSCALL("fork"),
 	STRESS_EX_SYSCALL("sched_getaffinity"),
 	STRESS_EX_SYSCALL("sched_setaffinity"),
 	STRESS_EX_SYSCALL("sched_yield"),
 	STRESS_EX_SYSCALL("waitpid"),
+
 	STRESS_EX_END,
 };
 

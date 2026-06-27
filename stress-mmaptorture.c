@@ -918,6 +918,7 @@ static int stress_mmaptorture(stress_args_t *args)
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("chaotic-load"),
 	STRESS_EX_FEATURE("d-tlb-read-miss"),
 #if defined(MADV_PAGEOUT)
 	STRESS_EX_FEATURE("swap"),

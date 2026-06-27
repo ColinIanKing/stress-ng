@@ -214,6 +214,7 @@ static int OPTIMIZE3 stress_udp_flood(stress_args_t *args)
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("chaotic-load"),
 	STRESS_EX_FEATURE("d-cache-l1-read"),
 	STRESS_EX_FEATURE("hot-package"),
 	STRESS_EX_FEATURE("lock-contention"),

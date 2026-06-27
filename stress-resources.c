@@ -223,6 +223,7 @@ static const stress_opt_t opts[] = {
 };
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("chaotic-load"),
 	STRESS_EX_FEATURE("load-average"),
 	STRESS_EX_FEATURE("vmalloc"),
 
