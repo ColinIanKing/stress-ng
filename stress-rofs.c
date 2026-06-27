@@ -175,24 +175,23 @@ static int stress_rofs_file_access(
 {
 	(void)info;
 
-	if (access(path, W_OK) == 0) {
-		if ((info->statbuf.st_mode & S_IFMT) != S_IFLNK) {
-			int fd;
+	if ((access(path, W_OK) == 0) &&
+	    ((info->statbuf.st_mode & S_IFMT) != S_IFLNK)) {
+		int fd;
 
-			/*
-			 *  Potential Time of check time of use
-			 *  issue here, but we're now trying to
-			 *  try and write-only open a read-only
-			 *  file, so lets let that slide
-			 */
-			fd = open(path, O_WRONLY | O_APPEND);
-			if (fd != -1) {
-				(void)close(fd);
-				info->writable = true;
-				pr_fail("%s: access W_OK on '%s' unexpectedly succeeded\n",
-					args->name, path);
-				return -1;
-			}
+		/*
+		 *  Potential Time of check time of use
+		 *  issue here, but we're now trying to
+		 *  try and write-only open a read-only
+		 *  file, so lets let that slide
+		 */
+		fd = open(path, O_WRONLY | O_APPEND);
+		if (fd != -1) {
+			(void)close(fd);
+			info->writable = true;
+			pr_fail("%s: access W_OK on '%s' unexpectedly succeeded\n",
+				args->name, path);
+			return -1;
 		}
 	}
 	(*count) += 1.0;
