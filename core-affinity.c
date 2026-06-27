@@ -138,7 +138,8 @@ static void stress_topology_set_get(
 			continue;
 
 		CPU_ZERO(&newset);
-		for (ptr = str; (token = strtok(ptr, ",")) != NULL; ptr = NULL) {
+		char *saveptr1 = NULL;
+		for (ptr = str; (token = strtok_r(ptr, ",", &saveptr1)) != NULL; ptr = NULL) {
 			const char *tmpptr = strstr(token, "-");
 
 			if (sscanf(token, "%d", &i) != 1)
@@ -205,7 +206,8 @@ int stress_affinity_parse_cpu(const char *arg, cpu_set_t *set, int *setbits)
 		_exit(EXIT_FAILURE);
 	}
 
-	for (ptr = str; (token = strtok(ptr, ",")) != NULL; ptr = NULL) {
+	char *saveptr2 = NULL;
+	for (ptr = str; (token = strtok_r(ptr, ",", &saveptr2)) != NULL; ptr = NULL) {
 		int lo, hi;
 		const char *tmpptr = strstr(token, "-");
 
@@ -432,7 +434,7 @@ uint32_t stress_affinity_cpus_get(uint32_t **cpus, const bool use_affinity)
 		return 0;
 	}
 
-	*cpus = (uint32_t *)malloc(sizeof(**cpus) * n_cpus);
+	*cpus = (uint32_t *)calloc((size_t)n_cpus, sizeof(**cpus));
 	if (*cpus == NULL)
 		return 0;
 
