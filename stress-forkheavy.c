@@ -310,7 +310,92 @@ static const stress_exercises_t exercises[] = {
 	STRESS_EX_FEATURE("oom"),
 	STRESS_EX_FEATURE("system-time"),
 
+	STRESS_EX_SYSCALL("close"),
+#if defined(HAVE_EVENTFD)
+	STRESS_EX_SYSCALL("eventfd"),
+#endif
+	STRESS_EX_SYSCALL("fcntl"),
 	STRESS_EX_SYSCALL("fork"),
+	STRESS_EX_SYSCALL("ftruncate"),
+#if defined(HAVE_SYS_INOTIFY_H)
+	STRESS_EX_SYSCALL("inotify_init"),
+	STRESS_EX_SYSCALL("inotify_add_watch"),
+	STRESS_EX_SYSCALL("inotify_rm_watch"),
+#endif
+	STRESS_EX_SYSCALL("kill"),
+	STRESS_EX_SYSCALL("madvise"),
+#if defined(HAVE_MEMFD_CREATE)
+	STRESS_EX_SYSCALL("memfd_create"),
+#endif
+#if defined(__NR_memfd_secret)
+	STRESS_EX_SYSCALL("memfd_secret"),
+#endif
+	STRESS_EX_SYSCALL("mlock"),
+	STRESS_EX_SYSCALL("mmap"),
+#if defined(HAVE_MQ_SYSV) &&	\
+    defined(HAVE_SYS_IPC_H) &&	\
+    defined(HAVE_SYS_MSG_H)
+	STRESS_EX_SYSCALL("msgctl"),
+	STRESS_EX_SYSCALL("msgget"),
+#endif
+#if defined(HAVE_LIB_PTHREAD) &&	\
+    defined(HAVE_THREADS_H) &&		\
+    defined(HAVE_MTX_T) && 		\
+    defined(HAVE_MTX_DESTROY) &&	\
+    defined(HAVE_MTX_INIT)
+	STRESS_EX_SYSCALL("mtx_destroy"),
+	STRESS_EX_SYSCALL("mtx_init"),
+#endif
+#if defined(HAVE_LIB_RT) &&	\
+    defined(HAVE_MQ_POSIX) &&	\
+    defined(HAVE_MQUEUE_H)
+	STRESS_EX_SYSCALL("mq_destroy"),
+	STRESS_EX_SYSCALL("mq_open"),
+#endif
+	STRESS_EX_SYSCALL("munlock"),
+	STRESS_EX_SYSCALL("munmap"),
+	STRESS_EX_SYSCALL("open"),
+#if defined(HAVE_PIDFD_OPEN)
+	STRESS_EX_SYSCALL("pidfd_open"),
+#endif
+#if defined(HAVE_PIDFD_GETFD)
+	STRESS_EX_SYSCALL("pidfd_get"),
+#endif
+	STRESS_EX_SYSCALL("pipe"),
+#if defined(HAVE_PKEY_ALLOC) && \
+    defined(HAVE_PKEY_FREE)
+	STRESS_EX_SYSCALL("pkey_alloc"),
+	STRESS_EX_SYSCALL("pkey_free"),
+#endif
+	STRESS_EX_SYSCALL("sbrk"),
+#if defined(HAVE_LIB_PTHREAD) &&	\
+    defined(HAVE_SEM_POSIX)
+	STRESS_EX_SYSCALL("sem_destroy>"),
+	STRESS_EX_SYSCALL("sem_init"),
+#endif
+#if defined(HAVE_SEM_SYSV) &&	\
+    defined(HAVE_KEY_T)
+	STRESS_EX_SYSCALL("semctl"),
+	STRESS_EX_SYSCALL("semget"),
+#endif
+	STRESS_EX_SYSCALL("socket"),
+	STRESS_EX_SYSCALL("sockpair"),
+#if defined(HAVE_LIB_RT) &&	\
+    defined(HAVE_TIMER_CREATE)
+	STRESS_EX_SYSCALL("timer_create"),
+#endif
+#if defined(HAVE_LIB_RT) &&	\
+    defined(HAVE_TIMER_DELETE)
+	STRESS_EX_SYSCALL("timer_delete"),
+#endif
+#if defined(HAVE_SYS_TIMERFD_H) &&	\
+    defined(HAVE_TIMERFD_CREATE) &&	\
+    defined(CLOCK_REALTIME)
+	STRESS_EX_SYSCALL("timerfd_create"),
+#endif
+#if defined(HAVE_USERFAULTFD)
+	STRESS_EX_SYSCALL("userfaultfd"),
+#endif
 
 	STRESS_EX_END,
 };
