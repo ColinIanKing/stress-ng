@@ -1293,7 +1293,7 @@ static const stress_exercises_t exercises[] = {
      defined(HAVE_Decimal64) ||		\
      defined(HAVE_Decimal128)) &&	\
     !defined(HAVE_COMPILER_CLANG)
-	STRESS_EX_FEATURE("decimal"),
+	STRESS_EX_FEATURE("fp-decimal"),
 #endif
 
 	STRESS_EX_FEATURE("fp"),
