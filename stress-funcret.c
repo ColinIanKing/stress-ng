@@ -538,6 +538,13 @@ static const stress_exercises_t exercises[] = {
 	STRESS_EX_FEATURE("bogo-ops-stable"),
 	STRESS_EX_FEATURE("d-tlb-read-miss"),
 	STRESS_EX_FEATURE("cfp"),
+#if (defined(HAVE_Decimal32) ||		\
+     defined(HAVE_Decimal64) ||		\
+     defined(HAVE_Decimal128)) &&	\
+    !defined(HAVE_COMPILER_CLANG)
+	STRESS_EX_FEATURE("decimal"),
+#endif
+
 	STRESS_EX_FEATURE("fp"),
 	STRESS_EX_FEATURE("integer"),
 	STRESS_EX_FEATURE("memory-copy"),
