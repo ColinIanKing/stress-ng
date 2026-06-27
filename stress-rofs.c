@@ -362,7 +362,7 @@ static const stress_rofs_lseek_func_t stress_rofs_lseek_funcs[] = {
 #endif
 };
 
-static off_t stress_rofs_lseek(const int fd, stress_rofs_info_t *info)
+static off_t stress_rofs_lseek(const int fd, const stress_rofs_info_t *info)
 {
 	off_t size;
 	off_t curr_off = lseek(fd, 0, SEEK_CUR);
@@ -410,7 +410,7 @@ static int stress_rofs_file_read(
 
 /*
  *  stress_rofs_file_lseek()
- *	lseeks
+ *	lseeking exercising
  */
 static int stress_rofs_file_lseek(
 	stress_args_t *args,
