@@ -432,7 +432,7 @@ uint32_t stress_affinity_cpus_get(uint32_t **cpus, const bool use_affinity)
 		return 0;
 	}
 
-	*cpus = (uint32_t *)malloc(sizeof(**cpus) * n_cpus);
+	*cpus = (uint32_t *)calloc(n_cpus, sizeof(**cpus));
 	if (*cpus == NULL)
 		return 0;
 
