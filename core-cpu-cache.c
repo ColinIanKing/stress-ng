@@ -130,7 +130,7 @@ static stress_cpu_cache_t * stress_cpu_cache_get_by_cpu(
  */
 uint16_t stress_cpu_cache_max_level_get(const stress_cpu_cache_cpus_t *cpus)
 {
-	stress_cpu_cache_cpu_t    *cpu;
+	const stress_cpu_cache_cpu_t *cpu;
 	uint32_t  i;
 	uint16_t  max = 0;
 
