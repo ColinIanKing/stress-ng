@@ -116,7 +116,7 @@ static int stress_resources(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
-	resources = (stress_resources_t *)malloc(resources_num * sizeof(*resources));
+	resources = (stress_resources_t *)calloc(resources_num, sizeof(*resources));
 	if (!resources) {
 		pr_inf_skip("%s: cannot allocate %zu resource structures%s, skipping stressor\n",
 			args->name, resources_num, stress_memory_free_get());
