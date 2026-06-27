@@ -3287,3 +3287,24 @@ char *shim_strtok_r(
 	return strtok(str, delim);
 #endif
 }
+
+/*
+ *  shim_localtime_r()
+ *	shim wrapper for localtime_r, use unsafe localtime if
+ *	it is not available.
+ */
+struct tm *shim_localtime_r(
+	const time_t *restrict timep,
+	struct tm *restrict result)
+{
+#if defined(HAVE_LOCALTIME_R)
+	return localtime_r(timep, result);
+#else
+	struct tm *ret;
+
+	ret = localtime(timep);
+	(void)memcpy(result, ret, sizeof(*result));
+	return ret;
+#endif
+}
+

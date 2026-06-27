@@ -782,5 +782,7 @@ extern int shim_rseq_slice_yield(void);
 extern int shim_open_tree(int dirfd, const char *path, unsigned int flags);
 extern char *shim_strtok_r(char *restrict str, const char *restrict delim,
 	char **restrict saveptr);
+extern struct tm *shim_localtime_r(const time_t *restrict timep,
+	struct tm *restrict result);
 
 #endif

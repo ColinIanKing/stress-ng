@@ -791,7 +791,7 @@ void stress_yaml_runinfo(FILE *yaml)
 	struct sysinfo info;
 #endif
 	time_t t;
-	struct tm *tm = NULL;
+	struct tm tm;
 	const size_t hostname_len = stress_hostname_length_get();
 	char *hostname;
 	const char *user = shim_getlogin();
@@ -800,17 +800,17 @@ void stress_yaml_runinfo(FILE *yaml)
 		return;
 
 	pr_yaml(yaml, "system-info:\n");
-	if (time(&t) != ((time_t)-1))
-		tm = localtime(&t);
 
 	pr_yaml(yaml, "      stress-ng-version: '" VERSION "'\n");
 	pr_yaml(yaml, "      run-by: '%s'\n", user ? user : "unknown");
-	if (LIKELY(tm != NULL)) {
-		pr_yaml(yaml, "      date-yyyy-mm-dd: '%4.4d:%2.2d:%2.2d'\n",
-			tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday);
-		pr_yaml(yaml, "      time-hh-mm-ss: '%2.2d:%2.2d:%2.2d'\n",
-			tm->tm_hour, tm->tm_min, tm->tm_sec);
-		pr_yaml(yaml, "      epoch-secs: %ld\n", (long int)t);
+	if (time(&t) != ((time_t)-1)) {
+		if (shim_localtime_r(&t, &tm)) {
+			pr_yaml(yaml, "      date-yyyy-mm-dd: '%4.4d:%2.2d:%2.2d'\n",
+				tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday);
+			pr_yaml(yaml, "      time-hh-mm-ss: '%2.2d:%2.2d:%2.2d'\n",
+				tm.tm_hour, tm.tm_min, tm.tm_sec);
+			pr_yaml(yaml, "      epoch-secs: %ld\n", (long int)t);
+		}
 	}
 
 	hostname = (char *)malloc(hostname_len + 1);

@@ -47,14 +47,14 @@ static const stress_opt_t opts[] = {
     defined(HAVE_UTIMBUF)
 static char *stress_utime_str(char *str, const size_t len, const time_t val)
 {
-	struct tm *tm = localtime(&val);
+	struct tm tm;
 
-	if (!tm) {
+	if (shim_localtime_r(&val, &tm)) {
+		(void)strftime(str, len, "%d/%m/%Y %H:%M:%S", &tm);
+	} else {
 		/* Just return time in secs since EPOCH */
 		(void)snprintf(str, len, "%" PRIdMAX, (intmax_t)val);
-		return str;
 	}
-	(void)strftime(str, len, "%d/%m/%Y %H:%M:%S", tm);
 	return str;
 }
 

@@ -1591,21 +1591,19 @@ static void stress_rusage_stats_get(const int32_t ticks_per_sec, stress_stats_t 
  */
 static void stress_log_time(const char *name, const double whence, const char *tag)
 {
-#if defined(HAVE_LOCALTIME_R)
 	time_t t = (time_t)whence;
 	struct tm tm;
 	double fractional, integral;
 
-	(void)localtime_r(&t, &tm);
-	fractional = modf(whence, &integral) * 100.0;
-	/* format stressor tag HH:MM:SS.HS YYYY:MM:DD */
-	pr_dbg("%s: %s %2.2d:%2.2d:%2.2d.%2.0f %4.4d:%2.2d:%2.2d\n",
-		name, tag, tm.tm_hour, tm.tm_min, tm.tm_sec, fractional,
-		tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday);
-#else
-	/* fallback to Epoch time */
-	pr_dbg("%s: %s %.2f (Epoch time)\n", name, tag, whence);
-#endif
+	if (shim_localtime_r(&t, &tm)) {
+		fractional = modf(whence, &integral) * 100.0;
+		/* format stressor tag HH:MM:SS.HS YYYY:MM:DD */
+		pr_dbg("%s: %s %2.2d:%2.2d:%2.2d.%2.0f %4.4d:%2.2d:%2.2d\n",
+			name, tag, tm.tm_hour, tm.tm_min, tm.tm_sec, fractional,
+			tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday);
+	} else {
+		pr_dbg("%s: %s %.2f (Epoch time)\n", name, tag, whence);
+	}
 }
 
 /*
@@ -1733,12 +1731,12 @@ static int MLOCKED_TEXT stress_child_run(
 		 */
 		if (sigalrm_info.triggered && (sigalrm_info.code == SI_USER)) {
 			time_t t = sigalrm_info.when.tv_sec;
-			const struct tm *tm = localtime(&t);
+			struct tm tm;
 
-			if (tm) {
+			if (shim_localtime_r(&t, &tm)) {
 				pr_dbg("%s: terminated by SIGALRM externally at %2.2d:%2.2d:%2.2d.%2.2ld by user %" PRIdMAX "\n",
 					name,
-					tm->tm_hour, tm->tm_min, tm->tm_sec,
+					tm.tm_hour, tm.tm_min, tm.tm_sec,
 					(long int)sigalrm_info.when.tv_usec / 10000,
 					(intmax_t)sigalrm_info.uid);
 			} else {
@@ -4170,7 +4168,7 @@ static inline void stress_sequential_run(
 			continue;
 
 		if (progress) {
-			struct tm *tm_finish;
+			struct tm tm_finish;
 			time_t t_finish;
 			const char *name = item->stressor->name;
 			char finish[64];
@@ -4178,9 +4176,8 @@ static inline void stress_sequential_run(
 			t_finish = time(NULL);
 			t_finish += g_opt_timeout * ((108 * (total_run - run)) / 100);
 			t_finish += opt_pause * (total_run - run - 1);
-			tm_finish = localtime(&t_finish);
-			if (tm_finish)
-				(void)strftime(finish, sizeof(finish), "%T %F", tm_finish);
+			if (shim_localtime_r(&t_finish, &tm_finish)) 
+				(void)strftime(finish, sizeof(finish), "%T %F", &tm_finish);
 			else
 				*finish = '\0';
 
@@ -4253,15 +4250,14 @@ static inline void stress_permute_run(
 
 	for (i = 1; stress_continue_flag() && (i <= num_perms); i++) {
 		size_t j;
-		struct tm *tm_finish;
+		struct tm tm_finish;
 		time_t t_finish;
 		char finish[64];
 
 		t_finish = time(NULL);
 		t_finish += g_opt_timeout * ((108 * (num_perms - run)) / 100);
-		tm_finish = localtime(&t_finish);
-		if (tm_finish)
-			strftime(finish, sizeof(finish), "%T %F", tm_finish);
+		if (shim_localtime_r(&t_finish, &tm_finish))
+			strftime(finish, sizeof(finish), "%T %F", &tm_finish);
 		else
 			*finish = '\0';
 
