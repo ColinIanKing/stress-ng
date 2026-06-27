@@ -765,16 +765,16 @@ static const stress_rofs_method_t  stress_rofs_methods[] = {
 #if (defined(HAVE_SYS_XATTR_H) ||	\
      defined(HAVE_ATTR_XATTR_H)) &&	\
     defined(HAVE_GETXATTR)
-	{ "listxattr",	stress_rofs_file_listxattr },
+	{ "listxattr",		stress_rofs_file_listxattr },
 #endif
 #if defined(HAVE_SYS_FILE_H) &&	\
     defined(HAVE_FLOCK) &&	\
     defined(LOCK_EX) &&		\
     defined(LOCK_UN)
-	{ "flock",      stress_rofs_file_flock },
+	{ "flock",		stress_rofs_file_flock },
 #endif
-	{ "fsync",	stress_rofs_file_fsync },
-	{ "ioctl",	stress_rofs_file_ioctl },
+	{ "fsync",		stress_rofs_file_fsync },
+	{ "ioctl",		stress_rofs_file_ioctl },
 };
 
 static stress_metrics_t stress_rofs_metrics[SIZEOF_ARRAY(stress_rofs_methods)];
