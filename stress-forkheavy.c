@@ -260,7 +260,7 @@ static int stress_forkheavy(stress_args_t *args)
 	(void)shim_memset(&forkheavy_args, 0, sizeof(forkheavy_args));
 	forkheavy_args.pipe_size = stress_fs_max_pipe_size_get();
 	forkheavy_args.num_resources = DEFAULT_FORKHEAVY_ALLOCS;
-	forkheavy_args.resources = (stress_resources_t *)malloc(forkheavy_args.num_resources * sizeof(*forkheavy_args.resources));
+	forkheavy_args.resources = (stress_resources_t *)calloc(forkheavy_args.num_resources, sizeof(*forkheavy_args.resources));
 	if (!forkheavy_args.resources) {
 		pr_inf_skip("%s: cannot allocate %zu resource structures, skipping stressor\n",
 			args->name, forkheavy_args.num_resources);
