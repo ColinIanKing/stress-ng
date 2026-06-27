@@ -781,11 +781,11 @@ extern ssize_t shim_listns(const struct shim_ns_id_req *req, uint64_t *ns_ids,
         size_t nr_ns_ids, unsigned int flags);
 extern int shim_rseq_slice_yield(void);
 extern int shim_open_tree(int dirfd, const char *path, unsigned int flags);
-extern char *shim_strtok_r(char *restrict str, const char *restrict delim,
-	char **restrict saveptr);
-extern struct tm *shim_localtime_r(const time_t *restrict timep,
-	struct tm *restrict result);
-int shim_getpwuid_r(uid_t uid, struct passwd *restrict pwd, char *buf,
-        size_t size, struct passwd **restrict result);
+extern char *shim_strtok_r(char *str, const char *delim,
+	char **saveptr);
+extern struct tm *shim_localtime_r(const time_t *timep,
+	struct tm *result);
+int shim_getpwuid_r(uid_t uid, struct passwd *pwd, char *buf,
+        size_t size, struct passwd **result);
 
 #endif

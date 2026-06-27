@@ -3276,9 +3276,9 @@ int shim_posix_fadvise(int fd, off_t offset, off_t size, int advice)
  *	not available.
  */
 char *shim_strtok_r(
-	char *restrict str,
-	const char *restrict delim,
-	char **restrict saveptr)
+	char *str,
+	const char *delim,
+	char **saveptr)
 {
 #if defined(HAVE_STRTOK_R)
 	return strtok_r(str, delim, saveptr);
@@ -3294,8 +3294,8 @@ char *shim_strtok_r(
  *	it is not available.
  */
 struct tm *shim_localtime_r(
-	const time_t *restrict timep,
-	struct tm *restrict result)
+	const time_t *timep,
+	struct tm *result)
 {
 #if defined(HAVE_LOCALTIME_R)
 	return localtime_r(timep, result);
@@ -3315,15 +3315,15 @@ struct tm *shim_localtime_r(
  */
 int shim_getpwuid_r(
 	uid_t uid,
-	struct passwd *restrict pwd,
+	struct passwd *pwd,
 	char *buf,
 	size_t size,
-	struct passwd **restrict result)
+	struct passwd **result)
 {
 #if defined(HAVE_GETPWUID_R)
 	return getpwuid_r(uid, pwd, buf, size, result);
 #else
-	struct passwd *ret;
+	const struct passwd *ret;
 
 	(void)buf;
 	(void)size;
