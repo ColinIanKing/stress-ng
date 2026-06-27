@@ -101,11 +101,13 @@ void stress_processes_dump(void)
 			(void)snprintf(name, sizeof(name), "%u", (unsigned int)statbuf.st_uid);
 			p_name = name;
 #else
-			struct passwd *pwd;
+			struct passwd pwd;
+			struct passwd *pwd_ptr;
+			char buf[1024];
 
-			pwd = getpwuid(statbuf.st_uid);
-			if (pwd && pwd->pw_name) {
-				p_name = pwd->pw_name;
+			(void)getpwuid_r(statbuf.st_uid, &pwd, buf, sizeof(buf), &pwd_ptr);
+			if (pwd_ptr && pwd_ptr->pw_name) {
+				p_name = pwd_ptr->pw_name;
 			} else {
 				(void)snprintf(name, sizeof(name), "%u", (unsigned int)statbuf.st_uid);
 				p_name = name;

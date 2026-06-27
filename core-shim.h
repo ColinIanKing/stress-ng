@@ -28,6 +28,7 @@
 #endif
 
 #include <dirent.h>
+#include <pwd.h>
 #include <sched.h>
 #include <sys/resource.h>
 
@@ -784,5 +785,7 @@ extern char *shim_strtok_r(char *restrict str, const char *restrict delim,
 	char **restrict saveptr);
 extern struct tm *shim_localtime_r(const time_t *restrict timep,
 	struct tm *restrict result);
+int shim_getpwuid_r(uid_t uid, struct passwd *restrict pwd, char *buf,
+        size_t size, struct passwd **restrict result);
 
 #endif

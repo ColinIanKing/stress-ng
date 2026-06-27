@@ -3308,3 +3308,34 @@ struct tm *shim_localtime_r(
 #endif
 }
 
+/*
+ *  shim_getpwuid_r()
+ *  	shim wrapper for getpwuid_r, use unsafe getpwduid if
+ *  	it is not available.
+ */
+int shim_getpwuid_r(
+	uid_t uid,
+	struct passwd *restrict pwd,
+	char *buf,
+	size_t size,
+	struct passwd **restrict result)
+{
+#if defined(HAVE_GETPWUID_R)
+	return getpwuid_r(uid, pwd, buf, size, result);
+#else
+	struct passwd *ret;
+
+	(void)buf;
+	(void)size;
+
+	ret = getpwuid(uid);
+	if (!ret) {
+		*result = NULL;
+	} else {
+		(void)shim_memcpy(pwd, ret, sizeof(*pwd));
+		*result = pwd;
+	}
+	return 0;
+#endif
+}
+

@@ -1192,6 +1192,9 @@ static CONST int stress_uid_comp(const void *p1, const void *p2)
 int stress_unused_uid_get(uid_t *uid)
 {
 	static uid_t cached_uid = 0;
+	struct passwd pwd;
+	struct passwd *pwd_ptr;
+	char buf[1024];
 	uid_t *uids;
 
 	if (!uid)
@@ -1202,9 +1205,11 @@ int stress_unused_uid_get(uid_t *uid)
 	 *  If we have a cached unused uid and it's no longer
 	 *  unused then force a rescan for a new one
 	 */
-	if ((cached_uid != 0) && (getpwuid(cached_uid) != NULL))
-		cached_uid = 0;
-
+	if (cached_uid != 0) {
+		(void)shim_getpwuid_r(cached_uid, &pwd, buf, sizeof(buf), &pwd_ptr);
+		if (pwd_ptr)
+			cached_uid = 0;
+	}
 	if (cached_uid == 0) {
 		struct passwd *pw;
 		size_t i, n;
@@ -1236,7 +1241,8 @@ int stress_unused_uid_get(uid_t *uid)
 			const uid_t uid_try = uids[i] + 250;
 
 			if (uids[i + 1] > uid_try) {
-				if (getpwuid(uid_try) == NULL) {
+				(void)shim_getpwuid_r(uid_try, &pwd, buf, sizeof(buf), &pwd_ptr);
+				if (pwd_ptr == NULL) {
 					cached_uid = uid_try;
 					break;
 				}
