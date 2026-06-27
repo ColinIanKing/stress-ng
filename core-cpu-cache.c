@@ -598,6 +598,8 @@ static int stress_cpu_cache_get_x86(stress_cpu_cache_cpu_t *cpu)
 				continue;
 			n++;
 		}
+		if (!n)
+			return 0;
 
 		/* Now allocate */
 		cpu->caches = (stress_cpu_cache_t *)calloc(n, sizeof(*(cpu->caches)));
