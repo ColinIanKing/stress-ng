@@ -1221,7 +1221,7 @@ ssize_t stress_fs_read(
 		} while (ignore_sig_eintr && (ret < 0) && (errno == EINTR));
 		if (ret > 0)
 			rbytes += ret;
-	} while ((ret > 0) && (rbytes != size));
+	} while ((ret > 0) && (rbytes < size));
 
 	return (ret <= 0) ? ret : rbytes;
 }
@@ -1244,14 +1244,14 @@ ssize_t stress_fs_write(
 		return -1;
 
 	do {
-		const void *ptr = (void *)((uintptr_t)buffer + wbytes);
+		const char *ptr = ((char *)buffer) + wbytes;
 
 		do {
-			ret = write(fd, ptr, (size_t)(size - wbytes));
+			ret = write(fd, (void *)ptr, (size_t)(size - wbytes));
 		} while (ignore_sig_eintr && (ret < 0) && (errno == EINTR));
 		if (ret > 0)
 			wbytes += ret;
-	} while ((ret > 0) && (wbytes != size));
+	} while ((ret > 0) && (wbytes < size));
 
 	return (ret <= 0) ? ret : wbytes;
 }
