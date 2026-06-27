@@ -114,6 +114,7 @@ static stress_cpu_cache_t * stress_cpu_cache_get_by_cpu(
 			case CACHE_TYPE_INSTRUCTION:
 				if (cache_type == CACHE_TYPE_INSTRUCTION)
 					return p;
+				break;
 			default:
 				break;
 		}
