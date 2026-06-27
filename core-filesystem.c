@@ -1247,7 +1247,7 @@ ssize_t stress_fs_write(
 		const char *ptr = ((char *)buffer) + wbytes;
 
 		do {
-			ret = write(fd, (void *)ptr, (size_t)(size - wbytes));
+			ret = write(fd, (const void *)ptr, (size_t)(size - wbytes));
 		} while (ignore_sig_eintr && (ret < 0) && (errno == EINTR));
 		if (ret > 0)
 			wbytes += ret;
