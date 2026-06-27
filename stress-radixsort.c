@@ -123,12 +123,12 @@ static int radixsort_nonlibc(
 	if (nmemb < 2)
 		return 0;
 
-	b = (const unsigned char **)malloc(sizeof(*b) * nmemb);
+	b = (const unsigned char **)calloc(nmemb, sizeof(*b));
 	if (!b) {
 		errno = ENOMEM;
 		return -1;
 	}
-	lengths = (unsigned short int *)malloc(sizeof(*lengths) * nmemb);
+	lengths = (unsigned short int *)calloc(nmemb, sizeof(*lengths));
 	if (!lengths) {
 		free(b);
 		errno = ENOMEM;
