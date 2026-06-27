@@ -224,11 +224,13 @@ led_free_info:
 static void stress_led_exercise(stress_args_t *args, stress_led_info_t *led_info)
 {
 	char buf[MAX_BUF_SIZE];
-	char *ptr, *token;
+	char *ptr;
+	char *token;
+	char *saveptr;
 	int brightness;
 
 	(void)shim_strscpy(buf, led_info->trigger, sizeof(buf));
-	for (ptr = buf; (token = strtok(ptr, " ")) != NULL; ptr = NULL) {
+	for (ptr = buf; (token = shim_strtok_r(ptr, " ", &saveptr)) != NULL; ptr = NULL) {
 		char *tmp;
 		int delta = 1;
 

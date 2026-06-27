@@ -589,12 +589,15 @@ ssize_t stress_stressor_find(const char *name)
  */
 static int stress_exclude(void)
 {
-	char *str, *token, *opt_exclude;
+	char *str;
+	char *token;
+	char *opt_exclude;
+	char *saveptr = NULL;
 
 	if (!stress_setting_get("exclude", &opt_exclude))
 		return 0;
 
-	for (str = opt_exclude; (token = strtok(str, ",")) != NULL; str = NULL) {
+	for (str = opt_exclude; (token = shim_strtok_r(str, ",", &saveptr)) != NULL; str = NULL) {
 		stress_list_item_t *item;
 
 		if (stress_stressor_find(token) < 0) {
@@ -3437,7 +3440,11 @@ static inline void stress_random_stressors_set(void)
 
 static bool stress_with(const int32_t instances)
 {
-	char *opt_with = NULL, *dup_with, *str, *token;
+	char *opt_with = NULL;
+	char *dup_with;
+	char *str;
+	char *token;
+	char *saveptr = NULL;
 
 	if (!stress_setting_get("with", &opt_with))
 		return false;
@@ -3448,7 +3455,7 @@ static bool stress_with(const int32_t instances)
 
 	g_opt_flags |= (OPT_FLAGS_WITH | OPT_FLAGS_SET);
 
-	for (str = dup_with; (token = strtok(str, ",")) != NULL; str = NULL) {
+	for (str = dup_with; (token = shim_strtok_r(str, ",", &saveptr)) != NULL; str = NULL) {
 		stress_list_item_t *item;
 		const ssize_t i = stress_stressor_find(token);
 
@@ -3540,7 +3547,10 @@ static void stress_classes_enable(const uint32_t classifier)
  */
 static int stress_class_get(uint32_t *opt_class, int *ret)
 {
-	char *str, *token, *class_str = NULL;
+	char *str;
+	char *token;
+	char *class_str = NULL;
+	char *saveptr = NULL;
 
 	*ret = EXIT_SUCCESS;
 	*opt_class = 0;
@@ -3548,7 +3558,7 @@ static int stress_class_get(uint32_t *opt_class, int *ret)
 		return 0;
 
 	*opt_class = 0;
-	for (str = class_str; (token = strtok(str, ",")) != NULL; str = NULL) {
+	for (str = class_str; (token = shim_strtok_r(str, ",", &saveptr)) != NULL; str = NULL) {
 		uint32_t cl = stress_class_id_get(token);
 
 		if (!cl) {
@@ -3779,7 +3789,10 @@ static int stress_exercises_get(
 	const stress_exercise_type_t type,
 	int *ret)
 {
-	char *str = NULL, *token, *opt_str;
+	char *str = NULL;
+	char *token;
+	char *opt_str;
+	char *saveptr = NULL;
 
 	*ret = EXIT_SUCCESS;
 	if (!stress_setting_get(opt, &str))
@@ -3798,7 +3811,7 @@ static int stress_exercises_get(
 		return -1;
 	}
 
-	for (str = opt_str; (token = strtok(str, ",")) != NULL; str = NULL) {
+	for (str = opt_str; (token = shim_strtok_r(str, ",", &saveptr)) != NULL; str = NULL) {
 		size_t i;
 		bool mismatch = true;
 

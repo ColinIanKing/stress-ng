@@ -3269,3 +3269,21 @@ int shim_posix_fadvise(int fd, off_t offset, off_t size, int advice)
 	return (int)shim_enosys(0, fd, offset, size, advice);
 #endif
 }
+
+/*
+ *  shim_strtok_r()
+ *	shim wrapper for strtok_r, use unsafe strtok if strtok_r
+ *	not available.
+ */
+char *shim_strtok_r(
+	char *restrict str,
+	const char *restrict delim,
+	char **restrict saveptr)
+{
+#if defined(HAVE_STRTOK_R)
+	return strtok_r(str, delim, saveptr);
+#else
+	(void)saveptr;
+	return strtok(str, delim);
+#endif
+}

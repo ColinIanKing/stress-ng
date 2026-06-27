@@ -237,6 +237,7 @@ static void stress_cgroup_controllers(const char *realpathname)
 	char controllers[512];
 	const char *token;
 	char *ptr;
+	char *saveptr = NULL;
 	ssize_t ret;
 
 	(void)snprintf(path, sizeof(path), "%s/%s", realpathname, "cgroup.subtree_control");
@@ -248,7 +249,7 @@ static void stress_cgroup_controllers(const char *realpathname)
 	(void)snprintf(path, sizeof(path), "%s/%s", realpathname, "cgroup.subtree_control");
 
 	/* Add existing controllers to already set subtree control, should be OK */
-	for (ptr = controllers; (token = strtok(ptr, " ")) != NULL; ptr = NULL) {
+	for (ptr = controllers; (token = shim_strtok_r(ptr, " ", &saveptr)) != NULL; ptr = NULL) {
 		char controller[256];
 
 		ret = (ssize_t)snprintf(controller, sizeof(controller), "+%s\n", token);

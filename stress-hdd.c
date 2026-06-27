@@ -551,7 +551,10 @@ static void stress_hdd_invalid_write(const int fd, uint8_t *buf)
  */
 static void stress_hdd_opts(const char *opt_name, const char *opt_arg, stress_type_id_t *type_id, void *value)
 {
-	char *str, *ptr, *token;
+	char *str;
+	char *ptr;
+	char *token;
+	char *saveptr = NULL;
 	int hdd_flags = 0;
 	int hdd_oflags = 0;
 	bool opts_set = false;
@@ -567,7 +570,7 @@ static void stress_hdd_opts(const char *opt_name, const char *opt_arg, stress_ty
 		stress_no_return();
 	}
 
-	for (ptr = str; (token = strtok(ptr, ",")) != NULL; ptr = NULL) {
+	for (ptr = str; (token = shim_strtok_r(ptr, ",", &saveptr)) != NULL; ptr = NULL) {
 		size_t i;
 		bool opt_ok = false;
 

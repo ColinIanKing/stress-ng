@@ -164,8 +164,11 @@ static const stress_sock_options_t sock_options_protocols[] = {
 static char **stress_get_congestion_controls(const int sock_domain, size_t *n_ctrls)
 {
 	static char ALIGN64 buf[4096];
-	char *ptr, *ctrl;
-	char **ctrls, **tmp;
+	char *ptr;
+	char *ctrl;
+	char *saveptr = NULL;
+	char **ctrls;
+	char **tmp;
 	size_t n;
 	ssize_t buf_len;
 
@@ -186,7 +189,7 @@ static char **stress_get_congestion_controls(const int sock_domain, size_t *n_ct
 	if (!ctrls)
 		return NULL;
 
-	for (n = 0, ptr = buf; (ctrl = strtok(ptr, " ")) != NULL; ptr = NULL) {
+	for (n = 0, ptr = buf; (ctrl = shim_strtok_r(ptr, " ", &saveptr)) != NULL; ptr = NULL) {
 		char *newline = strchr(ctrl, '\n');
 
 		if (newline)

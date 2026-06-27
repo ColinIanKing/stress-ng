@@ -182,8 +182,10 @@ static ssize_t stress_revio_write(
  */
 static void stress_revio_opts(const char *opt_name, const char *opt_arg, stress_type_id_t *type_id, void *value)
 {
-	char *str, *ptr;
+	char *str;
+	char *ptr;
 	const char *token;
+	char *saveptr = NULL;
 	int revio_flags = 0;
 	int revio_oflags = 0;
 	bool opts_set = false;
@@ -198,7 +200,7 @@ static void stress_revio_opts(const char *opt_name, const char *opt_arg, stress_
 		stress_no_return();
 	}
 
-	for (ptr = str; (token = strtok(ptr, ",")) != NULL; ptr = NULL) {
+	for (ptr = str; (token = shim_strtok_r(ptr, ",", &saveptr)) != NULL; ptr = NULL) {
 		size_t i;
 		bool opt_ok = false;
 

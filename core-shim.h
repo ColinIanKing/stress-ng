@@ -780,5 +780,7 @@ extern ssize_t shim_listns(const struct shim_ns_id_req *req, uint64_t *ns_ids,
         size_t nr_ns_ids, unsigned int flags);
 extern int shim_rseq_slice_yield(void);
 extern int shim_open_tree(int dirfd, const char *path, unsigned int flags);
+extern char *shim_strtok_r(char *restrict str, const char *restrict delim,
+	char **restrict saveptr);
 
 #endif

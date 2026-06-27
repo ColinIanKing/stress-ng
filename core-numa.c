@@ -395,7 +395,11 @@ static long int stress_parse_node(const char *const str)
  */
 int stress_set_mbind(void)
 {
-	char *str, *ptr, *token, *mbind;
+	char *str;
+	char *ptr;
+	char *token;
+	char *mbind;
+	char *saveptr = NULL;
 	long int max_node;
 	unsigned long int *nodemask;
 	const size_t nodemask_bits = sizeof(*nodemask) * 8;
@@ -423,7 +427,7 @@ int stress_set_mbind(void)
 		_exit(EXIT_FAILURE);
 	}
 
-	for (ptr = str; (token = strtok(ptr, ",")) != NULL; ptr = NULL) {
+	for (ptr = str; (token = shim_strtok_r(ptr, ",", &saveptr)) != NULL; ptr = NULL) {
 		unsigned long int i, lo, hi;
 		const char *tmpptr = strstr(token, "-");
 

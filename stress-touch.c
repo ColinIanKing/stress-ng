@@ -112,8 +112,10 @@ static const touch_method_t touch_methods[] = {
  */
 static void stress_touch_opts(const char *opt_name, const char *opt_arg, stress_type_id_t *type_id, void *value)
 {
-	char *str, *ptr;
+	char *str;
+	char *ptr;
 	const char *token;
+	char *saveptr = NULL;
 	int open_flags = 0;
 
 	str = stress_const_optdup(opt_arg);
@@ -124,7 +126,7 @@ static void stress_touch_opts(const char *opt_name, const char *opt_arg, stress_
 		stress_no_return();
 	}
 
-	for (ptr = str; (token = strtok(ptr, ",")) != NULL; ptr = NULL) {
+	for (ptr = str; (token = shim_strtok_r(ptr, ",", &saveptr)) != NULL; ptr = NULL) {
 		size_t i;
 		bool opt_ok = false;
 

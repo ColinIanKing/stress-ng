@@ -123,7 +123,10 @@ static void stress_topology_set_get(
 
 	while ((d = readdir(dir)) != NULL) {
 		char filename[PATH_MAX];
-		char str[1024], *ptr, *token;
+		char str[1024];
+		char *ptr;
+		char *token;
+		char *saveptr = NULL;
 		cpu_set_t newset;
 		int lo, hi;
 
@@ -138,7 +141,7 @@ static void stress_topology_set_get(
 			continue;
 
 		CPU_ZERO(&newset);
-		for (ptr = str; (token = strtok(ptr, ",")) != NULL; ptr = NULL) {
+		for (ptr = str; (token = shim_strtok_r(ptr, ",", &saveptr)) != NULL; ptr = NULL) {
 			const char *tmpptr = strstr(token, "-");
 
 			if (sscanf(token, "%d", &i) != 1)
@@ -192,7 +195,10 @@ static void stress_topology_set_get(
  */
 int stress_affinity_parse_cpu(const char *arg, cpu_set_t *set, int *setbits)
 {
-	char *str, *ptr, *token;
+	char *str;
+	char *ptr;
+	char *token;
+	char *saveptr = NULL;
 	const int32_t max_cpus = stress_cpus_configured_get();
 	int i;
 
@@ -205,7 +211,7 @@ int stress_affinity_parse_cpu(const char *arg, cpu_set_t *set, int *setbits)
 		_exit(EXIT_FAILURE);
 	}
 
-	for (ptr = str; (token = strtok(ptr, ",")) != NULL; ptr = NULL) {
+	for (ptr = str; (token = shim_strtok_r(ptr, ",", &saveptr)) != NULL; ptr = NULL) {
 		int lo, hi;
 		const char *tmpptr = strstr(token, "-");
 
