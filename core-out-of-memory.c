@@ -269,9 +269,8 @@ int stress_oomable_child(
 again:
 	if (UNLIKELY(!stress_continue(args)))
 		return EXIT_SUCCESS;
-	if (UNLIKELY(valid_timeout && (stress_time_now() > args->time_end))) {
+	if (UNLIKELY(valid_timeout && (stress_time_now() > args->time_end)))
 		return EXIT_SUCCESS;
-	}
 	pid = fork();
 	if (pid < 0) {
 		/* Keep trying if we are out of resources */
