@@ -579,9 +579,10 @@ static int stress_cpu_cache_get_x86(stress_cpu_cache_cpu_t *cpu)
 	if (edx & (1U << 28)) {
 		uint32_t subleaf;
 		size_t i;
+		size_t n;
 
 		/* Gather max number of cache entries */
-		for (i = 0, subleaf = 0; subleaf < 0xff; subleaf++) {
+		for (n = 0, subleaf = 0; subleaf < 0xff; subleaf++) {
 			uint32_t cache_type;
 
 			eax = 4;
@@ -595,19 +596,19 @@ static int stress_cpu_cache_get_x86(stress_cpu_cache_cpu_t *cpu)
 				 break;
 			if (cache_type > 3)
 				continue;
-			i++;
+			n++;
 		}
 
 		/* Now allocate */
-		cpu->caches = (stress_cpu_cache_t *)calloc(i, sizeof(*(cpu->caches)));
+		cpu->caches = (stress_cpu_cache_t *)calloc(n, sizeof(*(cpu->caches)));
 		if (UNLIKELY(!cpu->caches)) {
 			pr_err("failed to allocate %zu bytes for cpu caches\n",
-				i * sizeof(*(cpu->caches)));
+				n * sizeof(*(cpu->caches)));
 			return 0;
 		}
 
 		/* ..and save */
-		for (i = 0, subleaf = 0; subleaf < 0xff; subleaf++) {
+		for (i = 0, subleaf = 0; (i < n) && (subleaf < 0xff); subleaf++) {
 			uint32_t cache_type;
 
 			eax = 4;
