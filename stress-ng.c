@@ -4511,6 +4511,8 @@ int main(int argc, char **argv, char **envp)
 	if (stress_class_get(&opt_class, &ret) < 0)
 		goto exit_stressors_free;
 
+	if (stress_setting_get("raplstat", &discarded))
+		g_opt_flags |= OPT_FLAGS_RAPL_REQUIRED;
 	if (stress_setting_get("thermalstat", &discarded))
 		g_opt_flags |= OPT_FLAGS_TZ_INFO;
 
