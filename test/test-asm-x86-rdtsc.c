@@ -36,6 +36,6 @@ int main(void)
 	return (int)tsc;
 #else
 #error not an x86 so no rdtsc instruction
-#endif
 	return 0;
+#endif
 }
