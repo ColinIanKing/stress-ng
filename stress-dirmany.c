@@ -38,7 +38,9 @@ static void stress_dirmany_filename(
 	const size_t filename_len,
 	const uint64_t n)
 {
-	if (pathname_len + filename_len + 18 < filename_sz) {
+	const size_t minlen = STRESS_MINIMUM(filename_sz, filename_len);
+
+	if (pathname_len + filename_len + 18 < minlen) {
 		char *ptr = filename;
 
 		(void)shim_memcpy(ptr, pathname, pathname_len);
