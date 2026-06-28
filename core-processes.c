@@ -102,10 +102,10 @@ void stress_processes_dump(void)
 			p_name = name;
 #else
 			struct passwd pwd;
-			struct passwd *pwd_ptr;
+			struct passwd *pwd_ptr = NULL;
 			char pwdbuf[1024];
 
-			(void)getpwuid_r(statbuf.st_uid, &pwd, pwdbuf, sizeof(pwdbuf), &pwd_ptr);
+			(void)shim_getpwuid_r(statbuf.st_uid, &pwd, pwdbuf, sizeof(pwdbuf), &pwd_ptr);
 			if (pwd_ptr && pwd_ptr->pw_name) {
 				p_name = pwd_ptr->pw_name;
 			} else {
