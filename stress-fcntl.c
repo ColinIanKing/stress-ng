@@ -852,6 +852,7 @@ static int stress_fcntl(stress_args_t *args)
 #endif
 
 	do {
+		retries++;
 		errno = 0;
 		/*
 		 *  Try and open the file, it may be impossible
@@ -881,8 +882,7 @@ static int stress_fcntl(stress_args_t *args)
 		} else {
 			break;
 		}
-		retries++;
-	} while (stress_continue_flag() && (retries < 100));
+	} while (stress_continue_flag() && (retries <= 100));
 
 	if ((fd < 0) || (retries >= 100)) {
 		pr_err("%s: creat: file %s took %d "
