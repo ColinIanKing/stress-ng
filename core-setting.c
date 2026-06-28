@@ -205,7 +205,7 @@ void stress_setting_dbg(const char *name)
 		return;
 
 	pr_dbg("%s: %zu setting%s:\n", name, n, n == 1 ? "" : "s");
-	for (i = 0, setting = setting_head; setting; setting = setting->next) {
+	for (i = 0, setting = setting_head; (i < n) && setting; setting = setting->next) {
 		if (strcmp(setting->stressor_name, name) == 0)
 			settings[i++] = setting;
 	}
