@@ -246,11 +246,6 @@ static void stress_mc_lcg_seed(void)
 static uint64_t stress_mc_pcg32_state = 0x4d595df4d0f33173ULL;
 static uint64_t const stress_mc_pcg32_increment = 1442695040888963407ULL;
 
-static inline ALWAYS_INLINE OPTIMIZE3 uint32_t stress_mc_rotr32(uint32_t x, unsigned r)
-{
-	return x >> r | x << (-r & 31);
-}
-
 static double OPTIMIZE3 stress_mc_pcg32_rand(void)
 {
 	register uint64_t x = stress_mc_pcg32_state;
@@ -261,7 +256,7 @@ static double OPTIMIZE3 stress_mc_pcg32_rand(void)
 
 	stress_mc_pcg32_state = x * multiplier + stress_mc_pcg32_increment;
 	x ^= x >> 18;
-	return scale_u32 * (double)stress_mc_rotr32((uint32_t)(x >> 27), count);
+	return scale_u32 * (double)shim_ror32n((uint32_t)(x >> 27), count);
 }
 
 static void stress_mc_pcg32_seed(void)
