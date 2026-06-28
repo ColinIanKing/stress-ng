@@ -520,20 +520,27 @@ PRAGMA_UNROLL_N(4)
 uint32_t OPTIMIZE3 stress_hash_mid5(const char *str, const size_t len)
 {
 	const uint8_t *ustr = (const uint8_t *)str;
+	uint32_t ret;
+
 	switch (len) {
 	default:
 		ustr += (len - 5) / 2;
-		return (uint32_t)len ^ (uint32_t)(ustr[0] ^ (ustr[1] << 6) ^ (ustr[2] << 12) ^ (ustr[3] << 18) ^ (ustr[4] << 24));
+		ret = (uint32_t)len ^ (uint32_t)(ustr[0] ^ (ustr[1] << 6) ^ (ustr[2] << 12) ^ (ustr[3] << 18) ^ (ustr[4] << 24));
+		break;
 	case 4:
-		return (uint32_t)len ^ (uint32_t)(ustr[0] ^ (ustr[1] << 6) ^ (ustr[2] << 12) ^ (ustr[3] << 18));
+		ret = (uint32_t)len ^ (uint32_t)(ustr[0] ^ (ustr[1] << 6) ^ (ustr[2] << 12) ^ (ustr[3] << 18));
+		break;
 	case 3:
-		return (uint32_t)len ^ (uint32_t)(ustr[0] ^ (ustr[1] << 6) ^ (ustr[2] << 12));
+		ret = (uint32_t)len ^ (uint32_t)(ustr[0] ^ (ustr[1] << 6) ^ (ustr[2] << 12));
+		break;
 	case 2:
-		return (uint32_t)len ^ (uint32_t)(ustr[0] ^ (ustr[1] << 6));
+		ret = (uint32_t)len ^ (uint32_t)(ustr[0] ^ (ustr[1] << 6));
+		break;
 	case 1:
-		return (uint32_t)len ^ ustr[0];
+		ret = (uint32_t)len ^ ustr[0];
+		break;
 	}
-	return 0;
+	return ret;
 }
 
 /*
