@@ -128,6 +128,7 @@ int stress_tz_init(stress_tz_info_t **tz_info_list)
 		if ((fp = fopen(path, "r")) != NULL) {
 			char type[128];
 
+			(void)shim_memset(type, 0, sizeof(type));
 			if (fgets(type, sizeof(type), fp) != NULL) {
 				type[strcspn(type, "\n")] = '\0';
 				stress_tz_type_fix(type);
