@@ -32,6 +32,6 @@ int main(void)
 	return (int)((uint64_t)hi << 32) | lo;
 #else
 #error not an x86 so no rdtsc instruction
-#endif
 	return 0;
+#endif
 }
