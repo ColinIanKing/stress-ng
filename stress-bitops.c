@@ -418,7 +418,7 @@ static int OPTIMIZE3 TARGET_CLONES stress_bitops_ctz(const char *name, uint32_t 
 		}
 
 		/* #3 Count trailing zeros, Gaudet method */
-		tmp = v & -v;
+		tmp = v & (uint32_t)-(int32_t)v;
 		bz = tmp ? 0 : 1;
 		b4 = (tmp & 0x0000ffff) ? 0 : 16;
 		b3 = (tmp & 0x00ff00ff) ? 0 : 8;
