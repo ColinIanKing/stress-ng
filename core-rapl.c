@@ -164,7 +164,10 @@ int stress_rapl_domains_get(stress_rapl_domain_t **rapl_domains)
 
 			(void)shim_memset(domain_name, 0, sizeof(domain_name));
 			if (fgets(domain_name, sizeof(domain_name), fp) != NULL) {
-				domain_name[strcspn(domain_name, "\n")] = '\0';
+				const size_t index = strcspn(domain_name, "\n");
+
+				if (LIKELY(index < sizeof(domain_name)))
+					domain_name[strcspn(domain_name, "\n")] = '\0';
 
 				/* Truncate package name */
 				if (!strncmp(domain_name, "package-", 8)) {
