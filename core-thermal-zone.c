@@ -130,7 +130,10 @@ int stress_tz_init(stress_tz_info_t **tz_info_list)
 
 			(void)shim_memset(type, 0, sizeof(type));
 			if (fgets(type, sizeof(type), fp) != NULL) {
-				type[strcspn(type, "\n")] = '\0';
+				const size_t index = strcspn(type, "\n");
+
+				if (index < sizeof(type))
+					type[index] = '\0';
 				stress_tz_type_fix(type);
 				tz_info->type = shim_strdup(type);
 				tz_info->type_instance = stress_tz_type_instance(*tz_info_list, type);
