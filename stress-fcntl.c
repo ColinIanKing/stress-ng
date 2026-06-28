@@ -881,7 +881,8 @@ static int stress_fcntl(stress_args_t *args)
 		} else {
 			break;
 		}
-	} while (stress_continue_flag() && ++retries < 100);
+		retries++;
+	} while (stress_continue_flag() && (retries < 100));
 
 	if ((fd < 0) || (retries >= 100)) {
 		pr_err("%s: creat: file %s took %d "
