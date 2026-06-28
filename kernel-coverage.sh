@@ -37,11 +37,11 @@ rm -f $LOG
 #  - for ease of use, ensure kernel is built on the target machine
 #  - no support for this script, if it breaks, you get the pieces
 #
-if [ -z "$STRESS_NG" ]; then
+if [[ -z "$STRESS_NG" ]]; then
         STRESS_NG=./stress-ng
 fi
 
-if [ ! -x "$STRESS_NG" ]; then
+if [[ ! -x "$STRESS_NG" ]]; then
 	echo "Cannot find executable $STRESS_NG"
 	exit 1
 fi
@@ -59,7 +59,7 @@ kill_stress_ng()
 		for I in $(seq 10)
 		do
 			pids=$(get_stress_ng_pids)
-			if [ -z "$pids" ]; then
+			if [[ -z "$pids" ]]; then
 				return
 			fi
 			kill -ALRM $pids >& /dev/null
@@ -69,7 +69,7 @@ kill_stress_ng()
 		for I in $(seq 10)
 		do
 			pids=$(get_stress_ng_pids)
-			if [ -z "$pids" ]; then
+			if [[ -z "$pids" ]]; then
 				return
 			fi
 
@@ -236,14 +236,14 @@ mount_filesystem()
 		echo ${MKFS_CMD} ${MKFS_ARGS}
 		sudo ${MKFS_CMD} ${MKFS_ARGS}
 		rc=$?
-		if [ $rc -ne 0 ]; then
+		if [[ $rc -ne 0 ]]; then
 			echo "${MKFS_CMD} ${MKFS_ARGS} failed, error: $rc"
 			return 1
 		fi
 		mkdir -p ${MNT}
 		sudo ${MNT_CMD}
 		rc=$?
-		if [ $rc -ne 0 ]; then
+		if [[ $rc -ne 0 ]]; then
 			echo "${MNT_CMD} failed, error: $rc"
 			return 1
 		fi
@@ -264,11 +264,11 @@ umount_filesystem()
 	do
 		kill_stress_ng
 		sudo umount ${MNT}
-		if [ $? -eq 0 ]; then
+		if [[ $? -eq 0 ]]; then
 			break;
 		else
 			mnts=$(cat /proc/mounts | grep ${MNT} > /dev/null)
-			if [ $? -eq 1 ]; then
+			if [[ $? -eq 1 ]]; then
 				break;
 			else
 				echo umount of ${MNT} failed, retrying...
@@ -295,7 +295,7 @@ umount_filesystem()
 clear_journal()
 {
 	which journalctl >& /dev/null
-	if [ $? -eq 0 ]; then
+	if [[ $? -eq 0 ]]; then
 		sudo journalctl --rotate >& /dev/null
 		sudo journalctl --vacuum-time 1s >& /dev/null
 		sudo journalctl --rotate >& /dev/null
@@ -308,16 +308,16 @@ do_stress()
 	if grep -q "\-\-oom\-pipe" <<< "$*"; then
 		ARGS="$ARGS --oomable"
 	fi
-	if [ "$FS" == "hfs" ]; then
+	if [[ "$FS" == "hfs" ]]; then
 		ARGS="$ARGS -x chattr,filerace"
 	fi
-	if [ "$FS" == "hfsplus" ]; then
+	if [[ "$FS" == "hfsplus" ]]; then
 		ARGS="$ARGS -x chattr,filerace"
 	fi
-	if [ "$FS" == "ext4" ]; then
+	if [[ "$FS" == "ext4" ]]; then
 		ARGS="$ARGS -x xattr"
 	fi
-	if [ "$FS" == "ext3" ]; then
+	if [[ "$FS" == "ext3" ]]; then
 		ARGS="$ARGS -x xattr"
 	fi
 	echo "STARTED:  $(date '+%F %X') using $* $ARGS" >> $LOG
@@ -330,7 +330,7 @@ do_stress()
 	clear_journal
 }
 
-if [ -e $PERF_PARANOID ]; then
+if [[ -e $PERF_PARANOID ]]; then
 	paranoid_saved=$(cat /proc/sys/kernel/perf_event_paranoid)
 	(echo 0 | sudo tee $PERF_PARANOID) > /dev/null
 fi
@@ -341,10 +341,10 @@ echo core | sudo tee /proc/sys/kernel/core_pattern >& /dev/null
 #
 #  Try to ensure that this script and parent won't be oom'd
 #
-if [ -e /proc/self/oom_score_adj ]; then
+if [[ -e /proc/self/oom_score_adj ]]; then
 	echo -900 | sudo tee /proc/self/oom_score_adj >& /dev/null
 	echo -900 | sudo tee /proc/$PPID/oom_score_adj >& /dev/null
-elif [ -e /proc/self/oom_adj ]; then
+elif [[ -e /proc/self/oom_adj ]]; then
 	echo -14 | sudo tee /proc/self/oom_adj >& /dev/null
 	echo -14 | sudo tee /proc/$PPID/oom_adj >& /dev/null
 fi
@@ -352,7 +352,7 @@ fi
 # Ensure oom killer kills the stressor hogs rather
 # than the wrong random process (e.g. this script)
 #
-if [ -e /proc/sys/vm/oom_kill_allocating_task ]; then
+if [[ -e /proc/sys/vm/oom_kill_allocating_task ]]; then
 	echo 0 | sudo tee /proc/sys/vm/oom_kill_allocating_task >& /dev/null
 fi
 
@@ -364,7 +364,7 @@ sudo swapon $SWAP
 
 sudo lcov --zerocounters
 
-if [ -f	/sys/kernel/debug/tracing/trace_stat/branch_all ]; then
+if [[ -f	/sys/kernel/debug/tracing/trace_stat/branch_all ]]; then
 	sudo cat  /sys/kernel/debug/tracing/trace_stat/branch_all > branch_all.start
 fi
 
@@ -381,7 +381,7 @@ do
 		MNTDEVBASE=$(basename $MNTDEV)
 		echo MNTDEV $MNTDEV MNTDEVBASE $MNTDEVBASE
 		DURATION=10
-		if [ -e /sys/block/${MNTDEVBASE}/queue/scheduler ]; then
+		if [[ -e /sys/block/${MNTDEVBASE}/queue/scheduler ]]; then
 			IOSCHED=$(cat /sys/block/${MNTDEVBASE}/queue/scheduler | sed  's/.*\[\(.*\)\].*/\1/')
 			IOSCHEDS=$(cat /sys/block/${MNTDEVBASE}/queue/scheduler | sed 's/\[//' | sed s'/\]//')
 			for IO in $IOSCHEDS
@@ -938,7 +938,7 @@ DURATION=60
 sudo $STRESS_NG --class filesystem --ftrace --seq -1 -v --timestamp --syslog -t $DURATION --status 5
 sudo $STRESS_NG --class io --ftrace --seq -1 -v --timestamp --syslog -t $DURATION --status 5
 
-if [ -f	/sys/kernel/debug/tracing/trace_stat/branch_all ]; then
+if [[ -f	/sys/kernel/debug/tracing/trace_stat/branch_all ]]; then
 	sudo cat  /sys/kernel/debug/tracing/trace_stat/branch_all > branch_all.finish
 fi
 
@@ -946,7 +946,7 @@ sudo swapoff $SWAP
 sudo rm $SWAP
 echo "$core_pattern_saved" | sudo tee /proc/sys/kernel/core_pattern >& /dev/null
 
-if [ -e $PERF_PARANOID ]; then
+if [[ -e $PERF_PARANOID ]]; then
 	(echo $paranoid_saved | sudo tee $PERF_PARANOID) > /dev/null
 fi
 
