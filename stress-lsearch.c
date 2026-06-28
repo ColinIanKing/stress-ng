@@ -206,6 +206,7 @@ static int stress_lsearch(stress_args_t *args)
 	do {
 		double t;
 		size_t n = 0;
+		size_t min;
 
 		stress_sort_data_int32_shuffle(data, max);
 
@@ -213,10 +214,13 @@ static int stress_lsearch(stress_args_t *args)
 		for (i = 0; LIKELY(stress_continue_flag() && (i < max)); i++) {
 			VOID_RET(void *, lsearch_func(&data[i], root, &n, sizeof(*data), stress_lsearch_cmp_int32));
 		}
+
+		min = STRESS_MINIMUM(n, max);
+
 		/* Step #2, find */
 		stress_sort_compare_reset();
 		t = stress_time_now();
-		for (i = 0; LIKELY(stress_continue_flag() && (i < n)); i++) {
+		for (i = 0; LIKELY(stress_continue_flag() && (i < min)); i++) {
 			int32_t *result;
 
 			result = (int32_t *)lfind_func(&data[i], root, &n, sizeof(*data), stress_lsearch_cmp_int32);
