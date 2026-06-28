@@ -90,25 +90,26 @@ static inline void OPTIMIZE3 stress_brk_page_resident(
 	const size_t page_size,
 	const bool brk_touch)
 {
-#if defined(__APPLE__)
-	(void)addr;
-	(void)page_size;
+	register uint8_t *new_addr = addr - page_size;
+
 	(void)brk_touch;
-#endif
+
+	if (UNLIKELY(new_addr == 0))
+		return;
 
 #if !defined(__APPLE__)
 	/* Touch page, force it to be resident */
 	if (LIKELY(brk_touch)) {
 #if defined(HAVE_NT_LOAD32)
-		(void)stress_nt_load32((uint32_t *)(addr - page_size));
+		(void)stress_nt_load32((uint32_t *)new_addr);
 #else
-		(void )*(volatile uint8_t *)(addr - page_size);
+		(void )*(volatile uint8_t *)new_addr;
 #endif
 	}
 #endif
 #if defined(HAVE_MADVISE) &&	\
     defined(MADV_MERGEABLE)
-	(void)madvise((void *)(addr - page_size), page_size, MADV_MERGEABLE);
+	(void)madvise((void *)new_addr, page_size, MADV_MERGEABLE);
 #else
 	UNEXPECTED
 #endif
