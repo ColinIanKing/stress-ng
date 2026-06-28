@@ -5,7 +5,7 @@ zlib1g-dev libbsd-dev libeigen3-dev libcrypt-dev libjpeg-dev libmpfr-dev \
 libgmp-dev libkeyutils-dev libapparmor-dev apparmor libaio-dev libcap-dev \
 libsctp-dev libjudy-dev libatomic1 libxxhash-dev
 
-ADD . stress-ng
+COPY . stress-ng
 
 RUN cd stress-ng && mkdir install-root && rm -rf configs config.h && \
 VERBOSE=1 make -f Makefile.config -j $(nproc) && VERBOSE=1 STATIC=1 \
