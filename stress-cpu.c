@@ -457,7 +457,7 @@ static int OPTIMIZE3 stress_cpu_lfsr32(const char *name)
 
 PRAGMA_UNROLL_N(8)
 	for (i = 0; LIKELY(i < 16384); i++) {
-		lfsr = (lfsr >> 1) ^ (uint32_t)(-(int32_t)((lfsr & 1u) & 0xd0000001U));
+		lfsr = (lfsr >> 1) ^ (uint32_t)(-(int32_t)(lfsr & 1u) & 0xd0000001U);
 	}
 	stress_put_uint32(lfsr);
 	return EXIT_SUCCESS;
