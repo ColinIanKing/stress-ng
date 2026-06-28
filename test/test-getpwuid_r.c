@@ -26,7 +26,7 @@ int main(void)
 {
 	const uid_t uid = getuid();
 	struct passwd pwd;
-	struct passwd *result;
+	struct passwd *result = NULL;
 	char buf[4086];
 
 	getpwuid_r(uid, &pwd, buf, sizeof(buf), &result);
