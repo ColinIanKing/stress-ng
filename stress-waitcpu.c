@@ -150,7 +150,7 @@ static void stress_waitcpu_x86_umwait0(void)
 	stress_asm_x86_umonitor(&delay);	/* Use dummy variable */
 	tsc = stress_asm_x86_rdtsc();
 	ret = stress_asm_x86_umwait(0, tsc + delay);
-	delay += (ret == 0) ? delay >> 6 : -(delay >> 6);
+	delay += (ret == 0) ? delay >> 6 : (uint64_t)-(int64_t)(delay >> 6);
 }
 
 static void stress_waitcpu_x86_umwait1(void)
@@ -162,7 +162,7 @@ static void stress_waitcpu_x86_umwait1(void)
 	stress_asm_x86_umonitor(&delay);	/* Use dummy variable */
 	tsc = stress_asm_x86_rdtsc();
 	ret = stress_asm_x86_umwait(1, tsc + delay);
-	delay += (ret == 0) ? delay >> 6 : -(delay >> 6);
+	delay += (ret == 0) ? delay >> 6 : (uint64_t)-(int64_t)(delay >> 6);
 }
 #endif
 
