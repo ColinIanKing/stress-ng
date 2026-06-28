@@ -30,7 +30,7 @@ int main(void)
 	static const char filename[] = "/tmp/futimes.tmp";
 	int fd, ret;
 
-	fd = open(filename, O_RDWR | O_CREAT, 0666);
+	fd = open(filename, O_RDWR | O_CREAT, 0600);
 	if (fd < 0)
 		return 1;
 	ret = futimesat(AT_FDCWD, filename, NULL);

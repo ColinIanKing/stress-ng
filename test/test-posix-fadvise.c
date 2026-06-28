@@ -32,7 +32,7 @@ int main(void)
 	static const char filename[] = "/tmp/test-msync.tmp";
 	int fd, ret, err = 1;
 
-	fd = open(filename, O_RDWR | O_CREAT, 0666);
+	fd = open(filename, O_RDWR | O_CREAT, 0600);
 	if (fd < 0)
 		return 1;
 	(void)unlink(filename);

@@ -22,5 +22,5 @@
 
 int main(void)
 {
-	return mkfifo("test", 0666);
+	return mkfifo("test", 0600);
 }

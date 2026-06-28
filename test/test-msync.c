@@ -39,7 +39,7 @@ int main(void)
 	const size_t sz = sizeof buffer;
 
 	(void)memset(buffer, 0, sizeof(buffer));
-	fd = open(filename, O_RDWR | O_CREAT, 0666);
+	fd = open(filename, O_RDWR | O_CREAT, 0600);
 	if (fd < 0)
 		return 1;
 	(void)unlink(filename);
