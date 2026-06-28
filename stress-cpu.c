@@ -457,7 +457,7 @@ static int OPTIMIZE3 stress_cpu_lfsr32(const char *name)
 
 PRAGMA_UNROLL_N(8)
 	for (i = 0; LIKELY(i < 16384); i++) {
-		lfsr = (lfsr >> 1) ^ (unsigned int)(-(lfsr & 1u) & 0xd0000001U);
+		lfsr = (lfsr >> 1) ^ (uint32_t)(-(int32_t)((lfsr & 1u) & 0xd0000001U));
 	}
 	stress_put_uint32(lfsr);
 	return EXIT_SUCCESS;
@@ -2773,7 +2773,7 @@ static uint32_t queens_try(
 	register uint32_t poss = ~(left_diag | cols | right_diag) & all;
 
 	while (poss) {
-		register uint32_t inv = -poss;
+		register uint32_t inv = (uint32_t)-(int32_t)poss;
 		register uint32_t bit = poss & inv;
 		register uint32_t new_cols = cols | bit;
 
