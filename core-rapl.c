@@ -167,7 +167,7 @@ int stress_rapl_domains_get(stress_rapl_domain_t **rapl_domains)
 				const size_t index = strcspn(domain_name, "\n");
 
 				if (LIKELY(index < sizeof(domain_name)))
-					domain_name[strcspn(domain_name, "\n")] = '\0';
+					domain_name[index] = '\0';
 
 				/* Truncate package name */
 				if (!strncmp(domain_name, "package-", 8)) {
