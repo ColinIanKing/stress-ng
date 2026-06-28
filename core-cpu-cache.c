@@ -1224,8 +1224,6 @@ static void stress_cpu_cache_get_details(stress_cpu_cache_cpu_t *cpu, const char
 	if (stress_cpu_cache_get_apple(cpu) > 0)
 		return;
 #endif
-
-	return;
 }
 #endif
 
