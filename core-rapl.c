@@ -162,6 +162,7 @@ int stress_rapl_domains_get(stress_rapl_domain_t **rapl_domains)
 		if ((fp = fopen(path, "r")) != NULL) {
 			char domain_name[128];
 
+			(void)shim_memset(domain_name, 0, sizeof(domain_name));
 			if (fgets(domain_name, sizeof(domain_name), fp) != NULL) {
 				domain_name[strcspn(domain_name, "\n")] = '\0';
 
