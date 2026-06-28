@@ -1193,7 +1193,7 @@ int stress_unused_uid_get(uid_t *uid)
 {
 	static uid_t cached_uid = 0;
 	struct passwd pwd;
-	struct passwd *pwd_ptr;
+	struct passwd *pwd_ptr = NULL;
 	char buf[1024];
 	uid_t *uids;
 
@@ -1241,6 +1241,7 @@ int stress_unused_uid_get(uid_t *uid)
 			const uid_t uid_try = uids[i] + 250;
 
 			if (uids[i + 1] > uid_try) {
+				pwd_ptr = NULL;
 				(void)shim_getpwuid_r(uid_try, &pwd, buf, sizeof(buf), &pwd_ptr);
 				if (pwd_ptr == NULL) {
 					cached_uid = uid_try;
