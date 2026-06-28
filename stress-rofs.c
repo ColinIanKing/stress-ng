@@ -1027,7 +1027,7 @@ static const stress_exercises_t exercises[] = {
     defined(AT_SYMLINK_NOFOLLOW)
 	STRESS_EX_SYSCALL("statx"),
 #endif
-	
+
 	STRESS_EX_END,
 };
 
