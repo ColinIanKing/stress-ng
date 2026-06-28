@@ -63,11 +63,11 @@ static int OPTIMIZE3 stress_bitops_sign(const char *name, uint32_t *count)
 		register int32_t sign1, sign2;
 
 		/* #1 sign, comparison */
-		sign1 = -(v < 0);
+		sign1 = -(int32_t)(v < 0);
 		sum += sign1;
 
 		/* #2 sign, sign bit */
-		sign2 = -(int)((unsigned int)((int)v) >> ((sizeof(int) * CHAR_BIT) - 1));
+		sign2 = -(int32_t)((uint32_t)((int32_t)v) >> ((sizeof(int) * CHAR_BIT) - 1));
 		sum += sign2;
 
 		if (UNLIKELY(sign1 != sign2)) {
