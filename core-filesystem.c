@@ -1239,6 +1239,7 @@ ssize_t stress_fs_write(
 	const bool ignore_sig_eintr)
 {
 	ssize_t wbytes = 0, ret;
+	ssize_t max_sz = MB;
 
 	if (UNLIKELY(!buffer || (size < 1)))
 		return -1;
@@ -1247,7 +1248,10 @@ ssize_t stress_fs_write(
 		const char *ptr = ((char *)buffer) + wbytes;
 
 		do {
-			ret = write(fd, (const void *)ptr, (size_t)(size - wbytes));
+			ssize_t sz = size - wbytes;
+
+			sz = (sz > max_sz) ? max_sz : sz;
+			ret = write(fd, (const void *)ptr, (size_t)sz);
 		} while (ignore_sig_eintr && (ret < 0) && (errno == EINTR));
 		if (ret > 0)
 			wbytes += ret;
