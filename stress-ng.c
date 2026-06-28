@@ -4176,7 +4176,7 @@ static inline void stress_sequential_run(
 			t_finish = time(NULL);
 			t_finish += g_opt_timeout * ((108 * (total_run - run)) / 100);
 			t_finish += opt_pause * (total_run - run - 1);
-			if (shim_localtime_r(&t_finish, &tm_finish)) 
+			if (shim_localtime_r(&t_finish, &tm_finish))
 				(void)strftime(finish, sizeof(finish), "%T %F", &tm_finish);
 			else
 				*finish = '\0';
