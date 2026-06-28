@@ -3283,28 +3283,28 @@ static size_t stress_vm_lfsr32(
 	for (lfsr = 0xf63acb01, ptr = (uint32_t *)buf; ptr < (uint32_t *)buf_end; ptr += chunk_sz) {
 		*(ptr + 0) = lfsr;
 		stress_asm_mb();
-		lfsr = (lfsr >> 1) ^ (unsigned int)(-(lfsr & 1u) & 0xd0000001U);
+		lfsr = (lfsr >> 1) ^ (uint32_t)(-(int32_t)(lfsr & 1u) & 0xd0000001U);
 		*(ptr + 1) = lfsr;
 		stress_asm_mb();
-		lfsr = (lfsr >> 1) ^ (unsigned int)(-(lfsr & 1u) & 0xd0000001U);
+		lfsr = (lfsr >> 1) ^ (uint32_t)(-(int32_t)(lfsr & 1u) & 0xd0000001U);
 		*(ptr + 2) = lfsr;
 		stress_asm_mb();
-		lfsr = (lfsr >> 1) ^ (unsigned int)(-(lfsr & 1u) & 0xd0000001U);
+		lfsr = (lfsr >> 1) ^ (uint32_t)(-(int32_t)(lfsr & 1u) & 0xd0000001U);
 		*(ptr + 3) = lfsr;
 		stress_asm_mb();
-		lfsr = (lfsr >> 1) ^ (unsigned int)(-(lfsr & 1u) & 0xd0000001U);
+		lfsr = (lfsr >> 1) ^ (uint32_t)(-(int32_t)(lfsr & 1u) & 0xd0000001U);
 		*(ptr + 4) = lfsr;
 		stress_asm_mb();
-		lfsr = (lfsr >> 1) ^ (unsigned int)(-(lfsr & 1u) & 0xd0000001U);
+		lfsr = (lfsr >> 1) ^ (uint32_t)(-(int32_t)(lfsr & 1u) & 0xd0000001U);
 		*(ptr + 5) = lfsr;
 		stress_asm_mb();
-		lfsr = (lfsr >> 1) ^ (unsigned int)(-(lfsr & 1u) & 0xd0000001U);
+		lfsr = (lfsr >> 1) ^ (uint32_t)(-(int32_t)(lfsr & 1u) & 0xd0000001U);
 		*(ptr + 6) = lfsr;
 		stress_asm_mb();
-		lfsr = (lfsr >> 1) ^ (unsigned int)(-(lfsr & 1u) & 0xd0000001U);
+		lfsr = (lfsr >> 1) ^ (uint32_t)(-(int32_t)(lfsr & 1u) & 0xd0000001U);
 		*(ptr + 7) = lfsr;
 		stress_asm_mb();
-		lfsr = (lfsr >> 1) ^ (unsigned int)(-(lfsr & 1u) & 0xd0000001U);
+		lfsr = (lfsr >> 1) ^ (uint32_t)(-(int32_t)(lfsr & 1u) & 0xd0000001U);
 		c++;
 		if (UNLIKELY(max_ops && (c >= max_ops)))
 			goto abort;
@@ -3319,21 +3319,21 @@ static size_t stress_vm_lfsr32(
 
 	for (lfsr = 0xf63acb01, ptr = (uint32_t *)buf; ptr < (uint32_t *)buf_end; ptr += chunk_sz) {
 		bit_errors += stress_vm_count_bits(*(ptr + 0) ^ lfsr);
-		lfsr = (lfsr >> 1) ^ (unsigned int)(-(lfsr & 1u) & 0xd0000001U);
+		lfsr = (lfsr >> 1) ^ (uint32_t)(-(int32_t)(lfsr & 1u) & 0xd0000001U);
 		bit_errors += stress_vm_count_bits(*(ptr + 1) ^ lfsr);
-		lfsr = (lfsr >> 1) ^ (unsigned int)(-(lfsr & 1u) & 0xd0000001U);
+		lfsr = (lfsr >> 1) ^ (uint32_t)(-(int32_t)(lfsr & 1u) & 0xd0000001U);
 		bit_errors += stress_vm_count_bits(*(ptr + 2) ^ lfsr);
-		lfsr = (lfsr >> 1) ^ (unsigned int)(-(lfsr & 1u) & 0xd0000001U);
+		lfsr = (lfsr >> 1) ^ (uint32_t)(-(int32_t)(lfsr & 1u) & 0xd0000001U);
 		bit_errors += stress_vm_count_bits(*(ptr + 3) ^ lfsr);
-		lfsr = (lfsr >> 1) ^ (unsigned int)(-(lfsr & 1u) & 0xd0000001U);
+		lfsr = (lfsr >> 1) ^ (uint32_t)(-(int32_t)(lfsr & 1u) & 0xd0000001U);
 		bit_errors += stress_vm_count_bits(*(ptr + 4) ^ lfsr);
-		lfsr = (lfsr >> 1) ^ (unsigned int)(-(lfsr & 1u) & 0xd0000001U);
+		lfsr = (lfsr >> 1) ^ (uint32_t)(-(int32_t)(lfsr & 1u) & 0xd0000001U);
 		bit_errors += stress_vm_count_bits(*(ptr + 5) ^ lfsr);
-		lfsr = (lfsr >> 1) ^ (unsigned int)(-(lfsr & 1u) & 0xd0000001U);
+		lfsr = (lfsr >> 1) ^ (uint32_t)(-(int32_t)(lfsr & 1u) & 0xd0000001U);
 		bit_errors += stress_vm_count_bits(*(ptr + 6) ^ lfsr);
-		lfsr = (lfsr >> 1) ^ (unsigned int)(-(lfsr & 1u) & 0xd0000001U);
+		lfsr = (lfsr >> 1) ^ (uint32_t)(-(int32_t)(lfsr & 1u) & 0xd0000001U);
 		bit_errors += stress_vm_count_bits(*(ptr + 7) ^ lfsr);
-		lfsr = (lfsr >> 1) ^ (unsigned int)(-(lfsr & 1u) & 0xd0000001U);
+		lfsr = (lfsr >> 1) ^ (uint32_t)(-(int32_t)(lfsr & 1u) & 0xd0000001U);
 		if (UNLIKELY(!stress_continue_flag()))
 			break;
 	}
