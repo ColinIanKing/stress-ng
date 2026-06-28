@@ -338,9 +338,6 @@ static int stress_call_exec_method(const stress_exec_context_t *context)
 	int ret;
 
 	switch (context->exec_method) {
-	case EXEC_METHOD_EXECVE:
-		ret = execve(context->exec_prog, context->argv, context->env);
-		break;
 #if defined(HAVE_EXECVEAT) &&	\
     defined(O_PATH)
 	case EXEC_METHOD_EXECVEAT:
@@ -356,6 +353,7 @@ static int stress_call_exec_method(const stress_exec_context_t *context)
 		ret = fexecve(context->fdexec, context->argv, context->env);
 		break;
 #endif
+	case EXEC_METHOD_EXECVE:
 	default:
 		ret = execve(context->exec_prog, context->argv, context->env);
 		break;
