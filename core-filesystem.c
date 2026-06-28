@@ -1245,7 +1245,7 @@ ssize_t stress_fs_write(
 		return -1;
 
 	do {
-		const char *ptr = ((char *)buffer) + wbytes;
+		const char *ptr = ((const char *)buffer) + wbytes;
 
 		do {
 			ssize_t sz = size - wbytes;
