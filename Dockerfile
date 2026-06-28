@@ -1,4 +1,4 @@
-FROM debian:12 AS build
+FROM debian:13 AS build
 
 RUN apt-get update && apt-get install -y build-essential libacl1-dev \
 zlib1g-dev libbsd-dev libeigen3-dev libcrypt-dev libjpeg-dev libmpfr-dev \
@@ -13,7 +13,7 @@ make -j $(nproc) && strip stress-ng && make DESTDIR=install-root/ install
 
 ####### actual image ########
 
-FROM debian:12
+FROM debian:13
 
 COPY --from=build stress-ng/install-root/ /
 
