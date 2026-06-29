@@ -42,7 +42,7 @@
 
 #define BAD_ADDR	((void *)(0x10))
 #define ADDR_PAGE_MASK(virt_addr, page_size)	\
-	(volatile uint8_t *)((uintptr_t)(virt_addr) & ~(page_size - 1))
+	(uint8_t * volatile)((uintptr_t)(virt_addr) & ~(page_size - 1))
 
 static const stress_help_t help[] = {
 	{ NULL,	"sigsegv N",	 "start N workers generating segmentation faults" },
