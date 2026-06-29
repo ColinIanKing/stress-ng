@@ -255,7 +255,7 @@ stress_funcret_deep1(stress_complex_long_double_t)
 stress_funcret_deeper1(stress_complex_long_double_t)
 #endif
 
-static void stress_funcret_setvar(void *ptr, const size_t size)
+static void stress_funcret_setvar_mem(void *ptr, const size_t size)
 {
 	register size_t i;
 	register uint8_t *ptr8 = (uint8_t *)ptr;
@@ -263,6 +263,148 @@ static void stress_funcret_setvar(void *ptr, const size_t size)
 	for (i = 0; i < size; i++)
 		ptr8[i] = stress_mwc8();
 }
+
+static void stress_funcret_setvar_fpf(void *ptr, const size_t size)
+{
+	(void)size;
+	*(float *)ptr = (float)stress_mwc32() / (float)(1 + stress_mwc32());
+}
+
+static void stress_funcret_setvar_fpd(void *ptr, const size_t size)
+{
+	(void)size;
+	*(double *)ptr = (double)stress_mwc32() / (double)(1 + stress_mwc32());
+}
+
+static void stress_funcret_setvar_fpl(void *ptr, const size_t size)
+{
+	(void)size;
+	*(long double *)ptr = (long double)stress_mwc32() / (long double)(1 + stress_mwc32());
+}
+
+static void stress_funcret_setvar_cfpf(void *ptr, const size_t size)
+{
+	(void)size;
+	*(complex float *)ptr = ((float)stress_mwc32() +
+		I * (float)stress_mwc32()) / (float)(1 + stress_mwc32());
+}
+
+static void stress_funcret_setvar_cfpd(void *ptr, const size_t size)
+{
+	(void)size;
+	*(complex double *)ptr = ((double)stress_mwc32() +
+		I * (double)stress_mwc32()) / (double)(1 + stress_mwc32());
+}
+
+static void stress_funcret_setvar_cfpl(void *ptr, const size_t size)
+{
+	(void)size;
+	*(complex long double *)ptr = ((long double)stress_mwc32() +
+		I * (long double)stress_mwc32()) / (double)(1 + stress_mwc32());
+}
+
+#if defined(HAVE_Decimal32) &&	\
+    !defined(HAVE_COMPILER_CLANG)
+static void stress_funcret_setvar_dfp32(void *ptr, const size_t size)
+{
+	(void)size;
+	*(_Decimal32 *)ptr = (_Decimal32)stress_mwc32() /
+			    ((_Decimal32)(1 + stress_mwc32()));
+}
+#endif
+
+#if defined(HAVE_Decimal64) &&	\
+    !defined(HAVE_COMPILER_CLANG)
+static void stress_funcret_setvar_dfp64(void *ptr, const size_t size)
+{
+	(void)size;
+	*(_Decimal64 *)ptr = (_Decimal64)stress_mwc32() /
+			    ((_Decimal64)(1 + stress_mwc32()));
+}
+#endif
+
+#if defined(HAVE_Decimal128) &&	\
+    !defined(HAVE_COMPILER_CLANG)
+static void stress_funcret_setvar_dfp128(void *ptr, const size_t size)
+{
+	(void)size;
+	*(_Decimal128 *)ptr = (_Decimal128)stress_mwc32() /
+			    ((_Decimal128)(1 + stress_mwc32()));
+}
+#endif
+
+#if defined(HAVE_fp16) &&		\
+    !defined(HAVE_COMPILER_CLANG)
+static void stress_funcret_setvar_fp16(void *ptr, const size_t size)
+{
+	(void)size;
+	*(__fp16 *)ptr = (__fp16)stress_mwc32() / (__fp16)(1 + stress_mwc32());
+}
+#elif defined(HAVE_Float16) &&		\
+    !defined(HAVE_COMPILER_CLANG)
+static void stress_funcret_setvar_Float16(void *ptr, const size_t size)
+{
+	(void)size;
+	*(_Float16 *)ptr = (_Float16)stress_mwc32() / (_Float16)(1 + stress_mwc32());
+}
+#endif
+
+#if defined(HAVE__float32) &&		\
+    !defined(HAVE_COMPILER_CLANG)
+static void stress_funcret_setvar_float32(void *ptr, const size_t size)
+{
+	(void)size;
+	*(__float32 *)ptr = (__float32)stress_mwc32() / (__float32)(1 + stress_mwc32());
+}
+#elif defined(HAVE_Float32) &&		\
+    !defined(HAVE_COMPILER_CLANG)
+static void stress_funcret_setvar_Float32(void *ptr, const size_t size)
+{
+	(void)size;
+	*(_Float32 *)ptr = (_Float32)stress_mwc32() / (_Float32)(1 + stress_mwc32());
+}
+#endif
+
+#if defined(HAVE__float64) &&		\
+    !defined(HAVE_COMPILER_CLANG)
+static void stress_funcret_setvar_float64(void *ptr, const size_t size)
+{
+	(void)size;
+	*(__float64 *)ptr = (__float64)stress_mwc32() / (__float64)(1 + stress_mwc32());
+}
+#elif defined(HAVE_Float64) &&		\
+    !defined(HAVE_COMPILER_CLANG)
+static void stress_funcret_setvar_Float64(void *ptr, const size_t size)
+{
+	(void)size;
+	*(_Float64 *)ptr = (_Float64)stress_mwc32() / (_Float64)(1 + stress_mwc32());
+}
+#endif
+
+#if defined(HAVE__float80) &&	\
+    !defined(HAVE_COMPILER_CLANG)
+static void stress_funcret_setvar_float80(void *ptr, const size_t size)
+{
+	(void)size;
+	*(__float80 *)ptr = (__float80)stress_mwc32() / (__float80)(1 + stress_mwc32());
+}
+#endif
+
+#if defined(HAVE__float128) &&		\
+    !defined(HAVE_COMPILER_CLANG)
+static void stress_funcret_setvar_float128(void *ptr, const size_t size)
+{
+	(void)size;
+	*(__float128 *)ptr = (__float128)stress_mwc32() / (__float128)(1 + stress_mwc32());
+}
+#elif defined(HAVE_Float128) &&		\
+    !defined(HAVE_COMPILER_CLANG)
+static void stress_funcret_setvar_Float128(void *ptr, const size_t size)
+{
+	(void)size;
+	*(_Float128 *)ptr = (_Float128)stress_mwc32() / (_Float128)(1 + stress_mwc32());
+}
+#endif
 
 /*
  *  comparison functions, large values use memcmp, simple integer types
@@ -327,15 +469,15 @@ static inline int cmp_cfpl(const complex long double a, const complex long doubl
 #define CMP_CFPD(a, b, type)	cmp_cfpd((complex double)a, (complex double)b)
 #define CMP_CFPL(a, b, type)	cmp_cfpl((complex long double)a, (complex long double)b)
 
-#define stress_funcret_type(type, cmp)					\
-static bool NOINLINE stress_funcret_ ## type(stress_args_t *args);\
+#define stress_funcret_type(type, cmp, set)				\
+static bool NOINLINE stress_funcret_ ## type(stress_args_t *args);	\
 									\
 static bool NOINLINE stress_funcret_ ## type(stress_args_t *args)	\
 {									\
 	register size_t i;						\
 	type a, old_b;							\
 									\
-	stress_funcret_setvar(&a, sizeof(a));				\
+	stress_funcret_setvar_ ## set(&a, sizeof(a));			\
 	/* taint old_b to keep old compilers happy */			\
 	(void)shim_memcpy(&old_b, &a, sizeof(old_b));			\
 									\
@@ -358,70 +500,70 @@ static bool NOINLINE stress_funcret_ ## type(stress_args_t *args)	\
 	return true;							\
 }
 
-stress_funcret_type(uint8_t, CMP_TYPE)
-stress_funcret_type(uint16_t, CMP_TYPE)
-stress_funcret_type(uint32_t, CMP_TYPE)
-stress_funcret_type(uint64_t, CMP_TYPE)
+stress_funcret_type(uint8_t, CMP_TYPE, mem)
+stress_funcret_type(uint16_t, CMP_TYPE, mem)
+stress_funcret_type(uint32_t, CMP_TYPE, mem)
+stress_funcret_type(uint64_t, CMP_TYPE, mem)
 #if defined(HAVE_INT128_T)
-stress_funcret_type(__uint128_t, CMP_TYPE)
+stress_funcret_type(__uint128_t, CMP_TYPE, mem)
 #endif
-stress_funcret_type(float, CMP_FPF)
-stress_funcret_type(double, CMP_FPD)
-stress_funcret_type(stress_long_double_t, CMP_FPL)
+stress_funcret_type(float, CMP_FPF, fpf)
+stress_funcret_type(double, CMP_FPD, fpd)
+stress_funcret_type(stress_long_double_t, CMP_FPL, fpl)
 
 #if defined(HAVE_Decimal32) &&	\
     !defined(HAVE_COMPILER_CLANG)
-stress_funcret_type(_Decimal32, CMP_FPF)
+stress_funcret_type(_Decimal32, CMP_FPF, dfp32)
 #endif
 #if defined(HAVE_Decimal64) &&	\
     !defined(HAVE_COMPILER_CLANG)
-stress_funcret_type(_Decimal64, CMP_FPD)
+stress_funcret_type(_Decimal64, CMP_FPD, dfp64)
 #endif
 #if defined(HAVE_Decimal128) &&	\
     !defined(HAVE_COMPILER_CLANG)
-stress_funcret_type(_Decimal128, CMP_FPL)
+stress_funcret_type(_Decimal128, CMP_FPL, dfp128)
 #endif
 #if defined(HAVE_fp16) &&		\
     !defined(HAVE_COMPILER_CLANG)
-stress_funcret_type(__fp16, CMP_FPF)
+stress_funcret_type(__fp16, CMP_FPF, fp16)
 #elif defined(HAVE_Float16) &&		\
     !defined(HAVE_COMPILER_CLANG)
-stress_funcret_type(_Float16, CMP_FPF)
+stress_funcret_type(_Float16, CMP_FPF, Float16)
 #endif
 #if defined(HAVE__float32) &&		\
     !defined(HAVE_COMPILER_CLANG)
-stress_funcret_type(__float32, CMP_FPD)
+stress_funcret_type(__float32, CMP_FPD, float32)
 #elif defined(HAVE_Float32) &&		\
     !defined(HAVE_COMPILER_CLANG)
-stress_funcret_type(_Float32, CMP_FPD)
+stress_funcret_type(_Float32, CMP_FPD, Float32)
 #endif
 #if defined(HAVE__float64) &&		\
     !defined(HAVE_COMPILER_CLANG)
-stress_funcret_type(__float64, CMP_FPL)
+stress_funcret_type(__float64, CMP_FPL, float64)
 #elif defined(HAVE_Float64) &&		\
     !defined(HAVE_COMPILER_CLANG)
-stress_funcret_type(_Float64, CMP_FPL)
+stress_funcret_type(_Float64, CMP_FPL, Float64)
 #endif
 #if defined(HAVE__float80) &&		\
     !defined(HAVE_COMPILER_CLANG)
-stress_funcret_type(__float80, CMP_FPL)
+stress_funcret_type(__float80, CMP_FPL, float80)
 #endif
 #if defined(HAVE__float128) &&		\
     !defined(HAVE_COMPILER_CLANG)
-stress_funcret_type(__float128, CMP_FPL)
+stress_funcret_type(__float128, CMP_FPL, float128)
 #elif defined(HAVE_Float128) &&		\
     !defined(HAVE_COMPILER_CLANG)
-stress_funcret_type(_Float128, CMP_FPL)
+stress_funcret_type(_Float128, CMP_FPL, Float128)
 #endif
 
-stress_funcret_type(stress_uint8x32_t, CMP_MEM)
-stress_funcret_type(stress_uint8x128_t, CMP_MEM)
-stress_funcret_type(stress_uint64x128_t, CMP_MEM)
+stress_funcret_type(stress_uint8x32_t, CMP_MEM, mem)
+stress_funcret_type(stress_uint8x128_t, CMP_MEM, mem)
+stress_funcret_type(stress_uint64x128_t, CMP_MEM, mem)
 
 #if defined(HAVE_COMPLEX_H)
-stress_funcret_type(stress_complex_float_t, CMP_CFPF)
-stress_funcret_type(stress_complex_double_t, CMP_CFPD)
-stress_funcret_type(stress_complex_long_double_t, CMP_CFPL)
+stress_funcret_type(stress_complex_float_t, CMP_CFPF, cfpf)
+stress_funcret_type(stress_complex_double_t, CMP_CFPD, cfpd)
+stress_funcret_type(stress_complex_long_double_t, CMP_CFPL, cfpl)
 #endif
 
 static bool stress_funcret_all(stress_args_t *args);
