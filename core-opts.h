@@ -608,6 +608,10 @@ typedef enum {
 	OPT_futex,
 	OPT_futex_ops,
 
+	OPT_gamma,
+	OPT_gamma_method,
+	OPT_gamma_ops,
+
 	OPT_get,
 	OPT_get_ops,
 	OPT_get_slow_sync,

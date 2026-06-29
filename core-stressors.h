@@ -127,6 +127,7 @@
 	MACRO(funccall)		\
 	MACRO(funcret)		\
 	MACRO(futex)		\
+	MACRO(gamma)		\
 	MACRO(get)		\
 	MACRO(getdent)		\
 	MACRO(getrandom)	\

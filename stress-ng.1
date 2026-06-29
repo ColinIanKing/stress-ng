@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, may be w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "27 June 2026"
+.TH STRESS-NG 1 "29 June 2026"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -4083,6 +4083,51 @@ Linux specific stress option.
 .TP
 .B \-\-futex\-ops N
 stop futex workers after N bogo successful futex wait operations.
+.RE
+.TP
+.B Gamma functions stressor
+.RS 5
+.TQ
+.B \-\-gamma N
+start N workers that exercise tgamma and lgamma libm gamma functions using
+float, double and long double floating point variants. Each function is
+exercised 10000 times per bogo-operation. The Gamma function is the
+integral from 0 to \[if] of t\[ua](x-1) e\[ua]-t dt
+.TP
+.B \-\-gamma\-method function
+specify a gamma stress function. By default, all the functions are exercised
+sequentially, however one can specify just one function to be used if required.
+Available options are as follows:
+.sp
+.TS
+lB2 lB
+l lx.
+Method	Description
+all	T{
+iterate through all of the following gamma functions
+T}
+lgamma	T{
+natural logarithm of the absolute value of the Gamma function (double)
+T}
+lgammaf	T{
+natural logarithm of the absolute value of the Gamma function (float)
+T}
+lgammal	T{
+natural logarithm of the absolute value of the Gamma function (long double)
+T}
+tgamma	T{
+Gamma function (double)
+T}
+tgammaf	T{
+Gamma function (float)
+T}
+tgammal	T{
+Gamma function (long double)
+T}
+.TE
+.TP
+.B \-\-gamma\-ops N
+stop after N bogo-operations.
 .RE
 .TP
 .B Fetching data from kernel stressor

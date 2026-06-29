@@ -915,6 +915,42 @@
 #endif
 #endif
 
+#if defined(HAVE_BUILTIN_LGAMMA)
+#define shim_lgamma(x)		__builtin_lgamma((x))
+#else
+#define shim_lgamma(x)		lgamma((x))
+#endif
+
+#if defined(HAVE_BUILTIN_LGAMMAF)
+#define shim_lgammaf(x)		__builtin_lgammaf((x))
+#else
+#define shim_lgammaf(x)		lgammaf((x))
+#endif
+
+#if defined(HAVE_BUILTIN_LGAMMAL)
+#define shim_lgammal(x)		__builtin_lgammal((x))
+#else
+#define shim_lgammal(x)		lgammal((x))
+#endif
+
+#if defined(HAVE_BUILTIN_TGAMMA)
+#define shim_tgamma(x)		__builtin_tgamma((x))
+#else
+#define shim_tgamma(x)		tgamma((x))
+#endif
+
+#if defined(HAVE_BUILTIN_TGAMMAF)
+#define shim_tgammaf(x)		__builtin_tgammaf((x))
+#else
+#define shim_tgammaf(x)		tgammaf((x))
+#endif
+
+#if defined(HAVE_BUILTIN_TGAMMAL)
+#define shim_tgammal(x)		__builtin_tgammal((x))
+#else
+#define shim_tgammal(x)		tgammal((x))
+#endif
+
 #if defined(HAVE_BUILTIN_STDC_ROTATE_LEFT)
 #define shim_rol8n(x, bits)	 __builtin_stdc_rotate_left(x, bits)
 #define shim_rol16n(x, bits)	 __builtin_stdc_rotate_left(x, bits)

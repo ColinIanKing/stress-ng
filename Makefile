@@ -583,6 +583,7 @@ STRESS_SRC = \
 	stress-funccall.c \
 	stress-funcret.c \
 	stress-futex.c \
+	stress-gamma.c \
 	stress-get.c \
 	stress-getrandom.c \
 	stress-getdent.c \
