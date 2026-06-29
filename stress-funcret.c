@@ -269,20 +269,63 @@ static void stress_funcret_setvar(void *ptr, const size_t size)
  *  use direct comparison, floating pointing use precision as equal values
  *  should never been compared for floating point
  */
-#define cmp_mem(a, b, type)	shim_memcmp(&a.data, &b.data, sizeof(a.data))
-#define cmp_type(a, b, type)	(a != b)
+#define CMP_MEM(a, b, type)	shim_memcmp(&a.data, &b.data, sizeof(a.data))
+#define CMP_TYPE(a, b, type)	(a != b)
 
-#define cmp_fpf(a, b, type)	(fabsf((float)(a - b)) > 0.0001f * fmaxf(fabsf((float)a), fabsf((float)b)))
-#define cmp_fpd(a, b, type)	(fabs((double)(a - b)) > 0.0001 * fmax(fabs((double)a), fabs((double)b)))
-#define cmp_fpl(a, b, type)	(fabsl((long double)(a - b)) > 0.0001L * fmaxl(fabsl((long double)a), fabsl((long double)b)))
+static inline int cmp_fpf(const float a, const float b)
+{
+	const float diff  = fabsf(a - b);
+	const float abs_a = fabsf(a);
+	const float abs_b = fabsf(b);
 
+	return diff > ((abs_a < abs_b ? abs_a : abs_b) * 0.0001L);
+}
+
+static inline int cmp_fpd(const double a, const double b)
+{
+	const double diff  = fabs(a - b);
+	const double abs_a = fabs(a);
+	const double abs_b = fabs(b);
+
+	return diff > ((abs_a < abs_b ? abs_a : abs_b) * 0.0001L);
+}
+
+static inline int cmp_fpl(const long double a, const long double b)
+{
+	const long double diff  = fabsl(a - b);
+	const long double abs_a = fabsl(a);
+	const long double abs_b = fabsl(b);
+
+	return diff > ((abs_a < abs_b ? abs_a : abs_b) * 0.0001L);
+}
+
+#define CMP_FPF(a, b, type)	cmp_fpf((float)a, (float)b)
+#define CMP_FPD(a, b, type)	cmp_fpd((float)a, (float)b)
+#define CMP_FPL(a, b, type)	cmp_fpl((long double)a, (long double)b)
+
+/* maximum of two complex valus is the modulus */
 #define CMAXF(x, y)		(float)csqrtf((x * x) + (y * y))
 #define CMAXD(x, y)		(double)csqrt((x * x) + (y * y))
 #define CMAXL(x, y)		(long double)csqrtl((x * x) + (y * y))
 
-#define cmp_cfpf(a, b, type)	(cabsf((complex float)(a - b)) > 0.0001f * CMAXF(a, b))
-#define cmp_cfpd(a, b, type)	(cabs((complex double)(a - b)) > 0.0001 * CMAXD(a, b))
-#define cmp_cfpl(a, b, type)	(cabsl((complex long double)(a - b)) > 0.0001L * CMAXL(a, b))
+static inline int cmp_cfpf(const complex float a, const complex float b)
+{
+	return cabsf(a - b) > (0.0001f * CMAXF(a, b));
+}
+
+static inline int cmp_cfpd(const complex double a, const complex double b)
+{
+	return cabs(a - b) > (0.0001 * CMAXD(a, b));
+}
+
+static inline int cmp_cfpl(const complex long double a, const complex long double b)
+{
+	return cabsl(a - b) > (0.0001L * CMAXL(a, b));
+}
+
+#define CMP_CFPF(a, b, type)	cmp_cfpf((complex float)a, (complex float)b)
+#define CMP_CFPD(a, b, type)	cmp_cfpd((complex double)a, (complex double)b)
+#define CMP_CFPL(a, b, type)	cmp_cfpl((complex long double)a, (complex long double)b)
 
 #define stress_funcret_type(type, cmp)					\
 static bool NOINLINE stress_funcret_ ## type(stress_args_t *args);\
@@ -315,70 +358,70 @@ static bool NOINLINE stress_funcret_ ## type(stress_args_t *args)	\
 	return true;							\
 }
 
-stress_funcret_type(uint8_t, cmp_type)
-stress_funcret_type(uint16_t, cmp_type)
-stress_funcret_type(uint32_t, cmp_type)
-stress_funcret_type(uint64_t, cmp_type)
+stress_funcret_type(uint8_t, CMP_TYPE)
+stress_funcret_type(uint16_t, CMP_TYPE)
+stress_funcret_type(uint32_t, CMP_TYPE)
+stress_funcret_type(uint64_t, CMP_TYPE)
 #if defined(HAVE_INT128_T)
-stress_funcret_type(__uint128_t, cmp_type)
+stress_funcret_type(__uint128_t, CMP_TYPE)
 #endif
-stress_funcret_type(float, cmp_fpf)
-stress_funcret_type(double, cmp_fpd)
-stress_funcret_type(stress_long_double_t, cmp_fpl)
+stress_funcret_type(float, CMP_FPF)
+stress_funcret_type(double, CMP_FPD)
+stress_funcret_type(stress_long_double_t, CMP_FPL)
 
 #if defined(HAVE_Decimal32) &&	\
     !defined(HAVE_COMPILER_CLANG)
-stress_funcret_type(_Decimal32, cmp_fpf)
+stress_funcret_type(_Decimal32, CMP_FPF)
 #endif
 #if defined(HAVE_Decimal64) &&	\
     !defined(HAVE_COMPILER_CLANG)
-stress_funcret_type(_Decimal64, cmp_fpd)
+stress_funcret_type(_Decimal64, CMP_FPD)
 #endif
 #if defined(HAVE_Decimal128) &&	\
     !defined(HAVE_COMPILER_CLANG)
-stress_funcret_type(_Decimal128, cmp_fpl)
+stress_funcret_type(_Decimal128, CMP_FPL)
 #endif
 #if defined(HAVE_fp16) &&		\
     !defined(HAVE_COMPILER_CLANG)
-stress_funcret_type(__fp16, cmp_fpf)
+stress_funcret_type(__fp16, CMP_FPF)
 #elif defined(HAVE_Float16) &&		\
     !defined(HAVE_COMPILER_CLANG)
-stress_funcret_type(_Float16, cmp_fpf)
+stress_funcret_type(_Float16, CMP_FPF)
 #endif
 #if defined(HAVE__float32) &&		\
     !defined(HAVE_COMPILER_CLANG)
-stress_funcret_type(__float32, cmp_fpd)
+stress_funcret_type(__float32, CMP_FPD)
 #elif defined(HAVE_Float32) &&		\
     !defined(HAVE_COMPILER_CLANG)
-stress_funcret_type(_Float32, cmp_fpd)
+stress_funcret_type(_Float32, CMP_FPD)
 #endif
 #if defined(HAVE__float64) &&		\
     !defined(HAVE_COMPILER_CLANG)
-stress_funcret_type(__float64, cmp_fpl)
+stress_funcret_type(__float64, CMP_FPL)
 #elif defined(HAVE_Float64) &&		\
     !defined(HAVE_COMPILER_CLANG)
-stress_funcret_type(_Float64, cmp_fpl)
+stress_funcret_type(_Float64, CMP_FPL)
 #endif
 #if defined(HAVE__float80) &&		\
     !defined(HAVE_COMPILER_CLANG)
-stress_funcret_type(__float80, cmp_fpl)
+stress_funcret_type(__float80, CMP_FPL)
 #endif
 #if defined(HAVE__float128) &&		\
     !defined(HAVE_COMPILER_CLANG)
-stress_funcret_type(__float128, cmp_fpl)
+stress_funcret_type(__float128, CMP_FPL)
 #elif defined(HAVE_Float128) &&		\
     !defined(HAVE_COMPILER_CLANG)
-stress_funcret_type(_Float128, cmp_fpl)
+stress_funcret_type(_Float128, CMP_FPL)
 #endif
 
-stress_funcret_type(stress_uint8x32_t, cmp_mem)
-stress_funcret_type(stress_uint8x128_t, cmp_mem)
-stress_funcret_type(stress_uint64x128_t, cmp_mem)
+stress_funcret_type(stress_uint8x32_t, CMP_MEM)
+stress_funcret_type(stress_uint8x128_t, CMP_MEM)
+stress_funcret_type(stress_uint64x128_t, CMP_MEM)
 
 #if defined(HAVE_COMPLEX_H)
-stress_funcret_type(stress_complex_float_t, cmp_cfpf)
-stress_funcret_type(stress_complex_double_t, cmp_cfpd)
-stress_funcret_type(stress_complex_long_double_t, cmp_cfpl)
+stress_funcret_type(stress_complex_float_t, CMP_CFPF)
+stress_funcret_type(stress_complex_double_t, CMP_CFPD)
+stress_funcret_type(stress_complex_long_double_t, CMP_CFPL)
 #endif
 
 static bool stress_funcret_all(stress_args_t *args);
