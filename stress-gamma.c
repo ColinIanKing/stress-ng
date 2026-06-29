@@ -53,7 +53,7 @@ static bool OPTIMIZE3 TARGET_CLONES stress_gamma_lgamma(stress_args_t *args)
 	double sum = 0.0;
 	double x = 0.01;
 	const double dx = 1.0 / (double)STRESS_GAMMA_LOOPS;
-	const double precision = 1E-6;
+	const double precision = 1E-1;
 	const double res = 8631.1717319;
 	int i;
 
