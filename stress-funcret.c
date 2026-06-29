@@ -300,7 +300,7 @@ static inline int cmp_fpl(const long double a, const long double b)
 }
 
 #define CMP_FPF(a, b, type)	cmp_fpf((float)a, (float)b)
-#define CMP_FPD(a, b, type)	cmp_fpd((float)a, (float)b)
+#define CMP_FPD(a, b, type)	cmp_fpd((double)a, (double)b)
 #define CMP_FPL(a, b, type)	cmp_fpl((long double)a, (long double)b)
 
 /* maximum of two complex valus is the modulus */
