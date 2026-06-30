@@ -423,7 +423,7 @@ static inline int cmp_fpf(const float a, const float b)
 	const float abs_a = fabsf(a);
 	const float abs_b = fabsf(b);
 
-	return diff > ((abs_a < abs_b ? abs_a : abs_b) * 0.0001L);
+	return diff > ((abs_a < abs_b) ? abs_a : abs_b * 0.0001f);
 }
 
 static inline int cmp_fpd(const double a, const double b)
@@ -432,7 +432,7 @@ static inline int cmp_fpd(const double a, const double b)
 	const double abs_a = fabs(a);
 	const double abs_b = fabs(b);
 
-	return diff > ((abs_a < abs_b ? abs_a : abs_b) * 0.0001L);
+	return diff > ((abs_a < abs_b) ? abs_a : abs_b * 0.0001);
 }
 
 static inline int cmp_fpl(const long double a, const long double b)
@@ -441,7 +441,7 @@ static inline int cmp_fpl(const long double a, const long double b)
 	const long double abs_a = fabsl(a);
 	const long double abs_b = fabsl(b);
 
-	return diff > ((abs_a < abs_b ? abs_a : abs_b) * 0.0001L);
+	return diff > ((abs_a < abs_b) ? abs_a : abs_b * 0.0001L);
 }
 
 #define CMP_FPF(a, b, type)	cmp_fpf((float)a, (float)b)
