@@ -715,6 +715,8 @@ static void stress_read_vmstat(
 	long int cp_time[CPUSTATES];
 	struct vmtotal t;
 
+	(void)page_size;
+
 	mib[0] = CTL_VM;
 	mib[1] = VM_METER;
 	size = sizeof(t);
