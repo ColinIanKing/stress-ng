@@ -3671,7 +3671,6 @@ static void stress_exercises_features_unique(
 	const stress_exercise_type_t type)
 {
 	size_t i;
-	size_t n_features = 0;
 	size_t len = 1;
 	char *str = NULL;
 
@@ -3696,7 +3695,6 @@ static void stress_exercises_features_unique(
 					break;
 				node->name = name;
 				stress_feature_tree_insert(&root, node);
-				n_features++;
 				len += strlen(name) + 1;
 			}
 		}
