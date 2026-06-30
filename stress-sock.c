@@ -222,6 +222,7 @@ static void stress_sock_ioctl(
 	const int sock_domain,
 	const bool rt)
 {
+	(void)args;
 	(void)fd;
 	(void)sock_domain;
 	(void)rt;
