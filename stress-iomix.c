@@ -1094,7 +1094,9 @@ static const stress_iomix_func iomix_funcs[] = {
  */
 static int stress_iomix(stress_args_t *args)
 {
-	int fd, ret;
+	int fd;
+	int ret;
+	int rc = EXIT_SUCCESS;
 	char filename[PATH_MAX];
 	off_t iomix_bytes, iomix_bytes_total;
 	uint64_t iomix_bytes_u64 = DEFAULT_IOMIX_BYTES;
@@ -1122,7 +1124,7 @@ static int stress_iomix(stress_args_t *args)
 	counter_lock = stress_lock_create("counter");
 	if (!counter_lock) {
 		pr_inf_skip("%s: failed to create counter lock. skipping stressor\n", args->name);
-		ret = EXIT_NO_RESOURCE;
+		rc = EXIT_NO_RESOURCE;
 		goto tidy_s_pids;
 	}
 
@@ -1147,14 +1149,14 @@ static int stress_iomix(stress_args_t *args)
 
 	ret = stress_fs_temp_dir_make_args(args);
 	if (ret < 0) {
-		ret = stress_exit_status(-ret);
+		rc = stress_exit_status(-ret);
 		goto lock_destroy;
 	}
 
 	(void)stress_fs_temp_filename_args(args,
 		filename, sizeof(filename), stress_mwc32());
 	if ((fd = open(filename, oflags, S_IRUSR | S_IWUSR)) < 0) {
-		ret = stress_exit_status(errno);
+		rc = stress_exit_status(errno);
 		pr_fail("%s: open %s failed, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
 		goto lock_destroy;
@@ -1171,6 +1173,7 @@ static int stress_iomix(stress_args_t *args)
 		if (UNLIKELY(ret < 0)) {
 			switch (errno) {
 			case EINTR:
+				rc = EXIT_SUCCESS;
 				goto tidy;
 				break;
 			case EFBIG:
@@ -1181,14 +1184,14 @@ static int stress_iomix(stress_args_t *args)
 				} else {
 					pr_fail("%s: fallocate failed, no free space, errno=%d (%s)%s, skipping stressor\n",
 						args->name, errno, strerror(errno), fs_type);
-					ret = EXIT_NO_RESOURCE;
+					rc = EXIT_NO_RESOURCE;
 					goto tidy;
 				}
 				break;
 			default:
 				pr_fail("%s: fallocate failed, errno=%d (%s)%s\n",
 					args->name, errno, strerror(errno), fs_type);
-				ret = EXIT_FAILURE;
+				rc = EXIT_FAILURE;
 				goto tidy;
 			}
 		}
@@ -1231,7 +1234,7 @@ static int stress_iomix(stress_args_t *args)
 		(void)shim_pause();
 	} while (stress_bogo_inc_lock(args, counter_lock, false));
 
-	ret = EXIT_SUCCESS;
+	rc = EXIT_SUCCESS;
 reap:
 	stress_kill_and_wait_many(args, s_pids, MAX_IOMIX_PROCS, SIGALRM, true);
 tidy:
@@ -1244,7 +1247,7 @@ lock_destroy:
 tidy_s_pids:
 	(void)stress_sync_s_pids_munmap(s_pids, MAX_IOMIX_PROCS);
 
-	return ret;
+	return rc;
 }
 
 static const stress_opt_t opts[] = {
