@@ -1819,6 +1819,7 @@ static void stress_fs_io_stats_read(const int which, stress_io_stats_t *io_stats
 		io_stats->write_bytes = new_stats.write_bytes - io_stats->write_bytes;
 	}
 #else
+	(void)which;
 	(void)shim_memset(io_stats, 0, sizeof(*io_stats));
 #endif
 }
