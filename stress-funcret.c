@@ -286,21 +286,24 @@ static void stress_funcret_setvar_cfpf(void *ptr, const size_t size)
 {
 	(void)size;
 	*(complex float *)ptr = ((float)stress_mwc32() +
-		I * (float)stress_mwc32()) / (float)(1 + stress_mwc32());
+		(complex float)I * (float)stress_mwc32()) /
+		(complex float)(1 + stress_mwc32());
 }
 
 static void stress_funcret_setvar_cfpd(void *ptr, const size_t size)
 {
 	(void)size;
 	*(complex double *)ptr = ((double)stress_mwc32() +
-		I * (double)stress_mwc32()) / (double)(1 + stress_mwc32());
+		(complex double)I * (double)stress_mwc32()) /
+		(complex double)(1 + stress_mwc32());
 }
 
 static void stress_funcret_setvar_cfpl(void *ptr, const size_t size)
 {
 	(void)size;
 	*(complex long double *)ptr = ((long double)stress_mwc32() +
-		I * (long double)stress_mwc32()) / (double)(1 + stress_mwc32());
+		(complex long double)I * (long double)stress_mwc32()) /
+		(complex long double)(1 + stress_mwc32());
 }
 
 #if defined(HAVE_Decimal32) &&	\
