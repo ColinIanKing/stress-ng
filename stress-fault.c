@@ -62,7 +62,10 @@ static int stress_fault(stress_args_t *args)
 	char *start, *end;
 	const size_t len = stress_exec_text_addr(&start, &end);
 	const size_t page_size = args->page_size;
+#if defined(SHIM_POSIX_FADV_DONTNEED) &&	\
+    defined(HAVE_POSIX_FADVISE)
 	const size_t file_size = page_size * 64;
+#endif
 	uint8_t buffer[page_size];
 	void *mapto;
 #if defined(HAVE_GETRUSAGE) &&		\
