@@ -144,7 +144,7 @@ redo:
 #if defined(SHIM_POSIX_FADV_DONTNEED) &&	\
     defined(HAVE_POSIX_FADVISE)
 		/* Force major page faults */
-		(void)fdatasync(fd);
+		(void)shim_fdatasync(fd);
 		(void)posix_fadvise(fd, 0, file_size, SHIM_POSIX_FADV_DONTNEED);
 #endif
 		ret = sigsetjmp(jmp_env, 1);
