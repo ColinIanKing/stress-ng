@@ -92,8 +92,8 @@ static bool OPTIMIZE3 TARGET_CLONES stress_gamma_lgammal(stress_args_t *args)
 {
 	long double sum = 0.0L;
 	long double x = 0.01L;
-	const long double dx = 1.0 / (long double)STRESS_GAMMA_LOOPS;
-	const long double precision = 1E-7;
+	const long double dx = 1.0L / (long double)STRESS_GAMMA_LOOPS;
+	const long double precision = 1E-7L;
 	const long double res = 8631.171731871468190L;
 	int i;
 
@@ -150,11 +150,11 @@ PRAGMA_UNROLL_N(8)
 #if defined(HAVE_TGAMMAL)
 static bool OPTIMIZE3 TARGET_CLONES stress_gamma_tgammal(stress_args_t *args)
 {
-	long double sum = 0.0;
-	long double x = 0.01;
-	const long double dx = 1.0 / (long double)STRESS_GAMMA_LOOPS;
-	const long double precision = 1E-7;
-	const long double res = 43791.009991798602680;
+	long double sum = 0.0L;
+	long double x = 0.01L;
+	const long double dx = 1.0L / (long double)STRESS_GAMMA_LOOPS;
+	const long double precision = 1E-7L;
+	const long double res = 43791.009991798602680L;
 	int i;
 
 PRAGMA_UNROLL_N(8)
