@@ -254,7 +254,7 @@ static int ovpn_rt_socket(struct ovpn_ctx *ovpn)
 		       sizeof(sndbuf)) < 0) {
 		pr_dbg("%s: setsockopt SO_SNDBUF failed, errno=%d (%s)\n",
 			args_name, errno, strerror(errno));
-		close(fd);
+		(void)close(fd);
 		return -1;
 	}
 
@@ -262,7 +262,7 @@ static int ovpn_rt_socket(struct ovpn_ctx *ovpn)
 		       sizeof(rcvbuf)) < 0) {
 		pr_dbg("%s: setsockopt SO_RCVBUF failed, errno=%d (%s)\n",
 			args_name, errno, strerror(errno));
-		close(fd);
+		(void)close(fd);
 		return -1;
 	}
 
@@ -471,7 +471,7 @@ static int ovpn_rt_send(
 		}
 	}
 out:
-	close(fd);
+	(void)close(fd);
 
 	return ret;
 }
@@ -521,7 +521,7 @@ static int ovpn_socket(
 		sock_len = sizeof(*in6);
 		break;
 	default:
-		close(s);
+		(void)close(s);
 		return -1;
 	}
 
@@ -561,7 +561,7 @@ static int ovpn_socket(
 	return 0;
 
 err_socket:
-	close(s);
+	(void)close(s);
 	return -1;
 }
 
@@ -1020,7 +1020,7 @@ static int ovpn_connect(struct ovpn_ctx *ovpn)
 
 	return 0;
 err:
-	close(s);
+	(void)close(s);
 	return ret;
 }
 
@@ -1267,7 +1267,7 @@ static int ovpn_run_cmd(struct ovpn_ctx *ovpn)
 		ret = ovpn_new_peer(ovpn, true);
 		if (ret < 0) {
 			pr_dbg("%s: cannot add peer to VPN\n", args_name);
-			close(ovpn->socket);
+			(void)close(ovpn->socket);
 			return ret;
 		}
 
@@ -1381,9 +1381,9 @@ static void ovpn_rand_addr_port(
 	char *port,
 	const size_t plen)
 {
-	snprintf(addr, alen, "10.%u.%u.%u",
+	(void)snprintf(addr, alen, "10.%u.%u.%u",
 		stress_mwc8() + 1, stress_mwc8(), stress_mwc8() + 1);
-	snprintf(port, plen, "%u",
+	(void)snprintf(port, plen, "%u",
 		(stress_mwc16() % 64511) + 1024);
 }
 
