@@ -26,7 +26,8 @@ Build-Depends: debhelper (>= 13),
                libxxhash-dev,
                libglvnd-dev,
                libgbm-dev [linux-any],
-	       liblzma-dev
+               liblzma-dev,
+               libnl-3-dev
 Homepage: https://github.com/ColinIanKing/stress-ng
 
 Package: stress-ng
