@@ -1580,6 +1580,8 @@ static const stress_exercises_t exercises[] = {
 	STRESS_EX_SYSCALL("setsockoopt"),
 	STRESS_EX_SYSCALL("socket"),
 
+	STRESS_EX_LIBRARY("nl"),
+
 	STRESS_EX_END,
 };
 
