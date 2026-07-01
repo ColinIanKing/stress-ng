@@ -145,7 +145,25 @@ int stress_ftrace_tracing_on(bool on)
 
 	(void)snprintf(filename, sizeof(filename), "%s/tracing/tracing_on", path);
 	if (stress_fs_file_write(filename, str, 1) < 0) {
-		pr_inf("ftrace: cannot enable function tracing, cannot write '%s' to '%s', errno=%d (%s)\n",
+		pr_inf("ftrace: cannot set function tracing, cannot write '%s' to '%s', errno=%d (%s)\n",
+			str, filename, errno, strerror(errno));
+		return -1;
+	}
+	return 0;
+}
+
+int stress_ftrace_events_syscalls_enable(bool on)
+{
+	const char *str = on ? "1" : "0";
+	const char *path = stress_ftrace_debugfs_path_get();
+	char filename[PATH_MAX];
+
+	if (!path)
+		return -1;
+
+	(void)snprintf(filename, sizeof(filename), "%s/tracing/events/syscalls/enable", path);
+	if (stress_fs_file_write(filename, str, 1) < 0) {
+		pr_inf("ftrace: cannot set syscall events file, cannot write '%s' to '%s', errno=%d (%s)\n",
 			str, filename, errno, strerror(errno));
 		return -1;
 	}
@@ -202,7 +220,6 @@ static void stress_ftrace_child(FILE *fp)
 		 *   stress-ng-foo-1884998 [007] ..... 191177.314874: sys_ppoll(....)
 		 *   stress-ng-foo-1884998 [007] ..... 191177.314876: sys_ppoll -> 0x1
 		 */
-
 		if (fgets(buf, sizeof(buf), fp) == NULL)
 			break;
 
@@ -427,9 +444,11 @@ void stress_ftrace_start(void)
 		return;
 	}
 
+	/* force tracing off */
 	if (stress_ftrace_tracing_on(false) < 0)
 		return;
 
+	/* reset tracing options */
 	(void)snprintf(filename, sizeof(filename), "%s/tracing/options/function-trace", path);
 	if (stress_fs_file_write(filename, "0", 1) < 0) {
 		pr_inf("ftrace: cannot reset function profiling, cannot write to '%s', errno=%d (%s), "
@@ -439,18 +458,30 @@ void stress_ftrace_start(void)
 		return;
 	}
 
+	/* select nop tracer */
 	if (stress_ftrace_current_tracer("nop", true) < 0) {
 		(void)stress_ftrace_tracing_on(false);
 		return;
 	}
 
-	(void)snprintf(filename, sizeof(filename), "%s/tracing/options/trace", path);
-	(void)stress_fs_file_write(filename, "\n", 1);
-
-	(void)snprintf(filename, sizeof(filename), "%s/tracing/events/syscalls/enable", path);
-
-	if (stress_ftrace_tracing_on(true) < 0)
+	/* empty trace buffer */
+	(void)snprintf(filename, sizeof(filename), "%s/tracing/trace", path);
+	if (stress_fs_file_write(filename, "\n", 1) < 0) {
+		pr_inf("ftrace: cannot empty trace buffer file '%s', errno=%d (%s)\n",
+			filename, errno, strerror(errno));
 		return;
+	}
+
+	/* enable syscall events */
+	if (stress_ftrace_events_syscalls_enable(true) < 0)
+		return;
+
+	/* enable tracing */
+	if (stress_ftrace_tracing_on(true) < 0) {
+		(void)stress_ftrace_tracing_on(false);
+		(void)stress_ftrace_events_syscalls_enable(false);
+		return;
+	}
 
 	(void)snprintf(filename, sizeof(filename), "%s/tracing/trace_pipe", path);
 	fp = fopen(filename, "r");
@@ -459,6 +490,7 @@ void stress_ftrace_start(void)
 			"ensure CONFIG_FUNCTION_PROFILER=y\n",
 			filename, errno, strerror(errno));
 		(void)stress_ftrace_tracing_on(false);
+		(void)stress_ftrace_events_syscalls_enable(false);
 		return;
 	}
 
@@ -512,6 +544,7 @@ void stress_ftrace_stop(void)
 		return;
 
 	(void)stress_ftrace_tracing_on(false);
+	(void)stress_ftrace_events_syscalls_enable(false);
 }
 
 #else
