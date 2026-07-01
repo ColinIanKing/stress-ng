@@ -1280,7 +1280,7 @@ static int build_new_iface(struct ovpn_ctx *ovpn)
 	ovpn_ctx_reset(ovpn);
 
 	ovpn->cmd = CMD_NEW_IFACE;
-	ovpn->mode = (stress_mwc32() & 1) ? SHIM_OVPN_MODE_P2P : SHIM_OVPN_MODE_MP;
+	ovpn->mode = stress_mwc1() ? SHIM_OVPN_MODE_P2P : SHIM_OVPN_MODE_MP;
 	ovpn->mode_set = true;
 
 	return 0;
