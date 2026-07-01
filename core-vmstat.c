@@ -1040,7 +1040,7 @@ static int stress_buddystat(
 					type[i],
 					stress_uint64_to_str(numbuf, sizeof(numbuf), (uint64_t)total, 2, false),
 					percent_total / (double)n);
-			(void)strlcat(strbuf, buffer, strbuf_len);
+			(void)shim_strlcat(strbuf, buffer, strbuf_len);
 		}
 	}
 	(void)fclose(fp);
