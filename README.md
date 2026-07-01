@@ -83,14 +83,14 @@ Debian, Ubuntu:
 
 RHEL, Fedora, Centos:
 
-  * gcc g++ eigen3-devel Judy-devel keyutils-libs-devel kmod-devel libacl-devel libaio-devel libatomic libattr-devel libbsd-devel libcap-devel libgbm-devel libcrypt-devel libglvnd-core-devel libglvnd-devel libjpeg-devel libmd-devel mpfr-devel libX11-devel libXau-devel libxcb-devel lksctp-tools-devel xorg-x11-proto-devel xxhash-devel zlib-devel
+  * gcc g++ eigen3-devel Judy-devel keyutils-libs-devel kmod-devel libacl-devel libaio-devel libatomic libattr-devel libbsd-devel libcap-devel libgbm-devel libcrypt-devel libglvnd-core-devel libglvnd-devel libjpeg-devel libmd-devel libnl3-devel mpfr-devel libX11-devel libXau-devel libxcb-devel lksctp-tools-devel xorg-x11-proto-devel xxhash-devel zlib-devel
 
 RHEL, Fedora, Centos (static builds):
 
-  * gcc g++ eigen3-devel glibc-static Judy-devel keyutils-libs-devel libacl-devel libaio-devel libatomic-static libattr-devel libbsd-devel libcap-devel libgbm-devel libcrypt-devel libglvnd-core-devel libglvnd-devel libjpeg-devel libmd-devel libX11-devel libXau-devel libxcb-devel lksctp-tools-devel mpfr-devel xorg-x11-proto-devel xxhash-devel zlib-devel
+  * gcc g++ eigen3-devel glibc-static Judy-devel keyutils-libs-devel libacl-devel libaio-devel libatomic-static libattr-devel libbsd-devel libcap-devel libgbm-devel libcrypt-devel libglvnd-core-devel libglvnd-devel libjpeg-devel libmd-devel libnl3-devel libX11-devel libXau-devel libxcb-devel lksctp-tools-devel mpfr-devel xorg-x11-proto-devel xxhash-devel zlib-devel
 
 SUSE:
-  * gcc gcc-c++ eigen3-devel keyutils-devel libaio-devel libapparmor-devel libatomic1 libattr-devel libbsd-devel libcap-devel libgbm-devel libglvnd-devel libjpeg-turbo libkmod-devel libmd-devel libseccomp-devel lksctp-tools-devel mpfr-devel xxhash-devel zlib-devel
+  * gcc gcc-c++ eigen3-devel keyutils-devel libaio-devel libapparmor-devel libatomic1 libattr-devel libbsd-devel libcap-devel libgbm-devel libglvnd-devel libjpeg-turbo libkmod-devel libmd-devel libnl3-devel libseccomp-devel lksctp-tools-devel mpfr-devel xxhash-devel zlib-devel
 
 Alpine Linux:
   * build-base eigen-dev jpeg-dev judy-dev keyutils-dev kmod-dev libacl-dev libaio-dev libatomic libattr libbsd-dev libcap-dev libmd-dev libseccomp-dev lksctp-tools-dev mesa-dev mpfr-dev xxhash-dev zlib-dev
