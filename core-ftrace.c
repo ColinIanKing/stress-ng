@@ -22,6 +22,7 @@
 #include "core-builtin.h"
 #include "core-capabilities.h"
 #include "core-ftrace.h"
+#include "core-killpid.h"
 #include "core-mounts.h"
 
 #include <ctype.h>
@@ -50,22 +51,30 @@
 
 struct rb_node {
 	RB_ENTRY(rb_node) rb;	/* red/black node entry */
-	char *func_name;	/* ftrace'd kernel function name */
-	int64_t start_count;	/* start number of calls to func */
-	int64_t end_count;	/* end number of calls to func */
-	double	start_time_us;	/* start time used by func in microsecs */
-	double	end_time_us;	/* end time used by func microsecs */
+	char *syscall_name;	/* ftrace'd syscall name */
+	pid_t syscall_pid;	/* pid of syscall, -1 is use for per-syscall stats */
+	uint64_t count;		/* number of calls to func */
+	double time_enter;	/* syscall enter time */
+	double time_total;	/* syscall return time */
 };
 
-static bool tracing_enabled;
+#define STATS_PID	(-1)
+
+static volatile bool tracing_run = false;
+static bool tracing_enabled = false;
+static pid_t tracing_pid = -1;
 
 /*
  *  rb_node_cmp()
- *	used for sorting functions by name
+ *	used for sorting functions by name and PID
  */
 static int rb_node_cmp(struct rb_node *n1, struct rb_node *n2)
 {
-	return strcmp(n1->func_name, n2->func_name);
+	const int cmp = strcmp(n1->syscall_name, n2->syscall_name);
+
+	if (cmp)
+		return cmp;
+	return n1->syscall_pid - n2->syscall_pid;
 }
 
 static RB_HEAD(rb_tree, rb_node) rb_root;
@@ -116,7 +125,8 @@ void stress_ftrace_free(void)
 		return;
 
 	for (tn = RB_MIN(rb_tree, &rb_root); tn; tn = next) {
-		free(tn->func_name);
+		if (tn->syscall_pid == STATS_PID)
+			free(tn->syscall_name);
                 next = RB_NEXT(rb_tree, &rb_root, tn);
                 RB_REMOVE(rb_tree, &rb_root, tn);
 		free(tn);
@@ -124,176 +134,267 @@ void stress_ftrace_free(void)
 	RB_INIT(&rb_root);
 }
 
-/*
- *  stress_ftrace_parse_trace_stat_file()
- *	parse the ftrace files for function timing stats
- */
-static int stress_ftrace_parse_trace_stat_file(const char *path, const bool start)
+int stress_ftrace_tracing_on(bool on)
 {
-	FILE *fp;
-	char buffer[4096];
+	const char *str = on ? "1" : "0";
+	const char *path = stress_ftrace_debugfs_path_get();
+	char filename[PATH_MAX];
 
-	fp = fopen(path, "r");
-	if (!fp)
-		return 0;
+	if (!path)
+		return -1;
 
-	while (fgets(buffer, sizeof(buffer), fp) != NULL) {
-		struct rb_node *tn, node;
-		char *ptr, *func_name;
-		const char *num;
-		int64_t count;
-		double time_us;
+	(void)snprintf(filename, sizeof(filename), "%s/tracing/tracing_on", path);
+	if (stress_fs_file_write(filename, str, 1) < 0) {
+		pr_inf("ftrace: cannot enable function tracing, cannot write '%s' to '%s', errno=%d (%s)\n",
+			str, filename, errno, strerror(errno));
+		return -1;
+	}
+	return 0;
+}
 
-		if (strstr(buffer, "Function"))
-			continue;
-		if (strstr(buffer, "----"))
-			continue;
+int stress_ftrace_current_tracer(const char *str, bool carp)
+{
+	const char *path = stress_ftrace_debugfs_path_get();
+	char filename[PATH_MAX];
+
+	(void)snprintf(filename, sizeof(filename), "%s/tracing/current_tracer", path);
+	if (stress_fs_file_write(filename, str, strlen(str)) < 0) {
+		if (carp) {
+			pr_inf("ftrace: cannot set function tracing, cannot write '%s' to '%s', errno=%d (%s)\n",
+				str, filename, errno, strerror(errno));
+		}
+		return -1;
+	}
+	return 0;
+}
+
+static void stress_ftrace_sig_handler(int sig)
+{
+	(void)sig;
+
+	tracing_run = false;
+}
+
+static void stress_ftrace_child(FILE *fp)
+{
+	char buf[1024];
+	const pid_t my_pid = getpid();
+	struct rb_node node;
+	struct rb_node *tn;
+	struct rb_node *next;
+	struct rb_node *pidless_node;
+	uint64_t sys_calls = 0;
+
+	RB_INIT(&rb_root);
+
+	(void)memset(buf, 0, sizeof(buf));
+	do {
+		char *ptr;
+		char *hyphen;
+		char *syscall_name;
+		char ch;
+		bool syscall_enter;
+		pid_t syscall_pid;
+		double time_stamp;
 
 		/*
-		 *  Skip over leading spaces and find function name
+		 *   stress-ng-foo-1884998 [007] ..... 191177.314874: sys_ppoll(....)
+		 *   stress-ng-foo-1884998 [007] ..... 191177.314876: sys_ppoll -> 0x1
 		 */
-		for (ptr = buffer; *ptr && isspace(*ptr); ptr++)
-			;
+
+		if (fgets(buf, sizeof(buf), fp) == NULL)
+			break;
+
+		/* skip over any leading spaces */
+		ptr = buf;
+		while (*ptr == ' ')
+			ptr++;
 		if (!*ptr)
 			continue;
-		func_name = ptr;
 
-		/*
-		 *  Skip over leading spaces and find hit count
-		 */
-		for (; *ptr && !isspace(*ptr); ptr++)
-			;
+		if (strncmp("stress-ng-", ptr, 9))
+			continue;
+
+		/* skip stress-ng-$PID field */
+		hyphen = NULL;
+		while (*ptr == ' ')
+			ptr++;
 		if (!*ptr)
 			continue;
-		*ptr++ = '\0';
-		for (; *ptr && isspace(*ptr); ptr++)
-			;
-		num = ptr;
-		for (; *ptr && !isspace(*ptr); ptr++)
-			;
+		while ((ch = *ptr) && ch != ' ') {
+			if (ch == '-')
+				hyphen = ptr;
+			ptr++;
+		}
+		if ((!*ptr) || (!hyphen))
+			continue;
+		hyphen++;
+		syscall_pid = atol(hyphen);
+
+		if (syscall_pid == my_pid)
+			continue;
+
+		/* skip over [cpu] field */
+		while (*ptr == ' ')
+			ptr++;
 		if (!*ptr)
 			continue;
-		*ptr++ = '\0';
-		count = (int64_t)atoll(num);
-
-		/*
-		 *  Skip over leading spaces and find time consumed
-		 */
-		for (; *ptr && isspace(*ptr); ptr++)
-			;
+		while (*ptr != ' ')
+			ptr++;
 		if (!*ptr)
 			continue;
-		if (sscanf(ptr, "%lf", &time_us) != 1)
-			time_us = 0.0;
 
-		node.func_name = func_name;
+		/* skip over ..... field */
+		while (*ptr == ' ')
+			ptr++;
+		if (!*ptr)
+			continue;
+		while (*ptr != ' ')
+			ptr++;
+		if (!*ptr)
+			continue;
 
+		time_stamp = 0.0;
+		if (sscanf(ptr, "%lf", &time_stamp) != 1)
+			continue;
+
+		/* skip over time stamp field */
+		while (*ptr == ' ')
+			ptr++;
+		if (!*ptr)
+			continue;
+		while (*ptr != ' ')
+			ptr++;
+		if (!*ptr)
+			continue;
+
+		/* find syscall */
+		while (*ptr == ' ')
+			ptr++;
+		if (!*ptr)
+			continue;
+
+		syscall_name = ptr;
+		while ((ch = *ptr) && (ch != '(') && (ch != ' '))
+			ptr++;
+
+		if (!ch)
+			continue;
+
+		*ptr = '\0';
+		syscall_enter = (ch == '(');
+		node.syscall_name = syscall_name;
+		node.syscall_pid = syscall_pid;
 		tn = RB_FIND(rb_tree, &rb_root, &node);
 		if (tn) {
-			if (start) {
-				tn->start_count += count;
-				tn->start_time_us += time_us;
+			if (syscall_enter) {
+				/* save entry time */
+				tn->time_enter = time_stamp;
 			} else {
-				tn->end_count += count;
-				tn->end_time_us += time_us;
+				struct rb_node *pidless_node;
+				const double duration = (time_stamp > tn->time_enter) ?
+					time_stamp - tn->time_enter : 0.0;
+
+				/*
+				 *  Try to find pidless acconting node
+				 */
+				node.syscall_name = syscall_name;
+				node.syscall_pid = STATS_PID;
+				pidless_node = RB_FIND(rb_tree, &rb_root, &node);
+				if (pidless_node) {
+					pidless_node->time_total += duration;
+					pidless_node->count++;
+					RB_REMOVE(rb_tree, &rb_root, tn);
+					free(tn);
+				}
+
 			}
 		} else {
-			tn = (struct rb_node *)malloc(sizeof(*tn));
-			if (UNLIKELY(!tn))
-				goto memory_fail;
-			tn->func_name = shim_strdup(func_name);
-			if (UNLIKELY(!tn->func_name)) {
-				free(tn);
-				goto memory_fail;
-			}
-			tn->start_count = 0;
-			tn->end_count = 0;
-			tn->start_time_us = 0.0;
-			tn->end_time_us = 0.0;
+			struct rb_node *new_node;
+			char *dup_syscall_name;
 
-			if (start) {
-				tn->start_count = count;
-				tn->start_time_us = time_us;
+			/*
+			 *  see if a PID-less counter exists, allocate if
+			 *  not.
+			 */
+			node.syscall_name = syscall_name;
+			node.syscall_pid = STATS_PID;
+			pidless_node = RB_FIND(rb_tree, &rb_root, &node);
+			if (pidless_node) {
+				/* re-use from PID-less node */
+				dup_syscall_name = pidless_node->syscall_name;
 			} else {
-				tn->end_count = count;
-				tn->end_time_us = time_us;
+				dup_syscall_name = strdup(syscall_name);
+				if (!dup_syscall_name)
+					continue;
+
+				new_node = (struct rb_node *)calloc(1, sizeof(*new_node));
+				if (!new_node) {
+					free(dup_syscall_name);
+					continue;
+				}
+				new_node->syscall_name = dup_syscall_name;
+				new_node->syscall_pid = STATS_PID;
+				new_node->count = 0;
+				new_node->time_total = 0.0;
+				if (RB_INSERT(rb_tree, &rb_root, new_node) != NULL) {
+					free(new_node->syscall_name);
+					free(new_node);
+					continue;
+				}
 			}
-			/* If we find an exiting matching, free the unused new tn */
-			if (RB_INSERT(rb_tree, &rb_root, tn) != NULL) {
-				free(tn->func_name);
+
+			/*
+			 *  now alloctate a node for this specific PID
+			 */
+			new_node = (struct rb_node *)calloc(1, sizeof(*new_node));
+			if (!new_node)
+				continue;
+			new_node->syscall_name = dup_syscall_name;
+			new_node->syscall_pid = syscall_pid;
+			new_node->count = 0;
+			new_node->time_enter = time_stamp;
+			new_node->time_total = 0.0;
+			if (RB_INSERT(rb_tree, &rb_root, new_node) != NULL) {
 				free(tn);
+				continue;
 			}
 		}
-	}
-	(void)fclose(fp);
-	return 0;
+	} while (tracing_run && stress_continue_flag());
 
-memory_fail:
-	(void)fclose(fp);
-	pr_inf("ftrace: disabled, out of memory collecting function information\n");
-	stress_ftrace_free();
-	return -1;
-}
+	(void)stress_ftrace_tracing_on(false);
 
-/*
- *  stress_ftrace_parse_stat_files()
- *	read trace stat files and parse the data into the rb tree
- */
-static int stress_ftrace_parse_stat_files(const char *path, const bool start)
-{
-	DIR *dp;
-	const struct dirent *de;
-	char filename[PATH_MAX];
+	pr_inf("ftrace: %-30.30s %15.15s %20.20s\n", "System Call", "Number of Calls", "Total Time (ms)");
 
-	(void)snprintf(filename, sizeof(filename), "%s/tracing/trace_stat", path);
-	dp = opendir(filename);
-	if (!dp)
-		return -1;
-	while ((de = readdir(dp)) != NULL) {
-		if (strncmp(de->d_name, "function", 8) == 0) {
-			char funcfile[PATH_MAX];
-
-			(void)snprintf(funcfile, sizeof(funcfile),
-				"%s/tracing/trace_stat/%s", path, de->d_name);
-			stress_ftrace_parse_trace_stat_file(funcfile, start);
+	/*
+	 *  scan tree for syscalls where return has not been
+	 *  accounted for and add these to the call count
+	 */
+	for (tn = RB_MIN(rb_tree, &rb_root); tn; tn = next) {
+		if (tn->syscall_pid != STATS_PID) {
+			node.syscall_name = tn->syscall_name;
+			node.syscall_pid = STATS_PID;
+			pidless_node = RB_FIND(rb_tree, &rb_root, &node);
+			if (pidless_node) {
+				pidless_node->count += tn->count;
+			}
 		}
+                next = RB_NEXT(rb_tree, &rb_root, tn);
 	}
-	(void)closedir(dp);
 
-	return 0;
-}
+	/*
+	 *  and dump totals for each syscall
+	 */
+	for (tn = RB_MIN(rb_tree, &rb_root); tn; tn = next) {
+		const int64_t count = tn->count;
 
-/*
- *  stress_ftrace_add_pid()
- *	enable/append/stop tracing on specific events.
- *	if pid < 0 then tracing pids are all removed otherwise
- *	the pid is added to the tracing events
- */
-void stress_ftrace_add_pid(const pid_t pid)
-{
-	char filename[PATH_MAX];
-	const char *path;
-	char buffer[32];
-	int fd;
-
-	if (!(g_opt_flags & OPT_FLAGS_FTRACE))
-		return;
-
-	path = stress_ftrace_debugfs_path_get();
-	if (!path)
-		return;
-
-	(void)snprintf(filename, sizeof(filename), "%s/tracing/set_ftrace_pid", path);
-	fd = open(filename, O_WRONLY | (pid < 0 ? O_TRUNC :  O_APPEND));
-	if (fd < 0)
-		return;
-	if (pid == -1) {
-		shim_strscpy(buffer, " ", sizeof(buffer));
-	} else {
-		(void)snprintf(buffer, sizeof(buffer), "%" PRIdMAX, (intmax_t)pid);
+		if ((count > 0) && (tn->syscall_pid == STATS_PID)) {
+			pr_inf("ftrace: %-30.30s %15" PRIu64 " %20.2f\n", tn->syscall_name, count, tn->time_total * 1000000.0);
+			sys_calls++;
+		}
+                next = RB_NEXT(rb_tree, &rb_root, tn);
 	}
-	VOID_RET(ssize_t, write(fd, buffer, shim_strnlen(buffer, sizeof(buffer))));
-	(void)close(fd);
+	pr_inf("ftrace: %" PRIu64 " system calls were called\n", sys_calls);
 }
 
 /*
@@ -302,13 +403,16 @@ void stress_ftrace_add_pid(const pid_t pid)
  */
 void stress_ftrace_start(void)
 {
+	FILE *fp;
 	const char *path;
 	char filename[PATH_MAX];
 
+	tracing_enabled = false;
+	tracing_run = false;
+	tracing_pid = -1;
+
 	if (!(g_opt_flags & OPT_FLAGS_FTRACE))
 		return;
-
-	RB_INIT(&rb_root);
 
 	if (!stress_capabilities_check(SHIM_CAP_SYS_ADMIN)) {
 		pr_inf("ftrace: requires CAP_SYS_ADMIN capability for tracing\n");
@@ -321,72 +425,60 @@ void stress_ftrace_start(void)
 		return;
 	}
 
-	(void)snprintf(filename, sizeof(filename), "%s/tracing/function_profile_enabled", path);
+	if (stress_ftrace_tracing_on(false) < 0)
+		return;
+
+	(void)snprintf(filename, sizeof(filename), "%s/tracing/options/function-trace", path);
 	if (stress_fs_file_write(filename, "0", 1) < 0) {
-		pr_inf("ftrace: cannot enable function profiling, cannot write to '%s', errno=%d (%s), "
+		pr_inf("ftrace: cannot reset function profiling, cannot write to '%s', errno=%d (%s), "
 			"ensure CONFIG_FUNCTION_PROFILER=y\n",
 			filename, errno, strerror(errno));
+		(void)stress_ftrace_tracing_on(false);
 		return;
 	}
-	stress_ftrace_add_pid(-1);
-	stress_ftrace_add_pid(getpid());
-	(void)snprintf(filename, sizeof(filename), "%s/tracing/function_profile_enabled", path);
-	if (stress_fs_file_write(filename, "1", 1) < 0) {
-		pr_inf("ftrace: cannot enable function profiling, cannot write to '%s', errno=%d (%s), "
-			"ensure CONFIG_FUNCTION_PROFILER=y\n",
-			filename, errno, strerror(errno));
+
+	if (stress_ftrace_current_tracer("nop", true) < 0) {
+		(void)stress_ftrace_tracing_on(false);
 		return;
 	}
-	if (stress_ftrace_parse_stat_files(path, true) < 0)
+
+	(void)snprintf(filename, sizeof(filename), "%s/tracing/options/trace", path);
+	(void)stress_fs_file_write(filename, "\n", 1);
+
+	(void)snprintf(filename, sizeof(filename), "%s/tracing/events/syscalls/enable", path);
+
+	if (stress_ftrace_tracing_on(true) < 0)
 		return;
 
+	(void)snprintf(filename, sizeof(filename), "%s/tracing/trace_pipe", path);
+	fp = fopen(filename, "r");
+	if (!fp) {
+		pr_inf("ftrace: cannot open '%s', errno=%d (%s), "
+			"ensure CONFIG_FUNCTION_PROFILER=y\n",
+			filename, errno, strerror(errno));
+		(void)stress_ftrace_tracing_on(false);
+		return;
+	}
+
+	tracing_run = true;
+	tracing_pid = fork();
+	if (tracing_pid < 0) {
+		(void)fclose(fp);
+		pr_inf("ftrace: failed to fork, disabing function profiling\n");
+		tracing_run = false;
+		return;
+	} else if (tracing_pid == 0) {
+		if (stress_signal_handler("ftrace", SIGALRM, stress_ftrace_sig_handler, NULL) < 0)
+			_exit(1);
+		if (stress_signal_handler("ftrace", SIGINT, stress_ftrace_sig_handler, NULL) < 0)
+			_exit(1);
+		stress_ftrace_child(fp);
+		(void)fclose(fp);
+		_exit(0);
+	} else {
+		(void)fclose(fp);
+	}
 	tracing_enabled = true;
-}
-
-/*
- *  strace_ftrace_is_syscall()
- *	return true if function name looks like a system call
- */
-static inline bool CONST strace_ftrace_is_syscall(const char *func_name)
-{
-	if (*func_name == '_' &&
-	    strstr(func_name, "_sys_") &&
-	    !strstr(func_name, "do_sys") &&
-	    strncmp(func_name, "___", 3))
-		return true;
-
-	return false;
-}
-
-/*
- *  stress_ftrace_analyze()
- *	dump ftrace analysis
- */
-static void stress_ftrace_analyze(void)
-{
-	struct rb_node *tn, *next;
-	uint64_t sys_calls = 0, func_calls = 0;
-
-	pr_inf("ftrace: %-30.30s %15.15s %20.20s\n", "System Call", "Number of Calls", "Total Time (us)");
-
-	for (tn = RB_MIN(rb_tree, &rb_root); tn; tn = next) {
-		const int64_t count = tn->end_count - tn->start_count;
-
-		if (count > 0) {
-			func_calls++;
-			if (strace_ftrace_is_syscall(tn->func_name)) {
-				double time_us = tn->end_time_us -
-						 tn->start_time_us;
-
-				pr_inf("ftrace: %-30.30s %15" PRId64 " %20.2f\n", tn->func_name, count, time_us);
-				sys_calls++;
-			}
-		}
-
-                next = RB_NEXT(rb_tree, &rb_root, tn);
-	}
-	pr_inf("ftrace: %" PRIu64 " kernel functions called, %" PRIu64 " were system calls\n",
-		func_calls, sys_calls);
 }
 
 /*
@@ -397,7 +489,9 @@ static void stress_ftrace_analyze(void)
 void stress_ftrace_stop(void)
 {
 	const char *path;
-	char filename[PATH_MAX];
+	int status;
+
+	tracing_run = false;
 
 	if (!(g_opt_flags & OPT_FLAGS_FTRACE))
 		return;
@@ -405,30 +499,20 @@ void stress_ftrace_stop(void)
 	if (!tracing_enabled)
 		return;
 
+	if (tracing_pid < 0)
+		return;
+
+	(void)kill(tracing_pid, SIGALRM);
+	(void)shim_waitpid(tracing_pid, &status, 0);
+
 	path = stress_ftrace_debugfs_path_get();
 	if (!path)
 		return;
 
-	stress_ftrace_add_pid(-1);
-	(void)snprintf(filename, sizeof(filename), "%s/tracing/function_profile_enabled", path);
-	if (stress_fs_file_write(filename, "0", 1) < 0) {
-		pr_inf("ftrace: cannot disable function profiling, errno=%d (%s)\n",
-			errno, strerror(errno));
-		return;
-	}
-
-	(void)snprintf(filename, sizeof(filename), "%s/tracing/trace_stat", path);
-	if (stress_ftrace_parse_stat_files(path, false) < 0)
-		return;
-	stress_ftrace_analyze();
+	(void)stress_ftrace_tracing_on(false);
 }
 
 #else
-void stress_ftrace_add_pid(const pid_t pid)
-{
-	(void)pid;
-}
-
 void stress_ftrace_free(void)
 {
 }

@@ -1947,7 +1947,6 @@ again:
 					stats->s_pid.reaped = false;
 					stats->signalled = false;
 					started_instances++;
-					stress_ftrace_add_pid(pid);
 
 					stress_sync_start_s_pid_list_add(&s_pids_head, &stats->s_pid);
 					stress_stats_hash_table_add(stats);
