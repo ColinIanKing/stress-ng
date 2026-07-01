@@ -26,7 +26,8 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
-#if defined(HAVE_LIB_NL) && defined(HAVE_LINUX_OVPN_H)
+#if defined(HAVE_LIB_NL) &&	\
+    defined(HAVE_LINUX_OVPN_H)
 
 #include <time.h>
 #include <sys/socket.h>
@@ -79,6 +80,17 @@ static const stress_help_t help[] = {
 #define nla_nest_start(_msg, _type) \
 	nla_nest_start(_msg, (_type) | NLA_F_NESTED)
 
+#define IFLA_OVPN_MAX (__IFLA_OVPN_MAX - 1)
+
+#define RT_SNDBUF_SIZE (1024 * 2)
+#define RT_RCVBUF_SIZE (1024 * 4)
+
+#define KEY_LEN		(256 / 8)
+#define NONCE_LEN	(8)
+
+#define PEER_ID_UNDEF	(0x00FFFFFF)
+#define MAX_PEERS	(10)
+
 /* libnl < 3.11.0 does not implement nla_get_uint() */
 uint64_t ovpn_nla_get_uint(struct nlattr *attr)
 {
@@ -95,18 +107,10 @@ enum shim_ovpn_mode {
 	SHIM_OVPN_MODE_MP,
 };
 
-#define IFLA_OVPN_MAX (__IFLA_OVPN_MAX - 1)
-
 enum ovpn_key_direction {
 	SHIM_KEY_DIR_IN = 0,
 	SHIM_KEY_DIR_OUT,
 };
-
-#define KEY_LEN (256 / 8)
-#define NONCE_LEN 8
-
-#define PEER_ID_UNDEF 0x00FFFFFF
-#define MAX_PEERS 10
 
 struct nl_ctx {
 	struct nl_sock *nl_sock;
@@ -221,9 +225,6 @@ static void ovpn_nest_end(struct nlmsghdr *msg, struct rtattr *nest)
 {
 	nest->rta_len = (uint8_t *)nlmsg_tail(msg) - (uint8_t *)nest;
 }
-
-#define RT_SNDBUF_SIZE (1024 * 2)
-#define RT_RCVBUF_SIZE (1024 * 4)
 
 typedef int (*ovpn_parse_reply_cb)(struct nlmsghdr *msg, void *arg);
 
@@ -1249,7 +1250,6 @@ static int ovpn_run_cmd(struct ovpn_ctx *ovpn)
 	return ret;
 }
 
-
 static int stress_ovpn_supported(const char *name)
 {
 	if (!stress_capabilities_check(SHIM_CAP_NET_ADMIN)) {
@@ -1259,7 +1259,6 @@ static int stress_ovpn_supported(const char *name)
 	}
 	return 0;
 }
-
 
 static void ovpn_ctx_reset(struct ovpn_ctx *ovpn)
 {
@@ -1284,7 +1283,6 @@ static int build_new_iface(struct ovpn_ctx *ovpn)
 
 	return 0;
 }
-
 
 static int ovpn_generate_key(struct ovpn_ctx *ctx)
 {
