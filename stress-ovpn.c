@@ -17,6 +17,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-attribute.h"
 #include "core-builtin.h"
 #include "core-capabilities.h"
 
@@ -89,6 +90,9 @@ static const stress_help_t help[] = {
 #define MAX_PEERS	(10)
 
 /* libnl < 3.11.0 does not implement nla_get_uint() */
+
+extern uint64_t ovpn_nla_get_uint(struct nlattr *attr) WEAK;
+
 uint64_t ovpn_nla_get_uint(struct nlattr *attr)
 {
 	if (nla_len(attr) == sizeof(uint32_t))
