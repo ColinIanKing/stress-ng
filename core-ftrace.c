@@ -179,6 +179,7 @@ static void stress_ftrace_child(FILE *fp)
 {
 	char buf[1024];
 	const pid_t my_pid = getpid();
+	const pid_t ppid = getppid();
 	struct rb_node node;
 	struct rb_node *tn;
 	struct rb_node *next;
@@ -231,7 +232,8 @@ static void stress_ftrace_child(FILE *fp)
 		hyphen++;
 		syscall_pid = atol(hyphen);
 
-		if (syscall_pid == my_pid)
+		/* ignore tracer child and stress-ng parent */
+		if ((syscall_pid == my_pid) || (syscall_pid == ppid))
 			continue;
 
 		/* skip over [cpu] field */
