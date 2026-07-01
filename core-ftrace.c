@@ -201,7 +201,6 @@ static void stress_ftrace_child(FILE *fp)
 	struct rb_node node;
 	struct rb_node *tn;
 	struct rb_node *next;
-	struct rb_node *pidless_node;
 	uint64_t sys_calls = 0;
 
 	RB_INIT(&rb_root);
@@ -304,6 +303,7 @@ static void stress_ftrace_child(FILE *fp)
 		syscall_enter = (ch == '(');
 		node.syscall_name = syscall_name;
 		node.syscall_pid = syscall_pid;
+
 		tn = RB_FIND(rb_tree, &rb_root, &node);
 		if (tn) {
 			if (syscall_enter) {
@@ -330,6 +330,7 @@ static void stress_ftrace_child(FILE *fp)
 			}
 		} else {
 			struct rb_node *new_node;
+			struct rb_node *pidless_node;
 			char *dup_syscall_name;
 
 			/*
@@ -391,6 +392,8 @@ static void stress_ftrace_child(FILE *fp)
 	 */
 	for (tn = RB_MIN(rb_tree, &rb_root); tn; tn = next) {
 		if (tn->syscall_pid != STATS_PID) {
+			struct rb_node *pidless_node;
+
 			node.syscall_name = tn->syscall_name;
 			node.syscall_pid = STATS_PID;
 			pidless_node = RB_FIND(rb_tree, &rb_root, &node);
@@ -413,7 +416,7 @@ static void stress_ftrace_child(FILE *fp)
 		}
                 next = RB_NEXT(rb_tree, &rb_root, tn);
 	}
-	pr_inf("ftrace: %" PRIu64 " system calls were called\n", sys_calls);
+	pr_inf("ftrace: %" PRIu64 " system calls were traced\n", sys_calls);
 }
 
 /*
@@ -493,6 +496,11 @@ void stress_ftrace_start(void)
 		(void)stress_ftrace_events_syscalls_enable(false);
 		return;
 	}
+
+#if defined(HAVE_SETVBUF)
+	/* try to use 1 MB buffer */
+	(void)setvbuf(fp, NULL, _IOFBF, MB);
+#endif
 
 	tracing_run = true;
 	tracing_pid = fork();
