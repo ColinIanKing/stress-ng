@@ -70,7 +70,6 @@ static const stress_help_t help[] = {
 #endif
 
 /* defines to make checkpatch happy */
-#define strscpy strncpy
 #define __always_unused __attribute__((__unused__))
 
 /* libnl < 3.5.0 does not set the NLA_F_NESTED on its own, therefore we
@@ -1268,7 +1267,7 @@ static void ovpn_ctx_reset(struct ovpn_ctx *ovpn)
 
 	ovpn->socket = -1;
 
-	strscpy(ovpn->ifname, "tun0", IFNAMSIZ);
+	shim_strscpy(ovpn->ifname, "tun0", IFNAMSIZ);
 	ovpn->ifindex = if_nametoindex(ovpn->ifname);
 
 	ovpn->sa_family = AF_INET;
