@@ -205,9 +205,9 @@ static int ovpn_addattr(
 	rta->rta_len = len;
 
 	if (!data)
-		memset(RTA_DATA(rta), 0, alen);
+		(void)shim_memset(RTA_DATA(rta), 0, alen);
 	else
-		memcpy(RTA_DATA(rta), data, alen);
+		(void)shim_memcpy(RTA_DATA(rta), data, alen);
 
 	n->nlmsg_len = NLMSG_ALIGN(n->nlmsg_len) + RTA_ALIGN(len);
 
@@ -365,7 +365,7 @@ static int ovpn_rt_send(
 	}
 
 	/* prepare buffer to store RTNL replies */
-	memset(buf, 0, sizeof(buf));
+	(void)shim_memset(buf, 0, sizeof(buf));
 	iov.iov_base = buf;
 
 	while (1) {
@@ -918,7 +918,7 @@ static int ovpn_parse_remote(
 			return -EINVAL;
 		}
 
-		memcpy(&ovpn->remote, result->ai_addr, result->ai_addrlen);
+		(void)shim_memcpy(&ovpn->remote, result->ai_addr, result->ai_addrlen);
 		freeaddrinfo(result);
 	}
 
@@ -938,7 +938,7 @@ static int ovpn_parse_remote(
 			return -EINVAL;
 		}
 
-		memcpy(&ovpn->peer_ip, result->ai_addr, result->ai_addrlen);
+		(void)shim_memcpy(&ovpn->peer_ip, result->ai_addr, result->ai_addrlen);
 		ovpn->sa_family = result->ai_family;
 		ovpn->peer_ip_set = true;
 		freeaddrinfo(result);
@@ -1064,8 +1064,8 @@ static int ovpn_send_tcp_data(const int socket)
 	uint8_t buf[1002];
 	int ret;
 
-	memcpy(buf, &len, sizeof(len));
-	memset(buf + sizeof(len), 0x86, sizeof(buf) - sizeof(len));
+	(void)shim_memcpy(buf, &len, sizeof(len));
+	(void)shim_memset(buf + sizeof(len), 0x86, sizeof(buf) - sizeof(len));
 
 	ret = send(socket, buf, sizeof(buf), MSG_NOSIGNAL);
 
@@ -1328,7 +1328,7 @@ static int stress_ovpn_supported(const char *name)
 
 static void ovpn_ctx_reset(struct ovpn_ctx *ovpn)
 {
-	memset(ovpn, 0, sizeof(*ovpn));
+	(void)shim_memset(ovpn, 0, sizeof(*ovpn));
 
 	ovpn->socket = -1;
 
@@ -1527,7 +1527,7 @@ static int stress_ovpn(stress_args_t *args)
 	};
 	const size_t count = SIZEOF_ARRAY(cmds);
 
-	(void)memset(&ovpn, 0, sizeof(ovpn));
+	(void)shim_memset(&ovpn, 0, sizeof(ovpn));
 	ovpn.args_name = args->name;
 	ovpn.sa_family = AF_INET;
 	ovpn.cipher = OVPN_CIPHER_ALG_NONE;
