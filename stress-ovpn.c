@@ -185,10 +185,14 @@ struct ovpn_link_req {
 };
 
 /* Helper function used to easily add attributes to a rtnl message */
-static int ovpn_addattr(struct nlmsghdr *n, int maxlen, int type,
-			const void *data, int alen)
+static int ovpn_addattr(
+	struct nlmsghdr *n,
+	const int maxlen,
+	const int type,
+	const void *data,
+	const int alen)
 {
-	int len = RTA_LENGTH(alen);
+	const int len = RTA_LENGTH(alen);
 	struct rtattr *rta;
 
 	if ((int)(NLMSG_ALIGN(n->nlmsg_len) + RTA_ALIGN(len)) > maxlen)	{
@@ -210,8 +214,10 @@ static int ovpn_addattr(struct nlmsghdr *n, int maxlen, int type,
 	return 0;
 }
 
-static struct rtattr *ovpn_nest_start(struct nlmsghdr *msg, size_t max_size,
-				      int attr)
+static struct rtattr *ovpn_nest_start(
+	struct nlmsghdr *msg,
+	const size_t max_size,
+	const int attr)
 {
 	struct rtattr *nest = nlmsg_tail(msg);
 
@@ -231,7 +237,9 @@ typedef int (*ovpn_parse_reply_cb)(struct nlmsghdr *msg, void *arg);
 /* Open RTNL socket */
 static int ovpn_rt_socket(void)
 {
-	int sndbuf = RT_SNDBUF_SIZE, rcvbuf = RT_RCVBUF_SIZE, fd;
+	int sndbuf = RT_SNDBUF_SIZE;
+	int rcvbuf = RT_RCVBUF_SIZE;
+	int fd;
 
 	fd = socket(AF_NETLINK, SOCK_RAW, NETLINK_ROUTE);
 	if (fd < 0) {
@@ -257,7 +265,9 @@ static int ovpn_rt_socket(void)
 }
 
 /* Bind socket to Netlink subsystem */
-static int ovpn_rt_bind(int fd, uint32_t groups)
+static int ovpn_rt_bind(
+	const int fd,
+	const uint32_t groups)
 {
 	struct sockaddr_nl local = { 0 };
 	socklen_t addr_len;
@@ -290,8 +300,11 @@ static int ovpn_rt_bind(int fd, uint32_t groups)
 }
 
 /* Send Netlink message and run callback on reply (if specified) */
-static int ovpn_rt_send(struct nlmsghdr *payload, pid_t peer,
-	unsigned int groups, ovpn_parse_reply_cb cb,
+static int ovpn_rt_send(
+	struct nlmsghdr *payload,
+	const pid_t peer,
+	const unsigned int groups,
+	ovpn_parse_reply_cb cb,
 	void *arg_cb)
 {
 	int len, rem_len, fd, ret, rcv_len;
@@ -453,13 +466,19 @@ out:
 	return ret;
 }
 
-static int ovpn_socket(struct ovpn_ctx *ctx, sa_family_t family, int proto)
+static int ovpn_socket(
+	struct ovpn_ctx *ctx,
+	sa_family_t family,
+	const int proto)
 {
 	struct sockaddr_storage local_sock = { 0 };
 	struct sockaddr_in6 *in6;
 	struct sockaddr_in *in;
-	int ret, s, sock_type;
+	int ret;
+	int s;
+	int sock_type;
 	size_t sock_len;
+	int opt = 1;
 
 	if (proto == IPPROTO_UDP)
 		sock_type = SOCK_DGRAM;
@@ -493,8 +512,6 @@ static int ovpn_socket(struct ovpn_ctx *ctx, sa_family_t family, int proto)
 		close(s);
 		return -1;
 	}
-
-	int opt = 1;
 
 	ret = setsockopt(s, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 	if (ret < 0) {
@@ -575,8 +592,10 @@ err:
 	return ret;
 }
 
-static struct nl_ctx *nl_ctx_alloc_flags(struct ovpn_ctx *ovpn, int cmd,
-	int flags)
+static struct nl_ctx *nl_ctx_alloc_flags(
+	struct ovpn_ctx *ovpn,
+	const int cmd,
+	const int flags)
 {
 	struct nl_ctx *ctx;
 	int err, ret;
@@ -632,6 +651,7 @@ static struct nl_ctx *nl_ctx_alloc_flags(struct ovpn_ctx *ovpn, int cmd,
 		NLA_PUT_U32(ctx->nl_msg, OVPN_A_IFINDEX, ovpn->ifindex);
 
 	return ctx;
+
 nla_put_failure:
 err_msg:
 	nlmsg_free(ctx->nl_msg);
@@ -642,7 +662,7 @@ err_free:
 	return NULL;
 }
 
-static struct nl_ctx *nl_ctx_alloc(struct ovpn_ctx *ovpn, int cmd)
+static struct nl_ctx *nl_ctx_alloc(struct ovpn_ctx *ovpn, const int cmd)
 {
 	return nl_ctx_alloc_flags(ovpn, cmd, 0);
 }
@@ -773,7 +793,7 @@ static void nl_ctx_free(struct nl_ctx *ctx)
 	free(ctx);
 }
 
-static int ovpn_new_peer(struct ovpn_ctx *ovpn, bool is_tcp)
+static int ovpn_new_peer(struct ovpn_ctx *ovpn, const bool is_tcp)
 {
 	struct nlattr *attr;
 	struct nl_ctx *ctx;
@@ -836,8 +856,11 @@ nla_put_failure:
 	return ret;
 }
 
-static int ovpn_parse_remote(struct ovpn_ctx *ovpn, const char *host,
-	const char *service, const char *vpnip)
+static int ovpn_parse_remote(
+	struct ovpn_ctx *ovpn,
+	const char *host,
+	const char *service,
+	const char *vpnip)
 {
 	int ret;
 	struct addrinfo *result;
@@ -892,8 +915,11 @@ static int ovpn_parse_remote(struct ovpn_ctx *ovpn, const char *host,
 	return 0;
 }
 
-static int ovpn_parse_new_peer(struct ovpn_ctx *ovpn, int peer_id,
-	const char *raddr, const char *rport,
+static int ovpn_parse_new_peer(
+	struct ovpn_ctx *ovpn,
+	const int peer_id,
+	const char *raddr,
+	const char *rport,
 	const char *vpnip)
 {
 	ovpn->peer_id = peer_id;
@@ -904,7 +930,6 @@ static int ovpn_parse_new_peer(struct ovpn_ctx *ovpn, int peer_id,
 
 	return ovpn_parse_remote(ovpn, raddr, rport, vpnip);
 }
-
 
 static int ovpn_connect(struct ovpn_ctx *ovpn)
 {
@@ -997,7 +1022,7 @@ nla_put_failure:
 	return ret;
 }
 
-static int ovpn_send_tcp_data(int socket)
+static int ovpn_send_tcp_data(const int socket)
 {
 	uint16_t len = htons(1000);
 	uint8_t buf[1002];
@@ -1304,7 +1329,11 @@ static int ovpn_generate_key(struct ovpn_ctx *ctx)
 	return 0;
 }
 
-static void ovpn_rand_addr_port(char *addr, size_t alen, char *port, size_t plen)
+static void ovpn_rand_addr_port(
+	char *addr,
+	const size_t alen,
+	char *port,
+	const size_t plen)
 {
 	snprintf(addr, alen, "10.%u.%u.%u",
 		stress_mwc8() + 1, stress_mwc8(), stress_mwc8() + 1);
@@ -1438,11 +1467,16 @@ static int stress_ovpn(stress_args_t *args)
 	struct ovpn_ctx ovpn;
 	int last_cmd = -1;
 	static const enum ovpn_cmd cmds[] = {
-		CMD_INVALID, CMD_NEW_IFACE,
-		CMD_CONNECT, CMD_NEW_PEER,
-		CMD_SET_PEER, CMD_DEL_PEER,
-		CMD_GET_PEER, CMD_NEW_KEY,
-		CMD_DEL_KEY, CMD_GET_KEY,
+		CMD_INVALID,
+		CMD_NEW_IFACE,
+		CMD_CONNECT,
+		CMD_NEW_PEER,
+		CMD_SET_PEER,
+		CMD_DEL_PEER,
+		CMD_GET_PEER,
+		CMD_NEW_KEY,
+		CMD_DEL_KEY,
+		CMD_GET_KEY,
 		CMD_SWAP_KEYS,
 	};
 	const size_t count = SIZEOF_ARRAY(cmds);
@@ -1492,7 +1526,6 @@ const stressor_info_t stress_ovpn_info = {
 	.verify = VERIFY_NONE,
 	.help = help
 };
-
 
 #else
 
