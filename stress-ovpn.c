@@ -1566,12 +1566,26 @@ static int stress_ovpn(stress_args_t *args)
 	return EXIT_SUCCESS;
 }
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("bind"),
+	STRESS_EX_SYSCALL("connext"),
+	STRESS_EX_SYSCALL("getsockname"),
+	STRESS_EX_SYSCALL("pselect"),
+	STRESS_EX_SYSCALL("recvmsg"),
+	STRESS_EX_SYSCALL("sendmsg"),
+	STRESS_EX_SYSCALL("setsockoopt"),
+	STRESS_EX_SYSCALL("socket"),
+
+	STRESS_EX_END,
+};
+
 const stressor_info_t stress_ovpn_info = {
 	.stressor = stress_ovpn,
 	.supported = stress_ovpn_supported,
 	.classifier = CLASS_NETWORK | CLASS_OS,
 	.verify = VERIFY_NONE,
-	.help = help
+	.help = help,
+	.exercises = exercises,
 };
 
 #else
