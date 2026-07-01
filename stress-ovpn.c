@@ -80,7 +80,7 @@ static const stress_help_t help[] = {
 	nla_nest_start(_msg, (_type) | NLA_F_NESTED)
 
 /* libnl < 3.11.0 does not implement nla_get_uint() */
-static inline uint64_t ovpn_nla_get_uint(struct nlattr *attr)
+uint64_t ovpn_nla_get_uint(struct nlattr *attr)
 {
 	if (nla_len(attr) == sizeof(uint32_t))
 		return nla_get_u32(attr);
