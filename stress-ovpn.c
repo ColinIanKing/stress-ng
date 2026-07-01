@@ -91,22 +91,16 @@ static inline uint64_t ovpn_nla_get_uint(struct nlattr *attr)
 
 typedef int (*ovpn_nl_cb)(struct nl_msg *msg, void *arg);
 
-enum ovpn_mode {
-	OVPN_MODE_P2P,
-	OVPN_MODE_MP,
-};
-
-enum {
-	IFLA_OVPN_UNSPEC,
-	IFLA_OVPN_MODE,
-	__IFLA_OVPN_MAX,
+enum shim_ovpn_mode {
+	SHIM_OVPN_MODE_P2P,
+	SHIM_OVPN_MODE_MP,
 };
 
 #define IFLA_OVPN_MAX (__IFLA_OVPN_MAX - 1)
 
 enum ovpn_key_direction {
-	KEY_DIR_IN = 0,
-	KEY_DIR_OUT,
+	SHIM_KEY_DIR_IN = 0,
+	SHIM_KEY_DIR_OUT,
 };
 
 #define KEY_LEN (256 / 8)
@@ -165,7 +159,7 @@ struct ovpn_ctx {
 
 	unsigned int ifindex;
 	char ifname[IFNAMSIZ];
-	enum ovpn_mode mode;
+	enum shim_ovpn_mode mode;
 	bool mode_set;
 
 	int socket;
@@ -1286,7 +1280,7 @@ static int build_new_iface(struct ovpn_ctx *ovpn)
 	ovpn_ctx_reset(ovpn);
 
 	ovpn->cmd = CMD_NEW_IFACE;
-	ovpn->mode = (stress_mwc32() & 1) ? OVPN_MODE_P2P : OVPN_MODE_MP;
+	ovpn->mode = (stress_mwc32() & 1) ? SHIM_OVPN_MODE_P2P : SHIM_OVPN_MODE_MP;
 	ovpn->mode_set = true;
 
 	return 0;
@@ -1335,7 +1329,7 @@ static int build_connect(struct ovpn_ctx *ovpn)
 	ovpn->key_slot = OVPN_KEY_SLOT_PRIMARY;
 	ovpn->key_id   = 0;
 	ovpn->cipher   = OVPN_CIPHER_ALG_AES_GCM;
-	ovpn->key_dir  = KEY_DIR_OUT;
+	ovpn->key_dir  = SHIM_KEY_DIR_OUT;
 
 	return ovpn_generate_key(ovpn);
 }
@@ -1389,7 +1383,7 @@ static int build_new_key(struct ovpn_ctx *ovpn)
 	ovpn->key_slot = OVPN_KEY_SLOT_PRIMARY;
 	ovpn->key_id = 0;
 	ovpn->cipher = OVPN_CIPHER_ALG_AES_GCM;
-	ovpn->key_dir = KEY_DIR_OUT;
+	ovpn->key_dir = SHIM_KEY_DIR_OUT;
 
 	return ovpn_generate_key(ovpn);
 }
