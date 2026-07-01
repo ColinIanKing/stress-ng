@@ -173,6 +173,8 @@ struct ovpn_ctx {
 	int key_id;
 
 	const char *peers_file;
+
+	const char *args_name;
 };
 
 struct ovpn_link_req {
@@ -183,6 +185,7 @@ struct ovpn_link_req {
 
 /* Helper function used to easily add attributes to a rtnl message */
 static int ovpn_addattr(
+	struct ovpn_ctx *ovpn,
 	struct nlmsghdr *n,
 	const int maxlen,
 	const int type,
@@ -193,7 +196,7 @@ static int ovpn_addattr(
 	struct rtattr *rta;
 
 	if ((int)(NLMSG_ALIGN(n->nlmsg_len) + RTA_ALIGN(len)) > maxlen)	{
-		pr_dbg("rtnl: message exceeded bound of %d\n", maxlen);
+		pr_dbg("%s: message exceeded bound of %d\n", ovpn->args_name, maxlen);
 		return -EMSGSIZE;
 	}
 
@@ -212,13 +215,14 @@ static int ovpn_addattr(
 }
 
 static struct rtattr *ovpn_nest_start(
+	struct ovpn_ctx *ovpn,
 	struct nlmsghdr *msg,
 	const size_t max_size,
 	const int attr)
 {
 	struct rtattr *nest = nlmsg_tail(msg);
 
-	if (ovpn_addattr(msg, max_size, attr, NULL, 0) < 0)
+	if (ovpn_addattr(ovpn, msg, max_size, attr, NULL, 0) < 0)
 		return NULL;
 
 	return nest;
@@ -232,28 +236,32 @@ static void ovpn_nest_end(struct nlmsghdr *msg, struct rtattr *nest)
 typedef int (*ovpn_parse_reply_cb)(struct nlmsghdr *msg, void *arg);
 
 /* Open RTNL socket */
-static int ovpn_rt_socket(void)
+static int ovpn_rt_socket(struct ovpn_ctx *ovpn)
 {
+	const char *args_name = ovpn->args_name;
 	int sndbuf = RT_SNDBUF_SIZE;
 	int rcvbuf = RT_RCVBUF_SIZE;
 	int fd;
 
 	fd = socket(AF_NETLINK, SOCK_RAW, NETLINK_ROUTE);
 	if (fd < 0) {
-		pr_dbg("cannot open netlink socket\n");
+		pr_dbg("%s: netlink socket failed, errno=%d (%s)\n",
+			args_name, errno, strerror(errno));
 		return fd;
 	}
 
 	if (setsockopt(fd, SOL_SOCKET, SO_SNDBUF, &sndbuf,
 		       sizeof(sndbuf)) < 0) {
-		pr_dbg("SO_SNDBUF\n");
+		pr_dbg("%s: setsockopt SO_SNDBUF failed, errno=%d (%s)\n",
+			args_name, errno, strerror(errno));
 		close(fd);
 		return -1;
 	}
 
 	if (setsockopt(fd, SOL_SOCKET, SO_RCVBUF, &rcvbuf,
 		       sizeof(rcvbuf)) < 0) {
-		pr_dbg("SO_RCVBUF\n");
+		pr_dbg("%s: setsockopt SO_RCVBUF failed, errno=%d (%s)\n",
+			args_name, errno, strerror(errno));
 		close(fd);
 		return -1;
 	}
@@ -263,33 +271,37 @@ static int ovpn_rt_socket(void)
 
 /* Bind socket to Netlink subsystem */
 static int ovpn_rt_bind(
+	struct ovpn_ctx *ovpn,
 	const int fd,
 	const uint32_t groups)
 {
 	struct sockaddr_nl local = { 0 };
 	socklen_t addr_len;
+	const char *args_name = ovpn->args_name;
 
 	local.nl_family = AF_NETLINK;
 	local.nl_groups = groups;
 
 	if (bind(fd, (struct sockaddr *)&local, sizeof(local)) < 0) {
-		pr_dbg("cannot bind netlink socket: %d\n", errno);
+		pr_dbg("%s: netlink socket bind failed, errno=%d (%s)\n",
+			args_name, errno, strerror(errno));
 		return -errno;
 	}
 
 	addr_len = sizeof(local);
 	if (getsockname(fd, (struct sockaddr *)&local, &addr_len) < 0) {
-		pr_dbg("cannot getsockname: %d\n", errno);
+		pr_dbg("%s: getsockname failed, errno=%d (%s)\n",
+			args_name, errno, strerror(errno));
 		return -errno;
 	}
 
 	if (addr_len != sizeof(local)) {
-		pr_dbg("wrong address length %d\n", addr_len);
+		pr_dbg("%s: wrong address length %d\n", args_name, addr_len);
 		return -EINVAL;
 	}
 
 	if (local.nl_family != AF_NETLINK) {
-		pr_dbg("wrong address family %d\n", local.nl_family);
+		pr_dbg("%s: wrong address family %d\n", args_name, local.nl_family);
 		return -EINVAL;
 	}
 
@@ -298,6 +310,7 @@ static int ovpn_rt_bind(
 
 /* Send Netlink message and run callback on reply (if specified) */
 static int ovpn_rt_send(
+	struct ovpn_ctx *ovpn,
 	struct nlmsghdr *payload,
 	const pid_t peer,
 	const unsigned int groups,
@@ -308,6 +321,7 @@ static int ovpn_rt_send(
 	struct sockaddr_nl nladdr = { 0 };
 	struct nlmsgerr *err;
 	struct nlmsghdr *h;
+	const char *args_name = ovpn->args_name;
 	char buf[1024 * 16];
 	struct iovec iov = {
 		.iov_base = payload,
@@ -330,22 +344,22 @@ static int ovpn_rt_send(
 	if (!cb)
 		payload->nlmsg_flags |= NLM_F_ACK;
 
-	fd = ovpn_rt_socket();
+	fd = ovpn_rt_socket(ovpn);
 	if (fd < 0) {
-		pr_dbg("can't open rtnl socket\n");
+		pr_dbg("%s: open socket failed\n", args_name);
 		return -errno;
 	}
 
-	ret = ovpn_rt_bind(fd, 0);
+	ret = ovpn_rt_bind(ovpn, fd, 0);
 	if (ret < 0) {
-		pr_dbg("can't bind rtnl socket\n");
+		pr_dbg("%s: bind socket failed\n", args_name);
 		ret = -errno;
 		goto out;
 	}
 
 	ret = sendmsg(fd, &nlmsg, 0);
 	if (ret < 0) {
-		pr_dbg("rtnl: error on sendmsg()\n");
+		pr_dbg("%s: sendmsg() failed\n", args_name);
 		ret = -errno;
 		goto out;
 	}
@@ -366,20 +380,20 @@ static int ovpn_rt_send(
 				pr_dbg("interrupted call\n");
 				continue;
 			}
-			pr_dbg("rtnl: error on recvmsg()\n");
+			pr_dbg("%s: recvmsg() failed\n", args_name);
 			ret = -errno;
 			goto out;
 		}
 
 		if (rcv_len == 0) {
-			pr_dbg("rtnl: socket reached unexpected EOF\n");
+			pr_dbg("%s: socket reached unexpected EOF\n", args_name);
 			ret = -EIO;
 			goto out;
 		}
 
 		if (nlmsg.msg_namelen != sizeof(nladdr)) {
-			pr_dbg("sender address length: %u (expected %zu)\n",
-				nlmsg.msg_namelen, sizeof(nladdr));
+			pr_dbg("%s: sender address length: %u (expected %zu)\n",
+				args_name, nlmsg.msg_namelen, sizeof(nladdr));
 			ret = -EIO;
 			goto out;
 		}
@@ -391,11 +405,11 @@ static int ovpn_rt_send(
 
 			if (rem_len < 0 || len > rcv_len) {
 				if (nlmsg.msg_flags & MSG_TRUNC) {
-					pr_dbg("truncated message\n");
+					pr_dbg("%s: truncated message\n", args_name);
 					ret = -EIO;
 					goto out;
 				}
-				pr_dbg("malformed message: len=%d\n", len);
+				pr_dbg("%s: malformed message: len=%d\n", args_name, len);
 				ret = -EIO;
 				goto out;
 			}
@@ -408,15 +422,14 @@ static int ovpn_rt_send(
 			if (h->nlmsg_type == NLMSG_ERROR) {
 				err = (struct nlmsgerr *)NLMSG_DATA(h);
 				if (rem_len < (int)sizeof(struct nlmsgerr)) {
-					pr_dbg("ERROR truncated\n");
+					pr_dbg("%s: error, truncated\n", args_name);
 					ret = -EIO;
 					goto out;
 				}
 
 				if (err->error) {
-					pr_dbg("(%d) %s\n",
-						err->error,
-						strerror(-err->error));
+					pr_dbg("%s: debug (%d) %s\n",
+						args_name, err->error, strerror(-err->error));
 					ret = err->error;
 					goto out;
 				}
@@ -439,7 +452,7 @@ static int ovpn_rt_send(
 					goto out;
 				}
 			} else {
-				pr_dbg("RTNL: unexpected reply\n");
+				pr_dbg("%s: unexpected reply\n", args_name);
 			}
 
 			rcv_len -= NLMSG_ALIGN(len);
@@ -447,12 +460,12 @@ static int ovpn_rt_send(
 		}
 
 		if (nlmsg.msg_flags & MSG_TRUNC) {
-			pr_dbg("message truncated\n");
+			pr_dbg("%s: message truncated\n", args_name);
 			continue;
 		}
 
 		if (rcv_len) {
-			pr_dbg("rtnl: %d not parsed bytes\n", rcv_len);
+			pr_dbg("%s: %d not parsed bytes\n", args_name, rcv_len);
 			ret = -1;
 			goto out;
 		}
@@ -464,13 +477,14 @@ out:
 }
 
 static int ovpn_socket(
-	struct ovpn_ctx *ctx,
+	struct ovpn_ctx *ovpn,
 	sa_family_t family,
 	const int proto)
 {
 	struct sockaddr_storage local_sock = { 0 };
 	struct sockaddr_in6 *in6;
 	struct sockaddr_in *in;
+	const char *args_name = ovpn->args_name;
 	int ret;
 	int s;
 	int sock_type;
@@ -486,7 +500,8 @@ static int ovpn_socket(
 
 	s = socket(family, sock_type, 0);
 	if (s < 0) {
-		pr_err("cannot create socket: %s\n", strerror(errno));
+		pr_err("%s: cannot create socket: errno=%d (%s)\n",
+			args_name, errno, strerror(errno));
 		return -1;
 	}
 
@@ -494,14 +509,14 @@ static int ovpn_socket(
 	case AF_INET:
 		in = (struct sockaddr_in *)&local_sock;
 		in->sin_family = family;
-		in->sin_port = htons(ctx->lport);
+		in->sin_port = htons(ovpn->lport);
 		in->sin_addr.s_addr = htonl(INADDR_ANY);
 		sock_len = sizeof(*in);
 		break;
 	case AF_INET6:
 		in6 = (struct sockaddr_in6 *)&local_sock;
 		in6->sin6_family = family;
-		in6->sin6_port = htons(ctx->lport);
+		in6->sin6_port = htons(ovpn->lport);
 		in6->sin6_addr = in6addr_any;
 		sock_len = sizeof(*in6);
 		break;
@@ -512,13 +527,15 @@ static int ovpn_socket(
 
 	ret = setsockopt(s, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 	if (ret < 0) {
-		pr_err("setsockopt for SO_REUSEADDR: %s\n", strerror(errno));
+		pr_err("%s: setsockopt SO_REUSEADDR failed, errno=%d (%s)\n",
+			args_name, errno, strerror(errno));
 		goto err_socket;
 	}
 
 	ret = setsockopt(s, SOL_SOCKET, SO_REUSEPORT, &opt, sizeof(opt));
 	if (ret < 0) {
-		pr_err("setsockopt for SO_REUSEPORT: %s\n", strerror(errno));
+		pr_err("%s: setsockopt SO_REUSEPORT failed, errno=%d (%s)\n",
+			args_name, errno, strerror(errno));
 		goto err_socket;
 	}
 
@@ -526,19 +543,21 @@ static int ovpn_socket(
 		opt = 0;
 		if (setsockopt(s, IPPROTO_IPV6, IPV6_V6ONLY, &opt,
 			       sizeof(opt))) {
-			pr_err("failed to set IPV6_V6ONLY: %s\n", strerror(errno));
+			pr_err("%s: setsockopt IPV6_V6ONLY failed, errno=%d %s\n",
+				args_name, errno, strerror(errno));
 			goto err_socket;
 		}
 	}
 
 	ret = bind(s, (struct sockaddr *)&local_sock, sock_len);
 	if (ret < 0) {
-		pr_err("cannot bind socket: %s\n", strerror(errno));
+		pr_err("%s: bind failed, errno=%d (%s)\n",
+			args_name, errno, strerror(errno));
 		goto err_socket;
 	}
 
-	ctx->socket = s;
-	ctx->sa_family = family;
+	ovpn->socket = s;
+	ovpn->sa_family = family;
 	return 0;
 
 err_socket:
@@ -556,24 +575,24 @@ static int ovpn_new_iface(struct ovpn_ctx *ovpn)
 	req.n.nlmsg_flags = NLM_F_REQUEST | NLM_F_CREATE | NLM_F_EXCL;
 	req.n.nlmsg_type = RTM_NEWLINK;
 
-	if (ovpn_addattr(&req.n, sizeof(req), IFLA_IFNAME, ovpn->ifname,
+	if (ovpn_addattr(ovpn, &req.n, sizeof(req), IFLA_IFNAME, ovpn->ifname,
 			 strlen(ovpn->ifname) + 1) < 0)
 		goto err;
 
-	linkinfo = ovpn_nest_start(&req.n, sizeof(req), IFLA_LINKINFO);
+	linkinfo = ovpn_nest_start(ovpn, &req.n, sizeof(req), IFLA_LINKINFO);
 	if (!linkinfo)
 		goto err;
 
-	if (ovpn_addattr(&req.n, sizeof(req), IFLA_INFO_KIND, OVPN_FAMILY_NAME,
+	if (ovpn_addattr(ovpn, &req.n, sizeof(req), IFLA_INFO_KIND, OVPN_FAMILY_NAME,
 			 strlen(OVPN_FAMILY_NAME) + 1) < 0)
 		goto err;
 
 	if (ovpn->mode_set) {
-		data = ovpn_nest_start(&req.n, sizeof(req), IFLA_INFO_DATA);
+		data = ovpn_nest_start(ovpn, &req.n, sizeof(req), IFLA_INFO_DATA);
 		if (!data)
 			goto err;
 
-		if (ovpn_addattr(&req.n, sizeof(req), IFLA_OVPN_MODE,
+		if (ovpn_addattr(ovpn, &req.n, sizeof(req), IFLA_OVPN_MODE,
 				 &ovpn->mode, sizeof(uint8_t)) < 0)
 			goto err;
 
@@ -584,7 +603,7 @@ static int ovpn_new_iface(struct ovpn_ctx *ovpn)
 
 	req.i.ifi_family = AF_PACKET;
 
-	ret = ovpn_rt_send(&req.n, 0, 0, NULL, NULL);
+	ret = ovpn_rt_send(ovpn, &req.n, 0, 0, NULL, NULL);
 err:
 	return ret;
 }
@@ -596,6 +615,7 @@ static struct nl_ctx *nl_ctx_alloc_flags(
 {
 	struct nl_ctx *ctx;
 	int err, ret;
+	const char *args_name = ovpn->args_name;
 
 	ctx = calloc(1, sizeof(*ctx));
 	if (!ctx)
@@ -603,7 +623,7 @@ static struct nl_ctx *nl_ctx_alloc_flags(
 
 	ctx->nl_sock = nl_socket_alloc();
 	if (!ctx->nl_sock) {
-		pr_err("cannot allocate netlink socket\n");
+		pr_err("%s: cannot allocate netlink socket\n", args_name);
 		goto err_free;
 	}
 
@@ -611,8 +631,8 @@ static struct nl_ctx *nl_ctx_alloc_flags(
 
 	ret = genl_connect(ctx->nl_sock);
 	if (ret) {
-		pr_dbg("cannot connect to generic netlink: %s\n",
-			nl_geterror(ret));
+		pr_dbg("%s: cannot connect to generic netlink: %s\n",
+			args_name, nl_geterror(ret));
 		goto err_sock;
 	}
 
@@ -623,20 +643,20 @@ static struct nl_ctx *nl_ctx_alloc_flags(
 
 	ctx->ovpn_dco_id = genl_ctrl_resolve(ctx->nl_sock, OVPN_FAMILY_NAME);
 	if (ctx->ovpn_dco_id < 0) {
-		pr_dbg("cannot find ovpn_dco netlink component: %d\n",
-			ctx->ovpn_dco_id);
+		pr_dbg("%s: cannot find ovpn_dco netlink component, %d\n",
+			args_name, ctx->ovpn_dco_id);
 		goto err_sock;
 	}
 
 	ctx->nl_msg = nlmsg_alloc();
 	if (!ctx->nl_msg) {
-		pr_err("cannot allocate netlink message\n");
+		pr_err("%s: cannot allocate netlink message\n", args_name);
 		goto err_sock;
 	}
 
 	ctx->nl_cb = nl_cb_alloc(NL_CB_DEFAULT);
 	if (!ctx->nl_cb) {
-		pr_err("failed to allocate netlink callback\n");
+		pr_err("%s: failed to allocate netlink callback\n", args_name);
 		goto err_msg;
 	}
 
@@ -684,25 +704,28 @@ static int ovpn_nl_cb_ack(struct nl_msg *msg, void *arg)
 	return NL_STOP;
 }
 
-static int ovpn_nl_recvmsgs(struct nl_ctx *ctx)
+static int ovpn_nl_recvmsgs(
+	struct ovpn_ctx *ovpn,
+	struct nl_ctx *ctx)
 {
 	int ret;
+	const char *args_name = ovpn->args_name;
 
 	ret = nl_recvmsgs(ctx->nl_sock, ctx->nl_cb);
 
 	switch (ret) {
 	case -NLE_INTR:
-		pr_dbg("netlink received interrupt due to signal - ignoring\n");
+		pr_dbg("%s: netlink received interrupt due to signal, ignoring\n", args_name);
 		break;
 	case -NLE_NOMEM:
-		pr_dbg("netlink out of memory error\n");
+		pr_dbg("%s: netlink out of memory error\n", args_name);
 		break;
 	case -NLE_AGAIN:
-		pr_dbg("netlink reports blocking read - aborting wait\n");
+		pr_dbg("%s: netlink reports blocking read - aborting wait\n", args_name);
 		break;
 	default:
 		if (ret)
-			pr_dbg("netlink reports error (%d): %s\n",
+			pr_dbg("%s: netlink reports error=%d (%s)\n", args_name,
 				ret, nl_geterror(-ret));
 		break;
 	}
@@ -742,20 +765,20 @@ static int ovpn_nl_cb_error(
 	if (tb_msg[NLMSGERR_ATTR_MSG]) {
 		len = strnlen((char *)nla_data(tb_msg[NLMSGERR_ATTR_MSG]),
 			      nla_len(tb_msg[NLMSGERR_ATTR_MSG]));
-		pr_dbg("kernel error: %*s\n", len,
+		pr_dbg("ovpn: kernel error %*s\n", len,
 			(char *)nla_data(tb_msg[NLMSGERR_ATTR_MSG]));
 	}
 
 #ifdef NLMSGERR_ATTR_MISS_NEST
 	if (tb_msg[NLMSGERR_ATTR_MISS_NEST]) {
-		pr_dbg("missing required nesting type %u\n",
+		pr_dbg("ovpn: missing required nesting type %u\n",
 			nla_get_u32(tb_msg[NLMSGERR_ATTR_MISS_NEST]));
 	}
 #endif
 
 #ifdef NLMSGERR_ATTR_MISS_TYPE
 	if (tb_msg[NLMSGERR_ATTR_MISS_TYPE]) {
-		pr_dbg("missing required attribute type %u\n",
+		pr_dbg("ovpn: missing required attribute type %u\n",
 			nla_get_u32(tb_msg[NLMSGERR_ATTR_MISS_TYPE]));
 	}
 #endif
@@ -763,7 +786,10 @@ static int ovpn_nl_cb_error(
 	return NL_STOP;
 }
 
-static int ovpn_nl_msg_send(struct nl_ctx *ctx, ovpn_nl_cb cb)
+static int ovpn_nl_msg_send(
+	struct ovpn_ctx *ovpn,
+	struct nl_ctx *ctx,
+	ovpn_nl_cb cb)
 {
 	int status = 1;
 
@@ -777,11 +803,11 @@ static int ovpn_nl_msg_send(struct nl_ctx *ctx, ovpn_nl_cb cb)
 	nl_send_auto_complete(ctx->nl_sock, ctx->nl_msg);
 
 	while ((status == 1) && stress_continue_flag())
-		ovpn_nl_recvmsgs(ctx);
+		ovpn_nl_recvmsgs(ovpn, ctx);
 
 	if (status < 0)
-		pr_dbg("failed to send netlink message: %s (%d)\n",
-			strerror(-status), status);
+		pr_dbg("%s: failed to send netlink message, errno=%d (%s)\n",
+			ovpn->args_name, status, strerror(-status));
 
 	return status;
 }
@@ -802,6 +828,7 @@ static int ovpn_new_peer(struct ovpn_ctx *ovpn, const bool is_tcp)
 	struct nlattr *attr;
 	struct nl_ctx *ctx;
 	int ret = -1;
+	const char *args_name = ovpn->args_name;
 
 	ctx = nl_ctx_alloc(ovpn, OVPN_CMD_PEER_NEW);
 	if (!ctx)
@@ -830,7 +857,7 @@ static int ovpn_new_peer(struct ovpn_ctx *ovpn, const bool is_tcp)
 				    ovpn->remote.in6.sin6_port);
 			break;
 		default:
-			pr_dbg("Invalid family for remote socket address\n");
+			pr_dbg("%s: invalid family for remote socket address\n", args_name);
 			goto nla_put_failure;
 		}
 	}
@@ -847,14 +874,14 @@ static int ovpn_new_peer(struct ovpn_ctx *ovpn, const bool is_tcp)
 				&ovpn->peer_ip.in6.sin6_addr);
 			break;
 		default:
-			pr_dbg("Invalid family for peer address\n");
+			pr_dbg("%s: invalid family for peer address\n", args_name);
 			goto nla_put_failure;
 		}
 	}
 
 	nla_nest_end(ctx->nl_msg, attr);
 
-	ret = ovpn_nl_msg_send(ctx, NULL);
+	ret = ovpn_nl_msg_send(ovpn, ctx, NULL);
 nla_put_failure:
 	nl_ctx_free(ctx);
 	return ret;
@@ -867,6 +894,7 @@ static int ovpn_parse_remote(
 	const char *vpnip)
 {
 	int ret;
+	const char *args_name = ovpn->args_name;
 	struct addrinfo *result;
 	struct addrinfo hints = {
 		.ai_family = ovpn->sa_family,
@@ -877,8 +905,8 @@ static int ovpn_parse_remote(
 	if (host) {
 		ret = getaddrinfo(host, service, &hints, &result);
 		if (ret) {
-			pr_dbg("getaddrinfo on remote error: %s\n",
-				gai_strerror(ret));
+			pr_dbg("%s: getaddrinfo failed on remote, error %s\n",
+				args_name, gai_strerror(ret));
 			return -1;
 		}
 
@@ -897,8 +925,8 @@ static int ovpn_parse_remote(
 	if (vpnip) {
 		ret = getaddrinfo(vpnip, NULL, &hints, &result);
 		if (ret) {
-			pr_dbg("getaddrinfo on vpnip error: %s\n",
-				gai_strerror(ret));
+			pr_dbg("%s: getaddrinfo failed on vpnip, error %s\n",
+				args_name, gai_strerror(ret));
 			return -1;
 		}
 
@@ -928,7 +956,7 @@ static int ovpn_parse_new_peer(
 {
 	ovpn->peer_id = peer_id;
 	if (ovpn->peer_id > PEER_ID_UNDEF) {
-		pr_dbg("peer ID value out of range\n");
+		pr_dbg("%s: peer ID value out of range\n", ovpn->args_name);
 		return -1;
 	}
 
@@ -941,10 +969,12 @@ static int ovpn_connect(struct ovpn_ctx *ovpn)
 	int s, ret, flags;
 	fd_set wfds;
 	struct timeval tv = { .tv_sec = 2, .tv_usec = 0 };
+	const char *args_name = ovpn->args_name;
 
 	s = socket(ovpn->remote.in4.sin_family, SOCK_STREAM, 0);
 	if (s < 0) {
-		pr_err("cannot create socket: %s\n", strerror(errno));
+		pr_err("%s: socket failed, errno=%d (%s)\n",
+			args_name, errno, strerror(errno));
 		return -1;
 	}
 
@@ -962,14 +992,16 @@ static int ovpn_connect(struct ovpn_ctx *ovpn)
 
 	flags = fcntl(s, F_GETFL, 0);
 	if (flags < 0 || fcntl(s, F_SETFL, flags | O_NONBLOCK) < 0) {
-		pr_err("fcntl: %s\n", strerror(errno));
+		pr_err("%s: fcntl failed, errno=%d  (%s)\n",
+			args_name, errno, strerror(errno));
 		ret = -1;
 		goto err;
 	}
 
 	ret = connect(s, (struct sockaddr *)&ovpn->remote, socklen);
 	if (ret < 0 && errno != EINPROGRESS) {
-		pr_dbg("connect: %s\n", strerror(errno));
+		pr_dbg("%s: connect failed, errno=%d (%s(\n",
+			args_name, errno, strerror(errno));
 		goto err;
 	}
 
@@ -1020,7 +1052,7 @@ static int ovpn_new_key(struct ovpn_ctx *ovpn)
 
 	nla_nest_end(ctx->nl_msg, keyconf);
 
-	ret = ovpn_nl_msg_send(ctx, NULL);
+	ret = ovpn_nl_msg_send(ovpn, ctx, NULL);
 nla_put_failure:
 	nl_ctx_free(ctx);
 	return ret;
@@ -1063,7 +1095,7 @@ static int ovpn_set_peer(struct ovpn_ctx *ovpn)
 		    ovpn->keepalive_timeout);
 	nla_nest_end(ctx->nl_msg, attr);
 
-	ret = ovpn_nl_msg_send(ctx, NULL);
+	ret = ovpn_nl_msg_send(ovpn, ctx, NULL);
 nla_put_failure:
 	nl_ctx_free(ctx);
 	return ret;
@@ -1083,7 +1115,7 @@ static int ovpn_del_peer(struct ovpn_ctx *ovpn)
 	NLA_PUT_U32(ctx->nl_msg, OVPN_A_PEER_ID, ovpn->peer_id);
 	nla_nest_end(ctx->nl_msg, attr);
 
-	ret = ovpn_nl_msg_send(ctx, NULL);
+	ret = ovpn_nl_msg_send(ovpn, ctx, NULL);
 nla_put_failure:
 	nl_ctx_free(ctx);
 	return ret;
@@ -1103,7 +1135,7 @@ static int ovpn_swap_keys(struct ovpn_ctx *ovpn)
 	NLA_PUT_U32(ctx->nl_msg, OVPN_A_KEYCONF_PEER_ID, ovpn->peer_id);
 	nla_nest_end(ctx->nl_msg, kc);
 
-	ret = ovpn_nl_msg_send(ctx, NULL);
+	ret = ovpn_nl_msg_send(ovpn, ctx, NULL);
 nla_put_failure:
 	nl_ctx_free(ctx);
 	return ret;
@@ -1124,7 +1156,7 @@ static int ovpn_del_key(struct ovpn_ctx *ovpn)
 	NLA_PUT_U32(ctx->nl_msg, OVPN_A_KEYCONF_SLOT, ovpn->key_slot);
 	nla_nest_end(ctx->nl_msg, keyconf);
 
-	ret = ovpn_nl_msg_send(ctx, NULL);
+	ret = ovpn_nl_msg_send(ovpn, ctx, NULL);
 nla_put_failure:
 	nl_ctx_free(ctx);
 	return ret;
@@ -1169,7 +1201,7 @@ static int ovpn_get_peer(struct ovpn_ctx *ovpn)
 		nla_nest_end(ctx->nl_msg, attr);
 	}
 
-	ret = ovpn_nl_msg_send(ctx, ovpn_handle_peer);
+	ret = ovpn_nl_msg_send(ovpn, ctx, ovpn_handle_peer);
 nla_put_failure:
 	nl_ctx_free(ctx);
 	return ret;
@@ -1210,7 +1242,7 @@ static int ovpn_get_key(struct ovpn_ctx *ovpn)
 	NLA_PUT_U32(ctx->nl_msg, OVPN_A_KEYCONF_SLOT, ovpn->key_slot);
 	nla_nest_end(ctx->nl_msg, keyconf);
 
-	ret = ovpn_nl_msg_send(ctx, ovpn_handle_key);
+	ret = ovpn_nl_msg_send(ovpn, ctx, ovpn_handle_key);
 nla_put_failure:
 	nl_ctx_free(ctx);
 	return ret;
@@ -1219,6 +1251,7 @@ nla_put_failure:
 static int ovpn_run_cmd(struct ovpn_ctx *ovpn)
 {
 	int ret = 0;
+	const char *args_name = ovpn->args_name;
 
 	switch (ovpn->cmd) {
 	case CMD_NEW_IFACE:
@@ -1227,13 +1260,13 @@ static int ovpn_run_cmd(struct ovpn_ctx *ovpn)
 	case CMD_CONNECT:
 		ret = ovpn_connect(ovpn);
 		if (ret < 0) {
-			pr_dbg("cannot connect TCP socket\n");
+			pr_dbg("%s: cannot connect TCP socket\n", args_name);
 			return ret;
 		}
 
 		ret = ovpn_new_peer(ovpn, true);
 		if (ret < 0) {
-			pr_dbg("cannot add peer to VPN\n");
+			pr_dbg("%s: cannot add peer to VPN\n", args_name);
 			close(ovpn->socket);
 			return ret;
 		}
@@ -1241,7 +1274,7 @@ static int ovpn_run_cmd(struct ovpn_ctx *ovpn)
 		if (ovpn->cipher != OVPN_CIPHER_ALG_NONE) {
 			ret = ovpn_new_key(ovpn);
 			if (ret < 0) {
-				pr_dbg("cannot set key\n");
+				pr_dbg("%s: cannot set key\n", args_name);
 				return ret;
 			}
 		}
@@ -1317,20 +1350,25 @@ static int build_new_iface(struct ovpn_ctx *ovpn)
 	return 0;
 }
 
-static int ovpn_generate_key(struct ovpn_ctx *ctx)
+static int ovpn_generate_key(struct ovpn_ctx *ovpn)
 {
-	if (getrandom(ctx->key_enc, KEY_LEN, 0) != KEY_LEN) {
-		pr_err("getrandom(key_enc): %s\n", strerror(errno));
+	const char *args_name = ovpn->args_name;
+
+	if (getrandom(ovpn->key_enc, KEY_LEN, 0) != KEY_LEN) {
+		pr_err("%s: getrandom(key_enc) failed, errno=%d (%s)\n",
+			args_name, errno, strerror(errno));
 		return -1;
 	}
 
-	if (getrandom(ctx->key_dec, KEY_LEN, 0) != KEY_LEN) {
-		pr_err("getrandom(key_dec): %s\n", strerror(errno));
+	if (getrandom(ovpn->key_dec, KEY_LEN, 0) != KEY_LEN) {
+		pr_err("%s: getrandom(key_dec) failed, errno=%d (%s)\n",
+			args_name, errno, strerror(errno));
 		return -1;
 	}
 
-	if (getrandom(ctx->nonce, NONCE_LEN, 0) != NONCE_LEN) {
-		pr_err("getrandom(nonce): %s\n", strerror(errno));
+	if (getrandom(ovpn->nonce, NONCE_LEN, 0) != NONCE_LEN) {
+		pr_err("%s: getrandom(nonce) failed, errno=%d (%s)\n",
+			args_name, errno, strerror(errno));
 		return -1;
 	}
 
@@ -1490,6 +1528,7 @@ static int stress_ovpn(stress_args_t *args)
 	const size_t count = SIZEOF_ARRAY(cmds);
 
 	(void)memset(&ovpn, 0, sizeof(ovpn));
+	ovpn.args_name = args->name;
 	ovpn.sa_family = AF_INET;
 	ovpn.cipher = OVPN_CIPHER_ALG_NONE;
 	ovpn.peers_file = NULL;
@@ -1503,7 +1542,7 @@ static int stress_ovpn(stress_args_t *args)
 		int cmd;
 
 		do {
-			uint32_t idx = stress_mwc32() % count;
+			const uint32_t idx = stress_mwc32() % count;
 
 			cmd = cmds[idx];
 		} while (cmd == last_cmd && count > 1);
