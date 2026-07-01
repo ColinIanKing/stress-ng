@@ -70,9 +70,6 @@ static const stress_help_t help[] = {
 #include <linux/version.h>
 #endif
 
-/* defines to make checkpatch happy */
-#define __always_unused __attribute__((__unused__))
-
 /* libnl < 3.5.0 does not set the NLA_F_NESTED on its own, therefore we
  * have to explicitly do it to prevent the kernel from failing upon
  * parsing of the message
@@ -667,18 +664,21 @@ static struct nl_ctx *nl_ctx_alloc(struct ovpn_ctx *ovpn, const int cmd)
 	return nl_ctx_alloc_flags(ovpn, cmd, 0);
 }
 
-static int ovpn_nl_cb_finish(struct nl_msg (*msg)__always_unused, void *arg)
+static int ovpn_nl_cb_finish(struct nl_msg *msg, void *arg)
 {
 	int *status = arg;
+
+	(void)msg;
 
 	*status = 0;
 	return NL_SKIP;
 }
 
-static int ovpn_nl_cb_ack(struct nl_msg (*msg)__always_unused,
-			  void *arg)
+static int ovpn_nl_cb_ack(struct nl_msg *msg, void *arg)
 {
 	int *status = arg;
+
+	(void)msg;
 
 	*status = 0;
 	return NL_STOP;
@@ -710,8 +710,10 @@ static int ovpn_nl_recvmsgs(struct nl_ctx *ctx)
 	return ret;
 }
 
-static int ovpn_nl_cb_error(struct sockaddr_nl (*nla)__always_unused,
-			    struct nlmsgerr *err, void *arg)
+static int ovpn_nl_cb_error(
+	struct sockaddr_nl *nla,
+	struct nlmsgerr *err,
+	void *arg)
 {
 	struct nlmsghdr *nlh = (struct nlmsghdr *)err - 1;
 	struct nlattr *tb_msg[NLMSGERR_ATTR_MAX + 1];
@@ -719,6 +721,8 @@ static int ovpn_nl_cb_error(struct sockaddr_nl (*nla)__always_unused,
 	struct nlattr *attrs;
 	int *ret = arg;
 	int ack_len = sizeof(*nlh) + sizeof(int) + sizeof(*nlh);
+
+	(void)nla;
 
 	*ret = err->error;
 
@@ -1126,11 +1130,13 @@ nla_put_failure:
 	return ret;
 }
 
-static int ovpn_handle_peer(struct nl_msg *msg, void (*arg)__always_unused)
+static int ovpn_handle_peer(struct nl_msg *msg, void *arg)
 {
 	struct nlattr *pattrs[OVPN_A_PEER_MAX + 1];
 	struct genlmsghdr *gnlh = nlmsg_data(nlmsg_hdr(msg));
 	struct nlattr *attrs[OVPN_A_MAX + 1];
+
+	(void)arg;
 
 	nla_parse(attrs, OVPN_A_MAX, genlmsg_attrdata(gnlh, 0),
 		  genlmsg_attrlen(gnlh, 0), NULL);
@@ -1169,11 +1175,13 @@ nla_put_failure:
 	return ret;
 }
 
-static int ovpn_handle_key(struct nl_msg *msg, void (*arg)__always_unused)
+static int ovpn_handle_key(struct nl_msg *msg, void *arg)
 {
 	struct nlattr *kattrs[OVPN_A_KEYCONF_MAX + 1];
 	struct genlmsghdr *gnlh = nlmsg_data(nlmsg_hdr(msg));
 	struct nlattr *attrs[OVPN_A_MAX + 1];
+
+	(void)arg;
 
 	nla_parse(attrs, OVPN_A_MAX, genlmsg_attrdata(gnlh, 0),
 		  genlmsg_attrlen(gnlh, 0), NULL);
