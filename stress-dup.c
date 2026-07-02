@@ -59,7 +59,8 @@ typedef struct {
 
 static int stress_dup2_race_clone(void *arg)
 {
-	int fd, fd_dup;
+	int fd;
+	int fd_dup;
 	info_t *info = (info_t *)arg;
 
 	/* Should never be null, but weird things may happen  */
@@ -100,7 +101,8 @@ static int static_dup2_child(info_t *info)
 {
 	struct sigaction action;
 	struct itimerval timer;
-	pid_t child_tid = -1, parent_tid = -1;
+	pid_t child_tid = -1;
+	pid_t parent_tid = -1;
 	char *stack_top = (char *)stress_stack_top((void *)info->stack, sizeof(info->stack));
 
 	info->fd_pipe = -1;
@@ -215,7 +217,9 @@ static int stress_dup(stress_args_t *args)
 	size_t max_fd = stress_fs_file_limit_get();
 	bool do_dup3 = true;
 	const int bad_fd = stress_fs_bad_fd_get();
-	double dup_duration = 0.0, dup_count = 0.0, rate;
+	double dup_duration = 0.0;
+	double dup_count = 0.0;
+	double rate;
 #if defined(STRESS_DUP2_RACE)
 	info_t *info;
 

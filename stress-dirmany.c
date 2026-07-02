@@ -158,9 +158,12 @@ static void stress_dirmany_remove(
 static int stress_dirmany(stress_args_t *args)
 {
 	int ret;
-	uint64_t i_start = 0, total_created = 0;
+	uint64_t i_start = 0;
+	uint64_t total_created = 0;
 	char pathname[PATH_MAX];
-	double create_time = 0.0, remove_time = 0.0, total_time = 0.0;
+	double create_time = 0.0;
+	double remove_time = 0.0;
+	double total_time = 0.0;
 	off_t dirmany_bytes = 0;
 	size_t pathname_len;
 

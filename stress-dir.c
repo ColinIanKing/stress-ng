@@ -380,7 +380,10 @@ static int stress_dir_readdir(
 	DIR *dir;
 	char dirpath[PATH_MAX + 64];
 	char filename[PATH_MAX + 70];
-	int rc = 0, i, got_mask, all_mask;
+	int rc = 0;
+	int i;
+	int got_mask;
+	int all_mask;
 	const struct dirent *de;
 
 	(void)snprintf(dirpath, sizeof(dirpath), "%s/test-%" PRIdMAX "-%" PRIu32, pathname,
@@ -540,12 +543,7 @@ static int stress_dir(stress_args_t *args)
 	} while (stress_continue(args));
 
 	/* exercise invalid path */
-	{
-		int rmret;
-
-		rmret = shim_rmdir("");
-		(void)rmret;
-	}
+	VOID_RET(int, shim_rmdir(""));
 
 #if defined(O_DIRECTORY)
 	if (dir_fd >= 0)

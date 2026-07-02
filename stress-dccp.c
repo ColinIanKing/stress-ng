@@ -193,11 +193,15 @@ static int stress_dccp_server(
 	const int dccp_opts)
 {
 	char buf[DCCP_BUF];
-	int fd, so_reuseaddr = 1, rc = EXIT_SUCCESS;
+	int fd;
+	int so_reuseaddr = 1;
+	int rc = EXIT_SUCCESS;
 	socklen_t addr_len = 0;
 	struct sockaddr *addr = NULL;
 	uint64_t msgs = 0;
-	double t1 = 0.0, t2 = 0.0, dt;
+	double t1 = 0.0;
+	double t2 = 0.0;
+	double dt;
 	size_t dccp_msgs = DEFAULT_DCCP_MSGS;
 
 	if (!stress_setting_get("dccp-msgs", &dccp_msgs)) {
@@ -264,7 +268,9 @@ static int stress_dccp_server(
 
 		sfd = accept(fd, (struct sockaddr *)NULL, NULL);
 		if (sfd >= 0) {
-			size_t i, j, k;
+			size_t i;
+			size_t j;
+			size_t k;
 			struct sockaddr saddr;
 			socklen_t len;
 			int sndbuf;
@@ -404,11 +410,14 @@ die:
  */
 static int stress_dccp(stress_args_t *args)
 {
-	pid_t pid, mypid = getpid();
+	pid_t pid;
+       	const pid_t mypid = getpid();
 	int dccp_port = DEFAULT_DCCP_PORT;
 	int dccp_domain = AF_INET;
 	int dccp_opts = DCCP_OPT_SEND;
-	int rc = EXIT_SUCCESS, reserved_port, parent_cpu;
+	int rc = EXIT_SUCCESS;
+	int reserved_port;
+	int parent_cpu;
 	char *dccp_if = NULL;
 
 	if (stress_signal_sigchld_handler(args) < 0)

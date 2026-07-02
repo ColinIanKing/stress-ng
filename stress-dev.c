@@ -1090,7 +1090,8 @@ static void stress_dev_blk(
 #if defined(BLKROGET)
 	/* readonly state */
 	{
-		int ret, ro;
+		int ret;
+		int ro;
 
 		ret = ioctl(fd, BLKROGET, &ro);
 #if defined(BLKROSET)
@@ -1104,7 +1105,8 @@ static void stress_dev_blk(
 #if defined(BLKBSZGET)
 	/* get block device soft block size */
 	{
-		int ret, sz;
+		int ret;
+		int sz;
 
 		ret = ioctl(fd, BLKBSZGET, &sz);
 #if defined(BLKBSZSET)
@@ -1249,7 +1251,8 @@ static inline bool is_scsi_dev(dev_info_t *dev_info)
 		return false;
 
 	for (i = 0; !is_scsi && (i < n); i++) {
-		int j, m;
+		int j;
+		int m;
 		char scsi_block_path[PATH_MAX];
 		struct dirent **scsi_block_list;
 
@@ -1713,7 +1716,8 @@ static void cdrom_get_address_msf(
  */
 static void stress_cdrom_ioctl_msf(const int fd)
 {
-	int starttrk = 0, endtrk = 0;
+	int starttrk = 0;
+	int endtrk = 0;
 
 	(void)fd;
 	(void)starttrk;
@@ -3239,7 +3243,6 @@ STRESS_PRAGMA_POP
 	{
 		struct snd_ctl_elem_list list;
 
-
 		(void)shim_memset(&list, 0, sizeof(list));
 
 		if (ioctl(fd, SNDRV_CTL_IOCTL_ELEM_LIST, &list) == 0) {
@@ -3342,7 +3345,8 @@ static void stress_dev_parport_linux(
 
 #if defined(PPGETMODE)
 	{
-		int ret, mode;
+		int ret;
+		int mode;
 
 		ret = ioctl(fd, PPGETMODE, &mode);
 #if defined(PPSETMODE)
@@ -3356,7 +3360,8 @@ static void stress_dev_parport_linux(
 
 #if defined(PPGETPHASE)
 	{
-		int ret, phase;
+		int ret;
+		int phase;
 
 		ret = ioctl(fd, PPGETPHASE, &phase);
 #if defined(PPSETPHASE)
@@ -3378,7 +3383,8 @@ static void stress_dev_parport_linux(
 
 #if defined(PPGETFLAGS)
 	{
-		int ret, uflags;
+		int ret;
+		int uflags;
 
 		ret = ioctl(fd, PPGETFLAGS, &uflags);
 #if defined(PPSETFLAGS)
@@ -4027,7 +4033,8 @@ static inline void stress_dev_rw(
 	sys_dev_info_t **sys_dev_info,
 	int32_t loops)
 {
-	int fd, ret;
+	int fd;
+	int ret;
 	off_t offset;
 	struct stat statbuf;
 	struct pollfd fds[1];
@@ -4288,7 +4295,7 @@ static void stress_dev_files(
 	dev_info_t *dev_info_list,
 	sys_dev_info_t **sys_dev_info)
 {
-	int32_t loops = args->instance < 8 ? (int32_t)args->instance + 1 : 8;
+	const int32_t loops = args->instance < 8 ? (int32_t)args->instance + 1 : 8;
 	static int try_failed = 0;
 	dev_info_t *di;
 
@@ -4375,7 +4382,8 @@ static void stress_dev_infos_free(dev_info_t **list)
  */
 static bool stress_dev_avoid(char *filename)
 {
-	char tmp[PATH_MAX], *name;
+	char tmp[PATH_MAX];
+	char *name;
 
 	(void)shim_strscpy(tmp, filename, sizeof(tmp));
 	name = basename(tmp);
@@ -4462,7 +4470,8 @@ static void stress_dev_infos_get(
 	size_t *list_len)
 {
 	struct dirent **dlist;
-	int i, n;
+	int i;
+	int n;
 	const mode_t flags = S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
 
 	if (UNLIKELY(!stress_continue(args)))
@@ -4618,7 +4627,8 @@ static void stress_sys_dev_infos_get(
 	const int depth)
 {
 	struct dirent **dlist;
-	int i, n;
+	int i;
+	int n;
 	const mode_t flags = S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
 
 	if (UNLIKELY(!stress_continue(args)))
@@ -4742,7 +4752,8 @@ static inline void stress_sys_dev_infos_free(sys_dev_info_t **list)
 static int stress_dev(stress_args_t *args)
 {
 	pthread_t pthreads[STRESS_DEV_THREADS_MAX];
-	int ret[STRESS_DEV_THREADS_MAX], rc = EXIT_SUCCESS;
+	int ret[STRESS_DEV_THREADS_MAX];
+	int rc = EXIT_SUCCESS;
 	stress_pthread_args_t pa;
 	char *dev_file = NULL;
 	const int stdout_fd = fileno(stdout);
@@ -4751,11 +4762,10 @@ static int stress_dev(stress_args_t *args)
 	dev_info_t dev_null = { "/dev/null", "null", 0, &dev_state_null, NULL };
 	size_t mmap_dev_states_size;
 	const size_t page_size = args->page_size;
-
 	dev_info_t *dev_info_list = NULL;
 	size_t dev_info_list_len = 0;
-
-	sys_dev_info_t *sys_dev_info_list = NULL, *sys_dev_info_list_end = NULL;
+	sys_dev_info_t *sys_dev_info_list = NULL;
+	sys_dev_info_t *sys_dev_info_list_end = NULL;
 
 	stress_dev_state_init(&dev_state_null);
 

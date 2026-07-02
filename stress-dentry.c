@@ -187,7 +187,8 @@ err:
  */
 static void stress_dentry_misc(const char *path)
 {
-	int fd, flags = O_RDONLY;
+	int fd;
+	int flags = O_RDONLY;
 	struct stat statbuf;
 #if defined(HAVE_UTIME_H)
 	struct utimbuf utim;
@@ -312,16 +313,23 @@ static void stress_dentry_misc(const char *path)
  */
 static int stress_dentry(stress_args_t *args)
 {
-	int ret, rc = EXIT_SUCCESS;
+	int ret;
+	int rc = EXIT_SUCCESS;
 	uint64_t dentries = DEFAULT_DENTRIES;
 	uint64_t dentry_offset = dentries;
 	uint8_t dentry_order = ORDER_RANDOM;
 	char dir_path[PATH_MAX];
-	int64_t nr_dentry1, nr_dentry2, nr_dentries;
-	double creat_duration = 0.0, creat_count = 0.0;
-	double access_duration = 0.0, access_count = 0.0;
-	double bogus_access_duration = 0.0, bogus_access_count = 0.0;
-	double bogus_unlink_duration = 0.0, bogus_unlink_count = 0.0;
+	int64_t nr_dentry1;
+	int64_t nr_dentry2;
+	int64_t nr_dentries;
+	double creat_duration = 0.0;
+	double creat_count = 0.0;
+	double access_duration = 0.0;
+	double access_count = 0.0;
+	double bogus_access_duration = 0.0;
+	double bogus_access_count = 0.0;
+	double bogus_unlink_duration = 0.0;
+	double bogus_unlink_count = 0.0;
 	double rate;
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 

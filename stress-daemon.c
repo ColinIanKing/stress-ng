@@ -162,7 +162,8 @@ err_close_fd:
  */
 static int stress_daemon(stress_args_t *args)
 {
-	int fds[2], rc = EXIT_SUCCESS;
+	int fds[2];
+	int rc = EXIT_SUCCESS;
 	pid_t pid;
 	bool daemon_wait = false;
 

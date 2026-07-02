@@ -92,7 +92,9 @@ static int dnotify_exercise(
 	const unsigned long int flags,	/* DN_* flags to watch for */
 	void *private_data)		/* Helper func private data */
 {
-	int fd, i = 0, rc = 0;
+	int fd;
+	int i = 0;
+	int rc = 0;
 #if defined(DN_MULTISHOT)
 	const unsigned long int flags_ms = flags | DN_MULTISHOT;
 #else
@@ -290,7 +292,8 @@ static int dnotify_modify_helper(
 	const char *path,
 	const void *signum)
 {
-	int fd, rc = 0;
+	int fd;
+	int rc = 0;
 	char buffer[1] = { 0 };
 
 	(void)signum;
@@ -400,7 +403,8 @@ static int dnotify_rename_helper(
 
 static int dnotify_rename_file(stress_args_t *args, const char *path)
 {
-	char oldfile[PATH_MAX], newfile[PATH_MAX];
+	char oldfile[PATH_MAX];
+	char newfile[PATH_MAX];
 	int rc;
 
 	stress_fs_make_filename(oldfile, sizeof(oldfile), path, "dnotify_file");
@@ -432,9 +436,10 @@ static const stress_dnotify_stress_t dnotify_stressors[] = {
 static int stress_dnotify(stress_args_t *args)
 {
 	char pathname[PATH_MAX];
-	int ret, rc = EXIT_SUCCESS;
 	struct sigaction act;
 	size_t i;
+	int ret;
+	int rc = EXIT_SUCCESS;
 
 	act.sa_sigaction = dnotify_handler;
 	(void)sigemptyset(&act.sa_mask);

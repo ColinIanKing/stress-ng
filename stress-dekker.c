@@ -73,7 +73,8 @@ static void MLOCKED_TEXT NORETURN stress_dekker_sigill_handler(int signum)
 
 static int stress_dekker_supported(const char *name)
 {
-	static struct sigaction act, oldact;
+	static struct sigaction act;
+	static struct sigaction oldact;
 	int ret;
 
 	(void)shim_memset(&act, 0, sizeof(act));
@@ -107,7 +108,8 @@ static int stress_dekker_supported(const char *name)
 
 static int stress_dekker_p0(stress_args_t *args)
 {
-	int check0, check1;
+	int check0;
+	int check1;
 	double t;
 
 	t = stress_time_now();
@@ -151,7 +153,8 @@ static int stress_dekker_p0(stress_args_t *args)
 
 static int stress_dekker_p1(stress_args_t *args)
 {
-	int check0, check1;
+	int check0;
+	int check1;
 	double t;
 
 	t = stress_time_now();
@@ -203,8 +206,11 @@ static int stress_dekker(stress_args_t *args)
 {
 	const size_t sz = STRESS_MAXIMUM(args->page_size, sizeof(*dekker));
 	pid_t pid;
-	double rate, duration, count;
-	int parent_cpu, rc = EXIT_SUCCESS;
+	double rate;
+	double duration;
+	double count;
+	int parent_cpu;
+	int rc = EXIT_SUCCESS;
 
 	dekker = (dekker_t *)stress_mmap_populate(NULL, sz,
 			PROT_READ | PROT_WRITE,
