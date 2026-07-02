@@ -51,16 +51,22 @@ static const stress_opt_t opts[] = {
 static int stress_ptr_chase(stress_args_t *args)
 {
 	uint64_t ptr_chase_pages = DEFAULT_NEXT_PTRS_SIZE;
-	size_t n, i;
-	int rc = EXIT_NO_RESOURCE;
+	uint64_t counter;
+	size_t n;
+	size_t i;
 	stress_ptrs_t **ptrs;
-	stress_ptrs_t *ptrs_heap, *ptrs_mmap;
+	stress_ptrs_t *ptrs_heap;
+	stress_ptrs_t *ptrs_mmap;
 	register uintptr_t ptr_mask = ~(uintptr_t)1;
 	register stress_ptrs_t *ptr;
-	size_t ptrs_size, total = 0, visited = 0;
+	size_t ptrs_size;
+	size_t total = 0;
+	size_t visited = 0;
 	size_t alloc_size;
-	double metric, t_start, duration;
-	uint64_t counter;
+	double metric;
+	double t_start;
+	double duration;
+	int rc = EXIT_NO_RESOURCE;
 
 	if (!stress_setting_get("ptr-chase-pages", &ptr_chase_pages)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)

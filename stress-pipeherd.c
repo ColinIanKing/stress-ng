@@ -87,7 +87,9 @@ static int stress_pipeherd(stress_args_t *args)
 	stress_pipeherd_data_t data;
 	uint32_t check = stress_mwc32();
 	stress_pid_t s_pids[MAX_PIPEHERD_PROCS];
-	int i, rc, pipeherd_procs = DEFAULT_PIPEHERD_PROCS;
+	int i;
+	int rc;
+	int pipeherd_procs = DEFAULT_PIPEHERD_PROCS;
 	ssize_t sz;
 	bool pipeherd_yield = false;
 #if defined(HAVE_GETRUSAGE) &&	\
@@ -95,7 +97,8 @@ static int stress_pipeherd(stress_args_t *args)
     defined(RUSAGE_SELF) &&	\
     defined(HAVE_RUSAGE_RU_NVCSW)
 	struct rusage usage;
-	double t1, t2;
+	double t1;
+	double t2;
 #endif
 
 	if (!stress_setting_get("pipeherd-procs", &pipeherd_procs)) {

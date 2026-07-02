@@ -98,7 +98,9 @@ static uint32_t mixup;
  */
 static int stress_dirent_proc_prune(struct dirent **dlist, const int n)
 {
-	int i, j, digit_count = 0;
+	int i;
+	int j;
+	int digit_count = 0;
 
 	for (i = 0, j = 0; i < n; i++) {
 		if (dlist[i]) {
@@ -754,7 +756,9 @@ static void stress_proc_dir(
 	stress_args_t *args = ctxt->args;
 	int32_t loops = args->instance < 8 ?
 			(int32_t)(args->instance + 1) : 8;
-	int i, n, ret;
+	int i;
+	int n;
+	int ret;
 	char tmp[PATH_MAX];
 
 	if (UNLIKELY(!stress_continue_flag()))
@@ -839,7 +843,8 @@ static char *stress_random_pid(void)
 {
 	struct dirent **dlist = NULL;
 	static char path[PATH_MAX];
-	int i, n;
+	int i;
+	int n;
 	size_t j;
 
 	(void)shim_strscpy(path, "/proc/self", sizeof(path));
@@ -889,11 +894,13 @@ static int stress_procfs_no_entries(stress_args_t *args)
  */
 static int stress_procfs(stress_args_t *args)
 {
-	int i, n;
 	pthread_t pthreads[MAX_PROCFS_THREADS];
-	int rc, ret[MAX_PROCFS_THREADS];
 	stress_ctxt_t ctxt;
 	struct dirent **dlist = NULL;
+	int i;
+	int n;
+	int rc;
+	int ret[MAX_PROCFS_THREADS];
 
 	n = stress_proc_scandir("/proc", &dlist, NULL, mixup_sort);
 	if (n <= 0)

@@ -141,7 +141,6 @@ static void stress_pci_info_get_by_name(stress_pci_info_t **pci_info_list, const
 static stress_pci_info_t *stress_pci_info_get(void)
 {
 	stress_pci_info_t *pci_info_list = NULL;
-
 	struct dirent **pci_list = NULL;
 	char *pci_dev = NULL;
 
@@ -157,7 +156,8 @@ static stress_pci_info_t *stress_pci_info_get(void)
 			stress_pci_info_get_by_name(&pci_info_list, pci_dev);
 		}
 	} else {
-		int n_devs, i;
+		int n_devs;
+		int i;
 
 		n_devs = scandir(sys_pci_devices, &pci_list, stress_pci_dev_filter, stress_pci_rev_sort);
 		for (i = 0; i < n_devs; i++) {
@@ -192,7 +192,8 @@ static void stress_pci_exercise_file(
 		char buf[4096];
 		size_t sz;
 		struct stat statbuf;
-		size_t n_left, n_read;
+		size_t n_left;
+		size_t n_read;
 		double t;
 
 		if (shim_fstat(fd, &statbuf) < 0)

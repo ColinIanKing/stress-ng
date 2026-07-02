@@ -325,12 +325,17 @@ static void stress_prio_inv_check_policy(
  */
 static int stress_prio_inv(stress_args_t *args)
 {
-	size_t i;
-	int prio_min, prio_max, prio_div, sched_policy = -1;
 	size_t prio_inv_type = 0; /* STRESS_PRIO_INV_TYPE_INHERIT */
 	size_t prio_inv_policy = 2; /* STRESS_PRIO_INV_POLICY_FIFO */
+	size_t i;
+	int prio_min;
+	int prio_max;
+	int prio_div;
+	int sched_policy = -1;
 	int pthread_protocol;
-	int nice_min, nice_max, nice_div;
+	int nice_min;
+	int nice_max;
+	int nice_div;
 	int rc = EXIT_SUCCESS;
 	const pid_t ppid = getpid();
 	pthread_mutexattr_t mutexattr;

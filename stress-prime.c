@@ -146,12 +146,15 @@ static int stress_prime_start(char *prime_start, mpz_t start)
 
 static int OPTIMIZE3 stress_prime(stress_args_t *args)
 {
-	double rate, t_progress_secs;
+	double rate;
+	double t_progress_secs;
 	NOCLOBBER double t_start;
 	NOCLOBBER double duration = 0.0;
 	NOCLOBBER size_t digits = 0;
 	uint64_t ops;
-	mpz_t start, value, factorial;
+	mpz_t start;
+	mpz_t value;
+	mpz_t factorial;
 	int prime_method = STRESS_PRIME_METHOD_INC;
 	bool prime_progress = false;
 	char *prime_start = NULL;
@@ -196,7 +199,8 @@ static int OPTIMIZE3 stress_prime(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 
 	do {
-		double t1, t2;
+		double t1;
+		double t2;
 
 		t1 = stress_time_now();
 		mpz_nextprime(value, start);

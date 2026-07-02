@@ -341,7 +341,8 @@ static void MLOCKED_TEXT stress_prctl_sigsys_handler(int sig, siginfo_t *info, v
  */
 static int stress_prctl_syscall_user_dispatch(stress_args_t *args)
 {
-	int ret, rc = EXIT_FAILURE;
+	int ret;
+	int rc = EXIT_FAILURE;
 	struct sigaction action, oldaction;
 	const pid_t pid = getpid();
 
@@ -436,7 +437,8 @@ static int stress_prctl_child(
 
 #if defined(PR_GET_CHILD_SUBREAPER)
 	{
-		int ret, reaper = 0;
+		int ret;
+		int reaper = 0;
 
 		ret = prctl(PR_GET_CHILD_SUBREAPER, &reaper);
 		(void)ret;
@@ -467,7 +469,8 @@ static int stress_prctl_child(
 #if defined(PR_GET_ENDIAN)
 	/* PowerPC only, but try it on all arches */
 	{
-		int ret, endian;
+		int ret;
+		int endian;
 
 		ret = prctl(PR_GET_ENDIAN, &endian);
 		(void)ret;
@@ -539,7 +542,8 @@ static int stress_prctl_child(
 #if defined(PR_GET_FPEMU)
 	/* ia64 only, but try it on all arches */
 	{
-		int ret, control;
+		int ret;
+		int control;
 
 		ret = prctl(PR_GET_FPEMU, &control);
 		(void)ret;
@@ -554,7 +558,8 @@ static int stress_prctl_child(
 #if defined(PR_GET_FPEXC)
 	/* PowerPC only, but try it on all arches */
 	{
-		int ret, mode;
+		int ret;
+		int mode;
 
 		ret = prctl(PR_GET_FPEXC, &mode);
 		(void)ret;
@@ -568,7 +573,8 @@ static int stress_prctl_child(
 
 #if defined(PR_GET_KEEPCAPS)
 	{
-		int ret, flag = 0;
+		int ret;
+		int flag = 0;
 
 		ret = prctl(PR_GET_KEEPCAPS, &flag);
 		(void)ret;
@@ -623,7 +629,8 @@ static int stress_prctl_child(
     defined(PR_SET_MM_START_CODE) &&	\
     defined(PR_SET_MM_END_CODE)
 	{
-		char *start, *end;
+		char *start;
+		char *end;
 		const intptr_t mask = ~((intptr_t)args->page_size - 1);
 		intptr_t addr;
 
@@ -708,7 +715,8 @@ static int stress_prctl_child(
 
 #if defined(PR_GET_PDEATHSIG)
 	{
-		int ret, sig;
+		int ret;
+		int sig;
 
 		ret = prctl(PR_GET_PDEATHSIG, &sig);
 		(void)ret;

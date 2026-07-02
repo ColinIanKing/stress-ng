@@ -505,7 +505,8 @@ static void MLOCKED_TEXT NORETURN stress_sigill_handler(int signum)
  */
 static int stress_priv_instr(stress_args_t *args)
 {
-	size_t i, len;
+	size_t i;
+	size_t len;
 	int ret;
 	double rate;
 

@@ -102,7 +102,8 @@ static int OPTIMIZE3 stress_poll(stress_args_t *args)
 	pid_t pid;
 	int rc = EXIT_SUCCESS, parent_cpu;
 	register size_t i;
-	size_t max_fds = MAX_PIPES, max_rnd_fds;
+	size_t max_fds = MAX_PIPES;
+	size_t max_rnd_fds;
 	pipe_fds_t *pipe_fds;
 	struct pollfd *poll_fds;
 	int *rnd_fds_index;

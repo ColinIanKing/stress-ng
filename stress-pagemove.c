@@ -86,9 +86,14 @@ static int stress_pagemove_child(stress_args_t *args, void *context)
 {
 	const size_t page_size = args->page_size;
 	size_t page_num;
-	uint8_t *buf, *buf_end, *unmapped_page = NULL, *ptr;
+	uint8_t *buf;
+	uint8_t *buf_end;
+	uint8_t *unmapped_page = NULL;
+	uint8_t *ptr;
 	int rc = EXIT_FAILURE;
-	double duration = 0.0, count = 0.0, rate;
+	double duration = 0.0;
+	double count = 0.0;
+	double rate;
 	int metrics_count = 0;
 	stress_pagemove_info_t *info = (stress_pagemove_info_t *)context;
 #if defined(HAVE_LINUX_MEMPOLICY_H)
@@ -176,7 +181,9 @@ static int stress_pagemove_child(stress_args_t *args, void *context)
 		 *    buf + page_size = tmp
 		 */
 		for (ptr = buf; ptr < buf_end - page_size; ptr += page_size) {
-			void *remap_addr1, *remap_addr2, *remap_addr3;
+			void *remap_addr1;
+			void *remap_addr2;
+			void *remap_addr3;
 
 			if (LIKELY(metrics_count > 0)) {
 				/* faster non-metrics mremaps */
@@ -220,7 +227,8 @@ static int stress_pagemove_child(stress_args_t *args, void *context)
 					(void)shim_mlock(remap_addr3, page_size);
 			} else {
 				/* slower metrics mremaps */
-				double t1, t2;
+				double t1;
+				double t2;
 
 				t1 = stress_time_now();
 				remap_addr1 = mremap((void *)ptr, page_size, page_size,

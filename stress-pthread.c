@@ -429,12 +429,16 @@ die:
 static int stress_pthread(stress_args_t *args)
 {
 	char msg[64];
-	bool locked = false;
-	uint64_t limited = 0, attempted = 0, maximum = 0;
+	uint64_t limited = 0;
+	uint64_t attempted = 0;
+	uint64_t maximum = 0;
 	uint64_t pthread_max = DEFAULT_PTHREAD;
-	int ret;
 	sigset_t set;
-	double count = 0.0, duration = 0.0, average;
+	double count = 0.0;
+	double duration = 0.0;
+	double average;
+	int ret;
+	bool locked = false;
 #if defined(HAVE_PTHREAD_MUTEXATTR_T) &&		\
     defined(HAVE_PTHREAD_MUTEXATTR_INIT) &&		\
     defined(HAVE_PTHREAD_MUTEXATTR_DESTROY) &&		\
@@ -506,7 +510,8 @@ static int stress_pthread(stress_args_t *args)
 	stress_proc_state_set(args->name, STRESS_STATE_RUN);
 
 	do {
-		uint64_t i, j;
+		uint64_t i;
+		uint64_t j;
 
 		keep_thread_running_flag = true;
 		pthread_count = 0;

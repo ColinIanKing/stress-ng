@@ -253,7 +253,9 @@ err:
  */
 static int stress_physpage(stress_args_t *args)
 {
-	int fd_pm, fd_pc, fd_mem;
+	int fd_pm;
+	int fd_pc;
+	int fd_mem;
 	const size_t page_size = args->page_size;
 	uint8_t *ptr = NULL;
 	bool success = true;

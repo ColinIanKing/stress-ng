@@ -84,7 +84,8 @@ static int stress_personality(stress_args_t *args)
 	stress_proc_state_set(args->name, STRESS_STATE_RUN);
 
 	do {
-		size_t i, fails = 0;
+		size_t i;
+		size_t fails = 0;
 
 		for (i = 0; i < n; i++) {
 			const unsigned long int p = personalities[i];

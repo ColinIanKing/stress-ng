@@ -67,7 +67,8 @@ static int stress_pidfd_open(const pid_t pid, const unsigned int flag)
 
 static int stress_pidfd_supported(const char *name)
 {
-	int pidfd, ret;
+	int pidfd;
+	int ret;
 	const pid_t pid = getpid();
 	siginfo_t info;
 
@@ -144,7 +145,8 @@ again:
 			_exit(0);
 		} else {
 			/* Parent */
-			int pidfd, ret;
+			int pidfd;
+			int ret;
 			struct stat statbuf;
 			void *ptr;
 

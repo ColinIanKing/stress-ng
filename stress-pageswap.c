@@ -112,7 +112,10 @@ static int stress_pageswap_child(stress_args_t *args, void *context)
 	size_t max = 0;
 	const size_t pageswap_pages = *(size_t *)context;
 	page_info_t *head = NULL;
-	double count = 0.0, t, duration, rate;
+	double count = 0.0;
+	double t;
+	double duration;
+	double rate;
 	int rc = EXIT_SUCCESS;
 
 	t = stress_time_now();

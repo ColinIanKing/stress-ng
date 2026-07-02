@@ -543,7 +543,6 @@ static int stress_pipe(stress_args_t *args)
 {
 	pid_t wr_pids[MAX_PIPE_PROCS];
 	pid_t rd_pids[MAX_PIPE_PROCS];
-
 	stress_pipe_write_t *pipe_writes;
 	int pipefds[2];
 	int parent_cpu;
@@ -551,12 +550,16 @@ static int stress_pipe(stress_args_t *args)
 	int status;
 	const size_t page_size = args->page_size;
 	size_t pipe_data_size = 4096;
-	size_t pipe_wr_size, pipe_rd_size, buf_wr_size, buf_rd_size;
+	size_t pipe_wr_size;
+	size_t pipe_rd_size;
+	size_t buf_wr_size;
+	size_t buf_rd_size;
 	size_t pipe_readers = MIN_PIPE_PROCS;
 	size_t pipe_writers = MIN_PIPE_PROCS;
 	const size_t pipe_writes_size = MAX_PIPE_PROCS * sizeof(*pipe_writes);
 	size_t i;
-	char *buf_rd, *buf_wr;
+	char *buf_rd;
+	char *buf_wr;
 	const uint32_t val = stress_mwc32();
 	double total_duration;
 	double total_bytes;

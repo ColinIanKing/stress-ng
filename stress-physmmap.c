@@ -65,7 +65,8 @@ static stress_physmmap_t *stress_physmmap_get_ranges(stress_args_t *args)
 {
 	FILE *fp;
 	char buf[4096];
-	stress_physmmap_t *head = NULL, *tail = NULL;
+	stress_physmmap_t *head = NULL;
+	stress_physmmap_t *tail = NULL;
 	const size_t max_size = (~(size_t)0) - args->page_size;
 
 	fp = fopen("/proc/iomem", "r");
@@ -78,7 +79,8 @@ static stress_physmmap_t *stress_physmmap_get_ranges(stress_args_t *args)
 	(void)shim_memset(buf, 0, sizeof(buf));
 	while (fgets(buf, sizeof(buf), fp) != NULL) {
 		if (strstr(buf, "System RAM")) {
-			uintptr_t addr_begin, addr_end;
+			uintptr_t addr_begin;
+			uintptr_t addr_end;
 			stress_physmmap_t *new_physmmap;
 			size_t region_size;
 
@@ -178,9 +180,12 @@ static int stress_physmmap(stress_args_t *args)
 {
 	int fd_mem;
 	const size_t page_size = args->page_size;
-	stress_physmmap_t *physmmap_head, *physmmap;
-	uint64_t mmaps_succeed = 0, mmaps_failed = 0;
-	double t1, t2;
+	stress_physmmap_t *physmmap_head;
+	stress_physmmap_t *physmmap;
+	uint64_t mmaps_succeed = 0;
+	uint64_t mmaps_failed = 0;
+	double t1;
+	double t2;
 	size_t total_pages = 0;
 	size_t max_pages_mapped = 0;
 	bool mappable = false;

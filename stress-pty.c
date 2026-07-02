@@ -90,7 +90,8 @@ static int stress_pty(stress_args_t *args)
 	stress_proc_state_set(args->name, STRESS_STATE_RUN);
 
 	do {
-		size_t i, n;
+		size_t i;
+		size_t n;
 
 		for (n = 0; n < pty_max; n++) {
 			ptys[n].follower = -1;
@@ -447,7 +448,8 @@ static int stress_pty(stress_args_t *args)
 #if defined(TIOCGPTLCK) &&	\
     defined(TIOCSPTLCK)
 			{
-				int ret, locked = 0;
+				int ret;
+				int locked = 0;
 
 				ret = ioctl(ptys[i].leader, TIOCGPTLCK, &locked);
 				if (ret == 0) {
@@ -472,7 +474,8 @@ static int stress_pty(stress_args_t *args)
     defined(TIOCPKT)
 
 			{
-				int val, ret;
+				int val;
+				int ret;
 
 				ret = ioctl(ptys[i].leader, TIOCGPKT, &val);
 				if (ret == 0) {
@@ -525,7 +528,8 @@ static int stress_pty(stress_args_t *args)
 #else
 				const int max_ldisc = 32;
 #endif
-				int ldisc, orig_ldisc;
+				int ldisc;
+				int orig_ldisc;
 
 				if (ioctl(ptys[i].follower, TIOCGETD, &orig_ldisc) == 0) {
 					pr_block_begin();

@@ -225,7 +225,9 @@ retry:
 
 	/* successful read */
 	if (ret == (ssize_t)info->pseek_io_size) {
-		register size_t j, baddata = 0, sz = (size_t)ret;
+		register size_t j;
+		register size_t baddata = 0;
+		register size_t sz = (size_t)ret;
 
 		proc->reads_duration += stress_time_now() - t;
 		proc->reads += (double)ret;
@@ -373,12 +375,15 @@ static int stress_pseek(stress_args_t *args)
 	size_t pseek_bytes;
 	static stress_peekio_info_t info;
 
-	size_t i, file_size;
+	size_t i;
+	size_t file_size;
 	size_t pseek_procs = DEFAULT_PSEEKIO_PROCS;
 	stress_peekio_proc_t *procs;
 	const size_t procs_size = sizeof(*procs) * pseek_procs;
-	double total_writes = 0.0, total_reads = 0.0;
-	double total_writes_duration = 0.0, total_reads_duration = 0.0;
+	double total_writes = 0.0;
+	double total_reads = 0.0;
+	double total_writes_duration = 0.0;
+	double total_reads_duration = 0.0;
 	double rate;
 
 	procs = (stress_peekio_proc_t *)stress_mmap_populate(NULL, procs_size, PROT_READ | PROT_WRITE,

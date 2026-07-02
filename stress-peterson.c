@@ -74,7 +74,8 @@ static void MLOCKED_TEXT NORETURN stress_peterson_sigill_handler(int signum)
 
 static int stress_peterson_supported(const char *name)
 {
-	static struct sigaction act, oldact;
+	static struct sigaction act;
+	static struct sigaction oldact;
 	int ret;
 
 	(void)shim_memset(&act, 0, sizeof(act));
@@ -108,7 +109,8 @@ static int stress_peterson_supported(const char *name)
 
 static int stress_peterson_p0(stress_args_t *args)
 {
-	int check0, check1;
+	int check0;
+	int check1;
 	double t;
 
 	t = stress_time_now();
@@ -157,7 +159,8 @@ static int stress_peterson_p0(stress_args_t *args)
 
 static int stress_peterson_p1(stress_args_t *args)
 {
-	int check0, check1;
+	int check0;
+	int check1;
 	double t;
 
 	t = stress_time_now();
@@ -213,8 +216,11 @@ static int stress_peterson(stress_args_t *args)
 {
 	const size_t sz = STRESS_MAXIMUM(args->page_size, sizeof(*peterson));
 	pid_t pid;
-	double duration, count, rate;
-	int parent_cpu, rc = EXIT_SUCCESS;
+	double duration;
+	double count;
+	double rate;
+	int parent_cpu;
+	int rc = EXIT_SUCCESS;
 
 	peterson = (peterson_t *)stress_mmap_populate(NULL, sz,
 			PROT_READ | PROT_WRITE,

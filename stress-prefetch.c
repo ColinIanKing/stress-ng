@@ -243,7 +243,10 @@ static inline void OPTIMIZE3 stress_prefetch_benchmark(
 	const bool verify,
 	bool *success)
 {
-	double t1, t2, t3, t4;
+	double t1;
+	double t2;
+	double t3;
+	double t4;
 	const size_t l3_data_size = (uintptr_t)l3_data_end - (uintptr_t)l3_data;
 	volatile uint64_t *ptr;
 	uint64_t *pre_ptr;
@@ -389,12 +392,19 @@ static uint64_t stress_prefetch_data_set(uint64_t *l3_data, const uint64_t *l3_d
  */
 static int stress_prefetch(stress_args_t *args)
 {
-	uint64_t *l3_data, *l3_data_end, total_count = 0, checksum_sane;
-	size_t l3_data_size = 0, l3_data_mmap_size;
-	stress_prefetch_info_t prefetch_info[STRESS_PREFETCH_OFFSETS];
-	size_t i, best;
+	uint64_t *l3_data;
+	uint64_t *l3_data_end;
+	uint64_t total_count = 0;
+	uint64_t checksum_sane;
+	size_t l3_data_size = 0;
+	size_t l3_data_mmap_size;
+	size_t i;
+	size_t best;
 	size_t prefetch_method = STRESS_PREFETCH_BUILTIN;
-	double best_rate, ns, non_prefetch_rate;
+	stress_prefetch_info_t prefetch_info[STRESS_PREFETCH_OFFSETS];
+	double best_rate;
+	double ns;
+	double non_prefetch_rate;
 	bool success = true;
 	bool check_prefetch_rate;
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
