@@ -126,8 +126,10 @@ static int stress_bigheap_child(stress_args_t *args, void *context)
 	NOCLOBBER uintptr_t *ptr = NULL;
 	NOCLOBBER const uintptr_t *last_ptr = NULL;
 	NOCLOBBER uintptr_t *last_ptr_end = NULL;
-	NOCLOBBER size_t size = 0, stride;
-	NOCLOBBER double duration = 0.0, count = 0.0;
+	NOCLOBBER size_t size = 0;
+	NOCLOBBER size_t stride;
+	NOCLOBBER double duration = 0.0;
+	NOCLOBBER double count = 0.0;
 	NOCLOBBER bool segv_reported = false;
 	const size_t page_size = args->page_size;
 	double rate;

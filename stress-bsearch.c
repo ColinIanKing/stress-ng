@@ -86,8 +86,10 @@ static void OPTIMIZE3 * bsearch_ternary(
 		register const size_t diff = upper - lower;
 		register const size_t mid1 = lower + (diff / 3);
 		register const size_t mid2 = upper - (diff / 3);
-		register const void *ptr1, *ptr2;
-		register int cmp1, cmp2;
+		register const void *ptr1;
+		register const void *ptr2;
+		register int cmp1;
+		register int cmp2;
 
 		ptr1 = (const void *)((const char *)base + (mid1 * size));
 		cmp1 = compare(key, ptr1);
@@ -130,10 +132,18 @@ static const char *stress_bsearch_method(const size_t i)
  */
 static int OPTIMIZE3 stress_bsearch(stress_args_t *args)
 {
-	int32_t *data, *ptr;
-	size_t n, n8, i, bsearch_method = 0, data_size;
+	int32_t *data;
+	int32_t *ptr;
+	size_t n;
+	size_t n8;
+	size_t i;
+	size_t bsearch_method = 0;
+	size_t data_size;
 	uint64_t bsearch_size = DEFAULT_BSEARCH_SIZE;
-	double rate, duration = 0.0, count = 0.0, sorted = 0.0;
+	double rate;
+	double duration = 0.0;
+	double count = 0.0;
+	double sorted = 0.0;
 	bsearch_func_t bsearch_func;
 	int rc = EXIT_SUCCESS;
 

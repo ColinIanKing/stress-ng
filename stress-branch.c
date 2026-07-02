@@ -52,7 +52,10 @@ static const stress_help_t help[] = {
 static int OPTIMIZE2 stress_branch(stress_args_t *args)
 {
 	/* 64 bit counters is good enough for runs for tens of thousands of years */
-	uint64_t lo, hi, bogo_counter, bogo_thresh;
+	uint64_t lo;
+	uint64_t hi;
+	uint64_t bogo_counter;
+	uint64_t bogo_thresh;
 	int rc = EXIT_SUCCESS;
 
 	static const void ALIGN64 * const labels[] = {

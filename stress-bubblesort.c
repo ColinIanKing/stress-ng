@@ -157,11 +157,17 @@ static void MLOCKED_TEXT stress_bubblesort_handler(int signum)
 static int stress_bubblesort(stress_args_t *args)
 {
 	uint64_t bubblesort_size = DEFAULT_BUBBLESORT_SIZE;
-	int32_t *data, *ptr;
-	size_t n, i, data_size, bubblesort_method = 0;
+	int32_t *data;
+	int32_t *ptr;
+	size_t n;
+	size_t i;
+	size_t data_size;
+	size_t bubblesort_method = 0;
 	double rate;
 	NOCLOBBER int rc = EXIT_SUCCESS;
-	NOCLOBBER double duration = 0.0, count = 0.0, sorted = 0.0;
+	NOCLOBBER double duration = 0.0;
+	NOCLOBBER double count = 0.0;
+	NOCLOBBER double sorted = 0.0;
 	bubblesort_func_t bubblesort_func;
 #if defined(HAVE_SIGLONGJMP)
 	struct sigaction old_action;

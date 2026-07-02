@@ -123,11 +123,15 @@ static inline void OPTIMIZE3 bitonicsort32_rev(void *base, const size_t nmemb)
 static int OPTIMIZE3 stress_bitonicsort(stress_args_t *args)
 {
 	uint64_t bitonicsort_size = DEFAULT_BITONICSORT_SIZE;
-	int32_t *data, *ptr;
-	size_t n, data_size;
+	int32_t *data;
+	int32_t *ptr;
+	size_t n;
+	size_t data_size;
 	NOCLOBBER int rc = EXIT_SUCCESS;
 	double rate;
-	NOCLOBBER double duration = 0.0, count = 0.0, sorted = 0.0;
+	NOCLOBBER double duration = 0.0;
+	NOCLOBBER double count = 0.0;
+	NOCLOBBER double sorted = 0.0;
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 #if defined(HAVE_SIGLONGJMP)
 	struct sigaction old_action;

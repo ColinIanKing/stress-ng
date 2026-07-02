@@ -67,8 +67,10 @@ static void MLOCKED_TEXT stress_bind_mount_child_handler(int signum)
  */
 static int stress_bind_mount_exercise(stress_args_t *args, const char *path)
 {
-	double mount_duration = 0.0, umount_duration = 0.0;
-	double mount_count = 0.0, umount_count = 0.0;
+	double mount_duration = 0.0;
+	double umount_duration = 0.0;
+	double mount_count = 0.0;
+	double umount_count = 0.0;
 	double rate;
 	static const char bind_to_path[] = "/bin";
 
@@ -88,7 +90,10 @@ static int stress_bind_mount_exercise(stress_args_t *args, const char *path)
 
 	do {
 		static const char skip[] = "skipping stressor";
-		int rc, retries, stat_count, stat_okay;
+		int rc;
+		int retries;
+		int stat_count;
+		int stat_okay;
 		DIR *dir;
 		const struct dirent *d;
 		double t;
@@ -222,7 +227,8 @@ bind_umount:
  */
 static int stress_bind_mount(stress_args_t *args)
 {
-	int ret, rc = EXIT_SUCCESS;
+	int ret;
+	int rc = EXIT_SUCCESS;
 	char path[PATH_MAX];
 
 	stress_proc_state_set(args->name, STRESS_STATE_SYNC_WAIT);

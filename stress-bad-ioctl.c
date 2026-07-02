@@ -152,7 +152,8 @@ static void stress_bad_ioctl_dev_dir(
 {
 	struct dirent **dlist;
 	const mode_t flags = S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
-	int i, n;
+	int i;
+	int n;
 
 	if (UNLIKELY(!stress_continue_flag()))
 		return;
@@ -238,10 +239,13 @@ static inline void stress_bad_ioctl_rw(
 {
 	const double threshold = 0.25;
 	const size_t page_size = args->page_size;
-	uint64_t *buf, *buf_page1;
+	uint64_t *buf;
+	uint64_t *buf_page1;
 	uint8_t *buf8;
 	uint16_t *buf16;
-	uint32_t *buf32, *ptr, *buf_end;
+	uint32_t *buf32;
+	uint32_t *ptr;
+	uint32_t *buf_end;
 	uint64_t *buf64;
 
 	typedef struct {
@@ -281,7 +285,8 @@ static inline void stress_bad_ioctl_rw(
 	do {
 		int fd, ret;
 		double t_start;
-		uint8_t type, nr;
+		uint8_t type;
+		uint8_t nr;
 		uint64_t rnd = stress_mwc32();
 		volatile dev_ioctl_info_t *node;
 

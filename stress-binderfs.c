@@ -72,7 +72,8 @@ static int stress_binderfs_supported(const char *name)
     defined(HAVE_MOVE_MOUNT) &&		\
     defined(HAVE_SYS_MOUNT_H)
 	{
-		int fd, fd_mnt;
+		int fd;
+		int fd_mnt;
 
 		fd = fsopen("binder", FSOPEN_CLOEXEC);
 		if (fd < 0)
@@ -175,11 +176,14 @@ static int stress_binderfs_umount(
  */
 static int stress_binderfs(stress_args_t *args)
 {
-	int rc, ret;
+	int rc;
+	int ret;
 	char pathname[PATH_MAX];
 	char filename[PATH_MAX + 16];
-	double mount_duration = 0.0, umount_duration = 0.0;
-	double mount_count = 0.0, umount_count = 0.0;
+	double mount_duration = 0.0;
+	double umount_duration = 0.0;
+	double mount_count = 0.0;
+	double umount_count = 0.0;
 	double rate;
 	static const char skip[] = "skipping stressor";
 
@@ -204,7 +208,8 @@ static int stress_binderfs(stress_args_t *args)
     defined(HAVE_FSMOUNT) &&		\
     defined(HAVE_MOVE_MOUNT) &&		\
     defined(HAVE_SYS_MOUNT_H)
-		int fd_mnt, saved_errno;
+		int fd_mnt;
+		int saved_errno;
 #endif
 
 		t = stress_time_now();

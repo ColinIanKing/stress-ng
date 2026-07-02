@@ -112,8 +112,10 @@ static int stress_bad_altstack_child(stress_args_t *args)
 	UNEXPECTED
 #endif
 	NOCLOBBER uint32_t rnd;
-	int i, ret;
-	stack_t ss, old_ss;
+	int i;
+	int ret;
+	stack_t ss;
+	stack_t	old_ss;
 	size_t sz;
 #if defined(SIGXCPU) &&	\
     defined(RLIMIT_CPU)
@@ -309,7 +311,8 @@ retry:
  */
 static int stress_bad_altstack(stress_args_t *args)
 {
-	int fd, rc = EXIT_SUCCESS;
+	int fd;
+	int rc = EXIT_SUCCESS;
 #if defined(O_TMPFILE)
 	int tmp_fd;
 #endif
