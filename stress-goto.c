@@ -445,6 +445,7 @@ L0x000:
 static const stress_exercises_t exercises[] = {
 	STRESS_EX_FEATURE("branch"),
 	STRESS_EX_FEATURE("i-tlb-read-miss"),
+	STRESS_EX_FEATURE("speculation-mispredict"),
 	STRESS_EX_FEATURE("user-time"),
 
 	STRESS_EX_END,
