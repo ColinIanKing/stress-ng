@@ -478,7 +478,8 @@ static bool NOINLINE stress_funcret_ ## type(stress_args_t *args);	\
 static bool NOINLINE stress_funcret_ ## type(stress_args_t *args)	\
 {									\
 	register size_t i;						\
-	type a, old_b;							\
+	type a;								\
+	type old_b;							\
 									\
 	stress_funcret_setvar_ ## set(&a, sizeof(a));			\
 	/* taint old_b to keep old compilers happy */			\

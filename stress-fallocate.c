@@ -92,16 +92,22 @@ static const int illegal_modes[] = {
  */
 static int stress_fallocate(stress_args_t *args)
 {
-	int fd_async = -1, ret, pipe_ret = -1, pipe_fds[2] = { -1, -1 };
+	int fd_async = -1;
+	int ret;
+	int pipe_ret = -1;
+	int pipe_fds[2] = { -1, -1 };
 #if defined(O_SYNC)
 	int fd_sync = -1;
 #endif
 	const int bad_fd = stress_fs_bad_fd_get();
 	char filename[PATH_MAX];
 	uint64_t ftrunc_errs = 0;
-	off_t fallocate_bytes, fallocate_bytes_total = DEFAULT_FALLOCATE_BYTES;
-	int *mode_perms = NULL, all_modes;
-	size_t i, mode_count;
+	off_t fallocate_bytes;
+	off_t fallocate_bytes_total = DEFAULT_FALLOCATE_BYTES;
+	int *mode_perms = NULL;
+	int all_modes;
+	size_t i;
+	size_t mode_count;
 	const char *fs_type;
 	int rc = EXIT_SUCCESS;
 #if defined(O_SYNC)

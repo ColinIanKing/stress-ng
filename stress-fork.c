@@ -157,8 +157,12 @@ static void stress_fork_maps_reduce(const size_t page_size, const int reduce_mod
 	 * Look for field 0060b000-0060c000 r--p 0000b000 08:01 1901726
 	 */
 	while (fgets(buffer, sizeof(buffer), fp)) {
-		uint64_t begin, end, len, offset;
-		uintptr_t begin_ptr, end_ptr;
+		uint64_t begin;
+		uint64_t end;
+		uint64_t len;
+		uint64_t offset;
+		uintptr_t begin_ptr;
+		uintptr_t end_ptr;
 		char tmppath[1024];
 		char prot[6];
 		size_t i;
@@ -206,8 +210,10 @@ static void stress_fork_maps_reduce(const size_t page_size, const int reduce_mod
 					(void)madvise((void *)begin_ptr, len, MADV_DONTNEED);
 				} else if (reduce_mode & STRESS_MODE_UNMAP) {
 					unsigned char *vec;
-					uint8_t *ptr, *unmap_start = NULL;
-					size_t unmap_len = 0, j;
+					uint8_t *ptr;
+					uint8_t *unmap_start = NULL;
+					size_t unmap_len = 0;
+					size_t j;
 
 					vec = (unsigned char *)calloc(len / page_size, sizeof(*vec));
 					if (!vec)
@@ -291,7 +297,8 @@ static int stress_fork_fn(
 
 	j = args->instance;
 	do {
-		NOCLOBBER uint32_t i, n;
+		NOCLOBBER uint32_t i;
+		NOCLOBBER uint32_t n;
 		NOCLOBBER const char *fork_fn_name;
 
 		(void)shim_memset(info, 0, sizeof(info));
@@ -485,8 +492,11 @@ static int stress_fork_fn(
 static int stress_fork(stress_args_t *args)
 {
 	uint32_t fork_max = DEFAULT_FORKS;
-	int rc, mode = 0;
-	bool fork_vm = false, fork_unmap = false, fork_pageout = false;
+	int rc;
+	int mode = 0;
+	bool fork_vm = false;
+	bool fork_unmap = false;
+	bool fork_pageout = false;
 
 	(void)stress_setting_get("fork-unmap", &fork_unmap);
 	(void)stress_setting_get("fork-pageout", &fork_pageout);

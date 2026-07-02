@@ -2087,7 +2087,8 @@ static const fd_func_t fd_funcs[] = {
 
 static int stress_fd_abuse_process(stress_args_t *args, void *context)
 {
-	size_t i, n;
+	size_t i;
+	size_t n;
 	pid_t pid;
 	stress_fd_t fds[SIZEOF_ARRAY(open_funcs)];
 

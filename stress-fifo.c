@@ -104,7 +104,8 @@ static void stress_fifo_reader(
 	const char *fifoname,
 	const size_t fifo_data_size)
 {
-	int fd, count = 0;
+	int fd;
+	int count = 0;
 	uint64_t lastval = 0;
 	uint64_t ALIGN64 buf[MAX_FIFO_DATA_SIZE / sizeof(uint64_t)];
 
@@ -224,13 +225,17 @@ redo_select:
  */
 static int stress_fifo(stress_args_t *args)
 {
-	stress_pid_t *s_pids, *s_pids_head = NULL;
+	stress_pid_t *s_pids;
+	stress_pid_t *s_pids_head = NULL;
 	int fd;
 	char fifoname[PATH_MAX];
 	uint64_t i;
 	uint64_t fifo_readers = DEFAULT_FIFO_READERS;
 	int rc = EXIT_SUCCESS;
-	double t, fifo_duration = 0.0, fifo_count = 0.0, rate;
+	double t;
+	double fifo_duration = 0.0;
+	double fifo_count = 0.0;
+	double rate;
 	size_t fifo_data_size = DEFAULT_FIFO_DATA_SIZE;
 	uint64_t ALIGN64 buf[MAX_FIFO_DATA_SIZE / sizeof(uint64_t)];
 	char msg[64];

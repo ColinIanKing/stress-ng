@@ -42,10 +42,19 @@ static const stress_opt_t opts[] = {
 
 static int OPTIMIZE3 stress_factor(stress_args_t *args)
 {
-	size_t factor_digits = 10, max_digits = 0;
-	double total_factors = 0.0, mean, t, duration = 0.0, rate;
+	size_t factor_digits = 10;
+	size_t max_digits = 0;
+	double total_factors = 0.0;
+	double mean;
+	double t;
+	double duration = 0.0;
+	double rate;
 	uint64_t ops, factors;
-	mpz_t value, divisor, q, r, tmp;
+	mpz_t value;
+	mpz_t divisor;
+	mpz_t q;
+	mpz_t r;
+	mpz_t tmp;
 
 	if (!stress_setting_get("factor-digits", &factor_digits)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)

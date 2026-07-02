@@ -59,7 +59,8 @@ static int stress_fault(stress_args_t *args)
 	char filename[PATH_MAX];
 	int ret;
 	NOCLOBBER int i;
-	char *start, *end;
+	char *start;
+	char *end;
 	const size_t len = stress_exec_text_addr(&start, &end);
 	const size_t page_size = args->page_size;
 #if defined(SHIM_POSIX_FADV_DONTNEED) &&	\
@@ -71,9 +72,12 @@ static int stress_fault(stress_args_t *args)
 #if defined(HAVE_GETRUSAGE) &&		\
     defined(RUSAGE_SELF) &&		\
     defined(HAVE_RUSAGE_RU_MINFLT)
-	double t1 = 0.0, t2 = 0.0, dt;
+	double t1 = 0.0;
+	double t2 = 0.0;
+	double dt;
 #endif
-	NOCLOBBER double duration = 0.0, count = 0.0;
+	NOCLOBBER double duration = 0.0;
+	NOCLOBBER double count = 0.0;
 	NOCLOBBER int rc = EXIT_SUCCESS;
 
 	stress_uint8rnd4(buffer, page_size);

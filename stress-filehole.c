@@ -463,13 +463,17 @@ static int stress_filehole(stress_args_t *args)
 	int fd = -1, ret, rc = EXIT_SUCCESS;
 	char filename[PATH_MAX];
 	size_t extents;
-	uint64_t *buf, *zero_buf;
+	uint64_t *buf;
+	uint64_t *zero_buf;
 	uint64_t filehole_bytes_total = DEFAULT_FILEHOLE_BYTES;
 	const size_t page_size = args->page_size;
-	off_t offset, filehole_bytes;
+	off_t offset;
+	off_t filehole_bytes;
 	size_t pages;
-	double max_size, max_blks;
-	double extents_total, extents_count;
+	double max_size;
+	double max_blks;
+	double extents_total;
+	double extents_count;
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 	bool filehole_defrag = false;
 

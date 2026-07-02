@@ -133,7 +133,8 @@ static void stress_fiemap_ioctl(
 #endif
 
 	do {
-		struct fiemap *fiemap, *tmp;
+		struct fiemap *fiemap;
+		struct fiemap *tmp;
 		size_t extents_size;
 
 		fiemap = (struct fiemap *)calloc(1, sizeof(*fiemap));
@@ -241,10 +242,13 @@ static inline pid_t stress_fiemap_spawn(
 static int stress_fiemap(stress_args_t *args)
 {
 	stress_pid_t *s_pids, *s_pids_head = NULL;
-	int ret, fd, rc = EXIT_FAILURE;
+	int ret;
+	int fd;
+	int rc = EXIT_FAILURE;
 	char filename[PATH_MAX];
 	size_t n;
-	uint64_t fiemap_bytes, fiemap_bytes_total = DEFAULT_FIEMAP_SIZE;
+	uint64_t fiemap_bytes;
+	uint64_t fiemap_bytes_total = DEFAULT_FIEMAP_SIZE;
 	struct fiemap fiemap;
 	const char *fs_type;
 #if defined(O_SYNC)

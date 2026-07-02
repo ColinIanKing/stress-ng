@@ -202,16 +202,28 @@ static void stress_flipflop_set_cpuset(cpu_set_t *set, const int num_cpus)
 static int stress_flipflop(stress_args_t *args)
 {
 	const int num_cpus = stress_cpus_configured_get();
-	double t_begin, duration;
+	double t_begin;
+	double duration;
 	stress_flipflop_worker_t *workers;
-	uint64_t bogo_ops, *bits, *dist;
-	bool worker_hold = true, worker_exit = false, all_done;
-	uint32_t flipflop_bits = (uint32_t)num_cpus, i;
-	cpu_set_t cpus_a, cpus_b;
-	uint64_t nr_loops = 0, nr_tries = 0, nr_successes = 0, max_ops;
+	uint64_t bogo_ops;
+	uint64_t *bits;
+	uint64_t *dist;
+	bool worker_hold = true;
+	bool worker_exit = false;
+	bool all_done;
+	uint32_t flipflop_bits = (uint32_t)num_cpus;
+	uint32_t i;
+	cpu_set_t cpus_a;
+	cpu_set_t cpus_b;
+	uint64_t nr_loops = 0;
+	uint64_t nr_tries = 0;
+	uint64_t nr_successes = 0;
+	uint64_t max_ops;
 	size_t bits_size, workers_size;
-	int rc = EXIT_SUCCESS, setbits;
-	char *flipflop_taskset1 = NULL, *flipflop_taskset2 = NULL;
+	int rc = EXIT_SUCCESS;
+	int setbits;
+	char *flipflop_taskset1 = NULL;
+	char *flipflop_taskset2 = NULL;
 	const bool loop_until_max_ops = (args->bogo.max_ops > 0);
 
 	if (!stress_setting_get("flipflop-bits", &flipflop_bits)) {

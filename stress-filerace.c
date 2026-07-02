@@ -1121,7 +1121,8 @@ static void stress_filerace_sendfile_fd(const int fd, const char *filename)
 #if defined(HAVE_NAME_TO_HANDLE_AT)
 static void stress_filerace_name_to_handle_at(const int fd, const char *filename)
 {
-	struct file_handle fhp, *handle;
+	struct file_handle fhp;
+	struct file_handle *handle;
 	int mount_id = 0;
 	const int dir_fd = (*filename == '.') ? AT_FDCWD : 0;
 
@@ -1593,7 +1594,8 @@ static int stress_filerace(stress_args_t *args)
 	int rc = EXIT_SUCCESS;
 	char pathname[PATH_MAX - 256];
 	stress_pid_t s_pids[MAX_FILERACE_PROCS];
-	size_t i, children = 0;
+	size_t i;
+	size_t children = 0;
 	size_t filerace_procs = DEFAULT_FILERACE_PROCS;
 
 	stress_sync_init_pids(s_pids, MAX_FILERACE_PROCS);

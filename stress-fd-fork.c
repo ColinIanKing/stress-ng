@@ -79,7 +79,8 @@ static void stress_fd_close(
 	const size_t n_fds,
 	stress_fd_close_info_t *info)
 {
-	register size_t i, closed = 0;
+	register size_t i;
+	register size_t closed = 0;
 	double t;
 
 	if (info->use_close_range) {
@@ -110,12 +111,17 @@ static void stress_fd_close(
 static int stress_fd_fork(stress_args_t *args)
 {
 	int *fds, rc = EXIT_SUCCESS;
-	size_t i, count_fd = 1, start_fd = 1, fds_size;
+	size_t i;
+	size_t count_fd = 1;
+	size_t start_fd = 1;
+	size_t fds_size;
 	size_t max_fd = stress_fs_file_limit_get();
 	size_t fd_fork_fds = STRESS_FD_DEFAULT;
 	size_t fd_fork_file = STRESS_FD_ZERO;
 	stress_fd_close_info_t *info;
-	double rate, t_start = -1.0, t_max = -1.0;
+	double rate;
+	double t_start = -1.0;
+	double t_max = -1.0;
 	const char *filename;
 
 	if (!stress_setting_get("fd-fork-fds", &fd_fork_fds)) {

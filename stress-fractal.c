@@ -117,7 +117,8 @@ static inline ALWAYS_INLINE int32_t stress_fractal_get_row(stress_args_t *args, 
 	 *  Slow method, always correct but much slower as it requires
 	 *  a lock.
 	 */
-	int32_t row, row_next;
+	int32_t row;
+	int32_t row_next;
 
 	if (UNLIKELY(stress_lock_acquire_relax(g_shared->fractal.lock) < 0))
 		return -1;
@@ -144,7 +145,8 @@ static void OPTIMIZE3 TARGET_CLONES stress_fractal_mandelbrot(fractal_info_t *in
 	const int32_t max_iter = info->iterations;
 	const double dx = info->dx;
 	const int32_t xsize = info->xsize;
-	double xc = info->xmin, yc = info->ymin + ((double)row * info->dy);
+	double xc = info->xmin;
+	double yc = info->ymin + ((double)row * info->dy);
 	uint16_t *data = info->data;
 
 	/* Even numbers of columns */
@@ -156,8 +158,14 @@ static void OPTIMIZE3 TARGET_CLONES stress_fractal_mandelbrot(fractal_info_t *in
 		register double xc1 = xc + dx;
 
 		for (;;) {
-			register double x0_2, y0_2, x1_2, y1_2, t0, t1;
-			register bool end0, end1;
+			register double x0_2;
+			register double y0_2;
+			register double x1_2;
+			register double y1_2;
+			register double t0;
+			register double t1;
+			register bool end0;
+			register bool end1;
 
 			end0 = (iter0 >= max_iter);
 			end1 = (iter1 >= max_iter);
@@ -191,7 +199,8 @@ static void OPTIMIZE3 TARGET_CLONES stress_fractal_mandelbrot(fractal_info_t *in
 
 	/* residual */
 	for (; LIKELY(ix < xsize); ix++) {
-		register double x = 0.0, y = 0.0;
+		register double x = 0.0;
+		register double y = 0.0;
 		register int32_t iter = 0;
 
 		while (LIKELY(iter < max_iter)) {
@@ -236,8 +245,14 @@ static void OPTIMIZE3 TARGET_CLONES stress_fractal_julia(fractal_info_t *info, c
 		register double y1 = y_start;
 
 		for (;;) {
-			register double x0_2, y0_2, x1_2, y1_2, t0, t1;
-			register bool end0, end1;
+			register double x0_2;
+			register double y0_2;
+			register double x1_2;
+			register double y1_2;
+			register double t0;
+			register double t1;
+			register bool end0;
+			register bool end1;
 
 			end0 = (iter0 >= max_iter);
 			end1 = (iter1 >= max_iter);
@@ -319,7 +334,10 @@ static int stress_fractal(stress_args_t *args)
 	fractal_func func;
 	size_t fractal_method = 0;	/* mandelbrot */
 	size_t data_sz;
-	double rate, rows = 0.0, t, duration = 0.0;
+	double rate;
+	double rows = 0.0;
+	double t;
+	double duration = 0.0;
 
 	(void)stress_setting_get("fractal-method", &fractal_method);
 

@@ -88,9 +88,15 @@ static void OPTIMIZE3 * fibsearch(
 static int OPTIMIZE3 stress_fibsearch(stress_args_t *args)
 {
 	int32_t *data, *ptr;
-	size_t n, n8, i, data_size;
+	size_t n;
+	size_t n8;
+	size_t i;
+	size_t data_size;
 	uint64_t fibsearch_size = DEFAULT_FIBSEARCH_SIZE;
-	double rate, duration = 0.0, count = 0.0, sorted = 0.0;
+	double rate;
+	double duration = 0.0;
+	double count = 0.0;
+	double sorted = 0.0;
 	int rc = EXIT_SUCCESS;
 
 	if (!stress_setting_get("fibsearch-size", &fibsearch_size)) {

@@ -151,7 +151,13 @@ static int stress_forkheavy_child(stress_args_t *args, void *context)
 	uint32_t forkheavy_allocs = DEFAULT_FORKHEAVY_ALLOCS;
 	uint32_t forkheavy_procs = DEFAULT_FORKHEAVY_PROCS;
 	bool forkheavy_mlock = false;
-	size_t num_resources, shmall, freemem, totalmem, freeswap, totalswap, min_mem_free;
+	size_t num_resources;
+	size_t shmall;
+	size_t freemem;
+	size_t totalmem;
+	size_t freeswap;
+	size_t totalswap;
+	size_t min_mem_free;
 
 	stress_memory_limits_get(&shmall, &freemem, &totalmem, &freeswap, &totalswap);
 	min_mem_free = (freemem / 100) * 2;

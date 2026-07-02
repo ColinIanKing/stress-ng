@@ -180,7 +180,8 @@ static double TARGET_CLONES OPTIMIZE3 name(				\
 {									\
 	register int i;							\
 	const int loops = LOOPS_PER_CALL >> 1;				\
-	double t1, t2;							\
+	double t1;							\
+	double t2;							\
 									\
 	for (i = 0; i < FP_ELEMENTS; i++) {				\
 		fp_data[i].field.r[idx] = fp_data[i].field.r_init;	\
@@ -220,7 +221,8 @@ static double TARGET_CLONES OPTIMIZE3 name(				\
 {									\
 	register int i;							\
 	const int loops = LOOPS_PER_CALL >> 1;				\
-	double t1, t2;							\
+	double t1;							\
+	double t2;							\
 									\
 	for (i = 0; i < FP_ELEMENTS; i++) {				\
 		fp_data[i].field.r[idx] = fp_data[i].field.r_init;	\
@@ -260,7 +262,8 @@ static double TARGET_CLONES OPTIMIZE3 name(				\
 {									\
 	register int i;							\
 	const int loops = LOOPS_PER_CALL >> 1;				\
-	double t1, t2;							\
+	double t1;							\
+	double t2;							\
 									\
 	for (i = 0; i < FP_ELEMENTS; i++) {				\
 		fp_data[i].field.r[idx] = fp_data[i].field.r_init;	\
@@ -300,7 +303,8 @@ static double TARGET_CLONES OPTIMIZE3 name(				\
 {									\
 	register int i;							\
 	const int loops = LOOPS_PER_CALL >> 1;				\
-	double t1, t2;							\
+	double t1;							\
+	double t2;							\
 									\
 	for (i = 0; i < FP_ELEMENTS; i++) {				\
 		fp_data[i].field.r[idx] = fp_data[i].field.r_init;	\
@@ -862,6 +866,7 @@ static int stress_fp(stress_args_t *args)
 	for (i = 1; i < STRESS_NUM_FP_FUNCS; i++) {
 		const double count = stress_fp_metrics[i].count;
 		const double duration = stress_fp_metrics[i].duration;
+
 		if ((duration > 0.0) && (count > 0.0)) {
 			char msg[64];
 			const double rate = count / duration;

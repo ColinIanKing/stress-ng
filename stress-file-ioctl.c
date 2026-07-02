@@ -211,7 +211,6 @@ static void stress_file_ioctl_ext(stress_args_t *args, const int fd)
 		struct shim_fsuuid fsuuid;
 
 		(void)memset(&fsuuid, 0, sizeof(fsuuid));
-		write(1, "here\n", 5);
 		ret = ioctl(fd, EXT4_IOC_GETFSUUID, &fsuuid);
 		if ((ret == 0) && (fsuuid.fsu_len <= sizeof(fsuuid.fsu_uuid))) {
 			VOID_RET(int, ioctl(fd, EXT4_IOC_GETFSUUID, &fsuuid));
@@ -292,7 +291,9 @@ static const stress_file_ioctl_fs_t stress_file_ioctl_fs[] = {
 static int stress_file_ioctl(stress_args_t *args)
 {
 	char filename[PATH_MAX];
-	int ret, fd, rc = EXIT_SUCCESS;
+	int ret;
+	int fd;
+	int rc = EXIT_SUCCESS;
 	const int bad_fd = stress_fs_bad_fd_get();
 #if defined(FICLONE) || defined(FICLONERANGE)
 	int dfd;

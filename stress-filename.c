@@ -120,7 +120,8 @@ static int stress_filename_probe(
 	size_t sz_max,
 	size_t *chars_allowed)
 {
-	size_t i, j;
+	size_t i;
+	size_t j;
 
 	/*
 	 *  Determine allowed char set for filenames
@@ -188,7 +189,8 @@ static int stress_filename_probe(
  */
 static void stress_filename_ext(size_t *chars_allowed)
 {
-	size_t i, j;
+	size_t i;
+	size_t j;
 
 	for (j = 0, i = 0; i < 256; i++) {
 		if ((i == 0) || (i == '/'))
@@ -383,7 +385,8 @@ static void stress_filename_generate_random_utf8_like(
 	char *filename,
 	const size_t sz_max)
 {
-	size_t i = 0, j = 0;
+	size_t i = 0;
+	size_t j = 0;
 
 	while (i < sz_max) {
 		const size_t residual = STRESS_MINIMUM(sz_max - i, 4);
@@ -483,7 +486,8 @@ static int stress_filename_readdir(
 	struct dirent *d;
 	static int count = 0;
 	struct stat sb_file;
-	int readdir_count = 0, rc = 0;
+	int readdir_count = 0;
+	int rc = 0;
 	static bool filename_differs = false;
 
 	/*
@@ -714,7 +718,8 @@ static void stress_filename_test(
 static int stress_filename(stress_args_t *args)
 {
 	uint32_t utf8ch = 1;
-	int ret, rc = EXIT_SUCCESS;
+	int ret;
+	int rc = EXIT_SUCCESS;
 	size_t sz_left, sz_max;
 	char pathname[PATH_MAX - 256];
 	char filename[PATH_MAX];
@@ -723,7 +728,9 @@ static int stress_filename(stress_args_t *args)
 	struct statvfs buf;
 #endif
 	pid_t pid;
-	size_t i, chars_allowed = 0, sz;
+	size_t i;
+	size_t chars_allowed = 0;
+	size_t sz;
 #if defined(__APPLE__)
 	uint8_t filename_opt = STRESS_FILENAME_POSIX;
 #else

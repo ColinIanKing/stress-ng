@@ -288,8 +288,12 @@ static int OPTIMIZE3 stress_race_fd_client(stress_fd_race_context *context)
 	do {
 		ssize_t n;
 		socklen_t addr_len = 0;
-		int i, fd, retries = 0, so_reuseaddr = 1;
-		int fds_min = INT_MAX, fds_max = -1;
+		int i;
+		int fd;
+		int retries = 0;
+		int so_reuseaddr = 1;
+		int fds_min = INT_MAX;
+		int fds_max = -1;
 		int pthreads_ret[MAX_PTHREADS];
 		pthread_t pthreads[MAX_PTHREADS];
 		size_t j;
@@ -392,7 +396,8 @@ static void *stress_fd_race_current(void *ptr)
 
 	do {
 		int current_fd = context->current_fd;
-		int fd, fd_end;
+		int fd;
+		int fd_end;
 
 		if (context->current_fd == -1) {
 			(void)shim_usleep(200000);
@@ -500,7 +505,9 @@ static int OPTIMIZE3 stress_race_fd_server(
 	stress_fd_race_filename_t *list)
 {
 	size_t j;
-	int fd, so_reuseaddr = 1, rc = EXIT_SUCCESS;
+	int fd;
+	int so_reuseaddr = 1;
+	int rc = EXIT_SUCCESS;
 	socklen_t addr_len = 0;
 	struct sockaddr *addr = NULL;
 	uint64_t msgs = 0;
@@ -580,7 +587,8 @@ retry:
 		sfd = accept(fd, (struct sockaddr *)NULL, NULL);
 		if (sfd >= 0) {
 			ssize_t i;
-			int fds_min = INT_MAX, fds_max = -1;
+			int fds_min = INT_MAX;
+			int fds_max = -1;
 			double t_end = stress_time_now() + 0.5;
 
 			(void)shim_memset(context->fds, 0, context->fds_size);
@@ -794,7 +802,10 @@ static void stress_fd_race_get_dev(
 static int stress_fd_race(stress_args_t *args)
 {
 	pid_t pid;
-	int fd, rc = EXIT_SUCCESS, ret, reserved_port;
+	int fd;
+	int rc = EXIT_SUCCESS;
+	int ret;
+	int reserved_port;
 	char filename[PATH_MAX];
 	stress_fd_race_filename_t *list = NULL;
 	bool fd_race_dev = false;

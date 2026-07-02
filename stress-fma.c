@@ -504,7 +504,8 @@ static inline void OPTIMIZE3 TARGET_CLONES stress_fma_reset_a(stress_fma_t *pfma
 static int stress_fma(stress_args_t *args)
 {
 	stress_fma_t *pfma;
-	register size_t idx_b = 0, idx_c = 0;
+	register size_t idx_b = 0;
+	register size_t idx_c = 0;
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 	const stress_fma_func_t *fma_func_array;
 	bool fma_libc = false;

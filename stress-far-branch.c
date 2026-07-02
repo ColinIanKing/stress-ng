@@ -202,7 +202,8 @@ static void *stress_far_mmap(
 {
 	uint8_t *ptr = (uint8_t *)MAP_FAILED;
 	uintptr_t addr = (uintptr_t)NULL;
-	size_t i, n;
+	size_t i;
+	size_t n;
 	static size_t count = 0;
 
 	/*
@@ -363,19 +364,26 @@ static inline void stress_far_branch_pageout(void *addr, const size_t page_size)
  */
 static int OPTIMIZE3 stress_far_branch(stress_args_t *args)
 {
-	size_t i, j, k;
+	size_t i;
+	size_t j;
+	size_t k;
 	const size_t bits = sizeof(void *) * 8;
 	size_t n_pages = (bits - 16) * PAGE_MULTIPLES;
 	const size_t page_size = args->page_size;
 	uintptr_t base = 0;
 	size_t max_funcs;
-	double t_start, t_next, duration, rate;
+	double t_start;
+	double t_next;
+	double duration;
+	double rate;
 	struct sigaction sa;
 	int ret, fd;
 	NOCLOBBER stress_ret_func_t *funcs = NULL;
 	NOCLOBBER void **pages = NULL;
-	NOCLOBBER size_t total_funcs = 0, total_file_mapped_funcs = 0;
-	NOCLOBBER size_t n_pages_failed = 0, n_pages_mapped = 0;
+	NOCLOBBER size_t total_funcs = 0;
+	NOCLOBBER size_t total_file_mapped_funcs = 0;
+	NOCLOBBER size_t n_pages_failed = 0;
+	NOCLOBBER size_t n_pages_mapped = 0;
 	NOCLOBBER double calls = 0.0;
 	NOCLOBBER bool far_branch_flush = false;
 	NOCLOBBER bool far_branch_pageout = false;
@@ -592,7 +600,8 @@ l1:
 #if defined(MADV_SOFT_OFFLINE) ||	\
     defined(MADV_PAGEOUT)
 		if (UNLIKELY(far_branch_pageout)) {
-			uintptr_t addr1, addr2;
+			uintptr_t addr1;
+			uintptr_t addr2;
 
 			const size_t n = stress_mwc32modn((uint32_t)(n_pages >> 4)) + 1;
 

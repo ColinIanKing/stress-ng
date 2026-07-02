@@ -353,7 +353,9 @@ static int test_fanotify_mark(char *mounts[])
  */
 static int fanotify_event_init(char *mounts[], const unsigned int flags)
 {
-	int fan_fd, count = 0, i;
+	int fan_fd;
+	int count = 0;
+	int i;
 
 	fan_fd = fanotify_init(flags, 0);
 	if (fan_fd < 0)
@@ -501,9 +503,12 @@ static void stress_fanotify_read_events(
  */
 static int stress_fanotify(stress_args_t *args)
 {
-	char pathname[PATH_MAX - 16], filename[PATH_MAX], filename2[PATH_MAX];
+	char pathname[PATH_MAX - 16];
+	char filename[PATH_MAX];
+	char filename2[PATH_MAX];
 	pid_t pid;
-	int ret, rc = EXIT_SUCCESS;
+	int ret;
+	int rc = EXIT_SUCCESS;
 	stress_fanotify_account_t account;
 
 	if (stress_signal_sigchld_handler(args) < 0)

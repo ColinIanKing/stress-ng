@@ -89,7 +89,8 @@ static int stress_fsize_boundary(
 {
 	struct rlimit new_rlim;
 	off_t off;
-	int ret, rc = EXIT_SUCCESS;
+	int ret;
+	int rc = EXIT_SUCCESS;
 
 	if ((rlim_t)offset >= old_rlim->rlim_max)
 		return rc;
@@ -175,11 +176,15 @@ static off_t stress_fsize_max_off_t(void)
 static int stress_fsize(stress_args_t *args)
 {
 	char filename[PATH_MAX];
-	int fd, ret, rc = EXIT_SUCCESS;
+	int fd;
+	int ret;
+	int rc = EXIT_SUCCESS;
 	struct rlimit old_rlim;
 	rlim_t max;
 	off_t max_offset;
-	double t, duration, rate;
+	double t;
+	double duration;
+	double rate;
 
 	/* this should work */
 	if (getrlimit(RLIMIT_FSIZE, &old_rlim) < 0) {
