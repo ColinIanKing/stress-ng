@@ -165,7 +165,8 @@ static int OPTIMIZE3 stress_shm_sysv_check(
 	const size_t sz,
 	const size_t page_size)
 {
-	uint8_t *ptr, val;
+	uint8_t *ptr;
+	uint8_t val;
 	const uint8_t *end = buf + sz;
 
 PRAGMA_UNROLL_N(4)
@@ -634,9 +635,12 @@ static int stress_shm_sysv_child(
 	uint32_t instances = args->instances;
 	const size_t buffer_size = (page_size / sizeof(uint64_t)) + 1;
 	uint64_t *buffer;
-	double shmget_duration = 0.0, shmget_count = 0.0;
-	double shmat_duration = 0.0, shmat_count = 0.0;
-	double shmdt_duration = 0.0, shmdt_count = 0.0;
+	double shmget_duration = 0.0;
+	double shmget_count = 0.0;
+	double shmat_duration = 0.0;
+	double shmat_count = 0.0;
+	double shmdt_duration = 0.0;
+	double shmdt_count = 0.0;
 	uint32_t seg_space = args->instances * (int)shm_sysv_segments;
 	uint32_t max_keys = (seg_space > 0) ? (uint32_t)MAX_SHM_KEYS / seg_space : 1;
 	const uint32_t keys_per_instance = MAX_SHM_KEYS / args->instances;
@@ -674,9 +678,14 @@ static int stress_shm_sysv_child(
 		key_t key;
 
 		for (i = 0; i < shm_sysv_segments; i++) {
-			int shm_id = -1, count = 0;
+			int shm_id = -1;
+			int count = 0;
 			void *addr;
-			size_t shmall, freemem, totalmem, freeswap, totalswap;
+			size_t shmall;
+			size_t freemem;
+			size_t totalmem;
+			size_t freeswap;
+			size_t totalswap;
 			double t;
 
 			/* Try hard not to overcommit at this current time */
@@ -691,7 +700,8 @@ static int stress_shm_sysv_child(
 				goto reap;
 
 			for (count = 0; count < KEY_GET_RETRIES; count++) {
-				int rnd, rnd_flag;
+				int rnd;
+				int rnd_flag;
 retry:
 				rnd = stress_mwc32modn(SIZEOF_ARRAY(shm_flags));
 				rnd_flag = shm_flags[rnd] & mask;
@@ -873,7 +883,8 @@ retry:
 #if defined(__NR_get_mempolicy) &&	\
     defined(__NR_set_mempolicy)
 			{
-				int ret, mode;
+				int ret;
+				int mode;
 				unsigned long int node_mask[NUMA_LONG_BITS];
 
 				ret = shim_get_mempolicy(&mode, node_mask, 1,
@@ -988,16 +999,18 @@ reap:
 static int stress_shm_sysv(stress_args_t *args)
 {
 	const size_t page_size = args->page_size;
-	size_t orig_sz, sz;
+	ssize_t i;
+	size_t orig_sz;
+	size_t sz;
+	size_t shm_sysv_bytes;
+	size_t shm_sysv_bytes_total = DEFAULT_SHM_SYSV_BYTES;
+	size_t shm_sysv_segments = DEFAULT_SHM_SYSV_SEGMENTS;
+	pid_t pid;
+	uint32_t restarts = 0;
 	int pipefds[2];
 	int rc = EXIT_SUCCESS;
-	ssize_t i;
-	pid_t pid;
 	bool retry = true;
 	bool shm_sysv_mlock = false;
-	uint32_t restarts = 0;
-	size_t shm_sysv_bytes, shm_sysv_bytes_total = DEFAULT_SHM_SYSV_BYTES;
-	size_t shm_sysv_segments = DEFAULT_SHM_SYSV_SEGMENTS;
 
 	if (!stress_setting_get("shm-sysv-mlock", &shm_sysv_mlock)) {
 		if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)

@@ -54,7 +54,8 @@ static void MLOCKED_TEXT stress_sighup_handler(int num)
 
 static int stress_sighup_raise_signal(stress_args_t *args)
 {
-	pid_t pid, ret;
+	pid_t pid;
+	pid_t ret;
 	int status;
 
 again:
@@ -103,7 +104,8 @@ static void stress_sighup_closefds(int fds[2])
 
 static int stress_sighup_process_group(stress_args_t *args)
 {
-	pid_t pid, ret;
+	pid_t pid;
+	pid_t ret;
 	int status;
 	char msg = 'x';
 

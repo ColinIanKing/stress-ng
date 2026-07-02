@@ -66,7 +66,8 @@ static void OPTIMIZE3 stress_rndstr_case(char *str, const size_t len, bool upper
 	};
 
 	register const char *alphabet;
-	register char *ptr, *ptr_end;
+	register char *ptr;
+	register char *ptr_end;
 	register const uint32_t mask = 0xc0000000;
 	register uint32_t v = stress_mwc32() | mask;
 
@@ -677,7 +678,8 @@ static int stress_str(stress_args_t *args)
 	char ALIGN64 strdst[STRDSTLEN];
 	stress_str_args_t info;
 	const stress_str_method_info_t *str_method_info;
-	size_t i, str_method = 0;
+	size_t i;
+	size_t str_method = 0;
 	bool toggle = false;
 
 	(void)stress_setting_get("str-method", &str_method);

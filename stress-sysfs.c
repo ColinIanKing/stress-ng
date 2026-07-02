@@ -177,7 +177,8 @@ static inline stress_hash_t *stress_sys_bad(stress_hash_table_t *hash_table, con
 static inline bool stress_sys_rw(stress_ctxt_t *ctxt)
 {
 	int fd;
-	ssize_t i = 0, ret;
+	ssize_t i = 0;
+	ssize_t ret;
 	char buffer[SYS_BUF_SZ];
 	char path[PATH_MAX];
 	stress_args_t *args = ctxt->args;
@@ -526,7 +527,8 @@ static void stress_sys_dir(
 	struct dirent **dlist = NULL;
 	stress_args_t *args = ctxt->args;
 	mode_t flags = S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
-	int i, n;
+	int i;
+	int n;
 
 	if (UNLIKELY(!stress_continue_flag()))
 		return;
@@ -554,7 +556,9 @@ static void stress_sys_dir(
 		struct stat buf;
 		char tmp[PATH_MAX];
 		const struct dirent *d = dlist[i];
-		double time_start, time_end, time_out;
+		double time_start;
+		double time_end;
+		double time_out;
 
 		if (stress_fs_filename_dotty(d->d_name))
 			goto dt_reg_free;
@@ -682,12 +686,17 @@ static bool stress_sysfs_bad_signal(const int status)
  */
 static int stress_sysfs(stress_args_t *args)
 {
-	int i, n, rc = EXIT_SUCCESS;
+	int i;
+	int n;
+	int rc = EXIT_SUCCESS;
 	pthread_t pthreads[MAX_SYSFS_THREADS];
-	int ret, pthreads_ret[MAX_SYSFS_THREADS];
+	int ret;
+	int pthreads_ret[MAX_SYSFS_THREADS];
 	stress_ctxt_t *ctxt;
 	struct dirent **dlist = NULL;
-	double t, duration, rate;
+	double t;
+	double duration;
+	double rate;
 
 	ctxt = (stress_ctxt_t *)stress_mmap_populate(NULL, sizeof(*ctxt),
 				     PROT_READ | PROT_WRITE,

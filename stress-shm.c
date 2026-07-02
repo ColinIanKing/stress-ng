@@ -68,7 +68,8 @@ static int stress_shm_posix_check(
 	const size_t sz,
 	const size_t page_size)
 {
-	uint8_t *ptr, val;
+	uint8_t *ptr;
+	uint8_t val;
 	const uint8_t *end = buf + sz;
 
 	(void)shim_memset(buf, 0xa5, sz);
@@ -142,7 +143,8 @@ static int stress_shm_posix_child(
 
 	do {
 		for (i = 0; ok && (i < (ssize_t)shm_posix_objects); i++) {
-			int shm_fd, ret;
+			int shm_fd;
+			int ret;
 			pid_t newpid;
 			void *addr;
 			char *shm_name = &shm_names[i * SHM_NAME_LEN];
@@ -357,7 +359,8 @@ reap:
 static int stress_shm(stress_args_t *args)
 {
 	const size_t page_size = args->page_size;
-	size_t orig_sz, sz;
+	size_t orig_sz;
+	size_t sz;
 	int pipefds[2];
 	int rc = EXIT_SUCCESS;
 	ssize_t i;
@@ -453,7 +456,7 @@ again:
 
 			while (stress_continue_flag()) {
 				ssize_t n;
-				stress_shm_msg_t 	msg;
+				stress_shm_msg_t msg;
 				char *shm_name;
 
 				/*

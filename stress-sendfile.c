@@ -52,10 +52,17 @@ static const stress_opt_t opts[] = {
 static int stress_sendfile(stress_args_t *args)
 {
 	char filename[PATH_MAX];
-	int i = 0, fdin, fdout, ret, bad_fd, rc = EXIT_SUCCESS;
+	int i = 0;
+	int fdin;
+	int fdout;
+	int ret;
+	int bad_fd;
+	int rc = EXIT_SUCCESS;
 	size_t sz;
 	int64_t sendfile_size = DEFAULT_SENDFILE_SIZE;
-	double duration = 0.0, bytes = 0.0, rate;
+	double duration = 0.0;
+	double bytes = 0.0;
+	double rate;
 	int metrics_count = 0;
 
 	if (!stress_setting_get("sendfile-size", &sendfile_size)) {

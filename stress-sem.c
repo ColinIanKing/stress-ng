@@ -109,7 +109,8 @@ static void OPTIMIZE3 *stress_sem_thrash(void *arg)
 	stress_random_small_sleep();
 
 	do {
-		int i, j = -1;
+		int i;
+		int j = -1;
 
 		for (i = 0; LIKELY((i < 1000) && stress_continue_flag()); i++) {
 			int value;
@@ -206,12 +207,13 @@ static int stress_sem(stress_args_t *args)
 {
 	uint64_t semaphore_posix_procs = DEFAULT_SEM_POSIX_PROCS;
 	uint64_t i;
-	bool created = false;
-	bool sem_shared = false;
 	double wait_count = 0;
 	double trywait_count = 0;
 	double timedwait_count = 0;
-	double t, duration;
+	double t;
+	double duration;
+	bool created = false;
+	bool sem_shared = false;
 
 	if (!stress_setting_get("sem-procs", &semaphore_posix_procs)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)

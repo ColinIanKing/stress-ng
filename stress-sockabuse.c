@@ -710,7 +710,9 @@ static int stress_sockabuse_server(
 	struct sockaddr *addr = NULL;
 	uint64_t msgs = 0;
 	int rc = EXIT_SUCCESS;
-	double t1 = 0.0, t2 = 0.0, dt;
+	double t1 = 0.0;
+	double t2 = 0.0;
+	double dt;
 
 	if (stress_signal_stop_stressing(args->name, SIGALRM) < 0) {
 		rc = EXIT_FAILURE;
@@ -838,9 +840,12 @@ die:
  */
 static int stress_sockabuse(stress_args_t *args)
 {
-	pid_t pid, mypid = getpid();
+	pid_t pid;
+	const pid_t mypid = getpid();
 	int sockabuse_port = DEFAULT_SOCKABUSE_PORT;
-	int rc = EXIT_SUCCESS, reserved_port, parent_cpu;
+	int rc = EXIT_SUCCESS;
+	int reserved_port;
+	int parent_cpu;
 
 	(void)shim_memset(sockabuse_domain_type_flags, 0xff, sizeof(sockabuse_domain_type_flags));
 

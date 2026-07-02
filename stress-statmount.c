@@ -161,12 +161,14 @@ static int stress_statmount_listroot(
 
 static int stress_statmount(stress_args_t *args)
 {
-	uint64_t id;
 	shim_statx_t sx;
-	int ret, rc = EXIT_SUCCESS;
+	uint64_t id;
 	ssize_t max_mounts = 0;
-
-	double duration = 0.0, count = 0.0, rate;
+	int ret;
+	int rc = EXIT_SUCCESS;
+	double duration = 0.0;
+	double count = 0.0;
+	double rate;
 
 	if (shim_statmount(0, 0, NULL, 0, 0) < 0) {
 		if (errno == ENOSYS) {

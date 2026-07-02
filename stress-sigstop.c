@@ -68,7 +68,8 @@ static void MLOCKED_TEXT OPTIMIZE3 stress_sigstop_cont_handler(
  */
 static int stress_sigstop(stress_args_t *args)
 {
-	int rc = EXIT_SUCCESS, parent_cpu;
+	int rc = EXIT_SUCCESS;
+	int parent_cpu;
 	struct sigaction sa;
 
 	stress_sigstop_args = args;

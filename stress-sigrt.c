@@ -43,10 +43,13 @@ static int stress_sigrt(stress_args_t *args)
 {
 	stress_pid_t *s_pids;
 	union sigval s ALIGN64;
-	int i, rc = EXIT_SUCCESS;
+	int i;
+	int rc = EXIT_SUCCESS;
 	stress_metrics_t *stress_sigrt_metrics;
 	size_t stress_sigrt_metrics_size = sizeof(*stress_sigrt_metrics) * MAX_RTSIGS;
-	double count, duration, rate;
+	double count;
+	double duration;
+	double rate;
 
 	stress_sigrt_metrics = (stress_metrics_t *)
 		stress_mmap_populate(NULL, stress_sigrt_metrics_size,

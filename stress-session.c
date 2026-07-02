@@ -82,7 +82,8 @@ static ssize_t stress_session_return_status(const int fd, const int err, const i
  */
 static int stress_session_set_and_get(stress_args_t *args, const int fd)
 {
-	pid_t sid, gsid;
+	pid_t sid;
+	pid_t gsid;
 
 	sid = setsid();
 	if (UNLIKELY(sid == (pid_t)-1)) {

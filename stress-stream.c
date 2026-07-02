@@ -96,7 +96,8 @@ static const stress_stream_madvise_info_t stream_madvise_info[] = {
 static void stress_stream_checksum_to_hexstr(char *str, const size_t len, const double checksum)
 {
 	const unsigned char *ptr = (const unsigned char *)&checksum;
-	size_t i, j;
+	size_t i;
+	size_t j;
 
 	for (i = 0, j = 0; (i < sizeof(checksum)) && ((j + 2) < len); i++, j += 2) {
 		(void)snprintf(str + j, 3, "%2.2x", ptr[i]);
@@ -1166,15 +1167,26 @@ static int stress_stream(stress_args_t *args)
 {
 	stress_mmap_stats_t stats, stats_total;
 	int rc = EXIT_FAILURE;
-	double *a = (double *)MAP_FAILED, *b = (double *)MAP_FAILED, *c = (double *)MAP_FAILED;
-	size_t *idx1 = (size_t *)MAP_FAILED, *idx2 = (size_t *)MAP_FAILED, *idx3 = (size_t *)MAP_FAILED;
+	double *a = (double *)MAP_FAILED;
+	double *b = (double *)MAP_FAILED;
+	double *c = (double *)MAP_FAILED;
+	size_t *idx1 = (size_t *)MAP_FAILED;
+	size_t *idx2 = (size_t *)MAP_FAILED;
+	size_t *idx3 = (size_t *)MAP_FAILED;
 	const double q = 3.0;
 	double old_checksum = -1.0;
-	double fp_ops = 0.0, dt;
-	uint32_t w, z, stream_index = 0;
-	uint64_t L3, sz, n, sz_idx;
+	double fp_ops = 0.0;
+	double dt;
+	uint64_t L3;
+	uint64_t sz;
+	uint64_t n;
+	uint64_t sz_idx;
 	uint64_t stream_L3_size = DEFAULT_STREAM_L3_SIZE;
-	uint32_t init_counter, init_counter_max;
+	uint32_t w;
+	uint32_t z;
+	uint32_t stream_index = 0;
+	uint32_t init_counter;
+	uint32_t init_counter_max;
 	bool guess = false;
 	bool stream_discontiguous = false;
 	bool stream_mlock = false;
@@ -1185,8 +1197,9 @@ static int stress_stream(stress_args_t *args)
 #else
 	const bool has_sse2 = false;
 #endif
-	double rd_bytes = 0.0, wr_bytes = 0.0;
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
+	double rd_bytes = 0.0;
+	double wr_bytes = 0.0;
 
 	stress_signal_catch_sigill();
 

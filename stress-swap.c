@@ -136,7 +136,10 @@ static void stress_swap_self(const size_t page_size)
 	 * Look for field 0060b000-0060c000 r--p 0000b000 08:01 1901726
 	 */
 	while (fgets(buffer, sizeof(buffer), fp)) {
-		uint64_t begin, end, len, offset;
+		uint64_t begin;
+		uint64_t end;
+		uint64_t len;
+		uint64_t offset;
 		char tmppath[1024];
 		char prot[6];
 
@@ -330,13 +333,16 @@ static void stress_swap_clean_dir(stress_args_t *args)
 static int stress_swap_child(stress_args_t *args, void *context)
 {
 	char filename[PATH_MAX];
-	int fd, ret;
+	int fd;
+	int ret;
 	uint8_t *page;
 	uint64_t swapped_out = 0;
 	int32_t max_swap_pages;
 	const size_t page_size = args->page_size;
 	bool swap_self = false;
-	double t, duration, rate;
+	double t;
+	double duration;
+	double rate;
 
 	(void)context;
 
@@ -430,6 +436,7 @@ static int stress_swap_child(stress_args_t *args, void *context)
 		/* Periodically create bad swap header */
 		if (stress_mwc8() < 16) {
 			const size_t idx = stress_mwc8modn(SIZEOF_ARRAY(bad_header_flags));
+
 			bad_flags = bad_header_flags[idx];
 		} else {
 			bad_flags = SWAP_HDR_SANE;	/* No bad header */

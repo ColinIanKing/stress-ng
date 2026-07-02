@@ -92,7 +92,8 @@ static void NORETURN MLOCKED_TEXT stress_bushandler(int signum)
  */
 static int stress_sigbus(stress_args_t *args)
 {
-	int ret, fd;
+	int ret;
+	int fd;
 	char filename[PATH_MAX];
 	const char *fs_type;
 	NOCLOBBER uint8_t *ptr;

@@ -215,7 +215,8 @@ typedef int8_t stress_vint8w1024_t       __attribute__ ((vector_size(1024 / 8)))
 static void stress_syncload_vecmath_init(stress_vint8w1024_t *a, const size_t len)
 {
 	uint32_t *data = (uint32_t *)a;
-	size_t i, n = len >> 2;
+	size_t i;
+	size_t n = len >> 2;
 
 	for (i = 0; i < n; i++)
 		data[i] = stress_mwc32();
@@ -294,7 +295,9 @@ static int stress_syncload(stress_args_t *args)
 {
 	uint64_t syncload_msbusy = STRESS_SYNCLOAD_MS_DEFAULT;
 	uint64_t syncload_mssleep = STRESS_SYNCLOAD_MS_DEFAULT / 2;
-	double timeout, sec_busy, sec_sleep;
+	double timeout;
+	double sec_busy;
+	double sec_sleep;
 	size_t delay_type = 0;
 	size_t i;
 

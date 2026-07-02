@@ -93,9 +93,15 @@ static void MLOCKED_TEXT stress_sigio_handler(int signum)
  */
 static int stress_sigio(stress_args_t *args)
 {
-	int ret, rc = EXIT_SUCCESS, fds[2], flags = -1, parent_cpu;
-	double t_start, t_delta, rate;
 	char *buffers, *wr_buffer;
+	int ret;
+	int rc = EXIT_SUCCESS;
+	int fds[2];
+	int flags = -1;
+	int parent_cpu;
+	double t_start;
+	double t_delta;
+	double rate;
 
 	sigio_args = args;
 	rd_fd = -1;

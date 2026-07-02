@@ -39,9 +39,12 @@ static void *counter_lock;
 static int stress_sigsuspend(stress_args_t *args)
 {
 	pid_t pid[MAX_SIGSUSPEND_PIDS];
-	size_t n, i;
-	sigset_t mask, oldmask;
-	int rc = EXIT_SUCCESS, parent_cpu;
+	size_t n;
+	size_t i;
+	sigset_t mask;
+	sigset_t oldmask;
+	int rc = EXIT_SUCCESS;
+	int parent_cpu;
 
 	if (stress_signal_handler(args->name, SIGUSR1, stress_signal_ignore_handler, NULL) < 0)
 		return EXIT_FAILURE;

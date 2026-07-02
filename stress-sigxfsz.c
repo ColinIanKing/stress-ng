@@ -47,8 +47,12 @@ static void MLOCKED_TEXT OPTIMIZE3 stress_sigxfsz_handler(int signum)
  */
 static int stress_sigxfsz(stress_args_t *args)
 {
-	int ret, rc = EXIT_SUCCESS, fd;
-	double t_start, t_delta, rate;
+	int ret;
+	int rc = EXIT_SUCCESS;
+	int fd;
+	double t_start;
+	double t_delta;
+	double rate;
 	char buffer[4] ALIGN64;
 	char filename[PATH_MAX];
 	struct rlimit limit;

@@ -229,7 +229,8 @@ static void stress_sock_ioctl(
 
 #if defined(FIOGETOWN)
 	if (!rt) {
-		int ret, own;
+		int ret;
+		int own;
 
 		ret = ioctl(fd, FIOGETOWN, &own);
 		if (ret == 0) {
@@ -245,7 +246,8 @@ static void stress_sock_ioctl(
 
 #if defined(SIOCGPGRP)
 	if (!rt) {
-		int ret, own;
+		int ret;
+		int own;
 
 		ret = ioctl(fd, SIOCGPGRP, &own);
 		if (ret == 0) {
@@ -512,9 +514,11 @@ static int OPTIMIZE3 stress_sock_client(
 	struct sockaddr *addr;
 	size_t n_ctrls;
 	char **ctrls;
-	int recvflag = 0, rc = EXIT_FAILURE;
+	int recvflag = 0;
+	int rc = EXIT_FAILURE;
 	int bad_fd = stress_fs_bad_fd_get();
-	uint64_t inq_bytes = 0, inq_samples = 0;
+	uint64_t inq_bytes = 0;
+	uint64_t inq_samples = 0;
 	uint32_t count = 0;
 
 	stress_parent_died_alarm();
@@ -614,7 +618,8 @@ retry:
 #endif
 #if defined(IP_MTU)
 		{
-			int ret, mtu;
+			int ret;
+			int mtu;
 			socklen_t optlen;
 
 			optlen = sizeof(mtu);
@@ -659,7 +664,8 @@ retry:
 
 #if defined(TCP_NODELAY)
 			{
-				int val = 0, ret;
+				int val = 0;
+				int ret;
 				socklen_t optlen = sizeof(val);
 
 				ret = getsockopt(fd, IPPROTO_TCP, TCP_NODELAY, &val, &optlen);
@@ -671,7 +677,8 @@ retry:
 #endif
 #if defined(TCP_CORK)
 			{
-				int val = 0, ret;
+				int val = 0;
+				int ret;
 				socklen_t optlen = sizeof(val);
 
 				ret = getsockopt(fd, IPPROTO_TCP, TCP_CORK, &val, &optlen);
@@ -683,7 +690,8 @@ retry:
 #endif
 #if defined(TCP_DEFER_ACCEPT)
 			{
-				int val = 0, ret;
+				int val = 0;
+				int ret;
 				socklen_t optlen = sizeof(val);
 
 				ret = getsockopt(fd, IPPROTO_TCP, TCP_DEFER_ACCEPT, &val, &optlen);
@@ -695,7 +703,8 @@ retry:
 #endif
 #if defined(TCP_KEEPCNT)
 			{
-				int val = 0, ret;
+				int val = 0;
+				int ret;
 				socklen_t optlen = sizeof(val);
 
 				ret = getsockopt(fd, IPPROTO_TCP, TCP_KEEPCNT, &val, &optlen);
@@ -707,7 +716,8 @@ retry:
 #endif
 #if defined(TCP_KEEPIDLE)
 			{
-				int val = 0, ret;
+				int val = 0;
+				int ret;
 				socklen_t optlen = sizeof(val);
 
 				ret = getsockopt(fd, IPPROTO_TCP, TCP_KEEPIDLE, &val, &optlen);
@@ -719,7 +729,8 @@ retry:
 #endif
 #if defined(TCP_KEEPINTVL)
 			{
-				int val = 0, ret;
+				int val = 0;
+				int ret;
 				socklen_t optlen = sizeof(val);
 
 				ret = getsockopt(fd, IPPROTO_TCP, TCP_KEEPINTVL, &val, &optlen);
@@ -731,7 +742,8 @@ retry:
 #endif
 #if defined(TCP_LINGER2)
 			{
-				int val = 0, ret;
+				int val = 0;
+				int ret;
 				socklen_t optlen = sizeof(val);
 
 				ret = getsockopt(fd, IPPROTO_TCP, TCP_LINGER2, &val, &optlen);
@@ -743,7 +755,8 @@ retry:
 #endif
 #if defined(TCP_MAXSEG)
 			{
-				int val = 0, ret;
+				int val = 0;
+				int ret;
 				socklen_t optlen = sizeof(val);
 
 				ret = getsockopt(fd, IPPROTO_TCP, TCP_MAXSEG, &val, &optlen);
@@ -755,7 +768,8 @@ retry:
 #endif
 #if defined(TCP_SYNCNT)
 			{
-				int val = 0, ret;
+				int val = 0;
+				int ret;
 				socklen_t optlen = sizeof(val);
 
 				ret = getsockopt(fd, IPPROTO_TCP, TCP_SYNCNT, &val, &optlen);
@@ -767,7 +781,8 @@ retry:
 #endif
 #if defined(TCP_USER_TIMEOUT)
 			{
-				int val = 0, ret;
+				int val = 0;
+				int ret;
 				socklen_t optlen = sizeof(val);
 
 				ret = getsockopt(fd, IPPROTO_TCP, TCP_USER_TIMEOUT, &val, &optlen);
@@ -779,7 +794,8 @@ retry:
 #endif
 #if defined(TCP_WINDOW_CLAMP)
 			{
-				int val = 0, ret;
+				int val = 0;
+				int ret;
 				socklen_t optlen = sizeof(val);
 
 				ret = getsockopt(fd, IPPROTO_TCP, TCP_WINDOW_CLAMP, &val, &optlen);
@@ -795,7 +811,8 @@ retry:
 			ssize_t n = 0;
 #if defined(HAVE_RECVMSG) ||	\
     defined(HAVE_RECVMMSG)
-			size_t i, j;
+			size_t i;
+			size_t j;
 			struct iovec ALIGN64 vec[MMAP_IO_SIZE / 16];
 #endif
 #if defined(HAVE_RECVMSG)
@@ -961,19 +978,21 @@ static int OPTIMIZE3 stress_sock_server(
 	const bool rt,
 	const bool sock_zerocopy)
 {
+	struct sockaddr *addr = NULL;
+	void *ptr = MAP_FAILED;
+	socklen_t addr_len = 0;
+	uint64_t msgs = 0;
+	uint64_t outq_bytes = 0, outq_samples = 0;
+	const size_t page_size = args->page_size;
+	size_t sock_msgs = DEFAULT_SOCKET_MSGS;
+	int rc = EXIT_SUCCESS;
+	int sendflag = 0;
 	int fd;
 	int so_reuseaddr = 1;
-	socklen_t addr_len = 0;
-	struct sockaddr *addr = NULL;
-	uint64_t msgs = 0;
-	int rc = EXIT_SUCCESS;
-	const size_t page_size = args->page_size;
-	void *ptr = MAP_FAILED;
 	const pid_t self = getpid();
-	int sendflag = 0;
-	double t, duration, metric;
-	uint64_t outq_bytes = 0, outq_samples = 0;
-	size_t sock_msgs = DEFAULT_SOCKET_MSGS;
+	double t;
+	double duration;
+	double metric;
 #if defined(SIOCOUTQ)
 	uint32_t count = 0;
 #endif
@@ -1105,14 +1124,16 @@ retry:
 		sfd = accept(fd, (struct sockaddr *)NULL, NULL);
 #endif
 		if (LIKELY(sfd >= 0)) {
-			size_t i, k;
+			size_t i;
+			size_t k;
 #if defined(HAVE_SENDMSG) ||	\
     defined(HAVE_SENDMMSG)
 			size_t j;
 #endif
 			struct sockaddr saddr;
 			socklen_t len;
-			int sndbuf, opt;
+			int sndbuf;
+			int opt;
 #if defined(HAVE_SENDMSG) ||	\
     defined(HAVE_SENDMMSG)
 			struct iovec ALIGN64 vec[MMAP_IO_SIZE / 16];
@@ -1377,18 +1398,19 @@ static bool stress_sock_kernel_rt(void)
  */
 static int stress_sock(stress_args_t *args)
 {
-	pid_t pid, mypid = getpid();
+	char *mmap_buffer;
+	char *sock_if = NULL;
+	pid_t pid;
+	const pid_t mypid = getpid();
 	size_t idx;
 	int sock_opts;
 	int sock_domain = AF_INET;
 	int sock_type;
 	int sock_port = DEFAULT_SOCKET_PORT;
 	int sock_protocol = 0;
-	bool sock_zerocopy = false;
 	int rc = EXIT_SUCCESS, reserved_port, parent_cpu;
+	bool sock_zerocopy = false;
 	const bool rt = stress_sock_kernel_rt();
-	char *mmap_buffer;
-	char *sock_if = NULL;
 
 	if (stress_signal_sigchld_handler(args) < 0)
 		return EXIT_NO_RESOURCE;

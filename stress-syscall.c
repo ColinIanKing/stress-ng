@@ -543,7 +543,8 @@ static uint64_t syscall_time_now(void)
 #if defined(HAVE_CLOCK_GETTIME)
 	static struct timespec base_ts = { 0, 0 };
 	struct timespec ts;
-	int64_t sec, ns;
+	int64_t sec;
+	int64_t ns;
 
 	syscall_errno = errno;
 	if (UNLIKELY(clock_gettime(CLOCK_MONOTONIC, &ts) < 0))
@@ -558,7 +559,8 @@ static uint64_t syscall_time_now(void)
 #else
 	static struct timeval base_tv = { 0, 0 };
 	struct timeval tv;
-	int64_t sec, ns;
+	int64_t sec;
+	int64_t ns;
 
         if (gettimeofday(&tv, NULL) < 0)
 		return 0;
@@ -657,7 +659,8 @@ static int syscall_socket_measure(const int measure)
 	if (pid < 0) {
 		return -1;
 	} else if (pid == 0) {
-		int sfd, ret;
+		int sfd;
+		int ret;
 		ssize_t sret;
 
 		sfd = socket(AF_UNIX, SOCK_STREAM, 0);
@@ -738,7 +741,10 @@ close_sfd_child:
 		(void)close(sfd);
 		_exit(0);
 	} else {
-		int sfd, fd, ret, status;
+		int sfd;
+		int fd;
+		int ret;
+		int status;
 		ssize_t sret;
 
 		sfd = socket(AF_UNIX, SOCK_STREAM, 0);
@@ -1350,7 +1356,8 @@ static int syscall_clone3(void)
 #define HAVE_SYSCALL_CLOSE
 static int syscall_close(void)
 {
-	int ret, fd = dup(syscall_fd);
+	int ret;
+	int fd = dup(syscall_fd);
 
 	if (fd < 0)
 		return -1;
@@ -1424,7 +1431,8 @@ static int syscall_dup(void)
 #define HAVE_SYSCALL_DUP2
 static int syscall_dup2(void)
 {
-	int fd, newfd = stress_mwc8() + 32;
+	int fd;
+	int newfd = stress_mwc8() + 32;
 
 	t1 = syscall_time_now();
 	fd = dup2(syscall_fd, newfd);
@@ -1493,7 +1501,9 @@ static int syscall_epoll_create1(void)
 #define HAVE_SYSCALL_EPOLL_CTL
 static int syscall_epoll_ctl(void)
 {
-	int fd, fds[2], ret;
+	int fd;
+	int fds[2];
+	int ret;
 	struct epoll_event event;
 
 	fd = epoll_create(1);
@@ -1525,7 +1535,9 @@ static int syscall_epoll_ctl(void)
 #define HAVE_SYSCALL_EPOLL_PWAIT
 static int syscall_epoll_pwait(void)
 {
-	int fd, fds[2], ret;
+	int fd;
+	int fds[2];
+	int ret;
 	struct epoll_event event;
 	sigset_t sigmask;
 
@@ -1565,7 +1577,9 @@ close_fds:
 #define HAVE_SYSCALL_EPOLL_WAIT
 static int syscall_epoll_wait(void)
 {
-	int fd, fds[2], ret;
+	int fd;
+	int fds[2];
+	int ret;
 	struct epoll_event event;
 	sigset_t sigmask;
 
@@ -1617,7 +1631,8 @@ static int syscall_eventfd(void)
 
 static void syscall_execve_silence_stdio(void)
 {
-	int fd_in, fd_out;
+	int fd_in;
+	int fd_out;
 
 	fd_in = open("/dev/zero", O_RDONLY);
 	if (fd_in < 0) {
@@ -1820,7 +1835,8 @@ static int syscall_fanotify_init(void)
 #define HAVE_SYSCALL_FANOTIFY_MARK
 static int syscall_fanotify_mark(void)
 {
-	int fd, ret;
+	int fd;
+	int ret;
 
 	fd = fanotify_init(0, 0);
 	if (fd < 0)
@@ -1839,7 +1855,8 @@ static int syscall_fanotify_mark(void)
 #define HAVE_SYSCALL_FCHDIR
 static int syscall_fchdir(void)
 {
-	int ret, fd;
+	int ret;
+	int fd;
 
 	fd = openat(AT_FDCWD, ".", O_RDONLY | O_DIRECTORY);
 	if (fd < 0)
@@ -2169,7 +2186,8 @@ static int syscall_futimesat(void)
 #define HAVE_SYSCALL_GETCPU
 static int syscall_getcpu(void)
 {
-	unsigned int cpu, node;
+	unsigned int cpu;
+	unsigned int node;
 	long int ret;
 
 	t1 = syscall_time_now();
@@ -2198,7 +2216,8 @@ static int syscall_getcwd(void)
 #define HAVE_SYSCALL_GETDENTS
 static int syscall_getdents(void)
 {
-	int fd, ret;
+	int fd;
+	int ret;
 	struct shim_linux_dirent *buf;
 	const size_t ndents = 32;
 
@@ -2289,7 +2308,6 @@ static int syscall_getgroups(void)
 static int syscall_getitimer(void)
 {
 	static size_t i = 0;
-
 	struct itimerval val;
 	int ret;
 	const shim_itimer_which_t itimer = itimers[i];
@@ -2314,7 +2332,8 @@ static int syscall_get_mempolicy(void)
 {
 	unsigned long int node_mask[NUMA_LONG_BITS];
 	unsigned long int max_nodes = 1;
-	int ret, mode;
+	int ret;
+	int mode;
 	void *buf;
 
 	buf = mmap(NULL, syscall_page_size, PROT_READ | PROT_WRITE,
@@ -2395,7 +2414,9 @@ static int syscall_getrandom(void)
 #define HAVE_SYSCALL_GETRESGID
 static int syscall_getresgid(void)
 {
-	uid_t ruid, euid, sgid;
+	uid_t ruid;
+	uid_t euid;
+	uid_t sgid;
 	int ret;
 
 	t1 = syscall_time_now();
@@ -2409,7 +2430,9 @@ static int syscall_getresgid(void)
 #define HAVE_SYSCALL_GETRESUID
 static int syscall_getresuid(void)
 {
-	uid_t ruid, euid, suid;
+	uid_t ruid;
+	uid_t euid;
+	uid_t suid;
 	int ret;
 
 	t1 = syscall_time_now();
@@ -2508,7 +2531,9 @@ static int syscall_getsockname(void)
 #define HAVE_SYSCALL_GETSOCKOPT
 static int syscall_getsockopt(void)
 {
-	int sfd, rcvbuf, ret;
+	int sfd;
+	int rcvbuf;
+	int ret;
 	socklen_t len = sizeof(rcvbuf);
 
 	sfd = socket(AF_UNIX, SOCK_STREAM, 0);
@@ -2597,7 +2622,8 @@ static int syscall_getxattr(void)
 #define HAVE_SYSCALL_INOTIFY_ADD_WATCH
 static int syscall_inotify_add_watch(void)
 {
-	int fd, wd;
+	int fd;
+	int wd;
 	const int flags = IN_ACCESS | IN_MODIFY | IN_OPEN;
 
 	fd = inotify_init();
@@ -2655,7 +2681,9 @@ static int syscall_inotify_init1(void)
 #define HAVE_SYSCALL_INOTIFY_RM_WATCH
 static int syscall_inotify_rm_watch(void)
 {
-	int fd, wd, ret;
+	int fd;
+	int wd;
+	int ret;
 	const int flags = IN_ACCESS | IN_MODIFY | IN_OPEN;
 
 	fd = inotify_init();
@@ -2863,7 +2891,8 @@ static int syscall_io_setup(void)
 #define HAVE_SYSCALL_IO_SUBMIT
 static int syscall_io_submit(void)
 {
-	int ret, i;
+	int ret;
+	int i;
 	io_context_t ctx;
 	struct iocb cb[1];
 	struct iocb *cbs[1];
@@ -3312,7 +3341,8 @@ static int syscall_madvise(void)
 #endif
 static int syscall_map_shadow_stack(void)
 {
-	void *stack, *addr;
+	void *stack;
+	void *addr;
 	const size_t stack_size = 0x20000;
 
 	addr = NULL;
@@ -3603,7 +3633,6 @@ static int syscall_mlockall(void)
 static int syscall_mmap(void)
 {
 	static int i = 0;
-
 	void *ptr = (void *)MAP_FAILED;
 
 	i++;
@@ -3712,7 +3741,6 @@ static int syscall_mprotect(void)
 {
 	static size_t i = 0;
 	int ret;
-
 	static const int prot[] = {
 #if defined(PROT_NONE)
 		PROT_NONE,
@@ -3882,7 +3910,8 @@ static int syscall_mq_open(void)
 static int syscall_mq_setattr(void)
 {
 	char mq_name[64];
-	struct mq_attr attr, old_attr;
+	struct mq_attr attr;
+	struct mq_attr old_attr;
 	mqd_t mq;
 	int ret;
 
@@ -4031,7 +4060,8 @@ static int syscall_mq_unlink(void)
 #define HAVE_SYSCALL_MREMAP
 static int syscall_mremap(void)
 {
-	void *new_addr, *old_addr;
+	void *new_addr;
+	void *old_addr;
 	const size_t old_size = syscall_page_size;
 	const size_t new_size = old_size << 1;
 
@@ -4213,7 +4243,8 @@ static int syscall_munmap(void)
 static int syscall_name_to_handle_at(void)
 {
 	int ret, mount_id;
-	struct file_handle *fhp, *tmp;
+	struct file_handle *fhp;
+	struct file_handle *tmp;
 
 	fhp = (struct file_handle *)malloc(sizeof(*fhp));
 	if (!fhp)
@@ -4243,7 +4274,8 @@ static int syscall_name_to_handle_at(void)
 #define HAVE_SYSCALL_NANOSLEEP
 static int syscall_nanosleep(void)
 {
-	struct timespec req, rem;
+	struct timespec req;
+	struct timespec rem;
 	int ret;
 
 	(void)shim_memset((void *)&rem, 0, sizeof(rem));
@@ -4315,8 +4347,12 @@ static int syscall_openat(void)
 #define HAVE_SYSCALL_OPEN_BY_HANDLE_AT
 static int syscall_open_by_handle_at(void)
 {
-	int ret, mount_id, mount_fd, fd;
-	struct file_handle *fhp, *tmp;
+	int ret;
+	int mount_id;
+	int mount_fd;
+	int fd;
+	struct file_handle *fhp;
+	struct file_handle *tmp;
 	FILE *fp;
 	char buffer[5000];
 	char path[PATH_MAX + 1];
@@ -4447,7 +4483,8 @@ static int syscall_pidfd_open(void)
 #define HAVE_SYSCALL_PIDFD_SEND_SIGNAL
 static int syscall_pidfd_send_signal(void)
 {
-	int pidfd, ret;
+	int pidfd;
+	int ret;
 
 	pidfd = shim_pidfd_open(syscall_pid, 0);
 	if (pidfd < 0)
@@ -4463,7 +4500,8 @@ static int syscall_pidfd_send_signal(void)
 #define HAVE_SYSCALL_PIPE
 static int syscall_pipe(void)
 {
-	int fds[2], ret;
+	int fds[2];
+	int ret;
 
 	t1 = syscall_time_now();
 	ret = pipe(fds);
@@ -4480,7 +4518,8 @@ static int syscall_pipe(void)
 #define HAVE_SYSCALL_PIPE2
 static int syscall_pipe2(void)
 {
-	int fds[2], ret;
+	int fds[2];
+	int ret;
 
 	t1 = syscall_time_now();
 	ret = pipe2(fds, O_DIRECT);
@@ -4533,7 +4572,8 @@ static int syscall_pkey_free(void)
 #define HAVE_SYSCALL_PKEY_GET
 static int syscall_pkey_get(void)
 {
-	int pkey, rights;
+	int pkey;
+	int rights;
 
 	pkey = shim_pkey_alloc(0, 0);
 	if (pkey < 0)
@@ -4570,7 +4610,9 @@ static int syscall_pkey_mprotect(void)
 #define HAVE_SYSCALL_PKEY_SET
 static int syscall_pkey_set(void)
 {
-	int pkey, rights, ret;
+	int pkey;
+	int rights;
+	int ret;
 
 	pkey = shim_pkey_alloc(0, 0);
 	if (pkey < 0)
@@ -4666,7 +4708,6 @@ static int syscall_prctl(void)
 {
 	int ret = -1;
 	static size_t i = 0;
-
 	static const int cmds[] = {
 #if defined(PR_GET_CHILD_SUBREAPER)
 		PR_GET_CHILD_SUBREAPER,
@@ -4871,8 +4912,11 @@ static int syscall_prlimit(void)
 #define HAVE_SYSCALL_PROCESS_VM_READV
 static int syscall_process_vm_readv(void)
 {
-	struct iovec local[1], remote[1];
-	void *buf, *local_buf, *remote_buf;
+	struct iovec local[1];
+	struct iovec remote[1];
+	void *buf;
+	void *local_buf;
+	void *remote_buf;
 	size_t ret;
 
 	buf = mmap(NULL, syscall_page_size * 2, PROT_READ | PROT_WRITE,
@@ -4902,8 +4946,11 @@ static int syscall_process_vm_readv(void)
 #define HAVE_SYSCALL_PROCESS_VM_WRITEV
 static int syscall_process_vm_writev(void)
 {
-	struct iovec local[1], remote[1];
-	void *buf, *local_buf, *remote_buf;
+	struct iovec local[1];
+	struct iovec remote[1];
+	void *buf;
+	void *local_buf;
+	void *remote_buf;
 	size_t ret;
 
 	buf = mmap(NULL, syscall_page_size * 2, PROT_READ | PROT_WRITE,
@@ -4932,8 +4979,11 @@ static int syscall_process_vm_writev(void)
 #define HAVE_SYSCALL_PSELECT
 static int syscall_pselect(void)
 {
-	fd_set rd_set, wr_set;
-	int fds[4], nfds = -1, ret;
+	fd_set rd_set;
+	fd_set wr_set;
+	int fds[4];
+	int nfds = -1;
+	int ret;
 	size_t i;
 	struct timespec ts;
 	sigset_t sigmask;
@@ -5028,7 +5078,8 @@ static int syscall_quotactl(void)
 #define HAVE_SYSCALL_QUOTACTL_FD
 static int syscall_quotactl_fd(void)
 {
-	int fd, ret;
+	int fd;
+	int ret;
 
 	fd = open("/", O_DIRECTORY | O_RDONLY);
 	if (fd < 0)
@@ -5350,7 +5401,8 @@ static int syscall_restart_syscall(void)
 static int syscall_riscv_flush_icache(void)
 {
 	int ret;
-	char *start, *end;
+	char *start;
+	char *end;
 
 	(void)stress_exec_text_addr(&start, &end);
 	t1 = syscall_time_now();
@@ -5626,7 +5678,8 @@ static int syscall_sched_setparam(void)
 #define HAVE_SYSCALL_SCHED_SETSCHEDULER
 static int syscall_sched_setscheduler(void)
 {
-	int policy, ret;
+	int policy;
+	int ret;
 	struct sched_param param;
 
 	(void)shim_memset(&param, 0, sizeof(param));
@@ -5689,8 +5742,11 @@ static int syscall_seccomp(void)
 #define HAVE_SYSCALL_SELECT
 static int syscall_select(void)
 {
-	fd_set rd_set, wr_set;
-	int fds[4], nfds = -1, ret;
+	fd_set rd_set;
+	fd_set wr_set;
+	int fds[4];
+	int nfds = -1;
+	int ret;
 	size_t i;
 	struct timeval tv;
 
@@ -5755,7 +5811,8 @@ static int syscall_new_sem_sysv(key_t *key)
 #define HAVE_SYSCALL_SEMCTL
 static int syscall_semctl(void)
 {
-	int sem_id, ret;
+	int sem_id;
+	int ret;
 	key_t key;
 
 	sem_id = syscall_new_sem_sysv(&key);
@@ -5774,7 +5831,8 @@ static int syscall_semctl(void)
 #define HAVE_SYSCALL_SEMGET
 static int syscall_semget(void)
 {
-	int sem_id, ret;
+	int sem_id;
+	int ret;
 	key_t key;
 
 	sem_id = syscall_new_sem_sysv(&key);
@@ -5797,7 +5855,8 @@ static int syscall_semget(void)
 #define HAVE_SYSCALL_SEMOP
 static int syscall_semop(void)
 {
-	int sem_id, ret;
+	int sem_id;
+	int ret;
 	key_t key;
 	struct sembuf sop;
 
@@ -5823,7 +5882,8 @@ static int syscall_semop(void)
 #define HAVE_SYSCALL_SEMTIMEDOP
 static int syscall_semtimedop(void)
 {
-	int sem_id, ret;
+	int sem_id;
+	int ret;
 	key_t key;
 	struct sembuf sop;
 	struct timespec ts;
@@ -5927,7 +5987,8 @@ static int syscall_setitimer(void)
 {
 	static size_t i = 0;
 
-	struct itimerval val, oldval;
+	struct itimerval val;
+	struct itimerval oldval;
 	int ret;
 	const shim_itimer_which_t itimer = itimers[i];
 
@@ -5955,7 +6016,8 @@ static int syscall_set_mempolicy(void)
 {
 	unsigned long int node_mask[NUMA_LONG_BITS];
 	unsigned long int max_nodes = 1;
-	int ret, mode;
+	int ret;
+	int mode;
 	void *buf;
 
 	buf = mmap(NULL, syscall_page_size, PROT_READ | PROT_WRITE,
@@ -6001,7 +6063,8 @@ static int syscall_setpgid(void)
 #define HAVE_SYSCALL_SETPRIORITY
 static int syscall_setpriority(void)
 {
-	int prio, ret;
+	int prio;
+	int ret;
 
 	prio = getpriority(PRIO_PROCESS, syscall_pid);
 	if (prio < 0)
@@ -6019,7 +6082,8 @@ static int syscall_setpriority(void)
 static int syscall_setregid(void)
 {
 	int ret;
-	gid_t rgid, egid;
+	gid_t rgid;
+	gid_t egid;
 
 	rgid = getgid();
 	egid = getegid();
@@ -6037,7 +6101,9 @@ static int syscall_setregid(void)
 static int syscall_setresgid(void)
 {
 	int ret;
-	gid_t rgid, egid, sgid;
+	gid_t rgid;
+	gid_t egid;
+	gid_t sgid;
 
 	if (getresgid(&rgid, &egid, &sgid) < 0)
 		return -1;
@@ -6054,7 +6120,9 @@ static int syscall_setresgid(void)
 #define HAVE_SYSCALL_SETRESUID
 static int syscall_setresuid(void)
 {
-	uid_t ruid, euid, suid;
+	uid_t ruid;
+	uid_t euid;
+	uid_t suid;
 	int ret;
 
 	if (getresuid(&ruid, &euid, &suid) < 0)
@@ -6071,7 +6139,9 @@ static int syscall_setresuid(void)
 #define HAVE_SYSCALL_SETREUID
 static int syscall_setreuid(void)
 {
-	uid_t ruid, euid, suid;
+	uid_t ruid;
+	uid_t euid;
+	uid_t suid;
 	int ret;
 
 	if (getresuid(&ruid, &euid, &suid) < 0)
@@ -6089,7 +6159,8 @@ static int syscall_setrlimit(void)
 {
 	static size_t i = 0;
 
-	struct rlimit old_rlim, new_rlim;
+	struct rlimit old_rlim;
+	struct rlimit new_rlim;
 	int ret;
 	const shim_rlimit_resource_t limit = limits[i];
 
@@ -6155,7 +6226,9 @@ static int syscall_setsid(void)
 #define HAVE_SYSCALL_SETSOCKOPT
 static int syscall_setsockopt(void)
 {
-	int sfd, rcvbuf = 2048, ret;
+	int sfd;
+	int rcvbuf = 2048;
+	int ret;
 	socklen_t len = sizeof(rcvbuf);
 
 	sfd = socket(AF_UNIX, SOCK_STREAM, 0);
@@ -6187,6 +6260,7 @@ static int syscall_setuid(void)
 static int syscall_setxattr(void)
 {
 	int ret;
+
 	t1 = syscall_time_now();
 	ret = shim_setxattr(syscall_filename, syscall_xattr_name, "123", 3, 0);
 	t2 = syscall_time_now();
@@ -6335,7 +6409,8 @@ static int syscall_shutdown(void)
 #define HAVE_SYSCALL_SIGACTION
 static int syscall_sigaction(void)
 {
-	struct sigaction act, old_act;
+	struct sigaction act;
+	struct sigaction old_act;
 	int ret;
 
 	(void)shim_memset(&act, 0, sizeof(act));
@@ -6355,7 +6430,8 @@ static int syscall_sigaction(void)
 #define HAVE_SYSCALL_SIGALTSTACK
 static int syscall_sigaltstack(void)
 {
-	stack_t new_ss, old_ss;
+	stack_t new_ss;
+	stack_t old_ss;
 	uint64_t stack[1024];
 	int ret;
 
@@ -6430,7 +6506,8 @@ static int syscall_sigpending(void)
 #define HAVE_SYSCALL_SIGPROCMASK
 static int syscall_sigprocmask(void)
 {
-	sigset_t new_set, old_set;
+	sigset_t new_set;
+	sigset_t old_set;
 	int ret;
 
 	VOID_RET(int, sigemptyset(&new_set));
@@ -6465,7 +6542,8 @@ static int syscall_sigreturn(void)
 static int syscall_sigsuspend(void)
 {
 	pid_t pid;
-	sigset_t new_mask, old_mask;
+	sigset_t new_mask;
+	sigset_t old_mask;
 	int ret;
 
 	syscall_shared_error(-1);
@@ -6535,7 +6613,8 @@ static int syscall_socket(void)
 #define HAVE_SYSCALL_SOCKETPAIR
 static int syscall_socketpair(void)
 {
-	int sfds[2], ret;
+	int sfds[2];
+	int ret;
 
 	t1 = syscall_time_now();
 	ret = socketpair(AF_UNIX, SOCK_STREAM | SOCK_NONBLOCK, 0, sfds);
@@ -6555,7 +6634,8 @@ static int syscall_socketpair(void)
 static int syscall_splice(void)
 {
 	ssize_t ret = -1;
-	int fd1[2], fd2[2];
+	int fd1[2];
+	int fd2[2];
 	char buf[4];
 	ssize_t sret;
 
@@ -6724,7 +6804,8 @@ static int syscall_sync_file_range(void)
 #define HAVE_SYSCALL_SYNCFS
 static int syscall_syncfs(void)
 {
-	int fd, ret;
+	int fd;
+	int ret;
 
 	fd = openat(AT_FDCWD, ".", O_RDONLY | O_NONBLOCK | O_DIRECTORY);
 	if (fd < 0)
@@ -6778,9 +6859,11 @@ static int syscall_syslog(void)
 #define HAVE_SYSCALL_TEE
 static int syscall_tee(void)
 {
-	int fd1[2], fd2[2];
+	int fd1[2];
+	int fd2[2];
 	char buf[4];
-	ssize_t tret, sret;
+	ssize_t tret;
+	ssize_t sret;
 
 	if (pipe(fd1) < 0)
 		return -1;
@@ -6899,7 +6982,8 @@ static int syscall_timerfd_create(void)
 #define HAVE_SYSCALL_TIMERFD_GETTIME
 static int syscall_timerfd_gettime(void)
 {
-	int fd, ret;
+	int fd;
+	int ret;
 	struct itimerspec value;
 
 	fd = timerfd_create(CLOCK_REALTIME, 0);
@@ -6923,7 +7007,8 @@ static int syscall_timerfd_gettime(void)
 #define HAVE_SYSCALL_TIMERFD_SETTIME
 static int syscall_timerfd_settime(void)
 {
-	int fd, ret;
+	int fd;
+	int ret;
 	struct itimerspec value;
 
 	fd = timerfd_create(CLOCK_REALTIME, 0);
@@ -7013,7 +7098,8 @@ static int syscall_timer_getoverrun(void)
 static int syscall_timer_settime(void)
 {
 	struct sigevent sev;
-	struct itimerspec new_value, old_value;
+	struct itimerspec new_value;
+	struct itimerspec old_value;
 	timer_t timerid;
 	int ret;
 
@@ -7100,7 +7186,8 @@ static int syscall_uname(void)
 #define HAVE_SYSCALL_UNLINK
 static int syscall_unlink(void)
 {
-	int fd, ret;
+	int fd;
+	int ret;
 
 	fd = creat(syscall_tmp_filename, S_IRUSR | S_IWUSR);
 	if (fd < 0)
@@ -7118,7 +7205,8 @@ static int syscall_unlink(void)
 #define HAVE_SYSCALL_UNLINKAT
 static int syscall_unlinkat(void)
 {
-	int fd, ret;
+	int fd;
+	int ret;
 
 	fd = creat(syscall_tmp_filename, S_IRUSR | S_IWUSR);
 	if (fd < 0)
@@ -7407,7 +7495,8 @@ static int syscall_wait(void)
 		_exit(0);
 	} else {
 		for (;;) {
-			int ret, status;
+			int ret;
+			int status;
 
 			ret = wait(&status);
 			if (ret == pid)
@@ -7435,7 +7524,8 @@ static int syscall_wait3(void)
 		_exit(0);
 	} else {
 		for (;;) {
-			int ret, status;
+			int ret;
+			int status;
 			struct rusage usage;
 
 			ret = wait3(&status, 0, &usage);
@@ -7466,7 +7556,8 @@ static int syscall_wait4(void)
 		_exit(0);
 	} else {
 		for (;;) {
-			int ret, status;
+			int ret;
+			int status;
 			struct rusage usage;
 
 			ret = wait4(pid, &status, 0, &usage);
@@ -8672,7 +8763,9 @@ static int cmp_syscall_max(const void *p1, const void *p2)
  */
 static void stress_syscall_report_syscall_top(stress_args_t *args)
 {
-	size_t i, n, sort_index[STRESS_SYSCALLS_MAX];
+	size_t i;
+	size_t n;
+	size_t sort_index[STRESS_SYSCALLS_MAX];
 	size_t syscall_top = 10, syscall_rank = 1;
 
 	(void)stress_setting_get("syscall-top", &syscall_top);
@@ -8745,7 +8838,10 @@ static int cmp_test_duration(const void *p1, const void *p2)
  */
 static void stress_syscall_rank_calls_by_sort(const int percent)
 {
-	size_t i, n, max, sort_index[STRESS_SYSCALLS_MAX];
+	size_t i;
+	size_t n;
+	size_t max;
+	size_t sort_index[STRESS_SYSCALLS_MAX];
 
 	stress_syscall_reset_index();
 
@@ -8783,6 +8879,7 @@ static void stress_syscall_rank_calls_by_sort(const int percent)
 static void stress_syscall_rank_calls(const int syscall_method)
 {
 	size_t i;
+
 	switch (syscall_method) {
 	default:
 	case SYSCALL_METHOD_ALL:
@@ -8828,7 +8925,8 @@ static void stress_syscall_benchmark_calls(stress_args_t *args)
 
 	for (i = 0; i < STRESS_SYSCALLS_MAX; i++) {
 		int ret;
-		uint64_t test_t1, test_t2;
+		uint64_t test_t1;
+		uint64_t test_t2;
 		uint64_t d;
 		size_t j = stress_syscall_index[i];
 		syscall_stats_t *ss = &syscall_stats[j];
@@ -8885,7 +8983,8 @@ static void stress_syscall_benchmark_calls(stress_args_t *args)
  */
 static int stress_syscall(stress_args_t *args)
 {
-	int ret, rc = EXIT_NO_RESOURCE;
+	int ret;
+	int rc = EXIT_NO_RESOURCE;
 	size_t exercised = 0;
 	size_t i;
 	int syscall_method = SYSCALL_METHOD_FAST75;

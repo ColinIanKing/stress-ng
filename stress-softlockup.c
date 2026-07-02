@@ -105,7 +105,8 @@ static NOINLINE void OPTIMIZE0 stress_softlockup_loop(const uint64_t loops)
  */
 static uint64_t OPTIMIZE0 stress_softlockup_loop_count(void)
 {
-	uint64_t n = 1024 * 64, i;
+	uint64_t n = 1024 * 64;
+	uint64_t i;
 
 	do {
 		double t, d;
@@ -250,18 +251,20 @@ tidy:
 
 static int stress_softlockup(stress_args_t *args)
 {
+	struct sched_param param;
+	stress_pid_t *s_pids;
+	stress_pid_t *s_pids_head = NULL;
+	uint64_t loop_count;
+	NOCLOBBER uint64_t timeout;
 	size_t policy = 0;
-	int max_prio = 0, parent_cpu;
-	bool good_policy = false;
-	const bool first_instance = (stress_instance_zero(args));
 	const uint32_t cpus_online = (uint32_t)stress_cpus_online_get();
 	uint32_t i;
-	struct sched_param param;
-	NOCLOBBER uint64_t timeout;
-	const double start = stress_time_now();
-	stress_pid_t *s_pids, *s_pids_head = NULL;
+	int max_prio = 0;
+	int parent_cpu;
 	int rc = EXIT_SUCCESS;
-	uint64_t loop_count;
+	const double start = stress_time_now();
+	const bool first_instance = (stress_instance_zero(args));
+	bool good_policy = false;
 
 	timeout = g_opt_timeout;
 	(void)shim_memset(&param, 0, sizeof(param));

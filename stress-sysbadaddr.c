@@ -441,7 +441,8 @@ static int clone_func(void *ptr)
 static void bad_clone1(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	typedef int (*fn)(void *);
-	int pid, status;
+	int pid;
+	int status;
 
 	(*counter)++;
 	pid = clone((fn)ba->addr, (void *)ba->addr, STRESS_CLONE_FLAGS, (void *)ba->addr,
@@ -454,7 +455,8 @@ static void bad_clone1(stress_bad_addr_t *ba, volatile uint64_t *counter)
 
 static void bad_clone2(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
-	int pid, status;
+	int pid;
+	int status;
 
 	(*counter)++;
 	pid = clone(clone_func, (void *)ba->addr, STRESS_CLONE_FLAGS, NULL, NULL, NULL);
@@ -466,7 +468,8 @@ static void bad_clone3(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unwriteable) {
 		char stack[8192];
-		int pid, status;
+		int pid;
+		int status;
 
 		(*counter)++;
 		pid = clone(clone_func, (void *)stack, STRESS_CLONE_FLAGS, ba->addr, NULL, NULL);
@@ -479,7 +482,8 @@ static void bad_clone4(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unwriteable) {
 		char stack[8192];
-		int pid, status;
+		int pid;
+		int status;
 
 		(*counter)++;
 		pid = clone(clone_func, (void *)stack, STRESS_CLONE_FLAGS, NULL, ba->addr, NULL);
@@ -492,7 +496,8 @@ static void bad_clone5(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unwriteable) {
 		char stack[8192];
-		int pid, status;
+		int pid;
+		int status;
 
 		(*counter)++;
 		pid = clone(clone_func, (void *)stack, STRESS_CLONE_FLAGS, NULL, NULL, ba->addr);
@@ -513,7 +518,8 @@ static void bad_connect(stress_bad_addr_t *ba, volatile uint64_t *counter)
 #if defined(HAVE_COPY_FILE_RANGE)
 static void bad_copy_file_range(shim_off64_t *off_in, shim_off64_t *off_out, volatile uint64_t *counter)
 {
-	int fdin, fdout;
+	int fdin;
+	int fdout;
 
 	fdin = open("/dev/zero", O_RDONLY);
 	if (fdin < 0)
@@ -813,7 +819,8 @@ static void bad_getresgid1(stress_bad_addr_t *ba, volatile uint64_t *counter)
 static void bad_getresgid2(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unwriteable) {
-		gid_t egid, sgid;
+		gid_t egid;
+		gid_t sgid;
 
 		(*counter)++;
 		VOID_RET(int, getresgid((gid_t *)ba->addr, &egid, &sgid));
@@ -823,7 +830,8 @@ static void bad_getresgid2(stress_bad_addr_t *ba, volatile uint64_t *counter)
 static void bad_getresgid3(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unwriteable) {
-		gid_t rgid, sgid;
+		gid_t rgid;
+		gid_t sgid;
 
 		(*counter)++;
 		VOID_RET(int, getresgid(&rgid, (gid_t *)ba->addr, &sgid));
@@ -833,7 +841,8 @@ static void bad_getresgid3(stress_bad_addr_t *ba, volatile uint64_t *counter)
 static void bad_getresgid4(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unwriteable) {
-		gid_t rgid, egid;
+		gid_t rgid;
+		gid_t egid;
 
 		(*counter)++;
 		VOID_RET(int, getresgid(&rgid, &egid, (gid_t *)ba->addr));
@@ -854,7 +863,8 @@ static void bad_getresuid1(stress_bad_addr_t *ba, volatile uint64_t *counter)
 static void bad_getresuid2(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unwriteable) {
-		uid_t euid, suid;
+		uid_t euid;
+		uid_t suid;
 
 		(*counter)++;
 		VOID_RET(int, getresuid((uid_t *)ba->addr, &euid, &suid));
@@ -864,7 +874,8 @@ static void bad_getresuid2(stress_bad_addr_t *ba, volatile uint64_t *counter)
 static void bad_getresuid3(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unwriteable) {
-		uid_t ruid, suid;
+		uid_t ruid;
+		uid_t suid;
 
 		(*counter)++;
 		VOID_RET(int, getresuid(&ruid, (uid_t *)ba->addr, &suid));
@@ -874,7 +885,8 @@ static void bad_getresuid3(stress_bad_addr_t *ba, volatile uint64_t *counter)
 static void bad_getresuid4(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unwriteable) {
-		uid_t ruid, euid;
+		uid_t ruid;
+		uid_t euid;
 
 		(*counter)++;
 		VOID_RET(int, getresuid(&ruid, &euid, (uid_t *)ba->addr));
@@ -1325,7 +1337,8 @@ static void bad_move_pages1(stress_bad_addr_t *ba, volatile uint64_t *counter)
 static void bad_move_pages2(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unreadable) {
-		int nodes = 0, status;
+		int nodes = 0;
+		int status;
 
 		(*counter)++;
 		VOID_RET(long int, shim_move_pages(getpid(), (unsigned long int)1, (void **)ba->addr, &nodes, &status, 0));

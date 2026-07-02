@@ -66,7 +66,8 @@ static const stress_opt_t opts[] = {
  */
 static void stress_semaphore_sysv_init(const uint32_t instances)
 {
-	int count = 0, sem_id;
+	int count = 0;
+	int sem_id;
 
 	(void)instances;
 
@@ -167,7 +168,8 @@ static int OPTIMIZE3 stress_semaphore_sysv_thrash(
 #endif
 
 	do {
-		int i, ret;
+		int i;
+		int ret;
 #if defined(__linux__)
 		bool get_procinfo = true;
 #endif
@@ -208,7 +210,8 @@ static int OPTIMIZE3 stress_semaphore_sysv_thrash(
 		UNEXPECTED
 #endif
 		for (i = 0; i < 1000; i++) {
-			struct sembuf semwait, semsignal;
+			struct sembuf semwait;
+			struct sembuf semsignal;
 
 			semwait.sem_num = 0;
 			semwait.sem_op = -1;
@@ -555,7 +558,8 @@ again:
  */
 static int stress_sem_sysv(stress_args_t *args)
 {
-	stress_pid_t *s_pids, *s_pids_head = NULL;
+	stress_pid_t *s_pids;
+	stress_pid_t *s_pids_head = NULL;
 	uint64_t i;
 	uint64_t semaphore_sysv_procs = DEFAULT_SEM_SYSV_PROCS;
 	int rc = EXIT_SUCCESS;

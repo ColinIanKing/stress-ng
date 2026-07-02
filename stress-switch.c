@@ -99,7 +99,9 @@ static void stress_switch_delay(
 	 *  delay infrequently (at THRESH_FREQ HZ)
 	 */
 	if (++i >= threshold) {
-		double overrun, overrun_by, t;
+		double overrun;
+		double overrun_by;
+		double t;
 		const uint64_t counter = stress_bogo_get(args);
 
 		i = 0;
@@ -133,7 +135,8 @@ static int stress_switch_pipe(
 	const uint64_t threshold)
 {
 	pid_t pid;
-	int pipefds[2], parent_cpu;
+	int pipefds[2];
+	int parent_cpu;
 	size_t buf_size;
 	char *buf;
 
@@ -295,7 +298,9 @@ static int stress_switch_sem_sysv(
 	const uint64_t threshold)
 {
 	pid_t pid;
-	int i, sem_id = -1, parent_cpu;
+	int i;
+	int sem_id = -1;
+	int parent_cpu;
 
 	for (i = 0; i < 100; i++) {
 		key_t key_id = (key_t)stress_mwc16();

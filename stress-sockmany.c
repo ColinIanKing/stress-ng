@@ -182,11 +182,11 @@ static int OPTIMIZE3 stress_sockmany_server(
 	const size_t sockmany_max_size)
 {
 	char ALIGN64 buf[MAX_SOCKMANY_MAX_SIZE];
-	int fd;
-	socklen_t addr_len = 0;
 	struct sockaddr *addr = NULL;
+	socklen_t addr_len = 0;
 	uint64_t msgs = 0;
 	int rc = EXIT_SUCCESS;
+	int fd;
 
 	if (stress_signal_stop_stressing(args->name, SIGALRM) < 0) {
 		rc = EXIT_FAILURE;
@@ -331,12 +331,13 @@ die:
  */
 static int stress_sockmany(stress_args_t *args)
 {
-	pid_t pid, ppid = getppid();
 	stress_sock_fds_t *sock_fds;
-	int sockmany_port = DEFAULT_SOCKET_MANY_PORT;
-	int rc = EXIT_SUCCESS, reserved_port, parent_cpu;
 	char *sockmany_if = NULL;
 	size_t sockmany_max_size = DEFAULT_SOCKMANY_MAX_SIZE;
+	pid_t pid;
+	const pid_t ppid = getppid();
+	int sockmany_port = DEFAULT_SOCKET_MANY_PORT;
+	int rc = EXIT_SUCCESS, reserved_port, parent_cpu;
 
 	if (stress_signal_sigchld_handler(args) < 0)
 		return EXIT_NO_RESOURCE;

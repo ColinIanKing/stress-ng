@@ -223,7 +223,10 @@ static int stress_seccomp_set_huge_filter(stress_args_t *args)
 	struct sock_fprog huge_prog;
 	const size_t bits = sizeof(huge_prog.len) * 8 > 31 ? 31 : sizeof(huge_prog.len) * 8;
 	const size_t n_max = ((size_t)1 << bits) - 1;
-	size_t i, j, n = 32, max = 1;
+	size_t i;
+	size_t j;
+	size_t n = 32;
+	size_t max = 1;
 
 	(void)shim_memset(&huge_prog, 0, sizeof(huge_prog));
 	if (prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0) < 0) {

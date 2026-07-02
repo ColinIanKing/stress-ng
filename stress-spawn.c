@@ -58,13 +58,14 @@ static int stress_spawn_supported(const char *name)
  */
 static int stress_spawn(stress_args_t *args)
 {
-	int rc = EXIT_SUCCESS;
-	char *path;
-	char exec_path[PATH_MAX];
-	char *ld_library_path = NULL;
-	uint64_t spawn_fails = 0, spawn_calls = 0;
 	static char *argv_new[] = { NULL, "--exec-exit", NULL };
 	static char *env_new[] = { NULL, NULL };
+	char exec_path[PATH_MAX];
+	char *path;
+	char *ld_library_path = NULL;
+	uint64_t spawn_fails = 0;
+	uint64_t spawn_calls = 0;
+	int rc = EXIT_SUCCESS;
 
 	/*
 	 *  Don't want to run this when running as root as

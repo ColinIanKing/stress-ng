@@ -133,8 +133,10 @@ static void *stress_pthread_func(void *c)
 		bool eintr;
 		cpu_cstate_t *cc;
 		struct timespec tv;
-		double delta, expected;
-		stress_sleep_times_t t1, t2;
+		double delta;
+		double expected;
+		stress_sleep_times_t t1;
+		stress_sleep_times_t t2;
 #if defined(HAVE_SYS_SELECT_H) &&	\
     defined(HAVE_SELECT)
 		struct timeval timeout;
@@ -376,7 +378,9 @@ skip_pselect:
  */
 static int stress_sleep(stress_args_t *args)
 {
-	uint64_t i, n, limited = 0;
+	uint64_t i;
+	uint64_t n;
+	uint64_t limited = 0;
 	uint64_t sleep_max = DEFAULT_SLEEP;
 	uint64_t underruns = 0;
 	static stress_ctxt_t ctxts[MAX_SLEEP];

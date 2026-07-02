@@ -156,15 +156,23 @@ static void stress_splice_looped_pipe(
  */
 static int stress_splice(stress_args_t *args)
 {
-	int fd_in, fd_out, fds1[2], fds2[2], fds3[2], fds4[2];
-	size_t splice_bytes, splice_bytes_total = DEFAULT_SPLICE_BYTES;
+	char *buffer;
+	ssize_t buffer_len;
+	size_t splice_bytes;
+	size_t splice_bytes_total = DEFAULT_SPLICE_BYTES;
+	int fd_in;
+	int fd_out;
+	int fds1[2];
+	int fds2[2];
+	int fds3[2];
+	int fds4[2];
 	int rc = EXIT_FAILURE;
 	int metrics_count = 0;
 	bool use_splice = true;
 	bool use_splice_loop;
-	char *buffer;
-	ssize_t buffer_len;
-	double duration = 0.0, bytes = 0.0, rate;
+	double duration = 0.0;
+	double bytes = 0.0;
+	double rate;
 
 	if (!stress_setting_get("splice-bytes", &splice_bytes_total)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -255,7 +263,8 @@ static int stress_splice(stress_args_t *args)
 
 	do {
 		ssize_t ret;
-		loff_t off_in, off_out;
+		loff_t off_in;
+		loff_t off_out;
 
 		/*
 		 *  Linux 5.9 dropped the ability to splice from /dev/zero to

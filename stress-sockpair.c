@@ -121,15 +121,22 @@ static void socket_pair_try_leak(void)
  */
 static int stress_sockpair_oomable(stress_args_t *args, void *context)
 {
+	uint64_t low_memory_count = 0;
 	pid_t pid;
 	static int socket_pair_fds[MAX_SOCKET_PAIRS][2];
-	int socket_pair_fds_bad[2];
-	int i, max, ret, parent_cpu;
-	double t, duration, rate, bytes = 0.0;
-	uint64_t low_memory_count = 0;
 	const size_t low_mem_size = args->page_size * 32 * args->instances;
-	const bool oom_avoid = !!(g_opt_flags & OPT_FLAGS_OOM_AVOID);
 	size_t sockpair_max_size = DEFAULT_SOCKPAIR_MAX_SIZE;
+	int socket_pair_fds_bad[2];
+	int i;
+	int max;
+	int ret;
+	int parent_cpu;
+	double t;
+	double duration;
+	double rate;
+	double bytes = 0.0;
+	const bool oom_avoid = !!(g_opt_flags & OPT_FLAGS_OOM_AVOID);
+
 	(void)context;
 
 	if (!stress_setting_get("sockpair-max-size", &sockpair_max_size)) {

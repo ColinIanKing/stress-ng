@@ -292,7 +292,8 @@ static int stress_sockdiag(stress_args_t *args)
 	stress_proc_state_set(args->name, STRESS_STATE_RUN);
 
 	do {
-		int fd, ret;
+		int fd;
+		int ret;
 
 		fd = socket(AF_NETLINK, SOCK_RAW, NETLINK_SOCK_DIAG);
 		if (UNLIKELY(fd < 0)) {

@@ -73,7 +73,8 @@ static int stress_sigq(stress_args_t *args)
 	const pid_t mypid = getpid();
 	const uid_t myuid = getuid();
 #endif
-	int rc = EXIT_SUCCESS, parent_cpu;
+	int rc = EXIT_SUCCESS;
+	int parent_cpu;
 	int val = stress_mwc32();
 
 	if (val == 0)

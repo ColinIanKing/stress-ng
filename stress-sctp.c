@@ -495,13 +495,13 @@ static int OPTIMIZE3 stress_sctp_server(
 	const size_t sctp_max_size)
 {
 	char ALIGN64 buf[MAX_SCTP_MAX_SIZE];
+	struct sockaddr *addr = NULL;
+	socklen_t addr_len = 0;
+	const size_t sctp_min_size = (sctp_max_size & 0xf) + 16;
 	int fd;
 	int so_reuseaddr = 1;
-	socklen_t addr_len = 0;
-	struct sockaddr *addr = NULL;
 	int rc = EXIT_SUCCESS;
 	int idx = 0;
-	const size_t sctp_min_size = (sctp_max_size & 0xf) + 16;
 
 	(void)sctp_sched_type;
 
@@ -631,14 +631,17 @@ static void stress_sctp_sigpipe(int signum)
  */
 static int stress_sctp(stress_args_t *args)
 {
-	pid_t pid, mypid = getpid();
+	char *sctp_if = NULL;
+	size_t sctp_sched = 1; /* default to fcfs */
+	size_t sctp_max_size = DEFAULT_SCTP_MAX_SIZE;
+	pid_t pid;
+	const pid_t mypid = getpid();
 	int sctp_port = DEFAULT_SCTP_PORT;
 	int sctp_domain = AF_INET;
 	int sctp_sched_type = -1; /* undefined */
-	size_t sctp_sched = 1; /* default to fcfs */
-	size_t sctp_max_size = DEFAULT_SCTP_MAX_SIZE;
-	int ret, reserved_port, parent_cpu;
-	char *sctp_if = NULL;
+	int ret;
+	int reserved_port;
+	int parent_cpu;
 
 	if (stress_signal_sigchld_handler(args) < 0)
 		return EXIT_NO_RESOURCE;

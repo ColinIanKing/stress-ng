@@ -265,13 +265,18 @@ static int stress_signest_cmp(const void *p1, const void *p2)
  */
 static int stress_signest(stress_args_t *args)
 {
-	size_t i, sz;
-	int n, ret, rc;
+	size_t i;
+	size_t sz;
+	int n;
+	int ret;
+	int rc;
 	uint8_t *altstack;
-	char *buf, *ptr;
+	char *buf;
+	char *ptr;
 	const size_t altstack_size = STRESS_MINSIGSTKSZ * MAX_SIGNALS;
 	double rate;
-	NOCLOBBER double t, duration;
+	NOCLOBBER double t;
+	NOCLOBBER double duration;
 
 	raised = 0;
 	handled = 0;

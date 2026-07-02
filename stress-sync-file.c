@@ -101,11 +101,14 @@ static int stress_sync_allocate(
  */
 static int stress_sync_file(stress_args_t *args)
 {
-	int fd, ret, rc = EXIT_SUCCESS;
-	const int bad_fd = stress_fs_bad_fd_get();
-	off_t sync_file_bytes, sync_file_bytes_total = DEFAULT_SYNC_FILE_BYTES;
 	char filename[PATH_MAX];
 	const char *fs_type;
+	off_t sync_file_bytes;
+	off_t sync_file_bytes_total = DEFAULT_SYNC_FILE_BYTES;
+	int fd;
+	int ret;
+	int rc = EXIT_SUCCESS;
+	const int bad_fd = stress_fs_bad_fd_get();
 
 	if (!stress_setting_get("sync-file-bytes", &sync_file_bytes_total)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)

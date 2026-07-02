@@ -58,10 +58,13 @@ static inline int shim_signalfd4(
  */
 static int stress_sigfd(stress_args_t *args)
 {
-	pid_t pid, ppid = args->pid;
-	int sfd, parent_cpu, rc = EXIT_SUCCESS;
-	const int bad_fd = stress_fs_bad_fd_get();
 	sigset_t mask;
+	pid_t pid;
+	pid_t ppid = args->pid;
+	int sfd;
+	int parent_cpu;
+	int rc = EXIT_SUCCESS;
+	const int bad_fd = stress_fs_bad_fd_get();
 
 	(void)sigemptyset(&mask);
 	(void)sigaddset(&mask, SIGRTMIN);

@@ -75,12 +75,14 @@ static off_t stress_shim_lseek(int fd, off_t offset, int whence)
  */
 static int stress_seek(stress_args_t *args)
 {
-	uint64_t len;
-	uint64_t seek_size = DEFAULT_SEEK_SIZE;
-	int ret, fd, rc = EXIT_FAILURE;
-	const int bad_fd = stress_fs_bad_fd_get();
 	char filename[PATH_MAX];
 	uint8_t buf[512] ALIGN64;
+	uint64_t len;
+	uint64_t seek_size = DEFAULT_SEEK_SIZE;
+	int ret;
+	int fd;
+	int rc = EXIT_FAILURE;
+	const int bad_fd = stress_fs_bad_fd_get();
 	const off_t bad_off_t = max_off_t();
 	const char *fs_type;
 #if defined(HAVE_OFF64_T) &&	\
@@ -157,8 +159,8 @@ static int stress_seek(stress_args_t *args)
 	stress_proc_state_set(args->name, STRESS_STATE_RUN);
 
 	do {
-		off_t offset;
 		uint8_t tmp[512] ALIGN64;
+		off_t offset;
 		ssize_t rwret;
 
 		offset = (off_t)stress_mwc64modn(len);

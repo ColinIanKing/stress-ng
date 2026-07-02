@@ -2553,7 +2553,8 @@ static void syscall_permute(
 	volatile bool *syscall_exercised)
 {
 	size_t i;
-	unsigned long int *values, rnd_values[4];
+	unsigned long int *values;
+	unsigned long int rnd_values[4];
 	size_t num_values;
 
 	if (UNLIKELY(stress_time_now() > args->time_end))
@@ -2662,7 +2663,8 @@ static inline int stress_do_syscall(stress_args_t *args)
 	if (pid < 0) {
 		_exit(EXIT_NO_RESOURCE);
 	} else if (pid == 0) {
-		size_t i, n;
+		size_t i;
+		size_t n;
 		size_t reorder[SYSCALL_ARGS_SIZE];
 
 		/* We don't want bad ops clobbering this region */
@@ -2783,10 +2785,14 @@ static int stress_sysinval_child(stress_args_t *args, void *context)
 static int stress_sysinval(stress_args_t *args)
 {
 	struct stat statbuf;
-	int ret, rc = EXIT_NO_RESOURCE;
+	int ret;
+	int rc = EXIT_NO_RESOURCE;
 	const int bad_fd = stress_fs_bad_fd_get();
-	size_t i, j;
-	uint64_t syscalls_exercised, syscalls_unique, syscalls_crashed;
+	size_t i;
+	size_t j;
+	uint64_t syscalls_exercised;
+	uint64_t syscalls_unique;
+	uint64_t syscalls_crashed;
 	const size_t page_size = args->page_size;
 	const size_t current_context_size =
 		(sizeof(*current_context) + page_size) & ~(page_size - 1);

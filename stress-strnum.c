@@ -653,7 +653,6 @@ static int stress_strnum(stress_args_t *args)
 		stress_strnum_metrics[i].count = 0.0;
 	}
 
-
 	i = 0;
 	stress_strnum_set_values();
 

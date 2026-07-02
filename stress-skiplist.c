@@ -211,7 +211,9 @@ static void skip_list_free(skip_list_t *list)
  */
 static int OPTIMIZE3 stress_skiplist(stress_args_t *args)
 {
-	uint32_t n, i, ln2n;
+	uint32_t n;
+	uint32_t i;
+	uint32_t ln2n;
 	uint32_t skiplist_size = DEFAULT_SKIPLIST_SIZE;
 	int rc = EXIT_FAILURE;
 

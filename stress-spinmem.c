@@ -225,11 +225,13 @@ static int stress_spinmem(stress_args_t *args)
 {
 	NOCLOBBER int rc = EXIT_SUCCESS;
 	NOCLOBBER pid_t pid = -1;
-	NOCLOBBER double duration = 0.0, count = 0.0;
+	NOCLOBBER double duration = 0.0;
+	NOCLOBBER double count = 0.0;
 	uint8_t *mapping;
 	double rate;
 	size_t spinmem_method = 2; /* 32bit default */
-	spinmem_func_t spinmem_reader, spinmem_writer;
+	spinmem_func_t spinmem_reader;
+	spinmem_func_t spinmem_writer;
 	bool spinmem_affinity = false;
 	bool spinmem_numa = false;
 	bool spinmem_yield = false;

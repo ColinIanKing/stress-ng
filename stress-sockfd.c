@@ -151,9 +151,10 @@ static int OPTIMIZE3 stress_socket_client(
 	(void)stress_sched_settings_apply(true);
 
 	do {
-		int fd, retries = 0;
-		ssize_t n;
 		socklen_t addr_len = 0;
+		ssize_t n;
+		int fd;
+		int retries = 0;
 		int so_reuseaddr = 1;
 
 		(void)shim_memset(fds, 0, fds_size);
@@ -254,11 +255,11 @@ static int OPTIMIZE3 stress_socket_server(
 	const int socket_fd_port,
 	const bool socket_fd_reuse)
 {
+	struct sockaddr *addr = NULL;
+	socklen_t addr_len = 0;
+	uint64_t msgs = 0;
 	int fd;
 	int so_reuseaddr = 1;
-	socklen_t addr_len = 0;
-	struct sockaddr *addr = NULL;
-	uint64_t msgs = 0;
 	int rc = EXIT_SUCCESS;
 	const int bad_fd = stress_fs_bad_fd_get();
 
@@ -395,13 +396,15 @@ die:
  */
 static int stress_sockfd(stress_args_t *args)
 {
-	pid_t pid, mypid = getpid();
+	pid_t pid;
+	const pid_t mypid = getpid();
 	ssize_t max_fd = (ssize_t)stress_fs_file_limit_get();
+	size_t fds_size;
 	int socket_fd_port = DEFAULT_SOCKET_FD_PORT;
-	int ret = EXIT_SUCCESS, reserved_port;
+	int ret = EXIT_SUCCESS;
+	int reserved_port;
 	int *fds;
 	bool socket_fd_reuse = false;
-	size_t fds_size;
 
 	if (stress_signal_sigchld_handler(args) < 0)
 		return EXIT_NO_RESOURCE;

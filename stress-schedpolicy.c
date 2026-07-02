@@ -84,7 +84,8 @@ static int stress_schedpolicy(stress_args_t *args)
 	int n = 0;
 #endif
 	size_t i;
-	double t_start, duration;
+	double t_start;
+	double duration;
 	const pid_t pid = getpid();
 	uint64_t *counters;
 #if defined(HAVE_SCHED_SETAFFINITY) && \
@@ -152,7 +153,9 @@ static int stress_schedpolicy(stress_args_t *args)
 #endif
 		struct sched_param param;
 		int ret = 0;
-		int max_prio, min_prio, rng_prio;
+		int max_prio;
+		int min_prio;
+		int rng_prio;
 		const char *new_policy_name;
 		const char *syscall_name = "unknown";
 #if defined(USE_CLAMP)

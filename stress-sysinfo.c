@@ -56,7 +56,8 @@ static const stress_help_t help[] = {
  */
 static int stress_sysinfo(stress_args_t *args)
 {
-	int n_mounts, rc = EXIT_SUCCESS;
+	int n_mounts;
+	int rc = EXIT_SUCCESS;
 	const int verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 	char *mnts[128];
 #if defined(HAVE_SYS_SYSINFO_H) &&	\
@@ -89,7 +90,8 @@ static int stress_sysinfo(stress_args_t *args)
 		{
 			struct sysinfo sysinfo_buf;
 			struct statfs statfs_buf;
-			int i, ret;
+			int i;
+			int ret;
 
 			ret = sysinfo(&sysinfo_buf);
 			if (UNLIKELY((ret < 0) && (verify) && (errno != EPERM))) {
@@ -167,7 +169,8 @@ static int stress_sysinfo(stress_args_t *args)
 #endif
 
 		{
-			int i, ret;
+			int i;
+			int ret;
 			struct stat sbuf;
 			struct shim_ustat ubuf;
 

@@ -159,15 +159,17 @@ static int stress_smi_count(const int cpus, uint64_t *count)
  */
 static int stress_smi(stress_args_t *args)
 {
+	uint64_t s1 = 0;
+	uint64_t val;
 	int rc = EXIT_SUCCESS;
 	bool already_loaded = false;
 	bool read_msr_ok = true;
 	bool load_module = false;
-	uint64_t s1 = 0, val;
 	double d1 = 0.0;
 	const int cpus = stress_cpus_online_get();
 #if defined(STRESS_ARCH_X86_64)
-	static smi_regs_t r1, r2;
+	static smi_regs_t r1;
+	static smi_regs_t r2;
 #endif
 
 	/*
