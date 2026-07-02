@@ -138,7 +138,8 @@ static void OPTIMIZE3 stress_rgb_noise(
 	const int32_t	y_max)
 {
 	const int32_t size = x_max * y_max * 3;
-	register int32_t i, n;
+	register int32_t i;
+	register int32_t n;
 	register uint32_t *ptr32 = (uint32_t *)shim_assume_aligned(rgb, 4);
 	register uint8_t *ptr8;
 
@@ -279,7 +280,8 @@ static int stress_rgb_compress_to_jpeg(
 	uint32_t	*checksum,
 	double		*duration)
 {
-	double t1, t2;
+	double t1;
+	double t2;
 	struct jpeg_compress_struct cinfo;
 	struct jpeg_error_mgr jerr;
 	FILE *fp;
@@ -359,7 +361,8 @@ static int stress_jpeg(stress_args_t *args)
 	double t_jpeg;
 	int32_t jpeg_quality = 95;
 	int32_t yy = 0;
-	size_t rgb_size, row_pointer_size;
+	size_t rgb_size;
+	size_t row_pointer_size;
 	size_t jpeg_image = 0; /* plasma */
 	double total_pixels = 0.0, t_start, duration, rate, ratio;
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);

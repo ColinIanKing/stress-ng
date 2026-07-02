@@ -63,7 +63,8 @@ static int OPTIMIZE3 stress_judy(stress_args_t *args)
 {
 	uint64_t judy_size = DEFAULT_JUDY_SIZE;
 	size_t n;
-	register Word_t i, j;
+	register Word_t i;
+	register Word_t j;
 	double duration[JUDY_OP_MAX], count[JUDY_OP_MAX];
 	size_t k;
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
