@@ -100,11 +100,16 @@ static void MLOCKED_TEXT stress_insertionsort_handler(int signum)
 static int stress_insertionsort(stress_args_t *args)
 {
 	uint64_t insertionsort_size = DEFAULT_INSERTIONSORT_SIZE;
-	int32_t *data, *ptr;
-	size_t n, i, data_size;
+	int32_t *data;
+	int32_t *ptr;
+	size_t n;
+	size_t i;
+	size_t data_size;
 	double rate;
 	NOCLOBBER int rc = EXIT_SUCCESS;
-	NOCLOBBER double duration = 0.0, count = 0.0, sorted = 0.0;
+	NOCLOBBER double duration = 0.0;
+	NOCLOBBER double count = 0.0;
+	NOCLOBBER double sorted = 0.0;
 #if defined(HAVE_SIGLONGJMP)
 	struct sigaction old_action;
 	int ret;

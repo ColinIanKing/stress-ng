@@ -175,8 +175,14 @@ static bool OPTIMIZE3 clones stress_intmath_add_ ## n(		\
 	unsigned int i;						\
 	double t;						\
 								\
-	register type r0, r1, r2, r3;				\
-	register type i0, i1, i2, i3;				\
+	register type r0;					\
+	register type r1;					\
+	register type r2;					\
+	register type r3;					\
+	register type i0;					\
+	register type i1;					\
+	register type i2;					\
+	register type i3;					\
 								\
 	r0 = (type)vals->init_array[0];				\
 	r1 = (type)vals->init_array[1];				\
@@ -220,8 +226,14 @@ static bool OPTIMIZE3 clones stress_intmath_sub_ ## n(		\
 	unsigned int i;						\
 	double t;						\
 								\
-	register type r0, r1, r2, r3;				\
-	register type i0, i1, i2, i3;				\
+	register type r0;					\
+	register type r1;					\
+	register type r2;					\
+	register type r3;					\
+	register type i0;					\
+	register type i1;					\
+	register type i2;					\
+	register type i3;					\
 								\
 	r0 = (type)vals->init_array[0];				\
 	r1 = (type)vals->init_array[1];				\
@@ -265,8 +277,14 @@ static bool OPTIMIZE3 clones stress_intmath_mul_ ## n(		\
 	type i;							\
 	double t;						\
 								\
-	register type r0, r1, r2, r3;				\
-	register type i0, i1, i2, i3;				\
+	register type r0;					\
+	register type r1;					\
+	register type r2;					\
+	register type r3;					\
+	register type i0;					\
+	register type i1;					\
+	register type i2;					\
+	register type i3;					\
 	register type s0 = 1;					\
 	register type s1 = 1;					\
 	register type s2 = 1;					\
@@ -309,8 +327,14 @@ static bool OPTIMIZE3 clones stress_intmath_div_ ## n(		\
 	type i;							\
 	double t;						\
 								\
-	register type r0, r1, r2, r3;				\
-	register type i0, i1, i2, i3;				\
+	register type r0;					\
+	register type r1;					\
+	register type r2;					\
+	register type r3;					\
+	register type i0;					\
+	register type i1;					\
+	register type i2;					\
+	register type i3;					\
 	register type s0 = 1;					\
 	register type s1 = 1;					\
 	register type s2 = 1;					\
@@ -352,8 +376,14 @@ static bool OPTIMIZE3 clones stress_intmath_mod_ ## n(		\
 	type i;							\
 	double t;						\
 								\
-	register type r0, r1, r2, r3;				\
-	register type i0, i1, i2, i3;				\
+	register type r0;					\
+	register type r1;					\
+	register type r2;					\
+	register type r3;					\
+	register type i0;					\
+	register type i1;					\
+	register type i2;					\
+	register type i3;					\
 	register type s0 = 1;					\
 	register type s1 = 1;					\
 	register type s2 = 1;					\

@@ -57,7 +57,9 @@ static int stress_ioprio(stress_args_t *args)
 #if defined(HAVE_GETPGRP)
 	const pid_t grp = getpgrp();
 #endif
-	int fd, rc = EXIT_FAILURE, ret;
+	int fd;
+	int rc = EXIT_FAILURE;
+	int ret;
 	char filename[PATH_MAX];
 
 	ret = stress_fs_temp_dir_make_args(args);

@@ -132,7 +132,8 @@ static void stress_iomix_wr_seq_bursts(
 	const off_t iomix_bytes)
 {
 	do {
-		off_t ret, posn;
+		off_t ret;
+		off_t posn;
 		const int n = stress_mwc8();
 		int i;
 
@@ -245,7 +246,8 @@ static void stress_iomix_wr_seq_slow(
 	const off_t iomix_bytes)
 {
 	do {
-		off_t ret, posn = 0;
+		off_t ret;
+		off_t posn = 0;
 
 		ret = lseek(fd, 0, SEEK_SET);
 		if (UNLIKELY(ret == (off_t)-1)) {
@@ -299,7 +301,8 @@ static void stress_iomix_rd_seq_bursts(
 	const off_t iomix_bytes)
 {
 	do {
-		off_t ret, posn;
+		off_t ret;
+		off_t posn;
 		const int n = stress_mwc8();
 		int i;
 
@@ -404,7 +407,8 @@ static void stress_iomix_rd_seq_slow(
 	const off_t iomix_bytes)
 {
 	do {
-		off_t ret, posn = 0;
+		off_t ret;
+		off_t posn = 0;
 
 		ret = lseek(fd, 0, SEEK_SET);
 		if (UNLIKELY(ret == (off_t)-1)) {
@@ -581,7 +585,8 @@ static void stress_iomix_wr_bytes(
 	const off_t iomix_bytes)
 {
 	do {
-		off_t ret, posn = 0;
+		off_t ret;
+		off_t posn = 0;
 
 		ret = lseek(fd, 0, SEEK_SET);
 		if (UNLIKELY(ret == (off_t)-1)) {
@@ -625,7 +630,8 @@ static void stress_iomix_wr_rev_bytes(
 	const off_t iomix_bytes)
 {
 	do {
-		off_t ret, posn = iomix_bytes;
+		off_t ret;
+		off_t posn = iomix_bytes;
 
 		ret = lseek(fd, 0, SEEK_SET);
 		if (UNLIKELY(ret == (off_t)-1)) {
@@ -1098,11 +1104,13 @@ static int stress_iomix(stress_args_t *args)
 	int ret;
 	int rc = EXIT_SUCCESS;
 	char filename[PATH_MAX];
-	off_t iomix_bytes, iomix_bytes_total;
+	off_t iomix_bytes;
+	off_t iomix_bytes_total;
 	uint64_t iomix_bytes_u64 = DEFAULT_IOMIX_BYTES;
 	const size_t page_size = args->page_size;
 	size_t i;
-	stress_pid_t *s_pids, *s_pids_head = NULL;
+	stress_pid_t *s_pids;
+	stress_pid_t *s_pids_head = NULL;
 	const char *fs_type;
 	int oflags = O_CREAT | O_RDWR;
 	bool iomix_bytes_shrunk = false;

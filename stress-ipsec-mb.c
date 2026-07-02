@@ -282,7 +282,8 @@ static void stress_ipsec_sha(
 	const size_t data_len,
 	const int jobs)
 {
-	int j, jobs_done = 0;
+	int j;
+	int jobs_done = 0;
 	struct IMB_JOB *job;
 	uint8_t padding[16];
 	const size_t alloc_len = SHA_DIGEST_SIZE + (sizeof(padding) * 2);
@@ -327,7 +328,8 @@ static void stress_ipsec_des(
 	const size_t data_len,
 	const int jobs)
 {
-	int j, jobs_done = 0;
+	int j;
+	int jobs_done = 0;
 	struct IMB_JOB *job;
 
 	uint8_t *encoded;
@@ -384,7 +386,8 @@ static void stress_ipsec_cmac(
 	const size_t data_len,
 	const int jobs)
 {
-	int j, jobs_done = 0;
+	int j;
+	int jobs_done = 0;
 	struct IMB_JOB *job;
 
 	uint8_t key[16] ALIGNED(16);
@@ -439,7 +442,8 @@ static void stress_ipsec_ctr(
 	const size_t data_len,
 	const int jobs)
 {
-	int j, jobs_done = 0;
+	int j;
+	int jobs_done = 0;
 	struct IMB_JOB *job;
 
 	uint8_t *encoded;
@@ -497,7 +501,8 @@ static void stress_ipsec_hmac_md5(
 	const size_t data_len,
 	const int jobs)
 {
-	int j, jobs_done = 0;
+	int j;
+	int jobs_done = 0;
 	size_t i;
 	struct IMB_JOB *job;
 
@@ -568,7 +573,8 @@ static void stress_ipsec_hmac_sha1(
 	const size_t data_len,
 	const int jobs)
 {
-	int j, jobs_done = 0;
+	int j;
+	int jobs_done = 0;
 	size_t i;
 	struct IMB_JOB *job;
 
@@ -636,7 +642,8 @@ static void stress_ipsec_hmac_sha512(
 	const size_t data_len,
 	const int jobs)
 {
-	int j, jobs_done = 0;
+	int j;
+	int jobs_done = 0;
 	size_t i;
 	struct IMB_JOB *job;
 

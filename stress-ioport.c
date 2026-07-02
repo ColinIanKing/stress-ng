@@ -130,13 +130,18 @@ static int stress_ioport_ioperm(
  */
 static int stress_ioport(stress_args_t *args)
 {
-	int ret, fd, rc = EXIT_SUCCESS;
-	size_t ioport_opt = 2, ioport_idx = 0;
+	int ret;
+	int fd;
+	int rc = EXIT_SUCCESS;
+	size_t ioport_opt = 2;
+	size_t ioport_idx = 0;
 	uint32_t flag = 0;
 	unsigned short port;
 	unsigned char v;
-	double duration_in = 0.0, count_in = 0.0;
-	double duration_out = 0.0, count_out = 0.0;
+	double duration_in = 0.0;
+	double count_in = 0.0;
+	double duration_out = 0.0;
+	double count_out = 0.0;
 	double rate;
 	char msg[40];
 

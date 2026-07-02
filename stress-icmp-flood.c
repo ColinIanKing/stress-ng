@@ -75,15 +75,20 @@ static int stress_icmp_flood_supported(const char *name)
  */
 static int stress_icmp_flood(stress_args_t *args)
 {
-	int fd, rc = EXIT_FAILURE;
+	int fd;
+	int rc = EXIT_FAILURE;
 	const int set_on = 1;
 	const unsigned long int addr = inet_addr("127.0.0.1");
 	struct sockaddr_in servaddr;
-	uint64_t counter, sendto_fails = 0, sendto_ok;
-	double bytes = 0.0, t_start, duration, rate;
+	uint64_t counter;
+	uint64_t sendto_fails = 0;
+	uint64_t sendto_ok;
+	double bytes = 0.0;
+	double t_start;
+	double duration;
+	double rate;
 	const uint16_t id = htons((uint16_t)args->instance);
 	uint16_t seq = 0;
-
 	char ALIGN64 pkt[MAX_PKT_LEN];
 	struct iphdr *const ip_hdr = (struct iphdr *)shim_assume_aligned(pkt, 1);
 	struct icmphdr *const icmp_hdr = (struct icmphdr *)shim_assume_aligned((pkt + sizeof(struct iphdr)), 1);

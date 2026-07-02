@@ -97,7 +97,8 @@ static void exercise_inotify_add_watch(
 	const char *watchname,
 	const int bad_fd)
 {
-	int fd, wd;
+	int fd;
+	int wd;
 #if defined(IN_MASK_CREATE) &&	\
     defined(IN_MASK_ADD)
 	int wd2;
@@ -212,7 +213,10 @@ static int inotify_exercise(
 	void *private_data,	/* Helper func private data */
 	const int bad_fd)	/* A bad file descriptor */
 {
-	int fd, wd, n = 0, rc = EXIT_SUCCESS;
+	int fd;
+	int wd;
+	int n = 0;
+	int rc = EXIT_SUCCESS;
 	uint32_t check_flags = flags;
 	char buffer[1024];
 
@@ -257,7 +261,8 @@ retry:
 		ssize_t len, i = 0;
 		struct timeval tv;
 		fd_set rfds;
-		int err, nbytes;
+		int err;
+		int nbytes;
 
 		/* We give inotify TIME_OUT seconds to report back */
 		tv.tv_sec = TIME_OUT;
@@ -545,7 +550,8 @@ static int inotify_modify_helper(
 	const char *path,
 	void *signum)
 {
-	int fd, rc = 0;
+	int fd;
+	int rc = 0;
 	char buffer[1] = { 0 };
 
 	(void)signum;
@@ -754,7 +760,8 @@ static int inotify_move_self(
 	const char *path,
 	const int bad_fd)
 {
-	char filepath[PATH_MAX], newpath[PATH_MAX];
+	char filepath[PATH_MAX];
+	char newpath[PATH_MAX];
 	int rc;
 
 	stress_fs_make_filename(filepath, sizeof(filepath), path, "inotify_dir");
@@ -791,7 +798,9 @@ static int inotify_moved_to(
 	const char *path,
 	const int bad_fd)
 {
-	char olddir[PATH_MAX - 16], oldfile[PATH_MAX], newfile[PATH_MAX];
+	char olddir[PATH_MAX - 16];
+	char oldfile[PATH_MAX];
+	char newfile[PATH_MAX];
 	int rc;
 
 	stress_fs_make_filename(olddir, sizeof(olddir), path, "new_dir");
@@ -835,7 +844,9 @@ static int inotify_moved_from(
 	const char *path,
 	const int bad_fd)
 {
-	char oldfile[PATH_MAX], newdir[PATH_MAX - 16], newfile[PATH_MAX];
+	char oldfile[PATH_MAX];
+	char newdir[PATH_MAX - 16];
+	char newfile[PATH_MAX];
 	int rc;
 
 	stress_fs_make_filename(oldfile, sizeof(oldfile), path, "inotify_file");
@@ -880,7 +891,8 @@ static int inotify_close_write_file(
 	const int bad_fd)
 {
 	char filepath[PATH_MAX];
-	int fd, rc;
+	int fd;
+	int rc;
 
 	stress_fs_make_filename(filepath, sizeof(filepath), path, "inotify_file");
 	if (mk_file(args, filepath, 4096) < 0)
@@ -926,7 +938,8 @@ static int inotify_close_nowrite_file(
 	const int bad_fd)
 {
 	char filepath[PATH_MAX];
-	int fd, rc;
+	int fd;
+	int rc;
 
 	stress_fs_make_filename(filepath, sizeof(filepath), path, "inotify_file");
 	if (mk_file(args, filepath, 4096) < 0)
@@ -997,7 +1010,9 @@ static const stress_inotify_t inotify_stressors[] = {
 static int stress_inotify(stress_args_t *args)
 {
 	char pathname[PATH_MAX - 16];
-	int ret, i, rc = EXIT_SUCCESS;
+	int ret;
+	int i;
+	int rc = EXIT_SUCCESS;
 	const int bad_fd = stress_fs_bad_fd_get();
 
 	stress_fs_temp_dir_args(args, pathname, sizeof(pathname));

@@ -155,7 +155,8 @@ static void stress_inode_flags_ioctl(
 	const int fd,
 	const int flag)
 {
-	int ret, attr;
+	int ret;
+	int attr;
 
 	if (UNLIKELY(!(keep_running && stress_continue(args))))
 		return;
@@ -321,10 +322,13 @@ static int stress_inode_flags(stress_args_t *args)
 {
 	size_t i;
 	pthread_t pthreads[MAX_INODE_FLAG_THREADS];
-	int rc, ret[MAX_INODE_FLAG_THREADS], all_inode_flags;
+	int rc;
+	int ret[MAX_INODE_FLAG_THREADS];
+	int all_inode_flags;
 	stress_pthread_args_t pa[MAX_INODE_FLAG_THREADS];
 	stress_data_t data;
-	char tmp[PATH_MAX], file_name[PATH_MAX];
+	char tmp[PATH_MAX];
+	char file_name[PATH_MAX];
 	char *dir_name;
 
 	inode_flags_counter_lock = stress_lock_create("counter");

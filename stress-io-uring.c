@@ -434,7 +434,9 @@ static int stress_io_uring_submit(
 	const void *extra_data)
 {
 	stress_uring_io_sq_ring_t *sring = &submit->sq_ring;
-	unsigned int idx = 0, tail = 0, next_tail = 0;
+	unsigned int idx = 0;
+	unsigned int tail = 0;
+	unsigned int next_tail = 0;
 	struct io_uring_sqe *sqe;
 	int ret;
 
@@ -961,10 +963,12 @@ static const char *stress_io_uring_opcode_name(const uint8_t opcode)
  */
 static int stress_io_uring_child(stress_args_t *args, void *context)
 {
-	int ret, rc;
+	int ret;
+	int rc;
 	char filename[PATH_MAX];
 	stress_io_uring_file_t io_uring_file;
-	size_t i, j;
+	size_t i;
+	size_t j;
 	const size_t blocks = 4;
 	const size_t block_size = 512;
 	off_t file_size = (off_t)blocks * block_size;
