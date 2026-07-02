@@ -378,6 +378,7 @@ static const stress_exercises_t exercises[] = {
 #if defined(STRESS_ARCH_X86)
 	STRESS_EX_FEATURE("cpu-heavy-ops"),
 #endif
+	STRESS_EX_FEATURE("frontend-bound-bandwidth"),
 	STRESS_EX_FEATURE("integer-ops"),
 	STRESS_EX_FEATURE("load-average"),
 #if defined(HAVE_X86_REP_STOSB)

@@ -734,6 +734,7 @@ static const stress_exercises_t exercises[] = {
 #endif
 
 	STRESS_EX_FEATURE("fp"),
+	STRESS_EX_FEATURE("frontend-bound-bandwidth"),
 	STRESS_EX_FEATURE("integer"),
 	STRESS_EX_FEATURE("memory-copy"),
 	STRESS_EX_FEATURE("stack"),
