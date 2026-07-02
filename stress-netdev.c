@@ -85,7 +85,8 @@ static void stress_netdev_check(
  */
 static int stress_netdev(stress_args_t *args)
 {
-	int fd, rc = EXIT_SUCCESS;
+	int fd;
+	int rc = EXIT_SUCCESS;
 
 	if ((fd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
 		pr_fail("%s: socket failed, errno=%d (%s)\n",
@@ -99,7 +100,8 @@ static int stress_netdev(stress_args_t *args)
 	stress_proc_state_set(args->name, STRESS_STATE_RUN);
 
 	do {
-		int i, n;
+		int i;
+		int n;
 		struct ifconf ifc;
 
 		/* Get list of transport layer addresses */

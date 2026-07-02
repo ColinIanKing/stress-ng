@@ -132,7 +132,9 @@ static void TARGET_CLONES stress_numacopy_exercise(
 	const int affinity,
 	stress_numacopy_cpus_t *numa_cpus)
 {
-	long int node_from, node_to, node;
+	long int node_from;
+	long int node_to;
+	long int node;
 	uint8_t val = stress_mwc8();
 	static double time_prev = -1.0;
 	const double time_now = stress_time_now();
@@ -247,7 +249,8 @@ static void TARGET_CLONES stress_numacopy_exercise(
 #endif
 
 		for (node_to = 0; node_to < num_numa_nodes; node_to++) {
-			double t = stress_time_now(), dt;
+			double t = stress_time_now();
+			double dt;
 			register int j;
 			register uint8_t * const numa_pages_to = numa_pages[node_to];
 
@@ -413,19 +416,29 @@ static int stress_numanode_cpus(
  */
 static int stress_numacopy(stress_args_t *args)
 {
-	stress_numa_mask_t *numa_mask, *numa_nodes;
+	stress_numa_mask_t *numa_mask;
+	stress_numa_mask_t *numa_nodes;
 	const size_t page_size = args->page_size;
-	size_t numa_bytes, numa_pages_size;
+	size_t numa_bytes;
+	size_t numa_pages_size;
 	int rc = EXIT_FAILURE, mode;
-	uint8_t **numa_pages, *local_page;
-	long int i, node, num_numa_nodes, num_numa_nodes_squared;
+	uint8_t **numa_pages;
+	uint8_t *local_page;
+	long int i;
+	long int node;
+	long int num_numa_nodes;
+	long int num_numa_nodes_squared;
 	const int32_t max_cpus = stress_cpus_configured_get();
 	size_t index;
 	size_t numacopy_mode_index = 0;
 	size_t numacopy_affinity_index = 1;
 	int affinity = NUMACOPY_AFFINITY_NONE;
-	double numa_pages_memcpy = 0.0, numa_pages_memset = 0.0;
-	double duration = 0.0, rate = 0.0, max_rate, scale;
+	double numa_pages_memcpy = 0.0;
+	double numa_pages_memset = 0.0;
+	double duration = 0.0;
+	double rate = 0.0;
+	double max_rate;
+	double scale;
 	stress_numacopy_metric_t *metrics;
 	stress_numacopy_cpus_t *numa_cpus = NULL;
 

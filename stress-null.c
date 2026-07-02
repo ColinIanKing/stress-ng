@@ -43,7 +43,9 @@ static int stress_null(stress_args_t *args)
 	char ALIGN64 buffer[4096];
 	int fcntl_mask = 0;
 	uint64_t bytes = 0;
-	double t, duration = 0.0, rate;
+	double t;
+	double duration = 0.0;
+	double rate;
 	int metrics_count = 0;
 	bool null_write = false;
 	ssize_t ret;

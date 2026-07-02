@@ -177,22 +177,31 @@ static void stress_numa_check_maps(
 static int stress_numa(stress_args_t *args)
 {
 	const size_t page_size = args->page_size;
-	size_t num_pages, numa_bytes, numa_bytes_total = DEFAULT_NUMA_MMAP_BYTES;
-
+	size_t num_pages;
+	size_t numa_bytes;
+	size_t numa_bytes_total = DEFAULT_NUMA_MMAP_BYTES;
 	uint8_t *buf;
 	int rc = EXIT_FAILURE;
 	const bool cap_sys_nice = stress_capabilities_check(SHIM_CAP_SYS_NICE);
-	int *status, *dest_nodes;
+	int *status;
+	int *dest_nodes;
 	int failed = 0;
 	void **pages;
 	size_t k;
-	bool numa_shuffle_addr = false, numa_shuffle_node = false;
-	stress_numa_stats_t stats_begin, stats_end;
-	size_t status_size, dest_nodes_size, pages_size;
+	stress_numa_stats_t stats_begin;
+	stress_numa_stats_t stats_end;
+	size_t status_size;
+	size_t dest_nodes_size;
+	size_t pages_size;
 	double t, duration, metric;
-	uint64_t correct_nodes = 0, total_nodes = 0;
-	stress_numa_mask_t *numa_mask, *old_numa_mask, *numa_nodes;
+	uint64_t correct_nodes = 0;
+	uint64_t total_nodes = 0;
+	stress_numa_mask_t *numa_mask;
+	stress_numa_mask_t *old_numa_mask;
+	stress_numa_mask_t *numa_nodes;
 	long int node;
+	bool numa_shuffle_addr = false;
+	bool numa_shuffle_node = false;
 
 	if (!stress_setting_get("numa-bytes", &numa_bytes_total)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -323,11 +332,14 @@ static int stress_numa(stress_args_t *args)
 	k = 0;
 	t = stress_time_now();
 	do {
-		int j, mode, ret;
+		int j;
+		int mode;
+		int ret;
 		long int lret;
 		unsigned long int i;
 		uint8_t *ptr;
-		unsigned int cpu, curr_node;
+		unsigned int cpu;
+		unsigned int curr_node;
 		struct shim_getcpu_cache cache;
 
 		(void)shim_memset(numa_mask->mask, 0x00, numa_mask->mask_size);

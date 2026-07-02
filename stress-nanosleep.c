@@ -199,7 +199,9 @@ static void *stress_nanosleep_pthread(void *c)
 static int stress_nanosleep(stress_args_t *args)
 {
 	uint64_t max_ops;
-	uint32_t i, n, limited = 0;
+	uint32_t i;
+	uint32_t n;
+	uint32_t limited = 0;
 	uint32_t nanosleep_threads = DEFAULT_NANOSLEEP_THREADS;
 	stress_ctxt_t *ctxts;
 	int ret = EXIT_SUCCESS;
@@ -208,8 +210,10 @@ static int stress_nanosleep(stress_args_t *args)
 #if defined(HAVE_CLOCK_GETTIME) &&	\
     defined(CLOCK_MONOTONIC)
 	double overhead_nsec;
-	double overrun_nsec, overrun_count;
-	double underrun_nsec, underrun_count;
+	double overrun_nsec;
+	double overrun_count;
+	double underrun_nsec;
+	double underrun_count;
 	const uint64_t benchmark_loops = 10000;
 #endif
 	cpu_cstate_t *cstate_list = stress_cpuidle_cstate_list_head();
@@ -313,7 +317,8 @@ tidy:
     defined(CLOCK_MONOTONIC)
 	overhead_nsec = 0.0;
 	for (i = 0; i < benchmark_loops; i++) {
-		struct timespec t1, t2;
+		struct timespec t1;
+		struct timespec t2;
 		long long int dt_nsec;
 
 		(void)clock_gettime(CLOCK_MONOTONIC, &t1);

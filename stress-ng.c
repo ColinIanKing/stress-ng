@@ -787,10 +787,17 @@ static void MLOCKED_TEXT stress_stats_handler(int signum)
 {
 	static char buffer[80];
 	char *hdr = buffer;
-	double min1, min5, min15;
-	size_t shmall, freemem, totalmem, freeswap, totalswap;
+	double min1;
+	double min5;
+	double min15;
+	size_t shmall;
+	size_t freemem;
+	size_t totalmem;
+	size_t freeswap;
+	size_t totalswap;
 	const int fd = pr_fd();
-	int len = 0, ret;
+	int len = 0;
+	int ret;
 #if defined(HAVE_ATOMIC_ADD_FETCH) &&	\
     defined(__ATOMIC_RELAXED)
 	static int counter = 0;
@@ -1112,7 +1119,8 @@ static void stress_wait_status(
 	bool *resource_success,
 	bool *metrics_success)
 {
-	int status, wexit_status;
+	int status;
+	int wexit_status;
 	bool do_abort = false;
 	stress_list_item_t *item = stats->item;
 	const char *name = item->stressor->name;
@@ -1278,7 +1286,8 @@ static void stress_aggressive_wait(
 
 	for (;;) {
 		stress_stats_t *stats;
-		int32_t cpus, cpu_num;
+		int32_t cpus;
+		int32_t cpu_num;
 		cpu_set_t mask;
 
 		/*
@@ -1593,7 +1602,8 @@ static void stress_log_time(const char *name, const double whence, const char *t
 {
 	time_t t = (time_t)whence;
 	struct tm tm;
-	double fractional, integral;
+	double fractional;
+	double integral;
 
 	if (shim_localtime_r(&t, &tm)) {
 		fractional = modf(whence, &integral) * 100.0;
@@ -1624,7 +1634,8 @@ static int MLOCKED_TEXT stress_child_run(
 	const char *name = g_item_current->stressor->name;
 	int rc = EXIT_SUCCESS;
 	bool ok;
-	double finish = 0.0, run_duration;
+	double finish = 0.0;
+	double run_duration;
 	stress_args_t *args;
 
 	sigalarmed = &stats->sigalarmed;
@@ -1838,7 +1849,8 @@ static void MLOCKED_TEXT stress_run(
 	bool *metrics_success,
 	stress_checksum_t **checksum)
 {
-	double time_start, time_finish;
+	double time_start;
+	double time_finish;
 	int32_t started_instances = 0;
 	const size_t page_size = stress_memory_page_size_get();
 	int64_t backoff = DEFAULT_BACKOFF;
@@ -1878,7 +1890,8 @@ static void MLOCKED_TEXT stress_run(
 		 */
 		for (j = 0; j < g_item_current->instances; j++, (*checksum)++) {
 			double fork_time_start;
-			pid_t pid, child_pid;
+			pid_t pid;
+			pid_t child_pid;
 			int rc;
 			stress_stats_t *const stats = g_item_current->stats[j];
 
@@ -1998,7 +2011,8 @@ wait_for_stressors:
  */
 static int stress_stressors_show(void)
 {
-	char *newstr, *str = NULL;
+	char *newstr;
+	char *str = NULL;
 	ssize_t len = 0;
 	char buffer[64];
 	bool previous = false;
@@ -2224,7 +2238,8 @@ static char *stress_description_yamlify(const char *description)
 {
 	static char yamlified[40];
 	char *dst;
-	const char *src, *end = yamlified + sizeof(yamlified);
+	const char *src;
+	const char *end = yamlified + sizeof(yamlified);
 
 	for (dst = yamlified, src = description; *src; src++) {
 		register const int ch = (int)*src;
@@ -2396,12 +2411,19 @@ static void stress_metrics_dump(FILE *yaml)
 	for (item = stress_stressor_list.head; item; item = item->next) {
 		stress_metrics_info_t *mi;
 		uint64_t c_total = 0;
-		double   r_total = 0.0, u_total = 0.0, s_total = 0.0;
+		double r_total = 0.0;
+		double u_total = 0.0;
+		double s_total = 0.0;
 		long int maxrss = 0;
 		int32_t  j;
 		size_t i;
 		const char *name;
-		double u_time, s_time, t_time, bogo_rate_r_time, bogo_rate, cpu_usage;
+		double u_time;
+		double s_time;
+		double t_time;
+		double bogo_rate_r_time;
+		double bogo_rate;
+		double cpu_usage;
 		bool run_ok = false;
 
 		if (item->ignore.run || item->ignore.permute)
@@ -2738,8 +2760,15 @@ static void stress_times_dump(
 {
 	struct tms buf;
 	double total_cpu_time = stress_cpus_configured_get() * duration;
-	double u_time, s_time, t_time, u_pc, s_pc, t_pc;
-	double min1, min5, min15;
+	double u_time;
+	double s_time;
+	double t_time;
+	double u_pc;
+	double s_pc;
+	double t_pc;
+	double min1;
+	double min5;
+	double min15;
 	int rc;
 
 	if (!(g_opt_flags & OPT_FLAGS_TIMES))
@@ -2792,7 +2821,10 @@ static void stress_times_dump(
  */
 static void stress_args_log(int argc, char **argv)
 {
-	size_t i, len, buflen, *arglen;
+	size_t i;
+	size_t len;
+	size_t buflen;
+	size_t *arglen;
 	char *buf;
 	const char *user = shim_getlogin();
 	const uid_t uid = getuid();
@@ -4145,7 +4177,8 @@ static inline void stress_sequential_run(
 {
 	stress_list_item_t *item;
 	stress_checksum_t *checksum = g_shared->checksum.checksums;
-	size_t total_run = 0, run = 0;
+	size_t total_run = 0;
+	size_t run = 0;
 	const bool progress = !!(g_opt_flags & OPT_FLAGS_PROGRESS);
 
 	if (progress) {
@@ -4227,7 +4260,10 @@ static inline void stress_permute_run(
 	bool *metrics_success)
 {
 	stress_list_item_t *item;
-	size_t i, perms, num_perms, run = 0;
+	size_t i;
+	size_t perms;
+	size_t num_perms;
+	size_t run = 0;
 	const size_t max_perms = STRESS_MAX_PERMUTATIONS;
 	char str[4096];
 	uint32_t n_stressors = 0;

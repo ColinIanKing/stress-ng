@@ -212,7 +212,8 @@ static int OPTIMIZE3 stress_netlink_taskstats_monitor(
 {
 	do {
 		stress_nlmsg_t msg ALIGN64;
-		ssize_t msg_len, len;
+		ssize_t msg_len;
+		ssize_t len;
 		int ret;
 		pid_t pid_data = pid;
 		struct nlattr *na;
@@ -260,7 +261,8 @@ static int OPTIMIZE3 stress_netlink_taskstats_monitor(
  */
 static int stress_netlink_task(stress_args_t *args)
 {
-	int ret, sock = -1;
+	int ret;
+	int sock = -1;
 	ssize_t len;
 	struct sockaddr_nl addr;
 	struct nlattr *na;

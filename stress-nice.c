@@ -51,7 +51,8 @@ static int stress_nice(stress_args_t *args)
 	int rc = EXIT_SUCCESS;
 #if defined(HAVE_SETPRIORITY)
 	/* Make an assumption on priority range */
-	int max_prio = 20, min_prio = -20;
+	int max_prio = 20;
+	int min_prio = -20;
 
 #if defined(RLIMIT_NICE)
 	{
