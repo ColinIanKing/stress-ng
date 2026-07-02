@@ -92,7 +92,8 @@ static int try_remap(
 	double *count)
 {
 	uint8_t *newbuf;
-	int retry, flags = 0;
+	int retry;
+	int flags = 0;
 	static int metrics_counter = 0;
 #if defined(MREMAP_MAYMOVE)
 	const int maymove = MREMAP_MAYMOVE;
@@ -197,12 +198,17 @@ static int try_remap(
 
 static int stress_mremap_child(stress_args_t *args, void *context)
 {
-	size_t new_sz, sz, mremap_bytes, mremap_bytes_total = DEFAULT_MREMAP_BYTES;
+	size_t new_sz;
+	size_t sz;
+	size_t mremap_bytes;
+	size_t mremap_bytes_total = DEFAULT_MREMAP_BYTES;
 	int flags = MAP_PRIVATE | MAP_ANONYMOUS;
 	const size_t page_size = args->page_size;
 	bool mremap_mlock = false;
 	bool mremap_numa = false;
-	double duration = 0.0, count = 0.0, rate;
+	double duration = 0.0;
+	double count = 0.0;
+	double rate;
 	int ret = EXIT_SUCCESS;
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 	stress_numa_mask_t *numa_mask = NULL;
@@ -252,7 +258,8 @@ static int stress_mremap_child(stress_args_t *args, void *context)
 	stress_proc_state_set(args->name, STRESS_STATE_RUN);
 
 	do {
-		uint8_t *buf = NULL, *ptr;
+		uint8_t *buf = NULL;
+		uint8_t *ptr;
 		size_t old_sz;
 
 		if (UNLIKELY(!stress_continue_flag()))

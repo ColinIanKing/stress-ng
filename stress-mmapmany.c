@@ -99,7 +99,8 @@ static int stress_mmapmany_child(stress_args_t *args, void *context)
 	stress_proc_state_set(args->name, STRESS_STATE_RUN);
 
 	do {
-		size_t i, n;
+		size_t i;
+		size_t n;
 
 		for (n = 0; LIKELY(stress_continue_flag() && (n < (size_t)max)); n++) {
 			uint64_t *ptr;
@@ -135,7 +136,8 @@ static int stress_mmapmany_child(stress_args_t *args, void *context)
 #endif
 
 		for (i = 0; i < n; i++) {
-			uint64_t *ptr, val;
+			uint64_t *ptr;
+			uint64_t val;
 
 			ptr = (uint64_t *)mappings[i];
 			val = (uint64_t)i ^ pattern0;

@@ -167,8 +167,11 @@ static int stress_mprotect(stress_args_t *args)
 	const size_t mem_size = page_size * mem_pages;
 	size_t i;
 	uint8_t *mem;
-	stress_pid_t *s_pids, *s_pids_head = NULL;
-	int prot_bits = 0, *prot_flags, rc = EXIT_SUCCESS;
+	stress_pid_t *s_pids;
+	stress_pid_t *s_pids_head = NULL;
+	int prot_bits = 0;
+	int *prot_flags;
+	int rc = EXIT_SUCCESS;
 	size_t n_flags;
 
 	s_pids = stress_sync_s_pids_mmap(MPROTECT_MAX);

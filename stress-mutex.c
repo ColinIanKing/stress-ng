@@ -166,11 +166,14 @@ static int stress_mutex(stress_args_t *args)
 {
 	size_t i;
 	bool created = false;
-	int prio_min, prio_max;
+	int prio_min;
+	int prio_max;
 	pthread_info_t pthread_info[MAX_MUTEX_PROCS];
 	uint64_t mutex_procs = DEFAULT_MUTEX_PROCS;
 	bool mutex_affinity = false;
-	double duration = 0.0, count = 0.0, rate;
+	double duration = 0.0;
+	double count = 0.0;
+	double rate;
 #if defined(HAVE_PTHREAD_MUTEXATTR)
 	int mutexattr_ret;
 	pthread_mutexattr_t mutexattr;

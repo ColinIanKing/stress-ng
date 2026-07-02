@@ -125,7 +125,9 @@ static int stress_mmapaddr_child(stress_args_t *args, void *context)
 	stress_proc_state_set(args->name, STRESS_STATE_RUN);
 
 	do {
-		uint8_t *addr, *map_addr, *remap_addr;
+		uint8_t *addr;
+		uint8_t *map_addr;
+		uint8_t *remap_addr;
 		int flags = 0;
 		const uint8_t rnd = stress_mwc8();
 #if defined(MAP_POPULATE)

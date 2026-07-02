@@ -297,14 +297,21 @@ static void stress_mlock_misc(stress_args_t *args, const size_t page_size, const
 
 static int stress_mlock_child(stress_args_t *args, void *context)
 {
-	size_t i, n;
+	size_t i;
+	size_t n;
 	uint8_t **mappings;
 	const size_t page_size = args->page_size;
 	size_t max = stress_mlock_max_lockable(), mappings_max;
 	size_t mappings_len = max * sizeof(*mappings);
-	size_t shmall, freemem, totalmem, freeswap, totalswap;
-	double mlock_duration = 0.0, mlock_count = 0.0;
-	double munlock_duration = 0.0, munlock_count = 0.0;
+	size_t shmall;
+	size_t freemem;
+	size_t totalmem;
+	size_t freeswap;
+	size_t totalswap;
+	double mlock_duration = 0.0;
+	double mlock_count = 0.0;
+	double munlock_duration = 0.0;
+	double munlock_count = 0.0;
 	double rate;
 	int rc = EXIT_SUCCESS;
 #if defined(__linux__)

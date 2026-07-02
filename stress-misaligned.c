@@ -1295,7 +1295,8 @@ static int stress_misaligned(stress_args_t *args)
 	uint8_t *buffer;
 	size_t misaligned_method = 0;
 	stress_misaligned_method_info_t *method;
-	int ret, rc;
+	int ret;
+	int rc;
 	const size_t page_size = args->page_size;
 	const size_t buffer_size = page_size << 1;
 	bool succeeded = true;

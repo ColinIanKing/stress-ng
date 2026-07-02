@@ -146,7 +146,13 @@ static int stress_mlockmany_child(stress_args_t *args, void *context)
 
 	do {
 		unsigned int n;
-		size_t shmall, freemem, totalmem, freeswap, totalswap, last_freeswap, last_totalswap;
+		size_t shmall;
+		size_t freemem;
+		size_t totalmem;
+		size_t freeswap;
+		size_t totalswap;
+		size_t last_freeswap;
+		size_t last_totalswap;
 
 		stress_sync_init_pids(s_pids, mlockmany_procs);
 		stress_memory_limits_get(&shmall, &freemem, &totalmem, &last_freeswap, &last_totalswap);

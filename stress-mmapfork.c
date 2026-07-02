@@ -154,7 +154,8 @@ static int stress_mmapfork(stress_args_t *args)
 	stress_proc_state_set(args->name, STRESS_STATE_RUN);
 
 	do {
-		size_t i, len;
+		size_t i;
+		size_t len;
 
 		stress_sync_init_pids(s_pids, mmapfork_procs);
 

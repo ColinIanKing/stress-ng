@@ -35,7 +35,8 @@ static int stress_msyncmany_child(stress_args_t *args, void *context)
 	long int max = sysconf(_SC_MAPPED_FILES);
 	uint64_t **mappings;
 	int fd = *(int *)context;
-	size_t i, n;
+	size_t i;
+	size_t n;
 	uint64_t *mapped = NULL;
 	int rc = EXIT_SUCCESS;
 
@@ -83,7 +84,8 @@ static int stress_msyncmany_child(stress_args_t *args, void *context)
 	}
 
 	do {
-		int ret, failed = 0;
+		int ret;
+		int failed = 0;
 		const uint64_t pattern = stress_mwc64();
 
 		*mapped = pattern;
@@ -130,7 +132,8 @@ finish:
  */
 static int stress_msyncmany(stress_args_t *args)
 {
-	int ret, fd;
+	int ret;
+	int fd;
 	char filename[PATH_MAX];
 
 	ret = stress_fs_temp_dir_make_args(args);

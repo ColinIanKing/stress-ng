@@ -439,7 +439,8 @@ static void stress_mmap_fast_munmap(
 	const size_t pages,
 	const size_t page_size)
 {
-	register size_t i, munmap_size = 0;
+	register size_t i;
+	register size_t munmap_size = 0;
 	register uint8_t *munmap_start = NULL;
 
 	for (i = 0; i < pages; i++) {
@@ -499,7 +500,8 @@ static int stress_mmap_child(stress_args_t *args, void *ctxt)
     defined(MS_SYNC)
 	const int ms_flags = context->mmap_async ? MS_ASYNC : MS_SYNC;
 #endif
-	uint8_t *mapped, **mappings;
+	uint8_t *mapped;
+	uint8_t **mappings;
 	size_t *idx;
 	void *hint;
 	int ret;
@@ -955,12 +957,14 @@ static int stress_mmap(stress_args_t *args)
 {
 	const size_t page_size = args->page_size;
 	char filename[PATH_MAX];
+	size_t i;
+	size_t mmap_total;
+	int ret;
+	int all_flags;
 	bool mmap_osync = false;
 	bool mmap_odirect = false;
 	bool mmap_mmap2 = false;
-	int ret, all_flags;
 	stress_mmap_context_t context;
-	size_t i, mmap_total;
 
 	jmp_env_set = false;
 

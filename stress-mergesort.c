@@ -84,9 +84,15 @@ static inline void mergesort_partition4(
 	const size_t right,
 	int (*compar)(const void *, const void *))
 {
-	size_t mid, lhs_size, rhs_size, lhs_len, rhs_len;
+	size_t mid;
+	size_t lhs_size;
+	size_t rhs_size;
+	size_t lhs_len;
+	size_t rhs_len;
 	register ssize_t n;
-	register uint8_t *rhs, *lhs_end, *rhs_end;
+	register uint8_t *rhs;
+	register uint8_t *lhs_end;
+	register uint8_t *rhs_end;
 
 	mid = left + ((right - left) >> 1);
 	if (left < mid)
@@ -142,9 +148,15 @@ static inline void mergesort_partition(
 	const size_t size,
 	int (*compar)(const void *, const void *))
 {
-	size_t mid, lhs_size, rhs_size, lhs_len, rhs_len;
+	size_t mid;
+	size_t lhs_size;
+	size_t rhs_size;
+	size_t lhs_len;
+	size_t rhs_len;
 	register ssize_t n;
-	register uint8_t *rhs, *lhs_end, *rhs_end;
+	register uint8_t *rhs;
+	register uint8_t *lhs_end;
+	register uint8_t *rhs_end;
 
 	mid = left + ((right - left) >> 1);
 	if (left < mid)
@@ -260,11 +272,17 @@ static void MLOCKED_TEXT stress_mergesort_handler(int signum)
 static int stress_mergesort(stress_args_t *args)
 {
 	uint64_t mergesort_size = DEFAULT_MERGESORT_SIZE;
-	int32_t *data, *ptr;
-	size_t n, i, mergesort_method = 0, data_size;
+	int32_t *data;
+	int32_t *ptr;
+	size_t n;
+	size_t i;
+	size_t mergesort_method = 0;
+	size_t data_size;
 	NOCLOBBER int rc = EXIT_SUCCESS;
 	double rate;
-	NOCLOBBER double duration = 0.0, count = 0.0, sorted = 0.0;
+	NOCLOBBER double duration = 0.0;
+	NOCLOBBER double count = 0.0;
+	NOCLOBBER double sorted = 0.0;
 	mergesort_func_t mergesort_func;
 #if !defined(__OpenBSD__) &&	\
     !defined(__NetBSD__) &&	\

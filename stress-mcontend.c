@@ -456,7 +456,8 @@ static int stress_mcontend(stress_args_t *args)
 	char filename[PATH_MAX];
 	stress_pthread_args_t pa;
 	bool mcontend_numa = false;
-	int fd, rc;
+	int fd;
+	int rc;
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 	stress_numa_mask_t *numa_mask = NULL;
 	stress_numa_mask_t *numa_nodes = NULL;

@@ -41,8 +41,10 @@ static const stress_opt_t opts[] = {
  */
 static int stress_mincore_file(stress_args_t *args)
 {
-	int ret, fd;
+	int ret;
+	int fd;
 	char filename[PATH_MAX];
+
 	ret = stress_fs_temp_dir_make_args(args);
 	if (ret != 0)
 		return -1;
@@ -100,13 +102,19 @@ static void stress_mincore_expect(
  */
 static int stress_mincore(stress_args_t *args)
 {
-	uint8_t *addr = NULL, *prev_addr = NULL;
+	uint8_t *addr = NULL;
+	uint8_t *prev_addr = NULL;
 	const size_t page_size = args->page_size;
 	const intptr_t mask = ~((intptr_t)page_size - 1);
 	bool mincore_random = false;
-	int fd, rc = EXIT_SUCCESS;
-	uint8_t *mapped, *unmapped, *fdmapped;
-	double duration = 0.0, count = 0.0, rate;
+	int fd;
+	int rc = EXIT_SUCCESS;
+	uint8_t *mapped;
+	uint8_t *unmapped;
+	uint8_t *fdmapped;
+	double duration = 0.0;
+	double count = 0.0;
+	double rate;
 
 	(void)stress_setting_get("mincore-random", &mincore_random);
 

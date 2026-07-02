@@ -216,8 +216,10 @@ static int stress_mknod(stress_args_t *args)
 {
 	const size_t num_nodes = SIZEOF_ARRAY(modes);
 	int ret;
-	dev_t chr_dev, blk_dev;
-	int chr_dev_ret, blk_dev_ret;
+	dev_t chr_dev;
+	dev_t blk_dev;
+	int chr_dev_ret;
+	int blk_dev_ret;
 	int dir_fd = -1;
 	const int bad_fd = stress_fs_bad_fd_get();
 #if defined(HAVE_MKNODAT) &&	\

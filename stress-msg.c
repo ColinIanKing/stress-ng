@@ -374,12 +374,16 @@ resend:
 static int stress_msg(stress_args_t *args)
 {
 	pid_t pid;
-	int msgq_id, rc = EXIT_SUCCESS, parent_cpu;
+	int msgq_id;
+	int rc = EXIT_SUCCESS;
+	int parent_cpu;
 	int32_t msg_types = 0;
 	const size_t max_ids = stress_max_ids(args);
 	int *msgq_ids;
 	stress_msg_t ALIGN64 msg;
-	size_t j, n, msg_bytes = sizeof(msg.u.value);
+	size_t j;
+	size_t n;
+	size_t msg_bytes = sizeof(msg.u.value);
 
 	(void)stress_setting_get("msg-types", &msg_types);
 	if (!stress_setting_get("msg-bytes", &msg_bytes)) {

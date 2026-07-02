@@ -74,7 +74,8 @@ enum membarrier_cmd_flag {
 static int stress_membarrier_exercise(stress_args_t *args, membarrier_info_t *info)
 {
 	int ret;
-	unsigned int i, mask;
+	unsigned int i;
+	unsigned int mask;
 	double t;
 
 	ret = shim_membarrier(MEMBARRIER_CMD_QUERY, 0, 0);
@@ -149,12 +150,15 @@ static void *stress_membarrier_thread(void *arg)
  */
 static int stress_membarrier(stress_args_t *args)
 {
-	int ret, rc = EXIT_SUCCESS;
+	int ret;
+	int rc = EXIT_SUCCESS;
 	/* We have MAX_MEMBARRIER_THREADS plus the stressor process */
 	membarrier_info_t info[MAX_MEMBARRIER_THREADS + 1];
 	stress_pthread_args_t pargs[MAX_MEMBARRIER_THREADS + 1];
 	size_t i;
-	double duration = 0.0, count = 0.0, rate;
+	double duration = 0.0;
+	double count = 0.0;
+	double rate;
 
 	ret = shim_membarrier(MEMBARRIER_CMD_QUERY, 0, 0);
 	if (UNLIKELY(ret < 0)) {

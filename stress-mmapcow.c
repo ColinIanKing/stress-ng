@@ -100,7 +100,8 @@ static int OPTIMIZE3 stress_mmapcow_modify_unmap(
 	volatile uint64_t *ptr = (volatile uint64_t *)shim_assume_aligned(page, 8);
 	const uint64_t *ptr_end = (uint64_t *)(((uintptr_t)ptr) + page_size);
 	uint64_t val = stress_mwc64() | 0x1248124812481248ULL;	/* random, and never zero */
-	double t1, t2;
+	double t1;
+	double t2;
 
 	(void)flags;
 
@@ -152,9 +153,14 @@ static int stress_mmapcow_exercise(
 	size_t *failed_size,
 	int *failed_count)
 {
-	uint8_t *buf = NULL, *buf_end, *ptr;
+	uint8_t *buf = NULL;
+	uint8_t *buf_end;
+	uint8_t *ptr;
 	uint8_t rnd;
-	size_t stride, n_pages, i, offset;
+	size_t stride;
+	size_t n_pages;
+	size_t i;
+	size_t offset;
 	pid_t pid = -1;
 	const size_t page_size = args->page_size;
 	const size_t page_size2 = page_size + page_size;
@@ -363,12 +369,17 @@ next:
 
 static int stress_mmapcow_child(stress_args_t *args, void *ctxt)
 {
-	size_t buf_size, max_buf_size = 0, failed_size;
+	size_t buf_size;
+	size_t max_buf_size = 0;
+	size_t failed_size;
 	int failed_count = 0;
 	const size_t page_size = args->page_size;
 	char tmp[32];
-	int ret, flags = *(int *)ctxt;
-	double duration = 0.0, count = 0.0, rate;
+	int ret;
+	int flags = *(int *)ctxt;
+	double duration = 0.0;
+	double count = 0.0;
+	double rate;
 
 	buf_size = page_size;
 	failed_size = ~(size_t)0;

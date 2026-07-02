@@ -77,7 +77,8 @@ static int stress_metamix_file(
 {
 	char filename[PATH_MAX];
 	file_info_t file_info[METAMIX_WRITES];
-	size_t i, n;
+	size_t i;
+	size_t n;
 	off_t offset = (metamix_bytes > (off_t)args->page_size) ?
 		(off_t)stress_mwc16modn((uint16_t)(metamix_bytes >> 2)) : 0;
 	off_t end = (off_t)0;
@@ -87,7 +88,9 @@ static int stress_metamix_file(
 	const size_t max_seek = metamix_bytes / METAMIX_WRITES;
 	const off_t page_mask = ~(off_t)(args->page_size - 1);
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
-	int ret, fd, rc = EXIT_SUCCESS;
+	int ret;
+	int fd;
+	int rc = EXIT_SUCCESS;
 	uint8_t buf[buf_len];
 	struct stat statbuf;
 
@@ -320,10 +323,13 @@ err_unlink:
 static int stress_metamix(stress_args_t *args)
 {
 	int ret;
-	off_t metamix_bytes, metamix_bytes_total = DEFAULT_METAMIX_BYTES;
+	off_t metamix_bytes;
+	off_t metamix_bytes_total = DEFAULT_METAMIX_BYTES;
 	size_t i;
-	stress_pid_t *s_pids, *s_pids_head = NULL;
-	uint32_t w, z;
+	stress_pid_t *s_pids;
+	stress_pid_t *s_pids_head = NULL;
+	uint32_t w;
+	uint32_t z;
 	char temp_dir[PATH_MAX];
 	const char *fs_type;
 

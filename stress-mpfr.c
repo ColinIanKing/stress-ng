@@ -58,8 +58,12 @@ typedef struct {
  */
 static void stress_mpfr_euler(const mpfr_prec_t precision, mpfr_t *result)
 {
-	mpfr_t sum_prev, sum, t, u;
-	int i, j;
+	mpfr_t sum_prev;
+	mpfr_t sum;
+	mpfr_t t;
+	mpfr_t u;
+	int i;
+	int j;
 
 	mpfr_init2(sum_prev, precision);
 	mpfr_init2(sum, precision);
@@ -96,7 +100,10 @@ static void stress_mpfr_euler(const mpfr_prec_t precision, mpfr_t *result)
  */
 static void stress_mpfr_omega(const mpfr_prec_t precision, mpfr_t *result)
 {
-	mpfr_t omega, omega_prev, tmp1, tmp2;
+	mpfr_t omega;
+	mpfr_t omega_prev;
+	mpfr_t tmp1;
+	mpfr_t tmp2;
 	int i;
 
 	mpfr_init2(omega, precision);
@@ -133,7 +140,10 @@ static void stress_mpfr_omega(const mpfr_prec_t precision, mpfr_t *result)
  */
 static void stress_mpfr_phi(const mpfr_prec_t precision, mpfr_t *result)
 {
-	mpfr_t phi, a, b, c;
+	mpfr_t phi;
+	mpfr_t a;
+	mpfr_t b;
+	mpfr_t c;
 	int i;
 
 	mpfr_init2(phi, precision);
@@ -161,7 +171,11 @@ static void stress_mpfr_phi(const mpfr_prec_t precision, mpfr_t *result)
 
 static void stress_mpfr_nsqrt(const mpfr_prec_t precision, mpfr_t *result)
 {
-	mpfr_t val, lo, hi, tmp, sqroot;
+	mpfr_t val;
+	mpfr_t lo;
+	mpfr_t hi;
+	mpfr_t tmp;
+	mpfr_t sqroot;
 	int i;
 
 	mpfr_init2(val, precision);
@@ -205,7 +219,11 @@ static void stress_mpfr_nsqrt(const mpfr_prec_t precision, mpfr_t *result)
  */
 static void stress_mpfr_apery(const mpfr_prec_t precision, mpfr_t *result)
 {
-	mpfr_t apery, apery_prev, n3, tmp, zero;
+	mpfr_t apery;
+	mpfr_t apery_prev;
+	mpfr_t n3;
+	mpfr_t tmp;
+	mpfr_t zero;
 	int i;
 
 	mpfr_init2(apery, precision);
@@ -250,7 +268,10 @@ static void stress_mpfr_trigfunc(
 	mpfr_t *result,
 	int (*trigfunc)(mpfr_t rop, const mpfr_t op, mpfr_rnd_t rnd))
 {
-	mpfr_t r, tmp, theta, dtheta;
+	mpfr_t r;
+	mpfr_t tmp;
+	mpfr_t theta;
+	mpfr_t dtheta;
 	int i;
 
 	mpfr_init2(r, precision);
@@ -303,7 +324,8 @@ static void stress_mpfr_sine(const mpfr_prec_t precision, mpfr_t *result)
  */
 static void stress_mpfr_exp(const mpfr_prec_t precision, mpfr_t *result)
 {
-	mpfr_t r, tmp;
+	mpfr_t r;
+	mpfr_t tmp;
 	int i;
 
 	mpfr_init2(r, precision);
@@ -329,7 +351,8 @@ static void stress_mpfr_exp(const mpfr_prec_t precision, mpfr_t *result)
  */
 static void stress_mpfr_log(const mpfr_prec_t precision, mpfr_t *result)
 {
-	mpfr_t r, tmp;
+	mpfr_t r;
+	mpfr_t tmp;
 	int i;
 
 	mpfr_init2(r, precision);
@@ -366,7 +389,8 @@ static int stress_mpfr(stress_args_t *args)
 	mpfr_prec_t precision;
 	uint32_t mpfr_precision = DEFAULT_MPFR_PRECISION;
 	register size_t i;
-	mpfr_t r0, r1;
+	mpfr_t r0;
+	mpfr_t r1;
 	static stress_metrics_t metrics[SIZEOF_ARRAY(stress_mpfr_methods)];
 	int rc = EXIT_SUCCESS;
 
@@ -388,7 +412,8 @@ static int stress_mpfr(stress_args_t *args)
 	stress_proc_state_set(args->name, STRESS_STATE_RUN);
 
 	do {
-		uint32_t w, z;
+		uint32_t w;
+		uint32_t z;
 
 		stress_mwc_seed_get(&w, &z);
 

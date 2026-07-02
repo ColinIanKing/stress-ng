@@ -298,7 +298,10 @@ static const stress_memcpy_method_info_t stress_memcpy_methods[] = {
  */
 static int stress_memcpy(stress_args_t *args)
 {
-	uint8_t *buf, *str1, *str2, *str3;
+	uint8_t *buf;
+	uint8_t *str1;
+	uint8_t *str2;
+	uint8_t *str3;
 	size_t memcpy_method = 0;
 	stress_memcpy_func func;
 

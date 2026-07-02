@@ -91,10 +91,14 @@ static int stress_mq(stress_args_t *args)
 {
 	pid_t pid;
 	mqd_t mq = -1;
-	int sz, max_sz, mq_size = DEFAULT_MQ_SIZE, parent_cpu;
+	int sz;
+	int max_sz;
+	int mq_size = DEFAULT_MQ_SIZE;
+	int parent_cpu;
 	FILE *fp;
 	struct mq_attr attr;
-	char mq_name[64], mq_tmp_name[64];
+	char mq_name[64];
+	char mq_tmp_name[64];
 	bool do_timed;
 	time_t time_start;
 	struct timespec abs_timeout;

@@ -194,7 +194,8 @@ static int get_modpath_name(
 	FILE *fp;
 	char *line = NULL;
 	ssize_t line_len;
-	size_t len = 0, lineno = 0;
+	size_t len = 0;
+	size_t lineno = 0;
 	static const char *dirname_default_prefix = "/lib/modules";
 	char module[PATH_MAX - 256];		/* used by our parser */
 	char module_path_truncated[PATH_MAX];	/* truncated path */
@@ -213,7 +214,8 @@ static int get_modpath_name(
 		goto out_close;
 
 	while ((line_len = getline(&line, &len, fp)) != -1) {
-		const char *module_pathp, *modulenamep;
+		const char *module_pathp;
+		const char *modulenamep;
 		char *start_postfix;
 
 		lineno++;
@@ -319,7 +321,8 @@ static int stress_module_open(stress_args_t *args, int mod_type)
 	uint8_t buf_in[1024];
 	uint8_t buf_out[1024];
 	char modname[PATH_MAX];
-	int fd_in, fd_out;
+	int fd_in;
+	int fd_out;
 #endif
 
 	(void)args;

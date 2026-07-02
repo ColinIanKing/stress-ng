@@ -455,7 +455,8 @@ static void stress_mmaprandom_twiddle_file_flags(const int fd)
 		O_NONBLOCK,
 #endif
 	};
-	int flags, rnd_flag;
+	int flags;
+	int rnd_flag;
 
 	if (SIZEOF_ARRAY(file_flags) == 0)
 		return;
@@ -663,9 +664,13 @@ static int stress_mmaprandom_munmap_force(
 static void OPTIMIZE3 stress_mmaprandom_mmap_invalid(mr_ctxt_t *ctxt, const int idx)
 {
 	static uint32_t state = 0;
-	void *hint, *ptr;
-	size_t len, offset;
-	int prot, flags, fd;
+	void *hint;
+	void *ptr;
+	size_t len;
+	size_t offset;
+	int prot;
+	int flags;
+	int fd;
 	int mask;
 
 	hint = (state &  0x0001) ? MAP_FAILED : NULL;
@@ -731,7 +736,9 @@ static void OPTIMIZE3 stress_mmaprandom_mmap_anon(mr_ctxt_t *ctxt, const int idx
 	size_t pages = stress_mwc32modn(ctxt->maxpages) + 1;
 	size_t size = page_size * pages, i, j;
 	uint8_t *addr;
-	int prot_flag, mmap_flag, extra_flags = 0;
+	int prot_flag;
+	int mmap_flag;
+	int extra_flags = 0;
 	mr_node_t *mr_node;
 	char name[80];
 
@@ -856,14 +863,18 @@ static int stress_mmaprandom_fallocate(
 static void OPTIMIZE3 stress_mmaprandom_mmap_file(mr_ctxt_t *ctxt, const int idx)
 {
 	const size_t page_size = ctxt->page_size;
-	size_t i, j;
+	size_t i;
+	size_t j;
 	const size_t pages = stress_mwc32modn(ctxt->maxpages) + 1;
 	const off_t offset = stress_mwc32modn(ctxt->maxpages) * page_size;
 	const size_t size = page_size * pages;
 	uint8_t *addr;
-	int prot_flag, mmap_flag, extra_flags = 0;
+	int prot_flag;
+	int mmap_flag;
+	int extra_flags = 0;
 	mr_node_t *mr_node;
-	int fd, mode;
+	int fd;
+	int mode;
 
 	mmap_flag = MWC_RND_ELEMENT(mmap_file_flags);
 
@@ -1047,7 +1058,8 @@ static void OPTIMIZE3 stress_mmaprandom_shm_sysv(mr_ctxt_t *ctxt, const int idx)
 	uint8_t *addr;
 	int prot_flag = 0;
 	mr_node_t *mr_node;
-	int shmid, shmflag;
+	int shmid;
+	int shmflag;
 	char name[80];
 
 	mr_node = RB_MIN(sm_free_node_tree, &sm_free_node_tree_root);
@@ -1109,7 +1121,8 @@ static void OPTIMIZE3 stress_mmaprandom_shm_posix(mr_ctxt_t *ctxt, const int idx
 	int prot_flag = PROT_READ;
 	mr_node_t *mr_node;
 	char name[256];
-	int fd, shmflag;
+	int fd;
+	int shmflag;
 	mode_t mode = S_IRUSR;
 
 	mr_node = RB_MIN(sm_free_node_tree, &sm_free_node_tree_root);
@@ -1436,7 +1449,7 @@ static inline size_t stress_mmaprandom_get_random_size(
 	const size_t mmap_size,
 	const size_t page_size)
 {
-	size_t n = mmap_size / page_size;
+	const size_t n = mmap_size / page_size;
 
 	return page_size * (1 + (size_t)stress_mwc8modn((uint8_t)n));
 }
@@ -2105,7 +2118,8 @@ static int stress_mmaprandom_child(stress_args_t *args, void *context)
 static int stress_mmaprandom(stress_args_t *args)
 {
 	mr_ctxt_t *ctxt;
-	double t, duration;
+	double t;
+	double duration;
 	size_t i;
 	const size_t count_size = SIZEOF_ARRAY(mr_funcs) * sizeof(*ctxt->count);
 	size_t mr_nodes_size;
@@ -2227,7 +2241,8 @@ static int stress_mmaprandom(stress_args_t *args)
 
 	t = stress_time_now();
 	while (stress_continue(args)) {
-		uint32_t w, z;
+		uint32_t w;
+		uint32_t z;
 
 		VOID_RET(int, stress_oomable_child(args, (void *)ctxt, stress_mmaprandom_child, STRESS_OOMABLE_QUIET));
 

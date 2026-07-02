@@ -47,7 +47,8 @@ static int stress_mseal_expect_addr(
 	void *expect_addr,
 	int expect_errno)
 {
-	char err1[256], err2[256];
+	char err1[256];
+	char err2[256];
 
 	if (LIKELY((addr == expect_addr) && (errno == expect_errno)))
 		return 0;
@@ -67,7 +68,8 @@ static int stress_mseal_expect_error(
 	int expect_ret,
 	int expect_errno)
 {
-	char err1[256], err2[256];
+	char err1[256];
+	char err2[256];
 
 	if (LIKELY((ret == expect_ret) && (errno == expect_errno)))
 		return 0;

@@ -372,7 +372,8 @@ static void stress_mmaptorture_vm_name(
 	const size_t page_size)
 {
 	char vma_name[32];
-	size_t i, j;
+	size_t i;
+	size_t j;
 	static const char hex[] = "0123456789ABCDEF";
 
 	for (i = 0, j = 0; i < size; i += page_size, j++) {
@@ -458,7 +459,8 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 	do {
 		unsigned char vec[MMAP_SIZE_MAP];
 		NOCLOBBER uint8_t *ptr;
-		NOCLOBBER size_t n, mmap_size;
+		NOCLOBBER size_t n;
+		NOCLOBBER size_t mmap_size;
 		NOCLOBBER pid_t pid = -1;
 		NOCLOBBER uint64_t total_bytes = 0;
 		NOCLOBBER off_t offset;
@@ -870,7 +872,9 @@ mappings_unmap:
 static int stress_mmaptorture(stress_args_t *args)
 {
 	int ret;
-	double t_start, duration, rate;
+	double t_start;
+	double duration;
+	double rate;
 
 	mmap_stats = (mmap_stats_t *)stress_mmap_anon_shared(sizeof(*mmap_stats),
 					PROT_READ | PROT_WRITE);

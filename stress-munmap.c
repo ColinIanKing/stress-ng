@@ -93,7 +93,8 @@ static void stress_munmap_range(
 	const size_t size = (uintptr_t)end - (uintptr_t)start;
 	const size_t n_pages = size / page_size;
 	const size_t stride = stress_munmap_stride(n_pages + stress_mwc8());
-	size_t i, j;
+	size_t i;
+	size_t j;
 
 	for (i = 0, j = 0; LIKELY(stress_continue(args) && (i < n_pages)); i++) {
 		const size_t offset = j << page_shift;
@@ -129,12 +130,16 @@ static int stress_munmap_child(stress_args_t *args, void *context)
 {
 	FILE *fp;
 	char path[4096];
-	char buf[4096], prot[5];
+	char buf[4096];
+	char prot[5];
 	const pid_t pid = getpid();
 	munmap_context_t *ctxt = (munmap_context_t *)context;
-	void *start, *end, *offset;
+	void *start;
+	void *end;
+	void *offset;
 	int n;
-	unsigned int major, minor;
+	unsigned int major;
+	unsigned int minor;
 	int rc = EXIT_SUCCESS;
 	uint64_t inode;
 
