@@ -563,6 +563,7 @@ static const stress_exercises_t exercises[] = {
 	STRESS_EX_FEATURE("bogo-ops-stable"),
 	STRESS_EX_FEATURE("cpu-heavy-ops"),
 	STRESS_EX_FEATURE("fp"),
+	STRESS_EX_FEATURE("fp-division"),
 #if defined(HAVE_COMPLEX_H)
 	STRESS_EX_FEATURE("fp-complex"),
 #endif
