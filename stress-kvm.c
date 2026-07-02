@@ -167,7 +167,12 @@ static int stress_kvm(stress_args_t *args)
 		struct kvm_regs regs;
 		struct kvm_userspace_memory_region kvm_mem;
 		struct kvm_run *run;
-		int kvm_fd, vm_fd, vcpu_fd, version, ret, i;
+		int kvm_fd;
+		int vm_fd;
+		int vcpu_fd;
+		int version;
+		int ret;
+		int i;
 		void *vm_mem;
 #if defined(STRESS_KVM_ARM) ||	\
     defined(STRESS_KVM_RISCV)

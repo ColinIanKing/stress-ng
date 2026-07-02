@@ -35,7 +35,9 @@ static int stress_kill(stress_args_t *args)
 	pid_t pid;
 	const pid_t ppid = getpid();
 	int ret;
-	double duration = 0.0, count = 0.0, rate;
+	double duration = 0.0;
+	double count = 0.0;
+	double rate;
 
 	if (stress_signal_handler(args->name, SIGUSR1, SIG_IGN, NULL) < 0)
 		return EXIT_FAILURE;

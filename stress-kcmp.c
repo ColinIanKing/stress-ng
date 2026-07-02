@@ -127,7 +127,8 @@ static int stress_kcmp(stress_args_t *args)
 
 #if defined(HAVE_SYS_EPOLL_H) &&	\
     NEED_GLIBC(2,3,2)
-	int efd = -1, sfd = -1;
+	int efd = -1;
+	int sfd = -1;
 	int so_reuseaddr = 1;
 	struct epoll_event ev;
 	struct sockaddr *addr = NULL;
@@ -139,7 +140,8 @@ static int stress_kcmp(stress_args_t *args)
 	const bool is_root = stress_capabilities_check(SHIM_CAP_IS_ROOT);
 #if defined(HAVE_SYS_EPOLL_H) &&	\
     NEED_GLIBC(2,3,2)
-	int port = 23000, reserved_port;
+	int port = 23000;
+	int reserved_port;
 #endif
 
 	static const char *capfail =
@@ -245,7 +247,8 @@ again:
 		_exit(EXIT_SUCCESS);
 	} else {
 		/* Parent */
-		int fd2, pid2;
+		int fd2;
+		int pid2;
 		const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 
 		pid2 = getpid();

@@ -117,7 +117,9 @@ static int stress_key(stress_args_t *args)
 	char *huge_description;
 	const size_t key_huge_desc_size = STRESS_MAXIMUM(args->page_size, KEY_HUGE_DESC_SIZE) + 1024;
 	uint64_t keys_added = 0;
-	double t_start, duration, rate;
+	double t_start;
+	double duration;
+	double rate;
 
 	huge_description = (char *)malloc(key_huge_desc_size);
 	if (!huge_description) {
@@ -134,7 +136,8 @@ static int stress_key(stress_args_t *args)
 
 	t_start = stress_time_now();
 	do {
-		size_t i = 0, n = 0;
+		size_t i = 0;
+		size_t n = 0;
 		char ALIGN64 description[64];
 		char ALIGN64 payload[64];
 
