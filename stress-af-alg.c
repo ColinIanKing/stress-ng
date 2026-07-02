@@ -214,7 +214,8 @@ static int stress_af_alg_hash(
 	const int sockfd,
 	stress_crypto_info_t *info)
 {
-	int fd, rc;
+	int fd;
+	int rc;
 	size_t j;
 	const size_t digest_size = (size_t)info->digest_size;
 	struct sockaddr_alg sa;
@@ -392,7 +393,8 @@ static int stress_af_alg_cipher(
 	const int sockfd,
 	stress_crypto_info_t *info)
 {
-	int fd, rc;
+	int fd;
+	int rc;
 	ssize_t j;
 	struct sockaddr_alg sa;
 	const ssize_t iv_size = info->iv_size;
@@ -696,7 +698,8 @@ static int stress_af_alg_aead(
 	const int sockfd,
 	stress_crypto_info_t *info)
 {
-	int fd, rc;
+	int fd;
+	int rc;
 	ssize_t j;
 	struct sockaddr_alg sa;
 	const socklen_t max_key_size = 16;
@@ -707,7 +710,8 @@ static int stress_af_alg_aead(
 	int retries = MAX_AF_ALG_RETRIES_BIND;
 	char input[DATA_LEN + ALLOC_SLOP] ALIGN64;
 	char output[DATA_LEN + tag_size + ALLOC_SLOP] ALIGN64;
-	char *cbuf, *key = NULL;
+	char *cbuf;
+	char *key = NULL;
 
 	cbuf = (char *)malloc(cbuf_size);
 	if (UNLIKELY(!cbuf))
@@ -979,7 +983,8 @@ static int stress_af_alg_rng(
 	const int sockfd,
 	stress_crypto_info_t *info)
 {
-	int fd, rc;
+	int fd;
+	int rc;
 	ssize_t j;
 	struct sockaddr_alg sa;
 	int retries = MAX_AF_ALG_RETRIES_BIND;
@@ -1130,7 +1135,9 @@ static void stress_af_alg_sort_crypto(void)
 {
 	stress_crypto_info_t **array, *ci;
 
-	size_t i, n, internal;
+	size_t i;
+	size_t n;
+	size_t internal;
 
 	stress_af_alg_count_crypto(&n, &internal);
 	if (n == 0)
@@ -1199,7 +1206,9 @@ static int stress_af_alg(stress_args_t *args)
 	NOCLOBBER int rc = EXIT_FAILURE;
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 	int retries = MAX_AF_ALG_RETRIES;
-	size_t proc_count, count, internal;
+	size_t proc_count;
+	size_t count;
+	size_t internal;
 	bool af_alg_dump = false;
 	stress_crypto_info_t *info;
 	size_t af_alf_type_index = 0;	/* all */

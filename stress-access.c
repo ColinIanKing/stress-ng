@@ -250,7 +250,10 @@ static void stress_access_reap(stress_pid_t *s_pid)
  */
 static int stress_access(stress_args_t *args)
 {
-	int fd1 = -1, fd2 = -1, ret, rc = EXIT_FAILURE;
+	int fd1 = -1;
+	int fd2 = -1;
+	int ret;
+	int rc = EXIT_FAILURE;
 	char filename1[PATH_MAX];
 	char filename2[PATH_MAX];
 	const mode_t all_mask = 0700;
@@ -259,10 +262,12 @@ static int stress_access(stress_args_t *args)
 #endif
 	const bool is_root = stress_capabilities_check(SHIM_CAP_IS_ROOT);
 	const char *fs_type;
-	stress_pid_t *s_pids, *s_pids_head = NULL;
+	stress_pid_t *s_pids;
+	stress_pid_t *s_pids_head = NULL;
 	uint32_t rnd32 = stress_mwc32();
 	/* 3 metrics, index 0 for parent, 1 for child, 2 for total */
-	size_t i, metrics_size = sizeof(*metrics) * 3;
+	size_t i;
+	size_t metrics_size = sizeof(*metrics) * 3;
 	double rate;
 	bool report_chmod_error = true;
 	static const char * const ignore_chmod_fs[] = {

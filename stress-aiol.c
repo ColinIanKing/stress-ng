@@ -233,6 +233,7 @@ static int stress_aiol_submit(
 	const bool ignore_einval)
 {
 	int ret;
+
 	do {
 
 		errno = 0;
@@ -383,7 +384,8 @@ static void stress_aiol_free(stress_aiol_info_t *info)
  */
 static int stress_aiol(stress_args_t *args)
 {
-	int ret, rc = EXIT_FAILURE;
+	int ret;
+	int rc = EXIT_FAILURE;
 	int flags = O_DIRECT;
 	char filename[PATH_MAX];
 	char buf[1];
@@ -396,7 +398,9 @@ static int stress_aiol(stress_args_t *args)
 #if defined(__NR_io_cancel)
 	int bad_fd;
 #endif
-	double t, duration = 0.0, rate;
+	double t;
+	double duration = 0.0;
+	double rate;
 
 	(void)shim_memset(&info, 0, sizeof(info));
 

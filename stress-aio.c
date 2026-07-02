@@ -231,13 +231,20 @@ static int issue_aio_sync_request(
  */
 static int stress_aio(stress_args_t *args)
 {
-	int ret, fd, rc = EXIT_FAILURE;
+	int ret;
+	int fd;
+	int rc = EXIT_FAILURE;
 	stress_io_req_t *io_reqs;
-	struct sigaction sa, sa_old;
+	struct sigaction sa;
+	struct sigaction sa_old;
 	char filename[PATH_MAX];
-	uint32_t i, opt_aio_requests = DEFAULT_AIO_REQUESTS;
+	uint32_t i;
+	uint32_t opt_aio_requests = DEFAULT_AIO_REQUESTS;
 	uint64_t total = 0;
-	double t1 = 0.0, t2 = 0.0, dt, rate;
+	double t1 = 0.0;
+	double t2 = 0.0;
+	double dt;
+	double rate;
 	const char *fs_type;
 
 	if (!stress_setting_get("aio-requests", &opt_aio_requests)) {

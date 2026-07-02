@@ -108,8 +108,10 @@ static inline void stress_acl_delete_all(const char *filename, const acl_type_t 
  */
 static inline int stress_acl_cmp(const acl_t acl1, const acl_t acl2)
 {
-	char *acl_txt1, *acl_txt2;
-	ssize_t len1, len2;
+	char *acl_txt1;
+	char *acl_txt2;
+	ssize_t len1;
+	ssize_t len2;
 	int ret = -1;
 
 	acl_txt1 = acl_to_text(acl1, &len1);
@@ -210,7 +212,9 @@ static int stress_acl_setup(
 	size_t *acl_count,
 	bool *acls_tested)
 {
-	size_t usr, grp, oth;
+	size_t usr;
+	size_t grp;
+	size_t oth;
 
 	for (usr = 0; usr < SIZEOF_ARRAY(stress_acl_entries); usr++) {
 		for (grp = 0; grp < SIZEOF_ARRAY(stress_acl_entries); grp++) {
@@ -398,12 +402,15 @@ static int stress_acl_exercise(
  */
 static int stress_acl(stress_args_t *args)
 {
-	int fd, rc;
+	int fd;
+	int rc;
 	const uid_t uid = getuid();
 	const gid_t gid = getgid();
 	acl_t *acls;
 	bool *acls_tested;
-	size_t i, acl_count = 0, acl_tested_count = 0;
+	size_t i;
+	size_t acl_count = 0;
+	size_t acl_tested_count = 0;
 	bool acl_rand = false;
 	const size_t max_acls = SIZEOF_ARRAY(stress_acl_entries) *
 				SIZEOF_ARRAY(stress_acl_entries) *

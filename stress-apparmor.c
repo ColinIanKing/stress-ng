@@ -547,7 +547,9 @@ static inline void apparmor_corrupt_flip_one_bit_random(
  */
 static int apparmor_stress_corruption(stress_args_t *args)
 {
-	int rc = EXIT_SUCCESS, i = (int)args->instance, ret = -1;
+	int rc = EXIT_SUCCESS;
+	int i = (int)args->instance;
+	int ret = -1;
 	int j = 0;
 	aa_kernel_interface *kern_if;
 
@@ -659,7 +661,8 @@ static const stress_apparmor_func apparmor_funcs[] = {
  */
 static int stress_apparmor(stress_args_t *args)
 {
-	stress_pid_t *s_pids, *s_pids_head = NULL;
+	stress_pid_t *s_pids;
+	stress_pid_t *s_pids_head = NULL;
 	size_t i;
 	int rc = EXIT_NO_RESOURCE;
 

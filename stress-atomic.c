@@ -446,7 +446,9 @@ static int stress_atomic_exercise(
  */
 static int stress_atomic(stress_args_t *args)
 {
-	size_t i, j, atomic_info_sz;
+	size_t i;
+	size_t j;
+	size_t atomic_info_sz;
 	stress_atomic_info_t *atomic_info;
 	stress_pid_t *s_pid_head = NULL;
 	const size_t n_atomic_procs = STRESS_ATOMIC_MAX_PROCS + 1;

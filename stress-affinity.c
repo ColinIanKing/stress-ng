@@ -128,7 +128,8 @@ static void stress_affinity_child(
 	stress_affinity_info_t *info,
 	const bool pin_controller)
 {
-	uint32_t cpu = args->instance, last_cpu = cpu;
+	uint32_t cpu = args->instance;
+	uint32_t last_cpu = cpu;
 	cpu_set_t mask0;
 	bool stress_continue_affinity = true;
 	const bool taskset_random = g_opt_flags & OPT_FLAGS_TASKSET_RANDOM;
