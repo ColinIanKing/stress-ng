@@ -321,7 +321,11 @@ static int ovpn_rt_send(
 	ovpn_parse_reply_cb cb,
 	void *arg_cb)
 {
-	int len, rem_len, fd, ret, rcv_len;
+	int len;
+	int rem_len;
+	int fd;
+	int ret;
+	int rcv_len;
 	struct sockaddr_nl nladdr = { 0 };
 	struct nlmsgerr *err;
 	struct nlmsghdr *h;
@@ -618,7 +622,8 @@ static struct nl_ctx *nl_ctx_alloc_flags(
 	const int flags)
 {
 	struct nl_ctx *ctx;
-	int err, ret;
+	int err;
+	int ret;
 	const char *args_name = ovpn->args_name;
 
 	ctx = calloc(1, sizeof(*ctx));
@@ -970,7 +975,9 @@ static int ovpn_parse_new_peer(
 static int ovpn_connect(struct ovpn_ctx *ovpn)
 {
 	socklen_t socklen;
-	int s, ret, flags;
+	int s;
+	int ret;
+	int flags;
 	fd_set wfds;
 	struct timeval tv = { .tv_sec = 2, .tv_usec = 0 };
 	const char *args_name = ovpn->args_name;

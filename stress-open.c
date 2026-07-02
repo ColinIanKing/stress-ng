@@ -435,7 +435,8 @@ static int open_tmp_rdwr(
 	double *duration,
 	double *count)
 {
-	int fd, flags = O_TMPFILE;
+	int fd;
+	int flags = O_TMPFILE;
 
 	(void)args;
 	(void)temp_dir;
@@ -699,7 +700,8 @@ static int open_with_openat_dir_fd(
 	double *count)
 {
 	char filename[PATH_MAX];
-	int fd, dir_fd;
+	int fd;
+	int dir_fd;
 	const uint32_t rnd32 = stress_mwc32();
 
 	(void)args;
@@ -871,7 +873,8 @@ static int open_rdonly_trunc(
 	double *count)
 {
 	char filename[PATH_MAX];
-	int fd1, fd2;
+	int fd1;
+	int fd2;
 
 	(void)args;
 
@@ -1036,17 +1039,22 @@ static void stress_fd_dir(const char *path, double *duration, double *count)
  */
 static int stress_open(stress_args_t *args)
 {
-	int *fds, ret;
-	char path[PATH_MAX], temp_dir[PATH_MAX];
+	int *fds;
+	int ret;
+	char path[PATH_MAX];
+	char temp_dir[PATH_MAX];
 	const uint64_t max_size = (uint64_t)-1LL;
 	uint64_t open_max = stress_fs_max_file_limit_get();
-	size_t i, sz;
+	size_t i;
+	size_t sz;
 	pid_t pid = -1;
 	const pid_t mypid = getpid();
 	struct stat statbuf;
 	bool open_fd = false;
 	int all_open_flags;
-	double duration = 0.0, count = 0.0, rate;
+	double duration = 0.0;
+	double count = 0.0;
+	double rate;
 
 	/*
 	 *  32 bit systems may OOM if we have too many open fds, so
@@ -1121,7 +1129,8 @@ static int stress_open(stress_args_t *args)
 
 	do {
 		size_t n;
-		unsigned int min_fd = UINT_MAX, max_fd = 0;
+		unsigned int min_fd = UINT_MAX;
+		unsigned int max_fd = 0;
 
 		for (i = 0; i < open_max; i++) {
 			for (;;) {

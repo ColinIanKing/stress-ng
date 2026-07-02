@@ -362,7 +362,8 @@ static void stress_opcode_text(
 	const void *ops_end,
 	const volatile uint64_t *op)
 {
-	char *text_start, *text_end;
+	char *text_start;
+	char *text_end;
 	const size_t ops_len = (uintptr_t)ops_end - (uintptr_t)ops_begin;
 	size_t text_len = stress_exec_text_addr(&text_start, &text_end);
 	uint8_t *ops;
@@ -410,7 +411,8 @@ static int stress_opcode(stress_args_t *args)
 {
 	const size_t page_size = args->page_size;
 	int rc;
-	size_t i, opcode_method = 0;
+	size_t i;
+	size_t opcode_method = 0;
 	const stress_opcode_method_info_t *method;
 #if STRESS_OPCODE_SIZE >= 8
 	const size_t opcode_bytes = STRESS_OPCODE_SIZE >> 3;
@@ -418,7 +420,11 @@ static int stress_opcode(stress_args_t *args)
 	const size_t opcode_bytes = 1;
 #endif
 	const size_t opcode_loops = page_size / opcode_bytes;
-	double op_start, rate, t, duration, percent;
+	double op_start;
+	double rate;
+	double t;
+	double duration;
+	double percent;
 	const double num_opcodes = pow(2.0, STRESS_OPCODE_SIZE);
 	uint64_t forks = 0;
 	void *opcodes;
