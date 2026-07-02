@@ -203,7 +203,8 @@ static void stress_touch_loop(
 	do {
 		char filename[PATH_MAX];
 		uint64_t counter;
-		int fd, ret;
+		int fd;
+		int ret;
 		bool use_open;
 
 		ret = stress_lock_acquire(touch_lock);
@@ -302,12 +303,13 @@ static void stress_touch_loop(
  */
 static int stress_touch(stress_args_t *args)
 {
+	stress_pid_t *s_pids;
+	stress_pid_t *s_pids_head = NULL;
+	size_t touch_method = 0; /* TOUCH_RANDOM */
+	size_t i;
 	int ret;
 	int open_flags = 0;
-	size_t touch_method = 0; /* TOUCH_RANDOM */
 	int touch_method_type;
-	stress_pid_t *s_pids, *s_pids_head = NULL;
-	size_t i;
 
 	s_pids = stress_sync_s_pids_mmap(TOUCH_PROCS);
 	if (s_pids == MAP_FAILED) {

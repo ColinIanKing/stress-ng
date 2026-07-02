@@ -223,13 +223,18 @@ static int exercise_tee(
  */
 static int stress_tee(stress_args_t *args)
 {
-	ssize_t len, slen;
-	int fd, pipe_in[2], pipe_out[2];
+	ssize_t len;
+	ssize_t slen;
+	int fd;
+	int pipe_in[2];
+	int pipe_out[2];
 	pid_t pids[2];
 	int ret = EXIT_FAILURE;
 	const int release = stress_kernel_release_get();
 	int metrics_count = 0;
-	double duration = 0.0, bytes = 0.0, rate;
+	double duration = 0.0;
+	double bytes = 0.0;
+	double rate;
 
 	if (stress_signal_handler(args->name, SIGPIPE, stress_signal_stop_flag_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;

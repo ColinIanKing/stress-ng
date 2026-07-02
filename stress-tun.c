@@ -120,7 +120,12 @@ static int stress_tun(stress_args_t *args)
 	stress_proc_state_set(args->name, STRESS_STATE_RUN);
 
 	do {
-		int i, fd, sfd, ret, status, parent_cpu;
+		int i;
+		int fd;
+		int sfd;
+		int ret;
+		int status;
+		int parent_cpu;
 		pid_t pid;
 		struct ifreq ifr;
 		struct sockaddr_in *tun_addr;

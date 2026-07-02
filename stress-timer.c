@@ -150,7 +150,8 @@ static int stress_timer(stress_args_t *args)
 	struct itimerspec timer;
 	sigset_t mask;
 	uint64_t timer_freq = DEFAULT_TIMER_FREQ;
-	int n = 0, rc = EXIT_SUCCESS;
+	int n = 0;
+	int rc = EXIT_SUCCESS;
 
 	s_args = args;
 

@@ -562,7 +562,8 @@ static void OPTIMIZE3 stress_tree_binary(
 	int *rc)
 {
 	register uint32_t i;
-	binary_t *node, *head = NULL;
+	binary_t *node;
+	binary_t *head = NULL;
 	binary_t *nodes = (binary_t *)data;
 	double t;
 	const uint32_t seed = stress_mwc32();
@@ -624,7 +625,9 @@ static bool OPTIMIZE3 avl_insert(
 	avl_t **root,
 	register avl_t *node)
 {
-	register avl_t *p, *q, *r = *root;
+	register avl_t *p;
+	register avl_t *q;
+	register avl_t *r = *root;
 	register bool taller;
 
 	if (UNLIKELY(r == NULL)) {
@@ -769,7 +772,8 @@ static void OPTIMIZE3 stress_tree_avl(
 	int *rc)
 {
 	register uint32_t i;
-	avl_t *node, *head = NULL;
+	avl_t *node;
+	avl_t *head = NULL;
 	avl_t *nodes = (avl_t *)data;
 	double t;
 	const uint32_t seed = stress_mwc32();
@@ -1123,7 +1127,10 @@ static int stress_tree(stress_args_t *args)
 {
 	uint32_t tree_size = DEFAULT_TREE_SIZE;
 	void *nodes;
-	size_t n, i, j, tree_method = 0;
+	size_t n;
+	size_t i;
+	size_t j;
+	size_t tree_method = 0;
 	int rc = EXIT_SUCCESS;
 	stress_tree_func func;
 	stress_tree_metrics_t *metrics;

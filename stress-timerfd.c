@@ -128,22 +128,25 @@ static void stress_timerfd_set(
  */
 static int stress_timerfd(stress_args_t *args)
 {
+	char file_fd_name[PATH_MAX];
 	struct itimerspec timer;
+#if defined(USE_POLL)
+	struct pollfd *pollfds;
+#endif
 	uint64_t timerfd_freq = DEFAULT_TIMERFD_FREQ;
 	int timerfd_fds = TIMER_FDS_DEFAULT;
-	int count = 0, i, max_timerfd = -1;
-	bool timerfd_rand = false;
+	int count = 0;
+	int i;
+	int max_timerfd = -1;
 	int file_fd;
-	char file_fd_name[PATH_MAX];
-#if defined(CLOCK_REALTIME_ALARM)
-	const bool cap_wake_alarm = stress_capabilities_check(SHIM_CAP_WAKE_ALARM);
-#endif
 	const int bad_fd = stress_fs_bad_fd_get();
 	const pid_t self = getpid();
 	int *timerfds;
-	int ret, rc = EXIT_SUCCESS;
-#if defined(USE_POLL)
-	struct pollfd *pollfds;
+	int ret;
+	int rc = EXIT_SUCCESS;
+	bool timerfd_rand = false;
+#if defined(CLOCK_REALTIME_ALARM)
+	const bool cap_wake_alarm = stress_capabilities_check(SHIM_CAP_WAKE_ALARM);
 #endif
 
 	(void)stress_setting_get("timerfd-rand", &timerfd_rand);

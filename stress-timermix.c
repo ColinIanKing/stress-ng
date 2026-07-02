@@ -299,7 +299,8 @@ static int stress_timermix(stress_args_t *args)
 	int rc = EXIT_SUCCESS;
 	size_t i;
 	bool timer_created = false;
-	double t_start, duration = 0.0;
+	double t_start;
+	double duration = 0.0;
 
 	s_args = args;
 

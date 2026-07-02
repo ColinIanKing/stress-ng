@@ -422,19 +422,23 @@ static stress_tlb_pthread_t stress_tlb_pthreads[] = {
  */
 static int stress_tlb_numa(stress_args_t *args)
 {
-	double rate, t_begin, duration;
-	uint64_t tlb_begin, tlb_end;
-	uint64_t ipi_begin, ipi_end;
-	size_t tlb_entries = DEFAULT_TLB_NUMA_ENTRIES;
-	size_t size;
-	int rc = EXIT_SUCCESS;
 	stress_tlb_numa_t tlb_numa;
 	stress_tlb_numa_pthread_t pthreads[TLB_NUMA_PTHREADS];
-	size_t i;
-	uint32_t prev_cpu = 0;
 	uint8_t	*mmap1;
 	uint8_t *mmap2;
+	double rate;
+	double t_begin;
+	double duration;
+	uint64_t tlb_begin;
+	uint64_t tlb_end;
+	uint64_t ipi_begin;
+	uint64_t ipi_end;
 	long int node = 0;
+	size_t tlb_entries = DEFAULT_TLB_NUMA_ENTRIES;
+	size_t size;
+	size_t i;
+	uint32_t prev_cpu = 0;
+	int rc = EXIT_SUCCESS;
 
 #if defined(STRESS_ARCH_X86)
 	uint32_t x86_tlb_entries;

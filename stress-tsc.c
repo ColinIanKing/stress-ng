@@ -527,7 +527,8 @@ static int stress_tsc_lfence(stress_args_t *args, const bool verify, double *dur
 	int ret = EXIT_SUCCESS;
 
 	if (verify) {
-		uint64_t tsc, old_tsc;
+		uint64_t tsc;
+		uint64_t old_tsc;
 
 		old_tsc = rdtsc();
 		do {
@@ -565,7 +566,8 @@ static int stress_tsc_rdtscp(stress_args_t *args, const bool verify, double *dur
 	int ret = EXIT_SUCCESS;
 
 	if (verify) {
-		uint64_t tsc, old_tsc;
+		uint64_t tsc;
+		uint64_t old_tsc;
 
 		old_tsc = rdtsc();
 		do {
@@ -601,7 +603,8 @@ static int stress_tsc_generic(stress_args_t *args, const bool verify, double *du
 	int ret = EXIT_SUCCESS;
 
 	if (verify) {
-		uint64_t tsc, old_tsc;
+		uint64_t tsc;
+		uint64_t old_tsc;
 
 		old_tsc = rdtsc();
 		do {

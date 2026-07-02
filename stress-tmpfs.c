@@ -114,7 +114,9 @@ static int stress_tmpfs_open(stress_args_t *args, off_t *len)
 	const uint32_t rnd = stress_mwc32();
 	char path[PATH_MAX];
 	char *mnts[MAX_MOUNTS];
-	int i, n, fd = -1;
+	int i;
+	int n;
+	int fd = -1;
 
 	(void)shim_memset(mnts, 0, sizeof(mnts));
 
@@ -149,7 +151,8 @@ static int stress_tmpfs_open(stress_args_t *args, off_t *len)
 		fd = open(path, O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
 		if (LIKELY(fd >= 0)) {
 			const char data = 0;
-			off_t rc, max_size = (off_t)buf.f_bsize * (off_t)buf.f_bavail;
+			off_t rc;
+			off_t max_size = (off_t)buf.f_bsize * (off_t)buf.f_bavail;
 
 			/*
 			 * Don't use all the tmpfs, just 98% for all instance

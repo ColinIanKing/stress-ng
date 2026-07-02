@@ -173,7 +173,8 @@ static void OPTIMIZE3 stress_tlb_shootdown_child(
 	uint32_t *cpus)
 {
 	cpu_set_t mask;
-	double t_start, t_next;
+	double t_start;
+	double t_next;
 	uint32_t cpu_idx = 0;
 	size_t offset;
 	const size_t cache_lines = mmap_size >> STRESS_CACHE_LINE_SHIFT;
@@ -258,24 +259,29 @@ PRAGMA_UNROLL_N(8)
  */
 static int stress_tlb_shootdown(stress_args_t *args)
 {
+	stress_pid_t *s_pids;
+	stress_pid_t *s_pids_head = NULL;
+	uint32_t *cpus;
+	uint8_t *mem;
 	double rate, t_begin, duration;
-	uint64_t tlb_begin, tlb_end;
-	uint64_t ipi_begin, ipi_end;
+	uint64_t tlb_begin;
+	uint64_t tlb_end;
+	uint64_t ipi_begin;
+	uint64_t ipi_end;
 	const size_t page_size = args->page_size;
 	const size_t page_mask = ~(page_size - 1);
 	const size_t mmap_size = page_size * MMAP_PAGES;
 	const size_t mmap_mask = mmap_size - 1;
 	const size_t cache_lines = mmap_size >> STRESS_CACHE_LINE_SHIFT;
-	uint32_t *cpus;
 	const uint32_t n_cpus = stress_affinity_cpus_get(&cpus, true);
-	stress_pid_t *s_pids, *s_pids_head = NULL;
 	const pid_t pid = getpid();
 	int rc = EXIT_SUCCESS;
-	uint32_t tlb_procs, i;
-	uint8_t *mem;
+	uint32_t tlb_procs;
+	uint32_t i;
 #if defined(HAVE_MADVISE) &&	\
     defined(MADV_DONTNEED)
-	int fd, ret;
+	int fd;
+	int ret;
 	uint8_t *memfd;
 	const size_t mmapfd_size = page_size * MMAP_FD_PAGES;
 	const size_t mmapfd_mask = mmapfd_size - 1;

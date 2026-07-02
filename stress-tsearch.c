@@ -51,8 +51,12 @@ static int stress_tsearch(stress_args_t *args)
 {
 	uint64_t tsearch_size = DEFAULT_TSEARCH_SIZE;
 	int32_t *data;
-	size_t i, n;
-	double rate, duration = 0.0, count = 0.0, sorted = 0.0;
+	size_t i;
+	size_t n;
+	double rate;
+	double duration = 0.0;
+	double count = 0.0;
+	double sorted = 0.0;
 	int rc = EXIT_SUCCESS;
 
 	if (!stress_setting_get("tsearch-size", &tsearch_size)) {

@@ -200,7 +200,8 @@ static int stress_time_warp(stress_args_t *args)
 {
 	stress_time_t stress_times[SIZEOF_ARRAY(clocks)];
 	size_t i;
-	int ret, rc = EXIT_SUCCESS;
+	int ret;
+	int rc = EXIT_SUCCESS;
 
 	(void)shim_memset(&stress_times, 0, sizeof(stress_times));
 
