@@ -188,9 +188,14 @@ static int OPTIMIZE3 stress_rawsock_client(stress_args_t *args, const int rawsoc
 static int OPTIMIZE3 stress_rawsock_server(stress_args_t *args, const pid_t pid)
 {
 	/* Parent, server */
-	int rc = EXIT_SUCCESS, fd = -1, status;
+	int rc = EXIT_SUCCESS;
+	int fd = -1;
+	int status;
 	struct sockaddr_in addr;
-	double t_start, duration = 0.0, bytes = 0.0, rate;
+	double t_start;
+	double duration = 0.0;
+	double bytes = 0.0;
+	double rate;
 
 	if (UNLIKELY(stop_rawsock || !stress_continue(args)))
 		goto die;
@@ -309,7 +314,8 @@ again:
  */
 static int stress_rawsock(stress_args_t *args)
 {
-	int rc, reserved_port;
+	int rc;
+	int reserved_port;
 	int rawsock_port = DEFAULT_RAWSOCK_PORT;
 
 	if (!rawsock_lock) {

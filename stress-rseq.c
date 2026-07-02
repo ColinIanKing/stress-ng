@@ -200,6 +200,7 @@ static int stress_rseq_oomable(stress_args_t *args, void *context)
 
 		for (i = 0; i < 10000; i++) {
 			uint32_t cpu;
+
 			cpu = STRESS_ACCESS_ONCE(rseq_area->cpu_id_start);
 			rseq_test(cpu);
 		}

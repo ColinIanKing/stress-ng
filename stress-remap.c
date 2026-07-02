@@ -150,8 +150,13 @@ static int stress_remap(stress_args_t *args)
 	uint8_t *unmapped, *mapped;
 	const size_t page_size = args->page_size;
 	const size_t stride = page_size / sizeof(*data);
-	size_t data_size, order_size, i, mapped_size = page_size + page_size;
-	double duration = 0.0, count = 0.0, rate = 0.0;
+	size_t i;
+	size_t data_size;
+	size_t order_size;
+	size_t mapped_size = page_size + page_size;
+	double duration = 0.0;
+	double count = 0.0;
+	double rate = 0.0;
 	bool remap_mlock = false;
 	int rc = EXIT_SUCCESS;
 

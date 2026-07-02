@@ -168,7 +168,10 @@ static int OPTIMIZE3 stress_rawudp_server(
 	const struct iphdr *ip = (struct iphdr *)(void *)buf;
 	const struct udphdr *udp = (struct udphdr *)(void *)(buf + sizeof(struct iphdr));
 	const uint8_t *data = (uint8_t *)(buf + sizeof(struct iphdr) + sizeof(struct udphdr));
-	double t_start, duration = 0.0, bytes = 0.0, rate;
+	double t_start;
+	double duration = 0.0;
+	double bytes = 0.0;
+	double rate;
 	char msg[64];
 
 	if (stress_signal_stop_stressing(args->name, SIGALRM) < 0) {
@@ -243,7 +246,9 @@ static int stress_rawudp(stress_args_t *args)
 {
 	pid_t pid;
 	int rawudp_port = DEFAULT_RAWUDP_PORT;
-	int rc = EXIT_FAILURE, reserved_port, parent_cpu;
+	int rc = EXIT_FAILURE;
+	int reserved_port;
+	int parent_cpu;
 	in_addr_t addr = (in_addr_t)inet_addr("127.0.0.1");
 	char *rawudp_if = NULL;
 

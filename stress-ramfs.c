@@ -170,7 +170,8 @@ static int stress_ramfs_fs_ops(
 	char filename[PATH_MAX + 5];
 	char symlinkname[PATH_MAX + 5];
 	struct stat statbuf;
-	int fd, rc = EXIT_SUCCESS;
+	int fd;
+	int rc = EXIT_SUCCESS;
 
 	(void)stress_fs_make_filename(filename, sizeof(filename), pathname, "mnt");
 	(void)stress_fs_make_filename(symlinkname, sizeof(symlinkname), pathname, "lnk");
@@ -329,7 +330,8 @@ static int stress_ramfs_child(stress_args_t *args)
     defined(HAVE_FSMOUNT) &&		\
     defined(HAVE_MOVE_MOUNT) &&		\
     defined(HAVE_SYS_MOUNT_H)
-		int fd, fd_mnt;
+		int fd;
+		int fd_mnt;
 
 		fd = fsopen(fs, FSOPEN_CLOEXEC);
 		if (fd < 0) {

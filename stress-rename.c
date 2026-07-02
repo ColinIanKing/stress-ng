@@ -101,7 +101,8 @@ static int exercise_renameat2(
 	const int newfd,
 	const int bad_fd)
 {
-	int ret, file_fd;
+	int ret;
+	int file_fd;
 
 	/* Exercise with invalid flags */
 	ret = renameat2(oldfd, old_name, newfd, new_name, (unsigned int)~0);
@@ -213,8 +214,11 @@ static char *stress_basename(char *filename)
  */
 static int stress_rename(stress_args_t *args)
 {
-	char name1[PATH_MAX], name2[PATH_MAX];
-	char *oldname = name1, *newname = name2, *tmpname;
+	char name1[PATH_MAX];
+	char name2[PATH_MAX];
+	char *oldname = name1;
+	char *newname = name2;
+	char *tmpname;
 	FILE *fp;
 	uint64_t i = 0;
 	const uint32_t inst1 = args->instance * 2;

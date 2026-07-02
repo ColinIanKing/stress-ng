@@ -369,11 +369,17 @@ static const stress_opt_t opts[] = {
 
 static int stress_rawdev(stress_args_t *args)
 {
-	int ret, fd, rc = EXIT_SUCCESS;
-	char *devpath, *buffer;
+	int ret;
+	int fd;
+	int rc = EXIT_SUCCESS;
+	char *devpath;
+	char *buffer;
 	const char *path = stress_fs_temp_path_get();
-	size_t blks, blksz = 0, mmapsz;
-	size_t i, rawdev_method = 0;
+	size_t blks;
+	size_t blksz = 0;
+	size_t mmapsz;
+	size_t i;
+	size_t rawdev_method = 0;
 	const size_t page_size = args->page_size;
 	stress_rawdev_func func;
 	stress_metrics_t *metrics;

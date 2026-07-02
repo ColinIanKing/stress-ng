@@ -56,7 +56,8 @@ static const char * const interfaces[] = {
 
 static inline int stress_rtc_dev(stress_args_t *args)
 {
-	int fd, ret = 0;
+	int fd;
+	int ret = 0;
 	static bool do_dev = true;
 
 	if (!do_dev)

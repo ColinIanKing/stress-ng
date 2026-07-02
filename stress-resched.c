@@ -156,7 +156,10 @@ static void stress_resched_spawn(
 static int stress_resched(stress_args_t *args)
 {
 	stress_pid_t *s_pids;
-	int i, s_pids_max, max_prio = 19, rc = EXIT_SUCCESS;
+	int i;
+	int s_pids_max;
+	int max_prio = 19;
+	int rc = EXIT_SUCCESS;
 	size_t yields_size;
 	uint64_t *yields;
 

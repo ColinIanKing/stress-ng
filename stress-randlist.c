@@ -144,7 +144,9 @@ static int stress_randlist(stress_args_t *args)
 {
 	register size_t i;
 	stress_randlist_item_t **ptrs;
-	stress_randlist_item_t *ptr, *head, *next;
+	stress_randlist_item_t *ptr;
+	stress_randlist_item_t *head;
+	stress_randlist_item_t *next;
 	stress_randlist_item_t *compact_ptr = NULL;
 	bool do_mmap = false;
 	bool randlist_compact = false;

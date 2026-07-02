@@ -110,7 +110,8 @@ static void stress_rawpkt_sockopts(const int fd)
 #endif
 #if defined(PACKET_AUXDATA)
 	{
-		int ret, val;
+		int ret;
+		int val;
 		socklen_t len = sizeof(val);
 
 		ret = getsockopt(fd, SOL_PACKET, PACKET_AUXDATA, &val, &len);
@@ -120,7 +121,8 @@ static void stress_rawpkt_sockopts(const int fd)
 #endif
 #if defined(PACKET_ORIGDEV)
 	{
-		int ret, val;
+		int ret;
+		int val;
 		socklen_t len = sizeof(val);
 
 		ret = getsockopt(fd, SOL_PACKET, PACKET_ORIGDEV, &val, &len);
@@ -130,7 +132,8 @@ static void stress_rawpkt_sockopts(const int fd)
 #endif
 #if defined(PACKET_VNET_HDR)
 	{
-		int ret, val;
+		int ret;
+		int val;
 		socklen_t len = sizeof(val);
 
 		ret = getsockopt(fd, SOL_PACKET, PACKET_VNET_HDR, &val, &len);
@@ -140,7 +143,8 @@ static void stress_rawpkt_sockopts(const int fd)
 #endif
 #if defined(PACKET_VERSION)
 	{
-		int ret, val;
+		int ret;
+		int val;
 		socklen_t len = sizeof(val);
 
 		ret = getsockopt(fd, SOL_PACKET, PACKET_VERSION, &val, &len);
@@ -159,7 +163,8 @@ static void stress_rawpkt_sockopts(const int fd)
 #endif
 #if defined(PACKET_RESERVE)
 	{
-		int ret, val;
+		int ret;
+		int val;
 		socklen_t len = sizeof(val);
 
 		ret = getsockopt(fd, SOL_PACKET, PACKET_RESERVE, &val, &len);
@@ -169,7 +174,8 @@ static void stress_rawpkt_sockopts(const int fd)
 #endif
 #if defined(PACKET_LOSS)
 	{
-		int ret, val;
+		int ret;
+		int val;
 		socklen_t len = sizeof(val);
 
 		ret = getsockopt(fd, SOL_PACKET, PACKET_LOSS, &val, &len);
@@ -179,7 +185,8 @@ static void stress_rawpkt_sockopts(const int fd)
 #endif
 #if defined(PACKET_TIMESTAMP)
 	{
-		int ret, val;
+		int ret;
+		int val;
 		socklen_t len = sizeof(val);
 
 		ret = getsockopt(fd, SOL_PACKET, PACKET_TIMESTAMP, &val, &len);
@@ -189,7 +196,8 @@ static void stress_rawpkt_sockopts(const int fd)
 #endif
 #if defined(PACKET_FANOUT)
 	{
-		int ret, val;
+		int ret;
+		int val;
 		socklen_t len = sizeof(val);
 
 		ret = getsockopt(fd, SOL_PACKET, PACKET_FANOUT, &val, &len);
@@ -199,7 +207,8 @@ static void stress_rawpkt_sockopts(const int fd)
 #endif
 #if defined(PACKET_IGNORE_OUTGOING)
 	{
-		int ret, val;
+		int ret;
+		int val;
 		socklen_t len = sizeof(val);
 
 		ret = getsockopt(fd, SOL_PACKET, PACKET_IGNORE_OUTGOING, &val, &len);
@@ -217,7 +226,8 @@ static void stress_rawpkt_sockopts(const int fd)
 #endif
 #if defined(PACKET_TX_HAS_OFF)
 	{
-		int ret, val;
+		int ret;
+		int val;
 		socklen_t len = sizeof(val);
 
 		ret = getsockopt(fd, SOL_PACKET, PACKET_TX_HAS_OFF, &val, &len);
@@ -227,7 +237,8 @@ static void stress_rawpkt_sockopts(const int fd)
 #endif
 #if defined(PACKET_QDISC_BYPASS)
 	{
-		int ret, val;
+		int ret;
+		int val;
 		socklen_t len = sizeof(val);
 
 		ret = getsockopt(fd, SOL_PACKET, PACKET_QDISC_BYPASS, &val, &len);
@@ -346,7 +357,10 @@ static int OPTIMIZE3 stress_rawpkt_server(
 	const in_addr_t addr = inet_addr(inet_ntoa((((struct sockaddr_in *)(void *)&(ifaddr->ifr_addr))->sin_addr)));
 	uint64_t all_pkts = 0;
 	const ssize_t min_size = sizeof(struct ethhdr) + sizeof(struct iphdr) + sizeof(struct udphdr);
-	double t_start, duration, bytes = 0.0, rate;
+	double t_start;
+	double duration;
+	double bytes = 0.0;
+	double rate;
 
 	if (stress_signal_stop_stressing(args->name, SIGALRM) < 0) {
 		rc = EXIT_FAILURE;
@@ -438,9 +452,14 @@ die:
 static int stress_rawpkt(stress_args_t *args)
 {
 	pid_t pid;
-	int reserved_port, rawpkt_port = DEFAULT_RAWPKT_PORT;
-	int fd, rc = EXIT_FAILURE, parent_cpu;
-	struct ifreq hwaddr, ifaddr, idx;
+	int reserved_port;
+	int rawpkt_port = DEFAULT_RAWPKT_PORT;
+	int fd;
+	int rc = EXIT_FAILURE;
+	int parent_cpu;
+	struct ifreq hwaddr;
+	struct ifreq ifaddr;
+	struct ifreq idx;
 	int rawpkt_rxring = 0;
 
 	if (stress_signal_sigchld_handler(args) < 0)

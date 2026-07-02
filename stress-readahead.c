@@ -91,15 +91,19 @@ static int do_readahead(
  */
 static int stress_readahead(stress_args_t *args)
 {
+	char filename[PATH_MAX];
 	buffer_t *buf = NULL;
-	uint64_t rounded_readahead_bytes, i;
-	uint64_t readahead_bytes, readahead_bytes_total = DEFAULT_READAHEAD_BYTES;
+	uint64_t i;
+	uint64_t rounded_readahead_bytes;
+	uint64_t readahead_bytes;
+	uint64_t readahead_bytes_total = DEFAULT_READAHEAD_BYTES;
 	uint64_t misreads = 0;
 	uint64_t baddata = 0;
-	int ret, rc = EXIT_FAILURE;
-	char filename[PATH_MAX];
+	int ret;
+	int rc = EXIT_FAILURE;
 	int flags = O_CREAT | O_RDWR | O_TRUNC;
-	int fd, fd_wr;
+	int fd;
+	int fd_wr;
 	struct stat statbuf;
 	const char *fs_type;
 	off_t offsets[MAX_OFFSETS] ALIGN64;

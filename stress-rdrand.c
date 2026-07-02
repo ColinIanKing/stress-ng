@@ -217,7 +217,9 @@ static inline uint64_t rand64(void)
 static int stress_rdrand_sane(stress_args_t *args)
 {
 	const uint64_t r1 = rand64();
-	int i, changed, same;
+	int i;
+	int changed;
+	int same;
 
 	for (changed = 0, i = 0; i < STRESS_SANE_LOOPS_QUICK; i++) {
 		const uint64_t r2 = rand64();
@@ -264,7 +266,8 @@ static int stress_rdrand_sane(stress_args_t *args)
 static int stress_rdrand(stress_args_t *args)
 {
 	double average;
-	uint64_t lo, hi;
+	uint64_t lo;
+	uint64_t hi;
 	bool out_of_range;
 	int rc = EXIT_SUCCESS;
 	size_t j;
@@ -293,7 +296,10 @@ static int stress_rdrand(stress_args_t *args)
 	stress_proc_state_set(args->name, STRESS_STATE_RUN);
 
 	if (rdrand_supported) {
-		double time_start, duration, million_bits, rate;
+		double time_start;
+		double duration;
+		double million_bits;
+		double rate;
 		register int i;
 		uint64_t c;
 

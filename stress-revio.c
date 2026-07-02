@@ -296,10 +296,13 @@ static int stress_revio(stress_args_t *args)
 	ssize_t ret;
 	char filename[PATH_MAX];
 	size_t opt_index = 0;
-	uint64_t revio_bytes, revio_bytes_total = DEFAULT_REVIO_BYTES;
+	uint64_t revio_bytes;
+	uint64_t revio_bytes_total = DEFAULT_REVIO_BYTES;
 	uint32_t iterations = 0;
-	int revio_flags = 0, revio_oflags = 0;
-	int flags, fadvise_flags;
+	int revio_flags = 0;
+	int revio_oflags = 0;
+	int flags;
+	int fadvise_flags;
 	bool opts_set = false;
 	double avg_extents = 0.0;
 

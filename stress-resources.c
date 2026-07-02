@@ -70,7 +70,12 @@ static void stress_resources_alarm(
 static int stress_resources(stress_args_t *args)
 {
 	const size_t pipe_size = stress_fs_max_pipe_size_get();
-	size_t min_mem_free, shmall, freemem, totalmem, freeswap, totalswap;
+	size_t min_mem_free;
+	size_t shmall;
+	size_t freemem;
+	size_t totalmem;
+	size_t freeswap;
+	size_t totalswap;
 	size_t resources_num = DEFAULT_RESOURCES_NUM;
 	size_t resources_procs = DEFAULT_RESOURCES_PROCS;
 	stress_resources_t *resources;
@@ -135,7 +140,9 @@ static int stress_resources(stress_args_t *args)
 	stress_proc_state_set(args->name, STRESS_STATE_RUN);
 
 	do {
-		size_t i, forked, reaped;
+		size_t i;
+		size_t forked;
+		size_t reaped;
 		stress_pid_t *s_pids_head;
 
 		stress_sync_init_pids(s_pids, resources_procs);

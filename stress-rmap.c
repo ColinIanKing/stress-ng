@@ -193,12 +193,14 @@ fail:
  */
 static int stress_rmap(stress_args_t *args)
 {
+	stress_pid_t *s_pids;
+	stress_pid_t *s_pids_head = NULL;
 	const size_t page_size = args->page_size;
 	const size_t sz = ((MAPPINGS_MAX - 1) + MAPPING_PAGES) * page_size;
-	int fd = -1, rc;
-	size_t i;
 	size_t rmap_procs = DEFAULT_RMAP_PROCS;
-	stress_pid_t *s_pids, *s_pids_head = NULL;
+	size_t i;
+	int fd = -1;
+	int rc;
 	uintptr_t *mappings[MAPPINGS_MAX];
 	uintptr_t *paddings[MAPPINGS_MAX];
 	char filename[PATH_MAX];

@@ -54,7 +54,8 @@ static const stress_opt_t opts[] = {
     defined(HAVE_POLL)
 static int stress_pipe_non_block(stress_args_t *args, const int fd)
 {
-	int flags, ret;
+	int flags;
+	int ret;
 
 	flags = fcntl(fd, F_GETFL);
 	if (UNLIKELY(flags < 0)) {
@@ -120,12 +121,18 @@ static ssize_t stress_pipe_write(
  */
 static int stress_ring_pipe(stress_args_t *args)
 {
-	double duration = 0.0, bytes = 0.0, rate;
-	size_t i, n_pipes, ring_pipe_num = 256, ring_pipe_size = 4096;
+	double duration = 0.0;
+	double bytes = 0.0;
+	double rate;
+	size_t i;
+	size_t n_pipes;
+	size_t ring_pipe_num = 256;
+	size_t ring_pipe_size = 4096;
 	bool ring_pipe_splice = false;
 	char *buf;
 	pipe_fds_t *pipe_fds;
-	int ret, max_fd;
+	int ret;
+	int max_fd;
 	int rc = EXIT_NO_RESOURCE;
 	ssize_t sret;
 	struct pollfd *poll_fds;

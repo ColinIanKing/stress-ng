@@ -220,7 +220,8 @@ static int stress_race_sched_exercise(
 	const size_t method_index)
 {
 	stress_race_sched_child_t *child;
-	int i, rc = 0;
+	int i;
+	int rc = 0;
 
 	for (i = 0; LIKELY(stress_continue_flag() && (i < 20)); i++)  {
 		for (child = children.head; child; child = child->next) {

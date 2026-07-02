@@ -193,9 +193,11 @@ static int stress_radixsort(stress_args_t *args)
 {
 	uint64_t radixsort_size = DEFAULT_RADIXSORT_SIZE;
 	const unsigned char **data;
-	unsigned char *text, *ptr;
-	int n, i;
+	unsigned char *text;
+	unsigned char *ptr;
 	unsigned char revtable[256];
+	int n;
+	int i;
 	size_t radixsort_method = 0;
 	NOCLOBBER int rc = EXIT_SUCCESS;
 #if defined(HAVE_SIGLONGJMP)
