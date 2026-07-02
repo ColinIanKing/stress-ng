@@ -154,7 +154,9 @@ static void *stress_loadavg_func(void *arg)
 static int stress_loadavg(stress_args_t *args)
 {
 	stress_loadavg_info_t *pthreads;
-	uint64_t i, j, pthread_max;
+	uint64_t i;
+	uint64_t j;
+	uint64_t pthread_max;
 	const uint64_t threads_max = stress_loadavg_threads_max();
 	const uint32_t instances = (args->instances > 1 ?
 				   args->instances : 1);
@@ -166,7 +168,6 @@ static int stress_loadavg(stress_args_t *args)
 #endif
 	stress_pthread_args_t pargs = { args, NULL, 0 };
 	sigset_t set;
-
 
 	if (!stress_setting_get("loadavg-max", &loadavg_max)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)

@@ -71,9 +71,13 @@ static int stress_lsm(stress_args_t *args)
 	void *buf;
 	int rc = EXIT_SUCCESS;
 	const size_t buf_size = args->page_size * 32;
-	bool lsm_id_undef = false, lsm_id_reserved = false, lsm_id_defined = false;
-	double list_duration = 0.0, list_count = 0.0;
-	double get_duration = 0.0, get_count = 0.0;
+	bool lsm_id_undef = false;
+	bool lsm_id_reserved = false;
+	bool lsm_id_defined = false;
+	double list_duration = 0.0;
+	double list_count = 0.0;
+	double get_duration = 0.0;
+	double get_count = 0.0;
 	double rate;
 
 	static const unsigned int attr[] = {
@@ -115,7 +119,8 @@ static int stress_lsm(stress_args_t *args)
 	do {
 		size_t j;
 		uint32_t size;
-		int i, ret;
+		int i;
+		int ret;
 		uint64_t *ids = (uint64_t *)buf;
 		double t;
 

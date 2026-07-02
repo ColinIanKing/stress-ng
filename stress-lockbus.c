@@ -219,9 +219,11 @@ static int stress_lockbus(stress_args_t *args)
 {
 	uint32_t *local_buffer;
 	double t, rate;
-	NOCLOBBER double duration, count;
+	NOCLOBBER double duration;
+	NOCLOBBER double count;
 	NOCLOBBER int rc = EXIT_SUCCESS;
-	uint32_t *misaligned_ptr1, *misaligned_ptr2;
+	uint32_t *misaligned_ptr1;
+	uint32_t *misaligned_ptr2;
 #if defined(HAVE_TIMER_FUNCS)
 	timer_t timerid;
 	NOCLOBBER int timer_ret = -1;
@@ -230,7 +232,8 @@ static int stress_lockbus(stress_args_t *args)
 	NOCLOBBER stress_numa_mask_t *numa_mask;
 #endif
 #if defined(STRESS_ARCH_X86)
-	uint32_t *splitlock_ptr1, *splitlock_ptr2;
+	uint32_t *splitlock_ptr1;
+	uint32_t *splitlock_ptr2;
 	bool lockbus_nosplit = false;
 
 	do_sigill = false;

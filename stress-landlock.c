@@ -257,8 +257,10 @@ static void stress_landlock_many(
 	const int depth)
 {
 	struct dirent **namelist = NULL;
-	int i, n;
-	int ruleset_fd, ret;
+	int i;
+	int n;
+	int ruleset_fd;
+	int ret;
 
 	struct landlock_ruleset_attr ruleset_attr;
 
@@ -357,7 +359,10 @@ static uint64_t stress_landlock_get_access_mask(void)
 
 static int stress_landlock_flag(stress_args_t *args, stress_landlock_ctxt_t *ctxt)
 {
-	int ruleset_fd, fd, ret, rc = EXIT_SUCCESS;
+	int ruleset_fd;
+	int fd;
+	int ret;
+	int rc = EXIT_SUCCESS;
 	struct landlock_ruleset_attr ruleset_attr;
 	struct landlock_path_beneath_attr path_beneath;
 

@@ -60,7 +60,8 @@ static void OPTIMIZE1 NOINLINE NORETURN stress_longjmp_func(void)
 static int OPTIMIZE1 stress_longjmp(stress_args_t *args)
 {
 	int ret;
-	static uint32_t check0, check1;
+	static uint32_t check0;
+	static uint32_t check1;
 	static double t_total;
 	static uint64_t n = 0;
 	NOCLOBBER int rc = EXIT_SUCCESS;

@@ -156,7 +156,9 @@ static int OPTIMIZE3 stress_list_slistt(
 	const list_entry_t *entries_end,
 	stress_metrics_t *metrics)
 {
-	register list_entry_t *entry, *head, *tail;
+	register list_entry_t *entry;
+	register list_entry_t *head;
+	register list_entry_t *tail;
 	double t;
 	int rc = EXIT_SUCCESS;
 
@@ -513,11 +515,18 @@ static const stress_opt_t opts[] = {
  */
 static int stress_list(stress_args_t *args)
 {
-	uint64_t v, list_size = DEFAULT_LIST_SIZE;
-	list_entry_t *entries, *entry, *entries_end;
-	size_t n, i, bit, list_method = 0;
+	uint64_t v;
+	uint64_t list_size = DEFAULT_LIST_SIZE;
+	list_entry_t *entries;
+	list_entry_t *entry;
+	list_entry_t *entries_end;
+	size_t n;
+	size_t i;
+	size_t bit;
+	size_t list_method = 0;
 	NOCLOBBER int rc = EXIT_SUCCESS;
-	stress_metrics_t *metrics, list_metrics[SIZEOF_ARRAY(list_methods)];
+	stress_metrics_t *metrics;
+	stress_metrics_t list_metrics[SIZEOF_ARRAY(list_methods)];
 	stress_list_func func;
 #if defined(HAVE_SIGLONGJMP)
 	struct sigaction old_action;

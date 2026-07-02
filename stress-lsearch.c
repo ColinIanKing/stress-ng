@@ -163,10 +163,16 @@ static int32_t OPTIMIZE3 stress_lsearch_cmp_int32(const void *p1, const void *p2
  */
 static int stress_lsearch(stress_args_t *args)
 {
-	int32_t *data, *root;
-	size_t i, max, lsearch_method = 0;
+	int32_t *data;
+	int32_t *root;
+	size_t i;
+	size_t max;
+	size_t lsearch_method = 0;
 	uint64_t lsearch_size = DEFAULT_LSEARCH_SIZE;
-	double rate, duration = 0.0, count = 0.0, sorted = 0.0;
+	double rate;
+	double duration = 0.0l;
+	double count = 0.0;
+	double sorted = 0.0;
 	lsearch_func_t lsearch_func;
 	lfind_func_t lfind_func;
 	int rc = EXIT_SUCCESS;

@@ -126,7 +126,8 @@ static int stress_try_lease(
 	const int flags,
 	const int lock)
 {
-	int fd, rc = EXIT_SUCCESS;
+	int fd;
+	int rc = EXIT_SUCCESS;
 
 	fd = open(filename, flags);
 	if (fd < 0) {
@@ -177,10 +178,14 @@ tidy:
 static int stress_lease(stress_args_t *args)
 {
 	char filename[PATH_MAX];
-	int ret, fd;
+	int ret;
+	int fd;
 	stress_pid_t s_pids[MAX_LEASE_BREAKERS];
-	uint64_t i, lease_breakers = DEFAULT_LEASE_BREAKERS;
-	double t1 = 0.0, t2 = 0.0, dt;
+	uint64_t i;
+	uint64_t lease_breakers = DEFAULT_LEASE_BREAKERS;
+	double t1 = 0.0;
+	double t2 = 0.0;
+	double dt;
 
 	if (!stress_setting_get("lease-breakers", &lease_breakers)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)

@@ -217,7 +217,8 @@ static int stress_locka_contention(
  */
 static int stress_locka(stress_args_t *args)
 {
-	int fd, ret = EXIT_FAILURE, parent_cpu;
+	int fd;
+	int ret = EXIT_FAILURE, parent_cpu;
 	pid_t cpid = -1;
 	char filename[PATH_MAX];
 	char pathname[PATH_MAX];

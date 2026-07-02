@@ -89,12 +89,20 @@ static int stress_link_generic(
 	const char *funcname,
 	const bool do_sync)
 {
-	int rc, ret, fd, temp_dir_fd = -1, mounts_max;
-	char oldpath[PATH_MAX], tmp_newpath[PATH_MAX];
+	int rc;
+	int ret;
+	int fd;
+	int temp_dir_fd = -1;
+	int mounts_max;
+	char oldpath[PATH_MAX];
+	char tmp_newpath[PATH_MAX];
 	size_t oldpathlen;
 	bool symlink_func = (linkfunc == symlink);
 	char *mnts[MOUNTS_MAX];
-	double t_start, duration, rate, link_count = 0.0;
+	double t_start;
+	double duration;
+	double rate;
+	double link_count = 0.0;
 	char dir_path[PATH_MAX];
 
 	(void)shim_memset(tmp_newpath, 0, sizeof(tmp_newpath));
@@ -141,7 +149,8 @@ static int stress_link_generic(
 	rc = EXIT_SUCCESS;
 	t_start = stress_time_now();
 	do {
-		uint64_t i, n = DEFAULT_LINKS;
+		uint64_t i;
+		uint64_t n = DEFAULT_LINKS;
 		char testpath[PATH_MAX];
 		ssize_t rret;
 

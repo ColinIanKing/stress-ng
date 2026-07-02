@@ -55,7 +55,8 @@ static int CONST stress_led_dot_filter(const struct dirent *d)
 
 static char *stress_led_orig_trigger(const char *str)
 {
-	const char *start, *end;
+	const char *start;
+	const char *end;
 	char *orig;
 	size_t len;
 
@@ -125,8 +126,8 @@ static stress_led_info_t *stress_led_info_get(void)
 {
 	static const char sys_devices[] = "/sys/class/leds";
 	stress_led_info_t *led_info_list = NULL;
-
-	int n_devs, i;
+	int n_devs;
+	int i;
 	struct dirent **led_list = NULL;
 
 	n_devs = scandir(sys_devices, &led_list, stress_led_dot_filter, NULL);

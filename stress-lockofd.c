@@ -215,7 +215,9 @@ static int stress_lockofd_contention(
  */
 static int stress_lockofd(stress_args_t *args)
 {
-	int fd, ret = EXIT_FAILURE, parent_cpu;
+	int fd;
+	int ret = EXIT_FAILURE;
+	int parent_cpu;
 	pid_t cpid = -1;
 	char filename[PATH_MAX];
 	char pathname[PATH_MAX];

@@ -241,7 +241,9 @@ static int stress_lockf_contention(
  */
 static int stress_lockf(stress_args_t *args)
 {
-	int fd, ret = EXIT_FAILURE, parent_cpu;
+	int fd;
+	int ret = EXIT_FAILURE;
+	int parent_cpu;
 	const int bad_fd = stress_fs_bad_fd_get();
 	pid_t cpid = -1;
 	char filename[PATH_MAX];

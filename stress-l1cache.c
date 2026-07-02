@@ -45,7 +45,7 @@ static const stress_help_t help[] = {
  */
 static uint32_t CONST stress_l1cache_ln2(const uint32_t val)
 {
-	int ln2 = 0;
+	register int ln2 = 0;
 
 	while (val >>= 1)
 		++ln2;
@@ -197,7 +197,6 @@ static int OPTIMIZE3 stress_l1cache_forward(
 {
 	register int i;
 	static uint32_t set;
-
 	const uint32_t set_offset = set * l1cache_set_size;
 	uint8_t * const cache_start = cache_aligned + set_offset;
 	const uint8_t * const cache_end = cache_start + (l1cache_size << 1);
@@ -236,7 +235,6 @@ static int OPTIMIZE3 stress_l1cache_forward_and_verify(
 {
 	register int i;
 	static uint32_t set;
-
 	const uint32_t set_offset = set * l1cache_set_size;
 	uint8_t * const cache_start = cache_aligned + set_offset;
 	const uint8_t * const cache_end = cache_start + (l1cache_size << 1);
@@ -281,7 +279,6 @@ static int OPTIMIZE3 stress_l1cache_reverse(
 {
 	register int i;
 	static uint32_t set;
-
 	const uint32_t set_offset = set * l1cache_set_size;
 	uint8_t * const cache_start = cache_aligned + set_offset;
 	uint8_t * const cache_end = cache_start + (l1cache_size << 1);
@@ -320,7 +317,6 @@ static int OPTIMIZE3 stress_l1cache_reverse_and_verify(
 {
 	register int i;
 	static uint32_t set;
-
 	const uint32_t set_offset = set * l1cache_set_size;
 	uint8_t * const cache_start = cache_aligned + set_offset;
 	uint8_t * const cache_end = cache_start + (l1cache_size << 1);
@@ -368,7 +364,6 @@ static int OPTIMIZE3 stress_l1cache_random(
 	register int i;
 	static uint32_t set;
 	uint32_t w, z;
-
 	const uint32_t set_offset = set * l1cache_set_size;
 	uint8_t * const cache_start = cache_aligned + set_offset;
 	const uint8_t * const cache_end = cache_start + (l1cache_size << 1);
@@ -413,8 +408,8 @@ static int OPTIMIZE3 stress_l1cache_random_and_verify(
 {
 	register int i;
 	static uint32_t set;
-	uint32_t w, z;
-
+	uint32_t w;
+	uint32_t z;
 	const uint32_t set_offset = set * l1cache_set_size;
 	uint8_t * const cache_start = cache_aligned + set_offset;
 	const uint8_t * const cache_end = cache_start + (l1cache_size << 1);
@@ -497,13 +492,15 @@ static const stress_opt_t opts[] = {
 
 static int stress_l1cache(stress_args_t *args)
 {
-	int ret, rc = EXIT_SUCCESS;
+	int ret;
+	int rc = EXIT_SUCCESS;
 	uint32_t l1cache_ways = 0;
 	uint32_t l1cache_size = 0;
 	uint32_t l1cache_sets = 0;
 	uint32_t l1cache_line_size = 0;
 	uint32_t l1cache_set_size;
-	uint8_t *cache, *cache_aligned;
+	uint8_t *cache;
+	uint8_t *cache_aligned;
 	uintptr_t addr;
 	uint32_t padding;
 	size_t l1cache_method = 0;	/* Default forward */

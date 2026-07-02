@@ -497,7 +497,9 @@ static int stress_lockmix_contention(
  */
 static int stress_lockmix(stress_args_t *args)
 {
-	int fd, ret = EXIT_FAILURE, parent_cpu;
+	int fd;
+	int ret = EXIT_FAILURE;
+	int parent_cpu;
 	pid_t cpid = -1;
 	char filename[PATH_MAX];
 	char pathname[PATH_MAX];
@@ -505,7 +507,9 @@ static int stress_lockmix(stress_args_t *args)
 	uint8_t lock_types[LOCK_MAX];
 	off_t offset;
 	ssize_t rc;
-	size_t i, lock_types_max = 0, n;
+	size_t i;
+	size_t lock_types_max = 0;
+	size_t n;
 
 	if (stress_instance_zero(args)) {
 		(void)shim_memset(buffer, 0, sizeof(buffer));
