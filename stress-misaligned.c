@@ -1473,6 +1473,7 @@ static const stress_exercises_t exercises[] = {
 #if defined(HAVE_ATOMIC)
 	STRESS_EX_FEATURE("atomic"),
 #endif
+	STRESS_EX_FEATURE("bus-lock"),
 	STRESS_EX_FEATURE("memory-misaligned"),
 
 #if defined(HAVE_LIB_RT)
