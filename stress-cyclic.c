@@ -193,7 +193,10 @@ static int stress_cyclic_clock_nanosleep(
 	stress_rt_stats_t *rt_stats,
 	const uint64_t cyclic_sleep)
 {
-	struct timespec t1, t2, t, trem;
+	struct timespec t1;
+	struct timespec t2;
+	struct timespec t;
+	struct timespec trem;
 	int ret;
 
 	(void)args;
@@ -222,7 +225,10 @@ static int stress_cyclic_posix_nanosleep(
 	stress_rt_stats_t *rt_stats,
 	const uint64_t cyclic_sleep)
 {
-	struct timespec t1, t2, t, trem;
+	struct timespec t1;
+	struct timespec t2;
+	struct timespec t;
+	struct timespec trem;
 	int ret;
 
 	(void)args;
@@ -250,7 +256,8 @@ static int stress_cyclic_poll(
 	stress_rt_stats_t *rt_stats,
 	const uint64_t cyclic_sleep)
 {
-	struct timespec t1, t2;
+	struct timespec t1;
+	struct timespec t2;
 
 	(void)args;
 
@@ -298,7 +305,9 @@ static int stress_cyclic_pselect(
 	stress_rt_stats_t *rt_stats,
 	const uint64_t cyclic_sleep)
 {
-	struct timespec t1, t2, t;
+	struct timespec t1;
+	struct timespec t2;
+	struct timespec t;
 	int ret;
 
 	(void)args;
@@ -408,7 +417,8 @@ static int stress_cyclic_usleep(
 	stress_rt_stats_t *rt_stats,
 	const uint64_t cyclic_sleep)
 {
-	struct timespec t1, t2;
+	struct timespec t1;
+	struct timespec t2;
 	const useconds_t usecs = (useconds_t)cyclic_sleep / 1000;
 	int ret;
 
@@ -462,7 +472,8 @@ static int stress_cyclic_cmp(const void *p1, const void *p2)
 static void stress_rt_stats(stress_rt_stats_t *rt_stats)
 {
 	size_t i;
-	size_t n = 0, best_n = 0;
+	size_t n = 0;
+	size_t best_n = 0;
 	int64_t current;
 	double variance = 0.0;
 
@@ -559,7 +570,8 @@ static void stress_rt_dist(
 		((ssize_t)rt_stats->max_ns / (ssize_t)cyclic_dist) + 1 : 1;
 	const ssize_t dist_size = STRESS_MINIMUM(MAX_BUCKETS, dist_max_size);
 	const ssize_t dist_min = STRESS_MINIMUM(5, dist_max_size);
-	ssize_t i, n;
+	ssize_t i;
+	ssize_t n;
 	int64_t *dist;
 
 	if (!cyclic_dist)

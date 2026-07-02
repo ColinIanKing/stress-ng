@@ -50,15 +50,23 @@ static const stress_opt_t opts[] = {
  */
 static int stress_chdir(stress_args_t *args)
 {
-	uint32_t i, chdir_dirs = DEFAULT_CHDIR_DIRS;
+	uint32_t i;
+	uint32_t chdir_dirs = DEFAULT_CHDIR_DIRS;
 	stress_chdir_info_t *chdir_info;
-	char path[PATH_MAX], cwd[PATH_MAX], badpath[PATH_MAX], longpath[PATH_MAX + 16];
-	int rc, ret = EXIT_FAILURE;
+	char path[PATH_MAX];
+	char cwd[PATH_MAX];
+	char badpath[PATH_MAX];
+	char longpath[PATH_MAX + 16];
+	int rc;
+	int ret = EXIT_FAILURE;
 	struct stat statbuf;
 	const bool is_root = stress_capabilities_check(SHIM_CAP_IS_ROOT);
 	bool got_statbuf = false;
 	bool tidy_info = false;
-	double count = 0.0, duration = 0.0, rate, start_time;
+	double count = 0.0;
+	double duration = 0.0;
+	double rate;
+	double start_time;
 
 	if (!stress_setting_get("chdir-dirs", &chdir_dirs)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)

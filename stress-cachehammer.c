@@ -302,7 +302,8 @@ static void OPTIMIZE3 hammer_write64(
 	const bool is_bad_addr,
 	const bool verify)
 {
-	volatile uint64_t *vptr1, *vptr2;
+	volatile uint64_t *vptr1;
+	volatile uint64_t *vptr2;
 	const uint64_t pattern = (uint64_t)0xaa55a55a55aa5aa5ULL;
 
 	if (UNLIKELY(is_bad_addr))
@@ -402,7 +403,8 @@ static void OPTIMIZE3 hammer_readwrite64(
 	const bool is_bad_addr,
 	const bool verify)
 {
-	volatile uint64_t *vptr1, *vptr2;
+	volatile uint64_t *vptr1;
+	volatile uint64_t *vptr2;
 
 	(void)args;
 	(void)verify;
@@ -489,7 +491,8 @@ static void OPTIMIZE3 hammer_writeread64(
 	const bool is_bad_addr,
 	const bool verify)
 {
-	volatile uint64_t *vptr1, *vptr2;
+	volatile uint64_t *vptr1;
+	volatile uint64_t *vptr2;
 	const uint64_t pattern = (uint64_t)0xa5a55a5a5555aaaaULL;
 
 	if (UNLIKELY(is_bad_addr))
@@ -1791,7 +1794,8 @@ static void OPTIMIZE3 stress_cachehammer_exercise(stress_args_t *args)
  */
 static int OPTIMIZE3 stress_cachehammer(stress_args_t *args)
 {
-	NOCLOBBER int ret = EXIT_SUCCESS, fd;
+	NOCLOBBER int ret = EXIT_SUCCESS;
+	NOCLOBBER int fd;
 	uint8_t *const buffer = g_shared->mem_cache.buffer;
 	const size_t buffer_size = (size_t)g_shared->mem_cache.size;
 	size_t i;

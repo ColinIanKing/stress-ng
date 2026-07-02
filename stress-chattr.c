@@ -116,9 +116,12 @@ static int do_chattr(
 	NOCLOBBER int rc = EXIT_SUCCESS;
 
 	for (i = 0; LIKELY((i < 128) && stress_continue(args)); i++) {
-		NOCLOBBER int fd, fdw;
+		NOCLOBBER int fd;
+		NOCLOBBER int fdw;
 		int ret;
-		unsigned long int zero = 0UL, tmp, check;
+		unsigned long int zero = 0UL;
+		unsigned long int tmp;
+		unsigned long int check;
 		NOCLOBBER unsigned long int orig_flags;
 		NOCLOBBER unsigned int j;
 		NOCLOBBER uint8_t *page;
@@ -328,12 +331,17 @@ static int stress_chattr(stress_args_t *args)
 {
 	const pid_t ppid = getppid();
 	int rc = EXIT_SUCCESS;
-	char filename[PATH_MAX], pathname[PATH_MAX];
+	char filename[PATH_MAX];
+	char pathname[PATH_MAX];
 	unsigned long int mask = 0;
 	int *flag_perms = NULL;
-	size_t i, idx, flag_count;
+	size_t i;
+	size_t idx;
+	size_t flag_count;
 	uint64_t chattr_count = 0;
-	double rate, t, duration;
+	double rate;
+	double t;
+	double duration;
 
 	do_jmp = false;
 	if (stress_signal_handler(args->name, SIGSEGV, stress_chattr_fault_handler, NULL) < 0)

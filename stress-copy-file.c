@@ -109,7 +109,9 @@ static int stress_copy_file_range_verify(
 	size_t bytes_left = (size_t)bytes;
 
 	while (bytes_left > 0) {
-		ssize_t n, bytes_in, bytes_out;
+		ssize_t n;
+		ssize_t bytes_in;
+		ssize_t bytes_out;
 		size_t sz = STRESS_MINIMUM(bytes_left, COPY_FILE_MAX_BUF_SIZE);
 		char buf_in[COPY_FILE_MAX_BUF_SIZE];
 		char buf_out[COPY_FILE_MAX_BUF_SIZE];
@@ -150,11 +152,18 @@ static int stress_copy_file_range_verify(
  */
 static int stress_copy_file(stress_args_t *args)
 {
-	int fd_in, fd_out, rc = EXIT_FAILURE, ret;
+	int fd_in;
+	int fd_out;
+	int rc = EXIT_FAILURE;
+	int ret;
 	const int fd_bad = stress_fs_bad_fd_get();
-	char filename[PATH_MAX - 5], tmp[PATH_MAX];
-	uint64_t copy_file_bytes, copy_file_bytes_total = DEFAULT_COPY_FILE_BYTES;
-	double duration = 0.0, bytes = 0.0, rate;
+	char filename[PATH_MAX - 5];
+	char tmp[PATH_MAX];
+	uint64_t copy_file_bytes;
+	uint64_t copy_file_bytes_total = DEFAULT_COPY_FILE_BYTES;
+	double duration = 0.0;
+	double bytes = 0.0;
+	double rate;
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 
 	if (!stress_setting_get("copy-file-bytes", &copy_file_bytes_total)) {
@@ -241,7 +250,10 @@ static int stress_copy_file(stress_args_t *args)
 
 	do {
 		ssize_t copy_ret;
-		shim_off64_t off64_in, off64_out, off64_in_orig, off64_out_orig;
+		shim_off64_t off64_in;
+		shim_off64_t off64_out;
+		shim_off64_t off64_in_orig;
+		shim_off64_t off64_out_orig;
 		double t;
 
 		off64_in_orig = (shim_loff_t)stress_mwc64modn(copy_file_bytes - DEFAULT_COPY_FILE_SIZE);

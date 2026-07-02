@@ -66,7 +66,8 @@ static int do_fchown(
 	const uid_t uid,
 	const gid_t gid)
 {
-	int tmp, ret;
+	int tmp;
+	int ret;
 
 	if (stress_chown_check(fchown(fd, uid, gid)) < 0)
 		return -errno;
@@ -121,7 +122,8 @@ static int do_chown(
 	const uid_t uid,
 	const gid_t gid)
 {
-	int tmp, ret;
+	int tmp;
+	int ret;
 
 	if (stress_chown_check(chown_func(filename, uid, gid)) < 0)
 		return -errno;
@@ -165,9 +167,12 @@ restore:
 static int stress_chown(stress_args_t *args)
 {
 	const pid_t ppid = getppid();
-	int fd = -1, rc = EXIT_FAILURE, retries = 0;
+	int fd = -1;
+	int rc = EXIT_FAILURE;
+	int retries = 0;
 	const int bad_fd = stress_fs_bad_fd_get();
-	char filename[PATH_MAX], pathname[PATH_MAX];
+	char filename[PATH_MAX];
+	char pathname[PATH_MAX];
 	const uid_t uid = getuid();
 	const gid_t gid = getgid();
 	bool cap_chown = false;

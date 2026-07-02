@@ -86,7 +86,8 @@ static int stress_cgroup_mounted_state(const char *path)
 		return STRESS_CGROUP_UNKNOWN;
 
 	while (fgets(buf, sizeof(buf), fp)) {
-		const char *mnt, *type;
+		const char *mnt;
+		const char *type;
 		char *ptr;
 
 		ptr = buf;
@@ -200,7 +201,8 @@ static void stress_cgroup_umount(
  */
 static void stress_cgroup_read(const char *path)
 {
-	int fd, i;
+	int fd;
+	int i;
 	char buf[1024];
 	off_t len = 0;
 	struct stat statbuf;
@@ -295,7 +297,8 @@ static void stress_cgroup_read_files(const char *realpathname)
  */
 static void stress_cgroup_add_pid(const char *realpathname, const pid_t pid)
 {
-	char filename[PATH_MAX + 64], cmd[64];
+	char filename[PATH_MAX + 64];
+	char cmd[64];
 	ssize_t len;
 
 	len = (ssize_t)snprintf(cmd, sizeof(cmd), "%" PRIdMAX "\n", (intmax_t)pid);
@@ -309,7 +312,8 @@ static void stress_cgroup_add_pid(const char *realpathname, const pid_t pid)
  */
 static void stress_cgroup_del_pid(const char *realpathname, const pid_t pid)
 {
-	char filename[PATH_MAX + 64], cmd[64];
+	char filename[PATH_MAX + 64];
+	char cmd[64];
 	ssize_t len;
 
 	len = (ssize_t)snprintf(cmd, sizeof(cmd), "%" PRIdMAX "\n", (intmax_t)pid);
@@ -478,7 +482,8 @@ static int stress_cgroup_child(stress_args_t *args)
 {
 	char pathname[PATH_MAX], realpathname[PATH_MAX];
 	int rc = EXIT_SUCCESS;
-	uint64_t mount_retry = 0, umount_retry = 0;
+	uint64_t mount_retry = 0;
+	uint64_t umount_retry = 0;
 	static const char skip[] = "skipping stressor";
 
 	stress_parent_died_alarm();
@@ -503,7 +508,8 @@ static int stress_cgroup_child(stress_args_t *args)
     defined(HAVE_FSMOUNT) &&	\
     defined(HAVE_MOVE_MOUNT) &&	\
     defined(HAVE_SYS_MOUNT_H)
-		int fd, fd_mnt;
+		int fd;
+		int fd_mnt;
 
 		fd = fsopen("cgroup2", FSOPEN_CLOEXEC);
 		if (fd < 0) {

@@ -712,8 +712,10 @@ static int stress_cacheline(stress_args_t *args)
 	size_t cacheline_method = 0;
 	stress_cacheline_func func;
 	bool cacheline_affinity = false;
-	size_t n_pids, i;
-	stress_pid_t *s_pids = NULL, *s_pids_head = NULL;
+	size_t n_pids;
+	size_t i;
+	stress_pid_t *s_pids = NULL;
+	stress_pid_t *s_pids_head = NULL;
 
 	if (stress_signal_sigchld_handler(args) < 0)
 		return EXIT_NO_RESOURCE;

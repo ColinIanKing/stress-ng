@@ -174,7 +174,9 @@ static int stress_context(stress_args_t *args)
 {
 	size_t i;
 	const size_t context_size = 3 * sizeof(*context);
-	double duration, rate, t;
+	double duration;
+	double rate;
+	double t;
 	int rc = EXIT_SUCCESS;
 
 	context = (context_data_t *)stress_mmap_populate(NULL,

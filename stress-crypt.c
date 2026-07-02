@@ -84,7 +84,8 @@ static int stress_crypt_id(
 	)
 {
 	const char *encrypted;
-	double t1, t2;
+	double t1;
+	double t2;
 	errno = 0;
 
 #if defined(HAVE_CRYPT_R)

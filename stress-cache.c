@@ -219,7 +219,9 @@ static void OPTIMIZE3 stress_cache_write_mod_ ## x(			\
 	uint64_t *pk,							\
 	stress_metrics_t *metrics)					\
 {									\
-	register uint64_t i = *pi, j, k = *pk;				\
+	register uint64_t i = *pi;					\
+	register uint64_t j;						\
+	register uint64_t k = *pk;					\
 	uint8_t *const buffer = g_shared->mem_cache.buffer;		\
 	const uint64_t buffer_size = g_shared->mem_cache.size;		\
 	double t;							\
@@ -797,6 +799,7 @@ static void NORETURN MLOCKED_TEXT stress_cache_sigillhandler(int signum)
 	/* bit set? then disable it */
 	if (mask) {
 		size_t i = 0;
+
 		/* Find top bit that is set, work from most modern flag to least */
 		while (mask >>= 1)
 			i++;
@@ -1063,7 +1066,8 @@ static int stress_cache(stress_args_t *args)
 	NOCLOBBER uint32_t cache_flags_mask = CACHE_FLAGS_MASK;
 	NOCLOBBER uint32_t ignored_flags = 0;
 	NOCLOBBER uint32_t total = 0;
-	NOCLOBBER size_t n_flags, perms_idx = 0;
+	NOCLOBBER size_t n_flags;
+	NOCLOBBER size_t perms_idx = 0;
 	NOCLOBBER size_t perms_total = 0;
 	NOCLOBBER size_t perms_max = 1;
 	const size_t n_flag_bits = sizeof(masked_flags) * 8;
@@ -1410,7 +1414,8 @@ next:
 	 *  Hit an illegal instruction, report the disabled flags
 	 */
 	if (stress_instance_zero(args) && (disabled_flags)) {
-		char buf[1024], *ptr = buf;
+		char buf[1024];
+		char *ptr = buf;
 		size_t buf_len = sizeof(buf);
 
 		(void)shim_memset(buf, 0, sizeof(buf));

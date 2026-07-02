@@ -183,7 +183,9 @@ static void *stress_close_func(void *arg)
 	while (stress_continue(args)) {
 		const uint64_t delay =
 			max_delay_us ? stress_mwc64modn(max_delay_us) : 0;
-		int fds[MAX_CLOSE_FDS], i, ret;
+		int fds[MAX_CLOSE_FDS];
+		int i;
+		int ret;
 		int flag;
 		int valid_fd = -1;
 
@@ -279,14 +281,18 @@ static int stress_close(stress_args_t *args)
 	stress_pthread_args_t pargs;
 	pthread_t pthread[MAX_PTHREADS];
 	int rc = EXIT_NO_RESOURCE;
-	int ret, rets[MAX_PTHREADS];
+	int ret;
+	int rets[MAX_PTHREADS];
 	const int bad_fd = stress_fs_bad_fd_get();
 	size_t i;
 	const uid_t uid = getuid();
 	const gid_t gid = getgid();
 	const bool not_root = !stress_capabilities_check(SHIM_CAP_IS_ROOT);
 	bool close_failure = false;
-	double max_duration = 0.0, duration = 0.0, count = 0.0, rate;
+	double max_duration = 0.0;
+	double duration = 0.0;
+	double count = 0.0;
+	double rate;
 #if defined(HAVE_FACCESSAT)
 	int file_fd = -1;
 	char filename[PATH_MAX];
@@ -347,7 +353,9 @@ static int stress_close(stress_args_t *args)
 		size_t domain, type;
 		int pipefds[2];
 		struct stat statbuf;
-		double t1, t2, dt;
+		double t1;
+		double t2;
+		double dt;
 
 		fd = -1;
 		t1 = stress_time_now();

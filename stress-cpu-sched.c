@@ -236,10 +236,15 @@ static int stress_cpu_sched_setscheduler(const pid_t pid)
 {
 	struct sched_param param;
 	const uint32_t i = stress_mwc8modn((uint8_t)SIZEOF_ARRAY(policies));
-	int ret, policy_masked, policy, prio;
+	int ret;
+	int policy_masked;
+	int policy;
+	int prio;
 #if defined(SCHED_FIFO) ||	\
      defined(SCHED_RR)
-	int prio_min, prio_max, prio_range;
+	int prio_min;
+	int prio_max;
+	int prio_range;
 #endif
 #if defined(SCHED_DEADLINE) &&	\
     defined(HAVE_SCHED_GETATTR)
@@ -469,7 +474,8 @@ static void stress_cpu_sched_set_handler(void)
  */
 static void stress_cpu_sched_child_exercise(const pid_t pid, const int cpu)
 {
-	unsigned int new_cpu, node;
+	unsigned int new_cpu;
+	unsigned int node;
 
 	(void)stress_cpu_sched_setaffinity(pid, cpu);
 	(void)shim_getcpu(&new_cpu, &node, NULL);
@@ -678,7 +684,6 @@ again:
 
 static int stress_cpu_sched_child(stress_args_t *args, void *context)
 {
-	/* Child */
 	int cpu_idx = 0, rc = EXIT_SUCCESS;
 	const int instance = (int)args->instance;
 	size_t i;

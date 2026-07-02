@@ -152,7 +152,8 @@ static const char * PURE stress_clock_name(int id)
  * check_invalid_clock_id()
  * function to check if given clock_id is valid
  */
-static inline bool check_invalid_clock_id(const clockid_t id) {
+static inline bool check_invalid_clock_id(const clockid_t id)
+{
         struct timespec tp;
 
         (void)shim_memset(&tp, 0, sizeof(tp));
@@ -160,7 +161,7 @@ static inline bool check_invalid_clock_id(const clockid_t id) {
 }
 #endif
 
-static inline bool aux_clock_nonfatal_error(const clockid_t id, int errnum)
+static inline bool aux_clock_nonfatal_error(const clockid_t id, const int errnum)
 {
 	(void)id;
 	(void)errnum;
@@ -295,7 +296,8 @@ static int stress_clock(stress_args_t *args)
 			size_t i;
 
 			for (i = 0; i < SIZEOF_ARRAY(clocks); i++) {
-				struct timespec t, t1;
+				struct timespec t;
+				struct timespec t1;
 				int ret;
 
 				/* Save current time to reset later if required */

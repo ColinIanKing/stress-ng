@@ -514,7 +514,9 @@ static int stress_clone_child(stress_args_t *args, void *context)
 			const uint32_t rnd = stress_mwc32();
 			uint64_t flag;
 			const bool try_clone3 = rnd >> 31;
-			pid_t child_tid = -1, parent_tid = -1;
+			pid_t child_tid = -1;
+			pid_t parent_tid = -1;
+
 			clone_info = stress_clone_new();
 			if (!clone_info)
 				break;

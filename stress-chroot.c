@@ -115,10 +115,13 @@ static void do_chroot(
 	chroot_shared_data_t *data,
 	const char *path,
 	void (*escape_func)(chroot_shared_data_t *data),
-	int *ret1, int *ret2,
-	int *errno1, int *errno2)
+	int *ret1,
+	int *ret2,
+	int *errno1,
+	int *errno2)
 {
-	double t1, t2;
+	double t1;
+	double t2;
 
 	t1 = stress_time_now();
 	*ret1 = chroot(path);
@@ -149,7 +152,10 @@ static void do_chroot(
 static int stress_chroot_test1(chroot_shared_data_t *data)
 {
 	char cwd[PATH_MAX];
-	int ret1, ret2, errno1, errno2;
+	int ret1;
+	int ret2;
+	int errno1;
+	int errno2;
 
 	do_chroot(data, temppath, NULL, &ret1, &ret2, &errno1, &errno2);
 	/*
@@ -185,7 +191,10 @@ static int stress_chroot_test1(chroot_shared_data_t *data)
 static int stress_chroot_test2(chroot_shared_data_t *data)
 {
 #if defined(__linux__)
-	int ret1, ret2, errno1, errno2;
+	int ret1;
+	int ret2;
+	int errno1;
+	int errno2;
 
 	do_chroot(data, (const char *)1, NULL, &ret1, &ret2, &errno1, &errno2);
 	if ((ret1 >= 0) || (errno1 != EFAULT)) {
@@ -206,7 +215,10 @@ static int stress_chroot_test2(chroot_shared_data_t *data)
  */
 static int stress_chroot_test3(chroot_shared_data_t *data)
 {
-	int ret1, ret2, errno1, errno2;
+	int ret1;
+	int ret2;
+	int errno1;
+	int errno2;
 
 	do_chroot(data, longpath, NULL, &ret1, &ret2, &errno1, &errno2);
 #if defined(__HAIKU__)
@@ -228,7 +240,10 @@ static int stress_chroot_test3(chroot_shared_data_t *data)
  */
 static int stress_chroot_test4(chroot_shared_data_t *data)
 {
-	int ret1, ret2, errno1, errno2;
+	int ret1;
+	int ret2;
+	int errno1;
+	int errno2;
 
 	do_chroot(data, badpath, NULL, &ret1, &ret2, &errno1, &errno2);
 	if ((ret1 >= 0) || (errno1 != ENOENT)) {
@@ -246,7 +261,10 @@ static int stress_chroot_test4(chroot_shared_data_t *data)
  */
 static int stress_chroot_test5(chroot_shared_data_t *data)
 {
-	int ret1, ret2, errno1, errno2;
+	int ret1;
+	int ret2;
+	int errno1;
+	int errno2;
 
 	do_chroot(data, filename, NULL, &ret1, &ret2, &errno1, &errno2);
 	/*
@@ -270,7 +288,10 @@ static int stress_chroot_test5(chroot_shared_data_t *data)
  */
 static int stress_chroot_test6(chroot_shared_data_t *data)
 {
-	int ret1, ret2, errno1, errno2;
+	int ret1;
+	int ret2;
+	int errno1;
+	int errno2;
 	static const char dev[] = "/dev/null";
 
 	do_chroot(data, dev, NULL, &ret1, &ret2, &errno1, &errno2);
@@ -292,7 +313,10 @@ static int stress_chroot_test6(chroot_shared_data_t *data)
 static int stress_chroot_test7(chroot_shared_data_t *data)
 {
 	const size_t path_len = 256 * KB;
-	int ret1, ret2, errno1, errno2;
+	int ret1;
+	int ret2;
+	int errno1;
+	int errno2;
 	char *path;
 
 	/* Don't throw a failure if we can't allocate large path */
@@ -387,7 +411,8 @@ static void stress_chroot_report_escapes(
 	stress_args_t *args,
 	const chroot_shared_data_t *data)
 {
-	size_t i, j;
+	size_t i;
+	size_t j;
 	char buf[1024];
 
 	(void)shim_memset(buf, 0, sizeof(buf));
@@ -411,7 +436,8 @@ static void stress_chroot_report_escapes(
 static int stress_chroot(stress_args_t *args)
 {
 	size_t i = 0;
-	int fd, ret = EXIT_FAILURE;
+	int fd;
+	int ret = EXIT_FAILURE;
 	double rate;
 	chroot_shared_data_t *data;
 

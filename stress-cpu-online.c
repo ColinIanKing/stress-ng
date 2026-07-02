@@ -161,8 +161,10 @@ static int stress_cpu_online_supported(const char *name)
 static int stress_cpu_online(stress_args_t *args)
 {
 	int32_t cpus = stress_cpus_configured_get();
-	int32_t i, cpu_online_count = 0;
-	uint32_t cpu, prev_cpu;
+	int32_t i;
+	int32_t cpu_online_count = 0;
+	uint32_t cpu;
+	uint32_t prev_cpu;
 	bool *cpu_online;
 	bool cpu_online_affinity = false;
 	bool cpu_online_all = false;
@@ -170,8 +172,10 @@ static int stress_cpu_online(stress_args_t *args)
 	int rc = EXIT_SUCCESS;
 	int fds[2] = { -1, -1 };
 	pid_t pid = -1;
-	double offline_duration = 0.0, offline_count = 0.0;
-	double online_duration  = 0.0, online_count = 0.0;
+	double offline_duration = 0.0;
+	double offline_count = 0.0;
+	double online_duration  = 0.0;
+	double online_count = 0.0;
 	double rate;
 
 	(void)stress_setting_get("cpu-online-affinity", &cpu_online_affinity);
