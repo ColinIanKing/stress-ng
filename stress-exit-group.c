@@ -107,7 +107,8 @@ static void NORETURN stress_exit_group_child(stress_args_t *args)
 {
 	int ret;
 	sigset_t set;
-	size_t i, j;
+	size_t i;
+	size_t j;
 
 	keep_running_flag = true;
 

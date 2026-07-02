@@ -455,7 +455,11 @@ static inline int stress_do_exec(stress_exec_context_t *context)
 static int stress_exec_child(void *arg)
 {
 	stress_exec_context_t *argp = (stress_exec_context_t *)arg;
-	int rc, ret, fd_out, fd_in, fd = -1;
+	int rc;
+	int ret;
+	int fd_out;
+	int fd_in;
+	int fd = -1;
 	stress_exec_context_t context;
 	int method = argp->exec_method;
 	const bool big_env = ((argp->rnd8 >= 128 + 64) && (argp->rnd8 < 128 + 80));
@@ -717,20 +721,24 @@ static int stress_exec(stress_args_t *args)
 	char exec_path[PATH_MAX];
 	char garbage_prog[PATH_MAX];
 	char *ld_library_path = NULL;
-	int ret, rc = EXIT_FAILURE;
+	int ret;
+	int rc = EXIT_FAILURE;
 #if (defined(HAVE_EXECVEAT) ||	\
      defined(HAVE_FEXECVE)) &&	\
     defined(O_PATH)
 	int fdexec;
 #endif
-	uint64_t exec_fails = 0, exec_calls = 0;
+	uint64_t exec_fails = 0;
+	uint64_t exec_calls = 0;
 	uint32_t exec_max = DEFAULT_EXECS;
 	size_t exec_method_idx;
 	size_t exec_fork_method_idx;
 	int exec_method = EXEC_METHOD_ALL;
 	int exec_fork_method = EXEC_FORK_METHOD_FORK;
 	bool exec_no_pthread = false;
-	size_t arg_max, cache_max, stress_pid_hash_table_size;
+	size_t arg_max;
+	size_t cache_max;
+	size_t stress_pid_hash_table_size;
 	char *str;
 
 	if (!stress_setting_get("exec-max", &exec_max)) {

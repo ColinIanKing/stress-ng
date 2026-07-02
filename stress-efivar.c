@@ -112,7 +112,6 @@ static inline void guid_to_str(const uint8_t *guid, char *guid_str, const size_t
 static inline void efi_get_varname(char *dst, const size_t len, const stress_efi_var_t *var)
 {
 	register size_t i = len;
-
 	const uint16_t *src = (const uint16_t *)(const void *)var->varname;
 
 	while ((*src) && (i > 1)) {
@@ -145,6 +144,7 @@ static void stress_efi_sysfs_fd(
 	const ssize_t n)
 {
 	off_t offset;
+
 	/*
 	 *  And exercise the interface for some extra kernel
 	 *  test coverage
@@ -210,7 +210,8 @@ static int efi_get_data(
 	double *duration,
 	double *count)
 {
-	int fd, rc = 0;
+	int fd;
+	int rc = 0;
 	ssize_t n;
 	char filename[PATH_MAX];
 	struct stat statbuf;
@@ -267,7 +268,9 @@ static int efi_read_variable(
 	struct stat statbuf;
 	double t;
 	ssize_t n;
-	int fd, ret, rc = 0;
+	int fd;
+	int ret;
+	int rc = 0;
 #if defined(FS_IOC_GETFLAGS) &&	\
     defined(FS_IOC_SETFLAGS)
 	int flags;
@@ -409,7 +412,8 @@ static int efi_vars_get(
 	double *count)
 {
 	static char data[4096];
-	int i, rc = 0;
+	int i;
+	int rc = 0;
 
 	for (i = 0; LIKELY(stress_continue(args) && (i < dir_count)); i++) {
 		char *d_name = efi_dentries[i]->d_name;
@@ -487,7 +491,8 @@ static int stress_efivar(stress_args_t *args)
 {
 	pid_t pid;
 	size_t sz;
-	double duration = 0.0, count = 0.0;
+	double duration = 0.0;
+	double count = 0.0;
 	int rc = EXIT_SUCCESS;
 
 	efi_mode = STRESS_EFI_UNKNOWN;

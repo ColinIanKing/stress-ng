@@ -676,7 +676,10 @@ static void NORETURN epoll_server(
 	const int epoll_sockets,
 	const int max_servers)
 {
-	NOCLOBBER int efd = -1, efd2 = -1, sfd = -1, rc = EXIT_SUCCESS;
+	NOCLOBBER int efd = -1;
+	NOCLOBBER int efd2 = -1;
+	NOCLOBBER int sfd = -1;
+	NOCLOBBER int rc = EXIT_SUCCESS;
 	int so_reuseaddr = 1;
 	const int port = epoll_port + child + (max_servers * (int)args->instance);
 	NOCLOBBER struct epoll_event *events = NULL;
@@ -832,7 +835,10 @@ static void NORETURN epoll_server(
 	}
 
 	do {
-		int n, i, ret, saved_errno;
+		int n;
+		int i;
+		int ret;
+		int saved_errno;
 		sigset_t sigmask;
 		static bool wait_segv = false;
 
@@ -974,13 +980,17 @@ die:
  */
 static int stress_epoll(stress_args_t *args)
 {
-	stress_pid_t *s_pids, *s_pids_head = NULL;
+	stress_pid_t *s_pids;
+	stress_pid_t *s_pids_head = NULL;
 	const pid_t mypid = getpid();
-	int i, rc = EXIT_SUCCESS;
+	int i;
+	int rc = EXIT_SUCCESS;
 	int epoll_domain = AF_UNIX;
 	int epoll_port = DEFAULT_EPOLL_PORT;
 	int epoll_sockets = DEFAULT_EPOLL_SOCKETS;
-	int start_port, end_port, reserved_port;
+	int start_port;
+	int end_port;
+	int reserved_port;
 	int max_servers;
 
 	(void)stress_setting_get("epoll-domain", &epoll_domain);

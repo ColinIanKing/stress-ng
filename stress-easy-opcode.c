@@ -297,8 +297,11 @@ typedef struct  {
 
 static inline size_t OPTIMIZE3 stress_easy_opcode_fill(void *ops_begin, size_t size)
 {
-	uint8_t *ptr = (uint8_t *)ops_begin, *ptr_end;
-	size_t ops = 0, i, max_op_len = stress_ret_opcode.len;
+	uint8_t *ptr = (uint8_t *)ops_begin;
+	uint8_t *ptr_end;
+	size_t ops = 0;
+	size_t i;
+	size_t max_op_len = stress_ret_opcode.len;
 
 	for (i = 0; i < SIZEOF_ARRAY(easy_opcodes); i++) {
 		if (max_op_len < easy_opcodes[i].len)
@@ -327,7 +330,9 @@ static int stress_easy_opcode(stress_args_t *args)
 {
 	const size_t page_size = args->page_size;
 	int rc;
-	double rate, t, duration;
+	double rate;
+	double t;
+	double duration;
 	void *opcodes;
 	stress_easy_opcode_state_t *state;
 

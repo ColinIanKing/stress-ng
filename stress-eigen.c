@@ -119,7 +119,8 @@ static inline int stress_eigen_exercise(
 	double mantissa;
 	uint64_t exponent;
 
-	register size_t i, j;
+	register size_t i;
+	register size_t j;
 	method_all_index = 1;
 
 	stress_zero_metrics(eigen_metrics, NUM_EIGEN_METHODS);
@@ -128,6 +129,7 @@ static inline int stress_eigen_exercise(
 
 	do {
 		int ret;
+
 		ret = func(eigen_size,
 			&eigen_metrics[eigen_method].duration,
 			&eigen_metrics[eigen_method].count);

@@ -49,8 +49,12 @@ static const stress_opt_t opts[] = {
 static int stress_eventfd(stress_args_t *args)
 {
 	pid_t pid;
-	int fd1, fd2, test_fd, rc;
-	int flags = 0, parent_cpu;
+	int fd1;
+	int fd2;
+	int test_fd;
+	int rc;
+	int flags = 0;
+	int parent_cpu;
 	bool eventfd_nonblock = false;
 
 	(void)stress_setting_get("eventfd-nonblock", &eventfd_nonblock);

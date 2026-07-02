@@ -4149,10 +4149,14 @@ static inline int stress_enosys_parent(
 static int stress_enosys(stress_args_t *args)
 {
 	pid_t pid;
-	int rd_fds[2], wr_fds[2], rc = EXIT_SUCCESS;
+	int rd_fds[2];
+	int wr_fds[2];
+	int rc = EXIT_SUCCESS;
 	size_t i;
 	uint64_t syscalls = 0;
-	double t_start, duration, rate;
+	double t_start;
+	double duration;
+	double rate;
 
 #if defined(STRESS_EXERCISE_X86_SYSCALL)
 	stress_x86syscall_available = stress_cpu_x86_has_syscall();
