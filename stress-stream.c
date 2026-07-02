@@ -1405,6 +1405,7 @@ static const stress_exercises_t exercises[] = {
 	STRESS_EX_FEATURE("d-cache-ll-read"),
 	STRESS_EX_FEATURE("d-cache-miss"),
 	STRESS_EX_FEATURE("fp"),
+	STRESS_EX_FEATURE("memory-stalls"),
 	STRESS_EX_FEATURE("memory-stream"),
 	STRESS_EX_FEATURE("user-time"),
 

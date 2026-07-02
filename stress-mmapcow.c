@@ -460,6 +460,7 @@ static int stress_mmapcow(stress_args_t *args)
 
 static const stress_exercises_t exercises[] = {
 	STRESS_EX_FEATURE("d-cache-miss"),
+	STRESS_EX_FEATURE("memory-stalls"),
 
 	STRESS_EX_SYSCALL("madvise"),
 	STRESS_EX_SYSCALL("mincore"),

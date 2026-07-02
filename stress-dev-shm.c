@@ -218,6 +218,7 @@ unmap_context:
 static const stress_exercises_t exercises[] = {
 	STRESS_EX_FEATURE("d-cache-miss"),
 	STRESS_EX_FEATURE("oom"),
+	STRESS_EX_FEATURE("memory-stalls"),
 	STRESS_EX_FEATURE("system-time"),
 
 	STRESS_EX_SYSCALL("fallocate"),

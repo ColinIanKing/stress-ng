@@ -536,6 +536,8 @@ err:
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("memory-stalls"),
+
 	STRESS_EX_SYSCALL("close"),
 	STRESS_EX_SYSCALL("fallocate"),
 	STRESS_EX_SYSCALL("fchmod"),

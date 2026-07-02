@@ -3965,6 +3965,7 @@ static const stress_exercises_t exercises[] = {
 	STRESS_EX_FEATURE("cpu-bit"),
 	STRESS_EX_FEATURE("memory-bus"),
 	STRESS_EX_FEATURE("memory-cmp"),
+	STRESS_EX_FEATURE("memory-stalls"),
 	STRESS_EX_FEATURE("kmalloc"),
 
 	STRESS_EX_SYSCALL("madvise"),

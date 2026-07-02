@@ -1063,6 +1063,7 @@ static const stress_exercises_t exercises[] = {
 	STRESS_EX_FEATURE("d-cache-ll-write"),
 	STRESS_EX_FEATURE("tlb"),
 	STRESS_EX_FEATURE("memory-bus"),
+	STRESS_EX_FEATURE("memory-stalls"),
 
 #if defined(HAVE_LIB_PTHREAD)
 	STRESS_EX_LIBRARY("pthread"),

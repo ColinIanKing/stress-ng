@@ -611,6 +611,7 @@ static const stress_exercises_t exercises[] = {
 	STRESS_EX_FEATURE("d-cache-miss"),
 	STRESS_EX_FEATURE("d-cache-ll-write"),
 	STRESS_EX_FEATURE("memory-bus"),
+	STRESS_EX_FEATURE("memory-stalls"),
 
 	STRESS_EX_SYSCALL("sched_setaffinity"),
 	STRESS_EX_END,
