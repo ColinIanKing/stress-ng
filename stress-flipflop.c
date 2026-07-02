@@ -375,6 +375,7 @@ free_dist:
 static const stress_exercises_t exercises[] = {
 	STRESS_EX_FEATURE("cpu-instructions"),
 	STRESS_EX_FEATURE("hot-package"),
+	STRESS_EX_FEATURE("integer-ops"),
 	STRESS_EX_FEATURE("ipc"),
 	STRESS_EX_FEATURE("load-average"),
 	STRESS_EX_FEATURE("memory-loads"),
