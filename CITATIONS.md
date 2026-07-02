@@ -181,6 +181,7 @@
  * [Ecoscape: Fault Tolerance Benchmark for Adaptive Remediation Strategies in Real-Time Edge ML](https://arxiv.org/html/2507.22702v1)
  * [Efficient Fault Localization in a Cloud Stack Using End-to-End Application Service Topology](https://arxiv.org/html/2509.05511v1)
  * [FALCON: A Framework for Fault Prediction in Open RAN Using Multi-Level Telemetry](https://arxiv.org/pdf/2503.06197)
+ * [FLOP: Breaking the Apple M3 CPU via False Load Output Predictions](https://www.usenix.org/system/files/usenixsecurity25-kim-jason.pdf)
  * [FUKURO: An Agent-Driven Framework for Real-Time Remote Host Resource Managemen](https://rsisinternational.org/journals/ijriss/download_pdf.php?id=2021)
  * [GAL-MAD: Towards Explainable Anomaly Detection in Microservice Applications using Graph Attention Networks](https://www.arxiv.org/pdf/2504.00058)
  * [Graph Neural Networks for Anomaly Detection in Cloud Infrastructure](https://www.scirp.org/pdf/jcc_1733321.pdf)
