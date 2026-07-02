@@ -439,6 +439,7 @@ static int stress_mpfr(stress_args_t *args)
 
 static const stress_exercises_t exercises[] = {
 	STRESS_EX_FEATURE("bogo-ops-stable"),
+	STRESS_EX_FEATURE("cpu-heavy-ops"),
 	STRESS_EX_FEATURE("memory-loads"),
 	STRESS_EX_FEATURE("power-core"),
 	STRESS_EX_FEATURE("power-package"),

@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-affinity.h"
+#include "core-arch.h"
 #include "core-builtin.h"
 #include "core-capabilities.h"
 #include "core-killpid.h"
@@ -374,6 +375,9 @@ finish:
 }
 
 static const stress_exercises_t exercises[] = {
+#if defined(STRESS_ARCH_X86)
+	STRESS_EX_FEATURE("cpu-heavy-ops"),
+#endif
 	STRESS_EX_FEATURE("load-average"),
 #if defined(HAVE_X86_REP_STOSB)
 	STRESS_EX_FEATURE("memory-loads"),

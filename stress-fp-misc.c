@@ -1328,6 +1328,7 @@ fp_fail:
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("cpu-heavy-ops"),
 	STRESS_EX_FEATURE("fp"),
 	STRESS_EX_FEATURE("hot-package"),
 	STRESS_EX_FEATURE("memory-loads"),
