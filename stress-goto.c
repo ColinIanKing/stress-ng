@@ -78,7 +78,10 @@ static int OPTIMIZE_GOTO stress_goto(stress_args_t *args)
 	size_t i;
 	int rc = EXIT_SUCCESS;
 	size_t goto_direction = STRESS_GOTO_RANDOM;
-	double t1, t2, duration, rate;
+	double t1;
+	double t2;
+	double duration;
+	double rate;
 	uint64_t bogo_counter;
 
 	static const void ALIGN64 *default_labels[MAX_LABELS] = {

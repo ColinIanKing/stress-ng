@@ -634,7 +634,8 @@ static int stress_gettid(stress_args_t *args)
 
 static int stress_getcpu(stress_args_t *args)
 {
-	unsigned int cpu, node;
+	unsigned int cpu;
+	unsigned int node;
 
 	VOID_RET(long int, shim_getcpu(&cpu, &node, NULL));
 	VOID_RET(long int, shim_getcpu(NULL, &node, NULL));
@@ -648,7 +649,8 @@ static int stress_getcpu(stress_args_t *args)
 
 static int stress_time(stress_args_t *args)
 {
-	time_t t1, t2;
+	time_t t1;
+	time_t t2;
 
 	t1 = time(NULL);
 	if (t1 == (time_t)-1) {

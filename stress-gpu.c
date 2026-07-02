@@ -94,7 +94,7 @@ static void stress_get_gpu_freq_mhz(double *gpu_freq)
 	{
 		char buf[64];
 		char filename[128];
-		snprintf(filename, sizeof(filename), "/sys/class/drm/card%d/gt_cur_freq_mhz", gpu_card);
+		(void)snprintf(filename, sizeof(filename), "/sys/class/drm/card%d/gt_cur_freq_mhz", gpu_card);
 
 		if (stress_fs_file_read(filename, buf, sizeof(buf)) > 0) {
 			if (sscanf(buf, "%lf", gpu_freq) == 1)
@@ -408,7 +408,8 @@ static int egl_init(
 	const uint32_t size_x,
 	const uint32_t size_y)
 {
-	int ret, fd;
+	int ret;
+	int fd;
 	EGLConfig config;
 	EGLContext context;
 	EGLint majorVersion;
@@ -545,7 +546,8 @@ static int stress_gpu_card(const char *gpu_devnode)
 static int stress_gpu_child(stress_args_t *args, void *context)
 {
 	int frag_n = 0;
-	int ret = EXIT_SUCCESS, fd;
+	int ret = EXIT_SUCCESS;
+	int fd;
 	uint32_t size_x = 256;
 	uint32_t size_y = 256;
 	GLsizei texsize = 4096;
