@@ -103,7 +103,9 @@ static int do_quotactl_call(
 	const caddr_t addr)
 {
 	static bool have_quotactl_fd = true;
-	int ret, fd, saved_errno;
+	int ret;
+	int fd;
+	int saved_errno;
 
 	/*
 	 *  quotactl_fd() failed on ENOSYS or random choice
@@ -334,7 +336,9 @@ static int do_quotas(stress_args_t *args, stress_dev_info_t *const dev)
  */
 static int stress_quota(stress_args_t *args)
 {
-	int i, n_mounts, n_devs = 0;
+	int i;
+	int n_mounts;
+	int n_devs = 0;
 	int rc = EXIT_FAILURE;
 	char *mnts[MAX_DEVS];
 	stress_dev_info_t devs[MAX_DEVS];

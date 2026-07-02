@@ -145,9 +145,13 @@ static int OPTIMIZE3 stress_qsort(stress_args_t *args)
 {
 	uint64_t qsort_size = DEFAULT_QSORT_SIZE;
 	int32_t *data;
-	size_t n, data_size, qsort_method = 0;
+	size_t n;
+	size_t data_size;
+	size_t qsort_method = 0;
 	double rate;
-	NOCLOBBER double duration = 0.0, count = 0.0, sorted = 0.0;
+	NOCLOBBER double duration = 0.0;
+	NOCLOBBER double count = 0.0;
+	NOCLOBBER double sorted = 0.0;
 	NOCLOBBER int rc = EXIT_SUCCESS;
 	qsort_func_t qsort_func;
 #if defined(HAVE_SIGLONGJMP)
