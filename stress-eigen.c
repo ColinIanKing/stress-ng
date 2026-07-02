@@ -224,6 +224,7 @@ static const stress_exercises_t exercises[] = {
 	STRESS_EX_FEATURE("cpu-heavy-ops"),
 	STRESS_EX_FEATURE("fp"),
 	STRESS_EX_FEATURE("fp-division"),
+	STRESS_EX_FEATURE("fp-ops"),
 	STRESS_EX_FEATURE("memory-loads"),
 	STRESS_EX_FEATURE("user-time"),
 
