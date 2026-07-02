@@ -3343,6 +3343,7 @@ static const stress_exercises_t exercises[] = {
 #endif
 	STRESS_EX_FEATURE("hot-package"),
 	STRESS_EX_FEATURE("integer"),
+	STRESS_EX_FEATURE("integer-division"),
 	STRESS_EX_FEATURE("registers"),
 	STRESS_EX_FEATURE("user-time"),
 
