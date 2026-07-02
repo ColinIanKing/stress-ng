@@ -195,6 +195,7 @@ finish:
 
 static const stress_exercises_t exercises[] = {
 	STRESS_EX_FEATURE("d-cache-ll-read"),
+	STRESS_EX_FEATURE("memory-bound"),
 	STRESS_EX_FEATURE("system-time"),
 
 	STRESS_EX_SYSCALL("futex"),
