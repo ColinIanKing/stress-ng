@@ -232,7 +232,7 @@ static struct rtattr *ovpn_nest_start(
 	return nest;
 }
 
-static void ovpn_nest_end(struct nlmsghdr *msg, struct rtattr *nest)
+static inline void ovpn_nest_end(struct nlmsghdr *msg, struct rtattr *nest)
 {
 	nest->rta_len = (uint8_t *)nlmsg_tail(msg) - (uint8_t *)nest;
 }
@@ -1336,7 +1336,7 @@ static void ovpn_ctx_reset(struct ovpn_ctx *ovpn)
 
 	ovpn->socket = -1;
 
-	shim_strscpy(ovpn->ifname, "tun0", IFNAMSIZ);
+	(void)shim_strscpy(ovpn->ifname, "tun0", IFNAMSIZ);
 	ovpn->ifindex = if_nametoindex(ovpn->ifname);
 
 	ovpn->sa_family = AF_INET;
@@ -1497,16 +1497,26 @@ static int build_swap_keys(struct ovpn_ctx *ovpn)
 static int ovpn_autofill_args(struct ovpn_ctx *ovpn)
 {
 	switch (ovpn->cmd) {
-	case CMD_NEW_IFACE:   return build_new_iface(ovpn);
-	case CMD_CONNECT:     return build_connect(ovpn);
-	case CMD_NEW_PEER:    return build_new_peer(ovpn);
-	case CMD_SET_PEER:    return build_set_peer(ovpn);
-	case CMD_DEL_PEER:    return build_del_peer(ovpn);
-	case CMD_GET_PEER:    return build_get_peer(ovpn);
-	case CMD_NEW_KEY:     return build_new_key(ovpn);
-	case CMD_DEL_KEY:     return build_del_key(ovpn);
-	case CMD_GET_KEY:     return build_get_key(ovpn);
-	case CMD_SWAP_KEYS:   return build_swap_keys(ovpn);
+	case CMD_NEW_IFACE:
+		return build_new_iface(ovpn);
+	case CMD_CONNECT:
+		return build_connect(ovpn);
+	case CMD_NEW_PEER:
+		return build_new_peer(ovpn);
+	case CMD_SET_PEER:
+		return build_set_peer(ovpn);
+	case CMD_DEL_PEER:
+		return build_del_peer(ovpn);
+	case CMD_GET_PEER:
+		return build_get_peer(ovpn);
+	case CMD_NEW_KEY:
+		return build_new_key(ovpn);
+	case CMD_DEL_KEY:
+		return build_del_key(ovpn);
+	case CMD_GET_KEY:
+		return build_get_key(ovpn);
+	case CMD_SWAP_KEYS:
+		return build_swap_keys(ovpn);
 	default:
 		return 0;
 	}
