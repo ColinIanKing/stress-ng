@@ -93,7 +93,8 @@ static void hdestroy_nonlibc(void)
 
 static ENTRY OPTIMIZE3 *hsearch_nonlibc(ENTRY entry, ACTION action)
 {
-	register uint32_t idx, idx_start;
+	register uint32_t idx;
+	register uint32_t idx_start;
 	register char *ptr = entry.key;
 
 	for (idx = 0; *ptr; ) {
@@ -161,7 +162,8 @@ static const stress_opt_t opts[] = {
 static int OPTIMIZE3 stress_hsearch(stress_args_t *args)
 {
 	uint64_t hsearch_size = DEFAULT_HSEARCH_SIZE;
-	size_t i, max;
+	size_t i;
+	size_t max;
 	int rc = EXIT_FAILURE;
 	char **keys;
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);

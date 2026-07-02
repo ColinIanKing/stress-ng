@@ -686,21 +686,30 @@ static int stress_hdd(stress_args_t *args)
 {
 	uint8_t *buf = NULL;
 	void *alloc_buf;
-	uint64_t i, min_size, size_remainder;
+	uint64_t i;
+	uint64_t min_size;
+	uint64_t size_remainder;
 	int rc = EXIT_FAILURE;
 	ssize_t ret;
 	char filename[PATH_MAX];
-	size_t opt_index = 0, max_extents = 0;
-	uint64_t hdd_bytes, hdd_bytes_total = DEFAULT_HDD_BYTES;
+	size_t opt_index = 0;
+	size_t max_extents = 0;
+	uint64_t hdd_bytes;
+	uint64_t hdd_bytes_total = DEFAULT_HDD_BYTES;
 	uint64_t hdd_write_size = DEFAULT_HDD_WRITE_SIZE;
 	unsigned int hdd_sleep = DEFAULT_HDD_SLEEP;
 	const uint32_t instance = args->instance;
-	int hdd_flags = 0, hdd_oflags = 0;
-	int flags, fadvise_flags;
+	int hdd_flags = 0;
+	int hdd_oflags = 0;
+	int flags;
+	int fadvise_flags;
 	bool opts_set = false;
-	double hdd_read_bytes = 0.0, hdd_read_duration = 0.0;
-	double hdd_write_bytes = 0.0, hdd_write_duration = 0.0;
-	double hdd_rdwr_bytes, hdd_rdwr_duration;
+	double hdd_read_bytes = 0.0;
+	double hdd_read_duration = 0.0;
+	double hdd_write_bytes = 0.0;
+	double hdd_write_duration = 0.0;
+	double hdd_rdwr_bytes;
+	double hdd_rdwr_duration;
 	double rate;
 
 	(void)stress_setting_get("hdd-flags", &hdd_flags);

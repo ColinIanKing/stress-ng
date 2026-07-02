@@ -73,11 +73,15 @@ static int OPTIMIZE3 stress_hash_generic(
 	const uint32_t le_result,
 	const uint32_t be_result)
 {
-	double sum = 0.0, n, m, divisor;
-	uint32_t i_sum = 0;
+	double sum = 0.0;
+	double n;
+	double m;
+	double divisor;
+	double t1;
+	double t2;
 	size_t i;
+	uint32_t i_sum = 0;
 	const uint32_t result = stress_little_endian() ? le_result: be_result;
-	double t1, t2;
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 
 	if (verify)

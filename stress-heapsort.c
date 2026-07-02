@@ -93,7 +93,8 @@ static int heapsort_nonlibc(
 	 */
 	while (nmemb > 1) {
 		register uint8_t *ptr = u8base + (nmemb * size);
-		register size_t i, j;
+		register size_t i;
+		register size_t j;
 		uint8_t tmp[size] ALIGN64;
 
 		copy_func(tmp, ptr, size);
@@ -165,11 +166,17 @@ static void MLOCKED_TEXT stress_heapsort_handler(int signum)
 static int stress_heapsort(stress_args_t *args)
 {
 	uint64_t heapsort_size = DEFAULT_HEAPSORT_SIZE;
-	int32_t *data, *ptr;
-	size_t n, i, data_size, heapsort_method = 0;
+	int32_t *data;
+	int32_t *ptr;
+	size_t n;
+	size_t i;
+	size_t data_size;
+	size_t heapsort_method = 0;
 	double rate;
 	NOCLOBBER int rc = EXIT_SUCCESS;
-	NOCLOBBER double duration = 0.0, count = 0.0, sorted = 0.0;
+	NOCLOBBER double duration = 0.0;
+	NOCLOBBER double count = 0.0;
+	NOCLOBBER double sorted = 0.0;
 	heapsort_func_t heapsort_func;
 #if defined(HAVE_SIGLONGJMP)
 	struct sigaction old_action;

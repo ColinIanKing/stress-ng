@@ -180,10 +180,12 @@ static int stress_hrtimer_process(stress_args_t *args)
 
 static int stress_hrtimers(stress_args_t *args)
 {
-	stress_pid_t *s_pids, *s_pids_head = NULL;
+	stress_pid_t *s_pids;
+	stress_pid_t *s_pids_head = NULL;
 	size_t i;
 	bool hrtimers_adjust = false;
-	double start_time = -1.0, end_time;
+	double start_time = -1.0;
+	double end_time;
 	sigset_t mask;
 	int rc = EXIT_SUCCESS;
 

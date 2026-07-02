@@ -265,7 +265,8 @@ static int stress_handle_child(stress_args_t *args, void *context)
  */
 static int stress_handle(stress_args_t *args)
 {
-	int mounts, ret;
+	int mounts;
+	int ret;
 
 	mounts = get_mount_info(args);
 	if (mounts < 0) {
