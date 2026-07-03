@@ -57,7 +57,9 @@ static int stress_umount_supported(const char *name)
  */
 static int stress_umount_umount(stress_args_t *args, const char *path, const uint64_t ns_delay)
 {
-	int i, ret, rc = EXIT_SUCCESS;
+	int i;
+	int ret;
+	int rc = EXIT_SUCCESS;
 
 	/*
 	 *  umount is attempted at least twice, the first successful mount
@@ -168,7 +170,8 @@ static void NORETURN stress_umount_umounter(stress_args_t *args, const char *pat
  */
 static void NORETURN stress_umount_mounter(stress_args_t *args, const char *path)
 {
-	int i = 0, rc = EXIT_SUCCESS;
+	int i = 0;
+	int rc = EXIT_SUCCESS;
 	static const char skip[] = "skipping stressor";
 
 	stress_parent_died_alarm();
@@ -182,7 +185,8 @@ static void NORETURN stress_umount_mounter(stress_args_t *args, const char *path
     defined(HAVE_FSMOUNT) &&	\
     defined(HAVE_MOVE_MOUNT) &&	\
     defined(HAVE_SYS_MOUNT_H)
-		int fd, fd_mnt;
+		int fd;
+		int fd_mnt;
 
 		fd = fsopen(fs, FSOPEN_CLOEXEC);
 		if (fd < 0) {
@@ -318,7 +322,8 @@ again:
  */
 static int stress_umount(stress_args_t *args)
 {
-	stress_pid_t *s_pids, *s_pids_head = NULL;
+	stress_pid_t *s_pids;
+	stress_pid_t *s_pids_head = NULL;
 	int ret = EXIT_NO_RESOURCE;
 	char pathname[PATH_MAX], realpathname[PATH_MAX];
 

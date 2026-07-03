@@ -33,8 +33,11 @@ static const stress_help_t help[] = {
  */
 static int stress_umask(stress_args_t *args)
 {
-	int ret, rc = EXIT_FAILURE;
-	mode_t mask, prev_mask, orig_mask;
+	int ret;
+	int rc = EXIT_FAILURE;
+	mode_t mask;
+	mode_t prev_mask;
+	mode_t orig_mask;
 
 	orig_mask = umask(0);
 

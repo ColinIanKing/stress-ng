@@ -65,16 +65,25 @@ static const stress_opt_t opts[] = {
  */
 static int OPTIMIZE3 stress_udp_flood(stress_args_t *args)
 {
-	int fd, rc = EXIT_SUCCESS, j = 0;
+	int fd;
+	int rc = EXIT_SUCCESS;
+	int j = 0;
 	int udp_flood_domain = AF_INET;
 	struct sockaddr *addr;
 	socklen_t addr_len;
 	size_t udp_flood_max_size = DEFAULT_UDP_FLOOD_MAX_SIZE;
 	size_t sz = 1;
 	char *udp_flood_if = NULL;
-	double bytes = 0.0, duration, t, rate;
-	uint64_t sendto_failed = 0, total_count;
-	int port_change = 0, seq_port = -1, rand_port = -1, reserved_port;
+	double bytes = 0.0;
+	double duration;
+	double t;
+	double rate;
+	uint64_t sendto_failed = 0;
+	uint64_t total_count;
+	int port_change = 0;
+	int seq_port = -1;
+	int rand_port = -1;
+	int reserved_port;
 
 	(void)stress_setting_get("udp-flood-domain", &udp_flood_domain);
 	(void)stress_setting_get("udp-flood-if", &udp_flood_if);

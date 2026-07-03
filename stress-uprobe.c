@@ -62,7 +62,8 @@ static int stress_uprobe_supported(const char *name)
  */
 static int stress_uprobe_write(const char *path, const int flags, const char *str)
 {
-	int fd, rc = 0;
+	int fd;
+	int rc = 0;
 
 	fd = open(path, flags, S_IRUSR | S_IWUSR);
 	if (UNLIKELY(fd < 0))
@@ -82,10 +83,17 @@ static int stress_uprobe_write(const char *path, const int flags, const char *st
  */
 static void *stress_uprobe_libc_start(const pid_t pid, char *libc_path)
 {
-	char path[PATH_MAX], perm[5], buf[PATH_MAX];
+	char buf[PATH_MAX];
+	char path[PATH_MAX];
+	char perm[5];
 	FILE *fp;
-	uint64_t start, end, offset, dev_major, dev_minor, inode;
 	void *addr = NULL;
+	uint64_t start;
+	uint64_t end;
+	uint64_t offset;
+	uint64_t dev_major;
+	uint64_t dev_minor;
+	uint64_t inode;
 
 	(void)snprintf(path, sizeof(path), "/proc/%" PRIdMAX "/maps", (intmax_t)pid);
 	fp = fopen(path, "r");
@@ -123,15 +131,19 @@ static void *stress_uprobe_libc_start(const pid_t pid, char *libc_path)
  */
 static int stress_uprobe(stress_args_t *args)
 {
-	char buf[PATH_MAX + 256], libc_path[PATH_MAX + 1];
-	int ret;
+	char buf[PATH_MAX + 256];
+	char libc_path[PATH_MAX + 1];
 	char event[128];
-	ptrdiff_t offset;
 	void *libc_addr;
+	ptrdiff_t offset;
+	pid_t pid = getpid();
+	int ret;
 	int rc = EXIT_SUCCESS;
 	int fd;
-	pid_t pid = getpid();
-	double t_start, duration = 0.0, bytes = 0.0, rate;
+	double t_start;
+	double duration = 0.0;
+	double bytes = 0.0;
+	double rate;
 
 	libc_addr = stress_uprobe_libc_start(pid, libc_path);
 	if (!libc_addr) {

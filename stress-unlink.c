@@ -193,15 +193,17 @@ retry:
  */
 static int stress_unlink(stress_args_t *args)
 {
-	int ret, rc = EXIT_SUCCESS;
-	char *filenames[UNLINK_FILES];
 	char pathname[PATH_MAX];
+	char *filenames[UNLINK_FILES];
 	stress_pid_t s_pids[UNLINK_PROCS];
 	stress_metrics_t *metrics;
 	const size_t metrics_sz = sizeof(*metrics) * (UNLINK_PROCS + 1);
-	double duration = 0.0, count = 0.0, rate;
-
 	register size_t i;
+	int ret;
+	int rc = EXIT_SUCCESS;
+	double duration = 0.0;
+	double count = 0.0;
+	double rate;
 
 	stress_sync_init_pids(s_pids, UNLINK_PROCS);
 
@@ -295,7 +297,6 @@ metrics_free:
 	(void)stress_fs_temp_dir_rm_args(args);
 
 	return rc;
-
 }
 
 static const stress_exercises_t exercises[] = {

@@ -147,7 +147,8 @@ static int OPTIMIZE3 stress_udp_client(
 
 #if defined(UDP_CORK)
 		{
-			int val, ret;
+			int val;
+			int ret;
 			socklen_t slen = sizeof(val);
 
 			ret = getsockopt(fd, udp_proto, UDP_CORK, &val, &slen);
@@ -161,7 +162,8 @@ static int OPTIMIZE3 stress_udp_client(
 #endif
 #if defined(UDP_ENCAP)
 		{
-			int val, ret;
+			int val;
+			int ret;
 			socklen_t slen = sizeof(val);
 
 			ret = getsockopt(fd, udp_proto, UDP_ENCAP, &val, &slen);
@@ -175,7 +177,8 @@ static int OPTIMIZE3 stress_udp_client(
 #endif
 #if defined(UDP_NO_CHECK6_TX)
 		{
-			int val, ret;
+			int val;
+			int ret;
 			socklen_t slen = sizeof(val);
 
 			ret = getsockopt(fd, udp_proto, UDP_NO_CHECK6_TX, &val, &slen);
@@ -189,7 +192,8 @@ static int OPTIMIZE3 stress_udp_client(
 #endif
 #if defined(UDP_NO_CHECK6_RX)
 		{
-			int val, ret;
+			int val;
+			int ret;
 			socklen_t slen = sizeof(val);
 
 			ret = getsockopt(fd, udp_proto, UDP_NO_CHECK6_RX, &val, &slen);
@@ -203,7 +207,8 @@ static int OPTIMIZE3 stress_udp_client(
 #endif
 #if defined(UDP_SEGMENT)
 		{
-			int val, ret;
+			int val;
+			int ret;
 			socklen_t slen = sizeof(val);
 
 			ret = getsockopt(fd, udp_proto, UDP_SEGMENT, &val, &slen);
@@ -413,7 +418,9 @@ static int stress_udp(stress_args_t *args)
 	int udp_port = DEFAULT_UDP_PORT;
 	int udp_domain = AF_INET;
 	pid_t pid, mypid = getpid();
-	int rc = EXIT_SUCCESS, reserved_port, parent_cpu;
+	int rc = EXIT_SUCCESS;
+	int reserved_port;
+	int parent_cpu;
 	int udp_proto = 0;
 #if defined(IPPROTO_UDPLITE)
 	bool udp_lite = false;

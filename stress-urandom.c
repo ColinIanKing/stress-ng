@@ -61,13 +61,18 @@ static void check_eperm(stress_args_t *args, const ssize_t ret, const int err)
  */
 static int stress_urandom(stress_args_t *args)
 {
-	int fd_urnd, fd_rnd, fd_rnd_blk, rc = EXIT_FAILURE;
+	const size_t page_size = args->page_size;
+	int fd_urnd;
+	int fd_rnd;
+	int fd_rnd_blk;
+	int rc = EXIT_FAILURE;
 #if defined(__linux__)
 	int fd_rnd_wr;
 #endif
-	bool sys_admin = stress_capabilities_check(SHIM_CAP_SYS_ADMIN);
-	double duration = 0.0, bytes = 0.0, rate;
-	const size_t page_size = args->page_size;
+	const bool sys_admin = stress_capabilities_check(SHIM_CAP_SYS_ADMIN);
+	double duration = 0.0;
+	double bytes = 0.0;
+	double rate;
 
 	fd_urnd = open("/dev/urandom", O_RDONLY);
 	if (fd_urnd < 0) {

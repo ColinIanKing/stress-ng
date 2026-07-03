@@ -136,7 +136,11 @@ static void check_unshare(
  */
 static inline bool enough_memory(void)
 {
-	size_t shmall, freemem, totalmem, freeswap, totalswap;
+	size_t shmall;
+	size_t freemem;
+	size_t totalmem;
+	size_t freeswap;
+	size_t totalswap;
 	bool enough;
 
 	stress_memory_limits_get(&shmall, &freemem, &totalmem, &freeswap, &totalswap);
@@ -152,15 +156,19 @@ static inline bool enough_memory(void)
  */
 static int stress_unshare(stress_args_t *args)
 {
+	stress_unshare_info_t *unshare_info;
+	int *clone_flag_perms;
+	size_t i;
+	size_t clone_flag_count;
+	const size_t unshare_info_size = sizeof(stress_unshare_info_t) * MAX_PIDS;
+	double total_duration = 0.0;
+	double total_count = 0.0;
+	double rate;
+	int rc = EXIT_SUCCESS;
+	int all_flags;
 #if defined(CLONE_NEWNET)
 	const uid_t euid = geteuid();
 #endif
-	int *clone_flag_perms, all_flags;
-	size_t i, clone_flag_count;
-	const size_t unshare_info_size = sizeof(stress_unshare_info_t) * MAX_PIDS;
-	stress_unshare_info_t *unshare_info;
-	double total_duration = 0.0, total_count = 0.0, rate;
-	int rc = EXIT_SUCCESS;
 
 	unshare_info = (stress_unshare_info_t *)stress_mmap_populate(NULL,
 				unshare_info_size,

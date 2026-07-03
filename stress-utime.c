@@ -69,20 +69,23 @@ static int OPTIMIZE3 stress_utime(stress_args_t *args)
     defined(UTIME_NOW)
 	char path[PATH_MAX];
 #endif
-	int bad_fd = stress_fs_bad_fd_get();
-	int dir_fd = -1;
-	int rc = EXIT_SUCCESS;
 	char filename[PATH_MAX];
 	char hugename[PATH_MAX + 16];
-	int ret, fd;
+	int bad_fd = stress_fs_bad_fd_get();
+	int dir_fd = -1;
+	int metrics_count = 0;
+	int rc = EXIT_SUCCESS;
+	int ret;
+	int fd;
 	bool utime_fsync = false;
 #if defined(HAVE_UTIME_H) &&	\
     defined(HAVE_UTIME) &&	\
     defined(HAVE_UTIMBUF)
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 #endif
-	double duration = 0.0, count = 0.0, rate;
-	int metrics_count = 0;
+	double duration = 0.0;
+	double count = 0.0;
+	double rate;
 
 	(void)stress_setting_get("utime-fsync", &utime_fsync);
 

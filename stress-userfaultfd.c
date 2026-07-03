@@ -231,23 +231,28 @@ static inline int handle_page_fault(
  */
 static int stress_userfaultfd_child(stress_args_t *args, void *context)
 {
-	const size_t page_size = args->page_size;
-	size_t sz;
-	uint8_t *data;
-	void *zero_page = NULL;
-	int fd = -1, rc = EXIT_SUCCESS, count = 0;
-	const unsigned int uffdio_copy = 1 << _UFFDIO_COPY;
-	const unsigned int uffdio_zeropage = 1 << _UFFDIO_ZEROPAGE;
-	pid_t pid;
-	const pid_t self = getpid();
+	static uint8_t stack[STACK_SIZE]; /* Child clone stack */
 	struct uffdio_api api;
 	struct uffdio_register reg;
 	stress_context_t c;
-	bool do_poll = true;
-	static uint8_t stack[STACK_SIZE]; /* Child clone stack */
+	void *zero_page = NULL;
+	uint8_t *data;
 	uint8_t *stack_top = (uint8_t *)stress_stack_top((void *)stack, STACK_SIZE);
-	size_t userfaultfd_bytes, userfaultfd_bytes_total = DEFAULT_USERFAULT_BYTES;
-	double t, duration = 0.0, rate;
+	const size_t page_size = args->page_size;
+	size_t sz;
+	size_t userfaultfd_bytes;
+	size_t userfaultfd_bytes_total = DEFAULT_USERFAULT_BYTES;
+	pid_t pid;
+	const pid_t self = getpid();
+	const unsigned int uffdio_copy = 1 << _UFFDIO_COPY;
+	const unsigned int uffdio_zeropage = 1 << _UFFDIO_ZEROPAGE;
+	int fd = -1;
+	int rc = EXIT_SUCCESS;
+	int count = 0;
+	bool do_poll = true;
+	double t;
+	double duration = 0.0;
+	double rate;
 
 	if (stress_signal_sigchld_handler(args) < 0)
 		return EXIT_NO_RESOURCE;
@@ -504,6 +509,7 @@ static const stress_exercises_t exercises[] = {
 	STRESS_EX_SYSCALL("mummap"),
 	STRESS_EX_SYSCALL("poll"),
 	STRESS_EX_SYSCALL("userfaultfd"),
+
 	STRESS_EX_END,
 };
 
