@@ -126,7 +126,8 @@ again:
 			(void)close(fd[1]);
 			return EXIT_NO_RESOURCE;
 		} else if (pid > 0) {
-			int status, msg;
+			int status;
+			int msg;
 			ssize_t rret;
 
 			(void)close(fd[1]);

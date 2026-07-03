@@ -78,9 +78,12 @@ static bool OPTIMIZE3 stress_continue_vm(stress_args_t *args)
  *	set data on power of 2 addresses
  */
 static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_pwr2(
-	uint8_t *buf, const size_t sz)
+	uint8_t *buf,
+	const size_t sz)
 {
-	size_t n, errs = 0, step;
+	size_t n;
+	size_t errs = 0;
+	size_t step;
 	const uint8_t rnd = stress_mwc8();
 
 PRAGMA_UNROLL_N(4)
@@ -104,10 +107,13 @@ PRAGMA_UNROLL_N(4)
  *	set data on inverted power of 2 addresses
  */
 static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_pwr2inv(
-	uint8_t *buf, const size_t sz)
+	uint8_t *buf,
+	const size_t sz)
 {
 	const size_t mask = sz - 1;
-	size_t n, errs = 0, step;
+	size_t n;
+	size_t errs = 0;
+	size_t step;
 	const uint8_t rnd = stress_mwc8();
 
 PRAGMA_UNROLL_N(4)
@@ -132,15 +138,17 @@ PRAGMA_UNROLL_N(4)
  *	each address changes by just 1 bit
  */
 static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_gray(
-	uint8_t *buf, const size_t sz)
+	uint8_t *buf,
+	const size_t sz)
 {
-	size_t errs = 0, n;
+	size_t errs = 0;
+	size_t n;
 	const size_t mask = sz - 1;
 	const uint8_t rnd = stress_mwc8();
 
 PRAGMA_UNROLL_N(4)
 	for (n = 0; n < sz; n++) {
-		size_t gray = ((n >> 1) ^ n) & mask;
+		const size_t gray = ((n >> 1) ^ n) & mask;
 
 		*(buf + gray) = rnd;
 	}
@@ -148,7 +156,7 @@ PRAGMA_UNROLL_N(4)
 		stress_cpu_cache_data_flush((void *)buf, sz);
 PRAGMA_UNROLL_N(4)
 	for (n = 0; n < sz; n++) {
-		size_t gray = ((n >> 1) ^ n) & mask;
+		const size_t gray = ((n >> 1) ^ n) & mask;
 
 		if (UNLIKELY(*(buf + gray) != rnd))
 			errs++;
@@ -162,15 +170,17 @@ PRAGMA_UNROLL_N(4)
  *	each address changes by as many bits possible
  */
 static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_grayinv(
-	uint8_t *buf, const size_t sz)
+	uint8_t *buf,
+	const size_t sz)
 {
-	size_t n, errs = 0;
+	size_t n;
+	size_t errs = 0;
 	const size_t mask = sz - 1;
 	const uint8_t rnd = stress_mwc8();
 
 PRAGMA_UNROLL_N(4)
 	for (n = 0; n < sz; n++) {
-		size_t gray = (((n >> 1) ^ n) ^ mask) & mask;
+		const size_t gray = (((n >> 1) ^ n) ^ mask) & mask;
 
 		*(buf + gray) = rnd;
 	}
@@ -178,7 +188,7 @@ PRAGMA_UNROLL_N(4)
 		stress_cpu_cache_data_flush((void *)buf, sz);
 PRAGMA_UNROLL_N(4)
 	for (n = 0; n < sz; n++) {
-		size_t gray = (((n >> 1) ^ n) ^ mask) & mask;
+		const size_t gray = (((n >> 1) ^ n) ^ mask) & mask;
 
 		if (UNLIKELY(*(buf + gray) != rnd))
 			errs++;
@@ -194,9 +204,12 @@ PRAGMA_UNROLL_N(4)
  * 	0x00000002 -> 0x2000000
  */
 static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_rev(
-	uint8_t *buf, const size_t sz)
+	uint8_t *buf,
+	const size_t sz)
 {
-	size_t n, errs = 0, shift;
+	size_t n;
+	size_t errs = 0;
+	size_t shift;
 	const size_t mask = sz - 1;
 	const uint8_t rnd = stress_mwc8();
 
@@ -205,7 +218,7 @@ static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_rev(
 
 PRAGMA_UNROLL_N(4)
 	for (n = 0; n < sz; n++) {
-		size_t i = stress_bitops_reverse64(n << shift) & mask;
+		const size_t i = stress_bitops_reverse64(n << shift) & mask;
 
 		*(buf + i) = rnd;
 	}
@@ -213,7 +226,7 @@ PRAGMA_UNROLL_N(4)
 		stress_cpu_cache_data_flush((void *)buf, sz);
 PRAGMA_UNROLL_N(4)
 	for (n = 0; n < sz; n++) {
-		size_t i = stress_bitops_reverse64(n << shift) & mask;
+		const size_t i = stress_bitops_reverse64(n << shift) & mask;
 
 		if (UNLIKELY(*(buf + i) != rnd))
 			errs++;
@@ -229,9 +242,12 @@ PRAGMA_UNROLL_N(4)
  * 	0x00000002 -> 0xdffffff
  */
 static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_revinv(
-	uint8_t *buf, const size_t sz)
+	uint8_t *buf,
+	const size_t sz)
 {
-	size_t n, errs = 0, shift;
+	size_t n;
+	size_t errs = 0;
+	size_t shift;
 	const size_t mask = sz - 1;
 	const uint8_t rnd = stress_mwc8();
 
@@ -240,7 +256,7 @@ static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_revinv(
 
 PRAGMA_UNROLL_N(4)
 	for (n = 0; n < sz; n++) {
-		size_t i = (stress_bitops_reverse64(n << shift) ^ mask) & mask;
+		const size_t i = (stress_bitops_reverse64(n << shift) ^ mask) & mask;
 
 		*(buf + i) = rnd;
 	}
@@ -248,7 +264,7 @@ PRAGMA_UNROLL_N(4)
 		stress_cpu_cache_data_flush((void *)buf, sz);
 PRAGMA_UNROLL_N(4)
 	for (n = 0; n < sz; n++) {
-		size_t i = (stress_bitops_reverse64(n << shift) ^ mask) & mask;
+		const size_t i = (stress_bitops_reverse64(n << shift) ^ mask) & mask;
 
 		if (UNLIKELY(*(buf + i) != rnd))
 			errs++;
@@ -261,7 +277,8 @@ PRAGMA_UNROLL_N(4)
  *	set data on incrementing addresses
  */
 static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_inc(
-	uint8_t *buf, const size_t sz)
+	uint8_t *buf,
+	const size_t sz)
 {
 	size_t errs = 0;
 	const uint8_t rnd = stress_mwc8();
@@ -285,15 +302,17 @@ static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_inc(
  *	set data on inverted incrementing addresses
  */
 static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_incinv(
-	uint8_t *buf, const size_t sz)
+	uint8_t *buf,
+	const size_t sz)
 {
-	size_t n, errs = 0;
+	size_t n;
+	size_t errs = 0;
 	const size_t mask = sz - 1;
 	const uint8_t rnd = stress_mwc8();
 
 PRAGMA_UNROLL_N(4)
 	for (n = 0; n < sz; n++) {
-		size_t i = (n ^ mask) & mask;
+		const size_t i = (n ^ mask) & mask;
 
 		*(buf + i) = rnd;
 	}
@@ -301,7 +320,7 @@ PRAGMA_UNROLL_N(4)
 		stress_cpu_cache_data_flush((void *)buf, sz);
 PRAGMA_UNROLL_N(4)
 	for (n = 0; n < sz; n++) {
-		size_t i = (n ^ mask) & mask;
+		const size_t i = (n ^ mask) & mask;
 
 		if (UNLIKELY(*(buf + i) != rnd))
 			errs++;
@@ -314,7 +333,8 @@ PRAGMA_UNROLL_N(4)
  *	set data on decrementing addresses
  */
 static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_dec(
-	uint8_t *buf, const size_t sz)
+	uint8_t *buf,
+	const size_t sz)
 {
 	size_t errs = 0;
 	const uint8_t rnd = stress_mwc8();
@@ -340,9 +360,11 @@ PRAGMA_UNROLL_N(4)
  *	set data on inverted decrementing addresses
  */
 static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_decinv(
-	uint8_t *buf, const size_t sz)
+	uint8_t *buf,
+	const size_t sz)
 {
-	size_t n, errs = 0;
+	size_t n;
+	size_t errs = 0;
 	const size_t mask = sz - 1;
 	const uint8_t rnd = stress_mwc8();
 
@@ -371,9 +393,11 @@ PRAGMA_UNROLL_N(4)
  *	to log2(sz / 2)
  */
 static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_bitposn(
-	uint8_t *buf, const size_t sz)
+	uint8_t *buf,
+	const size_t sz)
 {
-	int bits, nbits;
+	int bits;
+	int nbits;
 	size_t mask;
 	size_t errs = 0;
 	const uint8_t *ptr_end = buf + sz;
@@ -385,7 +409,7 @@ static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_bitposn(
 
 PRAGMA_UNROLL_N(4)
 	for (bits = nbits; --bits >= 0; ) {
-		register size_t stride = 1U << bits;
+		register const size_t stride = 1U << bits;
 		register uint8_t *ptr;
 
 		for (ptr = buf; ptr < ptr_end; ptr += stride)
@@ -395,7 +419,7 @@ PRAGMA_UNROLL_N(4)
 		stress_cpu_cache_data_flush((void *)buf, sz);
 PRAGMA_UNROLL_N(4)
 	for (bits = 0; bits < nbits; bits++) {
-		register size_t stride = 1U << bits;
+		register const size_t stride = 1U << bits;
 		register uint8_t *ptr;
 
 		for (ptr = buf; ptr < ptr_end; ptr += stride) {
@@ -412,7 +436,8 @@ PRAGMA_UNROLL_N(4)
  *	to flip as many address bits per write/read cycle
  */
 static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_flip(
-	uint8_t *buf, const size_t sz)
+	uint8_t *buf,
+	const size_t sz)
 {
 	register size_t n;
 	const uint8_t rnd = stress_mwc8();
@@ -421,7 +446,7 @@ static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_flip(
 
 PRAGMA_UNROLL_N(4)
 	for (n = 0; n < sz; n++) {
-		register size_t gray = ((n >> 1) ^ n);
+		register const size_t gray = ((n >> 1) ^ n);
 
 		buf[gray & mask] = rnd;
 		buf[(gray ^ mask) & mask] = rnd;
@@ -430,7 +455,7 @@ PRAGMA_UNROLL_N(4)
 		stress_cpu_cache_data_flush((void *)buf, sz);
 PRAGMA_UNROLL_N(4)
 	for (n = 0; n < sz; n++) {
-		register size_t gray = ((n >> 1) ^ n);
+		register const size_t gray = ((n >> 1) ^ n);
 
 		if (UNLIKELY(buf[gray & mask] != rnd))
 			errs++;
@@ -479,7 +504,8 @@ static int stress_vm_addr_child(stress_args_t *args, void *ctxt)
 {
 	int no_mem_retries = 0;
 	size_t buf_sz = MIN_VM_ADDR_BYTES;
-	uintptr_t buf_addr, max_addr = ~(uintptr_t)0;
+	uintptr_t buf_addr;
+	uintptr_t max_addr = ~(uintptr_t)0;
 	uint8_t *buf = NULL;
 	stress_vm_addr_context_t *context = (stress_vm_addr_context_t *)ctxt;
 	const stress_vm_addr_func func = context->vm_addr_method->func;
@@ -535,8 +561,10 @@ static int stress_vm_addr_child(stress_args_t *args, void *ctxt)
 static int stress_vm_addr(stress_args_t *args)
 {
 	const size_t page_size = args->page_size;
-	size_t retries, vm_addr_method = 0;
-	int err = 0, ret = EXIT_SUCCESS;
+	size_t retries;
+	size_t vm_addr_method = 0;
+	int err = 0;
+	int ret = EXIT_SUCCESS;
 	stress_vm_addr_context_t context;
 
 	context.vm_addr_mlock = false;

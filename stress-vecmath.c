@@ -220,7 +220,8 @@ static int TARGET_CLONES stress_vecmath(stress_args_t *args)
 		stress_vint64_t s64 = { S(INT2x64) };
 
 #if defined(HAVE_INT128_T)
-		uint64_t csum128lo, csum128hi;
+		uint64_t csum128lo;
+		uint64_t csum128hi;
 		stress_vint128_t a128 = { A(INT1x128) };
 		stress_vint128_t b128 = { B(INT1x128) };
 		stress_vint128_t c128 = { C(INT1x128) };

@@ -80,7 +80,8 @@ static stress_vdso_sym_t *vdso_sym_list;
  */
 static int OPTIMIZE3 wrap_getcpu(void *vdso_func)
 {
-	unsigned int cpu, node;
+	unsigned int cpu;
+	unsigned int node;
 
 	int (*vdso_getcpu)(unsigned *cpu, unsigned *node, void *tcache);
 
@@ -479,10 +480,14 @@ static int vdso_sym_list_check_vdso_func(stress_vdso_sym_t **list)
  */
 static int stress_vdso(stress_args_t *args)
 {
-	double t1, t2, t3, dt, overhead_ns;
+	register stress_vdso_sym_t *vdso_sym;
+	double t1;
+	double t2;
+	double t3;
+	double dt;
+	double overhead_ns;
 	uint64_t counter;
 	int n_vdso = 0;
-	register stress_vdso_sym_t *vdso_sym;
 
 	if (!vdso_sym_list) {
 		/* Should not fail, but worth checking to avoid breakage */

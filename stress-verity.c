@@ -82,9 +82,10 @@ struct shim_fsverity_read_metadata_arg {
 static int stress_verity(stress_args_t *args)
 {
 	char filename[PATH_MAX];
-	int ret, fd;
-	size_t hash = 0;
 	const size_t file_size = OFFSET_SCALE * OFFSET_CHUNKS;
+	size_t hash = 0;
+	int ret;
+	int fd;
 
 	if (SIZEOF_ARRAY(hash_algorithms) == (0)) {
 		if (stress_instance_zero(args))
@@ -107,10 +108,10 @@ static int stress_verity(stress_args_t *args)
 	stress_proc_state_set(args->name, STRESS_STATE_RUN);
 
 	do {
-		struct fsverity_enable_arg enable;
-		char digest_buf[256];
-		struct fsverity_digest *digest = (struct fsverity_digest *)shim_assume_aligned(digest_buf, 1);
 		char block[512];
+		char digest_buf[256];
+		struct fsverity_enable_arg enable;
+		struct fsverity_digest *digest = (struct fsverity_digest *)shim_assume_aligned(digest_buf, 1);
 		int i;
 #if defined(FS_IOC_READ_VERITY_METADATA)
 		struct shim_fsverity_read_metadata_arg md_arg;

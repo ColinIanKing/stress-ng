@@ -418,7 +418,8 @@ PRAGMA_UNROLL_N(VEC_VNNI128_LOOPS)
 
 static void TARGET_CLONES OPTIMIZE3 stress_vnni_vpdpwssd(stress_args_t *args)
 {
-	register int i, j;
+	register int i;
+	register int j;
 	const int16_t *a16 = (int16_t *)shim_assume_aligned(a_init, 8);
 	const int16_t *b16 = (int16_t *)shim_assume_aligned(b_init, 8);
 	int32_t *r32 = (int32_t *)shim_assume_aligned(result, 8);
@@ -515,7 +516,8 @@ static stress_vnni_data_t stress_vnni_data[SIZEOF_ARRAY(stress_vnni_methods)];
 
 static void OPTIMIZE3 stress_vnni_exercise(stress_args_t *args, const size_t n)
 {
-	uint32_t checksum, expected_checksum;
+	uint32_t checksum;
+	uint32_t expected_checksum;
 	const stress_vnni_method_t * const method = &stress_vnni_methods[n];
 	stress_vnni_data_t *data = &stress_vnni_data[n];
 	register int j;
@@ -559,7 +561,9 @@ static void stress_vnni_all(stress_args_t *args)
  */
 static int stress_vnni(stress_args_t *args)
 {
-	size_t i, vnni_method = 0, intrinsic_count = 0;
+	size_t i;
+	size_t vnni_method = 0;
+	size_t intrinsic_count = 0;
 
 	stress_signal_catch_sigill();
 

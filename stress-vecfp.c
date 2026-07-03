@@ -103,7 +103,8 @@ static double TARGET_CLONES OPTIMIZE3 name(			\
 	register int i;						\
 	const int n = sizeof(r.f) / (sizeof(r.f[0]));		\
 	const int loops = LOOPS_PER_CALL >> 1;			\
-	double t1, t2;						\
+	double t1;						\
+	double t2;						\
 								\
 	(void)success;						\
 								\
@@ -137,7 +138,8 @@ static double TARGET_CLONES OPTIMIZE3 name(			\
 	register int i;						\
 	const int n = sizeof(r.f) / (sizeof(r.f[0]));		\
 	const int loops = LOOPS_PER_CALL >> 1;			\
-	double t1, t2;						\
+	double t1;						\
+	double t2;						\
 								\
 	(void)success;						\
 								\
@@ -171,7 +173,8 @@ static double TARGET_CLONES OPTIMIZE3 name(			\
 	register int i;						\
 	const int n = sizeof(r.f) / (sizeof(r.f[0]));		\
 	const int loops = LOOPS_PER_CALL >> 1;			\
-	double t1, t2;						\
+	double t1;						\
+	double t2;						\
 								\
 	(void)success;						\
 								\
@@ -205,7 +208,8 @@ static double TARGET_CLONES OPTIMIZE3 name(			\
 	register int i;						\
 	const int n = sizeof(r.f) / (sizeof(r.f[0]));		\
 	const int loops = LOOPS_PER_CALL >> 1;			\
-	double t1, t2;						\
+	double t1;						\
+	double t2;						\
 								\
 	(void)success;						\
 								\
@@ -395,8 +399,10 @@ static double stress_vecfp_all(
 
 static int stress_vecfp(stress_args_t *args)
 {
-	size_t i, max_elements = 0, mmap_size;
 	stress_vecfp_init *vecfp_init;
+	size_t i;
+	size_t max_elements = 0;
+	size_t mmap_size;
 	size_t vecfp_method = 0;	/* "all" */
 	bool success = true;
 

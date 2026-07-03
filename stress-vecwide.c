@@ -166,9 +166,9 @@ static int stress_vecwide(stress_args_t *args)
 {
 	static vec_args_t *vec_args;
 	size_t i;
-	double total_duration = 0.0;
 	size_t total_bytes = 0;
 	const size_t vec_args_size = (sizeof(*vec_args) + args->page_size - 1) & ~(args->page_size - 1);
+	double total_duration = 0.0;
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 	int rc = EXIT_SUCCESS;
 
@@ -207,7 +207,9 @@ static int stress_vecwide(stress_args_t *args)
 
 	do {
 		for (i = 0; i < SIZEOF_ARRAY(stress_vecwide_funcs); i++) {
-			double t1, t2, dt;
+			double t1;
+			double t2;
+			double dt;
 
 			vec_args->res = vec_args->res1;
 			t1 = stress_time_now();
@@ -249,7 +251,9 @@ static int stress_vecwide(stress_args_t *args)
 		pr_block_begin();
 		pr_dbg("%s: Bits  %% Dur  %% Exp (x Win) (> 1.0 is better than expected)\n", args->name);
 		for (i = 0; i < SIZEOF_ARRAY(stress_vecwide_funcs); i++) {
-			double dur_pc, exp_pc, win;
+			double dur_pc;
+			double exp_pc;
+			double win;
 
 			dur_pc = stress_vecwide_metrics[i].duration / total_duration * 100.0;
 			exp_pc = (double)stress_vecwide_funcs[i].byte_size / (double)total_bytes * 100.0;

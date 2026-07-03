@@ -47,12 +47,19 @@ static const stress_opt_t opts[] = {
  */
 static int stress_vm_splice(stress_args_t *args)
 {
-	int fd, fds[2], rc = EXIT_SUCCESS;
+	int fd;
+	int fds[2];
+	int rc = EXIT_SUCCESS;
 	uint64_t *buf;
 	const size_t page_size = args->page_size;
-	size_t sz, vm_splice_bytes, vm_splice_bytes_total = DEFAULT_VM_SPLICE_BYTES;
+	size_t sz;
+	size_t vm_splice_bytes;
+	size_t vm_splice_bytes_total = DEFAULT_VM_SPLICE_BYTES;
 	uint64_t *data;
-	double duration = 0.0, bytes = 0.0, vm_splices = 0.0, rate;
+	double duration = 0.0;
+	double bytes = 0.0;
+	double vm_splices = 0.0;
+	double rate;
 	int metrics_counter = 0;
 	uint64_t checkval = stress_mwc64();
 	uint64_t prime;
@@ -120,7 +127,8 @@ static int stress_vm_splice(stress_args_t *args)
 
 	(void)shim_memset((void *)buf, 0, sz);
 	do {
-		ssize_t ret, n_bytes;
+		ssize_t ret;
+		ssize_t n_bytes;
 		struct iovec iov ALIGN64;
 		double t;
 

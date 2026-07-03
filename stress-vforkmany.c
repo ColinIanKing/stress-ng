@@ -80,12 +80,12 @@ static void vforkmany_wait(vforkmany_shared_t *vforkmany_shared, const pid_t pid
 static int stress_vforkmany(stress_args_t *args)
 {
 	/* avoid variables on stack since we're using vfork */
-	static pid_t chpid;
-	static uint8_t *stack_sig;
-	static bool vforkmany_vm = false;
 	static vforkmany_shared_t *vforkmany_shared;
+	static pid_t chpid;
 	static size_t vforkmany_vm_bytes = DEFAULT_VFORKMANY_VM_BYTES;
 	static int rc = EXIT_SUCCESS;
+	static uint8_t *stack_sig;
+	static bool vforkmany_vm = false;
 
 	(void)stress_setting_get("vforkmany-vm", &vforkmany_vm);
 	if (stress_setting_get("vforkmany-vm-bytes", &vforkmany_vm_bytes)) {

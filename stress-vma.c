@@ -124,9 +124,8 @@ static void stress_vma_page_name(const void *addr, size_t page_size)
 
 	if (stress_mwc1()) {
 		char name[80];
-
-		size_t i;
 		const size_t len = 10 + stress_mwc8modn(sizeof(name) - 11);
+		size_t i;
 
 		for (i = 0; i < len; i++) {
 			const size_t idx = (size_t)stress_mwc8modn(sizeof(charset) - 1);
@@ -150,9 +149,11 @@ static void *stress_mmapaddr_get_addr(stress_args_t *args)
 {
 	const uintptr_t mask = ~(((uintptr_t)args->page_size) - 1);
 	void *addr = NULL;
+	char *text_start;
+	char *text_end;
+	char *heap_end;
 	uintptr_t ui_addr;
 	size_t i;
-	char *text_start, *text_end, *heap_end;
 	const size_t page_size = args->page_size;
 	size_t mmap_size = page_size * STRESS_VMA_PAGES;
 
@@ -706,7 +707,8 @@ static void stress_vma_loop(
 	stress_args_t *args,
 	stress_vma_context_t *ctxt)
 {
-	size_t i, n;
+	size_t i;
+	size_t n;
 
 	VOID_RET(int, stress_signal_handler(args->name, SIGSEGV, stress_vm_handle_sigsegv, NULL));
 	VOID_RET(int, stress_signal_handler(args->name, SIGBUS, stress_vm_handle_sigbus, NULL));
@@ -768,9 +770,10 @@ static void stress_vma_loop(
 
 static int stress_vma_child(stress_args_t *args, void *void_ctxt)
 {
-	size_t i;
-	stress_pid_t *s_pids, *s_pids_head = NULL;
+	stress_pid_t *s_pids;
+	stress_pid_t *s_pids_head = NULL;
 	stress_vma_context_t *ctxt = (stress_vma_context_t *)void_ctxt;
+	size_t i;
 	int ret;
 
 	s_pids = stress_sync_s_pids_mmap(STRESS_VMA_PROCS);
@@ -820,10 +823,11 @@ static int stress_vma_child(stress_args_t *args, void *void_ctxt)
  */
 static int stress_vma(stress_args_t *args)
 {
-	int ret;
-	size_t i;
-	double t1, duration;
 	stress_vma_context_t ctxt;
+	size_t i;
+	int ret;
+	double t1;
+	double duration;
 
 	stress_vma_page = mmap(NULL, args->page_size, PROT_READ | PROT_WRITE,
 				MAP_ANONYMOUS | MAP_SHARED, -1, 0);

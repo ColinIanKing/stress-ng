@@ -138,10 +138,12 @@ static int stress_varyload_set_sched(
 	UNEXPECTED
 #endif
 	struct sched_param param;
-	int ret = 0;
-	int max_prio, min_prio, rng_prio;
-	const pid_t pid = getpid();
 	const char *policy_name;
+	const pid_t pid = getpid();
+	int ret = 0;
+	int max_prio;
+	int min_prio;
+	int rng_prio;
 	int policy;
 
 	if ((varyload_sched < 1) || (varyload_sched >= stress_sched_types_length))
@@ -301,10 +303,10 @@ static void stress_varyload_by_type(
 	static uint32_t load_saw_dec;
 	static uint32_t load_triangle;
 	static uint32_t load_brown;
-	static bool pulse_low = true;
-	static bool triangle_inc = true;
 	uint32_t i;
 	int32_t newload;
+	static bool pulse_low = true;
+	static bool triangle_inc = true;
 
 	switch (varyload_type) {
 	case STRESS_VARYLOAD_TYPE_SAW_INC:
@@ -442,16 +444,17 @@ static void stress_varyload_by_type(
  */
 static int stress_varyload(stress_args_t *args)
 {
+	pid_t *pids;
+	uint8_t *buffer;
 	uint32_t varyload_ms = STRESS_VARYLOAD_MS_DEFAULT;
 	size_t varyload_type_idx = STRESS_VARYLOAD_TYPE_DEFAULT;
 	size_t varyload_sched = 0;		/* undefined */
 	size_t varyload_method_idx = 0;		/* all */
-	int varyload_method, varyload_type;
-	uint8_t *buffer;
 	const size_t buffer_len = MB;
-	int rc = EXIT_SUCCESS;
-	pid_t *pids;
 	uint32_t i;
+	int varyload_method;
+	int varyload_type;
+	int rc = EXIT_SUCCESS;
 	bool controller = stress_instance_zero(args);
 	bool sync_fail = false;
 

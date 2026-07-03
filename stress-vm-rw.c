@@ -82,7 +82,8 @@ static int OPTIMIZE3 stress_vm_child(void *arg)
 
 	uint8_t *buf;
 	int rc = EXIT_SUCCESS;
-	stress_addr_msg_t msg_rd ALIGN64, msg_wr ALIGN64;
+	stress_addr_msg_t msg_rd ALIGN64;
+	stress_addr_msg_t msg_wr ALIGN64;
 
 	stress_parent_died_alarm();
 
@@ -180,7 +181,8 @@ static int OPTIMIZE3 stress_vm_parent(stress_context_t *ctxt)
 	/* Parent */
 	uint8_t val = 0x10;
 	uint8_t *localbuf;
-	stress_addr_msg_t msg_rd, msg_wr;
+	stress_addr_msg_t msg_rd;
+	stress_addr_msg_t msg_wr;
 	stress_args_t *args = ctxt->args;
 	size_t sz;
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
@@ -203,11 +205,14 @@ static int OPTIMIZE3 stress_vm_parent(stress_context_t *ctxt)
 	(void)close(ctxt->pipe_rd[0]);
 
 	do {
-		struct iovec local[1] ALIGN64, remote[1] ALIGN64;
-		uint8_t *ptr1, *ptr2;
+		struct iovec local[1] ALIGN64;
+		struct iovec remote[1] ALIGN64;
+		uint8_t *ptr1;
+		uint8_t *ptr2;
 		const uint8_t *end = localbuf + ctxt->sz;
 		ssize_t rwret;
-		size_t i, len;
+		size_t i;
+		size_t len;
 
 		/* Wait for address of child's buffer */
 redo_rd2:
@@ -373,7 +378,8 @@ static int stress_vm_rw(stress_args_t *args)
 	stress_context_t ctxt;
 	uint8_t stack[64*1024];
 	uint8_t *stack_top = (uint8_t *)stress_stack_top((void *)stack, STACK_SIZE);
-	size_t vm_rw_bytes, vm_rw_bytes_total = DEFAULT_VM_RW_BYTES;
+	size_t vm_rw_bytes;
+	size_t vm_rw_bytes_total = DEFAULT_VM_RW_BYTES;
 	int rc;
 
 	if (!stress_setting_get("vm-rw-bytes", &vm_rw_bytes_total)) {
