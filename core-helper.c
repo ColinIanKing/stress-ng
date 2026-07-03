@@ -2004,7 +2004,7 @@ PRAGMA_UNROLL_N(8)
 
 	end8 = ((uint8_t *)buffer) + len;
 PRAGMA_UNROLL_N(8)
-	for (ptr8 = (uint8_t *)ptr64; ptr8 < end8; ptr8++) {
+	for (ptr8 = (const uint8_t *)ptr64; ptr8 < end8; ptr8++) {
 		if (UNLIKELY(*ptr8))
 			return true;
 	}
