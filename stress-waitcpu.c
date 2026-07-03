@@ -84,7 +84,10 @@ static inline void stress_waitcpu_arm_yield(void)
 #if defined(HAVE_ASM_X86_PAUSE)
 static bool stress_waitcpu_x86_pause_supported(void)
 {
-	uint32_t eax = 0, ebx = 0, ecx = 0, edx = 0;
+	uint32_t eax = 0;
+	uint32_t ebx = 0;
+	uint32_t ecx = 0;
+	uint32_t edx = 0;
 
 	if (!stress_cpu_is_x86())
 		return false;

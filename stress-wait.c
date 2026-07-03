@@ -174,7 +174,9 @@ static pid_t syscall_shim_waitpid(pid_t pid, int *wstatus, int options)
 static int stress_wait(stress_args_t *args)
 {
 	int ret = EXIT_SUCCESS;
-	pid_t pid_r, pid_k, wret;
+	pid_t pid_r;
+	pid_t pid_k;
+	pid_t wret;
 	int options = 0;
 #if defined(HAVE_WAIT4)
 	const pid_t pgrp = getpgrp();

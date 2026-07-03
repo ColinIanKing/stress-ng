@@ -161,7 +161,9 @@ static int stress_workload_set_sched(
 #endif
 	struct sched_param param;
 	int ret = 0;
-	int max_prio, min_prio, rng_prio;
+	int max_prio;
+	int min_prio;
+	int rng_prio;
 	const pid_t pid = getpid();
 	const char *policy_name;
 	int policy;
@@ -314,7 +316,8 @@ static void stress_workload_bucket_account(stress_workload_bucket_t *bucket, con
 static void stress_workload_bucket_report(stress_args_t *args, stress_workload_bucket_t *bucket)
 {
 	size_t i;
-	int width1, width2;
+	int width1;
+	int width2;
 	char buf[64];
 	uint64_t total;
 
@@ -389,9 +392,13 @@ static int stress_workload_exercise(
 {
 	size_t i;
 	const double scale_us_to_sec = 1.0 / STRESS_DBL_MICROSECOND;
-	double t_begin, t_end, sleep_duration_ns, run_duration_sec;
 	const double scale32bit = 1.0 / (double)4294967296.0;
-	double sum, scale;
+	double t_begin;
+	double t_end;
+	double sleep_duration_ns;
+	double run_duration_sec;
+	double sum;
+	double scale;
 	uint32_t offset;
 
 	run_duration_sec = (double)workload_quanta_us * scale_us_to_sec * ((double)workload_load / 100.0);
@@ -535,7 +542,8 @@ static int stress_workload(stress_args_t *args)
 	size_t workload_sched = 0;		/* undefined */
 	size_t workload_dist_idx = 0;
 	size_t workload_method_idx = 0;
-	int workload_dist, workload_method;
+	int workload_dist;
+	int workload_method;
 	stress_workload_t *workload;
 	uint8_t *mapped_buffer;
 	const size_t buffer_len = MB;
