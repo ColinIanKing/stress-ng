@@ -57,7 +57,7 @@ void *stress_shared_heap_init(const size_t metrics_size)
 	(void)stress_madvise_mergeable(g_shared->shared_heap.heap, size);
 	g_shared->shared_heap.lock = stress_lock_create("shared-heap");
 	if (UNLIKELY(!g_shared->shared_heap.lock)) {
-		(void)stress_munmap_anon_shared((void *)g_shared->shared_heap.heap, g_shared->shared_heap.heap_size);
+		(void)stress_munmap_anon_shared(g_shared->shared_heap.heap, g_shared->shared_heap.heap_size);
 		g_shared->shared_heap.heap = NULL;
 		return NULL;
 	}
@@ -79,7 +79,7 @@ void stress_shared_heap_free(void)
 	}
 #endif
 	if (g_shared->shared_heap.heap) {
-		(void)stress_munmap_anon_shared((void *)g_shared->shared_heap.heap, g_shared->shared_heap.heap_size);
+		(void)stress_munmap_anon_shared(g_shared->shared_heap.heap, g_shared->shared_heap.heap_size);
 		g_shared->shared_heap.heap = NULL;
 	}
 	if (g_shared->shared_heap.lock) {
