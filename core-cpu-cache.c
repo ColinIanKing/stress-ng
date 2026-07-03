@@ -556,7 +556,10 @@ static int stress_cpu_cache_get_sparc64(
  */
 static int stress_cpu_cache_get_x86(stress_cpu_cache_cpu_t *cpu)
 {
-	uint32_t eax, ebx, ecx, edx;
+	uint32_t eax;
+	uint32_t ebx;
+	uint32_t ecx;
+	uint32_t edx;
 
 	if (!stress_cpu_is_x86())
 		return 0;
@@ -1261,7 +1264,8 @@ static int cpu_sort(const struct dirent **d1, const struct dirent **d2)
  */
 stress_cpu_cache_cpus_t *stress_cpu_cache_details_get(void)
 {
-	int i, cpu_count;
+	int i;
+	int cpu_count;
 	stress_cpu_cache_cpus_t *cpus = NULL;
 	struct dirent **namelist = NULL;
 
@@ -1440,7 +1444,7 @@ void stress_cpu_cache_llc_size_get(size_t *llc_size, size_t *cache_line_size)
     defined(STRESS_ARCH_X86)
 	uint16_t max_cache_level;
 	stress_cpu_cache_cpus_t *cpu_caches;
-	stress_cpu_cache_t *cache = NULL;
+	const stress_cpu_cache_t *cache = NULL;
 
 	*llc_size = 0;
 	*cache_line_size = 0;
@@ -1481,7 +1485,7 @@ void stress_cpu_cache_level_size_get(
     defined(__APPLE__) ||	\
     defined(STRESS_ARCH_X86)
 	stress_cpu_cache_cpus_t *cpu_caches;
-	stress_cpu_cache_t *cache = NULL;
+	const stress_cpu_cache_t *cache = NULL;
 
 	*cache_size = 0;
 	*cache_line_size = 0;
