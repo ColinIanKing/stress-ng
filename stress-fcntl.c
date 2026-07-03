@@ -85,7 +85,7 @@ static const int all_setfl_flags =
  *	sanity check fcntl() return for errors
  */
 static void check_return(
-	stress_args_t *args,
+	const stress_args_t *args,
 	const int ret,
 	const char *cmd,
 	int *rc)
@@ -152,7 +152,8 @@ static void do_fcntl(
 #if defined(F_SETFD) &&		\
     defined(O_CLOEXEC)
 		if (old_flags > -1) {
-			int new_flags, ret;
+			int new_flags;
+			int ret;
 
 			new_flags = old_flags | O_CLOEXEC;
 			ret = fcntl(fd, F_SETFD, new_flags);
@@ -182,10 +183,11 @@ static void do_fcntl(
 #if defined(F_SETFL) &&		\
     defined(O_APPEND)
 		if (old_flags > -1) {
-			int new_flags, ret;
+			int new_flags;
+			int ret;
 
 			/* Exercise all permutations of SETFL flags */
-			if ((setfl_flag_count > 0) && (setfl_flag_perms)) {
+			if ((setfl_flag_count > 0) && setfl_flag_perms) {
 				static size_t idx;
 
 				VOID_RET(int, fcntl(fd, F_SETFL, setfl_flag_perms[idx]));
