@@ -934,7 +934,7 @@ static inline size_t static_fs_open_count_get(void)
 {
 #if defined(__linux__)
 	DIR *dir;
-	struct dirent *d;
+	const struct dirent *d;
 	size_t n = 0;
 
 	dir = opendir("/proc/self/fd");
@@ -966,7 +966,9 @@ static inline size_t static_fs_open_count_get(void)
 size_t stress_fs_file_limit_get(void)
 {
 	struct rlimit rlim;
-	size_t last_opened, opened, max = 65536;	/* initial guess */
+	size_t last_opened;
+	size_t opened;
+	size_t max = 65536;	/* initial guess */
 
 	if (!getrlimit(RLIMIT_NOFILE, &rlim))
 		max = (size_t)rlim.rlim_cur;
