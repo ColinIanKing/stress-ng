@@ -84,7 +84,7 @@ static int OPTIMIZE3 stress_shellsort(stress_args_t *args)
 {
 	uint64_t shellsort_size = DEFAULT_SHELLSORT_SIZE;
 	int32_t *data;
-	int32_t *ptr;
+	const int32_t *ptr;
 	size_t n, data_size;
 	double rate;
 	NOCLOBBER double duration = 0.0;
