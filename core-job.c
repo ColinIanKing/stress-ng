@@ -35,7 +35,7 @@
  */
 static inline void stress_str_chop(char *str, const char ch)
 {
-	char *ptr = strchr(str, ch);
+	char * const ptr = strchr(str, ch);
 
 	if (ptr)
 		*ptr = '\0';
