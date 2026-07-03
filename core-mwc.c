@@ -150,7 +150,7 @@ void stress_mwc_reseed(void)
 		mwc.w += shim_rol64n((uint64_t)getpid(), 3) ^ shim_rol64n((uint64_t)getppid(), 1);
 		if (stress_load_average_get(&m1, &m5, &m15) == 0) {
 			mwc.z += (uint64_t)(128.0 * (m1 + m15));
-			mwc.w += (uint64_t)(256.0 * (m5));
+			mwc.w += (uint64_t)(256.0 * m5);
 		}
 		if (getrusage(RUSAGE_SELF, &r) == 0) {
 			mwc.z += r.ru_utime.tv_usec;
@@ -474,7 +474,7 @@ void OPTIMIZE3 stress_rndstr(char *str, const size_t len)
 	};
 	register uint32_t r, mask;
 	register char *ptr;
-	register char *ptr_end;
+	register const char *ptr_end;
 
 	if (len == 0)
 		return;
@@ -506,7 +506,7 @@ void OPTIMIZE3 stress_rndstr(char *str, const size_t len)
 void OPTIMIZE3 stress_uint8rnd4(uint8_t *data, const size_t len)
 {
 	register uint32_t *ptr32;
-	register uint32_t *ptr32end;
+	register const uint32_t *ptr32end;
 	register uint8_t *ptr8 = data;
 	register const uint8_t *ptr8end = data + len;
 

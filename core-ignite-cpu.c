@@ -107,7 +107,7 @@ static void stress_ignite_cpu_set(
 		(void)snprintf(path, sizeof(path),
 			"/sys/devices/system/cpu/cpu%" PRId32
 			"/cpufreq/scaling_min_freq", cpu);
-		freq = (maximize_freq) ? max_freq : min_freq;
+		freq = maximize_freq ? max_freq : min_freq;
 		while ((retry++ < max_retries) && (freq_delta > 0) && (freq >= min_freq)) {
 			(void)snprintf(buffer, sizeof(buffer), "%" PRIu64 "\n", freq);
 			if (stress_fs_file_write(path, buffer, shim_strnlen(buffer, sizeof(buffer))) >= 0)

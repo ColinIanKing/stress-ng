@@ -1093,7 +1093,8 @@ size_t stress_fs_max_pipe_size_get(void)
 
 #if defined(F_SETPIPE_SZ)
 	ssize_t ret;
-	size_t i, prev_sz;
+	size_t i;
+	size_t prev_sz;
 	size_t sz;
 	size_t min;
 	size_t max;
@@ -1648,7 +1649,7 @@ static void stress_fs_clean_dir_files(
 {
 	struct stat statbuf;
 	char *ptr;
-	char *end;
+	const char *end;
 	int n;
 	struct dirent **names = NULL;
 

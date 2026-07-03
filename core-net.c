@@ -363,6 +363,8 @@ static void stress_net_local_bind_ports_get(uint8_t *bind_ports)
 				case 0x00000000000000000000000001000000ULL:
 					STRESS_SETBIT(bind_ports, port);
 					break;
+				default:
+					break;
 				}
 			}
 		}

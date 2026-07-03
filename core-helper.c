@@ -209,7 +209,9 @@ fail:
 	if (UNLIKELY(!min1 || !min5 || !min15))
 		return -1;
 #endif
-	*min1 = *min5 = *min15 = 0.0;
+	*min1 = 0.0;
+	*min5 = 0.0;
+	*min15 = 0.0;
 	return -1;
 }
 
@@ -1854,7 +1856,7 @@ static void stress_process_info_dump(
 	char path[4096];
 	char buf[8192];
 	char *ptr;
-	char *end;
+	const char *end;
 	char *begin;
 	char *emit;
 	ssize_t ret;

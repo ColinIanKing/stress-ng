@@ -732,39 +732,36 @@ static void stress_cpu_x86_dtlb_size_for_4k_pages(
 
 	/* see https://www.felixcloutier.com/x86/cpuid#tbl-3-12 */
 	switch (descriptor) {
-	case 0x03:
-		*entries = 64;
-		*level = 1;
-		break;
-	case 0x4f:
-		*entries = 32;
-		*level = 1;
-		break;
-	case 0x50:
-		*entries = 64;
-		*level = 1;
-		break;
-	case 0x51:
-		*entries = 128;
-		*level = 1;
-		break;
-	case 0x52:
-		*entries = 256;
+	case 0xc0:
+		*entries = 8;
 		*level = 1;
 		break;
 	case 0x57:
+	case 0xc2:
 		*entries = 16;
 		*level = 1;
 		break;
+	case 0x4f:
+	case 0xa0:
+		*entries = 32;
+		*level = 1;
+		break;
+	case 0x51:
+	case 0x03:
+	case 0x50:
 	case 0x5b:
+	case 0xba:
 		*entries = 64;
 		*level = 1;
 		break;
 	case 0x5c:
+	case 0xb3:
 		*entries = 128;
 		*level = 1;
 		break;
+	case 0x52:
 	case 0x5d:
+	case 0xb4:
 		*entries = 256;
 		*level = 1;
 		break;
@@ -772,40 +769,16 @@ static void stress_cpu_x86_dtlb_size_for_4k_pages(
 		*entries = 512;
 		*level = 1;
 		break;
-	case 0xa0:
-		*entries = 32;
-		*level = 1;
-		break;
-	case 0xb3:
-		*entries = 128;
-		*level = 1;
-		break;
-	case 0xb4:
-		*entries = 256;
-		*level = 1;
-		break;
-	case 0xba:
-		*entries = 64;
-		*level = 1;
-		break;
-	case 0xc0:
-		*entries = 8;
-		*level = 1;
+	case 0xca:
+		*entries = 512;
+		*level = 2;
 		break;
 	case 0xc1:
 		*entries = 1024;
 		*level = 2;
 		break;
-	case 0xc2:
-		*entries = 16;
-		*level = 1;
-		break;
 	case 0xc3:
 		*entries = 1536;
-		*level = 2;
-		break;
-	case 0xca:
-		*entries = 512;
 		*level = 2;
 		break;
 	case 0xfe:

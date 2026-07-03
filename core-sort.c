@@ -173,8 +173,8 @@ static void OPTIMIZE3 sort_swap(void *p1, void *p2, register size_t size)
 	do {
 		register uint8_t tmp;
 
-		tmp = *(u8p1);
-		*(u8p1++) = *(u8p2);
+		tmp = *u8p1;
+		*(u8p1++) = *u8p2;
 		*(u8p2++) = tmp;
 	} while (--size);
 }
