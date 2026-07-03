@@ -109,7 +109,7 @@ static void stress_interrupts_count(stress_interrupts_t *counters, const int whi
 
 	while (fgets(buffer, sizeof(buffer), fp)) {
 		for (i = 0; i < SIZEOF_ARRAY(info); i++) {
-			char *ptr;
+			const char *ptr;
 
 			/* Find a match */
 			ptr = strstr(buffer, info[i].type);
@@ -172,7 +172,11 @@ void stress_interrupts_stop(stress_interrupts_t *counters)
  *	set rc to EXIT_FAILURE and report a failure for failure
  *	specific interrupts (e.g. MCE machine check error interrupts)
  */
-void stress_interrupts_check_failure(const char *name, stress_interrupts_t *counters, uint32_t instance, int *rc)
+void stress_interrupts_check_failure(
+	const char *name,
+	const stress_interrupts_t *counters,
+	const uint32_t instance,
+	int *rc)
 {
 	size_t i;
 
