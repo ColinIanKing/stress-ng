@@ -21,11 +21,16 @@
 
 #include "stress-ng.h"
 
+typedef struct stress_memory_info {
+	size_t freemem;
+	size_t totalmem;
+	size_t freeswap;
+	size_t totalswap;
+	size_t shmall;
+} stress_memory_info_t;
+
 extern size_t stress_memory_page_size_get(void);
-extern int stress_memory_info_get(size_t *freemem, size_t *totalmem,
-        size_t *freeswap, size_t *totalswap);
-extern void stress_memory_limits_get(size_t *shmall, size_t *freemem,
-	size_t *totalmem, size_t *freeswap, size_t *totalswap);
+extern int stress_memory_info_get(stress_memory_info_t *info);
 extern WARN_UNUSED char *stress_memory_free_get(void);
 extern void stress_memory_ksm_merge(const int flag);
 extern WARN_UNUSED bool stress_memory_low_check(const size_t requested);

@@ -122,10 +122,12 @@ static int stress_mmaphuge_child(stress_args_t *args, void *v_context)
 			bufs[i].buf = (uint8_t *)MAP_FAILED;
 
 		for (i = 0; LIKELY(stress_continue(args) && (i < context->mmaphuge_mmaps)); i++) {
-			size_t shmall, freemem, totalmem, freeswap, totalswap, last_freeswap, last_totalswap;
+			stress_memory_info_t info;
+			size_t last_freeswap;
 			size_t j;
 
-			stress_memory_limits_get(&shmall, &freemem, &totalmem, &last_freeswap, &last_totalswap);
+			stress_memory_info_get(&info);
+			last_freeswap = info.freeswap;
 
 			for (j = 0; j < SIZEOF_ARRAY(stress_mmaphuge_settings); j++) {
 				uint64_t *buf = (uint64_t *)MAP_FAILED;
@@ -196,11 +198,12 @@ static int stress_mmaphuge_child(stress_args_t *args, void *v_context)
 					break;
 				}
 			}
-			stress_memory_limits_get(&shmall, &freemem, &totalmem, &freeswap, &totalswap);
+			stress_memory_info_get(&info);
 
 			/* Check if we eat into swap */
-			if (last_freeswap > freeswap)
+			if (last_freeswap > info.freeswap)
 				break;
+			last_freeswap = info.freeswap;
 		}
 
 		for (i = 0; LIKELY(stress_continue(args) && (i < context->mmaphuge_mmaps)); i++) {

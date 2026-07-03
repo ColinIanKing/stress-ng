@@ -297,17 +297,13 @@ static void stress_mlock_misc(stress_args_t *args, const size_t page_size, const
 
 static int stress_mlock_child(stress_args_t *args, void *context)
 {
+	stress_memory_info_t info;
 	size_t i;
 	size_t n;
 	uint8_t **mappings;
 	const size_t page_size = args->page_size;
 	size_t max = stress_mlock_max_lockable(), mappings_max;
 	size_t mappings_len = max * sizeof(*mappings);
-	size_t shmall;
-	size_t freemem;
-	size_t totalmem;
-	size_t freeswap;
-	size_t totalswap;
 	double mlock_duration = 0.0;
 	double mlock_count = 0.0;
 	double munlock_duration = 0.0;
@@ -320,7 +316,7 @@ static int stress_mlock_child(stress_args_t *args, void *context)
 	const size_t mappings_per_page = page_size / sizeof(*mappings);
 	const bool oom_avoid = !!(g_opt_flags & OPT_FLAGS_OOM_AVOID);
 
-	stress_memory_limits_get(&shmall, &freemem, &totalmem, &freeswap, &totalswap);
+	stress_memory_info_get(&info);
 
 	(void)context;
 
@@ -337,8 +333,8 @@ static int stress_mlock_child(stress_args_t *args, void *context)
 	 *  pages mappable, so allocate page mappings pointers that
 	 *  won't exceed this upper limit.
 	 */
-	if (mappings_len > totalmem / mappings_per_page)
-		mappings_len = totalmem / mappings_per_page;
+	if (mappings_len > info.totalmem / mappings_per_page)
+		mappings_len = info.totalmem / mappings_per_page;
 	mappings_len &= ~(page_size - 1);
 	if (mappings_len < page_size)
 		mappings_len = page_size;

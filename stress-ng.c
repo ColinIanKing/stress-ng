@@ -785,16 +785,12 @@ static void MLOCKED_TEXT stress_sigalrm_action_handler(
  */
 static void MLOCKED_TEXT stress_stats_handler(int signum)
 {
+	struct stress_memory_info info;
 	static char buffer[80];
 	char *hdr = buffer;
 	double min1;
 	double min5;
 	double min15;
-	size_t shmall;
-	size_t freemem;
-	size_t totalmem;
-	size_t freeswap;
-	size_t totalswap;
 	const int fd = pr_fd();
 	int len = 0;
 	int ret;
@@ -827,18 +823,18 @@ static void MLOCKED_TEXT stress_stats_handler(int signum)
 		if (ret > 0)
 			VOID_RET(ssize_t, write(fd, buffer, len + ret));
 	}
-	stress_memory_limits_get(&shmall, &freemem, &totalmem, &freeswap, &totalswap);
-	if ((totalmem > 0) || (freeswap > 0)) {
+	stress_memory_info_get(&info);
+	if ((info.totalmem > 0) || (info.freeswap > 0)) {
 		ret = snprintf(hdr, sizeof(buffer) - len,
 			"Mem Free: %zu MB, Mem Total: %zu MB\n",
-			freemem / (size_t)MB, totalmem / (size_t)MB);
+			info.freemem / (size_t)MB, info.totalmem / (size_t)MB);
 		if (ret > 0)
 			VOID_RET(ssize_t, write(fd, buffer, len + ret));
 	}
-	if ((freeswap > 0) || (totalswap > 0)) {
+	if ((info.freeswap > 0) || (info.totalswap > 0)) {
 		ret = snprintf(hdr, sizeof(buffer) - len,
 			"Swap Free: %zu MB, Swap Total: %zu MB\n",
-			freeswap / (size_t)MB, totalswap / (size_t)MB);
+			info.freeswap / (size_t)MB, info.totalswap / (size_t)MB);
 		if (ret > 0)
 			VOID_RET(ssize_t, write(fd, buffer, len + ret));
 	}
@@ -3879,17 +3875,18 @@ static int stress_exercises_get(
  */
 static void stress_oom_avoid_bytes_check(void)
 {
-	size_t shmall, freemem, totalmem, freeswap, totalswap, bytes;
+	stress_memory_info_t info;
+	size_t bytes;
 	static const char *setting = "oom-avoid-bytes";
 
 	if (!stress_setting_get(setting, &bytes))
 		return;
 
-	stress_memory_limits_get(&shmall, &freemem, &totalmem, &freeswap, &totalswap);
-	if ((freemem > 0) && (bytes > freemem / 2)) {
+	stress_memory_info_get(&info);
+	if ((info.freemem > 0) && (bytes > info.freemem / 2)) {
 		char buf[32];
 
-		bytes = freemem / 2;
+		bytes = info.freemem / 2;
 		pr_inf("option --oom-avoid-bytes too large, limiting to "
 			"50%% (%s) of free memory\n",
 			stress_uint64_to_str(buf, sizeof(buf), (uint64_t)bytes, 1, true));

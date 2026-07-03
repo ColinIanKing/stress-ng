@@ -157,17 +157,13 @@ size_t stress_resources_allocate(
 	const size_t min_mem_free,
 	const bool do_fork)
 {
+	stress_memory_info_t info;
 #if defined(RLIMIT_MEMLOCK)
 	struct rlimit rlim;
 #endif
 	size_t mlock_size;
 	size_t i;
 	size_t n = 0;
-	size_t shmall;
-	size_t freemem;
-	size_t totalmem;
-	size_t freeswap;
-	size_t totalswap;
 	const pid_t pid = getpid();
 #if defined(HAVE_PIDFD_OPEN)
 	const pid_t ppid = getppid();
@@ -208,8 +204,8 @@ size_t stress_resources_allocate(
       defined(HAVE_MQUEUE_H))
 	(void)args;
 #endif
-	stress_memory_limits_get(&shmall, &freemem, &totalmem, &freeswap, &totalswap);
-	if ((freemem > 0) && (freemem < min_mem_free))
+	stress_memory_info_get(&info);
+	if ((info.freemem > 0) && (info.freemem < min_mem_free))
 		return 0;
 
 	(void)shim_memset(resources, 0, sizeof(*resources) * num_resources);
@@ -325,8 +321,8 @@ size_t stress_resources_allocate(
 		if (UNLIKELY(!stress_continue_flag()))
 			break;
 
-		stress_memory_limits_get(&shmall, &freemem, &totalmem, &freeswap, &totalswap);
-		if (UNLIKELY((freemem > 0) && (freemem < min_mem_free)))
+		stress_memory_info_get(&info);
+		if (UNLIKELY((info.freemem > 0) && (info.freemem < min_mem_free)))
 			break;
 
 		if (UNLIKELY((stress_mwc8() & 0xf) == 0)) {

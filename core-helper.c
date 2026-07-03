@@ -740,10 +740,7 @@ void stress_runinfo(void)
 	char *real_path_ret;
 	const char *temp_path = stress_fs_temp_path_get();
 	const char *fs_type = stress_fs_type_get(temp_path);
-	size_t freemem;
-	size_t totalmem;
-	size_t freeswap;
-	size_t totalswap;
+	stress_memory_info_t info;
 #if defined(HAVE_UNAME) &&	\
     defined(HAVE_SYS_UTSNAME_H)
 	struct utsname uts;
@@ -776,14 +773,14 @@ void stress_runinfo(void)
 		stress_libc_version_get(),
 		stress_endian_str());
 #endif
-	if (stress_memory_info_get(&freemem, &totalmem, &freeswap, &totalswap) == 0) {
+	if (stress_memory_info_get(&info) == 0) {
 		char ram_t[32];
 		char ram_f[32];
 		char ram_s[32];
 
-		stress_uint64_to_str(ram_t, sizeof(ram_t), (uint64_t)totalmem, 1, false);
-		stress_uint64_to_str(ram_f, sizeof(ram_f), (uint64_t)freemem, 1, false);
-		stress_uint64_to_str(ram_s, sizeof(ram_s), (uint64_t)freeswap, 1, false);
+		stress_uint64_to_str(ram_t, sizeof(ram_t), (uint64_t)info.totalmem, 1, false);
+		stress_uint64_to_str(ram_f, sizeof(ram_f), (uint64_t)info.freemem, 1, false);
+		stress_uint64_to_str(ram_s, sizeof(ram_s), (uint64_t)info.freeswap, 1, false);
 		pr_dbg("RAM total: %s, RAM free: %s, swap free: %s\n", ram_t, ram_f, ram_s);
 	}
 	real_path_ret = realpath(temp_path, real_path);

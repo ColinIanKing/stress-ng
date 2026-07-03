@@ -1200,18 +1200,14 @@ err:
 
 static void *mmap_create(const uint64_t n, const uint32_t x, const uint32_t y)
 {
+	stress_memory_info_t info;
 	uint64_t max_phys;
 	uint64_t total_free;
 	uint64_t max_size_t;
 	static sparse_mmap_t m;
 	const size_t page_size = stress_memory_page_size_get();
-	size_t shmall;
-	size_t freemem;
-	size_t totalmem;
-	size_t freeswap;
-	size_t totalswap;
 
-	stress_memory_limits_get(&shmall, &freemem, &totalmem, &freeswap, &totalswap);
+	stress_memory_info_get(&info);
 
 	(void)n;
 
@@ -1225,7 +1221,7 @@ static void *mmap_create(const uint64_t n, const uint32_t x, const uint32_t y)
 	m.mmap_size = (uint64_t)x * (uint64_t)y * sizeof(uint32_t);
 	m.mmap_size = (m.mmap_size + page_size - 1) & (uint64_t)~(page_size - 1);
 
-	total_free = (uint64_t)freemem + (uint64_t)freeswap;
+	total_free = (uint64_t)info.freemem + (uint64_t)info.freeswap;
 	if (max_phys > total_free)
 		return NULL;
 

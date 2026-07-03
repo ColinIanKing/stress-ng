@@ -678,24 +678,20 @@ static int stress_shm_sysv_child(
 		key_t key;
 
 		for (i = 0; i < shm_sysv_segments; i++) {
+			stress_memory_info_t info;
 			int shm_id = -1;
 			int count = 0;
 			void *addr;
-			size_t shmall;
-			size_t freemem;
-			size_t totalmem;
-			size_t freeswap;
-			size_t totalswap;
 			double t;
 
 			/* Try hard not to overcommit at this current time */
-			stress_memory_limits_get(&shmall, &freemem, &totalmem, &freeswap, &totalswap);
-			shmall /= instances;
-			freemem /= instances;
-			if ((shmall > page_size) && sz > shmall)
-				sz = shmall;
-			if ((freemem > page_size) && sz > freemem)
-				sz = freemem;
+			stress_memory_info_get(&info);
+			info.shmall /= instances;
+			info.freemem /= instances;
+			if ((info.shmall > page_size) && sz > info.shmall)
+				sz = info.shmall;
+			if ((info.freemem > page_size) && sz > info.freemem)
+				sz = info.freemem;
 			if (UNLIKELY(!stress_continue_flag()))
 				goto reap;
 

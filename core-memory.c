@@ -95,28 +95,38 @@ size_t stress_memory_page_size_get(void)
  *  stress_memory_info_get()
  *	wrapper for linux sysinfo
  */
-int stress_memory_info_get(
-	size_t *freemem,
-	size_t *totalmem,
-	size_t *freeswap,
-	size_t *totalswap)
+int stress_memory_info_get(stress_memory_info_t *info)
 {
-	if (UNLIKELY(!freemem || !totalmem || !freeswap || !totalswap))
+	if (UNLIKELY(!info))
 		return -1;
+
+	(void)shim_memset(info, 0, sizeof(*info));
 #if defined(HAVE_SYS_SYSINFO_H) &&	\
     defined(HAVE_SYSINFO) &&		\
     !defined(__fiwix)
 	{
-		struct sysinfo info;
+		struct sysinfo s_info;
 
-		(void)shim_memset(&info, 0, sizeof(info));
+		(void)shim_memset(&s_info, 0, sizeof(s_info));
+		if (LIKELY(sysinfo(&s_info) == 0)) {
+#if defined(__linux__)
+			char buf[64];
+#endif
 
-		if (LIKELY(sysinfo(&info) == 0)) {
-			*freemem = info.freeram * info.mem_unit;
-			*totalmem = info.totalram * info.mem_unit;
-			*freeswap = info.freeswap * info.mem_unit;
-			*totalswap = info.totalswap * info.mem_unit;
-			return 0;
+			info->freemem = s_info.freeram * s_info.mem_unit;
+			info->totalmem = s_info.totalram * s_info.mem_unit;
+			info->freeswap = s_info.freeswap * s_info.mem_unit;
+			info->totalswap = s_info.totalswap * s_info.mem_unit;
+#if defined(__linux__)
+			if (stress_fs_file_read("/proc/sys/kernel/shmall", buf, sizeof(buf)) > 0) {
+				size_t shmall = 0;
+
+				if ((sscanf(buf, "%zu", &shmall) == 1) && (errno == 0))
+					info->shmall = shmall;
+			}
+#else
+			info->shmall = 0;
+#endif
 		}
 	}
 #endif
@@ -132,15 +142,16 @@ int stress_memory_info_get(
 
 		*totalswap = (vm_swap_total >= max_size_t) ? max_size_t : (size_t)vm_swap_total;
 #endif
-		*freemem = page_size * stress_bsd_getsysctl_uint32("vm.stats.vm.v_free_count");
-		*totalmem = page_size *
+		info->freemem = page_size * stress_bsd_getsysctl_uint32("vm.stats.vm.v_free_count");
+		info->totalmem = page_size *
 			(stress_bsd_getsysctl_uint32("vm.stats.vm.v_active_count") +
 			 stress_bsd_getsysctl_uint32("vm.stats.vm.v_inactive_count") +
 			 stress_bsd_getsysctl_uint32("vm.stats.vm.v_laundry_count") +
 			 stress_bsd_getsysctl_uint32("vm.stats.vm.v_wire_count") +
 			 stress_bsd_getsysctl_uint32("vm.stats.vm.v_free_count"));
-		*freeswap = 0;
-		*totalswap = 0;
+		info->freeswap = 0;
+		info->totalswap = 0;
+		info->shmall = 0;
 		return 0;
 	}
 #endif
@@ -150,10 +161,11 @@ int stress_memory_info_get(
 		struct uvmexp_sysctl u;
 
 		if (stress_bsd_getsysctl("vm.uvmexp2", &u, sizeof(u)) == 0) {
-			*freemem = (size_t)u.free * u.pagesize;
-			*totalmem = (size_t)u.npages * u.pagesize;
-			*totalswap = (size_t)u.swpages * u.pagesize;
-			*freeswap = *totalswap - (size_t)u.swpginuse * u.pagesize;
+			info->freemem = (size_t)u.free * u.pagesize;
+			info->totalmem = (size_t)u.npages * u.pagesize;
+			info->totalswap = (size_t)u.swpages * u.pagesize;
+			info->freeswap = *totalswap - (size_t)u.swpginuse * u.pagesize;
+			info->shmall = 0;
 			return 0;
 		}
 	}
@@ -172,50 +184,20 @@ int stress_memory_info_get(
 		(void)shim_memset(&vm_stat, 0, sizeof(vm_stat));
 		ret = host_statistics64(host, HOST_VM_INFO64, (host_info64_t)&vm_stat, &count);
 		if (ret >= 0) {
-			*freemem = page_size * vm_stat.free_count;
-			*totalmem = page_size * (vm_stat.active_count +
+			info->freemem = page_size * vm_stat.free_count;
+			info->totalmem = page_size * (vm_stat.active_count +
 						 vm_stat.inactive_count +
 						 vm_stat.wire_count +
 						 vm_stat.zero_fill_count);
+			info->totalswap = 0;
+			info->freeswap = 0;
+			info->shmall = 0;
 			return 0;
 		}
 
 	}
 #endif
-	*freemem = 0;
-	*totalmem = 0;
-	*freeswap = 0;
-	*totalswap = 0;
-
 	return -1;
-}
-
-/*
- *  stress_memory_limits_get()
- *	get SHMALL and memory in system
- *	these are set to zero on failure
- */
-void stress_memory_limits_get(
-	size_t *shmall,
-	size_t *freemem,
-	size_t *totalmem,
-	size_t *freeswap,
-	size_t *totalswap)
-{
-#if defined(__linux__)
-	char buf[64];
-#endif
-	if (UNLIKELY(!shmall || !freemem || !totalmem || !freeswap || !totalswap))
-		return;
-
-	(void)stress_memory_info_get(freemem, totalmem, freeswap, totalswap);
-#if defined(__linux__)
-	if (LIKELY(stress_fs_file_read("/proc/sys/kernel/shmall", buf, sizeof(buf)) > 0)) {
-		if (sscanf(buf, "%zu", shmall) == 1)
-			return;
-	}
-#endif
-	*shmall = 0;
 }
 
 /*
@@ -227,23 +209,23 @@ void stress_memory_limits_get(
  */
 char *stress_memory_free_get(void)
 {
-        size_t freemem = 0;
-	size_t totalmem = 0;
-	size_t freeswap = 0;
-	size_t totalswap = 0;
+	stress_memory_info_t info;
 	char freemem_str[32];
 	char freeswap_str[32];
 	static char buf[96];
 
 	(void)shim_memset(buf, 0, sizeof(buf));
-	if (stress_memory_info_get(&freemem, &totalmem, &freeswap, &totalswap) < 0)
+	if (stress_memory_info_get(&info) < 0)
 		return buf;
 
-	if ((freemem == 0) && (totalmem == 0) && (freeswap == 0) && (totalswap == 0))
+	if ((info.freemem == 0) &&
+	    (info.totalmem == 0) &&
+	    (info.freeswap == 0) &&
+	    (info.totalswap == 0))
 		return buf;
 
-	(void)stress_uint64_to_str(freemem_str, sizeof(freemem_str), (uint64_t)freemem, 0, true);
-	(void)stress_uint64_to_str(freeswap_str, sizeof(freeswap_str), (uint64_t)freeswap, 0, true);
+	(void)stress_uint64_to_str(freemem_str, sizeof(freemem_str), (uint64_t)info.freemem, 0, true);
+	(void)stress_uint64_to_str(freeswap_str, sizeof(freeswap_str), (uint64_t)info.freeswap, 0, true);
 	(void)snprintf(buf, sizeof(buf), " (%s mem free, %s swap free)", freemem_str, freeswap_str);
 	return buf;
 }
@@ -281,16 +263,13 @@ void stress_memory_ksm_merge(const int flag)
  */
 bool stress_memory_low_check(const size_t requested)
 {
+	stress_memory_info_t info;
 	static size_t prev_freemem = 0;
 	static size_t prev_freeswap = 0;
-	size_t freemem;
-	size_t totalmem;
-	size_t freeswap;
-	size_t totalswap;
 	static double threshold = -1.0;
 	bool low_memory = false;
 
-	if (stress_memory_info_get(&freemem, &totalmem, &freeswap, &totalswap) == 0) {
+	if (stress_memory_info_get(&info) == 0) {
 		/*
 		 *  Threshold not set, then get
 		 */
@@ -298,7 +277,7 @@ bool stress_memory_low_check(const size_t requested)
 			size_t bytes = 0;
 
 			if (stress_setting_get("oom-avoid-bytes", &bytes)) {
-				threshold = 100.0 * (double)bytes / (double)freemem;
+				threshold = 100.0 * (double)bytes / (double)info.freemem;
 			} else {
 				/* Not specified, then default to 2.5% */
 				threshold = 2.5;
@@ -311,38 +290,38 @@ bool stress_memory_low_check(const size_t requested)
 		if ((prev_freemem + prev_freeswap) > 0) {
 			ssize_t delta;
 
-			delta = (ssize_t)prev_freemem - (ssize_t)freemem;
+			delta = (ssize_t)prev_freemem - (ssize_t)info.freemem;
 			delta = (delta * 2) + requested;
 			/* memory shrinking quickly? */
-			if (delta  > (ssize_t)freemem) {
+			if (delta  > (ssize_t)info.freemem) {
 				low_memory = true;
 				goto update;
 			}
 			/* swap shrinking quickly? */
-			delta = (ssize_t)prev_freeswap - (ssize_t)freeswap;
-			if (delta > (ssize_t)freeswap / 8) {
+			delta = (ssize_t)prev_freeswap - (ssize_t)info.freeswap;
+			if (delta > (ssize_t)info.freeswap / 8) {
 				low_memory = true;
 				goto update;
 			}
 		}
 		/* Not enough for allocation and slop? */
-		if (freemem < ((4 * MB) + requested)) {
+		if (info.freemem < ((4 * MB) + requested)) {
 			low_memory = true;
 			goto update;
 		}
 		/* Less than threshold left? */
-		if (((double)(freemem - requested) * 100.0 / (double)totalmem) < threshold) {
+		if (((double)(info.freemem - requested) * 100.0 / (double)info.totalmem) < threshold) {
 			low_memory = true;
 			goto update;
 		}
 		/* Any swap enabled with free memory we are too low? */
-		if ((totalswap > 0) && (freeswap + freemem < (requested + (2 * MB)))) {
+		if ((info.totalswap > 0) && (info.freeswap + info.freemem < (requested + (2 * MB)))) {
 			low_memory = true;
 			goto update;
 		}
 update:
-		prev_freemem = freemem;
-		prev_freeswap = freeswap;
+		prev_freemem = info.freemem;
+		prev_freeswap = info.freeswap;
 
 		/* low memory? drop caches and automatically enable ksm memory merging */
 		if (low_memory) {

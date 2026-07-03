@@ -146,21 +146,17 @@ static void stress_forkheavy_free(void)
 
 static int stress_forkheavy_child(stress_args_t *args, void *context)
 {
+	stress_memory_info_t info;
 	const stress_forkheavy_args_t *forkheavy_args = (stress_forkheavy_args_t *)context;
 	stress_metrics_t *metrics = forkheavy_args->metrics;
 	uint32_t forkheavy_allocs = DEFAULT_FORKHEAVY_ALLOCS;
 	uint32_t forkheavy_procs = DEFAULT_FORKHEAVY_PROCS;
 	bool forkheavy_mlock = false;
 	size_t num_resources;
-	size_t shmall;
-	size_t freemem;
-	size_t totalmem;
-	size_t freeswap;
-	size_t totalswap;
 	size_t min_mem_free;
 
-	stress_memory_limits_get(&shmall, &freemem, &totalmem, &freeswap, &totalswap);
-	min_mem_free = (freemem / 100) * 2;
+	stress_memory_info_get(&info);
+	min_mem_free = (info.freemem / 100) * 2;
 	if (min_mem_free < MIN_MEM_FREE)
 		min_mem_free = MIN_MEM_FREE;
 

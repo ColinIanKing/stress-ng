@@ -145,17 +145,13 @@ static int stress_mlockmany_child(stress_args_t *args, void *context)
 	stress_proc_state_set(args->name, STRESS_STATE_RUN);
 
 	do {
+		stress_memory_info_t info;
 		unsigned int n;
-		size_t shmall;
-		size_t freemem;
-		size_t totalmem;
-		size_t freeswap;
-		size_t totalswap;
 		size_t last_freeswap;
-		size_t last_totalswap;
 
 		stress_sync_init_pids(s_pids, mlockmany_procs);
-		stress_memory_limits_get(&shmall, &freemem, &totalmem, &last_freeswap, &last_totalswap);
+		stress_memory_info_get(&info);
+		last_freeswap = info.freeswap;
 
 		for (n = 0; LIKELY(stress_continue(args) && (n < mlockmany_procs)); n++) {
 			pid_t pid;
@@ -166,15 +162,15 @@ static int stress_mlockmany_child(stress_args_t *args, void *context)
 				break;
 			}
 
-			stress_memory_limits_get(&shmall, &freemem, &totalmem, &freeswap, &totalswap);
+			stress_memory_info_get(&info);
 
 			/* We detected swap being used, bail out */
-			if (last_freeswap > freeswap)
+			if (last_freeswap > info.freeswap)
 				break;
 
 			/* Keep track of expanding free swap space */
-			if (freeswap > last_freeswap)
-				last_freeswap = freeswap;
+			if (info.freeswap > last_freeswap)
+				last_freeswap = info.freeswap;
 
 			pid = fork();
 			if (pid == 0) {
@@ -198,9 +194,9 @@ static int stress_mlockmany_child(stress_args_t *args, void *context)
 				/* unlock all mlocked memory */
 				shim_munlockall();
 
-				stress_memory_limits_get(&shmall, &freemem, &totalmem, &freeswap, &totalswap);
+				stress_memory_info_get(&info);
 				/* We detected swap being used, bail out */
-				if (last_freeswap > freeswap)
+				if (last_freeswap > info.freeswap)
 					_exit(0);
 
 				while (mmap_size > args->page_size) {

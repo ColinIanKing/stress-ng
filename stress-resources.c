@@ -69,13 +69,9 @@ static void stress_resources_alarm(
  */
 static int stress_resources(stress_args_t *args)
 {
+	stress_memory_info_t info;
 	const size_t pipe_size = stress_fs_max_pipe_size_get();
 	size_t min_mem_free;
-	size_t shmall;
-	size_t freemem;
-	size_t totalmem;
-	size_t freeswap;
-	size_t totalswap;
 	size_t resources_num = DEFAULT_RESOURCES_NUM;
 	size_t resources_procs = DEFAULT_RESOURCES_PROCS;
 	stress_resources_t *resources;
@@ -102,8 +98,8 @@ static int stress_resources(stress_args_t *args)
 			resources_procs = MAX_RESOURCES_PROCS;
 	}
 
-	stress_memory_limits_get(&shmall, &freemem, &totalmem, &freeswap, &totalswap);
-	min_mem_free = (freemem / 100) * 2;
+	stress_memory_info_get(&info);
+	min_mem_free = (info.freemem / 100) * 2;
 	if (min_mem_free < MIN_MEM_FREE)
 		min_mem_free = MIN_MEM_FREE;
 
@@ -151,8 +147,8 @@ static int stress_resources(stress_args_t *args)
 		for (forked = 0, i = 0; i < resources_procs; i++) {
 			pid_t pid;
 
-			stress_memory_limits_get(&shmall, &freemem, &totalmem, &freeswap, &totalswap);
-			if ((freemem > 0) && (freemem < min_mem_free))
+			stress_memory_info_get(&info);
+			if ((info.freemem > 0) && (info.freemem < min_mem_free))
 				break;
 			if (!stress_continue(args))
 				break;
