@@ -680,7 +680,7 @@ I appreciate information concerning kernel bugs or performance regressions found
 * [Linux Foundation Mentoring Session, May 2022](https://www.youtube.com/watch?v=gD3Hn02VSHA)
 * [Kernel Recipes presentation, Sept 2023](https://www.youtube.com/watch?v=PD0NOZCTIVQ)
 * [Linux Foundation, ELISA, June 2024](https://www.youtube.com/watch?v=-B1K-xpICtQ)
-* [Linux Foundation, ELISA Workshop, June 2026)(https://directory.elisa.tech/workshops/2026-06-London/D2-13-15_Improving_kernel_test_coverage_with_stress-ng_Colin_King.pdf)
+* [Linux Foundation, ELISA Workshop, June 2026](https://directory.elisa.tech/workshops/2026-06-London/D2-13-15_Improving_kernel_test_coverage_with_stress-ng_Colin_King.pdf)
 
 ## Citations
 
