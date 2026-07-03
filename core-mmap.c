@@ -74,7 +74,7 @@ void OPTIMIZE3 stress_mmap_set(
                 : "ecx","rdi","rax");
 		ptr += loops;
 #else
-		page_end = (const uint64_t *)STRESS_MINIMUM(end, page_end);
+		page_end = STRESS_MINIMUM(end, page_end);
 
 		while (ptr < page_end) {
 			ptr[0x00] = val;
@@ -190,7 +190,7 @@ int OPTIMIZE3 stress_mmap_check_light(
 	const size_t sz,
 	const size_t page_size)
 {
-	register uint64_t *ptr = (uint64_t *)shim_assume_aligned(buf, 8);
+	register const uint64_t *ptr = (uint64_t *)shim_assume_aligned(buf, 8);
 	register uint64_t val = *ptr;
 	register const uint64_t *end = (uint64_t *)shim_assume_aligned((buf + sz), 8);
 	register const size_t ptr_inc = page_size / sizeof(*ptr);
@@ -344,7 +344,8 @@ static size_t stress_mapping_hugetlb_size(void *addr)
  */
 int stress_munmap_force(void *addr, size_t length)
 {
-	int ret, i;
+	int ret;
+	int i;
 #if defined(MAP_HUGETLB) && defined(MAP_HUGE_2MB)
 	const uintptr_t size2MB = (1ULL << 21);
 #endif
@@ -455,7 +456,8 @@ int stress_mmap_stats(void *addr, const size_t length, stress_mmap_stats_t *stat
 #if defined(__linux__)
 	int fd;
 	const size_t page_size = stress_memory_page_size_get();
-	uintptr_t virt_addr, prev_phys_addr = PHYS_ADDR_UNKNOWN;
+	uintptr_t virt_addr;
+	uintptr_t prev_phys_addr = PHYS_ADDR_UNKNOWN;
 	const uintptr_t virt_begin = (uintptr_t)addr;
 	const uintptr_t virt_end = virt_begin + length;
 	off_t offset = (off_t)(sizeof(uint64_t) * (virt_begin / page_size));
