@@ -69,7 +69,10 @@ static void stress_yield_sched_policy(stress_args_t *args, const size_t yield_sc
 {
 	struct sched_param param;
 	int ret = 0;
-	int max_prio, min_prio, rng_prio, policy;
+	int max_prio;
+	int min_prio;
+	int rng_prio;
+	int policy;
 	const char *policy_name;
 
 	if (UNLIKELY(yield_sched >= stress_sched_types_length))
@@ -202,13 +205,17 @@ static int stress_yield(stress_args_t *args)
 	uint64_t max_ops_per_yielder;
 	int32_t cpus = stress_cpus_configured_get();
 	const uint32_t instances = args->instances;
-	uint32_t yielders = 2, yield_procs = 0;
-	double count, duration, ns;
+	uint32_t yielders = 2;
+	uint32_t yield_procs = 0;
+	double count;
+	double duration;
+	double ns;
 #if defined(HAVE_SCHED_GETAFFINITY)
 	cpu_set_t mask;
 #endif
 	stress_pid_t *s_pids;
-	size_t i, yield_sched = SIZE_MAX;
+	size_t i;
+	size_t yield_sched = SIZE_MAX;
 
 	if (!stress_setting_get("yield-procs", &yield_procs)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
