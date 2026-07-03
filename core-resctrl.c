@@ -230,7 +230,7 @@ static int stress_resctrl_parse_instance_list(
 		return -1;
 
 	for (;;) {
-		char *numptr = ptr;
+		const char *numptr = ptr;
 		uint32_t begin;
 		uint32_t end;
 
