@@ -203,7 +203,6 @@ static int stress_mmaphuge_child(stress_args_t *args, void *v_context)
 			/* Check if we eat into swap */
 			if (last_freeswap > info.freeswap)
 				break;
-			last_freeswap = info.freeswap;
 		}
 
 		for (i = 0; LIKELY(stress_continue(args) && (i < context->mmaphuge_mmaps)); i++) {
