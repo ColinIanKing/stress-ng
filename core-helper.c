@@ -372,8 +372,14 @@ void stress_proc_name_scramble(void)
 	char name[65];
 	char *ptr;
 	int i;
-	uint32_t a, b, c, d;
-	uint64_t rnd1, rnd2, rnd3, rnd4;
+	uint32_t a;
+	uint32_t b;
+	uint32_t c;
+	uint32_t d;
+	uint64_t rnd1;
+	uint64_t rnd2;
+	uint64_t rnd3;
+	uint64_t rnd4;
 	double now;
 
 	if (g_opt_flags & OPT_FLAGS_KEEP_NAME)
@@ -728,10 +734,14 @@ void stress_yaml_buildinfo(FILE *yaml)
  */
 void stress_runinfo(void)
 {
-	char real_path[PATH_MAX], *real_path_ret;
+	char real_path[PATH_MAX];
+	char *real_path_ret;
 	const char *temp_path = stress_fs_temp_path_get();
 	const char *fs_type = stress_fs_type_get(temp_path);
-	size_t freemem, totalmem, freeswap, totalswap;
+	size_t freemem;
+	size_t totalmem;
+	size_t freeswap;
+	size_t totalswap;
 #if defined(HAVE_UNAME) &&	\
     defined(HAVE_SYS_UTSNAME_H)
 	struct utsname uts;
@@ -765,7 +775,9 @@ void stress_runinfo(void)
 		stress_endian_str());
 #endif
 	if (stress_memory_info_get(&freemem, &totalmem, &freeswap, &totalswap) == 0) {
-		char ram_t[32], ram_f[32], ram_s[32];
+		char ram_t[32];
+		char ram_f[32];
+		char ram_s[32];
 
 		stress_uint64_to_str(ram_t, sizeof(ram_t), (uint64_t)totalmem, 1, false);
 		stress_uint64_to_str(ram_f, sizeof(ram_f), (uint64_t)freemem, 1, false);
@@ -865,7 +877,8 @@ unsigned int stress_cpu_get(void)
 #if defined(__PPC64__) || defined(__ppc64__) ||	\
     defined(__PPC__) || defined(__ppc__) ||	\
     defined(__s390x__)
-	unsigned int cpu, node;
+	unsigned int cpu;
+	unsigned int node;
 
 	if (UNLIKELY(shim_getcpu(&cpu, &node, NULL) < 0))
 		return 0;
@@ -1120,7 +1133,10 @@ bool stress_is_dev_tty(const int fd)
  */
 bool stress_warn_once_hash(const char *filename, const int line)
 {
-	uint32_t free_slot, i, j, h = (stress_hash_pjw(filename) + (uint32_t)line);
+	uint32_t free_slot;
+	uint32_t i;
+	uint32_t j;
+	uint32_t h = (stress_hash_pjw(filename) + (uint32_t)line);
 	bool not_warned_yet = true;
 
 	if (UNLIKELY(!g_shared))
@@ -1212,7 +1228,8 @@ int stress_unused_uid_get(uid_t *uid)
 	}
 	if (cached_uid == 0) {
 		struct passwd *pw;
-		size_t i, n;
+		size_t i;
+		size_t n;
 
 		setpwent();
 		for (n = 0; getpwent() != NULL; n++) {
@@ -1291,7 +1308,9 @@ int stress_kernel_release_get(void)
 #if defined(HAVE_UNAME) &&	\
     defined(HAVE_SYS_UTSNAME_H)
 	struct utsname buf;
-	int major = 0, minor = 0, patchlevel = 0;
+	int major = 0;
+	int minor = 0;
+	int patchlevel = 0;
 
 	if (UNLIKELY(uname(&buf) < 0))
 		return -1;
@@ -1410,7 +1429,8 @@ int stress_tty_width_get(void)
 #if defined(HAVE_WINSIZE) &&	\
     defined(TIOCGWINSZ)
 	struct winsize ws;
-	int ret, fd;
+	int ret;
+	int fd;
 
 	if (stress_fs_pipe_check(fileno(stdout)))
 		fd = fileno(stdin);
@@ -1479,7 +1499,8 @@ size_t stress_flag_permutation(const int flags, int **permutations)
 {
 	unsigned int flag_bits;
 	unsigned int n_bits;
-	register unsigned int j, n_flags;
+	register unsigned int j;
+	register unsigned int n_flags;
 	int *perms;
 
 	if (UNLIKELY(!permutations))
@@ -1832,7 +1853,10 @@ static void stress_process_info_dump(
 {
 	char path[4096];
 	char buf[8192];
-	char *ptr, *end, *begin, *emit;
+	char *ptr;
+	char *end;
+	char *begin;
+	char *emit;
 	ssize_t ret;
 
 	if (UNLIKELY(!filename))

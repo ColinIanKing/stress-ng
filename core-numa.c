@@ -34,9 +34,11 @@ static const char option[] = "option --mbind";
 long int stress_numa_count_mem_nodes(long int *max_node)
 {
 	FILE *fp;
-	long int node_id = 0, n = 0;
+	long int node_id = 0;
+	long int n = 0;
 	char buffer[8192];
-	const char *str = NULL, *ptr;
+	const char *str = NULL;
+	const char *ptr;
 
 	*max_node = 0;
 
@@ -99,7 +101,8 @@ long int stress_numa_mask_nodes_get(stress_numa_mask_t *numa_mask)
 	FILE *fp;
 	long int node_id = 0;
 	char buffer[8192];
-	const char *str = NULL, *ptr;
+	const char *str = NULL;
+	const char *ptr;
 	long int n = 0;
 
 	(void)shim_memset(numa_mask->mask, 0, numa_mask->mask_size);
@@ -268,9 +271,17 @@ void stress_numa_randomize_pages(
 	const size_t buffer_size,
 	const size_t page_size)
 {
-	uint8_t *ptr, *prev_ptr, *ptr_end;
-	long int node, prev_node;
-	size_t buffer_pages, chunks, size, chunk_size, parts, max_chunks;
+	uint8_t *ptr;
+	uint8_t *prev_ptr;
+	uint8_t *ptr_end;
+	long int node;
+	long int prev_node;
+	size_t buffer_pages;
+	size_t chunks;
+	size_t size;
+	size_t chunk_size;
+	size_t parts;
+	size_t max_chunks;
 
 	if (UNLIKELY(page_size == 0))
 		return;

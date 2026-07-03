@@ -211,7 +211,8 @@ int OPTIMIZE3 shim_cacheflush(char *addr, int nbytes, int cache)
 #endif
 #if defined(HAVE_ASM_RISCV_CBO_CACHE_MANAGEMENT)
 	if (cache == SHIM_DCACHE)  {
-		unsigned int cl_size, i;
+		unsigned int cl_size;
+		unsigned int i;
 
 		if (!stress_asm_riscv_has_cbom())
 			return -1;
@@ -944,7 +945,8 @@ int shim_munlockall(void)
 int shim_nanosleep_uint64(uint64_t nsec)
 {
 #if defined(HAVE_NANOSLEEP)
-	struct timespec t, trem;
+	struct timespec t;
+	struct timespec trem;
 
 	t.tv_sec = nsec / STRESS_NANOSECOND;
 	t.tv_nsec = nsec % STRESS_NANOSECOND;
@@ -1006,7 +1008,8 @@ int shim_usleep(uint64_t usec)
 int shim_usleep_interruptible(uint64_t usec)
 {
 #if defined(HAVE_NANOSLEEP)
-	struct timespec t, trem;
+	struct timespec t;
+	struct timespec trem;
 
 	t.tv_sec = (time_t)((double)usec * ONE_MILLIONTH);
 	t.tv_nsec = ((long int)usec - (t.tv_sec * 1000000)) * 1000;
@@ -2337,7 +2340,8 @@ static int shim_nice_autogroup(int niceness)
 {
 #if defined(__linux__)
 	if ((g_opt_flags & OPT_FLAGS_AUTOGROUP) && (errno == 0)) {
-		int fd, saved_err = errno;
+		int fd;
+		int saved_err = errno;
 		int retries = 0;
 
 		fd = open("/proc/self/autogroup", O_WRONLY);
@@ -2390,7 +2394,9 @@ int shim_nice(int inc)
 #elif defined(HAVE_GETPRIORITY) &&	\
       defined(HAVE_SETPRIORITY) &&	\
       defined(PRIO_PROCESS)
-	int prio, ret, saved_err;
+	int prio;
+	int ret;
+	int saved_err;
 
 	prio = getpriority(PRIO_PROCESS, 0);
 	if (prio == -1) {

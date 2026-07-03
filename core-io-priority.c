@@ -66,7 +66,8 @@ int32_t stress_io_priority_ionice_class_get(const char *const str)
  */
 int stress_io_priority_set(const int32_t ioprio_class, const int32_t level)
 {
-	int new_level = level, rc;
+	int new_level = level;
+	int rc;
 
 	switch (ioprio_class) {
 	case UNDEFINED:	/* No preference, don't set */

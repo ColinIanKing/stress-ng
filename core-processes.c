@@ -42,7 +42,9 @@ static int stress_processes_dump_filter(const struct dirent *d)
  */
 void stress_processes_dump(void)
 {
-	int i, n, pid_width = 5;
+	int i;
+	int n;
+	int pid_width = 5;
 
 	struct dirent **namelist = NULL;
 
@@ -64,7 +66,8 @@ void stress_processes_dump(void)
 		char state[16];
 		char name[32];
 		const char *p_name;
-		pid_t pid, ppid;
+		pid_t pid;
+		pid_t ppid;
 		ssize_t ret;
 		long val;
 

@@ -231,7 +231,8 @@ static int stress_resctrl_parse_instance_list(
 
 	for (;;) {
 		char *numptr = ptr;
-		uint32_t begin, end;
+		uint32_t begin;
+		uint32_t end;
 
 		while (*ptr && (*ptr != ',' && *ptr != '-'))
 			ptr++;
@@ -355,7 +356,10 @@ static int stress_resctrl_partition_add(
 static int stress_resctrl_parse_partition(const char *name, char **str)
 {
 	char *ptr = *str, *tmp;
-	uint32_t node, cachelevel, bandwidth, partnum;
+	uint32_t node;
+	uint32_t cachelevel;
+	uint32_t bandwidth;
+	uint32_t partnum;
 	uint64_t bitmask;
 	int32_t val;
 
@@ -485,7 +489,8 @@ int stress_resctrl_parse(char *opt_resctrl)
 	}
 
 	for (ptr = str;;) {
-		char *name, *instances;
+		char *name;
+		char *instances;
 		char *partition_name;
 		stress_partition_info_t *partition = NULL;
 		char saved;
@@ -725,7 +730,8 @@ void stress_resctrl_init(void)
     defined(HAVE_FSMOUNT) &&	\
     defined(HAVE_MOVE_MOUNT) &&	\
     defined(HAVE_SYS_MOUNT_H)
-		int fd, fd_mnt;
+		int fd;
+		int fd_mnt;
 #endif
 		/* no mount point, let stress-ng mount one */
 		(void)snprintf(resctrl_mnt, sizeof(resctrl_mnt), "%s/stress-ng-resctrl",

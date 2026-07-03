@@ -380,9 +380,12 @@ void stress_madvise_pid_all_pages(
 	if (!fp)
 		return;
 	while (fgets(buf, sizeof(buf), fp)) {
-		void *start, *end, *offset;
+		void *start;
+		void *end;
+		void *offset;
 		int n;
-		unsigned int major, minor;
+		unsigned int major;
+		unsigned int minor;
 		uint64_t inode;
 		const size_t page_size = stress_memory_page_size_get();
 		char prot[5];

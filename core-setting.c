@@ -163,7 +163,8 @@ void stress_setting_show(void)
 {
 	stress_setting_t *setting;
 	stress_setting_t **settings;
-	size_t i, n;
+	size_t i;
+	size_t n;
 
 	if (!(g_opt_flags & OPT_FLAGS_SETTINGS))
 		return;
@@ -190,7 +191,8 @@ void stress_setting_dbg(const char *name)
 {
 	stress_setting_t *setting;
 	stress_setting_t **settings;
-	size_t i, n;
+	size_t i;
+	size_t n;
 
 	for (n = 0, setting = setting_head; setting; setting = setting->next) {
 		if (strcmp(setting->stressor_name, name) == 0)

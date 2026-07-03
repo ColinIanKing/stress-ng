@@ -66,6 +66,7 @@ size_t stress_memory_page_size_get(void)
 	{
 		/* Use modern sysconf */
 		const long int sz = sysconf(_SC_PAGESIZE);
+
 		if (sz > 0) {
 			page_size = (size_t)sz;
 			return page_size;
@@ -78,6 +79,7 @@ size_t stress_memory_page_size_get(void)
 	{
 		/* Use deprecated getpagesize */
 		const long int sz = getpagesize();
+
 		if (sz > 0) {
 			page_size = (size_t)sz;
 			return page_size;
@@ -225,8 +227,12 @@ void stress_memory_limits_get(
  */
 char *stress_memory_free_get(void)
 {
-        size_t freemem = 0, totalmem = 0, freeswap = 0, totalswap = 0;
-	char freemem_str[32], freeswap_str[32];
+        size_t freemem = 0;
+	size_t totalmem = 0;
+	size_t freeswap = 0;
+	size_t totalswap = 0;
+	char freemem_str[32];
+	char freeswap_str[32];
 	static char buf[96];
 
 	(void)shim_memset(buf, 0, sizeof(buf));
@@ -277,7 +283,10 @@ bool stress_memory_low_check(const size_t requested)
 {
 	static size_t prev_freemem = 0;
 	static size_t prev_freeswap = 0;
-	size_t freemem, totalmem, freeswap, totalswap;
+	size_t freemem;
+	size_t totalmem;
+	size_t freeswap;
+	size_t totalswap;
 	static double threshold = -1.0;
 	bool low_memory = false;
 
@@ -388,7 +397,9 @@ void stress_memory_usage_get(
 	const size_t vm_total)
 {
 	const uint64_t total_phys_mem = stress_memory_phys_size_get();
-	char s1[32], s2[32], s3[32];
+	char s1[32];
+	char s2[32];
+	char s3[32];
 
 	pr_inf("%s: using %sB per stressor instance (total %sB of %sB available memory)\n",
 		args->name,

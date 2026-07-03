@@ -60,7 +60,8 @@ static const stress_domain_t domains[] = {
 int stress_net_interface_exists(const char *interface, const int domain, struct sockaddr *addr)
 {
 #if defined(HAVE_IFADDRS_H)
-	struct ifaddrs *ifaddr, *ifa;
+	struct ifaddrs *ifaddr;
+	struct ifaddrs *ifa;
 	int ret = -1;
 
 	if (UNLIKELY(!interface))
@@ -382,7 +383,8 @@ int stress_net_reserve_ports(
 	const int start_port,
 	const int end_port)
 {
-	int i, port = -1;
+	int i;
+	int port = -1;
 	const int quantity = (end_port - start_port) + 1;
 	uint8_t bind_ports[65536 / sizeof(uint8_t)];
 

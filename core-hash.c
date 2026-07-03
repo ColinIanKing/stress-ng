@@ -307,7 +307,8 @@ PRAGMA_UNROLL_N(4)
 uint32_t OPTIMIZE3 stress_hash_adler32(const char *str, const size_t len)
 {
 	register const uint32_t mod = 65521;
-	register uint32_t a = 1, b = 0;
+	register uint32_t a = 1;
+	register uint32_t b = 0;
 
 	(void)len;
 

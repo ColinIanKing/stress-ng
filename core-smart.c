@@ -240,13 +240,16 @@ static void stress_smart_data_free(stress_smart_data_t **data)
 static stress_smart_data_t *stress_smart_data_read(const char *path)
 {
 	int fd;
-	uint8_t buf[BUF_SZ], sbuf[SENSE_BUF_SZ];
+	uint8_t buf[BUF_SZ];
+	uint8_t sbuf[SENSE_BUF_SZ];
 	sg_io_hdr_t sg_io_hdr;
 	const stress_smart_raw_value_t *rv_start = (const stress_smart_raw_value_t *)(buf + 2);
 	const stress_smart_raw_value_t *rv_end = (const stress_smart_raw_value_t *)(buf + sizeof(buf));
 	const stress_smart_raw_value_t *rv;
 	stress_smart_data_t *data;
-	size_t i, size, values_size;
+	size_t i;
+	size_t size;
+	size_t values_size;
 
 	if (UNLIKELY(!path))
 		return NULL;
@@ -294,8 +297,10 @@ static stress_smart_data_t *stress_smart_data_read(const char *path)
  */
 static size_t stress_smart_data_diff_count(stress_smart_dev_t *dev)
 {
-	size_t i, n;
-	stress_smart_data_t *begin, *end;
+	size_t i;
+	size_t n;
+	stress_smart_data_t *begin;
+	stress_smart_data_t *end;
 
 	begin = dev->data_begin;
 	end = dev->data_end;
@@ -330,7 +335,8 @@ static size_t stress_smart_data_diff_count(stress_smart_dev_t *dev)
 static void stress_smart_data_diff(stress_smart_dev_t *dev)
 {
 	size_t i;
-	stress_smart_data_t *begin, *end;
+	stress_smart_data_t *begin;
+	stress_smart_data_t *end;
 
 	begin = dev->data_begin;
 	end = dev->data_end;
@@ -408,7 +414,8 @@ static int CONST stress_smart_dev_sort(const struct dirent **d1, const struct di
 static void stress_smart_read_devs(void)
 {
 	struct dirent **devs = NULL;
-	int i, n;
+	int i;
+	int n;
 
 	smart_devs.dev = NULL;
 

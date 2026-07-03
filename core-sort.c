@@ -298,7 +298,13 @@ void TARGET_CLONES OPTIMIZE3 qsort_bm(
 	int (*cmp)(const void *, const void*))
 {
 	register uint8_t *a = (uint8_t *)base;
-	uint8_t *pa, *pb, *pc, *pd, *pm, *pn, *pv;
+	uint8_t *pa;
+	uint8_t *pb;
+	uint8_t *pc;
+	uint8_t *pd;
+	uint8_t *pm;
+	uint8_t *pn;
+	uint8_t *pv;
 	size_t s;
 
 	if (n < THRESH) {

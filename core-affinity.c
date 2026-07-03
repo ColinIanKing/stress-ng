@@ -99,7 +99,9 @@ static void stress_topology_set_get(
 	const struct dirent *d;
 	int max_cpus = (int)stress_cpus_configured_get();
 	cpu_set_t *sets;
-	int i, n_sets = 0, which;
+	int i;
+	int n_sets = 0;
+	int which;
 
 	if (sscanf(arg + strlen(topology) , "%d", &which) != 1) {
 		(void)fprintf(stderr, "%s: invalid argument '%s' missing integer\n", topology, arg);
@@ -128,7 +130,8 @@ static void stress_topology_set_get(
 		char *token;
 		char *saveptr = NULL;
 		cpu_set_t newset;
-		int lo, hi;
+		int lo;
+		int hi;
 
 		if (strncmp(d->d_name, "cpu", 3))
 			continue;
@@ -212,7 +215,8 @@ int stress_affinity_parse_cpu(const char *arg, cpu_set_t *set, int *setbits)
 	}
 
 	for (ptr = str; (token = shim_strtok_r(ptr, ",", &saveptr)) != NULL; ptr = NULL) {
-		int lo, hi;
+		int lo;
+		int hi;
 		const char *tmpptr = strstr(token, "-");
 
 		if (!strcmp(token, "odd")) {
@@ -317,7 +321,8 @@ int stress_affinity_parse_cpu(const char *arg, cpu_set_t *set, int *setbits)
 int stress_affinity_cpu_set(const char *arg)
 {
 	cpu_set_t set;
-	int setbits, ret;
+	int setbits;
+	int ret;
 
 	ret = stress_affinity_parse_cpu(arg, &set, &setbits);
 	if ((ret == 0) && (setbits))

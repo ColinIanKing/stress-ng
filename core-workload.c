@@ -249,7 +249,8 @@ static void TARGET_CLONES stress_workload_vecint(void)
 		uint8_t f[256] ALIGNED(256);
 	} stress_vecint_uint8_64_t;
 
-	stress_vecint_uint8_64_t a, b;
+	stress_vecint_uint8_64_t a;
+	stress_vecint_uint8_64_t b;
 	uint8_t sum = 0;
 	static int v = 0;
 	register size_t i;
@@ -301,7 +302,8 @@ static void TARGET_CLONES stress_workload_vecfp(void)
 		double f[64] ALIGNED(2048);
 	} stress_vecfp_double_64_t;
 
-	stress_vecfp_double_64_t a, b;
+	stress_vecfp_double_64_t a;
+	stress_vecfp_double_64_t b;
 	double sum = 0.0;
 	static int v = 0;
 	register size_t i;
@@ -320,7 +322,8 @@ static void TARGET_CLONES stress_workload_vecfp(void)
 	stress_put_double(sum);
 #else
 	/* See how well compiler can vectorize version */
-        double a[64], b[64];
+        double a[64];
+        double b[64];
 	double sum = 0.0;
 	static int v = 0;
 	register size_t i;

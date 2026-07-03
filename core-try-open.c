@@ -145,7 +145,9 @@ int stress_try_open_timeout(
 	const int flags,
 	const unsigned long int timeout_ns)
 {
-	int ret, t_ret, tmp;
+	int ret;
+	int t_ret;
+	int tmp;
 	struct sigevent sev;
 	timer_t timerid;
 	struct itimerspec timer;

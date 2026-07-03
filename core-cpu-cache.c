@@ -47,7 +47,7 @@ static const char stress_cpu_cache_dir[] = "cache";
  */
 static inline unsigned int stress_cpu_cache_get_cpu(const stress_cpu_cache_cpus_t *cpus)
 {
-	const unsigned int cpu = stress_cpu_get();
+	register const unsigned int cpu = stress_cpu_get();
 
 	return (cpu >= cpus->count) ? 0 : cpu;
 }
@@ -94,7 +94,7 @@ static stress_cpu_cache_t * stress_cpu_cache_get_by_cpu(
 	const int cache_level,
 	const stress_cpu_cache_type_t cache_type)
 {
-	uint32_t  i;
+	uint32_t i;
 
 	if (UNLIKELY(!cpu || !cache_level))
 		return NULL;
@@ -132,8 +132,8 @@ static stress_cpu_cache_t * stress_cpu_cache_get_by_cpu(
 uint16_t stress_cpu_cache_max_level_get(const stress_cpu_cache_cpus_t *cpus)
 {
 	const stress_cpu_cache_cpu_t *cpu;
-	uint32_t  i;
-	uint16_t  max = 0;
+	uint32_t i;
+	uint16_t max = 0;
 
 	if (UNLIKELY(!cpus)) {
 		pr_dbg("%s: invalid cpus parameter\n", __func__);
@@ -242,7 +242,9 @@ static int stress_cpu_cache_get_alpha(
 			uint16_t cache_level = 0;
 			const char *ptr;
 			uint64_t cache_size;
-			int cache_ways, cache_line_size, n;
+			int cache_ways;
+			int cache_line_size;
+			int n;
 
 			if (!strncmp("L1 Icache", buffer, 9)) {
 				cache_type = CACHE_TYPE_INSTRUCTION;
@@ -712,7 +714,8 @@ static int stress_cpu_cache_get_m68k(stress_cpu_cache_cpu_t *cpu)
 {
 	FILE *fp;
 	char buffer[1024];
-	size_t i, count;
+	size_t i;
+	size_t count;
 	size_t cache_type[2] = { 0, 0 };
 	size_t cache_size[2] = { 0, 0 };
 	int cpu_id = -1;
@@ -834,8 +837,8 @@ static int stress_cpu_cache_get_or1k(stress_cpu_cache_cpu_t *cpu)
 static uint64_t stress_cpu_cache_size_to_bytes(const char *str)
 {
 	uint64_t bytes;
-	int	 ret;
-	char	 sz;
+	int ret;
+	char sz;
 
 	if (UNLIKELY(!str)) {
 		pr_dbg("%s: empty string specified\n", __func__);
@@ -1354,8 +1357,12 @@ out:
 #elif defined(STRESS_ARCH_X86)
 stress_cpu_cache_cpus_t *stress_cpu_cache_details_get(void)
 {
-	uint32_t eax, ebx, ecx, edx;
-	int32_t i, cpu_count;
+	uint32_t eax;
+	uint32_t ebx;
+	uint32_t ecx;
+	uint32_t edx;
+	int32_t i;
+	int32_t cpu_count;
 	stress_cpu_cache_cpus_t *cpus;
 
 	if (!stress_cpu_is_x86())
@@ -1403,7 +1410,7 @@ stress_cpu_cache_cpus_t *stress_cpu_cache_details_get(void)
  */
 void stress_cpu_cache_free(stress_cpu_cache_cpus_t *cpus)
 {
-	uint32_t  i;
+	uint32_t i;
 
 	if (!cpus)
 		return;

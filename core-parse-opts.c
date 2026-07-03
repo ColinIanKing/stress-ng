@@ -94,7 +94,9 @@ void stress_check_range_bytes(
 	const uint64_t hi)
 {
 	if ((val < lo) || (val > hi)) {
-		char strval[32], strlo[32], strhi[32];
+		char strval[32];
+		char strlo[32];
+		char strhi[32];
 
 		(void)fprintf(stderr, "value %sB is out of range for %s,"
 			" allowed: %sB .. %sB\n",
@@ -459,7 +461,8 @@ static const stress_scale_t size_scales[] = {
 
 uint64_t stress_get_uint64_byte_scale(const char *const str)
 {
-	int ch, i;
+	int ch;
+	int i;
 	const size_t len = strlen(str);
 
 	if (len < 1) {
@@ -494,7 +497,8 @@ err:
  */
 uint64_t stress_get_uint64_byte(const char *const str)
 {
-	size_t llc_size = 0, cache_line_size = 0;
+	size_t llc_size = 0;
+	size_t cache_line_size = 0;
 
 	if (strncasecmp(str, "L", 1) != 0)
 		return stress_get_uint64_scale(str, size_scales, "length");
@@ -541,7 +545,8 @@ uint64_t stress_get_uint64_percent(
 
 	/* Convert to % over N instances */
 	if ((len > 1) && (str[len - 1] == '%')) {
-		double val, percent;
+		double val;
+		double percent;
 
 		/* Avoid division by zero */
 		if (max == 0) {

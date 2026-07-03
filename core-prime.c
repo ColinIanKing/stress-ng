@@ -30,7 +30,8 @@
  */
 bool CONST stress_prime64_check(const uint64_t n)
 {
-	register uint64_t i, max;
+	register uint64_t i;
+	register uint64_t max;
 	double max_d;
 
 	if (UNLIKELY(n <= 3))

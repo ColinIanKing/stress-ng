@@ -297,7 +297,8 @@ static size_t stress_mapping_hugetlb_size(void *addr)
 	char buf[4096];
 	size_t hugetlb_size = 0;
 	bool addr_match = false;
-	uintptr_t addr_begin = 0, addr_end = 0;
+	uintptr_t addr_begin = 0;
+	uintptr_t addr_end = 0;
 
 	(void)snprintf(path, sizeof(path), "/proc/%" PRIdMAX "/smaps", (intmax_t)pid);
 	fp = fopen(path, "r");

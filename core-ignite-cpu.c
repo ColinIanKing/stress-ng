@@ -150,7 +150,8 @@ static void stress_ignite_cpu_set(
  */
 void stress_ignite_cpu_start(void)
 {
-	size_t i, n = 0;
+	size_t i;
+	size_t n = 0;
 
 	if (enabled)
 		return;

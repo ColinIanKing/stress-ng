@@ -87,7 +87,8 @@ RB_GENERATE(rb_tree, rb_node, rb, rb_node_cmp)
  */
 static char *stress_ftrace_debugfs_path_get(void)
 {
-	int i, n;
+	int i;
+	int n;
 	char *mnts[MAX_MOUNTS];
 	static char debugfs_path[1024];
 

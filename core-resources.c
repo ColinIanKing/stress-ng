@@ -161,8 +161,13 @@ size_t stress_resources_allocate(
 	struct rlimit rlim;
 #endif
 	size_t mlock_size;
-	size_t i, n = 0;
-	size_t shmall, freemem, totalmem, freeswap, totalswap;
+	size_t i;
+	size_t n = 0;
+	size_t shmall;
+	size_t freemem;
+	size_t totalmem;
+	size_t freeswap;
+	size_t totalswap;
 	const pid_t pid = getpid();
 #if defined(HAVE_PIDFD_OPEN)
 	const pid_t ppid = getppid();

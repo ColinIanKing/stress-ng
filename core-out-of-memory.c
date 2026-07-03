@@ -100,7 +100,8 @@ static int stress_set_adjustment(
 	const char *str)
 {
 	const size_t len = strlen(str);
-	int i, saved_errno = 0;
+	int i;
+	int saved_errno = 0;
 
 	for (i = 0; i < 32; i++) {
 		ssize_t n;
@@ -285,7 +286,8 @@ again:
 		return -1;
 	} else if (pid > 0) {
 		/* Parent, wait for child */
-		int status, ret;
+		int status;
+		int ret;
 		double t_end = -1.0;
 
 		args->stats->s_pid.oomable_child = pid;

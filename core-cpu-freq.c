@@ -52,7 +52,9 @@ void stress_cpu_freq_get(
 	double *max_ghz)
 {
 	struct dirent **cpu_list = NULL;
-	int i, n_cpus, n = 0;
+	int i;
+	int n_cpus;
+	int n = 0;
 	double total_freq = 0.0;
 
 	*min_ghz = DBL_MAX;
@@ -145,7 +147,8 @@ void stress_cpu_freq_get(
 	double *min_ghz,
 	double *max_ghz)
 {
-	int mib[2], speed_mhz;
+	int mib[2];
+	int speed_mhz;
 	size_t size;
 
 	mib[0] = CTL_HW;

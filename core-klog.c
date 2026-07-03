@@ -78,7 +78,8 @@ static bool CONST stress_klog_err_no_exceptions(const char *str)
 static void stress_klog_kernel_cmdline(void)
 {
 	static bool already_dumped = false;
-	char buffer[4096], *ptr;
+	char buffer[4096];
+	char *ptr;
 	ssize_t ret;
 
 	if (already_dumped)
@@ -153,7 +154,9 @@ void stress_klog_start(void)
 		(void)fseek(klog_fp, 0, SEEK_END);
 
 		while (fgets(buf, sizeof(buf), klog_fp)) {
-			int priority, facility, n;
+			int priority;
+			int facility;
+			int n;
 			uint64_t timestamp;
 			char *ptr;
 			char ts[32];

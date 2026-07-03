@@ -424,7 +424,8 @@ uint64_t stress_fs_size_get(void)
 #if defined(HAVE_SYS_STATVFS_H)
 	int rc;
 	struct statvfs buf;
-	fsblkcnt_t blocks, max_blocks;
+	fsblkcnt_t blocks;
+	fsblkcnt_t max_blocks;
 	const char *path = stress_fs_temp_path_get();
 
 	if (UNLIKELY(!path))
@@ -486,7 +487,9 @@ void stress_fs_usage_bytes(
 	const off_t fs_size_total)
 {
 	const off_t total_fs_size = (off_t)stress_fs_size_get();
-	char s1[32], s2[32], s3[32];
+	char s1[32];
+	char s2[32];
+	char s3[32];
 
 	if (total_fs_size > 0) {
 		pr_inf("%s: using %sB file system space per stressor instance (total %sB of %sB available file system space)\n",
@@ -505,8 +508,8 @@ void stress_fs_usage_bytes(
 int stress_fs_nonblocking_set(const int fd)
 {
 	int flags;
-#if defined(O_NONBLOCK)
 
+#if defined(O_NONBLOCK)
 	if ((flags = fcntl(fd, F_GETFL, 0)) < 0)
 		flags = 0;
 	return fcntl(fd, F_SETFL, O_NONBLOCK | flags);
@@ -1062,7 +1065,8 @@ static inline int stress_fs_max_pipe_size_check(
 	const size_t sz,
 	const size_t page_size)
 {
-	int fds[2], rc = 0;
+	int fds[2];
+	int rc = 0;
 
 	if (UNLIKELY(sz < page_size))
 		return -1;
@@ -1089,7 +1093,10 @@ size_t stress_fs_max_pipe_size_get(void)
 
 #if defined(F_SETPIPE_SZ)
 	ssize_t ret;
-	size_t i, prev_sz, sz, min, max;
+	size_t i, prev_sz;
+	size_t sz;
+	size_t min;
+	size_t max;
 	char buf[64];
 	size_t page_size;
 #endif
@@ -1159,7 +1166,8 @@ void stress_fs_dirent_list_free(struct dirent **dlist, const int n)
  */
 int stress_fs_dirent_list_prune(struct dirent **dlist, const int n)
 {
-	int i, j;
+	int i;
+	int j;
 
 	if (UNLIKELY(!dlist))
 		return -1;
@@ -1184,7 +1192,8 @@ int stress_fs_dirent_list_prune(struct dirent **dlist, const int n)
  */
 ssize_t stress_fs_read_discard(const int fd)
 {
-	ssize_t rbytes = 0, ret;
+	ssize_t rbytes = 0;
+	ssize_t ret;
 
 	do {
 		char buffer[4096];
@@ -1209,7 +1218,8 @@ ssize_t stress_fs_read(
 	const ssize_t size,
 	const bool ignore_sig_eintr)
 {
-	ssize_t rbytes = 0, ret;
+	ssize_t rbytes = 0;
+	ssize_t ret;
 
 	if (UNLIKELY(!buffer || (size < 1)))
 		return -1;
@@ -1238,7 +1248,8 @@ ssize_t stress_fs_write(
 	const ssize_t size,
 	const bool ignore_sig_eintr)
 {
-	ssize_t wbytes = 0, ret;
+	ssize_t wbytes = 0;
+	ssize_t ret;
 	ssize_t max_sz = MB;
 
 	if (UNLIKELY(!buffer || (size < 1)))
@@ -1359,7 +1370,8 @@ static bool static_fs_partition_dev_find(
 	while (fgets(buf, sizeof(buf), fp) != NULL) {
 		uint64_t blocks;
 		char devname[129];
-		unsigned int pmajor, pminor;
+		unsigned int pmajor;
+		unsigned int pminor;
 
 		if (sscanf(buf, "%u %u %" SCNu64 " %128s", &pmajor, &pminor, &blocks, devname) == 4) {
 			if ((devmajor == pmajor) && (devminor == pminor)) {
@@ -1492,7 +1504,8 @@ const char *stress_fs_type_get(const char *filename)
  */
 void stress_fs_close_fds(int *fds, const size_t n)
 {
-	size_t i, j;
+	size_t i;
+	size_t j;
 
 	if (UNLIKELY(!fds))
 		return;
@@ -1634,7 +1647,8 @@ static void stress_fs_clean_dir_files(
 	const size_t path_posn)
 {
 	struct stat statbuf;
-	char *ptr, *end;
+	char *ptr;
+	char *end;
 	int n;
 	struct dirent **names = NULL;
 

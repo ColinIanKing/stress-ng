@@ -283,7 +283,8 @@ void stress_stack_backtrace(void)
 {
 #if defined(HAVE_EXECINFO_H) &&	\
     defined(HAVE_BACKTRACE)
-	int i, n_ptrs;
+	int i;
+	int n_ptrs;
 	void *buffer[BACKTRACE_BUF_SIZE];
 	char **strings;
 

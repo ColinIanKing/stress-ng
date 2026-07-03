@@ -103,7 +103,8 @@ int stress_sched_set(
 	const bool quiet)
 {
 #if defined(SCHED_FIFO) || defined(SCHED_RR)
-	int min, max;
+	int min;
+	int max;
 #endif
 #if defined(SCHED_DEADLINE) &&	\
     defined(__linux__)

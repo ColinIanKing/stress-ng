@@ -307,7 +307,9 @@ static char *stress_iostat_iostat_name(
 	char *iostat_name,
 	const size_t iostat_name_len)
 {
-	char *temp_path, *dev, *ptr;
+	char *temp_path;
+	char *dev;
+	char *ptr;
 	struct stat statbuf;
 
 	/* Resolve links */
@@ -828,7 +830,8 @@ static void stress_read_vmstat(
 
 		for (;;) {
 			struct kinfo_proc *result;
-			size_t i, n;
+			size_t i;
+			size_t n;
 
 			ret = sysctl((int *)name, (sizeof(name)/sizeof(*name))-1, NULL,
 				&length, NULL, 0);
@@ -1078,7 +1081,9 @@ void stress_vmstat_start(void)
 	int32_t vmstat_sleep;
 	const size_t page_size = stress_memory_page_size_get();
 
-	double t1, t2, t_start;
+	double t1;
+	double t2;
+	double t_start;
 #if defined(HAVE_SYS_SYSMACROS_H) &&	\
     defined(__linux__)
 	char iostat_name[PATH_MAX];
@@ -1254,7 +1259,12 @@ void stress_vmstat_start(void)
 		}
 
 		if (thermalstat_delay == thermalstat_sleep) {
-			double min1, min5, min15, avg_ghz, min_ghz, max_ghz;
+			double min1;
+			double min5;
+			double min15;
+			double avg_ghz;
+			double min_ghz;
+			double max_ghz;
 			size_t therms_len = 1 + (tz_num * 7);
 			char *therms;
 			char cpuspeed[19];

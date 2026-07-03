@@ -373,10 +373,16 @@ static OPTIMIZE3 bool stress_cpu_is_x86_test(void)
 		"XenVMMXenVMM",		/* XEN HVM */
 	};
 
-	uint32_t eax, ebx, ecx, edx;
+	uint32_t eax;
+	uint32_t ebx;
+	uint32_t ecx;
+	uint32_t edx;
 	size_t i;
 
-	eax = 0; ebx = 0; ecx = 0; edx = 0;
+	eax = 0;
+	ebx = 0;
+	ecx = 0;
+	edx = 0;
 	stress_asm_x86_cpuid(eax, ebx, ecx, edx);
 
 	/* Intel CPU? */
@@ -390,7 +396,10 @@ static OPTIMIZE3 bool stress_cpu_is_x86_test(void)
 	}
 
 	/* Virtual machine? */
-	eax = 0x40000000; ebx = 0; ecx = 0; edx = 0;
+	eax = 0x40000000;
+	ebx = 0;
+	ecx = 0;
+	edx = 0;
 	stress_asm_x86_cpuid(eax, ebx, ecx, edx);
 	for (i = 0; i < SIZEOF_ARRAY(x86_virt_id_str); i++) {
 		const char *str = x86_virt_id_str[i];
@@ -480,7 +489,6 @@ bool OPTIMIZE3 stress_cpu_x86_has_waitpkg(void)
 	return false;
 #endif
 }
-
 
 /*
  *  stress_cpu_x86_has_rdseed()
@@ -713,8 +721,12 @@ static void stress_cpu_x86_dtlb_size_for_4k_pages(
 	uint32_t *entries,
 	uint8_t *level)
 {
-	uint32_t eax, ebx, ecx, edx;
-	uint32_t levels, max_levels;
+	uint32_t eax;
+	uint32_t ebx;
+	uint32_t ecx;
+	uint32_t edx;
+	uint32_t levels;
+	uint32_t max_levels;
 
 	/* see https://www.felixcloutier.com/x86/cpuid#tbl-3-12 */
 	switch (descriptor) {
@@ -795,7 +807,10 @@ static void stress_cpu_x86_dtlb_size_for_4k_pages(
 		*level = 2;
 		break;
 	case 0xfe:
-		eax = 0x18; ebx = 0; ecx = 0; edx = 0;
+		eax = 0x18;
+		ebx = 0;
+		ecx = 0;
+		edx = 0;
 		stress_asm_x86_cpuid(eax, ebx, ecx, edx);
 		max_levels = eax;
 
@@ -804,7 +819,10 @@ static void stress_cpu_x86_dtlb_size_for_4k_pages(
 			 * get Deterministic Address Translation
 			 * Parameters for sub leaves
 			 */
-			eax = 0x18; ebx = 0; ecx = levels; edx = 0;
+			eax = 0x18;
+			ebx = 0;
+			ecx = levels;
+			edx = 0;
 			stress_asm_x86_cpuid(eax, ebx, ecx, edx);
 			if (ebx & 1) {
 				/* 4K page */
@@ -840,7 +858,8 @@ static void stress_cpu_x86_dtlb_size_for_4k_pages_reg(
 {
 	int i;
 #if defined(HAVE_SCHED_SETAFFINITY)
-	uint32_t cpu, cpus;
+	uint32_t cpu;
+	uint32_t cpus;
 	cpu_set_t mask;
 #endif
 
@@ -891,12 +910,18 @@ static void stress_cpu_x86_dtlb_size_for_4k_pages_reg(
 void stress_cpu_x86_dtlb_entries(uint32_t *entries, uint8_t *level)
 {
 #if defined(STRESS_ARCH_X86)
-	uint32_t eax, ebx, ecx, edx;
+	uint32_t eax;
+	uint32_t ebx;
+	uint32_t ecx;
+	uint32_t edx;
 
 	*entries = 0;
 	*level = 0;
 
-	eax = 2; ebx = 0; ecx = 0; edx = 0;
+	eax = 2;
+	ebx = 0;
+	ecx = 0;
+	edx = 0;
 	stress_asm_x86_cpuid(eax, ebx, ecx, edx);
 	stress_cpu_x86_dtlb_size_for_4k_pages_reg(eax, entries, level);
 	stress_cpu_x86_dtlb_size_for_4k_pages_reg(ebx, entries, level);

@@ -116,7 +116,12 @@ static int stress_config_read(const char *path, uint64_t *value)
  */
 void stress_config_check(void)
 {
-	size_t shmall = 0, freemem = 0, totalmem = 0, freeswap = 0, totalswap = 0, freetotal;
+	size_t shmall = 0;
+	size_t freemem = 0;
+	size_t totalmem = 0;
+	size_t freeswap = 0;
+	size_t totalswap = 0;
+	size_t freetotal;
 
 #if defined(__linux__)
 	if (g_opt_flags & OPT_FLAGS_METRICS) {
@@ -126,7 +131,8 @@ void stress_config_check(void)
 		static const char turbo_path[] = "/sys/devices/system/cpu/intel_pstate/no_turbo";
 		uint64_t value;
 		struct dirent **namelist = NULL;
-		int n, i;
+		int i;
+		int n;
 		int powersave = 0;
 
 		if ((stress_config_read(autogroup_path, &value) != -1) && (value > 0)) {

@@ -77,7 +77,9 @@ void stress_mount_free(char *mnts[], const int n)
 #if defined(HAVE_GETMNTINFO)
 int stress_mount_get(char *mnts[], const int max)
 {
-	int i, n = 0, ret;
+	int i;
+	int n = 0;
+	int ret;
 #if defined(__NetBSD__) || defined(__minix__)
 	struct statvfs *statbufs;
 #else

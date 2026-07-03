@@ -250,7 +250,8 @@ void stress_tz_dump(FILE *yaml, stress_list_item_t *stressors_list)
 	for (item = stressors_list; item; item = item->next) {
 		stress_tz_info_t *tz_info;
 		int32_t  j;
-		size_t i, n;
+		size_t i;
+		size_t n;
 		bool dumped_heading = false;
 		stress_tz_info_t **tz_infos;
 		bool print_nl = false;
@@ -293,7 +294,8 @@ void stress_tz_dump(FILE *yaml, stress_list_item_t *stressors_list)
 
 			if (total) {
 				const double temp = (count > 0) ? ((double)total / count) / 1000.0 : 0.0;
-				char tmp[64], *type;
+				char tmp[64];
+				char *type;
 
 				if (!dumped_heading) {
 					const char *name = item->stressor->name;

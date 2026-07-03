@@ -135,7 +135,8 @@ void stress_mwc_reseed(void)
 			double d_now;
 			uint64_t u64_now;
 		} u;
-		int i, n;
+		int i;
+		int n;
 		const uint64_t aux_rnd = stress_aux_random_seed();
 		const uint64_t id = stress_machine_id_get();
 		const intptr_t p1 = (intptr_t)&mwc;
@@ -344,7 +345,8 @@ static inline ALWAYS_INLINE OPTIMIZE3 uint16_t stress_mwc16mask(const uint16_t v
  */
 uint16_t OPTIMIZE3 stress_mwc16modn(const uint16_t max)
 {
-	register uint16_t mask, val;
+	register uint16_t mask;
+	register uint16_t val;
 
 	if (UNLIKELY(max < 2))
 		return 0;
@@ -380,7 +382,8 @@ static inline ALWAYS_INLINE OPTIMIZE3 uint32_t stress_mwc32mask(const uint32_t v
  */
 uint32_t OPTIMIZE3 stress_mwc32modn(const uint32_t max)
 {
-	register uint32_t mask, val;
+	register uint32_t mask;
+	register uint32_t val;
 
 	if (UNLIKELY(max < 2))
 		return 0;
@@ -420,7 +423,8 @@ static inline ALWAYS_INLINE OPTIMIZE3 uint64_t stress_mwc64mask(const uint64_t v
  */
 uint64_t OPTIMIZE3 stress_mwc64modn(const uint64_t max)
 {
-	register uint64_t mask, val;
+	register uint64_t mask;
+	register uint64_t val;
 
 	if (UNLIKELY(max < 2))
 		return 0;
@@ -469,7 +473,8 @@ void OPTIMIZE3 stress_rndstr(char *str, const size_t len)
 		'4', '5', '6', '7', '8', '9', '-', '_',
 	};
 	register uint32_t r, mask;
-	register char *ptr, *ptr_end;
+	register char *ptr;
+	register char *ptr_end;
 
 	if (len == 0)
 		return;
@@ -500,7 +505,8 @@ void OPTIMIZE3 stress_rndstr(char *str, const size_t len)
  */
 void OPTIMIZE3 stress_uint8rnd4(uint8_t *data, const size_t len)
 {
-	register uint32_t *ptr32, *ptr32end;
+	register uint32_t *ptr32;
+	register uint32_t *ptr32end;
 	register uint8_t *ptr8 = data;
 	register const uint8_t *ptr8end = data + len;
 

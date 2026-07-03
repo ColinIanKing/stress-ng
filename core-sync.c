@@ -169,7 +169,8 @@ void stress_sync_start_cont_list(stress_pid_t *s_pids_head)
 	if (!unready) {
 		do {
 			stress_pid_t *s_pid;
-			int running = 0, finished = 0;
+			int running = 0;
+			int finished = 0;
 			uint8_t state;
 
 			for (s_pid = s_pids_head; s_pid; s_pid = s_pid->next) {
