@@ -130,7 +130,9 @@ void stress_mwc_reseed(void)
 	} else {
 		struct timeval tv;
 		struct rusage r;
-		double m1, m5, m15;
+		double m1;
+		double m5;
+		double m15;
 		union {
 			double d_now;
 			uint64_t u64_now;
@@ -472,7 +474,8 @@ void OPTIMIZE3 stress_rndstr(char *str, const size_t len)
 		'w', 'x', 'y', 'z', '0', '1', '2', '3',
 		'4', '5', '6', '7', '8', '9', '-', '_',
 	};
-	register uint32_t r, mask;
+	register uint32_t r;
+	register uint32_t mask;
 	register char *ptr;
 	register const char *ptr_end;
 
