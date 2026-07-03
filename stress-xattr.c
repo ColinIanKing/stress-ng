@@ -56,7 +56,9 @@ static const stress_help_t help[] = {
  */
 static int stress_xattr(stress_args_t *args)
 {
-	int ret, fd, rc = EXIT_FAILURE;
+	int ret;
+	int fd;
+	int rc = EXIT_FAILURE;
 	const int bad_fd = stress_fs_bad_fd_get();
 	char filename[PATH_MAX];
 #if defined(O_TMPFILE)
@@ -112,7 +114,8 @@ static int stress_xattr(stress_args_t *args)
 	stress_proc_state_set(args->name, STRESS_STATE_RUN);
 
 	do {
-		int i, j;
+		int i;
+		int j;
 		char attrname[32];
 		char value[32];
 		char tmp[sizeof(value)];

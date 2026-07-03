@@ -139,7 +139,9 @@ static void OPTIMIZE3 stress_x86cpuid_reorder_regs(const size_t n, stress_cpuid_
  */
 static int stress_x86cpuid(stress_args_t *args)
 {
-	double count = 0.0, duration = 0.0, rate;
+	double count = 0.0;
+	double duration = 0.0;
+	double rate;
 	const size_t n = SIZEOF_ARRAY(stress_cpuid_regs);
 	stress_cpuid_saved_regs_t saved_regs[SIZEOF_ARRAY(stress_cpuid_regs)];
 	int rc = EXIT_SUCCESS;
@@ -152,13 +154,17 @@ static int stress_x86cpuid(stress_args_t *args)
 
 	do {
 		double t;
-		register size_t i, j;
+		register size_t i;
+		register size_t j;
 
 		stress_x86cpuid_reorder_regs(n, reordered_cpu_regs);
 
 		for (i = 0; i < n; i++) {
 			if (stress_cpuid_regs[i].verify) {
-				uint32_t eax, ebx, ecx, edx;
+				uint32_t eax;
+				uint32_t ebx;
+				uint32_t ecx;
+				uint32_t edx;
 
 				eax = stress_cpuid_regs[i].eax;
 				ebx = 0; /* Not required */
@@ -178,7 +184,10 @@ static int stress_x86cpuid(stress_args_t *args)
 		for (j = 0; j < 1024; j++) {
 PRAGMA_UNROLL_N(8)
 			for (i = 0; i < n; i++) {
-				uint32_t eax, ebx, ecx, edx;
+				uint32_t eax;
+				uint32_t ebx;
+				uint32_t ecx;
+				uint32_t edx;
 
 				eax = reordered_cpu_regs[i].eax;
 				ebx = 0; /* Not required */
@@ -194,7 +203,10 @@ PRAGMA_UNROLL_N(8)
 
 		for (i = 0; i < n; i++) {
 			if (stress_cpuid_regs[i].verify) {
-				uint32_t eax, ebx, ecx, edx;
+				uint32_t eax;
+				uint32_t ebx;
+				uint32_t ecx;
+				uint32_t edx;
 
 				eax = stress_cpuid_regs[i].eax;
 				ebx = 0; /* Not required */

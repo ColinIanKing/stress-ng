@@ -301,7 +301,8 @@ static bool x86syscalls_exercise[SIZEOF_ARRAY(x86syscalls)];
 static char *x86syscall_list_str(void)
 {
 	char *str = NULL;
-	size_t i, len = 0;
+	size_t i;
+	size_t len = 0;
 
 	for (i = 0; i < SIZEOF_ARRAY(x86syscalls); i++) {
 		if (x86syscalls_exercise[i]) {
@@ -362,10 +363,16 @@ static int x86syscall_check_x86syscall_func(void)
  */
 static int stress_x86syscall(stress_args_t *args)
 {
-	double t1, t2, t3, t4, dt, overhead_ns;
+	double t1;
+	double t2;
+	double t3;
+	double t4;
+	double dt;
+	double overhead_ns;
 	uint64_t counter;
 	stress_wrapper_func_t x86syscall_funcs[SIZEOF_ARRAY(x86syscalls)] ALIGN64;
-	register size_t i, n;
+	register size_t i;
+	register size_t n;
 	int rc = EXIT_SUCCESS;
 
 	for (i = 0; i < SIZEOF_ARRAY(x86syscalls); i++)
@@ -492,7 +499,8 @@ static int stress_x86syscall(stress_args_t *args)
 #endif
 #if defined(__NR_time)
 	{
-		time_t time1 = 0, time2 = 0;
+		time_t time1 = 0;
+		time_t time2 = 0;
 
 		if ((time(&time1) != (time_t)-1) &&
 		    ((time_t)x86_64_syscall1(__NR_time, (long int)&time2) != (time_t)-1)) {
@@ -507,7 +515,8 @@ static int stress_x86syscall(stress_args_t *args)
 #endif
 #if defined(__NR_gettimeofday)
 	{
-		struct timeval tv1, tv2;
+		struct timeval tv1;
+		struct timeval tv2;
 
 		if ((gettimeofday(&tv1, NULL) != -1) &&
 		    ((int)x86_64_syscall2(__NR_gettimeofday, (long)&tv2, (long)NULL) != -1)) {
