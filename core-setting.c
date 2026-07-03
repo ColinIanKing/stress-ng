@@ -173,6 +173,9 @@ void stress_setting_show(void)
 	for (n = 0, setting = setting_head; setting; setting = setting->next)
 		n++;
 
+	if (!n)
+		return;
+
 	settings = (stress_setting_t **)calloc(n, sizeof(*settings));
 	if (UNLIKELY(!settings))
 		return;
