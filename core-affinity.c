@@ -399,7 +399,8 @@ int stress_affinity_cpu_set(const char *arg)
  */
 uint32_t stress_affinity_cpus_get(uint32_t **cpus, const bool use_affinity)
 {
-	uint32_t i, n_cpus = (uint32_t)stress_cpus_configured_get();
+	uint32_t i;
+	uint32_t n_cpus = (uint32_t)stress_cpus_configured_get();
 
 #if defined(HAVE_SCHED_GETAFFINITY) && \
     defined(HAVE_SCHED_SETAFFINITY) && \

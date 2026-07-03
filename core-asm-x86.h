@@ -93,7 +93,8 @@ static inline uint64_t ALWAYS_INLINE stress_asm_x86_rdtsc(void)
 {
 #if defined(STRESS_ARCH_X86) &&	\
     defined(HAVE_ASM_X86_RDTSC)
-	uint32_t lo, hi;
+	uint32_t lo;
+	uint32_t hi;
 
 	__asm__ __volatile__("rdtsc" : "=a" (lo), "=d" (hi));
 	return ((uint64_t)hi << 32) | lo;
@@ -109,7 +110,9 @@ static inline uint64_t ALWAYS_INLINE stress_asm_x86_rdtscp(void)
 {
 #if defined(STRESS_ARCH_X86) &&	\
     defined(HAVE_ASM_X86_RDTSCP)
-	uint32_t lo, hi, tsc_aux;
+	uint32_t lo;
+	uint32_t hi;
+	uint32_t tsc_aux;
 
 	__asm__ __volatile__("rdtscp" : "=a" (lo), "=d" (hi), "=c" (tsc_aux));
 	return ((uint64_t)hi << 32) | lo;
@@ -126,7 +129,7 @@ static inline uint64_t ALWAYS_INLINE stress_asm_x86_rdtscp(void)
  */
 static inline uint64_t ALWAYS_INLINE stress_asm_x86_rdrand(void)
 {
-	uint64_t        ret;
+	uint64_t ret;
 
 	__asm__ __volatile__(
 	"1:;\n\
@@ -169,7 +172,7 @@ static inline uint64_t ALWAYS_INLINE stress_asm_x86_rdrand(void)
  */
 static inline uint64_t ALWAYS_INLINE stress_asm_x86_rdseed(void)
 {
-	uint64_t        ret;
+	uint64_t ret;
 
 	__asm__ __volatile__(
 	"1:;\n\

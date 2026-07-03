@@ -115,7 +115,9 @@ static inline uint32_t CONST ALWAYS_INLINE stress_bitops_bitreverse32(const uint
 #if defined(HAVE_BUILTIN_BITREVERSE)
 	return  __builtin_bitreverse32(val);
 #else
-	register uint32_t r, v, s = (sizeof(val) * 8) - 1;
+	register uint32_t r;
+	register uint32_t v;
+	register uint32_t s = (sizeof(val) * 8) - 1;
 
 	r = v = val;
 	for (v >>= 1; v; v >>= 1, s--) {
@@ -139,7 +141,8 @@ static inline uint32_t CONST ALWAYS_INLINE stress_bitops_popcount64(const uint64
 	return  (uint32_t)__builtin_popcountll(val);
 #else
 	/* Brian Kernighan's count bits */
-	register uint64_t j, v = val;
+	register uint64_t j;
+	register uint64_t v = val;
 
 	for (j = 0; v; j++)
 		v &= v - 1;
@@ -157,7 +160,8 @@ static inline uint32_t CONST ALWAYS_INLINE stress_bitops_popcount32(const uint32
 	return  (uint32_t)__builtin_popcount((unsigned int)val);
 #else
 	/* Brian Kernighan's count bits */
-	register uint32_t j, v = val;
+	register uint32_t j;
+	register uint32_t v = val;
 
 	for (j = 0; v; j++)
 		v &= v - 1;

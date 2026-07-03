@@ -391,8 +391,9 @@ static OPTIMIZE3 bool stress_cpu_is_x86_test(void)
 
 		if ((shim_memcmp(&ebx, str + 0, 4) == 0) &&
 		    (shim_memcmp(&edx, str + 4, 4) == 0) &&
-		    (shim_memcmp(&ecx, str + 8, 4) == 0))
-		return true;
+		    (shim_memcmp(&ecx, str + 8, 4) == 0)) {
+			return true;
+		}
 	}
 
 	/* Virtual machine? */
@@ -406,8 +407,9 @@ static OPTIMIZE3 bool stress_cpu_is_x86_test(void)
 
 		if ((shim_memcmp(&ebx, str + 0, 4) == 0) &&
 		    (shim_memcmp(&edx, str + 4, 4) == 0) &&
-		    (shim_memcmp(&ecx, str + 8, 4) == 0))
-		return true;
+		    (shim_memcmp(&ecx, str + 8, 4) == 0)) {
+			return true;
+		}
 	}
 #endif
 	return false;
