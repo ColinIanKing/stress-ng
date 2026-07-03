@@ -88,7 +88,7 @@ static void OPTIMIZE3 stress_wrndstr_case(wchar_t *str, const size_t len, bool u
 
 	register const wchar_t *alphabet;
 	register wchar_t *ptr;
-	register wchar_t *ptr_end;
+	register const wchar_t *ptr_end;
 	register const uint32_t mask = 0xc0000000;
 	register uint32_t v = stress_mwc32() | mask;
 
