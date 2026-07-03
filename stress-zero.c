@@ -69,11 +69,14 @@ static const mmap_flags_t mmap_flags[] = {
  */
 static int stress_zero(stress_args_t *args)
 {
-	int fd, rc = EXIT_SUCCESS;
-	double duration = 0.0, rate;
+	int fd;
+	int rc = EXIT_SUCCESS;
+	double duration = 0.0;
+	double rate;
 	uint64_t bytes = 0ULL;
 	const size_t page_size = args->page_size;
-	void *rd_buffer, *wr_buffer;
+	void *rd_buffer;
+	void *wr_buffer;
 	bool zero_read = false;
 #if defined(__minix__)
 	const int flags = O_RDONLY;
@@ -278,7 +281,6 @@ static int stress_zero(stress_args_t *args)
 
 	return rc;
 }
-
 
 static const stress_opt_t opts[] = {
         { OPT_zero_read, "zero-read", TYPE_ID_BOOL, 0, 1, NULL },

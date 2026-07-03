@@ -357,7 +357,10 @@ static void stress_rand_data_digits(
 	(void)args;
 
 	while (ptr < end) {
-		register uint32_t v10th, r, v, rnd = stress_mwc32();
+		register uint32_t v10th;
+		register uint32_t r;
+		register uint32_t v;
+		register uint32_t rnd = stress_mwc32();
 
 		v = rnd & 0xffff;
 		v10th = div10(v);
@@ -570,7 +573,10 @@ static void stress_rand_data_rdrand(
 #if defined(HAVE_ASM_X86_RDRAND)
 	if (stress_cpu_x86_has_rdrand()) {
 		while (LIKELY(ptr < end)) {
-			register uint64_t a, b, c, d;
+			register uint64_t a;
+			register uint64_t b;
+			register uint64_t c;
+			register uint64_t d;
 
 			a = stress_asm_x86_rdrand();
 			*(ptr++) = a;
@@ -597,7 +603,10 @@ static void stress_rand_data_rdrand(
 	}
 #endif
 	while (ptr < end) {
-		register uint64_t a, b, c, d;
+		register uint64_t a;
+		register uint64_t b;
+		register uint64_t c;
+		register uint64_t d;
 
 		a = stress_mwc64();
 		*(ptr++) = a;

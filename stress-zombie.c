@@ -119,7 +119,8 @@ static bool stress_pid_a_zombie(const pid_t pid)
 {
 #if defined(__linux__)
 	char path[PATH_MAX];
-	char buf[4096], *ptr = buf;
+	char buf[4096];
+	char *ptr = buf;
 	int fd;
 	ssize_t n;
 
