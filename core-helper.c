@@ -888,7 +888,8 @@ unsigned int stress_cpu_get(void)
 	return (unsigned int)((cpu < 0) ? 0 : cpu);
 #endif
 #else
-	unsigned int cpu, node;
+	unsigned int cpu;
+	unsigned int node;
 
 	if (UNLIKELY(shim_getcpu(&cpu, &node, NULL) < 0))
 		return 0;
