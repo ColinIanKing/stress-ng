@@ -730,7 +730,9 @@ static inline stress_hash_t *stress_hash_find(stress_hash_t *hash, const char *s
  *	get a hash entry based on the given string. returns NULL if it does
  *	not exist
  */
-stress_hash_t *stress_hash_get(stress_hash_table_t *hash_table, const char *str)
+stress_hash_t *stress_hash_get(
+	const stress_hash_table_t *hash_table,
+	const char *str)
 {
 	uint32_t h;
 

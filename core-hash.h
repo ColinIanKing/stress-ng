@@ -39,7 +39,7 @@ extern WARN_UNUSED stress_hash_table_t *stress_hash_create(const size_t n);
 extern stress_hash_t *stress_hash_add(stress_hash_table_t *hash_table,
 	const char *str);
 extern WARN_UNUSED stress_hash_t *stress_hash_get(
-	stress_hash_table_t *hash_table, const char *str);
+	const stress_hash_table_t *hash_table, const char *str);
 extern void stress_hash_delete(stress_hash_table_t *hash_table);
 
 extern WARN_UNUSED uint32_t stress_hash_adler32(const char *str, const size_t len);
