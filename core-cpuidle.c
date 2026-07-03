@@ -231,7 +231,10 @@ static void stress_cpuidle_read_cstates(
 			continue;
 
 		while ((cpuidle_d = readdir(cpuidle_dir)) != NULL) {
-			char path[PATH_MAX + 768], cstate[64], data[64], *ptr;
+			char path[PATH_MAX + 768];
+			char cstate[64];
+			char data[64];
+			char *ptr;
 			uint64_t cstate_time;
 			double now;
 
