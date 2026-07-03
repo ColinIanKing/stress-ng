@@ -33,7 +33,7 @@
 int stress_shared_cache_alloc(const char *name)
 {
 	stress_cpu_cache_cpus_t *cpu_caches;
-	stress_cpu_cache_t *cache = NULL;
+	const stress_cpu_cache_t *cache = NULL;
 	uint16_t max_cache_level = 0;
 	uint16_t level;
 	char cache_info[512];
