@@ -138,7 +138,7 @@ static int32_t opt_parallel = DEFAULT_PARALLEL;	/* # of parallel stressors */
 static int32_t opt_permute = DEFAULT_PARALLEL;	/* # of permuted stressors */
 static int32_t ionice_class = UNDEFINED;	/* ionice class */
 static int32_t ionice_level = UNDEFINED;	/* ionice level */
-static unsigned int opt_pause = 0;		/* pause between stressor invocations */
+static uint64_t opt_pause = 0;			/* pause between stressor invocations */
 
 /* Globals */
 stress_list_item_t *g_item_current;		/* current stressor item */
@@ -1863,9 +1863,9 @@ static void MLOCKED_TEXT stress_run(
 		if (first_run)
 			first_run = false;
 		else {
-			pr_dbg("pausing for %u second%s\n", opt_pause,
+			pr_dbg("pausing for %" PRIu64 " second%s\n", opt_pause,
 				opt_pause == 1 ? "" : "s");
-			(void)sleep(opt_pause);
+			(void)sleep((unsigned int)opt_pause);
 		}
 	}
 	pr_dbg("starting stressor%s\n", n_stressors > 1 ? "s" : "");
@@ -3935,7 +3935,7 @@ static const stress_opt_t main_opts[] = {
 	{ OPT_mbind,            "mbind",            TYPE_ID_STR, 0, 0, NULL },
 	{ OPT_no_madvise,       "no-madvise",       TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_oom_avoid_bytes,  "oom-avoid-bytes",  TYPE_ID_SIZE_T_BYTES_VM, 4096, 0xffffffffffffffffULL, NULL },
-	{ OPT_pause,            "pause",            TYPE_ID_UINT, 0, INT_MAX, NULL },
+	{ OPT_pause,            "pause",            TYPE_ID_UINT64_TIME, 0, INT_MAX, NULL },
 	{ OPT_permute,          "permute",          TYPE_ID_INT32_CPU_PERCENT, -STRESS_PROCS_MAX, STRESS_PROCS_MAX, NULL },
 	{ OPT_quiet,            "quiet",            TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_raplstat,         "raplstat",         TYPE_ID_INT32, 1, 3600, NULL },
