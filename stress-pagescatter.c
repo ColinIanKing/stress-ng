@@ -477,7 +477,8 @@ static int stress_pagescatter(stress_args_t *args)
 
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
 
-	shim_strscpy(buffer, "# pages", sizeof(buffer));
+	/* # pages field is 10 chars wide for 2^30 pages */
+	(void)snprintf(buffer, sizeof(buffer), "%14s", "# pages");
 	for (i = 0; i < SCATTER_MAX; i++) {
 		(void)snprintf(tmp, sizeof(tmp), " %10s", scatter_types[i]);
 		(void)shim_strlcat(buffer, tmp, sizeof(buffer));
@@ -490,7 +491,7 @@ static int stress_pagescatter(stress_args_t *args)
 		for (i = 0; i <= info->order; i++) {
 			size_t j;
 
-			(void)snprintf(buffer, sizeof(buffer), "%7d", 1U << i);
+			(void)snprintf(buffer, sizeof(buffer), "%10d", 1U << i);
 			for (j = 0; j < SCATTER_MAX; j++) {
 				if (info->rate[i].duration[j] > 0.0) {
 					double rate = info->rate[i].duration[j] > 0.0 ?
