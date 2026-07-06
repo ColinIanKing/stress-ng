@@ -89,8 +89,14 @@ static inline void ALWAYS_INLINE stress_asm_riscv_fence_i(void)
 /* Pause instruction */
 static inline void ALWAYS_INLINE stress_asm_riscv_pause(void)
 {
+#if defined(HAVE_ASM_RISCV_PAUSE_MNEMONIC)
+	/* new assembler: use the mnemonic, it disassembles readably */
+	__asm__ __volatile__ ("pause");
+#else
+	/* old assembler: hand-encoded word, shows as .word in disassembly */
 	/* pause is encoded as a fence instruction with pred=W, succ=0, and fm=0 */
 	__asm__ __volatile__ (".4byte 0x100000F");
+#endif
 }
 
 /* cbo.zero instruction */
