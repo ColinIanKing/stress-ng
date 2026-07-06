@@ -102,6 +102,8 @@ static void *stress_pagescatter_mmap(
 #if defined(MAP_POPULATE)
 		if (populate)
 			flags |= MAP_POPULATE;
+#else
+		(void)populate;
 #endif
 
 		/* random address hint */
@@ -119,7 +121,7 @@ static void *stress_pagescatter_mmap(
 		errno = 0;
 
 		/* if page is resident, it's mapped, try again  */
-		if (mincore((void *)addr, page_size, vec) == 0)
+		if (shim_mincore((void *)addr, page_size, vec) == 0)
 			continue;
 		/* if addr can be madvised then it's mapped, try again */
 		if  (madvise((void *)addr, page_size, MADV_NORMAL) == 0)
