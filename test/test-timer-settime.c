@@ -28,5 +28,5 @@ int main(void)
 	struct itimerspec new = { 0 };
 	struct itimerspec old = { 0 };
 
-	return timer_settime(&timerid, 0, &new, &old);
+	return timer_settime(timerid, 0, &new, &old);
 }
