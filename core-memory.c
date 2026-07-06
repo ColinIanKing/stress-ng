@@ -140,7 +140,7 @@ int stress_memory_info_get(stress_memory_info_t *info)
 		const size_t max_size_t = (size_t)-1;
 		const uint64_t vm_swap_total = stress_bsd_getsysctl_uint64("vm.swap_total");
 
-		*totalswap = (vm_swap_total >= max_size_t) ? max_size_t : (size_t)vm_swap_total;
+		info->totalswap = (vm_swap_total >= max_size_t) ? max_size_t : (size_t)vm_swap_total;
 #endif
 		info->freemem = page_size * stress_bsd_getsysctl_uint32("vm.stats.vm.v_free_count");
 		info->totalmem = page_size *
@@ -164,7 +164,7 @@ int stress_memory_info_get(stress_memory_info_t *info)
 			info->freemem = (size_t)u.free * u.pagesize;
 			info->totalmem = (size_t)u.npages * u.pagesize;
 			info->totalswap = (size_t)u.swpages * u.pagesize;
-			info->freeswap = *totalswap - (size_t)u.swpginuse * u.pagesize;
+			info->freeswap = info->totalswap - (size_t)u.swpginuse * u.pagesize;
 			info->shmall = 0;
 			return 0;
 		}
