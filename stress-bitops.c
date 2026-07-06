@@ -632,7 +632,7 @@ static int OPTIMIZE3 stress_bitops_min(const char *name, uint32_t *count)
 	for (i = 0; i < 1000; i++) {
 		register int32_t min1;
 		register int32_t min2;
-	
+
 		min1 = y ^ ((x ^ y) & -(x < y));
 		sum += min1;
 
