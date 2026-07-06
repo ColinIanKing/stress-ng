@@ -27,7 +27,9 @@ typedef enum {
 	TYPE_ID_UINT16,			/* uint16_t */
 	TYPE_ID_INT16,			/* int16_t */
 	TYPE_ID_UINT32,			/* uint32_t */
+	TYPE_ID_UINT32_TIME,		/* uint32_t in seconds */
 	TYPE_ID_INT32,			/* int32_t */
+	TYPE_ID_INT32_TIME,		/* int32_t in seconds */
 	TYPE_ID_INT32_CPU_PERCENT,	/* int32_t in % of cpus */
 	TYPE_ID_UINT64,			/* uint64_t */
 	TYPE_ID_UINT64_BYTES,		/* uint64_t in bytes units, generic */

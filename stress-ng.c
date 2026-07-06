@@ -138,7 +138,7 @@ static int32_t opt_parallel = DEFAULT_PARALLEL;	/* # of parallel stressors */
 static int32_t opt_permute = DEFAULT_PARALLEL;	/* # of permuted stressors */
 static int32_t ionice_class = UNDEFINED;	/* ionice class */
 static int32_t ionice_level = UNDEFINED;	/* ionice level */
-static uint64_t opt_pause = 0;			/* pause between stressor invocations */
+static uint32_t opt_pause = 0;			/* pause between stressor invocations */
 
 /* Globals */
 stress_list_item_t *g_item_current;		/* current stressor item */
@@ -1863,7 +1863,7 @@ static void MLOCKED_TEXT stress_run(
 		if (first_run)
 			first_run = false;
 		else {
-			pr_dbg("pausing for %" PRIu64 " second%s\n", opt_pause,
+			pr_dbg("pausing for %" PRIu32 " second%s\n", opt_pause,
 				opt_pause == 1 ? "" : "s");
 			(void)sleep((unsigned int)opt_pause);
 		}
@@ -3913,7 +3913,7 @@ static void stress_stressor_option(const char *opt, const uint64_t opt_flag, int
 static const stress_opt_t main_opts[] = {
 	{ OPT_all,              "all",              TYPE_ID_INT32_CPU_PERCENT, -STRESS_PROCS_MAX, STRESS_PROCS_MAX, NULL },
 	{ OPT_backoff,          "backoff",          TYPE_ID_INT64, 0, 10000000, NULL },
-	{ OPT_buddystat,        "buddystat",        TYPE_ID_INT32, 1, 3600, NULL },
+	{ OPT_buddystat,        "buddystat",        TYPE_ID_INT32_TIME, 1, 3600, NULL },
 	{ OPT_cache_level,      "cache-level",      TYPE_ID_INT16, 1, 5, NULL },
 	{ OPT_cache_size,       "cache-size",       TYPE_ID_UINT64_BYTES_VM, 1 * KB, 4 * GB, NULL },
 	{ OPT_cache_ways,       "cache-ways",       TYPE_ID_UINT32, 1, 1024, NULL },
@@ -3925,7 +3925,7 @@ static const stress_opt_t main_opts[] = {
 	{ OPT_exercise_syscall, "exercise-syscall", TYPE_ID_STR, 0, 0, NULL },
 	{ OPT_ionice_class,     "ionice-class",     TYPE_ID_STR, 0, 0, NULL },
 	{ OPT_ionice_level,     "ionice-level",     TYPE_ID_INT32, 0, 7, NULL },
-	{ OPT_iostat,           "iostat",           TYPE_ID_INT32, 1, 3600, NULL },
+	{ OPT_iostat,           "iostat",           TYPE_ID_INT32_TIME, 1, 3600, NULL },
 	{ OPT_job,	        "job",              TYPE_ID_STR, 0, 0, NULL },
 	{ OPT_limit_as,         "limit-as",         TYPE_ID_UINT64_BYTES, 1 * MB, RLIM_INFINITY, NULL },
 	{ OPT_limit_data,       "limit-data",       TYPE_ID_UINT64_BYTES, 1 * MB, RLIM_INFINITY, NULL },
@@ -3935,10 +3935,10 @@ static const stress_opt_t main_opts[] = {
 	{ OPT_mbind,            "mbind",            TYPE_ID_STR, 0, 0, NULL },
 	{ OPT_no_madvise,       "no-madvise",       TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_oom_avoid_bytes,  "oom-avoid-bytes",  TYPE_ID_SIZE_T_BYTES_VM, 4096, 0xffffffffffffffffULL, NULL },
-	{ OPT_pause,            "pause",            TYPE_ID_UINT64_TIME, 0, INT_MAX, NULL },
+	{ OPT_pause,            "pause",            TYPE_ID_UINT32_TIME, 0, 0xffffffffULL, NULL },
 	{ OPT_permute,          "permute",          TYPE_ID_INT32_CPU_PERCENT, -STRESS_PROCS_MAX, STRESS_PROCS_MAX, NULL },
 	{ OPT_quiet,            "quiet",            TYPE_ID_BOOL, 0, 1, NULL },
-	{ OPT_raplstat,         "raplstat",         TYPE_ID_INT32, 1, 3600, NULL },
+	{ OPT_raplstat,         "raplstat",         TYPE_ID_INT32_TIME, 1, 3600, NULL },
 	{ OPT_random,           "random",           TYPE_ID_INT32_CPU_PERCENT, -STRESS_PROCS_MAX, STRESS_PROCS_MAX, NULL },
 	{ OPT_resctrl,          "resctrl",          TYPE_ID_STR, 0, 0, NULL },
 	{ OPT_sched,            "sched",            TYPE_ID_STR, 0, 0, NULL },
@@ -3951,10 +3951,10 @@ static const stress_opt_t main_opts[] = {
 	{ OPT_status,           "status",           TYPE_ID_INT32, 1, 3600, NULL },
 	{ OPT_taskset,          "taskset",          TYPE_ID_STR, 0, 0, NULL },
 	{ OPT_temp_path,        "temp-path",        TYPE_ID_STR, 0, 0, NULL },
-	{ OPT_thermalstat,      "thermalstat",      TYPE_ID_INT32, 1, 3600, NULL },
+	{ OPT_thermalstat,      "thermalstat",      TYPE_ID_INT32_TIME, 1, 3600, NULL },
 	{ OPT_timeout,          "timeout",          TYPE_ID_UINT64_TIME, 0, 0xffffffffffffffffULL, NULL },
 	{ OPT_timer_slack,      "timer-slack",      TYPE_ID_UINT32, 0, 0xffffffffULL, NULL },
-	{ OPT_vmstat,           "vmstat",           TYPE_ID_INT32, 1, 3600, NULL },
+	{ OPT_vmstat,           "vmstat",           TYPE_ID_INT32_TIME, 1, 3600, NULL },
 	{ OPT_vmstat_units,     "vmstat-units",     TYPE_ID_STR, 0, 0, NULL },
 	{ OPT_with,             "with",             TYPE_ID_STR, 0, 0, NULL },
 	{ OPT_yaml,             "yaml",             TYPE_ID_STR, 0, 0, NULL },

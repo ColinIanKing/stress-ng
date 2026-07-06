@@ -700,6 +700,7 @@ int stress_parse_opt(const char *stressor_name, const char *opt_arg, const stres
 	const char *opt_name = opt->opt_name;
 	const uint64_t min = opt->min;
 	const uint64_t max = opt->max;
+	uint64_t u64val;
 	stress_setting_t setting;
 	int domain_mask;
 	stress_method_func method_func;
@@ -732,10 +733,20 @@ int stress_parse_opt(const char *stressor_name, const char *opt_arg, const stres
 		setting.u.uint32 = stress_get_uint32(opt_arg);
 		stress_check_range(opt_name, (uint64_t)setting.u.uint32, min, max);
 		return stress_setting_set(stressor_name, opt_name, TYPE_ID_UINT32, &setting.u.uint32);
+	case TYPE_ID_UINT32_TIME:
+		u64val = stress_get_uint64_time(opt_arg);
+		stress_check_range(opt_name, u64val, min, max);
+		setting.u.uint32 = (uint32_t)u64val;
+		return stress_setting_set(stressor_name, opt_name, TYPE_ID_UINT32_TIME, &setting.u.uint32);
 	case TYPE_ID_INT32:
 		setting.u.int32 = stress_get_int32(opt_arg);
 		stress_check_signed_range(opt_name, (int64_t)setting.u.int32, (int64_t)min, (int64_t)max);
 		return stress_setting_set(stressor_name, opt_name, TYPE_ID_INT32, &setting.u.int32);
+	case TYPE_ID_INT32_TIME:
+		u64val = stress_get_uint64_time(opt_arg);
+		stress_check_range(opt_name, u64val, min, max);
+		setting.u.int32 = (int32_t)u64val;
+		return stress_setting_set(stressor_name, opt_name, TYPE_ID_INT32_TIME, &setting.u.int32);
 	case TYPE_ID_INT32_CPU_PERCENT:
 		setting.u.int32 = stress_get_int32_instance_percent(optarg);
 		stress_check_signed_range(opt_name, (int64_t)setting.u.int32, (int64_t)min, (int64_t)max);
