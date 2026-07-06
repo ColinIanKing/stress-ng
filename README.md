@@ -455,6 +455,18 @@ run for 1 hour, show virtual memory statistics every 10 seconds and verify memor
 sudo stress-ng --log-file example.log --vm 2 --vm-bytes 95% --klog-check -v -t 1h  --vmstat 10 --verify
 ```
 
+Run all stressors on all CPUs that are known to make I/O devices hot and the CPU package hot and report the thermal zone temperatures,
+pause for 30 seconds between each stress test to cool down:
+
+```
+stress-ng --exercise-feature io-thermal,hot-package --seq 0 --tz -t 1m --pause 30s
+```
+
+Run permutations of 32 instances per stressor (for 1 minute each) that exercise the mq_send and msgsnd system calls:
+```
+stress-ng --exercise-syscall mq_send,msgsnd --permute 32 -t 1m
+```
+
 ## Bugs and regressions found with stress-ng
 
 stress-ng has found various Kernel, QEMU bugs/regressions, and libc bugs; appropriate fixes have been landed to address these issues:
