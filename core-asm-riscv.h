@@ -97,24 +97,53 @@ static inline void ALWAYS_INLINE stress_asm_riscv_pause(void)
 #if defined(HAVE_ASM_RISCV_CBO_ZERO)
 static inline void ALWAYS_INLINE stress_asm_riscv_cbo_zero(char *addr)
 {
+#if defined(HAVE_ASM_RISCV_CBO_MNEMONIC)
+        /* new assembler: use the mnemonic, it disassembles readably */
+        __asm__ __volatile__(
+        ".option push\n"
+        ".option arch, +zicboz\n"
+        "cbo.zero (%0)\n"
+        ".option pop\n"
+        : : "r" (addr) : "memory");
+#else
+        /* old assembler: hand-encoded word, shows as .word in disassembly */
         __asm__ __volatile__(
         "mv     a0, %0\n"
         "li     a1, %1\n"
         ".4byte %2\n"
         : : "r" (addr), "i" (STRESS_ZICBOZ_CBO_ZERO), "i" (MK_CBO(STRESS_ZICBOZ_CBO_ZERO)) : "a0", "a1", "memory");
+#endif
 }
 #endif
 
-/* cbo.zero instruction */
+/* cbo.flush / cbo.clean instructions */
 #if defined(HAVE_ASM_RISCV_CBO_CACHE_MANAGEMENT)
 static inline void ALWAYS_INLINE stress_asm_riscv_cbo_flush(const void *addr)
 {
+#if defined(HAVE_ASM_RISCV_CBO_MNEMONIC)
+	__asm__ __volatile__(
+	".option push\n"
+	".option arch, +zicbom\n"
+	"cbo.flush (%0)\n"
+	".option pop\n"
+	: : "r" (addr) : "memory");
+#else
 	CBO_INSN(addr, STRESS_ZICBOM_CBO_FLUSH);
+#endif
 }
 
 static inline void ALWAYS_INLINE stress_asm_riscv_cbo_clean(const void *addr)
 {
+#if defined(HAVE_ASM_RISCV_CBO_MNEMONIC)
+	__asm__ __volatile__(
+	".option push\n"
+	".option arch, +zicbom\n"
+	"cbo.clean (%0)\n"
+	".option pop\n"
+	: : "r" (addr) : "memory");
+#else
 	CBO_INSN(addr, STRESS_ZICBOM_CBO_CLEAN);
+#endif
 }
 #endif
 
