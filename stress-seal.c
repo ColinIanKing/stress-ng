@@ -213,7 +213,7 @@ static int stress_seal(stress_args_t *args)
 		 *  Now write seal the file, no more writes allowed
 		 */
 		if (UNLIKELY(fcntl(fd, F_ADD_SEALS, F_SEAL_EXEC) < 0)) {
-			if (errno == EBUSY)
+			if ((errno == EBUSY) || (errno == EINVAL))
 				goto next;
 			pr_fail("%s: fcntl F_ADD_SEALS F_SEAL_EXEC failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
