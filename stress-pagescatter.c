@@ -418,15 +418,15 @@ static int stress_pagescatter(stress_args_t *args)
 		stress_uint64_to_str(str_free, sizeof(str_free), (uint64_t)meminfo.freemem, 2, true);
 	if (max_order && (info->order > max_order)) {
 		info->order = max_order;
-		str_msg = "limiting";
+		str_msg = "limiting page order to";
 	} else {
-		str_msg= "using";
+		str_msg= "using page order of";
 	}
 	/* ..and inform user */
 	if (stress_instance_zero(args)) {
 		const char *str_used_ptr = stress_uint64_to_str(str_used,
 				sizeof(str_used), args->page_size * (1ULL << info->order), 2, true);
-		pr_inf("%s: %s page order of %zu (%s) per instance, have %s free memory\n",
+		pr_inf("%s: %s %zu (%s) per instance, have %s free memory\n",
 			args->name, str_msg, info->order, str_used_ptr, str_free_ptr);
 	}
 
