@@ -480,7 +480,7 @@ static int stress_pagescatter(stress_args_t *args)
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
 
 	/* # pages field is 10 chars wide for 2^30 pages */
-	(void)snprintf(buffer, sizeof(buffer), "%14s", "# pages");
+	(void)snprintf(buffer, sizeof(buffer), "%10s", "# pages");
 	for (i = 0; i < SCATTER_MAX; i++) {
 		(void)snprintf(tmp, sizeof(tmp), " %10s", scatter_types[i]);
 		(void)shim_strlcat(buffer, tmp, sizeof(buffer));
