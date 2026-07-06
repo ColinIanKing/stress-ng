@@ -143,12 +143,13 @@ static int stress_shm_posix_child(
 
 	do {
 		for (i = 0; ok && (i < (ssize_t)shm_posix_objects); i++) {
-			int shm_fd;
-			int ret;
-			pid_t newpid;
+			struct stat statbuf;
 			void *addr;
 			char *shm_name = &shm_names[i * SHM_NAME_LEN];
-			struct stat statbuf;
+			pid_t newpid;
+			size_t check_sz;
+			int shm_fd;
+			int ret;
 
 			shm_name[0] = '\0';
 
@@ -261,8 +262,14 @@ static int stress_shm_posix_child(
 
 			/* Now truncated it back */
 			ret = ftruncate(shm_fd, (off_t)sz);
-			if (UNLIKELY(ret < 0))
+			check_sz = sz;
+			if (UNLIKELY(ret < 0)) {
+#if !defined(__CYGWIN__)
+				/* Windows refuses to shrink a file if currently memory mapped */
 				pr_fail("%s: ftruncate of shared memory failed\n", args->name);
+#endif
+				check_sz += page_size;
+			}
 			(void)shim_fsync(shm_fd);
 
 			/* fstat shared memory */
@@ -270,10 +277,10 @@ static int stress_shm_posix_child(
 			if (UNLIKELY(ret < 0)) {
 				pr_fail("%s: fstat failed on shared memory\n", args->name);
 			} else {
-				if (UNLIKELY(statbuf.st_size != (off_t)sz)) {
+				if (UNLIKELY(statbuf.st_size != (off_t)check_sz)) {
 					pr_fail("%s: fstat reports different size of shared memory, "
 						"got %" PRIdMAX " bytes, expected %zu bytes\n", args->name,
-						(intmax_t)statbuf.st_size, sz);
+						(intmax_t)statbuf.st_size, check_sz);
 				}
 			}
 
