@@ -3226,13 +3226,6 @@ static stress_list_item_t *stress_list_item_find(const stress_stressor_t *stress
 {
 	stress_list_item_t *item;
 
-#if 0
-	/* Scan backwards in time to find last matching stressor */
-	for (item = stressors_tail; item; item = item->prev) {
-		if (item->stressor == stressor)
-			return item;
-	}
-#endif
 	item = (stress_list_item_t *)calloc(1, sizeof(*item));
 	if (!item) {
 		(void)fprintf(stderr, "cannot allocate %zu byte stressor state info%s\n",
@@ -3848,10 +3841,21 @@ static int stress_exercises_get(
 			for (j = 0; exercises[j].name; j++) {
 				if ((exercises[j].type == type) &&
 				    !strcmp(exercises[j].name, token)) {
-					stress_stressor_enable(&stressors[i]);
+					stress_list_item_t *item;
+					bool enabled = false;
 
-					/* This indicates some stressors are set */
-					g_opt_flags |= OPT_FLAGS_SET;
+					for (item = stress_stressor_list.head; item; item = item->next) {
+						if (item->stressor == &stressors[i]) {
+							enabled = true;
+							break;
+						}
+					}
+					if (!enabled) {
+						stress_stressor_enable(&stressors[i]);
+
+						/* This indicates some stressors are set */
+						g_opt_flags |= OPT_FLAGS_SET;
+					}
 					mismatch = false;
 					break;
 				}
