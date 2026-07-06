@@ -471,7 +471,7 @@ static bool OPTIMIZE3 stress_besselmath_ynl(stress_args_t *args)
 	static bool first_run = true;
 	static long double result = -1.0L;
 	register long double sum = 0.0L;
-	register long di = 0.1L;
+	register long double di = 0.1L;
 	register int i;
 
 PRAGMA_UNROLL_N(8)
