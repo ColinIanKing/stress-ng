@@ -341,7 +341,7 @@ static void stress_funcret_setvar_dfp128(void *ptr, const size_t size)
 static void stress_funcret_setvar_fp16(void *ptr, const size_t size)
 {
 	(void)size;
-	*(__fp16 *)ptr = (__fp16)stress_mwc32() / (__fp16)(1 + stress_mwc32());
+	*(__fp16 *)ptr = (__fp16)((__fp16)stress_mwc32() / (__fp16)(1 + stress_mwc32()));
 }
 #elif defined(HAVE_Float16) &&		\
     !defined(HAVE_COMPILER_CLANG)
