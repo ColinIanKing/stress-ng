@@ -59,6 +59,7 @@ static const stress_help_t help[] = {
 	{ NULL,	"pagescatter N",        "start N workers that allocate pages at random addresses" },
 	{ NULL,	"pagescatter-ops N",	"stop after N page operations" },
 	{ NULL, "pagescatter-order N",	"log2 number of pages to use" },
+	{ NULL, "pagescatter-populate", "prefault pages during page mapping" },
 	{ NULL,	NULL,			NULL }
 };
 

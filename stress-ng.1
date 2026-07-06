@@ -7371,6 +7371,11 @@ of single mappings.
 .B \-\-pagescatter\-ops N
 stop after N bogo page mmapping operations.
 .TP
+.B \-\-pagescatter\-order N
+attempt to map and use 2\[ua]N maximum number of pages. This can be reduced
+to a lower value by the stressor if not enough free pages for all the
+pagescatter instances.
+.TP
 .B \-\-pagescatter\-populate
 populate pages when they are memory paged rather than using copy-on-write
 page allocation when pages are written to.
