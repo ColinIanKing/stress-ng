@@ -2054,3 +2054,23 @@ void stress_make_it_fail_set(void)
 		(void)stress_fs_file_write("/proc/self/make-it-fail", "1\n", 2);
 #endif
 }
+
+/*
+ *  stress_log2()
+ *	log to the base 2 of n
+ */
+size_t stress_log2(size_t n)
+{
+#if defined(HAVE_BUILTIN_CLZLL)
+	const long long int lln = (long long int)n;
+
+	return (8 * sizeof(lln)) - __builtin_clzll(lln) - 1;
+#else
+	register size_t l2;
+
+	for (l2 = 0; n > 1; l2++)
+		n >>= 1;
+
+	return l2;
+#endif
+}

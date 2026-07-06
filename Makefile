@@ -691,6 +691,7 @@ STRESS_SRC = \
 	stress-open.c \
 	stress-ovpn.c \
 	stress-pagemove.c \
+	stress-pagescatter.c \
 	stress-pageswap.c \
 	stress-pci.c \
 	stress-personality.c \

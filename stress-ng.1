@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, may be w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "2 July 2026"
+.TH STRESS-NG 1 "6 July 2026"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -7352,6 +7352,28 @@ for systems that do not support NUMA.
 .B \-\-pagemove\-ops N
 stop after N pagemove shuffling operations, where suffling all the pages in
 the mmap'd region is equivalent to 1 bogo-operation.
+.RE
+.TP
+.B Page Scattered Mappings
+.RS 5
+.TQ
+.B \-\-pagescatter N
+start N workers that exercise memory mapping of batches of single single pages
+at randomly chosen addresses.  Where possible, MAP_FIXED_NOREPLACE or MAP_FIXED
+mmap(2) flags are used to try and mmap pages at fixed addresses across the
+address space, failing that a hinted address is used without these flags.
+Pages are then wrttien, read, set to PROT_NONE via mprotect(2) and then
+unmapped. This exercises page table traversal, the Translation Lookaside
+Buffer (TLB) and general page handling.  The rate of these operations is
+also reported for the first stressor instance across the range of batches
+of single mappings.
+.TP
+.B \-\-pagescatter\-ops N
+stop after N bogo page mmapping operations.
+.TP
+.B \-\-pagescatter\-populate
+populate pages when they are memory paged rather than using copy-on-write
+page allocation when pages are written to.
 .RE
 .TP
 .B Memory page swapping stressor

@@ -235,6 +235,7 @@
 	MACRO(open)		\
 	MACRO(ovpn)		\
 	MACRO(pagemove)		\
+	MACRO(pagescatter)	\
 	MACRO(pageswap)		\
 	MACRO(pci)		\
 	MACRO(personality)	\
