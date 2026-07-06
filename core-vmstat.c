@@ -1035,7 +1035,7 @@ static int stress_buddystat(
 			/* Skip of no orders processed */
 			if (!n)
 				continue;
-			if (i)
+			if (*strbuf)
 				(void)shim_strlcat(strbuf, ",", strbuf_len);
 
 			total *= (double)page_size;
