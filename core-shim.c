@@ -1163,6 +1163,7 @@ int shim_madvise(void *addr, size_t length, int advice)
 	return (int)syscall(__NR_madvise, addr, length, advice);
 #elif defined(HAVE_POSIX_MADVISE)
 	int posix_advice;
+	int ret;
 
 	switch (advice) {
 #if defined(POSIX_MADV_NORMAL) &&	\
@@ -1199,7 +1200,13 @@ int shim_madvise(void *addr, size_t length, int advice)
 		posix_advice = POSIX_MADV_NORMAL;
 		break;
 	}
-	return (int)posix_madvise(addr, length, posix_advice);
+	/* unlike madvise, posix_madvise returns a +ve error code */
+	ret = posix_madvise(addr, length, posix_advice);
+	if (ret) {
+		errno = (ret > 0) ? ret : ENOSYS;
+		return -1;
+	}
+	return 0;
 #else
 	return (int)shim_enosys(0, addr, length, advice);
 #endif
