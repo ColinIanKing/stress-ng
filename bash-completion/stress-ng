@@ -366,6 +366,7 @@ _stress_ng()
 	'--page-in' | \
 	'--pagemove-mlock' | \
 	'--pagemove-numa' | \
+	'--pagescatter-populate' | \
 	'--pathological' | \
 	'--perf' | \
 	'--physpage-mtrr' | \
