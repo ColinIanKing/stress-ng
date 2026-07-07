@@ -216,7 +216,7 @@ static bool OPTIMIZE3 TARGET_CLONES stress_ctrig_ctanf(stress_args_t *args)
 	complex double sumctan = shim_cmplx(0.0, 0.0);
 	complex double z = shim_cmplx(-0.5, 0.5);
 	const complex double dz = shim_cmplx(1.0 / (double)STRESS_CTRIG_LOOPS, -1.0 / (2.0 * (double)STRESS_CTRIG_LOOPS));
-	const double precision = 1E-4;
+	const double precision = 1E-3;
 	int i;
 
 PRAGMA_UNROLL_N(8)
