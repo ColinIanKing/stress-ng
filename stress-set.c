@@ -316,13 +316,13 @@ static int stress_set(stress_args_t *args)
 #endif
 
 #if defined(HAVE_SETRESGID)
-#if defined(HAVE_GETREGID)
+#if defined(HAVE_GETRESGID)
 		{
 			gid_t rgid = (gid_t)-1;
 			gid_t egid = (gid_t)-1;
 			gid_t sgid = (gid_t)-1;
 
-			ret = getregid(&rgid, &egid, &sgid);
+			ret = getresgid(&rgid, &egid, &sgid);
 			if (ret == 0) {
 				VOID_RET(int, setresgid(rgid, egid, sgid));
 				VOID_RET(int, setresgid(rgid, egid, (gid_t)-1));
@@ -330,14 +330,14 @@ static int stress_set(stress_args_t *args)
 				VOID_RET(int, setresgid(rgid, (gid_t)-1, (gid_t)-1));
 				VOID_RET(int, setresgid((gid_t)-1, egid, sgid));
 				VOID_RET(int, setresgid((gid_t)-1, egid, (gid_t)-1));
-				VOID_RET(int, setresgid((gid_t)-1, (gid_t)-1), sgid);
-				VOID_RET(int, setresgid((gid_t)-1, (gid_t)-1), (gid_t)-1);
+				VOID_RET(int, setresgid((gid_t)-1, (gid_t)-1, sgid));
+				VOID_RET(int, setresgid((gid_t)-1, (gid_t)-1, (gid_t)-1));
 
-				if (getregid() != 0) {
-					VOID_RET(int, setresgid((gid_t)-2, egid, sgid));
-					VOID_RET(int, setresgid(rgid, (gid_t)-2), sgid);
-					VOID_RET(int, setresgid(rgid, egid, (gid_t)-2));
-				}
+				VOID_RET(int, setresgid((gid_t)-2, egid, sgid));
+				VOID_RET(int, setresgid(rgid, (gid_t)-2, sgid));
+				VOID_RET(int, setresgid(rgid, egid, (gid_t)-2));
+
+				VOID_RET(int, setresgid(rgid, egid, sgid));
 			}
 		}
 #else
