@@ -3333,9 +3333,10 @@ int shim_getpwuid_r(
 	size_t size,
 	struct passwd **result)
 {
-#if defined(HAVE_GETPWUID_R)
+#if defined(HAVE_GETPWUID_R) &&	\
+    !defined(BUILD_STATIC)
 	return getpwuid_r(uid, pwd, buf, size, result);
-#else
+#elif !defined(BUILD_STATIC)
 	const struct passwd *ret;
 
 	(void)buf;
@@ -3349,6 +3350,16 @@ int shim_getpwuid_r(
 		*result = pwd;
 	}
 	return 0;
+#else
+	/* fake a valid error return */
+	(void)uid;
+	(void)pwd;
+	(void)buf;
+	(void)size;
+	(void)result;
+
+	*result = NULL;
+	return ENOMEM;
 #endif
 }
 
