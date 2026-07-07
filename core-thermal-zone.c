@@ -263,6 +263,9 @@ void stress_tz_dump(FILE *yaml, stress_list_item_t *stressors_list)
 		for (n = 0, tz_info = g_shared->tz_info; tz_info; tz_info = tz_info->next, n++)
 			;
 
+		if (!n)
+			continue;
+
 		/*
 		 *  Allocate array, populate with tz_info and sort
 		 */
