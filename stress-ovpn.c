@@ -102,26 +102,27 @@ uint64_t ovpn_nla_get_uint(struct nlattr *attr)
 }
 
 typedef int (*ovpn_nl_cb)(struct nl_msg *msg, void *arg);
+typedef int (*ovpn_parse_reply_cb)(struct nlmsghdr *msg, void *arg);
 
-enum shim_ovpn_mode {
+typedef enum shim_ovpn_mode {
 	SHIM_OVPN_MODE_P2P,
 	SHIM_OVPN_MODE_MP,
-};
+} shim_ovpn_mode_t;
 
-enum ovpn_key_direction {
+typedef enum ovpn_key_direction {
 	SHIM_KEY_DIR_IN = 0,
 	SHIM_KEY_DIR_OUT,
-};
+} ovpn_key_direction_t;
 
-struct nl_ctx {
+typedef struct nl_ctx {
 	struct nl_sock *nl_sock;
 	struct nl_msg *nl_msg;
 	struct nl_cb *nl_cb;
 
 	int ovpn_dco_id;
-};
+} nl_ctx_t;
 
-enum ovpn_cmd {
+typedef enum ovpn_cmd {
 	CMD_INVALID,
 	CMD_NEW_IFACE,
 	CMD_CONNECT,
@@ -133,10 +134,10 @@ enum ovpn_cmd {
 	CMD_DEL_KEY,
 	CMD_GET_KEY,
 	CMD_SWAP_KEYS,
-};
+} ovpn_cmd_t;
 
-struct ovpn_ctx {
-	enum ovpn_cmd cmd;
+typedef struct ovpn_ctx {
+	ovpn_cmd_t cmd;
 
 	__u8 key_enc[KEY_LEN];
 	__u8 key_dec[KEY_LEN];
@@ -163,7 +164,7 @@ struct ovpn_ctx {
 
 	unsigned int ifindex;
 	char ifname[IFNAMSIZ];
-	enum shim_ovpn_mode mode;
+	shim_ovpn_mode_t mode;
 	bool mode_set;
 
 	int socket;
@@ -172,24 +173,24 @@ struct ovpn_ctx {
 	__u32 keepalive_interval;
 	__u32 keepalive_timeout;
 
-	enum ovpn_key_direction key_dir;
+	ovpn_key_direction_t key_dir;
 	enum ovpn_key_slot key_slot;
 	int key_id;
 
 	const char *peers_file;
 
 	const char *args_name;
-};
+} ovpn_ctx_t;
 
-struct ovpn_link_req {
+typedef struct ovpn_link_req {
 	struct nlmsghdr n;
 	struct ifinfomsg i;
 	char buf[256];
-};
+} ovpn_link_req_t;
 
 /* Helper function used to easily add attributes to a rtnl message */
 static int ovpn_addattr(
-	struct ovpn_ctx *ovpn,
+	ovpn_ctx_t *ovpn,
 	struct nlmsghdr *n,
 	const int maxlen,
 	const int type,
@@ -219,7 +220,7 @@ static int ovpn_addattr(
 }
 
 static struct rtattr *ovpn_nest_start(
-	struct ovpn_ctx *ovpn,
+	ovpn_ctx_t *ovpn,
 	struct nlmsghdr *msg,
 	const size_t max_size,
 	const int attr)
@@ -237,10 +238,8 @@ static inline void ovpn_nest_end(struct nlmsghdr *msg, struct rtattr *nest)
 	nest->rta_len = (uint8_t *)nlmsg_tail(msg) - (uint8_t *)nest;
 }
 
-typedef int (*ovpn_parse_reply_cb)(struct nlmsghdr *msg, void *arg);
-
 /* Open RTNL socket */
-static int ovpn_rt_socket(struct ovpn_ctx *ovpn)
+static int ovpn_rt_socket(ovpn_ctx_t *ovpn)
 {
 	const char *args_name = ovpn->args_name;
 	int sndbuf = RT_SNDBUF_SIZE;
@@ -275,7 +274,7 @@ static int ovpn_rt_socket(struct ovpn_ctx *ovpn)
 
 /* Bind socket to Netlink subsystem */
 static int ovpn_rt_bind(
-	struct ovpn_ctx *ovpn,
+	ovpn_ctx_t *ovpn,
 	const int fd,
 	const uint32_t groups)
 {
@@ -314,7 +313,7 @@ static int ovpn_rt_bind(
 
 /* Send Netlink message and run callback on reply (if specified) */
 static int ovpn_rt_send(
-	struct ovpn_ctx *ovpn,
+	ovpn_ctx_t *ovpn,
 	struct nlmsghdr *payload,
 	const pid_t peer,
 	const unsigned int groups,
@@ -485,7 +484,7 @@ out:
 }
 
 static int ovpn_socket(
-	struct ovpn_ctx *ovpn,
+	ovpn_ctx_t *ovpn,
 	sa_family_t family,
 	const int proto)
 {
@@ -573,10 +572,10 @@ err_socket:
 	return -1;
 }
 
-static int ovpn_new_iface(struct ovpn_ctx *ovpn)
+static int ovpn_new_iface(ovpn_ctx_t *ovpn)
 {
 	struct rtattr *linkinfo, *data;
-	struct ovpn_link_req req = { 0 };
+	ovpn_link_req_t req = { 0 };
 	int ret = -1;
 
 	req.n.nlmsg_len = NLMSG_LENGTH(sizeof(req.i));
@@ -616,12 +615,12 @@ err:
 	return ret;
 }
 
-static struct nl_ctx *nl_ctx_alloc_flags(
-	struct ovpn_ctx *ovpn,
+static nl_ctx_t *nl_ctx_alloc_flags(
+	ovpn_ctx_t *ovpn,
 	const int cmd,
 	const int flags)
 {
-	struct nl_ctx *ctx;
+	nl_ctx_t *ctx;
 	int err;
 	int ret;
 	const char *args_name = ovpn->args_name;
@@ -688,7 +687,7 @@ err_free:
 	return NULL;
 }
 
-static struct nl_ctx *nl_ctx_alloc(struct ovpn_ctx *ovpn, const int cmd)
+static nl_ctx_t *nl_ctx_alloc(ovpn_ctx_t *ovpn, const int cmd)
 {
 	return nl_ctx_alloc_flags(ovpn, cmd, 0);
 }
@@ -714,8 +713,8 @@ static int ovpn_nl_cb_ack(struct nl_msg *msg, void *arg)
 }
 
 static int ovpn_nl_recvmsgs(
-	struct ovpn_ctx *ovpn,
-	struct nl_ctx *ctx)
+	ovpn_ctx_t *ovpn,
+	nl_ctx_t *ctx)
 {
 	int ret;
 	const char *args_name = ovpn->args_name;
@@ -796,8 +795,8 @@ static int ovpn_nl_cb_error(
 }
 
 static int ovpn_nl_msg_send(
-	struct ovpn_ctx *ovpn,
-	struct nl_ctx *ctx,
+	ovpn_ctx_t *ovpn,
+	nl_ctx_t *ctx,
 	ovpn_nl_cb cb)
 {
 	int status = 1;
@@ -821,7 +820,7 @@ static int ovpn_nl_msg_send(
 	return status;
 }
 
-static void nl_ctx_free(struct nl_ctx *ctx)
+static void nl_ctx_free(nl_ctx_t *ctx)
 {
 	if (!ctx)
 		return;
@@ -832,10 +831,10 @@ static void nl_ctx_free(struct nl_ctx *ctx)
 	free(ctx);
 }
 
-static int ovpn_new_peer(struct ovpn_ctx *ovpn, const bool is_tcp)
+static int ovpn_new_peer(ovpn_ctx_t *ovpn, const bool is_tcp)
 {
 	struct nlattr *attr;
-	struct nl_ctx *ctx;
+	nl_ctx_t *ctx;
 	int ret = -1;
 	const char *args_name = ovpn->args_name;
 
@@ -897,7 +896,7 @@ nla_put_failure:
 }
 
 static int ovpn_parse_remote(
-	struct ovpn_ctx *ovpn,
+	ovpn_ctx_t *ovpn,
 	const char *host,
 	const char *service,
 	const char *vpnip)
@@ -957,7 +956,7 @@ static int ovpn_parse_remote(
 }
 
 static int ovpn_parse_new_peer(
-	struct ovpn_ctx *ovpn,
+	ovpn_ctx_t *ovpn,
 	const int peer_id,
 	const char *raddr,
 	const char *rport,
@@ -972,7 +971,7 @@ static int ovpn_parse_new_peer(
 	return ovpn_parse_remote(ovpn, raddr, rport, vpnip);
 }
 
-static int ovpn_connect(struct ovpn_ctx *ovpn)
+static int ovpn_connect(ovpn_ctx_t *ovpn)
 {
 	socklen_t socklen;
 	int s;
@@ -1035,10 +1034,10 @@ err:
 	return ret;
 }
 
-static int ovpn_new_key(struct ovpn_ctx *ovpn)
+static int ovpn_new_key(ovpn_ctx_t *ovpn)
 {
 	struct nlattr *keyconf, *key_dir;
-	struct nl_ctx *ctx;
+	nl_ctx_t *ctx;
 	int ret = -1;
 
 	ctx = nl_ctx_alloc(ovpn, OVPN_CMD_KEY_NEW);
@@ -1083,15 +1082,15 @@ static int ovpn_send_tcp_data(const int socket)
 	return ret > 0 ? 0 : ret;
 }
 
-static int ovpn_udp_socket(struct ovpn_ctx *ctx, sa_family_t family)
+static inline int ovpn_udp_socket(ovpn_ctx_t *ctx, sa_family_t family)
 {
 	return ovpn_socket(ctx, family, IPPROTO_UDP);
 }
 
-static int ovpn_set_peer(struct ovpn_ctx *ovpn)
+static int ovpn_set_peer(ovpn_ctx_t *ovpn)
 {
 	struct nlattr *attr;
-	struct nl_ctx *ctx;
+	nl_ctx_t *ctx;
 	int ret = -1;
 
 	ctx = nl_ctx_alloc(ovpn, OVPN_CMD_PEER_SET);
@@ -1112,10 +1111,10 @@ nla_put_failure:
 	return ret;
 }
 
-static int ovpn_del_peer(struct ovpn_ctx *ovpn)
+static int ovpn_del_peer(ovpn_ctx_t *ovpn)
 {
 	struct nlattr *attr;
-	struct nl_ctx *ctx;
+	nl_ctx_t *ctx;
 	int ret = -1;
 
 	ctx = nl_ctx_alloc(ovpn, OVPN_CMD_PEER_DEL);
@@ -1132,10 +1131,10 @@ nla_put_failure:
 	return ret;
 }
 
-static int ovpn_swap_keys(struct ovpn_ctx *ovpn)
+static int ovpn_swap_keys(ovpn_ctx_t *ovpn)
 {
-	struct nl_ctx *ctx;
 	struct nlattr *kc;
+	nl_ctx_t *ctx;
 	int ret = -1;
 
 	ctx = nl_ctx_alloc(ovpn, OVPN_CMD_KEY_SWAP);
@@ -1152,10 +1151,10 @@ nla_put_failure:
 	return ret;
 }
 
-static int ovpn_del_key(struct ovpn_ctx *ovpn)
+static int ovpn_del_key(ovpn_ctx_t *ovpn)
 {
 	struct nlattr *keyconf;
-	struct nl_ctx *ctx;
+	nl_ctx_t *ctx;
 	int ret = -1;
 
 	ctx = nl_ctx_alloc(ovpn, OVPN_CMD_KEY_DEL);
@@ -1193,11 +1192,11 @@ static int ovpn_handle_peer(struct nl_msg *msg, void *arg)
 	return NL_SKIP;
 }
 
-static int ovpn_get_peer(struct ovpn_ctx *ovpn)
+static int ovpn_get_peer(ovpn_ctx_t *ovpn)
 {
 	int flags = 0, ret = -1;
 	struct nlattr *attr;
-	struct nl_ctx *ctx;
+	nl_ctx_t *ctx;
 
 	if (ovpn->peer_id == PEER_ID_UNDEF)
 		flags = NLM_F_DUMP;
@@ -1238,10 +1237,10 @@ static int ovpn_handle_key(struct nl_msg *msg, void *arg)
 	return NL_SKIP;
 }
 
-static int ovpn_get_key(struct ovpn_ctx *ovpn)
+static int ovpn_get_key(ovpn_ctx_t *ovpn)
 {
 	struct nlattr *keyconf;
-	struct nl_ctx *ctx;
+	nl_ctx_t *ctx;
 	int ret = -1;
 
 	ctx = nl_ctx_alloc(ovpn, OVPN_CMD_KEY_GET);
@@ -1259,7 +1258,7 @@ nla_put_failure:
 	return ret;
 }
 
-static int ovpn_run_cmd(struct ovpn_ctx *ovpn)
+static int ovpn_run_cmd(ovpn_ctx_t *ovpn)
 {
 	int ret = 0;
 	const char *args_name = ovpn->args_name;
@@ -1337,7 +1336,7 @@ static int stress_ovpn_supported(const char *name)
 	return 0;
 }
 
-static void ovpn_ctx_reset(struct ovpn_ctx *ovpn)
+static void ovpn_ctx_reset(ovpn_ctx_t *ovpn)
 {
 	(void)shim_memset(ovpn, 0, sizeof(*ovpn));
 
@@ -1350,7 +1349,7 @@ static void ovpn_ctx_reset(struct ovpn_ctx *ovpn)
 	ovpn->cipher = OVPN_CIPHER_ALG_NONE;
 }
 
-static int build_new_iface(struct ovpn_ctx *ovpn)
+static int build_new_iface(ovpn_ctx_t *ovpn)
 {
 	ovpn_ctx_reset(ovpn);
 
@@ -1361,7 +1360,7 @@ static int build_new_iface(struct ovpn_ctx *ovpn)
 	return 0;
 }
 
-static int ovpn_generate_key(struct ovpn_ctx *ovpn)
+static int ovpn_generate_key(ovpn_ctx_t *ovpn)
 {
 	const char *args_name = ovpn->args_name;
 
@@ -1398,7 +1397,7 @@ static void ovpn_rand_addr_port(
 		(stress_mwc16() % 64511) + 1024);
 }
 
-static int build_connect(struct ovpn_ctx *ovpn)
+static int build_connect(ovpn_ctx_t *ovpn)
 {
 	char addr[INET_ADDRSTRLEN], port[6];
 
@@ -1417,7 +1416,7 @@ static int build_connect(struct ovpn_ctx *ovpn)
 	return ovpn_generate_key(ovpn);
 }
 
-static int build_new_peer(struct ovpn_ctx *ovpn)
+static int build_new_peer(ovpn_ctx_t *ovpn)
 {
 	char addr[INET_ADDRSTRLEN], port[6];
 
@@ -1429,7 +1428,7 @@ static int build_new_peer(struct ovpn_ctx *ovpn)
 	return ovpn_parse_new_peer(ovpn, stress_mwc32() % 10, addr, port, NULL);
 }
 
-static int build_set_peer(struct ovpn_ctx *ovpn)
+static int build_set_peer(ovpn_ctx_t *ovpn)
 {
 	ovpn_ctx_reset(ovpn);
 
@@ -1441,7 +1440,7 @@ static int build_set_peer(struct ovpn_ctx *ovpn)
 	return 0;
 }
 
-static int build_del_peer(struct ovpn_ctx *ovpn)
+static int build_del_peer(ovpn_ctx_t *ovpn)
 {
 	ovpn_ctx_reset(ovpn);
 	ovpn->cmd = CMD_DEL_PEER;
@@ -1449,7 +1448,7 @@ static int build_del_peer(struct ovpn_ctx *ovpn)
 	return 0;
 }
 
-static int build_get_peer(struct ovpn_ctx *ovpn)
+static int build_get_peer(ovpn_ctx_t *ovpn)
 {
 	ovpn_ctx_reset(ovpn);
 	ovpn->cmd = CMD_GET_PEER;
@@ -1457,7 +1456,7 @@ static int build_get_peer(struct ovpn_ctx *ovpn)
 	return 0;
 }
 
-static int build_new_key(struct ovpn_ctx *ovpn)
+static int build_new_key(ovpn_ctx_t *ovpn)
 {
 	ovpn_ctx_reset(ovpn);
 
@@ -1471,7 +1470,7 @@ static int build_new_key(struct ovpn_ctx *ovpn)
 	return ovpn_generate_key(ovpn);
 }
 
-static int build_del_key(struct ovpn_ctx *ovpn)
+static int build_del_key(ovpn_ctx_t *ovpn)
 {
 	ovpn_ctx_reset(ovpn);
 
@@ -1482,7 +1481,7 @@ static int build_del_key(struct ovpn_ctx *ovpn)
 	return 0;
 }
 
-static int build_get_key(struct ovpn_ctx *ovpn)
+static int build_get_key(ovpn_ctx_t *ovpn)
 {
 	ovpn_ctx_reset(ovpn);
 
@@ -1493,7 +1492,7 @@ static int build_get_key(struct ovpn_ctx *ovpn)
 	return 0;
 }
 
-static int build_swap_keys(struct ovpn_ctx *ovpn)
+static int build_swap_keys(ovpn_ctx_t *ovpn)
 {
 	ovpn_ctx_reset(ovpn);
 	ovpn->cmd = CMD_SWAP_KEYS;
@@ -1501,7 +1500,7 @@ static int build_swap_keys(struct ovpn_ctx *ovpn)
 	return 0;
 }
 
-static int ovpn_autofill_args(struct ovpn_ctx *ovpn)
+static int ovpn_autofill_args(ovpn_ctx_t *ovpn)
 {
 	switch (ovpn->cmd) {
 	case CMD_NEW_IFACE:
@@ -1531,9 +1530,9 @@ static int ovpn_autofill_args(struct ovpn_ctx *ovpn)
 
 static int stress_ovpn(stress_args_t *args)
 {
-	struct ovpn_ctx ovpn;
+	ovpn_ctx_t ovpn;
 	int last_cmd = -1;
-	static const enum ovpn_cmd cmds[] = {
+	static const ovpn_cmd_t cmds[] = {
 		CMD_INVALID,
 		CMD_NEW_IFACE,
 		CMD_CONNECT,
@@ -1563,13 +1562,13 @@ static int stress_ovpn(stress_args_t *args)
 		int cmd;
 
 		do {
-			const uint32_t idx = stress_mwc32() % count;
+			const size_t idx = stress_mwcsizemodn(count);
 
 			cmd = cmds[idx];
 		} while (cmd == last_cmd && count > 1);
 
 		last_cmd = cmd;
-		ovpn.cmd = cmd;
+		ovpn.cmd = (ovpn_cmd_t)cmd;
 
 		ovpn_autofill_args(&ovpn);
 
