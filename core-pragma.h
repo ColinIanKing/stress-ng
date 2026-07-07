@@ -95,7 +95,10 @@
 #define STRESS_PRAGMA_WARN_CPP_OFF
 #endif
 
-#if defined(HAVE_COMPILER_ICC)
+#if defined(BUILD_SMALL)
+#define PRAGMA_UNROLL_N(n)
+#define PRAGMA_UNROLL
+#elif defined(HAVE_COMPILER_ICC)
 #define PRAGMA_UNROLL_N(n)	STRESS_PRAGMA(unroll)
 #define PRAGMA_UNROLL		STRESS_PRAGMA(unroll)
 #elif defined(HAVE_COMPILER_CLANG) &&	\

@@ -79,7 +79,7 @@ VNNI_CFLAGS += $(filter-out $(VNNI_OFLAGS_REMOVE),$(CFLAGS))
 #
 ifeq "$(findstring -O,$(CFLAGS))" ""
 ifeq ($(BUILD_SMALL),1)
-	override CFLAGS += -Os
+	override CFLAGS += -Os -DBUILD_SMALL
 else
 	override CFLAGS += -O2
 endif

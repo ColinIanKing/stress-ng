@@ -28,6 +28,10 @@
 #undef HAVE_TARGET_CLONES
 #endif
 
+#if defined(BUILD_SMALL)
+#undef HAVE_TARGET_CLONES
+#endif
+
 /* GCC5.0+ target_clones attribute, x86 */
 #if defined(STRESS_ARCH_X86) &&	\
     defined(HAVE_TARGET_CLONES)
