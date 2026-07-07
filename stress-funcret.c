@@ -282,6 +282,7 @@ static void stress_funcret_setvar_fpl(void *ptr, const size_t size)
 	*(long double *)ptr = (long double)stress_mwc32() / (long double)(1 + stress_mwc32());
 }
 
+#if defined(HAVE_COMPLEX_H)
 static void stress_funcret_setvar_cfpf(void *ptr, const size_t size)
 {
 	(void)size;
@@ -305,6 +306,7 @@ static void stress_funcret_setvar_cfpl(void *ptr, const size_t size)
 		(complex long double)I * (long double)stress_mwc32()) /
 		(complex long double)(1 + stress_mwc32());
 }
+#endif
 
 #if defined(HAVE_Decimal32) &&	\
     !defined(HAVE_COMPILER_CLANG)
@@ -448,6 +450,7 @@ static inline int cmp_fpl(const long double a, const long double b)
 #define CMP_FPD(a, b, type)	cmp_fpd((double)a, (double)b)
 #define CMP_FPL(a, b, type)	cmp_fpl((long double)a, (long double)b)
 
+#if defined(HAVE_COMPLEX_H)
 /* maximum of two complex valus is the modulus */
 #define CMAXF(x, y)		(float)csqrtf((x * x) + (y * y))
 #define CMAXD(x, y)		(double)csqrt((x * x) + (y * y))
@@ -471,6 +474,7 @@ static inline int cmp_cfpl(const complex long double a, const complex long doubl
 #define CMP_CFPF(a, b, type)	cmp_cfpf((complex float)a, (complex float)b)
 #define CMP_CFPD(a, b, type)	cmp_cfpd((complex double)a, (complex double)b)
 #define CMP_CFPL(a, b, type)	cmp_cfpl((complex long double)a, (complex long double)b)
+#endif
 
 #define stress_funcret_type(type, cmp, set)				\
 static bool NOINLINE stress_funcret_ ## type(stress_args_t *args);	\
