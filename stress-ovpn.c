@@ -1194,7 +1194,8 @@ static int ovpn_handle_peer(struct nl_msg *msg, void *arg)
 
 static int ovpn_get_peer(ovpn_ctx_t *ovpn)
 {
-	int flags = 0, ret = -1;
+	int flags = 0;
+	int ret = -1;
 	struct nlattr *attr;
 	nl_ctx_t *ctx;
 
