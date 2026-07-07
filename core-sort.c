@@ -223,34 +223,34 @@ stress_sort_swap_func_t stress_sort_swap_func(const size_t size)
 {
 	switch (size) {
 	case 8:
-		return sort_swap8;
+		return &sort_swap8;
 	case 4:
-		return sort_swap4;
+		return &sort_swap4;
 	case 2:
-		return sort_swap2;
+		return &sort_swap2;
 	case 1:
-		return sort_swap1;
+		return &sort_swap1;
 	default:
 		break;
 	}
-	return sort_swap;
+	return &sort_swap;
 }
 
 stress_sort_copy_func_t stress_sort_copy_func(const size_t size)
 {
 	switch (size) {
 	case 8:
-		return sort_copy8;
+		return &sort_copy8;
 	case 4:
-		return sort_copy4;
+		return &sort_copy4;
 	case 2:
-		return sort_copy2;
+		return &sort_copy2;
 	case 1:
-		return sort_copy1;
+		return &sort_copy1;
 	default:
 		break;
 	}
-	return sort_copy;
+	return &sort_copy;
 }
 
 static inline size_t qsort_bm_minimum(const size_t x, const size_t y)
