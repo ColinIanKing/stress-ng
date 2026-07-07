@@ -27,8 +27,13 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
-#if defined(HAVE_LIB_NL) &&	\
-    defined(HAVE_LINUX_OVPN_H)
+/*
+ * static builds with libnl require getprotobynumber_r
+ * which is not supported as a static lib at present
+ */
+#if defined(HAVE_LIB_NL) &&		\
+    defined(HAVE_LINUX_OVPN_H) &&	\
+    !defined(BUILD_STATIC)
 
 #include <time.h>
 #include <sys/socket.h>
@@ -1618,7 +1623,7 @@ const stressor_info_t stress_ovpn_info = {
 	.classifier = CLASS_NETWORK | CLASS_OS,
 	.verify = VERIFY_NONE,
 	.help = help,
-	.unimplemented_reason = "built without libnl3 or linux/ovpn.h support"
+	.unimplemented_reason = "built without libnl3 or linux/ovpn.h support or build statically"
 };
 
 #endif /* HAVE_LIB_NL && HAVE_LINUX_OVPN_H */
