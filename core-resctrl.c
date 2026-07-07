@@ -355,7 +355,8 @@ static int stress_resctrl_partition_add(
  */
 static int stress_resctrl_parse_partition(const char *name, char **str)
 {
-	char *ptr = *str, *tmp;
+	char *ptr = *str;
+	char *tmp;
 	uint32_t node;
 	uint32_t cachelevel;
 	uint32_t bandwidth;
@@ -478,7 +479,7 @@ static int stress_resctrl_parse_partition(const char *name, char **str)
  *  stress_resctrl_parse()
  *	parse resctrl option
  */
-int stress_resctrl_parse(char *opt_resctrl)
+int stress_resctrl_parse(const char *opt_resctrl)
 {
 	char *str = shim_strdup(opt_resctrl);
 	char *ptr;

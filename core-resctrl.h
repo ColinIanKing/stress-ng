@@ -21,7 +21,7 @@
 #ifndef CORE_RESCTRL_H
 #define CORE_RESCTRL_H
 
-extern WARN_UNUSED int stress_resctrl_parse(char *opt);
+extern WARN_UNUSED int stress_resctrl_parse(const char *opt);
 extern int stress_resctrl_set(const char *name, const uint32_t instance, const pid_t pid);
 extern void stress_resctrl_init(void);
 extern void stress_resctrl_deinit(void);
