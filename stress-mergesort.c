@@ -57,7 +57,7 @@ static inline void ALWAYS_INLINE mergesort_copy4(uint8_t *RESTRICT p1, uint8_t *
 {
 	register const uint32_t *u32end = (uint32_t *)shim_assume_aligned((p1 + size), 4);
 	register uint32_t *u32p1 = (uint32_t *)shim_assume_aligned(p1, 4);
-	register uint32_t *u32p2 = (uint32_t *)shim_assume_aligned(p2, 4);
+	register const uint32_t *u32p2 = (uint32_t *)shim_assume_aligned(p2, 4);
 
 	while (LIKELY(u32p1 < u32end))
 		*(u32p1++) = *(u32p2++);
@@ -67,7 +67,7 @@ static inline void ALWAYS_INLINE mergesort_copy(uint8_t *RESTRICT p1, uint8_t *R
 {
 	register const uint8_t *u8end = (uint8_t *)(p1 + size);
 	register uint8_t *u8p1 = (uint8_t *)p1;
-	register uint8_t *u8p2 = (uint8_t *)p2;
+	register const uint8_t *u8p2 = (uint8_t *)p2;
 
 	while (LIKELY(u8p1 < u8end))
 		*(u8p1++) = *(u8p2++);
@@ -91,8 +91,8 @@ static inline void mergesort_partition4(
 	size_t rhs_len;
 	register ssize_t n;
 	register uint8_t *rhs;
-	register uint8_t *lhs_end;
-	register uint8_t *rhs_end;
+	register const uint8_t *lhs_end;
+	register const uint8_t *rhs_end;
 
 	mid = left + ((right - left) >> 1);
 	if (left < mid)
@@ -155,8 +155,8 @@ static inline void mergesort_partition(
 	size_t rhs_len;
 	register ssize_t n;
 	register uint8_t *rhs;
-	register uint8_t *lhs_end;
-	register uint8_t *rhs_end;
+	register const uint8_t *lhs_end;
+	register const uint8_t *rhs_end;
 
 	mid = left + ((right - left) >> 1);
 	if (left < mid)
