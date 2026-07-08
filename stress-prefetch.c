@@ -238,7 +238,7 @@ static inline void OPTIMIZE3 stress_prefetch_benchmark(
 	const size_t i,
 	const uint64_t checksum_sane,
 	uint64_t *RESTRICT l3_data,
-	uint64_t *RESTRICT l3_data_end,
+	const uint64_t *RESTRICT l3_data_end,
 	uint64_t *total_count,
 	const bool verify,
 	bool *success)
