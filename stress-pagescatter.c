@@ -536,6 +536,7 @@ static const stress_exercises_t exercises[] = {
 	STRESS_EX_FEATURE("tlb"),
 	STRESS_EX_FEATURE("system-time"),
 
+	STRESS_EX_SYSCALL("mincore"),
 	STRESS_EX_SYSCALL("mmap"),
 	STRESS_EX_SYSCALL("mprotect"),
 	STRESS_EX_SYSCALL("munap"),
