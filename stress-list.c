@@ -171,7 +171,7 @@ static int OPTIMIZE3 stress_list_slistt(
 
 	t = stress_time_now();
 	for (entry = head; entry < entries_end; entry++) {
-		register list_entry_t *find;
+		register const list_entry_t *find;
 		bool found = false;
 
 		for (find = head; find; find = find->u.next) {
@@ -221,7 +221,7 @@ static int OPTIMIZE3 stress_list_list(
 
 	t = stress_time_now();
 	for (entry = entries; entry < entries_end; entry++) {
-		register list_entry_t *find;
+		register const list_entry_t *find;
 		bool found = false;
 
 		LIST_FOREACH(find, &head, u.list_entries) {
@@ -272,7 +272,7 @@ static int OPTIMIZE3 stress_list_slist(
 
 	t = stress_time_now();
 	for (entry = entries; entry < entries_end; entry++) {
-		register list_entry_t *find;
+		register const list_entry_t *find;
 		bool found = false;
 
 		SLIST_FOREACH(find, &head, u.slist_entries) {
@@ -372,7 +372,7 @@ static int OPTIMIZE3 stress_list_stailq(
 
 	t = stress_time_now();
 	for (entry = entries; entry < entries_end; entry++) {
-		register list_entry_t *find;
+		register const list_entry_t *find;
 		bool found = false;
 
 		STAILQ_FOREACH(find, &head, u.stailq_entries) {
@@ -422,7 +422,7 @@ static int OPTIMIZE3 stress_list_tailq(
 
 	t = stress_time_now();
 	for (entry = entries; entry < entries_end; entry++) {
-		register list_entry_t *find;
+		register const list_entry_t *find;
 		bool found = false;
 
 		TAILQ_FOREACH(find, &head, u.tailq_entries) {
