@@ -307,7 +307,8 @@ restart:
 
 #if defined(EXERCISE_RENAMEAT)
 		if (tmp_fd >= 0) {
-			char *oldbasename, *newbasename;
+			const char *oldbasename;
+			const char *newbasename;
 
 			(void)stress_fs_temp_filename(newname, PATH_MAX,
 				args->name, args->pid, inst1, i++);
@@ -340,7 +341,8 @@ restart:
 
 #if defined(EXERCISE_RENAMEAT2)
 		if (tmp_fd >= 0) {
-			char *oldbasename, *newbasename;
+			const char *oldbasename;
+			const char *newbasename;
 
 			(void)stress_fs_temp_filename(newname, PATH_MAX,
 				args->name, args->pid, inst1, i++);
