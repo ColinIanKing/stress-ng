@@ -906,17 +906,17 @@ static inline void ALWAYS_INLINE stress_force_killed_bogo(stress_args_t *args)
  *	add val to the stressor bogo ops counter with lock, return true
  *	if stress_continue is true
  */
-static inline void stress_bogo_add_lock(stress_args_t *args, void *lock, const uint64_t val)
+static inline void stress_bogo_add_lock(stress_args_t *args, void *bogo_lock, const uint64_t val)
 {
 	/*
 	 *  Failure in lock acquire, don't bump counter
 	 *  and get racy stress_continue state, that's
 	 *  probably the best we can do in this failure mode
 	 */
-	if (UNLIKELY(stress_lock_acquire(lock) < 0))
+	if (UNLIKELY(stress_lock_acquire(bogo_lock) < 0))
 		return;
 	stress_bogo_add(args, val);
-	stress_lock_release(lock);
+	stress_lock_release(bogo_lock);
 }
 
 /*
@@ -924,7 +924,7 @@ static inline void stress_bogo_add_lock(stress_args_t *args, void *lock, const u
  *	increment the stressor bogo ops counter with lock, return true
  *	if stress_continue is true
  */
-static inline bool stress_bogo_inc_lock(stress_args_t *args, void *lock, const bool inc)
+static inline bool stress_bogo_inc_lock(stress_args_t *args, void *bogo_lock, const bool inc)
 {
 	bool ret;
 
@@ -933,12 +933,12 @@ static inline bool stress_bogo_inc_lock(stress_args_t *args, void *lock, const b
 	 *  and get racy stress_continue state, that's
 	 *  probably the best we can do in this failure mode
 	 */
-	if (UNLIKELY(stress_lock_acquire(lock) < 0))
+	if (UNLIKELY(stress_lock_acquire(bogo_lock) < 0))
 		return stress_continue(args);
 	ret = stress_continue(args);
 	if (inc && ret)
 		stress_bogo_inc(args);
-	stress_lock_release(lock);
+	stress_lock_release(bogo_lock);
 
 	return ret;
 }
