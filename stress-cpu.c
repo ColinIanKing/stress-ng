@@ -168,7 +168,8 @@ static bool stress_is_affinity_set(void)
  */
 static int OPTIMIZE0 stress_cpu_loop(const char *name)
 {
-	uint32_t i, i_sum = 0;
+	uint32_t i;
+	uint32_t i_sum = 0;
 	const uint32_t sum = 134209536UL;
 
 	for (i = 0; LIKELY(i < 16384); i++) {
@@ -190,7 +191,8 @@ static int OPTIMIZE0 stress_cpu_loop(const char *name)
  */
 static int OPTIMIZE3 TARGET_CLONES stress_cpu_gcd(const char *name)
 {
-	uint32_t i, gcd_sum = 0;
+	uint32_t i;
+	uint32_t gcd_sum = 0;
 	const uint32_t gcd_checksum = 63000868UL;
 	uint64_t lcm_sum = 0;
 	const uint64_t lcm_checksum = 41637399273ULL;
@@ -228,7 +230,8 @@ static int OPTIMIZE3 TARGET_CLONES stress_cpu_gcd(const char *name)
  */
 static int OPTIMIZE3 TARGET_CLONES stress_cpu_bitops(const char *name)
 {
-	uint32_t i, i_sum = 0;
+	uint32_t i;
+	uint32_t i_sum = 0;
 	const uint32_t sum = 0x8aac4aab;
 
 	for (i = 0; i < 16384; i++) {
@@ -1334,7 +1337,9 @@ PRAGMA_UNROLL_N(8)
  */
 static int OPTIMIZE3 TARGET_CLONES stress_cpu_matrix_prod(const char *name)
 {
-	int i, j, k;
+	int i;
+	int j;
+	int k;
 
 	static long double a[MATRIX_PROD_SIZE][MATRIX_PROD_SIZE] ALIGN64;
 	static long double b[MATRIX_PROD_SIZE][MATRIX_PROD_SIZE] ALIGN64;
@@ -1773,7 +1778,8 @@ static int OPTIMIZE3 OPTIMIZE_FAST_MATH stress_cpu_gamma(const char *name)
  */
 static int OPTIMIZE3 stress_cpu_correlate(const char *name)
 {
-	size_t i, j;
+	size_t i;
+	size_t j;
 	double data_average = 0.0;
 	static double data[CORRELATE_DATA_LEN];
 	static double corr[CORRELATE_LEN + 1];
@@ -1841,7 +1847,8 @@ PRAGMA_UNROLL_N(8)
  */
 static inline CONST OPTIMIZE3 ALWAYS_INLINE uint32_t is_prime(uint32_t n)
 {
-	register uint32_t i, max;
+	register uint32_t i;
+	register uint32_t max;
 	double dsqrt;
 
 	if (UNLIKELY(n <= 3))
@@ -2837,7 +2844,8 @@ static uint32_t queens_try(
  */
 static int stress_cpu_queens(const char *name)
 {
-	uint32_t all, n;
+	uint32_t all;
+	uint32_t n;
 
 	static const uint32_t queens_solutions[] = {
 		0, 1, 0, 0, 2, 10, 4, 40, 92, 352, 724, 2680, 14200
