@@ -61,7 +61,7 @@ int stress_net_interface_exists(const char *interface, const int domain, struct 
 {
 #if defined(HAVE_IFADDRS_H)
 	struct ifaddrs *ifaddr;
-	struct ifaddrs *ifa;
+	const struct ifaddrs *ifa;
 	int ret = -1;
 
 	if (UNLIKELY(!interface))
