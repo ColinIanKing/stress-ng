@@ -1204,6 +1204,7 @@ static int stress_bitops_all(const char *name, uint32_t *count)
 {
 	static size_t i = 1;
 	int rc;
+
 	(void)count;
 
 	rc = stress_bitops_callfunc(name, i);
