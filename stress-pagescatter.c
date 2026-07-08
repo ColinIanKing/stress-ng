@@ -84,7 +84,7 @@ static const stress_opt_t opts[] = {
  *	mmap a page in a new random location
  *	that's not been mmap'd before
  */
-static void *stress_pagescatter_mmap(
+static void OPTIMIZE3 *stress_pagescatter_mmap(
 	const size_t page_size,
 	const uintptr_t mask,
 	const bool populate,
@@ -250,7 +250,7 @@ static inline OPTIMIZE3 void stress_pagescatter_pages_write(
  *  stress_pagescatter_pages_mprotect()
  *	change memory protection of pages
  */
-static inline void stress_pagescatter_pages_mprotect(
+static inline OPTIMIZE3 void stress_pagescatter_pages_mprotect(
 	const size_t idx,
 	scatter_page_info_t *info,
 	const size_t n_pages,
@@ -275,7 +275,7 @@ static inline void stress_pagescatter_pages_mprotect(
  *  stress_pagescatter_pages()
  *	exercise pages
  */
-static size_t stress_pagescatter_pages(
+static size_t OPTIMIZE3 stress_pagescatter_pages(
 	stress_args_t *args,
 	const size_t idx,
 	scatter_page_info_t *info)
@@ -338,7 +338,7 @@ static size_t stress_pagescatter_pages(
  *	work through page orders from size 0..info_order, allocating
  *	2^0..2^n pages respectively
  */
-static int stress_pagescatter_child(stress_args_t *args, void *context)
+static int OPTIMIZE3 stress_pagescatter_child(stress_args_t *args, void *context)
 {
 	scatter_page_info_t *info = (scatter_page_info_t *)context;
 	size_t i;
