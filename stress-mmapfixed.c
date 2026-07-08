@@ -124,7 +124,7 @@ static int stress_mmapfixed_child(stress_args_t *args, void *context)
 #endif
 	uintptr_t addr = MMAP_TOP;
 	int rc = EXIT_SUCCESS;
-	mmapfixed_info_t *info = (mmapfixed_info_t *)context;
+	const mmapfixed_info_t *info = (const mmapfixed_info_t *)context;
 
 	VOID_RET(int, stress_signal_handler(args->name, SIGSEGV, stress_signal_exit_handler, NULL));
 
