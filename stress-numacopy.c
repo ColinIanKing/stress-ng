@@ -157,7 +157,7 @@ static void TARGET_CLONES stress_numacopy_exercise(
     defined(HAVE_SCHED_SETAFFINITY)
 		if (change_affinity) {
 			cpu_set_t mask;
-			size_t index;
+			size_t idx;
 			uint32_t cpu;
 			uint32_t start_cpu;
 			long int node_next;
@@ -166,13 +166,13 @@ static void TARGET_CLONES stress_numacopy_exercise(
 			switch (affinity) {
 			case NUMACOPY_AFFINITY_NODE:
 				/* Pick next one from cpus associated with the node */
-				index = numa_cpus[node_from].index;
-				cpu = numa_cpus[node_from].cpus[index];
+				idx = numa_cpus[node_from].index;
+				cpu = numa_cpus[node_from].cpus[idx];
 
-				index++;
-				if (index >= numa_cpus[node_from].count)
-					index = 0;
-				numa_cpus[node_from].index = index;
+				idx++;
+				if (idx >= numa_cpus[node_from].count)
+					idx = 0;
+				numa_cpus[node_from].index = idx;
 
 				CPU_ZERO(&mask);
 				CPU_SET(cpu, &mask);
@@ -192,8 +192,8 @@ static void TARGET_CLONES stress_numacopy_exercise(
 
 				start_cpu = cpu;
 				/* avoid using a CPU on the NUMA node */
-				for (index = 0; index < numa_cpus[node_from].count; index++) {
-					if (numa_cpus[node_from].cpus[index] == cpu) {
+				for (idx = 0; idx < numa_cpus[node_from].count; idx++) {
+					if (numa_cpus[node_from].cpus[idx] == cpu) {
 						cpu++;
 						if (cpu >= (uint32_t)max_cpus)
 							cpu = 0;
@@ -221,8 +221,8 @@ static void TARGET_CLONES stress_numacopy_exercise(
 
 				start_cpu = cpu;
 				/* avoid using a CPU on the NUMA node */
-				for (index = 0; index < numa_cpus[node_from].count; index++) {
-					if (numa_cpus[node_from].cpus[index] == cpu) {
+				for (idx = 0; idx < numa_cpus[node_from].count; idx++) {
+					if (numa_cpus[node_from].cpus[idx] == cpu) {
 						cpu++;
 						if (cpu >= (uint32_t)max_cpus)
 							cpu = 0;
@@ -340,9 +340,9 @@ static int stress_numanode_cpus(
 	for (node = 0; node < num_numa_nodes; node++) {
 		char path[PATH_MAX];
 		char buffer[4096];
-		char *ptr, *numptr;
+		char *ptr;
+		const char *numptr;
 		int cpu;
-		int cpu_begin;
 		int cpu_end;
 		int count;
 
@@ -358,6 +358,8 @@ static int stress_numanode_cpus(
 		ptr = buffer;
 		cpu_end = -1;
 		while (*ptr) {
+			int cpu_begin;
+
 			if (!isdigit((int)*ptr))
 				break;
 			numptr = ptr;
@@ -429,7 +431,7 @@ static int stress_numacopy(stress_args_t *args)
 	long int num_numa_nodes;
 	long int num_numa_nodes_squared;
 	const int32_t max_cpus = stress_cpus_configured_get();
-	size_t index;
+	size_t idx;
 	size_t numacopy_mode_index = 0;
 	size_t numacopy_affinity_index = 1;
 	int affinity = NUMACOPY_AFFINITY_NONE;
@@ -596,11 +598,11 @@ static int stress_numacopy(stress_args_t *args)
 
 		rate = max_rate;
 		scale = 1.0;
-		for (index = 0; (rate > 100.0) && (index < SIZEOF_ARRAY(scales)); index++) {
+		for (idx = 0; (rate > 100.0) && (idx < SIZEOF_ARRAY(scales)); idx++) {
 			rate = rate / 1000.0;
 			scale = scale * 1000.0;
 		}
-		if (index >= SIZEOF_ARRAY(scales)) {
+		if (idx >= SIZEOF_ARRAY(scales)) {
 			pr_inf("%s: page copy rate out of range, cannot report "
 				"node copying rates\n", args->name);
 		} else if (duration > 0.0) {
@@ -610,7 +612,7 @@ static int stress_numacopy(stress_args_t *args)
 
 			pr_block_begin();
 			pr_inf("%s: %s%zdKB page copies to/from each node per second (for instance 0):\n",
-				args->name, scales[index], page_size >> 10);
+				args->name, scales[idx], page_size >> 10);
 			*str = '\0';
 			for (node = 0; node < num_numa_nodes; node++) {
 				(void)snprintf(buf, sizeof(buf), " %5.0f", (double)node);
