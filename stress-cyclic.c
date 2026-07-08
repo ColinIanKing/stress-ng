@@ -563,7 +563,7 @@ static const stress_cyclic_method_info_t cyclic_methods[] = {
  */
 static void stress_rt_dist(
 	const char *name,
-	stress_rt_stats_t *rt_stats,
+	const stress_rt_stats_t *rt_stats,
 	const int64_t cyclic_dist)
 {
 	const ssize_t dist_max_size = (cyclic_dist > 0) ?
