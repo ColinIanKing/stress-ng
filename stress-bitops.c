@@ -556,12 +556,12 @@ static int OPTIMIZE3 stress_bitops_parity(const char *name, uint32_t *count)
 		uint32_t tmp;
 
 		/* #1 Parity, very naive method */
-		for (p1 = 0, tmp = v; tmp; tmp >>= 1)
+		for (p1 = false, tmp = v; tmp; tmp >>= 1)
 			p1 = (tmp & 1) ? !p1 : p1;
 		sum += p1;
 
 		/* #2 Parity, naive method */
-		for (p2 = 0, tmp = v; tmp; tmp = tmp & (tmp - 1))
+		for (p2 = false, tmp = v; tmp; tmp = tmp & (tmp - 1))
 			p2 = !p2;
 		sum += p2;
 		if (UNLIKELY(p1 != p2)) {
