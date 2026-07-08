@@ -195,7 +195,7 @@ static void stress_cpuidle_read_cstates(
 {
 	DIR *cpu_dir;
 	const struct dirent *cpu_d;
-	cpu_cstate_t *cc;
+	const cpu_cstate_t *cc;
 	size_t i;
 	stress_cstate_stats_t stats;
 
@@ -355,7 +355,7 @@ void stress_cpuidle_dump(FILE *yaml, stress_list_item_t *stressors_list)
 void stress_cpuidle_log_info(void)
 {
 	char *buf;
-	cpu_cstate_t *cc;
+	const cpu_cstate_t *cc;
 	size_t len = 1;
 
 	if (cpu_cstate_list_len < 1)
