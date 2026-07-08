@@ -367,7 +367,7 @@ static void stress_mmaptorture_msync(
 }
 
 static void stress_mmaptorture_vm_name(
-	uint8_t *ptr,
+	const uint8_t *ptr,
 	const size_t size,
 	const size_t page_size)
 {
