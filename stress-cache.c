@@ -1022,7 +1022,7 @@ static inline ALWAYS_INLINE void stress_cache_reverse(
  *  stress_cache_permute()
  *	generate next permutation of int array of perms
  */
-static void OPTIMIZE3 stress_cache_permute(int *perms_init, int *perms, const int n)
+static void OPTIMIZE3 stress_cache_permute(const int *perms_init, int *perms, const int n)
 {
 	int i, j;
 
