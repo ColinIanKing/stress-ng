@@ -138,7 +138,7 @@ static const stress_revio_opts_t revio_opts[] = {
  */
 static ssize_t stress_revio_write(
 	const int fd,
-	uint8_t *buf,
+	const uint8_t *buf,
 	const size_t count,
 	const int revio_flags)
 {
