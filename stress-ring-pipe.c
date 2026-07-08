@@ -101,7 +101,7 @@ static ssize_t stress_pipe_read(
 static ssize_t stress_pipe_write(
 	stress_args_t *args,
 	const int fd,
-	char *buf,
+	const char *buf,
 	const size_t buf_len)
 {
 	ssize_t sret;
