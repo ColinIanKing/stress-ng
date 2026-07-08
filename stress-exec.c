@@ -958,7 +958,7 @@ static int stress_exec(stress_args_t *args)
 
 		reap_count = 0;
 		for (i = 0; i < HASH_EXECS; i++) {
-			stress_pid_hash_t *sph = stress_pid_hash_table[i];
+			const stress_pid_hash_t *sph = stress_pid_hash_table[i];
 
 			while (sph) {
 				reap_count++;
