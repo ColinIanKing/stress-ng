@@ -35,7 +35,7 @@ static uint32_t stress_tz_type_instance(
 	stress_tz_info_t *tz_info_list,
 	const char *type)
 {
-	stress_tz_info_t *tz_info;
+	const stress_tz_info_t *tz_info;
 	uint32_t type_instance = 0;
 
 	if (!type)
