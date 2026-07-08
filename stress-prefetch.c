@@ -129,7 +129,7 @@ static inline uint64_t get_prefetch_L3_size(stress_args_t *args)
 	uint64_t cache_size = DEFAULT_PREFETCH_L3_SIZE;
 #if defined(__linux__)
 	stress_cpu_cache_cpus_t *cpu_caches;
-	stress_cpu_cache_t *cache = NULL;
+	const stress_cpu_cache_t *cache = NULL;
 	uint16_t max_cache_level;
 
 	cpu_caches = stress_cpu_cache_details_get();
