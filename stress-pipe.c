@@ -289,7 +289,7 @@ static int stress_pipe_read_splice_verify(
 #if defined(FIONREAD)
 	register int i = 0;
 #endif
-	uint32_t *buf32;
+	const uint32_t *buf32;
 	struct iovec iov;
 	size_t offset = 0;
 	const size_t nbufs = buf_size / pipe_data_size;
@@ -353,7 +353,7 @@ static int stress_pipe_read_splice_verify(
 static int stress_pipe_write_generic(
 	stress_args_t *args,
 	const int fd,
-	char *buf,
+	const char *buf,
 	const size_t pipe_data_size,
 	uint64_t *pbytes64)
 {
