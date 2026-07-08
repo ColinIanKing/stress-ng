@@ -71,7 +71,7 @@ static int do_readahead(
 	stress_args_t *args,
 	const int fd,
 	const char *fs_type,
-	off_t *offsets)
+	const off_t *offsets)
 {
 	register int i;
 
