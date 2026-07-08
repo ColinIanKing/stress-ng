@@ -440,8 +440,10 @@ static int ovpn_rt_send(
 				}
 
 				if (err->error) {
+#if defined(DEBUG_MORE)
 					pr_dbg("%s: debug (%d) %s\n",
 						args_name, err->error, strerror(-err->error));
+#endif
 					ret = err->error;
 					goto out;
 				}
@@ -656,8 +658,10 @@ static nl_ctx_t *nl_ctx_alloc_flags(
 
 	ctx->ovpn_dco_id = genl_ctrl_resolve(ctx->nl_sock, OVPN_FAMILY_NAME);
 	if (ctx->ovpn_dco_id < 0) {
+#if defined(DEBUG_MORE)
 		pr_dbg("%s: cannot find ovpn_dco netlink component, %d\n",
 			args_name, ctx->ovpn_dco_id);
+#endif
 		goto err_sock;
 	}
 
@@ -1278,13 +1282,17 @@ static int ovpn_run_cmd(ovpn_ctx_t *ovpn)
 	case CMD_CONNECT:
 		ret = ovpn_connect(ovpn);
 		if (ret < 0) {
+#if defined(DEBUG_MORE)
 			pr_dbg("%s: cannot connect TCP socket\n", args_name);
+#endif
 			return ret;
 		}
 
 		ret = ovpn_new_peer(ovpn, true);
 		if (ret < 0) {
+#if defined(DEBUG_MORE)
 			pr_dbg("%s: cannot add peer to VPN\n", args_name);
+#endif
 			(void)close(ovpn->socket);
 			return ret;
 		}
