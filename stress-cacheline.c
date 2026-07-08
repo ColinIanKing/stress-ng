@@ -116,7 +116,7 @@ static int stress_cacheline_adjacent(
 	volatile uint8_t *buffer = (volatile uint8_t *)g_shared->cacheline.buffer;
 	volatile uint8_t *data8 = buffer + idx;
 	register uint8_t val8 = *(data8);
-	volatile uint8_t *data8adjacent = (volatile uint8_t *)(((uintptr_t)data8) ^ 1);
+	volatile const uint8_t *data8adjacent = (volatile const uint8_t *)(((uintptr_t)data8) ^ 1);
 
 	(void)parent;
 	(void)l1_cacheline_size;
@@ -429,12 +429,12 @@ static int stress_cacheline_rdints(
 {
 	register int i;
 	volatile uint8_t *buffer = (volatile uint8_t *)g_shared->cacheline.buffer;
-	volatile uint8_t *data8 = buffer + idx;
-	volatile uint16_t *data16 = (volatile uint16_t *)(((uintptr_t)data8) & ~(uintptr_t)1);
-	volatile uint32_t *data32 = (volatile uint32_t *)(((uintptr_t)data8) & ~(uintptr_t)3);
-	volatile uint64_t *data64 = (volatile uint64_t *)(((uintptr_t)data8) & ~(uintptr_t)7);
+	volatile uint8_t *data8 = (volatile uint8_t *)(buffer + idx);
+	volatile const uint16_t *data16 = (volatile const uint16_t *)(((uintptr_t)data8) & ~(uintptr_t)1);
+	volatile const uint32_t *data32 = (volatile const uint32_t *)(((uintptr_t)data8) & ~(uintptr_t)3);
+	volatile const uint64_t *data64 = (volatile const uint64_t *)(((uintptr_t)data8) & ~(uintptr_t)7);
 #if defined(HAVE_INT128_T)
-        volatile __uint128_t *data128 = (volatile __uint128_t *)(((uintptr_t)data8) & ~(uintptr_t)15);
+        volatile const __uint128_t *data128 = (volatile const __uint128_t *)(((uintptr_t)data8) & ~(uintptr_t)15);
 #endif
 
 	(void)parent;
