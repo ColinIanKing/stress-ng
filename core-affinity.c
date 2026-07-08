@@ -127,7 +127,7 @@ static void stress_topology_set_get(
 		char filename[PATH_MAX];
 		char str[1024];
 		char *ptr;
-		char *token;
+		const char *token;
 		char *saveptr = NULL;
 		cpu_set_t newset;
 		int lo;
@@ -200,7 +200,7 @@ int stress_affinity_parse_cpu(const char *arg, cpu_set_t *set, int *setbits)
 {
 	char *str;
 	char *ptr;
-	char *token;
+	const char *token;
 	char *saveptr = NULL;
 	const int32_t max_cpus = stress_cpus_configured_get();
 	int i;
