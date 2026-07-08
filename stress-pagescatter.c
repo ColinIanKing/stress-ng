@@ -126,7 +126,7 @@ static void OPTIMIZE3 *stress_pagescatter_mmap(
 		if (shim_mincore((void *)addr, page_size, vec) == 0)
 			continue;
 		/* if addr can be madvised then it's mapped, try again */
-		if  (madvise((void *)addr, page_size, MADV_NORMAL) == 0)
+		if  (shim_madvise((void *)addr, page_size, MADV_NORMAL) == 0)
 			continue;
 		/* if errno == ENOMEM it maybe not mapped */
 		if (errno != ENOMEM)
