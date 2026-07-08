@@ -328,7 +328,7 @@ static char *vdso_sym_list_str(void)
 {
 	char *str = NULL;
 	size_t len = 0;
-	stress_vdso_sym_t *vdso_sym;
+	const stress_vdso_sym_t *vdso_sym;
 
 	for (vdso_sym = vdso_sym_list; vdso_sym; vdso_sym = vdso_sym->next) {
 		char *tmp;
@@ -392,9 +392,9 @@ static void vdso_sym_list_remove_duplicates(stress_vdso_sym_t **list)
 	stress_vdso_sym_t *vs1;
 
 	for (vs1 = *list; vs1; vs1 = vs1->next) {
-		stress_vdso_sym_t *vs2;
-
 		if (vs1->name[0] == '_') {
+			const stress_vdso_sym_t *vs2;
+
 			for (vs2 = *list; vs2; vs2 = vs2->next) {
 				if ((vs1 != vs2) && (vs1->addr == vs2->addr))
 					vs1->duplicate = true;
