@@ -140,11 +140,8 @@ static int stress_chdir(stress_args_t *args)
 		chdir_info[i].mkdir_ok = true;
 		chdir_info[i].fd = open(chdir_info[i].path, flags);
 
-		if (!got_statbuf) {
-			if (shim_stat(path, &statbuf) == 0)
-				got_statbuf = true;
-
-		}
+		if ((!got_statbuf) && (shim_stat(path, &statbuf) == 0))
+			got_statbuf = true;
 	}
 
 	if (!got_statbuf && *path) {
