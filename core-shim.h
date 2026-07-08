@@ -577,7 +577,9 @@ static inline ALWAYS_INLINE CONST void *shim_unconstify_ptr(const void *ptr)
 	union stress_unconstify {
 		const void *cptr;
 		void *ptr;
-	} su;
+	};
+
+	union stress_unconstify su;
 
 	su.cptr = ptr;
 	return su.ptr;
@@ -592,7 +594,9 @@ static inline ALWAYS_INLINE void * shim_unvolatile_ptr(void volatile * ptr)
 	union stress_unvolatile {
 		void volatile * vptr;
 		void *ptr;
-	} su;
+	};
+
+	union stress_unvolatile su;
 
 	su.vptr = ptr;
 	return su.ptr;
