@@ -922,8 +922,10 @@ static int ovpn_parse_remote(
 	if (host) {
 		ret = getaddrinfo(host, service, &hints, &result);
 		if (ret) {
+#if defined(DEBUG_MORE)
 			pr_dbg("%s: getaddrinfo failed on remote, error %s\n",
 				args_name, gai_strerror(ret));
+#endif
 			return -1;
 		}
 
