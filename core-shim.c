@@ -1464,7 +1464,8 @@ size_t shim_strlcat(char *dst, const char *src, size_t len)
 #else
 	register char *d = dst;
 	register const char *s = src;
-	register size_t n = len, tmplen;
+	register size_t n = len;
+	register size_t tmplen;
 
 	while (n-- && (*d != '\0'))
 		d++;
