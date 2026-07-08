@@ -210,7 +210,7 @@ static void OPTIMIZE3 sort_copy1(void *p1, void *p2, register const size_t size)
 static void OPTIMIZE3 sort_copy(void *p1, void *p2, register size_t size)
 {
 	register uint8_t *u8p1;
-	register uint8_t *u8p2;
+	register const uint8_t *u8p2;
 
 	u8p1 = (uint8_t *)p1;
 	u8p2 = (uint8_t *)p2;
