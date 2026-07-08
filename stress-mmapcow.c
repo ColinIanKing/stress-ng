@@ -154,7 +154,7 @@ static int stress_mmapcow_exercise(
 	int *failed_count)
 {
 	uint8_t *buf = NULL;
-	uint8_t *buf_end;
+	const uint8_t *buf_end;
 	uint8_t *ptr;
 	uint8_t rnd;
 	size_t stride;
