@@ -1344,8 +1344,11 @@ static int stress_ovpn_supported(const char *name)
 
 static void ovpn_ctx_reset(ovpn_ctx_t *ovpn)
 {
+	const char *args_name = ovpn->args_name;
+
 	(void)shim_memset(ovpn, 0, sizeof(*ovpn));
 
+	ovpn->args_name = args_name;
 	ovpn->socket = -1;
 
 	(void)shim_strscpy(ovpn->ifname, "tun0", IFNAMSIZ);
