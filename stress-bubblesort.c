@@ -65,7 +65,8 @@ static int bubblesort_fast(
 	swap_func = stress_sort_swap_func(size);
 
 	do {
-		register size_t i, n = 0;
+		register size_t i;
+		register size_t n = 0;
 		register uintptr_t p1 = (uintptr_t)base;
 		register uintptr_t p2 = size + (uintptr_t)base;
 
@@ -158,7 +159,7 @@ static int stress_bubblesort(stress_args_t *args)
 {
 	uint64_t bubblesort_size = DEFAULT_BUBBLESORT_SIZE;
 	int32_t *data;
-	int32_t *ptr;
+	const int32_t *ptr;
 	size_t n;
 	size_t i;
 	size_t data_size;
