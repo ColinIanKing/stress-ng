@@ -209,7 +209,8 @@ static void OPTIMIZE3 sort_copy1(void *p1, void *p2, register const size_t size)
 
 static void OPTIMIZE3 sort_copy(void *p1, void *p2, register size_t size)
 {
-	register uint8_t *u8p1, *u8p2;
+	register uint8_t *u8p1;
+	register uint8_t *u8p2;
 
 	u8p1 = (uint8_t *)p1;
 	u8p2 = (uint8_t *)p2;
@@ -274,8 +275,8 @@ static inline void ALWAYS_INLINE qsort_bm_swap(
 	uint8_t *b,
 	size_t n)
 {
-	register uint8_t * RESTRICT pi = (uint8_t *)a;
-	register uint8_t * RESTRICT pj = (uint8_t *)b;
+	register uint8_t * RESTRICT pi = a;
+	register uint8_t * RESTRICT pj = b;
 
 PRAGMA_UNROLL_N(4)
 	do {
