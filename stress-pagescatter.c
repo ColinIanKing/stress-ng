@@ -22,6 +22,7 @@
 #include "core-mmap.h"
 #include "core-numa.h"
 #include "core-out-of-memory.h"
+#include "core-pragma.h"
 #include "core-put.h"
 
 #include <math.h>
@@ -186,6 +187,7 @@ static inline OPTIMIZE3 void stress_pagescatter_pages_read(
 		if (ptr != MAP_FAILED) {
 			register volatile const uint64_t *ptr_end = info->pages[i] + n;
 
+PRAGMA_UNROLL
 			while (ptr < ptr_end) {
 				(void)ptr[0];
 				(void)ptr[1];
@@ -227,6 +229,7 @@ static inline OPTIMIZE3 void stress_pagescatter_pages_write(
 		if (ptr != MAP_FAILED) {
 			register const uint64_t *ptr_end = info->pages[i] + n;
 
+PRAGMA_UNROLL
 			while (ptr < ptr_end) {
 				ptr[0] = val;
 				ptr[1] = val;
