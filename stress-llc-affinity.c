@@ -231,7 +231,7 @@ static void TARGET_CLONES OPTIMIZE3 stress_llc_write_cache_line_n(
 	t1 = stress_time_now();
 	for (ptr = buf; ptr < buf_end; ptr += n, val++) {
 		register uint64_t *cptr;
-		register uint64_t *cptr_end;
+		register const uint64_t *cptr_end;
 
 		for (cptr = ptr, cptr_end = ptr + n; cptr < cptr_end; cptr++)
 			*cptr = val;
@@ -258,7 +258,7 @@ static void TARGET_CLONES OPTIMIZE3 stress_llc_write_cache_line_n_ppc64_dcbst(
 	t1 = stress_time_now();
 	for (ptr = buf; ptr < buf_end; ptr += n, val++) {
 		register uint64_t *cptr;
-		register uint64_t *cptr_end;
+		register const uint64_t *cptr_end;
 
 		for (cptr = ptr, cptr_end = ptr + n; cptr < cptr_end; cptr++)
 			*cptr = val;
@@ -287,7 +287,7 @@ static void TARGET_CLONES OPTIMIZE3 stress_llc_write_cache_line_n_ppc_dcbst(
 	t1 = stress_time_now();
 	for (ptr = buf; ptr < buf_end; ptr += n, val++) {
 		register uint64_t *cptr;
-		register uint64_t *cptr_end;
+		register const uint64_t *cptr_end;
 
 		for (cptr = ptr, cptr_end = ptr + n; cptr < cptr_end; cptr++)
 			*cptr = val;
@@ -315,7 +315,7 @@ static void TARGET_CLONES OPTIMIZE3 stress_llc_write_cache_line_n_x86_clfsh(
 	t1 = stress_time_now();
 	for (ptr = buf; ptr < buf_end; ptr += n, val++) {
 		register uint64_t *cptr;
-		register uint64_t *cptr_end;
+		register const uint64_t *cptr_end;
 
 		for (cptr = ptr, cptr_end = ptr + n; cptr < cptr_end; cptr++)
 			*cptr = val;
@@ -343,7 +343,7 @@ static void TARGET_CLONES OPTIMIZE3 stress_llc_write_cache_line_n_x86_clfshopt(
 	t1 = stress_time_now();
 	for (ptr = buf; ptr < buf_end; ptr += n, val++) {
 		register uint64_t *cptr;
-		register uint64_t *cptr_end;
+		register const uint64_t *cptr_end;
 
 		for (cptr = ptr, cptr_end = ptr + n; cptr < cptr_end; cptr++)
 			*cptr = val;
@@ -398,7 +398,7 @@ static void TARGET_CLONES OPTIMIZE3 stress_llc_read_cache_line_n(
 	t1 = stress_time_now();
 	for (ptr = buf; ptr < buf_end; ptr += n) {
 		register uint64_t *cptr;
-		register uint64_t *cptr_end;
+		register const uint64_t *cptr_end;
 
 		for (cptr = ptr, cptr_end = ptr + n; cptr < cptr_end; cptr++)
 			(void)*(volatile uint64_t *)cptr;
