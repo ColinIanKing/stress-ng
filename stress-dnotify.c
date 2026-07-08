@@ -294,7 +294,7 @@ static int dnotify_modify_helper(
 {
 	int fd;
 	int rc = 0;
-	char buffer[1] = { 0 };
+	const char buffer[1] = { 0 };
 
 	(void)signum;
 	if (mk_file(args, path, 4096) < 0)
