@@ -184,7 +184,7 @@ static inline bool stress_tlb_numa_mbind_do(void)
  *	mbind pages to a NUMA node
  */
 static inline void OPTIMIZE3 stress_tlb_numa_mbind(
-	stress_tlb_numa_t *tlb_numa,
+	const stress_tlb_numa_t *tlb_numa,
 	const long int node,
 	stress_numa_mask_t *numa_mask,
 	uint8_t **pages)
