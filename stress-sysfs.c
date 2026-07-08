@@ -66,7 +66,7 @@ static const stress_help_t help[] = {
 #define OPS_PER_SYSFS_FILE	(28)	/* max iterations per sysfs file */
 
 static sigset_t set;
-static shim_pthread_spinlock_t lock;
+static shim_pthread_spinlock_t path_lock;
 static shim_pthread_spinlock_t open_lock;
 static shim_pthread_spinlock_t hash_lock;
 static volatile bool drain_kmsg = false;
@@ -192,12 +192,12 @@ static inline bool stress_sys_rw(stress_ctxt_t *ctxt)
 		struct timeval tv;
 		ssize_t rret;
 
-		ret = shim_pthread_spin_lock(&lock);
+		ret = shim_pthread_spin_lock(&path_lock);
 		if (UNLIKELY(ret))
 			return false;
 		(void)shim_strscpy(path, ctxt->sysfs_path, sizeof(path));
 		counter++;
-		(void)shim_pthread_spin_unlock(&lock);
+		(void)shim_pthread_spin_unlock(&path_lock);
 		if (counter > OPS_PER_SYSFS_FILE)
 			(void)shim_sched_yield();
 
@@ -581,13 +581,13 @@ static void stress_sys_dir(
 		if ((buf.st_mode & flags) == 0)
 			goto dt_reg_free;
 
-		ret = shim_pthread_spin_lock(&lock);
+		ret = shim_pthread_spin_lock(&path_lock);
 		if (UNLIKELY(ret))
 			goto dt_reg_free;
 
 		(void)shim_strscpy(ctxt->sysfs_path, tmp, sizeof(ctxt->sysfs_path));
 		counter = 0;
-		(void)shim_pthread_spin_unlock(&lock);
+		(void)shim_pthread_spin_unlock(&path_lock);
 
 		drain_kmsg = false;
 		time_start = stress_time_now();
@@ -747,7 +747,7 @@ static int stress_sysfs(stress_args_t *args)
 	ctxt->sys_admin = stress_capabilities_check(SHIM_CAP_SYS_ADMIN);
 	(void)stress_kmsg_drain(ctxt->kmsgfd);
 
-	ret = shim_pthread_spin_init(&lock, PTHREAD_PROCESS_PRIVATE);
+	ret = shim_pthread_spin_init(&path_lock, PTHREAD_PROCESS_PRIVATE);
 	if (ret) {
 		pr_inf("%s: pthread_spin_init on lock failed, errno=%d (%s)\n",
 			args->name, ret, strerror(ret));
@@ -860,12 +860,12 @@ again:
 				}
 			} while (stress_continue(args));
 
-			ret = shim_pthread_spin_lock(&lock);
+			ret = shim_pthread_spin_lock(&path_lock);
 			if (ret) {
 				pr_dbg("%s: failed to lock spin lock for sysfs_path\n", args->name);
 			} else {
 				(void)shim_strscpy(ctxt->sysfs_path, "", sizeof(ctxt->sysfs_path));
-				VOID_RET(int, shim_pthread_spin_unlock(&lock));
+				VOID_RET(int, shim_pthread_spin_unlock(&path_lock));
 			}
 
 			/* Forcefully kill threads */
@@ -900,7 +900,7 @@ finish:
 exit_destroy_open_lock:
 	(void)shim_pthread_spin_destroy(&open_lock);
 exit_destroy_lock:
-	(void)shim_pthread_spin_destroy(&lock);
+	(void)shim_pthread_spin_destroy(&path_lock);
 exit_delete_hash:
 	stress_hash_delete(sysfs_hash_table);
 	if (ctxt->kmsgfd != -1)
