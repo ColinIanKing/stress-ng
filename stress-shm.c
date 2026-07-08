@@ -515,7 +515,8 @@ again:
 			 *  shared memory segment.
 			 */
 			for (i = 0; i < (ssize_t)shm_posix_objects; i++) {
-				char *shm_name = &shm_names[i * SHM_NAME_LEN];
+				const char *shm_name = &shm_names[i * SHM_NAME_LEN];
+
 				if (*shm_name)
 					(void)shm_unlink(shm_name);
 			}
