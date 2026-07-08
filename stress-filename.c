@@ -68,7 +68,7 @@ static const char posix_allowed[] =
  */
 static int stress_filename_probe_length(
 	stress_args_t *args,
-	char *filename,
+	const char *filename,
 	char *ptr,
 	size_t *sz_max)
 {
@@ -115,7 +115,7 @@ static int stress_filename_probe_length(
  */
 static int stress_filename_probe(
 	stress_args_t *args,
-	char *filename,
+	const char *filename,
 	char *ptr,
 	size_t sz_max,
 	size_t *chars_allowed)
