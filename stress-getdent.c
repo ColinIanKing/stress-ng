@@ -114,12 +114,12 @@ static inline int stress_getdents_rand(
  *  stress_gendent_offset()
  *	increment ptr by offset
  */
-static inline void *stress_gendent_offset(void *ptr, const int offset)
+static inline const void *stress_gendent_offset(const void *ptr, const int offset)
 {
 	register uintptr_t u = (uintptr_t)ptr;
 
 	u += (uintptr_t)offset;
-	return (void *)u;
+	return (const void *)u;
 }
 
 #if defined(HAVE_GETDENTS)
@@ -166,7 +166,7 @@ static int stress_getdents_dir(
 	VOID_RET(int, shim_getdents((unsigned int)fd, buf, 0));
 
 	do {
-		struct shim_linux_dirent *ptr = buf;
+		const struct shim_linux_dirent *ptr = buf;
 		const struct shim_linux_dirent *end;
 		double t;
 
@@ -189,14 +189,14 @@ static int stress_getdents_dir(
 		if (!recurse || (depth < 1))
 			continue;
 
-		end = (struct shim_linux_dirent *)stress_gendent_offset((void *)buf, nread);
+		end = (const struct shim_linux_dirent *)stress_gendent_offset((void *)buf, nread);
 		while (ptr < end) {
 			const struct shim_linux_dirent *d = ptr;
 			unsigned char d_type;
 
 			if ((d->d_reclen <= 0) || (ptr + d->d_reclen > end))
 				break;
-			d_type = (unsigned char)*((char *)ptr + d->d_reclen - 1);
+			d_type = (unsigned char)*((const char *)ptr + d->d_reclen - 1);
 			if (d_type == SHIM_DT_DIR &&
 			    !stress_fs_filename_dotty(d->d_name)) {
 				char newpath[PATH_MAX];
@@ -206,7 +206,7 @@ static int stress_getdents_dir(
 				if (rc < 0)
 					goto exit_free;
 			}
-			ptr = (struct shim_linux_dirent *)stress_gendent_offset((void *)ptr, d->d_reclen);
+			ptr = (const struct shim_linux_dirent *)stress_gendent_offset((const void *)ptr, d->d_reclen);
 		}
 	} while (stress_continue(args));
 exit_free:
@@ -261,7 +261,7 @@ static int stress_getdents64_dir(
 	VOID_RET(int, shim_getdents64((unsigned int)fd, buf, 0));
 
 	do {
-		struct shim_linux_dirent64 *ptr = (struct shim_linux_dirent64 *)buf;
+		const struct shim_linux_dirent64 *ptr = (struct shim_linux_dirent64 *)buf;
 		const struct shim_linux_dirent64 *end;
 		int nread;
 		double t;
@@ -282,7 +282,7 @@ static int stress_getdents64_dir(
 		if (!recurse || (depth < 1))
 			continue;
 
-		end = (struct shim_linux_dirent64 *)stress_gendent_offset((void *)buf, nread);
+		end = (const struct shim_linux_dirent64 *)stress_gendent_offset((void *)buf, nread);
 		while (ptr < end) {
 			const struct shim_linux_dirent64 *d = ptr;
 
@@ -298,7 +298,7 @@ static int stress_getdents64_dir(
 				if (rc < 0)
 					goto exit_free;
 			}
-			ptr = (struct shim_linux_dirent64 *)stress_gendent_offset((void *)ptr, d->d_reclen);
+			ptr = (const struct shim_linux_dirent64 *)stress_gendent_offset((const void *)ptr, d->d_reclen);
 		}
 	} while (stress_continue(args));
 exit_free:
