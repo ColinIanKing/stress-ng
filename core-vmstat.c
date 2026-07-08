@@ -983,7 +983,7 @@ static int stress_buddystat(
 			double total_free;
 			double percent_total = 0.0;
 			int n;
-			char *match;
+			const char *match;
 			char numbuf[20];
 
 			match = strstr(buffer, type[i]);
