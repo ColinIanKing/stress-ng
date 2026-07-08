@@ -48,6 +48,7 @@ typedef struct {
 	size_t pages_sz;	/* size of pages mapping */
 	size_t n_pages;		/* number of pages = 2^order */
 	size_t order;		/* log2 of n_pages */
+	size_t mapped;		/* number of pages successfully mmap'd */
 	bool populate;		/* true - use MAP_POPULATE */
 	/*
 	 *  rates[n] represent times of 0..2^n pages
@@ -274,7 +275,7 @@ static inline void stress_pagescatter_pages_mprotect(
  *  stress_pagescatter_pages()
  *	exercise pages
  */
-static int stress_pagescatter_pages(
+static size_t stress_pagescatter_pages(
 	stress_args_t *args,
 	const size_t idx,
 	scatter_page_info_t *info)
@@ -306,28 +307,30 @@ static int stress_pagescatter_pages(
 			stress_pages = false;
 		}
 	}
+	info->mapped = count;
 	info->rate[idx].duration[SCATTER_MMAP] += duration;
 	info->rate[idx].count[SCATTER_MMAP] += (double)count;
 
-	if (stress_pages) {
+	if (stress_pages && info->mapped) {
 		stress_pagescatter_pages_write(idx, info, n_pages, page_size);
 		stress_pagescatter_pages_read(idx, info, n_pages, page_size);
 		stress_pagescatter_pages_mprotect(idx, info, n_pages, page_size);
 	}
-
-	duration = 0.0;
-	count = 0;
-	t = stress_time_now();
-	for (i = 0; i < n_pages; i++) {
-		if (info->pages[i] != MAP_FAILED)
-			count += (munmap(info->pages[i], page_size) == 0);
-		info->pages[i] = MAP_FAILED;
+	if (info->mapped) {
+		duration = 0.0;
+		count = 0;
+		t = stress_time_now();
+		for (i = 0; i < n_pages; i++) {
+			if (info->pages[i] != MAP_FAILED)
+				count += (munmap(info->pages[i], page_size) == 0);
+			info->pages[i] = MAP_FAILED;
+		}
+		duration += stress_time_now() - t;
+		info->rate[idx].duration[SCATTER_MUNMAP] += duration;
+		info->rate[idx].count[SCATTER_MUNMAP] += (double)count;
 	}
-	duration += stress_time_now() - t;
-	info->rate[idx].duration[SCATTER_MUNMAP] += duration;
-	info->rate[idx].count[SCATTER_MUNMAP] += (double)count;
 
-	return 0;
+	return info->mapped;
 }
 
 /*
@@ -340,6 +343,7 @@ static int stress_pagescatter_child(stress_args_t *args, void *context)
 	scatter_page_info_t *info = (scatter_page_info_t *)context;
 	size_t i;
 	size_t max_loops = 1U << info->order;
+	bool mapped = false;
 
 	do {
 		if (UNLIKELY(!stress_continue(args)))
@@ -353,12 +357,15 @@ static int stress_pagescatter_child(stress_args_t *args, void *context)
 				n_loops = 1;
 
 			for (j = 0; (j < n_loops) && stress_continue_flag(); j++) {
-				stress_pagescatter_pages(args, i, info);
+				mapped |= (stress_pagescatter_pages(args, i, info) > 0);
 			}
 			if (UNLIKELY(!stress_continue(args)))
 				break;
 		}
-
+		if (!mapped) {
+			pr_inf_skip("%s: failed to mmap any pages, skipping stressor\n", args->name);
+			return EXIT_NO_RESOURCE;
+		}
 	} while (stress_continue(args));
 
 	return EXIT_SUCCESS;
