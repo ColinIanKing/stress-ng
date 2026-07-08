@@ -636,6 +636,7 @@ stress-ng has found various Kernel, QEMU bugs/regressions, and libc bugs; approp
  * [mm/vmstat: fix vmstat_shepherd double-scheduling vmstat_update](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=2b19bf05719b73f7d04d7d27ec423b459b868852)
  * [null pointer reference in gfs2 when using chattr](https://bugs.launchpad.net/ubuntu/+source/linux/+bug/2148595)
  * [wifi: rtw89: phy: increase RF calibration timeouts for USB transport](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=5055188134c3cc755333fa19e5b8a0f3cb6fbb9a)
+ * [Cygwin madvise(): aliased to posix_madvise() but the error handling should differ](https://cygwin.com/pipermail/cygwin/2026-July/259872.html)
 
 ## Kernel improvements that used stress-ng
 
