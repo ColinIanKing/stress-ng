@@ -83,7 +83,25 @@ static const stress_help_t help[] = {
 #define nla_nest_start(_msg, _type) \
 	nla_nest_start(_msg, (_type) | NLA_F_NESTED)
 
+#ifndef IFLA_OVPN_MAX
+
+enum ovpn_mode
+{
+    OVPN_MODE_P2P,
+    OVPN_MODE_MP,
+};
+
+enum ovpn_ifla_attrs
+{
+    IFLA_OVPN_UNSPEC = 0,
+    IFLA_OVPN_MODE,
+
+    __IFLA_OVPN_MAX,
+};
+
 #define IFLA_OVPN_MAX (__IFLA_OVPN_MAX - 1)
+
+#endif /* ifndef IFLA_OVPN_MAX */
 
 #define RT_SNDBUF_SIZE (1024 * 2)
 #define RT_RCVBUF_SIZE (1024 * 4)
