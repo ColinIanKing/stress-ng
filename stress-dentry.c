@@ -113,7 +113,8 @@ static int stress_dentry_unlink(
 	const uint8_t dentry_order,
 	const bool verify)
 {
-	uint64_t i, j;
+	uint64_t i;
+	uint64_t j;
 	uint64_t prime;
 	uint64_t read_errors = 0ULL;
 	const uint8_t ord = (dentry_order == ORDER_RANDOM) ?
@@ -467,16 +468,16 @@ abort:
 	}
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
 
-	rate = (creat_count > 0.0) ? (double)creat_duration / creat_count : 0.0;
+	rate = (creat_count > 0.0) ? creat_duration / creat_count : 0.0;
 	stress_metrics_set(args, "nanosecs per file creation",
 		rate * STRESS_DBL_NANOSECOND, STRESS_METRIC_HARMONIC_MEAN);
-	rate = (access_count > 0.0) ? (double)access_duration / access_count : 0.0;
+	rate = (access_count > 0.0) ? access_duration / access_count : 0.0;
 	stress_metrics_set(args, "nanosecs per file access",
 		rate * STRESS_DBL_NANOSECOND, STRESS_METRIC_HARMONIC_MEAN);
-	rate = (bogus_access_count > 0.0) ? (double)bogus_access_duration / bogus_access_count : 0.0;
+	rate = (bogus_access_count > 0.0) ? bogus_access_duration / bogus_access_count : 0.0;
 	stress_metrics_set(args, "nanosecs per bogus file access",
 		rate * STRESS_DBL_NANOSECOND, STRESS_METRIC_HARMONIC_MEAN);
-	rate = (bogus_unlink_count > 0.0) ? (double)bogus_unlink_duration / bogus_unlink_count : 0.0;
+	rate = (bogus_unlink_count > 0.0) ? bogus_unlink_duration / bogus_unlink_count : 0.0;
 	stress_metrics_set(args, "nanosecs per bogus file unlink",
 		rate * STRESS_DBL_NANOSECOND, STRESS_METRIC_HARMONIC_MEAN);
 
