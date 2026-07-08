@@ -124,7 +124,7 @@ static int OPTIMIZE3 stress_bitonicsort(stress_args_t *args)
 {
 	uint64_t bitonicsort_size = DEFAULT_BITONICSORT_SIZE;
 	int32_t *data;
-	int32_t *ptr;
+	const int32_t *ptr;
 	size_t n;
 	size_t data_size;
 	NOCLOBBER int rc = EXIT_SUCCESS;
