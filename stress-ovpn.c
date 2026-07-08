@@ -986,13 +986,6 @@ static int ovpn_connect(ovpn_ctx_t *ovpn)
 	struct timeval tv = { .tv_sec = 2, .tv_usec = 0 };
 	const char *args_name = ovpn->args_name;
 
-	s = socket(ovpn->remote.in4.sin_family, SOCK_STREAM, 0);
-	if (s < 0) {
-		pr_err("%s: socket failed, errno=%d (%s)\n",
-			args_name, errno, strerror(errno));
-		return -1;
-	}
-
 	switch (ovpn->remote.in4.sin_family) {
 	case AF_INET:
 		socklen = sizeof(struct sockaddr_in);
@@ -1002,7 +995,15 @@ static int ovpn_connect(ovpn_ctx_t *ovpn)
 		break;
 	default:
 		ret = -EOPNOTSUPP;
-		goto err;
+		goto err_ret;
+	}
+
+	s = socket(ovpn->remote.in4.sin_family, SOCK_STREAM, 0);
+	if (s < 0) {
+		pr_err("%s: socket failed, errno=%d (%s)\n",
+			args_name,
+			errno, strerror(errno));
+		return -1;
 	}
 
 	flags = fcntl(s, F_GETFL, 0);
@@ -1036,6 +1037,7 @@ static int ovpn_connect(ovpn_ctx_t *ovpn)
 	return 0;
 err:
 	(void)close(s);
+err_ret:
 	return ret;
 }
 
