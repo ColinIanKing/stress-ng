@@ -366,7 +366,7 @@ static int stress_cacheline_rdrev64(
 		/* read cache line backwards */
 PRAGMA_UNROLL
 		for (j = cacheline_size - 8; j >= 0; j -= 8) {
-			volatile uint64_t *data64 = (volatile uint64_t *)(aligned_cacheline + (size_t)j);
+			volatile const uint64_t *data64 = (volatile const uint64_t *)(aligned_cacheline + (size_t)j);
 
 			(void)*data64;
 			stress_asm_mb();
@@ -407,7 +407,7 @@ static int stress_cacheline_rdfwd64(
 PRAGMA_UNROLL
 #endif
 		for (j = 0; j < cacheline_size; j += 8) {
-			volatile uint64_t *data64 = (volatile uint64_t *)(aligned_cacheline + j);
+			volatile const uint64_t *data64 = (volatile const uint64_t *)(aligned_cacheline + j);
 
 			(void)*data64;
 			stress_asm_mb();
@@ -450,20 +450,20 @@ PRAGMA_UNROLL
 		stress_asm_mb();
 
 		/* 2 byte reads from same location */
-		(void)*(data16);
+		(void)*data16;
 		stress_asm_mb();
 
 		/* 4 byte reads from same location */
-		(void)*(data32);
+		(void)*data32;
 		stress_asm_mb();
 
 		/* 8 byte reads from same location */
-		(void)*(data64);
+		(void)*data64;
 		stress_asm_mb();
 
 #if defined(HAVE_INT128_T)
 		/* 16 byte reads from same location */
-		(void)*(data128);
+		(void)*data128;
 		stress_asm_mb();
 #endif
 		if (UNLIKELY(val8 != *data8)) {
