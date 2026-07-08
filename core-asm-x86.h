@@ -216,7 +216,7 @@ static inline uint64_t ALWAYS_INLINE stress_asm_x86_rdseed(void)
 
 #if defined(HAVE_ASM_X86_TPAUSE) && 	\
     !defined(HAVE_COMPILER_PCC)
-static inline int ALWAYS_INLINE stress_asm_x86_tpause__(int state, uint32_t hi, uint32_t lo)
+static inline int ALWAYS_INLINE stress_asm_x86_tpause__(int tpause_state, uint32_t hi, uint32_t lo)
 {
 	uint8_t cflags;
 
@@ -227,17 +227,17 @@ static inline int ALWAYS_INLINE stress_asm_x86_tpause__(int state, uint32_t hi, 
 		".byte 0x66,0x0f,0xae,0xf7;\n"	/* tpause %%edi; */
 		"setb %0;\n"
 		: "=r" (cflags)
-		: "r" (hi), "r" (lo), "r"(state)
+		: "r" (hi), "r" (lo), "r"(tpause_state)
 		: "cc", "eax", "edx", "edi");
 	return cflags;
 }
 
-static inline int ALWAYS_INLINE stress_asm_x86_tpause(const int state, const uint64_t delay)
+static inline int ALWAYS_INLINE stress_asm_x86_tpause(const int tpause_state, const uint64_t delay)
 {
 	register uint32_t lo = delay & 0xffffffff;
 	register uint32_t hi = (uint32_t)(delay >> 32);
 
-	return stress_asm_x86_tpause__(state, hi, lo);
+	return stress_asm_x86_tpause__(tpause_state, hi, lo);
 }
 #endif
 
@@ -335,7 +335,7 @@ static inline void ALWAYS_INLINE stress_asm_x86_prefetchwt1(void *p)
 #if !defined(HAVE_COMPILER_PCC) && 	\
     defined(STRESS_ARCH_X86_64) && 	\
     defined(STRESS_ARCH_X86_LP64)
-static inline int ALWAYS_INLINE stress_asm_x86_umwait__(int state, uint32_t hi, uint32_t lo)
+static inline int ALWAYS_INLINE stress_asm_x86_umwait__(int umwait_state, uint32_t hi, uint32_t lo)
 {
 	uint8_t cflags;
 
@@ -346,17 +346,17 @@ static inline int ALWAYS_INLINE stress_asm_x86_umwait__(int state, uint32_t hi, 
 		".byte 0xf2, 0x0f, 0xae, 0xf7;\n"	/* umwait %edi */
 		"setb %0;\n"
 		: "=r" (cflags)
-		: "r" (hi), "r" (lo), "r"(state)
+		: "r" (hi), "r" (lo), "r"(umwait_state)
 		: "cc", "eax", "edx", "edi");
 	return cflags;
 }
 
-static inline int ALWAYS_INLINE stress_asm_x86_umwait(const int state, const uint64_t delay)
+static inline int ALWAYS_INLINE stress_asm_x86_umwait(const int umwait_state, const uint64_t delay)
 {
 	register uint32_t lo = delay & 0xffffffff;
 	register uint32_t hi = (uint32_t)(delay >> 32);
 
-	return stress_asm_x86_umwait__(state, hi, lo);
+	return stress_asm_x86_umwait__(umwait_state, hi, lo);
 }
 
 static inline void ALWAYS_INLINE stress_asm_x86_umonitor(void *addr)
