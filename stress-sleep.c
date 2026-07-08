@@ -131,7 +131,7 @@ static void *stress_pthread_func(void *c)
 
 	while (stress_continue(args) && !thread_terminate) {
 		bool eintr;
-		cpu_cstate_t *cc;
+		const cpu_cstate_t *cc;
 		struct timespec tv;
 		double delta;
 		double expected;
