@@ -96,7 +96,7 @@ rewait:
 	return 0;
 }
 
-static void stress_sighup_closefds(int fds[2])
+static void stress_sighup_closefds(const int fds[2])
 {
 	(void)close(fds[0]);
 	(void)close(fds[1]);
