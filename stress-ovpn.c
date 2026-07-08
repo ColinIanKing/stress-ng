@@ -1376,6 +1376,9 @@ static void ovpn_ctx_reset(ovpn_ctx_t *ovpn)
 {
 	const char *args_name = ovpn->args_name;
 
+	if (ovpn->socket >= 0)
+		(void)close(ovpn->socket);
+
 	(void)shim_memset(ovpn, 0, sizeof(*ovpn));
 
 	ovpn->args_name = args_name;
