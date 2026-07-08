@@ -401,7 +401,7 @@ static int stress_af_alg_cipher(
 	const size_t cbuf_size = CMSG_SPACE(sizeof(__u32)) +
 				  CMSG_SPACE(4) + CMSG_SPACE(iv_size);
 	char name[64];
-	char *salg_name;
+	const char *salg_name;
 	const char *salg_type = "skcipher";
 	int retries = MAX_AF_ALG_RETRIES_BIND;
 	char input[DATA_LEN + ALLOC_SLOP] ALIGN64;
@@ -1090,7 +1090,7 @@ err:
 
 static void stress_af_alg_count_crypto(size_t *count, size_t *internal)
 {
-	stress_crypto_info_t *ci;
+	const stress_crypto_info_t *ci;
 
 	*count = 0;
 	*internal = 0;
