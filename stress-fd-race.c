@@ -205,7 +205,7 @@ static inline int stress_race_fd_recv(const int fd)
 {
 	struct iovec iov;
 	struct msghdr ALIGN64 msg;
-	struct cmsghdr *cmsg;
+	const struct cmsghdr *cmsg;
 	char msg_data[1] = { 0 };
 	char ctrl[CMSG_SPACE(sizeof(int))];
 
@@ -232,7 +232,7 @@ static inline int stress_race_fd_recv(const int fd)
 	    (cmsg->cmsg_level == SOL_SOCKET) &&
 	    (cmsg->cmsg_type == SCM_RIGHTS) &&
 	    ((size_t)cmsg->cmsg_len >= (size_t)CMSG_LEN(sizeof(int)))) {
-		int *const ptr = (int *)(uintptr_t)CMSG_DATA(cmsg);
+		const int * const ptr = (int *)(uintptr_t)CMSG_DATA(cmsg);
 		return *ptr;
 	}
 
@@ -511,7 +511,7 @@ static int OPTIMIZE3 stress_race_fd_server(
 	socklen_t addr_len = 0;
 	struct sockaddr *addr = NULL;
 	uint64_t msgs = 0;
-	stress_fd_race_filename_t *entry;
+	const stress_fd_race_filename_t *entry;
 	stress_args_t *args = context->args;
 	int pthreads_ret[MAX_PTHREADS];
 	pthread_t pthreads[MAX_PTHREADS];
