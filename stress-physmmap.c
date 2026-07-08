@@ -156,7 +156,7 @@ static int stress_physmmap_flags(void)
 static inline void stress_physmmap_read(void *data, const size_t size)
 {
 	register volatile uint64_t *ptr = (uint64_t *)data;
-	register uint64_t *ptr_end = (uint64_t *)((uintptr_t)data + size);
+	register const uint64_t *ptr_end = (uint64_t *)((uintptr_t)data + size);
 
 PRAGMA_UNROLL_N(2)
 	while (ptr < ptr_end) {
