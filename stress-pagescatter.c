@@ -128,15 +128,9 @@ static void OPTIMIZE3 *stress_pagescatter_mmap(
 		/* if addr can be madvised then it's mapped, try again */
 		if  (madvise((void *)addr, page_size, MADV_NORMAL) == 0)
 			continue;
-#if defined(__CYGWIN__)
-		/* Cygwin may not support madvise.. check that too */
-		if ((errno != ENOSYS) && (errno != ENOMEM))
-			continue;
-#else
 		/* if errno == ENOMEM it maybe not mapped */
 		if (errno != ENOMEM)
 			continue;
-#endif
 		/* now do an expensive pipe page check */
 		if (stress_memory_readable((void *)addr, page_size))
 			continue;
