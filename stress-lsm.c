@@ -163,7 +163,7 @@ static int stress_lsm(stress_args_t *args)
 
 		for (j = 0; j < SIZEOF_ARRAY(attr); j++) {
 			struct lsm_ctx *ctx = (struct lsm_ctx *)buf;
-			struct lsm_ctx *ctx_end = (struct lsm_ctx *)((uintptr_t)buf + buf_size);
+			const struct lsm_ctx *ctx_end = (struct lsm_ctx *)((uintptr_t)buf + buf_size);
 			struct lsm_ctx tmp_ctx ALIGNED(8);
 
 			size = (uint32_t)buf_size;
