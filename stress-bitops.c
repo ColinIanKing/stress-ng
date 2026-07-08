@@ -1130,7 +1130,8 @@ static int OPTIMIZE3 stress_bitops_swap(const char *name, uint32_t *count)
  */
 static int OPTIMIZE3 stress_bitops_zerobyte(const char *name, uint32_t *count)
 {
-	register uint32_t i, j = stress_mwc32();
+	register uint32_t i;
+	register uint32_t j = stress_mwc32();
 
 	for (i = 0; i < 1000; i++, j += i) {
 		register bool has_zero_byte;
