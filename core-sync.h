@@ -30,7 +30,7 @@ extern int stress_sync_s_pids_munmap(stress_pid_t *s_pids, const size_t num);
 extern void stress_sync_start_init(stress_pid_t *s_pid);
 extern void stress_sync_start_wait_s_pid(stress_pid_t *s_pid);
 extern void stress_sync_start_wait(stress_args_t *args);
-extern void stress_sync_start_cont_s_pid(stress_pid_t *s_pid);
+extern void stress_sync_start_cont_s_pid(const stress_pid_t *s_pid);
 extern void stress_sync_start_cont_list(stress_pid_t *s_pids_head);
 extern void stress_sync_init_pids(stress_pid_t *s_pids, const size_t n_pids);
 extern void stress_sync_order_pid(stress_pid_t **head, stress_pid_t *s_pid);
