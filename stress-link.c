@@ -192,7 +192,8 @@ static int stress_link_generic(
     defined(HAVE_LIBGEN_H) &&	\
     defined(HAVE_READLINKAT)
 				{
-					char tmpfilename[PATH_MAX], *filename;
+					char tmpfilename[PATH_MAX];
+					const char *filename;
 					char tmpdir[PATH_MAX];
 					const char *dir;
 					int dir_fd;
