@@ -84,7 +84,7 @@ static size_t stress_munmap_stride(const size_t n)
 static void stress_munmap_range(
 	stress_args_t *args,
 	void *start,
-	void *end,
+	const void *end,
 	munmap_context_t *ctxt,
 	int *rc)
 {
