@@ -320,7 +320,7 @@ static int stress_cpu_cache_get_riscv(
 		{ "i-cache-size",		CACHE_TYPE_INSTRUCTION,	1, STRESS_CACHE_SIZE,		1 },
 	};
 
-	char *base;
+	const char *base;
 	const size_t count = 2;
 	size_t i;
 	bool valid = false;
