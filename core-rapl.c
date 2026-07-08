@@ -58,7 +58,7 @@ void stress_rapl_domains_free(stress_rapl_domain_t *rapl_domains)
  *  stress_rapl_domain_unique()
  *	returns true if domain_name is not in rapl_domains
  */
-static bool stress_rapl_domain_unique(stress_rapl_domain_t *rapl_domains, const char *domain_name)
+static bool stress_rapl_domain_unique(const stress_rapl_domain_t *rapl_domains, const char *domain_name)
 {
 	const stress_rapl_domain_t *rapl_domain;
 
