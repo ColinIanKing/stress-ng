@@ -248,7 +248,8 @@ static int do_chattr(
 			if (args->instances == 1) {
 				tmp = mask & ~(SHIM_EXT3_JOURNAL_DATA_FL | SHIM_EXT4_EXTENTS_FL);
 				if (((flags & tmp) | (check & tmp)) != (flags & tmp)) {
-					char flags_str[65], check_str[65];
+					char flags_str[65];
+					char check_str[65];
 
 					stress_chattr_flags_str(flags & tmp, flags_str, sizeof(flags_str));
 					stress_chattr_flags_str(check & tmp, check_str, sizeof(check_str));
@@ -409,7 +410,7 @@ static int stress_chattr(stress_args_t *args)
 		}
 
 		/* Try next flag permutation */
-		if ((flag_count > 0) && (flag_perms)) {
+		if ((flag_count > 0) && flag_perms) {
 			(void)do_chattr(args, filename, (unsigned long int)flag_perms[idx], mask, &chattr_count);
 			idx++;
 			if (idx >= flag_count)
