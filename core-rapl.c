@@ -60,7 +60,7 @@ void stress_rapl_domains_free(stress_rapl_domain_t *rapl_domains)
  */
 static bool stress_rapl_domain_unique(stress_rapl_domain_t *rapl_domains, const char *domain_name)
 {
-	stress_rapl_domain_t *rapl_domain;
+	const stress_rapl_domain_t *rapl_domain;
 
 	for (rapl_domain = rapl_domains; rapl_domain; rapl_domain = rapl_domain->next) {
 		if (!strcmp(rapl_domain->domain_name, domain_name))
