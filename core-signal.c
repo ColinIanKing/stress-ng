@@ -231,7 +231,7 @@ static void stress_dump_data(
 static void stress_dump_readable_data(uint8_t *fault_addr)
 {
 	int i;
-	uint8_t *addr = (uint8_t *)((uintptr_t)fault_addr & ~0xf);
+	const uint8_t *addr = (const uint8_t *)((uintptr_t)fault_addr & ~0xf);
 
 	for (i = 0; i < 3; i++, addr += 16) {
 		stress_dump_data(addr, fault_addr, 16);
