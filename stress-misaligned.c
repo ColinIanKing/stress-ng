@@ -144,23 +144,23 @@ static void stress_misaligned_int16rd(
 	bool *succeeded)
 {
 	register int i = MISALIGN_LOOPS;
-	volatile uint16_t *ptr1  = (uint16_t *)(buffer + 1);
-	volatile uint16_t *ptr2  = (uint16_t *)(buffer + 3);
-	volatile uint16_t *ptr3  = (uint16_t *)(buffer + 5);
-	volatile uint16_t *ptr4  = (uint16_t *)(buffer + 7);
-	volatile uint16_t *ptr5  = (uint16_t *)(buffer + 9);
-	volatile uint16_t *ptr6  = (uint16_t *)(buffer + 11);
-	volatile uint16_t *ptr7  = (uint16_t *)(buffer + 13);
-	volatile uint16_t *ptr8  = (uint16_t *)(buffer + 15);
-	volatile uint16_t *ptr9  = (uint16_t *)(buffer + page_size - 1);
-	volatile uint16_t *ptr10 = (uint16_t *)(buffer + page_size - 3);
-	volatile uint16_t *ptr11 = (uint16_t *)(buffer + page_size - 5);
-	volatile uint16_t *ptr12 = (uint16_t *)(buffer + page_size - 7);
-	volatile uint16_t *ptr13 = (uint16_t *)(buffer + page_size - 9);
-	volatile uint16_t *ptr14 = (uint16_t *)(buffer + page_size - 11);
-	volatile uint16_t *ptr15 = (uint16_t *)(buffer + page_size - 13);
-	volatile uint16_t *ptr16 = (uint16_t *)(buffer + page_size - 15);
-	volatile uint16_t *ptr17  = (uint16_t *)(buffer + 63);
+	volatile const uint16_t *ptr1  = (const uint16_t *)(buffer + 1);
+	volatile const uint16_t *ptr2  = (const uint16_t *)(buffer + 3);
+	volatile const uint16_t *ptr3  = (const uint16_t *)(buffer + 5);
+	volatile const uint16_t *ptr4  = (const uint16_t *)(buffer + 7);
+	volatile const uint16_t *ptr5  = (const uint16_t *)(buffer + 9);
+	volatile const uint16_t *ptr6  = (const uint16_t *)(buffer + 11);
+	volatile const uint16_t *ptr7  = (const uint16_t *)(buffer + 13);
+	volatile const uint16_t *ptr8  = (const uint16_t *)(buffer + 15);
+	volatile const uint16_t *ptr9  = (const uint16_t *)(buffer + page_size - 1);
+	volatile const uint16_t *ptr10 = (const uint16_t *)(buffer + page_size - 3);
+	volatile const uint16_t *ptr11 = (const uint16_t *)(buffer + page_size - 5);
+	volatile const uint16_t *ptr12 = (const uint16_t *)(buffer + page_size - 7);
+	volatile const uint16_t *ptr13 = (const uint16_t *)(buffer + page_size - 9);
+	volatile const uint16_t *ptr14 = (const uint16_t *)(buffer + page_size - 11);
+	volatile const uint16_t *ptr15 = (const uint16_t *)(buffer + page_size - 13);
+	volatile const uint16_t *ptr16 = (const uint16_t *)(buffer + page_size - 15);
+	volatile const uint16_t *ptr17 = (const uint16_t *)(buffer + 63);
 
 	(void)args;
 	(void)succeeded;
@@ -459,15 +459,15 @@ static void stress_misaligned_int32rd(
 	bool *succeeded)
 {
 	register int i = MISALIGN_LOOPS;
-	volatile uint32_t *ptr1 = (uint32_t *)(buffer + 1);
-	volatile uint32_t *ptr2 = (uint32_t *)(buffer + 5);
-	volatile uint32_t *ptr3 = (uint32_t *)(buffer + 9);
-	volatile uint32_t *ptr4 = (uint32_t *)(buffer + 13);
-	volatile uint32_t *ptr5 = (uint32_t *)(buffer + page_size - 1);
-	volatile uint32_t *ptr6 = (uint32_t *)(buffer + page_size - 5);
-	volatile uint32_t *ptr7 = (uint32_t *)(buffer + page_size - 9);
-	volatile uint32_t *ptr8 = (uint32_t *)(buffer + page_size - 13);
-	volatile uint32_t *ptr9 = (uint32_t *)(buffer + 63);
+	volatile const uint32_t *ptr1 = (const uint32_t *)(buffer + 1);
+	volatile const uint32_t *ptr2 = (const uint32_t *)(buffer + 5);
+	volatile const uint32_t *ptr3 = (const uint32_t *)(buffer + 9);
+	volatile const uint32_t *ptr4 = (const uint32_t *)(buffer + 13);
+	volatile const uint32_t *ptr5 = (const uint32_t *)(buffer + page_size - 1);
+	volatile const uint32_t *ptr6 = (const uint32_t *)(buffer + page_size - 5);
+	volatile const uint32_t *ptr7 = (const uint32_t *)(buffer + page_size - 9);
+	volatile const uint32_t *ptr8 = (const uint32_t *)(buffer + page_size - 13);
+	volatile const uint32_t *ptr9 = (const uint32_t *)(buffer + 63);
 
 	(void)args;
 	(void)succeeded;
@@ -728,11 +728,11 @@ static void stress_misaligned_int64rd(
 	bool *succeeded)
 {
 	register int i = MISALIGN_LOOPS;
-	volatile uint64_t *ptr1 = (uint64_t *)(buffer + 1);
-	volatile uint64_t *ptr2 = (uint64_t *)(buffer + 9);
-	volatile uint64_t *ptr3 = (uint64_t *)(buffer + page_size - 1);
-	volatile uint64_t *ptr4 = (uint64_t *)(buffer + page_size - 9);
-	volatile uint64_t *ptr5 = (uint64_t *)(buffer + 63);
+	volatile const uint64_t *ptr1 = (const uint64_t *)(buffer + 1);
+	volatile const uint64_t *ptr2 = (const uint64_t *)(buffer + 9);
+	volatile const uint64_t *ptr3 = (const uint64_t *)(buffer + page_size - 1);
+	volatile const uint64_t *ptr4 = (const uint64_t *)(buffer + page_size - 9);
+	volatile const uint64_t *ptr5 = (const uint64_t *)(buffer + 63);
 
 	(void)args;
 	(void)succeeded;
@@ -989,9 +989,9 @@ static void TARGET_CLONE_NO_SSE stress_misaligned_int128rd(
 	bool *succeeded)
 {
 	register int i = MISALIGN_LOOPS;
-	volatile __uint128_t *ptr1 = (__uint128_t *)(buffer + 1);
-	volatile __uint128_t *ptr2 = (__uint128_t *)(buffer + page_size - 1);
-	volatile __uint128_t *ptr3 = (__uint128_t *)(buffer + 63);
+	volatile const __uint128_t *ptr1 = (const __uint128_t *)(buffer + 1);
+	volatile const __uint128_t *ptr2 = (const __uint128_t *)(buffer + page_size - 1);
+	volatile const __uint128_t *ptr3 = (const __uint128_t *)(buffer + 63);
 
 	(void)args;
 	(void)succeeded;
