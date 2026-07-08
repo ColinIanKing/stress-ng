@@ -82,7 +82,7 @@ typedef struct dev_ioctl_info {
 } dev_ioctl_info_t;
 
 static sigset_t set;
-static void *lock;
+static void *node_lock;
 static uint32_t mixup;
 static dev_ioctl_info_t *dev_ioctl_info_head;
 static volatile dev_ioctl_info_t *dev_ioctl_node;
@@ -290,11 +290,11 @@ static inline void stress_bad_ioctl_rw(
 		uint64_t rnd = stress_mwc32();
 		volatile dev_ioctl_info_t *node;
 
-		ret = stress_lock_acquire(lock);
+		ret = stress_lock_acquire(node_lock);
 		if (ret)
 			break;
 		node = dev_ioctl_node;
-		(void)stress_lock_release(lock);
+		(void)stress_lock_release(node_lock);
 
 		if (!node || !stress_continue_flag())
 			break;
@@ -442,11 +442,11 @@ static inline void stress_bad_ioctl_rw(
 
 		(void)close(fd);
 		if (thread_index < MAX_DEV_THREADS) {
-			ret = stress_lock_acquire(lock);
+			ret = stress_lock_acquire(node_lock);
 			if (ret)
 				break;
 			node->exercised[thread_index] = true;
-			(void)stress_lock_release(lock);
+			(void)stress_lock_release(node_lock);
 		}
 	} while (is_pthread);
 
@@ -503,7 +503,7 @@ static void stress_bad_ioctl_dir(
 		if (offset > 1) {
 			offset--;
 		} else {
-			ret = stress_lock_acquire(lock);
+			ret = stress_lock_acquire(node_lock);
 			if (!ret) {
 				size_t i;
 				bool all_exercised = true;
@@ -537,7 +537,7 @@ static void stress_bad_ioctl_dir(
 				}
 				dev_ioctl_node = node;
 				(void)shim_memset(node->exercised, 0, sizeof(node->exercised));
-				(void)stress_lock_release(lock);
+				(void)stress_lock_release(node_lock);
 				stress_bad_ioctl_rw(args, false, (size_t)-1);
 			}
 		}
@@ -556,7 +556,7 @@ static int stress_bad_ioctl(stress_args_t *args)
 	int rc = EXIT_SUCCESS;
 	int bad_ioctl_method = STRESS_BAD_IOCTL_CMD_RANDOM_INC;
 
-	lock = NULL;
+	node_lock = NULL;
 	dev_ioctl_info_head = NULL;
 	dev_ioctl_node = NULL;
 
@@ -614,8 +614,8 @@ again:
 			stress_make_it_fail_set();
 			stress_parent_died_alarm();
 			(void)stress_sched_settings_apply(true);
-			lock = stress_lock_create("dev-path");
-			if (!lock) {
+			node_lock = stress_lock_create("dev-path");
+			if (!node_lock) {
 				pr_inf("%s: lock create failed\n", args->name);
 				_exit(EXIT_NO_RESOURCE);
 			}
@@ -639,19 +639,19 @@ again:
 				offset = 0;
 			} while (stress_continue(args));
 
-			r = stress_lock_acquire(lock);
+			r = stress_lock_acquire(node_lock);
 			if (r) {
 				pr_dbg("%s: failed to acquire lock for dev_path\n", args->name);
 			} else {
 				dev_ioctl_node = NULL;
-				(void)stress_lock_release(lock);
+				(void)stress_lock_release(node_lock);
 			}
 
 			for (i = 0; i < MAX_DEV_THREADS; i++) {
 				if (threads[i].ret == 0)
 					(void)pthread_join(threads[i].pthread, NULL);
 			}
-			(void)stress_lock_destroy(lock);
+			(void)stress_lock_destroy(node_lock);
 			_exit(EXIT_SUCCESS);
 		}
 	} while (stress_continue(args));
