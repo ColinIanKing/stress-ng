@@ -88,7 +88,7 @@ typedef struct {
 #endif
 
 static sigset_t set;
-static shim_pthread_spinlock_t lock;
+static shim_pthread_spinlock_t proc_path_lock;
 static char proc_path[PATH_MAX];
 static uint32_t mixup;
 
@@ -346,11 +346,11 @@ static inline void stress_proc_rw(
 		ssize_t i;
 		int procfs_flag = PROCFS_FLAG_READ_WRITE;
 
-		ret = shim_pthread_spin_lock(&lock);
+		ret = shim_pthread_spin_lock(&proc_path_lock);
 		if (ret)
 			return;
 		(void)shim_strscpy(path, proc_path, sizeof(path));
-		(void)shim_pthread_spin_unlock(&lock);
+		(void)shim_pthread_spin_unlock(&proc_path_lock);
 
 redo:
 		if (UNLIKELY(!*path || !stress_continue_flag()))
@@ -799,11 +799,11 @@ static void stress_proc_dir(
 
 		type = shim_dirent_type(path, d);
 		if ((type == SHIM_DT_REG) || (type == SHIM_DT_LNK)) {
-			ret = shim_pthread_spin_lock(&lock);
+			ret = shim_pthread_spin_lock(&proc_path_lock);
 			if (!ret) {
 				(void)stress_fs_make_filename(tmp, sizeof(tmp), path, d->d_name);
 				(void)shim_strscpy(proc_path, tmp, sizeof(proc_path));
-				(void)shim_pthread_spin_unlock(&lock);
+				(void)shim_pthread_spin_unlock(&proc_path_lock);
 
 				stress_proc_rw(ctxt, loops);
 				stress_bogo_inc(args);
@@ -913,7 +913,7 @@ static int stress_procfs(stress_args_t *args)
 	ctxt.args = args;
 	ctxt.writeable = !stress_capabilities_check(SHIM_CAP_IS_ROOT);
 
-	rc = shim_pthread_spin_init(&lock, PTHREAD_PROCESS_PRIVATE);
+	rc = shim_pthread_spin_init(&proc_path_lock, PTHREAD_PROCESS_PRIVATE);
 	if (rc) {
 		pr_err("%s: pthread_spin_init failed, errno=%d (%s)\n",
 			args->name, rc, strerror(rc));
@@ -945,9 +945,9 @@ static int stress_procfs(stress_args_t *args)
 			stress_fs_make_filename(procfspath, sizeof(procfspath), "/proc", d->d_name);
 			type = shim_dirent_type("/proc", d);
 			if ((type == SHIM_DT_REG) || (type == SHIM_DT_LNK)) {
-				if (!shim_pthread_spin_lock(&lock)) {
+				if (!shim_pthread_spin_lock(&proc_path_lock)) {
 					(void)shim_strscpy(proc_path, procfspath, sizeof(proc_path));
-					(void)shim_pthread_spin_unlock(&lock);
+					(void)shim_pthread_spin_unlock(&proc_path_lock);
 
 					stress_proc_rw(&ctxt, 8);
 					stress_bogo_inc(args);
@@ -968,12 +968,12 @@ static int stress_procfs(stress_args_t *args)
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
 
-	rc = shim_pthread_spin_lock(&lock);
+	rc = shim_pthread_spin_lock(&proc_path_lock);
 	if (rc) {
 		pr_dbg("%s: spin lock failed for %s\n", args->name, proc_path);
 	} else {
 		(void)shim_strscpy(proc_path, "", sizeof(proc_path));
-		VOID_RET(int, shim_pthread_spin_unlock(&lock));
+		VOID_RET(int, shim_pthread_spin_unlock(&proc_path_lock));
 	}
 
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
@@ -984,7 +984,7 @@ static int stress_procfs(stress_args_t *args)
 			(void)pthread_join(pthreads[i], NULL);
 		}
 	}
-	(void)shim_pthread_spin_destroy(&lock);
+	(void)shim_pthread_spin_destroy(&proc_path_lock);
 
 	stress_fs_dirent_list_free(dlist, n);
 
