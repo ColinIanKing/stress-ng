@@ -3779,7 +3779,7 @@ static void stress_vm_get_cache_line_size(void)
 {
 #if defined(__linux__)
         stress_cpu_cache_cpus_t *cpu_caches;
-        stress_cpu_cache_t *cache;
+        const stress_cpu_cache_t *cache;
 
 	stress_vm_cache_line_size = 64;	/* Default guess */
 
