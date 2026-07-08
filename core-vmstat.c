@@ -974,7 +974,7 @@ static int stress_buddystat(
 		return -1;
 
 	while (fgets(buffer, sizeof(buffer) - 1, fp) != NULL) {
-		char *ptr;
+		const char *ptr;
 		size_t i;
 
 		for (i = 0; i < 3; i++) {
@@ -1204,7 +1204,8 @@ void stress_vmstat_start(void)
 
 		if ((sleep_delay > 0) && (vmstat_sleep == vmstat_delay)) {
 			static uint32_t vmstat_count = 0;
-			double total_ticks, percent;
+			double total_ticks;
+			double percent;
 
 			stress_vmstat_get(&vmstat, page_size);
 
@@ -1363,7 +1364,8 @@ void stress_vmstat_start(void)
 
 			ret = stress_rapl_power_raplstat_get(g_shared->rapl_domains);
 			if (ret == 0) {
-				char buf[256], *ptr;
+				char buf[256];
+				char *ptr;
 				stress_rapl_domain_t *rapl;
 				size_t len;
 				static uint32_t raplstat_count = 0;
