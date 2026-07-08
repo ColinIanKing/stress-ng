@@ -100,7 +100,7 @@ static const char * const stress_regex_text[] = {
 	"google.com",
 };
 
-static double stress_regex_rate(double t[N_REGEXES], uint64_t c[N_REGEXES])
+static double stress_regex_rate(const double t[N_REGEXES], const uint64_t c[N_REGEXES])
 {
 	size_t i;
 	double t_total = 0.0;
