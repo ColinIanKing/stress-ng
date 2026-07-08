@@ -228,7 +228,7 @@ static void stress_dump_data(
  *  stress_dump_readable_data()
  *	3 lines of memory hexdump, aligned to 16 bytes boundary
  */
-static void stress_dump_readable_data(uint8_t *fault_addr)
+static void stress_dump_readable_data(const uint8_t *fault_addr)
 {
 	int i;
 	const uint8_t *addr = (const uint8_t *)((uintptr_t)fault_addr & ~0xf);
