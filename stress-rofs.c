@@ -93,7 +93,7 @@ typedef struct stress_rofs_method {
 static int stres_rofs_file_open(
 	stress_args_t *args,
 	const char *path,
-	stress_rofs_info_t *info)
+	const stress_rofs_info_t *info)
 {
 	int fd;
 
@@ -242,7 +242,7 @@ static int stress_rofs_file_mmap(
 		data = (char *)mmap(NULL, page_size, PROT_READ, MAP_PRIVATE, fd, rand_off & mask);
 		if (data != MAP_FAILED) {
 			register const char *ptr_end = data + page_size;
-			register volatile char *ptr;
+			register const volatile char *ptr;
 
 #if defined(__CYGWIN__)
 			/*
@@ -780,7 +780,7 @@ static stress_metrics_t stress_rofs_metrics[SIZEOF_ARRAY(stress_rofs_methods)];
 
 static int stress_rofs_scandir(stress_args_t *args, const char *path, stress_rofs_info_t *dir_info)
 {
-	struct dirent *de;
+	const struct dirent *de;
 	DIR *dp;
 	int rc = 0;
 	size_t i;
