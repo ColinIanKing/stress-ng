@@ -161,7 +161,7 @@ static void *stress_nanosleep_pthread(void *c)
 	while (stress_continue(args) &&
 	       !thread_terminate &&
 	       (!ctxt->max_ops || (ctxt->counter < ctxt->max_ops))) {
-		cpu_cstate_t *cc;
+		const cpu_cstate_t *cc;
 
 		if (ctxt->mask & STRESS_NANOSLEEP_CSTATE) {
 			for (cc = ctxt->cstate_list; cc; cc = cc->next) {
