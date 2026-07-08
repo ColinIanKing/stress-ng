@@ -538,8 +538,16 @@ static int stress_pagescatter(stress_args_t *args)
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("d-cache-read-miss"),
+	STRESS_EX_FEATURE("d-cache-miss"),
+	STRESS_EX_FEATURE("d-cache-write-miss"),
 	STRESS_EX_FEATURE("maple-tree-write"),
+	STRESS_EX_FEATURE("mmap-lock"),
+	STRESS_EX_FEATURE("page-faults-major"),
+	STRESS_EX_FEATURE("page-faults-minor"),
+	STRESS_EX_FEATURE("page-faults-user"),
 	STRESS_EX_FEATURE("tlb"),
+	STRESS_EX_FEATURE("tlb-flush"),
 	STRESS_EX_FEATURE("system-time"),
 
 	STRESS_EX_SYSCALL("mincore"),
