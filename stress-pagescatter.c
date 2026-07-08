@@ -366,10 +366,10 @@ static void stress_pagescatter_no_populate(
 	stress_args_t *args,
 	scatter_page_info_t *info)
 {
-	info->populate = false;
-	if (stress_instance_zero(args))
+	if (info->populate && stress_instance_zero(args))
 		pr_inf("%s: MAP_POPULATE not supported, disabling "
 		       "option pagescatter-populate\n", args->name);
+	info->populate = false;
 }
 
 /*
