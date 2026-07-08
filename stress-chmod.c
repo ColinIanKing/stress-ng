@@ -241,10 +241,11 @@ static int stress_chmod(stress_args_t *args)
 	size_t i;
 	const int bad_fd = stress_fs_bad_fd_get();
 	mode_t all_mask = 0;
-	char filename[PATH_MAX], pathname[PATH_MAX];
+	char filename[PATH_MAX];
+	char pathname[PATH_MAX];
 	char longpath[PATH_MAX + 16];
 	char tmp[PATH_MAX];
-	char *filebase;
+	const char *filebase;
 	int *mode_perms = NULL;
 	size_t mode_count;
 
