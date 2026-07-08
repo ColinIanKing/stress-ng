@@ -417,7 +417,13 @@ static int stress_pagescatter(stress_args_t *args)
 
 	info->order = DEFAULT_SCATTER_PAGES_LOG2;
 	info->populate = false;
-	(void)stress_setting_get("pagescatter-order", &info->order);
+	if (!stress_setting_get("pagescatter-order", &info->order)) {
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
+			info->order = MAX_SCATTER_PAGES_LOG2;
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
+			info->order = 0;
+
+	}
 	(void)stress_setting_get("pagescatter-populate", &info->populate);
 
 	/*
