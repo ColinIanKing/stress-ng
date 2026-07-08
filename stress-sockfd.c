@@ -98,7 +98,7 @@ static inline int stress_socket_fd_recv(const int fd)
 {
 	struct iovec iov;
 	struct msghdr msg ALIGN64;
-	struct cmsghdr *cmsg;
+	const struct cmsghdr *cmsg;
 	char msg_data[1] = { 0 };
 	char ctrl[CMSG_SPACE(sizeof(int))];
 
@@ -125,7 +125,7 @@ static inline int stress_socket_fd_recv(const int fd)
 	    (cmsg->cmsg_level == SOL_SOCKET) &&
 	    (cmsg->cmsg_type == SCM_RIGHTS) &&
 	    ((size_t)cmsg->cmsg_len >= (size_t)CMSG_LEN(sizeof(int)))) {
-		int *const ptr = (int *)(uintptr_t)CMSG_DATA(cmsg);
+		const int *const ptr = (int *)(uintptr_t)CMSG_DATA(cmsg);
 		return *ptr;
 	}
 
