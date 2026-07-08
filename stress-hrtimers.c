@@ -46,7 +46,7 @@ static stress_args_t *s_args;
 static timer_t timerid;
 static double time_end;
 static long int ns_delay;
-static void *lock;
+static void *counter_lock;
 
 #define PROCS_MAX	(8)
 
@@ -77,7 +77,7 @@ static void MLOCKED_TEXT OPTIMIZE3 stress_hrtimers_handler(int sig)
 
 	(void)sig;
 
-	VOID_RET(bool, stress_bogo_inc_lock(s_args, lock, 1));
+	VOID_RET(bool, stress_bogo_inc_lock(s_args, counter_lock, 1));
 	if (UNLIKELY(!stress_continue(s_args)))
 		goto cancel;
 	bogo_counter = stress_bogo_get(s_args);
@@ -201,8 +201,8 @@ static int stress_hrtimers(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
-	lock = stress_lock_create("counter");
-	if (!lock) {
+	counter_lock = stress_lock_create("counter");
+	if (!counter_lock) {
 		pr_inf("%s: cannot create lock, skipping stressor\n", args->name);
 		rc = EXIT_NO_RESOURCE;
 		goto tidy_s_pids;
@@ -267,7 +267,7 @@ reap:
 				rate, STRESS_METRIC_HARMONIC_MEAN);
 		}
 	}
-	stress_lock_destroy(lock);
+	stress_lock_destroy(counter_lock);
 tidy_s_pids:
 	(void)stress_sync_s_pids_munmap(s_pids, PROCS_MAX);
 
