@@ -82,7 +82,7 @@ static const fallocate_mode_t fallocate_modes[] = {
 static int stress_filehole_write(
 	stress_args_t *args,
 	const int fd,
-	void *buf,
+	const void *buf,
 	const size_t buf_len,
 	const off_t offset)
 {
