@@ -170,7 +170,7 @@ static void OPTIMIZE3 stress_tlb_shootdown_child(
 #endif
 	stress_pid_t *s_pids,
 	uint8_t *mem,
-	uint32_t *cpus)
+	const uint32_t *cpus)
 {
 	cpu_set_t mask;
 	double t_start;
