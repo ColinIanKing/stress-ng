@@ -93,7 +93,7 @@ static int stress_module_unload_mod_and_deps(struct kmod_module *mod)
 {
 	int ret;
 	struct kmod_list *deps;
-	struct kmod_list *l;
+	const struct kmod_list *l;
 
 	ret = kmod_module_remove_module(mod, 0);
 
@@ -123,7 +123,7 @@ int stress_module_unload(
 	const bool already_loaded)	/* don't unload if true */
 {
 	int ret;
-	struct kmod_list *l;
+	const struct kmod_list *l;
 	struct kmod_list *list = NULL;
 	struct kmod_ctx *ctx;
 
