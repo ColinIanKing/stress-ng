@@ -200,7 +200,7 @@ static int stress_inode_flags_stressor(
 	const stress_data_t *data)
 {
 	size_t idx = 0;
-	char *file_name;
+	const char *file_name;
 #if defined(AT_EMPTY_PATH)
 	char *two_pages;
 
