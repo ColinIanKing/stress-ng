@@ -23,7 +23,9 @@
 
 int main(void)
 {
-	gid_t ruid, euid, suid;
+	gid_t ruid;
+	gid_t euid;
+	gid_t suid;
 
 	return getresuid(&ruid, &euid, &suid);
 }
