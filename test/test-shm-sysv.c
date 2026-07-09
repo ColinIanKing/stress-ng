@@ -27,7 +27,8 @@
 
 int main(void)
 {
-	int shm_id, ret;
+	int shm_id;
+	int ret;
 	key_t key;
 	size_t sz = 64 * 1024;
 	char *addr;
