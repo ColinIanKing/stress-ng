@@ -35,7 +35,8 @@ static int cmp(const void *p1, const void *p2)
 
 int main(void)
 {
-	int val = 32, root[10];
+	int val = 32;
+	int root[10];
 	size_t n = 0;
 
 	(void)memset(root, 0, sizeof(root));
