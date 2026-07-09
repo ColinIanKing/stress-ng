@@ -63,7 +63,7 @@ static inline void OPTIMIZE3 * lfind_nonlibc(
 		i++;
 		found += size;
 	}
-	return (i < *nmemb) ? (void *)shim_unconstify_ptr(found) : NULL;
+	return (i < *nmemb) ? shim_unconstify_ptr(found) : NULL;
 }
 
 static void * OPTIMIZE3 lsearch_nonlibc(
@@ -170,7 +170,7 @@ static int stress_lsearch(stress_args_t *args)
 	size_t lsearch_method = 0;
 	uint64_t lsearch_size = DEFAULT_LSEARCH_SIZE;
 	double rate;
-	double duration = 0.0l;
+	double duration = 0.0L;
 	double count = 0.0;
 	double sorted = 0.0;
 	lsearch_func_t lsearch_func;
@@ -227,9 +227,9 @@ static int stress_lsearch(stress_args_t *args)
 		stress_sort_compare_reset();
 		t = stress_time_now();
 		for (i = 0; LIKELY(stress_continue_flag() && (i < min)); i++) {
-			int32_t *result;
+			const int32_t *result;
 
-			result = (int32_t *)lfind_func(&data[i], root, &n, sizeof(*data), stress_lsearch_cmp_int32);
+			result = (const int32_t *)lfind_func(&data[i], root, &n, sizeof(*data), stress_lsearch_cmp_int32);
 			if (g_opt_flags & OPT_FLAGS_VERIFY) {
 				if (result == NULL) {
 					pr_fail("%s: element %zu could not be found\n", args->name, i);
