@@ -169,7 +169,8 @@ static int stress_mmaphuge_child(stress_args_t *args, void *v_context)
 				if (buf != MAP_FAILED) {
 					const uint64_t rndval = stress_mwc64();
 					register const size_t stride = (page_size * 64) / sizeof(uint64_t);
-					register uint64_t *ptr, val;
+					register uint64_t *ptr;
+					register uint64_t val;
 					const uint64_t *buf_end = (uint64_t *)((uintptr_t)buf + sz);
 
 #if defined(HAVE_LINUX_MEMPOLICY_H)
@@ -368,7 +369,8 @@ static int stress_mmaphuge(stress_args_t *args)
 	}
 
 	if (stress_instance_zero(args)) {
-		size_t i, max = 0;
+		size_t i;
+		size_t max = 0;
 
 		for (i = 0; i < SIZEOF_ARRAY(stress_mmaphuge_settings); i++) {
 			if (max < stress_mmaphuge_settings[i].sz)
