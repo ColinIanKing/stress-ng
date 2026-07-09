@@ -24,7 +24,8 @@
 
 int main(void)
 {
-	int i, n_ptrs;
+	int i;
+	int n_ptrs;
 	void *buffer[100];
 	char **strings;
 
