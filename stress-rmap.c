@@ -61,7 +61,7 @@ static int OPTIMIZE3 stress_rmap_touch(
 	uintptr_t *addr,
 	const size_t sz)
 {
-	register uintptr_t *begin = ((uintptr_t *)addr) + child_index;
+	register uintptr_t *begin = addr + child_index;
 	register const uintptr_t *end = (uintptr_t *)((uintptr_t)addr + sz);
 	register uintptr_t *ptr;
 	register const size_t inc = rmap_procs;
@@ -241,7 +241,7 @@ static int stress_rmap(stress_args_t *args)
 	if (rc < 0) {
 		(void)stress_lock_destroy(counter_lock);
 		(void)stress_sync_s_pids_munmap(s_pids, rmap_procs);
-		return stress_exit_status((int)-rc);
+		return stress_exit_status(-rc);
 	}
 
 	(void)stress_fs_temp_filename_args(args,
@@ -256,7 +256,7 @@ static int stress_rmap(stress_args_t *args)
 		(void)stress_lock_destroy(counter_lock);
 		(void)stress_sync_s_pids_munmap(s_pids, rmap_procs);
 
-		return (int)rc;
+		return rc;
 	}
 	(void)shim_unlink(filename);
 
