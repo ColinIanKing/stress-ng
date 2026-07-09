@@ -37,7 +37,8 @@ static const stress_help_t help[] = {
 
 static inline off_t max_off_t(void)
 {
-	off_t v, nv = 1;
+	off_t v;
+	off_t nv = 1;
 
 	for (v = 1; (nv = ((v << 1) | 1)) > 0; v = nv)
 		;
