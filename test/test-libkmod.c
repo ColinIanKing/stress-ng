@@ -33,7 +33,7 @@ int main(void)
 		return -1;
 	ret = kmod_module_new_from_lookup(ctx, "snd", &list);
 	if (ret < 0)
-	return -1;
+		return -1;
 
 	kmod_list_foreach(l, list) {
 		const struct kmod_module *mod = kmod_module_get_module(l);
