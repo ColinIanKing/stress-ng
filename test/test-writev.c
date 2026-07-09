@@ -30,7 +30,8 @@ int main(void)
 {
 	struct iovec iov[1];
 	char data[IO_LEN] = "hello world\n";
-	int fd, rc;
+	int fd;
+	int rc;
 
 	fd = open("/dev/null", O_WRONLY);
 	if (fd < 0)
