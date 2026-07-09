@@ -423,7 +423,8 @@ static inline void ALWAYS_INLINE OPTIMIZE3 treap_insert(
 	treap_t **root,
 	treap_t *node)
 {
-	treap_t *big, *little;
+	treap_t *big;
+	treap_t *little;
 
 	node->priority = stress_mwc32();
 	little = treap_split(*root, node, &big);
@@ -461,7 +462,8 @@ static void OPTIMIZE3 stress_tree_treap(
 	int *rc)
 {
 	register uint32_t i;
-	treap_t *node, *head = NULL;
+	treap_t *node;
+	treap_t *head = NULL;
 	treap_t *nodes = (treap_t *)data;
 	double t;
 	const uint32_t seed = stress_mwc32();
@@ -1225,7 +1227,8 @@ tidy:
 	}
 
 	if (j > 0) {
-		double geomean, inverse_n = 1.0 / (double)j;
+		double geomean;
+		double inverse_n = 1.0 / (double)j;
 
 		geomean = pow(mantissa, inverse_n) *
 			  pow(2.0, (double)exponent * inverse_n);
