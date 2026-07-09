@@ -714,7 +714,8 @@ static int stress_wcs(stress_args_t *args)
 	size_t i;
 	size_t wcs_method = 0;
 	const stress_wcs_method_info_t *wcs_method_info;
-	wchar_t ALIGN64 str1[STR1LEN], ALIGN64 str2[STR2LEN];
+	wchar_t ALIGN64 str1[STR1LEN];
+	wchar_t ALIGN64 str2[STR2LEN];
 	wchar_t strdst[STRDSTLEN];
 	stress_wcs_args_t info;
 	int metrics_count = 0;
