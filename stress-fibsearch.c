@@ -87,7 +87,8 @@ static void OPTIMIZE3 * fibsearch(
  */
 static int OPTIMIZE3 stress_fibsearch(stress_args_t *args)
 {
-	int32_t *data, *ptr;
+	int32_t *data;
+	int32_t *ptr;
 	size_t n;
 	size_t n8;
 	size_t i;
@@ -132,7 +133,7 @@ static int OPTIMIZE3 stress_fibsearch(stress_args_t *args)
 		stress_sort_compare_reset();
 		t = stress_time_now();
 		for (ptr = data, i = 0; i < n; i++, ptr++) {
-			int32_t *result;
+			const int32_t *result;
 
 			result = (int32_t *)fibsearch(ptr, data, n, sizeof(*ptr), stress_sort_cmp_fwd_int32);
 			if (g_opt_flags & OPT_FLAGS_VERIFY) {
