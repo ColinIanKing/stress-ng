@@ -720,7 +720,8 @@ static int stress_filename(stress_args_t *args)
 	uint32_t utf8ch = 1;
 	int ret;
 	int rc = EXIT_SUCCESS;
-	size_t sz_left, sz_max;
+	size_t sz_left;
+	size_t sz_max;
 	char pathname[PATH_MAX - 256];
 	char filename[PATH_MAX];
 	char *ptr;
