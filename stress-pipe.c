@@ -869,7 +869,7 @@ static void stress_pipe_size(const char *opt_name, const char *opt_arg, stress_t
 
 	stress_check_range(opt_name, (uint64_t)pipe_size, min_pipe_size, max_pipe_size);
         *type_id = TYPE_ID_SIZE_T_BYTES_VM;
-	*(size_t *)value = (size_t)pipe_size;
+	*(size_t *)value = pipe_size;
 }
 #endif
 
@@ -885,7 +885,7 @@ static void stress_pipe_data_size(const char *opt_name, const char *opt_arg, str
 
 	stress_check_range(opt_name, (uint64_t)pipe_size, min_pipe_size, max_pipe_size);
         *type_id = TYPE_ID_SIZE_T_BYTES_VM;
-	*(size_t *)value = (size_t)pipe_size;
+	*(size_t *)value = pipe_size;
 }
 
 static const stress_opt_t opts[] = {
