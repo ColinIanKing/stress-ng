@@ -23,7 +23,8 @@
 
 int main(void)
 {
-	struct timeval delta, tv;
+	struct timeval delta;
+	struct timeval tv;
 
 	(void)memset(&delta, 0, sizeof(delta));
 
