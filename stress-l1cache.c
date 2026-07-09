@@ -363,7 +363,8 @@ static int OPTIMIZE3 stress_l1cache_random(
 {
 	register int i;
 	static uint32_t set;
-	uint32_t w, z;
+	uint32_t w;
+	uint32_t z;
 	const uint32_t set_offset = set * l1cache_set_size;
 	uint8_t * const cache_start = cache_aligned + set_offset;
 	const uint8_t * const cache_end = cache_start + (l1cache_size << 1);
