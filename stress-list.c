@@ -519,7 +519,7 @@ static int stress_list(stress_args_t *args)
 	uint64_t list_size = DEFAULT_LIST_SIZE;
 	list_entry_t *entries;
 	list_entry_t *entry;
-	list_entry_t *entries_end;
+	const list_entry_t *entries_end;
 	size_t n;
 	size_t i;
 	size_t bit;
