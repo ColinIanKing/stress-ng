@@ -21,6 +21,7 @@
 #include "core-madvise.h"
 #include "core-mmap.h"
 #include "core-out-of-memory.h"
+#include "core-put.h"
 
 static volatile bool page_fault = false;
 
@@ -45,13 +46,12 @@ static void MLOCKED_TEXT stress_fault_handler(int signum)
 static int stress_mmapaddr_check(stress_args_t *args, uint8_t *map_addr)
 {
 	unsigned char vec[1];
-	volatile uint8_t val;
+	volatile uint8_t *vol_map_addr = (volatile uint8_t *)map_addr;
 	int ret;
 
 	page_fault = false;
 	/* Should not fault! */
-	val = *map_addr;
-	(void)val;
+	stress_put_uint8(*vol_map_addr);
 
 	if (UNLIKELY(page_fault)) {
 		pr_fail("%s: read of mmap'd address %p SEGFAULTed\n",
