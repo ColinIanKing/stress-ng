@@ -212,7 +212,8 @@ retry:
 
 #if defined(FIONREAD)
 			{
-				int rc, nbytes;
+				int rc;
+				int nbytes;
 
 				/* Attempt to read a byte from the fd */
 				rc = ioctl(fds[n], FIONREAD, &nbytes);
