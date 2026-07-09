@@ -982,7 +982,8 @@ static int OPTIMIZE3 stress_sock_server(
 	void *ptr = MAP_FAILED;
 	socklen_t addr_len = 0;
 	uint64_t msgs = 0;
-	uint64_t outq_bytes = 0, outq_samples = 0;
+	uint64_t outq_bytes = 0;
+	uint64_t outq_samples = 0;
 	const size_t page_size = args->page_size;
 	size_t sock_msgs = DEFAULT_SOCKET_MSGS;
 	int rc = EXIT_SUCCESS;
@@ -1408,7 +1409,9 @@ static int stress_sock(stress_args_t *args)
 	int sock_type;
 	int sock_port = DEFAULT_SOCKET_PORT;
 	int sock_protocol = 0;
-	int rc = EXIT_SUCCESS, reserved_port, parent_cpu;
+	int rc = EXIT_SUCCESS;
+	int reserved_port;
+	int parent_cpu;
 	bool sock_zerocopy = false;
 	const bool rt = stress_sock_kernel_rt();
 
