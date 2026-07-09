@@ -26,7 +26,8 @@
 int main(void)
 {
 	struct stat buf;
-	int fd, ret = -1;
+	int fd;
+	int ret = -1;
 
 	fd = open("/dev/null", O_RDONLY);
 	if (fd >= 0) {
