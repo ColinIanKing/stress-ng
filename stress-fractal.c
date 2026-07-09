@@ -151,8 +151,10 @@ static void OPTIMIZE3 TARGET_CLONES stress_fractal_mandelbrot(fractal_info_t *in
 
 	/* Even numbers of columns */
 	for (ix = 0; LIKELY(ix < (xsize & (int32_t)0xfffffffe)); ix += 2) {
-		register double x0 = 0.0, y0 = 0.0;
-		register double x1 = 0.0, y1 = 0.0;
+		register double x0 = 0.0;
+		register double y0 = 0.0;
+		register double x1 = 0.0;
+		register double y1 = 0.0;
 		register int32_t iter0 = 0;
 		register int32_t iter1 = 0;
 		register double xc1 = xc + dx;
