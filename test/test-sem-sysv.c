@@ -44,7 +44,8 @@ int main(void)
 	int sem;
 	semun_t arg;
 	int ret;
-	struct sembuf semwait, semsignal;
+	struct sembuf semwait;
+	struct sembuf semsignal;
 	struct timespec timeout;
 
 	/*
