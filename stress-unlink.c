@@ -53,7 +53,8 @@ static void stress_unlink_exercise(
 	stress_metrics_t *metrics,
 	char *filenames[UNLINK_FILES])
 {
-	int fds[UNLINK_FILES], n;
+	int fds[UNLINK_FILES];
+	int n;
 	size_t idx[UNLINK_FILES];
 	register size_t i;
 	const size_t mask = UNLINK_FILES - 1;
@@ -96,7 +97,8 @@ static void stress_unlink_exercise(
 			fds[i] = -1;
 
 		for (i = 0; LIKELY(stress_continue(args) && (i < UNLINK_FILES)); i++) {
-			int mode, retries = 0;
+			int mode;
+			int retries = 0;
 
 			if (UNLIKELY((i & 7) == 7)) {
 				if (link(filenames[i - 1], filenames[i]) == 0) {
