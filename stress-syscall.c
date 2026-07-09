@@ -465,7 +465,8 @@ static gid_t syscall_gid;			/* current gid */
 static uid_t syscall_uid;			/* current uid */
 static pid_t syscall_pid;			/* current pid */
 static pid_t syscall_sid;			/* current sid */
-static uint64_t t1, t2;				/* t1 = start time, t2 = end time of test */
+static uint64_t t1;				/* start time */
+static uint64_t t2;				/* end time of test */
 static size_t syscall_page_size;		/* size of 1 page in bytes */
 static size_t syscall_2_pages_size;		/* size of 2 pages in bytes */
 static char syscall_cwd[PATH_MAX];		/* current working directory */
@@ -8651,7 +8652,8 @@ static void stress_syscall_shuffle_calls(void)
 	register size_t i;
 
 	for (i = 0; i < STRESS_SYSCALLS_MAX; i++) {
-		register size_t j, tmp;
+		register size_t j;
+		register size_t tmp;
 
 		j = stress_mwc16modn(STRESS_SYSCALLS_MAX);
 		tmp = stress_syscall_index[i];
@@ -8766,7 +8768,8 @@ static void stress_syscall_report_syscall_top(stress_args_t *args)
 	size_t i;
 	size_t n;
 	size_t sort_index[STRESS_SYSCALLS_MAX];
-	size_t syscall_top = 10, syscall_rank = 1;
+	size_t syscall_top = 10;
+	size_t syscall_rank = 1;
 
 	(void)stress_setting_get("syscall-top", &syscall_top);
 	(void)stress_setting_get("syscall-rank", &syscall_rank);
