@@ -27,7 +27,8 @@
 
 int main(void)
 {
-	int pid = 1, ret;
+	int pid = 1;
+	int ret;
 	void *addr = NULL;
 	unsigned long int data;
 
