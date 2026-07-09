@@ -105,14 +105,16 @@ static int stress_fstat_check_buf(const struct stat *buf, const struct stat *buf
 
 static int stress_fstat_helper(const stress_fstat_context_t *ctxt)
 {
-	struct stat buf, buf_orig;
+	struct stat buf;
+	struct stat buf_orig;
 #if defined(AT_EMPTY_PATH) &&	\
     defined(AT_SYMLINK_NOFOLLOW)
 	shim_statx_t bufx;
 #endif
 	stress_stat_info_t *si = ctxt->si;
 	stress_args_t *args = ctxt->args;
-	int ret, rc = EXIT_SUCCESS;
+	int ret;
+	int rc = EXIT_SUCCESS;
 
 	(void)shim_memset(&buf_orig, 0xff, sizeof(buf_orig));
 	(void)shim_memset(&buf, 0xff, sizeof(buf));
