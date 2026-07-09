@@ -674,7 +674,8 @@ static size_t stress_str_all(stress_args_t *args, stress_str_args_t *info)
  */
 static int stress_str(stress_args_t *args)
 {
-	char ALIGN64 str1[STR1LEN], ALIGN64 str2[STR2LEN];
+	char ALIGN64 str1[STR1LEN];
+	char ALIGN64 str2[STR2LEN];
 	char ALIGN64 strdst[STRDSTLEN];
 	stress_str_args_t info;
 	const stress_str_method_info_t *str_method_info;
