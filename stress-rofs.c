@@ -964,7 +964,7 @@ static int stress_rofs(stress_args_t *args)
 	stress_sync_start_wait(args);
 	stress_proc_state_set(args->name, STRESS_STATE_RUN);
 
-	j = args->instance % (int)n_paths;
+	j = args->instance % n_paths;
 	do {
 		if (j >= n_paths)
 			j = 0;
