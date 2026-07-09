@@ -221,7 +221,7 @@ static inline uint32_t value_map(const uint32_t x, register uint32_t y)
 static void *hash_create(const uint64_t n, const uint32_t x, const uint32_t y)
 {
 	sparse_hash_table_t *table;
-	uint64_t n_prime = (uint64_t)stress_prime64_next_get(n);
+	uint64_t n_prime = stress_prime64_next_get(n);
 
 	(void)x;
 	(void)y;
@@ -337,7 +337,7 @@ static sparse_hash_node_t OPTIMIZE3 *hash_get_node(void *handle, const uint32_t 
  */
 static uint32_t OPTIMIZE3 hash_get(void *handle, const uint32_t x, const uint32_t y)
 {
-	sparse_hash_node_t *node = hash_get_node(handle, x, y);
+	const sparse_hash_node_t *node = hash_get_node(handle, x, y);
 
 	return node ? node->value : 0;
 }
@@ -481,7 +481,7 @@ static sparse_qhash_node_t OPTIMIZE3 *qhash_get_node(void *handle, const uint32_
  */
 static uint32_t OPTIMIZE3 qhash_get(void *handle, const uint32_t x, const uint32_t y)
 {
-	sparse_qhash_node_t *node = qhash_get_node(handle, x, y);
+	const sparse_qhash_node_t *node = qhash_get_node(handle, x, y);
 
 	return node ? node->value : 0;
 }
@@ -1481,7 +1481,7 @@ static int stress_sparsematrix(stress_args_t *args)
 			rate = test_info[i].get_duration > 0.0 ? (double)test_info[i].get_ops / test_info[i].get_duration : 0.0;
 			stress_metrics_set(args, tmp, rate, STRESS_METRIC_HARMONIC_MEAN);
 
-			f = frexp((double)rate, &e);
+			f = frexp(rate, &e);
 			puts_mantissa *= f;
 			puts_exponent += e;
 
@@ -1489,7 +1489,7 @@ static int stress_sparsematrix(stress_args_t *args)
 			rate = test_info[i].put_duration > 0.0 ? (double)test_info[i].put_ops / test_info[i].put_duration : 0.0;
 			stress_metrics_set(args, tmp, rate, STRESS_METRIC_HARMONIC_MEAN);
 
-			f = frexp((double)rate, &e);
+			f = frexp(rate, &e);
 			gets_mantissa *= f;
 			gets_exponent += e;
 
