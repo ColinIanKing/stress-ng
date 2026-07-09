@@ -417,7 +417,8 @@ static int stress_udp(stress_args_t *args)
 	size_t udp_max_size = DEFAULT_UDP_MAX_SIZE;
 	int udp_port = DEFAULT_UDP_PORT;
 	int udp_domain = AF_INET;
-	pid_t pid, mypid = getpid();
+	pid_t pid;
+	const pid_t mypid = getpid();
 	int rc = EXIT_SUCCESS;
 	int reserved_port;
 	int parent_cpu;
