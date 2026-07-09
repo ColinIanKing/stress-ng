@@ -29,7 +29,8 @@ int main(void)
 
 	fd = open("/dev/zero", O_RDONLY);
 	if (fd >= 0) {
-		off64_t offset = 0, ret;
+		off64_t offset = 0;
+		off64_t ret;
 
 		ret = lseek64(fd, offset, SEEK_SET);
 		(void)ret;
