@@ -116,7 +116,8 @@ static int radixsort_nonlibc(
 {
 	const unsigned char **b;
 	register int digit;
-	unsigned short int *lengths, max;
+	unsigned short int *lengths;
+	unsigned short int max;
 	register int i;
 	unsigned char endchar;
 
