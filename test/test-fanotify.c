@@ -73,7 +73,8 @@
 
 int main(void)
 {
-	int fan_fd, ret;
+	int fan_fd;
+	int ret;
 	size_t len;
 	struct fanotify_event_metadata *metadata;
 	void *buffer;
