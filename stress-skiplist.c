@@ -155,9 +155,9 @@ static skip_node_t OPTIMIZE3 *skip_list_insert(skip_list_t *list, const uint32_t
  *  skip_list_search()
  *	search the skiplist for a specific value
  */
-static skip_node_t OPTIMIZE3 *skip_list_search(skip_list_t *list, const unsigned long int value)
+static skip_node_t OPTIMIZE3 *skip_list_search(const skip_list_t *list, const unsigned long int value)
 {
-	skip_node_t *skip_node = list->head;
+	const skip_node_t *skip_node = list->head;
 	register size_t i;
 
 	for (i = list->level; i >= 1; i--) {
