@@ -18,7 +18,8 @@
 
 int main(int argc, char **argv)
 {
-	double val = 1.0, var;
+	double val = 1.0;
+	double var;
 
 	__atomic_store(&var, &val, __ATOMIC_RELEASE);
 
