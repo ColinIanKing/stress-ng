@@ -988,7 +988,7 @@ static inline bool ALWAYS_INLINE OPTIMIZE3 btree_search(
 	return btree_search(node->node[*pos], value, pos);
 }
 
-static inline bool ALWAYS_INLINE OPTIMIZE3 btree_find(btree_t *root, const uint32_t value)
+static inline bool ALWAYS_INLINE OPTIMIZE3 btree_find(const btree_t *root, const uint32_t value)
 {
 	int pos;
 
