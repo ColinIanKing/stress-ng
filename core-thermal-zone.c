@@ -32,7 +32,7 @@
  *	a named type in the tz_info_list.
  */
 static uint32_t stress_tz_type_instance(
-	stress_tz_info_t *tz_info_list,
+	const stress_tz_info_t *tz_info_list,
 	const char *type)
 {
 	const stress_tz_info_t *tz_info;
