@@ -855,7 +855,8 @@ static int stress_exec(stress_args_t *args)
 	stress_proc_state_set(args->name, STRESS_STATE_RUN);
 
 	do {
-		NOCLOBBER uint32_t i, reap_count = 0;
+		NOCLOBBER uint32_t i;
+		NOCLOBBER uint32_t reap_count = 0;
 		pid_t pid;
 
 		for (i = 0; i < exec_max; i++) {
