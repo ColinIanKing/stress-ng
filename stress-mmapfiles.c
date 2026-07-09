@@ -101,7 +101,8 @@ static size_t stress_mmapfiles_dir(
 			uint8_t *ptr;
 			struct stat statbuf;
 			int fd;
-			double t, delta;
+			double t;
+			double delta;
 			size_t len;
 			const size_t page_size = args->page_size;
 
@@ -189,7 +190,8 @@ static int stress_mmapfiles_child(stress_args_t *args, void *context)
 
 	do {
 		const size_t page_size = args->page_size;
-		size_t i, n;
+		size_t i;
+		size_t n;
 
 		for (n = 0, i = 0; i < SIZEOF_ARRAY(dirs); i++) {
 			mmapfile_info->enomem = false;
