@@ -107,7 +107,7 @@ static int stress_mmaphuge_child(stress_args_t *args, void *v_context)
 {
 	stress_mmaphuge_context_t *context = (stress_mmaphuge_context_t *)v_context;
 	const size_t page_size = args->page_size;
-	stress_mmaphuge_buf_t *bufs = (stress_mmaphuge_buf_t *)context->bufs;
+	stress_mmaphuge_buf_t *bufs = context->bufs;
 	size_t idx = 0;
 	int rc = EXIT_SUCCESS;
 
@@ -228,7 +228,7 @@ static int stress_mmaphuge_child(stress_args_t *args, void *v_context)
 
 			sz = bufs[i].sz;
 			(void)memset(&stats, 0, sizeof(stats));
-			if (stress_mmap_stats(buf, (size_t)sz, &stats) == 0)
+			if (stress_mmap_stats(buf, sz, &stats) == 0)
 				stress_mmap_stats_sum(&context->stats, &stats);
 
 			if (page_size < sz) {
