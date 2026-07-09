@@ -204,7 +204,8 @@ static void stress_iomix_wr_rnd_bursts(
 			char buffer[512];
 			ssize_t rc;
 			const size_t len = 1 + (stress_mwc32() & (sizeof(buffer) - 1));
-			off_t ret, posn;
+			off_t ret;
+			off_t posn;
 
 			posn = stress_iomix_rnd_offset(iomix_bytes);
 			ret = lseek(fd, posn, SEEK_SET);
@@ -365,7 +366,8 @@ static void stress_iomix_rd_rnd_bursts(
 			char buffer[512];
 			ssize_t rc;
 			const size_t len = 1 + (stress_mwc32() & (sizeof(buffer) - 1));
-			off_t ret, posn;
+			off_t ret;
+			off_t posn;
 
 			posn = stress_iomix_rnd_offset(iomix_bytes);
 
