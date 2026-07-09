@@ -21,7 +21,8 @@
 
 int main(void)
 {
-	time_t t1, t2;
+	time_t t1;
+	time_t t2;
 
 	t1 = time(&t2);
 
