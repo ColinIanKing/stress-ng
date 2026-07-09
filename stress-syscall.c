@@ -2202,7 +2202,7 @@ static int syscall_getcpu(void)
 static int syscall_getcwd(void)
 {
 	char path[PATH_MAX];
-	char *ptr;
+	const char *ptr;
 
 	t1 = syscall_time_now();
 	ptr =  getcwd(path, sizeof(path));
@@ -8806,7 +8806,7 @@ static void stress_syscall_report_syscall_top(stress_args_t *args)
 		"System Call", "Avg (ns)", "Min (ns)", "Max (ns)");
 	for (n = 0, i = 0; n < syscall_top; i++) {
 		const size_t j = sort_index[i];
-		syscall_stats_t *ss = &syscall_stats[j];
+		const syscall_stats_t *ss = &syscall_stats[j];
 
 		if (ss->succeed) {
 			pr_inf("%s: %25s %10.1f %10" PRIu64 " %10" PRIu64 "%s\n",
@@ -9036,7 +9036,7 @@ static int stress_syscall(stress_args_t *args)
 
 	ret = stress_fs_temp_dir_make_args(args);
 	if (ret < 0) {
-		rc = stress_exit_status((int)-ret);
+		rc = stress_exit_status(-ret);
 		goto err_close_dir_fd;
 	}
 
