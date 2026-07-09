@@ -913,7 +913,8 @@ static void stress_usage_help(const stress_help_t help_info[])
 		char opt_s[10] = "";
 		int wd = 0;
 		bool first = true;
-		const char *ptr, *space = NULL;
+		const char *ptr;
+		const char *space = NULL;
 		const char *start = help_info[i].description;
 
 		if (help_info[i].opt_s)
@@ -2542,7 +2543,8 @@ static void stress_metrics_dump(FILE *yaml)
 
 		mi = item->metrics_info;
 		for (i = 0; i < mi->num_metrics_items; i++) {
-			double metric, total = 0.0;
+			double metric;
+			double total = 0.0;
 
 			description = mi->metrics_desc[i].description;
 			misc_metrics = true;
@@ -2581,8 +2583,13 @@ static void stress_metrics_dump(FILE *yaml)
 
 			for (i = 0; i < mi->num_metrics_items; i++) {
 				int64_t exponent;
-				double geometric_mean, harmonic_mean, mantissa;
-				double n, sum, maximum = 0.0, total = 0.0;
+				double geometric_mean;
+				double harmonic_mean;
+				double mantissa;
+				double n;
+				double sum;
+				double maximum = 0.0;
+				double total = 0.0;
 				const char *plural = (item->completed_instances > 1) ? "s" : "";
 
 				description = mi->metrics_desc[i].description;
@@ -3970,7 +3977,9 @@ int stress_opts_parse(int argc, char **argv, const bool jobmode)
 	optind = 0;
 
 	for (;;) {
-		int c, option_index, ret;
+		int c;
+		int option_index;
+		int ret;
 		size_t i;
 
 		opterr = (!jobmode) ? opterr : 0;
