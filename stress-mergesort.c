@@ -273,7 +273,7 @@ static int stress_mergesort(stress_args_t *args)
 {
 	uint64_t mergesort_size = DEFAULT_MERGESORT_SIZE;
 	int32_t *data;
-	int32_t *ptr;
+	const int32_t *ptr;
 	size_t n;
 	size_t i;
 	size_t mergesort_method = 0;
