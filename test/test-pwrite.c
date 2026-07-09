@@ -26,7 +26,8 @@
 int main(void)
 {
 	char data[] = "Test";
-	int fd, rc;
+	int fd;
+	int rc;
 
 	fd = open("/dev/null", O_WRONLY);
 	if (fd < 0)
