@@ -71,7 +71,7 @@ static int stress_sigxfsz(stress_args_t *args)
 
 	ret = stress_fs_temp_dir_make_args(args);
 	if (ret < 0)
-		return stress_exit_status((int)-ret);
+		return stress_exit_status(-ret);
 
 	(void)shim_memset(buffer, 0xff, sizeof(buffer));
 
