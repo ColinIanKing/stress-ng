@@ -21,7 +21,9 @@
 
 int main(void)
 {
-	mpfr_t v, one, pi;
+	mpfr_t v;
+	mpfr_t one;
+	mpfr_t pi;
 	const mpfr_prec_t precision = 1000;
 
 	mpfr_init2(v, precision);
