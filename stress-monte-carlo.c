@@ -386,7 +386,7 @@ static double OPTIMIZE3 stress_monte_carlo_sin(
 		if (UNLIKELY(!stress_continue_flag()))
 			break;
 	}
-	return M_PI * (double)sum / (double)(samples - i);
+	return M_PI * sum / (double)(samples - i);
 }
 
 /*
@@ -413,7 +413,7 @@ static double OPTIMIZE3 stress_monte_carlo_exp(
 		if (UNLIKELY(!stress_continue_flag()))
 			break;
 	}
-	return (double)sum / (double)(samples - i);
+	return sum / (double)(samples - i);
 }
 
 /*
@@ -440,7 +440,7 @@ static double OPTIMIZE3 stress_monte_carlo_sqrt(
 		if (UNLIKELY(!stress_continue_flag()))
 			break;
 	}
-	return (double)sum / (double)(samples - i);
+	return sum / (double)(samples - i);
 }
 
 /*
@@ -471,7 +471,7 @@ static double OPTIMIZE3 stress_monte_carlo_squircle(
 		if (UNLIKELY(!stress_continue_flag()))
 			break;
 	}
-	return (double)(4.0) * (double)area_count / (double)(samples - i);
+	return 4.0 * (double)area_count / (double)(samples - i);
 }
 
 
