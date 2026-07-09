@@ -511,8 +511,11 @@ static const stress_switch_method_t stress_switch_methods[] = {
  */
 static int stress_switch(stress_args_t *args)
 {
-	uint64_t switch_freq = 0, switch_delay, threshold;
-	size_t switch_method = 0, i;
+	uint64_t switch_freq = 0;
+	uint64_t switch_delay;
+	uint64_t threshold;
+	size_t switch_method = 0;
+	size_t i;
 
 	for (i = 0; i < SIZEOF_ARRAY(stress_switch_methods); i++) {
 		if (strcmp(stress_switch_methods[i].name, "pipe") == 0) {
