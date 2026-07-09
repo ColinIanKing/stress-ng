@@ -348,7 +348,7 @@ abort:
 		} while (stress_continue(args));
 
 tidy:
-		rate = (duration > 0.0) ? (double)bytes / duration : 0.0;
+		rate = (duration > 0.0) ? bytes / duration : 0.0;
 		stress_metrics_set(args, "MB written per sec",
 			rate / (double)MB, STRESS_METRIC_HARMONIC_MEAN);
 
