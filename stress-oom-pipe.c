@@ -92,7 +92,7 @@ static int stress_oom_pipe_child(stress_args_t *args, void *ctxt)
 
 	size_t i;
 	int *fds = context->fds;
-	int *fd;
+	const int *fd;
 	int pipes_open = 0;
 	const bool aggressive = (g_opt_flags & OPT_FLAGS_AGGRESSIVE);
 	uint32_t *rd_buffer = (uint32_t *)context->rd_buffer;
