@@ -29,7 +29,8 @@ int main(void)
 {
 	struct iovec iov;
 	char buffer[] = "hello world\n";
-	int fd, rc;
+	int fd;
+	int rc;
 
 	fd = open("/dev/zero", O_WRONLY);
 	if (fd < 0)
