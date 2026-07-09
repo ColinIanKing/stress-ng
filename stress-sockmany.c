@@ -337,7 +337,9 @@ static int stress_sockmany(stress_args_t *args)
 	pid_t pid;
 	const pid_t ppid = getppid();
 	int sockmany_port = DEFAULT_SOCKET_MANY_PORT;
-	int rc = EXIT_SUCCESS, reserved_port, parent_cpu;
+	int rc = EXIT_SUCCESS;
+	int reserved_port;
+	int parent_cpu;
 
 	if (stress_signal_sigchld_handler(args) < 0)
 		return EXIT_NO_RESOURCE;
