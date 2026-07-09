@@ -30,10 +30,12 @@
 
 int main(void)
 {
-	int sockfd, ret;
+	int sockfd;
+	int ret;
 	struct sockaddr_in addr;
 	struct mmsghdr msg_hdr[2];
-	struct iovec msg_iov1[2], msg_iov2[3];
+	struct iovec msg_iov1[2];
+	struct iovec msg_iov2[3];
 	struct timespec timeout;
 
 	(void)memset(&addr, 0, sizeof(addr));
