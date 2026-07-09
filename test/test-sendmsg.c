@@ -29,7 +29,8 @@
 
 int main(void)
 {
-	int sockfd, ret;
+	int sockfd;
+	int ret;
 	struct sockaddr_in addr;
 	struct msghdr msg_hdr;
 	struct iovec vec[1];
