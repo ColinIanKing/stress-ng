@@ -88,7 +88,7 @@ static void OPTIMIZE3 * fibsearch(
 static int OPTIMIZE3 stress_fibsearch(stress_args_t *args)
 {
 	int32_t *data;
-	int32_t *ptr;
+	const int32_t *ptr;
 	size_t n;
 	size_t n8;
 	size_t i;
