@@ -23,7 +23,8 @@
 
 int main(void)
 {
-	struct itimerval old, new;
+	struct itimerval old;
+	struct itimerval new;
 
 	(void)memset(&old, 0, sizeof(old));
 	(void)memset(&new, 0, sizeof(new));
