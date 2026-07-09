@@ -24,7 +24,8 @@
 int main(void)
 {
 	static const char filename[] = "/tmp/test-msync.tmp";
-	int fd, ret;
+	int fd;
+	int ret;
 
 	fd = open(filename, O_RDWR | O_CREAT, 0600);
 	if (fd < 0)
