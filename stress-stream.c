@@ -840,7 +840,8 @@ static inline ALWAYS_INLINE void stress_stream_init_data(
 
 	register const uint32_t r = stress_mwc32();
 	register double v = (double)r * divisor;
-	register double *ptr, *ptr_end;
+	register double *ptr;
+	register double *ptr_end;
 
 PRAGMA_UNROLL_N(4)
 	for (ptr = a, ptr_end = a + n; ptr < ptr_end; ptr += 4) {
@@ -1019,7 +1020,8 @@ static void OPTIMIZE3 TARGET_CLONES stress_stream_exercise(
 	const bool has_sse2,
 	const bool stream_prefetch)
 {
-	double t1, t2;
+	double t1;
+	double t2;
 
 #if !defined(HAVE_PRAGMA_PREFETCH)
 	(void)stream_prefetch;
@@ -1143,7 +1145,8 @@ static int OPTIMIZE3 TARGET_CLONES stress_stream_verify(
 
 	new_checksum = stress_stream_checksum_data(a, b, c, n);
 	if ((*old_checksum > 0.0) && (fabs(new_checksum - *old_checksum) > 0.001)) {
-		char new_str[32], old_str[32];
+		char new_str[32];
+		char old_str[32];
 
 		stress_stream_checksum_to_hexstr(new_str, sizeof(new_str), new_checksum);
 		stress_stream_checksum_to_hexstr(old_str, sizeof(old_str), *old_checksum);
@@ -1165,7 +1168,8 @@ static int OPTIMIZE3 TARGET_CLONES stress_stream_verify(
  */
 static int stress_stream(stress_args_t *args)
 {
-	stress_mmap_stats_t stats, stats_total;
+	stress_mmap_stats_t stats;
+	stress_mmap_stats_t stats_total;
 	int rc = EXIT_FAILURE;
 	double *a = (double *)MAP_FAILED;
 	double *b = (double *)MAP_FAILED;
