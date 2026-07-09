@@ -841,7 +841,7 @@ static inline ALWAYS_INLINE void stress_stream_init_data(
 	register const uint32_t r = stress_mwc32();
 	register double v = (double)r * divisor;
 	register double *ptr;
-	register double *ptr_end;
+	register const double *ptr_end;
 
 PRAGMA_UNROLL_N(4)
 	for (ptr = a, ptr_end = a + n; ptr < ptr_end; ptr += 4) {
@@ -932,7 +932,7 @@ static inline uint64_t get_stream_L3_size(stress_args_t *args)
 {
 	uint64_t cache_size = 2 * MB;
 	stress_cpu_cache_cpus_t *cpu_caches;
-	stress_cpu_cache_t *cache = NULL;
+	const stress_cpu_cache_t *cache = NULL;
 	uint16_t max_cache_level;
 	long int numa_nodes = stress_numa_nodes();
 
