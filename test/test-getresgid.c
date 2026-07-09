@@ -23,7 +23,9 @@
 
 int main(void)
 {
-	gid_t rgid, egid, sgid;
+	gid_t rgid;
+	gid_t egid;
+	gid_t sgid;
 
 	return getresgid(&rgid, &egid, &sgid);
 }
