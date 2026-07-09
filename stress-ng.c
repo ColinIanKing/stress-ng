@@ -1097,7 +1097,7 @@ static int32_t stress_wait_reap_count(stress_list_item_t *stressors_list)
 			continue;
 
 		for (j = 0; j < item->instances; j++) {
-			stress_stats_t *const stats = item->stats[j];
+			stress_stats_t const * const stats = item->stats[j];
 
 			if ((stats->s_pid.pid > 0) && !stats->s_pid.reaped)
 				reap_count++;
@@ -1353,7 +1353,7 @@ static void stress_stressors_wait(
 #endif
 	reap_count = stress_wait_reap_count(stressors_list);
 	while (reap_count > 0) {
-		stress_stats_t *stats;
+		const stress_stats_t *stats;
 
 		stats = stress_child_wait(0, success, resource_success, metrics_success);
 		if (stats)
@@ -2406,7 +2406,7 @@ static void stress_metrics_dump(FILE *yaml)
 	pr_yaml(yaml, "metrics:\n");
 
 	for (item = stress_stressor_list.head; item; item = item->next) {
-		stress_metrics_info_t *mi;
+		const stress_metrics_info_t *mi;
 		uint64_t c_total = 0;
 		double r_total = 0.0;
 		double u_total = 0.0;
@@ -2564,7 +2564,7 @@ static void stress_metrics_dump(FILE *yaml)
 	if (misc_metrics && !(g_opt_flags & OPT_FLAGS_METRICS_BRIEF)) {
 		pr_metrics("miscellaneous metrics:\n");
 		for (item = stress_stressor_list.head; item; item = item->next) {
-			stress_metrics_info_t *mi;
+			const stress_metrics_info_t *mi;
 			size_t i;
 			int32_t j;
 			const char *name;
@@ -2944,7 +2944,7 @@ static inline void stress_shared_mmap(void)
 	const size_t n_instances = stress_total_instances_get();
 	const size_t page_size = stress_memory_page_size_get();
 	size_t len = sizeof(stress_shared_t) +
-		     (sizeof(stress_stats_t) * (size_t)n_instances);
+		     (sizeof(stress_stats_t) * n_instances);
 	size_t sz = (len + (page_size << 1)) & ~(page_size - 1);
 #if defined(HAVE_MPROTECT) ||	\
     (defined(HAVE_MREMAP) && defined(MAP_FIXED))
@@ -3054,9 +3054,9 @@ STRESS_PRAGMA_POP
 	return;
 
 err_unmap_page_ro:
-	(void)stress_munmap_anon_shared((void *)g_shared->mapped.page_ro, page_size);
+	(void)stress_munmap_anon_shared(g_shared->mapped.page_ro, page_size);
 err_unmap_page_none:
-	(void)stress_munmap_anon_shared((void *)g_shared->mapped.page_none, page_size);
+	(void)stress_munmap_anon_shared(g_shared->mapped.page_none, page_size);
 err_unmap_checksums:
 	(void)stress_munmap_anon_shared((void *)g_shared->checksum.checksums, g_shared->checksum.length);
 err_unmap_shared:
@@ -3085,9 +3085,9 @@ void stress_shared_unmap(void)
 {
 	const size_t page_size = stress_memory_page_size_get();
 
-	(void)stress_munmap_anon_shared((void *)g_shared->mapped.page_wo, page_size);
-	(void)stress_munmap_anon_shared((void *)g_shared->mapped.page_ro, page_size);
-	(void)stress_munmap_anon_shared((void *)g_shared->mapped.page_none, page_size);
+	(void)stress_munmap_anon_shared(g_shared->mapped.page_wo, page_size);
+	(void)stress_munmap_anon_shared(g_shared->mapped.page_ro, page_size);
+	(void)stress_munmap_anon_shared(g_shared->mapped.page_none, page_size);
 	(void)stress_munmap_anon_shared((void *)g_shared->checksum.checksums, g_shared->checksum.length);
 	(void)stress_munmap_anon_shared((void *)g_shared, g_shared->length);
 }
@@ -3531,7 +3531,7 @@ static void stress_stressors_enable(const int32_t instances)
 	}
 }
 
-static void stress_stressor_enable(stress_stressor_t *stressor)
+static void stress_stressor_enable(const stress_stressor_t *stressor)
 {
 	stress_list_item_t *item = stress_list_item_find(stressor);
 
@@ -3813,7 +3813,7 @@ static int stress_exercises_get(
 	int *ret)
 {
 	char *str = NULL;
-	char *token;
+	const char *token;
 	char *opt_str;
 	char *saveptr = NULL;
 
