@@ -443,7 +443,8 @@ static size_t TARGET_CLONES stress_vm_modulo_x(
 	uint32_t i;
 	uint32_t j;
 	const uint32_t stride = 23;	/* Small prime to hit cache */
-	register uint8_t pattern, compliment;
+	register uint8_t pattern;
+	register uint8_t compliment;
 	register uint8_t *ptr;
 	size_t bit_errors = 0;
 	uint64_t c = stress_bogo_get(args);
@@ -1007,7 +1008,8 @@ static size_t TARGET_CLONES stress_vm_prime_incdec(
 {
 	static uint8_t val = 0;
 	register uint8_t *ptr = (uint8_t *)buf;
-	size_t bit_errors = 0, i;
+	size_t bit_errors = 0;
+	size_t i;
 	const uint64_t prime = stress_prime64_get(sz + 4096);
 	register uint64_t j;
 	register uint64_t c;
