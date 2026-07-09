@@ -46,7 +46,8 @@ static int stress_env_child(stress_args_t *args, void *context)
 	const size_t page_size = args->page_size;
 	uint64_t i = 0;
 	uint64_t env_max;
-	uint32_t seed_w, seed_z;
+	uint32_t seed_w;
+	uint32_t seed_z;
 	size_t arg_max;
 	const size_t arg_huge = 16 * MB;
 	char *value;
