@@ -24,7 +24,8 @@
 
 int main(void)
 {
-	void *newbuf, *newaddr = NULL;
+	void *newbuf;
+	void *newaddr = NULL;
 	size_t sz = 4096;
 
 	/* semantically not correct, but this is a build check */
