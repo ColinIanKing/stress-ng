@@ -93,7 +93,7 @@ typedef struct stress_rofs_method {
 static int stres_rofs_file_open(
 	stress_args_t *args,
 	const char *path,
-	const stress_rofs_info_t *info)
+	stress_rofs_info_t *info)
 {
 	int fd;
 
@@ -173,8 +173,6 @@ static int stress_rofs_file_access(
 	double *count,
 	stress_rofs_info_t *info)
 {
-	(void)info;
-
 	if ((access(path, W_OK) == 0) &&
 	    ((info->statbuf.st_mode & S_IFMT) != S_IFLNK)) {
 		int fd;
@@ -316,7 +314,6 @@ static off_t stress_rofs_lseek_end(
 	const off_t curr_off,
 	const off_t rand_off)
 {
-	(void)size;
 	(void)curr_off;
 
 	return lseek(fd, size - rand_off, SEEK_CUR);
@@ -450,8 +447,6 @@ static int stress_rofs_file_listxattr(
 {
 	char buffer[4086];
 
-	(void)info;
-
 	if (shim_listxattr(path, buffer, sizeof(buffer)) >= 0)
 		(*count) += 1.0;
 	else {
@@ -490,9 +485,6 @@ static int stress_rofs_file_flock(
 {
 	int fd;
 
-	(void)info;
-	(void)args;
-
 	fd = stres_rofs_file_open(args, path, info);
 	if (fd < 0)
 		return -1;
@@ -517,8 +509,6 @@ static int stress_rofs_file_valid_open_close(
 	stress_rofs_info_t *info)
 {
 	int fd;
-
-	(void)info;
 
 	fd = stres_rofs_file_open(args, path, info);
 	if (fd < 0)
@@ -611,8 +601,6 @@ static int stress_rofs_file_fsync(
 	stress_rofs_info_t *info)
 {
 	int fd;
-
-	(void)info;
 
 	fd = stres_rofs_file_open(args, path, info);
 	if (fd < 0)
