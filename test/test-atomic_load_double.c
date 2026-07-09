@@ -18,7 +18,8 @@
 
 int main(int argc, char **argv)
 {
-	double val = 0.0, var = 5.0;
+	double val = 0.0;
+	double var = 5.0;
 
 	__atomic_load(&var, &val, __ATOMIC_CONSUME);
 
