@@ -21,7 +21,8 @@
 
 int main(int argc, char **argv)
 {
-	acl_t acl1, acl2;
+	acl_t acl1;
+	acl_t acl2;
 
 	acl1 = acl_init(1);
 	acl2 = acl_init(1);
