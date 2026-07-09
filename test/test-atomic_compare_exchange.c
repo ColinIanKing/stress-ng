@@ -19,7 +19,9 @@
 
 int main(int argc, char **argv)
 {
-	int var = 0, zero = 0, one = 1;
+	int var = 0;
+	int zero = 0;
+	int one = 1;
 
 	return __atomic_compare_exchange(&var, &zero, &one, 0, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST);
 }
