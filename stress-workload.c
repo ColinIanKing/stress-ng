@@ -313,7 +313,7 @@ static void stress_workload_bucket_account(stress_workload_bucket_t *bucket, con
 		bucket->overflow++;
 }
 
-static void stress_workload_bucket_report(stress_args_t *args, stress_workload_bucket_t *bucket)
+static void stress_workload_bucket_report(stress_args_t *args, const stress_workload_bucket_t *bucket)
 {
 	size_t i;
 	int width1;
@@ -346,14 +346,14 @@ static void stress_workload_bucket_report(stress_args_t *args, stress_workload_b
 			width1, (uint64_t)((double)i * bucket->width),
 			width1, (uint64_t)((double)(i + 1) * bucket->width) - 1,
 			width2, bucket->bucket[i],
-			(double)100.0 * (double)bucket->bucket[i] / (double)total);
+			100.0 * (double)bucket->bucket[i] / (double)total);
 	}
 	pr_dbg("%s: %*" PRIu64 " .. %*s %*" PRIu64 " %4.1f\n",
 		args->name,
 		width1, (uint64_t)((double)i * bucket->width),
 		width1, "",
 		width2, bucket->overflow,
-		(double)100.0 * (double)bucket->overflow / (double)total);
+		100.0 * (double)bucket->overflow / (double)total);
 	pr_block_end();
 }
 
@@ -392,7 +392,7 @@ static int stress_workload_exercise(
 {
 	size_t i;
 	const double scale_us_to_sec = 1.0 / STRESS_DBL_MICROSECOND;
-	const double scale32bit = 1.0 / (double)4294967296.0;
+	const double scale32bit = 1.0 / 4294967296.0;
 	double t_begin;
 	double t_end;
 	double sleep_duration_ns;
