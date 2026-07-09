@@ -46,7 +46,7 @@ static void MLOCKED_TEXT stress_fault_handler(int signum)
 static int stress_mmapaddr_check(stress_args_t *args, uint8_t *map_addr)
 {
 	unsigned char vec[1];
-	volatile uint8_t *vol_map_addr = (volatile uint8_t *)map_addr;
+	volatile const uint8_t *vol_map_addr = (volatile const uint8_t *)map_addr;
 	int ret;
 
 	page_fault = false;
