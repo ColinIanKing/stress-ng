@@ -342,11 +342,11 @@ finish:
 			args->name, segv_count);
 	}
 
-	rate = (metrics.offline_count > 0.0) ? (double)metrics.offline_duration / metrics.offline_count : 0.0;
+	rate = (metrics.offline_count > 0.0) ? metrics.offline_duration / metrics.offline_count : 0.0;
 	if (rate > 0.0)
 		stress_metrics_set(args, "millisecs per offline action",
 			rate * STRESS_DBL_MILLISECOND, STRESS_METRIC_HARMONIC_MEAN);
-	rate = (metrics.online_count > 0.0) ? (double)metrics.online_duration / metrics.online_count : 0.0;
+	rate = (metrics.online_count > 0.0) ? metrics.online_duration / metrics.online_count : 0.0;
 	if (rate > 0.0)
 		stress_metrics_set(args, "millisecs per online action",
 			rate * STRESS_DBL_MILLISECOND, STRESS_METRIC_HARMONIC_MEAN);
