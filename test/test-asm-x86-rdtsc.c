@@ -23,7 +23,8 @@ int main(void)
 {
 #if defined(__x86_64__) || defined(__x86_64) || \
     defined(__amd64__)  || defined(__amd64)
-	uint32_t lo, hi;
+	uint32_t lo;
+	uint32_t hi;
 
 	__asm__ __volatile__("rdtsc" : "=a" (lo), "=d" (hi));
 	return (int)((uint64_t)hi << 32) | lo;
