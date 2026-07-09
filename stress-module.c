@@ -465,7 +465,7 @@ static int stress_module(stress_args_t *args)
 
 	ret = stress_fs_temp_dir_make_args(args);
         if (ret < 0)
-                return stress_exit_status((int)-ret);
+                return stress_exit_status(-ret);
 
 	(void)stress_setting_get("module-name", &module_name_cli);
 	(void)stress_setting_get("module-no-vermag", &module_no_vermag);
