@@ -967,7 +967,7 @@ static void OPTIMIZE3 btree_remove_tree(btree_t **node)
 }
 
 static inline bool ALWAYS_INLINE OPTIMIZE3 btree_search(
-	btree_t *node,
+	const btree_t *node,
 	const uint32_t value,
 	int *pos)
 {
