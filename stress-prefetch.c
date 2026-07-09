@@ -393,7 +393,7 @@ static uint64_t stress_prefetch_data_set(uint64_t *l3_data, const uint64_t *l3_d
 static int stress_prefetch(stress_args_t *args)
 {
 	uint64_t *l3_data;
-	uint64_t *l3_data_end;
+	const uint64_t *l3_data_end;
 	uint64_t total_count = 0;
 	uint64_t checksum_sane;
 	size_t l3_data_size = 0;
