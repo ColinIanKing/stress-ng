@@ -216,7 +216,7 @@ static int stress_mmapfiles_child(stress_args_t *args, void *context)
 				mmapfile_info->munmap_count += 1.0;
 				mmapfile_info->munmap_page_count += (double)(len + args->page_size - 1) / (double)page_size;
 			} else {
-				(void)stress_munmap_force((void *)mmapfile_info->mappings[i].addr, mmapfile_info->mappings[i].len);
+				(void)stress_munmap_force(mmapfile_info->mappings[i].addr, mmapfile_info->mappings[i].len);
 			}
 			mmapfile_info->mappings[i].addr = NULL;
 			mmapfile_info->mappings[i].len = 0;
