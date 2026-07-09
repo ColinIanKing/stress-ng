@@ -98,6 +98,13 @@ Alpine Linux:
 NOTE: the build will try to detect build dependencies and will build an image
 with functionality disabled if the support libraries are not installed.
 
+A library check can also be turned off explicitly by emptying the matching
+LIB_* variable, even when the library is installed. This is useful for
+embedded or distro builds that do not want stressors pulling in extra
+dependencies, for example:
+
+    make LIB_ACL= LIB_EGL= LIB_GBM= LIB_GLES2= LIB_JPEG=
+
 At build-time stress-ng will detect kernel features that are available on the
 target build system and enable stress tests appropriately. Stress-ng has been
 build-tested on Ubuntu, Debian, Debian GNU/Hurd, Slackware, RHEL, SLES, Centos,
