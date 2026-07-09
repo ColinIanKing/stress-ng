@@ -28,8 +28,9 @@ void func(void)
 int main(void)
 {
 	static unsigned char stack[63336];
+	ucontext_t u1;
+	ucontext_t u2;
 
-	ucontext_t u1, u2;
 	if (getcontext(&u2) < 0)
 		return -1;
 	u2.uc_stack.ss_sp = stack;
