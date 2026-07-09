@@ -584,7 +584,8 @@ static int stress_fp_call_method(
 			return EXIT_SUCCESS;
 
 		for (i = 0; i < FP_ELEMENTS; i++) {
-			long double r0, r1;
+			long double r0;
+			long double r1;
 			int ret;
 
 			switch (fp_type) {
