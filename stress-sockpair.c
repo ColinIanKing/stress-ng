@@ -72,7 +72,8 @@ static inline int OPTIMIZE3 socket_pair_memchk(
 	uint8_t *buf,
 	const size_t sz)
 {
-	register const uint8_t *ptr, *buf_end = buf + sz;
+	register const uint8_t *ptr;
+	register const uint8_t *buf_end = buf + sz;
 	register uint8_t checksum = 0;
 
 PRAGMA_UNROLL_N(4)
