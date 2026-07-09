@@ -375,7 +375,8 @@ static int stress_pci(stress_args_t *args)
 		pr_inf("%s: PCI Device     Config Resource\n", args->name);
 
 		for (pci_info = pci_info_list; pci_info; pci_info = pci_info->next) {
-			char rate_config[9], rate_resource[9];
+			char rate_config[9];
+			char rate_resource[9];
 
 			stress_pci_rate(&pci_info->metrics[PCI_METRICS_CONFIG], rate_config, sizeof(rate_config));
 			stress_pci_rate(&pci_info->metrics[PCI_METRICS_RESOURCE], rate_resource, sizeof(rate_resource));
