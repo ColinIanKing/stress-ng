@@ -28,7 +28,8 @@
 
 int main(void)
 {
-	static fd_set rfds, wfds;
+	static fd_set rfds;
+	static fd_set wfds;
 
 	struct timeval tv;
 
