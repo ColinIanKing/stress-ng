@@ -19,7 +19,8 @@
 
 int main(int argc, char **argv)
 {
-	int val = 1, var;
+	int val = 1;
+	int var;
 
 	__atomic_store(&var, &val, 0);
 
