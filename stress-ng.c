@@ -2612,7 +2612,7 @@ static void stress_metrics_dump(FILE *yaml)
 						}
 					}
 					if (n > 0.0) {
-						const double inverse_n = 1.0 / (double)n;
+						const double inverse_n = 1.0 / n;
 
 						geometric_mean = pow(mantissa, inverse_n) * pow(2.0, (double)exponent * inverse_n);
 					} else {
