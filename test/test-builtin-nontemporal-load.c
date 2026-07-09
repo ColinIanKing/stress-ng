@@ -20,9 +20,12 @@
 
 int main(int argc, char **argv)
 {
-	__uint128_t v128, data128 = ~0;
-	uint64_t v64, data64 = ~0;
-	uint32_t v32, data32 = ~0;
+	__uint128_t v128;
+	__uint128_t data128 = ~0;
+	uint64_t v64;
+	uint64_t data64 = ~0;
+	uint32_t v32;
+	uint32_t data32 = ~0;
 
 	v128 = __builtin_nontemporal_load(&data128);
 	(void)v128;
