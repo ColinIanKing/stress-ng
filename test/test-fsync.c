@@ -26,7 +26,8 @@
 int main(void)
 {
 	static const char filename[] = "/tmp/test-fsync.tmp";
-	int fd, err = 1;
+	int fd;
+	int err = 1;
 
 	fd = open(filename, O_RDWR | O_CREAT, 0600);
 	if (fd < 0)
