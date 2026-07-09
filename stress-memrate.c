@@ -1082,7 +1082,7 @@ static int stress_memrate_child(stress_args_t *args, void *ctxt)
 tidy:
 	do_jmp = false;
 #endif
-	(void)munmap((void *)buffer, context->memrate_bytes);
+	(void)munmap(buffer, context->memrate_bytes);
 	return EXIT_SUCCESS;
 }
 
@@ -1196,13 +1196,13 @@ static int stress_memrate(stress_args_t *args)
 
 			switch (memrate_info[i].rdwr) {
 			case MR_RD:
-				f = frexp((double)rate, &e);
+				f = frexp(rate, &e);
 				rd_mantissa *= f;
 				rd_exponent += e;
 				rd_n += 1.0;
 				break;
 			case MR_WR:
-				f = frexp((double)rate, &e);
+				f = frexp(rate, &e);
 				wr_mantissa *= f;
 				wr_exponent += e;
 				wr_n += 1.0;
