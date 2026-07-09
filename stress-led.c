@@ -226,7 +226,7 @@ static void stress_led_exercise(stress_args_t *args, const stress_led_info_t *le
 {
 	char buf[MAX_BUF_SIZE];
 	char *ptr;
-	char *token;
+	const char *token;
 	char *saveptr;
 	int brightness;
 
