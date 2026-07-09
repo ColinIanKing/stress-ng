@@ -341,13 +341,13 @@ static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_dec(
 	uint8_t *ptr;
 
 PRAGMA_UNROLL_N(4)
-	for (ptr = (uint8_t *)buf + sz - 1; ptr >= buf; ptr--) {
+	for (ptr = buf + sz - 1; ptr >= buf; ptr--) {
 		*ptr = rnd;
 	}
 	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
 		stress_cpu_cache_data_flush((void *)buf, sz);
 PRAGMA_UNROLL_N(4)
-	for (ptr = (uint8_t *)buf + sz - 1; ptr >= buf; ptr--) {
+	for (ptr = buf + sz - 1; ptr >= buf; ptr--) {
 		if (UNLIKELY(*ptr != rnd))
 			errs++;
 	}
@@ -420,7 +420,7 @@ PRAGMA_UNROLL_N(4)
 PRAGMA_UNROLL_N(4)
 	for (bits = 0; bits < nbits; bits++) {
 		register const size_t stride = 1U << bits;
-		register uint8_t *ptr;
+		register const uint8_t *ptr;
 
 		for (ptr = buf; ptr < ptr_end; ptr += stride) {
 			if (UNLIKELY(*ptr != rnd))
