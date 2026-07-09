@@ -110,7 +110,8 @@ static void stress_fd_close(
  */
 static int stress_fd_fork(stress_args_t *args)
 {
-	int *fds, rc = EXIT_SUCCESS;
+	int *fds;
+	int rc = EXIT_SUCCESS;
 	size_t i;
 	size_t count_fd = 1;
 	size_t start_fd = 1;
@@ -274,7 +275,7 @@ tidy_fds:
 			filename);
 	}
 
-	rate = (info->metrics.count > 0.0) ? (double)info->metrics.duration / info->metrics.count : 0.0;
+	rate = (info->metrics.count > 0.0) ? info->metrics.duration / info->metrics.count : 0.0;
 	stress_metrics_set(args, "nanosecs per fd close",
 		rate * STRESS_DBL_NANOSECOND, STRESS_METRIC_HARMONIC_MEAN);
 	stress_metrics_set(args, "file descriptors open at one time",
@@ -283,7 +284,7 @@ tidy_fds:
 		const double duration = t_max - t_start;
 
 		stress_metrics_set(args, "seconds to open all file descriptors",
-			(double)duration, STRESS_METRIC_GEOMETRIC_MEAN);
+			duration, STRESS_METRIC_GEOMETRIC_MEAN);
 	}
 
 	(void)munmap((void *)info, sizeof(*info));
