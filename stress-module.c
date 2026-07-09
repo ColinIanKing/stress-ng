@@ -453,7 +453,8 @@ static int stress_module(stress_args_t *args)
 	const char *finit_args1 = "";
 	unsigned int kernel_flags = 0;
 	struct stat statbuf;
-	int fd = -1, ret;
+	int fd = -1;
+	int ret;
 	static const char * const default_modules[] = {
 		"test_user_copy",
 		"test_bpf",
