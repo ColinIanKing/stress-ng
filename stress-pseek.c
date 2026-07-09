@@ -115,7 +115,7 @@ static void OPTIMIZE3 TARGET_CLONES pseek_fill_buf(
  */
 static ssize_t stress_pseek_write_offset(
 	stress_args_t *args,
-	stress_peekio_info_t *info,
+	const stress_peekio_info_t *info,
 	stress_peekio_proc_t *proc,
 	const off_t offset)
 {
@@ -184,7 +184,7 @@ retry:
  */
 static ssize_t stress_pseek_read_offset(
 	stress_args_t *args,
-	stress_peekio_info_t *info,
+	const stress_peekio_info_t *info,
 	stress_peekio_proc_t *proc,
 	const off_t offset)
 {
@@ -275,10 +275,10 @@ static void stress_peekio_exercise(stress_peekio_proc_t *proc)
 		off_t offset;
 
 		if (info->pseek_rand) {
-			offset = (size_t)proc->proc_num * info->pseek_io_size * PSEEKIO_CHUNK_SCALE;
+			offset = proc->proc_num * info->pseek_io_size * PSEEKIO_CHUNK_SCALE;
 			offset += info->pseek_io_size * (size_t)stress_mwc8modn(PSEEKIO_CHUNK_SCALE - 1);
 		} else {
-			offset = (size_t)proc->proc_num * info->pseek_io_size * PSEEKIO_CHUNK_SCALE;
+			offset = proc->proc_num * info->pseek_io_size * PSEEKIO_CHUNK_SCALE;
 		}
 		if (UNLIKELY(!stress_continue(args)))
 			break;
@@ -348,7 +348,7 @@ static int stress_pseek_spawn(stress_args_t *args, stress_peekio_proc_t *proc)
 
 static void stress_pseek_kill(
 	stress_args_t *args,
-	stress_peekio_proc_t *proc)
+	const stress_peekio_proc_t *proc)
 {
 #if defined(HAVE_LIB_PTHREAD)
 	if (proc->proc_num & 1) {
