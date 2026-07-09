@@ -104,7 +104,8 @@ static skip_node_t OPTIMIZE3 *skip_list_insert(skip_list_t *list, const uint32_t
 {
 	skip_node_t **skip_nodes;
 	skip_node_t *skip_node = list->head;
-	register size_t i, level;
+	register size_t i;
+	register size_t level;
 
 	skip_nodes = (skip_node_t **)calloc(list->max_level + 1, sizeof(*skip_nodes));
 	if (UNLIKELY(!skip_nodes))
