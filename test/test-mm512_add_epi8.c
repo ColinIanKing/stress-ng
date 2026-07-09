@@ -31,7 +31,9 @@ void rndset(unsigned char *ptr, const size_t len)
 
 int __attribute__ ((target("avx512bw"))) main(int argc, char **argv)
 {
-	__m512i a, b, r;
+	__m512i a;
+	__m512i b;
+	__m512i r;
 
 	(void)rndset((unsigned char *)&a, sizeof(a));
 	(void)rndset((unsigned char *)&b, sizeof(b));
