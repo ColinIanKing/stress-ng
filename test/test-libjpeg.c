@@ -23,8 +23,11 @@
 
 int main(void)
 {
-	const int x_max = 64, y_max = 64, quality = 95;
-	unsigned char rgb[x_max * y_max * 3], *ptr;
+	const int x_max = 64;
+	const int y_max = 64;
+	const int quality = 95;
+	unsigned char rgb[x_max * y_max * 3];
+	unsigned char *ptr;
 
 	(void)memset(rgb, 0, sizeof(rgb));
 
