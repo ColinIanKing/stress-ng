@@ -33,7 +33,9 @@ int main(void)
 {
 	char buffer[8192];
 	static const char filename[] = "/tmp/test-msync.tmp";
-	int fd, ret, err = 1;
+	int fd;
+	int ret;
+	int err = 1;
 	void *ptr;
 	ssize_t rc;
 	const size_t sz = sizeof buffer;
