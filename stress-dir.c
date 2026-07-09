@@ -487,7 +487,8 @@ static int stress_dir(stress_args_t *args)
 	}
 
 	do {
-		uint64_t i, n = dir_dirs;
+		uint64_t i;
+		uint64_t n = dir_dirs;
 
 		stress_dir_mmap(dir_fd, args->page_size);
 		stress_dir_flock(dir_fd);
