@@ -22,7 +22,8 @@
 
 int main(void)
 {
-	struct timespec req, rem;
+	struct timespec req;
+	struct timespec rem;
 
 	req.tv_sec = 0;
 	req.tv_nsec = 100000;
