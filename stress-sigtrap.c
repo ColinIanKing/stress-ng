@@ -29,7 +29,8 @@ static const stress_help_t help[] = {
 #if defined(SIGTRAP)
 
 static volatile uint64_t counter;
-static volatile double t, duration;
+static volatile double t;
+static volatile double duration;
 
 static void MLOCKED_TEXT stress_sigtrap_handler(int num)
 {
