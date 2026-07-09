@@ -95,7 +95,7 @@ static ENTRY OPTIMIZE3 *hsearch_nonlibc(ENTRY entry, ACTION action)
 {
 	register uint32_t idx;
 	register uint32_t idx_start;
-	register char *ptr = entry.key;
+	register const char *ptr = entry.key;
 
 	for (idx = 0; *ptr; ) {
 		idx += *(ptr++);
