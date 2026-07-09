@@ -416,7 +416,7 @@ static int efi_vars_get(
 	int rc = 0;
 
 	for (i = 0; LIKELY(stress_continue(args) && (i < dir_count)); i++) {
-		char *d_name = efi_dentries[i]->d_name;
+		const char *d_name = efi_dentries[i]->d_name;
 		int ret;
 
 		if (efi_ignore[i])
