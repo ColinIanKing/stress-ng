@@ -69,7 +69,7 @@ PRAGMA_UNROLL_N(4)
  *	check data contains incrementing chars from val upwards
  */
 static inline int OPTIMIZE3 socket_pair_memchk(
-	uint8_t *buf,
+	const uint8_t *buf,
 	const size_t sz)
 {
 	register const uint8_t *ptr;
