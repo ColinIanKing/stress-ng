@@ -34,7 +34,10 @@ template <typename T> static int eigen_add(const size_t size, double *duration, 
 {
 	try {
 		typedef Matrix < T, Dynamic, Dynamic > matrix;
-		matrix a, b, result, result_check;
+		matrix a;
+		matrix b;
+		matrix result;
+		matrix result_check;
 		double t;
 		bool r;
 
@@ -64,7 +67,10 @@ template <typename T> static int eigen_multiply(const size_t size, double *durat
 {
 	try {
 		typedef Matrix < T, Dynamic, Dynamic > matrix;
-		matrix a, b, result, result_check;
+		matrix a;
+		matrix b;
+		matrix result;
+		matrix result_check;
 		double t;
 		bool r;
 
@@ -94,7 +100,9 @@ template <typename T> static int eigen_transpose(const size_t size, double *dura
 {
 	try {
 		typedef Matrix < T, Dynamic, Dynamic > matrix;
-		matrix a, result, result_check;
+		matrix a;
+		matrix result;
+		matrix result_check;
 		double t;
 		bool r;
 
@@ -123,7 +131,9 @@ template <typename T> static int eigen_inverse(const size_t size, double *durati
 {
 	try {
 		typedef Matrix < T, Dynamic, Dynamic > matrix;
-		matrix a, result, result_check;
+		matrix a;
+		matrix result;
+		matrix result_check;
 		double t;
 		bool r;
 
@@ -154,7 +164,8 @@ template <typename T> static int eigen_determinant(const size_t size, double *du
 	try {
 		typedef Matrix < T, Dynamic, Dynamic > matrix;
 		matrix a;
-		T result, result_check;
+		T result;
+		T result_check;
 		double t;
 
 		a = matrix::Random(size, size);
