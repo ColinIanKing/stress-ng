@@ -23,7 +23,9 @@
     defined(__i386__)   || defined(__i386)
 int main(int argc, char **argv)
 {
-	uint32_t lo, hi, counter = 0;
+	uint32_t lo;
+	uint32_t hi;
+	uint32_t counter = 0;
 
 	__asm__ __volatile__("rdpmc" : "=a" (lo), "=d" (hi) : "c" (counter));
 }
