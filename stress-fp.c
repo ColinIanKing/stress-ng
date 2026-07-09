@@ -664,7 +664,8 @@ static double stress_fp_all(
 
 static int stress_fp(stress_args_t *args)
 {
-	size_t i, mmap_size;
+	size_t i;
+	size_t mmap_size;
 	fp_data_t *fp_data;
 	size_t fp_method = 0;	/* "all" */
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
