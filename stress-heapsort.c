@@ -73,10 +73,12 @@ static int heapsort_nonlibc(
 	 */
 	u8base = (uint8_t *)base - size;
 	while (--l) {
-		register size_t i, j;
+		register size_t i;
+		register size_t j;
 
 		for (i = l; (j = i * 2) <= nmemb; i = j) {
-			register uint8_t *p1 = u8base + (j * size), *p2;
+			register uint8_t *p1 = u8base + (j * size);
+			register uint8_t *p2;
 
 			if ((j < nmemb) && (compar(p1, p1 + size) < 0)) {
 				p1 += size;
@@ -102,7 +104,8 @@ static int heapsort_nonlibc(
 		nmemb--;
 
 		for (i = 1; (j = i * 2) <= nmemb; i = j) {
-			register uint8_t *p1 = u8base + (j * size), *p2;
+			register uint8_t *p1 = u8base + (j * size);
+			register uint8_t *p2;
 
 			if ((j < nmemb) && (compar(p1, p1 + size) < 0)) {
 				p1 += size;
@@ -112,7 +115,8 @@ static int heapsort_nonlibc(
 			copy_func(p2, p1, size);
 		}
 		for (;;) {
-			register uint8_t *p1, *p2;
+			register uint8_t *p1;
+			register uint8_t *p2;
 
 			j = i;
 			i = j / 2;
@@ -167,7 +171,7 @@ static int stress_heapsort(stress_args_t *args)
 {
 	uint64_t heapsort_size = DEFAULT_HEAPSORT_SIZE;
 	int32_t *data;
-	int32_t *ptr;
+	const int32_t *ptr;
 	size_t n;
 	size_t i;
 	size_t data_size;
