@@ -24,7 +24,8 @@ int main(void)
 #if defined(__x86_64__) || defined(__x86_64) || \
     defined(__amd64__)  || defined(__amd64) || \
     defined(__i386__)   || defined(__i386)
-	uint32_t lo, hi;
+	uint32_t lo;
+	uint32_t hi;
 	uint32_t tsc_aux;
 
 	__asm__ __volatile__("rdtscp" : "=a" (lo), "=d" (hi), "=c" (tsc_aux));
