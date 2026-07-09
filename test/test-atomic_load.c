@@ -19,7 +19,8 @@
 
 int main(int argc, char **argv)
 {
-	int val = 0, var = 5;
+	int val = 0;
+	int var = 5;
 
 	__atomic_load(&var, &val, 0);
 
