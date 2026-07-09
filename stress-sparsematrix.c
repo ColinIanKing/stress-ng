@@ -1366,7 +1366,8 @@ static int stress_sparsematrix(stress_args_t *args)
 {
 	test_info_t test_info[SIZEOF_ARRAY(sparsematrix_methods)];
 	uint64_t sparsematrix_items = DEFAULT_SPARSEMATRIX_ITEMS;
-	uint64_t puts_exponent, gets_exponent;
+	uint64_t puts_exponent;
+	uint64_t gets_exponent;
 	uint64_t capacity;
 	size_t i;
 	size_t begin;
