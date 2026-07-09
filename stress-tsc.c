@@ -690,7 +690,8 @@ static int stress_tsc(stress_args_t *args)
 
 	if (tsc_supported) {
 		const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
-		double duration = 0.0, count;
+		double duration = 0.0;
+		double count;
 
 		ret = tsc_func(args, verify, &duration);
 		count = 32.0 * 4.0 * (double)stress_bogo_get(args);
