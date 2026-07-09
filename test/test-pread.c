@@ -26,7 +26,8 @@
 int main(void)
 {
 	char data[1024];
-	int fd, rc;
+	int fd;
+	int rc;
 
 	fd = open("/dev/zero", O_RDONLY);
 	if (fd < 0)
