@@ -139,7 +139,7 @@ static int stress_mmapmany_child(stress_args_t *args, void *context)
 			uint64_t *ptr;
 			uint64_t val;
 
-			ptr = (uint64_t *)mappings[i];
+			ptr = mappings[i];
 			val = (uint64_t)i ^ pattern0;
 			if (UNLIKELY(*ptr != val)) {
 				pr_fail("%s: failed: mapping %zu at %p was %" PRIx64 " and not %" PRIx64 "\n",
