@@ -101,7 +101,7 @@ static int stress_insertionsort(stress_args_t *args)
 {
 	uint64_t insertionsort_size = DEFAULT_INSERTIONSORT_SIZE;
 	int32_t *data;
-	int32_t *ptr;
+	const int32_t *ptr;
 	size_t n;
 	size_t i;
 	size_t data_size;
