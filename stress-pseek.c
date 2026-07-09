@@ -269,7 +269,7 @@ PRAGMA_UNROLL_N(4)
 static void stress_peekio_exercise(stress_peekio_proc_t *proc)
 {
 	stress_args_t *args = proc->args;
-	stress_peekio_info_t *info = proc->info;
+	const stress_peekio_info_t *info = proc->info;
 
 	for (;;) {
 		off_t offset;
