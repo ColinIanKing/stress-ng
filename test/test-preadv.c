@@ -31,7 +31,8 @@ int main(void)
 {
 	struct iovec iov[1];
 	char data[IO_LEN];
-	int fd, rc;
+	int fd;
+	int rc;
 
 	fd = open("/dev/zero", O_RDONLY);
 	if (fd < 0)
