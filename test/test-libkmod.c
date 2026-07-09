@@ -24,7 +24,8 @@
 
 int main(void)
 {
-	struct kmod_list *l, *list = NULL;
+	struct kmod_list *l;
+	struct kmod_list *list = NULL;
 	struct kmod_ctx *ctx;
 	int ret;
 
