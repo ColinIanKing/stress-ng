@@ -28,7 +28,10 @@
 
 int main(void)
 {
-	int fd1, fd2, fd3, ret = 1;
+	int fd1;
+	int fd2;
+	int fd3;
+	int ret = 1;
 
 	fd1 = open("/dev/zero", O_RDONLY);
 	if (fd1 < 0)
