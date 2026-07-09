@@ -1009,7 +1009,8 @@ static void stress_memrate_dispatch_method(
 	const stress_memrate_context_t *context,
 	const size_t method)
 {
-	double t1, t2;
+	double t1;
+	double t2;
 	uint64_t kbytes;
 	const stress_memrate_info_t *info = &memrate_info[method];
 	bool valid = false;
@@ -1028,7 +1029,8 @@ static int stress_memrate_child(stress_args_t *args, void *ctxt)
 {
 	stress_memrate_context_t *context = (stress_memrate_context_t *)ctxt;
 	stress_mmap_stats_t mmap_stats;
-	void *buffer, *buffer_end;
+	void *buffer;
+	void *buffer_end;
 
 	stress_signal_catch_sigill();
 
