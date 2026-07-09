@@ -20,7 +20,10 @@
 
 int main(int argc, char **argv)
 {
-	uint32_t *ptr, val1 = 0x01, val2 = 0x00, data = 0x00;
+	uint32_t *ptr;
+	uint32_t val1 = 0x01;
+	uint32_t val2 = 0x00;
+	uint32_t data = 0x00;
 
 	ptr = &data;
 	__sync_bool_compare_and_swap(ptr, val1, val2);
