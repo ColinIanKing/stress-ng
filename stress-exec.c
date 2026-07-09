@@ -185,7 +185,7 @@ static inline void stress_exec_free_list_add(stress_pid_hash_t *sph)
  *  stress_exec_free_pid_list()
  *	unmap any allocated stacks
  */
-static void stress_exec_free_pid_list(stress_pid_hash_t *sph)
+static void stress_exec_free_pid_list(const stress_pid_hash_t *sph)
 {
 #if defined(HAVE_CLONE)
 	while (sph) {
