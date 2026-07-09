@@ -718,8 +718,8 @@ static int OPTIMIZE3 stress_hash(stress_args_t *args)
 			const stress_hash_stats_t *stats = &hash_stats[i];
 
 			if ((stats->duration > 0.0) && (stats->total > 0)) {
-				const double rate = (double)((stats->duration > 0.0) ?
-					(double)stats->total / stats->duration : (double)0.0);
+				const double rate = ((stats->duration > 0.0) ?
+					(double)stats->total / stats->duration : 0.0);
 
 				pr_inf("%s: %12.12s %15.2f %10.2f\n",
 					args->name, hash_methods[i].name, rate, stats->chi_squared);
