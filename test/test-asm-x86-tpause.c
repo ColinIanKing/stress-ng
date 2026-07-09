@@ -22,7 +22,9 @@
     defined(__amd64__)  || defined(__amd64)
 int main(void)
 {
-	uint32_t lo = 0xffffffff, hi = 0xffffffff, ecx = 0;
+	uint32_t lo = 0xffffffff;
+	uint32_t hi = 0xffffffff;
+	uint32_t ecx = 0;
 
 	__asm__ __volatile__("tpause %%ecx\n" :: "c"(ecx), "d"(hi), "a"(lo));
 
