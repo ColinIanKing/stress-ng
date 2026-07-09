@@ -31,7 +31,10 @@ void rndset(unsigned char *ptr, const size_t len)
 
 int __attribute__ ((target("avxvnni"))) main(int argc, char **argv)
 {
-	__m128i a, b, c, r;
+	__m128i a;
+	__m128i b;
+	__m128i c;
+	__m128i r;
 
 	(void)rndset((unsigned char *)&a, sizeof(a));
 	(void)rndset((unsigned char *)&b, sizeof(b));
