@@ -169,8 +169,8 @@ tidy:
 
 #if defined(HAVE_SYNCFS)
 tidy_dir:
-#endif
 	(void)stress_fs_temp_dir_rm_args(args);
+#endif
 
 	return rc;
 }
