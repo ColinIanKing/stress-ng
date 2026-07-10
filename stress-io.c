@@ -60,10 +60,12 @@ static int stress_io(stress_args_t *args)
 	char *mnts[MAX_MNTS];
 	char filename[PATH_MAX];
 	int fds[MAX_MNTS];
+#endif
 
 	if (stress_instance_zero(args))
 		pr_inf("%s: this is a legacy I/O sync stressor, consider using iomix instead\n", args->name);
 
+#if defined(HAVE_SYNCFS)
 	ret = stress_fs_temp_dir_make_args(args);
 	if (ret < 0) {
 		rc = stress_exit_status((int)-ret);
