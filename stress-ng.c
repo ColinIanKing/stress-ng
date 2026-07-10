@@ -2525,8 +2525,8 @@ static void stress_metrics_dump(FILE *yaml)
 			}
 		}
 
+		pr_yaml(yaml, "    - stressor: %s\n", name);
 		if (g_opt_flags & OPT_FLAGS_SN) {
-			pr_yaml(yaml, "    - stressor: %s\n", name);
 			pr_yaml(yaml, "      bogo-ops: %" PRIu64 "\n", c_total);
 			pr_yaml(yaml, "      bogo-ops-per-second-usr-sys-time: %e\n", bogo_rate);
 			pr_yaml(yaml, "      bogo-ops-per-second-real-time: %e\n", bogo_rate_r_time);
@@ -2536,7 +2536,6 @@ static void stress_metrics_dump(FILE *yaml)
 			pr_yaml(yaml, "      cpu-usage-per-instance: %e\n", cpu_usage);
 			pr_yaml(yaml, "      max-rss: %ld\n", maxrss);
 		} else {
-			pr_yaml(yaml, "    - stressor: %s\n", name);
 			pr_yaml(yaml, "      bogo-ops: %" PRIu64 "\n", c_total);
 			pr_yaml(yaml, "      bogo-ops-per-second-usr-sys-time: %f\n", bogo_rate);
 			pr_yaml(yaml, "      bogo-ops-per-second-real-time: %f\n", bogo_rate_r_time);
@@ -2564,6 +2563,41 @@ static void stress_metrics_dump(FILE *yaml)
 				pr_yaml(yaml, "      %s: %f\n", stress_description_yamlify(description), metric);
 			}
 		}
+
+		/*
+		 *  and output per instance metrics
+		 */
+		pr_yaml(yaml, "      instances:\n");
+		for (j = 0; j < item->instances; j++) {
+			const stress_stats_t *const stats = item->stats[j];
+			const double us_total = stats->rusage_utime_total + stats->rusage_stime_total;
+			const double duration = stats->duration_total;
+
+			bogo_rate = (us_total > 0.0) ? (double)stats->counter_total / us_total : 0.0;
+			bogo_rate_r_time = (duration > 0.0) ? (double)stats->counter_total / duration : 0.0;
+
+			pr_yaml(yaml, "          - instance: %" PRId32 "\n", j);
+			if (g_opt_flags & OPT_FLAGS_SN) {
+				pr_yaml(yaml, "            bogo-ops: %" PRIu64 "\n", c_total);
+				pr_yaml(yaml, "            bogo-ops-per-second-usr-sys-time: %e\n", bogo_rate);
+				pr_yaml(yaml, "            bogo-ops-per-second-real-time: %e\n", bogo_rate_r_time);
+			} else {
+				pr_yaml(yaml, "            bogo-ops: %" PRIu64 "\n", c_total);
+				pr_yaml(yaml, "            bogo-ops-per-second-usr-sys-time: %f\n", bogo_rate);
+				pr_yaml(yaml, "            bogo-ops-per-second-real-time: %f\n", bogo_rate_r_time);
+			}
+			for (i = 0; i < mi->num_metrics_items; i++) {
+				const double metric = item->stats[j]->metrics_values[i];
+
+				description = mi->metrics_desc[i].description;
+				if (g_opt_flags & OPT_FLAGS_SN) {
+					pr_yaml(yaml, "            %s: %e\n", stress_description_yamlify(description), metric);
+				} else {
+					pr_yaml(yaml, "            %s: %f\n", stress_description_yamlify(description), metric);
+				}
+			}
+		}
+
 		pr_yaml(yaml, "\n");
 	}
 
