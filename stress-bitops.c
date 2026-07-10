@@ -653,6 +653,7 @@ static int OPTIMIZE3 stress_bitops_min(const char *name, uint32_t *count)
 	return EXIT_SUCCESS;
 }
 
+#if !defined(__PCC__)
 /*
  *  stress_bitops_max()
  *	maximum of x, y
@@ -689,6 +690,7 @@ static int OPTIMIZE3 stress_bitops_max(const char *name, uint32_t *count)
 	*count += 2 * i;
 	return EXIT_SUCCESS;
 }
+#endif
 
 /*
  *  stress_bitops_log2()
@@ -1164,7 +1166,9 @@ static const stress_bitops_method_info_t bitops_methods[] = {
 	{ "ctz",		stress_bitops_ctz },
 	{ "cmp",		stress_bitops_cmp },
 	{ "log2",		stress_bitops_log2 },
+#if !defined(__PCC__)
 	{ "max",		stress_bitops_max },
+#endif
 	{ "min",		stress_bitops_min },
 	{ "parity",		stress_bitops_parity },
 	{ "pwr2",		stress_bitops_pwr2 },
