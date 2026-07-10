@@ -2234,11 +2234,13 @@ static void stress_metrics_check(bool *success)
 static char *stress_description_yamlify(const char *description)
 {
 	static char yamlified[40];
-	char *dst;
+	char *dst = yamlified;
 	const char *src;
 	const char *end = yamlified + sizeof(yamlified);
 
-	for (dst = yamlified, src = description; *src; src++) {
+	*dst = '\0';
+
+	for (src = description; *src; src++) {
 		register const int ch = (int)*src;
 
 		if (isalpha((unsigned char)ch)) {
@@ -2247,6 +2249,10 @@ static char *stress_description_yamlify(const char *description)
 			*(dst++) = (char)ch;
 		} else if (ch == ' ') {
 			*(dst++) = '-';
+		} else if (ch == '%') {
+			const size_t n = sizeof(yamlified) - (dst - yamlified);
+
+			dst += shim_strlcat(dst, "percent", n);
 		}
 		if (dst >= end - 1)
 			break;
