@@ -375,6 +375,21 @@ static inline void ALWAYS_INLINE stress_ds_store64(void *ptr, const uint64_t val
 }
 #endif
 
+#if defined(HAVE_ASM_X86_MOVNTDQA) &&	\
+    defined(HAVE_INT128_T)
+static inline ALWAYS_INLINE __uint128_t stress_asm_movntdqa(void *addr)
+{
+	__uint128_t ret;
+
+	__asm__ __volatile__ (
+		"movntdqa (%1),%0"
+		: "=x" (ret)
+		: "r" (addr)
+		: "memory");
+	return ret;
+}
+#endif
+
 #if defined(STRESS_ARCH_X86) &&	\
     defined(HAVE_ASM_X86_LAHF)
 static inline uint8_t ALWAYS_INLINE stress_asm_lahf(void)

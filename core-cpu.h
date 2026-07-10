@@ -41,6 +41,7 @@ extern WARN_UNUSED bool stress_cpu_x86_has_rdtscp(void);
 extern WARN_UNUSED bool stress_cpu_x86_has_serialize(void);
 extern WARN_UNUSED bool stress_cpu_x86_has_sse(void);
 extern WARN_UNUSED bool stress_cpu_x86_has_sse2(void);
+extern WARN_UNUSED bool stress_cpu_x86_has_sse4_1(void);
 extern WARN_UNUSED bool stress_cpu_x86_has_syscall(void);
 extern WARN_UNUSED bool stress_cpu_x86_has_tsc(void);
 extern WARN_UNUSED bool stress_cpu_x86_has_waitpkg(void);

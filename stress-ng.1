@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, may be w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "6 July 2026"
+.TH STRESS-NG 1 "10 July 2026"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -5932,6 +5932,9 @@ l lx.
 Method	Description
 all	T{
 iterate over all the below memrate methods
+T}
+read128nt	T{
+read 128 bits per read using using non-temporal load
 T}
 read128pf	T{
 read 128 bits per read using prefetching

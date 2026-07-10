@@ -636,6 +636,19 @@ bool OPTIMIZE3 stress_cpu_x86_has_sse2(void)
 }
 
 /*
+ *  stress_cpu_x86_has_sse4_1()
+ *	does x86 cpu support sse?
+ */
+bool OPTIMIZE3 stress_cpu_x86_has_sse4_1(void)
+{
+#if defined(STRESS_ARCH_X86)
+	STRESS_CPU_X86_HAS(__func__, 0x1, 0, 0, 0, !!(ecx & CPUID_sse4_2_ECX));
+#else
+	return false;
+#endif
+}
+
+/*
  *  stress_cpu_x86_has_serialize()
  *	does x86 cpu support serialize opcode?
  */
