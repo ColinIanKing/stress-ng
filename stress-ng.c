@@ -2572,17 +2572,18 @@ static void stress_metrics_dump(FILE *yaml)
 			const stress_stats_t *const stats = item->stats[j];
 			const double us_total = stats->rusage_utime_total + stats->rusage_stime_total;
 			const double duration = stats->duration_total;
+			const uint64_t counter = stats->counter_total;
 
-			bogo_rate = (us_total > 0.0) ? (double)stats->counter_total / us_total : 0.0;
-			bogo_rate_r_time = (duration > 0.0) ? (double)stats->counter_total / duration : 0.0;
+			bogo_rate = (us_total > 0.0) ? (double)counter / us_total : 0.0;
+			bogo_rate_r_time = (duration > 0.0) ? (double)counter / duration : 0.0;
 
 			pr_yaml(yaml, "          - instance: %" PRId32 "\n", j);
 			if (g_opt_flags & OPT_FLAGS_SN) {
-				pr_yaml(yaml, "            bogo-ops: %" PRIu64 "\n", c_total);
+				pr_yaml(yaml, "            bogo-ops: %" PRIu64 "\n", counter);
 				pr_yaml(yaml, "            bogo-ops-per-second-usr-sys-time: %e\n", bogo_rate);
 				pr_yaml(yaml, "            bogo-ops-per-second-real-time: %e\n", bogo_rate_r_time);
 			} else {
-				pr_yaml(yaml, "            bogo-ops: %" PRIu64 "\n", c_total);
+				pr_yaml(yaml, "            bogo-ops: %" PRIu64 "\n", counter);
 				pr_yaml(yaml, "            bogo-ops-per-second-usr-sys-time: %f\n", bogo_rate);
 				pr_yaml(yaml, "            bogo-ops-per-second-real-time: %f\n", bogo_rate_r_time);
 			}
