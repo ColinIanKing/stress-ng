@@ -2435,6 +2435,7 @@ int shim_nice(int inc)
 	return shim_nice_autogroup(nice(inc));
 #else
 	(void)inc;
+	(void)shim_nice_autogroup;
 
 	UNEXPECTED
 	errno = -ENOSYS;
