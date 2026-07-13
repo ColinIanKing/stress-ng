@@ -18,9 +18,9 @@
 #
 
 #
-# Codename "meticulous memory masher"
+# Codename "Exasperating electron exerciser"
 #
-VERSION=0.21.03
+VERSION=0.21.04
 
 #
 # Determine supported toolchains
