@@ -244,7 +244,7 @@ static void stress_filehole_non_zeros_to_holes(
 #else
 		if (lseek(fd, offset, SEEK_SET) < 0)
 			continue;
-		ret = read(fd, buf, buf_len);
+		ret = read(fd, buf, page_size);
 #endif
 		if (ret != (ssize_t)page_size)
 			continue;
