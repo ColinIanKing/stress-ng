@@ -1635,6 +1635,10 @@ char *stress_proc_self_exe_get(char *path, const size_t path_len)
 
 	(void)stress_proc_self_exe_path_get;
 
+	/* A plain filename is invalid if the program has been found in the PATH */
+	if (!strchr(program_invocation_name, '/'))
+		return NULL;
+
 	/* this may return the wrong name if it's been argv modified */
 	(void)shim_strscpy(path, program_invocation_name, path_len);
 	return path;
