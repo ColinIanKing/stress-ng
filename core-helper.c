@@ -1587,7 +1587,7 @@ static char *stress_proc_self_exe_path_get(
  */
 char *stress_proc_self_exe_get(char *path, const size_t path_len)
 {
-#if defined(__linux__)
+#if defined(__linux__) || defined(__CYGWIN__)
 	return stress_proc_self_exe_path_get(path, "/proc/self/exe", path_len);
 #elif defined(__NetBSD__)
 	return stress_proc_self_exe_path_get(path, "/proc/curproc/exe", path_len);
