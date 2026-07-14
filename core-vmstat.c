@@ -1260,12 +1260,10 @@ void stress_vmstat_start(void)
 		}
 
 		if (thermalstat_delay == thermalstat_sleep) {
+			stress_cpu_freq_info_t cpu_freq_info;
 			double min1;
 			double min5;
 			double min15;
-			double avg_ghz;
-			double min_ghz;
-			double max_ghz;
 			size_t therms_len = 1 + (tz_num * 7);
 			char *therms;
 			char cpuspeed[19];
@@ -1284,10 +1282,10 @@ void stress_vmstat_start(void)
 				}
 #endif
 
-				stress_cpu_freq_get(&avg_ghz, &min_ghz, &max_ghz);
-				if (avg_ghz > 0.0)
+				stress_cpu_freq_get(&cpu_freq_info);
+				if (cpu_freq_info.avg_ghz > 0.0)
 					(void)snprintf(cpuspeed, sizeof(cpuspeed), "%5.2f %5.2f %5.2f",
-						avg_ghz, min_ghz, max_ghz);
+						cpu_freq_info.avg_ghz, cpu_freq_info.min_ghz, cpu_freq_info.max_ghz);
 				else
 					(void)snprintf(cpuspeed, sizeof(cpuspeed), "%5.5s %5.5s %5.5s",
 						" n/a ", " n/a ", " n/a ");

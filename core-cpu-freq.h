@@ -19,6 +19,12 @@
 #ifndef CORE_CPU_FREQ_H
 #define CORE_CPU_FREQ_H
 
-extern void stress_cpu_freq_get(double *avg_ghz, double *min_ghz, double *max_ghz);
+typedef struct stress_cpu_freq_info {
+	double avg_ghz;
+	double min_ghz;
+	double max_ghz;
+} stress_cpu_freq_info_t;
+
+extern void stress_cpu_freq_get(stress_cpu_freq_info_t *cpu_freq_info);
 
 #endif
