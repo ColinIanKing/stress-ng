@@ -785,7 +785,7 @@ static void MLOCKED_TEXT stress_sigalrm_action_handler(
  */
 static void MLOCKED_TEXT stress_stats_handler(int signum)
 {
-	struct stress_memory_info info;
+	stress_memory_info_t memory_info;
 	stress_load_average_info_t load_average_info;
 	static char buffer[80];
 	char *hdr = buffer;
@@ -823,18 +823,20 @@ static void MLOCKED_TEXT stress_stats_handler(int signum)
 		if (ret > 0)
 			VOID_RET(ssize_t, write(fd, buffer, len + ret));
 	}
-	stress_memory_info_get(&info);
-	if ((info.totalmem > 0) || (info.freeswap > 0)) {
+	stress_memory_info_get(&memory_info);
+	if ((memory_info.totalmem > 0) || (memory_info.freeswap > 0)) {
 		ret = snprintf(hdr, sizeof(buffer) - len,
 			"Mem Free: %zu MB, Mem Total: %zu MB\n",
-			info.freemem / (size_t)MB, info.totalmem / (size_t)MB);
+			memory_info.freemem / (size_t)MB,
+			memory_info.totalmem / (size_t)MB);
 		if (ret > 0)
 			VOID_RET(ssize_t, write(fd, buffer, len + ret));
 	}
-	if ((info.freeswap > 0) || (info.totalswap > 0)) {
+	if ((memory_info.freeswap > 0) || (memory_info.totalswap > 0)) {
 		ret = snprintf(hdr, sizeof(buffer) - len,
 			"Swap Free: %zu MB, Swap Total: %zu MB\n",
-			info.freeswap / (size_t)MB, info.totalswap / (size_t)MB);
+			memory_info.freeswap / (size_t)MB,
+			memory_info.totalswap / (size_t)MB);
 		if (ret > 0)
 			VOID_RET(ssize_t, write(fd, buffer, len + ret));
 	}
@@ -3939,18 +3941,18 @@ static int stress_exercises_get(
  */
 static void stress_oom_avoid_bytes_check(void)
 {
-	stress_memory_info_t info;
+	stress_memory_info_t memory_info;
 	size_t bytes;
 	static const char *setting = "oom-avoid-bytes";
 
 	if (!stress_setting_get(setting, &bytes))
 		return;
 
-	stress_memory_info_get(&info);
-	if ((info.freemem > 0) && (bytes > info.freemem / 2)) {
+	stress_memory_info_get(&memory_info);
+	if ((memory_info.freemem > 0) && (bytes > memory_info.freemem / 2)) {
 		char buf[32];
 
-		bytes = info.freemem / 2;
+		bytes = memory_info.freemem / 2;
 		pr_inf("option --oom-avoid-bytes too large, limiting to "
 			"50%% (%s) of free memory\n",
 			stress_uint64_to_str(buf, sizeof(buf), (uint64_t)bytes, 1, true));
