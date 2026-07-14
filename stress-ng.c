@@ -786,11 +786,9 @@ static void MLOCKED_TEXT stress_sigalrm_action_handler(
 static void MLOCKED_TEXT stress_stats_handler(int signum)
 {
 	struct stress_memory_info info;
+	stress_load_average_info_t load_average_info;
 	static char buffer[80];
 	char *hdr = buffer;
-	double min1;
-	double min5;
-	double min15;
 	const int fd = pr_fd();
 	int len = 0;
 	int ret;
@@ -816,10 +814,12 @@ static void MLOCKED_TEXT stress_stats_handler(int signum)
 		hdr += ret;
 		len += ret;
 	}
-	if (stress_load_average_get(&min1, &min5, &min15) == 0) {
+	if (stress_load_average_get(&load_average_info) == 0) {
 		ret = snprintf(hdr, sizeof(buffer) - len,
 			"Load Average: %.2f %.2f %.2f\n",
-			min1, min5, min15);
+			load_average_info.min1,
+			load_average_info.min5,
+			load_average_info.min15);
 		if (ret > 0)
 			VOID_RET(ssize_t, write(fd, buffer, len + ret));
 	}
@@ -2814,6 +2814,7 @@ static void stress_times_dump(
 	const int32_t ticks_per_sec,
 	const double duration)
 {
+	stress_load_average_info_t load_average_info;
 	struct tms buf;
 	double total_cpu_time = stress_cpus_configured_get() * duration;
 	double u_time;
@@ -2822,9 +2823,6 @@ static void stress_times_dump(
 	double u_pc;
 	double s_pc;
 	double t_pc;
-	double min1;
-	double min5;
-	double min15;
 	int rc;
 
 	if (!(g_opt_flags & OPT_FLAGS_TIMES))
@@ -2835,7 +2833,7 @@ static void stress_times_dump(
 			errno, strerror(errno));
 		return;
 	}
-	rc = stress_load_average_get(&min1, &min5, &min15);
+	rc = stress_load_average_get(&load_average_info);
 
 	u_time = (double)buf.tms_cutime / (double)ticks_per_sec;
 	s_time = (double)buf.tms_cstime / (double)ticks_per_sec;
@@ -2852,7 +2850,9 @@ static void stress_times_dump(
 	pr_inf("  %8.2fs total time  (%6.2f%%)\n", t_time, t_pc);
 	if (!rc) {
 		pr_inf("load average: %.2f %.2f %.2f\n",
-			min1, min5, min15);
+			load_average_info.min1,
+			load_average_info.min5,
+			load_average_info.min15);
 	}
 
 	pr_yaml(yaml, "times:\n");
@@ -2865,9 +2865,9 @@ static void stress_times_dump(
 	pr_yaml(yaml, "      system-time-percent: %f\n", s_pc);
 	pr_yaml(yaml, "      total-time-percent: %f\n", t_pc);
 	if (!rc) {
-		pr_yaml(yaml, "      load-average-1-minute: %f\n", min1);
-		pr_yaml(yaml, "      load-average-5-minute: %f\n", min5);
-		pr_yaml(yaml, "      load-average-15-minute: %f\n", min15);
+		pr_yaml(yaml, "      load-average-1-minute: %f\n", load_average_info.min1);
+		pr_yaml(yaml, "      load-average-5-minute: %f\n", load_average_info.min5);
+		pr_yaml(yaml, "      load-average-15-minute: %f\n", load_average_info.min15);
 	}
 }
 

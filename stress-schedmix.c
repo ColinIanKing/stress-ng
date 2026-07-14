@@ -109,9 +109,7 @@ static inline void stress_schedmix_waste_time(
 	int n;
 	int status;
 	pid_t pid;
-	double min1;
-	double min5;
-	double min15;
+	stress_load_average_info_t load_average_info;
 	struct tms tms_buf;
 #if defined(HAVE_GETRUSAGE) &&	\
     (defined(RUSAGE_SELF) || defined(RUSAGE_CHILDREN))
@@ -227,7 +225,7 @@ redo:
 		getpid();
 		break;
 	case 19:
-		VOID_RET(int, stress_load_average_get(&min1, &min5, &min15));
+		VOID_RET(int, stress_load_average_get(&load_average_info));
 		break;
 	case 20:
 		pid = fork();

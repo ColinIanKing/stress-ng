@@ -160,17 +160,14 @@ int32_t stress_ticks_per_second_get(void)
  *  stress_load_average_get()
  *	get load average
  */
-int stress_load_average_get(
-	double *min1,
-	double *min5,
-	double *min15)
+int stress_load_average_get(stress_load_average_info_t *load_average_info)
 {
 #if defined(HAVE_GETLOADAVG) &&	\
     !defined(__UCLIBC__)
 	int rc;
 	double loadavg[3];
 
-	if (UNLIKELY(!min1 || !min5 || !min15))
+	if (UNLIKELY(!load_average_info))
 		return -1;
 
 	loadavg[0] = 0.0;
@@ -181,9 +178,9 @@ int stress_load_average_get(
 	if (UNLIKELY(rc < 0))
 		goto fail;
 
-	*min1 = loadavg[0];
-	*min5 = loadavg[1];
-	*min15 = loadavg[2];
+	load_average_info->min1 = loadavg[0];
+	load_average_info->min5 = loadavg[1];
+	load_average_info->min15 = loadavg[2];
 
 	return 0;
 fail:
@@ -193,25 +190,25 @@ fail:
 	struct sysinfo info;
 	const double scale = 1.0 / (double)(1 << SI_LOAD_SHIFT);
 
-	if (UNLIKELY(!min1 || !min5 || !min15))
+	if (UNLIKELY(!load_average_info))
 		return -1;
 
 	if (UNLIKELY(sysinfo(&info) < 0))
 		goto fail;
 
-	*min1 = info.loads[0] * scale;
-	*min5 = info.loads[1] * scale;
-	*min15 = info.loads[2] * scale;
+	load_average_info->min1 = info.loads[0] * scale;
+	load_average_info->min5 = info.loads[1] * scale;
+	load_average_info->min15 = info.loads[2] * scale;
 
 	return 0;
 fail:
 #else
-	if (UNLIKELY(!min1 || !min5 || !min15))
+	if (UNLIKELY(!load_average_info))
 		return -1;
 #endif
-	*min1 = 0.0;
-	*min5 = 0.0;
-	*min15 = 0.0;
+	load_average_info->min1 = 0.0;
+	load_average_info->min5 = 0.0;
+	load_average_info->min15 = 0.0;
 	return -1;
 }
 

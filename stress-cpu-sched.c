@@ -855,11 +855,11 @@ again:
 
 		counter++;
 		if (counter & 0x1ff) {
-			double min1, min5, min15;
+			stress_load_average_info_t load_average_info;
 			static bool get_load_avg = true;
 
 			if (get_load_avg) {
-				if (stress_load_average_get(&min1, &min5, &min15) < 0)
+				if (stress_load_average_get(&load_average_info) < 0)
 					get_load_avg = false;
 			}
 		}

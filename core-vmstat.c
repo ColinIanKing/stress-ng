@@ -1261,9 +1261,7 @@ void stress_vmstat_start(void)
 
 		if (thermalstat_delay == thermalstat_sleep) {
 			stress_cpu_freq_info_t cpu_freq_info;
-			double min1;
-			double min5;
-			double min15;
+			stress_load_average_info_t load_average_info;
 			size_t therms_len = 1 + (tz_num * 7);
 			char *therms;
 			char cpuspeed[19];
@@ -1300,12 +1298,14 @@ void stress_vmstat_start(void)
 					ptr += 7;
 				}
 #endif
-				if (stress_load_average_get(&min1, &min5, &min15) < 0)  {
+				if (stress_load_average_get(&load_average_info) < 0)  {
 					pr_inf("therm: %18s %5.5s %5.5s %5.5s %s\n",
 						cpuspeed, "n/a", "n/a", "n/a", therms);
 				} else {
 					pr_inf("therm: %5s %5.2f %5.2f %5.2f %s\n",
-						cpuspeed, min1, min5, min15, therms);
+						cpuspeed, load_average_info.min1,
+						load_average_info.min5, load_average_info.min15,
+						therms);
 				}
 				pr_block_end();
 				free(therms);

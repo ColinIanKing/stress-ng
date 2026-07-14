@@ -28,13 +28,19 @@
  */
 #define stress_warn_once()	stress_warn_once_hash(__FILE__, __LINE__)
 
+typedef struct stress_load_average_info {
+	double min1;
+	double min5;
+	double min15;
+} stress_load_average_info_t;
+
 extern const char ALIGN64 stress_ascii64[64];
 extern const char ALIGN64 stress_ascii32[32];
 
 extern WARN_UNUSED int32_t stress_cpus_online_get(void);
 extern WARN_UNUSED int32_t stress_cpus_configured_get(void);
 extern WARN_UNUSED int32_t stress_ticks_per_second_get(void);
-extern WARN_UNUSED int stress_load_average_get(double *min1, double *min5, double *min15);
+extern WARN_UNUSED int stress_load_average_get(stress_load_average_info_t *load_average_info);
 extern void stress_parent_died_alarm(void);
 extern int stress_process_dumpable(const bool dumpable);
 extern void stress_timer_slack_set(const bool check_zero);

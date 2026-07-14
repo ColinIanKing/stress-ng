@@ -130,9 +130,7 @@ void stress_mwc_reseed(void)
 	} else {
 		struct timeval tv;
 		struct rusage r;
-		double m1;
-		double m5;
-		double m15;
+		stress_load_average_info_t load_average_info;
 		union {
 			double d_now;
 			uint64_t u64_now;
@@ -150,9 +148,9 @@ void stress_mwc_reseed(void)
 			mwc.z ^= (uint64_t)tv.tv_sec ^ (uint64_t)tv.tv_usec;
 		mwc.z += ~(p1 - p2);
 		mwc.w += shim_rol64n((uint64_t)getpid(), 3) ^ shim_rol64n((uint64_t)getppid(), 1);
-		if (stress_load_average_get(&m1, &m5, &m15) == 0) {
-			mwc.z += (uint64_t)(128.0 * (m1 + m15));
-			mwc.w += (uint64_t)(256.0 * m5);
+		if (stress_load_average_get(&load_average_info) == 0) {
+			mwc.z += (uint64_t)(128.0 * (load_average_info.min1 + load_average_info.min15));
+			mwc.w += (uint64_t)(256.0 * load_average_info.min5);
 		}
 		if (getrusage(RUSAGE_SELF, &r) == 0) {
 			mwc.z += r.ru_utime.tv_usec;
