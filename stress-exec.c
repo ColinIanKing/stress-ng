@@ -844,8 +844,8 @@ static int stress_exec(stress_args_t *args)
     defined(O_PATH)
 	fdexec = open(exec_prog, O_PATH);
 	if (fdexec < 0) {
-		pr_fail("%s: open O_PATH on /proc/self/exe failed, errno=%d (%s)\n",
-			args->name, errno, strerror(errno));
+		pr_fail("%s: open O_PATH on %s failed, errno=%d (%s)\n",
+			args->name, exec_prog, errno, strerror(errno));
 		rc = EXIT_FAILURE;
 		goto err_rm;
 	}
