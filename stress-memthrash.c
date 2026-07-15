@@ -372,10 +372,8 @@ static void OPTIMIZE3 TARGET_CLONES stress_memthrash_copy128nt(
 	size_t end_offset = sizeof(*ptr) * 16;
 	register const __uint128_t *end = (__uint128_t *)(((uintptr_t)mem) + mem_size - end_offset);
 
-	(void)context;
-
 	if (!stress_cpu_x86_has_sse4_1())
-		return;
+		stress_memthrash_copy128(context, mem_size);
 
 	while (LIKELY(ptr < end)) {
 		register __uint128_t r0, r1, r2, r3, r4, r5, r6, r7;
