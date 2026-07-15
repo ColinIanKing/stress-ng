@@ -349,6 +349,60 @@ static void OPTIMIZE3 TARGET_CLONES stress_memthrash_copy128(
 }
 #endif
 
+#if defined(HAVE_INT128_T) && defined(HAVE_ASM_X86_MOVNTDQA)
+#define MEMTHRASH_LOAD128(addr)		stress_asm_movntdqa((addr))
+#else
+#define MEMTHRASH_LOAD128(addr)		(*addr)
+#endif
+
+#if defined(HAVE_NT_STORE128)
+#define MEMTHRASH_STORE128(addr, val) 	stress_nt_store128((addr), (val))
+#else
+#define MEMTHRASH_STORE128(addr, val)	(*addr) = (val)
+#endif
+
+#if defined(HAVE_INT128_T) &&		\
+    (defined(HAVE_ASM_X86_MOVNTDQA) ||	\
+     defined(HAVE_NT_STORE128))
+static void OPTIMIZE3 TARGET_CLONES stress_memthrash_copy128nt(
+	const stress_memthrash_context_t *context,
+	const size_t mem_size)
+{
+	__uint128_t *ptr = (__uint128_t *)mem;
+	size_t end_offset = sizeof(*ptr) * 16;
+	register const __uint128_t *end = (__uint128_t *)(((uintptr_t)mem) + mem_size - end_offset);
+
+	(void)context;
+
+	if (!stress_cpu_x86_has_sse4_1())
+		return;
+
+	while (LIKELY(ptr < end)) {
+		register __uint128_t r0, r1, r2, r3, r4, r5, r6, r7;
+
+		r0 = MEMTHRASH_LOAD128(ptr + 8);
+		r1 = MEMTHRASH_LOAD128(ptr + 9);
+		r2 = MEMTHRASH_LOAD128(ptr + 10);
+		r3 = MEMTHRASH_LOAD128(ptr + 11);
+		r4 = MEMTHRASH_LOAD128(ptr + 12);
+		r5 = MEMTHRASH_LOAD128(ptr + 13);
+		r6 = MEMTHRASH_LOAD128(ptr + 14);
+		r7 = MEMTHRASH_LOAD128(ptr + 15);
+
+		MEMTHRASH_STORE128(ptr + 0, r0);
+		MEMTHRASH_STORE128(ptr + 1, r1);
+		MEMTHRASH_STORE128(ptr + 2, r2);
+		MEMTHRASH_STORE128(ptr + 3, r3);
+		MEMTHRASH_STORE128(ptr + 4, r4);
+		MEMTHRASH_STORE128(ptr + 5, r5);
+		MEMTHRASH_STORE128(ptr + 6, r6);
+		MEMTHRASH_STORE128(ptr + 7, r7);
+
+		ptr += 8;
+	}
+}
+#endif
+
 static void OPTIMIZE3 stress_memthrash_flip_mem(
 	const stress_memthrash_context_t *context,
 	const size_t mem_size)
@@ -752,6 +806,11 @@ static const stress_memthrash_method_info_t memthrash_methods[] = {
 	{ "chunkpage",	stress_memthrash_random_chunkpage },
 #if defined(HAVE_INT128_T)
 	{ "copy128",	stress_memthrash_copy128 },
+#endif
+#if defined(HAVE_INT128_T) &&		\
+    (defined(HAVE_ASM_X86_MOVNTDQA) ||	\
+     defined(HAVE_NT_STORE128))
+	{ "copy128nt",	stress_memthrash_copy128nt },
 #endif
 	{ "flip",	stress_memthrash_flip_mem },
 #if defined(HAVE_ASM_X86_CLFLUSH)
