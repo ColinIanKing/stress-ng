@@ -794,6 +794,7 @@ const struct option stress_long_options[] = {
 	{ "pagemove-numa",	0,	NULL,	OPT_pagemove_numa },
 	{ "pagemove-ops",	1,	NULL,	OPT_pagemove_ops },
 	{ "pagescatter",	1,	NULL,	OPT_pagescatter },
+	{ "pagescatter-numa",	0,	NULL,   OPT_pagescatter_numa },
 	{ "pagescatter-order",	1,	NULL,	OPT_pagescatter_order },
 	{ "pagescatter-ops",	1,	NULL,	OPT_pagescatter_ops },
 	{ "pagescatter-populate",0,	NULL,	OPT_pagescatter_populate },

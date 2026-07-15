@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, may be w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "10 July 2026"
+.TH STRESS-NG 1 "15 July 2026"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -7370,6 +7370,10 @@ unmapped. This exercises page table traversal, the Translation Lookaside
 Buffer (TLB) and general page handling.  The rate of these operations is
 also reported for the first stressor instance across the range of batches
 of single mappings.
+.TP
+.B \-\-pagescatter\-numa
+assign memory mapped pages to NUMA nodes using a round-robin node selection.
+This is disabled for systems that do not support NUMA.
 .TP
 .B \-\-pagescatter\-ops N
 stop after N bogo page mmapping operations.

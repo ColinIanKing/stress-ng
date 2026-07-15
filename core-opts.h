@@ -1147,6 +1147,7 @@ typedef enum {
 	OPT_pagemove_ops,
 
 	OPT_pagescatter,
+	OPT_pagescatter_numa,
 	OPT_pagescatter_order,
 	OPT_pagescatter_ops,
 	OPT_pagescatter_populate,

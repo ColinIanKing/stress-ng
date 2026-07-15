@@ -35,8 +35,9 @@
 #define SCATTER_READ			(1)
 #define SCATTER_WRITE			(2)
 #define SCATTER_MPROTECT		(3)
-#define SCATTER_MUNMAP			(4)
-#define SCATTER_MAX			(5)
+#define SCATTER_MBIND			(4)
+#define SCATTER_MUNMAP			(5)
+#define SCATTER_MAX			(6)
 
 /* per scatter run duration and activity count */
 typedef struct rate {
@@ -50,7 +51,12 @@ typedef struct {
 	size_t n_pages;		/* number of pages = 2^order */
 	size_t order;		/* log2 of n_pages */
 	size_t mapped;		/* number of pages successfully mmap'd */
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+	stress_numa_mask_t *numa_mask;
+	stress_numa_mask_t *numa_nodes;
+#endif
 	bool populate;		/* true - use MAP_POPULATE */
+	bool numa;		/* true - use NUMA mbind */
 	/*
 	 *  rates[n] represent times of 0..2^n pages
 	 */
@@ -59,6 +65,7 @@ typedef struct {
 
 static const stress_help_t help[] = {
 	{ NULL,	"pagescatter N",        "start N workers that allocate pages at random addresses" },
+	{ NULL, "pagescatter-numa",     "move pages to randomly chosen NUMA nodes" },
 	{ NULL,	"pagescatter-ops N",	"stop after N page operations" },
 	{ NULL, "pagescatter-order N",	"log2 number of pages to use" },
 	{ NULL, "pagescatter-populate", "prefault pages during page mapping" },
@@ -71,10 +78,12 @@ static const char *const scatter_types[] = {
 	"read",
 	"write",
 	"mprotect",
+	"mbind",
 	"munmap",
 };
 
 static const stress_opt_t opts[] = {
+	{ OPT_pagescatter_numa,     "pagescatter-numa",     TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_pagescatter_order,    "pagescatter-order",    TYPE_ID_SIZE_T, 0, MAX_SCATTER_PAGES_LOG2, NULL },
 	{ OPT_pagescatter_populate, "pagescatter-populate", TYPE_ID_BOOL, 0, 1, NULL },
 	END_OPT,
@@ -268,6 +277,42 @@ static inline OPTIMIZE3 void stress_pagescatter_pages_mprotect(
 	info->rate[idx].count[SCATTER_MPROTECT] += count;
 }
 
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+/*
+ *  stress_pagescatter_pages_mbind()
+ *      mbind the pages for --pagescatter-numa option
+ */
+static inline OPTIMIZE3 void stress_pagescatter_pages_mbind(
+	const size_t idx,
+	scatter_page_info_t *info,
+	const size_t n_pages,
+	const size_t page_size)
+{
+	size_t i;
+	size_t count = 0;
+	double t;
+	long int node = 0;
+	stress_numa_mask_t *numa_mask = info->numa_mask;
+	stress_numa_mask_t *numa_nodes = info->numa_nodes;
+
+	(void)shim_memset(info->numa_mask->mask, 0x00, info->numa_mask->mask_size);
+
+	t = stress_time_now();
+	for (i = 0; i < n_pages; i++) {
+		node = stress_numa_next_node(node, numa_nodes);
+
+		STRESS_SETBIT(numa_mask->mask, node);
+		(void)shim_mbind((void *)info->pages[i], page_size,
+				MPOL_BIND, numa_mask->mask,
+				numa_mask->max_nodes, MPOL_MF_STRICT);
+		STRESS_CLRBIT(numa_mask->mask, node);
+		count++;
+	}
+	info->rate[idx].duration[SCATTER_MBIND] += stress_time_now() - t;
+	info->rate[idx].count[SCATTER_MBIND] += count;
+}
+#endif
+
 /*
  *  stress_pagescatter_pages()
  *	exercise pages
@@ -312,6 +357,10 @@ static size_t OPTIMIZE3 stress_pagescatter_pages(
 		stress_pagescatter_pages_write(idx, info, n_pages, page_size);
 		stress_pagescatter_pages_read(idx, info, n_pages, page_size);
 		stress_pagescatter_pages_mprotect(idx, info, n_pages, page_size);
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+		if (info->numa)
+			stress_pagescatter_pages_mbind(idx, info, n_pages, page_size);
+#endif
 	}
 	if (info->mapped) {
 		duration = 0.0;
@@ -418,7 +467,24 @@ static int stress_pagescatter(stress_args_t *args)
 			info->order = 0;
 
 	}
+	(void)stress_setting_get("pagescatter-numa", &info->numa);
 	(void)stress_setting_get("pagescatter-populate", &info->populate);
+
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+	info->numa_mask = NULL;
+	info->numa_nodes = NULL;
+#endif
+
+	if (info->numa) {
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+		stress_numa_mask_and_node_alloc(args, &info->numa_nodes, &info->numa_mask, "---pagescatter-numa", &info->numa);
+#else
+		if (stress_instance_zero(args))
+			pr_inf("%s: --pagescatter-numa selected but not supported by this system, disabling option\n",
+				args->name);
+			info->numa = false;
+#endif
+	}
 
 	/*
 	 *   work within the free memory limits
@@ -474,8 +540,8 @@ static int stress_pagescatter(stress_args_t *args)
 	if (info->pages == MAP_FAILED) {
 		pr_inf_skip("%s: mmap failed allocating %zu bytes, errno=%d (%s), skipping stressor\n",
 			args->name, info->pages_sz, errno, strerror(errno));
-		(void)munmap((void *)info, sizeof(*info));
-		return EXIT_NO_RESOURCE;
+		rc = EXIT_NO_RESOURCE;
+		goto unmap_info;
 	}
 
 	for (i = 0; i <= info->order; i++) {
@@ -526,6 +592,14 @@ static int stress_pagescatter(stress_args_t *args)
 	}
 
 	(void)munmap((void *)info->pages, info->pages_sz);
+
+unmap_info:
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+	if (info->numa_mask)
+		stress_numa_mask_free(info->numa_mask);
+	if (info->numa_nodes)
+		stress_numa_mask_free(info->numa_nodes);
+#endif
 	(void)munmap((void *)info, sizeof(*info));
 
 	return rc;
