@@ -194,7 +194,11 @@ static inline ssize_t stress_race_fd_send(const int fd, const int fd_send)
 
 	ptr = (int *)(uintptr_t)CMSG_DATA(cmsg);
 	*ptr = fd_send;
+#if defined(MSG_NOSIGNAL)
+	return sendmsg(fd, &msg, MSG_NOSIGNAL);
+#else
 	return sendmsg(fd, &msg, 0);
+#endif
 }
 
 /*
