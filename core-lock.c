@@ -143,11 +143,11 @@ typedef struct stress_lock {
 
 typedef struct stress_lock_funcs {
 	const char *type;
-	int (*init)(struct stress_lock *lock);
-	int (*deinit)(struct stress_lock *lock);
-	int (*acquire)(struct stress_lock *lock);
-	int (*acquire_relax)(struct stress_lock *lock);
-	int (*release)(struct stress_lock *lock);
+	int (*init)(stress_lock_t *lock);
+	int (*deinit)(stress_lock_t *lock);
+	int (*acquire)(stress_lock_t *lock);
+	int (*acquire_relax)(stress_lock_t *lock);
+	int (*release)(stress_lock_t *lock);
 } stress_lock_funcs_t;
 
 static stress_lock_t *stress_locks;
