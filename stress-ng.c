@@ -1688,7 +1688,7 @@ static int MLOCKED_TEXT stress_child_run(
 		(void)alarm((unsigned int)g_opt_timeout);
 	args = &stats->args;
 	if (stress_continue_flag() && !(g_opt_flags & OPT_FLAGS_DRY_RUN)) {
-		const struct stressor_info *info = g_item_current->stressor->info;
+		const stressor_info_t *info = g_item_current->stressor->info;
 
 		/* note: set args in same order as stress_args_t */
 		args->bogo.max_ops = g_item_current->bogo_max_ops ?
