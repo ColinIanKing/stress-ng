@@ -106,7 +106,7 @@ static int stress_watchdog(stress_args_t *args)
 {
 	int ret;
 	size_t i;
-	NOCLOBBER int rc = EXIT_SUCCESS;
+	CLOBBERED int rc = EXIT_SUCCESS;
 
 	fd = -1;
 	for (i = 0; i < SIZEOF_ARRAY(sigs); i++) {

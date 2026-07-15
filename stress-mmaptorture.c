@@ -395,17 +395,17 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 	const pid_t mypid = getpid();
 #endif
 	char *data;
-	NOCLOBBER uint32_t mmaptorture_msync = DEFAULT_MMAPTORTURE_MSYNC;
-	NOCLOBBER mmap_info_t *mappings;
-	NOCLOBBER off_t mmap_fd_offset = 0;
+	CLOBBERED uint32_t mmaptorture_msync = DEFAULT_MMAPTORTURE_MSYNC;
+	mmap_info_t * CLOBBERED mappings;
+	CLOBBERED off_t mmap_fd_offset = 0;
 #if defined(HAVE_LINUX_MEMPOLICY_H)
-	NOCLOBBER stress_numa_mask_t *numa_mask = NULL;
-	NOCLOBBER stress_numa_mask_t *numa_nodes = NULL;
+	stress_numa_mask_t * CLOBBERED numa_mask = NULL;
+	stress_numa_mask_t * CLOBBERED numa_nodes = NULL;
 #endif
 	size_t i;
 	(void)context;
 
-	if (!stress_setting_get("mmaptorture-msync", &mmaptorture_msync)) {
+	if (!stress_setting_get("mmaptorture-msync", UNCLOBBER(&mmaptorture_msync))) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			mmaptorture_msync = MAX_MMAPTORTURE_MSYNC;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
@@ -458,12 +458,12 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 
 	do {
 		unsigned char vec[MMAP_SIZE_MAP];
-		NOCLOBBER uint8_t *ptr;
-		NOCLOBBER size_t n;
-		NOCLOBBER size_t mmap_size;
-		NOCLOBBER pid_t pid = -1;
-		NOCLOBBER uint64_t total_bytes = 0;
-		NOCLOBBER off_t offset;
+		uint8_t * CLOBBERED ptr;
+		CLOBBERED size_t n;
+		CLOBBERED size_t mmap_size;
+		CLOBBERED pid_t pid = -1;
+		CLOBBERED uint64_t total_bytes = 0;
+		CLOBBERED off_t offset;
 		bool random_offset;
 
 		if (sigsetjmp(jmp_env, 1))

@@ -197,8 +197,8 @@ static void *stress_far_mmap(
 	const uintptr_t base,		/* Base address (stress_far_branch) */
 	size_t offset, 			/* Desired offset from base */
 	stress_ret_func_t *funcs,	/* Array of function pointers */
-	size_t *total_funcs,		/* Total number of functions */
-	size_t *total_file_mapped_funcs)/* Total number of file mapped functions */
+	CLOBBERED size_t *total_funcs,	/* Total number of functions */
+	CLOBBERED size_t *total_file_mapped_funcs)/* Total number of file mapped functions */
 {
 	uint8_t *ptr = (uint8_t *)MAP_FAILED;
 	uintptr_t addr = (uintptr_t)NULL;
@@ -378,15 +378,15 @@ static int OPTIMIZE3 stress_far_branch(stress_args_t *args)
 	double rate;
 	struct sigaction sa;
 	int ret, fd;
-	NOCLOBBER stress_ret_func_t *funcs = NULL;
-	NOCLOBBER void **pages = NULL;
-	NOCLOBBER size_t total_funcs = 0;
-	NOCLOBBER size_t total_file_mapped_funcs = 0;
-	NOCLOBBER size_t n_pages_failed = 0;
-	NOCLOBBER size_t n_pages_mapped = 0;
-	NOCLOBBER double calls = 0.0;
-	NOCLOBBER bool far_branch_flush = false;
-	NOCLOBBER bool far_branch_pageout = false;
+	stress_ret_func_t * CLOBBERED funcs = NULL;
+	void ** CLOBBERED pages = NULL;
+	CLOBBERED size_t total_funcs = 0;
+	CLOBBERED size_t total_file_mapped_funcs = 0;
+	CLOBBERED size_t n_pages_failed = 0;
+	CLOBBERED size_t n_pages_mapped = 0;
+	CLOBBERED double calls = 0.0;
+	CLOBBERED bool far_branch_flush = false;
+	CLOBBERED bool far_branch_pageout = false;
 	char filename[PATH_MAX];
 
 	ret = stress_fs_temp_dir_make_args(args);
@@ -402,8 +402,8 @@ static int OPTIMIZE3 stress_far_branch(stress_args_t *args)
 	}
 	(void)shim_unlink(filename);
 
-	(void)stress_setting_get("far-branch-flush", &far_branch_flush);
-	(void)stress_setting_get("far-branch-pageout", &far_branch_pageout);
+	(void)stress_setting_get("far-branch-flush", UNCLOBBER(&far_branch_flush));
+	(void)stress_setting_get("far-branch-pageout", UNCLOBBER(&far_branch_pageout));
 	if (!stress_setting_get("far-branch-pages", &n_pages)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			n_pages = MAX_FAR_BRANCH_PAGES;

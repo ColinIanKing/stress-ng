@@ -123,14 +123,14 @@ static int stress_bigheap_child(stress_args_t *args, void *context)
 {
 	uint64_t bigheap_growth = DEFAULT_BIGHEAP_GROWTH;
 	size_t bigheap_bytes = DEFAULT_BIGHEAP_BYTES;
-	NOCLOBBER uintptr_t *ptr = NULL;
-	NOCLOBBER const uintptr_t *last_ptr = NULL;
-	NOCLOBBER uintptr_t *last_ptr_end = NULL;
-	NOCLOBBER size_t size = 0;
-	NOCLOBBER size_t stride;
-	NOCLOBBER double duration = 0.0;
-	NOCLOBBER double count = 0.0;
-	NOCLOBBER bool segv_reported = false;
+	uintptr_t * CLOBBERED ptr = NULL;
+	const uintptr_t * CLOBBERED last_ptr = NULL;
+	uintptr_t * CLOBBERED last_ptr_end = NULL;
+	CLOBBERED size_t size = 0;
+	CLOBBERED size_t stride;
+	CLOBBERED double duration = 0.0;
+	CLOBBERED double count = 0.0;
+	CLOBBERED bool segv_reported = false;
 	const size_t page_size = args->page_size;
 	double rate;
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
@@ -139,7 +139,7 @@ static int stress_bigheap_child(stress_args_t *args, void *context)
 	bool bigheap_mlock = false;
 	struct sigaction action;
 	int ret;
-	NOCLOBBER int rc = EXIT_SUCCESS;
+	CLOBBERED int rc = EXIT_SUCCESS;
 
 	stride = (g_opt_flags & OPT_FLAGS_AGGRESSIVE) ? sizeof(uintptr_t) : page_size;
 	fault_addr = NULL;

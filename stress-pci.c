@@ -305,12 +305,12 @@ static void stress_pci_rate(const stress_metrics_t *metrics, char *str, const si
  */
 static int stress_pci(stress_args_t *args)
 {
-	NOCLOBBER stress_pci_info_t *pci_info_list;
-	NOCLOBBER stress_pci_info_t *pci_info;
+	stress_pci_info_t * CLOBBERED pci_info_list;
+	stress_pci_info_t * CLOBBERED pci_info;
 	int ret;
 	uint32_t pci_ops_rate = 0;	/* zero = unlimited */
 	double t_start;
-	NOCLOBBER double t_delta;
+	CLOBBERED double t_delta;
 
 	(void)stress_setting_get("pci-ops-rate", &pci_ops_rate);
 	t_delta = pci_ops_rate > 0 ? (double)args->instances / (double)pci_ops_rate : 0.0;

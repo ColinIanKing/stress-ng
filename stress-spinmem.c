@@ -223,10 +223,10 @@ static void stress_spinmem_numa(
  */
 static int stress_spinmem(stress_args_t *args)
 {
-	NOCLOBBER int rc = EXIT_SUCCESS;
-	NOCLOBBER pid_t pid = -1;
-	NOCLOBBER double duration = 0.0;
-	NOCLOBBER double count = 0.0;
+	CLOBBERED int rc = EXIT_SUCCESS;
+	CLOBBERED pid_t pid = -1;
+	CLOBBERED double duration = 0.0;
+	CLOBBERED double count = 0.0;
 	uint8_t *mapping;
 	double rate;
 	size_t spinmem_method = 2; /* 32bit default */

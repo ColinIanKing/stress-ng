@@ -1794,22 +1794,22 @@ static void OPTIMIZE3 stress_cachehammer_exercise(stress_args_t *args)
  */
 static int OPTIMIZE3 stress_cachehammer(stress_args_t *args)
 {
-	NOCLOBBER int ret = EXIT_SUCCESS;
-	NOCLOBBER int fd;
+	CLOBBERED int ret = EXIT_SUCCESS;
+	CLOBBERED int fd;
 	uint8_t *const buffer = g_shared->mem_cache.buffer;
 	const size_t buffer_size = (size_t)g_shared->mem_cache.size;
 	size_t i;
 	size_t j;
 	size_t cachehammer_method = CACHEHAMMER_METHOD_RANDOM;
-	NOCLOBBER size_t tries = 0;
+	CLOBBERED size_t tries = 0;
 	char buf[1024];
 	double mantissa;
 	uint64_t exponent;
 	int *permutations = NULL;
-	NOCLOBBER size_t n_permutations = 0;
-	NOCLOBBER size_t permutation = 0;
-	NOCLOBBER size_t max_flags = 0;
-	NOCLOBBER size_t permutations_exercised = 0;
+	CLOBBERED size_t n_permutations = 0;
+	CLOBBERED size_t permutation = 0;
+	CLOBBERED size_t max_flags = 0;
+	CLOBBERED size_t permutations_exercised = 0;
 
 	(void)shim_memset(&ctxt, 0, sizeof(ctxt));
 	ctxt.cachehammer_numa = false;

@@ -272,11 +272,11 @@ static int stress_fork_fn(
 	const int mode)
 {
 	static fork_info_t info[MAX_FORKS] ALIGN64;
-	NOCLOBBER uint32_t j;
+	CLOBBERED uint32_t j;
 #if defined(__linux__)
-	NOCLOBBER bool remove_reduced = false;
+	CLOBBERED bool remove_reduced = false;
 #endif
-	NOCLOBBER int rc = EXIT_SUCCESS;
+	CLOBBERED int rc = EXIT_SUCCESS;
 
 	stress_set_oom_adjustment(args, true);
 #if defined(__linux__)
@@ -297,9 +297,9 @@ static int stress_fork_fn(
 
 	j = args->instance;
 	do {
-		NOCLOBBER uint32_t i;
-		NOCLOBBER uint32_t n;
-		NOCLOBBER const char *fork_fn_name;
+		CLOBBERED uint32_t i;
+		CLOBBERED uint32_t n;
+		const char * CLOBBERED fork_fn_name = NULL;
 
 		(void)shim_memset(info, 0, sizeof(info));
 

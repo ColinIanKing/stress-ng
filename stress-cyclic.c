@@ -630,12 +630,12 @@ static int stress_cyclic(stress_args_t *args)
 #endif
 	struct rlimit rlim;
 	pid_t pid;
-	NOCLOBBER uint64_t timeout;
+	CLOBBERED uint64_t timeout;
 	uint64_t cyclic_sleep = DEFAULT_DELAY_NS;
 	uint64_t cyclic_dist = 0;
 	int32_t cyclic_prio = INT32_MAX;
 	size_t cyclic_samples = DEFAULT_SAMPLES;
-	NOCLOBBER int policy;
+	CLOBBERED int policy;
 	int rc = EXIT_SUCCESS;
 #if defined(SCHED_FIFO)
 	size_t cyclic_policy = stress_cyclic_find_policy(SCHED_FIFO);
@@ -784,9 +784,9 @@ again:
 	} else if (pid == 0) {
 #if defined(HAVE_SCHED_GET_PRIORITY_MIN) &&	\
     defined(HAVE_SCHED_GET_PRIORITY_MAX)
-		NOCLOBBER pid_t mypid;
+		CLOBBERED pid_t mypid;
 #endif
-		NOCLOBBER int ncrc = EXIT_FAILURE;
+		CLOBBERED int ncrc = EXIT_FAILURE;
 
 #if defined(HAVE_SCHED_GET_PRIORITY_MIN) &&	\
     defined(HAVE_SCHED_GET_PRIORITY_MAX)

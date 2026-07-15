@@ -255,7 +255,7 @@ static int stress_softlockup(stress_args_t *args)
 	stress_pid_t *s_pids;
 	stress_pid_t *s_pids_head = NULL;
 	uint64_t loop_count;
-	NOCLOBBER uint64_t timeout;
+	CLOBBERED uint64_t timeout;
 	size_t policy = 0;
 	const uint32_t cpus_online = (uint32_t)stress_cpus_online_get();
 	uint32_t i;

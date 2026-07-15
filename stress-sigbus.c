@@ -96,13 +96,13 @@ static int stress_sigbus(stress_args_t *args)
 	int fd;
 	char filename[PATH_MAX];
 	const char *fs_type;
-	NOCLOBBER uint8_t *ptr;
-	NOCLOBBER int rc = EXIT_FAILURE;
+	uint8_t * CLOBBERED ptr;
+	CLOBBERED int rc = EXIT_FAILURE;
 	const size_t page_size = args->page_size;
 #if defined(SA_SIGINFO)
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 #endif
-	NOCLOBBER double time_start;
+	CLOBBERED double time_start;
 	struct sigaction action;
 
 	ret = stress_fs_temp_dir_make_args(args);

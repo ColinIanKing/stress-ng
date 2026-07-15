@@ -863,8 +863,8 @@ static void NORETURN MLOCKED_TEXT stress_filerace_mmap_sigbus_handler(int signum
 
 static void stress_filerace_mmap(const int fd, const char *filename)
 {
-	NOCLOBBER void *ptr;
-	NOCLOBBER size_t mmap_size;
+	void * CLOBBERED ptr;
+	CLOBBERED size_t mmap_size;
 	off_t offset;
 	struct sigaction new_action, old_sigbus_action, old_sigsegv_action;
 

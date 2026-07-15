@@ -208,7 +208,7 @@ static void stress_exec_free_pid_list(const stress_pid_hash_t *sph)
  */
 static stress_pid_hash_t *stress_exec_alloc_pid(const bool alloc_stack)
 {
-	NOCLOBBER stress_pid_hash_t *sph;
+	stress_pid_hash_t * CLOBBERED sph;
 
 	/* Any on the free list, reuse these */
 	if (free_list) {
@@ -855,8 +855,8 @@ static int stress_exec(stress_args_t *args)
 	stress_proc_state_set(args->name, STRESS_STATE_RUN);
 
 	do {
-		NOCLOBBER uint32_t i;
-		NOCLOBBER uint32_t reap_count = 0;
+		CLOBBERED uint32_t i;
+		CLOBBERED uint32_t reap_count = 0;
 		pid_t pid;
 
 		for (i = 0; i < exec_max; i++) {
@@ -866,7 +866,7 @@ static int stress_exec(stress_args_t *args)
 #else
 			const bool alloc_stack = false;
 #endif
-			NOCLOBBER stress_pid_hash_t *sph;
+			stress_pid_hash_t * CLOBBERED sph;
 
 			if (UNLIKELY(!stress_continue_flag()))
 				break;

@@ -200,7 +200,7 @@ static int stress_radixsort(stress_args_t *args)
 	int n;
 	int i;
 	size_t radixsort_method = 0;
-	NOCLOBBER int rc = EXIT_SUCCESS;
+	CLOBBERED int rc = EXIT_SUCCESS;
 #if defined(HAVE_SIGLONGJMP)
 	struct sigaction old_action;
 	int ret;

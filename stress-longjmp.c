@@ -64,7 +64,7 @@ static int OPTIMIZE1 stress_longjmp(stress_args_t *args)
 	static uint32_t check1;
 	static double t_total;
 	static uint64_t n = 0;
-	NOCLOBBER int rc = EXIT_SUCCESS;
+	CLOBBERED int rc = EXIT_SUCCESS;
 
 	/* assume OK unless proven otherwise */
 	longjmp_failed = false;

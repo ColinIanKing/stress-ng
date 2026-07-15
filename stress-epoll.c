@@ -676,13 +676,13 @@ static void NORETURN epoll_server(
 	const int epoll_sockets,
 	const int max_servers)
 {
-	NOCLOBBER int efd = -1;
-	NOCLOBBER int efd2 = -1;
-	NOCLOBBER int sfd = -1;
-	NOCLOBBER int rc = EXIT_SUCCESS;
+	CLOBBERED int efd = -1;
+	CLOBBERED int efd2 = -1;
+	CLOBBERED int sfd = -1;
+	CLOBBERED int rc = EXIT_SUCCESS;
 	int so_reuseaddr = 1;
 	const int port = epoll_port + child + (max_servers * (int)args->instance);
-	NOCLOBBER struct epoll_event *events = NULL;
+	struct epoll_event * CLOBBERED events = NULL;
 	struct sockaddr *addr = NULL;
 	socklen_t addr_len = 0;
 	const int bad_fd = stress_fs_bad_fd_get();

@@ -1053,7 +1053,7 @@ static const stress_get_func_t stress_get_funcs[] = {
  */
 static int stress_get(stress_args_t *args)
 {
-	NOCLOBBER int rc = EXIT_SUCCESS;
+	CLOBBERED int rc = EXIT_SUCCESS;
 	bool get_slow_sync = false;
 	size_t i = 0;
 

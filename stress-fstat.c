@@ -290,7 +290,7 @@ static int stress_fstat(stress_args_t *args)
 	stress_stat_info_t *si;
 	static stress_stat_info_t *stat_info;
 	const struct dirent *d;
-	NOCLOBBER int ret = EXIT_FAILURE;
+	CLOBBERED int ret = EXIT_FAILURE;
 	bool stat_some;
 	const uid_t euid = geteuid();
 	DIR *dp;

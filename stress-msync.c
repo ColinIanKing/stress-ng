@@ -95,15 +95,15 @@ static void MLOCKED_TEXT NORETURN stress_sigbus_handler(int signum)
  */
 static int stress_msync(stress_args_t *args)
 {
-	NOCLOBBER uint64_t *buf = NULL;
+	uint64_t * CLOBBERED buf = NULL;
 	uint64_t *data = NULL;
 	const size_t page_size = args->page_size;
 	const size_t min_size = 2 * page_size;
 	uint64_t msync_bytes, msync_bytes_total = DEFAULT_MSYNC_BYTES;
-	NOCLOBBER uint64_t sz;
+	CLOBBERED uint64_t sz;
 	ssize_t ret;
-	NOCLOBBER ssize_t rc = EXIT_SUCCESS;
-	NOCLOBBER int fd = -1;
+	CLOBBERED ssize_t rc = EXIT_SUCCESS;
+	CLOBBERED int fd = -1;
 	char filename[PATH_MAX];
 
 	ret = sigsetjmp(jmp_env, 1);

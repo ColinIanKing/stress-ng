@@ -389,9 +389,10 @@ do {				\
 #endif
 
 /*
- * making local static fixes clobbering warnings
+ * making auto variables volatile to stop clobbering warnings
  */
-#define NOCLOBBER static
+#define CLOBBERED	volatile
+#define UNCLOBBER(ptr) 	((void *)(uintptr_t)(ptr))
 
 #define STRESS_PROCS_MAX	(8192)		/* Max number of processes per stressor */
 

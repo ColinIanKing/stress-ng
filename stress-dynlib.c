@@ -120,8 +120,8 @@ static void NORETURN MLOCKED_TEXT stress_segvhandler(int signum)
 static int stress_dynlib(stress_args_t *args)
 {
 	void *handles[MAX_LIBNAMES];
-	NOCLOBBER double count = 0.0;
-	NOCLOBBER double duration = 0.0;
+	CLOBBERED double count = 0.0;
+	CLOBBERED double duration = 0.0;
 	double rate;
 
 	(void)shim_memset(handles, 0, sizeof(handles));

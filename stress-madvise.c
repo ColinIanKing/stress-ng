@@ -383,17 +383,17 @@ static int stress_madvise(stress_args_t *args)
 	const size_t page_size = args->page_size;
 	const pid_t pid = getpid();
 	int fd = -1;
-	NOCLOBBER size_t advice = 0;
-	NOCLOBBER int ret;
-	NOCLOBBER int num_mem_retries;
+	CLOBBERED size_t advice = 0;
+	CLOBBERED int ret;
+	CLOBBERED int num_mem_retries;
 	char filename[PATH_MAX];
 	char *page;
 	size_t n;
 	madvise_ctxt_t ctxt;
 #if defined(MADV_FREE)
-	NOCLOBBER uint64_t madv_frees_raced;
-	NOCLOBBER uint64_t madv_frees;
-	NOCLOBBER uint8_t madv_tries;
+	CLOBBERED uint64_t madv_frees_raced;
+	CLOBBERED uint64_t madv_frees;
+	CLOBBERED uint8_t madv_tries;
 #endif
 
 	(void)shim_memset(&ctxt, 0, sizeof(ctxt));
@@ -475,8 +475,8 @@ static int stress_madvise(stress_args_t *args)
 	stress_proc_state_set(args->name, STRESS_STATE_RUN);
 
 	do {
-		NOCLOBBER uint8_t *buf;
-		NOCLOBBER bool file_mapped;
+		uint8_t * CLOBBERED buf;
+		CLOBBERED bool file_mapped;
 
 		if (UNLIKELY(num_mem_retries >= NUM_MEM_RETRIES_MAX)) {
 			pr_err("%s: gave up trying to mmap, no available memory\n",

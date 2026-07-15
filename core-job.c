@@ -106,13 +106,13 @@ int stress_job_parse_file(
 	char **argv,
 	const char *jobfile)
 {
-	NOCLOBBER FILE *fp;
+	FILE * CLOBBERED fp;
 	char buf[4096];
 	char *new_argv[MAX_ARGS];
 	char txt[sizeof(buf)];
 	int ret;
 	uint32_t flag;
-	NOCLOBBER uint32_t lineno;
+	CLOBBERED uint32_t lineno;
 
 	lineno = 0;
 	(void)shim_memset(txt, 0, sizeof(txt));

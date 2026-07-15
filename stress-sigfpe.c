@@ -210,7 +210,7 @@ static int stress_sigfpe(stress_args_t *args)
 #if defined(STRESS_CHECK_SIGINFO)
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 #endif
-	NOCLOBBER int rc = EXIT_SUCCESS;
+	CLOBBERED int rc = EXIT_SUCCESS;
 
 	typedef struct {
 		unsigned int exception;

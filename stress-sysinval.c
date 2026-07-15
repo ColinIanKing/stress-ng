@@ -2461,11 +2461,12 @@ static void syscall_do_call(
 {
 	int ret;
 	const unsigned long int syscall_num = stress_syscall_arg->syscall;
-	NOCLOBBER unsigned long int hash;
-	stress_syscall_arg_hash_t *h = hash_table->table[hash];
+	CLOBBERED unsigned long int hash = 0;
+	stress_syscall_arg_hash_t *h;
 	struct itimerval it;
 
 	hash = stress_syscall_hash(syscall_num, current_context->args);
+	h = hash_table->table[hash];
 
 	while (h) {
 		if (!shim_memcmp(h->args, current_context->args, sizeof(h->args))) {

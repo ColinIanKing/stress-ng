@@ -1309,8 +1309,8 @@ static int stress_misaligned(stress_args_t *args)
 #endif
 #endif
 #if defined(HAVE_MISALIGNED_NUMA)
-	NOCLOBBER stress_numa_mask_t *numa_mask = NULL;
-	NOCLOBBER stress_numa_mask_t *numa_nodes = NULL;
+	stress_numa_mask_t * CLOBBERED numa_mask = NULL;
+	stress_numa_mask_t * CLOBBERED numa_nodes = NULL;
 	int numa_loop;
 #endif
 	(void)stress_setting_get("misaligned-method", &misaligned_method);

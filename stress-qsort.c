@@ -79,7 +79,7 @@ static inline bool OPTIMIZE3 stress_qsort_verify_forward(
 	stress_args_t *args,
 	const int32_t *data,
 	const size_t n,
-	int *rc)
+	CLOBBERED int *rc)
 {
 	if (g_opt_flags & OPT_FLAGS_VERIFY) {
 		register const int32_t *ptr = data;
@@ -110,7 +110,7 @@ static inline bool OPTIMIZE3 stress_qsort_verify_reverse(
 	stress_args_t *args,
 	const int32_t *data,
 	const size_t n,
-	int *rc)
+	CLOBBERED int *rc)
 {
 	if (g_opt_flags & OPT_FLAGS_VERIFY) {
 		register const int32_t *ptr = data;
@@ -149,10 +149,10 @@ static int OPTIMIZE3 stress_qsort(stress_args_t *args)
 	size_t data_size;
 	size_t qsort_method = 0;
 	double rate;
-	NOCLOBBER double duration = 0.0;
-	NOCLOBBER double count = 0.0;
-	NOCLOBBER double sorted = 0.0;
-	NOCLOBBER int rc = EXIT_SUCCESS;
+	CLOBBERED double duration = 0.0;
+	CLOBBERED double count = 0.0;
+	CLOBBERED double sorted = 0.0;
+	CLOBBERED int rc = EXIT_SUCCESS;
 	qsort_func_t qsort_func;
 #if defined(HAVE_SIGLONGJMP)
 	struct sigaction old_action;

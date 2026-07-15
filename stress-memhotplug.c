@@ -239,8 +239,8 @@ static int stress_memhotplug(stress_args_t *args)
 	const struct dirent *d;
 	stress_mem_info_t *mem_info;
 	size_t i;
-	NOCLOBBER size_t n = 0;
-	NOCLOBBER size_t max;
+	CLOBBERED size_t n = 0;
+	CLOBBERED size_t max;
 	stress_memhotplug_metrics_t metrics;
 	struct sigaction old_action;
 	double rate;

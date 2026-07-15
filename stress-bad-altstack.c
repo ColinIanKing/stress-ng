@@ -111,7 +111,7 @@ static int stress_bad_altstack_child(stress_args_t *args)
 #else
 	UNEXPECTED
 #endif
-	NOCLOBBER uint32_t rnd;
+	CLOBBERED uint32_t rnd;
 	int i;
 	int ret;
 	stack_t ss;

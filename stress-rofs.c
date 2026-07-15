@@ -864,7 +864,7 @@ static int stress_rofs_scandir(stress_args_t *args, const char *path, stress_rof
  */
 static int stress_rofs(stress_args_t *args)
 {
-	NOCLOBBER int ret = EXIT_FAILURE;
+	CLOBBERED int ret = EXIT_FAILURE;
 	size_t i;
 	int j;
 	char *paths[MOUNTS_MAX];

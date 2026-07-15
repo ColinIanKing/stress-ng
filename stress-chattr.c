@@ -113,18 +113,18 @@ static int do_chattr(
 	uint64_t *chattr_count)
 {
 	int i;
-	NOCLOBBER int rc = EXIT_SUCCESS;
+	CLOBBERED int rc = EXIT_SUCCESS;
 
 	for (i = 0; LIKELY((i < 128) && stress_continue(args)); i++) {
-		NOCLOBBER int fd;
-		NOCLOBBER int fdw;
+		CLOBBERED int fd;
+		CLOBBERED int fdw;
 		int ret;
 		unsigned long int zero = 0UL;
 		unsigned long int tmp;
 		unsigned long int check;
-		NOCLOBBER unsigned long int orig_flags;
-		NOCLOBBER unsigned int j;
-		NOCLOBBER uint8_t *page;
+		CLOBBERED unsigned long int orig_flags;
+		CLOBBERED unsigned int j;
+		uint8_t * CLOBBERED page;
 
 		fd = open(filename, O_RDWR | O_NONBLOCK | O_CREAT, S_IRUSR | S_IWUSR);
 		if (fd < 0)

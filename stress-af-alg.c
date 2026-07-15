@@ -1203,7 +1203,7 @@ static void stress_af_alg_dump_crypto_list(void)
 static int stress_af_alg(stress_args_t *args)
 {
 	int sockfd = -1;
-	NOCLOBBER int rc = EXIT_FAILURE;
+	CLOBBERED int rc = EXIT_FAILURE;
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 	int retries = MAX_AF_ALG_RETRIES;
 	size_t proc_count;

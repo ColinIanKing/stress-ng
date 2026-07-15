@@ -494,7 +494,7 @@ static int stress_mmap_child(stress_args_t *args, void *ctxt)
 	const size_t pages = sz / page_size;
 	const bool mmap_file = context->mmap_file;
 	const int fd = context->fd;
-	NOCLOBBER int no_mem_retries = 0;
+	CLOBBERED int no_mem_retries = 0;
 	const int bad_fd = stress_fs_bad_fd_get();
 #if defined(MS_ASYNC) &&	\
     defined(MS_SYNC)
@@ -505,9 +505,9 @@ static int stress_mmap_child(stress_args_t *args, void *ctxt)
 	size_t *idx;
 	void *hint;
 	int ret;
-	NOCLOBBER int mask = ~0;
+	CLOBBERED int mask = ~0;
 	static const char mmap_name[] = "stress-mmap";
-	NOCLOBBER int rc = EXIT_SUCCESS;
+	CLOBBERED int rc = EXIT_SUCCESS;
 
 	VOID_RET(int, stress_signal_handler(args->name, SIGBUS, stress_mmap_sighandler, NULL));
 
@@ -730,7 +730,7 @@ retry:
 			register const size_t page = idx[n];
 
 			if (!mapped[page]) {
-				NOCLOBBER off_t offset;
+				CLOBBERED off_t offset;
 				int fixed_flags = MAP_FIXED;
 
 				offset = mmap_file ? (off_t)(page * page_size) : 0;

@@ -278,11 +278,11 @@ static int stress_mergesort(stress_args_t *args)
 	size_t i;
 	size_t mergesort_method = 0;
 	size_t data_size;
-	NOCLOBBER int rc = EXIT_SUCCESS;
+	CLOBBERED int rc = EXIT_SUCCESS;
 	double rate;
-	NOCLOBBER double duration = 0.0;
-	NOCLOBBER double count = 0.0;
-	NOCLOBBER double sorted = 0.0;
+	CLOBBERED double duration = 0.0;
+	CLOBBERED double count = 0.0;
+	CLOBBERED double sorted = 0.0;
 	mergesort_func_t mergesort_func;
 #if !defined(__OpenBSD__) &&	\
     !defined(__NetBSD__) &&	\

@@ -130,7 +130,7 @@ static int stress_stackmmap(stress_args_t *args)
 	int fd;
 	int ret;
 	volatile int rc = EXIT_FAILURE;		/* could be clobbered */
-	NOCLOBBER uint8_t *stack_sig;
+	uint8_t * CLOBBERED stack_sig;
 
 	page_size = args->page_size;
 	page_mask = ~(page_size - 1);

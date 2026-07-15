@@ -106,10 +106,10 @@ static int stress_insertionsort(stress_args_t *args)
 	size_t i;
 	size_t data_size;
 	double rate;
-	NOCLOBBER int rc = EXIT_SUCCESS;
-	NOCLOBBER double duration = 0.0;
-	NOCLOBBER double count = 0.0;
-	NOCLOBBER double sorted = 0.0;
+	CLOBBERED int rc = EXIT_SUCCESS;
+	CLOBBERED double duration = 0.0;
+	CLOBBERED double count = 0.0;
+	CLOBBERED double sorted = 0.0;
 #if defined(HAVE_SIGLONGJMP)
 	struct sigaction old_action;
 	int ret;

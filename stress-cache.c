@@ -980,7 +980,7 @@ static void stress_cache_bzero(uint8_t *buffer, const uint64_t buffer_size)
 #endif
 }
 
-static void stress_cache_flags_get(const char *opt, uint32_t *cache_flags, uint32_t bitmask)
+static void stress_cache_flags_get(const char *opt, CLOBBERED uint32_t * cache_flags, uint32_t bitmask)
 {
 	bool flag = false;
 
@@ -1057,19 +1057,19 @@ static int stress_cache(stress_args_t *args)
     defined(HAVE_SCHED_SETAFFINITY) &&	\
     defined(HAVE_SCHED_GETCPU)
 	cpu_set_t proc_mask;
-	NOCLOBBER uint32_t cpu = 0;
+	CLOBBERED uint32_t cpu = 0;
 	uint32_t *cpus;
 	const uint32_t n_cpus = stress_affinity_cpus_get(&cpus, true);
-	NOCLOBBER bool pinned = false;
+	CLOBBERED bool pinned = false;
 #endif
-	NOCLOBBER uint32_t cache_flags = 0;
-	NOCLOBBER uint32_t cache_flags_mask = CACHE_FLAGS_MASK;
-	NOCLOBBER uint32_t ignored_flags = 0;
-	NOCLOBBER uint32_t total = 0;
-	NOCLOBBER size_t n_flags;
-	NOCLOBBER size_t perms_idx = 0;
-	NOCLOBBER size_t perms_total = 0;
-	NOCLOBBER size_t perms_max = 1;
+	CLOBBERED uint32_t cache_flags = 0;
+	CLOBBERED uint32_t cache_flags_mask = CACHE_FLAGS_MASK;
+	CLOBBERED uint32_t ignored_flags = 0;
+	CLOBBERED uint32_t total = 0;
+	CLOBBERED size_t n_flags;
+	CLOBBERED size_t perms_idx = 0;
+	CLOBBERED size_t perms_total = 0;
+	CLOBBERED size_t perms_max = 1;
 	const size_t n_flag_bits = sizeof(masked_flags) * 8;
 	int ret = EXIT_SUCCESS;
 	int perms[n_flag_bits];
@@ -1078,9 +1078,9 @@ static int stress_cache(stress_args_t *args)
 	const uint64_t buffer_size = g_shared->mem_cache.size;
 	uint64_t i = stress_mwc64modn(buffer_size);
 	uint64_t k = i + (buffer_size >> 1);
-	NOCLOBBER uint64_t r = 0;
+	CLOBBERED uint64_t r = 0;
 	const uint64_t inc = (buffer_size >> 2) + 1;
-	NOCLOBBER void *bad_addr;
+	void * CLOBBERED bad_addr;
 	size_t j;
 	stress_metrics_t metrics[STRESS_CACHE_MAX];
 

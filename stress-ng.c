@@ -4504,7 +4504,7 @@ int main(int argc, char **argv, char **envp)
 {
 	size_t i;
 	double duration = 0.0;			/* stressor run time in secs */
-	NOCLOBBER FILE *yaml = NULL;		/* YAML output file */
+	FILE * volatile yaml = NULL;		/* YAML output file */
 	char *yaml_filename = NULL;		/* YAML file name */
 	char *log_filename;			/* log filename */
 	char *job_filename = NULL;		/* job filename */

@@ -330,8 +330,8 @@ static void MLOCKED_TEXT NORETURN stress_sigill_nop_handler(int signum)
 static int stress_nop(stress_args_t *args)
 {
 	size_t nop_instr = 0;
-	NOCLOBBER stress_nop_instr_t *instr;
-	NOCLOBBER bool do_random;
+	stress_nop_instr_t * CLOBBERED instr;
+	CLOBBERED bool do_random;
 	double duration = 0.0;
 	double count = 0.0;
 	double rate;

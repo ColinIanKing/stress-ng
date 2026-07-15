@@ -524,7 +524,7 @@ static int stress_list(stress_args_t *args)
 	size_t i;
 	size_t bit;
 	size_t list_method = 0;
-	NOCLOBBER int rc = EXIT_SUCCESS;
+	CLOBBERED int rc = EXIT_SUCCESS;
 	stress_metrics_t *metrics;
 	stress_metrics_t list_metrics[SIZEOF_ARRAY(list_methods)];
 	stress_list_func func;

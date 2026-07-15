@@ -58,7 +58,7 @@ static int stress_fault(stress_args_t *args)
 #endif
 	char filename[PATH_MAX];
 	int ret;
-	NOCLOBBER int i;
+	CLOBBERED int i;
 	char *start;
 	char *end;
 	const size_t len = stress_exec_text_addr(&start, &end);
@@ -76,9 +76,9 @@ static int stress_fault(stress_args_t *args)
 	double t2 = 0.0;
 	double dt;
 #endif
-	NOCLOBBER double duration = 0.0;
-	NOCLOBBER double count = 0.0;
-	NOCLOBBER int rc = EXIT_SUCCESS;
+	CLOBBERED double duration = 0.0;
+	CLOBBERED double count = 0.0;
+	CLOBBERED int rc = EXIT_SUCCESS;
 
 	stress_uint8rnd4(buffer, page_size);
 

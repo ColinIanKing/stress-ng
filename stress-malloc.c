@@ -385,7 +385,7 @@ static void MLOCKED_TEXT stress_malloc_sigsegv_handler(int signum)
 static int stress_malloc_child(stress_args_t *args, void *context)
 {
 	int ret;
-	NOCLOBBER int rc = EXIT_SUCCESS;
+	CLOBBERED int rc = EXIT_SUCCESS;
 	/*
 	 *  pthread instance 0 is actually the main child process,
 	 *  instances 1..N are pthreads 0..N-1

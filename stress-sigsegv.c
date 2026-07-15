@@ -275,7 +275,7 @@ static int stress_sigsegv(stress_args_t *args)
 #endif
 	static uint32_t mask_shift;
 	static uintptr_t mask, last_mask;
-	NOCLOBBER int rc = EXIT_FAILURE;
+	CLOBBERED int rc = EXIT_FAILURE;
 #if defined(SA_SIGINFO)
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 #endif

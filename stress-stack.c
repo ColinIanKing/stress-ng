@@ -183,7 +183,7 @@ PRAGMA_UNROLL_N(4)
 static int stress_stack_child(stress_args_t *args, void *context)
 {
 	void *altstack;
-	NOCLOBBER int rc = EXIT_SUCCESS;
+	CLOBBERED int rc = EXIT_SUCCESS;
 	bool stack_fill = false;
 	bool stack_mlock = false;
 	bool stack_pageout = false;
