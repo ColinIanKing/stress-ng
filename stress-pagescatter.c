@@ -479,10 +479,11 @@ static int stress_pagescatter(stress_args_t *args)
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 		stress_numa_mask_and_node_alloc(args, &info->numa_nodes, &info->numa_mask, "---pagescatter-numa", &info->numa);
 #else
-		if (stress_instance_zero(args))
+		if (stress_instance_zero(args)) {
 			pr_inf("%s: --pagescatter-numa selected but not supported by this system, disabling option\n",
 				args->name);
-			info->numa = false;
+		}
+		info->numa = false;
 #endif
 	}
 
