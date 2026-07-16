@@ -127,6 +127,14 @@ typedef int (*atomic_func_t)(stress_args_t *args, double *duration, double *coun
 #define SHIM_ATOMIC_LOAD(ptr, val, memorder)		DO_NOTHING()
 #endif
 
+#if defined(HAVE_ATOMIC_LOAD_N)
+#define HAVE_ATOMIC_OPS
+#define	SHIM_ATOMIC_LOAD_N(ptr, val, memorder)		\
+	do { *val = __atomic_load_n(ptr, memorder); } while (0)
+#else
+#define SHIM_ATOMIC_LOAD_N(ptr, val, memorder)		DO_NOTHING()
+#endif
+
 #if defined(HAVE_ATOMIC_NAND_FETCH)
 #define HAVE_ATOMIC_OPS
 #if defined(HAVE_COMPILER_GCC_OR_MUSL) && __GNUC__ != 11
@@ -159,6 +167,14 @@ typedef int (*atomic_func_t)(stress_args_t *args, double *duration, double *coun
 	do { __atomic_store(ptr, val, memorder); } while (0)
 #else
 #define SHIM_ATOMIC_STORE(ptr, val, memorder)		DO_NOTHING()
+#endif
+
+#if defined(HAVE_ATOMIC_STORE_N)
+#define HAVE_ATOMIC_OPS
+#define	SHIM_ATOMIC_STORE_N(ptr, val, memorder)		\
+	do { __atomic_store_n(ptr, val, memorder); } while (0)
+#else
+#define SHIM_ATOMIC_STORE_N(ptr, val, memorder)		DO_NOTHING()
 #endif
 
 #if defined(HAVE_ATOMIC_SUB_FETCH)
@@ -213,8 +229,9 @@ do {									\
 	SHIM_ATOMIC_NAND_FETCH(var, (type)128, __ATOMIC_ACQUIRE);	\
 	SHIM_ATOMIC_CLEAR(var, __ATOMIC_RELAXED);			\
 									\
-	/* 14 ops */							\
+	/* 15 ops */							\
 	SHIM_ATOMIC_STORE(var, &tmp, __ATOMIC_RELAXED); 		\
+	SHIM_ATOMIC_STORE_N(var, &tmp, __ATOMIC_RELAXED); 		\
 	SHIM_ATOMIC_FETCH_ADD(var, (type)1, __ATOMIC_RELAXED);		\
 	SHIM_ATOMIC_FETCH_ADD(var, (type)2, __ATOMIC_ACQUIRE);		\
 	SHIM_ATOMIC_FETCH_SUB(var, (type)3, __ATOMIC_RELAXED);		\
@@ -232,9 +249,11 @@ do {									\
 	SHIM_ATOMIC_FETCH_NAND(var, (type)128, __ATOMIC_ACQUIRE);	\
 	SHIM_ATOMIC_CLEAR(var, __ATOMIC_RELAXED);			\
 									\
-	/* 16 ops */							\
+	/* 19 ops */							\
 	SHIM_ATOMIC_STORE(var, &tmp, __ATOMIC_RELAXED); 		\
 	SHIM_ATOMIC_LOAD(var, &tmp, __ATOMIC_RELAXED);			\
+	SHIM_ATOMIC_STORE_N(var, &tmp, __ATOMIC_RELAXED); 		\
+	SHIM_ATOMIC_LOAD_N(var, &tmp, __ATOMIC_RELAXED);		\
 	SHIM_ATOMIC_ADD_FETCH(var, (type)1, __ATOMIC_RELAXED);		\
 	SHIM_ATOMIC_SUB_FETCH(var, (type)3, __ATOMIC_RELAXED);		\
 									\
@@ -245,6 +264,7 @@ do {									\
 									\
 	SHIM_ATOMIC_LOAD(var, &tmp, __ATOMIC_ACQUIRE);			\
 	SHIM_ATOMIC_ADD_FETCH(var, (type)2, __ATOMIC_ACQUIRE);		\
+	SHIM_ATOMIC_LOAD_N(var, &tmp, __ATOMIC_ACQUIRE);		\
 	SHIM_ATOMIC_SUB_FETCH(var, (type)4, __ATOMIC_ACQUIRE);		\
 	SHIM_ATOMIC_AND_FETCH(var, (type)~2, __ATOMIC_ACQUIRE);		\
 									\
@@ -273,7 +293,7 @@ do {									\
 	SHIM_ATOMIC_CLEAR(var, __ATOMIC_RELAXED);			\
 									\
 	(*duration) += stress_time_now() - t;				\
-	(*count) += 64.0;						\
+	(*count) += 68.0;						\
 									\
 	(void)tmp;							\
 	check2--;							\
