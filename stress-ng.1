@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, may be w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "15 July 2026"
+.TH STRESS-NG 1 "16 July 2026"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -9499,13 +9499,24 @@ CPUs in a system. By default 32 bit write/reads are used.
 .B \-\-spinmem\-affinity
 move spinmem stressor processes to randomly selected CPUs every million spinmem transactions.
 .TP
-.B \-\-spinmem\-method [ 8bit | 16bit | 32bit | 64bit | 128bit ]
-select the size of the memory write/reads, the default is 32 bit. 128 bit read/writes
-may not be supported by some toolchains.
-.TP
-.B \-\-spinmem\-numa
-assign a shared memory page to randomly selected NUMA nodes. This is disabled
-for systems that do not support NUMA.
+.B \-\-spinmem\-method method
+select the size of the memory write/reads, the default is 32 bit. 128 bit and/or atomic
+read/writes may not be supported by some toolchains. The spinmem methods are as follows:
+.sp
+.TS
+lB2 lB
+l lx.
+Method	Description
+8bit	8 bit read/writes
+16bit	16 bit read/writes
+32bit	32 bit read/writes
+64bit	64 bit read/writes
+128bit	128 bit read/writes (may not be supported)
+8bitatomic	8 bit atomic read/writes (may not be supported)
+16bitatomic	16 bit atomic read/writes (may not be supported)
+32bitatomic	32 bit atomic read/writes (may not be supported)
+64bitatomic	64 bit atomic read/writes (may not be supported)
+.TE
 .TP
 .B \-\-spinmem\-ops N
 stop after N spinmem bogo operations. A bogo operation is 1000 transactions between
