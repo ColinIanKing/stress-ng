@@ -1855,6 +1855,7 @@ typedef enum {
 	OPT_vm_locked,
 	OPT_vm_madvise,
 	OPT_vm_method,
+	OPT_vm_nt,
 	OPT_vm_numa,
 	OPT_vm_ops,
 	OPT_vm_populate,

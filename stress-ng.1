@@ -11231,6 +11231,11 @@ T}
 .TE
 .RE
 .TP
+.B \-\-vm\-nt
+use non-temporal stores and loads for 64 bit and 128 bit memory writes and reads,
+disabled for systems that do not support x86 non-temporal memory operations
+(normal stores and loads are used instead).
+.TP
 .B \-\-vm\-numa
 assign memory mapped pages to randomly selected NUMA nodes. This is disabled
 for systems that do not support NUMA.

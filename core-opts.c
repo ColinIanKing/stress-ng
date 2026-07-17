@@ -1343,6 +1343,7 @@ const struct option stress_long_options[] = {
 #endif
 	{ "vm-madvise",		1,	NULL,	OPT_vm_madvise },
 	{ "vm-method",		1,	NULL,	OPT_vm_method },
+	{ "vm-nt",		0,	NULL,	OPT_vm_nt },
 	{ "vm-numa",		0,	NULL,	OPT_vm_numa },
 	{ "vm-ops",		1,	NULL,	OPT_vm_ops },
 #if defined(MAP_POPULATE)
