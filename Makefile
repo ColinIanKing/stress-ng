@@ -81,9 +81,14 @@ ifeq "$(findstring -O,$(CFLAGS))" ""
 ifeq ($(BUILD_SMALL),1)
 	override CFLAGS += -Os -DBUILD_SMALL
 else
+ifeq ($(COMPILER),icx)
+	override CFLAGS += -O2 -axCORE-AVX512
+else
 	override CFLAGS += -O2
 endif
 endif
+endif
+
 ifeq "$(findstring -O,$(VNNI_CFLAGS))" ""
 ifeq ($(BUILD_SMALL),1)
 	override CFLAGS += -Os
