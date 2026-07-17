@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, may be w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "16 July 2026"
+.TH STRESS-NG 1 "17 July 2026"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -2825,6 +2825,9 @@ stop dekker workers after N mutex operations.
 start N workers that create and remove directory entries. This should create
 file system meta data activity. The directory entry names are suffixed by a
 gray-code encoded number to try to mix up the hashing of the namespace.
+.TP
+.B \-\-dentry\-negative
+access files that don't exist to create negative dentries in the dentry cache.
 .TP
 .B \-\-dentry\-ops N
 stop denty thrash workers after N bogo dentry operations.

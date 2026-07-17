@@ -323,6 +323,7 @@ static int stress_dentry(stress_args_t *args)
 	int64_t nr_dentry1;
 	int64_t nr_dentry2;
 	int64_t nr_dentries;
+	uint32_t negative_dentry = stress_mwc32();
 	double creat_duration = 0.0;
 	double creat_count = 0.0;
 	double access_duration = 0.0;
@@ -332,6 +333,7 @@ static int stress_dentry(stress_args_t *args)
 	double bogus_unlink_duration = 0.0;
 	double bogus_unlink_count = 0.0;
 	double rate;
+	bool dentry_negative = false;
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 
 	if (!stress_setting_get("dentries", &dentries)) {
@@ -340,6 +342,7 @@ static int stress_dentry(stress_args_t *args)
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			dentries = MIN_DENTRIES;
 	}
+	(void)stress_setting_get("dentry-negative", &dentry_negative);
 	(void)stress_setting_get("dentry-order", &dentry_order);
 
 	ret = stress_fs_temp_dir_make_args(args);
@@ -455,13 +458,19 @@ static int stress_dentry(stress_args_t *args)
 
 		stress_dentry_misc(dir_path);
 
-		if (UNLIKELY(!stress_continue_flag()))
-			break;
+		/* create incremental negative dentries */
+		if (dentry_negative && stress_continue_flag()) {
+			for (i = 0; i < (n << 4); i++) {
+				stress_fs_temp_filename_args(args,
+					path, sizeof(path), negative_dentry++);
+				(void)access(path, R_OK);
+			}
+		}
 	} while ((rc == EXIT_SUCCESS) && stress_continue(args));
 
 abort:
 	stress_dentry_state(&nr_dentry2);
-	nr_dentries = nr_dentry2 - nr_dentry1;
+	nr_dentries = (nr_dentry2 > nr_dentry1) ? nr_dentry2 - nr_dentry1 : 0LL;
 
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
 
@@ -477,8 +486,9 @@ abort:
 	rate = (bogus_unlink_count > 0.0) ? bogus_unlink_duration / bogus_unlink_count : 0.0;
 	stress_metrics_set(args, "nanosecs per bogus file unlink",
 		rate * STRESS_DBL_NANOSECOND, STRESS_METRIC_HARMONIC_MEAN);
-	stress_metrics_set(args, "legitimate directory entries allocted", nr_dentries, STRESS_METRIC_MAXIMUM);
-	stress_metrics_set(args, "bogus (negative) directory entries accessed", bogus_access_count, STRESS_METRIC_TOTAL);
+	if (nr_dentries > 0)
+		stress_metrics_set(args, "directory entries allocted", (double)nr_dentries, STRESS_METRIC_MAXIMUM);
+	stress_metrics_set(args, "bogus (negative) directory entries accessed", bogus_access_count, STRESS_METRIC_MAXIMUM);
 
 	/* force unlink of all files */
 	stress_dentry_unlink(args, dentries, dentry_order, verify);
@@ -488,8 +498,9 @@ abort:
 }
 
 static const stress_opt_t opts[] = {
-	{ OPT_dentries,	    "dentries",     TYPE_ID_UINT64, MIN_DENTRIES, MAX_DENTRIES, NULL },
-	{ OPT_dentry_order, "dentry-order", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_dentry_order },
+	{ OPT_dentries,	       "dentries",        TYPE_ID_UINT64, MIN_DENTRIES, MAX_DENTRIES, NULL },
+	{ OPT_dentry_negative, "dentry-negative", TYPE_ID_BOOL, 0, 0, NULL },
+	{ OPT_dentry_order,    "dentry-order",    TYPE_ID_SIZE_T_METHOD, 0, 0, stress_dentry_order },
 	END_OPT,
 };
 

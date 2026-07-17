@@ -198,6 +198,7 @@ const struct option stress_long_options[] = {
 	{ "dekker",		1,	NULL,	OPT_dekker },
 	{ "dekker-ops",		1,	NULL,	OPT_dekker_ops },
 	{ "dentry",		1,	NULL,	OPT_dentry },
+	{ "dentry-negative",	0,	NULL,	OPT_dentry_negative },
 	{ "dentry-ops",		1,	NULL,	OPT_dentry_ops },
 	{ "dentries",		1,	NULL,	OPT_dentries },
 	{ "dentry-order",	1,	NULL,	OPT_dentry_order },

@@ -383,6 +383,7 @@ typedef enum {
 	OPT_dekker_ops,
 
 	OPT_dentries,
+	OPT_dentry_negative,
 	OPT_dentry_ops,
 	OPT_dentry_order,
 
