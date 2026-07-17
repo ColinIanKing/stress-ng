@@ -462,10 +462,7 @@ static int stress_dentry(stress_args_t *args)
 abort:
 	stress_dentry_state(&nr_dentry2);
 	nr_dentries = nr_dentry2 - nr_dentry1;
-	if (stress_instance_zero(args) && (nr_dentries > 0)) {
-		pr_inf("%s: %" PRId64 " dentries allocated\n",
-			args->name, nr_dentries);
-	}
+
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
 
 	rate = (creat_count > 0.0) ? creat_duration / creat_count : 0.0;
@@ -480,6 +477,8 @@ abort:
 	rate = (bogus_unlink_count > 0.0) ? bogus_unlink_duration / bogus_unlink_count : 0.0;
 	stress_metrics_set(args, "nanosecs per bogus file unlink",
 		rate * STRESS_DBL_NANOSECOND, STRESS_METRIC_HARMONIC_MEAN);
+	stress_metrics_set(args, "legitimate directory entries allocted", nr_dentries, STRESS_METRIC_MAXIMUM);
+	stress_metrics_set(args, "bogus (negative) directory entries accessed", bogus_access_count, STRESS_METRIC_TOTAL);
 
 	/* force unlink of all files */
 	stress_dentry_unlink(args, dentries, dentry_order, verify);
