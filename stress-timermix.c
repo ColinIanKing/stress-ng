@@ -141,6 +141,7 @@ static void MLOCKED_TEXT OPTIMIZE3 stress_timermix_timer_action(int sig, siginfo
 	size_t i;
 
 	(void)sig;
+	(void)siginfo;
 	(void)ucontext;
 
 	if (sigpending(&mask) == 0)
@@ -158,6 +159,9 @@ static void MLOCKED_TEXT OPTIMIZE3 stress_timermix_timer_action(int sig, siginfo
 		stress_timer_info_t *info = (stress_timer_info_t *)siginfo->si_value.sival_ptr;
 		info->count++;
 	}
+#elif defined(__gnu_hurd__)
+	/* Currently no ptr field to use */
+	(void)siginfo;
 #else
 	if (LIKELY(siginfo && siginfo->si_ptr)) {
 		stress_timer_info_t *info = (stress_timer_info_t *)siginfo->si_ptr;
@@ -450,15 +454,19 @@ stop_timers:
 #if defined(EXERCISE_ITIMER)
 	/* stop itimers */
 	for (i = 0; i < SIZEOF_ARRAY(itimer_info); i++) {
+#if !defined(__gnu_hurd__)
 		double rate;
 		char str[80];
+#endif
 
 		(void)shim_memset(&itimer, 0, sizeof(itimer));
 		(void)setitimer(itimer_info[i].itimer_id, &itimer, NULL);
 
+#if !defined(__gnu_hurd__)
 		(void)snprintf(str, sizeof(str), "%s ticks per sec", itimer_info[i].itimer_name);
 		rate = (duration > 0.0) ? (double)itimer_info[i].count / duration : 0.0;
 		stress_metrics_set(args, str, rate, STRESS_METRIC_HARMONIC_MEAN);
+#endif
 	}
 #endif
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
