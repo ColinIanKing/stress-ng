@@ -286,12 +286,12 @@ static bool OPTIMIZE3 stress_fp_misc_fpclassify_float(stress_args_t *args)
 	}
 	if ((ret = fpclassify(fp_float_inf)) != FP_INFINITE) {
 		pr_fail("%s: fpclassify(%f) is not FP_INFINITE, got %s instead\n",
-			args->name, (double)fp_float_x, stress_fp_misc_fpclassify_str(ret));
+			args->name, (double)fp_float_inf, stress_fp_misc_fpclassify_str(ret));
 		return false;
 	}
 	if ((ret = fpclassify(fp_float_zero)) != FP_ZERO) {
 		pr_fail("%s: fpclassify(%f) is not FP_ZERO, got %s instead\n",
-			args->name, (double)fp_float_x, stress_fp_misc_fpclassify_str(ret));
+			args->name, (double)fp_float_zero, stress_fp_misc_fpclassify_str(ret));
 		return false;
 	}
 	return true;
