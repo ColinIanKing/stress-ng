@@ -109,7 +109,7 @@ static const stress_opt_t opts[] = {
 	{ OPT_cache_prefetch,    "cache-prefetch",    TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_cache_prefetchw,   "cache-prefetchw",   TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_cache_sfence,      "cache-sfence",      TYPE_ID_BOOL, 0, 1, NULL },
-	{ OPT_cache_clwb,        "cache-clwb",         TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_cache_clwb,        "cache-clwb",        TYPE_ID_BOOL, 0, 1, NULL },
 	END_OPT,
 };
 
