@@ -53,6 +53,42 @@
 
 #define NO_MEM_RETRIES_MAX	(32)
 
+#if defined(HAVE_NT_STORE32)
+#define STRESS_NT_STORE32(ptr, val)	stress_nt_store32((ptr), (val))
+#else
+#define STRESS_NT_STORE32(ptr, val)	*(ptr) = (val)
+#endif
+
+#if defined(HAVE_NT_STORE64)
+#define STRESS_NT_STORE64(ptr, val)	stress_nt_store64((ptr), (val))
+#else
+#define STRESS_NT_STORE64(ptr, val)	*(ptr) = (val)
+#endif
+
+#if defined(HAVE_NT_STORE128)
+#define STRESS_NT_STORE128(ptr, val)	stress_nt_store128((ptr), (val))
+#else
+#define STRESS_NT_STORE128(ptr, val)	*(ptr) = (val)
+#endif
+
+#if defined(HAVE_NT_LOAD32)
+#define STRESS_NT_LOAD32(ptr)	stress_nt_load32((ptr))
+#else
+#define STRESS_NT_LOAD32(ptr)	*(ptr)
+#endif
+
+#if defined(HAVE_NT_LOAD64)
+#define STRESS_NT_LOAD64(ptr)	stress_nt_load64((ptr))
+#else
+#define STRESS_NT_LOAD64(ptr)	*(ptr)
+#endif
+
+#if defined(HAVE_NT_LOAD128)
+#define STRESS_NT_LOAD128(ptr)	stress_nt_load128((ptr))
+#else
+#define STRESS_NT_LOAD128(ptr)	*(ptr)
+#endif
+
 /*
  * enable this for end page mapping protection debugging
  *
@@ -166,6 +202,7 @@ static const stress_vm_madvise_info_t vm_madvise_info[] = {
 #endif
 #endif
 };
+
 
 /*
  *  stress_continue(args)
@@ -347,7 +384,7 @@ static size_t TARGET_CLONES stress_vm_moving_inversion(const stress_vm_info_t *i
 	stress_mwc_seed_set(w, z);
 	if (info->vm_nt) {
 		for (ptr = (uint64_t *)info->buf; ptr < (uint64_t *)info->buf_end; ) {
-			stress_nt_store64(ptr, stress_mwc64());
+			STRESS_NT_STORE64(ptr, stress_mwc64());
 			ptr++;
 		}
 	} else {
@@ -363,7 +400,7 @@ static size_t TARGET_CLONES stress_vm_moving_inversion(const stress_vm_info_t *i
 
 			if (UNLIKELY(*ptr != val))
 				bit_errors++;
-			stress_nt_store64(ptr, ~val);
+			STRESS_NT_STORE64(ptr, ~val);
 			ptr++;
 		}
 	} else {
@@ -405,7 +442,7 @@ static size_t TARGET_CLONES stress_vm_moving_inversion(const stress_vm_info_t *i
 	if (info->vm_nt) {
 		for (ptr = (uint64_t *)info->buf_end; ptr > (uint64_t *)info->buf; ) {
 			--ptr;
-			stress_nt_store64(ptr, stress_mwc64());
+			STRESS_NT_STORE64(ptr, stress_mwc64());
 		}
 	} else {
 		for (ptr = (uint64_t *)info->buf_end; ptr > (uint64_t *)info->buf; ) {
@@ -427,7 +464,7 @@ static size_t TARGET_CLONES stress_vm_moving_inversion(const stress_vm_info_t *i
 
 			if (UNLIKELY(*--ptr != val))
 				bit_errors++;
-			stress_nt_store64(ptr, ~val);
+			STRESS_NT_STORE64(ptr, ~val);
 		}
 	} else {
 		for (ptr = (uint64_t *)info->buf_end; ptr > (uint64_t *)info->buf; ) {
@@ -1182,7 +1219,7 @@ static size_t TARGET_CLONES stress_vm_rand_set(const stress_vm_info_t *info)
 			const uint32_t val32 = (((uint32_t)val16) << 16) | val16;
 			const uint64_t val64 = (((uint64_t)val32) << 32) | val32;
 
-			stress_nt_store64(ptr64, val64);
+			STRESS_NT_STORE64(ptr64, val64);
 			c++;
 			if (UNLIKELY(info->max_ops && (c >= info->max_ops)))
 				goto abort;
@@ -1275,7 +1312,7 @@ static size_t TARGET_CLONES stress_vm_ror(const stress_vm_info_t *info)
 			const uint32_t val32 = (((uint32_t)val16) << 16) | val16;
 			const uint64_t val64 = (((uint64_t)val32) << 32) | val32;
 
-			stress_nt_store64(ptr64, val64);
+			STRESS_NT_STORE64(ptr64, val64);
 			c++;
 			if (UNLIKELY(info->max_ops && (c >= info->max_ops)))
 				goto abort;
@@ -1845,14 +1882,14 @@ static size_t TARGET_CLONES stress_vm_rand_sum(const stress_vm_info_t *info)
 	stress_mwc_seed_set(w, z);
 	if (info->vm_nt) {
 		for (ptr = (uint64_t *)info->buf; ptr < (uint64_t *)info->buf_end; ptr += chunk_sz) {
-			stress_nt_store64((ptr + 0), stress_mwc64());
-			stress_nt_store64((ptr + 1), stress_mwc64());
-			stress_nt_store64((ptr + 2), stress_mwc64());
-			stress_nt_store64((ptr + 3), stress_mwc64());
-			stress_nt_store64((ptr + 4), stress_mwc64());
-			stress_nt_store64((ptr + 5), stress_mwc64());
-			stress_nt_store64((ptr + 6), stress_mwc64());
-			stress_nt_store64((ptr + 7), stress_mwc64());
+			STRESS_NT_STORE64((ptr + 0), stress_mwc64());
+			STRESS_NT_STORE64((ptr + 1), stress_mwc64());
+			STRESS_NT_STORE64((ptr + 2), stress_mwc64());
+			STRESS_NT_STORE64((ptr + 3), stress_mwc64());
+			STRESS_NT_STORE64((ptr + 4), stress_mwc64());
+			STRESS_NT_STORE64((ptr + 5), stress_mwc64());
+			STRESS_NT_STORE64((ptr + 6), stress_mwc64());
+			STRESS_NT_STORE64((ptr + 7), stress_mwc64());
 			c++;
 			if (UNLIKELY(info->max_ops && (c >= info->max_ops)))
 				goto abort;
@@ -2333,44 +2370,44 @@ static size_t TARGET_CLONES stress_vm_write64nt(const stress_vm_info_t *info)
 		register const size_t n = info->buf_sz / (sizeof(*ptr) * 32);
 
 		while (i < n) {
-			stress_nt_store64(&ptr[0x00], v);
-			stress_nt_store64(&ptr[0x01], v);
-			stress_nt_store64(&ptr[0x02], v);
-			stress_nt_store64(&ptr[0x03], v);
-			stress_nt_store64(&ptr[0x04], v);
-			stress_nt_store64(&ptr[0x05], v);
-			stress_nt_store64(&ptr[0x06], v);
-			stress_nt_store64(&ptr[0x07], v);
+			STRESS_NT_STORE64(&ptr[0x00], v);
+			STRESS_NT_STORE64(&ptr[0x01], v);
+			STRESS_NT_STORE64(&ptr[0x02], v);
+			STRESS_NT_STORE64(&ptr[0x03], v);
+			STRESS_NT_STORE64(&ptr[0x04], v);
+			STRESS_NT_STORE64(&ptr[0x05], v);
+			STRESS_NT_STORE64(&ptr[0x06], v);
+			STRESS_NT_STORE64(&ptr[0x07], v);
 			ptr += 8;
 
-			stress_nt_store64(&ptr[0x00], v);
-			stress_nt_store64(&ptr[0x01], v);
-			stress_nt_store64(&ptr[0x02], v);
-			stress_nt_store64(&ptr[0x03], v);
-			stress_nt_store64(&ptr[0x04], v);
-			stress_nt_store64(&ptr[0x05], v);
-			stress_nt_store64(&ptr[0x06], v);
-			stress_nt_store64(&ptr[0x07], v);
+			STRESS_NT_STORE64(&ptr[0x00], v);
+			STRESS_NT_STORE64(&ptr[0x01], v);
+			STRESS_NT_STORE64(&ptr[0x02], v);
+			STRESS_NT_STORE64(&ptr[0x03], v);
+			STRESS_NT_STORE64(&ptr[0x04], v);
+			STRESS_NT_STORE64(&ptr[0x05], v);
+			STRESS_NT_STORE64(&ptr[0x06], v);
+			STRESS_NT_STORE64(&ptr[0x07], v);
 			ptr += 8;
 
-			stress_nt_store64(&ptr[0x00], v);
-			stress_nt_store64(&ptr[0x01], v);
-			stress_nt_store64(&ptr[0x02], v);
-			stress_nt_store64(&ptr[0x03], v);
-			stress_nt_store64(&ptr[0x04], v);
-			stress_nt_store64(&ptr[0x05], v);
-			stress_nt_store64(&ptr[0x06], v);
-			stress_nt_store64(&ptr[0x07], v);
+			STRESS_NT_STORE64(&ptr[0x00], v);
+			STRESS_NT_STORE64(&ptr[0x01], v);
+			STRESS_NT_STORE64(&ptr[0x02], v);
+			STRESS_NT_STORE64(&ptr[0x03], v);
+			STRESS_NT_STORE64(&ptr[0x04], v);
+			STRESS_NT_STORE64(&ptr[0x05], v);
+			STRESS_NT_STORE64(&ptr[0x06], v);
+			STRESS_NT_STORE64(&ptr[0x07], v);
 			ptr += 8;
 
-			stress_nt_store64(&ptr[0x00], v);
-			stress_nt_store64(&ptr[0x01], v);
-			stress_nt_store64(&ptr[0x02], v);
-			stress_nt_store64(&ptr[0x03], v);
-			stress_nt_store64(&ptr[0x04], v);
-			stress_nt_store64(&ptr[0x05], v);
-			stress_nt_store64(&ptr[0x06], v);
-			stress_nt_store64(&ptr[0x07], v);
+			STRESS_NT_STORE64(&ptr[0x00], v);
+			STRESS_NT_STORE64(&ptr[0x01], v);
+			STRESS_NT_STORE64(&ptr[0x02], v);
+			STRESS_NT_STORE64(&ptr[0x03], v);
+			STRESS_NT_STORE64(&ptr[0x04], v);
+			STRESS_NT_STORE64(&ptr[0x05], v);
+			STRESS_NT_STORE64(&ptr[0x06], v);
+			STRESS_NT_STORE64(&ptr[0x07], v);
 			ptr += 8;
 
 			i++;
@@ -2938,13 +2975,9 @@ abort:
 	return bit_errors;
 }
 
-#if defined(HAVE_INT128_T)
-
-#if defined(HAVE_NT_LOAD128)
-#define STRESS_NT_LOAD128(x)	stress_nt_load128(x)
-#else
-#define STRESS_NT_LOAD128(ptr)	*(ptr)
-#endif
+#if defined(HAVE_INT128_T) &&		\
+    (defined(HAVE_NT_STORE128) ||	\
+     defined(HAVE_NT_LOAD128))
 
 /*
  *  stress_vm_wrrd128nt()
@@ -2963,25 +2996,25 @@ static size_t TARGET_CLONES stress_vm_wrrd128nt(const stress_vm_info_t *info)
 	if (info->vm_nt) {
 		for (val = 0, ptr128 = buf128; ptr128 < buf_end128; ptr128 += 4) {
 			/* Write 128 bits x 4 times to hammer the memory */
-			stress_nt_store128(ptr128 + 0x00, val);
-			stress_nt_store128(ptr128 + 0x01, val + 1);
-			stress_nt_store128(ptr128 + 0x02, val + 2);
-			stress_nt_store128(ptr128 + 0x03, val + 3);
+			STRESS_NT_STORE128(ptr128 + 0x00, val);
+			STRESS_NT_STORE128(ptr128 + 0x01, val + 1);
+			STRESS_NT_STORE128(ptr128 + 0x02, val + 2);
+			STRESS_NT_STORE128(ptr128 + 0x03, val + 3);
 
-			stress_nt_store128(ptr128 + 0x00, val);
-			stress_nt_store128(ptr128 + 0x01, val + 1);
-			stress_nt_store128(ptr128 + 0x02, val + 2);
-			stress_nt_store128(ptr128 + 0x03, val + 3);
+			STRESS_NT_STORE128(ptr128 + 0x00, val);
+			STRESS_NT_STORE128(ptr128 + 0x01, val + 1);
+			STRESS_NT_STORE128(ptr128 + 0x02, val + 2);
+			STRESS_NT_STORE128(ptr128 + 0x03, val + 3);
 
-			stress_nt_store128(ptr128 + 0x00, val);
-			stress_nt_store128(ptr128 + 0x01, val + 1);
-			stress_nt_store128(ptr128 + 0x02, val + 2);
-			stress_nt_store128(ptr128 + 0x03, val + 3);
+			STRESS_NT_STORE128(ptr128 + 0x00, val);
+			STRESS_NT_STORE128(ptr128 + 0x01, val + 1);
+			STRESS_NT_STORE128(ptr128 + 0x02, val + 2);
+			STRESS_NT_STORE128(ptr128 + 0x03, val + 3);
 
-			stress_nt_store128(ptr128 + 0x00, val);
-			stress_nt_store128(ptr128 + 0x01, val + 1);
-			stress_nt_store128(ptr128 + 0x02, val + 2);
-			stress_nt_store128(ptr128 + 0x03, val + 3);
+			STRESS_NT_STORE128(ptr128 + 0x00, val);
+			STRESS_NT_STORE128(ptr128 + 0x01, val + 1);
+			STRESS_NT_STORE128(ptr128 + 0x02, val + 2);
+			STRESS_NT_STORE128(ptr128 + 0x03, val + 3);
 			val++;
 			c++;
 		}
@@ -3250,21 +3283,21 @@ static size_t stress_vm_lfsr32(const stress_vm_info_t *info)
 
 	if (info->vm_nt) {
 		for (lfsr = 0xf63acb01, ptr = (uint32_t *)info->buf; ptr < (uint32_t *)info->buf_end; ptr += chunk_sz) {
-			stress_nt_store32(ptr + 0, lfsr);
+			STRESS_NT_STORE32(ptr + 0, lfsr);
 			lfsr = (lfsr >> 1) ^ (uint32_t)(-(int32_t)(lfsr & 1u) & 0xd0000001U);
-			stress_nt_store32(ptr + 1, lfsr);
+			STRESS_NT_STORE32(ptr + 1, lfsr);
 			lfsr = (lfsr >> 1) ^ (uint32_t)(-(int32_t)(lfsr & 1u) & 0xd0000001U);
-			stress_nt_store32(ptr + 2, lfsr);
+			STRESS_NT_STORE32(ptr + 2, lfsr);
 			lfsr = (lfsr >> 1) ^ (uint32_t)(-(int32_t)(lfsr & 1u) & 0xd0000001U);
-			stress_nt_store32(ptr + 3, lfsr);
+			STRESS_NT_STORE32(ptr + 3, lfsr);
 			lfsr = (lfsr >> 1) ^ (uint32_t)(-(int32_t)(lfsr & 1u) & 0xd0000001U);
-			stress_nt_store32(ptr + 4, lfsr);
+			STRESS_NT_STORE32(ptr + 4, lfsr);
 			lfsr = (lfsr >> 1) ^ (uint32_t)(-(int32_t)(lfsr & 1u) & 0xd0000001U);
-			stress_nt_store32(ptr + 5, lfsr);
+			STRESS_NT_STORE32(ptr + 5, lfsr);
 			lfsr = (lfsr >> 1) ^ (uint32_t)(-(int32_t)(lfsr & 1u) & 0xd0000001U);
-			stress_nt_store32(ptr + 6, lfsr);
+			STRESS_NT_STORE32(ptr + 6, lfsr);
 			lfsr = (lfsr >> 1) ^ (uint32_t)(-(int32_t)(lfsr & 1u) & 0xd0000001U);
-			stress_nt_store32(ptr + 7, lfsr);
+			STRESS_NT_STORE32(ptr + 7, lfsr);
 			lfsr = (lfsr >> 1) ^ (uint32_t)(-(int32_t)(lfsr & 1u) & 0xd0000001U);
 			c++;
 			if (UNLIKELY(info->max_ops && (c >= info->max_ops)))
@@ -3357,8 +3390,8 @@ do {						\
 		register uint64_t tmp;		\
 						\
 		tmp = *(p1);			\
-		stress_nt_store64((p1), *(p2));	\
-		stress_nt_store64((p2), tmp);	\
+		STRESS_NT_STORE64((p1), *(p2));	\
+		STRESS_NT_STORE64((p2), tmp);	\
 } while (0)
 
 /*
@@ -3384,23 +3417,23 @@ static size_t TARGET_CLONES stress_vm_checkerboard(const stress_vm_info_t *info)
 		for (ptr = (uint64_t *)info->buf; ptr < (uint64_t *)info->buf_end; ptr += 8) {
 			if (UNLIKELY(!stress_continue_flag()))
 				return 0;
-			stress_nt_store64(ptr + 0, v1);
-			stress_nt_store64(ptr + 1, v0);
-			stress_nt_store64(ptr + 2, v3);
-			stress_nt_store64(ptr + 3, v2);
-			stress_nt_store64(ptr + 4, v5);
-			stress_nt_store64(ptr + 5, v4);
-			stress_nt_store64(ptr + 6, v7);
-			stress_nt_store64(ptr + 7, v6);
+			STRESS_NT_STORE64(ptr + 0, v1);
+			STRESS_NT_STORE64(ptr + 1, v0);
+			STRESS_NT_STORE64(ptr + 2, v3);
+			STRESS_NT_STORE64(ptr + 3, v2);
+			STRESS_NT_STORE64(ptr + 4, v5);
+			STRESS_NT_STORE64(ptr + 5, v4);
+			STRESS_NT_STORE64(ptr + 6, v7);
+			STRESS_NT_STORE64(ptr + 7, v6);
 
-			stress_nt_store64(ptr + 0, v0);
-			stress_nt_store64(ptr + 1, v1);
-			stress_nt_store64(ptr + 2, v2);
-			stress_nt_store64(ptr + 3, v3);
-			stress_nt_store64(ptr + 4, v4);
-			stress_nt_store64(ptr + 5, v5);
-			stress_nt_store64(ptr + 6, v6);
-			stress_nt_store64(ptr + 7, v7);
+			STRESS_NT_STORE64(ptr + 0, v0);
+			STRESS_NT_STORE64(ptr + 1, v1);
+			STRESS_NT_STORE64(ptr + 2, v2);
+			STRESS_NT_STORE64(ptr + 3, v3);
+			STRESS_NT_STORE64(ptr + 4, v4);
+			STRESS_NT_STORE64(ptr + 5, v5);
+			STRESS_NT_STORE64(ptr + 6, v6);
+			STRESS_NT_STORE64(ptr + 7, v7);
 		}
 
 		for (ptr = (uint64_t *)info->buf; ptr < (uint64_t *)info->buf_end; ptr += 8) {
@@ -3541,7 +3574,9 @@ static const stress_vm_method_info_t vm_methods[] = {
 #if defined(HAVE_VECMATH)
 	{ "write1024v",		stress_vm_write1024v },
 #endif
-#if defined(HAVE_INT128_T)
+#if defined(HAVE_INT128_T) &&		\
+    (defined(HAVE_NT_STORE128) ||	\
+     defined(HAVE_NT_LOAD128))
 	{ "wrrd128nt",		stress_vm_wrrd128nt },
 #endif
 	{ "zero-one",		stress_vm_zero_one },
