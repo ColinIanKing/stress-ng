@@ -93,16 +93,6 @@
 #endif
 #endif
 
-#if defined(HAVE_BUILTIN_LGAMMAL)
-#define shim_lgammal(x)		__builtin_lgammal((x))
-#else
-#if defined(HAVE_LGAMMAL)
-#define shim_lgammal(x)		lgammal((x))
-#else
-#define shim_lgammal(x)		((long double)lgamma((double)(x)))
-#endif
-#endif
-
 #if defined(HAVE_BUILTIN_CPOW)
 #define shim_cpow(x, z)		__builtin_cpow((x), (z))
 #else
@@ -930,7 +920,11 @@
 #if defined(HAVE_BUILTIN_LGAMMAL)
 #define shim_lgammal(x)		__builtin_lgammal((x))
 #else
+#if defined(HAVE_LGAMMAL)
 #define shim_lgammal(x)		lgammal((x))
+#else
+#define shim_lgammal(x)		((long double)lgamma((double)(x)))
+#endif
 #endif
 
 #if defined(HAVE_BUILTIN_TGAMMA)
@@ -948,7 +942,11 @@
 #if defined(HAVE_BUILTIN_TGAMMAL)
 #define shim_tgammal(x)		__builtin_tgammal((x))
 #else
+#if defined(HAVE_TGAMMAL)
 #define shim_tgammal(x)		tgammal((x))
+#else
+#define shim_tgammal(x)		((long double)tgamma((double)(x)))
+#endif
 #endif
 
 #if defined(HAVE_BUILTIN_STDC_ROTATE_LEFT)
