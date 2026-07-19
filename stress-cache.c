@@ -1079,6 +1079,7 @@ static int stress_cache(stress_args_t *args)
 	uint64_t i = stress_mwc64modn(buffer_size);
 	uint64_t k = i + (buffer_size >> 1);
 	CLOBBERED uint64_t r = 0;
+	CLOBBERED uint8_t invalid_count = 0;
 	const uint64_t inc = (buffer_size >> 2) + 1;
 	void * CLOBBERED bad_addr;
 	size_t j;
@@ -1391,7 +1392,8 @@ static int stress_cache(stress_args_t *args)
 		/*
 		 * Periodically exercise invalid cache ops
 		 */
-		if ((r & 0x1f) == 0) {
+		if (invalid_count++ >= 24) {
+			invalid_count = 0;
 			jmpret = sigsetjmp(jmp_env, 1);
 			/*
 			 *  We return here if we segfault, so
