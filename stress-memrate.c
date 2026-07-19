@@ -1211,13 +1211,14 @@ static int stress_memrate_child(stress_args_t *args, void *ctxt)
 
 			for (i = 1; i < memrate_items; i++) {
 				stress_memrate_dispatch_method(context, i);
+				stress_bogo_inc(args);
 				if (UNLIKELY(!stress_continue(args)))
 					break;
 			}
 		} else {
 			stress_memrate_dispatch_method(context, context->memrate_method);
+			stress_bogo_inc(args);
 		}
-		stress_bogo_inc(args);
 	} while (stress_continue(args));
 
 	if (stress_mmap_stats(buffer, context->memrate_bytes, &mmap_stats) == 0) {
