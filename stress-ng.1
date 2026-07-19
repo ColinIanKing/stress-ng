@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, may be w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "17 July 2026"
+.TH STRESS-NG 1 "19 July 2026"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -6073,7 +6073,11 @@ chunkpage	T{
 memset page size chunks of random data into random locations
 T}
 copy128	T{
-copy 128 byte chunks from chunk N \(pl 1 to chunk N with streaming
+copy 128 byte chunks from chunk N \(pl 1 to chunk N with 128 bit memory
+accesses where possible.
+T}
+copy128nt	T{
+copy 128 byte chunks from chunk N \(pl 1 to chunk N with non-temporal
 reads and writes with 128 bit memory accesses where possible.
 T}
 flip	T{
