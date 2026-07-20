@@ -97,6 +97,6 @@ extern bool OPTIMIZE3 stress_data_is_not_zero(uint64_t *buffer, const size_t len
 extern void NORETURN stress_no_return(void);
 extern WARN_UNUSED char *stress_env_ld_library_path_get(void);
 extern void stress_make_it_fail_set(void);
-extern size_t stress_log2(size_t n);
+extern size_t stress_log2(const size_t n);
 
 #endif
