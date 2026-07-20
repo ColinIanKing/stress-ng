@@ -993,7 +993,12 @@ int CONST stress_unimplemented(stress_args_t *args)
  *	turn 64 bit size to human readable string, if no_zero is true, truncate
  *	to integer if decimal part is zero
  */
-char *stress_uint64_to_str(char *str, size_t len, const uint64_t val, const int precision, bool no_zero)
+char *stress_uint64_to_str(
+	char *str,
+	const size_t len,
+	const uint64_t val,
+	const int precision,
+	const bool no_zero)
 {
 	typedef struct {
 		const uint64_t size;

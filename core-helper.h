@@ -63,7 +63,7 @@ extern WARN_UNUSED unsigned int stress_cpu_get(void);
 extern WARN_UNUSED const char *stress_compiler_get(void) RETURNS_NONNULL;
 extern WARN_UNUSED const char *stress_uname_info_get(void) RETURNS_NONNULL;
 extern CONST WARN_UNUSED int stress_unimplemented(stress_args_t *args);
-extern char *stress_uint64_to_str(char *str, size_t len, const uint64_t val,
+extern char *stress_uint64_to_str(char *str, const size_t len, const uint64_t val,
 	const int precision, const bool no_zero);
 extern WARN_UNUSED char *stress_const_optdup(const char *opt);
 extern size_t stress_exec_text_addr(char **start, char **end);
