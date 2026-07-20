@@ -1075,7 +1075,7 @@ static int stress_cache(stress_args_t *args)
 	CLOBBERED uint32_t cache_flags_mask = CACHE_FLAGS_MASK;
 	CLOBBERED uint32_t ignored_flags = 0;
 	CLOBBERED uint32_t total = 0;
-	CLOBBERED size_t n_flags;
+	CLOBBERED size_t n_flags = 0;
 	CLOBBERED size_t perms_idx = 0;
 	CLOBBERED size_t perms_total = 0;
 	CLOBBERED size_t perms_max = 1;
@@ -1290,7 +1290,7 @@ static int stress_cache(stress_args_t *args)
 	stress_proc_state_set(args->name, STRESS_STATE_RUN);
 
 	if (masked_flags) {
-		for (n_flags = 0, j = 0; j < n_flag_bits; j++) {
+		for (j = 0; j < n_flag_bits; j++) {
 			if (masked_flags & 1U << j) {
 				perms[n_flags] = j;
 				perms_init[n_flags] = j; /* keep a copy */
