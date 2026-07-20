@@ -2065,7 +2065,7 @@ void stress_make_it_fail_set(void)
  *  stress_log2()
  *	log to the base 2 of n
  */
-size_t stress_log2(size_t n)
+size_t stress_log2(const size_t n)
 {
 #if defined(HAVE_BUILTIN_CLZLL)
 	const long long int lln = (long long int)n;
@@ -2073,9 +2073,10 @@ size_t stress_log2(size_t n)
 	return (8 * sizeof(lln)) - __builtin_clzll(lln) - 1;
 #else
 	register size_t l2;
+	register size_t i = n;
 
-	for (l2 = 0; n > 1; l2++)
-		n >>= 1;
+	for (l2 = 0; i > 1; l2++)
+		i >>= 1;
 
 	return l2;
 #endif
