@@ -257,7 +257,7 @@ typedef enum {
 
 	OPT_class,
 
-	OPT_cache_ops,
+	OPT_cache_badpage,
 	OPT_cache_clflushopt,
 	OPT_cache_cldemote,
 	OPT_cache_clwb,
@@ -266,6 +266,7 @@ typedef enum {
 	OPT_cache_flush,
 	OPT_cache_level,
 	OPT_cache_no_affinity,
+	OPT_cache_ops,
 	OPT_cache_permute,
 	OPT_cache_prefetch,
 	OPT_cache_prefetchw,

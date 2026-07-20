@@ -99,6 +99,7 @@ const struct option stress_long_options[] = {
 	{ "buildinfo",		0,	NULL,	OPT_buildinfo },
 	{ "c-states",		0,	NULL,	OPT_c_states },
 	{ "cache",		1,	NULL,	OPT_cache },
+	{ "cache-badpage",	0,	NULL,	OPT_cache_badpage },
 	{ "cache-cldemote",	0,	NULL,	OPT_cache_cldemote },
 	{ "cache-clflushopt",	0,	NULL,	OPT_cache_clflushopt },
 	{ "cache-clwb",		0,	NULL,	OPT_cache_clwb },

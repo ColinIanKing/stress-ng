@@ -27,17 +27,18 @@
 
 #include <sched.h>
 
-#define CACHE_FLAGS_PREFETCH	(0x0001U)
-#define CACHE_FLAGS_CLFLUSH	(0x0002U)
-#define CACHE_FLAGS_FENCE	(0x0004U)
-#define CACHE_FLAGS_SFENCE	(0x0008U)
-#define CACHE_FLAGS_CLFLUSHOPT	(0x0010U)
-#define CACHE_FLAGS_CLDEMOTE	(0x0020U)
-#define CACHE_FLAGS_CLWB	(0x0040U)
-#define CACHE_FLAGS_PREFETCHW	(0x0080U)
+#define CACHE_FLAGS_PREFETCH	(0x00001U)
+#define CACHE_FLAGS_CLFLUSH	(0x00002U)
+#define CACHE_FLAGS_FENCE	(0x00004U)
+#define CACHE_FLAGS_SFENCE	(0x00008U)
+#define CACHE_FLAGS_CLFLUSHOPT	(0x00010U)
+#define CACHE_FLAGS_CLDEMOTE	(0x00020U)
+#define CACHE_FLAGS_CLWB	(0x00040U)
+#define CACHE_FLAGS_PREFETCHW	(0x00080U)
 
-#define CACHE_FLAGS_PERMUTE	(0x4000U)
-#define CACHE_FLAGS_NOAFF	(0x8000U)
+#define CACHE_FLAGS_PERMUTE	(0x04000U)
+#define CACHE_FLAGS_NOAFF	(0x08000U)
+#define CACHE_FLAGS_BADPAGE	(0x10000U)
 
 #define STRESS_CACHE_MIXED_OPS	(0)
 #define STRESS_CACHE_READ	(1)
@@ -66,6 +67,7 @@ typedef struct {
 
 static const stress_help_t help[] = {
 	{ "C N","cache N",	 	"start N CPU cache thrashing workers" },
+	{ NULL,	"cache-badpage",	"cache flush on unmapped (bad) page" },
 #if defined(HAVE_ASM_X86_CLDEMOTE)
 	{ NULL,	"cache-cldemote",	"cache line demote (x86 only)" },
 #endif
@@ -99,6 +101,7 @@ static const stress_help_t help[] = {
 };
 
 static const stress_opt_t opts[] = {
+	{ OPT_cache_badpage,     "cache-badpage",     TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_cache_cldemote,    "cache-cldemote",    TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_cache_clflushopt,  "cache-clflushopt",  TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_cache_enable_all,  "cache-enable-all",  TYPE_ID_BOOL, 0, 1, NULL },
@@ -819,7 +822,11 @@ static void NORETURN MLOCKED_TEXT stress_cache_sigillhandler(int signum)
 /*
  *  exercise invalid cache flush ops
  */
-static void stress_cache_flush(void *addr, void *bad_addr, int size)
+static void stress_cache_flush(
+	void *addr,
+	void *bad_addr,
+	const int size,
+	const uint32_t cache_flags)
 {
 	(void)shim_cacheflush((char *)addr, size, 0);
 	(void)shim_cacheflush((char *)addr, size, ~0);
@@ -831,9 +838,11 @@ static void stress_cache_flush(void *addr, void *bad_addr, int size)
 #else
 	UNEXPECTED
 #endif
-	(void)shim_cacheflush((char *)bad_addr, size, SHIM_ICACHE);
-	(void)shim_cacheflush((char *)bad_addr, size, SHIM_DCACHE);
-	(void)shim_cacheflush((char *)bad_addr, size, SHIM_ICACHE | SHIM_DCACHE);
+	if (cache_flags & CACHE_FLAGS_BADPAGE) {
+		(void)shim_cacheflush((char *)bad_addr, size, SHIM_ICACHE);
+		(void)shim_cacheflush((char *)bad_addr, size, SHIM_DCACHE);
+		(void)shim_cacheflush((char *)bad_addr, size, SHIM_ICACHE | SHIM_DCACHE);
+	}
 #if defined(HAVE_BUILTIN___CLEAR_CACHE)
 	__builtin___clear_cache(addr, (void *)((uint8_t *)addr - 1));
 #else
@@ -1123,6 +1132,7 @@ static int stress_cache(stress_args_t *args)
 		goto tidy_cpus;
 	}
 
+	(void)stress_cache_flags_get("cache-badpage", &cache_flags, CACHE_FLAGS_BADPAGE);
 	(void)stress_cache_flags_get("cache-cldemote", &cache_flags, CACHE_FLAGS_CLDEMOTE);
 	(void)stress_cache_flags_get("cache-clflushopt", &cache_flags, CACHE_FLAGS_CLFLUSHOPT);
 	(void)stress_cache_flags_get("cache-enable-all", &cache_flags, CACHE_FLAGS_MASK);
@@ -1403,7 +1413,7 @@ static int stress_cache(stress_args_t *args)
 				break;
 
 			if (!jmpret)
-				stress_cache_flush(buffer, bad_addr, (int)args->page_size);
+				stress_cache_flush(buffer, bad_addr, (int)args->page_size, cache_flags);
 		}
 next:
 		/* Move forward a bit */
