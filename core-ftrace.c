@@ -139,7 +139,7 @@ void stress_ftrace_free(void)
  *  stress_ftrace_tracing_on()
  *	set tracing_on setting to on or off
  */
-static int stress_ftrace_tracing_on(bool on)
+static int stress_ftrace_tracing_on(const bool on)
 {
 	const char *str = on ? "1" : "0";
 	const char *path = stress_ftrace_debugfs_path_get();
@@ -161,7 +161,7 @@ static int stress_ftrace_tracing_on(bool on)
  *  stress_ftrace_events_syscalls_enable()
  * 	set events/syscalls/enable to on or off
  */
-static int stress_ftrace_events_syscalls_enable(bool on)
+static int stress_ftrace_events_syscalls_enable(const bool on)
 {
 	const char *str = on ? "1" : "0";
 	const char *path = stress_ftrace_debugfs_path_get();
@@ -183,7 +183,7 @@ static int stress_ftrace_events_syscalls_enable(bool on)
  *  stress_ftrace_current_tracer()
  *	set current_tracer to str setting, report error if carp is true
  */
-static int stress_ftrace_current_tracer(const char *str, bool carp)
+static int stress_ftrace_current_tracer(const char *str, const bool carp)
 {
 	const char *path = stress_ftrace_debugfs_path_get();
 	char filename[PATH_MAX];
