@@ -181,7 +181,7 @@ static inline OPTIMIZE3 void stress_pagescatter_pages_read(
 	size_t i;
 	size_t count = 0;
 	double t;
-	size_t n = page_size >> 3;
+	const size_t n = page_size >> 3;
 
 	t = stress_time_now();
 	for (i = 0; i < n_pages; i++) {
@@ -222,7 +222,7 @@ static inline OPTIMIZE3 void stress_pagescatter_pages_write(
 	size_t i;
 	size_t count = 0;
 	double t;
-	size_t n = page_size >> 3;
+	const size_t n = page_size >> 3;
 	uint64_t val = 0x8040201008040201ULL;
 
 	t = stress_time_now();
