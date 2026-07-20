@@ -188,7 +188,7 @@ static inline OPTIMIZE3 void stress_pagescatter_pages_read(
 		register volatile const uint64_t *ptr = (volatile const uint64_t *)info->pages[i];
 
 		if (ptr != MAP_FAILED) {
-			register volatile const uint64_t *ptr_end = info->pages[i] + n;
+			register volatile const uint64_t *ptr_end = ptr + n;
 
 PRAGMA_UNROLL
 			while (ptr < ptr_end) {
@@ -230,7 +230,7 @@ static inline OPTIMIZE3 void stress_pagescatter_pages_write(
 		register uint64_t *ptr = info->pages[i];
 
 		if (ptr != MAP_FAILED) {
-			register const uint64_t *ptr_end = info->pages[i] + n;
+			register const uint64_t *ptr_end = ptr + n;
 
 PRAGMA_UNROLL
 			while (ptr < ptr_end) {
