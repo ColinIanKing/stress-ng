@@ -35,7 +35,7 @@
 
 typedef int (*atomic_func_t)(stress_args_t *args, double *duration, double *count);
 
-#define DO_NOTHING()	do { } while (0)
+#define DO_NOTHING()	do { do_nothing++; } while (0)
 
 #if defined(HAVE_ATOMIC_ADD_FETCH)
 #define HAVE_ATOMIC_OPS
@@ -200,6 +200,7 @@ do {									\
 	double t;							\
 	type tmp = (type)stress_mwc64();				\
 	type unshared, check1 = tmp, check2 = (type)~tmp;		\
+	int do_nothing = 0;						\
 									\
 	t = stress_time_now();						\
 	/* 4 ops */							\
@@ -293,7 +294,7 @@ do {									\
 	SHIM_ATOMIC_CLEAR(var, __ATOMIC_RELAXED);			\
 									\
 	(*duration) += stress_time_now() - t;				\
-	(*count) += 68.0;						\
+	(*count) += 68.0 - (double)do_nothing;				\
 									\
 	(void)tmp;							\
 	check2--;							\
