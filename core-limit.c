@@ -73,7 +73,7 @@ static const stress_rlimit_t limits[] = {
 #endif
 };
 
-static void stress_limit_set(int resource, const char *opt)
+static void stress_limit_set(const int resource, const char *opt)
 {
 	struct rlimit rlim;
 	uint64_t val = 0;
