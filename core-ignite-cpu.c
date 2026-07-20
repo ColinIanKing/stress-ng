@@ -77,7 +77,7 @@ static stress_settings_t settings[] = {
  *	if we cannot apply them.
  */
 static void stress_ignite_cpu_set(
-	bool maximize_freq,
+	const bool maximize_freq,
 	const int32_t cpu,
 	const uint64_t max_freq,
 	const uint64_t min_freq,
