@@ -49,12 +49,13 @@ extern void stress_mmap_set_light(uint8_t *buf, const size_t sz, const size_t pa
 extern int stress_mmap_check_light(uint8_t *buf, const size_t sz, const size_t page_size);
 extern WARN_UNUSED void *stress_mmap_populate(void *addr, size_t length, int prot,
 	int flags, int fd, off_t offset);
-extern WARN_UNUSED void *stress_mmap_anon_shared(size_t length, int prot);
-extern int stress_munmap_anon_shared(void *addr, size_t length);
-extern int stress_munmap_force(void *addr, size_t length);
+extern WARN_UNUSED void *stress_mmap_anon_shared(const size_t length, const int prot);
+extern int stress_munmap_anon_shared(void *addr, const size_t length);
+extern int stress_munmap_force(void *addr, const size_t length);
 extern WARN_UNUSED int stress_mmap_stats(void *addr, const size_t length, stress_mmap_stats_t *stats);
 extern void stress_mmap_stats_sum(stress_mmap_stats_t *stats_total, const stress_mmap_stats_t *stats);
-extern void stress_mmap_stats_report(stress_args_t *args, const stress_mmap_stats_t *stats, const int flags);
+extern void stress_mmap_stats_report(stress_args_t *args, const stress_mmap_stats_t *stats,
+	const int flags);
 extern void stress_mmap_discontiguous(void *addr, const size_t len);
 extern void stress_mmap_populate_forward(void *addr, const size_t len, const int prot);
 extern void stress_mmap_populate_reverse(void *addr, const size_t len, const int prot);

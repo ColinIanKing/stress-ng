@@ -247,7 +247,7 @@ void *stress_mmap_populate(
  *	simplified anonymous shared mmap, use SYSV shm for
  *	systems that don't support this feature
  */
-void *stress_mmap_anon_shared(size_t length, int prot)
+void *stress_mmap_anon_shared(const size_t length, const int prot)
 {
 #if defined(HAVE_SYS_SHM_H) &&	\
     defined(__fiwix__)
@@ -342,7 +342,7 @@ static size_t stress_mapping_hugetlb_size(void *addr)
  *	this is not a munmap shim, it's a forceful munmap to cope
  *	with unexpected low memory or hugetlb umapping errors
  */
-int stress_munmap_force(void *addr, size_t length)
+int stress_munmap_force(void *addr, const size_t length)
 {
 	int ret;
 	int i;
@@ -409,7 +409,7 @@ int stress_munmap_force(void *addr, size_t length)
  *	unmap for stress_mmap_anon_shared, use SYSV shm for
  *	systems that don't support this feature
  */
-int stress_munmap_anon_shared(void *addr, size_t length)
+int stress_munmap_anon_shared(void *addr, const size_t length)
 {
 #if defined(HAVE_SYS_SHM_H) &&	\
     defined(__fiwix__)
@@ -433,7 +433,10 @@ int stress_munmap_anon_shared(void *addr, size_t length)
  *	perform pread if available, otherwise seek + read,
  *	only required for stress_mmap_stats()
  */
-static inline ssize_t stress_mmap_pread(int fd, void *buf, size_t count, off_t offset)
+static inline ssize_t stress_mmap_pread(
+	const int fd,
+	void *buf, size_t count,
+	const off_t offset)
 {
 #if defined(HAVE_PREADV) && 0
 	return pread(fd, buf, count, offset);
@@ -541,7 +544,7 @@ void stress_mmap_stats_sum(
 void stress_mmap_stats_report(
 	stress_args_t *args,
 	const stress_mmap_stats_t *stats,
-	int flags)
+	const int flags)
 {
 	if (stats->pages_mapped > 0) {
 		double pc;
