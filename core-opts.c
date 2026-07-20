@@ -23,17 +23,22 @@
  */
 const struct option stress_long_options[] = {
 	{ "abort",		0,	NULL,	OPT_abort },
+
 	{ "access",		1,	NULL,	OPT_access },
 	{ "access-ops",		1,	NULL,	OPT_access_ops },
+
 	{ "acl",		1,	NULL,	OPT_acl },
 	{ "acl-ops",		1,	NULL,	OPT_acl_ops },
 	{ "acl-rand",		0,	NULL,	OPT_acl_rand },
+
 	{ "acct",		1,	NULL,	OPT_acct },
 	{ "acct-ops",		1,	NULL,	OPT_acct_ops },
+
 	{ "af-alg",		1,	NULL,	OPT_af_alg },
 	{ "af-alg-dump",	0,	NULL,	OPT_af_alg_dump },
 	{ "af-alg-ops",		1,	NULL,	OPT_af_alg_ops },
 	{ "af-alg-type",	1,	NULL,	OPT_af_alg_type },
+
 	{ "affinity",		1,	NULL,	OPT_affinity },
 	{ "affinity-delay",	1,	NULL,	OPT_affinity_delay },
 	{ "affinity-ops",	1,	NULL,	OPT_affinity_ops },
@@ -41,63 +46,88 @@ const struct option stress_long_options[] = {
 	{ "affinity-procs",	1,	NULL,	OPT_affinity_procs },
 	{ "affinity-rand",	0,	NULL,	OPT_affinity_rand },
 	{ "affinity-sleep",	1,	NULL,	OPT_affinity_sleep },
+
 	{ "aggressive",		0,	NULL,	OPT_aggressive },
+
 	{ "aio",		1,	NULL,	OPT_aio },
 	{ "aio-ops",		1,	NULL,	OPT_aio_ops },
 	{ "aio-requests",	1,	NULL,	OPT_aio_requests },
+
 	{ "aiol",		1,	NULL,	OPT_aiol },
 	{ "aiol-ops",		1,	NULL,	OPT_aiol_ops },
 	{ "aiol-requests",	1,	NULL,	OPT_aiol_requests },
+
 	{ "alarm",		1,	NULL,	OPT_alarm },
 	{ "alarm-ops",		1,	NULL,	OPT_alarm_ops },
+
 	{ "all",		1,	NULL,	OPT_all },
+
 	{ "apparmor",		1,	NULL,	OPT_apparmor },
 	{ "apparmor-ops",	1,	NULL,	OPT_apparmor_ops },
+
 	{ "atomic",		1,	NULL,	OPT_atomic },
 	{ "atomic-ops",		1,	NULL,	OPT_atomic_ops },
+
 	{ "autogroup",		0,	NULL,	OPT_autogroup },
+
 	{ "bad-altstack",	1,	NULL,	OPT_bad_altstack },
 	{ "bad-altstack-ops",	1,	NULL,	OPT_bad_altstack_ops },
+
 	{ "bad-ioctl",		1,	NULL,	OPT_bad_ioctl },
 	{ "bad-ioctl-method",	1,	NULL,	OPT_bad_ioctl_method },
 	{ "bad-ioctl-ops",	1,	NULL,	OPT_bad_ioctl_ops },
+
 	{ "backoff",		1,	NULL,	OPT_backoff },
+
 	{ "besselmath",		1,	NULL,	OPT_besselmath },
 	{ "besselmath-method",	1,	NULL,	OPT_besselmath_method },
 	{ "besselmath-ops",	1,	NULL,	OPT_besselmath_ops },
+
 	{ "bigheap",		1,	NULL,	OPT_bigheap },
 	{ "bigheap-bytes",	1,	NULL,	OPT_bigheap_bytes },
 	{ "bigheap-growth",	1,	NULL,	OPT_bigheap_growth },
 	{ "bigheap-mlock",	0,	NULL,	OPT_bigheap_mlock },
 	{ "bigheap-ops",	1,	NULL,	OPT_bigheap_ops },
+
 	{ "bind-mount",		1,	NULL,	OPT_bind_mount },
 	{ "bind-mount-ops",	1,	NULL,	OPT_bind_mount_ops },
+
 	{ "binderfs",		1,	NULL,	OPT_binderfs },
 	{ "binderfs-ops",	1,	NULL,	OPT_binderfs_ops },
+
 	{ "bitonicsort",	1,	NULL,	OPT_bitonicsort },
 	{ "bitonicsort-ops",	1,	NULL,	OPT_bitonicsort_ops },
 	{ "bitonicsort-size",	1,	NULL,	OPT_bitonicsort_size },
+
 	{ "bitops",		1,	NULL,	OPT_bitops },
 	{ "bitops-method",	1,	NULL,	OPT_bitops_method },
 	{ "bitops-ops",		1,	NULL,	OPT_bitops_ops },
+
 	{ "branch",		1,	NULL,	OPT_branch },
 	{ "branch-ops",		1,	NULL,	OPT_branch_ops },
+
 	{ "brk",		1,	NULL,	OPT_brk },
 	{ "brk-bytes",		1,	NULL,	OPT_brk_bytes },
 	{ "brk-mlock",		0,	NULL,	OPT_brk_mlock },
 	{ "brk-notouch",	0,	NULL,	OPT_brk_notouch },
 	{ "brk-ops",		1,	NULL,	OPT_brk_ops },
+
 	{ "bsearch",		1,	NULL,	OPT_bsearch },
 	{ "bsearch-method",	1,	NULL,	OPT_bsearch_method },
 	{ "bsearch-ops",	1,	NULL,	OPT_bsearch_ops },
 	{ "bsearch-size",	1,	NULL,	OPT_bsearch_size },
+
 	{ "bubblesort",		1,	NULL,	OPT_bubblesort },
 	{ "bubblesort-method",	1,	NULL,	OPT_bubblesort_method },
 	{ "bubblesort-ops",	1,	NULL,	OPT_bubblesort_ops },
 	{ "bubblesort-size",	1,	NULL,	OPT_bubblesort_size },
+
 	{ "buddystat",		1,	NULL,	OPT_buddystat },
+
 	{ "buildinfo",		0,	NULL,	OPT_buildinfo },
+
 	{ "c-states",		0,	NULL,	OPT_c_states },
+
 	{ "cache",		1,	NULL,	OPT_cache },
 	{ "cache-badpage",	0,	NULL,	OPT_cache_badpage },
 	{ "cache-cldemote",	0,	NULL,	OPT_cache_cldemote },
@@ -115,49 +145,69 @@ const struct option stress_long_options[] = {
 	{ "cache-size",		1,	NULL,	OPT_cache_size },
 	{ "cache-sfence",	0,	NULL,	OPT_cache_sfence },
 	{ "cache-ways",		1,	NULL,	OPT_cache_ways },
+
 	{ "cachehammer",	1,	NULL,	OPT_cachehammer },
 	{ "cachehammer-method",	1,	NULL,	OPT_cachehammer_method },
 	{ "cachehammer-numa",	0,	NULL,	OPT_cachehammer_numa },
 	{ "cachehammer-ops",	1,	NULL,	OPT_cachehammer_ops },
+
 	{ "cacheline",		1,	NULL,	OPT_cacheline },
 	{ "cacheline-affinity",	0,	NULL,	OPT_cacheline_affinity },
 	{ "cacheline-method",	1,	NULL,	OPT_cacheline_method },
 	{ "cacheline-ops",	1,	NULL,	OPT_cacheline_ops },
+
 	{ "cap",		1,	NULL,	OPT_cap },
 	{ "cap-ops",		1,	NULL,	OPT_cap_ops },
+
 	{ "cgroup",		1,	NULL,	OPT_cgroup },
 	{ "cgroup-ops",		1,	NULL,	OPT_cgroup_ops },
+
 	{ "chattr",		1,	NULL,	OPT_chattr },
 	{ "chattr-ops",		1,	NULL,	OPT_chattr_ops },
+
 	{ "change-cpu",		0,	NULL,	OPT_change_cpu },
+
 	{ "chdir",		1,	NULL,	OPT_chdir },
 	{ "chdir-dirs",		1,	NULL,	OPT_chdir_dirs },
 	{ "chdir-ops",		1,	NULL,	OPT_chdir_ops },
+
 	{ "chmod",		1,	NULL,	OPT_chmod },
 	{ "chmod-ops",		1,	NULL,	OPT_chmod_ops },
+
 	{ "chown",		1,	NULL,	OPT_chown },
 	{ "chown-ops",		1,	NULL,	OPT_chown_ops },
+
 	{ "chroot",		1,	NULL,	OPT_chroot },
 	{ "chroot-ops",		1,	NULL,	OPT_chroot_ops },
+
 	{ "chyperbolic",	1,	NULL,	OPT_chyperbolic },
 	{ "chyperbolic-method",	1,	NULL,	OPT_chyperbolic_method },
 	{ "chyperbolic-ops",	1,	NULL,	OPT_chyperbolic_ops },
+
 	{ "class",		1,	NULL,	OPT_class },
+
 	{ "clock",		1,	NULL,	OPT_clock },
 	{ "clock-ops",		1,	NULL,	OPT_clock_ops },
+
 	{ "clone",		1,	NULL,	OPT_clone },
 	{ "clone-max",		1,	NULL,	OPT_clone_max },
 	{ "clone-ops",		1,	NULL,	OPT_clone_ops },
+
 	{ "close",		1,	NULL,	OPT_close },
 	{ "close-fds",		1,	NULL,	OPT_close_fds },
 	{ "close-ops",		1,	NULL,	OPT_close_ops },
+
 	{ "compact-memory",	0,	NULL,	OPT_compact_memory },
+
 	{ "config",		0,	NULL,	OPT_config },
+
 	{ "context",		1,	NULL,	OPT_context },
 	{ "context-ops",	1,	NULL,	OPT_context_ops },
+
 	{ "copy-file",		1,	NULL,	OPT_copy_file },
 	{ "copy-file-bytes",	1,	NULL,	OPT_copy_file_bytes },
 	{ "copy-file-ops",	1,	NULL,	OPT_copy_file_ops },
+
 	{ "cpu",		1,	NULL,	OPT_cpu },
 	{ "cpu-ops",		1,	NULL,	OPT_cpu_ops },
 	{ "cpu-load",		1,	NULL,	OPT_cpu_load },
@@ -170,14 +220,18 @@ const struct option stress_long_options[] = {
 	{ "cpu-sched",		1,	NULL,	OPT_cpu_sched },
 	{ "cpu-sched-ops",	1,	NULL,	OPT_cpu_sched_ops },
 	{ "cpu-sched-procs",	1,	NULL,	OPT_cpu_sched_procs },
+
 	{ "crc",		1,	NULL,	OPT_crc },
 	{ "crc-ops",		1,	NULL,	OPT_crc_ops },
+
 	{ "crypt",		1,	NULL,	OPT_crypt },
 	{ "crypt-method",	1,	NULL,	OPT_crypt_method },
 	{ "crypt-ops",		1,	NULL,	OPT_crypt_ops },
+
 	{ "ctrig",		1,	NULL,	OPT_ctrig },
 	{ "ctrig-method",	1,	NULL,	OPT_ctrig_method },
 	{ "ctrig-ops",		1,	NULL,	OPT_ctrig_ops },
+
 	{ "cyclic",		1,	NULL,	OPT_cyclic },
 	{ "cyclic-dist",	1,	NULL,	OPT_cyclic_dist },
 	{ "cyclic-method",	1,	NULL,	OPT_cyclic_method },
@@ -186,9 +240,11 @@ const struct option stress_long_options[] = {
 	{ "cyclic-prio",	1,	NULL,	OPT_cyclic_prio },
 	{ "cyclic-samples",	1,	NULL,	OPT_cyclic_samples },
 	{ "cyclic-sleep",	1,	NULL,	OPT_cyclic_sleep },
+
 	{ "daemon",		1,	NULL,	OPT_daemon },
 	{ "daemon-ops",		1,	NULL,	OPT_daemon_ops },
 	{ "daemon-wait",	0,	NULL,	OPT_daemon_wait },
+
 	{ "dccp",		1,	NULL,	OPT_dccp },
 	{ "dccp-domain",	1,	NULL,	OPT_dccp_domain },
 	{ "dccp-if",		1,	NULL,	OPT_dccp_if },
@@ -196,197 +252,261 @@ const struct option stress_long_options[] = {
 	{ "dccp-ops",		1,	NULL,	OPT_dccp_ops },
 	{ "dccp-opts",		1,	NULL,	OPT_dccp_opts },
 	{ "dccp-port",		1,	NULL,	OPT_dccp_port },
+
 	{ "dekker",		1,	NULL,	OPT_dekker },
 	{ "dekker-ops",		1,	NULL,	OPT_dekker_ops },
+
 	{ "dentry",		1,	NULL,	OPT_dentry },
 	{ "dentry-negative",	0,	NULL,	OPT_dentry_negative },
 	{ "dentry-ops",		1,	NULL,	OPT_dentry_ops },
 	{ "dentries",		1,	NULL,	OPT_dentries },
 	{ "dentry-order",	1,	NULL,	OPT_dentry_order },
+
 	{ "dev",		1,	NULL,	OPT_dev },
 	{ "dev-file",		1,	NULL,	OPT_dev_file },
 	{ "dev-ops",		1,	NULL,	OPT_dev_ops },
 	{ "dev-shm",		1,	NULL,	OPT_dev_shm },
 	{ "dev-shm-ops",	1,	NULL,	OPT_dev_shm_ops },
+
 	{ "dfp",		1,	NULL,	OPT_dfp },
 	{ "dfp-method",		1,	NULL,	OPT_dfp_method },
 	{ "dfp-ops",		1,	NULL,	OPT_dfp_ops },
+
 	{ "dir",		1,	NULL,	OPT_dir },
 	{ "dir-dirs",		1,	NULL,	OPT_dir_dirs },
 	{ "dir-ops",		1,	NULL,	OPT_dir_ops },
+
 	{ "dirdeep",		1,	NULL,	OPT_dirdeep },
 	{ "dirdeep-bytes",	1,	NULL,	OPT_dirdeep_bytes },
 	{ "dirdeep-dirs",	1,	NULL,	OPT_dirdeep_dirs },
 	{ "dirdeep-files",	1,	NULL,	OPT_dirdeep_files },
 	{ "dirdeep-inodes",	1,	NULL,	OPT_dirdeep_inodes },
 	{ "dirdeep-ops",	1,	NULL,	OPT_dirdeep_ops },
+
 	{ "dirmany",		1,	NULL,	OPT_dirmany },
 	{ "dirmany-bytes",	1,	NULL,	OPT_dirmany_bytes },
 	{ "dirmany-ops",	1,	NULL,	OPT_dirmany_ops },
+
 	{ "dry-run",		0,	NULL,	OPT_dry_run },
+
 	{ "dnotify",		1,	NULL,	OPT_dnotify },
 	{ "dnotify-ops",	1,	NULL,	OPT_dnotify_ops },
+
 	{ "dup",		1,	NULL,	OPT_dup },
 	{ "dup-ops",		1,	NULL,	OPT_dup_ops },
+
 	{ "dynlib",		1,	NULL,	OPT_dynlib },
 	{ "dynlib-ops",		1,	NULL,	OPT_dynlib_ops },
+
 	{ "easy-opcode",	1,	NULL,	OPT_easy_opcode },
 	{ "easy-opcode-ops",	1,	NULL,	OPT_easy_opcode_ops },
+
 	{ "eigen",		1,	NULL,	OPT_eigen },
 	{ "eigen-ops",		1,	NULL,	OPT_eigen_ops },
 	{ "eigen-method",	1,	NULL,	OPT_eigen_method },
 	{ "eigen-size",		1,	NULL,	OPT_eigen_size },
+
 	{ "efivar",		1,	NULL,	OPT_efivar },
 	{ "efivar-ops",		1,	NULL,	OPT_efivar_ops },
+
 	{ "enosys",		1,	NULL,	OPT_enosys },
 	{ "enosys-ops",		1,	NULL,	OPT_enosys_ops },
+
 	{ "env",		1,	NULL,	OPT_env },
 	{ "env-ops",		1,	NULL,	OPT_env_ops },
+
 	{ "epoll",		1,	NULL,	OPT_epoll },
 	{ "epoll-domain",	1,	NULL,	OPT_epoll_domain },
 	{ "epoll-ops",		1,	NULL,	OPT_epoll_ops },
 	{ "epoll-port",		1,	NULL,	OPT_epoll_port },
 	{ "epoll-sockets",	1,	NULL,	OPT_epoll_sockets },
+
 	{ "eth-sniff",		1,	NULL,	OPT_eth_sniff },
 	{ "eth-sniff-ops",	1,	NULL,	OPT_eth_sniff_ops },
+
 	{ "eventfd",		1,	NULL,	OPT_eventfd },
 	{ "eventfd-nonblock",	0,	NULL,	OPT_eventfd_nonblock },
 	{ "eventfd-ops",	1,	NULL,	OPT_eventfd_ops },
+
 	{ "exclude",		1,	NULL,	OPT_exclude },
+
 	{ "exec",		1,	NULL,	OPT_exec },
 	{ "exec-fork-method",	1,	NULL,	OPT_exec_fork_method },
 	{ "exec-max",		1,	NULL,	OPT_exec_max },
 	{ "exec-method",	1,	NULL,	OPT_exec_method },
 	{ "exec-no-pthread",	0,	NULL,	OPT_exec_no_pthread },
 	{ "exec-ops",		1,	NULL,	OPT_exec_ops },
+
 	{ "exercised",		0,	NULL,	OPT_exercised },
 	{ "exercise-feature",	1,	NULL,	OPT_exercise_feature },
 	{ "exercise-library",	1,	NULL,	OPT_exercise_library },
 	{ "exercise-syscall",	1,	NULL,	OPT_exercise_syscall },
+
 	{ "exit-group",		1,	NULL,	OPT_exit_group },
 	{ "exit-group-ops",	1,	NULL,	OPT_exit_group_ops },
+
 	{ "expmath",		1,	NULL,	OPT_expmath },
 	{ "expmath-method",	1,	NULL,	OPT_expmath_method },
 	{ "expmath-ops",	1,	NULL,	OPT_expmath_ops },
+
 	{ "factor",		1,	NULL,	OPT_factor },
 	{ "factor-digits",	1,	NULL,	OPT_factor_digits },
 	{ "factor-ops",		1,	NULL,	OPT_factor_ops },
+
 	{ "fallocate",		1,	NULL,	OPT_fallocate },
 	{ "fallocate-bytes",	1,	NULL,	OPT_fallocate_bytes },
 	{ "fallocate-ops",	1,	NULL,	OPT_fallocate_ops },
+
 	{ "fanotify",		1,	NULL,	OPT_fanotify },
 	{ "fanotify-ops",	1,	NULL,	OPT_fanotify_ops },
+
 	{ "far-branch",		1,	NULL,	OPT_far_branch },
 	{ "far-branch-flush",	0,	NULL,	OPT_far_branch_flush },
 	{ "far-branch-ops",	1,	NULL,	OPT_far_branch_ops },
 	{ "far-branch-pageout",	0,	NULL,	OPT_far_branch_pageout },
 	{ "far-branch-pages",	1,	NULL,	OPT_far_branch_pages },
+
 	{ "fault",		1,	NULL,	OPT_fault },
 	{ "fault-ops",		1,	NULL,	OPT_fault_ops },
+
 	{ "fcntl",		1,	NULL,	OPT_fcntl },
 	{ "fcntl-ops",		1,	NULL,	OPT_fcntl_ops },
+
 	{ "fd-abuse",		1,	NULL,	OPT_fd_abuse },
 	{ "fd-abuse-ops",	1,	NULL,	OPT_fd_abuse_ops },
+
 	{ "fd-fork",		1,	NULL,	OPT_fd_fork },
 	{ "fd-fork-fds",	1,	NULL,	OPT_fd_fork_fds },
 	{ "fd-fork-file",	1,	NULL,	OPT_fd_fork_file },
 	{ "fd-fork-ops",	1,	NULL,	OPT_fd_fork_ops },
+
 	{ "fd-race",		1,	NULL,	OPT_fd_race },
 	{ "fd-race-dev",	0,	NULL,	OPT_fd_race_dev },
 	{ "fd-race-ops",	1,	NULL,	OPT_fd_race_ops },
 	{ "fd-race-proc",	0,	NULL,	OPT_fd_race_proc },
+
 	{ "fibsearch",		1,	NULL,	OPT_fibsearch },
 	{ "fibsearch-ops",	1,	NULL,	OPT_fibsearch_ops },
 	{ "fibsearch-size",	1,	NULL,	OPT_fibsearch_size },
+
 	{ "fiemap",		1,	NULL,	OPT_fiemap },
 	{ "fiemap-bytes",	1,	NULL,	OPT_fiemap_bytes },
 	{ "fiemap-ops",		1,	NULL,	OPT_fiemap_ops },
+
 	{ "fifo",		1,	NULL,	OPT_fifo },
 	{ "fifo-data-size",	1,	NULL,	OPT_fifo_data_size },
 	{ "fifo-ops",		1,	NULL,	OPT_fifo_ops },
 	{ "fifo-readers",	1,	NULL,	OPT_fifo_readers },
+
 	{ "file-ioctl",		1,	NULL,	OPT_file_ioctl },
 	{ "file-ioctl-ops",	1,	NULL,	OPT_file_ioctl_ops },
+
 	{ "filehole",		1,	NULL,	OPT_filehole },
 	{ "filehole-bytes",	1,	NULL,	OPT_filehole_bytes  },
 	{ "filehole-defrag",	0,	NULL,	OPT_filehole_defrag },
 	{ "filehole-ops",	1,	NULL,	OPT_filehole_ops },
+
 	{ "filename",		1,	NULL,	OPT_filename },
 	{ "filename-ops",	1,	NULL,	OPT_filename_ops },
 	{ "filename-opts",	1,	NULL,	OPT_filename_opts },
+
 	{ "filerace",		1,	NULL,	OPT_filerace },
 	{ "filerace-ops",	1,	NULL,	OPT_filerace_ops },
 	{ "filerace-procs",	1,	NULL,	OPT_filerace_procs },
+
 	{ "flipflop",		1,	NULL,	OPT_flipflop },
 	{ "flipflop-bits",	1,	NULL,	OPT_flipflop_bits },
 	{ "flipflop-ops",	1,	NULL,	OPT_flipflop_ops },
 	{ "flipflop-taskset1",	1,	NULL,	OPT_flipflop_taskset1 },
 	{ "flipflop-taskset2",	1,	NULL,	OPT_flipflop_taskset2 },
+
 	{ "flock",		1,	NULL,	OPT_flock },
 	{ "flock-ops",		1,	NULL,	OPT_flock_ops },
+
 	{ "flushcache",		1,	NULL,	OPT_flushcache },
 	{ "flushcache-d-bytes",	1,	NULL,	OPT_flushcache_d_bytes },
 	{ "flushcache-i-bytes",	1,	NULL,	OPT_flushcache_i_bytes },
 	{ "flushcache-ops",	1,	NULL,	OPT_flushcache_ops },
+
 	{ "fma",		1,	NULL,	OPT_fma },
 	{ "fma-ops",		1,	NULL,	OPT_fma_ops },
 	{ "fma-libc",		0,	NULL,	OPT_fma_libc },
+
 	{ "fork",		1,	NULL,	OPT_fork },
 	{ "fork-max",		1,	NULL,	OPT_fork_max },
 	{ "fork-ops",		1,	NULL,	OPT_fork_ops },
 	{ "fork-pageout",	0,	NULL,	OPT_fork_pageout },
 	{ "fork-unmap",		0,	NULL,	OPT_fork_unmap },
 	{ "fork-vm",		0,	NULL,	OPT_fork_vm },
+
 	{ "forkheavy",		1,	NULL,	OPT_forkheavy },
 	{ "forkheavy-allocs",	1,	NULL,	OPT_forkheavy_allocs },
 	{ "forkheavy-mlock",	0,	NULL,	OPT_forkheavy_mlock },
 	{ "forkheavy-ops",	1,	NULL,	OPT_forkheavy_ops },
 	{ "forkheavy-procs",	1,	NULL,	OPT_forkheavy_procs },
+
 	{ "fp",			1,	NULL,	OPT_fp },
 	{ "fp-method",		1,	NULL,	OPT_fp_method },
 	{ "fp-ops",		1,	NULL,	OPT_fp_ops },
+
 	{ "fp-error",		1,	NULL,	OPT_fp_error },
 	{ "fp-error-ops",	1,	NULL,	OPT_fp_error_ops },
+
 	{ "fp-misc",		1,	NULL,	OPT_fp_misc },
 	{ "fp-misc-ops",	1,	NULL,	OPT_fp_misc_ops },
+
 	{ "fpunch",		1,	NULL,	OPT_fpunch },
 	{ "fpunch-bytes",	1,	NULL,	OPT_fpunch_bytes },
 	{ "fpunch-ops",		1,	NULL,	OPT_fpunch_ops },
+
 	{ "fractal",		1,	NULL,	OPT_fractal },
 	{ "fractal-iterations",	1,	NULL,	OPT_fractal_iterations },
 	{ "fractal-method",	1,	NULL,	OPT_fractal_method },
 	{ "fractal-ops",	1,	NULL,	OPT_fractal_ops },
 	{ "fractal-xsize",	1,	NULL,	OPT_fractal_xsize },
 	{ "fractal-ysize",	1,	NULL,	OPT_fractal_ysize },
+
 	{ "fsize",		1,	NULL,	OPT_fsize },
 	{ "fsize-ops",		1,	NULL,	OPT_fsize_ops },
+
 	{ "fstat",		1,	NULL,	OPT_fstat },
 	{ "fstat-dir",		1,	NULL,	OPT_fstat_dir },
 	{ "fstat-ops",		1,	NULL,	OPT_fstat_ops },
+
 	{ "ftrace",		0,	NULL,	OPT_ftrace },
+
 	{ "full",		1,	NULL,	OPT_full },
 	{ "full-ops",		1,	NULL,	OPT_full_ops },
+
 	{ "funccall",		1,	NULL,	OPT_funccall },
 	{ "funccall-method",	1,	NULL,	OPT_funccall_method },
 	{ "funccall-ops",	1,	NULL,	OPT_funccall_ops },
+
 	{ "funcret",		1,	NULL,	OPT_funcret },
 	{ "funcret-method",	1,	NULL,	OPT_funcret_method },
 	{ "funcret-ops",	1,	NULL,	OPT_funcret_ops },
+
 	{ "futex",		1,	NULL,	OPT_futex },
 	{ "futex-ops",		1,	NULL,	OPT_futex_ops },
+
 	{ "gamma",		1,	NULL,	OPT_gamma },
 	{ "gamma-method",	1,	NULL,	OPT_gamma_method },
 	{ "gamma-ops",		1,	NULL,	OPT_gamma_ops },
+
 	{ "get",		1,	NULL,	OPT_get },
 	{ "get-ops",		1,	NULL,	OPT_get_ops },
 	{ "get-slow-sync",	0,	NULL,	OPT_get_slow_sync },
+
 	{ "getrandom",		1,	NULL,	OPT_getrandom },
 	{ "getrandom-ops",	1,	NULL,	OPT_getrandom_ops },
+
 	{ "getdent",		1,	NULL,	OPT_getdent },
 	{ "getdent-ops",	1,	NULL,	OPT_getdent_ops },
+
 	{ "goto",		1,	NULL,	OPT_goto },
 	{ "goto-direction", 	1,	NULL,	OPT_goto_direction },
 	{ "goto-ops",		1,	NULL,	OPT_goto_ops },
+
 	{ "gpu",		1,	NULL,	OPT_gpu },
 	{ "gpu-devnode",	1,	NULL,	OPT_gpu_devnode },
 	{ "gpu-frag",		1,	NULL,	OPT_gpu_frag },
@@ -395,105 +515,143 @@ const struct option stress_long_options[] = {
 	{ "gpu-upload",		1,	NULL,	OPT_gpu_upload },
 	{ "gpu-xsize",		1,	NULL,	OPT_gpu_xsize },
 	{ "gpu-ysize",		1,	NULL,	OPT_gpu_ysize },
+
 	{ "handle",		1,	NULL,	OPT_handle },
 	{ "handle-ops",		1,	NULL,	OPT_handle_ops },
+
 	{ "hash",		1,	NULL,	OPT_hash },
 	{ "hash-method",	1,	NULL,	OPT_hash_method },
 	{ "hash-ops",		1,	NULL,	OPT_hash_ops },
+
 	{ "hdd",		1,	NULL,	OPT_hdd },
 	{ "hdd-bytes",		1,	NULL,	OPT_hdd_bytes },
 	{ "hdd-ops",		1,	NULL,	OPT_hdd_ops },
 	{ "hdd-opts",		1,	NULL,	OPT_hdd_opts },
 	{ "hdd-sleep",		1,	NULL,	OPT_hdd_sleep },
 	{ "hdd-write-size", 	1,	NULL,	OPT_hdd_write_size },
+
 	{ "heapsort",		1,	NULL,	OPT_heapsort },
 	{ "heapsort-method",	1,	NULL,	OPT_heapsort_method },
 	{ "heapsort-ops",	1,	NULL,	OPT_heapsort_ops },
 	{ "heapsort-size",	1,	NULL,	OPT_heapsort_size },
+
 	{ "hrtimers",		1,	NULL,	OPT_hrtimers },
 	{ "hrtimers-adjust",	0,	NULL,	OPT_hrtimers_adjust },
 	{ "hrtimers-ops",	1,	NULL,	OPT_hrtimers_ops },
+
 	{ "help",		0,	NULL,	OPT_help },
+
 	{ "hsearch",		1,	NULL,	OPT_hsearch },
 	{ "hsearch-method",	1,	NULL,	OPT_hsearch_method },
 	{ "hsearch-ops",	1,	NULL,	OPT_hsearch_ops },
 	{ "hsearch-size",	1,	NULL,	OPT_hsearch_size },
+
 	{ "hyperbolic",		1,	NULL,	OPT_hyperbolic },
 	{ "hyperbolic-method",	1,	NULL,	OPT_hyperbolic_method },
 	{ "hyperbolic-ops",	1,	NULL,	OPT_hyperbolic_ops },
+
 	{ "icache",		1,	NULL,	OPT_icache },
 	{ "icache-ops",		1,	NULL,	OPT_icache_ops },
 	{ "icache-pages",	1,	NULL,	OPT_icache_pages },
+
 	{ "icmp-flood",		1,	NULL,	OPT_icmp_flood },
 	{ "icmp-flood-max-size", 1,	NULL,	OPT_icmp_flood_max_size },
 	{ "icmp-flood-ops",	1,	NULL,	OPT_icmp_flood_ops },
+
 	{ "idle-page",		1,	NULL,	OPT_idle_page },
 	{ "idle-page-ops",	1,	NULL,	OPT_idle_page_ops },
+
 	{ "ignite-cpu",		0,	NULL,	OPT_ignite_cpu },
+
 	{ "interrupts",		0,	NULL,	OPT_interrupts },
+
 	{ "inode-flags",	1,	NULL,	OPT_inode_flags },
 	{ "inode-flags-ops",	1,	NULL,	OPT_inode_flags_ops },
+
 	{ "inotify",		1,	NULL,	OPT_inotify },
 	{ "inotify-ops",	1,	NULL,	OPT_inotify_ops },
+
 	{ "insertionsort",	1,	NULL,	OPT_insertionsort },
 	{ "insertionsort-ops",	1,	NULL,	OPT_insertionsort_ops },
 	{ "insertionsort-size",	1,	NULL,	OPT_insertionsort_size },
+
 	{ "intmath",		1,	NULL,	OPT_intmath },
 	{ "intmath-fast",	0,	NULL,	OPT_intmath_fast },
 	{ "intmath-method",	1,	NULL,	OPT_intmath_method },
 	{ "intmath-ops",	1,	NULL,	OPT_intmath_ops },
+
 	{ "io",			1,	NULL,	OPT_io },
 	{ "io-ops",		1,	NULL,	OPT_io_ops },
+
 	{ "ios",		0,	NULL,	OPT_ios },
+
 	{ "iomix",		1,	NULL,	OPT_iomix },
 	{ "iomix-bytes",	1,	NULL,	OPT_iomix_bytes },
 	{ "iomix-ops",		1,	NULL,	OPT_iomix_ops },
+
 	{ "ionice-class",	1,	NULL,	OPT_ionice_class },
 	{ "ionice-level",	1,	NULL,	OPT_ionice_level },
+
 	{ "ioport",		1,	NULL,	OPT_ioport },
 	{ "ioport-ops",		1,	NULL,	OPT_ioport_ops },
 	{ "ioport-opts",	1,	NULL,	OPT_ioport_opts },
 	{ "ioport-port",	1,	NULL,	OPT_ioport_port },
+
 	{ "ioprio",		1,	NULL,	OPT_ioprio },
 	{ "ioprio-ops",		1,	NULL,	OPT_ioprio_ops },
+
 	{ "iostat",		1,	NULL,	OPT_iostat },
+
 	{ "io-uring",		1,	NULL,	OPT_io_uring },
 	{ "io-uring-entries",	1,	NULL,	OPT_io_uring_entries },
 	{ "io-uring-ops",	1,	NULL,	OPT_io_uring_ops },
 	{ "io-uring-rand",	0,	NULL,	OPT_io_uring_rand },
+
 	{ "ipsec-mb",		1,	NULL,	OPT_ipsec_mb },
 	{ "ipsec-mb-feature",	1,	NULL,	OPT_ipsec_mb_feature },
 	{ "ipsec-mb-jobs",	1,	NULL,	OPT_ipsec_mb_jobs },
 	{ "ipsec-mb-method",	1,	NULL,	OPT_ipsec_mb_method },
 	{ "ipsec-mb-ops",	1,	NULL,	OPT_ipsec_mb_ops },
+
 	{ "itimer",		1,	NULL,	OPT_itimer },
 	{ "itimer-freq",	1,	NULL,	OPT_itimer_freq },
 	{ "itimer-ops",		1,	NULL,	OPT_itimer_ops },
 	{ "itimer-rand",	0,	NULL,	OPT_itimer_rand },
+
 	{ "job",		1,	NULL,	OPT_job },
+
 	{ "jpeg",		1,	NULL,	OPT_jpeg },
 	{ "jpeg-height",	1,	NULL,	OPT_jpeg_height },
 	{ "jpeg-image",		1,	NULL,	OPT_jpeg_image },
 	{ "jpeg-ops",		1,	NULL,	OPT_jpeg_ops },
 	{ "jpeg-quality",	1,	NULL,	OPT_jpeg_quality },
 	{ "jpeg-width",		1,	NULL,	OPT_jpeg_width },
+
 	{ "judy",		1,	NULL,	OPT_judy },
 	{ "judy-ops",		1,	NULL,	OPT_judy_ops },
 	{ "judy-size",		1,	NULL,	OPT_judy_size },
+
 	{ "kcmp",		1,	NULL,	OPT_kcmp },
 	{ "kcmp-ops",		1,	NULL,	OPT_kcmp_ops },
+
 	{ "keep-files",		0,	NULL,	OPT_keep_files },
+
 	{ "keep-name",		0,	NULL,	OPT_keep_name },
+
 	{ "key",		1,	NULL,	OPT_key },
 	{ "key-ops",		1,	NULL,	OPT_key_ops },
+
 	{ "kill",		1,	NULL,	OPT_kill },
 	{ "kill-ops",		1,	NULL,	OPT_kill_ops },
+
 	{ "klog",		1,	NULL,	OPT_klog },
 	{ "klog-check",		0,	NULL,	OPT_klog_check },
 	{ "klog-ops",		1,	NULL,	OPT_klog_ops },
+
 	{ "ksm",		0,	NULL,	OPT_ksm },
 	{ "kvm",		1,	NULL,	OPT_kvm },
 	{ "kvm-ops",		1,	NULL,	OPT_kvm_ops },
+
 	{ "l1cache",		1,	NULL,	OPT_l1cache },
 	{ "l1cache-line-size",	1,	NULL,	OPT_l1cache_line_size },
 	{ "l1cache-method",	1,	NULL,	OPT_l1cache_method },
@@ -502,66 +660,91 @@ const struct option stress_long_options[] = {
 	{ "l1cache-sets",	1,	NULL,	OPT_l1cache_sets },
 	{ "l1cache-size",	1,	NULL,	OPT_l1cache_size },
 	{ "l1cache-ways",	1,	NULL,	OPT_l1cache_ways },
+
 	{ "landlock",		1,	NULL,	OPT_landlock },
 	{ "landlock-ops",	1,	NULL,	OPT_landlock_ops },
+
 	{ "led",		1,	NULL,	OPT_led },
 	{ "led-ops",		1,	NULL,	OPT_led_ops },
+
 	{ "lease",		1,	NULL,	OPT_lease },
 	{ "lease-breakers",	1,	NULL,	OPT_lease_breakers },
 	{ "lease-ops",		1,	NULL,	OPT_lease_ops },
+
 	{ "limit-as",		1,	NULL,	OPT_limit_as },
+
 	{ "limit-data",		1,	NULL,	OPT_limit_data },
+
 	{ "limit-stack",	1,	NULL,	OPT_limit_stack },
+
 	{ "link",		1,	NULL,	OPT_link },
 	{ "link-ops",		1,	NULL,	OPT_link_ops },
 	{ "link-sync",		0,	NULL,	OPT_link_sync },
+
 	{ "list",		1,	NULL,	OPT_list },
 	{ "list-method",	1,	NULL,	OPT_list_method },
 	{ "list-ops",		1,	NULL,	OPT_list_ops },
 	{ "list-size",		1,	NULL,	OPT_list_size },
+
 	{ "llc-affinity",	1,	NULL,	OPT_llc_affinity },
 	{ "llc-affinity-clflush",0,	NULL,	OPT_llc_affinity_clflush },
 	{ "llc-affinity-mlock",	0,	NULL,	OPT_llc_affinity_mlock },
 	{ "llc-affinity-numa",	0,	NULL,	OPT_llc_affinity_numa },
 	{ "llc-affinity-ops",	1,	NULL,	OPT_llc_affinity_ops },
 	{ "llc-affinity-size",	1,	NULL,	OPT_llc_affinity_size },
+
 	{ "loadavg",		1,	NULL,	OPT_loadavg },
 	{ "loadavg-max",	1,	NULL,	OPT_loadavg_max },
 	{ "loadavg-ops",	1,	NULL,	OPT_loadavg_ops },
+
 	{ "locka",		1,	NULL,	OPT_locka },
 	{ "locka-ops",		1,	NULL,	OPT_locka_ops },
+
 	{ "lockbus",		1,	NULL,	OPT_lockbus },
 	{ "lockbus-bytes",	1,	NULL,	OPT_lockbus_bytes },
 	{ "lockbus-nosplit",	0,	NULL,	OPT_lockbus_nosplit },
 	{ "lockbus-ops",	1,	NULL,	OPT_lockbus_ops },
+
 	{ "lockf",		1,	NULL,	OPT_lockf },
 	{ "lockf-nonblock", 	0,	NULL,	OPT_lockf_nonblock },
 	{ "lockf-ops",		1,	NULL,	OPT_lockf_ops },
+
 	{ "lockmix",		1,	NULL,	OPT_lockmix },
 	{ "lockmix-ops",	1,	NULL,	OPT_lockmix_ops },
+
 	{ "lockofd",		1,	NULL,	OPT_lockofd },
 	{ "lockofd-ops",	1,	NULL,	OPT_lockofd_ops },
+
 	{ "log-brief",		0,	NULL,	OPT_log_brief },
+
 	{ "log-file",		1,	NULL,	OPT_log_file },
+
 	{ "log-lockless",	0,	NULL,	OPT_log_lockless },
+
 	{ "logmath",		1,	NULL,	OPT_logmath },
 	{ "logmath-method",	1,	NULL,	OPT_logmath_method },
 	{ "logmath-ops",	1,	NULL,	OPT_logmath_ops },
+
 	{ "longjmp",		1,	NULL,	OPT_longjmp },
 	{ "longjmp-ops",	1,	NULL,	OPT_longjmp_ops },
+
 	{ "loop",		1,	NULL,	OPT_loop },
 	{ "loop-bytes",		1,	NULL,	OPT_loop_bytes },
 	{ "loop-ops",		1,	NULL,	OPT_loop_ops },
+
 	{ "lsearch",		1,	NULL,	OPT_lsearch },
 	{ "lsearch-method",	1,	NULL,	OPT_lsearch_method },
 	{ "lsearch-ops",	1,	NULL,	OPT_lsearch_ops },
 	{ "lsearch-size",	1,	NULL,	OPT_lsearch_size },
+
 	{ "lsm",		1,	NULL,	OPT_lsm },
 	{ "lsm-ops",		1,	NULL,	OPT_lsm_ops },
+
 	{ "madvise",		1,	NULL,	OPT_madvise },
 	{ "madvise-bytes",	1,	NULL,	OPT_madvise_bytes },
 	{ "madvise-hwpoison",	0,	NULL,	OPT_madvise_hwpoison },
 	{ "madvise-ops",	1,	NULL,	OPT_madvise_ops },
+
 	{ "malloc",		1,	NULL,	OPT_malloc },
 	{ "malloc-bytes",	1,	NULL,	OPT_malloc_bytes },
 	{ "malloc-max",		1,	NULL,	OPT_malloc_max },
@@ -572,28 +755,38 @@ const struct option stress_long_options[] = {
 	{ "malloc-touch",	0,	NULL,	OPT_malloc_touch },
 	{ "malloc-trim",	0,	NULL,	OPT_malloc_trim },
 	{ "malloc-zerofree",	0,	NULL,	OPT_malloc_zerofree },
+
 	{ "make-it-fail",	0,	NULL,	OPT_make_it_fail },
+
 	{ "matrix",		1,	NULL,	OPT_matrix },
 	{ "matrix-method",	1,	NULL,	OPT_matrix_method },
 	{ "matrix-ops",		1,	NULL,	OPT_matrix_ops },
 	{ "matrix-size",	1,	NULL,	OPT_matrix_size },
 	{ "matrix-yx",		0,	NULL,	OPT_matrix_yx },
+
 	{ "matrix-3d",		1,	NULL,	OPT_matrix_3d },
 	{ "matrix-3d-method",	1,	NULL,	OPT_matrix_3d_method },
 	{ "matrix-3d-ops",	1,	NULL,	OPT_matrix_3d_ops },
 	{ "matrix-3d-size",	1,	NULL,	OPT_matrix_3d_size },
 	{ "matrix-3d-zyx",	0,	NULL,	OPT_matrix_3d_zyx },
+
 	{ "maximize",		0,	NULL,	OPT_maximize },
+
 	{ "max-fd",		1,	NULL,	OPT_max_fd },
+
 	{ "mbind",		1,	NULL,	OPT_mbind },
+
 	{ "mcontend",		1,	NULL,	OPT_mcontend },
 	{ "mcontend-numa",	0,	NULL,	OPT_mcontend_numa },
 	{ "mcontend-ops",	1,	NULL,	OPT_mcontend_ops },
+
 	{ "membarrier",		1,	NULL,	OPT_membarrier },
 	{ "membarrier-ops",	1,	NULL,	OPT_membarrier_ops },
+
 	{ "memcpy",		1,	NULL,	OPT_memcpy },
 	{ "memcpy-method",	1,	NULL,	OPT_memcpy_method },
 	{ "memcpy-ops",		1,	NULL,	OPT_memcpy_ops },
+
 	{ "memfd",		1,	NULL,	OPT_memfd },
 	{ "memfd-bytes",	1,	NULL,	OPT_memfd_bytes },
 	{ "memfd-fds",		1,	NULL,	OPT_memfd_fds },
@@ -602,9 +795,11 @@ const struct option stress_long_options[] = {
 	{ "memfd-numa",		0,	NULL,	OPT_memfd_numa },
 	{ "memfd-ops",		1,	NULL,	OPT_memfd_ops },
 	{ "memfd-zap-pte",	0,	NULL,	OPT_memfd_zap_pte },
+
 	{ "memhotplug",		1,	NULL,	OPT_memhotplug },
 	{ "memhotplug-mmap",	0,	NULL,	OPT_memhotplug_mmap },
 	{ "memhotplug-ops",	1,	NULL,	OPT_memhotplug_ops },
+
 	{ "memrate",		1,	NULL,	OPT_memrate },
 	{ "memrate-bytes",	1,	NULL,	OPT_memrate_bytes },
 	{ "memrate-discontiguous", 0,	NULL,	OPT_memrate_discontiguous },
@@ -613,36 +808,48 @@ const struct option stress_long_options[] = {
 	{ "memrate-ops",	1,	NULL,	OPT_memrate_ops },
 	{ "memrate-rd-mbs",	1,	NULL,	OPT_memrate_rd_mbs },
 	{ "memrate-wr-mbs",	1,	NULL,	OPT_memrate_wr_mbs },
+
 	{ "memthrash",		1,	NULL,	OPT_memthrash },
 	{ "memthrash-method",	1,	NULL,	OPT_memthrash_method },
 	{ "memthrash-ops",	1,	NULL,	OPT_memthrash_ops },
+
 	{ "mergesort",		1,	NULL,	OPT_mergesort },
 	{ "mergesort-method",	1,	NULL,	OPT_mergesort_method },
 	{ "mergesort-ops",	1,	NULL,	OPT_mergesort_ops },
 	{ "mergesort-size",	1,	NULL,	OPT_mergesort_size },
+
 	{ "metamix",		1,	NULL,	OPT_metamix },
         { "metamix-bytes",	1,	NULL,	OPT_metamix_bytes },
         { "metamix-ops",	1,	NULL,	OPT_metamix_ops },
+
 	{ "metrics",		0,	NULL,	OPT_metrics },
 	{ "metrics-brief",	0,	NULL,	OPT_metrics_brief },
+
 	{ "mincore",		1,	NULL,	OPT_mincore },
 	{ "mincore-ops",	1,	NULL,	OPT_mincore_ops },
 	{ "mincore-random",	0,	NULL,	OPT_mincore_random },
+
 	{ "min-nanosleep",	1,	NULL,	OPT_min_nanosleep },
 	{ "min-nanosleep-max",	1,	NULL,	OPT_min_nanosleep_max },
 	{ "min-nanosleep-ops",	1,	NULL,	OPT_min_nanosleep_ops },
 	{ "min-nanosleep-sched",1,	NULL,	OPT_min_nanosleep_sched },
+
 	{ "misaligned",		1,	NULL,	OPT_misaligned },
 	{ "misaligned-method",	1,	NULL,	OPT_misaligned_method },
 	{ "misaligned-ops",	1,	NULL,	OPT_misaligned_ops },
+
 	{ "minimize",		0,	NULL,	OPT_minimize },
+
 	{ "mknod",		1,	NULL,	OPT_mknod },
 	{ "mknod-ops",		1,	NULL,	OPT_mknod_ops },
+
 	{ "mlock",		1,	NULL,	OPT_mlock },
 	{ "mlock-ops",		1,	NULL,	OPT_mlock_ops },
+
 	{ "mlockmany",		1,	NULL,	OPT_mlockmany },
 	{ "mlockmany-ops",	1,	NULL,	OPT_mlockmany_ops },
 	{ "mlockmany-procs",	1,	NULL,	OPT_mlockmany_procs },
+
 	{ "mmap",		1,	NULL,	OPT_mmap },
 	{ "mmap-async",		0,	NULL,	OPT_mmap_async },
 	{ "mmap-bytes",		1,	NULL,	OPT_mmap_bytes },
@@ -659,177 +866,236 @@ const struct option stress_long_options[] = {
 	{ "mmap-slow-munmap",	0,	NULL,	OPT_mmap_slow_munmap },
 	{ "mmap-stressful",	0,	NULL,	OPT_mmap_stressful },
 	{ "mmap-write-check",	0,	NULL,	OPT_mmap_write_check },
+
 	{ "mmapaddr",		1,	NULL,	OPT_mmapaddr },
 	{ "mmapaddr-mlock",	0,	NULL,	OPT_mmapaddr_mlock },
 	{ "mmapaddr-ops",	1,	NULL,	OPT_mmapaddr_ops },
+
 	{ "mmapcow",		1,	NULL,	OPT_mmapcow },
 	{ "mmapcow-free",	0,	NULL,	OPT_mmapcow_free },
 	{ "mmapcow-fork",	0,	NULL,	OPT_mmapcow_fork },
 	{ "mmapcow-mlock",	0,	NULL,	OPT_mmapcow_mlock },
 	{ "mmapcow-numa",	0,	NULL,	OPT_mmapcow_numa },
 	{ "mmapcow-ops",	1,	NULL,	OPT_mmapcow_ops },
+
 	{ "mmapfiles",		1,	NULL,	OPT_mmapfiles },
 	{ "mmapfiles-numa",	0,	NULL,	OPT_mmapfiles_numa },
 	{ "mmapfiles-ops",	1,	NULL,	OPT_mmapfiles_ops },
 	{ "mmapfiles-populate",	0,	NULL,	OPT_mmapfiles_populate },
 	{ "mmapfiles-shared",	0,	NULL,	OPT_mmapfiles_shared },
+
 	{ "mmapfixed",		1,	NULL,	OPT_mmapfixed },
 	{ "mmapfixed-mlock",	0,	NULL,	OPT_mmapfixed_mlock },
 	{ "mmapfixed-numa",	0,	NULL,	OPT_mmapfixed_numa },
 	{ "mmapfixed-ops",	1,	NULL,	OPT_mmapfixed_ops },
+
 	{ "mmapfork",		1,	NULL,	OPT_mmapfork },
 	{ "mmapfork-bytes",	1,	NULL,	OPT_mmapfork_bytes },
 	{ "mmapfork-ops",	1,	NULL,	OPT_mmapfork_ops },
 	{ "mmapfork-procs",	1,	NULL,	OPT_mmapfork_procs },
+
 	{ "mmaphuge",		1,	NULL,	OPT_mmaphuge },
 	{ "mmaphuge-file",	0,	NULL,	OPT_mmaphuge_file },
 	{ "mmaphuge-mlock",	0,	NULL,	OPT_mmaphuge_mlock },
 	{ "mmaphuge-mmaps",	1,	NULL,	OPT_mmaphuge_mmaps },
 	{ "mmaphuge-numa",	0,	NULL,	OPT_mmaphuge_numa },
 	{ "mmaphuge-ops",	1,	NULL,	OPT_mmaphuge_ops },
+
 	{ "mmapmany",		1,	NULL,	OPT_mmapmany },
 	{ "mmapmany-mlock",	0,	NULL,	OPT_mmapmany_mlock },
 	{ "mmapmany-numa",	0,	NULL,	OPT_mmapmany_numa },
 	{ "mmapmany-ops",	1,	NULL,	OPT_mmapmany_ops },
+
 	{ "mmaprandom",		1,	NULL,	OPT_mmaprandom },
 	{ "mmaprandom-ops",	1,	NULL,	OPT_mmaprandom_ops },
 	{ "mmaprandom-mappings",1,	NULL,	OPT_mmaprandom_mappings },
 	{ "mmaprandom-maxpages",1,	NULL,	OPT_mmaprandom_maxpages },
 	{ "mmaprandom-numa",	0,	NULL,	OPT_mmaprandom_numa },
+
 	{ "mmaptorture",	1,	NULL,	OPT_mmaptorture },
 	{ "mmaptorture-bytes",	1,	NULL,	OPT_mmaptorture_bytes },
 	{ "mmaptorture-msync",	1,	NULL,	OPT_mmaptorture_msync },
 	{ "mmaptorture-ops",	1,	NULL,	OPT_mmaptorture_ops },
+
 	{ "module",		1,	NULL,	OPT_module },
 	{ "module-name",	1,	NULL,	OPT_module_name },
 	{ "module-no-modver",	0,	NULL,	OPT_module_no_modver },
 	{ "module-no-unload",	0,	NULL,	OPT_module_no_unload },
 	{ "module-no-vermag",	0,	NULL,	OPT_module_no_vermag },
 	{ "module-ops",		1,	NULL,	OPT_module_ops },
+
 	{ "monte-carlo",	1,	NULL,	OPT_monte_carlo },
 	{ "monte-carlo-method",	1,	NULL,	OPT_monte_carlo_method },
 	{ "monte-carlo-ops",	1,	NULL,	OPT_monte_carlo_ops },
 	{ "monte-carlo-rand",	1,	NULL,	OPT_monte_carlo_rand },
 	{ "monte-carlo-samples",1,	NULL,	OPT_monte_carlo_samples },
+
 	{ "mprotect",		1,	NULL,	OPT_mprotect },
 	{ "mprotect-ops",	1,	NULL,	OPT_mprotect_ops },
+
 	{ "mpfr",		1,	NULL,	OPT_mpfr },
 	{ "mpfr-ops",		1,	NULL,	OPT_mpfr_ops },
+
 	{ "mpfr-precision",	1,	NULL,	OPT_mpfr_precision },
+
 	{ "mq",			1,	NULL,	OPT_mq },
 	{ "mq-ops",		1,	NULL,	OPT_mq_ops },
 	{ "mq-size",		1,	NULL,	OPT_mq_size },
+
 	{ "mremap",		1,	NULL,	OPT_mremap },
 	{ "mremap-bytes",	1,	NULL,	OPT_mremap_bytes },
 	{ "mremap-mlock",	0,	NULL,	OPT_mremap_mlock },
 	{ "mremap-numa",	0,	NULL,	OPT_mremap_numa },
 	{ "mremap-ops",		1,	NULL,	OPT_mremap_ops },
+
 	{ "mseal",		1,	NULL,	OPT_mseal },
 	{ "mseal-ops",		1,	NULL,	OPT_mseal_ops },
+
 	{ "msg",		1,	NULL,	OPT_msg },
 	{ "msg-bytes",		1,	NULL,	OPT_msg_bytes },
 	{ "msg-ops",		1,	NULL,	OPT_msg_ops },
 	{ "msg-types",		1,	NULL,	OPT_msg_types },
+
 	{ "msync",		1,	NULL,	OPT_msync },
 	{ "msync-bytes",	1,	NULL,	OPT_msync_bytes },
 	{ "msync-ops",		1,	NULL,	OPT_msync_ops },
+
 	{ "msyncmany",		1,	NULL,	OPT_msyncmany },
 	{ "msyncmany-ops",	1,	NULL,	OPT_msyncmany_ops },
+
 	{ "mtx",		1,	NULL,	OPT_mtx },
 	{ "mtx-ops",		1,	NULL,	OPT_mtx_ops },
 	{ "mtx-procs",		1,	NULL,	OPT_mtx_procs },
+
 	{ "munmap",		1,	NULL,	OPT_munmap },
 	{ "munmap-ops",		1,	NULL,	OPT_munmap_ops },
+
 	{ "mutex",		1,	NULL,	OPT_mutex },
 	{ "mutex-affinity",	0,	NULL,	OPT_mutex_affinity },
 	{ "mutex-ops",		1,	NULL,	OPT_mutex_ops },
 	{ "mutex-procs",	1,	NULL,	OPT_mutex_procs },
+
 	{ "nanosleep",		1,	NULL,	OPT_nanosleep },
 	{ "nanosleep-method",	1,	NULL,	OPT_nanosleep_method },
 	{ "nanosleep-ops",	1,	NULL,	OPT_nanosleep_ops },
 	{ "nanosleep-threads",	1,	NULL,	OPT_nanosleep_threads },
+
 	{ "netdev",		1,	NULL,	OPT_netdev },
 	{ "netdev-ops",		1,	NULL,	OPT_netdev_ops },
+
 	{ "netlink-proc",	1,	NULL,	OPT_netlink_proc },
 	{ "netlink-proc-ops",	1,	NULL,	OPT_netlink_proc_ops },
 	{ "netlink-task",	1,	NULL,	OPT_netlink_task },
 	{ "netlink-task-ops",	1,	NULL,	OPT_netlink_task_ops },
+
 	{ "nice",		1,	NULL,	OPT_nice },
 	{ "nice-ops",		1,	NULL,	OPT_nice_ops },
+
 	{ "no-madvise",		0,	NULL,	OPT_no_madvise },
+
 	{ "no-oom-adjust",	0,	NULL,	OPT_no_oom_adjust },
+
 	{ "no-rand-seed", 	0,	NULL,	OPT_no_rand_seed },
+
 	{ "nop",		1,	NULL,	OPT_nop },
 	{ "nop-instr",		1,	NULL,	OPT_nop_instr },
 	{ "nop-ops",		1,	NULL,	OPT_nop_ops },
+
 	{ "null",		1,	NULL,	OPT_null },
 	{ "null-ops",		1,	NULL,	OPT_null_ops },
 	{ "null-write",		0,	NULL,	OPT_null_write },
+
 	{ "numa",		1,	NULL,	OPT_numa },
 	{ "numa-bytes",		1,	NULL,	OPT_numa_bytes },
 	{ "numa-ops",		1,	NULL,	OPT_numa_ops },
 	{ "numa-shuffle-addr",	0,	NULL,	OPT_numa_shuffle_addr },
 	{ "numa-shuffle-node",	0,	NULL,	OPT_numa_shuffle_node },
+
 	{ "numacopy",		1,	NULL,	OPT_numacopy },
 	{ "numacopy-affinity",  1,	NULL,	OPT_numacopy_affinity },
 	{ "numacopy-mode",	1,	NULL,	OPT_numacopy_mode },
 	{ "numacopy-ops",	1,	NULL,	OPT_numacopy_ops },
+
 	{ "oomable",		0,	NULL,	OPT_oomable },
+
 	{ "oom-no-child",	0,	NULL,	OPT_oom_no_child },
+
 	{ "oom-avoid",		0,	NULL,	OPT_oom_avoid },
+
 	{ "oom-avoid-bytes",	1,	NULL,	OPT_oom_avoid_bytes },
+
 	{ "oom-pipe",		1,	NULL,	OPT_oom_pipe },
 	{ "oom-pipe-ops",	1,	NULL,	OPT_oom_pipe_ops },
+
 	{ "opcode",		1,	NULL,	OPT_opcode },
 	{ "opcode-method",	1,	NULL,	OPT_opcode_method },
 	{ "opcode-ops",		1,	NULL,	OPT_opcode_ops },
+
 	{ "open",		1,	NULL,	OPT_open },
 	{ "open-fd",		0,	NULL,	OPT_open_fd },
 	{ "open-max",		1,	NULL,	OPT_open_max },
 	{ "open-ops",		1,	NULL,	OPT_open_ops },
+
 	{ "ovpn",		1,	NULL,	OPT_ovpn },
 	{ "ovpn-ops",		1,	NULL,	OPT_ovpn_ops },
+
 	{ "page-in",		0,	NULL,	OPT_page_in },
+
 	{ "pagemove",		1,	NULL,	OPT_pagemove },
 	{ "pagemove-bytes",	1,	NULL,	OPT_pagemove_bytes },
 	{ "pagemove-mlock",	0,	NULL,	OPT_pagemove_mlock },
 	{ "pagemove-numa",	0,	NULL,	OPT_pagemove_numa },
 	{ "pagemove-ops",	1,	NULL,	OPT_pagemove_ops },
+
 	{ "pagescatter",	1,	NULL,	OPT_pagescatter },
 	{ "pagescatter-numa",	0,	NULL,   OPT_pagescatter_numa },
 	{ "pagescatter-order",	1,	NULL,	OPT_pagescatter_order },
 	{ "pagescatter-ops",	1,	NULL,	OPT_pagescatter_ops },
 	{ "pagescatter-populate",0,	NULL,	OPT_pagescatter_populate },
+
 	{ "pageswap",		1,	NULL,	OPT_pageswap },
 	{ "pageswap-ops",	1,	NULL,	OPT_pageswap_ops },
 	{ "pageswap-pages",	1,	NULL,	OPT_pageswap_pages },
+
 	{ "parallel",		1,	NULL,	OPT_all },
+
 	{ "pathological",	0,	NULL,	OPT_pathological },
+
 	{ "pause",		1,	NULL,	OPT_pause },
+
 	{ "pci",		1,	NULL,	OPT_pci },
 	{ "pci-dev",		1,	NULL,	OPT_pci_dev },
 	{ "pci-ops",		1,	NULL,	OPT_pci_ops },
-	{ "pci-ops-rate",	1,	NULL,	OPT_pci_ops_rate },
+	{
+	       	"pci-ops-rate",	1,	NULL,	OPT_pci_ops_rate },
 #if defined(STRESS_PERF_STATS) && 	\
     defined(HAVE_LINUX_PERF_EVENT_H)
 	{ "perf",		0,	NULL,	OPT_perf_stats },
 #endif
+
 	{ "permute",		1,	NULL,	OPT_permute },
+
 	{ "personality",	1,	NULL,	OPT_personality },
 	{ "personality-ops",	1,	NULL,	OPT_personality_ops },
+
 	{ "peterson",		1,	NULL,	OPT_peterson },
 	{ "peterson-ops",	1,	NULL,	OPT_peterson_ops },
+
 	{ "physpage",		1,	NULL,	OPT_physpage },
 	{ "physpage-mtrr",	0,	NULL,	OPT_physpage_mtrr },
 	{ "physpage-ops",	1,	NULL,	OPT_physpage_ops },
+
 	{ "physmmap",		1,	NULL,	OPT_physmmap },
 	{ "physmmap-ops",	1,	NULL,	OPT_physmmap_ops },
 	{ "physmmap-read",	0,	NULL,	OPT_physmmap_read },
+
 	{ "pidfd",		1,	NULL,	OPT_pidfd },
 	{ "pidfd-ops",		1,	NULL,	OPT_pidfd_ops },
+
 	{ "ping-sock",		1,	NULL,	OPT_ping_sock },
 	{ "ping-sock-max-size",	1,	NULL,	OPT_ping_sock_max_size },
 	{ "ping-sock-ops",	1,	NULL,	OPT_ping_sock_ops },
+
 	{ "pipe",		1,	NULL,	OPT_pipe },
 	{ "pipe-data-size",	1,	NULL,	OPT_pipe_data_size },
 	{ "pipe-ops",		1,	NULL,	OPT_pipe_ops },
@@ -839,164 +1105,217 @@ const struct option stress_long_options[] = {
 #endif
 	{ "pipe-vmsplice",	0,	NULL,	OPT_pipe_vmsplice },
 	{ "pipe-writers",	1,	NULL,	OPT_pipe_writers },
+
 	{ "pipeherd",		1,	NULL,	OPT_pipeherd },
 	{ "pipeherd-ops",	1,	NULL,	OPT_pipeherd_ops },
 	{ "pipeherd-procs",	1,	NULL,	OPT_pipeherd_procs },
 	{ "pipeherd-yield", 	0,	NULL,	OPT_pipeherd_yield },
+
 	{ "pkey",		1,	NULL,	OPT_pkey },
 	{ "pkey-ops",		1,	NULL,	OPT_pkey_ops },
+
 	{ "plugin",		1,	NULL,	OPT_plugin },
 	{ "plugin-method",	1,	NULL,	OPT_plugin_method },
 	{ "plugin-ops",		1,	NULL,	OPT_plugin_ops },
 	{ "plugin-so",		1,	NULL,	OPT_plugin_so },
+
 	{ "poll",		1,	NULL,	OPT_poll },
 	{ "poll-fds",		1,	NULL,	OPT_poll_fds },
 	{ "poll-ops",		1,	NULL,	OPT_poll_ops },
 	{ "poll-random-us",	1,	NULL,	OPT_poll_random_us },
+
 	{ "powmath",		1,	NULL,	OPT_powmath },
 	{ "powmath-method",	1,	NULL,	OPT_powmath_method },
 	{ "powmath-ops",	1,	NULL,	OPT_powmath_ops },
+
 	{ "prctl",		1,	NULL,	OPT_prctl },
 	{ "prctl-ops",		1,	NULL,	OPT_prctl_ops },
+
 	{ "prefetch",		1,	NULL,	OPT_prefetch },
 	{ "prefetch-l3-size",	1,	NULL,	OPT_prefetch_l3_size },
 	{ "prefetch-method",	1,	NULL,	OPT_prefetch_method },
 	{ "prefetch-ops",	1,	NULL,	OPT_prefetch_ops },
+
 	{ "prime",		1,	NULL,	OPT_prime },
 	{ "prime-method",	1,	NULL,	OPT_prime_method },
 	{ "prime-ops",		1,	NULL,	OPT_prime_ops },
 	{ "prime-progress",	0,	NULL,	OPT_prime_progress },
 	{ "prime-start",	1,	NULL,	OPT_prime_start },
+
 	{ "prio-inv",		1,	NULL,	OPT_prio_inv },
 	{ "prio-inv-ops",	1,	NULL,	OPT_prio_inv_ops },
 	{ "prio-inv-policy",	1,	NULL,	OPT_prio_inv_policy },
 	{ "prio-inv-type",	1,	NULL,	OPT_prio_inv_type },
 	{ "priv-instr",		1,	NULL,	OPT_priv_instr },
 	{ "priv-instr-ops",	1,	NULL,	OPT_priv_instr_ops },
+
 	{ "procfs",		1,	NULL,	OPT_procfs },
 	{ "procfs-ops",		1,	NULL,	OPT_procfs_ops },
+
 	{ "progress",		0,	NULL,	OPT_progress },
+
 	{ "pseek",		1,	NULL,	OPT_pseek },
 	{ "pseek-io-size",	1,	NULL,	OPT_pseek_io_size },
 	{ "pseek-ops",		1,	NULL,	OPT_pseek_ops },
 	{ "pseek-rand",		0,	NULL,	OPT_pseek_rand },
+
 	{ "pthread",		1,	NULL,	OPT_pthread },
 	{ "pthread-max",	1,	NULL,	OPT_pthread_max },
 	{ "pthread-ops",	1,	NULL,	OPT_pthread_ops },
+
 	{ "ptrace",		1,	NULL,	OPT_ptrace },
 	{ "ptrace-ops",		1,	NULL,	OPT_ptrace_ops },
+
 	{ "ptr-chase",		1,	NULL,	OPT_ptr_chase },
 	{ "ptr-chase-ops",	1,	NULL,	OPT_ptr_chase_ops },
 	{ "ptr-chase-pages",	1,	NULL,	OPT_ptr_chase_pages },
+
+
 	{ "pty",		1,	NULL,	OPT_pty },
 	{ "pty-max",		1,	NULL,	OPT_pty_max },
 	{ "pty-ops",		1,	NULL,	OPT_pty_ops },
+
 	{ "qsort",		1,	NULL,	OPT_qsort },
 	{ "qsort-method",	1,	NULL,	OPT_qsort_method },
 	{ "qsort-ops",		1,	NULL,	OPT_qsort_ops },
 	{ "qsort-size",		1,	NULL,	OPT_qsort_size },
+
 	{ "quiet",		0,	NULL,	OPT_quiet },
+
 	{ "quota",		1,	NULL,	OPT_quota },
 	{ "quota-ops",		1,	NULL,	OPT_quota_ops },
+
 	{ "race-sched",		1,	NULL,	OPT_race_sched },
 	{ "race-sched-method",	1,	NULL,	OPT_race_sched_method },
 	{ "race-sched-ops",	1,	NULL,	OPT_race_sched_ops },
+
 	{ "radixsort",		1,	NULL,	OPT_radixsort },
 	{ "radixsort-method",	1,	NULL,	OPT_radixsort_method },
 	{ "radixsort-ops",	1,	NULL,	OPT_radixsort_ops },
 	{ "radixsort-size",	1,	NULL,	OPT_radixsort_size },
+
 	{ "ramfs",		1,	NULL,	OPT_ramfs },
 	{ "ramfs-fill",		0,	NULL,	OPT_ramfs_fill },
 	{ "ramfs-ops",		1,	NULL,	OPT_ramfs_ops },
 	{ "ramfs-size",		1,	NULL,	OPT_ramfs_size },
+
 	{ "randlist",		1,	NULL,	OPT_randlist },
 	{ "randlist-compact",	0,	NULL,	OPT_randlist_compact },
 	{ "randlist-items", 	1,	NULL,	OPT_randlist_items },
 	{ "randlist-ops",	1,	NULL,	OPT_randlist_ops },
 	{ "randlist-size", 	1,	NULL,	OPT_randlist_size },
+
 	{ "randprocname",	0,	NULL,	OPT_randprocname },
+
 	{ "random",		1,	NULL,	OPT_random },
+
 	{ "rapl",		0,	NULL,	OPT_rapl },
 	{ "raplstat",		1,	NULL,	OPT_raplstat },
+
 	{ "rawdev",		1,	NULL,	OPT_rawdev },
 	{ "rawdev-method",	1,	NULL,	OPT_rawdev_method },
 	{ "rawdev-ops",		1,	NULL,	OPT_rawdev_ops },
+
 	{ "rawpkt",		1,	NULL,	OPT_rawpkt },
 	{ "rawpkt-ops",		1,	NULL,	OPT_rawpkt_ops },
 	{ "rawpkt-port",	1,	NULL,	OPT_rawpkt_port },
 	{ "rawpkt-rxring",	1,	NULL,	OPT_rawpkt_rxring },
+
 	{ "rawsock",		1,	NULL,	OPT_rawsock },
 	{ "rawsock-ops",	1,	NULL,	OPT_rawsock_ops },
 	{ "rawsock-port",	1,	NULL,	OPT_rawsock_port },
+
 	{ "rawudp",		1,	NULL,	OPT_rawudp },
 	{ "rawudp-if",		1,	NULL,	OPT_rawudp_if },
 	{ "rawudp-ops",		1,	NULL,	OPT_rawudp_ops },
 	{ "rawudp-port",	1,	NULL,	OPT_rawudp_port },
+
 	{ "rdrand",		1,	NULL,	OPT_rdrand },
 	{ "rdrand-ops",		1,	NULL,	OPT_rdrand_ops },
 	{ "rdrand-seed",	0,	NULL,	OPT_rdrand_seed },
+
 	{ "readahead",		1,	NULL,	OPT_readahead },
 	{ "readahead-bytes",	1,	NULL,	OPT_readahead_bytes },
 	{ "readahead-ops",	1,	NULL,	OPT_readahead_ops },
+
 	{ "reboot",		1,	NULL,	OPT_reboot },
 	{ "reboot-ops",		1,	NULL,	OPT_reboot_ops },
+
 	{ "regex",		1,	NULL,	OPT_regex },
 	{ "regex-ops",		1,	NULL,	OPT_regex_ops },
+
 	{ "regs",		1,	NULL,	OPT_regs },
 	{ "regs-bitflip",	0,	NULL,	OPT_regs_bitflip },
 	{ "regs-ops",		1,	NULL,	OPT_regs_ops },
+
 	{ "remap",		1,	NULL,	OPT_remap },
 	{ "remap-mlock",	0,	NULL,	OPT_remap_mlock },
 	{ "remap-ops",		1,	NULL,	OPT_remap_ops },
 	{ "remap-pages",	1,	NULL,	OPT_remap_pages },
+
 	{ "rename",		1,	NULL,	OPT_rename },
 	{ "rename-ops",		1,	NULL,	OPT_rename_ops },
+
 	{ "resched",		1,	NULL,	OPT_resched },
 	{ "resched-ops",	1,	NULL,	OPT_resched_ops },
+
 	{ "resctrl",		1,	NULL,	OPT_resctrl },
+
 	{ "resources",		1,	NULL,	OPT_resources },
 	{ "resources-mlock",	0,	NULL,	OPT_resources_mlock },
 	{ "resources-num",	1,	NULL,	OPT_resources_num },
 	{ "resources-ops",	1,	NULL,	OPT_resources_ops },
 	{ "resources-procs",	1,	NULL,	OPT_resources_procs },
+
 	{ "revio",		1,	NULL,	OPT_revio },
 	{ "revio-bytes",	1,	NULL,	OPT_revio_bytes },
 	{ "revio-ops",		1,	NULL,	OPT_revio_ops },
 	{ "revio-opts",		1,	NULL,	OPT_revio_opts },
+
 	{ "ring-pipe",		1,	NULL,	OPT_ring_pipe },
 	{ "ring-pipe-num",	1,	NULL,	OPT_ring_pipe_num },
 	{ "ring-pipe-ops",	1,	NULL,	OPT_ring_pipe_ops },
 	{ "ring-pipe-size",	1,	NULL,	OPT_ring_pipe_size },
 	{ "ring-pipe-splice",	0,	NULL,	OPT_ring_pipe_splice },
+
 	{ "rlimit",		1,	NULL,	OPT_rlimit },
 	{ "rlimit-ops",		1,	NULL,	OPT_rlimit_ops },
+
 	{ "rmap",		1,	NULL,	OPT_rmap },
 	{ "rmap-ops",		1,	NULL,	OPT_rmap_ops },
 	{ "rmap-procs",		1,	NULL,	OPT_rmap_procs },
+
 	{ "rofs",		1,	NULL,	OPT_rofs },
 	{ "rofs-dir",		1,	NULL,	OPT_rofs_dir },
 	{ "rofs-ops",		1,	NULL,	OPT_rofs_ops },
+
 	{ "rotate",		1,	NULL,	OPT_rotate },
 	{ "rotate-method",	1,	NULL,	OPT_rotate_method },
 	{ "rotate-ops",		1,	NULL,	OPT_rotate_ops },
+
 	{ "rseq",		1,	NULL,	OPT_rseq },
 	{ "rseq-ops",		1,	NULL,	OPT_rseq_ops },
+
 	{ "rtc",		1,	NULL,	OPT_rtc },
 	{ "rtc-ops",		1,	NULL,	OPT_rtc_ops },
+
 	{ "sched",		1,	NULL,	OPT_sched },
 	{ "sched-deadline",	1,	NULL,	OPT_sched_deadline },
 	{ "sched-period",	1,	NULL,	OPT_sched_period },
 	{ "sched-prio",		1,	NULL,	OPT_sched_prio },
 	{ "sched-reclaim",	0,	NULL,	OPT_sched_reclaim },
 	{ "sched-runtime",	1,	NULL,	OPT_sched_runtime },
+
 	{ "schedmix",		1,	NULL,	OPT_schedmix },
 	{ "schedmix-cpumix",	0,	NULL,	OPT_schedmix_cpumix },
 	{ "schedmix-ops",	1,	NULL,	OPT_schedmix_ops },
 	{ "schedmix-procs",	1,	NULL,	OPT_schedmix_procs },
+
 	{ "schedpolicy",	1,	NULL,	OPT_schedpolicy },
 	{ "schedpolicy-cpumix",	0,	NULL,	OPT_schedpolicy_cpumix },
 	{ "schedpolicy-ops",	1,	NULL,	OPT_schedpolicy_ops },
 	{ "schedpolicy-rand",	0,	NULL,	OPT_schedpolicy_rand },
+
 	{ "sctp",		1,	NULL,	OPT_sctp },
 	{ "sctp-domain",	1,	NULL,	OPT_sctp_domain },
 	{ "sctp-if",		1,	NULL,	OPT_sctp_if },
@@ -1004,102 +1323,146 @@ const struct option stress_long_options[] = {
 	{ "sctp-ops",		1,	NULL,	OPT_sctp_ops },
 	{ "sctp-port",		1,	NULL,	OPT_sctp_port },
 	{ "sctp-sched",		1,	NULL,	OPT_sctp_sched },
+
 	{ "seal",		1,	NULL,	OPT_seal },
 	{ "seal-ops",		1,	NULL,	OPT_seal_ops },
+
 	{ "seccomp",		1,	NULL,	OPT_seccomp },
 	{ "seccomp-ops",	1,	NULL,	OPT_seccomp_ops },
+
 	{ "secretmem",		1,	NULL,	OPT_secretmem },
 	{ "secretmem-ops",	1,	NULL,	OPT_secretmem_ops },
+
 	{ "seed",		1,	NULL,	OPT_seed },
+
 	{ "seek",		1,	NULL,	OPT_seek },
 	{ "seek-ops",		1,	NULL,	OPT_seek_ops },
 	{ "seek-punch",		0,	NULL,	OPT_seek_punch  },
 	{ "seek-size",		1,	NULL,	OPT_seek_size },
+
 	{ "sem",		1,	NULL,	OPT_sem },
 	{ "sem-ops",		1,	NULL,	OPT_sem_ops },
 	{ "sem-procs",		1,	NULL,	OPT_sem_procs },
 	{ "sem-shared",		0,	NULL,	OPT_sem_shared },
+
 	{ "sem-sysv",		1,	NULL,	OPT_sem_sysv },
 	{ "sem-sysv-ops",	1,	NULL,	OPT_sem_sysv_ops },
 	{ "sem-sysv-procs",	1,	NULL,	OPT_sem_sysv_procs },
 	{ "sem-sysv-setall",	0,	NULL,	OPT_sem_sysv_setall },
+
 	{ "sendfile",		1,	NULL,	OPT_sendfile },
 	{ "sendfile-ops",	1,	NULL,	OPT_sendfile_ops },
 	{ "sendfile-size",	1,	NULL,	OPT_sendfile_size },
+
 	{ "sequential",		1,	NULL,	OPT_sequential },
+
 	{ "session",		1,	NULL,	OPT_session },
 	{ "session-ops",	1,	NULL,	OPT_session_ops },
+
 	{ "set",		1,	NULL,	OPT_set },
 	{ "set-ops",		1,	NULL,	OPT_set_ops },
+
 	{ "settings",		0,	NULL,	OPT_settings },
+
 	{ "shellsort",		1,	NULL,	OPT_shellsort },
 	{ "shellsort-ops",	1,	NULL,	OPT_shellsort_ops },
 	{ "shellsort-size",	1,	NULL,	OPT_shellsort_size },
+
 	{ "shm",		1,	NULL,	OPT_shm },
 	{ "shm-bytes",		1,	NULL,	OPT_shm_bytes },
 	{ "shm-mlock",		0,	NULL,	OPT_shm_mlock },
 	{ "shm-objs",		1,	NULL,	OPT_shm_objs },
 	{ "shm-ops",		1,	NULL,	OPT_shm_ops },
+
 	{ "shm-sysv",		1,	NULL,	OPT_shm_sysv },
 	{ "shm-sysv-bytes",	1,	NULL,	OPT_shm_sysv_bytes },
 	{ "shm-sysv-mlock",	0,	NULL,	OPT_shm_sysv_mlock },
 	{ "shm-sysv-ops",	1,	NULL,	OPT_shm_sysv_ops },
 	{ "shm-sysv-segs",	1,	NULL,	OPT_shm_sysv_segs },
+
 	{ "sigabrt",		1,	NULL,	OPT_sigabrt },
 	{ "sigabrt-ops",	1,	NULL,	OPT_sigabrt_ops },
+
 	{ "sigbus",		1,	NULL,	OPT_sigbus },
 	{ "sigbus-ops",		1,	NULL,	OPT_sigbus_ops },
+
 	{ "sigchld",		1,	NULL,	OPT_sigchld },
 	{ "sigchld-ops",	1,	NULL,	OPT_sigchld_ops },
+
 	{ "sigfd",		1,	NULL,	OPT_sigfd },
 	{ "sigfd-ops",		1,	NULL,	OPT_sigfd_ops },
+
 	{ "sighup",		1,	NULL,	OPT_sighup },
 	{ "sighup-ops",		1,	NULL,	OPT_sighup_ops },
+
 	{ "sigill",		1,	NULL,	OPT_sigill },
 	{ "sigill-ops",		1,	NULL,	OPT_sigill_ops },
+
 	{ "sigio",		1,	NULL,	OPT_sigio },
 	{ "sigio-ops",		1,	NULL,	OPT_sigio_ops },
+
 	{ "sigfpe",		1,	NULL,	OPT_sigfpe },
 	{ "sigfpe-ops",		1,	NULL,	OPT_sigfpe_ops },
+
 	{ "signal",		1,	NULL,	OPT_signal },
 	{ "signal-ops",		1,	NULL,	OPT_signal_ops },
+
 	{ "signest",		1,	NULL,	OPT_signest },
 	{ "signest-ops",	1,	NULL,	OPT_signest_ops },
+
 	{ "sigpending",		1,	NULL,	OPT_sigpending},
 	{ "sigpending-ops",	1,	NULL,	OPT_sigpending_ops },
+
 	{ "sigpipe",		1,	NULL,	OPT_sigpipe },
 	{ "sigpipe-ops",	1,	NULL,	OPT_sigpipe_ops },
+
 	{ "sigq",		1,	NULL,	OPT_sigq },
 	{ "sigq-ops",		1,	NULL,	OPT_sigq_ops },
+
 	{ "sigrt",		1,	NULL,	OPT_sigrt },
 	{ "sigrt-ops",		1,	NULL,	OPT_sigrt_ops },
+
 	{ "sigsegv",		1,	NULL,	OPT_sigsegv },
 	{ "sigsegv-ops",	1,	NULL,	OPT_sigsegv_ops },
+
 	{ "sigstop",		1,	NULL,	OPT_sigstop },
 	{ "sigstop-ops",	1,	NULL,	OPT_sigstop_ops },
+
 	{ "sigsuspend",		1,	NULL,	OPT_sigsuspend },
 	{ "sigsuspend-ops",	1,	NULL,	OPT_sigsuspend_ops },
+
 	{ "sigtrap",		1,	NULL,	OPT_sigtrap },
 	{ "sigtrap-ops",	1,	NULL,	OPT_sigtrap_ops },
+
 	{ "sigurg",		1,	NULL,	OPT_sigurg },
 	{ "sigurg-ops",		1,	NULL,	OPT_sigurg_ops },
+
 	{ "sigvtalrm",		1,	NULL,	OPT_sigvtalrm },
 	{ "sigvtalrm-ops",	1,	NULL,	OPT_sigvtalrm_ops },
+
 	{ "sigxcpu",		1,	NULL,	OPT_sigxcpu },
 	{ "sigxcpu-ops",	1,	NULL,	OPT_sigxcpu_ops },
+
 	{ "sigxfsz",		1,	NULL,	OPT_sigxfsz },
 	{ "sigxfsz-ops",	1,	NULL,	OPT_sigxfsz_ops },
+
 	{ "skiplist",		1,	NULL,	OPT_skiplist },
 	{ "skiplist-ops",	1,	NULL,	OPT_skiplist_ops },
 	{ "skiplist-size",	1,	NULL,	OPT_skiplist_size },
+
 	{ "skip-silent",	0,	NULL,	OPT_skip_silent },
+
 	{ "sleep",		1,	NULL,	OPT_sleep },
 	{ "sleep-max",		1,	NULL,	OPT_sleep_max },
 	{ "sleep-ops",		1,	NULL,	OPT_sleep_ops },
+
 	{ "smart",		0,	NULL,	OPT_smart },
+
 	{ "smi",		1,	NULL,	OPT_smi },
 	{ "smi-ops",		1,	NULL,	OPT_smi_ops },
+
 	{ "sn",			0,	NULL,	OPT_sn },
+
 	{ "sock",		1,	NULL,	OPT_sock },
 	{ "sock-domain",	1,	NULL,	OPT_sock_domain },
 	{ "sock-if",		1,	NULL,	OPT_sock_if },
@@ -1111,57 +1474,75 @@ const struct option stress_long_options[] = {
 	{ "sock-protocol",	1,	NULL,	OPT_sock_protocol },
 	{ "sock-type",		1,	NULL,	OPT_sock_type },
 	{ "sock-zerocopy", 	0,	NULL,	OPT_sock_zerocopy },
+
 	{ "sockabuse",		1,	NULL,	OPT_sockabuse },
 	{ "sockabuse-ops",	1,	NULL,	OPT_sockabuse_ops },
 	{ "sockabuse-port",	1,	NULL,	OPT_sockabuse_port },
+
 	{ "sockdiag",		1,	NULL,	OPT_sockdiag },
 	{ "sockdiag-ops",	1,	NULL,	OPT_sockdiag_ops },
+
 	{ "sockfd",		1,	NULL,	OPT_sockfd },
 	{ "sockfd-ops",		1,	NULL,	OPT_sockfd_ops },
 	{ "sockfd-port",	1,	NULL,	OPT_sockfd_port },
 	{ "sockfd-reuse",	0,	NULL,	OPT_sockfd_reuse },
+
 	{ "sockmany",		1,	NULL,	OPT_sockmany },
 	{ "sockmany-if",	1,	NULL,	OPT_sockmany_if },
 	{ "sockmany-max-size",	1,	NULL,	OPT_sockmany_max_size },
 	{ "sockmany-ops",	1,	NULL,	OPT_sockmany_ops },
 	{ "sockmany-port",	1,	NULL,	OPT_sockmany_port },
+
 	{ "sockpair",		1,	NULL,	OPT_sockpair },
 	{ "sockpair-max-size",	1,	NULL,	OPT_sockpair_max_size },
 	{ "sockpair-ops",	1,	NULL,	OPT_sockpair_ops },
+
 	{ "softlockup",		1,	NULL,	OPT_softlockup },
 	{ "softlockup-ops",	1,	NULL,	OPT_softlockup_ops },
+
 	{ "sparsematrix",	1,	NULL,	OPT_sparsematrix },
 	{ "sparsematrix-items",	1,	NULL,	OPT_sparsematrix_items },
 	{ "sparsematrix-method",1,	NULL,	OPT_sparsematrix_method },
 	{ "sparsematrix-ops",	1,	NULL,	OPT_sparsematrix_ops },
 	{ "sparsematrix-size",	1,	NULL,	OPT_sparsematrix_size },
+
 	{ "spawn",		1,	NULL,	OPT_spawn },
 	{ "spawn-ops",		1,	NULL,	OPT_spawn_ops },
+
 	{ "spinmem",		1,	NULL,	OPT_spinmem },
 	{ "spinmem-affinity",	0,	NULL,	OPT_spinmem_affinity },
 	{ "spinmem-method",	1,	NULL,	OPT_spinmem_method },
 	{ "spinmem-numa",	0,	NULL,	OPT_spinmem_numa },
 	{ "spinmem-ops",	1,	NULL,	OPT_spinmem_ops },
 	{ "spinmem-yield",	0,	NULL,	OPT_spinmem_yield },
+
 	{ "splice",		1,	NULL,	OPT_splice },
 	{ "splice-bytes",	1,	NULL,	OPT_splice_bytes },
 	{ "splice-ops",		1,	NULL,	OPT_splice_ops },
+
 	{ "stack",		1,	NULL,	OPT_stack },
 	{ "stack-fill",		0,	NULL,	OPT_stack_fill },
 	{ "stack-mlock",	0,	NULL,	OPT_stack_mlock },
 	{ "stack-ops",		1,	NULL,	OPT_stack_ops },
 	{ "stack-pageout",	0,	NULL,	OPT_stack_pageout },
 	{ "stack-unmap",	0,	NULL,	OPT_stack_unmap },
+
 	{ "stackmmap",		1,	NULL,	OPT_stackmmap },
 	{ "stackmmap-ops",	1,	NULL,	OPT_stackmmap_ops },
+
 	{ "statmount",		1,	NULL,	OPT_statmount },
 	{ "statmount-ops",	1,	NULL,	OPT_statmount_ops },
+
 	{ "status",		1,	NULL,	OPT_status },
+
 	{ "stderr",		0,	NULL,	OPT_stderr },
+
 	{ "stdout",		0,	NULL,	OPT_stdout },
+
 	{ "str",		1,	NULL,	OPT_str },
 	{ "str-method",		1,	NULL,	OPT_str_method },
 	{ "str-ops",		1,	NULL,	OPT_str_ops },
+
 	{ "stream",		1,	NULL,	OPT_stream },
 	{ "stream-discontiguous", 0,	NULL,	OPT_stream_discontiguous },
 	{ "stream-index",	1,	NULL,	OPT_stream_index },
@@ -1170,65 +1551,90 @@ const struct option stress_long_options[] = {
 	{ "stream-mlock",	0,	NULL,	OPT_stream_mlock },
 	{ "stream-ops",		1,	NULL,	OPT_stream_ops },
 	{ "stream-prefetch",	0,	NULL,	OPT_stream_prefetch },
+
 	{ "stressor-time",	0,	NULL,	OPT_stressor_time },
+
 	{ "stressors",		0,	NULL,	OPT_stressors },
+
 	{ "strnum",		1,	NULL,	OPT_strnum },
 	{ "strnum-method",	1,	NULL,	OPT_strnum_method },
 	{ "strnum-ops",		1,	NULL,	OPT_strnum_ops },
+
 	{ "swap",		1,	NULL,	OPT_swap },
 	{ "swap-ops",		1,	NULL,	OPT_swap_ops },
 	{ "swap-self",		0,	NULL,	OPT_swap_self },
+
 	{ "switch",		1,	NULL,	OPT_switch },
 	{ "switch-freq",	1,	NULL,	OPT_switch_freq },
 	{ "switch-method",	1,	NULL,	OPT_switch_method },
 	{ "switch-ops",		1,	NULL,	OPT_switch_ops },
+
 	{ "symlink",		1,	NULL,	OPT_symlink },
 	{ "symlink-ops",	1,	NULL,	OPT_symlink_ops },
 	{ "symlink-sync",	0,	NULL,	OPT_symlink_sync },
+
 	{ "sync-file",		1,	NULL,	OPT_sync_file },
 	{ "sync-file-bytes", 	1,	NULL,	OPT_sync_file_bytes },
 	{ "sync-file-ops", 	1,	NULL,	OPT_sync_file_ops },
 	{ "sync-start",		0,	NULL,	OPT_sync_start },
+
 	{ "syncload",		1,	NULL,	OPT_syncload },
 	{ "syncload-msbusy",	1,	NULL,	OPT_syncload_msbusy },
 	{ "syncload-mssleep",	1,	NULL,	OPT_syncload_mssleep },
 	{ "syncload-ops",	1,	NULL,	OPT_syncload_ops },
+
 	{ "sysbadaddr",		1,	NULL,	OPT_sysbadaddr },
 	{ "sysbadaddr-ops",	1,	NULL,	OPT_sysbadaddr_ops },
+
 	{ "syscall",		1,	NULL,	OPT_syscall },
 	{ "syscall-method",	1,	NULL,	OPT_syscall_method },
 	{ "syscall-ops",	1,	NULL,	OPT_syscall_ops },
 	{ "syscall-rank",	1,	NULL,	OPT_syscall_rank },
 	{ "syscall-top",	1,	NULL,	OPT_syscall_top },
+
 	{ "sysfs",		1,	NULL,	OPT_sysfs },
 	{ "sysfs-ops",		1,	NULL,	OPT_sysfs_ops },
+
 	{ "sysinfo",		1,	NULL,	OPT_sysinfo },
 	{ "sysinfo-ops",	1,	NULL,	OPT_sysinfo_ops },
+
 	{ "sysinval",		1,	NULL,	OPT_sysinval },
 	{ "sysinval-ops",	1,	NULL,	OPT_sysinval_ops },
+
 #if defined(HAVE_SYSLOG_H)
 	{ "syslog",		0,	NULL,	OPT_syslog },
 #endif
+
 	{ "taskset",		1,	NULL,	OPT_taskset },
+
 	{ "taskset-random",	0,	NULL,	OPT_taskset_random },
+
 	{ "tee",		1,	NULL,	OPT_tee },
 	{ "tee-ops",		1,	NULL,	OPT_tee_ops },
+
 	{ "temp-path",		1,	NULL,	OPT_temp_path },
+
 	{ "timeout",		1,	NULL,	OPT_timeout },
+
 	{ "timer",		1,	NULL,	OPT_timer },
 	{ "timer-freq",		1,	NULL,	OPT_timer_freq },
 	{ "timer-ops",		1,	NULL,	OPT_timer_ops },
 	{ "timer-rand", 	0,	NULL,	OPT_timer_rand },
+
 	{ "timerfd",		1,	NULL,	OPT_timerfd },
 	{ "timerfd-fds",	1,	NULL,	OPT_timerfd_fds },
 	{ "timerfd-freq",	1,	NULL,	OPT_timerfd_freq },
 	{ "timerfd-ops",	1,	NULL,	OPT_timerfd_ops },
 	{ "timerfd-rand",	0,	NULL,	OPT_timerfd_rand },
+
 	{ "timermix",		1,	NULL,	OPT_timermix },
 	{ "timermix-ops",	1,	NULL,	OPT_timermix_ops },
+
 	{ "timer-slack"	,	1,	NULL,	OPT_timer_slack },
+
 	{ "time-warp",		1,	NULL,	OPT_time_warp },
 	{ "time-warp-ops",	1,	NULL,	OPT_time_warp_ops },
+
 	{ "tlb-numa",		1,	NULL,	OPT_tlb_numa },
 	{ "tlb-numa-entries",	1,	NULL,	OPT_tlb_numa_entries },
 	{ "tlb-numa-nombind",	0,	NULL,	OPT_tlb_numa_nombind },
@@ -1236,37 +1642,50 @@ const struct option stress_long_options[] = {
 	{ "tlb-numa-ops",	1,	NULL,	OPT_tlb_numa_ops },
 	{ "tlb-shootdown",	1,	NULL,	OPT_tlb_shootdown },
 	{ "tlb-shootdown-ops",	1,	NULL,	OPT_tlb_shootdown_ops },
+
 	{ "tmpfs",		1,	NULL,	OPT_tmpfs },
 	{ "tmpfs-mmap-async",	0,	NULL,	OPT_tmpfs_mmap_async },
 	{ "tmpfs-mmap-file",	0,	NULL,	OPT_tmpfs_mmap_file },
 	{ "tmpfs-ops",		1,	NULL,	OPT_tmpfs_ops },
+
 	{ "touch",		1,	NULL,	OPT_touch },
 	{ "touch-method",	1,	NULL,	OPT_touch_method },
 	{ "touch-ops",		1,	NULL,	OPT_touch_ops },
 	{ "touch-opts",		1,	NULL,	OPT_touch_opts },
+
 	{ "tree",		1,	NULL,	OPT_tree },
 	{ "tree-method",	1,	NULL,	OPT_tree_method },
 	{ "tree-ops",		1,	NULL,	OPT_tree_ops },
 	{ "tree-size",		1,	NULL,	OPT_tree_size },
+
 	{ "trig",		1,	NULL,	OPT_trig },
 	{ "trig-method",	1,	NULL,	OPT_trig_method },
 	{ "trig-ops",		1,	NULL,	OPT_trig_ops },
+
 	{ "tsc",		1,	NULL,	OPT_tsc },
 	{ "tsc-lfence",		0,	NULL,	OPT_tsc_lfence },
 	{ "tsc-ops",		1,	NULL,	OPT_tsc_ops },
 	{ "tsc-rdtscp",		0,	NULL,	OPT_tsc_rdtscp },
+
 	{ "tsearch",		1,	NULL,	OPT_tsearch },
 	{ "tsearch-ops",	1,	NULL,	OPT_tsearch_ops },
 	{ "tsearch-size",	1,	NULL,	OPT_tsearch_size },
+
 	{ "thermalstat",	1,	NULL,	OPT_thermalstat },
+
 	{ "thrash",		0,	NULL,	OPT_thrash },
+
 	{ "times",		0,	NULL,	OPT_times },
+
 	{ "timestamp",		0,	NULL,	OPT_timestamp },
+
 	{ "tz",			0,	NULL,	OPT_thermal_zones },
+
 	{ "tun",		1,	NULL,	OPT_tun },
 	{ "tun-ops",		1,	NULL,	OPT_tun_ops },
 	{ "tun-port",		1,	NULL,	OPT_tun_port },
 	{ "tun-tap",		0,	NULL,	OPT_tun_tap },
+
 	{ "udp",		1,	NULL,	OPT_udp },
 	{ "udp-domain",		1,	NULL,	OPT_udp_domain },
 	{ "udp-gro",		0,	NULL,	OPT_udp_gro },
@@ -1275,65 +1694,90 @@ const struct option stress_long_options[] = {
 	{ "udp-max-size",	1,	NULL,	OPT_udp_max_size },
 	{ "udp-ops",		1,	NULL,	OPT_udp_ops },
 	{ "udp-port",		1,	NULL,	OPT_udp_port },
+
 	{ "udp-flood",		1,	NULL,	OPT_udp_flood },
 	{ "udp-flood-domain",	1,	NULL,	OPT_udp_flood_domain },
 	{ "udp-flood-if",	1,	NULL,	OPT_udp_flood_if },
 	{ "udp-flood-max-size",	1,	NULL,	OPT_udp_flood_max_size },
 	{ "udp-flood-ops",	1,	NULL,	OPT_udp_flood_ops },
+
 	{ "umask",		1,	NULL,	OPT_umask },
 	{ "umask-ops",		1,	NULL,	OPT_umask_ops },
+
 	{ "umount",		1,	NULL,	OPT_umount },
 	{ "umount-ops",		1,	NULL,	OPT_umount_ops },
+
 	{ "unlink",		1,	NULL,	OPT_unlink },
 	{ "unlink-ops",		1,	NULL,	OPT_unlink_ops },
+
 	{ "unshare",		1,	NULL,	OPT_unshare },
 	{ "unshare-ops",	1,	NULL,	OPT_unshare_ops },
+
 	{ "uprobe",		1,	NULL,	OPT_uprobe },
 	{ "uprobe-ops",		1,	NULL,	OPT_uprobe_ops },
+
 	{ "urandom",		1,	NULL,	OPT_urandom },
 	{ "urandom-ops",	1,	NULL,	OPT_urandom_ops },
+
 	{ "userfaultfd",	1,	NULL,	OPT_userfaultfd },
 	{ "userfaultfd-bytes",	1,	NULL,	OPT_userfaultfd_bytes },
 	{ "userfaultfd-ops",	1,	NULL,	OPT_userfaultfd_ops },
+
 	{ "usersyscall",	1,	NULL,	OPT_usersyscall },
 	{ "usersyscall-ops",	1,	NULL,	OPT_usersyscall_ops },
+
 	{ "utime",		1,	NULL,	OPT_utime },
 	{ "utime-fsync",	0,	NULL,	OPT_utime_fsync },
 	{ "utime-ops",		1,	NULL,	OPT_utime_ops },
+
 	{ "varyload",		1,	NULL,	OPT_varyload },
 	{ "varyload-method",	1,	NULL,	OPT_varyload_method },
 	{ "varyload-ms",	1,	NULL,	OPT_varyload_ms },
 	{ "varyload-ops",	1,	NULL,	OPT_varyload_ops },
 	{ "varyload-sched",	1,	NULL,	OPT_varyload_sched },
 	{ "varyload-type",	1,	NULL,	OPT_varyload_type },
+
 	{ "vdso",		1,	NULL,	OPT_vdso },
 	{ "vdso-func",		1,	NULL,	OPT_vdso_func },
 	{ "vdso-ops",		1,	NULL,	OPT_vdso_ops },
+
 	{ "veccmp",		1,	NULL,	OPT_veccmp },
 	{ "veccmp-ops",		1,	NULL,	OPT_veccmp_ops },
+
 	{ "vecfp",		1,	NULL,	OPT_vecfp },
 	{ "vecfp-method",	1,	NULL,	OPT_vecfp_method },
 	{ "vecfp-ops",		1,	NULL,	OPT_vecfp_ops },
+
 	{ "vecmath",		1,	NULL,	OPT_vecmath },
 	{ "vecmath-ops",	1,	NULL,	OPT_vecmath_ops },
+
 	{ "vecshuf",		1,	NULL,	OPT_vecshuf },
 	{ "vecshuf-method",	1,	NULL,	OPT_vecshuf_method },
 	{ "vecshuf-ops",	1,	NULL,	OPT_vecshuf_ops },
+
 	{ "vecwide",		1,	NULL,	OPT_vecwide },
 	{ "vecwide-ops",	1,	NULL,	OPT_vecwide_ops },
+
 	{ "verbose",		0,	NULL,	OPT_verbose },
+
 	{ "verify",		0,	NULL,	OPT_verify },
+
 	{ "verifiable",		0,	NULL,	OPT_verifiable },
+
 	{ "verity",		1,	NULL,	OPT_verity },
 	{ "verity-ops",		1,	NULL,	OPT_verity_ops },
+
 	{ "version",		0,	NULL,	OPT_version },
+
 	{ "vfork",		1,	NULL,	OPT_vfork },
 	{ "vfork-max",		1,	NULL,	OPT_vfork_max },
 	{ "vfork-ops",		1,	NULL,	OPT_vfork_ops },
+
 	{ "vforkmany",		1,	NULL,	OPT_vforkmany },
 	{ "vforkmany-ops", 	1,	NULL,	OPT_vforkmany_ops },
 	{ "vforkmany-vm", 	0,	NULL,	OPT_vforkmany_vm },
 	{ "vforkmany-vm-bytes", 1,	NULL,	OPT_vforkmany_vm_bytes },
+
 	{ "vm",			1,	NULL,	OPT_vm },
 	{ "vm-bytes",		1,	NULL,	OPT_vm_bytes },
 	{ "vm-discontiguous",	0,	NULL,	OPT_vm_discontiguous },
@@ -1351,37 +1795,50 @@ const struct option stress_long_options[] = {
 #if defined(MAP_POPULATE)
 	{ "vm-populate",	0,	NULL,	OPT_vm_populate },
 #endif
+
 	{ "vm-addr",		1,	NULL,	OPT_vm_addr },
 	{ "vm-addr-method",	1,	NULL,	OPT_vm_addr_method },
 	{ "vm-addr-mlock",	0,	NULL,	OPT_vm_addr_mlock },
 	{ "vm-addr-numa",	0,	NULL,	OPT_vm_addr_numa },
 	{ "vm-addr-ops",	1,	NULL,	OPT_vm_addr_ops },
+
 	{ "vm-rw",		1,	NULL,	OPT_vm_rw },
 	{ "vm-rw-bytes",	1,	NULL,	OPT_vm_rw_bytes },
 	{ "vm-rw-ops",		1,	NULL,	OPT_vm_rw_ops },
+
 	{ "vm-segv",		1,	NULL,	OPT_vm_segv },
 	{ "vm-segv-ops",	1,	NULL,	OPT_vm_segv_ops },
+
 	{ "vm-splice",		1,	NULL,	OPT_vm_splice },
 	{ "vm-splice-bytes",	1,	NULL,	OPT_vm_splice_bytes },
 	{ "vm-splice-ops",	1,	NULL,	OPT_vm_splice_ops },
+
 	{ "vma",		1,	NULL,	OPT_vma },
 	{ "vma-ops",		1,	NULL,	OPT_vma_ops },
+
 	{ "vmstat",		1,	NULL,	OPT_vmstat },
 	{ "vmstat-units",	1,	NULL,	OPT_vmstat_units },
+
 	{ "vnni",		1,	NULL,	OPT_vnni },
 	{ "vnni-intrinsic",	0,	NULL,	OPT_vnni_intrinsic },
 	{ "vnni-method",	1,	NULL,	OPT_vnni_method },
 	{ "vnni-ops",		1,	NULL,	OPT_vnni_ops },
+
 	{ "wait",		1,	NULL,	OPT_wait },
 	{ "wait-ops",		1,	NULL,	OPT_wait_ops },
+
 	{ "waitcpu",		1,	NULL,	OPT_waitcpu },
 	{ "waitcpu-ops",	1,	NULL,	OPT_waitcpu_ops },
+
 	{ "watchdog",		1,	NULL,	OPT_watchdog },
 	{ "watchdog-ops",	1,	NULL,	OPT_watchdog_ops },
+
 	{ "with",		1,	NULL,	OPT_with },
+
 	{ "wcs",		1,	NULL,	OPT_wcs },
 	{ "wcs-method",		1,	NULL,	OPT_wcs_method },
 	{ "wcs-ops",		1,	NULL,	OPT_wcs_ops },
+
 	{ "workload",		1,	NULL,	OPT_workload },
 	{ "workload-dist",	1,	NULL,	OPT_workload_dist },
 	{ "workload-load",	1,	NULL,	OPT_workload_load },
@@ -1391,21 +1848,28 @@ const struct option stress_long_options[] = {
 	{ "workload-sched",	1,	NULL,	OPT_workload_sched },
 	{ "workload-slice-us",	1,	NULL,	OPT_workload_slice_us },
 	{ "workload-threads",	1,	NULL,	OPT_workload_threads },
+
 	{ "x86cpuid",		1,	NULL,	OPT_x86cpuid },
 	{ "x86cpuid-ops",	1,	NULL,	OPT_x86cpuid_ops },
+
 	{ "x86syscall",		1,	NULL,	OPT_x86syscall },
 	{ "x86syscall-func",	1,	NULL,	OPT_x86syscall_func },
 	{ "x86syscall-ops",	1,	NULL,	OPT_x86syscall_ops },
+
 	{ "xattr",		1,	NULL,	OPT_xattr },
 	{ "xattr-ops",		1,	NULL,	OPT_xattr_ops },
+
 	{ "yaml",		1,	NULL,	OPT_yaml },
+
 	{ "yield",		1,	NULL,	OPT_yield },
 	{ "yield-ops",		1,	NULL,	OPT_yield_ops },
 	{ "yield-procs",	1,	NULL,	OPT_yield_procs },
 	{ "yield-sched",	1,	NULL,	OPT_yield_sched },
+
 	{ "zero",		1,	NULL,	OPT_zero },
 	{ "zero-ops",		1,	NULL,	OPT_zero_ops },
 	{ "zero-read",		0,	NULL,	OPT_zero_read },
+
 	{ "zlib",		1,	NULL,	OPT_zlib },
 	{ "zlib-level",		1,	NULL,	OPT_zlib_level },
 	{ "zlib-mem-level",	1,	NULL,	OPT_zlib_mem_level },
@@ -1414,10 +1878,12 @@ const struct option stress_long_options[] = {
 	{ "zlib-strategy",	1,	NULL,	OPT_zlib_strategy },
 	{ "zlib-stream-bytes",	1,	NULL,	OPT_zlib_stream_bytes },
 	{ "zlib-window-bits",	1,	NULL,	OPT_zlib_window_bits },
+
 	{ "zombie",		1,	NULL,	OPT_zombie },
 	{ "zombie-clone",	0,	NULL,	OPT_zombie_clone },
 	{ "zombie-max",		1,	NULL,	OPT_zombie_max },
 	{ "zombie-ops",		1,	NULL,	OPT_zombie_ops },
+
 	{ NULL,			0,	NULL,	0 }
 };
 
