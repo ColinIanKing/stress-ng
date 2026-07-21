@@ -65,10 +65,10 @@ static int bubblesort_fast(
 	swap_func = stress_sort_swap_func(size);
 
 	do {
-		register size_t i;
-		register size_t n = 0;
 		register uintptr_t p1 = (uintptr_t)base;
 		register uintptr_t p2 = size + (uintptr_t)base;
+		register size_t n = 0;
+		register size_t i;
 
 PRAGMA_UNROLL_N(4)
 		for (i = 1; i < nmemb; i++) {
@@ -91,7 +91,7 @@ static int bubblesort_naive(
 	size_t size,
 	int (*compar)(const void *, const void *))
 {
-	bool swapped;
+	register bool swapped;
 	stress_sort_swap_func_t swap_func;
 
 	if (UNLIKELY(nmemb <= 1))
@@ -104,9 +104,9 @@ static int bubblesort_naive(
 	swap_func = stress_sort_swap_func(size);
 
 	do {
-		register size_t i;
 		register uintptr_t p1 = (uintptr_t)base;
 		register uintptr_t p2 = size + (uintptr_t)base;
+		register size_t i;
 
 		swapped = false;
 PRAGMA_UNROLL_N(4)
