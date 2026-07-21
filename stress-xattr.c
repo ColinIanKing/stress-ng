@@ -145,7 +145,9 @@ static int stress_xattr(stress_args_t *args)
 					rc = EXIT_NO_RESOURCE;
 					goto out_close;
 				}
-				if ((errno != ENOSPC) && (errno != EDQUOT) && (errno != E2BIG)) {
+				if (errno == ENOSPC)
+					break;
+				if ((errno != EDQUOT) && (errno != E2BIG)) {
 					pr_fail("%s: fsetxattr failed, errno=%d (%s)%s\n",
 						args->name, errno, strerror(errno), fs_type);
 					goto out_close;
