@@ -583,15 +583,7 @@ static inline ALWAYS_INLINE CONST void *shim_unconstify_ptr(const void *ptr)
  */
 static inline ALWAYS_INLINE void * shim_unvolatile_ptr(void volatile * ptr)
 {
-	union stress_unvolatile {
-		void volatile * vptr;
-		void *ptr;
-	};
-
-	union stress_unvolatile su;
-
-	su.vptr = ptr;
-	return su.ptr;
+	return (void *)(uintptr_t)ptr;
 }
 
 extern int shim_sched_yield(void);
