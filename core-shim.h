@@ -574,15 +574,7 @@ typedef struct shim_ns_id_req {
  */
 static inline ALWAYS_INLINE CONST void *shim_unconstify_ptr(const void *ptr)
 {
-	union stress_unconstify {
-		const void *cptr;
-		void *ptr;
-	};
-
-	union stress_unconstify su;
-
-	su.cptr = ptr;
-	return su.ptr;
+	return (void *)(uintptr_t)ptr;
 }
 
 /*
