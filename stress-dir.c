@@ -270,6 +270,27 @@ static int stress_mkdir(const int dir_fd, const char *path, const int mode)
 }
 
 /*
+ *  stress_invalid_dentries()
+ *	exercise access to files that do not exist
+ *	(aka 'negative dentry')
+ */
+static inline void stress_invalid_dentries(const char *path)
+{
+	char filename[PATH_MAX + 32];
+	size_t len;
+	char i;
+
+	(void)shim_strscpy(filename, path, sizeof(filename));
+	(void)shim_strlcat(filename, "/", sizeof(filename));
+	len = shim_strnlen(filename, sizeof(filename));
+	(void)stress_rndstr(filename + len, 16);
+	for (i = 'a'; i <= 'z'; i++) {
+		filename[len] = i;
+		(void)access(filename, F_OK);
+	}
+}
+
+/*
  *  stress_invalid_mkdir()
  *	exercise invalid mkdir path
  */
@@ -493,6 +514,8 @@ static int stress_dir(stress_args_t *args)
 		stress_dir_mmap(dir_fd, args->page_size);
 		stress_dir_flock(dir_fd);
 		stress_dir_truncate(pathname, dir_fd);
+
+		stress_invalid_dentries(pathname);
 
 		for (i = 0; LIKELY(stress_continue(args) && (i < n)); i++) {
 			char path[PATH_MAX];
