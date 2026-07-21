@@ -69,6 +69,7 @@ static int stress_xattr(stress_args_t *args)
 	const char *fs_type;
 #if defined(XATTR_SIZE_MAX)
 	const size_t hugevalue_sz = XATTR_SIZE_MAX + 16;
+	int xattr_size_max = 0;
 	char *large_tmp;
 #else
 	const size_t hugevalue_sz = 256 * KB;
@@ -243,34 +244,6 @@ static int stress_xattr(stress_args_t *args)
 				args->name, errno, strerror(errno), fs_type);
 			goto out_close;
 		}
-
-#if defined(XATTR_SIZE_MAX)
-		/* Exercise invalid size argument fsetxattr syscall */
-		(void)shim_memset(large_tmp, 'f', XATTR_SIZE_MAX + 1);
-		ret = shim_fsetxattr(fd, attrname, large_tmp, XATTR_SIZE_MAX + 1,
-			XATTR_CREATE);
-		if (UNLIKELY(ret >= 0)) {
-			pr_fail("%s: fsetxattr succeeded unexpectedly, "
-				"created attribute with size greater "
-				"than permitted size, errno=%d (%s)%s\n",
-				args->name, errno, strerror(errno), fs_type);
-			goto out_close;
-		}
-#endif
-
-#if defined(HAVE_LSETXATTR) && \
-    defined(XATTR_SIZE_MAX)
-		(void)shim_memset(large_tmp, 'l', XATTR_SIZE_MAX + 1);
-		ret = shim_lsetxattr(filename, attrname, large_tmp,
-			XATTR_SIZE_MAX + 1, XATTR_CREATE);
-		if (UNLIKELY(ret >= 0)) {
-			pr_fail("%s: lsetxattr succeeded unexpectedly, "
-				"created attribute with size greater "
-				"than permitted size, errno=%d (%s)%s\n",
-				args->name, errno, strerror(errno), fs_type);
-			goto out_close;
-		}
-#endif
 
 #if defined(XATTR_SIZE_MAX)
 		(void)shim_memset(large_tmp, 's', XATTR_SIZE_MAX + 1);
@@ -582,6 +555,58 @@ static int stress_xattr(stress_args_t *args)
 			goto out_close;
 		}
 #endif
+
+#if defined(XATTR_SIZE_MAX)
+		/* Exercise invalid size argument fsetxattr syscall */
+		(void)shim_memset(large_tmp, 'f', XATTR_SIZE_MAX + 1);
+		ret = shim_fsetxattr(fd, attrname, large_tmp, XATTR_SIZE_MAX + 1,
+			XATTR_CREATE);
+		if (UNLIKELY(ret >= 0)) {
+			pr_fail("%s: fsetxattr succeeded unexpectedly, "
+				"created attribute with size greater "
+				"than permitted size, errno=%d (%s)%s\n",
+				args->name, errno, strerror(errno), fs_type);
+			goto out_close;
+		}
+
+		/* find largest xattr length possible */
+		(void)shim_memset(large_tmp, 'F', XATTR_SIZE_MAX + 1);
+		if (xattr_size_max == 0) {
+			for (j = 1; j < XATTR_SIZE_MAX; j++) {
+				ret = shim_fsetxattr(fd, attrname, large_tmp, j, XATTR_CREATE);
+				if (ret < 0) {
+					xattr_size_max = j - 1;
+					break;
+				}
+				(void)shim_fremovexattr(fd, attrname);
+			}
+		}
+
+		/* add/remove maximum and randomly sized xattr */
+		for (j = 0; j < 10; j++) {
+			int rnd_size = (int)stress_mwc32modn((uint32_t)xattr_size_max);
+
+			(void)shim_fsetxattr(fd, attrname, large_tmp, xattr_size_max, XATTR_CREATE);
+			(void)shim_fremovexattr(fd, attrname);
+			(void)shim_fsetxattr(fd, attrname, large_tmp, rnd_size, XATTR_CREATE);
+			(void)shim_fremovexattr(fd, attrname);
+		}
+#endif
+
+#if defined(HAVE_LSETXATTR) && \
+    defined(XATTR_SIZE_MAX)
+		(void)shim_memset(large_tmp, 'l', XATTR_SIZE_MAX + 1);
+		ret = shim_lsetxattr(filename, attrname, large_tmp,
+			XATTR_SIZE_MAX + 1, XATTR_CREATE);
+		if (UNLIKELY(ret >= 0)) {
+			pr_fail("%s: lsetxattr succeeded unexpectedly, "
+				"created attribute with size greater "
+				"than permitted size, errno=%d (%s)%s\n",
+				args->name, errno, strerror(errno), fs_type);
+			goto out_close;
+		}
+#endif
+
 
 #if defined(O_TMPFILE)
 		{
