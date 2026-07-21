@@ -359,8 +359,6 @@ static int stress_symlink(stress_args_t *args)
 	return stress_link_generic(args, symlink, "symlink", symlink_sync);
 }
 
-
-
 #if !defined(__HAIKU__)
 
 static const stress_exercises_t exercises_link[] = {
