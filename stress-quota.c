@@ -52,7 +52,7 @@ typedef struct {
 	bool	skip;		/* Skip testing this device */
 } stress_dev_info_t;
 
-struct shim_nextdqblk {
+typedef struct shim_nextdqblk {
 	uint64_t dqb_bhardlimit;
 	uint64_t dqb_bsoftlimit;
 	uint64_t dqb_curspace;
@@ -63,7 +63,7 @@ struct shim_nextdqblk {
 	uint64_t dqb_itime;
 	uint32_t dqb_valid;
 	uint32_t dqb_id;
-};
+} shim_nextdqblk_t;
 
 /* Account different failure modes */
 typedef struct {
@@ -215,7 +215,7 @@ static int do_quotas(stress_args_t *args, stress_dev_info_t *const dev)
 #endif
 #if defined(Q_GETNEXTQUOTA)
 	if (LIKELY(stress_continue_flag())) {
-		struct shim_nextdqblk nextdqblk;
+		shim_nextdqblk_t nextdqblk;
 
 		(void)shim_memset(&nextdqblk, 0, sizeof(nextdqblk));
 		err = do_quotactl(args, "Q_GETNEXTQUOTA", &status,
