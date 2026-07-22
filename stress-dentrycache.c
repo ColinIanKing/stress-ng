@@ -21,6 +21,13 @@
 
 #include <sys/stat.h>
 
+#if defined(HAVE_SYS_XATTR_H)
+#include <sys/xattr.h>
+#undef HAVE_ATTR_XATTR_H
+#elif defined(HAVE_ATTR_XATTR_H)
+#include <attr/xattr.h>
+#endif
+
 #if defined(HAVE_UTIME_H)
 #include <utime.h>
 #endif
@@ -68,6 +75,17 @@ static void stress_dentrycache_access(const char *filename)
 {
 	VOID_RET(int, access(filename, R_OK));
 }
+
+#if (defined(HAVE_SYS_XATTR_H) ||	\
+     defined(HAVE_ATTR_XATTR_H)) &&	\
+    defined(HAVE_GETXATTR)
+static void stress_dentrycache_getxattr(const char *filename)
+{
+	char attr[32];
+
+	VOID_RET(int, getxattr(filename, "user.var", attr, sizeof(attr)));
+}
+#endif
 
 static void stress_dentrycache_lstat(const char *filename)
 {
@@ -121,6 +139,11 @@ static void stress_dentrycache_utime(const char *filename)
 static dentrycache_method_t dentrycache_methods[] = {
 	{ "all",	NULL },
 	{ "access",	stress_dentrycache_access },
+#if (defined(HAVE_SYS_XATTR_H) ||	\
+     defined(HAVE_ATTR_XATTR_H)) &&	\
+     defined(HAVE_GETXATTR)
+	{ "getxattr",	stress_dentrycache_getxattr },
+#endif
 	{ "lstat",	stress_dentrycache_lstat },
 	{ "open",	stress_dentrycache_open },
 	{ "readlink",	stress_dentrycache_readlink },
@@ -267,6 +290,11 @@ static const stress_exercises_t exercises[] = {
 	STRESS_EX_FEATURE("directory"),
 
 	STRESS_EX_SYSCALL("access"),
+#if (defined(HAVE_SYS_XATTR_H) ||	\
+     defined(HAVE_ATTR_XATTR_H)) &&	\
+     defined(HAVE_GETXATTR)
+	STRESS_EX_SYSCALL("getxattr"),
+#endif
 	STRESS_EX_SYSCALL("lstat"),
 	STRESS_EX_SYSCALL("open"),
 	STRESS_EX_SYSCALL("readlink"),
