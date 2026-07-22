@@ -146,22 +146,17 @@ static const stress_opt_t opts[] = {
  *	try to generate a unique path as fast as possible
  *	2^64 filenames are possible which is plenty for now
  */
-static inline ALWAYS_INLINE void stress_dentrycache_filename(char *const filename, uint64_t val)
+static inline ALWAYS_INLINE OPTIMIZE3 void stress_dentrycache_filename(char *const filename, register uint64_t val)
 {
-	static const char hex[16] = {
-		'0', '1', '2', '3',
-		'4', '5', '6', '7',
-		'8', '9', 'a', 'b',
-		'c', 'd', 'e', 'f',
-	};
-
 	register int i;
 	register char *ptr = filename;
 
-	for (i = 0; i < 16; i++) {
-		*ptr++ = hex[val & 0xf];
-		val  >>= 4;
+	for (i = 0; val && (i < 16); i++) {
+		*ptr++ = 'a' + (val & 0xf);
+		val >>= 4;
 	}
+	for (; i < 16; i++)
+		*ptr++ = 'a';
 	*ptr = '\0';
 }
 
