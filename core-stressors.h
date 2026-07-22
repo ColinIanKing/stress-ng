@@ -74,6 +74,7 @@
 	MACRO(dccp)		\
 	MACRO(dekker)		\
 	MACRO(dentry)		\
+	MACRO(dentrycache)	\
 	MACRO(dev)		\
 	MACRO(dev_shm)		\
 	MACRO(dfp)		\

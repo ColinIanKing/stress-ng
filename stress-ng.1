@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, may be w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "20 July 2026"
+.TH STRESS-NG 1 "22 July 2026"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -2846,6 +2846,23 @@ select one of forward, reverse or stride orders.
 .TP
 .B \-\-dentries N
 create N dentries per dentry thrashing loop, default is 2048.
+.RE
+.TP
+.B Negative dentry cache stressor
+.RS 5
+.TP
+.B \-\-dentrycache N
+start N workers that access non-existent files to fill the dentry
+cache with negative dentries. A maximum of 2^64 unique dentry names can
+be created per stressor instance given enough time. Use the --buddystat
+or --vmstat option to see memory consumed by the dentry cache.
+.TP
+.B \-\-dentrycache\-method [ all | access | lstat | open | readlink | stat | utime ]
+select the system call method of creating negative dentries, by default 'all'
+will cycle through all the methods.
+.TP
+.B \-\-dentrycache\-ops N
+stop after N non-existtent files are accessed.
 .RE
 .TP
 .B /dev stressor

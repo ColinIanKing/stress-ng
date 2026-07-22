@@ -535,6 +535,7 @@ STRESS_SRC = \
 	stress-dccp.c \
 	stress-dekker.c \
 	stress-dentry.c \
+	stress-dentrycache.c \
 	stress-dev.c \
 	stress-dev-shm.c \
 	stress-dfp.c \

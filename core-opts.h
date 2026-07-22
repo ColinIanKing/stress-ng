@@ -388,6 +388,10 @@ typedef enum {
 	OPT_dentry_ops,
 	OPT_dentry_order,
 
+	OPT_dentrycache,
+	OPT_dentrycache_method,
+	OPT_dentrycache_ops,
+
 	OPT_dev,
 	OPT_dev_ops,
 	OPT_dev_file,

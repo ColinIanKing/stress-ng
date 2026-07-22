@@ -262,6 +262,10 @@ const struct option stress_long_options[] = {
 	{ "dentries",		1,	NULL,	OPT_dentries },
 	{ "dentry-order",	1,	NULL,	OPT_dentry_order },
 
+	{ "dentrycache",	1,	NULL,	OPT_dentrycache },
+	{ "dentrycache-method",	1,	NULL,	OPT_dentrycache_method },
+	{ "dentrycache-ops",	1,	NULL,	OPT_dentrycache_ops },
+
 	{ "dev",		1,	NULL,	OPT_dev },
 	{ "dev-file",		1,	NULL,	OPT_dev_file },
 	{ "dev-ops",		1,	NULL,	OPT_dev_ops },
