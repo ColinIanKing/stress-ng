@@ -81,4 +81,6 @@ extern void stress_fs_clean_dir(const char *name, const pid_t pid,
 extern int stress_fs_drop_caches(const int flags);
 extern void stress_fs_io_stats_begin(stress_io_stats_t *io_stats);
 extern void stress_fs_io_stats_end(stress_io_stats_t *io_stats);
+extern void stress_fs_dentry_state_get(int64_t *nr_dentry);
+
 #endif

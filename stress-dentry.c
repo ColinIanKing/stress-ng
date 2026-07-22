@@ -158,31 +158,6 @@ static int stress_dentry_unlink(
 }
 
 /*
- *  stress_dentry_state()
- *	determined the number of cached dentries
- */
-static void stress_dentry_state(int64_t *nr_dentry)
-{
-#if defined(__linux__)
-	FILE *fp;
-	int n;
-
-	fp = fopen("/proc/sys/fs/dentry-state", "r");
-	if (!fp)
-		goto err;
-	n = fscanf(fp, "%" SCNd64, nr_dentry);
-	(void)fclose(fp);
-
-	if (n != 1)
-		goto err;
-	return;
-err:
-#endif
-	*nr_dentry = 0ULL;
-	return;
-}
-
-/*
  *  stress_dentry_misc()
  *	misc ways to exercise a directory file
  */
@@ -356,7 +331,7 @@ static int stress_dentry(stress_args_t *args)
 	stress_sync_start_wait(args);
 	stress_proc_state_set(args->name, STRESS_STATE_RUN);
 
-	stress_dentry_state(&nr_dentry1);
+	stress_fs_dentry_state_get(&nr_dentry1);
 	do {
 		uint64_t i, n = dentries;
 		char path[PATH_MAX];
@@ -469,7 +444,7 @@ static int stress_dentry(stress_args_t *args)
 	} while ((rc == EXIT_SUCCESS) && stress_continue(args));
 
 abort:
-	stress_dentry_state(&nr_dentry2);
+	stress_fs_dentry_state_get(&nr_dentry2);
 	nr_dentries = (nr_dentry2 > nr_dentry1) ? nr_dentry2 - nr_dentry1 : 0LL;
 
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);

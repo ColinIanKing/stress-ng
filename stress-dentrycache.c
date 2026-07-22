@@ -18,6 +18,7 @@
  */
 #include "stress-ng.h"
 #include "core-builtin.h"
+#include "core-filesystem.h"
 
 #include <sys/stat.h>
 
@@ -45,31 +46,6 @@ static const stress_help_t help[] = {
 	{ NULL,	"dentrycache-ops N", "stop after N dentry bogo operations" },
 	{ NULL,	NULL,                 NULL }
 };
-
-/*
- *  stress_dentrycache_state()
- *	determined the number of cached dentries
- */
-static void stress_dentrycache_state(int64_t *nr_dentry)
-{
-#if defined(__linux__)
-	FILE *fp;
-	int n;
-
-	fp = fopen("/proc/sys/fs/dentry-state", "r");
-	if (!fp)
-		goto err;
-	n = fscanf(fp, "%" SCNd64, nr_dentry);
-	(void)fclose(fp);
-
-	if (n != 1)
-		goto err;
-	return;
-err:
-#endif
-	*nr_dentry = 0ULL;
-	return;
-}
 
 static void stress_dentrycache_access(const char *filename)
 {
@@ -236,7 +212,7 @@ static int OPTIMIZE3 stress_dentrycache(stress_args_t *args)
 			args->name, dentrycache_methods[dentrycache_method].name);
 	}
 
-	stress_dentrycache_state(&nr_dentry1);
+	stress_fs_dentry_state_get(&nr_dentry1);
 	t = stress_time_now();
 	if (dentrycache_method == 0) {
 		do {
@@ -268,7 +244,7 @@ static int OPTIMIZE3 stress_dentrycache(stress_args_t *args)
 		} while (stress_continue(args));
 	}
 	duration = stress_time_now() - t;
-	stress_dentrycache_state(&nr_dentry2);
+	stress_fs_dentry_state_get(&nr_dentry2);
 	nr_dentries = (nr_dentry2 > nr_dentry1) ? nr_dentry2 - nr_dentry1 : 0LL;
 
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);

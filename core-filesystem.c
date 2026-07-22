@@ -1858,3 +1858,28 @@ void stress_fs_io_stats_end(stress_io_stats_t *io_stats)
 {
 	stress_fs_io_stats_read(1, io_stats);
 }
+
+/*
+ *  stress_fs_dentry_state_get()
+ *	get the number of cached dentries
+ */
+void stress_fs_dentry_state_get(int64_t *nr_dentry)
+{
+#if defined(__linux__)
+	FILE *fp;
+	int n;
+
+	fp = fopen("/proc/sys/fs/dentry-state", "r");
+	if (!fp)
+		goto err;
+	n = fscanf(fp, "%" SCNd64, nr_dentry);
+	(void)fclose(fp);
+
+	if (n != 1)
+		goto err;
+	return;
+err:
+#endif
+	*nr_dentry = 0ULL;
+	return;
+}
