@@ -35,7 +35,7 @@
 
 #define YIELD_MASK	(0x1ffff)
 
-typedef void (*direntrycache_func_t)(const char *filename);
+typedef int (*direntrycache_func_t)(const char *filename);
 typedef struct {
 	const char *name;
 	direntrycache_func_t dentrycache_func;
@@ -47,63 +47,66 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,                 NULL }
 };
 
-static void stress_dentrycache_access(const char *filename)
+static int stress_dentrycache_access(const char *filename)
 {
-	VOID_RET(int, access(filename, R_OK));
+	return (access(filename, R_OK) < 0) ? errno : 0;
 }
 
 #if (defined(HAVE_SYS_XATTR_H) ||	\
      defined(HAVE_ATTR_XATTR_H)) &&	\
     defined(HAVE_GETXATTR)
-static void stress_dentrycache_getxattr(const char *filename)
+static int stress_dentrycache_getxattr(const char *filename)
 {
 	char attr[32];
 
-	VOID_RET(int, getxattr(filename, "user.var", attr, sizeof(attr)));
+	return (getxattr(filename, "user.var", attr, sizeof(attr)) < 0) ? errno : 0;
 }
 #endif
 
-static void stress_dentrycache_lstat(const char *filename)
+static int stress_dentrycache_lstat(const char *filename)
 {
 	struct stat statbuf;
 
-	VOID_RET(int, lstat(filename, &statbuf));
+	return (lstat(filename, &statbuf) < 0) ? errno : 0;
 }
 
-static void stress_dentrycache_open(const char *filename)
+static int stress_dentrycache_open(const char *filename)
 {
 	int fd;
 
 	fd = open(filename, O_RDONLY);
-	if (UNLIKELY(fd != -1))
+	if (UNLIKELY(fd != -1)) {
 		(void)close(fd);
+		return EEXIST;
+	}
+	return (fd < 0) ? errno : 0;
 }
 
-static void stress_dentrycache_readlink(const char *filename)
+static int stress_dentrycache_readlink(const char *filename)
 {
 	char path[PATH_MAX];
 
-	VOID_RET(ssize_t, readlink(filename, path, sizeof(path)));
+	return (readlink(filename, path, sizeof(path)) < 0) ? errno : 0;
 }
 
-static void stress_dentrycache_stat(const char *filename)
+static int stress_dentrycache_stat(const char *filename)
 {
 	struct stat statbuf;
 
-	VOID_RET(int, stat(filename, &statbuf));
+	return (stat(filename, &statbuf) < 0) ? errno : 0;
 }
 
 #if defined(HAVE_UTIME_H) &&    \
     defined(HAVE_UTIME) &&      \
     defined(HAVE_UTIMBUF)
-static void stress_dentrycache_utime(const char *filename)
+static int stress_dentrycache_utime(const char *filename)
 {
 	static struct utimbuf times = {
 		0,
 		0,
 	};
 
-	VOID_RET(int, utime(filename, &times));
+	return (utime(filename, &times) < 0) ? errno : 0;
 }
 #endif
 
@@ -249,7 +252,12 @@ static int OPTIMIZE3 stress_dentrycache(stress_args_t *args)
 					dentrycache_methods[i].dentrycache_func;
 
 				stress_dentrycache_filename(filename, count);
-				dentrycache_func(dir_path);
+				errno = 0;
+				if (dentrycache_func(dir_path) != ENOENT) {
+					pr_fail("%s: %s access of '%s' failed with unexepcted error %d (%s)\n",
+						args->name, dentrycache_methods[dentrycache_method].name,
+						filename, errno, strerror(errno));
+				}
 				if ((count & YIELD_MASK) == YIELD_MASK) {
 					stress_dentrycache_stats_max(&dentry_stat1, &dentry_stat2);
 					shim_sched_yield();
@@ -264,7 +272,12 @@ static int OPTIMIZE3 stress_dentrycache(stress_args_t *args)
 
 		do {
 			stress_dentrycache_filename(filename, count);
-			dentrycache_func(dir_path);
+			errno = 0;
+			if (dentrycache_func(dir_path) != ENOENT) {
+				pr_fail("%s: %s access of '%s' failed with unexepcted error %d (%s)\n",
+					args->name, dentrycache_methods[dentrycache_method].name,
+					filename, errno, strerror(errno));
+			}
 			if ((count & YIELD_MASK) == YIELD_MASK) {
 				stress_dentrycache_stats_max(&dentry_stat1, &dentry_stat2);
 				shim_sched_yield();
@@ -316,7 +329,7 @@ static const stress_exercises_t exercises[] = {
 const stressor_info_t stress_dentrycache_info = {
 	.stressor = stress_dentrycache,
 	.classifier = CLASS_FILESYSTEM | CLASS_OS,
-	.verify = VERIFY_NONE,
+	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.opts = opts,
 	.exercises = exercises,
