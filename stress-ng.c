@@ -1482,7 +1482,7 @@ static ssize_t stress_metrics_find(
 	size_t i;
 	stress_metrics_info_t *mi = item->metrics_info;
 
-	if (UNLIKELY(stress_lock_acquire(g_shared->metrics.lock) < 0))
+	if (UNLIKELY(stress_lock_acquire_relax(g_shared->metrics.lock) < 0))
 		return (ssize_t)-1;
 
 	/* search for existing match.. */
