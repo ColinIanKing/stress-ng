@@ -252,11 +252,11 @@ static int OPTIMIZE3 stress_dentrycache(stress_args_t *args)
 	nr_dentries = (dentry_stat2.nr_dentry > dentry_stat1.nr_dentry) ?
 		dentry_stat2.nr_dentry - dentry_stat1.nr_dentry : 0LL;
 	if (nr_dentries > 0)
-		stress_metrics_set(args, "directory entries allocted", (double)nr_dentries, STRESS_METRIC_HARMONIC_MEAN);
+		stress_metrics_set(args, "directory entries allocated", (double)nr_dentries, STRESS_METRIC_HARMONIC_MEAN);
 	nr_dentries = (dentry_stat2.nr_negative > dentry_stat1.nr_negative) ?
 		dentry_stat2.nr_negative - dentry_stat1.nr_negative : 0LL;
 	if (nr_dentries > 0)
-		stress_metrics_set(args, "negative directory entries allocted", (double)nr_dentries, STRESS_METRIC_HARMONIC_MEAN);
+		stress_metrics_set(args, "negative directory entries allocated", (double)nr_dentries, STRESS_METRIC_HARMONIC_MEAN);
 	stress_metrics_set(args, "bogus (negative) directory entries accessed", (double)count, STRESS_METRIC_TOTAL);
 
 	return rc;
