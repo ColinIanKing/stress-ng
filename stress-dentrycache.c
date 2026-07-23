@@ -218,10 +218,10 @@ static int OPTIMIZE3 stress_dentrycache(stress_args_t *args)
 					dentrycache_methods[i].dentrycache_func;
 
 				stress_dentrycache_filename(filename, count);
-				count++;
 				dentrycache_func(dir_path);
 				if ((count & YIELD_MASK) == YIELD_MASK)
 					shim_sched_yield();
+				count++;
 				stress_bogo_inc(args);
 			}
 		} while (stress_continue(args));
@@ -231,10 +231,10 @@ static int OPTIMIZE3 stress_dentrycache(stress_args_t *args)
 
 		do {
 			stress_dentrycache_filename(filename, count);
-			count++;
 			dentrycache_func(dir_path);
 			if ((count & YIELD_MASK) == YIELD_MASK)
 				shim_sched_yield();
+			count++;
 			stress_bogo_inc(args);
 		} while (stress_continue(args));
 	}
