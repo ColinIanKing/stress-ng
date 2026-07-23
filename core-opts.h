@@ -392,6 +392,8 @@ typedef enum {
 	OPT_dentrycache_method,
 	OPT_dentrycache_ops,
 
+	OPT_dentrystat,
+
 	OPT_dev,
 	OPT_dev_ops,
 	OPT_dev_file,

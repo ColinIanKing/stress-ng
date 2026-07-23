@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-builtin.h"
 #include "core-cpu-freq.h"
+#include "core-filesystem.h"
 #include "core-killpid.h"
 #include "core-memory.h"
 #include "core-pragma.h"
@@ -116,6 +117,7 @@ typedef struct {
 static uint64_t vmstat_units_kb = 1;	/* kilobytes */
 
 static int32_t buddystat_delay = 0;
+static int32_t dentrystat_delay = 0;
 static int32_t iostat_delay = 0;
 static int32_t raplstat_delay = 0;
 static int32_t status_delay = 0;
@@ -1074,6 +1076,7 @@ void stress_vmstat_start(void)
 	size_t tz_num = 0;
 	stress_tz_info_t *tz_info;
 	int32_t buddystat_sleep;
+	int32_t dentrystat_sleep;
 	int32_t iostat_sleep;
 	int32_t raplstat_sleep;
 	int32_t status_sleep;
@@ -1093,6 +1096,7 @@ void stress_vmstat_start(void)
 	char *vmstat_units = NULL;
 
 	(void)stress_setting_get("buddystat", &buddystat_delay);
+	(void)stress_setting_get("dentrystat", &dentrystat_delay);
 	(void)stress_setting_get("iostat", &iostat_delay);
 	(void)stress_setting_get("raplstat", &raplstat_delay);
 	(void)stress_setting_get("status", &status_delay);
@@ -1105,6 +1109,7 @@ void stress_vmstat_start(void)
 	}
 
 	if ((buddystat_delay == 0) &&
+	    (dentrystat_delay == 0) &&
 	    (iostat_delay == 0) &&
 	    (raplstat_delay == 0) &&
 	    (status_delay == 0) &&
@@ -1113,6 +1118,7 @@ void stress_vmstat_start(void)
 		return;
 
 	buddystat_sleep = buddystat_delay;
+	dentrystat_sleep = dentrystat_delay;
 	iostat_sleep = iostat_delay;
 	raplstat_sleep = raplstat_delay;
 	status_sleep = status_delay;
@@ -1164,6 +1170,8 @@ void stress_vmstat_start(void)
 #endif
 		if (buddystat_delay > 0)
 			sleep_delay = STRESS_MINIMUM(buddystat_delay, sleep_delay);
+		if (dentrystat_delay > 0)
+			sleep_delay = STRESS_MINIMUM(dentrystat_delay, sleep_delay);
 		if (raplstat_delay > 0)
 			sleep_delay = STRESS_MINIMUM(raplstat_delay, sleep_delay);
 		if (status_delay > 0)
@@ -1183,6 +1191,7 @@ void stress_vmstat_start(void)
 		}
 
 		buddystat_sleep -= sleep_delay;
+		dentrystat_sleep -= sleep_delay;
 		iostat_sleep -= sleep_delay;
 		raplstat_sleep -= sleep_delay;
 		status_sleep -= sleep_delay;
@@ -1191,6 +1200,8 @@ void stress_vmstat_start(void)
 
 		if ((buddystat_delay > 0) && (buddystat_sleep <= 0))
 			buddystat_sleep = buddystat_delay;
+		if ((dentrystat_delay > 0) && (dentrystat_sleep <= 0))
+			dentrystat_sleep = dentrystat_delay;
 		if ((iostat_delay > 0) && (iostat_sleep <= 0))
 			iostat_sleep = iostat_delay;
 		if ((raplstat_delay > 0) && (raplstat_sleep <= 0))
@@ -1402,6 +1413,22 @@ void stress_vmstat_start(void)
 
 			if (stress_buddystat(buf, sizeof(buf), page_size) == 0)
 				pr_inf("buddystat: %s\n", buf);
+		}
+
+		if ((sleep_delay > 0) && (dentrystat_sleep == dentrystat_delay)) {
+			stress_fs_dentry_stat_t dentry_stat;
+
+			stress_fs_dentry_state_get(&dentry_stat);
+
+			if ((dentry_stat.nr_dentry > 0) &&
+			    (dentry_stat.nr_negative > 0)) {
+				pr_inf("dentrystat: dentries %" PRId64
+				        ", negative %" PRId64
+					", want-pages %" PRId64 "\n",
+					dentry_stat.nr_dentry,
+					dentry_stat.nr_negative,
+					dentry_stat.want_pages);
+			}
 		}
 	}
 	_exit(0);

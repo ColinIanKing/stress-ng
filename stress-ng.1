@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, may be w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "22 July 2026"
+.TH STRESS-NG 1 "23 July 2026"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -134,6 +134,10 @@ print out the configuration used to build stress\-ng.
 .TP
 .B \-n, \-\-dry\-run
 parse options, but do not run stress tests. A no-op.
+.TP
+.B \-\-dentrystat S
+every S seconds show number of allocated directory entries, number of negative
+directory entries in use and pages requested. Linux only.
 .TP
 .B \-\-exercised
 show the features, libraries and system calls exercised by the core of each stressor
