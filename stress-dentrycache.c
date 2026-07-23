@@ -168,13 +168,13 @@ static inline ALWAYS_INLINE OPTIMIZE3 void stress_dentrycache_filename(char *con
  */
 static int OPTIMIZE3 stress_dentrycache(stress_args_t *args)
 {
+	stress_fs_dentry_stat_t dentry_stat1;
+	stress_fs_dentry_stat_t dentry_stat2;
 	int ret;
 	int rc = EXIT_SUCCESS;
 	char dir_path[PATH_MAX];
 	char *filename;
 	int64_t nr_dentries;
-	int64_t nr_dentry1;
-	int64_t nr_dentry2;
 	size_t n;
 	size_t dentrycache_method = 0;	/* default 'all' */
 	register uint64_t count = 0;
@@ -207,7 +207,7 @@ static int OPTIMIZE3 stress_dentrycache(stress_args_t *args)
 			args->name, dentrycache_methods[dentrycache_method].name);
 	}
 
-	stress_fs_dentry_state_get(&nr_dentry1);
+	stress_fs_dentry_state_get(&dentry_stat1);
 	t = stress_time_now();
 	if (dentrycache_method == 0) {
 		do {
@@ -239,20 +239,25 @@ static int OPTIMIZE3 stress_dentrycache(stress_args_t *args)
 		} while (stress_continue(args));
 	}
 	duration = stress_time_now() - t;
-	stress_fs_dentry_state_get(&nr_dentry2);
-	nr_dentries = (nr_dentry2 > nr_dentry1) ? nr_dentry2 - nr_dentry1 : 0LL;
+	stress_fs_dentry_state_get(&dentry_stat2);
 
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
+
+	/* force unlink of all files */
+	(void)stress_fs_temp_dir_rm_args(args);
 
 	rate = (count > 0.0) ? duration / (double)count : 0.0;
 	stress_metrics_set(args, "nanosecs per negative dentry operationn",
 		rate * STRESS_DBL_NANOSECOND, STRESS_METRIC_HARMONIC_MEAN);
+	nr_dentries = (dentry_stat2.nr_dentry > dentry_stat1.nr_dentry) ?
+		dentry_stat2.nr_dentry - dentry_stat1.nr_dentry : 0LL;
 	if (nr_dentries > 0)
-		stress_metrics_set(args, "directory entries allocted", (double)nr_dentries, STRESS_METRIC_MAXIMUM);
+		stress_metrics_set(args, "directory entries allocted", (double)nr_dentries, STRESS_METRIC_HARMONIC_MEAN);
+	nr_dentries = (dentry_stat2.nr_negative > dentry_stat1.nr_negative) ?
+		dentry_stat2.nr_negative - dentry_stat1.nr_negative : 0LL;
+	if (nr_dentries > 0)
+		stress_metrics_set(args, "negative directory entries allocted", (double)nr_dentries, STRESS_METRIC_HARMONIC_MEAN);
 	stress_metrics_set(args, "bogus (negative) directory entries accessed", (double)count, STRESS_METRIC_TOTAL);
-
-	/* force unlink of all files */
-	(void)stress_fs_temp_dir_rm_args(args);
 
 	return rc;
 }

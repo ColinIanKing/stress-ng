@@ -26,6 +26,18 @@
 #define STRESS_DROP_CACHE_ALL		(STRESS_DROP_CACHE_PAGE_CACHE | \
 					 STRESS_DROP_CACHE_SLAB_OBJECTS)
 
+/*
+ *  https://www.kernel.org/doc/html/v6.6/admin-guide/sysctl/fs.html
+ */
+typedef struct stress_fs_dentry_stat {
+	int64_t	nr_dentry;	/* number of dentries allocated */
+	int64_t nr_unused;	/* dentries not used but in LRU list for re-use */
+	int64_t age_limit;	/* seconds before reclaimed */
+	int64_t want_pages;	/* non-zero when shrink_dcache_pages is called */
+	int64_t nr_negative;	/* number of negative dentries */
+	int64_t reserved;	/* reserved for future */
+} stress_fs_dentry_stat_t;
+
 extern WARN_UNUSED const char *stress_fs_temp_path_get(void);
 extern WARN_UNUSED int stress_fs_temp_path_check(void);
 extern size_t stress_fs_make_filename(char *fullname, const size_t fullname_len,
@@ -81,6 +93,6 @@ extern void stress_fs_clean_dir(const char *name, const pid_t pid,
 extern int stress_fs_drop_caches(const int flags);
 extern void stress_fs_io_stats_begin(stress_io_stats_t *io_stats);
 extern void stress_fs_io_stats_end(stress_io_stats_t *io_stats);
-extern void stress_fs_dentry_state_get(int64_t *nr_dentry);
+extern void stress_fs_dentry_state_get(stress_fs_dentry_stat_t *dentry_stat);
 
 #endif

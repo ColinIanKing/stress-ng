@@ -289,14 +289,14 @@ static void stress_dentry_misc(const char *path)
  */
 static int stress_dentry(stress_args_t *args)
 {
+	stress_fs_dentry_stat_t dentry_stat1;
+	stress_fs_dentry_stat_t dentry_stat2;
 	int ret;
 	int rc = EXIT_SUCCESS;
 	uint64_t dentries = DEFAULT_DENTRIES;
 	uint64_t dentry_offset = dentries;
 	uint8_t dentry_order = ORDER_RANDOM;
 	char dir_path[PATH_MAX];
-	int64_t nr_dentry1;
-	int64_t nr_dentry2;
 	int64_t nr_dentries;
 	uint32_t negative_dentry = stress_mwc32();
 	double creat_duration = 0.0;
@@ -331,7 +331,7 @@ static int stress_dentry(stress_args_t *args)
 	stress_sync_start_wait(args);
 	stress_proc_state_set(args->name, STRESS_STATE_RUN);
 
-	stress_fs_dentry_state_get(&nr_dentry1);
+	stress_fs_dentry_state_get(&dentry_stat1);
 	do {
 		uint64_t i, n = dentries;
 		char path[PATH_MAX];
@@ -444,8 +444,9 @@ static int stress_dentry(stress_args_t *args)
 	} while ((rc == EXIT_SUCCESS) && stress_continue(args));
 
 abort:
-	stress_fs_dentry_state_get(&nr_dentry2);
-	nr_dentries = (nr_dentry2 > nr_dentry1) ? nr_dentry2 - nr_dentry1 : 0LL;
+	stress_fs_dentry_state_get(&dentry_stat2);
+	nr_dentries = (dentry_stat2.nr_dentry > dentry_stat1.nr_dentry) ?
+		dentry_stat2.nr_dentry - dentry_stat1.nr_dentry : 0LL;
 
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
 
