@@ -33,7 +33,7 @@
 #include <utime.h>
 #endif
 
-#define YIELD_MASK	(0xffff)
+#define YIELD_MASK	(0x1ffff)
 
 typedef void (*direntrycache_func_t)(const char *filename);
 typedef struct {
@@ -161,10 +161,42 @@ static inline ALWAYS_INLINE OPTIMIZE3 void stress_dentrycache_filename(char *con
 }
 
 /*
+ *  stress_dentrycache_field_max_set
+ *  	set maximum field value based on latest data
+ */
+static inline ALWAYS_INLINE void stress_dentrycache_field_max_set(
+	const int64_t v1,
+	const int64_t v2,
+	int64_t *v_max)
+{
+	if (v2 > v1) {
+		register int64_t diff = v2 - v1;
+
+		if (diff > *v_max)
+			*v_max = diff;
+	}
+}
+
+/*
+ *  stress_dentrycache_stats_max
+ *  	keep track of maximum values for d1->nr_dentry and d1->nr_negative, save
+ *  	max values in d2
+ */
+static void OPTIMIZE3 stress_dentrycache_stats_max(
+	stress_fs_dentry_stat_t *d1,
+	stress_fs_dentry_stat_t *d2)
+{
+	stress_fs_dentry_stat_t tmp;
+
+	stress_fs_dentry_state_get(&tmp);
+	stress_dentrycache_field_max_set(d1->nr_dentry, tmp.nr_dentry, &d2->nr_dentry);
+	stress_dentrycache_field_max_set(d1->nr_negative, tmp.nr_dentry, &d2->nr_negative);
+}
+
+/*
  *  stress_dentrycache
- *	stress dentries.  file names are based
- *	on a gray-coded value multiplied by two.
- *	Even numbered files exist, odd don't exist.
+ *	stress dentry cache by filling it with negative (unfound)
+ *	filenames
  */
 static int OPTIMIZE3 stress_dentrycache(stress_args_t *args)
 {
@@ -174,7 +206,6 @@ static int OPTIMIZE3 stress_dentrycache(stress_args_t *args)
 	int rc = EXIT_SUCCESS;
 	char dir_path[PATH_MAX];
 	char *filename;
-	int64_t nr_dentries;
 	size_t n;
 	size_t dentrycache_method = 0;	/* default 'all' */
 	register uint64_t count = 0;
@@ -199,7 +230,6 @@ static int OPTIMIZE3 stress_dentrycache(stress_args_t *args)
 	stress_sync_start_wait(args);
 	stress_proc_state_set(args->name, STRESS_STATE_RUN);
 
-
 	(void)stress_setting_get("dentrycache-method", &dentrycache_method);
 
 	if (stress_instance_zero(args)) {
@@ -208,6 +238,7 @@ static int OPTIMIZE3 stress_dentrycache(stress_args_t *args)
 	}
 
 	stress_fs_dentry_state_get(&dentry_stat1);
+	(void)shim_memset(&dentry_stat2, 0, sizeof(dentry_stat2));
 	t = stress_time_now();
 	if (dentrycache_method == 0) {
 		do {
@@ -219,8 +250,10 @@ static int OPTIMIZE3 stress_dentrycache(stress_args_t *args)
 
 				stress_dentrycache_filename(filename, count);
 				dentrycache_func(dir_path);
-				if ((count & YIELD_MASK) == YIELD_MASK)
+				if ((count & YIELD_MASK) == YIELD_MASK) {
+					stress_dentrycache_stats_max(&dentry_stat1, &dentry_stat2);
 					shim_sched_yield();
+				}
 				count++;
 				stress_bogo_inc(args);
 			}
@@ -232,14 +265,16 @@ static int OPTIMIZE3 stress_dentrycache(stress_args_t *args)
 		do {
 			stress_dentrycache_filename(filename, count);
 			dentrycache_func(dir_path);
-			if ((count & YIELD_MASK) == YIELD_MASK)
+			if ((count & YIELD_MASK) == YIELD_MASK) {
+				stress_dentrycache_stats_max(&dentry_stat1, &dentry_stat2);
 				shim_sched_yield();
+			}
 			count++;
 			stress_bogo_inc(args);
 		} while (stress_continue(args));
 	}
 	duration = stress_time_now() - t;
-	stress_fs_dentry_state_get(&dentry_stat2);
+	stress_dentrycache_stats_max(&dentry_stat1, &dentry_stat2);
 
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
 
@@ -247,17 +282,12 @@ static int OPTIMIZE3 stress_dentrycache(stress_args_t *args)
 	(void)stress_fs_temp_dir_rm_args(args);
 
 	rate = (count > 0.0) ? duration / (double)count : 0.0;
-	stress_metrics_set(args, "nanosecs per negative dentry operationn",
+	stress_metrics_set(args, "nanosecs per negative dentry operation",
 		rate * STRESS_DBL_NANOSECOND, STRESS_METRIC_HARMONIC_MEAN);
-	nr_dentries = (dentry_stat2.nr_dentry > dentry_stat1.nr_dentry) ?
-		dentry_stat2.nr_dentry - dentry_stat1.nr_dentry : 0LL;
-	if (nr_dentries > 0)
-		stress_metrics_set(args, "directory entries allocated", (double)nr_dentries, STRESS_METRIC_HARMONIC_MEAN);
-	nr_dentries = (dentry_stat2.nr_negative > dentry_stat1.nr_negative) ?
-		dentry_stat2.nr_negative - dentry_stat1.nr_negative : 0LL;
-	if (nr_dentries > 0)
-		stress_metrics_set(args, "negative directory entries allocated", (double)nr_dentries, STRESS_METRIC_HARMONIC_MEAN);
-	stress_metrics_set(args, "bogus (negative) directory entries accessed", (double)count, STRESS_METRIC_TOTAL);
+	if (dentry_stat2.nr_dentry > 0)
+		stress_metrics_set(args, "maximum directory entries allocated", (double)dentry_stat2.nr_dentry, STRESS_METRIC_HARMONIC_MEAN);
+	if (dentry_stat2.nr_negative > 0)
+		stress_metrics_set(args, "maximum negative directory entries allocated", (double)dentry_stat2.nr_negative, STRESS_METRIC_HARMONIC_MEAN);
 
 	return rc;
 }
