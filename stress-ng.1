@@ -2087,7 +2087,7 @@ stop clock stress workers after N bogo operations.
 .B \-\-clone N
 start N workers that create clones (via the clone(2) and clone3(2) system calls).
 This will rapidly try to create a default of 8192 clones that immediately die
-and wait in a zombie state until they are reaped. Once the maximum number of
+and wait in a zombie state until they are reaped. When the maximum number of
 clones is reached (or clone fails because one has reached the maximum allowed)
 the oldest clone thread is reaped and a new clone is then created in a first-in
 first-out manner, and then repeated. A random clone flag is selected for each
@@ -6230,7 +6230,7 @@ mincore until the address is less or equal to the page size.
 .TQ
 .B \-\-min\-nanosleep N
 start M workers that exercise nanosecond sleeps using powers of two nanosecond
-sleep delays. Once all the instances have completed, the minimum, maximum and mean
+sleep delays. When all the instances have completed, the minimum, maximum and mean
 sleep times are reported for the sleep delays across all the min-nanosleep stressor
 instances.
 .TP
@@ -6369,7 +6369,7 @@ stop after N mlock bogo operations.
 start N workers that fork off a default of 1024 child processes in total;
 each child will attempt to anonymously mmap(2) and mlock(2) the maximum allowed
 mlockable memory size. The stress test attempts to avoid swapping by
-tracking low memory and swap allocations (but some swapping may occur). Once
+tracking low memory and swap allocations (but some swapping may occur). When
 either the maximum number of child processes is reached or all mlockable in-core
 memory is locked then child processes are killed and the stress test is
 repeated.
@@ -7024,7 +7024,7 @@ allows the default to be changed to 2 to 64 concurrent threads.
 start N stressors that exercise unmapping of shared non-executable mapped
 regions of child processes (Linux only). The unmappings map shared memory regions page
 by page with a prime sized stride that creates many temporary mapping holes.
-Once the unmappings are complete the child will exit and a new one is started.
+When the unmappings are complete the child will exit and a new one is started.
 Note that this may trigger segmentation faults in the child process, these
 are handled where possible by forcing the child process to call _exit(2).
 .TP
@@ -7424,7 +7424,7 @@ page allocation when pages are written to.
 .TQ
 .B \-\-pageswap N
 start N workers that exercise page swap in and swap out. Pages are allocated
-and paged out using madvise(2) MADV_PAGEOUT. One the maximum per process number
+and paged out using madvise(2) MADV_PAGEOUT. When the maximum per process number
 of mmaps are reached or 65536 pages are allocated the pages are read to
 page them back in and unmapped in reverse mapping order.
 .TP
@@ -9423,7 +9423,7 @@ stop socket pair stress workers after N bogo operations.
 start N workers that flip between with the "real-time" SCHED_FIO and SCHED_RR
 scheduling policies at the highest priority to force softlockups. This can
 only be run with CAP_SYS_NICE capability and for best results the number of
-stressors should be at least the number of online CPUs. Once running, this is
+stressors should be at least the number of online CPUs. When running, this is
 practically impossible to stop and it will force softlockup issues and may
 trigger watchdog timeout reboots.
 .TP
@@ -11067,7 +11067,7 @@ iterate over all the vm stress methods as listed below.
 T}
 cache\-lines	T{
 work through memory in 64 byte cache sized steps writing a single byte
-per cache line. Once the write is complete, the memory is read to verify
+per cache line. When the write is complete, the memory is read to verify
 the values are written correctly.
 T}
 cache\-stripe	T{
@@ -12003,7 +12003,7 @@ T}
 .B \-\-zombie N
 start N workers that create zombie processes. This will rapidly try to create
 a default of 8192 child processes that immediately die and wait in a zombie
-state until they are reaped. Once the maximum number of processes is reached
+state until they are reaped. When the maximum number of processes is reached
 (or fork fails because one has reached the maximum allowed number of children)
 the oldest child is reaped and a new process is then created in a first-in
 first-out manner, and then repeated.
