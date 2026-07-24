@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, may be w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "23 July 2026"
+.TH STRESS-NG 1 "24 July 2026"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -4251,19 +4251,19 @@ stop getrandom workers after N bogo get operations.
 .RS 5
 .TQ
 .B \-\-goto N
-start N workers that perform 1024 forward branches (to next instruction) or
+start N workers that perform 2048 forward branches (to next instruction) or
 backward branches (to previous instruction) for each bogo operation loop.
-By default, every 1024 branches the direction is randomly chosen to be
+By default, every 2048 branches the direction is randomly chosen to be
 forward or backward. This stressor exercises suboptimal pipelined execution
 and branch prediction logic.
 .TP
 .B \-\-goto\-direction [ forward | backward | random ]
 select the branching direction in the stressor loop, forward for forward only
 branching, backward for backward only branching, random for a random choice
-of forward or random branching every 1024 branches.
+of forward or random branching every 2048 branches.
 .TP
 .B \-\-goto\-ops N
-stop goto workers after N bogo loops of 1024 branch instructions.
+stop goto workers after N bogo loops of 2048 branch instructions.
 .RE
 .TP
 .B GPU opengl stressor
