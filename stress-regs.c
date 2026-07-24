@@ -300,6 +300,122 @@ do {			\
 
 }
 
+#if defined(HAVE_INT128_T)
+static void OPTIMIZE0 stress_regs_exercise_mmx_bitflip(stress_args_t *args, register uint64_t v)
+{
+	__uint128_t v128 = ((__uint128_t)v << 64) | (v ^ 0xa55a5555aaaaULL);
+	register __uint128_t xmm0 __asm__("xmm0") = v128;
+	register __uint128_t xmm1 __asm__("xmm1") = xmm0 >> 1;
+	register __uint128_t xmm2 __asm__("xmm2") = xmm0 << 1;
+	register __uint128_t xmm3 __asm__("xmm3") = xmm0 >> 2;
+	register __uint128_t xmm4 __asm__("xmm4") = xmm0 << 2;
+	register __uint128_t xmm5 __asm__("xmm5") = ~xmm0;
+	register __uint128_t xmm6 __asm__("xmm6") = ~xmm1;
+	register __uint128_t xmm7 __asm__("xmm7") = ~xmm2;
+
+#define SHUFFLE_REGS()	\
+do {			\
+	xmm7 = xmm0;	\
+	xmm7 = ~xmm7;	\
+	xmm0 = xmm1;	\
+	xmm0 = ~xmm0;	\
+	xmm1 = xmm2;	\
+	xmm1 = ~xmm1;	\
+	xmm2 = xmm3;	\
+	xmm2 = ~xmm2;	\
+	xmm3 = xmm4;	\
+	xmm3 = ~xmm3;	\
+	xmm4 = xmm5;	\
+	xmm4 = ~xmm4;	\
+	xmm5 = xmm6;	\
+	xmm5 = ~xmm5;	\
+	xmm6 = xmm7;	\
+	xmm6 = ~xmm6;	\
+} while (0);
+
+	SHUFFLE_REGS16();
+
+	stash128 = xmm5;
+	REGS_CHECK(args, "xmm5", v128, stash128);
+
+	stash128 = xmm0 + xmm1 + xmm2 + xmm3 +
+		   xmm4 + xmm5 + xmm6 + xmm7;
+
+#undef SHUFFLE_REGS
+}
+#endif
+
+#if defined(HAVE_INT128_T)
+static void OPTIMIZE0 stress_regs_exercise_sse_bitflip(stress_args_t *args, register uint64_t v)
+{
+	__uint128_t v128 = ((__uint128_t)v << 64) | (v ^ 0xa55a5555aaaaULL);
+	register __uint128_t xmm0  __asm__("xmm0")  = v128;
+	register __uint128_t xmm1  __asm__("xmm1")  = xmm0 >> 1;
+	register __uint128_t xmm2  __asm__("xmm2")  = xmm0 << 1;
+	register __uint128_t xmm3  __asm__("xmm3")  = xmm0 >> 2;
+	register __uint128_t xmm4  __asm__("xmm4")  = xmm0 << 2;
+	register __uint128_t xmm5  __asm__("xmm5")  = ~xmm0;
+	register __uint128_t xmm6  __asm__("xmm6")  = ~xmm1;
+	register __uint128_t xmm7  __asm__("xmm7")  = ~xmm2;
+	register __uint128_t xmm8  __asm__("xmm8")  = ~xmm3;
+	register __uint128_t xmm9  __asm__("xmm9")  = ~xmm4;
+	register __uint128_t xmm10 __asm__("xmm10") = xmm0 ^ 0xa5a5a5a5a5a5a5a5ULL;
+	register __uint128_t xmm11 __asm__("xmm11") = xmm1 ^ 0xa5a5a5a5a5a5a5a5ULL;
+	register __uint128_t xmm12 __asm__("xmm12") = xmm2 ^ 0xa5a5a5a5a5a5a5a5ULL;
+	register __uint128_t xmm13 __asm__("xmm13") = xmm3 ^ 0xa5a5a5a5a5a5a5a5ULL;
+	register __uint128_t xmm14 __asm__("xmm14") = xmm4 ^ 0xa5a5a5a5a5a5a5a5ULL;
+	register __uint128_t xmm15 __asm__("xmm15") = xmm0 ^ 0xaa55aa55aa55aa55ULL;
+
+#define SHUFFLE_REGS()	\
+do {			\
+	xmm15 = xmm0;	\
+	xmm15 = ~xmm15; \
+	xmm0  = xmm1;	\
+	xmm0  = ~xmm0;	\
+	xmm1  = xmm2;	\
+	xmm1  = ~xmm1;	\
+	xmm2  = xmm3;	\
+	xmm2  = ~xmm2;	\
+	xmm3  = xmm4;	\
+	xmm3  = ~xmm3;	\
+	xmm4  = xmm5;	\
+	xmm4  = ~xmm4;	\
+	xmm5  = xmm6;	\
+	xmm5  = ~xmm5;	\
+	xmm6  = xmm7;	\
+	xmm6  = ~xmm6;	\
+	xmm7  = xmm8;	\
+	xmm7  = ~xmm7;	\
+	xmm8  = xmm9;	\
+	xmm8  = ~xmm8;	\
+	xmm9  = xmm10;	\
+	xmm9  = ~xmm9;	\
+	xmm10 = xmm11;	\
+	xmm10 = ~xmm10;	\
+	xmm11 = xmm12;	\
+	xmm11 = ~xmm11;	\
+	xmm12 = xmm13;	\
+	xmm12 = ~xmm12;	\
+	xmm13 = xmm14;	\
+	xmm13 = ~xmm13;	\
+	xmm14 = xmm15;	\
+	xmm14 = ~xmm14;	\
+} while (0);
+
+	SHUFFLE_REGS16();
+
+	stash128 = xmm14;
+	REGS_CHECK(args, "xmm14", v128, stash128);
+
+	stash128 = xmm0 + xmm1 + xmm2 + xmm3 +
+		   xmm4 + xmm5 + xmm6 + xmm7 +
+		   xmm8 + xmm9 + xmm10 + xmm11 +
+		   xmm12 + xmm13 + xmm14 + xmm15;
+
+#undef SHUFFLE_REGS
+}
+#endif
+
 /*
  *  stress_regs_exercise_bitflip()
  *	stress x86_64 registers including bitflip
@@ -367,9 +483,9 @@ do {			\
 
 #if defined(HAVE_INT128_T)
 	if (x86_cpu_flags & CPU_X86_SSE)
-		stress_regs_exercise_sse(args, v);
+		stress_regs_exercise_sse_bitflip(args, v);
 	else if (x86_cpu_flags & CPU_X86_MMX)
-		stress_regs_exercise_mmx(args, v);
+		stress_regs_exercise_mmx_bitflip(args, v);
 #endif
 
 }
