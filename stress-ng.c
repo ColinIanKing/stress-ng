@@ -4585,6 +4585,12 @@ int main(int argc, char **argv, char **envp)
 		ret = EXIT_FAILURE;
 		goto exit_stressors_free;
 	}
+	/* Load in job file options */
+	(void)stress_setting_get("job", &job_filename);
+	if (stress_job_parse_file(argc, argv, job_filename) < 0) {
+		ret = EXIT_FAILURE;
+		goto exit_stressors_free;
+	}
 
 	if (stress_fs_temp_path_check() < 0) {
 		ret = EXIT_FAILURE;
@@ -4652,12 +4658,6 @@ int main(int argc, char **argv, char **envp)
 		ret = EXIT_FAILURE;
 		goto exit_stressors_free;
 	}
-	/* Load in job file options */
-	(void)stress_setting_get("job", &job_filename);
-	if (stress_job_parse_file(argc, argv, job_filename) < 0) {
-		ret = EXIT_FAILURE;
-		goto exit_stressors_free;
-	}
 
 	/* Sanity check minimize/maximize options */
 	if ((g_opt_flags & OPT_FLAGS_MINMAX_MASK) == OPT_FLAGS_MINMAX_MASK) {
@@ -4719,7 +4719,7 @@ int main(int argc, char **argv, char **envp)
 		cpus_online, cpus_online == 1 ? "" : "s",
 		cpus_configured, cpus_configured == 1 ? "" : "s");
 
-	/*For random mode the stressors must be available */
+	/* For random mode the stressors must be available */
 	if (g_opt_flags & OPT_FLAGS_RANDOM)
 		stress_stressors_enable(0);
 	/* These options enable all the stressors */
