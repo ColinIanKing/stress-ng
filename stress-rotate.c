@@ -73,7 +73,6 @@ stress_ ## fname ## size ## helper(stress_args_t *args, type *checksum)\
 	put_uint ## size ## _(*checksum);			\
 								\
 	t1 = stress_time_now();					\
-PRAGMA_UNROLL_N(8)						\
 	for (i = 0; i < ROTATE_LOOPS; i++) {			\
 		v0 = rotate_macro ## size(v0);			\
 		v1 = rotate_macro ## size(v1);			\
