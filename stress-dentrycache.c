@@ -75,11 +75,11 @@ static int stress_dentrycache_open(const char *filename)
 	int fd;
 
 	fd = open(filename, O_RDONLY);
-	if (UNLIKELY(fd != -1)) {
-		(void)close(fd);
-		return EEXIST;
-	}
-	return (fd < 0) ? errno : 0;
+	if (fd < 0)
+		return errno;
+
+	(void)close(fd);
+	return EEXIST;
 }
 
 static int stress_dentrycache_readlink(const char *filename)
