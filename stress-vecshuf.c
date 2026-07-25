@@ -273,14 +273,6 @@ do {								\
 	}							\
 } while (0)
 
-#if defined(HAVE_INT128_T)
-static inline __uint128_t vec_mwc128(void)
-{
-	return ((__uint128_t)stress_mwc64() << 64) |
-		(__uint128_t)stress_mwc64();
-}
-#endif
-
 /*
  *  stress_vecshuf_set_data()
  *	set random data, initial value r and shuffled data s
@@ -294,7 +286,7 @@ static void stress_vecshuf_set_data(stress_vec_data_t *data)
 	VEC_SET_DATA(u32,  16, stress_mwc32);
 	VEC_SET_DATA(u64,   8, stress_mwc64);
 #if defined(HAVE_INT128_T)
-	VEC_SET_DATA(u128,  4, vec_mwc128);
+	VEC_SET_DATA(u128,  4, stress_mwc128);
 #endif
 
 }

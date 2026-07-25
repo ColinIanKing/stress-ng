@@ -240,6 +240,14 @@ uint64_t OPTIMIZE3 stress_mwc64(void)
 	return (((uint64_t)stress_mwc32()) << 32) | stress_mwc32();
 }
 
+#if defined(HAVE_INT128_T)
+__uint128_t stress_mwc128(void)
+{
+	return ((__uint128_t)stress_mwc64() << 64) |
+		(__uint128_t)stress_mwc64();
+}
+#endif
+
 /*
  *  stress_mwc16()
  *	get a 16 bit pseudo random number

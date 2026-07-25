@@ -42,6 +42,9 @@ extern uint8_t stress_mwc8(void);
 extern uint16_t stress_mwc16(void);
 extern uint32_t stress_mwc32(void);
 extern uint64_t stress_mwc64(void);
+#if defined(HAVE_INT128_T)
+extern __uint128_t stress_mwc128(void);
+#endif
 
 extern void stress_rndbuf(void *buf, const size_t len);
 extern void stress_rndstr(char *str, const size_t len);
