@@ -222,6 +222,7 @@
  * [Causal Inference for Quantifying Noisy Neighbor Effects in Multi-Tenant Cloud Environments](https://arxiv.org/html/2604.03145v1)
  * [CINERGY: Deterministic Power Monitoring for Carbon Accounting in the Cloud](https://hal.science/hal-05551692v1/file/Cinergy.pdf)
  * [Colored Huge Pages: A Hardware-Software Approach for Enhanced Isolation and Performance](https://past.date-conference.com/proceedings-archive/2026/DATA/1222.pdf)
+ * [Comparative Analysis of eBPF-Based Runtime Security Monitoring Tools in Monitoring and Threat Detection on Kubernetes](https://pdfs.semanticscholar.org/d06b/7f69910d814902c3aa61990e1d81fdac2ba3.pdf)
  * [Cross-Cache Attacks for the Linux Kernel via PCP Massaging](https://mbr.sh/files/papers/ndss2026_pcplost.pdf)
  * [DPUConfig: Optimizing ML Inference in FPGAs Using Reinforcement Learning](https://arxiv.org/pdf/2602.12847)
  * [Edge-Inference Governors Need Memory-Clock State](https://arxiv.org/html/2606.16106)
