@@ -1515,6 +1515,10 @@ const struct option stress_long_options[] = {
 	{ "spawn",		1,	NULL,	OPT_spawn },
 	{ "spawn-ops",		1,	NULL,	OPT_spawn_ops },
 
+	{ "spec-rollback",	1,	NULL,	OPT_spec_rollback },
+	{ "spec-rollback-ops",	1,	NULL,	OPT_spec_rollback_ops },
+	{ "spec-rollback-size",	1,	NULL,	OPT_spec_rollback_size },
+
 	{ "spinmem",		1,	NULL,	OPT_spinmem },
 	{ "spinmem-affinity",	0,	NULL,	OPT_spinmem_affinity },
 	{ "spinmem-method",	1,	NULL,	OPT_spinmem_method },

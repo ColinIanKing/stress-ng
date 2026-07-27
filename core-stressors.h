@@ -338,6 +338,7 @@
 	MACRO(softlockup)	\
 	MACRO(sparsematrix)	\
 	MACRO(spawn)		\
+	MACRO(spec_rollback)	\
 	MACRO(spinmem)		\
 	MACRO(splice)		\
 	MACRO(stack)		\

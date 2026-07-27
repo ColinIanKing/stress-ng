@@ -69,7 +69,14 @@ static inline void ALWAYS_INLINE stress_asm_arm_yield(void)
 #if defined(HAVE_ASM_ARM_DMB_SY)
 static inline void ALWAYS_INLINE stress_asm_arm_dmb_sy(void)
 {
-	__asm__ __volatile__("dmb sy;\n");
+	__asm__ __volatile__("dmb sy;\n" ::: "memory");
+}
+#endif
+
+#if defined(HAVE_ASM_ARM_ISB)
+static inline void ALWAYS_INLINE stress_asm_arm_isb(void)
+{
+	__asm__ __volatile__("isb;\n" ::: "memory");
 }
 #endif
 

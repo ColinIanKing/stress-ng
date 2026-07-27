@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, may be w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "24 July 2026"
+.TH STRESS-NG 1 "27 July 2026"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -9513,6 +9513,22 @@ stress\-ng and then exit almost immediately. Currently Linux only.
 .TP
 .B \-\-spawn\-ops N
 stop spawn stress workers after N bogo spawns.
+.RE
+.TP
+.B Speculative Rollback stressor
+.RS 5
+.TQ
+.B \-\-spec\-rollback N
+start N workers that try to force branch misprediction and rollback flushes of
+a mispredicted pipeline. By default, data is fetched from a random value from an
+array of 256 64 bit integers as part of the misprediction logic.
+.TP
+.B \-\-spec\-rollback\-ops N
+stop after N \(mu 1024 branch misprediction operations.
+.TP
+.B \-\-spec\-rollback\-size N
+set the random data array size to N elements. This is 256 by default, minimum 16
+to maximum of 8388608. Optimial when N is a power of 2.
 .RE
 .TP
 .B Spin on memory for process synchronization stressor

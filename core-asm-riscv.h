@@ -78,6 +78,13 @@ static inline void ALWAYS_INLINE stress_asm_riscv_fence(void)
 }
 #endif
 
+#if defined(HAVE_ASM_RISCV_FENCE_RW)
+static inline void ALWAYS_INLINE stress_asm_riscv_fence_rw(void)
+{
+         __asm__ __volatile__("fence rw,rw" ::: "memory");
+}
+#endif
+
 /* Flush instruction cache */
 #if defined(HAVE_ASM_RISCV_FENCE_I)
 static inline void ALWAYS_INLINE stress_asm_riscv_fence_i(void)

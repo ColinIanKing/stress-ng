@@ -1597,14 +1597,18 @@ typedef enum {
 	OPT_switch_method,
 	OPT_switch_ops,
 
-	OPT_spawn,
-	OPT_spawn_ops,
-
 	OPT_sparsematrix,
 	OPT_sparsematrix_items,
 	OPT_sparsematrix_method,
 	OPT_sparsematrix_ops,
 	OPT_sparsematrix_size,
+
+	OPT_spawn,
+	OPT_spawn_ops,
+
+	OPT_spec_rollback,
+	OPT_spec_rollback_ops,
+	OPT_spec_rollback_size,
 
 	OPT_spinmem,
 	OPT_spinmem_affinity,

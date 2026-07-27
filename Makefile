@@ -799,6 +799,7 @@ STRESS_SRC = \
 	stress-softlockup.c \
 	stress-spawn.c \
 	stress-sparsematrix.c \
+	stress-spec-rollback.c \
 	stress-spinmem.c \
 	stress-splice.c \
 	stress-stack.c \
