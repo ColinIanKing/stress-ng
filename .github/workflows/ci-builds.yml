@@ -1,6 +1,5 @@
 name: Build stress-ng on various platforms
 # Build recipes partly borrowed from 'smartmontools/smartmontools'.
-# Docker image borrowed from 'smartmontools/docker-build'.
 
 on:
   workflow_dispatch:
@@ -8,7 +7,7 @@ on:
       platforms:
         description: Build platforms (defaults to all)
         required: false
-        default: ubuntu-x86_64 ubuntu-x86_64-clang ubuntu-arm64 freebsd-14 macos cygwin
+        default: ubuntu-x86_64 ubuntu-x86_64-clang ubuntu-arm64 freebsd macos cygwin
       libs-ubuntu:
         description: "Additional libraries for Ubuntu or 'none'"
         required: false
@@ -107,22 +106,27 @@ jobs:
           path: stress-ng
           retention-days: 30
 
-  build-freebsd-14:
-    if: ${{ contains(github.event.inputs.platforms, 'freebsd-14') }}
+  build-freebsd:
+    if: ${{ contains(github.event.inputs.platforms, 'freebsd') }}
     runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/smartmontools/docker-build:master
     steps:
       - uses: actions/checkout@v7
-      - name: Build
-        run: |
-          target="-target x86_64-unknown-freebsd14 --sysroot=/opt/cross-freebsd-14/" &&
-          make ${{ github.event.inputs.make-options }} \
-            CC="clang $target" CXX="clang++ $target" \
-            CPPFLAGS="-isystem /opt/cross-freebsd-14/usr/include/c++/v1"
+      - name: Build and Run (QEMU)
+        uses: vmactions/freebsd-vm@v1
+        with:
+          usesh: true # use 'sh' instead of 'tcsh'
+          prepare: |  # does not work with BSD make
+            pkg update
+            pkg install -y gmake
+          run: |
+            set -e
+            gmake ${{ github.event.inputs.make-options }}
+            ./stress-ng --version
+            ./stress-ng ${{ github.event.inputs.check-options }} ||
+            echo '::error:: ./stress-ng ${{ github.event.inputs.check-options }} failed'
       - uses: actions/upload-artifact@v7
         with:
-          name: stress-ng-freebsd-14
+          name: stress-ng-freebsd
           path: stress-ng
           retention-days: 30
 
