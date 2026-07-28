@@ -43,13 +43,13 @@ jobs:
         run: |
           sudo apt-get update &&
           sudo apt-get install -y ${{ github.event.inputs.libs-ubuntu }}
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - run: make ${{ github.event.inputs.make-options }}
       - run: ./stress-ng --version
       - run: |
           ./stress-ng ${{ github.event.inputs.check-options }} ||
           echo '::error:: ./stress-ng ${{ github.event.inputs.check-options }} failed'
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: stress-ng-ubuntu-x86_64
           path: stress-ng
@@ -64,7 +64,7 @@ jobs:
         if: ${{ github.event.inputs.libs-ubuntu != 'none' }}
         run: |
           sudo apt-get install -y ${{ github.event.inputs.libs-ubuntu }}
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - run: |
           scan-build --use-cc="clang" --use-c++="clang++" -o "clang-report" \
             -analyzer-config "stable-report-filename=true" \
@@ -75,12 +75,12 @@ jobs:
       - run: |
           ./stress-ng ${{ github.event.inputs.check-options }} ||
           echo '::error:: ./stress-ng ${{ github.event.inputs.check-options }} failed'
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: stress-ng-ubuntu-x86_64-clang
           path: stress-ng
           retention-days: 30
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: stress-ng-ubuntu-x86_64-clang-report
           path: clang-report/*
@@ -95,13 +95,13 @@ jobs:
         run: |
           sudo apt-get update &&
           sudo apt-get install -y ${{ github.event.inputs.libs-ubuntu }}
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - run: make ${{ github.event.inputs.make-options }}
       - run: ./stress-ng --version
       - run: |
           ./stress-ng ${{ github.event.inputs.check-options }} ||
           echo '::error:: ./stress-ng ${{ github.event.inputs.check-options }} failed'
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: stress-ng-ubuntu-arm64
           path: stress-ng
@@ -113,14 +113,14 @@ jobs:
     container:
       image: ghcr.io/smartmontools/docker-build:master
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Build
         run: |
           target="-target x86_64-unknown-freebsd14 --sysroot=/opt/cross-freebsd-14/" &&
           make ${{ github.event.inputs.make-options }} \
             CC="clang $target" CXX="clang++ $target" \
             CPPFLAGS="-isystem /opt/cross-freebsd-14/usr/include/c++/v1"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: stress-ng-freebsd-14
           path: stress-ng
@@ -130,7 +130,7 @@ jobs:
     if: ${{ contains(github.event.inputs.platforms, 'macos') }}
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - run: |
           make CFLAGS="-arch arm64 -arch x86_64" CXXFLAGS="-arch arm64 -arch x86_64" \
             ${{ github.event.inputs.make-options }}
@@ -138,7 +138,7 @@ jobs:
       - run: |
           ./stress-ng ${{ github.event.inputs.check-options }} ||
           echo '::error:: ./stress-ng ${{ github.event.inputs.check-options }} failed'
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: stress-ng-macos
           path: stress-ng
@@ -152,9 +152,9 @@ jobs:
         with:
           platform: x86_64
           packages: gcc-g++ git make ${{ github.event.inputs.libs-cygwin }}
-        # 'actions/checkout@v4' now uses Cygwin git instead of Windows git.
+        # 'actions/checkout@v7' now uses Cygwin git instead of Windows git.
       - run: git config --global --add safe.directory /cygdrive/d/a/stress-ng/stress-ng
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           # Done above as the builtin would use a path for Windows git.
           set-safe-directory: false
@@ -166,7 +166,7 @@ jobs:
       - run: |
           ./stress-ng ${{ github.event.inputs.check-options }} ||
           echo '::error:: ./stress-ng ${{ github.event.inputs.check-options }} failed'
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: stress-ng-cygwin
           path: stress-ng.exe
