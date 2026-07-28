@@ -32,7 +32,7 @@
 #include <time.h>
 
 static const stress_help_t help[] = {
-	{ NULL,	"epollmany N",      "start N workers doing epoll handled socket activity" },
+	{ NULL,	"epollmany N",      "start N workers doing epoll exercising" },
 	{ NULL, "epollmany-delete", "delete fds from epoll descriptors before close" },
 	{ NULL, "epollmany-fds N",  "specify number of epoll_create fds to exercise" },
 	{ NULL,	"epollmany-ops N",  "stop after N epoll bogo operations" },
