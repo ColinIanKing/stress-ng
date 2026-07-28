@@ -59,7 +59,7 @@ static int stress_dentrycache_getxattr(const char *filename)
 {
 	char attr[32];
 
-	return (getxattr(filename, "user.var", attr, sizeof(attr)) < 0) ? errno : 0;
+	return (shim_getxattr(filename, "user.var", attr, sizeof(attr)) < 0) ? errno : 0;
 }
 #endif
 
