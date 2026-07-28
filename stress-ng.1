@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, may be w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "27 July 2026"
+.TH STRESS-NG 1 "28 July 2026"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -3232,6 +3232,28 @@ domain. Ports wrapped to keep in range of 1024 to 65535. The default port is por
 specify the maximum number of concurrently open sockets allowed in the server.
 Setting a high value impacts on memory usage and may trigger out of memory
 conditions.
+.RE
+.TP
+.B Many epoll file descriptors stressor
+.RS 5
+.TQ
+.B \-\-epollmany N
+start N workers that exercise many file descriptors using epoll_create1(2) and epoll_ctl(2).
+Each new epoll file descriptor had added to it up to 16 pipe file descriptors and previously
+created epoll file desscriptors, creating nested epoll events. This exercises internal kernel
+epoll lock contention.
+.TP
+.B \-\-epollmany\-delete
+by default file descriptors added to an epoll file descriptor are automatically deleted when
+the file descriptor is closed. This option performs an explicit epoll_ctl(2) EPOLL_CTL_DEL
+on each file descriptor.
+.TP
+.B \-\-epollmany\-fds
+specify number of file descriptors to created via epoll_create1(2). The default is 512, with
+a range of 1 to 1000000.
+.TP
+.B \-\-epollmany\-ops N
+stop after N epoll_create1(2) operations
 .RE
 .TP
 .B Ethernet Packet Sniffer

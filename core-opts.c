@@ -327,6 +327,11 @@ const struct option stress_long_options[] = {
 	{ "epoll-port",		1,	NULL,	OPT_epoll_port },
 	{ "epoll-sockets",	1,	NULL,	OPT_epoll_sockets },
 
+	{ "epollmany",		1,	NULL,	OPT_epollmany },
+	{ "epollmany-delete",	0,	NULL,	OPT_epollmany_delete },
+	{ "epollmany-fds",	1,	NULL,	OPT_epollmany_fds },
+	{ "epollmany-ops",	1,	NULL,	OPT_epollmany_ops },
+
 	{ "eth-sniff",		1,	NULL,	OPT_eth_sniff },
 	{ "eth-sniff-ops",	1,	NULL,	OPT_eth_sniff_ops },
 

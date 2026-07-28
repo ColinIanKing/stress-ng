@@ -452,6 +452,11 @@ typedef enum {
 	OPT_epoll_port,
 	OPT_epoll_sockets,
 
+	OPT_epollmany,
+	OPT_epollmany_delete,
+	OPT_epollmany_fds,
+	OPT_epollmany_ops,
+
 	OPT_eth_sniff,
 	OPT_eth_sniff_ops,
 

@@ -90,6 +90,7 @@
 	MACRO(enosys)		\
 	MACRO(env)		\
 	MACRO(epoll)		\
+	MACRO(epollmany)	\
 	MACRO(eth_sniff)	\
 	MACRO(eventfd) 		\
 	MACRO(exec)		\

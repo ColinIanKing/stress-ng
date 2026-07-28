@@ -551,6 +551,7 @@ STRESS_SRC = \
 	stress-enosys.c \
 	stress-env.c \
 	stress-epoll.c \
+	stress-epollmany.c \
 	stress-eth-sniff.c \
 	stress-eventfd.c \
 	stress-exec.c \
