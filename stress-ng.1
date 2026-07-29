@@ -4618,6 +4618,11 @@ huge page size where possible, with a bias towards 2MB huge pages if supported.
 use MADV_DONTNEED where possible to try to split huge pages. There is an added
 overhead in zero'ing new pages when the huge pages are merged.
 .TP
+.B -\-hugepage\-method [ forward | random | reverse ]
+select method of selecting the next non-hugepage page to split; forward selects
+pages working forwards through memory, random selects pages randonly and reverse
+selects pages working in reverse through memory. The default is random.
+.TP
 .B \-\-hugepage\-num N
 use N huge pages for the allocation. The default is just 2 huge pages per
 stressor instance.

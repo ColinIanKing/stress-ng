@@ -677,6 +677,7 @@ typedef enum {
 
 	OPT_hugepage,
 	OPT_hugepage_dontneed,
+	OPT_hugepage_method,
 	OPT_hugepage_num,
 	OPT_hugepage_ops,
 	OPT_hugepage_remove,

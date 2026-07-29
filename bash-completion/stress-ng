@@ -133,6 +133,7 @@ _stress_ng()
 	'--hash-method' | \
 	'--heapsort-method' | \
 	'--hsearch-method' | \
+	'--hugepage-method' | \
 	'--hyperbolic-method' | \
 	'--intmath-method' | \
 	'--ipsec-mb-method' | \

@@ -25,37 +25,89 @@
 #define MAX_HUGEPAGE_NUM	(256)
 #define DEFAULT_HUGEPAGE_NUM	(2)
 
+#define HUGEPAGE_METHOD_RANDOM	(0)
+#define HUGEPAGE_METHOD_SEQ	(1)
+
+typedef size_t (*stress_hugepage_offset_func_t)(const size_t n_pages);
+
 /* hugepage mapping info */
 typedef struct stress_hugepage_info {
 	uint64_t *addr64;		/* mmap'd hugepage(s) */
 	size_t size;			/* mmap'd size */
 	size_t page_size;		/* size of a normal page */
-	size_t n_pages;			/* number of huge pages allocated */
+	size_t n_normal_pages;		/* number of normal pages allocated */
 	uint64_t main_madv_count;	/* madvise call count, main process */
 	uint64_t pthread_madv_count;	/* madvise call count, pthread */
 	uint64_t pthread_mprt_count;	/* mprotect call count, pthread */
+	stress_hugepage_offset_func_t func; /* random/forward/reverse offset */
 	bool dontneed;			/* --hugepage-dontneed option */
 	bool remove;			/* --hugepage-remove option */
 } stress_hugepage_info_t;
 
 typedef struct stress_hugepage_size {
-	int flags;			/* hugepage mmap flag */
-	size_t size;			/* hugepage size (bytes) */
+	const int flags;		/* hugepage mmap flag */
+	const size_t size;		/* hugepage size (bytes) */
 } stress_hugepage_size_t;
 
+
+typedef struct stress_hugepage_method {
+	const char *name;
+	const stress_hugepage_offset_func_t func;
+} stress_hugepage_method_t;
+
 static const stress_help_t help[] = {
-	{ NULL,	"hugepage N",	     "start N workers that break up and rebuild huge pages" },
+	{ NULL,	"hugepage N",	     "start N workers that split and merge pages on huge pages" },
 	{ NULL, "hugepage-dontneed", "madvise MADV_DONTNEED on page size chunks of hugepage" },
+	{ NULL, "hugepage-method",   "select method of splitting [ forward | random | reverse ]" },
 	{ NULL,	"hugepage-num N",    "number of hugepages" },
 	{ NULL,	"hugepage-ops N",    "stop hugepage workers after N bogo huge page rebuild operations" },
 	{ NULL, "hugepage-remove",   "madvise MADV_REMOVE on page size chunks of hugepage" },
 	{ NULL,	NULL,                NULL }
 };
 
+static size_t stress_hugepage_offset_random(const size_t n_pages)
+{
+	return stress_mwcsizemodn(n_pages);
+}
+
+static size_t stress_hugepage_offset_forward(const size_t n_pages)
+{
+	static size_t offset = 0;
+	size_t ret = offset;
+
+	offset++;
+	if (offset >= n_pages)
+		offset = 0;
+	return ret;
+}
+
+static size_t stress_hugepage_offset_reverse(const size_t n_pages)
+{
+	static ssize_t offset = 0;
+
+	offset--;
+	if (offset < 0)
+		offset = n_pages - 1;
+	return (size_t)offset;
+}
+
+static stress_hugepage_method_t hugepage_methods[] = {
+	{ "forward",	stress_hugepage_offset_forward },
+	{ "random",	stress_hugepage_offset_random },
+	{ "reverse",	stress_hugepage_offset_reverse },
+};
+
+static const char *stress_hugepage_method(const size_t i)
+{
+	return (i <  SIZEOF_ARRAY(hugepage_methods)) ? hugepage_methods[i].name : NULL;
+}
+
 static const stress_opt_t opts[] = {
 	{ OPT_hugepage_dontneed, "hugepage-dontneed", TYPE_ID_BOOL, 0, 1, NULL },
-	{ OPT_hugepage_num,      "hugepage-num", TYPE_ID_SIZE_T, MIN_HUGEPAGE_NUM, MAX_HUGEPAGE_NUM, NULL },
-	{ OPT_hugepage_remove,   "hugepage-remove", TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_hugepage_method,   "hugepage-method",   TYPE_ID_SIZE_T_METHOD, 0, 0, stress_hugepage_method },
+
+	{ OPT_hugepage_num,      "hugepage-num",      TYPE_ID_SIZE_T, MIN_HUGEPAGE_NUM, MAX_HUGEPAGE_NUM, NULL },
+	{ OPT_hugepage_remove,   "hugepage-remove",   TYPE_ID_BOOL, 0, 1, NULL },
 	END_OPT
 };
 
@@ -116,7 +168,7 @@ static const stress_hugepage_size_t hugepage_sizes[] = {
 #endif
 
 	/* MAP_HUGETLB only options */
-	{ MAP_HUGETLB,  2 * MB },
+	{ MAP_HUGETLB, 2 * MB },
 	{ MAP_HUGETLB, 8 * MB },
 	{ MAP_HUGETLB, 16 * MB },
 	{ MAP_HUGETLB, 32 * MB },
@@ -131,7 +183,7 @@ static const stress_hugepage_size_t hugepage_sizes[] = {
 	{ MAP_HUGETLB, 16 * GB },
 
 	/* vanilla non-huge page mmap options */
-	{ 0,  2 * MB },
+	{ 0, 2 * MB },
 	{ 0, 8 * MB },
 	{ 0, 16 * MB },
 	{ 0, 32 * MB },
@@ -157,7 +209,8 @@ static OPTIMIZE3 void *stress_hugepage_pthread(void *arg)
 	stress_hugepage_info_t *hugepage_info = (stress_hugepage_info_t *)pthread_args->data;
 	const size_t page_size = hugepage_info->page_size;
 	const size_t page_scale = page_size / sizeof(uint64_t);
-	const size_t n_pages = hugepage_info->n_pages;
+	const size_t n_normal_pages = hugepage_info->n_normal_pages;
+	const stress_hugepage_offset_func_t func = hugepage_info->func;
 	uint64_t *addr64 = hugepage_info->addr64;
 	bool madv_dontneed = hugepage_info->dontneed;
 	bool madv_remove = hugepage_info->remove;
@@ -167,7 +220,7 @@ static OPTIMIZE3 void *stress_hugepage_pthread(void *arg)
 	(void)madvise((void *)addr64, hugepage_info->size, MADV_RANDOM);
 #endif
 	do {
-		register size_t offset = stress_mwcsizemodn(n_pages) * page_scale;
+		register size_t offset = func(n_normal_pages) * page_scale;
 		register uint64_t *page64 = addr64 + offset;
 		register unsigned int madv_count = 0;
 		register unsigned int mprt_count = 0;
@@ -241,6 +294,7 @@ static int stress_hugepage(stress_args_t *args)
 	int ret;
 	int rc = EXIT_SUCCESS;
 	size_t hugepage_num = DEFAULT_HUGEPAGE_NUM;
+	size_t hugepage_method = 1;	/* random */
 	char numstr1[32];
 	char numstr2[32];
 
@@ -258,11 +312,13 @@ static int stress_hugepage(stress_args_t *args)
 	hugepage_info.pthread_mprt_count = 0ULL;
 
 	(void)stress_setting_get("hugepage-dontneed", &hugepage_info.dontneed);
+	(void)stress_setting_get("hugepage-method", &hugepage_method);
 	(void)stress_setting_get("hugepage-num", &hugepage_num);
 	(void)stress_setting_get("hugepage-remove", &hugepage_info.remove);
 
 	hugepage_info.size = hugepage_size * hugepage_num;
-	hugepage_info.n_pages = hugepage_num;
+	hugepage_info.n_normal_pages = hugepage_info.size / args->page_size;
+	hugepage_info.func = hugepage_methods[hugepage_method].func;
 
 	pthread_args.args = args;
 	pthread_args.data = &hugepage_info;
@@ -363,6 +419,7 @@ static const stress_exercises_t exercises[] = {
 
 	STRESS_EX_END,
 };
+
 
 const stressor_info_t stress_hugepage_info = {
 	.stressor = stress_hugepage,

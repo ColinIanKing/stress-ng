@@ -559,6 +559,7 @@ const struct option stress_long_options[] = {
 
 	{ "hugepage",		1,	NULL,	OPT_hugepage },
 	{ "hugepage-dontneed",	0,	NULL,	OPT_hugepage_dontneed },
+	{ "hugepage-method",	1,	NULL,   OPT_hugepage_method },
 	{ "hugepage-num",	1,	NULL,	OPT_hugepage_num },
 	{ "hugepage-ops",	1,	NULL,	OPT_hugepage_ops },
 	{ "hugepage-remove",	0,	NULL,	OPT_hugepage_remove },
