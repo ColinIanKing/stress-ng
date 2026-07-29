@@ -46,8 +46,8 @@ typedef struct stress_hugepage_size {
 static const stress_help_t help[] = {
 	{ NULL,	"hugepage N",	     "start N workers that break up and rebuild huge pages" },
 	{ NULL, "hugepage-dontneed", "madvise MADV_DONTNEED on page size chunks of hugepage" },
-	{ NULL,	"hugeppage-num N",   "number of hugepages" },
-	{ NULL,	"hugeppage-ops N",   "stop hugepage workers after N bogo huge page rebuild operations" },
+	{ NULL,	"hugepage-num N",    "number of hugepages" },
+	{ NULL,	"hugepage-ops N",    "stop hugepage workers after N bogo huge page rebuild operations" },
 	{ NULL, "hugepage-remove",   "madvise MADV_REMOVE on page size chunks of hugepage" },
 	{ NULL,	NULL,                NULL }
 };
