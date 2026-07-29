@@ -120,6 +120,7 @@ _stress_ng()
 	'--crypt-method' | \
 	'--ctrig-method' | \
 	'--cyclic-method' | \
+	'--dentrycache-method' | \
 	'--dfp-method' | \
 	'--eigen-method' | \
 	'--exec-fork-method' | \
@@ -258,7 +259,9 @@ _stress_ng()
 	'--cpu-online-affinity,' | \
 	'--cpu-online-all' | \
 	'--daemon-wait' | \
+	'--dentry-negative' | \
 	'--dry-run' | \
+	'--epollmany-delete' | \
 	'--eventfd-nonblock' | \
 	'--exec-no-pthread' | \
 	'--exercised' | \
@@ -274,8 +277,10 @@ _stress_ng()
 	'--forkheavy-mlock' | \
 	'--ftrace' | \
 	'--get-slow-sync' | \
-	'--hrtimers-adjust' | \
 	'--help' | \
+	'--hrtimers-adjust' | \
+	'--hugepage-dontneed' | \
+	'--hugepage-remove' | \
 	'--icmp-flood-max-size' | \
 	'--ignite-cpu' | \
 	'--interrupts' | \
@@ -366,6 +371,7 @@ _stress_ng()
 	'--page-in' | \
 	'--pagemove-mlock' | \
 	'--pagemove-numa' | \
+	'--pagescatter-numa' | \
 	'--pagescatter-populate' | \
 	'--pathological' | \
 	'--perf' | \
