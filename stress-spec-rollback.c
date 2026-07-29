@@ -134,7 +134,7 @@ PRAGMA_UNROLL
 
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
 
-	(void)munmap((void *)values, values_size);
+	(void)munmap(shim_unvolatile_ptr(values), values_size);
 
 	return EXIT_SUCCESS;
 }
