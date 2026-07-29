@@ -42,9 +42,10 @@ typedef struct {
 } dentrycache_method_t;
 
 static const stress_help_t help[] = {
-	{ NULL, "dentrycache N",     "start N dentry thrashing stressors" },
-	{ NULL,	"dentrycache-ops N", "stop after N dentry bogo operations" },
-	{ NULL,	NULL,                 NULL }
+	{ NULL, "dentrycache N",        "start N dentry thrashing stressors" },
+	{ NULL, "dentrycache-method M", "select dentrycache negative access method M" },
+	{ NULL,	"dentrycache-ops N",    "stop after N dentry bogo operations" },
+	{ NULL,	NULL,                    NULL }
 };
 
 static int stress_dentrycache_access(const char *filename)
