@@ -675,6 +675,12 @@ typedef enum {
 	OPT_hsearch_ops,
 	OPT_hsearch_size,
 
+	OPT_hugepage,
+	OPT_hugepage_dontneed,
+	OPT_hugepage_num,
+	OPT_hugepage_ops,
+	OPT_hugepage_remove,
+
 	OPT_hyperbolic,
 	OPT_hyperbolic_method,
 	OPT_hyperbolic_ops,

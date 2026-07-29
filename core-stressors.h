@@ -141,6 +141,7 @@
 	MACRO(heapsort)		\
 	MACRO(hrtimers)		\
 	MACRO(hsearch)		\
+	MACRO(hugepage)		\
 	MACRO(hyperbolic)	\
 	MACRO(icache)		\
 	MACRO(icmp_flood)	\

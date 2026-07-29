@@ -557,6 +557,12 @@ const struct option stress_long_options[] = {
 	{ "hsearch-ops",	1,	NULL,	OPT_hsearch_ops },
 	{ "hsearch-size",	1,	NULL,	OPT_hsearch_size },
 
+	{ "hugepage",		1,	NULL,	OPT_hugepage },
+	{ "hugepage-dontneed",	0,	NULL,	OPT_hugepage_dontneed },
+	{ "hugepage-num",	1,	NULL,	OPT_hugepage_num },
+	{ "hugepage-ops",	1,	NULL,	OPT_hugepage_ops },
+	{ "hugepage-remove",	0,	NULL,	OPT_hugepage_remove },
+
 	{ "hyperbolic",		1,	NULL,	OPT_hyperbolic },
 	{ "hyperbolic-method",	1,	NULL,	OPT_hyperbolic_method },
 	{ "hyperbolic-ops",	1,	NULL,	OPT_hyperbolic_ops },

@@ -602,6 +602,7 @@ STRESS_SRC = \
 	stress-heapsort.c \
 	stress-hrtimers.c \
 	stress-hsearch.c \
+	stress-hugepage.c \
 	stress-hyperbolic.c \
 	stress-icache.c \
 	stress-icmp-flood.c \

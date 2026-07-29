@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, may be w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "28 July 2026"
+.TH STRESS-NG 1 "29 July 2026"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -4602,6 +4602,32 @@ stop the hsearch workers after N bogo hsearch operations are completed.
 .B \-\-hsearch\-size N
 specify the number of hash entries to be inserted into the hash table. Size can
 be from 1 K to 4 M.
+.RE
+.TP
+.B Huge page merging and splitting stressor
+.RS 5
+.TQ
+.B \-\-hugepage N
+start N workers that exercise page merging (collapsing) and splitting on huge
+pages with two concurrent threads of execution (one merging and the other
+splitting). This exercises contention on huge page allocation paths, page
+table locking, and TLB shootdowns. The stressor selects the smallest reasonable
+huge page size where possible, with a bias towards 2MB huge pages if supported.
+.TP
+.B \-\-hugepage\-dontneed
+use MADV_DONTNEED where possible to try to split huge pages. There is an added
+overhead in zero'ing new pages when the huge pages are merged.
+.TP
+.B \-\-hugepage\-num N
+use N huge pages for the allocation. The default is just 2 huge pages per
+stressor instance.
+.TP
+.B \-\-hugepage\-ops
+stop after N rounds of page merging.
+.TP
+.B \-\-hugepage\-remove
+use MADV_REMOVE where possible to try to split huge pages. There is an added
+overhead in zero'ing new pages when the huge pages are merged.
 .RE
 .TP
 .B Hyperbolic functions stressor
