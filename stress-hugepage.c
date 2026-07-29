@@ -64,29 +64,27 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,                NULL }
 };
 
-static size_t stress_hugepage_offset_random(const size_t n_pages)
+static size_t OPTIMIZE3 stress_hugepage_offset_random(const size_t n_pages)
 {
 	return stress_mwcsizemodn(n_pages);
 }
 
-static size_t stress_hugepage_offset_forward(const size_t n_pages)
+static size_t OPTIMIZE3 stress_hugepage_offset_forward(const size_t n_pages)
 {
 	static size_t offset = 0;
 	size_t ret = offset;
 
 	offset++;
-	if (offset >= n_pages)
-		offset = 0;
+	offset = (offset >= n_pages) ? 0 : offset;
 	return ret;
 }
 
-static size_t stress_hugepage_offset_reverse(const size_t n_pages)
+static size_t OPTIMIZE3 stress_hugepage_offset_reverse(const size_t n_pages)
 {
 	static ssize_t offset = 0;
 
 	offset--;
-	if (offset < 0)
-		offset = n_pages - 1;
+	offset = (offset < 0) ? (ssize_t)n_pages - 1 : offset;
 	return (size_t)offset;
 }
 
