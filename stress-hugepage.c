@@ -49,7 +49,6 @@ typedef struct stress_hugepage_size {
 	const size_t size;		/* hugepage size (bytes) */
 } stress_hugepage_size_t;
 
-
 typedef struct stress_hugepage_method {
 	const char *name;
 	const stress_hugepage_offset_func_t func;
@@ -91,7 +90,7 @@ static size_t stress_hugepage_offset_reverse(const size_t n_pages)
 	return (size_t)offset;
 }
 
-static stress_hugepage_method_t hugepage_methods[] = {
+static const stress_hugepage_method_t hugepage_methods[] = {
 	{ "forward",	stress_hugepage_offset_forward },
 	{ "random",	stress_hugepage_offset_random },
 	{ "reverse",	stress_hugepage_offset_reverse },
@@ -99,7 +98,7 @@ static stress_hugepage_method_t hugepage_methods[] = {
 
 static const char *stress_hugepage_method(const size_t i)
 {
-	return (i <  SIZEOF_ARRAY(hugepage_methods)) ? hugepage_methods[i].name : NULL;
+	return (i < SIZEOF_ARRAY(hugepage_methods)) ? hugepage_methods[i].name : NULL;
 }
 
 static const stress_opt_t opts[] = {
@@ -211,16 +210,16 @@ static OPTIMIZE3 void *stress_hugepage_pthread(void *arg)
 	const size_t page_scale = page_size / sizeof(uint64_t);
 	const size_t n_normal_pages = hugepage_info->n_normal_pages;
 	const stress_hugepage_offset_func_t func = hugepage_info->func;
-	uint64_t *addr64 = hugepage_info->addr64;
-	bool madv_dontneed = hugepage_info->dontneed;
-	bool madv_remove = hugepage_info->remove;
+	uint64_t * const addr64 = hugepage_info->addr64;
+	const bool madv_dontneed = hugepage_info->dontneed;
+	const bool madv_remove = hugepage_info->remove;
 	uint64_t counter = stress_mwc64();
 
 #if defined(MADV_RANDOM)
 	(void)madvise((void *)addr64, hugepage_info->size, MADV_RANDOM);
 #endif
 	do {
-		register size_t offset = func(n_normal_pages) * page_scale;
+		register const size_t offset = func(n_normal_pages) * page_scale;
 		register uint64_t *page64 = addr64 + offset;
 		register unsigned int madv_count = 0;
 		register unsigned int mprt_count = 0;
@@ -287,7 +286,7 @@ static int stress_hugepage(stress_args_t *args)
 {
 	pthread_t pthread;
 	double t;
-	double duration = 0.0;
+	double duration;
 	double rate;
 	stress_pthread_args_t pthread_args;
 	stress_hugepage_info_t hugepage_info;
