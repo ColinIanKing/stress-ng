@@ -102,8 +102,9 @@ static int stress_spec_rollback(stress_args_t *args)
 	values = (volatile uint64_t *)stress_mmap_populate(NULL, values_size, PROT_READ | PROT_WRITE,
 			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (values == MAP_FAILED) {
-		pr_inf_skip("%s: failed to mmap %zu bytes, errno=%d (%s), skipping stressor\n",
-			args->name, values_size, errno, strerror(errno));
+		pr_inf_skip("%s: failed to mmap %zu bytes%s, errno=%d (%s), skipping stressor\n",
+			args->name, values_size, stress_memory_free_get(),
+			errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
 
