@@ -4644,6 +4644,7 @@ int main(int argc, char **argv, char **envp)
 		ret = EXIT_FAILURE;
 		goto exit_stressors_free;
 	}
+	(void)stress_setting_get("pause", &opt_pause);
 	(void)stress_setting_get("timeout", &g_opt_timeout);
 	(void)stress_setting_get("no-madvise", &no_madvise);
 	if (no_madvise)
