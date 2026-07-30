@@ -128,6 +128,7 @@ int stress_memory_info_get(stress_memory_info_t *info)
 			info->shmall = 0;
 #endif
 		}
+		return 0;
 	}
 #endif
 #if defined(__FreeBSD__)
