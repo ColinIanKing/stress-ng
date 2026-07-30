@@ -2638,7 +2638,7 @@ static size_t TARGET_CLONES stress_vm_rowhammer(const stress_vm_info_t *info)
 static size_t TARGET_CLONES stress_vm_mscan(const stress_vm_info_t *info)
 {
 	size_t bit_errors = 0;
-	register uint8_t *ptr = (uint8_t *)info->buf;
+	register uint8_t *ptr;
 	register const uint8_t *end;
 	register uint64_t c = stress_bogo_get(info->args);
 
