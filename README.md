@@ -739,7 +739,8 @@ Rulin Huang, Sascha Hauer, Sergey Fedorov, Sergey Matyukevich,
 Shifrin Dmitry, Shoily Rahman, Siddhesh Poyarekar, Steven Hahn,
 Stian Onarheim, Thadeu Lima de Souza Cascardo, Thia Wyrod,
 Thinh Tran, Thomas Weißschuh, Tim Gardner, Tim Gates, Tim Orling,
-Tommi Rantala, Witold Baryluk, Yiwei Lin, Yong-Xuan Wang, Zhiyi Sun, Zong Li.
+Tommi Rantala, Witold Baryluk, Yiwei Lin, Yong-Xuan Wang, Zhaolong Zhang,
+Zhiyi Sun, Zong Li.
 
 ## Static Analysis
 
