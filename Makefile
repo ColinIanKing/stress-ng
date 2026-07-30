@@ -165,9 +165,6 @@ ARCH := $(shell if objdump -H > /dev/null 2>&1 ; then \
 		rm -f test-machine; \
 		else echo "unknown"; fi)
 
-all:
-	@echo $(CFLAGS)
-
 ifneq ($(PRESERVE_CFLAGS),1)
 ifneq ($(ARCH),$(filter $(ARCH),alpha hppa ia64))
 flag = -Wformat -fstack-protector-strong -Werror=format-security
