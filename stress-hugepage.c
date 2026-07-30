@@ -296,7 +296,8 @@ static int stress_hugepage(stress_args_t *args)
 	char numstr2[32];
 
 	if (hugepage_size == 0) {
-		pr_inf("%s: cannot mmap hugepages, skipping stressor\n", args->name);
+		pr_inf("%s: cannot mmap hugepages, skipping stressor%s\n",
+			args->name, stress_memory_free_get());
 		return EXIT_NO_RESOURCE;
 	}
 
