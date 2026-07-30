@@ -24,6 +24,6 @@ int main(int argc, char **argv)
 
 	val = __atomic_load_n(&var, __ATOMIC_SEQ_CST);
 
-	return 0;
+	return val == 5;
 }
 
