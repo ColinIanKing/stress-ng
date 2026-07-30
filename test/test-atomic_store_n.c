@@ -22,7 +22,7 @@ int main(int argc, char **argv)
 	int val = 1;
 	int var;
 
-	__atomic_store_n(&var, &val, __ATOMIC_SEQ_CST);
+	__atomic_store_n(&var, val, __ATOMIC_SEQ_CST);
 
 	return 0;
 }
