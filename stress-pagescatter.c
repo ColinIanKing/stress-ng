@@ -409,7 +409,8 @@ static int OPTIMIZE3 stress_pagescatter_child(stress_args_t *args, void *context
 				break;
 		}
 		if (!mapped) {
-			pr_inf_skip("%s: failed to mmap any pages, skipping stressor\n", args->name);
+			pr_inf_skip("%s: failed to mmap any pages%s, skipping stressor\n",
+				args->name, stress_memory_free_get());
 			return EXIT_NO_RESOURCE;
 		}
 	} while (stress_continue(args));
@@ -453,8 +454,9 @@ static int stress_pagescatter(stress_args_t *args)
 	info = stress_mmap_populate(NULL, sizeof(*info), PROT_READ | PROT_WRITE,
 			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (info == MAP_FAILED) {
-		pr_inf_skip("%s: mmap failed allocating %zu bytes, errno=%d (%s), skipping stressor\n",
-			args->name, sizeof(info), errno, strerror(errno));
+		pr_inf_skip("%s: mmap failed allocating %zu bytes%s, errno=%d (%s), skipping stressor\n",
+			args->name, sizeof(info), stress_memory_free_get(),
+			errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
 
@@ -539,8 +541,9 @@ static int stress_pagescatter(stress_args_t *args)
 	info->pages = stress_mmap_populate(NULL, info->pages_sz, PROT_READ | PROT_WRITE,
 			MAP_SHARED | MAP_ANONYMOUS, -1 , 0);
 	if (info->pages == MAP_FAILED) {
-		pr_inf_skip("%s: mmap failed allocating %zu bytes, errno=%d (%s), skipping stressor\n",
-			args->name, info->pages_sz, errno, strerror(errno));
+		pr_inf_skip("%s: mmap failed allocating %zu bytes%s, errno=%d (%s), skipping stressor\n",
+			args->name, info->pages_sz, stress_memory_free_get(),
+			errno, strerror(errno));
 		rc = EXIT_NO_RESOURCE;
 		goto unmap_info;
 	}
