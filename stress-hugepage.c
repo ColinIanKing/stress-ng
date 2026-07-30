@@ -17,6 +17,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-arch.h"
 #include "core-builtin.h"
 #include "core-mmap.h"
 #include "core-pthread.h"
@@ -179,8 +180,24 @@ static const stress_hugepage_size_t hugepage_sizes[] = {
 	{ MAP_HUGETLB, 2 * GB },
 	{ MAP_HUGETLB, 16 * GB },
 
-	/* vanilla non-huge page mmap options */
+	/*
+	 *  vanilla non-huge page mmap options,
+	 *  try to select sizes that may end up
+	 *  being huge page sized for transparent
+	 *  huge page allocation
+	 */
+#if (defined(STRESS_ARCH_ARM) && defined(__aarch64__)) ||	\
+    defined(STRESS_ARCH_X86_64)
 	{ 0, 2 * MB },
+#elif defined(STRESS_ARCH_X86_32)
+	{ 0, 4 * MB },
+	/* or PAE mode */
+	{ 0, 2 * MB },
+#elif defined(STRESS_ARCH_PPC64)
+	{ 0, 16 * MB },
+#else
+	{ 0, 2 * MB },
+#endif
 	{ 0, 8 * MB },
 	{ 0, 16 * MB },
 	{ 0, 32 * MB },
