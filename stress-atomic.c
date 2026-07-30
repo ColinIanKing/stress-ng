@@ -232,7 +232,7 @@ do {									\
 									\
 	/* 15 ops */							\
 	SHIM_ATOMIC_STORE(var, &tmp, __ATOMIC_RELAXED); 		\
-	SHIM_ATOMIC_STORE_N(var, &tmp, __ATOMIC_RELAXED); 		\
+	SHIM_ATOMIC_STORE_N(var, tmp, __ATOMIC_RELAXED); 		\
 	SHIM_ATOMIC_FETCH_ADD(var, (type)1, __ATOMIC_RELAXED);		\
 	SHIM_ATOMIC_FETCH_ADD(var, (type)2, __ATOMIC_ACQUIRE);		\
 	SHIM_ATOMIC_FETCH_SUB(var, (type)3, __ATOMIC_RELAXED);		\
@@ -253,7 +253,7 @@ do {									\
 	/* 19 ops */							\
 	SHIM_ATOMIC_STORE(var, &tmp, __ATOMIC_RELAXED); 		\
 	SHIM_ATOMIC_LOAD(var, &tmp, __ATOMIC_RELAXED);			\
-	SHIM_ATOMIC_STORE_N(var, &tmp, __ATOMIC_RELAXED); 		\
+	SHIM_ATOMIC_STORE_N(var, tmp, __ATOMIC_RELAXED); 		\
 	SHIM_ATOMIC_LOAD_N(var, &tmp, __ATOMIC_RELAXED);		\
 	SHIM_ATOMIC_ADD_FETCH(var, (type)1, __ATOMIC_RELAXED);		\
 	SHIM_ATOMIC_SUB_FETCH(var, (type)3, __ATOMIC_RELAXED);		\
