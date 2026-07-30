@@ -1010,11 +1010,8 @@ stress-vecmath.o: stress-vecmath.c config.h
 #
 git-commit-id.h:
 	$(PRE_Q)echo "MK $@"
-	@if [ -e .git/HEAD -a -e .git/index ]; then \
-		echo "#define STRESS_GIT_COMMIT_ID \"$(shell git rev-parse HEAD)\"" > $@ ; \
-	else \
-		echo "#define STRESS_GIT_COMMIT_ID \"\"" > $@ ; \
-	fi
+	@test -e .git/HEAD -a -e .git/index && rev=$$(git rev-parse HEAD 2>/dev/null) || rev=; \
+	echo "#define STRESS_GIT_COMMIT_ID \"$$rev\"" > $@ ;
 
 $(OBJS): stress-ng.h Makefile Makefile.config Makefile.machine
 
