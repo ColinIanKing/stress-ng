@@ -53,6 +53,8 @@ COMPILER = scan-build
 override CC := $(CC) clang
 endif
 
+READELF ?= readelf
+
 #
 # check for ALT linux gcc, define HAVE_ALT_LINUX_GCC, see core-shim.c
 # https://github.com/ColinIanKing/stress-ng/issues/452
@@ -157,9 +159,17 @@ endif
 #
 # Test for hardening flags and apply them if applicable
 #
-MACHINE := $(shell make -f Makefile.machine)
+ARCH := $(shell if objdump -H > /dev/null 2>&1 ; then \
+		$(CC) test/test-machine.c -o test-machine > /dev/null 2>&1 && \
+			$(READELF) -h ./test-machine | grep Machine | tr '[:upper:]' '[:lower:]' | awk '{ print $$NF }' | sed 's/\///g' || echo "unknown"; \
+		rm -f test-machine; \
+		else echo "unknown"; fi)
+
+all:
+	@echo $(CFLAGS)
+
 ifneq ($(PRESERVE_CFLAGS),1)
-ifneq ($(MACHINE),$(filter $(MACHINE),alpha hppa ia64))
+ifneq ($(ARCH),$(filter $(ARCH),alpha hppa ia64))
 flag = -Wformat -fstack-protector-strong -Werror=format-security
 #
 # add -D_FORTIFY_SOURCE=2 if _FORTIFY_SOURCE is not already defined
@@ -178,7 +188,7 @@ ifeq ($(BUILD_SMALL),1)
 ifneq ($(filter-out clang icc scan-build,$(COMPILER)),)
 override CFLAGS += $(foreach flag,-fipa-pta -fivopts,$(cc_supports_flag))
 override CFLAGS += $(foreach flag,-ftree-vectorize -ftree-slp-vectorize,$(cc_supports_flag))
-ifeq ($(filter $(MACHINE),ibms390 s390),)
+ifeq ($(filter $(ARCH),s390),)
 override CFLAGS += $(foreach flag,-fmodulo-sched,$(cc_supports_flag))
 endif
 endif
@@ -897,6 +907,7 @@ cov: cov_clean clean build_info config.h
 
 build_info:
 	$(PRE_Q)echo "Compiler: $(COMPILER)"
+	$(PRE_Q)echo "Arch: $(ARCH)"
 	$(PRE_Q)echo "CFLAGS: $(CFLAGS)"
 	$(PRE_Q)echo "LDFLAGS: $(LDFLAGS)"
 
@@ -1016,7 +1027,7 @@ git-commit-id.h:
 		echo "#define STRESS_GIT_COMMIT_ID \"\"" > $@ ; \
 	fi
 
-$(OBJS): stress-ng.h Makefile Makefile.config Makefile.machine
+$(OBJS): stress-ng.h Makefile Makefile.config
 
 stress-ng.1.gz: stress-ng.1
 	$(PRE_V)gzip -n -c $< > $@
@@ -1025,7 +1036,7 @@ stress-ng.1.gz: stress-ng.1
 dist:
 	rm -rf stress-ng-$(VERSION)
 	mkdir stress-ng-$(VERSION)
-	cp -rp Makefile Makefile.config Makefile.machine $(CORE_SRC) \
+	cp -rp Makefile Makefile.config $(CORE_SRC) \
 		$(STRESS_SRC) $(HEADERS) stress-ng.1 COPYING syscalls.txt \
 		mascot README.md CITATIONS.md \
 		Dockerfile README.Android test \
