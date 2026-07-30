@@ -187,7 +187,7 @@ static inline ALWAYS_INLINE void stress_dentrycache_field_max_set(
  *  	max values in d2
  */
 static void OPTIMIZE3 stress_dentrycache_stats_max(
-	stress_fs_dentry_stat_t *d1,
+	const stress_fs_dentry_stat_t *d1,
 	stress_fs_dentry_stat_t *d2)
 {
 	stress_fs_dentry_stat_t tmp;
