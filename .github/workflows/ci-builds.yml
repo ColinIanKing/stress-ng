@@ -7,7 +7,9 @@ on:
       platforms:
         description: Build platforms (defaults to all)
         required: false
-        default: ubuntu-x86_64 ubuntu-x86_64-clang ubuntu-arm64 freebsd macos cygwin
+        default: >-
+          ubuntu-x86_64 ubuntu-x86_64-clang ubuntu-arm64
+          freebsd netbsd openbsd openindiana macos cygwin
       libs-ubuntu:
         description: "Additional libraries for Ubuntu or 'none'"
         required: false
@@ -127,6 +129,74 @@ jobs:
       - uses: actions/upload-artifact@v7
         with:
           name: stress-ng-freebsd
+          path: stress-ng
+          retention-days: 30
+
+  build-netbsd:
+    if: ${{ contains(github.event.inputs.platforms, 'netbsd') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Build and Run (QEMU)
+        uses: vmactions/netbsd-vm@v1
+        with:
+          usesh: true
+          prepare: |  # does not work with BSD make
+            /usr/sbin/pkg_add gmake
+          run: |
+            set -e
+            gmake ${{ github.event.inputs.make-options }}
+            ./stress-ng --version
+            ./stress-ng ${{ github.event.inputs.check-options }} ||
+            echo '::error:: ./stress-ng ${{ github.event.inputs.check-options }} failed'
+      - uses: actions/upload-artifact@v7
+        with:
+          name: stress-ng-netbsd
+          path: stress-ng
+          retention-days: 30
+
+  build-openbsd:
+    if: ${{ contains(github.event.inputs.platforms, 'openbsd') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Build and Run (QEMU)
+        uses: vmactions/openbsd-vm@v1
+        with:
+          usesh: true
+          prepare: |  # does not work with BSD make
+            /usr/sbin/pkg_add gmake
+          run: |
+            set -e
+            gmake ${{ github.event.inputs.make-options }}
+            ./stress-ng --version
+            ./stress-ng ${{ github.event.inputs.check-options }} ||
+            echo '::error:: ./stress-ng ${{ github.event.inputs.check-options }} failed'
+      - uses: actions/upload-artifact@v7
+        with:
+          name: stress-ng-openbsd
+          path: stress-ng
+          retention-days: 30
+
+  build-openindiana:
+    if: ${{ contains(github.event.inputs.platforms, 'openindiana') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Build and Run (QEMU)
+        uses: vmactions/openindiana-vm@v1
+        with:
+          release: "202604-build" # "202604" + "pkg install build-essential"
+          usesh: true
+          run: |
+            set -e
+            gmake ${{ github.event.inputs.make-options }}
+            ./stress-ng --version
+            ./stress-ng ${{ github.event.inputs.check-options }} ||
+            echo '::error:: ./stress-ng ${{ github.event.inputs.check-options }} failed'
+      - uses: actions/upload-artifact@v7
+        with:
+          name: stress-ng-openindiana
           path: stress-ng
           retention-days: 30
 
