@@ -906,7 +906,6 @@ build_info:
 	$(PRE_Q)echo "Compiler: $(COMPILER)"
 	$(PRE_Q)echo "Arch: $(ARCH)"
 	$(PRE_Q)echo "CFLAGS: $(CFLAGS)"
-	$(PRE_Q)echo "LDFLAGS: $(LDFLAGS)"
 
 .SUFFIXES: .cpp .c .o
 
