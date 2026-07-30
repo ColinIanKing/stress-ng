@@ -103,8 +103,7 @@ static void stress_unlink_exercise(
 			if (UNLIKELY((i & 7) == 7)) {
 				if (link(filenames[i - 1], filenames[i]) == 0) {
 					fds[i] = open(filenames[i], O_RDWR);
-					if (fds[i] < 0)
-						continue;
+					continue;
 				}
 			}
 retry:
