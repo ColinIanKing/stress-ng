@@ -478,11 +478,11 @@ again:
 					if ((errno == EAGAIN) || (errno == EINTR))
 						continue;
 					if (errno) {
-						pr_fail("%s: read failed, errno=%d (%s)\n",
+						pr_fail("%s: pipe read failed, errno=%d (%s)\n",
 							args->name, errno, strerror(errno));
 						break;
 					}
-					pr_fail("%s: zero bytes read\n", args->name);
+					pr_fail("%s: pipe read returned zero bytes of data\n", args->name);
 					break;
 				}
 				if (UNLIKELY((msg.index < 0) ||
