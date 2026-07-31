@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Gianmarco De Gregori <gianmarco@mandelbit.com>
+ * Copyright (C) 2025-2026 Gianmarco De Gregori <gianmarco@mandelbit.com>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -1612,12 +1612,12 @@ static int stress_ovpn(stress_args_t *args)
 
 static const stress_exercises_t exercises[] = {
 	STRESS_EX_SYSCALL("bind"),
-	STRESS_EX_SYSCALL("connext"),
+	STRESS_EX_SYSCALL("connect"),
 	STRESS_EX_SYSCALL("getsockname"),
-	STRESS_EX_SYSCALL("pselect"),
 	STRESS_EX_SYSCALL("recvmsg"),
+	STRESS_EX_SYSCALL("select"),
 	STRESS_EX_SYSCALL("sendmsg"),
-	STRESS_EX_SYSCALL("setsockoopt"),
+	STRESS_EX_SYSCALL("setsockopt"),
 	STRESS_EX_SYSCALL("socket"),
 
 	STRESS_EX_LIBRARY("nl"),
