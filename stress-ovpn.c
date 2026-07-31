@@ -92,6 +92,13 @@ static const stress_help_t help[] = {
 
 #define RT_SNDBUF_SIZE (1024 * 2)
 #define RT_RCVBUF_SIZE (1024 * 4)
+/*
+ * A reply is not guaranteed to arrive: the kernel can fail to allocate one
+ * under memory pressure, and the request may have been aimed at an object that
+ * went away. Without a deadline the recvmsg() loop in ovpn_rt_send() waits for
+ * it indefinitely, which hangs the worker.
+ */
+#define RT_RCVTIMEO_SEC (5)
 
 #define KEY_LEN		(256 / 8)
 #define NONCE_LEN	(8)
@@ -252,6 +259,7 @@ static inline void ovpn_nest_end(struct nlmsghdr *msg, struct rtattr *nest)
 static int ovpn_rt_socket(ovpn_ctx_t *ovpn)
 {
 	const char *args_name = ovpn->args_name;
+	struct timeval rcvtimeo = { RT_RCVTIMEO_SEC, 0 };
 	int sndbuf = RT_SNDBUF_SIZE;
 	int rcvbuf = RT_RCVBUF_SIZE;
 	int fd;
@@ -274,6 +282,18 @@ static int ovpn_rt_socket(ovpn_ctx_t *ovpn)
 	if (setsockopt(fd, SOL_SOCKET, SO_RCVBUF, &rcvbuf,
 		       sizeof(rcvbuf)) < 0) {
 		pr_dbg("%s: setsockopt SO_RCVBUF failed, errno=%d (%s)\n",
+			args_name, errno, strerror(errno));
+		(void)close(fd);
+		return -1;
+	}
+
+	/*
+	 * Bound the wait for a reply. This is what turns a lost reply into an
+	 * error the caller can act on, rather than a worker that never returns.
+	 */
+	if (setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, &rcvtimeo,
+		       sizeof(rcvtimeo)) < 0) {
+		pr_dbg("%s: setsockopt SO_RCVTIMEO failed, errno=%d (%s)\n",
 			args_name, errno, strerror(errno));
 		(void)close(fd);
 		return -1;
@@ -357,7 +377,7 @@ static int ovpn_rt_send(
 
 	payload->nlmsg_seq = (uint32_t)(time(NULL) & 0xffffffff);
 
-	/* no need to send reply */
+	/* no reply parser, so ask for a plain ack */
 	if (!cb)
 		payload->nlmsg_flags |= NLM_F_ACK;
 
@@ -393,8 +413,29 @@ static int ovpn_rt_send(
 		iov.iov_len = sizeof(buf);
 		rcv_len = recvmsg(fd, &nlmsg, 0);
 		if (rcv_len < 0) {
-			if (errno == EINTR || errno == EAGAIN) {
-				pr_dbg("interrupted call\n");
+			/*
+			 * With SO_RCVTIMEO set, EAGAIN means the deadline
+			 * expired rather than "try again": the reply is not
+			 * coming, so report it instead of asking for it again
+			 * forever.
+			 */
+			if ((errno == EAGAIN) || (errno == EWOULDBLOCK)) {
+				pr_dbg("%s: no netlink reply within %d seconds\n",
+					args_name, RT_RCVTIMEO_SEC);
+				ret = -ETIMEDOUT;
+				goto out;
+			}
+			if (errno == EINTR) {
+				/*
+				 * Retrying is right for a signal, but not once
+				 * the run is winding down: SIGALRM would then
+				 * be swallowed on every iteration and the
+				 * worker would never notice it has to stop.
+				 */
+				if (UNLIKELY(!stress_continue_flag())) {
+					ret = -EINTR;
+					goto out;
+				}
 				continue;
 			}
 			pr_dbg("%s: recvmsg() failed\n", args_name);
