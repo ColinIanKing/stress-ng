@@ -29,10 +29,17 @@ static const stress_help_t help[] = {
 
 /*
  * static builds with libnl require getprotobynumber_r
- * which is not supported as a static lib at present
+ * which is not supported as a static lib at present.
+ *
+ * HAVE_LINUX_OVPN_UAPI rather than HAVE_LINUX_OVPN_H: the header travelled
+ * through several out-of-tree revisions before ovpn was merged in 6.16, so
+ * its mere presence does not imply it declares the commands and attributes
+ * used below. The configure test references them, so an older or partial
+ * copy makes the stressor report itself unimplemented instead of failing
+ * the build.
  */
 #if defined(HAVE_LIB_NL) &&		\
-    defined(HAVE_LINUX_OVPN_H) &&	\
+    defined(HAVE_LINUX_OVPN_UAPI) &&	\
     !defined(BUILD_STATIC)
 
 #include <time.h>
@@ -82,8 +89,6 @@ static const stress_help_t help[] = {
  */
 #define nla_nest_start(_msg, _type) \
 	nla_nest_start(_msg, (_type) | NLA_F_NESTED)
-
-#define IFLA_OVPN_MAX (__IFLA_OVPN_MAX - 1)
 
 #define RT_SNDBUF_SIZE (1024 * 2)
 #define RT_RCVBUF_SIZE (1024 * 4)
@@ -1641,7 +1646,7 @@ const stressor_info_t stress_ovpn_info = {
 	.classifier = CLASS_NETWORK | CLASS_OS,
 	.verify = VERIFY_NONE,
 	.help = help,
-	.unimplemented_reason = "built without libnl3 or linux/ovpn.h support or build statically"
+	.unimplemented_reason = "built without libnl3, without a linux/ovpn.h providing the ovpn netlink uapi, or built statically"
 };
 
-#endif /* HAVE_LIB_NL && HAVE_LINUX_OVPN_H */
+#endif /* HAVE_LIB_NL && HAVE_LINUX_OVPN_UAPI */
