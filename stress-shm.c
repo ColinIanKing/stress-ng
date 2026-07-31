@@ -115,13 +115,15 @@ static int stress_shm_posix_child(
 	addrs = (void **)calloc(shm_posix_objects, sizeof(*addrs));
 	if (!addrs) {
 		pr_fail("%s: calloc on addrs failed, out of memory\n", args->name);
-		return EXIT_NO_RESOURCE;
+		rc = EXIT_NO_RESOURCE;
+		goto shm_end_of_run;
 	}
 	shm_names = (char *)calloc(shm_posix_objects, SHM_NAME_LEN);
 	if (!shm_names) {
 		free(addrs);
 		pr_fail("%s: calloc on shm_names, out of memory\n", args->name);
-		return EXIT_NO_RESOURCE;
+		rc = EXIT_NO_RESOURCE;
+		goto shm_end_of_run;
 	}
 
 	/* Make sure this is killable by OOM killer */
@@ -138,7 +140,8 @@ static int stress_shm_posix_child(
 			args->name, errno, strerror(errno));
 		free(addrs);
 		free(shm_names);
-		return EXIT_NO_RESOURCE;
+		rc = EXIT_NO_RESOURCE;
+		goto shm_end_of_run;
 	}
 
 	do {
@@ -345,6 +348,10 @@ reap:
 		}
 	} while (ok && stress_continue(args));
 
+	free(shm_names);
+	free(addrs);
+
+shm_end_of_run:
 	/* Inform parent of end of run */
 	msg.index = -1;
 	(void)shim_strscpy(msg.shm_name, "", SHM_NAME_LEN);
@@ -353,8 +360,6 @@ reap:
 			args->name, errno, strerror(errno));
 		rc = EXIT_FAILURE;
 	}
-	free(shm_names);
-	free(addrs);
 
 	return rc;
 }
@@ -482,7 +487,7 @@ again:
 							args->name, errno, strerror(errno));
 						break;
 					}
-					pr_fail("%s: pipe read returned zero bytes of data\n", args->name);
+					pr_fail("%s: pipe read returned zero bytes of data (child died prematurely?)\n", args->name);
 					break;
 				}
 				if (UNLIKELY((msg.index < 0) ||
