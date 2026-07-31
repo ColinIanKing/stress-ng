@@ -513,7 +513,7 @@ static int stress_cgroup_child(stress_args_t *args)
 
 		fd = fsopen("cgroup2", FSOPEN_CLOEXEC);
 		if (fd < 0) {
-			pr_inf_skip("%s: fsopen failed, errno=%d (%s), "
+			pr_inf_skip("%s: fsopen on 'cgroup2' failed, errno=%d (%s), "
 				"skipping stressor\n",
 				args->name, errno, strerror(errno));
 			(void)stress_fs_temp_dir_rm_args(args);
