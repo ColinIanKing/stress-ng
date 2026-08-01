@@ -926,7 +926,8 @@ stress-ng: config.h $(OBJS)
 	$(PRE_Q)echo "LD $@"
 	$(eval LINK_TOOL := $(shell if [ -n "$(shell grep '^#define HAVE_EIGEN' config.h)" ]; then echo $(CXX); else echo $(CC); fi))
 	$(eval LDFLAGS_EXTRA := $(shell grep CONFIG_LDFLAGS config | sed 's/CONFIG_LDFLAGS +=//' | tr '\n' ' '))
-	$(PRE_V)$(LINK_TOOL) $(OBJS) -lm $(LDFLAGS) $(LDFLAGS_EXTRA) $(CFLAGS) -o $@
+	$(eval LDFLAGS_WRAP := $(shell if [ -n "$(shell grep '^#define HAVE_LD_WRAP_CPU_INDICATOR_INIT' config.h)" ]; then echo -Wl,--wrap=__cpu_indicator_init; fi))
+	$(PRE_V)$(LINK_TOOL) $(OBJS) -lm $(LDFLAGS) $(LDFLAGS_EXTRA) $(LDFLAGS_WRAP) $(CFLAGS) -o $@
 
 stress-ovpn.o: stress-ovpn.c $(HEADERS) $(HEADERS_GEN)
 	$(PRE_Q)echo "CC $<"

@@ -22,6 +22,7 @@
 #include "core-asm-x86.h"
 #include "core-builtin.h"
 #include "core-cpu.h"
+#include "core-target-clones.h"
 
 #include <sched.h>
 
@@ -955,3 +956,74 @@ void OPTIMIZE3 stress_cpu_fp_subnormals_enable(void)
 		_mm_setcsr(_mm_getcsr() & ~(X86_FP_DAZ | X86_FP_FTZ));
 #endif
 }
+
+#if defined(STRESS_ARCH_X86) &&			\
+    defined(HAVE_TARGET_CLONES) &&		\
+    defined(HAVE_LD_WRAP_CPU_INDICATOR_INIT)
+
+/*
+ *  libgcc's CPU description. The resolvers GCC emits for target_clones
+ *  call __cpu_indicator_init() and then compare __cpu_model.__cpu_subtype
+ *  to pick an "arch=" clone. Layout is fixed by the libgcc ABI.
+ */
+struct stress_cpu_model_t {
+	unsigned int __cpu_vendor;
+	unsigned int __cpu_type;
+	unsigned int __cpu_subtype;
+	unsigned int __cpu_features[1];
+};
+
+extern struct stress_cpu_model_t __cpu_model;
+extern void __real___cpu_indicator_init(void);
+
+void __wrap___cpu_indicator_init(void);
+
+/*
+ *  __wrap___cpu_indicator_init()
+ *	__builtin_cpu_is() picks an "arch=" clone on the family/model in
+ *	__cpu_model alone, never checking that the clone's instructions can
+ *	run. A CPU reporting an AVX-512 model without usable AVX-512 gets EVEX
+ *	code and dies with SIGILL. AVX-512 goes missing when a hypervisor masks
+ *	it, when firmware disables it, or when the kernel skips the xstate.
+ *	Booting with clearcpuid=avx512f reproduces it.
+ *
+ *	Family 6 model 0x55 is the worst case. In
+ *	gcc/common/config/i386/cpuinfo.h "case 0x55" AVX512BF16 selects Cooper
+ *	Lake, AVX512VNNI selects Cascade Lake, anything else falls through to
+ *	skylake-avx512. Those feature bits are xgetbv gated, the subtype is
+ *	not, so masking steers the CPU onto the AVX-512 clone.
+ *
+ *	Clear the classification so no "arch=" clone matches and the feature
+ *	clones or the default are used. Those resolve through
+ *	__builtin_cpu_supports(), which libgcc gates on OSXSAVE plus xgetbv.
+ *	Every other CPU keeps its clone.
+ *
+ *	Runs during ifunc relocation, before main() and before libc is up, so
+ *	it touches nothing but __cpu_model.
+ */
+void __wrap___cpu_indicator_init(void)
+{
+	/* 0: not started, 1: in progress, 2: done */
+	static volatile int state = 0;
+
+	/*
+	 * The builtins below can re-enter this wrapper; let those calls fall
+	 * straight through, libgcc's own initialiser is idempotent.
+	 */
+	if (state != 0) {
+		__real___cpu_indicator_init();
+		return;
+	}
+	state = 1;
+
+	__real___cpu_indicator_init();
+
+	if (TARGET_CLONE_MODELS_CLAIM_AVX512 &&
+	    !__builtin_cpu_supports("avx512f")) {
+		__cpu_model.__cpu_type = 0;
+		__cpu_model.__cpu_subtype = 0;
+	}
+	state = 2;
+}
+
+#endif

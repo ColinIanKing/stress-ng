@@ -36,6 +36,21 @@
 #if defined(STRESS_ARCH_X86) &&	\
     defined(HAVE_TARGET_CLONES)
 
+/*
+ *  __builtin_cpu_is() picks an "arch=" clone on family/model alone, so an
+ *  AVX-512 clone can land on a CPU that cannot run it.
+ *  __wrap___cpu_indicator_init() in core-cpu.c fixes that but needs a linker
+ *  able to interpose libgcc's initialiser. Without one, drop the AVX-512
+ *  micro-architectures and reach AVX-512 through the "avx512f" feature clone,
+ *  which __builtin_cpu_supports() gates on OSXSAVE plus xgetbv. Only the
+ *  tuning differs between the two, never the instruction set.
+ */
+#if defined(HAVE_LD_WRAP_CPU_INDICATOR_INIT)
+#define TARGET_CLONE_AVX512_BY_ARCH
+#else
+#define TARGET_CLONE_AVX512_BY_FEATURE
+#endif
+
 #if defined(HAVE_TARGET_CLONES_MMX)
 #define TARGET_CLONE_MMX	"mmx",
 #define TARGET_CLONE_USE
@@ -99,28 +114,32 @@
 #define TARGET_CLONE_SSE4_2
 #endif
 
-#if defined(HAVE_TARGET_CLONES_SKYLAKE_AVX512)
+#if defined(HAVE_TARGET_CLONES_SKYLAKE_AVX512) &&	\
+    defined(TARGET_CLONE_AVX512_BY_ARCH)
 #define TARGET_CLONE_SKYLAKE_AVX512	"arch=skylake-avx512",
 #define TARGET_CLONE_USE
 #else
 #define TARGET_CLONE_SKYLAKE_AVX512
 #endif
 
-#if defined(HAVE_TARGET_CLONES_COOPERLAKE)
+#if defined(HAVE_TARGET_CLONES_COOPERLAKE) &&	\
+    defined(TARGET_CLONE_AVX512_BY_ARCH)
 #define TARGET_CLONE_COOPERLAKE	"arch=cooperlake",
 #define TARGET_CLONE_USE
 #else
 #define TARGET_CLONE_COOPERLAKE
 #endif
 
-#if defined(HAVE_TARGET_CLONES_TIGERLAKE)
+#if defined(HAVE_TARGET_CLONES_TIGERLAKE) &&	\
+    defined(TARGET_CLONE_AVX512_BY_ARCH)
 #define TARGET_CLONE_TIGERLAKE	"arch=tigerlake",
 #define TARGET_CLONE_USE
 #else
 #define TARGET_CLONE_TIGERLAKE
 #endif
 
-#if defined(HAVE_TARGET_CLONES_SAPPHIRERAPIDS)
+#if defined(HAVE_TARGET_CLONES_SAPPHIRERAPIDS) &&	\
+    defined(TARGET_CLONE_AVX512_BY_ARCH)
 #define TARGET_CLONE_SAPPHIRERAPIDS "arch=sapphirerapids",
 #define TARGET_CLONE_USE
 #else
@@ -134,7 +153,8 @@
 #define TARGET_CLONE_ALDERLAKE
 #endif
 
-#if defined(HAVE_TARGET_CLONES_ROCKETLAKE)
+#if defined(HAVE_TARGET_CLONES_ROCKETLAKE) &&	\
+    defined(TARGET_CLONE_AVX512_BY_ARCH)
 #define TARGET_CLONE_ROCKETLAKE	"arch=rocketlake",
 #define TARGET_CLONE_USE
 #else
@@ -142,7 +162,8 @@
 #endif
 
 #if defined(HAVE_TARGET_CLONES_GRANITERAPIDS) &&	\
-    defined(HAVE_COMPILER_GCC_OR_MUSL)
+    defined(HAVE_COMPILER_GCC_OR_MUSL) &&	\
+    defined(TARGET_CLONE_AVX512_BY_ARCH)
 #define TARGET_CLONE_GRANITERAPIDS "arch=graniterapids",
 #define TARGET_CLONE_USE
 #else
@@ -150,7 +171,8 @@
 #endif
 
 #if defined(HAVE_TARGET_CLONES_DIAMONDRAPIDS) &&	\
-    defined(HAVE_COMPILER_GCC_OR_MUSL)
+    defined(HAVE_COMPILER_GCC_OR_MUSL) &&	\
+    defined(TARGET_CLONE_AVX512_BY_ARCH)
 #define TARGET_CLONE_DIAMONDRAPIDS "arch=diamondrapids",
 #define TARGET_CLONE_USE
 #else
@@ -182,7 +204,8 @@
 #endif
 
 #if defined(HAVE_TARGET_CLONES_NOVALAKE) &&		\
-    defined(HAVE_COMPILER_GCC_OR_MUSL)
+    defined(HAVE_COMPILER_GCC_OR_MUSL) &&	\
+    defined(TARGET_CLONE_AVX512_BY_ARCH)
 #define TARGET_CLONE_NOVALAKE "arch=novalake",
 #define TARGET_CLONE_USE
 #else
@@ -222,7 +245,8 @@
 #endif
 
 #if defined(HAVE_TARGET_CLONES_ZNVER4) &&		\
-    defined(HAVE_COMPILER_GCC_OR_MUSL)
+    defined(HAVE_COMPILER_GCC_OR_MUSL) &&	\
+    defined(TARGET_CLONE_AVX512_BY_ARCH)
 #define TARGET_CLONE_ZNVER4 "arch=znver4",
 #define TARGET_CLONE_USE
 #else
@@ -230,16 +254,113 @@
 #endif
 
 #if defined(HAVE_TARGET_CLONES_ZNVER5) &&		\
-    defined(HAVE_COMPILER_GCC_OR_MUSL)
+    defined(HAVE_COMPILER_GCC_OR_MUSL) &&	\
+    defined(TARGET_CLONE_AVX512_BY_ARCH)
 #define TARGET_CLONE_ZNVER5 "arch=znver5",
 #define TARGET_CLONE_USE
 #else
 #define TARGET_CLONE_ZNVER5
 #endif
 
+/*
+ *  The "arch=" clones above that are built with AVX-512, checked at run time
+ *  by __wrap___cpu_indicator_init() in core-cpu.c.
+ *
+ *  Add a new "arch=" clone here when
+ *  "gcc -march=<name> -dM -E - < /dev/null" defines __AVX512F__. Compilers
+ *  that accept a name in target_clones accept it in __builtin_cpu_is(), so
+ *  the probes above gate both uses.
+ */
+#define TARGET_CLONE_MODELS_CLAIM_AVX512 (false			\
+	TARGET_CLONE_IS_SKYLAKE_AVX512				\
+	TARGET_CLONE_IS_COOPERLAKE				\
+	TARGET_CLONE_IS_TIGERLAKE				\
+	TARGET_CLONE_IS_ROCKETLAKE				\
+	TARGET_CLONE_IS_SAPPHIRERAPIDS				\
+	TARGET_CLONE_IS_GRANITERAPIDS				\
+	TARGET_CLONE_IS_DIAMONDRAPIDS				\
+	TARGET_CLONE_IS_NOVALAKE				\
+	TARGET_CLONE_IS_ZNVER4					\
+	TARGET_CLONE_IS_ZNVER5					\
+	)
+
+#if defined(HAVE_TARGET_CLONES_SKYLAKE_AVX512)
+#define TARGET_CLONE_IS_SKYLAKE_AVX512	|| __builtin_cpu_is("skylake-avx512")
+#else
+#define TARGET_CLONE_IS_SKYLAKE_AVX512
+#endif
+
+#if defined(HAVE_TARGET_CLONES_COOPERLAKE)
+#define TARGET_CLONE_IS_COOPERLAKE	|| __builtin_cpu_is("cooperlake")
+#else
+#define TARGET_CLONE_IS_COOPERLAKE
+#endif
+
+#if defined(HAVE_TARGET_CLONES_TIGERLAKE)
+#define TARGET_CLONE_IS_TIGERLAKE	|| __builtin_cpu_is("tigerlake")
+#else
+#define TARGET_CLONE_IS_TIGERLAKE
+#endif
+
+#if defined(HAVE_TARGET_CLONES_ROCKETLAKE)
+#define TARGET_CLONE_IS_ROCKETLAKE	|| __builtin_cpu_is("rocketlake")
+#else
+#define TARGET_CLONE_IS_ROCKETLAKE
+#endif
+
+#if defined(HAVE_TARGET_CLONES_SAPPHIRERAPIDS)
+#define TARGET_CLONE_IS_SAPPHIRERAPIDS	|| __builtin_cpu_is("sapphirerapids")
+#else
+#define TARGET_CLONE_IS_SAPPHIRERAPIDS
+#endif
+
+#if defined(HAVE_TARGET_CLONES_GRANITERAPIDS) &&	\
+    defined(HAVE_COMPILER_GCC_OR_MUSL)
+#define TARGET_CLONE_IS_GRANITERAPIDS	|| __builtin_cpu_is("graniterapids")
+#else
+#define TARGET_CLONE_IS_GRANITERAPIDS
+#endif
+
+#if defined(HAVE_TARGET_CLONES_DIAMONDRAPIDS) &&	\
+    defined(HAVE_COMPILER_GCC_OR_MUSL)
+#define TARGET_CLONE_IS_DIAMONDRAPIDS	|| __builtin_cpu_is("diamondrapids")
+#else
+#define TARGET_CLONE_IS_DIAMONDRAPIDS
+#endif
+
+#if defined(HAVE_TARGET_CLONES_NOVALAKE) &&		\
+    defined(HAVE_COMPILER_GCC_OR_MUSL)
+#define TARGET_CLONE_IS_NOVALAKE	|| __builtin_cpu_is("novalake")
+#else
+#define TARGET_CLONE_IS_NOVALAKE
+#endif
+
+#if defined(HAVE_TARGET_CLONES_ZNVER4) &&		\
+    defined(HAVE_COMPILER_GCC_OR_MUSL)
+#define TARGET_CLONE_IS_ZNVER4		|| __builtin_cpu_is("znver4")
+#else
+#define TARGET_CLONE_IS_ZNVER4
+#endif
+
+#if defined(HAVE_TARGET_CLONES_ZNVER5) &&		\
+    defined(HAVE_COMPILER_GCC_OR_MUSL)
+#define TARGET_CLONE_IS_ZNVER5		|| __builtin_cpu_is("znver5")
+#else
+#define TARGET_CLONE_IS_ZNVER5
+#endif
+
+#if defined(TARGET_CLONE_AVX512_BY_FEATURE) &&	\
+    defined(HAVE_TARGET_CLONES_SKYLAKE_AVX512)
+#define TARGET_CLONE_AVX512F	"avx512f",
+#define TARGET_CLONE_USE
+#else
+#define TARGET_CLONE_AVX512F
+#endif
+
 #define TARGET_CLONES_ALL		\
 	TARGET_CLONE_AVX		\
 	TARGET_CLONE_AVX2 		\
+	TARGET_CLONE_AVX512F		\
 	TARGET_CLONE_MMX 		\
 	TARGET_CLONE_SSE		\
 	TARGET_CLONE_SSE2 		\
