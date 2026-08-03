@@ -250,7 +250,7 @@ static int stress_nanosleep(stress_args_t *args)
 
 	ctxts = (stress_ctxt_t *)calloc(nanosleep_threads, sizeof(*ctxts));
 	if (!ctxts) {
-		pr_inf_skip("%s: could not allocate context for %" PRIu32
+		pr_inf_skip("%s: allocate context failed for %" PRIu32
 			" pthreads%s, skipping stressor\n",
 			args->name, nanosleep_threads,
 			stress_memory_free_get());

@@ -526,7 +526,7 @@ static int stress_module(stress_args_t *args)
 	 */
 	fd = stress_module_open(args, ret);
 	if (fd < 0) {
-		pr_inf_skip("%s: cannot open the module file %s, "
+		pr_inf_skip("%s: open module '%s' failed, "
 			"errno=%d (%s), skipping stressor\n",
 			args->name, global_module_path,
 			errno, strerror(errno));

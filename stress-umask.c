@@ -77,11 +77,11 @@ static int stress_umask(stress_args_t *args)
 			(void)stress_fs_temp_filename_args(args, filename, sizeof(filename), stress_mwc32());
 			fd = open(filename, O_CREAT | O_RDWR, 0777);
 			if (fd < 0) {
-				pr_fail("%s: cannot create file %s\n", args->name, filename);
+				pr_fail("%s: open '%s' failed\n", args->name, filename);
 				goto fail;
 			}
 			if (shim_fstat(fd, &statbuf) < 0) {
-				pr_fail("%s: cannot stat file %s\n", args->name, filename);
+				pr_fail("%s: stat '%s' failed\n", args->name, filename);
 				(void)close(fd);
 				(void)shim_unlink(filename);
 				goto fail;
@@ -96,7 +96,7 @@ static int stress_umask(stress_args_t *args)
 			}
 			(void)close(fd);
 			if (shim_unlink(filename) < 0) {
-				pr_fail("%s: cannot unlink file %s\n", args->name, filename);
+				pr_fail("%s: unlink '%s' failed\n", args->name, filename);
 				goto fail;
 			}
 		}

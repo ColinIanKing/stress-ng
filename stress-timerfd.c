@@ -170,7 +170,7 @@ static int stress_timerfd(stress_args_t *args)
 	(void)stress_fs_temp_filename_args(args, file_fd_name, sizeof(file_fd_name), stress_mwc32());
 	file_fd = open(file_fd_name, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
 	if (file_fd < 0) {
-		pr_err("%s: cannot create %s\n", args->name, file_fd_name);
+		pr_err("%s: open '%s' failed\n", args->name, file_fd_name);
 		rc = stress_exit_status(errno);
 		goto close_file_fd;
 	}
@@ -178,7 +178,7 @@ static int stress_timerfd(stress_args_t *args)
 
 	timerfds = (int *)calloc((size_t)timerfd_fds, sizeof(*timerfds));
 	if (!timerfds) {
-		pr_inf_skip("%s: failed to allocate %d timerfd file descriptors%s, "
+		pr_inf_skip("%s: allocate %d timerfd file descriptors failed%s, "
 			"skipping stressor\n", args->name,
 			timerfd_fds, stress_memory_free_get());
 		rc = EXIT_NO_RESOURCE;
@@ -190,7 +190,7 @@ static int stress_timerfd(stress_args_t *args)
 #if defined(USE_POLL)
 	pollfds = (struct pollfd *)calloc((size_t)timerfd_fds, sizeof(*pollfds));
 	if (!pollfds) {
-		pr_inf_skip("%s: failed to allocate %d pollfd file descriptors%s, "
+		pr_inf_skip("%s: allocate %d pollfd file descriptors failed%s, "
 			"skipping stressor\n", args->name,
 			timerfd_fds, stress_memory_free_get());
 		rc = EXIT_NO_RESOURCE;
@@ -235,7 +235,7 @@ retry:
 		if (ret >= 0) {
 #if 0
 			pr_fail("%s: timerfd_create without capability CAP_WAKE_ALARM unexpectedly "
-					"succeeded, errno=%d (%s)\n", args->name, errno, strerror(errno));
+				"succeeded, errno=%d (%s)\n", args->name, errno, strerror(errno));
 #endif
 			(void)close(ret);
 		}

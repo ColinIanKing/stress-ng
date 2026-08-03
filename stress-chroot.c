@@ -163,12 +163,12 @@ static int stress_chroot_test1(chroot_shared_data_t *data)
 	 * so ignore this error
 	 */
 	if ((ret1 < 0) && (errno1 != ENOENT)) {
-		pr_fail("%s: chroot(\"%s\"), errno=%d (%s)\n",
+		pr_fail("%s: chroot '%s' failed, errno=%d (%s)\n",
 			data->args->name, temppath, errno1, strerror(errno1));
 		return EXIT_FAILURE;
 	}
 	if (ret2 < 0) {
-		pr_fail("%s: chdir(\"%s/\") failed, errno=%d (%s)\n",
+		pr_fail("%s: chdir '%s' failed, errno=%d (%s)\n",
 			data->args->name, temppath, errno2, strerror(errno2));
 		return EXIT_FAILURE;
 	}
@@ -178,7 +178,7 @@ static int stress_chroot_test1(chroot_shared_data_t *data)
 		return EXIT_FAILURE;
 	}
 	if (strcmp(cwd, "/")) {
-		pr_fail("%s: cwd in chroot is \"%s\" and not \"/\"\n", data->args->name, cwd);
+		pr_fail("%s: cwd in chroot is '%s' and not '/'\n", data->args->name, cwd);
 		return EXIT_FAILURE;
 	}
 	return EXIT_SUCCESS;
@@ -198,7 +198,7 @@ static int stress_chroot_test2(chroot_shared_data_t *data)
 
 	do_chroot(data, (const char *)1, NULL, &ret1, &ret2, &errno1, &errno2);
 	if ((ret1 >= 0) || (errno1 != EFAULT)) {
-		pr_fail("%s: chroot(\"(void *)1\"), expected EFAULT"
+		pr_fail("%s: chroot (void *)1, expected EFAULT"
 			", got instead errno=%d (%s)\n",
 			data->args->name, errno1, strerror(errno1));
 		return EXIT_FAILURE;
@@ -226,7 +226,7 @@ static int stress_chroot_test3(chroot_shared_data_t *data)
 #else
 	if ((ret1 >= 0) || (errno1 != ENAMETOOLONG)) {
 #endif
-		pr_fail("%s: chroot(\"<very long path>\"), expected "
+		pr_fail("%s: chroot '<very long path>', expected "
 			"ENAMETOOLONG, got instead errno=%d (%s)\n",
 			data->args->name, errno1, strerror(errno1));
 		return EXIT_FAILURE;
@@ -247,7 +247,7 @@ static int stress_chroot_test4(chroot_shared_data_t *data)
 
 	do_chroot(data, badpath, NULL, &ret1, &ret2, &errno1, &errno2);
 	if ((ret1 >= 0) || (errno1 != ENOENT)) {
-		pr_fail("%s: chroot(\"%s\"), expected ENOENT"
+		pr_fail("%s: chroot '%s', expected ENOENT"
 			", got instead errno=%d (%s)\n",
 			data->args->name, badpath, errno1, strerror(errno1));
 		return EXIT_FAILURE;
@@ -274,7 +274,7 @@ static int stress_chroot_test5(chroot_shared_data_t *data)
 	if ((ret1 >= 0) || ((errno1 != ENOTDIR) &&
 			    (errno1 != ENOENT) &&
 			    (errno1 != EPERM))) {
-		pr_fail("%s: chroot(\"%s\"), expected ENOTDIR"
+		pr_fail("%s: chroot '%s', expected ENOTDIR"
 			", got instead errno=%d (%s)\n",
 			data->args->name, filename, errno1, strerror(errno1));
 		return EXIT_FAILURE;
@@ -298,7 +298,7 @@ static int stress_chroot_test6(chroot_shared_data_t *data)
 	if ((ret1 >= 0) || ((errno1 != ENOTDIR) &&
 			    (errno1 != ENOENT) &&
 			    (errno1 != EPERM))) {
-		pr_fail("%s: chroot(\"%s\"), expected ENOTDIR"
+		pr_fail("%s: chroot '%s', expected ENOTDIR"
 			", got instead errno=%d (%s)\n",
 			data->args->name, dev, errno1, strerror(errno1));
 		return EXIT_FAILURE;
@@ -332,7 +332,7 @@ static int stress_chroot_test7(chroot_shared_data_t *data)
 			    (errno1 != ENAMETOOLONG) &&
 			    (errno1 != ENOENT) &&
 			    (errno1 != EPERM))) {
-		pr_fail("%s: chroot(\"%-10.10s..\"), expected ENAMETOOLONG"
+		pr_fail("%s: chroot '%-10.10s..', expected ENAMETOOLONG"
 			", got instead errno=%d (%s)\n",
 			data->args->name, path, errno1, strerror(errno1));
 		free(path);
@@ -460,12 +460,12 @@ static int stress_chroot(stress_args_t *args)
 	(void)stress_fs_temp_dir_args(args, temppath, sizeof(temppath));
 	(void)stress_fs_temp_filename_args(args, filename, sizeof(filename), stress_mwc32());
 	if (mkdir(temppath, S_IRWXU) < 0) {
-		pr_fail("%s: mkdir %s failed, errno=%d (%s)\n",
+		pr_fail("%s: mkdir '%s' failed, errno=%d (%s)\n",
 			args->name, temppath, errno, strerror(errno));
 		goto tidy_ret;
 	}
 	if ((fd = creat(filename, S_IRUSR | S_IWUSR)) < 0) {
-		pr_fail("%s: create %s failed, errno=%d (%s)\n",
+		pr_fail("%s: creat '%s' failed, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
 		goto tidy_dir;
 	}

@@ -113,7 +113,7 @@ static uint64_t stress_dirmany_create(
 
 		/* File should really exist */
 		if ((shim_stat(filename, &statbuf) < 0) && (errno != ENOMEM)) {
-			pr_fail("%s: stat failed on file %s, errno=%d (%s)\n",
+			pr_fail("%s: stat '%s' failed, errno=%d (%s)\n",
 				args->name, filename, errno, strerror(errno));
 			*failed = true;
 			break;

@@ -969,7 +969,7 @@ static int stress_memthrash_child(stress_args_t *args, void *ctxt)
 
 	pthread_info = (stress_pthread_info_t *)calloc(max_threads, sizeof(*pthread_info));
 	if (!pthread_info) {
-		pr_inf_skip("%s: failed to allocate pthread information array%s, skipping stressor\n",
+		pr_inf_skip("%s: allocate pthread information array failed%s, skipping stressor\n",
 			args->name, stress_memory_free_get());
 		return EXIT_NO_RESOURCE;
 	}

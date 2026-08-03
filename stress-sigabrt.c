@@ -69,7 +69,7 @@ static int stress_sigabrt(stress_args_t *args)
 				MAP_SHARED | MAP_ANONYMOUS,
 				-1, 0);
 	if (sigabrt_info == MAP_FAILED) {
-		pr_inf_skip("%s: failed to mmap %zu byte sigabrt information%s, "
+		pr_inf_skip("%s: mmap %zu byte sigabrt information failed%s, "
 			"errno=%d (%s), skipping stressor\n",
 			args->name, sizeof(*sigabrt_info),
 			stress_memory_free_get(), errno, strerror(errno));

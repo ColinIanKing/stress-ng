@@ -89,7 +89,7 @@ static int stress_zero(stress_args_t *args)
 			PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (rd_buffer == MAP_FAILED) {
-		pr_inf_skip("%s: failed to mmap %zu byte read buffer%s, "
+		pr_inf_skip("%s: mmap %zu byte read buffer failed%s, "
 			"errno=%d (%s), skipping stressor\n",
 			args->name, page_size,
 			stress_memory_free_get(), errno, strerror(errno));
@@ -102,7 +102,7 @@ static int stress_zero(stress_args_t *args)
 			PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (wr_buffer == MAP_FAILED) {
-		pr_inf_skip("%s: failed to mmap %zu byte write buffer%s, "
+		pr_inf_skip("%s: mmap %zu byte write buffer failed%s, "
 			"errno=%d (%s), skipping stressor\n",
 			args->name, page_size,
 			stress_memory_free_get(), errno, strerror(errno));
@@ -113,7 +113,7 @@ static int stress_zero(stress_args_t *args)
 	(void)stress_madvise_mergeable(wr_buffer, page_size);
 
 	if ((fd = open("/dev/zero", flags)) < 0) {
-		pr_fail("%s: open /dev/zero failed, errno=%d (%s)\n",
+		pr_fail("%s: open '/dev/zero' failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		(void)munmap(wr_buffer, page_size);
 		(void)munmap(rd_buffer, page_size);
@@ -129,7 +129,7 @@ static int stress_zero(stress_args_t *args)
 		ssize_t ret = 0;
 
 		if (stress_instance_zero(args))
-			pr_inf("%s: exercising /dev/zero with just reads\n", args->name);
+			pr_inf("%s: exercising '/dev/zero' with just reads\n", args->name);
 
 		t = stress_time_now();
 		do {
@@ -150,7 +150,7 @@ static int stress_zero(stress_args_t *args)
 		duration += stress_time_now() - t;
 
 		if ((ret > 0) && stress_data_is_not_zero((uint64_t *)rd_buffer, (size_t)ret)) {
-			pr_fail("%s: non-zero value from a read of /dev/zero\n",
+			pr_fail("%s: non-zero value from a read of '/dev/zero'\n",
 				args->name);
 			rc = EXIT_FAILURE;
 		}
@@ -161,7 +161,7 @@ static int stress_zero(stress_args_t *args)
 #endif
 
 		if (stress_instance_zero(args))
-			pr_inf("%s: exercising /dev/zero with reads, mmap, lseek, and ioctl; for just read benchmarking use --zero-read\n",
+			pr_inf("%s: exercising '/dev/zero' with reads, mmap, lseek, and ioctl; for just read benchmarking use --zero-read\n",
 				args->name);
 		do {
 			ssize_t ret = 0;
@@ -187,7 +187,7 @@ static int stress_zero(stress_args_t *args)
 			duration += stress_time_now() - t;
 
 			if ((ret > 0) && stress_data_is_not_zero((uint64_t *)rd_buffer, (size_t)ret)) {
-				pr_fail("%s: non-zero value from a read of /dev/zero\n",
+				pr_fail("%s: non-zero value from a read of '/dev/zero'\n",
 					args->name);
 				rc = EXIT_FAILURE;
 			}
@@ -223,7 +223,7 @@ static int stress_zero(stress_args_t *args)
 				if (UNLIKELY(ptr == MAP_FAILED)) {
 					if ((errno == ENOMEM) || (errno == EAGAIN))
 						continue;
-					pr_fail("%s: mmap /dev/zero using %s failed, errno=%d (%s)\n",
+					pr_fail("%s: mmap '/dev/zero' using %s failed, errno=%d (%s)\n",
 						args->name, mmap_flags[mmap_index].flag_str, errno, strerror(errno));
 					(void)close(fd);
 					(void)munmap(wr_buffer, page_size);
@@ -231,7 +231,7 @@ static int stress_zero(stress_args_t *args)
 					return EXIT_FAILURE;
 				}
 				if (stress_data_is_not_zero(ptr, (size_t)ret)) {
-					pr_fail("%s: memory mapped page of /dev/zero using %s is not zero\n",
+					pr_fail("%s: memory mapped page of '/dev/zero' using %s is not zero\n",
 						args->name, mmap_flags[mmap_index].flag_str);
 				}
 				(void)stress_munmap_force(ptr, page_size);

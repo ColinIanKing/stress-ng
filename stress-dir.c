@@ -201,13 +201,13 @@ static int stress_dir_rename(
 
 		stress_fs_make_filename(old_filename, sizeof(old_filename), path, de->d_name);
 		if (rename(old_filename, new_filename) < 0) {
-			pr_fail("%s: rename %s to %s failed, errno=%d (%s)\n",
+			pr_fail("%s: rename '%s' to '%s' failed, errno=%d (%s)\n",
 				args->name, old_filename, new_filename,
 				errno, strerror(errno));
 			break;
 		}
 		if (rename(new_filename, old_filename) < 0) {
-			pr_fail("%s: rename %s to %s failed, errno=%d (%s)\n",
+			pr_fail("%s: rename '%s' to '%s' failed, errno=%d (%s)\n",
 				args->name, new_filename, old_filename,
 				errno, strerror(errno));
 			break;
@@ -375,12 +375,12 @@ static int stress_dir_touch(
 
 	fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
 	if (fd < 0) {
-		pr_fail("%s: cannot create file %s, errno=%d (%s)\n",
+		pr_fail("%s: cannot create file '%s', errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
 		return -1;
 	}
 	if (write(fd, "data", 4) < 0) {
-		pr_inf("%s: failed to write to file %s, errno=%d (%s)\n",
+		pr_inf("%s: failed to write to file '%s', errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
 		(void)close(fd);
 		return -1;
@@ -410,7 +410,7 @@ static int stress_dir_readdir(
 	(void)snprintf(dirpath, sizeof(dirpath), "%s/test-%" PRIdMAX "-%" PRIu32, pathname,
 		(intmax_t)getpid(), stress_mwc32());
 	if (mkdir(dirpath, S_IRUSR | S_IWUSR | S_IXUSR) < 0) {
-		pr_fail("%s: cannot mkdir %s, errno=%d (%s)\n",
+		pr_fail("%s: cannot mkdir '%s', errno=%d (%s)\n",
 			args->name, dirpath, errno, strerror(errno));
 		rc = -1;
 		goto err_rmdir;
@@ -421,7 +421,7 @@ static int stress_dir_readdir(
 	 */
 	dir = opendir(dirpath);
 	if (!dir) {
-		pr_fail("%s: cannot opendir %s, errno=%d (%s)\n",
+		pr_fail("%s: cannot opendir '%s', errno=%d (%s)\n",
 			args->name, dirpath, errno, strerror(errno));
 		rc = -1;
 		goto err_rmdir;
@@ -528,7 +528,7 @@ static int stress_dir(stress_args_t *args)
 				if ((errno != ENOSPC) &&
 				    (errno != ENOMEM) &&
 				    (errno != EMLINK)) {
-					pr_fail("%s: mkdir %s failed, errno=%d (%s)\n",
+					pr_fail("%s: mkdir '%s' failed, errno=%d (%s)\n",
 						args->name, path, errno, strerror(errno));
 					ret = EXIT_FAILURE;
 					break;

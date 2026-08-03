@@ -134,7 +134,7 @@ static void stress_ramfs_umount(stress_args_t *args, const char *path)
 			goto misc_tests;
 		default:
 			/* Unexpected, so report it */
-			pr_inf("%s: umount failed %s, errno=%d %s\n", args->name,
+			pr_inf("%s: umount failed '%s', errno=%d %s\n", args->name,
 				path, errno, strerror(errno));
 			break;
 		}
@@ -309,12 +309,12 @@ static int stress_ramfs_child(stress_args_t *args)
 	stress_fs_temp_dir(pathname, sizeof(pathname), args->name,
 		args->pid, args->instance);
 	if (mkdir(pathname, S_IRUSR | S_IWUSR | S_IXUSR) < 0) {
-		pr_fail("%s: cannot mkdir %s, errno=%d (%s)\n",
+		pr_fail("%s: mkdir '%s' failed, errno=%d (%s)\n",
 			args->name, pathname, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
 	if (!realpath(pathname, realpathname)) {
-		pr_fail("%s: cannot realpath %s, errno=%d (%s)\n",
+		pr_fail("%s: realpath '%s' failed, errno=%d (%s)\n",
 			args->name, pathname, errno, strerror(errno));
 		(void)stress_fs_temp_dir_rm_args(args);
 		return EXIT_FAILURE;

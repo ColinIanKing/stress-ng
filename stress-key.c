@@ -123,7 +123,7 @@ static int stress_key(stress_args_t *args)
 
 	huge_description = (char *)malloc(key_huge_desc_size);
 	if (!huge_description) {
-		pr_inf_skip("%s: cannot allocate %zu byte description string%s, skipping stressor\n",
+		pr_inf_skip("%s: allocate %zu byte description string failed%s, skipping stressor\n",
 			args->name, key_huge_desc_size,
 			stress_memory_free_get());
 		return EXIT_NO_RESOURCE;
@@ -198,7 +198,7 @@ static int stress_key(stress_args_t *args)
 			if (UNLIKELY(keys[n] < 0)) {
 				if (errno == EPERM) {
 					if (stress_instance_zero(args)) {
-						pr_inf_skip("%s: skipping stressor, no permission for add_key\n",
+						pr_inf_skip("%s: no permission for add_key, skipping stressor\n",
 							args->name);
 					}
 					no_error = false;
@@ -206,7 +206,7 @@ static int stress_key(stress_args_t *args)
 					goto tidy;
 				} else if (errno == ENOSYS) {
 					if (stress_instance_zero(args)) {
-						pr_inf_skip("%s: skipping stressor, add_key not implemented\n",
+						pr_inf_skip("%s: add_key not implemented, skipping stressor\n",
 							args->name);
 					}
 					no_error = false;

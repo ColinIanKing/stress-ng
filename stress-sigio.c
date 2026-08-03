@@ -115,7 +115,7 @@ static int stress_sigio(stress_args_t *args)
 			PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (buffers == MAP_FAILED) {
-		pr_inf_skip("%s: failed to mmap %d byte I/O buffers%s, "
+		pr_inf_skip("%s: mmap %d byte I/O buffers failed%s, "
 			"errno=%d (%s), skipping stressor\n",
 			args->name, 2 * BUFFER_SIZE,
 			stress_memory_free_get(), errno, strerror(errno));

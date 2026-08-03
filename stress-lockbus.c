@@ -244,7 +244,7 @@ static int stress_lockbus(stress_args_t *args)
 #endif
 
 	if (shared_buffer == MAP_FAILED) {
-		pr_inf_skip("%s: failed to mmap %zu shared bytes%s, errno=%d (%s), skipping stressor\n",
+		pr_inf_skip("%s: mmap %zu shared bytes failed%s, errno=%d (%s), skipping stressor\n",
 			args->name, (size_t)lockbus_buffer_size,
 			stress_memory_free_get(), errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
@@ -253,7 +253,7 @@ static int stress_lockbus(stress_args_t *args)
 	local_buffer = (uint32_t *)stress_mmap_populate(NULL, lockbus_buffer_size,
 			PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (local_buffer == MAP_FAILED) {
-		pr_inf_skip("%s: failed to mmap %zu bytes%s, errno=%d (%s), skipping stressor\n",
+		pr_inf_skip("%s: mmap %zu bytes failed%s, errno=%d (%s), skipping stressor\n",
 			args->name, (size_t)lockbus_buffer_size,
 			stress_memory_free_get(), errno, strerror(errno));
 		return EXIT_NO_RESOURCE;

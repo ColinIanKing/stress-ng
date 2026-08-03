@@ -96,12 +96,12 @@ static int stress_full(stress_args_t *args)
 		if ((fd = open("/dev/full", O_RDWR)) < 0) {
 			if (errno == ENOENT) {
 				if (stress_instance_zero(args))
-					pr_inf_skip("%s: /dev/full not available, skipping stressor\n",
+					pr_inf_skip("%s: '/dev/full' not available, skipping stressor\n",
 						args->name);
 				rc = EXIT_NOT_IMPLEMENTED;
 				goto fail;
 			}
-			pr_fail("%s: open /dev/full failed, errno=%d (%s)\n",
+			pr_fail("%s: open '/dev/full' failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			goto fail;
 		}
@@ -111,7 +111,7 @@ static int stress_full(stress_args_t *args)
 		 */
 		ret = write(fd, buffer, buffer_size);
 		if (UNLIKELY(ret != -1)) {
-			pr_fail("%s: write to /dev/full should fail "
+			pr_fail("%s: write to '/dev/full' should fail "
 				"with errno ENOSPC but it didn't\n",
 				args->name);
 			goto fail;

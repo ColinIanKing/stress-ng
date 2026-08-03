@@ -492,12 +492,12 @@ static int stress_exec_child(void *arg)
 	(void)stress_sched_settings_apply(true);
 
 	if ((fd_out = open("/dev/null", O_WRONLY)) < 0) {
-		pr_fail("%s: child open on /dev/null failed\n",
+		pr_fail("%s: child open '/dev/null' failed\n",
 						argp->args->name);
 		_exit(EXIT_NO_RESOURCE);
 	}
 	if ((fd_in = open("/dev/zero", O_RDONLY)) < 0) {
-		pr_fail("%s: child open on /dev/zero failed\n",
+		pr_fail("%s: child open '/dev/zero' failed\n",
 						argp->args->name);
 		(void)close(fd_out);
 		_exit(EXIT_NO_RESOURCE);
@@ -844,7 +844,7 @@ static int stress_exec(stress_args_t *args)
     defined(O_PATH)
 	fdexec = open(exec_prog, O_PATH);
 	if (fdexec < 0) {
-		pr_fail("%s: open O_PATH on %s failed, errno=%d (%s)\n",
+		pr_fail("%s: open O_PATH '%s' failed, errno=%d (%s)\n",
 			args->name, exec_prog, errno, strerror(errno));
 		rc = EXIT_FAILURE;
 		goto err_rm;

@@ -120,7 +120,7 @@ static void stress_touch_opts(const char *opt_name, const char *opt_arg, stress_
 
 	str = stress_const_optdup(opt_arg);
 	if (!str) {
-		(void)fprintf(stderr, "%s option: cannot dup string '%s'\n",
+		(void)fprintf(stderr, "%s option: dup string failed'%s'\n",
 			opt_name, opt_arg);
 		longjmp(g_error_env, 1);
 		stress_no_return();
@@ -313,14 +313,14 @@ static int stress_touch(stress_args_t *args)
 
 	s_pids = stress_sync_s_pids_mmap(TOUCH_PROCS);
 	if (s_pids == MAP_FAILED) {
-		pr_inf_skip("%s: failed to mmap %d PIDs%s, skipping stressor\n",
+		pr_inf_skip("%s: mmap %d PIDs failed%s, skipping stressor\n",
 			args->name, TOUCH_PROCS, stress_memory_free_get());
 		return EXIT_NO_RESOURCE;
 	}
 
 	touch_lock = stress_lock_create("counter");
 	if (!touch_lock) {
-		pr_inf_skip("%s: cannot create lock, skipping stressor\n", args->name);
+		pr_inf_skip("%s: create lock failed, skipping stressor\n", args->name);
 		(void)stress_sync_s_pids_munmap(s_pids, TOUCH_PROCS);
 		return EXIT_NO_RESOURCE;
 	}

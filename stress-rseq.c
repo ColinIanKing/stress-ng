@@ -191,7 +191,7 @@ static int stress_rseq_oomable(stress_args_t *args, void *context)
 	(void)shim_memset(&sa, 0, sizeof(sa));
 	sa.sa_handler = sigsegv_handler;
 	if (sigaction(SIGSEGV, &sa, NULL) < 0) {
-		pr_inf("%s: failed to set SIGSEGV handler\n", args->name);
+		pr_inf("%s: set SIGSEGV handler failed\n", args->name);
 		_exit(EXIT_FAILURE);
 	}
 
@@ -224,7 +224,7 @@ static int stress_rseq(stress_args_t *args)
 	 */
 	rseq_info = (rseq_info_t *)stress_mmap_anon_shared(sizeof(*rseq_info), PROT_READ | PROT_WRITE);
 	if (rseq_info == MAP_FAILED) {
-		pr_inf_skip("%s: failed to mmap %zu byte shared page%s, "
+		pr_inf_skip("%s: mmap %zu byte shared page failed%s, "
 			"errno=%d (%s), skipping stressor\n",
 			args->name, sizeof(*rseq_info),
 			stress_memory_free_get(), errno, strerror(errno));
@@ -238,7 +238,7 @@ static int stress_rseq(stress_args_t *args)
 
 	/* sanity check to keep static analysis happy */
 	if (UNLIKELY(rseq_area == NULL)) {
-		pr_inf_skip("%s: failed to find rseq_area, skipping stressor\n",
+		pr_inf_skip("%s: find rseq_area failed, skipping stressor\n",
 			args->name);
 		ret = EXIT_NO_RESOURCE;
 		goto err;

@@ -188,7 +188,7 @@ static void stress_cgroup_umount(
 			return;
 		default:
 			/* Unexpected, so report it */
-			pr_inf("%s: umount failed %s, errno=%d %s\n", args->name,
+			pr_inf("%s: umount '%s' failed, errno=%d %s\n", args->name,
 				path, errno, strerror(errno));
 			break;
 		}
@@ -491,12 +491,12 @@ static int stress_cgroup_child(stress_args_t *args)
 
 	stress_fs_temp_dir(pathname, sizeof(pathname), args->name, args->pid, args->instance);
 	if (mkdir(pathname, S_IRGRP | S_IWGRP) < 0) {
-		pr_fail("%s: cannot mkdir %s, errno=%d (%s)\n",
+		pr_fail("%s: cannot mkdir '%s', errno=%d (%s)\n",
 			args->name, pathname, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
 	if (!realpath(pathname, realpathname)) {
-		pr_fail("%s: cannot realpath %s, errno=%d (%s)\n",
+		pr_fail("%s: cannot realpath '%s', errno=%d (%s)\n",
 			args->name, pathname, errno, strerror(errno));
 		(void)stress_fs_temp_dir_rm_args(args);
 		return EXIT_FAILURE;
@@ -513,7 +513,7 @@ static int stress_cgroup_child(stress_args_t *args)
 
 		fd = fsopen("cgroup2", FSOPEN_CLOEXEC);
 		if (fd < 0) {
-			pr_inf_skip("%s: fsopen on 'cgroup2' failed, errno=%d (%s), "
+			pr_inf_skip("%s: fsopen 'cgroup2' failed, errno=%d (%s), "
 				"skipping stressor\n",
 				args->name, errno, strerror(errno));
 			(void)stress_fs_temp_dir_rm_args(args);
@@ -591,7 +591,7 @@ static int stress_cgroup_child(stress_args_t *args)
 cleanup:
 	stress_cgroup_umount(args, realpathname, &umount_retry);
 	if (stress_cgroup_mounted_state(realpathname) == STRESS_CGROUP_MOUNTED)
-		pr_dbg("%s: could not unmount of %s\n", args->name, realpathname);
+		pr_dbg("%s: could not unmount '%s'\n", args->name, realpathname);
 
 	(void)stress_fs_temp_dir_rm_args(args);
 	if ((mount_retry + umount_retry) > 0) {

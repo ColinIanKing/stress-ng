@@ -839,7 +839,7 @@ static int stress_fcntl(stress_args_t *args)
 	stress_fs_temp_dir(pathname, sizeof(pathname), args->name, ppid, 0);
 	if (mkdir(pathname, S_IRWXU) < 0) {
 		if (errno != EEXIST) {
-			pr_fail("%s: mkdir %s failed, errno=%d (%s)\n",
+			pr_fail("%s: mkdir '%s' failed, errno=%d (%s)\n",
 				args->name, pathname, errno, strerror(errno));
 			return stress_exit_status(errno);
 		}
@@ -882,7 +882,7 @@ static int stress_fcntl(stress_args_t *args)
 				rc = EXIT_SUCCESS;
 				goto tidy;
 			}
-			pr_fail("%s: creat %s failed, errno=%d (%s)\n",
+			pr_fail("%s: creat '%s' failed, errno=%d (%s)\n",
 				args->name, filename, errno, strerror(errno));
 			goto tidy;
 		} else {
@@ -891,7 +891,7 @@ static int stress_fcntl(stress_args_t *args)
 	} while (stress_continue_flag() && (retries <= 100));
 
 	if ((fd < 0) || (retries >= 100)) {
-		pr_err("%s: creat: file %s took %d "
+		pr_err("%s: creat '%s' took %d "
 			"retries to create (instance %" PRIu32 ")\n",
 			args->name, filename, retries, args->instance);
 		goto tidy;

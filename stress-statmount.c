@@ -180,7 +180,7 @@ static int stress_statmount(stress_args_t *args)
 
 	ret = shim_statx(AT_FDCWD, "/", 0, STATX_MNT_ID_UNIQUE, &sx);
 	if (UNLIKELY(ret < 0)) {
-		pr_inf_skip("%s: statx on / failed, errno=%d (%s), skipping stressor",
+		pr_inf_skip("%s: statx on '/' failed, errno=%d (%s), skipping stressor",
 			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}

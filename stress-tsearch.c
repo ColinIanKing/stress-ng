@@ -68,7 +68,7 @@ static int stress_tsearch(stress_args_t *args)
 	n = (size_t)tsearch_size;
 
 	if ((data = (int32_t *)calloc(n, sizeof(*data))) == NULL) {
-		pr_fail("%s: failed to allocate %zu integers%s, skipping stressor\n",
+		pr_fail("%s: allocate %zu integers failed%s, skipping stressor\n",
 			args->name, n, stress_memory_free_get());
 		return EXIT_NO_RESOURCE;
 	}
@@ -90,8 +90,8 @@ static int stress_tsearch(stress_args_t *args)
 			if (UNLIKELY(tsearch(&data[i], &root, stress_sort_cmp_fwd_int32) == NULL)) {
 				size_t j;
 
-				pr_err("%s: cannot allocate new "
-					"tree node\n", args->name);
+				pr_err("%s: allocate new "
+					"tree node failed\n", args->name);
 				for (j = 0; j < i; j++)
 					tdelete(&data[j], &root, stress_sort_cmp_fwd_int32);
 				goto abort;

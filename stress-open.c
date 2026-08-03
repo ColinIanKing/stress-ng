@@ -1093,7 +1093,7 @@ static int stress_open(stress_args_t *args)
 		fds = (int *)mmap(NULL, sz, PROT_READ | PROT_WRITE,
 				MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 		if (fds == MAP_FAILED) {
-			pr_inf_skip("%s: cannot mmap %" PRIu64 " file descriptors%s, "
+			pr_inf_skip("%s: mmap %" PRIu64 " file descriptors failed%s, "
 				"errno=%d (%s), skipping stressor\n",
 				args->name, open_max, stress_memory_free_get(),
 				errno, strerror(errno));

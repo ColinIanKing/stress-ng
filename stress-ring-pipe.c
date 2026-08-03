@@ -66,7 +66,7 @@ static int stress_pipe_non_block(stress_args_t *args, const int fd)
 	flags |= O_NONBLOCK;
 	ret = fcntl(fd, F_SETFL, flags);
 	if (UNLIKELY(ret < 0)) {
-		pr_inf("%s: cannot set O_NONBLOCK on pipe fd %d, errno=%d (%s)\n",
+		pr_inf("%s: set O_NONBLOCK on pipe fd %d failed, errno=%d (%s)\n",
 			args->name, fd, errno, strerror(errno));
 		return -1;
 	}
@@ -87,7 +87,7 @@ static ssize_t stress_pipe_read(
 
 	sret = read(fd, buf, buf_len);
 	if (UNLIKELY(sret < 0)) {
-		pr_inf("%s: failed to read from pipe fd %d, errno=%d (%s)\n",
+		pr_inf("%s: read from pipe fd %d failed, errno=%d (%s)\n",
 			args->name, fd, errno, strerror(errno));
 		return -1;
 	}
@@ -108,7 +108,7 @@ static ssize_t stress_pipe_write(
 
 	sret = write(fd, buf, buf_len);
 	if (UNLIKELY(sret < 0)) {
-		pr_inf("%s: failed to write to pipe fd %d, errno=%d (%s)\n",
+		pr_inf("%s: write to pipe fd %d failed, errno=%d (%s)\n",
 			args->name, fd, errno, strerror(errno));
 		return -1;
 	}
@@ -144,7 +144,7 @@ static int stress_ring_pipe(stress_args_t *args)
 	buf = (char *)stress_mmap_populate(NULL, (size_t)STRESS_RING_PIPE_SIZE_MAX,
 		PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (buf == MAP_FAILED) {
-		pr_inf_skip("%s: failed to mmap %d size buffer%s, "
+		pr_inf_skip("%s: mmap %d size buffer failed%s, "
 			"errno=%d (%s), skipping stressor\n",
 			args->name, STRESS_RING_PIPE_SIZE_MAX,
 			stress_memory_free_get(), errno, strerror(errno));
@@ -154,14 +154,14 @@ static int stress_ring_pipe(stress_args_t *args)
 
 	pipe_fds = (pipe_fds_t *)calloc(ring_pipe_num, sizeof(*pipe_fds));
 	if (!pipe_fds) {
-		pr_inf_skip("%s: failed to allocate %zu pipe file descriptors%s, "
+		pr_inf_skip("%s: allocate %zu pipe file descriptors failed%s, "
 			"skipping stressor\n", args->name, ring_pipe_num,
 			stress_memory_free_get());
 		goto err_unmap_buf;
 	}
 	poll_fds = (struct pollfd *)calloc(ring_pipe_num, sizeof(*poll_fds));
 	if (!poll_fds) {
-		pr_inf_skip("%s: cannot allocate %zu poll descriptors%s, "
+		pr_inf_skip("%s: allocate %zu poll descriptors failed%s, "
 			"skipping stressor\n", args->name, ring_pipe_num,
 			stress_memory_free_get());
 		goto err_free_pipe_fds;

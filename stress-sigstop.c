@@ -78,7 +78,7 @@ static int stress_sigstop(stress_args_t *args)
 	sa.sa_sigaction = stress_sigstop_chld_handler;
 	sa.sa_flags = SA_SIGINFO;
 	if (sigaction(SIGCHLD, &sa, NULL) < 0) {
-		pr_err("%s: cannot install SIGCHLD handler, errno=%d (%s)\n",
+		pr_err("%s: install SIGCHLD signal handler failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
@@ -86,7 +86,7 @@ static int stress_sigstop(stress_args_t *args)
 	sa.sa_sigaction = stress_sigstop_cont_handler;
 	sa.sa_flags = SA_SIGINFO;
 	if (sigaction(SIGCONT, &sa, NULL) < 0) {
-		pr_err("%s: cannot install SIGCONT, errno=%d (%s)\n",
+		pr_err("%s: install SIGCONT signal handler failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}

@@ -1354,7 +1354,7 @@ static const stress_opt_t opts[] = {
 
 static void stress_sparsematrix_create_failed(stress_args_t *args, const char *name)
 {
-	pr_inf("%s: failed to create sparse matrix with '%s' method, out of memory\n",
+	pr_inf("%s: create sparse matrix with '%s' method failed, out of memory\n",
 		args->name, name);
 }
 

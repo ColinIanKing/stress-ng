@@ -138,7 +138,7 @@ static int stress_tun(stress_args_t *args)
 
 		fd = open(tun_dev, O_RDWR);
 		if (UNLIKELY(fd < 0)) {
-			pr_fail("%s: cannot open %s, errno=%d (%s)\n",
+			pr_fail("%s: open '%s' failed, errno=%d (%s)\n",
 				args->name, tun_dev, errno, strerror(errno));
 			stress_net_release_ports(port, port);
 			return EXIT_FAILURE;

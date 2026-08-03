@@ -270,7 +270,7 @@ redo_policy:
 				policy = SCHED_OTHER;
 				goto redo_policy;
 			}
-			pr_fail("%s: cannot set scheduling priority to %d and policy %s, errno=%d (%s)\n",
+			pr_fail("%s: set scheduling priority to %d and policy %s failed, errno=%d (%s)\n",
 				args->name, prio, stress_sched_name_get(policy),
 				errno, strerror(errno));
 		}
@@ -281,13 +281,13 @@ redo_policy:
 		param.sched_priority = 0;
 		ret = sched_setscheduler(0, policy, &param);
 		if (ret < 0) {
-			pr_fail("%s: cannot set scheduling priority to %d and policy %s, errno=%d (%s)\n",
+			pr_fail("%s: set scheduling priority to %d and policy %s faild, errno=%d (%s)\n",
 				args->name, prio, stress_sched_name_get(policy),
 				errno, strerror(errno));
 		}
 		ret = setpriority(PRIO_PROCESS, 0, niceness);
 		if (ret < 0) {
-			pr_fail("%s: cannot set priority to %d, errno=%d (%s)\n",
+			pr_fail("%s: set priority to %d failed, errno=%d (%s)\n",
 				args->name, niceness, errno, strerror(errno));
 		}
 	}
@@ -359,7 +359,7 @@ static int stress_prio_inv(stress_args_t *args)
 				PROT_READ | PROT_WRITE,
 				MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (prio_inv_info == MAP_FAILED) {
-		pr_inf_skip("%s: cannot mmap %zu byte prio_inv_info structure%s, "
+		pr_inf_skip("%s: mmap %zu byte prio_inv_info structure failed%s, "
 			"errno=%d (%s), skipping stressor\n",
 			args->name, sizeof(*prio_inv_info),
 			stress_memory_free_get(), errno, strerror(errno));
@@ -451,7 +451,7 @@ static int stress_prio_inv(stress_args_t *args)
 
 		pid = fork();
 		if (pid < 0) {
-			pr_inf("%s: cannot fork child process, errno=%d (%s), skipping stressor\n",
+			pr_inf("%s: fork child process failed, errno=%d (%s), skipping stressor\n",
 				args->name, errno, strerror(errno));
 			rc = EXIT_NO_RESOURCE;
 			goto reap;

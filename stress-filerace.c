@@ -1619,7 +1619,7 @@ static int stress_filerace(stress_args_t *args)
 	stress_fs_temp_dir_args(args, pathname, sizeof(pathname));
 	if (mkdir(pathname, S_IRWXU) < 0) {
 		if (errno != EEXIST) {
-			pr_fail("%s: mkdir %s failed, errno=%d (%s)\n",
+			pr_fail("%s: mkdir '%s' failed, errno=%d (%s)\n",
 				args->name, pathname, errno, strerror(errno));
 			return EXIT_FAILURE;
 		}

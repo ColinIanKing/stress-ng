@@ -82,7 +82,7 @@ static int stress_vm_splice(stress_args_t *args)
 	buf = (uint64_t *)stress_mmap_populate(NULL, sz, PROT_READ | PROT_WRITE,
 		MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (buf == MAP_FAILED) {
-		pr_inf_skip("%s: failed to mmap %zu bytes buffer%s, errno=%d (%s), skipping stressor\n",
+		pr_inf_skip("%s: mmap %zu byte buffer failed%s, errno=%d (%s), skipping stressor\n",
 			args->name, sz,
 			stress_memory_free_get(), errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
@@ -91,7 +91,7 @@ static int stress_vm_splice(stress_args_t *args)
 	data = (uint64_t *)stress_mmap_populate(NULL, page_size, PROT_READ | PROT_WRITE,
 		MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (data == MAP_FAILED) {
-		pr_inf_skip("%s: failed to mmap %zu sized buffer%s, errno=%d (%s), skipping stressor\n",
+		pr_inf_skip("%s: mmap %zu byte buffer failed%s, errno=%d (%s), skipping stressor\n",
 			args->name, page_size,
 			stress_memory_free_get(), errno, strerror(errno));
 		(void)munmap((void *)buf, sz);
@@ -109,7 +109,7 @@ static int stress_vm_splice(stress_args_t *args)
 
 	fd = open("/dev/null", O_WRONLY);
 	if (fd < 0) {
-		pr_fail("%s: open /dev/null failed, errno=%d (%s)\n",
+		pr_fail("%s: open '/dev/null' failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		(void)munmap((void *)data, page_size);
 		(void)munmap((void *)buf, sz);

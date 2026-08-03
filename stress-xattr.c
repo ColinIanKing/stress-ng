@@ -79,7 +79,7 @@ static int stress_xattr(stress_args_t *args)
 #if defined(XATTR_SIZE_MAX)
 	large_tmp = (char *)calloc(XATTR_SIZE_MAX + 2, sizeof(*large_tmp));
 	if (!large_tmp) {
-		pr_inf_skip("%s: failed to allocate large %zu byte xattr buffer%s, skipping stressor\n",
+		pr_inf_skip("%s: allocate large %zu byte xattr buffer failed%s, skipping stressor\n",
 			args->name, (size_t)(XATTR_SIZE_MAX + 2) * sizeof(*large_tmp),
 			stress_memory_free_get());
 		return EXIT_NO_RESOURCE;
@@ -96,7 +96,7 @@ static int stress_xattr(stress_args_t *args)
 	(void)stress_fs_temp_filename_args(args, filename, sizeof(filename), rnd32);
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		rc = stress_exit_status(errno);
-		pr_fail("%s: open %s failed, errno=%d (%s)\n",
+		pr_fail("%s: open '%s' failed, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
 		goto out;
 	}

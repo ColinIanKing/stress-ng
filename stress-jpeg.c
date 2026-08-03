@@ -393,7 +393,7 @@ static int stress_jpeg(stress_args_t *args)
 		PROT_READ | PROT_WRITE,
 		MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (rgb == MAP_FAILED) {
-		pr_inf_skip("%s: cannot allocate RGB buffer of size %" PRId32 " x %" PRId32 " x %d%s, "
+		pr_inf_skip("%s: allocate RGB buffer of size %" PRId32 " x %" PRId32 " x %d%s failed, "
 			"errno=%d (%s), skipping stressor\n",
 			args->name, x_max, y_max, 3,
 			stress_memory_free_get(), errno, strerror(errno));
@@ -405,7 +405,7 @@ static int stress_jpeg(stress_args_t *args)
 				PROT_READ | PROT_WRITE,
 				MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (row_pointer == MAP_FAILED) {
-		pr_inf_skip("%s: cannot allocate row pointer array of size %" PRId32 " x %zu%s, "
+		pr_inf_skip("%s: allocate row pointer array of size %" PRId32 " x %zu%s failed, "
 			"errno=%d (%s), skipping stressor\n",
 			args->name, y_max, sizeof(*row_pointer),
 			stress_memory_free_get(), errno, strerror(errno));

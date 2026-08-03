@@ -130,7 +130,7 @@ static int stress_link_generic(
 				(void)close(temp_dir_fd);
 			return EXIT_NO_RESOURCE;
 		}
-		pr_fail("%s: open %s failed, errno=%d (%s)\n",
+		pr_fail("%s: open '%s' failed, errno=%d (%s)\n",
 			args->name, oldpath, errno, strerror(errno));
 		if (temp_dir_fd >= 0)
 			(void)close(temp_dir_fd);

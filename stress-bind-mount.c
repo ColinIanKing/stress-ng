@@ -110,7 +110,7 @@ static int stress_bind_mount_exercise(stress_args_t *args, const char *path)
     defined(HAVE_SYS_MOUNT_H)
 		fd = open_tree(-EBADF, bind_to_path, OPEN_TREE_CLONE | OPEN_TREE_CLOEXEC);
 		if (fd < 0) {
-			pr_inf_skip("%s: open_tree on '%s' failed, errno=%d (%s), %s\n",
+			pr_inf_skip("%s: open_tree '%s' failed, errno=%d (%s), %s\n",
 				args->name, path, errno, strerror(errno), skip);
 			(void)shim_rmdir(path);
 			return EXIT_NO_RESOURCE;
@@ -239,7 +239,7 @@ static int stress_bind_mount(stress_args_t *args)
 	ret = mkdir(path, S_IRUSR | S_IWUSR);
 	if (ret < 0) {
 		(void)shim_rmdir(path);
-		pr_err("%s: mkdir %s failed, errno=%d (%s)\n",
+		pr_err("%s: mkdir '%s' failed, errno=%d (%s)\n",
 			args->name, path, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}

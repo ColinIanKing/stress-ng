@@ -674,7 +674,7 @@ static int stress_pipe(stress_args_t *args)
 				PROT_READ | PROT_WRITE,
 				MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (buf_rd == MAP_FAILED) {
-		pr_inf_skip("%s: failed to mmap %zu byte read buffer%s, "
+		pr_inf_skip("%s: mmap %zu byte read buffer failed%s, "
 			"errno=%d (%s), skipping stressor\n",
 			args->name, buf_rd_size,
 			stress_memory_free_get(), errno, strerror(errno));
@@ -691,7 +691,7 @@ static int stress_pipe(stress_args_t *args)
 				PROT_READ | PROT_WRITE,
 				MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (buf_wr == MAP_FAILED) {
-		pr_inf_skip("%s: failed to mmap %zu byte write buffer%s, "
+		pr_inf_skip("%s: mmap %zu byte write buffer failed%s, "
 			"errno=%d (%s), skipping stressor\n",
 			args->name, buf_wr_size,
 			stress_memory_free_get(), errno, strerror(errno));

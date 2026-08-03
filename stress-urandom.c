@@ -77,7 +77,7 @@ static int stress_urandom(stress_args_t *args)
 	fd_urnd = open("/dev/urandom", O_RDONLY);
 	if (fd_urnd < 0) {
 		if (errno != ENOENT) {
-			pr_fail("%s: open /dev/urandom failed, errno=%d (%s)\n",
+			pr_fail("%s: open '/dev/urandom' failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			return EXIT_FAILURE;
 		}
@@ -88,7 +88,7 @@ static int stress_urandom(stress_args_t *args)
 	fd_rnd = open("/dev/random", O_RDONLY | O_NONBLOCK);
 	if (fd_rnd < 0) {
 		if (errno != ENOENT) {
-			pr_fail("%s: open /dev/random failed, errno=%d (%s)\n",
+			pr_fail("%s: open '/dev/random' failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			(void)close(fd_urnd);
 			return EXIT_FAILURE;
@@ -100,7 +100,7 @@ static int stress_urandom(stress_args_t *args)
 	fd_rnd_blk = open("/dev/random", O_RDONLY);
 	if (fd_rnd_blk < 0) {
 		if (errno != ENOENT) {
-			pr_fail("%s: open /dev/random failed, errno=%d (%s)\n",
+			pr_fail("%s: open '/dev/random' failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			(void)close(fd_rnd);
 			(void)close(fd_urnd);
@@ -148,7 +148,7 @@ static int stress_urandom(stress_args_t *args)
 				bytes += (double)ret;
 			} else {
 				if ((errno != EAGAIN) && (errno != EINTR)) {
-					pr_fail("%s: read of /dev/urandom failed, errno=%d (%s)\n",
+					pr_fail("%s: read of '/dev/urandom' failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 					goto err;
 				}
@@ -179,7 +179,7 @@ static int stress_urandom(stress_args_t *args)
 				bytes += (double)ret;
 			} else {
 				if ((errno != EAGAIN) && (errno != EINTR)) {
-					pr_fail("%s: read of /dev/random failed, errno=%d (%s)\n",
+					pr_fail("%s: read of '/dev/random' failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 					goto err;
 				}
@@ -315,7 +315,7 @@ next:
 							bytes += (double)ret;
 						} else {
 							if ((errno != EAGAIN) && (errno != EINTR)) {
-								pr_fail("%s: read of /dev/random failed, errno=%d (%s)\n",
+								pr_fail("%s: read of '/dev/random' failed, errno=%d (%s)\n",
 									args->name, errno, strerror(errno));
 								goto err;
 							}

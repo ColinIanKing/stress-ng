@@ -356,7 +356,7 @@ static int stress_mlock_child(stress_args_t *args, void *context)
 		(void)shim_sched_yield();
 	}
 	if (mappings == MAP_FAILED) {
-		pr_inf_skip("%s: cannot mmap mappings table%s, errno=%d (%s), skipping stressor\n",
+		pr_inf_skip("%s: mmap mappings table failed%s, errno=%d (%s), skipping stressor\n",
 			args->name, stress_memory_free_get(),
 			errno, strerror(errno));
 		return EXIT_NO_RESOURCE;

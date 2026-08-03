@@ -879,7 +879,7 @@ static int stress_mmaptorture(stress_args_t *args)
 	mmap_stats = (mmap_stats_t *)stress_mmap_anon_shared(sizeof(*mmap_stats),
 					PROT_READ | PROT_WRITE);
 	if (mmap_stats == MAP_FAILED) {
-		pr_inf_skip("%s: cannot mmap %zu bytes stats shared page%s, "
+		pr_inf_skip("%s: mmap %zu bytes stats shared page failed%s, "
 			"errno=%d (%s), skipping stressor\n", args->name,
 			sizeof(*mmap_stats), stress_memory_free_get(),
 			errno, strerror(errno));

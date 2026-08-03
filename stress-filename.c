@@ -502,15 +502,14 @@ static int stress_filename_readdir(
 
 	(void)shim_memset(&sb_file, 0, sizeof(sb_file));
 	if (stat(filename, &sb_file) < 0) {
-		pr_fail("%s: failed: cannot stat file, errno=%d (%s)\n",
-			args->name, errno, strerror(errno));
+		pr_fail("%s: stat '%s' failed, errno=%d (%s)\n",
+			args->name, filename, errno, strerror(errno));
 		return -1;
 	}
 
 	dir = opendir(pathname);
 	if (!dir) {
-		pr_fail("%s: failed: cannot opendir directory '%s'\n",
-			args->name, pathname);
+		pr_fail("%s: opendir '%s' failed\n", args->name, pathname);
 		return -1;
 	}
 
@@ -535,8 +534,8 @@ static int stress_filename_readdir(
 		(void)shim_memset(&sb_readdir_file, 0, sizeof(sb_readdir_file));
 		if (name_cmp) {
 			if (stat(fullname, &sb_readdir_file) < 0) {
-				pr_fail("%s: failed: cannot stat readdir'd file, errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
+				pr_fail("%s: stat '%s' failed, errno=%d (%s)\n",
+					args->name, fullname, errno, strerror(errno));
 				rc = -1;
 				continue;
 			}

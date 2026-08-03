@@ -102,7 +102,7 @@ static int stress_pty(stress_args_t *args)
 				    (errno == EIO) ||
 				    (errno == EMFILE))
 					break;
-				pr_fail("%s: open /dev/ptmx failed, errno=%d (%s)\n",
+				pr_fail("%s: open '/dev/ptmx' failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				rc = EXIT_FAILURE;
 				goto clean;
@@ -131,7 +131,7 @@ static int stress_pty(stress_args_t *args)
 					if (errno == EINTR)
 						break;
 					if (errno != EMFILE) {
-						pr_fail("%s: open %s failed, errno=%d (%s)\n",
+						pr_fail("%s: open '%s' failed, errno=%d (%s)\n",
 							args->name, ptys[n].followername, errno, strerror(errno));
 						rc = EXIT_FAILURE;
 						goto clean;

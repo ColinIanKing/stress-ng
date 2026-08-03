@@ -264,7 +264,7 @@ static int stress_numa(stress_args_t *args)
 					PROT_READ | PROT_WRITE,
 					MAP_ANONYMOUS | MAP_SHARED, 0, 0);
 	if (status == MAP_FAILED) {
-		pr_inf_skip("%s: failed to mmap status array of %zu elements%s, "
+		pr_inf_skip("%s: mmap status array of %zu elements failed%s, "
 			"errno=%d (%s), skipping stressor\n",
 			args->name, num_pages,
 			stress_memory_free_get(), errno, strerror(errno));
@@ -278,7 +278,7 @@ static int stress_numa(stress_args_t *args)
 					PROT_READ | PROT_WRITE,
 					MAP_ANONYMOUS | MAP_SHARED, 0, 0);
 	if (dest_nodes == MAP_FAILED) {
-		pr_inf_skip("%s: failed to mmap dest_nodes array of %zu elements%s, "
+		pr_inf_skip("%s: mmap dest_nodes array of %zu elements failed%s, "
 			"errno=%d (%s), skipping stressor\n",
 			args->name, num_pages,
 			stress_memory_free_get(), errno, strerror(errno));
@@ -292,7 +292,7 @@ static int stress_numa(stress_args_t *args)
 					PROT_READ | PROT_WRITE,
 					MAP_ANONYMOUS | MAP_SHARED, 0, 0);
 	if (pages == MAP_FAILED) {
-		pr_inf_skip("%s: failed to mmap pages array of %zu elements%s, "
+		pr_inf_skip("%s: mmap pages array of %zu elements failed%s, "
 			"errno=%d (%s), skipping stressor\n",
 			args->name, num_pages,
 			stress_memory_free_get(), errno, strerror(errno));
@@ -308,7 +308,7 @@ static int stress_numa(stress_args_t *args)
 		PROT_READ | PROT_WRITE,
 		MAP_ANONYMOUS | MAP_SHARED, 0, 0);
 	if (buf == MAP_FAILED) {
-		pr_inf_skip("%s: failed to mmap a region of %zu bytes%s, "
+		pr_inf_skip("%s: mmap a region of %zu bytes failed%s, "
 			"errno=%d (%s), skipping stressor\n",
 			args->name, numa_bytes,
 			stress_memory_free_get(), errno, strerror(errno));

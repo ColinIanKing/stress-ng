@@ -280,7 +280,7 @@ static int stress_softlockup(stress_args_t *args)
 
 	s_pids = stress_sync_s_pids_mmap((size_t)cpus_online);
 	if (s_pids == MAP_FAILED) {
-		pr_inf_skip("%s: failed to mmap %zu PIDs%s, skipping stressor\n",
+		pr_inf_skip("%s: mmap %zu PIDs failed%s, skipping stressor\n",
 			args->name, (size_t)cpus_online, stress_memory_free_get());
 		return EXIT_NO_RESOURCE;
 	}
@@ -337,7 +337,7 @@ again:
 				goto again;
 			if (UNLIKELY(!stress_continue(args)))
 				goto finish;
-			pr_inf("%s: cannot fork, errno=%d (%s)\n",
+			pr_inf("%s: fork failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			goto finish;
 		} else if (s_pids[i].pid == 0) {

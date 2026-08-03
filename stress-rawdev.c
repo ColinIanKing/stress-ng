@@ -386,7 +386,7 @@ static int stress_rawdev(stress_args_t *args)
 
 	metrics = (stress_metrics_t *)calloc(SIZEOF_ARRAY(rawdev_methods), sizeof(*metrics));
 	if (!metrics) {
-		pr_inf_skip("%s: cannot allocate %zu byte metrics table%s, "
+		pr_inf_skip("%s: allocate %zu byte metrics table failed%s, "
 			"skipping stressor\n",
 			args->name, SIZEOF_ARRAY(rawdev_methods),
 			stress_memory_free_get());
@@ -414,8 +414,8 @@ static int stress_rawdev(stress_args_t *args)
 
 	fd = open(devpath, O_RDONLY | O_NONBLOCK);
 	if (fd < 0) {
-		pr_inf("%s: cannot open raw block device, errno=%d (%s)\n",
-			args->name, errno, strerror(errno));
+		pr_inf("%s: cannot open raw block device '%s', errno=%d (%s)\n",
+			args->name, devpath, errno, strerror(errno));
 		free(metrics);
 		return EXIT_NO_RESOURCE;
 	}
@@ -452,7 +452,7 @@ static int stress_rawdev(stress_args_t *args)
 			PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (buffer == MAP_FAILED) {
-		pr_inf("%s: failed to mmap buffer of %zu bytes\n",
+		pr_inf("%s: mmap buffer of %zu bytes failed\n",
 			args->name, mmapsz);
 		(void)close(fd);
 		free(metrics);
@@ -463,8 +463,8 @@ static int stress_rawdev(stress_args_t *args)
 	(void)close(fd);
 	fd = open(devpath, O_RDONLY | O_DIRECT);
 	if (fd < 0) {
-		pr_inf("%s: cannot open raw block device, errno=%d (%s)\n",
-			args->name, errno, strerror(errno));
+		pr_inf("%s: cannot open raw block device '%s', errno=%d (%s)\n",
+			args->name, devpath, errno, strerror(errno));
 		(void)munmap((void *)buffer, mmapsz);
 		free(metrics);
 		return EXIT_NO_RESOURCE;

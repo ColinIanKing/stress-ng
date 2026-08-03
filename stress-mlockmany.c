@@ -124,7 +124,7 @@ static int stress_mlockmany_child(stress_args_t *args, void *context)
 
 	s_pids = stress_sync_s_pids_mmap(mlockmany_procs);
 	if (s_pids == MAP_FAILED) {
-		pr_inf_skip("%s: failed to mmap %zu PIDs%s, skipping stressor\n",
+		pr_inf_skip("%s: mmap %zu PIDs failed%s, skipping stressor\n",
 			args->name, mlockmany_procs, stress_memory_free_get());
 		return EXIT_NO_RESOURCE;
 	}

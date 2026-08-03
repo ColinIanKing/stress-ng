@@ -593,7 +593,7 @@ static int stress_schedmix(stress_args_t *args)
 
 	s_pids = stress_sync_s_pids_mmap(MAX_SCHEDMIX_PROCS);
 	if (s_pids == MAP_FAILED) {
-		pr_inf_skip("%s: failed to mmap %d PIDs%s, skipping stressor\n",
+		pr_inf_skip("%s: mmap %d PIDs failed%s, skipping stressor\n",
 			args->name, MAX_SCHEDMIX_PROCS, stress_memory_free_get());
 		rc = EXIT_NO_RESOURCE;
 		goto free_cpus;

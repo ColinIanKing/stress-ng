@@ -202,7 +202,7 @@ again:
 			if (UNLIKELY(ret != 0)) {
 				if (errno == ENOSYS) {
 					if (stress_instance_zero(args))
-						pr_inf_skip("%s: skipping stressor, system call is not implemented\n",
+						pr_inf_skip("%s: system call is not implemented, skipping stressor\n",
 							args->name);
 					stress_pidfd_reap(pid, pidfd);
 					return EXIT_NOT_IMPLEMENTED;

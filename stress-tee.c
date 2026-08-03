@@ -241,7 +241,7 @@ static int stress_tee(stress_args_t *args)
 
 	fd = open("/dev/null", O_WRONLY);
 	if (fd < 0) {
-		pr_err("%s: open /dev/null failed, errno=%d (%s)\n",
+		pr_err("%s: open '/dev/null' failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}

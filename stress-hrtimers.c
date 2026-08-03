@@ -137,7 +137,7 @@ static int stress_hrtimer_process(stress_args_t *args)
 	sev.sigev_value.sival_ptr = &timerid;
 	if (timer_create(CLOCK_REALTIME, &sev, &timerid) < 0) {
 		if ((errno == EAGAIN) || (errno == ENOMEM) || (errno == ENOTSUP)) {
-			pr_inf_skip("%s: timer_create, errno=%d (%s), skipping stressor\n",
+			pr_inf_skip("%s: timer_create failed, errno=%d (%s), skipping stressor\n",
 				args->name, errno, strerror(errno));
 			return EXIT_NO_RESOURCE;
 		}
@@ -203,7 +203,7 @@ static int stress_hrtimers(stress_args_t *args)
 
 	counter_lock = stress_lock_create("counter");
 	if (!counter_lock) {
-		pr_inf("%s: cannot create lock, skipping stressor\n", args->name);
+		pr_inf("%s: create lock failed, skipping stressor\n", args->name);
 		rc = EXIT_NO_RESOURCE;
 		goto tidy_s_pids;
 	}

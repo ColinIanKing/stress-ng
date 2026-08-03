@@ -3009,7 +3009,7 @@ static inline void stress_shared_mmap(void)
 
 	g_shared = (stress_shared_t *)stress_mmap_anon_shared(sz,  PROT_READ | PROT_WRITE);
 	if (g_shared == MAP_FAILED) {
-		pr_err("cannot mmap %zu byte shared memory region%s, errno=%d (%s)\n",
+		pr_err("mmap %zu byte shared memory region failed%s, errno=%d (%s)\n",
 			sz, stress_memory_free_get(), errno, strerror(errno));
 		stress_stressors_free();
 		exit(EXIT_FAILURE);
@@ -3077,7 +3077,7 @@ STRESS_PRAGMA_POP
 	sz = (len + page_size) & ~(page_size - 1);
 	g_shared->checksum.checksums = (stress_checksum_t *)stress_mmap_anon_shared(sz, PROT_READ | PROT_WRITE);
 	if (g_shared->checksum.checksums == MAP_FAILED) {
-		pr_err("cannot mmap %zu byte checksums%s, errno=%d (%s)\n",
+		pr_err("mmap %zu byte checksums failed%s, errno=%d (%s)\n",
 			sz, stress_memory_free_get(),
 			errno, strerror(errno));
 		goto err_unmap_shared;
@@ -3291,7 +3291,7 @@ static stress_list_item_t *stress_list_item_find(const stress_stressor_t *stress
 
 	item = (stress_list_item_t *)calloc(1, sizeof(*item));
 	if (!item) {
-		(void)fprintf(stderr, "cannot allocate %zu byte stressor state info%s\n",
+		(void)fprintf(stderr, "allocate %zu byte stressor state info failed%s\n",
 			sizeof(*item), stress_memory_free_get());
 		exit(EXIT_FAILURE);
 	}
@@ -3485,7 +3485,7 @@ static inline void stress_random_stressors_set(void)
 
 		items = calloc(stress_stressor_list.n_items, sizeof(*items));
 		if (!items) {
-			(void)fprintf(stderr, "cannot allocate %zu stressor items\n",
+			(void)fprintf(stderr, "allocate %zu stressor items failed\n",
 				stress_stressor_list.n_items);
 			exit(EXIT_FAILURE);
 		}
@@ -3548,7 +3548,7 @@ static bool stress_with(const int32_t instances)
 		}
 		item = stress_list_item_find(&stressors[i]);
 		if (!item) {
-			(void)fprintf(stderr, "cannot %zu byte allocate stressor state info%s\n",
+			(void)fprintf(stderr, "allocate %zu byte stressor state info failed%s\n",
 				sizeof(*item), stress_memory_free_get());
 			free(dup_with);
 			exit(EXIT_FAILURE);
@@ -3579,7 +3579,7 @@ static void stress_stressors_enable(const int32_t instances)
 		stress_list_item_t *item = stress_list_item_find(&stressors[i]);
 
 		if (!item) {
-			(void)fprintf(stderr, "cannot %zu byte allocate stressor state info%s\n",
+			(void)fprintf(stderr, "allocate %zu byte stressor state info failed%s\n",
 				sizeof(*item), stress_memory_free_get());
 			exit(EXIT_FAILURE);
 		}
@@ -3885,7 +3885,7 @@ static int stress_exercises_get(
 
 	opt_str = strdup(str);
 	if (!opt_str) {
-		(void)fprintf(stderr, "cannot duplicate string for %s, out of memory\n", opt);
+		(void)fprintf(stderr, "duplicate string for %s failed, out of memory\n", opt);
 		*ret = EXIT_FAILURE;
 		return -1;
 	}
@@ -4159,7 +4159,7 @@ static void stress_stats_alloc(
 {
 	*stats = (stress_stats_t **)calloc((size_t)n, sizeof(stress_stats_t *));
 	if (!*stats) {
-		pr_err("cannot allocate stats array of %" PRId32 " elements%s\n",
+		pr_err("allocate stats array of %" PRId32 " elements failed%s\n",
 			n, stress_memory_free_get());
 		stress_stressors_free();
 		exit(EXIT_FAILURE);
@@ -4417,7 +4417,7 @@ static inline FILE *stress_yaml_open(const char *yaml_filename)
 	if (yaml_filename) {
 		yaml = fopen(yaml_filename, "w");
 		if (!yaml)
-			pr_err("cannot output YAML data to %s\n", yaml_filename);
+			pr_err("cannot output YAML data to '%s'\n", yaml_filename);
 
 		pr_yaml(yaml, "---\n");
 		stress_yaml_buildinfo(yaml);

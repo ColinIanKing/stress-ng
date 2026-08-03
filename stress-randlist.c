@@ -86,7 +86,7 @@ static void stress_randlist_free_ptrs(
 
 static void stress_randlist_enomem(stress_args_t *args)
 {
-	pr_inf_skip("%s: cannot allocate the list, skipping stressor\n",
+	pr_inf_skip("%s: allocate list failed, skipping stressor\n",
 		args->name);
 }
 
@@ -176,7 +176,7 @@ static int stress_randlist(stress_args_t *args)
 
 	ptrs = (stress_randlist_item_t **)calloc((size_t)randlist_items, sizeof(stress_randlist_item_t *));
 	if (!ptrs) {
-		pr_inf_skip("%s: cannot allocate %" PRIu32 " temporary pointers%s, skipping stressor\n",
+		pr_inf_skip("%s: allocate %" PRIu32 " temporary pointers failed%s, skipping stressor\n",
 			args->name, randlist_items, stress_memory_free_get());
 		return EXIT_NO_RESOURCE;
 	}

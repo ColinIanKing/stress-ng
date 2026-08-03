@@ -164,7 +164,7 @@ static void *stress_tlb_numa_mmap(
 		}
 	} while (retry > 0);
 
-	pr_inf_skip("%s: failed to mmap %zu bytes%s, errno=%d (%s), skipping stressor\n",
+	pr_inf_skip("%s: mmap %zu bytes failed%s, errno=%d (%s), skipping stressor\n",
 		args->name, length, stress_memory_free_get(),
 		errno, strerror(errno));
 	return mem;
@@ -488,13 +488,13 @@ static int stress_tlb_numa(stress_args_t *args)
 	 */
 	tlb_numa.pages1 = calloc(tlb_numa.mmap_pages, sizeof(uint8_t *));
 	if (!tlb_numa.pages1) {
-		pr_inf_skip("%s: failed to allocate %zu pointers%s, skipping stressor\n",
+		pr_inf_skip("%s: allocate %zu pointers failed%s, skipping stressor\n",
 			args->name, tlb_numa.mmap_pages, stress_memory_free_get());
 		return EXIT_NO_RESOURCE;
 	}
 	tlb_numa.pages2 = calloc(tlb_numa.mmap_pages, sizeof(uint8_t *));
 	if (!tlb_numa.pages2) {
-		pr_inf_skip("%s: failed to allocate %zu pointers%s, skipping stressor\n",
+		pr_inf_skip("%s: allocate %zu pointers failed%s, skipping stressor\n",
 			args->name, tlb_numa.mmap_pages, stress_memory_free_get());
 		rc = EXIT_NO_RESOURCE;
 		goto free_pages1;

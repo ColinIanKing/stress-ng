@@ -132,13 +132,13 @@ static int stress_sync_file(stress_args_t *args)
 		filename, sizeof(filename), stress_mwc32());
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		if ((errno == ENFILE) || (errno == ENOMEM) || (errno == ENOSPC)) {
-			pr_inf_skip("%s: cannot create file to sync on, skipping stressor, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
+			pr_inf_skip("%s: cannot create file '%s' to sync on, skipping stressor, errno=%d (%s)\n",
+				args->name, filename, errno, strerror(errno));
 			return EXIT_NO_RESOURCE;
 		}
 
 		ret = stress_exit_status(errno);
-		pr_fail("%s: open %s failed, errno=%d (%s)\n",
+		pr_fail("%s: open '%s' failed, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
 		(void)stress_fs_temp_dir_rm_args(args);
 		return ret;

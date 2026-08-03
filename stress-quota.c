@@ -299,24 +299,24 @@ static int do_quotas(stress_args_t *args, stress_dev_info_t *const dev)
 		return -1;
 	}
 	if (!dev->skip && (status.esrch > 0)) {
-		pr_dbg("%s: quotactl() failed on %s, perhaps not enabled\n",
+		pr_dbg("%s: quotactl() failed on '%s', perhaps not enabled\n",
 			args->name, dev->name);
 		dev->skip = true;
 	}
 	if (status.tested == status.enosys) {
-		pr_dbg("%s: quotactl() failed on %s, not available "
+		pr_dbg("%s: quotactl() failed on '%s', not available "
 			"on this kernel or filesystem\n", args->name, dev->name);
 		dev->skip = true;
 		return ENOSYS;
 	}
 	if (status.tested == status.enotblk) {
-		pr_dbg("%s: quotactl() failed on %s, device is not a block device\n",
+		pr_dbg("%s: quotactl() failed on '%s', device is not a block device\n",
 			args->name, dev->name);
 		dev->skip = true;
 		return ENOTBLK;
 	}
 	if (status.tested == status.erofs) {
-		pr_dbg("%s: quotactl() failed on %s, device is a read-only device\n",
+		pr_dbg("%s: quotactl() failed on '%s', device is a read-only device\n",
 			args->name, dev->name);
 		dev->skip = true;
 		return EROFS;
@@ -353,7 +353,7 @@ static int stress_quota(stress_args_t *args)
 
 	dir = opendir("/dev/");
 	if (!dir) {
-		pr_err("%s: opendir on /dev failed, errno=%d: (%s)\n",
+		pr_err("%s: opendir on '/dev' failed, errno=%d: (%s)\n",
 			args->name, errno, strerror(errno));
 		return rc;
 	}

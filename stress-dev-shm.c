@@ -188,7 +188,7 @@ static int stress_dev_shm(stress_args_t *args)
 		args->instance, getpid(), stress_mwc32());
 	context->fd = open(path, O_CREAT | O_EXCL | O_RDWR, S_IRUSR | S_IWUSR);
 	if (context->fd < 0) {
-		pr_inf("%s: cannot create %s, errno=%d (%s)\n",
+		pr_inf("%s: cannot create '%s', errno=%d (%s)\n",
 			args->name, path, errno, strerror(errno));
 		rc = EXIT_FAILURE;
 		goto unmap_context;

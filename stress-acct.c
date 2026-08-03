@@ -78,7 +78,7 @@ static int stress_acct(stress_args_t *args)
 		filename, sizeof(filename), stress_mwc32());
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		rc = stress_exit_status(errno);
-		pr_fail("%s: open %s failed, errno=%d (%s)\n",
+		pr_fail("%s: open '%s' failed, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
 		goto tidy_temp;
 	}
@@ -101,7 +101,7 @@ static int stress_acct(stress_args_t *args)
 
 		ret = acct(filename);
 		if (ret < 0) {
-			pr_inf("%s: acct(%s) failed, errno=%d (%s)\n", args->name, filename, errno, strerror(errno));
+			pr_inf("%s: acct('%s') failed, errno=%d (%s)\n", args->name, filename, errno, strerror(errno));
 			break;
 		}
 

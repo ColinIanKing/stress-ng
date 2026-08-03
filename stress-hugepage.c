@@ -313,7 +313,7 @@ static int stress_hugepage(stress_args_t *args)
 	char numstr2[32];
 
 	if (hugepage_size == 0) {
-		pr_inf("%s: cannot mmap hugepages, skipping stressor%s\n",
+		pr_inf("%s: mmap hugepages failed, skipping stressor%s\n",
 			args->name, stress_memory_free_get());
 		return EXIT_NO_RESOURCE;
 	}
@@ -342,7 +342,7 @@ static int stress_hugepage(stress_args_t *args)
 	hugepage_info.addr64 = (uint64_t *)mmap(NULL, hugepage_info.size, PROT_READ | PROT_WRITE,
 				  MAP_ANONYMOUS | MAP_PRIVATE | hugepage_mmap_flag, -1, 0);
 	if (hugepage_info.addr64 == MAP_FAILED) {
-		pr_inf_skip("%s: cannot mmap %zuKB, skipping stressor\n", args->name, hugepage_info.size >> 10);
+		pr_inf_skip("%s: mmap %zuKB failed, skipping stressor\n", args->name, hugepage_info.size >> 10);
 		return EXIT_NO_RESOURCE;
 	}
 
@@ -360,7 +360,7 @@ static int stress_hugepage(stress_args_t *args)
 
 #if defined(MADV_HUGEPAGE)
 	if (madvise((void *)hugepage_info.addr64, hugepage_info.size, MADV_HUGEPAGE) < 0) {
-		pr_inf_skip("%s: cannot madvise MADV_HUGEPAGE, errno=%d (%s), skipping stressor\n",
+		pr_inf_skip("%s: madvise MADV_HUGEPAGE failed, errno=%d (%s), skipping stressor\n",
 			args->name, errno, strerror(errno));
 		rc = EXIT_NO_RESOURCE;
 		goto hugepage_unmap;
@@ -373,7 +373,7 @@ static int stress_hugepage(stress_args_t *args)
 
 	ret = pthread_create(&pthread, NULL, stress_hugepage_pthread, &pthread_args);
 	if (ret) {
-		pr_inf_skip("%s: cannot create pthread, errno=%d (%s), skipping stressor\n",
+		pr_inf_skip("%s: create pthread failed, errno=%d (%s), skipping stressor\n",
 			args->name, ret, strerror(ret));
 		rc = EXIT_NO_RESOURCE;
 		goto hugepage_unmap;

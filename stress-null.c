@@ -65,7 +65,7 @@ static int stress_null(stress_args_t *args)
 	fcntl_mask |= O_NONBLOCK;
 #endif
 	if ((fd = open("/dev/null", O_RDWR)) < 0) {
-		pr_fail("%s: open /dev/null failed, errno=%d (%s)\n",
+		pr_fail("%s: open '/dev/null' failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
@@ -78,7 +78,7 @@ static int stress_null(stress_args_t *args)
 
 	if (null_write) {
 		if (stress_instance_zero(args))
-			pr_inf("%s: exercising /dev/null with just writes\n", args->name);
+			pr_inf("%s: exercising '/dev/null' with just writes\n", args->name);
 
 		t = stress_time_now();
 		do {
@@ -101,7 +101,7 @@ static int stress_null(stress_args_t *args)
 		duration += stress_time_now() - t;
 	} else {
 		if (stress_instance_zero(args)) {
-			pr_inf("%s: exercising /dev/null with writes, lseek, "
+			pr_inf("%s: exercising '/dev/null' with writes, lseek, "
 				"ioctl, fcntl, fallocate, fdatasync and mmap; for "
 				"just write benchmarking use --null-write\n",
 				args->name);

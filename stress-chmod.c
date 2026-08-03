@@ -261,7 +261,7 @@ static int stress_chmod(stress_args_t *args)
 	if (mkdir(pathname, S_IRWXU) < 0) {
 		if (errno != EEXIST) {
 			rc = stress_exit_status(errno);
-			pr_fail("%s: mkdir %s failed, errno=%d (%s)\n",
+			pr_fail("%s: mkdir '%s' failed, errno=%d (%s)\n",
 				args->name, pathname, errno, strerror(errno));
 			free(mode_perms);
 			return rc;
@@ -284,7 +284,7 @@ static int stress_chmod(stress_args_t *args)
 	if (stress_instance_zero(args)) {
 		if ((fd = creat(filename, S_IRUSR | S_IWUSR)) < 0) {
 			rc = stress_exit_status(errno);
-			pr_fail("%s: create %s failed, errno=%d (%s)\n",
+			pr_fail("%s: create '%s' failed, errno=%d (%s)\n",
 				args->name, filename, errno, strerror(errno));
 			goto tidy;
 		}
@@ -307,7 +307,7 @@ static int stress_chmod(stress_args_t *args)
 			}
 			/* Too many retries? */
 			if (++retries >= 10000) {
-				pr_err("%s: chmod: file %s took %d "
+				pr_err("%s: chmod '%s' took %d "
 					"retries to open and gave up "
 					"(instance %" PRIu32 ")%s\n",
 					args->name, filename, retries, args->instance,
@@ -341,7 +341,7 @@ static int stress_chmod(stress_args_t *args)
 					rc = EXIT_SUCCESS;
 					goto tidy;
 				}
-				pr_fail("%s: chmod %s failed, errno=%d (%s)%s\n",
+				pr_fail("%s: chmod '%s' failed, errno=%d (%s)%s\n",
 					args->name, filename, errno, strerror(errno),
 					stress_fs_type_get(filename));
 			}

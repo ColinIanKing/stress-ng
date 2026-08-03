@@ -123,7 +123,7 @@ static int stress_verity(stress_args_t *args)
 		fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
 		if (fd < 0) {
 			ret = stress_exit_status(errno);
-			pr_err("%s: cannot create %s, errno=%d (%s)\n",
+			pr_err("%s: open '%s' failed, errno=%d (%s)\n",
 				args->name, filename, errno, strerror(errno));
 			return ret;
 		}
@@ -137,7 +137,7 @@ static int stress_verity(stress_args_t *args)
 			n = write(fd, block, sizeof(block));
 			if (n < 0) {
 				ret = stress_exit_status(errno);
-				pr_err("%s: cannot write %s, errno=%d (%s)%s\n",
+				pr_err("%s: write to '%s' failed, errno=%d (%s)%s\n",
 					args->name, filename,
 					errno, strerror(errno),
 					stress_fs_type_get(filename));
@@ -152,7 +152,7 @@ static int stress_verity(stress_args_t *args)
 		fd = open(filename, O_RDONLY);
 		if (fd < 0) {
 			ret = stress_exit_status(errno);
-			pr_err("%s: cannot re-open %s, errno=%d (%s)%s\n",
+			pr_err("%s: re-open '%s' failed, errno=%d (%s)%s\n",
 				args->name, filename, errno, strerror(errno),
 				stress_fs_type_get(filename));
 			goto clean;
@@ -241,7 +241,7 @@ static int stress_verity(stress_args_t *args)
 		fd = open(filename, O_RDONLY);
 		if (fd < 0) {
 			ret = stress_exit_status(errno);
-			pr_err("%s: cannot re-open %s, errno=%d (%s)\n",
+			pr_err("%s: re-open '%s' failed, errno=%d (%s)\n",
 				args->name, filename, errno, strerror(errno));
 			goto clean;
 		}
@@ -254,7 +254,7 @@ static int stress_verity(stress_args_t *args)
 			n = read(fd, block, sizeof(block));
 			if (n < 0) {
 				ret = stress_exit_status(errno);
-				pr_err("%s: cannot read %s, errno=%d (%s)%s\n",
+				pr_err("%s: read of '%s' failed, errno=%d (%s)%s\n",
 					args->name, filename,
 					errno, strerror(errno),
 					stress_fs_type_get(filename));

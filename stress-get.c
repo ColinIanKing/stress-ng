@@ -940,7 +940,7 @@ static int stress_sysfs(stress_args_t *args)
 		if (!ret) {
 			ret = shim_sysfs(1, buf);
 			if (verify && (ret != fs_index)) {
-				pr_fail("%s: sysfs(1, %s) failed, errno=%d (%s)\n",
+				pr_fail("%s: sysfs(1, '%s') failed, errno=%d (%s)\n",
 					args->name, buf, errno, strerror(errno));
 				return EXIT_FAILURE;
 			}

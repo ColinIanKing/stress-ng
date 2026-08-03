@@ -515,8 +515,10 @@ static int stress_mmap_child(stress_args_t *args, void *ctxt)
 				PROT_READ | PROT_WRITE,
 				MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (mapped == MAP_FAILED) {
-		pr_dbg("%s: cannot allocate mapped buffer, errno=%d (%s)\n",
-			args->name, errno, strerror(errno));
+		pr_dbg("%s: mmap buffer failed%s, errno=%d (%s)\n",
+			args->name,
+			stress_memory_free_get(),
+			errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
 	if (context->mmap_mlock)
@@ -525,7 +527,7 @@ static int stress_mmap_child(stress_args_t *args, void *ctxt)
 				PROT_READ | PROT_WRITE,
 				MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (mappings == MAP_FAILED) {
-		pr_dbg("%s: cannot allocate %zu byte mappings buffer%s, errno=%d (%s)\n",
+		pr_dbg("%s: mmap %zu byte mappings buffer failed%s, errno=%d (%s)\n",
 			args->name, pages * sizeof(*mappings),
 			stress_memory_free_get(),
 			errno, strerror(errno));
@@ -540,7 +542,7 @@ static int stress_mmap_child(stress_args_t *args, void *ctxt)
 				PROT_READ | PROT_WRITE,
 				MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (idx == MAP_FAILED) {
-		pr_dbg("%s: cannot allocate %zu byte idx buffer%s, errno=%d (%s)\n",
+		pr_dbg("%s: mmap %zu byte idx buffer failed %s, errno=%d (%s)\n",
 			args->name, pages * sizeof(*idx),
 			stress_memory_free_get(), errno, strerror(errno));
 		(void)munmap((void *)mappings, pages * sizeof(*mappings));
@@ -1080,7 +1082,7 @@ static int stress_mmap(stress_args_t *args)
 		context.fd = open(filename, file_flags, S_IRUSR | S_IWUSR);
 		if (context.fd < 0) {
 			rc = stress_exit_status(errno);
-			pr_fail("%s: open %s failed, errno=%d (%s)\n",
+			pr_fail("%s: open '%s' failed, errno=%d (%s)\n",
 				args->name, filename, errno, strerror(errno));
 			(void)shim_unlink(filename);
 			(void)stress_fs_temp_dir_rm_args(args);

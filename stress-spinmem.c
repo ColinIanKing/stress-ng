@@ -311,8 +311,8 @@ static int stress_spinmem(stress_args_t *args)
 			args->page_size, PROT_READ | PROT_WRITE,
 			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (mapping == MAP_FAILED) {
-		pr_inf_skip("%s: failed to mmap a page of "
-			"%zu bytes%s, errno=%d (%s), skipping stressor\n",
+		pr_inf_skip("%s: mmap a page of %zu bytes failed%s, "
+			"errno=%d (%s), skipping stressor\n",
 			args->name, args->page_size,
 			stress_memory_free_get(), errno, strerror(errno));
 		rc = EXIT_NO_RESOURCE;
@@ -344,7 +344,7 @@ static int stress_spinmem(stress_args_t *args)
 
 	pid = fork();
 	if (pid < 0) {
-		pr_inf_skip("%s: could not fork child process, errno=%d (%s), skipping stressor\n",
+		pr_inf_skip("%s: fork failed, errno=%d (%s), skipping stressor\n",
 			args->name, errno, strerror(errno));
 		rc = EXIT_NO_RESOURCE;
 		goto tidy;

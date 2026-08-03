@@ -166,7 +166,7 @@ static void stress_plugin_so(const char *opt_name, const char *opt_arg, stress_t
 
 	stress_plugin_so_dl = dlopen(opt_arg, RTLD_LAZY | RTLD_GLOBAL);
 	if (!stress_plugin_so_dl) {
-		fprintf(stderr, "option %s: cannot load shared object file %s "
+		fprintf(stderr, "option %s: cannot load shared object file '%s' "
 			"(please specify full path to .so file)\n", opt_name, opt_arg);
 		longjmp(g_error_env, 1);
 		stress_no_return();
@@ -174,7 +174,7 @@ static void stress_plugin_so(const char *opt_name, const char *opt_arg, stress_t
 
 	dlinfo(stress_plugin_so_dl, RTLD_DI_LINKMAP, &map);
 	if (!map) {
-		fprintf(stderr, "plugin-so: cannot find linkmap in file %s\n", opt_arg);
+		fprintf(stderr, "plugin-so: cannot find linkmap in file '%s'\n", opt_arg);
 		longjmp(g_error_env, 1);
 		stress_no_return();
 	}
@@ -196,17 +196,17 @@ static void stress_plugin_so(const char *opt_name, const char *opt_arg, stress_t
 	}
 
 	if (!symtab) {
-		fprintf(stderr, "plugin-so: cannot find symbol table in file %s\n", opt_arg);
+		fprintf(stderr, "plugin-so: cannot find symbol table in file '%s'\n", opt_arg);
 		longjmp(g_error_env, 1);
 		stress_no_return();
 	}
 	if (!strtab) {
-		fprintf(stderr, "plugin-so: cannot find string table in file %s\n", opt_arg);
+		fprintf(stderr, "plugin-so: cannot find string table in file '%s'\n", opt_arg);
 		longjmp(g_error_env, 1);
 		stress_no_return();
 	}
 	if (!symentries) {
-		fprintf(stderr, "plugin-so: cannot find symbol table entry count in file %s\n", opt_arg);
+		fprintf(stderr, "plugin-so: cannot find symbol table entry count in file '%s'\n", opt_arg);
 		longjmp(g_error_env, 1);
 		stress_no_return();
 	}
@@ -222,14 +222,14 @@ static void stress_plugin_so(const char *opt_name, const char *opt_arg, stress_t
 		}
 	}
 	if (!n_funcs) {
-		fprintf(stderr, "plugin-so: cannot find any function symbols in file %s\n", opt_arg);
+		fprintf(stderr, "plugin-so: cannot find any function symbols in file '%s'\n", opt_arg);
 		longjmp(g_error_env, 1);
 		stress_no_return();
 	}
 
 	stress_plugin_methods = (stress_plugin_method_info_t *)calloc(n_funcs + 1, sizeof(*stress_plugin_methods));
 	if (!stress_plugin_methods) {
-		fprintf(stderr, "plugin-so: cannot allocate %zu plugin methods%s\n",
+		fprintf(stderr, "plugin-so: allocate %zu plugin methods failed%s\n",
 			n_funcs, stress_memory_free_get());
 		longjmp(g_error_env, 1);
 		stress_no_return();
@@ -299,7 +299,7 @@ static int stress_plugin(stress_args_t *args)
 		PROT_READ | PROT_WRITE,
 		MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (sig_count == MAP_FAILED) {
-		pr_fail("%s: failed to mmap %zu bytes%s, errno=%d (%s)\n",
+		pr_fail("%s: mmap %zu bytes failed%s, errno=%d (%s)\n",
 			args->name, sig_count_size,
 			stress_memory_free_get(), errno, strerror(errno));
 		(void)dlclose(stress_plugin_so_dl);

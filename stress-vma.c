@@ -778,7 +778,7 @@ static int stress_vma_child(stress_args_t *args, void *void_ctxt)
 
 	s_pids = stress_sync_s_pids_mmap(STRESS_VMA_PROCS);
 	if (s_pids == MAP_FAILED) {
-		pr_inf_skip("%s: failed to mmap %d PIDs, skipping stressor\n", args->name, STRESS_VMA_PROCS);
+		pr_inf_skip("%s: mmap %d PIDs failed, skipping stressor\n", args->name, STRESS_VMA_PROCS);
 		return EXIT_NO_RESOURCE;
 	}
 
@@ -832,7 +832,7 @@ static int stress_vma(stress_args_t *args)
 	stress_vma_page = mmap(NULL, args->page_size, PROT_READ | PROT_WRITE,
 				MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (stress_vma_page == MAP_FAILED) {
-		pr_inf_skip("%s: cannot mmap 1 page (%zu bytes) , errno=%d (%s), skipping stressor\n",
+		pr_inf_skip("%s: mmap 1 page (%zu bytes) failed, errno=%d (%s), skipping stressor\n",
 			args->name, args->page_size, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
@@ -840,7 +840,7 @@ static int stress_vma(stress_args_t *args)
 	stress_vma_metrics = (stress_vma_metrics_t *)
 		stress_mmap_anon_shared(sizeof(*stress_vma_metrics), PROT_READ | PROT_WRITE);
 	if (stress_vma_metrics == MAP_FAILED) {
-		pr_inf_skip("%s: cannot mmap vma shared statistics data, errno=%d (%s), skipping stressor\n",
+		pr_inf_skip("%s: mmap vma shared statistics data failed, errno=%d (%s), skipping stressor\n",
 			args->name, errno, strerror(errno));
 		(void)munmap(stress_vma_page, args->page_size);
 		return EXIT_NO_RESOURCE;

@@ -106,8 +106,8 @@ static int OPTIMIZE3 stress_utime(stress_args_t *args)
 		filename, sizeof(filename), stress_mwc32());
 	if ((fd = open(filename, O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR)) < 0) {
 		ret = stress_exit_status(errno);
-		pr_err("%s: open failed, errno=%d (%s)\n",
-			args->name, errno, strerror(errno));
+		pr_err("%s: open '%s' failed, errno=%d (%s)\n",
+			args->name, filename, errno, strerror(errno));
 		(void)stress_fs_temp_dir_rm_args(args);
 		if (dir_fd >= 0) /* cppcheck-suppress knownConditionTrueFalse */
 			(void)close(dir_fd);

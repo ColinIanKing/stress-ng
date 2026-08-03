@@ -702,7 +702,7 @@ static int stress_sysfs(stress_args_t *args)
 				     PROT_READ | PROT_WRITE,
 				     MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (ctxt == MAP_FAILED) {
-		pr_inf_skip("%s: cannot mmap shared context region, skipping stressor\n", args->name);
+		pr_inf_skip("%s: mmap shared context region failed, skipping stressor\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
 	stress_memory_anon_name_set(ctxt, sizeof(*ctxt), "sysfs-pthread-context");
@@ -733,7 +733,7 @@ static int stress_sysfs(stress_args_t *args)
 #endif
 	sysfs_hash_table = stress_hash_create(1021);
 	if (!sysfs_hash_table) {
-		pr_err("%s: cannot create sysfs hash table, errno=%d (%s))\n",
+		pr_err("%s: create sysfs hash table failed, errno=%d (%s))\n",
 			args->name, errno, strerror(errno));
 		rc = EXIT_NO_RESOURCE;
 		goto exit_free;
@@ -914,7 +914,7 @@ exit_free:
 
 exit_no_sysfs_entries:
 	if (stress_instance_zero(args))
-		pr_inf_skip("%s: no /sys entries found, skipping stressor\n", args->name);
+		pr_inf_skip("%s: no '/sys' entries found, skipping stressor\n", args->name);
 	rc = EXIT_NO_RESOURCE;
 	goto exit_free;
 }

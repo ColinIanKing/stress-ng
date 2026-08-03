@@ -277,7 +277,7 @@ static int stress_userfaultfd_child(stress_args_t *args, void *context)
 	sz = userfaultfd_bytes & ~(page_size - 1);
 
 	if (posix_memalign(&zero_page, page_size, page_size)) {
-		pr_err("%s: failed to allocate %zu byte zero page%s\n",
+		pr_err("%s: allocate %zu byte zero page failed%s\n",
 			args->name, page_size, stress_memory_free_get());
 		return EXIT_NO_RESOURCE;
 	}
@@ -286,7 +286,7 @@ static int stress_userfaultfd_child(stress_args_t *args, void *context)
 		MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (data == MAP_FAILED) {
 		rc = EXIT_NO_RESOURCE;
-		pr_err("%s: failed to mmap %zu byte buffer%s, errno=%d (%s)\n",
+		pr_err("%s: mmap %zu byte buffer failed%s, errno=%d (%s)\n",
 			args->name, sz, stress_memory_free_get(),
 			errno, strerror(errno));
 		goto free_zeropage;

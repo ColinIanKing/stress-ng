@@ -903,7 +903,7 @@ static inline void *stress_stream_mmap(
 		MAP_ANONYMOUS, -1, 0);
 	/* Coverity Scan believes NULL can be returned, doh */
 	if (!ptr || (ptr == MAP_FAILED)) {
-		pr_err("%s: failed to mmap %" PRIu64 " bytes%s, errno=%d (%s)\n",
+		pr_err("%s: mmap %" PRIu64 " bytes failed%s, errno=%d (%s)\n",
 			args->name, sz,
 			stress_memory_free_get(), errno, strerror(errno));
 		ptr = MAP_FAILED;

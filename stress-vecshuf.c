@@ -364,7 +364,7 @@ static int stress_vecshuf(stress_args_t *args)
 			PROT_READ | PROT_WRITE,
 			MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (data == MAP_FAILED) {
-		pr_inf_skip("%s: failed to mmap %zu bytes for vectors%s, "
+		pr_inf_skip("%s: mmap %zu bytes for vectors failed%s, "
 			"errno=%d (%s), skipping stressor\n",
 			args->name, sizeof(*data),
 			stress_memory_free_get(), errno, strerror(errno));

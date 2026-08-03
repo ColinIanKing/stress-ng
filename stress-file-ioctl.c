@@ -313,7 +313,8 @@ static int stress_file_ioctl(stress_args_t *args)
 	fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
 	if (fd < 0) {
 		ret = stress_exit_status(errno);
-		pr_err("%s: cannot create %s\n", args->name, filename);
+		pr_err("%s: open '%s' failed, errno=%d (%s)\n",
+			args->name, filename, errno, strerror(errno));
 		(void)stress_fs_temp_dir_rm_args(args);
 		return ret;
 	}
@@ -337,7 +338,8 @@ static int stress_file_ioctl(stress_args_t *args)
 		ret = stress_exit_status(errno);
 		(void)close(fd);
 		(void)stress_fs_temp_dir_rm_args(args);
-		pr_err("%s: cannot create %s\n", args->name, filename);
+		pr_err("%s: open '%s' failed, errno=%d (%s)\n",
+			args->name, filename, errno, strerror(errno));
 		return ret;
 	}
 	(void)shim_unlink(filename);

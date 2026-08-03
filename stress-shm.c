@@ -114,14 +114,14 @@ static int stress_shm_posix_child(
 
 	addrs = (void **)calloc(shm_posix_objects, sizeof(*addrs));
 	if (!addrs) {
-		pr_fail("%s: calloc on addrs failed, out of memory\n", args->name);
+		pr_fail("%s: calloc addrs failed\n", args->name);
 		rc = EXIT_NO_RESOURCE;
 		goto shm_end_of_run;
 	}
 	shm_names = (char *)calloc(shm_posix_objects, SHM_NAME_LEN);
 	if (!shm_names) {
 		free(addrs);
-		pr_fail("%s: calloc on shm_names, out of memory\n", args->name);
+		pr_fail("%s: calloc shm_names failed\n", args->name);
 		rc = EXIT_NO_RESOURCE;
 		goto shm_end_of_run;
 	}
@@ -167,14 +167,14 @@ static int stress_shm_posix_child(
 				S_IRUSR | S_IWUSR);
 			if (UNLIKELY(shm_fd < 0)) {
 				ok = false;
-				pr_fail("%s: shm_open %s failed, errno=%d (%s)\n",
+				pr_fail("%s: shm_open '%s' failed, errno=%d (%s)\n",
 					args->name, shm_name, errno, strerror(errno));
 				rc = EXIT_FAILURE;
 				goto reap;
 			}
 			if (ftruncate(shm_fd, sz) < 0) {
 				ok = false;
-				pr_fail("%s: ftruncate %s failed, errno=%d (%s)\n",
+				pr_fail("%s: ftruncate '%s' failed, errno=%d (%s)\n",
 					args->name, shm_name, errno, strerror(errno));
 				rc = EXIT_FAILURE;
 				goto reap;
@@ -202,7 +202,7 @@ static int stress_shm_posix_child(
 			}
 			if (UNLIKELY(addr == MAP_FAILED)) {
 				ok = false;
-				pr_fail("%s: failed to mmap %zu bytes%s, errno=%d (%s)\n",
+				pr_fail("%s: mmap %zu bytes%s failed, errno=%d (%s)\n",
 					args->name, sz, stress_memory_free_get(),
 					errno, strerror(errno));
 				rc = EXIT_FAILURE;
@@ -290,11 +290,11 @@ static int stress_shm_posix_child(
 			/* Make it read only */
 			ret = fchmod(shm_fd, S_IRUSR);
 			if (UNLIKELY(ret < 0)) {
-				pr_fail("%s: failed to fchmod to S_IRUSR on shared memory\n", args->name);
+				pr_fail("%s: fchmod to S_IRUSR on shared memory failed\n", args->name);
 			}
 			ret = fchown(shm_fd, uid, gid);
 			if (UNLIKELY(ret < 0)) {
-				pr_fail("%s: failed to fchown on shared memory\n", args->name);
+				pr_fail("%s: fchown on shared memory failed\n", args->name);
 			}
 
 			(void)close(shm_fd);
@@ -416,7 +416,7 @@ static int stress_shm(stress_args_t *args)
 	 *  be writeable, if not shm_open will fail
 	 */
 	if (access("/dev/shm", W_OK) < 0) {
-		pr_inf("%s: cannot access /dev/shm for writes, errno=%d (%s) skipping stressor\n",
+		pr_inf("%s: access '/dev/shm' for writes failed', errno=%d (%s) skipping stressor\n",
 			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
@@ -456,7 +456,7 @@ again:
 
 			shm_names = (char *)calloc(shm_posix_objects, SHM_NAME_LEN);
 			if (!shm_names) {
-				pr_fail("%s: failed to allocate %zu bytes%s, out of memory\n",
+				pr_fail("%s: allocate %zu bytes failed%s\n",
 					args->name, shm_posix_objects * SHM_NAME_LEN,
 					stress_memory_free_get());
 				(void)close(pipefds[0]);

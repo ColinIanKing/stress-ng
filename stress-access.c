@@ -298,13 +298,13 @@ static int stress_access(stress_args_t *args)
 	(void)umask(0700);
 	if ((fd1 = creat(filename1, S_IRUSR | S_IWUSR)) < 0) {
 		rc = stress_exit_status(errno);
-		pr_fail("%s: creat on %s failed, errno=%d (%s)\n",
+		pr_fail("%s: creat '%s' failed, errno=%d (%s)\n",
 			args->name, filename1, errno, strerror(errno));
 		goto tidy;
 	}
 	if ((fd2 = creat(filename2, S_IRUSR | S_IWUSR)) < 0) {
 		rc = stress_exit_status(errno);
-		pr_fail("%s: creat on %s failed, errno=%d (%s)\n",
+		pr_fail("%s: creat '%s' failed, errno=%d (%s)\n",
 			args->name, filename2, errno, strerror(errno));
 		goto tidy;
 	}

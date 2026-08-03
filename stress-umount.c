@@ -90,8 +90,8 @@ static int stress_umount_umount(stress_args_t *args, const char *path, const uin
 		case EPERM:
 			if (!warned) {
 				warned = true;
-				pr_inf_skip("%s: umount failed, no permission, skipping stressor\n",
-					args->name);
+				pr_inf_skip("%s: umount '%s' failed, no permission, skipping stressor\n",
+					args->name, path);
 			}
 			return EXIT_NO_RESOURCE;
 		case EAGAIN:
@@ -110,7 +110,7 @@ static int stress_umount_umount(stress_args_t *args, const char *path, const uin
 			return rc;
 		default:
 			/* Unexpected, so report it */
-			pr_inf("%s: umount failed %s, errno=%d %s\n", args->name,
+			pr_inf("%s: umount '%s' failed, errno=%d %s\n", args->name,
 				path, errno, strerror(errno));
 			return EXIT_FAILURE;
 		}
@@ -346,13 +346,13 @@ static int stress_umount(stress_args_t *args)
 	stress_fs_temp_dir(pathname, sizeof(pathname), args->name,
 		args->pid, args->instance);
 	if (mkdir(pathname, S_IRUSR | S_IWUSR | S_IXUSR) < 0) {
-		pr_fail("%s: cannot mkdir %s, errno=%d (%s)\n",
+		pr_fail("%s: mkdir '%s' failed, errno=%d (%s)\n",
 			args->name, pathname, errno, strerror(errno));
 		(void)stress_sync_s_pids_munmap(s_pids, STRESS_UMOUNT_PROCS);
 		return EXIT_FAILURE;
 	}
 	if (!realpath(pathname, realpathname)) {
-		pr_fail("%s: cannot realpath %s, errno=%d (%s)\n",
+		pr_fail("%s: realpath '%s' failed, errno=%d (%s)\n",
 			args->name, pathname, errno, strerror(errno));
 		(void)stress_fs_temp_dir_rm_args(args);
 		(void)stress_sync_s_pids_munmap(s_pids, STRESS_UMOUNT_PROCS);

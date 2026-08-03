@@ -481,8 +481,8 @@ static int stress_mcontend(stress_args_t *args)
 
 	fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
 	if (fd < 0) {
-		pr_inf("%s: open failed, errno=%d (%s)\n",
-			args->name, errno, strerror(errno));
+		pr_inf("%s: open '%s' failed, errno=%d (%s)\n",
+			args->name, filename, errno, strerror(errno));
 		(void)shim_unlink(filename);
 		(void)stress_fs_temp_dir_rm_args(args);
 #if defined(HAVE_SCHED_SETAFFINITY)

@@ -460,7 +460,7 @@ static int stress_varyload(stress_args_t *args)
 
 	pids = (pid_t *)calloc((size_t)args->instances, sizeof(*pids));
 	if (!pids) {
-		pr_inf("%s: failed to allocate %" PRIu32 " pids, skipping stressor\n",
+		pr_inf("%s: allocate %" PRIu32 " pids failed, skipping stressor\n",
 			args->name, args->instances);
 		return EXIT_NO_RESOURCE;
 	}
@@ -517,7 +517,7 @@ redo:
 				PROT_READ | PROT_WRITE,
 				MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (buffer == MAP_FAILED) {
-		pr_inf_skip("%s: failed to mmap %zu byte buffer%s, "
+		pr_inf_skip("%s: mmap %zu byte buffer failed%s, "
 			"errno=%d (%s), skipping stressor\n",
 			args->name, buffer_len,
 			stress_memory_free_get(), errno, strerror(errno));

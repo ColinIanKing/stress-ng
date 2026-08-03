@@ -800,7 +800,7 @@ static int stress_hdd(stress_args_t *args)
 	ret = posix_memalign((void **)&alloc_buf, BUF_ALIGNMENT, (size_t)hdd_write_size);
 	if (ret || !alloc_buf) {
 		rc = stress_exit_status(errno);
-		pr_err("%s: cannot allocate %zu byte buffer%s\n",
+		pr_err("%s: allocate failed for %zu byte buffer%s\n",
 			args->name, (size_t)hdd_write_size,
 			stress_memory_free_get());
 		(void)stress_fs_temp_dir_rm_args(args);
@@ -811,7 +811,7 @@ static int stress_hdd(stress_args_t *args)
 	/* Work around lack of posix_memalign */
 	alloc_buf = malloc((size_t)hdd_write_size + BUF_ALIGNMENT);
 	if (!alloc_buf) {
-		pr_err("%s: cannot allocate %zu byte buffer%s\n",
+		pr_err("%s: allocate failed for %zu byte buffer%s\n",
 			args->name, (size_t)hdd_write_size + BUF_ALIGNMENT,
 			stress_memory_free_get());
 		(void)stress_fs_temp_dir_rm_args(args);
@@ -854,7 +854,7 @@ static int stress_hdd(stress_args_t *args)
 		if ((fd = open(filename, flags, S_IRUSR | S_IWUSR)) < 0) {
 			if ((errno == ENOSPC) || (errno == ENOMEM))
 				continue;	/* Retry */
-			pr_fail("%s: open %s failed, errno=%d (%s)\n",
+			pr_fail("%s: open '%s' failed, errno=%d (%s)\n",
 				args->name, filename, errno, strerror(errno));
 			/*
 			 *  Unlink is necessary as Linux can leave stale files

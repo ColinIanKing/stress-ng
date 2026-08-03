@@ -1166,7 +1166,7 @@ static int stress_tree(stress_args_t *args)
 	n = (size_t)tree_size;
 	nodes = calloc(n, sizeof(union tree_node));
 	if (!nodes) {
-		pr_inf_skip("%s: malloc failed allocating %zu tree nodes, "
+		pr_inf_skip("%s: allocating %zu tree nodes failed, "
 			"skipping stressor\n", args->name, n);
 		return EXIT_NO_RESOURCE;
 	}

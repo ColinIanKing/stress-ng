@@ -71,7 +71,7 @@ static int stress_personality(stress_args_t *args)
 
 	failed = (bool *)calloc(n, sizeof(*failed));
 	if (!failed) {
-		pr_inf_skip("%s: cannot allocate %zu boolean flags%s, skipping stressor\n",
+		pr_inf_skip("%s: allocate %zu boolean flags failed%s, skipping stressor\n",
 			args->name, n, stress_memory_free_get());
 		return EXIT_NO_RESOURCE;
 	}

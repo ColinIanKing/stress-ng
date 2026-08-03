@@ -124,7 +124,7 @@ static int stress_secretmem_child(stress_args_t *args, void *context)
 
 	mappings = (secretmem_mapping_t *)calloc(MAPPINGS_MAX, sizeof(*mappings));
 	if (UNLIKELY(!mappings)) {
-		pr_inf_skip("%s: failed to allocate %zu bytes%s, skipping stressor\n",
+		pr_inf_skip("%s: allocate %zu bytes failed%s, skipping stressor\n",
 			args->name, (size_t)MAPPINGS_MAX * sizeof(*mappings),
 			stress_memory_free_get());
 		return EXIT_NO_RESOURCE;

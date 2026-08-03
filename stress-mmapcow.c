@@ -171,7 +171,7 @@ static int stress_mmapcow_exercise(
 			MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (buf == MAP_FAILED) {
 		if (*buf_size == page_size) {
-			pr_inf("%s: failed to mmap %zu bytes, errno=%d (%s), terminating early\n",
+			pr_inf("%s: mmap %zu bytes failed, errno=%d (%s), terminating early\n",
 				args->name, *buf_size, errno, strerror(errno));
 			return EXIT_NO_RESOURCE;
 		}

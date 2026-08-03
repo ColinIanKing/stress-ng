@@ -249,13 +249,13 @@ static int stress_memfd_child(stress_args_t *args, void *context)
 
 	fds = (int *)calloc(memfd_fds, sizeof(*fds));
 	if (!fds) {
-		pr_inf("%s: cannot allocate fds buffer, errno=%d (%s)\n",
+		pr_inf("%s: allocate fds buffer failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
 	maps = (void **)calloc(memfd_fds, sizeof(*maps));
 	if (!maps) {
-		pr_inf("%s: cannot allocate maps buffer, errno=%d (%s)\n",
+		pr_inf("%s: allocate maps buffer failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		free(fds);
 		return EXIT_NO_RESOURCE;

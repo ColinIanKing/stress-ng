@@ -191,7 +191,7 @@ static int stress_icache(stress_args_t *args)
 			PROT_READ | PROT_WRITE | PROT_EXEC,
 			MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (pages == MAP_FAILED) {
-		pr_inf_skip("%s: could not mmap %" PRIu32 " x %zuK sized page%s, errno=%d (%s), skipping stressor\n",
+		pr_inf_skip("%s: mmap %" PRIu32 " x %zuK sized page failed%s, errno=%d (%s), skipping stressor\n",
 			args->name, icache_pages, page_size >> 10, stress_memory_free_get(),
 			errno, strerror(errno));
 		return EXIT_NO_RESOURCE;

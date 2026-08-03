@@ -144,7 +144,7 @@ static int stress_stackmmap(stress_args_t *args)
 
 	fd = open(filename, O_SYNC | O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
 	if (fd < 0) {
-		pr_fail("%s: open %s mmap'd stack file failed, errno=%d (%s)\n",
+		pr_fail("%s: open '%s' mmap'd stack file failed, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
 		goto tidy_dir;
 	}
@@ -158,7 +158,7 @@ static int stress_stackmmap(stress_args_t *args)
 	stack_sig = (uint8_t *)stress_mmap_populate(NULL, STRESS_SIGSTKSZ,
 		PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (stack_sig == MAP_FAILED) {
-		pr_inf_skip("%s: failed to mmap %zu byte signal stressor%s, "
+		pr_inf_skip("%s: mmap %zu byte signal stressor failed%s, "
 			"errno=%d (%s), skipping stressor\n",
 			args->name, (size_t)STRESS_SIGSTKSZ,
 			stress_memory_free_get(), errno, strerror(errno));
@@ -172,7 +172,7 @@ static int stress_stackmmap(stress_args_t *args)
 		PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
 	if (stack_mmap == MAP_FAILED) {
 		if (errno == ENXIO) {
-			pr_inf_skip("%s: mmap failed of %zu bytes on file %s%s, errno=%d (%s),"
+			pr_inf_skip("%s: mmap %zu bytes on file '%s' failed%s, errno=%d (%s),"
 				"skipping stressor\n",
 				args->name, (size_t)MMAPSTACK_SIZE, filename,
 				stress_memory_free_get(), errno, strerror(errno));
@@ -180,7 +180,7 @@ static int stress_stackmmap(stress_args_t *args)
 			(void)close(fd);
 			goto tidy_stack_sig;
 		}
-		pr_fail("%s: mmap failed of %zu bytes failed%s, errno=%d (%s)\n",
+		pr_fail("%s: mmap %zu bytes failed%s, errno=%d (%s)\n",
 			args->name, (size_t)MMAPSTACK_SIZE,
 			stress_memory_free_get(), errno, strerror(errno));
 		(void)close(fd);

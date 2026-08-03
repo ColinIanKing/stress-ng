@@ -112,14 +112,14 @@ static int stress_resources(stress_args_t *args)
 
 	s_pids = stress_sync_s_pids_mmap(resources_procs);
 	if (s_pids == MAP_FAILED) {
-		pr_inf_skip("%s: failed to mmap %zu PIDs%s, skipping stressor\n",
+		pr_inf_skip("%s: mmap %zu PIDs failed%s, skipping stressor\n",
 			args->name, resources_procs, stress_memory_free_get());
 		return EXIT_NO_RESOURCE;
 	}
 
 	resources = (stress_resources_t *)calloc(resources_num, sizeof(*resources));
 	if (!resources) {
-		pr_inf_skip("%s: cannot allocate %zu resource structures%s, skipping stressor\n",
+		pr_inf_skip("%s: allocate %zu resource structures failed%s, skipping stressor\n",
 			args->name, resources_num, stress_memory_free_get());
 		(void)stress_sync_s_pids_munmap(s_pids, resources_procs);
 		return EXIT_NO_RESOURCE;

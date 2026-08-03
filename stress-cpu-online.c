@@ -87,7 +87,7 @@ static int stress_cpu_online_set(
 			/* Not strictly a failure */
 			return EXIT_NO_RESOURCE;
 		default:
-			pr_fail("%s: write to %s failed, errno=%d (%s)\n",
+			pr_fail("%s: write to '%s' failed, errno=%d (%s)\n",
 				args->name, filename, errno, strerror(errno));
 			/* Anything else is a failure */
 			return EXIT_FAILURE;

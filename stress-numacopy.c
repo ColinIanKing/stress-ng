@@ -325,7 +325,7 @@ static int stress_numanode_cpus(
 
 	cpus = (uint32_t *)calloc((size_t)max_cpus, sizeof(*cpus));
 	if (!cpus) {
-		pr_inf_skip("%s: failed to allocate %" PRId32 " cpu entries", args->name, max_cpus);
+		pr_inf_skip("%s: allocate %" PRId32 " cpu entries failed, skipping stressor", args->name, max_cpus);
 		return -1;
 	}
 
@@ -349,7 +349,7 @@ static int stress_numanode_cpus(
 		(void)snprintf(path, sizeof(path), "/sys/devices/system/node/node%ld/cpulist", node);
 
 		if (stress_fs_file_read(path, buffer, sizeof(buffer)) < 1) {
-			pr_inf_skip("%s: failed to read %s, skipping stressor\n", args->name, path);
+			pr_inf_skip("%s: read '%s' failed, skipping stressor\n", args->name, path);
 			free(cpus);
 			return -1;
 		}

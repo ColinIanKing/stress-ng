@@ -192,7 +192,7 @@ static int stress_splice(stress_args_t *args)
 			PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (buffer == MAP_FAILED) {
-		pr_inf("%s: failed to mmap %zu byte write buffer%s, errno=%d (%s)\n",
+		pr_inf("%s: mmap %zu byte write buffer failed%s, errno=%d (%s)\n",
 			args->name, (size_t)buffer_len,
 			stress_memory_free_get(), errno, strerror(errno));
 		goto close_done;
@@ -201,7 +201,7 @@ static int stress_splice(stress_args_t *args)
 	(void)stress_madvise_mergeable(buffer, buffer_len);
 
 	if ((fd_in = open("/dev/zero", O_RDONLY)) < 0) {
-		pr_fail("%s: open /dev/zero failed, errno=%d (%s)\n",
+		pr_fail("%s: open '/dev/zero' failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		goto close_unmap;
 	}
@@ -234,7 +234,7 @@ static int stress_splice(stress_args_t *args)
 	}
 
 	if ((fd_out = open("/dev/null", O_WRONLY)) < 0) {
-		pr_fail("%s: open /dev/null failed, errno=%d (%s)\n",
+		pr_fail("%s: open '/dev/null' failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		goto close_fds4;
 	}

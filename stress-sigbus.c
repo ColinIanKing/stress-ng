@@ -111,7 +111,7 @@ static int stress_sigbus(stress_args_t *args)
 	(void)stress_fs_temp_filename_args(args, filename, sizeof(filename), stress_mwc32());
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		rc = stress_exit_status(errno);
-		pr_fail("%s: open %s failed, errno=%d (%s)\n",
+		pr_fail("%s: open '%s' failed, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
 		goto tidy_dir;
         }
@@ -133,7 +133,7 @@ static int stress_sigbus(stress_args_t *args)
 		PROT_READ | PROT_WRITE,
 		MAP_SHARED, fd, 0);
 	if (ptr == MAP_FAILED) {
-		pr_inf_skip("%s: failed to mmap %zu byte read only pages%s, "
+		pr_inf_skip("%s: mmap %zu byte read only pages failed%s, "
 			"errno=%d (%s), skipping stressor\n",
 			args->name, page_size * 2,
 			stress_memory_free_get(), errno, strerror(errno));
@@ -143,8 +143,8 @@ static int stress_sigbus(stress_args_t *args)
 	/* And remove last page on backing file */
 	ret = ftruncate(fd, page_size);
 	if (ret < 0) {
-		pr_fail("%s: ftruncate file to a single page failed, errno=%d (%s)\n",
-			args->name, errno, strerror(errno));
+		pr_fail("%s: ftruncate '%s' to a single page failed, errno=%d (%s)\n",
+			args->name, filename, errno, strerror(errno));
 		rc = EXIT_FAILURE;
 		goto tidy_mmap;
 	}

@@ -955,7 +955,7 @@ static int stress_rofs(stress_args_t *args)
 					shim_strlcat(str, ", ", n);
 				shim_strlcat(str, paths[j], n);
 			}
-			pr_inf("%s: exercising %s\n", args->name, str);
+			pr_inf("%s: exercising '%s'\n", args->name, str);
 			free(str);
 		}
 	}

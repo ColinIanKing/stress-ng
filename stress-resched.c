@@ -178,7 +178,7 @@ static int stress_resched(stress_args_t *args)
 	s_pids_max = max_prio + 1; /* 0.. max_prio */
 	s_pids = stress_sync_s_pids_mmap((size_t)s_pids_max);
 	if (s_pids == MAP_FAILED) {
-		pr_inf_skip("%s: failed to mmap %d PIDs%s, skipping stressor\n",
+		pr_inf_skip("%s: mmap %d PIDs failed%s, skipping stressor\n",
 			args->name, s_pids_max, stress_memory_free_get());
 		return EXIT_NO_RESOURCE;
 	}
@@ -194,7 +194,7 @@ static int stress_resched(stress_args_t *args)
 				PROT_READ | PROT_WRITE,
 				MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (yields == MAP_FAILED) {
-		pr_inf_skip("%s: failed to mmap %zu byte yield counter array%s, "
+		pr_inf_skip("%s: mmap %zu byte yield counter array failed%s, "
 			"errno=%d (%s), skipping stressor\n",
 			args->name, yields_size,
 			stress_memory_free_get(), errno, strerror(errno));

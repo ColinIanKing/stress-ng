@@ -670,7 +670,7 @@ static int stress_workload(stress_args_t *args)
 
 	workload = (stress_workload_t *)calloc(max_quanta, sizeof(*workload));
 	if (!workload) {
-		pr_inf_skip("%s: cannot allocate %" PRIu32 " scheduler workload timings%s, "
+		pr_inf_skip("%s: allocate %" PRIu32 " scheduler workload timings failed%s, "
 			"skipping stressor\n", args->name, max_quanta,
 			stress_memory_free_get());
 		rc = EXIT_NO_RESOURCE;

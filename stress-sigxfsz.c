@@ -79,7 +79,7 @@ static int stress_sigxfsz(stress_args_t *args)
 		filename, sizeof(filename), stress_mwc32());
 	fd = open(filename, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
 	if (fd < 0) {
-		pr_inf("%s: cannot open file '%s', errno=%d (%s), skipping stressor\n",
+		pr_inf("%s: open file '%s' failed, errno=%d (%s), skipping stressor\n",
 			args->name, filename, errno, strerror(errno));
 		rc = EXIT_NO_RESOURCE;
 		goto tidy_dir;

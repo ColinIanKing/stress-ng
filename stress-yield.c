@@ -269,8 +269,7 @@ static int stress_yield(stress_args_t *args)
 
 	s_pids = (stress_pid_t *)calloc(yielders, sizeof(*s_pids));
 	if (!s_pids) {
-		pr_inf_skip("%s: failed to allocate %" PRIu32
-			" pids%s, skipping stressor\n",
+		pr_inf_skip("%s: allocate %" PRIu32 " pids failed%s, skipping stressor\n",
 			args->name, yielders, stress_memory_free_get());
 		return EXIT_NO_RESOURCE;
 	}
@@ -281,7 +280,7 @@ static int stress_yield(stress_args_t *args)
 			PROT_READ | PROT_WRITE,
 			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (metrics == MAP_FAILED) {
-		pr_err("%s: failed to mmap %zu bytes%s, errno=%d (%s)\n",
+		pr_err("%s: mmap %zu bytes failed%s, errno=%d (%s)\n",
 			args->name, metrics_size,
 			stress_memory_free_get(), errno, strerror(errno));
 		free(s_pids);

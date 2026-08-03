@@ -170,7 +170,7 @@ static int stress_switch_pipe(
 			PROT_READ | PROT_WRITE,
 			MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (UNLIKELY(buf == MAP_FAILED)) {
-		pr_fail("%s: failed to mmap %zu byte pipe read/write buffer%s, errno=%d (%s)\n",
+		pr_fail("%s: mmap %zu byte pipe read/write buffer failed%s, errno=%d (%s)\n",
 			args->name, buf_size,
 			stress_memory_free_get(), errno, strerror(errno));
 		(void)close(pipefds[0]);

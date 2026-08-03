@@ -149,7 +149,7 @@ static int stress_mtx(stress_args_t *args)
 	}
 
 	if (!created) {
-		pr_inf("%s: could not create any pthreads\n", args->name);
+		pr_inf("%s: pthreads create failed\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
 

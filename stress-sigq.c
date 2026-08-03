@@ -90,7 +90,7 @@ static int stress_sigq(stress_args_t *args)
 	sa.sa_flags = SA_SIGINFO;
 
 	if (sigaction(SIGUSR1, &sa, NULL) < 0) {
-		pr_err("%s: cannot install SIGUSR1, errno=%d (%s)\n",
+		pr_err("%s: install SIGUSR1 signal handler failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}

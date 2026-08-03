@@ -1121,7 +1121,7 @@ static inline void *stress_memrate_mmap(stress_args_t *args, uint64_t sz)
 		MAP_ANONYMOUS, -1, 0);
 	/* Coverity Scan believes NULL can be returned, doh */
 	if (!ptr || (ptr == MAP_FAILED)) {
-		pr_err("%s: failed to mmap %" PRIu64 " K%s, errno=%d (%s)\n",
+		pr_err("%s: mmap %" PRIu64 " K failed%s, errno=%d (%s)\n",
 			args->name, sz / 1024, stress_memory_free_get(),
 			errno, strerror(errno));
 		ptr = MAP_FAILED;
@@ -1256,7 +1256,7 @@ static int stress_memrate(stress_args_t *args)
 
 	context = (stress_memrate_context_t *)stress_mmap_anon_shared(sizeof(*context), PROT_READ | PROT_WRITE);
 	if (context == MAP_FAILED) {
-		pr_inf_skip("%s: failed to mmap %zu byte context, "
+		pr_inf_skip("%s: mmap %zu byte context failed, "
 			"errno=%d (%s), skipping stressor\n",
 			args->name, sizeof(*context), errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
@@ -1295,7 +1295,7 @@ static int stress_memrate(stress_args_t *args)
 
 	context->memrate_stats = (stress_memrate_stats_t *)stress_mmap_anon_shared(memrate_stats_size, PROT_READ | PROT_WRITE);
 	if (context->memrate_stats == MAP_FAILED) {
-		pr_inf_skip("%s: failed to mmap %zu byte statistics buffer%s, "
+		pr_inf_skip("%s: mmap %zu byte statistics buffer failed%s, "
 			"errno=%d (%s), skipping stressor\n",
 			args->name, memrate_stats_size, stress_memory_free_get(),
 			errno, strerror(errno));

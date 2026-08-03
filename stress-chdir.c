@@ -133,7 +133,7 @@ static int stress_chdir(stress_args_t *args)
 			}
 			ret = stress_exit_status(errno);
 			if (ret == EXIT_FAILURE)
-				pr_fail("%s: mkdir %s failed, errno=%d (%s)\n",
+				pr_fail("%s: mkdir '%s' failed, errno=%d (%s)\n",
 					args->name, path, errno, strerror(errno));
 			goto abort;
 		}
@@ -145,7 +145,7 @@ static int stress_chdir(stress_args_t *args)
 	}
 
 	if (!got_statbuf && *path) {
-		pr_fail("%s: stat on %s failed, errno=%d (%s)%s\n",
+		pr_fail("%s: stat '%s' failed, errno=%d (%s)%s\n",
 			args->name, path, errno, strerror(errno),
 			stress_fs_type_get(path));
 		goto abort;
@@ -168,7 +168,7 @@ static int stress_chdir(stress_args_t *args)
 					count += 1.0;
 				} else {
 					if (errno != ENOMEM) {
-						pr_fail("%s: chdir %s failed, errno=%d (%s)%s\n",
+						pr_fail("%s: chdir '%s' failed, errno=%d (%s)%s\n",
 							args->name, chdir_info[i].path,
 							errno, strerror(errno),
 							stress_fs_type_get(path));
@@ -225,7 +225,7 @@ static int stress_chdir(stress_args_t *args)
 				}
 				/* Maybe low memory, force retry */
 				if (errno != ENOMEM) {
-					pr_fail("%s: chdir %s failed, errno=%d (%s)%s\n",
+					pr_fail("%s: chdir '%s' failed, errno=%d (%s)%s\n",
 						args->name, cwd,
 						errno, strerror(errno),
 						stress_fs_type_get(cwd));
@@ -264,7 +264,7 @@ static int stress_chdir(stress_args_t *args)
 	ret = EXIT_SUCCESS;
 abort:
 	if (chdir(cwd) < 0)
-		pr_fail("%s: chdir %s failed, errno=%d (%s)%s\n",
+		pr_fail("%s: chdir '%s' failed, errno=%d (%s)%s\n",
 			args->name, cwd, errno, strerror(errno),
 			stress_fs_type_get(cwd));
 tidy:

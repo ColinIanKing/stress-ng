@@ -435,7 +435,7 @@ static int stress_prefetch(stress_args_t *args)
 #endif
 		MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (l3_data == MAP_FAILED) {
-		pr_inf_skip("%s: cannot mmap %zu bytes%s, errno=%d (%s), "
+		pr_inf_skip("%s: mmap %zu bytes failed%s, errno=%d (%s), "
 			"skipping stressor\n",
 			args->name, l3_data_mmap_size,
 			stress_memory_free_get(), errno, strerror(errno));

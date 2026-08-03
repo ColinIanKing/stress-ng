@@ -132,7 +132,7 @@ static int stress_oom_pipe_child(stress_args_t *args, void *ctxt)
 	}
 
 	if (!pipes_open) {
-		pr_dbg("%s: failed to open any pipes, aborted\n",
+		pr_dbg("%s: opening pipes failed, aborted\n",
 			args->name);
 		return EXIT_NO_RESOURCE;
 	}
@@ -199,7 +199,7 @@ static int stress_oom_pipe(stress_args_t *args)
 	buffer = stress_mmap_populate(NULL, buffer_size, PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (buffer == MAP_FAILED) {
-		pr_inf_skip("%s: failed to mmap %zu byte pipe write buffer%s, "
+		pr_inf_skip("%s: mmap %zu byte pipe write buffer failed%s, "
 			"errno=%d (%s), skipping stressor\n",
 			args->name, buffer_size, stress_memory_free_get(),
 			errno, strerror(errno));
@@ -218,7 +218,7 @@ static int stress_oom_pipe(stress_args_t *args)
 		context.max_fd = 1024 * 1024;
 		context.fds = (int *)calloc(context.max_fd, sizeof(*context.fds));
 		if (!context.fds) {
-			pr_inf_skip("%s: cannot allocate %zu file descriptors%s, skipping stressor\n",
+			pr_inf_skip("%s: allocate %zu file descriptors failed%s, skipping stressor\n",
 				args->name, context.max_fd,
 				stress_memory_free_get());
 			(void)munmap(buffer, buffer_size);

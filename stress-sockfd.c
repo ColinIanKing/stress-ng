@@ -291,7 +291,7 @@ static int OPTIMIZE3 stress_socket_server(
 	if (bind(fd, addr, addr_len) < 0) {
 		if (errno == EADDRINUSE) {
 			rc = EXIT_NO_RESOURCE;
-			pr_inf_skip("%s: cannot bind, skipping stressor, errno=%d (%s)\n",
+			pr_inf_skip("%s: bind failed, skipping stressor, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			goto die_close;
 		}
@@ -448,7 +448,7 @@ static int stress_sockfd(stress_args_t *args)
 	fds_size = sizeof(*fds) * (size_t)max_fd;
 	fds = (int *)malloc(fds_size);
 	if (!fds) {
-		pr_inf_skip("%s: failed to allocate %zd file descriptors%s, skipping stressor\n",
+		pr_inf_skip("%s: allocate %zd file descriptors failed%s, skipping stressor\n",
 			args->name, max_fd, stress_memory_free_get());
 		return EXIT_NO_RESOURCE;
 	}

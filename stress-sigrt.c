@@ -56,7 +56,7 @@ static int stress_sigrt(stress_args_t *args)
 			PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (stress_sigrt_metrics == MAP_FAILED) {
-		pr_inf("%s: failed to mmap %zu bytes%s, errno=%d (%s), "
+		pr_inf("%s: mmap %zu bytes failed%s, errno=%d (%s), "
 			"skipping stressor\n",
 			args->name, stress_sigrt_metrics_size,
 			stress_memory_free_get(), errno, strerror(errno));
@@ -65,7 +65,7 @@ static int stress_sigrt(stress_args_t *args)
 	stress_memory_anon_name_set(stress_sigrt_metrics, stress_sigrt_metrics_size, "metrics");
 	s_pids = (stress_pid_t *)calloc((size_t)MAX_RTSIGS, sizeof(*s_pids));
 	if (!s_pids) {
-		pr_inf_skip("%s: failed to allocate array of %zu pids%s, skipping stressor\n",
+		pr_inf_skip("%s: allocate array of %zu pids failed%s, skipping stressor\n",
 			args->name, (size_t)MAX_RTSIGS, stress_memory_free_get());
 		(void)munmap((void *)stress_sigrt_metrics, stress_sigrt_metrics_size);
 		return EXIT_NO_RESOURCE;

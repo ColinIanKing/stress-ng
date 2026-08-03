@@ -336,7 +336,7 @@ static int stress_close(stress_args_t *args)
 		(void)stress_fs_temp_filename_args(args, filename, sizeof(filename), stress_mwc32());
 		file_fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
 		if (file_fd < 0) {
-			pr_err("%s: cannot create %s\n", args->name, filename);
+			pr_err("%s: cannot open '%s'\n", args->name, filename);
 			rc = stress_exit_status(errno);
 			goto tidy;
 		}

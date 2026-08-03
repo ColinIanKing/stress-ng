@@ -417,13 +417,13 @@ static int stress_seccomp(stress_args_t *args)
 			if (stress_seccomp_set_filter(args, allow_write, do_random) < 0)
 				_exit(EXIT_FAILURE);
 			if ((fd = open("/dev/null", O_WRONLY)) < 0) {
-				pr_err("%s: open failed on /dev/null, "
+				pr_err("%s: open '/dev/null' failed, "
 					"errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				_exit(EXIT_FAILURE);
 			}
 			if (write(fd, "TEST\n", 5) < 0) {
-				pr_err("%s: write to /dev/null failed, "
+				pr_err("%s: write to '/dev/null' failed, "
 					"errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				rc = EXIT_FAILURE;

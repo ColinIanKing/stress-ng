@@ -181,8 +181,8 @@ bad_cache_free:
 	stress_cpu_cache_free(cpu_caches);
 #endif
 bad_cache:
-	pr_inf_skip("%s: skipping stressor, cannot determine "
-		"cache level 1 information from kernel\n",
+	pr_inf_skip("%s: cannot determine cache level 1 information "
+		"from kernel, skipping stressor\n",
 		args->name);
 
 	return EXIT_NO_RESOURCE;

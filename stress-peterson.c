@@ -226,7 +226,7 @@ static int stress_peterson(stress_args_t *args)
 			PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (peterson == MAP_FAILED) {
-		pr_inf_skip("%s: cannot mmap %zu bytes for peterson shared struct%s, "
+		pr_inf_skip("%s: mmap %zu bytes for peterson shared struct failed%s, "
 			"errno=%d (%s), skipping stressor\n",
 			args->name, sz, stress_memory_free_get(),
 			errno, strerror(errno));
@@ -247,7 +247,7 @@ static int stress_peterson(stress_args_t *args)
 	parent_cpu = stress_cpu_get();
 	pid = fork();
 	if (pid < 0) {
-		pr_inf_skip("%s: cannot create child process, skipping stressor\n", args->name);
+		pr_inf_skip("%s: create child process failed, skipping stressor\n", args->name);
 		return EXIT_NO_RESOURCE;
 	} else if (pid == 0) {
 		/* Child */

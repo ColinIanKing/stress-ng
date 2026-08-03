@@ -193,7 +193,7 @@ static int OPTIMIZE3 stress_hsearch(stress_args_t *args)
 
 	keys = (char **)calloc(max, sizeof(*keys));
 	if (!keys) {
-		pr_err("%s: cannot allocate %zu keys%s\n",
+		pr_err("%s: allocate %zu keys failed%s\n",
 			args->name, max, stress_memory_free_get());
 		goto free_hash;
 	}
@@ -206,7 +206,7 @@ static int OPTIMIZE3 stress_hsearch(stress_args_t *args)
 		(void)snprintf(buffer, sizeof(buffer), "%zu", i);
 		keys[i] = shim_strdup(buffer);
 		if (!keys[i]) {
-			pr_err("%s: cannot allocate %zu byte key%s\n",
+			pr_err("%s: allocate %zu byte key failedy%s\n",
 				args->name, shim_strnlen(buffer, sizeof(buffer)),
 				stress_memory_free_get());
 			goto free_all;
@@ -216,7 +216,7 @@ static int OPTIMIZE3 stress_hsearch(stress_args_t *args)
 		e.data = (void *)i;
 
 		if (hsearch_func(e, ENTER) == NULL) {
-			pr_err("%s: cannot allocate new hash item%s\n",
+			pr_err("%s: allocate new hash item failed%s\n",
 				args->name, stress_memory_free_get());
 			goto free_all;
 		}
@@ -237,7 +237,7 @@ static int OPTIMIZE3 stress_hsearch(stress_args_t *args)
 			ep = hsearch_func(e, FIND);
 			if (verify) {
 				if (UNLIKELY(ep == NULL)) {
-					pr_fail("%s: cannot find key %s\n", args->name, keys[i]);
+					pr_fail("%s: cannot find key '%s'\n", args->name, keys[i]);
 					rc = EXIT_FAILURE;
 				} else {
 					if (UNLIKELY(i != (size_t)ep->data)) {

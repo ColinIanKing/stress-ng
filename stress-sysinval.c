@@ -2832,7 +2832,7 @@ static int stress_sysinval(stress_args_t *args)
 		filename, sizeof(filename), stress_mwc32());
 	fds[0] = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
 	if (fds[0] < 0) {
-		pr_fail("%s: open %s failed, errno=%d (%s)\n",
+		pr_fail("%s: open '%s' failed, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
 		goto err_dir;
 	}

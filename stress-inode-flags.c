@@ -333,7 +333,7 @@ static int stress_inode_flags(stress_args_t *args)
 
 	inode_flags_counter_lock = stress_lock_create("counter");
 	if (!inode_flags_counter_lock) {
-		pr_inf("%s: failed to create lock, skipping stressor\n", args->name);
+		pr_inf("%s: create lock failed, skipping stressor\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
 
@@ -363,14 +363,14 @@ static int stress_inode_flags(stress_args_t *args)
 
 	data.dir_fd = open(dir_name, O_RDONLY | O_DIRECTORY);
 	if (data.dir_fd < 0) {
-		pr_err("%s: cannot open %s, errno=%d (%s)\n",
+		pr_err("%s: open '%s' failed, errno=%d (%s)\n",
 			args->name, dir_name, errno, strerror(errno));
 		rc = EXIT_NO_RESOURCE;
 		goto tidy_unlink;
 	}
 	data.file_fd = open(file_name, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
 	if (data.file_fd < 0) {
-		pr_err("%s: cannot open %s, errno=%d (%s)\n",
+		pr_err("%s: open '%s' failed, errno=%d (%s)\n",
 			args->name, file_name, errno, strerror(errno));
 		rc = EXIT_NO_RESOURCE;
 		goto tidy_dir_fd;

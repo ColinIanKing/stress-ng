@@ -98,7 +98,7 @@ static int stress_metamix_file(
                 args->pid, args->instance, stress_mwc32() ^ instance);
 	if ((fd = open(filename, O_WRONLY | O_CREAT | O_EXCL, S_IRUSR | S_IWUSR)) < 0) {
 		ret = stress_exit_status(errno);
-		pr_fail("%s: open for write %s failed, errno=%d (%s)%s\n",
+		pr_fail("%s: open '%s' for write failed, errno=%d (%s)%s\n",
 			args->name, filename, errno, strerror(errno), fs_type);
 		return ret;
 	}
@@ -115,7 +115,7 @@ static int stress_metamix_file(
 		file_info[n].data_len = data_len;
 
 		if (UNLIKELY(lseek(fd, offset, SEEK_SET) < 0)) {
-			pr_fail("%s: write: lseek %s failed, errno=%d (%s)%s\n",
+			pr_fail("%s: write: lseek '%s' failed, errno=%d (%s)%s\n",
 				args->name, filename, errno, strerror(errno), fs_type);
 			rc = EXIT_FAILURE;
 			goto err_close;
@@ -155,7 +155,7 @@ static int stress_metamix_file(
 	if (stress_mwc8() > 240) {
 		if (shim_fdatasync(fd) < 0) {
 			if (UNLIKELY((errno != EINTR) && (errno != ENOSYS))) {
-				pr_inf("%s: fdatasync on %s failed, errno=%d (%s)%s\n",
+				pr_inf("%s: fdatasync on '%s' failed, errno=%d (%s)%s\n",
 					args->name, filename, errno, strerror(errno), fs_type);
 				rc = EXIT_FAILURE;
 				goto err_close;
@@ -169,14 +169,14 @@ static int stress_metamix_file(
 	 */
 	if (stress_mwc1()) {
 		if (UNLIKELY(shim_stat(filename, &statbuf) < 0)) {
-			pr_fail("%s: stat on %s failed, errno=%d (%s)%s\n",
+			pr_fail("%s: stat on '%s' failed, errno=%d (%s)%s\n",
 				args->name, filename, errno, strerror(errno), fs_type);
 			rc = EXIT_FAILURE;
 			goto err_unlink;
 		}
 	} else {
 		if (UNLIKELY(shim_lstat(filename, &statbuf) < 0)) {
-			pr_fail("%s: lstat on %s failed, errno=%d (%s)%s\n",
+			pr_fail("%s: lstat on '%s' failed, errno=%d (%s)%s\n",
 				args->name, filename, errno, strerror(errno), fs_type);
 			rc = EXIT_FAILURE;
 			goto err_unlink;
@@ -184,7 +184,7 @@ static int stress_metamix_file(
 	}
 
 	if (UNLIKELY((intmax_t)statbuf.st_size != (intmax_t)end)) {
-		pr_fail("%s: stat on %s, expecting file size %" PRIdMAX ", got %" PRIdMAX "\n",
+		pr_fail("%s: stat on '%s', expecting file size %" PRIdMAX ", got %" PRIdMAX "\n",
 			args->name, filename, (intmax_t)end, (intmax_t)statbuf.st_size);
 		rc = EXIT_FAILURE;
 		goto err_unlink;
@@ -192,14 +192,14 @@ static int stress_metamix_file(
 
 	fd = open(filename, O_RDONLY);
 	if (UNLIKELY(fd < 0)) {
-		pr_fail("%s: open for read %s failed, errno=%d (%s)%s\n",
+		pr_fail("%s: open '%s' for read failed, errno=%d (%s)%s\n",
 			args->name, filename, errno, strerror(errno), fs_type);
 		rc = EXIT_FAILURE;
 		goto err_unlink;
 	}
 	if (shim_fdatasync(fd) < 0) {
 		if (UNLIKELY((errno != EINTR) && (errno != ENOSYS) && (errno != EBADF))) {
-			pr_inf("%s: fdatasync on %s failed, errno=%d (%s)%s\n",
+			pr_inf("%s: fdatasync on '%s' failed, errno=%d (%s)%s\n",
 				args->name, filename, errno, strerror(errno), fs_type);
 			rc = EXIT_FAILURE;
 			goto err_close;
@@ -212,7 +212,7 @@ static int stress_metamix_file(
 	if (fd != -1) {
 		if (shim_fsync(fd) < 0) {
 			if (UNLIKELY((errno != EINTR) && (errno != ENOSYS) && (errno != EBADF))) {
-				pr_inf("%s: fsync on directory %s failed, errno=%d (%s)%s\n",
+				pr_inf("%s: fsync on directory '%s' failed, errno=%d (%s)%s\n",
 					args->name, temp_dir, errno, strerror(errno), fs_type);
 				rc = EXIT_FAILURE;
 				(void)close(fd);
@@ -230,7 +230,7 @@ static int stress_metamix_file(
 
 	fd = open(filename, O_RDONLY);
 	if (UNLIKELY(fd < 0)) {
-		pr_fail("%s: open for read %s failed, errno=%d (%s)%s\n",
+		pr_fail("%s: open '%s' for read failed, errno=%d (%s)%s\n",
 			args->name, filename, errno, strerror(errno), fs_type);
 		rc = EXIT_FAILURE;
 		goto err_unlink;
@@ -241,7 +241,7 @@ static int stress_metamix_file(
 		const size_t data_len = file_info[i].data_len;
 
 		if (UNLIKELY(lseek(fd, file_info[i].offset, SEEK_SET) < 0)) {
-			pr_fail("%s: read: lseek %s failed, errno=%d (%s)%s\n",
+			pr_fail("%s: read: lseek '%s' failed, errno=%d (%s)%s\n",
 				args->name, filename, errno, strerror(errno), fs_type);
 			rc = EXIT_FAILURE;
 			goto err_close;
@@ -294,13 +294,13 @@ static int stress_metamix_file(
 		}
 	}
 	if (shim_lstat(filename, &statbuf) < 0) {
-		pr_fail("%s: lstat on %s failed, errno=%d (%s)%s\n",
+		pr_fail("%s: lstat on '%s' failed, errno=%d (%s)%s\n",
 			args->name, filename, errno, strerror(errno), fs_type);
 		rc = EXIT_FAILURE;
 		goto err_close;
 	}
 	if ((intmax_t)statbuf.st_size != (intmax_t)end) {
-		pr_fail("%s: stat on %s, expecting file size %" PRIdMAX ", got %" PRIdMAX "\n",
+		pr_fail("%s: stat on '%s', expecting file size %" PRIdMAX ", got %" PRIdMAX "\n",
 			args->name, filename, (intmax_t)end, (intmax_t)statbuf.st_size);
 		rc = EXIT_FAILURE;
 		goto err_close;
@@ -338,14 +338,14 @@ static int stress_metamix(stress_args_t *args)
 
 	s_pids = stress_sync_s_pids_mmap(METAMIX_PROCS);
 	if (s_pids == MAP_FAILED) {
-		pr_inf_skip("%s: failed to mmap %d PIDs%s, skipping stressor\n",
+		pr_inf_skip("%s: mmap %d PIDs failed%s, skipping stressor\n",
 			args->name, METAMIX_PROCS, stress_memory_free_get());
 		return EXIT_NO_RESOURCE;
 	}
 
 	counter_lock = stress_lock_create("counter");
 	if (!counter_lock) {
-		pr_inf_skip("%s: failed to create counter lock. skipping stressor\n", args->name);
+		pr_inf_skip("%s: create counter lock failed. skipping stressor\n", args->name);
 		ret = EXIT_NO_RESOURCE;
 		goto tidy_s_pids;
 	}

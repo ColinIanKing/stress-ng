@@ -789,7 +789,7 @@ static void stress_fd_race_get_dev(
 		struct stat statbuf;
 
 		if (stat(dirname, &statbuf) < 0) {
-			pr_inf("%s: cannot stat %s, errno=%d (%s), option "
+			pr_inf("%s: stat '%s' failed, errno=%d (%s), option "
 				"%s will be disabled\n", args->name, dirname,
 				errno, strerror(errno), opt_name);
 			*opt_flag = false;
@@ -841,7 +841,7 @@ static int stress_fd_race(stress_args_t *args)
 	(void)stress_fs_temp_filename_args(args, filename, sizeof(filename), stress_mwc32());
 	fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
 	if (fd < 0) {
-		pr_inf("%s: failed to create file '%s', errno=%d (%s), skipping stressor\n",
+		pr_inf("%s: open '%s' failed, errno=%d (%s), skipping stressor\n",
 			args->name, filename, errno, strerror(errno));
 		rc = EXIT_NO_RESOURCE;
 		goto tidy_file;

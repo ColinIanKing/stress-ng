@@ -231,7 +231,7 @@ static int stress_sighup(stress_args_t *args)
 				MAP_SHARED | MAP_ANONYMOUS,
 				-1, 0);
 	if (sighup_info == MAP_FAILED) {
-		pr_inf_skip("%s: failed to mmap %zu byte sighup information%s, "
+		pr_inf_skip("%s: mmap %zu byte sighup information failed%s, "
 			"errno=%d (%s), skipping stressor\n",
 			args->name, sizeof(*sighup_info),
 			stress_memory_free_get(), errno, strerror(errno));

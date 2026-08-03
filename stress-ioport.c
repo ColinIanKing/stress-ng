@@ -97,7 +97,7 @@ static int stress_ioport_supported(const char *name)
 		case EINVAL:
 		case EIO:
 		default:
-			pr_inf_skip("%s cannot access port 0x%x, skipping stressor\n",
+			pr_inf_skip("%s access port 0x%x failed, skipping stressor\n",
 				name, (unsigned int)IO_PORT_POST);
 			return -1;
 		}
@@ -155,7 +155,7 @@ static int stress_ioport(stress_args_t *args)
 
 	ret = ioperm(port, 1, 1);
 	if (ret < 0) {
-		pr_err("%s: cannot access port 0x%x, errno=%d (%s)\n",
+		pr_err("%s: access port 0x%x failed, errno=%d (%s)\n",
 			args->name, (unsigned int)port, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}

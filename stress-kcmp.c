@@ -149,7 +149,7 @@ static int stress_kcmp(stress_args_t *args)
 		"aborting stress test\n";
 
 	if ((fd1 = open("/dev/null", O_WRONLY)) < 0) {
-		pr_fail("%s: open /dev/null failed, errno=%d (%s)\n",
+		pr_fail("%s: open '/dev/null' failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
@@ -253,7 +253,7 @@ again:
 
 		pid2 = getpid();
 		if ((fd2 = open("/dev/null", O_WRONLY)) < 0) {
-			pr_fail("%s: open /dev/null failed, errno=%d (%s)\n",
+			pr_fail("%s: open '/dev/null' failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			ret = EXIT_FAILURE;
 			goto reap;

@@ -267,7 +267,7 @@ static int stress_mmaphuge(stress_args_t *args)
 
 	context = stress_mmap_anon_shared(sizeof(*context), PROT_READ | PROT_WRITE);
 	if (context == MAP_FAILED) {
-		pr_inf_skip("%s: failed to mmap %zu byte sized context, "
+		pr_inf_skip("%s: mmap %zu byte sized context failed, "
 			"errno=%d (%s), skipping stressor\n",
 			args->name, sizeof(*context), errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
@@ -296,7 +296,7 @@ static int stress_mmaphuge(stress_args_t *args)
 
 	context->bufs = (stress_mmaphuge_buf_t *)calloc(context->mmaphuge_mmaps, sizeof(*context->bufs));
 	if (!context->bufs) {
-		pr_inf_skip("%s: cannot allocate %zu byte buffer array%s, skipping stressor\n",
+		pr_inf_skip("%s: allocate %zu byte buffer array failed%s, skipping stressor\n",
 			args->name, context->mmaphuge_mmaps * sizeof(*context->bufs),
 			stress_memory_free_get());
 		(void)stress_munmap_anon_shared(context, sizeof(*context));
@@ -319,7 +319,7 @@ static int stress_mmaphuge(stress_args_t *args)
 		context->fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
 		if (context->fd < 0) {
 			rc = stress_exit_status(errno);
-			pr_fail("%s: open %s failed, errno=%d (%s)\n",
+			pr_fail("%s: open '%s' failed, errno=%d (%s)\n",
 				args->name, filename, errno, strerror(errno));
 			(void)shim_unlink(filename);
 			(void)stress_fs_temp_dir_rm_args(args);

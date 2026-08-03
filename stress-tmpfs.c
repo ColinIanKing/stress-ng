@@ -218,7 +218,7 @@ static int stress_tmpfs_child(stress_args_t *args, void *ctxt)
 
 	mappings = (mapping_info_t *)calloc(pages, sizeof(*mappings));
 	if (UNLIKELY(!mappings)) {
-		pr_inf_skip("%s: failed to allocate %zu byte mapping array%s, skipping stressor\n",
+		pr_inf_skip("%s: allocate %zu byte mapping array failed%s, skipping stressor\n",
 			args->name, pages * sizeof(*mappings),
 			stress_memory_free_get());
 		return EXIT_NO_RESOURCE;

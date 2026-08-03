@@ -354,7 +354,7 @@ static int stress_swap_child(stress_args_t *args, void *context)
 	page = (uint8_t *)mmap(NULL, page_size, PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (page == MAP_FAILED) {
-		pr_inf_skip("%s: failed to mmap 1 page%s, errno=%d (%s), skipping stressor\n",
+		pr_inf_skip("%s: mmap 1 page failed%s, errno=%d (%s), skipping stressor\n",
 			args->name, stress_memory_free_get(), errno, strerror(errno));
 		ret = EXIT_NO_RESOURCE;
 		goto tidy_ret;
@@ -374,7 +374,7 @@ static int stress_swap_child(stress_args_t *args, void *context)
 	fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
 	if (fd < 0) {
 		ret = stress_exit_status(errno);
-		pr_fail("%s: open swap file %s failed, errno=%d (%s)\n",
+		pr_fail("%s: open swap file '%s' failed, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
 		goto tidy_rm;
 	}

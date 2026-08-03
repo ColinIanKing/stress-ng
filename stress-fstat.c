@@ -299,7 +299,7 @@ static int stress_fstat(stress_args_t *args)
 	(void)stress_setting_get("fstat-dir", &fstat_dir);
 
 	if ((dp = opendir(fstat_dir)) == NULL) {
-		pr_err("%s: opendir on %s failed, errno=%d: (%s)\n",
+		pr_err("%s: opendir '%s' failed, errno=%d: (%s)\n",
 			args->name, fstat_dir, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}

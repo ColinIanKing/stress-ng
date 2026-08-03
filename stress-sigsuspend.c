@@ -53,7 +53,7 @@ static int stress_sigsuspend(stress_args_t *args)
 
 	counter_lock = stress_lock_create("counter");
 	if (!counter_lock) {
-		pr_inf_skip("%s: failed to create counter lock. skipping stressor\n", args->name);
+		pr_inf_skip("%s: create counter lock failed. skipping stressor\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
 

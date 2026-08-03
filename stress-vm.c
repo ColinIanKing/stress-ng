@@ -3865,7 +3865,7 @@ static int stress_vm(stress_args_t *args)
 
 	context = stress_mmap_anon_shared(sizeof(*context), PROT_READ | PROT_WRITE);
 	if (context == MAP_FAILED) {
-		pr_inf_skip("%s: failed to mmap %zu byte sized context, "
+		pr_inf_skip("%s: mmap %zu byte sized context failed, "
 			"errno=%d (%s), skipping stressor\n",
 			args->name, sizeof(*context), errno, strerror(errno));
 		return EXIT_NO_RESOURCE;

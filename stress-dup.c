@@ -242,7 +242,7 @@ static int stress_dup(stress_args_t *args)
 
 	fds[0] = open("/dev/zero", O_RDONLY);
 	if (fds[0] < 0) {
-		pr_dbg("%s: open failed on /dev/zero, errno=%d (%s)\n",
+		pr_dbg("%s: open '/dev/zero' failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		rc = EXIT_NO_RESOURCE;
 		goto tidy_fds;

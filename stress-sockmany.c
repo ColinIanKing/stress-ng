@@ -382,7 +382,7 @@ static int stress_sockmany(stress_args_t *args)
 		PROT_READ | PROT_WRITE,
 		MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (sock_fds == MAP_FAILED) {
-		pr_inf("%s: failed to mmap %zu byte shared memory%s, errno=%d (%s), "
+		pr_inf("%s: mmap %zu byte shared memory failed%s, errno=%d (%s), "
 			"skipping stressor\n",
 			args->name, sizeof(*sock_fds),
 			stress_memory_free_get(), errno, strerror(errno));

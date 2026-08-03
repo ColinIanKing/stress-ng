@@ -220,20 +220,20 @@ static int stress_binderfs(stress_args_t *args)
     defined(HAVE_SYS_MOUNT_H)
 		fd = fsopen("binder", FSOPEN_CLOEXEC);
 		if (fd < 0) {
-			pr_inf_skip("%s: fsopen failed on binderfs at %s, errno=%d (%s), %s\n",
+			pr_inf_skip("%s: fsopen failed on binderfs on '%s', errno=%d (%s), %s\n",
 				args->name, pathname, errno, strerror(errno), skip);
 			rc = EXIT_NO_RESOURCE;
 			goto clean;
 		}
 		if (fsconfig(fd, FSCONFIG_SET_STRING, "source", "binder", 0) < 0) {
-			pr_inf_skip("%s: fsconfig failed on binderfs at %s, errno=%d (%s), %s\n",
+			pr_inf_skip("%s: fsconfig failed on binderfs on '%s', errno=%d (%s), %s\n",
 				args->name, pathname, errno, strerror(errno), skip);
 			rc = EXIT_NO_RESOURCE;
 			(void)close(fd);
 			goto clean;
 		}
 		if (fsconfig(fd, FSCONFIG_CMD_CREATE, NULL, NULL, 0) < 0) {
-			pr_inf_skip("%s: fsconfig failed on binderfs at %s, errno=%d (%s), %s\n",
+			pr_inf_skip("%s: fsconfig failed on binderfs on '%s', errno=%d (%s), %s\n",
 				args->name, pathname, errno, strerror(errno), skip);
 			rc = EXIT_NO_RESOURCE;
 			(void)close(fd);
@@ -241,7 +241,7 @@ static int stress_binderfs(stress_args_t *args)
 		}
 		fd_mnt = fsmount(fd, FSMOUNT_CLOEXEC, 0);
 		if (fd_mnt < 0) {
-			pr_inf_skip("%s: fsmount failed on binderfs at %s, errno=%d (%s), %s\n",
+			pr_inf_skip("%s: fsmount failed on binderfs on '%s', errno=%d (%s), %s\n",
 				args->name, pathname, errno, strerror(errno), skip);
 			rc = EXIT_NO_RESOURCE;
 			(void)close(fd);
@@ -271,13 +271,13 @@ static int stress_binderfs(stress_args_t *args)
 				   (errno == ENOMEM) ||
 				   (errno == EPERM)) {
 				/* ..ran out of resources, skip */
-				pr_inf_skip("%s: mount failed on binderfs at %s, errno=%d (%s), %s\n",
+				pr_inf_skip("%s: mount failed on binderfs on '%s', errno=%d (%s), %s\n",
 					args->name, pathname, errno, strerror(errno), skip);
 				rc = EXIT_NO_RESOURCE;
 				goto clean;
 			} else {
 				/* ..failed! */
-				pr_fail("%s: mount failed on binderfs at %s, errno=%d (%s)\n",
+				pr_fail("%s: mount failed on binderfs on '%s', errno=%d (%s)\n",
 					args->name, pathname, errno, strerror(errno));
 				rc = EXIT_FAILURE;
 				goto clean;

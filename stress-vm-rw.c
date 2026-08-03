@@ -95,7 +95,7 @@ static int OPTIMIZE3 stress_vm_child(void *arg)
 		MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (buf == MAP_FAILED) {
 		rc = stress_exit_status(errno);
-		pr_fail("%s: failed to mmap %zu bytes%s, errno=%d (%s)\n",
+		pr_fail("%s: mmap %zu bytes failed%s, errno=%d (%s)\n",
 			args->name, ctxt->sz,
 			stress_memory_free_get(), errno, strerror(errno));
 		goto cleanup;
@@ -190,7 +190,7 @@ static int OPTIMIZE3 stress_vm_parent(stress_context_t *ctxt)
 	localbuf = (uint8_t *)mmap(NULL, ctxt->sz, PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (localbuf == MAP_FAILED) {
-		pr_fail("%s: failed to mmap %zu bytes%s, errno=%d (%s)\n",
+		pr_fail("%s: mmap %zu bytes failed%s, errno=%d (%s)\n",
 			args->name, ctxt->sz,
 			stress_memory_free_get(), errno, strerror(errno));
 		(void)close(ctxt->pipe_wr[0]);

@@ -111,8 +111,8 @@ static void stress_fifo_reader(
 
 	fd = open(fifoname, O_RDONLY | O_NONBLOCK);
 	if (fd < 0) {
-		pr_fail("%s: fifo read open failed, errno=%d (%s)\n",
-			name, errno, strerror(errno));
+		pr_fail("%s: fifo open '%s' failed, errno=%d (%s)\n",
+			name, fifoname, errno, strerror(errno));
 		return;
 	}
 	while (stress_continue_flag()) {
@@ -272,8 +272,8 @@ static int stress_fifo(stress_args_t *args)
 
 	if (mkfifo(fifoname, S_IRUSR | S_IWUSR) < 0) {
 		rc = stress_exit_status(errno);
-		pr_fail("%s: mkfifo failed, errno=%d (%s)\n",
-			args->name, errno, strerror(errno));
+		pr_fail("%s: mkfifo '%s' failed, errno=%d (%s)\n",
+			args->name, fifoname, errno, strerror(errno));
 		goto tidy;
 	}
 

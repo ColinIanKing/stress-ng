@@ -123,12 +123,12 @@ static int stress_watchdog(stress_args_t *args)
 	if (access(dev_watchdog, R_OK | W_OK) < 0) {
 		if (errno == ENOENT) {
 			if (stress_instance_zero(args))
-				pr_inf_skip("%s: %s does not exist, skipping stressor\n",
+				pr_inf_skip("%s: '%s' does not exist, skipping stressor\n",
 					args->name, dev_watchdog);
 			return EXIT_SUCCESS;
 		} else {
 			if (stress_instance_zero(args))
-				pr_inf_skip("%s: cannot access %s, errno=%d (%s), skipping stressor\n",
+				pr_inf_skip("%s: cannot access '%s', errno=%d (%s), skipping stressor\n",
 					args->name, dev_watchdog, errno, strerror(errno));
 			return EXIT_SUCCESS;
 		}
@@ -263,7 +263,7 @@ static int stress_watchdog(stress_args_t *args)
 		ret = close(fd);
 		fd = -1;
 		if (ret < 0) {
-			pr_fail("%s: cannot close %s, errno=%d (%s)\n",
+			pr_fail("%s: cannot close '%s', errno=%d (%s)\n",
 				args->name, dev_watchdog, errno, strerror(errno));
 			rc = EXIT_FAILURE;
 			break;

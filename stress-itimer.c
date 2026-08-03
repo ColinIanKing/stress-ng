@@ -157,8 +157,8 @@ static int stress_itimer(stress_args_t *args)
 	if (setitimer(ITIMER_PROF, &timer, NULL) < 0) {
 		if (errno == EINVAL) {
 			if (stress_instance_zero(args))
-				pr_inf_skip("%s: skipping stressor, setitimer with "
-					"ITIMER_PROF is not implemented\n",
+				pr_inf_skip("%s: setitimer with ITIMER_PROF is not "
+					"implemented, skipping stressor\n",
 					args->name);
 			return EXIT_NOT_IMPLEMENTED;
 		}

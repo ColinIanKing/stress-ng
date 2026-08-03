@@ -225,7 +225,7 @@ static int stress_stack_child(stress_args_t *args, void *context)
 		PROT_READ | PROT_WRITE,
 		MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (altstack == MAP_FAILED) {
-		pr_inf_skip("%s: failed to mmap %zu byte signal stack%s, "
+		pr_inf_skip("%s: mmap %zu byte signal stack failed%s, "
 			"errno=%d (%s), skipping stressor\n",
 			args->name, (size_t)STRESS_SIGSTKSZ,
 			stress_memory_free_get(), errno, strerror(errno));

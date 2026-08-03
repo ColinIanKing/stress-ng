@@ -36,20 +36,20 @@ static const stress_help_t help[] = {
 static int stress_idle_page_supported(const char *name)
 {
 	if (!stress_capabilities_check(SHIM_CAP_SYS_RESOURCE)) {
-		pr_inf_skip("%s stressor will be skipped, "
+		pr_inf_skip("%s: stressor will be skipped, "
 			"need to be running with CAP_SYS_RESOURCE "
 			"rights for this stressor\n", name);
 		return -1;
 	}
 	if (geteuid() != 0) {
-		pr_inf_skip("%s stressor will be skipped, "
-		       "need to be running as root for this stressor\n", name);
+		pr_inf_skip("%s: need to be running as root, stressor will be skipped\n",
+			name);
 		return -1;
 	}
 
 	if (access(bitmap_file, R_OK) != 0) {
-		pr_inf_skip("%s stressor will be skipped, "
-			"cannot access file %s\n", name, bitmap_file);
+		pr_inf_skip("%s: failed to access file '%s', stressor will be skipped\n",
+			name, bitmap_file);
 		return -1;
 	}
 	return 0;
@@ -73,8 +73,8 @@ static int stress_idle_page(stress_args_t *args)
 	fd = open(bitmap_file, O_RDWR);
 	if (fd < 0) {
 		if (stress_instance_zero(args))
-			pr_inf_skip("idle_page stressor will be skipped, "
-				"cannot access file %s\n", bitmap_file);
+			pr_inf_skip("%s: failed to access file '%s', stressor will be skipped\n",
+				args->name, bitmap_file);
 		return EXIT_NO_RESOURCE;
 	}
 

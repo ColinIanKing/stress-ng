@@ -227,11 +227,10 @@ static int stress_landlock_supported(const char *name)
 	ruleset_fd = shim_landlock_create_ruleset(&ruleset_attr, sizeof(ruleset_attr), 0);
 	if (ruleset_fd < 0) {
 		if (errno == ENOSYS) {
-			pr_inf_skip("%s: stressor will be skipped, landlock_create_ruleset system call"
-				" is not supported\n", name);
+			pr_inf_skip("%s: landlock_create_ruleset system call"
+				" is not supported, skipping stressor\n", name);
 		} else {
-			pr_inf_skip("%s: stressor will be skipped, perhaps "
-				"lsm=landlock is not enabled\n", name);
+			pr_inf_skip("%s: perhaps lsm=landlock is not enabled, skipping stressor\n", name);
 		}
 		return -1;
 	}

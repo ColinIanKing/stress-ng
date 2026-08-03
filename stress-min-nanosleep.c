@@ -320,7 +320,7 @@ static int stress_min_nanosleep(stress_args_t *args)
 	stress_min_nanosleep_sched(args, min_nanosleep_sched);
 
 	if (delays == MAP_FAILED) {
-		pr_inf("%s: failed to mmap an array of %zu bytes%s, "
+		pr_inf("%s: mmap an array of %zu bytes failed%s, "
 			"errno=%d (%s), skipping stressor\n",
 			args->name, max_delay * sizeof(*delay),
 			stress_memory_free_get(),

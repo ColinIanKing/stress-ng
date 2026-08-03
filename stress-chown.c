@@ -188,7 +188,7 @@ static int stress_chown(stress_args_t *args)
 	if (mkdir(pathname, S_IRWXU) < 0) {
 		if (errno != EEXIST) {
 			rc = stress_exit_status(errno);
-			pr_fail("%s: mkdir %s failed, errno=%d (%s)\n",
+			pr_fail("%s: mkdir '%s' failed, errno=%d (%s)\n",
 				args->name, pathname, errno, strerror(errno));
 			return rc;
 		}
@@ -199,7 +199,7 @@ static int stress_chown(stress_args_t *args)
 	if (stress_instance_zero(args)) {
 		if ((fd = creat(filename, S_IRUSR | S_IWUSR)) < 0) {
 			rc = stress_exit_status(errno);
-			pr_fail("%s: creat %s failed, errno=%d (%s)\n",
+			pr_fail("%s: creat '%s' failed, errno=%d (%s)\n",
 				args->name, filename, errno, strerror(errno));
 			goto tidy;
 		}
@@ -222,7 +222,7 @@ static int stress_chown(stress_args_t *args)
 				goto tidy;
 			}
 			if (++retries >= 1000) {
-				pr_inf("%s: chown: file %s took %d "
+				pr_inf("%s: chown '%s' took %d "
 					"retries to open and gave up "
 					"(instance %" PRIu32 ")%s\n",
 					args->name, filename, retries, args->instance,
@@ -257,7 +257,7 @@ static int stress_chown(stress_args_t *args)
 
 		ret = do_chown(chown, filename, cap_chown, uid, gid);
 		if ((ret < 0) && (ret != -EPERM)) {
-			pr_fail("%s: chown %s failed, errno=%d (%s)%s\n",
+			pr_fail("%s: chown '%s' failed, errno=%d (%s)%s\n",
 				args->name, filename, errno, strerror(errno),
 				stress_fs_type_get(filename));
 			rc = EXIT_FAILURE;
@@ -265,7 +265,7 @@ static int stress_chown(stress_args_t *args)
 		}
 		ret = do_chown(lchown, filename, cap_chown, uid, gid);
 		if ((ret < 0) && (ret != -EPERM)) {
-			pr_fail("%s: lchown %s failed, errno=%d (%s)%s\n",
+			pr_fail("%s: lchown '%s' failed, errno=%d (%s)%s\n",
 				args->name, filename, errno, strerror(errno),
 				stress_fs_type_get(filename));
 			rc = EXIT_FAILURE;

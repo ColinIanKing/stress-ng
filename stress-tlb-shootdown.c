@@ -147,7 +147,7 @@ static void *stress_tlb_shootdown_mmap(
 		}
 	} while (retry > 0);
 
-	pr_inf_skip("%s: failed to mmap %zu bytes%s, errno=%d (%s), skipping stressor\n",
+	pr_inf_skip("%s: mmap %zu bytes failed%s, errno=%d (%s), skipping stressor\n",
 		args->name, length, stress_memory_free_get(),
 		errno, strerror(errno));
 	return mem;
@@ -290,7 +290,7 @@ static int stress_tlb_shootdown(stress_args_t *args)
 
 	s_pids = stress_sync_s_pids_mmap(MAX_TLB_PROCS);
 	if (s_pids == MAP_FAILED) {
-		pr_inf_skip("%s: failed to mmap %d PIDs%s, skipping stressor\n",
+		pr_inf_skip("%s: mmap %d PIDs failed%s, skipping stressor\n",
 			args->name, MAX_TLB_PROCS, stress_memory_free_get());
 		rc = EXIT_NO_RESOURCE;
 		goto err_free_cpus;
@@ -307,14 +307,14 @@ static int stress_tlb_shootdown(stress_args_t *args)
 		filename, sizeof(filename), stress_mwc32());
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		ret = stress_exit_status(errno);
-		pr_fail("%s: open on %s failed, errno=%d (%s)\n",
+		pr_fail("%s: open '%s' failed, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
 		rc = ret;
 		goto err_rmdir;
 	}
 	(void)shim_unlink(filename);
 	if (ftruncate(fd, mmapfd_size) < 0) {
-		pr_fail("%s: ftruncate to %zu bytes on %s failed, errno=%d (%s)\n",
+		pr_fail("%s: ftruncate to %zu bytes on '%s' failed, errno=%d (%s)\n",
 			args->name, mmapfd_size, filename, errno, strerror(errno));
 		rc = EXIT_NO_RESOURCE;
 		goto err_close;

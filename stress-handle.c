@@ -65,9 +65,11 @@ static int get_mount_info(stress_args_t *args)
 {
 	FILE *fp;
 	int mounts = 0;
+	static const char filename[] = "/proc/self/mountinfo";
 
-	if ((fp = fopen("/proc/self/mountinfo", "r")) == NULL) {
-		pr_dbg("%s: cannot open /proc/self/mountinfo\n", args->name);
+	if ((fp = fopen(filename, "r")) == NULL) {
+		pr_dbg("%s: open '%s' failed, errno=%d (%s)\n",
+			args->name, filename, errno, strerror(errno));
 		return -1;
 	}
 
@@ -94,7 +96,7 @@ static int get_mount_info(stress_args_t *args)
 
 		mount_info[mounts].mount_path = shim_strdup(mount_path);
 		if (mount_info[mounts].mount_path == NULL) {
-			pr_dbg("%s: cannot allocate mountinfo mount path%s\n",
+			pr_dbg("%s: failed to allocate mountinfo mount path%s\n",
 				args->name, stress_memory_free_get());
 			free_mount_info(mounts);
 			mounts = -1;
@@ -181,7 +183,7 @@ static int stress_handle_child(stress_args_t *args, void *context)
 			break;
 		}
 		if (UNLIKELY(mount_fd < 0)) {
-			pr_fail("%s: failed to open mount path '%s', errno=%d (%s)\n",
+			pr_fail("%s: open '%s' failed, errno=%d (%s)\n",
 				args->name, mount_info[i].mount_path, errno, strerror(errno));
 			rc = EXIT_FAILURE;
 			free(fhp);

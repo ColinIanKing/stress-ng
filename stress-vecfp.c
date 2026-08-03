@@ -423,7 +423,7 @@ static int stress_vecfp(stress_args_t *args)
 			mmap_size, PROT_READ | PROT_WRITE,
 			MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (vecfp_init == MAP_FAILED) {
-		pr_inf_skip("%s: failed to mmap %zu initializing elements%s, "
+		pr_inf_skip("%s: mmap %zu initializing elements failed%s, "
 			"errno=%d (%s), skipping stressor\n",
 			args->name, max_elements,
 			stress_memory_free_get(), errno, strerror(errno));

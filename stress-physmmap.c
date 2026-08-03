@@ -71,7 +71,7 @@ static stress_physmmap_t *stress_physmmap_get_ranges(stress_args_t *args)
 
 	fp = fopen("/proc/iomem", "r");
 	if (!fp) {
-		pr_inf_skip("%s: cannot open /proc/iomem, errno=%d (%s)\n",
+		pr_inf_skip("%s: open '/proc/iomem' failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return NULL;
 	}
@@ -195,7 +195,7 @@ static int stress_physmmap(stress_args_t *args)
 
 	fd_mem = open("/dev/mem", O_RDONLY | O_SYNC);
 	if (fd_mem < 0) {
-		pr_inf_skip("%s: could not open /dev/mem, errno=%d (%s)\n",
+		pr_inf_skip("%s: open '/dev/mem' failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
@@ -290,7 +290,7 @@ static int stress_physmmap(stress_args_t *args)
 	} while (mappable && stress_continue(args));
 done:
 	if (!mappable)
-		pr_inf("%s: unable to mmap any pages from /dev/mem\n", args->name);
+		pr_inf("%s: unable to mmap any pages from '/dev/mem'\n", args->name);
 	if (stress_instance_zero(args) && (t2 > 0.0)) {
 		register size_t mappable_pages = 0;
 

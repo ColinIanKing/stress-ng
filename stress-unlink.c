@@ -212,7 +212,7 @@ static int stress_unlink(stress_args_t *args)
 					PROT_READ | PROT_WRITE,
 					MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (metrics == MAP_FAILED) {
-		pr_inf_skip("%s: failed to mmap %zu bytes for metrics%s, "
+		pr_inf_skip("%s: mmap %zu bytes for metrics failed%s, "
 			"errno=%d (%s), skipping stressor\n",
 			args->name, metrics_sz,
 			stress_memory_free_get(), errno, strerror(errno));
@@ -241,7 +241,7 @@ static int stress_unlink(stress_args_t *args)
 
 		filenames[i] = shim_strdup(filename);
 		if (!filenames[i]) {
-			pr_inf_skip("%s: failed to allocate filenames%s, "
+			pr_inf_skip("%s: allocate filenames failed%s, "
 				"skipping stressor\n", args->name,
 				stress_memory_free_get());
 			goto filenames_free;

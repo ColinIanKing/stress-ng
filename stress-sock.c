@@ -570,7 +570,7 @@ retry:
 				} else {
 					if (stress_instance_zero(args)) {
 						warned = true;
-						pr_inf("%s: cannot enable zerocopy on data being received\n", args->name);
+						pr_inf("%s: enable zerocopy on data being received failed\n", args->name);
 					}
 				}
 			}
@@ -1030,7 +1030,7 @@ retry:
 				sendflag |= MSG_ZEROCOPY;
 			} else {
 				if (stress_instance_zero(args)) {
-					pr_inf("%s: cannot enable zerocopy on data being sent\n", args->name);
+					pr_inf("%s: enable zerocopy on data being sent failed\n", args->name);
 					warned = true;
 				}
 			}
@@ -1473,7 +1473,7 @@ static int stress_sock(stress_args_t *args)
 				PROT_READ | PROT_WRITE,
 				MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (mmap_buffer == MAP_FAILED) {
-		pr_inf_skip("%s: failed to mmap %d byte I/O buffer%s, errno=%d (%s), "
+		pr_inf_skip("%s: mmap %d byte I/O buffer failed%s, errno=%d (%s), "
 			"skipping stressor\n",
 			args->name, MMAP_BUF_SIZE,
 			stress_memory_free_get(), errno, strerror(errno));

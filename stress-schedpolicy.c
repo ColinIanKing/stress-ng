@@ -102,7 +102,7 @@ static int stress_schedpolicy(stress_args_t *args)
 
 	counters = (uint64_t *)calloc(stress_sched_types_length, sizeof(*counters));
 	if (!counters) {
-		pr_inf_skip("%s: cannot allocate %zu 64 bit counters, skipping stressor\n",
+		pr_inf_skip("%s: allocate %zu 64 bit counters failed, skipping stressor\n",
 			args->name, stress_sched_types_length);
 		return EXIT_NO_RESOURCE;
 	}

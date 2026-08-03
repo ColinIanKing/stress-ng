@@ -1133,7 +1133,7 @@ static int stress_iomix(stress_args_t *args)
 
 	counter_lock = stress_lock_create("counter");
 	if (!counter_lock) {
-		pr_inf_skip("%s: failed to create counter lock. skipping stressor\n", args->name);
+		pr_inf_skip("%s: create counter lock failed, skipping stressor\n", args->name);
 		rc = EXIT_NO_RESOURCE;
 		goto tidy_s_pids;
 	}
@@ -1167,7 +1167,7 @@ static int stress_iomix(stress_args_t *args)
 		filename, sizeof(filename), stress_mwc32());
 	if ((fd = open(filename, oflags, S_IRUSR | S_IWUSR)) < 0) {
 		rc = stress_exit_status(errno);
-		pr_fail("%s: open %s failed, errno=%d (%s)\n",
+		pr_fail("%s: open '%s' failed, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
 		goto lock_destroy;
 	}

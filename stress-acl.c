@@ -363,7 +363,7 @@ static int stress_acl_exercise(
 					stress_acl_perms(acls[i], setacl, sizeof(setacl));
 					stress_acl_perms(acl, getacl, sizeof(getacl));
 
-					pr_fail("%s: mismatch between set acl %s and get acl %s\n",
+					pr_fail("%s: mismatch between set acl '%s' and get acl '%s'\n",
 						args->name, setacl, getacl);
 					acl_free(acl);
 					return EXIT_FAILURE;
@@ -387,8 +387,8 @@ static int stress_acl_exercise(
 				return EXIT_SUCCESS;
 			default:
 				stress_acl_perms(acls[i], getacl, sizeof(getacl));
-				pr_fail("%s: failed to set acl on '%s' %s, errno=%d (%s)\n",
-					args->name, filename, getacl, errno, strerror(errno));
+				pr_fail("%s: failed to set acl '%s' on '%s', errno=%d (%s)\n",
+					args->name, getacl, filename, errno, strerror(errno));
 				return EXIT_FAILURE;
 			}
 		}
@@ -458,7 +458,7 @@ static int stress_acl(stress_args_t *args)
 	if (mkdir(pathname, S_IRUSR | S_IRWXU) < 0) {
 		if (errno != EEXIST) {
 			rc = stress_exit_status(errno);
-			pr_fail("%s: mkdir %s failed, errno=%d (%s)\n",
+			pr_fail("%s: mkdir '%s' failed, errno=%d (%s)\n",
 				args->name, pathname, errno, strerror(errno));
 			goto tidy_acl_free;
 		}
@@ -467,7 +467,7 @@ static int stress_acl(stress_args_t *args)
 	(void)stress_fs_temp_filename_args(args, filename, sizeof(filename), stress_mwc32());
 	if ((fd = creat(filename, S_IRUSR | S_IWUSR)) < 0) {
 		rc = stress_exit_status(errno);
-		pr_fail("%s: create %s failed, errno=%d (%s)\n",
+		pr_fail("%s: create '%s' failed, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
 		goto tidy;
 	}

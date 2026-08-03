@@ -482,7 +482,7 @@ static int stress_llc_affinity(stress_args_t *args)
 	buf = (uint64_t *)stress_mmap_populate(NULL, mmap_sz, PROT_READ | PROT_WRITE,
 		MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (buf == MAP_FAILED) {
-		pr_inf_skip("%s: failed to mmap region of %zu bytes%s, errno=%d (%s), "
+		pr_inf_skip("%s: mmap region of %zu bytes failed%s, errno=%d (%s), "
 			"skipping stressor\n", args->name, mmap_sz,
 			stress_memory_free_get(), errno, strerror(errno));
 		stress_affinity_cpus_free(&cpus);

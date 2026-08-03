@@ -262,7 +262,7 @@ static int stress_setup_io_uring(
 		PROT_READ | PROT_WRITE, MAP_SHARED ,
 		submit->io_uring_fd, IORING_OFF_SQ_RING);
 	if (submit->sq_mmap == MAP_FAILED) {
-		pr_inf_skip("%s: could not mmap submission queue buffer%s, "
+		pr_inf_skip("%s: mmap submission queue buffer failed%s, "
 			"errno=%d (%s), skipping stressor\n",
 			args->name, stress_memory_free_get(),
 			errno, strerror(errno));
@@ -276,7 +276,7 @@ static int stress_setup_io_uring(
 				PROT_READ | PROT_WRITE,
 				MAP_SHARED, submit->io_uring_fd, IORING_OFF_CQ_RING);
 		if (submit->cq_mmap == MAP_FAILED) {
-			pr_inf_skip("%s: could not mmap completion queue buffer%s, "
+			pr_inf_skip("%s: mmap completion queue buffer failed%s, "
 				"errno=%d (%s), skipping stressor\n",
 				args->name, stress_memory_free_get(),
 				errno, strerror(errno));
@@ -298,7 +298,7 @@ static int stress_setup_io_uring(
 			PROT_READ | PROT_WRITE, MAP_SHARED,
 			submit->io_uring_fd, IORING_OFF_SQES);
 	if (submit->sqes_mmap == MAP_FAILED) {
-		pr_inf_skip("%s: count not mmap submission queue buffer%s, "
+		pr_inf_skip("%s: mmap submission queue buffer failed%s, "
 			"errno=%d (%s), skipping stressor\n",
 			args->name, stress_memory_free_get(),
 			errno, strerror(errno));
@@ -1015,8 +1015,9 @@ static int stress_io_uring_child(stress_args_t *args, void *context)
 			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (io_uring_file.iovecs == MAP_FAILED) {
 		io_uring_file.iovecs = NULL;
-		pr_inf_skip("%s: cannot mmap iovecs, errno=%d (%s), "
+		pr_inf_skip("%s: mmap iovecs failed%s, errno=%d (%s), "
 				"skipping stressor\n", args->name,
+				stress_memory_free_get(),
 				errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
@@ -1031,7 +1032,7 @@ static int stress_io_uring_child(stress_args_t *args, void *context)
 				MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 		if (io_uring_file.iovecs[i].iov_base == MAP_FAILED) {
 			io_uring_file.iovecs[i].iov_base = NULL;
-			pr_inf_skip("%s: cannot mmap allocate iovec iov_base%s, errno=%d (%s), "
+			pr_inf_skip("%s: mmap allocate iovec iov_base failed%s, errno=%d (%s), "
 				"skipping stressor\n", args->name,
 				stress_memory_free_get(),
 				errno, strerror(errno));
@@ -1078,7 +1079,7 @@ static int stress_io_uring_child(stress_args_t *args, void *context)
 	do {
 		if ((io_uring_file.fd = open(filename, flags, S_IRUSR | S_IWUSR)) < 0) {
 			rc = stress_exit_status(errno);
-			pr_fail("%s: open on %s failed, errno=%d (%s)\n",
+			pr_fail("%s: open '%s' failed, errno=%d (%s)\n",
 				args->name, filename, errno, strerror(errno));
 			goto clean;
 		}

@@ -83,7 +83,7 @@ static int stress_signal(stress_args_t *args)
 
 		tmp = *pcounter;
 		if (UNLIKELY(shim_signal(SIGCHLD, SIG_IGN) == SIG_ERR)) {
-			pr_fail("%s: cannot install SIGCHLD SIG_IGN handler, errno=%d (%s)\n",
+			pr_fail("%s: install SIGCHLD SIG_IGN handler failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			rc = EXIT_FAILURE;
 			break;
@@ -95,7 +95,7 @@ static int stress_signal(stress_args_t *args)
 
 		tmp = *pcounter;
 		if (UNLIKELY(shim_signal(SIGCHLD, stress_signal_count_handler) == SIG_ERR)) {
-			pr_fail("%s: cannot install SIGCHLD signal handler, errno=%d (%s)\n",
+			pr_fail("%s: install SIGCHLD signal handler failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			rc = EXIT_FAILURE;
 			break;
@@ -114,7 +114,7 @@ static int stress_signal(stress_args_t *args)
 
 		tmp = *pcounter;
 		if (UNLIKELY(shim_signal(SIGCHLD, SIG_DFL) == SIG_ERR)) {
-			pr_fail("%s: cannot install SIGCHLD SIG_DFL handler, errno=%d (%s)\n",
+			pr_fail("%s: install SIGCHLD SIG_DFL handler failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			rc = EXIT_FAILURE;
 			break;

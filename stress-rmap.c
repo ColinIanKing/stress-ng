@@ -217,7 +217,7 @@ static int stress_rmap(stress_args_t *args)
 
 	s_pids = stress_sync_s_pids_mmap(rmap_procs);
 	if (s_pids == MAP_FAILED) {
-		pr_inf_skip("%s: failed to mmap %zu PIDs%s, skipping stressor\n",
+		pr_inf_skip("%s: mmap %zu PIDs failed%s, skipping stressor\n",
 			args->name, rmap_procs, stress_memory_free_get());
 		return EXIT_NO_RESOURCE;
 	}
@@ -249,7 +249,7 @@ static int stress_rmap(stress_args_t *args)
 
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		rc = stress_exit_status(errno);
-		pr_err("%s: open %s failed, errno=%d (%s)\n",
+		pr_err("%s: open '%s' failed, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
 		(void)shim_unlink(filename);
 		(void)stress_fs_temp_dir_rm_args(args);

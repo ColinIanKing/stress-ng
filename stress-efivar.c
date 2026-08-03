@@ -180,7 +180,7 @@ static void stress_efi_sysfs_fd(
 
 		VOID_RET(int, ioctl(fd, FIGETBSZ, &isz));
 		if (stress_ioctl_get_check(fd, FIGETBSZ, sizeof(int)) < 0)
-			pr_fail("%s: ioctl FIGETBSZ on %s, failed, not getting flags reliably\n",
+			pr_fail("%s: ioctl FIGETBSZ on '%s', failed, not getting flags reliably\n",
 				args->name, filename);
 	}
 #endif
@@ -190,7 +190,7 @@ static void stress_efi_sysfs_fd(
 
 		VOID_RET(int, ioctl(fd, FIONREAD, &isz));
 		if (stress_ioctl_get_check(fd, FIONREAD, sizeof(int)) < 0)
-			pr_fail("%s: ioctl FIONREAD on %s failed, not getting flags reliably\n",
+			pr_fail("%s: ioctl FIONREAD on '%s' failed, not getting flags reliably\n",
 				args->name, filename);
 	}
 #endif
@@ -224,7 +224,7 @@ static int efi_get_data(
 		return 0;	/* silently fail for open-retry later on */
 
 	if (shim_fstat(fd, &statbuf) < 0) {
-		pr_fail("%s: failed to stat %s, errno=%d (%s)\n",
+		pr_fail("%s: stat '%s' failed, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
 		rc = -1;
 		goto err_vars;
@@ -237,7 +237,7 @@ static int efi_get_data(
 		t = stress_time_now();
 	n = read(fd, buf, buf_len);
 	if ((n < 0) && (errno != EIO) && (errno != EAGAIN) && (errno != EINTR)) {
-		pr_fail("%s: failed to read %s, errno=%d (%s)\n",
+		pr_fail("%s: read '%s' failed, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
 		rc = -1;
 		goto err_vars;
@@ -282,7 +282,7 @@ static int efi_read_variable(
 
 	ret = shim_fstat(fd, &statbuf);
 	if (ret < 0) {
-		pr_fail("%s: failed to stat %s, errno=%d (%s)\n",
+		pr_fail("%s: stat '%s' failed, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
 		rc = -1;
 		goto err_efi_vars;
@@ -291,7 +291,7 @@ static int efi_read_variable(
 	t = stress_time_now();
 	n = read(fd, data, data_len);
 	if ((n < 0) && (errno != EIO) && (errno != EAGAIN) && (errno != EINTR)) {
-		pr_fail("%s: failed to read %s, errno=%d (%s)\n",
+		pr_fail("%s: read '%s' failed, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
 		rc = -1;
 		goto err_efi_vars;
@@ -306,7 +306,7 @@ static int efi_read_variable(
     defined(FS_IOC_SETFLAGS)
 	ret = ioctl(fd, FS_IOC_GETFLAGS, &flags);
 	if (ret < 0) {
-		pr_fail("%s: ioctl FS_IOC_GETFLAGS on %s failed, errno=%d (%s)\n",
+		pr_fail("%s: ioctl FS_IOC_GETFLAGS on '%s' failed, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
 		rc = -1;
 		goto err_efi_vars;
@@ -314,7 +314,7 @@ static int efi_read_variable(
 
 	VOID_RET(int, ioctl(fd, FS_IOC_SETFLAGS, &flags));
 	if (stress_ioctl_get_check(fd, FS_IOC_SETFLAGS, sizeof(int)) < 0)
-		pr_fail("%s: ioctl FS_IOC_GETFLAGS on %s failed, not getting flags reliably\n",
+		pr_fail("%s: ioctl FS_IOC_GETFLAGS on '%s' failed, not getting flags reliably\n",
 			args->name, filename);
 #endif
 
@@ -506,7 +506,7 @@ static int stress_efivar(stress_args_t *args)
 		if (efi_dentries && (dir_count > 0)) {
 			efi_mode = STRESS_EFI_VARS;
 		} else {
-			pr_inf("%s: cannot read EFI vars in %s or %s\n", args->name, sysfs_efi_efivars, sysfs_efi_vars);
+			pr_inf("%s: cannot read EFI vars in '%s' or '%s'\n", args->name, sysfs_efi_efivars, sysfs_efi_vars);
 			return EXIT_NO_RESOURCE;
 		}
 	}

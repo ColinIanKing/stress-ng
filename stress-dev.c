@@ -423,13 +423,13 @@ static void stress_dev_media_linux(
 			return;
 
 		if (!mdi.driver[0])
-			pr_inf("%s: ioctl MEDIA_IOC_DEVICE_INFO %s: null driver name\n",
+			pr_inf("%s: ioctl MEDIA_IOC_DEVICE_INFO '%s': null driver name\n",
 				args->name, devpath);
 		if (!mdi.model[0])
-			pr_inf("%s: ioctl MEDIA_IOC_DEVICE_INFO %s: null model name\n",
+			pr_inf("%s: ioctl MEDIA_IOC_DEVICE_INFO '%s': null model name\n",
 				args->name, devpath);
 		if (!mdi.bus_info[0])
-			pr_inf("%s: ioctl MEDIA_IOC_DEVICE_INFO %s: null bus_info field\n",
+			pr_inf("%s: ioctl MEDIA_IOC_DEVICE_INFO '%s': null bus_info field\n",
 				args->name, devpath);
 	}
 #endif
@@ -4094,7 +4094,7 @@ static inline void stress_dev_rw(
 		(void)stress_fs_fdinfo_read(pid, fd);
 
 		if (shim_fstat(fd, &statbuf) < 0) {
-			pr_fail("%s: stat failed on %s, errno=%d (%s)\n",
+			pr_fail("%s: stat '%s' failed, errno=%d (%s)\n",
 				args->name, path, errno, strerror(errno));
 		} else {
 			if (!(S_ISBLK(statbuf.st_mode) || S_ISCHR(statbuf.st_mode))) {
@@ -4426,7 +4426,7 @@ static void stress_dev_info_add(
 
 	if (stress_dev_avoid(path)) {
 		if (warn)
-			pr_inf("%s: avoiding use of %s\n", args->name, path);
+			pr_inf("%s: avoiding use of '%s'\n", args->name, path);
 		return;
 	}
 	if (readlink(path, linkpath, sizeof(linkpath)) > 0) {
@@ -4434,7 +4434,7 @@ static void stress_dev_info_add(
 
 		if (name && stress_dev_avoid(name)) {
 			if (warn)
-				pr_inf("%s: avoiding use of %s\n", args->name, path);
+				pr_inf("%s: avoiding use of '%s'\n", args->name, path);
 			return;
 		}
 	}
@@ -4780,13 +4780,13 @@ static int stress_dev(stress_args_t *args)
 		struct stat statbuf;
 
 		if (shim_stat(dev_file, &statbuf) < 0) {
-			pr_fail("%s: cannot access file %s\n",
+			pr_fail("%s: cannot stat file '%s'\n",
 				args->name, dev_file);
 			return EXIT_FAILURE;
 		}
 		mode = statbuf.st_mode & S_IFMT;
 		if ((mode != S_IFBLK) && (mode != S_IFCHR)) {
-			pr_fail("%s: file %s is not a character or block device\n",
+			pr_fail("%s: file '%s' is not a character or block device\n",
 				args->name, dev_file);
 			return EXIT_FAILURE;
 		}

@@ -178,7 +178,6 @@ static int stress_regex(stress_args_t *args)
 					ret = regexec(&regex, stress_regex_text[j], SIZEOF_ARRAY(regmatch), regmatch, 0);
 					if (UNLIKELY(ret))
 						continue;
-					/* pr_inf("%s %s\n", stress_posix_regex[i].regex, stress_regex_text[j]); */
 					exec_times[i] += stress_time_now() - t;
 					exec_count[i]++;
 				}

@@ -128,7 +128,7 @@ static int stress_fault(stress_args_t *args)
 		if (fd < 0) {
 			if ((errno == ENOSPC) || (errno == ENOMEM))
 				continue;	/* Try again */
-			pr_fail("%s: open %s failed, errno=%d (%s)\n",
+			pr_fail("%s: open '%s' failed, errno=%d (%s)\n",
 				args->name, filename, errno, strerror(errno));
 			rc = EXIT_FAILURE;
 			break;

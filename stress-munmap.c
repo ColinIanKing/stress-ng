@@ -250,7 +250,7 @@ static int stress_munmap(stress_args_t *args)
 
 	ctxt = (munmap_context_t *)stress_mmap_anon_shared(sizeof(*ctxt), PROT_READ | PROT_WRITE);
 	if (ctxt == MAP_FAILED) {
-		pr_inf_skip("%s: skipping stressor, cannot mmap context buffer, errno=%d (%s)\n",
+		pr_inf_skip("%s: mmap context buffer failed, errno=%d (%s)\n, skipping stressor",
 			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
@@ -261,7 +261,7 @@ static int stress_munmap(stress_args_t *args)
 	ctxt->page_shift = stress_munmap_log2(args->page_size);
 	ctxt->exec_path = stress_proc_self_exe_get(exec_path, sizeof(exec_path));
 	if (!ctxt->exec_path) {
-		pr_inf_skip("%s: skipping stressor, cannot determine child executable path\n",
+		pr_inf_skip("%s: cannot determine child executable path, skipping stressor\n",
 			args->name);
 		(void)stress_munmap_anon_shared((void *)ctxt, sizeof(*ctxt));
 		return EXIT_NO_RESOURCE;

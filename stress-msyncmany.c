@@ -143,7 +143,7 @@ static int stress_msyncmany(stress_args_t *args)
 	(void)stress_fs_temp_filename_args(args, filename, sizeof(filename), stress_mwc32());
 	fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
 	if (fd < 0) {
-		pr_inf_skip("%s: cannot create %s, skipping stressor\n", args->name, filename);
+		pr_inf_skip("%s: open '%s' failed, skipping stressor\n", args->name, filename);
 		(void)stress_fs_temp_dir_rm_args(args);
 		return EXIT_NO_RESOURCE;
 	}
@@ -151,7 +151,7 @@ static int stress_msyncmany(stress_args_t *args)
 
 	ret = shim_fallocate(fd, 0, 0, (off_t)args->page_size);
 	if (ret < 0) {
-		pr_inf_skip("%s: cannot allocate data for file %s, skipping stressor\n", args->name, filename);
+		pr_inf_skip("%s: cannot allocate data for file '%s', skipping stressor\n", args->name, filename);
 		(void)stress_fs_temp_dir_rm_args(args);
 		(void)close(fd);
 		return EXIT_NO_RESOURCE;

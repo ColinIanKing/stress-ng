@@ -101,7 +101,7 @@ static int stress_vforkmany(stress_args_t *args)
 			PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (stack_sig == MAP_FAILED) {
-		pr_inf_skip("%s: failed to mmap %zu byte signal stack%s,"
+		pr_inf_skip("%s: mmap %zu byte signal stack failed%s,"
 			" errno=%d (%s), skipping stressor\n",
 			args->name, (size_t)STRESS_SIGSTKSZ,
 			stress_memory_free_get(), errno, strerror(errno));
@@ -116,7 +116,7 @@ static int stress_vforkmany(stress_args_t *args)
 			PROT_READ | PROT_WRITE,
 			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (vforkmany_shared == MAP_FAILED) {
-		pr_inf("%s: failed to mmap %zu bytes%s, errno=%d (%s)\n",
+		pr_inf("%s: mmap %zu bytes failed%s, errno=%d (%s)\n",
 			args->name, sizeof(*vforkmany_shared),
 			stress_memory_free_get(), errno, strerror(errno));
 		VOID_RET(int, stress_stack_sigalt(NULL, 0));

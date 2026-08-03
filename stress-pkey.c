@@ -45,7 +45,7 @@ static int stress_pkey(stress_args_t *args)
 		PROT_READ | PROT_WRITE,
 		MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (pages == MAP_FAILED) {
-		pr_inf_skip("%s: failed to mmap %zu pages%s, errno=%d (%s), "
+		pr_inf_skip("%s: mmap %zu pages failed%s, errno=%d (%s), "
 			"skipping stressor\n",
 			args->name, pages_size, stress_memory_free_get(),
 			errno, strerror(errno));

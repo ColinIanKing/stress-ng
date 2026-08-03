@@ -73,7 +73,7 @@ static int stress_seal(stress_args_t *args)
 			PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (buf == MAP_FAILED) {
-		pr_inf_skip("%s: failed to allocate %zu byte buffer%s, "
+		pr_inf_skip("%s: allocate %zu byte buffer failed%s, "
 			"errno=%d (%s), skipping stressor\n",
 			args->name, page_size,
 			stress_memory_free_get(), errno, strerror(errno));
@@ -104,7 +104,7 @@ static int stress_seal(stress_args_t *args)
 				(void)munmap((void *)buf, page_size);
 				return EXIT_NO_RESOURCE;
 			}
-			pr_fail("%s: memfd_create %s failed, errno=%d (%s)\n",
+			pr_fail("%s: memfd_create '%s' failed, errno=%d (%s)\n",
 				args->name, filename, errno, strerror(errno));
 			(void)munmap((void *)buf, page_size);
 			return EXIT_FAILURE;

@@ -395,7 +395,7 @@ static int stress_sleep(stress_args_t *args)
 
 	stress_sleep_counter_lock = stress_lock_create("counter");
 	if (!stress_sleep_counter_lock) {
-		pr_inf("%s: cannot create counter lock, skipping stressor\n", args->name);
+		pr_inf("%s: create counter lock failed, skipping stressor\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
 

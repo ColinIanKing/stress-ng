@@ -135,7 +135,7 @@ static int stress_loop(stress_args_t *args)
 		backing_file, sizeof(backing_file), stress_mwc32());
 
 	if ((backing_fd = open(backing_file, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR)) < 0) {
-		pr_fail("%s: open %s failed, errno=%d (%s)\n",
+		pr_fail("%s: open '%s' failed, errno=%d (%s)\n",
 			args->name, backing_file, errno, strerror(errno));
 		goto tidy;
 	}
@@ -190,7 +190,7 @@ static int stress_loop(stress_args_t *args)
 		 */
 		ctrl_dev = open("/dev/loop-control", O_RDWR);
 		if (ctrl_dev < 0) {
-			pr_fail("%s: cannot open /dev/loop-control, errno=%d (%s)\n",
+			pr_fail("%s: cannot open '/dev/loop-control', errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			break;
 		}
@@ -444,7 +444,7 @@ clr_loop:
 				if (errno == EBUSY) {
 					(void)shim_usleep(1000);
 				} else {
-					pr_fail("%s: failed to disassociate %s from backing store, "
+					pr_fail("%s: failed to disassociate '%s' from backing store, "
 						"errno=%d (%s)\n",
 						args->name, dev_name, errno, strerror(errno));
 					goto close_loop;

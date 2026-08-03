@@ -80,7 +80,7 @@ static int stress_ptr_chase(stress_args_t *args)
 
 	ptrs_heap = (stress_ptrs_t *)calloc(1, alloc_size);
 	if (!ptrs_heap) {
-		pr_inf("%s: failed to allocate heap of %zu bytes failed%s, "
+		pr_inf("%s: allocate heap of %zu bytes failed%s, "
 			"skipping stressor\n",
 			args->name, alloc_size, stress_memory_free_get());
 		return EXIT_NO_RESOURCE;
@@ -90,7 +90,7 @@ static int stress_ptr_chase(stress_args_t *args)
 					MAP_ANONYMOUS | MAP_PRIVATE,
 					-1, 0);
 	if (ptrs_mmap == MAP_FAILED) {
-		pr_inf_skip("%s: failed to mmap %zu bytes%s, "
+		pr_inf_skip("%s: mmap %zu bytes failed%s, "
 			"errno=%d (%s), skipping stressor\n",
 			args->name, n,
 			stress_memory_free_get(), errno, strerror(errno));
@@ -104,7 +104,7 @@ static int stress_ptr_chase(stress_args_t *args)
 					MAP_ANONYMOUS | MAP_PRIVATE,
 					-1, 0);
 	if (ptrs == MAP_FAILED) {
-		pr_inf_skip("%s: failed to mmap %zu pointer entries%s, "
+		pr_inf_skip("%s: mmap %zu pointer entries failed%s, "
 			"errno=%d (%s), skipping stressor\n",
 			args->name, n,
 			stress_memory_free_get(), errno, strerror(errno));

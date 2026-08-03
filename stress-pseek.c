@@ -321,7 +321,7 @@ static int stress_pseek_spawn(stress_args_t *args, stress_peekio_proc_t *proc)
 			pthread_create(&proc->pthread, NULL,
 				stress_peekio_pthread, proc);
 		if (proc->pthread_ret != 0) {
-			pr_inf("%s: failed to create pthread, errno=%d (%s)\n",
+			pr_inf("%s: create pthread failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			return -1;
 		}
@@ -330,7 +330,7 @@ static int stress_pseek_spawn(stress_args_t *args, stress_peekio_proc_t *proc)
 #endif
 	pid = fork();
 	if (pid < 0) {
-		pr_inf("%s: failed to fork process, errno=%d (%s)\n",
+		pr_inf("%s: fork failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return -1;
 	} else if (pid == 0) {
@@ -389,7 +389,7 @@ static int stress_pseek(stress_args_t *args)
 	procs = (stress_peekio_proc_t *)stress_mmap_populate(NULL, procs_size, PROT_READ | PROT_WRITE,
 					MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (procs == MAP_FAILED) {
-		pr_inf_skip("%s: failed to mmap %zu byte procs array%s, "
+		pr_inf_skip("%s: mmap %zu byte procs array failed%s, "
 			"errno=%d (%s), skipping stressor\n",
 			args->name, procs_size,
 			stress_memory_free_get(), errno, strerror(errno));
@@ -447,7 +447,7 @@ static int stress_pseek(stress_args_t *args)
 		if (procs[i].buf == MAP_FAILED) {
 			size_t j;
 
-			pr_inf_skip("%s: failed to mmap buffer of %" PRIu64 " bytes%s, "
+			pr_inf_skip("%s: mmap buffer of %" PRIu64 " bytes%s failed, "
 				"errno=%d (%s), skipping stressor\n",
 				args->name, info.pseek_io_size,
 				stress_memory_free_get(), errno, strerror(errno));
@@ -471,7 +471,7 @@ static int stress_pseek(stress_args_t *args)
 		filename, sizeof(filename), stress_mwc32());
 
 	if ((info.fd = open(filename, O_CREAT | O_RDWR | O_TRUNC, S_IRUSR | S_IWUSR)) < 0) {
-		pr_fail("%s: open %s failed, errno=%d (%s)\n",
+		pr_fail("%s: open '%s' failed, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
 		goto tidy_unlink;
 	}

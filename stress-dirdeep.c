@@ -107,8 +107,8 @@ static bool stress_dirdeep_make(
 		    (errno == EMLINK) || (errno == EPERM)) {
 			return true;
 		}
-		pr_fail("%s: mkdir failed, errno=%d (%s)\n",
-			args->name, errno, strerror(errno));
+		pr_fail("%s: mkdir '%s' failed, errno=%d (%s)\n",
+			args->name, path, errno, strerror(errno));
 		return true;
 	}
 	stress_bogo_inc(args);
@@ -122,7 +122,7 @@ static bool stress_dirdeep_make(
 
 		fd = creat(linkpath, S_IRUSR | S_IWUSR);
 		if (fd < 0) {
-			pr_fail("%s: create %s failed, errno=%d (%s)\n",
+			pr_fail("%s: create '%s' failed, errno=%d (%s)\n",
 				args->name, linkpath, errno, strerror(errno));
 			return true;
 		}

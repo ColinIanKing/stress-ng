@@ -9050,7 +9050,7 @@ static int stress_syscall(stress_args_t *args)
 	syscall_2_pages = mmap(NULL, args->page_size * 2, PROT_READ | PROT_WRITE,
 				MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (syscall_2_pages == MAP_FAILED) {
-		pr_inf_skip("%s: failed to mmap %zu bytes%s, errno=%d (%s), "
+		pr_inf_skip("%s: mmap %zu bytes failed%s, errno=%d (%s), "
 			"skipping stressor\n", args->name, args->page_size * 2,
 			stress_memory_free_get(), errno, strerror(errno));
 		goto err_rmdir;
@@ -9062,7 +9062,7 @@ static int stress_syscall(stress_args_t *args)
 				PROT_READ | PROT_WRITE,
 				MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (syscall_shared_info == MAP_FAILED) {
-		pr_inf_skip("%s: failed to mmap %zu bytes%s, errno=%d (%s), "
+		pr_inf_skip("%s: mmap %zu bytes failed%s, errno=%d (%s), "
 			"skipping stressor\n", args->name, sizeof(*syscall_shared_info),
 			stress_memory_free_get(), errno, strerror(errno));
 		goto err_unmap_syscall_page;
@@ -9070,7 +9070,7 @@ static int stress_syscall(stress_args_t *args)
 
 	syscall_fd = open(syscall_filename, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
 	if (syscall_fd < 0) {
-		pr_inf_skip("%s: cannot create file %s, errno=%d (%s), skipping stressor\n",
+		pr_inf_skip("%s: open '%s' failed, errno=%d (%s), skipping stressor\n",
 			args->name, syscall_filename, errno, strerror(errno));
 		goto err_unmap_syscall_shared_info;
 	}

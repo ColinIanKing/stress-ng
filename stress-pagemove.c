@@ -106,7 +106,7 @@ static int stress_pagemove_child(stress_args_t *args, void *context)
 		MAP_PRIVATE | MAP_ANONYMOUS,
 		-1, 0);
 	if (buf == MAP_FAILED) {
-		pr_inf_skip("%s: failed to mmap %zu bytes%s, errno=%d (%s), skipping stressor\n",
+		pr_inf_skip("%s: mmap %zu bytes failed%s, errno=%d (%s), skipping stressor\n",
 			args->name, info->sz + page_size, stress_memory_free_get(),
 			errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
@@ -116,7 +116,7 @@ static int stress_pagemove_child(stress_args_t *args, void *context)
 	buf_end = buf + info->sz;
 	unmapped_page = buf_end;
 	if (stress_munmap_force((void *)unmapped_page, page_size) < 0) {
-		pr_inf_skip("%s: failed to munmap %zu bytes, errno=%d (%s), skipping stressor\n",
+		pr_inf_skip("%s: munmap %zu bytes failed, errno=%d (%s), skipping stressor\n",
 			args->name, page_size, errno, strerror(errno));
 		(void)munmap(buf, info->sz + page_size);
 		return EXIT_NO_RESOURCE;

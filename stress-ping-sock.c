@@ -58,7 +58,7 @@ static int stress_rawsock_open(const char *name, int *fd)
 		if ((errno == EPERM) || (errno == EACCES)) {
 			pr_inf_skip("%s: stressor will be skipped, permission denied\n", name);
 #if defined(__linux__)
-			pr_inf("%s: writing 0 0 to /proc/sys/net/ipv4/ping_group_range may help\n", name);
+			pr_inf("%s: writing 0 0 to '/proc/sys/net/ipv4/ping_group_range' may help\n", name);
 #endif
 			return EXIT_NOT_IMPLEMENTED;
 		}

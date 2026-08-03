@@ -1331,7 +1331,7 @@ static int stress_misaligned(stress_args_t *args)
 				PROT_READ | PROT_WRITE,
 				MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (buffer == MAP_FAILED) {
-		pr_inf_skip("%s: cannot allocate 1 page buffer%s, "
+		pr_inf_skip("%s: mmap 1 page buffer failed%s, "
 			"errno=%d (%s), skipping stressor\n",
 			args->name, stress_memory_free_get(),
 			errno, strerror(errno));

@@ -77,7 +77,7 @@ static int stress_kvm_open(const char *name, const bool report)
 		switch (errno) {
 		case ENOENT:
 			if (report)
-				pr_inf_skip("%s: /dev/kvm not available, skipping stressor\n",
+				pr_inf_skip("%s: '/dev/kvm' not available, skipping stressor\n",
 					name);
 			break;
 		case EPERM:
@@ -89,7 +89,7 @@ static int stress_kvm_open(const char *name, const bool report)
 			break;
 		default:
 			if (report)
-				pr_fail("%s: open /dev/kvm failed, errno=%d (%s), skipping stressor\n",
+				pr_fail("%s: open '/dev/kvm' failed, errno=%d (%s), skipping stressor\n",
 					name, errno, strerror(errno));
 			break;
 		}
