@@ -1715,6 +1715,12 @@ static int ovpn_autofill_args(ovpn_ctx_t *ovpn)
  * attempt, so this can afford to be forgiving of a contended start.
  */
 #define OVPN_TUN_MAX_FAILS	(16)
+/*
+ * how long an endpoint is given to exit once its go pipe has been closed.
+ * Generous, because a busy machine can take a while to schedule the last
+ * iterations, but bounded: see ovpn_tun_reap() for why it has to be.
+ */
+#define OVPN_TUN_REAP_SECS	(10)
 
 /* tokens exchanged over the parent <-> child sync pipes */
 #define OVPN_TUN_READY		'R'	/* child unshared its netns */
@@ -2902,6 +2908,66 @@ static void ovpn_tun_pipe_close(int fds[2])
 }
 
 /*
+ *  ovpn_tun_reap()
+ *	wait for one tunnel endpoint to exit, with a deadline of its own.
+ *
+ *	The endpoints are meant to leave on their own: they run a bounded,
+ *	timeout-checked number of iterations, and closing their go pipe releases
+ *	one that is still waiting to start. An endpoint that is instead wedged -
+ *	blocked in a netlink reply that never arrives, for instance - must not
+ *	be able to hold the instance indefinitely, and nothing else here stops
+ *	it from doing so: stress_wait_until_reaped() blocks in waitpid() and
+ *	only escalates to a signal once stress_continue_flag() has already
+ *	dropped, so while the run is nominally in progress the wait is
+ *	unbounded. That is how a --timeout 300s run was seen still alive at
+ *	327s with unreaped children, needing an external SIGKILL.
+ *
+ *	So poll for the deadline, then take the endpoint down and reap it for
+ *	real. Returns the endpoint exit status, or EXIT_SUCCESS if it had
+ *	already gone.
+ */
+static int ovpn_tun_reap(stress_args_t *args, const pid_t pid)
+{
+	int i;
+
+	for (i = 0; i < OVPN_TUN_REAP_SECS * 10; i++) {
+		int wstatus = 0;
+		pid_t ret;
+
+		ret = waitpid(pid, &wstatus, WNOHANG);
+		if (ret == pid) {
+			if (LIKELY(WIFEXITED(wstatus)))
+				return WEXITSTATUS(wstatus);
+			/*
+			 * Killed rather than exited: a crash in the endpoint,
+			 * or the OOM killer. Reporting that as a successful
+			 * cycle would hide the one class of failure this
+			 * stressor exists to surface, so name the signal and
+			 * fail the cycle.
+			 */
+			if (WIFSIGNALED(wstatus))
+				pr_dbg("%s: tunnel: endpoint %" PRIdMAX " was killed "
+					"by signal %d (%s)\n", args->name,
+					(intmax_t)pid, WTERMSIG(wstatus),
+					stress_signal_name(WTERMSIG(wstatus)));
+			ovpn_fail_set(OVPN_FAIL_RESOURCE);
+			return EXIT_NO_RESOURCE;
+		}
+		/*
+		 * anything other than "still running" or an interrupted call
+		 * means there is nothing left to wait for
+		 */
+		if ((ret < 0) && (errno != EINTR))
+			return EXIT_SUCCESS;
+		(void)shim_usleep(100000);
+	}
+
+	pr_dbg("%s: tunnel: endpoint %" PRIdMAX " did not exit in %d seconds, "
+		"killing it\n", args->name, (intmax_t)pid, OVPN_TUN_REAP_SECS);
+	return stress_kill_and_wait(args, pid, SIGKILL, false);
+}
+
+/*
  *  ovpn_tunnel_cycle()
  *	one full build/inject/teardown of a two-endpoint tunnel. Returns
  *	EXIT_SUCCESS when both endpoints came up and were stressed, and
@@ -3045,11 +3111,11 @@ tidy:
 	 * pipes above releases any that are still waiting.
 	 */
 	if (ps > 0) {
-		if (stress_wait_until_reaped(args, ps, SIGKILL, false) != EXIT_SUCCESS)
+		if (ovpn_tun_reap(args, ps) != EXIT_SUCCESS)
 			rc = EXIT_NO_RESOURCE;
 	}
 	if (pc > 0) {
-		if (stress_wait_until_reaped(args, pc, SIGKILL, false) != EXIT_SUCCESS)
+		if (ovpn_tun_reap(args, pc) != EXIT_SUCCESS)
 			rc = EXIT_NO_RESOURCE;
 	}
 
