@@ -1809,6 +1809,28 @@ static enum ovpn_cipher_alg ovpn_tun_cipher(void)
 }
 
 /*
+ *  ovpn_tun_phantom_keepalive()
+ *	give a phantom peer a keepalive short enough that it expires on its own.
+ *
+ *	This is what reaches OVPN_DEL_PEER_REASON_EXPIRED, which nothing else
+ *	here produces. ovpn_peer_keepalive_work() requires both values to be
+ *	non-zero and then expires a peer that has received nothing for timeout
+ *	seconds; the live peer never qualifies because traffic keeps arriving,
+ *	and a random timeout of up to 255s outlives any cycle. A phantom peer
+ *	receives nothing by construction, so a two second timeout expires it
+ *	within the cycle without having to orchestrate a pause in the traffic.
+ *
+ *	Worth reaching: the expiry path runs from a work item that two recent
+ *	fixes in the module touched, and it is the route by which the NULL
+ *	sk_socket dereference was originally reported upstream.
+ */
+static void ovpn_tun_phantom_keepalive(ovpn_ctx_t *o)
+{
+	o->keepalive_interval = 1;
+	o->keepalive_timeout = 2;
+}
+
+/*
  *  ovpn_tun_phantom_rem_ip()
  *	random underlay address for a phantom peer. Nothing answers at it: a
  *	phantom exists to be destroyed, not to carry traffic, and a remote
@@ -2226,7 +2248,32 @@ static int ovpn_tunnel_add_peer(
 		return ret;
 	o->key_slot = OVPN_KEY_SLOT_SECONDARY;
 	o->key_id = 1;
-	return ovpn_new_key(o);
+	ret = ovpn_new_key(o);
+	if (ret < 0)
+		return ret;
+
+	/*
+	 * Re-send the keepalive through PEER_SET, even though PEER_NEW already
+	 * carried it.
+	 *
+	 * ovpn_nl_peer_new_doit() applies the attributes before adding the peer
+	 * to the table, and applying them arms the keepalive worker with a zero
+	 * delay. The worker therefore runs while the peer is still invisible,
+	 * finds no expiry to wait for, and ovpn_peer_keepalive_work() only
+	 * rearms itself when it found one:
+	 *
+	 *	if (next_run > 0)
+	 *		schedule_delayed_work(&ovpn->keepalive_work, ...);
+	 *
+	 * so a peer whose keepalive arrived with PEER_NEW alone can end up
+	 * configured with nothing ever checking it. PEER_SET afterwards arms it
+	 * again with the peer present. A daemon reaches the same state by
+	 * setting keepalive after creating the peer; doing it explicitly here is
+	 * what makes OVPN_DEL_PEER_REASON_EXPIRED reachable at all.
+	 */
+	if (o->keepalive_interval && o->keepalive_timeout)
+		(void)ovpn_set_peer(o);
+	return 0;
 }
 
 /*
@@ -2373,7 +2420,7 @@ static void ovpn_tunnel_churn(
 		 * buries the log in tens of thousands of expected ENOENTs.
 		 * Unused on the client path below, which has its own selection.
 		 */
-		const int op = (int)(stress_mwc8() % (destructive ? 14 : 7));
+		const int op = (int)(stress_mwc8() % (destructive ? 15 : 7));
 
 		o->expect_failure = false;
 		if (!is_server) {
@@ -2438,6 +2485,7 @@ static void ovpn_tunnel_churn(
 
 			ovpn_tun_phantom_rem_ip(&rem, v6);
 			ovpn_tun_phantom_vpn_ip(&vpn, v6);
+			ovpn_tun_phantom_keepalive(o);
 
 			/* phantom peers need no real connection; only meaningful
 			 * for UDP (a TCP peer is 1:1 with an accepted socket) */
@@ -2501,6 +2549,31 @@ static void ovpn_tunnel_churn(
 			if (o->socket >= 0) {
 				(void)close(o->socket);
 				o->socket = -1;
+			}
+			break;
+		case 14:
+			/*
+			 * Corrupt the TCP stream under the module. ovpn frames
+			 * its TCP transport with a length prefix and hands the
+			 * socket to a strparser; raw bytes written here make
+			 * that prefix nonsense, and the module tears the peer
+			 * down with OVPN_DEL_PEER_REASON_TRANSPORT_ERROR.
+			 *
+			 * That is the one delete reason nothing else here
+			 * reaches, and it is worth reaching deliberately: the
+			 * work item it runs from, ovpn_tcp_peer_del_work(), is
+			 * where both of the bugs this stressor has found so far
+			 * lived - a NULL sk_socket dereference and a peer
+			 * refcount leak.
+			 *
+			 * UDP has no framing to corrupt, so this is TCP only.
+			 */
+			if (is_tcp && (o->socket >= 0)) {
+				uint8_t junk[64];
+
+				stress_rndbuf((char *)junk, sizeof(junk));
+				VOID_RET(ssize_t, write(o->socket, junk,
+					1 + (stress_mwc8() % sizeof(junk))));
 			}
 			break;
 		}
@@ -2848,6 +2921,7 @@ static int ovpn_tunnel_endpoint(
 
 			ovpn_tun_phantom_rem_ip(&rem, v6);
 			ovpn_tun_phantom_vpn_ip(&vpn, v6);
+			ovpn_tun_phantom_keepalive(o);
 
 			(void)ovpn_tunnel_add_peer(o, 2 + i, &rem,
 				(uint16_t)(1024 + (stress_mwc16() % 60000)), &vpn, true, false);
