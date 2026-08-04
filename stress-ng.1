@@ -7421,7 +7421,11 @@ chosen at random each cycle) and sets up an ovpn interface with a fixed shared k
 ever added to the host network namespace. It then keeps the tunnel live for a
 random period while the client injects packets, so the kernel encrypts them at
 one end and decrypts them at the other, then tears the tunnel down and rebuilds
-it, so the data path and the teardown races are both exercised. Requires the
+it, so the data path and the teardown races are both exercised. Traffic is
+reported per direction and transport as "MB per sec encrypted, UDP transport"
+and so on, taken from the kernel's own per-peer byte counters rather than
+estimated in userspace, and as a rate so that runs with different worker counts
+and timeouts stay comparable. Requires the
 .B ovpn
 kernel module plus CAP_SYS_ADMIN and CAP_NET_ADMIN; the stressor is skipped if
 no tunnel can be built.
