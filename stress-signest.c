@@ -275,7 +275,7 @@ static int stress_signest(stress_args_t *args)
 	char *ptr;
 	const size_t altstack_size = STRESS_MINSIGSTKSZ * MAX_SIGNALS;
 	double rate;
-	CLOBBERED double t;
+	CLOBBERED double t = 0.0;
 	CLOBBERED double duration;
 
 	raised = 0;
