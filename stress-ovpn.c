@@ -1727,10 +1727,44 @@ static int ovpn_autofill_args(ovpn_ctx_t *ovpn)
 #define OVPN_TUN_NO_NETNS	'F'	/* child could not unshare */
 #define OVPN_TUN_GO		'G'	/* parent migrated the veth end */
 
-static const uint8_t ovpn_tun_ul_srv[4] = { 172, 16, 0, 1 };	/* underlay */
-static const uint8_t ovpn_tun_ul_cli[4] = { 172, 16, 0, 2 };
-static const uint8_t ovpn_tun_in_srv[4] = { 10, 8, 0, 1 };	/* inner/vpn */
-static const uint8_t ovpn_tun_in_cli[4] = { 10, 8, 0, 2 };
+/*
+ * One tunnel address of either family. The helpers below take this rather
+ * than a bare array so each is written once instead of twice, and so the
+ * family travels with the address it belongs to - passing them separately
+ * invites a v4 address being sent as a v6 one.
+ */
+typedef struct ovpn_tun_addr {
+	sa_family_t family;
+	uint8_t addr[16];	/* only the first 4 used for AF_INET */
+} ovpn_tun_addr_t;
+
+#define OVPN_TUN_ALEN(a)	(((a)->family == AF_INET6) ? 16 : 4)
+#define OVPN_TUN_PLEN(a)	(((a)->family == AF_INET6) ? 64 : 24)
+
+/*
+ * Underlay and inner addresses for both families. IPv6 uses ULA (fd00::/8)
+ * rather than link-local: a link-local underlay would need a scope id on
+ * every address it appears in, and getting that wrong fails in ways that look
+ * like the module refusing the peer.
+ */
+static const ovpn_tun_addr_t ovpn_tun_ul_srv4 = { AF_INET, { 172, 16, 0, 1 } };
+static const ovpn_tun_addr_t ovpn_tun_ul_cli4 = { AF_INET, { 172, 16, 0, 2 } };
+static const ovpn_tun_addr_t ovpn_tun_in_srv4 = { AF_INET, { 10, 8, 0, 1 } };
+static const ovpn_tun_addr_t ovpn_tun_in_cli4 = { AF_INET, { 10, 8, 0, 2 } };
+
+static const ovpn_tun_addr_t ovpn_tun_ul_srv6 = { AF_INET6,
+	{ 0xfd, 0, 0, 0x16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 } };
+static const ovpn_tun_addr_t ovpn_tun_ul_cli6 = { AF_INET6,
+	{ 0xfd, 0, 0, 0x16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2 } };
+static const ovpn_tun_addr_t ovpn_tun_in_srv6 = { AF_INET6,
+	{ 0xfd, 0, 0, 0x08, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 } };
+static const ovpn_tun_addr_t ovpn_tun_in_cli6 = { AF_INET6,
+	{ 0xfd, 0, 0, 0x08, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2 } };
+
+#define OVPN_TUN_UL_SRV(v6)	((v6) ? &ovpn_tun_ul_srv6 : &ovpn_tun_ul_srv4)
+#define OVPN_TUN_UL_CLI(v6)	((v6) ? &ovpn_tun_ul_cli6 : &ovpn_tun_ul_cli4)
+#define OVPN_TUN_IN_SRV(v6)	((v6) ? &ovpn_tun_in_srv6 : &ovpn_tun_in_srv4)
+#define OVPN_TUN_IN_CLI(v6)	((v6) ? &ovpn_tun_in_cli6 : &ovpn_tun_in_cli4)
 
 /*
  *  ovpn_tun_phantom_id()
@@ -1775,8 +1809,33 @@ static enum ovpn_cipher_alg ovpn_tun_cipher(void)
 }
 
 /*
+ *  ovpn_tun_phantom_rem_ip()
+ *	random underlay address for a phantom peer. Nothing answers at it: a
+ *	phantom exists to be destroyed, not to carry traffic, and a remote
+ *	nobody replies from is also what makes the keepalive expiry above
+ *	reachable.
+ */
+static void ovpn_tun_phantom_rem_ip(ovpn_tun_addr_t *rem, const bool is_v6)
+{
+	(void)shim_memset(rem, 0, sizeof(*rem));
+	if (is_v6) {
+		rem->family = AF_INET6;
+		rem->addr[0] = 0xfd;
+		rem->addr[3] = 0x16;		/* the underlay subnet */
+		rem->addr[14] = stress_mwc8();
+		rem->addr[15] = stress_mwc8();
+	} else {
+		rem->family = AF_INET;
+		rem->addr[0] = 172;
+		rem->addr[1] = 16;
+		rem->addr[2] = stress_mwc8();
+		rem->addr[3] = stress_mwc8();
+	}
+}
+
+/*
  *  ovpn_tun_phantom_vpn_ip()
- *	random inner address for a phantom peer, over the whole 10.8.0.0/16.
+ *	random inner address for a phantom peer, over the whole inner subnet.
  *	The real peer's own address is deliberately reachable here: a phantom
  *	claiming it makes the module insert a duplicate VPN address and
  *	displace the traffic-carrying peer, which exercises the MP peer table
@@ -1784,12 +1843,24 @@ static enum ovpn_cipher_alg ovpn_tun_cipher(void)
  *	stops delivering and reports no traffic, which is the right trade for
  *	a stressor.
  */
-static void ovpn_tun_phantom_vpn_ip(uint8_t vpn[4])
+static void ovpn_tun_phantom_vpn_ip(ovpn_tun_addr_t *vpn, const bool is_v6)
 {
-	vpn[0] = 10;
-	vpn[1] = 8;
-	vpn[2] = stress_mwc8();
-	vpn[3] = stress_mwc8();
+	(void)shim_memset(vpn, 0, sizeof(*vpn));
+	if (is_v6) {
+		/* inside fd00:8::/64, the same subnet as the live peer, so a
+		 * phantom can still be asked to displace it */
+		vpn->family = AF_INET6;
+		vpn->addr[0] = 0xfd;
+		vpn->addr[3] = 0x08;
+		vpn->addr[14] = stress_mwc8();
+		vpn->addr[15] = stress_mwc8();
+	} else {
+		vpn->family = AF_INET;
+		vpn->addr[0] = 10;
+		vpn->addr[1] = 8;
+		vpn->addr[2] = stress_mwc8();
+		vpn->addr[3] = stress_mwc8();
+	}
 }
 
 /*
@@ -1797,22 +1868,44 @@ static void ovpn_tun_phantom_vpn_ip(uint8_t vpn[4])
  * accumulate into them and the instance reports them.
  *
  * The byte counters are the kernel's own per-peer plaintext-side totals,
- * read back with OVPN_CMD_PEER_GET when a cycle winds down, split by
- * direction and by the transport of the cycle that produced them:
+ * read back with OVPN_CMD_PEER_GET when a cycle winds down:
  *   tx = VPN_TX_BYTES of the client's peer  (fed to the crypto path)
  *   rx = VPN_RX_BYTES of the server's peer  (decrypted and delivered)
+ *
+ * They are split on all three axes a cycle varies over - direction,
+ * transport, address family - so the index is computed rather than
+ * enumerated: naming eight combinations by hand invites the client's slot
+ * being read as the server's. The counters occupy the low indices so that
+ * the reporting loop can simply walk them.
  *
  * OPS counts injection bursts, and is folded into the bogo-op counter by
  * the instance rather than by the children, see ovpn_tunnel_cycle().
  */
+#define OVPN_CTR_BYTES(rx, tcp, v6)		\
+	((((rx) ? 1 : 0) << 2) | (((tcp) ? 1 : 0) << 1) | ((v6) ? 1 : 0))
+#define OVPN_CTR_BYTES_MAX	(8)
+
 enum {
-	OVPN_CTR_TX_UDP = 0,
-	OVPN_CTR_TX_TCP,
-	OVPN_CTR_RX_UDP,
-	OVPN_CTR_RX_TCP,
-	OVPN_CTR_OPS,
+	OVPN_CTR_OPS = OVPN_CTR_BYTES_MAX,
 	OVPN_CTR_FAIL,
 	OVPN_CTR_MAX
+};
+
+/*
+ * One description per byte counter, in OVPN_CTR_BYTES() index order, so the
+ * reported name and the slot it came from cannot drift apart. Descriptions
+ * are what the metrics of different instances are matched up by, so they
+ * have to be literals rather than assembled at report time.
+ */
+static const char * const ovpn_ctr_desc[OVPN_CTR_BYTES_MAX] = {
+	"MB per sec encrypted, UDP transport, IPv4",
+	"MB per sec encrypted, UDP transport, IPv6",
+	"MB per sec encrypted, TCP transport, IPv4",
+	"MB per sec encrypted, TCP transport, IPv6",
+	"MB per sec decrypted, UDP transport, IPv4",
+	"MB per sec decrypted, UDP transport, IPv6",
+	"MB per sec decrypted, TCP transport, IPv4",
+	"MB per sec decrypted, TCP transport, IPv6",
 };
 
 /*
@@ -2027,13 +2120,13 @@ static int ovpn_tun_link_up(ovpn_ctx_t *o, const char *name)
 	return ovpn_rt_send(o, &req.n, 0, 0, NULL, NULL);
 }
 
-/*  assign an IPv4 /plen address to link 'name' (in the current netns) */
+/*  assign an address, of either family, to link 'name' (current netns) */
 static int ovpn_tun_addr_add(
 	ovpn_ctx_t *o,
 	const char *name,
-	const uint8_t ip[4],
-	const uint8_t plen)
+	const ovpn_tun_addr_t *ip)
 {
+	const int alen = OVPN_TUN_ALEN(ip);
 	struct {
 		struct nlmsghdr n;
 		struct ifaddrmsg a;
@@ -2047,12 +2140,22 @@ static int ovpn_tun_addr_add(
 	req.n.nlmsg_len = NLMSG_LENGTH(sizeof(req.a));
 	req.n.nlmsg_flags = NLM_F_REQUEST | NLM_F_CREATE | NLM_F_REPLACE;
 	req.n.nlmsg_type = RTM_NEWADDR;
-	req.a.ifa_family = AF_INET;
-	req.a.ifa_prefixlen = plen;
+	req.a.ifa_family = ip->family;
+	req.a.ifa_prefixlen = OVPN_TUN_PLEN(ip);
 	req.a.ifa_index = idx;
-	if (ovpn_addattr(o, &req.n, sizeof(req), IFA_LOCAL, ip, 4) < 0)
+	/*
+	 * NODAD on IPv6: duplicate address detection leaves the address
+	 * tentative and therefore unusable for about a second, which is longer
+	 * than a short cycle lives. Without this the transport bind or connect
+	 * fails with EADDRNOTAVAIL and the cycle is lost for a reason that has
+	 * nothing to do with what is being tested. There is nobody else on
+	 * these veths to collide with anyway.
+	 */
+	if (ip->family == AF_INET6)
+		req.a.ifa_flags = IFA_F_NODAD;
+	if (ovpn_addattr(o, &req.n, sizeof(req), IFA_LOCAL, ip->addr, alen) < 0)
 		return -EMSGSIZE;
-	if (ovpn_addattr(o, &req.n, sizeof(req), IFA_ADDRESS, ip, 4) < 0)
+	if (ovpn_addattr(o, &req.n, sizeof(req), IFA_ADDRESS, ip->addr, alen) < 0)
 		return -EMSGSIZE;
 	return ovpn_rt_send(o, &req.n, 0, 0, NULL, NULL);
 }
@@ -2067,9 +2170,9 @@ static int ovpn_tun_addr_add(
 static int ovpn_tunnel_add_peer(
 	ovpn_ctx_t *o,
 	const uint32_t peer_id,
-	const uint8_t remote[4],
+	const ovpn_tun_addr_t *remote,
 	const uint16_t rport,
-	const uint8_t vpn[4],
+	const ovpn_tun_addr_t *vpn,
 	const bool is_server,
 	const bool is_tcp)
 {
@@ -2077,13 +2180,26 @@ static int ovpn_tunnel_add_peer(
 
 	o->peer_id = peer_id;
 	(void)shim_memset(&o->remote, 0, sizeof(o->remote));
-	o->remote.in4.sin_family = AF_INET;
-	o->remote.in4.sin_port = htons(rport);
-	(void)shim_memcpy(&o->remote.in4.sin_addr, remote, 4);
+	if (remote->family == AF_INET6) {
+		o->remote.in6.sin6_family = AF_INET6;
+		o->remote.in6.sin6_port = htons(rport);
+		(void)shim_memcpy(&o->remote.in6.sin6_addr, remote->addr, 16);
+	} else {
+		o->remote.in4.sin_family = AF_INET;
+		o->remote.in4.sin_port = htons(rport);
+		(void)shim_memcpy(&o->remote.in4.sin_addr, remote->addr, 4);
+	}
 	if (vpn) {
 		(void)shim_memset(&o->peer_ip, 0, sizeof(o->peer_ip));
-		o->peer_ip.in4.sin_family = AF_INET;
-		(void)shim_memcpy(&o->peer_ip.in4.sin_addr, vpn, 4);
+		if (vpn->family == AF_INET6) {
+			o->peer_ip.in6.sin6_family = AF_INET6;
+			(void)shim_memcpy(&o->peer_ip.in6.sin6_addr,
+				vpn->addr, 16);
+		} else {
+			o->peer_ip.in4.sin_family = AF_INET;
+			(void)shim_memcpy(&o->peer_ip.in4.sin_addr,
+				vpn->addr, 4);
+		}
 		o->peer_ip_set = true;
 	} else {
 		o->peer_ip_set = false;
@@ -2120,7 +2236,7 @@ static int ovpn_tunnel_add_peer(
  *	kernel encrypts them. Non-blocking and not drained, leaving frames in
  *	flight at teardown.
  */
-static void ovpn_tunnel_inject(const uint8_t dst_in[4], const uint32_t packets)
+static void ovpn_tunnel_inject(const ovpn_tun_addr_t *dst_in, const uint32_t packets)
 {
 	/*
 	 * 64K rather than one MTU: the interesting sizes are the ones that
@@ -2130,19 +2246,34 @@ static void ovpn_tunnel_inject(const uint8_t dst_in[4], const uint32_t packets)
 	 */
 	static uint8_t payload[65536];
 	int s;
-	struct sockaddr_in dst;
+	union {
+		struct sockaddr_in in4;
+		struct sockaddr_in6 in6;
+	} dst;
+	socklen_t dlen;
 	uint32_t i;
 	size_t len;
+
+	/*
+	 * The boundary is family-dependent: 1500 less the UDP header and less
+	 * the IP header, which is 20 bytes for IPv4 and 40 for IPv6. Using the
+	 * IPv4 figure for both would make the "exactly fills the path" case
+	 * fragment on IPv6, so the two cases either side of the boundary would
+	 * both land on the same side of it and the boundary itself would never
+	 * be tested there.
+	 */
+	const size_t fits = (dst_in->family == AF_INET6) ?
+		(1500 - 40 - 8) : (1500 - 20 - 8);
 
 	switch (stress_mwc8() % 8) {
 	case 0:
 		len = 1;			/* smallest datagram there is */
 		break;
 	case 1:
-		len = 1472;			/* exactly fills a 1500 byte path */
+		len = fits;			/* exactly fills a 1500 byte path */
 		break;
 	case 2:
-		len = 1473;			/* one over, so it fragments */
+		len = fits + 1;			/* one over, so it fragments */
 		break;
 	case 3:
 		len = 8192;
@@ -2157,17 +2288,26 @@ static void ovpn_tunnel_inject(const uint8_t dst_in[4], const uint32_t packets)
 
 	if (packets == 0)
 		return;
-	s = socket(AF_INET, SOCK_DGRAM | SOCK_CLOEXEC, 0);
+	s = socket(dst_in->family, SOCK_DGRAM | SOCK_CLOEXEC, 0);
 	if (s < 0)
 		return;
 	(void)shim_memset(&dst, 0, sizeof(dst));
-	dst.sin_family = AF_INET;
-	dst.sin_port = htons(OVPN_TUN_DATA_PORT);	/* fixed so the server can receive */
-	(void)shim_memcpy(&dst.sin_addr, dst_in, 4);
+	if (dst_in->family == AF_INET6) {
+		dst.in6.sin6_family = AF_INET6;
+		/* fixed port so the server knows where to listen */
+		dst.in6.sin6_port = htons(OVPN_TUN_DATA_PORT);
+		(void)shim_memcpy(&dst.in6.sin6_addr, dst_in->addr, 16);
+		dlen = sizeof(dst.in6);
+	} else {
+		dst.in4.sin_family = AF_INET;
+		dst.in4.sin_port = htons(OVPN_TUN_DATA_PORT);
+		(void)shim_memcpy(&dst.in4.sin_addr, dst_in->addr, 4);
+		dlen = sizeof(dst.in4);
+	}
 	(void)shim_memset(payload, (int)stress_mwc8(), len);
 	for (i = 0; i < packets; i++) {
 		const ssize_t n = sendto(s, payload, len, MSG_DONTWAIT,
-			   (struct sockaddr *)&dst, sizeof(dst));
+			   (struct sockaddr *)&dst, dlen);
 
 		if (n < 0)
 			break;
@@ -2293,16 +2433,17 @@ static void ovpn_tunnel_churn(
 			(void)ovpn_set_peer(o);
 			break;
 		case 3: {	/* add a phantom peer (bounded id range) */
-			const uint8_t rem[4] = { 172, 16, stress_mwc8(), stress_mwc8() };
-			uint8_t vpn[4];
+			const bool v6 = (o->sa_family == AF_INET6);
+			ovpn_tun_addr_t rem, vpn;
 
-			ovpn_tun_phantom_vpn_ip(vpn);
+			ovpn_tun_phantom_rem_ip(&rem, v6);
+			ovpn_tun_phantom_vpn_ip(&vpn, v6);
 
 			/* phantom peers need no real connection; only meaningful
 			 * for UDP (a TCP peer is 1:1 with an accepted socket) */
 			if (!is_tcp)
 				(void)ovpn_tunnel_add_peer(o, ovpn_tun_phantom_id(),
-					rem, (uint16_t)(1024 + (stress_mwc16() % 60000)), vpn, true, false);
+					&rem, (uint16_t)(1024 + (stress_mwc16() % 60000)), &vpn, true, false);
 			break;
 		}
 		case 4:		/* delete a phantom peer (varied id/reason) */
@@ -2374,22 +2515,35 @@ static void ovpn_tunnel_churn(
  *	connect() always has somewhere to land, whatever order the two
  *	children happen to be scheduled in. Returns the listening fd or -1.
  */
-static int ovpn_tunnel_tcp_listen(void)
+static int ovpn_tunnel_tcp_listen(const bool is_v6)
 {
 	int lfd;
-	struct sockaddr_in a;
+	union {
+		struct sockaddr_in in4;
+		struct sockaddr_in6 in6;
+	} a;
+	socklen_t alen;
 	const int opt = 1;
 
 	/* non-blocking so accept() after select() can never block */
-	lfd = socket(AF_INET, SOCK_STREAM | SOCK_CLOEXEC | SOCK_NONBLOCK, 0);
+	lfd = socket(is_v6 ? AF_INET6 : AF_INET,
+		     SOCK_STREAM | SOCK_CLOEXEC | SOCK_NONBLOCK, 0);
 	if (lfd < 0)
 		return -1;
 	(void)setsockopt(lfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 	(void)shim_memset(&a, 0, sizeof(a));
-	a.sin_family = AF_INET;
-	a.sin_port = htons(OVPN_TUN_PORT);
-	a.sin_addr.s_addr = htonl(INADDR_ANY);
-	if ((bind(lfd, (struct sockaddr *)&a, sizeof(a)) < 0) ||
+	if (is_v6) {
+		a.in6.sin6_family = AF_INET6;
+		a.in6.sin6_port = htons(OVPN_TUN_PORT);
+		a.in6.sin6_addr = in6addr_any;
+		alen = sizeof(a.in6);
+	} else {
+		a.in4.sin_family = AF_INET;
+		a.in4.sin_port = htons(OVPN_TUN_PORT);
+		a.in4.sin_addr.s_addr = htonl(INADDR_ANY);
+		alen = sizeof(a.in4);
+	}
+	if ((bind(lfd, (struct sockaddr *)&a, alen) < 0) ||
 	    (listen(lfd, SOMAXCONN) < 0)) {
 		(void)close(lfd);
 		return -1;
@@ -2431,15 +2585,27 @@ static int ovpn_tunnel_tcp_accept(const int lfd)
  *	TCP transport client side: connect to the server underlay, retrying
  *	while the server is not yet listening. Returns the connected fd or -1.
  */
-static int ovpn_tunnel_tcp_client(const uint8_t server[4])
+static int ovpn_tunnel_tcp_client(const ovpn_tun_addr_t *server)
 {
-	struct sockaddr_in a;
+	union {
+		struct sockaddr_in in4;
+		struct sockaddr_in6 in6;
+	} a;
+	socklen_t alen;
 	int i;
 
 	(void)shim_memset(&a, 0, sizeof(a));
-	a.sin_family = AF_INET;
-	a.sin_port = htons(OVPN_TUN_PORT);
-	(void)shim_memcpy(&a.sin_addr, server, 4);
+	if (server->family == AF_INET6) {
+		a.in6.sin6_family = AF_INET6;
+		a.in6.sin6_port = htons(OVPN_TUN_PORT);
+		(void)shim_memcpy(&a.in6.sin6_addr, server->addr, 16);
+		alen = sizeof(a.in6);
+	} else {
+		a.in4.sin_family = AF_INET;
+		a.in4.sin_port = htons(OVPN_TUN_PORT);
+		(void)shim_memcpy(&a.in4.sin_addr, server->addr, 4);
+		alen = sizeof(a.in4);
+	}
 
 	/*
 	 * non-blocking connect with a bounded per-attempt wait: a blocking
@@ -2447,13 +2613,14 @@ static int ovpn_tunnel_tcp_client(const uint8_t server[4])
 	 * not listening yet and the SYN is black-holed.
 	 */
 	for (i = 0; i < OVPN_TUN_CONNECT_TRIES; i++) {
-		const int fd = socket(AF_INET, SOCK_STREAM | SOCK_CLOEXEC | SOCK_NONBLOCK, 0);
+		const int fd = socket(server->family,
+				SOCK_STREAM | SOCK_CLOEXEC | SOCK_NONBLOCK, 0);
 		bool waited = false;
 		int ret;
 
 		if (fd < 0)
 			return -1;
-		ret = connect(fd, (struct sockaddr *)&a, sizeof(a));
+		ret = connect(fd, (struct sockaddr *)&a, alen);
 		if (ret == 0)
 			return fd;			/* immediate connect */
 		if (errno == EINPROGRESS) {
@@ -2500,10 +2667,13 @@ static int ovpn_tunnel_endpoint(
 	ovpn_ctx_t *o,
 	const bool is_server,
 	const char *veth,
-	const bool is_tcp)
+	const bool is_tcp,
+	const bool is_v6)
 {
-	const uint8_t *ul_self = is_server ? ovpn_tun_ul_srv : ovpn_tun_ul_cli;
-	const uint8_t *in_self = is_server ? ovpn_tun_in_srv : ovpn_tun_in_cli;
+	const ovpn_tun_addr_t *ul_self = is_server ?
+		OVPN_TUN_UL_SRV(is_v6) : OVPN_TUN_UL_CLI(is_v6);
+	const ovpn_tun_addr_t *in_self = is_server ?
+		OVPN_TUN_IN_SRV(is_v6) : OVPN_TUN_IN_CLI(is_v6);
 	const char *role = is_server ? "server" : "client";
 	int ret;
 
@@ -2516,7 +2686,7 @@ static int ovpn_tunnel_endpoint(
 		ovpn_fail_set(OVPN_FAIL_ADDR);
 		return -1;
 	}
-	ret = ovpn_tun_addr_add(o, veth, ul_self, 24);
+	ret = ovpn_tun_addr_add(o, veth, ul_self);
 	if (ret < 0) {
 		pr_dbg("%s: tunnel(%s): underlay addr on '%s' failed, ret=%d (%s)\n",
 			o->args_name, role, veth, ret, ovpn_tun_nlerror(ret));
@@ -2540,7 +2710,7 @@ static int ovpn_tunnel_endpoint(
 	 * path below.
 	 */
 	if (is_tcp && is_server) {
-		o->socket = ovpn_tunnel_tcp_listen();
+		o->socket = ovpn_tunnel_tcp_listen(is_v6);
 		if (o->socket < 0) {
 			pr_dbg("%s: tunnel(server): cannot listen on the underlay "
 				"port, errno=%d (%s)\n",
@@ -2580,7 +2750,7 @@ static int ovpn_tunnel_endpoint(
 		ovpn_fail_set(OVPN_FAIL_ADDR);
 		return -1;
 	}
-	ret = ovpn_tun_addr_add(o, "tun0", in_self, 24);	/* inner IP */
+	ret = ovpn_tun_addr_add(o, "tun0", in_self);	/* inner IP */
 	if (ret < 0) {
 		pr_dbg("%s: tunnel(%s): inner addr on tun0 failed, ret=%d (%s)\n",
 			o->args_name, role, ret, ovpn_tun_nlerror(ret));
@@ -2595,10 +2765,24 @@ static int ovpn_tunnel_endpoint(
 	 * runs at whatever MTU the interface came up with.
 	 */
 	if ((stress_mwc8() % 4) == 0) {
-		static const uint32_t mtus[] = { 576, 1000, 1281, 1500, 9000 };
+		/*
+		 * IPv6 has its own minimum, and going under it does not merely
+		 * make large datagrams fail: net/ipv6/addrconf.c on
+		 * NETDEV_CHANGEMTU calls addrconf_ifdown() when the MTU drops
+		 * below IPV6_MIN_MTU, tearing IPv6 off the interface
+		 * altogether. The inner address assigned above is removed and
+		 * the cycle stops being an IPv6 test at all, while still
+		 * counting as one. So the sub-1280 values are offered to IPv4
+		 * only, where they exercise fragmentation as intended.
+		 */
+		static const uint32_t mtus4[] = { 576, 1000, 1281, 1500, 9000 };
+		static const uint32_t mtus6[] = { 1280, 1281, 1500, 9000 };
+		const uint32_t *mtus = is_v6 ? mtus6 : mtus4;
+		const size_t nmtus = is_v6 ?
+			SIZEOF_ARRAY(mtus6) : SIZEOF_ARRAY(mtus4);
+		const uint32_t mtu = mtus[stress_mwc8() % nmtus];
 
-		(void)ovpn_tun_link_mtu(o, "tun0",
-			mtus[stress_mwc8() % SIZEOF_ARRAY(mtus)]);
+		(void)ovpn_tun_link_mtu(o, "tun0", mtu);
 	}
 
 	/*
@@ -2607,7 +2791,7 @@ static int ovpn_tunnel_endpoint(
 	 * veth, and the connected socket is handed to the DCO peer.
 	 */
 	o->lport = OVPN_TUN_PORT;
-	o->sa_family = AF_INET;
+	o->sa_family = is_v6 ? AF_INET6 : AF_INET;
 	if (is_tcp) {
 		if (is_server) {
 			const int lfd = o->socket;
@@ -2615,7 +2799,7 @@ static int ovpn_tunnel_endpoint(
 			o->socket = ovpn_tunnel_tcp_accept(lfd);
 			(void)close(lfd);
 		} else {
-			o->socket = ovpn_tunnel_tcp_client(ovpn_tun_ul_srv);
+			o->socket = ovpn_tunnel_tcp_client(OVPN_TUN_UL_SRV(is_v6));
 		}
 		if (o->socket < 0) {
 			pr_dbg("%s: tunnel(%s): TCP transport handshake failed\n",
@@ -2623,7 +2807,7 @@ static int ovpn_tunnel_endpoint(
 			ovpn_fail_set(OVPN_FAIL_TCP);
 			return -1;
 		}
-	} else if (ovpn_udp_socket(o, AF_INET) < 0) {
+	} else if (ovpn_udp_socket(o, is_v6 ? AF_INET6 : AF_INET) < 0) {
 		pr_dbg("%s: tunnel(%s): transport socket failed, errno=%d (%s)\n",
 			o->args_name, role, errno, strerror(errno));
 		ovpn_fail_set(OVPN_FAIL_RESOURCE);
@@ -2641,8 +2825,9 @@ static int ovpn_tunnel_endpoint(
 	if (is_server) {
 		uint32_t n, i;
 
-		ret = ovpn_tunnel_add_peer(o, 1, ovpn_tun_ul_cli, OVPN_TUN_PORT,
-					   ovpn_tun_in_cli, true, is_tcp);
+		ret = ovpn_tunnel_add_peer(o, 1, OVPN_TUN_UL_CLI(is_v6),
+					   OVPN_TUN_PORT,
+					   OVPN_TUN_IN_CLI(is_v6), true, is_tcp);
 		if (ret < 0) {
 			pr_dbg("%s: tunnel(server): add real peer failed, ret=%d (%s)\n",
 				o->args_name, ret, ovpn_tun_nlerror(ret));
@@ -2658,17 +2843,18 @@ static int ovpn_tunnel_endpoint(
 		n = is_tcp ? 0 : (stress_mwc8() % 16);
 		o->expect_failure = true;	/* random ids, failures expected */
 		for (i = 0; i < n; i++) {
-			const uint8_t rem[4] = { 172, 16, stress_mwc8(), stress_mwc8() };
-			uint8_t vpn[4];
+			const bool v6 = (o->sa_family == AF_INET6);
+			ovpn_tun_addr_t rem, vpn;
 
-			ovpn_tun_phantom_vpn_ip(vpn);
+			ovpn_tun_phantom_rem_ip(&rem, v6);
+			ovpn_tun_phantom_vpn_ip(&vpn, v6);
 
-			(void)ovpn_tunnel_add_peer(o, 2 + i, rem,
-				(uint16_t)(1024 + (stress_mwc16() % 60000)), vpn, true, false);
+			(void)ovpn_tunnel_add_peer(o, 2 + i, &rem,
+				(uint16_t)(1024 + (stress_mwc16() % 60000)), &vpn, true, false);
 		}
 		o->expect_failure = false;
 	} else {
-		ret = ovpn_tunnel_add_peer(o, 1, ovpn_tun_ul_srv, OVPN_TUN_PORT,
+		ret = ovpn_tunnel_add_peer(o, 1, OVPN_TUN_UL_SRV(is_v6), OVPN_TUN_PORT,
 					  NULL, false, is_tcp);
 		if (ret < 0) {
 			pr_dbg("%s: tunnel(client): add peer failed, ret=%d (%s)\n",
@@ -2696,6 +2882,7 @@ static void NORETURN ovpn_tunnel_child(
 	const int gofd,
 	const uint32_t packets,
 	const bool is_tcp,
+	const bool is_v6,
 	const bool destructive,
 	const int parent_cpu)
 {
@@ -2733,11 +2920,17 @@ static void NORETURN ovpn_tunnel_child(
 
 	(void)shim_memset(&ovpn, 0, sizeof(ovpn));
 	ovpn.args_name = args->name;
-	ovpn.sa_family = AF_INET;
+	/*
+	 * set here as well as in ovpn_tunnel_endpoint(), because the phantom
+	 * peer churn reads o->sa_family to decide which family to invent
+	 * addresses in, and would otherwise use IPv4 ones on a v6 cycle for as
+	 * long as the field held its initial value
+	 */
+	ovpn.sa_family = is_v6 ? AF_INET6 : AF_INET;
 	ovpn.cipher = OVPN_CIPHER_ALG_NONE;
 	ovpn.socket = -1;
 
-	if (ovpn_tunnel_endpoint(&ovpn, is_server, veth, is_tcp) == 0) {
+	if (ovpn_tunnel_endpoint(&ovpn, is_server, veth, is_tcp, is_v6) == 0) {
 		/*
 		 * keep the freshly-built tunnel live for a random number of
 		 * iterations, mixing data-path traffic with control-plane
@@ -2747,7 +2940,7 @@ static void NORETURN ovpn_tunnel_child(
 		 * The server churns its MP peer table (create/swap/delete); the
 		 * client injects traffic and rekeys the live tunnel now and then.
 		 */
-		const uint8_t *in_peer = ovpn_tun_in_srv;
+		const ovpn_tun_addr_t *in_peer = OVPN_TUN_IN_SRV(is_v6);
 		/*
 		 * Most cycles are deliberately short, so that build and
 		 * teardown dominate: the lifecycle races live there, not in
@@ -2757,18 +2950,25 @@ static void NORETURN ovpn_tunnel_child(
 		const int iters = ((stress_mwc8() % 5) < 3) ?
 			1 + (int)(stress_mwc8() % 8) :
 			1 + (int)(stress_mwc16() % 256);
-		/* this cycle's bytes land in the counter for its transport */
-		uint64_t *const bytec = &ovpn_bytes[is_server ?
-			(is_tcp ? OVPN_CTR_RX_TCP : OVPN_CTR_RX_UDP) :
-			(is_tcp ? OVPN_CTR_TX_TCP : OVPN_CTR_TX_UDP)];
+		/*
+		 * this cycle's bytes land in the counter for its direction,
+		 * transport and family; the server is the one that counts rx
+		 */
+		uint64_t *const bytec =
+			&ovpn_bytes[OVPN_CTR_BYTES(is_server, is_tcp, is_v6)];
 		pid_t churner = -1;
 		int i, rxfd = -1;
 
 		/* server: receive decrypted datagrams on the inner data port */
 		if (is_server) {
-			rxfd = socket(AF_INET, SOCK_DGRAM | SOCK_CLOEXEC, 0);
+			rxfd = socket(is_v6 ? AF_INET6 : AF_INET,
+				      SOCK_DGRAM | SOCK_CLOEXEC, 0);
 			if (rxfd >= 0) {
-				struct sockaddr_in a;
+				union {
+					struct sockaddr_in in4;
+					struct sockaddr_in6 in6;
+				} a;
+				socklen_t alen;
 				const int rcvbuf = 4 * 1024 * 1024;
 
 				/* large recv buffer: the server drains only between
@@ -2776,10 +2976,18 @@ static void NORETURN ovpn_tunnel_child(
 				(void)setsockopt(rxfd, SOL_SOCKET, SO_RCVBUF,
 						 &rcvbuf, sizeof(rcvbuf));
 				(void)shim_memset(&a, 0, sizeof(a));
-				a.sin_family = AF_INET;
-				a.sin_port = htons(OVPN_TUN_DATA_PORT);
-				a.sin_addr.s_addr = htonl(INADDR_ANY);
-				if (bind(rxfd, (struct sockaddr *)&a, sizeof(a)) < 0) {
+				if (is_v6) {
+					a.in6.sin6_family = AF_INET6;
+					a.in6.sin6_port = htons(OVPN_TUN_DATA_PORT);
+					a.in6.sin6_addr = in6addr_any;
+					alen = sizeof(a.in6);
+				} else {
+					a.in4.sin_family = AF_INET;
+					a.in4.sin_port = htons(OVPN_TUN_DATA_PORT);
+					a.in4.sin_addr.s_addr = htonl(INADDR_ANY);
+					alen = sizeof(a.in4);
+				}
+				if (bind(rxfd, (struct sockaddr *)&a, alen) < 0) {
 					(void)close(rxfd);
 					rxfd = -1;
 				}
@@ -2979,6 +3187,7 @@ static int ovpn_tunnel_cycle(
 	const uint32_t id,
 	const uint32_t packets,
 	const bool is_tcp,
+	const bool is_v6,
 	const bool destructive)
 {
 	char vs[IFNAMSIZ], vc[IFNAMSIZ];
@@ -3039,7 +3248,8 @@ static int ovpn_tunnel_cycle(
 		(void)close(crdy[0]); (void)close(crdy[1]);
 		(void)close(cgo[0]); (void)close(cgo[1]);
 		ovpn_tunnel_child(args, true, vs, srdy[1], sgo[0],
-				  packets, is_tcp, destructive, parent_cpu);
+				  packets, is_tcp, is_v6, destructive,
+				  parent_cpu);
 	}
 	pc = fork();
 	if (pc < 0) {
@@ -3055,7 +3265,8 @@ static int ovpn_tunnel_cycle(
 		(void)close(srdy[0]); (void)close(srdy[1]);
 		(void)close(sgo[0]); (void)close(sgo[1]);
 		ovpn_tunnel_child(args, false, vc, crdy[1], cgo[0],
-				  packets, is_tcp, destructive, parent_cpu);
+				  packets, is_tcp, is_v6, destructive,
+				  parent_cpu);
 	}
 
 	/* parent: keep the read/ready and write/go ends */
@@ -3142,10 +3353,11 @@ static int stress_ovpn_tunnel(stress_args_t *args)
 {
 	ovpn_ctx_t root;
 	const size_t ctr_sz = sizeof(uint64_t) * OVPN_CTR_MAX;
-	double tx_udp, tx_tcp, rx_udp, rx_tcp, duration;
+	double mbs[OVPN_CTR_BYTES_MAX], duration;
 	uint64_t reason = OVPN_FAIL_NONE;
 	int rc = EXIT_SUCCESS;
 	int fails = 0;
+	size_t i;
 
 	(void)shim_memset(&root, 0, sizeof(root));
 	root.args_name = args->name;
@@ -3208,6 +3420,14 @@ static int stress_ovpn_tunnel(stress_args_t *args)
 	do {
 		const bool is_tcp = stress_mwc1();
 		/*
+		 * The address family is picked per cycle for the same reason
+		 * the transport is: the module has a separate proto_ops for
+		 * TCP6, its own bind comparison involving the scope id, and a
+		 * distinct inner-header path, none of which an IPv4-only
+		 * stressor ever reaches.
+		 */
+		const bool is_v6 = stress_mwc1();
+		/*
 		 * A share of cycles is willing to lose its tunnel, so that
 		 * the peer carrying traffic can be torn apart while it is in
 		 * use. Those cycles report no traffic, so the metrics are the
@@ -3216,7 +3436,7 @@ static int stress_ovpn_tunnel(stress_args_t *args)
 		const bool destructive = (stress_mwc8() % 3) == 0;
 
 		if (ovpn_tunnel_cycle(args, &root, args->instance,
-				      OVPN_TUN_PACKETS, is_tcp,
+				      OVPN_TUN_PACKETS, is_tcp, is_v6,
 				      destructive) == EXIT_SUCCESS) {
 			fails = 0;
 			continue;
@@ -3266,27 +3486,30 @@ static int stress_ovpn_tunnel(stress_args_t *args)
 	 * showed 81MB of plaintext delivered. A sum is the aggregate throughput
 	 * and is unbothered by a zero.
 	 */
-	tx_udp = (duration > 0.0) ? (double)ovpn_bytes[OVPN_CTR_TX_UDP] / (double)MB / duration : 0.0;
-	tx_tcp = (duration > 0.0) ? (double)ovpn_bytes[OVPN_CTR_TX_TCP] / (double)MB / duration : 0.0;
-	rx_udp = (duration > 0.0) ? (double)ovpn_bytes[OVPN_CTR_RX_UDP] / (double)MB / duration : 0.0;
-	rx_tcp = (duration > 0.0) ? (double)ovpn_bytes[OVPN_CTR_RX_TCP] / (double)MB / duration : 0.0;
-
 	/*
 	 * These come from the kernel's own per-peer plaintext byte counters,
-	 * not from a userspace estimate. All four are always reported, even
+	 * not from a userspace estimate. All eight are always reported, even
 	 * when zero: the metrics of every instance are matched up by
-	 * description, so the set must not vary between instances.
+	 * description, so the set must not vary between instances - and an
+	 * instance whose cycles all happened to be IPv4 must still report the
+	 * IPv6 pair.
 	 */
-	stress_metrics_set(args, "MB per sec encrypted, UDP transport", tx_udp,
-		STRESS_METRIC_TOTAL);
-	stress_metrics_set(args, "MB per sec encrypted, TCP transport", tx_tcp,
-		STRESS_METRIC_TOTAL);
-	stress_metrics_set(args, "MB per sec decrypted, UDP transport", rx_udp,
-		STRESS_METRIC_TOTAL);
-	stress_metrics_set(args, "MB per sec decrypted, TCP transport", rx_tcp,
-		STRESS_METRIC_TOTAL);
-	pr_dbg("%s: tunnel MB/s tx(udp/tcp)=%.2f/%.2f rx(udp/tcp)=%.2f/%.2f\n",
-		args->name, tx_udp, tx_tcp, rx_udp, rx_tcp);
+	for (i = 0; i < OVPN_CTR_BYTES_MAX; i++) {
+		mbs[i] = (duration > 0.0) ?
+			(double)ovpn_bytes[i] / (double)MB / duration : 0.0;
+		stress_metrics_set(args, ovpn_ctr_desc[i], mbs[i],
+			STRESS_METRIC_TOTAL);
+	}
+	pr_dbg("%s: tunnel MB/s enc udp4/udp6/tcp4/tcp6=%.2f/%.2f/%.2f/%.2f "
+		"dec udp4/udp6/tcp4/tcp6=%.2f/%.2f/%.2f/%.2f\n", args->name,
+		mbs[OVPN_CTR_BYTES(false, false, false)],
+		mbs[OVPN_CTR_BYTES(false, false, true)],
+		mbs[OVPN_CTR_BYTES(false, true, false)],
+		mbs[OVPN_CTR_BYTES(false, true, true)],
+		mbs[OVPN_CTR_BYTES(true, false, false)],
+		mbs[OVPN_CTR_BYTES(true, false, true)],
+		mbs[OVPN_CTR_BYTES(true, true, false)],
+		mbs[OVPN_CTR_BYTES(true, true, true)]);
 
 	(void)stress_munmap_anon_shared((void *)ovpn_bytes, ctr_sz);
 	ovpn_bytes = NULL;
