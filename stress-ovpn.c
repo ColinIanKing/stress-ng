@@ -2018,8 +2018,8 @@ static int ovpn_tunnel_add_peer(
 
 	/*
 	 * install the same fixed key in BOTH slots so a later primary<->
-	 * secondary swap keeps a valid key active under traffic. Same bytes
-	 * on client and server so decrypt works.
+	 * secondary swap keeps a valid key active (non-destructive swap
+	 * under traffic). Same bytes on client and server so decrypt works.
 	 */
 	o->cipher = OVPN_CIPHER_ALG_AES_GCM;
 	o->key_dir = is_server ? SHIM_KEY_DIR_IN : SHIM_KEY_DIR_OUT;
@@ -2124,16 +2124,25 @@ static void ovpn_tunnel_drain(const int fd)
  *  ovpn_tunnel_churn()
  *	run a random sequence of live DCO operations for entropy.
  *
- *	The peer that carries traffic (id 1) only ever gets operations that
- *	leave it usable - a primary<->secondary key swap under load, get/set -
- *	so encrypt and decrypt stay coherent and the crypto hot path keeps
- *	running, while the key and peer lifecycle churn is confined to phantom
- *	peers that carry nothing.
+ *	On an ordinary cycle the peer that carries traffic (id 1) only gets
+ *	non-destructive operations - a primary<->secondary key swap under
+ *	load, get/set - so encrypt and decrypt stay coherent and the crypto
+ *	hot path keeps running, while the destructive key and peer lifecycle
+ *	churn is confined to phantom peers that carry nothing.
+ *
+ *	On a destructive cycle that protection is lifted and the live peer
+ *	gets the lot: its in-use key slot deleted, a rekey to material the
+ *	other end does not have, the peer itself deleted, all while traffic
+ *	is still being injected. Keeping an object alive whenever anything
+ *	might be using it is what stops a stressor from finding lifecycle
+ *	bugs, so a share of cycles has to be willing to lose the tunnel.
+ *	Such a cycle reports no traffic, which is the intended trade.
  */
 static void ovpn_tunnel_churn(
 	ovpn_ctx_t *o,
 	const bool is_server,
-	const bool is_tcp)
+	const bool is_tcp,
+	const bool destructive)
 {
 	const int ops = 1 + (int)(stress_mwc8() % 8);
 	int i;
@@ -2147,13 +2156,13 @@ static void ovpn_tunnel_churn(
 		 * buries the log in tens of thousands of expected ENOENTs.
 		 * Unused on the client path below, which has its own selection.
 		 */
-		const int op = (int)(stress_mwc8() % 7);
+		const int op = (int)(stress_mwc8() % (destructive ? 14 : 7));
 
 		o->expect_failure = false;
 		if (!is_server) {
 			/* client (P2P): only ever peer 1, the live one */
 			o->peer_id = 1;
-			switch (stress_mwc8() % 4) {
+			switch (stress_mwc8() % (destructive ? 7 : 4)) {
 			case 0:		/* swap slots under active traffic */
 				(void)ovpn_swap_keys(o);
 				break;
@@ -2169,6 +2178,22 @@ static void ovpn_tunnel_churn(
 				o->key_slot = OVPN_KEY_SLOT_PRIMARY;
 				(void)ovpn_get_key(o);
 				break;
+			case 4:		/* drop the key the traffic is using */
+				o->key_slot = stress_mwc1() ?
+					OVPN_KEY_SLOT_PRIMARY : OVPN_KEY_SLOT_SECONDARY;
+				(void)ovpn_del_key(o);
+				break;
+			case 5:		/* rekey to material the server does not have */
+				o->key_slot = stress_mwc1() ?
+					OVPN_KEY_SLOT_PRIMARY : OVPN_KEY_SLOT_SECONDARY;
+				o->key_id = stress_mwc8() & 7;
+				o->cipher = ovpn_tun_cipher();
+				if (ovpn_generate_key(o) == 0)
+					(void)ovpn_new_key(o);
+				break;
+			case 6:		/* delete the peer from under the traffic */
+				(void)ovpn_del_peer(o);
+				break;
 			}
 			continue;
 		}
@@ -2176,7 +2201,7 @@ static void ovpn_tunnel_churn(
 		/* only the phantom cases, 3 to 6, are expected to fail */
 		o->expect_failure = (op >= 3) && (op <= 6);
 		switch (op) {
-		case 0:		/* key swap on the real peer under load */
+		case 0:		/* non-destructive swap on the real peer under load */
 			o->peer_id = 1;
 			(void)ovpn_swap_keys(o);
 			break;
@@ -2222,6 +2247,43 @@ static void ovpn_tunnel_churn(
 			o->peer_id = ovpn_tun_phantom_id();
 			o->key_slot = stress_mwc1() ? OVPN_KEY_SLOT_PRIMARY : OVPN_KEY_SLOT_SECONDARY;
 			(void)ovpn_del_key(o);
+			break;
+		case 7:		/* destructive cycles only, on the live peer */
+			o->peer_id = 1;
+			o->key_slot = stress_mwc1() ?
+				OVPN_KEY_SLOT_PRIMARY : OVPN_KEY_SLOT_SECONDARY;
+			(void)ovpn_del_key(o);
+			break;
+		case 8:
+			o->peer_id = 1;
+			o->key_slot = stress_mwc1() ?
+				OVPN_KEY_SLOT_PRIMARY : OVPN_KEY_SLOT_SECONDARY;
+			o->key_id = stress_mwc8() & 7;
+			o->cipher = ovpn_tun_cipher();
+			if (ovpn_generate_key(o) == 0)
+				(void)ovpn_new_key(o);
+			break;
+		case 9:
+			o->peer_id = 1;
+			(void)ovpn_del_peer(o);
+			break;
+		case 10:	/* tear the interface down with peers attached */
+			(void)ovpn_tun_link_del(o, o->ifname);
+			break;
+		case 11:	/* .. and put it straight back, reusing the name */
+			(void)ovpn_tun_link_del(o, o->ifname);
+			if (ovpn_new_iface(o) == 0)
+				o->ifindex = if_nametoindex(o->ifname);
+			break;
+		case 12:	/* half close the transport under the module */
+			if (o->socket >= 0)
+				(void)shutdown(o->socket, SHUT_RDWR);
+			break;
+		case 13:	/* drop our reference while peers still hold theirs */
+			if (o->socket >= 0) {
+				(void)close(o->socket);
+				o->socket = -1;
+			}
 			break;
 		}
 	}
@@ -2546,6 +2608,7 @@ static void NORETURN ovpn_tunnel_child(
 	const int gofd,
 	const uint32_t packets,
 	const bool is_tcp,
+	const bool destructive,
 	const int parent_cpu)
 {
 	ovpn_ctx_t ovpn;
@@ -2635,12 +2698,12 @@ static void NORETURN ovpn_tunnel_child(
 
 		for (i = 0; (i < iters) && stress_continue(args); i++) {
 			if (is_server) {
-				ovpn_tunnel_churn(&ovpn, true, is_tcp);
+				ovpn_tunnel_churn(&ovpn, true, is_tcp, destructive);
 				ovpn_tunnel_drain(rxfd);
 			} else {
 				ovpn_tunnel_inject(in_peer, packets);
 				if ((stress_mwc8() & 0xf) == 0)
-					ovpn_tunnel_churn(&ovpn, false, is_tcp);
+					ovpn_tunnel_churn(&ovpn, false, is_tcp, destructive);
 				/*
 				 * the instance folds this into the bogo-op counter
 				 * once the cycle is reaped: incrementing it from a
@@ -2709,7 +2772,8 @@ static int ovpn_tunnel_cycle(
 	ovpn_ctx_t *root,
 	const uint32_t id,
 	const uint32_t packets,
-	const bool is_tcp)
+	const bool is_tcp,
+	const bool destructive)
 {
 	char vs[IFNAMSIZ], vc[IFNAMSIZ];
 	int srdy[2] = { -1, -1 }, sgo[2] = { -1, -1 };
@@ -2766,7 +2830,7 @@ static int ovpn_tunnel_cycle(
 		(void)close(crdy[0]); (void)close(crdy[1]);
 		(void)close(cgo[0]); (void)close(cgo[1]);
 		ovpn_tunnel_child(args, true, vs, srdy[1], sgo[0],
-				  packets, is_tcp, parent_cpu);
+				  packets, is_tcp, destructive, parent_cpu);
 	}
 	pc = fork();
 	if (pc < 0) {
@@ -2781,7 +2845,7 @@ static int ovpn_tunnel_cycle(
 		(void)close(srdy[0]); (void)close(srdy[1]);
 		(void)close(sgo[0]); (void)close(sgo[1]);
 		ovpn_tunnel_child(args, false, vc, crdy[1], cgo[0],
-				  packets, is_tcp, parent_cpu);
+				  packets, is_tcp, destructive, parent_cpu);
 	}
 
 	/* parent: keep the read/ready and write/go ends */
@@ -2932,9 +2996,17 @@ static int stress_ovpn_tunnel(stress_args_t *args)
 	 * pick the transport (UDP or TCP) at random each cycle */
 	do {
 		const bool is_tcp = stress_mwc1();
+		/*
+		 * A share of cycles is willing to lose its tunnel, so that
+		 * the peer carrying traffic can be torn apart while it is in
+		 * use. Those cycles report no traffic, so the metrics are the
+		 * rate over the cycles that survived.
+		 */
+		const bool destructive = (stress_mwc8() % 3) == 0;
 
 		if (ovpn_tunnel_cycle(args, &root, args->instance,
-				      OVPN_TUN_PACKETS, is_tcp) == EXIT_SUCCESS) {
+				      OVPN_TUN_PACKETS, is_tcp,
+				      destructive) == EXIT_SUCCESS) {
 			fails = 0;
 			continue;
 		}
@@ -2963,10 +3035,14 @@ static int stress_ovpn_tunnel(stress_args_t *args)
 	 * competed for the CPU, so byte totals from runs with different -ovpn
 	 * counts or timeouts cannot be compared; a per-second figure can.
 	 *
-	 * The per-instance rates are then summed rather than averaged: a sum is
-	 * the aggregate throughput, which is what a reader of these numbers
-	 * wants, and unlike a harmonic or geometric mean it is unbothered by an
-	 * instance that happened to report nothing.
+	 * The per-instance rates are then summed rather than averaged, because
+	 * a destructive cycle is meant to lose its tunnel and an instance whose
+	 * cycles were mostly destructive legitimately reports zero. Under a
+	 * harmonic or geometric mean a single such instance takes the whole
+	 * figure to zero however well the others did - at 20 instances that
+	 * reported "decrypted 0.00 MB/s" for a run whose own per-peer counters
+	 * showed 81MB of plaintext delivered. A sum is the aggregate throughput
+	 * and is unbothered by a zero.
 	 */
 	tx_udp = (duration > 0.0) ? (double)ovpn_bytes[OVPN_CTR_TX_UDP] / (double)MB / duration : 0.0;
 	tx_tcp = (duration > 0.0) ? (double)ovpn_bytes[OVPN_CTR_TX_TCP] / (double)MB / duration : 0.0;
@@ -3075,6 +3151,7 @@ static const stress_exercises_t exercises[] = {
 	STRESS_EX_SYSCALL("sendmsg"),
 	STRESS_EX_SYSCALL("sendto"),
 	STRESS_EX_SYSCALL("setsockopt"),
+	STRESS_EX_SYSCALL("shutdown"),
 	STRESS_EX_SYSCALL("socket"),
 	STRESS_EX_SYSCALL("unshare"),
 	STRESS_EX_SYSCALL("waitpid"),
