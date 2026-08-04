@@ -3888,7 +3888,7 @@ static int stress_vm(stress_args_t *args)
 	} else {
 		if (stress_instance_zero(args)) {
 			pr_inf("%s: non-temporal memory stores not supported, "
-				"dropping back to plain memory stroes\n", args->name);
+				"dropping back to plain memory stores\n", args->name);
 		}
 	}
 
