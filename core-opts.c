@@ -1056,6 +1056,7 @@ const struct option stress_long_options[] = {
 
 	{ "ovpn",		1,	NULL,	OPT_ovpn },
 	{ "ovpn-ops",		1,	NULL,	OPT_ovpn_ops },
+	{ "ovpn-tunnel",	0,	NULL,	OPT_ovpn_tunnel },
 
 	{ "page-in",		0,	NULL,	OPT_page_in },
 

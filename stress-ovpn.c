@@ -17,14 +17,24 @@
  *
  */
 #include "stress-ng.h"
+#include "core-affinity.h"
 #include "core-attribute.h"
 #include "core-builtin.h"
 #include "core-capabilities.h"
+#include "core-helper.h"
+#include "core-killpid.h"
+#include "core-mmap.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"ovpn N",	"start N workers exercising ovpn tasks events" },
 	{ NULL,	"ovpn-ops N",	"stop ovpn workers after N bogo events" },
+	{ NULL,	"ovpn-tunnel",	"build a real two-endpoint DCO tunnel (two netns) and exercise the data path" },
 	{ NULL,	NULL,		NULL }
+};
+
+static const stress_opt_t opts[] = {
+	{ OPT_ovpn_tunnel, "ovpn-tunnel", TYPE_ID_BOOL, 0, 1, NULL },
+	END_OPT,
 };
 
 /*
@@ -58,6 +68,14 @@ static const stress_help_t help[] = {
 #include <sys/random.h>
 #include <sys/select.h>
 #include <fcntl.h>
+#include <sched.h>
+
+#if defined(HAVE_LINUX_VETH_H)
+#include <linux/veth.h>
+#endif
+#if !defined(VETH_INFO_PEER)
+#define VETH_INFO_PEER	(1)
+#endif
 
 #if defined(HAVE_LINUX_CN_PROC_H)
 #include <linux/cn_proc.h>
@@ -117,6 +135,8 @@ uint64_t ovpn_nla_get_uint(struct nlattr *attr)
 	else
 		return nla_get_u64(attr);
 }
+
+struct ovpn_ctx;
 
 typedef int (*ovpn_nl_cb)(struct nl_msg *msg, void *arg);
 typedef int (*ovpn_parse_reply_cb)(struct nlmsghdr *msg, void *arg);
@@ -1598,9 +1618,887 @@ static int ovpn_autofill_args(ovpn_ctx_t *ovpn)
 	}
 }
 
+/*
+ *  ============================================================
+ *  --ovpn-tunnel mode: build a real two-endpoint DCO tunnel
+ *
+ *  The stressor instance first unshares its own network namespace,
+ *  so every interface it creates is private to the instance and is
+ *  reclaimed by the kernel when the instance exits; nothing is ever
+ *  added to the host network namespace. Inside it, each cycle forks
+ *  two children that unshare a network namespace each, joined by a
+ *  veth pair used as the UDP transport underlay. An ovpn interface is
+ *  created in each child
+ *  netns with a fixed shared key, then the client injects traffic
+ *  into its tunnel interface so the kernel actually ENCRYPTs and
+ *  the server DECRYPTs it:
+ *
+ *    client netns                     server netns
+ *    veth-c 172.16.0.2  ── underlay ── veth-s 172.16.0.1
+ *    tun0   10.8.0.2                   tun0   10.8.0.1
+ *    inject → 10.8.0.1 → ENCRYPT → veth → DECRYPT → tun0
+ *  ============================================================
+ */
+#define OVPN_TUN_PORT		(1194)
+#define OVPN_TUN_DATA_PORT	(5555)	/* inner UDP port for injected data */
+#define OVPN_TUN_PACKETS	(16)
+#define OVPN_TUN_KEY_BYTE	(0x5a)
+/*
+ * consecutive failures tolerated before concluding there is nothing to do.
+ * Forgiving, because a contended start produces a few of its own.
+ */
+#define OVPN_TUN_MAX_FAILS	(16)
+
+/* tokens exchanged over the parent <-> child sync pipes */
+#define OVPN_TUN_READY		'R'	/* child unshared its netns */
+#define OVPN_TUN_NO_NETNS	'F'	/* child could not unshare */
+#define OVPN_TUN_GO		'G'	/* parent migrated the veth end */
+
+static const uint8_t ovpn_tun_ul_srv[4] = { 172, 16, 0, 1 };	/* underlay */
+static const uint8_t ovpn_tun_ul_cli[4] = { 172, 16, 0, 2 };
+static const uint8_t ovpn_tun_in_srv[4] = { 10, 8, 0, 1 };	/* inner/vpn */
+static const uint8_t ovpn_tun_in_cli[4] = { 10, 8, 0, 2 };
+
+/*
+ * shared counters in an anonymous shared mapping, so the forked children
+ * accumulate into them and the instance reports them.
+ *
+ * OPS counts injection bursts, and is folded into the bogo-op counter by
+ * the instance rather than by the children, see ovpn_tunnel_cycle().
+ */
+enum {
+	OVPN_CTR_OPS = 0,
+	OVPN_CTR_MAX
+};
+
+static uint64_t *ovpn_bytes;		/* array of OVPN_CTR_MAX counters */
+
+/*
+ *  ovpn_tun_nlerror()
+ *	the rtnetlink and genl helpers below return a negative errno, either
+ *	lifted from the kernel's NLMSG_ERROR payload or set locally, and they
+ *	never touch errno; describe the return code rather than reporting a
+ *	stale errno. Note that -1 is a meaningful value here (-EPERM), which
+ *	is what an unprivileged caller gets back from the kernel.
+ */
+static const char *ovpn_tun_nlerror(const int ret)
+{
+	return (ret < 0) ? strerror(-ret) : "no error";
+}
+
+/*  create a veth pair (name <-> peer) in the current netns */
+static int ovpn_tun_veth_create(ovpn_ctx_t *o, const char *name, const char *peer)
+{
+	struct {
+		struct nlmsghdr n;
+		struct ifinfomsg i;
+		char buf[512];
+	} req;
+	struct rtattr *linkinfo, *infodata, *peerinfo;
+
+	(void)shim_memset(&req, 0, sizeof(req));
+	req.n.nlmsg_len = NLMSG_LENGTH(sizeof(req.i));
+	req.n.nlmsg_flags = NLM_F_REQUEST | NLM_F_CREATE | NLM_F_EXCL;
+	req.n.nlmsg_type = RTM_NEWLINK;
+	req.i.ifi_family = AF_UNSPEC;
+
+	if (ovpn_addattr(o, &req.n, sizeof(req), IFLA_IFNAME, name, strlen(name) + 1) < 0)
+		return -EMSGSIZE;
+	linkinfo = ovpn_nest_start(o, &req.n, sizeof(req), IFLA_LINKINFO);
+	if (!linkinfo)
+		return -EMSGSIZE;
+	if (ovpn_addattr(o, &req.n, sizeof(req), IFLA_INFO_KIND, "veth", 5) < 0)
+		return -EMSGSIZE;
+	infodata = ovpn_nest_start(o, &req.n, sizeof(req), IFLA_INFO_DATA);
+	if (!infodata)
+		return -EMSGSIZE;
+	peerinfo = ovpn_nest_start(o, &req.n, sizeof(req), VETH_INFO_PEER);
+	if (!peerinfo)
+		return -EMSGSIZE;
+	req.n.nlmsg_len += NLMSG_ALIGN(sizeof(struct ifinfomsg));	/* peer ifinfomsg */
+	if (ovpn_addattr(o, &req.n, sizeof(req), IFLA_IFNAME, peer, strlen(peer) + 1) < 0)
+		return -EMSGSIZE;
+	ovpn_nest_end(&req.n, peerinfo);
+	ovpn_nest_end(&req.n, infodata);
+	ovpn_nest_end(&req.n, linkinfo);
+
+	return ovpn_rt_send(o, &req.n, 0, 0, NULL, NULL);
+}
+
+/*  delete link 'name' by name (removes the whole veth pair) */
+static int ovpn_tun_link_del(ovpn_ctx_t *o, const char *name)
+{
+	struct {
+		struct nlmsghdr n;
+		struct ifinfomsg i;
+		char buf[64];
+	} req;
+
+	(void)shim_memset(&req, 0, sizeof(req));
+	req.n.nlmsg_len = NLMSG_LENGTH(sizeof(req.i));
+	req.n.nlmsg_flags = NLM_F_REQUEST;
+	req.n.nlmsg_type = RTM_DELLINK;
+	req.i.ifi_family = AF_UNSPEC;
+	if (ovpn_addattr(o, &req.n, sizeof(req), IFLA_IFNAME, name, strlen(name) + 1) < 0)
+		return -EMSGSIZE;
+	return ovpn_rt_send(o, &req.n, 0, 0, NULL, NULL);
+}
+
+/*  set the MTU of link 'name' (in the current netns) */
+static int ovpn_tun_link_mtu(ovpn_ctx_t *o, const char *name, const uint32_t mtu)
+{
+	struct {
+		struct nlmsghdr n;
+		struct ifinfomsg i;
+		char buf[64];
+	} req;
+	const unsigned int idx = if_nametoindex(name);
+
+	if (idx == 0)
+		return -ENODEV;
+	(void)shim_memset(&req, 0, sizeof(req));
+	req.n.nlmsg_len = NLMSG_LENGTH(sizeof(req.i));
+	req.n.nlmsg_flags = NLM_F_REQUEST;
+	req.n.nlmsg_type = RTM_NEWLINK;
+	req.i.ifi_family = AF_UNSPEC;
+	req.i.ifi_index = (int)idx;
+	if (ovpn_addattr(o, &req.n, sizeof(req), IFLA_MTU, &mtu, sizeof(mtu)) < 0)
+		return -EMSGSIZE;
+	return ovpn_rt_send(o, &req.n, 0, 0, NULL, NULL);
+}
+
+/*  move link 'name' into the network namespace owned by pid */
+static int ovpn_tun_link_move(ovpn_ctx_t *o, const char *name, const pid_t pid)
+{
+	struct {
+		struct nlmsghdr n;
+		struct ifinfomsg i;
+		char buf[64];
+	} req;
+	uint32_t nspid = (uint32_t)pid;
+	const unsigned int idx = if_nametoindex(name);
+
+	if (idx == 0)
+		return -ENODEV;
+	(void)shim_memset(&req, 0, sizeof(req));
+	req.n.nlmsg_len = NLMSG_LENGTH(sizeof(req.i));
+	req.n.nlmsg_flags = NLM_F_REQUEST;
+	req.n.nlmsg_type = RTM_NEWLINK;
+	req.i.ifi_family = AF_UNSPEC;
+	req.i.ifi_index = (int)idx;
+	if (ovpn_addattr(o, &req.n, sizeof(req), IFLA_NET_NS_PID, &nspid, sizeof(nspid)) < 0)
+		return -EMSGSIZE;
+	return ovpn_rt_send(o, &req.n, 0, 0, NULL, NULL);
+}
+
+/*  bring link 'name' administratively up (in the current netns) */
+static int ovpn_tun_link_up(ovpn_ctx_t *o, const char *name)
+{
+	struct {
+		struct nlmsghdr n;
+		struct ifinfomsg i;
+		char buf[32];
+	} req;
+	const unsigned int idx = if_nametoindex(name);
+
+	if (idx == 0)
+		return -ENODEV;
+	(void)shim_memset(&req, 0, sizeof(req));
+	req.n.nlmsg_len = NLMSG_LENGTH(sizeof(req.i));
+	req.n.nlmsg_flags = NLM_F_REQUEST;
+	req.n.nlmsg_type = RTM_NEWLINK;
+	req.i.ifi_family = AF_UNSPEC;
+	req.i.ifi_index = (int)idx;
+	req.i.ifi_flags = IFF_UP;
+	req.i.ifi_change = IFF_UP;
+	return ovpn_rt_send(o, &req.n, 0, 0, NULL, NULL);
+}
+
+/*  assign an IPv4 /plen address to link 'name' (in the current netns) */
+static int ovpn_tun_addr_add(
+	ovpn_ctx_t *o,
+	const char *name,
+	const uint8_t ip[4],
+	const uint8_t plen)
+{
+	struct {
+		struct nlmsghdr n;
+		struct ifaddrmsg a;
+		char buf[64];
+	} req;
+	const unsigned int idx = if_nametoindex(name);
+
+	if (idx == 0)
+		return -ENODEV;
+	(void)shim_memset(&req, 0, sizeof(req));
+	req.n.nlmsg_len = NLMSG_LENGTH(sizeof(req.a));
+	req.n.nlmsg_flags = NLM_F_REQUEST | NLM_F_CREATE | NLM_F_REPLACE;
+	req.n.nlmsg_type = RTM_NEWADDR;
+	req.a.ifa_family = AF_INET;
+	req.a.ifa_prefixlen = plen;
+	req.a.ifa_index = idx;
+	if (ovpn_addattr(o, &req.n, sizeof(req), IFA_LOCAL, ip, 4) < 0)
+		return -EMSGSIZE;
+	if (ovpn_addattr(o, &req.n, sizeof(req), IFA_ADDRESS, ip, 4) < 0)
+		return -EMSGSIZE;
+	return ovpn_rt_send(o, &req.n, 0, 0, NULL, NULL);
+}
+
+/*
+ *  ovpn_tunnel_add_peer()
+ *	add a peer (+ a key) to the current ovpn interface. vpn==NULL for a
+ *	P2P peer (no per-peer VPN IP); non-NULL for an MP peer. is_server
+ *	selects the key direction. Returns 0 on success, or the negative
+ *	netlink error from the failing peer/key command. The remote address is
+ *	always carried explicitly, the transport being connectionless.
+ */
+static int ovpn_tunnel_add_peer(
+	ovpn_ctx_t *o,
+	const uint32_t peer_id,
+	const uint8_t remote[4],
+	const uint16_t rport,
+	const uint8_t vpn[4],
+	const bool is_server)
+{
+	int ret;
+
+	o->peer_id = peer_id;
+	(void)shim_memset(&o->remote, 0, sizeof(o->remote));
+	o->remote.in4.sin_family = AF_INET;
+	o->remote.in4.sin_port = htons(rport);
+	(void)shim_memcpy(&o->remote.in4.sin_addr, remote, 4);
+	if (vpn) {
+		(void)shim_memset(&o->peer_ip, 0, sizeof(o->peer_ip));
+		o->peer_ip.in4.sin_family = AF_INET;
+		(void)shim_memcpy(&o->peer_ip.in4.sin_addr, vpn, 4);
+		o->peer_ip_set = true;
+	} else {
+		o->peer_ip_set = false;
+	}
+	ret = ovpn_new_peer(o, false);
+	if (ret < 0)
+		return ret;
+
+	/*
+	 * install the same fixed key in BOTH slots so a later primary<->
+	 * secondary swap keeps a valid key active under traffic. Same bytes
+	 * on client and server so decrypt works.
+	 */
+	o->cipher = OVPN_CIPHER_ALG_AES_GCM;
+	o->key_dir = is_server ? SHIM_KEY_DIR_IN : SHIM_KEY_DIR_OUT;
+	(void)shim_memset(o->key_enc, OVPN_TUN_KEY_BYTE, KEY_LEN);
+	(void)shim_memset(o->key_dec, OVPN_TUN_KEY_BYTE, KEY_LEN);
+	(void)shim_memset(o->nonce, OVPN_TUN_KEY_BYTE, NONCE_LEN);
+	o->key_slot = OVPN_KEY_SLOT_PRIMARY;
+	o->key_id = 0;
+	ret = ovpn_new_key(o);
+	if (ret < 0)
+		return ret;
+	o->key_slot = OVPN_KEY_SLOT_SECONDARY;
+	o->key_id = 1;
+	return ovpn_new_key(o);
+}
+
+/*
+ *  ovpn_tunnel_inject()
+ *	fire a burst of UDP datagrams (random size and fill, fixed port so
+ *	the server can bind it) at the peer inner IP; routes via tun0 so the
+ *	kernel encrypts them. Non-blocking and not drained, leaving frames in
+ *	flight at teardown.
+ */
+static void ovpn_tunnel_inject(const uint8_t dst_in[4], const uint32_t packets)
+{
+	/*
+	 * 64K rather than one MTU: the interesting sizes are the ones that
+	 * straddle a boundary. A datagram that exactly fills the path, one
+	 * byte over it, and one large enough to fragment several times all
+	 * take different routes through the encapsulation.
+	 */
+	static uint8_t payload[65536];
+	int s;
+	struct sockaddr_in dst;
+	uint32_t i;
+	size_t len;
+
+	switch (stress_mwc8() % 8) {
+	case 0:
+		len = 1;			/* smallest datagram there is */
+		break;
+	case 1:
+		len = 1472;			/* exactly fills a 1500 byte path */
+		break;
+	case 2:
+		len = 1473;			/* one over, so it fragments */
+		break;
+	case 3:
+		len = 8192;
+		break;
+	case 4:
+		len = 65507;			/* largest a UDP datagram can be */
+		break;
+	default:
+		len = 1 + (stress_mwc16() % 1500);
+		break;
+	}
+
+	if (packets == 0)
+		return;
+	s = socket(AF_INET, SOCK_DGRAM | SOCK_CLOEXEC, 0);
+	if (s < 0)
+		return;
+	(void)shim_memset(&dst, 0, sizeof(dst));
+	dst.sin_family = AF_INET;
+	dst.sin_port = htons(OVPN_TUN_DATA_PORT);	/* fixed so the server can receive */
+	(void)shim_memcpy(&dst.sin_addr, dst_in, 4);
+	(void)shim_memset(payload, (int)stress_mwc8(), len);
+	for (i = 0; i < packets; i++) {
+		const ssize_t n = sendto(s, payload, len, MSG_DONTWAIT,
+			   (struct sockaddr *)&dst, sizeof(dst));
+
+		if (n < 0)
+			break;
+	}
+	(void)close(s);
+}
+
+/*
+ *  ovpn_tunnel_drain()
+ *	drain the datagrams that arrived (decrypted) on the server's inner UDP
+ *	socket. The bytes are not counted here - the kernel's per-peer counters
+ *	are used for that - but the socket still has to be emptied or its
+ *	receive buffer fills up and the kernel starts dropping decrypted
+ *	packets, which would throttle the very path being stressed.
+ */
+static void ovpn_tunnel_drain(const int fd)
+{
+	uint8_t buf[2048];
+
+	if (fd < 0)
+		return;
+	for (;;) {
+		const ssize_t n = recv(fd, buf, sizeof(buf), MSG_DONTWAIT);
+
+		if (n <= 0)
+			break;
+	}
+}
+
+/*
+ *  ovpn_tunnel_endpoint()
+ *	configure one end of the tunnel inside the caller's (already
+ *	unshared) network namespace, reusing the existing genl helpers
+ */
+static int ovpn_tunnel_endpoint(
+	ovpn_ctx_t *o,
+	const bool is_server,
+	const char *veth)
+{
+	const uint8_t *ul_self = is_server ? ovpn_tun_ul_srv : ovpn_tun_ul_cli;
+	const uint8_t *in_self = is_server ? ovpn_tun_in_srv : ovpn_tun_in_cli;
+	const char *role = is_server ? "server" : "client";
+	int ret;
+
+	/* underlay: loopback + veth up, assign underlay address */
+	(void)ovpn_tun_link_up(o, "lo");
+	ret = ovpn_tun_link_up(o, veth);
+	if (ret < 0) {
+		pr_dbg("%s: tunnel(%s): veth '%s' up failed (migrated in?), ret=%d (%s)\n",
+			o->args_name, role, veth, ret, ovpn_tun_nlerror(ret));
+		return -1;
+	}
+	ret = ovpn_tun_addr_add(o, veth, ul_self, 24);
+	if (ret < 0) {
+		pr_dbg("%s: tunnel(%s): underlay addr on '%s' failed, ret=%d (%s)\n",
+			o->args_name, role, veth, ret, ovpn_tun_nlerror(ret));
+		return -1;
+	}
+
+	/* create the ovpn interface: client is P2P (single peer), server MP */
+	(void)shim_strscpy(o->ifname, "tun0", IFNAMSIZ);
+	o->mode = is_server ? SHIM_OVPN_MODE_MP : SHIM_OVPN_MODE_P2P;
+	o->mode_set = true;
+	ret = ovpn_new_iface(o);
+	if (ret < 0) {
+		pr_dbg("%s: tunnel(%s): ovpn_new_iface failed (module loaded?), ret=%d (%s)\n",
+			o->args_name, role, ret, ovpn_tun_nlerror(ret));
+		return -1;
+	}
+	/*
+	 * record the new interface index: OVPN_A_IFINDEX is only added to
+	 * genl peer/key messages when ifindex > 0, and without it the module
+	 * rejects OVPN_CMD_PEER_NEW with EINVAL
+	 */
+	o->ifindex = if_nametoindex("tun0");
+	if (o->ifindex == 0) {
+		pr_dbg("%s: tunnel(%s): tun0 index lookup failed after create\n",
+			o->args_name, role);
+		return -1;
+	}
+	ret = ovpn_tun_link_up(o, "tun0");
+	if (ret < 0) {
+		pr_dbg("%s: tunnel(%s): tun0 up failed, ret=%d (%s)\n",
+			o->args_name, role, ret, ovpn_tun_nlerror(ret));
+		return -1;
+	}
+	ret = ovpn_tun_addr_add(o, "tun0", in_self, 24);	/* inner IP */
+	if (ret < 0) {
+		pr_dbg("%s: tunnel(%s): inner addr on tun0 failed, ret=%d (%s)\n",
+			o->args_name, role, ret, ovpn_tun_nlerror(ret));
+		return -1;
+	}
+
+	/*
+	 * Sometimes move the tunnel MTU off the default, so that the size at
+	 * which the stack decides to fragment is not always the same one, and
+	 * occasionally is awkward. Failure is not fatal: the cycle simply
+	 * runs at whatever MTU the interface came up with.
+	 */
+	if ((stress_mwc8() % 4) == 0) {
+		static const uint32_t mtus[] = { 576, 1000, 1281, 1500, 9000 };
+
+		(void)ovpn_tun_link_mtu(o, "tun0",
+			mtus[stress_mwc8() % SIZEOF_ARRAY(mtus)]);
+	}
+
+	/* transport socket: bind the underlay port (connectionless) */
+	o->lport = OVPN_TUN_PORT;
+	o->sa_family = AF_INET;
+	if (ovpn_udp_socket(o, AF_INET) < 0) {
+		pr_dbg("%s: tunnel(%s): transport socket failed, errno=%d (%s)\n",
+			o->args_name, role, errno, strerror(errno));
+		return -1;
+	}
+
+	/*
+	 * peers. The client is P2P: one peer (id 1) to the server, no VPN IP.
+	 * The server is MP: the real peer for the client (id 1, so the peer_id
+	 * carried in data packets matches the client's) plus a random
+	 * population of phantom peers with random ids / VPN IPs / remotes to
+	 * exercise the MP peer table. The fixed shared key keeps the real
+	 * peer's encrypt/decrypt coherent.
+	 */
+	if (is_server) {
+		ret = ovpn_tunnel_add_peer(o, 1, ovpn_tun_ul_cli, OVPN_TUN_PORT,
+					   ovpn_tun_in_cli, true);
+		if (ret < 0) {
+			pr_dbg("%s: tunnel(server): add real peer failed, ret=%d (%s)\n",
+				o->args_name, ret, ovpn_tun_nlerror(ret));
+			return -1;
+		}
+	} else {
+		ret = ovpn_tunnel_add_peer(o, 1, ovpn_tun_ul_srv, OVPN_TUN_PORT,
+					  NULL, false);
+		if (ret < 0) {
+			pr_dbg("%s: tunnel(client): add peer failed, ret=%d (%s)\n",
+				o->args_name, ret, ovpn_tun_nlerror(ret));
+			return -1;
+		}
+	}
+
+	return 0;
+}
+
+/*
+ *  ovpn_tunnel_child()
+ *	runs in a fresh network namespace and configures one endpoint.
+ *	Exits EXIT_SUCCESS only if the endpoint came up and was stressed,
+ *	EXIT_NO_RESOURCE otherwise, so the parent can tell a working cycle
+ *	apart from "the kernel will not let us build a tunnel at all".
+ */
+static void NORETURN ovpn_tunnel_child(
+	stress_args_t *args,
+	const bool is_server,
+	const char *veth,
+	const int rdyfd,
+	const int gofd,
+	const uint32_t packets,
+	const int parent_cpu)
+{
+	ovpn_ctx_t ovpn;
+	const char *role = is_server ? "server" : "client";
+	char c = OVPN_TUN_NO_NETNS;
+	int rc = EXIT_NO_RESOURCE;
+
+	/*
+	 * PDEATHSIG so a child cannot outlive the instance, and a reseed
+	 * because both children inherit the parent's mwc state and would
+	 * otherwise generate identical "random" tunnel parameters
+	 */
+	stress_parent_died_alarm();
+	stress_make_it_fail_set();
+	(void)stress_affinity_change_cpu(args, parent_cpu);
+	(void)stress_sched_settings_apply(true);
+	stress_mwc_reseed();
+
+	if (shim_unshare(CLONE_NEWNET) == 0) {
+		c = OVPN_TUN_READY;
+	} else {
+		pr_dbg("%s: tunnel(%s): unshare(CLONE_NEWNET) failed, errno=%d (%s)\n",
+			args->name, role, errno, strerror(errno));
+	}
+	if (write(rdyfd, &c, 1) != 1)
+		_exit(EXIT_NO_RESOURCE);
+	if (c != OVPN_TUN_READY)
+		_exit(EXIT_NO_RESOURCE);		/* needs CAP_SYS_ADMIN */
+	if (read(gofd, &c, 1) != 1)			/* wait for veth migration */
+		_exit(EXIT_NO_RESOURCE);
+	if (c != OVPN_TUN_GO)
+		_exit(EXIT_NO_RESOURCE);
+
+	(void)shim_memset(&ovpn, 0, sizeof(ovpn));
+	ovpn.args_name = args->name;
+	ovpn.sa_family = AF_INET;
+	ovpn.cipher = OVPN_CIPHER_ALG_NONE;
+	ovpn.socket = -1;
+
+	if (ovpn_tunnel_endpoint(&ovpn, is_server, veth) == 0) {
+		/*
+		 * keep the freshly-built tunnel live for a random number of
+		 * iterations, then return so the parent tears it down and
+		 * rebuilds. The random duration means some tunnels are
+		 * short-lived (teardown-race heavy) and some long-lived
+		 * (throughput heavy). The client injects traffic into the
+		 * tunnel; the server drains what comes out of it.
+		 */
+		const uint8_t *in_peer = ovpn_tun_in_srv;
+		/*
+		 * Most cycles are deliberately short, so that build and
+		 * teardown dominate: the lifecycle races live there, not in
+		 * the steady state. The rest run long enough to get the crypto
+		 * path warm and to accumulate meaningful traffic counters.
+		 */
+		const int iters = ((stress_mwc8() % 5) < 3) ?
+			1 + (int)(stress_mwc8() % 8) :
+			1 + (int)(stress_mwc16() % 256);
+		int i, rxfd = -1;
+
+		/* server: receive decrypted datagrams on the inner data port */
+		if (is_server) {
+			rxfd = socket(AF_INET, SOCK_DGRAM | SOCK_CLOEXEC, 0);
+			if (rxfd >= 0) {
+				struct sockaddr_in a;
+				const int rcvbuf = 4 * 1024 * 1024;
+
+				/* large recv buffer, to bound the drops of
+				 * decrypted packets on a busy machine */
+				(void)setsockopt(rxfd, SOL_SOCKET, SO_RCVBUF,
+						 &rcvbuf, sizeof(rcvbuf));
+				(void)shim_memset(&a, 0, sizeof(a));
+				a.sin_family = AF_INET;
+				a.sin_port = htons(OVPN_TUN_DATA_PORT);
+				a.sin_addr.s_addr = htonl(INADDR_ANY);
+				if (bind(rxfd, (struct sockaddr *)&a, sizeof(a)) < 0) {
+					(void)close(rxfd);
+					rxfd = -1;
+				}
+			}
+		}
+
+		for (i = 0; (i < iters) && stress_continue(args); i++) {
+			if (is_server) {
+				ovpn_tunnel_drain(rxfd);
+			} else {
+				ovpn_tunnel_inject(in_peer, packets);
+				/*
+				 * the instance folds this into the bogo-op counter
+				 * once the cycle is reaped: incrementing it from a
+				 * child of a stressor risks leaving the counter in a
+				 * torn state if the child is killed mid-update
+				 */
+				(void)__atomic_add_fetch(&ovpn_bytes[OVPN_CTR_OPS],
+					1, __ATOMIC_RELAXED);
+			}
+		}
+		if (rxfd >= 0)
+			(void)close(rxfd);
+
+		rc = EXIT_SUCCESS;
+	}
+
+	if (ovpn.socket >= 0)
+		(void)close(ovpn.socket);
+	(void)close(rdyfd);
+	(void)close(gofd);
+	_exit(rc);
+}
+
+/*
+ *  ovpn_tun_pipe_close()
+ *	close whichever ends of a sync pipe are still open
+ */
+static void ovpn_tun_pipe_close(int fds[2])
+{
+	if (fds[0] >= 0) {
+		(void)close(fds[0]);
+		fds[0] = -1;
+	}
+	if (fds[1] >= 0) {
+		(void)close(fds[1]);
+		fds[1] = -1;
+	}
+}
+
+/*
+ *  ovpn_tunnel_cycle()
+ *	one full build/inject/teardown of a two-endpoint tunnel. Returns
+ *	EXIT_SUCCESS when both endpoints came up and were stressed, and
+ *	EXIT_NO_RESOURCE when the tunnel could not be built at all.
+ */
+static int ovpn_tunnel_cycle(
+	stress_args_t *args,
+	ovpn_ctx_t *root,
+	const uint32_t id,
+	const uint32_t packets)
+{
+	char vs[IFNAMSIZ], vc[IFNAMSIZ];
+	int srdy[2] = { -1, -1 }, sgo[2] = { -1, -1 };
+	int crdy[2] = { -1, -1 }, cgo[2] = { -1, -1 };
+	char cs = OVPN_TUN_NO_NETNS, cc = OVPN_TUN_NO_NETNS;
+	pid_t ps = -1, pc = -1;
+	uint64_t ops_before, ops_after;
+	int rc = EXIT_SUCCESS;
+	int parent_cpu;
+	int ret;
+
+	ops_before = __atomic_load_n(&ovpn_bytes[OVPN_CTR_OPS], __ATOMIC_RELAXED);
+
+	(void)snprintf(vs, sizeof(vs), "ovts%" PRIx32, id);
+	(void)snprintf(vc, sizeof(vc), "ovtc%" PRIx32, id);
+
+	/*
+	 * clear any stale ends left by an interrupted previous cycle. Both
+	 * names have to be tried: deleting one end of a live pair takes the
+	 * other with it, but a cycle that migrated one end and then failed
+	 * leaves the two halves in different namespaces, and a surviving
+	 * client end would make every later create fail with EEXIST.
+	 */
+	(void)ovpn_tun_link_del(root, vs);
+	(void)ovpn_tun_link_del(root, vc);
+
+	ret = ovpn_tun_veth_create(root, vs, vc);
+	if (ret < 0) {
+		pr_dbg("%s: tunnel: veth create %s<->%s failed, ret=%d (%s)\n",
+			args->name, vs, vc, ret, ovpn_tun_nlerror(ret));
+		return EXIT_NO_RESOURCE;
+	}
+
+	if ((pipe(srdy) < 0) || (pipe(sgo) < 0) ||
+	    (pipe(crdy) < 0) || (pipe(cgo) < 0)) {
+		pr_dbg("%s: tunnel: pipe failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
+		rc = EXIT_NO_RESOURCE;
+		goto tidy;
+	}
+
+	parent_cpu = (int)stress_cpu_get();
+
+	ps = fork();
+	if (ps < 0) {
+		if (!stress_redo_fork(args, errno))
+			pr_dbg("%s: tunnel: fork failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
+		rc = EXIT_NO_RESOURCE;
+		goto tidy;
+	}
+	if (ps == 0) {
+		(void)close(srdy[0]); (void)close(sgo[1]);
+		(void)close(crdy[0]); (void)close(crdy[1]);
+		(void)close(cgo[0]); (void)close(cgo[1]);
+		ovpn_tunnel_child(args, true, vs, srdy[1], sgo[0],
+				  packets, parent_cpu);
+	}
+	pc = fork();
+	if (pc < 0) {
+		if (!stress_redo_fork(args, errno))
+			pr_dbg("%s: tunnel: fork failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
+		rc = EXIT_NO_RESOURCE;
+		goto tidy;
+	}
+	if (pc == 0) {
+		(void)close(crdy[0]); (void)close(cgo[1]);
+		(void)close(srdy[0]); (void)close(srdy[1]);
+		(void)close(sgo[0]); (void)close(sgo[1]);
+		ovpn_tunnel_child(args, false, vc, crdy[1], cgo[0],
+				  packets, parent_cpu);
+	}
+
+	/* parent: keep the read/ready and write/go ends */
+	(void)close(srdy[1]); srdy[1] = -1;
+	(void)close(sgo[0]); sgo[0] = -1;
+	(void)close(crdy[1]); crdy[1] = -1;
+	(void)close(cgo[0]); cgo[0] = -1;
+
+	/* wait for both children to unshare their namespaces */
+	if ((read(srdy[0], &cs, 1) != 1) || (read(crdy[0], &cc, 1) != 1)) {
+		rc = EXIT_NO_RESOURCE;
+		goto tidy;
+	}
+	/*
+	 * A child that could not unshare has already exited, so it must not
+	 * be handed the go-ahead: writing to a pipe whose read end is gone
+	 * raises SIGPIPE and would take the whole instance down with it.
+	 */
+	if ((cs != OVPN_TUN_READY) || (cc != OVPN_TUN_READY)) {
+		rc = EXIT_NO_RESOURCE;
+		goto tidy;
+	}
+
+	/* migrate each veth end into its child's namespace */
+	ret = ovpn_tun_link_move(root, vs, ps);
+	if (ret < 0)
+		pr_dbg("%s: tunnel: moving %s into server netns failed, ret=%d (%s)\n",
+			args->name, vs, ret, ovpn_tun_nlerror(ret));
+	ret = ovpn_tun_link_move(root, vc, pc);
+	if (ret < 0)
+		pr_dbg("%s: tunnel: moving %s into client netns failed, ret=%d (%s)\n",
+			args->name, vc, ret, ovpn_tun_nlerror(ret));
+
+	/*
+	 * release both children to configure + inject. Both writes are always
+	 * attempted: skipping the second would strand the other child in its
+	 * read() until the tidy path closes the pipe.
+	 */
+	cs = OVPN_TUN_GO;
+	if (write(sgo[1], &cs, 1) != 1)
+		rc = EXIT_NO_RESOURCE;
+	if (write(cgo[1], &cs, 1) != 1)
+		rc = EXIT_NO_RESOURCE;
+tidy:
+	ovpn_tun_pipe_close(srdy);
+	ovpn_tun_pipe_close(sgo);
+	ovpn_tun_pipe_close(crdy);
+	ovpn_tun_pipe_close(cgo);
+
+	/*
+	 * The children keep the tunnel live for a bounded, timeout-checked
+	 * number of iterations and then exit on their own; closing the go
+	 * pipes above releases any that are still waiting.
+	 */
+	if (ps > 0) {
+		if (stress_wait_until_reaped(args, ps, SIGKILL, false) != EXIT_SUCCESS)
+			rc = EXIT_NO_RESOURCE;
+	}
+	if (pc > 0) {
+		if (stress_wait_until_reaped(args, pc, SIGKILL, false) != EXIT_SUCCESS)
+			rc = EXIT_NO_RESOURCE;
+	}
+
+	/*
+	 * Both children are gone, so fold the work they did into the bogo-op
+	 * counter from here. Doing the accounting in the instance rather than
+	 * in the children keeps the counter out of reach of a child that gets
+	 * killed part way through an update, which is what the note on
+	 * stress_bogo_inc() warns about. The cost is that --ovpn-ops can
+	 * overshoot by at most one cycle's worth of bursts.
+	 */
+	ops_after = __atomic_load_n(&ovpn_bytes[OVPN_CTR_OPS], __ATOMIC_RELAXED);
+	if (ops_after > ops_before)
+		stress_bogo_add(args, ops_after - ops_before);
+
+	return rc;
+}
+
+/*
+ *  stress_ovpn_tunnel()
+ *	--ovpn-tunnel mode entry point
+ */
+static int stress_ovpn_tunnel(stress_args_t *args)
+{
+	ovpn_ctx_t root;
+	const size_t ctr_sz = sizeof(uint64_t) * OVPN_CTR_MAX;
+	int rc = EXIT_SUCCESS;
+	int fails = 0;
+
+	(void)shim_memset(&root, 0, sizeof(root));
+	root.args_name = args->name;
+	root.sa_family = AF_INET;
+	root.socket = -1;
+
+	/*
+	 * The tunnel mode needs CAP_SYS_ADMIN on top of the CAP_NET_ADMIN
+	 * that stress_ovpn_supported() already checks for, because it has to
+	 * unshare network namespaces; the control-plane mode does not, so
+	 * this cannot be hoisted into the .supported handler.
+	 */
+	if (!stress_capabilities_check(SHIM_CAP_SYS_ADMIN)) {
+		pr_inf_skip("%s: --ovpn-tunnel needs CAP_SYS_ADMIN to unshare "
+			"network namespaces, skipping stressor\n", args->name);
+		return EXIT_NO_RESOURCE;
+	}
+
+	/*
+	 * Take a private network namespace for the whole instance: the veth
+	 * pairs and the child namespaces then belong to it and the kernel
+	 * reclaims them when the instance exits, so a killed run cannot
+	 * leave interfaces behind in the host network namespace.
+	 */
+	if (shim_unshare(CLONE_NEWNET) < 0) {
+		pr_inf_skip("%s: cannot unshare network namespace, errno=%d (%s), "
+			"skipping stressor\n",
+			args->name, errno, strerror(errno));
+		return EXIT_NO_RESOURCE;
+	}
+
+	/*
+	 * The children are released through a pipe write, and a child that
+	 * bailed out early has already closed its read end, so SIGPIPE has
+	 * to be harmless here or a failing cycle would kill the instance.
+	 */
+	if (stress_signal_handler(args->name, SIGPIPE, SIG_IGN, NULL) < 0)
+		return EXIT_NO_RESOURCE;
+
+	/* shared bogo-op counter, written by the endpoint children */
+	ovpn_bytes = (uint64_t *)stress_mmap_anon_shared(ctr_sz,
+			PROT_READ | PROT_WRITE);
+	if (ovpn_bytes == MAP_FAILED) {
+		pr_inf_skip("%s: could not mmap %zu bytes of shared counters%s, "
+			"skipping stressor\n",
+			args->name, ctr_sz, stress_memory_free_get());
+		return EXIT_NO_RESOURCE;
+	}
+	(void)shim_memset(ovpn_bytes, 0, ctr_sz);
+	stress_memory_anon_name_set(ovpn_bytes, ctr_sz, "ovpn-tunnel-ops");
+
+	stress_proc_state_set(args->name, STRESS_STATE_SYNC_WAIT);
+	stress_sync_start_wait(args);
+	stress_proc_state_set(args->name, STRESS_STATE_RUN);
+
+	/* build / run-live / teardown, repeatedly, until the run ends */
+	do {
+		if (ovpn_tunnel_cycle(args, &root, args->instance,
+				      OVPN_TUN_PACKETS) == EXIT_SUCCESS) {
+			fails = 0;
+			continue;
+		}
+		/*
+		 * Cycles are allowed to fail - the teardown races they exercise
+		 * make that expected - but there is no point carrying on if
+		 * nothing has ever worked.
+		 */
+		fails++;
+		if (stress_bogo_get(args) > 0)
+			continue;	/* it has worked before, keep going */
+		if (fails >= OVPN_TUN_MAX_FAILS) {
+			pr_inf_skip("%s: no DCO tunnel could be built in %d attempts, "
+				"skipping stressor\n", args->name, fails);
+			rc = EXIT_NO_RESOURCE;
+			break;
+		}
+	} while (stress_continue(args));
+
+	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
+
+	(void)stress_munmap_anon_shared((void *)ovpn_bytes, ctr_sz);
+	ovpn_bytes = NULL;
+
+	return rc;
+}
+
 static int stress_ovpn(stress_args_t *args)
 {
 	ovpn_ctx_t ovpn;
+	bool ovpn_tunnel = false;
 	int last_cmd = -1;
 	static const ovpn_cmd_t cmds[] = {
 		CMD_INVALID,
@@ -1623,6 +2521,10 @@ static int stress_ovpn(stress_args_t *args)
 	ovpn.cipher = OVPN_CIPHER_ALG_NONE;
 	ovpn.peers_file = NULL;
 	ovpn.socket = -1;
+
+	(void)stress_setting_get("ovpn-tunnel", &ovpn_tunnel);
+	if (ovpn_tunnel)
+		return stress_ovpn_tunnel(args);
 
 	stress_proc_state_set(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
@@ -1659,12 +2561,19 @@ static int stress_ovpn(stress_args_t *args)
 static const stress_exercises_t exercises[] = {
 	STRESS_EX_SYSCALL("bind"),
 	STRESS_EX_SYSCALL("connect"),
+	STRESS_EX_SYSCALL("fork"),
 	STRESS_EX_SYSCALL("getsockname"),
+	STRESS_EX_SYSCALL("mmap"),
+	STRESS_EX_SYSCALL("pipe"),
+	STRESS_EX_SYSCALL("recv"),
 	STRESS_EX_SYSCALL("recvmsg"),
 	STRESS_EX_SYSCALL("select"),
 	STRESS_EX_SYSCALL("sendmsg"),
+	STRESS_EX_SYSCALL("sendto"),
 	STRESS_EX_SYSCALL("setsockopt"),
 	STRESS_EX_SYSCALL("socket"),
+	STRESS_EX_SYSCALL("unshare"),
+	STRESS_EX_SYSCALL("waitpid"),
 
 	STRESS_EX_LIBRARY("nl"),
 
@@ -1676,6 +2585,7 @@ const stressor_info_t stress_ovpn_info = {
 	.supported = stress_ovpn_supported,
 	.classifier = CLASS_NETWORK | CLASS_OS,
 	.verify = VERIFY_NONE,
+	.opts = opts,
 	.help = help,
 	.exercises = exercises,
 };
@@ -1686,6 +2596,7 @@ const stressor_info_t stress_ovpn_info = {
 	.stressor = stress_unimplemented,
 	.classifier = CLASS_NETWORK | CLASS_OS,
 	.verify = VERIFY_NONE,
+	.opts = opts,
 	.help = help,
 	.unimplemented_reason = "built without libnl3, without a linux/ovpn.h providing the ovpn netlink uapi, or built statically"
 };

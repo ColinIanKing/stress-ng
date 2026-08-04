@@ -1153,6 +1153,7 @@ typedef enum {
 
 	OPT_ovpn,
 	OPT_ovpn_ops,
+	OPT_ovpn_tunnel,
 
 	OPT_page_in,
 
