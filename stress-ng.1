@@ -7416,8 +7416,8 @@ stop the ovpn stressors after N bogo ops.
 .B \-\-ovpn\-tunnel
 instead of fuzzing the control plane, build a real two-endpoint DCO tunnel. Each
 worker takes a private network namespace and, inside it, creates two more
-network namespaces connected by a veth pair (the UDP transport underlay) and
-sets up an ovpn interface with a fixed shared key at each end; no interface is
+network namespaces connected by a veth pair (the transport underlay, UDP or TCP
+chosen at random each cycle) and sets up an ovpn interface with a fixed shared key at each end; no interface is
 ever added to the host network namespace. It then keeps the tunnel live for a
 random period while the client injects packets, so the kernel encrypts them at
 one end and decrypts them at the other, then tears the tunnel down and rebuilds

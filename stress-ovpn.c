@@ -1627,8 +1627,8 @@ static int ovpn_autofill_args(ovpn_ctx_t *ovpn)
  *  reclaimed by the kernel when the instance exits; nothing is ever
  *  added to the host network namespace. Inside it, each cycle forks
  *  two children that unshare a network namespace each, joined by a
- *  veth pair used as the UDP transport underlay. An ovpn interface is
- *  created in each child
+ *  veth pair used as the transport underlay (UDP or TCP, picked at
+ *  random per cycle). An ovpn interface is created in each child
  *  netns with a fixed shared key, then the client injects traffic
  *  into its tunnel interface so the kernel actually ENCRYPTs and
  *  the server DECRYPTs it:
@@ -1643,6 +1643,21 @@ static int ovpn_autofill_args(ovpn_ctx_t *ovpn)
 #define OVPN_TUN_DATA_PORT	(5555)	/* inner UDP port for injected data */
 #define OVPN_TUN_PACKETS	(16)
 #define OVPN_TUN_KEY_BYTE	(0x5a)
+/*
+ * TCP underlay connect budget: few attempts, each waiting a long time.
+ * The wait has to be generous rather than the attempt count: abandoning a
+ * connect() that is merely slow leaves behind a connection the server has
+ * already accepted, and the module then refuses that dead socket with
+ * EINVAL. Retrying quickly is only right when nothing is listening yet,
+ * and that case reports itself immediately through SO_ERROR.
+ */
+#define OVPN_TUN_CONNECT_TRIES	(5)
+#define OVPN_TUN_CONNECT_USEC	(1000000)
+/*
+ * the server has to stay in accept() for at least as long as the client
+ * keeps retrying, otherwise it gives up first and the cycle is wasted
+ */
+#define OVPN_TUN_ACCEPT_USEC	((OVPN_TUN_CONNECT_TRIES * OVPN_TUN_CONNECT_USEC) + 500000)
 /*
  * consecutive failures tolerated before concluding there is nothing to do.
  * Forgiving, because a contended start produces a few of its own.
@@ -1849,8 +1864,7 @@ static int ovpn_tun_addr_add(
  *	add a peer (+ a key) to the current ovpn interface. vpn==NULL for a
  *	P2P peer (no per-peer VPN IP); non-NULL for an MP peer. is_server
  *	selects the key direction. Returns 0 on success, or the negative
- *	netlink error from the failing peer/key command. The remote address is
- *	always carried explicitly, the transport being connectionless.
+ *	netlink error from the failing peer/key command.
  */
 static int ovpn_tunnel_add_peer(
 	ovpn_ctx_t *o,
@@ -1858,7 +1872,8 @@ static int ovpn_tunnel_add_peer(
 	const uint8_t remote[4],
 	const uint16_t rport,
 	const uint8_t vpn[4],
-	const bool is_server)
+	const bool is_server,
+	const bool is_tcp)
 {
 	int ret;
 
@@ -1875,7 +1890,8 @@ static int ovpn_tunnel_add_peer(
 	} else {
 		o->peer_ip_set = false;
 	}
-	ret = ovpn_new_peer(o, false);
+	/* for TCP the remote is implicit in the connected socket */
+	ret = ovpn_new_peer(o, is_tcp);
 	if (ret < 0)
 		return ret;
 
@@ -1984,6 +2000,130 @@ static void ovpn_tunnel_drain(const int fd)
 }
 
 /*
+ *  ovpn_tunnel_tcp_listen()
+ *	TCP transport server side, first half: bind the underlay port and
+ *	start listening. Called before the netlink setup so that the client's
+ *	connect() always has somewhere to land, whatever order the two
+ *	children happen to be scheduled in. Returns the listening fd or -1.
+ */
+static int ovpn_tunnel_tcp_listen(void)
+{
+	int lfd;
+	struct sockaddr_in a;
+	const int opt = 1;
+
+	/* non-blocking so accept() after select() can never block */
+	lfd = socket(AF_INET, SOCK_STREAM | SOCK_CLOEXEC | SOCK_NONBLOCK, 0);
+	if (lfd < 0)
+		return -1;
+	(void)setsockopt(lfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+	(void)shim_memset(&a, 0, sizeof(a));
+	a.sin_family = AF_INET;
+	a.sin_port = htons(OVPN_TUN_PORT);
+	a.sin_addr.s_addr = htonl(INADDR_ANY);
+	if ((bind(lfd, (struct sockaddr *)&a, sizeof(a)) < 0) ||
+	    (listen(lfd, SOMAXCONN) < 0)) {
+		(void)close(lfd);
+		return -1;
+	}
+	return lfd;
+}
+
+/*
+ *  ovpn_tunnel_tcp_accept()
+ *	TCP transport server side, second half: collect the connection the
+ *	client made while the interface was being set up. Returns the
+ *	accepted fd or -1.
+ */
+static int ovpn_tunnel_tcp_accept(const int lfd)
+{
+	struct timeval tv = {			/* bounded accept wait */
+		.tv_sec = OVPN_TUN_ACCEPT_USEC / 1000000,
+		.tv_usec = OVPN_TUN_ACCEPT_USEC % 1000000
+	};
+	fd_set rfds;
+
+	FD_ZERO(&rfds);
+	FD_SET(lfd, &rfds);
+	if (select(lfd + 1, &rfds, NULL, NULL, &tv) <= 0)
+		return -1;
+	/*
+	 * Whatever comes out of the accept queue is handed to the module as
+	 * it is, including a connection whose client gave up waiting and has
+	 * already closed or reset it. Feeding a dead socket to
+	 * OVPN_CMD_PEER_NEW is a legitimate thing to test, and the module
+	 * refusing it with EINVAL is the correct answer rather than a
+	 * problem, so the socket is deliberately not vetted here.
+	 */
+	return accept(lfd, NULL, NULL);
+}
+
+/*
+ *  ovpn_tunnel_tcp_client()
+ *	TCP transport client side: connect to the server underlay, retrying
+ *	while the server is not yet listening. Returns the connected fd or -1.
+ */
+static int ovpn_tunnel_tcp_client(const uint8_t server[4])
+{
+	struct sockaddr_in a;
+	int i;
+
+	(void)shim_memset(&a, 0, sizeof(a));
+	a.sin_family = AF_INET;
+	a.sin_port = htons(OVPN_TUN_PORT);
+	(void)shim_memcpy(&a.sin_addr, server, 4);
+
+	/*
+	 * non-blocking connect with a bounded per-attempt wait: a blocking
+	 * connect() could stall for the whole SYN timeout if the server is
+	 * not listening yet and the SYN is black-holed.
+	 */
+	for (i = 0; i < OVPN_TUN_CONNECT_TRIES; i++) {
+		const int fd = socket(AF_INET, SOCK_STREAM | SOCK_CLOEXEC | SOCK_NONBLOCK, 0);
+		bool waited = false;
+		int ret;
+
+		if (fd < 0)
+			return -1;
+		ret = connect(fd, (struct sockaddr *)&a, sizeof(a));
+		if (ret == 0)
+			return fd;			/* immediate connect */
+		if (errno == EINPROGRESS) {
+			struct timeval tv = {
+				.tv_sec = OVPN_TUN_CONNECT_USEC / 1000000,
+				.tv_usec = OVPN_TUN_CONNECT_USEC % 1000000
+			};
+			fd_set wfds;
+			int err = 0;
+			socklen_t elen = sizeof(err);
+
+			FD_ZERO(&wfds);
+			FD_SET(fd, &wfds);
+			ret = select(fd + 1, NULL, &wfds, NULL, &tv);
+			if (ret == 0) {
+				waited = true;		/* select burnt the budget */
+			} else if ((ret > 0) &&
+				   (getsockopt(fd, SOL_SOCKET, SO_ERROR, &err, &elen) == 0) &&
+				   (err == 0)) {
+				return fd;		/* connected */
+			}
+		}
+		(void)close(fd);
+		/*
+		 * back off unless select() already consumed the per-attempt
+		 * budget: a refused connect() on a non-blocking socket
+		 * completes in microseconds (the peer RSTs and select()
+		 * reports the fd writable straight away), so without this
+		 * the whole retry budget is spent before the server has had
+		 * a chance to reach listen().
+		 */
+		if (!waited)
+			(void)shim_usleep(OVPN_TUN_CONNECT_USEC);
+	}
+	return -1;
+}
+
+/*
  *  ovpn_tunnel_endpoint()
  *	configure one end of the tunnel inside the caller's (already
  *	unshared) network namespace, reusing the existing genl helpers
@@ -1991,7 +2131,8 @@ static void ovpn_tunnel_drain(const int fd)
 static int ovpn_tunnel_endpoint(
 	ovpn_ctx_t *o,
 	const bool is_server,
-	const char *veth)
+	const char *veth,
+	const bool is_tcp)
 {
 	const uint8_t *ul_self = is_server ? ovpn_tun_ul_srv : ovpn_tun_ul_cli;
 	const uint8_t *in_self = is_server ? ovpn_tun_in_srv : ovpn_tun_in_cli;
@@ -2011,6 +2152,31 @@ static int ovpn_tunnel_endpoint(
 		pr_dbg("%s: tunnel(%s): underlay addr on '%s' failed, ret=%d (%s)\n",
 			o->args_name, role, veth, ret, ovpn_tun_nlerror(ret));
 		return -1;
+	}
+
+	/*
+	 * On a TCP cycle the server starts listening here, as soon as the
+	 * underlay is addressed and before the interface work below. The two
+	 * children run their setup concurrently with no ordering between
+	 * them, so a client that reached connect() first would find nothing
+	 * to connect to and the handshake would fail purely on scheduling.
+	 *
+	 * Listening has to come after the address, not merely first: the
+	 * socket binds INADDR_ANY, and a SYN for the underlay address is not
+	 * delivered to it until that address is actually local. Doing it here
+	 * costs the client two netlink round trips of head start against the
+	 * six or so it needs itself, which is a comfortable margin. The fd is
+	 * parked in o->socket so the existing teardown closes it on any error
+	 * path below.
+	 */
+	if (is_tcp && is_server) {
+		o->socket = ovpn_tunnel_tcp_listen();
+		if (o->socket < 0) {
+			pr_dbg("%s: tunnel(server): cannot listen on the underlay "
+				"port, errno=%d (%s)\n",
+				o->args_name, errno, strerror(errno));
+			return -1;
+		}
 	}
 
 	/* create the ovpn interface: client is P2P (single peer), server MP */
@@ -2060,10 +2226,28 @@ static int ovpn_tunnel_endpoint(
 			mtus[stress_mwc8() % SIZEOF_ARRAY(mtus)]);
 	}
 
-	/* transport socket: bind the underlay port (connectionless) */
+	/*
+	 * transport socket. UDP: bind the underlay port (connectionless).
+	 * TCP: the server listens and accepts, the client connects, over the
+	 * veth, and the connected socket is handed to the DCO peer.
+	 */
 	o->lport = OVPN_TUN_PORT;
 	o->sa_family = AF_INET;
-	if (ovpn_udp_socket(o, AF_INET) < 0) {
+	if (is_tcp) {
+		if (is_server) {
+			const int lfd = o->socket;
+
+			o->socket = ovpn_tunnel_tcp_accept(lfd);
+			(void)close(lfd);
+		} else {
+			o->socket = ovpn_tunnel_tcp_client(ovpn_tun_ul_srv);
+		}
+		if (o->socket < 0) {
+			pr_dbg("%s: tunnel(%s): TCP transport handshake failed\n",
+				o->args_name, role);
+			return -1;
+		}
+	} else if (ovpn_udp_socket(o, AF_INET) < 0) {
 		pr_dbg("%s: tunnel(%s): transport socket failed, errno=%d (%s)\n",
 			o->args_name, role, errno, strerror(errno));
 		return -1;
@@ -2079,7 +2263,7 @@ static int ovpn_tunnel_endpoint(
 	 */
 	if (is_server) {
 		ret = ovpn_tunnel_add_peer(o, 1, ovpn_tun_ul_cli, OVPN_TUN_PORT,
-					   ovpn_tun_in_cli, true);
+					   ovpn_tun_in_cli, true, is_tcp);
 		if (ret < 0) {
 			pr_dbg("%s: tunnel(server): add real peer failed, ret=%d (%s)\n",
 				o->args_name, ret, ovpn_tun_nlerror(ret));
@@ -2087,7 +2271,7 @@ static int ovpn_tunnel_endpoint(
 		}
 	} else {
 		ret = ovpn_tunnel_add_peer(o, 1, ovpn_tun_ul_srv, OVPN_TUN_PORT,
-					  NULL, false);
+					  NULL, false, is_tcp);
 		if (ret < 0) {
 			pr_dbg("%s: tunnel(client): add peer failed, ret=%d (%s)\n",
 				o->args_name, ret, ovpn_tun_nlerror(ret));
@@ -2112,6 +2296,7 @@ static void NORETURN ovpn_tunnel_child(
 	const int rdyfd,
 	const int gofd,
 	const uint32_t packets,
+	const bool is_tcp,
 	const int parent_cpu)
 {
 	ovpn_ctx_t ovpn;
@@ -2151,7 +2336,7 @@ static void NORETURN ovpn_tunnel_child(
 	ovpn.cipher = OVPN_CIPHER_ALG_NONE;
 	ovpn.socket = -1;
 
-	if (ovpn_tunnel_endpoint(&ovpn, is_server, veth) == 0) {
+	if (ovpn_tunnel_endpoint(&ovpn, is_server, veth, is_tcp) == 0) {
 		/*
 		 * keep the freshly-built tunnel live for a random number of
 		 * iterations, then return so the parent tears it down and
@@ -2248,7 +2433,8 @@ static int ovpn_tunnel_cycle(
 	stress_args_t *args,
 	ovpn_ctx_t *root,
 	const uint32_t id,
-	const uint32_t packets)
+	const uint32_t packets,
+	const bool is_tcp)
 {
 	char vs[IFNAMSIZ], vc[IFNAMSIZ];
 	int srdy[2] = { -1, -1 }, sgo[2] = { -1, -1 };
@@ -2305,7 +2491,7 @@ static int ovpn_tunnel_cycle(
 		(void)close(crdy[0]); (void)close(crdy[1]);
 		(void)close(cgo[0]); (void)close(cgo[1]);
 		ovpn_tunnel_child(args, true, vs, srdy[1], sgo[0],
-				  packets, parent_cpu);
+				  packets, is_tcp, parent_cpu);
 	}
 	pc = fork();
 	if (pc < 0) {
@@ -2320,7 +2506,7 @@ static int ovpn_tunnel_cycle(
 		(void)close(srdy[0]); (void)close(srdy[1]);
 		(void)close(sgo[0]); (void)close(sgo[1]);
 		ovpn_tunnel_child(args, false, vc, crdy[1], cgo[0],
-				  packets, parent_cpu);
+				  packets, is_tcp, parent_cpu);
 	}
 
 	/* parent: keep the read/ready and write/go ends */
@@ -2464,10 +2650,13 @@ static int stress_ovpn_tunnel(stress_args_t *args)
 	stress_sync_start_wait(args);
 	stress_proc_state_set(args->name, STRESS_STATE_RUN);
 
-	/* build / run-live / teardown, repeatedly, until the run ends */
+	/* build / run-live / teardown, repeatedly, until the run ends;
+	 * pick the transport (UDP or TCP) at random each cycle */
 	do {
+		const bool is_tcp = stress_mwc1();
+
 		if (ovpn_tunnel_cycle(args, &root, args->instance,
-				      OVPN_TUN_PACKETS) == EXIT_SUCCESS) {
+				      OVPN_TUN_PACKETS, is_tcp) == EXIT_SUCCESS) {
 			fails = 0;
 			continue;
 		}
@@ -2559,10 +2748,13 @@ static int stress_ovpn(stress_args_t *args)
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_SYSCALL("accept"),
 	STRESS_EX_SYSCALL("bind"),
 	STRESS_EX_SYSCALL("connect"),
 	STRESS_EX_SYSCALL("fork"),
 	STRESS_EX_SYSCALL("getsockname"),
+	STRESS_EX_SYSCALL("getsockopt"),
+	STRESS_EX_SYSCALL("listen"),
 	STRESS_EX_SYSCALL("mmap"),
 	STRESS_EX_SYSCALL("pipe"),
 	STRESS_EX_SYSCALL("recv"),
