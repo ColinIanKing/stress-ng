@@ -1710,8 +1710,9 @@ static int ovpn_autofill_args(ovpn_ctx_t *ovpn)
  */
 #define OVPN_TUN_ACCEPT_USEC	((OVPN_TUN_CONNECT_TRIES * OVPN_TUN_CONNECT_USEC) + 500000)
 /*
- * consecutive failures tolerated before concluding there is nothing to do.
- * Forgiving, because a contended start produces a few of its own.
+ * consecutive soft failures tolerated before concluding there is nothing to
+ * do. Only transient causes reach this: a hard failure stops on the first
+ * attempt, so this can afford to be forgiving of a contended start.
  */
 #define OVPN_TUN_MAX_FAILS	(16)
 
@@ -1804,10 +1805,80 @@ enum {
 	OVPN_CTR_RX_UDP,
 	OVPN_CTR_RX_TCP,
 	OVPN_CTR_OPS,
+	OVPN_CTR_FAIL,
 	OVPN_CTR_MAX
 };
 
+/*
+ * Why the last cycle failed. Every failure path used to collapse into an
+ * undifferentiated EXIT_NO_RESOURCE, which left the instance guessing at a
+ * cause when it gave up. A hard reason will not improve by retrying, so one
+ * is enough to stop; a soft one is timing or contention and the next cycle
+ * may well succeed.
+ */
+typedef enum {
+	OVPN_FAIL_NONE = 0,
+	OVPN_FAIL_NETNS,	/* hard */
+	OVPN_FAIL_IFACE,	/* hard */
+	OVPN_FAIL_PEER,		/* soft */
+	OVPN_FAIL_ADDR,		/* soft */
+	OVPN_FAIL_TCP,		/* soft */
+	OVPN_FAIL_RESOURCE,	/* soft */
+	OVPN_FAIL_MAX
+} ovpn_fail_t;
+
+static const char * const ovpn_fail_reason[] = {
+	"no failure",
+	"cannot unshare a network namespace, CAP_SYS_ADMIN is needed",
+	"cannot create an ovpn interface, the ovpn module may be unavailable",
+	"the ovpn module rejected the peer or its key",
+	"cannot configure the veth or tunnel addresses",
+	"the TCP underlay handshake did not complete",
+	"out of processes, pipes or network devices",
+};
 static uint64_t *ovpn_bytes;		/* array of OVPN_CTR_MAX counters */
+
+/*
+ *  ovpn_fail_set()
+ *	record why this cycle failed, for the instance to report if it ends
+ *	up giving up. Written by whichever process hit the failure, so it
+ *	lives in the shared mapping; last writer wins, which is fine for a
+ *	diagnostic.
+ */
+static void ovpn_fail_set(const ovpn_fail_t reason)
+{
+	if (ovpn_bytes)
+		__atomic_store_n(&ovpn_bytes[OVPN_CTR_FAIL],
+			(uint64_t)reason, __ATOMIC_RELAXED);
+}
+
+/*
+ *  ovpn_fail_str()
+ *	describe a recorded failure reason
+ */
+static const char *ovpn_fail_str(const uint64_t reason)
+{
+	/* the value comes out of shared memory, so bound it */
+	return (reason < OVPN_FAIL_MAX) ?
+		ovpn_fail_reason[reason] : "an unrecognised failure";
+}
+
+/*
+ *  ovpn_fail_is_hard()
+ *	true for the failures that retrying cannot fix: no privileges or no
+ *	module
+ */
+static bool ovpn_fail_is_hard(const uint64_t reason)
+{
+	/*
+	 * A rejected peer is not hard: the stressor hands the module plenty
+	 * of deliberately bad input - dead sockets, colliding addresses -
+	 * and being refused for that is expected rather than a sign that
+	 * nothing will ever work here.
+	 */
+	return (reason == OVPN_FAIL_NETNS) ||
+	       (reason == OVPN_FAIL_IFACE);
+}
 
 /*
  *  ovpn_tun_nlerror()
@@ -2436,12 +2507,14 @@ static int ovpn_tunnel_endpoint(
 	if (ret < 0) {
 		pr_dbg("%s: tunnel(%s): veth '%s' up failed (migrated in?), ret=%d (%s)\n",
 			o->args_name, role, veth, ret, ovpn_tun_nlerror(ret));
+		ovpn_fail_set(OVPN_FAIL_ADDR);
 		return -1;
 	}
 	ret = ovpn_tun_addr_add(o, veth, ul_self, 24);
 	if (ret < 0) {
 		pr_dbg("%s: tunnel(%s): underlay addr on '%s' failed, ret=%d (%s)\n",
 			o->args_name, role, veth, ret, ovpn_tun_nlerror(ret));
+		ovpn_fail_set(OVPN_FAIL_ADDR);
 		return -1;
 	}
 
@@ -2466,6 +2539,7 @@ static int ovpn_tunnel_endpoint(
 			pr_dbg("%s: tunnel(server): cannot listen on the underlay "
 				"port, errno=%d (%s)\n",
 				o->args_name, errno, strerror(errno));
+			ovpn_fail_set(OVPN_FAIL_TCP);
 			return -1;
 		}
 	}
@@ -2478,6 +2552,7 @@ static int ovpn_tunnel_endpoint(
 	if (ret < 0) {
 		pr_dbg("%s: tunnel(%s): ovpn_new_iface failed (module loaded?), ret=%d (%s)\n",
 			o->args_name, role, ret, ovpn_tun_nlerror(ret));
+		ovpn_fail_set(OVPN_FAIL_IFACE);
 		return -1;
 	}
 	/*
@@ -2489,18 +2564,21 @@ static int ovpn_tunnel_endpoint(
 	if (o->ifindex == 0) {
 		pr_dbg("%s: tunnel(%s): tun0 index lookup failed after create\n",
 			o->args_name, role);
+		ovpn_fail_set(OVPN_FAIL_IFACE);
 		return -1;
 	}
 	ret = ovpn_tun_link_up(o, "tun0");
 	if (ret < 0) {
 		pr_dbg("%s: tunnel(%s): tun0 up failed, ret=%d (%s)\n",
 			o->args_name, role, ret, ovpn_tun_nlerror(ret));
+		ovpn_fail_set(OVPN_FAIL_ADDR);
 		return -1;
 	}
 	ret = ovpn_tun_addr_add(o, "tun0", in_self, 24);	/* inner IP */
 	if (ret < 0) {
 		pr_dbg("%s: tunnel(%s): inner addr on tun0 failed, ret=%d (%s)\n",
 			o->args_name, role, ret, ovpn_tun_nlerror(ret));
+		ovpn_fail_set(OVPN_FAIL_ADDR);
 		return -1;
 	}
 
@@ -2536,11 +2614,13 @@ static int ovpn_tunnel_endpoint(
 		if (o->socket < 0) {
 			pr_dbg("%s: tunnel(%s): TCP transport handshake failed\n",
 				o->args_name, role);
+			ovpn_fail_set(OVPN_FAIL_TCP);
 			return -1;
 		}
 	} else if (ovpn_udp_socket(o, AF_INET) < 0) {
 		pr_dbg("%s: tunnel(%s): transport socket failed, errno=%d (%s)\n",
 			o->args_name, role, errno, strerror(errno));
+		ovpn_fail_set(OVPN_FAIL_RESOURCE);
 		return -1;
 	}
 
@@ -2560,6 +2640,7 @@ static int ovpn_tunnel_endpoint(
 		if (ret < 0) {
 			pr_dbg("%s: tunnel(server): add real peer failed, ret=%d (%s)\n",
 				o->args_name, ret, ovpn_tun_nlerror(ret));
+			ovpn_fail_set(OVPN_FAIL_PEER);
 			return -1;
 		}
 		/*
@@ -2586,6 +2667,7 @@ static int ovpn_tunnel_endpoint(
 		if (ret < 0) {
 			pr_dbg("%s: tunnel(client): add peer failed, ret=%d (%s)\n",
 				o->args_name, ret, ovpn_tun_nlerror(ret));
+			ovpn_fail_set(OVPN_FAIL_PEER);
 			return -1;
 		}
 	}
@@ -2630,6 +2712,7 @@ static void NORETURN ovpn_tunnel_child(
 	if (shim_unshare(CLONE_NEWNET) == 0) {
 		c = OVPN_TUN_READY;
 	} else {
+		ovpn_fail_set(OVPN_FAIL_NETNS);
 		pr_dbg("%s: tunnel(%s): unshare(CLONE_NEWNET) failed, errno=%d (%s)\n",
 			args->name, role, errno, strerror(errno));
 	}
@@ -2859,6 +2942,7 @@ static int ovpn_tunnel_cycle(
 
 	ret = ovpn_tun_veth_create(root, vs, vc);
 	if (ret < 0) {
+		ovpn_fail_set(OVPN_FAIL_RESOURCE);
 		pr_dbg("%s: tunnel: veth create %s<->%s failed, ret=%d (%s)\n",
 			args->name, vs, vc, ret, ovpn_tun_nlerror(ret));
 		return EXIT_NO_RESOURCE;
@@ -2866,6 +2950,7 @@ static int ovpn_tunnel_cycle(
 
 	if ((pipe(srdy) < 0) || (pipe(sgo) < 0) ||
 	    (pipe(crdy) < 0) || (pipe(cgo) < 0)) {
+		ovpn_fail_set(OVPN_FAIL_RESOURCE);
 		pr_dbg("%s: tunnel: pipe failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		rc = EXIT_NO_RESOURCE;
@@ -2876,6 +2961,7 @@ static int ovpn_tunnel_cycle(
 
 	ps = fork();
 	if (ps < 0) {
+		ovpn_fail_set(OVPN_FAIL_RESOURCE);
 		if (!stress_redo_fork(args, errno))
 			pr_dbg("%s: tunnel: fork failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
@@ -2891,6 +2977,7 @@ static int ovpn_tunnel_cycle(
 	}
 	pc = fork();
 	if (pc < 0) {
+		ovpn_fail_set(OVPN_FAIL_RESOURCE);
 		if (!stress_redo_fork(args, errno))
 			pr_dbg("%s: tunnel: fork failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
@@ -2990,6 +3077,7 @@ static int stress_ovpn_tunnel(stress_args_t *args)
 	ovpn_ctx_t root;
 	const size_t ctr_sz = sizeof(uint64_t) * OVPN_CTR_MAX;
 	double tx_udp, tx_tcp, rx_udp, rx_tcp, duration;
+	uint64_t reason = OVPN_FAIL_NONE;
 	int rc = EXIT_SUCCESS;
 	int fails = 0;
 
@@ -3070,14 +3158,25 @@ static int stress_ovpn_tunnel(stress_args_t *args)
 		/*
 		 * Cycles are allowed to fail - the teardown races they exercise
 		 * make that expected - but there is no point carrying on if
-		 * nothing has ever worked.
+		 * nothing has ever worked. A hard failure says so on the first
+		 * attempt; a soft one is timing or contention, so give those
+		 * several tries before concluding anything, and report what
+		 * actually went wrong rather than guessing at a cause.
 		 */
+		reason = __atomic_load_n(&ovpn_bytes[OVPN_CTR_FAIL], __ATOMIC_RELAXED);
 		fails++;
 		if (stress_bogo_get(args) > 0)
 			continue;	/* it has worked before, keep going */
+		if (ovpn_fail_is_hard(reason)) {
+			pr_inf_skip("%s: %s, skipping stressor\n",
+				args->name, ovpn_fail_str(reason));
+			rc = EXIT_NO_RESOURCE;
+			break;
+		}
 		if (fails >= OVPN_TUN_MAX_FAILS) {
-			pr_inf_skip("%s: no DCO tunnel could be built in %d attempts, "
-				"skipping stressor\n", args->name, fails);
+			pr_inf_skip("%s: no DCO tunnel could be built in %d attempts (%s), "
+				"skipping stressor\n", args->name, fails,
+				ovpn_fail_str(reason));
 			rc = EXIT_NO_RESOURCE;
 			break;
 		}
