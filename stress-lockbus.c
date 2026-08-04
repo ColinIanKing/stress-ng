@@ -219,8 +219,8 @@ static int stress_lockbus(stress_args_t *args)
 {
 	uint32_t *local_buffer;
 	double t, rate;
-	CLOBBERED double duration;
-	CLOBBERED double count;
+	CLOBBERED double duration = 0.0;
+	CLOBBERED double count = 0.0;
 	CLOBBERED int rc = EXIT_SUCCESS;
 	uint32_t *misaligned_ptr1;
 	uint32_t *misaligned_ptr2;
@@ -385,8 +385,6 @@ misaligned_done:
 	stress_sync_start_wait(args);
 	stress_proc_state_set(args->name, STRESS_STATE_RUN);
 
-	duration = 0;
-	count = 0;
 	do {
 		uint32_t *ptr0 = stress_mwc1() ?
 			local_buffer + (stress_mwc32modn(lockbus_buffer_size - CHUNK_SIZE) >> 2) :
