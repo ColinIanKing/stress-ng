@@ -459,7 +459,7 @@ static int stress_mmaptorture_child(stress_args_t *args, void *context)
 	do {
 		unsigned char vec[MMAP_SIZE_MAP];
 		uint8_t * CLOBBERED ptr;
-		CLOBBERED size_t n;
+		CLOBBERED size_t n = 0;
 		CLOBBERED size_t mmap_size;
 		CLOBBERED pid_t pid = -1;
 		CLOBBERED uint64_t total_bytes = 0;
