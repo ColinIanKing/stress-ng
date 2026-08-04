@@ -369,6 +369,7 @@ _stress_ng()
 	'--oom-avoid' | \
 	'--oom-no-child' | \
 	'--open-fd' | \
+	'--ovpn-tunnel' | \
 	'--page-in' | \
 	'--pagemove-mlock' | \
 	'--pagemove-numa' | \

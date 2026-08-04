@@ -52,7 +52,7 @@ int main(void)
 		OVPN_CIPHER_ALG_NONE, OVPN_CIPHER_ALG_AES_GCM,
 	};
 	const enum ovpn_key_slot slots[] = {
-		OVPN_KEY_SLOT_PRIMARY,
+		OVPN_KEY_SLOT_PRIMARY, OVPN_KEY_SLOT_SECONDARY,
 	};
 	const int cmds[] = {
 		OVPN_CMD_PEER_NEW, OVPN_CMD_PEER_SET, OVPN_CMD_PEER_GET,

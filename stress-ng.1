@@ -7412,6 +7412,19 @@ capability.
 .TP
 .B \-\-ovpn\-ops N
 stop the ovpn stressors after N bogo ops.
+.TP
+.B \-\-ovpn\-tunnel
+instead of fuzzing the control plane, build a real two-endpoint DCO tunnel. Each
+worker takes a private network namespace and, inside it, creates two more
+network namespaces connected by a veth pair (the UDP transport underlay) and
+sets up an ovpn interface with a fixed shared key at each end; no interface is
+ever added to the host network namespace. It then keeps the tunnel live for a
+random period while the client injects packets, so the kernel encrypts them at
+one end and decrypts them at the other, then tears the tunnel down and rebuilds
+it, so the data path and the teardown races are both exercised. Requires the
+.B ovpn
+kernel module plus CAP_SYS_ADMIN and CAP_NET_ADMIN; the stressor is skipped if
+no tunnel can be built.
 .RE
 .TP
 .B Page table and TLB stressor
