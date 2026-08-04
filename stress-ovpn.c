@@ -156,6 +156,8 @@ typedef struct nl_ctx {
 	struct nl_msg *nl_msg;
 	struct nl_cb *nl_cb;
 
+	struct ovpn_ctx *ovpn;		/* owner, for reply callbacks */
+
 	int ovpn_dco_id;
 } nl_ctx_t;
 
@@ -215,6 +217,16 @@ typedef struct ovpn_ctx {
 	int key_id;
 
 	const char *peers_file;
+
+	/*
+	 * per-peer byte counters read back by OVPN_CMD_PEER_GET. These are the
+	 * kernel's own accounting: VPN_* is the plaintext side (what the crypto
+	 * path processed), so they are authoritative where a userspace estimate
+	 * only counts what was handed to or read from a socket.
+	 */
+	uint64_t peer_vpn_rx_bytes;
+	uint64_t peer_vpn_tx_bytes;
+	bool peer_stats_valid;
 
 	const char *args_name;
 } ovpn_ctx_t;
@@ -702,6 +714,7 @@ static nl_ctx_t *nl_ctx_alloc_flags(
 	if (!ctx)
 		return NULL;
 
+	ctx->ovpn = ovpn;
 	ctx->nl_sock = nl_socket_alloc();
 	if (!ctx->nl_sock) {
 		pr_err("%s: cannot allocate netlink socket\n", args_name);
@@ -1256,8 +1269,7 @@ static int ovpn_handle_peer(struct nl_msg *msg, void *arg)
 	struct nlattr *pattrs[OVPN_A_PEER_MAX + 1];
 	struct genlmsghdr *gnlh = nlmsg_data(nlmsg_hdr(msg));
 	struct nlattr *attrs[OVPN_A_MAX + 1];
-
-	(void)arg;
+	const nl_ctx_t *ctx = (const nl_ctx_t *)arg;
 
 	nla_parse(attrs, OVPN_A_MAX, genlmsg_attrdata(gnlh, 0),
 		  genlmsg_attrlen(gnlh, 0), NULL);
@@ -1267,6 +1279,28 @@ static int ovpn_handle_peer(struct nl_msg *msg, void *arg)
 
 	nla_parse(pattrs, OVPN_A_PEER_MAX, nla_data(attrs[OVPN_A_PEER]),
 		  nla_len(attrs[OVPN_A_PEER]), NULL);
+
+	/*
+	 * lift the kernel's plaintext-side byte counters into the context, so
+	 * the tunnel mode can report measured rather than estimated traffic.
+	 * ovpn_nla_get_uint() copes with the u32/u64 width difference across
+	 * libnl versions. The attributes are only present on a module that
+	 * exports them, hence the validity flag.
+	 */
+	if (ctx && ctx->ovpn) {
+		struct ovpn_ctx *ovpn = ctx->ovpn;
+
+		if (pattrs[OVPN_A_PEER_VPN_RX_BYTES]) {
+			ovpn->peer_vpn_rx_bytes =
+				ovpn_nla_get_uint(pattrs[OVPN_A_PEER_VPN_RX_BYTES]);
+			ovpn->peer_stats_valid = true;
+		}
+		if (pattrs[OVPN_A_PEER_VPN_TX_BYTES]) {
+			ovpn->peer_vpn_tx_bytes =
+				ovpn_nla_get_uint(pattrs[OVPN_A_PEER_VPN_TX_BYTES]);
+			ovpn->peer_stats_valid = true;
+		}
+	}
 
 	return NL_SKIP;
 }
@@ -1678,11 +1712,21 @@ static const uint8_t ovpn_tun_in_cli[4] = { 10, 8, 0, 2 };
  * shared counters in an anonymous shared mapping, so the forked children
  * accumulate into them and the instance reports them.
  *
+ * The byte counters are the kernel's own per-peer plaintext-side totals,
+ * read back with OVPN_CMD_PEER_GET when a cycle winds down, split by
+ * direction and by the transport of the cycle that produced them:
+ *   tx = VPN_TX_BYTES of the client's peer  (fed to the crypto path)
+ *   rx = VPN_RX_BYTES of the server's peer  (decrypted and delivered)
+ *
  * OPS counts injection bursts, and is folded into the bogo-op counter by
  * the instance rather than by the children, see ovpn_tunnel_cycle().
  */
 enum {
-	OVPN_CTR_OPS = 0,
+	OVPN_CTR_TX_UDP = 0,
+	OVPN_CTR_TX_TCP,
+	OVPN_CTR_RX_UDP,
+	OVPN_CTR_RX_TCP,
+	OVPN_CTR_OPS,
 	OVPN_CTR_MAX
 };
 
@@ -2355,6 +2399,10 @@ static void NORETURN ovpn_tunnel_child(
 		const int iters = ((stress_mwc8() % 5) < 3) ?
 			1 + (int)(stress_mwc8() % 8) :
 			1 + (int)(stress_mwc16() % 256);
+		/* this cycle's bytes land in the counter for its transport */
+		uint64_t *const bytec = &ovpn_bytes[is_server ?
+			(is_tcp ? OVPN_CTR_RX_TCP : OVPN_CTR_RX_UDP) :
+			(is_tcp ? OVPN_CTR_TX_TCP : OVPN_CTR_TX_UDP)];
 		int i, rxfd = -1;
 
 		/* server: receive decrypted datagrams on the inner data port */
@@ -2397,6 +2445,24 @@ static void NORETURN ovpn_tunnel_child(
 		if (rxfd >= 0)
 			(void)close(rxfd);
 
+		/*
+		 * Final read of the kernel's own counters for the traffic-carrying
+		 * peer, taken while the tunnel is still up. Each side reports the
+		 * direction it is authoritative for: the client encrypted what its
+		 * peer counts as VPN_TX, the server decrypted and delivered what
+		 * its peer counts as VPN_RX.
+		 */
+		ovpn.peer_id = 1;
+		ovpn.peer_stats_valid = false;
+		if ((ovpn_get_peer(&ovpn) >= 0) && ovpn.peer_stats_valid) {
+			(void)__atomic_add_fetch(bytec, is_server ?
+				ovpn.peer_vpn_rx_bytes : ovpn.peer_vpn_tx_bytes,
+				__ATOMIC_RELAXED);
+		} else {
+			pr_dbg("%s: tunnel(%s): no per-peer byte counters from the "
+				"kernel, traffic metrics will read zero\n",
+				args->name, role);
+		}
 		rc = EXIT_SUCCESS;
 	}
 
@@ -2593,6 +2659,7 @@ static int stress_ovpn_tunnel(stress_args_t *args)
 {
 	ovpn_ctx_t root;
 	const size_t ctr_sz = sizeof(uint64_t) * OVPN_CTR_MAX;
+	double tx_udp, tx_tcp, rx_udp, rx_tcp, duration;
 	int rc = EXIT_SUCCESS;
 	int fails = 0;
 
@@ -2634,21 +2701,23 @@ static int stress_ovpn_tunnel(stress_args_t *args)
 	if (stress_signal_handler(args->name, SIGPIPE, SIG_IGN, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 
-	/* shared bogo-op counter, written by the endpoint children */
+	/* shared per-direction, per-transport byte counters */
 	ovpn_bytes = (uint64_t *)stress_mmap_anon_shared(ctr_sz,
 			PROT_READ | PROT_WRITE);
 	if (ovpn_bytes == MAP_FAILED) {
-		pr_inf_skip("%s: could not mmap %zu bytes of shared counters%s, "
+		pr_inf_skip("%s: could not mmap %zu bytes of shared metrics%s, "
 			"skipping stressor\n",
 			args->name, ctr_sz, stress_memory_free_get());
 		return EXIT_NO_RESOURCE;
 	}
 	(void)shim_memset(ovpn_bytes, 0, ctr_sz);
-	stress_memory_anon_name_set(ovpn_bytes, ctr_sz, "ovpn-tunnel-ops");
+	stress_memory_anon_name_set(ovpn_bytes, ctr_sz, "ovpn-tunnel-metrics");
 
 	stress_proc_state_set(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
 	stress_proc_state_set(args->name, STRESS_STATE_RUN);
+
+	duration = stress_time_now();
 
 	/* build / run-live / teardown, repeatedly, until the run ends;
 	 * pick the transport (UDP or TCP) at random each cycle */
@@ -2676,7 +2745,41 @@ static int stress_ovpn_tunnel(stress_args_t *args)
 		}
 	} while (stress_continue(args));
 
+	duration = stress_time_now() - duration;
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
+
+	/*
+	 * Report rates rather than byte totals. A byte total conflates how much
+	 * work was done with how long the instance ran and how many instances
+	 * competed for the CPU, so byte totals from runs with different -ovpn
+	 * counts or timeouts cannot be compared; a per-second figure can.
+	 *
+	 * The per-instance rates are then summed rather than averaged: a sum is
+	 * the aggregate throughput, which is what a reader of these numbers
+	 * wants, and unlike a harmonic or geometric mean it is unbothered by an
+	 * instance that happened to report nothing.
+	 */
+	tx_udp = (duration > 0.0) ? (double)ovpn_bytes[OVPN_CTR_TX_UDP] / (double)MB / duration : 0.0;
+	tx_tcp = (duration > 0.0) ? (double)ovpn_bytes[OVPN_CTR_TX_TCP] / (double)MB / duration : 0.0;
+	rx_udp = (duration > 0.0) ? (double)ovpn_bytes[OVPN_CTR_RX_UDP] / (double)MB / duration : 0.0;
+	rx_tcp = (duration > 0.0) ? (double)ovpn_bytes[OVPN_CTR_RX_TCP] / (double)MB / duration : 0.0;
+
+	/*
+	 * These come from the kernel's own per-peer plaintext byte counters,
+	 * not from a userspace estimate. All four are always reported, even
+	 * when zero: the metrics of every instance are matched up by
+	 * description, so the set must not vary between instances.
+	 */
+	stress_metrics_set(args, "MB per sec encrypted, UDP transport", tx_udp,
+		STRESS_METRIC_TOTAL);
+	stress_metrics_set(args, "MB per sec encrypted, TCP transport", tx_tcp,
+		STRESS_METRIC_TOTAL);
+	stress_metrics_set(args, "MB per sec decrypted, UDP transport", rx_udp,
+		STRESS_METRIC_TOTAL);
+	stress_metrics_set(args, "MB per sec decrypted, TCP transport", rx_tcp,
+		STRESS_METRIC_TOTAL);
+	pr_dbg("%s: tunnel MB/s tx(udp/tcp)=%.2f/%.2f rx(udp/tcp)=%.2f/%.2f\n",
+		args->name, tx_udp, tx_tcp, rx_udp, rx_tcp);
 
 	(void)stress_munmap_anon_shared((void *)ovpn_bytes, ctr_sz);
 	ovpn_bytes = NULL;
