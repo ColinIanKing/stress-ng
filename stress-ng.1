@@ -7417,16 +7417,18 @@ stop the ovpn stressors after N bogo ops.
 instead of fuzzing the control plane, build a real two-endpoint DCO tunnel. Each
 worker takes a private network namespace and, inside it, creates two more
 network namespaces connected by a veth pair (the transport underlay, UDP or TCP
-chosen at random each cycle) and sets up an ovpn interface with a fixed shared key at each end; no interface is
-ever added to the host network namespace. It then keeps the tunnel live for a
-random period, mixing data-path traffic (the client injects packets so the
-kernel encrypts and decrypts them) with control-plane churn (the server creates,
-swaps and deletes peers and keys), and tears the tunnel down and rebuilds it, so
-the data path, the control plane and the teardown races are all exercised. Traffic is
-reported per direction and transport as "MB per sec encrypted, UDP transport"
-and so on, taken from the kernel's own per-peer byte counters rather than
-estimated in userspace, and as a rate so that runs with different worker counts
-and timeouts stay comparable. Requires the
+and IPv4 or IPv6 chosen at random each cycle) and sets up an ovpn interface with
+a fixed shared key at each end; no interface is ever added to the host network
+namespace. It then keeps the tunnel live for a random period, mixing data-path
+traffic (the client injects packets so the kernel encrypts and decrypts them)
+with control-plane churn (the server creates, swaps and deletes peers and keys),
+and tears the tunnel down and rebuilds it, so the data path, the control plane
+and the teardown races are all exercised. Traffic is reported on all three axes
+a cycle varies over, as "MB per sec encrypted, UDP transport, IPv4" and the
+seven other combinations, taken from the kernel's own per-peer byte counters
+rather than estimated in userspace, and as a rate so that runs with different
+worker counts and timeouts stay comparable.
+Requires the
 .B ovpn
 kernel module plus CAP_SYS_ADMIN and CAP_NET_ADMIN; the stressor is skipped if
 no tunnel can be built.
