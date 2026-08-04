@@ -2672,6 +2672,7 @@ static void NORETURN ovpn_tunnel_child(
 		uint64_t *const bytec = &ovpn_bytes[is_server ?
 			(is_tcp ? OVPN_CTR_RX_TCP : OVPN_CTR_RX_UDP) :
 			(is_tcp ? OVPN_CTR_TX_TCP : OVPN_CTR_TX_UDP)];
+		pid_t churner = -1;
 		int i, rxfd = -1;
 
 		/* server: receive decrypted datagrams on the inner data port */
@@ -2696,6 +2697,60 @@ static void NORETURN ovpn_tunnel_child(
 			}
 		}
 
+		/*
+		 * A second process in this namespace, working the same
+		 * interface. Every command the stressor issues is otherwise
+		 * serialised inside one process, so the peer table is never
+		 * manipulated concurrently - and concurrent use of an object
+		 * that is being destroyed is precisely what a lifecycle bug
+		 * needs in order to show itself. The transport socket is
+		 * inherited rather than reopened, so the churner can build
+		 * peers on it; its copy of the fd closing on exit leaves the
+		 * server's own reference untouched.
+		 */
+		if (is_server) {
+			churner = fork();
+			if (churner == 0) {
+				ovpn_ctx_t peer_ctx = ovpn;
+
+				/*
+				 * PDEATHSIG is SIGALRM, and in a stress-ng
+				 * process SIGALRM means "the whole run is
+				 * stopping": the handler calls
+				 * stress_bogo_max_ops_zero(), and since
+				 * stress_continue() is a comparison against
+				 * max_ops, zeroing it ends the loop of every
+				 * instance of every stressor. So an endpoint
+				 * that dies while its churner is alive would
+				 * not merely lose its cycle, it would end the
+				 * run - reported as a success, which is how a
+				 * --timeout 300s run came to finish in 13s.
+				 *
+				 * The churner wants none of that meaning. It
+				 * only has to die with its parent, which the
+				 * default action does on its own, without
+				 * running a handler. Restore that action
+				 * before arming PDEATHSIG rather than after,
+				 * so a parent that dies in between cannot
+				 * deliver the signal while the handler that
+				 * ends the run is still installed.
+				 */
+				if (stress_signal_handler(args->name,
+						SIGALRM, SIG_DFL, NULL) < 0)
+					pr_dbg("%s: tunnel: could not restore "
+						"the default SIGALRM in the "
+						"churner, an orphaned churner "
+						"can stop the run\n",
+						args->name);
+				stress_parent_died_alarm();
+				stress_mwc_reseed();
+				while (stress_continue(args))
+					ovpn_tunnel_churn(&peer_ctx, true, is_tcp,
+						destructive);
+				_exit(EXIT_SUCCESS);
+			}
+		}
+
 		for (i = 0; (i < iters) && stress_continue(args); i++) {
 			if (is_server) {
 				ovpn_tunnel_churn(&ovpn, true, is_tcp, destructive);
@@ -2714,6 +2769,8 @@ static void NORETURN ovpn_tunnel_child(
 					1, __ATOMIC_RELAXED);
 			}
 		}
+		if (churner > 0)
+			(void)stress_kill_pid_wait(churner, NULL);
 		if (rxfd >= 0)
 			(void)close(rxfd);
 
