@@ -157,6 +157,7 @@ typedef struct nl_ctx {
 	struct nl_cb *nl_cb;
 
 	struct ovpn_ctx *ovpn;		/* owner, for reply callbacks */
+	int nl_status;			/* set by the reply callbacks */
 
 	int ovpn_dco_id;
 } nl_ctx_t;
@@ -227,6 +228,15 @@ typedef struct ovpn_ctx {
 	uint64_t peer_vpn_rx_bytes;
 	uint64_t peer_vpn_tx_bytes;
 	bool peer_stats_valid;
+
+	/*
+	 * Set while operating on the phantom peers, whose ids are random and
+	 * mostly do not exist: those commands are meant to fail and their
+	 * failures are not worth narrating. Without this a single minute of
+	 * churn buries the log in tens of thousands of expected ENOENTs and
+	 * makes --verbose useless for seeing anything else.
+	 */
+	bool expect_failure;
 
 	const char *args_name;
 } ovpn_ctx_t;
@@ -782,21 +792,21 @@ static nl_ctx_t *nl_ctx_alloc(ovpn_ctx_t *ovpn, const int cmd)
 
 static int ovpn_nl_cb_finish(struct nl_msg *msg, void *arg)
 {
-	int *status = arg;
+	nl_ctx_t *ctx = (nl_ctx_t *)arg;
 
 	(void)msg;
 
-	*status = 0;
+	ctx->nl_status = 0;
 	return NL_SKIP;
 }
 
 static int ovpn_nl_cb_ack(struct nl_msg *msg, void *arg)
 {
-	int *status = arg;
+	nl_ctx_t *ctx = (nl_ctx_t *)arg;
 
 	(void)msg;
 
-	*status = 0;
+	ctx->nl_status = 0;
 	return NL_STOP;
 }
 
@@ -808,6 +818,9 @@ static int ovpn_nl_recvmsgs(
 	const char *args_name = ovpn->args_name;
 
 	ret = nl_recvmsgs(ctx->nl_sock, ctx->nl_cb);
+
+	if (ovpn->expect_failure)
+		return ret;
 
 	switch (ret) {
 	case -NLE_INTR:
@@ -838,12 +851,16 @@ static int ovpn_nl_cb_error(
 	struct nlattr *tb_msg[NLMSGERR_ATTR_MAX + 1];
 	int len = nlh->nlmsg_len;
 	struct nlattr *attrs;
-	int *ret = arg;
+	nl_ctx_t *ctx = (nl_ctx_t *)arg;
 	int ack_len = sizeof(*nlh) + sizeof(int) + sizeof(*nlh);
 
 	(void)nla;
 
-	*ret = err->error;
+	ctx->nl_status = err->error;
+
+	/* an expected failure still has to be reported back, just not logged */
+	if (ctx->ovpn && ctx->ovpn->expect_failure)
+		return NL_STOP;
 
 	if (!(nlh->nlmsg_flags & NLM_F_ACK_TLVS))
 		return NL_STOP;
@@ -887,25 +904,25 @@ static int ovpn_nl_msg_send(
 	nl_ctx_t *ctx,
 	ovpn_nl_cb cb)
 {
-	int status = 1;
+	ctx->nl_status = 1;
 
-	nl_cb_err(ctx->nl_cb, NL_CB_CUSTOM, ovpn_nl_cb_error, &status);
-	nl_cb_set(ctx->nl_cb, NL_CB_FINISH, NL_CB_CUSTOM, ovpn_nl_cb_finish, &status);
-	nl_cb_set(ctx->nl_cb, NL_CB_ACK, NL_CB_CUSTOM, ovpn_nl_cb_ack, &status);
+	nl_cb_err(ctx->nl_cb, NL_CB_CUSTOM, ovpn_nl_cb_error, ctx);
+	nl_cb_set(ctx->nl_cb, NL_CB_FINISH, NL_CB_CUSTOM, ovpn_nl_cb_finish, ctx);
+	nl_cb_set(ctx->nl_cb, NL_CB_ACK, NL_CB_CUSTOM, ovpn_nl_cb_ack, ctx);
 
 	if (cb)
 		nl_cb_set(ctx->nl_cb, NL_CB_VALID, NL_CB_CUSTOM, cb, ctx);
 
 	nl_send_auto_complete(ctx->nl_sock, ctx->nl_msg);
 
-	while ((status == 1) && stress_continue_flag())
+	while ((ctx->nl_status == 1) && stress_continue_flag())
 		ovpn_nl_recvmsgs(ovpn, ctx);
 
-	if (status < 0)
+	if ((ctx->nl_status < 0) && !ovpn->expect_failure)
 		pr_dbg("%s: failed to send netlink message, errno=%d (%s)\n",
-			ovpn->args_name, status, strerror(-status));
+			ovpn->args_name, ctx->nl_status, strerror(-ctx->nl_status));
 
-	return status;
+	return ctx->nl_status;
 }
 
 static void nl_ctx_free(nl_ctx_t *ctx)
@@ -1709,6 +1726,66 @@ static const uint8_t ovpn_tun_in_srv[4] = { 10, 8, 0, 1 };	/* inner/vpn */
 static const uint8_t ovpn_tun_in_cli[4] = { 10, 8, 0, 2 };
 
 /*
+ *  ovpn_tun_phantom_id()
+ *	peer id for a phantom. Mostly a small range, so ids collide and the
+ *	table is genuinely reused rather than just grown, but one time in
+ *	four an edge of what the uapi allows: zero, the reserved undefined
+ *	value - which also means "dump everything" on a get - the value below
+ *	it, and something no daemon would ever pick.
+ */
+static uint32_t ovpn_tun_phantom_id(void)
+{
+	switch (stress_mwc8() % 16) {
+	case 0:
+		return 0;
+	case 1:
+		return PEER_ID_UNDEF;
+	case 2:
+		return PEER_ID_UNDEF - 1;
+	case 3:
+		return stress_mwc32() & PEER_ID_UNDEF;
+	default:
+		return 2 + (stress_mwc8() % 62);
+	}
+}
+
+/*
+ *  ovpn_tun_cipher()
+ *	a cipher for a key. NONE is in the mix on purpose: with no AEAD any
+ *	bytes "decrypt" successfully and go straight to the module's inner
+ *	protocol check, which is a path a well behaved daemon never takes.
+ */
+static enum ovpn_cipher_alg ovpn_tun_cipher(void)
+{
+	switch (stress_mwc8() % 3) {
+	case 0:
+		return OVPN_CIPHER_ALG_AES_GCM;
+	case 1:
+		return OVPN_CIPHER_ALG_CHACHA20_POLY1305;
+	default:
+		return OVPN_CIPHER_ALG_NONE;
+	}
+}
+
+/*
+ *  ovpn_tun_phantom_vpn_ip()
+ *	random inner address for a phantom peer, over the whole 10.8.0.0/16.
+ *	The real peer's own address is deliberately reachable here: a phantom
+ *	claiming it makes the module insert a duplicate VPN address and
+ *	displace the traffic-carrying peer, which exercises the MP peer table
+ *	where it is most likely to go wrong. The cost is that such a cycle
+ *	stops delivering and reports no traffic, which is the right trade for
+ *	a stressor.
+ */
+static void ovpn_tun_phantom_vpn_ip(uint8_t vpn[4])
+{
+	vpn[0] = 10;
+	vpn[1] = 8;
+	vpn[2] = stress_mwc8();
+	vpn[3] = stress_mwc8();
+}
+
+/*
  * shared counters in an anonymous shared mapping, so the forked children
  * accumulate into them and the instance reports them.
  *
@@ -2044,6 +2121,114 @@ static void ovpn_tunnel_drain(const int fd)
 }
 
 /*
+ *  ovpn_tunnel_churn()
+ *	run a random sequence of live DCO operations for entropy.
+ *
+ *	The peer that carries traffic (id 1) only ever gets operations that
+ *	leave it usable - a primary<->secondary key swap under load, get/set -
+ *	so encrypt and decrypt stay coherent and the crypto hot path keeps
+ *	running, while the key and peer lifecycle churn is confined to phantom
+ *	peers that carry nothing.
+ */
+static void ovpn_tunnel_churn(
+	ovpn_ctx_t *o,
+	const bool is_server,
+	const bool is_tcp)
+{
+	const int ops = 1 + (int)(stress_mwc8() % 8);
+	int i;
+
+	for (i = 0; i < ops; i++) {
+		/*
+		 * server (MP). Cases 0 to 2 act on the real peer and their
+		 * failures are worth seeing; 3 to 6 act on phantom peers with
+		 * random ids that mostly do not exist, so those are expected
+		 * to fail and must not be logged - a minute of churn otherwise
+		 * buries the log in tens of thousands of expected ENOENTs.
+		 * Unused on the client path below, which has its own selection.
+		 */
+		const int op = (int)(stress_mwc8() % 7);
+
+		o->expect_failure = false;
+		if (!is_server) {
+			/* client (P2P): only ever peer 1, the live one */
+			o->peer_id = 1;
+			switch (stress_mwc8() % 4) {
+			case 0:		/* swap slots under active traffic */
+				(void)ovpn_swap_keys(o);
+				break;
+			case 1:
+				o->keepalive_interval = stress_mwc8();
+				o->keepalive_timeout = stress_mwc8();
+				(void)ovpn_set_peer(o);
+				break;
+			case 2:
+				(void)ovpn_get_peer(o);
+				break;
+			case 3:
+				o->key_slot = OVPN_KEY_SLOT_PRIMARY;
+				(void)ovpn_get_key(o);
+				break;
+			}
+			continue;
+		}
+
+		/* only the phantom cases, 3 to 6, are expected to fail */
+		o->expect_failure = (op >= 3) && (op <= 6);
+		switch (op) {
+		case 0:		/* key swap on the real peer under load */
+			o->peer_id = 1;
+			(void)ovpn_swap_keys(o);
+			break;
+		case 1:		/* query the real peer */
+			o->peer_id = 1;
+			(void)ovpn_get_peer(o);
+			break;
+		case 2:		/* keepalive on the real peer */
+			o->peer_id = 1;
+			o->keepalive_interval = stress_mwc8();
+			o->keepalive_timeout = stress_mwc8();
+			(void)ovpn_set_peer(o);
+			break;
+		case 3: {	/* add a phantom peer (bounded id range) */
+			const uint8_t rem[4] = { 172, 16, stress_mwc8(), stress_mwc8() };
+			uint8_t vpn[4];
+
+			ovpn_tun_phantom_vpn_ip(vpn);
+
+			/* phantom peers need no real connection; only meaningful
+			 * for UDP (a TCP peer is 1:1 with an accepted socket) */
+			if (!is_tcp)
+				(void)ovpn_tunnel_add_peer(o, ovpn_tun_phantom_id(),
+					rem, (uint16_t)(1024 + (stress_mwc16() % 60000)), vpn, true, false);
+			break;
+		}
+		case 4:		/* delete a phantom peer (varied id/reason) */
+			o->peer_id = ovpn_tun_phantom_id();
+			(void)ovpn_del_peer(o);
+			break;
+		case 5:		/* destructive rekey on a phantom peer */
+			o->peer_id = ovpn_tun_phantom_id();
+			o->key_slot = stress_mwc1() ? OVPN_KEY_SLOT_PRIMARY : OVPN_KEY_SLOT_SECONDARY;
+			o->key_id = stress_mwc8() & 7;
+			o->cipher = ovpn_tun_cipher();
+			o->key_dir = SHIM_KEY_DIR_IN;
+			(void)shim_memset(o->key_enc, OVPN_TUN_KEY_BYTE, KEY_LEN);
+			(void)shim_memset(o->key_dec, OVPN_TUN_KEY_BYTE, KEY_LEN);
+			(void)shim_memset(o->nonce, OVPN_TUN_KEY_BYTE, NONCE_LEN);
+			(void)ovpn_new_key(o);
+			break;
+		case 6:		/* delete a phantom key slot */
+			o->peer_id = ovpn_tun_phantom_id();
+			o->key_slot = stress_mwc1() ? OVPN_KEY_SLOT_PRIMARY : OVPN_KEY_SLOT_SECONDARY;
+			(void)ovpn_del_key(o);
+			break;
+		}
+	}
+	o->expect_failure = false;
+}
+
+/*
  *  ovpn_tunnel_tcp_listen()
  *	TCP transport server side, first half: bind the underlay port and
  *	start listening. Called before the netlink setup so that the client's
@@ -2306,6 +2491,8 @@ static int ovpn_tunnel_endpoint(
 	 * peer's encrypt/decrypt coherent.
 	 */
 	if (is_server) {
+		uint32_t n, i;
+
 		ret = ovpn_tunnel_add_peer(o, 1, ovpn_tun_ul_cli, OVPN_TUN_PORT,
 					   ovpn_tun_in_cli, true, is_tcp);
 		if (ret < 0) {
@@ -2313,6 +2500,24 @@ static int ovpn_tunnel_endpoint(
 				o->args_name, ret, ovpn_tun_nlerror(ret));
 			return -1;
 		}
+		/*
+		 * phantom peers only for UDP (a TCP peer needs its own
+		 * accepted socket). Failures here are expected and ignored:
+		 * the random ids/addresses are deliberate fuzzing, only the
+		 * real peer above has to succeed.
+		 */
+		n = is_tcp ? 0 : (stress_mwc8() % 16);
+		o->expect_failure = true;	/* random ids, failures expected */
+		for (i = 0; i < n; i++) {
+			const uint8_t rem[4] = { 172, 16, stress_mwc8(), stress_mwc8() };
+			uint8_t vpn[4];
+
+			ovpn_tun_phantom_vpn_ip(vpn);
+
+			(void)ovpn_tunnel_add_peer(o, 2 + i, rem,
+				(uint16_t)(1024 + (stress_mwc16() % 60000)), vpn, true, false);
+		}
+		o->expect_failure = false;
 	} else {
 		ret = ovpn_tunnel_add_peer(o, 1, ovpn_tun_ul_srv, OVPN_TUN_PORT,
 					  NULL, false, is_tcp);
@@ -2383,11 +2588,12 @@ static void NORETURN ovpn_tunnel_child(
 	if (ovpn_tunnel_endpoint(&ovpn, is_server, veth, is_tcp) == 0) {
 		/*
 		 * keep the freshly-built tunnel live for a random number of
-		 * iterations, then return so the parent tears it down and
-		 * rebuilds. The random duration means some tunnels are
-		 * short-lived (teardown-race heavy) and some long-lived
-		 * (throughput heavy). The client injects traffic into the
-		 * tunnel; the server drains what comes out of it.
+		 * iterations, mixing data-path traffic with control-plane
+		 * churn, then return so the parent tears it down and rebuilds.
+		 * The random duration means some tunnels are short-lived
+		 * (teardown-race heavy) and some long-lived (throughput heavy).
+		 * The server churns its MP peer table (create/swap/delete); the
+		 * client injects traffic and rekeys the live tunnel now and then.
 		 */
 		const uint8_t *in_peer = ovpn_tun_in_srv;
 		/*
@@ -2412,8 +2618,8 @@ static void NORETURN ovpn_tunnel_child(
 				struct sockaddr_in a;
 				const int rcvbuf = 4 * 1024 * 1024;
 
-				/* large recv buffer, to bound the drops of
-				 * decrypted packets on a busy machine */
+				/* large recv buffer: the server drains only between
+				 * churn ops, so bound the drops of decrypted packets */
 				(void)setsockopt(rxfd, SOL_SOCKET, SO_RCVBUF,
 						 &rcvbuf, sizeof(rcvbuf));
 				(void)shim_memset(&a, 0, sizeof(a));
@@ -2429,9 +2635,12 @@ static void NORETURN ovpn_tunnel_child(
 
 		for (i = 0; (i < iters) && stress_continue(args); i++) {
 			if (is_server) {
+				ovpn_tunnel_churn(&ovpn, true, is_tcp);
 				ovpn_tunnel_drain(rxfd);
 			} else {
 				ovpn_tunnel_inject(in_peer, packets);
+				if ((stress_mwc8() & 0xf) == 0)
+					ovpn_tunnel_churn(&ovpn, false, is_tcp);
 				/*
 				 * the instance folds this into the bogo-op counter
 				 * once the cycle is reaped: incrementing it from a

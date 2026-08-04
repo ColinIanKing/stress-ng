@@ -50,6 +50,7 @@ int main(void)
 	const int link_attr = IFLA_OVPN_MODE;
 	const enum ovpn_cipher_alg ciphers[] = {
 		OVPN_CIPHER_ALG_NONE, OVPN_CIPHER_ALG_AES_GCM,
+		OVPN_CIPHER_ALG_CHACHA20_POLY1305,
 	};
 	const enum ovpn_key_slot slots[] = {
 		OVPN_KEY_SLOT_PRIMARY, OVPN_KEY_SLOT_SECONDARY,
