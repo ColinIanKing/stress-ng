@@ -227,7 +227,7 @@ static int OPTIMIZE3 stress_dentrycache(stress_args_t *args)
 		args->pid, args->instance);
 
 	(void)snprintf(pid_str, sizeof(pid_str), "/%" PRIdMAX "=", (intmax_t)getpid());
-	n = strlcat(dir_path, pid_str, sizeof(dir_path));
+	n = shim_strlcat(dir_path, pid_str, sizeof(dir_path));
 	filename = dir_path + n ;
 
 	stress_proc_state_set(args->name, STRESS_STATE_SYNC_WAIT);
