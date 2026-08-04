@@ -525,7 +525,7 @@ again:
 			const size_t ops_size = page_size * PAGES;
 			void *ops_begin = (void *)((uint8_t *)opcodes + page_size);
 			void *ops_end = (void *)((uint8_t *)ops_begin + ops_size);
-			CLOBBERED void *ops_ptr;
+			void * CLOBBERED ops_ptr;
 
 			stress_proc_state_set(args->name, STRESS_STATE_RUN);
 			stress_make_it_fail_set();
