@@ -71,10 +71,8 @@ static int stress_sigpipe(stress_args_t *args)
 
 		/* cause SIGPIPE if pipe closed */
 		ret = write(pipefds[1], &data, sizeof(data));
-		if (LIKELY(ret < 0)) {
-			if (errno == EPIPE)
-				epipe_count++;
-		}
+		if (LIKELY(ret < 0) && (errno == EPIPE))
+			epipe_count++;
 	} while (stress_continue(args));
 
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
