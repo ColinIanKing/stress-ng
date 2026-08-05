@@ -122,6 +122,7 @@ static int stress_bad_altstack_child(stress_args_t *args)
 	struct rlimit rlim;
 #endif
 	void *func_ptr = (void *)stress_stack_sigalt_no_check;
+	void *last_page = (void *)~(uintptr_t)(args->page_size - 1);
 
 	if (sigsetjmp(jmp_env, 1) != 0) {
 		/*
@@ -203,7 +204,7 @@ static int stress_bad_altstack_child(stress_args_t *args)
 retry:
 		if (UNLIKELY(!stress_continue(args)))
 			return EXIT_SUCCESS;
-		rnd = stress_mwc32modn(11);
+		rnd = stress_mwc32modn(12);
 		switch (rnd) {
 #if defined(HAVE_MPROTECT)
 		case 1:
@@ -287,6 +288,10 @@ retry:
 					stress_bad_altstack_force_fault(bus_stack);
 			}
 #endif
+			goto retry;
+		case 11:
+			/* Illegal last page */
+			stress_bad_altstack_force_fault(last_page);
 			goto retry;
 		default:
 		case 0:
