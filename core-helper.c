@@ -1452,26 +1452,61 @@ int stress_tty_width_get(void)
 }
 
 /*
- *  stress_redo_fork()
- *	check fork errno (in err) and return true if
- *	an immediate fork can be retried due to known
- *	error cases that are retryable. Also force a
- *	scheduling yield.
+ *  stress_retry_fork()
+ *	retry fork until we timeout, stress_continue() is false
+ *	or an unexepcted fork() error occurred. Return the pid
+ *	and errno set to that of the fork() return.
+ *
+ *	if retries > 0 then retry that many times, else retry forever
  */
-bool stress_redo_fork(stress_args_t *args, const int err)
+pid_t stress_retry_fork(stress_args_t *args, const int retries)
 {
-	/* Timed out! */
-	if (UNLIKELY(stress_time_now() > args->time_end)) {
-		stress_continue_set_flag(false);
-		return false;
+	pid_t pid;
+	int saved_errno;
+	int retry = 0;
+
+	for (;;) {
+		errno = 0;
+		pid = fork();
+
+		/* save error as it gets clobbered */
+		saved_errno = errno;
+
+		/* parent or child, OK fork paths */
+		if (LIKELY(pid >= 0))
+			break;
+
+		/* Clock time out */
+		if (UNLIKELY(stress_time_now() > args->time_end)) {
+			stress_continue_set_flag(false);
+			break;
+		}
+
+		/* SIGAALRM or bogos reached? */
+		if (!stress_continue(args)) {
+			break;
+		}
+
+		/* An unexpected fork errror occurred, bail out */
+		if ((saved_errno != EAGAIN) &&
+		    (saved_errno != EINTR) &&
+		    (saved_errno != ENOMEM)) {
+			break;
+		}
+		/*
+		 * fork may have failed because of low resources
+		 * or interrupt, so do yield sleep and try again
+		 */
+		if (retries > 0) {
+			if (retry++ > retries)
+				break;
+		} else {
+			stress_yield_sleep_ms();
+		}
 	}
-	/* More bogo-ops to go and errors indicate a fork retry? */
-	if (LIKELY(stress_continue(args)) &&
-	    ((err == EAGAIN) || (err == EINTR) || (err == ENOMEM))) {
-		(void)shim_sched_yield();
-		return true;
-	}
-	return false;
+	/* errno set to fork()'s errno */
+	errno = saved_errno;
+	return pid;
 }
 
 /*

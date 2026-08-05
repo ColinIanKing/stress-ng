@@ -86,11 +86,8 @@ static int stress_sigrt(stress_args_t *args)
 	stress_proc_state_set(args->name, STRESS_STATE_RUN);
 
 	for (i = 0; i < MAX_RTSIGS; i++) {
-again:
-		s_pids[i].pid = fork();
+		s_pids[i].pid = stress_retry_fork(args, 0);
 		if (s_pids[i].pid < 0) {
-			if (stress_redo_fork(args, errno))
-				goto again;
 			if (UNLIKELY(!stress_continue(args)))
 				goto reap;
 			pr_err("%s: fork failed, errno=%d (%s)\n",

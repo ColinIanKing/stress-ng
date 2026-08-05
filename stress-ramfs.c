@@ -431,14 +431,8 @@ static int stress_ramfs_mount(stress_args_t *args)
 	stress_proc_state_set(args->name, STRESS_STATE_RUN);
 
 	do {
-again:
-		if (UNLIKELY(!stress_continue_flag()))
-			break;
-
-		pid = fork();
+		pid = stress_retry_fork(args, 0);
 		if (pid < 0) {
-			if (stress_redo_fork(args, errno))
-				goto again;
 			if (UNLIKELY(!stress_continue(args)))
 				goto finish;
 			pr_err("%s: fork failed, errno=%d (%s)\n",
@@ -466,7 +460,7 @@ again:
 					pr_dbg("%s: assuming killed by OOM killer, "
 						"restarting again (instance %" PRIu32 ")\n",
 						args->name, args->instance);
-					goto again;
+					continue;
 				}
 			} else if (WEXITSTATUS(status) == EXIT_FAILURE) {
 				pr_fail("%s: child mount/umount failed\n", args->name);

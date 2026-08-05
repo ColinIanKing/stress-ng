@@ -383,11 +383,9 @@ static int stress_easy_opcode(stress_args_t *args)
 		 *  gets a different random value on each fork
 		 */
 		(void)stress_mwc32();
-again:
-		pid = fork();
+
+		pid = stress_retry_fork(args, 0);
 		if (pid < 0) {
-			if (stress_redo_fork(args, errno))
-				goto again;
 			if (UNLIKELY(!stress_continue(args)))
 				goto finish;
 			pr_fail("%s: fork failed, errno=%d (%s)\n",

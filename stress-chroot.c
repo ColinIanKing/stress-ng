@@ -478,11 +478,17 @@ static int stress_chroot(stress_args_t *args)
 
 	do {
 		pid_t pid;
-again:
-		pid = fork();
+
+		pid = stress_retry_fork(args, 0);
 		if (pid < 0) {
-			if (stress_redo_fork(args, errno))
-				goto again;
+			if (UNLIKELY(!stress_continue(args))) {
+				ret = EXIT_SUCCESS;
+				break;
+			}
+			pr_fail("%s: fork failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
+			ret = EXIT_FAILURE;
+			break;
 		} else if (pid == 0) {
 			stress_proc_state_set(args->name, STRESS_STATE_RUN);
 			stress_set_oom_adjustment(args, true);

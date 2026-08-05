@@ -3308,12 +3308,11 @@ static int ovpn_tunnel_cycle(
 
 	parent_cpu = (int)stress_cpu_get();
 
-	ps = fork();
+	ps = stress_retry_fork(args, 0);
 	if (ps < 0) {
 		ovpn_fail_set(OVPN_FAIL_RESOURCE);
-		if (!stress_redo_fork(args, errno))
-			pr_dbg("%s: tunnel: fork failed, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
+		pr_dbg("%s: tunnel: fork failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		rc = EXIT_NO_RESOURCE;
 		goto tidy;
 	}
@@ -3325,12 +3324,11 @@ static int ovpn_tunnel_cycle(
 				  packets, is_tcp, is_v6, destructive,
 				  parent_cpu);
 	}
-	pc = fork();
+	pc = stress_retry_fork(args, 0);
 	if (pc < 0) {
 		ovpn_fail_set(OVPN_FAIL_RESOURCE);
-		if (!stress_redo_fork(args, errno))
-			pr_dbg("%s: tunnel: fork failed, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
+		pr_dbg("%s: tunnel: fork failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		rc = EXIT_NO_RESOURCE;
 		goto tidy;
 	}

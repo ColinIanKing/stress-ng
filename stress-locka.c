@@ -287,12 +287,10 @@ redo:
 	stress_proc_state_set(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
 	stress_proc_state_set(args->name, STRESS_STATE_RUN);
-again:
+
 	parent_cpu = stress_cpu_get();
-	cpid = fork();
+	cpid = stress_retry_fork(args, 0);
 	if (cpid < 0) {
-		if (stress_redo_fork(args, errno))
-			goto again;
 		if (UNLIKELY(!stress_continue(args)))
 			goto tidy;
 		pr_err("%s: fork failed, errno=%d (%s)\n",

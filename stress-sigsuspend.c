@@ -65,12 +65,9 @@ static int stress_sigsuspend(stress_args_t *args)
 	stress_proc_state_set(args->name, STRESS_STATE_RUN);
 
 	for (n = 0; n < MAX_SIGSUSPEND_PIDS; n++) {
-again:
 		parent_cpu = stress_cpu_get();
-		pid[n] = fork();
+		pid[n] = stress_retry_fork(args, 0);
 		if (pid[n] < 0) {
-			if (stress_redo_fork(args, errno))
-				goto again;
 			if (UNLIKELY(!stress_continue(args)))
 				goto reap;
 			pr_err("%s: fork failed, errno=%d (%s)\n",

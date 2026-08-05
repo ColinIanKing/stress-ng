@@ -243,11 +243,8 @@ static void apparmor_spawn(
 	stress_pid_t **s_pids_head,
 	stress_pid_t *s_pid)
 {
-again:
-	s_pid->pid = fork();
+	s_pid->pid = stress_retry_fork(args, 0);
 	if (s_pid->pid < 0) {
-		if (stress_redo_fork(args, errno))
-			goto again;
 		return;
 	} else if (s_pid->pid == 0) {
 		int ret = EXIT_SUCCESS;

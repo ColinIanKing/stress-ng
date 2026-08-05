@@ -491,7 +491,6 @@ static void stress_cpu_sched_child_exercise(const pid_t pid, const int cpu)
 static void stress_cpu_sched_fork(stress_args_t *args)
 {
 	pid_t pid;
-	int retry = 0;
 
 	stress_cpu_sched_set_handler();
 
@@ -500,13 +499,8 @@ static void stress_cpu_sched_fork(stress_args_t *args)
 	if (stress_cpu_sched_hrtimer_sigprocmask(SIG_BLOCK) < 0)
 		return;
 #endif
-again:
-	pid = fork();
+	pid = stress_retry_fork(args, 10);
 	if (pid == -1) {
-                if ((retry++ < 10) && stress_redo_fork(args, errno)) {
-			(void)shim_usleep_interruptible(50000);
-                        goto again;
-		}
 		goto err;
 	} else if (pid == 0) {
 		const pid_t child_pid = getpid();
@@ -622,7 +616,6 @@ static int stress_cpu_sched_next_cpu_idx(const int instance, const int last_cpu_
 static void stress_cpu_sched_exec(stress_args_t *args, char *exec_prog)
 {
 	pid_t pid;
-	int retry = 0;
 
 #if defined(HAVE_TIMER_CLOCK_REALTIME)
 	stress_cpu_sched_hrtimer_set(0);
@@ -630,13 +623,8 @@ static void stress_cpu_sched_exec(stress_args_t *args, char *exec_prog)
 		return;
 #endif
 
-again:
-	pid = fork();
+	pid = stress_retry_fork(args, 10);
 	if (pid < 0) {
-                if ((retry++ < 10) && stress_redo_fork(args, errno)) {
-			(void)shim_usleep_interruptible(50000);
-                        goto again;
-		}
 #if defined(HAVE_TIMER_CLOCK_REALTIME)
 		(void)stress_cpu_sched_hrtimer_sigprocmask(SIG_UNBLOCK);
 #endif
@@ -714,15 +702,9 @@ static int stress_cpu_sched_child(stress_args_t *args, void *context)
 
 	for (i = 0; LIKELY((i < cpu_sched_procs) && stress_continue(args)); i++) {
 		pid_t pid;
-		int retry = 0;
 
-again:
-		pid = fork();
+		pid = stress_retry_fork(args, 10);
 		if (pid < 0) {
-                	if ((retry++ < 10) && stress_redo_fork(args, errno)) {
-				(void)shim_usleep_interruptible(50000);
-				goto again;
-			}
 			stress_cpu_sched_pids[i].pid = -1;
 		} else if (pid == 0) {
 			pid_t mypid = getpid();

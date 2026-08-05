@@ -209,11 +209,8 @@ static int stress_exit_group(stress_args_t *args)
 			return EXIT_FAILURE;
 		}
 
-again:
-		pid = fork();
+		pid = stress_retry_fork(args, 0);
 		if (pid < 0) {
-			if (stress_redo_fork(args, errno))
-				goto again;
 			(void)pthread_mutex_destroy(&mutex);
 			break;
 		} else if (pid == 0) {

@@ -210,10 +210,8 @@ static int stress_kcmp(stress_args_t *args)
 	stress_sync_start_wait(args);
 	stress_proc_state_set(args->name, STRESS_STATE_RUN);
 again:
-	pid1 = fork();
+	pid1 = stress_retry_fork(args, 0);
 	if (pid1 < 0) {
-		if (stress_redo_fork(args, errno))
-			goto again;
 		(void)close(fd1);
 		if (UNLIKELY(!stress_continue(args)))
 			goto finish;

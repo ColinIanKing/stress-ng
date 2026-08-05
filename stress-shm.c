@@ -431,11 +431,8 @@ static int stress_shm(stress_args_t *args)
 				args->name, errno, strerror(errno));
 			return EXIT_FAILURE;
 		}
-again:
-		pid = fork();
+		pid = stress_retry_fork(args, 0);
 		if (pid < 0) {
-			if (stress_redo_fork(args, errno))
-				goto again;
 			if (UNLIKELY(!stress_continue(args))) {
 				(void)close(pipefds[0]);
 				(void)close(pipefds[1]);

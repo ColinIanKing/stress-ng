@@ -230,13 +230,9 @@ static int stress_sockpair_oomable(stress_args_t *args, void *context)
 		return rc;
 	}
 
-again:
 	parent_cpu = stress_cpu_get();
-	pid = fork();
+	pid = stress_retry_fork(args, 0);
 	if (pid < 0) {
-		if (stress_redo_fork(args, errno))
-			goto again;
-
 		socket_pair_close(socket_pair_fds, max, 0);
 		socket_pair_close(socket_pair_fds, max, 1);
 

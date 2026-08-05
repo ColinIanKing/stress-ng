@@ -384,13 +384,10 @@ static int stress_bad_altstack(stress_args_t *args)
 		pid_t pid;
 
 		(void)stress_mwc32();
-again:
 		if (UNLIKELY(!stress_continue_flag()))
 			return EXIT_SUCCESS;
-		pid = fork();
+		pid = stress_retry_fork(args, 0);
 		if (pid < 0) {
-			if (stress_redo_fork(args, errno))
-				goto again;
 			if (UNLIKELY(!stress_continue(args)))
 				return EXIT_SUCCESS;
 			pr_err("%s: fork failed, errno=%d: (%s)\n",
@@ -424,7 +421,7 @@ again:
 							"killer, restarting again "
 							"(instance %" PRIu32 ")\n",
 							args->name, args->instance);
-						goto again;
+						continue;
 					}
 				}
 				/* expected: child killed itself with SIGSEGV */

@@ -329,12 +329,9 @@ static int stress_softlockup(stress_args_t *args)
 	}
 
 	for (i = 0; i < cpus_online; i++) {
-again:
 		parent_cpu = stress_cpu_get();
-		s_pids[i].pid = fork();
+		s_pids[i].pid = stress_retry_fork(args, 0);
 		if (s_pids[i].pid < 0) {
-			if (stress_redo_fork(args, errno))
-				goto again;
 			if (UNLIKELY(!stress_continue(args)))
 				goto finish;
 			pr_inf("%s: fork failed, errno=%d (%s)\n",

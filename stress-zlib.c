@@ -1796,12 +1796,9 @@ static int stress_zlib(stress_args_t *args)
 	stress_sync_start_wait(args);
 	stress_proc_state_set(args->name, STRESS_STATE_RUN);
 
-again:
 	parent_cpu = stress_cpu_get();
-	pid = fork();
+	pid = stress_retry_fork(args, 0);
 	if (pid < 0) {
-		if (stress_redo_fork(args, errno))
-			goto again;
 		(void)munmap((void *)shared_checksums, sizeof(*shared_checksums));
 		(void)close(fds[0]);
 		(void)close(fds[1]);

@@ -136,11 +136,8 @@ static int stress_vforkmany(stress_args_t *args)
 	stress_sync_start_wait(args);
 	stress_proc_state_set(args->name, STRESS_STATE_RUN);
 
-fork_again:
-	chpid = fork();
+	chpid = stress_retry_fork(args, 0);
 	if (chpid < 0) {
-		if (stress_redo_fork(args, errno))
-			goto fork_again;
 		if (UNLIKELY(!stress_continue(args)))
 			goto finish;
 		pr_err("%s: fork failed, errno=%d: (%s)\n",

@@ -78,11 +78,8 @@ static pid_t stress_lease_spawn(
 	pid_t pid;
 	int count = 0;
 
-again:
-	pid = fork();
+	pid = stress_retry_fork(args, 0);
 	if (pid < 0) {
-		if (stress_redo_fork(args, errno))
-			goto again;
 		return -1;
 	}
 	if (pid == 0) {

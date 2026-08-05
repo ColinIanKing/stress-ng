@@ -283,14 +283,10 @@ static int stress_rawsock_child(stress_args_t *args, void *context)
 
 	if (stress_signal_sigchld_handler(args) < 0)
 		return EXIT_NO_RESOURCE;
-again:
+
 	parent_cpu = stress_cpu_get();
-	pid = fork();
+	pid = stress_retry_fork(args, 0);
 	if (pid < 0) {
-		if (stress_redo_fork(args, errno)) {
-			(void)shim_usleep(100000);
-			goto again;
-		}
 		if (UNLIKELY(stop_rawsock || !stress_continue(args)))
 			return EXIT_SUCCESS;
 		pr_fail("%s: fork failed, errno=%d (%s)\n",

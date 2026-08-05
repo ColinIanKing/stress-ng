@@ -58,11 +58,8 @@ static int stress_sighup_raise_signal(stress_args_t *args)
 	pid_t ret;
 	int status;
 
-again:
-	pid = fork();
+	pid = stress_retry_fork(args, 0);
 	if (pid < 0) {
-		if (stress_redo_fork(args, errno))
-			goto again;
 		if (UNLIKELY(!stress_continue(args)))
 			return 0;
 		pr_fail("%s: fork failed, errno=%d (%s)\n",
@@ -112,11 +109,8 @@ static int stress_sighup_process_group(stress_args_t *args)
 	VOID_RET(int, stress_signal_handler(args->name, SIGHUP, stress_sighup_handler, NULL));
 
 	sighup_info->pid = 0;
-again:
-	pid = fork();
+	pid = stress_retry_fork(args, 0);
 	if (pid < 0) {
-		if (stress_redo_fork(args, errno))
-			goto again;
 		if (UNLIKELY(!stress_continue(args)))
 			return 0;
 		pr_fail("%s: fork failed, errno=%d (%s)\n",

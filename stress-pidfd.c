@@ -128,11 +128,8 @@ static int stress_pidfd(stress_args_t *args)
 	while ((rc == EXIT_SUCCESS) && stress_continue(args)) {
 		pid_t pid;
 
-again:
-		pid = fork();
+		pid = stress_retry_fork(args, 0);
 		if (pid < 0) {
-			if (stress_redo_fork(args, errno))
-				goto again;
 			if (UNLIKELY(!stress_continue(args)))
 				goto finish;
 			pr_err("%s: fork failed, errno=%d (%s)\n",

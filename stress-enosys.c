@@ -4186,11 +4186,8 @@ static int stress_enosys(stress_args_t *args)
 			(void)close(rd_fds[1]);
 			return EXIT_NO_RESOURCE;
 		}
-again:
-		pid = fork();
+		pid = stress_retry_fork(args, 0);
 		if (pid < 0) {
-			if (stress_redo_fork(args, errno))
-				goto again;
 			if (stress_continue(args)) {
 				pr_err("%s: fork failed, errno=%d: (%s)\n",
 					args->name, errno, strerror(errno));

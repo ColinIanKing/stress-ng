@@ -110,11 +110,8 @@ static int stress_vm_segv(stress_args_t *args)
 			return EXIT_NO_RESOURCE;
 		}
 
-again:
-		pid = fork();
+		pid = stress_retry_fork(args, 0);
 		if (pid < 0) {
-			if (stress_redo_fork(args, errno))
-				goto again;
 			if (UNLIKELY(!stress_continue(args))) {
 				(void)close(fd[0]);
 				(void)close(fd[1]);

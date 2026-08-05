@@ -168,11 +168,8 @@ static pid_t epoll_spawn(
 	const int epoll_sockets,
 	const int max_servers)
 {
-again:
-	s_pid->pid = fork();
+	s_pid->pid = stress_retry_fork(args, 0);
 	if (s_pid->pid < 0) {
-		if (stress_redo_fork(args, errno))
-			goto again;
 		return -1;
 	} else if (s_pid->pid == 0) {
 		stress_proc_state_set(args->name, STRESS_STATE_RUN);

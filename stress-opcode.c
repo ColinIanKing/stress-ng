@@ -507,12 +507,10 @@ static int stress_opcode(stress_args_t *args)
 				OPCODE_HEX_DIGITS, OPCODE_HEX_DIGITS, vstate->opcode);
 			stress_proc_name_set(buf);
 		}
-again:
+
 		jmp_env_set = false;
-		pid = fork();
+		pid = stress_retry_fork(args, 0);
 		if (pid < 0) {
-			if (stress_redo_fork(args, errno))
-				goto again;
 			if (UNLIKELY(!stress_continue(args)))
 				goto finish;
 			pr_fail("%s: fork failed, errno=%d (%s)\n",

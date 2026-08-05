@@ -774,11 +774,8 @@ static int stress_cacheline(stress_args_t *args)
 				rc = EXIT_NO_RESOURCE;
 				goto finish;
 			}
-again:
-			s_pids[i].pid = fork();
+			s_pids[i].pid = stress_retry_fork(args, 0);
 			if (s_pids[i].pid < 0) {
-				if (stress_redo_fork(args, errno))
-					goto again;
 				if (UNLIKELY(!stress_continue(args)))
 					goto finish;
 				pr_err("%s: fork failed, errno=%d: (%s)\n",

@@ -436,11 +436,8 @@ static void stress_landlock_test(
 	int status;
 	pid_t pid;
 
-again:
-	pid = fork();
+	pid = stress_retry_fork(args, 0);
 	if (pid < 0) {
-		if (stress_redo_fork(args, errno))
-			goto again;
 		return;
 	} else if (pid == 0) {
 		stress_proc_state_set(args->name, STRESS_STATE_RUN);
@@ -498,6 +495,7 @@ static int stress_landlock(stress_args_t *args)
 	};
 	stress_landlock_ctxt_t ctxt;
 	int failures = 0;
+	int rc = EXIT_SUCCESS;
 	pid_t pid_many;
 
 	ctxt.path = stress_fs_temp_path_get();
@@ -510,11 +508,17 @@ static int stress_landlock(stress_args_t *args)
 			args->name);
 		return EXIT_NO_RESOURCE;
 	}
-again:
-	pid_many = fork();
+
+	pid_many = stress_retry_fork(args, 0);
 	if (pid_many < 0) {
-		if (stress_redo_fork(args, errno))
-			goto again;
+		if (UNLIKELY(!stress_continue(args))) {
+			rc = EXIT_SUCCESS;
+			goto err;
+		}
+		pr_fail("%s: fork failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
+		rc = EXIT_FAILURE;
+		goto err;
 	} else if (pid_many == 0) {
 		stress_proc_state_set(args->name, STRESS_STATE_RUN);
 		stress_make_it_fail_set();
@@ -565,7 +569,7 @@ err:
 
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 static const stress_exercises_t exercises[] = {

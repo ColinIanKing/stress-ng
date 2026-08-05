@@ -285,11 +285,8 @@ static pid_t stress_umount_spawn(
 	stress_pid_t **s_pid_head,
 	stress_pid_t *s_pid)
 {
-again:
-	s_pid->pid = fork();
+	s_pid->pid = stress_retry_fork(args, 0);
 	if (s_pid->pid < 0) {
-		if (stress_redo_fork(args, errno))
-			goto again;
 		if (UNLIKELY(!stress_continue(args)))
 			return 0;
 		pr_inf("%s: fork failed, errno=%d (%s), skipping stressor\n",

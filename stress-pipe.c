@@ -710,11 +710,8 @@ static int stress_pipe(stress_args_t *args)
 	parent_cpu = stress_cpu_get();
 
 	for (i = 0; i < pipe_readers; i++) {
-fork_rd_again:
-		rd_pids[i] = fork();
+		rd_pids[i] = stress_retry_fork(args, 0);
 		if (rd_pids[i] < 0) {
-			if (stress_redo_fork(args, errno))
-				goto fork_rd_again;
 			(void)close(pipefds[0]);
 			(void)close(pipefds[1]);
 			(void)munmap((void *)buf_wr, buf_wr_size);
@@ -757,11 +754,8 @@ fork_rd_again:
 	}
 
 	for (i = 0; i < pipe_writers; i++) {
-fork_wr_again:
-		wr_pids[i] = fork();
+		wr_pids[i] = stress_retry_fork(args, 0);
 		if (wr_pids[i] < 0) {
-			if (stress_redo_fork(args, errno))
-				goto fork_wr_again;
 			(void)close(pipefds[0]);
 			(void)close(pipefds[1]);
 			(void)munmap((void *)buf_wr, buf_wr_size);

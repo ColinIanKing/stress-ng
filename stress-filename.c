@@ -828,10 +828,8 @@ again:
 		rc = EXIT_SUCCESS;
 		goto tidy_dir;
 	}
-	pid = fork();
+	pid = stress_retry_fork(args, 0);
 	if (pid < 0) {
-		if (stress_redo_fork(args, errno))
-			goto again;
 		if (UNLIKELY(!stress_continue(args))) {
 			rc = EXIT_SUCCESS;
 			goto tidy_dir;
