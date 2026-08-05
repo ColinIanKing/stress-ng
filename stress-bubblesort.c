@@ -70,7 +70,7 @@ static int bubblesort_fast(
 		register size_t n = 0;
 		register size_t i;
 
-PRAGMA_UNROLL_N(4)
+PRAGMA_UNROLL
 		for (i = 1; i < nmemb; i++) {
 			if (compar((void *)p1, (void *)p2) > 0) {
 				swap_func((void *)p1, (void *)p2, size);
