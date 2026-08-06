@@ -169,7 +169,7 @@ static stress_crypto_type_t name_to_type(const char *buffer, const size_t buffer
 	if (ptr >= end)
 		return CRYPTO_UNKNOWN;
 	for (i = 0; i < SIZEOF_ARRAY(crypto_type_info); i++) {
-		const size_t n = strlen(crypto_type_info[i].name);
+		const size_t n = shim_strlen(crypto_type_info[i].name);
 
 		if (!shim_strncmp(crypto_type_info[i].name, ptr, n))
 			return crypto_type_info[i].crypto_type;

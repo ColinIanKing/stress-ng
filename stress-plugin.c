@@ -246,7 +246,7 @@ static void stress_plugin_so(const char *opt_name, const char *opt_arg, stress_t
 			const ElfW(Sym) *sym = &symtab[i];
 			const char *str = &strtab[sym->st_name];
 
-			if ((strlen(str) > 7) && !shim_strncmp(str, "stress_", 7)) {
+			if ((shim_strlen(str) > 7) && !shim_strncmp(str, "stress_", 7)) {
 				stress_plugin_methods[n_funcs].name = str + 7;
 				stress_plugin_methods[n_funcs].func = (stress_plugin_func)dlsym(stress_plugin_so_dl, str);
 				if (!stress_plugin_methods[n_funcs].func) {

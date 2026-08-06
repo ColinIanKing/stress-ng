@@ -486,7 +486,7 @@ static bool stress_sys_skip(const char *path)
 
 	for (i = 0; i < SIZEOF_ARRAY(sys_skip_paths); i++) {
 		const char *skip_path = sys_skip_paths[i];
-		const size_t len = strlen(skip_path);
+		const size_t len = shim_strlen(skip_path);
 
 		if (!shim_strncmp(path, skip_path, len))
 			return true;

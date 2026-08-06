@@ -250,7 +250,7 @@ static int get_modpath_name(
 			}
 			*start_postfix  = '\0';
 
-			len = strlen(name);
+			len = shim_strlen(name);
 			(void)shim_strscpy(module_short, module_path_basename, sizeof(module_short));
 			if (len != shim_strnlen(module_short, sizeof(module_short))) {
 				free(line);
@@ -268,7 +268,7 @@ static int get_modpath_name(
 
 			/* Check for .ko end, can't decompress .zst, .xz etc yet */
 			ret = -1;
-			len = strlen(module_path);
+			len = shim_strlen(module_path);
 			if (len > 6) {
 				if (shim_strncmp(module_path + len - 6, ".ko.xz", 6) == 0)
 					ret = MODULE_KO_XZ;

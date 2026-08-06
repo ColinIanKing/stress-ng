@@ -362,7 +362,7 @@ void stress_cpuidle_log_info(void)
 		return;
 
 	for (cc = cpu_cstate_list; cc; cc = cc->next) {
-		len += strlen(cc->cstate) + 2;
+		len += shim_strlen(cc->cstate) + 2;
 	}
 	buf = (char *)calloc(len, sizeof(*buf));
 	if (UNLIKELY(!buf))

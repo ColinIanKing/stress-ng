@@ -381,7 +381,7 @@ static int CONST stress_smart_dev_filter(const struct dirent *d)
 
 	if ((d->d_name[0] == '\0') || (d->d_name[0] == '.'))
 		return 0;
-	len = strlen(d->d_name);
+	len = shim_strlen(d->d_name);
 	if (len < 1)		/* Also unlikely */
 		return 0;
 	if (isdigit((unsigned char)d->d_name[len - 1]))

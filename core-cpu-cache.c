@@ -333,7 +333,7 @@ static int stress_cpu_cache_get_riscv(
 	base++;
 	if (!*base)
 		return 0;
-	if (strlen(base) < 4)
+	if (shim_strlen(base) < 4)
 		return 0;
 	if (sscanf(base + 3, "%d", &cpu_num) != 1)
 		return 0;

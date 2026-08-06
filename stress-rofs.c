@@ -947,7 +947,7 @@ static int stress_rofs(stress_args_t *args)
 		char *str;
 
 		for (j = 0; j < n_paths; j++)
-			n += strlen(paths[j]) + 2;
+			n += shim_strlen(paths[j]) + 2;
 
 		str = calloc(n, sizeof(*str));
 		if (str) {

@@ -1643,7 +1643,7 @@ static void stress_cache_hammer_flags_to_str(
 	for (i = 0; i < N_FUNCS; i++) {
 		if (flags & (1U << i)) {
 			const char *name = stress_cachehammer_funcs[i].name;
-			const size_t len = strlen(name);
+			const size_t len = shim_strlen(name);
 
 			(void)shim_strscpy(ptr, " ", buf_len);
 			buf_len--;

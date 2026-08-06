@@ -92,7 +92,7 @@ static void stress_led_trigger(const char *path, const char *trigger)
 	char filename[PATH_MAX];
 
 	(void)snprintf(filename, sizeof(filename), "%s/trigger", path);
-	stress_fs_file_write(filename, trigger, strlen(trigger));
+	stress_fs_file_write(filename, trigger, shim_strlen(trigger));
 }
 
 /*

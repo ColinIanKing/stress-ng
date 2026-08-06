@@ -179,7 +179,7 @@ static void stress_bad_ioctl_dev_dir(
 		if (stress_fs_filename_dotty(d->d_name))
 			continue;
 
-		len = strlen(d->d_name);
+		len = shim_strlen(d->d_name);
 
 		/*
 		 *  Exercise no more than 1 of the same device

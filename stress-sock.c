@@ -610,7 +610,7 @@ retry:
 			char name[256];
 			socklen_t len;
 
-			len = (socklen_t)strlen(ctrls[idx]);
+			len = (socklen_t)shim_strlen(ctrls[idx]);
 			(void)setsockopt(fd, IPPROTO_TCP, TCP_CONGESTION, control, len);
 			len = (socklen_t)sizeof(name);
 			(void)getsockopt(fd, IPPROTO_TCP, TCP_CONGESTION, name, &len);

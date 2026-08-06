@@ -330,7 +330,7 @@ static char *stress_iostat_iostat_name(
 	if (*dev == '/')
 		dev++;
 
-	ptr = dev + strlen(dev) - 1;
+	ptr = dev + shim_strlen(dev) - 1;
 
 	/*
 	 *  Try /dev/sda12, then /dev/sda1, then /dev/sda, then terminate

@@ -1261,7 +1261,7 @@ static void stress_misaligned_exercised(stress_args_t *args)
 
 		if (info->exercised && !info->disabled) {
 			char *tmp;
-			const size_t name_len = strlen(info->name);
+			const size_t name_len = shim_strlen(info->name);
 
 			tmp = (char *)realloc(str, (size_t)str_len + name_len + 2);
 			if (!tmp) {

@@ -289,7 +289,7 @@ static void stress_interrupts_parse_field(
 	if (!ptr)
 		return;
 
-	ptr += strlen(field); /* skip over field */
+	ptr += shim_strlen(field); /* skip over field */
 
 	while (*ptr && (*ptr != ' '))
 		ptr++;

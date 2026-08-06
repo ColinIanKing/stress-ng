@@ -512,7 +512,7 @@ static void stress_dev_dm_linux(
 
 			for (i = 0; i < dm->data_size; i++) {
 #if defined(DM_DEV_STATUS)
-				if (strlen(nl->name) < 4096) {
+				if (shim_strlen(nl->name) < 4096) {
 
 					uint8_t buf2[sizeof(struct dm_ioctl) + 4096] ALIGNED(8);
 					struct dm_ioctl *dm2 = (struct dm_ioctl *)shim_assume_aligned(buf2, 8);
@@ -4495,7 +4495,7 @@ static void stress_dev_infos_get(
 		if (stress_dev_avoid(d->d_name))
 			continue;
 
-		len = strlen(d->d_name);
+		len = shim_strlen(d->d_name);
 
 		/*
 		 *  Exercise no more than 3 of the same device

@@ -108,11 +108,11 @@ static void pr_log_write(const char *buf, const size_t buf_len)
 			}
 		} else  {
 			char *new_buf;
-			const size_t len = strlen(pr_msg_buf.buf);
+			const size_t len = shim_strlen(pr_msg_buf.buf);
 
 			new_buf = (char *)realloc(pr_msg_buf.buf, len + buf_len + 1);
 			if (UNLIKELY(!new_buf)) {
-				pr_log_write_buf(pr_msg_buf.buf, strlen(pr_msg_buf.buf));
+				pr_log_write_buf(pr_msg_buf.buf, shim_strlen(pr_msg_buf.buf));
 				free(pr_msg_buf.buf);
 				pr_msg_buf.buf = NULL;
 				pr_log_write_buf(buf, buf_len);
@@ -143,7 +143,7 @@ void pr_block_begin(void)
 void pr_block_end(void)
 {
 	if (pr_msg_buf.buf && (pr_msg_buf.pid == getpid())) {
-		pr_log_write_buf(pr_msg_buf.buf, strlen(pr_msg_buf.buf));
+		pr_log_write_buf(pr_msg_buf.buf, shim_strlen(pr_msg_buf.buf));
 		free(pr_msg_buf.buf);
 		pr_msg_buf.buf = NULL;
 		pr_msg_buf.pid = -1;

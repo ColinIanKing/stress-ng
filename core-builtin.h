@@ -73,6 +73,12 @@
 #define shim_strcmp(s1, s2)		strcmp((s1), (s2))
 #endif
 
+#if defined(HAVE_BUILTIN_STRLEN)
+#define shim_strlen(str)		__builtin_strlen((str))
+#else
+#define shim_strlen(str)		strlen((str))
+#endif
+
 #if defined(HAVE_BUILTIN_STRNCMP)
 #define shim_strncmp(s1, s2, n)		__builtin_strncmp((s1), (s2), (n))
 #else

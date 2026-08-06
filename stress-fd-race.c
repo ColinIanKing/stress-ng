@@ -677,7 +677,7 @@ static stress_fd_race_filename_t *stress_fd_race_filename_add(
 	};
 
 	for (i = 0; i < SIZEOF_ARRAY(ignore_list); i++) {
-		if (shim_strncmp(filename, ignore_list[i], strlen(ignore_list[i])) == 0)
+		if (shim_strncmp(filename, ignore_list[i], shim_strlen(ignore_list[i])) == 0)
 			return NULL;
 	}
 
@@ -744,7 +744,7 @@ static void stress_fd_race_filename_dir(const char *dirname, stress_fd_race_file
 		if ((de->d_name[0] == '\0') || (de->d_name[0] == '.'))
 			continue;
 
-		for (len = (ssize_t)strlen(de->d_name) - 1; len > 1; len--) {
+		for (len = (ssize_t)shim_strlen(de->d_name) - 1; len > 1; len--) {
 			if (!isdigit((unsigned char)de->d_name[len]))
 				break;
 		}

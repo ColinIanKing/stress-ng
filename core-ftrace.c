@@ -189,7 +189,7 @@ static int stress_ftrace_current_tracer(const char *str, const bool carp)
 	char filename[PATH_MAX];
 
 	(void)snprintf(filename, sizeof(filename), "%s/tracing/current_tracer", path);
-	if (stress_fs_file_write(filename, str, strlen(str)) < 0) {
+	if (stress_fs_file_write(filename, str, shim_strlen(str)) < 0) {
 		if (carp) {
 			pr_inf("ftrace: cannot set function tracing, cannot write '%s' to '%s', errno=%d (%s)\n",
 				str, filename, errno, strerror(errno));

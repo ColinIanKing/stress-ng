@@ -516,7 +516,7 @@ int stress_resctrl_parse(const char *opt_resctrl)
 		}
 		*ptr++ = '\0';
 
-		if ((strlen(name) >= 2) && (name[0] == 'p') && isdigit((int)(name[1]))) {
+		if ((shim_strlen(name) >= 2) && (name[0] == 'p') && isdigit((int)(name[1]))) {
 			if (stress_resctrl_parse_partition(name, &ptr) < 0) {
 				free(str);
 				return -1;

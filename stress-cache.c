@@ -1433,7 +1433,7 @@ next:
 		(void)shim_memset(buf, 0, sizeof(buf));
 		for (j = 0; j < SIZEOF_ARRAY(mask_flag_info); j++) {
 			if (mask_flag_info[j].flag & disabled_flags) {
-				const size_t len = strlen(mask_flag_info[j].name);
+				const size_t len = shim_strlen(mask_flag_info[j].name);
 
 				(void)shim_strscpy(ptr, " ", buf_len);
 				buf_len--;

@@ -566,7 +566,7 @@ finish:
 	/* Get an overestimated buffer length */
 	for (len = 0, i = 0; i < SIZEOF_ARRAY(op_info); i++) {
 		if (!op_info[i].trapped)
-			len += strlen(op_info[i].instr) + 3;
+			len += shim_strlen(op_info[i].instr) + 3;
 	}
 
 	if (len > 0) {

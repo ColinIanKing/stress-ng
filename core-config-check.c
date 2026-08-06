@@ -83,7 +83,7 @@ static int stress_config_check_cpu_filter(const struct dirent *d)
 {
         if (UNLIKELY(!d))
                 return 0;
-	if (UNLIKELY(strlen(d->d_name) < 4))
+	if (UNLIKELY(shim_strlen(d->d_name) < 4))
 		return 0;
         if (shim_strncmp(d->d_name, "cpu", 3))
 		return 0;

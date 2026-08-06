@@ -2329,7 +2329,7 @@ static void stress_exercise_dump(FILE *yaml)
 				/* string long enough for the YAML text */
 				for (n = 0, i = 0; exercises[i].name; i++) {
 					if (exercises[i].type == type) {
-						len += strlen(exercises[i].name) + 4;
+						len += shim_strlen(exercises[i].name) + 4;
 						n++;
 					}
 				}
@@ -2893,7 +2893,7 @@ static void stress_args_log(int argc, char **argv)
 		return;
 
 	for (buflen = 0, i = 0; i < (size_t)argc; i++) {
-		arglen[i] = strlen(argv[i]);
+		arglen[i] = shim_strlen(argv[i]);
 		buflen += arglen[i] + 1;
 	}
 
@@ -3644,7 +3644,7 @@ static int stress_class_get(uint32_t *opt_class, int *ret)
 
 		if (!cl) {
 			size_t i;
-			const size_t len = strlen(token);
+			const size_t len = shim_strlen(token);
 
 			if ((len > 1) && (token[len - 1] == '?')) {
 				token[len - 1] = '\0';
@@ -3778,7 +3778,7 @@ static void stress_exercises_features_unique(
 					break;
 				node->name = name;
 				stress_feature_tree_insert(&root, node);
-				len += strlen(name) + 1;
+				len += shim_strlen(name) + 1;
 			}
 		}
 	}
@@ -3820,7 +3820,7 @@ static void stess_exercises_detail_show(
 			/* string long enough for the text */
 			for (n = 0, i = 0; exercises[i].name; i++) {
 				if (exercises[i].type == type) {
-					len += strlen(exercises[i].name) + 2;
+					len += shim_strlen(exercises[i].name) + 2;
 					n++;
 				}
 			}

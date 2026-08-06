@@ -180,7 +180,7 @@ int stress_job_parse_file(
 
 		/* managed to get any tokens? */
 		if (new_argc > 1) {
-			const size_t len = strlen(new_argv[1]) + 3;
+			const size_t len = shim_strlen(new_argv[1]) + 3;
 			int rc;
 			char *tmp;
 

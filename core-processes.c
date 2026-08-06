@@ -53,7 +53,7 @@ void stress_processes_dump(void)
 		return;
 
 	for (i = 0; i < n; i++) {
-		const int len = (int)strlen(namelist[i]->d_name);
+		const int len = (int)shim_strlen(namelist[i]->d_name);
 
 		pid_width = STRESS_MAXIMUM(pid_width, len);
 	}

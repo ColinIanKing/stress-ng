@@ -1685,7 +1685,7 @@ static void stress_fs_clean_dir_files(
 	end = path + PATH_MAX;
 
 	while (n--) {
-		size_t name_len = strlen(names[n]->d_name) + 1;
+		size_t name_len = shim_strlen(names[n]->d_name) + 1;
 #if !defined(DT_DIR) ||	\
     !defined(DT_LNK) ||	\
     !defined(DT_REG)
@@ -1699,7 +1699,7 @@ static void stress_fs_clean_dir_files(
 		}
 
 		(void)snprintf(ptr, (size_t)(end - ptr), "/%s", names[n]->d_name);
-		name_len = strlen(ptr);
+		name_len = shim_strlen(ptr);
 
 #if defined(DT_DIR) &&	\
     defined(DT_LNK) &&	\
@@ -1767,7 +1767,7 @@ void stress_fs_clean_dir(
 	const uint32_t instance)
 {
 	const char *temp_path = stress_fs_temp_path_get();
-	const size_t temp_path_len = strlen(temp_path);
+	const size_t temp_path_len = shim_strlen(temp_path);
 
 	if (LIKELY(name != NULL)) {
 		char path[PATH_MAX];

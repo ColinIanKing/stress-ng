@@ -309,7 +309,7 @@ static char *x86syscall_list_str(void)
 		if (x86syscalls_exercise[i]) {
 			char *tmp;
 
-			len += (strlen(x86syscalls[i].name) + 2);
+			len += (shim_strlen(x86syscalls[i].name) + 2);
 			tmp = (char *)realloc(str, len);
 			if (!tmp) {
 				free(str);

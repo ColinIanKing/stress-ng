@@ -1486,7 +1486,7 @@ size_t shim_strlcat(char *dst, const char *src, size_t len)
 	n = len - tmplen;
 
 	if (!n)
-		return strlen(s) + tmplen;
+		return shim_strlen(s) + tmplen;
 
 	while (*s != '\0') {
 		if (n != 1) {

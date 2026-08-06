@@ -464,7 +464,7 @@ static void stress_cgroup_new_group(stress_args_t *args, const char *realpathnam
 			stress_cgroup_read(filename);
 
 			if (values[i].value) {
-				(void)stress_fs_file_write(filename, values[i].value, strlen(values[i].value));
+				(void)stress_fs_file_write(filename, values[i].value, shim_strlen(values[i].value));
 				stress_cgroup_read(filename);
 			}
 			stress_cgroup_del_pid(realpathname, pid);

@@ -70,7 +70,7 @@ static int stress_uprobe_write(const char *path, const int flags, const char *st
 	if (UNLIKELY(fd < 0))
 		return -errno;
 	errno = 0;
-	if (write(fd, str, strlen(str)) < 0)
+	if (write(fd, str, shim_strlen(str)) < 0)
 		rc = -errno;
 
 	(void)close(fd);

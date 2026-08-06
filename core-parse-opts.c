@@ -413,7 +413,7 @@ uint64_t stress_get_uint64_scale(
 	const char *const msg)
 {
 	uint64_t val;
-	size_t len = strlen(str);
+	size_t len = shim_strlen(str);
 	int ch;
 	int i;
 
@@ -463,7 +463,7 @@ uint64_t stress_get_uint64_byte_scale(const char *const str)
 {
 	int ch;
 	int i;
-	const size_t len = strlen(str);
+	const size_t len = shim_strlen(str);
 
 	if (len < 1) {
 		(void)fprintf(stderr, "illegal empty specifier\n");
@@ -541,7 +541,7 @@ uint64_t stress_get_uint64_percent(
 	bool *percentage,
 	const char *const errmsg)
 {
-	const size_t len = strlen(str);
+	const size_t len = shim_strlen(str);
 
 	/* Convert to % over N instances */
 	if ((len > 1) && (str[len - 1] == '%')) {
@@ -593,7 +593,7 @@ uint64_t stress_get_uint64_percent(
  */
 static int32_t stress_get_int32_instance_percent_generic(const char *const str)
 {
-	const size_t len = strlen(str);
+	const size_t len = shim_strlen(str);
 
 	/* Convert to % over N instances */
 	if ((len > 1) && (str[len - 1] == '%')) {

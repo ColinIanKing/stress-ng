@@ -678,7 +678,7 @@ static int ovpn_new_iface(ovpn_ctx_t *ovpn)
 	req.n.nlmsg_type = RTM_NEWLINK;
 
 	if (ovpn_addattr(ovpn, &req.n, sizeof(req), IFLA_IFNAME, ovpn->ifname,
-			 strlen(ovpn->ifname) + 1) < 0)
+			 shim_strlen(ovpn->ifname) + 1) < 0)
 		goto err;
 
 	linkinfo = ovpn_nest_start(ovpn, &req.n, sizeof(req), IFLA_LINKINFO);
@@ -686,7 +686,7 @@ static int ovpn_new_iface(ovpn_ctx_t *ovpn)
 		goto err;
 
 	if (ovpn_addattr(ovpn, &req.n, sizeof(req), IFLA_INFO_KIND, OVPN_FAMILY_NAME,
-			 strlen(OVPN_FAMILY_NAME) + 1) < 0)
+			 shim_strlen(OVPN_FAMILY_NAME) + 1) < 0)
 		goto err;
 
 	if (ovpn->mode_set) {
@@ -2030,7 +2030,7 @@ static int ovpn_tun_veth_create(ovpn_ctx_t *o, const char *name, const char *pee
 	req.n.nlmsg_type = RTM_NEWLINK;
 	req.i.ifi_family = AF_UNSPEC;
 
-	if (ovpn_addattr(o, &req.n, sizeof(req), IFLA_IFNAME, name, strlen(name) + 1) < 0)
+	if (ovpn_addattr(o, &req.n, sizeof(req), IFLA_IFNAME, name, shim_strlen(name) + 1) < 0)
 		return -EMSGSIZE;
 	linkinfo = ovpn_nest_start(o, &req.n, sizeof(req), IFLA_LINKINFO);
 	if (!linkinfo)
@@ -2044,7 +2044,7 @@ static int ovpn_tun_veth_create(ovpn_ctx_t *o, const char *name, const char *pee
 	if (!peerinfo)
 		return -EMSGSIZE;
 	req.n.nlmsg_len += NLMSG_ALIGN(sizeof(struct ifinfomsg));	/* peer ifinfomsg */
-	if (ovpn_addattr(o, &req.n, sizeof(req), IFLA_IFNAME, peer, strlen(peer) + 1) < 0)
+	if (ovpn_addattr(o, &req.n, sizeof(req), IFLA_IFNAME, peer, shim_strlen(peer) + 1) < 0)
 		return -EMSGSIZE;
 	ovpn_nest_end(&req.n, peerinfo);
 	ovpn_nest_end(&req.n, infodata);
@@ -2067,7 +2067,7 @@ static int ovpn_tun_link_del(ovpn_ctx_t *o, const char *name)
 	req.n.nlmsg_flags = NLM_F_REQUEST;
 	req.n.nlmsg_type = RTM_DELLINK;
 	req.i.ifi_family = AF_UNSPEC;
-	if (ovpn_addattr(o, &req.n, sizeof(req), IFLA_IFNAME, name, strlen(name) + 1) < 0)
+	if (ovpn_addattr(o, &req.n, sizeof(req), IFLA_IFNAME, name, shim_strlen(name) + 1) < 0)
 		return -EMSGSIZE;
 	return ovpn_rt_send(o, &req.n, 0, 0, NULL, NULL);
 }

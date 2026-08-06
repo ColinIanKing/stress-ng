@@ -100,7 +100,7 @@ static int stress_set_adjustment(
 	const char *procname,
 	const char *str)
 {
-	const size_t len = strlen(str);
+	const size_t len = shim_strlen(str);
 	int i;
 	int saved_errno = 0;
 

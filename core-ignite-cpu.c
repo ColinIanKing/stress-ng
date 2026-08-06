@@ -138,7 +138,7 @@ static void stress_ignite_cpu_set(
 		(void)snprintf(path, sizeof(path),
 			"/sys/devices/system/cpu/cpu%" PRId32
 			"/cpufreq/scaling_governor", cpu);
-		if (stress_fs_file_write(path, governor, strlen(governor)) < 0)
+		if (stress_fs_file_write(path, governor, shim_strlen(governor)) < 0)
 			*setting_flag &= ~SETTING_GOVERNOR;
 	}
 }
@@ -291,7 +291,7 @@ void stress_ignite_cpu_start(void)
 			continue;
 
 		settings[i].default_setting_len =
-			strlen(settings[i].default_setting);
+			shim_strlen(settings[i].default_setting);
 		/* If we can't update the setting, skip it */
 		ret = stress_fs_file_write(settings[i].path,
 			settings[i].default_setting,

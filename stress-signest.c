@@ -377,7 +377,7 @@ finish:
 			const char *name = stress_signal_name(signals[i].signum);
 
 			n++;
-			sz += name ? (strlen(name) + 1) : 32;
+			sz += name ? (shim_strlen(name) + 1) : 32;
 		}
 	}
 
