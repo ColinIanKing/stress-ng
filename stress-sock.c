@@ -190,7 +190,7 @@ static char **stress_get_congestion_controls(const int sock_domain, size_t *n_ct
 		return NULL;
 
 	for (n = 0, ptr = buf; (ctrl = shim_strtok_r(ptr, " ", &saveptr)) != NULL; ptr = NULL) {
-		char *newline = strchr(ctrl, '\n');
+		char *newline = shim_strchr(ctrl, '\n');
 
 		if (newline)
 			*newline = '\0';

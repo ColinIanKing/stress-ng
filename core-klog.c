@@ -164,11 +164,11 @@ void stress_klog_start(void)
 			const char *msg;
 			bool dump_procs = false;
 
-			ptr = strchr(buf, '\n');
+			ptr = shim_strchr(buf, '\n');
 			if (ptr)
 				*ptr = '\0';
 
-			ptr = strchr(buf, ';');
+			ptr = shim_strchr(buf, ';');
 			if (!ptr)
 				continue;
 			ptr++;

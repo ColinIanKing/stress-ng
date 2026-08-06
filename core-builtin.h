@@ -61,6 +61,12 @@
 #define	shim_strdup(str)		strdup((str))
 #endif
 
+#if defined(HAVE_BUILTIN_STRCHR)
+#define shim_strchr(str, c)		__builtin_strchr((str), (c))
+#else
+#define shim_strchr(str, c)		strchr((str), (c))
+#endif
+
 #if defined(HAVE_BUILTIN_STRCMP)
 #define shim_strcmp(s1, s2)		__builtin_strcmp((s1), (s2))
 #else

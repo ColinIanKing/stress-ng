@@ -60,11 +60,11 @@ static char *stress_led_orig_trigger(const char *str)
 	char *orig;
 	size_t len;
 
-	start = strchr(str, '[');
+	start = shim_strchr(str, '[');
 	if (!start)
 		return NULL;
 	start++;
-	end = strchr(start, ']');
+	end = shim_strchr(start, ']');
 	if (!end)
 		return NULL;
 	len = 1 + (end - start);
@@ -239,7 +239,7 @@ static void stress_led_exercise(stress_args_t *args, const stress_led_info_t *le
 			break;
 		if (token[0] == '[')
 			token++;
-		tmp = strchr(token, ']');
+		tmp = shim_strchr(token, ']');
 		if (tmp)
 			*tmp = '\0';
 		stress_led_trigger(led_info->path, token);

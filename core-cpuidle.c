@@ -149,7 +149,7 @@ void stress_cpuidle_init(void)
 			(void)snprintf(path, sizeof(path), "%s/%s/name", cpuidle_path, cpuidle_d->d_name);
 			if (stress_fs_file_read(path, data, sizeof(data)) < 1)
 				continue;
-			ptr = strchr(data, '\n');
+			ptr = shim_strchr(data, '\n');
 			if (ptr)
 				*ptr = '\0';
 
@@ -244,7 +244,7 @@ static void stress_cpuidle_read_cstates(
 			(void)snprintf(path, sizeof(path), "%s/%s/name", cpuidle_path, cpuidle_d->d_name);
 			if (stress_fs_file_read(path, cstate, sizeof(cstate)) < 1)
 				continue;
-			ptr = strchr(cstate, '\n');
+			ptr = shim_strchr(cstate, '\n');
 			if (ptr)
 				*ptr = '\0';
 

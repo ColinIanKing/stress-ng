@@ -159,7 +159,7 @@ static void MLOCKED_TEXT stress_af_alg_alarm_handler(int signum)
 static stress_crypto_type_t name_to_type(const char *buffer, const size_t buffer_len)
 {
 	const char *end = buffer + shim_strnlen(buffer, buffer_len);
-	const char *ptr = strchr(buffer, ':');
+	const char *ptr = shim_strchr(buffer, ':');
 	size_t i;
 
 	if (UNLIKELY(!ptr))
@@ -1377,8 +1377,8 @@ deinit:
  */
 static char *dup_field(char *buffer)
 {
-	const char *ptr = strchr(buffer, ':');
-	char *eol = strchr(buffer, '\n');
+	const char *ptr = shim_strchr(buffer, ':');
+	char *eol = shim_strchr(buffer, '\n');
 
 	if (!ptr)
 		return NULL;
@@ -1394,7 +1394,7 @@ static char *dup_field(char *buffer)
  */
 static int CONST int_field(const char *buffer)
 {
-	const char *ptr = strchr(buffer, ':');
+	const char *ptr = shim_strchr(buffer, ':');
 
 	if (!ptr)
 		return -1;
@@ -1408,7 +1408,7 @@ static int CONST int_field(const char *buffer)
  */
 static bool CONST bool_field(const char *buffer)
 {
-	const char *ptr = strchr(buffer, ':');
+	const char *ptr = shim_strchr(buffer, ':');
 
 	if (!ptr)
 		return false;

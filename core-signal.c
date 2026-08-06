@@ -262,7 +262,7 @@ static void stress_dump_map_info(uint8_t *fault_addr)
 				char *ptr2;
 
 				/* truncate to first \n found */
-				ptr1 = strchr(buf, (int)'\n');
+				ptr1 = shim_strchr(buf, (int)'\n');
 				if (ptr1)
 					*ptr1 = '\0';
 

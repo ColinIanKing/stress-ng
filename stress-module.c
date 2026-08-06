@@ -230,7 +230,7 @@ static int get_modpath_name(
 			goto out_close;
 		case PARSE_DEPMOD_MODULE:
 			/* truncates the "kernel/" part */
-			module_pathp = strchr(module, '/');
+			module_pathp = shim_strchr(module, '/');
 			if (module_pathp == NULL) {
 				free(line);
 				line = NULL;
@@ -242,7 +242,7 @@ static int get_modpath_name(
 			modulenamep = basename(module_path_truncated);
 			(void)shim_strscpy(module_path_basename, modulenamep, sizeof(module_path_basename));
 
-			start_postfix = strchr(module_path_basename, '.');
+			start_postfix = shim_strchr(module_path_basename, '.');
 			if (!start_postfix) {
 				free(line);
 				line = NULL;

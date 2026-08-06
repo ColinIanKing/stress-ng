@@ -67,7 +67,7 @@ static inline void stress_cgroup_remove_nl(char *str)
 {
 	char *ptr;
 
-	ptr = strchr(str, '\n');
+	ptr = shim_strchr(str, '\n');
 	if (ptr)
 		*ptr = '\0';
 }

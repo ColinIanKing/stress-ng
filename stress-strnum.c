@@ -487,7 +487,7 @@ static inline ALWAYS_INLINE OPTIMIZE3 size_t stress_strnum_trunc_posn(const char
 {
 	const char *ptr;
 
-	ptr = strchr(str, '.');
+	ptr = shim_strchr(str, '.');
 	if (LIKELY(ptr != NULL)) {
 		return (ptr - str) + dec_pl + 1;
 	}

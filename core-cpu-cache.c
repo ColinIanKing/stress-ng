@@ -71,7 +71,7 @@ static int stress_get_string_from_file(
 	if (UNLIKELY(ret < 0))
 		return -1;
 
-	ptr = strchr(tmp, '\n');
+	ptr = shim_strchr(tmp, '\n');
 	if (ptr)
 		*ptr = '\0';
 
@@ -261,7 +261,7 @@ static int stress_cpu_cache_get_alpha(
 			} else {
 				continue;
 			}
-			ptr = strchr(buffer, ':');
+			ptr = shim_strchr(buffer, ':');
 			if (!ptr)
 				continue;
 			ptr++;
@@ -687,7 +687,7 @@ static int stress_cpu_cache_get_sh4(stress_cpu_cache_cpu_t *cpu)
 
 	(void)shim_memset(buffer, 0, sizeof(buffer));
 	while ((cpu->cache_count < 2) && fgets(buffer, sizeof(buffer), fp) != NULL) {
-		const char *ptr = strchr(buffer, ':');
+		const char *ptr = shim_strchr(buffer, ':');
 
 		if (ptr &&
 		    (shim_strncmp("cache size", buffer + 1, 10) == 0) &&
