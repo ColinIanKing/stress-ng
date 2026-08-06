@@ -120,8 +120,8 @@ typedef struct avl_node {
 #define BTREE_MAX	(BTREE_M - 1)
 
 typedef struct btree_node {
-	uint32_t value[BTREE_MAX + 1];
 	struct btree_node *node[BTREE_MAX + 1];
+	uint32_t value[BTREE_MAX + 1];
 	int count;
 } btree_t;
 
