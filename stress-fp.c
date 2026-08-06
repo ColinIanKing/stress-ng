@@ -22,6 +22,7 @@
 #include "core-builtin.h"
 #include "core-madvise.h"
 #include "core-mmap.h"
+#include "core-pragma.h"
 #include "core-put.h"
 #include "core-signal.h"
 #include "core-target-clones.h"
@@ -183,12 +184,13 @@ static double TARGET_CLONES OPTIMIZE3 name(				\
 	double t1;							\
 	double t2;							\
 									\
+PRAGMA_UNROLL								\
 	for (i = 0; i < FP_ELEMENTS; i++) {				\
 		fp_data[i].field.r[idx] = fp_data[i].field.r_init;	\
 	}								\
 									\
 	t1 = stress_time_now();						\
-	for (i = 0; i < loops ; i++) {					\
+	for (i = 0; i < loops; i++) {					\
 		fp_data[0].field.r[idx] += fp_data[0].field.add;	\
 		fp_data[0].field.r[idx] += fp_data[0].field.add_rev;	\
 		fp_data[1].field.r[idx] += fp_data[1].field.add;	\
@@ -224,12 +226,13 @@ static double TARGET_CLONES OPTIMIZE3 name(				\
 	double t1;							\
 	double t2;							\
 									\
+PRAGMA_UNROLL								\
 	for (i = 0; i < FP_ELEMENTS; i++) {				\
 		fp_data[i].field.r[idx] = fp_data[i].field.r_init;	\
 	}								\
 									\
 	t1 = stress_time_now();						\
-	for (i = 0; i < loops ; i++) {					\
+	for (i = 0; i < loops; i++) {					\
 		fp_data[0].field.r[idx] -= fp_data[0].field.add;	\
 		fp_data[0].field.r[idx] -= fp_data[0].field.add_rev;	\
 		fp_data[1].field.r[idx] -= fp_data[1].field.add;	\
@@ -265,12 +268,13 @@ static double TARGET_CLONES OPTIMIZE3 name(				\
 	double t1;							\
 	double t2;							\
 									\
+PRAGMA_UNROLL								\
 	for (i = 0; i < FP_ELEMENTS; i++) {				\
 		fp_data[i].field.r[idx] = fp_data[i].field.r_init;	\
 	}								\
 									\
 	t1 = stress_time_now();						\
-	for (i = 0; i < loops ; i++) {					\
+	for (i = 0; i < loops; i++) {					\
 		fp_data[0].field.r[idx] *= fp_data[0].field.mul;	\
 		fp_data[0].field.r[idx] *= fp_data[0].field.mul_rev;	\
 		fp_data[1].field.r[idx] *= fp_data[1].field.mul;	\
@@ -306,6 +310,7 @@ static double TARGET_CLONES OPTIMIZE3 name(				\
 	double t1;							\
 	double t2;							\
 									\
+PRAGMA_UNROLL								\
 	for (i = 0; i < FP_ELEMENTS; i++) {				\
 		fp_data[i].field.r[idx] = fp_data[i].field.r_init;	\
 	}								\
@@ -692,6 +697,7 @@ static int stress_fp(stress_args_t *args)
 	stress_sync_start_wait(args);
 	stress_proc_state_set(args->name, STRESS_STATE_RUN);
 
+PRAGMA_UNROLL
 	for (i = 0; i < SIZEOF_ARRAY(stress_fp_metrics); i++) {
 		stress_fp_metrics[i].duration = 0.0;
 		stress_fp_metrics[i].count = 0.0;
