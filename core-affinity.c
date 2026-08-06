@@ -104,7 +104,7 @@ static void stress_topology_set_get(
 	int which;
 
 	if (sscanf(arg + shim_strlen(topology) , "%d", &which) != 1) {
-		(void)fprintf(stderr, "%s: invalid argument '%s' missing integer\n", topology, arg);
+		(void)fprintf(stderr, "%s: invalid argument '%s', missing integer\n", topology, arg);
 		_exit(EXIT_FAILURE);
 	}
 
