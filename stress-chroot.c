@@ -437,7 +437,7 @@ static int stress_chroot(stress_args_t *args)
 {
 	size_t i = 0;
 	int fd;
-	int ret = EXIT_FAILURE;
+	int ret = EXIT_SUCCESS;
 	double rate;
 	chroot_shared_data_t *data;
 
@@ -462,11 +462,13 @@ static int stress_chroot(stress_args_t *args)
 	if (mkdir(temppath, S_IRWXU) < 0) {
 		pr_fail("%s: mkdir '%s' failed, errno=%d (%s)\n",
 			args->name, temppath, errno, strerror(errno));
+		ret = EXIT_FAILURE;
 		goto tidy_ret;
 	}
 	if ((fd = creat(filename, S_IRUSR | S_IWUSR)) < 0) {
 		pr_fail("%s: creat '%s' failed, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
+		ret = EXIT_FAILURE;
 		goto tidy_dir;
 	}
 	(void)close(fd);
@@ -481,10 +483,8 @@ static int stress_chroot(stress_args_t *args)
 
 		pid = stress_retry_fork(args, 0);
 		if (pid < 0) {
-			if (UNLIKELY(!stress_continue(args))) {
-				ret = EXIT_SUCCESS;
+			if (UNLIKELY(!stress_continue(args)))
 				break;
-			}
 			pr_fail("%s: fork failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			ret = EXIT_FAILURE;
@@ -526,8 +526,6 @@ static int stress_chroot(stress_args_t *args)
 		stress_chroot_report_escapes(args, data);
 	rate = (data->metrics.duration > 0.0) ? data->metrics.count / data->metrics.duration : 0.0;
 	stress_metrics_set(args, "chroot calls per sec", rate, STRESS_METRIC_HARMONIC_MEAN);
-
-	ret = EXIT_SUCCESS;
 
 	if (data->cwd_fd != -1)
 		(void)close(data->cwd_fd);
