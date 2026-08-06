@@ -208,7 +208,7 @@ static int stress_inode_flags_stressor(
 #endif
 
 	/* Find basename */
-	file_name = strrchr(data->file_name, '/');
+	file_name = shim_strrchr(data->file_name, '/');
 	if (file_name)
 		file_name++;
 

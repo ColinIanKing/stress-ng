@@ -85,6 +85,12 @@
 #define shim_strncmp(s1, s2, n)		strncmp((s1), (s2), (n))
 #endif
 
+#if defined(HAVE_BUILTIN_STRRCHR)
+#define shim_strrchr(str, c)		__builtin_strrchr((str), (c))
+#else
+#define shim_strrchr(str, c)		strrchr((str), (c))
+#endif
+
 #if defined(HAVE_BUILTIN_STRSTR)
 #define shim_strstr(haystack, needle)	__builtin_strstr((haystack), (needle))
 #else

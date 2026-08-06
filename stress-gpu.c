@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-out-of-memory.h"
 #include "core-pthread.h"
 #include "core-signal.h"
@@ -108,7 +109,7 @@ static void stress_get_gpu_freq_mhz(double *gpu_freq)
 
 static void stress_gpu_trim_newline(char *str)
 {
-	char *ptr = strrchr(str, '\n');
+	char *ptr = shim_strrchr(str, '\n');
 
 	if (ptr)
 		*ptr = '\0';

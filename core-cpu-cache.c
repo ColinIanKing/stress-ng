@@ -327,7 +327,7 @@ static int stress_cpu_cache_get_riscv(
 	int cpu_num;
 
 	/* Parse CPU number */
-	base = strrchr(cpu_path, '/');
+	base = shim_strrchr(cpu_path, '/');
 	if (!base)
 		return 0;
 	base++;
