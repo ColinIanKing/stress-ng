@@ -834,8 +834,8 @@ PRAGMA_UNROLL_N(4)
 static inline void ALWAYS_INLINE btree_insert_node(
 	const uint32_t value,
 	const int pos,
-	btree_t * node,
-        btree_t * child)
+	btree_t * RESTRICT node,
+	btree_t * RESTRICT child)
 {
 	register int j = node->count;
 
@@ -851,10 +851,10 @@ static inline void ALWAYS_INLINE btree_insert_node(
 
 static btree_t * OPTIMIZE3 btree_split_node(
 	const uint32_t value,
-	uint32_t *new_value,
+	uint32_t * RESTRICT new_value,
 	const int pos,
-	btree_t *node,
-	btree_t *child,
+	btree_t * RESTRICT node,
+	btree_t * RESTRICT child,
 	bool *alloc_fail)
 {
 	btree_t *new_node;
@@ -890,10 +890,10 @@ static btree_t * OPTIMIZE3 btree_split_node(
 
 static btree_t * OPTIMIZE3 btree_insert_value(
 	const uint32_t value,
-	uint32_t *new_value,
-	btree_t *node,
-	bool *make_new_node,
-	bool *alloc_fail)
+	uint32_t * RESTRICT new_value,
+	btree_t * RESTRICT node,
+	bool * RESTRICT make_new_node,
+	bool * RESTRICT alloc_fail)
 {
 	register int pos;
 	btree_t *child;
