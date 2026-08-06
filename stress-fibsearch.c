@@ -18,6 +18,7 @@
  */
 #include "stress-ng.h"
 #include "core-mmap.h"
+#include "core-pragma.h"
 #include "core-shim.h"
 #include "core-sort.h"
 
@@ -46,6 +47,7 @@ static void OPTIMIZE3 * fibsearch(
 	register void *ptr;
 	register ssize_t offset = -1;
 
+PRAGMA_UNROLL
 	while (fib0 < nmemb) {
 		fib2 = fib1;
 		fib1 = fib0;
