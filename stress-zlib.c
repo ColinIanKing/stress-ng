@@ -326,27 +326,67 @@ static void TARGET_CLONES stress_rand_data_01(
 	}
 }
 
-static inline uint32_t mul10(const uint32_t n)
+/*
+ *  mul10()
+ *  	fast unsigned 16 bit multiply by 10
+ */
+static inline ALWAYS_INLINE uint16_t mul10(register const uint16_t n)
 {
 	return (n << 3) + (n << 1);
 }
 
-static inline uint32_t div10(const uint32_t n)
+/*
+ *  div10()
+ *  	fast unsigned 16 bit division by 10
+ */
+static inline ALWAYS_INLINE uint16_t div10(register const uint16_t n)
 {
-#if 0
-	uint64_t n64 = (uint64_t)n * 28147497671066;
-
-	return (uint32_t)(n64 >> 48);
+#if 1
+	/* return (uint16_t)(((uint32_t)n * (0x1999b800 >> 13)) >> 19); */
+	return (uint16_t)(((uint32_t)n * (0xcccd)) >> 19);
 #else
 	return n / 10;
 #endif
 }
 
 /*
+ *  stress_rand_data_digits_4()
+ *	generate 4 ASCII digits from a uint16_t value
+ */
+static inline uint8_t ALWAYS_INLINE *stress_rand_data_digits_4(
+	register uint16_t v,
+	register uint8_t *ptr)
+{
+	register uint16_t r;
+	register uint16_t v10th;
+
+	v10th = div10(v);
+	r = v - mul10(v10th);
+	*(ptr++) = (uint8_t)(r + '0');
+
+	v = v10th;
+	v10th = div10(v);
+	r = v - mul10(v10th);
+	*(ptr++) = (uint8_t)(r + '0');
+
+	v = v10th;
+	v10th = div10(v);
+	r = v - mul10(v10th);
+	*(ptr++) = (uint8_t)(r + '0');
+
+	v = v10th;
+	v10th = div10(v);
+	r = v - mul10(v10th);
+	*(ptr++) = (uint8_t)(r + '0');
+
+	return ptr;
+}
+
+/*
  *  stress_rand_data_digits()
  *	fill buffer with random ASCII '0' .. '9'
  */
-static void stress_rand_data_digits(
+static void OPTIMIZE3 stress_rand_data_digits(
 	stress_args_t *args,
 	uint64_t *RESTRICT data,
 	uint64_t *RESTRICT data_end)
@@ -357,50 +397,10 @@ static void stress_rand_data_digits(
 	(void)args;
 
 	while (ptr < end) {
-		register uint32_t v10th;
-		register uint32_t r;
-		register uint32_t v;
-		register uint32_t rnd = stress_mwc32();
+		register const uint32_t rnd = stress_mwc32();
 
-		v = rnd & 0xffff;
-		v10th = div10(v);
-		r = v - mul10(v10th);
-		*(ptr++) = (uint8_t)(r + '0');
-
-		v = v10th;
-		v10th = div10(v);
-		r = v - mul10(v10th);
-		*(ptr++) = (uint8_t)(r + '0');
-
-		v = v10th;
-		v10th = div10(v);
-		r = v - mul10(v10th);
-		*(ptr++) = (uint8_t)(r + '0');
-
-		v = v10th;
-		v10th = div10(v);
-		r = v - mul10(v10th);
-		*(ptr++) = (uint8_t)(r + '0');
-
-		v = rnd >> 16;
-		v10th = div10(v);
-		r = v - mul10(v10th);
-		*(ptr++) = (uint8_t)(r + '0');
-
-		v = v10th;
-		v10th = div10(v);
-		r = v - mul10(v10th);
-		*(ptr++) = (uint8_t)(r + '0');
-
-		v = v10th;
-		v10th = div10(v);
-		r = v - mul10(v10th);
-		*(ptr++) = (uint8_t)(r + '0');
-
-		v = v10th;
-		v10th = div10(v);
-		r = v - mul10(v10th);
-		*(ptr++) = (uint8_t)(r + '0');
+		ptr = stress_rand_data_digits_4((uint16_t)(rnd & 0xffff), ptr);
+		ptr = stress_rand_data_digits_4((uint16_t)(rnd >> 16), ptr);
 	}
 }
 
