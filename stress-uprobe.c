@@ -112,13 +112,12 @@ static void *stress_uprobe_libc_start(const pid_t pid, char *libc_path)
 		/*
 		 *  name /libc-*.so or /libc.so found?
 		 */
-		if ((n == 8) && !shim_strncmp(perm, "r-xp", 4) &&
-		    shim_strstr(libc_path, ".so")) {
-			if (shim_strstr(libc_path, "/libc-") ||
-			    shim_strstr(libc_path, "/libc.so")) {
-				addr = (void *)(intptr_t)(start - offset);
-				break;
-			}
+		if (((n == 8) && !shim_strncmp(perm, "r-xp", 4) &&
+		     shim_strstr(libc_path, ".so")) &&
+		    (shim_strstr(libc_path, "/libc-") ||
+		     shim_strstr(libc_path, "/libc.so"))) {
+			addr = (void *)(intptr_t)(start - offset);
+			break;
 		}
 	}
 	(void)fclose(fp);
