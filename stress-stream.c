@@ -30,6 +30,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-cpu.h"
 #include "core-cpu-cache.h"
 #include "core-mmap.h"
@@ -1151,7 +1152,7 @@ static int OPTIMIZE3 TARGET_CLONES stress_stream_verify(
 		stress_stream_checksum_to_hexstr(new_str, sizeof(new_str), new_checksum);
 		stress_stream_checksum_to_hexstr(old_str, sizeof(old_str), *old_checksum);
 
-		if (strcmp(old_str, new_str)) {
+		if (shim_strcmp(old_str, new_str)) {
 			pr_fail("%s: checksum failure, got 0x%s, expecting 0x%s\n",
 				args->name, new_str, old_str);
 			return EXIT_FAILURE;

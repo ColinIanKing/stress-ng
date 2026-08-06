@@ -358,7 +358,7 @@ static void stress_smart_data_diff(stress_smart_dev_t *dev)
 				const int32_t delta = (int32_t)(rv2->data - rv1->data);
 
 				if (delta) {
-					const char *dev_name = (strncmp(dev->dev_name, "/dev/", 5) == 0) ?
+					const char *dev_name = (shim_strncmp(dev->dev_name, "/dev/", 5) == 0) ?
 								dev->dev_name + 5 : dev->dev_name;
 					pr_inf("%-10.10s %2.2x %-30.30s %11" PRIu32 " %11" PRId32 "\n",
 						dev_name, attr_id,
@@ -398,7 +398,7 @@ static int CONST stress_smart_dev_sort(const struct dirent **d1, const struct di
 {
 	int cmp;
 
-	cmp = strcmp((*d1)->d_name, (*d2)->d_name);
+	cmp = shim_strcmp((*d1)->d_name, (*d2)->d_name);
 	if (cmp < 0)
 		return -1;
 	if (cmp > 0)

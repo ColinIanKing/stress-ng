@@ -376,7 +376,7 @@ static int stress_waitcpu(stress_args_t *args)
 			       stress_waitcpu_method[i].duration;
 
 #if defined(STRESS_ARCH_X86)
-		if (!strcmp("nop", stress_waitcpu_method[i].name))
+		if (!shim_strcmp("nop", stress_waitcpu_method[i].name))
 			nop_rate = rate;
 #endif
 
@@ -411,7 +411,7 @@ static int stress_waitcpu(stress_args_t *args)
 
 			if (!virtualized) {
 				for (i = 0; i < SIZEOF_ARRAY(stress_waitcpu_method); i++) {
-					if (!strcmp("nop", stress_waitcpu_method[i].name))
+					if (!shim_strcmp("nop", stress_waitcpu_method[i].name))
 						continue;
 					/*
 					 *   compare with ~50% slop

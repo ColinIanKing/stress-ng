@@ -512,7 +512,7 @@ static int stress_switch(stress_args_t *args)
 	size_t i;
 
 	for (i = 0; i < SIZEOF_ARRAY(stress_switch_methods); i++) {
-		if (strcmp(stress_switch_methods[i].name, "pipe") == 0) {
+		if (shim_strcmp(stress_switch_methods[i].name, "pipe") == 0) {
 			switch_method = i;
 			break;
 		}

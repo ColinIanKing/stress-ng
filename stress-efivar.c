@@ -79,7 +79,7 @@ static inline bool CONST efi_var_ignore(const char *d_name)
 	size_t i;
 
 	for (i = 0; i < SIZEOF_ARRAY(ignore); i++)
-		if (strcmp(d_name, ignore[i]) == 0)
+		if (shim_strcmp(d_name, ignore[i]) == 0)
 			return true;
 
 	return false;

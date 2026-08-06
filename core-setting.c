@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-setting.h"
 #include "core-sort.h"
 
@@ -158,7 +159,7 @@ static int stress_setting_cmp(const void *p1, const void *p2)
 	const stress_setting_t *s1 = *(stress_setting_t * const *)p1;
 	const stress_setting_t *s2 = *(stress_setting_t * const *)p2;
 
-	return strcmp(s1->name, s2->name);
+	return shim_strcmp(s1->name, s2->name);
 }
 
 void stress_setting_show(void)
@@ -200,7 +201,7 @@ void stress_setting_dbg(const char *name)
 	size_t n;
 
 	for (n = 0, setting = setting_head; setting; setting = setting->next) {
-		if (strcmp(setting->stressor_name, name) == 0)
+		if (shim_strcmp(setting->stressor_name, name) == 0)
 			n++;
 	}
 
@@ -213,7 +214,7 @@ void stress_setting_dbg(const char *name)
 
 	pr_dbg("%s: %zu setting%s:\n", name, n, n == 1 ? "" : "s");
 	for (i = 0, setting = setting_head; (i < n) && setting; setting = setting->next) {
-		if (strcmp(setting->stressor_name, name) == 0)
+		if (shim_strcmp(setting->stressor_name, name) == 0)
 			settings[i++] = setting;
 	}
 	shim_qsort(settings, n, sizeof(*settings), stress_setting_cmp);
@@ -246,8 +247,8 @@ static int stress_setting_generic_set(
 	}
 
 	for (setting = setting_head; setting; setting = setting->next) {
-		if ((strcmp(setting->stressor_name, stressor_name) == 0) &&
-		    (strcmp(setting->name, name) == 0)) {
+		if ((shim_strcmp(setting->stressor_name, stressor_name) == 0) &&
+		    (shim_strcmp(setting->name, name) == 0)) {
 			new_setting = false;
 			break;
 		}
@@ -263,7 +264,7 @@ static int stress_setting_generic_set(
 	setting->name = name;
 	setting->item = g_item_current;
 	setting->type_id = type_id;
-	setting->global = !strcmp(stressor_name, "global");
+	setting->global = !shim_strcmp(stressor_name, "global");
 
 	switch (type_id) {
 	case TYPE_ID_UINT8:
@@ -399,7 +400,7 @@ bool stress_setting_get(const char *name, void *value)
 		if (found && ((setting->item != g_item_current) && (!setting->global)))
 			break;
 
-		if (!strcmp(setting->name, name)) {
+		if (!shim_strcmp(setting->name, name)) {
 			switch (setting->type_id) {
 			case TYPE_ID_UINT8:
 				set = true;

@@ -131,11 +131,11 @@ static int stress_tmpfs_open(stress_args_t *args, off_t *len)
 		if (UNLIKELY(!mnts[i]))
 			continue;
 		/* Some paths should be avoided... */
-		if (!strncmp(mnts[i], "/dev", 4))
+		if (!shim_strncmp(mnts[i], "/dev", 4))
 			continue;
-		if (!strncmp(mnts[i], "/sys", 4))
+		if (!shim_strncmp(mnts[i], "/sys", 4))
 			continue;
-		if (!strncmp(mnts[i], "/run/lock", 9))
+		if (!shim_strncmp(mnts[i], "/run/lock", 9))
 			continue;
 		(void)shim_memset(&buf, 0, sizeof(buf));
 		if (statfs(mnts[i], &buf) < 0)

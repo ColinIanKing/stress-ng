@@ -17,6 +17,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-mmap.h"
 
 #if defined(HAVE_SYS_ACL_H)
@@ -123,7 +124,7 @@ static inline int stress_acl_cmp(const acl_t acl1, const acl_t acl2)
 		return 0;
 	}
 	if (len1 == len2)
-		ret = strcmp(acl_txt1, acl_txt2);
+		ret = shim_strcmp(acl_txt1, acl_txt2);
 
 	acl_free((void *)acl_txt2);
 	acl_free((void *)acl_txt1);

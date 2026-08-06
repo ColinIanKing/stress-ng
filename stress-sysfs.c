@@ -399,7 +399,7 @@ err:
 			size_t j;
 
 			for (j = 0; j < SIZEOF_ARRAY(stress_sysfs_wr_funcs); j++) {
-				if (strcmp(stress_sysfs_wr_funcs[j].path, path) == 0) {
+				if (shim_strcmp(stress_sysfs_wr_funcs[j].path, path) == 0) {
 					stress_sysfs_wr_funcs[j].sysfs_func(path);
 				}
 			}
@@ -488,7 +488,7 @@ static bool stress_sys_skip(const char *path)
 		const char *skip_path = sys_skip_paths[i];
 		const size_t len = strlen(skip_path);
 
-		if (!strncmp(path, skip_path, len))
+		if (!shim_strncmp(path, skip_path, len))
 			return true;
 	}
 	/*
@@ -538,7 +538,7 @@ static void stress_sys_dir(
 		return;
 
 	/* Don't want to reset any GCOV metrics */
-	if (UNLIKELY(!strcmp(path, "/sys/kernel/debug/gcov")))
+	if (UNLIKELY(!shim_strcmp(path, "/sys/kernel/debug/gcov")))
 		return;
 
 	n = scandir(path, &dlist, NULL, mixup_sort);

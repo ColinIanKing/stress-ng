@@ -562,7 +562,7 @@ static uint32_t PURE stress_class_id_get(const char *const str)
 	size_t i;
 
 	for (i = 0; i < SIZEOF_ARRAY(stress_classes); i++) {
-		if (!strcmp(stress_classes[i].name, str))
+		if (!shim_strcmp(stress_classes[i].name, str))
 			return stress_classes[i].classifier;
 	}
 	return 0;
@@ -1489,7 +1489,7 @@ static ssize_t stress_metrics_find(
 	/* search for existing match.. */
 	for (i = 0; i < mi->num_metrics_items; i++) {
 		if ((mi->metrics_desc[i].mean_type == mean_type) &&
-		    (strcmp(mi->metrics_desc[i].description, description) == 0)) {
+		    (shim_strcmp(mi->metrics_desc[i].description, description) == 0)) {
 			(void)stress_lock_release(g_shared->metrics.lock);
 			return (ssize_t)i;
 		}
@@ -3686,7 +3686,7 @@ static void OPTIMIZE3 stress_feature_tree_insert(
 	stress_feature_tree_t *node)
 {
 	while (*head) {
-		const int cmp = strcmp(node->name, (*head)->name);
+		const int cmp = shim_strcmp(node->name, (*head)->name);
 
 		head = (cmp < 0) ? &(*head)->left : &(*head)->right;
 	}
@@ -3702,7 +3702,7 @@ static stress_feature_tree_t * OPTIMIZE3 stress_feature_tree_find(
 	const char *name)
 {
 	while (head) {
-		const int cmp = strcmp(name, head->name);
+		const int cmp = shim_strcmp(name, head->name);
 
 		if (UNLIKELY(cmp == 0))
 			return head;
@@ -3877,7 +3877,7 @@ static int stress_exercises_get(
 	if (!stress_setting_get(opt, &str))
 		return 0;
 
-	if (!strcmp(str, "?")) {
+	if (!shim_strcmp(str, "?")) {
 		stess_exercises_detail_show(type);
 		*ret = EXIT_SUCCESS;
 		return -1;
@@ -3903,7 +3903,7 @@ static int stress_exercises_get(
 
 			for (j = 0; exercises[j].name; j++) {
 				if ((exercises[j].type == type) &&
-				    !strcmp(exercises[j].name, token)) {
+				    !shim_strcmp(exercises[j].name, token)) {
 					stress_list_item_t *item;
 					bool enabled = false;
 
@@ -4545,7 +4545,7 @@ int main(int argc, char **argv, char **envp)
 	}
 
 	/* --exec stressor uses this to exec itself and then exit early */
-	if ((argc == 2) && !strcmp(argv[1], "--exec-exit")) {
+	if ((argc == 2) && !shim_strcmp(argv[1], "--exec-exit")) {
 		ret = EXIT_SUCCESS;
 		goto exit_ret;
 	}

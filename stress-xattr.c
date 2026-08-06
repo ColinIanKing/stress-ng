@@ -379,7 +379,7 @@ static int stress_xattr(stress_args_t *args)
 					args->name, errno, strerror(errno), fs_type);
 				goto out_close;
 			}
-			if (UNLIKELY((STRESS_GETBIT(set_xattr_ok, j) != 0) && strncmp(value, tmp, (size_t)sret))) {
+			if (UNLIKELY((STRESS_GETBIT(set_xattr_ok, j) != 0) && shim_strncmp(value, tmp, (size_t)sret))) {
 				pr_fail("%s: fgetxattr values different %.*s vs %.*s\n",
 					args->name, ret, value, (int)sret, tmp);
 				goto out_close;
@@ -395,7 +395,7 @@ static int stress_xattr(stress_args_t *args)
 					args->name, errno, strerror(errno));
 				goto out_close;
 			}
-			if (UNLIKELY((STRESS_GETBIT(set_xattr_ok, j) != 0) && strncmp(value, tmp, (size_t)sret))) {
+			if (UNLIKELY((STRESS_GETBIT(set_xattr_ok, j) != 0) && shim_strncmp(value, tmp, (size_t)sret))) {
 				pr_fail("%s: getxattr values different %.*s vs %.*s\n",
 					args->name, ret, value, (int)sret, tmp);
 				goto out_close;
@@ -408,7 +408,7 @@ static int stress_xattr(stress_args_t *args)
 					args->name, errno, strerror(errno), fs_type);
 				goto out_close;
 			}
-			if (UNLIKELY((STRESS_GETBIT(set_xattr_ok, j) != 0) && strncmp(value, tmp, (size_t)sret))) {
+			if (UNLIKELY((STRESS_GETBIT(set_xattr_ok, j) != 0) && shim_strncmp(value, tmp, (size_t)sret))) {
 				pr_fail("%s: lgetxattr values different %.*s vs %.*s\n",
 					args->name, ret, value, (int)sret, tmp);
 				goto out_close;

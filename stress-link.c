@@ -233,7 +233,7 @@ static int stress_link_generic(
 							args->name, (size_t)rret, oldpathlen);
 						rc = EXIT_FAILURE;
 					} else {
-						if (strncmp(oldpath, buf, (size_t)rret)) {
+						if (shim_strncmp(oldpath, buf, (size_t)rret)) {
 							pr_fail("%s: readlink path error, got %s, expected %s\n",
 								args->name, buf, oldpath);
 							rc = EXIT_FAILURE;

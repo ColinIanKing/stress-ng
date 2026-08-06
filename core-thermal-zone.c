@@ -42,7 +42,7 @@ static uint32_t stress_tz_type_instance(
 		return 0;
 
 	for (tz_info = tz_info_list; tz_info; tz_info = tz_info->next) {
-		if (!strcmp(type, tz_info->type))
+		if (!shim_strcmp(type, tz_info->type))
 			type_instance++;
 	}
 	return type_instance;
@@ -72,7 +72,7 @@ static void stress_tz_insert(stress_tz_info_t **tz_info_list, stress_tz_info_t *
 	stress_tz_info_t **tz_info = tz_info_list;
 
 	while (*tz_info) {
-		if (strcmp((*tz_info)->type, new_tz_info->type) > 0) {
+		if (shim_strcmp((*tz_info)->type, new_tz_info->type) > 0) {
 			new_tz_info->next = *tz_info;
 			break;
 		}
@@ -102,7 +102,7 @@ int stress_tz_init(stress_tz_info_t **tz_info_list)
 		FILE *fp;
 
 		/* Ignore non TZ interfaces */
-		if (strncmp(entry->d_name, "thermal_zone", 12))
+		if (shim_strncmp(entry->d_name, "thermal_zone", 12))
 			continue;
 
 		/* Ensure we don't overstep the max limit of TZs */
@@ -223,7 +223,7 @@ static int stress_tz_compare(const void *p1, const void *p2)
 	const stress_tz_info_t *const *tz2 = (const stress_tz_info_t *const *)p2;
 	int ret;
 
-	ret = strcmp((*tz1)->type, (*tz2)->type);
+	ret = shim_strcmp((*tz1)->type, (*tz2)->type);
 	if (ret == 0) {
 		if ((int)(*tz1)->type_instance < (int)(*tz2)->type_instance)
 			return -1;

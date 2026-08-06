@@ -277,7 +277,7 @@ static void stress_landlock_many(
 	for (i = 0; i < n; i++) {
 		char newpath[PATH_MAX], resolved[PATH_MAX];
 
-		if (strcmp(path, "/"))
+		if (shim_strcmp(path, "/"))
 			(void)stress_fs_make_filename(newpath, sizeof(newpath), path, namelist[i]->d_name);
 		else
 			(void)stress_fs_make_filename(newpath, sizeof(newpath), "", namelist[i]->d_name);
@@ -285,7 +285,7 @@ static void stress_landlock_many(
 		if (UNLIKELY(realpath(newpath, resolved) == NULL))
 			continue;
 
-		if (strcmp(newpath, resolved) == 0) {
+		if (shim_strcmp(newpath, resolved) == 0) {
 			struct landlock_path_beneath_attr path_beneath;
 
 			switch (shim_dirent_type(path, namelist[i])) {

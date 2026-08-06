@@ -19,6 +19,7 @@
 #include "stress-ng.h"
 #include "core-arch.h"
 #include "core-asm-x86.h"
+#include "core-builtin.h"
 #include "core-config-check.h"
 #include "core-cpu.h"
 #include "core-put.h"
@@ -84,7 +85,7 @@ static int stress_config_check_cpu_filter(const struct dirent *d)
                 return 0;
 	if (UNLIKELY(strlen(d->d_name) < 4))
 		return 0;
-        if (strncmp(d->d_name, "cpu", 3))
+        if (shim_strncmp(d->d_name, "cpu", 3))
 		return 0;
 	if (isdigit((unsigned char)d->d_name[3]))
 		return 1;
@@ -168,7 +169,7 @@ void stress_config_check(void)
 			(void)snprintf(filename, sizeof(filename), "%s/%s/cpufreq/scaling_governor", cpu_path, namelist[i]->d_name);
 			if (UNLIKELY(stress_fs_file_read(filename, buffer, sizeof(buffer)) < 0))
 				continue;
-			if (strncmp(buffer, "powersave", 9) == 0)
+			if (shim_strncmp(buffer, "powersave", 9) == 0)
 				powersave++;
 		}
 		stress_fs_dirent_list_free(namelist, n);

@@ -18,6 +18,7 @@
  */
 #include "stress-ng.h"
 #include "core-attribute.h"
+#include "core-builtin.h"
 #include "core-ioctl.h"
 #include "core-mmap.h"
 #include "core-mounts.h"
@@ -919,7 +920,7 @@ static int stress_rofs(stress_args_t *args)
 			if (statfsbuf.f_type == CGROUP_SUPER_MAGIC)
 				continue;
 #endif
-			if (strncmp(mnts[j], "/sys", 4) == 0)
+			if (shim_strncmp(mnts[j], "/sys", 4) == 0)
 				continue;
 
 			if (statfsbuf.f_flags & ST_RDONLY)

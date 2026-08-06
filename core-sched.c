@@ -278,7 +278,7 @@ static int stress_sched_find(const char *const str)
 	size_t i;
 
 	for (i = 0; i < stress_sched_types_length; i++) {
-		if (!strcmp(stress_sched_types[i].sched_name, str))
+		if (!shim_strcmp(stress_sched_types[i].sched_name, str))
 			return stress_sched_types[i].sched;
 	}
 	return UNDEFINED;
@@ -292,7 +292,7 @@ int stress_sched_parse(const char *const str)
 {
 	if (stress_sched_find(str) != UNDEFINED)
 		return 0;
-	if (strcmp("which", str))
+	if (shim_strcmp("which", str))
 		(void)fprintf(stderr, "invalid sched option: %s\n", str);
 	if (stress_sched_types_length == (0)) {
 		(void)fprintf(stderr, "no scheduler options are available\n");
@@ -348,7 +348,7 @@ ssize_t stress_sched_ext_ops_get(char *buf, const size_t len)
 	ret = stress_fs_file_read("/sys/kernel/sched_ext/state", state, sizeof(state));
 	if (ret < 0) {
 		return 0;
-	} else if (strncmp(state, "disabled", 8) == 0) {
+	} else if (shim_strncmp(state, "disabled", 8) == 0) {
 		return 0;
 	}
 #if defined(__linux__)

@@ -355,16 +355,16 @@ static inline void stress_proc_rw(
 redo:
 		if (UNLIKELY(!*path || !stress_continue_flag()))
 			break;
-		if (!strncmp(path, "/proc/self", 10))
+		if (!shim_strncmp(path, "/proc/self", 10))
 			procfs_flag &= ~PROCFS_FLAG_WRITE;
-		if (!strncmp(path, "/proc/", 6) && isdigit((unsigned char)path[6]))
+		if (!shim_strncmp(path, "/proc/", 6) && isdigit((unsigned char)path[6]))
 			procfs_flag &= ~PROCFS_FLAG_WRITE;
 #if defined(__CYGWIN__)
 		/*
 		 *  Concurrent access on /proc/$PID/maps and /proc/$PID/ctty
 		 *  on Cygwin causes issues (Jul 2025), so skip these
 		 */
-		if ((!strncmp(path, "/proc/", 6) && isdigit((unsigned char)path[6]))) {
+		if ((!shim_strncmp(path, "/proc/", 6) && isdigit((unsigned char)path[6]))) {
 			if (strstr(path, "maps") || strstr(path, "ctty"))
 				return;
 		}
@@ -380,7 +380,7 @@ redo:
 		 *  Check if there any special features to exercise
 		 */
 		for (i = 0; i < (ssize_t)SIZEOF_ARRAY(stress_proc_info); i++) {
-			if (!strcmp(path, stress_proc_info[i].filename)) {
+			if (!shim_strcmp(path, stress_proc_info[i].filename)) {
 				stress_proc_info[i].stress_func(ctxt->args, fd);
 				break;
 			}
@@ -445,7 +445,7 @@ redo:
 		 *  with some special name space ioctls:
 		 */
 		if ((ret == 0) && (statbuf.st_mode & S_IFLNK)) {
-			if (!strncmp(path, "/proc/self", 10) && (strstr(path, "/ns/"))) {
+			if (!shim_strncmp(path, "/proc/self", 10) && (strstr(path, "/ns/"))) {
 				int ns_fd;
 				uid_t uid;
 
@@ -468,7 +468,7 @@ redo:
 		 *  SIGBUS/SIGSEGV faults. Currently skip this test.
 		 */
 #if defined(STRESS_ARCH_SH4)
-		if (!strncmp(path, "/proc/bus/pci/00", 16))
+		if (!shim_strncmp(path, "/proc/bus/pci/00", 16))
 			goto next;
 #endif
 		/*
@@ -774,7 +774,7 @@ static void stress_proc_dir(
 	 * (>1M entries, >50K entries on depth 2) and the path names of the
 	 * NTDLL layer to /proc/sys, ignore both for now
 	 */
-	if (!strncmp(path, "/proc/registry", 14) || !strcmp(path, "/proc/sys"))
+	if (!shim_strncmp(path, "/proc/registry", 14) || !shim_strcmp(path, "/proc/sys"))
 		return;
 #endif
 

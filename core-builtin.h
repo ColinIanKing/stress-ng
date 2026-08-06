@@ -61,6 +61,18 @@
 #define	shim_strdup(str)		strdup((str))
 #endif
 
+#if defined(HAVE_BUILTIN_STRCMP)
+#define shim_strcmp(s1, s2)		__builtin_strcmp((s1), (s2))
+#else
+#define shim_strcmp(s1, s2)		strcmp((s1), (s2))
+#endif
+
+#if defined(HAVE_BUILTIN_STRNCMP)
+#define shim_strncmp(s1, s2, n)		__builtin_strncmp((s1), (s2), (n))
+#else
+#define shim_strncmp(s1, s2, n)		strncmp((s1), (s2), (n))
+#endif
+
 #if defined(HAVE_BUILTIN_COMPLEX)
 #define shim_cmplxf(r, i)		__builtin_complex((float)(r), (float)(i))
 #define shim_cmplx(r, i)		__builtin_complex((double)(r), (double)(i))

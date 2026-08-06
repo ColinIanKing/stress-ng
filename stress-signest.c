@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-mmap.h"
 #include "core-sort.h"
 
@@ -391,7 +392,7 @@ finish:
 					const size_t len = buf + sz - ptr;
 
 					if (name) {
-						if (strncmp(name, "SIG", 3) == 0)
+						if (shim_strncmp(name, "SIG", 3) == 0)
 							name += 3;
 						written = (ssize_t)snprintf(ptr, len, " %s", name);
 					} else {

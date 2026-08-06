@@ -133,7 +133,7 @@ static void stress_topology_set_get(
 		int lo;
 		int hi;
 
-		if (strncmp(d->d_name, "cpu", 3))
+		if (shim_strncmp(d->d_name, "cpu", 3))
 			continue;
 		if (!isdigit((int)d->d_name[3]))
 			continue;
@@ -219,7 +219,7 @@ int stress_affinity_parse_cpu(const char *arg, cpu_set_t *set, int *setbits)
 		int hi;
 		const char *tmpptr = strstr(token, "-");
 
-		if (!strcmp(token, "odd")) {
+		if (!shim_strcmp(token, "odd")) {
 			for (i = 1; i < max_cpus; i += 2) {
 				if (!CPU_ISSET(i, set)) {
 					CPU_SET(i, set);
@@ -227,7 +227,7 @@ int stress_affinity_parse_cpu(const char *arg, cpu_set_t *set, int *setbits)
 				}
 			}
 			continue;
-		} else if (!strcmp(token, "even")) {
+		} else if (!shim_strcmp(token, "even")) {
 			for (i = 0; i < max_cpus; i += 2) {
 				if (!CPU_ISSET(i, set)) {
 					CPU_SET(i, set);
@@ -235,7 +235,7 @@ int stress_affinity_parse_cpu(const char *arg, cpu_set_t *set, int *setbits)
 				}
 			}
 			continue;
-		} else if (!strcmp(token, "all")) {
+		} else if (!shim_strcmp(token, "all")) {
 			for (i = 0; i < max_cpus; i++) {
 				if (!CPU_ISSET(i, set)) {
 					CPU_SET(i, set);
@@ -243,7 +243,7 @@ int stress_affinity_parse_cpu(const char *arg, cpu_set_t *set, int *setbits)
 				}
 			}
 			continue;
-		} else if (!strcmp(token, "random")) {
+		} else if (!shim_strcmp(token, "random")) {
 			for (i = 0; i < max_cpus; i++) {
 				if (stress_mwc1()) {
 					if (!CPU_ISSET(i, set)) {
@@ -261,16 +261,16 @@ int stress_affinity_parse_cpu(const char *arg, cpu_set_t *set, int *setbits)
 				}
 			}
 			continue;
-		} else if (!strncmp(token, "package", 7)) {
+		} else if (!shim_strncmp(token, "package", 7)) {
 			stress_topology_set_get("package_cpus_list", "package", token, set, setbits);
 			continue;
-		} else if (!strncmp(token, "cluster", 7)) {
+		} else if (!shim_strncmp(token, "cluster", 7)) {
 			stress_topology_set_get("cluster_cpus_list", "cluster", token, set, setbits);
 			continue;
-		} else if (!strncmp(token, "die", 3)) {
+		} else if (!shim_strncmp(token, "die", 3)) {
 			stress_topology_set_get("die_cpus_list", "die", token, set, setbits);
 			continue;
-		} else if (!strncmp(token, "core", 4)) {
+		} else if (!shim_strncmp(token, "core", 4)) {
 			stress_topology_set_get("core_cpus_list", "core", token, set, setbits);
 			continue;
 		}

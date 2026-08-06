@@ -21,6 +21,7 @@
 
 #include <inttypes.h>
 #include "core-attribute.h"
+#include "core-builtin.h"
 
 typedef void (*stress_sort_swap_func_t)(void *p1, void *p2, register size_t size);
 typedef void (*stress_sort_copy_func_t)(void *p1, void *p2, register size_t size);
@@ -54,7 +55,7 @@ static inline void shim_qsort(void *base, size_t n, size_t es,
 
 static inline ALWAYS_INLINE CONST int stress_sort_cmp_str(const void *p1, const void *p2)
 {
-	return strcmp(*(const char * const *)p1, *(const char * const *)p2);
+	return shim_strcmp(*(const char * const *)p1, *(const char * const *)p2);
 }
 
 #if 1

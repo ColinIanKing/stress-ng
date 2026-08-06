@@ -171,7 +171,7 @@ static stress_crypto_type_t name_to_type(const char *buffer, const size_t buffer
 	for (i = 0; i < SIZEOF_ARRAY(crypto_type_info); i++) {
 		const size_t n = strlen(crypto_type_info[i].name);
 
-		if (!strncmp(crypto_type_info[i].name, ptr, n))
+		if (!shim_strncmp(crypto_type_info[i].name, ptr, n))
 			return crypto_type_info[i].crypto_type;
 	}
 	return CRYPTO_UNKNOWN;
@@ -1113,13 +1113,13 @@ static int CONST stress_af_alg_cmp_crypto(const void *p1, const void *p2)
 	const stress_crypto_info_t * const *ci1 = (const stress_crypto_info_t * const *)p1;
 	const stress_crypto_info_t * const *ci2 = (const stress_crypto_info_t * const *)p2;
 
-	n = strcmp((*ci1)->type, (*ci2)->type);
+	n = shim_strcmp((*ci1)->type, (*ci2)->type);
 	if (n < 0)
 		return -1;
 	if (n > 0)
 		return 1;
 
-	n = strcmp((*ci1)->name, (*ci2)->name);
+	n = shim_strcmp((*ci1)->name, (*ci2)->name);
 	if (n < 0)
 		return -1;
 	if (n > 0)
@@ -1412,9 +1412,9 @@ static bool CONST bool_field(const char *buffer)
 
 	if (!ptr)
 		return false;
-	if (!strncmp("yes", ptr + 2, 3))
+	if (!shim_strncmp("yes", ptr + 2, 3))
 		return true;
-	if (!strncmp("no", ptr + 2, 2))
+	if (!shim_strncmp("no", ptr + 2, 2))
 		return false;
 	return false;
 }
@@ -1435,16 +1435,16 @@ static bool stress_af_alg_add_crypto(const stress_crypto_info_t *info)
 	 * Deprecated in Linux 5.9
 	 * see commit 9ace6771831017ce75a2bdf03c284b686dd39dba
          */
-	if (strcmp(info->name, "ecb(arc4)") == 0)
+	if (shim_strcmp(info->name, "ecb(arc4)") == 0)
 		return false;
 	/*
 	 * Don't support non-mainline tk transformations that some
 	 * kernels use, see
 	 * https://lore.kernel.org/lkml/1594591536-531-1-git-send-email-iuliana.prodan@nxp.com/t/#Z2e.:..:1594591536-531-3-git-send-email-iuliana.prodan::40nxp.com:1drivers:crypto:caam:caamalg.c
 	 */
-	if (strcmp(info->name, "tk(cbc(aes))") == 0)
+	if (shim_strcmp(info->name, "tk(cbc(aes))") == 0)
 		return false;
-	if (strcmp(info->name, "tk(ecb(aes))") == 0)
+	if (shim_strcmp(info->name, "tk(ecb(aes))") == 0)
 		return false;
 
 	/* Discard invalid data */
@@ -1457,8 +1457,8 @@ static bool stress_af_alg_add_crypto(const stress_crypto_info_t *info)
 
 	/* Scan for duplications */
 	for (ci = crypto_info_list; ci; ci = ci->next) {
-		if ((strcmp(ci->name, info->name) == 0) &&
-		    (strcmp(ci->type, info->type) == 0) &&
+		if ((shim_strcmp(ci->name, info->name) == 0) &&
+		    (shim_strcmp(ci->type, info->type) == 0) &&
 		    (ci->block_size == info->block_size) &&
 		    (ci->max_key_size == info->max_key_size) &&
 		    (ci->max_auth_size == info->max_auth_size) &&
@@ -1529,30 +1529,30 @@ static void stress_af_alg_init(const uint32_t instances)
 	(void)shim_memset(&info, 0, sizeof(info));
 
 	while (fgets(buffer, sizeof(buffer) - 1, fp)) {
-		if (!strncmp(buffer, "name", 4)) {
+		if (!shim_strncmp(buffer, "name", 4)) {
 			if (info.name)
 				free(info.name);
 			info.name = dup_field(buffer);
 		}
-		else if (!strncmp(buffer, "type", 4)) {
+		else if (!shim_strncmp(buffer, "type", 4)) {
 			info.crypto_type = name_to_type(buffer, sizeof(buffer));
 			if (info.type)
 				free(info.type);
 			info.type = dup_field(buffer);
 		}
-		else if (!strncmp(buffer, "blocksize", 9))
+		else if (!shim_strncmp(buffer, "blocksize", 9))
 			info.block_size = (int8_t)int_field(buffer);
-		else if (!strncmp(buffer, "max keysize", 11))
+		else if (!shim_strncmp(buffer, "max keysize", 11))
 			info.max_key_size = (int8_t)int_field(buffer);
-		else if (!strncmp(buffer, "maxauthsize", 11))
+		else if (!shim_strncmp(buffer, "maxauthsize", 11))
 			info.max_auth_size = (int8_t)int_field(buffer);
-		else if (!strncmp(buffer, "ivsize", 6))
+		else if (!shim_strncmp(buffer, "ivsize", 6))
 			info.iv_size = (int8_t)int_field(buffer);
-		else if (!strncmp(buffer, "digestsize", 10))
+		else if (!shim_strncmp(buffer, "digestsize", 10))
 			info.digest_size = (int8_t)int_field(buffer);
-		else if (!strncmp(buffer, "internal", 8))
+		else if (!shim_strncmp(buffer, "internal", 8))
 			info.internal = bool_field(buffer);
-		else if (!strncmp(buffer, "selftest", 8))
+		else if (!shim_strncmp(buffer, "selftest", 8))
 			info.selftest = bool_field(buffer);
 		else if (buffer[0] == '\n') {
 			if (info.crypto_type != CRYPTO_UNKNOWN) {

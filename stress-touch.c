@@ -17,6 +17,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-killpid.h"
 #include "core-lock.h"
 
@@ -131,7 +132,7 @@ static void stress_touch_opts(const char *opt_name, const char *opt_arg, stress_
 		bool opt_ok = false;
 
 		for (i = 0; i < SIZEOF_ARRAY(touch_opts); i++) {
-			if (!strcmp(token, touch_opts[i].opt)) {
+			if (!shim_strcmp(token, touch_opts[i].opt)) {
 				open_flags |= touch_opts[i].open_flag;
 				opt_ok = true;
 			}

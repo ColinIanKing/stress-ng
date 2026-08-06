@@ -274,7 +274,7 @@ static int stress_resctrl_parse_instance_list(
 			if (!*numptr)
 				break;
 			if (!*ptr) {
-				if (!strcmp("all", numptr)) {
+				if (!shim_strcmp("all", numptr)) {
 					if (stress_resctrl_add(name, &stress_resctrls[idx],
 								0, STRESS_PROCS_MAX - 1, partition) < 0)
 						return -1;
@@ -301,7 +301,7 @@ static stress_partition_info_t *stress_resctrl_partition_find(const char *name)
 	stress_partition_info_t *partition;
 
 	for (partition = stress_partition_head; partition; partition = partition->next) {
-		if (!strcmp(partition->name, name))
+		if (!shim_strcmp(partition->name, name))
 			return partition;
 	}
 	return NULL;
@@ -716,7 +716,7 @@ void stress_resctrl_init(void)
 	}
 	*resctrl_mnt = '\0';
 	while (fgets(buf, sizeof(buf), fp) != NULL) {
-		if (strncmp(buf, "resctrl", 7))
+		if (shim_strncmp(buf, "resctrl", 7))
 			continue;
 		if (sscanf(buf + 8, "%255s", resctrl_mnt) < 1)
 			break;

@@ -309,7 +309,7 @@ static size_t stress_mapping_hugetlb_size(void *addr)
 	while (fgets(buf, sizeof(buf), fp) != NULL) {
 		if (addr_match) {
 			/* VmFlags has ht if is HUGETLB mapped region */
-			if (!strncmp(buf, "VmFlags:", 7) &&
+			if (!shim_strncmp(buf, "VmFlags:", 7) &&
 			    strstr(buf + 8, " ht")) {
 				hugetlb_size = (size_t)(addr_end - addr_begin);
 				break;

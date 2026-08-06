@@ -47,7 +47,7 @@ long int stress_numa_count_mem_nodes(long int *max_node)
 		return -1;
 
 	while (fgets(buffer, sizeof(buffer), fp)) {
-		if (!strncmp(buffer, "Mems_allowed:", 13)) {
+		if (!shim_strncmp(buffer, "Mems_allowed:", 13)) {
 			str = buffer + 13;
 			break;
 		}
@@ -112,7 +112,7 @@ long int stress_numa_mask_nodes_get(stress_numa_mask_t *numa_mask)
 		return -1;
 
 	while (fgets(buffer, sizeof(buffer), fp)) {
-		if (!strncmp(buffer, "Mems_allowed:", 13)) {
+		if (!shim_strncmp(buffer, "Mems_allowed:", 13)) {
 			str = buffer + 13;
 			break;
 		}

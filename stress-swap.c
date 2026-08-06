@@ -155,7 +155,7 @@ static void stress_swap_self(const size_t page_size)
 			continue;
 #endif
 		/* Avoid vdso and vvar */
-		if (strncmp("[v", tmppath, 2) == 0)
+		if (shim_strncmp("[v", tmppath, 2) == 0)
 			continue;
 
 		if ((begin > UINTPTR_MAX) || (end > UINTPTR_MAX))
@@ -281,7 +281,7 @@ static void stress_swap_check_swapped(uint64_t *swapped_out)
 		return;
 
 	while (fgets(buf, sizeof(buf), fp) != NULL) {
-		if (strncmp(buf, "pswpout", 7) == 0) {
+		if (shim_strncmp(buf, "pswpout", 7) == 0) {
 			swapout = (uint64_t)atoll(buf + 8);
 			break;
 		}

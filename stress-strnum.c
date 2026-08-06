@@ -364,7 +364,7 @@ static bool OPTIMIZE3 stress_strnum_snprintf_i(stress_args_t *args, const stress
 			args->name, stress_strnum_i);
 		return false;
 	}
-	if (UNLIKELY(strcmp(str, stress_strnum_i_str))) {
+	if (UNLIKELY(shim_strcmp(str, stress_strnum_i_str))) {
 		pr_fail("%s: snprintf(str, sizeof(str), \"%%d\", %d) failed, got '%s', expected '%s'\n",
 			args->name, stress_strnum_i, str, stress_strnum_i_str);
 		return false;
@@ -385,7 +385,7 @@ static bool OPTIMIZE3 stress_strnum_snprintf_li(stress_args_t *args, const stres
 			args->name, stress_strnum_li);
 		return false;
 	}
-	if (UNLIKELY(strcmp(str, stress_strnum_li_str))) {
+	if (UNLIKELY(shim_strcmp(str, stress_strnum_li_str))) {
 		pr_fail("%s: snprintf(str, sizeof(str), \"%%ld\", %ld) failed, got '%s', expected '%s'\n",
 			args->name, stress_strnum_li, str, stress_strnum_li_str);
 		return false;
@@ -406,7 +406,7 @@ static bool OPTIMIZE3 stress_strnum_snprintf_lli(stress_args_t *args, const stre
 			args->name, stress_strnum_lli);
 		return false;
 	}
-	if (UNLIKELY(strcmp(str, stress_strnum_lli_str))) {
+	if (UNLIKELY(shim_strcmp(str, stress_strnum_lli_str))) {
 		pr_fail("%s: snprintf(str, sizeof(str), \"%%lld\", %lld) failed, got '%s', expected '%s'\n",
 			args->name, stress_strnum_lli, str, stress_strnum_lli_str);
 		return false;

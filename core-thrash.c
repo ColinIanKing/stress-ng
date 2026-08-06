@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-attribute.h"
+#include "core-builtin.h"
 #include "core-killpid.h"
 #include "core-mmap.h"
 #include "core-numa.h"
@@ -128,7 +129,7 @@ static size_t stress_thrash_read_proc_maps(
 			continue;
 
 		/* Avoid vdso and vvar.. */
-		if (strncmp("[v", tmppath, 2) == 0)
+		if (shim_strncmp("[v", tmppath, 2) == 0)
 			continue;
 
 		/* Ensure end look sane */

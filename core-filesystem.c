@@ -1672,7 +1672,7 @@ static void stress_fs_clean_dir_files(
 		return;
 
 	/* We don't remove paths that our out of the scope */
-	if (strncmp(path, temp_path, temp_path_len))
+	if (shim_strncmp(path, temp_path, temp_path_len))
 		return;
 
 	n = scandir(path, &names, stress_fs_dirent_filter_dotty, alphasort);
@@ -1822,9 +1822,9 @@ static void stress_fs_io_stats_read(const int which, stress_io_stats_t *io_stats
 		return;
 
 	while (fscanf(fp, "%255s %" SCNu64,  buffer, &val) == 2) {
-		if (!strcmp(buffer, "read_bytes:"))
+		if (!shim_strcmp(buffer, "read_bytes:"))
 			new_stats.read_bytes = val;
-		else if (!strcmp(buffer, "write_bytes:"))
+		else if (!shim_strcmp(buffer, "write_bytes:"))
 			new_stats.write_bytes = val;
 	}
 	(void)fclose(fp);

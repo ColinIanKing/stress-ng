@@ -177,7 +177,7 @@ static int stress_chroot_test1(chroot_shared_data_t *data)
 			data->args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
-	if (strcmp(cwd, "/")) {
+	if (shim_strcmp(cwd, "/")) {
 		pr_fail("%s: cwd in chroot is '%s' and not '/'\n", data->args->name, cwd);
 		return EXIT_FAILURE;
 	}

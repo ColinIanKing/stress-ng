@@ -17,6 +17,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-capabilities.h"
 #include "core-killpid.h"
 #include "core-signal.h"
@@ -112,8 +113,8 @@ static int stress_cgroup_mounted_state(const char *path)
 			break;
 		*ptr = '\0';
 
-		if ((strcmp(type, "cgroup2") == 0) &&
-		    (strcmp(mnt, path) == 0)) {
+		if ((shim_strcmp(type, "cgroup2") == 0) &&
+		    (shim_strcmp(mnt, path) == 0)) {
 			ret = STRESS_CGROUP_MOUNTED;
 			break;
 		}

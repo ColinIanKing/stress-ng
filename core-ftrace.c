@@ -70,7 +70,7 @@ static pid_t tracing_pid = -1;
  */
 static int rb_node_cmp(struct rb_node *n1, struct rb_node *n2)
 {
-	const int cmp = strcmp(n1->syscall_name, n2->syscall_name);
+	const int cmp = shim_strcmp(n1->syscall_name, n2->syscall_name);
 
 	if (cmp)
 		return cmp;
@@ -242,7 +242,7 @@ static void OPTIMIZE3 stress_ftrace_child(FILE *fp)
 		if (!*ptr)
 			continue;
 
-		if (strncmp("stress-ng-", ptr, 9))
+		if (shim_strncmp("stress-ng-", ptr, 9))
 			continue;
 
 		/* skip stress-ng-$PID field */

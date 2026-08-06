@@ -718,7 +718,7 @@ stress_hash_table_t *stress_hash_create(const size_t n)
 static inline stress_hash_t *stress_hash_find(stress_hash_t *hash, const char *str)
 {
 	while (hash) {
-		if (!strcmp(str, HASH_STR(hash)))
+		if (!shim_strcmp(str, HASH_STR(hash)))
 			return hash;
 		hash = hash->next;
 	}

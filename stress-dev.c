@@ -1268,7 +1268,7 @@ static inline bool is_scsi_dev(dev_info_t *dev_info)
 			continue;
 
 		for (j = 0; j < m; j++) {
-			if (!strcmp(dev_info->name, scsi_block_list[j]->d_name)) {
+			if (!shim_strcmp(dev_info->name, scsi_block_list[j]->d_name)) {
 				is_scsi = true;
 				break;
 			}
@@ -3919,7 +3919,7 @@ static inline int stress_dev_lock(const char *path, const int fd)
 	{
 		int ret;
 
-		if (strncmp(path, "/dev/tty", 8))
+		if (shim_strncmp(path, "/dev/tty", 8))
 			return 0;
 
 		ret = ioctl(fd, TIOCEXCL);
@@ -3950,7 +3950,7 @@ static inline void stress_dev_unlock(const char *path, const int fd)
 {
 #if defined(TIOCEXCL) &&	\
     defined(TIOCNXCL)
-	if (strncmp(path, "/dev/tty", 8))
+	if (shim_strncmp(path, "/dev/tty", 8))
 		return;
 
 #if defined(LOCK_EX) &&	\
@@ -4116,10 +4116,10 @@ static inline void stress_dev_rw(
     defined(HAVE_TERMIOS) &&	\
     defined(TCGETS)
 		if (S_ISCHR(statbuf.st_mode) &&
-		    strncmp("/dev/vsock", path, 10) &&
-		    strncmp("/dev/dri", path, 8) &&
-		    strncmp("/dev/nmem", path, 9) &&
-		    strncmp("/dev/ndctl", path, 10) &&
+		    shim_strncmp("/dev/vsock", path, 10) &&
+		    shim_strncmp("/dev/dri", path, 8) &&
+		    shim_strncmp("/dev/nmem", path, 9) &&
+		    shim_strncmp("/dev/ndctl", path, 10) &&
 		    (ioctl(fd, TCGETS, &tios) == 0))
 			stress_dev_tty(args, fd, path);
 #endif
@@ -4224,7 +4224,7 @@ static inline void stress_dev_rw(
 		VOID_RET(int, shim_fsync(fd));
 
 		for (i = 0; i < SIZEOF_ARRAY(dev_funcs); i++) {
-			if (!strncmp(path, dev_funcs[i].devpath, dev_funcs[i].devpath_len))
+			if (!shim_strncmp(path, dev_funcs[i].devpath, dev_funcs[i].devpath_len))
 				dev_funcs[i].func(args, fd, path);
 		}
 		stress_dev_close_unlock(path, fd);
@@ -4396,15 +4396,15 @@ static bool stress_dev_avoid(char *filename)
 	 *  Avoid https://bugs.xenserver.org/browse/XSO-809
 	 *  see: LP#1741409, so avoid opening /dev/hpet
 	 */
-	if (!strcmp(name, "hpet") && linux_xen_guest())
+	if (!shim_strcmp(name, "hpet") && linux_xen_guest())
 		return true;
-	if (!strncmp(name, "ttyS", 4))
+	if (!shim_strncmp(name, "ttyS", 4))
 		return true;
 	/*
 	 *  Closing watchdog files will cause
 	 *  systems to be rebooted, so avoid these!
 	 */
-	if (!strncmp(name, "watchdog", 8))
+	if (!shim_strncmp(name, "watchdog", 8))
 		return true;
 	return false;
 }
@@ -4517,7 +4517,7 @@ static void stress_dev_infos_get(
 		(void)stress_fs_make_filename(tmp, sizeof(tmp), path, d->d_name);
 
 		/* Don't exercise our tty */
-		if (tty_name && !strcmp(tty_name, tmp))
+		if (tty_name && !shim_strcmp(tty_name, tmp))
 			continue;
 
 		switch (shim_dirent_type(path, d)) {

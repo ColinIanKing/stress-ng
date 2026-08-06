@@ -329,7 +329,7 @@ redo:
 						    IN_MOVED_FROM |
 						    IN_ATTRIB);
 			if (event->len &&
-			    strcmp(event->name, matchname) == 0 &&
+			    shim_strcmp(event->name, matchname) == 0 &&
 			    flags & event->mask)
 				check_flags &= ~(flags & event->mask);
 			else if (flags & f)

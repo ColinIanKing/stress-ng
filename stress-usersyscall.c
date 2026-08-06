@@ -153,7 +153,7 @@ static int stress_sigsys_libc_mapping(uintptr_t *begin, uintptr_t *end)
 		/*
 		 *  name /libc-*.so or /libc.so found?
 		 */
-		if ((n == 8) && !strncmp(perm, "r-xp", 4) &&
+		if ((n == 8) && !shim_strncmp(perm, "r-xp", 4) &&
 		    strstr(libc_path, ".so")) {
 			if (strstr(libc_path, "/libc-") ||
 			    strstr(libc_path, "/libc.so")) {

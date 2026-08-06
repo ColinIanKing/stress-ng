@@ -322,7 +322,7 @@ static int stress_file_ioctl(stress_args_t *args)
 	fs_type = stress_fs_info_get(filename, &blocks);
 	if (fs_type) {
 		for (i = 0; i < SIZEOF_ARRAY(stress_file_ioctl_fs); i++) {
-			if (strcmp(fs_type, stress_file_ioctl_fs[i].name) == 0) {
+			if (shim_strcmp(fs_type, stress_file_ioctl_fs[i].name) == 0) {
 				fs_func = stress_file_ioctl_fs[i].fs_func;
 				break;
 			}

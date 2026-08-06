@@ -246,16 +246,16 @@ static int stress_cpu_cache_get_alpha(
 			int cache_line_size;
 			int n;
 
-			if (!strncmp("L1 Icache", buffer, 9)) {
+			if (!shim_strncmp("L1 Icache", buffer, 9)) {
 				cache_type = CACHE_TYPE_INSTRUCTION;
 				cache_level = 1;
-			} else if (!strncmp("L1 Dcache", buffer, 9))  {
+			} else if (!shim_strncmp("L1 Dcache", buffer, 9))  {
 				cache_type = CACHE_TYPE_DATA;
 				cache_level = 1;
-			} else if (!strncmp("L2 cache", buffer, 8)) {
+			} else if (!shim_strncmp("L2 cache", buffer, 8)) {
 				cache_type = CACHE_TYPE_DATA;
 				cache_level = 2;
-			} else if (!strncmp("L3 cache", buffer, 8)) {
+			} else if (!shim_strncmp("L3 cache", buffer, 8)) {
 				cache_type = CACHE_TYPE_DATA;
 				cache_level = 3;
 			} else {
@@ -690,7 +690,7 @@ static int stress_cpu_cache_get_sh4(stress_cpu_cache_cpu_t *cpu)
 		const char *ptr = strchr(buffer, ':');
 
 		if (ptr &&
-		    (strncmp("cache size", buffer + 1, 10) == 0) &&
+		    (shim_strncmp("cache size", buffer + 1, 10) == 0) &&
 		    ((buffer[0] == 'i') || (buffer[0] == 'd')))   {
 			size_t size;
 
@@ -732,7 +732,7 @@ static int stress_cpu_cache_get_m68k(stress_cpu_cache_cpu_t *cpu)
 
 	(void)shim_memset(buffer, 0, sizeof(buffer));
 	while (fgets(buffer, sizeof(buffer), fp) != NULL) {
-		if (strncmp("CPU:", buffer, 4) == 0) {
+		if (shim_strncmp("CPU:", buffer, 4) == 0) {
 			if (sscanf(buffer + 4, "%d", &cpu_id) == 1)
 				break;
 		}
@@ -991,7 +991,7 @@ out:
  */
 static int index_filter(const struct dirent *d)
 {
-	return ((strncmp(d->d_name, "index", 5) == 0) && isdigit((int)d->d_name[5]));
+	return ((shim_strncmp(d->d_name, "index", 5) == 0) && isdigit((int)d->d_name[5]));
 }
 #endif
 
@@ -1241,7 +1241,7 @@ static void stress_cpu_cache_get_details(stress_cpu_cache_cpu_t *cpu, const char
  */
 static int stress_cpu_cache_filter(const struct dirent *d)
 {
-	return ((strncmp(d->d_name, "cpu", 3) == 0) && isdigit((unsigned char)d->d_name[3]));
+	return ((shim_strncmp(d->d_name, "cpu", 3) == 0) && isdigit((unsigned char)d->d_name[3]));
 }
 
 /*

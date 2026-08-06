@@ -90,7 +90,7 @@ static void stress_numa_stats_read(stress_numa_stats_t *stats)
 
 		if (shim_dirent_type(path, d) != SHIM_DT_DIR)
 			continue;
-		if (strncmp(d->d_name, "node", 4))
+		if (shim_strncmp(d->d_name, "node", 4))
 			continue;
 
 		(void)snprintf(filename, sizeof(filename), "%s/%s/numastat", path, d->d_name);
@@ -102,7 +102,7 @@ static void stress_numa_stats_read(stress_numa_stats_t *stats)
 			size_t i;
 
 			for (i = 0; i < SIZEOF_ARRAY(numa_fields); i++) {
-				if (strncmp(buffer, numa_fields[i].name, numa_fields[i].len) == 0) {
+				if (shim_strncmp(buffer, numa_fields[i].name, numa_fields[i].len) == 0) {
 					uint64_t val = 0;
 
 					if (sscanf(buffer + numa_fields[i].len + 1, "%" SCNu64, &val) == 1) {

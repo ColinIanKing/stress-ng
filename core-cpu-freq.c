@@ -17,6 +17,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-cpu-freq.h"
 
 #include <ctype.h>
@@ -58,7 +59,7 @@ void stress_cpu_freq_get(stress_cpu_freq_info_t *cpu_freq_info)
 	for (i = 0; i < n_cpus; i++) {
 		const char *name = cpu_list[i]->d_name;
 
-		if (!strncmp(name, "cpu", 3) && isdigit((unsigned char)name[3])) {
+		if (!shim_strncmp(name, "cpu", 3) && isdigit((unsigned char)name[3])) {
 			char path[PATH_MAX];
 			double freq;
 			FILE *fp;

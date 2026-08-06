@@ -108,7 +108,7 @@ static ENTRY OPTIMIZE3 *hsearch_nonlibc(ENTRY entry, ACTION action)
 
 	if (action == FIND) {
 		do {
-			if ((htable[idx].hash == idx) && (strcmp(htable[idx].entry.key, entry.key) == 0))
+			if ((htable[idx].hash == idx) && (shim_strcmp(htable[idx].entry.key, entry.key) == 0))
 				return &htable[idx].entry;
 			idx++;
 			if (idx >= htable_size)
@@ -123,7 +123,7 @@ static ENTRY OPTIMIZE3 *hsearch_nonlibc(ENTRY entry, ACTION action)
 			htable[idx].hash = idx;
 			htable[idx].entry = entry;
 			return &htable[idx].entry;
-		} else if ((hash == idx) && (strcmp(htable[idx].entry.key, entry.key) == 0)) {
+		} else if ((hash == idx) && (shim_strcmp(htable[idx].entry.key, entry.key) == 0)) {
 			htable[idx].hash = idx;
 			htable[idx].entry = entry;
 			return &htable[idx].entry;

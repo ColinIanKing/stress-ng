@@ -260,7 +260,7 @@ static int stress_getcwd(stress_args_t *args)
 			return EXIT_FAILURE;
 		} else {
 			/* getcwd returned a string: is it the same as path? */
-			if (strncmp(ptr, path, sizeof(path))) {
+			if (shim_strncmp(ptr, path, sizeof(path))) {
 				pr_fail("%s: getcwd returned a string that "
 					"is different from the expected path\n",
 					args->name);

@@ -18,6 +18,7 @@
  */
 #include "stress-ng.h"
 #include "core-capabilities.h"
+#include "core-builtin.h"
 #include "core-killpid.h"
 #include "core-mmap.h"
 
@@ -217,7 +218,7 @@ static void stress_plugin_so(const char *opt_name, const char *opt_arg, stress_t
 			const ElfW(Sym) *sym = &symtab[i];
 			const char *str = &strtab[sym->st_name];
 
-			if (!strncmp(str, "stress_", 7))
+			if (!shim_strncmp(str, "stress_", 7))
 				n_funcs++;
 		}
 	}
@@ -245,7 +246,7 @@ static void stress_plugin_so(const char *opt_name, const char *opt_arg, stress_t
 			const ElfW(Sym) *sym = &symtab[i];
 			const char *str = &strtab[sym->st_name];
 
-			if ((strlen(str) > 7) && !strncmp(str, "stress_", 7)) {
+			if ((strlen(str) > 7) && !shim_strncmp(str, "stress_", 7)) {
 				stress_plugin_methods[n_funcs].name = str + 7;
 				stress_plugin_methods[n_funcs].func = (stress_plugin_func)dlsym(stress_plugin_so_dl, str);
 				if (!stress_plugin_methods[n_funcs].func) {

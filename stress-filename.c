@@ -525,7 +525,7 @@ static int stress_filename_readdir(
 		readdir_count++;
 
 		(void)snprintf(fullname, sizeof(fullname), "%s/%s", pathname, d->d_name);
-		name_cmp = strcmp(fullname, filename);
+		name_cmp = shim_strcmp(fullname, filename);
 
 		/*
 		 *  if the name differs, stat fails or stat'd files

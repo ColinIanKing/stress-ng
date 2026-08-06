@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-killpid.h"
 #include "core-out-of-memory.h"
 
@@ -142,7 +143,7 @@ static int stress_env_child(stress_args_t *args, void *context)
 					} else {
 						tmp = value[env_sz];
 						value[env_sz] = '\0';
-						if (strcmp(value, val)) {
+						if (shim_strcmp(value, val)) {
 							pr_fail("%s: environment variable %s contains incorrect data\n",
 								args->name, name);
 							rc = EXIT_FAILURE;

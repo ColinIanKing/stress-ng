@@ -96,7 +96,7 @@ static void stress_pci_info_free(stress_pci_info_t *pci_info_list)
 
 static int stress_pci_rev_sort(const struct dirent **a, const struct dirent **b)
 {
-	return strcmp((*b)->d_name, (*a)->d_name);
+	return shim_strcmp((*b)->d_name, (*a)->d_name);
 }
 
 static const char sys_pci_devices[] = "/sys/bus/pci/devices";
@@ -265,9 +265,9 @@ static void stress_pci_exercise(stress_args_t *args, stress_pci_info_t *pci_info
 
 		for (i = 0; LIKELY(stress_continue(args) && (i < n)); i++) {
 			const char *name = list[i]->d_name;
-			const bool config = !strcmp(name, "config");
-			const bool resource = !strncmp(name, "resource", 8);
-			const bool rom = !strcmp(name, "rom");
+			const bool config = !shim_strcmp(name, "config");
+			const bool resource = !shim_strncmp(name, "resource", 8);
+			const bool rom = !shim_strcmp(name, "rom");
 
 			stress_pci_exercise_file(pci_info, name, config, resource, rom);
 		}

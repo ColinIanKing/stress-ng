@@ -63,7 +63,7 @@ static bool stress_rapl_domain_unique(const stress_rapl_domain_t *rapl_domains, 
 	const stress_rapl_domain_t *rapl_domain;
 
 	for (rapl_domain = rapl_domains; rapl_domain; rapl_domain = rapl_domain->next) {
-		if (!strcmp(rapl_domain->domain_name, domain_name))
+		if (!shim_strcmp(rapl_domain->domain_name, domain_name))
 			return false;
 	}
 	return true;
@@ -78,7 +78,7 @@ static void stress_rapl_add_list(stress_rapl_domain_t **rapl_domains, stress_rap
 	stress_rapl_domain_t **l;
 
 	for (l = rapl_domains; *l; l = &(*l)->next) {
-		if (strcmp((*l)->domain_name, rapl_domain->domain_name) > 0) {
+		if (shim_strcmp((*l)->domain_name, rapl_domain->domain_name) > 0) {
 			rapl_domain->next = *l;
 			break;
 		}
@@ -110,7 +110,7 @@ int stress_rapl_domains_get(stress_rapl_domain_t **rapl_domains)
 		double ujoules;
 
 		/* Ignore non Intel RAPL interfaces */
-		if (strncmp(entry->d_name, "intel-rapl", 10))
+		if (shim_strncmp(entry->d_name, "intel-rapl", 10))
 			continue;
 
 		/* Check if energy_uj is readable */
@@ -170,7 +170,7 @@ int stress_rapl_domains_get(stress_rapl_domain_t **rapl_domains)
 					domain_name[idx] = '\0';
 
 				/* Truncate package name */
-				if (!strncmp(domain_name, "package-", 8)) {
+				if (!shim_strncmp(domain_name, "package-", 8)) {
 					char buf[sizeof(domain_name)];
 
 					(void)snprintf(buf, sizeof(buf), "pkg-%s", domain_name + 8);

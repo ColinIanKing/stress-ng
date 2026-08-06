@@ -225,8 +225,8 @@ char *stress_find_mount_dev(const char *name)
 	}
 
 	while ((mnt = getmntent(mtab_fp))) {
-		if ((!strcmp(name, mnt->mnt_dir)) ||
-		    (!strcmp(name, mnt->mnt_fsname)))
+		if ((!shim_strcmp(name, mnt->mnt_dir)) ||
+		    (!shim_strcmp(name, mnt->mnt_fsname)))
 			break;
 
 		if ((mnt->mnt_fsname[0] == '/') &&
@@ -325,7 +325,7 @@ static char *stress_iostat_iostat_name(
 		return NULL;
 
 	/* Skip over leading /dev */
-	if (!strncmp(dev, "/dev", 4))
+	if (!shim_strncmp(dev, "/dev", 4))
 		dev += 4;
 	if (*dev == '/')
 		dev++;
@@ -454,9 +454,9 @@ static void stress_read_vmstat(
 		while (fgets(buffer, sizeof(buffer), fp)) {
 			char *ptr = buffer;
 
-			if (!strncmp(buffer, "cpu ", 4))
+			if (!shim_strncmp(buffer, "cpu ", 4))
 				continue;
-			if (!strncmp(buffer, "cpu", 3)) {
+			if (!shim_strncmp(buffer, "cpu", 3)) {
 				if (!stress_next_field(&ptr))
 					continue;
 				/* user time */
@@ -510,31 +510,31 @@ static void stress_read_vmstat(
 					continue;
 			}
 
-			if (!strncmp(buffer, "intr", 4)) {
+			if (!shim_strncmp(buffer, "intr", 4)) {
 				if (!stress_next_field(&ptr))
 					continue;
 				/* interrupts */
 				vmstat->interrupt = (uint64_t)atoll(ptr);
 			}
-			if (!strncmp(buffer, "ctxt", 4)) {
+			if (!shim_strncmp(buffer, "ctxt", 4)) {
 				if (!stress_next_field(&ptr))
 					continue;
 				/* context switches */
 				vmstat->context_switch = (uint64_t)atoll(ptr);
 			}
-			if (!strncmp(buffer, "procs_running", 13)) {
+			if (!shim_strncmp(buffer, "procs_running", 13)) {
 				if (!stress_next_field(&ptr))
 					continue;
 				/* processes running */
 				vmstat->procs_running = (uint64_t)atoll(ptr);
 			}
-			if (!strncmp(buffer, "procs_blocked", 13)) {
+			if (!shim_strncmp(buffer, "procs_blocked", 13)) {
 				if (!stress_next_field(&ptr))
 					continue;
 				/* procesess blocked */
 				vmstat->procs_blocked = (uint64_t)atoll(ptr);
 			}
-			if (!strncmp(buffer, "swap", 4)) {
+			if (!shim_strncmp(buffer, "swap", 4)) {
 				if (!stress_next_field(&ptr))
 					continue;
 				/* swap in */
@@ -554,37 +554,37 @@ static void stress_read_vmstat(
 		while (fgets(buffer, sizeof(buffer), fp)) {
 			char *ptr = buffer;
 
-			if (!strncmp(buffer, "MemFree", 7)) {
+			if (!shim_strncmp(buffer, "MemFree", 7)) {
 				if (!stress_next_field(&ptr))
 					continue;
 				vmstat->memory_free = (uint64_t)atoll(ptr);
 			}
-			if (!strncmp(buffer, "Buffers", 7)) {
+			if (!shim_strncmp(buffer, "Buffers", 7)) {
 				if (!stress_next_field(&ptr))
 					continue;
 				vmstat->memory_buff = (uint64_t)atoll(ptr);
 			}
-			if (!strncmp(buffer, "Cached", 6)) {
+			if (!shim_strncmp(buffer, "Cached", 6)) {
 				if (!stress_next_field(&ptr))
 					continue;
 				vmstat->memory_cached = (uint64_t)atoll(ptr);
 			}
-			if (!strncmp(buffer, "KReclaimable", 12)) {
+			if (!shim_strncmp(buffer, "KReclaimable", 12)) {
 				if (!stress_next_field(&ptr))
 					continue;
 				vmstat->memory_reclaimable = (uint64_t)atoll(ptr);
 			}
-			if (!strncmp(buffer, "SwapTotal", 9)) {
+			if (!shim_strncmp(buffer, "SwapTotal", 9)) {
 				if (!stress_next_field(&ptr))
 					continue;
 				vmstat->swap_total = (uint64_t)atoll(ptr);
 			}
-			if (!strncmp(buffer, "SwapFree", 8)) {
+			if (!shim_strncmp(buffer, "SwapFree", 8)) {
 				if (!stress_next_field(&ptr))
 					continue;
 				vmstat->swap_free = (uint64_t)atoll(ptr);
 			}
-			if (!strncmp(buffer, "SwapUsed", 8)) {
+			if (!shim_strncmp(buffer, "SwapUsed", 8)) {
 				if (!stress_next_field(&ptr))
 					continue;
 				vmstat->swap_used = (uint64_t)atoll(ptr);
@@ -604,22 +604,22 @@ static void stress_read_vmstat(
 		while (fgets(buffer, sizeof(buffer), fp)) {
 			char *ptr = buffer;
 
-			if (!strncmp(buffer, "pgpgin", 6)) {
+			if (!shim_strncmp(buffer, "pgpgin", 6)) {
 				if (!stress_next_field(&ptr))
 					continue;
 				vmstat->block_in = (uint64_t)atoll(ptr);
 			}
-			if (!strncmp(buffer, "pgpgout", 7)) {
+			if (!shim_strncmp(buffer, "pgpgout", 7)) {
 				if (!stress_next_field(&ptr))
 					continue;
 				vmstat->block_out = (uint64_t)atoll(ptr);
 			}
-			if (!strncmp(buffer, "pswpin", 6)) {
+			if (!shim_strncmp(buffer, "pswpin", 6)) {
 				if (!stress_next_field(&ptr))
 					continue;
 				vmstat->swap_in = (uint64_t)atoll(ptr);
 			}
-			if (!strncmp(buffer, "pswpout", 7)) {
+			if (!shim_strncmp(buffer, "pswpout", 7)) {
 				if (!stress_next_field(&ptr))
 					continue;
 				vmstat->swap_out = (uint64_t)atoll(ptr);

@@ -180,7 +180,7 @@ static void stress_fork_maps_reduce(const size_t page_size, const int reduce_mod
 			continue;
 
 		/* Avoid vdso and vvar */
-		if (strncmp("[v", tmppath, 2) == 0)
+		if (shim_strncmp("[v", tmppath, 2) == 0)
 			continue;
 
 		if ((begin > UINTPTR_MAX) || (end > UINTPTR_MAX))

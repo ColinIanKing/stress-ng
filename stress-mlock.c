@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-madvise.h"
 #include "core-mmap.h"
 #include "core-out-of-memory.h"
@@ -45,7 +46,7 @@ static uint64_t stress_mlock_pages(const size_t page_size)
 	if (!fp)
 		return 0;
 	while ((fgets(buf, sizeof(buf), fp) != NULL)) {
-		if (strncmp(buf, "VmLck:", 6) == 0) {
+		if (shim_strncmp(buf, "VmLck:", 6) == 0) {
 			if (sscanf(buf + 6, "%" SCNu64, &mlocked) == 1)
 				break;
 			mlocked = 0;

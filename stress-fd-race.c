@@ -677,7 +677,7 @@ static stress_fd_race_filename_t *stress_fd_race_filename_add(
 	};
 
 	for (i = 0; i < SIZEOF_ARRAY(ignore_list); i++) {
-		if (strncmp(filename, ignore_list[i], strlen(ignore_list[i])) == 0)
+		if (shim_strncmp(filename, ignore_list[i], strlen(ignore_list[i])) == 0)
 			return NULL;
 	}
 

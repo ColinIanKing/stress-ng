@@ -76,7 +76,7 @@ static void stress_cpuidle_cstate_add_unique(
 
 		/* Same C number, compare strings? */
 		if (cmp == 0)
-			cmp = strcmp(cstate, (*cc)->cstate);
+			cmp = shim_strcmp(cstate, (*cc)->cstate);
 		/* Identical C-state, not unique, don't add */
 		if (cmp == 0)
 			return;
@@ -124,7 +124,7 @@ void stress_cpuidle_init(void)
 		DIR *cpuidle_dir;
 		const struct dirent *cpuidle_d;
 
-		if (strncmp(cpu_d->d_name, "cpu", 3))
+		if (shim_strncmp(cpu_d->d_name, "cpu", 3))
 			continue;
 
 		(void)snprintf(cpuidle_path, sizeof(cpuidle_path),
@@ -139,7 +139,7 @@ void stress_cpuidle_init(void)
 			char *ptr;
 			uint32_t residency = 0;
 
-			if (strncmp(cpuidle_d->d_name, "state", 5))
+			if (shim_strncmp(cpuidle_d->d_name, "state", 5))
 				continue;
 			(void)snprintf(path, sizeof(path), "%s/%s/residency", cpuidle_path, cpuidle_d->d_name);
 			if (stress_fs_file_read(path, data, sizeof(data)) > 0) {
@@ -153,7 +153,7 @@ void stress_cpuidle_init(void)
 			if (ptr)
 				*ptr = '\0';
 
-			if (strcmp(data, "C0") == 0)
+			if (shim_strcmp(data, "C0") == 0)
 				has_c0 = true;
 
 			stress_cpuidle_cstate_add_unique(data, residency);
@@ -220,7 +220,7 @@ static void stress_cpuidle_read_cstates(
 		DIR *cpuidle_dir;
 		const struct dirent *cpuidle_d;
 
-		if (strncmp(cpu_d->d_name, "cpu", 3))
+		if (shim_strncmp(cpu_d->d_name, "cpu", 3))
 			continue;
 
 		(void)snprintf(cpuidle_path, sizeof(cpuidle_path),
@@ -238,7 +238,7 @@ static void stress_cpuidle_read_cstates(
 			uint64_t cstate_time;
 			double now;
 
-			if (strncmp(cpuidle_d->d_name, "state", 5))
+			if (shim_strncmp(cpuidle_d->d_name, "state", 5))
 				continue;
 
 			(void)snprintf(path, sizeof(path), "%s/%s/name", cpuidle_path, cpuidle_d->d_name);
@@ -256,7 +256,7 @@ static void stress_cpuidle_read_cstates(
 			if (sscanf(data, "%" SCNu64, &cstate_time) != 1)
 				continue;
 			for (i = 0, cc = cpu_cstate_list; (i < STRESS_CSTATES_MAX) && cc; i++, cc = cc->next) {
-				if (strcmp(cc->cstate, cstate) == 0) {
+				if (shim_strcmp(cc->cstate, cstate) == 0) {
 					stats.time[i] += now;
 					stats.residency[i] += (double)cstate_time;
 					stats.valid = true;
@@ -338,7 +338,7 @@ void stress_cpuidle_dump(FILE *yaml, stress_list_item_t *stressors_list)
 			for (i = 0, cc = cpu_cstate_list; (i < STRESS_CSTATES_MAX) && cc; i++, cc = cc->next) {
 				const char *const notes = overflow[i] ? " (inaccurate)" : "";
 
-				if (strcmp(cc->cstate, busy_state) == 0)
+				if (shim_strcmp(cc->cstate, busy_state) == 0)
 					residencies[i] = c0_residency;
 				pr_inf(" %-5.5s %6.2f%%%s\n", cc->cstate, residencies[i], notes);
 				pr_yaml(yaml, "      %s: %.2f\n", cc->cstate, residencies[i]);

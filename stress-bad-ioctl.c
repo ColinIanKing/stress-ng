@@ -106,7 +106,7 @@ static dev_ioctl_info_t *stress_bad_ioctl_dev_new(
 	dev_ioctl_info_t *node;
 
 	while (*head) {
-		const int cmp = strcmp((*head)->dev_path, dev_path);
+		const int cmp = shim_strcmp((*head)->dev_path, dev_path);
 
 		if (cmp == 0)
 			return *head;

@@ -809,7 +809,7 @@ int stress_parse_opt(const char *stressor_name, const char *opt_arg, const stres
 			stress_no_return();
 		}
 		for (i = 0; (str = method_func(i)) != NULL ; i++) {
-			if (strcmp(str, opt_arg) == 0)
+			if (shim_strcmp(str, opt_arg) == 0)
 				return stress_setting_set(stressor_name, opt_name, TYPE_ID_SIZE_T_METHOD, &i);
 		}
 		if (i == 0) {

@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-capabilities.h"
+#include "core-builtin.h"
 #include "core-killpid.h"
 #include "core-mmap.h"
 
@@ -316,7 +317,7 @@ static int stress_access(stress_args_t *args)
 	 * so silently ignore error reports on these
 	 */
 	for (i = 0; i < SIZEOF_ARRAY(ignore_chmod_fs); i++) {
-		if (strcmp(fs_type, ignore_chmod_fs[i]) == 0) {
+		if (shim_strcmp(fs_type, ignore_chmod_fs[i]) == 0) {
 			report_chmod_error = false;
 			break;
 		}

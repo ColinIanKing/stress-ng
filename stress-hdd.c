@@ -575,7 +575,7 @@ static void stress_hdd_opts(const char *opt_name, const char *opt_arg, stress_ty
 		bool opt_ok = false;
 
 		for (i = 0; i < SIZEOF_ARRAY(hdd_opts); i++) {
-			if (!strcmp(token, hdd_opts[i].opt)) {
+			if (!shim_strcmp(token, hdd_opts[i].opt)) {
 				const int exclude = hdd_flags & hdd_opts[i].exclude;
 
 				if (exclude) {

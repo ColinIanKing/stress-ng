@@ -78,7 +78,7 @@ int stress_net_interface_exists(const char *interface, const int domain, struct 
 			continue;
 		if (ifa->ifa_addr->sa_family != domain)
 			continue;
-		if (strcmp(ifa->ifa_name, interface) == 0) {
+		if (shim_strcmp(ifa->ifa_name, interface) == 0) {
 			(void)shim_memcpy(addr, ifa->ifa_addr, sizeof(*addr));
 			ret = 0;
 			break;
@@ -142,7 +142,7 @@ int stress_net_domain_set(
 
 	for (i = 0; i < SIZEOF_ARRAY(domains); i++) {
 		if ((domain_mask & domains[i].domain_flags) &&
-		    !strcmp(domain_name, domains[i].name)) {
+		    !shim_strcmp(domain_name, domains[i].name)) {
 			*domain = domains[i].domain;
 			return 0;
 		}

@@ -257,7 +257,7 @@ static int get_modpath_name(
 				line = NULL;
 				break;
 			}
-			if (strncmp(name, module_short, len) != 0) {
+			if (shim_strncmp(name, module_short, len) != 0) {
 				free(line);
 				line = NULL;
 				break;
@@ -270,11 +270,11 @@ static int get_modpath_name(
 			ret = -1;
 			len = strlen(module_path);
 			if (len > 6) {
-				if (strncmp(module_path + len - 6, ".ko.xz", 6) == 0)
+				if (shim_strncmp(module_path + len - 6, ".ko.xz", 6) == 0)
 					ret = MODULE_KO_XZ;
 			}
 			if (len > 3) {
-				if (strncmp(module_path + len - 3, ".ko", 3) == 0)
+				if (shim_strncmp(module_path + len - 3, ".ko", 3) == 0)
 					ret = MODULE_KO;
 			}
 			goto out_close;

@@ -8722,7 +8722,7 @@ static int cmp_syscall_name(const void *p1, const void *p2)
 	const size_t i1 = *(const size_t *)p1;
 	const size_t i2 = *(const size_t *)p2;
 
-	return strcmp(syscall_stats[i1].name, syscall_stats[i2].name) >= 0;
+	return shim_strcmp(syscall_stats[i1].name, syscall_stats[i2].name) >= 0;
 }
 
 /*

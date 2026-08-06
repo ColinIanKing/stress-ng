@@ -79,7 +79,7 @@ static bool PURE do_not_stat(const char *filename)
 	size_t i;
 
 	for (i = 0; i < SIZEOF_ARRAY(blocklist); i++) {
-		if (!strncmp(filename, blocklist[i], strlen(blocklist[i])))
+		if (!shim_strncmp(filename, blocklist[i], strlen(blocklist[i])))
 			return true;
 	}
 	return false;

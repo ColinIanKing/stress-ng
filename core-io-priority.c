@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-io-priority.h"
 
 /*
@@ -27,20 +28,20 @@
 int32_t stress_io_priority_ionice_class_get(const char *const str)
 {
 #if defined(IOPRIO_CLASS_IDLE)
-	if (!strcmp("idle", str))
+	if (!shim_strcmp("idle", str))
 		return IOPRIO_CLASS_IDLE;
 #endif
 #if defined(IOPRIO_CLASS_BE)
-	if (!strcmp("besteffort", str) ||
-	    !strcmp("be", str))
+	if (!shim_strcmp("besteffort", str) ||
+	    !shim_strcmp("be", str))
 		return IOPRIO_CLASS_BE;
 #endif
 #if defined(IOPRIO_CLASS_RT)
-	if (!strcmp("realtime", str) ||
-	    !strcmp("rt", str))
+	if (!shim_strcmp("realtime", str) ||
+	    !shim_strcmp("rt", str))
 		return IOPRIO_CLASS_RT;
 #endif
-	if (strcmp("which", str))
+	if (shim_strcmp("which", str))
 		(void)fprintf(stderr, "invalid ionice-class option: %s\n", str);
 
 	(void)fprintf(stderr, "available options are:");

@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-arch.h"
+#include "core-builtin.h"
 #include "core-cpu.h"
 
 #include <time.h>
@@ -341,7 +342,7 @@ static int x86syscall_check_x86syscall_func(void)
 		return 0;
 
 	for (i = 0; i < SIZEOF_ARRAY(x86syscalls); i++) {
-		const bool match = !strcmp(x86syscalls[i].name, name);
+		const bool match = !shim_strcmp(x86syscalls[i].name, name);
 
 		exercise |= match;
 		x86syscalls_exercise[i] = match;

@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-pragma.h"
 
 #define MIN_REVIO_BYTES		(1 * MB)
@@ -205,7 +206,7 @@ static void stress_revio_opts(const char *opt_name, const char *opt_arg, stress_
 		bool opt_ok = false;
 
 		for (i = 0; i < SIZEOF_ARRAY(revio_opts); i++) {
-			if (!strcmp(token, revio_opts[i].opt)) {
+			if (!shim_strcmp(token, revio_opts[i].opt)) {
 				const int exclude = revio_flags & revio_opts[i].exclude;
 
 				if (exclude) {

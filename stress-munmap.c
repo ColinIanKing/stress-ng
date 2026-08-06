@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-attribute.h"
+#include "core-builtin.h"
 #include "core-mmap.h"
 #include "core-out-of-memory.h"
 #include "core-prime.h"
@@ -209,7 +210,7 @@ static int stress_munmap_child(stress_args_t *args, void *context)
 			continue;	/* don't unmap libc */
 		if (strstr(path, "/dev/zero"))
 			continue;	/* need this for zero'd page data */
-		if (!strcmp(path, ctxt->exec_path))
+		if (!shim_strcmp(path, ctxt->exec_path))
 			continue;	/* don't unmap stress-ng */
 		if (prot[0] != 'r')
 			continue;	/* don't unmap non-readable pages */

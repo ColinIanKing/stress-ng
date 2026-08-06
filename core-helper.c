@@ -1115,7 +1115,7 @@ bool stress_is_dev_tty(const int fd)
 
 	if (UNLIKELY(!name))
 		return true;
-	return !strncmp("/dev/tty", name, 8);
+	return !shim_strncmp("/dev/tty", name, 8);
 #else
 	UNEXPECTED
 	(void)fd;

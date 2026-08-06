@@ -17,6 +17,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-clocksource.h"
 
 #include <ctype.h>
@@ -59,7 +60,7 @@ void stress_clocksource_check(void)
 		char buf[256];
 		ssize_t ret;
 
-		if (strncmp(entry->d_name, "clocksource", 11))
+		if (shim_strncmp(entry->d_name, "clocksource", 11))
 			continue;
 
 		(void)snprintf(path, sizeof(path), "%s/%s/current_clocksource", dirname, entry->d_name);
@@ -67,7 +68,7 @@ void stress_clocksource_check(void)
 		if (ret > 0) {
 			buf[ret] = '\0';
 			stress_clocksource_tolower(buf);
-			if (strncmp(buf, "hpet", 4) == 0) {
+			if (shim_strncmp(buf, "hpet", 4) == 0) {
 				pr_warn("WARNING! using HPET clocksource (refer to %s/%s), this may impact "
 					"benchmarking performance\n", dirname, entry->d_name);
 				warned = true;

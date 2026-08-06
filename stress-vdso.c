@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 #include <time.h>
 
@@ -203,7 +204,7 @@ static stress_vdso_func_t func_find(const char *name)
 	size_t i;
 
 	for (i = 0; i < SIZEOF_ARRAY(wrap_funcs); i++) {
-		if (!strcmp(name, wrap_funcs[i].name))
+		if (!shim_strcmp(name, wrap_funcs[i].name))
 			return wrap_funcs[i].func;
 	}
 	return NULL;
@@ -452,7 +453,7 @@ static int vdso_sym_list_check_vdso_func(stress_vdso_sym_t **list)
 		return 0;
 
 	for (vs1 = vdso_sym_list; vs1; vs1 = vs1->next) {
-		if (!strcmp(vs1->name, name))
+		if (!shim_strcmp(vs1->name, name))
 			break;
 	}
 	if (!vs1) {
@@ -467,7 +468,7 @@ static int vdso_sym_list_check_vdso_func(stress_vdso_sym_t **list)
 	while (vs1) {
 		stress_vdso_sym_t *next = vs1->next;
 
-		if (strcmp(vs1->name, name))
+		if (shim_strcmp(vs1->name, name))
 			remove_sym(list, vs1);
 		vs1 = next;
 	}

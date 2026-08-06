@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-capabilities.h"
 
 static const stress_help_t help[] = {
@@ -111,7 +112,7 @@ static void *stress_uprobe_libc_start(const pid_t pid, char *libc_path)
 		/*
 		 *  name /libc-*.so or /libc.so found?
 		 */
-		if ((n == 8) && !strncmp(perm, "r-xp", 4) &&
+		if ((n == 8) && !shim_strncmp(perm, "r-xp", 4) &&
 		    strstr(libc_path, ".so")) {
 			if (strstr(libc_path, "/libc-") ||
 			    strstr(libc_path, "/libc.so")) {
