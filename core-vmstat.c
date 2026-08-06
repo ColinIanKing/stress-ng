@@ -988,7 +988,7 @@ static int stress_buddystat(
 			const char *match;
 			char numbuf[20];
 
-			match = strstr(buffer, type[i]);
+			match = shim_strstr(buffer, type[i]);
 			if (!match)
 				continue;
 

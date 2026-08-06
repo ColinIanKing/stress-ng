@@ -365,7 +365,7 @@ redo:
 		 *  on Cygwin causes issues (Jul 2025), so skip these
 		 */
 		if ((!shim_strncmp(path, "/proc/", 6) && isdigit((unsigned char)path[6]))) {
-			if (strstr(path, "maps") || strstr(path, "ctty"))
+			if (shim_strstr(path, "maps") || shim_strstr(path, "ctty"))
 				return;
 		}
 #endif
@@ -445,7 +445,7 @@ redo:
 		 *  with some special name space ioctls:
 		 */
 		if ((ret == 0) && (statbuf.st_mode & S_IFLNK)) {
-			if (!shim_strncmp(path, "/proc/self", 10) && (strstr(path, "/ns/"))) {
+			if (!shim_strncmp(path, "/proc/self", 10) && (shim_strstr(path, "/ns/"))) {
 				int ns_fd;
 				uid_t uid;
 

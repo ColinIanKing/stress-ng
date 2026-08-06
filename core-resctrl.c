@@ -606,7 +606,7 @@ static int stress_resctrl_set_pid(const char *name, const pid_t pid, stress_part
 				name, partition->name, errno, strerror(errno));
 			return -1;
 		}
-		ptr = strstr(buf, "L");
+		ptr = shim_strstr(buf, "L");
 		if (ptr) {
 			uint32_t cachelevel;
 
@@ -622,7 +622,7 @@ static int stress_resctrl_set_pid(const char *name, const pid_t pid, stress_part
 		partition->cachelevel, partition->node, partition->bitmask);
 	ret = stress_fs_file_write(path, buf, shim_strnlen(buf, sizeof(buf)));
 	if (ret < 0) {
-		ptr = strstr(buf, "\n");
+		ptr = shim_strstr(buf, "\n");
 		if (ptr)
 			*ptr = '\0';
 		pr_warn("%s: failed to set schemata '%s' for resctrl partition '%s', errno=%d (%s)\n",
@@ -633,7 +633,7 @@ static int stress_resctrl_set_pid(const char *name, const pid_t pid, stress_part
 		partition->node, partition->bandwidth);
 	ret = stress_fs_file_write(path, buf, shim_strnlen(buf, sizeof(buf)));
 	if (ret < 0) {
-		ptr = strstr(buf, "\n");
+		ptr = shim_strstr(buf, "\n");
 		if (ptr)
 			*ptr = '\0';
 		pr_warn("%s: failed to set schemata '%s' for resctrl partition '%s', errno=%d (%s)\n",
@@ -644,7 +644,7 @@ static int stress_resctrl_set_pid(const char *name, const pid_t pid, stress_part
 	(void)snprintf(buf, sizeof(buf), "%" PRIdMAX "\n", (intmax_t)pid);
 	ret = stress_fs_file_write(path, buf, shim_strnlen(buf, sizeof(buf)));
 	if (ret < 0) {
-		ptr = strstr(buf, "\n");
+		ptr = shim_strstr(buf, "\n");
 		if (ptr)
 			*ptr = '\0';
 		pr_warn("%s: failed to add pid %" PRIdMAX " to resctrl partition '%s', errno=%d (%s)\n",

@@ -409,7 +409,7 @@ err:
 			 * Special case where we are root and file
 			 * is a sysfd ROM file
 			 */
-			const char *rom = strstr(path, "rom");
+			const char *rom = shim_strstr(path, "rom");
 
 			if (rom && (rom[3] == '\0')) {
 				if ((fd = open(path, O_RDWR | O_NONBLOCK)) < 0)
@@ -496,19 +496,19 @@ static bool stress_sys_skip(const char *path)
 	 *  "/sys/devices/LNXSYSTM:00/LNXSYBUS:00/PNP0A03:00/device:07/" \
 	 *  "VMBUS:01/99221fa0-24ad-11e2-be98-001aa01bbf6e/channels/4/read_avail"
 	 */
-	if (UNLIKELY(strstr(path, "PNP0A03") && strstr(path, "VMBUS")))
+	if (UNLIKELY(shim_strstr(path, "PNP0A03") && shim_strstr(path, "VMBUS")))
 		return true;
 	/*
 	 *  Has been known to cause issues on s390x
 	 *
-	if (UNLIKELY(strstr(path, "virtio0/block") && strstr(path, "cache_type")))
+	if (UNLIKELY(shim_strstr(path, "virtio0/block") && shim_strstr(path, "cache_type")))
 		return true;
 	 */
 
 	/*
 	 *  The tpm driver for pre Linux 4.10 is racey so skip
 	 */
-	if (UNLIKELY((os_release < 410) && (strstr(path, "/sys/kernel/security/tpm0"))))
+	if (UNLIKELY((os_release < 410) && (shim_strstr(path, "/sys/kernel/security/tpm0"))))
 		return true;
 
 	return false;

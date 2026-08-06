@@ -1383,7 +1383,7 @@ static bool stress_sock_kernel_rt(void)
 	if (uname(&buf) < 0)
 		return true;	/* Not sure, assume rt */
 
-	if (strstr(buf.version, "PREEMPT_RT"))
+	if (shim_strstr(buf.version, "PREEMPT_RT"))
 		return true;	/* Definitely rt */
 
 	/* probably not RT */

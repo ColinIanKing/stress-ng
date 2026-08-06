@@ -145,7 +145,7 @@ static void stress_topology_set_get(
 
 		CPU_ZERO(&newset);
 		for (ptr = str; (token = shim_strtok_r(ptr, ",", &saveptr)) != NULL; ptr = NULL) {
-			const char *tmpptr = strstr(token, "-");
+			const char *tmpptr = shim_strstr(token, "-");
 
 			if (sscanf(token, "%d", &i) != 1)
 				continue;
@@ -217,7 +217,7 @@ int stress_affinity_parse_cpu(const char *arg, cpu_set_t *set, int *setbits)
 	for (ptr = str; (token = shim_strtok_r(ptr, ",", &saveptr)) != NULL; ptr = NULL) {
 		int lo;
 		int hi;
-		const char *tmpptr = strstr(token, "-");
+		const char *tmpptr = shim_strstr(token, "-");
 
 		if (!shim_strcmp(token, "odd")) {
 			for (i = 1; i < max_cpus; i += 2) {

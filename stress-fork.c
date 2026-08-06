@@ -205,7 +205,7 @@ static void stress_fork_maps_reduce(const size_t page_size, const int reduce_mod
 #endif
 
 		for (i = 0; i < SIZEOF_ARRAY(stress_fork_shlibs); i++) {
-			if (strstr(tmppath, stress_fork_shlibs[i])) {
+			if (shim_strstr(tmppath, stress_fork_shlibs[i])) {
 				if (reduce_mode & STRESS_MODE_DONTNEED) {
 					(void)madvise((void *)begin_ptr, len, MADV_DONTNEED);
 				} else if (reduce_mode & STRESS_MODE_UNMAP) {

@@ -112,7 +112,7 @@ static void stress_interrupts_count(stress_interrupts_t *counters, const int whi
 			const char *ptr;
 
 			/* Find a match */
-			ptr = strstr(buffer, info[i].type);
+			ptr = shim_strstr(buffer, info[i].type);
 			if (ptr) {
 				count = 0;
 				ptr += shim_strnlen(info[i].type, sizeof(info[i].type));
@@ -285,7 +285,7 @@ static void stress_interrupts_parse_field(
 {
 	const char *ptr;
 
-	ptr = strstr(str, field);
+	ptr = shim_strstr(str, field);
 	if (!ptr)
 		return;
 

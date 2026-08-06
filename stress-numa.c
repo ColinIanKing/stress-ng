@@ -144,7 +144,7 @@ static void stress_numa_check_maps(
 		n = sscanf(buffer, "%" SCNxPTR, &addr);
 		if ((n == 1) && (ptr == (void *)addr)) {
 			/* find active= field */
-			const char *str = strstr(buffer, "active=");
+			const char *str = shim_strstr(buffer, "active=");
 
 			if (str) {
 				int node;

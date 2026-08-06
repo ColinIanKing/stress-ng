@@ -73,6 +73,12 @@
 #define shim_strncmp(s1, s2, n)		strncmp((s1), (s2), (n))
 #endif
 
+#if defined(HAVE_BUILTIN_STRSTR)
+#define shim_strstr(haystack, needle)	__builtin_strstr((haystack), (needle))
+#else
+#define shim_strstr(haystack, needle)	strstr((haystack), (needle))
+#endif
+
 #if defined(HAVE_BUILTIN_COMPLEX)
 #define shim_cmplxf(r, i)		__builtin_complex((float)(r), (float)(i))
 #define shim_cmplx(r, i)		__builtin_complex((double)(r), (double)(i))

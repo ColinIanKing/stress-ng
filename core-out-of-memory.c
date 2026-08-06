@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-attribute.h"
+#include "core-builtin.h"
 #include "core-capabilities.h"
 #include "core-killpid.h"
 #include "core-out-of-memory.h"
@@ -65,9 +66,9 @@ bool stress_process_oomed(const pid_t pid)
 		/*
 		 * Look for 'Out of memory: Kill process 22566'
 		 */
-		ptr = strstr(buf, "process");
-		if (ptr && (strstr(buf, "Out of memory") ||
-			    strstr(buf, "oom_reaper"))) {
+		ptr = shim_strstr(buf, "process");
+		if (ptr && (shim_strstr(buf, "Out of memory") ||
+			    shim_strstr(buf, "oom_reaper"))) {
 			intmax_t oom_pid;
 
 			if (sscanf(ptr + 7, "%10" SCNdMAX, &oom_pid) == 1) {

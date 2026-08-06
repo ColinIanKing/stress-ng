@@ -88,7 +88,7 @@ void stress_processes_dump(void)
 					break;
 			}
 		}
-		if (strstr(cmd, "stress-ng") == NULL)
+		if (shim_strstr(cmd, "stress-ng") == NULL)
 			continue;
 
 		if (sscanf(namelist[i]->d_name, "%ld", &val) != 1)
@@ -123,7 +123,7 @@ void stress_processes_dump(void)
 		if (ret > 0) {
 			const char *ptr;
 
-			ptr = strstr(buf, "\nPPid:");
+			ptr = shim_strstr(buf, "\nPPid:");
 			if (ptr) {
 				intmax_t ppid_val;
 
@@ -132,7 +132,7 @@ void stress_processes_dump(void)
 				ppid = (pid_t)ppid_val;
 			}
 			(void)shim_strscpy(state, "?", sizeof(state));
-			ptr = strstr(buf, "\nState:");
+			ptr = shim_strstr(buf, "\nState:");
 			if (ptr) {
 				if (sscanf(ptr, "\nState:%1s", state) != 1)
 					(void)shim_strscpy(state, "?", sizeof(state));

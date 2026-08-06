@@ -78,7 +78,7 @@ static stress_physmmap_t *stress_physmmap_get_ranges(stress_args_t *args)
 
 	(void)shim_memset(buf, 0, sizeof(buf));
 	while (fgets(buf, sizeof(buf), fp) != NULL) {
-		if (strstr(buf, "System RAM")) {
+		if (shim_strstr(buf, "System RAM")) {
 			uintptr_t addr_begin;
 			uintptr_t addr_end;
 			stress_physmmap_t *new_physmmap;

@@ -402,7 +402,7 @@ static int stress_waitcpu(stress_args_t *args)
 			bool virtualized = false;
 
 			while (fgets(buf, sizeof(buf), fp) != NULL) {
-				if (strstr(buf, "hypervisor")) {
+				if (shim_strstr(buf, "hypervisor")) {
 					virtualized = true;
 					break;
 				}

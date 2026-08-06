@@ -206,9 +206,9 @@ static int stress_munmap_child(stress_args_t *args, void *context)
 			continue;	/* don't unmap anonymous mappings */
 		if (path[0] == '[')
 			continue;	/* don't unmap special mappings (stack, vdso etc) */
-		if (strstr(path, "libc"))
+		if (shim_strstr(path, "libc"))
 			continue;	/* don't unmap libc */
-		if (strstr(path, "/dev/zero"))
+		if (shim_strstr(path, "/dev/zero"))
 			continue;	/* need this for zero'd page data */
 		if (!shim_strcmp(path, ctxt->exec_path))
 			continue;	/* don't unmap stress-ng */

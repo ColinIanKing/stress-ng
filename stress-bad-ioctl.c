@@ -211,7 +211,7 @@ static void stress_bad_ioctl_dev_dir(
 		case SHIM_DT_BLK:
 		case SHIM_DT_CHR:
 			(void)stress_fs_make_filename(tmp, sizeof(tmp), path, d->d_name);
-			if (strstr(tmp, "watchdog"))
+			if (shim_strstr(tmp, "watchdog"))
 				continue;
 			stress_bad_ioctl_dev_new(&dev_ioctl_info_head, tmp);
 			break;
