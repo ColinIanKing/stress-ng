@@ -839,6 +839,7 @@ static inline void ALWAYS_INLINE btree_insert_node(
 {
 	register int j = node->count;
 
+PRAGMA_UNROLL
 	while (j > pos) {
 		node->value[j + 1] = node->value[j];
 		node->node[j + 1] = node->node[j];
@@ -868,6 +869,7 @@ static btree_t * OPTIMIZE3 btree_split_node(
 	}
 
 	j = median + 1;
+PRAGMA_UNROLL
 	while (j <= BTREE_MAX) {
 		new_node->value[j - median] = node->value[j];
 		new_node->node[j - median] = node->node[j];
