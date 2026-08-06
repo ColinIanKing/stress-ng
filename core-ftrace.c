@@ -206,7 +206,7 @@ static void stress_ftrace_sig_handler(int sig)
 	tracing_run = false;
 }
 
-static void stress_ftrace_child(FILE *fp)
+static void OPTIMIZE3 stress_ftrace_child(FILE *fp)
 {
 	char buf[1024];
 	const pid_t my_pid = getpid();
@@ -237,7 +237,7 @@ static void stress_ftrace_child(FILE *fp)
 
 		/* skip over any leading spaces */
 		ptr = buf;
-		while (*ptr == ' ')
+		while (LIKELY(*ptr == ' '))
 			ptr++;
 		if (!*ptr)
 			continue;
@@ -249,10 +249,10 @@ static void stress_ftrace_child(FILE *fp)
 		hyphen = NULL;
 		while (*ptr == ' ')
 			ptr++;
-		if (!*ptr)
+		if (UNLIKELY(!*ptr))
 			continue;
-		while ((ch = *ptr) && ch != ' ') {
-			if (ch == '-')
+		while ((ch = *ptr) && (LIKELY(ch != ' '))) {
+			if (UNLIKELY(ch == '-'))
 				hyphen = ptr;
 			ptr++;
 		}
@@ -268,21 +268,21 @@ static void stress_ftrace_child(FILE *fp)
 		/* skip over [cpu] field */
 		while (*ptr == ' ')
 			ptr++;
-		if (!*ptr)
+		if (UNLIKELY(!*ptr))
 			continue;
-		while (*ptr != ' ')
+		while (LIKELY(*ptr != ' '))
 			ptr++;
-		if (!*ptr)
+		if (UNLIKELY(!*ptr))
 			continue;
 
 		/* skip over ..... field */
 		while (*ptr == ' ')
 			ptr++;
-		if (!*ptr)
+		if (UNLIKELY(!*ptr))
 			continue;
-		while (*ptr != ' ')
+		while (LIKELY(*ptr != ' '))
 			ptr++;
-		if (!*ptr)
+		if (UNLIKELY(!*ptr))
 			continue;
 
 		time_stamp = 0.0;
@@ -292,24 +292,24 @@ static void stress_ftrace_child(FILE *fp)
 		/* skip over time stamp field */
 		while (*ptr == ' ')
 			ptr++;
-		if (!*ptr)
+		if (UNLIKELY(!*ptr))
 			continue;
-		while (*ptr != ' ')
+		while (LIKELY(*ptr != ' '))
 			ptr++;
-		if (!*ptr)
+		if (UNLIKELY(!*ptr))
 			continue;
 
 		/* find syscall */
-		while (*ptr == ' ')
+		while (LIKELY(*ptr == ' '))
 			ptr++;
-		if (!*ptr)
+		if (UNLIKELY(!*ptr))
 			continue;
 
 		syscall_name = ptr;
-		while ((ch = *ptr) && (ch != '(') && (ch != ' '))
+		while ((ch = *ptr) && LIKELY(ch != '(') && LIKELY(ch != ' '))
 			ptr++;
 
-		if (!ch)
+		if (UNLIKELY(!ch))
 			continue;
 
 		*ptr = '\0';
