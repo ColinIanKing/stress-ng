@@ -255,7 +255,7 @@ static int OPTIMIZE3 stress_dentrycache(stress_args_t *args)
 				stress_dentrycache_filename(filename, count);
 				errno = 0;
 				if (dentrycache_func(dir_path) != ENOENT) {
-					pr_fail("%s: %s access '%s' failed with unexepcted error %d (%s)\n",
+					pr_fail("%s: %s access '%s' failed with unexpected error %d (%s)\n",
 						args->name, dentrycache_methods[dentrycache_method].name,
 						filename, errno, strerror(errno));
 				}
@@ -275,7 +275,7 @@ static int OPTIMIZE3 stress_dentrycache(stress_args_t *args)
 			stress_dentrycache_filename(filename, count);
 			errno = 0;
 			if (dentrycache_func(dir_path) != ENOENT) {
-				pr_fail("%s: %s access '%s' failed with unexepcted error %d (%s)\n",
+				pr_fail("%s: %s access '%s' failed with unexpected error %d (%s)\n",
 					args->name, dentrycache_methods[dentrycache_method].name,
 					filename, errno, strerror(errno));
 			}

@@ -31,7 +31,7 @@
  */
 typedef struct stress_fs_dentry_stat {
 	int64_t	nr_dentry;	/* number of dentries allocated */
-	int64_t nr_unused;	/* dentries not used but in LRU list for re-use */
+	int64_t nr_unused;	/* dentries not used but in LRU list for reuse */
 	int64_t age_limit;	/* seconds before reclaimed */
 	int64_t want_pages;	/* non-zero when shrink_dcache_pages is called */
 	int64_t nr_negative;	/* number of negative dentries */

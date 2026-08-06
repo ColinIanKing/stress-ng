@@ -281,7 +281,7 @@ redo_policy:
 		param.sched_priority = 0;
 		ret = sched_setscheduler(0, policy, &param);
 		if (ret < 0) {
-			pr_fail("%s: set scheduling priority to %d and policy %s faild, errno=%d (%s)\n",
+			pr_fail("%s: set scheduling priority to %d and policy %s failed, errno=%d (%s)\n",
 				args->name, prio, stress_sched_name_get(policy),
 				errno, strerror(errno));
 		}

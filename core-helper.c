@@ -1454,7 +1454,7 @@ int stress_tty_width_get(void)
 /*
  *  stress_retry_fork()
  *	retry fork until we timeout, stress_continue() is false
- *	or an unexepcted fork() error occurred. Return the pid
+ *	or an unexpected fork() error occurred. Return the pid
  *	and errno set to that of the fork() return.
  *
  *	if retries > 0 then retry that many times, else retry forever
@@ -1482,12 +1482,12 @@ pid_t stress_retry_fork(stress_args_t *args, const int retries)
 			break;
 		}
 
-		/* SIGAALRM or bogos reached? */
+		/* SIGAALRM or bogo-ops reached? */
 		if (!stress_continue(args)) {
 			break;
 		}
 
-		/* An unexpected fork errror occurred, bail out */
+		/* An unexpected fork error occurred, bail out */
 		if ((saved_errno != EAGAIN) &&
 		    (saved_errno != EINTR) &&
 		    (saved_errno != ENOMEM)) {

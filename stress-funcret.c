@@ -451,7 +451,7 @@ static inline int cmp_fpl(const long double a, const long double b)
 #define CMP_FPL(a, b, type)	cmp_fpl((long double)a, (long double)b)
 
 #if defined(HAVE_COMPLEX_H)
-/* maximum of two complex valus is the modulus */
+/* maximum of two complex values is the modulus */
 #define CMAXF(x, y)		(float)csqrtf((x * x) + (y * y))
 #define CMAXD(x, y)		(double)csqrt((x * x) + (y * y))
 #define CMAXL(x, y)		(long double)csqrtl((x * x) + (y * y))

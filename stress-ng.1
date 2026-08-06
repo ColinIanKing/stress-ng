@@ -160,7 +160,7 @@ atomic	T{
 atomic operations
 T}
 backend-bound-rob	T{
-reorder buffer full of in-flight instructions causing exeuction stalls
+reorder buffer full of in-flight instructions causing execution stalls
 T}
 bogo-ops-stable	T{
 bogo-ops are reliably stable and can be trusted for benchmarking
@@ -281,7 +281,7 @@ hot-package	T{
 hot processor package
 T}
 i-cache	T{
-instuction cache operations
+instruction cache operations
 T}
 i-tlb-read-miss	T{
 instruction cache TLB (translation lookaside buffer) read miss
@@ -314,7 +314,7 @@ io-read	T{
 relatively high I/O read operations
 T}
 io-therm	T{
-I/O operations can noticably raise I/O device temperature
+I/O operations can noticeably raise I/O device temperature
 T}
 io-wait	T{
 majority of run time is waiting on I/O to complete
@@ -1237,7 +1237,7 @@ stop access workers after N bogo access sanity checks.
 .TQ
 .B \-\-acct N
 start N workers that exercise the acct(2) accounting interface. An accounting
-file is opened and a child pocess is created and exited with the accounting data
+file is opened and a child process is created and exited with the accounting data
 being read and sanity checked. The accounting file is limited to a maximum of
 16MB in size. Linux only and requires CAP_SYS_PACCT capabilities.
 .TP
@@ -3240,7 +3240,7 @@ conditions.
 .B \-\-epollmany N
 start N workers that exercise many file descriptors using epoll_create1(2) and epoll_ctl(2).
 Each new epoll file descriptor had added to it up to 16 pipe file descriptors and previously
-created epoll file desscriptors, creating nested epoll events. This exercises internal kernel
+created epoll file descriptors, creating nested epoll events. This exercises internal kernel
 epoll lock contention.
 .TP
 .B \-\-epollmany\-delete
@@ -9601,7 +9601,7 @@ stop after N \(mu 1024 branch misprediction operations.
 .TP
 .B \-\-spec\-rollback\-size N
 set the random data array size to N elements. This is 256 by default, minimum 16
-to maximum of 8388608. Optimial when N is a power of 2.
+to maximum of 8388608. Optimal when N is a power of 2.
 .RE
 .TP
 .B Spin on memory for process synchronization stressor

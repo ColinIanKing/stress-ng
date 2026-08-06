@@ -107,7 +107,7 @@ static int OPTIMIZE3 stress_judy(stress_args_t *args)
 			JLI(pvalue, PJLArray, idx)
 			if (UNLIKELY((pvalue == NULL) || (pvalue == PJERR))) {
 				pr_err("%s: allocate new "
-					"judy node faied%s\n", args->name,
+					"judy node failed%s\n", args->name,
 					stress_memory_free_get());
 				for (j = 0; j < n; j++) {
 					idx = gen_index(j);

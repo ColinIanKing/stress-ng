@@ -145,7 +145,7 @@ static void OPTIMIZE3 *stress_pagescatter_mmap(
 			continue;
 
 #if defined(MAP_FIXED)
-		/* page is not accessable, so map it in */
+		/* page is not accessible, so map it in */
 		t = stress_time_now();
 		ptr = mmap((void *)addr, page_size, PROT_READ | PROT_WRITE,
 			  flags | MAP_FIXED, -1, 0);

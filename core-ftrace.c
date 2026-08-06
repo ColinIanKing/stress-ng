@@ -328,7 +328,7 @@ static void OPTIMIZE3 stress_ftrace_child(FILE *fp)
 					time_stamp - tn->time_enter : 0.0;
 
 				/*
-				 *  Try to find pidless acconting node
+				 *  Try to find pidless accounting node
 				 */
 				node.syscall_name = syscall_name;
 				node.syscall_pid = STATS_PID;
@@ -354,7 +354,7 @@ static void OPTIMIZE3 stress_ftrace_child(FILE *fp)
 			node.syscall_pid = STATS_PID;
 			pidless_node = RB_FIND(rb_tree, &rb_root, &node);
 			if (pidless_node) {
-				/* re-use from PID-less node */
+				/* reuse from PID-less node */
 				dup_syscall_name = pidless_node->syscall_name;
 			} else {
 				dup_syscall_name = strdup(syscall_name);
@@ -519,7 +519,7 @@ void stress_ftrace_start(void)
 	tracing_pid = fork();
 	if (tracing_pid < 0) {
 		(void)fclose(fp);
-		pr_inf("ftrace: failed to fork, disabing function profiling\n");
+		pr_inf("ftrace: failed to fork, disabling function profiling\n");
 		tracing_run = false;
 		return;
 	} else if (tracing_pid == 0) {

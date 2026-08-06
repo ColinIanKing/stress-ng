@@ -463,7 +463,7 @@ abort:
 	stress_metrics_set(args, "nanosecs per bogus file unlink",
 		rate * STRESS_DBL_NANOSECOND, STRESS_METRIC_HARMONIC_MEAN);
 	if (nr_dentries > 0)
-		stress_metrics_set(args, "directory entries allocted", (double)nr_dentries, STRESS_METRIC_MAXIMUM);
+		stress_metrics_set(args, "directory entries allocated", (double)nr_dentries, STRESS_METRIC_MAXIMUM);
 	stress_metrics_set(args, "bogus (negative) directory entries accessed", bogus_access_count, STRESS_METRIC_MAXIMUM);
 
 	/* force unlink of all files */
