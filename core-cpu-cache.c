@@ -850,7 +850,7 @@ static uint64_t stress_cpu_cache_size_to_bytes(const char *str)
 
 	ret = sscanf(str, "%" SCNu64 "%c", &bytes, &sz);
 	if (ret != 2) {
-		pr_dbg("%s: failed to parse suffix from \"%s\"\n",
+		pr_dbg("%s: failed to parse suffix from '%s'\n",
 			__func__, str);
 		return 0;
 	}
