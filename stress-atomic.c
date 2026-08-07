@@ -445,8 +445,7 @@ static int stress_atomic_exercise(
 		for (i = 0; i < STRESS_ATOMIC_MAX_FUNCS; i++) {
 			if (arch_bits >= atomic_func_info[i].arch_bits) {
 				register int j;
-
-				const atomic_func_t func = atomic_func_info[i].func;
+				register const atomic_func_t func = atomic_func_info[i].func;
 
 				for (j = 0; j < rounds; j++) {
 					if (UNLIKELY(func(args, &atomic_info->metrics[i].duration,
@@ -542,7 +541,9 @@ static int stress_atomic(stress_args_t *args)
 
 	for (j = 0; j < STRESS_ATOMIC_MAX_FUNCS; j++) {
 		if (arch_bits >= atomic_func_info[j].arch_bits) {
-			double duration = 0.0, count = 0.0, rate;
+			double duration = 0.0;
+			double count = 0.0;
+			double rate;
 			char str[60];
 
 			for (i = 0; i < n_atomic_procs; i++) {
