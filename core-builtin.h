@@ -73,6 +73,12 @@
 #define shim_strcmp(s1, s2)		strcmp((s1), (s2))
 #endif
 
+#if defined(HAVE_BUILTIN_STRCSPN)
+#define shim_strcspn(s, reject)		__builtin_strcspn((s), (reject))
+#else
+#define shim_strcspn(s, reject)		strcspn((s), (reject))
+#endif
+
 #if defined(HAVE_BUILTIN_STRLEN)
 #define shim_strlen(str)		__builtin_strlen((str))
 #else

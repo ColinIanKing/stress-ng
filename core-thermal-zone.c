@@ -130,7 +130,7 @@ int stress_tz_init(stress_tz_info_t **tz_info_list)
 
 			(void)shim_memset(type, 0, sizeof(type));
 			if (fgets(type, sizeof(type), fp) != NULL) {
-				const size_t idx = strcspn(type, "\n");
+				const size_t idx = shim_strcspn(type, "\n");
 
 				if (idx < sizeof(type))
 					type[idx] = '\0';
