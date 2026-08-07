@@ -325,7 +325,8 @@ retry_bind:
 	stress_rndbuf(input, DATA_LEN);
 
 	for (j = 32; j < DATA_LEN; j += 32) {
-		double t, delta;
+		double t;
+		double delta;
 		ssize_t ret;
 
 		if (UNLIKELY(!stress_continue(args)))
@@ -1054,7 +1055,8 @@ retry_bind:
 	}
 
 	for (j = 0; j < 16; j++) {
-		double delta, t;
+		double delta;
+		double t;
 
 		if (UNLIKELY(!stress_continue(args)))
 			break;
