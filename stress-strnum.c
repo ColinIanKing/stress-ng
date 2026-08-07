@@ -506,7 +506,7 @@ static bool OPTIMIZE3 stress_strnum_strfromf(stress_args_t *args, const stress_s
 	(void)strfromf(str, sizeof(str), "%.7f", stress_strnum_float);
 	posn = stress_strnum_trunc_posn(str, 4);
 	if (posn) {
-		if (strncmp(str, stress_strnum_float_str, posn)) {
+		if (shim_strncmp(str, stress_strnum_float_str, posn)) {
 			pr_fail("%s: strfromf(str, sizeof(str), \"%%.7f\", %.7f) failed, got %s, expecting %s\n",
 				args->name, (double)stress_strnum_float, str, stress_strnum_float_str);
 			return false;
@@ -526,7 +526,7 @@ static bool OPTIMIZE3 stress_strnum_strfromd(stress_args_t *args, const stress_s
 
 	(void)strfromd(str, sizeof(str), "%.7g", stress_strnum_double);
 	posn = stress_strnum_trunc_posn(str, 6);
-	if (strncmp(str, stress_strnum_double_str, posn)) {
+	if (shim_strncmp(str, stress_strnum_double_str, posn)) {
 		pr_fail("%s: strfromd(str, sizeof(str), \"%%.7g\", %.7g) failed, got %s, expecting %s\n",
 			args->name, stress_strnum_double, str, stress_strnum_double_str);
 		return false;
@@ -545,7 +545,7 @@ static bool OPTIMIZE3 stress_strnum_strfroml(stress_args_t *args, const stress_s
 
 	(void)strfroml(str, sizeof(str), "%.7f", stress_strnum_long_double);
 	posn = stress_strnum_trunc_posn(str, 6);
-	if (strncmp(str, stress_strnum_long_double_str, posn)) {
+	if (shim_strncmp(str, stress_strnum_long_double_str, posn)) {
 		pr_fail("%s: strfroml(str, sizeof(str), \"%%.7f\", %.7Lf) failed, got %s, expecting %s\n",
 			args->name, stress_strnum_long_double, str, stress_strnum_long_double_str);
 		return false;
