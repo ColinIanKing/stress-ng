@@ -283,7 +283,8 @@ static inline void stress_bad_ioctl_rw(
 	}
 
 	do {
-		int fd, ret;
+		int fd;
+		int ret;
 		double t_start;
 		uint8_t type;
 		uint8_t nr;
@@ -515,7 +516,8 @@ static void stress_bad_ioctl_dir(
 					}
 				}
 				if (all_exercised) {
-					uint8_t type, nr;
+					uint8_t type;
+					uint8_t nr;
 
 					switch (bad_ioctl_method) {
 					case STRESS_BAD_IOCTL_CMD_RANDOM:
@@ -601,7 +603,8 @@ static int stress_bad_ioctl(stress_args_t *args)
 			}
 		} else if (pid == 0) {
 			size_t i;
-			int r, ssjret;
+			int r;
+			int ssjret;
 			uint32_t offset;
 
 			stress_proc_state_set(args->name, STRESS_STATE_RUN);
