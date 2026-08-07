@@ -200,7 +200,7 @@ static int OPTIMIZE3 TARGET_CLONES stress_cpu_gcd(const char *name)
 	for (i = 0; i < 16384; i++) {
 		register uint32_t a = i;
 		register uint32_t b = i % (3 + (1997 ^ i));
-		register uint64_t lcm = ((uint64_t)a * b);
+		register const uint64_t lcm = ((uint64_t)a * b);
 
 		while (b != 0) {
 			register const uint32_t r = b;
@@ -603,8 +603,8 @@ static void OPTIMIZE3 fft_partial(
 		fft_partial(tmp + m, data + m, n, m2);
 		for (i = 0; i < n; i += m2) {
 			const double complex negI = -(double complex)I;
-			register double complex v = tmp[i];
-			register double complex t =
+			register const double complex v = tmp[i];
+			register const double complex t =
 				shim_cexp((negI * (double)PI * (double)i) /
 				     (double)n) * tmp[i + m];
 
@@ -1308,14 +1308,10 @@ static int OPTIMIZE3 TARGET_CLONES stress_cpu_rgb(const char *name)
 	/* Do a 1000 colours starting from the rgb seed */
 PRAGMA_UNROLL_N(8)
 	for (i = 0; i < 1000; i++) {
-		float y;
-		float u;
-		float v;
-
 		/* RGB to CCIR 601 YUV */
-		y = (0.299f * r) + (0.587f * g) + (0.114f * b);
-		u = (b - y) * 0.565f;
-		v = (r - y) * 0.713f;
+		const float y = (0.299f * r) + (0.587f * g) + (0.114f * b);
+		const float u = (b - y) * 0.565f;
+		const float v = (r - y) * 0.713f;
 
 		/* YUV back to RGB */
 		r = (uint8_t)(y + (1.403f * v));
@@ -2328,15 +2324,15 @@ static int OPTIMIZE3 TARGET_CLONES stress_cpu_hamming(const char *name)
 }
 
 static ptrdiff_t stress_cpu_callfunc_func(
-	ssize_t		n,
-	uint64_t	u64arg,
-	uint32_t	u32arg,
-	uint16_t	u16arg,
-	uint8_t		u8arg,
-	uint64_t	*p_u64arg,
-	uint32_t	*p_u32arg,
-	uint16_t	*p_u16arg,
-	uint8_t		*p_u8arg)
+	const ssize_t	n,
+	const uint64_t	u64arg,
+	const uint32_t	u32arg,
+	const uint16_t	u16arg,
+	const uint8_t	u8arg,
+	const uint64_t	* const p_u64arg,
+	const uint32_t	* const p_u32arg,
+	const uint16_t	* const p_u16arg,
+	const uint8_t	* const p_u8arg)
 {
 	if (LIKELY(n > 0))
 		return stress_cpu_callfunc_func(n - 1,
@@ -2358,10 +2354,10 @@ static ptrdiff_t stress_cpu_callfunc_func(
  */
 static int stress_cpu_callfunc(const char *name)
 {
-	uint64_t u64arg = stress_mwc64();
-	uint32_t u32arg = stress_mwc32();
-	uint16_t u16arg = stress_mwc16();
-	uint8_t u8arg = stress_mwc8();
+	const uint64_t u64arg = stress_mwc64();
+	const uint32_t u32arg = stress_mwc32();
+	const uint16_t u16arg = stress_mwc16();
+	const uint8_t u8arg = stress_mwc8();
 	ptrdiff_t ret;
 
 	(void)name;
@@ -2593,7 +2589,7 @@ static int TARGET_CLONES stress_cpu_div8(const char *name)
 		register uint8_t l;
 
 		for (l = 0, k = 1; l < n; l++, k += delta) {
-			register uint8_t r = (uint8_t)(j / k);
+			register const uint8_t r = (uint8_t)(j / k);
 			sum += r;
 		}
 		i -= n;
@@ -2825,9 +2821,9 @@ static uint32_t queens_try(
 	register uint32_t poss = ~(left_diag | cols | right_diag) & all;
 
 	while (poss) {
-		register uint32_t inv = (uint32_t)-(int32_t)poss;
-		register uint32_t bit = poss & inv;
-		register uint32_t new_cols = cols | bit;
+		register const uint32_t inv = (uint32_t)-(int32_t)poss;
+		register const uint32_t bit = poss & inv;
+		register const uint32_t new_cols = cols | bit;
 
 		poss -= bit;
 		solutions += (new_cols == all) ?
@@ -3312,6 +3308,7 @@ static int OPTIMIZE3 stress_cpu(stress_args_t *args)
 			/* == 0, random time slices */
 			const uint16_t r = stress_mwc16();
 			const double slice_end = t1_cpu_clock + ((double)r / 131072.0);
+
 			do {
 				rc = stress_call_cpu_method(cpu_method, args, &counter);
 				t2_wall_clock = stress_time_now();
