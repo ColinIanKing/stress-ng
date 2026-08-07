@@ -358,7 +358,8 @@ static int stress_acl_exercise(
 				metrics[1].count += 1.0;
 
 				if (stress_acl_cmp(acls[i], acl)) {
-					char setacl[32], getacl[32];
+					char setacl[32];
+					char getacl[32];
 
 					acls_tested[i] = true;
 					stress_acl_perms(acls[i], setacl, sizeof(setacl));
@@ -371,8 +372,6 @@ static int stress_acl_exercise(
 				}
 				acl_free(acl);
 			}
-
-
 			stress_bogo_inc(args);
 		} else {
 			char getacl[32];
