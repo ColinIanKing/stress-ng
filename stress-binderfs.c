@@ -136,7 +136,8 @@ static int stress_binderfs_umount(
 
 	t1 = stress_time_now();
 	for (;;) {
-		double t, t2;
+		double t;
+		double t2;
 		int ret;
 
 		t = stress_time_now();
