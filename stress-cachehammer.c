@@ -333,7 +333,7 @@ static void OPTIMIZE3 hammer_write64(
 		size_t i;
 
 		for (i = 0; i < 8; i++) {
-			volatile uint64_t *vptr = (i & 1) ? (vptr2 + i) : (vptr1 + i);
+			const volatile uint64_t *vptr = (i & 1) ? (vptr2 + i) : (vptr1 + i);
 			const uint64_t val = *vptr;
 
 			if (UNLIKELY(val != pattern)) {
@@ -522,7 +522,7 @@ static void OPTIMIZE3 hammer_writeread64(
 		size_t i;
 
 		for (i = 0; i < 8; i += 2) {
-			volatile uint64_t *vptr = (i & 2) ? (vptr2 + i) : (vptr1 + i);
+			const volatile uint64_t *vptr = (i & 2) ? (vptr2 + i) : (vptr1 + i);
 			const uint64_t val = *vptr;
 
 			if (UNLIKELY(val != pattern)) {
@@ -1846,7 +1846,7 @@ static int OPTIMIZE3 stress_cachehammer(stress_args_t *args)
 		uint32_t flags = 0;
 
 		for (i = 0; i < N_FUNCS; i++) {
-			uint32_t mask = 1U << i;
+			const uint32_t mask = 1U << i;
 
 			if (stress_cachehammer_funcs[i].permute &&
 			    (ctxt.valid & mask)) {
@@ -2054,9 +2054,9 @@ bail_out:
 	}
 
 	if (j > 0) {
-		double inverse_n = 1.0 / (double)j;
-		double geomean = pow(mantissa, inverse_n) *
-				 pow(2.0, (double)exponent * inverse_n);
+		const double inverse_n = 1.0 / (double)j;
+		const double geomean = pow(mantissa, inverse_n) *
+				       pow(2.0, (double)exponent * inverse_n);
 
 		pr_dbg("%s: %.2f cachehammer ops per second (geometric mean of per stressor bogo-op rates)\n",
 			args->name, geomean);
