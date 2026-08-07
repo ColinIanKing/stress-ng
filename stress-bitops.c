@@ -707,7 +707,7 @@ static int OPTIMIZE3 stress_bitops_log2(const char *name, uint32_t *count)
 		static const int8_t bitposition[32] ALIGN64 = {
 			 0,  9,  1, 10, 13, 21,  2, 29,
 			11, 14, 16, 18, 22, 25,  3, 30,
-			 8, 12, 20, 28, 15, 17, 24, 7,
+			 8, 12, 20, 28, 15, 17, 24,  7,
 			19, 27, 23,  6, 26,  5,  4, 31
 		};
 		uint32_t ln2_1;
@@ -715,11 +715,16 @@ static int OPTIMIZE3 stress_bitops_log2(const char *name, uint32_t *count)
 		uint32_t tmp;
 		uint32_t shift;
 
+#if defined(HAVE_BUILTIN_CLZ)
+		ln2_1 = (8 * sizeof(v)) - __builtin_clz(v) - 1;
+		sum += ln2_1;
+#else
 		tmp = v;
 		ln2_1 = 0;
 		while (tmp >>= 1)
 			ln2_1++;
 		sum += ln2_1;
+#endif
 
 		tmp = v;
 		ln2_2 = 0;
