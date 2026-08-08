@@ -716,7 +716,7 @@ static int OPTIMIZE3 stress_bitops_log2(const char *name, uint32_t *count)
 		uint32_t shift;
 
 #if defined(HAVE_BUILTIN_CLZ)
-		ln2_1 = (8 * sizeof(v)) - __builtin_clz(v) - 1;
+		ln2_1 = (UNLIKELY(v == 0)) ? 0 : (8 * sizeof(v)) - __builtin_clz(v) - 1;
 		sum += ln2_1;
 #else
 		tmp = v;
