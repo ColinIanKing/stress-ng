@@ -518,10 +518,24 @@ static void stress_bad_ioctl_dir(
 				if (all_exercised) {
 					uint8_t type;
 					uint8_t nr;
+					static const uint16_t masks[] = {
+						0x000f,
+						0x00ff,
+						0x0fff,
+						0xffff,
+						0xfff0,
+						0xff00,
+						0xf000,
+						0x0f0f,
+						0xf00f,
+						0xf0f0,
+						0x0ff0,
+					};
 
 					switch (bad_ioctl_method) {
 					case STRESS_BAD_IOCTL_CMD_RANDOM:
-						node->ioctl_state = stress_mwc16();
+						node->ioctl_state = stress_mwc16() &
+							masks[stress_mwcsizemodn(SIZEOF_ARRAY(masks))];
 						break;
 					case STRESS_BAD_IOCTL_CMD_INC:
 						node->ioctl_state++;
