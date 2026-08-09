@@ -236,6 +236,7 @@ _stress_ng()
 	'--affinity-rand' | \
 	'--aggressive' | \
 	'--autogroup' | \
+	'--bad-ioctl-alldev' | \
 	'--bigheap-mlock' | \
 	'--brk-mlock' | \
 	'--brk-notouch' | \

@@ -74,6 +74,7 @@ const struct option stress_long_options[] = {
 	{ "bad-altstack-ops",	1,	NULL,	OPT_bad_altstack_ops },
 
 	{ "bad-ioctl",		1,	NULL,	OPT_bad_ioctl },
+	{ "bad-ioctl-alldev",	0,	NULL,	OPT_bad_ioctl_alldev },
 	{ "bad-ioctl-method",	1,	NULL,	OPT_bad_ioctl_method },
 	{ "bad-ioctl-ops",	1,	NULL,	OPT_bad_ioctl_ops },
 

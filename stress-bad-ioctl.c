@@ -31,6 +31,7 @@
 
 static const stress_help_t help[] = {
 	{ NULL,	"bad-ioctl N",		"start N stressors that perform illegal ioctls on devices" },
+	{ NULL, "bad-ioctl-alldev",	"exercise all devices (rather than just /dev/devname0" },
 	{ NULL,	"bad-ioctl-method M",	"method of selecting ioctl command [ random | inc | random-inc | stride ]" },
 	{ NULL,	"bad-ioctl-ops  N",	"stop after N bad ioctl bogo operations" },
 	{ NULL,	NULL,			NULL }
@@ -57,6 +58,7 @@ static const char *stress_bad_ioctl_method(const size_t i)
 }
 
 static const stress_opt_t opts[] = {
+	{ OPT_bad_ioctl_alldev, "bad-ioctl-alldev", TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_bad_ioctl_method, "bad-ioctl-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_bad_ioctl_method },
 	END_OPT,
 };
@@ -170,7 +172,8 @@ static void stress_bad_ioctl_dev_free(dev_ioctl_info_t *node)
 static void stress_bad_ioctl_dev_dir(
 	stress_args_t *args,
 	const char *path,
-	const int depth)
+	const int depth,
+	const bool bad_ioctl_alldev)
 {
 	struct dirent **dlist;
 	const mode_t flags = S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
@@ -207,7 +210,7 @@ static void stress_bad_ioctl_dev_dir(
 		 *  Exercise no more than 1 of the same device
 		 *  driver, e.g. ttyS0..ttyS1
 		 */
-		if (len > 1) {
+		if (!bad_ioctl_alldev && (len > 1)) {
 			int dev_n;
 			const char *ptr = d->d_name + len - 1;
 
@@ -228,7 +231,7 @@ static void stress_bad_ioctl_dev_dir(
 				continue;
 			if ((buf.st_mode & flags) == 0)
 				continue;
-			stress_bad_ioctl_dev_dir(args, tmp, depth + 1);
+			stress_bad_ioctl_dev_dir(args, tmp, depth + 1, bad_ioctl_alldev);
 			break;
 		case SHIM_DT_BLK:
 		case SHIM_DT_CHR:
@@ -638,15 +641,17 @@ static int stress_bad_ioctl(stress_args_t *args)
 	stress_bad_ioctl_thread_t threads[MAX_DEV_THREADS];
 	int rc = EXIT_SUCCESS;
 	int bad_ioctl_method = STRESS_BAD_IOCTL_CMD_RANDOM_INC;
+	bool bad_ioctl_alldev = false;
 
 	node_lock = NULL;
 	dev_ioctl_info_head = NULL;
 	dev_ioctl_info_count = 0;
 	dev_ioctl_node = NULL;
 
+	(void)stress_setting_get("bad-ioctl-alldev", &bad_ioctl_alldev);
 	(void)stress_setting_get("bad-ioctl-method", &bad_ioctl_method);
 
-	stress_bad_ioctl_dev_dir(args, "/dev", 0);
+	stress_bad_ioctl_dev_dir(args, "/dev", 0, bad_ioctl_alldev);
 	dev_ioctl_node = dev_ioctl_info_head;
 
 	if (stress_instance_zero(args))
