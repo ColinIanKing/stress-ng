@@ -270,8 +270,10 @@ const struct option stress_long_options[] = {
 	{ "dentrystat",		1,	NULL,	OPT_dentrystat },
 
 	{ "dev",		1,	NULL,	OPT_dev },
+	{ "dev-alldev",		0,	NULL,	OPT_dev_alldev },
 	{ "dev-file",		1,	NULL,	OPT_dev_file },
 	{ "dev-ops",		1,	NULL,	OPT_dev_ops },
+
 	{ "dev-shm",		1,	NULL,	OPT_dev_shm },
 	{ "dev-shm-ops",	1,	NULL,	OPT_dev_shm_ops },
 

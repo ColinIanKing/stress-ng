@@ -2880,8 +2880,14 @@ stop after N non-existtent files are accessed.
 .B \-\-dev N
 start N workers that exercise the /dev devices. Each worker runs 5
 concurrent threads that perform open(2), fstat(2), lseek(2), poll(2),
-fcntl(2), mmap(2), munmap(2), fsync(2) and close(2) on each device.
-Note that watchdog devices are not exercised.
+fcntl(2), mmap(2), munmap(2), fsync(2) and close(2) on the fist occurance
+of each device. Note that watchdog devices are not exercised.
+.TP
+.B \-\-dev\-alldev
+exercise all devices; the default is just to exercise
+the first occurrence of a device (e.g. /dev/i2c-0), this option will
+exercise all devices (e.g. /dev/i2c-*) and hence will take far more
+time to work through all the devices.
 .TP
 .B \-\-dev\-file filename
 specify the device file to exercise, for example, /dev/null. By default

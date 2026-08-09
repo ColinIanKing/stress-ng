@@ -262,6 +262,7 @@ _stress_ng()
 	'--cpu-online-all' | \
 	'--daemon-wait' | \
 	'--dentry-negative' | \
+	'--dev-alldev' | \
 	'--dry-run' | \
 	'--epollmany-delete' | \
 	'--eventfd-nonblock' | \

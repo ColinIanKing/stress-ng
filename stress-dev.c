@@ -236,13 +236,15 @@ typedef struct dev_info {
 
 static const stress_help_t help[] = {
 	{ NULL,	"dev N",	"start N device entry thrashing stressors" },
+	{ NULL, "dev-alldev",   "exercise all devices (rather than just /dev/devname0)" },
 	{ NULL, "dev-file name","specify the /dev/ file to exercise" },
 	{ NULL,	"dev-ops N",	"stop after N device thrashing bogo ops" },
 	{ NULL,	NULL,		NULL }
 };
 
 static const stress_opt_t opts[] = {
-	{ OPT_dev_file, "dev-file", TYPE_ID_STR, 0, 0, NULL },
+	{ OPT_dev_alldev, "dev-alldev", TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_dev_file,   "dev-file",   TYPE_ID_STR, 0, 0, NULL },
 	END_OPT,
 };
 
@@ -4467,7 +4469,8 @@ static void stress_dev_infos_get(
 	const char *path,
 	const char *tty_name,
 	dev_info_t **list,
-	size_t *list_len)
+	size_t *list_len,
+	const bool dev_alldev)
 {
 	struct dirent **dlist;
 	int i;
@@ -4498,10 +4501,10 @@ static void stress_dev_infos_get(
 		len = shim_strlen(d->d_name);
 
 		/*
-		 *  Exercise no more than 3 of the same device
+		 *  Exercise no more than 1 of the same device
 		 *  driver, e.g. ttyS0..ttyS1
 		 */
-		if (len > 1) {
+		if (!dev_alldev && (len > 1)) {
 			int dev_n;
 			char *ptr = d->d_name + len - 1;
 
@@ -4510,9 +4513,10 @@ static void stress_dev_infos_get(
 			ptr++;
 			if (sscanf(ptr, "%d", &dev_n) != 1)
 				continue;
-			if (dev_n > 2)
+			if (dev_n > 1)
 				continue;
 		}
+
 
 		(void)stress_fs_make_filename(tmp, sizeof(tmp), path, d->d_name);
 
@@ -4527,7 +4531,7 @@ static void stress_dev_infos_get(
 				continue;
 			if ((statbuf.st_mode & flags) == 0)
 				continue;
-			stress_dev_infos_get(args, tmp, tty_name, list, list_len);
+			stress_dev_infos_get(args, tmp, tty_name, list, list_len, dev_alldev);
 			break;
 		case SHIM_DT_BLK:
 		case SHIM_DT_CHR:
@@ -4766,6 +4770,7 @@ static int stress_dev(stress_args_t *args)
 	size_t dev_info_list_len = 0;
 	sys_dev_info_t *sys_dev_info_list = NULL;
 	sys_dev_info_t *sys_dev_info_list_end = NULL;
+	bool dev_alldev = false;
 
 	stress_dev_state_init(&dev_state_null);
 
@@ -4774,6 +4779,7 @@ static int stress_dev(stress_args_t *args)
 
 	(void)shim_memset(ret, 0, sizeof(ret));
 
+	(void)stress_setting_get("dev-alldev", &dev_alldev);
 	(void)stress_setting_get("dev-file", &dev_file);
 	if (dev_file) {
 		mode_t mode;
@@ -4793,7 +4799,7 @@ static int stress_dev(stress_args_t *args)
 
 		stress_dev_info_add(args, dev_file, &dev_info_list, &dev_info_list_len, true);
 	} else {
-		stress_dev_infos_get(args, "/dev", tty_name, &dev_info_list, &dev_info_list_len);
+		stress_dev_infos_get(args, "/dev", tty_name, &dev_info_list, &dev_info_list_len, dev_alldev);
 		stress_sys_dev_infos_get(args, "/sys/dev", &sys_dev_info_list, &sys_dev_info_list_end, 0);
 	}
 

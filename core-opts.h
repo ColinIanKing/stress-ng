@@ -396,6 +396,7 @@ typedef enum {
 	OPT_dentrystat,
 
 	OPT_dev,
+	OPT_dev_alldev,
 	OPT_dev_ops,
 	OPT_dev_file,
 
