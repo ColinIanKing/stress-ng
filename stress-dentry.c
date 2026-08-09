@@ -333,7 +333,8 @@ static int stress_dentry(stress_args_t *args)
 
 	stress_fs_dentry_state_get(&dentry_stat1);
 	do {
-		uint64_t i, n = dentries;
+		uint64_t i;
+		uint64_t n = dentries;
 		char path[PATH_MAX];
 
 		for (i = 0; i < n; i++) {
@@ -434,7 +435,7 @@ static int stress_dentry(stress_args_t *args)
 		stress_dentry_misc(dir_path);
 
 		/* create incremental negative dentries */
-		if (dentry_negative && stress_continue_flag()) {
+		if (dentry_negative && stress_continue(args)) {
 			for (i = 0; i < (n << 4); i++) {
 				stress_fs_temp_filename_args(args,
 					path, sizeof(path), negative_dentry++);
