@@ -266,30 +266,22 @@ static void stress_cgroup_controllers(const char *realpathname)
  */
 static void stress_cgroup_read_files(const char *realpathname)
 {
-	static const char * const filenames[] = {
-		"cgroup.type",
-		"cgroup.procs",
-		"cgroup.threads",
-		"cgroup.controllers",
-		"cgroup.subtree_control",
-		"cgroup.events",
-		"cgroup.max.descendants",
-		"cgroup.max.depth",
-		"cgroup.stat",
-		"cgroup.freeze",
-		"cgroup.kill",
-		"cgroup.pressure",
-		"irq.pressure",
-	};
+	DIR *dir;
+	struct dirent *de;
 
-	size_t i;
+	dir = opendir(realpathname);
+	if (!dir)
+		return;
 
-	for (i = 0; i < SIZEOF_ARRAY(filenames); i++) {
-		char path[PATH_MAX + 32];
+	while ((de = readdir(dir)) != NULL) {
+		if (de->d_type == DT_REG) {
+			char path[PATH_MAX + 256];
 
-		(void)snprintf(path, sizeof(path), "%s/%s", realpathname, filenames[i]);
-		stress_cgroup_read(path);
+			(void)snprintf(path, sizeof(path), "%s/%s", realpathname, de->d_name);
+			stress_cgroup_read(path);
+		}
 	}
+	(void)closedir(dir);
 }
 
 /*
