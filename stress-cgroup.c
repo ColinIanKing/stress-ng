@@ -22,6 +22,7 @@
 #include "core-killpid.h"
 #include "core-signal.h"
 
+#include <ctype.h>
 #if defined(HAVE_SYS_MOUNT_H)
 #include <sys/mount.h>
 #endif
@@ -315,6 +316,33 @@ static void stress_cgroup_del_pid(const char *realpathname, const pid_t pid)
 }
 
 /*
+ *  stress_cgroup_is_numeric()
+ *	return true if string is numeric and no more than one '\n'
+ */
+static inline bool stress_cgroup_is_numeric(const char *str)
+{
+	register int newlines = 0;
+	register int decpoints = 0;
+	register const char *ptr = str;
+
+	while (*ptr) {
+		if (*ptr == '.') {
+			decpoints++;
+			if (decpoints > 1)
+				return false;
+		} else if (*ptr == '\n') {
+			newlines++;
+			if (newlines > 1)
+				return false;
+		} else if (!isdigit((int)*ptr)) {
+			return false;
+		}
+		ptr++;
+	}
+	return (ptr - str) > 1;
+}
+
+/*
  *  stress_cgroup_new_group()
  *	add a new group
  */
@@ -345,6 +373,8 @@ static void stress_cgroup_new_group(stress_args_t *args, const char *realpathnam
 		int status;
 		size_t i;
 		char path[PATH_MAX + 64];
+		DIR *dir;
+		struct dirent *de;
 
 		static const stress_cgroup_values_t values[] = {
 			{ "cpu.stat",			NULL },
@@ -460,6 +490,31 @@ static void stress_cgroup_new_group(stress_args_t *args, const char *realpathnam
 				stress_cgroup_read(filename);
 			}
 			stress_cgroup_del_pid(realpathname, pid);
+		}
+
+		/*
+		 *  read and write back values if they are single numeric values
+		 *  to exercise pointless cgroup value updates while moving pid
+		 *  to/freom cgroup. This way we at least read and write all
+		 *  adjustable numeric values
+		 */
+		dir = opendir(realpathname);
+		if (dir) {
+			while ((de = readdir(dir)) != NULL) {
+				if (de->d_type == DT_REG) {
+					char filename[PATH_MAX + 256];
+					char buf[4096];
+
+					stress_cgroup_add_pid(realpathname, pid);
+					(void)snprintf(filename, sizeof(filename), "%s/%s", realpathname, de->d_name);
+					if (stress_fs_file_read(filename, buf, sizeof(buf)) > 0) {
+						if (stress_cgroup_is_numeric(buf))
+							(void)stress_fs_file_write(filename, buf, sizeof(buf));
+					}
+					stress_cgroup_del_pid(realpathname, pid);
+				}
+			}
+			(void)closedir(dir);
 		}
 		stress_kill_pid_wait(pid, &status);
 		(void)rmdir(path);
