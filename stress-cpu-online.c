@@ -140,7 +140,7 @@ static int stress_cpu_online_supported(const char *name)
 
 	if (geteuid() != 0) {
 		pr_inf_skip("%s stressor will be skipped, "
-		       "need to be running as root for this stressor\n", name);
+		       "need to be running with CAP_SYS_ADMIN rights for this stressor\n", name);
 		return -1;
 	}
 
@@ -426,7 +426,10 @@ static int stress_cpu_online(stress_args_t *args)
 	return rc;
 }
 
-static const stress_exercises_t exercises[] = {
+static const stress_exercises_t exercises[] =
+{
+	STRESS_EX_FEATURE("hotplug"),
+
 #if defined(HAVE_SCHED_SETAFFINITY)
 	STRESS_EX_SYSCALL("sched_setaffinity"),
 #endif

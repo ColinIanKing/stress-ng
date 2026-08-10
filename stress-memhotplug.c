@@ -361,6 +361,8 @@ finish:
 }
 
 static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("hotplug"),
+
 	STRESS_EX_SYSCALL("mmap"),
 	STRESS_EX_SYSCALL("munmap"),
 	STRESS_EX_END,
