@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, may be w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "9 August 2026"
+.TH STRESS-NG 1 "12 August 2026"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -1689,6 +1689,10 @@ T}
 .B \-\-branch N
 start N workers that randomly branch to 1024 randomly selected locations and
 hence exercise the CPU branch prediction logic.
+.TP
+.B \-\-branch\-jumps [ 64 | 128 | 256 | 512 | 1024 | 2048 ]
+specify maximum number of jump tagrgets to use. Larger values increase
+the potential for higher branch miss rates.
 .TP
 .B \-\-branch\-ops N
 stop the branch stressors after N \(mu 1024 branches

@@ -232,6 +232,7 @@ typedef enum {
 	OPT_bitops_ops,
 
 	OPT_branch,
+	OPT_branch_jumps,
 	OPT_branch_ops,
 
 	OPT_brk,
