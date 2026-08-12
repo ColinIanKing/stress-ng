@@ -499,7 +499,7 @@ static inline void stress_bad_ioctl_rw(
 	 *  Unmap last page so we know that the page following
 	 *  buf is definitely not read/writeable
 	 */
-	buf_page1 = buf + page_size / sizeof(*buf_page1);
+	buf_page1 = (uint64_t *)((uintptr_t)buf + page_size);
 	(void)munmap((void *)buf_page1, page_size);
 
 	do {
