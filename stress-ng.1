@@ -735,7 +735,7 @@ set strict NUMA memory allocation based on the list of NUMA nodes provided;
 page allocations will come from the node with sufficient free memory closest
 to the specified node(s) where the allocation takes place. This uses the
 Linux set_mempolicy(2) call using the MPOL_BIND mode. The NUMA nodes to be
-used are specified by a comma separated list of nodes (0 to N-1). One can
+used are specified by a comma separated list of nodes (0 to N \(mi 1). One can
 specify a range of NUMA nodes using `-', for example: \f[CR]\-\-mbind 0,2\-3,6,7\-11\f[]
 .TP
 .B \-M, \-\-metrics
@@ -1079,7 +1079,7 @@ log output (except for verbose \-v messages) to the syslog.
 .B \-\-taskset list
 set CPU affinity based on the list of CPUs provided; stress\-ng is bound to
 just use these CPUs (for systems that provide sched_setaffinity(2)). The CPUs
-to be used are specified by a comma separated list of CPU (0 to N-1). One
+to be used are specified by a comma separated list of CPU (0 to N \(mi 1). One
 can specify a range of CPUs using `-', for example: \f[CR]\-\-taskset 0,2\-3,6,7\-11\f[]
 or the following keywords:
 .sp
@@ -1647,7 +1647,7 @@ ctz	T{
 count the number of trailing zero bits in a 32 bit unsigned integer. Computed five different ways, one with bit counting, one using masking and shifting, one using the masking and ternary operator Gaudet method, one using a builtin clz function, one using a builtin popcount function.
 T}
 cmp	T{
-compare two 32 bit unsigned integers with comparison results of -1, 0, 1 for less than, equal or greater than. Computed 3 ways, one using simple comparisons, two using comparisons and subtraction.
+compare two 32 bit unsigned integers with comparison results of \(mi1, 0, 1 for less than, equal or greater than. Computed 3 ways, one using simple comparisons, two using comparisons and subtraction.
 T}
 log2	T{
 calculate log base 2 of a 32 bit unsigned integer. Computed four ways, one using bit counting, one using masking and shifting and branching, one using masking and shifting with no branching, one using shifting and bitwise or'ing.
@@ -2815,7 +2815,7 @@ messages. If N is too small then the rate is throttled back by the overhead of d
 socket connect and disconnects.
 .TP
 .B \-\-dccp\-port P
-start DCCP at port P. For N dccp worker processes, ports P to P \(pl (N \(mi 1) are
+start DCCP at port P. For N dccp worker processes, ports P to P \(pl (N\(mi1) are
 used (wrapped to keep in range of 1024 to 65535). The default port is port 49152.
 .TP
 .B \-\-dccp\-ops N
@@ -4208,7 +4208,7 @@ stop futex workers after N bogo successful futex wait operations.
 start N workers that exercise tgamma and lgamma libm gamma functions using
 float, double and long double floating point variants. Each function is
 exercised 10000 times per bogo-operation. The Gamma function is the
-integral from 0 to \[if] of t\[ua](x-1) e\[ua]-t dt
+integral from 0 to \[if] of t\[ua](x \(mi 1) e\[ua]-t dt
 .TP
 .B \-\-gamma\-method function
 specify a gamma stress function. By default, all the functions are exercised
@@ -10835,7 +10835,7 @@ stop after N bogo vector integer comparison operations.
 .B \-\-vecfp N
 start N workers that exericise floating point (single and double precision)
 addition, multiplication, division and negation on vectors of 128, 64, 32,
-16 and 8 floating point values. The -v option will show the approximate
+16 and 8 floating point values. The \-v option will show the approximate
 throughput in millions of floating pointer operations per second for each
 operation. For x86, the gcc/clang target clones attribute has been used to
 produce vector optimizations for a range of mmx, sse, avx and processor
@@ -11030,7 +11030,7 @@ stop after N bogo vector shuffle ops. One bogo-op is equivalent of 4 \(mu
 .TQ
 .B \-\-vecwide N
 start N workers that perform various 8 bit math operations on vectors
-of 4, 8, 16, 32, 64, 128, 256, 512, 1024 and 2048 bytes. With the -v option
+of 4, 8, 16, 32, 64, 128, 256, 512, 1024 and 2048 bytes. With the \-v option
 the relative compute performance vs the expected compute performance based
 on total run time is shown for the first vecwide worker. The vecwide stressor
 exercises various processor vector instruction mixes and how well the
