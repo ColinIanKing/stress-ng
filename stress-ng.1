@@ -67,11 +67,14 @@ this option will force all running stressors to abort (terminate) if any
 other stressor terminates prematurely because of a failure.
 .TP
 .B \-A, \-\-aggressive
-enables more file, cache and memory aggressive options as well as forcing
-processes to change CPU affinity very frequently. This will slow tests
-down, increase latencies and reduce the number of bogo ops as well as changing
-the balance of user time vs system time used depending on the type of stressor
-being used.
+enables more swap, cache and memory aggressive options as well as forcing
+CPU affinity changes and maximizing CPU speed. This may slow memory based tests
+down, consume more power as well as changing the balance of user time verses
+system time used depending on the type of stressor being used. Specifically,
+this option enables random madvise for memory mappings/unmappings (potentially
+causing excess swap activity), force memory mapped pages to be physically
+resident, change CPU affinity of stressor processes and where possible maximimize
+CPU P-states and CPU frequencies.
 .TP
 .B \-a N, \-\-all N, \-\-parallel N
 start N instances of all stressors in parallel. If N is less than zero, then
