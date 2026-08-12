@@ -10523,7 +10523,8 @@ use network interface NAME. If the interface NAME does not exist, is not
 up or does not support the domain then the loopback (lo) interface is used as the default.
 .TP
 .B \-\-udp\-lite
-use the UDP-Lite (RFC 3828) protocol (only for ipv4 and ipv6 domains).
+use the UDP\-Lite (RFC 3828) protocol (only for ipv4 and ipv6 domains). Note that UDP\-Lite
+was removed from Linux 7.1 and this option will fail.
 .TP
 .B \-\-udp\-max\-size N
 specify the maximum data size in bytes, range 16 to 65507.
