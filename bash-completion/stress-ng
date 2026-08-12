@@ -111,6 +111,7 @@ _stress_ng()
 	'--bad-ioctl-method' | \
 	'--besselmath-method' | \
 	'--bitops-method' | \
+	'--branch-jumps' | \
 	'--bsearch-method' | \
 	'--bubblesort-method' | \
 	'--cachehammer-method' | \
