@@ -50,6 +50,7 @@ static const stress_opt_t opts[] = {
  */
 #if defined(HAVE_LIB_NL) &&		\
     defined(HAVE_LINUX_OVPN_UAPI) &&	\
+    defined(HAVE_ATOMIC_STORE_N) &&	\
     !defined(BUILD_STATIC)
 
 #include <time.h>
@@ -3696,7 +3697,7 @@ const stressor_info_t stress_ovpn_info = {
 	.verify = VERIFY_NONE,
 	.opts = opts,
 	.help = help,
-	.unimplemented_reason = "built without libnl3, without a linux/ovpn.h providing the ovpn netlink uapi, or built statically"
+	.unimplemented_reason = "built without libnl3, without a linux/ovpn.h providing the ovpn netlink uapi, wthout atomic_store_n, or built statically"
 };
 
 #endif /* HAVE_LIB_NL && HAVE_LINUX_OVPN_UAPI */
