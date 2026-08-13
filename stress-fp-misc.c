@@ -22,7 +22,7 @@
 #include <math.h>
 
 static const stress_help_t help[] = {
-	{ NULL,	"fp_misc N",	 "start N workers performing miscellaneous floating point operations" },
+	{ NULL,	"fp-misc N",	 "start N workers performing miscellaneous floating point operations" },
 	{ NULL,	"fp-misc-ops N", "stop after N floating point miscellaneous bogo operations" },
 	{ NULL,	NULL,		 NULL }
 };
