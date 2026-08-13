@@ -470,6 +470,10 @@ const struct option stress_long_options[] = {
 	{ "fp-misc",		1,	NULL,	OPT_fp_misc },
 	{ "fp-misc-ops",	1,	NULL,	OPT_fp_misc_ops },
 
+	{ "fp-subnormal",	1,	NULL,	OPT_fp_subnormal },
+	{ "fp-subnormal-method",1,	NULL,	OPT_fp_subnormal_method },
+	{ "fp-subnormal-ops",	1,	NULL,	OPT_fp_subnormal_ops },
+
 	{ "fpunch",		1,	NULL,	OPT_fpunch },
 	{ "fpunch-bytes",	1,	NULL,	OPT_fpunch_bytes },
 	{ "fpunch-ops",		1,	NULL,	OPT_fpunch_ops },

@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, may be w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "12 August 2026"
+.TH STRESS-NG 1 "13 August 2026"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -4055,6 +4055,70 @@ point values are operated upon using normal, infinite and non-a-number
 .TP
 .B \-\-fp\-misc\-ops N
 stop after N bogo floating point math macro operations.
+.RE
+.TP
+.B Subnormal floating point operations stressor
+.RS 5
+.TQ
+.B \-\-fp-subnormal N
+start N workers that exercise addition, multiplication and division
+operations on a range of floating point types using subnormal floating point
+values. For each type, floating point values are operated upon 65536 times in a loop per bogo op.
+Subnormal floating point values are values where the mantissa does
+not have a leading binary digit 1 and handling them may require a software assist
+causing a performance impact. Performance may also vary between C implementations
+because of strategies such as rounding subnormals to zero.
+.TP
+.B \-\-fp\-subnormal\-method method
+select the floating point method to use, available methods are:
+.sp
+.TS
+lB2 lB
+l lx.
+Method	Description
+all	T{
+iterate over all the following floating point methods:
+T}
+floatadd	T{
+floating point addition
+T}
+doubleadd	T{
+double precision floating point addition
+T}
+ldoubleadd	T{
+long double precision floating point addition
+T}
+floatsub	T{
+floating point subtraction
+T}
+doublesub	T{
+double precision floating point subtraction
+T}
+ldoublesub	T{
+long double precision floating point subtraction
+T}
+floatmul	T{
+floating point multiplication
+T}
+doublemul	T{
+double precision floating point multiplication
+T}
+ldoublemul	T{
+long double precision floating point multiplication
+T}
+floatdiv	T{
+floating point division
+T}
+doublediv	T{
+double precision floating point division
+T}
+ldoublediv	T{
+long double precision floating point division
+T}
+.TE
+.TP
+.B \-\-fp\-subnormal\-ops N
+stop after N floating point subnormal bogo ops.
 .RE
 .TP
 .B File punch and hole filling stressor

@@ -121,6 +121,7 @@
 	MACRO(fp)		\
 	MACRO(fp_error)		\
 	MACRO(fp_misc)		\
+	MACRO(fp_subnormal)	\
 	MACRO(fpunch)		\
 	MACRO(fractal)		\
 	MACRO(fsize)		\

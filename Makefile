@@ -589,6 +589,7 @@ STRESS_SRC = \
 	stress-fp.c \
 	stress-fp-error.c \
 	stress-fp-misc.c \
+	stress-fp-subnormal.c \
 	stress-fpunch.c \
 	stress-fractal.c \
 	stress-fsize.c \

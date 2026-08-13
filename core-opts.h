@@ -590,6 +590,10 @@ typedef enum {
 	OPT_fp_misc,
 	OPT_fp_misc_ops,
 
+	OPT_fp_subnormal,
+	OPT_fp_subnormal_method,
+	OPT_fp_subnormal_ops,
+
 	OPT_fpunch,
 	OPT_fpunch_bytes,
 	OPT_fpunch_ops,
