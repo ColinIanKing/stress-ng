@@ -53,6 +53,7 @@ COMPILER = scan-build
 override CC := $(CC) clang
 endif
 
+OBJDUMP ?= objdump
 READELF ?= readelf
 
 #
@@ -159,9 +160,9 @@ endif
 #
 # Test for hardening flags and apply them if applicable
 #
-ARCH := $(shell if objdump -H > /dev/null 2>&1 ; then \
+ARCH := $(shell if $(OBJDUMP) -H > /dev/null 2>&1 ; then \
 		$(CC) test/test-machine.c -o test-machine > /dev/null 2>&1 && \
-			$(READELF) -h ./test-machine | grep Machine | tr '[:upper:]' '[:lower:]' | awk '{ print $$NF }' | sed 's/\///g' || echo "unknown"; \
+			$(READELF) -h ./test-machine 2>/dev/null | grep Machine | tr '[:upper:]' '[:lower:]' | awk '{ print $$NF }' | sed 's/\///g' || echo "unknown"; \
 		rm -f test-machine; \
 		else echo "unknown"; fi)
 
