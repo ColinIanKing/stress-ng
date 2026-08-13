@@ -427,11 +427,19 @@ static int stress_fp(stress_args_t *args)
 		stress_fp_subnormal_metrics[i].count = 0.0;
 	}
 
+#if DBL_MIN_EXP == LDBL_MIN_EXP
+	fp_data->ld.tiny1 = DBL_TINY1;
+	fp_data->ld.tiny2 = DBL_TINY2;
+	fp_data->ld.oneish = DBL_ONEISH;
+	fp_data->ld.r[0] = DBL_TINY1;
+	fp_data->ld.r[1] = DBL_TINY1;
+#else
 	fp_data->ld.tiny1 = LDBL_TINY1;
 	fp_data->ld.tiny2 = LDBL_TINY2;
 	fp_data->ld.oneish = LDBL_ONEISH;
 	fp_data->ld.r[0] = LDBL_TINY1;
 	fp_data->ld.r[1] = LDBL_TINY1;
+#endif
 
 	fp_data->d.tiny1 = DBL_TINY1;
 	fp_data->d.tiny2 = DBL_TINY2;
