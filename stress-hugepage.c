@@ -154,6 +154,7 @@ static const stress_hugepage_size_t hugepage_sizes[] = {
 #if defined(MAP_HUGE_16K)
 	{ MAP_HUGETLB | MAP_HUGE_16K, 16 * KB },
 #endif
+#if MAX_MEM_LIMIT > MAX_32
 #if defined(MAP_HUGE_1GB)
 	{ MAP_HUGETLB | MAP_HUGE_1GB, 1 * GB },
 #endif
@@ -164,7 +165,7 @@ static const stress_hugepage_size_t hugepage_sizes[] = {
 	/* least preferred option */
 	{ MAP_HUGETLB | MAP_HUGE_16GB, 16 * GB },
 #endif
-
+#endif
 	/* MAP_HUGETLB only options */
 	{ MAP_HUGETLB, 2 * MB },
 	{ MAP_HUGETLB, 8 * MB },
@@ -176,9 +177,11 @@ static const stress_hugepage_size_t hugepage_sizes[] = {
 	{ MAP_HUGETLB, 512 * KB },
 	{ MAP_HUGETLB, 64 * KB },
 	{ MAP_HUGETLB, 16 * KB },
+#if (MAX_MEM_LIMIT > MAX_32)
 	{ MAP_HUGETLB, 1 * GB },
 	{ MAP_HUGETLB, 2 * GB },
 	{ MAP_HUGETLB, 16 * GB },
+#endif
 
 	/*
 	 *  vanilla non-huge page mmap options,
@@ -207,9 +210,11 @@ static const stress_hugepage_size_t hugepage_sizes[] = {
 	{ 0, 512 * KB },
 	{ 0, 64 * KB },
 	{ 0, 16 * KB },
+#if (MAX_MEM_LIMIT > MAX_32)
 	{ 0, 1 * GB },
 	{ 0, 2 * GB },
 	{ 0, 16 * GB },
+#endif
 };
 
 /*
