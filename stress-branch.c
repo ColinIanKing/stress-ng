@@ -375,7 +375,7 @@ static int OPTIMIZE2 stress_branch(stress_args_t *args)
 	register uint32_t idx = 0;
 	register const void *label_next = labels[idx];
 	register uint32_t shift = 26;
-	size_t branch_jumps;
+	size_t branch_jumps = 0;
 
 	(void)stress_setting_get("branch-jumps", &branch_jumps);
 	shift -= branch_jumps;
