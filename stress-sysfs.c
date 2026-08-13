@@ -72,7 +72,7 @@ static shim_pthread_spinlock_t hash_lock;
 static volatile bool drain_kmsg = false;
 static volatile uint32_t counter = 0;
 static const char signum_path[] = "/sys/kernel/notes";
-static uint32_t os_release;
+static uint32_t linux_release;
 static stress_hash_table_t *sysfs_hash_table;
 static uint64_t hash_items = 0;
 
@@ -508,7 +508,7 @@ static bool stress_sys_skip(const char *path)
 	/*
 	 *  The tpm driver for pre Linux 4.10 is racey so skip
 	 */
-	if (UNLIKELY((os_release < 410) && (shim_strstr(path, "/sys/kernel/security/tpm0"))))
+	if (UNLIKELY((linux_release < 410) && (shim_strstr(path, "/sys/kernel/security/tpm0"))))
 		return true;
 
 	return false;
@@ -714,7 +714,7 @@ static int stress_sysfs(stress_args_t *args)
 	if (n <= 0)
 		goto exit_no_sysfs_entries;
 
-	os_release = 0;
+	linux_release = 0;
 #if defined(HAVE_UNAME) &&	\
     defined(HAVE_SYS_UTSNAME_H)
 	{
@@ -722,10 +722,11 @@ static int stress_sysfs(stress_args_t *args)
 
 		ret = uname(&utsbuf);
 		if (ret == 0) {
-			uint16_t major, minor;
+			uint16_t major;
+			uint16_t minor;
 
 			if (sscanf(utsbuf.release, "%5" SCNu16 ".%5" SCNu16, &major, &minor) == 2)
-				os_release = (major * 100) + minor;
+				linux_release = (major * 100) + minor;
 		}
 	}
 #else
