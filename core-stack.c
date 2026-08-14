@@ -297,11 +297,11 @@ void stress_stack_backtrace(void)
 		return;
 
 	(void)printf("backtrace:\n");
-	fflush(stdout);
+	(void)fflush(stdout);
 
 	for (i = 0; i < n_ptrs; i++) {
 		(void)printf("  %s\n", strings[i]);
-		fflush(stdout);
+		(void)fflush(stdout);
 	}
 	free(strings);
 #endif
