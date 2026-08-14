@@ -79,7 +79,7 @@ static void stress_fractal_init(const uint32_t instances)
 	g_shared->fractal.row = 0;
 
 	if (g_shared->fractal.lock == NULL)
-		printf("fractal lock create failed\n");
+		(void)printf("fractal lock create failed\n");
 }
 
 static void stress_fractal_deinit(void)
