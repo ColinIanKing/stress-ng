@@ -19,7 +19,6 @@
 #include "stress-ng.h"
 #include "core-madvise.h"
 #include "core-mmap.h"
-#include "core-pragma.h"
 #include "core-signal.h"
 #include "core-sort.h"
 #include "core-target-clones.h"
@@ -49,7 +48,6 @@ static uint64_t OPTIMIZE3 TARGET_CLONES insertionsort_fwd(int32_t *base, size_t 
 		register const int32_t tmp = base[i];
 		register size_t j = i;
 
-PRAGMA_UNROLL
 		while ((j > 0) && (base[j - 1] > tmp)) {
 			base[j] = base[j - 1];
 			j--;
@@ -69,7 +67,6 @@ static uint64_t OPTIMIZE3 TARGET_CLONES insertionsort_rev(int32_t *base, size_t 
 		register const int32_t tmp = base[i];
 		register size_t j = i;
 
-PRAGMA_UNROLL
 		while ((j > 0) && (base[j - 1] < tmp)) {
 			base[j] = base[j - 1];
 			j--;
