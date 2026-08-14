@@ -267,10 +267,16 @@ int stress_advice_check(const int advice)
 	return advice;
 }
 
-int stress_madvise_cmp(const void *p1, const void *p2)
+#if defined(HAVE_MADVISE)
+/*
+ *  stress_madvise_cmp()
+ *	qsort string comparison
+ */
+static int stress_madvise_cmp(const void *p1, const void *p2)
 {
-	return strcmp(*(const char **)p1, *(const char **)p2);
+	return shim_strcmp(*(const char **)p1, *(const char **)p2);
 }
+#endif
 
 /*
  *  stress_madvise_opts_show()
