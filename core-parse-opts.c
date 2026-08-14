@@ -482,9 +482,9 @@ illegal:
 err:
 
 	for (i = 1; size_scales[i].ch; i++) {
-		fprintf(stderr, "%s%c", ((i == 1) ? "" : ", "), size_scales[i].ch);
+		(void)fprintf(stderr, "%s%c", ((i == 1) ? "" : ", "), size_scales[i].ch);
 	}
-	fprintf(stderr, "\n");
+	(void)fprintf(stderr, "\n");
 	longjmp(g_error_env, 1);
 	stress_no_return();
 	/* should never get here */
@@ -804,7 +804,7 @@ int stress_parse_opt(const char *stressor_name, const char *opt_arg, const stres
 	case TYPE_ID_SIZE_T_METHOD:
 		method_func = (stress_method_func)opt->data;
 		if (!method_func) {
-			fprintf(stderr, "%s: no method function provided for option\n", opt_name);
+			(void)fprintf(stderr, "%s: no method function provided for option\n", opt_name);
 			longjmp(g_error_env, 1);
 			stress_no_return();
 		}
@@ -861,7 +861,7 @@ int stress_parse_opt(const char *stressor_name, const char *opt_arg, const stres
 	case TYPE_ID_CALLBACK:
  		callback_func = (stress_callback_func)opt->data;
 		if (!callback_func) {
-			fprintf(stderr, "%s: no callback function provided for option\n", opt_name);
+			(void)fprintf(stderr, "%s: no callback function provided for option\n", opt_name);
 			longjmp(g_error_env, 1);
 			stress_no_return();
 		}
