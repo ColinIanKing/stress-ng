@@ -421,27 +421,27 @@ static void stress_funcret_setvar_Float128(void *ptr, const size_t size)
 
 static inline int cmp_fpf(const float a, const float b)
 {
-	const float diff  = fabsf(a - b);
-	const float abs_a = fabsf(a);
-	const float abs_b = fabsf(b);
+	const float diff  = shim_fabsf(a - b);
+	const float abs_a = shim_fabsf(a);
+	const float abs_b = shim_fabsf(b);
 
 	return diff > ((abs_a < abs_b) ? abs_a : abs_b * 0.0001f);
 }
 
 static inline int cmp_fpd(const double a, const double b)
 {
-	const double diff  = fabs(a - b);
-	const double abs_a = fabs(a);
-	const double abs_b = fabs(b);
+	const double diff  = shim_fabs(a - b);
+	const double abs_a = shim_fabs(a);
+	const double abs_b = shim_fabs(b);
 
 	return diff > ((abs_a < abs_b) ? abs_a : abs_b * 0.0001);
 }
 
 static inline int cmp_fpl(const long double a, const long double b)
 {
-	const long double diff  = fabsl(a - b);
-	const long double abs_a = fabsl(a);
-	const long double abs_b = fabsl(b);
+	const long double diff  = shim_fabsl(a - b);
+	const long double abs_a = shim_fabsl(a);
+	const long double abs_b = shim_fabsl(b);
 
 	return diff > ((abs_a < abs_b) ? abs_a : abs_b * 0.0001L);
 }
@@ -452,23 +452,23 @@ static inline int cmp_fpl(const long double a, const long double b)
 
 #if defined(HAVE_COMPLEX_H)
 /* maximum of two complex values is the modulus */
-#define CMAXF(x, y)		(float)csqrtf((x * x) + (y * y))
-#define CMAXD(x, y)		(double)csqrt((x * x) + (y * y))
-#define CMAXL(x, y)		(long double)csqrtl((x * x) + (y * y))
+#define CMAXF(x, y)		(float)shim_csqrtf((x * x) + (y * y))
+#define CMAXD(x, y)		(double)shim_csqrt((x * x) + (y * y))
+#define CMAXL(x, y)		(long double)shim_csqrtl((x * x) + (y * y))
 
 static inline int cmp_cfpf(const complex float a, const complex float b)
 {
-	return cabsf(a - b) > (0.0001f * CMAXF(a, b));
+	return shim_cabsf(a - b) > (0.0001f * CMAXF(a, b));
 }
 
 static inline int cmp_cfpd(const complex double a, const complex double b)
 {
-	return cabs(a - b) > (0.0001 * CMAXD(a, b));
+	return shim_cabs(a - b) > (0.0001 * CMAXD(a, b));
 }
 
 static inline int cmp_cfpl(const complex long double a, const complex long double b)
 {
-	return cabsl(a - b) > (0.0001L * CMAXL(a, b));
+	return shim_cabsl(a - b) > (0.0001L * CMAXL(a, b));
 }
 
 #define CMP_CFPF(a, b, type)	cmp_cfpf((complex float)a, (complex float)b)
