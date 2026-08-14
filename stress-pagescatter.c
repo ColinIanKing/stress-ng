@@ -252,6 +252,7 @@ PRAGMA_UNROLL
 	info->rate[idx].count[SCATTER_WRITE] += count;
 }
 
+#if defined(HAVE_MPROTECT)
 /*
  *  stress_pagescatter_pages_mprotect()
  *	change memory protection of pages
@@ -276,6 +277,7 @@ static inline OPTIMIZE3 void stress_pagescatter_pages_mprotect(
 	info->rate[idx].duration[SCATTER_MPROTECT] += stress_time_now() - t;
 	info->rate[idx].count[SCATTER_MPROTECT] += count;
 }
+#endif
 
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 /*
@@ -356,7 +358,9 @@ static size_t OPTIMIZE3 stress_pagescatter_pages(
 	if (stress_pages && info->mapped) {
 		stress_pagescatter_pages_write(idx, info, n_pages, page_size);
 		stress_pagescatter_pages_read(idx, info, n_pages, page_size);
+#if defined(HAVE_MPROTECT)
 		stress_pagescatter_pages_mprotect(idx, info, n_pages, page_size);
+#endif
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 		if (info->numa)
 			stress_pagescatter_pages_mbind(idx, info, n_pages, page_size);
