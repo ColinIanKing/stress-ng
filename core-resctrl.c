@@ -96,11 +96,11 @@ static int stress_resctrl_parse_instance(
 
 	if (sscanf(str, "%" SCNd32, &ival) != 1) {
 		*val = 0;
-		fprintf(stderr, "resctrl: %s: invalid instance number: '%s'\n", name, str);
+		(void)fprintf(stderr, "resctrl: %s: invalid instance number: '%s'\n", name, str);
 		return -1;
 	}
 	if ((ival < 0) || (ival >= STRESS_PROCS_MAX)) {
-		fprintf(stderr, "resctrl: %s: instance number '%s' out of range 0..%d\n",
+		(void)fprintf(stderr, "resctrl: %s: instance number '%s' out of range 0..%d\n",
 			name, str, STRESS_PROCS_MAX - 1);
 		return -1;
 	}
@@ -118,10 +118,10 @@ static void stress_resctrl_err(
 	const uint32_t end)
 {
 	if (begin == end)
-		fprintf(stderr, "resctrl: %s: duplicated instance %" PRIu32
+		(void)fprintf(stderr, "resctrl: %s: duplicated instance %" PRIu32
 			" in instance list\n", name, begin);
 	else
-		fprintf(stderr, "resctrl: %s: duplicated instances %" PRIu32 "-%" PRIu32
+		(void)fprintf(stderr, "resctrl: %s: duplicated instances %" PRIu32 "-%" PRIu32
 			" in instance list\n", name, begin, end);
 }
 
@@ -140,7 +140,7 @@ static int stress_resctrl_add(
 
 	/* sanity check range */
 	if (begin > end) {
-		fprintf(stderr, "resctrl: %s: invalid range %" PRIu32 "-%"
+		(void)fprintf(stderr, "resctrl: %s: invalid range %" PRIu32 "-%"
 			PRIu32 "\n", name, begin, end);
 		return -1;
 	}
@@ -176,13 +176,13 @@ static int stress_resctrl_add(
 	/* ..and add new resctrl */
 	resctrl = (stress_resctrl_info_t *)calloc(1, sizeof(*resctrl));
 	if (!resctrl) {
-		fprintf(stderr, "out of memory parsing resctrl\n");
+		(void)fprintf(stderr, "out of memory parsing resctrl\n");
 		return -1;
 	}
 	resctrl->name = shim_strdup(name);
 	if (!resctrl->name) {
 		free(resctrl);
-		fprintf(stderr, "out of memory parsing resctrl\n");
+		(void)fprintf(stderr, "out of memory parsing resctrl\n");
 		return -1;
 	}
 	resctrl->begin = begin;
@@ -203,7 +203,7 @@ static int stress_resctrl_check_index(ssize_t idx)
 {
 	/* should never fail, keep static analysis happy */
 	if ((idx < 0) || (idx >= (ssize_t)SIZEOF_ARRAY(stress_resctrls))) {
-		fprintf(stderr, "resctrl: internal error: out of range "
+		(void)fprintf(stderr, "resctrl: internal error: out of range "
 			"stressor index %zd\n", idx);
 		return -1;
 	}
@@ -322,17 +322,17 @@ static int stress_resctrl_partition_add(
 	stress_partition_info_t *partition = stress_resctrl_partition_find(name);
 
 	if (partition) {
-		fprintf(stderr, "resctrl: duplicated partition name '%s'\n", name);
+		(void)fprintf(stderr, "resctrl: duplicated partition name '%s'\n", name);
 		return -1;
 	}
 	partition = (stress_partition_info_t *)calloc(1, sizeof(*partition));
 	if (!partition) {
-		fprintf(stderr, "out of memory parsing resctrl\n");
+		(void)fprintf(stderr, "out of memory parsing resctrl\n");
 		return -1;
 	}
 	partition->name = shim_strdup(name);
 	if (!partition->name) {
-		fprintf(stderr, "out of memory parsing resctrl\n");
+		(void)fprintf(stderr, "out of memory parsing resctrl\n");
 		free(partition);
 		return -1;
 	}
@@ -365,11 +365,11 @@ static int stress_resctrl_parse_partition(const char *name, char **str)
 	int32_t val;
 
 	if (sscanf(name + 1, "%" SCNd32, &val) != 1) {
-		fprintf(stderr, "resctrl: invalid partition number in name '%s'\n", name);
+		(void)fprintf(stderr, "resctrl: invalid partition number in name '%s'\n", name);
 		return -1;
 	}
 	if (val < 0) {
-		fprintf(stderr, "resctrl: invalid negative partition value in '%s'\n", name);
+		(void)fprintf(stderr, "resctrl: invalid negative partition value in '%s'\n", name);
 		return -1;
 	}
 	partnum = (uint32_t)val;
@@ -381,20 +381,20 @@ static int stress_resctrl_parse_partition(const char *name, char **str)
 	while (*ptr && isdigit((int)*ptr))
 		ptr++;
 	if (*ptr != ':') {
-		fprintf(stderr, "resctrl: missing ':' after cache node, got '%c' instead\n", *ptr);
+		(void)fprintf(stderr, "resctrl: missing ':' after cache node, got '%c' instead\n", *ptr);
 		return -1;
 	}
 	if (*tmp == '\0') {
-		fprintf(stderr, "resctrl: invalid cache node for partition '%s'\n", name);
+		(void)fprintf(stderr, "resctrl: invalid cache node for partition '%s'\n", name);
 		return -1;
 	}
 	*ptr++ = '\0';
 	if (sscanf(tmp, "%" SCNd32, &val) != 1) {
-		fprintf(stderr, "resctrl: invalid cache node '%s' for partition '%s'\n", tmp, name);
+		(void)fprintf(stderr, "resctrl: invalid cache node '%s' for partition '%s'\n", tmp, name);
 		return -1;
 	}
 	if (val < 0) {
-		fprintf(stderr, "resctrl: invalid negative cache node '%s' value for partition '%s'\n", tmp, name);
+		(void)fprintf(stderr, "resctrl: invalid negative cache node '%s' value for partition '%s'\n", tmp, name);
 		return -1;
 	}
 	node = (uint32_t)val;
@@ -408,20 +408,20 @@ static int stress_resctrl_parse_partition(const char *name, char **str)
 		while (*ptr && isdigit((int)*ptr))
 			ptr++;
 		if (*ptr != ':') {
-			fprintf(stderr, "resctrl: missing ':' after cache level for partition '%s'\n", name);
+			(void)fprintf(stderr, "resctrl: missing ':' after cache level for partition '%s'\n", name);
 			return -1;
 		}
 		*ptr = '\0';
 		if (*tmp == '\0') {
-			fprintf(stderr, "resctrl: invalid cache level for partition '%s'\n", name);
+			(void)fprintf(stderr, "resctrl: invalid cache level for partition '%s'\n", name);
 			return -1;
 		}
 		if (sscanf(tmp, "%" PRId32, &val) != 1) {
-			fprintf(stderr, "resctrl: invalid cachelevel '%s' for partition '%s'\n", tmp, name);
+			(void)fprintf(stderr, "resctrl: invalid cachelevel '%s' for partition '%s'\n", tmp, name);
 			return -1;
 		}
 		if ((val < 0) || (val > 3)) {
-			fprintf(stderr, "resctrl: invalid cachelevel '%s' for partition '%s' (expected L1..L3)\n", tmp, name);
+			(void)fprintf(stderr, "resctrl: invalid cachelevel '%s' for partition '%s' (expected L1..L3)\n", tmp, name);
 			return -1;
 		}
 		cachelevel = (uint32_t)val;
@@ -435,17 +435,17 @@ static int stress_resctrl_parse_partition(const char *name, char **str)
 	while (*ptr && isxdigit((int )*ptr))
 		ptr++;
 	if (*ptr != ':') {
-		fprintf(stderr, "resctrl: missing ':' after hex bitmask for partition '%s'\n", name);
+		(void)fprintf(stderr, "resctrl: missing ':' after hex bitmask for partition '%s'\n", name);
 		return -1;
 	}
 	*ptr = '\0';
 	if (*tmp == '\0') {
-		fprintf(stderr, "resctrl: invalid cache hex bitmask for partition '%s'\n", name);
+		(void)fprintf(stderr, "resctrl: invalid cache hex bitmask for partition '%s'\n", name);
 		return -1;
 	}
 	ptr++;
 	if (sscanf(tmp, "%" PRIx64 , &bitmask) != 1) {
-		fprintf(stderr, "resctrl: invalid cache hex bitmask '%s' for partition '%s'\n", tmp, name);
+		(void)fprintf(stderr, "resctrl: invalid cache hex bitmask '%s' for partition '%s'\n", tmp, name);
 		return -1;
 	}
 
@@ -456,15 +456,15 @@ static int stress_resctrl_parse_partition(const char *name, char **str)
 	while (*ptr && isdigit((int)*ptr))
 		ptr++;
 	if (*ptr != ',') {
-		fprintf(stderr, "resctrl: expecting ',' after bandwidth for partition '%s'\n", name);
+		(void)fprintf(stderr, "resctrl: expecting ',' after bandwidth for partition '%s'\n", name);
 		return -1;
 	}
 	if (sscanf(tmp, "%" PRId32, &val) != 1) {
-		fprintf(stderr, "resctrl: invalid bandwidth '%s' for partition '%s'\n", tmp, name);
+		(void)fprintf(stderr, "resctrl: invalid bandwidth '%s' for partition '%s'\n", tmp, name);
 		return -1;
 	}
 	if (val < 1) {
-		fprintf(stderr, "resctrl: invalid bandwidth '%s' for partition '%s' (must be > 0)\n", tmp, name);
+		(void)fprintf(stderr, "resctrl: invalid bandwidth '%s' for partition '%s' (must be > 0)\n", tmp, name);
 		return -1;
 	}
 	bandwidth = (uint32_t)val;
@@ -485,7 +485,7 @@ int stress_resctrl_parse(const char *opt_resctrl)
 	char *ptr;
 
 	if (!str) {
-		fprintf(stderr, "out of memory parsing resctrl\n");
+		(void)fprintf(stderr, "out of memory parsing resctrl\n");
 		return -1;
 	}
 
@@ -503,13 +503,13 @@ int stress_resctrl_parse(const char *opt_resctrl)
 			ptr++;
 
 		if (*name == '\0') {
-			fprintf(stderr, "resctrl: invalid empty name\n");
+			(void)fprintf(stderr, "resctrl: invalid empty name\n");
 			free(str);
 			return -1;
 		}
 
 		if (*ptr != '=') {
-			fprintf(stderr, "resctrl: expecting '=' delimiter "
+			(void)fprintf(stderr, "resctrl: expecting '=' delimiter "
 				"after stressor name '%s'\n", name);
 			free(str);
 			return -1;
@@ -526,7 +526,7 @@ int stress_resctrl_parse(const char *opt_resctrl)
 
 		idx = stress_stressor_find(name);
 		if (idx < 0) {
-			fprintf(stderr, "invalid stressor name '%s'\n", name);
+			(void)fprintf(stderr, "invalid stressor name '%s'\n", name);
 			free(str);
 			return -1;
 		}
@@ -537,7 +537,7 @@ int stress_resctrl_parse(const char *opt_resctrl)
 		while (*ptr && *ptr != '@')
 			ptr++;
 		if (*ptr != '@') {
-			fprintf(stderr, "resctrl: expecting '@' delimiter "
+			(void)fprintf(stderr, "resctrl: expecting '@' delimiter "
 				"after instances list '%s'\n", name);
 			free(str);
 			return -1;
@@ -546,7 +546,7 @@ int stress_resctrl_parse(const char *opt_resctrl)
 
 		/* scan for partition name */
 		if (*ptr != 'p') {
-			fprintf(stderr, "resctrl: missing partition name after '@' delimiter\n");
+			(void)fprintf(stderr, "resctrl: missing partition name after '@' delimiter\n");
 			free(str);
 			return -1;
 		}
@@ -561,7 +561,7 @@ int stress_resctrl_parse(const char *opt_resctrl)
 
 		partition = stress_resctrl_partition_find(partition_name);
 		if (!partition) {
-			fprintf(stderr, "resctrl: undefined partition name '%s'\n", partition_name);
+			(void)fprintf(stderr, "resctrl: undefined partition name '%s'\n", partition_name);
 			free(str);
 			return -1;
 		}
@@ -577,7 +577,7 @@ int stress_resctrl_parse(const char *opt_resctrl)
 		}
 
 		if (*ptr != ',') {
-			fprintf(stderr, "resctrl: got '%c', but expecting ',' for next stressor in list\n", *ptr);
+			(void)fprintf(stderr, "resctrl: got '%c', but expecting ',' for next stressor in list\n", *ptr);
 			free(str);
 			return -1;
 		}
