@@ -2169,6 +2169,9 @@ copy file size, the default is 256 MB. One can specify the size as % of free
 space on the file system or in units of Bytes, KBytes, MBytes and GBytes using
 the suffix b, k, m or g.
 .TP
+.B \-\-copy\-file\-io\-bytes N
+copy_file_range(2) copying I/O size, the default is 128 KB, range 4 K to 1 MB.
+.TP
 .B \-\-copy\-file\-ops N
 stop after N copy_file_range() calls.
 .RE

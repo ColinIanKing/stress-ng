@@ -208,6 +208,7 @@ const struct option stress_long_options[] = {
 
 	{ "copy-file",		1,	NULL,	OPT_copy_file },
 	{ "copy-file-bytes",	1,	NULL,	OPT_copy_file_bytes },
+	{ "copy-file-io-bytes",	1,	NULL,	OPT_copy_file_io_bytes },
 	{ "copy-file-ops",	1,	NULL,	OPT_copy_file_ops },
 
 	{ "cpu",		1,	NULL,	OPT_cpu },

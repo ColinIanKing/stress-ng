@@ -334,6 +334,7 @@ typedef enum {
 
 	OPT_copy_file,
 	OPT_copy_file_bytes,
+	OPT_copy_file_io_bytes,
 	OPT_copy_file_ops,
 
 	OPT_cpu_load_slice,
