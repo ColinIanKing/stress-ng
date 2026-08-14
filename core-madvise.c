@@ -295,7 +295,7 @@ static void stress_madvise_opts_show(void)
 
 	(void)fprintf(stderr, "supported advice:");
 	for (i = 0; i < SIZEOF_ARRAY(madvise_random_options); i++)
-		fprintf(stderr, " %s", opts[i]);
+		(void)fprintf(stderr, " %s", opts[i]);
 	(void)fprintf(stderr, "\n");
 #else
 	(void)fprintf(stderr, "supported advice: (none)\n");
