@@ -27,6 +27,23 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,            NULL }
 };
 
+static const stress_exercises_t exercises[] = {
+	STRESS_EX_FEATURE("context-switches"),
+	STRESS_EX_FEATURE("interrupt"),
+	STRESS_EX_FEATURE("stack"),
+
+	STRESS_EX_SYSCALL("kill"),
+	STRESS_EX_SYSCALL("pause"),
+#if defined(__linux__)
+	STRESS_EX_SYSCALL("sigreturn"),
+#endif
+
+	STRESS_EX_END,
+};
+
+
+#if defined(SA_SIGINFO)
+
 static pid_t stress_sigstop_pid;
 static stress_args_t *stress_sigstop_args;
 
@@ -137,20 +154,6 @@ finish:
 	return rc;
 }
 
-static const stress_exercises_t exercises[] = {
-	STRESS_EX_FEATURE("context-switches"),
-	STRESS_EX_FEATURE("interrupt"),
-	STRESS_EX_FEATURE("stack"),
-
-	STRESS_EX_SYSCALL("kill"),
-	STRESS_EX_SYSCALL("pause"),
-#if defined(__linux__)
-	STRESS_EX_SYSCALL("sigreturn"),
-#endif
-
-	STRESS_EX_END,
-};
-
 const stressor_info_t stress_sigstop_info = {
 	.stressor = stress_sigstop,
 	.classifier = CLASS_SIGNAL | CLASS_OS | CLASS_IPC,
@@ -158,3 +161,16 @@ const stressor_info_t stress_sigstop_info = {
 	.help = help,
 	.exercises = exercises,
 };
+
+#else
+
+const stressor_info_t stress_sigstop_info = {
+	.stressor = stress_unimplemented,
+	.classifier = CLASS_SIGNAL | CLASS_OS | CLASS_IPC,
+	.verify = VERIFY_ALWAYS,
+	.help = help,
+	.exercises = exercises,
+	.unimplemented_reason = "SI_SIGINFO not available, required for signal state checking",
+};
+
+#endif

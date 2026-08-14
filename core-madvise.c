@@ -278,6 +278,7 @@ int stress_madvise_cmp(const void *p1, const void *p2)
  */
 static void stress_madvise_opts_show(void)
 {
+#if defined(HAVE_MADVISE)
 	size_t i;
 	const char *opts[SIZEOF_ARRAY(madvise_random_options)];
 
@@ -290,6 +291,9 @@ static void stress_madvise_opts_show(void)
 	for (i = 0; i < SIZEOF_ARRAY(madvise_random_options); i++)
 		fprintf(stderr, " %s", opts[i]);
 	(void)fprintf(stderr, "\n");
+#else
+	(void)fprintf(stderr, "supported advice: (none)\n");
+#endif
 }
 
 /*
@@ -303,15 +307,19 @@ int stress_madvise_opts(void)
 	char *str;
 	char *saveptr = NULL;
 	char *token;
+#if defined(HAVE_MADVISE)
 	size_t i;
+#endif
 
 	stress_madvise_flags = 0;
 	stress_madvise_flags_count = 0;
 
+#if defined(HAVE_MADVISE)
 	for (i = 0; i < SIZEOF_ARRAY(madvise_random_options); i++) {
 		stress_madvise_flags |= madvise_random_options[i].flag;
 		stress_madvise_flags_count++;
 	}
+#endif
 
 	if (!stress_setting_get("no-madvise-opts", &opt_str))
 		return 0;
@@ -327,6 +335,7 @@ int stress_madvise_opts(void)
 
 	for (str = dup_str; (token = shim_strtok_r(str, ",", &saveptr)) != NULL; str = NULL) {
 		bool found = false;
+#if defined(HAVE_MADVISE)
 		for (i = 0; i < SIZEOF_ARRAY(madvise_random_options); i++) {
 			if (strcmp(token, madvise_random_options[i].name) == 0) {
 				stress_madvise_flags &= ~madvise_random_options[i].flag;
@@ -334,6 +343,7 @@ int stress_madvise_opts(void)
 				found = true;
 			}
 		}
+#endif
 		if (!found) {
 			(void)fprintf(stderr, "unsupported --no-madvise-opt advice '%s', ", token);
 			stress_madvise_opts_show();
