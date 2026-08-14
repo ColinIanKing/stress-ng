@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, may be w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "13 August 2026"
+.TH STRESS-NG 1 "14 August 2026"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -826,8 +826,17 @@ settings options if required.
 .TP
 .B \-\-no\-madvise
 from version 0.02.26 stress\-ng automatically calls madvise(2) with random
-madvise options before each mmap and munmap to stress the vm subsystem a
-little harder. The \-\-no\-advise option turns this default off.
+madvise advice options before each mmap(2) and munmap(2) call to stress the
+vm subsystem a little harder. The \-\-no\-advise option turns this default off.
+.TP
+.B \-\-no\-madvise\-opts madvice-list
+specifiy one or more madvise(2) advice options to not use. By default, stress\-ng
+enables all the available madvise advice options for randomly selecting one
+before each mmap(2) and munmap(2) call., this option allow one or
+more of these to be disabled. Available advice options (depending on system) are
+as follows: cold, dodump, dofork, dontdump, dontfork, dontneed, free, hugepage,
+mergeable, nohugepage, normal, pageout, populate-read, populate-write, random,
+sequential, unmergeable and willneed.
 .TP
 .B \-\-no\-oom\-adjust
 disable any form of out-of-memory score adjustments, keep the system defaults.

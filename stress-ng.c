@@ -33,6 +33,7 @@
 #include "core-job.h"
 #include "core-klog.h"
 #include "core-limit.h"
+#include "core-madvise.h"
 #include "core-mlock.h"
 #include "core-mmap.h"
 #include "core-numa.h"
@@ -393,6 +394,7 @@ static const stress_help_t help_generic[] = {
 	{ NULL,		"metrics-brief",	"enable metrics and only show non-zero results" },
 	{ NULL,		"minimize",		"enable minimal stress options" },
 	{ NULL,		"no-madvise",		"don't use random madvise options for each mmap" },
+	{ NULL,		"no-madvise-opts list",	"specify a list of madvise advice not to use" },
 	{ NULL,		"no-oom-adjust",	"disable all forms of out-of-memory score adjustments" },
 	{ NULL,		"no-rand-seed",		"seed random numbers with the same constant" },
 	{ NULL,		"oom-avoid",		"try to avoid stressors from being OOM'd" },
@@ -3998,6 +4000,7 @@ static const stress_opt_t main_opts[] = {
 	{ OPT_max_fd,           "max-fd",           TYPE_ID_CALLBACK, 16, 0xffffffffffffffffULL, stress_fs_max_fd },
 	{ OPT_mbind,            "mbind",            TYPE_ID_STR, 0, 0, NULL },
 	{ OPT_no_madvise,       "no-madvise",       TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_no_madvise_opts,	"no-madvise-opts",  TYPE_ID_STR, 0, 0, NULL },
 	{ OPT_oom_avoid_bytes,  "oom-avoid-bytes",  TYPE_ID_SIZE_T_BYTES_VM, 4096, 0xffffffffffffffffULL, NULL },
 	{ OPT_pause,            "pause",            TYPE_ID_UINT32_TIME, 0, 0xffffffffULL, NULL },
 	{ OPT_permute,          "permute",          TYPE_ID_INT32_CPU_PERCENT, -STRESS_PROCS_MAX, STRESS_PROCS_MAX, NULL },
@@ -4593,6 +4596,11 @@ int main(int argc, char **argv, char **envp)
 	}
 
 	if (stress_fs_temp_path_check() < 0) {
+		ret = EXIT_FAILURE;
+		goto exit_stressors_free;
+	}
+
+	if (stress_madvise_opts() < 0) {
 		ret = EXIT_FAILURE;
 		goto exit_stressors_free;
 	}

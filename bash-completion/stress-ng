@@ -32,6 +32,11 @@ _stress_ng()
                 compopt -o nosort
                 return 0
                 ;;
+	'--no-madvise-opts')
+		local advice=$($1 --no-madvise-opts '?'  2>&1 | cut -d':' -f2)
+                COMPREPLY=( $(compgen -W "$advice" -- $cur) )
+                return 0
+                ;;
 	'--exercise-feature')
 		local features=$($1 --exercise-feature '?' --log-brief 2>&1 | cut -d':' -f2- | tr ' ' '\n' | sort | uniq | tr '\n' ' ')
                 COMPREPLY=( $(compgen -W "$features" -- $cur) )

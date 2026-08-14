@@ -23,6 +23,7 @@ extern const int madvise_options[];
 extern const size_t madvise_options_elements;
 
 extern int stress_advice_check(const int advice);
+extern int stress_madvise_opts(void);
 extern int stress_madvise_randomize(void *addr, const size_t length);
 extern int stress_madvise_random(void *addr, const size_t length);
 extern int stress_madvise_mergeable(void *addr, const size_t length);

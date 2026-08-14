@@ -1018,6 +1018,7 @@ const struct option stress_long_options[] = {
 	{ "nice-ops",		1,	NULL,	OPT_nice_ops },
 
 	{ "no-madvise",		0,	NULL,	OPT_no_madvise },
+	{ "no-madvise-opts",	1,	NULL,	OPT_no_madvise_opts },
 
 	{ "no-oom-adjust",	0,	NULL,	OPT_no_oom_adjust },
 

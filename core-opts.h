@@ -1121,7 +1121,10 @@ typedef enum {
 	OPT_nice_ops,
 
 	OPT_no_madvise,
+	OPT_no_madvise_opts,
+
 	OPT_no_oom_adjust,
+
 	OPT_no_rand_seed,
 
 	OPT_nop,

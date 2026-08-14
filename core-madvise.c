@@ -19,6 +19,16 @@
  */
 #include "stress-ng.h"
 #include "core-madvise.h"
+#include "core-sort.h"
+
+static uint32_t stress_madvise_flags;
+static uint8_t stress_madvise_flags_count;
+
+typedef struct stress_madvise_opts_t {
+	const int advice;
+	const uint32_t flag;
+	const char *name;
+} stress_madvise_opts_t;
 
 /*
  * madvise options
@@ -165,18 +175,18 @@ const size_t madvise_options_elements = SIZEOF_ARRAY(madvise_options);
 #endif
 
 #if defined(HAVE_MADVISE)
-static const int madvise_random_options[] = {
+static const stress_madvise_opts_t madvise_random_options[] = {
 #if defined(MADV_NORMAL)
-	MADV_NORMAL,
+	{ MADV_NORMAL,           0x00000001, "normal" },
 #endif
 #if defined(MADV_RANDOM)
-	MADV_RANDOM,
+	{ MADV_RANDOM,           0x00000002, "random" },
 #endif
 #if defined(MADV_SEQUENTIAL)
-	MADV_SEQUENTIAL,
+	{ MADV_SEQUENTIAL,       0x00000004, "sequential" },
 #endif
 #if defined(MADV_WILLNEED)
-	MADV_WILLNEED,
+	{ MADV_WILLNEED,         0x00000008, "willneed" },
 #endif
 /*
  *  Don't use DONTNEED as this can zero fill
@@ -185,38 +195,38 @@ static const int madvise_random_options[] = {
  *  the pages are sane.
  *
 #if defined(MADV_DONTNEED)
-	MADV_DONTNEED,
+	{ MADV_DONTNEED,         0x00000010, "dontneed" },
 #endif
 */
 #if defined(MADV_DONTFORK)
-	MADV_DONTFORK,
+	{ MADV_DONTFORK,         0x00000020, "dontfork" },
 #endif
 #if defined(MADV_DOFORK)
-	MADV_DOFORK,
+	{ MADV_DOFORK,           0x00000040, "dofork" },
 #endif
 #if defined(MADV_MERGEABLE)
-	MADV_MERGEABLE,
+	{ MADV_MERGEABLE,        0x00000080, "mergeable" },
 #endif
 #if defined(MADV_UNMERGEABLE)
-	MADV_UNMERGEABLE,
+	{ MADV_UNMERGEABLE,      0x00000100, "unmergeable" },
 #endif
 #if defined(MADV_HUGEPAGE)
-	MADV_HUGEPAGE,
+	{ MADV_HUGEPAGE,         0x00000200, "hugepage" },
 #endif
 #if defined(MADV_NOHUGEPAGE)
-	MADV_NOHUGEPAGE,
+	{ MADV_NOHUGEPAGE,       0x00000400, "nohugepage" },
 #endif
 #if defined(MADV_DONTDUMP)
-	MADV_DONTDUMP,
+	{ MADV_DONTDUMP,         0x00000800, "dontdump" },
 #endif
 #if defined(MADV_DODUMP)
-	MADV_DODUMP,
+	{ MADV_DODUMP,           0x00001000, "dodump" },
 #endif
 #if defined(MADV_COLD)
-	MADV_COLD,
+	{ MADV_COLD,             0x00002000, "cold" },
 #endif
 #if defined(MADV_PAGEOUT)
-	MADV_PAGEOUT,
+	{ MADV_PAGEOUT,          0x00004000, "pageout" },
 #endif
 /*
  *  Don't use MADV_FREE as this can zero fill
@@ -225,20 +235,19 @@ static const int madvise_random_options[] = {
  *  the pages are sane.
  *
 #if defined(MADV_FREE)
-	MADV_FREE
+	{ MADV_FREE,             0x00008000, "free" },
 #endif
 */
 /* Linux 5.14 */
 #if defined(MADV_POPULATE_READ)
-	MADV_POPULATE_READ,
+	{ MADV_POPULATE_READ,    0x00010000, "populate-read" },
 #endif
 /* Linux 5.14 */
 #if defined(MADV_POPULATE_WRITE)
-	MADV_POPULATE_WRITE,
+	{ MADV_POPULATE_WRITE,   0x00020000, "populate-write" },
 #endif
 };
 #endif
-
 
 /*
  *  stress_advice_check()
@@ -258,6 +267,84 @@ int stress_advice_check(const int advice)
 	return advice;
 }
 
+int stress_madvise_cmp(const void *p1, const void *p2)
+{
+	return strcmp(*(const char **)p1, *(const char **)p2);
+}
+
+/*
+ *  stress_madvise_opts_show()
+ *	show the supported madvise advice options
+ */
+static void stress_madvise_opts_show(void)
+{
+	size_t i;
+	const char *opts[SIZEOF_ARRAY(madvise_random_options)];
+
+	for (i = 0; i < SIZEOF_ARRAY(madvise_random_options); i++)
+		opts[i] = madvise_random_options[i].name;
+
+	qsort_bm(opts, SIZEOF_ARRAY(opts), sizeof(char *), stress_madvise_cmp);
+
+	(void)fprintf(stderr, "supported advice:");
+	for (i = 0; i < SIZEOF_ARRAY(madvise_random_options); i++)
+		fprintf(stderr, " %s", opts[i]);
+	(void)fprintf(stderr, "\n");
+}
+
+/*
+ *  stress_madvise_opts()
+ *  	parse --no-madvise-opts to select madvise options to disable
+ */
+int stress_madvise_opts(void)
+{
+	char *opt_str = NULL;
+	char *dup_str;
+	char *str;
+	char *saveptr = NULL;
+	char *token;
+	size_t i;
+
+	stress_madvise_flags = 0;
+	stress_madvise_flags_count = 0;
+
+	for (i = 0; i < SIZEOF_ARRAY(madvise_random_options); i++) {
+		stress_madvise_flags |= madvise_random_options[i].flag;
+		stress_madvise_flags_count++;
+	}
+
+	if (!stress_setting_get("no-madvise-opts", &opt_str))
+		return 0;
+
+	if (strcmp("?", opt_str) == 0) {
+		stress_madvise_opts_show();
+		exit(EXIT_SUCCESS);
+	}
+
+	dup_str = stress_const_optdup(opt_str);
+	if (!dup_str)
+		return -1;
+
+	for (str = dup_str; (token = shim_strtok_r(str, ",", &saveptr)) != NULL; str = NULL) {
+		bool found = false;
+		for (i = 0; i < SIZEOF_ARRAY(madvise_random_options); i++) {
+			if (strcmp(token, madvise_random_options[i].name) == 0) {
+				stress_madvise_flags &= ~madvise_random_options[i].flag;
+				stress_madvise_flags_count--;
+				found = true;
+			}
+		}
+		if (!found) {
+			(void)fprintf(stderr, "unsupported --no-madvise-opt advice '%s', ", token);
+			stress_madvise_opts_show();
+			return -1;
+		}
+	}
+	free(dup_str);
+
+	return 0;
+}
+
 /*
  *  stress_madvise_randomize()
  *	apply random madvise setting to a memory region
@@ -265,11 +352,35 @@ int stress_advice_check(const int advice)
 int stress_madvise_randomize(void *addr, const size_t length)
 {
 #if defined(HAVE_MADVISE)
-	if (g_opt_flags & OPT_FLAGS_MMAP_MADVISE) {
-		const int i = stress_mwc32modn((uint32_t)SIZEOF_ARRAY(madvise_random_options));
-		const int advice = stress_advice_check(madvise_random_options[i]);
+	if ((g_opt_flags & OPT_FLAGS_MMAP_MADVISE) && (stress_madvise_flags_count > 0)) {
+		uint8_t n = stress_mwc8modn(stress_madvise_flags_count);
+		uint32_t mask = 0;
+		size_t i;
+		uint8_t j;
 
-		return madvise(addr, length, advice);
+		/*
+		 *  Find randomly chosen nth flag bit that is set
+		 */
+		for (j = 0; j < sizeof(stress_madvise_flags) * 8; j++) {
+			mask = 1U << j;
+			if (stress_madvise_flags & mask) {
+				if (!n)
+					break;
+				n--;
+			}
+		}
+		/* should never happen! */
+		if (UNLIKELY(mask == 0))
+			return 0;
+
+		/* Find advice that matches the mask flag */
+		for (i = 0; i < SIZEOF_ARRAY(madvise_random_options); i++) {
+			if (madvise_random_options[i].flag & mask) {
+				const int advice = stress_advice_check(madvise_random_options[i].advice);
+
+				return madvise(addr, length, advice);
+			}
+		}
 	}
 #else
 	UNEXPECTED
