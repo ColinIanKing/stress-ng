@@ -372,6 +372,7 @@ typedef enum {
 	OPT_cyclic_sleep,
 
 	OPT_daemon,
+	OPT_daemon_bloat,
 	OPT_daemon_ops,
 	OPT_daemon_wait,
 

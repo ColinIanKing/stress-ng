@@ -2795,6 +2795,10 @@ This puts pressure on init to do rapid child reaping. The daemon processes
 perform the usual mix of calls to turn into typical UNIX daemons, so this
 artificially mimics very heavy daemon system stress.
 .TP
+.B \-\-daemon\-bloat N
+specify daemon's memory mapping bloat size in bytes. This simulates memory usage
+by a deameon process, default is zero (no memory mapping), range 4K to 64MB.
+.TP
 .B \-\-daemon\-ops N
 stop daemon workers after N daemons have been created.
 .TP

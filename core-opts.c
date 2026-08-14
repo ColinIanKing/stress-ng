@@ -245,6 +245,7 @@ const struct option stress_long_options[] = {
 	{ "cyclic-sleep",	1,	NULL,	OPT_cyclic_sleep },
 
 	{ "daemon",		1,	NULL,	OPT_daemon },
+	{ "daemon-bloat",	1,	NULL,	OPT_daemon_bloat },
 	{ "daemon-ops",		1,	NULL,	OPT_daemon_ops },
 	{ "daemon-wait",	0,	NULL,	OPT_daemon_wait },
 
