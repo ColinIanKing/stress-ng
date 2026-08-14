@@ -22,7 +22,7 @@
 
 /* The following functions from libacl are used by stress-ng */
 
-static void *aio_funcs[] = {
+static void *acl_funcs[] = {
 	acl_add_perm,
 	acl_calc_mask,
 	acl_clear_perms,
@@ -45,7 +45,7 @@ int main(void)
 {
 	size_t i;
 
-	for (i = 0; i < sizeof(aio_funcs) / sizeof(aio_funcs[0]); i++)
-		printf("%p\n", aio_funcs[i]);
+	for (i = 0; i < sizeof(acl_funcs) / sizeof(acl_funcs[0]); i++)
+		printf("%p\n", acl_funcs[i]);
 	return 0;
 }
