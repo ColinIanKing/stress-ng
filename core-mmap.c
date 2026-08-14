@@ -670,7 +670,8 @@ void OPTIMIZE3 stress_mmap_populate_reverse(
  */
 void OPTIMIZE3 stress_mmap_discontiguous(void *addr, const size_t len)
 {
-#if defined(MADV_DONTNEED)
+#if defined(HAVE_MADVISE) &&	\
+    defined(MADV_DONTNEED)
 	size_t i;
 	static const size_t page_sizes[] = {
 		1 * 1024 * 1024 * 1024,
