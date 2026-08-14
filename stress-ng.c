@@ -3787,14 +3787,14 @@ static void stress_exercises_features_unique(
 
 	str = calloc(len, sizeof(*str));
 	if (!str) {
-		fprintf(stderr, "option %s feature '%s' not known\n", opt, feature);
+		(void)fprintf(stderr, "option %s feature '%s' not known\n", opt, feature);
 		return;
 	}
 
 	stress_feature_tree_str(root, str, len);
 	stress_feature_tree_free(root);
 
-	fprintf(stderr, "option %s feature '%s' not known, choices are:%s\n", opt, feature, str);
+	(void)fprintf(stderr, "option %s feature '%s' not known, choices are:%s\n", opt, feature, str);
 	free(str);
 }
 
