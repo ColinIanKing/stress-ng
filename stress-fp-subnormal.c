@@ -75,24 +75,26 @@ typedef struct {
 typedef double (*stress_fp_subnormal_func_t)(
 	stress_args_t *args,
 	fp_data_t *fp_data,
-	const int idx);
+	const int idx,
+	const uint8_t rnd);
 
 static double stress_fp_subnormal_all(
 	stress_args_t *args,
 	fp_data_t *fp_data,
-	const int idx);
+	const int idx,
+	const uint8_t rnd);
 
 #define STRESS_FP_ADD(type, field, name, do_bogo_ops)		\
 static double OPTIMIZE1 name(					\
 	stress_args_t *args,					\
 	fp_data_t *fp_data,					\
-	const int idx)						\
+	const int idx,						\
+	const uint8_t rnd)					\
 {								\
 	register int i;						\
 	const int loops = LOOPS_PER_CALL >> 1;			\
 	double t1;						\
 	double t2;						\
-	const uint8_t rnd = stress_mwc1();			\
 	const type v1 = rnd ? fp_data->field.tiny1 :		\
 			fp_data->field.tiny2;			\
 	const type v2 = rnd ? fp_data->field.tiny2 :		\
@@ -126,13 +128,13 @@ static double OPTIMIZE1 name(					\
 static double OPTIMIZE1 name(					\
 	stress_args_t *args,					\
 	fp_data_t *fp_data,					\
-	const int idx)						\
+	const int idx,						\
+	const uint8_t rnd)					\
 {								\
 	register int i;						\
 	const int loops = LOOPS_PER_CALL >> 1;			\
 	double t1;						\
 	double t2;						\
-	const uint8_t rnd = stress_mwc1();			\
 	const type v1 = rnd ? fp_data->field.tiny1 :		\
 			      fp_data->field.tiny2;		\
 	const type v2 = rnd ? fp_data->field.tiny2 :		\
@@ -166,13 +168,13 @@ static double OPTIMIZE1 name(					\
 static double OPTIMIZE1 name(					\
 	stress_args_t *args,					\
 	fp_data_t *fp_data,					\
-	const int idx)						\
+	const int idx,						\
+	const uint8_t rnd)					\
 {								\
 	register int i;						\
 	const int loops = LOOPS_PER_CALL >> 1;			\
 	double t1;						\
 	double t2;						\
-	const uint8_t rnd = stress_mwc1();			\
 	const type v1 = rnd ? fp_data->field.tiny1 :		\
 			fp_data->field.tiny2;			\
 	const type v2 = rnd ? fp_data->field.tiny2 :		\
@@ -206,13 +208,13 @@ static double OPTIMIZE1 name(					\
 static double OPTIMIZE1 name(					\
 	stress_args_t *args,					\
 	fp_data_t *fp_data,					\
-	const int idx)						\
+	const int idx,						\
+	const uint8_t rnd)					\
 {								\
 	register int i;						\
 	const int loops = LOOPS_PER_CALL >> 1;			\
 	double t1;						\
 	double t2;						\
-	const uint8_t rnd = stress_mwc1();			\
 	const type v1 = rnd ? fp_data->field.tiny1 :		\
 			fp_data->field.tiny2;			\
 	const type v2 = rnd ? fp_data->field.tiny2 :		\
@@ -321,8 +323,9 @@ static int stress_fp_subnormal_call_method(
 	double dt;
 	const stress_fp_subnormal_funcs_t *func = &stress_fp_subnormal_funcs[method];
 	stress_metrics_t *metrics = &stress_fp_subnormal_metrics[method];
+	const uint8_t rnd = stress_mwc1();
 
-	dt = func->fp_func(args, fp_data, 0);
+	dt = func->fp_func(args, fp_data, 0, rnd);
 	metrics->duration += dt;
 	metrics->count += LOOPS_PER_CALL;
 
@@ -334,7 +337,7 @@ static int stress_fp_subnormal_call_method(
 		long double r1;
 		int ret;
 
-		dt = func->fp_func(args, fp_data, 1);
+		dt = func->fp_func(args, fp_data, 1, rnd);
 		if (dt < 0.0)
 			return EXIT_FAILURE;
 		metrics->duration += dt;
@@ -350,7 +353,23 @@ static int stress_fp_subnormal_call_method(
 
 		switch (fp_type) {
 		case STRESS_FP_TYPE_LONG_DOUBLE:
-			ret = shim_memcmp(&fp_data->ld.r[0], &fp_data->ld.r[1], sizeof(fp_data->ld.r[0]));
+			ret = shim_memcmp((uint8_t *)&fp_data->ld.r[0], (uint8_t *)&fp_data->ld.r[1], sizeof(long double));
+			if (ret) {
+				size_t i;
+				uint8_t *ptr1 = (uint8_t *)&fp_data->ld.r[0];
+				uint8_t *ptr2 = (uint8_t *)&fp_data->ld.r[1];
+
+				printf("r[0] =");
+				for (i = 0; i < sizeof(long double); i++)
+					printf(" %2.2x", ptr1[i]);
+				printf("\n");
+
+				printf("r[1] =");
+				for (i = 0; i < sizeof(long double); i++)
+					printf(" %2.2x", ptr2[i]);
+				printf("\n");
+
+			}
 			r0 = (long double)fp_data->ld.r[0];
 			r1 = (long double)fp_data->ld.r[1];
 			break;
@@ -380,11 +399,14 @@ static int stress_fp_subnormal_call_method(
 static double stress_fp_subnormal_all(
 	stress_args_t *args,
 	fp_data_t *fp_data,
-	const int idx)
+	const int idx,
+	const uint8_t rnd)
 {
 	size_t i;
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
+
 	(void)idx;
+	(void)rnd;
 
 	for (i = 1; i < STRESS_NUM_FP_FUNCS; i++) {
 		if (stress_fp_subnormal_call_method(args, fp_data, i, verify) == EXIT_FAILURE)
