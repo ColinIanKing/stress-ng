@@ -427,8 +427,9 @@ static int stress_fp(stress_args_t *args)
 		stress_fp_subnormal_metrics[i].count = 0.0;
 	}
 
-#if (DBL_MIN_EXP == LDBL_MIN_EXP) ||	\
-    defined(STRESS_ARCH_PPC)
+#if ((DBL_MIN_EXP == LDBL_MIN_EXP) ||	\
+     defined(STRESS_ARCH_PPC64) ||	\
+     defined(STRESS_ARCH_PPC))
 	fp_data->ld.tiny1 = DBL_TINY1;
 	fp_data->ld.tiny2 = DBL_TINY2;
 	fp_data->ld.oneish = DBL_ONEISH;
