@@ -274,7 +274,10 @@ int stress_advice_check(const int advice)
  */
 static int stress_madvise_cmp(const void *p1, const void *p2)
 {
-	return shim_strcmp(*(const char **)p1, *(const char **)p2);
+	const char * const *s1 = (const char * const *)p1;
+	const char * const *s2 = (const char * const *)p2;
+
+	return shim_strcmp(*s1, *s2);
 }
 #endif
 
