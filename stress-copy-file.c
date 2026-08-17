@@ -219,9 +219,11 @@ static int stress_copy_file(stress_args_t *args)
 	if (stress_instance_zero(args))
 		stress_fs_usage_bytes(args, copy_file_bytes, copy_file_bytes_total);
 
-        ret = stress_fs_temp_dir_make_args(args);
-        if (ret < 0)
-                return stress_exit_status(-ret);
+	ret = stress_fs_temp_dir_make_args(args);
+	if (ret < 0) {
+		rc = stress_exit_status(-ret);
+		goto tidy_unmap;
+	}
 
 	(void)stress_fs_temp_filename_args(args,
 			filename, sizeof(filename), stress_mwc32());
@@ -369,7 +371,7 @@ tidy_in:
 tidy_dir:
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
 	(void)stress_fs_temp_dir_rm_args(args);
-
+tidy_unmap:
 	(void)munmap((void *)buf, copy_file_io_bytes);
 
 	return rc;
