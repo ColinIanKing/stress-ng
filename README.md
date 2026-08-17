@@ -288,7 +288,7 @@ Build option: EXTRA_BUILDINFO=1, add CFLAGS, CXXFLAGS and LDFLAGS to --buildinfo
 NOTE: This can lead to build information being leaked and is not recommended for any distro releases.
 ```
     make clean
-    EXTRA_BUILDINFO=1 make -j 10
+    EXTRA_BUILDINFO=1 make
 ```
 
 ## Contributing to stress-ng:
