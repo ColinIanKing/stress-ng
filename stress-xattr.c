@@ -572,24 +572,31 @@ static int stress_xattr(stress_args_t *args)
 		/* find largest xattr length possible */
 		(void)shim_memset(large_tmp, 'F', XATTR_SIZE_MAX + 1);
 		if (xattr_size_max == 0) {
-			for (j = 1; j < XATTR_SIZE_MAX; j++) {
+			/*
+			 *  Working backwards is faster since failures on large
+			 *  xattrs take less time to create/remove
+			 */
+			for (j = XATTR_SIZE_MAX; (j > 0) && stress_continue(args); j--) {
 				ret = shim_fsetxattr(fd, attrname, large_tmp, j, XATTR_CREATE);
-				if (ret < 0) {
-					xattr_size_max = j - 1;
+				/* remove even if setxattr fails, just in case */
+				(void)shim_fremovexattr(fd, attrname);
+				if (ret == 0) {
+					xattr_size_max = j;
 					break;
 				}
-				(void)shim_fremovexattr(fd, attrname);
 			}
 		}
 
-		/* add/remove maximum and randomly sized xattr */
-		for (j = 0; j < 10; j++) {
-			int rnd_size = (int)stress_mwc32modn((uint32_t)xattr_size_max);
+		if (xattr_size_max > 0) {
+			/* add/remove maximum and randomly sized xattr */
+			for (j = 0; j < 10; j++) {
+				int rnd_size = (int)stress_mwc32modn((uint32_t)xattr_size_max);
 
-			(void)shim_fsetxattr(fd, attrname, large_tmp, xattr_size_max, XATTR_CREATE);
-			(void)shim_fremovexattr(fd, attrname);
-			(void)shim_fsetxattr(fd, attrname, large_tmp, rnd_size, XATTR_CREATE);
-			(void)shim_fremovexattr(fd, attrname);
+				(void)shim_fsetxattr(fd, attrname, large_tmp, xattr_size_max, XATTR_CREATE);
+				(void)shim_fremovexattr(fd, attrname);
+				(void)shim_fsetxattr(fd, attrname, large_tmp, rnd_size, XATTR_CREATE);
+				(void)shim_fremovexattr(fd, attrname);
+			}
 		}
 #endif
 
