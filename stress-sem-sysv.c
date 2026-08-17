@@ -529,12 +529,14 @@ static pid_t semaphore_sysv_spawn(
 	stress_pid_t *s_pid,
 	const bool semaphore_sysv_setall)
 {
-	s_pid->pid = stress_retry_fork(args, 0);
-	if (s_pid->pid < 0) {
+	pid_t pid;
+
+	pid = stress_retry_fork(args, 0);
+	if (pid < 0) {
 		return -1;
-	} else if (s_pid->pid == 0) {
-		stress_proc_state_set(args->name, STRESS_STATE_SYNC_WAIT);
+	} else if (pid == 0) {
 		s_pid->pid = getpid();
+		stress_proc_state_set(args->name, STRESS_STATE_SYNC_WAIT);
 		stress_sync_start_wait_s_pid(s_pid);
 		stress_proc_state_set(args->name, STRESS_STATE_RUN);
 		stress_make_it_fail_set();
@@ -544,6 +546,7 @@ static pid_t semaphore_sysv_spawn(
 
 		_exit(stress_semaphore_sysv_thrash(args, semaphore_sysv_setall));
 	} else {
+		s_pid->pid = pid;
 		stress_sync_start_s_pid_list_add(s_pids_head, s_pid);
 	}
 	return s_pid->pid;
