@@ -61,6 +61,16 @@ static const stress_opt_t opts[] = {
 #if defined(HAVE_SEM_SYSV) &&	\
     defined(HAVE_KEY_T)
 /*
+ *  Shared bogo-ops counter lock. sem-sysv forks multiple child processes
+ *  that all share and update the same bogo-ops counter. A bare
+ *  stress_bogo_inc() is a non-atomic read-modify-write, so concurrent
+ *  children race and lose updates, which trips the --verify metrics
+ *  check (e.g. "corrupted bogo-ops counter, 751 vs 750"). Serialise the
+ *  updates with a shared lock via stress_bogo_inc_lock() instead.
+ */
+static void *sem_sysv_counter_lock;
+
+/*
  *  stress_semaphore_sysv_init()
  *	initialise a System V semaphore
  */
@@ -257,7 +267,8 @@ static int OPTIMIZE3 stress_semaphore_sysv_thrash(
 				break;
 			}
 timed_out:
-			stress_bogo_inc(args);
+			if (UNLIKELY(!stress_bogo_inc_lock(args, sem_sysv_counter_lock, true)))
+				break;
 			if (UNLIKELY(!stress_continue(args)))
 				break;
 		}
@@ -588,6 +599,18 @@ static int stress_sem_sysv(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
+	/*
+	 *  Create the shared bogo-ops counter lock before forking so all
+	 *  child processes inherit it and serialise counter updates.
+	 */
+	sem_sysv_counter_lock = stress_lock_create("counter");
+	if (!sem_sysv_counter_lock) {
+		pr_inf_skip("%s: failed to create counter lock, skipping stressor\n",
+			args->name);
+		stress_sync_s_pids_munmap(s_pids, MAX_SEM_SYSV_PROCS);
+		return EXIT_NO_RESOURCE;
+	}
+
 	for (i = 0; i < semaphore_sysv_procs; i++) {
 		stress_sync_start_init(&s_pids[i]);
 
@@ -608,6 +631,8 @@ static int stress_sem_sysv(stress_args_t *args)
 reap:
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
 	stress_kill_and_wait_many(args, s_pids, semaphore_sysv_procs, SIGALRM, true);
+	if (sem_sysv_counter_lock)
+		(void)stress_lock_destroy(sem_sysv_counter_lock);
 	stress_sync_s_pids_munmap(s_pids, MAX_SEM_SYSV_PROCS);
 
 	return rc;
