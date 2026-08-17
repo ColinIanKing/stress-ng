@@ -649,8 +649,10 @@ static int stress_tlb_numa(stress_args_t *args)
 
 err_reap:
 	for (i = 0; i < TLB_NUMA_PTHREADS; i++) {
-		if (pthreads[i].ret == 0)
+		if (pthreads[i].ret == 0) {
 			(void)pthread_cancel(pthreads[i].pthread);
+			(void)pthread_join(pthreads[i].pthread, NULL);
+		}
 	}
 
 	stress_tlb_numa_pages_munmap(tlb_numa.pages2, tlb_numa.mmap_pages, tlb_numa.page_size);
