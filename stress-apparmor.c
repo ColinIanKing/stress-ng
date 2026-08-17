@@ -243,14 +243,17 @@ static void apparmor_spawn(
 	stress_pid_t **s_pids_head,
 	stress_pid_t *s_pid)
 {
-	s_pid->pid = stress_retry_fork(args, 0);
-	if (s_pid->pid < 0) {
+	pid_t pid;
+
+	pid = stress_retry_fork(args, 0);
+	if (pid < 0) {
+		s_pid->pid = pid;
 		return;
-	} else if (s_pid->pid == 0) {
+	} else if (pid == 0) {
 		int ret = EXIT_SUCCESS;
 
-		stress_proc_state_set(args->name, STRESS_STATE_SYNC_WAIT);
 		s_pid->pid = getpid();
+		stress_proc_state_set(args->name, STRESS_STATE_SYNC_WAIT);
 		stress_sync_start_wait_s_pid(s_pid);
 		stress_proc_state_set(args->name, STRESS_STATE_RUN);
 
@@ -273,6 +276,7 @@ abort:
 		(void)shim_kill(args->pid, SIGUSR1);
 		_exit(ret);
 	} else {
+		s_pid->pid = pid;
 		stress_sync_start_s_pid_list_add(s_pids_head, s_pid);
 	}
 }

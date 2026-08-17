@@ -214,12 +214,15 @@ static inline pid_t stress_fiemap_spawn(
 	stress_pid_t **s_pids_head,
 	stress_pid_t *s_pid)
 {
-	s_pid->pid = fork();
-	if (s_pid->pid < 0) {
+	pid_t pid;
+
+	pid = fork();
+	if (pid < 0) {
+		s_pid->pid = pid;
 		return -1;
-	} else if (s_pid->pid == 0) {
-		stress_proc_state_set(args->name, STRESS_STATE_RUN);
+	} else if (pid == 0) {
 		s_pid->pid = getpid();
+		stress_proc_state_set(args->name, STRESS_STATE_RUN);
 
 		stress_sync_start_wait_s_pid(s_pid);
 		stress_make_it_fail_set();
@@ -230,9 +233,10 @@ static inline pid_t stress_fiemap_spawn(
 		stress_fiemap_ioctl(args, fd);
 		_exit(EXIT_SUCCESS);
 	} else {
+		s_pid->pid = pid;
 		stress_sync_start_s_pid_list_add(s_pids_head, s_pid);
 	}
-	return s_pid->pid;
+	return pid;
 }
 
 /*

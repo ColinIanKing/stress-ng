@@ -285,8 +285,11 @@ static pid_t stress_umount_spawn(
 	stress_pid_t **s_pid_head,
 	stress_pid_t *s_pid)
 {
-	s_pid->pid = stress_retry_fork(args, 0);
-	if (s_pid->pid < 0) {
+	pid_t pid;
+
+	pid = stress_retry_fork(args, 0);
+	if (pid < 0) {
+		s_pid->pid = pid;
 		if (UNLIKELY(!stress_continue(args)))
 			return 0;
 		pr_inf("%s: fork failed, errno=%d (%s), skipping stressor\n",
@@ -307,9 +310,10 @@ static pid_t stress_umount_spawn(
 
 		_exit(EXIT_SUCCESS);
 	} else {
+		s_pid->pid = pid;
 		stress_sync_start_s_pid_list_add(s_pid_head, s_pid);
 	}
-	return s_pid->pid;
+	return pid;
 }
 
 

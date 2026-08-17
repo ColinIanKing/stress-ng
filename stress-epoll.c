@@ -168,13 +168,16 @@ static pid_t epoll_spawn(
 	const int epoll_sockets,
 	const int max_servers)
 {
-	s_pid->pid = stress_retry_fork(args, 0);
-	if (s_pid->pid < 0) {
+	pid_t pid;
+
+	pid = stress_retry_fork(args, 0);
+	if (pid < 0) {
+		s_pid->pid = pid;
 		return -1;
-	} else if (s_pid->pid == 0) {
+	} else if (pid == 0) {
+		s_pid->pid = getpid();
 		stress_proc_state_set(args->name, STRESS_STATE_RUN);
 		stress_make_it_fail_set();
-		s_pid->pid = getpid();
 		stress_parent_died_alarm();
 		(void)stress_sched_settings_apply(true);
 		stress_sync_start_wait_s_pid(s_pid);
@@ -182,9 +185,10 @@ static pid_t epoll_spawn(
 		func(args, child, mypid, epoll_port, epoll_domain, epoll_sockets, max_servers);
 		_exit(EXIT_SUCCESS);
 	}  else {
+		s_pid->pid = pid;
 		stress_sync_start_s_pid_list_add(s_pids_head, s_pid);
 	}
-	return s_pid->pid;
+	return pid;
 }
 
 /*

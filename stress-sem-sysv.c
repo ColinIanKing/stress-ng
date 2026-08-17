@@ -533,6 +533,7 @@ static pid_t semaphore_sysv_spawn(
 
 	pid = stress_retry_fork(args, 0);
 	if (pid < 0) {
+		s_pid->pid = pid;
 		return -1;
 	} else if (pid == 0) {
 		s_pid->pid = getpid();
@@ -549,7 +550,7 @@ static pid_t semaphore_sysv_spawn(
 		s_pid->pid = pid;
 		stress_sync_start_s_pid_list_add(s_pids_head, s_pid);
 	}
-	return s_pid->pid;
+	return pid;
 }
 
 /*

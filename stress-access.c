@@ -161,17 +161,20 @@ static pid_t stress_access_spawn(
 	stress_pid_t **s_pids_head,
 	stress_pid_t *s_pid)
 {
-	s_pid->pid = fork();
-	if (s_pid->pid < 0) {
+	pid_t pid;
+
+	pid = fork();
+	if (pid < 0) {
 		pr_inf_skip("%s: fork failed %d (%s), skipping concurrent access stressing\n",
 			args->name, errno, strerror(errno));
+		s_pid->pid = pid;
 		return -1;
-	} else if (s_pid->pid == 0) {
+	} else if (pid == 0) {
 		/* Concurrent stressor */
 		size_t j = 0;
 
-		stress_proc_state_set(args->name, STRESS_STATE_SYNC_WAIT);
 		s_pid->pid = getpid();
+		stress_proc_state_set(args->name, STRESS_STATE_SYNC_WAIT);
 		stress_sync_start_wait_s_pid(s_pid);
 		stress_proc_state_set(args->name, STRESS_STATE_RUN);
 
@@ -232,9 +235,10 @@ static pid_t stress_access_spawn(
 		} while (stress_continue(args));
 		_exit(0);
 	} else {
+		s_pid->pid = pid;
 		stress_sync_start_s_pid_list_add(s_pids_head, s_pid);
 	}
-	return s_pid->pid;
+	return pid;
 }
 
 static void stress_access_reap(stress_pid_t *s_pid)
