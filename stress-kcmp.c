@@ -209,7 +209,10 @@ static int stress_kcmp(stress_args_t *args)
 	stress_proc_state_set(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
 	stress_proc_state_set(args->name, STRESS_STATE_RUN);
+#if defined(HAVE_SYS_EPOLL_H) &&	\
+    NEED_GLIBC(2,3,2)
 again:
+#endif
 	pid1 = stress_retry_fork(args, 0);
 	if (pid1 < 0) {
 		(void)close(fd1);
