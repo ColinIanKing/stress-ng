@@ -755,6 +755,7 @@ static void stress_vma_loop(
 				if (pthreads_ret[i] == 0) {
 					VOID_RET(int, pthread_kill(pthreads[i], SIGBUS));
 					VOID_RET(int, pthread_cancel(pthreads[i]));
+					VOID_RET(int, pthread_join(pthreads[i], NULL));
 				}
 			}
 
