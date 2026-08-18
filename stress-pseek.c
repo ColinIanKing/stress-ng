@@ -354,6 +354,7 @@ static void stress_pseek_kill(
 	if (proc->proc_num & 1) {
 		if (proc->pthread_ret == 0) {
 			(void)pthread_cancel(proc->pthread);
+			(void)pthread_join(proc->pthread, NULL);
 		}
 		return;
 	}
