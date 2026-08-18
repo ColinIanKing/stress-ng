@@ -46,15 +46,26 @@ static const stress_help_t help[] =
 #define HAVE_VDSO_VIA_GETAUXVAL	(1)
 #endif
 
-#if defined(HAVE_SIGALTSTACK)
+#if defined(HAVE_SIGALTSTACK) &&	\
+    defined(HAVE_MPROTECT) &&		\
+    defined(PROT_NONE) &&		\
+    defined(PROT_EXEC) &&		\
+    defined(PROT_READ) &&		\
+    defined(PROT_WRITE)
 
+/* guarded stack is gaurd page + stack + guard page */
+static uint8_t *guarded_stack;
+static size_t guarded_stack_size;
+
+/* stack is guarded_stack + guard page offset */
 static void *stack;
+static size_t stack_size;
+
 static void *zero_stack;
 #if defined(O_TMPFILE)
 static void *bus_stack;
 #endif
 static sigjmp_buf jmp_env;
-static size_t stress_minsigstksz;
 
 STRESS_PRAGMA_PUSH
 STRESS_PRAGMA_WARN_OFF
@@ -83,15 +94,15 @@ static void NORETURN MLOCKED_TEXT stress_bad_altstack_signal_handler(int signum)
 	}
 	 */
 
-	(void)munmap(stack, stress_minsigstksz);
+	(void)munmap(stack, stack_size);
 	(void)shim_memset(data, 0xff, sizeof(data));
 	stress_put_uint8(data[0]);
 
 	if (zero_stack != MAP_FAILED)
-		(void)munmap(zero_stack, stress_minsigstksz);
+		(void)munmap(zero_stack, stack_size);
 #if defined(O_TMPFILE)
 	if (bus_stack != MAP_FAILED)
-		(void)munmap(bus_stack, stress_minsigstksz);
+		(void)munmap(bus_stack, stack_size);
 #else
 	UNEXPECTED
 #endif
@@ -139,13 +150,13 @@ static int stress_bad_altstack_child(stress_args_t *args)
 
 	/* Exercise disable SS_DISABLE */
 	ss.ss_sp = stress_memory_address_align(stack, STACK_ALIGNMENT);
-	ss.ss_size = stress_minsigstksz;
+	ss.ss_size = stack_size;
 	ss.ss_flags = SS_DISABLE;
 	(void)sigaltstack(&ss, NULL);
 
 	/* Exercise invalid flags */
 	ss.ss_sp = stress_memory_address_align(stack, STACK_ALIGNMENT);
-	ss.ss_size = stress_minsigstksz;
+	ss.ss_size = stack_size;
 	ss.ss_flags = ~0;
 	(void)sigaltstack(&ss, NULL);
 
@@ -154,7 +165,7 @@ static int stress_bad_altstack_child(stress_args_t *args)
 
 	/* Exercise less than minimum allowed stack size, ENOMEM */
 	ss.ss_sp = stress_memory_address_align(stack, STACK_ALIGNMENT);
-	ss.ss_size = stress_minsigstksz - 1;
+	ss.ss_size = stack_size - 1;
 	ss.ss_flags = 0;
 	(void)sigaltstack(&ss, NULL);
 
@@ -184,7 +195,7 @@ static int stress_bad_altstack_child(stress_args_t *args)
 #endif
 
 	/* Set alternative stack for testing */
-	if (stress_stack_sigalt_no_check(stack, stress_minsigstksz) < 0) {
+	if (stress_stack_sigalt_no_check(stack, stack_size) < 0) {
 		/*
 		 *  Pretend it's all OK, for example OpenBSD can fail
 		 *  depending on the stack setting on some of test cases
@@ -206,38 +217,30 @@ retry:
 			return EXIT_SUCCESS;
 		rnd = stress_mwc32modn(12);
 		switch (rnd) {
-#if defined(HAVE_MPROTECT)
 		case 1:
 			/* Illegal stack with no protection */
-			ret = mprotect(stack, stress_minsigstksz, PROT_NONE);
+			ret = mprotect(stack, stack_size, PROT_NONE);
 			if (ret == 0)
 				stress_bad_altstack_force_fault(stack);
 			goto retry;
 		case 2:
 			/* Illegal read-only stack */
-			ret = mprotect(stack, stress_minsigstksz, PROT_READ);
+			ret = mprotect(stack, stack_size, PROT_READ);
 			if (ret == 0)
 				stress_bad_altstack_force_fault(stack);
 			goto retry;
 		case 3:
 			/* Illegal exec-only stack */
-			ret = mprotect(stack, stress_minsigstksz, PROT_EXEC);
+			ret = mprotect(stack, stack_size, PROT_EXEC);
 			if (ret == 0)
 				stress_bad_altstack_force_fault(stack);
 			goto retry;
 		case 4:
 			/* Illegal write-only stack */
-			ret = mprotect(stack, stress_minsigstksz, PROT_WRITE);
+			ret = mprotect(stack, stack_size, PROT_WRITE);
 			if (ret == 0)
 				stress_bad_altstack_force_fault(stack);
 			goto retry;
-#else
-		case 1:
-		case 2:
-		case 3:
-		case 4:
-			goto retry;
-#endif
 		case 5:
 			/* Illegal NULL stack */
 			ret = stress_stack_sigalt_no_check(NULL, STRESS_SIGSTKSZ);
@@ -274,7 +277,7 @@ retry:
 		case 9:
 			/* Illegal /dev/zero mapped stack */
 			if (zero_stack != MAP_FAILED) {
-				ret = stress_stack_sigalt_no_check(zero_stack, stress_minsigstksz);
+				ret = stress_stack_sigalt_no_check(zero_stack, stack_size);
 				if (ret == 0)
 					stress_bad_altstack_force_fault(zero_stack);
 			}
@@ -283,7 +286,7 @@ retry:
 #if defined(O_TMPFILE)
 			/* Illegal mapped stack to empty file, causes BUS error */
 			if (bus_stack != MAP_FAILED) {
-				ret = stress_stack_sigalt_no_check(bus_stack, stress_minsigstksz);
+				ret = stress_stack_sigalt_no_check(bus_stack, stack_size);
 				if (ret == 0)
 					stress_bad_altstack_force_fault(bus_stack);
 			}
@@ -296,7 +299,7 @@ retry:
 		default:
 		case 0:
 			/* Illegal unmapped stack */
-			(void)munmap(stack, stress_minsigstksz);
+			(void)munmap(stack, stack_size);
 			stress_bad_altstack_force_fault(g_shared->null_ptr);
 			break;
 		}
@@ -326,22 +329,34 @@ static int stress_bad_altstack(stress_args_t *args)
 #else
 	const int map_stackflags = 0;
 #endif
+	const size_t page_size = args->page_size;
+	/* min_stack_size must be at least a page size */
+	const size_t min_stack_size = STRESS_MAXIMUM((size_t)STRESS_MINSIGSTKSZ, page_size);
 
-	stress_minsigstksz = STRESS_MINSIGSTKSZ;
+	guarded_stack_size = (size_t)min_stack_size + (page_size * 2);
+	stack_size = min_stack_size;
 	stress_set_oom_adjustment(args, true);
 
-	stack = stress_mmap_populate(NULL, stress_minsigstksz,
+	guarded_stack = stress_mmap_populate(NULL, guarded_stack_size,
 			PROT_READ | PROT_WRITE,
 			MAP_PRIVATE | MAP_ANONYMOUS | map_stackflags, -1, 0);
-	if (stack == MAP_FAILED) {
+	if (guarded_stack == MAP_FAILED) {
 		pr_inf_skip("%s: cannot mmap %zu byte signal handler stack%s, "
 			    "errno=%d (%s), skipping stressor\n",
-			args->name, (size_t)stress_minsigstksz,
+			args->name, guarded_stack_size,
 			stress_memory_free_get(), errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
-	stress_memory_anon_name_set(stack, stress_minsigstksz, "altstack");
-	(void)stress_madvise_mergeable(stack, stress_minsigstksz);
+	stress_memory_anon_name_set(guarded_stack, guarded_stack_size, "altstack");
+	(void)stress_madvise_mergeable(guarded_stack, guarded_stack_size);
+
+	/* Make ends of stack PROT_NONE */
+	(void)mprotect(guarded_stack, page_size, PROT_NONE);
+	(void)mprotect(guarded_stack + page_size + stack_size, page_size, PROT_NONE);
+
+	/* Stack starts at first read-writeable page */
+	stack = guarded_stack + page_size;
+
 
 #if defined(O_TMPFILE)
 	tmp_fd = open(stress_fs_temp_path_get(), O_TMPFILE | O_RDWR, S_IRUSR | S_IWUSR);
@@ -349,12 +364,12 @@ static int stress_bad_altstack(stress_args_t *args)
 		bus_stack = MAP_FAILED;
 	} else {
 		bus_stack = stress_mmap_populate(NULL,
-				stress_minsigstksz,
+				stack_size,
 				PROT_READ | PROT_WRITE,
 				MAP_PRIVATE | map_stackflags, tmp_fd, 0);
 		(void)close(tmp_fd);
 		if (bus_stack != MAP_FAILED)
-			stress_memory_anon_name_set(bus_stack, stress_minsigstksz, "altstack-bus-errors");
+			stress_memory_anon_name_set(bus_stack, stack_size, "altstack-bus-errors");
 	}
 #else
 	UNEXPECTED
@@ -365,11 +380,11 @@ static int stress_bad_altstack(stress_args_t *args)
 		zero_stack = MAP_FAILED;
 	} else {
 		zero_stack = stress_mmap_populate(NULL,
-			stress_minsigstksz, PROT_READ,
+			stack_size, PROT_READ,
 			MAP_PRIVATE, fd, 0);
 		(void)close(fd);
 		if (zero_stack != MAP_FAILED)
-			stress_memory_anon_name_set(zero_stack, stress_minsigstksz, "altstack-zero-ro");
+			stress_memory_anon_name_set(zero_stack, stack_size, "altstack-zero-ro");
 	}
 
 	/*
@@ -450,14 +465,14 @@ finish:
 
 #if defined(O_TMPFILE)
 	if (bus_stack != MAP_FAILED)
-		(void)munmap(bus_stack, stress_minsigstksz);
+		(void)munmap(bus_stack, stack_size);
 #else
 	UNEXPECTED
 #endif
 	if (zero_stack != MAP_FAILED)
-		(void)munmap(zero_stack, stress_minsigstksz);
-	if (stack != MAP_FAILED)
-		(void)munmap(stack, stress_minsigstksz);
+		(void)munmap(zero_stack, stack_size);
+	if (guarded_stack != MAP_FAILED)
+		(void)munmap(guarded_stack, guarded_stack_size);
 
 	return rc;
 }
@@ -486,6 +501,6 @@ const stressor_info_t stress_bad_altstack_info = {
 	.classifier = CLASS_VM | CLASS_MEMORY | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
-	.unimplemented_reason = "built without sigaltstack()"
+	.unimplemented_reason = "built without sigaltstack() or mprotect()"
 };
 #endif
