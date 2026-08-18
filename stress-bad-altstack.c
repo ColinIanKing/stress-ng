@@ -127,7 +127,6 @@ static int stress_bad_altstack_child(stress_args_t *args)
 	int ret;
 	stack_t ss;
 	stack_t	old_ss;
-	size_t sz;
 #if defined(SIGXCPU) &&	\
     defined(RLIMIT_CPU)
 	struct rlimit rlim;
@@ -215,7 +214,7 @@ static int stress_bad_altstack_child(stress_args_t *args)
 retry:
 		if (UNLIKELY(!stress_continue(args)))
 			return EXIT_SUCCESS;
-		rnd = stress_mwc32modn(12);
+		rnd = stress_mwc32modn(11);
 		switch (rnd) {
 		case 1:
 			/* Illegal stack with no protection */
@@ -254,17 +253,6 @@ retry:
 				stress_bad_altstack_force_fault(stack);
 			goto retry;
 		case 7:
-			/* Small stack */
-			for (ret = -1, sz = 0; sz <= STRESS_SIGSTKSZ; sz += 256) {
-				ret = stress_stack_sigalt_no_check(stack, sz);
-				if (ret == 0)
-					break;
-			}
-			if (ret == 0)
-				stress_bad_altstack_force_fault(stack);
-			stress_bad_altstack_force_fault(g_shared->null_ptr);
-			goto retry;
-		case 8:
 #if defined(HAVE_VDSO_VIA_GETAUXVAL)
 			/* Illegal stack on VDSO, otherwises NULL stack */
 			if (vdso) {
@@ -274,7 +262,7 @@ retry:
 			}
 #endif
 			goto retry;
-		case 9:
+		case 8:
 			/* Illegal /dev/zero mapped stack */
 			if (zero_stack != MAP_FAILED) {
 				ret = stress_stack_sigalt_no_check(zero_stack, stack_size);
@@ -282,7 +270,7 @@ retry:
 					stress_bad_altstack_force_fault(zero_stack);
 			}
 			goto retry;
-		case 10:
+		case 9:
 #if defined(O_TMPFILE)
 			/* Illegal mapped stack to empty file, causes BUS error */
 			if (bus_stack != MAP_FAILED) {
@@ -292,7 +280,7 @@ retry:
 			}
 #endif
 			goto retry;
-		case 11:
+		case 10:
 			/* Illegal last page */
 			stress_bad_altstack_force_fault(last_page);
 			goto retry;
