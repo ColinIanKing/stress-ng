@@ -404,11 +404,8 @@ static int stress_hugepage(stress_args_t *args)
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
 
-	ret = pthread_cancel(pthread);
-	if (ret) {
-		pr_fail("%s: pthread_cancel failed, errno=%d (%s)\n",
-			args->name, ret, strerror(ret));
-	}
+	(void)pthread_cancel(pthread);
+	(void)pthread_join(pthread, NULL);
 	duration = stress_time_now() - t;
 
 	rate = (duration > 0.0) ? ((double)hugepage_info.main_madv_count +
