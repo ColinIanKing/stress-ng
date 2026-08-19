@@ -18,9 +18,9 @@
 #
 
 #
-# Codename "Exasperating electron exerciser"
+# Codename "Premday Process Pressurizer"
 #
-VERSION=0.21.04
+VERSION=0.22.00
 
 #
 # Determine supported toolchains
