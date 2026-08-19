@@ -173,6 +173,7 @@
  * [ASTREA: Introducing Agentic Intelligence for Orbital Thermal Autonomy](https://arxiv.org/html/2509.13380v1)
  * [AUTOGUARDX: A Comprehensive Cybersecurity Framework for Connected Vehicles](https://arxiv.org/pdf/2508.18155)
  * [Benchmarking of CPU-intensive Stream Data Processing in The Edge Computing Systems](https://arxiv.org/html/2505.07755v1)
+ * [Characterizing the Variance Envelope: A Multi-Dimensional Analysis of Spectre Telemetry Across Architectures and Workloads](https://arxiv.org/html/2608.13920v1)
  * [CINERGY: Reasoning over the Worst Case Power Consumption of Cloud Virtual Machines](https://hal.science/hal-04981001/document)
  * [Container-level Energy Observability in Kubernetes Clusters](https://arxiv.org/pdf/2504.10702)
  * [Data Center Model for Transient Stability Analysis of Power Systems](https://arxiv.org/pdf/2505.16575)
@@ -249,3 +250,4 @@
  * [UnICom: A Universally High-Performant I/O Completion Mechanism for Modern Computer Systems](https://www.usenix.org/system/files/fast26-pan.pdf)
  * [Verification and Validation (V&V)-in-the-Loop for RISC-V Design: The Holistic Vision of BZL](https://arxiv.org/html/2604.27013v1)
  * [Wire-Level Interrupt-to-Decision Latency of On-Sensor MLC versus Host Inference on the NVIDIA Jetson Orin Nano: A Pre-Registered Measurement Study](https://arxiv.org/pdf/2606.00524)
+
