@@ -231,7 +231,7 @@
  * [FlexServe: A Fast and Secure LLM Serving System for Mobile Devices with Flexible Resource Isolation](https://arxiv.org/html/2603.09046v1)
  * [Graph Neural Networks for Anomaly Detection in Cloud Infrastructure](https://www.scirp.org/journal/paperinformation?paperid=146528)
  * [Ichnos+: Estimating the Carbon Footprint of Scientific Workflows Using Fitted Power Models](https://arxiv.org/html/2607.10586v1)
- * [IOLeak: Side-channel Information Leakage by Monitoring CPU Frequency Scaling through I/Os] (https://dl.acm.org/doi/10.1145/3830017)
+ * [IOLeak: Side-channel Information Leakage by Monitoring CPU Frequency Scaling through I/Os](https://dl.acm.org/doi/10.1145/3830017)
  * [K8S Power Irrigation: Deep Reinforcement Learning for Performance-Aware Power Efficiency of Kubernetes Cloud-Native Microservices](https://arxiv.org/html/2605.25218v1)
  * [LMAT: An adaptive tracing approach based on efficient system behavior analysis using language models](https://www.sciencedirect.com/science/article/pii/S0164121226001238)
  * [Nf-PEAK: Process-Based Energy Attribution for Nextflow Workflows on Kubernetes Clusters](https://arxiv.org/html/2605.22393v1)
