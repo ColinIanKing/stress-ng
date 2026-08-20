@@ -53,24 +53,20 @@ static int stress_capgetset_pid(
 	uch.pid = pid;
 
 	ret = capget(&uch, ucd);
-	if (ret < 0) {
-		if (((errno == ESRCH) && exists) ||
-		    (errno != ESRCH)) {
-			pr_fail("%s: capget on PID %" PRIdMAX " failed, errno=%d (%s)\n",
-				args->name, (intmax_t)pid, errno, strerror(errno));
-			return EXIT_FAILURE;
-		}
+	if ((ret < 0) && 
+	    (((errno == ESRCH) && exists) || (errno != ESRCH))) {
+		pr_fail("%s: capget on PID %" PRIdMAX " failed, errno=%d (%s)\n",
+			args->name, (intmax_t)pid, errno, strerror(errno));
+		return EXIT_FAILURE;
 	}
 
 	if (do_set) {
 		ret = capset(&uch, ucd);
-		if (ret < 0) {
-			if (((errno == ESRCH) && exists) ||
-			    (errno != ESRCH)) {
-				pr_fail("%s: capset on PID %" PRIdMAX " failed, errno=%d (%s)\n",
-					args->name, (intmax_t)pid, errno, strerror(errno));
-				return EXIT_FAILURE;
-			}
+		if ((ret < 0) &&
+		    (((errno == ESRCH) && exists) || (errno != ESRCH))) {
+			pr_fail("%s: capset on PID %" PRIdMAX " failed, errno=%d (%s)\n",
+				args->name, (intmax_t)pid, errno, strerror(errno));
+			return EXIT_FAILURE;
 		}
 
 		/*
