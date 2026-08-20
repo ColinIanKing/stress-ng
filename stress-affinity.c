@@ -80,12 +80,11 @@ static int stress_affinity_supported(const char *name)
 		pr_inf_skip("%s stressor cannot get CPU affinity, skipping the stressor\n", name);
 		return -1;
 	}
-	if (sched_setaffinity(0, sizeof(mask), &mask) < 0) {
-		if (errno == EPERM) {
-			pr_inf_skip("%s stressor cannot set CPU affinity, "
-			       "process lacks privilege, skipping the stressor\n", name);
-			return -1;
-		}
+	if ((sched_setaffinity(0, sizeof(mask), &mask) < 0) &&
+	    (errno == EPERM)) {
+		pr_inf_skip("%s stressor cannot set CPU affinity, process "
+			"lacks privilege, skipping the stressor\n", name);
+		return -1;
 	}
 	return 0;
 }
@@ -198,9 +197,8 @@ static void stress_affinity_child(
 				CPU_SET(cpu, &mask);
 
 				for (i = 1; i < affinity_procs; i++) {
-					if (s_pids[i].pid > 1) {
+					if (s_pids[i].pid > 1)
 						(void)sched_setaffinity(s_pids[i].pid, sizeof(mask), &mask);
-					}
 				}
 			}
 		}
