@@ -455,13 +455,11 @@ static int stress_acl(stress_args_t *args)
 		goto tidy_unmap_acls_tested;
 
 	stress_fs_temp_dir_args(args, pathname, sizeof(pathname));
-	if (mkdir(pathname, S_IRUSR | S_IRWXU) < 0) {
-		if (errno != EEXIST) {
-			rc = stress_exit_status(errno);
-			pr_fail("%s: mkdir '%s' failed, errno=%d (%s)\n",
-				args->name, pathname, errno, strerror(errno));
-			goto tidy_acl_free;
-		}
+	if ((mkdir(pathname, S_IRUSR | S_IRWXU) < 0) && (errno != EEXIST)) {
+		rc = stress_exit_status(errno);
+		pr_fail("%s: mkdir '%s' failed, errno=%d (%s)\n",
+			args->name, pathname, errno, strerror(errno));
+		goto tidy_acl_free;
 	}
 
 	(void)stress_fs_temp_filename_args(args, filename, sizeof(filename), stress_mwc32());
