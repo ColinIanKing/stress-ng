@@ -301,10 +301,9 @@ static bool stress_ctrig_exercise(stress_args_t *args, const size_t idx)
 	ret = stress_ctrig_methods[idx].trig_func(args);
 	stress_ctrig_metrics[idx].duration += (stress_time_now() - t);
 	stress_ctrig_metrics[idx].count += 1.0;
-	if (ret) {
-		if (idx != 0)
-			pr_fail("trig: %s does not match expected checksum\n",
-				stress_ctrig_methods[idx].name);
+	if ((ret) && (idx != 0)) {
+		pr_fail("trig: %s does not match expected checksum\n",
+			stress_ctrig_methods[idx].name);
 	}
 	return ret;
 }
