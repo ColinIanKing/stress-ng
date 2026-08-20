@@ -507,8 +507,8 @@ static void stress_cgroup_new_group(stress_args_t *args, const char *realpathnam
 
 					stress_cgroup_add_pid(realpathname, pid);
 					(void)snprintf(filename, sizeof(filename), "%s/%s", realpathname, de->d_name);
-					if (stress_fs_file_read(filename, buf, sizeof(buf)) > 0) {
-						if (stress_cgroup_is_numeric(buf))
+					if ((stress_fs_file_read(filename, buf, sizeof(buf)) > 0) &&
+					    stress_cgroup_is_numeric(buf)) {
 							(void)stress_fs_file_write(filename, buf, sizeof(buf));
 					}
 					stress_cgroup_del_pid(realpathname, pid);
