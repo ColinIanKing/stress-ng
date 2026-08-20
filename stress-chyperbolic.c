@@ -290,10 +290,9 @@ static bool stress_chyperbolic_exercise(stress_args_t *args, const size_t idx)
 	ret = stress_chyperbolic_methods[idx].chyperbolic_func(args);
 	stress_chyperbolic_metrics[idx].duration += (stress_time_now() - t);
 	stress_chyperbolic_metrics[idx].count += 1.0;
-	if (ret) {
-		if (idx != 0)
-			pr_fail("chyperbolic: %s does not match expected checksum\n",
-				stress_chyperbolic_methods[idx].name);
+	if ((ret) && (idx != 0)) {
+		pr_fail("chyperbolic: %s does not match expected checksum\n",
+			stress_chyperbolic_methods[idx].name);
 	}
 	return ret;
 }
