@@ -258,14 +258,12 @@ static int stress_chmod(stress_args_t *args)
 	 *  Allow for multiple workers to chmod the *same* file
 	 */
 	stress_fs_temp_dir(pathname, sizeof(pathname), args->name, ppid, 0);
-	if (mkdir(pathname, S_IRWXU) < 0) {
-		if (errno != EEXIST) {
-			rc = stress_exit_status(errno);
-			pr_fail("%s: mkdir '%s' failed, errno=%d (%s)\n",
-				args->name, pathname, errno, strerror(errno));
-			free(mode_perms);
-			return rc;
-		}
+	if ((mkdir(pathname, S_IRWXU) < 0) && (errno != EEXIST)) {
+		rc = stress_exit_status(errno);
+		pr_fail("%s: mkdir '%s' failed, errno=%d (%s)\n",
+			args->name, pathname, errno, strerror(errno));
+		free(mode_perms);
+		return rc;
 	}
 #if defined(O_DIRECTORY)
 	dfd = open(pathname, O_DIRECTORY | O_RDONLY);
