@@ -177,14 +177,12 @@ static int stress_chdir(stress_args_t *args)
 				}
 			}
 
-			if ((fd >= 0) && (fchdir(fd) < 0)) {
-				if (errno != ENOMEM) {
-					pr_fail("%s: fchdir failed, errno=%d (%s)%s\n",
-						args->name,
-						errno, strerror(errno),
-						stress_fs_type_get(chdir_info[j].path));
-					goto abort;
-				}
+			if ((fd >= 0) && (fchdir(fd) < 0) && (errno != ENOMEM)) {
+				pr_fail("%s: fchdir failed, errno=%d (%s)%s\n",
+					args->name,
+					errno, strerror(errno),
+					stress_fs_type_get(chdir_info[j].path));
+				goto abort;
 			}
 
 			/*
