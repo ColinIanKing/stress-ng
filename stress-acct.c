@@ -92,11 +92,10 @@ static int stress_acct(stress_args_t *args)
 		pid_t pid;
 		struct stat statbuf;
 
-		if (fstat(fd, &statbuf) == 0) {
-			if (statbuf.st_size > MAX_ACCT_FILESIZE) {
-				VOID_RET(int, shim_fsync(fd));
-				VOID_RET(int, ftruncate(fd, 0));
-			}
+		if ((fstat(fd, &statbuf) == 0) &&
+		    (statbuf.st_size > MAX_ACCT_FILESIZE)) {
+			VOID_RET(int, shim_fsync(fd));
+			VOID_RET(int, ftruncate(fd, 0));
 		}
 
 		ret = acct(filename);
