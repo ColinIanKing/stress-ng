@@ -356,6 +356,7 @@ if [[ -e /proc/sys/vm/oom_kill_allocating_task ]]; then
 	echo 0 | sudo tee /proc/sys/vm/oom_kill_allocating_task >& /dev/null
 fi
 
+sudo modprobe ovpn
 fallocate -l 2G $SWAP
 chmod 0600 $SWAP
 sudo chown root:root $SWAP
@@ -478,6 +479,7 @@ do
 	esac
 done
 
+
 DURATION=60
 do_stress --all 1
 
@@ -499,6 +501,8 @@ do_stress --brk -1 --thrash
 do_stress --cacheline 32 --cacheline-affinity
 
 do_stress --cachehammer -1 --cachehammer-numa
+
+do_stress --copy-file -1 --copy-file-io-bytes 8191
 
 do_stress --cpu -1 --sched batch --thermalstat 1
 do_stress --cpu -1 --taskset 0,2 --ignite-cpu
@@ -532,10 +536,14 @@ do_stress --dccp -1 --dccp-opts sendmmsg
 do_stress --dccp -1 --dccp-domain ipv4
 do_stress --dccp -1 --dccp-domain ipv6
 
+do_stress --dentry -1 --dentry-negative
+
 do_stress --epoll -1 --epoll-domain ipv4
 do_stress --epoll -1 --epoll-domain ipv6
 do_stress --epoll -1 --epoll-domain unix
 do_stress --epoll -1 --epoll-sockets 10000
+
+do_stress --daemon -1 --daemon-bloat 1M
 
 do_stress --dentry -1 --dentry-order stride
 do_stress --dentry -1 --dentry-order random
@@ -690,8 +698,12 @@ do_stress --numacopy -1 --numacopy-affinity random
 do_stress --open -1 --open-fd
 do_stress --open -1 --open-max 100000
 
+do_stress --ovpn -1 --ovpn-tunnel
+
 do_stress --pagemove -1 --pagemove-mlock
 do_stress --pagemove -1 --pagemove-numa
+
+do_stress --pagescatter -1 --pagescatter-numa
 
 do_stress --pipe -1 --pipe-size 64K
 do_stress --pipe -1 --pipe-size 1M
@@ -885,6 +897,7 @@ do_stress --vm -1 --vm-madvise sequential
 do_stress --vm -1 --vm-madvise unmergeable
 do_stress --vm -1 --vm-madvise willneed --page-in
 do_stress --vm -1 --vm-numa
+do_stress --vm -1 --vm-nt
 do_stress --vm -1 --vm-populate --ksm
 
 do_stress --vm-addr -1 --vm-addr-mlock
@@ -928,6 +941,7 @@ do_stress --sysinval 8 --pathological
 
 DURATION=120
 do_stress --bad-ioctl -1 --pathological
+do_stress --bad-ioctl -1 --pathological --bad-ioctl-alldev
 do_stress --sysbadaddr 8
 
 #
