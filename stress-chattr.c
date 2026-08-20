@@ -90,11 +90,9 @@ static char *stress_chattr_flags_str(const unsigned long int flags, char *str, c
 	size_t j = 0;
 
 	for (i = 0; i < SIZEOF_ARRAY(stress_chattr_flags); i++) {
-		if (flags & stress_chattr_flags[i].flag) {
-			if (j < str_len - 1) {
-				str[j] = stress_chattr_flags[i].attr;
-				j++;
-			}
+		if ((flags & stress_chattr_flags[i].flag) && (j < str_len - 1)) {
+			str[j] = stress_chattr_flags[i].attr;
+			j++;
 		}
 	}
 	str[j] = '\0';
