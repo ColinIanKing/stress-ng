@@ -316,14 +316,12 @@ static int stress_clock(stress_args_t *args)
 				/* Ensuring clock_settime cannot succeed without privilege */
 				if (!is_root) {
 					ret = shim_clock_settime(clocks[i].id, &t1);
-					if (ret < 0) {
-						if (UNLIKELY(((errno != EPERM) && (errno != EINVAL)))) {
-							/* This is an error, report it! */
-							pr_fail("%s: clock_settime failed, did not have privilege to "
-								"set time, expected EPERM or EINVAL, instead got errno=%d (%s)\n",
-								args->name, errno, strerror(errno));
-							rc = EXIT_FAILURE;
-						}
+					if ((ret < 0) && UNLIKELY(((errno != EPERM) && (errno != EINVAL)))) {
+						/* This is an error, report it! */
+						pr_fail("%s: clock_settime failed, did not have privilege to "
+							"set time, expected EPERM or EINVAL, instead got errno=%d (%s)\n",
+							args->name, errno, strerror(errno));
+						rc = EXIT_FAILURE;
 					}
 				}
 
