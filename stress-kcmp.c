@@ -131,7 +131,7 @@ static int stress_kcmp(stress_args_t *args)
 	int sfd = -1;
 	int so_reuseaddr = 1;
 	struct epoll_event ev;
-	struct sockaddr *addr = NULL;
+	struct sockaddr_storage addr;
 	socklen_t addr_len = 0;
 	const pid_t mypid = getpid();
 #endif
@@ -148,6 +148,7 @@ static int stress_kcmp(stress_args_t *args)
 		"need CAP_SYS_PTRACE capability to run kcmp stressor, "
 		"aborting stress test\n";
 
+	(void)shim_memset(&addr, 0, sizeof(addr));
 	if ((fd1 = open("/dev/null", O_WRONLY)) < 0) {
 		pr_fail("%s: open '/dev/null' failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
@@ -171,13 +172,13 @@ static int stress_kcmp(stress_args_t *args)
 			goto again;
 		}
 		if (stress_net_sockaddr_set(args->name, args->instance, mypid,
-					    AF_INET, reserved_port, &addr,
-					    &addr_len, NET_ADDR_ANY) < 0) {
+					    AF_INET, reserved_port,
+					    &addr, &addr_len, NET_ADDR_ANY) < 0) {
 			(void)close(sfd);
 			sfd = -1;
 			goto again;
 		}
-		if (bind(sfd, addr, addr_len) < 0) {
+		if (bind(sfd, (struct sockaddr *)&addr, addr_len) < 0) {
 			(void)close(sfd);
 			sfd = -1;
 			goto again;

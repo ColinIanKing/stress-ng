@@ -511,7 +511,7 @@ static int OPTIMIZE3 stress_sock_client(
 	const bool rt,
 	const bool sock_zerocopy)
 {
-	struct sockaddr *addr;
+	struct sockaddr_storage addr;
 	size_t n_ctrls;
 	char **ctrls;
 	int recvflag = 0;
@@ -521,6 +521,7 @@ static int OPTIMIZE3 stress_sock_client(
 	uint64_t inq_samples = 0;
 	uint32_t count = 0;
 
+	(void)shim_memset(&addr, 0, sizeof(addr));
 	stress_parent_died_alarm();
 	(void)stress_sched_settings_apply(true);
 
@@ -578,14 +579,13 @@ retry:
 #else
 		(void)sock_zerocopy;
 #endif
-
 		if (UNLIKELY(stress_net_sockaddr_if_set(args->name, args->instance, mypid,
 							sock_domain, sock_port, sock_if,
 							&addr, &addr_len, NET_ADDR_ANY) < 0)) {
 			(void)close(fd);
 			goto free_controls;
 		}
-		if (UNLIKELY(connect(fd, addr, addr_len) < 0)) {
+		if (UNLIKELY(connect(fd, (struct sockaddr *)&addr, addr_len) < 0)) {
 			const int errno_tmp = errno;
 
 			(void)close(fd);
@@ -940,7 +940,7 @@ retry:
     defined(HAVE_SYS_UN_H) &&	\
     defined(HAVE_SOCKADDR_UN)
 	if (sock_domain == AF_UNIX) {
-		const struct sockaddr_un *addr_un = (struct sockaddr_un *)addr;
+		const struct sockaddr_un *addr_un = (struct sockaddr_un *)&addr;
 
 		(void)shim_unlink(addr_un->sun_path);
 	}
@@ -978,7 +978,7 @@ static int OPTIMIZE3 stress_sock_server(
 	const bool rt,
 	const bool sock_zerocopy)
 {
-	struct sockaddr *addr = NULL;
+	struct sockaddr_storage addr;
 	void *ptr = MAP_FAILED;
 	socklen_t addr_len = 0;
 	uint64_t msgs = 0;
@@ -998,6 +998,7 @@ static int OPTIMIZE3 stress_sock_server(
 	uint32_t count = 0;
 #endif
 
+	(void)shim_memset(&addr, 1, sizeof(addr));
 	if (!stress_setting_get("sock-msgs", &sock_msgs)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			sock_msgs = MAX_SOCKET_MSGS;
@@ -1076,8 +1077,7 @@ retry:
 		VOID_RET(int, ioctl(fd, SIOCGIFADDR, &ifaddr));
 	}
 #endif
-
-	if (bind(fd, addr, addr_len) < 0) {
+	if (bind(fd, (struct sockaddr *)&addr, addr_len) < 0) {
 		if (LIKELY(errno == EADDRINUSE)) {
 			if (stress_continue(args)) {
 				(void)close(fd);
@@ -1358,8 +1358,8 @@ die:
 #if defined(AF_UNIX) &&		\
     defined(HAVE_SYS_UN_H) &&	\
     defined(HAVE_SOCKADDR_UN)
-	if (addr && (sock_domain == AF_UNIX)) {
-		const struct sockaddr_un *addr_un = (struct sockaddr_un *)addr;
+	if (sock_domain == AF_UNIX) {
+		const struct sockaddr_un *addr_un = (struct sockaddr_un *)&addr;
 
 		(void)shim_unlink(addr_un->sun_path);
 	}

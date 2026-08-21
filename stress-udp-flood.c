@@ -69,7 +69,7 @@ static int OPTIMIZE3 stress_udp_flood(stress_args_t *args)
 	int rc = EXIT_SUCCESS;
 	int j = 0;
 	int udp_flood_domain = AF_INET;
-	struct sockaddr *addr;
+	struct sockaddr_storage addr;
 	socklen_t addr_len;
 	size_t udp_flood_max_size = DEFAULT_UDP_FLOOD_MAX_SIZE;
 	size_t sz = 1;
@@ -85,6 +85,7 @@ static int OPTIMIZE3 stress_udp_flood(stress_args_t *args)
 	int rand_port = -1;
 	int reserved_port;
 
+	(void)shim_memset(&addr, 0, sizeof(addr));
 	(void)stress_setting_get("udp-flood-domain", &udp_flood_domain);
 	(void)stress_setting_get("udp-flood-if", &udp_flood_if);
 	if (!stress_setting_get("udp-flood-max-size", &udp_flood_max_size)) {
@@ -119,8 +120,8 @@ static int OPTIMIZE3 stress_udp_flood(stress_args_t *args)
 	}
 	if (stress_net_sockaddr_if_set(args->name, args->instance,
 				       args->pid, udp_flood_domain,
-				       1024, udp_flood_if, &addr,
-				       &addr_len, NET_ADDR_ANY) < 0) {
+				       1024, udp_flood_if,
+				       &addr, &addr_len, NET_ADDR_ANY) < 0) {
 		(void)close(fd);
 		return EXIT_FAILURE;
 	}
@@ -157,10 +158,9 @@ static int OPTIMIZE3 stress_udp_flood(stress_args_t *args)
 				continue;
 			rand_port = reserved_port;
 		}
-
-		stress_net_sockaddr_port_set(udp_flood_domain, seq_port, addr);
+		stress_net_sockaddr_port_set(udp_flood_domain, seq_port, (struct sockaddr *)&addr);
 		(void)shim_memset(buf, stress_ascii64[j++ & 63], sz);
-		n = sendto(fd, buf, sz, 0, addr, addr_len);
+		n = sendto(fd, buf, sz, 0, (struct sockaddr *)&addr, addr_len);
 		if (LIKELY(n > 0)) {
 			stress_bogo_inc(args);
 			bytes += (double)n;
@@ -176,8 +176,8 @@ static int OPTIMIZE3 stress_udp_flood(stress_args_t *args)
 #else
 		UNEXPECTED
 #endif
-		stress_net_sockaddr_port_set(udp_flood_domain, rand_port, addr);
-		n = sendto(fd, buf, sz, 0, addr, addr_len);
+		stress_net_sockaddr_port_set(udp_flood_domain, rand_port, (struct sockaddr *)&addr);
+		n = sendto(fd, buf, sz, 0, (struct sockaddr *)&addr, addr_len);
 		if (LIKELY(n > 0)) {
 			stress_bogo_inc(args);
 			bytes += (double)n;

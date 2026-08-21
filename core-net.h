@@ -60,10 +60,10 @@ extern WARN_UNUSED int stress_net_domain_set(const int domain_mask,
 	const char *name, const char *domain_name, int *domain);
 extern WARN_UNUSED int stress_net_sockaddr_if_set(const char *name, const uint32_t instance,
         const pid_t pid, const int domain, const int port, const char *ifname,
-	struct sockaddr **sockaddr, socklen_t *len, const int net_addr);
+	struct sockaddr_storage *sockaddr, socklen_t *len, const int net_addr);
 extern WARN_UNUSED int stress_net_sockaddr_set(const char *name, const uint32_t instance,
 	const pid_t pid, const int domain, const int port,
-	struct sockaddr **sockaddr, socklen_t *len, const int net_addr);
+	struct sockaddr_storage *sockaddr, socklen_t *len, const int net_addr);
 extern void stress_net_sockaddr_port_set(const int domain, const int port,
 	struct sockaddr *sockaddr);
 extern int stress_net_interface_exists(const char *interface, const int domain, struct sockaddr *addr);

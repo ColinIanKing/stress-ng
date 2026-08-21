@@ -366,11 +366,12 @@ static int OPTIMIZE3 stress_sctp_client(
 	const int sctp_sched_type,
 	const char *sctp_if)
 {
-	struct sockaddr *addr;
+	struct sockaddr_storage addr;
 	int rc = EXIT_SUCCESS;
 
 	(void)sctp_sched_type;
 
+	(void)shim_memset(&addr, 0, sizeof(addr));
 	stress_parent_died_alarm();
 	(void)stress_sched_settings_apply(true);
 
@@ -397,14 +398,13 @@ retry:
 				args->name, errno, strerror(errno));
 			return EXIT_FAILURE;
 		}
-
 		if (UNLIKELY(stress_net_sockaddr_if_set(args->name, args->instance, mypid,
 							sctp_domain, sctp_port, sctp_if,
 							&addr, &addr_len, NET_ADDR_LOOPBACK) < 0)) {
 			(void)close(fd);
 			return EXIT_FAILURE;
 		}
-		if (UNLIKELY(connect(fd, addr, addr_len) < 0)) {
+		if (UNLIKELY(connect(fd, (struct sockaddr *)&addr, addr_len) < 0)) {
 			const int save_errno = errno;
 
 			(void)close(fd);
@@ -471,7 +471,7 @@ retry:
     defined(HAVE_SYS_UN_H) &&	\
     defined(HAVE_SOCKADDR_UN)
 	if (sctp_domain == AF_UNIX) {
-		const struct sockaddr_un *addr_un = (struct sockaddr_un *)addr;
+		const struct sockaddr_un *addr_un = (struct sockaddr_un *)&addr;
 
 		(void)shim_unlink(addr_un->sun_path);
 	}
@@ -495,7 +495,7 @@ static int OPTIMIZE3 stress_sctp_server(
 	const size_t sctp_max_size)
 {
 	char ALIGN64 buf[MAX_SCTP_MAX_SIZE];
-	struct sockaddr *addr = NULL;
+	struct sockaddr_storage addr;
 	socklen_t addr_len = 0;
 	const size_t sctp_min_size = (sctp_max_size & 0xf) + 16;
 	int fd;
@@ -505,6 +505,7 @@ static int OPTIMIZE3 stress_sctp_server(
 
 	(void)sctp_sched_type;
 
+	(void)shim_memset(&addr, 0, sizeof(addr));
 	if (stress_signal_stop_stressing(args->name, SIGALRM)) {
 		rc = EXIT_FAILURE;
 		goto die;
@@ -536,7 +537,7 @@ static int OPTIMIZE3 stress_sctp_server(
 		rc = EXIT_FAILURE;
 		goto die_close;
 	}
-	if (bind(fd, addr, addr_len) < 0) {
+	if (bind(fd, (struct sockaddr *)&addr, addr_len) < 0) {
 		rc = stress_exit_status(errno);
 		pr_fail("%s: bind failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
@@ -607,8 +608,8 @@ die:
 #if defined(AF_UNIX) &&		\
     defined(HAVE_SYS_UN_H) &&	\
     defined(HAVE_SOCKADDR_UN)
-	if (addr && (sctp_domain == AF_UNIX)) {
-		const struct sockaddr_un *addr_un = (struct sockaddr_un *)addr;
+	if (sctp_domain == AF_UNIX) {
+		const struct sockaddr_un *addr_un = (struct sockaddr_un *)&addr;
 
 		(void)shim_unlink(addr_un->sun_path);
 	}

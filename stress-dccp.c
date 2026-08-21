@@ -104,8 +104,9 @@ static int stress_dccp_client(
 	const int dccp_domain,
 	const char *dccp_if)
 {
-	struct sockaddr *addr;
+	struct sockaddr_storage addr;
 
+	(void)shim_memset(&addr, 0, sizeof(addr));
 	stress_parent_died_alarm();
 
 	do {
@@ -129,14 +130,13 @@ retry:
 				args->name, errno, strerror(errno));
 			return EXIT_FAILURE;
 		}
-
 		if (stress_net_sockaddr_if_set(args->name, args->instance, mypid,
 					       dccp_domain, dccp_port, dccp_if,
 					       &addr, &addr_len, NET_ADDR_ANY) < 0) {
 			(void)close(fd);
 			return EXIT_FAILURE;
 		}
-		if (connect(fd, addr, addr_len) < 0) {
+		if (connect(fd, (struct sockaddr *)&addr, addr_len) < 0) {
 			int err = errno;
 
 			(void)close(fd);
@@ -172,7 +172,7 @@ retry:
     defined(HAVE_SYS_UN_H) &&	\
     defined(HAVE_SOCKADDR_UN)
 	if (dccp_domain == AF_UNIX) {
-		const struct sockaddr_un *addr_un = (struct sockaddr_un *)addr;
+		const struct sockaddr_un *addr_un = (struct sockaddr_un *)&addr;
 
 		(void)shim_unlink(addr_un->sun_path);
 	}
@@ -197,13 +197,14 @@ static int stress_dccp_server(
 	int so_reuseaddr = 1;
 	int rc = EXIT_SUCCESS;
 	socklen_t addr_len = 0;
-	struct sockaddr *addr = NULL;
+	struct sockaddr_storage addr;
 	uint64_t msgs = 0;
 	double t1 = 0.0;
 	double t2 = 0.0;
 	double dt;
 	size_t dccp_msgs = DEFAULT_DCCP_MSGS;
 
+	(void)shim_memset(&addr, 0, sizeof(addr));
 	if (!stress_setting_get("dccp-msgs", &dccp_msgs)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			dccp_msgs = MAX_DCCP_MSGS;
@@ -239,14 +240,13 @@ static int stress_dccp_server(
 		rc = EXIT_FAILURE;
 		goto die_close;
 	}
-
 	if (stress_net_sockaddr_if_set(args->name, args->instance, mypid,
 				       dccp_domain, dccp_port, dccp_if,
 				       &addr, &addr_len, NET_ADDR_ANY) < 0) {
 		rc = EXIT_FAILURE;
 		goto die_close;
 	}
-	if (bind(fd, addr, addr_len) < 0) {
+	if (bind(fd, (struct sockaddr *)&addr, addr_len) < 0) {
 		rc = stress_exit_status(errno);
 		pr_fail("%s: bind failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
@@ -388,8 +388,8 @@ die:
 #if defined(AF_UNIX) &&		\
     defined(HAVE_SYS_UN_H) &&	\
     defined(HAVE_SOCKADDR_UN)
-	if (addr && (dccp_domain == AF_UNIX)) {
-		const struct sockaddr_un *addr_un = (struct sockaddr_un *)addr;
+	if (dccp_domain == AF_UNIX) {
+		const struct sockaddr_un *addr_un = (struct sockaddr_un *)&addr;
 
 		(void)shim_unlink(addr_un->sun_path);
 	}

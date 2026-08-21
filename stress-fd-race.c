@@ -283,9 +283,10 @@ static void *stress_fd_race_pthread(void *ptr)
  */
 static int OPTIMIZE3 stress_race_fd_client(stress_fd_race_context *context)
 {
-	struct sockaddr *addr = NULL;
+	struct sockaddr_storage addr;
 	stress_args_t *args = context->args;
 
+	(void)shim_memset(&addr, 0, sizeof(addr));
 	stress_parent_died_alarm();
 	(void)stress_sched_settings_apply(true);
 
@@ -329,13 +330,12 @@ retry:
 				args->name, errno, strerror(errno));
 			return EXIT_FAILURE;
 		}
-
 		if (UNLIKELY(stress_net_sockaddr_set(args->name, args->instance, context->pid,
 						     AF_UNIX, context->socket_fd_port,
 						     &addr, &addr_len, NET_ADDR_ANY) < 0)) {
 			return EXIT_FAILURE;
 		}
-		if (UNLIKELY(connect(fd, addr, addr_len) < 0)) {
+		if (UNLIKELY(connect(fd, (struct sockaddr *)&addr, addr_len) < 0)) {
 			(void)close(fd);
 			if (retries++ > 100) {
 				/* Give up.. */
@@ -376,8 +376,8 @@ retry:
 
 #if defined(HAVE_SYS_UN_H) &&	\
     defined(HAVE_SOCKADDR_UN)
-	if (addr) {
-		const struct sockaddr_un *addr_un = (struct sockaddr_un *)addr;
+	{
+		const struct sockaddr_un *addr_un = (struct sockaddr_un *)&addr;
 
 		(void)shim_unlink(addr_un->sun_path);
 	}
@@ -513,13 +513,14 @@ static int OPTIMIZE3 stress_race_fd_server(
 	int so_reuseaddr = 1;
 	int rc = EXIT_SUCCESS;
 	socklen_t addr_len = 0;
-	struct sockaddr *addr = NULL;
+	struct sockaddr_storage addr;
 	uint64_t msgs = 0;
 	const stress_fd_race_filename_t *entry;
 	stress_args_t *args = context->args;
 	int pthreads_ret[MAX_PTHREADS];
 	pthread_t pthreads[MAX_PTHREADS];
 
+	(void)shim_memset(&addr, 0, sizeof(addr));
 	for (j = 0; j < MAX_PTHREADS; j++) {
 		pthreads_ret[j] = -1;
 	}
@@ -558,7 +559,7 @@ retry:
 		rc = EXIT_FAILURE;
 		goto die_close;
 	}
-	if (bind(fd, addr, addr_len) < 0) {
+	if (bind(fd, (struct sockaddr *)&addr, addr_len) < 0) {
 		if (errno == EADDRINUSE) {
 			rc = EXIT_NO_RESOURCE;
 			pr_inf_skip("%s: cannot bind, skipping stressor, errno=%d (%s)\n",
@@ -646,8 +647,8 @@ die_close:
 die:
 #if defined(HAVE_SYS_UN_H) &&	\
     defined(HAVE_SOCKADDR_UN)
-	if (addr) {
-		const struct sockaddr_un *addr_un = (struct sockaddr_un *)addr;
+	{
+		const struct sockaddr_un *addr_un = (struct sockaddr_un *)&addr;
 
 		(void)shim_unlink(addr_un->sun_path);
 	}

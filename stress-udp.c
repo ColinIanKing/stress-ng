@@ -84,11 +84,12 @@ static int OPTIMIZE3 stress_udp_client(
 	const char *udp_if,
 	const size_t udp_max_size)
 {
-	struct sockaddr *addr = NULL;
+	struct sockaddr_storage addr;
 	int rc = EXIT_FAILURE;
 	const pid_t pid = getpid();
 	const size_t udp_min_size = (udp_max_size & 0xf) + 16;
 
+	(void)shim_memset(&addr, 0, sizeof(addr));
 	stress_parent_died_alarm();
 	(void)stress_sched_settings_apply(true);
 
@@ -103,7 +104,6 @@ static int OPTIMIZE3 stress_udp_client(
 			rc = EXIT_NO_RESOURCE;
 			goto child_die;
 		}
-
 		if (UNLIKELY(stress_net_sockaddr_if_set(args->name, args->instance, mypid,
 							udp_domain, udp_port, udp_if,
 							&addr, &len, NET_ADDR_ANY) < 0)) {
@@ -229,7 +229,7 @@ static int OPTIMIZE3 stress_udp_client(
 			for (i = udp_min_size; i <= udp_max_size; i += 16) {
 				ssize_t ret;
 
-				ret = sendto(fd, buf, i, 0, addr, len);
+				ret = sendto(fd, buf, i, 0, (struct sockaddr *)&addr, len);
 				if (UNLIKELY(ret < 0)) {
 					if ((errno == EINTR) || (errno == ENETUNREACH))
 						break;
@@ -266,8 +266,8 @@ child_die:
 #if defined(AF_UNIX) &&		\
     defined(HAVE_SYS_UN_H) &&	\
     defined(HAVE_SOCKADDR_UN)
-	if ((udp_domain == AF_UNIX) && addr) {
-		const struct sockaddr_un *addr_un = (struct sockaddr_un *)addr;
+	if (udp_domain == AF_UNIX) {
+		const struct sockaddr_un *addr_un = (struct sockaddr_un *)&addr;
 
 		(void)shim_unlink(addr_un->sun_path);
 	}
@@ -288,9 +288,10 @@ static int OPTIMIZE3 stress_udp_server(
 	char ALIGN64 buf[MAX_UDP_MAX_SIZE];
 	int fd;
 	socklen_t addr_len = 0;
-	struct sockaddr *addr = NULL;
+	struct sockaddr_storage addr;
 	int rc = EXIT_FAILURE;
 
+	(void)shim_memset(&addr, 0, sizeof(addr));
 	if (stress_signal_stop_stressing(args->name, SIGALRM) < 0)
 		goto die;
 	if ((fd = socket(udp_domain, SOCK_DGRAM, udp_proto)) < 0) {
@@ -329,7 +330,7 @@ static int OPTIMIZE3 stress_udp_server(
 		}
 	}
 #endif
-	if (bind(fd, addr, addr_len) < 0) {
+	if (bind(fd, (struct sockaddr *)&addr, addr_len) < 0) {
 		pr_fail("%s: bind failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		goto die_close;
@@ -358,7 +359,7 @@ static int OPTIMIZE3 stress_udp_server(
 #else
 		UNEXPECTED
 #endif
-		n = recvfrom(fd, buf, sizeof(buf), 0, addr, &len);
+		n = recvfrom(fd, buf, sizeof(buf), 0, (struct sockaddr *)&addr, &len);
 		if (UNLIKELY(n <= 0)) {
 			if (n == 0)
 				break;
@@ -399,8 +400,8 @@ die:
 #if defined(AF_UNIX) &&		\
     defined(HAVE_SYS_UN_H) &&	\
     defined(HAVE_SOCKADDR_UN)
-	if ((udp_domain == AF_UNIX) && addr) {
-		const struct sockaddr_un *addr_un = (struct sockaddr_un *)addr;
+	if (udp_domain == AF_UNIX) {
+		const struct sockaddr_un *addr_un = (struct sockaddr_un *)&addr;
 
 		(void)shim_unlink(addr_un->sun_path);
 	}

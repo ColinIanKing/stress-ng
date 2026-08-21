@@ -88,10 +88,11 @@ static int OPTIMIZE3 stress_sockmany_client(
 	stress_sock_fds_t *sock_fds,
 	const char *sockmany_if)
 {
-	struct sockaddr *addr;
+	struct sockaddr_storage addr;
 	static int fds[SOCKET_MANY_FDS];
 	int i;
 
+	(void)shim_memset(&addr, 0, sizeof(addr));
 	stress_parent_died_alarm();
 	(void)stress_sched_settings_apply(true);
 
@@ -126,13 +127,12 @@ retry:
 				stress_sockmany_cleanup(fds, i);
 				return EXIT_FAILURE;
 			}
-
 			if (UNLIKELY(stress_net_sockaddr_if_set(args->name, args->instance, mypid,
 								AF_INET, sockmany_port, sockmany_if,
 								&addr, &addr_len, NET_ADDR_ANY) < 0)) {
 				return EXIT_FAILURE;
 			}
-			if (UNLIKELY(connect(fds[i], addr, addr_len) < 0)) {
+			if (UNLIKELY(connect(fds[i], (struct sockaddr *)&addr, addr_len) < 0)) {
 				int save_errno = errno;
 
 				(void)close(fds[i]);
@@ -182,12 +182,13 @@ static int OPTIMIZE3 stress_sockmany_server(
 	const size_t sockmany_max_size)
 {
 	char ALIGN64 buf[MAX_SOCKMANY_MAX_SIZE];
-	struct sockaddr *addr = NULL;
+	struct sockaddr_storage addr;
 	socklen_t addr_len = 0;
 	uint64_t msgs = 0;
 	int rc = EXIT_SUCCESS;
 	int fd;
 
+	(void)shim_memset(&addr, 0, sizeof(addr));
 	if (stress_signal_stop_stressing(args->name, SIGALRM) < 0) {
 		rc = EXIT_FAILURE;
 		goto die;
@@ -230,14 +231,13 @@ retry:
 		(void)setsockopt(fd, SOL_TCP, TCP_USER_TIMEOUT, &timeout_ms, sizeof(timeout_ms));
 	}
 #endif
-
 	if (stress_net_sockaddr_if_set(args->name, args->instance, mypid,
 				       AF_INET, sockmany_port, sockmany_if,
 				       &addr, &addr_len, NET_ADDR_ANY) < 0) {
 		rc = EXIT_FAILURE;
 		goto die_close;
 	}
-	if (bind(fd, addr, addr_len) < 0) {
+	if (bind(fd, (struct sockaddr *)&addr, addr_len) < 0) {
 		if (LIKELY(errno == EADDRINUSE)) {
 			if (stress_continue(args)) {
 				(void)close(fd);

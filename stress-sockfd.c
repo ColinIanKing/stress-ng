@@ -145,8 +145,9 @@ static int OPTIMIZE3 stress_socket_client(
 	int *fds,
 	const size_t fds_size)
 {
-	struct sockaddr *addr = NULL;
+	struct sockaddr_storage addr;
 
+	(void)shim_memset(&addr, 0, sizeof(addr));
 	stress_parent_died_alarm();
 	(void)stress_sched_settings_apply(true);
 
@@ -174,14 +175,13 @@ retry:
 				args->name, errno, strerror(errno));
 			return EXIT_FAILURE;
 		}
-
 		if (UNLIKELY(stress_net_sockaddr_set(args->name, args->instance,
 						     mypid, AF_UNIX, socket_fd_port,
 						     &addr, &addr_len, NET_ADDR_ANY) < 0)) {
 			(void)close(fd);
 			return EXIT_FAILURE;
 		}
-		if (UNLIKELY(connect(fd, addr, addr_len) < 0)) {
+		if (UNLIKELY(connect(fd, (struct sockaddr *)&addr, addr_len) < 0)) {
 			(void)close(fd);
 			if (retries++ > 100) {
 				/* Give up.. */
@@ -233,8 +233,8 @@ retry:
 
 #if defined(HAVE_SYS_UN_H) &&	\
     defined(HAVE_SOCKADDR_UN)
-	if (addr) {
-		const struct sockaddr_un *addr_un = (struct sockaddr_un *)addr;
+	{
+		const struct sockaddr_un *addr_un = (struct sockaddr_un *)&addr;
 
 		(void)shim_unlink(addr_un->sun_path);
 	}
@@ -256,7 +256,7 @@ static int OPTIMIZE3 stress_socket_server(
 	const int socket_fd_port,
 	const bool socket_fd_reuse)
 {
-	struct sockaddr *addr = NULL;
+	struct sockaddr_storage addr;
 	socklen_t addr_len = 0;
 	uint64_t msgs = 0;
 	int fd;
@@ -264,6 +264,7 @@ static int OPTIMIZE3 stress_socket_server(
 	int rc = EXIT_SUCCESS;
 	const int bad_fd = stress_fs_bad_fd_get();
 
+	(void)shim_memset(&addr, 0, sizeof(addr));
 	if (stress_signal_stop_stressing(args->name, SIGALRM)) {
 		rc = EXIT_FAILURE;
 		goto die;
@@ -281,14 +282,13 @@ static int OPTIMIZE3 stress_socket_server(
 		rc = EXIT_FAILURE;
 		goto die_close;
 	}
-
 	if (stress_net_sockaddr_set(args->name, args->instance, ppid,
 				AF_UNIX, socket_fd_port,
 				&addr, &addr_len, NET_ADDR_ANY) < 0) {
 		rc = EXIT_FAILURE;
 		goto die_close;
 	}
-	if (bind(fd, addr, addr_len) < 0) {
+	if (bind(fd, (struct sockaddr *)&addr, addr_len) < 0) {
 		if (errno == EADDRINUSE) {
 			rc = EXIT_NO_RESOURCE;
 			pr_inf_skip("%s: bind failed, skipping stressor, errno=%d (%s)\n",
@@ -380,8 +380,8 @@ die_close:
 die:
 #if defined(HAVE_SYS_UN_H) &&	\
     defined(HAVE_SOCKADDR_UN)
-	if (addr) {
-		const struct sockaddr_un *addr_un = (struct sockaddr_un *)addr;
+	{
+		const struct sockaddr_un *addr_un = (struct sockaddr_un *)&addr;
 
 		(void)shim_unlink(addr_un->sun_path);
 	}

@@ -518,9 +518,10 @@ static int epoll_client(
 	uint64_t connect_timeouts = 0;
 	struct sigevent sev;
 	struct itimerspec timer;
-	struct sockaddr *addr = NULL;
+	struct sockaddr_storage addr;
 	uint64_t buf[4096 / sizeof(uint64_t)];
 
+	(void)shim_memset(&addr, 0, sizeof(addr));
 	if (stress_signal_handler(args->name, SIGRTMIN, epoll_timer_handler, NULL) < 0)
 		return EXIT_FAILURE;
 
@@ -586,16 +587,14 @@ retry:
 			(void)close(fd);
 			return EXIT_FAILURE;
 		}
-
 		if (UNLIKELY(stress_net_sockaddr_set(args->name, args->instance,
 						     mypid, epoll_domain, port,
 						     &addr, &addr_len, NET_ADDR_ANY) < 0)) {
 			(void)close(fd);
 			return EXIT_FAILURE;
 		}
-
 		errno = 0;
-		ret = connect(fd, addr, addr_len);
+		ret = connect(fd, (struct sockaddr *)&addr, addr_len);
 		saved_errno = errno;
 
 		/* No longer need timer */
@@ -650,8 +649,8 @@ retry:
 
 #if defined(AF_UNIX) &&		\
     defined(HAVE_SOCKADDR_UN)
-	if (addr && (epoll_domain == AF_UNIX)) {
-		const struct sockaddr_un *addr_un = (struct sockaddr_un *)addr;
+	if (epoll_domain == AF_UNIX) {
+		const struct sockaddr_un *addr_un = (struct sockaddr_un *)&addr;
 
 		(void)shim_unlink(addr_un->sun_path);
 	}
@@ -684,11 +683,12 @@ static void NORETURN epoll_server(
 	int so_reuseaddr = 1;
 	const int port = epoll_port + child + (max_servers * (int)args->instance);
 	struct epoll_event * CLOBBERED events = NULL;
-	struct sockaddr *addr = NULL;
+	struct sockaddr_storage addr;
 	socklen_t addr_len = 0;
 	const int bad_fd = stress_fs_bad_fd_get();
 	int fd_count = 0;
 
+	(void)shim_memset(&addr, 0, sizeof(addr));
 	if (stress_signal_handler(args->name, SIGSEGV, stress_segv_handler, NULL) < 0) {
 		rc = EXIT_NO_RESOURCE;
 		goto die;
@@ -706,15 +706,13 @@ static void NORETURN epoll_server(
 		rc = EXIT_FAILURE;
 		goto die_close;
 	}
-
 	if (stress_net_sockaddr_set(args->name, args->instance, mypid,
-				    epoll_domain, port, &addr, &addr_len,
-				    NET_ADDR_ANY) < 0) {
+				    epoll_domain, port,
+				    &addr, &addr_len, NET_ADDR_ANY) < 0) {
 		rc = EXIT_FAILURE;
 		goto die_close;
 	}
-
-	if (bind(sfd, addr, addr_len) < 0) {
+	if (bind(sfd, (struct sockaddr *)&addr, addr_len) < 0) {
 		pr_fail("%s: bind failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		rc = EXIT_FAILURE;
@@ -964,8 +962,8 @@ die_close:
 die:
 #if defined(AF_UNIX) &&		\
     defined(HAVE_SOCKADDR_UN)
-	if (addr && (epoll_domain == AF_UNIX)) {
-		const struct sockaddr_un *addr_un = (struct sockaddr_un *)addr;
+	if (epoll_domain == AF_UNIX) {
+		const struct sockaddr_un *addr_un = (struct sockaddr_un *)&addr;
 
 		(void)shim_unlink(addr_un->sun_path);
 	}

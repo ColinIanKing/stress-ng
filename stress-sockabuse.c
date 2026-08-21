@@ -600,7 +600,7 @@ static void stress_sockabuse_fd(stress_args_t *args, const int fd)
 	UNEXPECTED
 #endif
 	addrlen = sizeof(addr);
-	VOID_RET(int, getpeername(fd, &addr, &addrlen));
+	VOID_RET(int, getpeername(fd, (struct sockaddr *)&addr, &addrlen));
 #if defined(FIONREAD)
 	if (stress_ioctl_get_check(fd, FIONREAD, sizeof(int)) < 0)
 		pr_fail("%s: ioctl FIONREAD failed, not getting value reliably\n", args->name);
@@ -640,8 +640,9 @@ static int stress_sockabuse_client(
 	const pid_t mypid,
 	const int sockabuse_port)
 {
-	struct sockaddr *addr;
+	struct sockaddr_storage addr;
 
+	(void)shim_memset(&addr, 0, sizeof(addr));
 	stress_parent_died_alarm();
 	(void)stress_sched_settings_apply(true);
 
@@ -660,13 +661,12 @@ retry:
 				args->name, errno, strerror(errno));
 			return EXIT_FAILURE;
 		}
-
 		if (UNLIKELY(stress_net_sockaddr_set(args->name, args->instance,
 						     mypid, AF_INET, sockabuse_port,
 						     &addr, &addr_len, NET_ADDR_ANY) < 0)) {
 			return EXIT_FAILURE;
 		}
-		if (UNLIKELY(connect(fd, addr, addr_len) < 0)) {
+		if (UNLIKELY(connect(fd, (struct sockaddr *)&addr, addr_len) < 0)) {
 			(void)shutdown(fd, SHUT_RDWR);
 			(void)close(fd);
 			(void)shim_usleep(delay);
@@ -707,13 +707,14 @@ static int stress_sockabuse_server(
 	char buf[SOCKET_BUF];
 	int fd;
 	socklen_t addr_len = 0;
-	struct sockaddr *addr = NULL;
+	struct sockaddr_storage addr;
 	uint64_t msgs = 0;
 	int rc = EXIT_SUCCESS;
 	double t1 = 0.0;
 	double t2 = 0.0;
 	double dt;
 
+	(void)shim_memset(&addr, 0, sizeof(addr));
 	if (stress_signal_stop_stressing(args->name, SIGALRM) < 0) {
 		rc = EXIT_FAILURE;
 		goto die;
@@ -743,14 +744,13 @@ static int stress_sockabuse_server(
 			}
 		}
 #endif
-
 		if (UNLIKELY(stress_net_sockaddr_set(args->name, args->instance,
 						     mypid, AF_INET, sockabuse_port,
 						     &addr, &addr_len, NET_ADDR_ANY) < 0)) {
 			(void)close(fd);
 			continue;
 		}
-		if (UNLIKELY(bind(fd, addr, addr_len) < 0)) {
+		if (UNLIKELY(bind(fd, (struct sockaddr *)&addr, addr_len) < 0)) {
 			if (errno != EADDRINUSE) {
 				rc = stress_exit_status(errno);
 				pr_fail("%s: bind failed, errno=%d (%s)\n",
