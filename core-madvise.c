@@ -267,20 +267,6 @@ int stress_advice_check(const int advice)
 	return advice;
 }
 
-#if defined(HAVE_MADVISE)
-/*
- *  stress_madvise_cmp()
- *	qsort string comparison
- */
-static int stress_madvise_cmp(const void *p1, const void *p2)
-{
-	const char * const *s1 = (const char * const *)p1;
-	const char * const *s2 = (const char * const *)p2;
-
-	return shim_strcmp(*s1, *s2);
-}
-#endif
-
 /*
  *  stress_madvise_opts_show()
  *	show the supported madvise advice options
@@ -294,7 +280,7 @@ static void stress_madvise_opts_show(void)
 	for (i = 0; i < SIZEOF_ARRAY(madvise_random_options); i++)
 		opts[i] = madvise_random_options[i].name;
 
-	qsort_bm(opts, SIZEOF_ARRAY(opts), sizeof(char *), stress_madvise_cmp);
+	qsort_bm(opts, SIZEOF_ARRAY(opts), sizeof(char *), stress_sort_cmp_str);
 
 	(void)fprintf(stderr, "supported advice:");
 	for (i = 0; i < SIZEOF_ARRAY(madvise_random_options); i++)
