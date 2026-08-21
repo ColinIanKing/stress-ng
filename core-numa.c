@@ -230,6 +230,18 @@ void stress_numa_mask_free(stress_numa_mask_t *numa_mask)
 	free(numa_mask);
 }
 
+/*
+ *  stress_numa_mask_nodes_free()
+ *  	free numa mask and numa nodes
+ */
+void stress_numa_mask_nodes_free(
+	stress_numa_mask_t *numa_mask,
+	stress_numa_mask_t *numa_nodes)
+{
+	stress_numa_mask_free(numa_mask);
+	stress_numa_mask_free(numa_nodes);
+}
+
 #if defined(__NR_get_mempolicy) &&      \
     defined(__NR_mbind) &&              \
     defined(__NR_migrate_pages) &&      \

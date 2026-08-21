@@ -434,10 +434,7 @@ tidy:
 	(void)munmap((void *)mapping, args->page_size);
 tidy_cpus:
 #if defined(HAVE_LINUX_MEMPOLICY_H)
-	if (numa_mask)
-		stress_numa_mask_free(numa_mask);
-	if (numa_nodes)
-		stress_numa_mask_free(numa_nodes);
+	stress_numa_mask_nodes_free(numa_mask, numa_nodes);
 #endif
 #if defined(HAVE_SCHED_SETAFFINITY)
 	stress_affinity_cpus_free(&cpus);
