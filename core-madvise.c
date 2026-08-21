@@ -378,22 +378,6 @@ int stress_madvise_randomize(void *addr, const size_t length)
 }
 
 /*
- *  stress_madvise_mergeable()
- *	apply MADV_MERGEABLE for kernel same page merging
- */
-int stress_madvise_mergeable(void *addr, const size_t length)
-{
-#if defined(HAVE_MADVISE) &&	\
-    defined(MADV_MERGEABLE)
-	return madvise(addr, length, MADV_MERGEABLE);
-#else
-	(void)addr;
-	(void)length;
-	return 0;
-#endif
-}
-
-/*
  *  stress_madvise_collapse()
  *	where possible collapse mapping into THP
  */

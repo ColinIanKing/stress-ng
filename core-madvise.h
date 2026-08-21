@@ -58,9 +58,24 @@ static inline ALWAYS_INLINE int stress_madvise_random(void *addr, const size_t l
 #endif
 }
 
+/*
+ *  stress_madvise_mergeable()
+ *	apply MADV_MERGEABLE for kernel same page merging
+ */
+static inline ALWAYS_INLINE int stress_madvise_mergeable(void *addr, const size_t length)
+{
+#if defined(HAVE_MADVISE) &&	\
+    defined(MADV_MERGEABLE)
+	return madvise(addr, length, MADV_MERGEABLE);
+#else
+	(void)addr;
+	(void)length;
+	return 0;
+#endif
+}
+
 extern int stress_madvise_opts(void);
 extern int stress_madvise_randomize(void *addr, const size_t length);
-extern int stress_madvise_mergeable(void *addr, const size_t length);
 extern int stress_madvise_collapse(void *addr, size_t length);
 extern int stress_madvise_willneed(void *addr, const size_t length);
 extern int stress_madvise_nohugepage(void *addr, const size_t length);
