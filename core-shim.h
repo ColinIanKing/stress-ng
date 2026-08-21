@@ -609,6 +609,22 @@ static inline ALWAYS_INLINE int shim_mincore(void *addr, size_t length, unsigned
 }
 
 /*
+ *  shim_mlock()
+ *	wrapper for mlock(2) - lock memory
+ */
+static inline ALWAYS_INLINE int shim_mlock(const void *addr, size_t len)
+{
+#if defined(HAVE_MLOCK)
+	return mlock(shim_unconstify_ptr(addr), len);
+#elif defined(__NR_mlock) &&	\
+      defined(HAVE_SYSCALL)
+	return (int)syscall(__NR_mlock, addr, len);
+#else
+	return (int)shim_enosys(0, addr, len);
+#endif
+}
+
+/*
  *  shim_sched_yield()
  *  	wrapper for sched_yield(2) - yield the processor
  */
