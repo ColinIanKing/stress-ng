@@ -250,38 +250,9 @@ static void stress_tsc_check(
 #endif
 
 #if defined(HAVE_STRESS_TSC_CAPABILITY)
-/*
- *  Unrolled 32 times, no verify
- */
-#define TSCx32()	\
+
+#define RDTSCx8()	\
 do {			\
-	rdtsc();	\
-	rdtsc();	\
-	rdtsc();	\
-	rdtsc();	\
-	rdtsc();	\
-	rdtsc();	\
-	rdtsc();	\
-	rdtsc();	\
-			\
-	rdtsc();	\
-	rdtsc();	\
-	rdtsc();	\
-	rdtsc();	\
-	rdtsc();	\
-	rdtsc();	\
-	rdtsc();	\
-	rdtsc();	\
-			\
-	rdtsc();	\
-	rdtsc();	\
-	rdtsc();	\
-	rdtsc();	\
-	rdtsc();	\
-	rdtsc();	\
-	rdtsc();	\
-	rdtsc();	\
-			\
 	rdtsc();	\
 	rdtsc();	\
 	rdtsc();	\
@@ -293,36 +264,46 @@ do {			\
 } while (0)
 
 /*
+ *  Unrolled 32 times, no verify
+ */
+#define TSCx32()	\
+do {			\
+	RDTSCx8();	\
+	RDTSCx8();	\
+	RDTSCx8();	\
+	RDTSCx8();	\
+} while (0)
+
+/*
+ *  Unrolled 32 times, verify monotonically increasing at end
+ */
+#define __TSCx32_verify(args, tsc, old_tsc, ret)	\
+do {			\
+	RDTSCx8();	\
+	RDTSCx8();	\
+	RDTSCx8();	\
+	RDTSCx8();	\
+	rdtsc();	\
+	rdtsc();	\
+	rdtsc();	\
+	rdtsc();	\
+	rdtsc();	\
+	rdtsc();	\
+	rdtsc();	\
+	tsc = rdtsc();	\
+	stress_tsc_check(args, tsc, old_tsc, &ret);	\
+	old_tsc = tsc;	\
+} while (0)
+
+
+/*
  *  Unrolled 32 times, verify monotonically increasing at end
  */
 #define TSCx32_verify(args, tsc, old_tsc, ret)	\
 do {			\
-	rdtsc();	\
-	rdtsc();	\
-	rdtsc();	\
-	rdtsc();	\
-	rdtsc();	\
-	rdtsc();	\
-	rdtsc();	\
-	rdtsc();	\
-			\
-	rdtsc();	\
-	rdtsc();	\
-	rdtsc();	\
-	rdtsc();	\
-	rdtsc();	\
-	rdtsc();	\
-	rdtsc();	\
-	rdtsc();	\
-			\
-	rdtsc();	\
-	rdtsc();	\
-	rdtsc();	\
-	rdtsc();	\
-	rdtsc();	\
-	rdtsc();	\
-	rdtsc();	\
-	rdtsc();	\
+	RDTSCx8();	\
+	RDTSCx8();	\
+	RDTSCx8();	\
 			\
 	rdtsc();	\
 	rdtsc();	\
@@ -338,38 +319,9 @@ do {			\
 
 #if defined(HAVE_STRESS_TSC_CAPABILITY) &&	\
     defined(HAVE_ASM_X86_RDTSCP)
-/*
- *  Unrolled 32 times, no verify
- */
-#define TSCPx32()			\
+
+#define ASM_X86_RDTSCPx8()		\
 do {					\
-	stress_asm_x86_rdtscp();	\
-	stress_asm_x86_rdtscp();	\
-	stress_asm_x86_rdtscp();	\
-	stress_asm_x86_rdtscp();	\
-	stress_asm_x86_rdtscp();	\
-	stress_asm_x86_rdtscp();	\
-	stress_asm_x86_rdtscp();	\
-	stress_asm_x86_rdtscp();	\
-					\
-	stress_asm_x86_rdtscp();	\
-	stress_asm_x86_rdtscp();	\
-	stress_asm_x86_rdtscp();	\
-	stress_asm_x86_rdtscp();	\
-	stress_asm_x86_rdtscp();	\
-	stress_asm_x86_rdtscp();	\
-	stress_asm_x86_rdtscp();	\
-	stress_asm_x86_rdtscp();	\
-					\
-	stress_asm_x86_rdtscp();	\
-	stress_asm_x86_rdtscp();	\
-	stress_asm_x86_rdtscp();	\
-	stress_asm_x86_rdtscp();	\
-	stress_asm_x86_rdtscp();	\
-	stress_asm_x86_rdtscp();	\
-	stress_asm_x86_rdtscp();	\
-	stress_asm_x86_rdtscp();	\
-					\
 	stress_asm_x86_rdtscp();	\
 	stress_asm_x86_rdtscp();	\
 	stress_asm_x86_rdtscp();	\
@@ -381,36 +333,24 @@ do {					\
 } while (0)
 
 /*
+ *  Unrolled 32 times, no verify
+ */
+#define TSCPx32()			\
+do {					\
+	ASM_X86_RDTSCPx8();		\
+	ASM_X86_RDTSCPx8();		\
+	ASM_X86_RDTSCPx8();		\
+	ASM_X86_RDTSCPx8();		\
+} while (0)
+
+/*
  *  Unrolled 32 times, verify monotonically increasing at end
  */
 #define TSCPx32_verify(args, tsc, old_tsc, ret)	\
 do {					\
-	stress_asm_x86_rdtscp();	\
-	stress_asm_x86_rdtscp();	\
-	stress_asm_x86_rdtscp();	\
-	stress_asm_x86_rdtscp();	\
-	stress_asm_x86_rdtscp();	\
-	stress_asm_x86_rdtscp();	\
-	stress_asm_x86_rdtscp();	\
-	stress_asm_x86_rdtscp();	\
-					\
-	stress_asm_x86_rdtscp();	\
-	stress_asm_x86_rdtscp();	\
-	stress_asm_x86_rdtscp();	\
-	stress_asm_x86_rdtscp();	\
-	stress_asm_x86_rdtscp();	\
-	stress_asm_x86_rdtscp();	\
-	stress_asm_x86_rdtscp();	\
-	stress_asm_x86_rdtscp();	\
-					\
-	stress_asm_x86_rdtscp();	\
-	stress_asm_x86_rdtscp();	\
-	stress_asm_x86_rdtscp();	\
-	stress_asm_x86_rdtscp();	\
-	stress_asm_x86_rdtscp();	\
-	stress_asm_x86_rdtscp();	\
-	stress_asm_x86_rdtscp();	\
-	stress_asm_x86_rdtscp();	\
+	ASM_X86_RDTSCPx8();		\
+	ASM_X86_RDTSCPx8();		\
+	ASM_X86_RDTSCPx8();		\
 					\
 	stress_asm_x86_rdtscp();	\
 	stress_asm_x86_rdtscp();	\
@@ -428,95 +368,54 @@ do {					\
 #if defined(HAVE_STRESS_TSC_LFENCE)
 
 #define rdtsc_lfence()		\
-	do {			\
-		rdtsc();	\
-		lfence();	\
-	} while (0)
+do {				\
+	rdtsc();		\
+	lfence();		\
+} while (0)
+
+#define RDTSC_LFENCEx8()	\
+do {				\
+	rdtsc_lfence();		\
+	rdtsc_lfence();		\
+	rdtsc_lfence();		\
+	rdtsc_lfence();		\
+	rdtsc_lfence();		\
+	rdtsc_lfence();		\
+	rdtsc_lfence();		\
+	rdtsc_lfence();		\
+} while (0)
+
 
 /*
  *  Unrolled 32 times, no verify with lfence
  */
-#define TSCx32_lfence()	\
-do {			\
-	rdtsc_lfence();	\
-	rdtsc_lfence();	\
-	rdtsc_lfence();	\
-	rdtsc_lfence();	\
-	rdtsc_lfence();	\
-	rdtsc_lfence();	\
-	rdtsc_lfence();	\
-	rdtsc_lfence();	\
-			\
-	rdtsc_lfence();	\
-	rdtsc_lfence();	\
-	rdtsc_lfence();	\
-	rdtsc_lfence();	\
-	rdtsc_lfence();	\
-	rdtsc_lfence();	\
-	rdtsc_lfence();	\
-	rdtsc_lfence();	\
-			\
-	rdtsc_lfence();	\
-	rdtsc_lfence();	\
-	rdtsc_lfence();	\
-	rdtsc_lfence();	\
-	rdtsc_lfence();	\
-	rdtsc_lfence();	\
-	rdtsc_lfence();	\
-	rdtsc_lfence();	\
-			\
-	rdtsc_lfence();	\
-	rdtsc_lfence();	\
-	rdtsc_lfence();	\
-	rdtsc_lfence();	\
-	rdtsc_lfence();	\
-	rdtsc_lfence();	\
-	rdtsc_lfence();	\
-	rdtsc_lfence();	\
+#define TSCx32_lfence()		\
+do {				\
+	RDTSC_LFENCEx8();	\
+	RDTSC_LFENCEx8();	\
+	RDTSC_LFENCEx8();	\
+	RDTSC_LFENCEx8();	\
 } while (0)
 
 /*
  *  Unrolled 32 times, verify monotonically increasing at end, with lfence
  */
 #define TSCx32_lfence_verify(args, tsc, old_tsc, ret)	\
-do {			\
-	rdtsc_lfence();	\
-	rdtsc_lfence();	\
-	rdtsc_lfence();	\
-	rdtsc_lfence();	\
-	rdtsc_lfence();	\
-	rdtsc_lfence();	\
-	rdtsc_lfence();	\
-	rdtsc_lfence();	\
-			\
-	rdtsc_lfence();	\
-	rdtsc_lfence();	\
-	rdtsc_lfence();	\
-	rdtsc_lfence();	\
-	rdtsc_lfence();	\
-	rdtsc_lfence();	\
-	rdtsc_lfence();	\
-	rdtsc_lfence();	\
-			\
-	rdtsc_lfence();	\
-	rdtsc_lfence();	\
-	rdtsc_lfence();	\
-	rdtsc_lfence();	\
-	rdtsc_lfence();	\
-	rdtsc_lfence();	\
-	rdtsc_lfence();	\
-	rdtsc_lfence();	\
-			\
-	rdtsc_lfence();	\
-	rdtsc_lfence();	\
-	rdtsc_lfence();	\
-	rdtsc_lfence();	\
-	rdtsc_lfence();	\
-	rdtsc_lfence();	\
-	rdtsc_lfence();	\
-	tsc = rdtsc();	\
+do {				\
+	RDTSC_LFENCEx8();	\
+	RDTSC_LFENCEx8();	\
+	RDTSC_LFENCEx8();	\
+				\
+	rdtsc_lfence();		\
+	rdtsc_lfence();		\
+	rdtsc_lfence();		\
+	rdtsc_lfence();		\
+	rdtsc_lfence();		\
+	rdtsc_lfence();		\
+	rdtsc_lfence();		\
+	tsc = rdtsc();		\
 	stress_tsc_check(args, tsc, old_tsc, &ret);	\
-	old_tsc = tsc;	\
+	old_tsc = tsc;		\
 } while (0)
 
 #endif
