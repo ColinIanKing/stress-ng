@@ -378,22 +378,6 @@ int stress_madvise_randomize(void *addr, const size_t length)
 }
 
 /*
- *  stress_madvise_collapse()
- *	where possible collapse mapping into THP
- */
-int stress_madvise_collapse(void *addr, size_t length)
-{
-#if defined(HAVE_MADVISE) &&	\
-    defined(MADV_COLLAPSE)
-	return madvise(addr, length, MADV_COLLAPSE);
-#else
-	(void)addr;
-	(void)length;
-	return 0;
-#endif
-}
-
-/*
  *  stress_madvise_willneed()
  *	where possible fetch pages early
  */

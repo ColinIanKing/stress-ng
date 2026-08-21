@@ -41,6 +41,22 @@ static inline ALWAYS_INLINE int stress_advice_check(const int advice)
 }
 
 /*
+ *  stress_madvise_collapse()
+ *	where possible collapse mapping into THP
+ */
+static inline ALWAYS_INLINE int stress_madvise_collapse(void *addr, size_t length)
+{
+#if defined(HAVE_MADVISE) &&	\
+    defined(MADV_COLLAPSE)
+	return madvise(addr, length, MADV_COLLAPSE);
+#else
+	(void)addr;
+	(void)length;
+	return 0;
+#endif
+}
+
+/*
  *  stress_madvise_random()
  *	apply MADV_RANDOM for page read order hint,
  *	turns into a no-op if we don't have the
@@ -76,7 +92,6 @@ static inline ALWAYS_INLINE int stress_madvise_mergeable(void *addr, const size_
 
 extern int stress_madvise_opts(void);
 extern int stress_madvise_randomize(void *addr, const size_t length);
-extern int stress_madvise_collapse(void *addr, size_t length);
 extern int stress_madvise_willneed(void *addr, const size_t length);
 extern int stress_madvise_nohugepage(void *addr, const size_t length);
 extern void stress_madvise_pid_all_pages(const pid_t pid, const int *advice, const size_t n_advice);
