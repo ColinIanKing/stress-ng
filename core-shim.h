@@ -587,6 +587,28 @@ static inline ALWAYS_INLINE void * shim_unvolatile_ptr(void volatile * ptr)
 }
 
 /*
+ *  shim_mincore()
+ *	wrapper for mincore(2) -  determine whether pages are resident in memory
+ */
+static inline ALWAYS_INLINE int shim_mincore(void *addr, size_t length, unsigned char *vec)
+{
+#if defined(HAVE_MINCORE) &&	\
+    NEED_GLIBC(2,2,0)
+#if defined(__FreeBSD__) || defined(__OpenBSD__) || \
+    defined(__NetBSD__) || defined(__sun__)
+	return mincore(addr, length, (char *)vec);
+#else
+	return mincore(addr, length, vec);
+#endif
+#elif defined(__NR_mincore) &&	\
+      defined(HAVE_SYSCALL)
+	return (int)syscall(__NR_mincore, addr, length, vec);
+#else
+	return (int)shim_enosys(0, addr, length, vec);
+#endif
+}
+
+/*
  *  shim_sched_yield()
  *  	wrapper for sched_yield(2) - yield the processor
  */
