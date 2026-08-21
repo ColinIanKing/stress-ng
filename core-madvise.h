@@ -22,7 +22,24 @@
 extern const int madvise_options[];
 extern const size_t madvise_options_elements;
 
-extern int stress_advice_check(const int advice);
+/*
+ *  stress_advice_check()
+ *	return MADV_NORMAL if advice should be ignored
+ *	otherwise return advice
+ */
+static inline ALWAYS_INLINE int stress_advice_check(const int advice)
+{
+	switch (advice) {
+#if defined(MADV_GUARD_INSTALL)
+	case MADV_GUARD_INSTALL:
+		return MADV_NORMAL;
+#endif
+	default:
+		break;
+	}
+	return advice;
+}
+
 extern int stress_madvise_opts(void);
 extern int stress_madvise_randomize(void *addr, const size_t length);
 extern int stress_madvise_random(void *addr, const size_t length);

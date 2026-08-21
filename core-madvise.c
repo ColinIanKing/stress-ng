@@ -250,24 +250,6 @@ static const stress_madvise_opts_t madvise_random_options[] = {
 #endif
 
 /*
- *  stress_advice_check()
- *	return MADV_NORMAL if advice should be ignored
- *	otherwise retuen advice
- */
-int stress_advice_check(const int advice)
-{
-	switch (advice) {
-#if defined(MADV_GUARD_INSTALL)
-	case MADV_GUARD_INSTALL:
-		return MADV_NORMAL;
-#endif
-	default:
-		break;
-	}
-	return advice;
-}
-
-/*
  *  stress_madvise_opts_show()
  *	show the supported madvise advice options
  */
