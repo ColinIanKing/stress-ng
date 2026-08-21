@@ -159,23 +159,6 @@ static inline long int shim_enosys(long sysnr, ...)
 }
 
 /*
- *  shim_sched_yield()
- *  	wrapper for sched_yield(2) - yield the processor
- */
-int shim_sched_yield(void)
-{
-#if defined(HAVE_SCHED_YIELD)
-	return sched_yield();
-#elif defined(__NR_sched_yield) &&	\
-      defined(HAVE_SYSCALL)
-	return syscall(__NR_sched_yield);
-#else
-	UNEXPECTED
-	return sleep(0);
-#endif
-}
-
-/*
  *  shim_cacheflush()
  *	wrapper for cacheflush(2), flush contents of
  *	instruction and/or data cache

@@ -586,6 +586,22 @@ static inline ALWAYS_INLINE void * shim_unvolatile_ptr(void volatile * ptr)
 	return (void *)(uintptr_t)ptr;
 }
 
+/*
+ *  shim_sched_yield()
+ *  	wrapper for sched_yield(2) - yield the processor
+ */
+static inline ALWAYS_INLINE int shim_sched_yield(void)
+{
+#if defined(HAVE_SCHED_YIELD)
+	return sched_yield();
+#elif defined(__NR_sched_yield) &&	\
+      defined(HAVE_SYSCALL)
+	return syscall(__NR_sched_yield);
+#else
+	return sleep(0);
+#endif
+}
+
 extern int shim_sched_yield(void);
 extern int shim_cacheflush(char *addr, int nbytes, int cache);
 extern ssize_t shim_copy_file_range(int fd_in, shim_off64_t *off_in, int fd_out,
