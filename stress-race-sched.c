@@ -20,18 +20,10 @@
 #include "core-affinity.h"
 #include "core-builtin.h"
 #include "core-out-of-memory.h"
+#include "core-sched.h"
 
 #include <math.h>
 #include <sched.h>
-
-#if defined(HAVE_SCHED_SETAFFINITY) &&					     \
-    (defined(_POSIX_PRIORITY_SCHEDULING) || defined(__linux__)) &&	     \
-    (defined(SCHED_OTHER) || defined(SCHED_BATCH) || defined(SCHED_IDLE)) && \
-    !defined(__OpenBSD__) &&						     \
-    !defined(__minix__) &&						     \
-    !defined(__APPLE__)
-#define HAVE_SCHEDULING
-#endif
 
 #define DEFAULT_CHILDREN		(8)
 

@@ -20,6 +20,7 @@
 #include "core-builtin.h"
 #include "core-killpid.h"
 #include "core-mmap.h"
+#include "core-sched.h"
 
 #include <sched.h>
 
@@ -30,14 +31,6 @@ static const stress_help_t help[] = {
 };
 
 #if defined(HAVE_NICE)
-
-#if (defined(_POSIX_PRIORITY_SCHEDULING) || defined(__linux__)) &&	     \
-    (defined(SCHED_OTHER) || defined(SCHED_BATCH) || defined(SCHED_IDLE)) && \
-     !defined(__OpenBSD__) &&						     \
-     !defined(__minix__) &&						     \
-     !defined(__APPLE__)
-#define HAVE_SCHEDULING
-#endif
 
 static void MLOCKED_TEXT stress_resched_usr1_handler(int sig)
 {
