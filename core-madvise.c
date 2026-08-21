@@ -378,22 +378,6 @@ int stress_madvise_randomize(void *addr, const size_t length)
 }
 
 /*
- *  stress_madvise_nohugepage()
- *	apply MADV_NOHUGEPAGE to force as many PTEs as possible
- */
-int stress_madvise_nohugepage(void *addr, const size_t length)
-{
-#if defined(HAVE_MADVISE) && \
-    defined(MADV_NOHUGEPAGE)
-	return madvise(addr, length, MADV_NOHUGEPAGE);
-#else
-	(void)addr;
-	(void)length;
-	return 0;
-#endif
-}
-
-/*
  *  stress_madvise_pid_all_pages()
  *	apply madvise advise to all pages in a progress
  */
