@@ -397,15 +397,7 @@ die_close:
 	(void)close(fd);
 die:
 	stress_proc_state_set(args->name, STRESS_STATE_DEINIT);
-#if defined(AF_UNIX) &&		\
-    defined(HAVE_SYS_UN_H) &&	\
-    defined(HAVE_SOCKADDR_UN)
-	if (udp_domain == AF_UNIX) {
-		const struct sockaddr_un *addr_un = (struct sockaddr_un *)&addr;
-
-		(void)shim_unlink(addr_un->sun_path);
-	}
-#endif
+	stress_net_af_unix_unlink(udp_domain, &addr);
 	return rc;
 }
 

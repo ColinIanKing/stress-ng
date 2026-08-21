@@ -936,16 +936,7 @@ retry:
 			metric, STRESS_METRIC_GEOMETRIC_MEAN);
 	} while (stress_continue(args));
 
-#if defined(AF_UNIX) &&		\
-    defined(HAVE_SYS_UN_H) &&	\
-    defined(HAVE_SOCKADDR_UN)
-	if (sock_domain == AF_UNIX) {
-		const struct sockaddr_un *addr_un = (struct sockaddr_un *)&addr;
-
-		(void)shim_unlink(addr_un->sun_path);
-	}
-#endif
-
+	stress_net_af_unix_unlink(sock_domain, &addr);
 	rc = EXIT_SUCCESS;
 free_controls:
 	free(ctrls);
@@ -1355,15 +1346,8 @@ die_close:
 die:
 	if (ptr != MAP_FAILED)
 		(void)munmap(ptr, page_size);
-#if defined(AF_UNIX) &&		\
-    defined(HAVE_SYS_UN_H) &&	\
-    defined(HAVE_SOCKADDR_UN)
-	if (sock_domain == AF_UNIX) {
-		const struct sockaddr_un *addr_un = (struct sockaddr_un *)&addr;
 
-		(void)shim_unlink(addr_un->sun_path);
-	}
-#endif
+	stress_net_af_unix_unlink(sock_domain, &addr);
 	if (pid)
 		(void)stress_kill_pid_wait(pid, NULL);
 	return rc;

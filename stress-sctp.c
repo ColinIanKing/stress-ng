@@ -467,17 +467,7 @@ retry:
 		(void)close(fd);
 	} while (stress_continue(args));
 
-#if defined(AF_UNIX) &&		\
-    defined(HAVE_SYS_UN_H) &&	\
-    defined(HAVE_SOCKADDR_UN)
-	if (sctp_domain == AF_UNIX) {
-		const struct sockaddr_un *addr_un = (struct sockaddr_un *)&addr;
-
-		(void)shim_unlink(addr_un->sun_path);
-	}
-#else
-	UNEXPECTED
-#endif
+	stress_net_af_unix_unlink(sctp_domain, &addr);
 	return rc;
 }
 
@@ -605,17 +595,7 @@ static int OPTIMIZE3 stress_sctp_server(
 die_close:
 	(void)close(fd);
 die:
-#if defined(AF_UNIX) &&		\
-    defined(HAVE_SYS_UN_H) &&	\
-    defined(HAVE_SOCKADDR_UN)
-	if (sctp_domain == AF_UNIX) {
-		const struct sockaddr_un *addr_un = (struct sockaddr_un *)&addr;
-
-		(void)shim_unlink(addr_un->sun_path);
-	}
-#else
-	UNEXPECTED
-#endif
+	stress_net_af_unix_unlink(sctp_domain, &addr);
 	return rc;
 }
 

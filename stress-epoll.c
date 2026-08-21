@@ -647,14 +647,8 @@ retry:
 		(void)shim_sched_yield();
 	} while (stress_continue(args));
 
-#if defined(AF_UNIX) &&		\
-    defined(HAVE_SOCKADDR_UN)
-	if (epoll_domain == AF_UNIX) {
-		const struct sockaddr_un *addr_un = (struct sockaddr_un *)&addr;
+	stress_net_af_unix_unlink(epoll_domain, &addr);
 
-		(void)shim_unlink(addr_un->sun_path);
-	}
-#endif
 	if (connect_timeouts)
 		pr_dbg("%s: %" PRIu64 " x 0.25 second "
 			"connect timeouts, connection table full "

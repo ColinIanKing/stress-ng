@@ -508,3 +508,23 @@ int stress_net_port_wraparound(const int port)
 
 	return MIN_PORT + (((port - MIN_PORT) % port_range) + port_range) % port_range;
 }
+
+/*
+ *  stress_net_af_unix_unlink()
+ *  	unlink an AF_UNIX file
+ */
+void stress_net_af_unix_unlink(const int domain, struct sockaddr_storage *addr)
+{
+#if defined(AF_UNIX) &&		\
+    defined(HAVE_SYS_UN_H) &&	\
+    defined(HAVE_SOCKADDR_UN)
+	if (domain == AF_UNIX) {
+		const struct sockaddr_un *addr_un = (struct sockaddr_un *)addr;
+
+		(void)shim_unlink(addr_un->sun_path);
+	}
+#else
+	(void)domain;
+	(void)addr;
+#endif
+}

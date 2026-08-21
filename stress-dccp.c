@@ -385,15 +385,8 @@ die_close:
 	(void)close(fd);
 die:
 	t2 = stress_time_now();
-#if defined(AF_UNIX) &&		\
-    defined(HAVE_SYS_UN_H) &&	\
-    defined(HAVE_SOCKADDR_UN)
-	if (dccp_domain == AF_UNIX) {
-		const struct sockaddr_un *addr_un = (struct sockaddr_un *)&addr;
 
-		(void)shim_unlink(addr_un->sun_path);
-	}
-#endif
+	stress_net_af_unix_unlink(dccp_domain, &addr);
 	pr_dbg("%s: %" PRIu64 " messages sent\n", args->name, msgs);
 
 	dt = t2 - t1;
