@@ -90,9 +90,24 @@ static inline ALWAYS_INLINE int stress_madvise_mergeable(void *addr, const size_
 #endif
 }
 
+/*
+ *  stress_madvise_willneed()
+ *	where possible fetch pages early
+ */
+static inline ALWAYS_INLINE int stress_madvise_willneed(void *addr, size_t length)
+{
+#if defined(HAVE_MADVISE) &&	\
+    defined(MADV_WILLNEED)
+	return madvise(addr, length, MADV_WILLNEED);
+#else
+	(void)addr;
+	(void)length;
+	return 0;
+#endif
+}
+
 extern int stress_madvise_opts(void);
 extern int stress_madvise_randomize(void *addr, const size_t length);
-extern int stress_madvise_willneed(void *addr, const size_t length);
 extern int stress_madvise_nohugepage(void *addr, const size_t length);
 extern void stress_madvise_pid_all_pages(const pid_t pid, const int *advice, const size_t n_advice);
 

@@ -378,22 +378,6 @@ int stress_madvise_randomize(void *addr, const size_t length)
 }
 
 /*
- *  stress_madvise_willneed()
- *	where possible fetch pages early
- */
-int stress_madvise_willneed(void *addr, size_t length)
-{
-#if defined(HAVE_MADVISE) &&	\
-    defined(MADV_WILLNEED)
-	return madvise(addr, length, MADV_WILLNEED);
-#else
-	(void)addr;
-	(void)length;
-	return 0;
-#endif
-}
-
-/*
  *  stress_madvise_nohugepage()
  *	apply MADV_NOHUGEPAGE to force as many PTEs as possible
  */
