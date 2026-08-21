@@ -40,9 +40,26 @@ static inline ALWAYS_INLINE int stress_advice_check(const int advice)
 	return advice;
 }
 
+/*
+ *  stress_madvise_random()
+ *	apply MADV_RANDOM for page read order hint,
+ *	turns into a no-op if we don't have the
+ *	required madvise support
+ */
+static inline ALWAYS_INLINE int stress_madvise_random(void *addr, const size_t length)
+{
+#if defined(HAVE_MADVISE) &&	\
+    defined(MADV_RANDOM)
+	return madvise(addr, length, MADV_RANDOM);
+#else
+	(void)addr;
+	(void)length;
+	return 0;
+#endif
+}
+
 extern int stress_madvise_opts(void);
 extern int stress_madvise_randomize(void *addr, const size_t length);
-extern int stress_madvise_random(void *addr, const size_t length);
 extern int stress_madvise_mergeable(void *addr, const size_t length);
 extern int stress_madvise_collapse(void *addr, size_t length);
 extern int stress_madvise_willneed(void *addr, const size_t length);
