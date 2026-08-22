@@ -39,6 +39,28 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		  NULL }
 };
 
+typedef struct stress_intmath_data {
+#if defined(HAVE_INT128_T)
+	__int128_t result128[2];
+#endif
+#if defined(HAVE_INT_FAST64_T)
+	int_fast64_t resultfast64[2];
+#endif
+#if defined(HAVE_INT_FAST32_T)
+	int_fast32_t resultfast32[2];
+#endif
+#if defined(HAVE_INT_FAST16_T)
+	int_fast16_t resultfast16[2];
+#endif
+#if defined(HAVE_INT_FAST8_T)
+	int_fast8_t resultfast8[2];
+#endif
+	int64_t result64[2];
+	int32_t result32[2];
+	int16_t result16[2];
+	int8_t result8[2];
+} stress_intmath_data_t;
+
 typedef struct {
 #if defined(HAVE_INT128_T)
 	__int128_t init[4];
@@ -50,111 +72,11 @@ typedef struct {
 #else
 	int64_t initfast[4];
 #endif
-	struct {
-#if defined(HAVE_INT128_T)
-		__int128_t result128[2];
-#endif
-#if defined(HAVE_INT_FAST64_T)
-		int_fast64_t resultfast64[2];
-#endif
-#if defined(HAVE_INT_FAST32_T)
-		int_fast32_t resultfast32[2];
-#endif
-#if defined(HAVE_INT_FAST16_T)
-		int_fast16_t resultfast16[2];
-#endif
-#if defined(HAVE_INT_FAST8_T)
-		int_fast8_t resultfast8[2];
-#endif
-		int64_t result64[2];
-		int32_t result32[2];
-		int16_t result16[2];
-		int8_t result8[2];
-	} add ALIGN64;
-	struct {
-#if defined(HAVE_INT128_T)
-		__int128_t result128[2];
-#endif
-#if defined(HAVE_INT_FAST64_T)
-		int_fast64_t resultfast64[2];
-#endif
-#if defined(HAVE_INT_FAST32_T)
-		int_fast32_t resultfast32[2];
-#endif
-#if defined(HAVE_INT_FAST16_T)
-		int_fast16_t resultfast16[2];
-#endif
-#if defined(HAVE_INT_FAST8_T)
-		int_fast8_t resultfast8[2];
-#endif
-		int64_t result64[2];
-		int32_t result32[2];
-		int16_t result16[2];
-		int8_t result8[2];
-	} sub ALIGN64;
-	struct {
-#if defined(HAVE_INT128_T)
-		__int128_t result128[2];
-#endif
-#if defined(HAVE_INT_FAST64_T)
-		int_fast64_t resultfast64[2];
-#endif
-#if defined(HAVE_INT_FAST32_T)
-		int_fast32_t resultfast32[2];
-#endif
-#if defined(HAVE_INT_FAST16_T)
-		int_fast16_t resultfast16[2];
-#endif
-#if defined(HAVE_INT_FAST8_T)
-		int_fast8_t resultfast8[2];
-#endif
-		int64_t result64[2];
-		int32_t result32[2];
-		int16_t result16[2];
-		int8_t result8[2];
-	} mul ALIGN64;
-	struct {
-#if defined(HAVE_INT128_T)
-		__int128_t result128[2];
-#endif
-#if defined(HAVE_INT_FAST64_T)
-		int_fast64_t resultfast64[2];
-#endif
-#if defined(HAVE_INT_FAST32_T)
-		int_fast32_t resultfast32[2];
-#endif
-#if defined(HAVE_INT_FAST16_T)
-		int_fast16_t resultfast16[2];
-#endif
-#if defined(HAVE_INT_FAST8_T)
-		int_fast8_t resultfast8[2];
-#endif
-		int64_t result64[2];
-		int32_t result32[2];
-		int16_t result16[2];
-		int8_t result8[2];
-	} div ALIGN64;
-	struct {
-#if defined(HAVE_INT128_T)
-		__int128_t result128[2];
-#endif
-#if defined(HAVE_INT_FAST64_T)
-		int_fast64_t resultfast64[2];
-#endif
-#if defined(HAVE_INT_FAST32_T)
-		int_fast32_t resultfast32[2];
-#endif
-#if defined(HAVE_INT_FAST16_T)
-		int_fast16_t resultfast16[2];
-#endif
-#if defined(HAVE_INT_FAST8_T)
-		int_fast8_t resultfast8[2];
-#endif
-		int64_t result64[2];
-		int32_t result32[2];
-		int16_t result16[2];
-		int8_t result8[2];
-	} mod ALIGN64;
+	stress_intmath_data_t add ALIGN64;
+	stress_intmath_data_t sub ALIGN64;
+	stress_intmath_data_t mul ALIGN64;
+	stress_intmath_data_t div ALIGN64;
+	stress_intmath_data_t mod ALIGN64;
 } stress_intmath_vals_t;
 
 typedef bool (*intmath_func_t)(stress_intmath_vals_t *val, const int idx, const bool verify, double *duration);
